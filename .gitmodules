@@ -1,0 +1,28 @@
+[submodule "dependencies/cipster"]
+	path = dependencies/cipster
+	url = https://github.com/liftoff-sr/CIPster.git
+	ignore = dirty
+[submodule "dependencies/asio"]
+	path = dependencies/asio
+	url = https://github.com/chriskohlhoff/asio.git
+	ignore = dirty
+[submodule "dependencies/glfw"]
+	path = dependencies/glfw
+	url = https://github.com/glfw/glfw.git
+	ignore = dirty
+[submodule "dependencies/glm"]
+	path = dependencies/glm
+	url = https://github.com/g-truc/glm.git
+	ignore = dirty
+[submodule "dependencies/dearimgui"]
+	path = dependencies/dearimgui
+	url = https://github.com/ocornut/imgui.git
+	ignore = dirty
+[submodule "dependencies/tinyxml2"]
+	path = dependencies/tinyxml2
+	url = https://github.com/leethomason/tinyxml2.git
+	ignore = dirty
+[submodule "dependencies/implot"]
+	path = dependencies/implot
+	url = https://github.com/Guistac/implot.git
+	ignore = dirty
