@@ -1,8 +1,4 @@
 
-[submodule "dependencies/cipster"]
-	path = dependencies/cipster
-	url = https://github.com/liftoff-sr/CIPster.git
-	ignore = dirty
 [submodule "dependencies/asio"]
 	path = dependencies/asio
 	url = https://github.com/chriskohlhoff/asio.git
