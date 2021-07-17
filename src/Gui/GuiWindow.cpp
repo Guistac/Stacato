@@ -28,7 +28,7 @@ ImFont* GuiWindow::robotoRegular42;
 
 void GuiWindow::open() {
 	glfwInit();
-	window = glfwCreateWindow(1920, 1080, "Time Of Our Singing", nullptr, nullptr);
+	window = glfwCreateWindow(1920, 1080, "FieldbusDev", nullptr, nullptr);
 	glfwSetWindowSizeCallback(window, onResize);
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
@@ -71,15 +71,15 @@ void GuiWindow::onInit() {
 	float scaleTuning = 1.25;
 
 	float scale = xScale * scaleTuning;
-	robotoRegular15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Regular.ttf", 15.0 * scale);
-	robotoBold15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Bold.ttf", 15.0 * scale);
-	robotoLight15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Light.ttf", 15.0 * scale);
-	robotoRegular20 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Regular.ttf", 20.0 * scale);
-	robotoBold20 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Bold.ttf", 20.0 * scale);
-	robotoLight20 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Light.ttf", 20.0 * scale);
-	robotoRegular42 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Regular.ttf", 42.0 * scale);
-	robotoBold42 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Bold.ttf", 42.0 * scale);
-	robotoLight42 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Light.ttf", 42.0 * scale);
+	robotoRegular15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Regular.ttf", 15.0f * scale);
+	robotoBold15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Bold.ttf", 15.0f * scale);
+	robotoLight15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Light.ttf", 15.0f * scale);
+	robotoRegular20 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Regular.ttf", 20.0f * scale);
+	robotoBold20 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Bold.ttf", 20.0f * scale);
+	robotoLight20 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Light.ttf", 20.0f * scale);
+	robotoRegular42 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Regular.ttf", 42.0f * scale);
+	robotoBold42 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Bold.ttf", 42.0f * scale);
+	robotoLight42 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Light.ttf", 42.0f * scale);
 	ImGui::GetStyle().ScaleAllSizes(scale);
 
 	ImGui::StyleColorsDark();

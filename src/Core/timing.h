@@ -15,6 +15,7 @@ public:
 		std::chrono::duration delay = std::chrono::system_clock::now() - programStart;
 		std::chrono::nanoseconds delayNanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(delay);
 		return (double)delayNanoseconds.count() / 1000000000.0L;
+		return 0;
 	}
 
 };

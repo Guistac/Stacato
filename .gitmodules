@@ -23,3 +23,11 @@
 	path = dependencies/implot
 	url = https://github.com/Guistac/implot.git
 	ignore = dirty
+[submodule "dependencies/eipscanner"]
+	path = dependencies/eipscanner
+	url = https://github.com/Guistac/EIPScanner.git
+	ignore = dirty
+[submodule "dependencies/soem"]
+	path = dependencies/soem
+	url = https://github.com/Guistac/SOEM.git
+	ignore = dirty

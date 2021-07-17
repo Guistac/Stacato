@@ -1,6 +1,6 @@
 --=================================================================================================================
 
-workspace "EthernetIPdev"
+workspace "FieldbusDev"
 	architecture "x64"
 
 	configurations{
@@ -12,17 +12,16 @@ workspace "EthernetIPdev"
 		"x64"
 	}
 
-	startproject "EthernetIPdev"
+	startproject "FieldbusDev"
 
 --=================================================================================================================
 
-project "EthernetIPdev"
+project "FieldbusDev"
 	location "" --directory of the project
 	kind "consoleApp" --executable file
 	language "C++"
-	staticruntime "On"
 	cppdialect "C++17"
-	
+
 	pchheader "pch.h"
 	pchsource "%{prj.location}/src/Core/pch.cpp"
 
@@ -40,16 +39,20 @@ project "EthernetIPdev"
 		"%{wks.location}/src",
 		"%{wks.location}/src/Core",
 		"%{wks.location}/dependencies/oscpp/include",
-		"%{wks.location}/dependencies/asio/asio/include",
 		"%{wks.location}/dependencies/glm/",
 		"%{wks.location}/dependencies/glad/include",
 		"%{wks.location}/dependencies/glfw/include",
 		"%{wks.location}/dependencies/dearimgui/",
 		"%{wks.location}/dependencies/implot/",
-		"%{wks.location}/dependencies/tinyxml2/"
+		"%{wks.location}/dependencies/tinyxml2/",
+		"%{wks.location}/dependencies/eipscanner/src/",
+		"%{wks.location}/dependencies/asio/asio/include/"
 	}
 
 	links{
+		"Ws2_32.lib", --needed for EIPScanner
+		"EIPScanner",
+		"SOEM",
 		"glad",
 		"glfw",
 		"dearimgui",
@@ -77,6 +80,98 @@ project "EthernetIPdev"
 		defines {}
 		optimize "On"
 
+		
+--=================================================================================================================
+
+project "EIPScanner"
+location "dependencies/eipscanner"
+kind "StaticLib"
+language "C++"
+
+targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
+objdir ("%{wks.location}/bin/obj");
+
+files{
+	"%{prj.location}/src/*.h",
+	"%{prj.location}/src/*.cpp",
+	"%{prj.location}/src/cip/*.h",
+	"%{prj.location}/src/cip/*.cpp",
+	"%{prj.location}/src/eip/*.h",
+	"%{prj.location}/src/eip/*.cpp",
+	"%{prj.location}/src/fileObject/*.h",
+	"%{prj.location}/src/fileObject/*.cpp",
+	"%{prj.location}/src/sockets/*.h",
+	"%{prj.location}/src/sockets/*.cpp",
+	"%{prj.location}/src/socket/*.h",
+	"%{prj.location}/src/socket/*.cpp",
+	"%{prj.location}/src/utils/*.h",
+	"%{prj.location}/src/utils/*.cpp",
+}
+
+includedirs{
+	"%{prj.location}/src"
+}
+
+filter "system:windows"
+	systemversion "latest"
+
+filter "configurations:Debug"
+	runtime "Debug"
+	symbols "on"
+
+filter "configurations:Release"
+	runtime "Release"
+	optimize "on"
+
+--=================================================================================================================
+
+project "SOEM"
+location "dependencies/soem"
+kind "StaticLib"
+language "C"
+
+targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
+objdir ("%{wks.location}/bin/obj");
+
+files{
+	"%{prj.location}/soem/*.h",
+	"%{prj.location}/soem/*.c",
+	"%{prj.location}/osal/osal.h"
+}
+
+includedirs{
+	"%{prj.location}/soem",
+	"%{prj.location}/osal",
+}
+
+defines{
+	"_CRT_SECURE_NO_WARNINGS"
+}
+
+filter "system:windows"
+	systemversion "latest"
+	files{
+		"%{prj.location}/oshw/win32/*.h",
+		"%{prj.location}/oshw/win32/*.c",
+		"%{prj.location}/osal/win32/*.h",
+		"%{prj.location}/osal/win32/*.c"
+	}
+	includedirs{
+		"%{prj.location}/oshw/win32/wpcap/Include",
+		"%{prj.location}/osal/win32",
+		"%{prj.location}/oshw/win32"
+	}
+	defines{
+		"WIN32"
+	}
+
+filter "configurations:Debug"
+	runtime "Debug"
+	symbols "on"
+
+filter "configurations:Release"
+	runtime "Release"
+	optimize "on"
 
 
 --=================================================================================================================
@@ -85,7 +180,6 @@ project "glad"
 	location "dependencies/glad"
 	kind "StaticLib"
 	language "C"
-	staticruntime "On"
 
 	targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
 	objdir ("%{wks.location}/bin/obj");
@@ -95,7 +189,6 @@ project "glad"
 		"%{prj.location}/include/KHR/khrplatform.h",
 		"%{prj.location}/src/glad.c"
 	}
-
 		
 	includedirs{
 		"%{prj.location}/include"
@@ -120,7 +213,6 @@ project "glfw"
 	location "dependencies/glfw"
 	kind "StaticLib"
 	language "C"
-	staticruntime "On"
 
 	targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
 	objdir ("%{wks.location}/bin/obj");
@@ -172,7 +264,6 @@ project "dearimgui"
 location "dependencies/dearimgui"
 kind "StaticLib"
 language "C++"
-staticruntime "On"
 
 targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
 objdir ("%{wks.location}/bin/obj");
@@ -212,7 +303,6 @@ project "implot"
 location "dependencies/implot"
 kind "StaticLib"
 language "C++"
-staticruntime "On"
 
 targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
 objdir ("%{wks.location}/bin/obj");
@@ -248,7 +338,6 @@ project "tinyxml2"
 location "dependencies/tinyxml2"
 kind "StaticLib"
 language "C++"
-staticruntime "On"
 
 targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
 objdir ("%{wks.location}/bin/obj");
@@ -272,3 +361,6 @@ filter "configurations:Debug"
 filter "configurations:Release"
 	runtime "Release"
 	optimize "on"
+
+
+

@@ -16,4 +16,3 @@ private:
 	static asio::io_context io_context;
 	static std::thread io_context_handler;
 };
-
