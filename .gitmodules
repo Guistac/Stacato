@@ -30,4 +30,3 @@
 [submodule "dependencies/soem"]
 	path = dependencies/soem
 	url = https://github.com/Guistac/SOEM.git
-	ignore = dirty

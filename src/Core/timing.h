@@ -1,7 +1,9 @@
 #pragma once
 
-#include <chrono>
 
+//#include <chrono>
+
+/*
 class Timing {
 public:
 
@@ -19,3 +21,4 @@ public:
 	}
 
 };
+*/

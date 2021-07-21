@@ -1,4 +1,3 @@
-#include <pch.h>
 #include "GuiWindow.h"
 
 #include <glad/glad.h>

@@ -22,9 +22,6 @@ project "FieldbusDev"
 	language "C++"
 	cppdialect "C++17"
 
-	pchheader "pch.h"
-	pchsource "%{prj.location}/src/Core/pch.cpp"
-
 	targetdir "%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}"
 	objdir "%{wks.location}/bin/obj"
 
@@ -46,11 +43,15 @@ project "FieldbusDev"
 		"%{wks.location}/dependencies/implot/",
 		"%{wks.location}/dependencies/tinyxml2/",
 		"%{wks.location}/dependencies/eipscanner/src/",
+		"%{wks.location}/dependencies/soem/soem",
+		"%{wks.location}/dependencies/soem/osal",
 		"%{wks.location}/dependencies/asio/asio/include/"
 	}
 
 	links{
-		"Ws2_32.lib", --needed for EIPScanner
+		"Winmm.lib",
+		"%{wks.location}/dependencies/soem/oshw/win32/wpcap/Lib/x64/wpcap.lib",
+		"Ws2_32.lib",
 		"EIPScanner",
 		"SOEM",
 		"glad",
@@ -68,7 +69,14 @@ project "FieldbusDev"
 	filter "system:windows"
 		systemversion "latest"
 		defines{
+			"WIN32",
+			"_WINDOWS",
 			"_WIN32_WINNT=0x0601"
+		}
+		includedirs{
+			"%{wks.location}/dependencies/soem/oshw/win32/wpcap/Include",
+			"%{wks.location}/dependencies/soem/osal/win32",
+			"%{wks.location}/dependencies/soem/oshw/win32"
 		}
 		
 	filter "configurations:Debug"
@@ -79,49 +87,6 @@ project "FieldbusDev"
 	filter "configurations:Release"
 		defines {}
 		optimize "On"
-
-		
---=================================================================================================================
-
-project "EIPScanner"
-location "dependencies/eipscanner"
-kind "StaticLib"
-language "C++"
-
-targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
-objdir ("%{wks.location}/bin/obj");
-
-files{
-	"%{prj.location}/src/*.h",
-	"%{prj.location}/src/*.cpp",
-	"%{prj.location}/src/cip/*.h",
-	"%{prj.location}/src/cip/*.cpp",
-	"%{prj.location}/src/eip/*.h",
-	"%{prj.location}/src/eip/*.cpp",
-	"%{prj.location}/src/fileObject/*.h",
-	"%{prj.location}/src/fileObject/*.cpp",
-	"%{prj.location}/src/sockets/*.h",
-	"%{prj.location}/src/sockets/*.cpp",
-	"%{prj.location}/src/socket/*.h",
-	"%{prj.location}/src/socket/*.cpp",
-	"%{prj.location}/src/utils/*.h",
-	"%{prj.location}/src/utils/*.cpp",
-}
-
-includedirs{
-	"%{prj.location}/src"
-}
-
-filter "system:windows"
-	systemversion "latest"
-
-filter "configurations:Debug"
-	runtime "Debug"
-	symbols "on"
-
-filter "configurations:Release"
-	runtime "Release"
-	optimize "on"
 
 --=================================================================================================================
 
@@ -173,6 +138,49 @@ filter "configurations:Release"
 	runtime "Release"
 	optimize "on"
 
+--=================================================================================================================
+
+project "EIPScanner"
+location "dependencies/eipscanner"
+kind "StaticLib"
+language "C++"
+
+targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
+objdir ("%{wks.location}/bin/obj");
+
+files{
+	"%{prj.location}/src/*.h",
+	"%{prj.location}/src/*.cpp",
+	"%{prj.location}/src/cip/*.h",
+	"%{prj.location}/src/cip/*.cpp",
+	"%{prj.location}/src/cip/connectionManager/*.h",
+	"%{prj.location}/src/cip/connectionManager/*.cpp",
+	"%{prj.location}/src/eip/*.h",
+	"%{prj.location}/src/eip/*.cpp",
+	"%{prj.location}/src/fileObject/*.h",
+	"%{prj.location}/src/fileObject/*.cpp",
+	"%{prj.location}/src/sockets/*.h",
+	"%{prj.location}/src/sockets/*.cpp",
+	"%{prj.location}/src/socket/*.h",
+	"%{prj.location}/src/socket/*.cpp",
+	"%{prj.location}/src/utils/*.h",
+	"%{prj.location}/src/utils/*.cpp",
+}
+
+includedirs{
+	"%{prj.location}/src"
+}
+
+filter "system:windows"
+	systemversion "latest"
+
+filter "configurations:Debug"
+	runtime "Debug"
+	symbols "on"
+
+filter "configurations:Release"
+	runtime "Release"
+	optimize "on"
 
 --=================================================================================================================
 
@@ -361,6 +369,3 @@ filter "configurations:Debug"
 filter "configurations:Release"
 	runtime "Release"
 	optimize "on"
-
-
-
