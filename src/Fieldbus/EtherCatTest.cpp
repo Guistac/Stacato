@@ -61,22 +61,52 @@ void EtherCAT_dev(NetworkInterfaceCard nic) {
         std::cout << "          AliasAddress: " << slave.aliasadr << " ConfigAddress: " << slave.configadr << std::endl;
     }
     
+    bool remapTxoPDO = true;
+
+    if (remapTxoPDO) {
+        std::cout << "===== Remapping TxPDO Parameters..." << std::endl;
+        //remap used TxPDO to two arbitray parameters of the drive (iMax and vMax)
+
+        uint16_t TxPDOmodule = 0x1A03;
+        uint8_t zero = 0;
+        uint8_t TxPDOparameterCount = 2;
+        uint32_t TxPDOparameter1 = 0x30110C10; //parameter 3011, index 0C, size 10 (16 bits)
+        uint32_t TxPDOparameter2 = 0x30111020; //parameter 3011, index 10, size 20 (32 bits)
+        int wc = 0;
+
+        //disable pdo by setting the sub-index size to zero
+        wc += ec_SDOwrite(1, TxPDOmodule, 0x0, false, 1, &zero, EC_TIMEOUTSAFE);
+        //add first parameter at first index of PDO
+        wc += ec_SDOwrite(1, TxPDOmodule, 0x1, false, 4, &TxPDOparameter1, EC_TIMEOUTSAFE);
+        //add second parameter at second index of PDO
+        wc += ec_SDOwrite(1, TxPDOmodule, 0x2, false, 4, &TxPDOparameter2, EC_TIMEOUTSAFE);
+        //enable pdo by setting the index equal to the number of parameters in the pdo
+        wc += ec_SDOwrite(1, TxPDOmodule, 0x0, false, 1, &TxPDOparameterCount, EC_TIMEOUTSAFE);
+
+        if (wc == TxPDOparameterCount + 2) std::cout << "===== Successfully set custom pdo mapping !" << std::endl;
+        else std::cout << "===== Failed to set custom pdo mapping..." << std::endl;
+    }
+
     //asign RxPDO and TxPDO here:
     ec_slave[1].PO2SOconfigx = [](ecx_contextt* context, uint16_t slave) -> int {
         std::cout << "===== Begin PDO assignement..." << std::endl;
         int wc = 0;
         uint8_t PDOoff = 0x00;
         uint8_t PDOon = 0x01;
-        uint16_t RxPDO = 0x1603;
-        uint16_t TxPDO = 0x1A03;
-        //turn the pdo off by writing a zero to the 0 index, update the pdo object, enable the pdo by writing a 1 to the index
-        wc += ec_SDOwrite(slave, 0x1C12, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
-        wc += ec_SDOwrite(slave, 0x1C12, 0x1, false, 2, &RxPDO, EC_TIMEOUTSAFE);
-        wc += ec_SDOwrite(slave, 0x1C12, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
+        //Sync Manager (SM2, SM3) registers that store the mapping objects (modules) which decribe PDO data
+        uint16_t RxPDO = 0x1C12;
+        uint16_t TxPDO = 0x1C13;
+        //mapping object (module) to be stored in each pdo register
+        uint16_t RxPDOmodule = 0x1603;
+        uint16_t TxPDOmodule = 0x1A03;
+        //turn the pdo off by writing a zero to the 0 index, set the mapping object at subindex 1, enable the pdo by writing a 1 (module count) to the index
+        wc += ec_SDOwrite(slave, RxPDO, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
+        wc += ec_SDOwrite(slave, RxPDO, 0x1, false, 2, &RxPDOmodule, EC_TIMEOUTSAFE);
+        wc += ec_SDOwrite(slave, RxPDO, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
         //do the same for the TxPDO
-        wc += ec_SDOwrite(slave, 0x1C13, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
-        wc += ec_SDOwrite(slave, 0x1C13, 0x1, false, 2, &TxPDO, EC_TIMEOUTSAFE);
-        wc += ec_SDOwrite(slave, 0x1C13, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
+        wc += ec_SDOwrite(slave, TxPDO, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
+        wc += ec_SDOwrite(slave, TxPDO, 0x1, false, 2, &TxPDOmodule, EC_TIMEOUTSAFE);
+        wc += ec_SDOwrite(slave, TxPDO, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
         if (wc == 6) {
             std::cout << "===== PDO assignement successfull !" << std::endl;
             return 1;
@@ -88,7 +118,7 @@ void EtherCAT_dev(NetworkInterfaceCard nic) {
     };
     
     //build ioMap for PDO data, configure FMMU and SyncManager, request SAFE-OP state for all slaves
-    std::cout << "===== Building I/O Map" << std::endl;
+    std::cout << "===== Begin Building I/O Map..." << std::endl;
     char ioMap[4096];
     int ioMapSize;
     ioMapSize = ec_config_map(ioMap);
@@ -125,7 +155,8 @@ void EtherCAT_dev(NetworkInterfaceCard nic) {
     std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
     while (true) {
         ec_send_processdata();
-        workingCounter = ec_receive_processdata(EC_TIMEOUTRET);
+        workingCounter = ec_receive_processdata(EC_TIMEOUTRET * 10);
+        //TODO: detect difference between transmission corruption and timeout
         if (workingCounter == 3) {
             std::cout << ".";
             transmissionSuccesses++;
@@ -141,6 +172,7 @@ void EtherCAT_dev(NetworkInterfaceCard nic) {
         }
         transmissions++;
         if (transmissions == maxTransmissions) break;
+
         //std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     long long durationMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - begin).count();
