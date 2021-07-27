@@ -187,7 +187,6 @@ void EtherCAT_dev(NetworkInterfaceCard nic) {
     std::cout << "===== Cycle Frequency: " << cycleFrequency << "Hz" << std::endl;
     std::cout << "===== Ending EtherCAT test program" << std::endl;
 
-
     //ec_statecheck(slave,state,timeout) checks the status of the slave and returns the state
     //ec_readstate() reads state of all slaves and stores it in ec_slave[]
     //ec_writestate() sets the state of all slaves as it was set in ec_slave[]

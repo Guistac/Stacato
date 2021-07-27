@@ -2,8 +2,8 @@
 #include "Fieldbus/EthernetIpTest.h"
 
 int main() {
-	//EthernetIpTest();
-	EtherCatTest();
+	EthernetIpTest();
+	//EtherCatTest();
 }
 
 

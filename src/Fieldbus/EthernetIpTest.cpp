@@ -15,6 +15,8 @@
 #include <chrono>
 #include <iomanip>
 
+#include "EipServoDrive.h"
+
 using eipScanner::SessionInfo;
 using eipScanner::MessageRouter;
 using eipScanner::ConnectionManager;
@@ -27,6 +29,9 @@ using namespace eipScanner::utils;
 
 
 void EthernetIpTest() {
+
+    EipServoDrive lexium32;
+
     Logger::setLogLevel(LogLevel::OFF);
 
     const char* broadcastAddress = "3.3.3.255";
@@ -37,9 +42,9 @@ void EthernetIpTest() {
 
     std::cout << "===== Starting Ethernet/IP Session with device at address " << deviceAddress << std::endl;
     std::shared_ptr<SessionInfo> session = std::make_shared<SessionInfo>(deviceAddress, ethernetIpPort);
-    printDeviceNetworkConfiguration(session);
-    setupImplicitMessaging(session);
-    rebootDevice(session);
+    //printDeviceNetworkConfiguration(session);
+    setupImplicitMessaging(session, lexium32);
+    //rebootDevice(session);
 }
 
 
@@ -213,7 +218,7 @@ void rebootDevice(std::shared_ptr<SessionInfo> session) {
     //std::cout << generalStatusCodeToString(response.getGeneralStatusCode()) << std::endl;
 }
 
-void setupImplicitMessaging(std::shared_ptr<SessionInfo> session) {
+void setupImplicitMessaging(std::shared_ptr<SessionInfo> session, EipServoDrive& drive) {
 
     eipScanner::ConnectionManager connectionManager;
 
@@ -252,74 +257,28 @@ void setupImplicitMessaging(std::shared_ptr<SessionInfo> session) {
     parameters.transportTypeTrigger |= NetworkConnectionParams::CLASS1;                     //IMPORTANT
 
     //parameters.connectionPathSize = 8;                                                    //useless, automatically calculated from vector
-    parameters.connectionPath = { 0x20, 0x04, 0x24, 0x05, 0x2C, 0x67, 0x2C, 0x71 };           //IMPORTANT
+    parameters.connectionPath = { 0x20, 0x04, 0x24, 0x05, 0x2C, 0x67, 0x2C, 0x71 };         //IMPORTANT
 
     auto io = connectionManager.forwardOpen(session, parameters);
-
-    uint32_t PCTRLms = 0x130A00A8;  //read (0x13) parameter class 168 (0x00A8) attribute 10 (0x0A)
-    uint32_t PVms = 0;              //parameter value to write (in case the command is write)
-    uint16_t dmControl = 0;         //set operating state and operating mode
-    uint32_t RefA32 = 0;            //operating mode specific value
-    uint32_t RefB32 = 0;            //operating mode specific value
-    uint32_t Ramp_v_acc = 0;        //acceleration ramp
-    uint32_t Ramp_v_dec = 0;        //deceleration ramp
-    uint32_t EthOptMapOut1 = 0;     //selectable parameter
-    uint32_t EthOptMapOut2 = 0;     //selectable parameter
-    uint32_t EthOptMapOut3 = 0;     //selectable parameter
-
-    Buffer outputBuffer;
-    outputBuffer << PCTRLms
-        << PVms
-        << dmControl
-        << RefA32
-        << RefB32
-        << Ramp_v_acc
-        << Ramp_v_dec
-        << EthOptMapOut1
-        << EthOptMapOut2
-        << EthOptMapOut3;
-
-    std::vector<uint8_t> outputData(38, 0xFF);
-
+    
     if (auto ptr = io.lock()) {
         std::cout << "FORWARD OPEN SUCCESS" << std::endl;
         std::cout << "Starting Implicit I/O Message Receiving And Sending" << std::endl;
 
-        ptr->setDataToSend(std::vector<uint8_t>(outputBuffer.data()));
+        ptr->setDataToSend(drive.getOutputData());
 
-        ptr->setReceiveDataListener([](CipUdint realtimeHeader, CipUint sequence, const std::vector<uint8_t>& data) {
-            //called each time the input assembly is received
+        ptr->setReceiveDataListener([&](CipUdint realtimeHeader, CipUint sequence, const std::vector<uint8_t>& data) {
+            drive.receiveInputData(eipScanner::utils::Buffer(data));
+        });
 
-            Buffer buffer(data);
+        ptr->setSendDataListener([&](std::vector<uint8_t>& data) {
+            drive.process();
+            data = drive.getOutputData();
 
-            uint32_t PCTRLsm;       //parameter read or write feedback
-            uint32_t PVsm;          //read value (if the command was to read)
-            uint16_t driveStat;     //operating state
-            uint16_t mfStat;        //operating mode
-            uint16_t motionStat;    //motor and motion profile information
-            uint16_t driveInput;    //actual state of digital inputs
-            uint32_t _p_act;        //actual position
-            int32_t  _v_act;        //actual velocity
-            uint16_t _i_act;        //actual current
-            uint32_t EthOptMapInp1; //selectable parameter
-            uint32_t EthOptMapInp2; //selectable parameter
-            uint32_t EthOptMapInp3; //selectable parameter
-
-            buffer >> PCTRLsm
-                >> PVsm
-                >> driveStat
-                >> mfStat
-                >> motionStat
-                >> driveInput
-                >> _p_act
-                >> _v_act
-                >> _i_act
-                >> EthOptMapInp1
-                >> EthOptMapInp2
-                >> EthOptMapInp3;
-
-            std::cout << "Motor Velocity: " << _v_act << std::endl;
-            });
+           //std::cout << std::dec << data.size() << "     ";
+           //for (uint8_t b : data) std::cout << std::hex << (int)b << " ";
+           //std::cout << std::endl;
+        });
 
         ptr->setCloseListener([]() {
             std::cout << "CLOSED !!!" << std::endl;

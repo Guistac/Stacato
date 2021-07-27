@@ -14,6 +14,8 @@
 #include <chrono>
 #include <iomanip>
 
+#include "EipServoDrive.h"
+
 using eipScanner::SessionInfo;
 using eipScanner::MessageRouter;
 using eipScanner::ConnectionManager;
@@ -32,6 +34,6 @@ void printDeviceNetworkConfiguration(std::shared_ptr<SessionInfo> session);
 
 void rebootDevice(std::shared_ptr<SessionInfo> session);
 
-void setupImplicitMessaging(std::shared_ptr<SessionInfo> session);
+void setupImplicitMessaging(std::shared_ptr<SessionInfo> session, EipServoDrive&);
 
 void printDiscoveredDevices(const char* broadcastAddress, uint16_t port);
