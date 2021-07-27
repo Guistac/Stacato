@@ -1,7 +1,116 @@
 #include "EipServoDrive.h"
 
+#include <IdentityObject.h>
+
 #include <iostream>
 #include <bitset>
+
+#include "EthernetIpTest.h"
+#include "StatusCodePrint.h"
+
+
+void EipServoDrive::connect() {
+    std::cout << "===== Connecting to " << identity.host << ":" << std::dec << identity.port << std::endl;
+    session = std::make_shared<eipScanner::SessionInfo>(identity.host, identity.port);
+    b_connected = (session == nullptr) ? false : true;
+    if (b_connected) {
+        std::cout << "===== Connection Success !" << std::endl;
+        startImplicitMessaing();
+    }
+    else {
+        std::cout << "===== Connection Failed..." << std::endl;
+    }
+}
+
+void EipServoDrive::disconnect() {
+    std::cout << "===== Disconnecting from " << identity.host << ":" << std::dec << identity.port << std::endl;
+    if (b_implicitMessaging) {
+        stopImplicitMessaging();
+    }
+    session = nullptr;
+    b_connected = false;
+    std::cout << "===== Disconnnected !" << std::endl;
+}
+
+void EipServoDrive::startImplicitMessaing() {
+    eipScanner::ConnectionManager& connectionManager = EthernetIPFieldbus::getConnectionManager();
+    
+    using namespace eipScanner::cip::connectionManager;
+
+    //forward open request timeout parameters
+    connectionParameters.priorityTimeTick |= 0x10;    //defines priority for the forward open request
+    connectionParameters.priorityTimeTick |= 4;       //defines length of a tick in ms (=2^x) (max 15)
+    connectionParameters.timeoutTicks = 8;          //number of ticks for forward request timeout(max 255)
+    //2^4 ms * 8 ticks = 128ms
+
+    //connectionParameters.o2tNetworkConnectionId = 1;                                                //useless, defined by originator
+    //connectionParameters.t2oNetworkConnectionId = 2;                                                //useless, defined by target
+    //connectionParameters.connectionSerialNumber = 0xFFFF;                                           //uselesss, defined by static library counter
+
+    //connectionParameters.originatorVendorId = 333;                                                  //useless
+    //connectionParameters.originatorSerialNumber = 0x333;                                            //useless
+
+    //amount of messages that can be missed before timeout trigger (4*2^x messages) 
+    connectionParameters.connectionTimeoutMultiplier = 5; //4*2^5 = 128 messages
+
+    //output assembly (103)
+    connectionParameters.o2tRPI = 10000;                                                             //IMPORTANT (in microseconds)
+    connectionParameters.o2tNetworkConnectionParams |= NetworkConnectionParams::OWNED;                //IMPORTANT
+    connectionParameters.o2tNetworkConnectionParams |= NetworkConnectionParams::P2P;                  //IMPORTANT
+    connectionParameters.o2tNetworkConnectionParams |= NetworkConnectionParams::SCHEDULED_PRIORITY;   //IMPORTANT
+    connectionParameters.o2tNetworkConnectionParams |= 38;                                            //IMPORTANT
+    connectionParameters.o2tRealTimeFormat = true;                                                    //IMPORTANT
+
+    //input assembly (113)
+    connectionParameters.t2oRPI = 10000;                                                             //IMPORTANT (in microseconds)
+    connectionParameters.t2oNetworkConnectionParams |= NetworkConnectionParams::OWNED;                //IMPORTANT
+    connectionParameters.t2oNetworkConnectionParams |= NetworkConnectionParams::P2P;
+    connectionParameters.t2oNetworkConnectionParams |= NetworkConnectionParams::SCHEDULED_PRIORITY;   //IMPORTANT
+    connectionParameters.t2oNetworkConnectionParams |= 38;                                            //IMPORTANT
+    connectionParameters.t2oRealTimeFormat = false;                                                   //IMPORTANT
+
+    connectionParameters.transportTypeTrigger |= NetworkConnectionParams::TRIG_CYCLIC;                //IMPORTANT
+    connectionParameters.transportTypeTrigger |= NetworkConnectionParams::CLASS1;                     //IMPORTANT
+
+    //parameters.connectionPathSize = 8;                                                              //useless, automatically calculated from vector
+    connectionParameters.connectionPath = { 0x20, 0x04, 0x24, 0x05, 0x2C, 0x67, 0x2C, 0x71 };         //IMPORTANT
+
+    ioConnection = connectionManager.forwardOpen(session, connectionParameters);
+
+    if (auto ptr = ioConnection.lock()) {
+        b_implicitMessaging = true;
+        std::cout << "===== Starting Implicit I/O Message Receiving And Sending" << std::endl;
+
+        ptr->setDataToSend(getOutputData());
+
+        ptr->setReceiveDataListener([this](eipScanner::cip::CipUdint realtimeHeader, eipScanner::cip::CipUint sequence, const std::vector<uint8_t>& data) {
+            receiveInputData(eipScanner::utils::Buffer(data));
+        });
+
+        ptr->setSendDataListener([this](std::vector<uint8_t>& data) {
+            process();
+            data = getOutputData();
+        });
+
+        ptr->setCloseListener([this]() {
+            std::cout << "===== Connection Lost, Disconnecting..." << std::endl;
+            disconnect();
+        });
+    }
+    else {
+        b_implicitMessaging = false;
+        std::cout << "===== Failed to start Implicit I/O Messaging..." << std::endl;
+    }
+}
+
+
+void EipServoDrive::stopImplicitMessaging() {
+    eipScanner::ConnectionManager& connectionManager = EthernetIPFieldbus::getConnectionManager();
+    connectionManager.forwardClose(session, ioConnection);
+    b_implicitMessaging = false;
+}
+
+
 
 std::vector<uint8_t>& EipServoDrive::getOutputData() {
     outputData.clear();
@@ -41,16 +150,14 @@ void EipServoDrive::receiveInputData(eipScanner::utils::Buffer& buffer) {
     if (readByteCtrl == 0x13 || readByteCtrl == 0x23 || readByteCtrl == 0x73) {
         uint16_t index = PCTRLsm & 0x0000FFFF;
         uint8_t subindex = (PCTRLsm & 0x00FF0000) >> 16;
-        std::cout << std::dec << "Read Parameter " << std::dec << (int)index << ".1." << (int)subindex << ": ";
+        //std::cout << std::dec << "Read Parameter " << std::dec << (int)index << ".1." << (int)subindex << ": ";
         if (readByteCtrl == 0x13) {
             uint16_t parameterValue = PVsm;
             if (index == 128 && subindex == 5) {
-                std::cout << "Error Code: " << std::hex << parameterValue << std::endl;
-                _LastError = parameterValue;
+                lastErrorCode = parameterValue;
             }
             else if (index == 128 && subindex == 9) {
-                std::cout << "Warning Code: " << std::hex << parameterValue << std::endl;
-                _LastError = parameterValue;
+                lastWarningCode = parameterValue;
             }
             else {
                 std::cout << (int)parameterValue << std::endl;
@@ -62,7 +169,7 @@ void EipServoDrive::receiveInputData(eipScanner::utils::Buffer& buffer) {
         }
         else if (readByteCtrl == 0x73) {
             uint32_t error = PVsm;
-            std::cout << "READ ERROR: " << error << std::endl;
+            //std::cout << "READ ERROR: " << error << std::endl;
         }
     }
 
@@ -162,19 +269,19 @@ void EipServoDrive::receiveInputData(eipScanner::utils::Buffer& buffer) {
     cap1 = (mfStat >> 8) & 0x3;
     cap2 = (mfStat >> 10) & 0x3;
 
-    bool positiveLimit = motionStat & (0x1 << 0);
-    bool negativeLimit = motionStat & (0x1 << 1);
-    bool motorStandstill = motionStat & (0x1 << 6);
-    bool motorPositiveMovement = motionStat & (0x1 << 7);
-    bool motorNegativeMovement = motionStat & (0x1 << 8);
-    bool DS402intLim = motionStat & (0x1 << 9);
-    bool DPL_intLim = motionStat & (0x1 << 10);
-    bool profileGeneratorStandstill = motionStat & (0x1 << 11);
-    bool profileGeneratorDecelerates = motionStat & (0x1 << 12);
-    bool profileGeneratorAccelerates = motionStat & (0x1 << 13);
-    bool profileGeneratorConstantVelocity = motionStat & (0x1 << 14);
-
+    positiveLimit = motionStat & (0x1 << 0);
+    negativeLimit = motionStat & (0x1 << 1);
+    motorStandstill = motionStat & (0x1 << 6);
+    motorPositiveMovement = motionStat & (0x1 << 7);
+    motorNegativeMovement = motionStat & (0x1 << 8);
+    DS402intLim = motionStat & (0x1 << 9);
+    DPL_intLim = motionStat & (0x1 << 10);
+    profileGeneratorStandstill = motionStat & (0x1 << 11);
+    profileGeneratorDecelerates = motionStat & (0x1 << 12);
+    profileGeneratorAccelerates = motionStat & (0x1 << 13);
+    profileGeneratorConstantVelocity = motionStat & (0x1 << 14);
     
+    /*
     std::cout << "State: ==" << stateChar << "== bin: (" << std::bitset<4>(stateBits) << ")";
     if (error) std::cout << " Error! ";
     if (warning) std::cout << " Warning! ";
@@ -206,54 +313,71 @@ void EipServoDrive::receiveInputData(eipScanner::utils::Buffer& buffer) {
     std::cout << "Velocity: " << std::dec << _v_act << " ";
     std::cout << "Current: " << std::dec << _i_act << " ";
     std::cout << std::endl;
+    */
 }
 
 void EipServoDrive::process() {
     
-    //bool disablePowerStage = false;
-    //bool performQuickStop = false;
+    //reset state and mode control word
+    dmControl = 0x0000;
 
-    static int counter = 0;
+    if (enableHalt) {
+        dmControl |= 0x1 << 13;
+        enableHalt = false;
+    }
+    if (clearHalt) {
+        dmControl |= 0x1 << 14;
+        clearHalt = false;
+    }
+    if (performFaultReset) {
+        dmControl |= 0x1 << 11;
+        performFaultReset = false;
+    }
+    if (disablePowerStage) {
+        dmControl |= 0x1 << 8;
+        enablePowerStage = false;
+    }else if (enablePowerStage) {
+        dmControl |= 0x1 << 9;
+        disablePowerStage = false;
+    }
+    if (performQuickStop) {
+        dmControl |= 0x1 << 10;
+        performQuickStop = false;
+    }
+
+
     counter++;
 
     //by default no special data is read or written
     PCTRLms = 0x03000000;
     PVms = 0x00000000;
-
-    //reset state and mode control word
-    dmControl = 0x0000;
-
     if (state == State::FAULT || error) {
         PCTRLms = 0x13050080; //read (0x13) subindex 5 (0x05) of object index 128 (0x0080) (unt16_t _LastError)
-        //perform fault reset
-        dmControl |= 0x1 << 11;
     }
-    else if (warning) {
+    else {
+        lastErrorCode = 0;
+    }
+    if (warning) {
         PCTRLms = 0x13090080; //read (0x13) subindex 5 (0x09) of object index 128 (0x0080) (unt16_t _LastWarning)
-        //enable power stage
-        dmControl = 0x1 << 9;
     }
-    else if (state == State::READY_TO_SWITCH_ON || state == State::OPERATION_ENABLED || state == State::SWITCHED_ON) {
-        //enable power stage
-        dmControl |= 0x1 << 9;
+    else {
+        lastWarningCode = 0;
     }
 
     //get the current state of the mode toggle bit
     bool toggleBit = modeToggle;
-    if (mode != Mode::JOG) {
-        mode = Mode::JOG;
-        RefA32 = 0;
+
+    if (mode != Mode::PROFILE_VELOCITY) {
+        mode = Mode::PROFILE_VELOCITY;
         toggleBit = !toggleBit;
     }
-    else if (counter % 20 < 10 && RefA32 == 5) {
-        RefA32 = 0;
+    else if (mode == Mode::PROFILE_VELOCITY && (operatingModeTerminated && requestedVelocity != 0) || (requestedVelocity != executedVelocity)) {
         toggleBit = !toggleBit;
+        executedVelocity = requestedVelocity;
     }
-    else if(counter % 20 > 10 && RefA32 == 0){
-        RefA32 = 5;
-        toggleBit = !toggleBit;
-    }
-    dmControl |= mode;
+
+    RefA32 = requestedVelocity;
+    dmControl |= 0x23;
     dmControl |= toggleBit << 7;
 
     Ramp_v_acc = 10000;
@@ -262,8 +386,135 @@ void EipServoDrive::process() {
     EthOptMapOut1 = 0x0;
     EthOptMapOut2 = 0x0;
     EthOptMapOut3 = 0x0;
+}
 
-    //if (halted) dmControl |= 0x1 << 14;
-    //if (disablePowerStage) dmControl |= 0x1 << 8;
-    //if (performQuickStop) dmControl |= 0x1 << 10;
+
+
+
+
+void EipServoDrive::printNetworkConfiguration() {
+    using namespace eipScanner;
+    using namespace eipScanner::cip;
+    using namespace eipScanner::utils;
+
+    eipScanner::cip::MessageRouterResponse response;
+
+    eipScanner::IdentityObject identityObject(1, session);
+    std::cout << identityObject.getProductName() << std::endl;
+
+    uint16_t ipMode = -1;
+    uint16_t ipA = -1, ipB = -1, ipC = -1, ipD = -1;
+    uint16_t mskA = -1, mskB = -1, mskC = -1, mskD = -1;
+
+    std::cout << "===== Downloading IP Address settings from the Device..." << std::endl;
+
+    response = messageRouter.sendRequest(session, ServiceCodes::GET_ATTRIBUTE_SINGLE, EPath(168, 1, 5));
+    if (response.getGeneralStatusCode() == GeneralStatusCodes::SUCCESS) {
+        Buffer buffer(response.getData());
+        buffer >> ipMode;
+    }
+    else std::cout << generalStatusCodeToString(response.getGeneralStatusCode()) << std::endl;
+
+    response = messageRouter.sendRequest(session, ServiceCodes::GET_ATTRIBUTE_SINGLE, EPath(168, 1, 7));
+    if (response.getGeneralStatusCode() == GeneralStatusCodes::SUCCESS) {
+        Buffer buffer(response.getData());
+        buffer >> ipA;
+    }
+    else std::cout << generalStatusCodeToString(response.getGeneralStatusCode()) << std::endl;
+
+    response = messageRouter.sendRequest(session, ServiceCodes::GET_ATTRIBUTE_SINGLE, EPath(168, 1, 8));
+    if (response.getGeneralStatusCode() == GeneralStatusCodes::SUCCESS) {
+        Buffer buffer(response.getData());
+        buffer >> ipB;
+    }
+    else std::cout << generalStatusCodeToString(response.getGeneralStatusCode()) << std::endl;
+
+    response = messageRouter.sendRequest(session, ServiceCodes::GET_ATTRIBUTE_SINGLE, EPath(168, 1, 9));
+    if (response.getGeneralStatusCode() == GeneralStatusCodes::SUCCESS) {
+        Buffer buffer(response.getData());
+        buffer >> ipC;
+    }
+    else std::cout << generalStatusCodeToString(response.getGeneralStatusCode()) << std::endl;
+
+    response = messageRouter.sendRequest(session, ServiceCodes::GET_ATTRIBUTE_SINGLE, EPath(168, 1, 10));
+    if (response.getGeneralStatusCode() == GeneralStatusCodes::SUCCESS) {
+        Buffer buffer(response.getData());
+        buffer >> ipD;
+    }
+    else std::cout << generalStatusCodeToString(response.getGeneralStatusCode()) << std::endl;
+
+    response = messageRouter.sendRequest(session, ServiceCodes::GET_ATTRIBUTE_SINGLE, EPath(168, 1, 11));
+    if (response.getGeneralStatusCode() == GeneralStatusCodes::SUCCESS) {
+        Buffer buffer(response.getData());
+        buffer >> mskA;
+    }
+    else std::cout << generalStatusCodeToString(response.getGeneralStatusCode()) << std::endl;
+
+    response = messageRouter.sendRequest(session, ServiceCodes::GET_ATTRIBUTE_SINGLE, EPath(168, 1, 12));
+    if (response.getGeneralStatusCode() == GeneralStatusCodes::SUCCESS) {
+        Buffer buffer(response.getData());
+        buffer >> mskB;
+    }
+    else std::cout << generalStatusCodeToString(response.getGeneralStatusCode()) << std::endl;
+
+    response = messageRouter.sendRequest(session, ServiceCodes::GET_ATTRIBUTE_SINGLE, EPath(168, 1, 13));
+    if (response.getGeneralStatusCode() == GeneralStatusCodes::SUCCESS) {
+        Buffer buffer(response.getData());
+        buffer >> mskC;
+    }
+    else std::cout << generalStatusCodeToString(response.getGeneralStatusCode()) << std::endl;
+
+    response = messageRouter.sendRequest(session, ServiceCodes::GET_ATTRIBUTE_SINGLE, EPath(168, 1, 14));
+    if (response.getGeneralStatusCode() == GeneralStatusCodes::SUCCESS) {
+        Buffer buffer(response.getData());
+        buffer >> mskD;
+    }
+    else std::cout << generalStatusCodeToString(response.getGeneralStatusCode()) << std::endl;
+
+    std::cout << "IpMode: " << ((ipMode == 0) ? "Manual" : ((ipMode == 1) ? "BootP" : "DHCP")) << std::endl;
+    std::cout << "DeviceIP: " << ipA << "." << ipB << "." << ipC << "." << ipD << std::endl;
+    std::cout << "DeviceNetMask: " << mskA << "." << mskB << "." << mskC << "." << mskD << std::endl;
+
+    /*
+    std::cout << "===== Uploading Motor Current Parameters to the device..." << std::endl;
+
+    uint16_t current = 854; //increments of 0.01 Ampere RMS
+    Buffer currentBuffer;
+    currentBuffer << current;
+    response = messageRouter.sendRequest(session, ServiceCodes::SET_ATTRIBUTE_SINGLE, EPath(117, 1, 12), currentBuffer.data());
+    std::cout << generalStatusCodeToString(response.getGeneralStatusCode()) << std::endl;
+
+    //save parameter
+    uint16_t save = 1;
+    Buffer saveBuffer;
+    saveBuffer << save;
+    response = messageRouter.sendRequest(session, ServiceCodes::SET_ATTRIBUTE_SINGLE, EPath(104, 1, 1), saveBuffer.data());
+    std::cout << generalStatusCodeToString(response.getGeneralStatusCode()) << std::endl;
+
+    std::cout << "===== Saving Parameters To EEPROM";
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+
+    uint16_t saveValue = 1;
+    while (saveValue != 0) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        response = messageRouter.sendRequest(session, ServiceCodes::GET_ATTRIBUTE_SINGLE, EPath(104, 1, 1));
+        //std::cout << generalStatusCodeToString(response.getGeneralStatusCode()) << std::endl;
+        if (response.getGeneralStatusCode() == GeneralStatusCodes::SUCCESS) {
+            Buffer saveReturnBuffer(response.getData());
+            saveReturnBuffer >> saveValue;
+            std::cout << ".";
+        }
+    }
+    std::chrono::duration saveDelay = std::chrono::steady_clock::now() - start;
+    long long saveDelayMillis = std::chrono::duration_cast<std::chrono::milliseconds>(saveDelay).count();
+    std::cout << std::endl << "===== Saved Paramters to EEPROM (took " << saveDelayMillis << "ms)" << std::endl;
+    */
+}
+
+void EipServoDrive::reboot() {
+    std::cout << "===== Rebooting Device..." << std::endl;
+    MessageRouterResponse response;
+    eipScanner::IdentityObject identityObject(1, session);
+    response = messageRouter.sendRequest(session, 0x05, EPath(identityObject.getClassId(), 1));
+    //std::cout << generalStatusCodeToString(response.getGeneralStatusCode()) << std::endl;
 }

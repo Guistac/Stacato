@@ -63,7 +63,6 @@ void GuiWindow::onInit() {
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-
 	float xScale, yScale;
 	glfwGetWindowContentScale(window, &xScale, &yScale);
 

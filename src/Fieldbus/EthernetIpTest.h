@@ -1,39 +1,33 @@
 #pragma once
 
-#include <MessageRouter.h>
 #include <ConnectionManager.h>
-#include <DiscoveryManager.h>
-#include <cip/connectionManager/NetworkConnectionParams.h>
-#include <IdentityObject.h>
-#include <utils/Logger.h>
-#include <utils/Buffer.h>
-
-#include <iostream>
-#include <bitset>
 #include <thread>
-#include <chrono>
-#include <iomanip>
 
 #include "EipServoDrive.h"
 
-using eipScanner::SessionInfo;
-using eipScanner::MessageRouter;
-using eipScanner::ConnectionManager;
-using eipScanner::DiscoveryManager;
-using eipScanner::IdentityObject;
-using eipScanner::cip::connectionManager::ConnectionParameters;
-using eipScanner::cip::connectionManager::NetworkConnectionParams;
-using namespace eipScanner::cip;
-using namespace eipScanner::utils;
+class EthernetIPFieldbus {
+public:
+	static void init(const char* brdcstaddr);
+	static void terminate();
 
-void EthernetIpTest();
+	static std::vector<std::shared_ptr<EipServoDrive>> servoDrives;
+	static std::vector<EipDevice> discoveredDevices;
 
-const char* generalStatusCodeToString(GeneralStatusCodes code);
+	static void discoverDevices();
+	static void addDevice(EipDevice&);
+	static void removeDevice(std::shared_ptr<EipServoDrive>);
 
-void printDeviceNetworkConfiguration(std::shared_ptr<SessionInfo> session);
+	static eipScanner::ConnectionManager& getConnectionManager() {
+		return connectionManager;
+	}
 
-void rebootDevice(std::shared_ptr<SessionInfo> session);
+private:
 
-void setupImplicitMessaging(std::shared_ptr<SessionInfo> session, EipServoDrive&);
+	static void runtime();
+	static void exit();
+	static eipScanner::ConnectionManager connectionManager;
+	static std::thread eipRuntimeThread;
+	static bool running;
 
-void printDiscoveredDevices(const char* broadcastAddress, uint16_t port);
+	static const char* broadcastAddress;
+};
