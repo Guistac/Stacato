@@ -6,187 +6,239 @@
 #include <chrono>
 #include <bitset>
 
+std::vector<NetworkInterfaceCard>   EtherCatFieldbus::networkInterfaceCards;
+NetworkInterfaceCard                EtherCatFieldbus::selectedNetworkInterfaceCard;
+bool                                EtherCatFieldbus::b_networkScanned = false;
+std::vector<EtherCatSlave>          EtherCatFieldbus::slaves;
+uint8_t                             EtherCatFieldbus::ioMap[4096];
+int                                 EtherCatFieldbus::ioMapSize = 0;
+std::thread                         EtherCatFieldbus::etherCatRuntime;
+bool                                EtherCatFieldbus::b_processRunning = false;
+bool                                EtherCatFieldbus::b_ioMapConfigured = false;
 
-void EtherCatTest() {
-
-    std::cout << "===== Beginning EtherCAT test program" << std::endl;
-
+void EtherCatFieldbus::updateNetworkInterfaceCardList() {
+    std::cout << "===== Refreshing Network Interface Card List" << std::endl;
+    networkInterfaceCards.clear();
     ec_adaptert* nics = ec_find_adapters();
-
-    NetworkInterfaceCard* networkInterfaceCards;
-    size_t networkInterfaceCardCount;
-
     if (nics != nullptr) {
-        networkInterfaceCardCount = 0;
-        ec_adapter* nic = nics;
-        while (nic != nullptr) {
-            networkInterfaceCardCount++;
-            nic = nic->next;
-        }
-        nic = nics;
-        networkInterfaceCards = new NetworkInterfaceCard[networkInterfaceCardCount];
-        int i = 0;
-        while (nic != nullptr) {
-            networkInterfaceCards[i] = { nic->desc, nic->name };
-            i++;
-            nic = nic->next;
+        while (nics != nullptr) {
+            NetworkInterfaceCard nic;
+            strcpy(nic.name, nics->name);
+            strcpy(nic.description, nics->desc);
+            networkInterfaceCards.push_back(std::move(nic));
+            nics = nics->next;
         }
     }
-    std::cout << "===== Available Network Interface Cards :" << std::endl;
-    for (int i = 0; i < networkInterfaceCardCount; i++) std::cout << "  " << networkInterfaceCards[i].description << std::endl;
+    std::cout << "===== Found " << networkInterfaceCards.size() << " Network Interface Card" << (networkInterfaceCards.size() == 1 ? "" : "s") << std::endl;
+    for (NetworkInterfaceCard& nic : networkInterfaceCards) {
+        std::cout << "    = " << nic.description << " (ID: " << nic.name << ")" << std::endl;
+    }
+}
+
+void EtherCatFieldbus::init(NetworkInterfaceCard& nic) {
+    selectedNetworkInterfaceCard = std::move(nic);
+    std::cout << "===== Initializing EtherCAT Fieldbus on Network Interface Card '" << selectedNetworkInterfaceCard.description << "'" << std::endl;
+    int nicInitResult = ec_init(selectedNetworkInterfaceCard.name);
+    if (nicInitResult > 0) std::cout << "===== Initialized network interface card !" << std::endl;
+    else std::cout << "===== Failed to initialize network interface card ..." << std::endl;
+}
+
+void EtherCatFieldbus::scanNetwork() {
+    slaves.clear();
+    b_ioMapConfigured = false;
+    //setup all slaves, get slave count and info in ec_slave, setup mailboxes, request state PRE-OP for all slaves
+    int workingCounter = ec_config_init(FALSE); //what is usetable??
+    for (int i = 1; i <= ec_slavecount; i++) {
+        ec_slavet& slv = ec_slave[i];
+        EtherCatSlave slave;
+        slave.slave_ptr = &slv;
+        strcpy(slave.name, slv.name);
+        slave.index = i;
+        slave.manualAddress = slv.aliasadr;
+        slave.address = slv.configadr;
+        sprintf(slave.displayName, "%s (Node %i #%i)", slave.name, slave.index, slave.manualAddress);
+        slaves.push_back(std::move(slave));
+    }
+    if (workingCounter > 0) {
+        b_networkScanned = true;
+        std::cout << "===== Found and Configured " << ec_slavecount << " EtherCAT Slave" << ((ec_slavecount == 1) ? ": " : "s: ") << std::endl;
+        for (EtherCatSlave& slave : slaves)
+            std::cout << "    = Slave "
+            << slave.index << " : '"
+            << slave.name << "' Address: "
+            << slave.address << " Manual Address: "
+            << slave.manualAddress << std::endl;
+    }
+    else {
+        b_networkScanned = false;
+        std::cout << "===== No EtherCAT Slaves found..." << std::endl;
+    }
+}
+
+void EtherCatFieldbus::configureSlaves() {
+    int workingCounter = 0;
+
+    for (EtherCatSlave& slave : slaves) {
+        if (strcmp(slave.name, "LXM32M EtherCAT") == 0) {
+            //asign RxPDO and TxPDO here:
+            slave.slave_ptr->PO2SOconfigx = [](ecx_contextt* context, uint16_t slave) -> int {
+                /*
+                std::cout << "===== Remapping TxPDO Parameters..." << std::endl;
+                //remap used TxPDO to two arbitray parameters of the drive (iMax and vMax)
+                uint16_t TxPDOmodule = 0x1A03;
+                uint8_t zero = 0;
+                uint8_t TxPDOparameterCount = 2;
+                uint32_t TxPDOparameter1 = 0x30110C10; //parameter 3011, index 0C, size 10 (16 bits)
+                uint32_t TxPDOparameter2 = 0x30111020; //parameter 3011, index 10, size 20 (32 bits)
+                //disable pdo by setting the sub-index size to zero
+                workingCounter += ec_SDOwrite(1, TxPDOmodule, 0x0, false, 1, &zero, EC_TIMEOUTSAFE);
+                //add first parameter at first index of PDO
+                workingCounter += ec_SDOwrite(1, TxPDOmodule, 0x1, false, 4, &TxPDOparameter1, EC_TIMEOUTSAFE);
+                //add second parameter at second index of PDO
+                workingCounter += ec_SDOwrite(1, TxPDOmodule, 0x2, false, 4, &TxPDOparameter2, EC_TIMEOUTSAFE);
+                //enable pdo by setting the index equal to the number of parameters in the pdo
+                workingCounter += ec_SDOwrite(1, TxPDOmodule, 0x0, false, 1, &TxPDOparameterCount, EC_TIMEOUTSAFE);
+                if (workingCounter == TxPDOparameterCount + 2) std::cout << "===== Successfully set custom pdo mapping !" << std::endl;
+                else std::cout << "===== Failed to set custom pdo mapping..." << std::endl;
+                */
+
+                std::cout << "===== Begin PDO assignement..." << std::endl;
+                int workingCounter = 0;
+                uint8_t PDOoff = 0x00;
+                uint8_t PDOon = 0x01;
+                //Sync Manager (SM2, SM3) registers that store the mapping objects (modules) which decribe PDO data
+                uint16_t RxPDO = 0x1C12;
+                uint16_t TxPDO = 0x1C13;
+                //mapping object (module) to be stored in each pdo register
+                uint16_t RxPDOmodule = 0x1603;
+                uint16_t TxPDOmodule = 0x1A03;
+                //turn the pdo off by writing a zero to the 0 index, set the mapping object at subindex 1, enable the pdo by writing a 1 (module count) to the index
+                workingCounter += ec_SDOwrite(slave, RxPDO, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
+                workingCounter += ec_SDOwrite(slave, RxPDO, 0x1, false, 2, &RxPDOmodule, EC_TIMEOUTSAFE);
+                workingCounter += ec_SDOwrite(slave, RxPDO, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
+                //do the same for the TxPDO
+                workingCounter += ec_SDOwrite(slave, TxPDO, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
+                workingCounter += ec_SDOwrite(slave, TxPDO, 0x1, false, 2, &TxPDOmodule, EC_TIMEOUTSAFE);
+                workingCounter += ec_SDOwrite(slave, TxPDO, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
+                if (workingCounter == 6) {
+                    std::cout << "===== PDO assignement successfull !" << std::endl;
+                    return 1;
+                }
+                else {
+                    std::cout << "===== PDO assignement failed..." << std::endl;
+                    return 0;
+                }
+            };
+        }
+    }
     
-    NetworkInterfaceCard selectedNetworkInterfaceCard = networkInterfaceCards[0];
 
-    EtherCAT_dev(selectedNetworkInterfaceCard);
+    //build ioMap for PDO data, configure FMMU and SyncManager, request SAFE-OP state for all slaves
+    std::cout << "===== Begin Building I/O Map..." << std::endl;
+    ioMapSize = ec_config_map(ioMap);
+    std::cout << "===== Finished Building I/O Map (Size : " << ioMapSize << " bytes)" << std::endl;
+    
+    if (ioMapSize > 0) b_ioMapConfigured = true;
+
+    for (EtherCatSlave& slave : slaves) {
+        slave.b_configured = true;
+    }
+
+    for (EtherCatSlave& slave : slaves) {
+        std::cout << "   [" << slave.index << "] '" << slave.name << "' " << slave.slave_ptr->Ibytes + slave.slave_ptr->Obytes << " bytes (" << slave.slave_ptr->Ibits + slave.slave_ptr->Obits << " bits)" << std::endl;
+        std::cout << "          Inputs: " << slave.slave_ptr->Ibytes << " bytes (" << slave.slave_ptr->Ibits << " bits)" << std::endl;
+        std::cout << "          Outputs: " << slave.slave_ptr->Obytes << " bytes (" << slave.slave_ptr->Obits << " bits)" << std::endl;
+    }
+
+    /*
+    std::cout << "===== Configuring Distributed Clocks" << std::endl;
+    bool distributedClockConfigurationResult = ec_configdc();
+    if (distributedClockConfigurationResult) std::cout << "===== Finished Configuring Distributed Clocks" << std::endl;
+    else std::cout << "===== Could not configure distributed clocks ..." << std::endl;
+    */
+}
+
+void EtherCatFieldbus::terminate() {
+    std::cout << "===== Closing EtherCAT Network Interface Card" << std::endl;
+    ec_close();
+}
+
+void EtherCatFieldbus::startCyclicExchange() {
+    /*
+    if (!b_processRunning) {
+
+        b_processRunning = true;
+
+        etherCatRuntime = std::thread([]() {
+        */
+            
+            std::cout << "===== Setting All Slaves to Operational state..." << std::endl;
+            // Act on slave 0 (a virtual slave used for broadcasting)
+            ec_slavet* broadcastSlave = &ec_slave[0];
+            broadcastSlave->state = EC_STATE_OPERATIONAL;
+            ec_writestate(0);
+
+            //wait for all slaves to reach OP state
+            uint16_t slaveState = ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE);
+            if (slaveState == EC_STATE_OPERATIONAL) std::cout << "===== All slaves are operational !" << std::endl;
+            
+            std::cout << "===== Begin Cyclic Process Data Echange !" << std::endl;
+
+            int workingCounter;
+
+            int lineLength = 0;
+            int transmissions = 0;
+            int transmissionSuccesses = 0;
+            int transmissionFailures = 0;
+            int maxTransmissions = 10000;
+            std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
+
+            while (true) {
+                ec_send_processdata();
+                workingCounter = ec_receive_processdata(EC_TIMEOUTRET * 10);
+                //TODO: detect difference between transmission corruption and timeout
+                if (workingCounter == 3) {
+                    std::cout << ".";
+                    transmissionSuccesses++;
+                }
+                else {
+                    std::cout << "#";
+                    transmissionFailures++;
+                }
+                lineLength++;
+                if (lineLength > 80) {
+                    lineLength = 0;
+                    std::cout << std::endl;
+                }
+                transmissions++;
+                if (transmissions == maxTransmissions) break;
+                //std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
+
+            long long durationMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - begin).count();
+            double durationSeconds = (double)durationMicroseconds / 1000000.0L;
+            double cycleFrequency = (double)maxTransmissions / durationSeconds;
+
+            float transmissionSuccessRate = 100.0f * (float)transmissionSuccesses / (float)maxTransmissions;
+            std::cout << std::endl;
+            std::cout << "===== Ended Cycle Process Data Exchange After " << maxTransmissions << " cycles !" << std::endl;
+            std::cout << "===== Sucessfull transmissions: " << transmissionSuccesses << "   Failures: " << transmissionFailures << std::endl;
+            std::cout << "===== Success Rate: " << transmissionSuccessRate << "%" << std::endl;
+            std::cout << "===== Cycle Frequency: " << cycleFrequency << "Hz" << std::endl;
+            std::cout << "===== Ending EtherCAT test program" << std::endl;
 
 
+            b_processRunning = false;
+            /*
+        });
+    }
+    */
+}
+void EtherCatFieldbus::stopCyclicExchange() {
+    b_processRunning = false;
 }
 
 void EtherCAT_dev(NetworkInterfaceCard nic) {
-
-    //initialize network interface card
-    int nicInitResult = ec_init(nic.name);
-    if (nicInitResult > 0) std::cout << "===== Initialized network interface card : " << nic.description << std::endl;
-    else std::cout << "===== Failed to initialize network interface card " << nic.description << std::endl;
-
-    //setup all slaves, get slave count and info in ec_slave, setup mailboxes, request state PRE-OP for all slaves
-    int workingCounter = ec_config_init(FALSE);
-    if (workingCounter > 0) std::cout << "===== Found and Configured " << ec_slavecount << ((ec_slavecount == 1) ? " EtherCAT Slave :" : " EtherCAT Slaves :") << std::endl;
-    else std::cout << "===== No EtherCAT Slaves found..." << std::endl;
-    if (ec_slavecount == 0) goto end_test;
-
-    for (int i = 1; i <= ec_slavecount; i++) {
-        ec_slavet& slave = ec_slave[i];
-        std::cout << "  Slave " << i << " : '" << slave.name << "'" << std::endl;
-        std::cout << "          AliasAddress: " << slave.aliasadr << " ConfigAddress: " << slave.configadr << std::endl;
-    }
-    
-    bool remapTxoPDO = true;
-
-    if (remapTxoPDO) {
-        std::cout << "===== Remapping TxPDO Parameters..." << std::endl;
-        //remap used TxPDO to two arbitray parameters of the drive (iMax and vMax)
-
-        uint16_t TxPDOmodule = 0x1A03;
-        uint8_t zero = 0;
-        uint8_t TxPDOparameterCount = 2;
-        uint32_t TxPDOparameter1 = 0x30110C10; //parameter 3011, index 0C, size 10 (16 bits)
-        uint32_t TxPDOparameter2 = 0x30111020; //parameter 3011, index 10, size 20 (32 bits)
-        int wc = 0;
-
-        //disable pdo by setting the sub-index size to zero
-        wc += ec_SDOwrite(1, TxPDOmodule, 0x0, false, 1, &zero, EC_TIMEOUTSAFE);
-        //add first parameter at first index of PDO
-        wc += ec_SDOwrite(1, TxPDOmodule, 0x1, false, 4, &TxPDOparameter1, EC_TIMEOUTSAFE);
-        //add second parameter at second index of PDO
-        wc += ec_SDOwrite(1, TxPDOmodule, 0x2, false, 4, &TxPDOparameter2, EC_TIMEOUTSAFE);
-        //enable pdo by setting the index equal to the number of parameters in the pdo
-        wc += ec_SDOwrite(1, TxPDOmodule, 0x0, false, 1, &TxPDOparameterCount, EC_TIMEOUTSAFE);
-
-        if (wc == TxPDOparameterCount + 2) std::cout << "===== Successfully set custom pdo mapping !" << std::endl;
-        else std::cout << "===== Failed to set custom pdo mapping..." << std::endl;
-    }
-
-    //asign RxPDO and TxPDO here:
-    ec_slave[1].PO2SOconfigx = [](ecx_contextt* context, uint16_t slave) -> int {
-        std::cout << "===== Begin PDO assignement..." << std::endl;
-        int wc = 0;
-        uint8_t PDOoff = 0x00;
-        uint8_t PDOon = 0x01;
-        //Sync Manager (SM2, SM3) registers that store the mapping objects (modules) which decribe PDO data
-        uint16_t RxPDO = 0x1C12;
-        uint16_t TxPDO = 0x1C13;
-        //mapping object (module) to be stored in each pdo register
-        uint16_t RxPDOmodule = 0x1603;
-        uint16_t TxPDOmodule = 0x1A03;
-        //turn the pdo off by writing a zero to the 0 index, set the mapping object at subindex 1, enable the pdo by writing a 1 (module count) to the index
-        wc += ec_SDOwrite(slave, RxPDO, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
-        wc += ec_SDOwrite(slave, RxPDO, 0x1, false, 2, &RxPDOmodule, EC_TIMEOUTSAFE);
-        wc += ec_SDOwrite(slave, RxPDO, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
-        //do the same for the TxPDO
-        wc += ec_SDOwrite(slave, TxPDO, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
-        wc += ec_SDOwrite(slave, TxPDO, 0x1, false, 2, &TxPDOmodule, EC_TIMEOUTSAFE);
-        wc += ec_SDOwrite(slave, TxPDO, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
-        if (wc == 6) {
-            std::cout << "===== PDO assignement successfull !" << std::endl;
-            return 1;
-        }
-        else {
-            std::cout << "===== PDO assignement failed..." << std::endl;
-            return 0;
-        }
-    };
-    
-    //build ioMap for PDO data, configure FMMU and SyncManager, request SAFE-OP state for all slaves
-    std::cout << "===== Begin Building I/O Map..." << std::endl;
-    char ioMap[4096];
-    int ioMapSize;
-    ioMapSize = ec_config_map(ioMap);
-    std::cout << "===== Finished Building I/O Map (Size : " << ioMapSize << " bytes)" << std::endl;
-
-    for (int i = 1; i <= ec_slavecount; i++) {
-        ec_slavet& slave = ec_slave[i];
-        std::cout << "   [" << i  << "] '"<< slave.name << "' " << slave.Ibytes + slave.Obytes << " bytes (" << slave.Ibits + slave.Obits << " bits)" << std::endl;
-        std::cout << "          Inputs: " << slave.Ibytes << " bytes (" << slave.Ibits << " bits)" << std::endl;
-        std::cout << "          Outputs: " << slave.Obytes << " bytes (" << slave.Obits << " bits)" << std::endl;
-    }
-
-    std::cout << "===== Configuring Distributed Clocks" << std::endl;
-    ec_configdc();
-
-    std::cout << "===== Setting All Slaves to Operational state..." << std::endl;
-    /* Act on slave 0 (a virtual slave used for broadcasting) */
-    ec_slavet* broadcastSlave = &ec_slave[0];
-    broadcastSlave->state = EC_STATE_OPERATIONAL;
-    ec_writestate(0);
-
-    //wait for all slaves to reach OP state
-    uint16_t slaveState = ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE);
-    if(slaveState == EC_STATE_OPERATIONAL) std::cout << "===== All slaves are operational !" << std::endl;
-    else std::cout << "===== Not all slaves are operational ..." << std::endl;
-
-    std::cout << "===== Begin Cyclic Process Data Echange !" << std::endl;
-
-    int lineLength = 0;
-    int transmissions = 0;
-    int transmissionSuccesses = 0;
-    int transmissionFailures = 0;
-    int maxTransmissions = 10000;
-    std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
-    while (true) {
-        ec_send_processdata();
-        workingCounter = ec_receive_processdata(EC_TIMEOUTRET * 10);
-        //TODO: detect difference between transmission corruption and timeout
-        if (workingCounter == 3) {
-            std::cout << ".";
-            transmissionSuccesses++;
-        }
-        else {
-            std::cout << "#";
-            transmissionFailures++;
-        }
-        lineLength++;
-        if (lineLength > 80) {
-            lineLength = 0;
-            std::cout << std::endl;
-        }
-        transmissions++;
-        if (transmissions == maxTransmissions) break;
-
-        //std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-    long long durationMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - begin).count();
-    double durationSeconds = (double)durationMicroseconds / 1000000.0L;
-    double cycleFrequency = (double)maxTransmissions / durationSeconds;
-
-    float transmissionSuccessRate = 100.0f * (float)transmissionSuccesses / (float)maxTransmissions;
-    std::cout << std::endl;
-    std::cout << "===== Ended Cycle Process Data Exchange After " << maxTransmissions << " cycles !" << std::endl;
-    std::cout << "===== Sucessfull transmissions: " << transmissionSuccesses << "   Failures: " << transmissionFailures << std::endl;
-    std::cout << "===== Success Rate: " << transmissionSuccessRate << "%" << std::endl;
-    std::cout << "===== Cycle Frequency: " << cycleFrequency << "Hz" << std::endl;
-    std::cout << "===== Ending EtherCAT test program" << std::endl;
-
     //ec_statecheck(slave,state,timeout) checks the status of the slave and returns the state
     //ec_readstate() reads state of all slaves and stores it in ec_slave[]
     //ec_writestate() sets the state of all slaves as it was set in ec_slave[]
@@ -275,8 +327,6 @@ void EtherCAT_dev(NetworkInterfaceCard nic) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
     */
-end_test:
-    ec_close();
 }
 
 

@@ -25,11 +25,13 @@ std::vector<std::shared_ptr<EipServoDrive>> EthernetIPFieldbus::servoDrives;
 std::vector<EipDevice> EthernetIPFieldbus::discoveredDevices;
 std::thread EthernetIPFieldbus::eipRuntimeThread;
 bool EthernetIPFieldbus::running = false;
-const char* EthernetIPFieldbus::broadcastAddress;
+int EthernetIPFieldbus::broadcastIP[4] = {3, 3, 3, 255};
+int EthernetIPFieldbus::port = 0xAF12;
 
-void EthernetIPFieldbus::init(const char* brdcstaddr) {
+void EthernetIPFieldbus::init(int ip[4], int p) {
     eipScanner::utils::Logger::setLogLevel(eipScanner::utils::LogLevel::INFO);
-    broadcastAddress = brdcstaddr;
+    memcpy(broadcastIP, ip, 4*sizeof(int));
+    port = p;
     running = true;
     eipRuntimeThread = std::thread([]() {
         while (running) {
@@ -58,8 +60,10 @@ void EthernetIPFieldbus::exit() {
 
 
 void EthernetIPFieldbus::discoverDevices() {
-    std::cout << "===== Discovering Ethernet/IP devices on the network " << broadcastAddress << std::endl;
-    DiscoveryManager discoveryManager(broadcastAddress, 0xAF12, std::chrono::milliseconds(100));
+    char address[64];
+    sprintf(address, "%i.%i.%i.%i", broadcastIP[0], broadcastIP[1], broadcastIP[2], broadcastIP[3]);
+    std::cout << "===== Discovering Ethernet/IP devices on the network " << address << std::endl;
+    DiscoveryManager discoveryManager(address, port, std::chrono::milliseconds(100));
     std::vector<eipScanner::IdentityItem> devices = discoveryManager.discover();
     discoveredDevices.clear();
     std::cout << "===== Found " << devices.size() << ((devices.size() == 1) ? " device :" : " devices :") << std::endl;
