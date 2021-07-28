@@ -1,4 +1,4 @@
-#include "EthernetIpTest.h"
+#include "EthernetIpFieldbus.h"
 
 #include <ConnectionManager.h>
 #include <DiscoveryManager.h>

@@ -1,4 +1,4 @@
-#include "EtherCatTest.h"
+#include "EtherCatFieldbus.h"
 
 #include <ethercat.h>
 #include <iostream>

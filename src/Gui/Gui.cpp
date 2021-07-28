@@ -1,5 +1,5 @@
 #include "Gui.h"
-#include "Fieldbus/EthernetIpTest.h"
+#include "Fieldbus/EthernetIP/EthernetIpFieldbus.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -96,7 +96,15 @@ void gui() {
 
 				ImGui::Text("Position: %i", drive->_p_act);
 				ImGui::Text("Current: %i", drive->_i_act);
-				
+				ImGui::Text("Digital Inputs: %c %c %c %c %c %c",
+					drive->driveInput & 0x01 ? '1' : '0',
+					drive->driveInput & 0x02 ? '1' : '0',
+					drive->driveInput & 0x04 ? '1' : '0',
+					drive->driveInput & 0x08 ? '1' : '0',
+					drive->driveInput & 0x10 ? '1' : '0',
+					drive->driveInput & 0x20 ? '1' : '0'
+				);
+
 				ImGui::Separator();
 
 				ImGui::Text("State: %s", drive->stateChar);
