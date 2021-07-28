@@ -34,8 +34,10 @@ public:
 
     void connect();
     void disconnect();
+
     bool b_connected = false;
     bool b_implicitMessaging = false;
+    bool b_powerStageEnabled = false;
 
     void printNetworkConfiguration();
     void reboot();
@@ -46,8 +48,6 @@ public:
     std::weak_ptr<eipScanner::IOConnection> ioConnection;
 
     EipDevice identity;
-
-    int counter = 0;
 
     //commands
     int32_t requestedVelocity = 0;
@@ -116,12 +116,12 @@ public:
     bool operatingModeTerminatedWithError = false;
 
     EipServoDrive::Mode mode = Mode::UNKNOW_MODE;
-    const char* modeChar;
-    bool dataError;
-    bool modeError;
-    bool modeToggle;
-    uint32_t cap1;
-    uint32_t cap2;
+    const char* modeChar = "";
+    bool dataError = false;
+    bool modeError = false;
+    bool modeToggle = false;
+    uint32_t cap1 = 0;
+    uint32_t cap2 = 0;
 
     bool positiveLimit = false;
     bool negativeLimit = false;
@@ -141,8 +141,8 @@ public:
     uint16_t dmControl = 0;         //set operating state and operating mode
     uint32_t RefA32 = 0;            //operating mode specific value
     uint32_t RefB32 = 0;            //operating mode specific value
-    uint32_t Ramp_v_acc = 0;        //acceleration ramp
-    uint32_t Ramp_v_dec = 0;        //deceleration ramp
+    uint32_t Ramp_v_acc = 1000;        //acceleration ramp
+    uint32_t Ramp_v_dec = 1000;        //deceleration ramp
     uint32_t EthOptMapOut1 = 0;     //selectable parameter
     uint32_t EthOptMapOut2 = 0;     //selectable parameter
     uint32_t EthOptMapOut3 = 0;     //selectable parameter

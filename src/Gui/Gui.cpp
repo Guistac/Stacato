@@ -6,7 +6,10 @@
 
 void gui() {
 	
-	ImGui::Begin("Discovery");
+	ImGui::SetNextWindowPos(ImGui::GetMainViewport()->WorkPos, ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImGui::GetMainViewport()->WorkSize, ImGuiCond_Always);
+
+	ImGui::Begin("EtherNET/IP Fieldbus Test Program", nullptr, ImGuiWindowFlags_NoResize);
 
 	if (ImGui::Button("Discover EIP Devices")) {
 		EthernetIPFieldbus::discoverDevices();
@@ -27,6 +30,7 @@ void gui() {
 			ImGui::Text("Serial Number: %i", device.serialNumber);
 			ImGui::Text("Version: %i.%i", device.revisionMajor, device.revisionMinor);
 			ImGui::Text("Vendor ID: %i", device.vendorId);
+			ImGui::Text("Status: %d", device.status);
 			if (ImGui::Button("Add Device")) {
 				EthernetIPFieldbus::addDevice(device);
 			}
@@ -34,10 +38,6 @@ void gui() {
 			ImGui::TreePop();
 		}
 	}
-
-	ImGui::End();
-
-	ImGui::Begin("Devices");
 
 	std::shared_ptr<EipServoDrive> removedDrive = nullptr;
 
@@ -64,19 +64,43 @@ void gui() {
 				if (ImGui::Button("Fault Reset")) drive->performFaultReset = true;
 				ImGui::SameLine();
 				if (ImGui::Button("Quick Stop")) drive->performQuickStop = true;
+				if (drive->state == EipServoDrive::State::QUICK_STOP_ACTIVE || drive->quickstopActive) {
+					ImGui::SameLine();
+					ImGui::Text("QuickStop Active, Perform Fault Reset");
+				}
 				if (ImGui::Button("Halt")) drive->enableHalt = true;
 				ImGui::SameLine();
 				if (ImGui::Button("Clear Halt")) drive->clearHalt = true;
+				if (drive->halted) {
+					ImGui::SameLine();
+					ImGui::Text("Halt Active");
+				}
+				if (ImGui::Button("Reboot")) drive->reboot();
 
-				ImGui::SliderInt("Velocity", &drive->requestedVelocity, -7000, 7000, "%drpm");
+				int maxVelocity = 7000;
+				ImGui::SliderInt("##Velocity", &drive->requestedVelocity, -maxVelocity, maxVelocity, "%d rpm Command");
+				ImVec2 velSliderSize = ImGui::GetItemRectSize();
+				ImGui::SameLine();
+				if (ImGui::Button("Stop Movement")) drive->requestedVelocity = 0;
+				float velFraction = (float)(drive->_v_act + maxVelocity) / (float)(2 * maxVelocity);
+				static char velocityChar[32];
+				sprintf(velocityChar, "%i rpm", drive->_v_act);
+				ImGui::ProgressBar(velFraction, velSliderSize, velocityChar);
+
+				static int ramps[2];
+				ramps[0] = drive->Ramp_v_acc;
+				ramps[1] = drive->Ramp_v_dec;
+				ImGui::SliderInt2("Speed Ramps (acc/dec)", ramps, 0, 10000, "%d rpm/s");
+				drive->Ramp_v_acc = ramps[0];
+				drive->Ramp_v_dec = ramps[1];
 
 				ImGui::Text("Position: %i", drive->_p_act);
-				ImGui::Text("Velocity: %i", drive->_v_act);
 				ImGui::Text("Current: %i", drive->_i_act);
 				
 				ImGui::Separator();
 
 				ImGui::Text("State: %s", drive->stateChar);
+				ImGui::Text("Power Stage: %d", drive->b_powerStageEnabled);
 				ImGui::Text("Error: %d", drive->error);
 				ImGui::SameLine();
 				ImGui::Text("Code: %X", drive->lastErrorCode);

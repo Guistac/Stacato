@@ -51,7 +51,7 @@ void EipServoDrive::startImplicitMessaing() {
     //connectionParameters.originatorSerialNumber = 0x333;                                            //useless
 
     //amount of messages that can be missed before timeout trigger (4*2^x messages) 
-    connectionParameters.connectionTimeoutMultiplier = 5; //4*2^5 = 128 messages
+    connectionParameters.connectionTimeoutMultiplier = 3; //4*2^3 = 32 messages
 
     //output assembly (103)
     connectionParameters.o2tRPI = 10000;                                                             //IMPORTANT (in microseconds)
@@ -180,42 +180,52 @@ void EipServoDrive::receiveInputData(eipScanner::utils::Buffer& buffer) {
     case 1: 
         stateChar = "Start";
         state = State::START;
+        b_powerStageEnabled = false;
         break;
     case 2: 
         stateChar = "Not Ready to Switch On";
         state = State::NOT_READY_TO_SWITCH_ON;
+        b_powerStageEnabled = false;
         break;
     case 3:
         stateChar = "Switch On Disabled";
         state = State::SWITCH_ON_DISABLED;
+        b_powerStageEnabled = false;
         break;
     case 4:
         stateChar = "Ready To Switch On";
         state = State::READY_TO_SWITCH_ON;
+        b_powerStageEnabled = false;
         break;
     case 5:
         stateChar = "Switched On";
         state = State::SWITCHED_ON;
+        b_powerStageEnabled = true;
         break;
     case 6:
         stateChar = "Operation Enabled";
         state = State::OPERATION_ENABLED;
+        b_powerStageEnabled = true;
         break;
     case 7:
         stateChar = "Quick Stop Active";
         state = State::QUICK_STOP_ACTIVE;
+        b_powerStageEnabled = true;
         break;
     case 8:
         stateChar = "Fault Reaction Active";
         state = State::FAULT_REATION_ACTIVE;
+        b_powerStageEnabled = false;
         break;
     case 9:
         stateChar = "Fault";
         state = State::FAULT;
+        b_powerStageEnabled = false;
         break;
     default:
         stateChar = "unknow state...";
         state = State::UNKNOWN_STATE;
+        b_powerStageEnabled = false;
     }
 
     error = driveStat & (1 << 6);
@@ -318,12 +328,29 @@ void EipServoDrive::receiveInputData(eipScanner::utils::Buffer& buffer) {
 
 void EipServoDrive::process() {
     
-    //reset state and mode control word
+    //reset state and mode control word (disables the power stage if left in this state)
     dmControl = 0x0000;
+
+    //set the disable bit if that command was executed
+    if (disablePowerStage) {
+        dmControl |= 0x1 << 8;
+        requestedVelocity = 0;
+        disablePowerStage = false;
+    } //set the b_powerStageEnable flag to permanently have the enable bit high
+    else if (enablePowerStage) {
+        enablePowerStage = false;
+        b_powerStageEnabled = true;
+        requestedVelocity = 0;
+    }
+    //enable the bit to the turn power stage on (or keep it on, since having it at zero might disable the power stage)
+    if (b_powerStageEnabled) {
+        dmControl |= 0x1 << 9;
+    }
 
     if (enableHalt) {
         dmControl |= 0x1 << 13;
         enableHalt = false;
+        requestedVelocity = 0;
     }
     if (clearHalt) {
         dmControl |= 0x1 << 14;
@@ -333,20 +360,12 @@ void EipServoDrive::process() {
         dmControl |= 0x1 << 11;
         performFaultReset = false;
     }
-    if (disablePowerStage) {
-        dmControl |= 0x1 << 8;
-        enablePowerStage = false;
-    }else if (enablePowerStage) {
-        dmControl |= 0x1 << 9;
-        disablePowerStage = false;
-    }
+
     if (performQuickStop) {
         dmControl |= 0x1 << 10;
         performQuickStop = false;
+        requestedVelocity = 0;
     }
-
-
-    counter++;
 
     //by default no special data is read or written
     PCTRLms = 0x03000000;
@@ -379,9 +398,6 @@ void EipServoDrive::process() {
     RefA32 = requestedVelocity;
     dmControl |= 0x23;
     dmControl |= toggleBit << 7;
-
-    Ramp_v_acc = 10000;
-    Ramp_v_dec = 10000;
 
     EthOptMapOut1 = 0x0;
     EthOptMapOut2 = 0x0;
