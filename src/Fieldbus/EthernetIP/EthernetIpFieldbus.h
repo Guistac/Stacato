@@ -28,7 +28,6 @@ public:
 private:
 
 	static void runtime();
-	static void exit();
 	static eipScanner::ConnectionManager connectionManager;
 	static std::thread eipRuntimeThread;
 	static bool running;

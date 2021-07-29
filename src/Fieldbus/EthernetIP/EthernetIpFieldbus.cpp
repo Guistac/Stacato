@@ -20,13 +20,13 @@ using eipScanner::cip::connectionManager::NetworkConnectionParams;
 using namespace eipScanner::cip;
 using namespace eipScanner::utils;
 
-eipScanner::ConnectionManager EthernetIPFieldbus::connectionManager;
-std::vector<std::shared_ptr<EipServoDrive>> EthernetIPFieldbus::servoDrives;
-std::vector<EipDevice> EthernetIPFieldbus::discoveredDevices;
-std::thread EthernetIPFieldbus::eipRuntimeThread;
-bool EthernetIPFieldbus::running = false;
-int EthernetIPFieldbus::broadcastIP[4] = {3, 3, 3, 255};
-int EthernetIPFieldbus::port = 0xAF12;
+eipScanner::ConnectionManager                   EthernetIPFieldbus::connectionManager;
+std::vector<std::shared_ptr<EipServoDrive>>     EthernetIPFieldbus::servoDrives;
+std::vector<EipDevice>                          EthernetIPFieldbus::discoveredDevices;
+std::thread                                     EthernetIPFieldbus::eipRuntimeThread;
+bool                                            EthernetIPFieldbus::running = false;
+int                                             EthernetIPFieldbus::broadcastIP[4] = {3, 3, 3, 255};
+int                                             EthernetIPFieldbus::port = 0xAF12;
 
 void EthernetIPFieldbus::init(int ip[4], int p) {
     eipScanner::utils::Logger::setLogLevel(eipScanner::utils::LogLevel::INFO);
@@ -37,11 +37,11 @@ void EthernetIPFieldbus::init(int ip[4], int p) {
         while (running) {
             runtime();
         }
-        exit();
     });
 }
 
 void EthernetIPFieldbus::terminate() {
+    for (auto drive : servoDrives) drive->stopImplicitMessaging();
     running = false;
     eipRuntimeThread.join();
 }
@@ -52,10 +52,6 @@ void EthernetIPFieldbus::runtime() {
     if(!hasOpenConnections){
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-}
-
-void EthernetIPFieldbus::exit() {
-    //forwardclose all connection
 }
 
 

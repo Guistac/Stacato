@@ -9,7 +9,7 @@
 std::vector<NetworkInterfaceCard>   EtherCatFieldbus::networkInterfaceCards;
 NetworkInterfaceCard                EtherCatFieldbus::selectedNetworkInterfaceCard;
 bool                                EtherCatFieldbus::b_networkScanned = false;
-std::vector<EtherCatSlave>          EtherCatFieldbus::slaves;
+std::vector<ECatServoDrive>         EtherCatFieldbus::servoDrives;
 uint8_t                             EtherCatFieldbus::ioMap[4096];
 int                                 EtherCatFieldbus::ioMapSize = 0;
 std::thread                         EtherCatFieldbus::etherCatRuntime;
@@ -44,7 +44,7 @@ void EtherCatFieldbus::init(NetworkInterfaceCard& nic) {
 }
 
 void EtherCatFieldbus::scanNetwork() {
-    slaves.clear();
+    servoDrives.clear();
     b_ioMapConfigured = false;
     //setup all slaves, get slave count and info in ec_slave, setup mailboxes, request state PRE-OP for all slaves
     int workingCounter = ec_config_init(FALSE); //what is usetable??
@@ -57,17 +57,19 @@ void EtherCatFieldbus::scanNetwork() {
         slave.manualAddress = slv.aliasadr;
         slave.address = slv.configadr;
         sprintf(slave.displayName, "%s (Node %i #%i)", slave.name, slave.index, slave.manualAddress);
-        slaves.push_back(std::move(slave));
+        servoDrives.push_back(ECatServoDrive());
+        servoDrives.back().identity = slave;
+
     }
     if (workingCounter > 0) {
         b_networkScanned = true;
         std::cout << "===== Found and Configured " << ec_slavecount << " EtherCAT Slave" << ((ec_slavecount == 1) ? ": " : "s: ") << std::endl;
-        for (EtherCatSlave& slave : slaves)
+        for (ECatServoDrive& drive : servoDrives)
             std::cout << "    = Slave "
-            << slave.index << " : '"
-            << slave.name << "' Address: "
-            << slave.address << " Manual Address: "
-            << slave.manualAddress << std::endl;
+            << drive.identity.index << " : '"
+            << drive.identity.name << "' Address: "
+            << drive.identity.address << " Manual Address: "
+            << drive.identity.manualAddress << std::endl;
     }
     else {
         b_networkScanned = false;
@@ -78,10 +80,10 @@ void EtherCatFieldbus::scanNetwork() {
 void EtherCatFieldbus::configureSlaves() {
     int workingCounter = 0;
 
-    for (EtherCatSlave& slave : slaves) {
-        if (strcmp(slave.name, "LXM32M EtherCAT") == 0) {
+    for (ECatServoDrive& drive : servoDrives) {
+        if (strcmp(drive.identity.name, "LXM32M EtherCAT") == 0) {
             //asign RxPDO and TxPDO here:
-            slave.slave_ptr->PO2SOconfigx = [](ecx_contextt* context, uint16_t slave) -> int {
+            drive.identity.slave_ptr->PO2SOconfigx = [](ecx_contextt* context, uint16_t slave) -> int {
                 /*
                 std::cout << "===== Remapping TxPDO Parameters..." << std::endl;
                 //remap used TxPDO to two arbitray parameters of the drive (iMax and vMax)
@@ -120,14 +122,9 @@ void EtherCatFieldbus::configureSlaves() {
                 workingCounter += ec_SDOwrite(slave, TxPDO, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
                 workingCounter += ec_SDOwrite(slave, TxPDO, 0x1, false, 2, &TxPDOmodule, EC_TIMEOUTSAFE);
                 workingCounter += ec_SDOwrite(slave, TxPDO, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
-                if (workingCounter == 6) {
-                    std::cout << "===== PDO assignement successfull !" << std::endl;
-                    return 1;
-                }
-                else {
-                    std::cout << "===== PDO assignement failed..." << std::endl;
-                    return 0;
-                }
+                if (workingCounter == 6) std::cout << "===== PDO assignement successfull !" << std::endl;
+                else std::cout << "===== PDO assignement failed..." << std::endl;
+                return 0;
             };
         }
     }
@@ -140,38 +137,34 @@ void EtherCatFieldbus::configureSlaves() {
     
     if (ioMapSize > 0) b_ioMapConfigured = true;
 
-    for (EtherCatSlave& slave : slaves) {
-        slave.b_configured = true;
+    for (ECatServoDrive& drive : servoDrives) {
+        drive.identity.b_configured = true;
     }
 
-    for (EtherCatSlave& slave : slaves) {
-        std::cout << "   [" << slave.index << "] '" << slave.name << "' " << slave.slave_ptr->Ibytes + slave.slave_ptr->Obytes << " bytes (" << slave.slave_ptr->Ibits + slave.slave_ptr->Obits << " bits)" << std::endl;
-        std::cout << "          Inputs: " << slave.slave_ptr->Ibytes << " bytes (" << slave.slave_ptr->Ibits << " bits)" << std::endl;
-        std::cout << "          Outputs: " << slave.slave_ptr->Obytes << " bytes (" << slave.slave_ptr->Obits << " bits)" << std::endl;
+    for (ECatServoDrive& drive : servoDrives) {
+        std::cout << "   [" << drive.identity.index << "] '" << drive.identity.name << "' " << drive.identity.slave_ptr->Ibytes + drive.identity.slave_ptr->Obytes << " bytes (" << drive.identity.slave_ptr->Ibits + drive.identity.slave_ptr->Obits << " bits)" << std::endl;
+        std::cout << "          Inputs: " << drive.identity.slave_ptr->Ibytes << " bytes (" << drive.identity.slave_ptr->Ibits << " bits)" << std::endl;
+        std::cout << "          Outputs: " << drive.identity.slave_ptr->Obytes << " bytes (" << drive.identity.slave_ptr->Obits << " bits)" << std::endl;
     }
 
-    /*
     std::cout << "===== Configuring Distributed Clocks" << std::endl;
     bool distributedClockConfigurationResult = ec_configdc();
     if (distributedClockConfigurationResult) std::cout << "===== Finished Configuring Distributed Clocks" << std::endl;
     else std::cout << "===== Could not configure distributed clocks ..." << std::endl;
-    */
 }
 
 void EtherCatFieldbus::terminate() {
+    stopCyclicExchange();
     std::cout << "===== Closing EtherCAT Network Interface Card" << std::endl;
     ec_close();
+    std::cout << "===== Ending EtherCAT test program" << std::endl;
 }
 
 void EtherCatFieldbus::startCyclicExchange() {
-    /*
     if (!b_processRunning) {
-
+        if (etherCatRuntime.joinable()) etherCatRuntime.join();
         b_processRunning = true;
-
-        etherCatRuntime = std::thread([]() {
-        */
-            
+        etherCatRuntime = std::thread([]() {            
             std::cout << "===== Setting All Slaves to Operational state..." << std::endl;
             // Act on slave 0 (a virtual slave used for broadcasting)
             ec_slavet* broadcastSlave = &ec_slave[0];
@@ -181,42 +174,56 @@ void EtherCatFieldbus::startCyclicExchange() {
             //wait for all slaves to reach OP state
             uint16_t slaveState = ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE);
             if (slaveState == EC_STATE_OPERATIONAL) std::cout << "===== All slaves are operational !" << std::endl;
+
             
             std::cout << "===== Begin Cyclic Process Data Echange !" << std::endl;
 
             int workingCounter;
 
-            int lineLength = 0;
+            //thread timing
+            using namespace std::chrono;
+            microseconds cycleInterval(50000);
+            time_point now = high_resolution_clock::now();
+            time_point previousCycleStartTime = now;
+
+            //benchmarking
             int transmissions = 0;
             int transmissionSuccesses = 0;
             int transmissionFailures = 0;
             int maxTransmissions = 10000;
-            std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
+            std::vector<long long> tripLengths_nanoseconds(maxTransmissions, 0);
+            std::vector<long long> cycleLengths_nanoseconds(maxTransmissions, 0);
+            time_point begin = high_resolution_clock::now();
 
-            while (true) {
+            while (b_processRunning) {
+                //brute force timing precision by using 100% of CPU core
+                while (now - previousCycleStartTime < cycleInterval) now = high_resolution_clock::now();
+
+                //measure the time between the previous cycle start and this cycle start
+                cycleLengths_nanoseconds[transmissions] = duration_cast<nanoseconds>(now - previousCycleStartTime).count();
+                previousCycleStartTime = now;
+
+                //send ethercat frame and wait for return of the data until timeout
                 ec_send_processdata();
-                workingCounter = ec_receive_processdata(EC_TIMEOUTRET * 10);
+                workingCounter = ec_receive_processdata(EC_TIMEOUTRET);
+
+                process();
+
+                //measure time between sending and receiving the frame or timeout
+                tripLengths_nanoseconds[transmissions] = duration_cast<nanoseconds>(high_resolution_clock::now() - previousCycleStartTime).count();
+
                 //TODO: detect difference between transmission corruption and timeout
-                if (workingCounter == 3) {
-                    std::cout << ".";
-                    transmissionSuccesses++;
-                }
-                else {
-                    std::cout << "#";
-                    transmissionFailures++;
-                }
-                lineLength++;
-                if (lineLength > 80) {
-                    lineLength = 0;
-                    std::cout << std::endl;
-                }
+                if (workingCounter == 3) transmissionSuccesses++;
+                else transmissionFailures++;
+
+                //count transmissions and exit the loop when the target has been reached
                 transmissions++;
                 if (transmissions == maxTransmissions) break;
-                //std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
 
-            long long durationMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - begin).count();
-            double durationSeconds = (double)durationMicroseconds / 1000000.0L;
+            //compute average cycle frequency
+            long long duration_microseconds = duration_cast<microseconds>(high_resolution_clock::now() - begin).count();
+            double durationSeconds = (double)duration_microseconds / 1000000.0L;
             double cycleFrequency = (double)maxTransmissions / durationSeconds;
 
             float transmissionSuccessRate = 100.0f * (float)transmissionSuccesses / (float)maxTransmissions;
@@ -225,18 +232,67 @@ void EtherCatFieldbus::startCyclicExchange() {
             std::cout << "===== Sucessfull transmissions: " << transmissionSuccesses << "   Failures: " << transmissionFailures << std::endl;
             std::cout << "===== Success Rate: " << transmissionSuccessRate << "%" << std::endl;
             std::cout << "===== Cycle Frequency: " << cycleFrequency << "Hz" << std::endl;
-            std::cout << "===== Ending EtherCAT test program" << std::endl;
 
+            long long longestTripLength_nanoseconds = 0;
+            long long shortestTripLength_nanoseconds = LLONG_MAX;
+            long long sumTripLength_nanoseconds = 0;
+
+            long long longestCycleLength_nanoseconds = 0;
+            long long shortesCycleLength_nanoseconds = LLONG_MAX;
+            long long sumCycleLength_nanoseconds = 0;
+
+            for (int i = 0; i < maxTransmissions; i++) {
+                if (tripLengths_nanoseconds[i] > longestTripLength_nanoseconds) longestTripLength_nanoseconds = tripLengths_nanoseconds[i];
+                if (tripLengths_nanoseconds[i] < shortestTripLength_nanoseconds) shortestTripLength_nanoseconds = tripLengths_nanoseconds[i];
+                sumTripLength_nanoseconds += tripLengths_nanoseconds[i];
+                if (cycleLengths_nanoseconds[i] > longestCycleLength_nanoseconds) longestCycleLength_nanoseconds = cycleLengths_nanoseconds[i];
+                if (cycleLengths_nanoseconds[i] < shortesCycleLength_nanoseconds) shortesCycleLength_nanoseconds = cycleLengths_nanoseconds[i];
+                sumCycleLength_nanoseconds += cycleLengths_nanoseconds[i];
+            }
+
+            float averageTripLength_milliseconds = ((float)sumTripLength_nanoseconds / (float)maxTransmissions) / 1000000.0f;
+            float maxTripLength_milliseconds = (float)longestTripLength_nanoseconds / 1000000.0;
+            float minTripLength_milliseconds = (float)shortestTripLength_nanoseconds / 1000000.0;
+            
+            float averageCycleLength_milliseconds = ((float)sumCycleLength_nanoseconds / (float)maxTransmissions) / 1000000.0f;
+            float maxCycleLength_milliseconds = (float)longestCycleLength_nanoseconds / 1000000.0;
+            float minCycleLength_milliseconds = (float)shortesCycleLength_nanoseconds / 1000000.0;
+
+            std::cout << "===== Frame Trip Length   longest: " << maxTripLength_milliseconds << "ms   shortest: " << minTripLength_milliseconds << "ms   average: " << averageTripLength_milliseconds << "ms" << std::endl;
+            std::cout << "===== Cycle Length        longest: " << maxCycleLength_milliseconds << "ms   shortest: " << minCycleLength_milliseconds << "ms   average: " << averageCycleLength_milliseconds << "ms " << std::endl;
 
             b_processRunning = false;
-            /*
         });
     }
-    */
 }
+
 void EtherCatFieldbus::stopCyclicExchange() {
+    std::cout << "===== Stopping Cyclic Exchange" << std::endl;
     b_processRunning = false;
+    if (etherCatRuntime.joinable()) etherCatRuntime.join();
+    std::cout << "===== Cyclic Exchange Stopped !" << std::endl;
 }
+
+
+
+
+
+
+
+void EtherCatFieldbus::process() {
+    for (ECatServoDrive& drive : servoDrives) drive.process();
+}
+
+
+
+
+
+
+
+
+
+
+
 
 void EtherCAT_dev(NetworkInterfaceCard nic) {
     //ec_statecheck(slave,state,timeout) checks the status of the slave and returns the state
@@ -266,75 +322,7 @@ void EtherCAT_dev(NetworkInterfaceCard nic) {
         << "\n obits " << slave->Obits
         << std::endl;
     */
-
-    /*
-    while (true) {
-
-        static uint16_t DCOM = 0;
-        static uint32_t target = 0;
-        static uint16_t IO = 0;
-
-        //DCOM = 1 << 6;
-        target++;
-
-        IO = 0;
-        if ((target + 0) % 60 < 30) IO |= 1;
-        if ((target + 15) % 60 < 30) IO |= 2;
-        if ((target + 30) % 60 < 30) IO |= 4;
-
-        uint8_t* ioMapOut = slave->outputs;
-        ioMapOut[0] = (DCOM >> 0) & 0xFF;
-        ioMapOut[1] = (DCOM >> 8) & 0xFF;
-        ioMapOut[2] = (target >> 0) & 0xFF;
-        ioMapOut[3] = (target >> 8) & 0xFF;
-        ioMapOut[4] = (target >> 16) & 0xFF;
-        ioMapOut[5] = (target >> 24) & 0xFF;
-        ioMapOut[6] = (IO >> 0) & 0xFF;
-        ioMapOut[7] = (IO >> 8) & 0xFF;
-
-        ec_send_processdata();
-        workingCounter = ec_receive_processdata(EC_TIMEOUTRET);
-
-        if (workingCounter == EC_NOFRAME) {
-            std::cout << "timeout" << std::endl;
-            continue;
-        }
-
-        if (workingCounter != 3) {
-            std::cout << "Wrong Working Counter" << std::endl;
-            continue;
-        }
-
-        uint8_t* inByte = slave->inputs;
-        uint16_t _DCOMstatus = inByte[0] | inByte[1] << 8;
-        uint32_t _p_act = inByte[2] | inByte[3] << 8 | inByte[4] << 16 | inByte[5] << 24;
-        uint16_t _LastError = inByte[6] | inByte[7] << 8;
-        uint16_t _IO_act = inByte[8] | inByte[9] << 8;
-
-        std::bitset<16> DCOMbits(_DCOMstatus);
-        std::bitset<16> IObits(_IO_act);
-        std::cout << "===Inputs=== OpState: " << DCOMbits << " ActualPosition: " << _p_act << " LastError: " << _LastError << " IO-inputs: " << IObits;
-
-        uint8_t* outByte = slave->outputs;
-        uint16_t _DCOMcontrol = outByte[0] | outByte[1] << 8;
-        uint32_t PPp_target = outByte[2] | outByte[3] << 8 | outByte[4] << 16 | outByte[5] << 24;
-        uint16_t IO_DQ_set = outByte[6] | outByte[7] << 8;
-
-        std::bitset<16> DCOMcBits(_DCOMcontrol);
-        std::bitset<16> IO_DQbits(IO_DQ_set);
-        std::cout << "  ===Outputs=== OpStateCommand: " << DCOMcBits << " PositionTarget: " << PPp_target << " IO-ouputs " << IO_DQbits << std::endl;
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    }
-    */
 }
-
-
-
-
-
-
-
 
 const char* getStateString(uint16_t state) {
     switch (state) {

@@ -16,10 +16,11 @@ enum Fieldbus {
 
 void gui() {
 
-	static bool startup = true;
+	static bool fieldbusSelection = true;
 	static Fieldbus fieldbus = Fieldbus::None;
 	static bool fieldbusStarted = false;
 
+	static bool startup = true;
 	if (startup) {
 		startup = false;
 		fieldbusStarted = true;
@@ -33,9 +34,9 @@ void gui() {
 
 	if (!fieldbusStarted) {
 		ImGui::Begin("Fieldbus Test Program");
-		if (startup) {
+		if (fieldbusSelection) {
 			ImGui::OpenPopup("Fieldbus Selection");
-			startup = false;
+			fieldbusSelection = false;
 		}
 
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
@@ -116,7 +117,7 @@ void gui() {
 			EthernetIPFieldbus::terminate();
 			fieldbus = Fieldbus::None;
 			fieldbusStarted = false;
-			startup = true;
+			fieldbusSelection = true;
 		}
 	}
 	else if (fieldbus == Fieldbus::EtherCAT) {
@@ -124,7 +125,7 @@ void gui() {
 			EtherCatFieldbus::terminate();
 			fieldbus = Fieldbus::None;
 			fieldbusStarted = false;
-			startup = true;
+			fieldbusSelection = true;
 		}
 	}
 }
