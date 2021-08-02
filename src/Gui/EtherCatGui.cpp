@@ -4,6 +4,7 @@
 
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "implot.h";
 
 bool etherCatGui() {
 
@@ -25,6 +26,7 @@ bool etherCatGui() {
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
 	}
+
 	if (ImGui::Button("Start Cyclic Exchange")) EtherCatFieldbus::startCyclicExchange();
 	ImGui::SameLine();
 	if (ImGui::Button("Stop Cyclic Exchange")) EtherCatFieldbus::stopCyclicExchange();
@@ -44,6 +46,40 @@ bool etherCatGui() {
 					ImGui::Text("Input Bytes: %i (%i bits)", drive.identity.slave_ptr->Ibytes, drive.identity.slave_ptr->Ibits);
 					ImGui::Text("Output Bytes: %i (%i bits)", drive.identity.slave_ptr->Obytes, drive.identity.slave_ptr->Obits);
 				}
+
+
+				if (ImGui::Button("Write Parameters")) drive.writeStartupParameters();
+				ImGui::SameLine();
+				if (ImGui::Button("Read Parameters")) drive.readStartupParameters();
+
+				ec_slavet& slave = *drive.identity.slave_ptr;
+				slave.DCactive;
+				slave.DCcycle;
+				slave.DCnext;
+				slave.DCprevious;
+				slave.DCrtA;
+				slave.DCrtB;
+				slave.DCrtC;
+				slave.DCrtD;
+				slave.DCshift;
+				slave.topology;
+				slave.state;
+				slave.ALstatuscode;
+				slave.hasdc;
+				slave.pdelay;
+				slave.activeports;
+				slave.consumedports;
+				slave.Ebuscurrent;
+				slave.Dtype;
+				slave.parent;
+
+				ImGui::Text("state: %i   ALstatuscode: %i", slave.state, slave.ALstatuscode);
+				ImGui::Text("ptype: %i  topology: %i  activeports: %i  consumedports: %i", slave.ptype, slave.topology, slave.activeports, slave.consumedports);
+
+				ImGui::Text("hasDC: %i  DCactive: %i", slave.hasdc, slave.DCactive);
+				ImGui::Text("pdelay: %i  DCnext: %i  DCprevious: %i  DCcycle: %i  DCshift: %i", slave.pdelay, slave.DCnext, slave.DCprevious, slave.DCcycle, slave.DCshift);
+				ImGui::Text("parent: %i  parentport: %i  entryport: %i  ebuscurrent: %i", slave.parent, slave.parentport, slave.entryport, slave.Ebuscurrent);
+				ImGui::Text("DCrtA: %i  DcrtB: %i  DCrtC: %i  DCrtD: %i", slave.DCrtA, slave.DCrtB, slave.DCrtC, slave.DCrtD);
 
 				ImGui::Separator();
 
@@ -86,25 +122,58 @@ bool etherCatGui() {
 				ImGui::Text("Position Error: %i", drive.positionError);
 				ImGui::Text("Torque: %i", drive.torque);
 
-				ImGui::Text("Digital Inputs: %i %i %i %i %i",
-					drive.digitalInputs & 0x1,
-					drive.digitalInputs & 0x2,
-					drive.digitalInputs & 0x4,
-					drive.digitalInputs & 0x8,
-					drive.digitalInputs & 0x10
+				ImGui::Text("Digital Inputs: %i %i %i %i %i %i",
+					drive.DI0,
+					drive.DI1,
+					drive.DI2,
+					drive.DI3,
+					drive.DI4,
+					drive.DI5
 				);
 
 				ImGui::Separator();
 
 				ImGui::Text("Current Operating Mode: %s (%i)", drive.modeChar, drive.mode);
 
-				if (ImGui::BeginCombo("Mode Switch", "Select Mode")) {
+				if (ImGui::BeginCombo("Mode Switch", ECatServoDrive::modelist[drive.modeCommand].c_str(), ImGuiComboFlags_HeightLargest)) {
 					for (const auto& [key, value] : ECatServoDrive::modelist) {
+						if (key == 0) continue;
 						if (ImGui::Selectable(value.c_str(), false)) drive.modeCommand = key;
 						
 					}
 					ImGui::EndCombo();
 				}
+
+				int positionCommand = drive.positionCommand;
+				int velocityCommand = drive.velocityCommand;
+				int torqueCommand = drive.torqueCommand;
+
+				ImGui::SliderInt("##Position", &positionCommand, -1000000, 1000000, "%d ticks");
+				ImGui::SameLine();
+				if (ImGui::Button("Zero")) positionCommand = 0;
+				//ImGui::SliderInt("##Velocity", &velocityCommand, -7000, 7000, "%d rpm");
+				ImGui::InputInt("Position Command", &positionCommand, 1000, 10000);
+				drive.positionCommand = positionCommand;
+				ImGui::SameLine();
+				if(ImGui::Button("Stop")) velocityCommand = 0;
+				ImGui::SliderInt("##Torque", &torqueCommand, -100, 100, "%d t");
+				ImGui::SameLine();
+				if (ImGui::Button("Cut")) torqueCommand = 0;
+
+				ImGui::Checkbox("b4", &drive.opModeSpec4);
+				ImGui::Checkbox("b5", &drive.opModeSpec5);
+				ImGui::Checkbox("b6", &drive.opModeSpec6);
+				ImGui::Checkbox("b9", &drive.opModeSpec9);
+
+				drive.positionCommand = positionCommand;
+				drive.velocityCommand = velocityCommand;
+				drive.torqueCommand = torqueCommand;
+
+				ImGui::Checkbox("DQ0", &drive.DQ0);
+				ImGui::SameLine();
+				ImGui::Checkbox("DQ1", &drive.DQ1);
+				ImGui::SameLine();
+				ImGui::Checkbox("DQ2", &drive.DQ2);
 
 				if (ImGui::Button("<<--")) {
 					drive.jog = true;
@@ -118,7 +187,7 @@ bool etherCatGui() {
 					drive.fast = false;
 				}
 				ImGui::SameLine();
-				if (ImGui::Button("Stop")) {
+				if (ImGui::Button("0")) {
 					drive.stop = true;
 				}
 				ImGui::SameLine();
@@ -146,7 +215,6 @@ bool etherCatGui() {
 				ImGui::Text("stoppedByError : %i", drive.stoppedByError);
 				ImGui::Text("operatingModeFinished : %i", drive.operatingModeFinished);
 				ImGui::Text("validPositionReference : %i", drive.validPositionReference);
-
 				ImGui::TreePop();
 			}
 		}
@@ -156,6 +224,34 @@ bool etherCatGui() {
 
 	bool exitFieldbus = false;
 	if (ImGui::Button("Return to Fieldbus Selection")) exitFieldbus = true;
+
+	ImGui::End();
+
+
+
+
+	ImGui::Begin("Metrics");
+
+	ScrollingBuffer& intervals = EtherCatFieldbus::timingHistory;
+	ImPlot::SetNextPlotLimitsX(intervals.back().frameNumber - 1000, intervals.back().frameNumber, ImGuiCond_Always);
+	ImPlot::SetNextPlotLimitsY(EtherCatFieldbus::processInterval_microseconds - 500.0, EtherCatFieldbus::processInterval_microseconds + 5000.0, ImGuiCond_Always);
+	ImPlot::SetNextPlotFormatY("%g us");
+
+	if (ImPlot::BeginPlot("ec_timing", NULL, NULL, ImVec2(-1, 600))) {
+		ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0);
+		ImPlot::PlotLine("SendInterval", &intervals.front().frameNumber, &intervals.front().microseconds, intervals.size(), intervals.offset(), intervals.stride());
+		ImPlot::EndPlot();
+	}
+
+	ScrollingBuffer& workingCounters = EtherCatFieldbus::workingCounterHistory;
+	ImPlot::SetNextPlotLimitsX(intervals.back().frameNumber - 1000, intervals.back().frameNumber, ImGuiCond_Always);
+	ImPlot::SetNextPlotLimitsY(-10.0, 10.0, ImGuiCond_Always);
+	ImPlot::SetNextPlotFormatY("%g wc");
+	if (ImPlot::BeginPlot("ec_wc", NULL, NULL, ImVec2(-1, 600))) {
+		ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 2.0);
+		ImPlot::PlotLine("WorkingCounters", &workingCounters.front().frameNumber, &workingCounters.front().microseconds, workingCounters.size(), workingCounters.offset(), workingCounters.stride());
+		ImPlot::EndPlot();
+	}
 
 	ImGui::End();
 

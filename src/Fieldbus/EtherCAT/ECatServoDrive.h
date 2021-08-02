@@ -14,14 +14,14 @@ struct EtherCatSlave {
     bool b_configured = false;
 };
 
-
 class ECatServoDrive{
 public:
 
-    long long counter = 0;
-
     EtherCatSlave identity;
 
+    void writeStartupParameters();
+    void readStartupParameters();
+    void configurePDOs();
     void process();
 
     //fieldbus commands
@@ -68,22 +68,37 @@ public:
     int32_t positionError = 0;
     int16_t torque = 0;
     uint16_t lastErrorCode = 0;
-    uint16_t digitalInputs = 0;
+    bool DI0 = false;
+    bool DI1 = false;
+    bool DI2 = false;
+    bool DI3 = false;
+    bool DI4 = false;
+    bool DI5 = false;
 
     //command data
     int32_t positionCommand = 0;
     int32_t velocityCommand = 0;
     int16_t torqueCommand = 0;
-    uint16_t digitalOutputCommand = 0;
+    bool DQ0 = false;
+    bool DQ1 = false;
+    bool DQ2 = false;
+
+    //operating mode specific commands
+    bool opModeSpec4 = false;
+    bool opModeSpec5 = false;
+    bool opModeSpec6 = false;
+    bool opModeSpec9 = false;
+
+    //modes
 
     static std::map<int, std::string> modelist;
+    int mode = -1;
+    int modeCommand = -1;
+    const char* modeChar = "Jog";
 
-    int mode = 33;
-    int modeCommand = 33;
-    const char* modeChar = "None";
-
-    uint16_t RxPDO;
-    uint16_t TxPDO;
+    //maybe do gui remapping of pdo objects later
+    //uint16_t RxPDO;
+    //uint16_t TxPDO;
 
     //drive status memory
     bool b_switchedOn = false;

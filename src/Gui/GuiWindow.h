@@ -6,7 +6,7 @@ struct ImFont;
 class GuiWindow {
 public:
 
-	static void open();
+	static void open(int w, int h);
 	static void refresh();
 	static void close();
 

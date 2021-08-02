@@ -25,9 +25,9 @@ ImFont* GuiWindow::robotoBold42;
 ImFont* GuiWindow::robotoLight42;
 ImFont* GuiWindow::robotoRegular42;
 
-void GuiWindow::open() {
+void GuiWindow::open(int w, int h) {
 	glfwInit();
-	window = glfwCreateWindow(1920, 1080, "FieldbusDev", nullptr, nullptr);
+	window = glfwCreateWindow(w, h, "FieldbusDev", nullptr, nullptr);
 	glfwSetWindowSizeCallback(window, onResize);
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
