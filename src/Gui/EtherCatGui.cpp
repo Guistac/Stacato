@@ -239,45 +239,36 @@ bool etherCatGui() {
 	bool exitFieldbus = false;
 	if (ImGui::Button("Return to Fieldbus Selection")) exitFieldbus = true;
 
-	ImGui::End();
+	//ImGui::End();
 
 
 	
-	/*
-	ImGui::Begin("EtherCAT Timing");
-	ScrollingBuffer& clockDrift = EtherCatFieldbus::clockDrift;
-	ScrollingBuffer& averageClockDrift = EtherCatFieldbus::averageClockDrift;
+	
+	//ImGui::Begin("EtherCAT Timing");
+	ScrollingBuffer& dcTimeError = EtherCatFieldbus::dcTimeError;
+	ScrollingBuffer& averageDcTimeError = EtherCatFieldbus::averageDcTimeError;
 	static bool lockAxes = true;
 	ImGui::Checkbox("Lock Axes", &lockAxes);
 	if (lockAxes) {
-		ImPlot::SetNextPlotLimitsX(clockDrift.back().x - 1000.0, clockDrift.back().x, ImGuiCond_Always);
-		ImPlot::FitNextPlotAxes(false, true);
+		ImPlot::SetNextPlotLimitsX(dcTimeError.back().x - 10.0, dcTimeError.back().x, ImGuiCond_Always);
+		ImPlot::SetNextPlotLimitsY(-1.0, 1.0, ImGuiCond_Always);
 	}
 	ImPlot::SetNextPlotFormatY("%g ms");
+	ImPlot::SetNextPlotFormatX("%g s");
 	if (ImPlot::BeginPlot("drift", NULL, NULL, ImVec2(-1, 600))) {
 		ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0);
-		ImPlot::PlotLine("clock drift", &clockDrift.front().x, &clockDrift.front().y, clockDrift.size(), clockDrift.offset(), clockDrift.stride());
-		//ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 8.0);
-		//ImPlot::PlotLine("clock drift", &averageClockDrift.front().x, &averageClockDrift.front().y, averageClockDrift.size(), averageClockDrift.offset(), averageClockDrift.stride());
-		ImPlot::EndPlot();
-	}
-	ScrollingBuffer& intervals = EtherCatFieldbus::timingHistory;
-	if (lockAxes) {
-		ImPlot::SetNextPlotLimitsX(intervals.back().x - 1000.0, intervals.back().x, ImGuiCond_Always);
-		ImPlot::SetNextPlotLimitsY(EtherCatFieldbus::processInterval_microseconds - 500.0, EtherCatFieldbus::processInterval_microseconds + 5000.0, ImGuiCond_Always);
-	}
-	ImPlot::SetNextPlotFormatY("%g us");
-	if (ImPlot::BeginPlot("ec_timing", NULL, NULL, ImVec2(-1, 600))) {
-		ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0);
-		ImPlot::PlotLine("SendInterval", &intervals.front().x, &intervals.front().y, intervals.size(), intervals.offset(), intervals.stride());
+		ImPlot::PlotLine("clock drift", &dcTimeError.front().x, &dcTimeError.front().y, dcTimeError.size(), dcTimeError.offset(), dcTimeError.stride());
+		ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 4.0);
+		ImPlot::PlotLine("clock drift", &averageDcTimeError.front().x, &averageDcTimeError.front().y, averageDcTimeError.size(), averageDcTimeError.offset(), averageDcTimeError.stride());
 		ImPlot::EndPlot();
 	}
 	ScrollingBuffer& workingCounters = EtherCatFieldbus::workingCounterHistory;
 	if (lockAxes) {
-		ImPlot::SetNextPlotLimitsX(intervals.back().x - 1000.0, intervals.back().x, ImGuiCond_Always);
+		ImPlot::SetNextPlotLimitsX(workingCounters.back().x - 10.0, workingCounters.back().x, ImGuiCond_Always);
 		ImPlot::SetNextPlotLimitsY(-10.0, 10.0, ImGuiCond_Always);
 	}
 	ImPlot::SetNextPlotFormatY("%g wc");
+	ImPlot::SetNextPlotFormatX("%g s");
 	if (ImPlot::BeginPlot("ec_wc", NULL, NULL, ImVec2(-1, 600))) {
 		ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 2.0);
 		ImPlot::PlotLine("WorkingCounters", &workingCounters.front().x, &workingCounters.front().y, workingCounters.size(), workingCounters.offset(), workingCounters.stride());
@@ -285,7 +276,8 @@ bool etherCatGui() {
 	}
 	
 	ImGui::End();
-	*/
+	
+	
 
 	//ImGui::SetNextWindowFocus();
 	//ImGui::ShowMetricsWindow();

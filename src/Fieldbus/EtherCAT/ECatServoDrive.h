@@ -26,7 +26,7 @@ public:
     void writeStartupParameters();
     void readStartupParameters();
     void preOperationalToSafeOperationalConfiguration();
-    void process();
+    void process(bool);
 
     //fieldbus commands
     bool enableVoltage = false;

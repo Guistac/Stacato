@@ -1,14 +1,9 @@
 #pragma once
 
-#include <ethercat.h>
-#include <iostream>
 #include <thread>
-#include <chrono>
-#include <bitset>
 #include <vector>
 
 #include "Gui/ScrollingBuffer.h"
-
 #include "ECatServoDrive.h"
 
 struct NetworkInterfaceCard {
@@ -25,15 +20,15 @@ public:
     static void startCyclicExchange();
     static void stopCyclicExchange();
     static void terminate();
-    static void process();
+    static void process(bool);
 
-    static int processInterval_microseconds;
-    static int processDataTimeout_microseconds;
+    static double processInterval_milliseconds;
+    static double processDataTimeout_milliseconds;
 
-    static ScrollingBuffer timingHistory;
+    static ScrollingBuffer dcTimeError;
+    static ScrollingBuffer averageDcTimeError;
     static ScrollingBuffer workingCounterHistory;
-    static ScrollingBuffer clockDrift;
-    static ScrollingBuffer averageClockDrift;
+    static size_t scrollingBufferSize;
 
     static std::vector<NetworkInterfaceCard> networkInterfaceCards;
     static NetworkInterfaceCard selectedNetworkInterfaceCard;
@@ -50,6 +45,4 @@ public:
 };
 
 const char* getStateString(uint16_t state);
-
-void EtherCAT_dev(NetworkInterfaceCard nic);
 

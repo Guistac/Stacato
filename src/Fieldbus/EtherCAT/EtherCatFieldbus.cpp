@@ -2,25 +2,28 @@
 
 #include <ethercat.h>
 #include <iostream>
-#include <thread>
 #include <chrono>
-#include <bitset>
 
 std::vector<NetworkInterfaceCard>   EtherCatFieldbus::networkInterfaceCards;
 NetworkInterfaceCard                EtherCatFieldbus::selectedNetworkInterfaceCard;
-bool                                EtherCatFieldbus::b_networkScanned = false;
+
 std::vector<ECatServoDrive>         EtherCatFieldbus::servoDrives;
+
 uint8_t                             EtherCatFieldbus::ioMap[4096];
 int                                 EtherCatFieldbus::ioMapSize = 0;
-std::thread                         EtherCatFieldbus::etherCatRuntime;
+
+bool                                EtherCatFieldbus::b_networkScanned = false;
 bool                                EtherCatFieldbus::b_processRunning = false;
 bool                                EtherCatFieldbus::b_ioMapConfigured = false;
-ScrollingBuffer                     EtherCatFieldbus::timingHistory;
+
+ScrollingBuffer                     EtherCatFieldbus::dcTimeError;
+ScrollingBuffer                     EtherCatFieldbus::averageDcTimeError;
 ScrollingBuffer                     EtherCatFieldbus::workingCounterHistory;
-ScrollingBuffer                     EtherCatFieldbus::clockDrift;
-ScrollingBuffer                     EtherCatFieldbus::averageClockDrift;
-int                                 EtherCatFieldbus::processInterval_microseconds = 5000;
-int                                 EtherCatFieldbus::processDataTimeout_microseconds = 3500;
+size_t                              EtherCatFieldbus::scrollingBufferSize = 1000;
+
+double                              EtherCatFieldbus::processInterval_milliseconds = 10.0;
+double                              EtherCatFieldbus::processDataTimeout_milliseconds = 9.0;
+std::thread                         EtherCatFieldbus::etherCatRuntime;
 
 
 void EtherCatFieldbus::updateNetworkInterfaceCardList() {
@@ -46,11 +49,9 @@ void EtherCatFieldbus::init(NetworkInterfaceCard& nic) {
     int nicInitResult = ec_init(selectedNetworkInterfaceCard.name);
     if (nicInitResult > 0) std::cout << "===== Initialized network interface card !" << std::endl;
     else std::cout << "===== Failed to initialize network interface card ..." << std::endl;
-
-    timingHistory.setMaxSize(10000);
-    workingCounterHistory.setMaxSize(10000);
-    clockDrift.setMaxSize(10000);
-    averageClockDrift.setMaxSize(10000);
+    dcTimeError.setMaxSize(scrollingBufferSize);
+    averageDcTimeError.setMaxSize(scrollingBufferSize);
+    workingCounterHistory.setMaxSize(scrollingBufferSize);
 }
 
 void EtherCatFieldbus::scanNetwork() {
@@ -133,7 +134,26 @@ void EtherCatFieldbus::startCyclicExchange() {
     if (!b_processRunning) {
         if (etherCatRuntime.joinable()) etherCatRuntime.join();
         b_processRunning = true;
+
+        dcTimeError.clear();
+        averageDcTimeError.clear();
+        workingCounterHistory.clear();
+
         etherCatRuntime = std::thread([]() {
+
+            /*
+            Most DC slaves expect a stable and syncronised PDO transfer during safe-OP. Only when the LRW or LRD/LWR sequence has "proven" to the slave in question it is in sync with the SYNC0 signal the slave will allow transition to OP.
+            So your SOEM application has to:
+                -configure the slave
+                -map the slave
+                -configure distributed clock
+                -go to safe-op
+                -start pdo data transfer (LRW or LRD/LWR) at the desired DC interval (for example 1ms)
+                -check for stable DC clock in all slaves (difference timer)
+                -check for stable master clock (digital PLL locked to reference slave)
+                -only then request OP
+            An example how to do this is in red_test.c in the soem test map.
+            */
 
             std::cout << "===== Setting All Slaves to Operational state..." << std::endl;
             // Act on slave 0 (a virtual slave used for broadcasting)
@@ -147,31 +167,30 @@ void EtherCatFieldbus::startCyclicExchange() {
 
                 std::cout << "===== All slaves are operational, Starting Cyclic Process Data Echange !" << std::endl;
 
-                //thread timing
                 using namespace std::chrono;
-                microseconds processInterval(processInterval_microseconds);
-                //time_point processStart = high_resolution_clock::now();
-                //time_point previousCycleStartTime = now;
                 
+                //thread timing variables
                 uint64_t systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
-                uint64_t processInterval_nanoseconds = duration_cast<nanoseconds>(processInterval).count();
+                uint64_t processInterval_nanoseconds = processInterval_milliseconds * 1000000.0L;
+                uint64_t processDataTimeout_microseconds = processDataTimeout_milliseconds * 1000.0L;
                 uint64_t cycleStartTime_nanoseconds = systemTime_nanoseconds + processInterval_nanoseconds;
-                uint64_t previousCycleStartTime_nanoseconds = systemTime_nanoseconds;
-                    
-                uint64_t processStartTime_nanoseconds;
-                uint64_t referenceClockStartTime_nanoseconds;
 
-                uint64_t previousReferenceClock_nanoseconds;
+                //variables to measure drift from dc time (compensated by pi controller)
+                float dcTimeError_milliseconds;
+                float averageDcTimeError_milliseconds;
 
-                int cycle = 0;
+                //variables to measure time since process loop start
+                uint64_t processStartTime_nanoseconds; //system clock at thread start
+                uint64_t cycle = 0; //process cycle counter
+
+                int excpectedWorkingCounter = 6;
 
                 while (b_processRunning) {
 
                     //bruteforce timing precision by using 100% of CPU core
-                    while (systemTime_nanoseconds < cycleStartTime_nanoseconds) {
-                        //update and compare system time to next process timestamp
-                        systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
-                    }
+                    //update and compare system time to next process timestamp
+                    do { systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count(); }
+                    while (systemTime_nanoseconds < cycleStartTime_nanoseconds);
                     
                     //send ethercat frame
                     ec_send_processdata();
@@ -180,73 +199,46 @@ void EtherCatFieldbus::startCyclicExchange() {
                     int workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
                     
                     //adjust the copy of the reference clock in case no frame was received
-                    if (workingCounter != 6) ec_DCtime += processInterval_nanoseconds;
+                    if (workingCounter != excpectedWorkingCounter) ec_DCtime += processInterval_nanoseconds;
 
+                    //do axis processing to get next set of output data, only process input data if the working counter matches the expected one
+                    process(workingCounter == excpectedWorkingCounter);
 
-                    /*
-                    Most DC slaves expect a stable and syncronised PDO transfer during safe-OP. Only when the LRW or LRD/LWR sequence has "proven" to the slave in question it is in sync with the SYNC0 signal the slave will allow transition to OP.
-                    So your SOEM application has to:
-                        -configure the slave
-                        -map the slave
-                        -configure distributed clock
-                        -go to safe-op
-                        -start pdo data transfer (LRW or LRD/LWR) at the desired DC interval (for example 1ms)
-                        -check for stable DC clock in all slaves (difference timer)
-                        -check for stable master clock (digital PLL locked to reference slave)
-                        -only then request OP
-                    An example how to do this is in red_test.c in the soem test map.
-                    */
-                    
-                    
-                    if (cycle == 0) {
-                        processStartTime_nanoseconds = systemTime_nanoseconds;
-                        referenceClockStartTime_nanoseconds = ec_DCtime;
-                        previousReferenceClock_nanoseconds = ec_DCtime - processInterval_nanoseconds;
-                    }
-
-                    static float referenceClockCycleDrift_milliseconds = 0.0;
-                    int64_t referenceClockTimeDifference_nanoseconds = ec_DCtime - previousReferenceClock_nanoseconds;
-                    referenceClockCycleDrift_milliseconds += (float)(referenceClockTimeDifference_nanoseconds - (int64_t)processInterval_nanoseconds) / 1000000.0l;
-
-                    //log timing and data integrity performance
-                    int64_t processTime = systemTime_nanoseconds - processStartTime_nanoseconds;
-                    int64_t referenceTime = ec_DCtime - referenceClockStartTime_nanoseconds;
-                    float timeDifference_milliseconds = (float)(processTime - referenceTime) / 1000000.0;
-                    static float averageTimeDifference = 0.0;
-                    averageTimeDifference = averageTimeDifference * 0.99 + timeDifference_milliseconds * 0.01;
-                    clockDrift.addPoint(glm::vec2(cycle, referenceClockCycleDrift_milliseconds));
-                    averageClockDrift.addPoint(glm::vec2(cycle, referenceClockCycleDrift_milliseconds));
-                    timingHistory.addPoint(glm::vec2(cycle, (float)(cycleStartTime_nanoseconds - previousCycleStartTime_nanoseconds)/1000.0));
-                    workingCounterHistory.addPoint(glm::vec2(cycle, workingCounter));
-
-                    //TODO: need to make sure the frame gets send exactly in between two sync0 events
-                    //currently it just gets send in sync, in relation to the first send time, not in relation the ethercat reference clock
-                    //
-
-                    //do axis processing to get next set of output data
-                    process();
-
-
-
-                    //this code block calculates an offset to be applied to the next cycle start
+                    //dctime_offset: *reference clock* offset target for the receiving of a frame by the first dc slave
+                    //the offset is calculated as a distance from the -dc sync time-, which is a whole multiple of the process interval time
+                    //setting this to half the process interval time garantees a smoothn easily mesureable approach to the target value
+                    //this approach can be monitored to check when the frame time is synchronized to the dc sync time
+                    //since the frame receive time is offset 50% of the cycle interval, sync0 and sync1 events should be set to happen at dc sync time, or 0% offset.
+                    //else they will interfere with the frame receive time, this 50% offset garantees one frame is received per Sync0 or Sync1 Event
+                    static uint64_t dctime_offset_nanoseconds = processInterval_nanoseconds / 2;
+                    //the code block below calculates an offset correction to be applied to the next cycle start time of the *master clock*
+                    //this correction will make sure the frame is will be received at the correct ec_DCtime
                     //this effectively aligns the cycle interval of the master to the ethercat reference clock
-                    //since the master clock and reference clock will drift over time
-                    static int64_t offsetTime = 0;
-                    static int64 integral = 0;
-                    int64_t delta;
-                    // set linux sync point 50us later than DC sync, just as example
-                    delta = (ec_DCtime - 50000) % processInterval_nanoseconds;
+                    //since the master clock and reference clock will drift over time, and the frames should be received at the correct slave reference time (ec_DCtime)
+                    //this offset ensures that the chosen cycle interval is synchronous with the reference clock and the frames are received at the correct time
+                    //this regulating code block is taken from the soem example red_test.c
+                    //it implements a PI controller (proportional integral) that regulates ec_DCTime using an offset to be added to the system time
+                    static int64_t integral = 0;
+                    int64_t delta = (ec_DCtime - dctime_offset_nanoseconds) % processInterval_nanoseconds;
                     if (delta > (processInterval_nanoseconds / 2)) { delta = delta - processInterval_nanoseconds; }
                     if (delta > 0) { integral++; }
                     if (delta < 0) { integral--; }
-                    offsetTime = -(delta / 100) - (integral / 20);
-                    
+                    int64_t offsetTime = -(delta / 100) - (integral / 20);
+                    //the offset time should be added to the incrementation of the next cycle time of the master clock
 
-                    //std::cout << ec_DCtime << std::endl;
-                    
+                    dcTimeError_milliseconds = ((double)(ec_DCtime % processInterval_nanoseconds) - (double)dctime_offset_nanoseconds) / 1000000.0L;
+                    if (cycle == 0) {
+                        processStartTime_nanoseconds = systemTime_nanoseconds;
+                        averageDcTimeError_milliseconds = dcTimeError_milliseconds;
+                    }
+                    averageDcTimeError_milliseconds = averageDcTimeError_milliseconds * 0.99 + 0.01 * dcTimeError_milliseconds;
 
-                    previousReferenceClock_nanoseconds = ec_DCtime;
-                    previousCycleStartTime_nanoseconds = cycleStartTime_nanoseconds;
+                    double processTime_seconds = (double)(systemTime_nanoseconds - processStartTime_nanoseconds) / 1000000000.0L;
+                    dcTimeError.addPoint(glm::vec2(processTime_seconds, dcTimeError_milliseconds));
+                    averageDcTimeError.addPoint(glm::vec2(processTime_seconds, averageDcTimeError_milliseconds));
+                    workingCounterHistory.addPoint(glm::vec2(processTime_seconds, workingCounter));
+
+                    //calculate the start of the next cycle, taking clock drift compensation into account
                     cycleStartTime_nanoseconds += processInterval_nanoseconds + offsetTime;
                     cycle++;
                 }
@@ -266,8 +258,8 @@ void EtherCatFieldbus::stopCyclicExchange() {
 }
 
 
-void EtherCatFieldbus::process() {
-    for (ECatServoDrive& drive : servoDrives) drive.process();
+void EtherCatFieldbus::process(bool inputDataValid) {
+    for (ECatServoDrive& drive : servoDrives) drive.process(inputDataValid);
 }
 
 

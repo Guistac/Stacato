@@ -2,8 +2,6 @@
 #include "EtherCatFieldbus.h"
 
 #include <iostream>
-#include <bitset>
-#include <ethercat.h>
 
 #include "ECatUtilities.h"
 
@@ -28,11 +26,11 @@ std::map<int, std::string> ECatServoDrive::modelist = {
     {11, "11"}
 };
 
-void ECatServoDrive::process() {
+void ECatServoDrive::process(bool inputDataValid) {
 
     int32_t outputPosition;
-    if(b_inverted) outputPosition = positionCommand + (std::cos((double)counter / 150.0) - 1.0) * 11000000;
-    else outputPosition = positionCommand - (std::cos((double)counter / 150.0) - 1.0) * 11000000;
+    if(b_inverted) outputPosition = positionCommand + (std::cos((double)counter / 1000.0) - 1.0) * 20000000;
+    else outputPosition = positionCommand - (std::cos((double)counter / 1000.0) - 1.0) * 20000000;
 
     positions.addPoint(glm::vec2(counter, outputPosition));
 
@@ -50,60 +48,64 @@ void ECatServoDrive::process() {
     //_LastError    (uint16_t)  2
     //_IO_act       (uint16_t)  2
 
-    uint8_t* inByte = identity.slave_ptr->inputs;
+    //don't read the input data if the received frame workingCounter did not match the expected one
+    if (inputDataValid) {
 
-    //TxPDO Data
-    uint16_t _DCOMstatus =  inByte[0] | inByte[1] << 8;
-    int8_t _DCOMopmd_act = inByte[2];
-    position =      inByte[3] | inByte[4] << 8 | inByte[5] << 16 | inByte[6] << 24;
-    velocity = inByte[7] | inByte[8] << 8 | inByte[9] << 16 | inByte[10] << 24;
-    torque =        inByte[11] | inByte[12] << 8;
-    lastErrorCode = inByte[13] | inByte[14] << 8;
-    uint16_t _IO_act = inByte[15] | inByte[16] << 8;
+        uint8_t* inByte = identity.slave_ptr->inputs;
 
-    DI0 = _IO_act & 0x1;
-    DI1 = _IO_act & 0x2;
-    DI2 = _IO_act & 0x4;
-    DI3 = _IO_act & 0x8;
-    DI4 = _IO_act & 0x10;
-    DI5 = _IO_act & 0x20;
+        //TxPDO Data
+        uint16_t _DCOMstatus = inByte[0] | inByte[1] << 8;
+        int8_t _DCOMopmd_act = inByte[2];
+        position = inByte[3] | inByte[4] << 8 | inByte[5] << 16 | inByte[6] << 24;
+        velocity = inByte[7] | inByte[8] << 8 | inByte[9] << 16 | inByte[10] << 24;
+        torque = inByte[11] | inByte[12] << 8;
+        lastErrorCode = inByte[13] | inByte[14] << 8;
+        uint16_t _IO_act = inByte[15] | inByte[16] << 8;
 
-    //state bits (0,1,2,3,5,6)
-    bool readyToSwitchOn =  _DCOMstatus & 0x1;
-    bool switchedOn =       _DCOMstatus & 0x2;
-    bool operationEnabled = _DCOMstatus & 0x4;
-    bool fault =            _DCOMstatus & 0x8;
-    bool quickStop =        _DCOMstatus & 0x20;
-    bool switchOnDisabled = _DCOMstatus & 0x40;
-    //other DCOM bits
-    motorVoltagePresent =       _DCOMstatus & 0x10;
-    class0error =               _DCOMstatus & 0x80;
-    halted =                    _DCOMstatus & 0x100;
-    fieldbusControlActive =     _DCOMstatus & 0x200;
-    targetReached =             _DCOMstatus & 0x400;  //Operating mode specifig information (b10) 
-    internalLimitActive =       _DCOMstatus & 0x800; //DS402intLim
-    operatingModeSpecificFlag = _DCOMstatus & 0x1000;
-    stoppedByError =            _DCOMstatus & 0x2000;
-    operatingModeFinished =     _DCOMstatus & 0x4000; //Operating mode specific information (b12)
-    validPositionReference =    _DCOMstatus & 0x8000;
+        DI0 = _IO_act & 0x1;
+        DI1 = _IO_act & 0x2;
+        DI2 = _IO_act & 0x4;
+        DI3 = _IO_act & 0x8;
+        DI4 = _IO_act & 0x10;
+        DI5 = _IO_act & 0x20;
 
-    //find the state using the state bits
-    if (!readyToSwitchOn) {
-        if (switchOnDisabled)       state = State::SwitchOnDisabled;
-        else if (fault)             state = State::Fault;
-        else                        state = State::NotReadyToSwitchOn;
-    }
-    else {
-        if (fault)                  state = State::FaultReactionActive;
-        else if (!quickStop)        state = State::QuickStopActive;
-        else if (operationEnabled)  state = State::OperationEnabled;
-        else if (switchedOn)        state = State::SwitchedOn;
-        else                        state = State::ReadyToSwitchOn;
-    }
+        //state bits (0,1,2,3,5,6)
+        bool readyToSwitchOn = _DCOMstatus & 0x1;
+        bool switchedOn = _DCOMstatus & 0x2;
+        bool operationEnabled = _DCOMstatus & 0x4;
+        bool fault = _DCOMstatus & 0x8;
+        bool quickStop = _DCOMstatus & 0x20;
+        bool switchOnDisabled = _DCOMstatus & 0x40;
+        //other DCOM bits
+        motorVoltagePresent = _DCOMstatus & 0x10;
+        class0error = _DCOMstatus & 0x80;
+        halted = _DCOMstatus & 0x100;
+        fieldbusControlActive = _DCOMstatus & 0x200;
+        targetReached = _DCOMstatus & 0x400;  //Operating mode specifig information (b10) 
+        internalLimitActive = _DCOMstatus & 0x800; //DS402intLim
+        operatingModeSpecificFlag = _DCOMstatus & 0x1000;
+        stoppedByError = _DCOMstatus & 0x2000;
+        operatingModeFinished = _DCOMstatus & 0x4000; //Operating mode specific information (b12)
+        validPositionReference = _DCOMstatus & 0x8000;
 
-    if (_DCOMopmd_act != mode) {
-        mode = _DCOMopmd_act;
-        modeChar = modelist[mode].c_str();
+        //find the state using the state bits
+        if (!readyToSwitchOn) {
+            if (switchOnDisabled)       state = State::SwitchOnDisabled;
+            else if (fault)             state = State::Fault;
+            else                        state = State::NotReadyToSwitchOn;
+        }
+        else {
+            if (fault)                  state = State::FaultReactionActive;
+            else if (!quickStop)        state = State::QuickStopActive;
+            else if (operationEnabled)  state = State::OperationEnabled;
+            else if (switchedOn)        state = State::SwitchedOn;
+            else                        state = State::ReadyToSwitchOn;
+        }
+
+        if (_DCOMopmd_act != mode) {
+            mode = _DCOMopmd_act;
+            modeChar = modelist[mode].c_str();
+        }
     }
 
     //============== WRITE OUTPUTS
@@ -389,7 +391,15 @@ void ECatServoDrive::preOperationalToSafeOperationalConfiguration() {
     readStartupParameters();
 
     //set interrupt routine for cyclic synchronous position mode
-    ec_dcsync0(identity.index, true, EtherCatFieldbus::processInterval_microseconds*1000, EtherCatFieldbus::processInterval_microseconds * 1000 / 2);
+    //interval should be the same as the frame cycle time, and offset should be zero
+    //the frame cycle time is offset 50% from dc_sync time (which is a integer multiple of the interval time)
+    //by setting the sync0 event at 0 offset, maximum time offset is garanteed between the sync event and the frame receive time
+    uint32_t sync0Interval_nanoseconds = EtherCatFieldbus::processInterval_milliseconds * 1000000.0L;
+    uint32_t sync0offset_nanoseconds = 0;
+    ec_dcsync0(identity.index, true, sync0Interval_nanoseconds, sync0offset_nanoseconds);
+
+    //TODO: does this still apply with a lot of slaves ?
+    //if propagation delays add up, might the last slaves have their sync event happen at the same time as their frame receive time?
 
     if (strcmp(identity.name, "LXM32M EtherCAT") == 0) {
         std::cout << "===== Begin PDO assignement..." << std::endl;
