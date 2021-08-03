@@ -15,10 +15,13 @@ int                                 EtherCatFieldbus::ioMapSize = 0;
 std::thread                         EtherCatFieldbus::etherCatRuntime;
 bool                                EtherCatFieldbus::b_processRunning = false;
 bool                                EtherCatFieldbus::b_ioMapConfigured = false;
-ScrollingBuffer                     EtherCatFieldbus::timingHistory(1000);
-ScrollingBuffer                     EtherCatFieldbus::workingCounterHistory(1000);
-int                                 EtherCatFieldbus::processInterval_microseconds = 10000;
-int                                 EtherCatFieldbus::processDataTimeout_microseconds = 7000;
+ScrollingBuffer                     EtherCatFieldbus::timingHistory;
+ScrollingBuffer                     EtherCatFieldbus::workingCounterHistory;
+ScrollingBuffer                     EtherCatFieldbus::clockDrift;
+ScrollingBuffer                     EtherCatFieldbus::averageClockDrift;
+int                                 EtherCatFieldbus::processInterval_microseconds = 5000;
+int                                 EtherCatFieldbus::processDataTimeout_microseconds = 3500;
+
 
 void EtherCatFieldbus::updateNetworkInterfaceCardList() {
     std::cout << "===== Refreshing Network Interface Card List" << std::endl;
@@ -34,11 +37,7 @@ void EtherCatFieldbus::updateNetworkInterfaceCardList() {
         }
     }
     std::cout << "===== Found " << networkInterfaceCards.size() << " Network Interface Card" << (networkInterfaceCards.size() == 1 ? "" : "s") << std::endl;
-    for (NetworkInterfaceCard& nic : networkInterfaceCards) {
-        std::cout << "    = " << nic.description << " (ID: " << nic.name << ")" << std::endl;
-    }
-
-    //ec_dcs
+    for (NetworkInterfaceCard& nic : networkInterfaceCards) std::cout << "    = " << nic.description << " (ID: " << nic.name << ")" << std::endl;
 }
 
 void EtherCatFieldbus::init(NetworkInterfaceCard& nic) {
@@ -47,6 +46,11 @@ void EtherCatFieldbus::init(NetworkInterfaceCard& nic) {
     int nicInitResult = ec_init(selectedNetworkInterfaceCard.name);
     if (nicInitResult > 0) std::cout << "===== Initialized network interface card !" << std::endl;
     else std::cout << "===== Failed to initialize network interface card ..." << std::endl;
+
+    timingHistory.setMaxSize(10000);
+    workingCounterHistory.setMaxSize(10000);
+    clockDrift.setMaxSize(10000);
+    averageClockDrift.setMaxSize(10000);
 }
 
 void EtherCatFieldbus::scanNetwork() {
@@ -65,7 +69,6 @@ void EtherCatFieldbus::scanNetwork() {
         sprintf(slave.displayName, "%s (Node %i #%i)", slave.name, slave.index, slave.manualAddress);
         servoDrives.push_back(ECatServoDrive());
         servoDrives.back().identity = slave;
-
     }
     if (workingCounter > 0) {
         b_networkScanned = true;
@@ -89,7 +92,7 @@ void EtherCatFieldbus::configureSlaves() {
         ec_slave[i].PO2SOconfigx = [](ecx_contextt* context, uint16_t slave) -> int {
             for (ECatServoDrive& servoDrive : servoDrives) {
                 if (servoDrive.identity.index == slave) {
-                    servoDrive.configurePDOs();
+                    servoDrive.preOperationalToSafeOperationalConfiguration();
                     break;
                 }
             }
@@ -130,7 +133,7 @@ void EtherCatFieldbus::startCyclicExchange() {
     if (!b_processRunning) {
         if (etherCatRuntime.joinable()) etherCatRuntime.join();
         b_processRunning = true;
-        etherCatRuntime = std::thread([]() {            
+        etherCatRuntime = std::thread([]() {
 
             std::cout << "===== Setting All Slaves to Operational state..." << std::endl;
             // Act on slave 0 (a virtual slave used for broadcasting)
@@ -140,105 +143,116 @@ void EtherCatFieldbus::startCyclicExchange() {
 
             //wait for all slaves to reach OP state
             uint16_t slaveState = ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE);
-            if (slaveState == EC_STATE_OPERATIONAL) std::cout << "===== All slaves are operational !" << std::endl;
+            if (slaveState == EC_STATE_OPERATIONAL) {
 
-            std::cout << "===== Begin Cyclic Process Data Echange !" << std::endl;
+                std::cout << "===== All slaves are operational, Starting Cyclic Process Data Echange !" << std::endl;
+
+                //thread timing
+                using namespace std::chrono;
+                microseconds processInterval(processInterval_microseconds);
+                //time_point processStart = high_resolution_clock::now();
+                //time_point previousCycleStartTime = now;
+                
+                uint64_t systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
+                uint64_t processInterval_nanoseconds = duration_cast<nanoseconds>(processInterval).count();
+                uint64_t cycleStartTime_nanoseconds = systemTime_nanoseconds + processInterval_nanoseconds;
+                uint64_t previousCycleStartTime_nanoseconds = systemTime_nanoseconds;
+                    
+                uint64_t processStartTime_nanoseconds;
+                uint64_t referenceClockStartTime_nanoseconds;
+
+                uint64_t previousReferenceClock_nanoseconds;
+
+                int cycle = 0;
+
+                while (b_processRunning) {
+
+                    //bruteforce timing precision by using 100% of CPU core
+                    while (systemTime_nanoseconds < cycleStartTime_nanoseconds) {
+                        //update and compare system time to next process timestamp
+                        systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
+                    }
+                    
+                    //send ethercat frame
+                    ec_send_processdata();
+                    
+                    //wait for return of the frame until timeout
+                    int workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
+                    
+                    //adjust the copy of the reference clock in case no frame was received
+                    if (workingCounter != 6) ec_DCtime += processInterval_nanoseconds;
 
 
-            //thread timing
-            using namespace std::chrono;
-            microseconds cycleInterval(processInterval_microseconds);
-            time_point now = high_resolution_clock::now();
-            time_point previousCycleStartTime = now;
+                    /*
+                    Most DC slaves expect a stable and syncronised PDO transfer during safe-OP. Only when the LRW or LRD/LWR sequence has "proven" to the slave in question it is in sync with the SYNC0 signal the slave will allow transition to OP.
+                    So your SOEM application has to:
+                        -configure the slave
+                        -map the slave
+                        -configure distributed clock
+                        -go to safe-op
+                        -start pdo data transfer (LRW or LRD/LWR) at the desired DC interval (for example 1ms)
+                        -check for stable DC clock in all slaves (difference timer)
+                        -check for stable master clock (digital PLL locked to reference slave)
+                        -only then request OP
+                    An example how to do this is in red_test.c in the soem test map.
+                    */
+                    
+                    
+                    if (cycle == 0) {
+                        processStartTime_nanoseconds = systemTime_nanoseconds;
+                        referenceClockStartTime_nanoseconds = ec_DCtime;
+                        previousReferenceClock_nanoseconds = ec_DCtime - processInterval_nanoseconds;
+                    }
 
-            int workingCounter;
-            
-            /*
-            //benchmarking
-            int transmissions = 0;
-            int transmissionSuccesses = 0;
-            int transmissionFailures = 0;
-            int maxTransmissions = 1000;
-            std::vector<long long> tripLengths_nanoseconds(maxTransmissions, 0);
-            std::vector<long long> cycleLengths_nanoseconds(maxTransmissions, 0);
-            time_point begin = high_resolution_clock::now();
-            */
+                    static float referenceClockCycleDrift_milliseconds = 0.0;
+                    int64_t referenceClockTimeDifference_nanoseconds = ec_DCtime - previousReferenceClock_nanoseconds;
+                    referenceClockCycleDrift_milliseconds += (float)(referenceClockTimeDifference_nanoseconds - (int64_t)processInterval_nanoseconds) / 1000000.0l;
 
-            int counter = 0;
-            time_point previousSendTime = high_resolution_clock::now();
-            time_point thisSendTime = high_resolution_clock::now();
+                    //log timing and data integrity performance
+                    int64_t processTime = systemTime_nanoseconds - processStartTime_nanoseconds;
+                    int64_t referenceTime = ec_DCtime - referenceClockStartTime_nanoseconds;
+                    float timeDifference_milliseconds = (float)(processTime - referenceTime) / 1000000.0;
+                    static float averageTimeDifference = 0.0;
+                    averageTimeDifference = averageTimeDifference * 0.99 + timeDifference_milliseconds * 0.01;
+                    clockDrift.addPoint(glm::vec2(cycle, referenceClockCycleDrift_milliseconds));
+                    averageClockDrift.addPoint(glm::vec2(cycle, referenceClockCycleDrift_milliseconds));
+                    timingHistory.addPoint(glm::vec2(cycle, (float)(cycleStartTime_nanoseconds - previousCycleStartTime_nanoseconds)/1000.0));
+                    workingCounterHistory.addPoint(glm::vec2(cycle, workingCounter));
 
-            while (b_processRunning) {
-                //brute force timing precision by using 100% of CPU core
-                while (now - previousCycleStartTime < cycleInterval) now = high_resolution_clock::now();
+                    //TODO: need to make sure the frame gets send exactly in between two sync0 events
+                    //currently it just gets send in sync, in relation to the first send time, not in relation the ethercat reference clock
+                    //
 
-                //measure the time between the previous cycle start and this cycle start
-                //cycleLengths_nanoseconds[transmissions] = duration_cast<nanoseconds>(now - previousCycleStartTime).count();
-                previousCycleStartTime = now;
+                    //do axis processing to get next set of output data
+                    process();
 
-                //send ethercat frame
-                ec_send_processdata();
-                thisSendTime = high_resolution_clock::now();
-                double intervalMicros = (double)duration_cast<nanoseconds>(thisSendTime - previousSendTime).count() / 1000.0L;
-                timingHistory.addPoint(TimeInterval{ intervalMicros,(double)counter });
-                previousSendTime = thisSendTime;
-                counter++;
-                //wait for return of the frame until timeout
-                workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
-                workingCounterHistory.addPoint(TimeInterval{ (double)workingCounter, (double)counter });
 
-                //do axis processing to get next set of output data
-                process();
 
-                /*
-                if (workingCounter == ec_slavecount * 3) {}
-                else if (workingCounter == EC_NOFRAME) {}
-                else if (workingCounter == EC_TIMEOUT) {}
-                */
+                    //this code block calculates an offset to be applied to the next cycle start
+                    //this effectively aligns the cycle interval of the master to the ethercat reference clock
+                    //since the master clock and reference clock will drift over time
+                    static int64_t offsetTime = 0;
+                    static int64 integral = 0;
+                    int64_t delta;
+                    // set linux sync point 50us later than DC sync, just as example
+                    delta = (ec_DCtime - 50000) % processInterval_nanoseconds;
+                    if (delta > (processInterval_nanoseconds / 2)) { delta = delta - processInterval_nanoseconds; }
+                    if (delta > 0) { integral++; }
+                    if (delta < 0) { integral--; }
+                    offsetTime = -(delta / 100) - (integral / 20);
+                    
+
+                    //std::cout << ec_DCtime << std::endl;
+                    
+
+                    previousReferenceClock_nanoseconds = ec_DCtime;
+                    previousCycleStartTime_nanoseconds = cycleStartTime_nanoseconds;
+                    cycleStartTime_nanoseconds += processInterval_nanoseconds + offsetTime;
+                    cycle++;
+                }
+            } else {
+                std::cout << "===== Not all slaves are operational, cancelling cyclic exchange... " << std::endl;
             }
-
-            /*
-            //compute average cycle frequency
-            long long duration_microseconds = duration_cast<microseconds>(high_resolution_clock::now() - begin).count();
-            double durationSeconds = (double)duration_microseconds / 1000000.0L;
-            double cycleFrequency = (double)maxTransmissions / durationSeconds;
-
-            float transmissionSuccessRate = 100.0f * (float)transmissionSuccesses / (float)maxTransmissions;
-            std::cout << std::endl;
-            std::cout << "===== Ended Cycle Process Data Exchange After " << maxTransmissions << " cycles !" << std::endl;
-            std::cout << "===== Sucessfull transmissions: " << transmissionSuccesses << "   Failures: " << transmissionFailures << std::endl;
-            std::cout << "===== Success Rate: " << transmissionSuccessRate << "%" << std::endl;
-            std::cout << "===== Cycle Frequency: " << cycleFrequency << "Hz" << std::endl;
-
-            long long longestTripLength_nanoseconds = 0;
-            long long shortestTripLength_nanoseconds = LLONG_MAX;
-            long long sumTripLength_nanoseconds = 0;
-
-            long long longestCycleLength_nanoseconds = 0;
-            long long shortesCycleLength_nanoseconds = LLONG_MAX;
-            long long sumCycleLength_nanoseconds = 0;
-
-            for (int i = 0; i < maxTransmissions; i++) {
-                if (tripLengths_nanoseconds[i] > longestTripLength_nanoseconds) longestTripLength_nanoseconds = tripLengths_nanoseconds[i];
-                if (tripLengths_nanoseconds[i] < shortestTripLength_nanoseconds) shortestTripLength_nanoseconds = tripLengths_nanoseconds[i];
-                sumTripLength_nanoseconds += tripLengths_nanoseconds[i];
-                if (cycleLengths_nanoseconds[i] > longestCycleLength_nanoseconds) longestCycleLength_nanoseconds = cycleLengths_nanoseconds[i];
-                if (cycleLengths_nanoseconds[i] < shortesCycleLength_nanoseconds) shortesCycleLength_nanoseconds = cycleLengths_nanoseconds[i];
-                sumCycleLength_nanoseconds += cycleLengths_nanoseconds[i];
-            }
-
-            float averageTripLength_milliseconds = ((float)sumTripLength_nanoseconds / (float)maxTransmissions) / 1000000.0f;
-            float maxTripLength_milliseconds = (float)longestTripLength_nanoseconds / 1000000.0;
-            float minTripLength_milliseconds = (float)shortestTripLength_nanoseconds / 1000000.0;
-            
-            float averageCycleLength_milliseconds = ((float)sumCycleLength_nanoseconds / (float)maxTransmissions) / 1000000.0f;
-            float maxCycleLength_milliseconds = (float)longestCycleLength_nanoseconds / 1000000.0;
-            float minCycleLength_milliseconds = (float)shortesCycleLength_nanoseconds / 1000000.0;
-
-            std::cout << "===== Frame Trip Length   longest: " << maxTripLength_milliseconds << "ms   shortest: " << minTripLength_milliseconds << "ms   average: " << averageTripLength_milliseconds << "ms" << std::endl;
-            std::cout << "===== Cycle Length        longest: " << maxCycleLength_milliseconds << "ms   shortest: " << minCycleLength_milliseconds << "ms   average: " << averageCycleLength_milliseconds << "ms " << std::endl;
-            */
-
             b_processRunning = false;
         });
     }

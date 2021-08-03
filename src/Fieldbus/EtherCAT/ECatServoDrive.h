@@ -4,6 +4,8 @@
 #include <map>
 #include <string>
 
+#include "Gui/ScrollingBuffer.h"
+
 struct EtherCatSlave {
     ec_slavet* slave_ptr;
     char name[128];
@@ -17,11 +19,13 @@ struct EtherCatSlave {
 class ECatServoDrive{
 public:
 
+    int counter = 0;
+
     EtherCatSlave identity;
 
     void writeStartupParameters();
     void readStartupParameters();
-    void configurePDOs();
+    void preOperationalToSafeOperationalConfiguration();
     void process();
 
     //fieldbus commands
@@ -65,7 +69,7 @@ public:
 
     //feedback data
     int32_t position = 0;
-    int32_t positionError = 0;
+    int32_t velocity = 0;
     int16_t torque = 0;
     uint16_t lastErrorCode = 0;
     bool DI0 = false;
@@ -74,6 +78,9 @@ public:
     bool DI3 = false;
     bool DI4 = false;
     bool DI5 = false;
+
+    bool b_inverted = false;
+    ScrollingBuffer positions;
 
     //command data
     int32_t positionCommand = 0;
@@ -92,9 +99,9 @@ public:
     //modes
 
     static std::map<int, std::string> modelist;
-    int mode = -1;
-    int modeCommand = -1;
-    const char* modeChar = "Jog";
+    int mode = 8;
+    int modeCommand = 8;
+    const char* modeChar = "Cyclic Synchronous Position";
 
     //maybe do gui remapping of pdo objects later
     //uint16_t RxPDO;

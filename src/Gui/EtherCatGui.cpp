@@ -36,9 +36,18 @@ bool etherCatGui() {
 	}
 
 	ImGui::Separator();
+	
+	if (ImGui::Button("Fault Reset All")) for (ECatServoDrive& drive : EtherCatFieldbus::servoDrives) drive.performFaultReset = true;
+	if (ImGui::Button("Enable All")) for (ECatServoDrive& drive : EtherCatFieldbus::servoDrives) { drive.enableOperation = true; drive.positionCommand = drive.position; drive.counter = 0; }
+	if(ImGui::Button("Disable All")) for (ECatServoDrive& drive : EtherCatFieldbus::servoDrives) drive.disableOperation = true;
+
+	ImGui::Separator();
+
+	
 
 	if (EtherCatFieldbus::b_networkScanned) {
 		for (ECatServoDrive& drive : EtherCatFieldbus::servoDrives) {
+		
 			if (ImGui::TreeNode(drive.identity.displayName)) {
 				ImGui::Text("Address: %i", drive.identity.address);
 				if (!drive.identity.b_configured) ImGui::Text("Not Configured");
@@ -46,11 +55,6 @@ bool etherCatGui() {
 					ImGui::Text("Input Bytes: %i (%i bits)", drive.identity.slave_ptr->Ibytes, drive.identity.slave_ptr->Ibits);
 					ImGui::Text("Output Bytes: %i (%i bits)", drive.identity.slave_ptr->Obytes, drive.identity.slave_ptr->Obits);
 				}
-
-
-				if (ImGui::Button("Write Parameters")) drive.writeStartupParameters();
-				ImGui::SameLine();
-				if (ImGui::Button("Read Parameters")) drive.readStartupParameters();
 
 				ec_slavet& slave = *drive.identity.slave_ptr;
 				slave.DCactive;
@@ -119,7 +123,7 @@ bool etherCatGui() {
 				ImGui::Separator();
 
 				ImGui::Text("Position: %i", drive.position);
-				ImGui::Text("Position Error: %i", drive.positionError);
+				ImGui::Text("Velocity: %i", drive.velocity);
 				ImGui::Text("Torque: %i", drive.torque);
 
 				ImGui::Text("Digital Inputs: %i %i %i %i %i %i",
@@ -144,30 +148,39 @@ bool etherCatGui() {
 					ImGui::EndCombo();
 				}
 
-				int positionCommand = drive.positionCommand;
-				int velocityCommand = drive.velocityCommand;
-				int torqueCommand = drive.torqueCommand;
+				ImPlot::SetNextPlotLimitsX(drive.positions.back().x - 1000.0, drive.positions.back().x, ImGuiCond_Always);
+				ImPlot::SetNextPlotFormatY("%g ticks");
+				ImPlot::FitNextPlotAxes(false, true);
 
-				ImGui::SliderInt("##Position", &positionCommand, -1000000, 1000000, "%d ticks");
+				if (ImPlot::BeginPlot("positions", NULL, NULL, ImVec2(-1, 600))) {
+					ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0);
+					ImPlot::PlotLine("Position", &drive.positions.front().x, &drive.positions.front().y, drive.positions.size(), drive.positions.offset(), drive.positions.stride());
+					ImPlot::EndPlot();
+				}
+
+				ImGui::Checkbox("Invert", &drive.b_inverted);
+				
+				int position = drive.position;
+				int velocity = drive.velocity;
+				int torque = drive.torque;
+
+				float velocityFraction = (((double)velocity / 7000.0) + 1.0) / 2.0;
+				ImGui::ProgressBar(velocityFraction, ImVec2(0, 0), "velocity");
+
+				/*
+				ImGui::InputInt("Position Command", &positionCommand, 1000, 10000);
 				ImGui::SameLine();
 				if (ImGui::Button("Zero")) positionCommand = 0;
-				//ImGui::SliderInt("##Velocity", &velocityCommand, -7000, 7000, "%d rpm");
-				ImGui::InputInt("Position Command", &positionCommand, 1000, 10000);
+
+				ImGui::SliderInt("##Velocity", &velocityCommand, -7000, 7000, "%d rpm");
 				drive.positionCommand = positionCommand;
 				ImGui::SameLine();
 				if(ImGui::Button("Stop")) velocityCommand = 0;
+
 				ImGui::SliderInt("##Torque", &torqueCommand, -100, 100, "%d t");
 				ImGui::SameLine();
 				if (ImGui::Button("Cut")) torqueCommand = 0;
-
-				ImGui::Checkbox("b4", &drive.opModeSpec4);
-				ImGui::Checkbox("b5", &drive.opModeSpec5);
-				ImGui::Checkbox("b6", &drive.opModeSpec6);
-				ImGui::Checkbox("b9", &drive.opModeSpec9);
-
-				drive.positionCommand = positionCommand;
-				drive.velocityCommand = velocityCommand;
-				drive.torqueCommand = torqueCommand;
+				*/
 
 				ImGui::Checkbox("DQ0", &drive.DQ0);
 				ImGui::SameLine();
@@ -217,6 +230,7 @@ bool etherCatGui() {
 				ImGui::Text("validPositionReference : %i", drive.validPositionReference);
 				ImGui::TreePop();
 			}
+			
 		}
 	}
 
@@ -228,32 +242,53 @@ bool etherCatGui() {
 	ImGui::End();
 
 
-
-
-	ImGui::Begin("Metrics");
-
-	ScrollingBuffer& intervals = EtherCatFieldbus::timingHistory;
-	ImPlot::SetNextPlotLimitsX(intervals.back().frameNumber - 1000, intervals.back().frameNumber, ImGuiCond_Always);
-	ImPlot::SetNextPlotLimitsY(EtherCatFieldbus::processInterval_microseconds - 500.0, EtherCatFieldbus::processInterval_microseconds + 5000.0, ImGuiCond_Always);
-	ImPlot::SetNextPlotFormatY("%g us");
-
-	if (ImPlot::BeginPlot("ec_timing", NULL, NULL, ImVec2(-1, 600))) {
+	
+	/*
+	ImGui::Begin("EtherCAT Timing");
+	ScrollingBuffer& clockDrift = EtherCatFieldbus::clockDrift;
+	ScrollingBuffer& averageClockDrift = EtherCatFieldbus::averageClockDrift;
+	static bool lockAxes = true;
+	ImGui::Checkbox("Lock Axes", &lockAxes);
+	if (lockAxes) {
+		ImPlot::SetNextPlotLimitsX(clockDrift.back().x - 1000.0, clockDrift.back().x, ImGuiCond_Always);
+		ImPlot::FitNextPlotAxes(false, true);
+	}
+	ImPlot::SetNextPlotFormatY("%g ms");
+	if (ImPlot::BeginPlot("drift", NULL, NULL, ImVec2(-1, 600))) {
 		ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0);
-		ImPlot::PlotLine("SendInterval", &intervals.front().frameNumber, &intervals.front().microseconds, intervals.size(), intervals.offset(), intervals.stride());
+		ImPlot::PlotLine("clock drift", &clockDrift.front().x, &clockDrift.front().y, clockDrift.size(), clockDrift.offset(), clockDrift.stride());
+		//ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 8.0);
+		//ImPlot::PlotLine("clock drift", &averageClockDrift.front().x, &averageClockDrift.front().y, averageClockDrift.size(), averageClockDrift.offset(), averageClockDrift.stride());
 		ImPlot::EndPlot();
 	}
-
+	ScrollingBuffer& intervals = EtherCatFieldbus::timingHistory;
+	if (lockAxes) {
+		ImPlot::SetNextPlotLimitsX(intervals.back().x - 1000.0, intervals.back().x, ImGuiCond_Always);
+		ImPlot::SetNextPlotLimitsY(EtherCatFieldbus::processInterval_microseconds - 500.0, EtherCatFieldbus::processInterval_microseconds + 5000.0, ImGuiCond_Always);
+	}
+	ImPlot::SetNextPlotFormatY("%g us");
+	if (ImPlot::BeginPlot("ec_timing", NULL, NULL, ImVec2(-1, 600))) {
+		ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0);
+		ImPlot::PlotLine("SendInterval", &intervals.front().x, &intervals.front().y, intervals.size(), intervals.offset(), intervals.stride());
+		ImPlot::EndPlot();
+	}
 	ScrollingBuffer& workingCounters = EtherCatFieldbus::workingCounterHistory;
-	ImPlot::SetNextPlotLimitsX(intervals.back().frameNumber - 1000, intervals.back().frameNumber, ImGuiCond_Always);
-	ImPlot::SetNextPlotLimitsY(-10.0, 10.0, ImGuiCond_Always);
+	if (lockAxes) {
+		ImPlot::SetNextPlotLimitsX(intervals.back().x - 1000.0, intervals.back().x, ImGuiCond_Always);
+		ImPlot::SetNextPlotLimitsY(-10.0, 10.0, ImGuiCond_Always);
+	}
 	ImPlot::SetNextPlotFormatY("%g wc");
 	if (ImPlot::BeginPlot("ec_wc", NULL, NULL, ImVec2(-1, 600))) {
 		ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 2.0);
-		ImPlot::PlotLine("WorkingCounters", &workingCounters.front().frameNumber, &workingCounters.front().microseconds, workingCounters.size(), workingCounters.offset(), workingCounters.stride());
+		ImPlot::PlotLine("WorkingCounters", &workingCounters.front().x, &workingCounters.front().y, workingCounters.size(), workingCounters.offset(), workingCounters.stride());
 		ImPlot::EndPlot();
 	}
-
+	
 	ImGui::End();
+	*/
 
+	//ImGui::SetNextWindowFocus();
+	//ImGui::ShowMetricsWindow();
+	
 	return !exitFieldbus;
 }

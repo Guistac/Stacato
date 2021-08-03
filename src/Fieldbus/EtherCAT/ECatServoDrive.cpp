@@ -5,6 +5,8 @@
 #include <bitset>
 #include <ethercat.h>
 
+#include "ECatUtilities.h"
+
 std::map<int, std::string> ECatServoDrive::modelist = {
     {-6, "Manual/Auto Tuning"},
     {-5, "-5"},
@@ -28,8 +30,12 @@ std::map<int, std::string> ECatServoDrive::modelist = {
 
 void ECatServoDrive::process() {
 
-    static int counter = 0;
-    positionCommand += std::sin((double)counter / 100.0) * 1000;
+    int32_t outputPosition;
+    if(b_inverted) outputPosition = positionCommand + (std::cos((double)counter / 150.0) - 1.0) * 11000000;
+    else outputPosition = positionCommand - (std::cos((double)counter / 150.0) - 1.0) * 11000000;
+
+    positions.addPoint(glm::vec2(counter, outputPosition));
+
     counter++;
 
 
@@ -50,7 +56,7 @@ void ECatServoDrive::process() {
     uint16_t _DCOMstatus =  inByte[0] | inByte[1] << 8;
     int8_t _DCOMopmd_act = inByte[2];
     position =      inByte[3] | inByte[4] << 8 | inByte[5] << 16 | inByte[6] << 24;
-    positionError = inByte[7] | inByte[8] << 8 | inByte[9] << 16 | inByte[10] << 24;
+    velocity = inByte[7] | inByte[8] << 8 | inByte[9] << 16 | inByte[10] << 24;
     torque =        inByte[11] | inByte[12] << 8;
     lastErrorCode = inByte[13] | inByte[14] << 8;
     uint16_t _IO_act = inByte[15] | inByte[16] << 8;
@@ -197,10 +203,10 @@ void ECatServoDrive::process() {
     
     outByte[2] = DCOMopmode;
 
-    outByte[3] = (positionCommand >> 0) & 0xFF;
-    outByte[4] = (positionCommand >> 8) & 0xFF;
-    outByte[5] = (positionCommand >> 16) & 0xFF;
-    outByte[6] = (positionCommand >> 24) & 0xFF;
+    outByte[3] = (outputPosition >> 0) & 0xFF;
+    outByte[4] = (outputPosition >> 8) & 0xFF;
+    outByte[5] = (outputPosition >> 16) & 0xFF;
+    outByte[6] = (outputPosition >> 24) & 0xFF;
 
     outByte[7] = (velocityCommand >> 0) & 0xFF;
     outByte[8] = (velocityCommand >> 8) & 0xFF;
@@ -239,6 +245,16 @@ void ECatServoDrive::writeStartupParameters() {
     int i = identity.index;
 
     std::cout << "-----------WRITE-----------" << std::endl;
+
+    size = 4;
+    uint32_t RAMP_v_acc_set = 600;
+    wc = ec_SDOwrite(i, 0x6083, 0x0, false, size, &RAMP_v_acc_set, EC_TIMEOUTSAFE);
+    std::cout << "RAMP_v_acc_set: " << wc << std::endl;
+    
+    size = 4;
+    uint32_t RAMP_v_dec_set = 600;
+    wc = ec_SDOwrite(i, 0x6084, 0x0, false, size, &RAMP_v_dec_set, EC_TIMEOUTSAFE);
+    std::cout << "RAMP_v_dec_set: " << wc << std::endl;
 
     size = 2;
     uint16_t CompParSyncMot_set = 1;
@@ -299,6 +315,17 @@ void ECatServoDrive::readStartupParameters() {
 
     std::cout << "-----------READ-----------" << std::endl;
 
+
+    size = 4;
+    uint32_t RAMP_v_acc;
+    wc = ec_SDOread(i, 0x6083, 0x0, false, &size, &RAMP_v_acc, EC_TIMEOUTSAFE);
+    std::cout << "wc: " << wc << "RAMP_v_acc: " << RAMP_v_acc << std::endl;
+
+    size = 4;
+    uint32_t RAMP_v_dec;
+    wc = ec_SDOread(i, 0x6084, 0x0, false, &size, &RAMP_v_dec, EC_TIMEOUTSAFE);
+    std::cout << "wc: " << wc << "RAMP_v_dec: " << RAMP_v_dec << std::endl;
+
     size = 2;
     uint16_t CompParSyncMot;
     wc = ec_SDOread(i, 0x3006, 0x3D, false, &size, &CompParSyncMot, EC_TIMEOUTSAFE);
@@ -356,31 +383,15 @@ void ECatServoDrive::readStartupParameters() {
     positionCommand = _p_act;
 }
 
-void ECatServoDrive::configurePDOs() {
+void ECatServoDrive::preOperationalToSafeOperationalConfiguration() {
+    positions.setMaxSize(1000);
+    writeStartupParameters();
+    readStartupParameters();
 
-
+    //set interrupt routine for cyclic synchronous position mode
     ec_dcsync0(identity.index, true, EtherCatFieldbus::processInterval_microseconds*1000, EtherCatFieldbus::processInterval_microseconds * 1000 / 2);
 
     if (strcmp(identity.name, "LXM32M EtherCAT") == 0) {
-        /*
-        std::cout << "===== Remapping TxPDO Parameters..." << std::endl;
-        //remap used TxPDO to two arbitray parameters of the drive (iMax and vMax)
-        uint16_t TxPDOmodule = 0x1A03;
-        uint8_t zero = 0;
-        uint8_t TxPDOparameterCount = 2;
-        uint32_t TxPDOparameter1 = 0x30110C10; //parameter 3011, index 0C, size 10 (16 bits)
-        uint32_t TxPDOparameter2 = 0x30111020; //parameter 3011, index 10, size 20 (32 bits)
-        //disable pdo by setting the sub-index size to zero
-        workingCounter += ec_SDOwrite(1, TxPDOmodule, 0x0, false, 1, &zero, EC_TIMEOUTSAFE);
-        //add first parameter at first index of PDO
-        workingCounter += ec_SDOwrite(1, TxPDOmodule, 0x1, false, 4, &TxPDOparameter1, EC_TIMEOUTSAFE);
-        //add second parameter at second index of PDO
-        workingCounter += ec_SDOwrite(1, TxPDOmodule, 0x2, false, 4, &TxPDOparameter2, EC_TIMEOUTSAFE);
-        //enable pdo by setting the index equal to the number of parameters in the pdo
-        workingCounter += ec_SDOwrite(1, TxPDOmodule, 0x0, false, 1, &TxPDOparameterCount, EC_TIMEOUTSAFE);
-        if (workingCounter == TxPDOparameterCount + 2) std::cout << "===== Successfully set custom pdo mapping !" << std::endl;
-        else std::cout << "===== Failed to set custom pdo mapping..." << std::endl;
-        */
         std::cout << "===== Begin PDO assignement..." << std::endl;
         int workingCounter = 0;
         uint8_t PDOoff = 0x00;
@@ -395,11 +406,18 @@ void ECatServoDrive::configurePDOs() {
         workingCounter += ec_SDOwrite(identity.index, RxPDO, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
         workingCounter += ec_SDOwrite(identity.index, RxPDO, 0x1, false, 2, &RxPDOmodule, EC_TIMEOUTSAFE);
         workingCounter += ec_SDOwrite(identity.index, RxPDO, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
-        //do the same for the TxPDO
+        //do the same for the TxPDO but modify one parameter
         workingCounter += ec_SDOwrite(identity.index, TxPDO, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
+        //disable TxPDO module before modifying it (set entry count to zero)
+        workingCounter += ec_SDOwrite(identity.index, TxPDOmodule, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
+        uint32_t TxPDOparameter4 = 0x606C0020; //replace default parameter 4 (_p_dif) by current velocity (_v_act 0x606C 0x00 int32_t)
+        workingCounter += ec_SDOwrite(identity.index, TxPDOmodule, 0x4, false, 4, &TxPDOparameter4, EC_TIMEOUTSAFE);
+        uint8_t TxPDOparameterCount = 7;
+        workingCounter += ec_SDOwrite(identity.index, TxPDOmodule, 0x0, false, 1, &TxPDOparameterCount, EC_TIMEOUTSAFE);
+        //set the modified module
         workingCounter += ec_SDOwrite(identity.index, TxPDO, 0x1, false, 2, &TxPDOmodule, EC_TIMEOUTSAFE);
         workingCounter += ec_SDOwrite(identity.index, TxPDO, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
-        if (workingCounter == 6) std::cout << "===== PDO assignement successfull !" << std::endl;
+        if (workingCounter == 9) std::cout << "===== PDO assignement successfull !" << std::endl;
         else std::cout << "===== PDO assignement failed..." << std::endl;
     }
 }
