@@ -3,7 +3,7 @@
 #include <thread>
 #include <vector>
 
-#include "Gui/ScrollingBuffer.h"
+#include "ECatMetrics.h"
 #include "ECatServoDrive.h"
 
 struct NetworkInterfaceCard {
@@ -22,24 +22,27 @@ public:
     static void terminate();
     static void process(bool);
 
+    //process timing
     static double processInterval_milliseconds;
     static double processDataTimeout_milliseconds;
 
-    static ScrollingBuffer dcTimeError;
-    static ScrollingBuffer averageDcTimeError;
-    static ScrollingBuffer workingCounterHistory;
-    static size_t scrollingBufferSize;
+    //metrics
+    static ECatMetrics metrics;
 
+    //network hardware
     static std::vector<NetworkInterfaceCard> networkInterfaceCards;
     static NetworkInterfaceCard selectedNetworkInterfaceCard;
     
+    //slave devices
     static std::vector<ECatServoDrive> servoDrives;
     static bool b_networkScanned;
 
+    //process data
     static uint8_t ioMap[4096];
     static int ioMapSize;
     static bool b_ioMapConfigured;
 
+    //runtime
     static std::thread etherCatRuntime;
     static bool b_processRunning;
 };

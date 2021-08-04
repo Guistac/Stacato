@@ -8,7 +8,6 @@ std::vector<NetworkInterfaceCard>   EtherCatFieldbus::networkInterfaceCards;
 NetworkInterfaceCard                EtherCatFieldbus::selectedNetworkInterfaceCard;
 
 std::vector<ECatServoDrive>         EtherCatFieldbus::servoDrives;
-
 uint8_t                             EtherCatFieldbus::ioMap[4096];
 int                                 EtherCatFieldbus::ioMapSize = 0;
 
@@ -16,13 +15,10 @@ bool                                EtherCatFieldbus::b_networkScanned = false;
 bool                                EtherCatFieldbus::b_processRunning = false;
 bool                                EtherCatFieldbus::b_ioMapConfigured = false;
 
-ScrollingBuffer                     EtherCatFieldbus::dcTimeError;
-ScrollingBuffer                     EtherCatFieldbus::averageDcTimeError;
-ScrollingBuffer                     EtherCatFieldbus::workingCounterHistory;
-size_t                              EtherCatFieldbus::scrollingBufferSize = 1000;
+ECatMetrics                         EtherCatFieldbus::metrics;
 
 double                              EtherCatFieldbus::processInterval_milliseconds = 10.0;
-double                              EtherCatFieldbus::processDataTimeout_milliseconds = 9.0;
+double                              EtherCatFieldbus::processDataTimeout_milliseconds = 5.0;
 std::thread                         EtherCatFieldbus::etherCatRuntime;
 
 
@@ -49,9 +45,7 @@ void EtherCatFieldbus::init(NetworkInterfaceCard& nic) {
     int nicInitResult = ec_init(selectedNetworkInterfaceCard.name);
     if (nicInitResult > 0) std::cout << "===== Initialized network interface card !" << std::endl;
     else std::cout << "===== Failed to initialize network interface card ..." << std::endl;
-    dcTimeError.setMaxSize(scrollingBufferSize);
-    averageDcTimeError.setMaxSize(scrollingBufferSize);
-    workingCounterHistory.setMaxSize(scrollingBufferSize);
+    metrics.init();
 }
 
 void EtherCatFieldbus::scanNetwork() {
@@ -135,9 +129,7 @@ void EtherCatFieldbus::startCyclicExchange() {
         if (etherCatRuntime.joinable()) etherCatRuntime.join();
         b_processRunning = true;
 
-        dcTimeError.clear();
-        averageDcTimeError.clear();
-        workingCounterHistory.clear();
+        metrics.reset();
 
         etherCatRuntime = std::thread([]() {
 
@@ -164,39 +156,34 @@ void EtherCatFieldbus::startCyclicExchange() {
             //wait for all slaves to reach OP state
             uint16_t slaveState = ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE);
             if (slaveState == EC_STATE_OPERATIONAL) {
-
                 std::cout << "===== All slaves are operational, Starting Cyclic Process Data Echange !" << std::endl;
 
                 using namespace std::chrono;
                 
                 //thread timing variables
-                uint64_t systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
                 uint64_t processInterval_nanoseconds = processInterval_milliseconds * 1000000.0L;
                 uint64_t processDataTimeout_microseconds = processDataTimeout_milliseconds * 1000.0L;
+                uint64_t systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count() + processInterval_nanoseconds;
                 uint64_t cycleStartTime_nanoseconds = systemTime_nanoseconds + processInterval_nanoseconds;
+                uint64_t previousCycleStartTime_nanoseconds;
 
-                //variables to measure drift from dc time (compensated by pi controller)
-                float dcTimeError_milliseconds;
-                float averageDcTimeError_milliseconds;
-
-                //variables to measure time since process loop start
-                uint64_t processStartTime_nanoseconds; //system clock at thread start
-                uint64_t cycle = 0; //process cycle counter
-
+                //TODO: compute this depending on slave configuration
                 int excpectedWorkingCounter = 6;
 
                 while (b_processRunning) {
 
                     //bruteforce timing precision by using 100% of CPU core
-                    //update and compare system time to next process timestamp
+                    //update and compare system time to next process 
                     do { systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count(); }
                     while (systemTime_nanoseconds < cycleStartTime_nanoseconds);
-                    
+
                     //send ethercat frame
                     ec_send_processdata();
+                    uint64_t frameSentTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
                     
                     //wait for return of the frame until timeout
                     int workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
+                    uint64_t frameReceivedTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
                     
                     //adjust the copy of the reference clock in case no frame was received
                     if (workingCounter != excpectedWorkingCounter) ec_DCtime += processInterval_nanoseconds;
@@ -225,22 +212,49 @@ void EtherCatFieldbus::startCyclicExchange() {
                     if (delta < 0) { integral--; }
                     int64_t offsetTime = -(delta / 100) - (integral / 20);
                     //the offset time should be added to the incrementation of the next cycle time of the master clock
-
-                    dcTimeError_milliseconds = ((double)(ec_DCtime % processInterval_nanoseconds) - (double)dctime_offset_nanoseconds) / 1000000.0L;
-                    if (cycle == 0) {
-                        processStartTime_nanoseconds = systemTime_nanoseconds;
-                        averageDcTimeError_milliseconds = dcTimeError_milliseconds;
-                    }
-                    averageDcTimeError_milliseconds = averageDcTimeError_milliseconds * 0.99 + 0.01 * dcTimeError_milliseconds;
-
-                    double processTime_seconds = (double)(systemTime_nanoseconds - processStartTime_nanoseconds) / 1000000000.0L;
-                    dcTimeError.addPoint(glm::vec2(processTime_seconds, dcTimeError_milliseconds));
-                    averageDcTimeError.addPoint(glm::vec2(processTime_seconds, averageDcTimeError_milliseconds));
-                    workingCounterHistory.addPoint(glm::vec2(processTime_seconds, workingCounter));
-
                     //calculate the start of the next cycle, taking clock drift compensation into account
+                    previousCycleStartTime_nanoseconds = cycleStartTime_nanoseconds;
                     cycleStartTime_nanoseconds += processInterval_nanoseconds + offsetTime;
-                    cycle++;
+
+                    int dummyLoad = 0;
+                    for (int i = 0; i < 10000; i++) dummyLoad += std::sin(i);
+
+                    //======= UPDATE METRICS =======
+
+                    float dcTimeError_milliseconds = ((double)(ec_DCtime % processInterval_nanoseconds) - (double)dctime_offset_nanoseconds) / 1000000.0L;
+                    if (metrics.cycleCounter == 0) {
+                        metrics.startTime_nanoseconds = systemTime_nanoseconds;
+                        metrics.averageDcTimeError_milliseconds = dcTimeError_milliseconds;
+                    }
+                    metrics.averageDcTimeError_milliseconds = metrics.averageDcTimeError_milliseconds * 0.99 + 0.01 * dcTimeError_milliseconds;
+
+                    metrics.processTime_nanoseconds = systemTime_nanoseconds - metrics.startTime_nanoseconds;
+                    metrics.processTime_seconds = (double)(systemTime_nanoseconds - metrics.startTime_nanoseconds) / 1000000000.0L;
+
+                    double frameSendDelay_milliseconds = (double)(frameSentTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
+                    double frameReceiveDelay_milliseconds = (double)(frameReceivedTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
+                    double timeoutDelay_milliseconds = frameSendDelay_milliseconds + processDataTimeout_milliseconds;
+                    double cycleLength_milliseconds = (double)(cycleStartTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
+                    
+                    metrics.dcTimeErrors.addPoint(          glm::vec2(metrics.processTime_seconds, dcTimeError_milliseconds));
+                    metrics.averageDcTimeErrors.addPoint(   glm::vec2(metrics.processTime_seconds, metrics.averageDcTimeError_milliseconds));
+                    metrics.sendDelays.addPoint(            glm::vec2(metrics.processTime_seconds, frameSendDelay_milliseconds));
+                    metrics.receiveDelays.addPoint(         glm::vec2(metrics.processTime_seconds, frameReceiveDelay_milliseconds));
+                    metrics.timeoutDelays.addPoint(         glm::vec2(metrics.processTime_seconds, timeoutDelay_milliseconds));
+;                   metrics.cycleLengths.addPoint(          glm::vec2(metrics.processTime_seconds, cycleLength_milliseconds));
+
+                    
+                    metrics.addWorkingCounter(workingCounter, metrics.processTime_seconds);
+
+                    if (workingCounter == EC_NOFRAME) metrics.timeouts.addPoint(glm::vec2(metrics.processTime_seconds, frameReceiveDelay_milliseconds));
+
+                    uint64_t processedTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
+                    double processDelay_milliseconds = (double)(processedTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
+                    metrics.processDelays.addPoint(glm::vec2(metrics.processTime_seconds, processDelay_milliseconds));
+
+                    metrics.cycleCounter++;
+
+                    //======= END UPDATE METRICS =======
                 }
             } else {
                 std::cout << "===== Not all slaves are operational, cancelling cyclic exchange... " << std::endl;

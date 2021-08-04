@@ -34,13 +34,22 @@ public:
 		return data.front();
 	}
 
-	glm::vec2& back() {
+	glm::vec2& newest() {
 		if (data.empty()) {
 			static glm::vec2 dummy;
 			return dummy;
 		}
 		if (s_offset == 0) return data.back();
 		return data[s_offset - 1];
+	}
+
+	glm::vec2& oldest() {
+		if (data.empty()) {
+			static glm::vec2 dummy;
+			return dummy;
+		}
+		if (s_offset == 0) return data.front();
+		return data[s_offset];
 	}
 
 	size_t size() { return data.size(); }
