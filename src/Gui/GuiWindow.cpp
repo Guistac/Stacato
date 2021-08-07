@@ -93,27 +93,35 @@ void GuiWindow::onInit() {
 	ImGui::StyleColorsDark();
 	ImGui::GetStyle().FrameRounding = 5.0;
 
+#ifdef WIN32
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 460");
+#endif
 }
 
 void GuiWindow::onTerminate() {
+#ifdef WIN32
 	ImGui_ImplOpenGL3_Shutdown();
+#endif
 	ImGui_ImplGlfw_Shutdown();
 	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
 }
 
 void GuiWindow::onRenderBegin() {
+#ifdef WIN32
 	ImGui_ImplOpenGL3_NewFrame();
+#endif
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 }
 
 void GuiWindow::onRenderEnd() {
 	ImGui::Render();
+#ifdef WIN32
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+#endif
+    
 	// Update and Render additional Platform Windows
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
 		ImGui::UpdatePlatformWindows();

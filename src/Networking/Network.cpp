@@ -23,7 +23,7 @@ std::unique_ptr<asio::ip::udp::socket> Network::getUdpSocket(int listeningPort, 
 	if (remoteIp.size() != 4) return socket;
 	for (int octet : remoteIp) if (octet > 255 || octet < 0) return socket;
 	char ip[32];
-	sprintf_s(ip, "%i.%i.%i.%i", remoteIp[0], remoteIp[1], remoteIp[2], remoteIp[3]);
+	sprintf(ip, "%i.%i.%i.%i", remoteIp[0], remoteIp[1], remoteIp[2], remoteIp[3]);
 
 	try {
 		asio::ip::address_v4 remoteIp = asio::ip::make_address_v4(ip);

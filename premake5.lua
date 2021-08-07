@@ -86,7 +86,10 @@ project "FieldbusDev"
             "%{wks.location}/dependencies/soem/osal/macosx",
             "%{wks.location}/dependencies/soem/oshw/macosx"
         }
-        links{}
+        links{
+            "Cocoa.framework",
+            "IOKit.framework"
+        }
 		
 	filter "configurations:Debug"
 		defines {}
