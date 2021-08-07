@@ -1,10 +1,16 @@
 #include "GuiWindow.h"
 
+#ifdef WIN32
 #include <glad/glad.h>
+#endif
+
 #include <GLFW/glfw3.h>
 
+#ifdef WIN32
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <backends/imgui_impl_opengl3.cpp>
+#endif
+
 #include <backends/imgui_impl_glfw.cpp>
 #include <imgui.h>
 #include <implot.h>
@@ -31,7 +37,11 @@ void GuiWindow::open(int w, int h) {
 	glfwSetWindowSizeCallback(window, onResize);
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
+    
+#ifdef WIN32
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+#endif
+    
 	onInit();
 }
 

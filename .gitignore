@@ -3,6 +3,7 @@
 .vs/
 bin/
 bin-int/
+obj/
 
 #=== Files ==============
 
@@ -12,3 +13,6 @@ bin-int/
 *.filters
 *.ini
 *.json
+.DS_store
+*.xcodeproj
+*.xcworkspace
