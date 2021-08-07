@@ -18,6 +18,7 @@ void gui() {
 	static Fieldbus fieldbus = Fieldbus::None;
 	static bool fieldbusStarted = false;
 
+    /*
 	static bool startup = true;
 	if (startup) {
 		startup = false;
@@ -26,6 +27,7 @@ void gui() {
 		EtherCatFieldbus::updateNetworkInterfaceCardList();
 		EtherCatFieldbus::init(EtherCatFieldbus::networkInterfaceCards.front());
 	}
+    */
 
 	ImGui::SetNextWindowPos(ImGui::GetMainViewport()->WorkPos);
 	ImGui::SetNextWindowSize(ImGui::GetMainViewport()->WorkSize);
@@ -49,8 +51,6 @@ void gui() {
 				ImGui::Text("EtherCAT Fieldbus Parameters");
 				ImGui::Separator();
 				ImGui::Text("Network Interface Card Selection");
-
-				char* names[5] = { "One", "Two", "Three", "Four", "Five" };
 				
 				std::vector<NetworkInterfaceCard>& nics = EtherCatFieldbus::networkInterfaceCards;
 				static int selectedNic = -1;
@@ -70,9 +70,10 @@ void gui() {
 
 				if (ImGui::Button("Start EtherCAT Fieldbus")) {
 					if (selectedNic != -1 && selectedNic < nics.size()) {
-						EtherCatFieldbus::init(nics[selectedNic]);
-						fieldbusStarted = true;
-						ImGui::CloseCurrentPopup();
+                        if(EtherCatFieldbus::init(nics[selectedNic])){
+                            fieldbusStarted = true;
+                            ImGui::CloseCurrentPopup();
+                        }
 					}
 				}
 				ImGui::Separator();

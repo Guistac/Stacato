@@ -38,6 +38,7 @@ project "FieldbusDev"
 		"%{wks.location}/src",
 		"%{wks.location}/src/Core",
 		"%{wks.location}/dependencies/glm/",
+        "%{wks.location}/dependencies/glad/include",
 		"%{wks.location}/dependencies/glfw/include",
 		"%{wks.location}/dependencies/dearimgui/",
 		"%{wks.location}/dependencies/implot/",
@@ -49,6 +50,7 @@ project "FieldbusDev"
 
 	links{
 		"SOEM",
+        "glad",
 		"glfw",
 		"dearimgui",
 		"implot",
@@ -68,13 +70,11 @@ project "FieldbusDev"
 			"_WIN32_WINNT=0x0601"
 		}
 		sysincludedirs{
-            "%{wks.location}/dependencies/glad/include",
 			"%{wks.location}/dependencies/soem/oshw/win32/wpcap/Include",
 			"%{wks.location}/dependencies/soem/osal/win32",
 			"%{wks.location}/dependencies/soem/oshw/win32"
 		}
         links{
-            "glad",
             "Winmm.lib",
             "%{wks.location}/dependencies/soem/oshw/win32/wpcap/Lib/x64/wpcap.lib",
             "Ws2_32.lib",

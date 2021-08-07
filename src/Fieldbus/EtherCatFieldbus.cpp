@@ -39,13 +39,15 @@ void EtherCatFieldbus::updateNetworkInterfaceCardList() {
     for (NetworkInterfaceCard& nic : networkInterfaceCards) std::cout << "    = " << nic.description << " (ID: " << nic.name << ")" << std::endl;
 }
 
-void EtherCatFieldbus::init(NetworkInterfaceCard& nic) {
+bool EtherCatFieldbus::init(NetworkInterfaceCard& nic) {
     selectedNetworkInterfaceCard = std::move(nic);
     std::cout << "===== Initializing EtherCAT Fieldbus on Network Interface Card '" << selectedNetworkInterfaceCard.description << "'" << std::endl;
     int nicInitResult = ec_init(selectedNetworkInterfaceCard.name);
     if (nicInitResult > 0) std::cout << "===== Initialized network interface card !" << std::endl;
     else std::cout << "===== Failed to initialize network interface card ..." << std::endl;
+    if(nicInitResult == 0) return false;
     metrics.init();
+    return true;
 }
 
 void EtherCatFieldbus::scanNetwork() {

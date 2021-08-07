@@ -14,7 +14,7 @@ struct NetworkInterfaceCard {
 class EtherCatFieldbus {
 public:
     static void updateNetworkInterfaceCardList();
-    static void init(NetworkInterfaceCard&);
+    static bool init(NetworkInterfaceCard&);
     static void scanNetwork();
     static void configureSlaves();
     static void startCyclicExchange();
