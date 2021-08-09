@@ -1,20 +1,30 @@
 --=================================================================================================================
 
 workspace "FieldbusDev"
-	architecture "x64"
 
-	configurations{
-		"Debug",
-		"Release"
-	}
+    configurations{
+        "Debug",
+        "Release"
+    }
+
+    startproject "FieldbusDev"
  
     filter "system:windows"
         defines "WIN32"
+        architecture "x86_64"
+        systemversion "latest"
     
     filter "system:macosx"
-        defines "MACOSX"
+        defines "MACOS"
+        architecture "ARM"
 
-	startproject "FieldbusDev"
+    filter "configurations:Debug"
+		defines "DEBUG"
+		symbols "On"
+
+	filter "configurations:Release"
+		defines "RELEASE"
+		optimize "On"
 
 --=================================================================================================================
 
@@ -63,9 +73,7 @@ project "FieldbusDev"
 	}
 
 	filter "system:windows"
-		systemversion "latest"
 		defines{
-			"WIN32",
 			"_WINDOWS",
 			"_WIN32_WINNT=0x0601"
 		}
@@ -90,15 +98,6 @@ project "FieldbusDev"
             "Cocoa.framework",
             "IOKit.framework"
         }
-		
-	filter "configurations:Debug"
-		defines {}
-		symbols "On"
-
-		
-	filter "configurations:Release"
-		defines {}
-		optimize "On"
 
 --=================================================================================================================
 
@@ -126,7 +125,6 @@ project "SOEM"
     }
 
     filter "system:windows"
-        systemversion "latest"
         files{
             "%{prj.location}/oshw/win32/*.h",
             "%{prj.location}/oshw/win32/*.c",
@@ -138,9 +136,7 @@ project "SOEM"
             "%{prj.location}/osal/win32",
             "%{prj.location}/oshw/win32"
         }
-        defines{
-            "WIN32"
-        }
+        defines{}
      
     filter "system:macosx"
         files{
@@ -155,23 +151,13 @@ project "SOEM"
         }
         defines{}
 
-    filter "configurations:Debug"
-        runtime "Debug"
-        symbols "on"
-
-    filter "configurations:Release"
-        runtime "Release"
-        optimize "on"
-
 --=================================================================================================================
 
---glad should only be used on windos, macos uses metal
-
+--don't use opengl version greater than 4.1 to ensure MacOS compatibility
 project "glad"
     location "dependencies/glad"
     kind "StaticLib"
     language "C"
-    systemversion "latest"
 
     targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
     objdir ("%{wks.location}/bin/obj");
@@ -186,16 +172,7 @@ project "glad"
         "%{prj.location}/include"
     }
 
-    filter "configurations:Debug"
-        runtime "Debug"
-        symbols "on"
-
-    filter "configurations:Release"
-        runtime "Release"
-        optimize "on"
-
 --=================================================================================================================
-
 
 project "glfw"
 	location "dependencies/glfw"
@@ -218,8 +195,6 @@ project "glfw"
 	}
 
 	filter "system:windows"
-		systemversion "latest"
-
 		files{
 			"%{prj.location}/src/win32_init.c",
 			"%{prj.location}/src/win32_joystick.c",
@@ -231,7 +206,6 @@ project "glfw"
 			"%{prj.location}/src/egl_context.c",
 			"%{prj.location}/src/osmesa_context.c"
 		}
-
 		defines { 
 			"_GLFW_WIN32",
 			"_CRT_SECURE_NO_WARNINGS"
@@ -259,14 +233,6 @@ project "glfw"
         defines{
             "_GLFW_COCOA"
         }
-
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "on"
-
-	filter "configurations:Release"
-		runtime "Release"
-		optimize "on"
 
 
 --=================================================================================================================
@@ -297,17 +263,6 @@ project "dearimgui"
         "%{wks.location}/dependencies/glm"
     }
 
-    filter "system:windows"
-        systemversion "latest"
-
-    filter "configurations:Debug"
-        runtime "Debug"
-        symbols "on"
-
-    filter "configurations:Release"
-        runtime "Release"
-        optimize "on"
-
 --=================================================================================================================
 
 project "implot"
@@ -331,18 +286,6 @@ project "implot"
         "%{wks.location}/dependencies/glm"
     }
 
-    filter "system:windows"
-        systemversion "latest"
-
-    filter "configurations:Debug"
-        runtime "Debug"
-        symbols "on"
-
-    filter "configurations:Release"
-        runtime "Release"
-        optimize "on"
-
-
 --=================================================================================================================
 
 project "tinyxml2"
@@ -361,14 +304,3 @@ project "tinyxml2"
     sysincludedirs{
         "%{wks.location}/tinyxml2.h"
     }
-
-    filter "system:windows"
-        systemversion "latest"
-
-    filter "configurations:Debug"
-        runtime "Debug"
-        symbols "on"
-
-    filter "configurations:Release"
-        runtime "Release"
-        optimize "on"
