@@ -1,11 +1,13 @@
 #include "GuiWindow.h"
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <backends/imgui_impl_opengl3.cpp>
 #include <backends/imgui_impl_glfw.cpp>
+
+#include <GLFW/glfw3.h>
+
 #include <imgui.h>
 #include <implot.h>
 
@@ -27,11 +29,15 @@ ImFont* GuiWindow::robotoRegular42;
 
 void GuiWindow::open(int w, int h) {
 	glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	window = glfwCreateWindow(w, h, "FieldbusDev", nullptr, nullptr);
 	glfwSetWindowSizeCallback(window, onResize);
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
+    
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+    
 	onInit();
 }
 
@@ -39,7 +45,8 @@ void GuiWindow::refresh() {
 	while (!glfwWindowShouldClose(window)) {
 		glfwMakeContextCurrent(window);
 		glfwPollEvents();
-		onRenderBegin();
+		
+        onRenderBegin();
 		onRender(false);
 		onRenderEnd();
 		glfwSwapBuffers(window);
@@ -66,8 +73,8 @@ void GuiWindow::onInit() {
 	float xScale, yScale;
 	glfwGetWindowContentScale(window, &xScale, &yScale);
 
-	float scaleTuning = 1.25;
-
+    /*
+    float scaleTuning = 1.25;
 	float scale = xScale * scaleTuning;
 	robotoRegular15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Regular.ttf", 15.0f * scale);
 	robotoBold15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Bold.ttf", 15.0f * scale);
@@ -79,12 +86,13 @@ void GuiWindow::onInit() {
 	robotoBold42 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Bold.ttf", 42.0f * scale);
 	robotoLight42 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Light.ttf", 42.0f * scale);
 	ImGui::GetStyle().ScaleAllSizes(scale);
-
+    */
+     
 	ImGui::StyleColorsDark();
 	ImGui::GetStyle().FrameRounding = 5.0;
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 460");
+	ImGui_ImplOpenGL3_Init("#version 410 core");
 }
 
 void GuiWindow::onTerminate() {
@@ -103,7 +111,7 @@ void GuiWindow::onRenderBegin() {
 void GuiWindow::onRenderEnd() {
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+    
 	// Update and Render additional Platform Windows
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
 		ImGui::UpdatePlatformWindows();

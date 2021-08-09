@@ -7,10 +7,12 @@ workspace "FieldbusDev"
 		"Debug",
 		"Release"
 	}
-
-	platforms { 
-		"x64"
-	}
+ 
+    filter "system:windows"
+        defines "WIN32"
+    
+    filter "system:macosx"
+        defines "MACOSX"
 
 	startproject "FieldbusDev"
 
@@ -32,29 +34,23 @@ project "FieldbusDev"
 		"%{prj.location}/src/**.cpp"
 	}
 	
-	includedirs{
+	sysincludedirs{
 		"%{wks.location}/src",
 		"%{wks.location}/src/Core",
-		"%{wks.location}/dependencies/oscpp/include",
 		"%{wks.location}/dependencies/glm/",
-		"%{wks.location}/dependencies/glad/include",
+        "%{wks.location}/dependencies/glad/include",
 		"%{wks.location}/dependencies/glfw/include",
 		"%{wks.location}/dependencies/dearimgui/",
 		"%{wks.location}/dependencies/implot/",
 		"%{wks.location}/dependencies/tinyxml2/",
-		"%{wks.location}/dependencies/eipscanner/src/",
 		"%{wks.location}/dependencies/soem/soem",
 		"%{wks.location}/dependencies/soem/osal",
 		"%{wks.location}/dependencies/asio/asio/include/"
 	}
 
 	links{
-		"Winmm.lib",
-		"%{wks.location}/dependencies/soem/oshw/win32/wpcap/Lib/x64/wpcap.lib",
-		"Ws2_32.lib",
-		"EIPScanner",
 		"SOEM",
-		"glad",
+        "glad",
 		"glfw",
 		"dearimgui",
 		"implot",
@@ -73,11 +69,27 @@ project "FieldbusDev"
 			"_WINDOWS",
 			"_WIN32_WINNT=0x0601"
 		}
-		includedirs{
+		sysincludedirs{
 			"%{wks.location}/dependencies/soem/oshw/win32/wpcap/Include",
 			"%{wks.location}/dependencies/soem/osal/win32",
 			"%{wks.location}/dependencies/soem/oshw/win32"
 		}
+        links{
+            "Winmm.lib",
+            "%{wks.location}/dependencies/soem/oshw/win32/wpcap/Lib/x64/wpcap.lib",
+            "Ws2_32.lib",
+        }
+    
+    filter "system:macosx"
+        defines{}
+        sysincludedirs{
+            "%{wks.location}/dependencies/soem/osal/macosx",
+            "%{wks.location}/dependencies/soem/oshw/macosx"
+        }
+        links{
+            "Cocoa.framework",
+            "IOKit.framework"
+        }
 		
 	filter "configurations:Debug"
 		defines {}
@@ -91,128 +103,96 @@ project "FieldbusDev"
 --=================================================================================================================
 
 project "SOEM"
-location "dependencies/soem"
-kind "StaticLib"
-language "C"
+    location "dependencies/soem"
+    kind "StaticLib"
+    language "C"
 
-targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
-objdir ("%{wks.location}/bin/obj");
+    targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
+    objdir ("%{wks.location}/bin/obj");
 
-files{
-	"%{prj.location}/soem/*.h",
-	"%{prj.location}/soem/*.c",
-	"%{prj.location}/osal/osal.h"
-}
+    files{
+        "%{prj.location}/soem/*.h",
+        "%{prj.location}/soem/*.c",
+        "%{prj.location}/osal/osal.h"
+    }
 
-includedirs{
-	"%{prj.location}/soem",
-	"%{prj.location}/osal",
-}
+    sysincludedirs{
+        "%{prj.location}/soem",
+        "%{prj.location}/osal",
+    }
 
-defines{
-	"_CRT_SECURE_NO_WARNINGS"
-}
+    defines{
+        "_CRT_SECURE_NO_WARNINGS"
+    }
 
-filter "system:windows"
-	systemversion "latest"
-	files{
-		"%{prj.location}/oshw/win32/*.h",
-		"%{prj.location}/oshw/win32/*.c",
-		"%{prj.location}/osal/win32/*.h",
-		"%{prj.location}/osal/win32/*.c"
-	}
-	includedirs{
-		"%{prj.location}/oshw/win32/wpcap/Include",
-		"%{prj.location}/osal/win32",
-		"%{prj.location}/oshw/win32"
-	}
-	defines{
-		"WIN32"
-	}
+    filter "system:windows"
+        systemversion "latest"
+        files{
+            "%{prj.location}/oshw/win32/*.h",
+            "%{prj.location}/oshw/win32/*.c",
+            "%{prj.location}/osal/win32/*.h",
+            "%{prj.location}/osal/win32/*.c"
+        }
+        sysincludedirs{
+            "%{prj.location}/oshw/win32/wpcap/Include",
+            "%{prj.location}/osal/win32",
+            "%{prj.location}/oshw/win32"
+        }
+        defines{
+            "WIN32"
+        }
+     
+    filter "system:macosx"
+        files{
+            "%{prj.location}/oshw/macosx/*.h",
+            "%{prj.location}/oshw/macosx/*.c",
+            "%{prj.location}/osal/macosx/*.h",
+            "%{prj.location}/osal/macosx/*.c"
+        }
+        sysincludedirs{
+            "%{prj.location}/osal/macosx",
+            "%{prj.location}/oshw/macosx"
+        }
+        defines{}
 
-filter "configurations:Debug"
-	runtime "Debug"
-	symbols "on"
+    filter "configurations:Debug"
+        runtime "Debug"
+        symbols "on"
 
-filter "configurations:Release"
-	runtime "Release"
-	optimize "on"
-
---=================================================================================================================
-
-project "EIPScanner"
-location "dependencies/eipscanner"
-kind "StaticLib"
-language "C++"
-
-targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
-objdir ("%{wks.location}/bin/obj");
-
-files{
-	"%{prj.location}/src/*.h",
-	"%{prj.location}/src/*.cpp",
-	"%{prj.location}/src/cip/*.h",
-	"%{prj.location}/src/cip/*.cpp",
-	"%{prj.location}/src/cip/connectionManager/*.h",
-	"%{prj.location}/src/cip/connectionManager/*.cpp",
-	"%{prj.location}/src/eip/*.h",
-	"%{prj.location}/src/eip/*.cpp",
-	"%{prj.location}/src/fileObject/*.h",
-	"%{prj.location}/src/fileObject/*.cpp",
-	"%{prj.location}/src/sockets/*.h",
-	"%{prj.location}/src/sockets/*.cpp",
-	"%{prj.location}/src/socket/*.h",
-	"%{prj.location}/src/socket/*.cpp",
-	"%{prj.location}/src/utils/*.h",
-	"%{prj.location}/src/utils/*.cpp",
-}
-
-includedirs{
-	"%{prj.location}/src"
-}
-
-filter "system:windows"
-	systemversion "latest"
-
-filter "configurations:Debug"
-	runtime "Debug"
-	symbols "on"
-
-filter "configurations:Release"
-	runtime "Release"
-	optimize "on"
+    filter "configurations:Release"
+        runtime "Release"
+        optimize "on"
 
 --=================================================================================================================
+
+--glad should only be used on windos, macos uses metal
 
 project "glad"
-	location "dependencies/glad"
-	kind "StaticLib"
-	language "C"
+    location "dependencies/glad"
+    kind "StaticLib"
+    language "C"
+    systemversion "latest"
 
-	targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
-	objdir ("%{wks.location}/bin/obj");
+    targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
+    objdir ("%{wks.location}/bin/obj");
 
-	files {
-		"%{prj.location}/include/glad/glad.h",
-		"%{prj.location}/include/KHR/khrplatform.h",
-		"%{prj.location}/src/glad.c"
-	}
-		
-	includedirs{
-		"%{prj.location}/include"
-	}
+    files {
+        "%{prj.location}/include/glad/glad.h",
+        "%{prj.location}/include/KHR/khrplatform.h",
+        "%{prj.location}/src/glad.c"
+    }
+        
+    sysincludedirs{
+        "%{prj.location}/include"
+    }
 
-	filter "system:windows"
-		systemversion "latest"
+    filter "configurations:Debug"
+        runtime "Debug"
+        symbols "on"
 
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "on"
-
-	filter "configurations:Release"
-		runtime "Release"
-		optimize "on"
-
+    filter "configurations:Release"
+        runtime "Release"
+        optimize "on"
 
 --=================================================================================================================
 
@@ -256,6 +236,29 @@ project "glfw"
 			"_GLFW_WIN32",
 			"_CRT_SECURE_NO_WARNINGS"
 		}
+  
+    filter "system:macosx"
+        files{
+            "%{prj.location}/src/cocoa_platform.h",
+            "%{prj.location}/src/cocoa_init.m",
+            "%{prj.location}/src/cocoa_joystick.h",
+            "%{prj.location}/src/cocoa_joystick.m",
+            "%{prj.location}/src/cocoa_monitor.m",
+            "%{prj.location}/src/cocoa_window.m",
+            "%{prj.location}/src/cocoa_time.c",
+            "%{prj.location}/src/osmesa_context.h",
+            "%{prj.location}/src/osmesa_context.c",
+            "%{prj.location}/src/posix_thread.h",
+            "%{prj.location}/src/posix_thread.c",
+            "%{prj.location}/src/nsgl_context.h",
+            "%{prj.location}/src/nsgl_context.m",
+            "%{prj.location}/src/egl_context.h",
+            "%{prj.location}/src/egl_context.c"
+        }
+        sysincludedirs{}
+        defines{
+            "_GLFW_COCOA"
+        }
 
 	filter "configurations:Debug"
 		runtime "Debug"
@@ -269,103 +272,103 @@ project "glfw"
 --=================================================================================================================
 
 project "dearimgui"
-location "dependencies/dearimgui"
-kind "StaticLib"
-language "C++"
+    location "dependencies/dearimgui"
+    kind "StaticLib"
+    language "C++"
 
-targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
-objdir ("%{wks.location}/bin/obj");
+    targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
+    objdir ("%{wks.location}/bin/obj");
 
-files{
-	"%{prj.location}/imconfig.h",
-	"%{prj.location}/imgui.h",
-	"%{prj.location}/imgui.cpp",
-	"%{prj.location}/imgui_draw.cpp",
-	"%{prj.location}/imgui_internal.h",
-	"%{prj.location}/imgui_widgets.cpp",
-	"%{prj.location}/imgui_tables.cpp",
-	"%{prj.location}/imgui_rectpack.h",
-	"%{prj.location}/imgui_textedit.h",
-	"%{prj.location}/imgui_truetype.h",
-	"%{prj.location}/imgui_demo.cpp"
-}
+    files{
+        "%{prj.location}/imconfig.h",
+        "%{prj.location}/imgui.h",
+        "%{prj.location}/imgui.cpp",
+        "%{prj.location}/imgui_draw.cpp",
+        "%{prj.location}/imgui_internal.h",
+        "%{prj.location}/imgui_widgets.cpp",
+        "%{prj.location}/imgui_tables.cpp",
+        "%{prj.location}/imstb_rectpack.h",
+        "%{prj.location}/imstb_textedit.h",
+        "%{prj.location}/imstb_truetype.h",
+        "%{prj.location}/imgui_demo.cpp"
+    }
 
-includedirs{
-	"%{wks.location}/dependencies/glm"
-}
+    sysincludedirs{
+        "%{wks.location}/dependencies/glm"
+    }
 
-filter "system:windows"
-	systemversion "latest"
+    filter "system:windows"
+        systemversion "latest"
 
-filter "configurations:Debug"
-	runtime "Debug"
-	symbols "on"
+    filter "configurations:Debug"
+        runtime "Debug"
+        symbols "on"
 
-filter "configurations:Release"
-	runtime "Release"
-	optimize "on"
+    filter "configurations:Release"
+        runtime "Release"
+        optimize "on"
 
 --=================================================================================================================
 
 project "implot"
-location "dependencies/implot"
-kind "StaticLib"
-language "C++"
+    location "dependencies/implot"
+    kind "StaticLib"
+    language "C++"
 
-targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
-objdir ("%{wks.location}/bin/obj");
+    targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
+    objdir ("%{wks.location}/bin/obj");
 
-files{
-	"%{prj.location}/implot.cpp",
-	"%{prj.location}/implot.h",
-	"%{prj.location}/implot_demo.cpp",
-	"%{prj.location}/implot_internal.h",
-	"%{prj.location}/implot_items.cpp",
-}
+    files{
+        "%{prj.location}/implot.cpp",
+        "%{prj.location}/implot.h",
+        "%{prj.location}/implot_demo.cpp",
+        "%{prj.location}/implot_internal.h",
+        "%{prj.location}/implot_items.cpp",
+    }
 
-includedirs{
-	"%{wks.location}/dependencies/dearimgui/",
-	"%{wks.location}/dependencies/glm"
-}
+    sysincludedirs{
+        "%{wks.location}/dependencies/dearimgui/",
+        "%{wks.location}/dependencies/glm"
+    }
 
-filter "system:windows"
-	systemversion "latest"
+    filter "system:windows"
+        systemversion "latest"
 
-filter "configurations:Debug"
-	runtime "Debug"
-	symbols "on"
+    filter "configurations:Debug"
+        runtime "Debug"
+        symbols "on"
 
-filter "configurations:Release"
-	runtime "Release"
-	optimize "on"
+    filter "configurations:Release"
+        runtime "Release"
+        optimize "on"
 
 
-	--=================================================================================================================
+--=================================================================================================================
 
 project "tinyxml2"
-location "dependencies/tinyxml2"
-kind "StaticLib"
-language "C++"
+    location "dependencies/tinyxml2"
+    kind "StaticLib"
+    language "C++"
 
-targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
-objdir ("%{wks.location}/bin/obj");
+    targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
+    objdir ("%{wks.location}/bin/obj");
 
-files{
-	"%{prj.location}/tinyxml2.h",
-	"%{prj.location}/tinyxml2.cpp"
-}
+    files{
+        "%{prj.location}/tinyxml2.h",
+        "%{prj.location}/tinyxml2.cpp"
+    }
 
-includedirs{
-	"%{wks.location}/tinyxml2.h"
-}
+    sysincludedirs{
+        "%{wks.location}/tinyxml2.h"
+    }
 
-filter "system:windows"
-	systemversion "latest"
+    filter "system:windows"
+        systemversion "latest"
 
-filter "configurations:Debug"
-	runtime "Debug"
-	symbols "on"
+    filter "configurations:Debug"
+        runtime "Debug"
+        symbols "on"
 
-filter "configurations:Release"
-	runtime "Release"
-	optimize "on"
+    filter "configurations:Release"
+        runtime "Release"
+        optimize "on"

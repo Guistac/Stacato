@@ -1,10 +1,10 @@
 #include "EtherCatGui.h"
 
-#include "Fieldbus/EtherCAT/EtherCatFieldbus.h"
+#include "Fieldbus/EtherCatFieldbus.h"
 
 #include "imgui.h"
 #include "imgui_internal.h"
-#include "implot.h";
+#include "implot.h"
 
 bool etherCatGui() {
 
