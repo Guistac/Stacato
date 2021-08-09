@@ -37,6 +37,8 @@ bool etherCatGui() {
 
 	ImGui::Separator();
 	
+	/*
+
 	if (ImGui::Button("Fault Reset All")) for (ECatServoDrive& drive : EtherCatFieldbus::servoDrives) drive.performFaultReset = true;
 	ImGui::SameLine();
 	if (ImGui::Button("Enable All")) for (ECatServoDrive& drive : EtherCatFieldbus::servoDrives) { drive.enableOperation = true; drive.positionCommand = drive.position; drive.counter = 0; }
@@ -169,20 +171,6 @@ bool etherCatGui() {
 				float velocityFraction = (((double)velocity / 7000.0) + 1.0) / 2.0;
 				ImGui::ProgressBar(velocityFraction, ImVec2(0, 0), "velocity");
 
-				/*
-				ImGui::InputInt("Position Command", &positionCommand, 1000, 10000);
-				ImGui::SameLine();
-				if (ImGui::Button("Zero")) positionCommand = 0;
-
-				ImGui::SliderInt("##Velocity", &velocityCommand, -7000, 7000, "%d rpm");
-				drive.positionCommand = positionCommand;
-				ImGui::SameLine();
-				if(ImGui::Button("Stop")) velocityCommand = 0;
-
-				ImGui::SliderInt("##Torque", &torqueCommand, -100, 100, "%d t");
-				ImGui::SameLine();
-				if (ImGui::Button("Cut")) torqueCommand = 0;
-				*/
 
 				ImGui::Checkbox("DQ0", &drive.DQ0);
 				ImGui::SameLine();
@@ -238,12 +226,16 @@ bool etherCatGui() {
 
 	ImGui::Separator();
 
+	*/
+
 	//=====METRICS=====
 
 	ImGui::Text("Process Time: %.1fs  cycles: %i (%.1fms/cycle)",
 		EtherCatFieldbus::metrics.processTime_seconds,
 		EtherCatFieldbus::metrics.cycleCounter,
 		EtherCatFieldbus::processInterval_milliseconds);
+
+	EtherCatMetrics& metrics = EtherCatFieldbus::metrics;
 
 	static bool lockXAxis = true;
 	static bool lockYAxis = true;
@@ -258,6 +250,8 @@ bool etherCatGui() {
 	ScrollingBuffer& averageDcTimeErrors = EtherCatFieldbus::metrics.averageDcTimeErrors;
 	float maxPositiveDrift = EtherCatFieldbus::processInterval_milliseconds / 2.0;
 	float maxNegativeDrift = -maxPositiveDrift;
+	float positiveThreshold = EtherCatFieldbus::clockStableThreshold_milliseconds;
+	float negativeThreshold = -positiveThreshold;
 	if (lockXAxis) ImPlot::SetNextPlotLimitsX((double)dcTimeErrors.newest().x - (double)historyLength_seconds, dcTimeErrors.newest().x, ImGuiCond_Always);
 	if (lockYAxis) ImPlot::SetNextPlotLimitsY(-1.0, 1.0, ImGuiCond_Always);
 	ImPlot::SetNextPlotFormatY("%gms");
@@ -271,6 +265,10 @@ bool etherCatGui() {
 		ImPlot::PlotHLines("Limits", &maxPositiveDrift, 1);
 		ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), 2.0);
 		ImPlot::PlotHLines("Limits", &maxNegativeDrift, 1);
+		ImPlot::SetNextLineStyle(ImVec4(0.0f, 0.0f, 1.0f, 0.5f), 2.0);
+		ImPlot::PlotHLines("Threshold", &positiveThreshold, 1);
+		ImPlot::SetNextLineStyle(ImVec4(0.0f, 0.0f, 1.0f, 0.5f), 2.0);
+		ImPlot::PlotHLines("Threshold", &negativeThreshold, 1);
 		ImPlot::EndPlot();
 	}
 
@@ -326,7 +324,6 @@ bool etherCatGui() {
 
 	ImPlot::SetNextPlotLimits(0, 1, 0, 1, ImGuiCond_Always);
 	if (ImPlot::BeginPlot("##WorkingCounter2", NULL, NULL, ImVec2(600, 600), ImPlotFlags_AntiAliased | ImPlotFlags_Equal | ImPlotFlags_NoMousePos, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations)) {
-		ECatMetrics& metrics = EtherCatFieldbus::metrics;
 		int totalCount = metrics.frameReturnTypeCounters[0] + metrics.frameReturnTypeCounters[1];
 		float percentages[2];
 		if (totalCount > 0) {
@@ -351,7 +348,6 @@ bool etherCatGui() {
 	if (ImPlot::BeginPlot("Working Counter", NULL, NULL, ImVec2(-1, 600), ImPlotFlags_AntiAliased)) {
 		ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 2.0);
 		ImPlot::PlotStairs("##WorkingCounter", &workingCounters.front().x, &workingCounters.front().y, workingCounters.size(), workingCounters.offset(), workingCounters.stride());
-		ECatMetrics& metrics = EtherCatFieldbus::metrics;
 		ImPlot::EndPlot();
 	}
 

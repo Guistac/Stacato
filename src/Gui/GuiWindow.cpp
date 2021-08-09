@@ -73,9 +73,9 @@ void GuiWindow::onInit() {
 	float xScale, yScale;
 	glfwGetWindowContentScale(window, &xScale, &yScale);
 
-    /*
-    float scaleTuning = 1.25;
+	float scaleTuning = 1.25;
 	float scale = xScale * scaleTuning;
+
 	robotoRegular15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Regular.ttf", 15.0f * scale);
 	robotoBold15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Bold.ttf", 15.0f * scale);
 	robotoLight15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Light.ttf", 15.0f * scale);
@@ -85,8 +85,8 @@ void GuiWindow::onInit() {
 	robotoRegular42 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Regular.ttf", 42.0f * scale);
 	robotoBold42 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Bold.ttf", 42.0f * scale);
 	robotoLight42 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Light.ttf", 42.0f * scale);
+
 	ImGui::GetStyle().ScaleAllSizes(scale);
-    */
      
 	ImGui::StyleColorsDark();
 	ImGui::GetStyle().FrameRounding = 5.0;

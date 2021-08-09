@@ -1,7 +1,10 @@
 #include "EtherCatSlave.h"
 
- //sprintf(customName, "%s (#%i, address: %i)", identity->name, getSlaveIndex(), getManualAddress());
+#include <iostream>
 
+void EtherCatSlave::startupConfiguration() {}
+
+void EtherCatSlave::process(bool b_processDataValid) {}
 
 bool EtherCatSlave::readSDO(uint16_t index, uint8_t subindex, uint8_t& data) {
     int size = 1;

@@ -4,29 +4,19 @@
 #include <map>
 #include <string>
 
+#include "Fieldbus/EtherCatSlave.h"
 #include "Gui/ScrollingBuffer.h"
 
-struct EtherCatSlave {
-    ec_slavet* slave_ptr;
-    char name[128];
-    char displayName[128];
-    int index;
-    int manualAddress;
-    int address;
-    bool b_configured = false;
-};
 
-class ECatServoDrive{
+class Lexium32 : public EtherCatSlave {
 public:
+
+    SLAVE_DEFINITION(Lexium32, "LXM32M EtherCAT")
 
     int counter = 0;
 
-    EtherCatSlave identity;
-
     void writeStartupParameters();
     void readStartupParameters();
-    void preOperationalToSafeOperationalConfiguration();
-    void process(bool);
 
     //fieldbus commands
     bool enableVoltage = false;
@@ -48,9 +38,9 @@ public:
         SwitchOnDisabled,
         ReadyToSwitchOn,
         SwitchedOn,
-        OperationEnabled, 
+        OperationEnabled,
         QuickStopActive,
-        FaultReactionActive, 
+        FaultReactionActive,
         Fault
     };
 
@@ -114,5 +104,5 @@ public:
     bool b_operationEnabled = false;
     bool b_faultResetState = false;
     bool b_halted = false;
-};
 
+};

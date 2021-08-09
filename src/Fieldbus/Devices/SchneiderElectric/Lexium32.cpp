@@ -1,11 +1,10 @@
-#include "ECatServoDrive.h"
-#include "EtherCatFieldbus.h"
+#include "Lexium32.h"
+#include "Fieldbus/EtherCatFieldbus.h"
 
 #include <iostream>
 
-#include "ECatUtilities.h"
 
-std::map<int, std::string> ECatServoDrive::modelist = {
+std::map<int, std::string> Lexium32::modelist = {
     {-6, "Manual/Auto Tuning"},
     {-5, "-5"},
     {-4, "-4"},
@@ -26,7 +25,52 @@ std::map<int, std::string> ECatServoDrive::modelist = {
     {11, "11"}
 };
 
-void ECatServoDrive::process(bool inputDataValid) {
+void Lexium32::startupConfiguration() {
+    positions.setMaxSize(1000);
+    writeStartupParameters();
+    readStartupParameters();
+
+    //set interrupt routine for cyclic synchronous position mode
+    //interval should be the same as the frame cycle time, and offset should be zero
+    //the frame cycle time is offset 50% from dc_sync time (which is a integer multiple of the interval time)
+    //by setting the sync0 event at 0 offset, maximum time offset is garanteed between the sync event and the frame receive time
+    uint32_t sync0Interval_nanoseconds = EtherCatFieldbus::processInterval_milliseconds * 1000000.0L;
+    uint32_t sync0offset_nanoseconds = 0;
+    ec_dcsync0(getSlaveIndex(), true, sync0Interval_nanoseconds, sync0offset_nanoseconds);
+    //TODO: does this still apply with a lot of slaves ?
+    //if propagation delays add up, might the last slaves have their sync event happen at the same time as their frame receive time?
+
+    std::cout << "===== Begin PDO assignement..." << std::endl;
+    int workingCounter = 0;
+    uint8_t PDOoff = 0x00;
+    uint8_t PDOon = 0x01;
+    //Sync Manager (SM2, SM3) registers that store the mapping objects (modules) which decribe PDO data
+    uint16_t RxPDO = 0x1C12;
+    uint16_t TxPDO = 0x1C13;
+    //mapping object (module) to be stored in each pdo register
+    uint16_t RxPDOmodule = 0x1603;
+    uint16_t TxPDOmodule = 0x1A03;
+    //turn the pdo off by writing a zero to the 0 index, set the mapping object at subindex 1, enable the pdo by writing a 1 (module count) to the index
+    workingCounter += ec_SDOwrite(getSlaveIndex(), RxPDO, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
+    workingCounter += ec_SDOwrite(getSlaveIndex(), RxPDO, 0x1, false, 2, &RxPDOmodule, EC_TIMEOUTSAFE);
+    workingCounter += ec_SDOwrite(getSlaveIndex(), RxPDO, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
+    //do the same for the TxPDO but modify one parameter
+    workingCounter += ec_SDOwrite(getSlaveIndex(), TxPDO, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
+    //disable TxPDO module before modifying it (set entry count to zero)
+    workingCounter += ec_SDOwrite(getSlaveIndex(), TxPDOmodule, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
+    uint32_t TxPDOparameter4 = 0x606C0020; //replace default parameter 4 (_p_dif) by current velocity (_v_act 0x606C 0x00 int32_t)
+    workingCounter += ec_SDOwrite(getSlaveIndex(), TxPDOmodule, 0x4, false, 4, &TxPDOparameter4, EC_TIMEOUTSAFE);
+    uint8_t TxPDOparameterCount = 7;
+    workingCounter += ec_SDOwrite(getSlaveIndex(), TxPDOmodule, 0x0, false, 1, &TxPDOparameterCount, EC_TIMEOUTSAFE);
+    //set the modified module
+    workingCounter += ec_SDOwrite(getSlaveIndex(), TxPDO, 0x1, false, 2, &TxPDOmodule, EC_TIMEOUTSAFE);
+    workingCounter += ec_SDOwrite(getSlaveIndex(), TxPDO, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
+    if (workingCounter == 9) std::cout << "===== PDO assignement successfull !" << std::endl;
+    else std::cout << "===== PDO assignement failed..." << std::endl;
+
+}
+
+void Lexium32::process(bool inputDataValid) {
 
     int32_t outputPosition;
     if(b_inverted) outputPosition = positionCommand + (std::cos((double)counter / 1000.0) - 1.0) * 20000000;
@@ -51,7 +95,7 @@ void ECatServoDrive::process(bool inputDataValid) {
     //don't read the input data if the received frame workingCounter did not match the expected one
     if (inputDataValid) {
 
-        uint8_t* inByte = identity.slave_ptr->inputs;
+        uint8_t* inByte = identity->inputs;
 
         //TxPDO Data
         uint16_t _DCOMstatus = inByte[0] | inByte[1] << 8;
@@ -118,7 +162,7 @@ void ECatServoDrive::process(bool inputDataValid) {
     //PTtq_target   (int32_t)   2
     //IO_DQ_set     (uint16_t)  2
 
-    uint8_t* outByte = identity.slave_ptr->outputs;
+    uint8_t* outByte = identity->outputs;
 
     static bool faultResetOnPreviousCycle = false;
 
@@ -221,30 +265,12 @@ void ECatServoDrive::process(bool inputDataValid) {
     outByte[13] = (IO_DQ_set >> 0) & 0xFF;
     outByte[14] = (IO_DQ_set >> 8) & 0xFF;
 
-    //============== OTHER COMMANDS
-
-    if (jog) {
-        uint16_t command = 0;
-        if (direction) command |= 0x1;
-        else command |= 0x2;
-        if (fast) command |= 0x4;
-        int wc = ec_SDOwrite(identity.index, 0x301B, 0x9, false, 2, &command, EC_TIMEOUTSAFE);
-        direction = false;
-        fast = false;
-        jog = false;
-    }
-    if (stop) {
-        uint16_t command = 0;
-        int wc = ec_SDOwrite(identity.index, 0x301B, 0x9, false, 2, &command, EC_TIMEOUTSAFE);
-        stop = false;
-    }
-
 }
 
-void ECatServoDrive::writeStartupParameters() {
+void Lexium32::writeStartupParameters() {
     int size;
     int wc;
-    int i = identity.index;
+    int i = getSlaveIndex();
 
     std::cout << "-----------WRITE-----------" << std::endl;
 
@@ -310,10 +336,10 @@ void ECatServoDrive::writeStartupParameters() {
     std::cout << "ECATinpshifttime_set: " << wc << std::endl;
 }
 
-void ECatServoDrive::readStartupParameters() {
+void Lexium32::readStartupParameters() {
     int size;
     int wc;
-    int i = identity.index;
+    int i = getSlaveIndex();
 
     std::cout << "-----------READ-----------" << std::endl;
 
@@ -383,51 +409,4 @@ void ECatServoDrive::readStartupParameters() {
     wc = ec_SDOread(i, 0x6064, 0x0, false, &size, &_p_act, EC_TIMEOUTSAFE);
     std::cout << "wc: " << wc << " _p_act: " << _p_act << " size: " << size << std::endl;
     positionCommand = _p_act;
-}
-
-void ECatServoDrive::preOperationalToSafeOperationalConfiguration() {
-    positions.setMaxSize(1000);
-    writeStartupParameters();
-    readStartupParameters();
-
-    //set interrupt routine for cyclic synchronous position mode
-    //interval should be the same as the frame cycle time, and offset should be zero
-    //the frame cycle time is offset 50% from dc_sync time (which is a integer multiple of the interval time)
-    //by setting the sync0 event at 0 offset, maximum time offset is garanteed between the sync event and the frame receive time
-    uint32_t sync0Interval_nanoseconds = EtherCatFieldbus::processInterval_milliseconds * 1000000.0L;
-    uint32_t sync0offset_nanoseconds = 0;
-    ec_dcsync0(identity.index, true, sync0Interval_nanoseconds, sync0offset_nanoseconds);
-
-    //TODO: does this still apply with a lot of slaves ?
-    //if propagation delays add up, might the last slaves have their sync event happen at the same time as their frame receive time?
-
-    if (strcmp(identity.name, "LXM32M EtherCAT") == 0) {
-        std::cout << "===== Begin PDO assignement..." << std::endl;
-        int workingCounter = 0;
-        uint8_t PDOoff = 0x00;
-        uint8_t PDOon = 0x01;
-        //Sync Manager (SM2, SM3) registers that store the mapping objects (modules) which decribe PDO data
-        uint16_t RxPDO = 0x1C12;
-        uint16_t TxPDO = 0x1C13;
-        //mapping object (module) to be stored in each pdo register
-        uint16_t RxPDOmodule = 0x1603;
-        uint16_t TxPDOmodule = 0x1A03;
-        //turn the pdo off by writing a zero to the 0 index, set the mapping object at subindex 1, enable the pdo by writing a 1 (module count) to the index
-        workingCounter += ec_SDOwrite(identity.index, RxPDO, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
-        workingCounter += ec_SDOwrite(identity.index, RxPDO, 0x1, false, 2, &RxPDOmodule, EC_TIMEOUTSAFE);
-        workingCounter += ec_SDOwrite(identity.index, RxPDO, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
-        //do the same for the TxPDO but modify one parameter
-        workingCounter += ec_SDOwrite(identity.index, TxPDO, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
-        //disable TxPDO module before modifying it (set entry count to zero)
-        workingCounter += ec_SDOwrite(identity.index, TxPDOmodule, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
-        uint32_t TxPDOparameter4 = 0x606C0020; //replace default parameter 4 (_p_dif) by current velocity (_v_act 0x606C 0x00 int32_t)
-        workingCounter += ec_SDOwrite(identity.index, TxPDOmodule, 0x4, false, 4, &TxPDOparameter4, EC_TIMEOUTSAFE);
-        uint8_t TxPDOparameterCount = 7;
-        workingCounter += ec_SDOwrite(identity.index, TxPDOmodule, 0x0, false, 1, &TxPDOparameterCount, EC_TIMEOUTSAFE);
-        //set the modified module
-        workingCounter += ec_SDOwrite(identity.index, TxPDO, 0x1, false, 2, &TxPDOmodule, EC_TIMEOUTSAFE);
-        workingCounter += ec_SDOwrite(identity.index, TxPDO, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
-        if (workingCounter == 9) std::cout << "===== PDO assignement successfull !" << std::endl;
-        else std::cout << "===== PDO assignement failed..." << std::endl;
-    }
 }
