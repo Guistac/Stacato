@@ -6,6 +6,8 @@
 #include "ECatMetrics.h"
 #include "ECatServoDrive.h"
 
+class EtherCatSlave;
+
 struct NetworkInterfaceCard {
     char description[128];
     char name[128];
@@ -34,7 +36,8 @@ public:
     static NetworkInterfaceCard selectedNetworkInterfaceCard;
     
     //slave devices
-    static std::vector<ECatServoDrive> servoDrives;
+    static std::vector<ECatServoDrive> servoDrives; //old
+    static std::vector<std::shared_ptr<EtherCatSlave>> slaves;
     static bool b_networkScanned;
 
     //process data

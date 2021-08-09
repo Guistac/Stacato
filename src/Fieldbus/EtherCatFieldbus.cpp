@@ -57,6 +57,8 @@ void EtherCatFieldbus::scanNetwork() {
     int workingCounter = ec_config_init(FALSE); //what is usetable??
     for (int i = 1; i <= ec_slavecount; i++) {
         ec_slavet& slv = ec_slave[i];
+
+
         EtherCatSlave slave;
         slave.slave_ptr = &slv;
         strcpy(slave.name, slv.name);
