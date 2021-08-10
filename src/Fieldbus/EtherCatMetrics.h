@@ -2,7 +2,7 @@
 
 #include "Gui/ScrollingBuffer.h"
 
-class ECatMetrics {
+class EtherCatMetrics {
 public:
 
 	void init();

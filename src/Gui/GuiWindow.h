@@ -31,6 +31,7 @@ private:
 	static void onTerminate();
 
 	static void onResize(GLFWwindow*, int, int);
+	static void onClose(GLFWwindow*);
 
 	static GLFWwindow* window;
 };
