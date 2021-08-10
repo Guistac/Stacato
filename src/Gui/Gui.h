@@ -4,7 +4,7 @@ void gui();
 
 void etherCatMetrics();
 void etherCatSlaves();
-void etherCatParameters();
+void etherCatParameters(bool resetList);
 
 void quit();
 

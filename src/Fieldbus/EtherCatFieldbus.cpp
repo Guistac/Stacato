@@ -7,7 +7,10 @@
 #include "EtherCatDeviceIdentifier.h"
 
 std::vector<NetworkInterfaceCard>                   EtherCatFieldbus::networkInterfaceCards;
-NetworkInterfaceCard                                EtherCatFieldbus::selectedNetworkInterfaceCard;
+NetworkInterfaceCard                                EtherCatFieldbus::networkInterfaceCard;
+NetworkInterfaceCard                                EtherCatFieldbus::redundantNetworkInterfaceCard;
+bool                                                EtherCatFieldbus::b_redundant = false;
+
 
 std::vector<std::shared_ptr<EtherCatSlave>>         EtherCatFieldbus::slaves;
 uint8_t                                             EtherCatFieldbus::ioMap[4096];
@@ -46,25 +49,52 @@ void EtherCatFieldbus::updateNetworkInterfaceCardList() {
 }
 
 bool EtherCatFieldbus::init(NetworkInterfaceCard& nic) {
-    selectedNetworkInterfaceCard = std::move(nic);
-    std::cout << "===== Initializing EtherCAT Fieldbus on Network Interface Card '" << selectedNetworkInterfaceCard.description << "'" << std::endl;
-    int nicInitResult = ec_init(selectedNetworkInterfaceCard.name);
+    if (b_networkOpen) terminate();
+    networkInterfaceCard = std::move(nic);
+    std::cout << "===== Initializing EtherCAT Fieldbus on Network Interface Card '" << networkInterfaceCard.description << "'" << std::endl;
+    int nicInitResult = ec_init(networkInterfaceCard.name);
     if (nicInitResult < 0) {
         std::cout << "===== Failed to initialize network interface card ..." << std::endl;
         b_networkOpen = false;
+        b_redundant = false;
         return false;
     }
-    std::cout << "===== Initialized network interface card !" << std::endl;
+    b_redundant = false;
     b_networkOpen = true;
+    std::cout << "===== Initialized network interface card !" << std::endl;
+    setup();
+    return true;
+}
+
+bool EtherCatFieldbus::init(NetworkInterfaceCard& nic, NetworkInterfaceCard& redNic) {
+    if (b_networkOpen) terminate();
+    networkInterfaceCard = std::move(nic);
+    redundantNetworkInterfaceCard = std::move(redNic);
+    std::cout << "===== Initializing EtherCAT Fieldbus on Network Interface Card '" << networkInterfaceCard.description
+        << "' with redundancy on '" << redundantNetworkInterfaceCard.description << "'" << std::endl;
+    int nicInitResult = ec_init_redundant(networkInterfaceCard.name, redundantNetworkInterfaceCard.name);
+    if (nicInitResult < 0) {
+        std::cout << "===== Failed to initialize network interface cards ..." << std::endl;
+        b_networkOpen = false;
+        b_redundant = false;
+        return false;
+    }
+    b_redundant = true;
+    b_networkOpen = true;
+    std::cout << "===== Initialized network interface cards !" << std::endl;
+    setup();
+    return true;
+}
+
+void EtherCatFieldbus::setup() {
     errorWatchdog = std::thread([]() {
         while (b_networkOpen) {
             while (EcatError) std::cout << "##### EtherCAT Error: " << ec_elist2string() << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
-    });
+        });
     scanNetwork();
     metrics.init();
-    return true;
 }
 
 void EtherCatFieldbus::terminate() {

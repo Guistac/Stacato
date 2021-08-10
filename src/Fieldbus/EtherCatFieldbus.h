@@ -16,6 +16,7 @@ class EtherCatFieldbus {
 public:
     static void updateNetworkInterfaceCardList();
     static bool init(NetworkInterfaceCard&);
+    static bool init(NetworkInterfaceCard&, NetworkInterfaceCard&);
     static void terminate();
 
     static bool scanNetwork();
@@ -32,8 +33,10 @@ public:
 
     //network hardware
     static std::vector<NetworkInterfaceCard> networkInterfaceCards;
-    static NetworkInterfaceCard selectedNetworkInterfaceCard;
-    
+    static NetworkInterfaceCard networkInterfaceCard;
+    static NetworkInterfaceCard redundantNetworkInterfaceCard;
+    static bool b_redundant;
+
     //slave devices
     static std::vector<std::shared_ptr<EtherCatSlave>> slaves;
 
@@ -52,7 +55,7 @@ public:
     static bool b_networkOpen;
 
 private:
-
+    static void setup();
     static bool configureSlaves();
     static void startCyclicExchange();
 };

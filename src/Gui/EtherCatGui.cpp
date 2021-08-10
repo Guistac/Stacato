@@ -6,6 +6,8 @@
 #include <imgui_internal.h>
 #include <implot.h>
 
+#include <iostream>
+
 #include "Gui.h"
 
 bool etherCatGui() {
@@ -45,13 +47,19 @@ bool etherCatGui() {
 			etherCatSlaves();
 			ImGui::EndTabItem();
 		}
-		if(ImGui::BeginTabItem("EtherCAT Metrics")) {
+		if(ImGui::BeginTabItem("Fieldbus Metrics")) {
 			etherCatMetrics();
 			ImGui::EndTabItem();
 		}
+		static bool isTabOpen = false;
+		bool wasTabOpen = isTabOpen;
 		if (ImGui::BeginTabItem("Fieldbus Parameters")) {
-			etherCatParameters();
+			isTabOpen = true;
+			etherCatParameters(isTabOpen && !wasTabOpen);
 			ImGui::EndTabItem();
+		}
+		else {
+			isTabOpen = false;
 		}
 
 		ImGui::EndTabBar();
