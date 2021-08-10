@@ -15,8 +15,8 @@ public:
 
     int counter = 0;
 
-    void writeStartupParameters();
-    void readStartupParameters();
+    bool setStartupParameters();
+    bool assignPDOs();
 
     //fieldbus commands
     bool enableVoltage = false;

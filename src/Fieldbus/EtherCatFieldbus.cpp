@@ -14,8 +14,8 @@ uint8_t                                             EtherCatFieldbus::ioMap[4096
 int                                                 EtherCatFieldbus::ioMapSize = 0;
 int                                                 EtherCatFieldbus::expectedWorkingCounter;
 
-bool                                                EtherCatFieldbus::b_networkScanned = false;
-bool                                                EtherCatFieldbus::b_ioMapConfigured = false;
+bool                                                EtherCatFieldbus::b_networkOpen = false;
+bool                                                EtherCatFieldbus::b_processStarting = false;
 bool                                                EtherCatFieldbus::b_processRunning = false;
 bool                                                EtherCatFieldbus::b_clockStable = false;
 
@@ -25,6 +25,7 @@ double                                              EtherCatFieldbus::processInt
 double                                              EtherCatFieldbus::processDataTimeout_milliseconds = 5.0;
 double                                              EtherCatFieldbus::clockStableThreshold_milliseconds = 0.1;
 std::thread                                         EtherCatFieldbus::etherCatRuntime;
+std::thread                                         EtherCatFieldbus::errorWatchdog;
 
 
 void EtherCatFieldbus::updateNetworkInterfaceCardList() {
@@ -48,29 +49,48 @@ bool EtherCatFieldbus::init(NetworkInterfaceCard& nic) {
     selectedNetworkInterfaceCard = std::move(nic);
     std::cout << "===== Initializing EtherCAT Fieldbus on Network Interface Card '" << selectedNetworkInterfaceCard.description << "'" << std::endl;
     int nicInitResult = ec_init(selectedNetworkInterfaceCard.name);
-    if (nicInitResult > 0) std::cout << "===== Initialized network interface card !" << std::endl;
-    else std::cout << "===== Failed to initialize network interface card ..." << std::endl;
-    if(nicInitResult == 0) return false;
+    if (nicInitResult < 0) {
+        std::cout << "===== Failed to initialize network interface card ..." << std::endl;
+        b_networkOpen = false;
+        return false;
+    }
+    std::cout << "===== Initialized network interface card !" << std::endl;
+    b_networkOpen = true;
+    errorWatchdog = std::thread([]() {
+        while (b_networkOpen) {
+            while (EcatError) std::cout << "##### EtherCAT Error: " << ec_elist2string() << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+    });
+    scanNetwork();
     metrics.init();
     return true;
 }
 
-void EtherCatFieldbus::scanNetwork() {
+void EtherCatFieldbus::terminate() {
+    stop();
+    std::cout << "===== Closing EtherCAT Network Interface Card" << std::endl;
+    ec_close();
+    b_networkOpen = false;
+    errorWatchdog.join();
+    std::cout << "===== Ending EtherCAT test program" << std::endl;
+}
+
+bool EtherCatFieldbus::scanNetwork() {
     slaves.clear();
-    b_ioMapConfigured = false;
     //setup all slaves, get slave count and info in ec_slave, setup mailboxes, request state PRE-OP for all slaves
     int workingCounter = ec_config_init(FALSE); //what is usetable??
     for (int i = 1; i <= ec_slavecount; i++) {
         ec_slavet& slv = ec_slave[i];
         //create device class depending on slave name
         std::shared_ptr<EtherCatSlave> slave = getSlaveByName(slv.name);
+        //TODO: later on we need to match up theses slaves with saved references (by name and configured address for example)
         slave->identity = &slv;
         slave->slaveIndex = i;
-        sprintf(slave->customName, "%s (#%i, address: %i)", slave->getDeviceName(), slave->getSlaveIndex(), slave->getManualAddress());
+        sprintf(slave->customName, "#%i '%s' @%i", slave->getSlaveIndex(), slave->getDeviceName(), slave->getManualAddress());
         slaves.push_back(slave);
     }
     if (workingCounter > 0) {
-        b_networkScanned = true;
         std::cout << "===== Found and Configured " << ec_slavecount << " EtherCAT Slave" << ((ec_slavecount == 1) ? ": " : "s: ") << std::endl;
         for (auto slave : slaves)
             std::cout << "    = Slave "
@@ -80,20 +100,21 @@ void EtherCatFieldbus::scanNetwork() {
             << slave->getManualAddress() 
             << "   Known: " << (slave->isDeviceKnown() ? "Yes" : "No")
             << std::endl;
+        return true;
     }
-    else {
-        b_networkScanned = false;
-        std::cout << "===== No EtherCAT Slaves found..." << std::endl;
-    }
+    std::cout << "===== No EtherCAT Slaves found..." << std::endl;
+    return false;
 }
 
-void EtherCatFieldbus::configureSlaves() {
+
+
+bool EtherCatFieldbus::configureSlaves() {
     for (int i = 1; i <= ec_slavecount; i++) {
         //set hook callback for configuring the PDOs of each slave
         ec_slave[i].PO2SOconfigx = [](ecx_contextt* context, uint16_t slaveIndex) -> int {
             for (auto slave : slaves) {
                 if (slave->getSlaveIndex() == slaveIndex) {
-                    slave->startupConfiguration();
+                    slave->b_mapped = slave->startupConfiguration();
                     break;
                 }
             }
@@ -104,8 +125,12 @@ void EtherCatFieldbus::configureSlaves() {
     //build ioMap for PDO data, configure FMMU and SyncManager, request SAFE-OP state for all slaves
     std::cout << "===== Begin Building I/O Map..." << std::endl;
     ioMapSize = ec_config_map(ioMap);
+    if (ioMapSize <= 0) {
+        std::cout << "===== Failed To Configure I/O Map..." << std::endl;
+        for (auto slave : slaves) slave->b_mapped = false;
+        return false;
+    }
     std::cout << "===== Finished Building I/O Map (Size : " << ioMapSize << " bytes)" << std::endl;
-    if (ioMapSize > 0) b_ioMapConfigured = true;
 
     for (auto slave : slaves) {
         std::cout << "   [" << slave->getSlaveIndex() << "] '" << slave->getDeviceName() << "' " << slave->identity->Ibytes + slave->identity->Obytes << " bytes (" << slave->identity->Ibits + slave->identity->Obits << " bits)" << std::endl;
@@ -114,28 +139,28 @@ void EtherCatFieldbus::configureSlaves() {
     }
 
     std::cout << "===== Configuring Distributed Clocks" << std::endl;
-    bool distributedClockConfigurationResult = ec_configdc();
-    if (distributedClockConfigurationResult) std::cout << "===== Finished Configuring Distributed Clocks" << std::endl;
-    else std::cout << "===== Could not configure distributed clocks ..." << std::endl;
+    if (!ec_configdc()) {
+        std::cout << "===== Could not configure distributed clocks ..." << std::endl;
+        return false;
+    }
+    std::cout << "===== Finished Configuring Distributed Clocks" << std::endl;
 
-    if (ec_statecheck(0, EC_STATE_SAFE_OP, EC_TIMEOUTSTATE) == EC_STATE_SAFE_OP)
-        std::cout << "===== All slaves are Safe-Operational" << std::endl;
-    else std::cout << "===== Not all slaves have reached Safe-Operational State..." << std::endl;
+    std::cout << "===== Checking For Safe-Operational State..." << std::endl;
+    if (ec_statecheck(0, EC_STATE_SAFE_OP, EC_TIMEOUTSTATE) != EC_STATE_SAFE_OP) {
+        std::cout << "===== Not all slaves have reached Safe-Operational State..." << std::endl;
+        return false;
+    }
+    std::cout << "===== All slaves are Safe-Operational" << std::endl;
+    return true;
 }
 
-void EtherCatFieldbus::terminate() {
-    stopCyclicExchange();
-    std::cout << "===== Closing EtherCAT Network Interface Card" << std::endl;
-    ec_close();
-    std::cout << "===== Ending EtherCAT test program" << std::endl;
-}
 
 void EtherCatFieldbus::startCyclicExchange() {
     if (!b_processRunning) {
-        if (etherCatRuntime.joinable()) etherCatRuntime.join();
 
         b_processRunning = true;
         b_clockStable = false;
+
         //TODO: compute this depending on slave configuration
         expectedWorkingCounter = 6;
 
@@ -173,7 +198,7 @@ void EtherCatFieldbus::startCyclicExchange() {
                 if (workingCounter != expectedWorkingCounter) ec_DCtime += processInterval_nanoseconds;
 
                 //do axis processing to get next set of output data, only process input data if the working counter matches the expected one
-                process(workingCounter == expectedWorkingCounter);
+                for (auto slave : slaves) slave->process(workingCounter == expectedWorkingCounter);
 
                 //dctime_offset: *reference clock* offset target for the receiving of a frame by the first dc slave
                 //the offset is calculated as a distance from the -dc sync time-, which is a whole multiple of the process interval time
@@ -259,14 +284,22 @@ void EtherCatFieldbus::startCyclicExchange() {
     }
 }
 
-void EtherCatFieldbus::stopCyclicExchange() {
-    std::cout << "===== Stopping Cyclic Exchange" << std::endl;
-    b_processRunning = false;
-    if (etherCatRuntime.joinable()) etherCatRuntime.join();
-    std::cout << "===== Cyclic Exchange Stopped !" << std::endl;
+void EtherCatFieldbus::start() {
+    if (!b_processStarting) {
+        b_processStarting = true;
+        std::thread etherCatProcessStarter([]() {
+            if (scanNetwork() && configureSlaves()) startCyclicExchange();
+            b_processStarting = false;
+        });
+        etherCatProcessStarter.detach();
+    }
 }
 
-
-void EtherCatFieldbus::process(bool processDataValid) {
-    for (auto slave : slaves) slave->process(processDataValid);
+void EtherCatFieldbus::stop() {
+    if (b_processRunning) {
+        std::cout << "===== Stopping Cyclic Exchange" << std::endl;
+        b_processRunning = false;
+        if (etherCatRuntime.joinable()) etherCatRuntime.join();
+        std::cout << "===== Cyclic Exchange Stopped !" << std::endl;
+    }
 }

@@ -3,6 +3,10 @@
 
 #include <iostream>
 
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <implot.h>
+
 
 std::map<int, std::string> Lexium32::modelist = {
     {-6, "Manual/Auto Tuning"},
@@ -25,10 +29,30 @@ std::map<int, std::string> Lexium32::modelist = {
     {11, "11"}
 };
 
-void Lexium32::startupConfiguration() {
-    positions.setMaxSize(1000);
-    writeStartupParameters();
-    readStartupParameters();
+bool Lexium32::startupConfiguration() {
+
+    std::cout << "===== Begin Lexium32 Startup Configuration" << std::endl;
+
+    std::cout << "    = Begin Setting Startup Parameters..." << std::endl;
+    if (!setStartupParameters()) {
+        std::cout << "    = Failed to set startup Parameters..." << std::endl;
+        return false;
+    }
+    std::cout << "    = Successfully set startup parameters" << std::endl;
+
+    std::cout << "    = Begin Lexium32 PDO assignement..." << std::endl;
+    if (!assignPDOs()) {
+        std::cout << "    = Lexium32 PDO assignement failed..." << std::endl;
+        return false;
+    }
+    std::cout << "    = PDO assignement successfull !" << std::endl;
+
+    int plotLength = 1000.0 * EtherCatFieldbus::metrics.scrollingBufferLength_seconds / EtherCatFieldbus::processInterval_milliseconds;
+    positions.setMaxSize(plotLength);
+    
+    
+
+
 
     //set interrupt routine for cyclic synchronous position mode
     //interval should be the same as the frame cycle time, and offset should be zero
@@ -40,35 +64,11 @@ void Lexium32::startupConfiguration() {
     //TODO: does this still apply with a lot of slaves ?
     //if propagation delays add up, might the last slaves have their sync event happen at the same time as their frame receive time?
 
-    std::cout << "===== Begin PDO assignement..." << std::endl;
-    int workingCounter = 0;
-    uint8_t PDOoff = 0x00;
-    uint8_t PDOon = 0x01;
-    //Sync Manager (SM2, SM3) registers that store the mapping objects (modules) which decribe PDO data
-    uint16_t RxPDO = 0x1C12;
-    uint16_t TxPDO = 0x1C13;
-    //mapping object (module) to be stored in each pdo register
-    uint16_t RxPDOmodule = 0x1603;
-    uint16_t TxPDOmodule = 0x1A03;
-    //turn the pdo off by writing a zero to the 0 index, set the mapping object at subindex 1, enable the pdo by writing a 1 (module count) to the index
-    workingCounter += ec_SDOwrite(getSlaveIndex(), RxPDO, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
-    workingCounter += ec_SDOwrite(getSlaveIndex(), RxPDO, 0x1, false, 2, &RxPDOmodule, EC_TIMEOUTSAFE);
-    workingCounter += ec_SDOwrite(getSlaveIndex(), RxPDO, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
-    //do the same for the TxPDO but modify one parameter
-    workingCounter += ec_SDOwrite(getSlaveIndex(), TxPDO, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
-    //disable TxPDO module before modifying it (set entry count to zero)
-    workingCounter += ec_SDOwrite(getSlaveIndex(), TxPDOmodule, 0x0, false, 1, &PDOoff, EC_TIMEOUTSAFE);
-    uint32_t TxPDOparameter4 = 0x606C0020; //replace default parameter 4 (_p_dif) by current velocity (_v_act 0x606C 0x00 int32_t)
-    workingCounter += ec_SDOwrite(getSlaveIndex(), TxPDOmodule, 0x4, false, 4, &TxPDOparameter4, EC_TIMEOUTSAFE);
-    uint8_t TxPDOparameterCount = 7;
-    workingCounter += ec_SDOwrite(getSlaveIndex(), TxPDOmodule, 0x0, false, 1, &TxPDOparameterCount, EC_TIMEOUTSAFE);
-    //set the modified module
-    workingCounter += ec_SDOwrite(getSlaveIndex(), TxPDO, 0x1, false, 2, &TxPDOmodule, EC_TIMEOUTSAFE);
-    workingCounter += ec_SDOwrite(getSlaveIndex(), TxPDO, 0x0, false, 1, &PDOon, EC_TIMEOUTSAFE);
-    if (workingCounter == 9) std::cout << "===== PDO assignement successfull !" << std::endl;
-    else std::cout << "===== PDO assignement failed..." << std::endl;
+    std::cout << "===== Finished Lexium32 Startup Configuration" << std::endl;
 
+    return true;
 }
+
 
 void Lexium32::process(bool inputDataValid) {
 
@@ -210,6 +210,7 @@ void Lexium32::process(bool inputDataValid) {
         b_voltageEnabled = true;
         b_switchedOn = true;
         b_faultResetState = false;
+        positions.clear();
     }
     if (disableOperation) {
         disableOperation = false;
@@ -267,146 +268,242 @@ void Lexium32::process(bool inputDataValid) {
 
 }
 
-void Lexium32::writeStartupParameters() {
-    int size;
-    int wc;
-    int i = getSlaveIndex();
 
-    std::cout << "-----------WRITE-----------" << std::endl;
+bool Lexium32::setStartupParameters() {
 
-    size = 4;
+    //ramp settingts (useless in cyclic synchronous position mode for some reason...)
     uint32_t RAMP_v_acc_set = 600;
-    wc = ec_SDOwrite(i, 0x6083, 0x0, false, size, &RAMP_v_acc_set, EC_TIMEOUTSAFE);
-    std::cout << "RAMP_v_acc_set: " << wc << std::endl;
-    
-    size = 4;
+    if (!writeSDO(0x6083, 0x0, RAMP_v_acc_set)) return false;
     uint32_t RAMP_v_dec_set = 600;
-    wc = ec_SDOwrite(i, 0x6084, 0x0, false, size, &RAMP_v_dec_set, EC_TIMEOUTSAFE);
-    std::cout << "RAMP_v_dec_set: " << wc << std::endl;
+    if (!writeSDO(0x6084, 0x0, RAMP_v_dec_set)) return false;
 
-    size = 2;
+    //Cia DS402 mandatory Startup Settings (According to Lexium32 EtherCAT module documentation)
     uint16_t CompParSyncMot_set = 1;
-    wc = ec_SDOwrite(i, 0x3006, 0x3D, false, size, &CompParSyncMot_set, EC_TIMEOUTSAFE);
-    std::cout << "CompParSyncMot_set: " << wc << std::endl;
-
-    size = 2;
+    if (!writeSDO(0x3006, 0x3D, CompParSyncMot_set)) return false;
     uint16_t MOD_enable_set = 0;
-    wc = ec_SDOwrite(i, 0x3006, 0x38, false, size, &MOD_enable_set, EC_TIMEOUTSAFE);
-    std::cout << "MOD_enable_set: " << wc << std::endl;
-
-    size = 2;
+    if (!writeSDO(0x3006, 0x38, MOD_enable_set)) return false;
     int16_t LIM_QStopReact_set = -1;
-    wc = ec_SDOwrite(i, 0x3006, 0x18, false, size, &LIM_QStopReact_set, EC_TIMEOUTSAFE);
-    std::cout << "LIM_QStopReact_set: " << wc << std::endl;
-
-    size = 2;
+    if (!writeSDO(0x3006, 0x18, LIM_QStopReact_set)) return false;
     uint16_t IOsigRespOfPS_set = 1;
-    wc = ec_SDOwrite(i, 0x3006, 0x6, false, size, &IOsigRespOfPS_set, EC_TIMEOUTSAFE);
-    std::cout << "IOsigRespOfPS_set: " << wc << std::endl;
-
-    size = 4;
+    if (!writeSDO(0x3006, 0x6, IOsigRespOfPS_set)) return false;
     int32_t ScalePOSdenom_set = 131072;
-    wc = ec_SDOwrite(i, 0x3006, 0x7, false, size, &ScalePOSdenom_set, EC_TIMEOUTSAFE);
-    std::cout << "ScalePOSdenom_set: " << wc << std::endl;
-
-    size = 4;
+    if (!writeSDO(0x3006, 0x7, ScalePOSdenom_set)) return false;
     int32_t ScalePOSnum_set = 1;
-    wc = ec_SDOwrite(i, 0x3006, 0x8, false, size, &ScalePOSnum_set, EC_TIMEOUTSAFE);
-    std::cout << "ScalePOSnum_set: " << wc << std::endl;
-
-    size = 2;
+    if (!writeSDO(0x3006, 0x8, ScalePOSnum_set)) return false;
     uint16_t CTRL1_KFPp_set = 1000;
-    wc = ec_SDOwrite(i, 0x3012, 0x6, false, size, &CTRL1_KFPp_set, EC_TIMEOUTSAFE);
-    std::cout << "CTRL1_KFPp_set: " << wc << std::endl;
-
-    size = 2;
+    if (!writeSDO(0x3012, 0x6, CTRL1_KFPp_set)) return false;
     uint16_t CTRL2_KFPp_set = 1000;
-    wc = ec_SDOwrite(i, 0x3013, 0x6, false, size, &CTRL2_KFPp_set, EC_TIMEOUTSAFE);
-    std::cout << "CTRL2_KFPp_set: " << wc << std::endl;
-
-    size = 1;
+    if (!writeSDO(0x3013, 0x6, CTRL2_KFPp_set)) return false;
     int8_t DCOMopmode_set = 8;
-    wc = ec_SDOwrite(i, 0x6060, 0x0, false, size, &DCOMopmode_set, EC_TIMEOUTSAFE);
-    std::cout << "DCOMopmode_set: " << wc << std::endl;
+    if (!writeSDO(0x6060, 0x0, DCOMopmode_set)) return false;
+    uint32_t ECATinpshifttime_set = 250000;;
+    if (!writeSDO(0x1C33, 0x3, ECATinpshifttime_set)) return false;
 
-    size = 4;
-    //uint32_t ECATinpshifttime_set = 250000;
-    uint32_t ECATinpshifttime_set = 5000000;
-    wc = ec_SDOwrite(i, 0x1C33, 0x3, false, size, &ECATinpshifttime_set, EC_TIMEOUTSAFE);
-    std::cout << "ECATinpshifttime_set: " << wc << std::endl;
+    return true;
 }
 
-void Lexium32::readStartupParameters() {
-    int size;
-    int wc;
-    int i = getSlaveIndex();
+bool Lexium32::assignPDOs() {
 
-    std::cout << "-----------READ-----------" << std::endl;
+    //variables applied to the zero subindex of an object dictionnary entry
+    uint8_t zero = 0x00;
+    uint8_t one = 0x01;
 
+    //Sync Manager (SM2, SM3) registers that store the mapping objects (modules) which decribe PDO data
+    uint16_t RxPDO = 0x1C12;
+    uint16_t TxPDO = 0x1C13;
 
-    size = 4;
-    uint32_t RAMP_v_acc;
-    wc = ec_SDOread(i, 0x6083, 0x0, false, &size, &RAMP_v_acc, EC_TIMEOUTSAFE);
-    std::cout << "wc: " << wc << "RAMP_v_acc: " << RAMP_v_acc << std::endl;
+    //mapping object (module) to be stored in each pdo register
+    uint16_t RxPDOmodule = 0x1603;
+    uint16_t TxPDOmodule = 0x1A03;
 
-    size = 4;
-    uint32_t RAMP_v_dec;
-    wc = ec_SDOread(i, 0x6084, 0x0, false, &size, &RAMP_v_dec, EC_TIMEOUTSAFE);
-    std::cout << "wc: " << wc << "RAMP_v_dec: " << RAMP_v_dec << std::endl;
+    //turn the pdo off by writing a zero to the 0 index, set the mapping object at subindex 1, enable the pdo by writing a 1 (module count) to the index
+    if (!writeSDO(RxPDO, 0x0, zero)) return false;
+    if (!writeSDO(RxPDO, 0x1, RxPDOmodule)) return false;
+    if (!writeSDO(RxPDO, 0x0, one)) return false;
 
-    size = 2;
-    uint16_t CompParSyncMot;
-    wc = ec_SDOread(i, 0x3006, 0x3D, false, &size, &CompParSyncMot, EC_TIMEOUTSAFE);
-    std::cout << "wc: " << wc << " compParSyncMot: " << (int)CompParSyncMot << " size: " << size << std::endl;
+    //do the same for the TxPDO but modify one parameter
+    if (!writeSDO(TxPDO, 0x0, zero)) return false;
 
-    size = 2;
-    uint16_t MOD_enable;
-    wc = ec_SDOread(i, 0x3006, 0x38, false, &size, &MOD_enable, EC_TIMEOUTSAFE);
-    std::cout << "wc: " << wc << " MOD_enable: " << (int)MOD_enable << " size: " << size << std::endl;
+    //we are going to edit one parameter entry of the PDO module
+    //disable TxPDO module before modifying it (set entry count to zero)
+    if (!writeSDO(TxPDOmodule, 0x0, zero)) return false;              
 
-    size = 2;
-    int16_t LIM_QStopReact;
-    wc = ec_SDOread(i, 0x3006, 0x18, false, &size, &LIM_QStopReact, EC_TIMEOUTSAFE);
-    std::cout << "wc: " << wc << " LIM_QStopReact: " << (int)LIM_QStopReact << " size: " << size << std::endl;
+    //replace default parameter 4 (_p_dif) by current velocity (_v_act 0x606C 0x00 int32_t)
+    uint32_t TxPDOparameter4 = 0x606C0020;                            
+    if (!writeSDO(TxPDOmodule, 0x4, TxPDOparameter4)) return false;
 
-    size = 2;
-    uint16_t IOsigRespOfPS;
-    wc = ec_SDOread(i, 0x3006, 0x6, false, &size, &IOsigRespOfPS, EC_TIMEOUTSAFE);
-    std::cout << "wc: " << wc << " IOsigRespOfPS: " << (int)IOsigRespOfPS << " size: " << size << std::endl;
+    //update parameter count at subindex 0 of pdo object
+    uint8_t TxPDOparameterCount = 7;
+    if (!writeSDO(TxPDOmodule, 0x0, TxPDOparameterCount)) return false;
 
-    size = 4;
-    int32_t ScalePOSdenom;
-    wc = ec_SDOread(i, 0x3006, 0x7, false, &size, &ScalePOSdenom, EC_TIMEOUTSAFE);
-    std::cout << "wc: " << wc << " ScalePOSdenom: " << (int)ScalePOSdenom << " size: " << size << std::endl;
+    //assign pdo module object to sync manager
+    if (!writeSDO(TxPDO, 0x1, TxPDOmodule)) return false;
+    if (!writeSDO(TxPDO, 0x0, one)) return false;
 
-    size = 4;
-    int32_t ScalePOSnum;
-    wc = ec_SDOread(i, 0x3006, 0x8, false, &size, &ScalePOSnum, EC_TIMEOUTSAFE);
-    std::cout << "wc: " << wc << " ScalePOSnum: " << (int)ScalePOSnum << " size: " << size << std::endl;
-
-    size = 2;
-    uint16_t CTRL1_KFPp;
-    wc = ec_SDOread(i, 0x3012, 0x6, false, &size, &CTRL1_KFPp, EC_TIMEOUTSAFE);
-    std::cout << "wc: " << wc << " CTRL1_KFPp: " << (int)CTRL1_KFPp << " size: " << size << std::endl;
-
-    size = 2;
-    uint16_t CTRL2_KFPp;
-    wc = ec_SDOread(i, 0x3013, 0x6, false, &size, &CTRL2_KFPp, EC_TIMEOUTSAFE);
-    std::cout << "wc: " << wc << " CTRL2_KFPp: " << (int)CTRL2_KFPp << " size: " << size << std::endl;
-
-    size = 1;
-    int8_t DCOMopmode;
-    wc = ec_SDOread(i, 0x6060, 0x0, false, &size, &DCOMopmode, EC_TIMEOUTSAFE);
-    std::cout << "wc: " << wc << " DCOMopmode: " << (int)DCOMopmode << " size: " << size << std::endl;
-
-    size = 4;
-    uint32_t ECATinpshifttime;
-    wc = ec_SDOread(i, 0x1C33, 0x3, false, &size, &ECATinpshifttime, EC_TIMEOUTSAFE);
-    std::cout << "wc: " << wc << " ECATinpshifttime: " << ECATinpshifttime << " size: " << size << std::endl;
-
-    size = 4;
-    int32_t _p_act;
-    wc = ec_SDOread(i, 0x6064, 0x0, false, &size, &_p_act, EC_TIMEOUTSAFE);
-    std::cout << "wc: " << wc << " _p_act: " << _p_act << " size: " << size << std::endl;
-    positionCommand = _p_act;
+    return true;
 }
+
+
+void Lexium32::gui() {
+
+    ImGui::Text("Manual Address: %i  Assigned Address: %i", getManualAddress(), getAssignedAddress());
+    ImGui::Text("state: %i   ALstatuscode: %i", identity->state, identity->ALstatuscode);
+    ImGui::Text("ptype: %i  topology: %i  activeports: %i  consumedports: %i", identity->ptype, identity->topology, identity->activeports, identity->consumedports);
+    ImGui::Text("parent: %i  parentport: %i  entryport: %i  ebuscurrent: %i", identity->parent, identity->parentport, identity->entryport, identity->Ebuscurrent);
+    
+    if (!b_mapped) {
+        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.4, 0.4, 0.4, 1.0));
+    }
+
+    ImGui::Text("Input Bytes: %i (%i bits)", identity->Ibytes, identity->Ibits);
+    ImGui::Text("Output Bytes: %i (%i bits)", identity->Obytes, identity->Obits);
+
+
+    ImGui::Text("hasDC: %i  DCactive: %i", identity->hasdc, identity->DCactive);
+    ImGui::Text("pdelay: %i  DCnext: %i  DCprevious: %i  DCcycle: %i  DCshift: %i", identity->pdelay, identity->DCnext, identity->DCprevious, identity->DCcycle, identity->DCshift);
+    ImGui::Text("DCrtA: %i  DcrtB: %i  DCrtC: %i  DCrtD: %i", identity->DCrtA, identity->DCrtB, identity->DCrtC, identity->DCrtD);
+
+    ImGui::Separator();
+
+    if (ImGui::Button("Enable Voltage")) enableVoltage = true;
+    ImGui::SameLine();
+    if (ImGui::Button("Disable Voltage")) disableVoltage = true;
+
+    if (ImGui::Button("Switch On")) switchOn = true;
+    ImGui::SameLine();
+    if (ImGui::Button("Shut Down")) shutdown = true;
+
+    if (ImGui::Button("Enable Operation")) { 
+        enableOperation = true;
+        positionCommand = position;
+        counter = 0;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Disable Operation")) disableOperation = true;
+
+    if (ImGui::Button("Fault Reset")) performFaultReset = true;
+    ImGui::SameLine();
+    if (ImGui::Button("Quick Stop")) performQuickStop = true;
+
+    const char* stateChar;
+    switch (state) {
+    case State::Fault:					stateChar = "Fault"; break;
+    case State::FaultReactionActive:	stateChar = "Fault Reaction Active"; break;
+    case State::NotReadyToSwitchOn:		stateChar = "Not Ready To Switch On"; break;
+    case State::OperationEnabled:		stateChar = "Operation Enabled"; break;
+    case State::QuickStopActive:		stateChar = "Quick Stop Active"; break;
+    case State::ReadyToSwitchOn:		stateChar = "Ready To Switch On"; break;
+    case State::SwitchedOn:				stateChar = "Switched On"; break;
+    case State::SwitchOnDisabled:		stateChar = "Switch On Disabled"; break;
+    }
+    ImGui::Text("State: %s", stateChar);
+    if (state == State::Fault) {
+        ImGui::SameLine();
+        ImGui::Text("(%X)", lastErrorCode);
+    }
+
+    ImGui::Separator();
+
+    ImGui::Text("Position: %i", position);
+    ImGui::Text("Velocity: %i", velocity);
+    ImGui::Text("Torque: %i", torque);
+
+    ImGui::Text("Digital Inputs: %i %i %i %i %i %i", DI0, DI1, DI2, DI3, DI4, DI5);
+
+    ImGui::Separator();
+
+    ImGui::Text("Current Operating Mode: %s (%i)", modeChar, mode);
+
+    if (ImGui::BeginCombo("Mode Switch", modelist[modeCommand].c_str(), ImGuiComboFlags_HeightLargest)) {
+        for (const auto& [key, value] : modelist) {
+            if (key == 0) continue;
+            if (ImGui::Selectable(value.c_str(), false)) modeCommand = key;
+
+        }
+        ImGui::EndCombo();
+    }
+
+    ImPlot::SetNextPlotLimitsX(positions.newest().x - 1000.0, positions.newest().x, ImGuiCond_Always);
+    ImPlot::SetNextPlotFormatY("%g ticks");
+    ImPlot::FitNextPlotAxes(false, true);
+
+    if (ImPlot::BeginPlot("positions", NULL, NULL, ImVec2(-1, 600))) {
+        ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0);
+        ImPlot::PlotLine("Position", &positions.front().x, &positions.front().y, positions.size(), positions.offset(), positions.stride());
+        ImPlot::EndPlot();
+    }
+
+    ImGui::Checkbox("Invert", &b_inverted);
+
+    int displayPosition = position;
+    int displayVelocity = velocity;
+    int displayTorque = torque;
+
+    float velocityFraction = (((double)displayVelocity / 7000.0) + 1.0) / 2.0;
+    ImGui::ProgressBar(velocityFraction, ImVec2(0, 0), "velocity");
+
+
+    ImGui::Checkbox("DQ0", &DQ0);
+    ImGui::SameLine();
+    ImGui::Checkbox("DQ1", &DQ1);
+    ImGui::SameLine();
+    ImGui::Checkbox("DQ2", &DQ2);
+
+    if (ImGui::Button("<<--")) {
+        jog = true;
+        direction = false;
+        fast = true;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("<--")) {
+        jog = true;
+        direction = false;
+        fast = false;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("0")) {
+        stop = true;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("-->")) {
+        jog = true;
+        direction = true;
+        fast = false;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("-->>")) {
+        jog = true;
+        direction = true;
+        fast = true;
+    }
+
+    ImGui::Separator();
+
+    ImGui::Text("motorVoltagePresent : %i", motorVoltagePresent);
+    ImGui::Text("class0error : %i", class0error);
+    ImGui::Text("halted : %i", halted);
+    ImGui::Text("fieldbusControlActive : %i", fieldbusControlActive);
+    ImGui::Text("targetReached : %i", targetReached);
+    ImGui::Text("internalLimitActive : %i", internalLimitActive);
+    ImGui::Text("operatingModeSpecificFlag : %i", operatingModeSpecificFlag);
+    ImGui::Text("stoppedByError : %i", stoppedByError);
+    ImGui::Text("operatingModeFinished : %i", operatingModeFinished);
+    ImGui::Text("validPositionReference : %i", validPositionReference);
+
+    if (!b_mapped) {
+        ImGui::PopItemFlag();
+        ImGui::PopStyleColor();
+    }
+
+}
+
+
+
+/*
+if (ImGui::Button("Fault Reset All")) for (ECatServoDrive& drive : EtherCatFieldbus::servoDrives) drive.performFaultReset = true;
+ImGui::SameLine();
+if (ImGui::Button("Enable All")) for (ECatServoDrive& drive : EtherCatFieldbus::servoDrives) { drive.enableOperation = true; drive.positionCommand = drive.position; drive.counter = 0; }
+ImGui::SameLine();
+if(ImGui::Button("Disable All")) for (ECatServoDrive& drive : EtherCatFieldbus::servoDrives) drive.disableOperation = true;
+*/

@@ -16,12 +16,11 @@ class EtherCatFieldbus {
 public:
     static void updateNetworkInterfaceCardList();
     static bool init(NetworkInterfaceCard&);
-    static void scanNetwork();
-    static void configureSlaves();
-    static void startCyclicExchange();
-    static void stopCyclicExchange();
     static void terminate();
-    static void process(bool);
+
+    static bool scanNetwork();
+    static void start();
+    static void stop();
 
     //process timing
     static double processInterval_milliseconds;
@@ -37,18 +36,25 @@ public:
     
     //slave devices
     static std::vector<std::shared_ptr<EtherCatSlave>> slaves;
-    static bool b_networkScanned;
 
     //process data
     static uint8_t ioMap[4096];
     static int ioMapSize;
-    static bool b_ioMapConfigured;
     static int expectedWorkingCounter;
 
     //runtime
     static std::thread etherCatRuntime;
+    static bool b_processStarting;
     static bool b_processRunning;
     static bool b_clockStable;
+
+    static std::thread errorWatchdog;
+    static bool b_networkOpen;
+
+private:
+
+    static bool configureSlaves();
+    static void startCyclicExchange();
 };
 
 const char* getStateString(uint16_t state);

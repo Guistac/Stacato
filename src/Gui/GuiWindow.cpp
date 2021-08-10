@@ -33,6 +33,7 @@ void GuiWindow::open(int w, int h) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	window = glfwCreateWindow(w, h, "FieldbusDev", nullptr, nullptr);
 	glfwSetWindowSizeCallback(window, onResize);
+	glfwSetWindowCloseCallback(window, onClose);
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
     
@@ -130,4 +131,8 @@ void GuiWindow::onResize(GLFWwindow* window, int w, int h) {
 	onRender(true);
 	onRenderEnd();
 	glfwSwapBuffers(window);
+}
+
+void GuiWindow::onClose(GLFWwindow* window) {
+	quit();
 }

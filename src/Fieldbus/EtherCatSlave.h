@@ -16,8 +16,9 @@
 											        }											                        \
                                                     virtual const char* getClassDeviceName() { return classDeviceName; }\
                                                     virtual bool isDeviceKnown(){ return false; }                       \
-                                                    virtual void startupConfiguration();                                \
+                                                    virtual bool startupConfiguration();                                \
                                                     virtual void process(bool b_processDataValid);                      \
+                                                    virtual void gui();                                                 \
 
 //All Slave Device Classes Need to Implement this Macro 
 #define SLAVE_DEFINITION(className, deviceName) const char * classDeviceName = deviceName;	                        \
@@ -27,8 +28,9 @@
 											    }											                        \
                                                 virtual const char* getClassDeviceName() { return classDeviceName; }\
                                                 virtual bool isDeviceKnown(){ return true; }                        \
-                                                virtual void startupConfiguration();                                \
+                                                virtual bool startupConfiguration();                                \
                                                 virtual void process(bool b_processDataValid);                      \
+                                                virtual void gui();                                                 \
 
 #define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getStaticClassDeviceName()) == 0) return std::make_shared<className>()
 
@@ -56,6 +58,8 @@ public:
     bool isStateBootstrap()         { return identity->state == EC_STATE_BOOT; }
     bool isStateSafeOperational()   { return identity->state == EC_STATE_SAFE_OP; }
     bool isStateOperational()       { return identity->state == EC_STATE_OPERATIONAL; }
+
+    bool b_mapped = false;
 
     //=====Reading and Writing SDO Data
 

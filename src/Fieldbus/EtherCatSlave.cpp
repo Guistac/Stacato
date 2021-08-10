@@ -2,9 +2,13 @@
 
 #include <iostream>
 
-void EtherCatSlave::startupConfiguration() {}
+bool EtherCatSlave::startupConfiguration() {
+    return false;
+}
 
 void EtherCatSlave::process(bool b_processDataValid) {}
+
+void EtherCatSlave::gui() {}
 
 bool EtherCatSlave::readSDO(uint16_t index, uint8_t subindex, uint8_t& data) {
     int size = 1;
