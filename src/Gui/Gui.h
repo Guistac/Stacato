@@ -2,6 +2,8 @@
 
 void gui();
 
+void etherCatGui();
+void etherCatFieldbusConfigurationModal();
 void etherCatMetrics();
 void etherCatSlaves();
 void etherCatParameters(bool resetList);

@@ -19,8 +19,12 @@ int                                                 EtherCatFieldbus::expectedWo
 
 bool                                                EtherCatFieldbus::b_networkOpen = false;
 bool                                                EtherCatFieldbus::b_processStarting = false;
+bool                                                EtherCatFieldbus::b_configurationError = false;
+int                                                 EtherCatFieldbus::i_configurationProgress = 0;
+char                                                EtherCatFieldbus::configurationStatus[128] = "";
 bool                                                EtherCatFieldbus::b_processRunning = false;
 bool                                                EtherCatFieldbus::b_clockStable = false;
+bool                                                EtherCatFieldbus::b_allOperational = false;
 
 EtherCatMetrics                                     EtherCatFieldbus::metrics;
 
@@ -107,6 +111,8 @@ void EtherCatFieldbus::terminate() {
 }
 
 bool EtherCatFieldbus::scanNetwork() {
+    i_configurationProgress = 0;
+    sprintf(configurationStatus, "Scanning Network");
     slaves.clear();
     //setup all slaves, get slave count and info in ec_slave, setup mailboxes, request state PRE-OP for all slaves
     int workingCounter = ec_config_init(FALSE); //what is usetable??
@@ -132,6 +138,8 @@ bool EtherCatFieldbus::scanNetwork() {
             << std::endl;
         return true;
     }
+    b_configurationError = true;
+    sprintf(configurationStatus, "Found no EtherCAT slaves on the network");
     std::cout << "===== No EtherCAT Slaves found..." << std::endl;
     return false;
 }
@@ -144,6 +152,8 @@ bool EtherCatFieldbus::configureSlaves() {
         ec_slave[i].PO2SOconfigx = [](ecx_contextt* context, uint16_t slaveIndex) -> int {
             for (auto slave : slaves) {
                 if (slave->getSlaveIndex() == slaveIndex) {
+                    sprintf(configurationStatus, "Configuring Slave #%i '%s'", slave->getSlaveIndex(), slave->getName());
+                    i_configurationProgress = slaveIndex; //for progress bar display
                     slave->b_mapped = slave->startupConfiguration();
                     break;
                 }
@@ -156,8 +166,10 @@ bool EtherCatFieldbus::configureSlaves() {
     std::cout << "===== Begin Building I/O Map..." << std::endl;
     ioMapSize = ec_config_map(ioMap);
     if (ioMapSize <= 0) {
-        std::cout << "===== Failed To Configure I/O Map..." << std::endl;
+        b_configurationError = true;
+        sprintf(configurationStatus, "Failed to Configure I/O Map");
         for (auto slave : slaves) slave->b_mapped = false;
+        std::cout << "===== Failed To Configure I/O Map..." << std::endl;
         return false;
     }
     std::cout << "===== Finished Building I/O Map (Size : " << ioMapSize << " bytes)" << std::endl;
@@ -168,6 +180,9 @@ bool EtherCatFieldbus::configureSlaves() {
         std::cout << "          Outputs: " << slave->identity->Obytes << " bytes (" << slave->identity->Obits << " bits)" << std::endl;
     }
 
+    i_configurationProgress = ec_slavecount + 1;
+    sprintf(configurationStatus, "Configuring Distributed Clocks");
+
     std::cout << "===== Configuring Distributed Clocks" << std::endl;
     if (!ec_configdc()) {
         std::cout << "===== Could not configure distributed clocks ..." << std::endl;
@@ -175,18 +190,28 @@ bool EtherCatFieldbus::configureSlaves() {
     }
     std::cout << "===== Finished Configuring Distributed Clocks" << std::endl;
 
+    i_configurationProgress = ec_slavecount + 2;
+    sprintf(configurationStatus, "Checking For Safe-Operational State");
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
     std::cout << "===== Checking For Safe-Operational State..." << std::endl;
     if (ec_statecheck(0, EC_STATE_SAFE_OP, EC_TIMEOUTSTATE) != EC_STATE_SAFE_OP) {
+        b_configurationError = true;
+        sprintf(configurationStatus, "Not All Slaves Reached Safe-Operational State");
         std::cout << "===== Not all slaves have reached Safe-Operational State..." << std::endl;
         return false;
     }
     std::cout << "===== All slaves are Safe-Operational" << std::endl;
+
     return true;
 }
 
 
 void EtherCatFieldbus::startCyclicExchange() {
     if (!b_processRunning) {
+
+        i_configurationProgress = ec_slavecount + 3;
+        sprintf(configurationStatus, "Starting Cyclic Exchange");
 
         b_processRunning = true;
         b_clockStable = false;
@@ -208,6 +233,12 @@ void EtherCatFieldbus::startCyclicExchange() {
 
             std::cout << "===== Starting Cyclic Process Data Exchange" << std::endl;
             std::cout << "===== Waiting For clocks to stabilize before requesting Operational State..." << std::endl;
+
+            //initialize average clock error to its max absolute value;
+            metrics.averageDcTimeError_milliseconds = processInterval_milliseconds / 2.0;
+
+            i_configurationProgress = ec_slavecount + 4;
+            sprintf(configurationStatus, "Waiting For Clocks To Stabilize");
 
             while (b_processRunning) {
 
@@ -263,9 +294,8 @@ void EtherCatFieldbus::startCyclicExchange() {
                 float dcTimeError_milliseconds = ((double)(ec_DCtime % processInterval_nanoseconds) - (double)dctime_offset_nanoseconds) / 1000000.0L;
                 if (metrics.cycleCounter == 0) {
                     metrics.startTime_nanoseconds = systemTime_nanoseconds;
-                    metrics.averageDcTimeError_milliseconds = dcTimeError_milliseconds;
                 }
-                metrics.averageDcTimeError_milliseconds = metrics.averageDcTimeError_milliseconds * 0.99 + 0.01 * dcTimeError_milliseconds;
+                metrics.averageDcTimeError_milliseconds = metrics.averageDcTimeError_milliseconds * 0.97 + 0.03 * abs(dcTimeError_milliseconds);
 
                 metrics.processTime_nanoseconds = systemTime_nanoseconds - metrics.startTime_nanoseconds;
                 metrics.processTime_seconds = (double)(systemTime_nanoseconds - metrics.startTime_nanoseconds) / 1000000000.0L;
@@ -295,6 +325,7 @@ void EtherCatFieldbus::startCyclicExchange() {
 
                 if (!b_clockStable && abs(metrics.averageDcTimeError_milliseconds) < clockStableThreshold_milliseconds) {
                     b_clockStable = true;
+                    sprintf(configurationStatus, "Setting All Slaves to Operational State");
                     std::thread safeOpStarter([]() {
                         std::cout << "===== Clocks Stabilized, Setting All Slaves to Operational state..." << std::endl;
                         // Act on slave 0 (a virtual slave used for broadcasting)
@@ -302,9 +333,17 @@ void EtherCatFieldbus::startCyclicExchange() {
                         ec_writestate(0);
                         //wait for all slaves to reach OP state
                         uint16_t slaveState = ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE);
-                        if (slaveState == EC_STATE_OPERATIONAL)
+                        if (slaveState == EC_STATE_OPERATIONAL) {
+                            sprintf(configurationStatus, "Successfully Started EtherCAT Fieldbus");
+                            b_allOperational = true;
                             std::cout << "===== All slaves are operational !" << std::endl;
-                        else std::cout << "===== Not all slaves reached operational state... " << std::endl;
+                        }
+                        else {
+                            stop();
+                            b_configurationError = true;
+                            sprintf(configurationStatus, "Not all slaves reached Operational State");
+                            std::cout << "===== Not all slaves reached operational state... " << std::endl; 
+                        }
                         });
                     safeOpStarter.detach();
                 }
@@ -316,6 +355,9 @@ void EtherCatFieldbus::startCyclicExchange() {
 
 void EtherCatFieldbus::start() {
     if (!b_processStarting) {
+        b_configurationError = false;
+        i_configurationProgress = 0;
+        sprintf(configurationStatus, "Starting Fieldbus Configuration");
         b_processStarting = true;
         std::thread etherCatProcessStarter([]() {
             if (scanNetwork() && configureSlaves()) startCyclicExchange();
@@ -328,6 +370,7 @@ void EtherCatFieldbus::start() {
 void EtherCatFieldbus::stop() {
     if (b_processRunning) {
         std::cout << "===== Stopping Cyclic Exchange" << std::endl;
+        b_allOperational = false;
         b_processRunning = false;
         if (etherCatRuntime.joinable()) etherCatRuntime.join();
         std::cout << "===== Cyclic Exchange Stopped !" << std::endl;

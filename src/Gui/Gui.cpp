@@ -1,7 +1,5 @@
 #include "Gui.h"
 
-#include "EtherCatGui.h"
-
 #include <imgui.h>
 
 #include "Fieldbus/EtherCatFieldbus.h"

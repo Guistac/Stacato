@@ -46,13 +46,18 @@ public:
     static int expectedWorkingCounter;
 
     //runtime
-    static std::thread etherCatRuntime;
-    static bool b_processStarting;
-    static bool b_processRunning;
-    static bool b_clockStable;
+    static std::thread errorWatchdog;       //thread to read errors encountered by SOEM
+    static std::thread etherCatRuntime;     //cyclic exchange thread (needs a full cpu core to achieve precise timing)
 
-    static std::thread errorWatchdog;
-    static bool b_networkOpen;
+    static bool b_networkOpen;              //high when one or more network interface cards are opened
+    static bool b_processStarting;          //high during initial fieldbus setup, before starting cyclic exchange (prevents concurrent restarting)   
+    static int i_configurationProgress;     //counts up during network configuration to display a progress bar
+    static bool b_configurationError;       //high if configuration failed at some point
+    static char configurationStatus[128];   //updated to display the current network configuration step or error
+    static bool b_processRunning;           //high while the cyclic exchange is running (also controls its shutdown)
+    static bool b_clockStable;              //high when clock drift is under the threshold value
+    static bool b_allOperational;           //high when all states reached operational state after clock stabilisation, indicates successful fiedlbus configuration
+
 
 private:
     static void setup();
