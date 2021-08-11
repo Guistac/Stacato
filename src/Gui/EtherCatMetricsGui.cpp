@@ -14,11 +14,11 @@ void etherCatMetrics() {
 
 	ImGui::Text("Process Time: %.1fs  cycles: %i (%.1fms/cycle)",
 		EtherCatFieldbus::metrics.processTime_seconds,
-		EtherCatFieldbus::metrics.cycleCounter,
+		(int)EtherCatFieldbus::metrics.cycleCounter,
 		EtherCatFieldbus::processInterval_milliseconds);
 
 	EtherCatMetrics& metrics = EtherCatFieldbus::metrics;
-
+    float plotHeight = ImGui::GetTextLineHeight() * 20.0;
 
 	static bool lockXAxis = true;
 	static bool lockYAxis = true;
@@ -43,7 +43,7 @@ void etherCatMetrics() {
 	ImPlot::SetNextPlotFormatY("%gms");
 	ImPlot::SetNextPlotFormatX("%gs");
 	
-	if (ImPlot::BeginPlot("Clock Drift", NULL, NULL, ImVec2(-1, 600), plotFlags)) {
+	if (ImPlot::BeginPlot("Clock Drift", NULL, NULL, ImVec2(-1, plotHeight), plotFlags)) {
 		ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0);
 		ImPlot::PlotLine("Clock Drift", &dcTimeErrors.front().x, &dcTimeErrors.front().y, dcTimeErrors.size(), dcTimeErrors.offset(), dcTimeErrors.stride());
 		ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 2.0);
@@ -70,8 +70,7 @@ void etherCatMetrics() {
 	if (lockYAxis) ImPlot::SetNextPlotLimitsY(0.0, EtherCatFieldbus::processInterval_milliseconds * 1.1, ImGuiCond_Always);
 	ImPlot::SetNextPlotFormatY("%gms");
 	ImPlot::SetNextPlotFormatX("%gs");
-	float receiveTimeoutLine = EtherCatFieldbus::processDataTimeout_milliseconds;
-	if (ImPlot::BeginPlot("Cycle Timing", NULL, NULL, ImVec2(-1, 600), plotFlags)) {
+	if (ImPlot::BeginPlot("Cycle Timing", NULL, NULL, ImVec2(-1, plotHeight), plotFlags)) {
 		ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 1.0f);
 		if (!cycleLengths.empty()) {
 			ImPlot::SetNextFillStyle(ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
@@ -110,7 +109,7 @@ void etherCatMetrics() {
 	}
 
 	ImPlot::SetNextPlotLimits(0, 1, 0, 1, ImGuiCond_Always);
-	if (ImPlot::BeginPlot("##WorkingCounter2", NULL, NULL, ImVec2(600, 600), plotFlags)) {
+	if (ImPlot::BeginPlot("##WorkingCounter2", NULL, NULL, ImVec2(plotHeight, plotHeight), plotFlags)) {
 		int totalCount = metrics.frameReturnTypeCounters[0] + metrics.frameReturnTypeCounters[1];
 		float percentages[2];
 		if (totalCount > 0) {
@@ -132,7 +131,7 @@ void etherCatMetrics() {
 	ImPlot::SetNextPlotLimitsY(-6.0, 10.0, ImGuiCond_Always);
 
 	ImPlot::SetNextPlotFormatX("%gs");
-	if (ImPlot::BeginPlot("Working Counter", NULL, NULL, ImVec2(-1, 600), plotFlags)) {
+	if (ImPlot::BeginPlot("Working Counter", NULL, NULL, ImVec2(-1, plotHeight), plotFlags)) {
 		ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 2.0);
 		ImPlot::PlotStairs("##WorkingCounter", &workingCounters.front().x, &workingCounters.front().y, workingCounters.size(), workingCounters.offset(), workingCounters.stride());
 		ImPlot::EndPlot();

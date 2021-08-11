@@ -29,16 +29,17 @@ ImFont* GuiWindow::robotoRegular42;
 
 void GuiWindow::open(int w, int h) {
 	glfwInit();
+#ifdef MACOS
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
+#endif
 	window = glfwCreateWindow(w, h, "FieldbusDev", nullptr, nullptr);
 	glfwSetWindowSizeCallback(window, onResize);
 	glfwSetWindowCloseCallback(window, onClose);
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
-    
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-    
 	onInit();
 }
 
@@ -46,7 +47,6 @@ void GuiWindow::refresh() {
 	while (!glfwWindowShouldClose(window)) {
 		glfwMakeContextCurrent(window);
 		glfwPollEvents();
-		
         onRenderBegin();
 		onRender(false);
 		onRenderEnd();
@@ -74,9 +74,18 @@ void GuiWindow::onInit() {
 	float xScale, yScale;
 	glfwGetWindowContentScale(window, &xScale, &yScale);
 
-	float scaleTuning = 1.25;
-	float scale = xScale * scaleTuning;
-
+    float scaleTuning = 1.0;
+    
+#ifdef WIN32
+    scaleTuning = 1.25;
+#endif
+    
+#ifdef MACOS
+    scaleTuning = 1.0;
+#endif
+    
+    float scale = xScale * scaleTuning;
+    
 	robotoRegular15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Regular.ttf", 15.0f * scale);
 	robotoBold15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Bold.ttf", 15.0f * scale);
 	robotoLight15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Light.ttf", 15.0f * scale);

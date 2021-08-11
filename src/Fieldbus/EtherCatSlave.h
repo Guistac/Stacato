@@ -2,6 +2,8 @@
 
 #include <ethercat.h>
 
+#include <cstring>
+
 //classDeviceName is a static string used to identify the device class when creating a new instance for a specific device
 //the static method is for use by the identifying method which will check all available device classes for a match
 //the non static method is an override to see what the subclass name is from a base class reference or pointer
