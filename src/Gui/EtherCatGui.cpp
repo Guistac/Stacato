@@ -89,11 +89,14 @@ void etherCatFieldbusConfigurationModal() {
 		ImGui::Text("Error: %s", EtherCatFieldbus::configurationStatus);
 	}
 	else {
-		firstSuccess = true;
+		firstSuccess = true; // set static variable to true, so success time will be measured once
 
 		int progress = EtherCatFieldbus::i_configurationProgress;
 		int maxProgress = EtherCatFieldbus::slaves.size() + 5;
 		int clockProgress = maxProgress - 1;
+
+		static float progressSmooth;
+		if (progress == 0) progressSmooth = 0.0;
 
 		float progress_f = 0.0;
 		if (progress < clockProgress) progress_f = ((float)progress / (float)maxProgress) / 2.0;
@@ -104,13 +107,20 @@ void etherCatFieldbusConfigurationModal() {
 			float percentage = (value - minValue) / (maxValue - minValue);
 			progress_f = 0.5 + (1.0 - percentage) / 2.0;
 		}
-		ImGui::ProgressBar(progress_f);
+
+		progressSmooth = progressSmooth * 0.8 + progress_f * 0.2;
+
+		ImGui::ProgressBar(progressSmooth);
 		ImGui::Text(EtherCatFieldbus::configurationStatus);
 	}
 
+	bool disableCancelButton = EtherCatFieldbus::b_processStarting;
+	if (disableCancelButton) { ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0, 0.0, 0.0, 1.0)); }
 	if (ImGui::Button("Cancel")) {
+		EtherCatFieldbus::stop();
 		ImGui::CloseCurrentPopup();
 	}
+	if (disableCancelButton) { ImGui::PopItemFlag(); ImGui::PopStyleColor(); }
 	else if (EtherCatFieldbus::b_configurationError) {
 		ImGui::SameLine();
 		if (ImGui::Button("Retry")) {
