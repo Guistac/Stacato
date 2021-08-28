@@ -34,7 +34,7 @@ std::thread                                         EtherCatFieldbus::errorWatch
 
 
 void EtherCatFieldbus::updateNetworkInterfaceCardList() {
-    std::cout << "===== Refreshing Network Interface Card List" << std::endl;
+    Logger::info("===== Refreshing Network Interface Card List");
     networkInterfaceCards.clear();
     ec_adaptert* nics = ec_find_adapters();
     if (nics != nullptr) {
@@ -46,24 +46,25 @@ void EtherCatFieldbus::updateNetworkInterfaceCardList() {
             nics = nics->next;
         }
     }
-    std::cout << "===== Found " << networkInterfaceCards.size() << " Network Interface Card" << (networkInterfaceCards.size() == 1 ? "" : "s") << std::endl;
-    for (NetworkInterfaceCard& nic : networkInterfaceCards) std::cout << "    = " << nic.description << " (ID: " << nic.name << ")" << std::endl;
+    Logger::info("===== Found {} Network Interface Card{}", networkInterfaceCards.size(), networkInterfaceCards.size() == 1 ? "" : "s");
+    for (NetworkInterfaceCard& nic : networkInterfaceCards)
+        Logger::debug("    = {} (ID: {})", nic.description, nic.name);
 }
 
 bool EtherCatFieldbus::init(NetworkInterfaceCard& nic) {
     if (b_networkOpen) terminate();
     networkInterfaceCard = std::move(nic);
-    std::cout << "===== Initializing EtherCAT Fieldbus on Network Interface Card '" << networkInterfaceCard.description << "'" << std::endl;
+    Logger::debug("===== Initializing EtherCAT Fieldbus on Network Interface Card '{}'", networkInterfaceCard.description);
     int nicInitResult = ec_init(networkInterfaceCard.name);
     if (nicInitResult < 0) {
-        std::cout << "===== Failed to initialize network interface card ..." << std::endl;
+        Logger::error("===== Failed to initialize network interface card ...");
         b_networkOpen = false;
         b_redundant = false;
         return false;
     }
     b_redundant = false;
     b_networkOpen = true;
-    std::cout << "===== Initialized network interface card !" << std::endl;
+    Logger::info("===== Initialized network interface card '{}'", networkInterfaceCard.description);
     setup();
     return true;
 }
@@ -72,18 +73,17 @@ bool EtherCatFieldbus::init(NetworkInterfaceCard& nic, NetworkInterfaceCard& red
     if (b_networkOpen) terminate();
     networkInterfaceCard = std::move(nic);
     redundantNetworkInterfaceCard = std::move(redNic);
-    std::cout << "===== Initializing EtherCAT Fieldbus on Network Interface Card '" << networkInterfaceCard.description
-        << "' with redundancy on '" << redundantNetworkInterfaceCard.description << "'" << std::endl;
+    Logger::debug("===== Initializing EtherCAT Fieldbus on Network Interface Card '{}' with redundancy on '{}'", networkInterfaceCard.description, redundantNetworkInterfaceCard.description);
     int nicInitResult = ec_init_redundant(networkInterfaceCard.name, redundantNetworkInterfaceCard.name);
     if (nicInitResult < 0) {
-        std::cout << "===== Failed to initialize network interface cards ..." << std::endl;
+        Logger::error("===== Failed to initialize network interface cards ...");
         b_networkOpen = false;
         b_redundant = false;
         return false;
     }
     b_redundant = true;
     b_networkOpen = true;
-    std::cout << "===== Initialized network interface cards !" << std::endl;
+    Logger::info("===== Initialized network interface cards '{}' & '{}'", networkInterfaceCard.description, redundantNetworkInterfaceCard.description);
     setup();
     return true;
 }
@@ -91,7 +91,7 @@ bool EtherCatFieldbus::init(NetworkInterfaceCard& nic, NetworkInterfaceCard& red
 void EtherCatFieldbus::setup() {
     errorWatchdog = std::thread([]() {
         while (b_networkOpen) {
-            while (EcatError) std::cout << "##### EtherCAT Error: " << ec_elist2string() << std::endl;
+            while (EcatError) Logger::error("##### EtherCAT Error: {}", ec_elist2string());
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     });
@@ -101,11 +101,11 @@ void EtherCatFieldbus::setup() {
 
 void EtherCatFieldbus::terminate() {
     stop();
-    std::cout << "===== Closing EtherCAT Network Interface Card" << std::endl;
+    Logger::debug("===== Closing EtherCAT Network Interface Card");
     ec_close();
     b_networkOpen = false;
     errorWatchdog.join();
-    std::cout << "===== Ending EtherCAT test program" << std::endl;
+    Logger::info("===== Stopped EtherCAT fieldbus");
 }
 
 bool EtherCatFieldbus::scanNetwork() {
@@ -125,20 +125,19 @@ bool EtherCatFieldbus::scanNetwork() {
         slaves.push_back(slave);
     }
     if (workingCounter > 0) {
-        std::cout << "===== Found and Configured " << ec_slavecount << " EtherCAT Slave" << ((ec_slavecount == 1) ? ": " : "s: ") << std::endl;
+        Logger::info("===== Found and Configured {} EtherCAT Slave{}", ec_slavecount, ((ec_slavecount == 1) ? ": " : "s: "));
         for (auto slave : slaves)
-            std::cout << "    = Slave "
-            << slave->getSlaveIndex() << " : '"
-            << slave->getDeviceName() << "'   Address: "
-            << slave->getAssignedAddress() << "   Manual Address: "
-            << slave->getManualAddress() 
-            << "   Known: " << (slave->isDeviceKnown() ? "Yes" : "No")
-            << std::endl;
+            Logger::info("    = Slave {} : '{}'  Address: {}  Manual Address {}  Known: {}",
+                slave->getSlaveIndex(),
+                slave->getDeviceName(),
+                slave->getAssignedAddress(),
+                slave->getManualAddress(),
+                (slave->isDeviceKnown() ? "Yes" : "No"));
         return true;
     }
     b_configurationError = true;
     sprintf(configurationStatus, "Found no EtherCAT slaves on the network");
-    std::cout << "===== No EtherCAT Slaves found..." << std::endl;
+    Logger::warn("===== No EtherCAT Slaves found...");
     return false;
 }
 
@@ -161,58 +160,62 @@ bool EtherCatFieldbus::configureSlaves() {
     }
     
     //build ioMap for PDO data, configure FMMU and SyncManager, request SAFE-OP state for all slaves
-    std::cout << "===== Begin Building I/O Map..." << std::endl;
+    Logger::debug("===== Begin Building I/O Map...");
     ioMapSize = ec_config_map(ioMap);
     if (ioMapSize <= 0) {
         b_configurationError = true;
         sprintf(configurationStatus, "Failed to Configure I/O Map");
         for (auto slave : slaves) slave->b_mapped = false;
-        std::cout << "===== Failed To Configure I/O Map..." << std::endl;
+        Logger::error("===== Failed To Configure I/O Map...");
         return false;
     }
-    std::cout << "===== Finished Building I/O Map (Size : " << ioMapSize << " bytes)" << std::endl;
+    Logger::info("===== Finished Building I/O Map (Size : {} bytes)", ioMapSize);
 
     for (auto slave : slaves) {
-        std::cout << "   [" << slave->getSlaveIndex() << "] '" << slave->getDeviceName() << "' " << slave->identity->Ibytes + slave->identity->Obytes << " bytes (" << slave->identity->Ibits + slave->identity->Obits << " bits)" << std::endl;
-        std::cout << "          Inputs: " << slave->identity->Ibytes << " bytes (" << slave->identity->Ibits << " bits)" << std::endl;
-        std::cout << "          Outputs: " << slave->identity->Obytes << " bytes (" << slave->identity->Obits << " bits)" << std::endl;
-    }
+        Logger::debug("   [{}] '{}' bytes ({} bits)",
+            slave->getSlaveIndex(),
+            slave->getDeviceName(),
+            slave->identity->Ibytes + slave->identity->Obytes,
+            slave->identity->Ibits + slave->identity->Obits);
+        Logger::debug("          Inputs: {} bytes ({} bits)", slave->identity->Ibytes, slave->identity->Ibits);
+        Logger::debug("          Outputs: {} bytes ({} bits)", slave->identity->Obytes, slave->identity->Obits);
 
-    for (auto slave : slaves) {
         if (slave->isCoeSupported()) {
             if (!slave->getPDOMapping()) {
                 b_configurationError = true;
                 sprintf(configurationStatus, "Could not read PDO mapping...");
-                std::cout << "===== Could not read PDO mapping..." << std::endl;
+                Logger::error("===== Could not read PDO mapping...");
                 return false;
             }
         }
     }
 
+    Logger::info("===== Finished Reading PDO Mapping");
+
     i_configurationProgress = ec_slavecount + 1;
     sprintf(configurationStatus, "Configuring Distributed Clocks");
 
-    std::cout << "===== Configuring Distributed Clocks" << std::endl;
+    Logger::debug("===== Configuring Distributed Clocks");
     if (!ec_configdc()) {
         b_configurationError = true;
         sprintf(configurationStatus, "Could not configuredistributed clocks...");
-        std::cout << "===== Could not configure distributed clocks ..." << std::endl;
+        Logger::error("===== Could not configure distributed clocks ...");
         return false;
     }
-    std::cout << "===== Finished Configuring Distributed Clocks" << std::endl;
+    Logger::info("===== Finished Configuring Distributed Clocks");
 
     i_configurationProgress = ec_slavecount + 2;
     sprintf(configurationStatus, "Checking For Safe-Operational State");
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-    std::cout << "===== Checking For Safe-Operational State..." << std::endl;
+    Logger::debug("===== Checking For Safe-Operational State...");
     if (ec_statecheck(0, EC_STATE_SAFE_OP, EC_TIMEOUTSTATE) != EC_STATE_SAFE_OP) {
         b_configurationError = true;
         sprintf(configurationStatus, "Not All Slaves Reached Safe-Operational State");
-        std::cout << "===== Not all slaves have reached Safe-Operational State..." << std::endl;
+        Logger::error("===== Not all slaves have reached Safe-Operational State...");
         return false;
     }
-    std::cout << "===== All slaves are Safe-Operational" << std::endl;
+    Logger::info("===== All slaves are Safe-Operational");
 
     return true;
 }
@@ -223,6 +226,7 @@ void EtherCatFieldbus::startCyclicExchange() {
 
         i_configurationProgress = ec_slavecount + 3;
         sprintf(configurationStatus, "Starting Cyclic Exchange");
+        Logger::debug("===== Starting Cyclic Process Data Exchange");
 
         b_processRunning = true;
         b_clockStable = false;
@@ -242,8 +246,7 @@ void EtherCatFieldbus::startCyclicExchange() {
             uint64_t cycleStartTime_nanoseconds = systemTime_nanoseconds + processInterval_nanoseconds;
             uint64_t previousCycleStartTime_nanoseconds;
 
-            std::cout << "===== Starting Cyclic Process Data Exchange" << std::endl;
-            std::cout << "===== Waiting For clocks to stabilize before requesting Operational State..." << std::endl;
+            Logger::info("===== Waiting For clocks to stabilize before requesting Operational State...");
 
             //initialize average clock error to its max absolute value;
             metrics.averageDcTimeError_milliseconds = processInterval_milliseconds / 2.0;
@@ -338,7 +341,7 @@ void EtherCatFieldbus::startCyclicExchange() {
                     b_clockStable = true;
                     sprintf(configurationStatus, "Setting All Slaves to Operational State");
                     std::thread safeOpStarter([]() {
-                        std::cout << "===== Clocks Stabilized, Setting All Slaves to Operational state..." << std::endl;
+                        Logger::debug("===== Clocks Stabilized, Setting All Slaves to Operational state...");
                         // Act on slave 0 (a virtual slave used for broadcasting)
                         ec_slave[0].state = EC_STATE_OPERATIONAL;
                         ec_writestate(0);
@@ -347,13 +350,14 @@ void EtherCatFieldbus::startCyclicExchange() {
                         if (slaveState == EC_STATE_OPERATIONAL) {
                             sprintf(configurationStatus, "Successfully Started EtherCAT Fieldbus");
                             b_allOperational = true;
-                            std::cout << "===== All slaves are operational !" << std::endl;
+                            Logger::info("===== All slaves are operational");
+                            Logger::info("===== Successfully started EtherCAT Fieldbus");
                         }
                         else {
                             stop();
                             b_configurationError = true;
                             sprintf(configurationStatus, "Not all slaves reached Operational State");
-                            std::cout << "===== Not all slaves reached operational state... " << std::endl; 
+                            Logger::error("===== Not all slaves reached operational state... ");
                         }
                         });
                     safeOpStarter.detach();
@@ -369,6 +373,7 @@ void EtherCatFieldbus::start() {
         b_configurationError = false;
         i_configurationProgress = 0;
         sprintf(configurationStatus, "Starting Fieldbus Configuration");
+        Logger::info("===== Starting Fieldbus Configuration");
         b_processStarting = true;
         std::thread etherCatProcessStarter([]() {
             if (scanNetwork() && configureSlaves()) startCyclicExchange();
@@ -380,10 +385,10 @@ void EtherCatFieldbus::start() {
 
 void EtherCatFieldbus::stop() {
     if (b_processRunning) {
-        std::cout << "===== Stopping Cyclic Exchange" << std::endl;
+        Logger::info("===== Stopping Cyclic Exchange");
         b_allOperational = false;
         b_processRunning = false;
         if (etherCatRuntime.joinable()) etherCatRuntime.join();
-        std::cout << "===== Cyclic Exchange Stopped !" << std::endl;
+        Logger::info("===== Cyclic Exchange Stopped !");
     }
 }

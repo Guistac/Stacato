@@ -145,5 +145,5 @@ void GuiWindow::onResize(GLFWwindow* window, int w, int h) {
 }
 
 void GuiWindow::onClose(GLFWwindow* window) {
-	quit();
+
 }

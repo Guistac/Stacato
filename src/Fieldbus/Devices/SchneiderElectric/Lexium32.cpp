@@ -63,28 +63,24 @@ std::map<int, std::string> Lexium32::modelist = {
 
 bool Lexium32::startupConfiguration() {
 
-    std::cout << "===== Begin Lexium32 Startup Configuration" << std::endl;
+    Logger::info("===== Begin Lexium32 Startup Configuration");
 
-    std::cout << "    = Begin Setting Startup Parameters..." << std::endl;
+    Logger::debug("    = Begin Setting Startup Parameters...");
     if (!setStartupParameters()) {
-        std::cout << "    = Failed to set startup Parameters..." << std::endl;
+        Logger::error("    = Failed to set startup Parameters...");
         return false;
     }
-    std::cout << "    = Successfully set startup parameters" << std::endl;
+    Logger::debug("    = Successfully set startup parameters");
 
-    std::cout << "    = Begin Lexium32 PDO assignement..." << std::endl;
+    Logger::debug("    = Begin Lexium32 PDO assignement...");
     if (!assignPDOs()) {
-        std::cout << "    = Lexium32 PDO assignement failed..." << std::endl;
+        Logger::error("    = Lexium32 PDO assignement failed...");
         return false;
     }
-    std::cout << "    = PDO assignement successfull !" << std::endl;
+    Logger::debug("    = PDO assignement successfull !");
 
     int plotLength = 1000.0 * EtherCatFieldbus::metrics.scrollingBufferLength_seconds / EtherCatFieldbus::processInterval_milliseconds;
     positions.setMaxSize(plotLength);
-    
-    
-
-
 
     //set interrupt routine for cyclic synchronous position mode
     //interval should be the same as the frame cycle time, and offset should be zero
@@ -96,7 +92,7 @@ bool Lexium32::startupConfiguration() {
     //TODO: does this still apply with a lot of slaves ?
     //if propagation delays add up, might the last slaves have their sync event happen at the same time as their frame receive time?
 
-    std::cout << "===== Finished Lexium32 Startup Configuration" << std::endl;
+    Logger::info("===== Finished Lexium32 Startup Configuration");
 
     return true;
 }

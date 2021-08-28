@@ -4,6 +4,7 @@
 bin/
 bin-int/
 obj/
+logs/
 
 #=== Files ==============
 
@@ -16,3 +17,4 @@ obj/
 .DS_store
 *.xcodeproj
 *.xcworkspace
+*.log

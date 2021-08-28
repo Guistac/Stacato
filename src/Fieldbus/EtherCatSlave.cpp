@@ -15,7 +15,7 @@ bool EtherCatSlave::getPDOMapping() {
         pdo.modules.clear();
         uint8_t moduleCount;
         if (!readSDO(pdoIndex, 0x0, moduleCount)) return false;
-        std::cout << "***** " << pdoDescription << " module count: " << std::dec << (int)moduleCount << std::endl;
+        Logger::debug("***** {} module count: {}", pdoDescription, (int)moduleCount);
 
         for (int i = 1; i <= moduleCount; i++) {
             EtherCatPDOModule module;
@@ -23,7 +23,7 @@ bool EtherCatSlave::getPDOMapping() {
             uint8_t entryCount;
             if (!readSDO(module.index, 0x0, entryCount)) return false;
 
-            std::cout << "  *** " << pdoDescription << " module [" << i << "] : 0x" << std::hex << module.index << " (" << std::dec << (int)entryCount << " entries)" << std::endl;
+            Logger::debug("  *** {} module [{}] : 0x{:X} ({} entries)", pdoDescription, i, module.index, entryCount);
 
             for (int j = 1; j <= entryCount; j++) {
                 EtherCatPDOEntry entry;
@@ -33,7 +33,7 @@ bool EtherCatSlave::getPDOMapping() {
                 entry.subindex = entryData >> 8;
                 entry.byteCount = entryData;
                 module.entries.push_back(entry);
-                std::cout << "    * entry [" << std::dec << (int)j << "] : index: 0x" << std::hex << entry.index << " subindex: 0x" << std::hex << (int)entry.subindex << " size: " << std::dec << (int)entry.byteCount << std::endl;
+                Logger::debug("    * entry [{}] : index: 0x{:X}  subindex: 0x{:X}  size: {}", j, entry.index, entry.subindex, entry.byteCount);
             }
 
             pdo.modules.push_back(module);
