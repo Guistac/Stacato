@@ -27,3 +27,6 @@
 	path = dependencies/soem
 	url = https://github.com/Guistac/SOEM.git
 	ignore = dirty
+[submodule "dependencies/spdlog"]
+	path = dependencies/spdlog
+	url = https://github.com/gabime/spdlog.git
