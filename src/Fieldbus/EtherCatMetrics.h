@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gui/ScrollingBuffer.h"
+#include "Utilities/ScrollingBuffer.h"
 
 class EtherCatMetrics {
 public:

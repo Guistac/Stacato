@@ -3,10 +3,42 @@
 
 #include <iostream>
 
-#include <imgui.h>
-#include <imgui_internal.h>
-#include <implot.h>
+Lexium32::Lexium32() {
 
+    positionOutput = EtherCatData(EtherCatData::Type::UINT32_T, "Position");
+    digitalOut0 = EtherCatData(EtherCatData::Type::BOOL, "DQ0");
+    digitalOut1 = EtherCatData(EtherCatData::Type::BOOL, "DQ1");
+    digitalOut2 = EtherCatData(EtherCatData::Type::BOOL, "DQ2");
+
+    outputData = {
+        &positionOutput,
+        &digitalOut0,
+        &digitalOut2,
+        &digitalOut2
+    };
+
+    positionInput = EtherCatData(EtherCatData::Type::INT32_T, "Position");
+    velocityInput = EtherCatData(EtherCatData::Type::INT32_T, "Velocity");
+    torqueInput = EtherCatData(EtherCatData::Type::INT16_T, "Torque");
+    digitalIn0 = EtherCatData(EtherCatData::Type::BOOL, "DI0");
+    digitalIn1 = EtherCatData(EtherCatData::Type::BOOL, "DI1");
+    digitalIn2 = EtherCatData(EtherCatData::Type::BOOL, "DI2");
+    digitalIn3 = EtherCatData(EtherCatData::Type::BOOL, "DI3");
+    digitalIn4 = EtherCatData(EtherCatData::Type::BOOL, "DI4");
+    digitalIn5 = EtherCatData(EtherCatData::Type::BOOL, "DI5");
+
+    inputData = {
+        &positionInput,
+        &velocityInput,
+        &torqueInput,
+        &digitalIn0,
+        &digitalIn1,
+        &digitalIn2,
+        &digitalIn3,
+        &digitalIn4,
+        &digitalIn5
+    };
+}
 
 std::map<int, std::string> Lexium32::modelist = {
     {-6, "Manual/Auto Tuning"},
@@ -112,6 +144,17 @@ void Lexium32::process(bool inputDataValid) {
         DI3 = _IO_act & 0x8;
         DI4 = _IO_act & 0x10;
         DI5 = _IO_act & 0x20;
+
+        //assign abstract input data
+        positionInput = position;
+        velocityInput = velocity;
+        torqueInput = torque,
+        digitalIn0 = DI0;
+        digitalIn1 = DI1;
+        digitalIn2 = DI2;
+        digitalIn3 = DI3;
+        digitalIn4 = DI4;
+        digitalIn5 = DI5;
 
         //state bits (0,1,2,3,5,6)
         bool readyToSwitchOn = _DCOMstatus & 0x1;
@@ -342,168 +385,3 @@ bool Lexium32::assignPDOs() {
 
     return true;
 }
-
-
-void Lexium32::gui() {
-
-    ImGui::Text("Manual Address: %i  Assigned Address: %i", getManualAddress(), getAssignedAddress());
-    ImGui::Text("state: %i   ALstatuscode: %i", identity->state, identity->ALstatuscode);
-    ImGui::Text("ptype: %i  topology: %i  activeports: %i  consumedports: %i", identity->ptype, identity->topology, identity->activeports, identity->consumedports);
-    ImGui::Text("parent: %i  parentport: %i  entryport: %i  ebuscurrent: %i", identity->parent, identity->parentport, identity->entryport, identity->Ebuscurrent);
-    
-    if (!b_mapped) {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.4, 0.4, 0.4, 1.0));
-    }
-
-    ImGui::Text("Input Bytes: %i (%i bits)", identity->Ibytes, identity->Ibits);
-    ImGui::Text("Output Bytes: %i (%i bits)", identity->Obytes, identity->Obits);
-
-
-    ImGui::Text("hasDC: %i  DCactive: %i", identity->hasdc, identity->DCactive);
-    ImGui::Text("pdelay: %i  DCnext: %i  DCprevious: %i  DCcycle: %i  DCshift: %i", identity->pdelay, identity->DCnext, identity->DCprevious, identity->DCcycle, identity->DCshift);
-    ImGui::Text("DCrtA: %i  DcrtB: %i  DCrtC: %i  DCrtD: %i", identity->DCrtA, identity->DCrtB, identity->DCrtC, identity->DCrtD);
-
-    ImGui::Separator();
-
-    if (ImGui::Button("Enable Voltage")) enableVoltage = true;
-    ImGui::SameLine();
-    if (ImGui::Button("Disable Voltage")) disableVoltage = true;
-
-    if (ImGui::Button("Switch On")) switchOn = true;
-    ImGui::SameLine();
-    if (ImGui::Button("Shut Down")) shutdown = true;
-
-    if (ImGui::Button("Enable Operation")) { 
-        enableOperation = true;
-        positionCommand = position;
-        counter = 0;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Disable Operation")) disableOperation = true;
-
-    if (ImGui::Button("Fault Reset")) performFaultReset = true;
-    ImGui::SameLine();
-    if (ImGui::Button("Quick Stop")) performQuickStop = true;
-
-    const char* stateChar;
-    switch (state) {
-    case State::Fault:					stateChar = "Fault"; break;
-    case State::FaultReactionActive:	stateChar = "Fault Reaction Active"; break;
-    case State::NotReadyToSwitchOn:		stateChar = "Not Ready To Switch On"; break;
-    case State::OperationEnabled:		stateChar = "Operation Enabled"; break;
-    case State::QuickStopActive:		stateChar = "Quick Stop Active"; break;
-    case State::ReadyToSwitchOn:		stateChar = "Ready To Switch On"; break;
-    case State::SwitchedOn:				stateChar = "Switched On"; break;
-    case State::SwitchOnDisabled:		stateChar = "Switch On Disabled"; break;
-    }
-    ImGui::Text("State: %s", stateChar);
-    if (state == State::Fault) {
-        ImGui::SameLine();
-        ImGui::Text("(%X)", lastErrorCode);
-    }
-
-    ImGui::Separator();
-
-    ImGui::Text("Position: %i", position);
-    ImGui::Text("Velocity: %i", velocity);
-    ImGui::Text("Torque: %i", torque);
-
-    ImGui::Text("Digital Inputs: %i %i %i %i %i %i", DI0, DI1, DI2, DI3, DI4, DI5);
-
-    ImGui::Separator();
-
-    ImGui::Text("Current Operating Mode: %s (%i)", modeChar, mode);
-
-    if (ImGui::BeginCombo("Mode Switch", modelist[modeCommand].c_str(), ImGuiComboFlags_HeightLargest)) {
-        for (const auto& [key, value] : modelist) {
-            if (key == 0) continue;
-            if (ImGui::Selectable(value.c_str(), false)) modeCommand = key;
-
-        }
-        ImGui::EndCombo();
-    }
-
-    ImPlot::SetNextPlotLimitsX(positions.newest().x - 1000.0, positions.newest().x, ImGuiCond_Always);
-    ImPlot::SetNextPlotFormatY("%g ticks");
-    ImPlot::FitNextPlotAxes(false, true);
-
-    if (ImPlot::BeginPlot("positions", NULL, NULL, ImVec2(-1, 600))) {
-        ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0);
-        ImPlot::PlotLine("Position", &positions.front().x, &positions.front().y, positions.size(), positions.offset(), positions.stride());
-        ImPlot::EndPlot();
-    }
-
-    ImGui::Checkbox("Invert", &b_inverted);
-
-    int displayPosition = position;
-    int displayVelocity = velocity;
-    int displayTorque = torque;
-
-    float velocityFraction = (((double)displayVelocity / 7000.0) + 1.0) / 2.0;
-    ImGui::ProgressBar(velocityFraction, ImVec2(0, 0), "velocity");
-
-
-    ImGui::Checkbox("DQ0", &DQ0);
-    ImGui::SameLine();
-    ImGui::Checkbox("DQ1", &DQ1);
-    ImGui::SameLine();
-    ImGui::Checkbox("DQ2", &DQ2);
-
-    if (ImGui::Button("<<--")) {
-        jog = true;
-        direction = false;
-        fast = true;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("<--")) {
-        jog = true;
-        direction = false;
-        fast = false;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("0")) {
-        stop = true;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("-->")) {
-        jog = true;
-        direction = true;
-        fast = false;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("-->>")) {
-        jog = true;
-        direction = true;
-        fast = true;
-    }
-
-    ImGui::Separator();
-
-    ImGui::Text("motorVoltagePresent : %i", motorVoltagePresent);
-    ImGui::Text("class0error : %i", class0error);
-    ImGui::Text("halted : %i", halted);
-    ImGui::Text("fieldbusControlActive : %i", fieldbusControlActive);
-    ImGui::Text("targetReached : %i", targetReached);
-    ImGui::Text("internalLimitActive : %i", internalLimitActive);
-    ImGui::Text("operatingModeSpecificFlag : %i", operatingModeSpecificFlag);
-    ImGui::Text("stoppedByError : %i", stoppedByError);
-    ImGui::Text("operatingModeFinished : %i", operatingModeFinished);
-    ImGui::Text("validPositionReference : %i", validPositionReference);
-
-    if (!b_mapped) {
-        ImGui::PopItemFlag();
-        ImGui::PopStyleColor();
-    }
-
-}
-
-
-
-/*
-if (ImGui::Button("Fault Reset All")) for (ECatServoDrive& drive : EtherCatFieldbus::servoDrives) drive.performFaultReset = true;
-ImGui::SameLine();
-if (ImGui::Button("Enable All")) for (ECatServoDrive& drive : EtherCatFieldbus::servoDrives) { drive.enableOperation = true; drive.positionCommand = drive.position; drive.counter = 0; }
-ImGui::SameLine();
-if(ImGui::Button("Disable All")) for (ECatServoDrive& drive : EtherCatFieldbus::servoDrives) drive.disableOperation = true;
-*/

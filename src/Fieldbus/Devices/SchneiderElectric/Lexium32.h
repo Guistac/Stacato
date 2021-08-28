@@ -1,17 +1,30 @@
 #pragma once
 
-#include <ethercat.h>
+#include "Fieldbus/EtherCatSlave.h"
+#include "Utilities/ScrollingBuffer.h"
+
 #include <map>
 #include <string>
-
-#include "Fieldbus/EtherCatSlave.h"
-#include "Gui/ScrollingBuffer.h"
-
 
 class Lexium32 : public EtherCatSlave {
 public:
 
     SLAVE_DEFINITION(Lexium32, "LXM32M EtherCAT")
+
+    EtherCatData positionOutput;
+    EtherCatData digitalOut0;
+    EtherCatData digitalOut1;
+    EtherCatData digitalOut2;
+
+    EtherCatData positionInput;
+    EtherCatData velocityInput;
+    EtherCatData torqueInput;
+    EtherCatData digitalIn0;
+    EtherCatData digitalIn1;
+    EtherCatData digitalIn2;
+    EtherCatData digitalIn3;
+    EtherCatData digitalIn4;
+    EtherCatData digitalIn5;
 
     int counter = 0;
 

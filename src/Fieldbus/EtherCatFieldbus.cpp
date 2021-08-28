@@ -96,7 +96,7 @@ void EtherCatFieldbus::setup() {
             while (EcatError) std::cout << "##### EtherCAT Error: " << ec_elist2string() << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
-        });
+    });
     scanNetwork();
     metrics.init();
 }
@@ -180,11 +180,24 @@ bool EtherCatFieldbus::configureSlaves() {
         std::cout << "          Outputs: " << slave->identity->Obytes << " bytes (" << slave->identity->Obits << " bits)" << std::endl;
     }
 
+    for (auto slave : slaves) {
+        if (slave->isCoeSupported()) {
+            if (!slave->getPDOMapping()) {
+                b_configurationError = true;
+                sprintf(configurationStatus, "Could not read PDO mapping...");
+                std::cout << "===== Could not read PDO mapping..." << std::endl;
+                return false;
+            }
+        }
+    }
+
     i_configurationProgress = ec_slavecount + 1;
     sprintf(configurationStatus, "Configuring Distributed Clocks");
 
     std::cout << "===== Configuring Distributed Clocks" << std::endl;
     if (!ec_configdc()) {
+        b_configurationError = true;
+        sprintf(configurationStatus, "Could not configuredistributed clocks...");
         std::cout << "===== Could not configure distributed clocks ..." << std::endl;
         return false;
     }

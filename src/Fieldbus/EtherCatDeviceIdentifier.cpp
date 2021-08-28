@@ -2,6 +2,7 @@
 
 std::shared_ptr<EtherCatSlave> getSlaveByName(const char* name) {
 	RETURN_SLAVE_IF_TYPE_MATCHING(name, Lexium32);
+	RETURN_SLAVE_IF_TYPE_MATCHING(name, EasyCAT);
 	//RETURN_SLAVE_IF_MATCHING(name, OtherDeviceClassName)
 	//RETURN_SLAVE_IF_MATCHING(name, DifferentDeviceClassName)
 	//...
