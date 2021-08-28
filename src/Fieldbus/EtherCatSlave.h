@@ -52,8 +52,8 @@ public:
     const char* getDeviceName()     { return identity->name; }
 
     int getSlaveIndex()             { return slaveIndex; }
-    int getManualAddress()          { return identity->aliasadr; }
-    int getAssignedAddress()        { return identity->configadr; }
+    int getManualAddress()          { return identity->aliasadr; }  //configured station alias address
+    int getAssignedAddress()        { return identity->configadr; } //configured station address
 
     bool isStateInit()              { return identity->state == EC_STATE_INIT; }
     bool isStatePreOperational()    { return identity->state == EC_STATE_PRE_OP; }
