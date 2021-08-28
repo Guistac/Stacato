@@ -1,6 +1,6 @@
-#include "EtherCatSlave.h"
+#include <pch.h>
 
-#include <iostream>
+#include "EtherCatSlave.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>

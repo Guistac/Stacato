@@ -1,3 +1,5 @@
+#include <pch.h>
+
 #include "Lexium32.h"
 
 #include <imgui.h>

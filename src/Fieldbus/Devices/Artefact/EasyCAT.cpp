@@ -1,7 +1,5 @@
+#include <pch.h>
 #include "EasyCAT.h"
-
-#include <iostream>
-#include <bitset>
 
 EasyCAT::EasyCAT() {
 	outputData = {

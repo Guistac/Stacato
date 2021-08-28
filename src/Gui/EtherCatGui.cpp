@@ -1,3 +1,5 @@
+#include <pch.h>
+
 #include "Gui.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
@@ -5,9 +7,6 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <implot.h>
-
-#include <iostream>
-
 
 void etherCatGui() {
 
@@ -38,6 +37,7 @@ void etherCatGui() {
 			etherCatMetrics();
 			ImGui::EndTabItem();
 		}
+		//we need to detect when the tab was just opened to set some variables in the parameters
 		static bool isTabOpen = false;
 		bool wasTabOpen = isTabOpen;
 		if (ImGui::BeginTabItem("Fieldbus Parameters")) {
@@ -47,6 +47,10 @@ void etherCatGui() {
 		}
 		else {
 			isTabOpen = false;
+		}
+		if (ImGui::BeginTabItem("Log")) {
+			log();
+			ImGui::EndTabItem();
 		}
 
 		ImGui::EndTabBar();

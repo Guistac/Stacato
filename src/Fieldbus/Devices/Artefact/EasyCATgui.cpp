@@ -1,3 +1,4 @@
+#include <pch.h>
 #include "EasyCAT.h"
 
 #include <imgui.h>

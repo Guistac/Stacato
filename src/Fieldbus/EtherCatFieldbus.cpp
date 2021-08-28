@@ -1,8 +1,6 @@
-#include "EtherCatFieldbus.h"
+#include <pch.h>
 
-#include <ethercat.h>
-#include <iostream>
-#include <chrono>
+#include "EtherCatFieldbus.h"
 
 #include "EtherCatDeviceIdentifier.h"
 

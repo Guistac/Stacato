@@ -1,5 +1,6 @@
+#include <pch.h>
+
 #include "Network.h"
-#include <iostream>
 
 asio::io_context Network::io_context;
 std::thread Network::io_context_handler;

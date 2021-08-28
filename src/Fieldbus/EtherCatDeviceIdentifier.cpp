@@ -1,3 +1,5 @@
+#include <pch.h>
+
 #include "EtherCatDeviceIdentifier.h"
 
 std::shared_ptr<EtherCatSlave> getSlaveByName(const char* name) {

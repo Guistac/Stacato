@@ -1,3 +1,5 @@
+#include <pch.h>
+
 #include "EtherCatDataTypes.h"
 
 const char* EtherCatData::dataTypeNames[Type::TYPE_COUNT] = {

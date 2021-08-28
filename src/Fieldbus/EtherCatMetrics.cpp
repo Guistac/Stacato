@@ -1,8 +1,8 @@
+#include <pch.h>
+
 #include "EtherCatMetrics.h"
 
 #include "EtherCatFieldbus.h"
-
-#include <iostream>
 
 void EtherCatMetrics::init() {
 	int scrollingBufferSize = scrollingBufferLength_seconds * 1000.0 / EtherCatFieldbus::processInterval_milliseconds;

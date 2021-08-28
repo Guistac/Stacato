@@ -1,7 +1,7 @@
+#include <pch.h>
+
 #include "Lexium32.h"
 #include "Fieldbus/EtherCatFieldbus.h"
-
-#include <iostream>
 
 Lexium32::Lexium32() {
 

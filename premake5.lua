@@ -34,6 +34,8 @@ project "FieldbusDev"
 	language "C++"
 	cppdialect "C++17"
 
+    pchsource "%{prj.location}/src/Core/pch.cpp"
+
 	targetdir "%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}"
 	objdir "%{wks.location}/bin/obj"
 
@@ -55,7 +57,8 @@ project "FieldbusDev"
 		"%{wks.location}/dependencies/tinyxml2/",
 		"%{wks.location}/dependencies/soem/soem",
 		"%{wks.location}/dependencies/soem/osal",
-		"%{wks.location}/dependencies/asio/asio/include/"
+		"%{wks.location}/dependencies/asio/asio/include/",
+        "%{wks.location}/dependencies/spdlog/include"
 	}
 
 	links{
@@ -64,7 +67,8 @@ project "FieldbusDev"
 		"glfw",
 		"dearimgui",
 		"implot",
-		"tinyxml2"
+		"tinyxml2",
+        "spdlog"
 	}
 	
 	defines{
@@ -73,6 +77,7 @@ project "FieldbusDev"
 	}
 
 	filter "system:windows"
+        pchheader "pch.h"
 		defines{
 			"_WINDOWS",
 			"_WIN32_WINNT=0x0601"
@@ -89,6 +94,7 @@ project "FieldbusDev"
         }
     
     filter "system:macosx"
+        pchheader "%{prj.location}/src/Core/pch.h"
         defines{}
         sysincludedirs{
             "%{wks.location}/dependencies/soem/osal/macosx",
@@ -97,6 +103,7 @@ project "FieldbusDev"
         links{
             "Cocoa.framework",
             "IOKit.framework"
+            --we need to manually link with libpcap in xcode or else we need to build it ourselves
         }
 
 --=================================================================================================================
@@ -303,4 +310,32 @@ project "tinyxml2"
 
     sysincludedirs{
         "%{wks.location}/tinyxml2.h"
+    }
+
+
+--=================================================================================================================
+
+project "spdlog"
+    location "dependencies/spdlog"
+    kind "StaticLib"
+    language "C++"
+
+    targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
+    objdir ("%{wks.location}/bin/obj");
+
+    files{
+        "%{prj.location}/src/*.h",
+        "%{prj.location}/src/*.cpp",
+        "%{prj.location}/include/spdlog/*.h",
+        "%{prj.location}/include/spdlog/details/*.h",
+        "%{prj.location}/include/spdlog/fmt/*.h",
+        "%{prj.location}/include/spdlog/sinks/*.h"
+    }
+
+    sysincludedirs{
+        "%{prj.location}/include/"
+    }
+
+    defines{
+        "SPDLOG_COMPILED_LIB"
     }
