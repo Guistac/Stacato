@@ -1,6 +1,8 @@
 #include <pch.h>
 #include "EasyCAT.h"
 
+#include "Fieldbus/EtherCatFieldbus.h"
+
 EasyCAT::EasyCAT() {
 	outputData = {
 		&byteOut,
@@ -17,7 +19,12 @@ EasyCAT::EasyCAT() {
 	};
 }
 
-bool EasyCAT::startupConfiguration() { return true; }
+bool EasyCAT::startupConfiguration() { 
+	uint32_t sync0Interval_nanoseconds = EtherCatFieldbus::processInterval_milliseconds * 1000000.0L;
+	uint32_t sync0offset_nanoseconds = 0;
+	ec_dcsync0(getSlaveIndex(), true, sync0Interval_nanoseconds, sync0offset_nanoseconds);
+	return true;
+}
 
 void EasyCAT::process(bool b_processDataValid) {
 	uint8_t* inputData = identity->inputs;
@@ -42,11 +49,11 @@ void EasyCAT::process(bool b_processDataValid) {
 	byteIn = inputData[14];
 
 	static int counter = 0;
-	counter++;
-	byteOut = counter;
-	shortOut = counter*16;
-	longOut = counter*64;
-	longLongOut = counter*256;
+	//counter++;
+	byteOut = counter * 8;
+	shortOut = counter* 32;
+	longOut = counter * 128;
+	longLongOut = counter * 512;
 
 	uint8_t* outputData = identity->outputs;
 

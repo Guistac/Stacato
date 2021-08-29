@@ -12,16 +12,17 @@ int                                                     Logger::levelMessageCoun
 void Logger::init() {
 #ifdef DEBUG
     console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    console_sink->set_level(spdlog::level::trace);
     console_sink->set_pattern("[%T:%e]%^ [%l] %v %$");
+    console_sink->set_level(spdlog::level::trace);
 #endif
 
     file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("logs/Toos_Log.log", 2, 30);
-    file_sink->set_level(spdlog::level::trace);
     file_sink->set_pattern("[%T:%e] [%l] %v");
+    file_sink->set_level(spdlog::level::trace);
 
 #ifdef DEBUG
     logger = new spdlog::logger("ToosLogger", {console_sink, file_sink});
+    logger->set_level(spdlog::level::trace);
 #else
     logger = new spdlog::logger("ToosLogger", file_sink);
 #endif

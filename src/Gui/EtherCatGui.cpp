@@ -70,7 +70,7 @@ void etherCatGui() {
 void etherCatFieldbusConfigurationModal() {
 	static bool firstSuccess;
 	static long long successTime_milliseconds;
-	static long long successCloseDelay_milliseconds = 1000;
+	static long long successCloseDelay_milliseconds = 500;
 	if (EtherCatFieldbus::b_clockStable && EtherCatFieldbus::b_allOperational) {
 		//display a full progress bar and close the popup after some time (1 second)
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.3, 0.8, 0.0, 1.0));

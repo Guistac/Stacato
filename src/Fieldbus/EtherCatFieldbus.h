@@ -65,5 +65,5 @@ private:
     static void startCyclicExchange();
 };
 
-const char* getStateString(uint16_t state);
+const char* etherCatStateToString(uint16_t state);
 

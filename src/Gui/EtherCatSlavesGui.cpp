@@ -88,8 +88,8 @@ void EtherCatSlave::genericInfoGui() {
 
     ImGui::Separator();
 
-    ImGui::Text("state: %i", identity->state);
-    ImGui::Text("ALstatuscode: %i", identity->ALstatuscode);
+    ImGui::Text("state: %i : %s", identity->state, etherCatStateToString(identity->state));
+    ImGui::Text("ALstatuscode: %i : %s", identity->ALstatuscode, ec_ALstatuscode2string(identity->ALstatuscode));
 
     ImGui::Separator();
 
@@ -279,9 +279,9 @@ void EtherCatSlave::ioDataGui() {
     ImGui::PopFont();
 
     if (isCoeSupported()) {
-        ImGui::Text("RX-PDO (received by slave)");
+        ImGui::Text("RX-PDO (outputs received by slave)");
         displayPDO(rxPdo, "RX-PDO");
-        ImGui::Text("TX-PDO (sent by slave)");
+        ImGui::Text("TX-PDO (inputs sent by slave)");
         displayPDO(txPdo, "TX-PDO");
     }
     else {

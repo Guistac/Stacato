@@ -78,7 +78,7 @@ public:
 
     bool b_mapped = false;
 
-    bool getPDOMapping();
+    bool getPDOMapping(EtherCatPDO& pdo, uint16_t index, const char* pdoName);
     EtherCatPDO txPdo;
     EtherCatPDO rxPdo;
 

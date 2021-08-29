@@ -5,48 +5,38 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-bool EtherCatSlave::getPDOMapping() {
+bool EtherCatSlave::getPDOMapping(EtherCatPDO& pdo, uint16_t pdoIndex, const char* pdoDescription) {
 
-    //read the content of SM2 (0x1C12) & SM3 (0x1C13)
-    //to retrieve modules and pdo entries
+    pdo.modules.clear();
+    uint8_t moduleCount;
+    Logger::trace("reading entry count of index 0x{:X}", pdoIndex);
+    if (!readSDO(pdoIndex, 0x0, moduleCount)) return false;
+    Logger::debug("***** {} Mapping Module count: {}", pdoDescription, (int)moduleCount);
 
-    static auto readPdoMapping = [this](EtherCatPDO& pdo, uint16_t pdoIndex, const char* pdoDescription) -> bool {
-  
-        pdo.modules.clear();
-        uint8_t moduleCount;
-        if (!readSDO(pdoIndex, 0x0, moduleCount)) return false;
-        Logger::debug("***** {} module count: {}", pdoDescription, (int)moduleCount);
+    for (int i = 1; i <= moduleCount; i++) {
+        EtherCatPDOModule module;
+        Logger::trace("reading index of pdo mapping module {}", i);
+        if (!readSDO(pdoIndex, i, module.index)) return false;
+        uint8_t entryCount;
+        Logger::trace("reading entry count of pdo mapping module {}", i);
+        if (!readSDO(module.index, 0x0, entryCount)) return false;
 
-        for (int i = 1; i <= moduleCount; i++) {
-            EtherCatPDOModule module;
-            if (!readSDO(pdoIndex, i, module.index)) return false;
-            uint8_t entryCount;
-            if (!readSDO(module.index, 0x0, entryCount)) return false;
+        Logger::debug("  *** {} Mapping Module [{}] : 0x{:X} ({} entries)", pdoDescription, i, module.index, entryCount);
 
-            Logger::debug("  *** {} module [{}] : 0x{:X} ({} entries)", pdoDescription, i, module.index, entryCount);
-
-            for (int j = 1; j <= entryCount; j++) {
-                EtherCatPDOEntry entry;
-                uint32_t entryData;
-                if (!readSDO(module.index, j, entryData)) return false;
-                entry.index = entryData >> 16;
-                entry.subindex = entryData >> 8;
-                entry.byteCount = entryData;
-                module.entries.push_back(entry);
-                Logger::debug("    * entry [{}] : index: 0x{:X}  subindex: 0x{:X}  size: {}", j, entry.index, entry.subindex, entry.byteCount);
-            }
-
-            pdo.modules.push_back(module);
+        for (int j = 1; j <= entryCount; j++) {
+            EtherCatPDOEntry entry;
+            uint32_t entryData;
+            Logger::trace("reading index of pdo mapping module entry {}", j);
+            if (!readSDO(module.index, j, entryData)) return false;
+            entry.index = entryData >> 16;
+            entry.subindex = entryData >> 8;
+            entry.byteCount = entryData;
+            module.entries.push_back(entry);
+            Logger::debug("    * entry [{}] : index: 0x{:X}  subindex: 0x{:X}  size: {}", j, entry.index, entry.subindex, entry.byteCount);
         }
 
-        return true;
-    };
-
-    uint16_t RxPDOIndex = 0x1C12;
-    uint16_t TxPDOIndex = 0x1C13;
-
-    if (!readPdoMapping(rxPdo, RxPDOIndex, "RxPDO")) return false;
-    if (!readPdoMapping(txPdo, TxPDOIndex, "TxPDO")) return false;
+        pdo.modules.push_back(module);
+    }
 
     return true;
 }

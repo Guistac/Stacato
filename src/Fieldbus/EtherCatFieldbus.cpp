@@ -26,8 +26,8 @@ bool                                                EtherCatFieldbus::b_allOpera
 
 EtherCatMetrics                                     EtherCatFieldbus::metrics;
 
-double                                              EtherCatFieldbus::processInterval_milliseconds = 10.0;
-double                                              EtherCatFieldbus::processDataTimeout_milliseconds = 5.0;
+double                                              EtherCatFieldbus::processInterval_milliseconds = 3.0;
+double                                              EtherCatFieldbus::processDataTimeout_milliseconds = 1.5;
 double                                              EtherCatFieldbus::clockStableThreshold_milliseconds = 0.1;
 std::thread                                         EtherCatFieldbus::etherCatRuntime;
 std::thread                                         EtherCatFieldbus::errorWatchdog;
@@ -90,10 +90,12 @@ bool EtherCatFieldbus::init(NetworkInterfaceCard& nic, NetworkInterfaceCard& red
 
 void EtherCatFieldbus::setup() {
     errorWatchdog = std::thread([]() {
+        Logger::critical("===== Started EtherCAT Error Watchdog");
         while (b_networkOpen) {
             while (EcatError) Logger::error("##### EtherCAT Error: {}", ec_elist2string());
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
+        Logger::critical("===== Exited EtherCAT Error Watchdog");
     });
     scanNetwork();
     metrics.init();
@@ -144,13 +146,27 @@ bool EtherCatFieldbus::scanNetwork() {
 
 
 bool EtherCatFieldbus::configureSlaves() {
+
+    i_configurationProgress = 1;
+    sprintf(configurationStatus, "Configuring Distributed Clocks");
+
+    Logger::debug("===== Configuring Distributed Clocks");
+    if (!ec_configdc()) {
+        b_configurationError = true;
+        sprintf(configurationStatus, "Could not configuredistributed clocks...");
+        Logger::error("===== Could not configure distributed clocks ...");
+        return false;
+    }
+    Logger::info("===== Finished Configuring Distributed Clocks");
+
+
     for (int i = 1; i <= ec_slavecount; i++) {
         //set hook callback for configuring the PDOs of each slave
         ec_slave[i].PO2SOconfigx = [](ecx_contextt* context, uint16_t slaveIndex) -> int {
             for (auto slave : slaves) {
                 if (slave->getSlaveIndex() == slaveIndex) {
                     sprintf(configurationStatus, "Configuring Slave #%i '%s'", slave->getSlaveIndex(), slave->getName());
-                    i_configurationProgress = slaveIndex; //for progress bar display
+                    i_configurationProgress = slaveIndex + 1; //for progress bar display
                     slave->b_mapped = slave->startupConfiguration();
                     break;
                 }
@@ -172,37 +188,41 @@ bool EtherCatFieldbus::configureSlaves() {
     Logger::info("===== Finished Building I/O Map (Size : {} bytes)", ioMapSize);
 
     for (auto slave : slaves) {
-        Logger::debug("   [{}] '{}' bytes ({} bits)",
+        Logger::debug("   [{}] '{}' {} bytes ({} bits)",
             slave->getSlaveIndex(),
             slave->getDeviceName(),
             slave->identity->Ibytes + slave->identity->Obytes,
             slave->identity->Ibits + slave->identity->Obits);
         Logger::debug("          Inputs: {} bytes ({} bits)", slave->identity->Ibytes, slave->identity->Ibits);
         Logger::debug("          Outputs: {} bytes ({} bits)", slave->identity->Obytes, slave->identity->Obits);
+    }
 
+    for (auto slave : slaves) {
         if (slave->isCoeSupported()) {
-            if (!slave->getPDOMapping()) {
+            Logger::debug("===== Reading PDO Assignement of slave '{}'", slave->getDeviceName());
+            //read the content of SM2 (0x1C12) & SM3 (0x1C13)
+            //to retrieve modules and pdo entries
+            static uint16_t RxPDOIndex = 0x1C12;
+            static uint16_t TxPDOIndex = 0x1C13;
+            if (!slave->getPDOMapping(slave->rxPdo, RxPDOIndex, "RX-PDO")) {
                 b_configurationError = true;
-                sprintf(configurationStatus, "Could not read PDO mapping...");
-                Logger::error("===== Could not read PDO mapping...");
+                sprintf(configurationStatus, "Could not read Rx PDO Assignement...");
+                Logger::error("===== Could not read Rx PDO Assignement...");
                 return false;
             }
+            if (!slave->getPDOMapping(slave->txPdo, TxPDOIndex, "TX-PDO")) {
+                b_configurationError = true;
+                sprintf(configurationStatus, "Could not read Tx PDO Assignement...");
+                Logger::error("===== Could not read Tx PDO Assignement...");
+                return false;
+            }
+        }
+        else {
+            Logger::debug("===== Skipping PDO Assignement reading of slave '{}' because it does not support CoE", slave->getName());
         }
     }
 
     Logger::info("===== Finished Reading PDO Mapping");
-
-    i_configurationProgress = ec_slavecount + 1;
-    sprintf(configurationStatus, "Configuring Distributed Clocks");
-
-    Logger::debug("===== Configuring Distributed Clocks");
-    if (!ec_configdc()) {
-        b_configurationError = true;
-        sprintf(configurationStatus, "Could not configuredistributed clocks...");
-        Logger::error("===== Could not configure distributed clocks ...");
-        return false;
-    }
-    Logger::info("===== Finished Configuring Distributed Clocks");
 
     i_configurationProgress = ec_slavecount + 2;
     sprintf(configurationStatus, "Checking For Safe-Operational State");
@@ -290,6 +310,7 @@ void EtherCatFieldbus::startCyclicExchange() {
                 //this regulating code block is taken from the soem example red_test.c
                 //it implements a PI controller (proportional integral) that regulates ec_DCTime using an offset to be added to the system time
                 static int64_t integral = 0;
+                if (metrics.cycleCounter == 0) integral = 0; //this value should be reset on cyclic exchange start
                 int64_t delta = (ec_DCtime - dctime_offset_nanoseconds) % processInterval_nanoseconds;
                 if (delta > (processInterval_nanoseconds / 2)) { delta = delta - processInterval_nanoseconds; }
                 if (delta > 0) { integral++; }
@@ -299,9 +320,6 @@ void EtherCatFieldbus::startCyclicExchange() {
                 //calculate the start of the next cycle, taking clock drift compensation into account
                 previousCycleStartTime_nanoseconds = cycleStartTime_nanoseconds;
                 cycleStartTime_nanoseconds += processInterval_nanoseconds + offsetTime;
-
-                int dummyLoad = 0;
-                for (int i = 0; i < 10000; i++) dummyLoad += std::sin(i);
 
                 //======= UPDATE METRICS =======
 
@@ -334,6 +352,10 @@ void EtherCatFieldbus::startCyclicExchange() {
                 metrics.processDelays.addPoint(glm::vec2(metrics.processTime_seconds, processDelay_milliseconds));
 
                 metrics.cycleCounter++;
+
+                if (metrics.cycleCounter % 100 == 0) {
+                    ec_readstate(); //TODO: do this in a separate thread
+                }
 
                 //======= HANDLE OPERATIONAL STATE TRANSITION =======
 
@@ -390,5 +412,48 @@ void EtherCatFieldbus::stop() {
         b_processRunning = false;
         if (etherCatRuntime.joinable()) etherCatRuntime.join();
         Logger::info("===== Cyclic Exchange Stopped !");
+    }
+}
+
+
+
+
+
+typedef struct {
+public:
+    uint16_t stateCode;
+    char readableString[32];
+} etherCatState;
+
+const etherCatState etherCatStateList[] = {
+    {EC_STATE_NONE,         "No State"},
+    {EC_STATE_INIT,         "Init"},
+    {EC_STATE_PRE_OP,       "Pre-Operational"},
+    {EC_STATE_BOOT,         "Boot"},
+    {EC_STATE_SAFE_OP,      "Safe-Operational"},
+    {EC_STATE_OPERATIONAL,  "Operational"},
+    {0xFFFF,                "unknown"}
+};
+
+const etherCatState etherCatStateListError[] = {
+    {EC_STATE_NONE,         "No State (Error)"},
+    {EC_STATE_INIT,         "Init (Error)"},
+    {EC_STATE_PRE_OP,       "Pre-Operational (Error)"},
+    {EC_STATE_BOOT,         "Boot (Error)"},
+    {EC_STATE_SAFE_OP,      "Safe-Operational (Error)"},
+    {EC_STATE_OPERATIONAL,  "Operational (Error)"},
+    {0xFFFF,                "unknown"}
+};
+
+const char* etherCatStateToString(uint16_t state) {
+    int i = 0;
+    uint16_t stateWithoutErrorBit = state & 0xF;
+    if (state & EC_STATE_ERROR) {
+        while (etherCatStateListError[i].stateCode != stateWithoutErrorBit && etherCatStateListError[i].stateCode != 0xFFFF) i++;
+        return etherCatStateListError[i].readableString;
+    }
+    else {
+        while (etherCatStateList[i].stateCode != stateWithoutErrorBit && etherCatStateList[i].stateCode != 0xFFFF) i++;
+        return etherCatStateList[i].readableString;
     }
 }
