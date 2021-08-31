@@ -33,3 +33,4 @@
 [submodule "dependencies/imguinodeeditor"]
 	path = dependencies/imguinodeeditor
 	url = https://github.com/thedmd/imgui-node-editor.git
+	ignore = dirty
