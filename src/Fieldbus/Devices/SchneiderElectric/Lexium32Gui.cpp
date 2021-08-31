@@ -11,25 +11,22 @@ void Lexium32::deviceSpecificGui() {
     if (ImGui::BeginTabItem("Lexium32 Options")) {
         ImGui::Separator();
 
-        if (ImGui::Button("Enable Voltage")) enableVoltage = true;
+        if (ImGui::Button("Enable Voltage")) enableVoltage();
         ImGui::SameLine();
-        if (ImGui::Button("Disable Voltage")) disableVoltage = true;
+        if (ImGui::Button("Disable Voltage")) disableVoltage();
 
-        if (ImGui::Button("Switch On")) switchOn = true;
+        if (ImGui::Button("Switch On")) switchOn();
         ImGui::SameLine();
-        if (ImGui::Button("Shut Down")) shutdown = true;
+        if (ImGui::Button("Shut Down")) shutDown();
 
-        if (ImGui::Button("Enable Operation")) {
-            enableOperation = true;
-            positionCommand = position;
-            counter = 0;
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Disable Operation")) disableOperation = true;
+        if (ImGui::Button("Enable Operation")) enableOperation();
 
-        if (ImGui::Button("Fault Reset")) performFaultReset = true;
         ImGui::SameLine();
-        if (ImGui::Button("Quick Stop")) performQuickStop = true;
+        if (ImGui::Button("Disable Operation")) disableOperation();
+
+        if (ImGui::Button("Fault Reset")) faultReset();
+        ImGui::SameLine();
+        if (ImGui::Button("Quick Stop")) quickStop();
 
         const char* stateChar;
         switch (state) {
@@ -50,11 +47,11 @@ void Lexium32::deviceSpecificGui() {
 
         ImGui::Separator();
 
-        ImGui::Text("Position: %i", position);
-        ImGui::Text("Velocity: %i", velocity);
-        ImGui::Text("Torque: %i", torque);
+        ImGui::Text("Position: %i", actualPosition.getSignedLong());
+        ImGui::Text("Velocity: %i", actualVelocity.getSignedLong());
+        ImGui::Text("Torque: %i", actualTorque.getSignedShort());
 
-        ImGui::Text("Digital Inputs: %i %i %i %i %i %i", DI0, DI1, DI2, DI3, DI4, DI5);
+        ImGui::Text("Digital Inputs: %i %i %i %i %i %i", digitalIn0.getBool(), digitalIn1.getBool(), digitalIn2.getBool(), digitalIn3.getBool(), digitalIn4.getBool(), digitalIn5.getBool());
 
         ImGui::Separator();
 
@@ -81,47 +78,25 @@ void Lexium32::deviceSpecificGui() {
 
         ImGui::Checkbox("Invert", &b_inverted);
 
-        int displayPosition = position;
-        int displayVelocity = velocity;
-        int displayTorque = torque;
-
-        float velocityFraction = (((double)displayVelocity / 7000.0) + 1.0) / 2.0;
+        float velocityFraction = (((double)actualVelocity.getSignedLong() / 7000.0) + 1.0) / 2.0;
         ImGui::ProgressBar(velocityFraction, ImVec2(0, 0), "velocity");
 
 
-        ImGui::Checkbox("DQ0", &DQ0);
+        ImGui::Checkbox("DQ0", &digitalOut0.getBool());
         ImGui::SameLine();
-        ImGui::Checkbox("DQ1", &DQ1);
+        ImGui::Checkbox("DQ1", &digitalOut1.getBool());
         ImGui::SameLine();
-        ImGui::Checkbox("DQ2", &DQ2);
+        ImGui::Checkbox("DQ2", &digitalOut2.getBool());
 
-        if (ImGui::Button("<<--")) {
-            jog = true;
-            direction = false;
-            fast = true;
-        }
+        if (ImGui::Button("<<--")) {}
         ImGui::SameLine();
-        if (ImGui::Button("<--")) {
-            jog = true;
-            direction = false;
-            fast = false;
-        }
+        if (ImGui::Button("<--")) {}
         ImGui::SameLine();
-        if (ImGui::Button("0")) {
-            stop = true;
-        }
+        if (ImGui::Button("0")) {}
         ImGui::SameLine();
-        if (ImGui::Button("-->")) {
-            jog = true;
-            direction = true;
-            fast = false;
-        }
+        if (ImGui::Button("-->")) {}
         ImGui::SameLine();
-        if (ImGui::Button("-->>")) {
-            jog = true;
-            direction = true;
-            fast = true;
-        }
+        if (ImGui::Button("-->>")) {}
 
         ImGui::Separator();
 

@@ -12,6 +12,7 @@
 
 #include <imgui.h>
 #include <implot.h>
+#include <imgui_node_editor.h>
 
 #include "Gui.h"
 
@@ -28,6 +29,8 @@ ImFont* GuiWindow::robotoRegular20;
 ImFont* GuiWindow::robotoBold42;
 ImFont* GuiWindow::robotoLight42;
 ImFont* GuiWindow::robotoRegular42;
+
+ax::NodeEditor::EditorContext* GuiWindow::nodeEditorContext;
 
 void GuiWindow::open(int w, int h) {
 	glfwInit();
@@ -67,6 +70,7 @@ void GuiWindow::onInit() {
 	
 	ImGui::CreateContext();
 	ImPlot::CreateContext();
+	nodeEditorContext = ax::NodeEditor::CreateEditor();
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -110,6 +114,7 @@ void GuiWindow::onInit() {
 void GuiWindow::onTerminate() {
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
+	ax::NodeEditor::DestroyEditor(nodeEditorContext);
 	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
 }

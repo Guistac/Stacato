@@ -31,7 +31,7 @@ void etherCatSlaves() {
 	if (ImGui::BeginListBox("##DiscoveredEtherCATSlaves", listWidth)) {
 		for (auto slave : EtherCatFieldbus::slaves) {
 			bool selected = selectedSlaveIndex == slave->getSlaveIndex();
-			if (ImGui::Selectable(slave->customName, &selected)) selectedSlaveIndex = slave->getSlaveIndex();
+			if (ImGui::Selectable(slave->getName(), &selected)) selectedSlaveIndex = slave->getSlaveIndex();
 		}
 		if (EtherCatFieldbus::slaves.empty()) {
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
@@ -182,7 +182,16 @@ void EtherCatSlave::genericInfoGui() {
 
     ImGui::Separator();
 
-    ImGui::Text("CoE Details: %i", identity->CoEdetails);
+    if (isCoeSupported()) {
+        ImGui::Text("CoE is Supported");
+        ImGui::Text("SDO info: %s",             supportsCoE_SDOinfo() ? "supported" : "not supported");
+        ImGui::Text("PDO assign: %s",           supportsCoE_PDOassign() ? "supported" : "not supported");
+        ImGui::Text("PDO config: %s",           supportsCoE_PDOconfig() ? "supported" : "not supported");
+        ImGui::Text("Upload: % s",              supportsCoE_upload() ? "supported" : "not supported");
+        ImGui::Text("SDO Complete Access: %s",  supportsCoE_SDOCA() ? "supported" : "not supported");
+    }
+    else ImGui::Text("CoE is not Supported");
+
     ImGui::Text("FoE Details: %i", identity->FoEdetails);
     ImGui::Text("EoE Details: %i", identity->EoEdetails);
     ImGui::Text("SoE Details: %i", identity->SoEdetails);
@@ -200,14 +209,14 @@ void EtherCatSlave::genericInfoGui() {
 }
 
 void EtherCatSlave::ioDataGui() {
-    static auto displayDataTable = [](std::vector<EtherCatData*>& data, const char* tableName) {
+    static auto displayDataTable = [](std::vector<ioData*>& data, const char* tableName) {
         ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
         if (ImGui::BeginTable(tableName, 3, tableFlags)) {
             ImGui::TableSetupColumn("Name");
             ImGui::TableSetupColumn("Type");
             ImGui::TableSetupColumn("Value");
             ImGui::TableHeadersRow();
-            for (EtherCatData* data : data) {
+            for (ioData* data : data) {
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("%s", data->getName());
@@ -215,17 +224,17 @@ void EtherCatSlave::ioDataGui() {
                 ImGui::Text("%s", data->getTypeName());
                 ImGui::TableSetColumnIndex(2);
                 switch (data->getType()) {
-                case EtherCatData::Type::BOOL:      ImGui::Text("%i", data->getBool()); break;
-                case EtherCatData::Type::UINT8_T:   ImGui::Text("%i", data->getUnsignedByte()); break;
-                case EtherCatData::Type::INT8_T:    ImGui::Text("%i", data->getSignedByte()); break;
-                case EtherCatData::Type::UINT16_T:  ImGui::Text("%i", data->getUnsignedShort()); break;
-                case EtherCatData::Type::INT16_T:   ImGui::Text("%i", data->getSignedShort()); break;
-                case EtherCatData::Type::UINT32_T:  ImGui::Text("%i", data->getUnsignedLong()); break;
-                case EtherCatData::Type::INT32_T:   ImGui::Text("%i", data->getSignedLong()); break;
-                case EtherCatData::Type::UINT64_T:  ImGui::Text("%i", data->getUnsignedLongLong()); break;
-                case EtherCatData::Type::INT64_T:   ImGui::Text("%i", data->getSignedLongLong()); break;
-                case EtherCatData::Type::FLOAT:     ImGui::Text("%.5f", data->getFloat()); break;
-                case EtherCatData::Type::DOUBLE:    ImGui::Text("%.5f", data->getDouble()); break;
+                    case DataType::BOOL_VALUE:  ImGui::Text("%i", data->getBool()); break;
+                    case DataType::UINT8_T:     ImGui::Text("%i", data->getUnsignedByte()); break;
+                    case DataType::INT8_T:      ImGui::Text("%i", data->getSignedByte()); break;
+                    case DataType::UINT16_T:    ImGui::Text("%i", data->getUnsignedShort()); break;
+                    case DataType::INT16_T:     ImGui::Text("%i", data->getSignedShort()); break;
+                    case DataType::UINT32_T:    ImGui::Text("%i", data->getUnsignedLong()); break;
+                    case DataType::INT32_T:     ImGui::Text("%i", data->getSignedLong()); break;
+                    case DataType::UINT64_T:    ImGui::Text("%i", data->getUnsignedLongLong()); break;
+                    case DataType::INT64_T:     ImGui::Text("%i", data->getSignedLongLong()); break;
+                    case DataType::FLOAT32:     ImGui::Text("%.5f", data->getFloat()); break;
+                    case DataType::FLOAT64:     ImGui::Text("%.5f", data->getDouble()); break;
                 }
             }
             ImGui::EndTable();
@@ -236,20 +245,22 @@ void EtherCatSlave::ioDataGui() {
     ImGui::Text("Public Data");
     ImGui::PopFont();
     ImGui::Text("Input Data:");
-    displayDataTable(inputData, "Input Data");
+    displayDataTable(getNodeInputData(), "Input Data");
     ImGui::Separator();
     ImGui::Text("Output Data:");
-    displayDataTable(outputData, "Output Data");
+    displayDataTable(getNodeOutputData(), "Output Data");
     ImGui::Separator();
 
-    static auto displayPDO = [](EtherCatPDO& pdo, const char* pdoName) {
+    static auto displayPDO = [](EtherCatPdoAssignement& pdo, const char* pdoName) {
         ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
-        if (ImGui::BeginTable(pdoName, 3, tableFlags)) {
+        if (ImGui::BeginTable(pdoName, 5, tableFlags)) {
             ImGui::TableSetupColumn("Index");
             ImGui::TableSetupColumn("Subindex");
-            ImGui::TableSetupColumn("Size");
+            ImGui::TableSetupColumn("Byte Count");
+            ImGui::TableSetupColumn("Name");
+            ImGui::TableSetupColumn("Value");
             ImGui::TableHeadersRow();
-            for (EtherCatPDOModule& module : pdo.modules) {
+            for (EtherCatPdoMappingModule& module : pdo.modules) {
                 ImGui::TableNextRow();
                 ImU32 moduleHeaderBackground = ImGui::GetColorU32(ImVec4(0.2f, 0.3f, 0.7f, 1.0f));
                 ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, moduleHeaderBackground);
@@ -259,33 +270,40 @@ void EtherCatSlave::ioDataGui() {
                 ImGui::Text("%i entries", module.getEntryCount());
                 ImGui::TableSetColumnIndex(2);
                 ImGui::Text("-");
-                for (EtherCatPDOEntry& entry : module.entries) {
+                ImGui::TableSetColumnIndex(3);
+                ImGui::Text("-");
+                ImGui::TableSetColumnIndex(4);
+                ImGui::Text("-");
+                for (EtherCatPdoEntry& entry : module.entries) {
                     ImGui::TableNextRow();
                     ImGui::TableSetColumnIndex(0);
                     ImGui::Text("0x%4X", entry.index);
                     ImGui::TableSetColumnIndex(1);
                     ImGui::Text("0x%X", entry.subindex);
                     ImGui::TableSetColumnIndex(2);
-                    ImGui::Text("%i bits", entry.byteCount);
+                    ImGui::Text("%i", entry.byteCount);
+                    ImGui::TableSetColumnIndex(3);
+                    ImGui::Text("%s", entry.name);
+                    ImGui::TableSetColumnIndex(4);
+                    switch (entry.byteCount) {
+                        case 1: ImGui::Text("%X", *(uint8_t*)entry.dataPointer); break;
+                        case 2: ImGui::Text("%X", *(uint16_t*)entry.dataPointer); break;
+                        case 4: ImGui::Text("%X", *(uint32_t*)entry.dataPointer); break;
+                        case 8: ImGui::Text("%X", *(uint64_t*)entry.dataPointer); break;
+                        default: ImGui::Text("unknown size"); break;
+                    }
                 }
             }
             ImGui::EndTable();
         }
-
     };
 
     ImGui::PushFont(GuiWindow::robotoBold20);
     ImGui::Text("Process Data Objects");
     ImGui::PopFont();
 
-    if (isCoeSupported()) {
-        ImGui::Text("RX-PDO (outputs received by slave)");
-        displayPDO(rxPdo, "RX-PDO");
-        ImGui::Text("TX-PDO (inputs sent by slave)");
-        displayPDO(txPdo, "TX-PDO");
-    }
-    else {
-        ImGui::Text("This device doesn't support CanOpen over EtherCAT");
-        ImGui::Text("PDOs are not available");
-    }
+    ImGui::Text("RX-PDO (outputs received by slave)");
+    displayPDO(rxPdoAssignement, "RX-PDO");
+    ImGui::Text("TX-PDO (inputs sent by slave)");
+    displayPDO(txPdoAssignement, "TX-PDO");
 }

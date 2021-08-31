@@ -5,7 +5,8 @@
 #include <vector>
 #include <cstring>
 
-#include "EtherCatDataTypes.h"
+#include "Environnement/nodeGraph/ioNode.h"
+
 #include "EtherCatPDO.h"
 
 //classDeviceName is a static string used to identify the device class when creating a new instance for a specific device
@@ -23,7 +24,9 @@
                                                     virtual const char* getClassDeviceName() { return classDeviceName; }\
                                                     virtual bool isDeviceKnown(){ return false; }                       \
                                                     virtual bool startupConfiguration(){ return true; }                 \
+                                                    virtual void readInputs(){}                                         \
                                                     virtual void process(bool b_processDataValid){}                     \
+                                                    virtual void prepareOutputs(){}                                     \
                                                     virtual void deviceSpecificGui(){}                                  \
 
 //All Slave Device Classes Need to Implement this Macro 
@@ -36,13 +39,15 @@
                                                 virtual const char* getClassDeviceName() { return classDeviceName; }\
                                                 virtual bool isDeviceKnown(){ return true; }                        \
                                                 virtual bool startupConfiguration();                                \
+                                                virtual void readInputs();                                          \
                                                 virtual void process(bool b_processDataValid);                      \
+                                                virtual void prepareOutputs();                                      \
                                                 virtual void deviceSpecificGui();                                   \
                                         
 
 #define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getStaticClassDeviceName()) == 0) return std::make_shared<className>()
 
-class EtherCatSlave {
+class EtherCatSlave : public ioNode {
 public:      
 
     //===== Base EtherCAT device
@@ -50,37 +55,45 @@ public:
     INTERFACE_DEFINITION(EtherCatSlave, "Unknown Device")
 
     int slaveIndex = -1;
-    char customName[128];
     ec_slavet* identity;
 
-    //serves as a public and labeled way of accessing input and output data
-    std::vector<EtherCatData*> outputData;
-    std::vector<EtherCatData*> inputData;
+    //public display of raw pdo data
+    EtherCatPdoAssignement txPdoAssignement;
+    EtherCatPdoAssignement rxPdoAssignement;
 
-    void setName(const char* name)  { strcpy(customName, name); }
-    const char* getName()           { return customName; }
+    //basic info
     const char* getDeviceName()     { return identity->name; }
+    uint32_t getManufacturer()      { return identity->eep_man; }
+    uint32_t getID()                { return identity->eep_id; }
+    uint32_t getRevision()          { return identity->eep_rev; }
 
+    //addresses
     int getSlaveIndex()             { return slaveIndex; }
     int getManualAddress()          { return identity->aliasadr; }  //configured station alias address
     int getAssignedAddress()        { return identity->configadr; } //configured station address
 
+    //state machine
     bool isStateInit()              { return identity->state == EC_STATE_INIT; }
     bool isStatePreOperational()    { return identity->state == EC_STATE_PRE_OP; }
     bool isStateBootstrap()         { return identity->state == EC_STATE_BOOT; }
     bool isStateSafeOperational()   { return identity->state == EC_STATE_SAFE_OP; }
     bool isStateOperational()       { return identity->state == EC_STATE_OPERATIONAL; }
 
-    bool isCoeSupported() { return identity->CoEdetails > 0; }
-    bool isFoeSupported() { return identity->FoEdetails > 0; }
-    bool isEoESupported() { return identity->EoEdetails > 0; }
-    bool isSoESupported() { return identity->SoEdetails > 0; }
+    //Mailbox types
+    bool isCoeSupported() { return identity->mbx_proto & ECT_MBXPROT_COE; }
+    bool isFoeSupported() { return identity->mbx_proto & ECT_MBXPROT_FOE; }
+    bool isEoESupported() { return identity->mbx_proto & ECT_MBXPROT_EOE; }
+    bool isSoESupported() { return identity->mbx_proto & ECT_MBXPROT_SOE; }
+
+    //Coe support details
+    bool supportsCoE_SDO()          { return identity->CoEdetails & ECT_COEDET_SDO; }
+    bool supportsCoE_SDOinfo()      { return identity->CoEdetails & ECT_COEDET_SDOINFO; }
+    bool supportsCoE_PDOassign()    { return identity->CoEdetails & ECT_COEDET_PDOASSIGN; }
+    bool supportsCoE_PDOconfig()    { return identity->CoEdetails & ECT_COEDET_PDOCONFIG; }
+    bool supportsCoE_upload()       { return identity->CoEdetails & ECT_COEDET_UPLOAD; }
+    bool supportsCoE_SDOCA()        { return identity->CoEdetails & ECT_COEDET_SDOCA; }
 
     bool b_mapped = false;
-
-    bool getPDOMapping(EtherCatPDO& pdo, uint16_t index, const char* pdoName);
-    EtherCatPDO txPdo;
-    EtherCatPDO rxPdo;
 
     void gui();
     void genericInfoGui();

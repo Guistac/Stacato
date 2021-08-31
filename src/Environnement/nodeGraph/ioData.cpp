@@ -1,8 +1,8 @@
 #include <pch.h>
 
-#include "EtherCatDataTypes.h"
+#include "ioData.h"
 
-const char* EtherCatData::dataTypeNames[Type::TYPE_COUNT] = {
+const char* ioData::dataTypeNames[TYPE_COUNT] = {
 	"boolean",
 	"uint8_t",
 	"int8_t",

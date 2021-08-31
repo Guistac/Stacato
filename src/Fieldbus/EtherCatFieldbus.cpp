@@ -90,12 +90,12 @@ bool EtherCatFieldbus::init(NetworkInterfaceCard& nic, NetworkInterfaceCard& red
 
 void EtherCatFieldbus::setup() {
     errorWatchdog = std::thread([]() {
-        Logger::critical("===== Started EtherCAT Error Watchdog");
+        Logger::debug("===== Started EtherCAT Error Watchdog");
         while (b_networkOpen) {
             while (EcatError) Logger::error("##### EtherCAT Error: {}", ec_elist2string());
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
-        Logger::critical("===== Exited EtherCAT Error Watchdog");
+        Logger::debug("===== Exited EtherCAT Error Watchdog");
     });
     scanNetwork();
     metrics.init();
@@ -123,7 +123,9 @@ bool EtherCatFieldbus::scanNetwork() {
         //TODO: later on we need to match up theses slaves with saved references (by name and configured address for example)
         slave->identity = &slv;
         slave->slaveIndex = i;
-        sprintf(slave->customName, "#%i '%s' @%i", slave->getSlaveIndex(), slave->getDeviceName(), slave->getManualAddress());
+        char name[128];
+        sprintf(name, "#%i '%s' @%i", slave->getSlaveIndex(), slave->getDeviceName(), slave->getManualAddress());
+        slave->setName(name);
         slaves.push_back(slave);
     }
     if (workingCounter > 0) {
@@ -197,6 +199,7 @@ bool EtherCatFieldbus::configureSlaves() {
         Logger::debug("          Outputs: {} bytes ({} bits)", slave->identity->Obytes, slave->identity->Obits);
     }
 
+    /*
     for (auto slave : slaves) {
         if (slave->isCoeSupported()) {
             Logger::debug("===== Reading PDO Assignement of slave '{}'", slave->getDeviceName());
@@ -221,6 +224,7 @@ bool EtherCatFieldbus::configureSlaves() {
             Logger::debug("===== Skipping PDO Assignement reading of slave '{}' because it does not support CoE", slave->getName());
         }
     }
+    */
 
     Logger::info("===== Finished Reading PDO Mapping");
 
@@ -252,7 +256,7 @@ void EtherCatFieldbus::startCyclicExchange() {
         b_clockStable = false;
 
         //TODO: compute this depending on slave configuration
-        expectedWorkingCounter = 6;
+        expectedWorkingCounter = 12;
 
         metrics.reset();
 
@@ -284,7 +288,8 @@ void EtherCatFieldbus::startCyclicExchange() {
                 //send ethercat frame
                 ec_send_processdata();
                 uint64_t frameSentTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
-                    
+                //TODO: in case sending the data takes longer than a certain time, the rest of the loop should be aborted
+
                 //wait for return of the frame until timeout
                 int workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
                 uint64_t frameReceivedTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
@@ -292,9 +297,13 @@ void EtherCatFieldbus::startCyclicExchange() {
                 //adjust the copy of the reference clock in case no frame was received
                 if (workingCounter != expectedWorkingCounter) ec_DCtime += processInterval_nanoseconds;
 
-                //do axis processing to get next set of output data, only process input data if the working counter matches the expected one
+                //if the returned frame has the expected working counter, interpret the data that was received for all slaves
+                if(workingCounter == expectedWorkingCounter) for (auto slave : slaves) slave->readInputs();
+                //process the data to generate output values, taking into account if new data wasn't received
                 for (auto slave : slaves) slave->process(workingCounter == expectedWorkingCounter);
-
+                //prepare the output data to be sent
+                for (auto slave : slaves) slave->prepareOutputs();
+                
                 //dctime_offset: *reference clock* offset target for the receiving of a frame by the first dc slave
                 //the offset is calculated as a distance from the -dc sync time-, which is a whole multiple of the process interval time
                 //setting this to half the process interval time garantees a smoothn easily mesureable approach to the target value

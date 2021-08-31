@@ -1,3 +1,4 @@
+#include <memory>
 #include <vector>
 #include <queue>
 #include <deque>

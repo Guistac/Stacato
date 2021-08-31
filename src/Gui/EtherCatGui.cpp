@@ -33,6 +33,10 @@ void etherCatGui() {
 			etherCatSlaves();
 			ImGui::EndTabItem();
 		}
+		if (ImGui::BeginTabItem("Node Graph")) {
+			nodeGraph();
+			ImGui::EndTabItem();
+		}
 		if(ImGui::BeginTabItem("Fieldbus Metrics")) {
 			etherCatMetrics();
 			ImGui::EndTabItem();

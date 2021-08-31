@@ -8,6 +8,8 @@ void etherCatMetrics();
 void etherCatSlaves();
 void etherCatParameters(bool resetList);
 
+void nodeGraph();
+
 void log();
 
 void quit();

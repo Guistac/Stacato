@@ -30,3 +30,6 @@
 [submodule "dependencies/spdlog"]
 	path = dependencies/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "dependencies/imguinodeeditor"]
+	path = dependencies/imguinodeeditor
+	url = https://github.com/thedmd/imgui-node-editor.git
