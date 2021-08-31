@@ -3,6 +3,7 @@
 #include "EtherCatFieldbus.h"
 
 #include "EtherCatDeviceIdentifier.h"
+#include "Environnement/Environnement.h"
 
 std::vector<NetworkInterfaceCard>                   EtherCatFieldbus::networkInterfaceCards;
 NetworkInterfaceCard                                EtherCatFieldbus::networkInterfaceCard;
@@ -10,7 +11,7 @@ NetworkInterfaceCard                                EtherCatFieldbus::redundantN
 bool                                                EtherCatFieldbus::b_redundant = false;
 
 
-std::vector<std::shared_ptr<EtherCatSlave>>         EtherCatFieldbus::slaves;
+std::vector<EtherCatSlave*>                         EtherCatFieldbus::slaves;
 uint8_t                                             EtherCatFieldbus::ioMap[4096];
 int                                                 EtherCatFieldbus::ioMapSize = 0;
 int                                                 EtherCatFieldbus::expectedWorkingCounter;
@@ -111,40 +112,74 @@ void EtherCatFieldbus::terminate() {
 }
 
 bool EtherCatFieldbus::scanNetwork() {
+
+    //when rescanning the network, all previous slaves are now considered to be offline before being detected again
+
     i_configurationProgress = 0;
     sprintf(configurationStatus, "Scanning Network");
+    for (EtherCatSlave* slave : slaves) delete slave; //free memory of all previous slaves
     slaves.clear();
     //setup all slaves, get slave count and info in ec_slave, setup mailboxes, request state PRE-OP for all slaves
     int workingCounter = ec_config_init(FALSE); //what is usetable??
-    for (int i = 1; i <= ec_slavecount; i++) {
-        ec_slavet& slv = ec_slave[i];
-        //create device class depending on slave name
-        std::shared_ptr<EtherCatSlave> slave = getSlaveByName(slv.name);
-        //TODO: later on we need to match up theses slaves with saved references (by name and configured address for example)
-        slave->identity = &slv;
-        slave->slaveIndex = i;
-        char name[128];
-        sprintf(name, "#%i '%s' @%i", slave->getSlaveIndex(), slave->getDeviceName(), slave->getManualAddress());
-        slave->setName(name);
-        slaves.push_back(slave);
-    }
+
     if (workingCounter > 0) {
         Logger::info("===== Found and Configured {} EtherCAT Slave{}", ec_slavecount, ((ec_slavecount == 1) ? ": " : "s: "));
-        for (auto slave : slaves)
-            Logger::info("    = Slave {} : '{}'  Address: {}  Manual Address {}  Known: {}",
+
+        for (int i = 1; i <= ec_slavecount; i++) {
+            ec_slavet& slv = ec_slave[i];
+            //create device class depending on slave name
+            EtherCatSlave* slave = getSlaveByName(slv.name);
+            //we need the station alias to be able to compare the slave to the environnement slaves
+            slave->stationAlias = slv.aliasadr;
+
+            //compare the slave with existing slaves in the environnement
+            EtherCatSlave* environnementSlave;
+            if (Environnement::hasSlave(slave, &environnementSlave)) {
+                //if the slave is already in the environnement
+                //transfer the identity object so the environnement slave has the newly acquired one
+                //(the old one is obsolete since we rescanned the network)
+                environnementSlave->identity = &slv;
+                //also reassign index, since it might have changed
+                environnementSlave->slaveIndex = i;
+                //delete the slave we just created
+                //since its only use was to match the environnement slave and transfer its identity
+                delete slave;
+                //reassign so we can log the slave
+                slave = environnementSlave;
+            }
+            else {
+                //if the slave is not in the environnement
+                //add it to the available slave list
+                slave->identity = &slv;
+                slave->slaveIndex = i;
+                char name[128];
+                sprintf(name, "#%i '%s' @%i", slave->getSlaveIndex(), slave->getDeviceName(), slave->getStationAlias());
+                slave->setName(name);
+                slaves.push_back(slave);
+            }
+
+            Logger::info("    = Slave {} : '{}'  Address: {}  StationAlias {}  KnownDevice: {}  InEnvironnement: {}",
                 slave->getSlaveIndex(),
                 slave->getDeviceName(),
                 slave->getAssignedAddress(),
-                slave->getManualAddress(),
-                (slave->isDeviceKnown() ? "Yes" : "No"));
+                slave->getStationAlias(),
+                slave->isDeviceKnown() ? "Yes" : "No",
+                Environnement::hasSlave(slave) ? "Yes" : "No");
+        }
         return true;
     }
+
+    //if no device was found on the network
     b_configurationError = true;
     sprintf(configurationStatus, "Found no EtherCAT slaves on the network");
     Logger::warn("===== No EtherCAT Slaves found...");
     return false;
 }
 
+
+int EtherCatFieldbus::getSlaveCount() {
+    return ec_slavecount;
+}
 
 
 bool EtherCatFieldbus::configureSlaves() {
@@ -160,7 +195,6 @@ bool EtherCatFieldbus::configureSlaves() {
         return false;
     }
     Logger::info("===== Finished Configuring Distributed Clocks");
-
 
     for (int i = 1; i <= ec_slavecount; i++) {
         //set hook callback for configuring the PDOs of each slave
@@ -198,35 +232,6 @@ bool EtherCatFieldbus::configureSlaves() {
         Logger::debug("          Inputs: {} bytes ({} bits)", slave->identity->Ibytes, slave->identity->Ibits);
         Logger::debug("          Outputs: {} bytes ({} bits)", slave->identity->Obytes, slave->identity->Obits);
     }
-
-    /*
-    for (auto slave : slaves) {
-        if (slave->isCoeSupported()) {
-            Logger::debug("===== Reading PDO Assignement of slave '{}'", slave->getDeviceName());
-            //read the content of SM2 (0x1C12) & SM3 (0x1C13)
-            //to retrieve modules and pdo entries
-            static uint16_t RxPDOIndex = 0x1C12;
-            static uint16_t TxPDOIndex = 0x1C13;
-            if (!slave->getPDOMapping(slave->rxPdo, RxPDOIndex, "RX-PDO")) {
-                b_configurationError = true;
-                sprintf(configurationStatus, "Could not read Rx PDO Assignement...");
-                Logger::error("===== Could not read Rx PDO Assignement...");
-                return false;
-            }
-            if (!slave->getPDOMapping(slave->txPdo, TxPDOIndex, "TX-PDO")) {
-                b_configurationError = true;
-                sprintf(configurationStatus, "Could not read Tx PDO Assignement...");
-                Logger::error("===== Could not read Tx PDO Assignement...");
-                return false;
-            }
-        }
-        else {
-            Logger::debug("===== Skipping PDO Assignement reading of slave '{}' because it does not support CoE", slave->getName());
-        }
-    }
-    */
-
-    Logger::info("===== Finished Reading PDO Mapping");
 
     i_configurationProgress = ec_slavecount + 2;
     sprintf(configurationStatus, "Checking For Safe-Operational State");

@@ -100,7 +100,7 @@ void etherCatFieldbusConfigurationModal() {
 		firstSuccess = true; // set static variable to true, so success time will be measured once
 
 		int progress = EtherCatFieldbus::i_configurationProgress;
-		int maxProgress = EtherCatFieldbus::slaves.size() + 5;
+		int maxProgress = EtherCatFieldbus::getSlaveCount() + 5;
 		int clockProgress = maxProgress - 1;
 
 		static float progressSmooth;

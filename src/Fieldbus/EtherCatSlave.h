@@ -16,12 +16,14 @@
 //Device that are matched against a device class will return true for isDeviceKnown()
 //Unknown devices will not and will be of the base type EtherCatSlave
 
-#define INTERFACE_DEFINITION(className, deviceName) const char * classDeviceName = deviceName;	                        \
-											        static const char * getStaticClassDeviceName(){	                    \
+#define INTERFACE_DEFINITION(className, deviceName) private:                                                            \
+                                                    const char* classDeviceName = deviceName;                           \
+                                                    public:                                                             \
+                                                    static const char * getDeviceNameStatic(){	                        \
 												        static className singleton;				                        \
-												        return singleton.classDeviceName;		                        \
+												        return singleton.classDeviceName;		                \
 											        }											                        \
-                                                    virtual const char* getClassDeviceName() { return classDeviceName; }\
+                                                    virtual const char* getDeviceName() { return classDeviceName; }     \
                                                     virtual bool isDeviceKnown(){ return false; }                       \
                                                     virtual bool startupConfiguration(){ return true; }                 \
                                                     virtual void readInputs(){}                                         \
@@ -30,13 +32,15 @@
                                                     virtual void deviceSpecificGui(){}                                  \
 
 //All Slave Device Classes Need to Implement this Macro 
-#define SLAVE_DEFINITION(className, deviceName) className();                                                        \
-                                                const char * classDeviceName = deviceName;	                        \
-											    static const char * getStaticClassDeviceName(){	                    \
+#define SLAVE_DEFINITION(className, deviceName) private:                                                            \
+                                                const char* classDeviceName = deviceName;                           \
+                                                public:                                                             \
+											    static const char * getDeviceNameStatic(){	                        \
 												    static className singleton;				                        \
 												    return singleton.classDeviceName;		                        \
 											    }											                        \
-                                                virtual const char* getClassDeviceName() { return classDeviceName; }\
+                                                virtual const char* getDeviceName() { return deviceName; }          \
+                                                className();                                                        \
                                                 virtual bool isDeviceKnown(){ return true; }                        \
                                                 virtual bool startupConfiguration();                                \
                                                 virtual void readInputs();                                          \
@@ -45,7 +49,7 @@
                                                 virtual void deviceSpecificGui();                                   \
                                         
 
-#define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getStaticClassDeviceName()) == 0) return std::make_shared<className>()
+#define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getDeviceNameStatic()) == 0) return new className()
 
 class EtherCatSlave : public ioNode {
 public:      
@@ -55,6 +59,7 @@ public:
     INTERFACE_DEFINITION(EtherCatSlave, "Unknown Device")
 
     int slaveIndex = -1;
+    int stationAlias = -1;
     ec_slavet* identity;
 
     //public display of raw pdo data
@@ -62,14 +67,15 @@ public:
     EtherCatPdoAssignement rxPdoAssignement;
 
     //basic info
-    const char* getDeviceName()     { return identity->name; }
     uint32_t getManufacturer()      { return identity->eep_man; }
     uint32_t getID()                { return identity->eep_id; }
     uint32_t getRevision()          { return identity->eep_rev; }
 
+    bool matches(EtherCatSlave* otherSlave);
+
     //addresses
     int getSlaveIndex()             { return slaveIndex; }
-    int getManualAddress()          { return identity->aliasadr; }  //configured station alias address
+    int getStationAlias()           { return stationAlias; }  //configured station alias address
     int getAssignedAddress()        { return identity->configadr; } //configured station address
 
     //state machine

@@ -53,9 +53,9 @@ bool NodeGraph::isConnectionValid(ioData* data1, ioData* data2) {
 	}
 
 	//don't allow connecting two ioData pins on the same node
-	if (data1->parentNode == data1->parentNode) return false;
+	if (data1->parentNode == data2->parentNode) return false;
 
-	//if all chekcs pass, allow the connection
+	//if all checks pass, allow the connection
 	return true;
 }
 

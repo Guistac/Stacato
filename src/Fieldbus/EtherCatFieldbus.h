@@ -38,7 +38,8 @@ public:
     static bool b_redundant;
 
     //slave devices
-    static std::vector<std::shared_ptr<EtherCatSlave>> slaves;
+    static std::vector<EtherCatSlave*> slaves;
+    static int getSlaveCount();
 
     //process data
     static uint8_t ioMap[4096];
