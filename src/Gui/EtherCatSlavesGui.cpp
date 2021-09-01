@@ -43,7 +43,7 @@ void etherCatSlaves() {
 	ImGui::EndGroup();
 	ImGui::SameLine();
 
-	EtherCatSlave* selectedSlave = nullptr;
+    std::shared_ptr<EtherCatSlave> selectedSlave = nullptr;
 	for (auto slave : EtherCatFieldbus::slaves) 
 		if (slave->getSlaveIndex() == selectedSlaveIndex) { selectedSlave = slave; break; }
 
@@ -88,7 +88,7 @@ void EtherCatSlave::genericInfoGui() {
 
     ImGui::Separator();
 
-    ImGui::Text("state: %i : %s", identity->state, etherCatStateToString(identity->state));
+    ImGui::Text("state: %s (%s)", getStateChar(), hasStateError() ? "State Error" : "No Error");
     ImGui::Text("ALstatuscode: %i : %s", identity->ALstatuscode, ec_ALstatuscode2string(identity->ALstatuscode));
 
     ImGui::Separator();

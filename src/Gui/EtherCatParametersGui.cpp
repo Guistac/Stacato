@@ -101,6 +101,7 @@ void etherCatParameters(bool resetNicLists) {
 		float processFrequency_Hertz = 1000.0 / processInterval_milliseconds;
 		float processDataTimeoutDelay_milliseconds = EtherCatFieldbus::processDataTimeout_milliseconds;
 		float stableClockThreshold_milliseconds = EtherCatFieldbus::clockStableThreshold_milliseconds;
+		int slaveStateCheckCycleCount = EtherCatFieldbus::slaveStateCheckCycleCount;
 
 		ImGui::Text("Process Interval");
 		if (ImGui::InputFloat("##Process Interval", &processInterval_milliseconds, 0.1f, 1.0f, "%.1fms")) intervalEdited = true;
@@ -110,6 +111,8 @@ void etherCatParameters(bool resetNicLists) {
 		ImGui::InputFloat("##Process Data Timeout Delay", &processDataTimeoutDelay_milliseconds, 0.1f, 1.0f, "%.1fms");
 		ImGui::Text("Clock Stabilisation Threshold");
 		ImGui::InputFloat("##Clock Stabilisation Threshold", &stableClockThreshold_milliseconds, 0.01f, 0.1f, "%.2fms");
+		ImGui::Text("Slave State Check Cycle Count");
+		ImGui::InputInt("##SlaveStateCheckInterval", &slaveStateCheckCycleCount, 1, 10);
 
 		if (frequencyEdited) EtherCatFieldbus::processInterval_milliseconds = 1000.0 / processFrequency_Hertz;
 		else EtherCatFieldbus::processInterval_milliseconds = processInterval_milliseconds;
@@ -117,8 +120,11 @@ void etherCatParameters(bool resetNicLists) {
 		if (processDataTimeoutDelay_milliseconds > EtherCatFieldbus::processInterval_milliseconds)
 			processDataTimeoutDelay_milliseconds = EtherCatFieldbus::processInterval_milliseconds;
 
+		if (slaveStateCheckCycleCount < 1) slaveStateCheckCycleCount = 1;
+
 		EtherCatFieldbus::processDataTimeout_milliseconds = processDataTimeoutDelay_milliseconds;
 		EtherCatFieldbus::clockStableThreshold_milliseconds = stableClockThreshold_milliseconds;
+		EtherCatFieldbus::slaveStateCheckCycleCount = slaveStateCheckCycleCount;
 
 		ImGui::Text("These parameters become active the next time the fieldbus is started");
 

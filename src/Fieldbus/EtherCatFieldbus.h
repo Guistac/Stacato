@@ -27,6 +27,7 @@ public:
     static double processInterval_milliseconds;
     static double processDataTimeout_milliseconds;
     static double clockStableThreshold_milliseconds;
+    static int slaveStateCheckCycleCount;
 
     //metrics
     static EtherCatMetrics metrics;
@@ -38,8 +39,8 @@ public:
     static bool b_redundant;
 
     //slave devices
-    static std::vector<EtherCatSlave*> slaves;
-    static int getSlaveCount();
+    static std::vector<std::shared_ptr<EtherCatSlave>> slaves;
+    static std::vector<std::shared_ptr<EtherCatSlave>> slaves_unassigned;
 
     //process data
     static uint8_t ioMap[4096];
@@ -47,7 +48,7 @@ public:
     static int expectedWorkingCounter;
 
     //runtime
-    static std::thread errorWatchdog;       //thread to read errors encountered by SOEM
+    static std::thread errorWatcher;       //thread to read errors encountered by SOEM
     static std::thread etherCatRuntime;     //cyclic exchange thread (needs a full cpu core to achieve precise timing)
 
     static bool b_networkOpen;              //high when one or more network interface cards are opened
@@ -65,6 +66,4 @@ private:
     static bool configureSlaves();
     static void startCyclicExchange();
 };
-
-const char* etherCatStateToString(uint16_t state);
 

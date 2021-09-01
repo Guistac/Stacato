@@ -30,14 +30,14 @@ void nodeGraph() {
 
 		if (ImGui::TreeNode("EtherCAT Slaves")) {
 			ImGui::Button("Refresh Device List");
-			for (EtherCatSlave* slave : EtherCatFieldbus::slaves) {
+			for (auto slave : EtherCatFieldbus::slaves_unassigned) {
 
 				bool selected = false;
 				ImGui::Selectable(slave->getName(), &selected);
 
                 if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
                     
-                    ImGui::SetDragDropPayload("EtherCatSlave", &slave, sizeof(EtherCatSlave*));
+                    ImGui::SetDragDropPayload("EtherCatSlave", &slave, sizeof(std::shared_ptr<EtherCatSlave>));
 					ImGui::Text("%s", slave->getName());
 					ImGui::Text("Drop On Node Editor to Add Slave");
 
@@ -87,8 +87,8 @@ void nodeGraph() {
 
     if (ImGui::BeginDragDropTarget()){
 		const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("EtherCatSlave");
-        if (payload != nullptr && payload->DataSize == sizeof(EtherCatSlave*)){
-			EtherCatSlave* slave = *(EtherCatSlave**)payload->Data;
+        if (payload != nullptr && payload->DataSize == sizeof(std::shared_ptr<EtherCatSlave>)){
+            std::shared_ptr<EtherCatSlave> slave = *(std::shared_ptr<EtherCatSlave>*)payload->Data;
 			Environnement::add(slave);
         }
         ImGui::EndDragDropTarget();

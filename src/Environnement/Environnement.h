@@ -7,11 +7,12 @@
 class Environnement {
 public:
 
-	static bool add(EtherCatSlave* slave) {
+	static bool add(std::shared_ptr<EtherCatSlave> slave) {
 		//don't allow adding a slave that is already there
-		if (hasSlave(slave)) return false;
+		std::shared_ptr<EtherCatSlave> dummy;
+		if (hasSlave(slave, dummy)) return false;
 		//remove the slave we are adding from the available slave list
-		std::vector<EtherCatSlave*>& availableSlaves = EtherCatFieldbus::slaves;
+		std::vector<std::shared_ptr<EtherCatSlave>>& availableSlaves = EtherCatFieldbus::slaves_unassigned;
 		for (int i = availableSlaves.size() - 1; i >= 0; i--) {
 			if (availableSlaves[i] == slave) {
 				availableSlaves.erase(availableSlaves.begin() + i);
@@ -19,22 +20,22 @@ public:
 		}
 		//add the slave to the environnement slave list
 		etherCatSlaves.push_back(slave);
-		//add the slave to the node graph
-		nodeGraph.addIoNode(slave);
+		//add the slave to the node graph (as a raw pointer)
+		nodeGraph.addIoNode(slave.get());
 	}
 
-	static bool hasSlave(EtherCatSlave* slave, EtherCatSlave** matchingSlave = nullptr) {
-		for (EtherCatSlave* otherSlave : etherCatSlaves) {
+	static bool hasSlave(std::shared_ptr<EtherCatSlave> slave, std::shared_ptr<EtherCatSlave>& matchingSlave) {
+		for (auto otherSlave : etherCatSlaves) {
 			if (slave->matches(otherSlave)) {
-				if (matchingSlave != nullptr) *matchingSlave = otherSlave;
+				matchingSlave = otherSlave;
 				return true;
 			}
 		}
-		if (matchingSlave != nullptr) *matchingSlave = nullptr;
+		matchingSlave = nullptr;
 		return false;
 	}
 
-	static std::vector<EtherCatSlave*> etherCatSlaves;
+	static std::vector<std::shared_ptr<EtherCatSlave>> etherCatSlaves;
 
 	static NodeGraph nodeGraph;
 

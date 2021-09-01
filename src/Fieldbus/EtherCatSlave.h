@@ -49,7 +49,7 @@
                                                 virtual void deviceSpecificGui();                                   \
                                         
 
-#define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getDeviceNameStatic()) == 0) return new className()
+#define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getDeviceNameStatic()) == 0) return std::make_shared<className>()
 
 class EtherCatSlave : public ioNode {
 public:      
@@ -71,7 +71,7 @@ public:
     uint32_t getID()                { return identity->eep_id; }
     uint32_t getRevision()          { return identity->eep_rev; }
 
-    bool matches(EtherCatSlave* otherSlave);
+    bool matches(std::shared_ptr<EtherCatSlave> otherSlave);
 
     //addresses
     int getSlaveIndex()             { return slaveIndex; }
@@ -84,6 +84,9 @@ public:
     bool isStateBootstrap()         { return identity->state == EC_STATE_BOOT; }
     bool isStateSafeOperational()   { return identity->state == EC_STATE_SAFE_OP; }
     bool isStateOperational()       { return identity->state == EC_STATE_OPERATIONAL; }
+
+    const char* getStateChar();
+    bool hasStateError();
 
     //Mailbox types
     bool isCoeSupported() { return identity->mbx_proto & ECT_MBXPROT_COE; }
@@ -100,6 +103,9 @@ public:
     bool supportsCoE_SDOCA()        { return identity->CoEdetails & ECT_COEDET_SDOCA; }
 
     bool b_mapped = false;
+    bool b_online = false;
+
+    bool isOnline() { return b_online; }
 
     void gui();
     void genericInfoGui();

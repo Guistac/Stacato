@@ -45,13 +45,44 @@ bool EtherCatSlave::getPDOMapping(EtherCatPDO& pdo, uint16_t pdoIndex, const cha
 
 
 
-bool EtherCatSlave::matches(EtherCatSlave* otherSlave) {
+
+typedef struct {
+public:
+    uint16_t stateCode;
+    char readableString[32];
+} etherCatState;
+
+const etherCatState etherCatStateList[] = {
+    {EC_STATE_NONE,         "Offline"},
+    {EC_STATE_INIT,         "Init"},
+    {EC_STATE_PRE_OP,       "Pre-Operational"},
+    {EC_STATE_BOOT,         "Boot"},
+    {EC_STATE_SAFE_OP,      "Safe-Operational"},
+    {EC_STATE_OPERATIONAL,  "Operational"},
+    {0xFFFF,                "unknown"}
+};
+
+const char* EtherCatSlave::getStateChar() {
+    uint16_t stateWithoutErrorBit = identity->state & 0xF;
+    int i = 0;
+    while (etherCatStateList[i].stateCode != stateWithoutErrorBit && etherCatStateList[i].stateCode != 0xFFFF) i++;
+    return etherCatStateList[i].readableString;
+}
+
+bool EtherCatSlave::hasStateError() {
+    return identity->state & EC_STATE_ERROR;
+}
+
+
+bool EtherCatSlave::matches(std::shared_ptr<EtherCatSlave> otherSlave) {
     //two matching slaves should have the same class device name (offline copy of the original device name)
     //the same station alias / manual address
     if (strcmp(getDeviceName(), otherSlave->getDeviceName()) != 0) return false;
     if (getStationAlias() != otherSlave->getStationAlias()) return false;
     return true;
 }
+
+
 
 
 //===== Reading SDO Data
