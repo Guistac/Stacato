@@ -82,6 +82,23 @@ bool EtherCatSlave::matches(std::shared_ptr<EtherCatSlave> otherSlave) {
     return true;
 }
 
+void EtherCatSlave::compareNewState() {
+    uint16_t previousStateWithoutError = previousState & 0xF;
+    uint16_t currentStateWithoutError = identity->state & 0xF;
+    if (currentStateWithoutError != previousStateWithoutError) {
+        Logger::warn("{} state changed to {}", getName(), getStateChar());
+        switch (currentStateWithoutError) {
+        case EC_STATE_NONE: break;
+        case EC_STATE_INIT: break;
+        case EC_STATE_PRE_OP: break;
+        case EC_STATE_BOOT: break;
+        case EC_STATE_SAFE_OP: break;
+        case EC_STATE_OPERATIONAL: break;
+        default: break;
+        }
+    }
+}
+
 
 
 

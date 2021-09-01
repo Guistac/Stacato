@@ -2,12 +2,9 @@
 
 #include <ethercat.h>
 
-#include <vector>
-#include <cstring>
-
 #include "Environnement/nodeGraph/ioNode.h"
 
-#include "EtherCatPDO.h"
+#include "Utilities/EtherCatPDO.h"
 
 //classDeviceName is a static string used to identify the device class when creating a new instance for a specific device
 //the static method is for use by the identifying method which will check all available device classes for a match
@@ -52,13 +49,13 @@
 #define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getDeviceNameStatic()) == 0) return std::make_shared<className>()
 
 class EtherCatSlave : public ioNode {
-public:      
+public:
 
     //===== Base EtherCAT device
     //serves as device interface and as default device type for unknow devices
     INTERFACE_DEFINITION(EtherCatSlave, "Unknown Device")
 
-    int slaveIndex = -1;
+        int slaveIndex = -1;
     int stationAlias = -1;
     ec_slavet* identity;
 
@@ -67,23 +64,23 @@ public:
     EtherCatPdoAssignement rxPdoAssignement;
 
     //basic info
-    uint32_t getManufacturer()      { return identity->eep_man; }
-    uint32_t getID()                { return identity->eep_id; }
-    uint32_t getRevision()          { return identity->eep_rev; }
+    uint32_t getManufacturer() { return identity->eep_man; }
+    uint32_t getID() { return identity->eep_id; }
+    uint32_t getRevision() { return identity->eep_rev; }
 
     bool matches(std::shared_ptr<EtherCatSlave> otherSlave);
 
     //addresses
-    int getSlaveIndex()             { return slaveIndex; }
-    int getStationAlias()           { return stationAlias; }  //configured station alias address
-    int getAssignedAddress()        { return identity->configadr; } //configured station address
+    int getSlaveIndex() { return slaveIndex; }
+    int getStationAlias() { return stationAlias; }  //configured station alias address
+    int getAssignedAddress() { return identity->configadr; } //configured station address
 
     //state machine
-    bool isStateInit()              { return identity->state == EC_STATE_INIT; }
-    bool isStatePreOperational()    { return identity->state == EC_STATE_PRE_OP; }
-    bool isStateBootstrap()         { return identity->state == EC_STATE_BOOT; }
-    bool isStateSafeOperational()   { return identity->state == EC_STATE_SAFE_OP; }
-    bool isStateOperational()       { return identity->state == EC_STATE_OPERATIONAL; }
+    bool isStateInit() { return identity->state == EC_STATE_INIT; }
+    bool isStatePreOperational() { return identity->state == EC_STATE_PRE_OP; }
+    bool isStateBootstrap() { return identity->state == EC_STATE_BOOT; }
+    bool isStateSafeOperational() { return identity->state == EC_STATE_SAFE_OP; }
+    bool isStateOperational() { return identity->state == EC_STATE_OPERATIONAL; }
 
     const char* getStateChar();
     bool hasStateError();
@@ -95,17 +92,22 @@ public:
     bool isSoESupported() { return identity->mbx_proto & ECT_MBXPROT_SOE; }
 
     //Coe support details
-    bool supportsCoE_SDO()          { return identity->CoEdetails & ECT_COEDET_SDO; }
-    bool supportsCoE_SDOinfo()      { return identity->CoEdetails & ECT_COEDET_SDOINFO; }
-    bool supportsCoE_PDOassign()    { return identity->CoEdetails & ECT_COEDET_PDOASSIGN; }
-    bool supportsCoE_PDOconfig()    { return identity->CoEdetails & ECT_COEDET_PDOCONFIG; }
-    bool supportsCoE_upload()       { return identity->CoEdetails & ECT_COEDET_UPLOAD; }
-    bool supportsCoE_SDOCA()        { return identity->CoEdetails & ECT_COEDET_SDOCA; }
+    bool supportsCoE_SDO() { return identity->CoEdetails & ECT_COEDET_SDO; }
+    bool supportsCoE_SDOinfo() { return identity->CoEdetails & ECT_COEDET_SDOINFO; }
+    bool supportsCoE_PDOassign() { return identity->CoEdetails & ECT_COEDET_PDOASSIGN; }
+    bool supportsCoE_PDOconfig() { return identity->CoEdetails & ECT_COEDET_PDOCONFIG; }
+    bool supportsCoE_upload() { return identity->CoEdetails & ECT_COEDET_UPLOAD; }
+    bool supportsCoE_SDOCA() { return identity->CoEdetails & ECT_COEDET_SDOCA; }
 
     bool b_mapped = false;
     bool b_online = false;
 
     bool isOnline() { return b_online; }
+
+
+    uint16_t previousState = -1;
+    void saveCurrentState() { previousState = identity->state; }
+    void compareNewState();
 
     void gui();
     void genericInfoGui();
@@ -133,6 +135,9 @@ public:
     bool writeSDO(uint16_t index, uint8_t subindex, int32_t data);
     bool writeSDO(uint16_t index, uint8_t subindex, uint64_t data);
     bool writeSDO(uint16_t index, uint8_t subindex, int64_t data);
+
+private:
+
 };
 
 

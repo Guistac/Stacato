@@ -1,10 +1,10 @@
 #include <pch.h>
 
-#include "Gui.h"
+#include "Gui/Gui.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
-#include "GuiWindow.h"
+#include "Gui/GuiWindow.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatSlave.h"

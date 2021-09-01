@@ -3,7 +3,7 @@
 #include <thread>
 #include <vector>
 
-#include "EtherCatMetrics.h"
+#include "Utilities/EtherCatMetrics.h"
 
 class EtherCatSlave;
 

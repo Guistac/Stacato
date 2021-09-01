@@ -2,7 +2,7 @@
 
 #include "EtherCatFieldbus.h"
 
-#include "EtherCatDeviceIdentifier.h"
+#include "Utilities/EtherCatDeviceIdentifier.h"
 #include "Environnement/Environnement.h"
 
 std::vector<NetworkInterfaceCard>                   EtherCatFieldbus::networkInterfaceCards;
@@ -407,10 +407,13 @@ void EtherCatFieldbus::startCyclicExchange() {
 
             //read the state of all slaves
             if (metrics.cycleCounter % slaveStateCheckCycleCount == 0) {
-                //TODO: save previous state
+                std::chrono::time_point start = std::chrono::high_resolution_clock::now();
+                for (auto slave : slaves) slave->saveCurrentState();
                 ec_readstate();
-                //TODO: if state changed (such as disconnection, reconnection or ethercat state change) handle state transition
-                
+                for (auto slave : slaves) slave->compareNewState();
+                std::chrono::duration delay = std::chrono::high_resolution_clock::now() - start;
+                long long timeNanos = std::chrono::duration_cast<std::chrono::nanoseconds>(delay).count();
+                Logger::warn("Statecheck Time {}", timeNanos);
             }
 
             //======= HANDLE OPERATIONAL STATE TRANSITION =======
