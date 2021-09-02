@@ -14,6 +14,8 @@
 #include <implot.h>
 #include <imgui_node_editor.h>
 
+#include <imnodes.h>
+
 #include "Gui.h"
 
 GLFWwindow* GuiWindow::window;
@@ -71,6 +73,7 @@ void GuiWindow::onInit() {
 	ImGui::CreateContext();
 	ImPlot::CreateContext();
 	nodeEditorContext = ax::NodeEditor::CreateEditor();
+	ImNodes::CreateContext();
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -114,6 +117,7 @@ void GuiWindow::onInit() {
 void GuiWindow::onTerminate() {
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
+	ImNodes::DestroyContext();
 	ax::NodeEditor::DestroyEditor(nodeEditorContext);
 	ImPlot::DestroyContext();
 	ImGui::DestroyContext();

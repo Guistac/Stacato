@@ -59,7 +59,8 @@ project "FieldbusDev"
 		"%{wks.location}/dependencies/soem/osal",
 		"%{wks.location}/dependencies/asio/asio/include/",
         "%{wks.location}/dependencies/spdlog/include",
-        "%{wks.location}/dependencies/imguinodeeditor/"
+        "%{wks.location}/dependencies/imguinodeeditor/",
+        "%{wks.location}/dependencies/imnodes/",
 	}
 
 	links{
@@ -70,7 +71,8 @@ project "FieldbusDev"
 		"implot",
 		"tinyxml2",
         "spdlog",
-        "imgui-node-editor"
+        "imgui-node-editor",
+        "imnodes"
 	}
 	
 	defines{
@@ -319,6 +321,28 @@ project "imgui-node-editor"
 		"%{prj.location}/imgui_node_editor_api.cpp",
 		"%{prj.location}/imgui_node_editor_internal.h",
 		"%{prj.location}/imgui_node_editor_internal.inl"
+	}
+
+	sysincludedirs{
+		"%{prj.location}/",
+		"%{wks.location}/dependencies/dearimgui",
+		"%{wks.location}/dependencies/glm"
+	}
+
+--=================================================================================================================
+
+project "imnodes"
+    location "dependencies/imnodes"
+    kind "StaticLib"
+    language "C++"
+
+    targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
+    objdir ("%{wks.location}/bin/obj");
+
+    files{
+		"%{prj.location}/imnodes.cpp",
+        "%{prj.location}/imnodes.h",
+        "%{prj.location}/imnodes_internal.h"
 	}
 
 	sysincludedirs{

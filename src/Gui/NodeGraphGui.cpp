@@ -12,6 +12,202 @@
 #include <imgui_internal.h>
 #include <imgui_node_editor.h>
 
+
+#include "Utilities/Timing.h"
+
+#include <imnodes.h>
+
+void nodeGraph() {
+
+    
+
+    ImNodes::BeginNodeEditor();
+    ImNodesStyle& style = ImNodes::GetStyle();
+    style.NodeCornerRounding = 10.0;
+    style.PinCircleRadius = 10.0;
+    style.PinHoverRadius = 20.0;
+    style.PinOffset = 0.0;
+    style.NodeBorderThickness = 2.0;
+    style.NodePaddingHorizontal = 15.0;
+    ImNodesIO& io = ImNodes::GetIO();
+    io.AltMouseButton = 1;
+
+    ImNodes::BeginNode(0);
+    ImNodes::BeginNodeTitleBar();
+    ImGui::TextUnformatted("Node Title");
+
+    ImNodes::EndNodeTitleBar();
+
+    ImNodes::BeginOutputAttribute(1, ImNodesPinShape_Triangle);
+    ImGui::TextUnformatted("output pin 1");
+    ImNodes::EndOutputAttribute();
+
+    ImNodes::BeginOutputAttribute(2);
+    ImGui::TextUnformatted("output pin 2");
+    ImNodes::EndOutputAttribute();
+
+
+    ImNodes::BeginInputAttribute(3);
+    ImGui::TextUnformatted("Input Pin 1 aaaaaa");
+    ImNodes::EndInputAttribute();
+
+    ImNodes::EndNode();
+
+
+    //glm::vec2 panning = ImNodes::EditorContextGetPanning();
+    //Logger::warn("panning {} {}", panning.x, panning.y);
+    //glm::vec2 panning;
+    //panning.x = sin(Timing::getTime_seconds()) * 100.0;
+    //panning.y = cos(Timing::getTime_seconds()) * 100.0;
+    //ImNodes::EditorContextResetPanning(panning);
+    glm::vec2 nodepos = ImNodes::GetNodeEditorSpacePos(0);
+    Logger::warn("node0: {} {}", nodepos.x, nodepos.y);
+
+    ImNodes::MiniMap();
+    ImNodes::EndNodeEditor();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifdef LELELELEL
+
 void nodeEditor();
 void drawNodes(NodeGraph&);
 void drawLinks(NodeGraph&);
@@ -605,3 +801,5 @@ void DrawIcon(ImDrawList* drawList, const glm::vec2& a, const glm::vec2& b, int 
         }
     }
 }
+
+#endif
