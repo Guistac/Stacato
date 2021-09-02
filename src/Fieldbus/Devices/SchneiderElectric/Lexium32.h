@@ -11,7 +11,7 @@ public:
 
     SLAVE_DEFINITION(Lexium32, "LXM32M EtherCAT")
 
-    int32_t movementStartPosition;
+    double movementStartPosition = 0.0;
     int counter = 0;
     bool b_inverted = false;
     ScrollingBuffer positions;
@@ -84,15 +84,15 @@ private:
     uint16_t _IO_act = 0;
 
     //public output data
-    ioData positionCommand =   ioData(DataType::INT32_T,    DataDirection::NODE_INPUT, "position command");
-    ioData velocityCommand =   ioData(DataType::INT32_T,    DataDirection::NODE_INPUT, "position command");
+    ioData positionCommand =   ioData(DataType::FLOAT64,    DataDirection::NODE_INPUT, "position command");
+    ioData velocityCommand =   ioData(DataType::INT32_T,    DataDirection::NODE_INPUT, "velocity command");
     ioData torqueCommand =     ioData(DataType::INT16_T,    DataDirection::NODE_INPUT, "torque command");
     ioData digitalOut0 =       ioData(DataType::BOOL_VALUE, DataDirection::NODE_INPUT, "DQ0");
     ioData digitalOut1 =       ioData(DataType::BOOL_VALUE, DataDirection::NODE_INPUT, "DQ1");
     ioData digitalOut2 =       ioData(DataType::BOOL_VALUE, DataDirection::NODE_INPUT, "DQ2");
 
     //public input data
-    ioData actualPosition =    ioData(DataType::INT32_T, DataDirection::NODE_OUTPUT, "actual position");
+    ioData actualPosition =    ioData(DataType::FLOAT64, DataDirection::NODE_OUTPUT, "actual position");
     ioData actualVelocity =    ioData(DataType::INT32_T, DataDirection::NODE_OUTPUT, "actual velocity");
     ioData actualTorque =      ioData(DataType::INT16_T, DataDirection::NODE_OUTPUT, "actual torque");
     ioData digitalIn0 =        ioData(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI0");

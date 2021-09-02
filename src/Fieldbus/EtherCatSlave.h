@@ -76,11 +76,12 @@ public:
     int getAssignedAddress() { return identity->configadr; } //configured station address
 
     //state machine
-    bool isStateInit() { return identity->state == EC_STATE_INIT; }
-    bool isStatePreOperational() { return identity->state == EC_STATE_PRE_OP; }
-    bool isStateBootstrap() { return identity->state == EC_STATE_BOOT; }
-    bool isStateSafeOperational() { return identity->state == EC_STATE_SAFE_OP; }
-    bool isStateOperational() { return identity->state == EC_STATE_OPERATIONAL; }
+    bool isStateOffline()           { return (identity->state & 0xF) == EC_STATE_NONE; }
+    bool isStateInit()              { return (identity->state & 0xF) == EC_STATE_INIT; }
+    bool isStatePreOperational()    { return (identity->state & 0xF) == EC_STATE_PRE_OP; }
+    bool isStateBootstrap()         { return (identity->state & 0xF) == EC_STATE_BOOT; }
+    bool isStateSafeOperational()   { return (identity->state & 0xF) == EC_STATE_SAFE_OP; }
+    bool isStateOperational()       { return (identity->state & 0xF) == EC_STATE_OPERATIONAL; }
 
     const char* getStateChar();
     bool hasStateError();

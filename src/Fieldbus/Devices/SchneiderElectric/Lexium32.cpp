@@ -102,7 +102,7 @@ bool Lexium32::setStartupParameters() {
     if (!writeSDO(0x3013, 0x6, CTRL2_KFPp_set)) return false;
     int8_t DCOMopmode_set = 8;
     if (!writeSDO(0x6060, 0x0, DCOMopmode_set)) return false;
-    uint32_t ECATinpshifttime_set = 250000;;
+    uint32_t ECATinpshifttime_set = 250000;
     if (!writeSDO(0x1C33, 0x3, ECATinpshifttime_set)) return false;
 
     return true;
@@ -211,7 +211,8 @@ void Lexium32::readInputs() {
     lastErrorCode = _LastError;
 
     //assign public input data
-    actualPosition = _p_act;
+    //actualPosition = _p_act;
+    actualPosition = (double)_p_act / 131072.0;
     actualVelocity = _v_act;
     actualTorque = _tq_act;
     digitalIn0 = (_IO_act & 0x1) != 0x0;
@@ -263,7 +264,7 @@ void Lexium32::process(bool inputDataValid) {
         b_switchedOn = true;
         
         //start debug movement
-        movementStartPosition = actualPosition.getSignedLong();
+        movementStartPosition = actualPosition.getDouble();
         counter = 0;
         positions.clear();
     }
@@ -275,11 +276,12 @@ void Lexium32::process(bool inputDataValid) {
         b_switchedOn = true;
     }
 
-    int32_t outputPosition;
-    if(b_inverted) outputPosition = movementStartPosition + (std::cos((double)counter / 1000.0) - 1.0) * 2000000;
-    else outputPosition = movementStartPosition - (std::cos((double)counter / 1000.0) - 1.0) * 2000000;
+    double outputPosition;
+    if(b_inverted) outputPosition = movementStartPosition + (std::cos((double)counter / 1000.0) - 1.0) * 100.0;
+    else outputPosition = movementStartPosition - (std::cos((double)counter / 1000.0) - 1.0) * 100.0;
+    if(counter == 0) Logger::warn("movementstart {}  output {}", movementStartPosition, outputPosition);
     positionCommand = outputPosition;
-    positions.addPoint(glm::vec2(counter, positionCommand.getSignedLong()));
+    positions.addPoint(glm::vec2(counter, positionCommand.getDouble()));
     counter++;
 }
 
@@ -310,7 +312,7 @@ void Lexium32::prepareOutputs(){
 
     DCOMopmode = modeCommand;
 
-    PPp_target = positionCommand.getSignedLong();
+    PPp_target = (int32_t)(positionCommand.getDouble() * 131072.0L);
     PVv_target = velocityCommand.getSignedLong();
     PTtq_target = torqueCommand.getSignedShort();
 

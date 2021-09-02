@@ -231,7 +231,8 @@ bool EtherCatFieldbus::configureSlaves() {
 
     for (int i = 1; i <= ec_slavecount; i++) {
         //set hook callback for configuring the PDOs of each slave
-        ec_slave[i].PO2SOconfigx = [](ecx_contextt* context, uint16_t slaveIndex) -> int {
+        //we don't use the PO2SOconfigx hook since it isn't supported by ec_reconfig_slave()
+        ec_slave[i].PO2SOconfig = [](uint16_t slaveIndex) -> int {
             for (auto slave : slaves) {
                 if (slave->getSlaveIndex() == slaveIndex) {
                     sprintf(configurationStatus, "Configuring Slave #%i '%s'", slave->getSlaveIndex(), slave->getName());
@@ -340,8 +341,8 @@ void EtherCatFieldbus::startCyclicExchange() {
             //adjust the copy of the reference clock in case no frame was received
             if (workingCounter != expectedWorkingCounter) ec_DCtime += processInterval_nanoseconds;
 
-            //if the returned frame has the expected working counter, interpret the data that was received for all slaves
-            if(workingCounter == expectedWorkingCounter) for (auto slave : slaves) slave->readInputs();
+            //interpret the data that was received for all slaves
+            for (auto slave : slaves) slave->readInputs();
             //process the data to generate output values, taking into account if new data wasn't received
             for (auto slave : slaves) slave->process(workingCounter == expectedWorkingCounter);
             //prepare the output data to be sent
@@ -405,18 +406,7 @@ void EtherCatFieldbus::startCyclicExchange() {
 
             metrics.cycleCounter++;
 
-            //read the state of all slaves
-            if (metrics.cycleCounter % slaveStateCheckCycleCount == 0) {
-                std::chrono::time_point start = std::chrono::high_resolution_clock::now();
-                for (auto slave : slaves) slave->saveCurrentState();
-                ec_readstate();
-                for (auto slave : slaves) slave->compareNewState();
-                std::chrono::duration delay = std::chrono::high_resolution_clock::now() - start;
-                long long timeNanos = std::chrono::duration_cast<std::chrono::nanoseconds>(delay).count();
-                Logger::warn("Statecheck Time {}", timeNanos);
-            }
-
-            //======= HANDLE OPERATIONAL STATE TRANSITION =======
+            //======= HANDLE STATE TRANSITIONS =======
 
             if (!b_clockStable && abs(metrics.averageDcTimeError_milliseconds) < clockStableThreshold_milliseconds) {
                 b_clockStable = true;
@@ -442,6 +432,12 @@ void EtherCatFieldbus::startCyclicExchange() {
                     }
                     });
                 safeOpStarter.detach();
+            }
+            else if (metrics.cycleCounter % slaveStateCheckCycleCount == 0) {
+                //read the state of all slaves
+                for (auto slave : slaves) slave->saveCurrentState();
+                ec_readstate();
+                for (auto slave : slaves) slave->compareNewState();
             }
 
             //===== EtherCat Runtime End =====
