@@ -6,7 +6,7 @@
 
 namespace NodeEditor = ax::NodeEditor;
 
-void ioNode::gui() {
+void ioNode::nodeGui() {
 
     NodeEditor::BeginNode(getUniqueID());
 

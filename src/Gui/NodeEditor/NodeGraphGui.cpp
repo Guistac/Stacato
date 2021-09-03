@@ -163,7 +163,7 @@ void nodeEditor() {
 void drawNodes() {
     NodeGraph& nodeGraph = Environnement::nodeGraph;
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2, ImGui::GetTextLineHeight() * 0.2));
-    for (auto node : nodeGraph.getIoNodes()) node->gui();
+    for (auto node : nodeGraph.getIoNodes()) node->nodeGui();
     ImGui::PopStyleVar(); //reset item spacing
 }
 

@@ -30,7 +30,7 @@ public:
 
 	NodeType getType() { return type; }
 
-	virtual void gui();
+	virtual void nodeGui();
 
 private:
 
