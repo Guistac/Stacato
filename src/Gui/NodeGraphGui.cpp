@@ -165,6 +165,64 @@ void drawNodes(NodeGraph& nodeGraph) {
 
     for (ioNode* node : nodeGraph.getNodes()) {
 
+
+        NodeEditor::BeginNode(node->getUniqueID());
+
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+        ImGui::BeginGroup();
+        for (ioData* pin : node->getNodeInputData()) {
+            NodeEditor::BeginPin(pin->getUniqueID(), NodeEditor::PinKind::Input);
+            NodeEditor::PinPivotAlignment(ImVec2(0, 0.5));
+            ImGui::Dummy(glm::vec2(ImGui::GetTextLineHeight() / 2.0, ImGui::GetTextLineHeight()));
+            glm::vec2 min = ImGui::GetItemRectMin();
+            glm::vec2 max = min + glm::vec2(ImGui::GetTextLineHeight());
+            DrawIcon(drawList, min, max, 4, true, ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.5f, 0.5f, 0.5f, 1.0f));
+            ImGui::SameLine();
+            ImGui::Text(pin->getName());
+            NodeEditor::EndPin();
+        }
+        ImGui::EndGroup();
+
+        ImGui::SameLine();
+        ImGui::Dummy(glm::vec2(20, 0));
+        ImGui::SameLine();
+
+        float widestOutputPinText = 0.0;
+        for (ioData* pin : node->getNodeOutputData()) {
+            float pinTextWidth = ImGui::CalcTextSize(pin->getName()).x;
+            if (pinTextWidth > widestOutputPinText) widestOutputPinText = pinTextWidth;
+        }
+
+        ImGui::BeginGroup();
+        for (ioData* pin : node->getNodeOutputData()) {
+            
+            float paddingWidth = widestOutputPinText - ImGui::CalcTextSize(pin->getName()).x;
+            ImGui::Dummy(glm::vec2(paddingWidth, 0));
+            ImGui::SameLine();
+
+            NodeEditor::BeginPin(pin->getUniqueID(), NodeEditor::PinKind::Output);
+            NodeEditor::PinPivotAlignment(ImVec2(1.0, 0.5));
+
+            ImGui::Text(pin->getName());
+            ImGui::SameLine();
+            ImGui::Dummy(glm::vec2(ImGui::GetTextLineHeight() / 2.0, ImGui::GetTextLineHeight()));
+            glm::vec2 min = ImGui::GetItemRectMin();
+            min -= glm::vec2(ImGui::GetTextLineHeight() / 2.0, 0.0);
+            glm::vec2 max = min + glm::vec2(ImGui::GetTextLineHeight());
+            DrawIcon(drawList, min, max, 5, true, ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.5f, 0.5f, 0.5f, 1.0f));
+            NodeEditor::EndPin();
+        }
+        ImGui::EndGroup();
+
+
+        NodeEditor::EndNode();
+
+
+
+
+#ifdef OLD_NODE_STYLE
+
         NodeEditor::BeginNode(node->getUniqueID());
 
         float pinSpacing = 20.0;
@@ -329,6 +387,8 @@ void drawNodes(NodeGraph& nodeGraph) {
         }
         NodeEditor::EndGroupHint();
         */
+
+#endif
     }
 }
 
