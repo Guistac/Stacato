@@ -42,6 +42,7 @@ public:
 	//nodegraph infos
 	int getUniqueID() { return uniqueID; }
 	bool isConnected() { return !ioLinks.empty(); }
+	ioNode* getNode() { return parentNode; }
 
 	int getByteCount() {
 		switch (type) {
@@ -73,18 +74,20 @@ public:
 
 	bool isSameTypeAs(ioData& other) { return other.type == type; }
 
+
+
 	//assigning data
-	void operator= (bool data)		{ boolValue = data; }
-	void operator= (uint8_t data)	{ unsignedByte = data; }
-	void operator= (int8_t data)	{ signedByte = data; }
-	void operator= (uint16_t data)	{ unsignedShort = data; }
-	void operator= (int16_t data)	{ signedShort = data; }
-	void operator= (uint32_t data)	{ unsignedLong = data; }
-	void operator= (int32_t data)	{ signedLong = data; }
-	void operator= (uint64_t data)	{ unsignedLongLong = data; }
-	void operator= (int64_t data)	{ signedLongLong = data; }
-	void operator= (float data)		{ floatValue = data; }
-	void operator= (double data)	{ doubleValue = data; }
+	void set(bool data)		{ boolValue = data; }
+	void set(uint8_t data)	{ unsignedByte = data; }
+	void set(int8_t data)	{ signedByte = data; }
+	void set(uint16_t data)	{ unsignedShort = data; }
+	void set(int16_t data)	{ signedShort = data; }
+	void set(uint32_t data)	{ unsignedLong = data; }
+	void set(int32_t data)	{ signedLong = data; }
+	void set(uint64_t data)	{ unsignedLongLong = data; }
+	void set(int64_t data)	{ signedLongLong = data; }
+	void set(float data)	{ floatValue = data; }
+	void set(double data)	{ doubleValue = data; }
 
 	//reading data
 	bool& getBool()					{ return boolValue; }
@@ -117,7 +120,7 @@ private:
 	friend class ioNode;
 	friend class ioLink;
 	ioNode* parentNode = nullptr;
-	std::vector<ioLink*> ioLinks;
+	std::vector<std::shared_ptr<ioLink>> ioLinks;
 	int uniqueID = -1;
 
 	DataType type;

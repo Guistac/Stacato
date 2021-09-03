@@ -37,3 +37,4 @@
 [submodule "dependencies/imnodes"]
 	path = dependencies/imnodes
 	url = https://github.com/Nelarius/imnodes.git
+	ignore = dirty

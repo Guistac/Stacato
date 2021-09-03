@@ -3,22 +3,22 @@
 #include "Lexium32.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 
-Lexium32::Lexium32() {
+void Lexium32::assignIoData() {
 
-    addIoData(&positionCommand);
-    addIoData(&digitalOut0);
-    addIoData(&digitalOut1);
-    addIoData(&digitalOut2);
+    addIoData(positionCommand);
+    addIoData(digitalOut0);
+    addIoData(digitalOut1);
+    addIoData(digitalOut2);
     
-    addIoData(&actualPosition);
-    addIoData(&actualVelocity);
-    addIoData(&actualTorque);
-    addIoData(&digitalIn0);
-    addIoData(&digitalIn1);
-    addIoData(&digitalIn2);
-    addIoData(&digitalIn3);
-    addIoData(&digitalIn4);
-    addIoData(&digitalIn5);
+    addIoData(actualPosition);
+    addIoData(actualVelocity);
+    addIoData(actualTorque);
+    addIoData(digitalIn0);
+    addIoData(digitalIn1);
+    addIoData(digitalIn2);
+    addIoData(digitalIn3);
+    addIoData(digitalIn4);
+    addIoData(digitalIn5);
 
     rxPdoAssignement.addNewModule(0x1603);
     rxPdoAssignement.addEntry(0x6040, 0x0, 2, "DCOMcontrol", &DCOMcontrol);
@@ -212,15 +212,15 @@ void Lexium32::readInputs() {
 
     //assign public input data
     //actualPosition = _p_act;
-    actualPosition = (double)_p_act / 131072.0;
-    actualVelocity = _v_act;
-    actualTorque = _tq_act;
-    digitalIn0 = (_IO_act & 0x1) != 0x0;
-    digitalIn1 = (_IO_act & 0x2) != 0x0;
-    digitalIn2 = (_IO_act & 0x4) != 0x0;
-    digitalIn3 = (_IO_act & 0x8) != 0x0;
-    digitalIn4 = (_IO_act & 0x10) != 0x0;
-    digitalIn5 = (_IO_act & 0x20) != 0x0;
+    actualPosition->set((double)_p_act / 131072.0);
+    actualVelocity->set(_v_act);
+    actualTorque->set(_tq_act);
+    digitalIn0->set((_IO_act & 0x1) != 0x0);
+    digitalIn1->set((_IO_act & 0x2) != 0x0);
+    digitalIn2->set((_IO_act & 0x4) != 0x0);
+    digitalIn3->set((_IO_act & 0x8) != 0x0);
+    digitalIn4->set((_IO_act & 0x10) != 0x0);
+    digitalIn5->set((_IO_act & 0x20) != 0x0);
 }
 
 void Lexium32::process(bool inputDataValid) {
@@ -264,7 +264,7 @@ void Lexium32::process(bool inputDataValid) {
         b_switchedOn = true;
         
         //start debug movement
-        movementStartPosition = actualPosition.getDouble();
+        movementStartPosition = actualPosition->getDouble();
         counter = 0;
         positions.clear();
     }
@@ -280,8 +280,8 @@ void Lexium32::process(bool inputDataValid) {
     if(b_inverted) outputPosition = movementStartPosition + (std::cos((double)counter / 1000.0) - 1.0) * 100.0;
     else outputPosition = movementStartPosition - (std::cos((double)counter / 1000.0) - 1.0) * 100.0;
     if(counter == 0) Logger::warn("movementstart {}  output {}", movementStartPosition, outputPosition);
-    positionCommand = outputPosition;
-    positions.addPoint(glm::vec2(counter, positionCommand.getDouble()));
+    positionCommand->set(outputPosition);
+    positions.addPoint(glm::vec2(counter, positionCommand->getDouble()));
     counter++;
 }
 
@@ -312,14 +312,14 @@ void Lexium32::prepareOutputs(){
 
     DCOMopmode = modeCommand;
 
-    PPp_target = (int32_t)(positionCommand.getDouble() * 131072.0L);
-    PVv_target = velocityCommand.getSignedLong();
-    PTtq_target = torqueCommand.getSignedShort();
+    PPp_target = (int32_t)(positionCommand->getDouble() * 131072.0L);
+    PVv_target = velocityCommand->getSignedLong();
+    PTtq_target = torqueCommand->getSignedShort();
 
     IO_DQ_set = 0;
-    if (digitalOut0.getBool()) IO_DQ_set |= 0x1;
-    if (digitalOut1.getBool()) IO_DQ_set |= 0x2;
-    if (digitalOut2.getBool()) IO_DQ_set |= 0x4;
+    if (digitalOut0->getBool()) IO_DQ_set |= 0x1;
+    if (digitalOut1->getBool()) IO_DQ_set |= 0x2;
+    if (digitalOut2->getBool()) IO_DQ_set |= 0x4;
 
     //format and copy output data to iomap
     uint8_t* outByte = identity->outputs;

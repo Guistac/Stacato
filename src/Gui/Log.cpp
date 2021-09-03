@@ -2,8 +2,6 @@
 
 #include "Gui.h"
 
-#include <imgui.h>
-
 void log() {
 
 	static int level = 2;

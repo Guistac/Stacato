@@ -11,20 +11,20 @@ class ioLink;
 class NodeGraph{
 public:
 
-	void addIoNode(ioNode*);
-	void removeIoNode(ioNode*);
+	void addIoNode(std::shared_ptr<ioNode>);
+	void removeIoNode(std::shared_ptr<ioNode>);
 
-	bool isConnectionValid(ioData*, ioData*);
-	ioLink* connect(ioData*, ioData*);
-	void disconnect(ioLink*);
+	bool isConnectionValid(std::shared_ptr<ioData>, std::shared_ptr<ioData>);
+	std::shared_ptr<ioLink> connect(std::shared_ptr<ioData>, std::shared_ptr<ioData>);
+	void disconnect(std::shared_ptr<ioLink>);
 
-	ioNode* getIoNode(int);
-	ioData* getIoData(int);
-	ioLink* getIoLink(int);
+	std::shared_ptr<ioNode> getIoNode(int);
+	std::shared_ptr<ioData> getIoData(int);
+	std::shared_ptr<ioLink> getIoLink(int);
 
-	std::vector<ioNode*>& getNodes() { return ioNodeList; }
-	std::vector<ioData*>& getPins() { return ioDataList; }
-	std::vector<ioLink*>& getLinks() { return ioLinkList; }
+	std::vector<std::shared_ptr<ioNode>>& getIoNodes() { return ioNodeList; }
+	std::vector<std::shared_ptr<ioData>>& getIoData() { return ioDataList; }
+	std::vector<std::shared_ptr<ioLink>>& getIoLinks() { return ioLinkList; }
 
 private:
 
@@ -32,9 +32,9 @@ private:
 	friend class ioData;
 	friend class ioLink;
 
-	std::vector<ioNode*> ioNodeList;
-	std::vector<ioData*> ioDataList;
-	std::vector<ioLink*> ioLinkList;
+	std::vector<std::shared_ptr<ioNode>> ioNodeList;
+	std::vector<std::shared_ptr<ioData>> ioDataList;
+	std::vector<std::shared_ptr<ioLink>> ioLinkList;
 
 	int uniqueID = 1; //counter to add new nodes, pins and links
 };

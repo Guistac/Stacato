@@ -40,7 +40,6 @@ public:
 
     //slave devices
     static std::vector<std::shared_ptr<EtherCatSlave>> slaves;
-    static std::vector<std::shared_ptr<EtherCatSlave>> slaves_unassigned;
 
     //process data
     static uint8_t ioMap[4096];

@@ -2,17 +2,13 @@
 
 #include "Gui/Gui.h"
 
-#include <imgui.h>
-#include <imgui_internal.h>
-
-#include "Gui/GuiWindow.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 
 void etherCatParameters(bool resetNicLists) {
 
 	if (ImGui::BeginChild("EtherCatParameters")) {
 
-		ImGui::PushFont(GuiWindow::robotoBold20);
+		ImGui::PushFont(Fonts::robotoBold20);
 		ImGui::Text("Network Hardware");
 		ImGui::PopFont();
 
@@ -91,7 +87,7 @@ void etherCatParameters(bool resetNicLists) {
 
 		ImGui::Separator();
 
-		ImGui::PushFont(GuiWindow::robotoBold20);
+		ImGui::PushFont(Fonts::robotoBold20);
 		ImGui::Text("EtherCAT Timing");
 		ImGui::PopFont();
 

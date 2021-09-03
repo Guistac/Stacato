@@ -3,36 +3,14 @@
 #include "GuiWindow.h"
 
 #include <glad/glad.h>
-
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <backends/imgui_impl_opengl3.cpp>
 #include <backends/imgui_impl_glfw.cpp>
 
-#include <GLFW/glfw3.h>
-
-#include <imgui.h>
-#include <implot.h>
-#include <imgui_node_editor.h>
-
-#include <imnodes.h>
-
-#include "Gui.h"
+#include "Gui/Gui.h"
 
 GLFWwindow* GuiWindow::window;
-
-ImFont* GuiWindow::robotoBold15;
-ImFont* GuiWindow::robotoLight15;
-ImFont* GuiWindow::robotoRegular15;
-
-ImFont* GuiWindow::robotoBold20;
-ImFont* GuiWindow::robotoLight20;
-ImFont* GuiWindow::robotoRegular20;
-
-ImFont* GuiWindow::robotoBold42;
-ImFont* GuiWindow::robotoLight42;
-ImFont* GuiWindow::robotoRegular42;
-
-ax::NodeEditor::EditorContext* GuiWindow::nodeEditorContext;
+bool GuiWindow::b_shouldClose = false;
 
 void GuiWindow::open(int w, int h) {
 	glfwInit();
@@ -51,11 +29,13 @@ void GuiWindow::open(int w, int h) {
 }
 
 void GuiWindow::refresh() {
-	while (!glfwWindowShouldClose(window)) {
+	while (!b_shouldClose) {
+		bool windowCloseRequested = glfwWindowShouldClose(window);
+		if (windowCloseRequested) glfwSetWindowShouldClose(window, GLFW_FALSE);
 		glfwMakeContextCurrent(window);
 		glfwPollEvents();
         onRenderBegin();
-		onRender(false);
+		onRender(windowCloseRequested);
 		onRenderEnd();
 		glfwSwapBuffers(window);
 	}
@@ -72,8 +52,8 @@ void GuiWindow::onInit() {
 	
 	ImGui::CreateContext();
 	ImPlot::CreateContext();
-	nodeEditorContext = ax::NodeEditor::CreateEditor();
-	ImNodes::CreateContext();
+	ImGuiNodeEditor::CreateContext();
+	//ImNodes::CreateContext();
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -94,16 +74,8 @@ void GuiWindow::onInit() {
 #endif
     
     float scale = xScale * scaleTuning;
-    
-	robotoRegular15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Regular.ttf", 15.0f * scale);
-	robotoBold15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Bold.ttf", 15.0f * scale);
-	robotoLight15 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Light.ttf", 15.0f * scale);
-	robotoRegular20 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Regular.ttf", 20.0f * scale);
-	robotoBold20 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Bold.ttf", 20.0f * scale);
-	robotoLight20 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Light.ttf", 20.0f * scale);
-	robotoRegular42 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Regular.ttf", 42.0f * scale);
-	robotoBold42 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Bold.ttf", 42.0f * scale);
-	robotoLight42 = io.Fonts->AddFontFromFileTTF("fonts/RobotoMono-Light.ttf", 42.0f * scale);
+
+	Fonts::load(scale);
 
 	ImGui::GetStyle().ScaleAllSizes(scale);
      
@@ -117,8 +89,8 @@ void GuiWindow::onInit() {
 void GuiWindow::onTerminate() {
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
-	ImNodes::DestroyContext();
-	ax::NodeEditor::DestroyEditor(nodeEditorContext);
+	ImGuiNodeEditor::DestroyContext();
+	//ImNodes::DestroyContext();
 	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
 }
@@ -140,19 +112,23 @@ void GuiWindow::onRenderEnd() {
 	}
 }
 
-void GuiWindow::onRender(bool windowResized) {
-	gui();
+void GuiWindow::onRender(bool windowCloseRequested) {
+	gui(windowCloseRequested);
 }
 
 void GuiWindow::onResize(GLFWwindow* window, int w, int h) {
 	glfwMakeContextCurrent(window);
 	glfwPollEvents();
 	onRenderBegin();
-	onRender(true);
+	onRender(false);
 	onRenderEnd();
 	glfwSwapBuffers(window);
 }
 
 void GuiWindow::onClose(GLFWwindow* window) {
 
+}
+
+void GuiWindow::setShouldClose() {
+	b_shouldClose = true;
 }

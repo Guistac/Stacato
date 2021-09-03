@@ -5,7 +5,7 @@
 #include "NodeGraph.h"
 #include "ioData.h"
 
-void ioNode::addIoData(ioData* ioData) {
+void ioNode::addIoData(std::shared_ptr<ioData> ioData) {
 	ioData->parentNode = this;
 	if (ioData->isInput()) nodeInputData.push_back(ioData);
 	else if (ioData->isOutput()) nodeOutputData.push_back(ioData);
@@ -17,7 +17,7 @@ void ioNode::addIoData(ioData* ioData) {
 	}
 }
 
-void ioNode::removeIoData(ioData* removedIoData) {
+void ioNode::removeIoData(std::shared_ptr<ioData> removedIoData) {
 	if (removedIoData->isInput()) {
 		for (int i = (int)nodeInputData.size() - 1; i >= 0; i--) {
 			if (nodeInputData[i] == removedIoData) {
@@ -36,7 +36,7 @@ void ioNode::removeIoData(ioData* removedIoData) {
 	}
 
 	if (parentNodeGraph) {
-		std::vector<ioData*>& ioDataList = parentNodeGraph->ioDataList;
+		std::vector<std::shared_ptr<ioData>>& ioDataList = parentNodeGraph->ioDataList;
 		for (int i = (int)ioDataList.size() - 1; i >= 0; i--) {
 			if (ioDataList[i] == removedIoData) {
 				ioDataList.erase(ioDataList.begin() + i);
@@ -44,5 +44,4 @@ void ioNode::removeIoData(ioData* removedIoData) {
 		}
 	}
 
-	delete removedIoData;
 }

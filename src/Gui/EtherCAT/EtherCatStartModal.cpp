@@ -4,9 +4,6 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
-#include <imgui.h>
-#include <imgui_internal.h>
-
 void etherCatStartModal() {
 	ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5, 0.5));
 	ImGui::SetNextWindowSize(ImVec2(ImGui::GetTextLineHeight() * 30.0, 0), ImGuiCond_Always);

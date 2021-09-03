@@ -12,7 +12,6 @@ bool                                                EtherCatFieldbus::b_redundan
 
 
 std::vector<std::shared_ptr<EtherCatSlave>>         EtherCatFieldbus::slaves;
-std::vector<std::shared_ptr<EtherCatSlave>>         EtherCatFieldbus::slaves_unassigned;
 uint8_t                                             EtherCatFieldbus::ioMap[4096];
 int                                                 EtherCatFieldbus::ioMapSize = 0;
 int                                                 EtherCatFieldbus::expectedWorkingCounter;
@@ -139,10 +138,8 @@ bool EtherCatFieldbus::scanNetwork() {
     sprintf(configurationStatus, "Scanning Network");
 
     //when rescanning the network, all previous slaves are now considered to be offline before being detected again
-    for (auto slave_environnement : Environnement::etherCatSlaves) slave_environnement->b_online = false;
-    //free memory of all previous unassigned slaves
-    slaves_unassigned.clear();
-    //don't free regular slaves since they might be in the environnement, just clear the list
+    Environnement::setAllEtherCatSlavesOffline();
+    //don't delete regular slaves since they might be in the environnement, just clear the list
     slaves.clear();
 
     //setup all slaves, get slave count and info in ec_slave, setup mailboxes, request state PRE-OP for all slaves
@@ -158,29 +155,33 @@ bool EtherCatFieldbus::scanNetwork() {
             //we need the station alias to be able to compare the slave to the environnement slaves
             slave->stationAlias = slv.aliasadr;
 
+            bool environnementHasSlave = Environnement::hasEtherCatSlave(slave);
+
             //compare the slave with existing slaves in the environnement
-            std::shared_ptr<EtherCatSlave> environnementSlave = nullptr;
-            if (Environnement::hasSlave(slave, environnementSlave)) {
+            if (environnementHasSlave) {
+                std::shared_ptr<EtherCatSlave>matchingSlave = Environnement::getMatchingEtherCatSlave(slave);
                 //if the slave is already in the environnement
                 //transfer the identity object so the environnement slave has the newly acquired one
                 //(the old one is obsolete since we rescanned the network)
-                environnementSlave->identity = &slv;
+                matchingSlave->identity = &slv;
                 //also reassign index, since it might have changed
-                environnementSlave->slaveIndex = i;
+                matchingSlave->slaveIndex = i;
+                //set slave to online
+                matchingSlave->b_online = true;
                 //delete the slave we just created since its only use was to match the environnement slave and transfer its identity
                 //reassign so we can log the slave and add it to the slave list
-                slave = environnementSlave;
+                slave = matchingSlave;
             }
             else {
                 //if the slave is not in the environnement
                 //add it to the available slave list
                 slave->identity = &slv;
                 slave->slaveIndex = i;
+                slave->b_online = true;
                 char name[128];
                 sprintf(name, "#%i '%s' @%i", slave->getSlaveIndex(), slave->getDeviceName(), slave->getStationAlias());
                 slave->setName(name);
                 //add the slave to the list of unassigned slaves (not in the environnement)
-                slaves_unassigned.push_back(slave);
             }
 
             //add the slave to the list of slaves regardless of environnement presence
@@ -192,7 +193,7 @@ bool EtherCatFieldbus::scanNetwork() {
                 slave->getAssignedAddress(),
                 slave->getStationAlias(),
                 slave->isDeviceKnown() ? "Yes" : "No",
-                environnementSlave != nullptr ? "Yes" : "No");
+                environnementHasSlave ? "Yes" : "No");
         }
         return true;
     }

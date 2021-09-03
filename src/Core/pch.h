@@ -10,5 +10,6 @@
 #include <bitset>
 
 #include "Utilities/Logger.h"
+#include "Utilities/Timing.h"
 
-#define IMGUI_USER_CONFIG "Gui/imguiCustomConfiguration.h"
+#define IMGUI_USER_CONFIG "Gui/Framework/imguiCustomConfiguration.h"

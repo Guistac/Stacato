@@ -47,11 +47,11 @@ void Lexium32::deviceSpecificGui() {
 
         ImGui::Separator();
 
-        ImGui::Text("Position: %i", actualPosition.getSignedLong());
-        ImGui::Text("Velocity: %i", actualVelocity.getSignedLong());
-        ImGui::Text("Torque: %i", actualTorque.getSignedShort());
+        ImGui::Text("Position: %i", actualPosition->getSignedLong());
+        ImGui::Text("Velocity: %i", actualVelocity->getSignedLong());
+        ImGui::Text("Torque: %i", actualTorque->getSignedShort());
 
-        ImGui::Text("Digital Inputs: %i %i %i %i %i %i", digitalIn0.getBool(), digitalIn1.getBool(), digitalIn2.getBool(), digitalIn3.getBool(), digitalIn4.getBool(), digitalIn5.getBool());
+        ImGui::Text("Digital Inputs: %i %i %i %i %i %i", digitalIn0->getBool(), digitalIn1->getBool(), digitalIn2->getBool(), digitalIn3->getBool(), digitalIn4->getBool(), digitalIn5->getBool());
 
         ImGui::Separator();
 
@@ -78,15 +78,15 @@ void Lexium32::deviceSpecificGui() {
 
         ImGui::Checkbox("Invert", &b_inverted);
 
-        float velocityFraction = (((double)actualVelocity.getSignedLong() / 7000.0) + 1.0) / 2.0;
+        float velocityFraction = (((double)actualVelocity->getSignedLong() / 7000.0) + 1.0) / 2.0;
         ImGui::ProgressBar(velocityFraction, ImVec2(0, 0), "velocity");
 
 
-        ImGui::Checkbox("DQ0", &digitalOut0.getBool());
+        ImGui::Checkbox("DQ0", &digitalOut0->getBool());
         ImGui::SameLine();
-        ImGui::Checkbox("DQ1", &digitalOut1.getBool());
+        ImGui::Checkbox("DQ1", &digitalOut1->getBool());
         ImGui::SameLine();
-        ImGui::Checkbox("DQ2", &digitalOut2.getBool());
+        ImGui::Checkbox("DQ2", &digitalOut2->getBool());
 
         if (ImGui::Button("<<--")) {}
         ImGui::SameLine();

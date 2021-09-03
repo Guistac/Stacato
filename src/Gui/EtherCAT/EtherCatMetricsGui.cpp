@@ -2,10 +2,6 @@
 
 #include "Gui/Gui.h"
 
-#include <imgui.h>
-#include <imgui_internal.h>
-#include <implot.h>
-
 #include "Fieldbus/EtherCatFieldbus.h"
 
 void etherCatMetrics() {
