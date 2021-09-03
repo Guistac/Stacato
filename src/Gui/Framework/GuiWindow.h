@@ -3,12 +3,6 @@
 struct GLFWwindow;
 struct ImFont;
 
-namespace ax {
-	namespace NodeEditor {
-		struct EditorContext {};
-	}
-}
-
 class GuiWindow {
 public:
 
@@ -16,19 +10,7 @@ public:
 	static void refresh();
 	static void close();
 
-	static ImFont* robotoRegular15;
-	static ImFont* robotoBold15;
-	static ImFont* robotoLight15;
-
-	static ImFont* robotoRegular20;
-	static ImFont* robotoBold20;
-	static ImFont* robotoLight20;
-
-	static ImFont* robotoRegular42;
-	static ImFont* robotoBold42;
-	static ImFont* robotoLight42;
-
-	static ax::NodeEditor::EditorContext* nodeEditorContext;
+	static void setShouldClose();
 
 private:
 
@@ -42,5 +24,7 @@ private:
 	static void onClose(GLFWwindow*);
 
 	static GLFWwindow* window;
+
+	static bool b_shouldClose;
 
 };

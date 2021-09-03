@@ -2,10 +2,6 @@
 
 #include "Gui/Gui.h"
 
-#include <imgui.h>
-#include <imgui_internal.h>
-#include "Gui/GuiWindow.h"
-
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatSlave.h"
 
@@ -48,7 +44,7 @@ void etherCatSlaves() {
 		if (slave->getSlaveIndex() == selectedSlaveIndex) { selectedSlave = slave; break; }
 
 	ImGui::BeginGroup();
-	ImGui::PushFont(GuiWindow::robotoBold20);
+	ImGui::PushFont(Fonts::robotoBold20);
 	if (selectedSlave) ImGui::Text("%s (Node #%i, Address: %i) ", selectedSlave->getDeviceName(), selectedSlave->getSlaveIndex(), selectedSlave->getStationAlias());
 	else ImGui::Text("No Device Selected");
 	ImGui::PopFont();
@@ -209,14 +205,14 @@ void EtherCatSlave::genericInfoGui() {
 }
 
 void EtherCatSlave::ioDataGui() {
-    static auto displayDataTable = [](std::vector<ioData*>& data, const char* tableName) {
+    static auto displayDataTable = [](std::vector<std::shared_ptr<ioData>>& data, const char* tableName) {
         ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
         if (ImGui::BeginTable(tableName, 3, tableFlags)) {
             ImGui::TableSetupColumn("Name");
             ImGui::TableSetupColumn("Type");
             ImGui::TableSetupColumn("Value");
             ImGui::TableHeadersRow();
-            for (ioData* data : data) {
+            for (auto data : data) {
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("%s", data->getName());
@@ -241,7 +237,7 @@ void EtherCatSlave::ioDataGui() {
         }
     };
 
-    ImGui::PushFont(GuiWindow::robotoBold20);
+    ImGui::PushFont(Fonts::robotoBold20);
     ImGui::Text("Public Data");
     ImGui::PopFont();
     ImGui::Text("Input Data:");
@@ -298,7 +294,7 @@ void EtherCatSlave::ioDataGui() {
         }
     };
 
-    ImGui::PushFont(GuiWindow::robotoBold20);
+    ImGui::PushFont(Fonts::robotoBold20);
     ImGui::Text("Process Data Objects");
     ImGui::PopFont();
 

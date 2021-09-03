@@ -3,16 +3,16 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
-EasyCAT::EasyCAT() {
-	addIoData(&byteOut);
-	addIoData(&shortOut);
-	addIoData(&longOut);
-	addIoData(&longLongOut);
+void EasyCAT::assignIoData() {
+	addIoData(byteOut);
+	addIoData(shortOut);
+	addIoData(longOut);
+	addIoData(longLongOut);
 
-	addIoData(&byteIn);
-	addIoData(&shortIn);
-	addIoData(&longIn);
-	addIoData(&longLongIn);
+	addIoData(byteIn);
+	addIoData(shortIn);
+	addIoData(longIn);
+	addIoData(longLongIn);
 
 	txPdoAssignement.addNewModule(0x0);
 	txPdoAssignement.addEntry(0x0, 0x0, 1, "byteIn", &ui8_byteIn);
@@ -45,35 +45,35 @@ void EasyCAT::readInputs() {
 		(uint64_t)inputData[5] << 40 |
 		(uint64_t)inputData[6] << 48 |
 		(uint64_t)inputData[7] << 56;
-	longLongIn = ui64_longLongIn;
+	longLongIn->set(ui64_longLongIn);
 
 	ui32_longIn = inputData[8] |
 		inputData[9] << 8 |
 		inputData[10] << 16 |
 		inputData[11] << 24;
-	longIn = ui32_longIn;
+	longIn->set(ui32_longIn);
 
 	ui16_shortIn = inputData[12] |
 		inputData[13] << 8;
-	shortIn = ui16_shortIn;
+	shortIn->set(ui16_shortIn);
 
 	ui8_byteIn = inputData[14];
-	byteIn = ui8_byteIn;
+	byteIn->set(ui8_byteIn);
 }
 
 void EasyCAT::process(bool b_processDataValid) {
 	static int counter = 0;
 	counter++;
-	byteOut = counter * 8;
-	shortOut = counter* 32;
-	longOut = counter * 128;
-	longLongOut = counter * 512;
+	byteOut->set((uint8_t)counter * 8);
+	shortOut->set((uint16_t)counter * 32);
+	longOut->set((uint32_t)counter * 128);
+	longLongOut->set((uint64_t)counter * 512);
 }
 
 void EasyCAT::prepareOutputs() {
 	uint8_t* outputData = identity->outputs;
 
-	ui64_longLongOut = longLongOut.getUnsignedLongLong();
+	ui64_longLongOut = longLongOut->getUnsignedLongLong();
 	outputData[0] =		(ui64_longLongOut >> 0) & 0xFF;
 	outputData[1] =		(ui64_longLongOut >> 8) & 0xFF;
 	outputData[2] =		(ui64_longLongOut >> 16) & 0xFF;
@@ -83,16 +83,16 @@ void EasyCAT::prepareOutputs() {
 	outputData[6] =		(ui64_longLongOut >> 48) & 0xFF;
 	outputData[7] =		(ui64_longLongOut >> 56) & 0xFF;
 
-	ui32_longOut = longOut.getUnsignedLong();
+	ui32_longOut = longOut->getUnsignedLong();
 	outputData[8] =		(ui32_longOut >> 0) & 0xFF;
 	outputData[9] =		(ui32_longOut >> 8) & 0xFF;
 	outputData[10] =	(ui32_longOut >> 16) & 0xFF;
 	outputData[11] =	(ui32_longOut >> 24) & 0xFF;
 
-	ui16_shortOut = shortOut.getUnsignedShort();
+	ui16_shortOut = shortOut->getUnsignedShort();
 	outputData[12] =	(ui16_shortOut >> 0) & 0xFF;
 	outputData[13] =	(ui16_shortOut >> 8) & 0xFF;
 
-	ui8_byteOut = byteOut.getUnsignedByte();
+	ui8_byteOut = byteOut->getUnsignedByte();
 	outputData[14] =	ui8_byteOut;
 }

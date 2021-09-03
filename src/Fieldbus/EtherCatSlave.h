@@ -21,6 +21,9 @@
 												        return singleton.classDeviceName;		                \
 											        }											                        \
                                                     virtual const char* getDeviceName() { return classDeviceName; }     \
+                                                    className(){                                                        \
+                                                        type = NodeType::EtherCatSlave;                                 \
+                                                    }                                                                   \
                                                     virtual bool isDeviceKnown(){ return false; }                       \
                                                     virtual bool startupConfiguration(){ return true; }                 \
                                                     virtual void readInputs(){}                                         \
@@ -37,7 +40,11 @@
 												    return singleton.classDeviceName;		                        \
 											    }											                        \
                                                 virtual const char* getDeviceName() { return deviceName; }          \
-                                                className();                                                        \
+                                                className(){                                                        \
+                                                    type = NodeType::EtherCatSlave;                                 \
+                                                    assignIoData();                                                 \
+                                                }                                                                   \
+                                                void assignIoData();                                                \
                                                 virtual bool isDeviceKnown(){ return true; }                        \
                                                 virtual bool startupConfiguration();                                \
                                                 virtual void readInputs();                                          \

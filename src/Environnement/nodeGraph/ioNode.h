@@ -9,15 +9,28 @@ class ioLink;
 class ioNode{
 public:
 
+	enum NodeType {
+		EtherCatSlave,
+		Axis,
+		Processor,
+		NetworkDevice
+	};
+
 	void setName(const char* n) { strcpy(name, n); }
 	const char* getName() { return name; }
 	int getUniqueID() { return uniqueID; }
 
-	void addIoData(ioData* d);
-	void removeIoData(ioData* d);
+	void addIoData(std::shared_ptr<ioData> d);
+	void removeIoData(std::shared_ptr<ioData> d);
 
-	std::vector<ioData*>& getNodeInputData() { return nodeInputData; }
-	std::vector<ioData*>& getNodeOutputData() { return nodeOutputData; }
+	std::vector<std::shared_ptr<ioData>>& getNodeInputData() { return nodeInputData; }
+	std::vector<std::shared_ptr<ioData>>& getNodeOutputData() { return nodeOutputData; }
+
+	bool isInNodeGraph() { return b_isInNodeGraph; }
+
+	NodeType getType() { return type; }
+
+	virtual void gui();
 
 private:
 
@@ -29,8 +42,13 @@ private:
 	int uniqueID = -1;
 
 	char name[128];
-	std::vector<ioData*> nodeInputData;
-	std::vector<ioData*> nodeOutputData;
+	std::vector<std::shared_ptr<ioData>> nodeInputData;
+	std::vector<std::shared_ptr<ioData>> nodeOutputData;
 
+	bool b_isInNodeGraph = false;
+
+protected:
+
+	NodeType type;
 };
 

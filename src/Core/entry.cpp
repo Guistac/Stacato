@@ -1,10 +1,11 @@
 #include <pch.h>
 
-#include "Gui/GuiWindow.h"
+#include "Gui/Framework/GuiWindow.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 
 int main() {
 	Logger::init();
+	Timing::start();
 
 	EtherCatFieldbus::updateNetworkInterfaceCardList();
 	EtherCatFieldbus::init(EtherCatFieldbus::networkInterfaceCards.front());

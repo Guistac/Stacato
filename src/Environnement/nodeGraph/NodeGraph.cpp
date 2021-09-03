@@ -5,32 +5,27 @@
 #include "ioData.h"
 #include "ioLink.h"
 
-void NodeGraph::addIoNode(ioNode* newIoNode) {
+void NodeGraph::addIoNode(std::shared_ptr<ioNode> newIoNode) {
 	newIoNode->parentNodeGraph = this;
 	newIoNode->uniqueID = uniqueID++;
 	ioNodeList.push_back(newIoNode);
-	for (ioData* data : newIoNode->nodeInputData) {
+	for (std::shared_ptr<ioData> data : newIoNode->nodeInputData) {
 		data->uniqueID = uniqueID++;
 		ioDataList.push_back(data);
 	}
-	for (ioData* data : newIoNode->nodeOutputData) {
+	for (std::shared_ptr<ioData> data : newIoNode->nodeOutputData) {
 		data->uniqueID = uniqueID++;
 		ioDataList.push_back(data);
 	}
+	newIoNode->b_isInNodeGraph = true;
 }
 
-void NodeGraph::removeIoNode(ioNode* removedIoNode) {
-	for (ioData* data : removedIoNode->nodeInputData) {
-		for (ioLink* link : data->ioLinks) disconnect(link);
+void NodeGraph::removeIoNode(std::shared_ptr<ioNode> removedIoNode) {
+	for (auto data : removedIoNode->nodeInputData) {
+		for (std::shared_ptr<ioLink> link : data->ioLinks) disconnect(link);
 	}
-	for (ioData* data : removedIoNode->nodeOutputData) {
-		for (ioLink* link : data->ioLinks) disconnect(link);
-	}
-	for (int i = (int)removedIoNode->nodeInputData.size() - 1; i >= 0; i--) {
-		removedIoNode->removeIoData(removedIoNode->nodeInputData[i]);
-	}
-	for (int i = (int)removedIoNode->nodeOutputData.size() - 1; i >= 0; i--) {
-		removedIoNode->removeIoData(removedIoNode->nodeOutputData[i]);
+	for (auto data : removedIoNode->nodeOutputData) {
+		for (std::shared_ptr<ioLink> link : data->ioLinks) disconnect(link);
 	}
 	for (int i = (int)ioNodeList.size() - 1; i >= 0; i--) {
 		if (ioNodeList[i] == removedIoNode) {
@@ -38,17 +33,17 @@ void NodeGraph::removeIoNode(ioNode* removedIoNode) {
 			break;
 		}
 	}
-	delete removedIoNode;
+	removedIoNode->b_isInNodeGraph = false;
 }
 
 
-bool NodeGraph::isConnectionValid(ioData* data1, ioData* data2) {
+bool NodeGraph::isConnectionValid(std::shared_ptr<ioData> data1, std::shared_ptr<ioData> data2) {
 	//only allow connection between an input and an output
 	if (data1->isInput() && data2->isInput()) return false;
 	else if (data1->isOutput() && data2->isOutput()) return false;
 
 	//check if the link already exists, don't allow duplicates
-	for (ioLink* link : data1->ioLinks) {
+	for (std::shared_ptr<ioLink> link : data1->ioLinks) {
 		if (link->outputData == data2 || link->inputData == data2) return false;
 	}
 
@@ -59,9 +54,9 @@ bool NodeGraph::isConnectionValid(ioData* data1, ioData* data2) {
 	return true;
 }
 
-ioLink* NodeGraph::connect(ioData* data1, ioData* data2) {
+std::shared_ptr<ioLink> NodeGraph::connect(std::shared_ptr<ioData> data1, std::shared_ptr<ioData> data2) {
 	if (!isConnectionValid(data1, data2)) return nullptr;
-	ioLink* newIoLink = new ioLink();
+	std::shared_ptr<ioLink> newIoLink = std::make_shared<ioLink>();
 	newIoLink->uniqueID = uniqueID++;
 	newIoLink->inputData = data1->isInput() ? data1 : data2;
 	newIoLink->outputData = data2->isOutput() ? data2 : data1;
@@ -71,9 +66,9 @@ ioLink* NodeGraph::connect(ioData* data1, ioData* data2) {
 	return newIoLink;
 }
 
-void NodeGraph::disconnect(ioLink* removedIoLink) {
-	std::vector<ioLink*>& inputDataLinks = removedIoLink->inputData->ioLinks;
-	std::vector<ioLink*>& outputDataLinks = removedIoLink->outputData->ioLinks;
+void NodeGraph::disconnect(std::shared_ptr<ioLink> removedIoLink) {
+	std::vector<std::shared_ptr<ioLink>>& inputDataLinks = removedIoLink->inputData->ioLinks;
+	std::vector<std::shared_ptr<ioLink>>& outputDataLinks = removedIoLink->outputData->ioLinks;
 	for (int i = (int)inputDataLinks.size() - 1; i >= 0; i--) {
 		if (inputDataLinks[i] == removedIoLink) {
 			inputDataLinks.erase(inputDataLinks.begin() + i);
@@ -92,25 +87,24 @@ void NodeGraph::disconnect(ioLink* removedIoLink) {
 			break;
 		}
 	}
-	delete removedIoLink;
 }
 
-ioNode* NodeGraph::getIoNode(int Id) {
-	for (ioNode* node : ioNodeList) {
+std::shared_ptr<ioNode> NodeGraph::getIoNode(int Id) {
+	for (std::shared_ptr<ioNode> node : ioNodeList) {
 		if (Id == node->uniqueID) return node;
 	}
 	return nullptr;
 }
 
-ioData* NodeGraph::getIoData(int Id) {
-	for (ioData* pin : ioDataList) {
+std::shared_ptr<ioData> NodeGraph::getIoData(int Id) {
+	for (std::shared_ptr<ioData> pin : ioDataList) {
 		if (Id == pin->uniqueID) return pin;
 	}
 	return nullptr;
 }
 
-ioLink* NodeGraph::getIoLink(int Id) {
-	for (ioLink* link : ioLinkList) {
+std::shared_ptr<ioLink> NodeGraph::getIoLink(int Id) {
+	for (std::shared_ptr<ioLink> link : ioLinkList) {
 		if (Id == link->uniqueID) return link;
 	}
 	return nullptr;
