@@ -3,7 +3,7 @@
 #include <thread>
 #include <vector>
 
-#include "EtherCatMetrics.h"
+#include "Utilities/EtherCatMetrics.h"
 
 class EtherCatSlave;
 
@@ -27,6 +27,7 @@ public:
     static double processInterval_milliseconds;
     static double processDataTimeout_milliseconds;
     static double clockStableThreshold_milliseconds;
+    static int slaveStateCheckCycleCount;
 
     //metrics
     static EtherCatMetrics metrics;
@@ -46,7 +47,7 @@ public:
     static int expectedWorkingCounter;
 
     //runtime
-    static std::thread errorWatchdog;       //thread to read errors encountered by SOEM
+    static std::thread errorWatcher;       //thread to read errors encountered by SOEM
     static std::thread etherCatRuntime;     //cyclic exchange thread (needs a full cpu core to achieve precise timing)
 
     static bool b_networkOpen;              //high when one or more network interface cards are opened
@@ -64,6 +65,4 @@ private:
     static bool configureSlaves();
     static void startCyclicExchange();
 };
-
-const char* getStateString(uint16_t state);
 

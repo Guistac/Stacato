@@ -2,7 +2,9 @@
 
 #include <ethercat.h>
 
-#include <cstring>
+#include "Environnement/nodeGraph/ioNode.h"
+
+#include "Utilities/EtherCatPDO.h"
 
 //classDeviceName is a static string used to identify the device class when creating a new instance for a specific device
 //the static method is for use by the identifying method which will check all available device classes for a match
@@ -11,57 +13,113 @@
 //Device that are matched against a device class will return true for isDeviceKnown()
 //Unknown devices will not and will be of the base type EtherCatSlave
 
-#define INTERFACE_DEFINITION(className, deviceName) const char * classDeviceName = deviceName;	                        \
-											        static const char * getStaticClassDeviceName(){	                    \
+#define INTERFACE_DEFINITION(className, deviceName) private:                                                            \
+                                                    const char* classDeviceName = deviceName;                           \
+                                                    public:                                                             \
+                                                    static const char * getDeviceNameStatic(){	                        \
 												        static className singleton;				                        \
-												        return singleton.classDeviceName;		                        \
+												        return singleton.classDeviceName;		                \
 											        }											                        \
-                                                    virtual const char* getClassDeviceName() { return classDeviceName; }\
+                                                    virtual const char* getDeviceName() { return classDeviceName; }     \
+                                                    className(){                                                        \
+                                                        type = NodeType::EtherCatSlave;                                 \
+                                                    }                                                                   \
                                                     virtual bool isDeviceKnown(){ return false; }                       \
-                                                    virtual bool startupConfiguration();                                \
-                                                    virtual void process(bool b_processDataValid);                      \
-                                                    virtual void gui();                                                 \
+                                                    virtual bool startupConfiguration(){ return true; }                 \
+                                                    virtual void readInputs(){}                                         \
+                                                    virtual void process(bool b_processDataValid){}                     \
+                                                    virtual void prepareOutputs(){}                                     \
+                                                    virtual void deviceSpecificGui(){}                                  \
 
 //All Slave Device Classes Need to Implement this Macro 
-#define SLAVE_DEFINITION(className, deviceName) const char * classDeviceName = deviceName;	                        \
-											    static const char * getStaticClassDeviceName(){	                    \
+#define SLAVE_DEFINITION(className, deviceName) private:                                                            \
+                                                const char* classDeviceName = deviceName;                           \
+                                                public:                                                             \
+											    static const char * getDeviceNameStatic(){	                        \
 												    static className singleton;				                        \
 												    return singleton.classDeviceName;		                        \
 											    }											                        \
-                                                virtual const char* getClassDeviceName() { return classDeviceName; }\
+                                                virtual const char* getDeviceName() { return deviceName; }          \
+                                                className(){                                                        \
+                                                    type = NodeType::EtherCatSlave;                                 \
+                                                    assignIoData();                                                 \
+                                                }                                                                   \
+                                                void assignIoData();                                                \
                                                 virtual bool isDeviceKnown(){ return true; }                        \
                                                 virtual bool startupConfiguration();                                \
+                                                virtual void readInputs();                                          \
                                                 virtual void process(bool b_processDataValid);                      \
-                                                virtual void gui();                                                 \
+                                                virtual void prepareOutputs();                                      \
+                                                virtual void deviceSpecificGui();                                   \
+                                        
 
-#define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getStaticClassDeviceName()) == 0) return std::make_shared<className>()
+#define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getDeviceNameStatic()) == 0) return std::make_shared<className>()
 
-class EtherCatSlave {
-public:      
+class EtherCatSlave : public ioNode {
+public:
 
     //===== Base EtherCAT device
     //serves as device interface and as default device type for unknow devices
     INTERFACE_DEFINITION(EtherCatSlave, "Unknown Device")
 
-    int slaveIndex = -1;
-    char customName[128];
+        int slaveIndex = -1;
+    int stationAlias = -1;
     ec_slavet* identity;
 
-    void setName(const char* name)  { strcpy(customName, name); }
-    const char* getName()           { return customName; }
-    const char* getDeviceName()     { return identity->name; }
+    //public display of raw pdo data
+    EtherCatPdoAssignement txPdoAssignement;
+    EtherCatPdoAssignement rxPdoAssignement;
 
-    int getSlaveIndex()             { return slaveIndex; }
-    int getManualAddress()          { return identity->aliasadr; }  //configured station alias address
-    int getAssignedAddress()        { return identity->configadr; } //configured station address
+    //basic info
+    uint32_t getManufacturer() { return identity->eep_man; }
+    uint32_t getID() { return identity->eep_id; }
+    uint32_t getRevision() { return identity->eep_rev; }
 
-    bool isStateInit()              { return identity->state == EC_STATE_INIT; }
-    bool isStatePreOperational()    { return identity->state == EC_STATE_PRE_OP; }
-    bool isStateBootstrap()         { return identity->state == EC_STATE_BOOT; }
-    bool isStateSafeOperational()   { return identity->state == EC_STATE_SAFE_OP; }
-    bool isStateOperational()       { return identity->state == EC_STATE_OPERATIONAL; }
+    bool matches(std::shared_ptr<EtherCatSlave> otherSlave);
+
+    //addresses
+    int getSlaveIndex() { return slaveIndex; }
+    int getStationAlias() { return stationAlias; }  //configured station alias address
+    int getAssignedAddress() { return identity->configadr; } //configured station address
+
+    //state machine
+    bool isStateOffline()           { return (identity->state & 0xF) == EC_STATE_NONE; }
+    bool isStateInit()              { return (identity->state & 0xF) == EC_STATE_INIT; }
+    bool isStatePreOperational()    { return (identity->state & 0xF) == EC_STATE_PRE_OP; }
+    bool isStateBootstrap()         { return (identity->state & 0xF) == EC_STATE_BOOT; }
+    bool isStateSafeOperational()   { return (identity->state & 0xF) == EC_STATE_SAFE_OP; }
+    bool isStateOperational()       { return (identity->state & 0xF) == EC_STATE_OPERATIONAL; }
+
+    const char* getStateChar();
+    bool hasStateError();
+
+    //Mailbox types
+    bool isCoeSupported() { return identity->mbx_proto & ECT_MBXPROT_COE; }
+    bool isFoeSupported() { return identity->mbx_proto & ECT_MBXPROT_FOE; }
+    bool isEoESupported() { return identity->mbx_proto & ECT_MBXPROT_EOE; }
+    bool isSoESupported() { return identity->mbx_proto & ECT_MBXPROT_SOE; }
+
+    //Coe support details
+    bool supportsCoE_SDO() { return identity->CoEdetails & ECT_COEDET_SDO; }
+    bool supportsCoE_SDOinfo() { return identity->CoEdetails & ECT_COEDET_SDOINFO; }
+    bool supportsCoE_PDOassign() { return identity->CoEdetails & ECT_COEDET_PDOASSIGN; }
+    bool supportsCoE_PDOconfig() { return identity->CoEdetails & ECT_COEDET_PDOCONFIG; }
+    bool supportsCoE_upload() { return identity->CoEdetails & ECT_COEDET_UPLOAD; }
+    bool supportsCoE_SDOCA() { return identity->CoEdetails & ECT_COEDET_SDOCA; }
 
     bool b_mapped = false;
+    bool b_online = false;
+
+    bool isOnline() { return b_online; }
+
+
+    uint16_t previousState = -1;
+    void saveCurrentState() { previousState = identity->state; }
+    void compareNewState();
+
+    void gui();
+    void genericInfoGui();
+    void ioDataGui();
 
     //=====Reading and Writing SDO Data
 
@@ -85,4 +143,13 @@ public:
     bool writeSDO(uint16_t index, uint8_t subindex, int32_t data);
     bool writeSDO(uint16_t index, uint8_t subindex, uint64_t data);
     bool writeSDO(uint16_t index, uint8_t subindex, int64_t data);
+
+private:
+
 };
+
+
+
+//TODO:
+//add vector of inputs and outputs
+//add default gui containing basic information about the slave

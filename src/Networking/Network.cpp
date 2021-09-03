@@ -1,5 +1,6 @@
+#include <pch.h>
+
 #include "Network.h"
-#include <iostream>
 
 asio::io_context Network::io_context;
 std::thread Network::io_context_handler;
@@ -7,9 +8,9 @@ std::thread Network::io_context_handler;
 void Network::init() {
 	io_context_handler = std::thread([&]() {
 		asio::io_context::work dummyWork(io_context);
-		std::cout << "start network io context" << std::endl;
+		Logger::info("start network io context");
 		io_context.run();
-		std::cout << "exit network io context" << std::endl;
+		Logger::info("exit network io context");
 	});
 }
 
@@ -33,7 +34,7 @@ std::unique_ptr<asio::ip::udp::socket> Network::getUdpSocket(int listeningPort, 
 		socket->async_connect(remoteEndpoint, [](asio::error_code) {});
 	}
 	catch (std::exception e) {
-		std::cerr << e.what() << std::endl;
+		Logger::error("Network Error: {}", e.what());
 	}
 	return socket;
 }

@@ -1,38 +1,37 @@
 #pragma once
 
-#include <ethercat.h>
+#include "Fieldbus/EtherCatSlave.h"
+#include "Utilities/ScrollingBuffer.h"
+
 #include <map>
 #include <string>
-
-#include "Fieldbus/EtherCatSlave.h"
-#include "Gui/ScrollingBuffer.h"
-
 
 class Lexium32 : public EtherCatSlave {
 public:
 
     SLAVE_DEFINITION(Lexium32, "LXM32M EtherCAT")
 
+    double movementStartPosition = 0.0;
     int counter = 0;
+    bool b_inverted = false;
+    ScrollingBuffer positions;
 
+    //fieldbus commands
     bool setStartupParameters();
     bool assignPDOs();
 
-    //fieldbus commands
-    bool enableVoltage = false;
-    bool disableVoltage = false;
-    bool switchOn = false;
-    bool shutdown = false;
-    bool enableOperation = false;
-    bool disableOperation = false;
-    bool performFaultReset = false;
-    bool performQuickStop = false;
+    //state machine commands
+    void enableVoltage() { b_enableVoltage = true; }
+    void disableVoltage() { b_disableVoltage = true; }
+    void switchOn() { b_switchOn = true; }
+    void shutDown() { b_shutdown = true; }
+    void enableOperation() { b_enableOperation = true; }
+    void disableOperation() { b_disableOperation = true; }
+    void faultReset() { b_faultReset = true; }
+    void quickStop() { b_quickStop = true; }
 
-    bool jog = false;
-    bool direction = false;
-    bool fast = false;
-    bool stop = false;
-
+    //===== drive status =====
+    
     enum class State {
         NotReadyToSwitchOn,
         SwitchOnDisabled,
@@ -44,8 +43,9 @@ public:
         Fault
     };
 
-    //===== drive status
     State state = State::SwitchOnDisabled;
+    uint16_t lastErrorCode = 0;
+
     bool motorVoltagePresent = false;
     bool class0error = false;
     bool halted = false;
@@ -57,52 +57,70 @@ public:
     bool operatingModeFinished = false;
     bool validPositionReference = false;
 
-    //feedback data
-    int32_t position = 0;
-    int32_t velocity = 0;
-    int16_t torque = 0;
-    uint16_t lastErrorCode = 0;
-    bool DI0 = false;
-    bool DI1 = false;
-    bool DI2 = false;
-    bool DI3 = false;
-    bool DI4 = false;
-    bool DI5 = false;
-
-    bool b_inverted = false;
-    ScrollingBuffer positions;
-
-    //command data
-    int32_t positionCommand = 0;
-    int32_t velocityCommand = 0;
-    int16_t torqueCommand = 0;
-    bool DQ0 = false;
-    bool DQ1 = false;
-    bool DQ2 = false;
-
-    //operating mode specific commands
-    bool opModeSpec4 = false;
-    bool opModeSpec5 = false;
-    bool opModeSpec6 = false;
-    bool opModeSpec9 = false;
-
-    //modes
+    //===== mode display and changing =====
 
     static std::map<int, std::string> modelist;
     int mode = 8;
-    int modeCommand = 8;
     const char* modeChar = "Cyclic Synchronous Position";
+    int modeCommand = 8;
 
-    //maybe do gui remapping of pdo objects later
-    //uint16_t RxPDO;
-    //uint16_t TxPDO;
+private:
+ 
+    //Rx PDO display Data
+    uint16_t DCOMcontrol = 0;
+    int8_t DCOMopmode = 0;
+    int32_t PPp_target = 0;
+    int32_t PVv_target = 0;
+    int16_t PTtq_target = 0;
+    uint16_t IO_DQ_set = 0;
 
-    //drive status memory
+    //Tx PDO display Data
+    uint16_t _DCOMstatus = 0;
+    int8_t _DCOMopmd_act = 0;
+    int32_t _p_act = 0;
+    int32_t _v_act = 0;
+    int16_t _tq_act = 0;
+    uint16_t _LastError = 0;
+    uint16_t _IO_act = 0;
+
+    //public output data
+    std::shared_ptr<ioData> positionCommand =   std::make_shared<ioData>(DataType::FLOAT64,    DataDirection::NODE_INPUT, "Position");
+    std::shared_ptr<ioData> velocityCommand =   std::make_shared<ioData>(DataType::INT32_T,    DataDirection::NODE_INPUT, "Velocity");
+    std::shared_ptr<ioData> torqueCommand =     std::make_shared<ioData>(DataType::INT16_T,    DataDirection::NODE_INPUT, "Torque");
+    std::shared_ptr<ioData> digitalOut0 =       std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_INPUT, "DQ0");
+    std::shared_ptr<ioData> digitalOut1 =       std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_INPUT, "DQ1");
+    std::shared_ptr<ioData> digitalOut2 =       std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_INPUT, "DQ2");
+
+    //public input data
+    std::shared_ptr<ioData> actualPosition =    std::make_shared<ioData>(DataType::FLOAT64, DataDirection::NODE_OUTPUT, "Position");
+    std::shared_ptr<ioData> actualVelocity =    std::make_shared<ioData>(DataType::INT32_T, DataDirection::NODE_OUTPUT, "Velocity");
+    std::shared_ptr<ioData> actualTorque =      std::make_shared<ioData>(DataType::INT16_T, DataDirection::NODE_OUTPUT, "Torque");
+    std::shared_ptr<ioData> digitalIn0 =        std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI0");
+    std::shared_ptr<ioData> digitalIn1 =        std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI1");
+    std::shared_ptr<ioData> digitalIn2 =        std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI2");
+    std::shared_ptr<ioData> digitalIn3 =        std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI3");
+    std::shared_ptr<ioData> digitalIn4 =        std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI4");
+    std::shared_ptr<ioData> digitalIn5 =        std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI5");
+
+    //command flags to control state machine
+    bool b_enableVoltage = false;
+    bool b_disableVoltage = false;
+    bool b_switchOn = false;
+    bool b_shutdown = false;
+    bool b_disableOperation = false;
+    bool b_enableOperation = false;
+    bool b_faultReset = false;
+    bool b_quickStop = false;
+
+    //bits used to construct DCOM_control word
     bool b_switchedOn = false;
     bool b_voltageEnabled = false;
     bool b_quickStopActive = true; //quickstop is active when bit is low
     bool b_operationEnabled = false;
+    bool opModeSpec4 = false;
+    bool opModeSpec5 = false;
+    bool opModeSpec6 = false;
     bool b_faultResetState = false;
     bool b_halted = false;
-
+    bool opModeSpec9 = false;
 };
