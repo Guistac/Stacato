@@ -34,7 +34,3 @@
 	path = dependencies/imguinodeeditor
 	url = https://github.com/thedmd/imgui-node-editor.git
 	ignore = dirty
-[submodule "dependencies/imnodes"]
-	path = dependencies/imnodes
-	url = https://github.com/Nelarius/imnodes.git
-	ignore = dirty
