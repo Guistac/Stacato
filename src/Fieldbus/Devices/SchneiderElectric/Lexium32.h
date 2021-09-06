@@ -84,23 +84,23 @@ private:
     uint16_t _IO_act = 0;
 
     //public output data
-    std::shared_ptr<ioData> positionCommand =   std::make_shared<ioData>(DataType::FLOAT64,    DataDirection::NODE_INPUT, "Position");
-    std::shared_ptr<ioData> velocityCommand =   std::make_shared<ioData>(DataType::INT32_T,    DataDirection::NODE_INPUT, "Velocity");
-    std::shared_ptr<ioData> torqueCommand =     std::make_shared<ioData>(DataType::INT16_T,    DataDirection::NODE_INPUT, "Torque");
-    std::shared_ptr<ioData> digitalOut0 =       std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_INPUT, "DQ0");
-    std::shared_ptr<ioData> digitalOut1 =       std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_INPUT, "DQ1");
-    std::shared_ptr<ioData> digitalOut2 =       std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_INPUT, "DQ2");
+    std::shared_ptr<ioData> positionCommand =   std::make_shared<ioData>(DataType::REAL_VALUE,    DataDirection::NODE_INPUT, "Position");
+    std::shared_ptr<ioData> velocityCommand =   std::make_shared<ioData>(DataType::REAL_VALUE,    DataDirection::NODE_INPUT, "Velocity");
+    std::shared_ptr<ioData> torqueCommand =     std::make_shared<ioData>(DataType::REAL_VALUE,    DataDirection::NODE_INPUT, "Torque");
+    std::shared_ptr<ioData> digitalOut0 =       std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ0");
+    std::shared_ptr<ioData> digitalOut1 =       std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ1");
+    std::shared_ptr<ioData> digitalOut2 =       std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ2");
 
     //public input data
-    std::shared_ptr<ioData> actualPosition =    std::make_shared<ioData>(DataType::FLOAT64, DataDirection::NODE_OUTPUT, "Position");
-    std::shared_ptr<ioData> actualVelocity =    std::make_shared<ioData>(DataType::INT32_T, DataDirection::NODE_OUTPUT, "Velocity");
-    std::shared_ptr<ioData> actualTorque =      std::make_shared<ioData>(DataType::INT16_T, DataDirection::NODE_OUTPUT, "Torque");
-    std::shared_ptr<ioData> digitalIn0 =        std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI0");
-    std::shared_ptr<ioData> digitalIn1 =        std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI1");
-    std::shared_ptr<ioData> digitalIn2 =        std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI2");
-    std::shared_ptr<ioData> digitalIn3 =        std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI3");
-    std::shared_ptr<ioData> digitalIn4 =        std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI4");
-    std::shared_ptr<ioData> digitalIn5 =        std::make_shared<ioData>(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI5");
+    std::shared_ptr<ioData> actualPosition =    std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position");
+    std::shared_ptr<ioData> actualVelocity =    std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity");
+    std::shared_ptr<ioData> actualTorque =      std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Torque");
+    std::shared_ptr<ioData> digitalIn0 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI0");
+    std::shared_ptr<ioData> digitalIn1 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI1");
+    std::shared_ptr<ioData> digitalIn2 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI2");
+    std::shared_ptr<ioData> digitalIn3 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI3");
+    std::shared_ptr<ioData> digitalIn4 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI4");
+    std::shared_ptr<ioData> digitalIn5 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI5");
 
     //command flags to control state machine
     bool b_enableVoltage = false;

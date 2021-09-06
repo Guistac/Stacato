@@ -48,11 +48,11 @@ void LedsAndButtons::process(bool b_processDataValid) {}
 void LedsAndButtons::prepareOutputs() {
 	uint8_t* outputData = identity->outputs;
 
-	ui8_led0 = led0->getUnsignedByte();
-	ui8_led1 = led1->getUnsignedByte();
-	ui8_led2 = led2->getUnsignedByte();
-	ui8_led3 = led3->getUnsignedByte();
-	ui8_led4 = led4->getUnsignedByte();
+	ui8_led0 = led0->getInteger();
+	ui8_led1 = led1->getInteger();
+	ui8_led2 = led2->getInteger();
+	ui8_led3 = led3->getInteger();
+	ui8_led4 = led4->getInteger();
 
 	outputData[0] = ui8_led0;
 	outputData[1] = ui8_led1;

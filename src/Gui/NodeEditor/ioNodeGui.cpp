@@ -187,17 +187,9 @@ void ioNode::propertiesGui() {
                         ImGui::Text("%s", data->getTypeName());
                         ImGui::TableSetColumnIndex(3);
                         switch (data->getType()) {
-                        case DataType::BOOL_VALUE:  ImGui::Text("%i", data->getBool()); break;
-                        case DataType::UINT8_T:     ImGui::Text("%i", data->getUnsignedByte()); break;
-                        case DataType::INT8_T:      ImGui::Text("%i", data->getSignedByte()); break;
-                        case DataType::UINT16_T:    ImGui::Text("%i", data->getUnsignedShort()); break;
-                        case DataType::INT16_T:     ImGui::Text("%i", data->getSignedShort()); break;
-                        case DataType::UINT32_T:    ImGui::Text("%i", data->getUnsignedLong()); break;
-                        case DataType::INT32_T:     ImGui::Text("%i", data->getSignedLong()); break;
-                        case DataType::UINT64_T:    ImGui::Text("%i", data->getUnsignedLongLong()); break;
-                        case DataType::INT64_T:     ImGui::Text("%i", data->getSignedLongLong()); break;
-                        case DataType::FLOAT32:     ImGui::Text("%.5f", data->getFloat()); break;
-                        case DataType::FLOAT64:     ImGui::Text("%.5f", data->getDouble()); break;
+                        case DataType::BOOLEAN_VALUE:  ImGui::Text("%i", data->getBoolean()); break;
+                        case DataType::INTEGER_VALUE:  ImGui::Text("%i", data->getInteger()); break;
+                        case DataType::REAL_VALUE:     ImGui::Text("%.5f", data->getReal()); break;
                         }
                     }
                     ImGui::EndTable();
