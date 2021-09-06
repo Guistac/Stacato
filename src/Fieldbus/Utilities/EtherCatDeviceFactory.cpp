@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "EtherCatDeviceIdentifier.h"
+#include "EtherCatDeviceFactory.h"
 
 #include "Fieldbus/Devices/SchneiderElectric/Lexium32.h"
 #include "Fieldbus/Devices/Artefact/EasyCat/EasyCAT.h"
@@ -15,7 +15,7 @@ each device can have a one line entry to be added to all lists
 
 */
 
-namespace EtherCatDeviceIdentifier {
+namespace EtherCatDeviceFactory {
 	
 	std::shared_ptr<EtherCatSlave> getDeviceByName(const char* name) {
 		RETURN_SLAVE_IF_TYPE_MATCHING(name, Lexium32);
@@ -29,6 +29,7 @@ namespace EtherCatDeviceIdentifier {
 	}
 
 	std::vector<EtherCatDeviceManufacturer> devices = {
+		/*
 		EtherCatDeviceManufacturer({"Schneider Electric",{
 			new Lexium32()
 		}}),
@@ -36,6 +37,8 @@ namespace EtherCatDeviceIdentifier {
 			new EasyCAT(),
 			new LedsAndButtons()
 		}})
+		*/
+		//TODO: shared_from_this can't be called from a constructor
 	};
 
 	std::vector<EtherCatDeviceManufacturer>& getDeviceTypes() {

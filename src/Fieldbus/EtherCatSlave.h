@@ -26,6 +26,7 @@
                                                                         virtual void process(bool b_processDataValid){}                                                 \
                                                                         virtual void prepareOutputs(){}                                                                 \
                                                                         virtual void deviceSpecificGui(){}                                                              \
+                                                                        virtual void assignIoData(){}                                                                   \
 
 //All Slave Device Classes Need to Implement this Macro 
 #define SLAVE_DEFINITION(className, deviceName, manufacturerName)   public:                                                                                         \
@@ -37,14 +38,13 @@
                                                                         assignIoData();                                                                             \
                                                                         setName(deviceName);                                                                        \
                                                                     }                                                                                               \
-                                                                    void assignIoData();                                                                            \
                                                                     virtual bool isSlaveKnown(){ return true; }                                                     \
                                                                     virtual bool startupConfiguration();                                                            \
                                                                     virtual void readInputs();                                                                      \
                                                                     virtual void process(bool b_processDataValid);                                                  \
                                                                     virtual void prepareOutputs();                                                                  \
                                                                     virtual void deviceSpecificGui();                                                               \
-                                        
+                                                                    virtual void assignIoData();                                                                    \
 
 #define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getDeviceNameStatic()) == 0) return std::make_shared<className>()
 

@@ -5,7 +5,8 @@
 #include "Environnement/Environnement.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatSlave.h"
-#include "Fieldbus/Utilities/EtherCatDeviceIdentifier.h"
+#include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
+#include "Environnement/NodeGraph/ProcessorNodeFactory.h"
 
 std::vector<std::shared_ptr<ioNode>> selectedNodes;
 
@@ -65,7 +66,7 @@ void nodeGraph() {
 		const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("EtherCatSlave");
         if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
             const char * slaveDeviceName = *(const char**)payload->Data;
-            std::shared_ptr<EtherCatSlave> newSlave = EtherCatDeviceIdentifier::getDeviceByName(slaveDeviceName);
+            std::shared_ptr<EtherCatSlave> newSlave = EtherCatDeviceFactory::getDeviceByName(slaveDeviceName);
             Environnement::nodeGraph.addIoNode(newSlave);
         }
         ImGui::EndDragDropTarget();
@@ -121,6 +122,7 @@ void nodeEditor() {
 
     if (ImGui::BeginPopup("Pin Context Menu")) {
         ImGui::Text("Pin Context Menu, Pin#%i", contextPinId);
+        ImGui::Text(Environnement::nodeGraph.getIoData(contextPinId.Get())->getValueString());
         ImGui::EndPopup();
     }
 
@@ -148,7 +150,7 @@ void nodeAdder() {
         ImGui::PushFont(Fonts::robotoBold15);
         if (ImGui::TreeNode("EtherCAT Slaves")) {
             ImGui::PushFont(Fonts::robotoRegular15);
-            for (auto& manufacturer : EtherCatDeviceIdentifier::getDeviceTypes()) {
+            for (auto& manufacturer : EtherCatDeviceFactory::getDeviceTypes()) {
                 if (ImGui::TreeNode(manufacturer.name)) {
                     for (auto& slave : manufacturer.devices) {
                         bool selected = false;
@@ -184,6 +186,12 @@ void nodeAdder() {
         }
         if (ImGui::TreeNode("Data Processors")) {
             bool selected = false;
+            ImGui::Selectable("Clock", &selected);
+            ImGui::Selectable("Display", &selected);
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+                
+            }
+            /*
             ImGui::Selectable("Condition", &selected);
             ImGui::Selectable("Add", &selected);
             ImGui::Selectable("Subtract", &selected);
@@ -191,6 +199,7 @@ void nodeAdder() {
             ImGui::Selectable("Divide", &selected);
             ImGui::Selectable("Limit", &selected);
             ImGui::Selectable("Map", &selected);
+            */
             ImGui::TreePop();
         }
 

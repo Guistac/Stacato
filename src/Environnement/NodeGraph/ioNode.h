@@ -6,7 +6,7 @@
 class NodeGraph;
 class ioLink;
 
-class ioNode{
+class ioNode : std::enable_shared_from_this<ioNode> {
 public:
 
 	enum NodeType {
@@ -15,7 +15,7 @@ public:
 	};
 
 	virtual NodeType getType() = 0;
-	
+
 	void setName(const char* n) { strcpy(name, n); }
 	const char* getName() { return name; }
 	int getUniqueID() { return uniqueID; }
@@ -30,7 +30,12 @@ public:
 
 	virtual void nodeGui();
 	virtual void propertiesGui();
-	virtual void nodeSpecificGui() = 0;
+	virtual void nodeSpecificGui() {}
+
+	virtual void process(bool inputsValid) = 0;
+	virtual bool wasProcessed() { return b_wasProcessed; }
+
+	virtual void assignIoData() = 0;
 
 private:
 
@@ -46,12 +51,15 @@ private:
 	std::vector<std::shared_ptr<ioData>> nodeOutputData;
 
 	bool b_isInNodeGraph = false;
+
+	bool b_wasProcessed = false;
 };
 
 class DeviceNode : public ioNode {
 public:
 
 	enum DeviceType {
+		CLOCK,
 		ETHERCATSLAVE,
 		NETWORKDEVICE,
 		USBDEVICE,
@@ -67,14 +75,5 @@ public:
 private:
 
 	bool b_isOnline = false;
-
-};
-
-class ProcessorNode : public ioNode {
-public:
-
-	virtual NodeType getType() { return NodeType::PROCESSOR; }
-
-	virtual void process() = 0;
 
 };

@@ -43,9 +43,6 @@ bool EtherCatSlave::getPDOMapping(EtherCatPDO& pdo, uint16_t pdoIndex, const cha
 }
 */
 
-
-
-
 typedef struct {
 public:
     uint16_t stateCode;

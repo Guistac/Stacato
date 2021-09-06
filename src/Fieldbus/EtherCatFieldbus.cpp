@@ -2,7 +2,7 @@
 
 #include "EtherCatFieldbus.h"
 
-#include "Utilities/EtherCatDeviceIdentifier.h"
+#include "Utilities/EtherCatDeviceFactory.h"
 #include "Environnement/Environnement.h"
 
 std::vector<NetworkInterfaceCard>                   EtherCatFieldbus::networkInterfaceCards;
@@ -151,7 +151,7 @@ bool EtherCatFieldbus::scanNetwork() {
         for (int i = 1; i <= ec_slavecount; i++) {
             ec_slavet& slv = ec_slave[i];
             //create device class depending on slave name
-            std::shared_ptr<EtherCatSlave> slave = EtherCatDeviceIdentifier::getDeviceByName(slv.name);
+            std::shared_ptr<EtherCatSlave> slave = EtherCatDeviceFactory::getDeviceByName(slv.name);
             //we need the station alias to be able to compare the slave to the environnement slaves
             slave->stationAlias = slv.aliasadr;
 

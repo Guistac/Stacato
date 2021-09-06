@@ -1,7 +1,5 @@
 #pragma once
 
-#include <ethercat.h> //this defines the basic data types
-
 enum DataType {
 	BOOLEAN_VALUE,
 	INTEGER_VALUE,
@@ -38,11 +36,19 @@ public:
 	DataType getType() { return type; }
 	const char* getTypeName() { return dataTypeNames[type]; }
 	bool isSameTypeAs(ioData& other) { return other.type == type; }
+	void setType(DataType t) {
+		switch (t){
+			case BOOLEAN_VALUE: set(getBoolean()); break;
+			case INTEGER_VALUE: set(getInteger()); break;
+			case REAL_VALUE: set(getReal()); break;
+		}
+		type = t;
+	}
 
 	//nodegraph infos
 	int getUniqueID() { return uniqueID; }
 	bool isConnected() { return !ioLinks.empty(); }
-	ioNode* getNode() { return parentNode; }
+	std::shared_ptr<ioNode> getNode() { return parentNode; }
 	bool& isVisible() { return b_visible; }
 
 	bool isBool()				{ return type == BOOLEAN_VALUE; }
@@ -50,52 +56,24 @@ public:
 	bool isDouble()				{ return type == REAL_VALUE; }
 
 	//setting data (with data conversions)
-	void set(bool boolean) {
-		switch (type) {
-		case BOOLEAN_VALUE: booleanValue = boolean; break;
-		case INTEGER_VALUE: integerValue = boolean; break;
-		case REAL_VALUE: realValue = boolean; break;
-		}
-	}
-
-	void set(long long int integer) {
-		switch (type) {
-		case INTEGER_VALUE: integerValue = integer; break;
-		case BOOLEAN_VALUE: booleanValue = integer; break;
-		case REAL_VALUE: realValue = integer; break;
-		}
-	}
-
-	void set(double real) {
-		switch (type) {
-		case REAL_VALUE: realValue = real; break;
-		case BOOLEAN_VALUE: booleanValue = real; break;
-		case INTEGER_VALUE: integerValue = real; break;
-		}
-	}
+	void set(bool boolean);
+	void set(long long int integer);
+	void set(double real);
 
 	//reading data (with data conversions)
-	bool getBoolean() {
-		switch (type) {
-		case BOOLEAN_VALUE: return booleanValue;
-		case INTEGER_VALUE: return integerValue > 0;
-		case REAL_VALUE: return realValue > 0;
-		}
-	}
-	long long int getInteger() {
-		switch (type) {
-		case INTEGER_VALUE: return integerValue;
-		case BOOLEAN_VALUE: return (long long int)booleanValue;
-		case REAL_VALUE: return (long long int)realValue;
-		}
-	}
-	double getReal() {
-		switch (type) {
-		case REAL_VALUE: return realValue;
-		case BOOLEAN_VALUE: return (double)booleanValue;
-		case INTEGER_VALUE: return (double)integerValue;
-		}
-	}
+	bool getBoolean();
+	long long int getInteger();
+	double getReal();
+
+	bool hasNewValue() { return b_hasNewValue; }
+
+	const char* getValueString();
+
+	void copyToLinked();
+	void copyFromLinked();
+
+	std::vector<std::shared_ptr<ioNode>>& getNodesLinkedAtOutputs();
+	std::vector<std::shared_ptr<ioNode>>& getNodesLinkedAtInputs();
 
 
 private:
@@ -104,7 +82,7 @@ private:
 	friend class ioNode;
 	friend class ioLink;
 
-	ioNode* parentNode = nullptr;
+	std::shared_ptr<ioNode> parentNode;
 	std::vector<std::shared_ptr<ioLink>> ioLinks;
 	int uniqueID = -1;
 	bool b_visible = true;
@@ -112,6 +90,8 @@ private:
 	DataType type;
 	DataDirection direction;
 	char name[64];
+	
+	bool b_hasNewValue = false;
 
 	union {
 		bool booleanValue;

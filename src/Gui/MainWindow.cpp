@@ -33,8 +33,17 @@ void mainWindow() {
 			log();
 			ImGui::EndTabItem();
 		}
+		if (ImGui::BeginTabItem("Cue List")) {
+			ImGui::Text("This will be a cue list");
+			ImGui::EndTabItem();
+		}
 		if (ImGui::BeginTabItem("Sequencer")) {
-			sequencer();
+			ImGui::Text("This will be a sequencer");
+			//sequencer();
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Stage View")) {
+			ImGui::Text("There will be a stage 2D or 3D model here");
 			ImGui::EndTabItem();
 		}
 

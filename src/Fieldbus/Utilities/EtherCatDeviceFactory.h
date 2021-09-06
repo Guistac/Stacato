@@ -2,7 +2,7 @@
 
 #include "Fieldbus/EtherCatSlave.h"
 
-namespace EtherCatDeviceIdentifier {
+namespace EtherCatDeviceFactory {
 
 	struct EtherCatDeviceManufacturer {
 		char name[128];
