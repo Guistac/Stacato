@@ -37,10 +37,10 @@ bool LedsAndButtons::startupConfiguration() {
 void LedsAndButtons::readInputs() {
 	uint8_t* inputData = identity->inputs;
 	buttonWord = inputData[0];
-	button0 = (buttonWord & 0x1) != 0;
-	button1 = (buttonWord & 0x2) != 0;
-	button2 = (buttonWord & 0x4) != 0;
-	button3 = (buttonWord & 0x8) != 0;
+	button0.set((buttonWord & 0x1) != 0);
+	button1.set((buttonWord & 0x2) != 0);
+	button2.set((buttonWord & 0x4) != 0);
+	button3.set((buttonWord & 0x8) != 0);
 }
 
 void LedsAndButtons::process(bool b_processDataValid) {}
@@ -48,11 +48,11 @@ void LedsAndButtons::process(bool b_processDataValid) {}
 void LedsAndButtons::prepareOutputs() {
 	uint8_t* outputData = identity->outputs;
 
-	ui8_led0 = led0.getUnsignedByte();
-	ui8_led1 = led1.getUnsignedByte();
-	ui8_led2 = led2.getUnsignedByte();
-	ui8_led3 = led3.getUnsignedByte();
-	ui8_led4 = led4.getUnsignedByte();
+	ui8_led0 = led0.getInteger();
+	ui8_led1 = led1.getInteger();
+	ui8_led2 = led2.getInteger();
+	ui8_led3 = led3.getInteger();
+	ui8_led4 = led4.getInteger();
 
 	outputData[0] = ui8_led0;
 	outputData[1] = ui8_led1;

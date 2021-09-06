@@ -17,15 +17,15 @@ public:
 	//TxPDO
 	uint8_t buttonWord = 0;
 
-	ioData led0 = ioData(DataType::UINT8_T, DataDirection::NODE_INPUT, "LED-0");
-	ioData led1 = ioData(DataType::UINT8_T, DataDirection::NODE_INPUT, "LED-1");
-	ioData led2 = ioData(DataType::UINT8_T, DataDirection::NODE_INPUT, "LED-2");
-	ioData led3 = ioData(DataType::UINT8_T, DataDirection::NODE_INPUT, "LED-3");
-	ioData led4 = ioData(DataType::UINT8_T, DataDirection::NODE_INPUT, "LED-4");
+	ioData led0 = ioData(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-0");
+	ioData led1 = ioData(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-1");
+	ioData led2 = ioData(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-2");
+	ioData led3 = ioData(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-3");
+	ioData led4 = ioData(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-4");
 
-	ioData button0 = ioData(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "Button0");
-	ioData button1 = ioData(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "Button1");
-	ioData button2 = ioData(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "Button2");
-	ioData button3 = ioData(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "Button3");
+	ioData button0 = ioData(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, "Button0");
+	ioData button1 = ioData(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, "Button1");
+	ioData button2 = ioData(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, "Button2");
+	ioData button3 = ioData(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, "Button3");
 
 };

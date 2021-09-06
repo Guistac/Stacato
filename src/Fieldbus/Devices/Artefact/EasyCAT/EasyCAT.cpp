@@ -45,35 +45,35 @@ void EasyCAT::readInputs() {
 		(uint64_t)inputData[5] << 40 |
 		(uint64_t)inputData[6] << 48 |
 		(uint64_t)inputData[7] << 56;
-	longLongIn = ui64_longLongIn;
+	longLongIn.set((long long int)ui64_longLongIn);
 
 	ui32_longIn = inputData[8] |
 		inputData[9] << 8 |
 		inputData[10] << 16 |
 		inputData[11] << 24;
-	longIn = ui32_longIn;
+	longIn.set((long long int)ui32_longIn);
 
 	ui16_shortIn = inputData[12] |
 		inputData[13] << 8;
-	shortIn = ui16_shortIn;
+	shortIn.set((long long int)ui16_shortIn);
 
 	ui8_byteIn = inputData[14];
-	byteIn = ui8_byteIn;
+	byteIn.set((long long int)ui8_byteIn);
 }
 
 void EasyCAT::process(bool b_processDataValid) {
 	static int counter = 0;
 	counter++;
-	byteOut = counter * 8;
-	shortOut = counter* 32;
-	longOut = counter * 128;
-	longLongOut = counter * 512;
+	byteOut.set((long long int)counter * 8);
+	shortOut.set((long long int)counter* 32);
+	longOut.set((long long int)counter * 128);
+	longLongOut.set((long long int)counter * 512);
 }
 
 void EasyCAT::prepareOutputs() {
 	uint8_t* outputData = identity->outputs;
 
-	ui64_longLongOut = longLongOut.getUnsignedLongLong();
+	ui64_longLongOut = longLongOut.getInteger();
 	outputData[0] =		(ui64_longLongOut >> 0) & 0xFF;
 	outputData[1] =		(ui64_longLongOut >> 8) & 0xFF;
 	outputData[2] =		(ui64_longLongOut >> 16) & 0xFF;
@@ -83,16 +83,16 @@ void EasyCAT::prepareOutputs() {
 	outputData[6] =		(ui64_longLongOut >> 48) & 0xFF;
 	outputData[7] =		(ui64_longLongOut >> 56) & 0xFF;
 
-	ui32_longOut = longOut.getUnsignedLong();
+	ui32_longOut = longOut.getInteger();
 	outputData[8] =		(ui32_longOut >> 0) & 0xFF;
 	outputData[9] =		(ui32_longOut >> 8) & 0xFF;
 	outputData[10] =	(ui32_longOut >> 16) & 0xFF;
 	outputData[11] =	(ui32_longOut >> 24) & 0xFF;
 
-	ui16_shortOut = shortOut.getUnsignedShort();
+	ui16_shortOut = shortOut.getInteger();
 	outputData[12] =	(ui16_shortOut >> 0) & 0xFF;
 	outputData[13] =	(ui16_shortOut >> 8) & 0xFF;
 
-	ui8_byteOut = byteOut.getUnsignedByte();
+	ui8_byteOut = byteOut.getInteger();
 	outputData[14] =	ui8_byteOut;
 }

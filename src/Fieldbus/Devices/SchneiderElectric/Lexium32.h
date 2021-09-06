@@ -84,23 +84,23 @@ private:
     uint16_t _IO_act = 0;
 
     //public output data
-    ioData positionCommand =   ioData(DataType::FLOAT64,    DataDirection::NODE_INPUT, "position command");
-    ioData velocityCommand =   ioData(DataType::INT32_T,    DataDirection::NODE_INPUT, "velocity command");
-    ioData torqueCommand =     ioData(DataType::INT16_T,    DataDirection::NODE_INPUT, "torque command");
-    ioData digitalOut0 =       ioData(DataType::BOOL_VALUE, DataDirection::NODE_INPUT, "DQ0");
-    ioData digitalOut1 =       ioData(DataType::BOOL_VALUE, DataDirection::NODE_INPUT, "DQ1");
-    ioData digitalOut2 =       ioData(DataType::BOOL_VALUE, DataDirection::NODE_INPUT, "DQ2");
+    ioData positionCommand =   ioData(DataType::REAL_VALUE,    DataDirection::NODE_INPUT, "position command");
+    ioData velocityCommand =   ioData(DataType::REAL_VALUE,    DataDirection::NODE_INPUT, "velocity command");
+    ioData torqueCommand =     ioData(DataType::REAL_VALUE,    DataDirection::NODE_INPUT, "torque command");
+    ioData digitalOut0 =       ioData(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ0");
+    ioData digitalOut1 =       ioData(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ1");
+    ioData digitalOut2 =       ioData(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ2");
 
     //public input data
-    ioData actualPosition =    ioData(DataType::FLOAT64, DataDirection::NODE_OUTPUT, "actual position");
-    ioData actualVelocity =    ioData(DataType::INT32_T, DataDirection::NODE_OUTPUT, "actual velocity");
-    ioData actualTorque =      ioData(DataType::INT16_T, DataDirection::NODE_OUTPUT, "actual torque");
-    ioData digitalIn0 =        ioData(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI0");
-    ioData digitalIn1 =        ioData(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI1");
-    ioData digitalIn2 =        ioData(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI2");
-    ioData digitalIn3 =        ioData(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI3");
-    ioData digitalIn4 =        ioData(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI4");
-    ioData digitalIn5 =        ioData(DataType::BOOL_VALUE, DataDirection::NODE_OUTPUT, "DI5");
+    ioData actualPosition =    ioData(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "actual position");
+    ioData actualVelocity =    ioData(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "actual velocity");
+    ioData actualTorque =      ioData(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "actual torque");
+    ioData digitalIn0 =        ioData(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI0");
+    ioData digitalIn1 =        ioData(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI1");
+    ioData digitalIn2 =        ioData(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI2");
+    ioData digitalIn3 =        ioData(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI3");
+    ioData digitalIn4 =        ioData(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI4");
+    ioData digitalIn5 =        ioData(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI5");
 
     //command flags to control state machine
     bool b_enableVoltage = false;
