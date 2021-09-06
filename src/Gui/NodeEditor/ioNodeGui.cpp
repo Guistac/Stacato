@@ -25,11 +25,13 @@ void ioNode::nodeGui() {
     float titleTextWidth = ImGui::CalcTextSize(getName()).x;
     float inputPinTextWidth = 0;
     for (auto pin : getNodeInputData()) {
+        if (!pin->isVisible() && !pin->isConnected()) continue;
         float pinTextWidth = ImGui::CalcTextSize(pin->getName()).x;
         if (pinTextWidth > inputPinTextWidth) inputPinTextWidth = pinTextWidth;
     }
     float outputPinTextWidth = 0;
     for (auto pin : getNodeOutputData()) {
+        if (!pin->isVisible() && !pin->isConnected()) continue;
         float pinTextWidth = ImGui::CalcTextSize(pin->getName()).x;
         if (pinTextWidth > outputPinTextWidth) outputPinTextWidth = pinTextWidth;
     }
@@ -88,6 +90,7 @@ void ioNode::nodeGui() {
 
     ImGui::BeginGroup();
     for (auto pin : getNodeInputData()) {
+        if (!pin->isVisible() && !pin->isConnected()) continue;
         NodeEditor::BeginPin(pin->getUniqueID(), NodeEditor::PinKind::Input);
         NodeEditor::PinPivotAlignment(ImVec2(0.0, 0.5));
         ImGui::Dummy(glm::vec2(iconDummyWidth));
@@ -111,6 +114,7 @@ void ioNode::nodeGui() {
 
     ImGui::BeginGroup();
     for (auto pin : getNodeOutputData()) {
+        if (!pin->isVisible() && !pin->isConnected()) continue;
         //calculate offset to right align pins
         float rightAlignSpacingWidth = outputPinGroupWidth                  //overall width of the output pins
             - nodePadding                           //right edge node padding
@@ -153,4 +157,63 @@ void ioNode::nodeGui() {
     }
     NodeEditor::EndGroupHint();
     */
+}
+
+void ioNode::propertiesGui() {
+    if (ImGui::BeginTabBar("PropertiesTabBar")) {
+
+        nodeSpecificGui();
+
+        if(ImGui::BeginTabItem("ioData")) {
+            
+            static auto displayDataTable = [](std::vector<std::shared_ptr<ioData>>& data, const char* tableName) {
+                ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
+                if (ImGui::BeginTable(tableName, 4, tableFlags)) {
+                    ImGui::TableSetupColumn("Show");
+                    ImGui::TableSetupColumn("Name");
+                    ImGui::TableSetupColumn("Type");
+                    ImGui::TableSetupColumn("Value");
+                    ImGui::TableHeadersRow();
+                    int checkBoxID = 9999999;
+                    for (auto data : data) {
+                        ImGui::TableNextRow();
+                        ImGui::TableSetColumnIndex(0);
+                        ImGui::PushID(checkBoxID++);
+                        ImGui::Checkbox("##Visible", &data->isVisible());
+                        ImGui::PopID();
+                        ImGui::TableSetColumnIndex(1);
+                        ImGui::Text("%s", data->getName());
+                        ImGui::TableSetColumnIndex(2);
+                        ImGui::Text("%s", data->getTypeName());
+                        ImGui::TableSetColumnIndex(3);
+                        switch (data->getType()) {
+                        case DataType::BOOL_VALUE:  ImGui::Text("%i", data->getBool()); break;
+                        case DataType::UINT8_T:     ImGui::Text("%i", data->getUnsignedByte()); break;
+                        case DataType::INT8_T:      ImGui::Text("%i", data->getSignedByte()); break;
+                        case DataType::UINT16_T:    ImGui::Text("%i", data->getUnsignedShort()); break;
+                        case DataType::INT16_T:     ImGui::Text("%i", data->getSignedShort()); break;
+                        case DataType::UINT32_T:    ImGui::Text("%i", data->getUnsignedLong()); break;
+                        case DataType::INT32_T:     ImGui::Text("%i", data->getSignedLong()); break;
+                        case DataType::UINT64_T:    ImGui::Text("%i", data->getUnsignedLongLong()); break;
+                        case DataType::INT64_T:     ImGui::Text("%i", data->getSignedLongLong()); break;
+                        case DataType::FLOAT32:     ImGui::Text("%.5f", data->getFloat()); break;
+                        case DataType::FLOAT64:     ImGui::Text("%.5f", data->getDouble()); break;
+                        }
+                    }
+                    ImGui::EndTable();
+                }
+            };
+
+            ImGui::Text("Input Data:");
+            displayDataTable(getNodeInputData(), "Input Data");
+            ImGui::Separator();
+            ImGui::Text("Output Data:");
+            displayDataTable(getNodeOutputData(), "Output Data");
+            ImGui::Separator();
+
+            ImGui::EndTabItem();
+        }
+
+        ImGui::EndTabBar();
+    }
 }

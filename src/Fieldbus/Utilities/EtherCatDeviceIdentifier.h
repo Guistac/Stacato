@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Devices/SchneiderElectric/Lexium32.h"
-#include "Devices/Artefact/EasyCat/EasyCAT.h"
-#include "Devices/Artefact/LedsAndButtons/LedsAndButtons.h"
+#include "Fieldbus/EtherCatSlave.h"
 
-std::shared_ptr<EtherCatSlave> getSlaveByName(const char* name) {
-	RETURN_SLAVE_IF_TYPE_MATCHING(name, Lexium32);
-	RETURN_SLAVE_IF_TYPE_MATCHING(name, EasyCAT);
-	RETURN_SLAVE_IF_TYPE_MATCHING(name, LedsAndButtons);
-	//RETURN_SLAVE_IF_MATCHING(name, OtherDeviceClassName)
-	//RETURN_SLAVE_IF_MATCHING(name, DifferentDeviceClassName)
-	//...
-	//if the slave type is not recognized, return a basic slave instance
-	return std::make_shared<EtherCatSlave>();
+namespace EtherCatDeviceIdentifier {
+
+	struct EtherCatDeviceManufacturer {
+		char name[128];
+		std::vector<EtherCatSlave*> devices;
+	};
+
+	std::shared_ptr<EtherCatSlave> getDeviceByName(const char* name);
+
+	std::vector<EtherCatDeviceManufacturer>& getDeviceTypes();
+
 }

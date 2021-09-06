@@ -43,6 +43,8 @@ public:
 	int getUniqueID() { return uniqueID; }
 	bool isConnected() { return !ioLinks.empty(); }
 	ioNode* getNode() { return parentNode; }
+	bool& isVisible() { return b_visible; }
+	bool hasChanged() { return hasChanged; }
 
 	int getByteCount() {
 		switch (type) {
@@ -119,13 +121,16 @@ private:
 	friend class NodeGraph;
 	friend class ioNode;
 	friend class ioLink;
+
 	ioNode* parentNode = nullptr;
 	std::vector<std::shared_ptr<ioLink>> ioLinks;
 	int uniqueID = -1;
+	bool b_visible = true;
 
 	DataType type;
 	DataDirection direction;
 	char name[64];
+	bool b_hasChanged = false;
 
 	union {
 		bool boolValue;

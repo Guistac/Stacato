@@ -9,7 +9,7 @@
 class Lexium32 : public EtherCatSlave {
 public:
 
-    SLAVE_DEFINITION(Lexium32, "LXM32M EtherCAT")
+    SLAVE_DEFINITION(Lexium32, "LXM32M EtherCAT", "Schneider Electric")
 
     double movementStartPosition = 0.0;
     int counter = 0;

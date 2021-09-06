@@ -19,7 +19,7 @@ void GuiWindow::open(int w, int h) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 #endif
-	window = glfwCreateWindow(w, h, "FieldbusDev", nullptr, nullptr);
+	window = glfwCreateWindow(w, h, "Staccato", nullptr, nullptr);
 	glfwSetWindowSizeCallback(window, onResize);
 	glfwSetWindowCloseCallback(window, onClose);
 	glfwMakeContextCurrent(window);

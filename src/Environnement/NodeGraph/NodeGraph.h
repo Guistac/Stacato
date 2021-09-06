@@ -26,6 +26,8 @@ public:
 	std::vector<std::shared_ptr<ioData>>& getIoData() { return ioDataList; }
 	std::vector<std::shared_ptr<ioLink>>& getIoLinks() { return ioLinkList; }
 
+	void process(DeviceNode::DeviceType deviceType);
+
 private:
 
 	friend class ioNode;

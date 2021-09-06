@@ -10,12 +10,12 @@ class ioNode{
 public:
 
 	enum NodeType {
-		EtherCatSlave,
-		Axis,
-		Processor,
-		NetworkDevice
+		IODEVICE,
+		PROCESSOR
 	};
 
+	virtual NodeType getType() = 0;
+	
 	void setName(const char* n) { strcpy(name, n); }
 	const char* getName() { return name; }
 	int getUniqueID() { return uniqueID; }
@@ -28,9 +28,9 @@ public:
 
 	bool isInNodeGraph() { return b_isInNodeGraph; }
 
-	NodeType getType() { return type; }
-
 	virtual void nodeGui();
+	virtual void propertiesGui();
+	virtual void nodeSpecificGui() = 0;
 
 private:
 
@@ -46,9 +46,35 @@ private:
 	std::vector<std::shared_ptr<ioData>> nodeOutputData;
 
 	bool b_isInNodeGraph = false;
-
-protected:
-
-	NodeType type;
 };
 
+class DeviceNode : public ioNode {
+public:
+
+	enum DeviceType {
+		ETHERCATSLAVE,
+		NETWORKDEVICE,
+		USBDEVICE,
+		NONE
+	};
+
+	virtual NodeType getType() { return NodeType::IODEVICE; }
+	virtual DeviceType getDeviceType() = 0;
+
+	bool isOnline() { return b_isOnline; }
+	void setOnline(bool b) { b_isOnline = b; }
+
+private:
+
+	bool b_isOnline = false;
+
+};
+
+class ProcessorNode : public ioNode {
+public:
+
+	virtual NodeType getType() { return NodeType::PROCESSOR; }
+
+	virtual void process() = 0;
+
+};

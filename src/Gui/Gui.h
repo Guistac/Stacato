@@ -32,9 +32,13 @@ void deleteLink();
 void deleteNode();
 void DrawIcon(ImDrawList* drawList, const glm::vec2& a, const glm::vec2& b, int type, bool filled, ImU32 color, ImU32 innerColor);
 
+void getSelectedNodes();
+void nodeAdder();
 
 void log();
 
 void mainWindow();
 void toolbar(float height);
+
+void sequencer();
 

@@ -5,7 +5,7 @@
 class EasyCAT : public EtherCatSlave {
 public:
 
-	SLAVE_DEFINITION(EasyCAT, "Artefact")
+	SLAVE_DEFINITION(EasyCAT, "Artefact", "LeoBecker")
 
 	std::shared_ptr<ioData> byteOut =		std::make_shared<ioData>(DataType::UINT8_T, DataDirection::NODE_INPUT, "byte0-out");
 	std::shared_ptr<ioData> shortOut =		std::make_shared<ioData>(DataType::UINT16_T, DataDirection::NODE_INPUT, "short0-out");

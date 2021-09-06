@@ -1,13 +1,13 @@
 --=================================================================================================================
 
-workspace "FieldbusDev"
+workspace "Staccato"
 
     configurations{
         "Debug",
         "Release"
     }
 
-    startproject "FieldbusDev"
+    startproject "Staccato"
  
     filter "system:windows"
         defines "WIN32"
@@ -28,7 +28,7 @@ workspace "FieldbusDev"
 
 --=================================================================================================================
 
-project "FieldbusDev"
+project "Staccato"
 	location "" --directory of the project
 	kind "consoleApp" --executable file
 	language "C++"

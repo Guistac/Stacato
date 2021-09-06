@@ -10,7 +10,7 @@ int main() {
 	EtherCatFieldbus::updateNetworkInterfaceCardList();
 	EtherCatFieldbus::init(EtherCatFieldbus::networkInterfaceCards.front());
 
-	GuiWindow::open(1920,1920);
+	GuiWindow::open(3000,2000);
 	GuiWindow::refresh();
 	GuiWindow::close();
 

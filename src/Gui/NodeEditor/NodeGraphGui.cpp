@@ -5,6 +5,9 @@
 #include "Environnement/Environnement.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatSlave.h"
+#include "Fieldbus/Utilities/EtherCatDeviceIdentifier.h"
+
+std::vector<std::shared_ptr<ioNode>> selectedNodes;
 
 namespace ImGuiNodeEditor {
     ax::NodeEditor::EditorContext* nodeEditorContext;
@@ -21,58 +24,34 @@ namespace ImGuiNodeEditor {
 namespace NodeEditor = ax::NodeEditor;
 
 void nodeGraph() {
-	
-	ImGui::BeginGroup();
 
-	if (ImGui::BeginListBox("##NodeList", ImVec2(ImGui::GetTextLineHeight() * 15.0, ImGui::GetContentRegionAvail().y))) {
 
-		if (ImGui::TreeNode("EtherCAT Slaves")) {
-			ImGui::Button("Refresh Device List");
+    glm::vec2 sideBarSize(ImGui::GetTextLineHeight() * 20.0, ImGui::GetContentRegionAvail().y);
+    if (ImGui::BeginChild("SideBar", sideBarSize)) {
 
-			for (auto slave : EtherCatFieldbus::slaves) {
-                if (slave->isInNodeGraph()) continue;
-				bool selected = false;
-				ImGui::Selectable(slave->getName(), &selected);
-                if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                    ImGui::SetDragDropPayload("EtherCatSlave", &slave, sizeof(std::shared_ptr<EtherCatSlave>));
-					ImGui::Text("%s", slave->getName());
-					ImGui::Text("Drop On Node Editor to Add Slave");
-                    ImGui::EndDragDropSource();
+        if (ImGui::BeginTabBar("NodeEditorSidePanel")) {
+
+            for (auto node : selectedNodes) {
+                if (ImGui::BeginTabItem(node->getName())) {
+                    if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {
+                        node->propertiesGui();
+                        ImGui::EndChild();
+                    }
+                    ImGui::EndTabItem();
                 }
-			}
+            }
 
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("Axis")) {
-			bool selected = false;
-			ImGui::Selectable("Linear Axis", &selected);
-			ImGui::Selectable("Rotating Axis", &selected);
-			ImGui::Selectable("State Machine", &selected);
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("Network IO")) {
-			bool selected = false;
-			ImGui::Selectable("OSC", &selected);
-			ImGui::Selectable("Artnet", &selected);
-			ImGui::Selectable("PSN", &selected);
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("Data Processors")) {
-			bool selected = false;
-			ImGui::Selectable("Condition", &selected);
-			ImGui::Selectable("Add", &selected);
-			ImGui::Selectable("Subtract", &selected);
-			ImGui::Selectable("Multiply", &selected);
-			ImGui::Selectable("Divide", &selected);
-			ImGui::Selectable("Limit", &selected);
-			ImGui::Selectable("Map", &selected);
-			ImGui::TreePop();
-		}
+            if (ImGui::BeginTabItem("Add Nodes")) {
+                nodeAdder();
+                ImGui::EndTabItem();
+            }
 
-		ImGui::EndListBox();
-	}
+            ImGui::EndTabBar();
+        }
 
-	ImGui::EndGroup();
+	
+        ImGui::EndChild();
+    }
 
 	ImGui::SameLine();
 
@@ -84,9 +63,10 @@ void nodeGraph() {
 
     if (ImGui::BeginDragDropTarget()){
 		const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("EtherCatSlave");
-        if (payload != nullptr && payload->DataSize == sizeof(std::shared_ptr<EtherCatSlave>)){
-            std::shared_ptr<EtherCatSlave> slave = *(std::shared_ptr<EtherCatSlave>*)payload->Data;
-			Environnement::add(slave);
+        if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
+            const char * slaveDeviceName = *(const char**)payload->Data;
+            std::shared_ptr<EtherCatSlave> newSlave = EtherCatDeviceIdentifier::getDeviceByName(slaveDeviceName);
+            Environnement::nodeGraph.addIoNode(newSlave);
         }
         ImGui::EndDragDropTarget();
     }
@@ -94,6 +74,7 @@ void nodeGraph() {
 	if (ImGui::Button("Center View")) ax::NodeEditor::NavigateToContent();
 
 	ImGui::EndGroup();
+
 }
 
 
@@ -154,11 +135,68 @@ void nodeEditor() {
     }
     NodeEditor::Resume();
 
+    getSelectedNodes();
 
 	NodeEditor::End();
+
 }
 
+void nodeAdder() {
 
+    if (ImGui::BeginListBox("##NodeList", ImGui::GetContentRegionAvail())) {
+
+        ImGui::PushFont(Fonts::robotoBold15);
+        if (ImGui::TreeNode("EtherCAT Slaves")) {
+            ImGui::PushFont(Fonts::robotoRegular15);
+            for (auto& manufacturer : EtherCatDeviceIdentifier::getDeviceTypes()) {
+                if (ImGui::TreeNode(manufacturer.name)) {
+                    for (auto& slave : manufacturer.devices) {
+                        bool selected = false;
+                        ImGui::Selectable(slave->getDeviceName(), &selected);
+                        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+                            const char* deviceName = slave->getDeviceName();
+                            ImGui::SetDragDropPayload("EtherCatSlave", &deviceName, sizeof(const char*));
+                            ImGui::Text(slave->getDeviceName());
+                            ImGui::EndDragDropSource();
+                        }
+                    }
+                    ImGui::TreePop();
+                }
+            }
+            ImGui::PopFont();
+            ImGui::TreePop();
+        }
+
+        ImGui::PopFont();
+        if (ImGui::TreeNode("Axis")) {
+            bool selected = false;
+            ImGui::Selectable("Linear Axis", &selected);
+            ImGui::Selectable("Rotating Axis", &selected);
+            ImGui::Selectable("State Machine", &selected);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Network IO")) {
+            bool selected = false;
+            ImGui::Selectable("OSC", &selected);
+            ImGui::Selectable("Artnet", &selected);
+            ImGui::Selectable("PSN", &selected);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Data Processors")) {
+            bool selected = false;
+            ImGui::Selectable("Condition", &selected);
+            ImGui::Selectable("Add", &selected);
+            ImGui::Selectable("Subtract", &selected);
+            ImGui::Selectable("Multiply", &selected);
+            ImGui::Selectable("Divide", &selected);
+            ImGui::Selectable("Limit", &selected);
+            ImGui::Selectable("Map", &selected);
+            ImGui::TreePop();
+        }
+
+        ImGui::EndListBox();
+    }
+}
 
 void drawNodes() {
     NodeGraph& nodeGraph = Environnement::nodeGraph;
@@ -215,5 +253,16 @@ void deleteNode() {
             nodeGraph.removeIoNode(deletedNode);
         }
         else NodeEditor::RejectDeletedItem();
+    }
+}
+
+void getSelectedNodes() {
+    static NodeEditor::NodeId selectedNodeIds[16];
+    int selectedNodeCount = NodeEditor::GetSelectedNodes(selectedNodeIds, 16);
+    selectedNodes.clear();
+    if (selectedNodeCount > 0) {
+        for (int i = 0; i < selectedNodeCount; i++) {
+            selectedNodes.push_back(Environnement::nodeGraph.getIoNode(selectedNodeIds[i].Get()));
+        }
     }
 }

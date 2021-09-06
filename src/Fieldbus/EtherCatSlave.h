@@ -13,54 +13,47 @@
 //Device that are matched against a device class will return true for isDeviceKnown()
 //Unknown devices will not and will be of the base type EtherCatSlave
 
-#define INTERFACE_DEFINITION(className, deviceName) private:                                                            \
-                                                    const char* classDeviceName = deviceName;                           \
-                                                    public:                                                             \
-                                                    static const char * getDeviceNameStatic(){	                        \
-												        static className singleton;				                        \
-												        return singleton.classDeviceName;		                \
-											        }											                        \
-                                                    virtual const char* getDeviceName() { return classDeviceName; }     \
-                                                    className(){                                                        \
-                                                        type = NodeType::EtherCatSlave;                                 \
-                                                    }                                                                   \
-                                                    virtual bool isDeviceKnown(){ return false; }                       \
-                                                    virtual bool startupConfiguration(){ return true; }                 \
-                                                    virtual void readInputs(){}                                         \
-                                                    virtual void process(bool b_processDataValid){}                     \
-                                                    virtual void prepareOutputs(){}                                     \
-                                                    virtual void deviceSpecificGui(){}                                  \
+#define INTERFACE_DEFINITION(className, deviceName, manufacturerName)   private:                                                                                        \
+                                                                        virtual DeviceType getDeviceType() { return DeviceType::ETHERCATSLAVE; }                        \
+                                                                        public:                                                                                         \
+                                                                        static const char * getDeviceNameStatic(){ return deviceName; }                                 \
+                                                                        static const char* getManufacturerNameStatic() { return manufacturerName; }                     \
+                                                                        virtual const char* getDeviceName() { return deviceName; }                                      \
+                                                                        virtual const char* getManufacturerName(){ return manufacturerName; }                           \
+                                                                        virtual bool isSlaveKnown(){ return false; }                                                    \
+                                                                        virtual bool startupConfiguration(){ return true; }                                             \
+                                                                        virtual void readInputs(){}                                                                     \
+                                                                        virtual void process(bool b_processDataValid){}                                                 \
+                                                                        virtual void prepareOutputs(){}                                                                 \
+                                                                        virtual void deviceSpecificGui(){}                                                              \
 
 //All Slave Device Classes Need to Implement this Macro 
-#define SLAVE_DEFINITION(className, deviceName) private:                                                            \
-                                                const char* classDeviceName = deviceName;                           \
-                                                public:                                                             \
-											    static const char * getDeviceNameStatic(){	                        \
-												    static className singleton;				                        \
-												    return singleton.classDeviceName;		                        \
-											    }											                        \
-                                                virtual const char* getDeviceName() { return deviceName; }          \
-                                                className(){                                                        \
-                                                    type = NodeType::EtherCatSlave;                                 \
-                                                    assignIoData();                                                 \
-                                                }                                                                   \
-                                                void assignIoData();                                                \
-                                                virtual bool isDeviceKnown(){ return true; }                        \
-                                                virtual bool startupConfiguration();                                \
-                                                virtual void readInputs();                                          \
-                                                virtual void process(bool b_processDataValid);                      \
-                                                virtual void prepareOutputs();                                      \
-                                                virtual void deviceSpecificGui();                                   \
+#define SLAVE_DEFINITION(className, deviceName, manufacturerName)   public:                                                                                         \
+                                                                    static const char * getDeviceNameStatic(){ return deviceName; }                                 \
+                                                                    static const char* getManufacturerNameStatic() { return manufacturerName; }                     \
+                                                                    virtual const char* getDeviceName() { return deviceName; }                                      \
+                                                                    virtual const char* getManufacturerName() { return manufacturerName; }                          \
+                                                                    className(){                                                                                    \
+                                                                        assignIoData();                                                                             \
+                                                                        setName(deviceName);                                                                        \
+                                                                    }                                                                                               \
+                                                                    void assignIoData();                                                                            \
+                                                                    virtual bool isSlaveKnown(){ return true; }                                                     \
+                                                                    virtual bool startupConfiguration();                                                            \
+                                                                    virtual void readInputs();                                                                      \
+                                                                    virtual void process(bool b_processDataValid);                                                  \
+                                                                    virtual void prepareOutputs();                                                                  \
+                                                                    virtual void deviceSpecificGui();                                                               \
                                         
 
 #define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getDeviceNameStatic()) == 0) return std::make_shared<className>()
 
-class EtherCatSlave : public ioNode {
+class EtherCatSlave : public DeviceNode {
 public:
 
     //===== Base EtherCAT device
     //serves as device interface and as default device type for unknow devices
-    INTERFACE_DEFINITION(EtherCatSlave, "Unknown Device")
+    INTERFACE_DEFINITION(EtherCatSlave, "Unknown Device", "Unknown manufacturer")
 
         int slaveIndex = -1;
     int stationAlias = -1;
@@ -108,18 +101,14 @@ public:
     bool supportsCoE_SDOCA() { return identity->CoEdetails & ECT_COEDET_SDOCA; }
 
     bool b_mapped = false;
-    bool b_online = false;
-
-    bool isOnline() { return b_online; }
-
 
     uint16_t previousState = -1;
     void saveCurrentState() { previousState = identity->state; }
     void compareNewState();
 
-    void gui();
+    virtual void nodeSpecificGui();
     void genericInfoGui();
-    void ioDataGui();
+    void pdoDataGui();
 
     //=====Reading and Writing SDO Data
 

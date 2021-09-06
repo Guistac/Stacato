@@ -151,7 +151,7 @@ bool EtherCatFieldbus::scanNetwork() {
         for (int i = 1; i <= ec_slavecount; i++) {
             ec_slavet& slv = ec_slave[i];
             //create device class depending on slave name
-            std::shared_ptr<EtherCatSlave> slave = getSlaveByName(slv.name);
+            std::shared_ptr<EtherCatSlave> slave = EtherCatDeviceIdentifier::getDeviceByName(slv.name);
             //we need the station alias to be able to compare the slave to the environnement slaves
             slave->stationAlias = slv.aliasadr;
 
@@ -167,7 +167,7 @@ bool EtherCatFieldbus::scanNetwork() {
                 //also reassign index, since it might have changed
                 matchingSlave->slaveIndex = i;
                 //set slave to online
-                matchingSlave->b_online = true;
+                matchingSlave->setOnline(true);
                 //delete the slave we just created since its only use was to match the environnement slave and transfer its identity
                 //reassign so we can log the slave and add it to the slave list
                 slave = matchingSlave;
@@ -177,7 +177,7 @@ bool EtherCatFieldbus::scanNetwork() {
                 //add it to the available slave list
                 slave->identity = &slv;
                 slave->slaveIndex = i;
-                slave->b_online = true;
+                slave->setOnline(true);
                 char name[128];
                 sprintf(name, "#%i '%s' @%i", slave->getSlaveIndex(), slave->getDeviceName(), slave->getStationAlias());
                 slave->setName(name);
@@ -192,7 +192,7 @@ bool EtherCatFieldbus::scanNetwork() {
                 slave->getDeviceName(),
                 slave->getAssignedAddress(),
                 slave->getStationAlias(),
-                slave->isDeviceKnown() ? "Yes" : "No",
+                slave->isSlaveKnown() ? "Yes" : "No",
                 environnementHasSlave ? "Yes" : "No");
         }
         return true;

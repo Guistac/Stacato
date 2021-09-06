@@ -33,6 +33,10 @@ void mainWindow() {
 			log();
 			ImGui::EndTabItem();
 		}
+		if (ImGui::BeginTabItem("Sequencer")) {
+			sequencer();
+			ImGui::EndTabItem();
+		}
 
 		ImGui::EndTabBar();
 	}

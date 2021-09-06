@@ -51,7 +51,10 @@ void etherCatSlaves() {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 	if (ImGui::BeginChild(ImGui::GetID("SelectedSlaveDisplayWindow"))) {
 		if (selectedSlave) {
-			selectedSlave->gui();
+            if (ImGui::BeginTabBar("DevicePropertiesTabBar")) {
+                selectedSlave->nodeSpecificGui();
+                ImGui::EndTabBar();
+            }
 		}
 		ImGui::EndChild();
 	}
@@ -60,21 +63,20 @@ void etherCatSlaves() {
 
 }
 
-void EtherCatSlave::gui() {
-    if (ImGui::BeginTabBar("DeviceTabBar")) {
-        deviceSpecificGui();
+void EtherCatSlave::nodeSpecificGui() {
+    
+    deviceSpecificGui();
 
-        if (isDeviceKnown() && ImGui::BeginTabItem("IO Data")) {
-            ioDataGui();
-            ImGui::EndTabItem();
-        }
-
-        if (ImGui::BeginTabItem("Generic Info")) {
-            genericInfoGui();
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
+    if (isSlaveKnown() && ImGui::BeginTabItem("PDO Data")) {
+        pdoDataGui();
+        ImGui::EndTabItem();
     }
+
+    if (isOnline() && ImGui::BeginTabItem("Generic Info")) {
+        genericInfoGui();
+        ImGui::EndTabItem();
+    }
+    
 }
 
 void EtherCatSlave::genericInfoGui() {
@@ -204,48 +206,7 @@ void EtherCatSlave::genericInfoGui() {
     }
 }
 
-void EtherCatSlave::ioDataGui() {
-    static auto displayDataTable = [](std::vector<std::shared_ptr<ioData>>& data, const char* tableName) {
-        ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
-        if (ImGui::BeginTable(tableName, 3, tableFlags)) {
-            ImGui::TableSetupColumn("Name");
-            ImGui::TableSetupColumn("Type");
-            ImGui::TableSetupColumn("Value");
-            ImGui::TableHeadersRow();
-            for (auto data : data) {
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::Text("%s", data->getName());
-                ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%s", data->getTypeName());
-                ImGui::TableSetColumnIndex(2);
-                switch (data->getType()) {
-                    case DataType::BOOL_VALUE:  ImGui::Text("%i", data->getBool()); break;
-                    case DataType::UINT8_T:     ImGui::Text("%i", data->getUnsignedByte()); break;
-                    case DataType::INT8_T:      ImGui::Text("%i", data->getSignedByte()); break;
-                    case DataType::UINT16_T:    ImGui::Text("%i", data->getUnsignedShort()); break;
-                    case DataType::INT16_T:     ImGui::Text("%i", data->getSignedShort()); break;
-                    case DataType::UINT32_T:    ImGui::Text("%i", data->getUnsignedLong()); break;
-                    case DataType::INT32_T:     ImGui::Text("%i", data->getSignedLong()); break;
-                    case DataType::UINT64_T:    ImGui::Text("%i", data->getUnsignedLongLong()); break;
-                    case DataType::INT64_T:     ImGui::Text("%i", data->getSignedLongLong()); break;
-                    case DataType::FLOAT32:     ImGui::Text("%.5f", data->getFloat()); break;
-                    case DataType::FLOAT64:     ImGui::Text("%.5f", data->getDouble()); break;
-                }
-            }
-            ImGui::EndTable();
-        }
-    };
-
-    ImGui::PushFont(Fonts::robotoBold20);
-    ImGui::Text("Public Data");
-    ImGui::PopFont();
-    ImGui::Text("Input Data:");
-    displayDataTable(getNodeInputData(), "Input Data");
-    ImGui::Separator();
-    ImGui::Text("Output Data:");
-    displayDataTable(getNodeOutputData(), "Output Data");
-    ImGui::Separator();
+void EtherCatSlave::pdoDataGui() {
 
     static auto displayPDO = [](EtherCatPdoAssignement& pdo, const char* pdoName) {
         ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
@@ -293,10 +254,6 @@ void EtherCatSlave::ioDataGui() {
             ImGui::EndTable();
         }
     };
-
-    ImGui::PushFont(Fonts::robotoBold20);
-    ImGui::Text("Process Data Objects");
-    ImGui::PopFont();
 
     ImGui::Text("RX-PDO (outputs received by slave)");
     displayPDO(rxPdoAssignement, "RX-PDO");
