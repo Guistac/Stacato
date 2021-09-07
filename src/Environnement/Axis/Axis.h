@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Environnement/NodeGraph/ProcessorNode.h"
+#include "Environnement/NodeGraph/ioNode.h"
 
-class Axis : ProcessorNode {
+class Axis : ioNode {
 public:
 
 	virtual void process(bool inputDataValid) {}

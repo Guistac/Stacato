@@ -73,7 +73,7 @@ const char* ioData::getValueString() {
 void ioData::copyToLinked() {
 	if (direction == DataDirection::NODE_OUTPUT) {
 		for (auto link : ioLinks) {
-			std::shared_ptr<ioData> other = link->getInputPin();
+			std::shared_ptr<ioData> other = link->getOutputData();
 			switch (type) {
 			case BOOLEAN_VALUE: other->set(getBoolean()); break;
 			case INTEGER_VALUE: other->set(getInteger()); break;
@@ -86,7 +86,7 @@ void ioData::copyToLinked() {
 void ioData::copyFromLinked() {
 	if (direction == DataDirection::NODE_INPUT) {
 		for (auto link : ioLinks) {
-			std::shared_ptr<ioData> other = link->getOutputPin();
+			std::shared_ptr<ioData> other = link->getInputData();
 			switch (type) {
 			case BOOLEAN_VALUE: set(other->getBoolean()); break;
 			case INTEGER_VALUE: set(other->getInteger()); break;
@@ -96,18 +96,18 @@ void ioData::copyFromLinked() {
 	}
 }
 
-std::vector<std::shared_ptr<ioNode>>& ioData::getNodesLinkedAtOutputs() {
+std::vector<std::shared_ptr<ioNode>> ioData::getNodesLinkedAtOutputs() {
 	std::vector<std::shared_ptr<ioNode>> linkedNodes;
 	for (auto link : ioLinks) {
-		linkedNodes.push_back(link->getInputPin()->getNode());
+		linkedNodes.push_back(link->getOutputData()->getNode());
 	}
 	return linkedNodes;
 }
 
-std::vector<std::shared_ptr<ioNode>>& ioData::getNodesLinkedAtInputs() {
+std::vector<std::shared_ptr<ioNode>> ioData::getNodesLinkedAtInputs() {
 	std::vector<std::shared_ptr<ioNode>> linkedNodes;
 	for (auto link : ioLinks) {
-		linkedNodes.push_back(link->getOutputPin()->getNode());
+		linkedNodes.push_back(link->getInputData()->getNode());
 	}
 	return linkedNodes;
 }

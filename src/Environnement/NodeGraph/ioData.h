@@ -72,8 +72,8 @@ public:
 	void copyToLinked();
 	void copyFromLinked();
 
-	std::vector<std::shared_ptr<ioNode>>& getNodesLinkedAtOutputs();
-	std::vector<std::shared_ptr<ioNode>>& getNodesLinkedAtInputs();
+	std::vector<std::shared_ptr<ioNode>> getNodesLinkedAtOutputs();
+	std::vector<std::shared_ptr<ioNode>> getNodesLinkedAtInputs();
 
 
 private:

@@ -13,13 +13,14 @@
 //Device that are matched against a device class will return true for isDeviceKnown()
 //Unknown devices will not and will be of the base type EtherCatSlave
 
-#define INTERFACE_DEFINITION(className, deviceName, manufacturerName)   private:                                                                                        \
+#define INTERFACE_DEFINITION(className, deviceName, manufacturerName)   public:                                                                                         \
+                                                                        virtual NodeType getType() { return NodeType::IODEVICE; }                                       \
                                                                         virtual DeviceType getDeviceType() { return DeviceType::ETHERCATSLAVE; }                        \
-                                                                        public:                                                                                         \
-                                                                        static const char * getDeviceNameStatic(){ return deviceName; }                                 \
-                                                                        static const char* getManufacturerNameStatic() { return manufacturerName; }                     \
-                                                                        virtual const char* getDeviceName() { return deviceName; }                                      \
+														                virtual const char * getNodeTypeName() { return deviceName; }			                        \
+														                static const char * getNodeTypeNameStatic() { return deviceName; }	                            \
                                                                         virtual const char* getManufacturerName(){ return manufacturerName; }                           \
+                                                                        static const char* getManufacturerNameStatic() { return manufacturerName; }                     \
+														                className() { setName(deviceName); }												            \
                                                                         virtual bool isSlaveKnown(){ return false; }                                                    \
                                                                         virtual bool startupConfiguration(){ return true; }                                             \
                                                                         virtual void readInputs(){}                                                                     \
@@ -30,14 +31,13 @@
 
 //All Slave Device Classes Need to Implement this Macro 
 #define SLAVE_DEFINITION(className, deviceName, manufacturerName)   public:                                                                                         \
-                                                                    static const char * getDeviceNameStatic(){ return deviceName; }                                 \
-                                                                    static const char* getManufacturerNameStatic() { return manufacturerName; }                     \
-                                                                    virtual const char* getDeviceName() { return deviceName; }                                      \
+                                                                    virtual NodeType getType() { return NodeType::IODEVICE; }                                       \
+                                                                    virtual DeviceType getDeviceType() { return DeviceType::ETHERCATSLAVE; }                        \
+                                                                    virtual const char* getNodeTypeName() { return deviceName; }			                        \
+                                                                    static const char* getNodeTypeNameStatic() { return deviceName; }	                            \
                                                                     virtual const char* getManufacturerName() { return manufacturerName; }                          \
-                                                                    className(){                                                                                    \
-                                                                        assignIoData();                                                                             \
-                                                                        setName(deviceName);                                                                        \
-                                                                    }                                                                                               \
+                                                                    static const char* getManufacturerNameStatic() { return manufacturerName; }                     \
+                                                                    className(){ setName(deviceName); }                                                             \
                                                                     virtual bool isSlaveKnown(){ return true; }                                                     \
                                                                     virtual bool startupConfiguration();                                                            \
                                                                     virtual void readInputs();                                                                      \
@@ -46,9 +46,9 @@
                                                                     virtual void deviceSpecificGui();                                                               \
                                                                     virtual void assignIoData();                                                                    \
 
-#define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getDeviceNameStatic()) == 0) return std::make_shared<className>()
+#define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getNodeTypeNameStatic()) == 0) return std::make_shared<className>()
 
-class EtherCatSlave : public DeviceNode {
+class EtherCatSlave : public ioNode {
 public:
 
     //===== Base EtherCAT device

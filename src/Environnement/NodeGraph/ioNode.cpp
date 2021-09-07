@@ -6,8 +6,6 @@
 #include "ioData.h"
 
 void ioNode::addIoData(std::shared_ptr<ioData> ioData) {
-	std::shared_ptr<ioNode> parentNode = shared_from_this();
-	ioData->parentNode = shared_from_this();
 	if (ioData->isInput()) nodeInputData.push_back(ioData);
 	else if (ioData->isOutput()) nodeOutputData.push_back(ioData);
 

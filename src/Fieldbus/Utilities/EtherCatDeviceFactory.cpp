@@ -29,7 +29,6 @@ namespace EtherCatDeviceFactory {
 	}
 
 	std::vector<EtherCatDeviceManufacturer> devices = {
-		/*
 		EtherCatDeviceManufacturer({"Schneider Electric",{
 			new Lexium32()
 		}}),
@@ -37,8 +36,6 @@ namespace EtherCatDeviceFactory {
 			new EasyCAT(),
 			new LedsAndButtons()
 		}})
-		*/
-		//TODO: shared_from_this can't be called from a constructor
 	};
 
 	std::vector<EtherCatDeviceManufacturer>& getDeviceTypes() {

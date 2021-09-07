@@ -7,8 +7,8 @@ public:
 
 	int getUniqueID() { return uniqueID; }
 
-	std::shared_ptr<ioData> getOutputPin() { return outputData; }
-	std::shared_ptr<ioData> getInputPin() { return inputData; }
+	std::shared_ptr<ioData> getOutputData() { return outputData; }
+	std::shared_ptr<ioData> getInputData() { return inputData; }
 
 private:
 

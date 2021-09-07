@@ -8,7 +8,7 @@ class ioNode;
 class ioData;
 class ioLink;
 
-class NodeGraph{
+class NodeGraph {
 public:
 
 	void addIoNode(std::shared_ptr<ioNode>);
@@ -27,7 +27,7 @@ public:
 	std::vector<std::shared_ptr<ioLink>>& getIoLinks() { return ioLinkList; }
 
 	void evaluate();
-	void evaluate(DeviceNode::DeviceType deviceType);
+	void evaluate(DeviceType deviceType);
 	void evaluate(std::shared_ptr<ioNode> node);
 	void evaluate(std::vector<std::shared_ptr<ioNode>> nodes);
 

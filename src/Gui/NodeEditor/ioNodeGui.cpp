@@ -41,7 +41,8 @@ void ioNode::nodeGui() {
     float pinSectionWidth = inputPinTextWidth                           //width of the input pin text
         + outputPinTextWidth                        //width of the output pin text
         + 2 * NodeEditor::GetStyle().NodePadding.x  //padding at the two edges of the nodes
-        + 2 * iconDummyWidth                        //width of the icons
+        + hasInputs() * iconDummyWidth                        //width of the icons
+        + hasOutputs() * iconDummyWidth                        //width of the icons
         + 5 * ImGui::GetStyle().ItemSpacing.x;      //spacings between icon and text (2) input and output groups and dummy spacer (2) and right align padding and outputpin (1)
     +pinSpacing;                               //spacing between input and output pins
     float titleSectionWidth = titleTextWidth + 2 * nodePadding;

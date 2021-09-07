@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Environnement/NodeGraph/ProcessorNode.h"
+#include "Environnement/NodeGraph/ioNode.h"
 
-class DisplayNode : public ProcessorNode {
+class DisplayNode : public ioNode {
+public:
 
 	DEFINE_PROCESSOR_NODE("Display", DisplayNode)
-
-public:
+	
 
 	virtual void assignIoData() {
 		addIoData(displayInput);
