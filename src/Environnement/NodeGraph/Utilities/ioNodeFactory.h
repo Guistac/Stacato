@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Environnement/NodeGraph/Nodes/ClockNode.h"
-#include "Environnement/NodeGraph/Nodes/DisplayNode.h"
-#include "Environnement/NodeGraph/Nodes/MathNodes.h"
+#include "Environnement/NodeGraph/ioNode.h"
 
 #define RETURN_NODE_IF_MATCHING(name, className) if(strcmp(name, className::getNodeTypeNameStatic()) == 0) return std::make_shared<className>()
 

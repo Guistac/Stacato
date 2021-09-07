@@ -2,6 +2,11 @@
 
 #include "ioNodeFactory.h"
 
+#include "Environnement/NodeGraph/Nodes/ClockNode.h"
+#include "Environnement/NodeGraph/Nodes/DisplayNode.h"
+#include "Environnement/NodeGraph/Nodes/MathNodes.h"
+#include "Environnement/NodeGraph/Nodes/GroupNode.h"
+
 namespace ioNodeFactory {
 
 	std::shared_ptr<ioNode> getIoNodeByName(const char* name) {
@@ -11,6 +16,7 @@ namespace ioNodeFactory {
 		RETURN_NODE_IF_MATCHING(name, SubtractionNode);
 		RETURN_NODE_IF_MATCHING(name, MultiplicationNode);
 		RETURN_NODE_IF_MATCHING(name, DivisionNode);
+		RETURN_NODE_IF_MATCHING(name, GroupNode);
 		return nullptr;
 	}
 
@@ -20,7 +26,8 @@ namespace ioNodeFactory {
 		new AdditionNode(),
 		new SubtractionNode(),
 		new MultiplicationNode(),
-		new DivisionNode()
+		new DivisionNode(),
+		new GroupNode()
 	};
 
 	std::vector<ioNode*>& getIoNodeList() {

@@ -12,6 +12,15 @@
 														virtual NodeType getType() { return NodeType::PROCESSOR; }				\
 														virtual DeviceType getDeviceType() { return DeviceType::NONE; }			\
 
+#define DEFINE_GROUP_NODE(nodeTypeName, className)		public:																	\
+														virtual const char * getNodeTypeName() { return nodeTypeName; }			\
+														static const char * getNodeTypeNameStatic() { return nodeTypeName; }	\
+														className(){															\
+															setName(nodeTypeName);												\
+														}																		\
+														virtual NodeType getType() { return NodeType::NODEGROUPER; }			\
+														virtual DeviceType getDeviceType() { return DeviceType::NONE; }			\
+
 #define DEFINE_DEVICE_NODE(nodeTypeName, className, deviceType)	public:																	\
 																virtual const char * getNodeTypeName() { return nodeTypeName; }			\
 																static const char * getNodeTypeNameStatic() { return nodeTypeName; }	\
@@ -26,7 +35,8 @@ class ioLink;
 
 enum NodeType {
 	IODEVICE,
-	PROCESSOR
+	PROCESSOR,
+	NODEGROUPER
 };
 
 enum DeviceType {
