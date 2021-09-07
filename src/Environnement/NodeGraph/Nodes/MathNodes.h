@@ -18,13 +18,8 @@ public:
 	virtual void process(bool inputDataValid) {
 		double sum = 0.0;
 		if (input->isConnected()) {
-			if (input->hasMultipleLinks()) {
-				for (auto link : input->getLinks()) {
-					sum += link->getInputData()->getReal();
-				}
-			}
-			else {
-				sum += input->getReal();
+			for (auto link : input->getLinks()) {
+				sum += link->getInputData()->getReal();
 			}
 		}
 		output->set(sum);

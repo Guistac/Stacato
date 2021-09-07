@@ -74,7 +74,17 @@ public:
 	virtual void nodeSpecificGui() {}
 
 	virtual void process(bool inputsValid) = 0;
-	virtual bool wasProcessed() { return b_wasProcessed; }
+	bool wasProcessed() { return b_wasProcessed; }
+
+	//check if all nodes linked to the inputs of this node were processed
+	bool areAllLinkedInputNodesProcessed() {
+		for (auto inputData : nodeInputData) {
+			for (auto inputDataLink : inputData->getLinks()) {
+				if (!inputDataLink->getInputData()->getNode()->wasProcessed()) return false;
+			}
+		}
+		return true;
+	}
 
 	virtual void assignIoData() = 0;
 
@@ -98,6 +108,7 @@ private:
 	bool b_isInNodeGraph = false;
 
 	bool b_wasProcessed = false;
+	bool b_circularDependencyFlag = false;
 
 	bool b_isOnline = false;
 };
