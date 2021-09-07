@@ -2,6 +2,7 @@
 
 //we include ioData.h so classes can be derived by including the ioNode.h file
 #include "ioData.h"
+#include "ioLink.h"
 
 #define DEFINE_PROCESSOR_NODE(nodeTypeName, className)	public:																	\
 														virtual const char * getNodeTypeName() { return nodeTypeName; }			\
@@ -31,7 +32,6 @@
 																virtual DeviceType getDeviceType() { return deviceType; }				\
 
 class NodeGraph;
-class ioLink;
 
 enum NodeType {
 	IODEVICE,
@@ -69,7 +69,7 @@ public:
 
 	bool isInNodeGraph() { return b_isInNodeGraph; }
 
-	virtual void nodeGui();
+	virtual void nodeGui(bool alwaysShowValue);
 	virtual void propertiesGui();
 	virtual void nodeSpecificGui() {}
 

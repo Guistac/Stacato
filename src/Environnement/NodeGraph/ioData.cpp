@@ -22,7 +22,7 @@ void ioData::set(bool boolean) {
 void ioData::set(long long int integer) {
 	switch (type) {
 	case INTEGER_VALUE: integerValue = integer; break;
-	case BOOLEAN_VALUE: booleanValue = integer; break;
+	case BOOLEAN_VALUE: booleanValue = integer > 0; break;
 	case REAL_VALUE: realValue = integer; break;
 	}
 	b_hasNewValue = true;
@@ -31,7 +31,7 @@ void ioData::set(long long int integer) {
 void ioData::set(double real) {
 	switch (type) {
 	case REAL_VALUE: realValue = real; break;
-	case BOOLEAN_VALUE: booleanValue = real; break;
+	case BOOLEAN_VALUE: booleanValue = real > 0.0; break;
 	case INTEGER_VALUE: integerValue = real; break;
 	}
 	b_hasNewValue = true;

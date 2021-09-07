@@ -26,6 +26,8 @@ namespace NodeEditor = ax::NodeEditor;
 
 void nodeGraph() {
 
+    static bool showValues = true;
+
     Environnement::nodeGraph.evaluate();
 
     glm::vec2 sideBarSize(ImGui::GetTextLineHeight() * 20.0, ImGui::GetContentRegionAvail().y);
@@ -61,7 +63,7 @@ void nodeGraph() {
 
 	ImGui::BeginGroup();
 
-	nodeEditor();
+	nodeEditor(showValues);
 
     if (ImGui::BeginDragDropTarget()){
         const ImGuiPayload* payload;
@@ -83,6 +85,8 @@ void nodeGraph() {
     }
 
 	if (ImGui::Button("Center View")) ax::NodeEditor::NavigateToContent();
+    ImGui::SameLine();
+    ImGui::Checkbox("Always Show Values", &showValues);
 
 	ImGui::EndGroup();
 
@@ -90,12 +94,12 @@ void nodeGraph() {
 
 
 
-void nodeEditor() {
+void nodeEditor(bool alwaysShowValues) {
     NodeGraph& nodeGraph = Environnement::nodeGraph;
 	NodeEditor::SetCurrentEditor(ImGuiNodeEditor::nodeEditorContext);
 	NodeEditor::Begin("Node Editor", ImVec2(0, ImGui::GetContentRegionAvail().y - ImGui::GetTextLineHeight() * 1.7));
 
-    drawNodes();
+    drawNodes(alwaysShowValues);
     drawLinks();
 
     // Handle creation action, returns true if editor want to create new object (node or link)
@@ -226,11 +230,12 @@ void nodeAdder() {
     }
 }
 
-void drawNodes() {
+void drawNodes(bool alwaysShowValues) {
     NodeGraph& nodeGraph = Environnement::nodeGraph;
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2, ImGui::GetTextLineHeight() * 0.2));
-    for (auto node : nodeGraph.getIoNodes()) node->nodeGui();
-    ImGui::PopStyleVar(); //reset item spacing
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(ImGui::GetTextLineHeight() * 0.2, 0));
+    for (auto node : nodeGraph.getIoNodes()) node->nodeGui(alwaysShowValues);
+    ImGui::PopStyleVar(2); //reset item spacing
 }
 
 void drawLinks() {

@@ -67,3 +67,14 @@ void NodeGraph::evaluate(std::vector<std::shared_ptr<ioNode>> nodes) {
 
 	mutex.unlock();
 }
+
+
+
+//each node that needs processing on a specific cycle only gets processed once
+//we need to find all the nodes that need processing, starting from newly generated output data on devices and clocks
+//we start processing the new data of the device nodes
+//from there we find the nodes connected to the outputs of the device nodes
+//then we need to run a check for which of those nodes can be processed
+//the check only passes when all nodes connected to the input of the curent node did process if they needed processing
+//if the check passes, we process the node and mark it as processed
+//on the next cycle this node will have its outputs ready

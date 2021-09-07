@@ -8,25 +8,25 @@ public:
 	DEFINE_PROCESSOR_NODE("Addition", AdditionNode)
 	
 	virtual void assignIoData() {
-		addIoData(input0);
-		addIoData(input1);
-		addIoData(input2);
-		addIoData(input3);
+		addIoData(input);
 		addIoData(output);
 	}
 
-	std::shared_ptr<ioData> input0 = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "term 0");
-	std::shared_ptr<ioData> input1 = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "term 0");
-	std::shared_ptr<ioData> input2 = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "term 0");
-	std::shared_ptr<ioData> input3 = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "term 0");
+	std::shared_ptr<ioData> input = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "input", true);
 	std::shared_ptr<ioData> output = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "result");
 
 	virtual void process(bool inputDataValid) {
 		double sum = 0.0;
-		if (input0->isConnected()) sum += input0->getReal();
-		if (input1->isConnected()) sum += input1->getReal();
-		if (input2->isConnected()) sum += input2->getReal();
-		if (input3->isConnected()) sum += input3->getReal();
+		if (input->isConnected()) {
+			if (input->hasMultipleLinks()) {
+				for (auto link : input->getLinks()) {
+					sum += link->getInputData()->getReal();
+				}
+			}
+			else {
+				sum += input->getReal();
+			}
+		}
 		output->set(sum);
 	}
 };
@@ -115,5 +115,42 @@ public:
 		if (div1->isConnected()) divOutput /= div1->getReal();
 		if (div2->isConnected()) divOutput /= div2->getReal();
 		output->set(divOutput);
+	}
+};
+
+
+class SinusNode : public ioNode {
+public:
+
+	DEFINE_PROCESSOR_NODE("Sinus", SinusNode)
+
+	virtual void assignIoData() {
+		addIoData(in);
+		addIoData(out);
+	}
+
+	std::shared_ptr<ioData> in = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "in");
+	std::shared_ptr<ioData> out = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "out");
+
+	virtual void process(bool inputDataValid) {
+		out->set(std::sin(in->getReal()));
+	}
+};
+
+class CosinusNode : public ioNode {
+public:
+
+	DEFINE_PROCESSOR_NODE("Cosinus", CosinusNode)
+
+	virtual void assignIoData() {
+		addIoData(in);
+		addIoData(out);
+	}
+
+	std::shared_ptr<ioData> in = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "in");
+	std::shared_ptr<ioData> out = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "out");
+
+	virtual void process(bool inputDataValid) {
+		out->set(std::cos(in->getReal()));
 	}
 };

@@ -46,8 +46,8 @@ bool NodeGraph::isConnectionValid(std::shared_ptr<ioData> data1, std::shared_ptr
 	else if (data1->isOutput() && data2->isOutput()) return false;
 
 	//don't allow multiple links on an input pin
-	if (data1->isInput() && !data1->ioLinks.empty()) return false;
-	else if (data2->isInput() && !data2->ioLinks.empty()) return false;
+	if (data1->isInput() && !data1->ioLinks.empty() && !data1->acceptsMultipleInputs()) return false;
+	else if (data2->isInput() && !data2->ioLinks.empty() && !data2->acceptsMultipleInputs()) return false;
 
 	//check if the link already exists, don't allow duplicates
 	for (std::shared_ptr<ioLink> link : data1->ioLinks) {

@@ -122,6 +122,7 @@ void DrawIcon(ImDrawList* drawList, const glm::vec2& a, const glm::vec2& b, int 
                     drawList->AddRectFilled(p0, p1, innerColor, 0, 15 + extra_segments);
 
                 drawList->AddRect(p0, p1, color, 0, 15 + extra_segments, 2.0f * outline_scale);
+
             }
         }
 

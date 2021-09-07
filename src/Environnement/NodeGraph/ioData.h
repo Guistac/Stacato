@@ -19,13 +19,14 @@ class ioLink;
 class ioData {
 public:
 
-	ioData(DataType t, DataDirection d, const char* n) : type(t), direction(d) {
+	ioData(DataType t, DataDirection d, const char* n, bool acceptsMultipleInputs = false) : type(t), direction(d) {
 		strcpy(name, n);
 		switch (type) {
 			case BOOLEAN_VALUE: booleanValue = false;
 			case INTEGER_VALUE: integerValue = 0;
 			case REAL_VALUE: realValue = 0.0;
 		}
+		b_acceptsMultipleInputs = acceptsMultipleInputs;
 	}
 
 	//data infos
@@ -45,12 +46,18 @@ public:
 		type = t;
 	}
 
+	//link infos
+	std::vector<std::shared_ptr<ioLink>>& getLinks() { return ioLinks; }
+	bool isConnected() { return !ioLinks.empty(); }
+	bool acceptsMultipleInputs() { return b_acceptsMultipleInputs; }
+	bool hasMultipleLinks() { return ioLinks.size() > 1; }
+	
 	//nodegraph infos
 	int getUniqueID() { return uniqueID; }
-	bool isConnected() { return !ioLinks.empty(); }
 	std::shared_ptr<ioNode> getNode() { return parentNode; }
 	bool& isVisible() { return b_visible; }
 
+	//datatype infos
 	bool isBool()				{ return type == BOOLEAN_VALUE; }
 	bool isInteger()			{ return type == INTEGER_VALUE; }
 	bool isDouble()				{ return type == REAL_VALUE; }
@@ -65,6 +72,7 @@ public:
 	long long int getInteger();
 	double getReal();
 
+	//TODO: is this useful ?
 	bool hasNewValue() { return b_hasNewValue; }
 
 	const char* getValueString();
@@ -74,6 +82,10 @@ public:
 
 	std::vector<std::shared_ptr<ioNode>> getNodesLinkedAtOutputs();
 	std::vector<std::shared_ptr<ioNode>> getNodesLinkedAtInputs();
+
+	float getGuiWidth(bool alwaysShowValue);
+	void pinGui(bool alwaysShowValue);
+	void dataGui();
 
 
 private:
@@ -90,6 +102,7 @@ private:
 	DataType type;
 	DataDirection direction;
 	char name[64];
+	bool b_acceptsMultipleInputs = false;
 	
 	bool b_hasNewValue = false;
 
