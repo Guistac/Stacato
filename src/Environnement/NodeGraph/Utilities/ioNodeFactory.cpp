@@ -19,6 +19,9 @@ namespace ioNodeFactory {
 		RETURN_NODE_IF_MATCHING(name, SinusNode);
 		RETURN_NODE_IF_MATCHING(name, CosinusNode);
 		RETURN_NODE_IF_MATCHING(name, GroupNode);
+		RETURN_NODE_IF_MATCHING(name, NotNode);
+		RETURN_NODE_IF_MATCHING(name, AndNode);
+		RETURN_NODE_IF_MATCHING(name, OrNode);
 		return nullptr;
 	}
 
@@ -31,7 +34,10 @@ namespace ioNodeFactory {
 		new DivisionNode(),
 		new SinusNode(),
 		new CosinusNode(),
-		new GroupNode()
+		new GroupNode(),
+		new NotNode(),
+		new AndNode(),
+		new OrNode()
 	};
 
 	std::vector<ioNode*>& getIoNodeList() {

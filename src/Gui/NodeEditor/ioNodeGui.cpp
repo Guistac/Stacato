@@ -33,7 +33,7 @@ float ioData::getGuiWidth(bool alwaysShowValue) {
     //get the pin title width
     float pinTextWidth = ImGui::CalcTextSize(getName()).x;
     //if the pin is connected, don't display its value, but add space for an icon
-    if (isConnected() && !alwaysShowValue)          return pinTextWidth + ImGui::GetStyle().ItemSpacing.x + iconDummyWidth;
+    if ((isConnected() && !alwaysShowValue) || acceptsMultipleInputs())          return pinTextWidth + ImGui::GetStyle().ItemSpacing.x + iconDummyWidth;
     //if it is connected and the type is boolean, add the width and spacing for a checkbox and icon
     else if (getType() == DataType::BOOLEAN_VALUE)  return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + ImGui::GetFrameHeight();
     //if it is connected and is not a boolean, add the width and spacing for an input field and icon
@@ -75,13 +75,13 @@ void ioData::pinGui(bool alwaysShowValue) {
         ImGui::Text(getName());
         NodeEditor::EndPin();
         //spacing.x
-        if (!isConnected() || alwaysShowValue) {
+        if (!acceptsMultipleInputs() && (!isConnected() || alwaysShowValue)) {
             ImGui::SameLine();
             dataGui();
         }
     }
     else if (isOutput()) {
-        if (!isConnected() || alwaysShowValue) {
+        if (!acceptsMultipleInputs() && (!isConnected() || alwaysShowValue)) {
             dataGui();
             ImGui::SameLine();
         }

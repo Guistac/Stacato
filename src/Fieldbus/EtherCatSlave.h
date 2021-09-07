@@ -55,7 +55,7 @@ public:
     //serves as device interface and as default device type for unknow devices
     INTERFACE_DEFINITION(EtherCatSlave, "Unknown Device", "Unknown manufacturer")
 
-        int slaveIndex = -1;
+    int slaveIndex = -1;
     int stationAlias = -1;
     ec_slavet* identity;
 

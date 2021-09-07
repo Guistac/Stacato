@@ -125,7 +125,7 @@ void NodeGraph::evaluate(std::vector<std::shared_ptr<ioNode>> startNodes) {
 	std::chrono::time_point end = std::chrono::high_resolution_clock::now();
 
 	long long timeNanos = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-	Logger::warn("Process Time: {} nanoseconds", timeNanos);
+	//Logger::warn("Process Time: {} nanoseconds", timeNanos);
 
 	mutex.unlock();
 }

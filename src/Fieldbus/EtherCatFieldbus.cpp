@@ -344,8 +344,13 @@ void EtherCatFieldbus::startCyclicExchange() {
 
             //interpret the data that was received for all slaves
             for (auto slave : slaves) slave->readInputs();
+            /*
             //process the data to generate output values, taking into account if new data wasn't received
             for (auto slave : slaves) slave->process(workingCounter == expectedWorkingCounter);
+            */
+
+            Environnement::nodeGraph.evaluate(DeviceType::ETHERCATSLAVE);
+
             //prepare the output data to be sent
             for (auto slave : slaves) slave->prepareOutputs();
                 
