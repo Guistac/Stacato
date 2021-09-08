@@ -3,6 +3,8 @@
 #include "Gui.h"
 #include "Framework/GuiWindow.h"
 
+#include "Environnement/Environnement.h"
+
 bool imguiDemoWindowOpen = false;
 bool imguiMetricsWindowOpen = false;
 bool implotDemoWindowOpen = false;
@@ -15,13 +17,15 @@ void mainMenuBar(bool closeWindowRequest) {
 	bool openAboutPopup = false;
 
 	ImGui::BeginMainMenuBar();
-	if (ImGui::BeginMenu("Staccato")) {
+	if (ImGui::BeginMenu("Stacatto")) {
 		if (ImGui::MenuItem("About")) openAboutPopup = true;
 		ImGui::Separator();
 		if (ImGui::MenuItem("Quit")) closeWindowRequest = true;
 		ImGui::EndMenu();
 	}
 	if (ImGui::BeginMenu("File")) {
+		if (ImGui::MenuItem("Save")) Environnement::save("xmlFile.xml");
+		if (ImGui::MenuItem("Load")) Environnement::load("xmlFile.xml");
 		ImGui::EndMenu();
 	}
 	if (ImGui::BeginMenu("Edit")) {
@@ -105,10 +109,10 @@ void aboutModal(bool openModal) {
 	ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 	if (ImGui::BeginPopupModal("About", &b_AboutPopupOpen, popupFlags)) {
 		ImGui::PushFont(Fonts::robotoBold42);
-		ImGui::Text("Staccato");
+		ImGui::Text("Stacatto");
 		ImGui::PopFont();
 		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Stage Central Control Automation Toolbox");
+		ImGui::Text("Stage Control Automation Technology Toolbox");
 		ImGui::PopFont();
 		ImGui::Text("Leo Becker - L'Atelier Artefact - 2021");
 		ImGui::Separator();

@@ -179,7 +179,7 @@ bool EtherCatFieldbus::scanNetwork() {
                 slave->slaveIndex = i;
                 slave->setOnline(true);
                 char name[128];
-                sprintf(name, "#%i '%s' @%i", slave->getSlaveIndex(), slave->getNodeTypeName(), slave->getStationAlias());
+                sprintf(name, "#%i '%s' @%i", slave->getSlaveIndex(), slave->getNodeName(), slave->getStationAlias());
                 slave->setName(name);
                 //add the slave to the list of unassigned slaves (not in the environnement)
             }
@@ -189,7 +189,7 @@ bool EtherCatFieldbus::scanNetwork() {
 
             Logger::info("    = Slave {} : '{}'  Address: {}  StationAlias {}  KnownDevice: {}  InEnvironnement: {}",
                 slave->getSlaveIndex(),
-                slave->getNodeTypeName(),
+                slave->getNodeName(),
                 slave->getAssignedAddress(),
                 slave->getStationAlias(),
                 slave->isSlaveKnown() ? "Yes" : "No",
@@ -267,7 +267,7 @@ bool EtherCatFieldbus::configureSlaves() {
     for (auto slave : slaves) {
         Logger::debug("   [{}] '{}' {} bytes ({} bits)",
             slave->getSlaveIndex(),
-            slave->getNodeTypeName(),
+            slave->getNodeName(),
             slave->identity->Ibytes + slave->identity->Obytes,
             slave->identity->Ibits + slave->identity->Obits);
         Logger::debug("          Inputs: {} bytes ({} bits)", slave->identity->Ibytes, slave->identity->Ibits);
@@ -349,7 +349,7 @@ void EtherCatFieldbus::startCyclicExchange() {
             for (auto slave : slaves) slave->process(workingCounter == expectedWorkingCounter);
             */
 
-            Environnement::nodeGraph.evaluate(DeviceType::ETHERCATSLAVE);
+            Environnement::getNodeGraph().evaluate(DeviceType::ETHERCATSLAVE);
 
             //prepare the output data to be sent
             for (auto slave : slaves) slave->prepareOutputs();

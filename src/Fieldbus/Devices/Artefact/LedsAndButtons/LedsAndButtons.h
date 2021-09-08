@@ -5,7 +5,7 @@
 class LedsAndButtons : public EtherCatSlave {
 public:
 
-	SLAVE_DEFINITION(LedsAndButtons, "LedsAndButtons", "Bausano")
+	SLAVE_DEFINITION(LedsAndButtons, "LedsAndButtons", "Bausano", "I/O")
 
 	//RxPDO
 	uint8_t ui8_led0 = 0;

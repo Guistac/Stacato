@@ -4,33 +4,48 @@
 
 #include "Fieldbus/EtherCatSlave.h"
 
-NodeGraph Environnement::nodeGraph;
+namespace Environnement {
 
-bool Environnement::hasEtherCatSlave(std::shared_ptr<EtherCatSlave> slave) {
-	for (auto node : nodeGraph.getIoNodes()) {
-		if (node->getType() == NodeType::IODEVICE && node->getDeviceType() == DeviceType::ETHERCATSLAVE) {
-			std::shared_ptr<EtherCatSlave> otherDevice = std::dynamic_pointer_cast<EtherCatSlave>(node);
-			if (slave->matches(otherDevice)) return true;
+	NodeGraph nodeGraph;
+
+	NodeGraph& getNodeGraph() { return nodeGraph; }
+
+	bool hasEtherCatSlave(std::shared_ptr<EtherCatSlave> slave) {
+		for (auto node : nodeGraph.getIoNodes()) {
+			if (node->getType() == NodeType::IODEVICE && node->getDeviceType() == DeviceType::ETHERCATSLAVE) {
+				std::shared_ptr<EtherCatSlave> otherDevice = std::dynamic_pointer_cast<EtherCatSlave>(node);
+				if (slave->matches(otherDevice)) return true;
+			}
+		}
+		return false;
+	}
+
+	std::shared_ptr<EtherCatSlave> getMatchingEtherCatSlave(std::shared_ptr<EtherCatSlave> slave) {
+		for (auto node : nodeGraph.getIoNodes()) {
+			if (node->getType() == NodeType::IODEVICE && node->getDeviceType() == DeviceType::ETHERCATSLAVE) {
+				std::shared_ptr<EtherCatSlave> otherDevice = std::dynamic_pointer_cast<EtherCatSlave>(node);
+				if (slave->matches(otherDevice)) return otherDevice;
+			}
+		}
+		return nullptr;
+	}
+
+	void setAllEtherCatSlavesOffline() {
+		for (auto node : nodeGraph.getIoNodes()) {
+			if (node->getType() == NodeType::IODEVICE && node->getDeviceType() == DeviceType::ETHERCATSLAVE) {
+				std::shared_ptr<EtherCatSlave> device = std::dynamic_pointer_cast<EtherCatSlave>(node);
+				device->setOnline(false);
+			}
 		}
 	}
-	return false;
-}
 
-std::shared_ptr<EtherCatSlave> Environnement::getMatchingEtherCatSlave(std::shared_ptr<EtherCatSlave> slave) {
-	for (auto node : nodeGraph.getIoNodes()) {
-		if (node->getType() == NodeType::IODEVICE && node->getDeviceType() == DeviceType::ETHERCATSLAVE) {
-			std::shared_ptr<EtherCatSlave> otherDevice = std::dynamic_pointer_cast<EtherCatSlave>(node);
-			if (slave->matches(otherDevice)) return otherDevice;
-		}
-	}
-	return nullptr;
-}
+	char name[256] = "Default Environnement";
 
-void Environnement::setAllEtherCatSlavesOffline() {
-	for (auto node : nodeGraph.getIoNodes()) {
-		if (node->getType() == NodeType::IODEVICE && node->getDeviceType() == DeviceType::ETHERCATSLAVE) {
-			std::shared_ptr<EtherCatSlave> device = std::dynamic_pointer_cast<EtherCatSlave>(node);
-			device->setOnline(false);
-		}
+	void setName(const char* newName) {
+		strcpy(name, newName);
+		//TODO: change title of window
 	}
+
+	const char* getName() { return name; }
+
 }

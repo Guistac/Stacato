@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Environnement/NodeGraph/ioNode.h"
+#include "NodeGraph/ioNode.h"
 
 class Axis : ioNode {
 public:

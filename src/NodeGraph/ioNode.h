@@ -4,39 +4,43 @@
 #include "ioData.h"
 #include "ioLink.h"
 
-#define DEFINE_PROCESSOR_NODE(nodeTypeName, className)	public:																	\
-														virtual const char * getNodeTypeName() { return nodeTypeName; }			\
-														static const char * getNodeTypeNameStatic() { return nodeTypeName; }	\
-														className(){															\
-															setName(nodeTypeName);												\
-														}																		\
-														virtual NodeType getType() { return NodeType::PROCESSOR; }				\
-														virtual DeviceType getDeviceType() { return DeviceType::NONE; }			\
+#define DEFINE_PROCESSOR_NODE(nodeName, className, category)	public:																							\
+																virtual const char* getNodeName() { return nodeName; }											\
+																static const char* getNodeNameStatic() { return nodeName; }										\
+																virtual const char* getNodeCategory() { return category; }										\
+																static const char* getNodeCategoryStatic() { return category; }									\
+																className(){ setName(nodeName); }																\
+																virtual NodeType getType() { return NodeType::PROCESSOR; }										\
+																virtual DeviceType getDeviceType() { return DeviceType::NONE; }									\
+																virtual std::shared_ptr<ioNode> getNewNodeInstance() { return std::make_shared<className>(); }	\
 
-#define DEFINE_GROUP_NODE(nodeTypeName, className)		public:																	\
-														virtual const char * getNodeTypeName() { return nodeTypeName; }			\
-														static const char * getNodeTypeNameStatic() { return nodeTypeName; }	\
-														className(){															\
-															setName(nodeTypeName);												\
-														}																		\
-														virtual NodeType getType() { return NodeType::NODEGROUPER; }			\
-														virtual DeviceType getDeviceType() { return DeviceType::NONE; }			\
+#define DEFINE_CONTAINER_NODE(nodeName, className, category)	public:																							\
+																virtual const char * getNodeName() { return nodeName; }											\
+																static const char * getNodeNameStatic() { return nodeName; }									\
+																virtual const char* getNodeCategory() { return category; }										\
+																static const char* getNodeCategoryStatic() { return category; }									\
+																className(){ setName(nodeName); }																\
+																virtual NodeType getType() { return NodeType::CONTAINER; }										\
+																virtual DeviceType getDeviceType() { return DeviceType::NONE; }									\
+																virtual std::shared_ptr<ioNode> getNewNodeInstance() { return std::make_shared<className>(); }	\
 
-#define DEFINE_DEVICE_NODE(nodeTypeName, className, deviceType)	public:																	\
-																virtual const char * getNodeTypeName() { return nodeTypeName; }			\
-																static const char * getNodeTypeNameStatic() { return nodeTypeName; }	\
-																className(){															\
-																	setName(nodeTypeName);												\
-																}																		\
-																virtual NodeType getType() { return NodeType::IODEVICE; }				\
-																virtual DeviceType getDeviceType() { return deviceType; }				\
+#define DEFINE_DEVICE_NODE(nodeName, className, deviceType, category)	public:																							\
+																		virtual const char * getNodeName() { return nodeName; }											\
+																		static const char * getNodeNameStatic() { return nodeName; }									\
+																		virtual const char* getNodeCategory() { return category; }										\
+																		static const char* getNodeCategoryStatic() { return category; }									\
+																		className(){ setName(nodeName); }																\
+																		virtual NodeType getType() { return NodeType::IODEVICE; }										\
+																		virtual DeviceType getDeviceType() { return deviceType; }										\
+																		virtual std::shared_ptr<ioNode> getNewNodeInstance() { return std::make_shared<className>(); }	\
 
 class NodeGraph;
 
 enum NodeType {
 	IODEVICE,
 	PROCESSOR,
-	NODEGROUPER
+	AXIS,
+	CONTAINER
 };
 
 enum DeviceType {
@@ -52,45 +56,58 @@ public:
 
 	virtual NodeType getType() = 0;
 	virtual DeviceType getDeviceType() = 0;
+	virtual const char* getNodeName() = 0;
+	virtual const char* getNodeCategory() = 0;
+	virtual std::shared_ptr<ioNode> getNewNodeInstance() = 0;
 
 	void setName(const char* n) { strcpy(name, n); }
 	const char* getName() { return name; }
-	int getUniqueID() { return uniqueID; }
 
-	virtual const char* getNodeTypeName() = 0;
+	const char* getTypeString() {
+		switch (getType()) {
+			case IODEVICE: return "IODEVICE";
+			case PROCESSOR: return "PROCESSOR";
+			case AXIS: return "AXIS";
+			case CONTAINER: return "CONTAINER";
+			default: return "";
+		}
+	}
+
+	const char* getDeviceTypeString() {
+		switch (getDeviceType()) {
+			case CLOCK: return "CLOCK";
+			case ETHERCATSLAVE: return "ETHERCATSLAVE";
+			case NETWORKDEVICE: return "NETWORKDEVICE";
+			case USBDEVICE: return "USBDEVICE";
+			case NONE: return "NONE";
+			default: return "";
+		}
+	}
 
 	void addIoData(std::shared_ptr<ioData> d);
 	void removeIoData(std::shared_ptr<ioData> d);
-
 	std::vector<std::shared_ptr<ioData>>& getNodeInputData() { return nodeInputData; }
 	std::vector<std::shared_ptr<ioData>>& getNodeOutputData() { return nodeOutputData; }
 	bool hasInputs() { return !nodeInputData.empty(); }
 	bool hasOutputs() { return !nodeOutputData.empty(); }
+	virtual void assignIoData() = 0;
 
+	int getUniqueID() { return uniqueID; }
 	bool isInNodeGraph() { return b_isInNodeGraph; }
-
-	virtual void nodeGui(bool alwaysShowValue);
-	virtual void propertiesGui();
-	virtual void nodeSpecificGui() {}
 
 	virtual void process(bool inputsValid) = 0;
 	bool wasProcessed() { return b_wasProcessed; }
+	bool areAllLinkedInputNodesProcessed();
 
-	//check if all nodes linked to the inputs of this node were processed
-	bool areAllLinkedInputNodesProcessed() {
-		for (auto inputData : nodeInputData) {
-			for (auto inputDataLink : inputData->getLinks()) {
-				if (!inputDataLink->getInputData()->getNode()->wasProcessed()) return false;
-			}
-		}
-		return true;
-	}
-
-	virtual void assignIoData() = 0;
+	virtual void nodeGui(bool alwaysShowValue);
+	virtual void propertiesGui(); //defined in nodegui.cpp
+	virtual void nodeSpecificGui() {}
 
 	//for device Nodes
 	bool isOnline() { return b_isOnline; }
 	void setOnline(bool b) { b_isOnline = b; }
+
+	void getNodeGraphPosition(float& x, float& y);
 
 private:
 
@@ -98,14 +115,14 @@ private:
 	friend class NodePin;
 	friend class NodeLink;
 
+	char name[128];
+
 	NodeGraph* parentNodeGraph = nullptr;
+	bool b_isInNodeGraph = false;
 	int uniqueID = -1;
 
-	char name[128];
 	std::vector<std::shared_ptr<ioData>> nodeInputData;
 	std::vector<std::shared_ptr<ioData>> nodeOutputData;
-
-	bool b_isInNodeGraph = false;
 
 	bool b_wasProcessed = false;
 	bool b_circularDependencyFlag = false;

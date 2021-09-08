@@ -1,0 +1,17 @@
+<Environnement name="Default Environnement">
+    <NodeGraph>
+        <Nodes/>
+        <Links/>
+    </NodeGraph>
+</Environnement>
+
+<!--ETHERCAT FIELDBUS SETTINGS-->
+<FieldbusSettings>
+    <NetworkInterfaceCard>
+        <Primary Description="Microsoft" Name="\Device\NPF_{94C82131-D635-43BC-AA0D-763132AE31BA}"/>
+    </NetworkInterfaceCard>
+    <ProcessInterval Milliseconds="3"/>
+    <ProcessDataTimeout Milliseconds="1.5"/>
+    <ClockStableThreshold Milliseconds="0.10000000000000001"/>
+    <SlaveStateCheckCycleCount Cycles="50"/>
+</FieldbusSettings>

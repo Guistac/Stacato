@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Environnement/NodeGraph/ioNode.h"
+#include "NodeGraph/ioNode.h"
 
 class AdditionNode : public ioNode {
 public:
 
-	DEFINE_PROCESSOR_NODE("Addition", AdditionNode)
+	DEFINE_PROCESSOR_NODE("Addition", AdditionNode, "Math")
 	
 	virtual void assignIoData() {
 		addIoData(input);
@@ -25,7 +25,7 @@ public:
 class SubtractionNode : public ioNode {
 public:
 
-	DEFINE_PROCESSOR_NODE("Subtraction", SubtractionNode)
+	DEFINE_PROCESSOR_NODE("Subtraction", SubtractionNode, "Math")
 
 		virtual void assignIoData() {
 		addIoData(base);
@@ -48,7 +48,7 @@ public:
 class MultiplicationNode : public ioNode {
 public:
 
-	DEFINE_PROCESSOR_NODE("Multiplication", MultiplicationNode)
+	DEFINE_PROCESSOR_NODE("Multiplication", MultiplicationNode,"Math")
 
 		virtual void assignIoData() {
 		addIoData(input);
@@ -68,7 +68,7 @@ public:
 class DivisionNode : public ioNode {
 public:
 
-	DEFINE_PROCESSOR_NODE("Division", DivisionNode)
+	DEFINE_PROCESSOR_NODE("Division", DivisionNode, "Math")
 
 		virtual void assignIoData() {
 		addIoData(base);
@@ -92,7 +92,7 @@ public:
 class SinusNode : public ioNode {
 public:
 
-	DEFINE_PROCESSOR_NODE("Sinus", SinusNode)
+	DEFINE_PROCESSOR_NODE("Sinus", SinusNode, "Math")
 
 	virtual void assignIoData() {
 		addIoData(in);
@@ -112,7 +112,7 @@ public:
 class CosinusNode : public ioNode {
 public:
 
-	DEFINE_PROCESSOR_NODE("Cosinus", CosinusNode)
+	DEFINE_PROCESSOR_NODE("Cosinus", CosinusNode, "Math")
 
 	virtual void assignIoData() {
 		addIoData(in);
@@ -132,7 +132,7 @@ public:
 class NotNode : public ioNode{
 public:
 
-	DEFINE_PROCESSOR_NODE("Not", NotNode)
+	DEFINE_PROCESSOR_NODE("Not", NotNode, "Logic")
 
 	virtual void assignIoData() {
 		addIoData(in);
@@ -155,7 +155,7 @@ public:
 class AndNode : public ioNode {
 public:
 
-	DEFINE_PROCESSOR_NODE("And", AndNode)
+	DEFINE_PROCESSOR_NODE("And", AndNode, "Logic")
 
 	virtual void assignIoData() {
 		addIoData(in);
@@ -180,7 +180,7 @@ public:
 class OrNode : public ioNode {
 public:
 
-	DEFINE_PROCESSOR_NODE("Or", OrNode)
+	DEFINE_PROCESSOR_NODE("Or", OrNode, "Logic")
 
 	virtual void assignIoData() {
 		addIoData(in);

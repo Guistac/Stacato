@@ -42,5 +42,14 @@ void ioNode::removeIoData(std::shared_ptr<ioData> removedIoData) {
 			}
 		}
 	}
+}
 
+//check if all nodes linked to the inputs of this node were processed
+bool ioNode::areAllLinkedInputNodesProcessed() {
+	for (auto inputData : nodeInputData) {
+		for (auto inputDataLink : inputData->getLinks()) {
+			if (!inputDataLink->getInputData()->getNode()->wasProcessed()) return false;
+		}
+	}
+	return true;
 }

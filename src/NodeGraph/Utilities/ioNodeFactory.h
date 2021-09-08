@@ -1,13 +1,17 @@
 #pragma once
 
-#include "Environnement/NodeGraph/ioNode.h"
-
-#define RETURN_NODE_IF_MATCHING(name, className) if(strcmp(name, className::getNodeTypeNameStatic()) == 0) return std::make_shared<className>()
+#include "NodeGraph/ioNode.h"
 
 namespace ioNodeFactory {
 
+	struct ioNodeGroup {
+		char name[128];
+		std::vector<ioNode*> nodes;
+	};
+
+	void loadNodes();
+
 	std::shared_ptr<ioNode> getIoNodeByName(const char* name);
-
-	std::vector<ioNode*>& getIoNodeList();
-
+	
+	std::vector<ioNodeGroup>& getNodesByCategory();
 }

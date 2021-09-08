@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Environnement/NodeGraph/ioNode.h"
+#include "NodeGraph/ioNode.h"
 
 class ClockNode : public ioNode {
 public:
 
-	DEFINE_DEVICE_NODE("Clock", ClockNode, DeviceType::CLOCK)
+	DEFINE_DEVICE_NODE("Clock", ClockNode, DeviceType::CLOCK, "Time")
 
 	std::shared_ptr<ioData> output_seconds = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "output");
 

@@ -3,9 +3,15 @@
 #include "Gui/Framework/GuiWindow.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 
+#include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
+#include "NodeGraph/Utilities/ioNodeFactory.h"
+
 int main() {
 	Logger::init();
 	Timing::start();
+
+	EtherCatDeviceFactory::loadDevices();
+	ioNodeFactory::loadNodes();
 
 	EtherCatFieldbus::updateNetworkInterfaceCardList();
 	EtherCatFieldbus::init(EtherCatFieldbus::networkInterfaceCards.front());

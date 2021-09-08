@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Environnement/NodeGraph/ioNode.h"
+#include "NodeGraph/ioNode.h"
 
 class DisplayNode : public ioNode {
 public:
 
-	DEFINE_PROCESSOR_NODE("Display", DisplayNode)
+	DEFINE_PROCESSOR_NODE("Display", DisplayNode, "Utility")
 	
 
 	virtual void assignIoData() {

@@ -1,8 +1,7 @@
 #include <pch.h>
 
 #include "Gui/gui.h"
-#include "Environnement/nodeGraph/ioNode.h"
-
+#include "nodeGraph/ioNode.h"
 
 namespace NodeEditor = ax::NodeEditor;
 
@@ -104,7 +103,7 @@ void ioNode::nodeGui(bool alwaysShowValue) {
 
     NodeEditor::BeginNode(getUniqueID());
 
-    if (getType() != NodeType::NODEGROUPER) {
+    if (getType() != NodeType::CONTAINER) {
         //===== do some text size calculations to be able to cleanly align output nodes to the right =====
 
         //find the widest pin line
@@ -169,7 +168,7 @@ void ioNode::nodeGui(bool alwaysShowValue) {
     NodeEditor::EndNode();
 
 
-    if (getType() == NodeType::NODEGROUPER && NodeEditor::BeginGroupHint(getUniqueID())) { 
+    if (getType() == NodeType::CONTAINER && NodeEditor::BeginGroupHint(getUniqueID())) { 
         auto min = NodeEditor::GetGroupMin();
         auto max = NodeEditor::GetGroupMax();
         ImVec2 cursor = ImVec2(min.x + 8, min.y - ImGui::GetTextLineHeightWithSpacing() - 4);
@@ -231,4 +230,10 @@ void ioNode::propertiesGui() {
 
         ImGui::EndTabBar();
     }
+}
+
+void ioNode::getNodeGraphPosition(float& x, float& y) {
+    glm::vec2 position = NodeEditor::GetNodePosition(getUniqueID());
+    x = position.x;
+    y = position.y;
 }

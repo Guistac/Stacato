@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Environnement/NodeGraph/ioNode.h"
+#include "NodeGraph/ioNode.h"
 
 class GroupNode : public ioNode {
 public:																	
 	
-	DEFINE_GROUP_NODE("Group", GroupNode);
+	DEFINE_CONTAINER_NODE("Group", GroupNode, "Utility");
 
 	virtual void process(bool) {}
 	virtual void assignIoData() {}

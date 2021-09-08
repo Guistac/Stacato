@@ -1,15 +1,22 @@
 #pragma once
 
 #include "nodeGraph/nodeGraph.h"
+#include <tinyxml2.h>
 
 class EtherCatSlave;
 
-class Environnement {
-public:
+namespace Environnement{
+	
+	bool hasEtherCatSlave(std::shared_ptr<EtherCatSlave> slave);
+	std::shared_ptr<EtherCatSlave> getMatchingEtherCatSlave(std::shared_ptr<EtherCatSlave>);
+	void setAllEtherCatSlavesOffline();
 
-	static bool hasEtherCatSlave(std::shared_ptr<EtherCatSlave> slave);
-	static std::shared_ptr<EtherCatSlave> getMatchingEtherCatSlave(std::shared_ptr<EtherCatSlave>);
-	static void setAllEtherCatSlavesOffline();
+	NodeGraph& getNodeGraph();
 
-	static NodeGraph nodeGraph;
+	bool save(const char* filePath);
+	bool load(const char* filePath);
+
+	void setName(const char*);
+	const char* getName();
+
 };
