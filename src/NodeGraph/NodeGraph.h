@@ -8,6 +8,8 @@ class ioNode;
 class ioData;
 class ioLink;
 
+namespace tinyxml2 { class XMLElement; }
+
 class NodeGraph {
 public:
 
@@ -30,6 +32,9 @@ public:
 	void evaluate(DeviceType deviceType);
 	void evaluate(std::shared_ptr<ioNode> node);
 	void evaluate(std::vector<std::shared_ptr<ioNode>> nodes);
+
+	bool load(tinyxml2::XMLElement* xml);
+	bool save(tinyxml2::XMLElement* xml);
 
 private:
 
