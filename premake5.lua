@@ -1,13 +1,13 @@
 --=================================================================================================================
 
-workspace "Staccato"
+workspace "Stacatto"
 
     configurations{
         "Debug",
         "Release"
     }
 
-    startproject "Staccato"
+    startproject "Stacatto"
  
     filter "system:windows"
         defines "WIN32"
@@ -28,7 +28,7 @@ workspace "Staccato"
 
 --=================================================================================================================
 
-project "Staccato"
+project "Stacatto"
 	location "" --directory of the project
 	kind "consoleApp" --executable file
 	language "C++"
