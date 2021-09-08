@@ -1,6 +1,6 @@
-# Staccato
+# Stacatto
 
-## Stage Control Automation Toolbox
+## Stage Control Automation Technology Toolbox
 
 Future Milestones
 - Feature Complete Node Graph and Editor
@@ -16,7 +16,6 @@ Optional Milestones
 - Motion Sequencer
 
 Daily Milestone
-- Easier node adder management through factory lists
 - SaveFile for NodeGraph
 - Nodegraph driven by EtherCAT Fieldbus routine
 - Splitting Up Device Nodes input and input and output node
