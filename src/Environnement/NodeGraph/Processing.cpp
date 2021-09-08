@@ -79,6 +79,8 @@ void NodeGraph::evaluate(std::vector<std::shared_ptr<ioNode>> startNodes) {
 		linkedNodes.swap(nextLinkedNodes);
 	}
 
+	//TODO: don't update device nodes other than the specified type
+	//TODO: precompile a list of instructions rather than scanning the tree each time
 
 	//SECOND PHASE:
 	//all nodesToProcess will need to be processed in a certain order
@@ -93,7 +95,6 @@ void NodeGraph::evaluate(std::vector<std::shared_ptr<ioNode>> startNodes) {
 	for (auto node : nodesToProcess) node->b_wasProcessed = false;
 
 	std::vector<std::shared_ptr<ioNode>> nextNodesToProcess;
-
 
 	while (!nodesToProcess.empty()) {
 		//for each node to process, check if all the nodes connected to the current nodes inputs have been processed
@@ -110,7 +111,6 @@ void NodeGraph::evaluate(std::vector<std::shared_ptr<ioNode>> startNodes) {
 			else {
 				//add to a vector to try again on the next loop
 				nextNodesToProcess.push_back(node);
-				//node->b_circularDependencyFlag = true;
 			}
 		}
 

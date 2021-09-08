@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include "Gui/Gui.h"
+#include <imgui_internal.h>
 
 #include "Environnement/Environnement.h"
 #include "Fieldbus/EtherCatFieldbus.h"
@@ -22,19 +23,25 @@ namespace ImGuiNodeEditor {
     }
 }
 
+
+
+
 namespace NodeEditor = ax::NodeEditor;
 
 void nodeGraph() {
+
+
 
     static bool showValues = true;
 
     Environnement::nodeGraph.evaluate();
 
-    glm::vec2 sideBarSize(ImGui::GetTextLineHeight() * 20.0, ImGui::GetContentRegionAvail().y);
+    float sideBarWidth = ImGui::GetTextLineHeight() * 20.0;
+    glm::vec2 sideBarSize(sideBarWidth, ImGui::GetContentRegionAvail().y);
     if (ImGui::BeginChild("SideBar", sideBarSize)) {
-
-        if (ImGui::BeginTabBar("NodeEditorSidePanel")) {
-
+        if (!selectedNodes.empty() && ImGui::BeginTabBar("NodeEditorSidePanel")) {
+            glm::vec2 nodePos = NodeEditor::GetNodePosition(selectedNodes.front()->getUniqueID());
+            //Logger::warn("node position x {}  y {}", nodePos.x, nodePos.y);
             for (auto node : selectedNodes) {
                 if (ImGui::BeginTabItem(node->getName())) {
                     if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {
@@ -44,16 +51,11 @@ void nodeGraph() {
                     ImGui::EndTabItem();
                 }
             }
-
-            if (ImGui::BeginTabItem("Add Nodes")) {
-                nodeAdder();
-                ImGui::EndTabItem();
-            }
-
             ImGui::EndTabBar();
         }
-
-	
+        if (selectedNodes.empty()) {
+            nodeAdder();
+        }
         ImGui::EndChild();
     }
 
@@ -67,11 +69,14 @@ void nodeGraph() {
 
     if (ImGui::BeginDragDropTarget()){
         const ImGuiPayload* payload;
+        glm::vec2 mousePosition = ImGui::GetMousePos();
         payload = ImGui::AcceptDragDropPayload("EtherCatSlave");
         if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
             const char * slaveDeviceName = *(const char**)payload->Data;
             std::shared_ptr<ioNode> newSlave = EtherCatDeviceFactory::getDeviceByName(slaveDeviceName);
             Environnement::nodeGraph.addIoNode(newSlave);
+            NodeEditor::SetNodePosition(newSlave->getUniqueID(), NodeEditor::ScreenToCanvas(mousePosition));
+            NodeEditor::SelectNode(newSlave->getUniqueID());
             payload = nullptr;
         }
         payload = ImGui::AcceptDragDropPayload("ProcessorNode");
@@ -79,6 +84,8 @@ void nodeGraph() {
             const char* processorName = *(const char**)payload->Data;
             std::shared_ptr<ioNode> newProcessor = ioNodeFactory::getIoNodeByName(processorName);
             Environnement::nodeGraph.addIoNode(newProcessor);
+            NodeEditor::SetNodePosition(newProcessor->getUniqueID(), NodeEditor::ScreenToCanvas(mousePosition));
+            NodeEditor::SelectNode(newProcessor->getUniqueID());
             payload = nullptr;
         }
         ImGui::EndDragDropTarget();
@@ -125,7 +132,7 @@ void nodeEditor(bool alwaysShowValues) {
     if (NodeEditor::ShowNodeContextMenu(&contextNodeId))		ImGui::OpenPopup("Node Context Menu");
     else if (NodeEditor::ShowPinContextMenu(&contextPinId))		ImGui::OpenPopup("Pin Context Menu");
     else if (NodeEditor::ShowLinkContextMenu(&contextLinkId))	ImGui::OpenPopup("Link Context Menu");
-    else if (NodeEditor::ShowBackgroundContextMenu())			ImGui::OpenPopup("Background Context Menu");
+    else if (NodeEditor::ShowBackgroundContextMenu())           ImGui::OpenPopup("Background Context Menu");
     NodeEditor::Resume();
 
     NodeEditor::Suspend();
@@ -145,8 +152,16 @@ void nodeEditor(bool alwaysShowValues) {
         ImGui::EndPopup();
     }
 
+    static glm::vec2 mouseRightClickPosition;
+    if (ImGui::IsMouseClicked(1)) mouseRightClickPosition = ImGui::GetMousePos();
     if (ImGui::BeginPopup("Background Context Menu")) {
-        ImGui::Text("Background Context Menu");
+        std::shared_ptr<ioNode> newNode = nodeAdderContextMenu();
+        if (newNode) {
+            Environnement::nodeGraph.addIoNode(newNode);
+            NodeEditor::SetNodePosition(newNode->getUniqueID(), NodeEditor::ScreenToCanvas(mouseRightClickPosition));
+            NodeEditor::SelectNode(newNode->getUniqueID());
+            ImGui::CloseCurrentPopup();
+        }
         ImGui::EndPopup();
     }
     NodeEditor::Resume();
