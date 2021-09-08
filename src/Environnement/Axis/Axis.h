@@ -2,10 +2,10 @@
 
 #include "Environnement/NodeGraph/ioNode.h"
 
-class Axis : ProcessorNode {
+class Axis : ioNode {
 public:
 
-	void process() {}
+	virtual void process(bool inputDataValid) {}
 
 
 

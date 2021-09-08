@@ -43,9 +43,6 @@ bool EtherCatSlave::getPDOMapping(EtherCatPDO& pdo, uint16_t pdoIndex, const cha
 }
 */
 
-
-
-
 typedef struct {
 public:
     uint16_t stateCode;
@@ -77,7 +74,7 @@ bool EtherCatSlave::hasStateError() {
 bool EtherCatSlave::matches(std::shared_ptr<EtherCatSlave> otherSlave) {
     //two matching slaves should have the same class device name (offline copy of the original device name)
     //the same station alias / manual address
-    if (strcmp(getDeviceName(), otherSlave->getDeviceName()) != 0) return false;
+    if (strcmp(getNodeTypeName(), otherSlave->getNodeTypeName()) != 0) return false;
     if (getStationAlias() != otherSlave->getStationAlias()) return false;
     return true;
 }

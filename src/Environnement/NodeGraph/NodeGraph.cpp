@@ -9,12 +9,15 @@ void NodeGraph::addIoNode(std::shared_ptr<ioNode> newIoNode) {
 	newIoNode->parentNodeGraph = this;
 	newIoNode->uniqueID = uniqueID++;
 	ioNodeList.push_back(newIoNode);
+	newIoNode->assignIoData();
 	for (std::shared_ptr<ioData> data : newIoNode->nodeInputData) {
 		data->uniqueID = uniqueID++;
+		data->parentNode = newIoNode;
 		ioDataList.push_back(data);
 	}
 	for (std::shared_ptr<ioData> data : newIoNode->nodeOutputData) {
 		data->uniqueID = uniqueID++;
+		data->parentNode = newIoNode;
 		ioDataList.push_back(data);
 	}
 	newIoNode->b_isInNodeGraph = true;
@@ -42,6 +45,10 @@ bool NodeGraph::isConnectionValid(std::shared_ptr<ioData> data1, std::shared_ptr
 	if (data1->isInput() && data2->isInput()) return false;
 	else if (data1->isOutput() && data2->isOutput()) return false;
 
+	//don't allow multiple links on an input pin
+	if (data1->isInput() && !data1->ioLinks.empty() && !data1->acceptsMultipleInputs()) return false;
+	else if (data2->isInput() && !data2->ioLinks.empty() && !data2->acceptsMultipleInputs()) return false;
+
 	//check if the link already exists, don't allow duplicates
 	for (std::shared_ptr<ioLink> link : data1->ioLinks) {
 		if (link->outputData == data2 || link->inputData == data2) return false;
@@ -58,8 +65,8 @@ std::shared_ptr<ioLink> NodeGraph::connect(std::shared_ptr<ioData> data1, std::s
 	if (!isConnectionValid(data1, data2)) return nullptr;
 	std::shared_ptr<ioLink> newIoLink = std::make_shared<ioLink>();
 	newIoLink->uniqueID = uniqueID++;
-	newIoLink->inputData = data1->isInput() ? data1 : data2;
-	newIoLink->outputData = data2->isOutput() ? data2 : data1;
+	newIoLink->inputData = data1->isOutput() ? data1 : data2;
+	newIoLink->outputData = data2->isInput() ? data2 : data1;
 	data1->ioLinks.push_back(newIoLink);
 	data2->ioLinks.push_back(newIoLink);
 	ioLinkList.push_back(newIoLink);

@@ -7,7 +7,12 @@
 #include <implot.h>
 
 void Lexium32::deviceSpecificGui() {
+    if (ImGui::BeginTabItem("Identity")) {
 
+        ImGui::InputInt("Station Alias", &stationAlias);
+
+        ImGui::EndTabItem();
+    }
     if (ImGui::BeginTabItem("Lexium32 Options")) {
         ImGui::Separator();
 

@@ -6,7 +6,6 @@
 #include "ioData.h"
 
 void ioNode::addIoData(std::shared_ptr<ioData> ioData) {
-	ioData->parentNode = this;
 	if (ioData->isInput()) nodeInputData.push_back(ioData);
 	else if (ioData->isOutput()) nodeOutputData.push_back(ioData);
 

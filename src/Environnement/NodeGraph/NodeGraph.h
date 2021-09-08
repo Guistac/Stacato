@@ -8,7 +8,7 @@ class ioNode;
 class ioData;
 class ioLink;
 
-class NodeGraph{
+class NodeGraph {
 public:
 
 	void addIoNode(std::shared_ptr<ioNode>);
@@ -26,7 +26,10 @@ public:
 	std::vector<std::shared_ptr<ioData>>& getIoData() { return ioDataList; }
 	std::vector<std::shared_ptr<ioLink>>& getIoLinks() { return ioLinkList; }
 
-	void process(DeviceNode::DeviceType deviceType);
+	void evaluate();
+	void evaluate(DeviceType deviceType);
+	void evaluate(std::shared_ptr<ioNode> node);
+	void evaluate(std::vector<std::shared_ptr<ioNode>> nodes);
 
 private:
 
@@ -39,5 +42,7 @@ private:
 	std::vector<std::shared_ptr<ioLink>> ioLinkList;
 
 	int uniqueID = 1; //counter to add new nodes, pins and links
+
+	std::mutex mutex;
 };
 

@@ -108,7 +108,7 @@ void aboutModal(bool openModal) {
 		ImGui::Text("Staccato");
 		ImGui::PopFont();
 		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Stage Control Automation Technology Software");
+		ImGui::Text("Stage Central Control Automation Toolbox");
 		ImGui::PopFont();
 		ImGui::Text("Leo Becker - L'Atelier Artefact - 2021");
 		ImGui::Separator();

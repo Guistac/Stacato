@@ -6,157 +6,180 @@
 
 namespace NodeEditor = ax::NodeEditor;
 
-void ioNode::nodeGui() {
+void ioData::dataGui() {
+    static float dataFieldWidth = ImGui::GetTextLineHeight() * 4.0;
+    ImGui::SetNextItemWidth(dataFieldWidth);
+    if (isOutput()) ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+    ImGui::PushID(getUniqueID());
+    switch (getType()) {
+    case DataType::BOOLEAN_VALUE:
+        ImGui::Checkbox("##", &booleanValue);
+        break;
+    case DataType::INTEGER_VALUE:
+        ImGui::InputScalar("##", ImGuiDataType_S64, &integerValue);
+        break;
+    case DataType::REAL_VALUE:
+        ImGui::InputDouble("##", &realValue, 0.0, 0.0, "%.3f");
+        break;
+    }
+    ImGui::PopID();
+    if (isOutput()) ImGui::PopItemFlag();
+}
+
+float ioData::getGuiWidth(bool alwaysShowValue) {
+    static float iconSize = ImGui::GetTextLineHeight();                             //square size of the pin icons
+    static float iconDummyWidth = ImGui::GetTextLineHeight() * 0.75;                //width the pin icon actually occupies
+    static float dataFieldWidth = ImGui::GetTextLineHeight() * 4.0;
+    //get the pin title width
+    float pinTextWidth = ImGui::CalcTextSize(getName()).x;
+    //if the pin is connected, don't display its value, but add space for an icon
+    if ((isConnected() && !alwaysShowValue) || acceptsMultipleInputs())          return pinTextWidth + ImGui::GetStyle().ItemSpacing.x + iconDummyWidth;
+    //if it is connected and the type is boolean, add the width and spacing for a checkbox and icon
+    else if (getType() == DataType::BOOLEAN_VALUE)  return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + ImGui::GetFrameHeight();
+    //if it is connected and is not a boolean, add the width and spacing for an input field and icon
+    else                                            return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + dataFieldWidth;
+}
+
+
+enum pinIcon {
+    ARROW = 0,
+    CIRCLE_ARROW_OUT = 1,
+    SQUARED_SQUARE = 3,
+    ROUNDED_SQUARED = 4,
+    DIAMOND = 5
+};
+
+void ioData::pinGui(bool alwaysShowValue) {
+    static float iconSize = ImGui::GetTextLineHeight();                             //square size of the pin icons
+    static float iconDummyWidth = ImGui::GetTextLineHeight() * 0.75;                //width the pin icon actually occupies
+    static float dataFieldWidth = ImGui::GetTextLineHeight() * 4.0;
+
+    pinIcon icon;
+    switch (getType()) {
+        case DataType::BOOLEAN_VALUE: icon = ROUNDED_SQUARED; break;
+        case DataType::INTEGER_VALUE: icon = DIAMOND; break;
+        case DataType::REAL_VALUE: icon = ARROW; break;
+        default: icon = CIRCLE_ARROW_OUT; break;
+    }
+
+    if (isInput()) {
+        NodeEditor::BeginPin(getUniqueID(), NodeEditor::PinKind::Input);
+        NodeEditor::PinPivotAlignment(ImVec2(0.0, 0.5));
+        ImGui::Dummy(glm::vec2(iconDummyWidth));
+        //spacing.x
+        glm::vec2 min = ImGui::GetItemRectMin();
+        min.x -= iconSize * 0.15; //shift the visual position of the icon
+        glm::vec2 max = min + glm::vec2(iconSize);
+        DrawIcon(ImGui::GetWindowDrawList(), min, max, icon, isConnected(), ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
+        ImGui::SameLine();
+        ImGui::Text(getName());
+        NodeEditor::EndPin();
+        //spacing.x
+        if (!acceptsMultipleInputs() && (!isConnected() || alwaysShowValue)) {
+            ImGui::SameLine();
+            dataGui();
+        }
+    }
+    else if (isOutput()) {
+        if (!acceptsMultipleInputs() && (!isConnected() || alwaysShowValue)) {
+            dataGui();
+            ImGui::SameLine();
+        }
+        //spacing.x
+        NodeEditor::BeginPin(getUniqueID(), NodeEditor::PinKind::Output);
+        NodeEditor::PinPivotAlignment(ImVec2(1.0, 0.5));
+        ImGui::Text(getName());
+        ImGui::SameLine();
+        //spacing.x
+        ImGui::Dummy(glm::vec2(iconDummyWidth));
+        glm::vec2 min = ImGui::GetItemRectMin();
+        min.x -= iconSize * 0.15; //shift the visual position of the icon
+        glm::vec2 max = min + glm::vec2(iconSize);
+        DrawIcon(ImGui::GetWindowDrawList(), min, max, icon, isConnected(), ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
+        NodeEditor::EndPin();
+    }
+}
+
+void ioNode::nodeGui(bool alwaysShowValue) {
 
     NodeEditor::BeginNode(getUniqueID());
 
-    //===== do some text size calculations to be able to cleanly align output nodes to the right =====
+    if (getType() != NodeType::NODEGROUPER) {
+        //===== do some text size calculations to be able to cleanly align output nodes to the right =====
 
-    ImVec2 nodePosition = NodeEditor::GetNodePosition(getUniqueID());         //top left coordinate of the node
-    static float pinSpacing = ImGui::GetTextLineHeight() / 2.0;                     //horizontal space between input and output pins
-    static float nodePadding = NodeEditor::GetStyle().NodePadding.x;                //horizontal blank space at the inside edge of the node
-    static float borderOffset = NodeEditor::GetStyle().NodeBorderWidth / 1.5f;      //offset from the border thickness of the node
-    static float labelRounding = NodeEditor::GetStyle().NodeRounding;               //radius of the node rounded corners
-    static float iconSize = ImGui::GetTextLineHeight();                             //square size of the pin icons
-    static float iconDummyWidth = ImGui::GetTextLineHeight() * 0.75;                //width the pin icon actually occupies
+        //find the widest pin line
+        float titleTextWidth = ImGui::CalcTextSize(getName()).x;
+        float widestPin = 0;
+        for (auto pin : getNodeInputData()) {
+            if (!pin->isVisible() && !pin->isConnected()) continue;
+            float pinWidth = pin->getGuiWidth(alwaysShowValue);
+            if (pinWidth > widestPin) widestPin = pinWidth;
+        }
+        for (auto pin : getNodeOutputData()) {
+            if (!pin->isVisible() && !pin->isConnected()) continue;
+            float pinWidth = pin->getGuiWidth(alwaysShowValue) + ImGui::GetStyle().ItemSpacing.x; //spacing of the right align offset dummy
+            if (pinWidth > widestPin) widestPin = pinWidth;
+        }
 
-    //find the widest input pin text
-    //find the widest output pin text
-    float titleTextWidth = ImGui::CalcTextSize(getName()).x;
-    float inputPinTextWidth = 0;
-    for (auto pin : getNodeInputData()) {
-        if (!pin->isVisible() && !pin->isConnected()) continue;
-        float pinTextWidth = ImGui::CalcTextSize(pin->getName()).x;
-        if (pinTextWidth > inputPinTextWidth) inputPinTextWidth = pinTextWidth;
-    }
-    float outputPinTextWidth = 0;
-    for (auto pin : getNodeOutputData()) {
-        if (!pin->isVisible() && !pin->isConnected()) continue;
-        float pinTextWidth = ImGui::CalcTextSize(pin->getName()).x;
-        if (pinTextWidth > outputPinTextWidth) outputPinTextWidth = pinTextWidth;
-    }
+        //compare title width and pin width to get the overall node width
+        //get the width of the output pin block to be able to calculate an offset to right align all output pins
+        static float nodePadding = NodeEditor::GetStyle().NodePadding.x;    //horizontal blank space at the inside edge of the node
+        float pinSectionWidth = widestPin + 2 * nodePadding;
+        float titleSectionWidth = titleTextWidth + 2 * nodePadding;
+        float nodeWidth = titleSectionWidth > pinSectionWidth ? titleSectionWidth : pinSectionWidth;
 
-    //calculate the width of the pin section
-    //calculate the width of the title section
-    float pinSectionWidth = inputPinTextWidth                           //width of the input pin text
-        + outputPinTextWidth                        //width of the output pin text
-        + 2 * NodeEditor::GetStyle().NodePadding.x  //padding at the two edges of the nodes
-        + 2 * iconDummyWidth                        //width of the icons
-        + 5 * ImGui::GetStyle().ItemSpacing.x;      //spacings between icon and text (2) input and output groups and dummy spacer (2) and right align padding and outputpin (1)
-    +pinSpacing;                               //spacing between input and output pins
-    float titleSectionWidth = titleTextWidth + 2 * nodePadding;
+        //===== draw colored background label and centered title =====
 
-    //compare title width and pin width to get the overall node width
-    //get the width of the output pin block to be able to calculate an offset to right align all pins
-    float nodeWidth;
-    float outputPinGroupWidth;
-    if (titleSectionWidth > pinSectionWidth) {
-        nodeWidth = titleSectionWidth;
-        outputPinGroupWidth = titleSectionWidth                     //overall node width
-            - inputPinTextWidth                     //Width of the input pin text
-            - nodePadding                           //left padding edge 
-            - iconDummyWidth                        //icon width
-            - ImGui::GetStyle().ItemSpacing.x;      //icon to text spacing
-        -pinSpacing;                           //spacing between input and output pins
+        ImU32 labelColor = ImColor(0.1f, 0.1f, 0.6f, 0.5f);
+        ImVec2 nodePosition = NodeEditor::GetNodePosition(getUniqueID());       //top left coordinate of the node
+        static float nodeBorderWidth = NodeEditor::GetStyle().NodeBorderWidth;  //offset from the border thickness of the node
+        static float labelRounding = NodeEditor::GetStyle().NodeRounding;       //radius of the node rounded corners
+        glm::vec2 rectMin = glm::vec2(nodePosition.x, nodePosition.y) + glm::vec2(nodeBorderWidth * 0.8);
+        glm::vec2 rectMax = rectMin + glm::vec2(nodeWidth - 2 * nodeBorderWidth, ImGui::GetTextLineHeightWithSpacing());
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+        drawList->AddRectFilled(rectMin, rectMax, labelColor, labelRounding, ImDrawFlags_RoundCornersTop);
+        if (titleSectionWidth < nodeWidth) {
+            ImGui::NewLine();
+            float spacing = nodeWidth - titleTextWidth - 2 * nodePadding;
+            spacing /= 2.0;
+            ImGui::SameLine(spacing, 0);
+        }
+        ImGui::Text(getName());
+        ImGui::Spacing();
+
+        //===== draw input and output pins =====
+
+        for (auto pin : getNodeInputData()) {
+            if (!pin->isVisible() && !pin->isConnected()) continue;
+            pin->pinGui(alwaysShowValue);
+        }
+        ImGui::Spacing();
+        for (auto pin : getNodeOutputData()) {
+            if (!pin->isVisible() && !pin->isConnected()) continue;
+            float rightAlignSpacingWidth = nodeWidth - 2 * nodePadding - ImGui::GetStyle().ItemSpacing.x - pin->getGuiWidth(alwaysShowValue);
+            ImGui::Dummy(glm::vec2(rightAlignSpacingWidth, 0));
+            ImGui::SameLine();
+            pin->pinGui(alwaysShowValue);
+        }
     }
     else {
-        nodeWidth = pinSectionWidth;
-        outputPinGroupWidth = outputPinTextWidth                    //Width of the input pin text
-            + nodePadding                           //right padding edge
-            + iconDummyWidth                        //icon width
-            + 4 * ImGui::GetStyle().ItemSpacing.x;  //group spacing, right align padding to pin spacing, text to icon spacing
-        +pinSpacing;                           //spacing between input and output pins
+        ImGui::Text(getName());
+        NodeEditor::Group(NodeEditor::GetNodeSize(getUniqueID()));
     }
-
-    ImU32 labelColor = ImColor();
-    labelColor = ImColor(0.1f, 0.1f, 0.6f, 0.5f);
-
-    //===== draw colored background label and centered title =====
-
-    glm::vec2 rectMin = glm::vec2(nodePosition.x, nodePosition.y) + glm::vec2(borderOffset);
-    glm::vec2 rectMax = glm::vec2(nodePosition) + glm::vec2(nodeWidth - borderOffset, ImGui::GetTextLineHeightWithSpacing() + nodePadding);
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-    drawList->AddRectFilled(rectMin, rectMax, labelColor, labelRounding, ImDrawFlags_RoundCornersTop);
-    if (titleSectionWidth < nodeWidth) {
-        ImGui::NewLine();
-        float spacing = nodeWidth - titleTextWidth - 2 * nodePadding;
-        spacing /= 2.0;
-        ImGui::SameLine(spacing, 0);
-    }
-    ImGui::Text(getName());
-    ImGui::Spacing();
-
-    //===== draw input pins =====
-
-    ImGui::BeginGroup();
-    for (auto pin : getNodeInputData()) {
-        if (!pin->isVisible() && !pin->isConnected()) continue;
-        NodeEditor::BeginPin(pin->getUniqueID(), NodeEditor::PinKind::Input);
-        NodeEditor::PinPivotAlignment(ImVec2(0.0, 0.5));
-        ImGui::Dummy(glm::vec2(iconDummyWidth));
-        glm::vec2 min = ImGui::GetItemRectMin();
-        min.x -= iconSize * 0.15; //shift the visual position of the icon
-        glm::vec2 max = min + glm::vec2(iconSize);
-        DrawIcon(ImGui::GetWindowDrawList(), min, max, 0, false, ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
-        ImGui::SameLine();
-        ImGui::Text(pin->getName());
-        NodeEditor::EndPin();
-    }
-    ImGui::EndGroup();
-
-    //===== Vertical Spacer between input and output pins =====
-
-    ImGui::SameLine();
-    ImGui::Dummy(glm::vec2(pinSpacing));
-    ImGui::SameLine();
-
-    //===== draw output pins =====
-
-    ImGui::BeginGroup();
-    for (auto pin : getNodeOutputData()) {
-        if (!pin->isVisible() && !pin->isConnected()) continue;
-        //calculate offset to right align pins
-        float rightAlignSpacingWidth = outputPinGroupWidth                  //overall width of the output pins
-            - nodePadding                           //right edge node padding
-            - ImGui::CalcTextSize(pin->getName()).x //width of the pin text
-            - ImGui::GetStyle().ItemSpacing.x * 4   //center spacing (2), spacing between offset and pin (1), spacing between text and icon (1)
-            - iconDummyWidth                        //actual width of the icon
-            - pinSpacing;                           //width of the vertical input and output pin separator
-//apply offset
-        ImGui::Dummy(glm::vec2(rightAlignSpacingWidth, 0));
-        ImGui::SameLine();
-        NodeEditor::BeginPin(pin->getUniqueID(), NodeEditor::PinKind::Output);
-        NodeEditor::PinPivotAlignment(ImVec2(1.0, 0.5));
-        ImGui::Text(pin->getName());
-        ImGui::SameLine();
-        ImGui::Dummy(glm::vec2(iconDummyWidth));
-        glm::vec2 min = ImGui::GetItemRectMin();
-        min.x -= iconSize * 0.15; //shift the visual position of the icon
-        glm::vec2 max = min + glm::vec2(iconSize);
-        DrawIcon(ImGui::GetWindowDrawList(), min, max, 0, false, ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
-        NodeEditor::EndPin();
-    }
-    ImGui::EndGroup();
-
-    /*
-    if (node->getType() == Node::Type::Container && node->getSubtype() == Node::Subtype::Group)
-        NodeEditor::Group(NodeEditor::GetNodeSize(node->getUniqueID()));
-    */
-
     NodeEditor::EndNode();
 
-    /*
-    if (node->getType() == Node::Type::Container && NodeEditor::BeginGroupHint(node->getUniqueID())) {
+
+    if (getType() == NodeType::NODEGROUPER && NodeEditor::BeginGroupHint(getUniqueID())) { 
         auto min = NodeEditor::GetGroupMin();
         auto max = NodeEditor::GetGroupMax();
         ImVec2 cursor = ImVec2(min.x + 8, min.y - ImGui::GetTextLineHeightWithSpacing() - 4);
         ImGui::SetCursorScreenPos(cursor);
         ImGui::BeginGroup();
-        ImGui::TextUnformatted(node->getName().c_str());
+        ImGui::TextUnformatted(getName());
         ImGui::EndGroup();
+        NodeEditor::EndGroupHint();
     }
-    NodeEditor::EndGroupHint();
-    */
+    
 }
 
 void ioNode::propertiesGui() {

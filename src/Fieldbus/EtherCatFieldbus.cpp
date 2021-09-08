@@ -2,7 +2,7 @@
 
 #include "EtherCatFieldbus.h"
 
-#include "Utilities/EtherCatDeviceIdentifier.h"
+#include "Utilities/EtherCatDeviceFactory.h"
 #include "Environnement/Environnement.h"
 
 std::vector<NetworkInterfaceCard>                   EtherCatFieldbus::networkInterfaceCards;
@@ -151,7 +151,7 @@ bool EtherCatFieldbus::scanNetwork() {
         for (int i = 1; i <= ec_slavecount; i++) {
             ec_slavet& slv = ec_slave[i];
             //create device class depending on slave name
-            std::shared_ptr<EtherCatSlave> slave = EtherCatDeviceIdentifier::getDeviceByName(slv.name);
+            std::shared_ptr<EtherCatSlave> slave = EtherCatDeviceFactory::getDeviceByName(slv.name);
             //we need the station alias to be able to compare the slave to the environnement slaves
             slave->stationAlias = slv.aliasadr;
 
@@ -179,7 +179,7 @@ bool EtherCatFieldbus::scanNetwork() {
                 slave->slaveIndex = i;
                 slave->setOnline(true);
                 char name[128];
-                sprintf(name, "#%i '%s' @%i", slave->getSlaveIndex(), slave->getDeviceName(), slave->getStationAlias());
+                sprintf(name, "#%i '%s' @%i", slave->getSlaveIndex(), slave->getNodeTypeName(), slave->getStationAlias());
                 slave->setName(name);
                 //add the slave to the list of unassigned slaves (not in the environnement)
             }
@@ -189,7 +189,7 @@ bool EtherCatFieldbus::scanNetwork() {
 
             Logger::info("    = Slave {} : '{}'  Address: {}  StationAlias {}  KnownDevice: {}  InEnvironnement: {}",
                 slave->getSlaveIndex(),
-                slave->getDeviceName(),
+                slave->getNodeTypeName(),
                 slave->getAssignedAddress(),
                 slave->getStationAlias(),
                 slave->isSlaveKnown() ? "Yes" : "No",
@@ -267,7 +267,7 @@ bool EtherCatFieldbus::configureSlaves() {
     for (auto slave : slaves) {
         Logger::debug("   [{}] '{}' {} bytes ({} bits)",
             slave->getSlaveIndex(),
-            slave->getDeviceName(),
+            slave->getNodeTypeName(),
             slave->identity->Ibytes + slave->identity->Obytes,
             slave->identity->Ibits + slave->identity->Obits);
         Logger::debug("          Inputs: {} bytes ({} bits)", slave->identity->Ibytes, slave->identity->Ibits);
@@ -344,8 +344,13 @@ void EtherCatFieldbus::startCyclicExchange() {
 
             //interpret the data that was received for all slaves
             for (auto slave : slaves) slave->readInputs();
+            /*
             //process the data to generate output values, taking into account if new data wasn't received
             for (auto slave : slaves) slave->process(workingCounter == expectedWorkingCounter);
+            */
+
+            Environnement::nodeGraph.evaluate(DeviceType::ETHERCATSLAVE);
+
             //prepare the output data to be sent
             for (auto slave : slaves) slave->prepareOutputs();
                 

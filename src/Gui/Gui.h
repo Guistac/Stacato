@@ -6,6 +6,7 @@
 #include <imgui_node_editor.h>
 #include <implot.h>
 #include "Framework/Fonts.h"
+#include "Environnement/NodeGraph/ioNode.h"
 
 void gui(bool closeWindowRequest);
 
@@ -24,13 +25,14 @@ namespace ImGuiNodeEditor {
 	void DestroyContext();
 }
 void nodeGraph();
-void nodeEditor();
-void drawNodes();
+void nodeEditor(bool alwaysShowValues);
+void drawNodes(bool alwaysShowValues);
 void drawLinks();
 void createLink();
 void deleteLink();
 void deleteNode();
 void DrawIcon(ImDrawList* drawList, const glm::vec2& a, const glm::vec2& b, int type, bool filled, ImU32 color, ImU32 innerColor);
+std::shared_ptr<ioNode> nodeAdderContextMenu();
 
 void getSelectedNodes();
 void nodeAdder();
