@@ -6,10 +6,9 @@
 #include "ioLink.h"
 
 void NodeGraph::addIoNode(std::shared_ptr<ioNode> newIoNode) {
-	newIoNode->parentNodeGraph = this;
 	newIoNode->uniqueID = uniqueID++;
 	ioNodeList.push_back(newIoNode);
-	newIoNode->assignIoData();
+	newIoNode->assignIoData(); //this tries to generate an ID and adds all data to the nodelist if a parent was specified, we don't want this so we add the parent afterwards
 	for (std::shared_ptr<ioData> data : newIoNode->nodeInputData) {
 		data->uniqueID = uniqueID++;
 		data->parentNode = newIoNode;
@@ -20,6 +19,7 @@ void NodeGraph::addIoNode(std::shared_ptr<ioNode> newIoNode) {
 		data->parentNode = newIoNode;
 		ioDataList.push_back(data);
 	}
+	newIoNode->parentNodeGraph = this;
 	newIoNode->b_isInNodeGraph = true;
 }
 

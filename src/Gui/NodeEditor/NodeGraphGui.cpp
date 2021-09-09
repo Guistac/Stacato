@@ -17,7 +17,7 @@ void nodeGraph() {
 
     static bool showValues = true;
 
-    Environnement::getNodeGraph().evaluate();
+    Environnement::nodeGraph.evaluate();
 
     float sideBarWidth = ImGui::GetTextLineHeight() * 20.0;
     glm::vec2 sideBarSize(sideBarWidth, ImGui::GetContentRegionAvail().y);
@@ -51,7 +51,7 @@ void nodeGraph() {
 
     std::shared_ptr<ioNode> newDraggedNode = acceptDraggedNode();
     if (newDraggedNode) {
-        Environnement::getNodeGraph().addIoNode(newDraggedNode);
+        Environnement::nodeGraph.addIoNode(newDraggedNode);
         NodeEditor::SetNodePosition(newDraggedNode->getUniqueID(), NodeEditor::ScreenToCanvas(ImGui::GetMousePos()));
     }
 
@@ -80,7 +80,7 @@ namespace ImGuiNodeEditor {
 }
 
 void nodeEditor(bool alwaysShowValues) {
-    NodeGraph& nodeGraph = Environnement::getNodeGraph();
+    NodeGraph& nodeGraph = Environnement::nodeGraph;
 	NodeEditor::SetCurrentEditor(ImGuiNodeEditor::nodeEditorContext);
 	NodeEditor::Begin("Node Editor", ImVec2(0, ImGui::GetContentRegionAvail().y - ImGui::GetTextLineHeight() * 1.7));
 
@@ -116,7 +116,7 @@ void nodeEditor(bool alwaysShowValues) {
 
     if (ImGui::BeginPopup("Pin Context Menu")) {
         ImGui::Text("Pin Context Menu, Pin#%i", contextPinId);
-        ImGui::Text(Environnement::getNodeGraph().getIoData(contextPinId.Get())->getValueString());
+        ImGui::Text(Environnement::nodeGraph.getIoData(contextPinId.Get())->getValueString());
         ImGui::EndPopup();
     }
 
@@ -130,7 +130,7 @@ void nodeEditor(bool alwaysShowValues) {
     if (ImGui::BeginPopup("Background Context Menu")) {
         std::shared_ptr<ioNode> newNode = nodeAdderContextMenu();
         if (newNode) {
-            Environnement::getNodeGraph().addIoNode(newNode);
+            Environnement::nodeGraph.addIoNode(newNode);
             NodeEditor::SetNodePosition(newNode->getUniqueID(), NodeEditor::ScreenToCanvas(mouseRightClickPosition));
             NodeEditor::SelectNode(newNode->getUniqueID());
             ImGui::CloseCurrentPopup();
@@ -148,12 +148,12 @@ void nodeEditor(bool alwaysShowValues) {
 void drawNodes(bool alwaysShowValues) {
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2, ImGui::GetTextLineHeight() * 0.2));
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(ImGui::GetTextLineHeight() * 0.2, 0));
-    for (auto node : Environnement::getNodeGraph().getIoNodes()) node->nodeGui(alwaysShowValues);
+    for (auto node : Environnement::nodeGraph.getIoNodes()) node->nodeGui(alwaysShowValues);
     ImGui::PopStyleVar(2);
 }
 
 void drawLinks() {
-    for (auto link : Environnement::getNodeGraph().getIoLinks())
+    for (auto link : Environnement::nodeGraph.getIoLinks())
         NodeEditor::Link(link->getUniqueID(),
             link->getOutputData()->getUniqueID(),
             link->getInputData()->getUniqueID(),
@@ -162,7 +162,7 @@ void drawLinks() {
 }
 
 void createLink() {
-    NodeGraph& nodeGraph = Environnement::getNodeGraph();
+    NodeGraph& nodeGraph = Environnement::nodeGraph;
     NodeEditor::PinId pin1Id, pin2Id;
     if (NodeEditor::QueryNewLink(&pin1Id, &pin2Id)) {
         if (pin1Id && pin2Id) {
@@ -180,7 +180,7 @@ void createLink() {
 }
 
 void deleteLink() {
-    NodeGraph& nodeGraph = Environnement::getNodeGraph();
+    NodeGraph& nodeGraph = Environnement::nodeGraph;
     NodeEditor::LinkId deletedLinkId;
     while (NodeEditor::QueryDeletedLink(&deletedLinkId)) {
         if (NodeEditor::AcceptDeletedItem()) {
@@ -191,7 +191,7 @@ void deleteLink() {
 }
 
 void deleteNode() {
-    NodeGraph& nodeGraph = Environnement::getNodeGraph();
+    NodeGraph& nodeGraph = Environnement::nodeGraph;
     NodeEditor::NodeId deletedNodeId;
     while (NodeEditor::QueryDeletedNode(&deletedNodeId)) {
         std::shared_ptr<ioNode> deletedNode = nodeGraph.getIoNode(deletedNodeId.Get());
@@ -203,7 +203,7 @@ void deleteNode() {
 }
 
 void getSelectedNodes() {
-    NodeGraph& nodeGraph = Environnement::getNodeGraph();
+    NodeGraph& nodeGraph = Environnement::nodeGraph;
     static NodeEditor::NodeId selectedNodeIds[16];
     int selectedNodeCount = NodeEditor::GetSelectedNodes(selectedNodeIds, 16);
     selectedNodes.clear();

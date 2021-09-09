@@ -51,6 +51,8 @@ enum DeviceType {
 	NONE
 };
 
+namespace tinyxml2 { class XMLElement; }
+
 class ioNode {
 public:
 
@@ -108,6 +110,9 @@ public:
 	void setOnline(bool b) { b_isOnline = b; }
 
 	void getNodeGraphPosition(float& x, float& y);
+
+	virtual bool load(tinyxml2::XMLElement* xml) { return true; }
+	virtual bool save(tinyxml2::XMLElement* xml) { return true; }
 
 private:
 

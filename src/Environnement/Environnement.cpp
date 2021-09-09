@@ -8,8 +8,6 @@ namespace Environnement {
 
 	NodeGraph nodeGraph;
 
-	NodeGraph& getNodeGraph() { return nodeGraph; }
-
 	bool hasEtherCatSlave(std::shared_ptr<EtherCatSlave> slave) {
 		for (auto node : nodeGraph.getIoNodes()) {
 			if (node->getType() == NodeType::IODEVICE && node->getDeviceType() == DeviceType::ETHERCATSLAVE) {

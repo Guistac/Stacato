@@ -3,11 +3,7 @@
 #include "ioData.h"
 #include "ioLink.h"
 
-const char* ioData::dataTypeNames[TYPE_COUNT] = {
-	"Boolean",
-	"Integer",
-	"Real"
-};
+#include <tinyxml2.h>
 
 //setting data (with data conversions)
 void ioData::set(bool boolean) {
@@ -110,4 +106,51 @@ std::vector<std::shared_ptr<ioNode>> ioData::getNodesLinkedAtInputs() {
 		linkedNodes.push_back(link->getInputData()->getNode());
 	}
 	return linkedNodes;
+}
+
+bool ioData::save(tinyxml2::XMLElement* xml) {
+	xml->SetAttribute("Name", getName());
+	xml->SetAttribute("DataType", getTypeName());
+	xml->SetAttribute("UniqueID", getUniqueID());
+	switch (getType()) {
+		case DataType::BOOLEAN_VALUE: xml->SetAttribute(getTypeName(), getBoolean()); break;
+		case DataType::INTEGER_VALUE: xml->SetAttribute(getTypeName(), getInteger()); break;
+		case DataType::REAL_VALUE: xml->SetAttribute(getTypeName(), getReal()); break;
+	}
+	xml->SetAttribute("Visible", isVisible());
+	return true;
+}
+
+bool ioData::load(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+	int pinUniqueID;
+	if (xml->QueryIntAttribute("UniqueID", &pinUniqueID) != XML_SUCCESS) return Logger::warn("Could not load Pin ID");
+	uniqueID = pinUniqueID;
+	const char* dataTypeName;
+	if (xml->QueryStringAttribute("DataType", &dataTypeName) != XML_SUCCESS) return Logger::warn("Could not load Pin Datatype");
+	switch (getType()) {
+		case DataType::BOOLEAN_VALUE:
+			bool booleanData;
+			if (xml->QueryBoolAttribute(dataTypeName, &booleanData) != XML_SUCCESS) return Logger::warn("Could not load data of type {}", dataTypeName);
+			set(booleanData);
+			break;
+		case DataType::INTEGER_VALUE:
+			long long int integerData;
+			if( xml->QueryInt64Attribute(dataTypeName, &integerData) != XML_SUCCESS) return Logger::warn("Could not load data of type {}", dataTypeName);
+			set(integerData);
+			break;
+		case DataType::REAL_VALUE:
+			double realData;
+			if (xml->QueryDoubleAttribute(dataTypeName, &realData) != XML_SUCCESS) return Logger::warn("Could not load data of type {}", dataTypeName);
+			set(realData);
+			break;
+	}
+	bool visible;
+	if (xml->QueryBoolAttribute("Visible", &visible) != XML_SUCCESS) return Logger::warn("Could not load pin visibility");
+	b_visible = visible;
+	return true;
+}
+
+bool ioData::matches(const char* name, const char* dataTypeString) {
+	return strcmp(name, getName()) == 0 && strcmp(dataTypeString, getTypeName()) == 0;
 }

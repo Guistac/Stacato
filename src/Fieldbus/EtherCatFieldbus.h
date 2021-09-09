@@ -1,8 +1,5 @@
 #pragma once
 
-#include <thread>
-#include <vector>
-
 #include "Utilities/EtherCatMetrics.h"
 
 class EtherCatSlave;
@@ -12,57 +9,51 @@ struct NetworkInterfaceCard {
     char name[128];
 };
 
-class EtherCatFieldbus {
-public:
-    static void updateNetworkInterfaceCardList();
-    static bool init(NetworkInterfaceCard&);
-    static bool init(NetworkInterfaceCard&, NetworkInterfaceCard&);
-    static void terminate();
+namespace tinyxml2 { class XMLElement; }
 
-    static bool scanNetwork();
-    static void start();
-    static void stop();
+namespace EtherCatFieldbus {
+
+    void updateNetworkInterfaceCardList();
+    bool init(NetworkInterfaceCard&);
+    bool init(NetworkInterfaceCard&, NetworkInterfaceCard&);
+    void terminate();
+
+    bool scanNetwork();
+    void start();
+    void stop();
+
+    bool save(tinyxml2::XMLElement* xml);
+    bool load(tinyxml2::XMLElement* xml);
 
     //process timing
-    static double processInterval_milliseconds;
-    static double processDataTimeout_milliseconds;
-    static double clockStableThreshold_milliseconds;
-    static int slaveStateCheckCycleCount;
+    extern double processInterval_milliseconds;
+    extern double processDataTimeout_milliseconds;
+    extern double clockStableThreshold_milliseconds;
+    extern int slaveStateCheckCycleCount;
 
     //metrics
-    static EtherCatMetrics metrics;
+    extern EtherCatMetrics metrics;
 
     //network hardware
-    static std::vector<NetworkInterfaceCard> networkInterfaceCards;
-    static NetworkInterfaceCard networkInterfaceCard;
-    static NetworkInterfaceCard redundantNetworkInterfaceCard;
-    static bool b_redundant;
+    extern std::vector<NetworkInterfaceCard> networkInterfaceCards;
+    extern NetworkInterfaceCard networkInterfaceCard;
+    extern NetworkInterfaceCard redundantNetworkInterfaceCard;
+    extern bool b_redundant;
 
     //slave devices
-    static std::vector<std::shared_ptr<EtherCatSlave>> slaves;
+    extern std::vector<std::shared_ptr<EtherCatSlave>> slaves;
 
     //process data
-    static uint8_t ioMap[4096];
-    static int ioMapSize;
-    static int expectedWorkingCounter;
+    extern int expectedWorkingCounter;
 
-    //runtime
-    static std::thread errorWatcher;       //thread to read errors encountered by SOEM
-    static std::thread etherCatRuntime;     //cyclic exchange thread (needs a full cpu core to achieve precise timing)
+    extern bool b_networkOpen;              //high when one or more network interface cards are opened
+    extern bool b_processStarting;          //high during initial fieldbus setup, before starting cyclic exchange (prevents concurrent restarting)   
+    extern int i_configurationProgress;     //counts up during network configuration to display a progress bar
+    extern bool b_configurationError;       //high if configuration failed at some point
+    extern char configurationStatus[128];   //updated to display the current network configuration step or error
+    extern bool b_processRunning;           //high while the cyclic exchange is running (also controls its shutdown)
+    extern bool b_clockStable;              //high when clock drift is under the threshold value
+    extern bool b_allOperational;           //high when all states reached operational state after clock stabilisation, indicates successful fiedlbus configuration
 
-    static bool b_networkOpen;              //high when one or more network interface cards are opened
-    static bool b_processStarting;          //high during initial fieldbus setup, before starting cyclic exchange (prevents concurrent restarting)   
-    static int i_configurationProgress;     //counts up during network configuration to display a progress bar
-    static bool b_configurationError;       //high if configuration failed at some point
-    static char configurationStatus[128];   //updated to display the current network configuration step or error
-    static bool b_processRunning;           //high while the cyclic exchange is running (also controls its shutdown)
-    static bool b_clockStable;              //high when clock drift is under the threshold value
-    static bool b_allOperational;           //high when all states reached operational state after clock stabilisation, indicates successful fiedlbus configuration
-
-
-private:
-    static void setup();
-    static bool configureSlaves();
-    static void startCyclicExchange();
 };
 

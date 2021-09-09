@@ -16,6 +16,8 @@ enum DataDirection {
 class ioNode;
 class ioLink;
 
+namespace tinyxml2 { class XMLElement; }
+
 class ioData {
 public:
 
@@ -35,7 +37,14 @@ public:
 	bool isOutput() { return direction == DataDirection::NODE_OUTPUT; }
 
 	DataType getType() { return type; }
-	const char* getTypeName() { return dataTypeNames[type]; }
+	const char* getTypeName() { 
+		switch (getType()) {
+			case BOOLEAN_VALUE: return "Boolean";
+			case INTEGER_VALUE:	return "Integer";
+			case REAL_VALUE: return	"Real";
+			default: return "unknown";
+		}
+	}
 	bool isSameTypeAs(ioData& other) { return other.type == type; }
 	void setType(DataType t) {
 		switch (t){
@@ -87,6 +96,10 @@ public:
 	void pinGui(bool alwaysShowValue);
 	void dataGui();
 
+	bool save(tinyxml2::XMLElement* xml);
+	bool load(tinyxml2::XMLElement* xml);
+	bool matches(const char* name, const char* dataTypeString);
+
 
 private:
 
@@ -111,6 +124,4 @@ private:
 		long long int integerValue;
 		double realValue;
 	};
-
-	static const char* dataTypeNames[TYPE_COUNT];
 };

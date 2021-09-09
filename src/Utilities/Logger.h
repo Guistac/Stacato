@@ -37,51 +37,57 @@ public:
     static int levelMessageCount[6];
 
     template<typename... Args>
-    static void trace(fmt::format_string<Args...> format, Args &&...args) {
+    static bool trace(fmt::format_string<Args...> format, Args &&...args) {
         logger->trace(format, std::forward<Args>(args)...);
         std::string str = fmt::format(format, std::forward<Args>(args)...);
         messages.push_back(LogMessage(str, 0));
         levelMessageCount[0]++;
+        return true;
     }
 
     template<typename... Args>
-    static void debug(fmt::format_string<Args...> format, Args &&...args) {
+    static bool debug(fmt::format_string<Args...> format, Args &&...args) {
         logger->debug(format, std::forward<Args>(args)...);
         std::string str = fmt::format(format, std::forward<Args>(args)...);
         messages.push_back(LogMessage(str, 1));
         levelMessageCount[1]++;
+        return true;
     }
 
     template<typename... Args>
-    static void info(fmt::format_string<Args...> format, Args &&...args) {
+    static bool info(fmt::format_string<Args...> format, Args &&...args) {
         logger->info(format, std::forward<Args>(args)...);
         std::string str = fmt::format(format, std::forward<Args>(args)...);
         messages.push_back(LogMessage(str, 2));
         levelMessageCount[2]++;
+        return true;
     }
 
     template<typename... Args>
-    static void warn(fmt::format_string<Args...> format, Args &&...args) {
+    static bool warn(fmt::format_string<Args...> format, Args &&...args) {
         logger->warn(format, std::forward<Args>(args)...);
         std::string str = fmt::format(format, std::forward<Args>(args)...);
         messages.push_back(LogMessage(str, 3));
         levelMessageCount[3]++;
+        return true;
     }
 
     template<typename... Args>
-    static void error(fmt::format_string<Args...> format, Args &&...args) {
+    static bool error(fmt::format_string<Args...> format, Args &&...args) {
         logger->error(format, std::forward<Args>(args)...);
         std::string str = fmt::format(format, std::forward<Args>(args)...);
         messages.push_back(LogMessage(str, 4));
         levelMessageCount[4]++;
+        return true;
     }
 
     template<typename... Args>
-    static void critical(fmt::format_string<Args...> format, Args &&...args) {
+    static bool critical(fmt::format_string<Args...> format, Args &&...args) {
         logger->critical(format, std::forward<Args>(args)...);
         std::string str = fmt::format(format, std::forward<Args>(args)...);
         messages.push_back(LogMessage(str, 5));
         levelMessageCount[5]++;
+        return true;
     }
 };
 
