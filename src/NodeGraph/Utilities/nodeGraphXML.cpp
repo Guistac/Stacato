@@ -246,7 +246,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 	ioNodeList.swap(loadedNodes);
 	ioDataList.swap(loadedPins);
 	ioLinkList.swap(loadedLinks);
-	uniqueID = largestUniqueID + 1; //set this so we can add more elements to the node graph after loading
+	uniqueID = largestUniqueID + 2; //set this so we can add more elements to the node graph after loading
 
 	Logger::debug("Largest unique ID is {}", largestUniqueID);
 	Logger::info("Successfully loaded Node Graph");

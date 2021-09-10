@@ -171,16 +171,16 @@ void NodeGraph::nodeEditorGui() {
 
     NodeEditor::Suspend();
 
-    //static NodeEditor::NodeId contextNodeId = 0;
-    //static NodeEditor::LinkId contextLinkId = 0;
-    //static NodeEditor::PinId  contextPinId = 0;
+    static NodeEditor::NodeId contextNodeId = 0;
+    static NodeEditor::LinkId contextLinkId = 0;
+    static NodeEditor::PinId  contextPinId = 0;
 
-    //if (NodeEditor::ShowNodeContextMenu(&contextNodeId))		ImGui::OpenPopup("Node Context Menu");
-    //if (NodeEditor::ShowPinContextMenu(&contextPinId))		ImGui::OpenPopup("Pin Context Menu");
-    //if (NodeEditor::ShowLinkContextMenu(&contextLinkId))	ImGui::OpenPopup("Link Context Menu");
+    if (NodeEditor::ShowNodeContextMenu(&contextNodeId))		ImGui::OpenPopup("Node Context Menu");
+    if (NodeEditor::ShowPinContextMenu(&contextPinId))		ImGui::OpenPopup("Pin Context Menu");
+    if (NodeEditor::ShowLinkContextMenu(&contextLinkId))	ImGui::OpenPopup("Link Context Menu");
     if (NodeEditor::ShowBackgroundContextMenu())           ImGui::OpenPopup("Background Context Menu");
 
-    /*
+    
     if (ImGui::BeginPopup("Node Context Menu")) {
         ImGui::Text("Node Context Menu, Node#%i", contextNodeId);
         ImGui::EndPopup();
@@ -196,7 +196,7 @@ void NodeGraph::nodeEditorGui() {
         ImGui::Text("Link Context Menu, Link#%i", contextLinkId);
         ImGui::EndPopup();
     }
-    */
+    
 
     static glm::vec2 mouseRightClickPosition;
     if (ImGui::IsMouseClicked(1)) mouseRightClickPosition = ImGui::GetMousePos();
@@ -247,6 +247,7 @@ void NodeGraph::nodeEditorGui() {
 
     if (b_justLoaded) {
         b_justLoaded = false;
+        for (auto node : ioNodeList) node->restoreSavedPosition();
         centerView();
         showFlow();
     }

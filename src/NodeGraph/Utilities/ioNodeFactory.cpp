@@ -6,6 +6,7 @@
 #include "NodeGraph/Nodes/DisplayNode.h"
 #include "NodeGraph/Nodes/MathNodes.h"
 #include "NodeGraph/Nodes/GroupNode.h"
+#include "NodeGraph/Nodes/GraphingNode.h"
 
 namespace ioNodeFactory {
 
@@ -17,6 +18,7 @@ namespace ioNodeFactory {
 			new ClockNode(),
 
 			new DisplayNode(),
+			new PlotterNode(),
 			new GroupNode(),
 			new ConstantNode(),
 
