@@ -9,6 +9,8 @@
 #include <sstream>
 #include <bitset>
 
+#include <glm/glm.hpp>
+
 #include "Utilities/Logger.h"
 #include "Utilities/Timing.h"
 

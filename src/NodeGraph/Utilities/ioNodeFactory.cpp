@@ -15,14 +15,23 @@ namespace ioNodeFactory {
 	void loadNodes() {
 		allNodes = {
 			new ClockNode(),
+
 			new DisplayNode(),
+			new GroupNode(),
+			new ConstantNode(),
+
 			new AdditionNode(),
 			new SubtractionNode(),
 			new MultiplicationNode(),
 			new DivisionNode(),
+			new ExponentNode(),
+			new AbsoluteNode(),
 			new SinusNode(),
 			new CosinusNode(),
-			new GroupNode(),
+			new TangentNode(),
+			new CotangentNode(),
+
+			new BoolNode(),
 			new NotNode(),
 			new AndNode(),
 			new OrNode()

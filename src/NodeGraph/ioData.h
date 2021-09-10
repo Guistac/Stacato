@@ -18,17 +18,43 @@ class ioLink;
 
 namespace tinyxml2 { class XMLElement; }
 
+enum ioDataFlags {
+	ioDataFlags_None					= 0,
+	ioDataFlags_AcceptMultipleInputs	= 1 << 0,
+	ioDataFlags_DisablePin				= 1 << 1,
+	ioDataFlags_NoDataField				= 1 << 2,
+	ioDataFlags_ForceDataField			= 1 << 3,
+	ioDataFlags_DisableDataField		= 1 << 4
+};
+
+inline ioDataFlags operator|(ioDataFlags a, ioDataFlags b){
+	return static_cast<ioDataFlags>(static_cast<int>(a) | static_cast<int>(b));
+}
+
 class ioData {
 public:
 
-	ioData(DataType t, DataDirection d, const char* n, bool acceptsMultipleInputs = false) : type(t), direction(d) {
+	ioData(DataType t, DataDirection d, const char* n, ioDataFlags flags) : type(t), direction(d) {
 		strcpy(name, n);
 		switch (type) {
 			case BOOLEAN_VALUE: booleanValue = false;
 			case INTEGER_VALUE: integerValue = 0;
 			case REAL_VALUE: realValue = 0.0;
 		}
-		b_acceptsMultipleInputs = acceptsMultipleInputs;
+		b_acceptsMultipleInputs = flags & ioDataFlags_AcceptMultipleInputs;
+		b_disablePin = flags & ioDataFlags_DisablePin;
+		b_noDataField = flags & ioDataFlags_NoDataField;
+		b_forceDataField = flags & ioDataFlags_ForceDataField;
+		b_disableDataField = flags & ioDataFlags_DisableDataField;
+	}
+
+	ioData(DataType t, DataDirection d, const char* n) : type(t), direction(d) {
+		strcpy(name, n);
+		switch (type) {
+		case BOOLEAN_VALUE: booleanValue = false;
+		case INTEGER_VALUE: integerValue = 0;
+		case REAL_VALUE: realValue = 0.0;
+		}
 	}
 
 	//data infos
@@ -81,9 +107,6 @@ public:
 	long long int getInteger();
 	double getReal();
 
-	//TODO: is this useful ?
-	bool hasNewValue() { return b_hasNewValue; }
-
 	const char* getValueString();
 
 	void copyToLinked();
@@ -92,14 +115,14 @@ public:
 	std::vector<std::shared_ptr<ioNode>> getNodesLinkedAtOutputs();
 	std::vector<std::shared_ptr<ioNode>> getNodesLinkedAtInputs();
 
-	float getGuiWidth(bool alwaysShowValue);
-	void pinGui(bool alwaysShowValue);
+	float getGuiWidth();
+	void pinGui();
+	bool shouldDisplayDataGui();
 	void dataGui();
 
 	bool save(tinyxml2::XMLElement* xml);
 	bool load(tinyxml2::XMLElement* xml);
 	bool matches(const char* name, const char* dataTypeString);
-
 
 private:
 
@@ -116,8 +139,10 @@ private:
 	DataDirection direction;
 	char name[64];
 	bool b_acceptsMultipleInputs = false;
-	
-	bool b_hasNewValue = false;
+	bool b_disablePin = false;
+	bool b_noDataField = false;
+	bool b_forceDataField = false;
+	bool b_disableDataField = false;
 
 	union {
 		bool booleanValue;

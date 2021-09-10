@@ -12,10 +12,10 @@ public:
 	std::shared_ptr<ioData> longOut =		std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "long0-out");
 	std::shared_ptr<ioData> longLongOut =	std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "longLong0-out");
 		
-	std::shared_ptr<ioData> byteIn =		std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, "byte0-in");
-	std::shared_ptr<ioData> shortIn =		std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, "short0-in");
-	std::shared_ptr<ioData> longIn =		std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, "long0-in");
-	std::shared_ptr<ioData> longLongIn =	std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, "longLong0-in");
+	std::shared_ptr<ioData> byteIn =		std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, "byte0-in", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> shortIn =		std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, "short0-in", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> longIn =		std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, "long0-in", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> longLongIn =	std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, "longLong0-in", ioDataFlags_DisableDataField);
 
 	uint8_t ui8_byteOut = 0;
 	uint16_t ui16_shortOut = 0;

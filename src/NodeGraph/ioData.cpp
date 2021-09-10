@@ -12,7 +12,6 @@ void ioData::set(bool boolean) {
 	case INTEGER_VALUE: integerValue = boolean; break;
 	case REAL_VALUE: realValue = boolean; break;
 	}
-	b_hasNewValue = true;
 }
 
 void ioData::set(long long int integer) {
@@ -21,7 +20,6 @@ void ioData::set(long long int integer) {
 	case BOOLEAN_VALUE: booleanValue = integer > 0; break;
 	case REAL_VALUE: realValue = integer; break;
 	}
-	b_hasNewValue = true;
 }
 
 void ioData::set(double real) {
@@ -30,7 +28,6 @@ void ioData::set(double real) {
 	case BOOLEAN_VALUE: booleanValue = real > 0.0; break;
 	case INTEGER_VALUE: integerValue = real; break;
 	}
-	b_hasNewValue = true;
 }
 
 //reading data (with data conversions)

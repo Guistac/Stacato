@@ -25,8 +25,8 @@ namespace ImGuiNodeEditor {
 	void DestroyContext();
 }
 void nodeGraph();
-void nodeEditor(bool alwaysShowValues);
-void drawNodes(bool alwaysShowValues);
+void nodeEditor();
+void drawNodes();
 void drawLinks();
 void createLink();
 void deleteLink();

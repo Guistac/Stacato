@@ -11,7 +11,8 @@ void ioNode::addIoData(std::shared_ptr<ioData> ioData) {
 
 	//if a pins gets added after if the node is already on the editor, this handles everything
 	if (parentNodeGraph) {
-		ioData->uniqueID = parentNodeGraph->uniqueID++;
+		ioData->uniqueID = parentNodeGraph->uniqueID;
+		parentNodeGraph->uniqueID += 2;
 		parentNodeGraph->ioDataList.push_back(ioData);
 	}
 }

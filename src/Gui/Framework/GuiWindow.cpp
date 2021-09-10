@@ -53,7 +53,6 @@ void GuiWindow::onInit() {
 	ImGui::CreateContext();
 	ImPlot::CreateContext();
 	ImGuiNodeEditor::CreateContext();
-	//ImNodes::CreateContext();
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;

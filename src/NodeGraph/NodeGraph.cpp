@@ -6,16 +6,19 @@
 #include "ioLink.h"
 
 void NodeGraph::addIoNode(std::shared_ptr<ioNode> newIoNode) {
-	newIoNode->uniqueID = uniqueID++;
+	newIoNode->uniqueID = uniqueID;
+	uniqueID += 2;
 	ioNodeList.push_back(newIoNode);
 	newIoNode->assignIoData(); //this tries to generate an ID and adds all data to the nodelist if a parent was specified, we don't want this so we add the parent afterwards
 	for (std::shared_ptr<ioData> data : newIoNode->nodeInputData) {
-		data->uniqueID = uniqueID++;
+		data->uniqueID = uniqueID;
+		uniqueID += 2;
 		data->parentNode = newIoNode;
 		ioDataList.push_back(data);
 	}
 	for (std::shared_ptr<ioData> data : newIoNode->nodeOutputData) {
-		data->uniqueID = uniqueID++;
+		data->uniqueID = uniqueID;
+		uniqueID += 2;
 		data->parentNode = newIoNode;
 		ioDataList.push_back(data);
 	}
@@ -64,18 +67,24 @@ bool NodeGraph::isConnectionValid(std::shared_ptr<ioData> data1, std::shared_ptr
 std::shared_ptr<ioLink> NodeGraph::connect(std::shared_ptr<ioData> data1, std::shared_ptr<ioData> data2) {
 	if (!isConnectionValid(data1, data2)) return nullptr;
 	std::shared_ptr<ioLink> newIoLink = std::make_shared<ioLink>();
-	newIoLink->uniqueID = uniqueID++;
+	newIoLink->uniqueID = uniqueID;
+	uniqueID += 2;
 	newIoLink->inputData = data1->isOutput() ? data1 : data2;
 	newIoLink->outputData = data2->isInput() ? data2 : data1;
 	data1->ioLinks.push_back(newIoLink);
 	data2->ioLinks.push_back(newIoLink);
 	ioLinkList.push_back(newIoLink);
+	if (data1->isInput()) evaluate(data1->getNode());
+	else if (data2->isInput()) evaluate(data2->getNode());
 	return newIoLink;
 }
 
 void NodeGraph::disconnect(std::shared_ptr<ioLink> removedIoLink) {
 	std::vector<std::shared_ptr<ioLink>>& inputDataLinks = removedIoLink->inputData->ioLinks;
 	std::vector<std::shared_ptr<ioLink>>& outputDataLinks = removedIoLink->outputData->ioLinks;
+
+	std::shared_ptr<ioNode> updatedNode = removedIoLink->getOutputData()->getNode();
+
 	for (int i = (int)inputDataLinks.size() - 1; i >= 0; i--) {
 		if (inputDataLinks[i] == removedIoLink) {
 			inputDataLinks.erase(inputDataLinks.begin() + i);
@@ -94,6 +103,8 @@ void NodeGraph::disconnect(std::shared_ptr<ioLink> removedIoLink) {
 			break;
 		}
 	}
+
+	evaluate(updatedNode);
 }
 
 std::shared_ptr<ioNode> NodeGraph::getIoNode(int Id) {

@@ -3,6 +3,8 @@
 #include "Gui/Gui.h"
 #include <imgui_internal.h>
 
+
+
 #include "Environnement/Environnement.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatSlave.h"
@@ -14,8 +16,6 @@ std::vector<std::shared_ptr<ioNode>> selectedNodes;
 namespace NodeEditor = ax::NodeEditor;
 
 void nodeGraph() {
-
-    static bool showValues = true;
 
     Environnement::nodeGraph.evaluate();
 
@@ -53,7 +53,7 @@ void nodeGraph() {
 
 	ImGui::BeginGroup();
 
-	nodeEditor(showValues);
+	nodeEditor();
 
     std::shared_ptr<ioNode> newDraggedNode = acceptDraggedNode();
     if (newDraggedNode) {
@@ -63,7 +63,9 @@ void nodeGraph() {
 
 	if (ImGui::Button("Center View")) ax::NodeEditor::NavigateToContent();
     ImGui::SameLine();
-    ImGui::Checkbox("Always Show Values", &showValues);
+    if (ImGui::Button("Show Flow")) for (auto link : Environnement::nodeGraph.getIoLinks()) ax::NodeEditor::Flow(link->getUniqueID());
+    ImGui::SameLine();
+    ImGui::Checkbox("Output Values", &Environnement::nodeGraph.b_showOutputValues);
 
 	ImGui::EndGroup();
 
@@ -85,12 +87,14 @@ namespace ImGuiNodeEditor {
     }
 }
 
-void nodeEditor(bool alwaysShowValues) {
+void nodeEditor() {
+    
     NodeGraph& nodeGraph = Environnement::nodeGraph;
+
 	NodeEditor::SetCurrentEditor(ImGuiNodeEditor::nodeEditorContext);
 	NodeEditor::Begin("Node Editor", ImVec2(0, ImGui::GetContentRegionAvail().y - ImGui::GetTextLineHeight() * 1.7));
 
-    drawNodes(alwaysShowValues);
+    drawNodes();
     drawLinks();
 
     // Handle creation action, returns true if editor want to create new link
@@ -149,20 +153,21 @@ void nodeEditor(bool alwaysShowValues) {
 
 	NodeEditor::End();
 
+
 }
 
-void drawNodes(bool alwaysShowValues) {
+void drawNodes() {
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2, ImGui::GetTextLineHeight() * 0.2));
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(ImGui::GetTextLineHeight() * 0.2, 0));
-    for (auto node : Environnement::nodeGraph.getIoNodes()) node->nodeGui(alwaysShowValues);
+    for (auto node : Environnement::nodeGraph.getIoNodes()) node->nodeGui();
     ImGui::PopStyleVar(2);
 }
 
 void drawLinks() {
     for (auto link : Environnement::nodeGraph.getIoLinks())
         NodeEditor::Link(link->getUniqueID(),
-            link->getOutputData()->getUniqueID(),
             link->getInputData()->getUniqueID(),
+            link->getOutputData()->getUniqueID(),
             ImColor(1.0f, 1.0f, 1.0f),
             1.0);
 }
@@ -201,7 +206,7 @@ void deleteNode() {
     NodeEditor::NodeId deletedNodeId;
     while (NodeEditor::QueryDeletedNode(&deletedNodeId)) {
         std::shared_ptr<ioNode> deletedNode = nodeGraph.getIoNode(deletedNodeId.Get());
-        if (NodeEditor::AcceptDeletedItem()) {
+        if (deletedNode && NodeEditor::AcceptDeletedItem()) {
             nodeGraph.removeIoNode(deletedNode);
         }
         else NodeEditor::RejectDeletedItem();
@@ -216,8 +221,11 @@ void getSelectedNodes() {
     if (selectedNodeCount > 0) {
         std::vector<int> selectedIds;
         for (int i = 0; i < selectedNodeCount; i++) {
-            //we take the absolute value because split nodes have second id thats the negative of their main unique id
-            int selectedNodeId = abs((int)selectedNodeIds[i].Get());
+            int selectedNodeId = selectedNodeIds[i].Get();
+            //even unique ids represent split node halves
+            if (selectedNodeId % 2 == 0) {
+                selectedNodeId--;
+            }
             //we don't add selected ids to the list twice
             //this can happen in case both parts of a split node are selected
             bool alreadyInSelectedIds = false;

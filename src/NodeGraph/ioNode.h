@@ -101,18 +101,18 @@ public:
 	bool wasProcessed() { return b_wasProcessed; }
 	bool areAllLinkedInputNodesProcessed();
 
-	virtual void nodeGui(bool alwaysShowValue);
+	virtual void nodeGui();
 	virtual void propertiesGui(); //defined in nodegui.cpp
 	virtual void nodeSpecificGui() {}
 
-	void getNodeGraphPosition(float& x, float& y);
+	glm::vec2 getNodeGraphPosition();
+	void restoreSavedPosition();
 
 	//for device Nodes
 	bool isOnline() { return b_isOnline; }
 	void setOnline(bool b) { b_isOnline = b; }
 	bool isSplit() { return b_isSplit; }
-	void getSplitNodeGraphPosition(float& xi, float& yi, float& xo, float& yo);
-
+	void getSplitNodeGraphPosition(glm::vec2& inputNode, glm::vec2& outputNode);
 
 	virtual bool load(tinyxml2::XMLElement* xml) { return true; }
 	virtual bool save(tinyxml2::XMLElement* xml) { return true; }
@@ -120,8 +120,8 @@ public:
 private:
 
 	friend class NodeGraph;
-	friend class NodePin;
-	friend class NodeLink;
+	friend class ioData;
+	friend class ioLink;
 
 	char name[128];
 
@@ -140,4 +140,7 @@ private:
 	bool b_isSplit = false;
 	bool b_wasSplit = false;
 	bool b_isOnline = false;
+
+	glm::vec2 savedPosition;
+	glm::vec2 savedSplitPosition;
 };

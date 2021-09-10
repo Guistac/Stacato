@@ -2,104 +2,11 @@
 
 #include "Gui/gui.h"
 #include "nodeGraph/ioNode.h"
+#include "nodeGraph/nodeGraph.h"
 
 namespace NodeEditor = ax::NodeEditor;
 
-void ioData::dataGui() {
-    static float dataFieldWidth = ImGui::GetTextLineHeight() * 4.0;
-    ImGui::SetNextItemWidth(dataFieldWidth);
-    if (isOutput()) ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-    ImGui::PushID(getUniqueID());
-    switch (getType()) {
-    case DataType::BOOLEAN_VALUE:
-        ImGui::Checkbox("##", &booleanValue);
-        break;
-    case DataType::INTEGER_VALUE:
-        ImGui::InputScalar("##", ImGuiDataType_S64, &integerValue);
-        break;
-    case DataType::REAL_VALUE:
-        ImGui::InputDouble("##", &realValue, 0.0, 0.0, "%.3f");
-        break;
-    }
-    ImGui::PopID();
-    if (isOutput()) ImGui::PopItemFlag();
-}
-
-float ioData::getGuiWidth(bool alwaysShowValue) {
-    static float iconSize = ImGui::GetTextLineHeight();                             //square size of the pin icons
-    static float iconDummyWidth = ImGui::GetTextLineHeight() * 0.75;                //width the pin icon actually occupies
-    static float dataFieldWidth = ImGui::GetTextLineHeight() * 4.0;
-    //get the pin title width
-    float pinTextWidth = ImGui::CalcTextSize(getName()).x;
-    //if the pin is connected, don't display its value, but add space for an icon
-    if ((isConnected() && !alwaysShowValue) || acceptsMultipleInputs())          return pinTextWidth + ImGui::GetStyle().ItemSpacing.x + iconDummyWidth;
-    //if it is connected and the type is boolean, add the width and spacing for a checkbox and icon
-    else if (getType() == DataType::BOOLEAN_VALUE)  return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + ImGui::GetFrameHeight();
-    //if it is connected and is not a boolean, add the width and spacing for an input field and icon
-    else                                            return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + dataFieldWidth;
-}
-
-
-enum pinIcon {
-    ARROW = 0,
-    CIRCLE_ARROW_OUT = 1,
-    SQUARED_SQUARE = 3,
-    ROUNDED_SQUARED = 4,
-    DIAMOND = 5
-};
-
-void ioData::pinGui(bool alwaysShowValue) {
-    static float iconSize = ImGui::GetTextLineHeight();                             //square size of the pin icons
-    static float iconDummyWidth = ImGui::GetTextLineHeight() * 0.75;                //width the pin icon actually occupies
-    static float dataFieldWidth = ImGui::GetTextLineHeight() * 4.0;
-
-    pinIcon icon;
-    switch (getType()) {
-        case DataType::BOOLEAN_VALUE: icon = ROUNDED_SQUARED; break;
-        case DataType::INTEGER_VALUE: icon = DIAMOND; break;
-        case DataType::REAL_VALUE: icon = ARROW; break;
-        default: icon = CIRCLE_ARROW_OUT; break;
-    }
-
-    if (isInput()) {
-        NodeEditor::BeginPin(getUniqueID(), NodeEditor::PinKind::Input);
-        NodeEditor::PinPivotAlignment(ImVec2(0.0, 0.5));
-        ImGui::Dummy(glm::vec2(iconDummyWidth));
-        //spacing.x
-        glm::vec2 min = ImGui::GetItemRectMin();
-        min.x -= iconSize * 0.15; //shift the visual position of the icon
-        glm::vec2 max = min + glm::vec2(iconSize);
-        DrawIcon(ImGui::GetWindowDrawList(), min, max, icon, isConnected(), ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
-        ImGui::SameLine();
-        ImGui::Text(getName());
-        NodeEditor::EndPin();
-        //spacing.x
-        if (!acceptsMultipleInputs() && (!isConnected() || alwaysShowValue)) {
-            ImGui::SameLine();
-            dataGui();
-        }
-    }
-    else if (isOutput()) {
-        if (!acceptsMultipleInputs() && (!isConnected() || alwaysShowValue)) {
-            dataGui();
-            ImGui::SameLine();
-        }
-        //spacing.x
-        NodeEditor::BeginPin(getUniqueID(), NodeEditor::PinKind::Output);
-        NodeEditor::PinPivotAlignment(ImVec2(1.0, 0.5));
-        ImGui::Text(getName());
-        ImGui::SameLine();
-        //spacing.x
-        ImGui::Dummy(glm::vec2(iconDummyWidth));
-        glm::vec2 min = ImGui::GetItemRectMin();
-        min.x -= iconSize * 0.15; //shift the visual position of the icon
-        glm::vec2 max = min + glm::vec2(iconSize);
-        DrawIcon(ImGui::GetWindowDrawList(), min, max, icon, isConnected(), ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
-        NodeEditor::EndPin();
-    }
-}
-
-void ioNode::nodeGui(bool alwaysShowValue) {
+void ioNode::nodeGui() {
 
     static float nodePadding = NodeEditor::GetStyle().NodePadding.x;    //horizontal blank space at the inside edge of the node
     static float nodeBorderWidth = NodeEditor::GetStyle().NodeBorderWidth;  //offset from the border thickness of the node
@@ -139,12 +46,12 @@ void ioNode::nodeGui(bool alwaysShowValue) {
         float widestPin = 0;
         for (auto pin : getNodeInputData()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
-            float pinWidth = pin->getGuiWidth(alwaysShowValue);
+            float pinWidth = pin->getGuiWidth();
             if (pinWidth > widestPin) widestPin = pinWidth;
         }
         for (auto pin : getNodeOutputData()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
-            float pinWidth = pin->getGuiWidth(alwaysShowValue) + ImGui::GetStyle().ItemSpacing.x; //spacing of the right align offset dummy
+            float pinWidth = pin->getGuiWidth() + ImGui::GetStyle().ItemSpacing.x; //spacing of the right align offset dummy
             if (pinWidth > widestPin) widestPin = pinWidth;
         }
 
@@ -174,15 +81,15 @@ void ioNode::nodeGui(bool alwaysShowValue) {
 
         for (auto pin : getNodeInputData()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
-            pin->pinGui(alwaysShowValue);
+            pin->pinGui();
         }
         ImGui::Spacing();
         for (auto pin : getNodeOutputData()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
-            float rightAlignSpacingWidth = nodeWidth - 2 * nodePadding - ImGui::GetStyle().ItemSpacing.x - pin->getGuiWidth(alwaysShowValue);
+            float rightAlignSpacingWidth = nodeWidth - 2 * nodePadding - ImGui::GetStyle().ItemSpacing.x - pin->getGuiWidth();
             ImGui::Dummy(glm::vec2(rightAlignSpacingWidth, 0));
             ImGui::SameLine();
-            pin->pinGui(alwaysShowValue);
+            pin->pinGui();
         }
         
         NodeEditor::EndNode();
@@ -212,7 +119,7 @@ void ioNode::nodeGui(bool alwaysShowValue) {
         float widestInputPin = 0;
         for (auto pin : getNodeInputData()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
-            float pinWidth = pin->getGuiWidth(alwaysShowValue);
+            float pinWidth = pin->getGuiWidth();
             if (pinWidth > widestInputPin) widestInputPin = pinWidth;
         }
 
@@ -244,7 +151,7 @@ void ioNode::nodeGui(bool alwaysShowValue) {
 
         for (auto pin : getNodeInputData()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
-            pin->pinGui(alwaysShowValue);
+            pin->pinGui();
         }
 
         NodeEditor::EndNode();
@@ -255,19 +162,19 @@ void ioNode::nodeGui(bool alwaysShowValue) {
             glm::vec2 inputNodeSize = NodeEditor::GetNodeSize(getUniqueID());
             glm::vec2 outputNodePosition = inputNodePosition;
             outputNodePosition.y += inputNodeSize.y;
-            NodeEditor::SetNodePosition(-getUniqueID(), outputNodePosition);
+            NodeEditor::SetNodePosition(getUniqueID()+1, outputNodePosition);
         }
 
         //===== SPLIT OUTPUT NODE ======
 
-        NodeEditor::BeginNode(-getUniqueID());
+        NodeEditor::BeginNode(getUniqueID()+1);
 
         float outputTitleTextWidth = titleTextWidth;
         if (inputLabelWidth > outputTitleTextWidth) outputTitleTextWidth = inputLabelWidth;
         float widestOutputPin = 0;
         for (auto pin : getNodeOutputData()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
-            float pinWidth = pin->getGuiWidth(alwaysShowValue);
+            float pinWidth = pin->getGuiWidth();
             if (pinWidth > widestOutputPin) widestOutputPin = pinWidth;
         }
 
@@ -276,7 +183,7 @@ void ioNode::nodeGui(bool alwaysShowValue) {
         float outputNodeWidth = outputTitleSectionWidth > outputPinSectionWidth ? outputTitleSectionWidth : outputPinSectionWidth;
 
         labelColor = ImColor(0.1f, 0.1f, 0.6f, 0.5f);
-        nodePosition = NodeEditor::GetNodePosition(-getUniqueID());       //top left coordinate of the node
+        nodePosition = NodeEditor::GetNodePosition(getUniqueID()+1);       //top left coordinate of the node
         glm::vec2 outputTextRectMin = glm::vec2(nodePosition.x, nodePosition.y) + glm::vec2(nodeBorderWidth * 0.8);
         glm::vec2 outputTextRectMax = outputTextRectMin + glm::vec2(outputNodeWidth - 2 * nodeBorderWidth, ImGui::GetTextLineHeightWithSpacing() + ImGui::GetTextLineHeight());
         drawList->AddRectFilled(outputTextRectMin, outputTextRectMax, labelColor, labelRounding, ImDrawFlags_RoundCornersTop);
@@ -300,10 +207,10 @@ void ioNode::nodeGui(bool alwaysShowValue) {
         ImGui::Spacing();
         for (auto pin : getNodeOutputData()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
-            float rightAlignSpacingWidth = outputNodeWidth - 2 * nodePadding - ImGui::GetStyle().ItemSpacing.x - pin->getGuiWidth(alwaysShowValue);
+            float rightAlignSpacingWidth = outputNodeWidth - 2 * nodePadding - ImGui::GetStyle().ItemSpacing.x - pin->getGuiWidth();
             ImGui::Dummy(glm::vec2(rightAlignSpacingWidth, 0));
             ImGui::SameLine();
-            pin->pinGui(alwaysShowValue);
+            pin->pinGui();
         }
 
         NodeEditor::EndNode();
@@ -348,12 +255,14 @@ void ioNode::propertiesGui() {
                 }
             };
 
-            ImGui::Text("Custom Node Name");
+            ImGui::Text("Node Name");
             ImGui::InputText("##nodeCustomName", (char*)getName(), 128);
 
             if (getType() == NodeType::IODEVICE) {
                 ImGui::Checkbox("Split Inputs and Outputs", &b_isSplit);
             }
+
+            ImGui::Separator();
 
             if (hasInputs()) {
                 ImGui::Text("Input Data:");
@@ -372,17 +281,16 @@ void ioNode::propertiesGui() {
     }
 }
 
-void ioNode::getNodeGraphPosition(float& x, float& y) {
-    glm::vec2 position = NodeEditor::GetNodePosition(getUniqueID());
-    x = position.x;
-    y = position.y;
+glm::vec2 ioNode::getNodeGraphPosition() {
+    return NodeEditor::GetNodePosition(getUniqueID());
 }
 
-void ioNode::getSplitNodeGraphPosition(float& xi, float& yi, float& xo, float& yo) {
-    glm::vec2 inputNodePosition = NodeEditor::GetNodePosition(getUniqueID());
-    glm::vec2 outpuNodePosition = NodeEditor::GetNodePosition(-getUniqueID());
-    xi = inputNodePosition.x;
-    yi = inputNodePosition.y;
-    xo = outpuNodePosition.x;
-    yo = outpuNodePosition.y;
+void ioNode::getSplitNodeGraphPosition(glm::vec2& in, glm::vec2& out) {
+    in = NodeEditor::GetNodePosition(getUniqueID());
+    out = NodeEditor::GetNodePosition(-getUniqueID());
+}
+
+void ioNode::restoreSavedPosition() {
+    NodeEditor::SetNodePosition(getUniqueID(), savedPosition);
+    if (isSplit()) NodeEditor::SetNodePosition(-getUniqueID(), savedSplitPosition);
 }

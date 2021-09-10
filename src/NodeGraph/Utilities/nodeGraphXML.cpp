@@ -25,20 +25,19 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 
 		if (!node->isSplit()) {
 			XMLElement* positionXML = nodeXML->InsertNewChildElement("NodeEditorPosition");
-			float xPosition, yPosition;
-			node->getNodeGraphPosition(xPosition, yPosition);
-			positionXML->SetAttribute("x", xPosition);
-			positionXML->SetAttribute("y", yPosition);
+			glm::vec2 position = node->getNodeGraphPosition();
+			positionXML->SetAttribute("x", position.x);
+			positionXML->SetAttribute("y", position.y);
 		}
 		else {
 			XMLElement* inputPositionXML = nodeXML->InsertNewChildElement("InputNodeEditorPosition");
 			XMLElement* outputPositionXML = nodeXML->InsertNewChildElement("OutputNodeEditorPosition");
-			float xInput, yInput, xOutput, yOutput;
-			node->getSplitNodeGraphPosition(xInput, yInput, xOutput, yOutput);
-			inputPositionXML->SetAttribute("x", xInput);
-			inputPositionXML->SetAttribute("y", xOutput);
-			outputPositionXML->SetAttribute("x", xOutput);
-			outputPositionXML->SetAttribute("y", yOutput);
+			glm::vec2 input, output;
+			node->getSplitNodeGraphPosition(input, output);
+			inputPositionXML->SetAttribute("x", input.x);
+			inputPositionXML->SetAttribute("y", input.y);
+			outputPositionXML->SetAttribute("x", output.x);
+			outputPositionXML->SetAttribute("y", output.y);
 		}
 
 		XMLElement* nodeSpecificDataXML = nodeXML->InsertNewChildElement("NodeSpecificData");
@@ -111,29 +110,13 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		
 		if (loadedNode == nullptr) return Logger::warn("Coult not load Node Class");
 	
-		loadedNode->setName(nodeCustomName);
-		loadedNode->assignIoData(); //this assigns a unique id if the parent nodegraph is assigned, we don't want that
-		loadedNode->uniqueID = nodeUniqueID;
-		loadedNode->parentNodeGraph = this;
-		loadedNode->b_isSplit = isSplit;
-		loadedNodes.push_back(loadedNode);
-		loadedNode->b_isInNodeGraph = true;
-		for (std::shared_ptr<ioData> data : loadedNode->nodeInputData) {
-			data->parentNode = loadedNode;
-			loadedPins.push_back(data);
-		}
-		for (std::shared_ptr<ioData> data : loadedNode->nodeOutputData) {
-			data->parentNode = loadedNode;
-			loadedPins.push_back(data);
-		}
-
 		if (!isSplit) {
 			XMLElement* positionXML = nodeXML->FirstChildElement("NodeEditorPosition");
 			if (!positionXML) return Logger::warn("Could not load node position attribute");
 			float xPosition, yPosition;
 			positionXML->QueryFloatAttribute("x", &xPosition);
 			positionXML->QueryFloatAttribute("y", &yPosition);
-			//TODO: set node position
+			loadedNode->savedPosition = glm::vec2(xPosition, yPosition);
 		}
 		else {
 			XMLElement* inputPositionXML = nodeXML->FirstChildElement("InputNodeEditorPosition");
@@ -146,7 +129,25 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			float xOutput, yOutput;
 			outputPositionXML->QueryFloatAttribute("x", &xOutput);
 			outputPositionXML->QueryFloatAttribute("y", &yOutput);
-			//TODO: set node position
+			loadedNode->savedPosition = glm::vec2(xInput, yInput);
+			loadedNode->savedSplitPosition = glm::vec2(xOutput, yOutput);
+		}
+
+		loadedNode->setName(nodeCustomName);
+		loadedNode->assignIoData(); //this assigns a unique id if the parent nodegraph is assigned, we don't want that
+		loadedNode->uniqueID = nodeUniqueID;
+		loadedNode->parentNodeGraph = this;
+		loadedNode->b_isSplit = isSplit;
+		loadedNode->b_wasSplit = isSplit;
+		loadedNodes.push_back(loadedNode);
+		loadedNode->b_isInNodeGraph = true;
+		for (std::shared_ptr<ioData> data : loadedNode->nodeInputData) {
+			data->parentNode = loadedNode;
+			loadedPins.push_back(data);
+		}
+		for (std::shared_ptr<ioData> data : loadedNode->nodeOutputData) {
+			data->parentNode = loadedNode;
+			loadedPins.push_back(data);
 		}
 
 		XMLElement* nodeSpecificDataXML = nodeXML->FirstChildElement("NodeSpecificData");
@@ -245,7 +246,8 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 	ioNodeList.swap(loadedNodes);
 	ioDataList.swap(loadedPins);
 	ioLinkList.swap(loadedLinks);
-	uniqueID = largestUniqueID + 1;
+	uniqueID = largestUniqueID + 1; //set this so we can add more elements to the node graph after loading
+
 	Logger::debug("Largest unique ID is {}", largestUniqueID);
 	Logger::info("Successfully loaded Node Graph");
 

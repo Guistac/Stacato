@@ -92,15 +92,15 @@ private:
     std::shared_ptr<ioData> digitalOut2 =       std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ2");
 
     //public input data
-    std::shared_ptr<ioData> actualPosition =    std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position");
-    std::shared_ptr<ioData> actualVelocity =    std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity");
-    std::shared_ptr<ioData> actualTorque =      std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Torque");
-    std::shared_ptr<ioData> digitalIn0 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI0");
-    std::shared_ptr<ioData> digitalIn1 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI1");
-    std::shared_ptr<ioData> digitalIn2 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI2");
-    std::shared_ptr<ioData> digitalIn3 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI3");
-    std::shared_ptr<ioData> digitalIn4 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI4");
-    std::shared_ptr<ioData> digitalIn5 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI5");
+    std::shared_ptr<ioData> actualPosition =    std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position", ioDataFlags_DisableDataField);
+    std::shared_ptr<ioData> actualVelocity =    std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity", ioDataFlags_DisableDataField);
+    std::shared_ptr<ioData> actualTorque =      std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Torque", ioDataFlags_DisableDataField);
+    std::shared_ptr<ioData> digitalIn0 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI0", ioDataFlags_DisableDataField);
+    std::shared_ptr<ioData> digitalIn1 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI1", ioDataFlags_DisableDataField);
+    std::shared_ptr<ioData> digitalIn2 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI2", ioDataFlags_DisableDataField);
+    std::shared_ptr<ioData> digitalIn3 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI3", ioDataFlags_DisableDataField);
+    std::shared_ptr<ioData> digitalIn4 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI4", ioDataFlags_DisableDataField);
+    std::shared_ptr<ioData> digitalIn5 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI5", ioDataFlags_DisableDataField);
 
     //command flags to control state machine
     bool b_enableVoltage = false;

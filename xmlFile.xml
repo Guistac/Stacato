@@ -1,26 +1,26 @@
 <Environnement name="Default Environnement">
     <NodeGraph>
         <Nodes>
-            <Node ClassName="LXM32M EtherCAT" UniqueID="1" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="true" CustomName="Servo Drive 3">
-                <InputNodeEditorPosition x="3388" y="3388"/>
-                <OutputNodeEditorPosition x="3388" y="982"/>
+            <Node ClassName="LXM32M EtherCAT" UniqueID="1" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="true" CustomName="LXM32M EtherCAT">
+                <InputNodeEditorPosition x="-330" y="-416"/>
+                <OutputNodeEditorPosition x="3.4028235e+38" y="3.4028235e+38"/>
                 <NodeSpecificData/>
                 <InputPins>
-                    <InputPin Name="Position" DataType="Real" UniqueID="2" Real="0" Visible="true"/>
-                    <InputPin Name="DQ0" DataType="Boolean" UniqueID="3" Boolean="false" Visible="true"/>
-                    <InputPin Name="DQ1" DataType="Boolean" UniqueID="4" Boolean="false" Visible="true"/>
-                    <InputPin Name="DQ2" DataType="Boolean" UniqueID="5" Boolean="false" Visible="true"/>
+                    <InputPin Name="Position" DataType="Real" UniqueID="3" Real="0" Visible="true"/>
+                    <InputPin Name="DQ0" DataType="Boolean" UniqueID="5" Boolean="false" Visible="true"/>
+                    <InputPin Name="DQ1" DataType="Boolean" UniqueID="7" Boolean="false" Visible="true"/>
+                    <InputPin Name="DQ2" DataType="Boolean" UniqueID="9" Boolean="false" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="Position" DataType="Real" UniqueID="6" Real="0" Visible="true"/>
-                    <OutputPin Name="Velocity" DataType="Real" UniqueID="7" Real="0" Visible="true"/>
-                    <OutputPin Name="Torque" DataType="Real" UniqueID="8" Real="0" Visible="true"/>
-                    <OutputPin Name="DI0" DataType="Boolean" UniqueID="9" Boolean="false" Visible="true"/>
-                    <OutputPin Name="DI1" DataType="Boolean" UniqueID="10" Boolean="false" Visible="true"/>
-                    <OutputPin Name="DI2" DataType="Boolean" UniqueID="11" Boolean="false" Visible="true"/>
-                    <OutputPin Name="DI3" DataType="Boolean" UniqueID="12" Boolean="false" Visible="true"/>
-                    <OutputPin Name="DI4" DataType="Boolean" UniqueID="13" Boolean="false" Visible="true"/>
-                    <OutputPin Name="DI5" DataType="Boolean" UniqueID="14" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Position" DataType="Real" UniqueID="11" Real="0" Visible="true"/>
+                    <OutputPin Name="Velocity" DataType="Real" UniqueID="13" Real="0" Visible="true"/>
+                    <OutputPin Name="Torque" DataType="Real" UniqueID="15" Real="0" Visible="true"/>
+                    <OutputPin Name="DI0" DataType="Boolean" UniqueID="17" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI1" DataType="Boolean" UniqueID="19" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI2" DataType="Boolean" UniqueID="21" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI3" DataType="Boolean" UniqueID="23" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI4" DataType="Boolean" UniqueID="25" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI5" DataType="Boolean" UniqueID="27" Boolean="false" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>

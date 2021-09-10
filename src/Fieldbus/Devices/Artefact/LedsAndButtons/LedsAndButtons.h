@@ -23,9 +23,9 @@ public:
 	std::shared_ptr<ioData> led3 = std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-3");
 	std::shared_ptr<ioData> led4 = std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-4");
 	
-	std::shared_ptr<ioData> button0 = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button0");
-	std::shared_ptr<ioData> button1 = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button1");
-	std::shared_ptr<ioData> button2 = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button2");
-	std::shared_ptr<ioData> button3 = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button3");
+	std::shared_ptr<ioData> button0 = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button0", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> button1 = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button1", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> button2 = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button2", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> button3 = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button3", ioDataFlags_DisableDataField);
 
 };
