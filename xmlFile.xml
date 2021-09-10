@@ -2,87 +2,80 @@
     <NodeGraph>
         <Nodes>
             <Node ClassName="Clock" UniqueID="1" NodeType="IODEVICE" DeviceType="CLOCK" Split="false" CustomName="Clock">
-                <NodeEditorPosition x="-1530" y="-1111"/>
+                <NodeEditorPosition x="-1751" y="-1079"/>
                 <NodeSpecificData/>
                 <InputPins/>
                 <OutputPins>
-                    <OutputPin Name="output" DataType="Real" UniqueID="3" Real="147.3889087" Visible="true"/>
+                    <OutputPin Name="output" DataType="Real" UniqueID="3" Real="149.73295479999999" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node ClassName="Sinus" UniqueID="39" NodeType="PROCESSOR" CustomName="Sinus">
-                <NodeEditorPosition x="-919" y="-932"/>
+                <NodeEditorPosition x="-936" y="-927"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin Name="in" DataType="Real" UniqueID="41" Real="0" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="out" DataType="Real" UniqueID="43" Real="-0.84896545644661081" Visible="true"/>
+                    <OutputPin Name="out" DataType="Real" UniqueID="43" Real="0.33555605127185667" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node ClassName="Addition" UniqueID="47" NodeType="PROCESSOR" CustomName="Addition">
-                <NodeEditorPosition x="-688" y="-1055"/>
+                <NodeEditorPosition x="-600" y="-1055"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin Name="input" DataType="Real" UniqueID="49" Real="0" Visible="true"/>
                     <InputPin Name="offset" DataType="Real" UniqueID="51" Real="0" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="result" DataType="Real" UniqueID="53" Real="-1.3561303551035766" Visible="true"/>
+                    <OutputPin Name="result" DataType="Real" UniqueID="53" Real="-0.32480325466322951" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node ClassName="Sinus" UniqueID="59" NodeType="PROCESSOR" CustomName="Sinus">
-                <NodeEditorPosition x="-887" y="-1172"/>
+                <NodeEditorPosition x="-932" y="-1156"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin Name="in" DataType="Real" UniqueID="61" Real="0" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="out" DataType="Real" UniqueID="63" Real="-0.50716489865696579" Visible="true"/>
+                    <OutputPin Name="out" DataType="Real" UniqueID="63" Real="-0.66035930593508618" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node ClassName="Display" UniqueID="69" NodeType="PROCESSOR" CustomName="Display">
-                <NodeEditorPosition x="-280" y="-1119"/>
-                <NodeSpecificData/>
+            <Node ClassName="Plotter" UniqueID="75" NodeType="PROCESSOR" CustomName="PlotterNode">
+                <NodeEditorPosition x="-216" y="-1007"/>
+                <NodeSpecificData>
+                    <Plotter BufferSize="256" DisplayLengthSeconds="8.3999977"/>
+                </NodeSpecificData>
                 <InputPins>
-                    <InputPin Name="value: " DataType="Real" UniqueID="71" Real="-1.3561303551035766" Visible="true"/>
-                </InputPins>
-                <OutputPins/>
-            </Node>
-            <Node ClassName="Plotter" UniqueID="75" NodeType="PROCESSOR" CustomName="Plotter">
-                <NodeEditorPosition x="-280" y="-927"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="input" DataType="Real" UniqueID="77" Real="0" Visible="true"/>
+                    <InputPin Name="input" DataType="Real" UniqueID="77" Real="-0.32480326294898987" Visible="true"/>
                 </InputPins>
                 <OutputPins/>
             </Node>
             <Node ClassName="Multiplication" UniqueID="81" NodeType="PROCESSOR" CustomName="Multiplication">
-                <NodeEditorPosition x="-1272" y="-1199"/>
+                <NodeEditorPosition x="-1319" y="-1199"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin Name="input" DataType="Real" UniqueID="83" Real="0" Visible="true"/>
-                    <InputPin Name="mult" DataType="Real" UniqueID="85" Real="2" Visible="true"/>
+                    <InputPin Name="mult" DataType="Real" UniqueID="85" Real="20" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="result" DataType="Real" UniqueID="87" Real="294.7778174" Visible="true"/>
+                    <OutputPin Name="result" DataType="Real" UniqueID="87" Real="2994.6590959999999" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node ClassName="Multiplication" UniqueID="93" NodeType="PROCESSOR" CustomName="Multiplication">
-                <NodeEditorPosition x="-1278" y="-959"/>
+                <NodeEditorPosition x="-1335" y="-959"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin Name="input" DataType="Real" UniqueID="95" Real="0" Visible="true"/>
-                    <InputPin Name="mult" DataType="Real" UniqueID="97" Real="8" Visible="true"/>
+                    <InputPin Name="mult" DataType="Real" UniqueID="97" Real="21" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="result" DataType="Real" UniqueID="99" Real="1179.1112696" Visible="true"/>
+                    <OutputPin Name="result" DataType="Real" UniqueID="99" Real="3144.3920507999997" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
         <Links>
             <Link UniqueID="57" StartPin="43" EndPin="49"/>
             <Link UniqueID="67" StartPin="63" EndPin="49"/>
-            <Link UniqueID="73" StartPin="53" EndPin="71"/>
             <Link UniqueID="79" StartPin="53" EndPin="77"/>
             <Link UniqueID="89" StartPin="3" EndPin="83"/>
             <Link UniqueID="101" StartPin="3" EndPin="95"/>

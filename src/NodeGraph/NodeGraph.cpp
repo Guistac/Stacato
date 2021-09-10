@@ -7,18 +7,18 @@
 
 void NodeGraph::addIoNode(std::shared_ptr<ioNode> newIoNode) {
 	newIoNode->uniqueID = uniqueID;
-	uniqueID += 2;
+	uniqueID++;
 	ioNodeList.push_back(newIoNode);
 	newIoNode->assignIoData(); //this tries to generate an ID and adds all data to the nodelist if a parent was specified, we don't want this so we add the parent afterwards
 	for (std::shared_ptr<ioData> data : newIoNode->nodeInputData) {
 		data->uniqueID = uniqueID;
-		uniqueID += 2;
+		uniqueID++;
 		data->parentNode = newIoNode;
 		ioDataList.push_back(data);
 	}
 	for (std::shared_ptr<ioData> data : newIoNode->nodeOutputData) {
 		data->uniqueID = uniqueID;
-		uniqueID += 2;
+		uniqueID++;
 		data->parentNode = newIoNode;
 		ioDataList.push_back(data);
 	}
@@ -68,7 +68,7 @@ std::shared_ptr<ioLink> NodeGraph::connect(std::shared_ptr<ioData> data1, std::s
 	if (!isConnectionValid(data1, data2)) return nullptr;
 	std::shared_ptr<ioLink> newIoLink = std::make_shared<ioLink>();
 	newIoLink->uniqueID = uniqueID;
-	uniqueID += 2;
+	uniqueID++;
 	newIoLink->inputData = data1->isOutput() ? data1 : data2;
 	newIoLink->outputData = data2->isInput() ? data2 : data1;
 	data1->ioLinks.push_back(newIoLink);

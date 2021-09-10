@@ -6,7 +6,7 @@
 #include "NodeGraph/Nodes/DisplayNode.h"
 #include "NodeGraph/Nodes/MathNodes.h"
 #include "NodeGraph/Nodes/GroupNode.h"
-#include "NodeGraph/Nodes/GraphingNode.h"
+#include "NodeGraph/Nodes/PlotterNode.h"
 
 namespace ioNodeFactory {
 

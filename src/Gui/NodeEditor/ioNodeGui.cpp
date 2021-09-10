@@ -159,18 +159,21 @@ void ioNode::nodeGui() {
 
         NodeEditor::EndNode();
 
+        int splitNodeID = -getUniqueID();
+
         if (!b_wasSplit) {
             b_wasSplit = true;
             glm::vec2 inputNodePosition = NodeEditor::GetNodePosition(getUniqueID());
             glm::vec2 inputNodeSize = NodeEditor::GetNodeSize(getUniqueID());
             glm::vec2 outputNodePosition = inputNodePosition;
             outputNodePosition.y += inputNodeSize.y;
-            NodeEditor::SetNodePosition(getUniqueID()+1, outputNodePosition);
+            NodeEditor::SetNodePosition(splitNodeID, outputNodePosition);
         }
 
         //===== SPLIT OUTPUT NODE ======
 
-        NodeEditor::BeginNode(getUniqueID()+1);
+
+        NodeEditor::BeginNode(splitNodeID);
 
         float outputTitleTextWidth = titleTextWidth;
         if (inputLabelWidth > outputTitleTextWidth) outputTitleTextWidth = inputLabelWidth;
@@ -186,7 +189,7 @@ void ioNode::nodeGui() {
         float outputNodeWidth = outputTitleSectionWidth > outputPinSectionWidth ? outputTitleSectionWidth : outputPinSectionWidth;
 
         labelColor = ImColor(0.1f, 0.1f, 0.6f, 0.5f);
-        nodePosition = NodeEditor::GetNodePosition(getUniqueID()+1);       //top left coordinate of the node
+        nodePosition = NodeEditor::GetNodePosition(splitNodeID);       //top left coordinate of the node
         glm::vec2 outputTextRectMin = glm::vec2(nodePosition.x, nodePosition.y) + glm::vec2(nodeBorderWidth * 0.8);
         glm::vec2 outputTextRectMax = outputTextRectMin + glm::vec2(outputNodeWidth - 2 * nodeBorderWidth, ImGui::GetTextLineHeightWithSpacing() + ImGui::GetTextLineHeight());
         drawList->AddRectFilled(outputTextRectMin, outputTextRectMax, labelColor, labelRounding, ImDrawFlags_RoundCornersTop);

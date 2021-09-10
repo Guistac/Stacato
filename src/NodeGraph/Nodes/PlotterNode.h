@@ -5,6 +5,7 @@
 
 #include <imgui.h>
 #include <implot.h>
+#include <tinyxml2.h>
 
 class PlotterNode : public ioNode {
 public:
@@ -33,6 +34,7 @@ public:
 			newPoint.x = Timing::getTime_seconds();
 			newPoint.y = input->getLinks().front()->getInputData()->getReal();
 			data.addPoint(newPoint);
+			input->set(newPoint.y);
 		}
 		else {
 			if (wasConnected) {
@@ -44,25 +46,35 @@ public:
 
 	virtual void nodeSpecificGui() {
 		if (ImGui::BeginTabItem("Plot")) {
-			
-			if (ImGui::InputInt("Buffer Size", &bufferSize, 0, 0)) {
-				Logger::warn("buffer size edited");
-			}
+			if (ImGui::InputInt("Buffer Size", &bufferSize, 0, 0)) data.setMaxSize(bufferSize);
 			ImGui::InputFloat("Display Length Second", &displayLengthSeconds, 0.1, 1.0, "%.1fs");
-
-
 			ImPlot::FitNextPlotAxes(false, true);
 			ImPlot::SetNextPlotLimitsX((double)data.newest().x - (double)displayLengthSeconds, data.newest().x, ImGuiCond_Always);
-			
-			if (ImPlot::BeginPlot("Plot")) {
-
+			ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_CanvasOnly | ImPlotFlags_NoChild | ImPlotFlags_Query | ImPlotFlags_NoTitle;
+			if (ImPlot::BeginPlot("Plot", nullptr, nullptr, ImVec2(-1, ImGui::GetTextLineHeight() * 15.0), plotFlags)) {
 				ImPlot::PlotLine("Data", &data.front().x, &data.front().y, data.size(), data.offset(), data.stride());
-
 				ImPlot::EndPlot();
 			}
-		
-
 			ImGui::EndTabItem();
 		}
+	}
+
+	virtual bool load(tinyxml2::XMLElement* xml) { 
+		using namespace tinyxml2;
+		Logger::trace("Loading Plotter Node Specific Attributes for node {}", getName());
+		XMLElement* plotterXML = xml->FirstChildElement("Plotter");
+		if (!plotterXML) return Logger::warn("Coulnd't load Plotter attribute of node {}", getName());
+		if (plotterXML->QueryIntAttribute("BufferSize", &bufferSize) != XML_SUCCESS) return Logger::warn("Couldn't load BufferSize Attribute");
+		if (plotterXML->QueryFloatAttribute("DisplayLengthSeconds", &displayLengthSeconds) != XML_SUCCESS) return Logger::warn("Couldn't load DisplayLengthSeconds Attribute");
+		Logger::debug("Successfully Loaded Plotter Node Attributes");
+		return true;
+	}
+
+	virtual bool save(tinyxml2::XMLElement* xml) {
+		using namespace tinyxml2;
+		XMLElement* plotterXML = xml->InsertNewChildElement("Plotter");
+		plotterXML->SetAttribute("BufferSize", bufferSize);
+		plotterXML->SetAttribute("DisplayLengthSeconds", displayLengthSeconds);
+		return true;
 	}
 };
