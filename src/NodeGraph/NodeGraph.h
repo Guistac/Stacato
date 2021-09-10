@@ -36,6 +36,10 @@ public:
 	bool load(tinyxml2::XMLElement* xml);
 	bool save(tinyxml2::XMLElement* xml);
 
+	void nodeEditorGui();
+	void centerView();
+	void showFlow();
+
 	bool b_showOutputValues = false;
 
 private:
@@ -51,6 +55,8 @@ private:
 	//counter to add new nodes, pins and links
 	//all items are odd numbers except for split node counterparts which are the an even number above the main node ID
 	int uniqueID = 1;
+
+	bool b_justLoaded = false;
 
 	std::mutex mutex;
 };

@@ -13,7 +13,7 @@ public:
 		addIoData(output_seconds);
 	}
 
-	virtual void process(bool inputDataValid) {
+	virtual void process() {
 		output_seconds->set(Timing::getTime_seconds());
 	}
 };

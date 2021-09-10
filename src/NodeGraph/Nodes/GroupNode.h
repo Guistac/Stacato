@@ -7,7 +7,7 @@ public:
 	
 	DEFINE_CONTAINER_NODE("Group", GroupNode, "Utility");
 
-	virtual void process(bool) {}
+	virtual void process() {}
 	virtual void assignIoData() {}
 
 };

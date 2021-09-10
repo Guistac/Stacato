@@ -1,8 +1,11 @@
 #include <pch.h>
 
-#include "Gui/gui.h"
 #include "nodeGraph/ioNode.h"
 #include "nodeGraph/nodeGraph.h"
+
+#include <imgui.h>
+#include <imgui_node_editor.h>
+#include "Gui/Framework/Fonts.h"
 
 namespace NodeEditor = ax::NodeEditor;
 
@@ -218,12 +221,15 @@ void ioNode::nodeGui() {
     }
 }
 
+
+
+
 void ioNode::propertiesGui() {
     if (ImGui::BeginTabBar("PropertiesTabBar")) {
 
         nodeSpecificGui();
 
-        if(ImGui::BeginTabItem("ioData")) {
+        if(ImGui::BeginTabItem("Node")) {
             
             static auto displayDataTable = [](std::vector<std::shared_ptr<ioData>>& data, const char* tableName) {
                 ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;

@@ -1,6 +1,9 @@
 #include <pch.h>
 
-#include "Gui/Gui.h"
+#include "Gui/NodeEditor/NodeEditorGui.h"
+
+#include <imgui.h>
+#include <imgui_internal.h>
 
 void DrawIcon(ImDrawList* drawList, const glm::vec2& a, const glm::vec2& b, int type, bool filled, ImU32 color, ImU32 innerColor)
 {

@@ -223,7 +223,7 @@ void Lexium32::readInputs() {
     digitalIn5->set((_IO_act & 0x20) != 0x0);
 }
 
-void Lexium32::process(bool inputDataValid) {
+void Lexium32::process() {
 
     //Drive State Commands
     if (b_disableVoltage) {

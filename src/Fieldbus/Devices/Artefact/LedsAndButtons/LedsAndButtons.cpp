@@ -43,7 +43,7 @@ void LedsAndButtons::readInputs() {
 	button3->set((buttonWord & 0x8) != 0);
 }
 
-void LedsAndButtons::process(bool b_processDataValid) {}
+void LedsAndButtons::process() {}
 
 void LedsAndButtons::prepareOutputs() {
 	uint8_t* outputData = identity->outputs;

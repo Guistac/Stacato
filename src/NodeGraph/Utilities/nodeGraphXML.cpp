@@ -91,7 +91,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		if (nodeXML->QueryStringAttribute("CustomName", &nodeCustomName) != XML_SUCCESS) return Logger::warn("Could not load Node Custom Name");
 		const char* nodeType;
 		if (nodeXML->QueryStringAttribute("NodeType", &nodeType) != XML_SUCCESS) return Logger::warn("Could not load Node Type");
-		bool isSplit;
+		bool isSplit = false;
 		if (strcmp(nodeType, "IODEVICE") == 0) {
 			if (nodeXML->QueryBoolAttribute("Split", &isSplit) != XML_SUCCESS) return Logger::warn("Could not load split status");
 		}
@@ -250,6 +250,8 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 
 	Logger::debug("Largest unique ID is {}", largestUniqueID);
 	Logger::info("Successfully loaded Node Graph");
+
+	b_justLoaded = true;
 
 	return true;
 }

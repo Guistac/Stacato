@@ -61,7 +61,7 @@ void EasyCAT::readInputs() {
 	byteIn->set((long long int)ui8_byteIn);
 }
 
-void EasyCAT::process(bool b_processDataValid) {
+void EasyCAT::process() {
 	static int counter = 0;
 	counter++;
 	byteOut->set((long long int)counter * 8);

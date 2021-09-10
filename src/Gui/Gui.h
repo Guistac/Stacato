@@ -5,38 +5,21 @@
 #include <imgui_internal.h>
 #include <imgui_node_editor.h>
 #include <implot.h>
+
 #include "Framework/Fonts.h"
-#include "NodeGraph/ioNode.h"
+#include "NodeEditor/NodeEditorGui.h"
 
 void gui(bool closeWindowRequest);
 
 void mainMenuBar(bool closeWindowRequest);
 void quitApplicationModal(bool closeWindowRequest);
+
 void aboutModal(bool openModal);
 
 void etherCatSlaves();
 void etherCatMetrics();
 void etherCatParameters(bool resetList);
 void etherCatStartModal();
-
-
-namespace ImGuiNodeEditor {
-	void CreateContext();
-	void DestroyContext();
-}
-void nodeGraph();
-void nodeEditor();
-void drawNodes();
-void drawLinks();
-void createLink();
-void deleteLink();
-void deleteNode();
-void DrawIcon(ImDrawList* drawList, const glm::vec2& a, const glm::vec2& b, int type, bool filled, ImU32 color, ImU32 innerColor);
-std::shared_ptr<ioNode> nodeAdderContextMenu();
-std::shared_ptr<ioNode> acceptDraggedNode();
-
-void getSelectedNodes();
-void nodeAdder();
 
 void log();
 

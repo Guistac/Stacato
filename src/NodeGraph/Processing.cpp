@@ -105,7 +105,7 @@ void NodeGraph::evaluate(std::vector<std::shared_ptr<ioNode>> startNodes) {
 			//check if all nodes linked to inputs of the current node were processed
 			if (node->areAllLinkedInputNodesProcessed() || node->b_circularDependencyFlag) {
 				//if yes, process the node
-				node->process(true);
+				node->process();
 				node->b_wasProcessed = true;
 			}
 			else {

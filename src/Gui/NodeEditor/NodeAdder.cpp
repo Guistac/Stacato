@@ -12,7 +12,7 @@ std::shared_ptr<ioNode> nodeAdderContextMenu() {
     ImGui::MenuItem("Node Editor Menu", nullptr, false, false);
     ImGui::Separator();
     ImGui::MenuItem("EtherCAT devices", nullptr, false, false);
-    if (ImGui::BeginMenu("by Manufaturer")){
+    if (ImGui::BeginMenu("By Manufaturer")){
         for (auto manufacturer : EtherCatDeviceFactory::getDevicesByManufacturer()) {
             if (ImGui::BeginMenu(manufacturer.name)) {
                 for (auto device : manufacturer.devices) {
@@ -23,7 +23,7 @@ std::shared_ptr<ioNode> nodeAdderContextMenu() {
         }
         ImGui::EndMenu();
     }
-    if (ImGui::BeginMenu("by Category")) {
+    if (ImGui::BeginMenu("By Category")) {
         for (auto manufacturer : EtherCatDeviceFactory::getDevicesByCategory()) {
             if (ImGui::BeginMenu(manufacturer.name)) {
                 for (auto device : manufacturer.devices) {
@@ -80,6 +80,9 @@ void nodeAdder() {
         ImGui::PushFont(Fonts::robotoBold15);
         if (ImGui::TreeNode("EtherCAT Slaves")) {
             ImGui::PushFont(Fonts::robotoRegular15);
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));
+            ImGui::Text("By Manufacturer");
+            ImGui::PopStyleColor();
             for (auto& manufacturer : EtherCatDeviceFactory::getDevicesByManufacturer()) {
                 if (ImGui::TreeNode(manufacturer.name)) {
                     for (auto& slave : manufacturer.devices) {
@@ -96,6 +99,9 @@ void nodeAdder() {
                 }
             }
             ImGui::Separator();
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));
+            ImGui::Text("By Category");
+            ImGui::PopStyleColor();
             for (auto& manufacturer : EtherCatDeviceFactory::getDevicesByCategory()) {
                 if (ImGui::TreeNode(manufacturer.name)) {
                     for (auto& slave : manufacturer.devices) {

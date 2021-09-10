@@ -97,7 +97,7 @@ public:
 	int getUniqueID() { return uniqueID; }
 	bool isInNodeGraph() { return b_isInNodeGraph; }
 
-	virtual void process(bool inputsValid) = 0;
+	virtual void process() = 0;
 	bool wasProcessed() { return b_wasProcessed; }
 	bool areAllLinkedInputNodesProcessed();
 

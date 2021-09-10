@@ -26,7 +26,7 @@
                                                                                     virtual bool isSlaveKnown(){ return false; }                                                            \
                                                                                     virtual bool startupConfiguration(){ return true; }                                                     \
                                                                                     virtual void readInputs(){}                                                                             \
-                                                                                    virtual void process(bool b_processDataValid){}                                                         \
+                                                                                    virtual void process(){}                                                         \
                                                                                     virtual void prepareOutputs(){}                                                                         \
                                                                                     virtual void deviceSpecificGui(){}                                                                      \
                                                                                     virtual void assignIoData(){}                                                                           \
@@ -47,7 +47,7 @@
                                                                             virtual bool isSlaveKnown(){ return true; }                                                             \
                                                                             virtual bool startupConfiguration();                                                                    \
                                                                             virtual void readInputs();                                                                              \
-                                                                            virtual void process(bool b_processDataValid);                                                          \
+                                                                            virtual void process();                                                          \
                                                                             virtual void prepareOutputs();                                                                          \
                                                                             virtual void deviceSpecificGui();                                                                       \
                                                                             virtual void assignIoData();                                                                            \
