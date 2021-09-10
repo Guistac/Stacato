@@ -3,7 +3,6 @@
 ## Stage Control Automation Technology Toolbox
 
 Future Milestones
-- Feature Complete Node Graph and Editor
 - Axis Objects with multiple subtypes
 - Motion Curve Planner
 - Cue Editor and Playback Manager
@@ -14,5 +13,6 @@ Future Milestones
 Optional Milestones
 - Motion Sequencer
 
-Daily Milestone
-- Nodegraph driven by EtherCAT Fieldbus routine
+Daily Milestones
+- Axis Object base
+- Axis Object Subtype
