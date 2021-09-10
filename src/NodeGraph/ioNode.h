@@ -105,11 +105,14 @@ public:
 	virtual void propertiesGui(); //defined in nodegui.cpp
 	virtual void nodeSpecificGui() {}
 
+	void getNodeGraphPosition(float& x, float& y);
+
 	//for device Nodes
 	bool isOnline() { return b_isOnline; }
 	void setOnline(bool b) { b_isOnline = b; }
+	bool isSplit() { return b_isSplit; }
+	void getSplitNodeGraphPosition(float& xi, float& yi, float& xo, float& yo);
 
-	void getNodeGraphPosition(float& x, float& y);
 
 	virtual bool load(tinyxml2::XMLElement* xml) { return true; }
 	virtual bool save(tinyxml2::XMLElement* xml) { return true; }
@@ -129,8 +132,12 @@ private:
 	std::vector<std::shared_ptr<ioData>> nodeInputData;
 	std::vector<std::shared_ptr<ioData>> nodeOutputData;
 
+	//processing flags
 	bool b_wasProcessed = false;
 	bool b_circularDependencyFlag = false;
 
+	//only for IODEVICE nodes
+	bool b_isSplit = false;
+	bool b_wasSplit = false;
 	bool b_isOnline = false;
 };

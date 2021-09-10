@@ -19,14 +19,27 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 		nodeXML->SetAttribute("NodeType", node->getTypeString());
 		if (node->getType() == NodeType::IODEVICE) {
 			nodeXML->SetAttribute("DeviceType", node->getDeviceTypeString());
+			nodeXML->SetAttribute("Split", node->isSplit());
 		}
 		nodeXML->SetAttribute("CustomName", node->getName());
 
-		XMLElement* positionXML = nodeXML->InsertNewChildElement("NodeEditorPosition");
-		float xPosition, yPosition;
-		node->getNodeGraphPosition(xPosition, yPosition);
-		positionXML->SetAttribute("x", xPosition);
-		positionXML->SetAttribute("y", yPosition);
+		if (!node->isSplit()) {
+			XMLElement* positionXML = nodeXML->InsertNewChildElement("NodeEditorPosition");
+			float xPosition, yPosition;
+			node->getNodeGraphPosition(xPosition, yPosition);
+			positionXML->SetAttribute("x", xPosition);
+			positionXML->SetAttribute("y", yPosition);
+		}
+		else {
+			XMLElement* inputPositionXML = nodeXML->InsertNewChildElement("InputNodeEditorPosition");
+			XMLElement* outputPositionXML = nodeXML->InsertNewChildElement("OutputNodeEditorPosition");
+			float xInput, yInput, xOutput, yOutput;
+			node->getSplitNodeGraphPosition(xInput, yInput, xOutput, yOutput);
+			inputPositionXML->SetAttribute("x", xInput);
+			inputPositionXML->SetAttribute("y", xOutput);
+			outputPositionXML->SetAttribute("x", xOutput);
+			outputPositionXML->SetAttribute("y", yOutput);
+		}
 
 		XMLElement* nodeSpecificDataXML = nodeXML->InsertNewChildElement("NodeSpecificData");
 		node->save(nodeSpecificDataXML);
@@ -79,6 +92,10 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		if (nodeXML->QueryStringAttribute("CustomName", &nodeCustomName) != XML_SUCCESS) return Logger::warn("Could not load Node Custom Name");
 		const char* nodeType;
 		if (nodeXML->QueryStringAttribute("NodeType", &nodeType) != XML_SUCCESS) return Logger::warn("Could not load Node Type");
+		bool isSplit;
+		if (strcmp(nodeType, "IODEVICE") == 0) {
+			if (nodeXML->QueryBoolAttribute("Split", &isSplit) != XML_SUCCESS) return Logger::warn("Could not load split status");
+		}
 
 		Logger::trace("Loading node '{}'", className);
 		std::shared_ptr<ioNode> loadedNode = nullptr;
@@ -98,6 +115,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		loadedNode->assignIoData(); //this assigns a unique id if the parent nodegraph is assigned, we don't want that
 		loadedNode->uniqueID = nodeUniqueID;
 		loadedNode->parentNodeGraph = this;
+		loadedNode->b_isSplit = isSplit;
 		loadedNodes.push_back(loadedNode);
 		loadedNode->b_isInNodeGraph = true;
 		for (std::shared_ptr<ioData> data : loadedNode->nodeInputData) {
@@ -109,12 +127,27 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			loadedPins.push_back(data);
 		}
 
-		XMLElement* positionXML = nodeXML->FirstChildElement("NodeEditorPosition");
-		if (!positionXML) return Logger::warn("Could not load node position attribute");
-		float xPosition, yPosition;
-		positionXML->QueryFloatAttribute("x", &xPosition);
-		positionXML->QueryFloatAttribute("y", &yPosition);
-		//TODO: set node position
+		if (!isSplit) {
+			XMLElement* positionXML = nodeXML->FirstChildElement("NodeEditorPosition");
+			if (!positionXML) return Logger::warn("Could not load node position attribute");
+			float xPosition, yPosition;
+			positionXML->QueryFloatAttribute("x", &xPosition);
+			positionXML->QueryFloatAttribute("y", &yPosition);
+			//TODO: set node position
+		}
+		else {
+			XMLElement* inputPositionXML = nodeXML->FirstChildElement("InputNodeEditorPosition");
+			if (!inputPositionXML) return Logger::warn("Could not load split input node position attribute");
+			float xInput, yInput;
+			inputPositionXML->QueryFloatAttribute("x", &xInput);
+			inputPositionXML->QueryFloatAttribute("y", &yInput);
+			XMLElement* outputPositionXML = nodeXML->FirstChildElement("OutputNodeEditorPosition");
+			if (!outputPositionXML) return Logger::warn("Could not load split output node position attribute");
+			float xOutput, yOutput;
+			outputPositionXML->QueryFloatAttribute("x", &xOutput);
+			outputPositionXML->QueryFloatAttribute("y", &yOutput);
+			//TODO: set node position
+		}
 
 		XMLElement* nodeSpecificDataXML = nodeXML->FirstChildElement("NodeSpecificData");
 		if (!nodeSpecificDataXML) return Logger::warn("Could not load Node Specific Data");

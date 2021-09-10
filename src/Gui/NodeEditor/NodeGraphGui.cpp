@@ -23,15 +23,21 @@ void nodeGraph() {
     glm::vec2 sideBarSize(sideBarWidth, ImGui::GetContentRegionAvail().y);
     if (ImGui::BeginChild("SideBar", sideBarSize)) {
         if (!selectedNodes.empty() && ImGui::BeginTabBar("NodeEditorSidePanel")) {
-            glm::vec2 nodePos = NodeEditor::GetNodePosition(selectedNodes.front()->getUniqueID());
+            
             for (auto node : selectedNodes) {
-                if (ImGui::BeginTabItem(node->getName())) {
+                //we don't display the custom name in the tab
+                //so we don't switch tabs while renaming the custom name of the node
+                //we have to use pushID and PopID to avoid problems when selecting multiple nodes of the same type
+                //this way we can have multiple tabs with the same name
+                ImGui::PushID(node->getUniqueID());
+                if (ImGui::BeginTabItem(node->getNodeName())) {
                     if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {
                         node->propertiesGui();
                         ImGui::EndChild();
                     }
                     ImGui::EndTabItem();
                 }
+                ImGui::PopID();
             }
             ImGui::EndTabBar();
         }
@@ -208,8 +214,23 @@ void getSelectedNodes() {
     int selectedNodeCount = NodeEditor::GetSelectedNodes(selectedNodeIds, 16);
     selectedNodes.clear();
     if (selectedNodeCount > 0) {
+        std::vector<int> selectedIds;
         for (int i = 0; i < selectedNodeCount; i++) {
-            selectedNodes.push_back(nodeGraph.getIoNode(selectedNodeIds[i].Get()));
+            //we take the absolute value because split nodes have second id thats the negative of their main unique id
+            int selectedNodeId = abs((int)selectedNodeIds[i].Get());
+            //we don't add selected ids to the list twice
+            //this can happen in case both parts of a split node are selected
+            bool alreadyInSelectedIds = false;
+            for (int id : selectedIds) {
+                if (id == selectedNodeId) { 
+                    alreadyInSelectedIds = true;
+                    break;
+                }
+            }
+            if (!alreadyInSelectedIds) selectedIds.push_back(selectedNodeId);
+        }
+        for (int id : selectedIds) {
+            selectedNodes.push_back(nodeGraph.getIoNode(id));
         }
     }
 }

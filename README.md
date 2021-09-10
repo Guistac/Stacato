@@ -16,4 +16,3 @@ Optional Milestones
 
 Daily Milestone
 - Nodegraph driven by EtherCAT Fieldbus routine
-- Splitting Up Device Nodes input and input and output node
