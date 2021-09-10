@@ -89,8 +89,9 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			if (strcmp(deviceType, "ETHERCATSLAVE") == 0) loadedNode = EtherCatDeviceFactory::getDeviceByName(className);
 			else if (strcmp(deviceType, "CLOCK") == 0) loadedNode = ioNodeFactory::getIoNodeByName(className);
 		}
-		else if (strcmp(nodeType, "AXIS")) {}
-		else if (strcmp(nodeType, "CONTAINER")) loadedNode = ioNodeFactory::getIoNodeByName(className);
+		else if (strcmp(nodeType, "AXIS") == 0) {}
+		else if (strcmp(nodeType, "CONTAINER") == 0) loadedNode = ioNodeFactory::getIoNodeByName(className);
+		
 		if (loadedNode == nullptr) return Logger::warn("Coult not load Node Class");
 	
 		loadedNode->setName(nodeCustomName);
