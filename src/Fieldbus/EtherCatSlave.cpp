@@ -43,27 +43,58 @@ bool EtherCatSlave::getPDOMapping(EtherCatPDO& pdo, uint16_t pdoIndex, const cha
 }
 */
 
-typedef struct {
-public:
-    uint16_t stateCode;
-    char readableString[32];
-} etherCatState;
 
-const etherCatState etherCatStateList[] = {
-    {EC_STATE_NONE,         "Offline"},
-    {EC_STATE_INIT,         "Init"},
-    {EC_STATE_PRE_OP,       "Pre-Operational"},
-    {EC_STATE_BOOT,         "Boot"},
-    {EC_STATE_SAFE_OP,      "Safe-Operational"},
-    {EC_STATE_OPERATIONAL,  "Operational"},
-    {0xFFFF,                "unknown"}
-};
+bool EtherCatSlave::isOnline() {
+    if (identity == nullptr) return false;
+    return !isStateOffline();
+}
+
+bool EtherCatSlave::hasError() {
+    if (!isSlaveKnown()) return true;
+    if (identity == nullptr) return false;
+    if (hasDeviceError()) return true;
+    if (identity != nullptr && hasStateError()) return true;
+    return false;
+}
+
+const char* EtherCatSlave::getErrorString() {
+    if (hasError()) {
+        if (!isSlaveKnown()) return "Unknown Device";
+        if (identity != nullptr && hasStateError()) {
+            static char stateError[128];
+            sprintf(stateError, "EtherCAT State Machine Error: %s", getStateChar());
+            return stateError;
+        }
+        if (hasDeviceError()) return getDeviceErrorString();
+    }
+    else {
+        return "No Error";
+    }
+}
+
+void EtherCatSlave::clearError() {
+    clearDeviceError();
+}
+
+bool EtherCatSlave::isReady() {
+    if (identity == nullptr) return false;
+    else if (!isStateOperational()) return false;
+    else return isDeviceReady();
+}
+
+
 
 const char* EtherCatSlave::getStateChar() {
     uint16_t stateWithoutErrorBit = identity->state & 0xF;
-    int i = 0;
-    while (etherCatStateList[i].stateCode != stateWithoutErrorBit && etherCatStateList[i].stateCode != 0xFFFF) i++;
-    return etherCatStateList[i].readableString;
+    switch (stateWithoutErrorBit) {
+        case EC_STATE_NONE: return "Offline";
+        case EC_STATE_INIT: return "Init";
+        case EC_STATE_PRE_OP: return "Pre-Operational";
+        case EC_STATE_BOOT: return "Boot";
+        case EC_STATE_SAFE_OP: return "Safe-Operational";
+        case EC_STATE_OPERATIONAL: return "Operational";
+        default: return "Unknown State";
+    }
 }
 
 bool EtherCatSlave::hasStateError() {

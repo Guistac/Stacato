@@ -92,6 +92,7 @@ private:
     std::shared_ptr<ioData> digitalOut2 =       std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ2");
 
     //public input data
+    //std::shared_ptr<ioData> deviceLink = std::make_shared<ioData>(DataType::DEVICE_LINK, DataDirection::NODE_OUTPUT, "Device Link", ioDataFlags_NoDataField | ioDataFlags_AcceptMultipleInputs);
     std::shared_ptr<ioData> actualPosition =    std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position", ioDataFlags_DisableDataField);
     std::shared_ptr<ioData> actualVelocity =    std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity", ioDataFlags_DisableDataField);
     std::shared_ptr<ioData> actualTorque =      std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Torque", ioDataFlags_DisableDataField);

@@ -2,8 +2,42 @@
 
 #include "ioData.h"
 #include "ioLink.h"
+#include "ioNode.h"
 
 #include <tinyxml2.h>
+
+bool ioData::isDataTypeCompatible(std::shared_ptr<ioData> otherData) {
+	switch (type) {
+		case BOOLEAN_VALUE:
+			switch (otherData->getType()) {
+				case BOOLEAN_VALUE: return true;
+				case INTEGER_VALUE: return true;
+				case REAL_VALUE: return true;
+				case DEVICE_LINK: return false;
+			}
+		case INTEGER_VALUE:
+			switch (otherData->getType()) {
+				case BOOLEAN_VALUE: return true;
+				case INTEGER_VALUE: return true;
+				case REAL_VALUE: return true;
+				case DEVICE_LINK: return false;
+			}
+		case REAL_VALUE:
+			switch (otherData->getType()) {
+				case BOOLEAN_VALUE: return true;
+				case INTEGER_VALUE: return true;
+				case REAL_VALUE: return true;
+				case DEVICE_LINK: return false;
+			}
+		case DEVICE_LINK:
+			switch (otherData->getType()) {
+				case BOOLEAN_VALUE: return false;
+				case INTEGER_VALUE: return false;
+				case REAL_VALUE: return false;
+				case DEVICE_LINK: return true;
+			}
+	}
+}
 
 //setting data (with data conversions)
 void ioData::set(bool boolean) {
@@ -11,6 +45,7 @@ void ioData::set(bool boolean) {
 	case BOOLEAN_VALUE: booleanValue = boolean; break;
 	case INTEGER_VALUE: integerValue = boolean; break;
 	case REAL_VALUE: realValue = boolean; break;
+	case DEVICE_LINK: break;
 	}
 }
 
@@ -19,6 +54,7 @@ void ioData::set(long long int integer) {
 	case INTEGER_VALUE: integerValue = integer; break;
 	case BOOLEAN_VALUE: booleanValue = integer > 0; break;
 	case REAL_VALUE: realValue = integer; break;
+	case DEVICE_LINK: break;
 	}
 }
 
@@ -27,6 +63,7 @@ void ioData::set(double real) {
 	case REAL_VALUE: realValue = real; break;
 	case BOOLEAN_VALUE: booleanValue = real > 0.0; break;
 	case INTEGER_VALUE: integerValue = real; break;
+	case DEVICE_LINK: break;
 	}
 }
 
@@ -36,6 +73,7 @@ bool ioData::getBoolean() {
 	case BOOLEAN_VALUE: return booleanValue;
 	case INTEGER_VALUE: return integerValue > 0;
 	case REAL_VALUE: return realValue > 0;
+	case DEVICE_LINK: return false;
 	}
 }
 long long int ioData::getInteger() {
@@ -43,6 +81,7 @@ long long int ioData::getInteger() {
 	case INTEGER_VALUE: return integerValue;
 	case BOOLEAN_VALUE: return (long long int)booleanValue;
 	case REAL_VALUE: return (long long int)realValue;
+	case DEVICE_LINK: return 0;
 	}
 }
 double ioData::getReal() {
@@ -50,6 +89,7 @@ double ioData::getReal() {
 	case REAL_VALUE: return realValue;
 	case BOOLEAN_VALUE: return (double)booleanValue;
 	case INTEGER_VALUE: return (double)integerValue;
+	case DEVICE_LINK: return 0.0;
 	}
 }
 
@@ -59,34 +99,9 @@ const char* ioData::getValueString() {
 	case BOOLEAN_VALUE: strcpy(output, booleanValue ? "True" : "False"); break;
 	case INTEGER_VALUE: sprintf(output, "%i", integerValue); break;
 	case REAL_VALUE: sprintf(output, "%.5f", realValue); break;
+	case DEVICE_LINK: sprintf(output, isConnected() ? (hasMultipleLinks() ? "Multiple Links" : isInput() ? getLinks().front()->getInputData()->getNode()->getName() : getLinks().front()->getOutputData()->getNode()->getName()) : "No Connection");
 	}
 	return (const char*)output;
-}
-
-void ioData::copyToLinked() {
-	if (direction == DataDirection::NODE_OUTPUT) {
-		for (auto link : ioLinks) {
-			std::shared_ptr<ioData> other = link->getOutputData();
-			switch (type) {
-			case BOOLEAN_VALUE: other->set(getBoolean()); break;
-			case INTEGER_VALUE: other->set(getInteger()); break;
-			case REAL_VALUE: other->set(getReal()); break;
-			}
-		}
-	}
-}
-
-void ioData::copyFromLinked() {
-	if (direction == DataDirection::NODE_INPUT) {
-		for (auto link : ioLinks) {
-			std::shared_ptr<ioData> other = link->getInputData();
-			switch (type) {
-			case BOOLEAN_VALUE: set(other->getBoolean()); break;
-			case INTEGER_VALUE: set(other->getInteger()); break;
-			case REAL_VALUE: set(other->getReal()); break;
-			}
-		}
-	}
 }
 
 std::vector<std::shared_ptr<ioNode>> ioData::getNodesLinkedAtOutputs() {

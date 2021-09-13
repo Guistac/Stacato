@@ -9,12 +9,9 @@ namespace ioNodeFactory {
 		std::vector<ioNode*> nodes;
 	};
 
-	void loadNodes();
-
-	std::shared_ptr<ioNode> getIoNodeByName(const char* name);
-	
-	std::vector<ioNodeGroup>& getNodesByCategory();
+	void loadAxis();
 
 	std::shared_ptr<ioNode> getAxisByName(const char* name);
-	std::vector<ioNode*>& getAxisTypes();
+
+	std::vector<ioNodeGroup>& getAxisTypes();
 }

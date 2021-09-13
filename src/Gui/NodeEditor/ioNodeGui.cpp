@@ -3,11 +3,47 @@
 #include "nodeGraph/ioNode.h"
 #include "nodeGraph/nodeGraph.h"
 
+#include "NodeEditorGui.h"
+
+
 #include <imgui.h>
 #include <imgui_node_editor.h>
 #include "Gui/Framework/Fonts.h"
 
 namespace NodeEditor = ax::NodeEditor;
+
+float ioNode::getTitleWidth(bool isOutputSection) {
+    if (getType() == IODEVICE && isOutputSection) {
+        static float iconSize = ImGui::GetTextLineHeight();                             //square size of the pin icons
+        static float iconDummyWidth = ImGui::GetTextLineHeight() * 0.75;                //width the pin icon actually occupies
+        DeviceNode* thisDevice = (DeviceNode*)this;
+        return ImGui::CalcTextSize(getName()).x + ImGui::GetStyle().ItemSpacing.x + iconDummyWidth;
+    }
+    else {
+        return ImGui::CalcTextSize(getName()).x;
+    }
+}
+
+void ioNode::titleGui(bool isOutputSection) {
+    if (getType() == IODEVICE && isOutputSection) {
+        static float iconSize = ImGui::GetTextLineHeight();                             //square size of the pin icons
+        static float iconDummyWidth = ImGui::GetTextLineHeight() * 0.75;                //width the pin icon actually occupies
+        DeviceNode* thisDevice = dynamic_cast<DeviceNode*>(this);
+        NodeEditor::BeginPin(thisDevice->deviceLink->getUniqueID(), NodeEditor::PinKind::Output);
+        NodeEditor::PinPivotAlignment(ImVec2(1.0, 0.5));
+        ImGui::Text(getName());
+        ImGui::SameLine();
+        ImGui::Dummy(glm::vec2(iconDummyWidth, 1));
+        glm::vec2 min = ImGui::GetItemRectMin();
+        min.x -= iconSize * 0.15; //shift the visual position of the icon
+        glm::vec2 max = min + glm::vec2(iconSize);
+        DrawPinIcon(ImGui::GetWindowDrawList(), min, max, 5, thisDevice->deviceLink->isConnected(), ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
+        NodeEditor::EndPin();
+    }
+    else {
+        ImGui::Text(getName());
+    }
+}
 
 void ioNode::nodeGui() {
 
@@ -42,9 +78,11 @@ void ioNode::nodeGui() {
 
         //===== do some text size calculations to be able to cleanly align output nodes to the right =====
 
+        getTitleWidth(true);
+
         //find the widest pin line
         ImGui::PushFont(Fonts::robotoBold15);
-        float titleTextWidth = ImGui::CalcTextSize(getName()).x;
+        float titleTextWidth = getTitleWidth(true);
         ImGui::PopFont();
         float widestPin = 0;
         for (auto pin : getNodeInputData()) {
@@ -76,7 +114,7 @@ void ioNode::nodeGui() {
         float spacing = (nodeWidth - titleTextWidth - 2 * nodePadding) / 2.0;
         ImGui::SameLine(spacing, 0);
         ImGui::PushFont(Fonts::robotoBold15);
-        ImGui::Text(getName());
+        titleGui(true);
         ImGui::PopFont();
         ImGui::Spacing();
 
@@ -109,15 +147,14 @@ void ioNode::nodeGui() {
         static float outputLabelWidth = ImGui::CalcTextSize(outputLabel).x;
         static float inputLabelWidth = ImGui::CalcTextSize(inputLabel).x;
 
-        ImGui::PushFont(Fonts::robotoBold15);
-        float titleTextWidth = ImGui::CalcTextSize(getName()).x;
-        ImGui::PopFont();
 
         //===== SPLIT INPUT NODE =====
 
         NodeEditor::BeginNode(getUniqueID());
 
-        float inputTitleTextWidth = titleTextWidth;
+        ImGui::PushFont(Fonts::robotoBold15);
+        float inputTitleTextWidth = getTitleWidth(false);
+        ImGui::PopFont();
         if (outputLabelWidth > inputTitleTextWidth) inputTitleTextWidth = outputLabelWidth;
         float widestInputPin = 0;
         for (auto pin : getNodeInputData()) {
@@ -137,11 +174,11 @@ void ioNode::nodeGui() {
         drawList->AddRectFilled(inputTitleRectMin, inputTitleRectMax, labelColor, labelRounding, ImDrawFlags_RoundCornersTop);
         
         ImGui::NewLine();
-        float inputTitleSpacing = (inputNodeWidth - titleTextWidth - 2 * nodePadding) / 2.0;
+        float inputTitleSpacing = (inputNodeWidth - inputTitleTextWidth - 2 * nodePadding) / 2.0;
         ImGui::SameLine(inputTitleSpacing, 0);
         ImGui::PushFont(Fonts::robotoBold15);
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, -ImGui::GetTextLineHeight() * 0.15));
-        ImGui::Text(getName());
+        titleGui(false);
         ImGui::PopStyleVar();
         ImGui::PopFont();
         ImGui::NewLine();
@@ -175,7 +212,9 @@ void ioNode::nodeGui() {
 
         NodeEditor::BeginNode(splitNodeID);
 
-        float outputTitleTextWidth = titleTextWidth;
+        ImGui::PushFont(Fonts::robotoBold15);
+        float outputTitleTextWidth = getTitleWidth(true);
+        ImGui::PopFont();
         if (inputLabelWidth > outputTitleTextWidth) outputTitleTextWidth = inputLabelWidth;
         float widestOutputPin = 0;
         for (auto pin : getNodeOutputData()) {
@@ -195,11 +234,11 @@ void ioNode::nodeGui() {
         drawList->AddRectFilled(outputTextRectMin, outputTextRectMax, labelColor, labelRounding, ImDrawFlags_RoundCornersTop);
         
         ImGui::NewLine();
-        float outputTitleSpacing = (outputNodeWidth - titleTextWidth - 2 * nodePadding) / 2.0;
+        float outputTitleSpacing = (outputNodeWidth - outputTitleTextWidth - 2 * nodePadding) / 2.0;
         ImGui::SameLine(outputTitleSpacing, 0);
         ImGui::PushFont(Fonts::robotoBold15);
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, -ImGui::GetTextLineHeight() * 0.15));
-        ImGui::Text(getName());
+        titleGui(true);
         ImGui::PopStyleVar();
         ImGui::PopFont();
         ImGui::NewLine();
@@ -254,11 +293,7 @@ void ioNode::propertiesGui() {
                         ImGui::TableSetColumnIndex(2);
                         ImGui::Text("%s", data->getTypeName());
                         ImGui::TableSetColumnIndex(3);
-                        switch (data->getType()) {
-                        case DataType::BOOLEAN_VALUE:  ImGui::Text("%i", data->getBoolean()); break;
-                        case DataType::INTEGER_VALUE:  ImGui::Text("%i", data->getInteger()); break;
-                        case DataType::REAL_VALUE:     ImGui::Text("%.5f", data->getReal()); break;
-                        }
+                        ImGui::Text("%s", data->getValueString());
                     }
                     ImGui::EndTable();
                 }

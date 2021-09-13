@@ -10,7 +10,7 @@
 class PlotterNode : public ioNode {
 public:
 
-	DEFINE_PROCESSOR_NODE("Plotter", PlotterNode, "Utilities")
+	DEFINE_PROCESSOR_NODE("Plotter", PlotterNode, "Utility")
 
 	virtual void assignIoData() {
 		addIoData(input);

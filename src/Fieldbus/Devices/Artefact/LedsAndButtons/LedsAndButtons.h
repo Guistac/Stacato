@@ -22,7 +22,8 @@ public:
 	std::shared_ptr<ioData> led2 = std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-2");
 	std::shared_ptr<ioData> led3 = std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-3");
 	std::shared_ptr<ioData> led4 = std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-4");
-	
+
+	//std::shared_ptr<ioData> deviceLink = std::make_shared<ioData>(DataType::DEVICE_LINK, DataDirection::NODE_OUTPUT, "Device Link", ioDataFlags_NoDataField | ioDataFlags_AcceptMultipleInputs);
 	std::shared_ptr<ioData> button0 = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button0", ioDataFlags_DisableDataField);
 	std::shared_ptr<ioData> button1 = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button1", ioDataFlags_DisableDataField);
 	std::shared_ptr<ioData> button2 = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button2", ioDataFlags_DisableDataField);

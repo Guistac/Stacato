@@ -18,7 +18,8 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 		nodeXML->SetAttribute("UniqueID", node->getUniqueID());
 		nodeXML->SetAttribute("NodeType", node->getTypeString());
 		if (node->getType() == NodeType::IODEVICE) {
-			nodeXML->SetAttribute("DeviceType", node->getDeviceTypeString());
+			std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(node);
+			nodeXML->SetAttribute("DeviceType", device->getDeviceTypeString());
 			nodeXML->SetAttribute("Split", node->isSplit());
 		}
 		nodeXML->SetAttribute("CustomName", node->getName());
@@ -53,6 +54,12 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 			XMLElement* outputPinXML = outputPinsXML->InsertNewChildElement("OutputPin");
 			pin->save(outputPinXML);
 		}
+		if (node->getType() == IODEVICE) {
+			std::shared_ptr<DeviceNode> deviceNode = std::dynamic_pointer_cast<DeviceNode>(node);
+			XMLElement* deviceLinkPinXML = nodeXML->InsertNewChildElement("DeviceLinkPin");
+			deviceNode->deviceLink->save(deviceLinkPinXML);
+		}
+
 
 	}
 
@@ -99,13 +106,13 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		Logger::trace("Loading node '{}'", className);
 		std::shared_ptr<ioNode> loadedNode = nullptr;
 		if (strcmp(nodeType, "PROCESSOR") == 0) loadedNode = ioNodeFactory::getIoNodeByName(className);
+		else if (strcmp(nodeType, "CLOCK") == 0) loadedNode = ioNodeFactory::getIoNodeByName(className);
 		else if (strcmp(nodeType, "IODEVICE") == 0) {
 			const char* deviceType;
 			if (nodeXML->QueryStringAttribute("DeviceType", &deviceType) != XML_SUCCESS) return Logger::warn("Could not load Node Device Type");
 			if (strcmp(deviceType, "ETHERCATSLAVE") == 0) loadedNode = EtherCatDeviceFactory::getDeviceByName(className);
-			else if (strcmp(deviceType, "CLOCK") == 0) loadedNode = ioNodeFactory::getIoNodeByName(className);
 		}
-		else if (strcmp(nodeType, "AXIS") == 0) {}
+		else if (strcmp(nodeType, "AXIS") == 0) loadedNode = ioNodeFactory::getAxisByName(className);
 		else if (strcmp(nodeType, "CONTAINER") == 0) loadedNode = ioNodeFactory::getIoNodeByName(className);
 		
 		if (loadedNode == nullptr) return Logger::warn("Coult not load Node Class");
@@ -148,6 +155,16 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		for (std::shared_ptr<ioData> data : loadedNode->nodeOutputData) {
 			data->parentNode = loadedNode;
 			loadedPins.push_back(data);
+		}
+
+		if (loadedNode->getType() == IODEVICE) {
+			XMLElement* deviceLinkPinXML = nodeXML->FirstChildElement("DeviceLinkPin");
+			if (!deviceLinkPinXML) Logger::warn("Could not load Device Link Pin");
+			std::shared_ptr<DeviceNode> deviceNode = std::dynamic_pointer_cast<DeviceNode>(loadedNode);
+			std::shared_ptr<ioData> devicePin = deviceNode->deviceLink;
+			if (!devicePin->load(deviceLinkPinXML)) Logger::warn("Could not read Device Lin Pin Attributes");
+			devicePin->parentNode = loadedNode;
+			loadedPins.push_back(deviceNode->deviceLink);
 		}
 
 		XMLElement* nodeSpecificDataXML = nodeXML->FirstChildElement("NodeSpecificData");

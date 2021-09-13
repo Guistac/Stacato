@@ -3,6 +3,14 @@
 #include "Lexium32.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 
+bool Lexium32::hasDeviceError() { return false; }
+const char* Lexium32::getDeviceErrorString() { return ""; }
+void Lexium32::clearDeviceError() {}
+bool Lexium32::isDeviceReady() { return false; }
+void Lexium32::enable() {}
+void Lexium32::disable() {}
+bool Lexium32::isEnabled() { return false; }
+
 void Lexium32::assignIoData() {
 
     addIoData(positionCommand);

@@ -4,13 +4,14 @@ enum DataType {
 	BOOLEAN_VALUE,
 	INTEGER_VALUE,
 	REAL_VALUE,
+	DEVICE_LINK,
 	TYPE_COUNT
 };
 
 enum DataDirection {
 	NODE_INPUT,
 	NODE_OUTPUT,
-	NOT_SPECIFIED
+	NO_DIRECTION
 };
 
 class ioNode;
@@ -37,9 +38,10 @@ public:
 	ioData(DataType t, DataDirection d, const char* n, ioDataFlags flags) : type(t), direction(d) {
 		strcpy(name, n);
 		switch (type) {
-			case BOOLEAN_VALUE: booleanValue = false;
-			case INTEGER_VALUE: integerValue = 0;
-			case REAL_VALUE: realValue = 0.0;
+			case BOOLEAN_VALUE: booleanValue = false; break;
+			case INTEGER_VALUE: integerValue = 0; break;
+			case REAL_VALUE: realValue = 0.0; break;
+			case DEVICE_LINK: break;
 		}
 		b_acceptsMultipleInputs = flags & ioDataFlags_AcceptMultipleInputs;
 		b_disablePin = flags & ioDataFlags_DisablePin;
@@ -51,9 +53,10 @@ public:
 	ioData(DataType t, DataDirection d, const char* n) : type(t), direction(d) {
 		strcpy(name, n);
 		switch (type) {
-		case BOOLEAN_VALUE: booleanValue = false;
-		case INTEGER_VALUE: integerValue = 0;
-		case REAL_VALUE: realValue = 0.0;
+		case BOOLEAN_VALUE: booleanValue = false; break;
+		case INTEGER_VALUE: integerValue = 0; break;
+		case REAL_VALUE: realValue = 0.0; break;
+		case DEVICE_LINK: break;
 		}
 	}
 
@@ -68,6 +71,7 @@ public:
 			case BOOLEAN_VALUE: return "Boolean";
 			case INTEGER_VALUE:	return "Integer";
 			case REAL_VALUE: return	"Real";
+			case DEVICE_LINK: return "Device Link";
 			default: return "unknown";
 		}
 	}
@@ -77,6 +81,7 @@ public:
 			case BOOLEAN_VALUE: set(getBoolean()); break;
 			case INTEGER_VALUE: set(getInteger()); break;
 			case REAL_VALUE: set(getReal()); break;
+			case DEVICE_LINK: break;
 		}
 		type = t;
 	}
@@ -86,6 +91,7 @@ public:
 	bool isConnected() { return !ioLinks.empty(); }
 	bool acceptsMultipleInputs() { return b_acceptsMultipleInputs; }
 	bool hasMultipleLinks() { return ioLinks.size() > 1; }
+	bool isDataTypeCompatible(std::shared_ptr<ioData> otherData);
 	
 	//nodegraph infos
 	int getUniqueID() { return uniqueID; }
@@ -96,6 +102,7 @@ public:
 	bool isBool()				{ return type == BOOLEAN_VALUE; }
 	bool isInteger()			{ return type == INTEGER_VALUE; }
 	bool isDouble()				{ return type == REAL_VALUE; }
+	bool isDeviceLink()			{ return type == DEVICE_LINK; }
 
 	//setting data (with data conversions)
 	void set(bool boolean);
@@ -108,9 +115,6 @@ public:
 	double getReal();
 
 	const char* getValueString();
-
-	void copyToLinked();
-	void copyFromLinked();
 
 	std::vector<std::shared_ptr<ioNode>> getNodesLinkedAtOutputs();
 	std::vector<std::shared_ptr<ioNode>> getNodesLinkedAtInputs();

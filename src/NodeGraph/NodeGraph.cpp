@@ -22,6 +22,14 @@ void NodeGraph::addIoNode(std::shared_ptr<ioNode> newIoNode) {
 		data->parentNode = newIoNode;
 		ioDataList.push_back(data);
 	}
+	if (newIoNode->getType() == IODEVICE) {
+		std::shared_ptr<DeviceNode> deviceNode = std::dynamic_pointer_cast<DeviceNode>(newIoNode);
+		std::shared_ptr<ioData> devicePin = deviceNode->deviceLink;
+		devicePin->uniqueID = uniqueID;
+		uniqueID++;
+		devicePin->parentNode = newIoNode;
+		ioDataList.push_back(deviceNode->deviceLink);
+	}
 	newIoNode->parentNodeGraph = this;
 	newIoNode->b_isInNodeGraph = true;
 }
@@ -60,8 +68,8 @@ bool NodeGraph::isConnectionValid(std::shared_ptr<ioData> data1, std::shared_ptr
 	//don't allow connecting two ioData pins on the same node
 	if (data1->parentNode == data2->parentNode) return false;
 
-	//if all checks pass, allow the connection
-	return true;
+	//if all checks pass, check if the data types are compatible to decide validity
+	return data1->isDataTypeCompatible(data2);
 }
 
 std::shared_ptr<ioLink> NodeGraph::connect(std::shared_ptr<ioData> data1, std::shared_ptr<ioData> data2) {
@@ -74,8 +82,6 @@ std::shared_ptr<ioLink> NodeGraph::connect(std::shared_ptr<ioData> data1, std::s
 	data1->ioLinks.push_back(newIoLink);
 	data2->ioLinks.push_back(newIoLink);
 	ioLinkList.push_back(newIoLink);
-	if (data1->isInput()) evaluate(data1->getNode());
-	else if (data2->isInput()) evaluate(data2->getNode());
 	return newIoLink;
 }
 

@@ -8,10 +8,14 @@
 #include "NodeGraph/Nodes/GroupNode.h"
 #include "NodeGraph/Nodes/PlotterNode.h"
 
+#include "Motion/Axis/Axis.h"
+
 namespace ioNodeFactory {
 
 	std::vector<ioNode*> allNodes;
 	std::vector<ioNodeGroup> nodesByCategory;
+
+	std::vector<ioNode*> axisTypes;
 
 	void loadNodes() {
 		allNodes = {
@@ -56,6 +60,12 @@ namespace ioNodeFactory {
 				nodesByCategory.back().nodes.push_back(node);
 			}
 		}
+
+		axisTypes = {
+			new RotatingAxis(),
+			new LinearAxis(),
+			new StateMachineAxis()
+		};
 	}
 
 	std::shared_ptr<ioNode> getIoNodeByName(const char* name) {
@@ -66,4 +76,15 @@ namespace ioNodeFactory {
 	}
 
 	std::vector<ioNodeGroup>& getNodesByCategory() { return nodesByCategory; }
+
+	std::shared_ptr<ioNode> getAxisByName(const char* name) {
+		for (ioNode* axis : axisTypes) {
+			if (strcmp(name, axis->getNodeName()) == 0) return axis->getNewNodeInstance();
+		}
+	}
+
+	std::vector<ioNode*>& getAxisTypes() {
+		return axisTypes;
+	}
+
 }

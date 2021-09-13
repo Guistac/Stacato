@@ -165,7 +165,7 @@ public:
 class AbsoluteNode : public ioNode {
 public:
 
-	DEFINE_PROCESSOR_NODE("AbsoluteNode", AbsoluteNode, "Math")
+	DEFINE_PROCESSOR_NODE("Absolute", AbsoluteNode, "Math")
 
 	virtual void assignIoData() {
 		addIoData(input);
@@ -191,7 +191,7 @@ public:
 class SinusNode : public ioNode {
 public:
 
-	DEFINE_PROCESSOR_NODE("Sinus", SinusNode, "Math")
+	DEFINE_PROCESSOR_NODE("Sinus", SinusNode, "Trigonometry")
 
 	virtual void assignIoData() {
 		addIoData(in);
@@ -212,7 +212,7 @@ public:
 class CosinusNode : public ioNode {
 public:
 
-	DEFINE_PROCESSOR_NODE("Cosinus", CosinusNode, "Math")
+	DEFINE_PROCESSOR_NODE("Cosinus", CosinusNode, "Trigonometry")
 
 	virtual void assignIoData() {
 		addIoData(in);
@@ -233,7 +233,7 @@ public:
 class TangentNode : public ioNode {
 public:
 
-	DEFINE_PROCESSOR_NODE("Tangent", TangentNode, "Math")
+	DEFINE_PROCESSOR_NODE("Tangent", TangentNode, "Trigonometry")
 
 	virtual void assignIoData() {
 		addIoData(in);
@@ -254,7 +254,7 @@ public:
 class CotangentNode : public ioNode {
 public:
 
-	DEFINE_PROCESSOR_NODE("Cotangent", CotangentNode, "Math")
+	DEFINE_PROCESSOR_NODE("Cotangent", CotangentNode, "Trigonometry")
 
 	virtual void assignIoData() {
 		addIoData(in);
