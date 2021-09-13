@@ -22,14 +22,6 @@ void NodeGraph::addIoNode(std::shared_ptr<ioNode> newIoNode) {
 		data->parentNode = newIoNode;
 		ioDataList.push_back(data);
 	}
-	if (newIoNode->getType() == IODEVICE) {
-		std::shared_ptr<DeviceNode> deviceNode = std::dynamic_pointer_cast<DeviceNode>(newIoNode);
-		std::shared_ptr<ioData> devicePin = deviceNode->deviceLink;
-		devicePin->uniqueID = uniqueID;
-		uniqueID++;
-		devicePin->parentNode = newIoNode;
-		ioDataList.push_back(deviceNode->deviceLink);
-	}
 	newIoNode->parentNodeGraph = this;
 	newIoNode->b_isInNodeGraph = true;
 }

@@ -18,6 +18,7 @@ void Lexium32::assignIoData() {
     addIoData(digitalOut1);
     addIoData(digitalOut2);
     
+    addIoData(deviceLink);
     addIoData(actualPosition);
     addIoData(actualVelocity);
     addIoData(actualTorque);

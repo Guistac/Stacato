@@ -54,13 +54,6 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 			XMLElement* outputPinXML = outputPinsXML->InsertNewChildElement("OutputPin");
 			pin->save(outputPinXML);
 		}
-		if (node->getType() == IODEVICE) {
-			std::shared_ptr<DeviceNode> deviceNode = std::dynamic_pointer_cast<DeviceNode>(node);
-			XMLElement* deviceLinkPinXML = nodeXML->InsertNewChildElement("DeviceLinkPin");
-			deviceNode->deviceLink->save(deviceLinkPinXML);
-		}
-
-
 	}
 
 	XMLElement* links = xml->InsertNewChildElement("Links");
@@ -155,16 +148,6 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		for (std::shared_ptr<ioData> data : loadedNode->nodeOutputData) {
 			data->parentNode = loadedNode;
 			loadedPins.push_back(data);
-		}
-
-		if (loadedNode->getType() == IODEVICE) {
-			XMLElement* deviceLinkPinXML = nodeXML->FirstChildElement("DeviceLinkPin");
-			if (!deviceLinkPinXML) Logger::warn("Could not load Device Link Pin");
-			std::shared_ptr<DeviceNode> deviceNode = std::dynamic_pointer_cast<DeviceNode>(loadedNode);
-			std::shared_ptr<ioData> devicePin = deviceNode->deviceLink;
-			if (!devicePin->load(deviceLinkPinXML)) Logger::warn("Could not read Device Lin Pin Attributes");
-			devicePin->parentNode = loadedNode;
-			loadedPins.push_back(deviceNode->deviceLink);
 		}
 
 		XMLElement* nodeSpecificDataXML = nodeXML->FirstChildElement("NodeSpecificData");

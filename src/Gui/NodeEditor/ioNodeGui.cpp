@@ -12,37 +12,12 @@
 
 namespace NodeEditor = ax::NodeEditor;
 
-float ioNode::getTitleWidth(bool isOutputSection) {
-    if (getType() == IODEVICE && isOutputSection) {
-        static float iconSize = ImGui::GetTextLineHeight();                             //square size of the pin icons
-        static float iconDummyWidth = ImGui::GetTextLineHeight() * 0.75;                //width the pin icon actually occupies
-        DeviceNode* thisDevice = (DeviceNode*)this;
-        return ImGui::CalcTextSize(getName()).x + ImGui::GetStyle().ItemSpacing.x + iconDummyWidth;
-    }
-    else {
-        return ImGui::CalcTextSize(getName()).x;
-    }
+float ioNode::getTitleWidth() {
+    return ImGui::CalcTextSize(getName()).x;
 }
 
-void ioNode::titleGui(bool isOutputSection) {
-    if (getType() == IODEVICE && isOutputSection) {
-        static float iconSize = ImGui::GetTextLineHeight();                             //square size of the pin icons
-        static float iconDummyWidth = ImGui::GetTextLineHeight() * 0.75;                //width the pin icon actually occupies
-        DeviceNode* thisDevice = dynamic_cast<DeviceNode*>(this);
-        NodeEditor::BeginPin(thisDevice->deviceLink->getUniqueID(), NodeEditor::PinKind::Output);
-        NodeEditor::PinPivotAlignment(ImVec2(1.0, 0.5));
-        ImGui::Text(getName());
-        ImGui::SameLine();
-        ImGui::Dummy(glm::vec2(iconDummyWidth, 1));
-        glm::vec2 min = ImGui::GetItemRectMin();
-        min.x -= iconSize * 0.15; //shift the visual position of the icon
-        glm::vec2 max = min + glm::vec2(iconSize);
-        DrawPinIcon(ImGui::GetWindowDrawList(), min, max, 5, thisDevice->deviceLink->isConnected(), ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
-        NodeEditor::EndPin();
-    }
-    else {
-        ImGui::Text(getName());
-    }
+void ioNode::titleGui() {
+    ImGui::Text(getName());
 }
 
 void ioNode::nodeGui() {
@@ -78,11 +53,11 @@ void ioNode::nodeGui() {
 
         //===== do some text size calculations to be able to cleanly align output nodes to the right =====
 
-        getTitleWidth(true);
+        getTitleWidth();
 
         //find the widest pin line
         ImGui::PushFont(Fonts::robotoBold15);
-        float titleTextWidth = getTitleWidth(true);
+        float titleTextWidth = getTitleWidth();
         ImGui::PopFont();
         float widestPin = 0;
         for (auto pin : getNodeInputData()) {
@@ -114,7 +89,7 @@ void ioNode::nodeGui() {
         float spacing = (nodeWidth - titleTextWidth - 2 * nodePadding) / 2.0;
         ImGui::SameLine(spacing, 0);
         ImGui::PushFont(Fonts::robotoBold15);
-        titleGui(true);
+        titleGui();
         ImGui::PopFont();
         ImGui::Spacing();
 
@@ -153,7 +128,7 @@ void ioNode::nodeGui() {
         NodeEditor::BeginNode(getUniqueID());
 
         ImGui::PushFont(Fonts::robotoBold15);
-        float inputTitleTextWidth = getTitleWidth(false);
+        float inputTitleTextWidth = getTitleWidth();
         ImGui::PopFont();
         if (outputLabelWidth > inputTitleTextWidth) inputTitleTextWidth = outputLabelWidth;
         float widestInputPin = 0;
@@ -178,7 +153,7 @@ void ioNode::nodeGui() {
         ImGui::SameLine(inputTitleSpacing, 0);
         ImGui::PushFont(Fonts::robotoBold15);
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, -ImGui::GetTextLineHeight() * 0.15));
-        titleGui(false);
+        titleGui();
         ImGui::PopStyleVar();
         ImGui::PopFont();
         ImGui::NewLine();
@@ -213,7 +188,7 @@ void ioNode::nodeGui() {
         NodeEditor::BeginNode(splitNodeID);
 
         ImGui::PushFont(Fonts::robotoBold15);
-        float outputTitleTextWidth = getTitleWidth(true);
+        float outputTitleTextWidth = getTitleWidth();
         ImGui::PopFont();
         if (inputLabelWidth > outputTitleTextWidth) outputTitleTextWidth = inputLabelWidth;
         float widestOutputPin = 0;
@@ -238,7 +213,7 @@ void ioNode::nodeGui() {
         ImGui::SameLine(outputTitleSpacing, 0);
         ImGui::PushFont(Fonts::robotoBold15);
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, -ImGui::GetTextLineHeight() * 0.15));
-        titleGui(true);
+        titleGui();
         ImGui::PopStyleVar();
         ImGui::PopFont();
         ImGui::NewLine();

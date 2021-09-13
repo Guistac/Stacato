@@ -27,8 +27,6 @@ enum DeviceType {
 class DeviceNode : public ioNode {
 public:
 
-	std::shared_ptr<ioData> deviceLink = std::make_shared<ioData>(DataType::DEVICE_LINK, DataDirection::NODE_OUTPUT, "Device Link", ioDataFlags_NoDataField | ioDataFlags_AcceptMultipleInputs);
-
 	virtual DeviceType getDeviceType() = 0;
 
 	const char* getDeviceTypeString() {

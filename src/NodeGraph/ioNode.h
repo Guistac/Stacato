@@ -90,8 +90,8 @@ public:
 	glm::vec2 getNodeGraphPosition();
 	void restoreSavedPosition();
 
-	float getTitleWidth(bool isOutputSection);
-	void titleGui(bool isOutputSection);
+	float getTitleWidth();
+	void titleGui();
 
 	//for split nodes
 	bool isSplit() { return b_isSplit; }

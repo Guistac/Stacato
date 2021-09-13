@@ -166,7 +166,6 @@
             <Link UniqueID="123" StartPin="3" EndPin="117"/>
             <Link UniqueID="124" StartPin="119" EndPin="121"/>
             <Link UniqueID="125" StartPin="122" EndPin="49"/>
-            <Link UniqueID="148" StartPin="140" EndPin="141"/>
         </Links>
     </NodeGraph>
 </Environnement>
