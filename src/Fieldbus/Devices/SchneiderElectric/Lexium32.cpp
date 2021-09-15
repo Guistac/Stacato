@@ -2,14 +2,46 @@
 
 #include "Lexium32.h"
 #include "Fieldbus/EtherCatFieldbus.h"
+#include <tinyxml2.h>
 
-bool Lexium32::hasDeviceError() { return false; }
-const char* Lexium32::getDeviceErrorString() { return ""; }
-void Lexium32::clearDeviceError() {}
-bool Lexium32::isDeviceReady() { return false; }
-void Lexium32::enable() {}
-void Lexium32::disable() {}
-bool Lexium32::isEnabled() { return false; }
+bool Lexium32::hasDeviceError() {
+    return lastErrorCode != 0x0;
+}
+
+const char* Lexium32::getDeviceErrorString() {
+    static char errorString[128];
+    sprintf(errorString, "Lexium32 Error Code: %X", lastErrorCode);
+    return errorString;
+}
+
+void Lexium32::clearDeviceError() {
+    b_faultReset = true;
+}
+
+bool Lexium32::isDeviceReady() {
+    switch (state) {
+        case State::OperationEnabled: return true;
+        case State::SwitchedOn: return true;
+        case State::ReadyToSwitchOn: return true;
+        default: return false;
+    }
+}
+
+void Lexium32::enable() {
+    b_enableOperation = true;
+}
+
+void Lexium32::disable() {
+    //b_disableOperation = true;
+    b_shutdown = true;
+}
+
+bool Lexium32::isEnabled() { 
+    switch (state) {
+        case State::OperationEnabled: return true;
+        default: return false;
+    }
+}
 
 void Lexium32::assignIoData() {
 
@@ -92,6 +124,83 @@ bool Lexium32::setStartupParameters() {
     uint32_t RAMP_v_dec_set = 600;
     if (!writeSDO(0x6084, 0x0, RAMP_v_dec_set)) return false;
 
+
+    uint16_t _ModuleSlot2;
+    if (!readSDO(0x3002, 0x1A, _ModuleSlot2)) return false;
+    Logger::warn("Module in slot 2: {}", _ModuleSlot2);
+
+//#define SET_SSI_PARAM
+#ifdef SET_SSI_PARAM
+    uint16_t ENC_abs_source = 1;        //encoder source: encoder module (encoder 2)
+    uint16_t ENC2_type = 10;            //encoder type: SSI Rotary
+    uint16_t ENC2_usage = 2;            //encoder usage: Motor Encoder
+    uint16_t ENCDigPowSupply = 12;      //12V power supply
+    uint16_t ENCDigResMulUsed = 0;      //use all multiturn bits
+    uint16_t ENCDigSSICoding = 1;       //gray encoding
+    uint16_t ENCDigSSIMaxFreq = 200;    //200Khz SSI
+    uint16_t ENCDigSSIResMult = 12;     //12 bits multiturn
+    uint16_t ENCDigSSIResSgl = 17;      //17 bits singleturn
+    uint32_t ResolENC2 = 131072;        //raw resolution of the external encoder
+    int32_t ResolENC2Num = 131072;      //encoder increments per
+    int32_t ResolENC2Denom = 1;         //per motor shaft revolution
+
+    if (!writeSDO(0x3005, 0x25, ENC_abs_source)) return false;
+    if (!writeSDO(0x3050, 0x3, ENC2_type)) return false;
+    if (!writeSDO(0x3050, 0x1, ENC2_usage)) return false;
+    if (!writeSDO(0x3052, 0x4, ENCDigPowSupply)) return false;
+    if (!writeSDO(0x3052, 0xB, ENCDigResMulUsed)) return false;
+    if (!writeSDO(0x3052, 0x3, ENCDigSSICoding)) return false;
+    if (!writeSDO(0x3052, 0x5, ENCDigSSIMaxFreq)) return false;
+    if (!writeSDO(0x3052, 0x2, ENCDigSSIResMult)) return false;
+    if (!writeSDO(0x3052, 0x1, ENCDigSSIResSgl)) return false;
+
+    uint16_t PAReeprSave = 1;
+    if (!writeSDO(0x3004, 0x1, PAReeprSave)) return false;
+
+    //should these parameters also be saved to eeprom ?
+    if (!writeSDO(0x3050, 0xF, ResolENC2)) return false;
+    if (!writeSDO(0x3050, 0x5, ResolENC2Denom)) return false;
+    if (!writeSDO(0x3050, 0x6, ResolENC2Num)) return false;
+
+    if (!readSDO(0x3005, 0x25, ENC_abs_source)) return false;
+    if (!readSDO(0x3050, 0x3, ENC2_type)) return false;
+    if (!readSDO(0x3050, 0x1, ENC2_usage)) return false;
+    if (!readSDO(0x3052, 0x4, ENCDigPowSupply)) return false;
+    if (!readSDO(0x3052, 0xB, ENCDigResMulUsed)) return false;
+    if (!readSDO(0x3052, 0x3, ENCDigSSICoding)) return false;
+    if (!readSDO(0x3052, 0x5, ENCDigSSIMaxFreq)) return false;
+    if (!readSDO(0x3052, 0x2, ENCDigSSIResMult)) return false;
+    if (!readSDO(0x3052, 0x1, ENCDigSSIResSgl)) return false;
+    if (!readSDO(0x3050, 0xF, ResolENC2)) return false;
+    if (!readSDO(0x3050, 0x5, ResolENC2Denom)) return false;
+    if (!readSDO(0x3050, 0x6, ResolENC2Num)) return false;
+    Logger::warn("ENC_abs_source: {}", ENC_abs_source);
+    Logger::warn("ENC2_type: {}", ENC2_type);
+    Logger::warn("ENC2_usage: {}", ENC2_usage);
+    Logger::warn("ENCDigPowSupply: {}", ENCDigPowSupply);
+    Logger::warn("ENCDigResMulUsed: {}", ENCDigResMulUsed);
+    Logger::warn("ENCDigSSICoding: {}", ENCDigSSICoding);
+    Logger::warn("ENCDigSSIMaxFreq: {}", ENCDigSSIMaxFreq);
+    Logger::warn("ENCDigSSIResMult: {}", ENCDigSSIResMult);
+    Logger::warn("ENCDigSSIResSgl: {}", ENCDigSSIResSgl);
+    Logger::warn("ResolENC2: {}", ResolENC2);
+    Logger::warn("Encoder 2 Resolution= {}  ratio : {} encoder increments / {} motor revolutions", ResolENC2, ResolENC2Num, ResolENC2Denom);
+#endif
+    
+//#define SET_NO_ENCODER_PARAMS
+#ifdef SET_NO_ENCODER_PARAMS
+    uint16_t ENC_abs_source = 0;    //encoder source: interal encoder (encoder 1)
+    uint16_t ENC2_type = 0;         //encoder type: None
+    uint16_t ENC2_usage = 0;        //encoder usage: Motor Encoder
+    if (!writeSDO(0x3005, 0x25, ENC_abs_source)) return false;
+    if (!writeSDO(0x3050, 0x3, ENC2_type)) return false;
+    if (!writeSDO(0x3050, 0x1, ENC2_usage)) return false;
+    uint16_t PAReeprSave = 1;
+    if (!writeSDO(0x3004, 0x1, PAReeprSave)) return false;
+#endif
+
+
+
     //Cia DS402 mandatory Startup Settings (According to Lexium32 EtherCAT module documentation)
     uint16_t CompParSyncMot_set = 1;
     if (!writeSDO(0x3006, 0x3D, CompParSyncMot_set)) return false;
@@ -146,6 +255,13 @@ bool Lexium32::assignPDOs() {
     //replace default parameter 4 (_p_dif) by current velocity (_v_act 0x606C 0x00 int32_t)
     uint32_t TxPDOparameter4 = 0x606C0020;
     if (!writeSDO(TxPDOmodule, 0x4, TxPDOparameter4)) return false;
+
+    //actual position of encoder (encoder 1 or 2 depends on assignement)
+    //uint32_t TxPDOParameter3 = 0x301E0F20;
+    //uint32_t TxPDOParameter3 = 0x301E1A20; //module encoder
+    //uint32_t TxPDOParameter3 = 0x301E1920;  //module encode internal units
+    //uint32_t TxPDOParameter3 = 0x301E2720;  //internal encoder 
+    //if (!writeSDO(TxPDOmodule, 0x3, TxPDOParameter3)) return false;
 
     //update parameter count at subindex 0 of pdo object
     uint8_t TxPDOparameterCount = 7;
@@ -233,7 +349,19 @@ void Lexium32::readInputs() {
 }
 
 void Lexium32::process() {
+    /*
+    double outputPosition;
+    if(b_inverted) outputPosition = movementStartPosition + (std::cos((double)counter / 1000.0) - 1.0) * 100.0;
+    else outputPosition = movementStartPosition - (std::cos((double)counter / 1000.0) - 1.0) * 100.0;
+    if(counter == 0) Logger::warn("movementstart {}  output {}", movementStartPosition, outputPosition);
+    positionCommand->set(outputPosition);
+    positions.addPoint(glm::vec2(counter, positionCommand->getReal()));
+    counter++;
+    */
+}
 
+
+void Lexium32::prepareOutputs(){
     //Drive State Commands
     if (b_disableVoltage) {
         b_disableVoltage = false;
@@ -271,7 +399,7 @@ void Lexium32::process() {
         b_quickStopActive = true;
         b_voltageEnabled = true;
         b_switchedOn = true;
-        
+
         //start debug movement
         movementStartPosition = actualPosition->getReal();
         counter = 0;
@@ -285,17 +413,14 @@ void Lexium32::process() {
         b_switchedOn = true;
     }
 
-    double outputPosition;
-    if(b_inverted) outputPosition = movementStartPosition + (std::cos((double)counter / 1000.0) - 1.0) * 100.0;
-    else outputPosition = movementStartPosition - (std::cos((double)counter / 1000.0) - 1.0) * 100.0;
-    if(counter == 0) Logger::warn("movementstart {}  output {}", movementStartPosition, outputPosition);
-    positionCommand->set(outputPosition);
-    positions.addPoint(glm::vec2(counter, positionCommand->getReal()));
-    counter++;
-}
+    if (positionCommand->isConnected()) positionCommand->set(positionCommand->getLinks().front()->getInputData()->getReal());
+    if (velocityCommand->isConnected()) velocityCommand->set(velocityCommand->getLinks().front()->getInputData()->getReal());
+    if (torqueCommand->isConnected()) torqueCommand->set(torqueCommand->getLinks().front()->getInputData()->getReal());
+    if (digitalOut0->isConnected()) digitalOut0->set(digitalOut0->getLinks().front()->getInputData()->getBoolean());
+    if (digitalOut1->isConnected()) digitalOut1->set(digitalOut1->getLinks().front()->getInputData()->getBoolean());
+    if (digitalOut2->isConnected()) digitalOut2->set(digitalOut2->getLinks().front()->getInputData()->getBoolean());
 
 
-void Lexium32::prepareOutputs(){
     //RxPDO (outputs)
     //DCOMcontrol   (uint16_t)  2
     //DCOMopmode    (int8_t)    1
@@ -348,6 +473,13 @@ void Lexium32::prepareOutputs(){
     outByte[13] = (IO_DQ_set >> 0) & 0xFF;
     outByte[14] = (IO_DQ_set >> 8) & 0xFF;
 }
+
+
+
+
+bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
+bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
+
 
 
 std::map<int, std::string> Lexium32::modelist = {

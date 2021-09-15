@@ -2,10 +2,57 @@
 
 #include "NodeGraph/ioNode.h"
 
-class LinearAxis : public ioNode {
+enum PositionReferenceType {
+	LOW_LIMIT,
+	HIGH_LIMIT,
+	LOW_AND_HIGH_LIMIT,
+	POSITION_REFERENCE,
+	NO_LIMIT,
+	POSITION_REFERENCE_COUNT
+};
+
+struct PositionReference {
+	PositionReferenceType type;
+	const char displayName[64];
+	const char saveName[64];
+};
+
+enum PositionFeedbackType {
+	ABSOLUTE_FEEDBACK,
+	INCREMENTAL_FEEDBACK,
+	NO_FEEDBACK,
+	FEEDBACK_COUNT
+};
+
+struct PositionFeedback {
+	PositionFeedbackType type;
+	const char displayName[64];
+	const char saveName[64];
+};
+
+enum HomingDirectionType {
+	NEGATIVE,
+	POSITIVE,
+	DONT_CARE
+};
+
+struct HomingDirection {
+	HomingDirectionType type;
+	const char displayName[64];
+	const char saveName[64];
+};
+
+enum ControlMode {
+	VELOCITY_CONTROL,
+	TARGET_CONTROL,
+	FOLLOW_CURVE,
+	HOMING
+};
+
+class Axis : public ioNode {
 public:
 
-	DEFINE_AXIS_NODE("Linear Axis", LinearAxis);
+	DEFINE_AXIS_NODE("Axis", Axis);
 
 	std::shared_ptr<ioData> deviceLink = std::make_shared<ioData>(DataType::DEVICE_LINK, DataDirection::NODE_INPUT, "Actuators", ioDataFlags_AcceptMultipleInputs | ioDataFlags_NoDataField);
 	std::shared_ptr<ioData> positionFeedback = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "Actual Position");
@@ -19,6 +66,29 @@ public:
 	std::shared_ptr<ioData> velocityCommand = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity", ioDataFlags_DisableDataField);
 	std::shared_ptr<ioData> accelerationCommand = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Acceleration", ioDataFlags_DisableDataField);
 	std::shared_ptr<ioData> resetPositionFeedback = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Position Feedback", ioDataFlags_DisableDataField);
+
+	double velocityLimit_degreesPerSecond = 0.0;
+	double accelerationLimit_degreesPerSecondSquared = 0.0;
+
+	double defaultMovementVelocity_degreesPerSecond = 10.0;
+	double defaultMovementAcceleration_degreesPerSecondSquared = 5.0;
+
+	double homingVelocity_degreesPerSecond = 0.0;
+
+	double maxPositiveDeviationFromReference_degrees = 0.0;
+	double maxNegativeDeviationFromReference_degrees = 0.0;
+
+	PositionReferenceType positionReferenceType = NO_LIMIT;
+	PositionFeedbackType positionFeedbackType = ABSOLUTE_FEEDBACK;
+	HomingDirectionType homingDirectionType = DONT_CARE;
+
+	ControlMode controlMode = VELOCITY_CONTROL;
+	double velocityControlTarget_degreesPerSecond = 0.0;
+
+	double lastUpdateTime_seconds = 0.0;
+
+	double currentVelocity_degreesPerSecond = 0.0;
+	double currentPosition_degrees = 0.0;
 
 
 	virtual void assignIoData() {
@@ -36,46 +106,38 @@ public:
 		addIoData(resetPositionFeedback);
 	}
 
-	virtual void process() {}
+	virtual void process();
 
-	virtual void nodeSpecificGui() {}
-	virtual bool load(tinyxml2::XMLElement* xml) { return false; }
-	virtual bool save(tinyxml2::XMLElement* xml) { return false; }
+	virtual void nodeSpecificGui();
 
-};
-
-class RotatingAxis : public ioNode {
-public:
-
-	DEFINE_AXIS_NODE("Rotating Axis", RotatingAxis);
-
-	std::shared_ptr<ioData> deviceLink = std::make_shared<ioData>(DataType::DEVICE_LINK, DataDirection::NODE_INPUT, "Actuators", ioDataFlags_AcceptMultipleInputs | ioDataFlags_NoDataField);
-	std::shared_ptr<ioData> positionFeedback = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "Actual Position");
-	std::shared_ptr<ioData> positionReference = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Reference");
-
-	std::shared_ptr<ioData> velocityCommand = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity", ioDataFlags_DisableDataField);
-	std::shared_ptr<ioData> positionCommand = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position", ioDataFlags_DisableDataField);
-	std::shared_ptr<ioData> positionError = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position Error", ioDataFlags_DisableDataField);
-	std::shared_ptr<ioData> resetPositionFeedback = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Position Feedback", ioDataFlags_DisableDataField);
-
-	virtual void assignIoData() {
-		addIoData(deviceLink);
-		addIoData(positionFeedback);
-		addIoData(positionReference);
-
-		addIoData(velocityCommand);
-		addIoData(positionCommand);
-		addIoData(positionError);
-		addIoData(resetPositionFeedback);
-	}
-
-	virtual void process() {}
-
-	virtual void nodeSpecificGui() {}
-	virtual bool load(tinyxml2::XMLElement* xml) { return false; }
-	virtual bool save(tinyxml2::XMLElement* xml) { return false; }
+	virtual bool load(tinyxml2::XMLElement* xml);
+	virtual bool save(tinyxml2::XMLElement* xml);
 
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class StateMachineAxis : public ioNode {
 public:
@@ -105,8 +167,8 @@ public:
 	virtual void process() {}
 
 	virtual void nodeSpecificGui() {}
-	virtual bool load(tinyxml2::XMLElement* xml) { return false; }
-	virtual bool save(tinyxml2::XMLElement* xml) { return false; }
+	virtual bool load(tinyxml2::XMLElement* xml) { return true; }
+	virtual bool save(tinyxml2::XMLElement* xml) { return true; }
 
 };
 

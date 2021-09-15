@@ -350,7 +350,7 @@ namespace EtherCatFieldbus {
                 for (auto slave : slaves) slave->readInputs();
                 /*
                 //process the data to generate output values, taking into account if new data wasn't received
-                for (auto slave : slaves) slave->process(workingCounter == expectedWorkingCounter);
+                //(auto slave : slaves) slave->process(workingCounter == expectedWorkingCounter);
                 */
 
                 Environnement::nodeGraph.evaluate(DeviceType::ETHERCATSLAVE);

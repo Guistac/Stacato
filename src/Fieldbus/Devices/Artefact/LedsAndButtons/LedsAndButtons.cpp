@@ -69,3 +69,6 @@ void LedsAndButtons::prepareOutputs() {
 	outputData[3] = ui8_led3;
 	outputData[4] = ui8_led4;
 }
+
+bool LedsAndButtons::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
+bool LedsAndButtons::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }

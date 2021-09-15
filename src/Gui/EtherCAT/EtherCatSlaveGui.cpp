@@ -5,66 +5,8 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatSlave.h"
 
-void etherCatSlaves() {
-
-	ImGui::BeginGroup();
-
-	if (EtherCatFieldbus::b_processRunning || EtherCatFieldbus::b_processStarting) {
-		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0, 0.0, 0.0, 1.0));
-	}
-	if (ImGui::Button("Scan Network")) EtherCatFieldbus::scanNetwork();
-	if (EtherCatFieldbus::b_processRunning || EtherCatFieldbus::b_processStarting) {
-		ImGui::PopItemFlag();
-		ImGui::PopStyleColor();
-	}
-	ImGui::SameLine();
-	ImGui::Text("%i Devices Found", EtherCatFieldbus::slaves.size());
-
-	static int selectedSlaveIndex = -1;
-
-	ImVec2 listWidth(ImGui::GetTextLineHeight() * 14, ImGui::GetContentRegionAvail().y);
-	if (ImGui::BeginListBox("##DiscoveredEtherCATSlaves", listWidth)) {
-		for (auto slave : EtherCatFieldbus::slaves) {
-			bool selected = selectedSlaveIndex == slave->getSlaveIndex();
-			if (ImGui::Selectable(slave->getName(), &selected)) selectedSlaveIndex = slave->getSlaveIndex();
-		}
-		if (EtherCatFieldbus::slaves.empty()) {
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-			ImGui::Selectable("No Devices Detected...");
-			ImGui::PopItemFlag();
-		}
-		ImGui::EndListBox();
-	}
-	ImGui::EndGroup();
-	ImGui::SameLine();
-
-    std::shared_ptr<EtherCatSlave> selectedSlave = nullptr;
-	for (auto slave : EtherCatFieldbus::slaves) 
-		if (slave->getSlaveIndex() == selectedSlaveIndex) { selectedSlave = slave; break; }
-
-	ImGui::BeginGroup();
-	ImGui::PushFont(Fonts::robotoBold20);
-	if (selectedSlave) ImGui::Text("%s (Node #%i, Address: %i) ", selectedSlave->getNodeName(), selectedSlave->getSlaveIndex(), selectedSlave->getStationAlias());
-	else ImGui::Text("No Device Selected");
-	ImGui::PopFont();
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-	if (ImGui::BeginChild(ImGui::GetID("SelectedSlaveDisplayWindow"))) {
-		if (selectedSlave) {
-            if (ImGui::BeginTabBar("DevicePropertiesTabBar")) {
-                selectedSlave->nodeSpecificGui();
-                ImGui::EndTabBar();
-            }
-		}
-		ImGui::EndChild();
-	}
-	ImGui::PopStyleVar();
-	ImGui::EndGroup();
-
-}
-
 void EtherCatSlave::nodeSpecificGui() {
-    
+
     deviceSpecificGui();
 
     if (isSlaveKnown() && ImGui::BeginTabItem("PDO Data")) {
@@ -72,11 +14,16 @@ void EtherCatSlave::nodeSpecificGui() {
         ImGui::EndTabItem();
     }
 
+    if (ImGui::BeginTabItem("Config Data")) {
+        configurationDataGui();
+        ImGui::EndTabItem();
+    }
+
     if (isOnline() && ImGui::BeginTabItem("Generic Info")) {
         genericInfoGui();
         ImGui::EndTabItem();
     }
-    
+
 }
 
 void EtherCatSlave::genericInfoGui() {
@@ -182,11 +129,11 @@ void EtherCatSlave::genericInfoGui() {
 
     if (isCoeSupported()) {
         ImGui::Text("CoE is Supported");
-        ImGui::Text("SDO info: %s",             supportsCoE_SDOinfo() ? "supported" : "not supported");
-        ImGui::Text("PDO assign: %s",           supportsCoE_PDOassign() ? "supported" : "not supported");
-        ImGui::Text("PDO config: %s",           supportsCoE_PDOconfig() ? "supported" : "not supported");
-        ImGui::Text("Upload: % s",              supportsCoE_upload() ? "supported" : "not supported");
-        ImGui::Text("SDO Complete Access: %s",  supportsCoE_SDOCA() ? "supported" : "not supported");
+        ImGui::Text("SDO info: %s", supportsCoE_SDOinfo() ? "supported" : "not supported");
+        ImGui::Text("PDO assign: %s", supportsCoE_PDOassign() ? "supported" : "not supported");
+        ImGui::Text("PDO config: %s", supportsCoE_PDOconfig() ? "supported" : "not supported");
+        ImGui::Text("Upload: % s", supportsCoE_upload() ? "supported" : "not supported");
+        ImGui::Text("SDO Complete Access: %s", supportsCoE_SDOCA() ? "supported" : "not supported");
     }
     else ImGui::Text("CoE is not Supported");
 
@@ -209,11 +156,11 @@ void EtherCatSlave::genericInfoGui() {
 void EtherCatSlave::pdoDataGui() {
 
     static auto displayPDO = [](EtherCatPdoAssignement& pdo, const char* pdoName) {
-        ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
+        ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
         if (ImGui::BeginTable(pdoName, 5, tableFlags)) {
             ImGui::TableSetupColumn("Index");
             ImGui::TableSetupColumn("Subindex");
-            ImGui::TableSetupColumn("Byte Count");
+            ImGui::TableSetupColumn("Bytes");
             ImGui::TableSetupColumn("Name");
             ImGui::TableSetupColumn("Value");
             ImGui::TableHeadersRow();
@@ -243,11 +190,11 @@ void EtherCatSlave::pdoDataGui() {
                     ImGui::Text("%s", entry.name);
                     ImGui::TableSetColumnIndex(4);
                     switch (entry.byteCount) {
-                        case 1: ImGui::Text("%X", *(uint8_t*)entry.dataPointer); break;
-                        case 2: ImGui::Text("%X", *(uint16_t*)entry.dataPointer); break;
-                        case 4: ImGui::Text("%X", *(uint32_t*)entry.dataPointer); break;
-                        case 8: ImGui::Text("%X", *(uint64_t*)entry.dataPointer); break;
-                        default: ImGui::Text("unknown size"); break;
+                    case 1: ImGui::Text("%X", *(uint8_t*)entry.dataPointer); break;
+                    case 2: ImGui::Text("%X", *(uint16_t*)entry.dataPointer); break;
+                    case 4: ImGui::Text("%X", *(uint32_t*)entry.dataPointer); break;
+                    case 8: ImGui::Text("%X", *(uint64_t*)entry.dataPointer); break;
+                    default: ImGui::Text("unknown size"); break;
                     }
                 }
             }
@@ -259,4 +206,113 @@ void EtherCatSlave::pdoDataGui() {
     displayPDO(rxPdoAssignement, "RX-PDO");
     ImGui::Text("TX-PDO (inputs sent by slave)");
     displayPDO(txPdoAssignement, "TX-PDO");
+}
+
+void EtherCatSlave::configurationDataGui() {
+
+    ImGui::Text("Upload Data");
+
+    static EtherCatData uploadData = EtherCatData("UploadData", 0x0000, 0x0, EtherCatDataType::Type::UINT8_T);
+
+    ImGui::PushID("DataUpload");
+    ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
+    if (ImGui::BeginTable("##ConfigurationData", 4, tableFlags)) {
+        ImGui::TableSetupColumn("Index");
+        ImGui::TableSetupColumn("Subindex");
+        ImGui::TableSetupColumn("Datatype");
+        ImGui::TableSetupColumn("Value");
+        ImGui::TableHeadersRow();
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::Text("0x");
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, 0));
+        ImGui::SameLine();
+        ImGui::PopStyleVar();
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 3.0);
+        if (uploadData.indexEditFieldGui()) uploadData.b_hasTransferred = false;
+        ImGui::TableSetColumnIndex(1);
+        ImGui::Text("0x");
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, 0));
+        ImGui::SameLine();
+        ImGui::PopStyleVar();
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 2.0);
+        if (uploadData.subindexEditFieldGui()) uploadData.b_hasTransferred = false;
+        ImGui::TableSetColumnIndex(2);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
+        if (uploadData.dataTypeSelectorGui()) uploadData.b_hasTransferred = false;
+        ImGui::TableSetColumnIndex(3);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
+        if (uploadData.dataEditFieldGui()) uploadData.b_hasTransferred = false;
+        ImGui::EndTable();
+    }
+    ImGui::PopID();
+    
+    if(ImGui::Button("Upload")) {
+        std::thread dataUploader = std::thread([&]() {
+            uploadData.b_hasTransferred = true;
+            uploadData.b_isTransfering = true;
+            uploadData.b_transferSuccessfull = uploadData.write(getSlaveIndex());
+            uploadData.b_isTransfering = false;
+        });
+        dataUploader.detach();
+    }
+    if (uploadData.b_hasTransferred) {
+        ImGui::SameLine();
+        ImGui::Text(uploadData.b_isTransfering ? "Uploading..." : (uploadData.b_transferSuccessfull ? "Upload Successfull" : "Upload Failed"));
+    }
+
+    
+    ImGui::Separator();
+
+    ImGui::Text("Download Data");
+
+    static EtherCatData downloadData = EtherCatData("DownloadData", 0x0000, 0x0, EtherCatDataType::Type::UINT8_T);
+
+    ImGui::PushID("DownloadData");
+    if (ImGui::BeginTable("##ConfigurationData", 4, tableFlags)) {
+        ImGui::TableSetupColumn("Index");
+        ImGui::TableSetupColumn("Subindex");
+        ImGui::TableSetupColumn("Datatype");
+        ImGui::TableSetupColumn("Value");
+        ImGui::TableHeadersRow();
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::Text("0x");
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, 0));
+        ImGui::SameLine();
+        ImGui::PopStyleVar();
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 3.0);
+        if (downloadData.indexEditFieldGui()) downloadData.b_hasTransferred = false;
+        ImGui::TableSetColumnIndex(1);
+        ImGui::Text("0x");
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, 0));
+        ImGui::SameLine();
+        ImGui::PopStyleVar();
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 2.0);
+        if (downloadData.subindexEditFieldGui()) downloadData.b_hasTransferred = false;
+        ImGui::TableSetColumnIndex(2);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
+        if (downloadData.dataTypeSelectorGui()) downloadData.b_hasTransferred = false;
+        ImGui::TableSetColumnIndex(3);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
+        downloadData.valueTextGui();
+        ImGui::EndTable();
+    }
+    ImGui::PopID();
+
+    static bool uploadResult;
+    if (ImGui::Button("Download")) {
+        std::thread dataDownloader = std::thread([&]() {
+            downloadData.b_isTransfering = true;
+            downloadData.b_transferSuccessfull = downloadData.read(getSlaveIndex());
+            downloadData.b_isTransfering = false;
+            });
+        dataDownloader.detach();
+    }
+
+    if (downloadData.b_hasTransferred) {
+        ImGui::SameLine();
+        ImGui::Text(downloadData.b_isTransfering ? "Downloading..." : (downloadData.b_transferSuccessfull ? "Download Successfull" : "Download Failed"));
+    }
+    
 }

@@ -152,7 +152,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 
 		XMLElement* nodeSpecificDataXML = nodeXML->FirstChildElement("NodeSpecificData");
 		if (!nodeSpecificDataXML) return Logger::warn("Could not load Node Specific Data");
-		loadedNode->load(nodeSpecificDataXML);
+		if (!loadedNode->load(nodeSpecificDataXML)) return Logger::warn("Could not read node specific data");
 
 		XMLElement* inputPinsXML = nodeXML->FirstChildElement("InputPins");
 		if (!inputPinsXML) return Logger::warn("Could Not Load Node InputPins");

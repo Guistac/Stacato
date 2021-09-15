@@ -6,6 +6,8 @@
 
 #include "Utilities/EtherCatPDO.h"
 
+#include "Utilities/EtherCatData.h"
+
 //classDeviceName is a static string used to identify the device class when creating a new instance for a specific device
 //the static method is for use by the identifying method which will check all available device classes for a match
 //the non static method is an override to see what the subclass name is from a base class reference or pointer
@@ -24,6 +26,8 @@
 														                            className() { setName(deviceName); }												                    \
                                                                                     virtual void assignIoData(){}                                                                           \
                                                                                     virtual void process(){}                                                                                \
+                                                                                    virtual bool save(tinyxml2::XMLElement* xml);                                                            \
+                                                                                    virtual bool load(tinyxml2::XMLElement* xml);                                                            \
                                                                                     /*DeviceNode Functions*/                                                                                \
                                                                                     virtual bool isOnline();                /*checks generic ethercat status first*/                        \
                                                                                     virtual bool hasError();            	/*checks generic ethercat status first*/                        \
@@ -43,6 +47,8 @@
                                                                                     virtual void readInputs(){}                                                                             \
                                                                                     virtual void prepareOutputs(){}                                                                         \
                                                                                     virtual void deviceSpecificGui(){}                                                                      \
+                                                                                    virtual bool saveDeviceData(tinyxml2::XMLElement* xml){ return true; }                                 \
+                                                                                    virtual bool loadDeviceData(tinyxml2::XMLElement* xml){ return true; }                                 \
                                                                                     virtual std::shared_ptr<EtherCatSlave> getNewDeviceInstance() { return std::make_shared<className>(); } \
 
 //All Slave Device Classes Need to Implement this Macro 
@@ -71,6 +77,8 @@
                                                                             virtual void readInputs();                                                                              \
                                                                             virtual void prepareOutputs();                                                                          \
                                                                             virtual void deviceSpecificGui();                                                                       \
+                                                                            virtual bool saveDeviceData(tinyxml2::XMLElement* xml);                                                 \
+                                                                            virtual bool loadDeviceData(tinyxml2::XMLElement* xml);                                                 \
                                                                             virtual std::shared_ptr<EtherCatSlave> getNewDeviceInstance() { return std::make_shared<className>(); } \
 
 #define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getNodeNameStatic()) == 0) return std::make_shared<className>()
@@ -136,6 +144,7 @@ public:
     virtual void nodeSpecificGui();
     void genericInfoGui();
     void pdoDataGui();
+    void configurationDataGui();
 
     //=====Reading and Writing SDO Data
 

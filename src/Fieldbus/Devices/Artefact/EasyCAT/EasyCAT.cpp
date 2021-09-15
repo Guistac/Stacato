@@ -105,3 +105,6 @@ void EasyCAT::prepareOutputs() {
 	ui8_byteOut = byteOut->getInteger();
 	outputData[14] =	ui8_byteOut;
 }
+
+bool EasyCAT::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
+bool EasyCAT::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }

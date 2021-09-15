@@ -62,8 +62,7 @@ namespace ioNodeFactory {
 		}
 
 		axisTypes = {
-			new RotatingAxis(),
-			new LinearAxis(),
+			new Axis(),
 			new StateMachineAxis()
 		};
 	}

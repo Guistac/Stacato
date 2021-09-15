@@ -4,6 +4,7 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <tinyxml2.h>
 
 /*
 bool EtherCatSlave::getPDOMapping(EtherCatPDO& pdo, uint16_t pdoIndex, const char* pdoDescription) {
@@ -82,6 +83,21 @@ bool EtherCatSlave::isReady() {
     else return isDeviceReady();
 }
 
+bool EtherCatSlave::save(tinyxml2::XMLElement* xml) {
+    using namespace tinyxml2;
+    xml->SetAttribute("StationAlias", getStationAlias());
+    saveDeviceData(xml);
+    return true;
+}
+
+bool EtherCatSlave::load(tinyxml2::XMLElement* xml) {
+    using namespace tinyxml2;
+    int i_stationAlias;
+    if (xml->QueryIntAttribute("StationAlias", &i_stationAlias) != XML_SUCCESS) return Logger::warn("Could not find EtherCAT Station Alias Attribute");
+    stationAlias = i_stationAlias;
+    if (!loadDeviceData(xml)) return Logger::warn("Could not read device data");
+    return true;
+}
 
 
 const char* EtherCatSlave::getStateChar() {

@@ -18,7 +18,7 @@ namespace NodeEditor = ax::NodeEditor;
 void nodeGraph() {
 
     //TODO: should the graph be updated in the draw loop?
-    Environnement::nodeGraph.evaluate();
+    //Environnement::nodeGraph.evaluate();
 
     //========= NODE INSPECTOR AND ADDER PANEL =========
 
