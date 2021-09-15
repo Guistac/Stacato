@@ -27,28 +27,42 @@ void nodeGraph() {
     glm::vec2 sideBarSize(sideBarWidth, ImGui::GetContentRegionAvail().y);
     if (ImGui::BeginChild("SideBar", sideBarSize)) {
 
-        //if there are selected nodes, display their gui
-        if (!selectedNodes.empty() && ImGui::BeginTabBar("NodeEditorSidePanel")) {
-            for (auto node : selectedNodes) {
-                //we don't display the custom name in the tab
-                //so we don't switch tabs while renaming the custom name of the node
-                //we have to use pushID and PopID to avoid problems when selecting multiple nodes of the same type
-                //this way we can have multiple tabs with the same name
-                ImGui::PushID(node->getUniqueID());
-                if (ImGui::BeginTabItem(node->getNodeName())) {
-                    if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {
-                        node->propertiesGui();
-                        ImGui::EndChild();
-                    }
-                    ImGui::EndTabItem();
-                }
-                ImGui::PopID();
-            }
-            ImGui::EndTabBar();
-        }
-
         //if there are no selected nodes, display the node adder list
         if (selectedNodes.empty()) nodeAdder();
+        else if (selectedNodes.size() == 1) {
+            std::shared_ptr<ioNode> selectedNode = selectedNodes.front();
+            ImGui::PushFont(Fonts::robotoBold20);
+            ImGui::Text(selectedNode->getName());
+            ImGui::PopFont();
+            ImGui::Separator();
+            if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {
+                selectedNode->propertiesGui();
+                ImGui::EndChild();
+            }
+        }
+        else {
+            ImGui::PushFont(Fonts::robotoBold20);
+            ImGui::Text("Multiple Nodes Selected");
+            ImGui::PopFont();
+            if (ImGui::BeginTabBar("NodeEditorSidePanel")) {
+                for (auto node : selectedNodes) {
+                    //we don't display the custom name in the tab
+                    //so we don't switch tabs while renaming the custom name of the node
+                    //we have to use pushID and PopID to avoid problems when selecting multiple nodes of the same type
+                    //this way we can have multiple tabs with the same name
+                    ImGui::PushID(node->getUniqueID());
+                    if (ImGui::BeginTabItem(node->getNodeName())) {
+                        if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {
+                            node->propertiesGui();
+                            ImGui::EndChild();
+                        }
+                        ImGui::EndTabItem();
+                    }
+                    ImGui::PopID();
+                }
+                ImGui::EndTabBar();
+            }
+        }
 
         ImGui::EndChild();
     }

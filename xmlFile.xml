@@ -6,16 +6,16 @@
                 <OutputNodeEditorPosition x="-1720" y="-2239"/>
                 <NodeSpecificData StationAlias="303"/>
                 <InputPins>
-                    <InputPin Name="Position" DataType="Real" UniqueID="2" Real="299.23480987548828" Visible="true"/>
+                    <InputPin Name="Position" DataType="Real" UniqueID="2" Real="-1060.1881408691406" Visible="true"/>
                     <InputPin Name="DQ0" DataType="Boolean" UniqueID="3" Boolean="false" Visible="true"/>
                     <InputPin Name="DQ1" DataType="Boolean" UniqueID="4" Boolean="false" Visible="true"/>
                     <InputPin Name="DQ2" DataType="Boolean" UniqueID="5" Boolean="false" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin Name="Device Link" DataType="Device Link" UniqueID="6" Visible="true"/>
-                    <OutputPin Name="Position" DataType="Real" UniqueID="7" Real="299.23480987548828" Visible="true"/>
-                    <OutputPin Name="Velocity" DataType="Real" UniqueID="8" Real="1" Visible="true"/>
-                    <OutputPin Name="Torque" DataType="Real" UniqueID="9" Real="-10" Visible="true"/>
+                    <OutputPin Name="Position" DataType="Real" UniqueID="7" Real="-1060.1881408691406" Visible="true"/>
+                    <OutputPin Name="Velocity" DataType="Real" UniqueID="8" Real="0" Visible="true"/>
+                    <OutputPin Name="Torque" DataType="Real" UniqueID="9" Real="0" Visible="true"/>
                     <OutputPin Name="DI0" DataType="Boolean" UniqueID="10" Boolean="true" Visible="true"/>
                     <OutputPin Name="DI1" DataType="Boolean" UniqueID="11" Boolean="false" Visible="true"/>
                     <OutputPin Name="DI2" DataType="Boolean" UniqueID="12" Boolean="false" Visible="true"/>
@@ -29,7 +29,7 @@
                 <NodeSpecificData>
                     <KinematicLimits VelocityLimit_degreesPerSecond="123" AccelerationLimit_degreesPerSecondSquared="456"/>
                     <DefaultMovementParameters defaultVelocity_degreesPerSecond="10" defaultAcceleration_degreesPerSecondSquared="5"/>
-					<PositionReference ReferenceType="Reference" MaxPositiveDeviation="300" MaxNegativeDeviation="-300" HomingVelocity_degreesPerSecond="123" HomingDirection="Positive"/>
+                    <PositionReference ReferenceType="Reference" MaxPositiveDeviation="300" MaxNegativeDeviation="-300" HomingVelocity_degreesPerSecond="123" HomingDirection="Positive"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin Name="Actuators" DataType="Device Link" UniqueID="25" Visible="true"/>
@@ -40,7 +40,7 @@
                     <InputPin Name="Motor Load" DataType="Real" UniqueID="30" Real="0" Visible="false"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="Position" DataType="Real" UniqueID="31" Real="299.23480987548828" Visible="true"/>
+                    <OutputPin Name="Position" DataType="Real" UniqueID="31" Real="-1060.1881408691406" Visible="true"/>
                     <OutputPin Name="Position Error" DataType="Real" UniqueID="32" Real="0" Visible="false"/>
                     <OutputPin Name="Velocity" DataType="Real" UniqueID="33" Real="0" Visible="false"/>
                     <OutputPin Name="Acceleration" DataType="Real" UniqueID="34" Real="0" Visible="false"/>
@@ -52,16 +52,16 @@
                 <OutputNodeEditorPosition x="-1746" y="-1580"/>
                 <NodeSpecificData StationAlias="333"/>
                 <InputPins>
-                    <InputPin Name="Position" DataType="Real" UniqueID="43" Real="3117.9977998681275" Visible="true"/>
+                    <InputPin Name="Position" DataType="Real" UniqueID="43" Real="3000.3750877334141" Visible="true"/>
                     <InputPin Name="DQ0" DataType="Boolean" UniqueID="44" Boolean="false" Visible="true"/>
                     <InputPin Name="DQ1" DataType="Boolean" UniqueID="45" Boolean="false" Visible="true"/>
                     <InputPin Name="DQ2" DataType="Boolean" UniqueID="46" Boolean="false" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin Name="Device Link" DataType="Device Link" UniqueID="47" Visible="true"/>
-                    <OutputPin Name="Position" DataType="Real" UniqueID="48" Real="3118.3974914550781" Visible="true"/>
-                    <OutputPin Name="Velocity" DataType="Real" UniqueID="49" Real="-2657" Visible="true"/>
-                    <OutputPin Name="Torque" DataType="Real" UniqueID="50" Real="-74" Visible="true"/>
+                    <OutputPin Name="Position" DataType="Real" UniqueID="48" Real="3000.0531387329102" Visible="true"/>
+                    <OutputPin Name="Velocity" DataType="Real" UniqueID="49" Real="0" Visible="true"/>
+                    <OutputPin Name="Torque" DataType="Real" UniqueID="50" Real="0" Visible="true"/>
                     <OutputPin Name="DI0" DataType="Boolean" UniqueID="51" Boolean="true" Visible="true"/>
                     <OutputPin Name="DI1" DataType="Boolean" UniqueID="52" Boolean="false" Visible="true"/>
                     <OutputPin Name="DI2" DataType="Boolean" UniqueID="53" Boolean="false" Visible="true"/>
@@ -77,7 +77,7 @@
                     <InputPin Name="in" DataType="Real" UniqueID="66" Real="0" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="out" DataType="Real" UniqueID="67" Real="-0.99922896737712574" Visible="true"/>
+                    <OutputPin Name="out" DataType="Real" UniqueID="67" Real="0.80487250125998133" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node ClassName="Clock" UniqueID="68" NodeType="CLOCK" CustomName="Clock">
@@ -85,7 +85,7 @@
                 <NodeSpecificData/>
                 <InputPins/>
                 <OutputPins>
-                    <OutputPin Name="output" DataType="Real" UniqueID="69" Real="55.017143099999998" Visible="true"/>
+                    <OutputPin Name="output" DataType="Real" UniqueID="69" Real="7.2186459000000003" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node ClassName="Addition" UniqueID="71" NodeType="PROCESSOR" CustomName="Addition">
@@ -96,7 +96,7 @@
                     <InputPin Name="offset" DataType="Real" UniqueID="73" Real="0" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="result" DataType="Real" UniqueID="74" Real="3117.9977998681275" Visible="true"/>
+                    <OutputPin Name="result" DataType="Real" UniqueID="74" Real="3000.3750877334141" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node ClassName="Multiplication" UniqueID="78" NodeType="PROCESSOR" CustomName="Multiplication">
@@ -107,7 +107,7 @@
                     <InputPin Name="mult" DataType="Real" UniqueID="80" Real="0.40000000000000002" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="result" DataType="Real" UniqueID="81" Real="-0.39969158695085033" Visible="true"/>
+                    <OutputPin Name="result" DataType="Real" UniqueID="81" Real="0.32194900050399256" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -123,7 +123,6 @@
             <Link UniqueID="77" StartPin="74" EndPin="43"/>
             <Link UniqueID="82" StartPin="67" EndPin="79"/>
             <Link UniqueID="83" StartPin="81" EndPin="72"/>
-            <Link UniqueID="84" StartPin="47" EndPin="25"/>
         </Links>
     </NodeGraph>
 </Environnement>

@@ -2,42 +2,74 @@
 
 #include "NodeGraph/ioNode.h"
 
-enum PositionReferenceType {
-	LOW_LIMIT,
-	HIGH_LIMIT,
-	LOW_AND_HIGH_LIMIT,
-	POSITION_REFERENCE,
-	NO_LIMIT,
-	POSITION_REFERENCE_COUNT
+enum class UnitType {
+	LINEAR,
+	ANGULAR
+};
+
+struct AxisType {
+	UnitType unitType;
+	const char displayName[64];
+	const char displayNamePlural[64];
+	const char saveName[64];
+};
+
+struct PositionUnit {
+	enum class Unit {
+		DEGREE,
+		RADIAN,
+		ROTATION,
+		METER,
+		MILLIMETER
+	};
+	Unit unit;
+	UnitType type;
+	const char displayName[64];
+	const char displayNamePlural[64];
+	const char saveName[64];
 };
 
 struct PositionReference {
-	PositionReferenceType type;
+	enum class Type{
+		LOW_LIMIT,
+		HIGH_LIMIT,
+		LOW_AND_HIGH_LIMIT,
+		POSITION_REFERENCE,
+		NO_LIMIT
+	};
+	Type type;
 	const char displayName[64];
 	const char saveName[64];
-};
-
-enum PositionFeedbackType {
-	ABSOLUTE_FEEDBACK,
-	INCREMENTAL_FEEDBACK,
-	NO_FEEDBACK,
-	FEEDBACK_COUNT
 };
 
 struct PositionFeedback {
-	PositionFeedbackType type;
+	enum class Type {
+		ABSOLUTE_FEEDBACK,
+		INCREMENTAL_FEEDBACK,
+		NO_FEEDBACK
+	};
+	Type type;
 	const char displayName[64];
 	const char saveName[64];
 };
 
-enum HomingDirectionType {
-	NEGATIVE,
-	POSITIVE,
-	DONT_CARE
+struct CommandType {
+	enum class Type {
+		POSITION_COMMAND,
+		VELOCITY_COMMAND
+	};
+	Type type;
+	const char displayName[64];
+	const char saveName[64];
 };
 
 struct HomingDirection {
-	HomingDirectionType type;
+	enum class Type {
+		NEGATIVE,
+		POSITIVE,
+		DONT_CARE
+	};
+	Type type;
 	const char displayName[64];
 	const char saveName[64];
 };
@@ -48,6 +80,25 @@ enum ControlMode {
 	FOLLOW_CURVE,
 	HOMING
 };
+
+std::vector<AxisType>& getAxisTypes();
+AxisType& getAxisType(UnitType t);
+
+std::vector<PositionUnit>& getLinearPositionUnits();
+std::vector<PositionUnit>& getAngularPositionUnits();
+PositionUnit& getPositionUnitType(PositionUnit::Unit u);
+
+PositionFeedback& getPositionFeedbackType(PositionFeedback::Type t);
+std::vector<PositionFeedback>& getPositionFeedbackTypes();
+
+std::vector<CommandType>& getCommandTypes();
+CommandType& getCommandType(CommandType::Type t);
+
+PositionReference& getPositionReferenceType(PositionReference::Type t);
+std::vector<PositionReference>& getPositionReferenceTypes();
+
+HomingDirection& getHomingDirectionType(HomingDirection::Type t);
+std::vector<HomingDirection>& getHomingDirectionTypes();
 
 class Axis : public ioNode {
 public:
@@ -67,6 +118,23 @@ public:
 	std::shared_ptr<ioData> accelerationCommand = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Acceleration", ioDataFlags_DisableDataField);
 	std::shared_ptr<ioData> resetPositionFeedback = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Position Feedback", ioDataFlags_DisableDataField);
 
+	UnitType axisUnitType = UnitType::LINEAR;
+	PositionUnit::Unit axisPositionUnit = PositionUnit::Unit::METER;
+
+	PositionFeedback::Type positionFeedbackType = PositionFeedback::Type::ABSOLUTE_FEEDBACK;
+	PositionUnit::Unit feedbackPositionUnit = PositionUnit::Unit::DEGREE;
+	double feedbackUnitsPerAxisUnits = 0.0;
+
+	CommandType::Type commandType = CommandType::Type::POSITION_COMMAND;
+	PositionUnit::Unit commandPositionUnit = PositionUnit::Unit::DEGREE;
+	double commandUnitsPerAxisUnits = 0.0;
+
+	PositionReference::Type positionReferenceType = PositionReference::Type::NO_LIMIT;
+	HomingDirection::Type homingDirectionType = HomingDirection::Type::DONT_CARE;
+
+	const char* getAxisUnitStringSingular() { return getPositionUnitType(axisPositionUnit).displayName; }
+	const char* getAxisUnitStringPlural() { return getPositionUnitType(axisPositionUnit).displayNamePlural; }
+
 	double velocityLimit_degreesPerSecond = 0.0;
 	double accelerationLimit_degreesPerSecondSquared = 0.0;
 
@@ -78,18 +146,29 @@ public:
 	double maxPositiveDeviationFromReference_degrees = 0.0;
 	double maxNegativeDeviationFromReference_degrees = 0.0;
 
-	PositionReferenceType positionReferenceType = NO_LIMIT;
-	PositionFeedbackType positionFeedbackType = ABSOLUTE_FEEDBACK;
-	HomingDirectionType homingDirectionType = DONT_CARE;
-
 	ControlMode controlMode = VELOCITY_CONTROL;
 	double velocityControlTarget_degreesPerSecond = 0.0;
 
-	double lastUpdateTime_seconds = 0.0;
+	//motion profile generator variables
+	double profileAcceleration_degreesPerSecond = 0.0;
+	double profileVelocity_degreesPerSecond = 0.0;
+	double profilePosition_degrees = 0.0;
+	double lastUpdateTime_seconds = 0.0; //used to calculate deltaT
 
-	double currentVelocity_degreesPerSecond = 0.0;
-	double currentPosition_degrees = 0.0;
+	//axis status
+	void enable();
+	void onEnable();
+	void disable();
+	bool isEnabled();
+	bool b_enabled = false;
 
+	void startHoming();
+	void cancelHoming();
+	bool isHoming();
+
+	bool areAllActuatorsEnabled();
+	void enableAllActuators();
+	void disableAllActuators();
 
 	virtual void assignIoData() {
 		addIoData(deviceLink);

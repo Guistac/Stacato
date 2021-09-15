@@ -2,397 +2,223 @@
 
 #include "Axis.h"
 
-#include <imgui.h>
-#include <imgui_internal.h>
-#include <tinyxml2.h>
-
-#include "Gui/Framework/Fonts.h"
-
-
-
 #include "NodeGraph/DeviceNode.h"
 
-std::vector<PositionFeedback> positionFeedbackTypes = {
-	{PositionFeedbackType::ABSOLUTE_FEEDBACK, "Absolute Feedback", "Absolute"},
-	{PositionFeedbackType::INCREMENTAL_FEEDBACK, "Incremental Feedback", "Incremental"},
-	{PositionFeedbackType::NO_FEEDBACK, "No Feedback", "None"}
+std::vector<AxisType> axisTypes = {
+	{UnitType::ANGULAR, "Rotating Axis", "Rotating"},
+	{UnitType::LINEAR, "Linear Axis", "Linear"}
 };
+std::vector<AxisType>& getAxisTypes() { return axisTypes; }
+AxisType& getAxisType(UnitType t) {
+	for (AxisType& axis : axisTypes) {
+		if (axis.unitType == t) return axis;
+	}
+	return axisTypes.back();
+}
+
+
+std::vector<PositionUnit> linearPositionUnits = {
+	{PositionUnit::Unit::METER, UnitType::LINEAR,		"Meter",		"Meters",		"Meter"},
+	{PositionUnit::Unit::MILLIMETER, UnitType::LINEAR,	"Millimeter",	"Millimeters",	"Millimeter"}
+};
+std::vector<PositionUnit> angularPositionUnits = {
+	{PositionUnit::Unit::DEGREE, UnitType::ANGULAR,		"Degree",		"Degrees",		"Degree"},
+	{PositionUnit::Unit::RADIAN, UnitType::ANGULAR,		"Radian",		"Radians",		"Radian"},
+	{PositionUnit::Unit::ROTATION, UnitType::ANGULAR,	"Rotation",		"Rotations",	"Rotation"}
+};
+std::vector<PositionUnit>& getLinearPositionUnits() { return linearPositionUnits; }
+std::vector<PositionUnit>& getAngularPositionUnits() { return angularPositionUnits; }
+PositionUnit& getPositionUnitType(PositionUnit::Unit u) {
+	for (PositionUnit& unit : linearPositionUnits) {
+		if (unit.unit == u) return unit;
+	}
+	for (PositionUnit& unit : angularPositionUnits) {
+		if (unit.unit == u) return unit;
+	}
+	return linearPositionUnits.back();
+}
+
+
+std::vector<PositionFeedback> positionFeedbackTypes = {
+	{PositionFeedback::Type::ABSOLUTE_FEEDBACK, "Absolute Feedback", "Absolute"},
+	{PositionFeedback::Type::INCREMENTAL_FEEDBACK, "Incremental Feedback", "Incremental"},
+	{PositionFeedback::Type::NO_FEEDBACK, "No Feedback", "None"}
+};
+std::vector<PositionFeedback>& getPositionFeedbackTypes() { return positionFeedbackTypes; }
+PositionFeedback& getPositionFeedbackType(PositionFeedback::Type t) {
+	for (PositionFeedback& feedback : positionFeedbackTypes) {
+		if (feedback.type == t) return feedback;
+	}
+	return positionFeedbackTypes.back();
+}
+
 
 std::vector<PositionReference> positionReferenceTypes = {
-	{PositionReferenceType::LOW_LIMIT, "Low Limit", "Low"},
-	{PositionReferenceType::HIGH_LIMIT, "High Limit", "High"},
-	{PositionReferenceType::LOW_AND_HIGH_LIMIT, "Low and High Limit", "LowHigh"},
-	{PositionReferenceType::POSITION_REFERENCE, "Position Reference", "Reference"},
-	{PositionReferenceType::NO_LIMIT, "No Limit", "None"}
+	{PositionReference::Type::LOW_LIMIT, "Low Limit", "Low"},
+	{PositionReference::Type::HIGH_LIMIT, "High Limit", "High"},
+	{PositionReference::Type::LOW_AND_HIGH_LIMIT, "Low and High Limit", "LowHigh"},
+	{PositionReference::Type::POSITION_REFERENCE, "Position Reference", "Reference"},
+	{PositionReference::Type::NO_LIMIT, "No Limit", "None"}
 };
+std::vector<PositionReference>& getPositionReferenceTypes() { return positionReferenceTypes; }
+PositionReference& getPositionReferenceType(PositionReference::Type t) {
+	for (PositionReference& reference : positionReferenceTypes) {
+		if (reference.type == t) return reference;
+	}
+	return positionReferenceTypes.back();
+}
+
+std::vector<CommandType> commandTypes = {
+	{CommandType::Type::POSITION_COMMAND, "Position Command", "Position"},
+	{CommandType::Type::VELOCITY_COMMAND, "Velocity Command", "Velocity"}
+};
+std::vector<CommandType>& getCommandTypes() { return commandTypes; }
+CommandType& getCommandType(CommandType::Type t) {
+	for (CommandType& command : commandTypes) {
+		if (command.type == t) return command;
+	}
+	return commandTypes.back();
+}
+
 
 std::vector<HomingDirection> homingDirectionTypes = {
-	{HomingDirectionType::NEGATIVE, "Negative", "Negative"},
-	{HomingDirectionType::POSITIVE, "Positive", "Positive"},
-	{HomingDirectionType::DONT_CARE, "Don't Care", "DontCare"}
+	{HomingDirection::Type::NEGATIVE, "Negative", "Negative"},
+	{HomingDirection::Type::POSITIVE, "Positive", "Positive"},
+	{HomingDirection::Type::DONT_CARE, "Don't Care", "DontCare"}
 };
+std::vector<HomingDirection>& getHomingDirectionTypes() { return homingDirectionTypes; }
+HomingDirection& getHomingDirectionType(HomingDirection::Type t) {
+	for (HomingDirection& direction : homingDirectionTypes) {
+		if (direction.type == t) return direction;
+	}
+	return homingDirectionTypes.back();
+}
+
+
+
 
 
 void Axis::process() {
 	double updateTime_seconds = Timing::getTime_seconds();
-	double deltaT_seconds = lastUpdateTime_seconds - updateTime_seconds;
+	double deltaT_seconds = updateTime_seconds - lastUpdateTime_seconds;
 
-	double deltaV_degreesPerSecond;
-	deltaV_degreesPerSecond = defaultMovementAcceleration_degreesPerSecondSquared * deltaT_seconds;
-	if (velocityControlTarget_degreesPerSecond > currentVelocity_degreesPerSecond) {
-		if (currentVelocity_degreesPerSecond + deltaV_degreesPerSecond > velocityControlTarget_degreesPerSecond) currentVelocity_degreesPerSecond = velocityControlTarget_degreesPerSecond;
-		else currentVelocity_degreesPerSecond += deltaV_degreesPerSecond;
+	if (b_enabled) {
+
+		if (profileVelocity_degreesPerSecond != velocityControlTarget_degreesPerSecond) {
+			double deltaV_degreesPerSecond;
+			deltaV_degreesPerSecond = defaultMovementAcceleration_degreesPerSecondSquared * deltaT_seconds;
+			if (profileVelocity_degreesPerSecond < velocityControlTarget_degreesPerSecond) {
+				profileVelocity_degreesPerSecond += deltaV_degreesPerSecond;
+				if (profileVelocity_degreesPerSecond > velocityControlTarget_degreesPerSecond) profileVelocity_degreesPerSecond = velocityControlTarget_degreesPerSecond;
+			}
+			else {
+				profileVelocity_degreesPerSecond -= deltaV_degreesPerSecond;
+				if (profileVelocity_degreesPerSecond < velocityControlTarget_degreesPerSecond) profileVelocity_degreesPerSecond = velocityControlTarget_degreesPerSecond;
+			}
+		}
+		double deltaP_degrees = profileVelocity_degreesPerSecond * deltaT_seconds;
+
+		profilePosition_degrees += deltaP_degrees;
+
+		positionCommand->set(profilePosition_degrees);
 	}
 	else {
-		deltaV_degreesPerSecond = -defaultMovementAcceleration_degreesPerSecondSquared * deltaT_seconds;
-		if (currentVelocity_degreesPerSecond - deltaV_degreesPerSecond < velocityControlTarget_degreesPerSecond) currentVelocity_degreesPerSecond = velocityControlTarget_degreesPerSecond;
-		else currentVelocity_degreesPerSecond -= deltaV_degreesPerSecond;
+		positionCommand->set(positionFeedback->getLinks().front()->getInputData()->getReal());
 	}
-
-	double deltaP_degrees = currentVelocity_degreesPerSecond * deltaT_seconds;
-
-	double actualPosition = 0.0;
-	if(positionFeedback->isConnected()) actualPosition = positionFeedback->getLinks().front()->getInputData()->getReal();
-	positionCommand->set(actualPosition + deltaP_degrees / 360.0);
-
 
 	lastUpdateTime_seconds = updateTime_seconds;
 }
 
-void Axis::nodeSpecificGui() {
-	if (ImGui::BeginTabItem("Controls")) {
-
-		float widgetWidth = ImGui::GetContentRegionAvail().x;
-
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Manual Velocity Control");
-		ImGui::PopFont();
-
-		float targetVelocity_degreesPerSecond = velocityControlTarget_degreesPerSecond;
-		ImGui::SetNextItemWidth(widgetWidth);
-		ImGui::SliderFloat("##Velocity", &targetVelocity_degreesPerSecond, -velocityLimit_degreesPerSecond, velocityLimit_degreesPerSecond, "%.3f deg/s");
-		ImGui::SetNextItemWidth(widgetWidth);
-		ImGui::InputDouble("##ManAcceleration", &defaultMovementAcceleration_degreesPerSecondSquared, 0.0, 0.0,"%.3f deg/s2");
-		float velocityProgress = (currentVelocity_degreesPerSecond + velocityLimit_degreesPerSecond) / (2 * velocityLimit_degreesPerSecond);
-		ImGui::ProgressBar(velocityProgress, ImVec2(widgetWidth, ImGui::GetTextLineHeight()));
-		if (ImGui::Button("Stop##Velocity", glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 2))) targetVelocity_degreesPerSecond = 0.0;
-
-		ImGui::Separator();
-
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Manual Position Control");
-		ImGui::PopFont();
-
-		static float targetPosition = 0.0;
-		static float targetVelocity = defaultMovementVelocity_degreesPerSecond;
-		static float targetAcceleration = defaultMovementAcceleration_degreesPerSecondSquared;
-		float tripleWidgetWidth = (widgetWidth - 2 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
-		ImGui::SetNextItemWidth(tripleWidgetWidth);
-		ImGui::InputFloat("##TargetPosition", &targetPosition, 0.0, 0.0, "%.3f deg");
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(tripleWidgetWidth);
-		ImGui::InputFloat("##TargetVelocity", &targetVelocity, 0.0, 0.0, "%.3f deg/s");
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(tripleWidgetWidth);
-		ImGui::InputFloat("##TargetAcceleration", &targetAcceleration, 0.0, 0.0, "%.3f deg/s2");
-		float doubleWidgetWidth = (widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0;
-		glm::vec2 doubleButtonWidth((widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, ImGui::GetTextLineHeight() * 1.5);
-		if (ImGui::Button("Move", doubleButtonWidth)) {}
-		ImGui::SameLine();
-		if (ImGui::Button("Fast Move", doubleButtonWidth)) {}
-		if(ImGui::Button("Stop##Target", glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 2))) targetVelocity_degreesPerSecond = 0.0;
-
-		velocityControlTarget_degreesPerSecond = targetVelocity_degreesPerSecond;
-
-		ImGui::Separator();
-
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Homing");
-		ImGui::PopFont();
-
-		switch (positionReferenceType) {
-		case PositionReferenceType::LOW_LIMIT:
-		case PositionReferenceType::HIGH_LIMIT:
-		case PositionReferenceType::LOW_AND_HIGH_LIMIT:
-		case PositionReferenceType::POSITION_REFERENCE:
-			if (ImGui::Button("Start Homing", doubleButtonWidth)) {}
-			ImGui::SameLine();
-			if (ImGui::Button("Cancel Homing", doubleButtonWidth)) {}
-			break;
-		case PositionReferenceType::NO_LIMIT:
-			if (ImGui::Button("Reset Position Feedback")) {}
-			break;
-		}
-		
-
-		ImGui::EndTabItem();
-	}
-	if (ImGui::BeginTabItem("Settings")) {
-
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Ramp Limits");
-		ImGui::PopFont();
-
-		ImGui::Text("Velocity Limit (degrees per second)");
-		ImGui::InputDouble("##VelLimit", &velocityLimit_degreesPerSecond, 0.0, 0.0, "%.3f d/s");
-		ImGui::Text("Acceleration Limit (degrees per second squared)");
-		ImGui::InputDouble("##AccLimit", &accelerationLimit_degreesPerSecondSquared, 0.0, 0.0, "%.3f d/s2");
-
-		ImGui::Separator();
-
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Position Limits");
-		ImGui::PopFont();
-
-
-		ImGui::Text("Limit Type");
-		if (ImGui::BeginCombo("##PositionReference", positionReferenceTypes[positionReferenceType].displayName)) {
-			for (int i = 0; i < positionReferenceTypes.size(); i++) {
-				bool selected = positionReferenceType == positionReferenceTypes[i].type;
-				if (ImGui::Selectable(positionReferenceTypes[i].displayName, selected)) positionReferenceType = positionReferenceTypes[i].type;
-			}
-			ImGui::EndCombo();
-		}
-
-		switch (positionReferenceType) {
-		case PositionReferenceType::LOW_LIMIT:
-			ImGui::Text("Max Deviation From Low Limit");
-			ImGui::InputDouble("##MaxDeviation", &maxPositiveDeviationFromReference_degrees, 0.0, 0.0, "%.3f deg");
-			if (maxPositiveDeviationFromReference_degrees < 0.0) maxPositiveDeviationFromReference_degrees = 0.0;
-			ImGui::Text("Homing Velocity");
-			ImGui::InputDouble("##HomingVelocity", &homingVelocity_degreesPerSecond, 0.0, 0.0, "%.3f deg/s");
-			if(homingVelocity_degreesPerSecond < 0) homingVelocity_degreesPerSecond = abs(homingVelocity_degreesPerSecond);
-			ImGui::TextWrapped("Single Limit Signal at the negative end of the axis travel. Homing will move the axis in the negative direction");
-			break;
-		case PositionReferenceType::HIGH_LIMIT:
-			ImGui::Text("Max Deviation From High Limit");
-			ImGui::InputDouble("##MaxDeviation", &maxNegativeDeviationFromReference_degrees, 0.0, 0.0, "%.3f deg");
-			if (maxNegativeDeviationFromReference_degrees > 0.0) maxNegativeDeviationFromReference_degrees = 0.0;
-			ImGui::Text("Homing Velocity");
-			ImGui::InputDouble("##HomingVelocity", &homingVelocity_degreesPerSecond, 0.0, 0.0, "%.3f deg/s");
-			if (homingVelocity_degreesPerSecond < 0) homingVelocity_degreesPerSecond = abs(homingVelocity_degreesPerSecond);
-			ImGui::TextWrapped("Single Limit Signal at the positive end of the axis travel. Homing will move the axis in the position direction");
-			break;
-		case PositionReferenceType::LOW_AND_HIGH_LIMIT:
-			ImGui::Text("Homing Direction");
-			if (ImGui::BeginCombo("##HomingDirection", homingDirectionTypes[homingDirectionType].displayName)) {
-				for (int i = 0; i < homingDirectionTypes.size(); i++) {
-					bool selected = homingDirectionType == homingDirectionTypes[i].type;
-					if (ImGui::Selectable(homingDirectionTypes[i].displayName, selected)) homingDirectionType = homingDirectionTypes[i].type;
-				}
-				ImGui::EndCombo();
-			}
-			ImGui::Text("Homing Velocity");
-			ImGui::InputDouble("##HomingVelocity", &homingVelocity_degreesPerSecond, 0.0, 0.0, "%.3f deg/s");
-			if (homingVelocity_degreesPerSecond < 0) homingVelocity_degreesPerSecond = abs(homingVelocity_degreesPerSecond);
-			ImGui::TextWrapped("Two Limit Signals at each end of the axis travel. Homing will first move the axis in the specified direction, then the other direction");
-			break;
-		case PositionReferenceType::POSITION_REFERENCE:
-			ImGui::Text("Homing Direction");
-			if (ImGui::BeginCombo("##HomingDirection", homingDirectionTypes[homingDirectionType].displayName)) {
-				for (int i = 0; i < homingDirectionTypes.size(); i++) {
-					bool selected = homingDirectionType == homingDirectionTypes[i].type;
-					if (ImGui::Selectable(homingDirectionTypes[i].displayName, selected)) homingDirectionType = homingDirectionTypes[i].type;
-				}
-				ImGui::EndCombo();
-			}
-			ImGui::Text("Max Positive Deviation");
-			ImGui::InputDouble("##MaxPositiveDeviation", &maxPositiveDeviationFromReference_degrees, 0.0, 0.0, "%.3f");
-			if (maxPositiveDeviationFromReference_degrees < 0.0) maxPositiveDeviationFromReference_degrees = 0.0;
-			ImGui::Text("Max Negative Deviation");
-			ImGui::InputDouble("##MaxNegativeDeviation", &maxNegativeDeviationFromReference_degrees, 0.0, 0.0, "%.3f");
-			if (maxNegativeDeviationFromReference_degrees > 0.0) maxNegativeDeviationFromReference_degrees = 0.0;
-			ImGui::Text("Homing Velocity");
-			ImGui::InputDouble("##HomingVelocity", &homingVelocity_degreesPerSecond, 0.0, 0.0, "%.3f deg/s");
-			if (homingVelocity_degreesPerSecond < 0) homingVelocity_degreesPerSecond = abs(homingVelocity_degreesPerSecond);
-			ImGui::TextWrapped("Single Limit Signal in the axis travel range. Homing will find the position reference using the specified direction. The axis will not go over the max deviations from the position reference. (Not recommended for axis with physical limits)");
-			break;
-		case PositionReferenceType::NO_LIMIT:
-			ImGui::Text("Max Positive Deviation");
-			ImGui::InputDouble("##MaxPositiveDeviation", &maxPositiveDeviationFromReference_degrees, 0.0, 0.0, "%.3f");
-			if (maxPositiveDeviationFromReference_degrees < 0.0) maxPositiveDeviationFromReference_degrees = 0.0;
-			ImGui::Text("Max Negative Deviation");
-			ImGui::InputDouble("##MaxNegativeDeviation", &maxNegativeDeviationFromReference_degrees, 0.0, 0.0, "%.3f");
-			if (maxNegativeDeviationFromReference_degrees > 0.0) maxNegativeDeviationFromReference_degrees = 0.0;
-			ImGui::TextWrapped("No Limit Signal. Setting of the origin has to be done by manually moving the axis to the desired position reference and resetting the position feedback. (Not recommended for position feedback types other than absolute)");
-		}
-
-		ImGui::EndTabItem();
-	}
-	if (ImGui::BeginTabItem("Devices")) {
-
-		glm::vec2 buttonSize(ImGui::GetTextLineHeight() * 6, ImGui::GetTextLineHeight() * 1.5);
-
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Position Feedback: ");
-		ImGui::PopFont();
-
-		ImGui::Separator();
-
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Actuators: ");
-		ImGui::PopFont();
-
+void Axis::enable() {
+	if (deviceLink->isConnected()) {
+		bool allConnectedDeviceAreEnabled = true;
 		for (auto link : deviceLink->getLinks()) {
-			auto node = link->getInputData()->getNode();
-			if (node->getType() == IODEVICE) {
-				std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(node);
-
-				ImGui::PushID(device->getName());
-
-				ImGui::PushFont(Fonts::robotoBold15);
-				ImGui::Text(device->getName());
-				ImGui::PopFont();
-
-				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-
-				ImGui::PushStyleColor(ImGuiCol_Button, device->isOnline() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
-				ImGui::Button(device->isOnline() ? "Online" : "Offline", buttonSize);
-				ImGui::PopStyleColor();
-
-				ImGui::SameLine();
-
-				ImGui::PushStyleColor(ImGuiCol_Button, device->isReady() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
-				ImGui::Button(device->isReady() ? "Ready": "Not Ready", buttonSize);
-				ImGui::PopStyleColor();
-
-				ImGui::SameLine();
-
-				ImGui::PushStyleColor(ImGuiCol_Button, device->isEnabled() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
-				ImGui::Button(device->isEnabled() ? "Enabled" : "Disabled", buttonSize);
-				ImGui::PopStyleColor();
-
-
-				ImGui::PopItemFlag();
-
-				if (device->hasError()) {
-					if (ImGui::Button("Clear Error", buttonSize)) device->clearError();
-					ImGui::SameLine();
-					ImGui::TextWrapped(device->getErrorString());
+			std::shared_ptr<ioNode> inputNode = link->getInputData()->getNode();
+			if (inputNode->getType() == NodeType::IODEVICE) {
+				std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(inputNode);
+				if (!device->isEnabled()) {
+					allConnectedDeviceAreEnabled = false;
+					Logger::warn("Cannot Enable axis, DeviceNode {} is not enabled", device->getName());
 				}
-				
-
-				if (device->isEnabled()) { if (ImGui::Button("Disable", buttonSize)) device->disable(); }
-				else if (ImGui::Button("Enable", buttonSize)) device->enable();
-
-				ImGui::PopID();
-
-				ImGui::Separator();
+			}
+			else {
+				Logger::warn("Node {} Connected to axis Device Link is not a DeviceNode", inputNode->getName());
+				return;
 			}
 		}
-
-		ImGui::EndTabItem();
+		if (allConnectedDeviceAreEnabled) {
+			b_enabled = true;
+			onEnable();
+		}
+	}
+	else {
+		Logger::warn("Cannot enable axis,No Node is Connected to axis Device Link");
 	}
 }
 
-
-bool Axis::load(tinyxml2::XMLElement* xml) { 
-	using namespace tinyxml2;
-
-	XMLElement* kinematicLimitsXML = xml->FirstChildElement("KinematicLimits");
-	if (!kinematicLimitsXML) return Logger::warn("Could not find Kinematic Kimits Attribute");
-	double vel, acc;
-	if (kinematicLimitsXML->QueryDoubleAttribute("VelocityLimit_degreesPerSecond", &vel) != XML_SUCCESS) Logger::warn("Could not load velocity limit");
-	if (kinematicLimitsXML->QueryDoubleAttribute("AccelerationLimit_degreesPerSecondSquared", &acc) != XML_SUCCESS) Logger::warn("Could not load acceleration limit");
-	XMLElement* defaultMovementParametersXML = xml->FirstChildElement("DefaultMovementParameters");
-	if (!defaultMovementParametersXML) return Logger::warn("Could not load default movement parameters");
-	double defVel, defAcc;
-	if (defaultMovementParametersXML->QueryDoubleAttribute("defaultVelocity_degreesPerSecond", &defVel) != XML_SUCCESS) Logger::warn("Could not load default movement velocity");
-	if (defaultMovementParametersXML->QueryDoubleAttribute("defaultAcceleration_degreesPerSecondSquared", &defAcc) != XML_SUCCESS) Logger::warn("Could not load default movement acceleration");
-	XMLElement* positionReferenceXML = xml->FirstChildElement("PositionReference");
-	if (!positionReferenceXML) return Logger::warn("Could not load Position Reference Attributes");
-	const char* referenceType;
-	bool identifiedLimitType = false;
-	PositionReferenceType refType;
-	if (positionReferenceXML->QueryStringAttribute("ReferenceType", &referenceType) != XML_SUCCESS) return Logger::warn("Could not load Position Reference Type");
-	for (PositionReference& ref : positionReferenceTypes) {
-		if (strcmp(referenceType, ref.saveName) == 0) {
-			refType = ref.type;
-			identifiedLimitType = true;
-		}
-	}
-	if (!identifiedLimitType) return Logger::warn("Could not identify Reference Type");
-	double maxPDeviation;
-	double maxNDeviation;
-	double homingVel;
-	HomingDirectionType homingDir;
-	bool homingDirIdentified = false;
-
-	switch (refType) {
-	case PositionReferenceType::LOW_LIMIT:
-		if (positionReferenceXML->QueryDoubleAttribute("MaxPositiveDeviation", &maxPDeviation) != XML_SUCCESS) return Logger::warn("Could not load max positive deviation");
-		if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity_degreesPerSecond", &homingVel) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
-		break;
-	case PositionReferenceType::HIGH_LIMIT:
-		if (positionReferenceXML->QueryDoubleAttribute("MaxNegativeDeviation", &maxNDeviation) != XML_SUCCESS) return Logger::warn("Could not load max negative deviation");
-			if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity_degreesPerSecond", &homingVel) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
-		break;
-	case PositionReferenceType::LOW_AND_HIGH_LIMIT:
-	case PositionReferenceType::POSITION_REFERENCE:
-		if (positionReferenceXML->QueryDoubleAttribute("MaxPositiveDeviation", &maxPDeviation) != XML_SUCCESS) return Logger::warn("Could not load max positive deviation");
-			if (positionReferenceXML->QueryDoubleAttribute("MaxNegativeDeviation", &maxNDeviation) != XML_SUCCESS) return Logger::warn("Could not load max negative deviation");
-				if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity_degreesPerSecond", &homingVel) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
-		const char* homingDirString;
-		if (positionReferenceXML->QueryStringAttribute("HomingDirection", &homingDirString) != XML_SUCCESS) return Logger::warn("Could not load homing direction");
-		for (HomingDirection& dir : homingDirectionTypes) {
-			if (strcmp(dir.saveName, homingDirString) == 0) {
-				homingDir = dir.type;
-				homingDirIdentified = true;
-			}
-		}
-		if (!homingDirIdentified) return Logger::warn("Could not identify homing direction");
-		break;
-	case PositionReferenceType::NO_LIMIT:
-		if (positionReferenceXML->QueryDoubleAttribute("MaxPositiveDeviation", &maxPDeviation) != XML_SUCCESS) return Logger::warn("Could not load max positive deviation");
-		if (positionReferenceXML->QueryDoubleAttribute("MaxNegativeDeviation", &maxNDeviation) != XML_SUCCESS) return Logger::warn("Could not load max negative deviation");
-	}
-
-	velocityLimit_degreesPerSecond = vel;
-	accelerationLimit_degreesPerSecondSquared = acc;
-	defaultMovementVelocity_degreesPerSecond = defVel;
-	defaultMovementAcceleration_degreesPerSecondSquared = defAcc;
-	positionReferenceType = refType;
-	maxPositiveDeviationFromReference_degrees = maxPDeviation;
-	maxNegativeDeviationFromReference_degrees = maxNDeviation;
-	homingVelocity_degreesPerSecond = homingVel;
-	homingDirectionType = homingDir;
-
-	return true;
+void Axis::onEnable() {
+	profilePosition_degrees = positionFeedback->getLinks().front()->getInputData()->getReal();
+	profileVelocity_degreesPerSecond = 0.0;
+	profileAcceleration_degreesPerSecond = 0.0;
+	Logger::warn("Axis {} enabled", getName());
 }
 
-bool Axis::save(tinyxml2::XMLElement* xml) {
-	using namespace tinyxml2;
-	XMLElement* kinematicLimitsXML = xml->InsertNewChildElement("KinematicLimits");
-	kinematicLimitsXML->SetAttribute("VelocityLimit_degreesPerSecond", velocityLimit_degreesPerSecond);
-	kinematicLimitsXML->SetAttribute("AccelerationLimit_degreesPerSecondSquared", accelerationLimit_degreesPerSecondSquared);
-	XMLElement* defaultMovementParametersXML = xml->InsertNewChildElement("DefaultMovementParameters");
-	defaultMovementParametersXML->SetAttribute("defaultVelocity_degreesPerSecond", defaultMovementVelocity_degreesPerSecond);
-	defaultMovementParametersXML->SetAttribute("defaultAcceleration_degreesPerSecondSquared", defaultMovementAcceleration_degreesPerSecondSquared);
-	XMLElement* positionReferenceXML = xml->InsertNewChildElement("PositionReference");
-	positionReferenceXML->SetAttribute("ReferenceType", positionReferenceTypes[positionReferenceType].saveName);
-	switch (positionReferenceType) {
-	case PositionReferenceType::LOW_LIMIT:
-		positionReferenceXML->SetAttribute("MaxPositiveDeviation", maxPositiveDeviationFromReference_degrees);
-		positionReferenceXML->SetAttribute("HomingVelocity_degreesPerSecond", homingVelocity_degreesPerSecond);
-		break;
-	case PositionReferenceType::HIGH_LIMIT:
-		positionReferenceXML->SetAttribute("MaxNegativeDeviation", maxNegativeDeviationFromReference_degrees);
-		positionReferenceXML->SetAttribute("HomingVelocity_degreesPerSecond", homingVelocity_degreesPerSecond);
-		break;
-	case PositionReferenceType::LOW_AND_HIGH_LIMIT:
-		positionReferenceXML->SetAttribute("MaxPositiveDeviation", maxPositiveDeviationFromReference_degrees);
-		positionReferenceXML->SetAttribute("MaxNegativeDeviation", maxNegativeDeviationFromReference_degrees);
-		positionReferenceXML->SetAttribute("HomingVelocity_degreesPerSecond", homingVelocity_degreesPerSecond);
-		positionReferenceXML->SetAttribute("HomingDirection", homingDirectionTypes[homingDirectionType].saveName);
-	case PositionReferenceType::POSITION_REFERENCE:
-		positionReferenceXML->SetAttribute("MaxPositiveDeviation", maxPositiveDeviationFromReference_degrees);
-		positionReferenceXML->SetAttribute("MaxNegativeDeviation", maxNegativeDeviationFromReference_degrees);
-		positionReferenceXML->SetAttribute("HomingVelocity_degreesPerSecond", homingVelocity_degreesPerSecond);
-		positionReferenceXML->SetAttribute("HomingDirection", homingDirectionTypes[homingDirectionType].saveName);
-	case PositionReferenceType::NO_LIMIT:
-		positionReferenceXML->SetAttribute("MaxPositiveDeviation", maxPositiveDeviationFromReference_degrees);
-		positionReferenceXML->SetAttribute("MaxNegativeDeviation", maxNegativeDeviationFromReference_degrees);
-	}
+void Axis::disable() {
+	b_enabled = false;
+	Logger::warn("Axis {} disabled", getName());
+}
 
+bool Axis::isEnabled() {
+	return b_enabled;
+}
+
+
+bool Axis::areAllActuatorsEnabled() {
+	if (deviceLink->isConnected()) {
+		for (auto link : deviceLink->getLinks()) {
+			std::shared_ptr<ioNode> inputNode = link->getInputData()->getNode();
+			if (inputNode->getType() == NodeType::IODEVICE) {
+				std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(inputNode);
+				if (!device->isEnabled()) return false;
+			}
+			else {
+				Logger::warn("Node {} Connected to axis Device Link is not a DeviceNode", inputNode->getName());
+				return false;
+			}
+		}
+	} else Logger::warn("No Actuators Connected To Axis '{}'", getName());
 	return false;
+}
+
+void Axis::enableAllActuators() {
+	if (deviceLink->isConnected()) {
+		for (auto link : deviceLink->getLinks()) {
+			std::shared_ptr<ioNode> inputNode = link->getInputData()->getNode();
+			if (inputNode->getType() == NodeType::IODEVICE) {
+				std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(inputNode);
+				device->enable();
+			}
+			else {
+				Logger::warn("Node {} Connected to axis Device Link is not a DeviceNode", inputNode->getName());
+				return;
+			}
+		}
+	}
+	else Logger::warn("No Actuators Connected To Axis '{}'", getName());
+}
+
+void Axis::disableAllActuators() {
+	if (deviceLink->isConnected()) {
+		for (auto link : deviceLink->getLinks()) {
+			std::shared_ptr<ioNode> inputNode = link->getInputData()->getNode();
+			if (inputNode->getType() == NodeType::IODEVICE) {
+				std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(inputNode);
+				device->disable();
+			}
+			else {
+				Logger::warn("Node {} Connected to axis Device Link is not a DeviceNode", inputNode->getName());
+				return;
+			}
+		}
+	} else Logger::warn("No Actuators Connected To Axis '{}'", getName());
 }
