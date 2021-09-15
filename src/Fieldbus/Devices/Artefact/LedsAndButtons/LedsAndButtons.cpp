@@ -3,6 +3,14 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
+bool LedsAndButtons::hasDeviceError() { return true; }
+const char* LedsAndButtons::getDeviceErrorString() { return ""; }
+void LedsAndButtons::clearDeviceError() {}
+bool LedsAndButtons::isDeviceReady() { return false; }
+void LedsAndButtons::enable() {}
+void LedsAndButtons::disable() {}
+bool LedsAndButtons::isEnabled() { return false; }
+
 void LedsAndButtons::assignIoData() {
 
 	addIoData(led0);
@@ -11,6 +19,7 @@ void LedsAndButtons::assignIoData() {
 	addIoData(led3);
 	addIoData(led4);
 
+	addIoData(deviceLink);
 	addIoData(button0);
 	addIoData(button1);
 	addIoData(button2);
@@ -60,3 +69,6 @@ void LedsAndButtons::prepareOutputs() {
 	outputData[3] = ui8_led3;
 	outputData[4] = ui8_led4;
 }
+
+bool LedsAndButtons::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
+bool LedsAndButtons::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }

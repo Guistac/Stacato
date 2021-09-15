@@ -18,7 +18,7 @@ namespace NodeEditor = ax::NodeEditor;
 void nodeGraph() {
 
     //TODO: should the graph be updated in the draw loop?
-    Environnement::nodeGraph.evaluate();
+    //Environnement::nodeGraph.evaluate();
 
     //========= NODE INSPECTOR AND ADDER PANEL =========
 
@@ -133,6 +133,8 @@ void NodeGraph::nodeEditorGui() {
                 if (pin1 && pin2 && isConnectionValid(pin1, pin2)) {
                     if (NodeEditor::AcceptNewItem(ImColor(1.0f, 1.0f, 1.0f), 3.0)) {
                         std::shared_ptr<ioLink> link = connect(pin1, pin2);
+                        if (pin1->isInput()) evaluate(pin1->getNode());
+                        else if (pin2->isInput()) evaluate(pin2->getNode());
                         NodeEditor::Link(link->getUniqueID(), pin1Id, pin2Id);
                     }
                 }

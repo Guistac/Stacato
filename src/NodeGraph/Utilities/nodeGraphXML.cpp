@@ -18,7 +18,8 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 		nodeXML->SetAttribute("UniqueID", node->getUniqueID());
 		nodeXML->SetAttribute("NodeType", node->getTypeString());
 		if (node->getType() == NodeType::IODEVICE) {
-			nodeXML->SetAttribute("DeviceType", node->getDeviceTypeString());
+			std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(node);
+			nodeXML->SetAttribute("DeviceType", device->getDeviceTypeString());
 			nodeXML->SetAttribute("Split", node->isSplit());
 		}
 		nodeXML->SetAttribute("CustomName", node->getName());
@@ -53,7 +54,6 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 			XMLElement* outputPinXML = outputPinsXML->InsertNewChildElement("OutputPin");
 			pin->save(outputPinXML);
 		}
-
 	}
 
 	XMLElement* links = xml->InsertNewChildElement("Links");
@@ -99,13 +99,13 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		Logger::trace("Loading node '{}'", className);
 		std::shared_ptr<ioNode> loadedNode = nullptr;
 		if (strcmp(nodeType, "PROCESSOR") == 0) loadedNode = ioNodeFactory::getIoNodeByName(className);
+		else if (strcmp(nodeType, "CLOCK") == 0) loadedNode = ioNodeFactory::getIoNodeByName(className);
 		else if (strcmp(nodeType, "IODEVICE") == 0) {
 			const char* deviceType;
 			if (nodeXML->QueryStringAttribute("DeviceType", &deviceType) != XML_SUCCESS) return Logger::warn("Could not load Node Device Type");
 			if (strcmp(deviceType, "ETHERCATSLAVE") == 0) loadedNode = EtherCatDeviceFactory::getDeviceByName(className);
-			else if (strcmp(deviceType, "CLOCK") == 0) loadedNode = ioNodeFactory::getIoNodeByName(className);
 		}
-		else if (strcmp(nodeType, "AXIS") == 0) {}
+		else if (strcmp(nodeType, "AXIS") == 0) loadedNode = ioNodeFactory::getAxisByName(className);
 		else if (strcmp(nodeType, "CONTAINER") == 0) loadedNode = ioNodeFactory::getIoNodeByName(className);
 		
 		if (loadedNode == nullptr) return Logger::warn("Coult not load Node Class");
@@ -152,7 +152,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 
 		XMLElement* nodeSpecificDataXML = nodeXML->FirstChildElement("NodeSpecificData");
 		if (!nodeSpecificDataXML) return Logger::warn("Could not load Node Specific Data");
-		loadedNode->load(nodeSpecificDataXML);
+		if (!loadedNode->load(nodeSpecificDataXML)) return Logger::warn("Could not read node specific data");
 
 		XMLElement* inputPinsXML = nodeXML->FirstChildElement("InputPins");
 		if (!inputPinsXML) return Logger::warn("Could Not Load Node InputPins");

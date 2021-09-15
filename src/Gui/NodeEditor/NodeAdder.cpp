@@ -38,7 +38,9 @@ std::shared_ptr<ioNode> nodeAdderContextMenu() {
     ImGui::Separator();
 
     if (ImGui::BeginMenu("Axis")) {
-        
+        for (auto axis : ioNodeFactory::getAxisTypes()) {
+            if (ImGui::MenuItem(axis->getNodeName())) output = axis->getNewNodeInstance();
+        }
         ImGui::EndMenu();
     }
     
@@ -127,10 +129,16 @@ void nodeAdder() {
         ImGui::PushFont(Fonts::robotoBold15);
         if (ImGui::TreeNode("Axis")) {
             ImGui::PushFont(Fonts::robotoRegular15);
-            bool selected = false;
-            ImGui::Selectable("Linear Axis", &selected);
-            ImGui::Selectable("Rotating Axis", &selected);
-            ImGui::Selectable("State Machine", &selected);
+            for (auto axis : ioNodeFactory::getAxisTypes()) {
+                bool selected = false;
+                const char* axisName = axis->getNodeName();
+                ImGui::Selectable(axisName, &selected);
+                if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+                    ImGui::SetDragDropPayload("Axis", &axisName, sizeof(const char*));
+                    ImGui::Text(axisName);
+                    ImGui::EndDragDropSource();
+                }
+            }
             ImGui::PopFont();
             ImGui::TreePop();
         }
@@ -196,6 +204,12 @@ std::shared_ptr<ioNode> acceptDraggedNode() {
             const char* nodeName = *(const char**)payload->Data;
             std::shared_ptr<ioNode> newNode = ioNodeFactory::getIoNodeByName(nodeName);
             return newNode;
+        }
+        payload = ImGui::AcceptDragDropPayload("Axis");
+        if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
+            const char* axisName = *(const char**)payload->Data;
+            std::shared_ptr<ioNode> newAxis = ioNodeFactory::getAxisByName(axisName);
+            return newAxis;
         }
         ImGui::EndDragDropTarget();
     }

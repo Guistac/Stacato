@@ -14,4 +14,7 @@ namespace ioNodeFactory {
 	std::shared_ptr<ioNode> getIoNodeByName(const char* name);
 	
 	std::vector<ioNodeGroup>& getNodesByCategory();
+
+	std::shared_ptr<ioNode> getAxisByName(const char* name);
+	std::vector<ioNode*>& getAxisTypes();
 }

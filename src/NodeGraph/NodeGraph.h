@@ -3,6 +3,7 @@
 #include "ioNode.h"
 #include "ioData.h"
 #include "ioLink.h"
+#include "DeviceNode.h"
 
 class ioNode;
 class ioData;

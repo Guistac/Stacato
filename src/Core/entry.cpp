@@ -5,6 +5,7 @@
 
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 #include "NodeGraph/Utilities/ioNodeFactory.h"
+#include "Environnement/Environnement.h"
 
 int main() {
 	Logger::init();
@@ -12,6 +13,7 @@ int main() {
 
 	EtherCatDeviceFactory::loadDevices();
 	ioNodeFactory::loadNodes();
+	Environnement::load("xmlFile.xml");
 
 	EtherCatFieldbus::updateNetworkInterfaceCardList();
 	EtherCatFieldbus::init(EtherCatFieldbus::networkInterfaceCards.front());

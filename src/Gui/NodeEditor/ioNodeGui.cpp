@@ -3,11 +3,27 @@
 #include "nodeGraph/ioNode.h"
 #include "nodeGraph/nodeGraph.h"
 
+#include "NodeEditorGui.h"
+
+
 #include <imgui.h>
 #include <imgui_node_editor.h>
 #include "Gui/Framework/Fonts.h"
 
 namespace NodeEditor = ax::NodeEditor;
+
+float ioNode::getTitleWidth() {
+    ImGui::PushFont(Fonts::robotoBold15);
+    float width = ImGui::CalcTextSize(getName()).x;
+    ImGui::PopFont();
+    return width;
+}
+
+void ioNode::titleGui() {
+    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::Text(getName());
+    ImGui::PopFont();
+}
 
 void ioNode::nodeGui() {
 
@@ -42,10 +58,10 @@ void ioNode::nodeGui() {
 
         //===== do some text size calculations to be able to cleanly align output nodes to the right =====
 
+        getTitleWidth();
+
         //find the widest pin line
-        ImGui::PushFont(Fonts::robotoBold15);
-        float titleTextWidth = ImGui::CalcTextSize(getName()).x;
-        ImGui::PopFont();
+        float titleTextWidth = getTitleWidth();
         float widestPin = 0;
         for (auto pin : getNodeInputData()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
@@ -75,9 +91,7 @@ void ioNode::nodeGui() {
         ImGui::NewLine();
         float spacing = (nodeWidth - titleTextWidth - 2 * nodePadding) / 2.0;
         ImGui::SameLine(spacing, 0);
-        ImGui::PushFont(Fonts::robotoBold15);
-        ImGui::Text(getName());
-        ImGui::PopFont();
+        titleGui();
         ImGui::Spacing();
 
         //===== draw input and output pins =====
@@ -109,15 +123,12 @@ void ioNode::nodeGui() {
         static float outputLabelWidth = ImGui::CalcTextSize(outputLabel).x;
         static float inputLabelWidth = ImGui::CalcTextSize(inputLabel).x;
 
-        ImGui::PushFont(Fonts::robotoBold15);
-        float titleTextWidth = ImGui::CalcTextSize(getName()).x;
-        ImGui::PopFont();
 
         //===== SPLIT INPUT NODE =====
 
         NodeEditor::BeginNode(getUniqueID());
 
-        float inputTitleTextWidth = titleTextWidth;
+        float inputTitleTextWidth = getTitleWidth();
         if (outputLabelWidth > inputTitleTextWidth) inputTitleTextWidth = outputLabelWidth;
         float widestInputPin = 0;
         for (auto pin : getNodeInputData()) {
@@ -137,13 +148,11 @@ void ioNode::nodeGui() {
         drawList->AddRectFilled(inputTitleRectMin, inputTitleRectMax, labelColor, labelRounding, ImDrawFlags_RoundCornersTop);
         
         ImGui::NewLine();
-        float inputTitleSpacing = (inputNodeWidth - titleTextWidth - 2 * nodePadding) / 2.0;
+        float inputTitleSpacing = (inputNodeWidth - inputTitleTextWidth - 2 * nodePadding) / 2.0;
         ImGui::SameLine(inputTitleSpacing, 0);
-        ImGui::PushFont(Fonts::robotoBold15);
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, -ImGui::GetTextLineHeight() * 0.15));
-        ImGui::Text(getName());
+        titleGui();
         ImGui::PopStyleVar();
-        ImGui::PopFont();
         ImGui::NewLine();
         float outputLabelSpacing = (inputNodeWidth - outputLabelWidth - 2 * nodePadding) / 2.0;
         ImGui::SameLine(outputLabelSpacing);
@@ -175,7 +184,7 @@ void ioNode::nodeGui() {
 
         NodeEditor::BeginNode(splitNodeID);
 
-        float outputTitleTextWidth = titleTextWidth;
+        float outputTitleTextWidth = getTitleWidth();
         if (inputLabelWidth > outputTitleTextWidth) outputTitleTextWidth = inputLabelWidth;
         float widestOutputPin = 0;
         for (auto pin : getNodeOutputData()) {
@@ -195,13 +204,11 @@ void ioNode::nodeGui() {
         drawList->AddRectFilled(outputTextRectMin, outputTextRectMax, labelColor, labelRounding, ImDrawFlags_RoundCornersTop);
         
         ImGui::NewLine();
-        float outputTitleSpacing = (outputNodeWidth - titleTextWidth - 2 * nodePadding) / 2.0;
+        float outputTitleSpacing = (outputNodeWidth - outputTitleTextWidth - 2 * nodePadding) / 2.0;
         ImGui::SameLine(outputTitleSpacing, 0);
-        ImGui::PushFont(Fonts::robotoBold15);
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, -ImGui::GetTextLineHeight() * 0.15));
-        ImGui::Text(getName());
+        titleGui();
         ImGui::PopStyleVar();
-        ImGui::PopFont();
         ImGui::NewLine();
         float inputLabelSpacing = (outputNodeWidth - inputLabelWidth - 2 * nodePadding) / 2.0;
         ImGui::SameLine(inputLabelSpacing, 0);
@@ -235,7 +242,7 @@ void ioNode::propertiesGui() {
         if(ImGui::BeginTabItem("Node")) {
             
             static auto displayDataTable = [](std::vector<std::shared_ptr<ioData>>& data, const char* tableName) {
-                ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
+                ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
                 if (ImGui::BeginTable(tableName, 4, tableFlags)) {
                     ImGui::TableSetupColumn("Show");
                     ImGui::TableSetupColumn("Name");
@@ -254,11 +261,7 @@ void ioNode::propertiesGui() {
                         ImGui::TableSetColumnIndex(2);
                         ImGui::Text("%s", data->getTypeName());
                         ImGui::TableSetColumnIndex(3);
-                        switch (data->getType()) {
-                        case DataType::BOOLEAN_VALUE:  ImGui::Text("%i", data->getBoolean()); break;
-                        case DataType::INTEGER_VALUE:  ImGui::Text("%i", data->getInteger()); break;
-                        case DataType::REAL_VALUE:     ImGui::Text("%.5f", data->getReal()); break;
-                        }
+                        ImGui::Text("%s", data->getValueString());
                     }
                     ImGui::EndTable();
                 }

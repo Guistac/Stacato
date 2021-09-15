@@ -9,7 +9,6 @@ namespace Environnement{
 	
 	bool hasEtherCatSlave(std::shared_ptr<EtherCatSlave> slave);
 	std::shared_ptr<EtherCatSlave> getMatchingEtherCatSlave(std::shared_ptr<EtherCatSlave>);
-	void setAllEtherCatSlavesOffline();
 
 	extern NodeGraph nodeGraph;
 

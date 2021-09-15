@@ -1,93 +1,136 @@
 <Environnement name="Default Environnement">
     <NodeGraph>
         <Nodes>
-            <Node ClassName="Clock" UniqueID="1" NodeType="IODEVICE" DeviceType="CLOCK" Split="false" CustomName="Clock">
-                <NodeEditorPosition x="-1751" y="-1079"/>
+            <Node ClassName="LXM32M EtherCAT" UniqueID="1" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="true" CustomName="Lexium 303">
+                <InputNodeEditorPosition x="-552" y="-1974"/>
+                <OutputNodeEditorPosition x="-1720" y="-2239"/>
+                <NodeSpecificData StationAlias="303"/>
+                <InputPins>
+                    <InputPin Name="Position" DataType="Real" UniqueID="2" Real="299.23480987548828" Visible="true"/>
+                    <InputPin Name="DQ0" DataType="Boolean" UniqueID="3" Boolean="false" Visible="true"/>
+                    <InputPin Name="DQ1" DataType="Boolean" UniqueID="4" Boolean="false" Visible="true"/>
+                    <InputPin Name="DQ2" DataType="Boolean" UniqueID="5" Boolean="false" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin Name="Device Link" DataType="Device Link" UniqueID="6" Visible="true"/>
+                    <OutputPin Name="Position" DataType="Real" UniqueID="7" Real="299.23480987548828" Visible="true"/>
+                    <OutputPin Name="Velocity" DataType="Real" UniqueID="8" Real="1" Visible="true"/>
+                    <OutputPin Name="Torque" DataType="Real" UniqueID="9" Real="-10" Visible="true"/>
+                    <OutputPin Name="DI0" DataType="Boolean" UniqueID="10" Boolean="true" Visible="true"/>
+                    <OutputPin Name="DI1" DataType="Boolean" UniqueID="11" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI2" DataType="Boolean" UniqueID="12" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI3" DataType="Boolean" UniqueID="13" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI4" DataType="Boolean" UniqueID="14" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI5" DataType="Boolean" UniqueID="15" Boolean="false" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node ClassName="Axis" UniqueID="24" NodeType="AXIS" CustomName="Axis">
+                <NodeEditorPosition x="-1297" y="-2192"/>
+                <NodeSpecificData>
+                    <KinematicLimits VelocityLimit_degreesPerSecond="123" AccelerationLimit_degreesPerSecondSquared="456"/>
+                    <DefaultMovementParameters defaultVelocity_degreesPerSecond="10" defaultAcceleration_degreesPerSecondSquared="5"/>
+					<PositionReference ReferenceType="Reference" MaxPositiveDeviation="300" MaxNegativeDeviation="-300" HomingVelocity_degreesPerSecond="123" HomingDirection="Positive"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin Name="Actuators" DataType="Device Link" UniqueID="25" Visible="true"/>
+                    <InputPin Name="Actual Position" DataType="Real" UniqueID="26" Real="0" Visible="true"/>
+                    <InputPin Name="Limits" DataType="Boolean" UniqueID="27" Boolean="false" Visible="true"/>
+                    <InputPin Name="Max Motor Velocity" DataType="Real" UniqueID="28" Real="0" Visible="false"/>
+                    <InputPin Name="Max Motor Acceleration" DataType="Real" UniqueID="29" Real="0" Visible="false"/>
+                    <InputPin Name="Motor Load" DataType="Real" UniqueID="30" Real="0" Visible="false"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin Name="Position" DataType="Real" UniqueID="31" Real="299.23480987548828" Visible="true"/>
+                    <OutputPin Name="Position Error" DataType="Real" UniqueID="32" Real="0" Visible="false"/>
+                    <OutputPin Name="Velocity" DataType="Real" UniqueID="33" Real="0" Visible="false"/>
+                    <OutputPin Name="Acceleration" DataType="Real" UniqueID="34" Real="0" Visible="false"/>
+                    <OutputPin Name="Reset Position Feedback" DataType="Boolean" UniqueID="35" Boolean="false" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node ClassName="LXM32M EtherCAT" UniqueID="42" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="true" CustomName="Lexium 333">
+                <InputNodeEditorPosition x="-424" y="-1548"/>
+                <OutputNodeEditorPosition x="-1746" y="-1580"/>
+                <NodeSpecificData StationAlias="333"/>
+                <InputPins>
+                    <InputPin Name="Position" DataType="Real" UniqueID="43" Real="3117.9977998681275" Visible="true"/>
+                    <InputPin Name="DQ0" DataType="Boolean" UniqueID="44" Boolean="false" Visible="true"/>
+                    <InputPin Name="DQ1" DataType="Boolean" UniqueID="45" Boolean="false" Visible="true"/>
+                    <InputPin Name="DQ2" DataType="Boolean" UniqueID="46" Boolean="false" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin Name="Device Link" DataType="Device Link" UniqueID="47" Visible="true"/>
+                    <OutputPin Name="Position" DataType="Real" UniqueID="48" Real="3118.3974914550781" Visible="true"/>
+                    <OutputPin Name="Velocity" DataType="Real" UniqueID="49" Real="-2657" Visible="true"/>
+                    <OutputPin Name="Torque" DataType="Real" UniqueID="50" Real="-74" Visible="true"/>
+                    <OutputPin Name="DI0" DataType="Boolean" UniqueID="51" Boolean="true" Visible="true"/>
+                    <OutputPin Name="DI1" DataType="Boolean" UniqueID="52" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI2" DataType="Boolean" UniqueID="53" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI3" DataType="Boolean" UniqueID="54" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI4" DataType="Boolean" UniqueID="55" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI5" DataType="Boolean" UniqueID="56" Boolean="false" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node ClassName="Sinus" UniqueID="65" NodeType="PROCESSOR" CustomName="Sinus">
+                <NodeEditorPosition x="-1368" y="-836"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin Name="in" DataType="Real" UniqueID="66" Real="0" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin Name="out" DataType="Real" UniqueID="67" Real="-0.99922896737712574" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node ClassName="Clock" UniqueID="68" NodeType="CLOCK" CustomName="Clock">
+                <NodeEditorPosition x="-1783" y="-823"/>
                 <NodeSpecificData/>
                 <InputPins/>
                 <OutputPins>
-                    <OutputPin Name="output" DataType="Real" UniqueID="3" Real="149.73295479999999" Visible="true"/>
+                    <OutputPin Name="output" DataType="Real" UniqueID="69" Real="55.017143099999998" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node ClassName="Sinus" UniqueID="39" NodeType="PROCESSOR" CustomName="Sinus">
-                <NodeEditorPosition x="-936" y="-927"/>
+            <Node ClassName="Addition" UniqueID="71" NodeType="PROCESSOR" CustomName="Addition">
+                <NodeEditorPosition x="-840" y="-1567"/>
                 <NodeSpecificData/>
                 <InputPins>
-                    <InputPin Name="in" DataType="Real" UniqueID="41" Real="0" Visible="true"/>
+                    <InputPin Name="input" DataType="Real" UniqueID="72" Real="0" Visible="true"/>
+                    <InputPin Name="offset" DataType="Real" UniqueID="73" Real="0" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="out" DataType="Real" UniqueID="43" Real="0.33555605127185667" Visible="true"/>
+                    <OutputPin Name="result" DataType="Real" UniqueID="74" Real="3117.9977998681275" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node ClassName="Addition" UniqueID="47" NodeType="PROCESSOR" CustomName="Addition">
-                <NodeEditorPosition x="-600" y="-1055"/>
+            <Node ClassName="Multiplication" UniqueID="78" NodeType="PROCESSOR" CustomName="Multiplication">
+                <NodeEditorPosition x="-1223" y="-1409"/>
                 <NodeSpecificData/>
                 <InputPins>
-                    <InputPin Name="input" DataType="Real" UniqueID="49" Real="0" Visible="true"/>
-                    <InputPin Name="offset" DataType="Real" UniqueID="51" Real="0" Visible="true"/>
+                    <InputPin Name="input" DataType="Real" UniqueID="79" Real="0" Visible="true"/>
+                    <InputPin Name="mult" DataType="Real" UniqueID="80" Real="0.40000000000000002" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="result" DataType="Real" UniqueID="53" Real="-0.32480325466322951" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Sinus" UniqueID="59" NodeType="PROCESSOR" CustomName="Sinus">
-                <NodeEditorPosition x="-932" y="-1156"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="in" DataType="Real" UniqueID="61" Real="0" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="out" DataType="Real" UniqueID="63" Real="-0.66035930593508618" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Plotter" UniqueID="75" NodeType="PROCESSOR" CustomName="PlotterNode">
-                <NodeEditorPosition x="-216" y="-1007"/>
-                <NodeSpecificData>
-                    <Plotter BufferSize="256" DisplayLengthSeconds="8.3999977"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin Name="input" DataType="Real" UniqueID="77" Real="-0.32480326294898987" Visible="true"/>
-                </InputPins>
-                <OutputPins/>
-            </Node>
-            <Node ClassName="Multiplication" UniqueID="81" NodeType="PROCESSOR" CustomName="Multiplication">
-                <NodeEditorPosition x="-1319" y="-1199"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="input" DataType="Real" UniqueID="83" Real="0" Visible="true"/>
-                    <InputPin Name="mult" DataType="Real" UniqueID="85" Real="20" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="result" DataType="Real" UniqueID="87" Real="2994.6590959999999" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Multiplication" UniqueID="93" NodeType="PROCESSOR" CustomName="Multiplication">
-                <NodeEditorPosition x="-1335" y="-959"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="input" DataType="Real" UniqueID="95" Real="0" Visible="true"/>
-                    <InputPin Name="mult" DataType="Real" UniqueID="97" Real="21" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="result" DataType="Real" UniqueID="99" Real="3144.3920507999997" Visible="true"/>
+                    <OutputPin Name="result" DataType="Real" UniqueID="81" Real="-0.39969158695085033" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
         <Links>
-            <Link UniqueID="57" StartPin="43" EndPin="49"/>
-            <Link UniqueID="67" StartPin="63" EndPin="49"/>
-            <Link UniqueID="79" StartPin="53" EndPin="77"/>
-            <Link UniqueID="89" StartPin="3" EndPin="83"/>
-            <Link UniqueID="101" StartPin="3" EndPin="95"/>
-            <Link UniqueID="103" StartPin="99" EndPin="41"/>
-            <Link UniqueID="105" StartPin="87" EndPin="61"/>
+            <Link UniqueID="36" StartPin="6" EndPin="25"/>
+            <Link UniqueID="37" StartPin="7" EndPin="26"/>
+            <Link UniqueID="38" StartPin="10" EndPin="27"/>
+            <Link UniqueID="39" StartPin="11" EndPin="27"/>
+            <Link UniqueID="40" StartPin="31" EndPin="2"/>
+            <Link UniqueID="41" StartPin="35" EndPin="3"/>
+            <Link UniqueID="70" StartPin="69" EndPin="66"/>
+            <Link UniqueID="76" StartPin="48" EndPin="72"/>
+            <Link UniqueID="77" StartPin="74" EndPin="43"/>
+            <Link UniqueID="82" StartPin="67" EndPin="79"/>
+            <Link UniqueID="83" StartPin="81" EndPin="72"/>
+            <Link UniqueID="84" StartPin="47" EndPin="25"/>
         </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="Microsoft" Name="\Device\NPF_{94C82131-D635-43BC-AA0D-763132AE31BA}"/>
+        <Primary Description="Realtek USB NIC" Name="\Device\NPF_{42C81A11-795E-4D7C-83AE-39EF61932528}"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="1.5" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000000000001" SlaveStateCheckCycleCount="50"/>
 </FieldbusSettings>

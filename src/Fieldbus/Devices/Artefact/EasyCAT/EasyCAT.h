@@ -12,6 +12,7 @@ public:
 	std::shared_ptr<ioData> longOut =		std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "long0-out");
 	std::shared_ptr<ioData> longLongOut =	std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "longLong0-out");
 		
+	std::shared_ptr<ioData> deviceLink =	std::make_shared<ioData>(DataType::DEVICE_LINK, DataDirection::NODE_OUTPUT, "Device Link", ioDataFlags_NoDataField | ioDataFlags_AcceptMultipleInputs);
 	std::shared_ptr<ioData> byteIn =		std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, "byte0-in", ioDataFlags_DisableDataField);
 	std::shared_ptr<ioData> shortIn =		std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, "short0-in", ioDataFlags_DisableDataField);
 	std::shared_ptr<ioData> longIn =		std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, "long0-in", ioDataFlags_DisableDataField);

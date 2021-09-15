@@ -3,12 +3,21 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
+bool EasyCAT::hasDeviceError() { return false; }
+const char* EasyCAT::getDeviceErrorString() { return ""; }
+void EasyCAT::clearDeviceError() {}
+bool EasyCAT::isDeviceReady() { return false;  }
+void EasyCAT::enable() {}
+void EasyCAT::disable() {}
+bool EasyCAT::isEnabled() { return false; }
+
 void EasyCAT::assignIoData() {
 	addIoData(byteOut);
 	addIoData(shortOut);
 	addIoData(longOut);
 	addIoData(longLongOut);
 
+	addIoData(deviceLink);
 	addIoData(byteIn);
 	addIoData(shortIn);
 	addIoData(longIn);
@@ -96,3 +105,6 @@ void EasyCAT::prepareOutputs() {
 	ui8_byteOut = byteOut->getInteger();
 	outputData[14] =	ui8_byteOut;
 }
+
+bool EasyCAT::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
+bool EasyCAT::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }

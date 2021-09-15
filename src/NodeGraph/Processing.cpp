@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include "NodeGraph.h"
+#include "DeviceNode.h"
 
 void NodeGraph::evaluate() {
 	std::vector<std::shared_ptr<ioNode>> dummyNodeList;
@@ -11,8 +12,9 @@ void NodeGraph::evaluate(DeviceType deviceType) {
 	std::vector<std::shared_ptr<ioNode>> deviceNodes;
 	//get all the nodes that will be processed
 	for (auto node : getIoNodes()) {
-		if (node->getType() == NodeType::IODEVICE && node->getDeviceType() == deviceType) {
-			deviceNodes.push_back(node);
+		if (node->getType() == NodeType::IODEVICE) {
+			std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(node);
+			if(device->getDeviceType() == deviceType) deviceNodes.push_back(node);
 		}
 	}
 	evaluate(deviceNodes);
@@ -30,9 +32,7 @@ void NodeGraph::evaluate(std::vector<std::shared_ptr<ioNode>> startNodes) {
 	//clock nodes always update their value, so they must always be processed
 	for (auto node : getIoNodes()) {
 		std::shared_ptr<ioNode> currentNode = node;
-		NodeType nodetype = currentNode->getType();
-		DeviceType devicetype = currentNode->getDeviceType();
-		if (node->getType() == NodeType::IODEVICE && node->getDeviceType() == DeviceType::CLOCK) {
+		if (node->getType() == NodeType::CLOCK) {
 			startNodes.push_back(node);
 		}
 	}

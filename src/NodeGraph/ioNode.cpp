@@ -40,6 +40,7 @@ void ioNode::removeIoData(std::shared_ptr<ioData> removedIoData) {
 		for (int i = (int)ioDataList.size() - 1; i >= 0; i--) {
 			if (ioDataList[i] == removedIoData) {
 				ioDataList.erase(ioDataList.begin() + i);
+				break;
 			}
 		}
 	}

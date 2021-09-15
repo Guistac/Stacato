@@ -143,7 +143,7 @@ namespace EtherCatFieldbus {
         sprintf(configurationStatus, "Scanning Network");
 
         //when rescanning the network, all previous slaves are now considered to be offline before being detected again
-        Environnement::setAllEtherCatSlavesOffline();
+        //Environnement::setAllEtherCatSlavesOffline();
         //don't delete regular slaves since they might be in the environnement, just clear the list
         slaves.clear();
 
@@ -172,7 +172,7 @@ namespace EtherCatFieldbus {
                     //also reassign index, since it might have changed
                     matchingSlave->slaveIndex = i;
                     //set slave to online
-                    matchingSlave->setOnline(true);
+                    //matchingSlave->setOnline(true);
                     //delete the slave we just created since its only use was to match the environnement slave and transfer its identity
                     //reassign so we can log the slave and add it to the slave list
                     slave = matchingSlave;
@@ -182,7 +182,7 @@ namespace EtherCatFieldbus {
                     //add it to the available slave list
                     slave->identity = &slv;
                     slave->slaveIndex = i;
-                    slave->setOnline(true);
+                    //slave->setOnline(true);
                     char name[128];
                     sprintf(name, "#%i '%s' @%i", slave->getSlaveIndex(), slave->getNodeName(), slave->getStationAlias());
                     slave->setName(name);
@@ -350,7 +350,7 @@ namespace EtherCatFieldbus {
                 for (auto slave : slaves) slave->readInputs();
                 /*
                 //process the data to generate output values, taking into account if new data wasn't received
-                for (auto slave : slaves) slave->process(workingCounter == expectedWorkingCounter);
+                //(auto slave : slaves) slave->process(workingCounter == expectedWorkingCounter);
                 */
 
                 Environnement::nodeGraph.evaluate(DeviceType::ETHERCATSLAVE);

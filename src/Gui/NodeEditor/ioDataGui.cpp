@@ -95,7 +95,7 @@ void ioData::pinGui() {
             glm::vec2 min = ImGui::GetItemRectMin();
             min.x -= iconSize * 0.15; //shift the visual position of the icon
             glm::vec2 max = min + glm::vec2(iconSize);
-            DrawIcon(ImGui::GetWindowDrawList(), min, max, icon, isConnected(), ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
+            DrawPinIcon(ImGui::GetWindowDrawList(), min, max, icon, isConnected(), ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
         }
         ImGui::SameLine();
         ImGui::Text(getName());
@@ -126,7 +126,7 @@ void ioData::pinGui() {
             glm::vec2 min = ImGui::GetItemRectMin();
             min.x -= iconSize * 0.15; //shift the visual position of the icon
             glm::vec2 max = min + glm::vec2(iconSize);
-            DrawIcon(ImGui::GetWindowDrawList(), min, max, icon, isConnected(), ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
+            DrawPinIcon(ImGui::GetWindowDrawList(), min, max, icon, isConnected(), ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
             NodeEditor::EndPin();
         }
     }

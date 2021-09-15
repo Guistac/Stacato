@@ -69,7 +69,7 @@ public:
         std::string str = fmt::format(format, std::forward<Args>(args)...);
         messages.push_back(LogMessage(str, 3));
         levelMessageCount[3]++;
-        return true;
+        return false;
     }
 
     template<typename... Args>
@@ -78,7 +78,7 @@ public:
         std::string str = fmt::format(format, std::forward<Args>(args)...);
         messages.push_back(LogMessage(str, 4));
         levelMessageCount[4]++;
-        return true;
+        return false;
     }
 
     template<typename... Args>
@@ -87,7 +87,7 @@ public:
         std::string str = fmt::format(format, std::forward<Args>(args)...);
         messages.push_back(LogMessage(str, 5));
         levelMessageCount[5]++;
-        return true;
+        return false;
     }
 };
 
