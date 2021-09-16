@@ -83,7 +83,11 @@ private:
     uint16_t _LastError = 0;
     uint16_t _IO_act = 0;
 
-    //public output data
+    std::shared_ptr<ActuatorDevice> motorDevice = std::make_shared<ActuatorDevice>("Motor");
+    std::shared_ptr<FeedbackDevice> encoderDevice = std::make_shared<FeedbackDevice>("Encoder");
+    std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
+
+    //node input data
     std::shared_ptr<ioData> positionCommand =   std::make_shared<ioData>(DataType::REAL_VALUE,    DataDirection::NODE_INPUT, "Position");
     std::shared_ptr<ioData> velocityCommand =   std::make_shared<ioData>(DataType::REAL_VALUE,    DataDirection::NODE_INPUT, "Velocity");
     std::shared_ptr<ioData> torqueCommand =     std::make_shared<ioData>(DataType::REAL_VALUE,    DataDirection::NODE_INPUT, "Torque");
@@ -91,8 +95,10 @@ private:
     std::shared_ptr<ioData> digitalOut1 =       std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ1");
     std::shared_ptr<ioData> digitalOut2 =       std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ2");
 
-    //public input data
-    std::shared_ptr<ioData> deviceLink =        std::make_shared<ioData>(DataType::DEVICE_LINK, DataDirection::NODE_OUTPUT, "Device Link", ioDataFlags_NoDataField | ioDataFlags_AcceptMultipleInputs);
+    //node output data
+    std::shared_ptr<ioData> motorLink =         std::make_shared<ioData>(DataType::ACTUATOR_DEVICELINK, DataDirection::NODE_OUTPUT, "Motor");
+    std::shared_ptr<ioData> encoderLink =       std::make_shared<ioData>(DataType::FEEDBACK_DEVICELINK, DataDirection::NODE_OUTPUT, "Encoder");
+    std::shared_ptr<ioData> gpioLink =            std::make_shared<ioData>(DataType::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
     std::shared_ptr<ioData> actualPosition =    std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position", ioDataFlags_DisableDataField);
     std::shared_ptr<ioData> actualVelocity =    std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity", ioDataFlags_DisableDataField);
     std::shared_ptr<ioData> actualTorque =      std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Torque", ioDataFlags_DisableDataField);

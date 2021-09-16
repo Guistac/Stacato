@@ -4,95 +4,7 @@
 
 #include "NodeGraph/DeviceNode.h"
 
-std::vector<AxisType> axisTypes = {
-	{UnitType::ANGULAR, "Rotating Axis", "Rotating"},
-	{UnitType::LINEAR, "Linear Axis", "Linear"}
-};
-std::vector<AxisType>& getAxisTypes() { return axisTypes; }
-AxisType& getAxisType(UnitType t) {
-	for (AxisType& axis : axisTypes) {
-		if (axis.unitType == t) return axis;
-	}
-	return axisTypes.back();
-}
-
-
-std::vector<PositionUnit> linearPositionUnits = {
-	{PositionUnit::Unit::METER, UnitType::LINEAR,		"Meter",		"Meters",		"Meter"},
-	{PositionUnit::Unit::MILLIMETER, UnitType::LINEAR,	"Millimeter",	"Millimeters",	"Millimeter"}
-};
-std::vector<PositionUnit> angularPositionUnits = {
-	{PositionUnit::Unit::DEGREE, UnitType::ANGULAR,		"Degree",		"Degrees",		"Degree"},
-	{PositionUnit::Unit::RADIAN, UnitType::ANGULAR,		"Radian",		"Radians",		"Radian"},
-	{PositionUnit::Unit::ROTATION, UnitType::ANGULAR,	"Rotation",		"Rotations",	"Rotation"}
-};
-std::vector<PositionUnit>& getLinearPositionUnits() { return linearPositionUnits; }
-std::vector<PositionUnit>& getAngularPositionUnits() { return angularPositionUnits; }
-PositionUnit& getPositionUnitType(PositionUnit::Unit u) {
-	for (PositionUnit& unit : linearPositionUnits) {
-		if (unit.unit == u) return unit;
-	}
-	for (PositionUnit& unit : angularPositionUnits) {
-		if (unit.unit == u) return unit;
-	}
-	return linearPositionUnits.back();
-}
-
-
-std::vector<PositionFeedback> positionFeedbackTypes = {
-	{PositionFeedback::Type::ABSOLUTE_FEEDBACK, "Absolute Feedback", "Absolute"},
-	{PositionFeedback::Type::INCREMENTAL_FEEDBACK, "Incremental Feedback", "Incremental"},
-	{PositionFeedback::Type::NO_FEEDBACK, "No Feedback", "None"}
-};
-std::vector<PositionFeedback>& getPositionFeedbackTypes() { return positionFeedbackTypes; }
-PositionFeedback& getPositionFeedbackType(PositionFeedback::Type t) {
-	for (PositionFeedback& feedback : positionFeedbackTypes) {
-		if (feedback.type == t) return feedback;
-	}
-	return positionFeedbackTypes.back();
-}
-
-
-std::vector<PositionReference> positionReferenceTypes = {
-	{PositionReference::Type::LOW_LIMIT, "Low Limit", "Low"},
-	{PositionReference::Type::HIGH_LIMIT, "High Limit", "High"},
-	{PositionReference::Type::LOW_AND_HIGH_LIMIT, "Low and High Limit", "LowHigh"},
-	{PositionReference::Type::POSITION_REFERENCE, "Position Reference", "Reference"},
-	{PositionReference::Type::NO_LIMIT, "No Limit", "None"}
-};
-std::vector<PositionReference>& getPositionReferenceTypes() { return positionReferenceTypes; }
-PositionReference& getPositionReferenceType(PositionReference::Type t) {
-	for (PositionReference& reference : positionReferenceTypes) {
-		if (reference.type == t) return reference;
-	}
-	return positionReferenceTypes.back();
-}
-
-std::vector<CommandType> commandTypes = {
-	{CommandType::Type::POSITION_COMMAND, "Position Command", "Position"},
-	{CommandType::Type::VELOCITY_COMMAND, "Velocity Command", "Velocity"}
-};
-std::vector<CommandType>& getCommandTypes() { return commandTypes; }
-CommandType& getCommandType(CommandType::Type t) {
-	for (CommandType& command : commandTypes) {
-		if (command.type == t) return command;
-	}
-	return commandTypes.back();
-}
-
-
-std::vector<HomingDirection> homingDirectionTypes = {
-	{HomingDirection::Type::NEGATIVE, "Negative", "Negative"},
-	{HomingDirection::Type::POSITIVE, "Positive", "Positive"},
-	{HomingDirection::Type::DONT_CARE, "Don't Care", "DontCare"}
-};
-std::vector<HomingDirection>& getHomingDirectionTypes() { return homingDirectionTypes; }
-HomingDirection& getHomingDirectionType(HomingDirection::Type t) {
-	for (HomingDirection& direction : homingDirectionTypes) {
-		if (direction.type == t) return direction;
-	}
-	return homingDirectionTypes.back();
-}
+#include "Motion/MotionTypes.h"
 
 
 
@@ -129,30 +41,57 @@ void Axis::process() {
 	lastUpdateTime_seconds = updateTime_seconds;
 }
 
+
+
+
 void Axis::enable() {
-	if (deviceLink->isConnected()) {
-		bool allConnectedDeviceAreEnabled = true;
-		for (auto link : deviceLink->getLinks()) {
-			std::shared_ptr<ioNode> inputNode = link->getInputData()->getNode();
-			if (inputNode->getType() == NodeType::IODEVICE) {
-				std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(inputNode);
-				if (!device->isEnabled()) {
-					allConnectedDeviceAreEnabled = false;
-					Logger::warn("Cannot Enable axis, DeviceNode {} is not enabled", device->getName());
-				}
+	Logger::info("Enabling axis {}", getName());
+	bool canAxisBeEnabled = true;
+	if (actuatorDeviceLinks->isConnected()) {
+		for (auto link : actuatorDeviceLinks->getLinks()) {
+			std::shared_ptr<ActuatorDevice> actuatorDevice = link->getInputData()->getActuatorDevice();
+			if (!actuatorDevice->isEnabled()) {
+				canAxisBeEnabled = false;
+				Logger::warn("Actuator subdevice '{}' of device '{}' is not enabled", actuatorDevice->getName(), actuatorDevice->parentDevice->getName());
 			}
-			else {
-				Logger::warn("Node {} Connected to axis Device Link is not a DeviceNode", inputNode->getName());
-				return;
-			}
-		}
-		if (allConnectedDeviceAreEnabled) {
-			b_enabled = true;
-			onEnable();
 		}
 	}
 	else {
-		Logger::warn("Cannot enable axis,No Node is Connected to axis Device Link");
+		canAxisBeEnabled = false;
+		Logger::warn("No Actuators are connected to axis '{}'", getName());
+	}
+	if (positionFeedbackType != PositionFeedback::Type::NO_FEEDBACK) {
+		if (feedbackDeviceLink->isConnected()) {
+			std::shared_ptr<FeedbackDevice> feedbackDevice = feedbackDeviceLink->getLinks().front()->getInputData()->getFeedbackDevice();
+			if (!feedbackDevice->isReady()) {
+				canAxisBeEnabled = false;
+				Logger::warn("Position feedback subdevice '{}' of device '{}' is not ready", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
+			}
+		}
+		else {
+			canAxisBeEnabled = false;
+			Logger::warn("No Position Feedback device is connected to axis '{}'", getName());
+		}
+	}
+	if (positionReferenceType != PositionReference::Type::NO_LIMIT) {
+		if (referenceDeviceLinks->isConnected()) {
+			for (auto link : referenceDeviceLinks->getLinks()) {
+				std::shared_ptr<GpioDevice> gpioDevice = link->getInputData()->getGpioDevice();
+				if (!gpioDevice->isReady()) {
+					canAxisBeEnabled = false;
+					Logger::warn("Position reference subdevice '{}' of device '{}' is not ready", gpioDevice->getName(), gpioDevice->parentDevice->getName());
+				}
+			}
+		}
+		else {
+			canAxisBeEnabled = false;
+			Logger::warn("No Position reference device is connected to axis '{}'", getName());
+		}
+	}
+	if (!canAxisBeEnabled) Logger::warn("Axis '{}' cannot be enabled", getName());
+	else {
+		onEnable();
+		Logger::info("Axis '{}' was enabled", getName());
 	}
 }
 
@@ -160,12 +99,11 @@ void Axis::onEnable() {
 	profilePosition_degrees = positionFeedback->getLinks().front()->getInputData()->getReal();
 	profileVelocity_degreesPerSecond = 0.0;
 	profileAcceleration_degreesPerSecond = 0.0;
-	Logger::warn("Axis {} enabled", getName());
 }
 
 void Axis::disable() {
 	b_enabled = false;
-	Logger::warn("Axis {} disabled", getName());
+	Logger::info("Axis {} disabled", getName());
 }
 
 bool Axis::isEnabled() {
@@ -173,52 +111,43 @@ bool Axis::isEnabled() {
 }
 
 
-bool Axis::areAllActuatorsEnabled() {
-	if (deviceLink->isConnected()) {
-		for (auto link : deviceLink->getLinks()) {
-			std::shared_ptr<ioNode> inputNode = link->getInputData()->getNode();
-			if (inputNode->getType() == NodeType::IODEVICE) {
-				std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(inputNode);
-				if (!device->isEnabled()) return false;
-			}
-			else {
-				Logger::warn("Node {} Connected to axis Device Link is not a DeviceNode", inputNode->getName());
-				return false;
+bool Axis::areAllDevicesReady() {
+	if (actuatorDeviceLinks->isConnected()) {
+		for (auto link : actuatorDeviceLinks->getLinks()) {
+			std::shared_ptr<ActuatorDevice> actuatorDevice = link->getInputData()->getActuatorDevice();
+			if (!actuatorDevice->isEnabled()) return false;
+		}
+	}
+	else return false;
+	if (positionFeedbackType != PositionFeedback::Type::NO_FEEDBACK) {
+		if (feedbackDeviceLink->isConnected()) {
+			std::shared_ptr<FeedbackDevice> feedbackDevice = feedbackDeviceLink->getLinks().front()->getInputData()->getFeedbackDevice();
+			if (!feedbackDevice->isReady()) return false;
+		}
+		else return false;
+	}
+	if (positionReferenceType != PositionReference::Type::NO_LIMIT) {
+		if (referenceDeviceLinks->isConnected()) {
+			for (auto link : referenceDeviceLinks->getLinks()) {
+				std::shared_ptr<GpioDevice> gpioDevice = link->getInputData()->getGpioDevice();
+				if (!gpioDevice->isReady()) return false;
 			}
 		}
-	} else Logger::warn("No Actuators Connected To Axis '{}'", getName());
-	return false;
+		else return false;
+	}
+	return true;
 }
 
 void Axis::enableAllActuators() {
-	if (deviceLink->isConnected()) {
-		for (auto link : deviceLink->getLinks()) {
-			std::shared_ptr<ioNode> inputNode = link->getInputData()->getNode();
-			if (inputNode->getType() == NodeType::IODEVICE) {
-				std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(inputNode);
-				device->enable();
-			}
-			else {
-				Logger::warn("Node {} Connected to axis Device Link is not a DeviceNode", inputNode->getName());
-				return;
-			}
-		}
+	for (auto link : actuatorDeviceLinks->getLinks()) {
+		std::shared_ptr<ActuatorDevice> actuatorDevice = link->getInputData()->getActuatorDevice();
+		actuatorDevice->enable();
 	}
-	else Logger::warn("No Actuators Connected To Axis '{}'", getName());
 }
 
 void Axis::disableAllActuators() {
-	if (deviceLink->isConnected()) {
-		for (auto link : deviceLink->getLinks()) {
-			std::shared_ptr<ioNode> inputNode = link->getInputData()->getNode();
-			if (inputNode->getType() == NodeType::IODEVICE) {
-				std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(inputNode);
-				device->disable();
-			}
-			else {
-				Logger::warn("Node {} Connected to axis Device Link is not a DeviceNode", inputNode->getName());
-				return;
-			}
-		}
-	} else Logger::warn("No Actuators Connected To Axis '{}'", getName());
+	for (auto link : actuatorDeviceLinks->getLinks()) {
+		std::shared_ptr<ActuatorDevice> actuatorDevice = link->getInputData()->getActuatorDevice();
+		actuatorDevice->disable();
+	}
 }

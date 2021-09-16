@@ -10,31 +10,57 @@ bool ioData::isDataTypeCompatible(std::shared_ptr<ioData> otherData) {
 	switch (type) {
 		case BOOLEAN_VALUE:
 			switch (otherData->getType()) {
-				case BOOLEAN_VALUE: return true;
-				case INTEGER_VALUE: return true;
+				case BOOLEAN_VALUE:
+				case INTEGER_VALUE:
 				case REAL_VALUE: return true;
-				case DEVICE_LINK: return false;
+				case ACTUATOR_DEVICELINK:
+				case FEEDBACK_DEVICELINK:
+				case GPIO_DEVICELINK: return false;
 			}
 		case INTEGER_VALUE:
 			switch (otherData->getType()) {
-				case BOOLEAN_VALUE: return true;
-				case INTEGER_VALUE: return true;
+				case BOOLEAN_VALUE:
+				case INTEGER_VALUE:
 				case REAL_VALUE: return true;
-				case DEVICE_LINK: return false;
+				case ACTUATOR_DEVICELINK:
+				case FEEDBACK_DEVICELINK:
+				case GPIO_DEVICELINK: return false;
 			}
 		case REAL_VALUE:
 			switch (otherData->getType()) {
-				case BOOLEAN_VALUE: return true;
-				case INTEGER_VALUE: return true;
+				case BOOLEAN_VALUE:
+				case INTEGER_VALUE:
 				case REAL_VALUE: return true;
-				case DEVICE_LINK: return false;
+				case ACTUATOR_DEVICELINK:
+				case FEEDBACK_DEVICELINK:
+				case GPIO_DEVICELINK: return false;
 			}
-		case DEVICE_LINK:
+		case ACTUATOR_DEVICELINK:
 			switch (otherData->getType()) {
-				case BOOLEAN_VALUE: return false;
-				case INTEGER_VALUE: return false;
+				case BOOLEAN_VALUE:
+				case INTEGER_VALUE:
 				case REAL_VALUE: return false;
-				case DEVICE_LINK: return true;
+				case ACTUATOR_DEVICELINK: return true;
+				case FEEDBACK_DEVICELINK:
+				case GPIO_DEVICELINK: return false;
+			}
+		case FEEDBACK_DEVICELINK:
+			switch (otherData->getType()) {
+				case BOOLEAN_VALUE:
+				case INTEGER_VALUE:
+				case REAL_VALUE: 
+				case ACTUATOR_DEVICELINK: return false;
+				case FEEDBACK_DEVICELINK: return true;
+				case GPIO_DEVICELINK: return false;
+			}
+		case GPIO_DEVICELINK:
+			switch (otherData->getType()) {
+				case BOOLEAN_VALUE:
+				case INTEGER_VALUE:
+				case REAL_VALUE:
+				case ACTUATOR_DEVICELINK:
+				case FEEDBACK_DEVICELINK: return false;
+				case GPIO_DEVICELINK: return true;
 			}
 	}
 }
@@ -42,55 +68,82 @@ bool ioData::isDataTypeCompatible(std::shared_ptr<ioData> otherData) {
 //setting data (with data conversions)
 void ioData::set(bool boolean) {
 	switch (type) {
-	case BOOLEAN_VALUE: booleanValue = boolean; break;
-	case INTEGER_VALUE: integerValue = boolean; break;
-	case REAL_VALUE: realValue = boolean; break;
-	case DEVICE_LINK: break;
+		case BOOLEAN_VALUE: booleanValue = boolean; break;
+		case INTEGER_VALUE: integerValue = boolean; break;
+		case REAL_VALUE: realValue = boolean; break;
+		default: break;
 	}
 }
 
 void ioData::set(long long int integer) {
 	switch (type) {
-	case INTEGER_VALUE: integerValue = integer; break;
-	case BOOLEAN_VALUE: booleanValue = integer > 0; break;
-	case REAL_VALUE: realValue = integer; break;
-	case DEVICE_LINK: break;
+		case INTEGER_VALUE: integerValue = integer; break;
+		case BOOLEAN_VALUE: booleanValue = integer > 0; break;
+		case REAL_VALUE: realValue = integer; break;
+		default: break;
 	}
 }
 
 void ioData::set(double real) {
 	switch (type) {
-	case REAL_VALUE: realValue = real; break;
-	case BOOLEAN_VALUE: booleanValue = real > 0.0; break;
-	case INTEGER_VALUE: integerValue = real; break;
-	case DEVICE_LINK: break;
+		case REAL_VALUE: realValue = real; break;
+		case BOOLEAN_VALUE: booleanValue = real > 0.0; break;
+		case INTEGER_VALUE: integerValue = real; break;
+		default: break;
 	}
+}
+
+void ioData::set(std::shared_ptr<ActuatorDevice> device) {
+	if (isActuatorDeviceLink()) actuatorDevice = device;
+}
+
+void ioData::set(std::shared_ptr<FeedbackDevice> device) {
+	if (isFeedbackDeviceLink()) feedbackDevice = device;
+}
+
+void ioData::set(std::shared_ptr<GpioDevice> device) {
+	if (isGpioDeviceLink()) gpioDevice = device;
 }
 
 //reading data (with data conversions)
 bool ioData::getBoolean() {
 	switch (type) {
-	case BOOLEAN_VALUE: return booleanValue;
-	case INTEGER_VALUE: return integerValue > 0;
-	case REAL_VALUE: return realValue > 0;
-	case DEVICE_LINK: return false;
+		case BOOLEAN_VALUE: return booleanValue;
+		case INTEGER_VALUE: return integerValue > 0;
+		case REAL_VALUE: return realValue > 0;
+		default: return false;
 	}
 }
 long long int ioData::getInteger() {
 	switch (type) {
-	case INTEGER_VALUE: return integerValue;
-	case BOOLEAN_VALUE: return (long long int)booleanValue;
-	case REAL_VALUE: return (long long int)realValue;
-	case DEVICE_LINK: return 0;
+		case INTEGER_VALUE: return integerValue;
+		case BOOLEAN_VALUE: return (long long int)booleanValue;
+		case REAL_VALUE: return (long long int)realValue;
+		default: return 0;
 	}
 }
 double ioData::getReal() {
 	switch (type) {
-	case REAL_VALUE: return realValue;
-	case BOOLEAN_VALUE: return (double)booleanValue;
-	case INTEGER_VALUE: return (double)integerValue;
-	case DEVICE_LINK: return 0.0;
+		case REAL_VALUE: return realValue;
+		case BOOLEAN_VALUE: return (double)booleanValue;
+		case INTEGER_VALUE: return (double)integerValue;
+		default: return 0.0;
 	}
+}
+
+std::shared_ptr<ActuatorDevice> ioData::getActuatorDevice() {
+	if (isActuatorDeviceLink()) return actuatorDevice;
+	return nullptr;
+}
+
+std::shared_ptr<FeedbackDevice> ioData::getFeedbackDevice() {
+	if (isFeedbackDeviceLink()) return feedbackDevice;
+	return nullptr;
+}
+
+std::shared_ptr<GpioDevice> ioData::getGpioDevice() {
+	if (isGpioDeviceLink()) return gpioDevice;
+	return nullptr;
 }
 
 const char* ioData::getValueString() {
@@ -99,7 +152,9 @@ const char* ioData::getValueString() {
 	case BOOLEAN_VALUE: strcpy(output, booleanValue ? "True" : "False"); break;
 	case INTEGER_VALUE: sprintf(output, "%i", integerValue); break;
 	case REAL_VALUE: sprintf(output, "%.5f", realValue); break;
-	case DEVICE_LINK: sprintf(output, isConnected() ? (hasMultipleLinks() ? "Multiple Links" : isInput() ? getLinks().front()->getInputData()->getNode()->getName() : getLinks().front()->getOutputData()->getNode()->getName()) : "No Connection");
+	case ACTUATOR_DEVICELINK: getName(); break;
+	case FEEDBACK_DEVICELINK: getName(); break;
+	case GPIO_DEVICELINK: getName(); break;
 	}
 	return (const char*)output;
 }
@@ -134,6 +189,7 @@ bool ioData::save(tinyxml2::XMLElement* xml) {
 }
 
 bool ioData::load(tinyxml2::XMLElement* xml) {
+	//TODO: differentiate between pins that were added by default and pins that were added after node creation
 	using namespace tinyxml2;
 	int pinUniqueID;
 	if (xml->QueryIntAttribute("UniqueID", &pinUniqueID) != XML_SUCCESS) return Logger::warn("Could not load Pin ID");

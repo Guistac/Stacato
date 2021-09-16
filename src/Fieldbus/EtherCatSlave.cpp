@@ -44,6 +44,9 @@ bool EtherCatSlave::getPDOMapping(EtherCatPDO& pdo, uint16_t pdoIndex, const cha
 }
 */
 
+bool EtherCatSlave::isDetected() {
+    if (identity == nullptr) return false;
+}
 
 bool EtherCatSlave::isOnline() {
     if (identity == nullptr) return false;

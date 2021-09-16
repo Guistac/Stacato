@@ -19,7 +19,6 @@ void LedsAndButtons::assignIoData() {
 	addIoData(led3);
 	addIoData(led4);
 
-	addIoData(deviceLink);
 	addIoData(button0);
 	addIoData(button1);
 	addIoData(button2);

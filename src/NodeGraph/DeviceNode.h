@@ -24,7 +24,7 @@ enum DeviceType {
 	USBDEVICE
 };
 
-class DeviceNode : public ioNode {
+class DeviceNode : public ioNode, public std::enable_shared_from_this<DeviceNode> {
 public:
 
 	virtual DeviceType getDeviceType() = 0;
@@ -38,6 +38,7 @@ public:
 		}
 	}
 
+	virtual bool isDetected() = 0;
 	virtual bool isOnline() = 0;
 	virtual bool isReady() = 0;
 	virtual bool isEnabled() = 0;

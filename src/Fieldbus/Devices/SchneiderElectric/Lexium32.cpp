@@ -32,7 +32,6 @@ void Lexium32::enable() {
 }
 
 void Lexium32::disable() {
-    //b_disableOperation = true;
     b_shutdown = true;
 }
 
@@ -44,16 +43,26 @@ bool Lexium32::isEnabled() {
 }
 
 void Lexium32::assignIoData() {
+    motorDevice->setParentDevice(shared_from_this());
+    motorLink->set(motorDevice);
+    encoderDevice->setParentDevice(shared_from_this());
+    encoderLink->set(encoderDevice);
+    gpioDevice->setParentDevice(shared_from_this());
+    gpioLink->set(gpioDevice);
 
+    //node input data
     addIoData(positionCommand);
     addIoData(digitalOut0);
     addIoData(digitalOut1);
     addIoData(digitalOut2);
     
-    addIoData(deviceLink);
+    //node output data
+    addIoData(motorLink);
+    addIoData(actualTorque);
+    addIoData(encoderLink);
     addIoData(actualPosition);
     addIoData(actualVelocity);
-    addIoData(actualTorque);
+    addIoData(gpioLink);
     addIoData(digitalIn0);
     addIoData(digitalIn1);
     addIoData(digitalIn2);

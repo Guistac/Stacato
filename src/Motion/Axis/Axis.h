@@ -1,78 +1,8 @@
 #pragma once
 
 #include "NodeGraph/ioNode.h"
-
-enum class UnitType {
-	LINEAR,
-	ANGULAR
-};
-
-struct AxisType {
-	UnitType unitType;
-	const char displayName[64];
-	const char displayNamePlural[64];
-	const char saveName[64];
-};
-
-struct PositionUnit {
-	enum class Unit {
-		DEGREE,
-		RADIAN,
-		ROTATION,
-		METER,
-		MILLIMETER
-	};
-	Unit unit;
-	UnitType type;
-	const char displayName[64];
-	const char displayNamePlural[64];
-	const char saveName[64];
-};
-
-struct PositionReference {
-	enum class Type{
-		LOW_LIMIT,
-		HIGH_LIMIT,
-		LOW_AND_HIGH_LIMIT,
-		POSITION_REFERENCE,
-		NO_LIMIT
-	};
-	Type type;
-	const char displayName[64];
-	const char saveName[64];
-};
-
-struct PositionFeedback {
-	enum class Type {
-		ABSOLUTE_FEEDBACK,
-		INCREMENTAL_FEEDBACK,
-		NO_FEEDBACK
-	};
-	Type type;
-	const char displayName[64];
-	const char saveName[64];
-};
-
-struct CommandType {
-	enum class Type {
-		POSITION_COMMAND,
-		VELOCITY_COMMAND
-	};
-	Type type;
-	const char displayName[64];
-	const char saveName[64];
-};
-
-struct HomingDirection {
-	enum class Type {
-		NEGATIVE,
-		POSITIVE,
-		DONT_CARE
-	};
-	Type type;
-	const char displayName[64];
-	const char saveName[64];
-};
+#include "Motion/Subdevice.h"
+#include "Motion/MotionTypes.h"
 
 enum ControlMode {
 	VELOCITY_CONTROL,
@@ -81,35 +11,17 @@ enum ControlMode {
 	HOMING
 };
 
-std::vector<AxisType>& getAxisTypes();
-AxisType& getAxisType(UnitType t);
-
-std::vector<PositionUnit>& getLinearPositionUnits();
-std::vector<PositionUnit>& getAngularPositionUnits();
-PositionUnit& getPositionUnitType(PositionUnit::Unit u);
-
-PositionFeedback& getPositionFeedbackType(PositionFeedback::Type t);
-std::vector<PositionFeedback>& getPositionFeedbackTypes();
-
-std::vector<CommandType>& getCommandTypes();
-CommandType& getCommandType(CommandType::Type t);
-
-PositionReference& getPositionReferenceType(PositionReference::Type t);
-std::vector<PositionReference>& getPositionReferenceTypes();
-
-HomingDirection& getHomingDirectionType(HomingDirection::Type t);
-std::vector<HomingDirection>& getHomingDirectionTypes();
-
 class Axis : public ioNode {
 public:
 
 	DEFINE_AXIS_NODE("Axis", Axis);
 
-	std::shared_ptr<ioData> deviceLink = std::make_shared<ioData>(DataType::DEVICE_LINK, DataDirection::NODE_INPUT, "Actuators", ioDataFlags_AcceptMultipleInputs | ioDataFlags_NoDataField);
+	std::shared_ptr<ioData> actuatorDeviceLinks = std::make_shared<ioData>(DataType::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuators", ioDataFlags_AcceptMultipleInputs);
+	std::shared_ptr<ioData> feedbackDeviceLink = std::make_shared<ioData>(DataType::FEEDBACK_DEVICELINK, DataDirection::NODE_INPUT, "Encoder");
+	std::shared_ptr<ioData> referenceDeviceLinks = std::make_shared<ioData>(DataType::GPIO_DEVICELINK, DataDirection::NODE_INPUT, "Reference Devices", ioDataFlags_AcceptMultipleInputs);
+
 	std::shared_ptr<ioData> positionFeedback = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "Actual Position");
-	std::shared_ptr<ioData> positionLimits = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Limits", ioDataFlags_AcceptMultipleInputs);
-	std::shared_ptr<ioData> maxMotorVelocity = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "Max Motor Velocity", ioDataFlags_AcceptMultipleInputs);
-	std::shared_ptr<ioData> maxMotorAcceleration = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "Max Motor Acceleration", ioDataFlags_AcceptMultipleInputs);
+	std::shared_ptr<ioData> positionLimits = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "References", ioDataFlags_AcceptMultipleInputs);
 	std::shared_ptr<ioData> motorLoad = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "Motor Load", ioDataFlags_AcceptMultipleInputs);
 
 	std::shared_ptr<ioData> positionCommand = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position", ioDataFlags_DisableDataField);
@@ -166,17 +78,21 @@ public:
 	void cancelHoming();
 	bool isHoming();
 
-	bool areAllActuatorsEnabled();
+	bool areAllDevicesReady();
 	void enableAllActuators();
 	void disableAllActuators();
 
+	void controlsGui();
+	void settingsGui();
+	void devicesGui();
+
 	virtual void assignIoData() {
-		addIoData(deviceLink);
-		addIoData(positionFeedback);
-		addIoData(positionLimits);
-		addIoData(maxMotorVelocity);
-		addIoData(maxMotorAcceleration);
+		addIoData(actuatorDeviceLinks);
 		addIoData(motorLoad);
+		addIoData(feedbackDeviceLink);
+		addIoData(positionFeedback);
+		addIoData(referenceDeviceLinks);
+		addIoData(positionLimits);
 
 		addIoData(positionCommand);
 		addIoData(positionError);
@@ -223,7 +139,7 @@ public:
 
 	DEFINE_AXIS_NODE("State Machine Axis", StateMachineAxis);
 
-	std::shared_ptr<ioData> deviceLink = std::make_shared<ioData>(DataType::DEVICE_LINK, DataDirection::NODE_INPUT, "Actuators", ioDataFlags_AcceptMultipleInputs | ioDataFlags_NoDataField);
+	std::shared_ptr<ioData> deviceLink = std::make_shared<ioData>(DataType::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuators", ioDataFlags_AcceptMultipleInputs);
 	std::shared_ptr<ioData> state0ref = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "State 0 Feedback");
 	std::shared_ptr<ioData> state1ref = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "State 1 Feedback");
 	std::shared_ptr<ioData> state2ref = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "State 2 Feedback");

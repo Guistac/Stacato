@@ -11,6 +11,25 @@
 
 void Axis::nodeSpecificGui() {
 	if (ImGui::BeginTabItem("Controls")) {
+		controlsGui();
+		ImGui::EndTabItem();
+	}
+	if (ImGui::BeginTabItem("Settings")) {
+		settingsGui();
+		ImGui::EndTabItem();
+	}
+	if (ImGui::BeginTabItem("Devices")) {
+		devicesGui();
+		ImGui::EndTabItem();
+	}
+}
+
+
+
+
+void Axis::controlsGui() {
+
+	if (ImGui::BeginChild("ControlsGui")) {
 
 		//====================== AXIS MANUAL CONTROLS ==============================
 
@@ -33,7 +52,7 @@ void Axis::nodeSpecificGui() {
 		ImGui::PopItemFlag();
 
 
-		if (areAllActuatorsEnabled()) {
+		if (areAllDevicesReady()) {
 			ImGui::PushStyleColor(ImGuiCol_Button, greenColor);
 			if (ImGui::Button("Disable Actuator", buttonSize)) disableAllActuators();
 			ImGui::PopStyleColor();
@@ -48,7 +67,7 @@ void Axis::nodeSpecificGui() {
 
 		if (isEnabled()) {
 			ImGui::PushStyleColor(ImGuiCol_Button, greenColor);
-			if(ImGui::Button("Disable Axis", buttonSize)) disable();
+			if (ImGui::Button("Disable Axis", buttonSize)) disable();
 			ImGui::PopStyleColor();
 		}
 		else {
@@ -127,9 +146,20 @@ void Axis::nodeSpecificGui() {
 		}
 
 
-		ImGui::EndTabItem();
+		ImGui::EndChild();
 	}
-	if (ImGui::BeginTabItem("Settings")) {
+}
+
+
+
+
+
+
+
+
+void Axis::settingsGui() {
+
+	if (ImGui::BeginChild("SettingsGui")) {
 
 		//=================== AXIS SETTINGS ====================
 
@@ -199,7 +229,8 @@ void Axis::nodeSpecificGui() {
 			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
 			ImGui::TextWrapped("Axes with incremental position feedback are not yet supported. With incremental position feedback, we would be forced to perform a homing routine on each system power cycle");
 			ImGui::PopStyleColor();
-		}else{
+		}
+		else {
 
 			ImGui::Text("Feedback Position Unit");
 			if (ImGui::BeginCombo("##FeedbackUnit", getPositionUnitType(feedbackPositionUnit).displayNamePlural)) {
@@ -340,11 +371,25 @@ void Axis::nodeSpecificGui() {
 			ImGui::TextWrapped("No Limit Signal. Setting of the origin has to be done by manually moving the axis to the desired position reference and resetting the position feedback. (Not recommended for position feedback types other than absolute)");
 		}
 
-		ImGui::EndTabItem();
+		ImGui::EndChild();
 	}
-	if (ImGui::BeginTabItem("Devices")) {
+}
 
-		//======================== CONNECTES DEVICES ==========================
+
+
+
+
+
+
+
+
+
+
+void Axis::devicesGui() {
+
+	if (ImGui::BeginChild("DevicesGui")) {
+
+		//======================== CONNECTED DEVICES ==========================
 
 		glm::vec2 buttonSize(ImGui::GetTextLineHeight() * 6, ImGui::GetTextLineHeight() * 1.5);
 
@@ -352,11 +397,80 @@ void Axis::nodeSpecificGui() {
 		ImGui::Text("Position Feedback: ");
 		ImGui::PopFont();
 
+		for (auto link : feedbackDeviceLink->getLinks()) {
+
+			std::shared_ptr<FeedbackDevice> feedbackDevice = link->getInputData()->getFeedbackDevice();
+
+			ImGui::PushID(feedbackDevice->getName());
+
+			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::Text("'%s' on device %s", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
+			ImGui::PopFont();
+
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+
+			ImGui::PushStyleColor(ImGuiCol_Button, feedbackDevice->isOnline() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
+			ImGui::Button(feedbackDevice->isOnline() ? "Online" : "Offline", buttonSize);
+			ImGui::PopStyleColor();
+
+			ImGui::SameLine();
+
+			ImGui::PushStyleColor(ImGuiCol_Button, feedbackDevice->isReady() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
+			ImGui::Button(feedbackDevice->isReady() ? "Ready" : "Not Ready", buttonSize);
+			ImGui::PopStyleColor();
+
+			ImGui::PopItemFlag();
+
+			if (feedbackDevice->hasError()) {
+				if (ImGui::Button("Clear Error", buttonSize)) feedbackDevice->clearError();
+				ImGui::SameLine();
+				ImGui::TextWrapped(feedbackDevice->getErrorString());
+			}
+
+			ImGui::PopID();
+
+		}
+
 		ImGui::Separator();
 
 		ImGui::PushFont(Fonts::robotoBold20);
 		ImGui::Text("Position Reference: ");
 		ImGui::PopFont();
+
+		for (auto link : referenceDeviceLinks->getLinks()) {
+
+			std::shared_ptr<GpioDevice> gpioDevice = link->getInputData()->getGpioDevice();
+
+			ImGui::PushID(gpioDevice->getName());
+
+			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::Text("'%s' on device %s", gpioDevice->getName(), gpioDevice->parentDevice->getName());
+			ImGui::PopFont();
+
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+
+			ImGui::PushStyleColor(ImGuiCol_Button, gpioDevice->isOnline() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
+			ImGui::Button(gpioDevice->isOnline() ? "Online" : "Offline", buttonSize);
+			ImGui::PopStyleColor();
+
+			ImGui::SameLine();
+
+			ImGui::PushStyleColor(ImGuiCol_Button, gpioDevice->isReady() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
+			ImGui::Button(gpioDevice->isReady() ? "Ready" : "Not Ready", buttonSize);
+			ImGui::PopStyleColor();
+
+
+			ImGui::PopItemFlag();
+
+			if (gpioDevice->hasError()) {
+				if (ImGui::Button("Clear Error", buttonSize)) gpioDevice->clearError();
+				ImGui::SameLine();
+				ImGui::TextWrapped(gpioDevice->getErrorString());
+			}
+
+			ImGui::PopID();
+
+		}
 
 		ImGui::Separator();
 
@@ -364,54 +478,51 @@ void Axis::nodeSpecificGui() {
 		ImGui::Text("Actuators: ");
 		ImGui::PopFont();
 
-		for (auto link : deviceLink->getLinks()) {
-			auto node = link->getInputData()->getNode();
-			if (node->getType() == IODEVICE) {
-				std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(node);
+		for (auto link : actuatorDeviceLinks->getLinks()) {
 
-				ImGui::PushID(device->getName());
+			std::shared_ptr<ActuatorDevice> actuatorDevice = link->getInputData()->getActuatorDevice();
 
-				ImGui::PushFont(Fonts::robotoBold15);
-				ImGui::Text(device->getName());
-				ImGui::PopFont();
+			ImGui::PushID(actuatorDevice->getName());
 
-				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::Text("'%s' on device %s", actuatorDevice->getName(), actuatorDevice->parentDevice->getName());
+			ImGui::PopFont();
 
-				ImGui::PushStyleColor(ImGuiCol_Button, device->isOnline() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
-				ImGui::Button(device->isOnline() ? "Online" : "Offline", buttonSize);
-				ImGui::PopStyleColor();
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 
+			ImGui::PushStyleColor(ImGuiCol_Button, actuatorDevice->isOnline() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
+			ImGui::Button(actuatorDevice->isOnline() ? "Online" : "Offline", buttonSize);
+			ImGui::PopStyleColor();
+
+			ImGui::SameLine();
+
+			ImGui::PushStyleColor(ImGuiCol_Button, actuatorDevice->isReady() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
+			ImGui::Button(actuatorDevice->isReady() ? "Ready" : "Not Ready", buttonSize);
+			ImGui::PopStyleColor();
+
+			ImGui::SameLine();
+
+			ImGui::PushStyleColor(ImGuiCol_Button, actuatorDevice->isEnabled() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
+			ImGui::Button(actuatorDevice->isEnabled() ? "Enabled" : "Disabled", buttonSize);
+			ImGui::PopStyleColor();
+
+
+			ImGui::PopItemFlag();
+
+			if (actuatorDevice->hasError()) {
+				if (ImGui::Button("Clear Error", buttonSize)) actuatorDevice->clearError();
 				ImGui::SameLine();
-
-				ImGui::PushStyleColor(ImGuiCol_Button, device->isReady() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
-				ImGui::Button(device->isReady() ? "Ready" : "Not Ready", buttonSize);
-				ImGui::PopStyleColor();
-
-				ImGui::SameLine();
-
-				ImGui::PushStyleColor(ImGuiCol_Button, device->isEnabled() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
-				ImGui::Button(device->isEnabled() ? "Enabled" : "Disabled", buttonSize);
-				ImGui::PopStyleColor();
-
-
-				ImGui::PopItemFlag();
-
-				if (device->hasError()) {
-					if (ImGui::Button("Clear Error", buttonSize)) device->clearError();
-					ImGui::SameLine();
-					ImGui::TextWrapped(device->getErrorString());
-				}
-
-
-				if (device->isEnabled()) { if (ImGui::Button("Disable", buttonSize)) device->disable(); }
-				else if (ImGui::Button("Enable", buttonSize)) device->enable();
-
-				ImGui::PopID();
-
-				ImGui::Separator();
+				ImGui::TextWrapped(actuatorDevice->getErrorString());
 			}
+
+
+			if (actuatorDevice->isEnabled()) { if (ImGui::Button("Disable", buttonSize)) actuatorDevice->disable(); }
+			else if (ImGui::Button("Enable", buttonSize)) actuatorDevice->enable();
+
+			ImGui::PopID();
+
 		}
 
-		ImGui::EndTabItem();
+		ImGui::EndChild();
 	}
 }

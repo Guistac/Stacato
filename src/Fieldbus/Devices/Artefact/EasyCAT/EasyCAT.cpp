@@ -17,7 +17,6 @@ void EasyCAT::assignIoData() {
 	addIoData(longOut);
 	addIoData(longLongOut);
 
-	addIoData(deviceLink);
 	addIoData(byteIn);
 	addIoData(shortIn);
 	addIoData(longIn);

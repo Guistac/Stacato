@@ -1,10 +1,16 @@
 #pragma once
 
+class ActuatorDevice;
+class FeedbackDevice;
+class GpioDevice;
+
 enum DataType {
 	BOOLEAN_VALUE,
 	INTEGER_VALUE,
 	REAL_VALUE,
-	DEVICE_LINK,
+	ACTUATOR_DEVICELINK,
+	FEEDBACK_DEVICELINK,
+	GPIO_DEVICELINK,
 	TYPE_COUNT
 };
 
@@ -36,28 +42,16 @@ class ioData {
 public:
 
 	ioData(DataType t, DataDirection d, const char* n, ioDataFlags flags) : type(t), direction(d) {
-		strcpy(name, n);
-		switch (type) {
-			case BOOLEAN_VALUE: booleanValue = false; break;
-			case INTEGER_VALUE: integerValue = 0; break;
-			case REAL_VALUE: realValue = 0.0; break;
-			case DEVICE_LINK: break;
-		}
 		b_acceptsMultipleInputs = flags & ioDataFlags_AcceptMultipleInputs;
 		b_disablePin = flags & ioDataFlags_DisablePin;
 		b_noDataField = flags & ioDataFlags_NoDataField;
 		b_forceDataField = flags & ioDataFlags_ForceDataField;
 		b_disableDataField = flags & ioDataFlags_DisableDataField;
+		setup(t, d, n);
 	}
 
 	ioData(DataType t, DataDirection d, const char* n) : type(t), direction(d) {
-		strcpy(name, n);
-		switch (type) {
-		case BOOLEAN_VALUE: booleanValue = false; break;
-		case INTEGER_VALUE: integerValue = 0; break;
-		case REAL_VALUE: realValue = 0.0; break;
-		case DEVICE_LINK: break;
-		}
+		setup(t, d, n);
 	}
 
 	//data infos
@@ -71,7 +65,9 @@ public:
 			case BOOLEAN_VALUE: return "Boolean";
 			case INTEGER_VALUE:	return "Integer";
 			case REAL_VALUE: return	"Real";
-			case DEVICE_LINK: return "Device Link";
+			case ACTUATOR_DEVICELINK: "Actuator Device";
+			case FEEDBACK_DEVICELINK: "Feedback Device";
+			case GPIO_DEVICELINK: "Reference Device";
 			default: return "unknown";
 		}
 	}
@@ -81,7 +77,9 @@ public:
 			case BOOLEAN_VALUE: set(getBoolean()); break;
 			case INTEGER_VALUE: set(getInteger()); break;
 			case REAL_VALUE: set(getReal()); break;
-			case DEVICE_LINK: break;
+			case ACTUATOR_DEVICELINK: break;
+			case FEEDBACK_DEVICELINK: break;
+			case GPIO_DEVICELINK: break;
 		}
 		type = t;
 	}
@@ -102,17 +100,25 @@ public:
 	bool isBool()				{ return type == BOOLEAN_VALUE; }
 	bool isInteger()			{ return type == INTEGER_VALUE; }
 	bool isDouble()				{ return type == REAL_VALUE; }
-	bool isDeviceLink()			{ return type == DEVICE_LINK; }
+	bool isActuatorDeviceLink()		{ return type == ACTUATOR_DEVICELINK; }
+	bool isFeedbackDeviceLink()		{ return type == FEEDBACK_DEVICELINK; }
+	bool isGpioDeviceLink()	{ return type == GPIO_DEVICELINK; }
 
 	//setting data (with data conversions)
 	void set(bool boolean);
 	void set(long long int integer);
 	void set(double real);
+	void set(std::shared_ptr<ActuatorDevice>);
+	void set(std::shared_ptr<FeedbackDevice>);
+	void set(std::shared_ptr<GpioDevice>);
 
 	//reading data (with data conversions)
 	bool getBoolean();
 	long long int getInteger();
 	double getReal();
+	std::shared_ptr<ActuatorDevice> getActuatorDevice();
+	std::shared_ptr<FeedbackDevice> getFeedbackDevice();
+	std::shared_ptr<GpioDevice> getGpioDevice();
 
 	const char* getValueString();
 
@@ -148,9 +154,27 @@ private:
 	bool b_forceDataField = false;
 	bool b_disableDataField = false;
 
-	union {
-		bool booleanValue;
-		long long int integerValue;
-		double realValue;
-	};
+	
+	//ACTUAL DATA
+	bool booleanValue = false;
+	long long int integerValue = 0;
+	double realValue = 0.0;
+	std::shared_ptr<ActuatorDevice> actuatorDevice = nullptr;
+	std::shared_ptr<FeedbackDevice> feedbackDevice = nullptr;
+	std::shared_ptr<GpioDevice> gpioDevice = nullptr;
+
+	void setup(DataType t, DataDirection d, const char* n) {
+		strcpy(name, n);
+		switch (type) {
+			case BOOLEAN_VALUE: booleanValue = false; break;
+			case INTEGER_VALUE: integerValue = 0; break;
+			case REAL_VALUE: realValue = 0.0; break;
+			case ACTUATOR_DEVICELINK:
+			case FEEDBACK_DEVICELINK:
+			case GPIO_DEVICELINK:
+				b_noDataField = true;
+				b_forceDataField = false;
+				break;
+		}
+	}
 };
