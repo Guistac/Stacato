@@ -102,7 +102,8 @@ void NodeGraph::disconnect(std::shared_ptr<ioLink> removedIoLink) {
 		}
 	}
 
-	evaluate(updatedNode);
+	//TODO: gui should not evaluate node graph ?
+	//evaluate(updatedNode);
 }
 
 std::shared_ptr<ioNode> NodeGraph::getIoNode(int Id) {

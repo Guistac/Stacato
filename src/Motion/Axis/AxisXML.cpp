@@ -73,8 +73,9 @@ bool Axis::load(tinyxml2::XMLElement* xml) {
 	positionReferenceType = refType;
 	maxPositiveDeviationFromReference_degrees = maxPDeviation;
 	maxNegativeDeviationFromReference_degrees = maxNDeviation;
-	homingVelocity_degreesPerSecond = homingVel;
-	homingDirectionType = homingDir;
+	//TOSO: uninitialized value homingVel and homing Dir
+	//homingVelocity_degreesPerSecond = homingVel;
+	//homingDirectionType = homingDir;
 
 	return true;
 }
