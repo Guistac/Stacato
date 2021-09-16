@@ -99,6 +99,7 @@ void Axis::onEnable() {
 	profilePosition_degrees = positionFeedback->getLinks().front()->getInputData()->getReal();
 	profileVelocity_degreesPerSecond = 0.0;
 	profileAcceleration_degreesPerSecond = 0.0;
+	b_enabled = true;
 }
 
 void Axis::disable() {

@@ -355,23 +355,62 @@ void Lexium32::readInputs() {
     digitalIn3->set((_IO_act & 0x8) != 0x0);
     digitalIn4->set((_IO_act & 0x10) != 0x0);
     digitalIn5->set((_IO_act & 0x20) != 0x0);
+
+
+
+    //set subdevice status
+
+    motorDevice->b_ready = (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled);
+    motorDevice->b_enabled = state == State::OperationEnabled;
+
+    encoderDevice->b_ready = (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled);
+    //encoderDevice->b_inRange = TODO: detect out of range encoder values
+
+    gpioDevice->b_ready = (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled);
+
 }
 
 void Lexium32::process() {
-    /*
-    double outputPosition;
-    if(b_inverted) outputPosition = movementStartPosition + (std::cos((double)counter / 1000.0) - 1.0) * 100.0;
-    else outputPosition = movementStartPosition - (std::cos((double)counter / 1000.0) - 1.0) * 100.0;
-    if(counter == 0) Logger::warn("movementstart {}  output {}", movementStartPosition, outputPosition);
-    positionCommand->set(outputPosition);
-    positions.addPoint(glm::vec2(counter, positionCommand->getReal()));
-    counter++;
-    */
+    
+    //TODO: process method seems useless for this kind of device / node
+
 }
 
 
 void Lexium32::prepareOutputs(){
-    //Drive State Commands
+
+    //handle commands from subdevices
+
+    if (motorDevice->b_clearError) {
+        motorDevice->b_clearError = false;
+        b_faultReset = true;
+    }
+    if (motorDevice->b_setEnabled) {
+        motorDevice->b_setEnabled = false;
+        b_enableOperation = true;
+    }
+    if (motorDevice->b_setDisabled) {
+        motorDevice->b_setDisabled = false;
+        b_shutdown = true;
+    }
+
+    if (encoderDevice->b_clearError) {
+        encoderDevice->b_clearError = false;
+        b_faultReset = true;
+    }
+    if (encoderDevice->b_reset) {
+        encoderDevice->b_reset = false;
+        //TODO: reset encoder from here ??
+    }
+
+    if (gpioDevice->b_clearError) {
+        gpioDevice->b_clearError = false;
+        b_faultReset = true;
+    }
+
+
+    //handle state transition commands
+
     if (b_disableVoltage) {
         b_disableVoltage = false;
         b_voltageEnabled = false;
