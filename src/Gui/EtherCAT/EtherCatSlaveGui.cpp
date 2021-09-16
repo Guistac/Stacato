@@ -9,21 +9,91 @@ void EtherCatSlave::nodeSpecificGui() {
 
     deviceSpecificGui();
 
-    if (isSlaveKnown() && ImGui::BeginTabItem("PDO Data")) {
-        pdoDataGui();
+    if (ImGui::BeginTabItem("EtherCAT")) {
+        if (ImGui::BeginChild("EtherCatConfig")) {
+        
+            if (ImGui::BeginTabBar("EtherCatConfigTabBar")) {
+
+                if (ImGui::BeginTabItem("General")) {
+                    generalGui();
+                    ImGui::Separator();
+                    sendReceiveCanOpenGui();
+                    ImGui::EndTabItem();
+                }
+
+
+                if (isSlaveKnown() && ImGui::BeginTabItem("PDO Data")) {
+                    pdoDataGui();
+                    ImGui::EndTabItem();
+                }
+
+                if (isOnline() && ImGui::BeginTabItem("Generic Info")) {
+                    genericInfoGui();
+                    ImGui::EndTabItem();
+                }
+
+                ImGui::EndTabBar();
+            }
+
+
+
+            ImGui::EndChild();
+        }
         ImGui::EndTabItem();
     }
+}
 
-    if (ImGui::BeginTabItem("Config Data")) {
-        configurationDataGui();
-        ImGui::EndTabItem();
+void EtherCatSlave::generalGui() {
+
+    static glm::vec4 blueColor = glm::vec4(0.1, 0.1, 0.4, 1.0);
+    static glm::vec4 redColor = glm::vec4(0.7, 0.1, 0.1, 1.0);
+    static glm::vec4 greenColor = glm::vec4(0.3, 0.7, 0.1, 1.0);
+    static glm::vec4 yellowColor = glm::vec4(0.8, 0.8, 0.0, 1.0);
+    static glm::vec4 grayColor = glm::vec4(0.5, 0.5, 0.5, 1.0);
+
+    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::Text("Device Status");
+    ImGui::PopFont();
+
+    float displayWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
+    glm::vec2 statusDisplaySize(displayWidth, ImGui::GetTextLineHeight() * 2.0);
+    static float maxStatusDisplayWidth = ImGui::GetTextLineHeight() * 10.0;
+    if (statusDisplaySize.x > maxStatusDisplayWidth) statusDisplaySize.x = maxStatusDisplayWidth;
+
+    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushStyleColor(ImGuiCol_Button, isOnline() ? greenColor : (isDetected() ? yellowColor : redColor));
+    ImGui::Button(isOnline() ? "Online" : (isDetected() ? "Detected" : "Offline"), statusDisplaySize);
+    ImGui::PopStyleColor();
+    ImGui::SameLine();
+    if (!isOnline()){
+        ImGui::PushStyleColor(ImGuiCol_Button, blueColor);
+        ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
+        ImGui::Button("No State", statusDisplaySize);
+        ImGui::PopStyleColor(2);
+    }else{
+        if (isStateBootstrap() || isStateInit()) ImGui::PushStyleColor(ImGuiCol_Button, redColor);
+        else if (isStatePreOperational() || isStateSafeOperational()) ImGui::PushStyleColor(ImGuiCol_Button, yellowColor);
+        else ImGui::PushStyleColor(ImGuiCol_Button, greenColor);
+        ImGui::Button(getStateChar(), statusDisplaySize);
+        ImGui::PopStyleColor();
     }
+    ImGui::PopFont();
+    ImGui::PopItemFlag();
 
-    if (isOnline() && ImGui::BeginTabItem("Generic Info")) {
-        genericInfoGui();
-        ImGui::EndTabItem();
-    }
+    ImGui::Separator();
 
+    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::Text("Device Identity");
+    ImGui::PopFont();
+
+    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::Text("Station Alias");
+    ImGui::PopFont();
+    ImGui::InputScalar("##stationAlias", ImGuiDataType_U16, &stationAlias);
+    if (ImGui::IsItemHovered()) ImGui::SetTooltip("This is the manual address of the EtherCAT device."
+                                                  "\nThe station alias needs to match the device for it to be recognized."
+                                                  "\nAddresses range from 0 to 65535.");
 }
 
 void EtherCatSlave::genericInfoGui() {
@@ -208,7 +278,29 @@ void EtherCatSlave::pdoDataGui() {
     displayPDO(txPdoAssignement, "TX-PDO");
 }
 
-void EtherCatSlave::configurationDataGui() {
+
+
+
+
+
+
+
+void EtherCatSlave::sendReceiveCanOpenGui() {
+
+    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::Text("Manual CoE data exchange");
+    ImGui::PopFont();
+
+    bool allowCoeSendReceive = false;
+    if (isDetected() && isCoeSupported()) allowCoeSendReceive = true;
+
+    if (!isDetected()) ImGui::TextWrapped("Sending and Receving CanOpen Data is disabled while the device is not detected");
+    else if (!isCoeSupported()) ImGui::TextWrapped("Sending and Received CanOpen Data is disabled because the device doesn't support CanOpen over EtherCAT");
+
+    if (!allowCoeSendReceive) {
+        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(0.5, 0.5, 0.5, 1.0));
+    }
 
     ImGui::Text("Upload Data");
 
@@ -224,18 +316,10 @@ void EtherCatSlave::configurationDataGui() {
         ImGui::TableHeadersRow();
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        ImGui::Text("0x");
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, 0));
-        ImGui::SameLine();
-        ImGui::PopStyleVar();
-        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 3.0);
+        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Index").x);
         if (uploadData.indexEditFieldGui()) uploadData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(1);
-        ImGui::Text("0x");
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, 0));
-        ImGui::SameLine();
-        ImGui::PopStyleVar();
-        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 2.0);
+        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Subindex").x);
         if (uploadData.subindexEditFieldGui()) uploadData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(2);
         ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
@@ -313,6 +397,11 @@ void EtherCatSlave::configurationDataGui() {
     if (downloadData.b_hasTransferred) {
         ImGui::SameLine();
         ImGui::Text(downloadData.b_isTransfering ? "Downloading..." : (downloadData.b_transferSuccessfull ? "Download Successfull" : "Download Failed"));
+    }
+
+    if (!allowCoeSendReceive) {
+        ImGui::PopItemFlag();
+        ImGui::PopStyleColor();
     }
     
 }

@@ -22,7 +22,8 @@ void nodeGraph() {
 
     //========= NODE INSPECTOR AND ADDER PANEL =========
 
-    static float sideBarWidth = ImGui::GetTextLineHeight() * 20.0;
+    static float sideBarWidth = ImGui::GetTextLineHeight() * 25.0;
+    static float minSideBarWidth = ImGui::GetTextLineHeight() * 5.0;
 
     glm::vec2 sideBarSize(sideBarWidth, ImGui::GetContentRegionAvail().y);
     if (ImGui::BeginChild("SideBar", sideBarSize)) {
@@ -74,6 +75,7 @@ void nodeGraph() {
     ImGui::InvisibleButton("VerticalSplitter", glm::vec2(ImGui::GetTextLineHeight() / 3.0, ImGui::GetContentRegionAvail().y));
     if (ImGui::IsItemActive()) sideBarWidth += ImGui::GetIO().MouseDelta.x;
     if (ImGui::IsItemHovered()) ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+    if (sideBarWidth < minSideBarWidth) sideBarWidth = minSideBarWidth;
     ImGui::SameLine();
     ImGui::PopStyleVar();
 

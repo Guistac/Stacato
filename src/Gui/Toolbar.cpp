@@ -3,6 +3,7 @@
 #include "Gui.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
+#include "EtherCAT/EtherCatGui.h"
 
 void toolbar(float height) {
 
@@ -24,5 +25,4 @@ void toolbar(float height) {
 	if (disableButton) { ImGui::PopItemFlag(); ImGui::PopStyleColor(); }
 
 	etherCatStartModal();
-
 }

@@ -94,7 +94,7 @@ public:
     INTERFACE_DEFINITION(EtherCatSlave, "Unknown Device", "Unknown manufacturer", "No Category");
 
     int slaveIndex = -1;
-    int stationAlias = -1;
+    uint16_t stationAlias = -1;
     ec_slavet* identity = nullptr;
 
     //public display of raw pdo data
@@ -114,7 +114,7 @@ public:
     int getAssignedAddress() { return identity->configadr; } //configured station address
 
     //state machine
-    bool isStateOffline()           { return (identity->state & 0xF) == EC_STATE_NONE; }
+    bool isStateOffline()           { return (identity == nullptr) || (identity->state & 0xF) == EC_STATE_NONE; }
     bool isStateInit()              { return (identity->state & 0xF) == EC_STATE_INIT; }
     bool isStatePreOperational()    { return (identity->state & 0xF) == EC_STATE_PRE_OP; }
     bool isStateBootstrap()         { return (identity->state & 0xF) == EC_STATE_BOOT; }
@@ -147,7 +147,8 @@ public:
     virtual void nodeSpecificGui();
     void genericInfoGui();
     void pdoDataGui();
-    void configurationDataGui();
+    void generalGui();
+    void sendReceiveCanOpenGui();
 
     //=====Reading and Writing SDO Data
 

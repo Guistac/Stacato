@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include "EtherCatSlave.h"
+#include "EtherCatFieldbus.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -45,12 +46,11 @@ bool EtherCatSlave::getPDOMapping(EtherCatPDO& pdo, uint16_t pdoIndex, const cha
 */
 
 bool EtherCatSlave::isDetected() {
-    if (identity == nullptr) return false;
+    return !isStateOffline();
 }
 
 bool EtherCatSlave::isOnline() {
-    if (identity == nullptr) return false;
-    return !isStateOffline();
+    return !isStateOffline() && EtherCatFieldbus::b_processRunning;
 }
 
 bool EtherCatSlave::hasError() {
@@ -104,9 +104,10 @@ bool EtherCatSlave::load(tinyxml2::XMLElement* xml) {
 
 
 const char* EtherCatSlave::getStateChar() {
+    if (identity == nullptr) return "No Status";
     uint16_t stateWithoutErrorBit = identity->state & 0xF;
     switch (stateWithoutErrorBit) {
-        case EC_STATE_NONE: return "Offline";
+        case EC_STATE_NONE: return "No Status";
         case EC_STATE_INIT: return "Init";
         case EC_STATE_PRE_OP: return "Pre-Operational";
         case EC_STATE_BOOT: return "Boot";

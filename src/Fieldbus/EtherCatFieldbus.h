@@ -42,6 +42,7 @@ namespace EtherCatFieldbus {
 
     //slave devices
     extern std::vector<std::shared_ptr<EtherCatSlave>> slaves;
+    extern std::vector<std::shared_ptr<EtherCatSlave>> slaves_unassigned;
 
     //process data
     extern int expectedWorkingCounter;

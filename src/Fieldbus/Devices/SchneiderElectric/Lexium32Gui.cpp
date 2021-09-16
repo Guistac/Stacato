@@ -7,12 +7,6 @@
 #include <implot.h>
 
 void Lexium32::deviceSpecificGui() {
-    if (ImGui::BeginTabItem("Identity")) {
-
-        ImGui::InputInt("Station Alias", &stationAlias);
-
-        ImGui::EndTabItem();
-    }
     if (ImGui::BeginTabItem("Lexium32 Options")) {
         ImGui::Separator();
 
@@ -70,18 +64,6 @@ void Lexium32::deviceSpecificGui() {
             }
             ImGui::EndCombo();
         }
-
-        ImPlot::SetNextPlotLimitsX(positions.newest().x - 1000.0, positions.newest().x, ImGuiCond_Always);
-        ImPlot::SetNextPlotFormatY("%g ticks");
-        ImPlot::FitNextPlotAxes(false, true);
-
-        if (ImPlot::BeginPlot("positions", NULL, NULL, ImVec2(-1, 600))) {
-            ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0);
-            ImPlot::PlotLine("Position", &positions.front().x, &positions.front().y, positions.size(), positions.offset(), positions.stride());
-            ImPlot::EndPlot();
-        }
-
-        ImGui::Checkbox("Invert", &b_inverted);
 
         float velocityFraction = (((double)actualVelocity->getReal() / 7000.0) + 1.0) / 2.0;
         ImGui::ProgressBar(velocityFraction, ImVec2(0, 0), "velocity");

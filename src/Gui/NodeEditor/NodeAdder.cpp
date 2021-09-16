@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include "Gui/Gui.h"
+#include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatSlave.h"
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 #include "NodeGraph/Utilities/ioNodeFactory.h"
@@ -33,6 +34,28 @@ std::shared_ptr<ioNode> nodeAdderContextMenu() {
             }
         }
         ImGui::EndMenu();
+    }
+
+    std::shared_ptr<EtherCatSlave> selectedDetectedSlave = nullptr;
+    if (!EtherCatFieldbus::slaves_unassigned.empty()) {
+        if (ImGui::BeginMenu("Detected Slaves")) {
+            for (auto detectedSlave : EtherCatFieldbus::slaves_unassigned) {
+                if (ImGui::MenuItem(detectedSlave->getName())) {
+                    output = detectedSlave;
+                    selectedDetectedSlave = detectedSlave;
+                }
+            }
+            ImGui::EndMenu();
+        }
+    }
+    if (selectedDetectedSlave) {
+        std::vector<std::shared_ptr<EtherCatSlave>>& unassignedSlaves = EtherCatFieldbus::slaves_unassigned;
+        for (int i = 0; i < unassignedSlaves.size(); i++) {
+            if (unassignedSlaves[i] == selectedDetectedSlave) {
+                unassignedSlaves.erase(unassignedSlaves.begin() + i);
+                break;
+            }
+        }
     }
 
     ImGui::Separator();
@@ -79,8 +102,11 @@ void nodeAdder() {
         ImGui::PopFont();
         ImGui::Separator();
 
+
+
         ImGui::PushFont(Fonts::robotoBold15);
-        if (ImGui::TreeNode("EtherCAT Slaves")) {
+        if (ImGui::CollapsingHeader("EtherCAT Slaves")) {
+
             ImGui::PushFont(Fonts::robotoRegular15);
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));
             ImGui::Text("By Manufacturer");
@@ -88,9 +114,8 @@ void nodeAdder() {
             for (auto& manufacturer : EtherCatDeviceFactory::getDevicesByManufacturer()) {
                 if (ImGui::TreeNode(manufacturer.name)) {
                     for (auto& slave : manufacturer.devices) {
-                        bool selected = false;
                         const char* deviceName = slave->getNodeName();
-                        ImGui::Selectable(deviceName, &selected);
+                        ImGui::Selectable(deviceName);
                         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
                             ImGui::SetDragDropPayload("EtherCatSlave", &deviceName, sizeof(const char*));
                             ImGui::Text(deviceName);
@@ -100,6 +125,7 @@ void nodeAdder() {
                     ImGui::TreePop();
                 }
             }
+
             ImGui::Separator();
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));
             ImGui::Text("By Category");
@@ -107,9 +133,8 @@ void nodeAdder() {
             for (auto& manufacturer : EtherCatDeviceFactory::getDevicesByCategory()) {
                 if (ImGui::TreeNode(manufacturer.name)) {
                     for (auto& slave : manufacturer.devices) {
-                        bool selected = false;
                         const char* deviceName = slave->getNodeName();
-                        ImGui::Selectable(deviceName, &selected);
+                        ImGui::Selectable(deviceName);
                         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
                             ImGui::SetDragDropPayload("EtherCatSlave", &deviceName, sizeof(const char*));
                             ImGui::Text(deviceName);
@@ -119,20 +144,55 @@ void nodeAdder() {
                     ImGui::TreePop();
                 }
             }
+
+
+            ImGui::Separator();
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));
+            ImGui::Text("Detected Slaves");
+            ImGui::PopStyleColor();
+            static bool b_scanningNetwork = false;
+            bool disableScanButton = EtherCatFieldbus::b_processRunning;
+            if (disableScanButton) {
+                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(0.5, 0.5, 0.5, 1.0));
+            }
+            if (ImGui::Button("Scan Network")) {
+                std::thread etherCatNetworkScanner = std::thread([]() {
+                    b_scanningNetwork = true;
+                    EtherCatFieldbus::scanNetwork();
+                    b_scanningNetwork = false;
+                });
+                etherCatNetworkScanner.detach();
+            }
+            if (disableScanButton) {
+                ImGui::PopItemFlag();
+                ImGui::PopStyleColor();
+            }
+            if (b_scanningNetwork) {
+                ImGui::SameLine();
+                ImGui::Text("Scanning...");
+            }
+            for (auto slave : EtherCatFieldbus::slaves_unassigned) {
+                ImGui::Selectable(slave->getName());
+                if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+                    ImGui::SetDragDropPayload("DetectedEtherCatSlave", &slave, sizeof(std::shared_ptr<EtherCatSlave>));
+                    ImGui::Text(slave->getName());
+                    ImGui::EndDragDropSource();
+                }
+            }
+
+
+
             ImGui::PopFont();
-            ImGui::TreePop();
         }
         ImGui::PopFont();
 
-        ImGui::Separator();
-
         ImGui::PushFont(Fonts::robotoBold15);
-        if (ImGui::TreeNode("Axis")) {
+        if (ImGui::CollapsingHeader("Axis")) {
             ImGui::PushFont(Fonts::robotoRegular15);
             for (auto axis : ioNodeFactory::getAxisTypes()) {
-                bool selected = false;
                 const char* axisName = axis->getNodeName();
-                ImGui::Selectable(axisName, &selected);
+                ImGui::Selectable(axisName);
                 if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
                     ImGui::SetDragDropPayload("Axis", &axisName, sizeof(const char*));
                     ImGui::Text(axisName);
@@ -140,35 +200,27 @@ void nodeAdder() {
                 }
             }
             ImGui::PopFont();
-            ImGui::TreePop();
         }
         ImGui::PopFont();
 
-        ImGui::Separator();
-
         ImGui::PushFont(Fonts::robotoBold15);
-        if (ImGui::TreeNode("Network IO")) {
+        if (ImGui::CollapsingHeader("Network IO")) {
             ImGui::PushFont(Fonts::robotoRegular15);
-            bool selected = false;
-            ImGui::Selectable("OSC", &selected);
-            ImGui::Selectable("Artnet", &selected);
-            ImGui::Selectable("PSN", &selected);
+            ImGui::Selectable("OSC");
+            ImGui::Selectable("Artnet");
+            ImGui::Selectable("PSN");
             ImGui::PopFont();
-            ImGui::TreePop();
         }
         ImGui::PopFont();
 
-        ImGui::Separator();
-
         ImGui::PushFont(Fonts::robotoBold15);
-        if (ImGui::TreeNode("Data Processors")) {
+        if (ImGui::CollapsingHeader("Data Processors")) {
             ImGui::PushFont(Fonts::robotoRegular15);
             for (auto category : ioNodeFactory::getNodesByCategory()) {
                 if (ImGui::TreeNode(category.name)) {
                     for (ioNode* node : category.nodes) {
-                        bool selected = false;
                         const char* nodeName = node->getNodeName();
-                        ImGui::Selectable(nodeName, &selected);
+                        ImGui::Selectable(nodeName);
                         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
                             ImGui::SetDragDropPayload("ProcessorNode", &nodeName, sizeof(const char*));
                             ImGui::Text(nodeName);
@@ -179,7 +231,6 @@ void nodeAdder() {
                 }
             }
             ImGui::PopFont();
-            ImGui::TreePop();
         }
         ImGui::PopFont();
 
@@ -198,6 +249,18 @@ std::shared_ptr<ioNode> acceptDraggedNode() {
             const char* slaveDeviceName = *(const char**)payload->Data;
             std::shared_ptr<ioNode> newSlave = EtherCatDeviceFactory::getDeviceByName(slaveDeviceName);
             return newSlave;
+        }
+        payload = ImGui::AcceptDragDropPayload("DetectedEtherCatSlave");
+        if (payload != nullptr && payload->DataSize == sizeof(std::shared_ptr<EtherCatSlave>)) {
+            std::shared_ptr<EtherCatSlave> detectedSlave = *(std::shared_ptr<EtherCatSlave>*)payload->Data;
+            std::vector<std::shared_ptr<EtherCatSlave>>& unassignedSlaves = EtherCatFieldbus::slaves_unassigned;
+            for (int i = 0; i < unassignedSlaves.size(); i++) {
+                if (unassignedSlaves[i] == detectedSlave) {
+                    unassignedSlaves.erase(unassignedSlaves.begin() + i);
+                    break;
+                }
+            }
+            return detectedSlave;
         }
         payload = ImGui::AcceptDragDropPayload("ProcessorNode");
         if (payload != nullptr && payload->DataSize == sizeof(const char*)) {

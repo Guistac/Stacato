@@ -127,4 +127,5 @@ void etherCatParameters(bool resetNicLists) {
 
 		ImGui::EndChild();
 	}
+
 }

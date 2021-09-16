@@ -107,9 +107,6 @@ bool Lexium32::startupConfiguration() {
     }
     Logger::debug("    = PDO assignement successfull !");
 
-    int plotLength = 1000.0 * EtherCatFieldbus::metrics.scrollingBufferLength_seconds / EtherCatFieldbus::processInterval_milliseconds;
-    positions.setMaxSize(plotLength);
-
     //set interrupt routine for cyclic synchronous position mode
     //interval should be the same as the frame cycle time, and offset should be zero
     //the frame cycle time is offset 50% from dc_sync time (which is a integer multiple of the interval time)
@@ -447,11 +444,6 @@ void Lexium32::prepareOutputs(){
         b_quickStopActive = true;
         b_voltageEnabled = true;
         b_switchedOn = true;
-
-        //start debug movement
-        movementStartPosition = actualPosition->getReal();
-        counter = 0;
-        positions.clear();
     }
     if (b_disableOperation) {
         b_disableOperation = false;
@@ -463,7 +455,6 @@ void Lexium32::prepareOutputs(){
 
     if (positionCommand->isConnected()) positionCommand->set(positionCommand->getLinks().front()->getInputData()->getReal());
     if (velocityCommand->isConnected()) velocityCommand->set(velocityCommand->getLinks().front()->getInputData()->getReal());
-    if (torqueCommand->isConnected()) torqueCommand->set(torqueCommand->getLinks().front()->getInputData()->getReal());
     if (digitalOut0->isConnected()) digitalOut0->set(digitalOut0->getLinks().front()->getInputData()->getBoolean());
     if (digitalOut1->isConnected()) digitalOut1->set(digitalOut1->getLinks().front()->getInputData()->getBoolean());
     if (digitalOut2->isConnected()) digitalOut2->set(digitalOut2->getLinks().front()->getInputData()->getBoolean());
@@ -496,7 +487,6 @@ void Lexium32::prepareOutputs(){
 
     PPp_target = (int32_t)(positionCommand->getReal() * 131072.0L);
     PVv_target = velocityCommand->getReal();
-    PTtq_target = torqueCommand->getReal();
 
     IO_DQ_set = 0;
     if (digitalOut0->getBoolean()) IO_DQ_set |= 0x1;

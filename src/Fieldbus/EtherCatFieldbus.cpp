@@ -13,6 +13,7 @@ namespace EtherCatFieldbus {
     bool b_redundant = false;
 
     std::vector<std::shared_ptr<EtherCatSlave>> slaves;
+    std::vector<std::shared_ptr<EtherCatSlave>> slaves_unassigned;
     uint8_t ioMap[4096];
     int ioMapSize = 0;
     int expectedWorkingCounter;
@@ -143,9 +144,12 @@ namespace EtherCatFieldbus {
         sprintf(configurationStatus, "Scanning Network");
 
         //when rescanning the network, all previous slaves are now considered to be offline before being detected again
-        //Environnement::setAllEtherCatSlavesOffline();
-        //don't delete regular slaves since they might be in the environnement, just clear the list
+        //for a slave to appear as offline, we set its identity object (ec_slavet) to nullptr
+        for (auto slave : slaves) slave->identity = nullptr;
+        //we clear the list of slaves, slaves that are in the node graph remain there
         slaves.clear();
+        //we also clear the list of slaves that were not in the nodegraph
+        slaves_unassigned.clear();
 
         //setup all slaves, get slave count and info in ec_slave, setup mailboxes, request state PRE-OP for all slaves
         int workingCounter = ec_config_init(FALSE); //what is usetable??
@@ -187,6 +191,7 @@ namespace EtherCatFieldbus {
                     sprintf(name, "#%i '%s' @%i", slave->getSlaveIndex(), slave->getNodeName(), slave->getStationAlias());
                     slave->setName(name);
                     //add the slave to the list of unassigned slaves (not in the environnement)
+                    slaves_unassigned.push_back(slave);
                 }
 
                 //add the slave to the list of slaves regardless of environnement presence
@@ -477,6 +482,7 @@ namespace EtherCatFieldbus {
             b_allOperational = false;
             b_processRunning = false;
             if (etherCatRuntime.joinable()) etherCatRuntime.join();
+            for (int i = 1; i <= ec_slavecount; i++) ec_slave[i].state = EC_STATE_INIT;
             Logger::info("===== Cyclic Exchange Stopped !");
         }
     }

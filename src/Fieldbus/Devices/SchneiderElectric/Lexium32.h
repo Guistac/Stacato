@@ -11,11 +11,6 @@ public:
 
     SLAVE_DEFINITION(Lexium32, "LXM32M EtherCAT", "Schneider Electric", "Servo Drives")
 
-    double movementStartPosition = 0.0;
-    int counter = 0;
-    bool b_inverted = false;
-    ScrollingBuffer positions;
-
     //fieldbus commands
     bool setStartupParameters();
     bool assignPDOs();
@@ -83,6 +78,7 @@ private:
     uint16_t _LastError = 0;
     uint16_t _IO_act = 0;
 
+    //subdevices
     std::shared_ptr<ActuatorDevice> motorDevice = std::make_shared<ActuatorDevice>("Motor");
     std::shared_ptr<FeedbackDevice> encoderDevice = std::make_shared<FeedbackDevice>("Encoder");
     std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
@@ -90,18 +86,18 @@ private:
     //node input data
     std::shared_ptr<ioData> positionCommand =   std::make_shared<ioData>(DataType::REAL_VALUE,    DataDirection::NODE_INPUT, "Position");
     std::shared_ptr<ioData> velocityCommand =   std::make_shared<ioData>(DataType::REAL_VALUE,    DataDirection::NODE_INPUT, "Velocity");
-    std::shared_ptr<ioData> torqueCommand =     std::make_shared<ioData>(DataType::REAL_VALUE,    DataDirection::NODE_INPUT, "Torque");
     std::shared_ptr<ioData> digitalOut0 =       std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ0");
     std::shared_ptr<ioData> digitalOut1 =       std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ1");
     std::shared_ptr<ioData> digitalOut2 =       std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ2");
 
     //node output data
     std::shared_ptr<ioData> motorLink =         std::make_shared<ioData>(DataType::ACTUATOR_DEVICELINK, DataDirection::NODE_OUTPUT, "Motor");
+    std::shared_ptr<ioData> actualTorque =      std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Torque", ioDataFlags_DisableDataField);
+    std::shared_ptr<ioData> actualLoad =        std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Load", ioDataFlags_DisableDataField);
     std::shared_ptr<ioData> encoderLink =       std::make_shared<ioData>(DataType::FEEDBACK_DEVICELINK, DataDirection::NODE_OUTPUT, "Encoder");
-    std::shared_ptr<ioData> gpioLink =            std::make_shared<ioData>(DataType::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
     std::shared_ptr<ioData> actualPosition =    std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position", ioDataFlags_DisableDataField);
     std::shared_ptr<ioData> actualVelocity =    std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity", ioDataFlags_DisableDataField);
-    std::shared_ptr<ioData> actualTorque =      std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Torque", ioDataFlags_DisableDataField);
+    std::shared_ptr<ioData> gpioLink =          std::make_shared<ioData>(DataType::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
     std::shared_ptr<ioData> digitalIn0 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI0", ioDataFlags_DisableDataField);
     std::shared_ptr<ioData> digitalIn1 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI1", ioDataFlags_DisableDataField);
     std::shared_ptr<ioData> digitalIn2 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI2", ioDataFlags_DisableDataField);
@@ -109,7 +105,7 @@ private:
     std::shared_ptr<ioData> digitalIn4 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI4", ioDataFlags_DisableDataField);
     std::shared_ptr<ioData> digitalIn5 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI5", ioDataFlags_DisableDataField);
 
-    //command flags to control state machine
+    //command flags to control state machine (interface to construct DCOM_control word)
     bool b_enableVoltage = false;
     bool b_disableVoltage = false;
     bool b_switchOn = false;
@@ -119,7 +115,7 @@ private:
     bool b_faultReset = false;
     bool b_quickStop = false;
 
-    //bits used to construct DCOM_control word
+    //bits used to construct DCOM_control word (DS402 state machine control word)
     bool b_switchedOn = false;
     bool b_voltageEnabled = false;
     bool b_quickStopActive = true; //quickstop is active when bit is low

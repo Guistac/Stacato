@@ -16,11 +16,6 @@ void quitApplicationModal(bool closeWindowRequest);
 
 void aboutModal(bool openModal);
 
-void etherCatSlaves();
-void etherCatMetrics();
-void etherCatParameters(bool resetList);
-void etherCatStartModal();
-
 void log();
 
 void mainWindow();

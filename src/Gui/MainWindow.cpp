@@ -3,31 +3,21 @@
 #include "Gui.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
+#include "EtherCAT/EtherCatGui.h"
 
 void mainWindow() {
+
+	ImGui::PushStyleColor(ImGuiCol_TabActive, glm::vec4(0.6, 0.4, 0.0, 1.0));
+
 	if (ImGui::BeginTabBar("MainTabBar")) {
-		if (ImGui::BeginTabItem("EtherCAT Slaves")) {
-			etherCatSlaves();
-			ImGui::EndTabItem();
-		}
+
 		if (ImGui::BeginTabItem("Node Graph")) {
 			nodeGraph();
 			ImGui::EndTabItem();
 		}
-		if (ImGui::BeginTabItem("Fieldbus Metrics")) {
-			etherCatMetrics();
+		if (ImGui::BeginTabItem("Fieldbus")) {
+			etherCatGui();
 			ImGui::EndTabItem();
-		}
-		//we need to detect when the tab was just opened to set some variables in the parameters
-		static bool isTabOpen = false;
-		bool wasTabOpen = isTabOpen;
-		if (ImGui::BeginTabItem("Fieldbus Parameters")) {
-			isTabOpen = true;
-			etherCatParameters(isTabOpen && !wasTabOpen);
-			ImGui::EndTabItem();
-		}
-		else {
-			isTabOpen = false;
 		}
 		if (ImGui::BeginTabItem("Log")) {
 			log();
@@ -39,7 +29,6 @@ void mainWindow() {
 		}
 		if (ImGui::BeginTabItem("Sequencer")) {
 			ImGui::Text("This will be a sequencer");
-			//sequencer();
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Stage View")) {
@@ -51,4 +40,6 @@ void mainWindow() {
 	}
 
 	etherCatStartModal();
+
+	ImGui::PopStyleColor();
 }
