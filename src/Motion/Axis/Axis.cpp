@@ -12,13 +12,13 @@
 
 void Axis::process() {
 	double updateTime_seconds = Timing::getTime_seconds();
-	double deltaT_seconds = updateTime_seconds - lastUpdateTime_seconds;
+	double deltaT_seconds = updateTime_seconds - lastProfileUpdateTime_seconds;
 
 	if (b_enabled) {
 
 		if (profileVelocity_degreesPerSecond != velocityControlTarget_degreesPerSecond) {
 			double deltaV_degreesPerSecond;
-			deltaV_degreesPerSecond = defaultMovementAcceleration_degreesPerSecondSquared * deltaT_seconds;
+			deltaV_degreesPerSecond = defaultManualAcceleration_degreesPerSecondSquared * deltaT_seconds;
 			if (profileVelocity_degreesPerSecond < velocityControlTarget_degreesPerSecond) {
 				profileVelocity_degreesPerSecond += deltaV_degreesPerSecond;
 				if (profileVelocity_degreesPerSecond > velocityControlTarget_degreesPerSecond) profileVelocity_degreesPerSecond = velocityControlTarget_degreesPerSecond;
@@ -32,13 +32,13 @@ void Axis::process() {
 
 		profilePosition_degrees += deltaP_degrees;
 
-		positionCommand->set(profilePosition_degrees);
+		actuatorCommand->set(profilePosition_degrees);
 	}
 	else {
-		positionCommand->set(positionFeedback->getLinks().front()->getInputData()->getReal());
+		actuatorCommand->set(positionFeedback->getLinks().front()->getInputData()->getReal());
 	}
 
-	lastUpdateTime_seconds = updateTime_seconds;
+	lastProfileUpdateTime_seconds = updateTime_seconds;
 }
 
 
@@ -98,7 +98,7 @@ void Axis::enable() {
 void Axis::onEnable() {
 	profilePosition_degrees = positionFeedback->getLinks().front()->getInputData()->getReal();
 	profileVelocity_degreesPerSecond = 0.0;
-	profileAcceleration_degreesPerSecond = 0.0;
+	profileAcceleration_degreesPerSecondSquared = 0.0;
 	b_enabled = true;
 }
 

@@ -47,7 +47,6 @@ void Lexium32::deviceSpecificGui() {
         ImGui::Separator();
 
         ImGui::Text("Position: %f", actualPosition->getReal());
-        ImGui::Text("Velocity: %f", actualVelocity->getReal());
         ImGui::Text("Torque: %f", actualTorque->getReal());
 
         ImGui::Text("Digital Inputs: %i %i %i %i %i %i", digitalIn0->getBoolean(), digitalIn1->getBoolean(), digitalIn2->getBoolean(), digitalIn3->getBoolean(), digitalIn4->getBoolean(), digitalIn5->getBoolean());
@@ -64,9 +63,6 @@ void Lexium32::deviceSpecificGui() {
             }
             ImGui::EndCombo();
         }
-
-        float velocityFraction = (((double)actualVelocity->getReal() / 7000.0) + 1.0) / 2.0;
-        ImGui::ProgressBar(velocityFraction, ImVec2(0, 0), "velocity");
 
 
         bool DQ0 = digitalOut0->getBoolean();

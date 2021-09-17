@@ -16,71 +16,88 @@ public:
 
 	DEFINE_AXIS_NODE("Axis", Axis);
 
+	//Device Links
 	std::shared_ptr<ioData> actuatorDeviceLinks = std::make_shared<ioData>(DataType::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuators", ioDataFlags_AcceptMultipleInputs);
 	std::shared_ptr<ioData> feedbackDeviceLink = std::make_shared<ioData>(DataType::FEEDBACK_DEVICELINK, DataDirection::NODE_INPUT, "Encoder");
 	std::shared_ptr<ioData> referenceDeviceLinks = std::make_shared<ioData>(DataType::GPIO_DEVICELINK, DataDirection::NODE_INPUT, "Reference Devices", ioDataFlags_AcceptMultipleInputs);
 
-	std::shared_ptr<ioData> positionFeedback = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "Actual Position");
-	std::shared_ptr<ioData> positionLimits = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "References", ioDataFlags_AcceptMultipleInputs);
-	std::shared_ptr<ioData> motorLoad = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "Motor Load", ioDataFlags_AcceptMultipleInputs);
+	//Inputs
+	std::shared_ptr<ioData> positionFeedback = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "Position Feedback");
+	std::shared_ptr<ioData> positionReferences = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "References", ioDataFlags_AcceptMultipleInputs);
 
-	std::shared_ptr<ioData> positionCommand = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position", ioDataFlags_DisableDataField);
-	std::shared_ptr<ioData> positionError = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position Error", ioDataFlags_DisableDataField);
-	std::shared_ptr<ioData> velocityCommand = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity", ioDataFlags_DisableDataField);
-	std::shared_ptr<ioData> accelerationCommand = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Acceleration", ioDataFlags_DisableDataField);
+	//Outputs
+	std::shared_ptr<ioData> actuatorCommand = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Command", ioDataFlags_DisableDataField);
 	std::shared_ptr<ioData> resetPositionFeedback = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Position Feedback", ioDataFlags_DisableDataField);
 
+
+	//==================== AXIS DATA ====================
+
+	//Axis Type
 	UnitType axisUnitType = UnitType::LINEAR;
 	PositionUnit::Unit axisPositionUnit = PositionUnit::Unit::METER;
 
+	//Feedback Type
 	PositionFeedback::Type positionFeedbackType = PositionFeedback::Type::ABSOLUTE_FEEDBACK;
 	PositionUnit::Unit feedbackPositionUnit = PositionUnit::Unit::DEGREE;
 	double feedbackUnitsPerAxisUnits = 0.0;
 
+	//CommandType
 	CommandType::Type commandType = CommandType::Type::POSITION_COMMAND;
 	PositionUnit::Unit commandPositionUnit = PositionUnit::Unit::DEGREE;
 	double commandUnitsPerAxisUnits = 0.0;
 
+	//Reference and Homing Type
 	PositionReference::Type positionReferenceType = PositionReference::Type::NO_LIMIT;
 	HomingDirection::Type homingDirectionType = HomingDirection::Type::DONT_CARE;
 
-	const char* getAxisUnitStringSingular() { return getPositionUnitType(axisPositionUnit).displayName; }
-	const char* getAxisUnitStringPlural() { return getPositionUnitType(axisPositionUnit).displayNamePlural; }
-
+	//Kinematic Limits
 	double velocityLimit_degreesPerSecond = 0.0;
 	double accelerationLimit_degreesPerSecondSquared = 0.0;
 
-	double defaultMovementVelocity_degreesPerSecond = 10.0;
-	double defaultMovementAcceleration_degreesPerSecondSquared = 5.0;
+	//Default Manual Movement
+	double defaultManualVelocity_degreesPerSecond = 10.0;
+	double defaultManualAcceleration_degreesPerSecondSquared = 5.0;
 
+	//Reference Deviation and Homing Velocity
 	double homingVelocity_degreesPerSecond = 0.0;
+	double allowedPositiveDeviationFromReference_degrees = 0.0;
+	double allowedNegativeDeviationFromReference_degrees = 0.0;
 
-	double maxPositiveDeviationFromReference_degrees = 0.0;
-	double maxNegativeDeviationFromReference_degrees = 0.0;
+
+	//============== CONTROL VARIABLES ===================
+
 
 	ControlMode controlMode = VELOCITY_CONTROL;
 	double velocityControlTarget_degreesPerSecond = 0.0;
 
 	//motion profile generator variables
-	double profileAcceleration_degreesPerSecond = 0.0;
-	double profileVelocity_degreesPerSecond = 0.0;
+	double lastProfileUpdateTime_seconds = 0.0; //used to calculate deltaT
 	double profilePosition_degrees = 0.0;
-	double lastUpdateTime_seconds = 0.0; //used to calculate deltaT
+	double profileVelocity_degreesPerSecond = 0.0;
+	double profileAcceleration_degreesPerSecondSquared = 0.0;
 
-	//axis status
+	//Axis State Control
 	void enable();
 	void onEnable();
 	void disable();
 	bool isEnabled();
 	bool b_enabled = false;
+	bool areAllDevicesReady();
+	void enableAllActuators();
+	void disableAllActuators();
 
+	//Manual Control Commands
+	void setVelocity(double velocity_axisUnits);
+	void moveToPosition(double position_axisUnits, double velocity_axisUnits, double acceleration_axisUnits);
+
+	//Homing Control
 	void startHoming();
 	void cancelHoming();
 	bool isHoming();
 
-	bool areAllDevicesReady();
-	void enableAllActuators();
-	void disableAllActuators();
+
+	const char* getAxisUnitStringSingular() { return getPositionUnitType(axisPositionUnit)->displayName; }
+	const char* getAxisUnitStringPlural() { return getPositionUnitType(axisPositionUnit)->displayNamePlural; }
 
 	void controlsGui();
 	void settingsGui();
@@ -88,16 +105,12 @@ public:
 
 	virtual void assignIoData() {
 		addIoData(actuatorDeviceLinks);
-		addIoData(motorLoad);
 		addIoData(feedbackDeviceLink);
 		addIoData(positionFeedback);
 		addIoData(referenceDeviceLinks);
-		addIoData(positionLimits);
+		addIoData(positionReferences);
 
-		addIoData(positionCommand);
-		addIoData(positionError);
-		addIoData(velocityCommand);
-		addIoData(accelerationCommand);
+		addIoData(actuatorCommand);
 		addIoData(resetPositionFeedback);
 	}
 

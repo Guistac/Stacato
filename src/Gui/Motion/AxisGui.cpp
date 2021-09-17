@@ -89,7 +89,7 @@ void Axis::controlsGui() {
 		ImGui::SetNextItemWidth(widgetWidth);
 		ImGui::SliderFloat("##Velocity", &targetVelocity_degreesPerSecond, -velocityLimit_degreesPerSecond, velocityLimit_degreesPerSecond, "%.3f deg/s");
 		ImGui::SetNextItemWidth(widgetWidth);
-		ImGui::InputDouble("##ManAcceleration", &defaultMovementAcceleration_degreesPerSecondSquared, 0.0, 0.0, "%.3f deg/s2");
+		ImGui::InputDouble("##ManAcceleration", &defaultManualAcceleration_degreesPerSecondSquared, 0.0, 0.0, "%.3f deg/s2");
 		float velocityProgress = (profileVelocity_degreesPerSecond + velocityLimit_degreesPerSecond) / (2 * velocityLimit_degreesPerSecond);
 		ImGui::ProgressBar(velocityProgress, ImVec2(widgetWidth, ImGui::GetTextLineHeight()));
 		if (ImGui::Button("Stop##Velocity", glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 2))) targetVelocity_degreesPerSecond = 0.0;
@@ -103,8 +103,8 @@ void Axis::controlsGui() {
 		ImGui::PopFont();
 
 		static float targetPosition = 0.0;
-		static float targetVelocity = defaultMovementVelocity_degreesPerSecond;
-		static float targetAcceleration = defaultMovementAcceleration_degreesPerSecondSquared;
+		static float targetVelocity = defaultManualVelocity_degreesPerSecond;
+		static float targetAcceleration = defaultManualAcceleration_degreesPerSecondSquared;
 		float tripleWidgetWidth = (widgetWidth - 2 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
 		ImGui::SetNextItemWidth(tripleWidgetWidth);
 		ImGui::InputFloat("##TargetPosition", &targetPosition, 0.0, 0.0, "%.3f deg");
@@ -170,13 +170,13 @@ void Axis::settingsGui() {
 		//------------------ AXIS TYPE -------------------------
 
 		ImGui::Text("Axis Type");
-		if (ImGui::BeginCombo("##AxisType", getAxisType(axisUnitType).displayName)) {
+		if (ImGui::BeginCombo("##AxisType", getAxisType(axisUnitType)->displayName)) {
 			for (AxisType& axisType : getAxisTypes()) {
 				if (ImGui::Selectable(axisType.displayName, axisUnitType == axisType.unitType)) {
 					axisUnitType = axisType.unitType;
 					//if the axis type is changed but the axis unit is of the wrong type
 					//change the axis unit to the first correct type automatically
-					if (getPositionUnitType(axisPositionUnit).type != axisType.unitType) {
+					if (getPositionUnitType(axisPositionUnit)->type != axisType.unitType) {
 						if (axisType.unitType == UnitType::ANGULAR) {
 							axisPositionUnit = getAngularPositionUnits().front().unit;
 						}
@@ -190,7 +190,7 @@ void Axis::settingsGui() {
 		}
 
 		ImGui::Text("Axis Position Unit");
-		if (ImGui::BeginCombo("##AxisUnit", getPositionUnitType(axisPositionUnit).displayName)) {
+		if (ImGui::BeginCombo("##AxisUnit", getPositionUnitType(axisPositionUnit)->displayName)) {
 			if (axisUnitType == UnitType::LINEAR) {
 				for (PositionUnit& unit : getLinearPositionUnits()) {
 					if (ImGui::Selectable(unit.displayName, axisPositionUnit == unit.unit)) axisPositionUnit = unit.unit;
@@ -213,7 +213,7 @@ void Axis::settingsGui() {
 		ImGui::PopFont();
 
 		ImGui::Text("Feedback Type");
-		if (ImGui::BeginCombo("##FeedbackType", getPositionFeedbackType(positionFeedbackType).displayName)) {
+		if (ImGui::BeginCombo("##FeedbackType", getPositionFeedbackType(positionFeedbackType)->displayName)) {
 			for (PositionFeedback& feedback : getPositionFeedbackTypes()) {
 				if (ImGui::Selectable(feedback.displayName, positionFeedbackType == feedback.type)) positionFeedbackType = feedback.type;
 			}
@@ -233,14 +233,14 @@ void Axis::settingsGui() {
 		else {
 
 			ImGui::Text("Feedback Position Unit");
-			if (ImGui::BeginCombo("##FeedbackUnit", getPositionUnitType(feedbackPositionUnit).displayNamePlural)) {
+			if (ImGui::BeginCombo("##FeedbackUnit", getPositionUnitType(feedbackPositionUnit)->displayNamePlural)) {
 				for (PositionUnit& unit : getAngularPositionUnits()) {
 					if (ImGui::Selectable(unit.displayNamePlural, feedbackPositionUnit == unit.unit)) feedbackPositionUnit = unit.unit;
 				}
 				ImGui::EndCombo();
 			}
 
-			ImGui::Text("Feedback %s per Axis %s", getPositionUnitType(feedbackPositionUnit).displayNamePlural, getPositionUnitType(axisPositionUnit).displayName);
+			ImGui::Text("Feedback %s per Axis %s", getPositionUnitType(feedbackPositionUnit)->displayNamePlural, getPositionUnitType(axisPositionUnit)->displayName);
 			ImGui::InputDouble("##feedbackCoupling", &feedbackUnitsPerAxisUnits);
 		}
 
@@ -253,7 +253,7 @@ void Axis::settingsGui() {
 		ImGui::PopFont();
 
 		ImGui::Text("Command Type");
-		if (ImGui::BeginCombo("##CommandType", getCommandType(commandType).displayName)) {
+		if (ImGui::BeginCombo("##CommandType", getCommandType(commandType)->displayName)) {
 			for (CommandType& command : getCommandTypes()) {
 				if (ImGui::Selectable(command.displayName, commandType == command.type)) commandType = command.type;
 			}
@@ -267,14 +267,14 @@ void Axis::settingsGui() {
 		}
 		else {
 			ImGui::Text("Command Position Unit");
-			if (ImGui::BeginCombo("##CommandUnit", getPositionUnitType(commandPositionUnit).displayName)) {
+			if (ImGui::BeginCombo("##CommandUnit", getPositionUnitType(commandPositionUnit)->displayName)) {
 				for (PositionUnit& unit : getAngularPositionUnits()) {
 					if (ImGui::Selectable(unit.displayName, commandPositionUnit == unit.unit)) commandPositionUnit = unit.unit;
 				}
 				ImGui::EndCombo();
 			}
 
-			ImGui::Text("Actuator %s per Axis %s", getPositionUnitType(commandPositionUnit).displayNamePlural, getPositionUnitType(axisPositionUnit).displayName);
+			ImGui::Text("Actuator %s per Axis %s", getPositionUnitType(commandPositionUnit)->displayNamePlural, getPositionUnitType(axisPositionUnit)->displayName);
 			ImGui::InputDouble("##actuatorCoupling", &commandUnitsPerAxisUnits);
 		}
 
@@ -300,7 +300,7 @@ void Axis::settingsGui() {
 		ImGui::PopFont();
 
 		ImGui::Text("Limit Type");
-		if (ImGui::BeginCombo("##PositionReference", getPositionReferenceType(positionReferenceType).displayName)) {
+		if (ImGui::BeginCombo("##PositionReference", getPositionReferenceType(positionReferenceType)->displayName)) {
 			for (PositionReference& reference : getPositionReferenceTypes()) {
 				bool selected = positionReferenceType == reference.type;
 				if (ImGui::Selectable(reference.displayName, selected)) positionReferenceType = reference.type;
@@ -311,8 +311,8 @@ void Axis::settingsGui() {
 		switch (positionReferenceType) {
 		case PositionReference::Type::LOW_LIMIT:
 			ImGui::Text("Max Deviation From Low Limit");
-			ImGui::InputDouble("##MaxDeviation", &maxPositiveDeviationFromReference_degrees, 0.0, 0.0, "%.3f deg");
-			if (maxPositiveDeviationFromReference_degrees < 0.0) maxPositiveDeviationFromReference_degrees = 0.0;
+			ImGui::InputDouble("##MaxDeviation", &allowedPositiveDeviationFromReference_degrees, 0.0, 0.0, "%.3f deg");
+			if (allowedPositiveDeviationFromReference_degrees < 0.0) allowedPositiveDeviationFromReference_degrees = 0.0;
 			ImGui::Text("Homing Velocity");
 			ImGui::InputDouble("##HomingVelocity", &homingVelocity_degreesPerSecond, 0.0, 0.0, "%.3f deg/s");
 			if (homingVelocity_degreesPerSecond < 0) homingVelocity_degreesPerSecond = abs(homingVelocity_degreesPerSecond);
@@ -320,8 +320,8 @@ void Axis::settingsGui() {
 			break;
 		case PositionReference::Type::HIGH_LIMIT:
 			ImGui::Text("Max Deviation From High Limit");
-			ImGui::InputDouble("##MaxDeviation", &maxNegativeDeviationFromReference_degrees, 0.0, 0.0, "%.3f deg");
-			if (maxNegativeDeviationFromReference_degrees > 0.0) maxNegativeDeviationFromReference_degrees = 0.0;
+			ImGui::InputDouble("##MaxDeviation", &allowedNegativeDeviationFromReference_degrees, 0.0, 0.0, "%.3f deg");
+			if (allowedNegativeDeviationFromReference_degrees > 0.0) allowedNegativeDeviationFromReference_degrees = 0.0;
 			ImGui::Text("Homing Velocity");
 			ImGui::InputDouble("##HomingVelocity", &homingVelocity_degreesPerSecond, 0.0, 0.0, "%.3f deg/s");
 			if (homingVelocity_degreesPerSecond < 0) homingVelocity_degreesPerSecond = abs(homingVelocity_degreesPerSecond);
@@ -329,7 +329,7 @@ void Axis::settingsGui() {
 			break;
 		case PositionReference::Type::LOW_AND_HIGH_LIMIT:
 			ImGui::Text("Homing Direction");
-			if (ImGui::BeginCombo("##HomingDirection", getHomingDirectionType(homingDirectionType).displayName)) {
+			if (ImGui::BeginCombo("##HomingDirection", getHomingDirectionType(homingDirectionType)->displayName)) {
 				for (HomingDirection& direction : getHomingDirectionTypes()) {
 					bool selected = homingDirectionType == direction.type;
 					if (ImGui::Selectable(direction.displayName, selected)) homingDirectionType = direction.type;
@@ -343,7 +343,7 @@ void Axis::settingsGui() {
 			break;
 		case PositionReference::Type::POSITION_REFERENCE:
 			ImGui::Text("Homing Direction");
-			if (ImGui::BeginCombo("##HomingDirection", getHomingDirectionType(homingDirectionType).displayName)) {
+			if (ImGui::BeginCombo("##HomingDirection", getHomingDirectionType(homingDirectionType)->displayName)) {
 				for (HomingDirection& direction : getHomingDirectionTypes()) {
 					bool selected = homingDirectionType == direction.type;
 					if (ImGui::Selectable(direction.displayName, selected)) homingDirectionType = direction.type;
@@ -351,11 +351,11 @@ void Axis::settingsGui() {
 				ImGui::EndCombo();
 			}
 			ImGui::Text("Max Positive Deviation");
-			ImGui::InputDouble("##MaxPositiveDeviation", &maxPositiveDeviationFromReference_degrees, 0.0, 0.0, "%.3f");
-			if (maxPositiveDeviationFromReference_degrees < 0.0) maxPositiveDeviationFromReference_degrees = 0.0;
+			ImGui::InputDouble("##MaxPositiveDeviation", &allowedPositiveDeviationFromReference_degrees, 0.0, 0.0, "%.3f");
+			if (allowedPositiveDeviationFromReference_degrees < 0.0) allowedPositiveDeviationFromReference_degrees = 0.0;
 			ImGui::Text("Max Negative Deviation");
-			ImGui::InputDouble("##MaxNegativeDeviation", &maxNegativeDeviationFromReference_degrees, 0.0, 0.0, "%.3f");
-			if (maxNegativeDeviationFromReference_degrees > 0.0) maxNegativeDeviationFromReference_degrees = 0.0;
+			ImGui::InputDouble("##MaxNegativeDeviation", &allowedNegativeDeviationFromReference_degrees, 0.0, 0.0, "%.3f");
+			if (allowedNegativeDeviationFromReference_degrees > 0.0) allowedNegativeDeviationFromReference_degrees = 0.0;
 			ImGui::Text("Homing Velocity");
 			ImGui::InputDouble("##HomingVelocity", &homingVelocity_degreesPerSecond, 0.0, 0.0, "%.3f deg/s");
 			if (homingVelocity_degreesPerSecond < 0) homingVelocity_degreesPerSecond = abs(homingVelocity_degreesPerSecond);
@@ -363,11 +363,11 @@ void Axis::settingsGui() {
 			break;
 		case PositionReference::Type::NO_LIMIT:
 			ImGui::Text("Max Positive Deviation");
-			ImGui::InputDouble("##MaxPositiveDeviation", &maxPositiveDeviationFromReference_degrees, 0.0, 0.0, "%.3f");
-			if (maxPositiveDeviationFromReference_degrees < 0.0) maxPositiveDeviationFromReference_degrees = 0.0;
+			ImGui::InputDouble("##MaxPositiveDeviation", &allowedPositiveDeviationFromReference_degrees, 0.0, 0.0, "%.3f");
+			if (allowedPositiveDeviationFromReference_degrees < 0.0) allowedPositiveDeviationFromReference_degrees = 0.0;
 			ImGui::Text("Max Negative Deviation");
-			ImGui::InputDouble("##MaxNegativeDeviation", &maxNegativeDeviationFromReference_degrees, 0.0, 0.0, "%.3f");
-			if (maxNegativeDeviationFromReference_degrees > 0.0) maxNegativeDeviationFromReference_degrees = 0.0;
+			ImGui::InputDouble("##MaxNegativeDeviation", &allowedNegativeDeviationFromReference_degrees, 0.0, 0.0, "%.3f");
+			if (allowedNegativeDeviationFromReference_degrees > 0.0) allowedNegativeDeviationFromReference_degrees = 0.0;
 			ImGui::TextWrapped("No Limit Signal. Setting of the origin has to be done by manually moving the axis to the desired position reference and resetting the position feedback. (Not recommended for position feedback types other than absolute)");
 		}
 

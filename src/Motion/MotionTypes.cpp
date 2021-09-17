@@ -10,11 +10,18 @@ std::vector<AxisType> axisTypes = {
 
 std::vector<AxisType>& getAxisTypes() { return axisTypes; }
 
-AxisType& getAxisType(UnitType t) {
+AxisType* getAxisType(UnitType t) {
 	for (AxisType& axis : axisTypes) {
-		if (axis.unitType == t) return axis;
+		if (axis.unitType == t) return &axis;
 	}
-	return axisTypes.back();
+	return nullptr;
+}
+
+AxisType* getAxisType(const char* saveName) {
+	for (AxisType& axis : axisTypes) {
+		if (strcmp(axis.saveName, saveName) == 0) return &axis;
+	}
+	return nullptr;
 }
 
 
@@ -27,23 +34,33 @@ std::vector<PositionUnit> linearPositionUnits = {
 };
 
 std::vector<PositionUnit> angularPositionUnits = {
-	{PositionUnit::Unit::DEGREE, UnitType::ANGULAR,		"Degree",		"Degrees",		"Degree"},
-	{PositionUnit::Unit::RADIAN, UnitType::ANGULAR,		"Radian",		"Radians",		"Radian"},
-	{PositionUnit::Unit::ROTATION, UnitType::ANGULAR,	"Rotation",		"Rotations",	"Rotation"}
+	{PositionUnit::Unit::DEGREE, UnitType::ANGULAR,		"Degree",		"Degrees",		"Degrees"},
+	{PositionUnit::Unit::RADIAN, UnitType::ANGULAR,		"Radian",		"Radians",		"Radians"},
+	{PositionUnit::Unit::ROTATION, UnitType::ANGULAR,	"Rotation",		"Rotations",	"Rotations"}
 };
 
 std::vector<PositionUnit>& getLinearPositionUnits() { return linearPositionUnits; }
 
 std::vector<PositionUnit>& getAngularPositionUnits() { return angularPositionUnits; }
 
-PositionUnit& getPositionUnitType(PositionUnit::Unit u) {
+PositionUnit* getPositionUnitType(PositionUnit::Unit u) {
 	for (PositionUnit& unit : linearPositionUnits) {
-		if (unit.unit == u) return unit;
+		if (unit.unit == u) return &unit;
 	}
 	for (PositionUnit& unit : angularPositionUnits) {
-		if (unit.unit == u) return unit;
+		if (unit.unit == u) return &unit;
 	}
-	return linearPositionUnits.back();
+	return nullptr;
+}
+
+PositionUnit* getPositionUnitType(const char* saveName) {
+	for (PositionUnit& unit : linearPositionUnits) {
+		if (strcmp(unit.saveName, saveName) == 0) return &unit;
+	}
+	for (PositionUnit& unit : angularPositionUnits) {
+		if (strcmp(unit.saveName, saveName) == 0) return &unit;
+	}
+	return nullptr;
 }
 
 
@@ -58,11 +75,18 @@ std::vector<PositionFeedback> positionFeedbackTypes = {
 
 std::vector<PositionFeedback>& getPositionFeedbackTypes() { return positionFeedbackTypes; }
 
-PositionFeedback& getPositionFeedbackType(PositionFeedback::Type t) {
+PositionFeedback* getPositionFeedbackType(PositionFeedback::Type t) {
 	for (PositionFeedback& feedback : positionFeedbackTypes) {
-		if (feedback.type == t) return feedback;
+		if (feedback.type == t) return &feedback;
 	}
-	return positionFeedbackTypes.back();
+	return nullptr;
+}
+
+PositionFeedback* getPositionFeedbackType(const char* saveName) {
+	for (PositionFeedback& feedback : positionFeedbackTypes) {
+		if (strcmp(saveName, feedback.saveName) == 0) return &feedback;
+	}
+	return nullptr;
 }
 
 
@@ -79,11 +103,18 @@ std::vector<PositionReference> positionReferenceTypes = {
 
 std::vector<PositionReference>& getPositionReferenceTypes() { return positionReferenceTypes; }
 
-PositionReference& getPositionReferenceType(PositionReference::Type t) {
+PositionReference* getPositionReferenceType(PositionReference::Type t) {
 	for (PositionReference& reference : positionReferenceTypes) {
-		if (reference.type == t) return reference;
+		if (reference.type == t) return &reference;
 	}
-	return positionReferenceTypes.back();
+	return nullptr;
+}
+
+PositionReference* getPositionReferenceType(const char* saveName) {
+	for (PositionReference& reference : positionReferenceTypes) {
+		if (strcmp(saveName, reference.saveName) == 0) return &reference;
+	}
+	return nullptr;
 }
 
 
@@ -97,11 +128,18 @@ std::vector<CommandType> commandTypes = {
 
 std::vector<CommandType>& getCommandTypes() { return commandTypes; }
 
-CommandType& getCommandType(CommandType::Type t) {
+CommandType* getCommandType(CommandType::Type t) {
 	for (CommandType& command : commandTypes) {
-		if (command.type == t) return command;
+		if (command.type == t) return &command;
 	}
-	return commandTypes.back();
+	return nullptr;
+}
+
+CommandType* getCommandType(const char* saveName) {
+	for (CommandType& command : commandTypes) {
+		if (strcmp(saveName, command.saveName) == 0) return &command;
+	}
+	return nullptr;
 }
 
 
@@ -117,9 +155,16 @@ std::vector<HomingDirection> homingDirectionTypes = {
 
 std::vector<HomingDirection>& getHomingDirectionTypes() { return homingDirectionTypes; }
 
-HomingDirection& getHomingDirectionType(HomingDirection::Type t) {
+HomingDirection* getHomingDirectionType(HomingDirection::Type t) {
 	for (HomingDirection& direction : homingDirectionTypes) {
-		if (direction.type == t) return direction;
+		if (direction.type == t) return &direction;
 	}
-	return homingDirectionTypes.back();
+	return nullptr;
+}
+
+HomingDirection* getHomingDirectionType(const char* saveName) {
+	for (HomingDirection& direction : homingDirectionTypes) {
+		if (strcmp(saveName, direction.saveName)) return &direction;
+	}
+	return nullptr;
 }
