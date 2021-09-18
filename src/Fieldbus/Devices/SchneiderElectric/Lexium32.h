@@ -41,6 +41,65 @@ public:
     State state = State::SwitchOnDisabled;
     uint16_t lastErrorCode = 0;
 
+    const char* getStateChar() {
+        switch (state) {
+            case State::NotReadyToSwitchOn: return "Not Ready To Switch On";
+            case State::SwitchOnDisabled: return "Switch On Disabled";
+            case State::ReadyToSwitchOn: return "Ready To Switch On";
+            case State::SwitchedOn: return "Switched On";
+            case State::OperationEnabled: return "Operation Enabled";
+            case State::QuickStopActive: return "Quick Stop Active";
+            case State::FaultReactionActive: return "Fault Reaction Active";
+            case State::Fault: return "Fault";
+        }
+    }
+
+    //===== mode display and changing =====
+
+    struct OperatingMode {
+        enum class Mode {
+            TUNING,
+            MOTION_SEQUENCE,
+            ELECTRONIC_GEAR,
+            JOG,
+            PROFILE_POSITION,
+            PROFILE_VELOCITY,
+            PROFILE_TORQUE,
+            HOMING,
+            INTERPOLATED_POSITION,
+            CYCLIC_SYNCHRONOUS_POSITION,
+            CYCLIC_SYNCHRONOUS_VELOCITY,
+            CYCLIC_SYNCHRONOUS_TORQUE,
+            UNKNOWN
+        };
+        int id;
+        Mode mode;
+        const char displayName[64];
+    };
+
+
+    static std::vector<OperatingMode> operatingModes;
+    static std::vector<OperatingMode> availableOperatingModes;
+
+    int modeID = 8;
+    int modeIDCommand = 8;
+
+    OperatingMode* getOperatingMode();
+
+    float manualVelocity_rpm = 0;
+    float manualAcceleration_rpm2 = 100.0;
+
+    //===== Drive Settings =====
+
+    double maxVelocity_rpm = 5000.0;
+    double maxAcceleration_rpm2 = 100.0;
+    double maxCurrent_amps = 5.0;
+    int encoderIncrementsPerShaftRotation = 131072;
+    int encoderMultiturnResolution = 4096;
+
+    //===== Drive Status Flags ======
+
+    //from _DCOMstatus
     bool motorVoltagePresent = false;
     bool class0error = false;
     bool halted = false;
@@ -52,12 +111,6 @@ public:
     bool operatingModeFinished = false;
     bool validPositionReference = false;
 
-    //===== mode display and changing =====
-
-    static std::map<int, std::string> modelist;
-    int mode = 8;
-    const char* modeChar = "Cyclic Synchronous Position";
-    int modeCommand = 8;
 
 private:
  

@@ -12,22 +12,29 @@ void EtherCatSlave::nodeSpecificGui() {
     if (ImGui::BeginTabItem("EtherCAT")) {
         if (ImGui::BeginChild("EtherCatConfig")) {
         
+            generalGui();
+            ImGui::Separator();
+
             if (ImGui::BeginTabBar("EtherCatConfigTabBar")) {
-
-                if (ImGui::BeginTabItem("General")) {
-                    generalGui();
-                    ImGui::Separator();
-                    sendReceiveCanOpenGui();
-                    ImGui::EndTabItem();
-                }
-
 
                 if (isSlaveKnown() && ImGui::BeginTabItem("PDO Data")) {
                     pdoDataGui();
                     ImGui::EndTabItem();
                 }
 
-                if (isOnline() && ImGui::BeginTabItem("Generic Info")) {
+                if (ImGui::BeginTabItem("Data Exchange")) {
+                    sendReceiveEtherCatRegisterGui();
+                    ImGui::Separator();
+                    ImGui::Spacing();
+                    sendReceiveCanOpenGui();
+                    ImGui::Separator();
+                    ImGui::Spacing();
+                    sendReceiveEepromGui();
+
+                    ImGui::EndTabItem();
+                }
+
+                if (isDetected() && ImGui::BeginTabItem("Generic Info")) {
                     genericInfoGui();
                     ImGui::EndTabItem();
                 }
@@ -42,7 +49,7 @@ void EtherCatSlave::nodeSpecificGui() {
         ImGui::EndTabItem();
     }
 }
-
+    
 void EtherCatSlave::generalGui() {
 
     static glm::vec4 blueColor = glm::vec4(0.1, 0.1, 0.4, 1.0);
@@ -81,12 +88,6 @@ void EtherCatSlave::generalGui() {
     ImGui::PopFont();
     ImGui::PopItemFlag();
 
-    ImGui::Separator();
-
-    ImGui::PushFont(Fonts::robotoBold20);
-    ImGui::Text("Device Identity");
-    ImGui::PopFont();
-
     ImGui::PushFont(Fonts::robotoBold15);
     ImGui::Text("Station Alias");
     ImGui::PopFont();
@@ -100,6 +101,8 @@ void EtherCatSlave::genericInfoGui() {
 
     ImGui::Text("Manual Address: %i", getStationAlias());
     ImGui::Text("Assigned Address: %i", getAssignedAddress());
+
+    ImGui::Text("Device Name: %s", identity->name);
 
     ImGui::Separator();
 
@@ -287,8 +290,10 @@ void EtherCatSlave::pdoDataGui() {
 
 void EtherCatSlave::sendReceiveCanOpenGui() {
 
+    ImGui::PushID("Coe");
+
     ImGui::PushFont(Fonts::robotoBold20);
-    ImGui::Text("Manual CoE data exchange");
+    ImGui::Text("CanOpen data");
     ImGui::PopFont();
 
     bool allowCoeSendReceive = false;
@@ -302,106 +307,314 @@ void EtherCatSlave::sendReceiveCanOpenGui() {
         ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(0.5, 0.5, 0.5, 1.0));
     }
 
-    ImGui::Text("Upload Data");
-
-    static EtherCatData uploadData = EtherCatData("UploadData", 0x0000, 0x0, EtherCatDataType::Type::UINT8_T);
-
     ImGui::PushID("DataUpload");
     ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
     if (ImGui::BeginTable("##ConfigurationData", 4, tableFlags)) {
         ImGui::TableSetupColumn("Index");
-        ImGui::TableSetupColumn("Subindex");
+        ImGui::TableSetupColumn("Sub");
         ImGui::TableSetupColumn("Datatype");
-        ImGui::TableSetupColumn("Value");
+        ImGui::TableSetupColumn("Format");
         ImGui::TableHeadersRow();
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
         ImGui::SetNextItemWidth(ImGui::CalcTextSize("Index").x);
-        if (uploadData.indexEditFieldGui()) uploadData.b_hasTransferred = false;
+        if (uploadCoeData.indexEditFieldGui()) uploadCoeData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(1);
-        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Subindex").x);
-        if (uploadData.subindexEditFieldGui()) uploadData.b_hasTransferred = false;
+        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Sub").x);
+        if (uploadCoeData.subindexEditFieldGui()) uploadCoeData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(2);
         ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
-        if (uploadData.dataTypeSelectorGui()) uploadData.b_hasTransferred = false;
+        if (uploadCoeData.dataTypeSelectorGui()) uploadCoeData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(3);
-        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
-        if (uploadData.dataEditFieldGui()) uploadData.b_hasTransferred = false;
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+        uploadCoeData.dataFormatSelectorGui();
         ImGui::EndTable();
     }
-    ImGui::PopID();
     
+    ImGui::SetNextItemWidth(ImGui::GetItemRectSize().x);
+    uploadCoeData.dataEditFieldGui();
+
+    ImGui::PopID();
+
     if(ImGui::Button("Upload")) {
-        std::thread dataUploader = std::thread([&]() {
-            uploadData.b_hasTransferred = true;
-            uploadData.b_isTransfering = true;
-            uploadData.b_transferSuccessfull = uploadData.write(getSlaveIndex());
-            uploadData.b_isTransfering = false;
+        std::thread dataUploader = std::thread([this]() {
+            uploadCoeData.b_hasTransferred = true;
+            uploadCoeData.b_isTransfering = true;
+            uploadCoeData.b_transferSuccessfull = uploadCoeData.write(getSlaveIndex());
+            uploadCoeData.b_isTransfering = false;
         });
         dataUploader.detach();
     }
-    if (uploadData.b_hasTransferred) {
+    if (uploadCoeData.b_hasTransferred) {
         ImGui::SameLine();
-        ImGui::Text(uploadData.b_isTransfering ? "Uploading..." : (uploadData.b_transferSuccessfull ? "Upload Successfull" : "Upload Failed"));
+        ImGui::Text(uploadCoeData.b_isTransfering ? "Uploading..." : (uploadCoeData.b_transferSuccessfull ? "Upload Successfull" : "Upload Failed"));
     }
 
     
     ImGui::Separator();
 
-    ImGui::Text("Download Data");
-
-    static EtherCatData downloadData = EtherCatData("DownloadData", 0x0000, 0x0, EtherCatDataType::Type::UINT8_T);
-
     ImGui::PushID("DownloadData");
     if (ImGui::BeginTable("##ConfigurationData", 4, tableFlags)) {
         ImGui::TableSetupColumn("Index");
-        ImGui::TableSetupColumn("Subindex");
+        ImGui::TableSetupColumn("Sub");
         ImGui::TableSetupColumn("Datatype");
-        ImGui::TableSetupColumn("Value");
+        ImGui::TableSetupColumn("Format");
         ImGui::TableHeadersRow();
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        ImGui::Text("0x");
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, 0));
-        ImGui::SameLine();
-        ImGui::PopStyleVar();
-        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 3.0);
-        if (downloadData.indexEditFieldGui()) downloadData.b_hasTransferred = false;
+        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Index").x);
+        if (downloadCoeData.indexEditFieldGui()) downloadCoeData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(1);
-        ImGui::Text("0x");
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, 0));
-        ImGui::SameLine();
-        ImGui::PopStyleVar();
-        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 2.0);
-        if (downloadData.subindexEditFieldGui()) downloadData.b_hasTransferred = false;
+        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Sub").x);
+        if (downloadCoeData.subindexEditFieldGui()) downloadCoeData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(2);
         ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
-        if (downloadData.dataTypeSelectorGui()) downloadData.b_hasTransferred = false;
+        if (downloadCoeData.dataTypeSelectorGui()) downloadCoeData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(3);
-        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
-        downloadData.valueTextGui();
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+        downloadCoeData.dataFormatSelectorGui();
         ImGui::EndTable();
     }
+
+    ImGui::SetNextItemWidth(ImGui::GetItemRectSize().x);
+    downloadCoeData.valueTextGui();
+
     ImGui::PopID();
 
     static bool uploadResult;
     if (ImGui::Button("Download")) {
-        std::thread dataDownloader = std::thread([&]() {
-            downloadData.b_isTransfering = true;
-            downloadData.b_transferSuccessfull = downloadData.read(getSlaveIndex());
-            downloadData.b_isTransfering = false;
-            });
+        std::thread dataDownloader = std::thread([this]() {
+            downloadCoeData.b_hasTransferred = true;
+            downloadCoeData.b_isTransfering = true;
+            downloadCoeData.b_transferSuccessfull = downloadCoeData.read(getSlaveIndex());
+            downloadCoeData.b_isTransfering = false;
+        });
         dataDownloader.detach();
     }
 
-    if (downloadData.b_hasTransferred) {
+    if (downloadCoeData.b_hasTransferred) {
         ImGui::SameLine();
-        ImGui::Text(downloadData.b_isTransfering ? "Downloading..." : (downloadData.b_transferSuccessfull ? "Download Successfull" : "Download Failed"));
+        ImGui::Text(downloadCoeData.b_isTransfering ? "Downloading..." : (downloadCoeData.b_transferSuccessfull ? "Download Successfull" : "Download Failed"));
     }
 
     if (!allowCoeSendReceive) {
         ImGui::PopItemFlag();
         ImGui::PopStyleColor();
     }
+
+    ImGui::PopID();
     
+}
+
+
+
+
+
+void EtherCatSlave::sendReceiveEtherCatRegisterGui() {
+
+    ImGui::PushID("ESC");
+
+    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::Text("EtherCAT register data");
+    ImGui::PopFont();
+
+    bool allowRegisterSendReceive = isDetected();
+    if (!isDetected()) ImGui::TextWrapped("Sending and Receving CanOpen Data is disabled while the device is not detected");
+
+    if (!allowRegisterSendReceive) {
+        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(0.5, 0.5, 0.5, 1.0));
+    }
+
+    ImGui::PushID("DataUpload");
+    ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
+    if (ImGui::BeginTable("##ConfigurationData", 3, tableFlags)) {
+        ImGui::TableSetupColumn("Register");
+        ImGui::TableSetupColumn("Datatype");
+        ImGui::TableSetupColumn("Format");
+        ImGui::TableHeadersRow();
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Register").x);
+        if (uploadRegisterData.registerEditFieldGui()) uploadRegisterData.b_hasTransferred = false;
+        ImGui::TableSetColumnIndex(1);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
+        if (uploadRegisterData.dataTypeSelectorGui()) uploadRegisterData.b_hasTransferred = false;
+        ImGui::TableSetColumnIndex(2);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+        uploadRegisterData.dataFormatSelectorGui();
+        ImGui::EndTable();
+    }
+
+    ImGui::SetNextItemWidth(ImGui::GetItemRectSize().x);
+    uploadRegisterData.dataEditFieldGui();
+    
+    ImGui::PopID();
+
+    if (ImGui::Button("Upload")) {
+        std::thread dataUploader = std::thread([this]() {
+            uploadRegisterData.b_hasTransferred = true;
+            uploadRegisterData.b_isTransfering = true;
+            uploadRegisterData.b_transferSuccessfull = uploadRegisterData.write(getAssignedAddress());
+            uploadRegisterData.b_isTransfering = false;
+        });
+        dataUploader.detach();
+    }
+    if (uploadRegisterData.b_hasTransferred) {
+        ImGui::SameLine();
+        ImGui::Text(uploadRegisterData.b_isTransfering ? "Uploading..." : (uploadRegisterData.b_transferSuccessfull ? "Upload Successfull" : "Upload Failed"));
+    }
+
+
+    ImGui::Separator();
+
+    ImGui::PushID("DownloadData");
+    if (ImGui::BeginTable("##ConfigurationData", 3, tableFlags)) {
+        ImGui::TableSetupColumn("Register");
+        ImGui::TableSetupColumn("Datatype");
+        ImGui::TableSetupColumn("Format");
+        ImGui::TableHeadersRow();
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Register").x);
+        if (downloadRegisterData.registerEditFieldGui()) downloadRegisterData.b_hasTransferred = false;
+        ImGui::TableSetColumnIndex(1);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
+        if (downloadRegisterData.dataTypeSelectorGui()) downloadRegisterData.b_hasTransferred = false;
+        ImGui::TableSetColumnIndex(2);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+        downloadRegisterData.dataFormatSelectorGui();
+        ImGui::EndTable();
+    }
+
+    ImGui::SetNextItemWidth(ImGui::GetItemRectSize().x);
+    downloadRegisterData.valueTextGui();
+
+    ImGui::PopID();
+
+    static bool uploadResult;
+    if (ImGui::Button("Download")) {
+        std::thread dataDownloader = std::thread([&]() {
+            downloadRegisterData.b_hasTransferred = true;
+            downloadRegisterData.b_isTransfering = true;
+            downloadRegisterData.b_transferSuccessfull = downloadRegisterData.read(getAssignedAddress());
+            downloadRegisterData.b_isTransfering = false;
+        });
+        dataDownloader.detach();
+    }
+
+    if (downloadRegisterData.b_hasTransferred) {
+        ImGui::SameLine();
+        ImGui::Text(downloadRegisterData.b_isTransfering ? "Downloading..." : (downloadRegisterData.b_transferSuccessfull ? "Download Successfull" : "Download Failed"));
+    }
+
+    if (!allowRegisterSendReceive) {
+        ImGui::PopItemFlag();
+        ImGui::PopStyleColor();
+    }
+
+    ImGui::PopID();
+    
+}
+
+
+
+
+void EtherCatSlave::sendReceiveEepromGui() {
+
+    ImGui::PushID("EPPROM");
+
+    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::Text("EEPROM data");
+    ImGui::PopFont();
+
+    bool allowRegisterSendReceive = isDetected();
+    if (!isDetected()) ImGui::TextWrapped("Sending and Receving CanOpen Data is disabled while the device is not detected");
+
+    if (!allowRegisterSendReceive) {
+        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(0.5, 0.5, 0.5, 1.0));
+    }
+
+    ImGui::PushID("DataUpload");
+    ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
+    if (ImGui::BeginTable("##ConfigurationData", 2, tableFlags)) {
+        ImGui::TableSetupColumn("Address");
+        ImGui::TableSetupColumn("Format");
+        ImGui::TableHeadersRow();
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Address").x);
+        if (uploadEepromData.addressFieldGui()) uploadEepromData.b_hasTransferred = false;
+        ImGui::TableSetColumnIndex(1);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+        uploadEepromData.dataFormatSelectorGui();
+        ImGui::EndTable();
+    }
+
+    ImGui::SetNextItemWidth(ImGui::GetItemRectSize().x);
+    uploadEepromData.dataEditFieldGui();
+
+    ImGui::PopID();
+
+    if (ImGui::Button("Upload")) {
+        std::thread dataUploader = std::thread([this]() {
+            uploadEepromData.b_hasTransferred = true;
+            uploadEepromData.b_isTransfering = true;
+            uploadEepromData.b_transferSuccessfull = uploadEepromData.write(getSlaveIndex());
+            uploadEepromData.b_isTransfering = false;
+            });
+        dataUploader.detach();
+    }
+    if (uploadEepromData.b_hasTransferred) {
+        ImGui::SameLine();
+        ImGui::Text(uploadEepromData.b_isTransfering ? "Uploading..." : (uploadEepromData.b_transferSuccessfull ? "Upload Successfull" : "Upload Failed"));
+    }
+
+
+    ImGui::Separator();
+
+    ImGui::PushID("DownloadData");
+    if (ImGui::BeginTable("##ConfigurationData", 2, tableFlags)) {
+        ImGui::TableSetupColumn("Address");
+        ImGui::TableSetupColumn("Format");
+        ImGui::TableHeadersRow();
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Address").x);
+        if (downloadEepromData.addressFieldGui()) downloadEepromData.b_hasTransferred = false;
+        ImGui::TableSetColumnIndex(1);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+        downloadEepromData.dataFormatSelectorGui();
+        ImGui::EndTable();
+    }
+
+    ImGui::SetNextItemWidth(ImGui::GetItemRectSize().x);
+    downloadEepromData.valueTextGui();
+
+    ImGui::PopID();
+
+    static bool uploadResult;
+    if (ImGui::Button("Download")) {
+        std::thread dataDownloader = std::thread([&]() {
+            downloadEepromData.b_hasTransferred = true;
+            downloadEepromData.b_isTransfering = true;
+            downloadEepromData.b_transferSuccessfull = downloadEepromData.read(getSlaveIndex());
+            downloadEepromData.b_isTransfering = false;
+        });
+        dataDownloader.detach();
+    }
+
+    if (downloadEepromData.b_hasTransferred) {
+        ImGui::SameLine();
+        ImGui::Text(downloadEepromData.b_isTransfering ? "Downloading..." : (downloadEepromData.b_transferSuccessfull ? "Download Successfull" : "Download Failed or Result was 0"));
+    }
+
+    if (!allowRegisterSendReceive) {
+        ImGui::PopItemFlag();
+        ImGui::PopStyleColor();
+    }
+
+    ImGui::PopID();
+
 }

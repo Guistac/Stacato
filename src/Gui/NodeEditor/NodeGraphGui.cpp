@@ -22,7 +22,7 @@ void nodeGraph() {
 
     //========= NODE INSPECTOR AND ADDER PANEL =========
 
-    static float sideBarWidth = ImGui::GetTextLineHeight() * 25.0;
+    static float sideBarWidth = ImGui::GetTextLineHeight() * 28.0;
     static float minSideBarWidth = ImGui::GetTextLineHeight() * 5.0;
 
     glm::vec2 sideBarSize(sideBarWidth, ImGui::GetContentRegionAvail().y);

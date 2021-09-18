@@ -110,8 +110,8 @@ public:
 
     //addresses
     int getSlaveIndex() { return slaveIndex; }
-    int getStationAlias() { return stationAlias; }  //configured station alias address
-    int getAssignedAddress() { return identity->configadr; } //configured station address
+    uint16_t getStationAlias() { return stationAlias; }  //configured station alias address
+    uint16_t getAssignedAddress() { return identity->configadr; } //configured station address
 
     //state machine
     bool isStateOffline()           { return (identity == nullptr) || (identity->state & 0xF) == EC_STATE_NONE; }
@@ -149,6 +149,16 @@ public:
     void pdoDataGui();
     void generalGui();
     void sendReceiveCanOpenGui();
+    void sendReceiveEtherCatRegisterGui();
+    void sendReceiveEepromGui();
+
+    EtherCatRegisterData uploadRegisterData = EtherCatRegisterData("uploadData", 0x0, EtherCatData::Type::UINT8_T, DataFormat::Type::DECIMAL);
+    EtherCatRegisterData downloadRegisterData = EtherCatRegisterData("downloadData", 0x0, EtherCatData::Type::UINT8_T, DataFormat::Type::DECIMAL);
+    EtherCatCoeData uploadCoeData = EtherCatCoeData("uploadData", 0x0, 0x0, EtherCatData::Type::UINT8_T, DataFormat::Type::DECIMAL);
+    EtherCatCoeData downloadCoeData = EtherCatCoeData("uploadData", 0x0, 0x0, EtherCatData::Type::UINT8_T, DataFormat::Type::DECIMAL);
+    EtherCatEepromData uploadEepromData = EtherCatEepromData("uploadData", 0x0, DataFormat::Type::DECIMAL);
+    EtherCatEepromData downloadEepromData = EtherCatEepromData("downloadData", 0x0, DataFormat::Type::DECIMAL);
+
 
     //=====Reading and Writing SDO Data
 

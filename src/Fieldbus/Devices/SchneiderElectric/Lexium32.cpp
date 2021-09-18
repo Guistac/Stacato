@@ -320,11 +320,8 @@ void Lexium32::readInputs() {
     operatingModeFinished =     _DCOMstatus & 0x4000;   //Operating mode specific information (b12)
     validPositionReference =    _DCOMstatus & 0x8000;   //drive has a valid position reference
 
-    //check if the current operating mode changed and assign it to the mode variable
-    if (_DCOMopmd_act != mode) {
-        mode = _DCOMopmd_act;
-        modeChar = modelist[mode].c_str();
-    }
+    //retrieve the operating mode id
+     modeID = _DCOMopmd_act;
 
     //find the state using the state bits
     if (!readyToSwitchOn) {
@@ -484,7 +481,7 @@ void Lexium32::prepareOutputs(){
     //bits 10 to 15 have to be 0
     b_faultResetState = false; //always reset bit after performing a fault reset
 
-    DCOMopmode = modeCommand;
+    DCOMopmode = modeIDCommand;
 
     PPp_target = (int32_t)(positionCommand->getReal() * 131072.0L);
     PVv_target = velocityCommand->getReal();
@@ -520,24 +517,41 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
 
 
+/*
+useful modes:
+Cyclic Synchronous Position
+Cyclic Synchronous Velocity
+Manual/Auto Tuning
 
-std::map<int, std::string> Lexium32::modelist = {
-    {-6, "Manual/Auto Tuning"},
-    {-5, "-5"},
-    {-4, "-4"},
-    {-3, "Motion Sequence"},
-    {-2, "Electronic Gear"},
-    {-1, "Jog"},
-    {0, "0"},
-    {1, "Profile Position"},
-    {2, "2"},
-    {3, "Profile Velocity"},
-    {4, "Profile Torque"},
-    {5, "5"},
-    {6, "Homing"},
-    {7, "Interpolated Position"},
-    {8, "Cyclic Synchronous Position"},
-    {9, "Cyclic Synchronous Velocity"},
-    {10, "Cyclic Synchronous Torque"},
-    {11, "11"}
+*/
+
+std::vector<Lexium32::OperatingMode> Lexium32::operatingModes = {
+    {-6, OperatingMode::Mode::TUNING , "Manual/Auto Tuning"},
+    {-3, OperatingMode::Mode::MOTION_SEQUENCE , "Motion Sequence"},
+    {-2, OperatingMode::Mode::ELECTRONIC_GEAR , "Electronic Gear"},
+    {-1, OperatingMode::Mode::JOG , "Jog"},
+    {1,  OperatingMode::Mode::PROFILE_POSITION ,"Profile Position"},
+    {3,  OperatingMode::Mode::PROFILE_VELOCITY ,"Profile Velocity"},
+    {4,  OperatingMode::Mode::PROFILE_TORQUE ,"Profile Torque"},
+    {6,  OperatingMode::Mode::HOMING ,"Homing"},
+    {7,  OperatingMode::Mode::INTERPOLATED_POSITION ,"Interpolated Position"},
+    {8,  OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION ,"Cyclic Synchronous Position"},
+    {9,  OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY ,"Cyclic Synchronous Velocity"},
+    {10, OperatingMode::Mode::CYCLIC_SYNCHRONOUS_TORQUE , "Cyclic Synchronous Torque"},
 };
+
+std::vector<Lexium32::OperatingMode> Lexium32::availableOperatingModes = {
+    {8, OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION, "Position Control"},
+    {9, OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY,"Manual Velocity Control"},
+    {-6,OperatingMode::Mode::TUNING, "Tuning"}
+};
+
+Lexium32::OperatingMode* Lexium32::getOperatingMode() {
+    for (OperatingMode& availableOperatingMode : availableOperatingModes) {
+        if (modeID == availableOperatingMode.id) return &availableOperatingMode;
+    }
+    for (OperatingMode& operatingMode : operatingModes) {
+        if (modeID == operatingMode.id) return &operatingMode;
+    }
+    return nullptr;
+}

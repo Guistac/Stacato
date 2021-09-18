@@ -2,12 +2,12 @@
     <NodeGraph>
         <Nodes>
             <Node ClassName="Axis" UniqueID="1" NodeType="AXIS" CustomName="Axis">
-                <NodeEditorPosition x="-1128" y="-2429"/>
+                <NodeEditorPosition x="-780" y="-2390"/>
                 <NodeSpecificData>
                     <Axis Type="Linear" Unit="Meter"/>
                     <Feedback Type="Incremental" Unit="Rotations" UnitsPerAxisUnit="1"/>
                     <Command Type="Velocity" Unit="Rotations" UnitsPerAxisUnit="2"/>
-                    <PositionReference Type="LowHigh" MaxPositiveDeviation="5" MaxNegativeDeviation="-6" HomingVelocity_degreesPerSecond="7" HomingDirection="DontCare"/>
+                    <PositionReference Type="LowHigh" MaxPositiveDeviation="5" MaxNegativeDeviation="-6" HomingVelocity_degreesPerSecond="7" HomingDirection="Negative"/>
                     <KinematicLimits VelocityLimit_degreesPerSecond="3" AccelerationLimit_degreesPerSecondSquared="4"/>
                     <DefaultManualParameters Velocity_degreesPerSecond="10" Acceleration_degreesPerSecondSquared="5"/>
                 </NodeSpecificData>
@@ -23,14 +23,49 @@
                     <OutputPin Name="Reset Position Feedback" DataType="Boolean" UniqueID="8" Boolean="false" Visible="true"/>
                 </OutputPins>
             </Node>
+            <Node ClassName="LXM32M EtherCAT" UniqueID="9" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="true" CustomName="LXM32M EtherCAT">
+                <InputNodeEditorPosition x="-136" y="-2217"/>
+                <OutputNodeEditorPosition x="-1256" y="-2516"/>
+                <NodeSpecificData StationAlias="303"/>
+                <InputPins>
+                    <InputPin Name="Position" DataType="Real" UniqueID="10" Real="0" Visible="true"/>
+                    <InputPin Name="Velocity" DataType="Real" UniqueID="11" Real="0" Visible="true"/>
+                    <InputPin Name="DQ0" DataType="Boolean" UniqueID="12" Boolean="false" Visible="true"/>
+                    <InputPin Name="DQ1" DataType="Boolean" UniqueID="13" Boolean="false" Visible="true"/>
+                    <InputPin Name="DQ2" DataType="Boolean" UniqueID="14" Boolean="false" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin Name="Motor" DataType="unknown" UniqueID="15" Visible="true"/>
+                    <OutputPin Name="Torque" DataType="Real" UniqueID="16" Real="0" Visible="true"/>
+                    <OutputPin Name="Encoder" DataType="unknown" UniqueID="17" Visible="true"/>
+                    <OutputPin Name="Position" DataType="Real" UniqueID="18" Real="0" Visible="true"/>
+                    <OutputPin Name="Velocity" DataType="Real" UniqueID="19" Real="0" Visible="true"/>
+                    <OutputPin Name="GPIO" DataType="unknown" UniqueID="20" Visible="true"/>
+                    <OutputPin Name="DI0" DataType="Boolean" UniqueID="21" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI1" DataType="Boolean" UniqueID="22" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI2" DataType="Boolean" UniqueID="23" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI3" DataType="Boolean" UniqueID="24" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI4" DataType="Boolean" UniqueID="25" Boolean="false" Visible="true"/>
+                    <OutputPin Name="DI5" DataType="Boolean" UniqueID="26" Boolean="false" Visible="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
-        <Links/>
+        <Links>
+            <Link UniqueID="27" StartPin="15" EndPin="2"/>
+            <Link UniqueID="28" StartPin="17" EndPin="3"/>
+            <Link UniqueID="29" StartPin="18" EndPin="4"/>
+            <Link UniqueID="30" StartPin="20" EndPin="5"/>
+            <Link UniqueID="31" StartPin="21" EndPin="6"/>
+            <Link UniqueID="32" StartPin="22" EndPin="6"/>
+            <Link UniqueID="33" StartPin="7" EndPin="10"/>
+            <Link UniqueID="34" StartPin="8" EndPin="12"/>
+        </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="Microsoft" Name="\Device\NPF_{94C82131-D635-43BC-AA0D-763132AE31BA}"/>
+        <Primary Description="Realtek USB NIC" Name="\Device\NPF_{42C81A11-795E-4D7C-83AE-39EF61932528}"/>
     </NetworkInterfaceCard>
-    <Timing ProcessIntervalMilliseconds="1.5" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000000000001" SlaveStateCheckCycleCount="50"/>
+    <Timing ProcessIntervalMilliseconds="1.5" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612" SlaveStateCheckCycleCount="50"/>
 </FieldbusSettings>

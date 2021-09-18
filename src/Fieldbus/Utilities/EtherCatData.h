@@ -2,7 +2,7 @@
 
 #include <ethercat.h>
 
-struct EtherCatDataType {
+struct EtherCatData {
 	enum Type {
 		UINT8_T,
 		INT8_T,
@@ -18,56 +18,70 @@ struct EtherCatDataType {
 	const char saveName[64];
 };
 
-class EtherCatData{
+extern std::vector<EtherCatData> dataTypes;
+
+struct DataFormat {
+	enum Type {
+		DECIMAL,
+		HEXADECIMAL,
+		BINARY
+	};
+	Type type;
+	const char displayName[64];
+	const char saveName[64];
+};
+
+extern std::vector<DataFormat> dataRepresentations;
+
+class EtherCatBaseData {
 public:
 
-	EtherCatData(const char* name, uint16_t idx, uint8_t sidx, EtherCatDataType::Type type) {
-		sprintf(variableName, name);
-		index = idx;
-		subindex = subindex;
-		dataType = type;
+	EtherCatBaseData(const char* n, EtherCatData::Type t, DataFormat::Type r) {
+		sprintf(name, n);
+		dataType = t;
+		dataFormat = r;
 	}
 
-	EtherCatDataType::Type dataType;
-	char variableName[128];
-	uint16_t index;
-	uint8_t subindex;
+	EtherCatData::Type dataType;
+	DataFormat::Type dataFormat;
+	char name[128];
 
-	union {
-		uint8_t		u8;
-		int8_t		s8;
-		uint16_t	u16;
-		int16_t		s16;
-		uint32_t	u32;
-		int32_t		s32;
-		uint64_t	u64;
-		int64_t		s64;
-	};
+	uint8_t		u8 = 0;
+	int8_t		s8 = 0;
+	uint16_t	u16 = 0;
+	int16_t		s16 = 0;
+	uint32_t	u32 = 0;
+	int32_t		s32 = 0;
+	uint64_t	u64 = 0;
+	int64_t		s64 = 0;
 
 	const char* getTypeString() {
 		return dataTypes[dataType].displayName;
 	}
 
+	const char* getRepresentationString() {
+		return dataRepresentations[dataFormat].displayName;
+	}
+
 	const char* getValueString() {
 		static char valueString[64];
 		switch (dataType) {
-			case EtherCatDataType::Type::UINT8_T:	sprintf(valueString, "%i", u8); break;
-			case EtherCatDataType::Type::INT8_T:	sprintf(valueString, "%i", s8); break;
-			case EtherCatDataType::Type::UINT16_T:	sprintf(valueString, "%i", u16); break;
-			case EtherCatDataType::Type::INT16_T:	sprintf(valueString, "%i", s16); break;
-			case EtherCatDataType::Type::UINT32_T:	sprintf(valueString, "%i", u32); break;
-			case EtherCatDataType::Type::INT32_T:	sprintf(valueString, "%i", s32); break;
-			case EtherCatDataType::Type::UINT64_T:	sprintf(valueString, "%i", u64); break;
-			case EtherCatDataType::Type::INT64_T:	sprintf(valueString, "%i", s64); break;
+			case EtherCatData::Type::UINT8_T:	sprintf(valueString, "%i", u8); break;
+			case EtherCatData::Type::INT8_T:	sprintf(valueString, "%i", s8); break;
+			case EtherCatData::Type::UINT16_T:	sprintf(valueString, "%i", u16); break;
+			case EtherCatData::Type::INT16_T:	sprintf(valueString, "%i", s16); break;
+			case EtherCatData::Type::UINT32_T:	sprintf(valueString, "%i", u32); break;
+			case EtherCatData::Type::INT32_T:	sprintf(valueString, "%i", s32); break;
+			case EtherCatData::Type::UINT64_T:	sprintf(valueString, "%i", u64); break;
+			case EtherCatData::Type::INT64_T:	sprintf(valueString, "%i", s64); break;
 		}
 		return valueString;
 	}
 
 	void valueTextGui();
-	bool indexEditFieldGui();
-	bool subindexEditFieldGui();
 	bool dataEditFieldGui();
 	bool dataTypeSelectorGui();
+	void dataFormatSelectorGui();
 
 	void set(uint8_t val) { u8 = val; }
 	void set(int8_t val) { u8 = val; }
@@ -87,13 +101,63 @@ public:
 	uint64_t getU64() { return u64; }
 	int64_t getS64() { return s64; }
 
-	bool write(uint16_t slaveIndex);
-	bool read(uint16_t slaveIndex);
+	virtual bool write(uint16_t slaveIndex) = 0;
+	virtual bool read(uint16_t slaveIndex) = 0;
 
-	static std::vector<EtherCatDataType> dataTypes;
-	 
 	bool b_isTransfering = false;
 	bool b_transferSuccessfull = false;
 	bool b_hasTransferred = false;
 };
 
+
+
+
+class EtherCatCoeData : public EtherCatBaseData {
+public:
+
+	EtherCatCoeData(const char* name, uint16_t idx, uint8_t sidx, EtherCatData::Type type, DataFormat::Type r) : EtherCatBaseData(name, type, r){
+		index = idx;
+		subindex = sidx;
+	}
+
+	uint16_t index;
+	uint8_t subindex;
+
+	bool indexEditFieldGui();
+	bool subindexEditFieldGui();
+
+	virtual bool write(uint16_t slaveIndex);
+	virtual bool read(uint16_t slaveIndex);
+};
+
+
+
+class EtherCatRegisterData : public EtherCatBaseData {
+public:
+
+	EtherCatRegisterData(const char* name, uint16_t reg, EtherCatData::Type type, DataFormat::Type r) : EtherCatBaseData(name, type, r) {
+		registerAddress = reg;
+	}
+
+	uint16_t registerAddress;
+
+	bool registerEditFieldGui();
+
+	virtual bool write(uint16_t slaveAddress);
+	virtual bool read(uint16_t slaveAddress);
+
+};
+
+class EtherCatEepromData : public EtherCatBaseData {
+public:
+	EtherCatEepromData(const char* name, uint16_t a, DataFormat::Type r) : EtherCatBaseData(name, EtherCatData::Type::UINT32_T, r) {
+		address = a;
+	}
+
+	uint16_t address;
+
+	bool addressFieldGui();
+
+	virtual bool write(uint16_t slaveIndex);
+	virtual bool read(uint16_t slaveIndex);
+};
