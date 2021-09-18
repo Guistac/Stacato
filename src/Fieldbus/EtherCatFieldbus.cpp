@@ -133,7 +133,23 @@ namespace EtherCatFieldbus {
     }
 
 
-
+    bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID) {
+        int wc = 0;
+        uint16_t ALstatus;
+        wc = ec_FPRD(configAddress, 0x130, 2, &ALstatus, EC_TIMEOUTSAFE);
+        uint16_t ALcontrol = ALstatus |= 0x20;
+        wc = ec_FPWR(configAddress, 0x120, 2, &ALcontrol, EC_TIMEOUTSAFE);
+        wc = ec_FPRD(configAddress, 0x130, 2, &ALstatus, EC_TIMEOUTSAFE);
+        bool supported = ALstatus & 0x20;
+        if (supported) {
+            uint16_t ALstatusCode;
+            wc = ec_FPRD(configAddress, 0x134, 2, &ALstatusCode, EC_TIMEOUTSAFE);
+            ID = ALstatusCode;
+        }
+        ALcontrol &= ~0x20;
+        ec_FPWR(configAddress, 0x120, 2, &ALcontrol, EC_TIMEOUTSAFE);
+        return supported;
+    }
 
 
     //----- Scan The Fieldbus For Slaves -----
@@ -163,6 +179,20 @@ namespace EtherCatFieldbus {
                 std::shared_ptr<EtherCatSlave> slave = EtherCatDeviceFactory::getDeviceByName(slv.name);
                 //we need the station alias to be able to compare the slave to the environnement slaves
                 slave->stationAlias = slv.aliasadr;
+
+                uint16_t explicitDeviceID;
+                bool explicitDeviceIDsupported = false;
+                int tries = 0;
+                while (tries < 4) {
+                    if (getExplicitDeviceID(slv.configadr, explicitDeviceID)) {
+                        explicitDeviceIDsupported = true;
+                        break;
+                    }
+                    tries++;
+                }
+                if(explicitDeviceIDsupported) Logger::warn("Device Supports Explicit Device ID: {}", explicitDeviceID);
+                else Logger::warn("Device Does not support Explicit DeviceID");
+                
 
                 bool environnementHasSlave = Environnement::hasEtherCatSlave(slave);
 

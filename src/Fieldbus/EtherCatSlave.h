@@ -86,6 +86,21 @@
 
 #define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getNodeNameStatic()) == 0) return std::make_shared<className>()
 
+struct EtherCatSlaveIdentification {
+    enum class Type {
+        STATION_ALIAS,
+        EXPLICIT_DEVICE_ID
+    };
+    Type type;
+    const char displayName[64];
+    const char saveName[64];
+};
+
+extern std::vector<EtherCatSlaveIdentification> indentificationTypes;
+std::vector<EtherCatSlaveIdentification>& getIdentificationTypes();
+EtherCatSlaveIdentification* getIdentificationType(const char *);
+EtherCatSlaveIdentification* getIdentificationType(EtherCatSlaveIdentification::Type t);
+
 class EtherCatSlave : public DeviceNode {
 public:
 
@@ -94,8 +109,11 @@ public:
     INTERFACE_DEFINITION(EtherCatSlave, "Unknown Device", "Unknown manufacturer", "No Category");
 
     int slaveIndex = -1;
-    uint16_t stationAlias = -1;
     ec_slavet* identity = nullptr;
+
+    EtherCatSlaveIdentification::Type identificationType = EtherCatSlaveIdentification::Type::STATION_ALIAS;
+    uint16_t stationAlias = 0;
+    uint16_t explicitDeviceID = 0;
 
     //public display of raw pdo data
     EtherCatPdoAssignement txPdoAssignement;
@@ -138,6 +156,7 @@ public:
     bool supportsCoE_upload()       { return identity->CoEdetails & ECT_COEDET_UPLOAD; }
     bool supportsCoE_SDOCA()        { return identity->CoEdetails & ECT_COEDET_SDOCA; }
 
+
     bool b_mapped = false;
 
     uint16_t previousState = -1;
@@ -152,12 +171,12 @@ public:
     void sendReceiveEtherCatRegisterGui();
     void sendReceiveEepromGui();
 
-    EtherCatRegisterData uploadRegisterData = EtherCatRegisterData("uploadData", 0x0, EtherCatData::Type::UINT8_T, DataFormat::Type::DECIMAL);
-    EtherCatRegisterData downloadRegisterData = EtherCatRegisterData("downloadData", 0x0, EtherCatData::Type::UINT8_T, DataFormat::Type::DECIMAL);
-    EtherCatCoeData uploadCoeData = EtherCatCoeData("uploadData", 0x0, 0x0, EtherCatData::Type::UINT8_T, DataFormat::Type::DECIMAL);
-    EtherCatCoeData downloadCoeData = EtherCatCoeData("uploadData", 0x0, 0x0, EtherCatData::Type::UINT8_T, DataFormat::Type::DECIMAL);
-    EtherCatEepromData uploadEepromData = EtherCatEepromData("uploadData", 0x0, DataFormat::Type::DECIMAL);
-    EtherCatEepromData downloadEepromData = EtherCatEepromData("downloadData", 0x0, DataFormat::Type::DECIMAL);
+    EtherCatRegisterData uploadRegisterData = EtherCatRegisterData("uploadData", 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::BINARY);
+    EtherCatRegisterData downloadRegisterData = EtherCatRegisterData("downloadData", 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::BINARY);
+    EtherCatCoeData uploadCoeData = EtherCatCoeData("uploadData", 0x0, 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::DECIMAL);
+    EtherCatCoeData downloadCoeData = EtherCatCoeData("uploadData", 0x0, 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::DECIMAL);
+    EtherCatEepromData uploadEepromData = EtherCatEepromData("uploadData", 0x0, DataFormat::Type::HEXADECIMAL);
+    EtherCatEepromData downloadEepromData = EtherCatEepromData("downloadData", 0x0, DataFormat::Type::HEXADECIMAL);
 
 
     //=====Reading and Writing SDO Data

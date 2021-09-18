@@ -7,6 +7,27 @@
 #include <imgui_internal.h>
 #include <tinyxml2.h>
 
+std::vector<EtherCatSlaveIdentification> identificationTypes = {
+    {EtherCatSlaveIdentification::Type::STATION_ALIAS, "Station Alias", "StationAlias"},
+    {EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID, "Explicit Device ID", "ExplicitDeviceID"}
+};
+
+std::vector<EtherCatSlaveIdentification>& getIdentificationTypes() {
+    return identificationTypes;
+}
+EtherCatSlaveIdentification* getIdentificationType(const char* saveName) {
+    for (EtherCatSlaveIdentification& identification : identificationTypes) {
+        if (strcmp(saveName, identification.saveName) == 0) return &identification;
+    }
+    return nullptr;
+}
+EtherCatSlaveIdentification* getIdentificationType(EtherCatSlaveIdentification::Type t) {
+    for (EtherCatSlaveIdentification& identification : identificationTypes) {
+        if (t == identification.type) return &identification;
+    }
+    return nullptr;
+}
+
 /*
 bool EtherCatSlave::getPDOMapping(EtherCatPDO& pdo, uint16_t pdoIndex, const char* pdoDescription) {
 
@@ -148,8 +169,6 @@ void EtherCatSlave::compareNewState() {
         }
     }
 }
-
-
 
 
 //===== Reading SDO Data

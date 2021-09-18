@@ -27,7 +27,7 @@ namespace Environnement {
 		document.InsertEndChild(fieldbusSettingsXML);
 		EtherCatFieldbus::save(fieldbusSettingsXML);
 
-		return document.SaveFile(filePath);
+		return XML_SUCCESS == document.SaveFile(filePath);
 	}
 
 

@@ -25,6 +25,8 @@ namespace EtherCatFieldbus {
     bool save(tinyxml2::XMLElement* xml);
     bool load(tinyxml2::XMLElement* xml);
 
+    bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID);
+
     //process timing
     extern double processInterval_milliseconds;
     extern double processDataTimeout_milliseconds;

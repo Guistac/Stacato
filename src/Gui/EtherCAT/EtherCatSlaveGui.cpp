@@ -88,13 +88,36 @@ void EtherCatSlave::generalGui() {
     ImGui::PopFont();
     ImGui::PopItemFlag();
 
+   
+
     ImGui::PushFont(Fonts::robotoBold15);
-    ImGui::Text("Station Alias");
+    ImGui::Text("Identification Type");
     ImGui::PopFont();
-    ImGui::InputScalar("##stationAlias", ImGuiDataType_U16, &stationAlias);
-    if (ImGui::IsItemHovered()) ImGui::SetTooltip("This is the manual address of the EtherCAT device."
-                                                  "\nThe station alias needs to match the device for it to be recognized."
-                                                  "\nAddresses range from 0 to 65535.");
+    if (ImGui::BeginCombo("##identificationType", getIdentificationType(identificationType)->displayName)) {
+        for (auto& identification : getIdentificationTypes()) {
+            if (ImGui::Selectable(identification.displayName, identificationType == identification.type)) {
+                identificationType = identification.type;
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    switch (identificationType) {
+    case EtherCatSlaveIdentification::Type::STATION_ALIAS:
+        ImGui::InputScalar("##stationAlias", ImGuiDataType_U16, &stationAlias);
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("This is the manual address of the EtherCAT device."
+            "\nThe station alias needs to match the device for it to be recognized."
+            "\nAddresses range from 0 to 65535.");
+        break;
+    case EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID:
+        ImGui::InputScalar("##explicitDeviceID", ImGuiDataType_U16, &explicitDeviceID);
+        /*
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("This is the manual address of the EtherCAT device."
+            "\nThe station alias needs to match the device for it to be recognized."
+            "\nAddresses range from 0 to 65535.");
+            */
+        break;
+    }
 }
 
 void EtherCatSlave::genericInfoGui() {
