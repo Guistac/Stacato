@@ -390,17 +390,15 @@ namespace EtherCatFieldbus {
                 //adjust the copy of the reference clock in case no frame was received
                 if (workingCounter != expectedWorkingCounter) ec_DCtime += processInterval_nanoseconds;
 
-                static high_resolution_clock::time_point currentCycleTime = high_resolution_clock::now();
-                currentCycleDeltaT_seconds = (double)duration_cast<nanoseconds>(currentCycleTime - previousCycleTime).count() / 1000000000.0;
+                high_resolution_clock::time_point currentCycleTime = high_resolution_clock::now();
+                long long currentCycleDeltaT_nanoseconds = duration_cast<nanoseconds>(currentCycleTime - previousCycleTime).count();
+                currentCycleDeltaT_seconds = (double)currentCycleDeltaT_nanoseconds / 1000000000.0;
                 previousCycleTime = currentCycleTime;
 
                 //interpret the data that was received for all slaves
                 for (auto slave : slaves) slave->readInputs();
-                /*
-                //process the data to generate output values, taking into account if new data wasn't received
-                //(auto slave : slaves) slave->process(workingCounter == expectedWorkingCounter);
-                */
 
+                //update all nodes connected to ethercat slave nodes
                 Environnement::nodeGraph.evaluate(DeviceType::ETHERCATSLAVE);
 
                 //prepare the output data to be sent

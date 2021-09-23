@@ -53,14 +53,13 @@ void Lexium32::assignIoData() {
 
     //node input data
     addIoData(positionCommand);
-    addIoData(velocityCommand);
     addIoData(digitalOut0);
     addIoData(digitalOut1);
     addIoData(digitalOut2);
     
     //node output data
     addIoData(motorLink);
-    addIoData(actualTorque);
+    addIoData(actualLoad);
     addIoData(encoderLink);
     addIoData(actualPosition);
     addIoData(actualVelocity);
@@ -77,7 +76,6 @@ void Lexium32::assignIoData() {
     rxPdoAssignement.addEntry(0x6060, 0x0, 1, "DCOMopmode", &DCOMopmode);
     rxPdoAssignement.addEntry(0x607A, 0x0, 4, "PPp_target", &PPp_target);
     rxPdoAssignement.addEntry(0x60FF, 0x0, 4, "PVv_target", &PVv_target);
-    rxPdoAssignement.addEntry(0x6071, 0x0, 2, "PTtq_target", &PTtq_target);
     rxPdoAssignement.addEntry(0x3008, 0x11, 2, "IO_DQ_set", &IO_DQ_set);
 
     txPdoAssignement.addNewModule(0x1A03);
@@ -85,7 +83,7 @@ void Lexium32::assignIoData() {
     txPdoAssignement.addEntry(0x6061, 0x0, 1, "_DCOMopmd_act", &_DCOMopmd_act);
     txPdoAssignement.addEntry(0x6064, 0x0, 4, "_p_act", &_p_act);
     txPdoAssignement.addEntry(0x606C, 0x0, 4, "_v_act", &_v_act);
-    txPdoAssignement.addEntry(0x6077, 0x0, 2, "_tq_act", &_tq_act);
+    txPdoAssignement.addEntry(0x301E, 0x3, 2, "_I_act", &_I_act);
     txPdoAssignement.addEntry(0x603F, 0x0, 2, "_LastError", &_LastError);
     txPdoAssignement.addEntry(0x3008, 0x1, 2, "_IO_act", &_IO_act);
 }
@@ -131,7 +129,16 @@ bool Lexium32::setStartupParameters() {
     if (!writeSDO(0x6083, 0x0, RAMP_v_acc_set)) return false;
     uint32_t RAMP_v_dec_set = 600;
     if (!writeSDO(0x6084, 0x0, RAMP_v_dec_set)) return false;
+    int32_t ScaleVELdenom = velocityUnitsPerRpm;
+    if (!writeSDO(0x3006, 0x21, ScaleVELdenom)) return false;
+    int32_t ScaleVELnom = 1;
+    if (!writeSDO(0x3006, 0x22, ScaleVELnom)) return false;
 
+    uint16_t maxMotorVelocity_rpm;
+    if (!readSDO(0x300D, 0x4, maxMotorVelocity_rpm)) return false;
+    Logger::info("Max Motor Velocity is {} rpm", maxMotorVelocity_rpm);
+    uint32_t CTRL_v_max = maxMotorVelocity_rpm * velocityUnitsPerRpm;
+    if (!writeSDO(0x3011, 0x10, CTRL_v_max)) return false;
 
     uint16_t _ModuleSlot2;
     if (!readSDO(0x3002, 0x1A, _ModuleSlot2)) return false;
@@ -218,7 +225,7 @@ bool Lexium32::setStartupParameters() {
     if (!writeSDO(0x3006, 0x18, LIM_QStopReact_set)) return false;
     uint16_t IOsigRespOfPS_set = 1;
     if (!writeSDO(0x3006, 0x6, IOsigRespOfPS_set)) return false;
-    int32_t ScalePOSdenom_set = 131072;
+    int32_t ScalePOSdenom_set = positionUnitsPerRevolution;
     if (!writeSDO(0x3006, 0x7, ScalePOSdenom_set)) return false;
     int32_t ScalePOSnum_set = 1;
     if (!writeSDO(0x3006, 0x8, ScalePOSnum_set)) return false;
@@ -230,7 +237,7 @@ bool Lexium32::setStartupParameters() {
     if (!writeSDO(0x6060, 0x0, DCOMopmode_set)) return false;
     uint32_t ECATinpshifttime_set = 250000;
     if (!writeSDO(0x1C33, 0x3, ECATinpshifttime_set)) return false;
-
+    
     return true;
 }
 
@@ -248,34 +255,45 @@ bool Lexium32::assignPDOs() {
     uint16_t RxPDOmodule = 0x1603;
     uint16_t TxPDOmodule = 0x1A03;
 
-    //turn the pdo off by writing a zero to the 0 index, set the mapping object at subindex 1, enable the pdo by writing a 1 (module count) to the index
+    uint8_t RxPDOparameterCount = 5;
+    uint32_t RxPDOparameter1 = 0x60400010; //DCOMcontrol    (uint16_t)
+    uint32_t RxPDOparameter2 = 0x60600008; //DCOMopmode     (int8_t)
+    uint32_t RxPDOparameter3 = 0x607A0020; //PPp_target     (int32_t)
+    uint32_t RxPDOparameter4 = 0x60FF0020; //PVv_target     (int32_t)
+    uint32_t RxPDOparameter5 = 0x30081110; //IO_DQ_set      (uint16_t)
+    if (!writeSDO(RxPDOmodule, 0x0, zero)) return false;
+    if (!writeSDO(RxPDOmodule, 0x1, RxPDOparameter1)) return false;
+    if (!writeSDO(RxPDOmodule, 0x2, RxPDOparameter2)) return false;
+    if (!writeSDO(RxPDOmodule, 0x3, RxPDOparameter3)) return false;
+    if (!writeSDO(RxPDOmodule, 0x4, RxPDOparameter4)) return false;
+    if (!writeSDO(RxPDOmodule, 0x5, RxPDOparameter5)) return false;
+    if (!writeSDO(RxPDOmodule, 0x0, RxPDOparameterCount)) return false;
+
+    uint8_t TxPDOparameterCount = 7;
+    uint32_t TxPDOparameter1 = 0x60410010;  //_DCOMstatus   (uint16_t)
+    uint32_t TxPDOparameter2 = 0x60610008;  //_DCOMopmd_act (uint8_t) 
+    uint32_t TxPDOparameter3 = 0x60640020;  //_p_act        (int32_t) 
+    uint32_t TxPDOparameter4 = 0x606C0020;  //_v_act        (int32_t) 
+    uint32_t TxPDOparameter5 = 0x301E0310;  //_I_act        (int16_t) 
+    uint32_t TxPDOparameter6 = 0x603F0010;  //_LastError    (uint16_t)
+    uint32_t TxPDOparameter7 = 0x30080110;  //_IO_act       (uint16_t)    
+    if (!writeSDO(TxPDOmodule, 0x0, zero)) return false;
+    if (!writeSDO(TxPDOmodule, 0x1, TxPDOparameter1)) return false;
+    if (!writeSDO(TxPDOmodule, 0x2, TxPDOparameter2)) return false;
+    if (!writeSDO(TxPDOmodule, 0x3, TxPDOparameter3)) return false;
+    if (!writeSDO(TxPDOmodule, 0x4, TxPDOparameter4)) return false;
+    if (!writeSDO(TxPDOmodule, 0x5, TxPDOparameter5)) return false;
+    if (!writeSDO(TxPDOmodule, 0x6, TxPDOparameter6)) return false;
+    if (!writeSDO(TxPDOmodule, 0x7, TxPDOparameter7)) return false;
+    if (!writeSDO(TxPDOmodule, 0x0, TxPDOparameterCount)) return false;
+
+    //assign pdo module object to sync manager
     if (!writeSDO(RxPDO, 0x0, zero)) return false;
     if (!writeSDO(RxPDO, 0x1, RxPDOmodule)) return false;
     if (!writeSDO(RxPDO, 0x0, one)) return false;
 
-    //do the same for the TxPDO but modify one parameter
-    if (!writeSDO(TxPDO, 0x0, zero)) return false;
-
-    //we are going to edit one parameter entry of the PDO module
-    //disable TxPDO module before modifying it (set entry count to zero)
-    if (!writeSDO(TxPDOmodule, 0x0, zero)) return false;
-
-    //replace default parameter 4 (_p_dif) by current velocity (_v_act 0x606C 0x00 int32_t)
-    uint32_t TxPDOparameter4 = 0x606C0020;
-    if (!writeSDO(TxPDOmodule, 0x4, TxPDOparameter4)) return false;
-
-    //actual position of encoder (encoder 1 or 2 depends on assignement)
-    //uint32_t TxPDOParameter3 = 0x301E0F20;
-    //uint32_t TxPDOParameter3 = 0x301E1A20; //module encoder
-    //uint32_t TxPDOParameter3 = 0x301E1920;  //module encode internal units
-    //uint32_t TxPDOParameter3 = 0x301E2720;  //internal encoder 
-    //if (!writeSDO(TxPDOmodule, 0x3, TxPDOParameter3)) return false;
-
-    //update parameter count at subindex 0 of pdo object
-    uint8_t TxPDOparameterCount = 7;
-    if (!writeSDO(TxPDOmodule, 0x0, TxPDOparameterCount)) return false;
-
     //assign pdo module object to sync manager
+    if (!writeSDO(TxPDO, 0x0, zero)) return false;
     if (!writeSDO(TxPDO, 0x1, TxPDOmodule)) return false;
     if (!writeSDO(TxPDO, 0x0, one)) return false;
 
@@ -298,7 +316,7 @@ void Lexium32::readInputs() {
     _DCOMopmd_act = inByte[2];                  //Current Operating Mode (ex: cyclic synchronous position)
     _p_act = inByte[3] | inByte[4] << 8 | inByte[5] << 16 | inByte[6] << 24;
     _v_act = inByte[7] | inByte[8] << 8 | inByte[9] << 16 | inByte[10] << 24;
-    _tq_act = inByte[11] | inByte[12] << 8;
+    _I_act = inByte[11] | inByte[12] << 8;
     _LastError = inByte[13] | inByte[14] << 8;
     _IO_act = inByte[15] | inByte[16] << 8;
 
@@ -345,17 +363,15 @@ void Lexium32::readInputs() {
 
     //assign public input data
     //actualPosition = _p_act;
-    actualPosition->set((double)_p_act / 131072.0);
-    actualVelocity->set((double)_v_act);
-    actualTorque->set((double)_tq_act);
+    actualPosition->set((double)_p_act / (double)positionUnitsPerRevolution);
+    actualVelocity->set((double)_v_act / (double)velocityUnitsPerRpm);
+    actualLoad->set(((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps);
     digitalIn0->set((_IO_act & 0x1) != 0x0);
     digitalIn1->set((_IO_act & 0x2) != 0x0);
     digitalIn2->set((_IO_act & 0x4) != 0x0);
     digitalIn3->set((_IO_act & 0x8) != 0x0);
     digitalIn4->set((_IO_act & 0x10) != 0x0);
     digitalIn5->set((_IO_act & 0x20) != 0x0);
-
-
 
     //set subdevice status
 
@@ -377,27 +393,24 @@ void Lexium32::prepareOutputs(){
     if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY) {
 
         double deltaT_seconds = EtherCatFieldbus::getCurrentCycleDeltaT_seconds();
-        Logger::warn("{}", deltaT_seconds);
 
         if (manualVelocityCommand_rpm > profileVelocity_rpm) {
-            
+            double deltaV_rps = manualAcceleration_rps2 * deltaT_seconds;
+            profileVelocity_rpm += deltaV_rps * 60.0;
+            if (profileVelocity_rpm > manualVelocityCommand_rpm) profileVelocity_rpm = manualVelocityCommand_rpm;
         }
         else if (manualVelocityCommand_rpm < profileVelocity_rpm) {
-        
+            double deltaV_rps = manualAcceleration_rps2 * deltaT_seconds;
+            profileVelocity_rpm -= deltaV_rps * 60.0;
+            if (profileVelocity_rpm < manualVelocityCommand_rpm) profileVelocity_rpm = manualVelocityCommand_rpm;
         }
-        else {
-            //if speed is right, don't do anything
-        }
+        profilePosition_r = actualPosition->getReal();
 
-        /*
-        double profileVelocity_rpm = 0.0;
-        double profilePosition_r = 0.0;
-        float manualVelocity_rpm = 0;
-        float manualAcceleration_rpm2 = 100.0;
-        */
+        velocityCommand->set(profileVelocity_rpm);
     }
     else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION) {
-    
+        //in this operating mode, we verify that the input velocity and acceleration don't exceed internal values
+
     }
     else {
         //in tuning mode don't use the profile generator
@@ -488,12 +501,13 @@ void Lexium32::prepareOutputs(){
     if (digitalOut2->isConnected()) digitalOut2->set(digitalOut2->getLinks().front()->getInputData()->getBoolean());
 
 
-    //RxPDO (outputs)
+
+
+    //========== PREPARE RXPDO OUTPUTS ==========
     //DCOMcontrol   (uint16_t)  2
     //DCOMopmode    (int8_t)    1
     //PPp_target    (int32_t)   4
     //PVv_target    (int32_t)   4
-    //PTtq_target   (int32_t)   2
     //IO_DQ_set     (uint16_t)  2
 
     //state control word
@@ -511,14 +525,13 @@ void Lexium32::prepareOutputs(){
     //bits 10 to 15 have to be 0
     b_faultResetState = false; //always reset bit after performing a fault reset
 
-
     OperatingMode* operatingMode = getOperatingMode(requestedOperatingMode);
     int operatingModeID = 0;
     if (operatingMode != nullptr) operatingModeID = operatingMode->id;
     DCOMopmode = operatingModeID;
 
-    PPp_target = (int32_t)(positionCommand->getReal() * 131072.0L);
-    PVv_target = velocityCommand->getReal();
+    PPp_target = (int32_t)(positionCommand->getReal() * positionUnitsPerRevolution);
+    PVv_target = (int32_t)(velocityCommand->getReal() * velocityUnitsPerRpm);
 
     IO_DQ_set = 0;
     if (digitalOut0->getBoolean()) IO_DQ_set |= 0x1;
@@ -538,10 +551,8 @@ void Lexium32::prepareOutputs(){
     outByte[8] = (PVv_target >> 8) & 0xFF;
     outByte[9] = (PVv_target >> 16) & 0xFF;
     outByte[10] = (PVv_target >> 24) & 0xFF;
-    outByte[11] = (PTtq_target >> 0) & 0xFF;
-    outByte[12] = (PTtq_target >> 8) & 0xFF;
-    outByte[13] = (IO_DQ_set >> 0) & 0xFF;
-    outByte[14] = (IO_DQ_set >> 8) & 0xFF;
+    outByte[11] = (IO_DQ_set >> 0) & 0xFF;
+    outByte[12] = (IO_DQ_set >> 8) & 0xFF;
 }
 
 

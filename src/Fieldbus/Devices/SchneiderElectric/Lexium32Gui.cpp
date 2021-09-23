@@ -163,14 +163,23 @@ void Lexium32::controlsGui() {
     else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY) {
         ImGui::TextWrapped("This mode is exclusively designed for manual drive velocity control. When the drive is in this mode, it will only respond to the following velocity parameters.");
         float maxV = maxVelocity_rpm;
-        ImGui::SliderFloat("##manualVelocity", &manualVelocityCommand_rpm, -maxVelocity_rpm, maxVelocity_rpm, "%.3frpm");
+        float vCommand_rpm = manualVelocityCommand_rpm;
+        ImGui::SliderFloat("##manualVelocity", &vCommand_rpm, -maxVelocity_rpm, maxVelocity_rpm, "%.3frpm");
+        if (vCommand_rpm > maxVelocity_rpm) vCommand_rpm = maxVelocity_rpm;
+        else if (vCommand_rpm < -maxVelocity_rpm) vCommand_rpm = -maxAcceleration_rps2;
+        manualVelocityCommand_rpm = vCommand_rpm;
         float velocityFraction = (actualVelocity->getReal() + maxVelocity_rpm) / (2 * maxVelocity_rpm);
         static char actualVelocityString[32];
         sprintf(actualVelocityString, "%.1frpm", actualVelocity->getReal());
         ImGui::ProgressBar(velocityFraction, ImGui::GetItemRectSize(), actualVelocityString);
-        ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rpm2, 0.0, (float)maxAcceleration_rpm2, "Acceleration: %.3f rpm2");
-        if (manualAcceleration_rpm2 > maxAcceleration_rpm2) manualAcceleration_rpm2 = maxAcceleration_rpm2;
+        ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rps2, 0.0, (float)maxAcceleration_rps2, "Acceleration: %.3f rps2");
+        if (manualAcceleration_rps2 > maxAcceleration_rps2) manualAcceleration_rps2 = maxAcceleration_rps2;
         if (ImGui::Button("Stop Movement", glm::vec2(ImGui::GetItemRectSize().x, ImGui::GetTextLineHeight() * 2.0))) manualVelocityCommand_rpm = 0.0;
+
+        ImGui::Text("command: %.3f", velocityCommand->getReal());
+        ImGui::Text("actual: %.3f", actualVelocity->getReal());
+        ImGui::Text("profile: %.3f", profileVelocity_rpm);
+
     }
     else if (actualOperatingMode == OperatingMode::Mode::TUNING) {
         ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
@@ -215,7 +224,7 @@ void Lexium32::limitsGui() {
     ImGui::Text("Max Velocity");
     ImGui::InputDouble("##maxV", &maxVelocity_rpm, 0.0, 0.0, "%.1frpm");
     ImGui::Text("Max Acceleration");
-    ImGui::InputDouble("##maxA", &maxAcceleration_rpm2, 0.0, 0.0, "%.1frpm2");
+    ImGui::InputDouble("##maxA", &maxAcceleration_rps2, 0.0, 0.0, "%.1frps2");
 
     ImGui::Separator();
 

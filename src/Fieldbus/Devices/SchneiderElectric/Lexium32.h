@@ -93,18 +93,30 @@ public:
     //===== Manual Controls =====
 
     float manualVelocityCommand_rpm = 0;
-    float manualAcceleration_rpm2 = 100.0;
+    float manualAcceleration_rps2 = 50.0;
 
     //===== Drive Settings =====
 
     double maxVelocity_rpm = 5000.0;
-    double maxAcceleration_rpm2 = 100.0;
+    double maxAcceleration_rps2 = 100.0;
     double maxCurrent_amps = 5.0;
+
+    //===== Unit Settings =====
+
+    const int velocityUnitsPerRpm = 100;
+    const int positionUnitsPerRevolution = 131072;
+    const int currentUnitsPerAmp = 100;
+
     int encoderIncrementsPerShaftRotation = 131072;
     int encoderMultiturnResolution = 4096;
 
+    //===== Upload Status Variables =====
+
     bool b_uploadingMaxCurrent = true;
     bool b_uploadMaxCurrentSuccess = false;
+
+    bool b_uploadingPinAssignements = true;
+    bool b_uploadPinAssignementSuccess = false;
 
     //===== Limit Switch Assignement ======
 
@@ -128,8 +140,6 @@ public:
     InputPinFunction::Type inputPin3Function = InputPinFunction::Type::UNASSIGNED;
     InputPinFunction::Type inputPin4Function = InputPinFunction::Type::UNASSIGNED;
     InputPinFunction::Type inputPin5Function = InputPinFunction::Type::UNASSIGNED;
-    bool b_uploadingPinAssignements = true;
-    bool b_uploadPinAssignementSuccess = false;
 
     //===== Encoder Settings =====
 
@@ -203,7 +213,6 @@ private:
     int8_t DCOMopmode = 0;
     int32_t PPp_target = 0;
     int32_t PVv_target = 0;
-    int16_t PTtq_target = 0;
     uint16_t IO_DQ_set = 0;
 
     //Tx PDO display Data
@@ -211,7 +220,7 @@ private:
     int8_t _DCOMopmd_act = 0;
     int32_t _p_act = 0;
     int32_t _v_act = 0;
-    int16_t _tq_act = 0;
+    uint16_t _I_act = 0;
     uint16_t _LastError = 0;
     uint16_t _IO_act = 0;
 
@@ -229,7 +238,6 @@ private:
 
     //node output data
     std::shared_ptr<ioData> motorLink =         std::make_shared<ioData>(DataType::ACTUATOR_DEVICELINK, DataDirection::NODE_OUTPUT, "Motor");
-    std::shared_ptr<ioData> actualTorque =      std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Torque", ioDataFlags_DisableDataField);
     std::shared_ptr<ioData> actualLoad =        std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Load", ioDataFlags_DisableDataField);
     std::shared_ptr<ioData> encoderLink =       std::make_shared<ioData>(DataType::FEEDBACK_DEVICELINK, DataDirection::NODE_OUTPUT, "Encoder");
     std::shared_ptr<ioData> actualPosition =    std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position", ioDataFlags_DisableDataField);
