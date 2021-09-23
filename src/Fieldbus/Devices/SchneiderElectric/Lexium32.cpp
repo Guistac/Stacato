@@ -322,7 +322,10 @@ void Lexium32::readInputs() {
     validPositionReference =    _DCOMstatus & 0x8000;   //drive has a valid position reference
 
     //retrieve the operating mode id
-     modeID = _DCOMopmd_act;
+
+    OperatingMode* operatingMode = getOperatingMode(_DCOMopmd_act);
+    if (operatingMode != nullptr) actualOperatingMode = operatingMode->mode;
+    else actualOperatingMode = OperatingMode::Mode::UNKNOWN;
 
     //find the state using the state bits
     if (!readyToSwitchOn) {
@@ -367,6 +370,39 @@ void Lexium32::readInputs() {
 }
 
 void Lexium32::prepareOutputs(){
+
+    //internal profile generator
+
+
+    if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY) {
+
+        double deltaT_seconds = EtherCatFieldbus::getCurrentCycleDeltaT_seconds();
+        Logger::warn("{}", deltaT_seconds);
+
+        if (manualVelocityCommand_rpm > profileVelocity_rpm) {
+            
+        }
+        else if (manualVelocityCommand_rpm < profileVelocity_rpm) {
+        
+        }
+        else {
+            //if speed is right, don't do anything
+        }
+
+        /*
+        double profileVelocity_rpm = 0.0;
+        double profilePosition_r = 0.0;
+        float manualVelocity_rpm = 0;
+        float manualAcceleration_rpm2 = 100.0;
+        */
+    }
+    else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION) {
+    
+    }
+    else {
+        //in tuning mode don't use the profile generator
+    }
+
 
     //handle commands from subdevices
 
@@ -475,7 +511,11 @@ void Lexium32::prepareOutputs(){
     //bits 10 to 15 have to be 0
     b_faultResetState = false; //always reset bit after performing a fault reset
 
-    DCOMopmode = modeIDCommand;
+
+    OperatingMode* operatingMode = getOperatingMode(requestedOperatingMode);
+    int operatingModeID = 0;
+    if (operatingMode != nullptr) operatingModeID = operatingMode->id;
+    DCOMopmode = operatingModeID;
 
     PPp_target = (int32_t)(positionCommand->getReal() * 131072.0L);
     PVv_target = velocityCommand->getReal();
@@ -511,13 +551,8 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
 
 
-/*
-useful modes:
-Cyclic Synchronous Position
-Cyclic Synchronous Velocity
-Manual/Auto Tuning
 
-*/
+//============================= DEVICE MODES =================================
 
 std::vector<Lexium32::OperatingMode> Lexium32::operatingModes = {
     {-6, OperatingMode::Mode::TUNING , "Manual/Auto Tuning"},
@@ -532,6 +567,7 @@ std::vector<Lexium32::OperatingMode> Lexium32::operatingModes = {
     {8,  OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION ,"Cyclic Synchronous Position"},
     {9,  OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY ,"Cyclic Synchronous Velocity"},
     {10, OperatingMode::Mode::CYCLIC_SYNCHRONOUS_TORQUE , "Cyclic Synchronous Torque"},
+    {333, OperatingMode::Mode::UNKNOWN, "Unknown Operating Mode"}
 };
 
 std::vector<Lexium32::OperatingMode> Lexium32::availableOperatingModes = {
@@ -540,12 +576,106 @@ std::vector<Lexium32::OperatingMode> Lexium32::availableOperatingModes = {
     {-6,OperatingMode::Mode::TUNING, "Tuning"}
 };
 
-Lexium32::OperatingMode* Lexium32::getOperatingMode() {
-    for (OperatingMode& availableOperatingMode : availableOperatingModes) {
-        if (modeID == availableOperatingMode.id) return &availableOperatingMode;
-    }
+Lexium32::OperatingMode* Lexium32::getOperatingMode(OperatingMode::Mode opMode) {
     for (OperatingMode& operatingMode : operatingModes) {
-        if (modeID == operatingMode.id) return &operatingMode;
+        if (opMode == operatingMode.mode) return &operatingMode;
+    }
+    return &operatingModes.back();
+}
+
+Lexium32::OperatingMode* Lexium32::getOperatingMode(const char* displayName) {
+    for (OperatingMode& operatingMode : operatingModes) {
+        if (strcmp(displayName, operatingMode.displayName) == 0) return &operatingMode;
+    }
+    return &operatingModes.back();
+}
+
+Lexium32::OperatingMode* Lexium32::getOperatingMode(int id) {
+    for (OperatingMode& operatingMode : operatingModes) {
+        if (id == operatingMode.id) return &operatingMode;
+    }
+    return &operatingModes.back();
+}
+
+//====================== INPUT PIN FUNCTIONS ===========================
+
+std::vector<Lexium32::InputPinFunction> Lexium32::inputPinFunctions = {
+    {InputPinFunction::Type::UNASSIGNED,        "Unassigned", "Unassigned"},
+    {InputPinFunction::Type::NEGATIVE_LIMIT,    "Negative Limit Switch", "Unassigned"},
+    {InputPinFunction::Type::POSITIVE_LIMIT,    "Positive Limit Switch", "Unassigned"}
+};
+
+Lexium32::InputPinFunction* Lexium32::getInputPinFunction(const char* saveName) {
+    for (InputPinFunction& function : inputPinFunctions) {
+        if (strcmp(saveName, function.saveName) == 0) return &function;
+    }
+    return nullptr;
+}
+
+Lexium32::InputPinFunction* Lexium32::getInputPinFunction(InputPinFunction::Type type) {
+    for (InputPinFunction& function : inputPinFunctions) {
+        if (type == function.type) return &function;
+    }
+    return nullptr;
+}
+
+//=========================== ENCODER ASSIGNEMENT ==============================
+
+std::vector<Lexium32::EncoderAssignement> Lexium32::encoderAssignements = {
+    {Lexium32::EncoderAssignement::Type::INTERNAL_ENCODER, "Internal Motor Encoder", "Internal"},
+    {Lexium32::EncoderAssignement::Type::ENCODER_MODULE, "Encoder Module", "Module"}
+};
+
+Lexium32::EncoderAssignement* Lexium32::getEncoderAssignement(const char* saveName) {
+    for (EncoderAssignement& assignement : encoderAssignements) {
+        if (strcmp(saveName, assignement.saveName) == 0) return &assignement;
+    }
+    return nullptr;
+}
+
+Lexium32::EncoderAssignement* Lexium32::getEncoderAssignement(EncoderAssignement::Type assignementType) {
+    for (EncoderAssignement& assignement : encoderAssignements) {
+        if (assignementType == assignement.type) return &assignement;
+    }
+    return nullptr;
+}
+
+std::vector<Lexium32::EncoderModule> Lexium32::encoderModules = {
+    {Lexium32::EncoderModule::Type::ANALOG_MODULE, "Analog Encoder Module", "Analog"},
+    {Lexium32::EncoderModule::Type::DIGITAL_MODULE, "Digital Encoder Module", "Digital"},
+    {Lexium32::EncoderModule::Type::RESOLVER_MODULE, "Resolver Encoder Module", "Resolver"},
+    {Lexium32::EncoderModule::Type::NONE, "No Encoder Module", "None"}
+};
+
+Lexium32::EncoderModule* Lexium32::getEncoderModule(const char* saveName) {
+    for (EncoderModule& module : encoderModules) {
+        if (strcmp(saveName, module.saveName) == 0) return &module;
+    }
+    return nullptr;
+}
+
+Lexium32::EncoderModule* Lexium32::getEncoderModule(EncoderModule::Type moduleType) {
+    for (EncoderModule& module : encoderModules) {
+        if (moduleType == module.type) return &module;
+    }
+    return nullptr;
+}
+
+std::vector<Lexium32::EncoderType> Lexium32::encoderTypes = {
+    {Lexium32::EncoderType::Type::NONE, "None", "None"},
+    {Lexium32::EncoderType::Type::SSI_ROTARY, "SSI Absolute Rotary", "SSIRotary"}
+};
+
+Lexium32::EncoderType* Lexium32::getEncoderType(const char* saveName) {
+    for (EncoderType& module : encoderTypes) {
+        if (strcmp(saveName, module.saveName) == 0) return &module;
+    }
+    return nullptr;
+}
+
+Lexium32::EncoderType* Lexium32::getEncoderType(EncoderType::Type encoderType) {
+    for (EncoderType& encoder : encoderTypes) {
+        if (encoderType == encoder.type) return &encoder;
     }
     return nullptr;
 }

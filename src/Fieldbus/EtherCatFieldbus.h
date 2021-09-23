@@ -27,6 +27,8 @@ namespace EtherCatFieldbus {
 
     bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID);
 
+    double getCurrentCycleDeltaT_seconds();
+
     //process timing
     extern double processInterval_milliseconds;
     extern double processDataTimeout_milliseconds;

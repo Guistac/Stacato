@@ -120,6 +120,11 @@ public:
 		subindex = sidx;
 	}
 
+	EtherCatCoeData(uint16_t idx, uint8_t sidx, EtherCatData::Type type) : EtherCatBaseData("", type, DataFormat::Type::HEXADECIMAL) {
+		index = idx;
+		subindex = sidx;
+	}
+
 	uint16_t index;
 	uint8_t subindex;
 

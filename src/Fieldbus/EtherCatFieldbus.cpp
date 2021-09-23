@@ -37,6 +37,9 @@ namespace EtherCatFieldbus {
     std::thread etherCatRuntime;    //thread to read errors encountered by SOEM
     std::thread errorWatcher;       //cyclic exchange thread (needs a full cpu core to achieve precise timing)
 
+    std::chrono::high_resolution_clock::time_point previousCycleTime;
+    double currentCycleDeltaT_seconds = 0.0;
+
     //non public function
     void setup();
     bool configureSlaves();
@@ -387,6 +390,10 @@ namespace EtherCatFieldbus {
                 //adjust the copy of the reference clock in case no frame was received
                 if (workingCounter != expectedWorkingCounter) ec_DCtime += processInterval_nanoseconds;
 
+                static high_resolution_clock::time_point currentCycleTime = high_resolution_clock::now();
+                currentCycleDeltaT_seconds = (double)duration_cast<nanoseconds>(currentCycleTime - previousCycleTime).count() / 1000000000.0;
+                previousCycleTime = currentCycleTime;
+
                 //interpret the data that was received for all slaves
                 for (auto slave : slaves) slave->readInputs();
                 /*
@@ -521,6 +528,10 @@ namespace EtherCatFieldbus {
             for (int i = 1; i <= ec_slavecount; i++) ec_slave[i].state = EC_STATE_INIT;
             Logger::info("===== Cyclic Exchange Stopped !");
         }
+    }
+
+    double getCurrentCycleDeltaT_seconds() {
+        return currentCycleDeltaT_seconds;
     }
 
 }

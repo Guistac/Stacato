@@ -76,17 +76,23 @@ public:
         Mode mode;
         const char displayName[64];
     };
-
-
     static std::vector<OperatingMode> operatingModes;
     static std::vector<OperatingMode> availableOperatingModes;
+    static OperatingMode* getOperatingMode(OperatingMode::Mode operatingMode);
+    static OperatingMode* getOperatingMode(const char* displayName);
+    static OperatingMode* getOperatingMode(int id);
 
-    int modeID = 8;
-    int modeIDCommand = 8;
+    OperatingMode::Mode actualOperatingMode = OperatingMode::Mode::UNKNOWN;
+    OperatingMode::Mode requestedOperatingMode = OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION;
 
-    OperatingMode* getOperatingMode();
+    //===== INTERNAL MOTION PROFILE GENERATOR =====
+    
+    double profileVelocity_rpm = 0.0;
+    double profilePosition_r = 0.0;
 
-    float manualVelocity_rpm = 0;
+    //===== Manual Controls =====
+
+    float manualVelocityCommand_rpm = 0;
     float manualAcceleration_rpm2 = 100.0;
 
     //===== Drive Settings =====
@@ -96,6 +102,84 @@ public:
     double maxCurrent_amps = 5.0;
     int encoderIncrementsPerShaftRotation = 131072;
     int encoderMultiturnResolution = 4096;
+
+    bool b_uploadingMaxCurrent = true;
+    bool b_uploadMaxCurrentSuccess = false;
+
+    //===== Limit Switch Assignement ======
+
+    struct InputPinFunction {
+        enum class Type {
+            UNASSIGNED,
+            NEGATIVE_LIMIT,
+            POSITIVE_LIMIT
+        };
+        Type type;
+        const char displayName[64];
+        const char saveName[64];
+    };
+    static std::vector<InputPinFunction> inputPinFunctions;
+    static InputPinFunction* getInputPinFunction(const char* saveName);
+    static InputPinFunction* getInputPinFunction(InputPinFunction::Type type);
+
+    InputPinFunction::Type inputPin0Function = InputPinFunction::Type::UNASSIGNED;
+    InputPinFunction::Type inputPin1Function = InputPinFunction::Type::UNASSIGNED;
+    InputPinFunction::Type inputPin2Function = InputPinFunction::Type::UNASSIGNED;
+    InputPinFunction::Type inputPin3Function = InputPinFunction::Type::UNASSIGNED;
+    InputPinFunction::Type inputPin4Function = InputPinFunction::Type::UNASSIGNED;
+    InputPinFunction::Type inputPin5Function = InputPinFunction::Type::UNASSIGNED;
+    bool b_uploadingPinAssignements = true;
+    bool b_uploadPinAssignementSuccess = false;
+
+    //===== Encoder Settings =====
+
+    struct EncoderAssignement {
+        enum class Type {
+            INTERNAL_ENCODER,
+            ENCODER_MODULE
+        };
+        Type type;
+        const char displayName[64];
+        const char saveName[64];
+    };
+    static std::vector<EncoderAssignement> encoderAssignements;
+    static EncoderAssignement* getEncoderAssignement(const char* saveName);
+    static EncoderAssignement* getEncoderAssignement(EncoderAssignement::Type assignementType);
+
+    struct EncoderModule {
+        enum class Type {
+            ANALOG_MODULE,
+            DIGITAL_MODULE,
+            RESOLVER_MODULE,
+            NONE
+        };
+        Type type;
+        const char displayName[64];
+        const char saveName[64];
+    };
+    static std::vector<EncoderModule> encoderModules;
+    static EncoderModule* getEncoderModule(const char* saveName);
+    static EncoderModule* getEncoderModule(EncoderModule::Type moduleType);
+
+    struct EncoderType {
+        enum class Type {
+            NONE,
+            SSI_ROTARY
+        };
+        Type type;
+        const char displayName[64];
+        const char saveName[64];
+    };
+    static std::vector<EncoderType> encoderTypes;
+    static EncoderType* getEncoderType(const char* saveName);
+    static EncoderType* getEncoderType(EncoderType::Type moduleType);
+
+    EncoderAssignement::Type encoderAssignement = EncoderAssignement::Type::INTERNAL_ENCODER;
+    EncoderModule::Type encoderModuleType = EncoderModule::Type::NONE;
+    EncoderType::Type encoderType = EncoderType::Type::NONE;
+    uint8_t singleTurnResolutionBits = 0;
+    uint8_t multiTurnResoltuionBits = 0;
+    double encoderRevolutionsPerMotorShaftRevolution = 1.0;
 
     //===== Drive Status Flags ======
 
@@ -179,4 +263,10 @@ private:
     bool b_faultResetState = false;
     bool b_halted = false;
     bool opModeSpec9 = false;
+
+
+    void statusGui();
+    void controlsGui();
+    void limitsGui();
+    void feedbackConfigurationGui();
 };
