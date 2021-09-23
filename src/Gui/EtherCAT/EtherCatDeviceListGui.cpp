@@ -45,7 +45,7 @@ void etherCatSlaves() {
 
 	ImGui::BeginGroup();
 	ImGui::PushFont(Fonts::robotoBold20);
-	if (selectedSlave) ImGui::Text("%s (Node #%i, Address: %i) ", selectedSlave->getNodeName(), selectedSlave->getSlaveIndex(), selectedSlave->getStationAlias());
+	if (selectedSlave) ImGui::Text("%s (Node #%i) ", selectedSlave->getNodeName(), selectedSlave->getSlaveIndex());
 	else ImGui::Text("No Device Selected");
 	ImGui::PopFont();
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));

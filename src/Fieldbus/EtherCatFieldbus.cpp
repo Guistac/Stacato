@@ -218,7 +218,7 @@ namespace EtherCatFieldbus {
                     slave->slaveIndex = i;
                     //slave->setOnline(true);
                     char name[128];
-                    sprintf(name, "#%i '%s' @%i", slave->getSlaveIndex(), slave->getNodeName(), slave->getStationAlias());
+                    sprintf(name, "#%i '%s'", slave->getSlaveIndex(), slave->getNodeName());
                     slave->setName(name);
                     //add the slave to the list of unassigned slaves (not in the environnement)
                     slaves_unassigned.push_back(slave);
@@ -227,11 +227,10 @@ namespace EtherCatFieldbus {
                 //add the slave to the list of slaves regardless of environnement presence
                 slaves.push_back(slave);
 
-                Logger::info("    = Slave {} : '{}'  Address: {}  StationAlias {}  KnownDevice: {}  InEnvironnement: {}",
+                Logger::info("    = Slave {} : '{}'  Address: {}  KnownDevice: {}  InEnvironnement: {}",
                     slave->getSlaveIndex(),
                     slave->getNodeName(),
                     slave->getAssignedAddress(),
-                    slave->getStationAlias(),
                     slave->isSlaveKnown() ? "Yes" : "No",
                     environnementHasSlave ? "Yes" : "No");
             }

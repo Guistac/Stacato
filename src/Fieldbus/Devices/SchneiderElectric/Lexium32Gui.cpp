@@ -14,15 +14,21 @@ void Lexium32::deviceSpecificGui() {
 
     if (ImGui::BeginTabItem("Lexium32")) {    
 
-        ImGui::PushFont(Fonts::robotoBold20);
-        ImGui::Text("Drive Status");
-        ImGui::PopFont();
-
         float doubleWidgetWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
         float maxWidgetWidth = ImGui::GetTextLineHeight() * 15.0;
         if (doubleWidgetWidth > maxWidgetWidth) doubleWidgetWidth = maxWidgetWidth;
 
         glm::vec2 statusDisplaySize(doubleWidgetWidth, ImGui::GetTextLineHeight() * 2.0);
+
+        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(0));
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0, 0.0, 0.0, 0.0));
+        ImGui::Button("Network Status", glm::vec2(statusDisplaySize.x, 0));
+        ImGui::SameLine();
+        ImGui::Button("Servo Status", glm::vec2(statusDisplaySize.x, 0));
+        ImGui::PopStyleColor();
+        ImGui::PopStyleVar();
+        ImGui::PopItemFlag();
 
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
         ImGui::PushFont(Fonts::robotoBold15);
@@ -33,19 +39,28 @@ void Lexium32::deviceSpecificGui() {
 
         ImGui::SameLine();
 
-        glm::vec4 statusButtonColor;
-        switch (state) {
-            case State::NotReadyToSwitchOn: 
+        if (isOnline()) {
+
+            glm::vec4 statusButtonColor;
+            switch (state) {
+            case State::NotReadyToSwitchOn:
             case State::SwitchOnDisabled: statusButtonColor = Colors::red; break;
             case State::ReadyToSwitchOn: statusButtonColor = Colors::orange; break;
             case State::SwitchedOn: statusButtonColor = Colors::yellow; break;
             case State::OperationEnabled: statusButtonColor = Colors::green; break;
-            case State::QuickStopActive: 
+            case State::QuickStopActive:
             case State::FaultReactionActive:
             case State::Fault: statusButtonColor = Colors::red; break;
+            }
+            ImGui::PushStyleColor(ImGuiCol_Button, statusButtonColor);
+            ImGui::Button(getStateChar(), statusDisplaySize);
         }
-        ImGui::PushStyleColor(ImGuiCol_Button, statusButtonColor);
-        ImGui::Button(getStateChar(), statusDisplaySize);
+        else {
+            ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
+            ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+            ImGui::Button("No Status", statusDisplaySize);
+            ImGui::PopStyleColor();
+        }
 
         ImGui::PopStyleColor();
         ImGui::PopFont();
@@ -87,7 +102,7 @@ void Lexium32::deviceSpecificGui() {
         if (ImGui::Button("Fault Reset", glm::vec2(ImGui::GetTextLineHeight() * 6.0, commandButtonSize.y))) faultReset();
         if (hasFault) {
             ImGui::SameLine();
-            ImGui::Text("Error Code: %X", lastErrorCode);
+            ImGui::Text("Error Code:", lastErrorCode);
         }
         if (!hasFault) {
             ImGui::PopItemFlag();

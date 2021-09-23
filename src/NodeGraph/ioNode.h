@@ -44,7 +44,7 @@ enum NodeType {
 
 namespace tinyxml2 { class XMLElement; }
 
-class ioNode {
+class ioNode : public std::enable_shared_from_this<ioNode>{
 public:
 
 	virtual NodeType getType() = 0;

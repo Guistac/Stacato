@@ -81,6 +81,8 @@ void ioData::pinGui() {
     default: icon = CIRCLE_ARROW_OUT; break;
     }
 
+    glm::vec4 pinColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
+
     //decide if we should show a data field
     bool showDataField = shouldDisplayDataGui();
 
@@ -95,7 +97,7 @@ void ioData::pinGui() {
             glm::vec2 min = ImGui::GetItemRectMin();
             min.x -= iconSize * 0.15; //shift the visual position of the icon
             glm::vec2 max = min + glm::vec2(iconSize);
-            DrawPinIcon(ImGui::GetWindowDrawList(), min, max, icon, isConnected(), ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
+            DrawPinIcon(ImGui::GetWindowDrawList(), min, max, icon, isConnected(), ImColor(pinColor), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
         }
         ImGui::SameLine();
         ImGui::Text(getName());
@@ -126,7 +128,7 @@ void ioData::pinGui() {
             glm::vec2 min = ImGui::GetItemRectMin();
             min.x -= iconSize * 0.15; //shift the visual position of the icon
             glm::vec2 max = min + glm::vec2(iconSize);
-            DrawPinIcon(ImGui::GetWindowDrawList(), min, max, icon, isConnected(), ImColor(1.0f, 1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
+            DrawPinIcon(ImGui::GetWindowDrawList(), min, max, icon, isConnected(), ImColor(pinColor), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
             NodeEditor::EndPin();
         }
     }

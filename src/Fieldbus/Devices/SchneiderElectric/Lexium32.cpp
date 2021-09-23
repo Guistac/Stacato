@@ -43,11 +43,12 @@ bool Lexium32::isEnabled() {
 }
 
 void Lexium32::assignIoData() {
-    motorDevice->setParentDevice(shared_from_this());
+    std::shared_ptr<DeviceNode> thisDevice = std::dynamic_pointer_cast<DeviceNode>(shared_from_this());
+    motorDevice->setParentDevice(thisDevice);
     motorLink->set(motorDevice);
-    encoderDevice->setParentDevice(shared_from_this());
+    encoderDevice->setParentDevice(thisDevice);
     encoderLink->set(encoderDevice);
-    gpioDevice->setParentDevice(shared_from_this());
+    gpioDevice->setParentDevice(thisDevice);
     gpioLink->set(gpioDevice);
 
     //node input data

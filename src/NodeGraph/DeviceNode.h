@@ -24,7 +24,7 @@ enum DeviceType {
 	USBDEVICE
 };
 
-class DeviceNode : public ioNode, public std::enable_shared_from_this<DeviceNode> {
+class DeviceNode : public ioNode {
 public:
 
 	virtual DeviceType getDeviceType() = 0;

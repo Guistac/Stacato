@@ -128,7 +128,6 @@ public:
 
     //addresses
     int getSlaveIndex() { return slaveIndex; }
-    uint16_t getStationAlias() { return stationAlias; }  //configured station alias address
     uint16_t getAssignedAddress() { return identity->configadr; } //configured station address
 
     //state machine
@@ -167,6 +166,7 @@ public:
     void genericInfoGui();
     void pdoDataGui();
     void generalGui();
+    void identificationGui();
     void sendReceiveCanOpenGui();
     void sendReceiveEtherCatRegisterGui();
     void sendReceiveEepromGui();

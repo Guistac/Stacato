@@ -17,6 +17,11 @@ void EtherCatSlave::nodeSpecificGui() {
 
             if (ImGui::BeginTabBar("EtherCatConfigTabBar")) {
 
+                if (ImGui::BeginTabItem("Identification")) {
+                    identificationGui();
+                    ImGui::EndTabItem();
+                }
+
                 if (isSlaveKnown() && ImGui::BeginTabItem("PDO Data")) {
                     pdoDataGui();
                     ImGui::EndTabItem();
@@ -58,14 +63,20 @@ void EtherCatSlave::generalGui() {
     static glm::vec4 yellowColor = glm::vec4(0.8, 0.8, 0.0, 1.0);
     static glm::vec4 grayColor = glm::vec4(0.5, 0.5, 0.5, 1.0);
 
-    ImGui::PushFont(Fonts::robotoBold20);
-    ImGui::Text("Device Status");
-    ImGui::PopFont();
-
     float displayWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
     glm::vec2 statusDisplaySize(displayWidth, ImGui::GetTextLineHeight() * 2.0);
     static float maxStatusDisplayWidth = ImGui::GetTextLineHeight() * 10.0;
     if (statusDisplaySize.x > maxStatusDisplayWidth) statusDisplaySize.x = maxStatusDisplayWidth;
+
+    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(0));
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0, 0.0, 0.0, 0.0));
+    ImGui::Button("Network Status", glm::vec2(statusDisplaySize.x, 0));
+    ImGui::SameLine();
+    ImGui::Button("State Machine", glm::vec2(statusDisplaySize.x, 0));
+    ImGui::PopStyleColor();
+    ImGui::PopStyleVar();
+    ImGui::PopItemFlag();
 
     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
     ImGui::PushFont(Fonts::robotoBold15);
@@ -87,8 +98,15 @@ void EtherCatSlave::generalGui() {
     }
     ImGui::PopFont();
     ImGui::PopItemFlag();
+}
 
-   
+void EtherCatSlave::identificationGui() {
+
+    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::Text("Device Name:");
+    ImGui::PopFont();
+    ImGui::SameLine();
+    ImGui::Text(getNodeName());
 
     ImGui::PushFont(Fonts::robotoBold15);
     ImGui::Text("Identification Type");
@@ -101,28 +119,48 @@ void EtherCatSlave::generalGui() {
         }
         ImGui::EndCombo();
     }
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
+        ImGui::BeginTooltip();
+        ImGui::TextWrapped("When scanning the network, each device will be identified by its internal name and selected identification method.");
+        ImGui::EndTooltip();
+    }
 
     switch (identificationType) {
     case EtherCatSlaveIdentification::Type::STATION_ALIAS:
+        ImGui::PushFont(Fonts::robotoBold15);
+        ImGui::Text("Station Alias:");
+        ImGui::PopFont();
         ImGui::InputScalar("##stationAlias", ImGuiDataType_U16, &stationAlias);
-        if (ImGui::IsItemHovered()) ImGui::SetTooltip("This is the manual address of the EtherCAT device."
-            "\nThe station alias needs to match the device for it to be recognized."
-            "\nAddresses range from 0 to 65535.");
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
+            ImGui::BeginTooltip();
+            ImGui::TextWrapped("The Station Alias, or Second EtherCAT Address is a value manually set on the device either through a user interface or by writing to the device EEPROM."
+                "\nAddresses must be unique and range from 0 to 65535.");
+            ImGui::EndTooltip();
+        }
         break;
     case EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID:
+        ImGui::PushFont(Fonts::robotoBold15);
+        ImGui::Text("Explicit Device ID:");
+        ImGui::PopFont();
         ImGui::InputScalar("##explicitDeviceID", ImGuiDataType_U16, &explicitDeviceID);
-        /*
-        if (ImGui::IsItemHovered()) ImGui::SetTooltip("This is the manual address of the EtherCAT device."
-            "\nThe station alias needs to match the device for it to be recognized."
-            "\nAddresses range from 0 to 65535.");
-            */
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
+            ImGui::BeginTooltip();
+            ImGui::TextWrapped("The Explicit Device ID is an address that is manually set on the device, typically by adjusting dip switches or another input method available on the device."
+                "\nIDs must be unique and range from 0 to 65535.");
+            ImGui::EndTooltip();
+        }
+
         break;
     }
+
 }
 
 void EtherCatSlave::genericInfoGui() {
 
-    ImGui::Text("Manual Address: %i", getStationAlias());
+    ImGui::Text("Station Alias Address: %i", identity->aliasadr);
     ImGui::Text("Assigned Address: %i", getAssignedAddress());
 
     ImGui::Text("Device Name: %s", identity->name);

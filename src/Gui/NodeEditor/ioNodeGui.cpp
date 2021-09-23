@@ -9,6 +9,7 @@
 #include <imgui.h>
 #include <imgui_node_editor.h>
 #include "Gui/Framework/Fonts.h"
+#include "Gui/Framework/Colors.h"
 
 namespace NodeEditor = ax::NodeEditor;
 
@@ -31,6 +32,33 @@ void ioNode::nodeGui() {
     static float nodeBorderWidth = NodeEditor::GetStyle().NodeBorderWidth;  //offset from the border thickness of the node
     static float labelRounding = NodeEditor::GetStyle().NodeRounding;       //radius of the node rounded corners
     ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    glm::vec4 labelColor = glm::vec4(0.1, 0.1, 0.6, 0.5);
+    bool nodeIsOffline = false;
+
+    //NodeEditor::PushStyleColor(NodeEditor::StyleColor::)
+
+    if (getType() == NodeType::IODEVICE) {
+        std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(shared_from_this());
+        nodeIsOffline = !device->isDetected() && !device->isOnline();
+        switch (device->getDeviceType()) {
+            case DeviceType::ETHERCATSLAVE:
+                labelColor = glm::vec4(0.7, 0.2, 0.0, 0.5f);
+                break;
+            case DeviceType::NETWORKDEVICE:
+                labelColor = glm::vec4(0.6f, 0.1f, 0.6f, 0.5f);
+                break;
+            case DeviceType::USBDEVICE:
+                labelColor = glm::vec4(0.1f, 0.1f, 0.6f, 0.5f);
+                break;
+        }
+    }
+
+
+
+    if (nodeIsOffline) {
+        ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+    }
 
     if (getType() == NodeType::CONTAINER) {
 
@@ -82,11 +110,10 @@ void ioNode::nodeGui() {
 
         //===== draw colored background label and centered title =====
 
-        ImU32 labelColor = ImColor(0.1f, 0.1f, 0.6f, 0.5f);
         ImVec2 nodePosition = NodeEditor::GetNodePosition(getUniqueID());       //top left coordinate of the node
         glm::vec2 rectMin = glm::vec2(nodePosition.x, nodePosition.y) + glm::vec2(nodeBorderWidth * 0.8);
         glm::vec2 rectMax = rectMin + glm::vec2(nodeWidth - 2 * nodeBorderWidth, ImGui::GetTextLineHeightWithSpacing());
-        drawList->AddRectFilled(rectMin, rectMax, labelColor, labelRounding, ImDrawFlags_RoundCornersTop);
+        drawList->AddRectFilled(rectMin, rectMax, ImColor(labelColor), labelRounding, ImDrawFlags_RoundCornersTop);
 
         ImGui::NewLine();
         float spacing = (nodeWidth - titleTextWidth - 2 * nodePadding) / 2.0;
@@ -141,11 +168,10 @@ void ioNode::nodeGui() {
         float inputTitleSectionWidth = inputTitleTextWidth + 2 * nodePadding;
         float inputNodeWidth = inputTitleSectionWidth > inputPinSectionWidth ? inputTitleSectionWidth : inputPinSectionWidth;
 
-        ImU32 labelColor = ImColor(0.1f, 0.1f, 0.6f, 0.5f);
         ImVec2 nodePosition = NodeEditor::GetNodePosition(getUniqueID());       //top left coordinate of the node
         glm::vec2 inputTitleRectMin = glm::vec2(nodePosition.x, nodePosition.y) + glm::vec2(nodeBorderWidth * 0.8);
         glm::vec2 inputTitleRectMax = inputTitleRectMin + glm::vec2(inputNodeWidth - 2 * nodeBorderWidth, ImGui::GetTextLineHeightWithSpacing() + ImGui::GetTextLineHeight());
-        drawList->AddRectFilled(inputTitleRectMin, inputTitleRectMax, labelColor, labelRounding, ImDrawFlags_RoundCornersTop);
+        drawList->AddRectFilled(inputTitleRectMin, inputTitleRectMax, ImColor(labelColor), labelRounding, ImDrawFlags_RoundCornersTop);
         
         ImGui::NewLine();
         float inputTitleSpacing = (inputNodeWidth - inputTitleTextWidth - 2 * nodePadding) / 2.0;
@@ -197,11 +223,10 @@ void ioNode::nodeGui() {
         float outputTitleSectionWidth = outputTitleTextWidth + 2 * nodePadding;
         float outputNodeWidth = outputTitleSectionWidth > outputPinSectionWidth ? outputTitleSectionWidth : outputPinSectionWidth;
 
-        labelColor = ImColor(0.1f, 0.1f, 0.6f, 0.5f);
         nodePosition = NodeEditor::GetNodePosition(splitNodeID);       //top left coordinate of the node
         glm::vec2 outputTextRectMin = glm::vec2(nodePosition.x, nodePosition.y) + glm::vec2(nodeBorderWidth * 0.8);
         glm::vec2 outputTextRectMax = outputTextRectMin + glm::vec2(outputNodeWidth - 2 * nodeBorderWidth, ImGui::GetTextLineHeightWithSpacing() + ImGui::GetTextLineHeight());
-        drawList->AddRectFilled(outputTextRectMin, outputTextRectMax, labelColor, labelRounding, ImDrawFlags_RoundCornersTop);
+        drawList->AddRectFilled(outputTextRectMin, outputTextRectMax, ImColor(labelColor), labelRounding, ImDrawFlags_RoundCornersTop);
         
         ImGui::NewLine();
         float outputTitleSpacing = (outputNodeWidth - outputTitleTextWidth - 2 * nodePadding) / 2.0;
@@ -228,6 +253,10 @@ void ioNode::nodeGui() {
 
         NodeEditor::EndNode();
 
+    }
+
+    if (nodeIsOffline) {
+        ImGui::PopStyleColor();
     }
 }
 

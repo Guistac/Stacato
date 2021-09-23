@@ -109,16 +109,40 @@ bool EtherCatSlave::isReady() {
 
 bool EtherCatSlave::save(tinyxml2::XMLElement* xml) {
     using namespace tinyxml2;
-    xml->SetAttribute("StationAlias", getStationAlias());
+    XMLElement* identificationXML = xml->InsertNewChildElement("Identification");
+    identificationXML->SetAttribute("Type", getIdentificationType(identificationType)->saveName);
+    switch (identificationType) {
+        case EtherCatSlaveIdentification::Type::STATION_ALIAS:
+            identificationXML->SetAttribute("StationAlias", stationAlias);
+            break;
+        case EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID:
+            identificationXML->SetAttribute("ExplicitDeviceID", explicitDeviceID);
+            break;
+    }
     saveDeviceData(xml);
     return true;
 }
 
 bool EtherCatSlave::load(tinyxml2::XMLElement* xml) {
     using namespace tinyxml2;
-    int i_stationAlias;
-    if (xml->QueryIntAttribute("StationAlias", &i_stationAlias) != XML_SUCCESS) return Logger::warn("Could not find EtherCAT Station Alias Attribute");
-    stationAlias = i_stationAlias;
+    
+    XMLElement* identificationXML = xml->FirstChildElement("Identification");
+    if (!identificationXML) return Logger::warn("Could not load identification attribute");
+    const char* identificationTypeString;
+    if (identificationXML->QueryStringAttribute("Type", &identificationTypeString) != XML_SUCCESS) return Logger::warn("Could not load identification Type");
+    if (getIdentificationType(identificationTypeString) == nullptr) return Logger::warn("Could not read identification Type");
+    identificationType = getIdentificationType(identificationTypeString)->type;
+    switch (identificationType) {
+        case EtherCatSlaveIdentification::Type::STATION_ALIAS:
+            int alias;
+            if (identificationXML->QueryIntAttribute("StationAlias", &alias) != XML_SUCCESS) return Logger::warn("Could not load Station Alias");
+            stationAlias = alias;
+            break;
+        case EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID:
+            int id;
+            if (identificationXML->QueryIntAttribute("ExplicitDeviceID", &id) != XML_SUCCESS) return Logger::warn("Could not load Explicit Device ID");
+            break;
+    }
     if (!loadDeviceData(xml)) return Logger::warn("Could not read device data");
     return true;
 }
@@ -147,7 +171,15 @@ bool EtherCatSlave::matches(std::shared_ptr<EtherCatSlave> otherSlave) {
     //two matching slaves should have the same class device name (offline copy of the original device name)
     //the same station alias / manual address
     if (strcmp(getNodeName(), otherSlave->getNodeName()) != 0) return false;
-    if (getStationAlias() != otherSlave->getStationAlias()) return false;
+
+    if (identificationType == otherSlave->identificationType) {
+        switch (identificationType) {
+        case EtherCatSlaveIdentification::Type::STATION_ALIAS:
+            return stationAlias == otherSlave->stationAlias;
+        case EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID:
+            return explicitDeviceID == otherSlave->explicitDeviceID;
+        }
+    }
     return true;
 }
 
