@@ -141,6 +141,7 @@ bool EtherCatSlave::load(tinyxml2::XMLElement* xml) {
         case EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID:
             int id;
             if (identificationXML->QueryIntAttribute("ExplicitDeviceID", &id) != XML_SUCCESS) return Logger::warn("Could not load Explicit Device ID");
+            explicitDeviceID = id;
             break;
     }
     if (!loadDeviceData(xml)) return Logger::warn("Could not read device data");
@@ -164,23 +165,6 @@ const char* EtherCatSlave::getStateChar() {
 
 bool EtherCatSlave::hasStateError() {
     return identity->state & EC_STATE_ERROR;
-}
-
-
-bool EtherCatSlave::matches(std::shared_ptr<EtherCatSlave> otherSlave) {
-    //two matching slaves should have the same class device name (offline copy of the original device name)
-    //the same station alias / manual address
-    if (strcmp(getNodeName(), otherSlave->getNodeName()) != 0) return false;
-
-    if (identificationType == otherSlave->identificationType) {
-        switch (identificationType) {
-        case EtherCatSlaveIdentification::Type::STATION_ALIAS:
-            return stationAlias == otherSlave->stationAlias;
-        case EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID:
-            return explicitDeviceID == otherSlave->explicitDeviceID;
-        }
-    }
-    return true;
 }
 
 void EtherCatSlave::compareNewState() {

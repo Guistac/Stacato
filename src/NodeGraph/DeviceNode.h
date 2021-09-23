@@ -38,6 +38,14 @@ public:
 		}
 	}
 
+	//we define process() here so device subclasses don't have to define it
+	//for device nodes, processing takes place inside the device
+	//instead we only prepare input when data is available
+	//and prepare outputs when new data is send to the device
+	virtual void process() {}
+	virtual void readInputs() = 0;
+	virtual void prepareOutputs() = 0;
+
 	virtual bool isDetected() = 0;
 	virtual bool isOnline() = 0;
 	virtual bool isReady() = 0;

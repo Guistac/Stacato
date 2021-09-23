@@ -7,8 +7,7 @@ class EtherCatSlave;
 
 namespace Environnement{
 	
-	bool hasEtherCatSlave(std::shared_ptr<EtherCatSlave> slave);
-	std::shared_ptr<EtherCatSlave> getMatchingEtherCatSlave(std::shared_ptr<EtherCatSlave>);
+	std::vector<std::shared_ptr<EtherCatSlave>> getEtherCatSlaves();
 
 	extern NodeGraph nodeGraph;
 

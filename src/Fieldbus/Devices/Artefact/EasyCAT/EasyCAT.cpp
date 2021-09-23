@@ -69,15 +69,6 @@ void EasyCAT::readInputs() {
 	byteIn->set((long long int)ui8_byteIn);
 }
 
-void EasyCAT::process() {
-	static int counter = 0;
-	counter++;
-	byteOut->set((long long int)counter * 8);
-	shortOut->set((long long int)counter * 32);
-	longOut->set((long long int)counter * 128);
-	longLongOut->set((long long int)counter * 512);
-}
-
 void EasyCAT::prepareOutputs() {
 	uint8_t* outputData = identity->outputs;
 

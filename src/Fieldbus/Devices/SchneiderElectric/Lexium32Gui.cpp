@@ -102,7 +102,7 @@ void Lexium32::deviceSpecificGui() {
         if (ImGui::Button("Fault Reset", glm::vec2(ImGui::GetTextLineHeight() * 6.0, commandButtonSize.y))) faultReset();
         if (hasFault) {
             ImGui::SameLine();
-            ImGui::Text("Error Code:", lastErrorCode);
+            ImGui::Text("Error Code: %X", lastErrorCode);
         }
         if (!hasFault) {
             ImGui::PopItemFlag();

@@ -366,13 +366,6 @@ void Lexium32::readInputs() {
 
 }
 
-void Lexium32::process() {
-    
-    //TODO: process method seems useless for this kind of device / node
-
-}
-
-
 void Lexium32::prepareOutputs(){
 
     //handle commands from subdevices

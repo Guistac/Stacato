@@ -134,21 +134,27 @@ namespace EtherCatFieldbus {
 
 
     bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID) {
-        int wc = 0;
-        uint16_t ALstatus;
-        wc = ec_FPRD(configAddress, 0x130, 2, &ALstatus, EC_TIMEOUTSAFE);
-        uint16_t ALcontrol = ALstatus |= 0x20;
-        wc = ec_FPWR(configAddress, 0x120, 2, &ALcontrol, EC_TIMEOUTSAFE);
-        wc = ec_FPRD(configAddress, 0x130, 2, &ALstatus, EC_TIMEOUTSAFE);
-        bool supported = ALstatus & 0x20;
-        if (supported) {
-            uint16_t ALstatusCode;
-            wc = ec_FPRD(configAddress, 0x134, 2, &ALstatusCode, EC_TIMEOUTSAFE);
-            ID = ALstatusCode;
+        int maxTries = 4;
+        int tries = 0;
+        while (tries < maxTries) {
+            int wc = 0;
+            uint16_t ALstatus;
+            wc = ec_FPRD(configAddress, 0x130, 2, &ALstatus, EC_TIMEOUTSAFE);
+            uint16_t ALcontrol = ALstatus |= 0x20;
+            wc = ec_FPWR(configAddress, 0x120, 2, &ALcontrol, EC_TIMEOUTSAFE);
+            wc = ec_FPRD(configAddress, 0x130, 2, &ALstatus, EC_TIMEOUTSAFE);
+            bool supported = ALstatus & 0x20;
+            if (supported) {
+                uint16_t ALstatusCode;
+                wc = ec_FPRD(configAddress, 0x134, 2, &ALstatusCode, EC_TIMEOUTSAFE);
+                ID = ALstatusCode;
+            }
+            ALcontrol &= ~0x20;
+            ec_FPWR(configAddress, 0x120, 2, &ALcontrol, EC_TIMEOUTSAFE);
+            if (supported) return true;
+            tries++;
         }
-        ALcontrol &= ~0x20;
-        ec_FPWR(configAddress, 0x120, 2, &ALcontrol, EC_TIMEOUTSAFE);
-        return supported;
+        return false;
     }
 
 
@@ -174,65 +180,66 @@ namespace EtherCatFieldbus {
             Logger::info("===== Found and Configured {} EtherCAT Slave{}", ec_slavecount, ((ec_slavecount == 1) ? ": " : "s: "));
 
             for (int i = 1; i <= ec_slavecount; i++) {
-                ec_slavet& slv = ec_slave[i];
-                //create device class depending on slave name
-                std::shared_ptr<EtherCatSlave> slave = EtherCatDeviceFactory::getDeviceByName(slv.name);
-                //we need the station alias to be able to compare the slave to the environnement slaves
-                slave->stationAlias = slv.aliasadr;
+                ec_slavet& identity = ec_slave[i];                
+
+                Logger::info("    = Slave {} : '{}'  Address: {}", i, identity.name, identity.configadr);
 
                 uint16_t explicitDeviceID;
-                bool explicitDeviceIDsupported = false;
-                int tries = 0;
-                while (tries < 4) {
-                    if (getExplicitDeviceID(slv.configadr, explicitDeviceID)) {
-                        explicitDeviceIDsupported = true;
-                        break;
-                    }
-                    tries++;
-                }
-                if(explicitDeviceIDsupported) Logger::warn("Device Supports Explicit Device ID: {}", explicitDeviceID);
-                else Logger::warn("Device Does not support Explicit DeviceID");
+                bool explicitDeviceIdSupported = getExplicitDeviceID(identity.configadr, explicitDeviceID);
+                if (explicitDeviceIdSupported) Logger::debug("    = Explicit Device ID: {}", explicitDeviceID);
+                else Logger::debug("      Explicit Device ID is not supported");
+                uint16_t stationAlias = identity.aliasadr;
+                Logger::debug("      Station Alias: {}", stationAlias);
                 
+                std::shared_ptr<EtherCatSlave> slave = nullptr;
 
-                bool environnementHasSlave = Environnement::hasEtherCatSlave(slave);
-
-                //compare the slave with existing slaves in the environnement
-                if (environnementHasSlave) {
-                    std::shared_ptr<EtherCatSlave>matchingSlave = Environnement::getMatchingEtherCatSlave(slave);
-                    //if the slave is already in the environnement
-                    //transfer the identity object so the environnement slave has the newly acquired one
-                    //(the old one is obsolete since we rescanned the network)
-                    matchingSlave->identity = &slv;
-                    //also reassign index, since it might have changed
-                    matchingSlave->slaveIndex = i;
-                    //set slave to online
-                    //matchingSlave->setOnline(true);
-                    //delete the slave we just created since its only use was to match the environnement slave and transfer its identity
-                    //reassign so we can log the slave and add it to the slave list
-                    slave = matchingSlave;
+                for (auto environnementSlave : Environnement::getEtherCatSlaves()) {
+                    if (strcmp(environnementSlave->getNodeName(), identity.name) != 0) continue;
+                    switch (environnementSlave->identificationType) {
+                        case EtherCatSlaveIdentification::Type::STATION_ALIAS:
+                            if (environnementSlave->stationAlias == stationAlias) {
+                                slave = environnementSlave;
+                                Logger::info("      Matched Environnement Slave by Name & Station Alias");
+                                break;
+                            }
+                            else continue;
+                        case EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID:
+                            if (environnementSlave->explicitDeviceID == explicitDeviceID) {
+                                slave = environnementSlave;
+                                Logger::info("      Matched Environnement Slave by Name & Explicit Device ID");
+                                break;
+                            }
+                            else continue;
+                    }
                 }
-                else {
-                    //if the slave is not in the environnement
-                    //add it to the available slave list
-                    slave->identity = &slv;
-                    slave->slaveIndex = i;
-                    //slave->setOnline(true);
+
+                if (slave == nullptr) {
+                    Logger::info("      Slave did not match any Environnement Slave");
+                    slave = EtherCatDeviceFactory::getDeviceByName(identity.name);
+                    slave->stationAlias = stationAlias;
+                    slave->explicitDeviceID = explicitDeviceID;
                     char name[128];
-                    sprintf(name, "#%i '%s'", slave->getSlaveIndex(), slave->getNodeName());
+                    if (explicitDeviceIdSupported && explicitDeviceID != 0) {
+                        slave->identificationType = EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID;
+                        sprintf(name, "%s (ID:%i)", slave->getNodeName(), slave->explicitDeviceID);
+                    }
+                    else {
+                        slave->identificationType = EtherCatSlaveIdentification::Type::STATION_ALIAS;
+                        sprintf(name, "%s (Alias:%i)", slave->getNodeName(), slave->stationAlias);
+                    }
                     slave->setName(name);
-                    //add the slave to the list of unassigned slaves (not in the environnement)
                     slaves_unassigned.push_back(slave);
                 }
+                
+                slave->identity = &identity;
+                slave->slaveIndex = i;
 
+                if (!slave->isSlaveKnown()) {
+                    Logger::warn("Found Unknown Slave: {}", identity.name);
+                }
+               
                 //add the slave to the list of slaves regardless of environnement presence
                 slaves.push_back(slave);
-
-                Logger::info("    = Slave {} : '{}'  Address: {}  KnownDevice: {}  InEnvironnement: {}",
-                    slave->getSlaveIndex(),
-                    slave->getNodeName(),
-                    slave->getAssignedAddress(),
-                    slave->isSlaveKnown() ? "Yes" : "No",
-                    environnementHasSlave ? "Yes" : "No");
             }
             return true;
         }

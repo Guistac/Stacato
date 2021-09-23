@@ -40,6 +40,8 @@
                                                                                     virtual void enable(){}																			        \
                                                                                     virtual void disable(){}																			    \
                                                                                     virtual bool isEnabled(){ return false; }																\
+                                                                                    virtual void readInputs(){}                                                                             \
+                                                                                    virtual void prepareOutputs(){}                                                                         \
                                                                                     /*EtherCAT Slave Functions*/                                                                            \
                                                                                     virtual bool hasDeviceError(){ return false; }                                                          \
                                                                                     virtual const char* getDeviceErrorString(){ return ""; }                                                \
@@ -47,8 +49,6 @@
                                                                                     virtual bool isDeviceReady(){ return false; }                                                           \
                                                                                     virtual bool isSlaveKnown(){ return false; }                                                            \
                                                                                     virtual bool startupConfiguration(){ return true; }                                                     \
-                                                                                    virtual void readInputs(){}                                                                             \
-                                                                                    virtual void prepareOutputs(){}                                                                         \
                                                                                     virtual void deviceSpecificGui(){}                                                                      \
                                                                                     virtual bool saveDeviceData(tinyxml2::XMLElement* xml){ return true; }                                  \
                                                                                     virtual bool loadDeviceData(tinyxml2::XMLElement* xml){ return true; }                                  \
@@ -65,11 +65,12 @@
                                                                             virtual std::shared_ptr<ioNode> getNewNodeInstance() { return nullptr; }                                \
                                                                             className(){ setName(deviceName); }                                                                     \
                                                                             virtual void assignIoData();                                                                            \
-                                                                            virtual void process();                                                                                 \
                                                                             /*DeviceNode Functions*/                                                                                \
                                                                             virtual void enable();                  														        \
                                                                             virtual void disable();                 															    \
                                                                             virtual bool isEnabled();               																\
+                                                                            virtual void readInputs();                                                                              \
+                                                                            virtual void prepareOutputs();                                                                          \
                                                                             /*EtherCAT Slave Functions*/                                                                            \
                                                                             virtual bool hasDeviceError();                                                                          \
                                                                             virtual const char* getDeviceErrorString();                                                             \
@@ -77,8 +78,6 @@
                                                                             virtual bool isDeviceReady();                                                                           \
                                                                             virtual bool isSlaveKnown(){ return true; }                                                             \
                                                                             virtual bool startupConfiguration();                                                                    \
-                                                                            virtual void readInputs();                                                                              \
-                                                                            virtual void prepareOutputs();                                                                          \
                                                                             virtual void deviceSpecificGui();                                                                       \
                                                                             virtual bool saveDeviceData(tinyxml2::XMLElement* xml);                                                 \
                                                                             virtual bool loadDeviceData(tinyxml2::XMLElement* xml);                                                 \
@@ -114,6 +113,7 @@ public:
     EtherCatSlaveIdentification::Type identificationType = EtherCatSlaveIdentification::Type::STATION_ALIAS;
     uint16_t stationAlias = 0;
     uint16_t explicitDeviceID = 0;
+    bool b_supportsExplicitDeviceID = false;
 
     //public display of raw pdo data
     EtherCatPdoAssignement txPdoAssignement;
@@ -123,8 +123,6 @@ public:
     uint32_t getManufacturer() { return identity->eep_man; }
     uint32_t getID() { return identity->eep_id; }
     uint32_t getRevision() { return identity->eep_rev; }
-
-    bool matches(std::shared_ptr<EtherCatSlave> otherSlave);
 
     //addresses
     int getSlaveIndex() { return slaveIndex; }
