@@ -161,6 +161,9 @@ bool Lexium32::startupConfiguration() {
 
 bool Lexium32::setStartupParameters() {
 
+    //get motor velocity and acceleration limits and store them in the motor subdevice
+    //get encoder max range and load encoder offset and store them in the encoder subdevice
+
     //ramp settingts (useless in cyclic synchronous position mode for some reason...)
     uint32_t RAMP_v_acc_set = 600;
     if (!writeSDO(0x6083, 0x0, RAMP_v_acc_set)) return false;
@@ -376,8 +379,11 @@ void Lexium32::readInputs() {
         b_emergencyStopActive = actualEstop;
     }
 
+    //set the encoder position in revolution units
+    encoderDevice->positionRaw_positionUnits = (double)_p_act / (double)positionUnitsPerRevolution;
+
     //assign public input data
-    actualPosition->set((double)_p_act / (double)positionUnitsPerRevolution);
+    actualPosition->set(encoderDevice->getPosition());
     actualVelocity->set((double)_v_act / (double)velocityUnitsPerRpm);
     actualLoad->set(((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps);
     digitalIn0->set((_IO_act & 0x1) != 0x0);
@@ -395,7 +401,6 @@ void Lexium32::readInputs() {
     //set encoder subdevice status
     encoderDevice->b_ready = (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled);
     encoderDevice->b_online = isOnline();
-    encoderDevice->b_inRange = true; // TODO: detect out of range encoder values
     //set gpio subdevice status
     gpioDevice->b_ready = (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled);
     gpioDevice->b_online = isOnline();
@@ -451,11 +456,10 @@ void Lexium32::prepareOutputs(){
         motorDevice->b_setDisabled = false;
         b_disableOperation = true;
     }
-    if (encoderDevice->b_reset) {
-        encoderDevice->b_reset = false;
-        //TODO: reset encoder from here ??
+    if (motorDevice->b_setQuickstop) {
+        motorDevice->b_setQuickstop = false;
+        b_quickStop = true;
     }
-
 
     //if there is an error present, automatically clear it
     //the fault reset event only happens on a transition from 0 to 1

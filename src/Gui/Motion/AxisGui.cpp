@@ -399,7 +399,7 @@ void Axis::devicesGui() {
 
 		for (auto link : feedbackDeviceLink->getLinks()) {
 
-			std::shared_ptr<FeedbackDevice> feedbackDevice = link->getInputData()->getFeedbackDevice();
+			std::shared_ptr<PositionFeedbackDevice> feedbackDevice = link->getInputData()->getPositionFeedbackDevice();
 
 			ImGui::PushID(feedbackDevice->getName());
 

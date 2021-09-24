@@ -14,7 +14,7 @@ bool ioData::isDataTypeCompatible(std::shared_ptr<ioData> otherData) {
 				case INTEGER_VALUE:
 				case REAL_VALUE: return true;
 				case ACTUATOR_DEVICELINK:
-				case FEEDBACK_DEVICELINK:
+				case POSITIONFEEDBACK_DEVICELINK:
 				case GPIO_DEVICELINK: return false;
 			}
 		case INTEGER_VALUE:
@@ -23,7 +23,7 @@ bool ioData::isDataTypeCompatible(std::shared_ptr<ioData> otherData) {
 				case INTEGER_VALUE:
 				case REAL_VALUE: return true;
 				case ACTUATOR_DEVICELINK:
-				case FEEDBACK_DEVICELINK:
+				case POSITIONFEEDBACK_DEVICELINK:
 				case GPIO_DEVICELINK: return false;
 			}
 		case REAL_VALUE:
@@ -32,7 +32,7 @@ bool ioData::isDataTypeCompatible(std::shared_ptr<ioData> otherData) {
 				case INTEGER_VALUE:
 				case REAL_VALUE: return true;
 				case ACTUATOR_DEVICELINK:
-				case FEEDBACK_DEVICELINK:
+				case POSITIONFEEDBACK_DEVICELINK:
 				case GPIO_DEVICELINK: return false;
 			}
 		case ACTUATOR_DEVICELINK:
@@ -41,16 +41,16 @@ bool ioData::isDataTypeCompatible(std::shared_ptr<ioData> otherData) {
 				case INTEGER_VALUE:
 				case REAL_VALUE: return false;
 				case ACTUATOR_DEVICELINK: return true;
-				case FEEDBACK_DEVICELINK:
+				case POSITIONFEEDBACK_DEVICELINK:
 				case GPIO_DEVICELINK: return false;
 			}
-		case FEEDBACK_DEVICELINK:
+		case POSITIONFEEDBACK_DEVICELINK:
 			switch (otherData->getType()) {
 				case BOOLEAN_VALUE:
 				case INTEGER_VALUE:
 				case REAL_VALUE: 
 				case ACTUATOR_DEVICELINK: return false;
-				case FEEDBACK_DEVICELINK: return true;
+				case POSITIONFEEDBACK_DEVICELINK: return true;
 				case GPIO_DEVICELINK: return false;
 			}
 		case GPIO_DEVICELINK:
@@ -59,7 +59,7 @@ bool ioData::isDataTypeCompatible(std::shared_ptr<ioData> otherData) {
 				case INTEGER_VALUE:
 				case REAL_VALUE:
 				case ACTUATOR_DEVICELINK:
-				case FEEDBACK_DEVICELINK: return false;
+				case POSITIONFEEDBACK_DEVICELINK: return false;
 				case GPIO_DEVICELINK: return true;
 			}
 	}
@@ -97,8 +97,8 @@ void ioData::set(std::shared_ptr<ActuatorDevice> device) {
 	if (isActuatorDeviceLink()) actuatorDevice = device;
 }
 
-void ioData::set(std::shared_ptr<FeedbackDevice> device) {
-	if (isFeedbackDeviceLink()) feedbackDevice = device;
+void ioData::set(std::shared_ptr<PositionFeedbackDevice> device) {
+	if (isPositionFeedbackDeviceLink()) positionFeedbackDevice = device;
 }
 
 void ioData::set(std::shared_ptr<GpioDevice> device) {
@@ -136,8 +136,8 @@ std::shared_ptr<ActuatorDevice> ioData::getActuatorDevice() {
 	return nullptr;
 }
 
-std::shared_ptr<FeedbackDevice> ioData::getFeedbackDevice() {
-	if (isFeedbackDeviceLink()) return feedbackDevice;
+std::shared_ptr<PositionFeedbackDevice> ioData::getPositionFeedbackDevice() {
+	if (isPositionFeedbackDeviceLink()) return positionFeedbackDevice;
 	return nullptr;
 }
 
@@ -153,7 +153,7 @@ const char* ioData::getValueString() {
 	case INTEGER_VALUE: sprintf(output, "%i", integerValue); break;
 	case REAL_VALUE: sprintf(output, "%.5f", realValue); break;
 	case ACTUATOR_DEVICELINK: getName(); break;
-	case FEEDBACK_DEVICELINK: getName(); break;
+	case POSITIONFEEDBACK_DEVICELINK: getName(); break;
 	case GPIO_DEVICELINK: getName(); break;
 	}
 	return (const char*)output;

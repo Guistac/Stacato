@@ -36,7 +36,7 @@ std::vector<PositionUnit> linearPositionUnits = {
 std::vector<PositionUnit> angularPositionUnits = {
 	{PositionUnit::Unit::DEGREE, UnitType::ANGULAR,		"Degree",		"Degrees",		"Degrees"},
 	{PositionUnit::Unit::RADIAN, UnitType::ANGULAR,		"Radian",		"Radians",		"Radians"},
-	{PositionUnit::Unit::ROTATION, UnitType::ANGULAR,	"Rotation",		"Rotations",	"Rotations"}
+	{PositionUnit::Unit::REVOLUTION, UnitType::ANGULAR,	"Rotation",		"Rotations",	"Rotations"}
 };
 
 std::vector<PositionUnit>& getLinearPositionUnits() { return linearPositionUnits; }

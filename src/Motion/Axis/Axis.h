@@ -18,7 +18,7 @@ public:
 
 	//Device Links
 	std::shared_ptr<ioData> actuatorDeviceLinks = std::make_shared<ioData>(DataType::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuators", ioDataFlags_AcceptMultipleInputs);
-	std::shared_ptr<ioData> feedbackDeviceLink = std::make_shared<ioData>(DataType::FEEDBACK_DEVICELINK, DataDirection::NODE_INPUT, "Encoder");
+	std::shared_ptr<ioData> feedbackDeviceLink = std::make_shared<ioData>(DataType::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_INPUT, "Encoder");
 	std::shared_ptr<ioData> referenceDeviceLinks = std::make_shared<ioData>(DataType::GPIO_DEVICELINK, DataDirection::NODE_INPUT, "Reference Devices", ioDataFlags_AcceptMultipleInputs);
 
 	//Inputs

@@ -1,7 +1,7 @@
 #pragma once
 
 class ActuatorDevice;
-class FeedbackDevice;
+class PositionFeedbackDevice;
 class GpioDevice;
 
 enum DataType {
@@ -9,7 +9,7 @@ enum DataType {
 	INTEGER_VALUE,
 	REAL_VALUE,
 	ACTUATOR_DEVICELINK,
-	FEEDBACK_DEVICELINK,
+	POSITIONFEEDBACK_DEVICELINK,
 	GPIO_DEVICELINK,
 	TYPE_COUNT
 };
@@ -66,7 +66,7 @@ public:
 			case INTEGER_VALUE:	return "Integer";
 			case REAL_VALUE: return	"Real";
 			case ACTUATOR_DEVICELINK: "Actuator Device";
-			case FEEDBACK_DEVICELINK: "Feedback Device";
+			case POSITIONFEEDBACK_DEVICELINK: "Position Feedback Device";
 			case GPIO_DEVICELINK: "Reference Device";
 			default: return "unknown";
 		}
@@ -78,7 +78,7 @@ public:
 			case INTEGER_VALUE: set(getInteger()); break;
 			case REAL_VALUE: set(getReal()); break;
 			case ACTUATOR_DEVICELINK: break;
-			case FEEDBACK_DEVICELINK: break;
+			case POSITIONFEEDBACK_DEVICELINK: break;
 			case GPIO_DEVICELINK: break;
 		}
 		type = t;
@@ -101,7 +101,7 @@ public:
 	bool isInteger()			{ return type == INTEGER_VALUE; }
 	bool isDouble()				{ return type == REAL_VALUE; }
 	bool isActuatorDeviceLink()		{ return type == ACTUATOR_DEVICELINK; }
-	bool isFeedbackDeviceLink()		{ return type == FEEDBACK_DEVICELINK; }
+	bool isPositionFeedbackDeviceLink()		{ return type == POSITIONFEEDBACK_DEVICELINK; }
 	bool isGpioDeviceLink()	{ return type == GPIO_DEVICELINK; }
 
 	//setting data (with data conversions)
@@ -109,7 +109,7 @@ public:
 	void set(long long int integer);
 	void set(double real);
 	void set(std::shared_ptr<ActuatorDevice>);
-	void set(std::shared_ptr<FeedbackDevice>);
+	void set(std::shared_ptr<PositionFeedbackDevice>);
 	void set(std::shared_ptr<GpioDevice>);
 
 	//reading data (with data conversions)
@@ -117,7 +117,7 @@ public:
 	long long int getInteger();
 	double getReal();
 	std::shared_ptr<ActuatorDevice> getActuatorDevice();
-	std::shared_ptr<FeedbackDevice> getFeedbackDevice();
+	std::shared_ptr<PositionFeedbackDevice> getPositionFeedbackDevice();
 	std::shared_ptr<GpioDevice> getGpioDevice();
 
 	const char* getValueString();
@@ -160,7 +160,7 @@ private:
 	long long int integerValue = 0;
 	double realValue = 0.0;
 	std::shared_ptr<ActuatorDevice> actuatorDevice = nullptr;
-	std::shared_ptr<FeedbackDevice> feedbackDevice = nullptr;
+	std::shared_ptr<PositionFeedbackDevice> positionFeedbackDevice = nullptr;
 	std::shared_ptr<GpioDevice> gpioDevice = nullptr;
 
 	void setup(DataType t, DataDirection d, const char* n) {
@@ -170,7 +170,7 @@ private:
 			case INTEGER_VALUE: integerValue = 0; break;
 			case REAL_VALUE: realValue = 0.0; break;
 			case ACTUATOR_DEVICELINK:
-			case FEEDBACK_DEVICELINK:
+			case POSITIONFEEDBACK_DEVICELINK:
 			case GPIO_DEVICELINK:
 				b_noDataField = true;
 				b_forceDataField = false;

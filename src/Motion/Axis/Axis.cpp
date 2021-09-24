@@ -62,7 +62,7 @@ void Axis::enable() {
 	}
 	if (positionFeedbackType != PositionFeedback::Type::NO_FEEDBACK) {
 		if (feedbackDeviceLink->isConnected()) {
-			std::shared_ptr<FeedbackDevice> feedbackDevice = feedbackDeviceLink->getLinks().front()->getInputData()->getFeedbackDevice();
+			std::shared_ptr<PositionFeedbackDevice> feedbackDevice = feedbackDeviceLink->getLinks().front()->getInputData()->getPositionFeedbackDevice();
 			if (!feedbackDevice->isReady()) {
 				canAxisBeEnabled = false;
 				Logger::warn("Position feedback subdevice '{}' of device '{}' is not ready", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
@@ -122,7 +122,7 @@ bool Axis::areAllDevicesReady() {
 	else return false;
 	if (positionFeedbackType != PositionFeedback::Type::NO_FEEDBACK) {
 		if (feedbackDeviceLink->isConnected()) {
-			std::shared_ptr<FeedbackDevice> feedbackDevice = feedbackDeviceLink->getLinks().front()->getInputData()->getFeedbackDevice();
+			std::shared_ptr<PositionFeedbackDevice> feedbackDevice = feedbackDeviceLink->getLinks().front()->getInputData()->getPositionFeedbackDevice();
 			if (!feedbackDevice->isReady()) return false;
 		}
 		else return false;

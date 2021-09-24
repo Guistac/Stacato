@@ -22,7 +22,7 @@ struct PositionUnit {
 	enum class Unit {
 		DEGREE,
 		RADIAN,
-		ROTATION,
+		REVOLUTION,
 		METER,
 		MILLIMETER,
 		UNKNOWN

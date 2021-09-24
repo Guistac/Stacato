@@ -3,9 +3,6 @@
 #include "Fieldbus/EtherCatSlave.h"
 #include "Utilities/ScrollingBuffer.h"
 
-#include <map>
-#include <string>
-
 class Lexium32 : public EtherCatSlave {
 public:
 
@@ -237,8 +234,8 @@ private:
     uint16_t previousErrorCode = 0;
 
     //subdevices
-    std::shared_ptr<ActuatorDevice> motorDevice = std::make_shared<ActuatorDevice>("Motor");
-    std::shared_ptr<FeedbackDevice> encoderDevice = std::make_shared<FeedbackDevice>("Encoder");
+    std::shared_ptr<ActuatorDevice> motorDevice = std::make_shared<ActuatorDevice>("Motor", PositionUnit::Unit::REVOLUTION);
+    std::shared_ptr<PositionFeedbackDevice> encoderDevice = std::make_shared<PositionFeedbackDevice>("Encoder", PositionUnit::Unit::REVOLUTION);
     std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
 
     //node input data
@@ -251,7 +248,7 @@ private:
     //node output data
     std::shared_ptr<ioData> motorLink =         std::make_shared<ioData>(DataType::ACTUATOR_DEVICELINK, DataDirection::NODE_OUTPUT, "Motor");
     std::shared_ptr<ioData> actualLoad =        std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Load", ioDataFlags_DisableDataField);
-    std::shared_ptr<ioData> encoderLink =       std::make_shared<ioData>(DataType::FEEDBACK_DEVICELINK, DataDirection::NODE_OUTPUT, "Encoder");
+    std::shared_ptr<ioData> encoderLink =       std::make_shared<ioData>(DataType::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_OUTPUT, "Encoder");
     std::shared_ptr<ioData> actualPosition =    std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position", ioDataFlags_DisableDataField);
     std::shared_ptr<ioData> actualVelocity =    std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity", ioDataFlags_DisableDataField);
     std::shared_ptr<ioData> gpioLink =          std::make_shared<ioData>(DataType::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
