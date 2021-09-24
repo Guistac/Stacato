@@ -3,9 +3,6 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
-bool LedsAndButtons::hasDeviceError() { return true; }
-const char* LedsAndButtons::getDeviceErrorString() { return ""; }
-void LedsAndButtons::clearDeviceError() {}
 bool LedsAndButtons::isDeviceReady() { return false; }
 void LedsAndButtons::enable() {}
 void LedsAndButtons::disable() {}

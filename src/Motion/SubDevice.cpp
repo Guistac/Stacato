@@ -14,17 +14,3 @@ bool Subdevice::isOnline() {
 bool Subdevice::isReady() {
 	return (parentDevice->isReady() && b_ready);
 }
-
-bool Subdevice::hasError() {
-	return (parentDevice->hasError() || b_error);
-}
-
-void Subdevice::clearError() {
-	parentDevice->clearError();
-	b_clearError = true;
-}
-
-const char* Subdevice::getErrorString() {
-	if (b_error) return errorString;
-	else if (parentDevice->hasError()) return parentDevice->getErrorString();
-}

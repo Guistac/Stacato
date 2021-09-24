@@ -3,9 +3,6 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
-bool EasyCAT::hasDeviceError() { return false; }
-const char* EasyCAT::getDeviceErrorString() { return ""; }
-void EasyCAT::clearDeviceError() {}
 bool EasyCAT::isDeviceReady() { return false;  }
 void EasyCAT::enable() {}
 void EasyCAT::disable() {}

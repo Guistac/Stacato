@@ -27,16 +27,10 @@ public:
 	bool isDetected();
 	bool isOnline();
 	bool isReady();
-	bool hasError();
-	void clearError();
-	const char* getErrorString();
 
 	bool b_detected = false;
 	bool b_online = false;
 	bool b_ready = false;
-	bool b_error = false;
-	bool b_clearError = false;
-	char errorString[128];
 };
 
 
@@ -53,12 +47,23 @@ public:
 	void unpark() { b_parked = false; }
 
 	bool isEnabled() { return b_enabled; }
-	bool isParked() { b_parked; }
+	bool isParked() { return b_parked; }
+	bool isEmergencyStopActive() { return b_emergencyStopActive; }
+
+	double getLoad() { return load; }
+	double getVelocityLimit() { return velocityLimit; }
+	double getAccelerationLimit() { return accelerationLimit; }
 
 	bool b_enabled = false;
 	bool b_parked = false;
+	bool b_emergencyStopActive = false;
+
 	bool b_setEnabled = false;
 	bool b_setDisabled = false;
+
+	double velocityLimit;
+	double accelerationLimit;
+	double load;
 };
 
 class FeedbackDevice : public Subdevice {
@@ -71,7 +76,8 @@ public:
 	void reset() { b_reset = true; }
 
 	bool isInRange() { b_inRange; }
-	
+
+
 	bool b_reset = false;
 	bool b_inRange = true;
 };

@@ -13,17 +13,6 @@ public:
 
     //fieldbus commands
     bool setStartupParameters();
-    bool assignPDOs();
-
-    //state machine commands
-    void enableVoltage() { b_enableVoltage = true; }
-    void disableVoltage() { b_disableVoltage = true; }
-    void switchOn() { b_switchOn = true; }
-    void shutDown() { b_shutdown = true; }
-    void enableOperation() { b_enableOperation = true; }
-    void disableOperation() { b_disableOperation = true; }
-    void faultReset() { b_faultReset = true; }
-    void quickStop() { b_quickStop = true; }
 
     //===== drive status =====
     
@@ -39,7 +28,6 @@ public:
     };
 
     State state = State::SwitchOnDisabled;
-    uint16_t lastErrorCode = 0;
 
     const char* getStateChar() {
         switch (state) {
@@ -84,6 +72,26 @@ public:
 
     OperatingMode::Mode actualOperatingMode = OperatingMode::Mode::UNKNOWN;
     OperatingMode::Mode requestedOperatingMode = OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION;
+
+    //===== EVENTS =====
+    
+    struct Event {
+        Event(const char * eventMessage, bool isError) : b_isError(isError) { strcpy(message, eventMessage); }
+        Event(uint16_t errorCode) : b_isError(true) { sprintf(message, "Error Code %X", errorCode); }
+        std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        char message[128];
+        bool b_isError;
+    };
+    std::mutex eventListMutex;
+    std::vector<Event*> eventList;
+    void pushEvent(const char* errorMessage, bool isError);
+    void pushEvent(uint16_t errorCode);
+    void clearEventList();
+
+    //===== EMERGENCY STOP =====
+    bool b_emergencyStopActive = false;
+    bool isEmergencyStopActive() { return b_emergencyStopActive; }
+    void quickStop() { b_quickStop = true; }
 
     //===== INTERNAL MOTION PROFILE GENERATOR =====
     
@@ -223,6 +231,10 @@ private:
     uint16_t _I_act = 0;
     uint16_t _LastError = 0;
     uint16_t _IO_act = 0;
+    uint16_t _IO_STO_act = 0;
+
+    //used to track change in _LastError
+    uint16_t previousErrorCode = 0;
 
     //subdevices
     std::shared_ptr<ActuatorDevice> motorDevice = std::make_shared<ActuatorDevice>("Motor");
@@ -251,10 +263,6 @@ private:
     std::shared_ptr<ioData> digitalIn5 =        std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI5", ioDataFlags_DisableDataField);
 
     //command flags to control state machine (interface to construct DCOM_control word)
-    bool b_enableVoltage = false;
-    bool b_disableVoltage = false;
-    bool b_switchOn = false;
-    bool b_shutdown = false;
     bool b_disableOperation = false;
     bool b_enableOperation = false;
     bool b_faultReset = false;
@@ -277,4 +285,5 @@ private:
     void controlsGui();
     void limitsGui();
     void feedbackConfigurationGui();
+    void eventListGui();
 };

@@ -38,8 +38,8 @@ public:
 		}
 	}
 
-	//we define process() here so device subclasses don't have to define it
-	//for device nodes, processing takes place inside the device
+	//we define process() here so device subclasses don't have to define it.
+	//for device nodes, processing takes place inside the device.
 	//instead we only prepare input when data is available
 	//and prepare outputs when new data is send to the device
 	virtual void process() {}
@@ -51,11 +51,7 @@ public:
 	virtual bool isReady() = 0;
 	virtual bool isEnabled() = 0;
 
-	virtual bool hasError() = 0;
-	virtual const char* getErrorString() = 0;
-
 	virtual void enable() = 0;
 	virtual void disable() = 0;
-	virtual void clearError() = 0;
 
 };

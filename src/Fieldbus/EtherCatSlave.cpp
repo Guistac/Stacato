@@ -74,33 +74,6 @@ bool EtherCatSlave::isOnline() {
     return !isStateOffline() && EtherCatFieldbus::b_processRunning;
 }
 
-bool EtherCatSlave::hasError() {
-    if (!isSlaveKnown()) return true;
-    if (identity == nullptr) return false;
-    if (hasDeviceError()) return true;
-    if (identity != nullptr && hasStateError()) return true;
-    return false;
-}
-
-const char* EtherCatSlave::getErrorString() {
-    if (hasError()) {
-        if (!isSlaveKnown()) return "Unknown Device";
-        if (identity != nullptr && hasStateError()) {
-            static char stateError[128];
-            sprintf(stateError, "EtherCAT State Machine Error: %s", getStateChar());
-            return stateError;
-        }
-        if (hasDeviceError()) return getDeviceErrorString();
-    }
-    else {
-        return "No Error";
-    }
-}
-
-void EtherCatSlave::clearError() {
-    clearDeviceError();
-}
-
 bool EtherCatSlave::isReady() {
     if (identity == nullptr) return false;
     else if (!isStateOperational()) return false;

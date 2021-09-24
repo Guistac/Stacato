@@ -395,14 +395,16 @@ namespace EtherCatFieldbus {
                 currentCycleDeltaT_seconds = (double)currentCycleDeltaT_nanoseconds / 1000000000.0;
                 previousCycleTime = currentCycleTime;
 
-                //interpret the data that was received for all slaves
-                for (auto slave : slaves) slave->readInputs();
+                if (b_allOperational) {
+                    //interpret the data that was received for all slaves
+                    for (auto slave : slaves) slave->readInputs();
 
-                //update all nodes connected to ethercat slave nodes
-                Environnement::nodeGraph.evaluate(DeviceType::ETHERCATSLAVE);
+                    //update all nodes connected to ethercat slave nodes
+                    Environnement::nodeGraph.evaluate(DeviceType::ETHERCATSLAVE);
 
-                //prepare the output data to be sent
-                for (auto slave : slaves) slave->prepareOutputs();
+                    //prepare the output data to be sent
+                    for (auto slave : slaves) slave->prepareOutputs();
+                }
 
                 //dctime_offset: *reference clock* offset target for the receiving of a frame by the first dc slave
                 //the offset is calculated as a distance from the -dc sync time-, which is a whole multiple of the process interval time

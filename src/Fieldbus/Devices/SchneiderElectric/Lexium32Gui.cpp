@@ -29,6 +29,10 @@ void Lexium32::deviceSpecificGui() {
                 feedbackConfigurationGui();
                 ImGui::EndTabItem();
             }
+            if (ImGui::BeginTabItem("Errors")) {
+                eventListGui();
+                ImGui::EndTabItem();
+            }
             ImGui::EndTabBar();
         }
 
@@ -94,49 +98,31 @@ void Lexium32::statusGui() {
     ImGui::PopFont();
     ImGui::PopItemFlag();
 
-
-
     glm::vec2 commandButtonSize(doubleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
 
-    if (b_voltageEnabled) {
-        if (ImGui::Button("Disable Voltage", commandButtonSize)) disableVoltage();
-    }
-    else {
-        if (ImGui::Button("Enable Voltage", commandButtonSize)) enableVoltage();
-    }
-    ImGui::SameLine();
-    if (b_switchedOn) {
-        if (ImGui::Button("Shut Down", commandButtonSize)) shutDown();
-    }
-    else {
-        if (ImGui::Button("Switch On", commandButtonSize)) switchOn();
-    }
-
-
-    if (b_operationEnabled) {
-        if (ImGui::Button("Disable Operation", commandButtonSize)) disableOperation();
-    }
-    else {
-        if (ImGui::Button("Enable Operation", commandButtonSize)) enableOperation();
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Quick Stop", commandButtonSize)) quickStop();
-
-    bool hasFault = state == State::Fault;
-    if (!hasFault) {
+    if (isEmergencyStopActive()) {
+        int millis = Timing::getTime_seconds() * 1000.0;
+        if (millis % 1000 < 500) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+        else ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkRed);
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-        ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-    }
-    if (ImGui::Button("Fault Reset", glm::vec2(ImGui::GetTextLineHeight() * 6.0, commandButtonSize.y))) faultReset();
-    if (hasFault) {
+        ImGui::PushFont(Fonts::robotoBold15);
+        ImGui::Button("E-STOP", commandButtonSize);
         ImGui::SameLine();
-        ImGui::Text("Error Code: %X", lastErrorCode);
-    }
-    if (!hasFault) {
+        ImGui::Button("E-STOP", commandButtonSize);
+        ImGui::PopFont();
         ImGui::PopItemFlag();
         ImGui::PopStyleColor();
     }
+    else {
+        if (isEnabled()) { if (ImGui::Button("Disable Operation", commandButtonSize)) disable(); }
+        else { if (ImGui::Button("Enable Operation", commandButtonSize)) enable(); }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Quick Stop", commandButtonSize)) quickStop();
 }
+
+
+
 
 
 void Lexium32::controlsGui() {
@@ -147,6 +133,28 @@ void Lexium32::controlsGui() {
     if (ImGui::BeginCombo("##ModeSelector", getOperatingMode(actualOperatingMode)->displayName, ImGuiComboFlags_HeightLargest)) {
         for (OperatingMode& availableMode : availableOperatingModes) {
             if (ImGui::Selectable(availableMode.displayName, actualOperatingMode == availableMode.mode)) requestedOperatingMode = availableMode.mode;
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
+                ImGui::BeginTooltip();
+                switch (availableMode.mode) {
+                case OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION:
+                    ImGui::TextWrapped("Used for position control. No manual controls are available. The drive is completely controlled by the position command.");
+                    break;
+                case OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY:
+                    ImGui::TextWrapped("Used exclusively for manual velocity control. When the drive is in this mode, it will only respond to the modes parameters.");
+                    ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+                    ImGui::TextWrapped("Caution: Except for the drives internal limits signals, any position and collision limits will be ignored.");
+                    ImGui::PopStyleColor();
+                    break;
+                case OperatingMode::Mode::TUNING:
+                    ImGui::TextWrapped("Used for automatic tuning of the drive controller.");
+                    ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+                    ImGui::TextWrapped("Can only be activated when the drive is disabled.");
+                    ImGui::PopStyleColor();
+                    break;
+                }
+                ImGui::EndTooltip();
+            }
         }
         ImGui::EndCombo();
     }
@@ -158,12 +166,17 @@ void Lexium32::controlsGui() {
         ImGui::PopStyleColor();
     }
     else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION) {
-        ImGui::TextWrapped("In this mode, the drive is controlled by the position command input. No manual controls are available.");
+       
     }
     else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY) {
-        ImGui::TextWrapped("This mode is exclusively designed for manual drive velocity control. When the drive is in this mode, it will only respond to the following velocity parameters.");
         float maxV = maxVelocity_rpm;
         float vCommand_rpm = manualVelocityCommand_rpm;
+
+        bool disableManualControls = !isEnabled();
+        if (disableManualControls) {
+            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+            ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+        }
         ImGui::SliderFloat("##manualVelocity", &vCommand_rpm, -maxVelocity_rpm, maxVelocity_rpm, "%.3frpm");
         if (vCommand_rpm > maxVelocity_rpm) vCommand_rpm = maxVelocity_rpm;
         else if (vCommand_rpm < -maxVelocity_rpm) vCommand_rpm = -maxAcceleration_rps2;
@@ -175,11 +188,10 @@ void Lexium32::controlsGui() {
         ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rps2, 0.0, (float)maxAcceleration_rps2, "Acceleration: %.3f rps2");
         if (manualAcceleration_rps2 > maxAcceleration_rps2) manualAcceleration_rps2 = maxAcceleration_rps2;
         if (ImGui::Button("Stop Movement", glm::vec2(ImGui::GetItemRectSize().x, ImGui::GetTextLineHeight() * 2.0))) manualVelocityCommand_rpm = 0.0;
-
-        ImGui::Text("command: %.3f", velocityCommand->getReal());
-        ImGui::Text("actual: %.3f", actualVelocity->getReal());
-        ImGui::Text("profile: %.3f", profileVelocity_rpm);
-
+        if (disableManualControls) {
+            ImGui::PopItemFlag();
+            ImGui::PopStyleColor();
+        }
     }
     else if (actualOperatingMode == OperatingMode::Mode::TUNING) {
         ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
@@ -449,4 +461,36 @@ void Lexium32::feedbackConfigurationGui() {
         }
 
     }
+}
+
+
+#include <iomanip>
+
+void Lexium32::eventListGui() {
+
+    if (ImGui::Button("Clear Error List")) clearEventList();
+
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.0, 0.0, 0.0, 1.0));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+    if (ImGui::BeginChild(ImGui::GetID("LogMessages"))) {
+
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+
+        eventListMutex.lock();
+        for (int i = (int)eventList.size() - 1; i >= 0; i--) {
+            Event* event = eventList[i];
+            std::stringstream ss;
+            ss << std::put_time(std::localtime(&event->time), "%X");
+            ImGui::PushStyleColor(ImGuiCol_Text, event->b_isError ? Colors::red : Colors::green);
+            ImGui::Text("[%s] %s", ss.str().c_str(), event->message);
+            ImGui::PopStyleColor();
+        }
+        eventListMutex.unlock();
+
+        ImGui::PopStyleVar();
+        ImGui::EndChild();
+    }
+    ImGui::PopStyleVar();
+    ImGui::PopStyleColor();
+    
 }

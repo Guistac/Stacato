@@ -33,9 +33,6 @@
                                                                                     /*DeviceNode Functions*/                                                                                \
                                                                                     virtual bool isDetected();              /*checks generic ethercat status first*/                        \
                                                                                     virtual bool isOnline();                /*checks generic ethercat status first*/                        \
-                                                                                    virtual bool hasError();            	/*checks generic ethercat status first*/                        \
-                                                                                    virtual const char* getErrorString();   /*checks generic ethercat status first*/                        \
-                                                                                    virtual void clearError();              /*checks generic ethercat status first*/                        \
                                                                                     virtual bool isReady();                 /*checks generic ethercat status first*/                        \
                                                                                     virtual void enable(){}																			        \
                                                                                     virtual void disable(){}																			    \
@@ -43,9 +40,6 @@
                                                                                     virtual void readInputs(){}                                                                             \
                                                                                     virtual void prepareOutputs(){}                                                                         \
                                                                                     /*EtherCAT Slave Functions*/                                                                            \
-                                                                                    virtual bool hasDeviceError(){ return false; }                                                          \
-                                                                                    virtual const char* getDeviceErrorString(){ return ""; }                                                \
-                                                                                    virtual void clearDeviceError(){}                                                                       \
                                                                                     virtual bool isDeviceReady(){ return false; }                                                           \
                                                                                     virtual bool isSlaveKnown(){ return false; }                                                            \
                                                                                     virtual bool startupConfiguration(){ return true; }                                                     \
@@ -72,9 +66,6 @@
                                                                             virtual void readInputs();                                                                              \
                                                                             virtual void prepareOutputs();                                                                          \
                                                                             /*EtherCAT Slave Functions*/                                                                            \
-                                                                            virtual bool hasDeviceError();                                                                          \
-                                                                            virtual const char* getDeviceErrorString();                                                             \
-                                                                            virtual void clearDeviceError();                                                                        \
                                                                             virtual bool isDeviceReady();                                                                           \
                                                                             virtual bool isSlaveKnown(){ return true; }                                                             \
                                                                             virtual bool startupConfiguration();                                                                    \

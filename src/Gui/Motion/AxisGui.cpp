@@ -421,12 +421,6 @@ void Axis::devicesGui() {
 
 			ImGui::PopItemFlag();
 
-			if (feedbackDevice->hasError()) {
-				if (ImGui::Button("Clear Error", buttonSize)) feedbackDevice->clearError();
-				ImGui::SameLine();
-				ImGui::TextWrapped(feedbackDevice->getErrorString());
-			}
-
 			ImGui::PopID();
 
 		}
@@ -461,12 +455,6 @@ void Axis::devicesGui() {
 
 
 			ImGui::PopItemFlag();
-
-			if (gpioDevice->hasError()) {
-				if (ImGui::Button("Clear Error", buttonSize)) gpioDevice->clearError();
-				ImGui::SameLine();
-				ImGui::TextWrapped(gpioDevice->getErrorString());
-			}
 
 			ImGui::PopID();
 
@@ -508,13 +496,6 @@ void Axis::devicesGui() {
 
 
 			ImGui::PopItemFlag();
-
-			if (actuatorDevice->hasError()) {
-				if (ImGui::Button("Clear Error", buttonSize)) actuatorDevice->clearError();
-				ImGui::SameLine();
-				ImGui::TextWrapped(actuatorDevice->getErrorString());
-			}
-
 
 			if (actuatorDevice->isEnabled()) { if (ImGui::Button("Disable", buttonSize)) actuatorDevice->disable(); }
 			else if (ImGui::Button("Enable", buttonSize)) actuatorDevice->enable();

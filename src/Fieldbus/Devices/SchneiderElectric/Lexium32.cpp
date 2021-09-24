@@ -4,24 +4,10 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 #include <tinyxml2.h>
 
-bool Lexium32::hasDeviceError() {
-    return lastErrorCode != 0x0;
-}
-
-const char* Lexium32::getDeviceErrorString() {
-    static char errorString[128];
-    sprintf(errorString, "Lexium32 Error Code: %X", lastErrorCode);
-    return errorString;
-}
-
-void Lexium32::clearDeviceError() {
-    b_faultReset = true;
-}
-
 bool Lexium32::isDeviceReady() {
     switch (state) {
-        case State::OperationEnabled: return true;
-        case State::SwitchedOn: return true;
+        case State::OperationEnabled:
+        case State::SwitchedOn:
         case State::ReadyToSwitchOn: return true;
         default: return false;
     }
@@ -29,17 +15,20 @@ bool Lexium32::isDeviceReady() {
 
 void Lexium32::enable() {
     b_enableOperation = true;
+    manualVelocityCommand_rpm = 0.0;
+    profileVelocity_rpm = 0.0;
+    profilePosition_r = 0.0;
 }
 
 void Lexium32::disable() {
-    b_shutdown = true;
+    b_disableOperation = true;
+    manualVelocityCommand_rpm = 0.0;
+    profileVelocity_rpm = 0.0;
+    profilePosition_r = 0.0;
 }
 
 bool Lexium32::isEnabled() { 
-    switch (state) {
-        case State::OperationEnabled: return true;
-        default: return false;
-    }
+    return state == State::OperationEnabled;
 }
 
 void Lexium32::assignIoData() {
@@ -86,26 +75,76 @@ void Lexium32::assignIoData() {
     txPdoAssignement.addEntry(0x301E, 0x3, 2, "_I_act", &_I_act);
     txPdoAssignement.addEntry(0x603F, 0x0, 2, "_LastError", &_LastError);
     txPdoAssignement.addEntry(0x3008, 0x1, 2, "_IO_act", &_IO_act);
+    txPdoAssignement.addEntry(0x3008, 0x26, 2, "_IO_STO_act", &_IO_STO_act);
 }
 
 
 bool Lexium32::startupConfiguration() {
 
-    Logger::info("===== Begin Lexium32 Startup Configuration");
-
-    Logger::debug("    = Begin Setting Startup Parameters...");
-    if (!setStartupParameters()) {
-        Logger::error("    = Failed to set startup Parameters...");
-        return false;
-    }
+    if (!setStartupParameters()) return Logger::error("    = Failed to set startup Parameters...");
     Logger::debug("    = Successfully set startup parameters");
 
-    Logger::debug("    = Begin Lexium32 PDO assignement...");
-    if (!assignPDOs()) {
-        Logger::error("    = Lexium32 PDO assignement failed...");
-        return false;
-    }
-    Logger::debug("    = PDO assignement successfull !");
+    //====================== PROCESS DATA ASSIGNEMENT ==========================
+
+    //variables applied to the zero subindex of an object dictionnary entry
+    uint8_t zero = 0x00;
+    uint8_t one = 0x01;
+
+    //Sync Manager (SM2, SM3) registers that store the mapping objects (modules) which decribe PDO data
+    uint16_t RxPDO = 0x1C12;
+    uint16_t TxPDO = 0x1C13;
+
+    //mapping object (module) to be stored in each pdo register
+    uint16_t RxPDOmodule = 0x1603;
+    uint16_t TxPDOmodule = 0x1A03;
+
+    uint8_t RxPDOparameterCount = 5;
+    uint32_t RxPDOparameter1 = 0x60400010; //DCOMcontrol    (uint16_t)
+    uint32_t RxPDOparameter2 = 0x60600008; //DCOMopmode     (int8_t)
+    uint32_t RxPDOparameter3 = 0x607A0020; //PPp_target     (int32_t)
+    uint32_t RxPDOparameter4 = 0x60FF0020; //PVv_target     (int32_t)
+    uint32_t RxPDOparameter5 = 0x30081110; //IO_DQ_set      (uint16_t)
+    if (!writeSDO(RxPDOmodule, 0x0, zero)) return false;
+    if (!writeSDO(RxPDOmodule, 0x1, RxPDOparameter1)) return false;
+    if (!writeSDO(RxPDOmodule, 0x2, RxPDOparameter2)) return false;
+    if (!writeSDO(RxPDOmodule, 0x3, RxPDOparameter3)) return false;
+    if (!writeSDO(RxPDOmodule, 0x4, RxPDOparameter4)) return false;
+    if (!writeSDO(RxPDOmodule, 0x5, RxPDOparameter5)) return false;
+    if (!writeSDO(RxPDOmodule, 0x0, RxPDOparameterCount)) return false;
+
+    uint8_t TxPDOparameterCount = 8;
+    uint32_t TxPDOparameter1 = 0x60410010;  //_DCOMstatus   (uint16_t)
+    uint32_t TxPDOparameter2 = 0x60610008;  //_DCOMopmd_act (uint8_t) 
+    uint32_t TxPDOparameter3 = 0x60640020;  //_p_act        (int32_t) 
+    uint32_t TxPDOparameter4 = 0x606C0020;  //_v_act        (int32_t) 
+    uint32_t TxPDOparameter5 = 0x301E0310;  //_I_act        (int16_t) 
+    uint32_t TxPDOparameter6 = 0x603F0010;  //_LastError    (uint16_t)
+    uint32_t TxPDOparameter7 = 0x30080110;  //_IO_act       (uint16_t)    
+    uint32_t TxPDOparameter8 = 0x30082610;  //_IO_STO_act   (uint16_t)
+    if (!writeSDO(TxPDOmodule, 0x0, zero)) return false;
+    if (!writeSDO(TxPDOmodule, 0x1, TxPDOparameter1)) return false;
+    if (!writeSDO(TxPDOmodule, 0x2, TxPDOparameter2)) return false;
+    if (!writeSDO(TxPDOmodule, 0x3, TxPDOparameter3)) return false;
+    if (!writeSDO(TxPDOmodule, 0x4, TxPDOparameter4)) return false;
+    if (!writeSDO(TxPDOmodule, 0x5, TxPDOparameter5)) return false;
+    if (!writeSDO(TxPDOmodule, 0x6, TxPDOparameter6)) return false;
+    if (!writeSDO(TxPDOmodule, 0x7, TxPDOparameter7)) return false;
+    if (!writeSDO(TxPDOmodule, 0x8, TxPDOparameter8)) return false;
+    if (!writeSDO(TxPDOmodule, 0x0, TxPDOparameterCount)) return false;
+
+    //assign pdo module object to sync manager
+    if (!writeSDO(RxPDO, 0x0, zero)) return false;
+    if (!writeSDO(RxPDO, 0x1, RxPDOmodule)) return false;
+    if (!writeSDO(RxPDO, 0x0, one)) return false;
+
+    //assign pdo module object to sync manager
+    if (!writeSDO(TxPDO, 0x0, zero)) return false;
+    if (!writeSDO(TxPDO, 0x1, TxPDOmodule)) return false;
+    if (!writeSDO(TxPDO, 0x0, one)) return false;
+
+    Logger::debug("    = Successfully assigned Process Data");
+
+    //=========================== TIMING AND SYNC CONFIGURATION ============================
 
     //set interrupt routine for cyclic synchronous position mode
     //interval should be the same as the frame cycle time, and offset should be zero
@@ -117,9 +156,7 @@ bool Lexium32::startupConfiguration() {
     //TODO: does this still apply with a lot of slaves ?
     //if propagation delays add up, might the last slaves have their sync event happen at the same time as their frame receive time?
 
-    Logger::info("===== Finished Lexium32 Startup Configuration");
-
-    return true;
+    return Logger::info("===== Finished Lexium32 Startup Configuration");
 }
 
 bool Lexium32::setStartupParameters() {
@@ -241,64 +278,9 @@ bool Lexium32::setStartupParameters() {
     return true;
 }
 
-bool Lexium32::assignPDOs() {
 
-    //variables applied to the zero subindex of an object dictionnary entry
-    uint8_t zero = 0x00;
-    uint8_t one = 0x01;
 
-    //Sync Manager (SM2, SM3) registers that store the mapping objects (modules) which decribe PDO data
-    uint16_t RxPDO = 0x1C12;
-    uint16_t TxPDO = 0x1C13;
-
-    //mapping object (module) to be stored in each pdo register
-    uint16_t RxPDOmodule = 0x1603;
-    uint16_t TxPDOmodule = 0x1A03;
-
-    uint8_t RxPDOparameterCount = 5;
-    uint32_t RxPDOparameter1 = 0x60400010; //DCOMcontrol    (uint16_t)
-    uint32_t RxPDOparameter2 = 0x60600008; //DCOMopmode     (int8_t)
-    uint32_t RxPDOparameter3 = 0x607A0020; //PPp_target     (int32_t)
-    uint32_t RxPDOparameter4 = 0x60FF0020; //PVv_target     (int32_t)
-    uint32_t RxPDOparameter5 = 0x30081110; //IO_DQ_set      (uint16_t)
-    if (!writeSDO(RxPDOmodule, 0x0, zero)) return false;
-    if (!writeSDO(RxPDOmodule, 0x1, RxPDOparameter1)) return false;
-    if (!writeSDO(RxPDOmodule, 0x2, RxPDOparameter2)) return false;
-    if (!writeSDO(RxPDOmodule, 0x3, RxPDOparameter3)) return false;
-    if (!writeSDO(RxPDOmodule, 0x4, RxPDOparameter4)) return false;
-    if (!writeSDO(RxPDOmodule, 0x5, RxPDOparameter5)) return false;
-    if (!writeSDO(RxPDOmodule, 0x0, RxPDOparameterCount)) return false;
-
-    uint8_t TxPDOparameterCount = 7;
-    uint32_t TxPDOparameter1 = 0x60410010;  //_DCOMstatus   (uint16_t)
-    uint32_t TxPDOparameter2 = 0x60610008;  //_DCOMopmd_act (uint8_t) 
-    uint32_t TxPDOparameter3 = 0x60640020;  //_p_act        (int32_t) 
-    uint32_t TxPDOparameter4 = 0x606C0020;  //_v_act        (int32_t) 
-    uint32_t TxPDOparameter5 = 0x301E0310;  //_I_act        (int16_t) 
-    uint32_t TxPDOparameter6 = 0x603F0010;  //_LastError    (uint16_t)
-    uint32_t TxPDOparameter7 = 0x30080110;  //_IO_act       (uint16_t)    
-    if (!writeSDO(TxPDOmodule, 0x0, zero)) return false;
-    if (!writeSDO(TxPDOmodule, 0x1, TxPDOparameter1)) return false;
-    if (!writeSDO(TxPDOmodule, 0x2, TxPDOparameter2)) return false;
-    if (!writeSDO(TxPDOmodule, 0x3, TxPDOparameter3)) return false;
-    if (!writeSDO(TxPDOmodule, 0x4, TxPDOparameter4)) return false;
-    if (!writeSDO(TxPDOmodule, 0x5, TxPDOparameter5)) return false;
-    if (!writeSDO(TxPDOmodule, 0x6, TxPDOparameter6)) return false;
-    if (!writeSDO(TxPDOmodule, 0x7, TxPDOparameter7)) return false;
-    if (!writeSDO(TxPDOmodule, 0x0, TxPDOparameterCount)) return false;
-
-    //assign pdo module object to sync manager
-    if (!writeSDO(RxPDO, 0x0, zero)) return false;
-    if (!writeSDO(RxPDO, 0x1, RxPDOmodule)) return false;
-    if (!writeSDO(RxPDO, 0x0, one)) return false;
-
-    //assign pdo module object to sync manager
-    if (!writeSDO(TxPDO, 0x0, zero)) return false;
-    if (!writeSDO(TxPDO, 0x1, TxPDOmodule)) return false;
-    if (!writeSDO(TxPDO, 0x0, one)) return false;
-
-    return true;
-}
+//============================ INPUT ===========================
 
 void Lexium32::readInputs() {
     //TxPDO (input data)
@@ -312,13 +294,14 @@ void Lexium32::readInputs() {
 
     //TxPDO Data
     uint8_t* inByte = identity->inputs;
-    _DCOMstatus = inByte[0] | inByte[1] << 8; //State Machine Status   (ex: ready to switch on)
+    _DCOMstatus =   inByte[0] | inByte[1] << 8; //State Machine Status   (ex: ready to switch on)
     _DCOMopmd_act = inByte[2];                  //Current Operating Mode (ex: cyclic synchronous position)
-    _p_act = inByte[3] | inByte[4] << 8 | inByte[5] << 16 | inByte[6] << 24;
-    _v_act = inByte[7] | inByte[8] << 8 | inByte[9] << 16 | inByte[10] << 24;
-    _I_act = inByte[11] | inByte[12] << 8;
-    _LastError = inByte[13] | inByte[14] << 8;
-    _IO_act = inByte[15] | inByte[16] << 8;
+    _p_act =        inByte[3] | inByte[4] << 8 | inByte[5] << 16 | inByte[6] << 24;
+    _v_act =        inByte[7] | inByte[8] << 8 | inByte[9] << 16 | inByte[10] << 24;
+    _I_act =        inByte[11] | inByte[12] << 8;
+    _LastError =    inByte[13] | inByte[14] << 8;
+    _IO_act =       inByte[15] | inByte[16] << 8;
+    _IO_STO_act =   inByte[17] | inByte[18] << 8;
 
     //state machine bits (0,1,2,3,5,6)
     bool readyToSwitchOn =      _DCOMstatus & 0x1;
@@ -327,6 +310,7 @@ void Lexium32::readInputs() {
     bool fault =                _DCOMstatus & 0x8;
     bool quickStop =            _DCOMstatus & 0x20;
     bool switchOnDisabled =     _DCOMstatus & 0x40;
+
     //Other State Information
     motorVoltagePresent =       _DCOMstatus & 0x10;     //is the voltage for the motor connected
     class0error =               _DCOMstatus & 0x80;     //is there a critical error
@@ -340,10 +324,11 @@ void Lexium32::readInputs() {
     validPositionReference =    _DCOMstatus & 0x8000;   //drive has a valid position reference
 
     //retrieve the operating mode id
-
     OperatingMode* operatingMode = getOperatingMode(_DCOMopmd_act);
     if (operatingMode != nullptr) actualOperatingMode = operatingMode->mode;
     else actualOperatingMode = OperatingMode::Mode::UNKNOWN;
+
+    State previousState = state;
 
     //find the state using the state bits
     if (!readyToSwitchOn) {
@@ -359,10 +344,39 @@ void Lexium32::readInputs() {
         else                        state = State::ReadyToSwitchOn;
     }
 
-    lastErrorCode = _LastError;
+    if (state != previousState) {
+        switch (state) {
+            case State::SwitchOnDisabled:       pushEvent("StateChange: Switch on Disabled", true); break;
+            case State::Fault:                  break;
+            case State::NotReadyToSwitchOn:     pushEvent("StateChange: Not Ready To Switch On", true); break;
+            case State::FaultReactionActive:    pushEvent("StateChange: Fault Reaction Active", true); break;
+            case State::QuickStopActive:        pushEvent("StateChange: QuickStop Active", true); break;
+            case State::ReadyToSwitchOn:        pushEvent("StateChange: Ready To Switch On", false); break;
+            case State::SwitchedOn:             pushEvent("StateChange: Switched On", false); break;
+            case State::OperationEnabled:       pushEvent("StateChange: Operation Enabled", false); break;
+        }
+    }
+
+    //if an error appeared, push it to the error list
+    //if the error is the same as the previous one, don't log it again
+    if (_LastError != previousErrorCode && _LastError != 0) {
+        pushEvent(_LastError);
+        disable();
+    }
+    previousErrorCode = _LastError;
+
+    //emergency stop state
+    bool actualEstop = _IO_STO_act == 0;
+    if (actualEstop != b_emergencyStopActive) {
+        if (actualEstop) {
+            disable();
+            pushEvent("Emergency Stop Triggered", true);
+        }
+        else pushEvent("Emergency Stop Released", false);
+        b_emergencyStopActive = actualEstop;
+    }
 
     //assign public input data
-    //actualPosition = _p_act;
     actualPosition->set((double)_p_act / (double)positionUnitsPerRevolution);
     actualVelocity->set((double)_v_act / (double)velocityUnitsPerRpm);
     actualLoad->set(((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps);
@@ -373,23 +387,34 @@ void Lexium32::readInputs() {
     digitalIn4->set((_IO_act & 0x10) != 0x0);
     digitalIn5->set((_IO_act & 0x20) != 0x0);
 
-    //set subdevice status
-
+    //set actuator subdevice
     motorDevice->b_ready = (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled);
     motorDevice->b_enabled = state == State::OperationEnabled;
-
+    motorDevice->b_online = isOnline() && motorVoltagePresent;
+    motorDevice->b_emergencyStopActive = b_emergencyStopActive;
+    //set encoder subdevice status
     encoderDevice->b_ready = (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled);
-    //encoderDevice->b_inRange = TODO: detect out of range encoder values
-
+    encoderDevice->b_online = isOnline();
+    encoderDevice->b_inRange = true; // TODO: detect out of range encoder values
+    //set gpio subdevice status
     gpioDevice->b_ready = (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled);
-
+    gpioDevice->b_online = isOnline();
 }
+
+
+
+//================================== OUTPUTS =====================================
 
 void Lexium32::prepareOutputs(){
 
+    //get data from connected nodes
+    if (positionCommand->isConnected()) positionCommand->set(positionCommand->getLinks().front()->getInputData()->getReal());
+    if (velocityCommand->isConnected()) velocityCommand->set(velocityCommand->getLinks().front()->getInputData()->getReal());
+    if (digitalOut0->isConnected()) digitalOut0->set(digitalOut0->getLinks().front()->getInputData()->getBoolean());
+    if (digitalOut1->isConnected()) digitalOut1->set(digitalOut1->getLinks().front()->getInputData()->getBoolean());
+    if (digitalOut2->isConnected()) digitalOut2->set(digitalOut2->getLinks().front()->getInputData()->getBoolean());
+
     //internal profile generator
-
-
     if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY) {
 
         double deltaT_seconds = EtherCatFieldbus::getCurrentCycleDeltaT_seconds();
@@ -418,66 +443,31 @@ void Lexium32::prepareOutputs(){
 
 
     //handle commands from subdevices
-
-    if (motorDevice->b_clearError) {
-        motorDevice->b_clearError = false;
-        b_faultReset = true;
-    }
     if (motorDevice->b_setEnabled) {
         motorDevice->b_setEnabled = false;
         b_enableOperation = true;
     }
     if (motorDevice->b_setDisabled) {
         motorDevice->b_setDisabled = false;
-        b_shutdown = true;
-    }
-
-    if (encoderDevice->b_clearError) {
-        encoderDevice->b_clearError = false;
-        b_faultReset = true;
+        b_disableOperation = true;
     }
     if (encoderDevice->b_reset) {
         encoderDevice->b_reset = false;
         //TODO: reset encoder from here ??
     }
 
-    if (gpioDevice->b_clearError) {
-        gpioDevice->b_clearError = false;
-        b_faultReset = true;
-    }
 
+    //if there is an error present, automatically clear it
+    //the fault reset event only happens on a transition from 0 to 1
+    //we have to clear the fault reset flag after every activation
+    //to be able to use it again
+    if (b_faultReset) b_faultReset = false;
+    else if (_LastError != 0) b_faultReset = true;
 
     //handle state transition commands
-
-    if (b_disableVoltage) {
-        b_disableVoltage = false;
-        b_voltageEnabled = false;
-    }
-    if (b_enableVoltage) {
-        b_enableVoltage = false;
-        b_voltageEnabled = true;
-    }
-    if (b_shutdown) {
-        b_shutdown = false;
-        b_switchedOn = false;
-        b_quickStopActive = true;
-        b_voltageEnabled = true;
-    }
-    if (b_switchOn) {
-        b_switchOn = false;
-        b_operationEnabled = false;
-        b_quickStopActive = true;
-        b_voltageEnabled = true;
-        b_switchedOn = true;
-    }
     if (b_quickStop) {
         b_quickStop = false;
         b_quickStopActive = false;
-        b_voltageEnabled = true;
-    }
-    if (b_faultReset) {
-        b_faultReset = false;
-        b_faultResetState = true; //reset this to zero after execution !
     }
     if (b_enableOperation) {
         b_enableOperation = false;
@@ -491,16 +481,8 @@ void Lexium32::prepareOutputs(){
         b_operationEnabled = false;
         b_quickStopActive = true;
         b_voltageEnabled = true;
-        b_switchedOn = true;
+        b_switchedOn = false;
     }
-
-    if (positionCommand->isConnected()) positionCommand->set(positionCommand->getLinks().front()->getInputData()->getReal());
-    if (velocityCommand->isConnected()) velocityCommand->set(velocityCommand->getLinks().front()->getInputData()->getReal());
-    if (digitalOut0->isConnected()) digitalOut0->set(digitalOut0->getLinks().front()->getInputData()->getBoolean());
-    if (digitalOut1->isConnected()) digitalOut1->set(digitalOut1->getLinks().front()->getInputData()->getBoolean());
-    if (digitalOut2->isConnected()) digitalOut2->set(digitalOut2->getLinks().front()->getInputData()->getBoolean());
-
-
 
 
     //========== PREPARE RXPDO OUTPUTS ==========
@@ -519,11 +501,10 @@ void Lexium32::prepareOutputs(){
     if (opModeSpec4)        DCOMcontrol |= 0x10;
     if (opModeSpec5)        DCOMcontrol |= 0x20;
     if (opModeSpec6)        DCOMcontrol |= 0x40;
-    if (b_faultResetState)  DCOMcontrol |= 0x80;
+    if (b_faultReset)       DCOMcontrol |= 0x80;
     if (b_halted)           DCOMcontrol |= 0x100;
     if (opModeSpec9)        DCOMcontrol |= 0x200;
     //bits 10 to 15 have to be 0
-    b_faultResetState = false; //always reset bit after performing a fault reset
 
     OperatingMode* operatingMode = getOperatingMode(requestedOperatingMode);
     int operatingModeID = 0;
@@ -557,6 +538,30 @@ void Lexium32::prepareOutputs(){
 
 
 
+
+
+//=========================== DEVICE EVENTS ==========================
+
+void Lexium32::pushEvent(const char* eventMessage, bool isError) {
+    eventListMutex.lock();
+    eventList.push_back(new Event(eventMessage, isError));
+    eventListMutex.unlock();
+}
+
+void Lexium32::pushEvent(uint16_t errorCode) {
+    eventListMutex.lock();
+    eventList.push_back(new Event(errorCode));
+    eventListMutex.unlock();
+}
+
+void Lexium32::clearEventList() {
+    eventListMutex.lock();
+    for (Event* event : eventList) delete event;
+    eventList.clear();
+    eventListMutex.unlock();
+}
+
+//============================= SAVING AND LOADING DEVICE DATA ============================
 
 bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }

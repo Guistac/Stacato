@@ -4,17 +4,6 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 #include <tinyxml2.h>
 
-bool VIPA_053_1EC01::hasDeviceError() {
-    return false;
-}
-
-const char* VIPA_053_1EC01::getDeviceErrorString() {
-    return "";
-}
-
-void VIPA_053_1EC01::clearDeviceError() {
-}
-
 bool VIPA_053_1EC01::isDeviceReady() {
     return true;
 }
