@@ -31,7 +31,8 @@ enum ioDataFlags {
 	ioDataFlags_DisablePin				= 1 << 1,
 	ioDataFlags_NoDataField				= 1 << 2,
 	ioDataFlags_ForceDataField			= 1 << 3,
-	ioDataFlags_DisableDataField		= 1 << 4
+	ioDataFlags_DisableDataField		= 1 << 4,
+	ioDataFlags_HidePin					= 1 << 5
 };
 
 inline ioDataFlags operator|(ioDataFlags a, ioDataFlags b){
@@ -47,6 +48,7 @@ public:
 		b_noDataField = flags & ioDataFlags_NoDataField;
 		b_forceDataField = flags & ioDataFlags_ForceDataField;
 		b_disableDataField = flags & ioDataFlags_DisableDataField;
+		b_visible = !(flags & ioDataFlags_HidePin);
 		setup(t, d, n);
 	}
 

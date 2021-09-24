@@ -50,6 +50,28 @@
                     <OutputPin Name="Reset Position Feedback" DataType="Boolean" UniqueID="25" Boolean="false" Visible="true"/>
                 </OutputPins>
             </Node>
+            <Node ClassName="Axis" UniqueID="32" NodeType="AXIS" CustomName="Axis">
+                <NodeEditorPosition x="-1244" y="-3468"/>
+                <NodeSpecificData>
+                    <Axis Type="Linear" Unit="Meter"/>
+                    <Feedback Type="Absolute" Unit="Degrees" UnitsPerAxisUnit="0"/>
+                    <Command Type="Position" Unit="Degrees" UnitsPerAxisUnit="0"/>
+                    <PositionReference Type="None" MaxPositiveDeviation="0" MaxNegativeDeviation="0"/>
+                    <KinematicLimits VelocityLimit_degreesPerSecond="0" AccelerationLimit_degreesPerSecondSquared="0"/>
+                    <DefaultManualParameters Velocity_degreesPerSecond="10" Acceleration_degreesPerSecondSquared="5"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin Name="Actuators" DataType="unknown" UniqueID="33" Visible="true"/>
+                    <InputPin Name="Encoder" DataType="unknown" UniqueID="34" Visible="true"/>
+                    <InputPin Name="Position Feedback" DataType="Real" UniqueID="35" Real="0" Visible="true"/>
+                    <InputPin Name="Reference Devices" DataType="unknown" UniqueID="36" Visible="true"/>
+                    <InputPin Name="References" DataType="Boolean" UniqueID="37" Boolean="false" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin Name="Command" DataType="Real" UniqueID="38" Real="0" Visible="true"/>
+                    <OutputPin Name="Reset Position Feedback" DataType="Boolean" UniqueID="39" Boolean="false" Visible="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="26" StartPin="6" EndPin="19"/>

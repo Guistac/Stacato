@@ -27,7 +27,7 @@ public:
 
 	//Outputs
 	std::shared_ptr<ioData> actuatorCommand = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Command", ioDataFlags_DisableDataField);
-	std::shared_ptr<ioData> resetPositionFeedback = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Position Feedback", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> resetPositionFeedback = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Position Feedback", ioDataFlags_DisableDataField | ioDataFlags_HidePin);
 
 
 	//==================== AXIS DATA ====================
