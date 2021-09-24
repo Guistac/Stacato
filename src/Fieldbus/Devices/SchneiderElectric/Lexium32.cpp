@@ -31,6 +31,8 @@ bool Lexium32::isEnabled() {
     return state == State::OperationEnabled;
 }
 
+void Lexium32::onDisconnection() {}
+
 void Lexium32::assignIoData() {
     std::shared_ptr<DeviceNode> thisDevice = std::dynamic_pointer_cast<DeviceNode>(shared_from_this());
     motorDevice->setParentDevice(thisDevice);

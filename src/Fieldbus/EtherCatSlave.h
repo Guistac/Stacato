@@ -39,6 +39,7 @@
                                                                                     virtual bool isEnabled(){ return false; }																\
                                                                                     virtual void readInputs(){}                                                                             \
                                                                                     virtual void prepareOutputs(){}                                                                         \
+                                                                                    virtual void onDisconnection(){}                                                                        \
                                                                                     /*EtherCAT Slave Functions*/                                                                            \
                                                                                     virtual bool isDeviceReady(){ return false; }                                                           \
                                                                                     virtual bool isSlaveKnown(){ return false; }                                                            \
@@ -65,6 +66,7 @@
                                                                             virtual bool isEnabled();               																\
                                                                             virtual void readInputs();                                                                              \
                                                                             virtual void prepareOutputs();                                                                          \
+                                                                            virtual void onDisconnection();                                                                         \
                                                                             /*EtherCAT Slave Functions*/                                                                            \
                                                                             virtual bool isDeviceReady();                                                                           \
                                                                             virtual bool isSlaveKnown(){ return true; }                                                             \
