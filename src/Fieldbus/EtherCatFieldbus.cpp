@@ -33,6 +33,8 @@ namespace EtherCatFieldbus {
     double processDataTimeout_milliseconds = 1.5;
     double clockStableThreshold_milliseconds = 0.1;
     int slaveStateCheckCycleCount = 50;
+    double fieldbusTimeout_milliseconds = 100.0;
+    std::chrono::high_resolution_clock::time_point lastProcessDataFrameReturnTime;
 
     std::thread etherCatRuntime;    //thread to read errors encountered by SOEM
     std::thread errorWatcher;       //cyclic exchange thread (needs a full cpu core to achieve precise timing)
@@ -304,14 +306,8 @@ namespace EtherCatFieldbus {
         }
         Logger::info("===== Finished Building I/O Map (Size : {} bytes)", ioMapSize);
 
-
-        expectedWorkingCounter = 0;
-        for (auto slave : slaves) {
-            if (slave->identity->Ibits > 0 && slave->identity->Obits > 0) expectedWorkingCounter += 3;
-            else if (slave->identity->Ibits > 0 || slave->identity->Obits) expectedWorkingCounter += 1;
-        }
+        expectedWorkingCounter = getExpectedWorkingCounter();
         Logger::info("===== Calculated Expected Working Counter: {}", expectedWorkingCounter);
-
 
         for (auto slave : slaves) {
             Logger::debug("   [{}] '{}' {} bytes ({} bits)",
@@ -336,6 +332,17 @@ namespace EtherCatFieldbus {
         Logger::info("===== All slaves are Safe-Operational");
 
         return true;
+    }
+
+
+    int getExpectedWorkingCounter() {
+        int output = 0;
+        for (auto slave : slaves) {
+            if (slave->isStateOffline()) continue;
+            else if (slave->identity->Ibits > 0 && slave->identity->Obits > 0) output += 3;
+            else if (slave->identity->Ibits > 0 || slave->identity->Obits) output += 1;
+        }
+        return output;
     }
 
 
@@ -372,6 +379,9 @@ namespace EtherCatFieldbus {
             i_configurationProgress = ec_slavecount + 4;
             sprintf(configurationStatus, "Waiting For Clocks To Stabilize");
 
+            //reset fieldbus timeout watchdog
+            lastProcessDataFrameReturnTime = high_resolution_clock::now();
+
             while (b_processRunning) {
 
                 //bruteforce timing precision by using 100% of CPU core
@@ -387,8 +397,83 @@ namespace EtherCatFieldbus {
                 int workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
                 uint64_t frameReceivedTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
 
-                //adjust the copy of the reference clock in case no frame was received
-                if (workingCounter != expectedWorkingCounter) ec_DCtime += processInterval_nanoseconds;
+
+                high_resolution_clock::time_point now = high_resolution_clock::now();
+                if (workingCounter <= 0) {
+                    if (now - lastProcessDataFrameReturnTime > milliseconds((int)fieldbusTimeout_milliseconds)) {
+                        Logger::critical("Fieldbus timed out...");
+                        stop();
+                        break;
+                    }
+                    //adjust the copy of the reference clock in case no frame was received
+                    ec_DCtime += processInterval_nanoseconds;
+                }
+                else {
+                    lastProcessDataFrameReturnTime = now;
+                }
+
+               /*
+                //else if (workingCounter != expectedWorkingCounter) {
+                else if (metrics.cycleCounter % slaveStateCheckCycleCount == 0) {
+
+                    //a frame was returned but not all slaves responded
+                    //we need to check the status of all slaves
+                    for (auto slave : slaves) slave->saveCurrentState();
+                    ec_readstate();
+                    for (auto slave : slaves) slave->compareNewState();
+
+                    for (auto slave : slaves) {
+                        if (slave->isStateOffline()) {
+                            Logger::warn("Trying to recover offline slave");
+                            if (1 == ec_recover_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
+                                Logger::warn("Recovered slave !");
+                                Logger::warn("Trying to reconfigure slave");
+                                if (ec_reconfig_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
+                                    Logger::warn("Status after reconfiguration: {}", slave->getStateChar());
+                                } Logger::warn("Failed to reconfigure");
+                            }
+                            else Logger::warn("Failed to recover...");
+                        }
+                        else if (slave->isStateSafeOperational() && !slave->hasStateError()) {
+                            slave->identity->state = EC_STATE_OPERATIONAL;
+                            ec_writestate(slave->getSlaveIndex());
+                            ec_statecheck(slave->getSlaveIndex(), EC_STATE_OPERATIONAL, EC_TIMEOUTRET3);
+                            Logger::critical("Status after setOp: {}", slave->getStateChar());
+                        }
+                        else if (!slave->isStateOperational()) {
+                            Logger::warn("Trying to reconfigure slave");
+                            if (ec_reconfig_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
+                                Logger::warn("Status after reconfiguration: {}", slave->getStateChar());
+                            }
+                            else Logger::warn("Failed to recover");
+                        }
+                    }
+
+
+
+                    //after checking the state of all slaves, we calculate a new workingCounter
+                    //expectedWorkingCounter = getExpectedWorkingCounter();
+                    //Logger::warn("Recalculated working counter: {}", expectedWorkingCounter);
+
+                    //recover is useful to detect a slave that has a power cycle and lost its configured address
+                    //recover uses incremental addressing to detect if an offline slave pops up at the same place in the network
+                    //if a slave responds at that address, the function verify it matches the previous slave at that address
+                    //it then reattributes an configured address to the slave
+                    //the function returns 1 if the slave was successfully recovered with its previous configured address
+                    //ec_recover_slave(1, EC_TIMEOUTSAFE); 
+                    
+                    //reconfigure looks for a slave that still has the same configured address
+                    //if no slave is found at the configured address, the function does nothing
+                    //this mean the function cannot directly be used to reconfigure a slave that had a power cycle and lost its configured address
+                    //reconfigure takes the slave back to init and reconfigures it all the way through safeoperational
+                    //we then need to set it back to operational
+                    //the ec_reconfig_slave function returns the status of the slave
+                    //ec_reconfig_slave(1, EC_TIMEOUTSAFE);
+                }
+
+                */
+
+               
 
                 high_resolution_clock::time_point currentCycleTime = high_resolution_clock::now();
                 long long currentCycleDeltaT_nanoseconds = duration_cast<nanoseconds>(currentCycleTime - previousCycleTime).count();
@@ -469,7 +554,7 @@ namespace EtherCatFieldbus {
                 if (!b_clockStable && abs(metrics.averageDcTimeError_milliseconds) < clockStableThreshold_milliseconds) {
                     b_clockStable = true;
                     sprintf(configurationStatus, "Setting All Slaves to Operational State");
-                    std::thread safeOpStarter([]() {
+                    std::thread opStateHandler([]() {
                         Logger::debug("===== Clocks Stabilized, Setting All Slaves to Operational state...");
                         // Act on slave 0 (a virtual slave used for broadcasting)
                         ec_slave[0].state = EC_STATE_OPERATIONAL;
@@ -483,29 +568,34 @@ namespace EtherCatFieldbus {
                             Logger::info("===== Successfully started EtherCAT Fieldbus");
                         }
                         else {
-                            stop();
+                            //TODO: check the state of all slaves to determine which slave did not reach operational state
                             b_configurationError = true;
                             sprintf(configurationStatus, "Not all slaves reached Operational State");
                             Logger::error("===== Not all slaves reached operational state... ");
+                            stop();
                         }
-                        });
-                    safeOpStarter.detach();
+                    });
+                    opStateHandler.detach();
                 }
                 else if (metrics.cycleCounter % slaveStateCheckCycleCount == 0) {
+                    /*
                     //read the state of all slaves
                     for (auto slave : slaves) slave->saveCurrentState();
                     ec_readstate();
                     for (auto slave : slaves) slave->compareNewState();
+                    */
                 }
 
                 //===== EtherCat Runtime End =====
             }
             b_processRunning = false;
-            });
+            Logger::info("===== Cyclic Exchange Stopped !");
+        });
     }
 
     void start() {
         if (!b_processStarting) {
+            if (etherCatRuntime.joinable()) etherCatRuntime.join();
             b_configurationError = false;
             i_configurationProgress = 0;
             sprintf(configurationStatus, "Starting Fieldbus Configuration");
@@ -521,12 +611,9 @@ namespace EtherCatFieldbus {
 
     void stop() {
         if (b_processRunning) {
-            Logger::info("===== Stopping Cyclic Exchange");
             b_allOperational = false;
             b_processRunning = false;
-            if (etherCatRuntime.joinable()) etherCatRuntime.join();
             for (int i = 1; i <= ec_slavecount; i++) ec_slave[i].state = EC_STATE_INIT;
-            Logger::info("===== Cyclic Exchange Stopped !");
         }
     }
 

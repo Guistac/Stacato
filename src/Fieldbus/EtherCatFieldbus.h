@@ -34,6 +34,7 @@ namespace EtherCatFieldbus {
     extern double processDataTimeout_milliseconds;
     extern double clockStableThreshold_milliseconds;
     extern int slaveStateCheckCycleCount;
+    extern double fieldbusTimeout_milliseconds;
 
     //metrics
     extern EtherCatMetrics metrics;
@@ -49,6 +50,7 @@ namespace EtherCatFieldbus {
     extern std::vector<std::shared_ptr<EtherCatSlave>> slaves_unassigned;
 
     //process data
+    int getExpectedWorkingCounter();
     extern int expectedWorkingCounter;
 
     extern bool b_networkOpen;              //high when one or more network interface cards are opened

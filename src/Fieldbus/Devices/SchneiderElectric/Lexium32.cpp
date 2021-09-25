@@ -256,8 +256,6 @@ bool Lexium32::setStartupParameters() {
     if (!writeSDO(0x3004, 0x1, PAReeprSave)) return false;
 #endif
 
-
-
     //Cia DS402 mandatory Startup Settings (According to Lexium32 EtherCAT module documentation)
     uint16_t CompParSyncMot_set = 1;
     if (!writeSDO(0x3006, 0x3D, CompParSyncMot_set)) return false;
