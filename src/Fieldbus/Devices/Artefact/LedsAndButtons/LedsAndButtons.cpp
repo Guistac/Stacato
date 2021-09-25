@@ -8,6 +8,7 @@ void LedsAndButtons::enable() {}
 void LedsAndButtons::disable() {}
 bool LedsAndButtons::isEnabled() { return false; }
 void LedsAndButtons::onDisconnection() {}
+void LedsAndButtons::onConnection() {}
 
 void LedsAndButtons::assignIoData() {
 

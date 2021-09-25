@@ -39,6 +39,7 @@
                                                                                     virtual bool isEnabled(){ return false; }																\
                                                                                     virtual void readInputs(){}                                                                             \
                                                                                     virtual void prepareOutputs(){}                                                                         \
+                                                                                    virtual void onConnection(){}                                                                           \
                                                                                     virtual void onDisconnection(){}                                                                        \
                                                                                     /*EtherCAT Slave Functions*/                                                                            \
                                                                                     virtual bool isDeviceReady(){ return false; }                                                           \
@@ -66,6 +67,7 @@
                                                                             virtual bool isEnabled();               																\
                                                                             virtual void readInputs();                                                                              \
                                                                             virtual void prepareOutputs();                                                                          \
+                                                                            virtual void onConnection();                                                                            \
                                                                             virtual void onDisconnection();                                                                         \
                                                                             /*EtherCAT Slave Functions*/                                                                            \
                                                                             virtual bool isDeviceReady();                                                                           \
@@ -100,17 +102,12 @@ public:
     //serves as device interface and as default device type for unknow devices
     INTERFACE_DEFINITION(EtherCatSlave, "Unknown Device", "Unknown manufacturer", "No Category");
 
-    int slaveIndex = -1;
     ec_slavet* identity = nullptr;
-
     EtherCatSlaveIdentification::Type identificationType = EtherCatSlaveIdentification::Type::STATION_ALIAS;
+    int slaveIndex = -1;
     uint16_t stationAlias = 0;
     uint16_t explicitDeviceID = 0;
     bool b_supportsExplicitDeviceID = false;
-
-    //public display of raw pdo data
-    EtherCatPdoAssignement txPdoAssignement;
-    EtherCatPdoAssignement rxPdoAssignement;
 
     //basic info
     uint32_t getManufacturer() { return identity->eep_man; }
@@ -129,8 +126,13 @@ public:
     bool isStateSafeOperational()   { return (identity->state & 0xF) == EC_STATE_SAFE_OP; }
     bool isStateOperational()       { return (identity->state & 0xF) == EC_STATE_OPERATIONAL; }
 
-    const char* getStateChar();
+    const char* getEtherCatStateChar();
     bool hasStateError();
+    uint16_t previousState = -1;
+
+    //public display of raw pdo data
+    EtherCatPdoAssignement txPdoAssignement;
+    EtherCatPdoAssignement rxPdoAssignement;
 
     //Mailbox types
     bool isCoeSupported() { return identity->mbx_proto & ECT_MBXPROT_COE; }
@@ -146,12 +148,29 @@ public:
     bool supportsCoE_upload()       { return identity->CoEdetails & ECT_COEDET_UPLOAD; }
     bool supportsCoE_SDOCA()        { return identity->CoEdetails & ECT_COEDET_SDOCA; }
 
+    //===== EVENTS =====
 
-    bool b_mapped = false;
+    struct Event {
+        Event(const char* eventMessage, bool isError) : b_isError(isError) { strcpy(message, eventMessage); }
+        Event(uint16_t errorCode) : b_isError(true) { sprintf(message, "Error Code %X", errorCode); }
+        std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        char message[128];
+        bool b_isError;
+    };
+    std::mutex eventListMutex;
+    std::vector<Event*> eventList;
+    void pushEvent(const char* errorMessage, bool isError);
+    void pushEvent(uint16_t errorCode);
+    void clearEventList();
 
-    uint16_t previousState = -1;
-    void saveCurrentState() { previousState = identity->state; }
-    void compareNewState();
+    EtherCatRegisterData uploadRegisterData = EtherCatRegisterData("uploadData", 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::BINARY);
+    EtherCatRegisterData downloadRegisterData = EtherCatRegisterData("downloadData", 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::BINARY);
+    EtherCatCoeData uploadCoeData = EtherCatCoeData("uploadData", 0x0, 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::DECIMAL);
+    EtherCatCoeData downloadCoeData = EtherCatCoeData("uploadData", 0x0, 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::DECIMAL);
+    EtherCatEepromData uploadEepromData = EtherCatEepromData("uploadData", 0x0, DataFormat::Type::HEXADECIMAL);
+    EtherCatEepromData downloadEepromData = EtherCatEepromData("downloadData", 0x0, DataFormat::Type::HEXADECIMAL);
+
+    //======== GUI ========
 
     virtual void nodeSpecificGui();
     void genericInfoGui();
@@ -161,14 +180,7 @@ public:
     void sendReceiveCanOpenGui();
     void sendReceiveEtherCatRegisterGui();
     void sendReceiveEepromGui();
-
-    EtherCatRegisterData uploadRegisterData = EtherCatRegisterData("uploadData", 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::BINARY);
-    EtherCatRegisterData downloadRegisterData = EtherCatRegisterData("downloadData", 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::BINARY);
-    EtherCatCoeData uploadCoeData = EtherCatCoeData("uploadData", 0x0, 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::DECIMAL);
-    EtherCatCoeData downloadCoeData = EtherCatCoeData("uploadData", 0x0, 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::DECIMAL);
-    EtherCatEepromData uploadEepromData = EtherCatEepromData("uploadData", 0x0, DataFormat::Type::HEXADECIMAL);
-    EtherCatEepromData downloadEepromData = EtherCatEepromData("downloadData", 0x0, DataFormat::Type::HEXADECIMAL);
-
+    void eventListGui();
 
     //=====Reading and Writing SDO Data
 
@@ -193,12 +205,4 @@ public:
     bool writeSDO(uint16_t index, uint8_t subindex, uint64_t data);
     bool writeSDO(uint16_t index, uint8_t subindex, int64_t data);
 
-private:
-
 };
-
-
-
-//TODO:
-//add vector of inputs and outputs
-//add default gui containing basic information about the slave

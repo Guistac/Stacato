@@ -31,7 +31,13 @@ bool Lexium32::isEnabled() {
     return state == State::OperationEnabled;
 }
 
-void Lexium32::onDisconnection() {}
+void Lexium32::onConnection() {
+    Logger::critical("{} Connected !", getName());
+}
+
+void Lexium32::onDisconnection() {
+    Logger::critical("{} Disconnected...", getName());
+}
 
 void Lexium32::assignIoData() {
     std::shared_ptr<DeviceNode> thisDevice = std::dynamic_pointer_cast<DeviceNode>(shared_from_this());
@@ -538,31 +544,6 @@ void Lexium32::prepareOutputs(){
     outByte[10] = (PVv_target >> 24) & 0xFF;
     outByte[11] = (IO_DQ_set >> 0) & 0xFF;
     outByte[12] = (IO_DQ_set >> 8) & 0xFF;
-}
-
-
-
-
-
-//=========================== DEVICE EVENTS ==========================
-
-void Lexium32::pushEvent(const char* eventMessage, bool isError) {
-    eventListMutex.lock();
-    eventList.push_back(new Event(eventMessage, isError));
-    eventListMutex.unlock();
-}
-
-void Lexium32::pushEvent(uint16_t errorCode) {
-    eventListMutex.lock();
-    eventList.push_back(new Event(errorCode));
-    eventListMutex.unlock();
-}
-
-void Lexium32::clearEventList() {
-    eventListMutex.lock();
-    for (Event* event : eventList) delete event;
-    eventList.clear();
-    eventListMutex.unlock();
 }
 
 //============================= SAVING AND LOADING DEVICE DATA ============================

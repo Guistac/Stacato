@@ -19,6 +19,7 @@ bool VIPA_053_1EC01::isEnabled() {
 }
 
 void VIPA_053_1EC01::onDisconnection() {}
+void VIPA_053_1EC01::onConnection() {}
 
 void VIPA_053_1EC01::assignIoData() {
     std::shared_ptr<DeviceNode> thisDevice = std::dynamic_pointer_cast<DeviceNode>(shared_from_this());

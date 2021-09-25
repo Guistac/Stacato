@@ -37,6 +37,7 @@ namespace EtherCatFieldbus {
     std::chrono::high_resolution_clock::time_point lastProcessDataFrameReturnTime;
 
     std::thread etherCatRuntime;    //thread to read errors encountered by SOEM
+    std::thread slaveStateHandler;  //thread to periodically check the state of all slaves and recover them if necessary
     std::thread errorWatcher;       //cyclic exchange thread (needs a full cpu core to achieve precise timing)
 
     std::chrono::high_resolution_clock::time_point previousCycleTime;
@@ -262,7 +263,6 @@ namespace EtherCatFieldbus {
 
     bool configureSlaves() {
 
-
         i_configurationProgress = 1;
         sprintf(configurationStatus, "Configuring Distributed Clocks");
 
@@ -274,8 +274,6 @@ namespace EtherCatFieldbus {
             return false;
         }
         Logger::info("===== Finished Configuring Distributed Clocks");
-
-
 
         //build ioMap for PDO data, configure FMMU and SyncManager, request SAFE-OP state for all slaves
         //also assign and execute slave startup methods
@@ -289,7 +287,9 @@ namespace EtherCatFieldbus {
                     if (slave->getSlaveIndex() == slaveIndex) {
                         sprintf(configurationStatus, "Configuring Slave #%i '%s'", slave->getSlaveIndex(), slave->getName());
                         i_configurationProgress = slaveIndex + 1; //for progress bar display
-                        slave->b_mapped = slave->startupConfiguration();
+                        Logger::debug("Configuring Slave '{}'", slave->getName());
+                        if (slave->startupConfiguration()) Logger::debug("Successfully configured Slave '{}'", slave->getName());
+                        else Logger::warn("Failed to configure slave '{}'", slave->getName());
                         break;
                     }
                 }
@@ -300,7 +300,6 @@ namespace EtherCatFieldbus {
         if (ioMapSize <= 0) {
             b_configurationError = true;
             sprintf(configurationStatus, "Failed to Configure I/O Map");
-            for (auto slave : slaves) slave->b_mapped = false;
             Logger::error("===== Failed To Configure I/O Map...");
             return false;
         }
@@ -327,6 +326,11 @@ namespace EtherCatFieldbus {
             b_configurationError = true;
             sprintf(configurationStatus, "Not All Slaves Reached Safe-Operational State");
             Logger::error("===== Not all slaves have reached Safe-Operational State...");
+            for (auto slave : slaves) {
+                if (!slave->isStateSafeOperational() || !slave->isStateOperational() || slave->hasStateError()) {
+                    Logger::warn("Slave '{}' has state {}", slave->getName(), slave->getEtherCatStateChar());
+                }
+            }
             return false;
         }
         Logger::info("===== All slaves are Safe-Operational");
@@ -382,6 +386,11 @@ namespace EtherCatFieldbus {
             //reset fieldbus timeout watchdog
             lastProcessDataFrameReturnTime = high_resolution_clock::now();
 
+            //slaves are considered online when they are detected and actively exchanging data with the master
+            //if we reached this state of the configuration, all slaves are detected and we are about to start exchanging data
+            //we can set trigger the onConnection event of all slaves
+            for (auto slave : slaves) slave->onConnection();
+
             while (b_processRunning) {
 
                 //bruteforce timing precision by using 100% of CPU core
@@ -400,93 +409,30 @@ namespace EtherCatFieldbus {
 
                 high_resolution_clock::time_point now = high_resolution_clock::now();
                 if (workingCounter <= 0) {
+                    //check timeout watchdog
                     if (now - lastProcessDataFrameReturnTime > milliseconds((int)fieldbusTimeout_milliseconds)) {
                         Logger::critical("Fieldbus timed out...");
                         stop();
-                        break;
+                        break; //breaks out of the main while loop
                     }
                     //adjust the copy of the reference clock in case no frame was received
                     ec_DCtime += processInterval_nanoseconds;
                 }
                 else {
+                    //reset timeout watchdog
                     lastProcessDataFrameReturnTime = now;
                 }
 
-               /*
-                //else if (workingCounter != expectedWorkingCounter) {
-                else if (metrics.cycleCounter % slaveStateCheckCycleCount == 0) {
-
-                    //a frame was returned but not all slaves responded
-                    //we need to check the status of all slaves
-                    for (auto slave : slaves) slave->saveCurrentState();
-                    ec_readstate();
-                    for (auto slave : slaves) slave->compareNewState();
-
-                    for (auto slave : slaves) {
-                        if (slave->isStateOffline()) {
-                            Logger::warn("Trying to recover offline slave");
-                            if (1 == ec_recover_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
-                                Logger::warn("Recovered slave !");
-                                Logger::warn("Trying to reconfigure slave");
-                                if (ec_reconfig_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
-                                    Logger::warn("Status after reconfiguration: {}", slave->getStateChar());
-                                } Logger::warn("Failed to reconfigure");
-                            }
-                            else Logger::warn("Failed to recover...");
-                        }
-                        else if (slave->isStateSafeOperational() && !slave->hasStateError()) {
-                            slave->identity->state = EC_STATE_OPERATIONAL;
-                            ec_writestate(slave->getSlaveIndex());
-                            ec_statecheck(slave->getSlaveIndex(), EC_STATE_OPERATIONAL, EC_TIMEOUTRET3);
-                            Logger::critical("Status after setOp: {}", slave->getStateChar());
-                        }
-                        else if (!slave->isStateOperational()) {
-                            Logger::warn("Trying to reconfigure slave");
-                            if (ec_reconfig_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
-                                Logger::warn("Status after reconfiguration: {}", slave->getStateChar());
-                            }
-                            else Logger::warn("Failed to recover");
-                        }
-                    }
-
-
-
-                    //after checking the state of all slaves, we calculate a new workingCounter
-                    //expectedWorkingCounter = getExpectedWorkingCounter();
-                    //Logger::warn("Recalculated working counter: {}", expectedWorkingCounter);
-
-                    //recover is useful to detect a slave that has a power cycle and lost its configured address
-                    //recover uses incremental addressing to detect if an offline slave pops up at the same place in the network
-                    //if a slave responds at that address, the function verify it matches the previous slave at that address
-                    //it then reattributes an configured address to the slave
-                    //the function returns 1 if the slave was successfully recovered with its previous configured address
-                    //ec_recover_slave(1, EC_TIMEOUTSAFE); 
-                    
-                    //reconfigure looks for a slave that still has the same configured address
-                    //if no slave is found at the configured address, the function does nothing
-                    //this mean the function cannot directly be used to reconfigure a slave that had a power cycle and lost its configured address
-                    //reconfigure takes the slave back to init and reconfigures it all the way through safeoperational
-                    //we then need to set it back to operational
-                    //the ec_reconfig_slave function returns the status of the slave
-                    //ec_reconfig_slave(1, EC_TIMEOUTSAFE);
-                }
-
-                */
-
-               
-
-                high_resolution_clock::time_point currentCycleTime = high_resolution_clock::now();
-                long long currentCycleDeltaT_nanoseconds = duration_cast<nanoseconds>(currentCycleTime - previousCycleTime).count();
+                long long currentCycleDeltaT_nanoseconds = duration_cast<nanoseconds>(now - previousCycleTime).count();
                 currentCycleDeltaT_seconds = (double)currentCycleDeltaT_nanoseconds / 1000000000.0;
-                previousCycleTime = currentCycleTime;
+                previousCycleTime = now;
 
+                //don't update the devices while the fieldbus isn't fully started
                 if (b_allOperational) {
                     //interpret the data that was received for all slaves
                     for (auto slave : slaves) slave->readInputs();
-
                     //update all nodes connected to ethercat slave nodes
                     Environnement::nodeGraph.evaluate(DeviceType::ETHERCATSLAVE);
-
                     //prepare the output data to be sent
                     for (auto slave : slaves) slave->prepareOutputs();
                 }
@@ -556,34 +502,84 @@ namespace EtherCatFieldbus {
                     sprintf(configurationStatus, "Setting All Slaves to Operational State");
                     std::thread opStateHandler([]() {
                         Logger::debug("===== Clocks Stabilized, Setting All Slaves to Operational state...");
-                        // Act on slave 0 (a virtual slave used for broadcasting)
+                        //set all slaves to operational (by setting slave 0 to operational)
                         ec_slave[0].state = EC_STATE_OPERATIONAL;
                         ec_writestate(0);
                         //wait for all slaves to reach OP state
-                        uint16_t slaveState = ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE);
-                        if (slaveState == EC_STATE_OPERATIONAL) {
+                        if (EC_STATE_OPERATIONAL == ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE)) {
                             sprintf(configurationStatus, "Successfully Started EtherCAT Fieldbus");
                             b_allOperational = true;
                             Logger::info("===== All slaves are operational");
                             Logger::info("===== Successfully started EtherCAT Fieldbus");
+                            //addition read state is required to set the individual state of each slave
+                            //statecheck on slave zero doesn't assign the state of each individual slave, only global slave 0
+                            ec_readstate();
+
+                            //============== STATE HANDLING AND SLAVE RECOVERY =================
+                            slaveStateHandler = std::thread([]() {
+                                Logger::debug("Started Slave State Handler Thread");
+                                while (b_processRunning) {
+
+                                    for (auto slave : slaves) slave->previousState = slave->identity->state;
+                                    ec_readstate();
+                                    for (auto slave : slaves) {
+                                        if (slave->identity->state != slave->previousState) {
+                                            if(slave->isStateOperational() && !slave->hasStateError()) Logger::info("Slave '{}' transitionned to Operational State", slave->getName());
+                                            else Logger::warn("Slave '{}' transitionned to {} {}", slave->getName(), slave->getEtherCatStateChar(), slave->hasStateError() ? "(State Error)" : "");
+                                            if (slave->isStateOffline()) slave->onDisconnection();
+                                            if (slave->previousState == EC_STATE_NONE && !slave->isStateOffline()) slave->onConnection();
+;                                        }
+                                    }
+
+                                    for (auto slave : slaves) {
+                                        if (slave->isStateOffline()) {
+                                            //recover is useful to detect a slave that has a power cycle and lost its configured address
+                                            //recover uses incremental addressing to detect if an offline slave pops up at the same place in the network
+                                            //if a slave responds at that address, the function verify it matches the previous slave at that address
+                                            //it then reattributes an configured address to the slave
+                                            //the function returns 1 if the slave was successfully recovered with its previous configured address
+                                            if (1 == ec_recover_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
+                                                Logger::info("Recovered slave '{}' !", slave->getName());
+                                            }
+                                        }
+                                        else if (slave->isStateSafeOperational() && !slave->hasStateError()) {
+                                            //set the slave back to operational after reconfiguration
+                                            slave->identity->state = EC_STATE_OPERATIONAL;
+                                            ec_writestate(slave->getSlaveIndex());
+                                            if (EC_STATE_OPERATIONAL == ec_statecheck(slave->getSlaveIndex(), EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE))
+                                                Logger::info("Slave '{}' is back in Operational State!", slave->getName());
+                                        }
+                                        else if (!slave->isStateOperational() || slave->hasStateError()) {
+                                            //reconfigure looks for a slave that still has the same configured address
+                                            //if no slave is found at the configured address, the function does nothing
+                                            //this mean the function cannot directly be used to reconfigure a slave that had a power cycle and lost its configured address
+                                            //reconfigure takes the slave back to init and reconfigures it all the way through safeoperational
+                                            //we then need to set it back to operational
+                                            //the ec_reconfig_slave function returns the status of the slave
+                                            if (EC_STATE_SAFE_OP == ec_reconfig_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) 
+                                                Logger::info("Slave '{}' Successfully Reconfigured", slave->getName());
+                                        }
+                                    }
+
+                                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                                }
+                                Logger::debug("Exited Slave State Handler Thread");
+                            });
+                            //===============================================================================
                         }
                         else {
-                            //TODO: check the state of all slaves to determine which slave did not reach operational state
                             b_configurationError = true;
                             sprintf(configurationStatus, "Not all slaves reached Operational State");
                             Logger::error("===== Not all slaves reached operational state... ");
+                            for (auto slave : slaves) {
+                                if (!slave->isStateOperational() || slave->hasStateError()) {
+                                    Logger::warn("Slave '{}' has state {}", slave->getName(), slave->getEtherCatStateChar());
+                                }
+                            }
                             stop();
                         }
                     });
                     opStateHandler.detach();
-                }
-                else if (metrics.cycleCounter % slaveStateCheckCycleCount == 0) {
-                    /*
-                    //read the state of all slaves
-                    for (auto slave : slaves) slave->saveCurrentState();
-                    ec_readstate();
-                    for (auto slave : slaves) slave->compareNewState();
-                    */
                 }
 
                 //===== EtherCat Runtime End =====
@@ -596,6 +592,7 @@ namespace EtherCatFieldbus {
     void start() {
         if (!b_processStarting) {
             if (etherCatRuntime.joinable()) etherCatRuntime.join();
+            if (slaveStateHandler.joinable()) slaveStateHandler.join();
             b_configurationError = false;
             i_configurationProgress = 0;
             sprintf(configurationStatus, "Starting Fieldbus Configuration");
@@ -611,9 +608,15 @@ namespace EtherCatFieldbus {
 
     void stop() {
         if (b_processRunning) {
+            Logger::debug("===== Stopping Cyclic Exchange...");
             b_allOperational = false;
             b_processRunning = false;
-            for (int i = 1; i <= ec_slavecount; i++) ec_slave[i].state = EC_STATE_INIT;
+            for (auto slave : slaves) {
+                if (!slave->isStateOffline()) {
+                    slave->onDisconnection();
+                }
+                slave->identity->state = EC_STATE_NONE;
+            }
         }
     }
 

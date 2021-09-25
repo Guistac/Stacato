@@ -70,21 +70,6 @@ public:
     OperatingMode::Mode actualOperatingMode = OperatingMode::Mode::UNKNOWN;
     OperatingMode::Mode requestedOperatingMode = OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION;
 
-    //===== EVENTS =====
-    
-    struct Event {
-        Event(const char * eventMessage, bool isError) : b_isError(isError) { strcpy(message, eventMessage); }
-        Event(uint16_t errorCode) : b_isError(true) { sprintf(message, "Error Code %X", errorCode); }
-        std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        char message[128];
-        bool b_isError;
-    };
-    std::mutex eventListMutex;
-    std::vector<Event*> eventList;
-    void pushEvent(const char* errorMessage, bool isError);
-    void pushEvent(uint16_t errorCode);
-    void clearEventList();
-
     //===== EMERGENCY STOP =====
     bool b_emergencyStopActive = false;
     bool isEmergencyStopActive() { return b_emergencyStopActive; }
@@ -282,5 +267,4 @@ private:
     void controlsGui();
     void limitsGui();
     void feedbackConfigurationGui();
-    void eventListGui();
 };

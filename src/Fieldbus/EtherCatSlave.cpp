@@ -122,11 +122,11 @@ bool EtherCatSlave::load(tinyxml2::XMLElement* xml) {
 }
 
 
-const char* EtherCatSlave::getStateChar() {
-    if (identity == nullptr) return "No Status";
+const char* EtherCatSlave::getEtherCatStateChar() {
+    if (!isOnline()) return "Offline";
     uint16_t stateWithoutErrorBit = identity->state & 0xF;
     switch (stateWithoutErrorBit) {
-        case EC_STATE_NONE: return "No Status";
+        case EC_STATE_NONE: return "No State";
         case EC_STATE_INIT: return "Init";
         case EC_STATE_PRE_OP: return "Pre-Operational";
         case EC_STATE_BOOT: return "Boot";
@@ -140,25 +140,26 @@ bool EtherCatSlave::hasStateError() {
     return identity->state & EC_STATE_ERROR;
 }
 
-void EtherCatSlave::compareNewState() {
-    uint16_t previousStateWithoutError = previousState & 0xF;
-    uint16_t currentStateWithoutError = identity->state & 0xF;
-    bool previousError = previousState & EC_STATE_ERROR;
-    bool currentError = identity->state & EC_STATE_ERROR;
-    if (currentStateWithoutError != previousStateWithoutError || previousError != currentError) {
-        Logger::warn("{} state changed to {} {}", getName(), getStateChar(), currentError ? "(Error)" : "");
-        switch (currentStateWithoutError) {
-        case EC_STATE_NONE: break;
-        case EC_STATE_INIT: break;
-        case EC_STATE_PRE_OP: break;
-        case EC_STATE_BOOT: break;
-        case EC_STATE_SAFE_OP: break;
-        case EC_STATE_OPERATIONAL: break;
-        default: break;
-        }
-    }
+//=========================== DEVICE EVENTS ==========================
+
+void EtherCatSlave::pushEvent(const char* eventMessage, bool isError) {
+    eventListMutex.lock();
+    eventList.push_back(new Event(eventMessage, isError));
+    eventListMutex.unlock();
 }
 
+void EtherCatSlave::pushEvent(uint16_t errorCode) {
+    eventListMutex.lock();
+    eventList.push_back(new Event(errorCode));
+    eventListMutex.unlock();
+}
+
+void EtherCatSlave::clearEventList() {
+    eventListMutex.lock();
+    for (Event* event : eventList) delete event;
+    eventList.clear();
+    eventListMutex.unlock();
+}
 
 //===== Reading SDO Data
 

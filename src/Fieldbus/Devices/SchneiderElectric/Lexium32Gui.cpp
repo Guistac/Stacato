@@ -29,10 +29,6 @@ void Lexium32::deviceSpecificGui() {
                 feedbackConfigurationGui();
                 ImGui::EndTabItem();
             }
-            if (ImGui::BeginTabItem("Errors")) {
-                eventListGui();
-                ImGui::EndTabItem();
-            }
             ImGui::EndTabBar();
         }
 
@@ -47,15 +43,21 @@ void Lexium32::deviceSpecificGui() {
 void Lexium32::statusGui() {
 
     float doubleWidgetWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
-    float maxWidgetWidth = ImGui::GetTextLineHeight() * 15.0;
-    if (doubleWidgetWidth > maxWidgetWidth) doubleWidgetWidth = maxWidgetWidth;
+    float maxDoubleWidgetWidth = ImGui::GetTextLineHeight() * 15.0;
+    if (doubleWidgetWidth > maxDoubleWidgetWidth) doubleWidgetWidth = maxDoubleWidgetWidth;
 
-    glm::vec2 statusDisplaySize(doubleWidgetWidth, ImGui::GetTextLineHeight() * 2.0);
+    float tripleWidgetWidth = (ImGui::GetContentRegionAvail().x - 2 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
+    float maxTripleWidgetWidth = ImGui::GetTextLineHeight() * 15.0;
+    if (tripleWidgetWidth > maxTripleWidgetWidth) tripleWidgetWidth = maxTripleWidgetWidth;
+
+    glm::vec2 statusDisplaySize(tripleWidgetWidth, ImGui::GetTextLineHeight() * 2.0);
 
     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(0));
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0, 0.0, 0.0, 0.0));
     ImGui::Button("Network Status", glm::vec2(statusDisplaySize.x, 0));
+    ImGui::SameLine();
+    ImGui::Button("EtherCAT status", glm::vec2(statusDisplaySize.x, 0));
     ImGui::SameLine();
     ImGui::Button("Servo Status", glm::vec2(statusDisplaySize.x, 0));
     ImGui::PopStyleColor();
@@ -68,6 +70,17 @@ void Lexium32::statusGui() {
 
     ImGui::Button(isOnline() ? "Online" : (isDetected() ? "Detected" : "Offline"), statusDisplaySize);
     ImGui::PopStyleColor();
+
+    ImGui::SameLine();
+    bool isOffline = !isOnline();
+    if (isOffline) ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+    if (!isOnline()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
+    else if (isStateBootstrap() || isStateInit()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+    else if (isStatePreOperational() || isStateSafeOperational()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+    else ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+    ImGui::Button(getEtherCatStateChar(), statusDisplaySize);
+    ImGui::PopStyleColor();
+    if (isOffline) ImGui::PopStyleColor();
 
     ImGui::SameLine();
 
@@ -461,36 +474,4 @@ void Lexium32::feedbackConfigurationGui() {
         }
 
     }
-}
-
-
-#include <iomanip>
-
-void Lexium32::eventListGui() {
-
-    if (ImGui::Button("Clear Error List")) clearEventList();
-
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.0, 0.0, 0.0, 1.0));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-    if (ImGui::BeginChild(ImGui::GetID("LogMessages"))) {
-
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-
-        eventListMutex.lock();
-        for (int i = (int)eventList.size() - 1; i >= 0; i--) {
-            Event* event = eventList[i];
-            std::stringstream ss;
-            ss << std::put_time(std::localtime(&event->time), "%X");
-            ImGui::PushStyleColor(ImGuiCol_Text, event->b_isError ? Colors::red : Colors::green);
-            ImGui::Text("[%s] %s", ss.str().c_str(), event->message);
-            ImGui::PopStyleColor();
-        }
-        eventListMutex.unlock();
-
-        ImGui::PopStyleVar();
-        ImGui::EndChild();
-    }
-    ImGui::PopStyleVar();
-    ImGui::PopStyleColor();
-    
 }

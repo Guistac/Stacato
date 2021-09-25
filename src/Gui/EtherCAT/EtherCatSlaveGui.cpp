@@ -4,6 +4,7 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatSlave.h"
+#include "Gui/Framework/Colors.h"
 
 void EtherCatSlave::nodeSpecificGui() {
 
@@ -19,6 +20,11 @@ void EtherCatSlave::nodeSpecificGui() {
 
                 if (ImGui::BeginTabItem("Identification")) {
                     identificationGui();
+                    ImGui::EndTabItem();
+                }
+
+                if (ImGui::BeginTabItem("Events")) {
+                    eventListGui();
                     ImGui::EndTabItem();
                 }
 
@@ -39,7 +45,7 @@ void EtherCatSlave::nodeSpecificGui() {
                     ImGui::EndTabItem();
                 }
 
-                if (isDetected() && ImGui::BeginTabItem("Generic Info")) {
+                if (isDetected() && ImGui::BeginTabItem("Info")) {
                     genericInfoGui();
                     ImGui::EndTabItem();
                 }
@@ -57,12 +63,6 @@ void EtherCatSlave::nodeSpecificGui() {
     
 void EtherCatSlave::generalGui() {
 
-    static glm::vec4 blueColor = glm::vec4(0.1, 0.1, 0.4, 1.0);
-    static glm::vec4 redColor = glm::vec4(0.7, 0.1, 0.1, 1.0);
-    static glm::vec4 greenColor = glm::vec4(0.3, 0.7, 0.1, 1.0);
-    static glm::vec4 yellowColor = glm::vec4(0.8, 0.8, 0.0, 1.0);
-    static glm::vec4 grayColor = glm::vec4(0.5, 0.5, 0.5, 1.0);
-
     float displayWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
     glm::vec2 statusDisplaySize(displayWidth, ImGui::GetTextLineHeight() * 2.0);
     static float maxStatusDisplayWidth = ImGui::GetTextLineHeight() * 10.0;
@@ -73,29 +73,26 @@ void EtherCatSlave::generalGui() {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0, 0.0, 0.0, 0.0));
     ImGui::Button("Network Status", glm::vec2(statusDisplaySize.x, 0));
     ImGui::SameLine();
-    ImGui::Button("State Machine", glm::vec2(statusDisplaySize.x, 0));
+    ImGui::Button("EtherCAT Status", glm::vec2(statusDisplaySize.x, 0));
     ImGui::PopStyleColor();
     ImGui::PopStyleVar();
     ImGui::PopItemFlag();
 
     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
     ImGui::PushFont(Fonts::robotoBold15);
-    ImGui::PushStyleColor(ImGuiCol_Button, isOnline() ? greenColor : (isDetected() ? yellowColor : redColor));
+    ImGui::PushStyleColor(ImGuiCol_Button, isOnline() ? Colors::green : (isDetected() ? Colors::yellow : Colors::red));
     ImGui::Button(isOnline() ? "Online" : (isDetected() ? "Detected" : "Offline"), statusDisplaySize);
     ImGui::PopStyleColor();
     ImGui::SameLine();
-    if (!isOnline()){
-        ImGui::PushStyleColor(ImGuiCol_Button, blueColor);
-        ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
-        ImGui::Button("No State", statusDisplaySize);
-        ImGui::PopStyleColor(2);
-    }else{
-        if (isStateBootstrap() || isStateInit()) ImGui::PushStyleColor(ImGuiCol_Button, redColor);
-        else if (isStatePreOperational() || isStateSafeOperational()) ImGui::PushStyleColor(ImGuiCol_Button, yellowColor);
-        else ImGui::PushStyleColor(ImGuiCol_Button, greenColor);
-        ImGui::Button(getStateChar(), statusDisplaySize);
-        ImGui::PopStyleColor();
-    }
+    bool isOffline = !isOnline();
+    if (isOffline) ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+    if(!isOnline()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
+    else if (isStateBootstrap() || isStateInit()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+    else if (isStatePreOperational() || isStateSafeOperational()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+    else ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+    ImGui::Button(getEtherCatStateChar(), statusDisplaySize);
+    ImGui::PopStyleColor();
+    if (isOffline) ImGui::PopStyleColor();
     ImGui::PopFont();
     ImGui::PopItemFlag();
 }
@@ -167,7 +164,7 @@ void EtherCatSlave::genericInfoGui() {
 
     ImGui::Separator();
 
-    ImGui::Text("state: %s (%s)", getStateChar(), hasStateError() ? "State Error" : "No Error");
+    ImGui::Text("state: %s (%s)", getEtherCatStateChar(), hasStateError() ? "State Error" : "No Error");
     ImGui::Text("ALstatuscode: %i : %s", identity->ALstatuscode, ec_ALstatuscode2string(identity->ALstatuscode));
 
     ImGui::Separator();
@@ -184,7 +181,8 @@ void EtherCatSlave::genericInfoGui() {
 
     ImGui::Separator();
 
-    if (!b_mapped) {
+    bool hasNoIdentity = identity == nullptr;
+    if (hasNoIdentity) {
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.4, 0.4, 0.4, 1.0));
     }
@@ -281,7 +279,7 @@ void EtherCatSlave::genericInfoGui() {
     ImGui::Text("Group: %i", identity->group);
     ImGui::Text("Is Lost: %i", identity->islost);
 
-    if (!b_mapped) {
+    if (hasNoIdentity) {
         ImGui::PopItemFlag();
         ImGui::PopStyleColor();
     }
@@ -677,5 +675,38 @@ void EtherCatSlave::sendReceiveEepromGui() {
     }
 
     ImGui::PopID();
+
+}
+
+
+
+#include <iomanip>
+
+void EtherCatSlave::eventListGui() {
+
+    if (ImGui::Button("Clear Error List")) clearEventList();
+
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.0, 0.0, 0.0, 1.0));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+    if (ImGui::BeginChild(ImGui::GetID("LogMessages"))) {
+
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+
+        eventListMutex.lock();
+        for (int i = (int)eventList.size() - 1; i >= 0; i--) {
+            Event* event = eventList[i];
+            std::stringstream ss;
+            ss << std::put_time(std::localtime(&event->time), "%X");
+            ImGui::PushStyleColor(ImGuiCol_Text, event->b_isError ? Colors::red : Colors::green);
+            ImGui::Text("[%s] %s", ss.str().c_str(), event->message);
+            ImGui::PopStyleColor();
+        }
+        eventListMutex.unlock();
+
+        ImGui::PopStyleVar();
+        ImGui::EndChild();
+    }
+    ImGui::PopStyleVar();
+    ImGui::PopStyleColor();
 
 }

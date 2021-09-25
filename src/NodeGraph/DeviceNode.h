@@ -45,6 +45,7 @@ public:
 	virtual void process() {}
 	virtual void readInputs() = 0;
 	virtual void prepareOutputs() = 0;
+	virtual void onConnection() = 0;
 	virtual void onDisconnection() = 0;
 
 	virtual bool isDetected() = 0;

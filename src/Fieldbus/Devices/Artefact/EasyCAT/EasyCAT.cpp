@@ -8,6 +8,7 @@ void EasyCAT::enable() {}
 void EasyCAT::disable() {}
 bool EasyCAT::isEnabled() { return false; }
 void EasyCAT::onDisconnection() {}
+void EasyCAT::onConnection() {}
 
 void EasyCAT::assignIoData() {
 	addIoData(byteOut);
