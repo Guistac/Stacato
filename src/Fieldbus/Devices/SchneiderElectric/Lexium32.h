@@ -71,6 +71,7 @@ public:
     OperatingMode::Mode requestedOperatingMode = OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION;
 
     //===== EMERGENCY STOP =====
+
     bool b_emergencyStopActive = false;
     bool isEmergencyStopActive() { return b_emergencyStopActive; }
     void quickStop() { b_quickStop = true; }

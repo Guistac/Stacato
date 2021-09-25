@@ -31,12 +31,45 @@ bool Lexium32::isEnabled() {
     return state == State::OperationEnabled;
 }
 
-void Lexium32::onConnection() {
-    Logger::critical("{} Connected !", getName());
-}
+void Lexium32::onConnection() {}
 
 void Lexium32::onDisconnection() {
-    Logger::critical("{} Disconnected...", getName());
+    actualOperatingMode = OperatingMode::Mode::UNKNOWN;
+    state = State::SwitchOnDisabled;
+    manualVelocityCommand_rpm = 0.0;
+    profilePosition_r = 0.0;
+    profileVelocity_rpm = 0.0;
+    b_emergencyStopActive = false;
+    encoderDevice->positionRaw_positionUnits = 0.0;
+    actualPosition->set(0.0);
+    actualVelocity->set(0.0);
+    actualLoad->set(0.0);
+    digitalIn0->set(false);
+    digitalIn1->set(false);
+    digitalIn2->set(false);
+    digitalIn3->set(false);
+    digitalIn4->set(false);
+    digitalIn5->set(false);
+    b_switchedOn = false;
+    b_voltageEnabled = false;
+    b_quickStopActive = true; //quickstop is active when bit is low
+    b_operationEnabled = false;
+    opModeSpec4 = false;
+    opModeSpec5 = false;
+    opModeSpec6 = false;
+    b_faultResetState = false;
+    b_halted = false;
+    opModeSpec9 = false;
+    encoderDevice->b_detected = false;
+    encoderDevice->b_online = false;
+    encoderDevice->b_ready = false;
+    motorDevice->b_detected = false;
+    motorDevice->b_online = false;
+    motorDevice->b_ready = false;
+    motorDevice->b_enabled = false;
+    gpioDevice->b_detected = false;
+    gpioDevice->b_online = false;
+    gpioDevice->b_ready = false;
 }
 
 void Lexium32::assignIoData() {

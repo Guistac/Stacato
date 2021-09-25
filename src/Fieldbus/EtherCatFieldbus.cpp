@@ -342,7 +342,7 @@ namespace EtherCatFieldbus {
     int getExpectedWorkingCounter() {
         int output = 0;
         for (auto slave : slaves) {
-            if (slave->isStateOffline()) continue;
+            if (!slave->isOnline()) continue;
             else if (slave->identity->Ibits > 0 && slave->identity->Obits > 0) output += 3;
             else if (slave->identity->Ibits > 0 || slave->identity->Obits) output += 1;
         }
@@ -389,7 +389,9 @@ namespace EtherCatFieldbus {
             //slaves are considered online when they are detected and actively exchanging data with the master
             //if we reached this state of the configuration, all slaves are detected and we are about to start exchanging data
             //we can set trigger the onConnection event of all slaves
-            for (auto slave : slaves) slave->onConnection();
+            for (auto slave : slaves) {
+                slave->onConnection();
+            }
 
             while (b_processRunning) {
 
@@ -430,12 +432,14 @@ namespace EtherCatFieldbus {
                 //don't update the devices while the fieldbus isn't fully started
                 if (b_allOperational) {
                     //interpret the data that was received for all slaves
-                    for (auto slave : slaves) slave->readInputs();
+                    for (auto slave : slaves) if(slave->isStateOperational()) slave->readInputs();
                     //update all nodes connected to ethercat slave nodes
                     Environnement::nodeGraph.evaluate(DeviceType::ETHERCATSLAVE);
                     //prepare the output data to be sent
-                    for (auto slave : slaves) slave->prepareOutputs();
+                    for (auto slave : slaves) if(slave->isStateOperational()) slave->prepareOutputs();
                 }
+
+                //========= HANDLE MASTER AND REFERENCE CLOCK DRIFT ===========
 
                 //dctime_offset: *reference clock* offset target for the receiving of a frame by the first dc slave
                 //the offset is calculated as a distance from the -dc sync time-, which is a whole multiple of the process interval time
@@ -520,19 +524,34 @@ namespace EtherCatFieldbus {
                                 Logger::debug("Started Slave State Handler Thread");
                                 while (b_processRunning) {
 
+                                    //save each slaves previous state
                                     for (auto slave : slaves) slave->previousState = slave->identity->state;
+
+                                    //read the current state of each slave
                                     ec_readstate();
+
+                                    //detect state changes by comparing the previous state with the current state
                                     for (auto slave : slaves) {
                                         if (slave->identity->state != slave->previousState) {
-                                            if(slave->isStateOperational() && !slave->hasStateError()) Logger::info("Slave '{}' transitionned to Operational State", slave->getName());
+                                            if (!slave->isOnline()){
+                                                slave->onDisconnection();
+                                                Logger::error("Slave '{}' Disconnected...", slave->getName());
+                                            }
+                                            else if (slave->previousState == EC_STATE_NONE && slave->isOnline()) {
+                                                slave->onConnection();
+                                                Logger::info("Slave '{}' Reconnected with state {}", slave->getName(), slave->getEtherCatStateChar());
+                                            }
+                                            else if (slave->isStateOperational() && !slave->hasStateError()) {
+                                                Logger::info("Slave '{}' transitionned to Operational State", slave->getName());
+                                            }
                                             else Logger::warn("Slave '{}' transitionned to {} {}", slave->getName(), slave->getEtherCatStateChar(), slave->hasStateError() ? "(State Error)" : "");
-                                            if (slave->isStateOffline()) slave->onDisconnection();
-                                            if (slave->previousState == EC_STATE_NONE && !slave->isStateOffline()) slave->onConnection();
+                                            
 ;                                        }
                                     }
 
+                                    //try to recover slaves that are not online or in operational state
                                     for (auto slave : slaves) {
-                                        if (slave->isStateOffline()) {
+                                        if (!slave->isOnline()) {
                                             //recover is useful to detect a slave that has a power cycle and lost its configured address
                                             //recover uses incremental addressing to detect if an offline slave pops up at the same place in the network
                                             //if a slave responds at that address, the function verify it matches the previous slave at that address
@@ -573,7 +592,7 @@ namespace EtherCatFieldbus {
                             Logger::error("===== Not all slaves reached operational state... ");
                             for (auto slave : slaves) {
                                 if (!slave->isStateOperational() || slave->hasStateError()) {
-                                    Logger::warn("Slave '{}' has state {}", slave->getName(), slave->getEtherCatStateChar());
+                                    Logger::error("Slave '{}' has state {}", slave->getName(), slave->getEtherCatStateChar());
                                 }
                             }
                             stop();
@@ -609,14 +628,12 @@ namespace EtherCatFieldbus {
     void stop() {
         if (b_processRunning) {
             Logger::debug("===== Stopping Cyclic Exchange...");
-            b_allOperational = false;
-            b_processRunning = false;
             for (auto slave : slaves) {
-                if (!slave->isStateOffline()) {
-                    slave->onDisconnection();
-                }
+                if (slave->isOnline()) slave->onDisconnection();
                 slave->identity->state = EC_STATE_NONE;
             }
+            b_allOperational = false;
+            b_processRunning = false;
         }
     }
 

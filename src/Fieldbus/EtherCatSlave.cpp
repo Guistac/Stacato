@@ -67,16 +67,15 @@ bool EtherCatSlave::getPDOMapping(EtherCatPDO& pdo, uint16_t pdoIndex, const cha
 */
 
 bool EtherCatSlave::isDetected() {
-    return !isStateOffline();
+    return identity != nullptr;
 }
 
 bool EtherCatSlave::isOnline() {
-    return !isStateOffline() && EtherCatFieldbus::b_processRunning;
+    return isDetected() && !isStateNone() && EtherCatFieldbus::b_processRunning;
 }
 
 bool EtherCatSlave::isReady() {
-    if (identity == nullptr) return false;
-    else if (!isStateOperational()) return false;
+    if (!isOnline() || !isStateOperational()) return false;
     else return isDeviceReady();
 }
 
