@@ -5,6 +5,8 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
+#include "Gui/Framework/Colors.h"
+
 void EtherCatBaseData::valueTextGui() {
 	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 	dataEditFieldGui();

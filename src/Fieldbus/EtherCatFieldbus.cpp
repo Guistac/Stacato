@@ -134,7 +134,9 @@ namespace EtherCatFieldbus {
         Logger::debug("===== Closing EtherCAT Network Interface Card");
         ec_close();
         b_networkOpen = false;
-        errorWatcher.join();
+        if (errorWatcher.joinable()) errorWatcher.join();
+        if (etherCatRuntime.joinable()) etherCatRuntime.join();
+        if (slaveStateHandler.joinable()) slaveStateHandler.join();
         Logger::info("===== Stopped EtherCAT fieldbus");
     }
 

@@ -221,80 +221,6 @@ bool Lexium32::setStartupParameters() {
     uint32_t CTRL_v_max = maxMotorVelocity_rpm * velocityUnitsPerRpm;
     if (!writeSDO(0x3011, 0x10, CTRL_v_max)) return false;
 
-    uint16_t _ModuleSlot2;
-    if (!readSDO(0x3002, 0x1A, _ModuleSlot2)) return false;
-    Logger::warn("Module in slot 2: {}", _ModuleSlot2);
-
-//#define SET_SSI_PARAM
-#ifdef SET_SSI_PARAM
-    uint16_t ENC_abs_source = 1;        //encoder source: encoder module (encoder 2)
-    uint16_t ENC2_type = 10;            //encoder type: SSI Rotary
-    uint16_t ENC2_usage = 2;            //encoder usage: Motor Encoder
-    uint16_t ENCDigPowSupply = 12;      //12V power supply
-    uint16_t ENCDigResMulUsed = 0;      //use all multiturn bits
-    uint16_t ENCDigSSICoding = 1;       //gray encoding
-    uint16_t ENCDigSSIMaxFreq = 200;    //200Khz SSI
-    uint16_t ENCDigSSIResMult = 12;     //12 bits multiturn
-    uint16_t ENCDigSSIResSgl = 17;      //17 bits singleturn
-    uint32_t ResolENC2 = 131072;        //raw resolution of the external encoder
-    int32_t ResolENC2Num = 131072;      //encoder increments per
-    int32_t ResolENC2Denom = 1;         //per motor shaft revolution
-
-    if (!writeSDO(0x3005, 0x25, ENC_abs_source)) return false;
-    if (!writeSDO(0x3050, 0x3, ENC2_type)) return false;
-    if (!writeSDO(0x3050, 0x1, ENC2_usage)) return false;
-    if (!writeSDO(0x3052, 0x4, ENCDigPowSupply)) return false;
-    if (!writeSDO(0x3052, 0xB, ENCDigResMulUsed)) return false;
-    if (!writeSDO(0x3052, 0x3, ENCDigSSICoding)) return false;
-    if (!writeSDO(0x3052, 0x5, ENCDigSSIMaxFreq)) return false;
-    if (!writeSDO(0x3052, 0x2, ENCDigSSIResMult)) return false;
-    if (!writeSDO(0x3052, 0x1, ENCDigSSIResSgl)) return false;
-
-    uint16_t PAReeprSave = 1;
-    if (!writeSDO(0x3004, 0x1, PAReeprSave)) return false;
-
-    //should these parameters also be saved to eeprom ?
-    if (!writeSDO(0x3050, 0xF, ResolENC2)) return false;
-    if (!writeSDO(0x3050, 0x5, ResolENC2Denom)) return false;
-    if (!writeSDO(0x3050, 0x6, ResolENC2Num)) return false;
-
-    if (!readSDO(0x3005, 0x25, ENC_abs_source)) return false;
-    if (!readSDO(0x3050, 0x3, ENC2_type)) return false;
-    if (!readSDO(0x3050, 0x1, ENC2_usage)) return false;
-    if (!readSDO(0x3052, 0x4, ENCDigPowSupply)) return false;
-    if (!readSDO(0x3052, 0xB, ENCDigResMulUsed)) return false;
-    if (!readSDO(0x3052, 0x3, ENCDigSSICoding)) return false;
-    if (!readSDO(0x3052, 0x5, ENCDigSSIMaxFreq)) return false;
-    if (!readSDO(0x3052, 0x2, ENCDigSSIResMult)) return false;
-    if (!readSDO(0x3052, 0x1, ENCDigSSIResSgl)) return false;
-    if (!readSDO(0x3050, 0xF, ResolENC2)) return false;
-    if (!readSDO(0x3050, 0x5, ResolENC2Denom)) return false;
-    if (!readSDO(0x3050, 0x6, ResolENC2Num)) return false;
-    Logger::warn("ENC_abs_source: {}", ENC_abs_source);
-    Logger::warn("ENC2_type: {}", ENC2_type);
-    Logger::warn("ENC2_usage: {}", ENC2_usage);
-    Logger::warn("ENCDigPowSupply: {}", ENCDigPowSupply);
-    Logger::warn("ENCDigResMulUsed: {}", ENCDigResMulUsed);
-    Logger::warn("ENCDigSSICoding: {}", ENCDigSSICoding);
-    Logger::warn("ENCDigSSIMaxFreq: {}", ENCDigSSIMaxFreq);
-    Logger::warn("ENCDigSSIResMult: {}", ENCDigSSIResMult);
-    Logger::warn("ENCDigSSIResSgl: {}", ENCDigSSIResSgl);
-    Logger::warn("ResolENC2: {}", ResolENC2);
-    Logger::warn("Encoder 2 Resolution= {}  ratio : {} encoder increments / {} motor revolutions", ResolENC2, ResolENC2Num, ResolENC2Denom);
-#endif
-    
-//#define SET_NO_ENCODER_PARAMS
-#ifdef SET_NO_ENCODER_PARAMS
-    uint16_t ENC_abs_source = 0;    //encoder source: interal encoder (encoder 1)
-    uint16_t ENC2_type = 0;         //encoder type: None
-    uint16_t ENC2_usage = 0;        //encoder usage: Motor Encoder
-    if (!writeSDO(0x3005, 0x25, ENC_abs_source)) return false;
-    if (!writeSDO(0x3050, 0x3, ENC2_type)) return false;
-    if (!writeSDO(0x3050, 0x1, ENC2_usage)) return false;
-    uint16_t PAReeprSave = 1;
-    if (!writeSDO(0x3004, 0x1, PAReeprSave)) return false;
-#endif
-
     //Cia DS402 mandatory Startup Settings (According to Lexium32 EtherCAT module documentation)
     uint16_t CompParSyncMot_set = 1;
     if (!writeSDO(0x3006, 0x3D, CompParSyncMot_set)) return false;
@@ -579,11 +505,470 @@ void Lexium32::prepareOutputs(){
     outByte[12] = (IO_DQ_set >> 8) & 0xFF;
 }
 
+
+
+
+
+
+
+
+bool Lexium32::saveToEEPROM() {
+    EtherCatCoeData* PAReeprSave = new EtherCatCoeData(0x3004, 0x1, EtherCatData::Type::UINT16_T);
+    PAReeprSave->set((uint16_t)1);
+    PAReeprSave->write(getSlaveIndex());
+    std::chrono::system_clock::time_point saveStart = std::chrono::system_clock::now();
+    while (PAReeprSave->getU16() == 1) {
+        if (std::chrono::system_clock::now() - saveStart > std::chrono::milliseconds(5000)) return false;
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        PAReeprSave->read(getSlaveIndex());
+    }
+    return true;
+}
+
+
+void Lexium32::uploadPinAssignementParameters() {
+    auto getPinAssignementCoeData = [](InputPinFunction::Type function, uint8_t subindex) -> EtherCatCoeData* {
+        EtherCatCoeData* IOfunct_DIx = new EtherCatCoeData(0x3007, subindex, EtherCatData::Type::UINT16_T);
+        switch (function) {
+        case InputPinFunction::Type::NEGATIVE_LIMIT:
+            IOfunct_DIx->set((uint16_t)23); break;
+        case InputPinFunction::Type::POSITIVE_LIMIT:
+            IOfunct_DIx->set((uint16_t)22); break;
+        case InputPinFunction::Type::UNASSIGNED:
+            IOfunct_DIx->set((uint16_t)1); break;
+        }
+        return IOfunct_DIx;
+    };
+
+    pinAssignementParameterTransferState = DataTransferState::State::TRANSFERRING;
+
+    if(!getPinAssignementCoeData(inputPin0Function, 0x1)->write(getSlaveIndex())) goto transferfailed;
+    if(!getPinAssignementCoeData(inputPin1Function, 0x2)->write(getSlaveIndex())) goto transferfailed;
+    if(!getPinAssignementCoeData(inputPin2Function, 0x3)->write(getSlaveIndex())) goto transferfailed;
+    if(!getPinAssignementCoeData(inputPin3Function, 0x4)->write(getSlaveIndex())) goto transferfailed;
+    if(!getPinAssignementCoeData(inputPin4Function, 0x5)->write(getSlaveIndex())) goto transferfailed;
+    if(!getPinAssignementCoeData(inputPin5Function, 0x6)->write(getSlaveIndex())) goto transferfailed;
+
+    pinAssignementParameterTransferState = DataTransferState::State::SAVING;
+
+    if (!saveToEEPROM()) goto transferfailed;
+
+    pinAssignementParameterTransferState = DataTransferState::State::SAVED;
+    Logger::warn("Pin Assignement Successfull");
+    return;
+
+transferfailed:
+    pinAssignementParameterTransferState = DataTransferState::State::FAILED;
+    Logger::warn("Pin Assignement Failed");
+    return;
+}
+
+
+void Lexium32::uploadMaxCurrentParameters() {
+    maxCurrentParameterTransferState = DataTransferState::State::TRANSFERRING;
+    EtherCatCoeData* CTRL_I_max = new EtherCatCoeData(0x3011, 0xC, EtherCatData::Type::UINT16_T);
+    CTRL_I_max->set((uint16_t)(maxCurrent_amps * 100.0));
+    if (!CTRL_I_max->write(getSlaveIndex())) goto transferfailed;
+
+    maxCurrentParameterTransferState = DataTransferState::State::SUCCEEDED;
+    Logger::warn("Max Current assignement Successfull");
+    return;
+
+transferfailed:
+    maxCurrentParameterTransferState = DataTransferState::State::FAILED;
+    Logger::warn("Max Current Assignement Failed");
+    return;
+}
+
+
+void Lexium32::startAutoTuning() {
+    if (isAutoTuning()) return;
+
+    autoTuningHandler = std::thread([this]() {
+
+        b_autoTuningSucceeded = false;
+        autoTuningSaveState = DataTransferState::State::NO_TRANSFER;
+
+        //clear any error inthe drive by setting the error clear bit to 1 and then back to 0
+        EtherCatCoeData DCOMcontrol(0x6040, 0x0, EtherCatData::Type::UINT16_T);
+        DCOMcontrol.set((uint16_t)0x80);
+        DCOMcontrol.write(getSlaveIndex());
+        DCOMcontrol.set((uint16_t)0x0);
+        DCOMcontrol.write(getSlaveIndex());
+
+        //set the current operating mode to -6 (Tuning)
+        EtherCatCoeData DCOMopmode(0x6060, 0x0, EtherCatData::Type::INT8_T);
+        DCOMopmode.set((int8_t)-6);
+        DCOMopmode.write(getSlaveIndex());
+
+        //start auto tuning by setting AT_start to 1 (EasyTuning)
+        EtherCatCoeData AT_start(0x302F, 0x1, EtherCatData::Type::UINT16_T);
+        AT_start.set((uint16_t)1);
+        b_isAutoTuning = AT_start.write(getSlaveIndex());
+        if (b_isAutoTuning) Logger::info("Started Autotuning {}", getName());
+        else Logger::warn("Failed to start autotuning {}", getName());
+
+        while (b_isAutoTuning) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+            EtherCatCoeData _AT_progress(0x302F, 0xB, EtherCatData::Type::UINT16_T);
+            _AT_progress.read(getSlaveIndex());
+
+            EtherCatCoeData _AT_state(0x302F, 0x2, EtherCatData::Type::UINT16_T);
+            _AT_state.read(getSlaveIndex());
+            uint16_t lastTuningStep = _AT_state.getU16() & 0x7FF;
+            bool auto_tune_process = _AT_state.getU16() & 0x2000;
+            bool auto_tune_end = _AT_state.getU16() & 0x4000;
+            bool auto_tune_error = _AT_state.getU16() & 0x8000;
+
+            tuningProgress = (float)_AT_progress.getU16() / 100.0f;
+
+            if (auto_tune_end) {
+                Logger::info("Finished Auto Tuning {}", getName());
+                b_autoTuningSucceeded = true;
+                break;
+            }
+            else if (auto_tune_error) {
+                Logger::error("Auto Tuning Error {}", getName()); 
+                b_autoTuningSucceeded = false;
+                break;
+            }
+        }
+
+
+        if (!b_isAutoTuning) {
+            //manual autotuning stop
+            tuningProgress = 0.0;
+            AT_start.set((uint16_t)0);
+            AT_start.write(getSlaveIndex());
+            Logger::info("Stopped Autotuning {}", getName());
+        }
+        else if (b_autoTuningSucceeded) {
+
+            b_isAutoTuning = false;
+
+            EtherCatCoeData _AT_M_friction(0x302F, 0x7, EtherCatData::Type::UINT16_T);
+            _AT_M_friction.read(getSlaveIndex());
+            tuning_frictionTorque_amperes = (float)_AT_M_friction.getU16() / 100.0;
+
+            Logger::warn("friction: {}", _AT_M_friction.getU16());
+
+            EtherCatCoeData _AT_M_load(0x302F, 0x8, EtherCatData::Type::INT16_T);
+            _AT_M_load.read(getSlaveIndex());
+            tuning_constantLoadTorque_amperes = (float)_AT_M_load.getS16() / 100.0;
+
+            Logger::warn("load: {}", _AT_M_load.getS16());
+
+            EtherCatCoeData _AT_J(0x302F, 0xC, EtherCatData::Type::UINT16_T);
+            _AT_J.read(getSlaveIndex());
+            tuning_momentOfInertia_kilogramcentimeter2 = (float)_AT_J.getU16() / 10.0;
+
+            Logger::warn("moment: {}", _AT_J.getU16());
+
+
+            //saving tuning parameters to devuce EEPROM
+            autoTuningSaveState = DataTransferState::State::SAVING;
+            Logger::info("Saving Tuning parameters to EEPROM {}", getName());
+            if (saveToEEPROM()) {
+                autoTuningSaveState = DataTransferState::State::SAVED;
+                Logger::info("Saving Succeeded");
+            }
+            else {
+                autoTuningSaveState = DataTransferState::State::FAILED;
+                Logger::error("Saving Failed");
+            }
+        }
+    });
+    autoTuningHandler.detach();
+}
+
+void Lexium32::stopAutoTuning() {
+    b_isAutoTuning = false;
+}
+
+
+void Lexium32::factoryReset() {
+    factoryResetTransferState = DataTransferState::State::TRANSFERRING;
+    EtherCatCoeData PARuserReset(0x3004, 0x8, EtherCatData::Type::UINT16_T);
+    PARuserReset.set((uint16_t)65535);
+    if (PARuserReset.write(getSlaveIndex())) factoryResetTransferState = DataTransferState::State::SUCCEEDED;
+    else factoryResetTransferState = DataTransferState::State::FAILED;
+}
+
+void Lexium32::setStationAlias(uint16_t a) {
+    stationAliasUploadState = DataTransferState::State::TRANSFERRING;
+    EtherCatCoeData ECAT2ndaddress(0x3045, 0x6, EtherCatData::Type::UINT16_T);
+    ECAT2ndaddress.set((uint16_t)a);
+    if (ECAT2ndaddress.write(getSlaveIndex())) {
+        stationAliasUploadState = DataTransferState::State::SAVING;
+        if (saveToEEPROM())  stationAliasUploadState = DataTransferState::State::SAVED;
+        else  stationAliasUploadState = DataTransferState::State::FAILED;
+    }
+    else stationAliasUploadState = DataTransferState::State::FAILED;
+}
+
+
+void Lexium32::detectEncoderModule() {
+    encoderModuleType = EncoderModule::Type::NONE;
+    EtherCatCoeData _ModuleSlot2(0x3002, 0x1A, EtherCatData::Type::UINT16_T);
+    if (_ModuleSlot2.read(getSlaveIndex())) {
+        switch (_ModuleSlot2.getU16()) {
+            case 0: encoderModuleType = EncoderModule::Type::NONE; break;
+            case 769: encoderModuleType = EncoderModule::Type::ANALOG_MODULE; break;
+            case 770: encoderModuleType = EncoderModule::Type::DIGITAL_MODULE; break;
+            case 771: encoderModuleType = EncoderModule::Type::RESOLVER_MODULE; break;
+            default: break;
+        }
+        Logger::warn("encoder module: {}", _ModuleSlot2.getU16());
+    }
+}
+
+void Lexium32::setEncoderSettings() {
+
+//#define SET_SSI_PARAM
+#ifdef SET_SSI_PARAM
+
+    uint16_t _ModuleSlot2;
+    if (!readSDO(0x3002, 0x1A, _ModuleSlot2)) return false;
+    Logger::warn("Module in slot 2: {}", _ModuleSlot2);
+
+    uint16_t ENC_abs_source = 1;        //encoder source: encoder module (encoder 2)
+    uint16_t ENC2_type = 10;            //encoder type: SSI Rotary
+    uint16_t ENC2_usage = 2;            //encoder usage: Motor Encoder
+    uint16_t ENCDigPowSupply = 12;      //12V power supply
+    uint16_t ENCDigResMulUsed = 0;      //use all multiturn bits
+    uint16_t ENCDigSSICoding = 1;       //gray encoding
+    uint16_t ENCDigSSIMaxFreq = 200;    //200Khz SSI
+    uint16_t ENCDigSSIResMult = 12;     //12 bits multiturn
+    uint16_t ENCDigSSIResSgl = 17;      //17 bits singleturn
+    uint32_t ResolENC2 = 131072;        //raw resolution of the external encoder
+    int32_t ResolENC2Num = 131072;      //encoder increments per
+    int32_t ResolENC2Denom = 1;         //per motor shaft revolution
+
+    if (!writeSDO(0x3005, 0x25, ENC_abs_source)) return false;
+    if (!writeSDO(0x3050, 0x3, ENC2_type)) return false;
+    if (!writeSDO(0x3050, 0x1, ENC2_usage)) return false;
+    if (!writeSDO(0x3052, 0x4, ENCDigPowSupply)) return false;
+    if (!writeSDO(0x3052, 0xB, ENCDigResMulUsed)) return false;
+    if (!writeSDO(0x3052, 0x3, ENCDigSSICoding)) return false;
+    if (!writeSDO(0x3052, 0x5, ENCDigSSIMaxFreq)) return false;
+    if (!writeSDO(0x3052, 0x2, ENCDigSSIResMult)) return false;
+    if (!writeSDO(0x3052, 0x1, ENCDigSSIResSgl)) return false;
+
+    uint16_t PAReeprSave = 1;
+    if (!writeSDO(0x3004, 0x1, PAReeprSave)) return false;
+
+    //should these parameters also be saved to eeprom ?
+    if (!writeSDO(0x3050, 0xF, ResolENC2)) return false;
+    if (!writeSDO(0x3050, 0x5, ResolENC2Denom)) return false;
+    if (!writeSDO(0x3050, 0x6, ResolENC2Num)) return false;
+
+    if (!readSDO(0x3005, 0x25, ENC_abs_source)) return false;
+    if (!readSDO(0x3050, 0x3, ENC2_type)) return false;
+    if (!readSDO(0x3050, 0x1, ENC2_usage)) return false;
+    if (!readSDO(0x3052, 0x4, ENCDigPowSupply)) return false;
+    if (!readSDO(0x3052, 0xB, ENCDigResMulUsed)) return false;
+    if (!readSDO(0x3052, 0x3, ENCDigSSICoding)) return false;
+    if (!readSDO(0x3052, 0x5, ENCDigSSIMaxFreq)) return false;
+    if (!readSDO(0x3052, 0x2, ENCDigSSIResMult)) return false;
+    if (!readSDO(0x3052, 0x1, ENCDigSSIResSgl)) return false;
+    if (!readSDO(0x3050, 0xF, ResolENC2)) return false;
+    if (!readSDO(0x3050, 0x5, ResolENC2Denom)) return false;
+    if (!readSDO(0x3050, 0x6, ResolENC2Num)) return false;
+    Logger::warn("ENC_abs_source: {}", ENC_abs_source);
+    Logger::warn("ENC2_type: {}", ENC2_type);
+    Logger::warn("ENC2_usage: {}", ENC2_usage);
+    Logger::warn("ENCDigPowSupply: {}", ENCDigPowSupply);
+    Logger::warn("ENCDigResMulUsed: {}", ENCDigResMulUsed);
+    Logger::warn("ENCDigSSICoding: {}", ENCDigSSICoding);
+    Logger::warn("ENCDigSSIMaxFreq: {}", ENCDigSSIMaxFreq);
+    Logger::warn("ENCDigSSIResMult: {}", ENCDigSSIResMult);
+    Logger::warn("ENCDigSSIResSgl: {}", ENCDigSSIResSgl);
+    Logger::warn("ResolENC2: {}", ResolENC2);
+    Logger::warn("Encoder 2 Resolution= {}  ratio : {} encoder increments / {} motor revolutions", ResolENC2, ResolENC2Num, ResolENC2Denom);
+#endif
+
+    //#define SET_NO_ENCODER_PARAMS
+#ifdef SET_NO_ENCODER_PARAMS
+    uint16_t ENC_abs_source = 0;    //encoder source: interal encoder (encoder 1)
+    uint16_t ENC2_type = 0;         //encoder type: None
+    uint16_t ENC2_usage = 0;        //encoder usage: Motor Encoder
+    if (!writeSDO(0x3005, 0x25, ENC_abs_source)) return false;
+    if (!writeSDO(0x3050, 0x3, ENC2_type)) return false;
+    if (!writeSDO(0x3050, 0x1, ENC2_usage)) return false;
+    uint16_t PAReeprSave = 1;
+    if (!writeSDO(0x3004, 0x1, PAReeprSave)) return false;
+#endif
+
+
+    encoderSettingsTransferState = DataTransferState::State::TRANSFERRING;
+
+    EtherCatCoeData ENC_abs_source(0x3005, 0x25, EtherCatData::Type::UINT16_T);
+
+    EtherCatCoeData ENC2_type(0x3050, 0x3, EtherCatData::Type::UINT16_T);
+    EtherCatCoeData ENC2_usage(0x3050, 0x1, EtherCatData::Type::UINT16_T);
+    EtherCatCoeData ENC_ModeOfMaEnc(0x3050, 0x2, EtherCatData::Type::UINT16_T);
+    EtherCatCoeData InvertDirOfMaEnc(0x3050, 0x8, EtherCatData::Type::UINT16_T);
+    EtherCatCoeData p_MaxDifToENC2(0x3050, 0x7, EtherCatData::Type::INT32_T);
+
+    EtherCatCoeData ENCDigPowSupply(0x3052, 0x4, EtherCatData::Type::UINT16_T);
+
+    EtherCatCoeData ENCDigSSICoding(0x3052, 0x3, EtherCatData::Type::UINT16_T);
+    EtherCatCoeData ENCDigSSIMaxFreq(0x3052, 0x5, EtherCatData::Type::UINT16_T);
+
+    EtherCatCoeData ENCDigSSIResMult(0x3052, 0x2, EtherCatData::Type::UINT16_T);
+    EtherCatCoeData ENCDigSSIResSgl(0x3052, 0x1, EtherCatData::Type::UINT16_T);
+    EtherCatCoeData ENCDigResMulUsed(0x3052, 0xB, EtherCatData::Type::UINT16_T);
+
+    EtherCatCoeData ResolENC2(0x3050, 0xF, EtherCatData::Type::UINT32_T);
+    EtherCatCoeData ResolENC2Num(0x3050, 0x6, EtherCatData::Type::INT32_T);
+    EtherCatCoeData ResolENC2Denom(0x3050, 0x5, EtherCatData::Type::INT32_T);
+
+    switch (encoderAssignement) {
+
+        case EncoderAssignement::Type::INTERNAL_ENCODER:
+
+            ENC_abs_source.set((uint16_t)0); //INTERNAL MOTOR ENCODER
+            ENC2_type.set((uint16_t)0);      //ENCODER 2 TYPE (none)
+            ENC2_usage.set((uint16_t)0);     //ENCODER 2 USAGE(none)
+            if (!ENC_abs_source.write(getSlaveIndex())) goto transferfailed;
+            if (!ENC2_type.write(getSlaveIndex())) goto transferfailed;
+            if (!ENC2_usage.write(getSlaveIndex())) goto transferfailed;
+            break;
+
+        case EncoderAssignement::Type::ENCODER_MODULE:
+            
+            //encoder usage settings for encoder module
+            ENC_abs_source.set((uint16_t)1); //absolute position reference is encoder 2 (encoder module)
+            ENC2_usage.set((uint16_t)2); //use as machine encoder (as motor encoder doesn't work)
+            ENC_ModeOfMaEnc.set((uint16_t)2); //use for position and velocity control
+            InvertDirOfMaEnc.set((uint16_t)(encoder2_invertDirection ? 1 : 0));
+            p_MaxDifToENC2.set((int32_t)(encoder2_maxDifferenceToMotorEncoder_rotations * (float)internalEncoderSingleturnResoltuion)); //max difference between machine and motor encoder before error triggered
+            if (!ENC_abs_source.write(getSlaveIndex())) goto transferfailed;
+            if (!ENC2_usage.write(getSlaveIndex())) goto transferfailed;
+            if (!ENC_ModeOfMaEnc.write(getSlaveIndex())) goto transferfailed;
+            if (!InvertDirOfMaEnc.write(getSlaveIndex())) goto transferfailed;
+            if (!p_MaxDifToENC2.write(getSlaveIndex())) goto transferfailed;
+
+            switch (encoderModuleType) {
+
+                case EncoderModule::Type::DIGITAL_MODULE:
+
+                    //digital encoder module setting
+                    switch (encoderVoltage) { //which power supply the digital encoder uses
+                        case EncoderVoltage::Voltage::V5: ENCDigPowSupply.set((uint16_t)5); break;
+                        case EncoderVoltage::Voltage::V12: ENCDigPowSupply.set((uint16_t)12); break;
+                    }
+                    if (!ENCDigPowSupply.write(getSlaveIndex())) goto transferfailed;
+
+                    //general encoder 2 scaling settings
+                    ResolENC2.set((uint32_t)0x1 << encoder2_singleTurnResolutionBits);                                      //Increments per encoder rotation (singleturn resolution)
+                    ResolENC2Num.set((int32_t)(0x1 << encoder2_singleTurnResolutionBits) * encoder2_encoderRevolutionsPer); //encoder increments
+                    ResolENC2Denom.set((int32_t)encoder2_perMotorRevolutions);                                              //per motor revolution
+                    if (!ResolENC2.write(getSlaveIndex())) goto transferfailed;
+                    if (!ResolENC2Denom.write(getSlaveIndex())) goto transferfailed;
+                    if (!ResolENC2Num.write(getSlaveIndex())) goto transferfailed;
+
+                    switch (encoderType) {
+                        case EncoderType::Type::SSI_ROTARY:
+
+                            ENC2_type.set((uint16_t)10); //encoder type is ssi rotary
+                            switch (encoderCoding) { //bit encoding of the encoder
+                            case EncoderCoding::Type::BINARY: ENCDigSSICoding.set((uint16_t)0); break;
+                            case EncoderCoding::Type::GRAY: ENCDigSSICoding.set((uint16_t)1); break;
+                            }
+                            ENCDigSSIMaxFreq.set((uint16_t)200);                                //SSI communication frequency in KHz
+                            ENCDigSSIResMult.set((uint16_t)encoder2_multiTurnResolutionBits);   //Multiturn resolution bits
+                            ENCDigResMulUsed.set((uint16_t)0);                                  //amount of multiturn bits user (0 = all)
+                            ENCDigSSIResSgl.set((uint16_t)encoder2_singleTurnResolutionBits);   //Singleturn resolution bits
+
+                            if (!ENC2_type.write(getSlaveIndex())) goto transferfailed;
+                            if (!ENCDigSSICoding.write(getSlaveIndex())) goto transferfailed;
+                            if (!ENCDigSSIMaxFreq.write(getSlaveIndex())) goto transferfailed;
+                            if (!ENCDigSSIResMult.write(getSlaveIndex())) goto transferfailed;
+                            if (!ENCDigResMulUsed.write(getSlaveIndex())) goto transferfailed;
+                            if (!ENCDigSSIResSgl.write(getSlaveIndex())) goto transferfailed;
+                            break;
+
+                        default: break;
+
+                    }//encoder type
+                    break;
+
+                default: break;
+
+            }//encoder module type
+    
+    };//internal encoder or encoder module
+
+
+    encoderSettingsTransferState = DataTransferState::State::SAVING;
+    if(!saveToEEPROM()) encoderSettingsTransferState = DataTransferState::State::FAILED;
+    encoderSettingsTransferState = DataTransferState::State::SAVED;
+    Logger::warn("Encoder assignement success");
+    return;
+
+transferfailed:
+    encoderSettingsTransferState = DataTransferState::State::FAILED;
+    Logger::warn("Transfer Failed");
+    return;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //============================= SAVING AND LOADING DEVICE DATA ============================
 
 bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
 
+
+//====================== DATA TRANSFER STATE =================================
+
+std::vector<Lexium32::DataTransferState> Lexium32::dataTransferStates = {
+    {DataTransferState::State::NO_TRANSFER, ""},
+    {DataTransferState::State::TRANSFERRING, "Transferring..."},
+    {DataTransferState::State::SUCCEEDED, "Transfer Succeeded"},
+    {DataTransferState::State::SAVING, "Saving to Device Memory..."},
+    {DataTransferState::State::SAVED, "Saved to Device Memory"},
+    {DataTransferState::State::FAILED, "Transfer Failed"}
+};
+
+Lexium32::DataTransferState* Lexium32::getDataTransferState(DataTransferState::State s) {
+    for (DataTransferState& state : dataTransferStates) {
+        if (s == state.state) return &state;
+    }
+    return nullptr;
+}
 
 
 //============================= DEVICE MODES =================================
@@ -606,11 +991,13 @@ std::vector<Lexium32::OperatingMode> Lexium32::operatingModes = {
 
 std::vector<Lexium32::OperatingMode> Lexium32::availableOperatingModes = {
     {8, OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION, "Position Control"},
-    {9, OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY,"Manual Velocity Control"},
-    {-6,OperatingMode::Mode::TUNING, "Tuning"}
+    {9, OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY, "Manual Velocity Control"}
 };
 
 Lexium32::OperatingMode* Lexium32::getOperatingMode(OperatingMode::Mode opMode) {
+    for (OperatingMode& operatingMode : availableOperatingModes) {
+        if (opMode == operatingMode.mode) return &operatingMode;
+    }
     for (OperatingMode& operatingMode : operatingModes) {
         if (opMode == operatingMode.mode) return &operatingMode;
     }
@@ -710,6 +1097,43 @@ Lexium32::EncoderType* Lexium32::getEncoderType(const char* saveName) {
 Lexium32::EncoderType* Lexium32::getEncoderType(EncoderType::Type encoderType) {
     for (EncoderType& encoder : encoderTypes) {
         if (encoderType == encoder.type) return &encoder;
+    }
+    return nullptr;
+}
+
+
+
+std::vector<Lexium32::EncoderCoding> Lexium32::encoderCodings = {
+    {Lexium32::EncoderCoding::Type::BINARY, "Binary", "Binary"},
+    {Lexium32::EncoderCoding::Type::GRAY, "Gray", "Gray"}
+};
+Lexium32::EncoderCoding* Lexium32::getEncoderCoding(const char* saveName) {
+    for (EncoderCoding& coding : encoderCodings) {
+        if (strcmp(saveName, coding.saveName) == 0) return &coding;
+    }
+    return nullptr;
+}
+Lexium32::EncoderCoding* Lexium32::getEncoderCoding(EncoderCoding::Type encodingType) {
+    for (EncoderCoding& coding : encoderCodings) {
+        if (coding.type == encodingType) return &coding;
+    }
+    return nullptr;
+}
+
+
+std::vector<Lexium32::EncoderVoltage> Lexium32::encoderVoltages = {
+    {Lexium32::EncoderVoltage::Voltage::V5, "5V", "5V"},
+    {Lexium32::EncoderVoltage::Voltage::V12, "12V", "12V"}
+};
+Lexium32::EncoderVoltage* Lexium32::getEncoderVoltage(const char* saveName) {
+    for (EncoderVoltage& voltage : encoderVoltages) {
+        if (strcmp(saveName, voltage.saveName) == 0) return &voltage;
+    }
+    return nullptr;
+}
+Lexium32::EncoderVoltage* Lexium32::getEncoderVoltage(EncoderVoltage::Voltage v) {
+    for (EncoderVoltage& voltage : encoderVoltages) {
+        if (voltage.voltage == v) return &voltage;
     }
     return nullptr;
 }

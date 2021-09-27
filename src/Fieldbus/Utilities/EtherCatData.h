@@ -84,13 +84,13 @@ public:
 	void dataFormatSelectorGui();
 
 	void set(uint8_t val) { u8 = val; }
-	void set(int8_t val) { u8 = val; }
+	void set(int8_t val) { s8 = val; }
 	void set(uint16_t val) { u16 = val; }
-	void set(int16_t val) { u16 = val; }
+	void set(int16_t val) { s16 = val; }
 	void set(uint32_t val) { u32 = val; }
-	void set(int32_t val) { u32 = val; }
+	void set(int32_t val) { s32 = val; }
 	void set(uint64_t val) { u64 = val; }
-	void set(int64_t val) { u64 = val; }
+	void set(int64_t val) { s64 = val; }
 
 	uint8_t getU8() { return u8; }
 	int8_t getS8() { return s8; }

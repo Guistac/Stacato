@@ -8,19 +8,19 @@
                     <Identification Type="StationAlias" StationAlias="303"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin Name="Position" DataType="Real" UniqueID="2" Real="1538.3504250826568" Visible="true"/>
+                    <InputPin Name="Position" DataType="Real" UniqueID="2" Real="4227.1477737426758" Visible="true"/>
                     <InputPin Name="DQ0" DataType="Boolean" UniqueID="3" Boolean="false" Visible="true"/>
                     <InputPin Name="DQ1" DataType="Boolean" UniqueID="4" Boolean="false" Visible="true"/>
                     <InputPin Name="DQ2" DataType="Boolean" UniqueID="5" Boolean="false" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin Name="Motor" DataType="unknown" UniqueID="6" Visible="true"/>
-                    <OutputPin Name="Load" DataType="Real" UniqueID="7" Real="0.024" Visible="true"/>
+                    <OutputPin Name="Load" DataType="Real" UniqueID="7" Real="0" Visible="true"/>
                     <OutputPin Name="Encoder" DataType="unknown" UniqueID="8" Visible="true"/>
-                    <OutputPin Name="Position" DataType="Real" UniqueID="9" Real="1538.1523361206055" Visible="true"/>
-                    <OutputPin Name="Velocity" DataType="Real" UniqueID="10" Real="1302.2" Visible="true"/>
+                    <OutputPin Name="Position" DataType="Real" UniqueID="9" Real="0" Visible="true"/>
+                    <OutputPin Name="Velocity" DataType="Real" UniqueID="10" Real="0" Visible="true"/>
                     <OutputPin Name="GPIO" DataType="unknown" UniqueID="11" Visible="true"/>
-                    <OutputPin Name="DI0" DataType="Boolean" UniqueID="12" Boolean="true" Visible="true"/>
+                    <OutputPin Name="DI0" DataType="Boolean" UniqueID="12" Boolean="false" Visible="true"/>
                     <OutputPin Name="DI1" DataType="Boolean" UniqueID="13" Boolean="false" Visible="true"/>
                     <OutputPin Name="DI2" DataType="Boolean" UniqueID="14" Boolean="false" Visible="true"/>
                     <OutputPin Name="DI3" DataType="Boolean" UniqueID="15" Boolean="false" Visible="true"/>
@@ -46,7 +46,7 @@
                     <InputPin Name="References" DataType="Boolean" UniqueID="23" Boolean="false" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="Command" DataType="Real" UniqueID="24" Real="1538.3504250826568" Visible="true"/>
+                    <OutputPin Name="Command" DataType="Real" UniqueID="24" Real="4227.1477737426758" Visible="true"/>
                     <OutputPin Name="Reset Position Feedback" DataType="Boolean" UniqueID="25" Boolean="false" Visible="true"/>
                 </OutputPins>
             </Node>
@@ -68,7 +68,7 @@
                     <InputPin Name="References" DataType="Boolean" UniqueID="37" Boolean="false" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="Command" DataType="Real" UniqueID="38" Real="884.59634391279326" Visible="true"/>
+                    <OutputPin Name="Command" DataType="Real" UniqueID="38" Real="1738.3763809204102" Visible="true"/>
                     <OutputPin Name="Reset Position Feedback" DataType="Boolean" UniqueID="39" Boolean="false" Visible="true"/>
                 </OutputPins>
             </Node>
@@ -79,24 +79,36 @@
                     <Identification Type="StationAlias" StationAlias="333"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin Name="Position" DataType="Real" UniqueID="41" Real="884.59634391279326" Visible="true"/>
+                    <InputPin Name="Position" DataType="Real" UniqueID="41" Real="1738.3763809204102" Visible="true"/>
                     <InputPin Name="DQ0" DataType="Boolean" UniqueID="42" Boolean="false" Visible="true"/>
                     <InputPin Name="DQ1" DataType="Boolean" UniqueID="43" Boolean="false" Visible="true"/>
                     <InputPin Name="DQ2" DataType="Boolean" UniqueID="44" Boolean="false" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin Name="Motor" DataType="unknown" UniqueID="45" Visible="true"/>
-                    <OutputPin Name="Load" DataType="Real" UniqueID="46" Real="0.029999999999999999" Visible="true"/>
+                    <OutputPin Name="Load" DataType="Real" UniqueID="46" Real="0" Visible="true"/>
                     <OutputPin Name="Encoder" DataType="unknown" UniqueID="47" Visible="true"/>
-                    <OutputPin Name="Position" DataType="Real" UniqueID="48" Real="884.41545867919922" Visible="true"/>
-                    <OutputPin Name="Velocity" DataType="Real" UniqueID="49" Real="1185.75" Visible="true"/>
+                    <OutputPin Name="Position" DataType="Real" UniqueID="48" Real="0" Visible="true"/>
+                    <OutputPin Name="Velocity" DataType="Real" UniqueID="49" Real="0" Visible="true"/>
                     <OutputPin Name="GPIO" DataType="unknown" UniqueID="50" Visible="true"/>
-                    <OutputPin Name="DI0" DataType="Boolean" UniqueID="51" Boolean="true" Visible="true"/>
+                    <OutputPin Name="DI0" DataType="Boolean" UniqueID="51" Boolean="false" Visible="true"/>
                     <OutputPin Name="DI1" DataType="Boolean" UniqueID="52" Boolean="false" Visible="true"/>
                     <OutputPin Name="DI2" DataType="Boolean" UniqueID="53" Boolean="false" Visible="true"/>
                     <OutputPin Name="DI3" DataType="Boolean" UniqueID="54" Boolean="false" Visible="true"/>
                     <OutputPin Name="DI4" DataType="Boolean" UniqueID="55" Boolean="false" Visible="true"/>
                     <OutputPin Name="DI5" DataType="Boolean" UniqueID="56" Boolean="false" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node ClassName="Subtraction" UniqueID="63" NodeType="PROCESSOR" CustomName="Subtraction">
+                <NodeEditorPosition x="-664" y="-3150"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin Name="base" DataType="Real" UniqueID="64" Real="0" Visible="true"/>
+                    <InputPin Name="sub" DataType="Real" UniqueID="65" Real="0" Visible="true"/>
+                    <InputPin Name="offset" DataType="Real" UniqueID="66" Real="0" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin Name="result" DataType="Real" UniqueID="67" Real="0" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -113,6 +125,8 @@
             <Link UniqueID="60" StartPin="50" EndPin="36"/>
             <Link UniqueID="61" StartPin="51" EndPin="37"/>
             <Link UniqueID="62" StartPin="38" EndPin="41"/>
+            <Link UniqueID="68" StartPin="24" EndPin="64"/>
+            <Link UniqueID="69" StartPin="9" EndPin="65"/>
         </Links>
     </NodeGraph>
 </Environnement>

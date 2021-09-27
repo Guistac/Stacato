@@ -17,7 +17,7 @@ void mainMenuBar(bool closeWindowRequest) {
 	bool openAboutPopup = false;
 
 	ImGui::BeginMainMenuBar();
-	if (ImGui::BeginMenu("Stacatto")) {
+	if (ImGui::BeginMenu("Stacato")) {
 		if (ImGui::MenuItem("About")) openAboutPopup = true;
 		ImGui::Separator();
 		if (ImGui::MenuItem("Quit")) closeWindowRequest = true;

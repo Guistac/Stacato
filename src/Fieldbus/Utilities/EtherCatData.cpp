@@ -114,11 +114,11 @@ bool EtherCatRegisterData::read(uint16_t slaveAddress) {
 }
 
 bool EtherCatEepromData::write(uint16_t slaveIndex) {
-	return 1 == ec_writeeeprom(slaveIndex, address, u32, EC_TIMEOUTSAFE);
+	return 1 == ec_writeeeprom(slaveIndex, address, u32, EC_TIMEOUTEEP);
 }
 
 bool EtherCatEepromData::read(uint16_t slaveIndex) {
-	u32 = ec_readeeprom(slaveIndex, address, EC_TIMEOUTSAFE);
+	u32 = ec_readeeprom(slaveIndex, address, EC_TIMEOUTEEP);
 	if (u32 == 0) return false;
 	return true;
 }
