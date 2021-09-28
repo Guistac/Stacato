@@ -31,9 +31,17 @@ bool Lexium32::isEnabled() {
     return state == State::OperationEnabled;
 }
 
-void Lexium32::onConnection() {}
+void Lexium32::onConnection() {
+    pushEvent("Device Connected", false);
+    reset();
+}
 
 void Lexium32::onDisconnection() {
+    pushEvent("Device Disconnected", true);
+    reset();
+}
+
+void Lexium32::reset() {
     actualOperatingMode = OperatingMode::Mode::UNKNOWN;
     state = State::SwitchOnDisabled;
     manualVelocityCommand_rpm = 0.0;
@@ -843,7 +851,7 @@ void Lexium32::setEncoderSettings() {
             ENC2_usage.set((uint16_t)2); //use as machine encoder (as motor encoder doesn't work)
             ENC_ModeOfMaEnc.set((uint16_t)2); //use for position and velocity control
             InvertDirOfMaEnc.set((uint16_t)(encoder2_invertDirection ? 1 : 0));
-            p_MaxDifToENC2.set((int32_t)(encoder2_maxDifferenceToMotorEncoder_rotations * (float)internalEncoderSingleturnResoltuion)); //max difference between machine and motor encoder before error triggered
+            p_MaxDifToENC2.set((int32_t)(encoder2_maxDifferenceToMotorEncoder_rotations * (float)(0x1 << encoder1_singleTurnResolutionBits))); //max difference between machine and motor encoder before error triggered
             if (!ENC_abs_source.write(getSlaveIndex())) goto transferfailed;
             if (!ENC2_usage.write(getSlaveIndex())) goto transferfailed;
             if (!ENC_ModeOfMaEnc.write(getSlaveIndex())) goto transferfailed;
@@ -916,6 +924,68 @@ transferfailed:
 }
 
 
+void Lexium32::setManualAbsoluteEncoderPosition() {
+    encoderAbsolutePositionTransferState = DataTransferState::State::TRANSFERRING;
+    int absolutePositionEncoderIncrements;
+    EtherCatCoeData ENC1_adjustment(0x3005, 0x16, EtherCatData::Type::INT32_T);
+    EtherCatCoeData ENC2_adjustement(0x3005, 0x24, EtherCatData::Type::INT32_T);
+    EtherCatCoeData ShiftEncWorkRange(0x3005, 0X21, EtherCatData::Type::UINT16_T);
+    if (b_encoderRangeShifted) ShiftEncWorkRange.set((uint16_t)1);
+    else ShiftEncWorkRange.set((uint16_t)0);
+    if (!ShiftEncWorkRange.write(getSlaveIndex())) goto failed;
+    switch (encoderAssignement) {
+        case EncoderAssignement::Type::INTERNAL_ENCODER:
+            absolutePositionEncoderIncrements = manualAbsoluteEncoderPosition_revolutions * (float)(0x1 << encoder1_singleTurnResolutionBits);
+            ENC1_adjustment.set((int32_t)absolutePositionEncoderIncrements);
+            if (ENC1_adjustment.write(getSlaveIndex())) goto saving;
+            else goto failed;
+            break;
+        case EncoderAssignement::Type::ENCODER_MODULE:
+            absolutePositionEncoderIncrements = manualAbsoluteEncoderPosition_revolutions * (float)(0x1 << encoder2_singleTurnResolutionBits);
+            ENC2_adjustement.set((int32_t)absolutePositionEncoderIncrements);
+            if (ENC2_adjustement.write(getSlaveIndex())) goto saving;
+            else goto failed;
+            break;
+    }
+
+saving:
+
+    encoderAbsolutePositionTransferState = DataTransferState::State::SAVING;
+    if (saveToEEPROM()) encoderAbsolutePositionTransferState = DataTransferState::State::SAVED;
+    else goto failed;
+    return;
+
+failed:
+
+    encoderAbsolutePositionTransferState = DataTransferState::State::FAILED;
+    return;
+}
+
+
+void Lexium32::getEncoderWorkingRange(float& low, float& high) {
+    switch (encoderAssignement) {
+        case EncoderAssignement::Type::INTERNAL_ENCODER:
+            if (b_encoderRangeShifted) {
+                low = -(float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
+                high = (float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
+            }
+            else {
+                low = 0.0;
+                high = (float)(0x1 << encoder1_multiTurnResolutionBits);
+            }
+            break;
+        case EncoderAssignement::Type::ENCODER_MODULE:
+            if (b_encoderRangeShifted) {
+                low = -(float)(0x1 << encoder2_multiTurnResolutionBits) * (float)encoder2_perMotorRevolutions / ((float)encoder2_encoderRevolutionsPer * 2.0);
+                high = -low;
+            }
+            else {
+                low = 0.0;
+                high = (float)(0x1 << encoder2_multiTurnResolutionBits) * (float)encoder2_perMotorRevolutions / (float)encoder2_encoderRevolutionsPer;
+            }
+            break;
+    }
+}
 
 
 

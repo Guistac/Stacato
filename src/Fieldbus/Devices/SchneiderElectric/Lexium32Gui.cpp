@@ -22,7 +22,7 @@ void Lexium32::deviceSpecificGui() {
                 controlsGui();
                 ImGui::EndTabItem();
             }
-            if (ImGui::BeginTabItem("Limits")) {
+            if (ImGui::BeginTabItem("General Settings")) {
                 limitsGui();
                 ImGui::EndTabItem();
             }
@@ -136,11 +136,20 @@ void Lexium32::statusGui() {
         ImGui::PopStyleColor();
     }
     else {
+        bool disableCommandButton = !isOnline();
+        if (disableCommandButton) {
+            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+            ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+        }
         if (isEnabled()) { if (ImGui::Button("Disable Operation", commandButtonSize)) disable(); }
         else { if (ImGui::Button("Enable Operation", commandButtonSize)) enable(); }
+        ImGui::SameLine();
+        if (ImGui::Button("Quick Stop", commandButtonSize)) quickStop();
+        if (disableCommandButton) {
+            ImGui::PopItemFlag();
+            ImGui::PopStyleColor();
+        }
     }
-    ImGui::SameLine();
-    if (ImGui::Button("Quick Stop", commandButtonSize)) quickStop();
 }
 
 
@@ -208,7 +217,7 @@ void Lexium32::controlsGui() {
             ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
             ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
         }
-        ImGui::SliderFloat("##manualVelocity", &vCommand_rpm, -maxVelocity_rpm, maxVelocity_rpm, "%.3frpm");
+        ImGui::SliderFloat("##manualVelocity", &vCommand_rpm, -maxVelocity_rpm, maxVelocity_rpm, "%.1frpm");
         if (vCommand_rpm > maxVelocity_rpm) vCommand_rpm = maxVelocity_rpm;
         else if (vCommand_rpm < -maxVelocity_rpm) vCommand_rpm = -maxAcceleration_rps2;
         manualVelocityCommand_rpm = vCommand_rpm;
@@ -346,7 +355,7 @@ void Lexium32::encoderGui() {
     ImGui::Text("Encoder Settings");
     ImGui::PopFont();
 
-    ImGui::Text("Main Encoder:");
+    ImGui::Text("Main Encoder used for absolute positionning:");
     if (ImGui::BeginCombo("##encoderAssignement", getEncoderAssignement(encoderAssignement)->displayName)) {
         for (EncoderAssignement& assignement : encoderAssignements) {
             if (ImGui::Selectable(assignement.displayName, assignement.type == encoderAssignement)) {
@@ -356,18 +365,16 @@ void Lexium32::encoderGui() {
         ImGui::EndCombo();
     }
 
+    float doublewidgetWidth = (ImGui::GetItemRectSize().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
+    bool disableEncoderUploadButton = false;
+
     if (encoderAssignement == EncoderAssignement::Type::INTERNAL_ENCODER) {
 
         ImGui::Separator();
-
         ImGui::PushFont(Fonts::robotoBold20);
         ImGui::Text("Internal Encoder");
         ImGui::PopFont();
-
-        ImGui::Text("Encoder increments per motor shaft revolution");
-        ImGui::InputInt("##incrementsPerRotation", &encoderIncrementsPerShaftRotation, 0, 0);
-        ImGui::Text("Encoder Multiturn Resolution");
-        ImGui::InputInt("##MtResolution", &encoderMultiturnResolution, 0, 0);
+        ImGui::TextWrapped("No Settings are available for the internal motor encoder.");
 
     }
     else if (encoderAssignement == EncoderAssignement::Type::ENCODER_MODULE) {
@@ -387,7 +394,7 @@ void Lexium32::encoderGui() {
         switch (encoderModuleType) {
         case EncoderModule::Type::DIGITAL_MODULE:
 
-            ImGui::Text("Encoder Type:");
+            ImGui::Text("Digital Encoder Type:");
             if (ImGui::BeginCombo("##EncoderType", getEncoderType(encoderType)->displayName)) {
                 for (EncoderType& encoder : encoderTypes) {
                     if (ImGui::Selectable(encoder.displayName, encoder.type == encoderType)) {
@@ -419,19 +426,28 @@ void Lexium32::encoderGui() {
                 ImGui::InputScalar("##STres", ImGuiDataType_U8, &encoder2_singleTurnResolutionBits);
                 ImGui::Text("Multi Turn Resolution (bits)");
                 ImGui::InputScalar("##MTres", ImGuiDataType_U8, &encoder2_multiTurnResolutionBits);
-                ImGui::Text("Full Encoder Revolution amount per");
+
+                ImGui::Text("Encoder Revolution to Motor Revolution Ratio");
+                ImGui::SetNextItemWidth(doublewidgetWidth);
                 ImGui::InputInt("##ratio", &encoder2_encoderRevolutionsPer);
-                ImGui::Text("Per Full Motor Revolution amount");
+                ImGui::SameLine();
+                ImGui::SetNextItemWidth(doublewidgetWidth);
                 ImGui::InputInt("##ratio2", &encoder2_perMotorRevolutions);
-                ImGui::Text("Invert Encoder Motion Direction");
+
+                if (encoder2_encoderRevolutionsPer < 1) encoder2_encoderRevolutionsPer = 1;
+                if (encoder2_perMotorRevolutions < 1) encoder2_perMotorRevolutions = 1;
+
                 ImGui::Checkbox("##invert", &encoder2_invertDirection);
-                ImGui::Text("Max Motor Encoder Deviation from Module Encoder (motor revolutions)");
-                ImGui::InputFloat("##maxdev", &encoder2_maxDifferenceToMotorEncoder_rotations);
+                ImGui::SameLine();
+                ImGui::Text("Invert Encoder Motion Direction");
+                ImGui::Text("Max Motor Encoder Deviation from Module Encoder");
+                ImGui::InputFloat("##maxdev", &encoder2_maxDifferenceToMotorEncoder_rotations, 0.0, 0.0,"%.2f motor revolutions");
                 break;
             case EncoderType::Type::NONE:
                 ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
                 ImGui::TextWrapped("Other Encoder Types are not yet supported");
                 ImGui::PopStyleColor();
+                disableEncoderUploadButton = true;
                 break;
             }
             break;
@@ -439,29 +455,92 @@ void Lexium32::encoderGui() {
             ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
             ImGui::TextWrapped("Analog Encoder Modules are not yet supported.");
             ImGui::PopStyleColor();
+            disableEncoderUploadButton = true;
             break;
         case EncoderModule::Type::RESOLVER_MODULE:
             ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
             ImGui::TextWrapped("Resolver Encoder Modules are not yet supported.");
             ImGui::PopStyleColor();
+            disableEncoderUploadButton = true;
             break;
         case EncoderModule::Type::NONE:
             ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
-            ImGui::TextWrapped("No Encoder Module was detected in module slot 2.");
+            ImGui::TextWrapped("No Encoder Module was detected in module slot 2."
+                                "\nRestart the drive and detect the module again. Never insert or remove modules while the drive is powered on.");
             ImGui::PopStyleColor();
+            disableEncoderUploadButton = true;
             break;
         }
 
     }
 
-    if (ImGui::Button("Upload Settings")) {
+    if (disableEncoderUploadButton) {
+        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+    }
+    if (ImGui::Button("Upload Encoder Settings")) {
         std::thread encoderSettingsUploader([this]() {
             setEncoderSettings();
         });
         encoderSettingsUploader.detach();
     }
+    if (disableEncoderUploadButton) {
+        ImGui::PopItemFlag();
+        ImGui::PopStyleColor();
+    }
     ImGui::SameLine();
     ImGui::Text(getDataTransferState(encoderSettingsTransferState)->displayName);
+
+    ImGui::Separator();
+
+
+
+
+    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::Text("Manual Absolute Position setting");
+    ImGui::PopFont();
+
+    ImGui::PushFont(Fonts::robotoBold15);
+    switch(encoderAssignement) {
+        case EncoderAssignement::Type::INTERNAL_ENCODER:
+            ImGui::Text("Assign absolute position of Internal Encoder");
+            break;
+        case EncoderAssignement::Type::ENCODER_MODULE:
+            ImGui::Text("Assign absolute position of Module Encoder");
+            break;
+    }
+    ImGui::PopFont();
+    ImGui::InputFloat("##manualabsolute", &manualAbsoluteEncoderPosition_revolutions, 0.0, 0.0, "%.3f motor revolutions");
+
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
+        ImGui::BeginTooltip();
+        ImGui::TextWrapped("Overwrites the absolute position of the current encoder."
+            "\nUseful to get the encoder back into its working range and prevent it from exceeding it during normal operation.");
+        ImGui::EndTooltip();
+    }
+
+    ImGui::Spacing();
+    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::Text("Shift Encoder Working Range");
+    ImGui::PopFont();
+    ImGui::Checkbox("##shifting", &b_encoderRangeShifted);
+    ImGui::SameLine();
+    ImGui::TextWrapped("Center the encoder working range around 0.");
+    float low, high;
+    getEncoderWorkingRange(low, high);
+    ImGui::Text("Current Working Range is %.1f to %.1f motor revolutions", low, high);
+
+    ImGui::Spacing();
+    ImGui::TextWrapped("The Drive has to be restarted after assigning a new absolute position or working range. "
+        "Overwriting these settings will invalidate all current position references of the corresponding axis.");
+    if (ImGui::Button("Upload Absolute Position Settings")) {
+        std::thread absolutePositionAssigner([this]() { setManualAbsoluteEncoderPosition(); });
+        absolutePositionAssigner.detach();
+    }
+    ImGui::SameLine();
+    ImGui::Text(getDataTransferState(encoderAbsolutePositionTransferState)->displayName);
+
 }
 
 

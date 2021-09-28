@@ -10,6 +10,7 @@ public:
 
     //fieldbus commands
     bool setStartupParameters();
+    void reset();
 
     //===== drive status =====
     
@@ -97,9 +98,6 @@ public:
     const int velocityUnitsPerRpm = 100;
     const int positionUnitsPerRevolution = 131072;
     const int currentUnitsPerAmp = 100;
-
-    int encoderIncrementsPerShaftRotation = 131072;
-    int encoderMultiturnResolution = 4096;
 
     //===== Upload Status Variables =====
 
@@ -220,11 +218,10 @@ public:
     static EncoderVoltage* getEncoderVoltage(EncoderVoltage::Voltage v);
     EncoderVoltage::Voltage encoderVoltage = EncoderVoltage::Voltage::V12;
 
-    int internalEncoderSingleturnResoltuion = 131072; //internal encoder has 17 bits of singleturn resolution
-    int internalEncoderMultiturnResolution = 4096;    //internal encoder has 12 bits of multiturn resolution
-
-    int encoder2_singleTurnResolutionBits = 0;
-    int encoder2_multiTurnResolutionBits = 0;
+    uint32_t encoder1_singleTurnResolutionBits = 17;
+    uint32_t encoder1_multiTurnResolutionBits = 12;
+    uint32_t encoder2_singleTurnResolutionBits = 17;
+    uint32_t encoder2_multiTurnResolutionBits = 12;
     int encoder2_encoderRevolutionsPer = 1;   //integer amount of encoder revolutions per ->
     int encoder2_perMotorRevolutions = 1;   //-> per integer amount of motor revolutions
     bool encoder2_invertDirection = false;
@@ -232,7 +229,12 @@ public:
 
     void setEncoderSettings();
     void detectEncoderModule();
+    void setManualAbsoluteEncoderPosition();
+    void getEncoderWorkingRange(float& low, float& high);
+    float manualAbsoluteEncoderPosition_revolutions = 0.0;
+    bool b_encoderRangeShifted = false;
     DataTransferState::State encoderSettingsTransferState = DataTransferState::State::NO_TRANSFER;
+    DataTransferState::State encoderAbsolutePositionTransferState = DataTransferState::State::NO_TRANSFER;
 
     //===== Drive Status Flags ======
 
