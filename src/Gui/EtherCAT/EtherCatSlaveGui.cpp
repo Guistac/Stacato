@@ -19,34 +19,48 @@ void EtherCatSlave::nodeSpecificGui() {
             if (ImGui::BeginTabBar("EtherCatConfigTabBar")) {
 
                 if (ImGui::BeginTabItem("Identification")) {
-                    identificationGui();
+                    if (ImGui::BeginChild("Identification")) {
+                        identificationGui();
+                        ImGui::EndChild();
+                    }
                     ImGui::EndTabItem();
                 }
 
                 if (ImGui::BeginTabItem("Events")) {
-                    eventListGui();
+                    if (ImGui::BeginChild("Events")) {
+                        eventListGui();
+                        ImGui::EndChild();
+                    }
                     ImGui::EndTabItem();
                 }
 
                 if (isSlaveKnown() && ImGui::BeginTabItem("PDO Data")) {
-                    pdoDataGui();
+                    if (ImGui::BeginChild("PDOData")) {
+                        pdoDataGui();
+                        ImGui::EndChild();
+                    }
                     ImGui::EndTabItem();
                 }
 
                 if (ImGui::BeginTabItem("Data Exchange")) {
-                    sendReceiveEtherCatRegisterGui();
-                    ImGui::Separator();
-                    ImGui::Spacing();
-                    sendReceiveCanOpenGui();
-                    ImGui::Separator();
-                    ImGui::Spacing();
-                    sendReceiveEepromGui();
-
+                    if (ImGui::BeginChild("DataExchange")) {
+                        sendReceiveEtherCatRegisterGui();
+                        ImGui::Separator();
+                        ImGui::Spacing();
+                        sendReceiveCanOpenGui();
+                        ImGui::Separator();
+                        ImGui::Spacing();
+                        sendReceiveEepromGui();
+                        ImGui::EndChild();
+                    }
                     ImGui::EndTabItem();
                 }
 
                 if (isDetected() && ImGui::BeginTabItem("Info")) {
-                    genericInfoGui();
+                    if (ImGui::BeginChild("Info")) {
+                        genericInfoGui();
+                        ImGui::EndChild();
+                    }
                     ImGui::EndTabItem();
                 }
 
@@ -99,11 +113,7 @@ void EtherCatSlave::generalGui() {
 
 void EtherCatSlave::identificationGui() {
 
-    ImGui::PushFont(Fonts::robotoBold15);
-    ImGui::Text("Device Name:");
-    ImGui::PopFont();
-    ImGui::SameLine();
-    ImGui::Text(getNodeName());
+    ImGui::TextWrapped("The device will be matched using the following parameters. Make sure each device has unique identifier parameters.");
 
     ImGui::PushFont(Fonts::robotoBold15);
     ImGui::Text("Identification Type");

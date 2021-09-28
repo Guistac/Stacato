@@ -19,23 +19,45 @@ void Lexium32::deviceSpecificGui() {
 
         if (ImGui::BeginTabBar("LexiumTabBar")) {
             if (ImGui::BeginTabItem("Control")) {
-                controlsGui();
+                if (ImGui::BeginChild("Control")) {
+                    controlsGui();
+                    ImGui::EndChild();
+                }
                 ImGui::EndTabItem();
             }
-            if (ImGui::BeginTabItem("General Settings")) {
-                limitsGui();
+            if (ImGui::BeginTabItem("General")) {
+                if (ImGui::BeginChild("General")) {
+                    generalGui();
+                    ImGui::EndChild();
+                }
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("I/O")) {
+                if (ImGui::BeginChild("I/O")) {
+                    gpioGui();
+                    ImGui::EndChild();
+                }
                 ImGui::EndTabItem();
             }
             if (ImGui::BeginTabItem("Encoder")) {
-                encoderGui();
+                if (ImGui::BeginChild("Encoder")) {
+                    encoderGui();
+                    ImGui::EndChild();
+                }
                 ImGui::EndTabItem();
             }
             if (ImGui::BeginTabItem("Tuning")) {
-                tuningGui();
+                if (ImGui::BeginChild("Tuning")) {
+                    tuningGui();
+                    ImGui::EndChild();
+                }
                 ImGui::EndTabItem();
             }
-            if (ImGui::BeginTabItem("Misc")) {
-                miscellaneousGui();
+            if (ImGui::BeginTabItem("Other")) {
+                if (ImGui::BeginChild("Other")) {
+                    miscellaneousGui();
+                    ImGui::EndChild();
+                }
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
@@ -46,6 +68,12 @@ void Lexium32::deviceSpecificGui() {
         ImGui::EndTabItem();
     }
 }
+
+
+
+
+
+
 
 
 
@@ -156,6 +184,12 @@ void Lexium32::statusGui() {
 
 
 
+
+
+
+
+
+
 void Lexium32::controlsGui() {
     ImGui::PushFont(Fonts::robotoBold20);
     ImGui::Text("Device Mode");
@@ -241,10 +275,19 @@ void Lexium32::controlsGui() {
 
 
 
-void Lexium32::limitsGui() {
+
+
+
+
+
+void Lexium32::generalGui() {
+    bool disableTransferButton = !isDetected();
+
     ImGui::PushFont(Fonts::robotoBold20);
     ImGui::Text("Profile Generator Limits");
     ImGui::PopFont();
+
+    ImGui::TextWrapped("These settings are not stored on the drive, but regulate the speed and position commands sent to the drive.");
 
     ImGui::Text("Max Velocity");
     ImGui::InputDouble("##maxV", &maxVelocity_rpm, 0.0, 0.0, "%.1frpm");
@@ -254,97 +297,133 @@ void Lexium32::limitsGui() {
     ImGui::Separator();
 
     ImGui::PushFont(Fonts::robotoBold20);
-    ImGui::Text("Load Limit");
+    ImGui::Text("General Settings");
     ImGui::PopFont();
 
-    ImGui::Text("Max Current");
-    if (ImGui::InputDouble("##maxI", &maxCurrent_amps, 0.0, 0.0, "%.1f Amperes")) maxCurrentParameterTransferState = DataTransferState::State::NO_TRANSFER;
-
-    bool disableUploadButton = !isDetected();
-    if (disableUploadButton) {
+    if (disableTransferButton) {
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
         ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
     }
-    if (ImGui::Button("Upload Setting")) {
-        std::thread maxCurrentUploader([this]() { uploadMaxCurrentParameters(); });
-        maxCurrentUploader.detach();
+    if (ImGui::Button("Download Settings From Drive")) {
+        std::thread maxCurrentDownloader([this]() { downloadGeneralParameters(); });
+        maxCurrentDownloader.detach();
     }
-    if (disableUploadButton) {
+    if (disableTransferButton) {
         ImGui::PopItemFlag();
         ImGui::PopStyleColor();
     }
     ImGui::SameLine();
-    ImGui::Text(getDataTransferState(maxCurrentParameterTransferState)->displayName);
+    ImGui::Text(getDataTransferState(generalParameterDownloadState)->displayName);
 
-    ImGui::Separator();
+    ImGui::TextWrapped("General Settings that are stored on the drive.");
+
+    ImGui::Checkbox("##dir", &b_invertDirectionOfMotorMovement);
+    ImGui::SameLine();
+    ImGui::Text("Invert Direction of Movement");
+
+    ImGui::Text("Max Current");
+    if (ImGui::InputDouble("##maxI", &maxCurrent_amps, 0.0, 0.0, "%.1f Amperes")) generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
+    
+    ImGui::Text("Max Quickstop Current");
+    if (ImGui::InputDouble("##maxqi", &maxQuickstopCurrent_amps, 0.0, 0.0, "%.1f Amperes")) generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
+
+    if (disableTransferButton) {
+        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+    }
+    if (ImGui::Button("Upload Setting")) {
+        std::thread maxCurrentUploader([this]() { uploadGeneralParameters(); });
+        maxCurrentUploader.detach();
+    }
+    if (disableTransferButton) {
+        ImGui::PopItemFlag();
+        ImGui::PopStyleColor();
+    }
+    ImGui::SameLine();
+    ImGui::Text(getDataTransferState(generalParameterUploadState)->displayName);
+}
+
+
+
+
+
+
+
+
+
+
+
+void Lexium32::gpioGui() {
+    
+    bool disableTransferButton = !isDetected();
 
     ImGui::PushFont(Fonts::robotoBold20);
     ImGui::Text("Limit Signals");
     ImGui::PopFont();
 
 
-    static auto showInputPinFunctionCombo = [this](InputPinFunction::Type& pinFunctionType) {
-        if (ImGui::BeginCombo("##DI", getInputPinFunction(pinFunctionType)->displayName)) {
-            for (InputPinFunction& function : inputPinFunctions) {
-                if (ImGui::Selectable(function.displayName, pinFunctionType == function.type)) {
-                    pinFunctionType = function.type;
-                    pinAssignementParameterTransferState = DataTransferState::State::NO_TRANSFER;
-                }
-            }
-            ImGui::EndCombo();
-        }
-    };
 
-    ImGui::Text("Input 0 (DI0)");
-    ImGui::PushID("DI0");
-    showInputPinFunctionCombo(inputPin0Function);
-    ImGui::PopID();
-
-    ImGui::Text("Input 1 (DI1)");
-    ImGui::PushID("DI1");
-    showInputPinFunctionCombo(inputPin1Function);
-    ImGui::PopID();
-
-    ImGui::Text("Input 2 (DI2)");
-    ImGui::PushID("DI2");
-    showInputPinFunctionCombo(inputPin2Function);
-    ImGui::PopID();
-
-    ImGui::Text("Input 3 (DI3)");
-    ImGui::PushID("DI3");
-    showInputPinFunctionCombo(inputPin3Function);
-    ImGui::PopID();
-
-    ImGui::Text("Input 4 (DI4)");
-    ImGui::PushID("DI4");
-    showInputPinFunctionCombo(inputPin4Function);
-    ImGui::PopID();
-
-    ImGui::Text("Input 5 (DI5)");
-    ImGui::PushID("DI5");
-    showInputPinFunctionCombo(inputPin5Function);
-    ImGui::PopID();
-
-    ImGui::TextWrapped("Settings can only be uploaded while the power stage is disabled. The Drive needs to be rebooted after uploading new settings.");
-
-    if (disableUploadButton) {
+    if (disableTransferButton) {
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
         ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
     }
-    if (ImGui::Button("Upload Settings")) {
-        std::thread pinAssigmentUploader([this]() { uploadPinAssignementParameters(); });
-        pinAssigmentUploader.detach();
+    if (ImGui::Button("Download Settings from Drive")) {
+        std::thread pinAssigmentDownloader([this]() { downloadPinAssignements(); });
+        pinAssigmentDownloader.detach();
     }
-    if (disableUploadButton) {
+    if (disableTransferButton) {
         ImGui::PopItemFlag();
         ImGui::PopStyleColor();
     }
     ImGui::SameLine();
-    ImGui::Text(getDataTransferState(pinAssignementParameterTransferState)->displayName);
+    ImGui::Text(getDataTransferState(pinAssignementDownloadState)->displayName);
+
+    ImGui::Text("Negative Limit Switch");
+    if (ImGui::BeginCombo("##negativeLimitSwitch", getInputPin(negativeLimitSwitchPin)->displayName)) {
+        for (auto& inputPin : getInputPins()) {
+            if (positiveLimitSwitchPin != InputPin::Pin::NONE && positiveLimitSwitchPin == inputPin.pin) continue;
+            if(ImGui::Selectable(inputPin.displayName, negativeLimitSwitchPin == inputPin.pin)) negativeLimitSwitchPin = inputPin.pin;
+        }
+        ImGui::EndCombo();
+    }
+    if (negativeLimitSwitchPin != InputPin::Pin::NONE) {
+        ImGui::Checkbox("##negsig", &b_negativeLimitSwitchNormallyClosed);
+        ImGui::SameLine();
+        ImGui::Text("Normally Closed");
+    }
+
+    ImGui::Text("Positive Limit Switch");
+    if (ImGui::BeginCombo("##positiveLimitSwitch", getInputPin(positiveLimitSwitchPin)->displayName)) {
+        for (auto& inputPin : getInputPins()) {
+            if (negativeLimitSwitchPin != InputPin::Pin::NONE && negativeLimitSwitchPin == inputPin.pin) continue;
+            if (ImGui::Selectable(inputPin.displayName, positiveLimitSwitchPin == inputPin.pin)) positiveLimitSwitchPin = inputPin.pin;
+        }
+        ImGui::EndCombo();
+    }
+    if (positiveLimitSwitchPin != InputPin::Pin::NONE) {
+        ImGui::Checkbox("##possig", &b_positiveLimitSwitchNormallyClosed);
+        ImGui::SameLine();
+        ImGui::Text("Normally Closed");
+    }
+
+    ImGui::TextWrapped("Output Pins are set to be freely available by default."
+                       "\nSettings can only be uploaded while the drive is disabled. The Drive needs to be rebooted after uploading new settings.");
+
+    if (disableTransferButton) {
+        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+    }
+    if (ImGui::Button("Upload Settings")) {
+        std::thread pinAssigmentUploader([this]() { uploadPinAssignements(); });
+        pinAssigmentUploader.detach();
+    }
+    if (disableTransferButton) {
+        ImGui::PopItemFlag();
+        ImGui::PopStyleColor();
+    }
+    ImGui::SameLine();
+    ImGui::Text(getDataTransferState(pinAssignementUploadState)->displayName);
 }
-
-
-
 
 
 
@@ -354,6 +433,19 @@ void Lexium32::encoderGui() {
     ImGui::PushFont(Fonts::robotoBold20);
     ImGui::Text("Encoder Settings");
     ImGui::PopFont();
+
+    ImGui::TextWrapped("All Encoder settings are stored in the drive."
+                        "\nFor the settings to take effect, the drive has to be restared. "
+                        "\nChanging these settings will invalidate all current position references of the corresponding axis, homing procedures will need to be reexecuted.");
+
+    if (ImGui::Button("Download Settings From Drive")) {
+        std::thread encoderSettingsDownloader([this]() { downloadEncoderSettings(); });
+        encoderSettingsDownloader.detach();
+    }
+    ImGui::SameLine();
+    ImGui::Text(getDataTransferState(encoderSettingsDownloadState)->displayName);
+
+    ImGui::Separator();
 
     ImGui::Text("Main Encoder used for absolute positionning:");
     if (ImGui::BeginCombo("##encoderAssignement", getEncoderAssignement(encoderAssignement)->displayName)) {
@@ -374,7 +466,7 @@ void Lexium32::encoderGui() {
         ImGui::PushFont(Fonts::robotoBold20);
         ImGui::Text("Internal Encoder");
         ImGui::PopFont();
-        ImGui::TextWrapped("No Settings are available for the internal motor encoder.");
+        ImGui::TextWrapped("The Resolution of the internal motor encoder is 17 bits singleturn, 12 bits multiturn.");
 
     }
     else if (encoderAssignement == EncoderAssignement::Type::ENCODER_MODULE) {
@@ -471,8 +563,18 @@ void Lexium32::encoderGui() {
             disableEncoderUploadButton = true;
             break;
         }
-
     }
+
+    ImGui::Spacing();
+    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::Text("Shift Encoder Working Range");
+    ImGui::PopFont();
+    ImGui::Checkbox("##shifting", &b_encoderRangeShifted);
+    ImGui::SameLine();
+    ImGui::TextWrapped("Center the encoder working range around 0.");
+    float low, high;
+    getEncoderWorkingRange(low, high);
+    ImGui::Text("Working Range : %.1f to %.1f motor revolutions", low, high);
 
     if (disableEncoderUploadButton) {
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
@@ -500,6 +602,9 @@ void Lexium32::encoderGui() {
     ImGui::Text("Manual Absolute Position setting");
     ImGui::PopFont();
 
+    ImGui::TextWrapped("Overwrite the absolute position of the current encoder."
+        "\nUseful to get the encoder back into its working range and prevent it from exceeding it during normal operation.");
+
     ImGui::PushFont(Fonts::robotoBold15);
     switch(encoderAssignement) {
         case EncoderAssignement::Type::INTERNAL_ENCODER:
@@ -512,35 +617,14 @@ void Lexium32::encoderGui() {
     ImGui::PopFont();
     ImGui::InputFloat("##manualabsolute", &manualAbsoluteEncoderPosition_revolutions, 0.0, 0.0, "%.3f motor revolutions");
 
-    if (ImGui::IsItemHovered()) {
-        ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
-        ImGui::BeginTooltip();
-        ImGui::TextWrapped("Overwrites the absolute position of the current encoder."
-            "\nUseful to get the encoder back into its working range and prevent it from exceeding it during normal operation.");
-        ImGui::EndTooltip();
-    }
 
     ImGui::Spacing();
-    ImGui::PushFont(Fonts::robotoBold15);
-    ImGui::Text("Shift Encoder Working Range");
-    ImGui::PopFont();
-    ImGui::Checkbox("##shifting", &b_encoderRangeShifted);
-    ImGui::SameLine();
-    ImGui::TextWrapped("Center the encoder working range around 0.");
-    float low, high;
-    getEncoderWorkingRange(low, high);
-    ImGui::Text("Current Working Range is %.1f to %.1f motor revolutions", low, high);
-
-    ImGui::Spacing();
-    ImGui::TextWrapped("The Drive has to be restarted after assigning a new absolute position or working range. "
-        "Overwriting these settings will invalidate all current position references of the corresponding axis.");
-    if (ImGui::Button("Upload Absolute Position Settings")) {
+    if (ImGui::Button("Upload New Absolute Position")) {
         std::thread absolutePositionAssigner([this]() { setManualAbsoluteEncoderPosition(); });
         absolutePositionAssigner.detach();
     }
     ImGui::SameLine();
     ImGui::Text(getDataTransferState(encoderAbsolutePositionTransferState)->displayName);
-
 }
 
 

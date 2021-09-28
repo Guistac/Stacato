@@ -87,12 +87,6 @@ public:
     float manualVelocityCommand_rpm = 0;
     float manualAcceleration_rps2 = 50.0;
 
-    //===== Drive Settings =====
-
-    double maxVelocity_rpm = 5000.0;
-    double maxAcceleration_rps2 = 100.0;
-    double maxCurrent_amps = 5.0;
-
     //===== Unit Settings =====
 
     const int velocityUnitsPerRpm = 100;
@@ -116,33 +110,53 @@ public:
     static std::vector<DataTransferState> dataTransferStates;
     DataTransferState* getDataTransferState(DataTransferState::State s);
 
-    DataTransferState::State maxCurrentParameterTransferState = DataTransferState::State::NO_TRANSFER;
-    void uploadMaxCurrentParameters();
-    DataTransferState::State pinAssignementParameterTransferState = DataTransferState::State::NO_TRANSFER;
-    void uploadPinAssignementParameters();
+    //===== General Settings =====
 
-    //===== Limit Switch Assignement ======
+    double maxVelocity_rpm = 5000.0;     //not stored in drive
+    double maxAcceleration_rps2 = 100.0; //not stored in drive
 
-    struct InputPinFunction {
-        enum class Type {
-            UNASSIGNED,
-            NEGATIVE_LIMIT,
-            POSITIVE_LIMIT
+    bool b_invertDirectionOfMotorMovement = false;
+
+    double maxCurrent_amps = 5.0;
+    double maxQuickstopCurrent_amps = 9.0;
+
+    void uploadGeneralParameters();
+    DataTransferState::State generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
+    void downloadGeneralParameters();
+    DataTransferState::State generalParameterDownloadState = DataTransferState::State::NO_TRANSFER;
+
+    //===== GPIO settings ======
+
+    struct InputPin {
+        enum class Pin {
+            DI0,
+            DI1,
+            DI2,
+            DI3,
+            DI4,
+            DI5,
+            NONE
         };
-        Type type;
+        Pin pin;
+        uint8_t CoeSubindex;
         const char displayName[64];
         const char saveName[64];
     };
-    static std::vector<InputPinFunction> inputPinFunctions;
-    static InputPinFunction* getInputPinFunction(const char* saveName);
-    static InputPinFunction* getInputPinFunction(InputPinFunction::Type type);
+    static std::vector<InputPin> inputPins;
+    static std::vector<InputPin>& getInputPins();
+    static InputPin* getInputPin(const char* saveName);
+    static InputPin* getInputPin(InputPin::Pin pin);
+    static InputPin* getInputPin(uint8_t coeSubindex);
 
-    InputPinFunction::Type inputPin0Function = InputPinFunction::Type::UNASSIGNED;
-    InputPinFunction::Type inputPin1Function = InputPinFunction::Type::UNASSIGNED;
-    InputPinFunction::Type inputPin2Function = InputPinFunction::Type::UNASSIGNED;
-    InputPinFunction::Type inputPin3Function = InputPinFunction::Type::UNASSIGNED;
-    InputPinFunction::Type inputPin4Function = InputPinFunction::Type::UNASSIGNED;
-    InputPinFunction::Type inputPin5Function = InputPinFunction::Type::UNASSIGNED;
+    InputPin::Pin negativeLimitSwitchPin = InputPin::Pin::NONE;
+    bool b_negativeLimitSwitchNormallyClosed = false;
+    InputPin::Pin positiveLimitSwitchPin = InputPin::Pin::NONE;
+    bool b_positiveLimitSwitchNormallyClosed = false;
+
+    void uploadPinAssignements();
+    DataTransferState::State pinAssignementUploadState = DataTransferState::State::NO_TRANSFER;
+    void downloadPinAssignements();
+    DataTransferState::State pinAssignementDownloadState = DataTransferState::State::NO_TRANSFER;
 
     //===== Encoder Settings =====
 
@@ -152,12 +166,14 @@ public:
             ENCODER_MODULE
         };
         Type type;
+        uint16_t CoeData;
         const char displayName[64];
         const char saveName[64];
     };
     static std::vector<EncoderAssignement> encoderAssignements;
     static EncoderAssignement* getEncoderAssignement(const char* saveName);
     static EncoderAssignement* getEncoderAssignement(EncoderAssignement::Type assignementType);
+    static EncoderAssignement* getEncoderAssignement(uint16_t CoeData);
     EncoderAssignement::Type encoderAssignement = EncoderAssignement::Type::INTERNAL_ENCODER;
 
     struct EncoderModule {
@@ -168,13 +184,16 @@ public:
             NONE
         };
         Type type;
+        uint16_t CoeData;
         const char displayName[64];
         const char saveName[64];
     };
     static std::vector<EncoderModule> encoderModules;
     static EncoderModule* getEncoderModule(const char* saveName);
     static EncoderModule* getEncoderModule(EncoderModule::Type moduleType);
+    static EncoderModule* getEncoderModule(uint16_t CoeData);
     EncoderModule::Type encoderModuleType = EncoderModule::Type::NONE;
+    void detectEncoderModule();
 
     struct EncoderType {
         enum class Type {
@@ -182,12 +201,14 @@ public:
             SSI_ROTARY
         };
         Type type;
+        uint16_t CoeData;
         const char displayName[64];
         const char saveName[64];
     };
     static std::vector<EncoderType> encoderTypes;
     static EncoderType* getEncoderType(const char* saveName);
     static EncoderType* getEncoderType(EncoderType::Type moduleType);
+    static EncoderType* getEncoderType(uint16_t CoeData);
     EncoderType::Type encoderType = EncoderType::Type::NONE;
 
     struct EncoderCoding {
@@ -196,12 +217,14 @@ public:
             GRAY
         };
         Type type;
+        uint16_t CoeData;
         const char displayName[64];
         const char saveName[64];
     };
     static std::vector<EncoderCoding> encoderCodings;
     static EncoderCoding* getEncoderCoding(const char* saveName);
     static EncoderCoding* getEncoderCoding(EncoderCoding::Type encodingType);
+    static EncoderCoding* getEncoderCoding(uint16_t CoeData);
     EncoderCoding::Type encoderCoding = EncoderCoding::Type::BINARY;
 
     struct EncoderVoltage {
@@ -210,12 +233,14 @@ public:
             V12
         };
         Voltage voltage;
+        uint16_t CoeData;
         const char displayName[64];
         const char saveName[64];
     };
     static std::vector<EncoderVoltage> encoderVoltages;
     static EncoderVoltage* getEncoderVoltage(const char* saveName);
     static EncoderVoltage* getEncoderVoltage(EncoderVoltage::Voltage v);
+    static EncoderVoltage* getEncoderVoltage(uint16_t CoeData);
     EncoderVoltage::Voltage encoderVoltage = EncoderVoltage::Voltage::V12;
 
     uint32_t encoder1_singleTurnResolutionBits = 17;
@@ -228,13 +253,40 @@ public:
     float encoder2_maxDifferenceToMotorEncoder_rotations = 0.5;
 
     void setEncoderSettings();
-    void detectEncoderModule();
-    void setManualAbsoluteEncoderPosition();
-    void getEncoderWorkingRange(float& low, float& high);
+    DataTransferState::State encoderSettingsTransferState = DataTransferState::State::NO_TRANSFER;
+    void downloadEncoderSettings();
+    DataTransferState::State encoderSettingsDownloadState = DataTransferState::State::NO_TRANSFER;
+
     float manualAbsoluteEncoderPosition_revolutions = 0.0;
     bool b_encoderRangeShifted = false;
-    DataTransferState::State encoderSettingsTransferState = DataTransferState::State::NO_TRANSFER;
+    void setManualAbsoluteEncoderPosition();
     DataTransferState::State encoderAbsolutePositionTransferState = DataTransferState::State::NO_TRANSFER;
+
+    void getEncoderWorkingRange(float& low, float& high);
+
+    //====== AUTO TUNING ========
+
+    std::thread autoTuningHandler;
+    void startAutoTuning();
+    void stopAutoTuning();
+    bool isAutoTuning() { return b_isAutoTuning; }
+    bool b_isAutoTuning = false;
+    bool b_autoTuningSucceeded = false;
+    float tuningProgress = 0.0;
+    DataTransferState::State autoTuningSaveState = DataTransferState::State::NO_TRANSFER;
+    float tuning_frictionTorque_amperes = 0.0;
+    float tuning_constantLoadTorque_amperes = 0.0;
+    float tuning_momentOfInertia_kilogramcentimeter2 = 0.0;
+
+    //======== Other Settings =========
+
+    bool saveToEEPROM();
+
+    void factoryReset();
+    DataTransferState::State factoryResetTransferState = DataTransferState::State::NO_TRANSFER;
+
+    void setStationAlias(uint16_t a);
+    DataTransferState::State stationAliasUploadState = DataTransferState::State::NO_TRANSFER;
 
     //===== Drive Status Flags ======
 
@@ -317,30 +369,10 @@ private:
     bool b_halted = false;
     bool opModeSpec9 = false;
 
-    
-    std::thread autoTuningHandler;
-    void startAutoTuning();
-    void stopAutoTuning();
-    bool isAutoTuning() { return b_isAutoTuning; }
-    bool b_isAutoTuning = false;
-    bool b_autoTuningSucceeded = false;
-    float tuningProgress = 0.0;
-    DataTransferState::State autoTuningSaveState = DataTransferState::State::NO_TRANSFER;
-    float tuning_frictionTorque_amperes = 0.0;
-    float tuning_constantLoadTorque_amperes = 0.0;
-    float tuning_momentOfInertia_kilogramcentimeter2 = 0.0;
-
-    bool saveToEEPROM();
-    
-    void factoryReset();
-    DataTransferState::State factoryResetTransferState = DataTransferState::State::NO_TRANSFER;
-
-    void setStationAlias(uint16_t a);
-    DataTransferState::State stationAliasUploadState = DataTransferState::State::NO_TRANSFER;
-
     void statusGui();
     void controlsGui();
-    void limitsGui();
+    void generalGui();
+    void gpioGui();
     void encoderGui();
     void tuningGui();
     void miscellaneousGui();
