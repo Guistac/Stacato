@@ -9,7 +9,8 @@ std::vector<EtherCatData> dataTypes = {
 	{EtherCatData::Type::UINT32_T,	"uint32_t", "UINT32_T"},
 	{EtherCatData::Type::INT32_T,	"int32_t",	"INT32_T"},
 	{EtherCatData::Type::UINT64_T,	"uint64_t", "UINT64_T"},
-	{EtherCatData::Type::INT64_T,	"int64_t",	"INT64_T"}
+	{EtherCatData::Type::INT64_T,	"int64_t",	"INT64_T"},
+	{EtherCatData::Type::NONE,		"none",		"NONE"}
 };
 
 std::vector<DataFormat> dataRepresentations = {
@@ -37,6 +38,7 @@ bool EtherCatCoeData::write(uint16_t slaveIndex) {
 			return 1 == ec_SDOwrite(slaveIndex, index, subindex, false, 8, &u64, EC_TIMEOUTSAFE);
 		case EtherCatData::Type::INT64_T:
 			return 1 == ec_SDOwrite(slaveIndex, index, subindex, false, 8, &s64, EC_TIMEOUTSAFE);
+		case EtherCatData::Type::NONE: return false;
 	}
 }
 
@@ -67,6 +69,7 @@ bool EtherCatCoeData::read(uint16_t slaveIndex) {
 		case EtherCatData::Type::INT64_T:
 			size = 8;
 			return 1 == ec_SDOread(slaveIndex, index, subindex, false, &size, &s64, EC_TIMEOUTSAFE);
+		case EtherCatData::Type::NONE: return false;
 	}
 }
 
@@ -89,6 +92,7 @@ bool EtherCatRegisterData::write(uint16_t slaveAddress) {
 			return 1 == ec_FPWR(slaveAddress, registerAddress, 8, &u64, EC_TIMEOUTSAFE);
 		case EtherCatData::Type::INT64_T:		
 			return 1 == ec_FPWR(slaveAddress, registerAddress, 8, &s64, EC_TIMEOUTSAFE);
+		case EtherCatData::Type::NONE: return false;
 	}
 }
 
@@ -110,6 +114,7 @@ bool EtherCatRegisterData::read(uint16_t slaveAddress) {
 			return 1 == ec_FPRD(slaveAddress, registerAddress, 8, &u64, EC_TIMEOUTSAFE);
 		case EtherCatData::Type::INT64_T:	   				   
 			return 1 == ec_FPRD(slaveAddress, registerAddress, 8, &s64, EC_TIMEOUTSAFE);
+		case EtherCatData::Type::NONE: return false;
 	}
 }
 

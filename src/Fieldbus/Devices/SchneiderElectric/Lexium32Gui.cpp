@@ -582,7 +582,7 @@ void Lexium32::encoderGui() {
     }
     if (ImGui::Button("Upload Encoder Settings")) {
         std::thread encoderSettingsUploader([this]() {
-            setEncoderSettings();
+            uploadEncoderSettings();
         });
         encoderSettingsUploader.detach();
     }
@@ -591,7 +591,7 @@ void Lexium32::encoderGui() {
         ImGui::PopStyleColor();
     }
     ImGui::SameLine();
-    ImGui::Text(getDataTransferState(encoderSettingsTransferState)->displayName);
+    ImGui::Text(getDataTransferState(encoderSettingsUploadState)->displayName);
 
     ImGui::Separator();
 
@@ -620,11 +620,11 @@ void Lexium32::encoderGui() {
 
     ImGui::Spacing();
     if (ImGui::Button("Upload New Absolute Position")) {
-        std::thread absolutePositionAssigner([this]() { setManualAbsoluteEncoderPosition(); });
+        std::thread absolutePositionAssigner([this]() { uploadManualAbsoluteEncoderPosition(); });
         absolutePositionAssigner.detach();
     }
     ImGui::SameLine();
-    ImGui::Text(getDataTransferState(encoderAbsolutePositionTransferState)->displayName);
+    ImGui::Text(getDataTransferState(encoderAbsolutePositionUploadState)->displayName);
 }
 
 

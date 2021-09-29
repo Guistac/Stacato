@@ -11,7 +11,8 @@ struct EtherCatData {
 		UINT32_T,
 		INT32_T,
 		UINT64_T,
-		INT64_T
+		INT64_T,
+		NONE
 	};
 	Type type;
 	const char displayName[64];
@@ -35,6 +36,18 @@ extern std::vector<DataFormat> dataRepresentations;
 
 class EtherCatBaseData {
 public:
+
+	EtherCatBaseData() {
+		sprintf(name, "");
+		dataType = EtherCatData::Type::NONE;
+		dataFormat = DataFormat::DECIMAL;
+	}
+
+	EtherCatBaseData(EtherCatData::Type t) {
+		sprintf(name, "");
+		dataType = t;
+		dataFormat = DataFormat::DECIMAL;
+	}
 
 	EtherCatBaseData(const char* n, EtherCatData::Type t, DataFormat::Type r) {
 		sprintf(name, n);
@@ -83,14 +96,14 @@ public:
 	bool dataTypeSelectorGui();
 	void dataFormatSelectorGui();
 
-	void set(uint8_t val) { u8 = val; }
-	void set(int8_t val) { s8 = val; }
-	void set(uint16_t val) { u16 = val; }
-	void set(int16_t val) { s16 = val; }
-	void set(uint32_t val) { u32 = val; }
-	void set(int32_t val) { s32 = val; }
-	void set(uint64_t val) { u64 = val; }
-	void set(int64_t val) { s64 = val; }
+	void setU8(uint8_t val)		{ u8 = val;		dataType = EtherCatData::Type::UINT8_T; }
+	void setS8(int8_t val)		{ s8 = val;		dataType = EtherCatData::Type::INT8_T; }
+	void setU16(uint16_t val)	{ u16 = val;	dataType = EtherCatData::Type::UINT16_T; }
+	void setS16(int16_t val)	{ s16 = val;	dataType = EtherCatData::Type::INT16_T; }
+	void setU32(uint32_t val)	{ u32 = val;	dataType = EtherCatData::Type::UINT32_T; }
+	void setS32(int32_t val)	{ s32 = val;	dataType = EtherCatData::Type::INT32_T; }
+	void setU64(uint64_t val)	{ u64 = val;	dataType = EtherCatData::Type::UINT64_T; }
+	void setS64(int64_t val)	{ s64 = val;	dataType = EtherCatData::Type::INT64_T;	}
 
 	uint8_t getU8() { return u8; }
 	int8_t getS8() { return s8; }
@@ -115,12 +128,17 @@ public:
 class EtherCatCoeData : public EtherCatBaseData {
 public:
 
-	EtherCatCoeData(const char* name, uint16_t idx, uint8_t sidx, EtherCatData::Type type, DataFormat::Type r) : EtherCatBaseData(name, type, r){
+	EtherCatCoeData(uint16_t idx, uint8_t sidx) : EtherCatBaseData(){
 		index = idx;
 		subindex = sidx;
 	}
 
-	EtherCatCoeData(uint16_t idx, uint8_t sidx, EtherCatData::Type type) : EtherCatBaseData("", type, DataFormat::Type::HEXADECIMAL) {
+	EtherCatCoeData(uint16_t idx, uint8_t sidx, EtherCatData::Type t) : EtherCatBaseData(t) {
+		index = idx;
+		subindex = sidx;
+	}
+
+	EtherCatCoeData(const char* name, uint16_t idx, uint8_t sidx, EtherCatData::Type t, DataFormat::Type r) : EtherCatBaseData(name, t, r) {
 		index = idx;
 		subindex = sidx;
 	}
@@ -140,7 +158,7 @@ public:
 class EtherCatRegisterData : public EtherCatBaseData {
 public:
 
-	EtherCatRegisterData(const char* name, uint16_t reg, EtherCatData::Type type, DataFormat::Type r) : EtherCatBaseData(name, type, r) {
+	EtherCatRegisterData(const char* name, uint16_t reg, EtherCatData::Type t, DataFormat::Type r) : EtherCatBaseData(name, t, r) {
 		registerAddress = reg;
 	}
 
@@ -155,7 +173,7 @@ public:
 
 class EtherCatEepromData : public EtherCatBaseData {
 public:
-	EtherCatEepromData(const char* name, uint16_t a, DataFormat::Type r) : EtherCatBaseData(name, EtherCatData::Type::UINT32_T, r) {
+	EtherCatEepromData(const char* name, uint16_t a, DataFormat::Type r) : EtherCatBaseData(name, EtherCatData::Type::UINT16_T, r) {
 		address = a;
 	}
 

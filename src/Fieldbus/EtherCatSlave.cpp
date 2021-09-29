@@ -162,92 +162,117 @@ void EtherCatSlave::clearEventList() {
 
 //===== Reading SDO Data
 
-bool EtherCatSlave::readSDO(uint16_t index, uint8_t subindex, uint8_t& data) {
-    int size = 1;
-    for (int i = 0; i < maxSdoReadAttempts; i++) if (ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
+bool EtherCatSlave::readSDO_U8(uint16_t index, uint8_t subindex, uint8_t& data) {
+    EtherCatCoeData CoE_U8(index, subindex, EtherCatData::Type::UINT8_T);
+    if (CoE_U8.read(getSlaveIndex())) {
+        data = CoE_U8.getU8();
+        return true;
+    } else return false;
+}
+bool EtherCatSlave::readSDO_S8(uint16_t index, uint8_t subindex, int8_t& data) {
+    EtherCatCoeData CoE_S8(index, subindex, EtherCatData::Type::INT8_T);
+    if (CoE_S8.read(getSlaveIndex())) {
+        data = CoE_S8.getS8();
+        return true;
+    } else return false;
 }
 
-bool EtherCatSlave::readSDO(uint16_t index, uint8_t subindex, int8_t& data) {
-    int size = 1;
-    for (int i = 0; i < maxSdoReadAttempts; i++) if (ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
+bool EtherCatSlave::readSDO_U16(uint16_t index, uint8_t subindex, uint16_t& data) {
+    EtherCatCoeData CoE_U16(index, subindex, EtherCatData::Type::UINT16_T);
+    if (CoE_U16.read(getSlaveIndex())) {
+        data = CoE_U16.getU16();
+        return true;
+    } else return false;
 }
 
-bool EtherCatSlave::readSDO(uint16_t index, uint8_t subindex, uint16_t& data) {
-    int size = 2;
-    for (int i = 0; i < maxSdoReadAttempts; i++) if (ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
+bool EtherCatSlave::readSDO_S16(uint16_t index, uint8_t subindex, int16_t& data) {
+    EtherCatCoeData CoE_S16(index, subindex, EtherCatData::Type::INT16_T);
+    if (CoE_S16.read(getSlaveIndex())) {
+        data = CoE_S16.getS16();
+        return true;
+    } else return false;
 }
 
-bool EtherCatSlave::readSDO(uint16_t index, uint8_t subindex, int16_t& data) {
-    int size = 2;
-    for (int i = 0; i < maxSdoReadAttempts; i++) if (ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
+bool EtherCatSlave::readSDO_U32(uint16_t index, uint8_t subindex, uint32_t& data) {
+    EtherCatCoeData CoE_U32(index, subindex, EtherCatData::Type::UINT32_T);
+    if (CoE_U32.read(getSlaveIndex())) {
+        data = CoE_U32.getU32();
+        return true;
+    }
+    else return false;
 }
 
-bool EtherCatSlave::readSDO(uint16_t index, uint8_t subindex, uint32_t& data) {
-    int size = 4;
-    for (int i = 0; i < maxSdoReadAttempts; i++) if (ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
+bool EtherCatSlave::readSDO_S32(uint16_t index, uint8_t subindex, int32_t& data) {
+    EtherCatCoeData CoE_S32(index, subindex, EtherCatData::Type::INT32_T);
+    if (CoE_S32.read(getSlaveIndex())) {
+        data = CoE_S32.getS32();
+        return true;
+    } else return false;
 }
 
-bool EtherCatSlave::readSDO(uint16_t index, uint8_t subindex, int32_t& data) {
-    int size = 4;
-    for (int i = 0; i < maxSdoReadAttempts; i++) if (ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
+bool EtherCatSlave::readSDO_U64(uint16_t index, uint8_t subindex, uint64_t& data) {
+    EtherCatCoeData CoE_U64(index, subindex, EtherCatData::Type::UINT64_T);
+    if (CoE_U64.read(getSlaveIndex())) {
+        data = CoE_U64.getU64();
+        return true;
+    } else return false;
 }
 
-bool EtherCatSlave::readSDO(uint16_t index, uint8_t subindex, uint64_t& data) {
-    int size = 8;
-    for (int i = 0; i < maxSdoReadAttempts; i++) if (ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
-}
-
-bool EtherCatSlave::readSDO(uint16_t index, uint8_t subindex, int64_t& data) {
-    int size = 8;
-    for (int i = 0; i < maxSdoReadAttempts; i++) if (ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
+bool EtherCatSlave::readSDO_S64(uint16_t index, uint8_t subindex, int64_t& data) {
+    EtherCatCoeData CoE_S64(index, subindex, EtherCatData::Type::INT64_T);
+    if (CoE_S64.read(getSlaveIndex())) {
+        data = CoE_S64.getS64();
+        return true;
+    } else return false;
 }
 
 //===== Writing SDO Data
 
-bool EtherCatSlave::writeSDO(uint16_t index, uint8_t subindex, uint8_t& data) {
-    for (int i = 0; i < maxSdoWriteAttemps; i++) if (ec_SDOwrite(slaveIndex, index, subindex, false, 1, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
+bool EtherCatSlave::writeSDO_U8(uint16_t index, uint8_t subindex, const uint8_t& data) {
+    EtherCatCoeData CoE_U8(index, subindex);
+    CoE_U8.setU8(data);
+    return CoE_U8.write(getSlaveIndex());
 }
 
-bool EtherCatSlave::writeSDO(uint16_t index, uint8_t subindex, int8_t data) {
-    for (int i = 0; i < maxSdoWriteAttemps; i++) if (ec_SDOwrite(slaveIndex, index, subindex, false, 1, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
+bool EtherCatSlave::writeSDO_S8(uint16_t index, uint8_t subindex, const int8_t& data) {
+    EtherCatCoeData CoE_S8(index, subindex);
+    CoE_S8.setS8(data);
+    return CoE_S8.write(getSlaveIndex());
 }
 
-bool EtherCatSlave::writeSDO(uint16_t index, uint8_t subindex, uint16_t data) {
-    for (int i = 0; i < maxSdoWriteAttemps; i++) if (ec_SDOwrite(slaveIndex, index, subindex, false, 2, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
+bool EtherCatSlave::writeSDO_U16(uint16_t index, uint8_t subindex, const uint16_t& data) {
+    EtherCatCoeData CoE_U16(index, subindex);
+    CoE_U16.setU16(data);
+    return CoE_U16.write(getSlaveIndex());
 }
 
-bool EtherCatSlave::writeSDO(uint16_t index, uint8_t subindex, int16_t data) {
-    for (int i = 0; i < maxSdoWriteAttemps; i++) if (ec_SDOwrite(slaveIndex, index, subindex, false, 2, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
+bool EtherCatSlave::writeSDO_S16(uint16_t index, uint8_t subindex, const int16_t& data) {
+    EtherCatCoeData CoE_S16(index, subindex);
+    CoE_S16.setS16(data);
+    return CoE_S16.write(getSlaveIndex());
 }
 
-bool EtherCatSlave::writeSDO(uint16_t index, uint8_t subindex, uint32_t data) {
-    for (int i = 0; i < maxSdoWriteAttemps; i++) if (ec_SDOwrite(slaveIndex, index, subindex, false, 4, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
+bool EtherCatSlave::writeSDO_U32(uint16_t index, uint8_t subindex, const uint32_t& data) {
+    EtherCatCoeData CoE_U32(index, subindex);
+    CoE_U32.setU32(data);
+    return CoE_U32.write(getSlaveIndex());
 }
 
-bool EtherCatSlave::writeSDO(uint16_t index, uint8_t subindex, int32_t data) {
-    for (int i = 0; i < maxSdoWriteAttemps; i++) if (ec_SDOwrite(slaveIndex, index, subindex, false, 4, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
+bool EtherCatSlave::writeSDO_S32(uint16_t index, uint8_t subindex, const int32_t& data) {
+    EtherCatCoeData CoE_S32(index, subindex);
+    CoE_S32.setS32(data);
+    return CoE_S32.write(getSlaveIndex());
 }
 
-bool EtherCatSlave::writeSDO(uint16_t index, uint8_t subindex, uint64_t data) {
-    for (int i = 0; i < maxSdoWriteAttemps; i++) if (ec_SDOwrite(slaveIndex, index, subindex, false, 8, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
+bool EtherCatSlave::writeSDO_U64(uint16_t index, uint8_t subindex, const uint64_t& data) {
+    EtherCatCoeData CoE_U64(index, subindex);
+    CoE_U64.setU64(data);
+    return CoE_U64.write(getSlaveIndex());
 }
 
-bool EtherCatSlave::writeSDO(uint16_t index, uint8_t subindex, int64_t data) {
-    for (int i = 0; i < maxSdoWriteAttemps; i++) if (ec_SDOwrite(slaveIndex, index, subindex, false, 8, &data, EC_TIMEOUTSAFE) == 1) return true;
-    return false;
+bool EtherCatSlave::writeSDO_S64(uint16_t index, uint8_t subindex, const int64_t& data) {
+    EtherCatCoeData CoE_S64(index, subindex);
+    CoE_S64.setS64(data);
+    return CoE_S64.write(getSlaveIndex());
 }
+

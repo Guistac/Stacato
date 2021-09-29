@@ -8,8 +8,6 @@ public:
 
     SLAVE_DEFINITION(Lexium32, "LXM32M EtherCAT", "Schneider Electric", "Servo Drives")
 
-    //fieldbus commands
-    bool setStartupParameters();
     void reset();
 
     //===== drive status =====
@@ -29,7 +27,7 @@ public:
 
     const char* getStateChar() {
         switch (state) {
-            case State::NotReadyToSwitchOn: return "Not Ready To Switch On";
+            case State::NotReadyToSwitchOn: return "Restart Needed";
             case State::SwitchOnDisabled: return "Switch On Disabled";
             case State::ReadyToSwitchOn: return "Ready To Switch On";
             case State::SwitchedOn: return "Switched On";
@@ -251,16 +249,16 @@ public:
     int encoder2_perMotorRevolutions = 1;   //-> per integer amount of motor revolutions
     bool encoder2_invertDirection = false;
     float encoder2_maxDifferenceToMotorEncoder_rotations = 0.5;
+    bool b_encoderRangeShifted = false;
 
-    void setEncoderSettings();
-    DataTransferState::State encoderSettingsTransferState = DataTransferState::State::NO_TRANSFER;
+    void uploadEncoderSettings();
+    DataTransferState::State encoderSettingsUploadState = DataTransferState::State::NO_TRANSFER;
     void downloadEncoderSettings();
     DataTransferState::State encoderSettingsDownloadState = DataTransferState::State::NO_TRANSFER;
 
     float manualAbsoluteEncoderPosition_revolutions = 0.0;
-    bool b_encoderRangeShifted = false;
-    void setManualAbsoluteEncoderPosition();
-    DataTransferState::State encoderAbsolutePositionTransferState = DataTransferState::State::NO_TRANSFER;
+    void uploadManualAbsoluteEncoderPosition();
+    DataTransferState::State encoderAbsolutePositionUploadState = DataTransferState::State::NO_TRANSFER;
 
     void getEncoderWorkingRange(float& low, float& high);
 
@@ -273,10 +271,10 @@ public:
     bool b_isAutoTuning = false;
     bool b_autoTuningSucceeded = false;
     float tuningProgress = 0.0;
-    DataTransferState::State autoTuningSaveState = DataTransferState::State::NO_TRANSFER;
     float tuning_frictionTorque_amperes = 0.0;
     float tuning_constantLoadTorque_amperes = 0.0;
     float tuning_momentOfInertia_kilogramcentimeter2 = 0.0;
+    DataTransferState::State autoTuningSaveState = DataTransferState::State::NO_TRANSFER;
 
     //======== Other Settings =========
 
@@ -369,6 +367,8 @@ private:
     bool b_halted = false;
     bool opModeSpec9 = false;
 
+
+    //Lexium GUI functions
     void statusGui();
     void controlsGui();
     void generalGui();

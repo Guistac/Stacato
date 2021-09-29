@@ -187,22 +187,22 @@ public:
     int maxSdoReadAttempts = 4;
     int maxSdoWriteAttemps = 4;
 
-    bool readSDO(uint16_t index, uint8_t subindex, uint8_t& data);
-    bool readSDO(uint16_t index, uint8_t subindex, int8_t& data);
-    bool readSDO(uint16_t index, uint8_t subindex, uint16_t& data);
-    bool readSDO(uint16_t index, uint8_t subindex, int16_t& data);
-    bool readSDO(uint16_t index, uint8_t subindex, uint32_t& data);
-    bool readSDO(uint16_t index, uint8_t subindex, int32_t& data);
-    bool readSDO(uint16_t index, uint8_t subindex, uint64_t& data);
-    bool readSDO(uint16_t index, uint8_t subindex, int64_t& data);
+    bool readSDO_U8(uint16_t index, uint8_t subindex, uint8_t& data);
+    bool readSDO_S8(uint16_t index, uint8_t subindex, int8_t& data);
+    bool readSDO_U16(uint16_t index, uint8_t subindex, uint16_t& data);
+    bool readSDO_S16(uint16_t index, uint8_t subindex, int16_t& data);
+    bool readSDO_U32(uint16_t index, uint8_t subindex, uint32_t& data);
+    bool readSDO_S32(uint16_t index, uint8_t subindex, int32_t& data);
+    bool readSDO_U64(uint16_t index, uint8_t subindex, uint64_t& data);
+    bool readSDO_S64(uint16_t index, uint8_t subindex, int64_t& data);
 
-    bool writeSDO(uint16_t index, uint8_t subindex, uint8_t& data);
-    bool writeSDO(uint16_t index, uint8_t subindex, int8_t data);
-    bool writeSDO(uint16_t index, uint8_t subindex, uint16_t data);
-    bool writeSDO(uint16_t index, uint8_t subindex, int16_t data);
-    bool writeSDO(uint16_t index, uint8_t subindex, uint32_t data);
-    bool writeSDO(uint16_t index, uint8_t subindex, int32_t data);
-    bool writeSDO(uint16_t index, uint8_t subindex, uint64_t data);
-    bool writeSDO(uint16_t index, uint8_t subindex, int64_t data);
+    bool writeSDO_U8(uint16_t index, uint8_t subindex, const uint8_t& data);
+    bool writeSDO_S8(uint16_t index, uint8_t subindex, const int8_t& data);
+    bool writeSDO_U16(uint16_t index, uint8_t subindex, const uint16_t& data);
+    bool writeSDO_S16(uint16_t index, uint8_t subindex, const int16_t& data);
+    bool writeSDO_U32(uint16_t index, uint8_t subindex, const uint32_t& data);
+    bool writeSDO_S32(uint16_t index, uint8_t subindex, const int32_t& data);
+    bool writeSDO_U64(uint16_t index, uint8_t subindex, const uint64_t& data);
+    bool writeSDO_S64(uint16_t index, uint8_t subindex, const int64_t& data);
 
 };
