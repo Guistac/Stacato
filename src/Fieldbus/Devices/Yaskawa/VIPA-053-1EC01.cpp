@@ -53,6 +53,61 @@ void VIPA_053_1EC01::assignIoData() {
 
 bool VIPA_053_1EC01::startupConfiguration() {
 
+
+    std::vector<uint16_t> inputModules;
+    std::vector<uint16_t> outputModules;
+
+    for (int i = 0; i < 64; i++) {
+        uint16_t inputModuleIndex = 0x6000 + i;
+        uint16_t outputModuleIndex = 0x7000 + i;
+        uint16_t parameterIndex = 0x3100 + i;
+        bool hasOutput = false;
+        bool hasInput = false;
+        bool hasParameter = false;
+        uint8_t inputDataSize;
+        if (readSDO_U8(inputModuleIndex, 0x0, inputDataSize)) {
+            hasInput = true;
+            inputModules.push_back(0x1A00 + i);
+            Logger::warn("Input Data: {:X} size: {}", inputModuleIndex, inputDataSize);
+        }
+        uint8_t outputDataSize;
+        if (readSDO_U8(outputModuleIndex, 0x0, outputDataSize)) {
+            hasOutput = true;
+            outputModules.push_back(0x1600 + i);
+            Logger::warn("Output Data: {:X} size: {}", outputModuleIndex, outputDataSize);
+        }
+        uint8_t parameterDataSize;
+        if (readSDO_U8(parameterIndex, 0x0, parameterDataSize)) {
+            hasParameter = true;
+            Logger::warn("Parameter Data: {:X} size: {}", parameterIndex, parameterDataSize);
+        }
+        if (!hasInput && !hasOutput) break;
+    }
+
+
+    
+    uint16_t RxPDO = 0x1C12;
+    if(!writeSDO_U8(RxPDO, 0x0, 0)) return false; //disable Sync Manager
+    uint8_t RxPDOmoduleCount = 0;
+    for (uint16_t outputModuleIndex : outputModules) {
+        RxPDOmoduleCount++;
+        if (!writeSDO_U16(RxPDO, RxPDOmoduleCount, outputModuleIndex)) return false;
+        Logger::warn("Set RxPDOmodule {:X} to index {}", outputModuleIndex, RxPDOmoduleCount);
+    }
+    if (!writeSDO_U8(RxPDO, 0x0, RxPDOmoduleCount)) return false;
+
+    uint16_t TxPDO = 0x1C13;
+    if (!writeSDO_U8(TxPDO, 0x0, 0)) return false; //disable Sync Manager
+    uint8_t TxPDOmoduleCount = 0;
+    for (uint16_t inputModuleIndex : inputModules) {
+        TxPDOmoduleCount++;
+        if (!writeSDO_U16(TxPDO, TxPDOmoduleCount, inputModuleIndex)) return false;
+        Logger::warn("Set TxPDOmodule {:X} to index {}", inputModuleIndex, TxPDOmoduleCount);
+    }
+    if (!writeSDO_U8(TxPDO, 0x0, TxPDOmoduleCount)) return false;
+
+
+
     return true;
 }
 

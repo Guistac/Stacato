@@ -10,10 +10,15 @@
 #include "Fieldbus/EtherCatSlave.h"
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 #include "NodeGraph/Utilities/ioNodeFactory.h"
+#include "Gui/Framework/Colors.h"
 
 std::vector<std::shared_ptr<ioNode>> selectedNodes;
 
 namespace NodeEditor = ax::NodeEditor;
+
+bool isEditingAllowed() {
+    return !EtherCatFieldbus::b_processRunning;
+}
 
 void nodeGraph() {
 
@@ -86,10 +91,12 @@ void nodeGraph() {
     //Draw the entire node editor
     Environnement::nodeGraph.nodeEditorGui();
 
-    std::shared_ptr<ioNode> newDraggedNode = acceptDraggedNode();
-    if (newDraggedNode) {
-        Environnement::nodeGraph.addIoNode(newDraggedNode);
-        NodeEditor::SetNodePosition(newDraggedNode->getUniqueID(), NodeEditor::ScreenToCanvas(ImGui::GetMousePos()));
+    if (isEditingAllowed()) {
+        std::shared_ptr<ioNode> newDraggedNode = acceptDraggedNode();
+        if (newDraggedNode) {
+            Environnement::nodeGraph.addIoNode(newDraggedNode);
+            NodeEditor::SetNodePosition(newDraggedNode->getUniqueID(), NodeEditor::ScreenToCanvas(ImGui::GetMousePos()));
+        }
     }
 
     if (ImGui::Button("Center View")) Environnement::nodeGraph.centerView();
@@ -97,6 +104,9 @@ void nodeGraph() {
     if (ImGui::Button("Show Flow")) Environnement::nodeGraph.showFlow();
     ImGui::SameLine();
     ImGui::Checkbox("Show Output Values", &Environnement::nodeGraph.b_showOutputValues);
+    ImGui::SameLine();
+
+    if(!isEditingAllowed()) ImGui::TextColored(Colors::gray, "Editing is disabled while the system is running");
 
 	ImGui::EndGroup();
 
@@ -138,100 +148,103 @@ void NodeGraph::nodeEditorGui() {
             1.0);
 
 
-    //===== Handle link creation action, returns true if editor want to create new link
 
-    if (NodeEditor::BeginCreate(ImVec4(1.0, 1.0, 1.0, 1.0), 1.0)) {
-        NodeEditor::PinId pin1Id, pin2Id;
-        if (NodeEditor::QueryNewLink(&pin1Id, &pin2Id)) {
-            if (pin1Id && pin2Id) {
-                std::shared_ptr<ioData> pin1 = getIoData(pin1Id.Get());
-                std::shared_ptr<ioData> pin2 = getIoData(pin2Id.Get());
-                if (pin1 && pin2 && isConnectionValid(pin1, pin2)) {
-                    if (NodeEditor::AcceptNewItem(ImColor(1.0f, 1.0f, 1.0f), 3.0)) {
-                        std::shared_ptr<ioLink> link = connect(pin1, pin2);
-                        //TODO: should we even process the node graph in the gui?
-                        /*
-                        if (pin1->isInput()) evaluate(pin1->getNode());
-                        else if (pin2->isInput()) evaluate(pin2->getNode());
-                        */
-                        NodeEditor::Link(link->getUniqueID(), pin1Id, pin2Id);
+    if (isEditingAllowed()) {
+
+        //===== Handle link creation action, returns true if editor want to create new link
+
+        if (NodeEditor::BeginCreate(ImVec4(1.0, 1.0, 1.0, 1.0), 1.0)) {
+            NodeEditor::PinId pin1Id, pin2Id;
+            if (NodeEditor::QueryNewLink(&pin1Id, &pin2Id)) {
+                if (pin1Id && pin2Id) {
+                    std::shared_ptr<ioData> pin1 = getIoData(pin1Id.Get());
+                    std::shared_ptr<ioData> pin2 = getIoData(pin2Id.Get());
+                    if (pin1 && pin2 && isConnectionValid(pin1, pin2)) {
+                        if (NodeEditor::AcceptNewItem(ImColor(1.0f, 1.0f, 1.0f), 3.0)) {
+                            std::shared_ptr<ioLink> link = connect(pin1, pin2);
+                            //TODO: should we even process the node graph in the gui?
+                            /*
+                            if (pin1->isInput()) evaluate(pin1->getNode());
+                            else if (pin2->isInput()) evaluate(pin2->getNode());
+                            */
+                            NodeEditor::Link(link->getUniqueID(), pin1Id, pin2Id);
+                        }
                     }
+                    else NodeEditor::RejectNewItem(ImColor(1.0f, 0.0f, 0.0f), 3.0);
                 }
-                else NodeEditor::RejectNewItem(ImColor(1.0f, 0.0f, 0.0f), 3.0);
             }
         }
-    }
-    NodeEditor::EndCreate();
+        NodeEditor::EndCreate();
 
+        //===== Handle link and node deletion action =====
 
-    //===== Handle link and node deletion action =====
+        if (NodeEditor::BeginDelete()) {
 
-    if (NodeEditor::BeginDelete()) {
-        
-        NodeEditor::LinkId deletedLinkId;
-        while (NodeEditor::QueryDeletedLink(&deletedLinkId)) {
-            if (NodeEditor::AcceptDeletedItem()) {
-                std::shared_ptr<ioLink> deletedLink = getIoLink(deletedLinkId.Get());
-                if (deletedLink) disconnect(deletedLink);
+            NodeEditor::LinkId deletedLinkId;
+            while (NodeEditor::QueryDeletedLink(&deletedLinkId)) {
+                if (NodeEditor::AcceptDeletedItem()) {
+                    std::shared_ptr<ioLink> deletedLink = getIoLink(deletedLinkId.Get());
+                    if (deletedLink) disconnect(deletedLink);
+                }
+            }
+
+            NodeEditor::NodeId deletedNodeId;
+            while (NodeEditor::QueryDeletedNode(&deletedNodeId)) {
+                std::shared_ptr<ioNode> deletedNode = getIoNode(deletedNodeId.Get());
+                if (deletedNode && NodeEditor::AcceptDeletedItem()) {
+                    removeIoNode(deletedNode);
+                }
+                else NodeEditor::RejectDeletedItem();
             }
         }
+        NodeEditor::EndDelete();
 
-        NodeEditor::NodeId deletedNodeId;
-        while (NodeEditor::QueryDeletedNode(&deletedNodeId)) {
-            std::shared_ptr<ioNode> deletedNode = getIoNode(deletedNodeId.Get());
-            if (deletedNode && NodeEditor::AcceptDeletedItem()) {
-                removeIoNode(deletedNode);
+        //===== Handle Context Menus =====
+
+        NodeEditor::Suspend();
+
+        static NodeEditor::NodeId contextNodeId = 0;
+        static NodeEditor::LinkId contextLinkId = 0;
+        static NodeEditor::PinId  contextPinId = 0;
+
+        if (NodeEditor::ShowNodeContextMenu(&contextNodeId))		ImGui::OpenPopup("Node Context Menu");
+        if (NodeEditor::ShowPinContextMenu(&contextPinId))		ImGui::OpenPopup("Pin Context Menu");
+        if (NodeEditor::ShowLinkContextMenu(&contextLinkId))	ImGui::OpenPopup("Link Context Menu");
+        if (NodeEditor::ShowBackgroundContextMenu())           ImGui::OpenPopup("Background Context Menu");
+
+
+        if (ImGui::BeginPopup("Node Context Menu")) {
+            ImGui::Text("Node Context Menu, Node#%i", contextNodeId);
+            ImGui::EndPopup();
+        }
+
+        if (ImGui::BeginPopup("Pin Context Menu")) {
+            ImGui::Text("Pin Context Menu, Pin#%i", contextPinId);
+            ImGui::Text(Environnement::nodeGraph.getIoData(contextPinId.Get())->getValueString());
+            ImGui::EndPopup();
+        }
+
+        if (ImGui::BeginPopup("Link Context Menu")) {
+            ImGui::Text("Link Context Menu, Link#%i", contextLinkId);
+            ImGui::EndPopup();
+        }
+
+
+        static glm::vec2 mouseRightClickPosition;
+        if (ImGui::IsMouseClicked(1)) mouseRightClickPosition = ImGui::GetMousePos();
+        if (ImGui::BeginPopup("Background Context Menu")) {
+            std::shared_ptr<ioNode> newNode = nodeAdderContextMenu();
+            if (newNode) {
+                Environnement::nodeGraph.addIoNode(newNode);
+                NodeEditor::SetNodePosition(newNode->getUniqueID(), NodeEditor::ScreenToCanvas(mouseRightClickPosition));
+                NodeEditor::SelectNode(newNode->getUniqueID());
+                ImGui::CloseCurrentPopup();
             }
-            else NodeEditor::RejectDeletedItem();
+            ImGui::EndPopup();
         }
+        NodeEditor::Resume();
+
     }
-    NodeEditor::EndDelete();
-
-
-    //===== Handle Context Menus =====
-
-    NodeEditor::Suspend();
-
-    static NodeEditor::NodeId contextNodeId = 0;
-    static NodeEditor::LinkId contextLinkId = 0;
-    static NodeEditor::PinId  contextPinId = 0;
-
-    if (NodeEditor::ShowNodeContextMenu(&contextNodeId))		ImGui::OpenPopup("Node Context Menu");
-    if (NodeEditor::ShowPinContextMenu(&contextPinId))		ImGui::OpenPopup("Pin Context Menu");
-    if (NodeEditor::ShowLinkContextMenu(&contextLinkId))	ImGui::OpenPopup("Link Context Menu");
-    if (NodeEditor::ShowBackgroundContextMenu())           ImGui::OpenPopup("Background Context Menu");
-
-    
-    if (ImGui::BeginPopup("Node Context Menu")) {
-        ImGui::Text("Node Context Menu, Node#%i", contextNodeId);
-        ImGui::EndPopup();
-    }
-
-    if (ImGui::BeginPopup("Pin Context Menu")) {
-        ImGui::Text("Pin Context Menu, Pin#%i", contextPinId);
-        ImGui::Text(Environnement::nodeGraph.getIoData(contextPinId.Get())->getValueString());
-        ImGui::EndPopup();
-    }
-
-    if (ImGui::BeginPopup("Link Context Menu")) {
-        ImGui::Text("Link Context Menu, Link#%i", contextLinkId);
-        ImGui::EndPopup();
-    }
-    
-
-    static glm::vec2 mouseRightClickPosition;
-    if (ImGui::IsMouseClicked(1)) mouseRightClickPosition = ImGui::GetMousePos();
-    if (ImGui::BeginPopup("Background Context Menu")) {
-        std::shared_ptr<ioNode> newNode = nodeAdderContextMenu();
-        if (newNode) {
-            Environnement::nodeGraph.addIoNode(newNode);
-            NodeEditor::SetNodePosition(newNode->getUniqueID(), NodeEditor::ScreenToCanvas(mouseRightClickPosition));
-            NodeEditor::SelectNode(newNode->getUniqueID());
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::EndPopup();
-    }
-    NodeEditor::Resume();
 
 
     //===== Update list of selected nodes =====

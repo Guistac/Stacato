@@ -1,68 +1,50 @@
 <Environnement name="Default Environnement">
     <NodeGraph>
         <Nodes>
-            <Node ClassName="LXM32M EtherCAT" UniqueID="1" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="false" CustomName="LXM32M EtherCAT (Alias:303)">
-                <NodeEditorPosition x="-1876" y="-3517"/>
+            <Node ClassName="053-1EC01" UniqueID="35" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="false" CustomName="053-1EC01 (ID:33)">
+                <NodeEditorPosition x="-1532" y="-3418"/>
                 <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="303"/>
-                    <KinematicLimits velocityLimit_rpm="5000" accelerationLimit_rpmps="100"/>
-                    <InvertDirectionOfMovement Invert="false"/>
-                    <CurrentLimis maxCurrent_amps="5" maxQuickstopCurrent_amps="9"/>
-                    <NegativeLimitSwitch Pin="Unassigned"/>
-                    <PositiveLimitSwitch Pin="Unassigned"/>
-                    <EncoderSettings Assignement="Internal" RangeShifted="false"/>
+                    <Identification Type="ExplicitDeviceID" ExplicitDeviceID="33"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin Name="Position" DataType="Real" UniqueID="2" Real="0" Visible="true"/>
-                    <InputPin Name="DQ0" DataType="Boolean" UniqueID="3" Boolean="false" Visible="true"/>
-                    <InputPin Name="DQ1" DataType="Boolean" UniqueID="4" Boolean="false" Visible="true"/>
-                    <InputPin Name="DQ2" DataType="Boolean" UniqueID="5" Boolean="false" Visible="true"/>
+                    <InputPin Name="Relay-1" DataType="Boolean" UniqueID="36" Boolean="false" Visible="true"/>
+                    <InputPin Name="Relay-2" DataType="Boolean" UniqueID="37" Boolean="false" Visible="true"/>
+                    <InputPin Name="Relay-3" DataType="Boolean" UniqueID="38" Boolean="false" Visible="true"/>
+                    <InputPin Name="Relay-4" DataType="Boolean" UniqueID="39" Boolean="false" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="Motor" DataType="unknown" UniqueID="6" Visible="true"/>
-                    <OutputPin Name="Load" DataType="Real" UniqueID="7" Real="0" Visible="true"/>
-                    <OutputPin Name="Encoder" DataType="unknown" UniqueID="8" Visible="true"/>
-                    <OutputPin Name="Position" DataType="Real" UniqueID="9" Real="0" Visible="true"/>
-                    <OutputPin Name="Velocity" DataType="Real" UniqueID="10" Real="0" Visible="true"/>
-                    <OutputPin Name="GPIO" DataType="unknown" UniqueID="11" Visible="true"/>
-                    <OutputPin Name="DI0" DataType="Boolean" UniqueID="12" Boolean="false" Visible="true"/>
-                    <OutputPin Name="DI1" DataType="Boolean" UniqueID="13" Boolean="false" Visible="true"/>
-                    <OutputPin Name="DI2" DataType="Boolean" UniqueID="14" Boolean="false" Visible="true"/>
-                    <OutputPin Name="DI3" DataType="Boolean" UniqueID="15" Boolean="false" Visible="true"/>
-                    <OutputPin Name="DI4" DataType="Boolean" UniqueID="16" Boolean="false" Visible="true"/>
-                    <OutputPin Name="DI5" DataType="Boolean" UniqueID="17" Boolean="false" Visible="true"/>
+                    <OutputPin Name="GPIO" DataType="unknown" UniqueID="40" Visible="true"/>
+                    <OutputPin Name="Input-1" DataType="Boolean" UniqueID="41" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Input-2" DataType="Boolean" UniqueID="42" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Input-3" DataType="Boolean" UniqueID="43" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Input-4" DataType="Boolean" UniqueID="44" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Input-5" DataType="Boolean" UniqueID="45" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Input-6" DataType="Boolean" UniqueID="46" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Input-7" DataType="Boolean" UniqueID="47" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Input-8" DataType="Boolean" UniqueID="48" Boolean="false" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node ClassName="LXM32M EtherCAT" UniqueID="18" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="false" CustomName="LXM32M EtherCAT (Alias:333)">
-                <NodeEditorPosition x="-1327" y="-3526"/>
+            <Node ClassName="053-1EC01" UniqueID="49" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="false" CustomName="053-1EC01 (ID:3)">
+                <NodeEditorPosition x="-1144" y="-3384"/>
                 <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="333"/>
-                    <KinematicLimits velocityLimit_rpm="5000" accelerationLimit_rpmps="100"/>
-                    <InvertDirectionOfMovement Invert="false"/>
-                    <CurrentLimis maxCurrent_amps="5" maxQuickstopCurrent_amps="9"/>
-                    <NegativeLimitSwitch Pin="Unassigned"/>
-                    <PositiveLimitSwitch Pin="Unassigned"/>
-                    <EncoderSettings Assignement="Internal" RangeShifted="false"/>
+                    <Identification Type="ExplicitDeviceID" ExplicitDeviceID="3"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin Name="Position" DataType="Real" UniqueID="19" Real="0" Visible="true"/>
-                    <InputPin Name="DQ0" DataType="Boolean" UniqueID="20" Boolean="false" Visible="true"/>
-                    <InputPin Name="DQ1" DataType="Boolean" UniqueID="21" Boolean="false" Visible="true"/>
-                    <InputPin Name="DQ2" DataType="Boolean" UniqueID="22" Boolean="false" Visible="true"/>
+                    <InputPin Name="Relay-1" DataType="Boolean" UniqueID="50" Boolean="false" Visible="true"/>
+                    <InputPin Name="Relay-2" DataType="Boolean" UniqueID="51" Boolean="false" Visible="true"/>
+                    <InputPin Name="Relay-3" DataType="Boolean" UniqueID="52" Boolean="false" Visible="true"/>
+                    <InputPin Name="Relay-4" DataType="Boolean" UniqueID="53" Boolean="false" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="Motor" DataType="unknown" UniqueID="23" Visible="true"/>
-                    <OutputPin Name="Load" DataType="Real" UniqueID="24" Real="0" Visible="true"/>
-                    <OutputPin Name="Encoder" DataType="unknown" UniqueID="25" Visible="true"/>
-                    <OutputPin Name="Position" DataType="Real" UniqueID="26" Real="0" Visible="true"/>
-                    <OutputPin Name="Velocity" DataType="Real" UniqueID="27" Real="0" Visible="true"/>
-                    <OutputPin Name="GPIO" DataType="unknown" UniqueID="28" Visible="true"/>
-                    <OutputPin Name="DI0" DataType="Boolean" UniqueID="29" Boolean="false" Visible="true"/>
-                    <OutputPin Name="DI1" DataType="Boolean" UniqueID="30" Boolean="false" Visible="true"/>
-                    <OutputPin Name="DI2" DataType="Boolean" UniqueID="31" Boolean="false" Visible="true"/>
-                    <OutputPin Name="DI3" DataType="Boolean" UniqueID="32" Boolean="false" Visible="true"/>
-                    <OutputPin Name="DI4" DataType="Boolean" UniqueID="33" Boolean="false" Visible="true"/>
-                    <OutputPin Name="DI5" DataType="Boolean" UniqueID="34" Boolean="false" Visible="true"/>
+                    <OutputPin Name="GPIO" DataType="unknown" UniqueID="54" Visible="true"/>
+                    <OutputPin Name="Input-1" DataType="Boolean" UniqueID="55" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Input-2" DataType="Boolean" UniqueID="56" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Input-3" DataType="Boolean" UniqueID="57" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Input-4" DataType="Boolean" UniqueID="58" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Input-5" DataType="Boolean" UniqueID="59" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Input-6" DataType="Boolean" UniqueID="60" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Input-7" DataType="Boolean" UniqueID="61" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Input-8" DataType="Boolean" UniqueID="62" Boolean="false" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
