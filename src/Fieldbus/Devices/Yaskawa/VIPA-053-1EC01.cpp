@@ -106,10 +106,73 @@ bool VIPA_053_1EC01::startupConfiguration() {
     }
     if (!writeSDO_U8(TxPDO, 0x0, TxPDOmoduleCount)) return false;
 
-
-
     return true;
 }
+
+
+
+void VIPA_053_1EC01::detectIoModules() {
+
+    uint8_t detectedModuleCount;
+    if(!readSDO_U8(0xF050, 0x0, detectedModuleCount)) return;
+    detectedModules = std::vector<VIPAModule>(detectedModuleCount);
+
+    for (int i = 0; i < detectedModuleCount; i++) {
+        VIPAModule& module = detectedModules[i];
+
+        char buffer[256];
+        int size = 256;
+        int wc = ec_SDOread(getSlaveIndex(), 0x4100 + i, 0x1, false, &size, &buffer, EC_TIMEOUTSAFE);
+        if (wc == 0) return;
+        strcpy(module.name, buffer);
+
+        if (!readSDO_U32(0xF050, i + 1, module.ID)) return;
+        
+        uint8_t inputCount;
+        if (readSDO_U8(0x6000 + i, 0x0, inputCount)) {
+            module.b_hasInputs = true;
+            module.inputsObject = 0x6000 + i;
+            module.inputParameters = std::vector<VIPAparameter>(inputCount);
+            uint16_t pdoMapping = 0x1A00 + i;
+            for (int j = 0; j < inputCount; j++) {
+                VIPAparameter& parameter = module.inputParameters[j];
+                uint32_t parameterMapping;
+                if (!readSDO_U32(pdoMapping, j+1, parameterMapping)) return;
+                parameter.mappingModule = (parameterMapping & 0xFFFF0000) >> 16;
+                parameter.subindex = (parameterMapping & 0xFF00) >> 8;
+                parameter.bitCount = (parameterMapping & 0xFF);
+            }
+        }
+        else module.b_hasInputs = false;
+        
+        uint8_t outputCount;
+        if (readSDO_U8(0x7000 + i, 0x0, outputCount)) {
+            module.b_hasOutputs = true;
+            module.outputsObject = 0x7000 + i;
+            module.outputParameters = std::vector<VIPAparameter>(outputCount);
+            uint16_t pdoMapping = 0x1600 + i;
+            for (int j = 0; j < outputCount; j++) {
+                VIPAparameter& parameter = module.outputParameters[j];
+                uint32_t parameterMapping;
+                if (!readSDO_U32(pdoMapping, j+1, parameterMapping)) return;
+                parameter.mappingModule = (parameterMapping & 0xFFFF0000) >> 16;
+                parameter.subindex = (parameterMapping & 0xFF00) >> 8;
+                parameter.bitCount = (parameterMapping & 0xFF);
+            }
+        }
+        else module.b_hasOutputs = false;
+
+        uint8_t parameterCount;
+        if (readSDO_U8(0x3100 + i, 0x0, parameterCount)) {
+            module.b_hasParameters = true;
+            module.parametersObject = 0x3100 + i;
+        }
+        else module.b_hasParameters = false;
+
+    }
+
+}
+
 
 
 void VIPA_053_1EC01::readInputs() {

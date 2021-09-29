@@ -6,6 +6,30 @@
 #include <map>
 #include <string>
 
+struct VIPAparameter {
+    uint16_t mappingModule;
+    uint8_t subindex;
+    uint8_t bitCount;
+};
+
+struct VIPAModule {
+    char name[64];
+
+    uint32_t ID;
+
+    bool b_hasInputs;
+    bool b_hasOutputs;
+    bool b_hasParameters;
+
+    uint16_t inputsObject;
+    uint16_t outputsObject;
+    uint16_t parametersObject;
+
+    std::vector<VIPAparameter> inputParameters;
+    std::vector<VIPAparameter> outputParameters;
+
+};
+
 class VIPA_053_1EC01 : public EtherCatSlave {
 public:
 
@@ -30,4 +54,11 @@ public:
     std::shared_ptr<ioData> digitalIn7 =    std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Input-7", ioDataFlags_DisableDataField);
     std::shared_ptr<ioData> digitalIn8 =    std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Input-8", ioDataFlags_DisableDataField);
     std::shared_ptr<ioData> gpioLink =      std::make_shared<ioData>(DataType::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
+
+
+
+
+
+    std::vector<VIPAModule> detectedModules;
+    void detectIoModules();
 };
