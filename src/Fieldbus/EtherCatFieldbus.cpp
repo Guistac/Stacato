@@ -520,7 +520,7 @@ namespace EtherCatFieldbus {
                             //addition read state is required to set the individual state of each slave
                             //statecheck on slave zero doesn't assign the state of each individual slave, only global slave 0
                             ec_readstate();
-
+                            
                             //============== STATE HANDLING AND SLAVE RECOVERY =================
                             slaveStateHandler = std::thread([]() {
                                 Logger::debug("Started Slave State Handler Thread");
@@ -586,6 +586,7 @@ namespace EtherCatFieldbus {
                                 }
                                 Logger::debug("Exited Slave State Handler Thread");
                             });
+                            
                             //===============================================================================
                         }
                         else {

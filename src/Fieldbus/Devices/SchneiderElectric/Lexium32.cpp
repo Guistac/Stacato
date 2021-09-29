@@ -686,26 +686,28 @@ void Lexium32::uploadEncoderSettings() {
 
     encoderSettingsUploadState = DataTransferState::State::TRANSFERRING;
 
+    //switch between internal motor encoder and encoder module
     EtherCatCoeData ENC_abs_source(0x3005, 0x25, EtherCatData::Type::UINT16_T);
 
+    //general settings for encoder2 if encoder module is selected
     EtherCatCoeData ENC2_type(0x3050, 0x3, EtherCatData::Type::UINT16_T);
     EtherCatCoeData ENC2_usage(0x3050, 0x1, EtherCatData::Type::UINT16_T);
     EtherCatCoeData ENC_ModeOfMaEnc(0x3050, 0x2, EtherCatData::Type::UINT16_T);
     EtherCatCoeData InvertDirOfMaEnc(0x3050, 0x8, EtherCatData::Type::UINT16_T);
     EtherCatCoeData p_MaxDifToENC2(0x3050, 0x7, EtherCatData::Type::INT32_T);
-
-    EtherCatCoeData ENCDigPowSupply(0x3052, 0x4, EtherCatData::Type::UINT16_T);
-
-    EtherCatCoeData ENCDigSSICoding(0x3052, 0x3, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData ENCDigSSIMaxFreq(0x3052, 0x5, EtherCatData::Type::UINT16_T);
-
-    EtherCatCoeData ENCDigSSIResMult(0x3052, 0x2, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData ENCDigSSIResSgl(0x3052, 0x1, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData ENCDigResMulUsed(0x3052, 0xB, EtherCatData::Type::UINT16_T);
-
     EtherCatCoeData ResolENC2(0x3050, 0xF, EtherCatData::Type::UINT32_T);
     EtherCatCoeData ResolENC2Num(0x3050, 0x6, EtherCatData::Type::INT32_T);
     EtherCatCoeData ResolENC2Denom(0x3050, 0x5, EtherCatData::Type::INT32_T);
+
+    //general settings for the digital encoder module
+    EtherCatCoeData ENCDigPowSupply(0x3052, 0x4, EtherCatData::Type::UINT16_T);
+    EtherCatCoeData ENCDigResMulUsed(0x3052, 0xB, EtherCatData::Type::UINT16_T);
+
+    //settings for digital SSI rotary encoders
+    EtherCatCoeData ENCDigSSICoding(0x3052, 0x3, EtherCatData::Type::UINT16_T);
+    EtherCatCoeData ENCDigSSIMaxFreq(0x3052, 0x5, EtherCatData::Type::UINT16_T);
+    EtherCatCoeData ENCDigSSIResMult(0x3052, 0x2, EtherCatData::Type::UINT16_T);
+    EtherCatCoeData ENCDigSSIResSgl(0x3052, 0x1, EtherCatData::Type::UINT16_T);
 
     switch (encoderAssignement) {
 
@@ -807,24 +809,26 @@ void Lexium32::downloadEncoderSettings() {
 
     encoderSettingsDownloadState = DataTransferState::State::TRANSFERRING;
 
+    //main switch between internal motor encoder and encoder module
     EtherCatCoeData ENC_abs_source(0x3005, 0x25, EtherCatData::Type::UINT16_T);
     if (!ENC_abs_source.read(getSlaveIndex())) goto downloadfailed;
     if (getEncoderAssignement(ENC_abs_source.getU16()) == nullptr) goto downloadfailed;
     encoderAssignement = getEncoderAssignement(ENC_abs_source.getU16())->type;
 
+    //general settings for encoder2 if encoder module is selected
     EtherCatCoeData ENC2_type(0x3050, 0x3, EtherCatData::Type::UINT16_T);
     EtherCatCoeData InvertDirOfMaEnc(0x3050, 0x8, EtherCatData::Type::UINT16_T);
     EtherCatCoeData p_MaxDifToENC2(0x3050, 0x7, EtherCatData::Type::INT32_T);
-
-    EtherCatCoeData ENCDigPowSupply(0x3052, 0x4, EtherCatData::Type::UINT16_T);
-
-    EtherCatCoeData ENCDigSSICoding(0x3052, 0x3, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData ENCDigSSIResMult(0x3052, 0x2, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData ENCDigSSIResSgl(0x3052, 0x1, EtherCatData::Type::UINT16_T);
-
     EtherCatCoeData ResolENC2Num(0x3050, 0x6, EtherCatData::Type::INT32_T);
     EtherCatCoeData ResolENC2Denom(0x3050, 0x5, EtherCatData::Type::INT32_T);
 
+    //general settings for the digital encoder module
+    EtherCatCoeData ENCDigPowSupply(0x3052, 0x4, EtherCatData::Type::UINT16_T);
+
+    //settings for digital SSI rotary encoders
+    EtherCatCoeData ENCDigSSICoding(0x3052, 0x3, EtherCatData::Type::UINT16_T);
+    EtherCatCoeData ENCDigSSIResMult(0x3052, 0x2, EtherCatData::Type::UINT16_T);
+    EtherCatCoeData ENCDigSSIResSgl(0x3052, 0x1, EtherCatData::Type::UINT16_T);
 
     switch (encoderAssignement) {
     case EncoderAssignement::Type::INTERNAL_ENCODER:
