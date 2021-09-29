@@ -67,7 +67,7 @@ bool EtherCatSlave::getPDOMapping(EtherCatPDO& pdo, uint16_t pdoIndex, const cha
 */
 
 bool EtherCatSlave::isDetected() {
-    return identity != nullptr;
+    return identity != nullptr && identity->state != EC_STATE_NONE;
 }
 
 bool EtherCatSlave::isOnline() {
@@ -122,7 +122,7 @@ bool EtherCatSlave::load(tinyxml2::XMLElement* xml) {
 
 
 const char* EtherCatSlave::getEtherCatStateChar() {
-    if (!isOnline()) return "Offline";
+    if (!isDetected()) return "Offline";
     uint16_t stateWithoutErrorBit = identity->state & 0xF;
     switch (stateWithoutErrorBit) {
         case EC_STATE_NONE: return "No State";

@@ -98,15 +98,13 @@ void EtherCatSlave::generalGui() {
     ImGui::Button(isOnline() ? "Online" : (isDetected() ? "Detected" : "Offline"), statusDisplaySize);
     ImGui::PopStyleColor();
     ImGui::SameLine();
-    bool isOffline = !isOnline();
-    if (isOffline) ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-    if(!isOnline()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
+
+    if(!isDetected()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
     else if (isStateBootstrap() || isStateInit()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
     else if (isStatePreOperational() || isStateSafeOperational()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
     else ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
     ImGui::Button(getEtherCatStateChar(), statusDisplaySize);
     ImGui::PopStyleColor();
-    if (isOffline) ImGui::PopStyleColor();
     ImGui::PopFont();
     ImGui::PopItemFlag();
 }

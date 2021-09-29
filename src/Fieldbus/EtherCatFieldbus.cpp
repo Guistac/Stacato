@@ -36,9 +36,11 @@ namespace EtherCatFieldbus {
     double fieldbusTimeout_milliseconds = 100.0;
     std::chrono::high_resolution_clock::time_point lastProcessDataFrameReturnTime;
 
+    bool b_detectionHandlerRunning = false;
+    std::thread slaveDetectionHandler;
     std::thread etherCatRuntime;    //thread to read errors encountered by SOEM
     std::thread slaveStateHandler;  //thread to periodically check the state of all slaves and recover them if necessary
-    std::thread errorWatcher;       //cyclic exchange thread (needs a full cpu core to achieve precise timing)
+    std::thread errorWatcher;       //cyclic exchange thread (needs a full cpu core to axchieve precise timing)
 
     std::chrono::high_resolution_clock::time_point previousCycleTime;
     double currentCycleDeltaT_seconds = 0.0;
@@ -47,6 +49,8 @@ namespace EtherCatFieldbus {
     void setup();
     bool configureSlaves();
     void startCyclicExchange();
+    void startSlaveDetectionHandler();
+    void stopSlaveDetectionHandler();
 
 
     //------ Find Network Interface Cards --------
@@ -132,11 +136,12 @@ namespace EtherCatFieldbus {
     void terminate() {
         stop();
         Logger::debug("===== Closing EtherCAT Network Interface Card");
-        ec_close();
         b_networkOpen = false;
         if (errorWatcher.joinable()) errorWatcher.join();
         if (etherCatRuntime.joinable()) etherCatRuntime.join();
         if (slaveStateHandler.joinable()) slaveStateHandler.join();
+        stopSlaveDetectionHandler();
+        ec_close();
         Logger::info("===== Stopped EtherCAT fieldbus");
     }
 
@@ -172,6 +177,8 @@ namespace EtherCatFieldbus {
 
         i_configurationProgress = 0;
         sprintf(configurationStatus, "Scanning Network");
+
+        stopSlaveDetectionHandler();
 
         //when rescanning the network, all previous slaves are now considered to be offline before being detected again
         //for a slave to appear as offline, we set its identity object (ec_slavet) to nullptr
@@ -249,6 +256,9 @@ namespace EtherCatFieldbus {
                 //add the slave to the list of slaves regardless of environnement presence
                 slaves.push_back(slave);
             }
+
+            startSlaveDetectionHandler();
+
             return true;
         }
 
@@ -257,6 +267,24 @@ namespace EtherCatFieldbus {
         sprintf(configurationStatus, "Found no EtherCAT slaves on the network");
         Logger::warn("===== No EtherCAT Slaves found...");
         return false;
+    }
+
+    void startSlaveDetectionHandler() {
+        if (b_detectionHandlerRunning) return;
+        b_detectionHandlerRunning = true;
+        slaveDetectionHandler = std::thread([]() {
+            Logger::debug("Started EtherCAT Detection Handler");
+            while (b_detectionHandlerRunning) {
+                ec_readstate();
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+            Logger::debug("Exited EtherCAT Detection Handler");
+        });
+    }
+
+    void stopSlaveDetectionHandler() {
+        b_detectionHandlerRunning = false;
+        if (slaveDetectionHandler.joinable()) slaveDetectionHandler.join();
     }
 
 
@@ -613,6 +641,7 @@ namespace EtherCatFieldbus {
 
     void start() {
         if (!b_processStarting) {
+            stopSlaveDetectionHandler();
             if (etherCatRuntime.joinable()) etherCatRuntime.join();
             if (slaveStateHandler.joinable()) slaveStateHandler.join();
             b_configurationError = false;
@@ -637,6 +666,7 @@ namespace EtherCatFieldbus {
             }
             b_allOperational = false;
             b_processRunning = false;
+            startSlaveDetectionHandler();
         }
     }
 

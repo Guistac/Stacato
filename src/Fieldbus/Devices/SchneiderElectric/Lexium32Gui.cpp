@@ -109,15 +109,12 @@ void Lexium32::statusGui() {
     ImGui::PopStyleColor();
 
     ImGui::SameLine();
-    bool isOffline = !isOnline();
-    if (isOffline) ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-    if (!isOnline()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
+    if (!isDetected()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
     else if (isStateBootstrap() || isStateInit()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
     else if (isStatePreOperational() || isStateSafeOperational()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
     else ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
     ImGui::Button(getEtherCatStateChar(), statusDisplaySize);
     ImGui::PopStyleColor();
-    if (isOffline) ImGui::PopStyleColor();
 
     ImGui::SameLine();
 
@@ -139,9 +136,7 @@ void Lexium32::statusGui() {
     }
     else {
         ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
-        ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
         ImGui::Button("No Status", statusDisplaySize);
-        ImGui::PopStyleColor();
     }
 
     ImGui::PopStyleColor();
