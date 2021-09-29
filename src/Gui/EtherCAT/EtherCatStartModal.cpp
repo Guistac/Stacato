@@ -59,12 +59,12 @@ void etherCatStartModal() {
 		}
 
 		bool disableCancelButton = EtherCatFieldbus::b_processStarting;
-		if (disableCancelButton) { ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0, 0.0, 0.0, 1.0)); }
+		if (disableCancelButton) BEGIN_DISABLE_IMGUI_ELEMENT
 		if (ImGui::Button("Cancel")) {
 			EtherCatFieldbus::stop();
 			ImGui::CloseCurrentPopup();
 		}
-		if (disableCancelButton) { ImGui::PopItemFlag(); ImGui::PopStyleColor(); }
+		if (disableCancelButton) END_DISABLE_IMGUI_ELEMENT
 		else if (EtherCatFieldbus::b_configurationError) {
 			ImGui::SameLine();
 			if (ImGui::Button("Retry")) {

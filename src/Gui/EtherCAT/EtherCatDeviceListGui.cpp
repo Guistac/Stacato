@@ -9,15 +9,9 @@ void etherCatSlaves() {
 
 	ImGui::BeginGroup();
 
-	if (EtherCatFieldbus::b_processRunning || EtherCatFieldbus::b_processStarting) {
-		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0, 0.0, 0.0, 1.0));
-	}
+	if (EtherCatFieldbus::b_processRunning || EtherCatFieldbus::b_processStarting) BEGIN_DISABLE_IMGUI_ELEMENT
 	if (ImGui::Button("Scan Network")) EtherCatFieldbus::scanNetwork();
-	if (EtherCatFieldbus::b_processRunning || EtherCatFieldbus::b_processStarting) {
-		ImGui::PopItemFlag();
-		ImGui::PopStyleColor();
-	}
+	if (EtherCatFieldbus::b_processRunning || EtherCatFieldbus::b_processStarting) END_DISABLE_IMGUI_ELEMENT
 	ImGui::SameLine();
 	ImGui::Text("%i Devices Found", EtherCatFieldbus::slaves.size());
 

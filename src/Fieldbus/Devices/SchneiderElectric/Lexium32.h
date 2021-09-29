@@ -110,8 +110,9 @@ public:
 
     //===== General Settings =====
 
-    double maxVelocity_rpm = 5000.0;     //not stored in drive
-    double maxAcceleration_rps2 = 100.0; //not stored in drive
+    //profile generator limits, not stored in drive
+    double velocityLimit_rpm = 5000.0;    
+    double accelerationLimit_rpmps = 100.0;
 
     bool b_invertDirectionOfMotorMovement = false;
 
@@ -172,7 +173,6 @@ public:
     static EncoderAssignement* getEncoderAssignement(const char* saveName);
     static EncoderAssignement* getEncoderAssignement(EncoderAssignement::Type assignementType);
     static EncoderAssignement* getEncoderAssignement(uint16_t CoeData);
-    EncoderAssignement::Type encoderAssignement = EncoderAssignement::Type::INTERNAL_ENCODER;
 
     struct EncoderModule {
         enum class Type {
@@ -190,8 +190,7 @@ public:
     static EncoderModule* getEncoderModule(const char* saveName);
     static EncoderModule* getEncoderModule(EncoderModule::Type moduleType);
     static EncoderModule* getEncoderModule(uint16_t CoeData);
-    EncoderModule::Type encoderModuleType = EncoderModule::Type::NONE;
-    void detectEncoderModule();
+
 
     struct EncoderType {
         enum class Type {
@@ -207,7 +206,6 @@ public:
     static EncoderType* getEncoderType(const char* saveName);
     static EncoderType* getEncoderType(EncoderType::Type moduleType);
     static EncoderType* getEncoderType(uint16_t CoeData);
-    EncoderType::Type encoderType = EncoderType::Type::NONE;
 
     struct EncoderCoding {
         enum class Type {
@@ -223,8 +221,6 @@ public:
     static EncoderCoding* getEncoderCoding(const char* saveName);
     static EncoderCoding* getEncoderCoding(EncoderCoding::Type encodingType);
     static EncoderCoding* getEncoderCoding(uint16_t CoeData);
-    EncoderCoding::Type encoderCoding = EncoderCoding::Type::BINARY;
-
     struct EncoderVoltage {
         enum class Voltage {
             V5,
@@ -239,18 +235,26 @@ public:
     static EncoderVoltage* getEncoderVoltage(const char* saveName);
     static EncoderVoltage* getEncoderVoltage(EncoderVoltage::Voltage v);
     static EncoderVoltage* getEncoderVoltage(uint16_t CoeData);
+
+    EncoderAssignement::Type encoderAssignement = EncoderAssignement::Type::INTERNAL_ENCODER;
+    EncoderModule::Type encoderModuleType = EncoderModule::Type::NONE;
+    EncoderType::Type encoderType = EncoderType::Type::NONE;
+    EncoderCoding::Type encoderCoding = EncoderCoding::Type::BINARY;
     EncoderVoltage::Voltage encoderVoltage = EncoderVoltage::Voltage::V12;
 
-    uint32_t encoder1_singleTurnResolutionBits = 17;
-    uint32_t encoder1_multiTurnResolutionBits = 12;
-    uint32_t encoder2_singleTurnResolutionBits = 17;
-    uint32_t encoder2_multiTurnResolutionBits = 12;
-    int encoder2_encoderRevolutionsPer = 1;   //integer amount of encoder revolutions per ->
-    int encoder2_perMotorRevolutions = 1;   //-> per integer amount of motor revolutions
+    //internal encoder settings are constant
+    const int encoder1_singleTurnResolutionBits = 17;
+    const int encoder1_multiTurnResolutionBits = 12;
+
+    int encoder2_singleTurnResolutionBits = 17;
+    int encoder2_multiTurnResolutionBits = 12;
+    int encoder2_EncoderToMotorRatioNumerator = 1;   //integer amount of encoder revolutions per ->
+    int encoder2_EncoderToMotorRatioDenominator = 1;   //-> per integer amount of motor revolutions
     bool encoder2_invertDirection = false;
-    float encoder2_maxDifferenceToMotorEncoder_rotations = 0.5;
+    double encoder2_maxDifferenceToMotorEncoder_rotations = 0.5;
     bool b_encoderRangeShifted = false;
 
+    void detectEncoderModule();
     void uploadEncoderSettings();
     DataTransferState::State encoderSettingsUploadState = DataTransferState::State::NO_TRANSFER;
     void downloadEncoderSettings();

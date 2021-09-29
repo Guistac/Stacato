@@ -192,10 +192,7 @@ void EtherCatSlave::genericInfoGui() {
     ImGui::Separator();
 
     bool hasNoIdentity = identity == nullptr;
-    if (hasNoIdentity) {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.4, 0.4, 0.4, 1.0));
-    }
+    if (hasNoIdentity) BEGIN_DISABLE_IMGUI_ELEMENT
 
     ImGui::Text("Input Bytes: %i (%i bits)", identity->Ibytes, identity->Ibits);
     ImGui::Text("Output Bytes: %i (%i bits)", identity->Obytes, identity->Obits);
@@ -289,10 +286,7 @@ void EtherCatSlave::genericInfoGui() {
     ImGui::Text("Group: %i", identity->group);
     ImGui::Text("Is Lost: %i", identity->islost);
 
-    if (hasNoIdentity) {
-        ImGui::PopItemFlag();
-        ImGui::PopStyleColor();
-    }
+    if (hasNoIdentity) END_DISABLE_IMGUI_ELEMENT
 }
 
 void EtherCatSlave::pdoDataGui() {
@@ -371,10 +365,7 @@ void EtherCatSlave::sendReceiveCanOpenGui() {
     if (!isDetected()) ImGui::TextWrapped("Sending and Receving CanOpen Data is disabled while the device is not detected");
     else if (!isCoeSupported()) ImGui::TextWrapped("Sending and Received CanOpen Data is disabled because the device doesn't support CanOpen over EtherCAT");
 
-    if (!allowCoeSendReceive) {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-        ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(0.5, 0.5, 0.5, 1.0));
-    }
+    if (!allowCoeSendReceive) BEGIN_DISABLE_IMGUI_ELEMENT
 
     ImGui::PushID("DataUpload");
     ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
@@ -466,10 +457,7 @@ void EtherCatSlave::sendReceiveCanOpenGui() {
         ImGui::Text(downloadCoeData.b_isTransfering ? "Downloading..." : (downloadCoeData.b_transferSuccessfull ? "Download Successfull" : "Download Failed"));
     }
 
-    if (!allowCoeSendReceive) {
-        ImGui::PopItemFlag();
-        ImGui::PopStyleColor();
-    }
+    if (!allowCoeSendReceive) END_DISABLE_IMGUI_ELEMENT
 
     ImGui::PopID();
     
@@ -490,10 +478,7 @@ void EtherCatSlave::sendReceiveEtherCatRegisterGui() {
     bool allowRegisterSendReceive = isDetected();
     if (!isDetected()) ImGui::TextWrapped("Sending and Receving CanOpen Data is disabled while the device is not detected");
 
-    if (!allowRegisterSendReceive) {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-        ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(0.5, 0.5, 0.5, 1.0));
-    }
+    if (!allowRegisterSendReceive) BEGIN_DISABLE_IMGUI_ELEMENT
 
     ImGui::PushID("DataUpload");
     ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
@@ -577,10 +562,7 @@ void EtherCatSlave::sendReceiveEtherCatRegisterGui() {
         ImGui::Text(downloadRegisterData.b_isTransfering ? "Downloading..." : (downloadRegisterData.b_transferSuccessfull ? "Download Successfull" : "Download Failed"));
     }
 
-    if (!allowRegisterSendReceive) {
-        ImGui::PopItemFlag();
-        ImGui::PopStyleColor();
-    }
+    if (!allowRegisterSendReceive) END_DISABLE_IMGUI_ELEMENT
 
     ImGui::PopID();
     
@@ -600,10 +582,7 @@ void EtherCatSlave::sendReceiveEepromGui() {
     bool allowRegisterSendReceive = isDetected();
     if (!isDetected()) ImGui::TextWrapped("Sending and Receving CanOpen Data is disabled while the device is not detected");
 
-    if (!allowRegisterSendReceive) {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-        ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(0.5, 0.5, 0.5, 1.0));
-    }
+    if (!allowRegisterSendReceive) BEGIN_DISABLE_IMGUI_ELEMENT
 
     ImGui::PushID("DataUpload");
     ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
@@ -679,10 +658,7 @@ void EtherCatSlave::sendReceiveEepromGui() {
         ImGui::Text(downloadEepromData.b_isTransfering ? "Downloading..." : (downloadEepromData.b_transferSuccessfull ? "Download Successfull" : "Download Failed or Result was 0"));
     }
 
-    if (!allowRegisterSendReceive) {
-        ImGui::PopItemFlag();
-        ImGui::PopStyleColor();
-    }
+    if (!allowRegisterSendReceive) END_DISABLE_IMGUI_ELEMENT
 
     ImGui::PopID();
 

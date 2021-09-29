@@ -748,8 +748,8 @@ void Lexium32::uploadEncoderSettings() {
 
             //general encoder 2 scaling settings
             ResolENC2.setU32(0x1 << encoder2_singleTurnResolutionBits);                                      //Increments per encoder rotation (singleturn resolution)
-            ResolENC2Num.setS32((0x1 << encoder2_singleTurnResolutionBits) * encoder2_encoderRevolutionsPer); //encoder increments
-            ResolENC2Denom.setS32(encoder2_perMotorRevolutions);                                              //per motor revolution
+            ResolENC2Num.setS32((0x1 << encoder2_singleTurnResolutionBits) * encoder2_EncoderToMotorRatioNumerator); //encoder increments
+            ResolENC2Denom.setS32(encoder2_EncoderToMotorRatioDenominator);                                              //per motor revolution
             if (!ResolENC2.write(getSlaveIndex())) goto transferfailed;
             if (!ResolENC2Denom.write(getSlaveIndex())) goto transferfailed;
             if (!ResolENC2Num.write(getSlaveIndex())) goto transferfailed;
@@ -872,9 +872,9 @@ void Lexium32::downloadEncoderSettings() {
         }
 
         if (!ResolENC2Num.read(getSlaveIndex())) goto downloadfailed;
-        encoder2_encoderRevolutionsPer = ResolENC2Num.getS32() / (0x1 << encoder2_singleTurnResolutionBits);
+        encoder2_EncoderToMotorRatioNumerator = ResolENC2Num.getS32() / (0x1 << encoder2_singleTurnResolutionBits);
         if (!ResolENC2Denom.read(getSlaveIndex())) goto downloadfailed;
-        encoder2_perMotorRevolutions = ResolENC2Denom.getS32();
+        encoder2_EncoderToMotorRatioDenominator = ResolENC2Denom.getS32();
 
         break;
     }
@@ -944,12 +944,12 @@ void Lexium32::getEncoderWorkingRange(float& low, float& high) {
         break;
     case EncoderAssignement::Type::ENCODER_MODULE:
         if (b_encoderRangeShifted) {
-            low = -(float)(0x1 << encoder2_multiTurnResolutionBits) * (float)encoder2_perMotorRevolutions / ((float)encoder2_encoderRevolutionsPer * 2.0);
+            low = -(float)(0x1 << encoder2_multiTurnResolutionBits) * (float)encoder2_EncoderToMotorRatioDenominator / ((float)encoder2_EncoderToMotorRatioNumerator * 2.0);
             high = -low;
         }
         else {
             low = 0.0;
-            high = (float)(0x1 << encoder2_multiTurnResolutionBits) * (float)encoder2_perMotorRevolutions / (float)encoder2_encoderRevolutionsPer;
+            high = (float)(0x1 << encoder2_multiTurnResolutionBits) * (float)encoder2_EncoderToMotorRatioDenominator / (float)encoder2_EncoderToMotorRatioNumerator;
         }
         break;
     }
@@ -1129,8 +1129,161 @@ void Lexium32::setStationAlias(uint16_t a) {
 
 //============================= SAVING AND LOADING DEVICE DATA ============================
 
-bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
-bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
+bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) { 
+    using namespace tinyxml2;
+
+    XMLElement* kinematicLimitsXML = xml->InsertNewChildElement("KinematicLimits");
+    kinematicLimitsXML->SetAttribute("velocityLimit_rpm", velocityLimit_rpm);
+    kinematicLimitsXML->SetAttribute("accelerationLimit_rpmps", accelerationLimit_rpmps);
+
+    XMLElement* invertDirectionOfMovementXML = xml->InsertNewChildElement("InvertDirectionOfMovement");
+    invertDirectionOfMovementXML->SetAttribute("Invert", b_invertDirectionOfMotorMovement);
+
+    XMLElement* currentLimitsXML = xml->InsertNewChildElement("CurrentLimis");
+    currentLimitsXML->SetAttribute("maxCurrent_amps", maxCurrent_amps);
+    currentLimitsXML->SetAttribute("maxQuickstopCurrent_amps", maxQuickstopCurrent_amps);
+
+    XMLElement* negativeLimitSwitchXML = xml->InsertNewChildElement("NegativeLimitSwitch");
+    negativeLimitSwitchXML->SetAttribute("Pin", getInputPin(negativeLimitSwitchPin)->saveName);
+    if (negativeLimitSwitchPin != InputPin::Pin::NONE) negativeLimitSwitchXML->SetAttribute("NormallyClosed", b_negativeLimitSwitchNormallyClosed);
+
+    XMLElement* positiveLimitSwitchXML = xml->InsertNewChildElement("PositiveLimitSwitch");
+    positiveLimitSwitchXML->SetAttribute("Pin", getInputPin(positiveLimitSwitchPin)->saveName);
+    if (positiveLimitSwitchPin != InputPin::Pin::NONE) positiveLimitSwitchXML->SetAttribute("NormallyClosed", b_positiveLimitSwitchNormallyClosed);
+
+    XMLElement* encoderSettingsXML = xml->InsertNewChildElement("EncoderSettings");
+    encoderSettingsXML->SetAttribute("Assignement", getEncoderAssignement(encoderAssignement)->saveName);
+    switch (encoderAssignement) {
+        case EncoderAssignement::Type::INTERNAL_ENCODER:
+            break;
+        case EncoderAssignement::Type::ENCODER_MODULE:
+            encoderSettingsXML->SetAttribute("EncoderModule", getEncoderModule(encoderModuleType)->saveName);
+            encoderSettingsXML->SetAttribute("EncoderToMotorRatioNumerator", encoder2_EncoderToMotorRatioNumerator);
+            encoderSettingsXML->SetAttribute("EncoderToMotorRatioDenominator", encoder2_EncoderToMotorRatioDenominator);
+            encoderSettingsXML->SetAttribute("InvertDirection", encoder2_invertDirection);
+            encoderSettingsXML->SetAttribute("MaxDifferenceToMotorEncoder_revolutions", encoder2_maxDifferenceToMotorEncoder_rotations);
+            switch (encoderModuleType) {
+                case EncoderModule::Type::ANALOG_MODULE: break;
+                case EncoderModule::Type::RESOLVER_MODULE: break;
+                case EncoderModule::Type::NONE: break;
+                case EncoderModule::Type::DIGITAL_MODULE:
+                    encoderSettingsXML->SetAttribute("EncoderType", getEncoderType(encoderType)->saveName);
+                    encoderSettingsXML->SetAttribute("Voltage", getEncoderVoltage(encoderVoltage)->saveName);
+                    encoderSettingsXML->SetAttribute("SingleTurnBits", encoder2_singleTurnResolutionBits);
+                    encoderSettingsXML->SetAttribute("MultiTurnBits", encoder2_multiTurnResolutionBits);
+                    switch (encoderType) {
+                        case EncoderType::Type::NONE: break;
+                        case EncoderType::Type::SSI_ROTARY:
+                            encoderSettingsXML->SetAttribute("SSIEncoding", getEncoderCoding(encoderCoding)->saveName);
+                            break;
+                    }
+                    break;   
+            }
+            break;
+    }
+    encoderSettingsXML->SetAttribute("RangeShifted", b_encoderRangeShifted);
+
+    return true;
+}
+
+
+bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) { 
+    
+    using namespace tinyxml2;
+
+    XMLElement* kinematicLimitsXML = xml->FirstChildElement("KinematicLimits");
+    if (kinematicLimitsXML == nullptr) return Logger::warn("Could not find kinematic limits attribute");
+
+    if (kinematicLimitsXML->QueryDoubleAttribute("velocityLimit_rpm", &velocityLimit_rpm) != XML_SUCCESS) return Logger::warn("Could not read velocity limit attribute");
+    if (kinematicLimitsXML->QueryDoubleAttribute("accelerationLimit_rpmps", &accelerationLimit_rpmps) != XML_SUCCESS) return Logger::warn("Could not read acceleration limit attribute");
+
+    XMLElement* invertDirectionOfMovementXML = xml->FirstChildElement("InvertDirectionOfMovement");
+    if (invertDirectionOfMovementXML == nullptr) return Logger::warn("Could not find invert direction of movement attribute");
+    if (invertDirectionOfMovementXML->QueryBoolAttribute("Invert", &b_invertDirectionOfMotorMovement) != XML_SUCCESS) return Logger::warn("Could not read direciton of movement attribute");
+
+    XMLElement* currentLimitsXML = xml->FirstChildElement("CurrentLimis");
+    if (currentLimitsXML == nullptr) return Logger::warn("Could not find current limits attribute");
+    if (currentLimitsXML->QueryDoubleAttribute("maxCurrent_amps", &maxCurrent_amps) != XML_SUCCESS) return Logger::warn("Could not read Max Current Attribute");
+    if (currentLimitsXML->QueryDoubleAttribute("maxQuickstopCurrent_amps", &maxQuickstopCurrent_amps) != XML_SUCCESS) return Logger::warn("Could not read max Quickstop Current Attribute");
+
+    XMLElement* negativeLimitSwitchXML = xml->FirstChildElement("NegativeLimitSwitch");
+    if (negativeLimitSwitchXML == nullptr) return Logger::warn("Could not find negative limit switch attribute");
+    const char* negativeLimitSwitchPinString = "";
+    negativeLimitSwitchXML->QueryStringAttribute("Pin", &negativeLimitSwitchPinString);
+    if (getInputPin(negativeLimitSwitchPinString) == nullptr) return Logger::warn("Could not read negative limit switch pin attribute");
+    negativeLimitSwitchPin = getInputPin(negativeLimitSwitchPinString)->pin;
+    if (negativeLimitSwitchPin != InputPin::Pin::NONE) {
+        if (negativeLimitSwitchXML->QueryBoolAttribute("NormallyClosed", &b_negativeLimitSwitchNormallyClosed) != XML_SUCCESS) return Logger::warn("Could not read normally closed attribute of negative limit switch");
+    }
+
+    XMLElement* positiveLimitSwitchXML = xml->FirstChildElement("PositiveLimitSwitch");
+    if (positiveLimitSwitchXML == nullptr) return Logger::warn("Could not find positive limit switch attribute");
+    const char* positiveLimitSwitchPinString = "";
+    positiveLimitSwitchXML->QueryStringAttribute("Pin", &positiveLimitSwitchPinString);
+    if (getInputPin(positiveLimitSwitchPinString) == nullptr) return Logger::warn("Could not read positive limit switch pin attribute");
+    positiveLimitSwitchPin = getInputPin(positiveLimitSwitchPinString)->pin;
+    if (positiveLimitSwitchPin != InputPin::Pin::NONE) {
+        if (positiveLimitSwitchXML->QueryBoolAttribute("NormallyClosed", &b_positiveLimitSwitchNormallyClosed) != XML_SUCCESS) return Logger::warn("Could not read normally closed attribute of positive limit switch");
+    }
+
+    XMLElement* encoderSettingsXML = xml->FirstChildElement("EncoderSettings");
+    if (encoderSettingsXML == nullptr) return Logger::warn("Could not find Encoder Settings Attribute");
+    const char* encoderAssignementString = "";
+    encoderSettingsXML->QueryStringAttribute("Assignement", &encoderAssignementString);
+    if (getEncoderAssignement(encoderAssignementString) == nullptr) return Logger::warn("Could not read encoder assignement attribute");
+    encoderAssignement = getEncoderAssignement(encoderAssignementString)->type;
+
+    switch (encoderAssignement) {
+        case EncoderAssignement::Type::INTERNAL_ENCODER:
+            break;
+        case EncoderAssignement::Type::ENCODER_MODULE:
+
+            const char* encoderModuleString = "";
+            encoderSettingsXML->QueryStringAttribute("EncoderModule", &encoderModuleString);
+            if (getEncoderModule(encoderModuleString) == nullptr) return Logger::warn("Could not read encoder module attribute");
+            encoderModuleType = getEncoderModule(encoderModuleString)->type;
+
+            if (encoderSettingsXML->QueryIntAttribute("EncoderToMotorRatioNumerator", &encoder2_EncoderToMotorRatioNumerator) != XML_SUCCESS) return Logger::warn("Could not read Encoder to Motor Ratio Numerator Attribute");
+            if(encoderSettingsXML->QueryIntAttribute("EncoderToMotorRatioDenominator", &encoder2_EncoderToMotorRatioDenominator) != XML_SUCCESS) return Logger::warn("Could not read Encoder to Motor Ratio Denominator Attribute");
+            if(encoderSettingsXML->QueryBoolAttribute("InvertDirection", &encoder2_invertDirection) != XML_SUCCESS) return Logger::warn("Could not read Invert Encoder Direction Attribute");
+            if(encoderSettingsXML->QueryDoubleAttribute("MaxDifferenceToMotorEncoder_revolutions", &encoder2_maxDifferenceToMotorEncoder_rotations) != XML_SUCCESS) return Logger::warn("Could not read Max Encoder to Motor Encoder Difference Attribute");
+
+            switch (encoderModuleType) {
+                case EncoderModule::Type::ANALOG_MODULE: break;
+                case EncoderModule::Type::RESOLVER_MODULE: break;
+                case EncoderModule::Type::NONE: break;
+                case EncoderModule::Type::DIGITAL_MODULE:
+
+                    const char* encoderTypeString = "";
+                    encoderSettingsXML->QueryStringAttribute("EncoderType", &encoderTypeString);
+                    if (getEncoderType(encoderTypeString) == nullptr) return Logger::warn("Could not read encoder type attribute");
+                    encoderType = getEncoderType(encoderTypeString)->type;
+
+                    const char* encoderVoltageString = "";
+                    encoderSettingsXML->QueryStringAttribute("Voltage", &encoderVoltageString);
+                    if (getEncoderVoltage(encoderVoltageString) == nullptr) return Logger::warn("Could not read encoder voltage attribute");
+                    encoderVoltage = getEncoderVoltage(encoderVoltageString)->voltage;
+
+                    if (encoderSettingsXML->QueryIntAttribute("SingleTurnBits", &encoder2_singleTurnResolutionBits) != XML_SUCCESS) return Logger::warn("Could not read encoder Single Turn bit count attribute");
+                    if (encoderSettingsXML->QueryIntAttribute("MultiTurnBits", &encoder2_multiTurnResolutionBits) != XML_SUCCESS) return Logger::warn("Could not read encoder Multi Turn bit count attribute");
+
+                    switch (encoderType) {
+                        case EncoderType::Type::NONE: break;
+                        case EncoderType::Type::SSI_ROTARY:
+                            const char* SSIencodingString = "";
+                            encoderSettingsXML->QueryStringAttribute("SSIEncoding", &SSIencodingString);
+                            if (getEncoderCoding(SSIencodingString) == nullptr) return Logger::warn("Could not read SSI encoding attribute");
+                            encoderCoding = getEncoderCoding(SSIencodingString)->type;
+                            break;
+                    }
+                    break;
+            }
+            break;
+    }
+    encoderSettingsXML->SetAttribute("RangeShifted", b_encoderRangeShifted);
+    
+    return true;
+}
 
 
 //====================== DATA TRANSFER STATE =================================

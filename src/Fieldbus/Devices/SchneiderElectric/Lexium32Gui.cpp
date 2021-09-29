@@ -165,18 +165,12 @@ void Lexium32::statusGui() {
     }
     else {
         bool disableCommandButton = !isOnline();
-        if (disableCommandButton) {
-            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-            ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-        }
+        if (disableCommandButton) BEGIN_DISABLE_IMGUI_ELEMENT
         if (isEnabled()) { if (ImGui::Button("Disable Operation", commandButtonSize)) disable(); }
         else { if (ImGui::Button("Enable Operation", commandButtonSize)) enable(); }
         ImGui::SameLine();
         if (ImGui::Button("Quick Stop", commandButtonSize)) quickStop();
-        if (disableCommandButton) {
-            ImGui::PopItemFlag();
-            ImGui::PopStyleColor();
-        }
+        if (disableCommandButton) END_DISABLE_IMGUI_ELEMENT
     }
 }
 
@@ -196,12 +190,7 @@ void Lexium32::controlsGui() {
     ImGui::PopFont();
 
     bool disableModeSwitch = !isOnline();
-
-    if (disableModeSwitch) {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-        ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-    }
-
+    if (disableModeSwitch) BEGIN_DISABLE_IMGUI_ELEMENT
     if (ImGui::BeginCombo("##ModeSelector", getOperatingMode(actualOperatingMode)->displayName, ImGuiComboFlags_HeightLargest)) {
         for (OperatingMode& availableMode : availableOperatingModes) {
             if (ImGui::Selectable(availableMode.displayName, actualOperatingMode == availableMode.mode)) requestedOperatingMode = availableMode.mode;
@@ -224,11 +213,7 @@ void Lexium32::controlsGui() {
         }
         ImGui::EndCombo();
     }
-
-    if (disableModeSwitch) {
-        ImGui::PopItemFlag();
-        ImGui::PopStyleColor();
-    }
+    if (disableModeSwitch) END_DISABLE_IMGUI_ELEMENT
 
     ImGui::Separator();
 
@@ -237,35 +222,29 @@ void Lexium32::controlsGui() {
 
     }
     else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION) {
-        float velocityFraction = (actualVelocity->getReal() + maxVelocity_rpm) / (2 * maxVelocity_rpm);
+        float velocityFraction = (actualVelocity->getReal() + velocityLimit_rpm) / (2 * velocityLimit_rpm);
         static char actualVelocityString[32];
         sprintf(actualVelocityString, "%.1frpm", actualVelocity->getReal());
         ImGui::ProgressBar(velocityFraction, ImVec2(ImGui::GetContentRegionAvail().x, 0), actualVelocityString);
     }
     else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY) {
-        float maxV = maxVelocity_rpm;
+        float maxV = velocityLimit_rpm;
         float vCommand_rpm = manualVelocityCommand_rpm;
 
         bool disableManualControls = !isEnabled();
-        if (disableManualControls) {
-            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-            ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-        }
-        ImGui::SliderFloat("##manualVelocity", &vCommand_rpm, -maxVelocity_rpm, maxVelocity_rpm, "%.1frpm");
-        if (vCommand_rpm > maxVelocity_rpm) vCommand_rpm = maxVelocity_rpm;
-        else if (vCommand_rpm < -maxVelocity_rpm) vCommand_rpm = -maxAcceleration_rps2;
+        if (disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
+        ImGui::SliderFloat("##manualVelocity", &vCommand_rpm, -velocityLimit_rpm, velocityLimit_rpm, "%.1frpm");
+        if (vCommand_rpm > velocityLimit_rpm) vCommand_rpm = velocityLimit_rpm;
+        else if (vCommand_rpm < -velocityLimit_rpm) vCommand_rpm = -velocityLimit_rpm;
         manualVelocityCommand_rpm = vCommand_rpm;
-        float velocityFraction = (actualVelocity->getReal() + maxVelocity_rpm) / (2 * maxVelocity_rpm);
+        float velocityFraction = (actualVelocity->getReal() + velocityLimit_rpm) / (2 * velocityLimit_rpm);
         static char actualVelocityString[32];
         sprintf(actualVelocityString, "%.1frpm", actualVelocity->getReal());
         ImGui::ProgressBar(velocityFraction, ImGui::GetItemRectSize(), actualVelocityString);
-        ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rps2, 0.0, (float)maxAcceleration_rps2, "Acceleration: %.3f rps2");
-        if (manualAcceleration_rps2 > maxAcceleration_rps2) manualAcceleration_rps2 = maxAcceleration_rps2;
+        ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rps2, 0.0, (float)accelerationLimit_rpmps, "Acceleration: %.3f rpm/s");
+        if (manualAcceleration_rps2 > accelerationLimit_rpmps) manualAcceleration_rps2 = accelerationLimit_rpmps;
         if (ImGui::Button("Stop Movement", glm::vec2(ImGui::GetItemRectSize().x, ImGui::GetTextLineHeight() * 2.0))) manualVelocityCommand_rpm = 0.0;
-        if (disableManualControls) {
-            ImGui::PopItemFlag();
-            ImGui::PopStyleColor();
-        }
+        if (disableManualControls) END_DISABLE_IMGUI_ELEMENT
     }
 }
 
@@ -290,9 +269,9 @@ void Lexium32::generalGui() {
     ImGui::TextWrapped("These settings are not stored on the drive, but regulate the speed and position commands sent to the drive.");
 
     ImGui::Text("Max Velocity");
-    ImGui::InputDouble("##maxV", &maxVelocity_rpm, 0.0, 0.0, "%.1frpm");
+    ImGui::InputDouble("##maxV", &velocityLimit_rpm, 0.0, 0.0, "%.1frpm");
     ImGui::Text("Max Acceleration");
-    ImGui::InputDouble("##maxA", &maxAcceleration_rps2, 0.0, 0.0, "%.1frps2");
+    ImGui::InputDouble("##maxA", &accelerationLimit_rpmps, 0.0, 0.0, "%.1frpm/s");
 
     ImGui::Separator();
 
@@ -300,18 +279,12 @@ void Lexium32::generalGui() {
     ImGui::Text("General Settings");
     ImGui::PopFont();
 
-    if (disableTransferButton) {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-        ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-    }
+    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
     if (ImGui::Button("Download Settings From Drive")) {
         std::thread maxCurrentDownloader([this]() { downloadGeneralParameters(); });
         maxCurrentDownloader.detach();
     }
-    if (disableTransferButton) {
-        ImGui::PopItemFlag();
-        ImGui::PopStyleColor();
-    }
+    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
     ImGui::Text(getDataTransferState(generalParameterDownloadState)->displayName);
 
@@ -327,18 +300,12 @@ void Lexium32::generalGui() {
     ImGui::Text("Max Quickstop Current");
     if (ImGui::InputDouble("##maxqi", &maxQuickstopCurrent_amps, 0.0, 0.0, "%.1f Amperes")) generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
 
-    if (disableTransferButton) {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-        ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-    }
+    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
     if (ImGui::Button("Upload Setting")) {
         std::thread maxCurrentUploader([this]() { uploadGeneralParameters(); });
         maxCurrentUploader.detach();
     }
-    if (disableTransferButton) {
-        ImGui::PopItemFlag();
-        ImGui::PopStyleColor();
-    }
+    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
     ImGui::Text(getDataTransferState(generalParameterUploadState)->displayName);
 }
@@ -363,18 +330,12 @@ void Lexium32::gpioGui() {
 
 
 
-    if (disableTransferButton) {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-        ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-    }
+    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
     if (ImGui::Button("Download Settings from Drive")) {
         std::thread pinAssigmentDownloader([this]() { downloadPinAssignements(); });
         pinAssigmentDownloader.detach();
     }
-    if (disableTransferButton) {
-        ImGui::PopItemFlag();
-        ImGui::PopStyleColor();
-    }
+    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
     ImGui::Text(getDataTransferState(pinAssignementDownloadState)->displayName);
 
@@ -409,18 +370,12 @@ void Lexium32::gpioGui() {
     ImGui::TextWrapped("Output Pins are set to be freely available by default."
                        "\nSettings can only be uploaded while the drive is disabled. The Drive needs to be rebooted after uploading new settings.");
 
-    if (disableTransferButton) {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-        ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-    }
+    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
     if (ImGui::Button("Upload Settings")) {
         std::thread pinAssigmentUploader([this]() { uploadPinAssignements(); });
         pinAssigmentUploader.detach();
     }
-    if (disableTransferButton) {
-        ImGui::PopItemFlag();
-        ImGui::PopStyleColor();
-    }
+    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
     ImGui::Text(getDataTransferState(pinAssignementUploadState)->displayName);
 }
@@ -471,11 +426,14 @@ void Lexium32::encoderGui() {
     }
     else if (encoderAssignement == EncoderAssignement::Type::ENCODER_MODULE) {
        
+        bool disableDetectButton = !isDetected();
+        if (disableDetectButton) BEGIN_DISABLE_IMGUI_ELEMENT
         ImGui::SameLine();
         if (ImGui::Button("Detect Module")) {
             std::thread encoderModuleDetector([this]() { detectEncoderModule(); });
             encoderModuleDetector.detach();
         }
+        if(disableDetectButton) END_DISABLE_IMGUI_ELEMENT
 
         ImGui::Separator();
 
@@ -521,19 +479,19 @@ void Lexium32::encoderGui() {
 
                 ImGui::Text("Encoder Revolution to Motor Revolution Ratio");
                 ImGui::SetNextItemWidth(doublewidgetWidth);
-                ImGui::InputInt("##ratio", &encoder2_encoderRevolutionsPer);
+                ImGui::InputInt("##ratio", &encoder2_EncoderToMotorRatioNumerator);
                 ImGui::SameLine();
                 ImGui::SetNextItemWidth(doublewidgetWidth);
-                ImGui::InputInt("##ratio2", &encoder2_perMotorRevolutions);
+                ImGui::InputInt("##ratio2", &encoder2_EncoderToMotorRatioDenominator);
 
-                if (encoder2_encoderRevolutionsPer < 1) encoder2_encoderRevolutionsPer = 1;
-                if (encoder2_perMotorRevolutions < 1) encoder2_perMotorRevolutions = 1;
+                if (encoder2_EncoderToMotorRatioNumerator < 1) encoder2_EncoderToMotorRatioNumerator = 1;
+                if (encoder2_EncoderToMotorRatioDenominator < 1) encoder2_EncoderToMotorRatioDenominator = 1;
 
                 ImGui::Checkbox("##invert", &encoder2_invertDirection);
                 ImGui::SameLine();
                 ImGui::Text("Invert Encoder Motion Direction");
                 ImGui::Text("Max Motor Encoder Deviation from Module Encoder");
-                ImGui::InputFloat("##maxdev", &encoder2_maxDifferenceToMotorEncoder_rotations, 0.0, 0.0,"%.2f motor revolutions");
+                ImGui::InputDouble("##maxdev", &encoder2_maxDifferenceToMotorEncoder_rotations, 0.0, 0.0,"%.2f motor revolutions");
                 break;
             case EncoderType::Type::NONE:
                 ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
@@ -576,20 +534,14 @@ void Lexium32::encoderGui() {
     getEncoderWorkingRange(low, high);
     ImGui::Text("Working Range : %.1f to %.1f motor revolutions", low, high);
 
-    if (disableEncoderUploadButton) {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-        ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-    }
+    if (disableEncoderUploadButton) BEGIN_DISABLE_IMGUI_ELEMENT
     if (ImGui::Button("Upload Encoder Settings")) {
         std::thread encoderSettingsUploader([this]() {
             uploadEncoderSettings();
         });
         encoderSettingsUploader.detach();
     }
-    if (disableEncoderUploadButton) {
-        ImGui::PopItemFlag();
-        ImGui::PopStyleColor();
-    }
+    if (disableEncoderUploadButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
     ImGui::Text(getDataTransferState(encoderSettingsUploadState)->displayName);
 
@@ -672,15 +624,9 @@ void Lexium32::tuningGui() {
     }
     else {
         bool disableButton = isOnline() || !isDetected();
-        if (disableButton) {
-            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-            ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-        }
+        if (disableButton) BEGIN_DISABLE_IMGUI_ELEMENT
         if (ImGui::Button("Start Auto Tuning")) startAutoTuning();
-        if (disableButton) {
-            ImGui::PopItemFlag();
-            ImGui::PopStyleColor();
-        }
+        if (disableButton) END_DISABLE_IMGUI_ELEMENT
     }
 }
 

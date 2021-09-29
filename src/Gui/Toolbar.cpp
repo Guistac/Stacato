@@ -12,7 +12,7 @@ void toolbar(float height) {
 	glm::vec2 buttonSize(100.0, ImGui::GetTextLineHeight() * 2.0);
 
 	bool disableButton = EtherCatFieldbus::b_processStarting;
-	if (disableButton) { ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray); }
+	if (disableButton) BEGIN_DISABLE_IMGUI_ELEMENT
 	if (!EtherCatFieldbus::b_processRunning) {
 		if (ImGui::Button("Start", buttonSize)) {
 			EtherCatFieldbus::start();
@@ -24,14 +24,14 @@ void toolbar(float height) {
 		if (ImGui::Button("Stop", buttonSize)) EtherCatFieldbus::stop();
 		ImGui::PopStyleColor();
 	}
-	if (disableButton) { ImGui::PopItemFlag(); ImGui::PopStyleColor(); }
+	if (disableButton) END_DISABLE_IMGUI_ELEMENT
 
 	ImGui::SameLine();
 
 	bool disableScan = EtherCatFieldbus::b_processRunning;
-	if(disableScan) { ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray); }
+	if(disableScan) BEGIN_DISABLE_IMGUI_ELEMENT
 	if (ImGui::Button("Scan", buttonSize)) EtherCatFieldbus::scanNetwork();
-	if(disableScan) { ImGui::PopItemFlag(); ImGui::PopStyleColor(); }
+	if(disableScan) END_DISABLE_IMGUI_ELEMENT
 
 	etherCatStartModal();
 }

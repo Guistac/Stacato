@@ -16,3 +16,7 @@
 #include "Utilities/Timing.h"
 
 #define IMGUI_USER_CONFIG "Gui/Framework/imguiCustomConfiguration.h"
+
+#define BEGIN_DISABLE_IMGUI_ELEMENT	{ ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));	}
+
+#define END_DISABLE_IMGUI_ELEMENT	{ ImGui::PopItemFlag(); ImGui::PopStyleColor();	}

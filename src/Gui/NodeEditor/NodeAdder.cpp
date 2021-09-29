@@ -152,10 +152,7 @@ void nodeAdder() {
             ImGui::PopStyleColor();
             static bool b_scanningNetwork = false;
             bool disableScanButton = EtherCatFieldbus::b_processRunning;
-            if (disableScanButton) {
-                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(0.5, 0.5, 0.5, 1.0));
-            }
+            if (disableScanButton) BEGIN_DISABLE_IMGUI_ELEMENT
             if (ImGui::Button("Scan Network")) {
                 std::thread etherCatNetworkScanner = std::thread([]() {
                     b_scanningNetwork = true;
@@ -164,10 +161,7 @@ void nodeAdder() {
                 });
                 etherCatNetworkScanner.detach();
             }
-            if (disableScanButton) {
-                ImGui::PopItemFlag();
-                ImGui::PopStyleColor();
-            }
+            if (disableScanButton) END_DISABLE_IMGUI_ELEMENT
             if (b_scanningNetwork) {
                 ImGui::SameLine();
                 ImGui::Text("Scanning...");

@@ -47,17 +47,11 @@ void etherCatParameters(bool resetNicLists) {
 				selected = i == secondarySelectedNic;
 				bool disableSelection = false;
 				if (i == primarySelectedNic) disableSelection = true;
-				if (disableSelection) {
-					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0, 1.0, 1.0, 0.5));
-				}
+				if (disableSelection) BEGIN_DISABLE_IMGUI_ELEMENT
 				if (ImGui::Selectable(nics[i].description, selected)) {
 					secondarySelectedNic = i;
 				}
-				if (disableSelection) {
-					ImGui::PopItemFlag();
-					ImGui::PopStyleColor();
-				}
+				if (disableSelection) END_DISABLE_IMGUI_ELEMENT
 
 			}
 			ImGui::EndCombo();
