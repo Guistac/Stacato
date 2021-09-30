@@ -16,8 +16,8 @@ void VIPA_053_1EC01::deviceSpecificGui() {
             std::thread ioModuleDetectionHandler([this]() { detectIoModules(); });
             ioModuleDetectionHandler.detach();
         }
-        for (int i = 0; i < detectedModules.size(); i++) {
-            Module& module = detectedModules[i];
+        for (int i = 0; i < ioModules.size(); i++) {
+            Module& module = ioModules[i];
             ImGui::PushID(i);
             if (ImGui::TreeNode(getModuleType(module.moduleType)->displayName)) {
                 //ImGui::Text(module.name);

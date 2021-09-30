@@ -28,21 +28,21 @@ void VIPA_053_1EC01::assignIoData() {
     gpioLink->set(gpioDevice);
 
     //node input data
-    addIoData(relay1);
-    addIoData(relay2);
-    addIoData(relay3);
-    addIoData(relay4);
+    //addIoData(relay1);
+    //addIoData(relay2);
+    //addIoData(relay3);
+    //addIoData(relay4);
     
     //node output data
     addIoData(gpioLink);
-    addIoData(digitalIn1);
-    addIoData(digitalIn2);
-    addIoData(digitalIn3);
-    addIoData(digitalIn4);
-    addIoData(digitalIn5);
-    addIoData(digitalIn6);
-    addIoData(digitalIn7);
-    addIoData(digitalIn8);
+    //addIoData(digitalIn1);
+    //addIoData(digitalIn2);
+    //addIoData(digitalIn3);
+    //addIoData(digitalIn4);
+    //addIoData(digitalIn5);
+    //addIoData(digitalIn6);
+    //addIoData(digitalIn7);
+    //addIoData(digitalIn8);
 
     rxPdoAssignement.addNewModule(0x1603);
     //rxPdoAssignement.addEntry(0x6040, 0x0, 2, "DCOMcontrol", &DCOMcontrol);
@@ -116,13 +116,12 @@ void VIPA_053_1EC01::detectIoModules() {
 
     uint8_t detectedModuleCount;
     if(!readSDO_U8(0xF050, 0x0, detectedModuleCount)) return;
-    std::vector<Module> newModules = std::vector<Module>(detectedModuleCount);
+    std::vector<Module> newModules;
 
     int inputByteCount = 0;
     int outputByteCount = 0;
 
     for (int i = 0; i < detectedModuleCount; i++) {
-        Module& module = newModules[i];
 
         uint16_t moduleInformationIndex = 0x4100 + i;   //contains the name of the module as well as its serial number and version info
         uint16_t inputObjectIndex = 0x6000 + i;         //index of the object that holds all input values, index holds number of input parameters
@@ -131,16 +130,12 @@ void VIPA_053_1EC01::detectIoModules() {
         uint16_t outputMappingModule = 0x1600 + i;      //index of the mapping module object that stores all output PDO mappings
         //uint16_t parameterObjectIndex = 0x3100 + i;   //index of the object that stores all module parameters (there may not be one for every module)
 
-        if (!readSDO_String(moduleInformationIndex, 0x1, module.name)) return;
-        //if (!readSDO_U32(moduleInformationIndex, 0x2, module.ID)) return;
-        //if (!readSDO_String(moduleInformationIndex, 0x3, module.SerialNumber)) return;
-        //if (!readSDO_String(moduleInformationIndex, 0x4, module.ProductVersion)) return;
-        //if (!readSDO_String(moduleInformationIndex, 0x5, module.HardwareVersion)) return;
-        //if (!readSDO_String(moduleInformationIndex, 0x6, module.SoftwareVersion)) return;
-        //if (!readSDO_U16(moduleInformationIndex, 0x7, module.FPGAVersion)) return;
-        //if (!readSDO_String(moduleInformationIndex, 0x8, module.MxFile)) return;
-        module.moduleType = getModuleType(module.name)->type;
-        
+        char nameBuffer[128];
+        if (!readSDO_String(moduleInformationIndex, 0x1, nameBuffer)) return;
+        ModuleType::Type moduleType = getModuleType(nameBuffer)->type;
+        newModules.push_back(Module(moduleType));
+        Module& module = newModules.back();
+
         uint8_t inputCount;
         if (readSDO_U8(inputObjectIndex, 0x0, inputCount)) {
             module.b_hasInputs = true;
@@ -210,15 +205,16 @@ void VIPA_053_1EC01::detectIoModules() {
     }
 
     GuiMutex.lock();
-    detectedModules.clear();
-    detectedModules.swap(newModules);
+    ioModules.clear();
+    ioModules.swap(newModules);
     //remove all old ioData
     std::vector<std::shared_ptr<ioData>>& nodeInputData = getNodeInputData();
     while (!nodeInputData.empty()) removeIoData(nodeInputData.back());
     std::vector<std::shared_ptr<ioData>>& nodeOutputData = getNodeOutputData();
     while (!nodeOutputData.empty()) removeIoData(nodeOutputData.back());
     //add new ioData
-    for (Module& module : detectedModules) {
+    addIoData(gpioLink);
+    for (Module& module : ioModules) {
         for (auto& input : module.inputs) addIoData(input.ioData);
         for (auto& output : module.outputs) addIoData(output.ioData);
     }
@@ -230,7 +226,7 @@ void VIPA_053_1EC01::detectIoModules() {
 
 void VIPA_053_1EC01::readInputs() {
     uint8_t* inputBytes = identity->inputs;
-    for (Module& module : detectedModules) {
+    for (Module& module : ioModules) {
         for (auto inputParameter : module.inputs) {
             if (inputParameter.bitCount == 1) {
                 bool value = 1 == (0x1 & (inputBytes[inputParameter.ioMapByteOffset] >> inputParameter.ioMapBitOffset));
@@ -247,7 +243,7 @@ void VIPA_053_1EC01::readInputs() {
 
 void VIPA_053_1EC01::prepareOutputs(){
     uint8_t* outputBytes = identity->outputs;
-    for (Module& module : detectedModules) {
+    for (Module& module : ioModules) {
         for (auto outputParameter : module.outputs) {
             if (outputParameter.bitCount == 1) {
                 std::shared_ptr<ioData> pin = outputParameter.ioData;
@@ -267,10 +263,83 @@ void VIPA_053_1EC01::prepareOutputs(){
 }
 
 bool VIPA_053_1EC01::saveDeviceData(tinyxml2::XMLElement* xml) {
+    using namespace tinyxml2;
+
+    XMLElement* ioModulesXML = xml->InsertNewChildElement("IOModules");
+    for (Module& module : ioModules) {
+        XMLElement* moduleXML = ioModulesXML->InsertNewChildElement("Module");
+        moduleXML->SetAttribute("Type", getModuleType(module.moduleType)->saveName);
+
+        XMLElement* moduleInputs = moduleXML->InsertNewChildElement("Inputs");
+        for (ModuleParameter& inputParameter : module.inputs) {
+            XMLElement* inputXML = moduleInputs->InsertNewChildElement("Input");
+            inputXML->SetAttribute("IOMapByteOffset", inputParameter.ioMapByteOffset);
+            inputXML->SetAttribute("IOMapBitOffset", inputParameter.ioMapBitOffset);
+            inputParameter.ioData->save(inputXML);
+        }
+
+        XMLElement* moduleOutputs = moduleXML->InsertNewChildElement("Outputs");
+        for (ModuleParameter& outputParameter : module.outputs) {
+            XMLElement* outputXML = moduleOutputs->InsertNewChildElement("Output");
+            outputXML->SetAttribute("IOMapByteOffset", outputParameter.ioMapByteOffset);
+            outputXML->SetAttribute("IOMapBitOffset", outputParameter.ioMapBitOffset);
+            outputParameter.ioData->save(outputXML);
+        }
+    }
+
     return true;
 }
 
 bool VIPA_053_1EC01::loadDeviceData(tinyxml2::XMLElement* xml) {
+    using namespace tinyxml2;
+
+    XMLElement* ioModulesXML = xml->FirstChildElement("IOModules");
+    if (ioModulesXML == nullptr) return Logger::warn("Could not load IOModules attribute");
+
+    XMLElement* moduleXML = ioModulesXML->FirstChildElement("Module");
+
+    while (moduleXML != nullptr) {
+        const char* moduleTypeString = "";
+        moduleXML->QueryStringAttribute("Type", &moduleTypeString);
+        if (getModuleType(moduleTypeString) == nullptr) return Logger::warn("Could not read Module Type Attribute");
+        ModuleType::Type moduleType = getModuleType(moduleTypeString)->type;
+        ioModules.push_back(Module(moduleType));
+        Module& module = ioModules.back();
+
+        XMLElement* moduleInputsXML = moduleXML->FirstChildElement("Inputs");
+        if (moduleInputsXML == nullptr) return Logger::warn("Could not find Module Inputs Attribute");
+        XMLElement* moduleInputXML = moduleInputsXML->FirstChildElement("Input");
+        while (moduleInputXML != nullptr) {
+            module.inputs.push_back(ModuleParameter());
+            ModuleParameter& moduleParameter = module.inputs.back();
+            if (moduleInputXML->QueryIntAttribute("IOMapByteOffset", &moduleParameter.ioMapByteOffset) != XML_SUCCESS) return Logger::warn("Could not load IOMapByteOffset Attribute");
+            if (moduleInputXML->QueryIntAttribute("IOMapBitOffset", &moduleParameter.ioMapBitOffset) != XML_SUCCESS) return Logger::warn("Could not load IOMapBitOffset Attribute");
+            moduleParameter.ioData = std::make_shared<ioData>();
+            if (!moduleParameter.ioData->load(moduleInputXML)) return Logger::warn("Could not load module input parameter ioData");
+            moduleInputXML = moduleInputXML->NextSiblingElement("Input");
+        }
+
+        XMLElement* moduleOutputsXML = moduleXML->FirstChildElement("Outputs");
+        if (moduleOutputsXML == nullptr) return Logger::warn("Could not find Module Outputs Attribute");
+        XMLElement* moduleOutputXML = moduleOutputsXML->FirstChildElement("Output");
+        while (moduleOutputXML != nullptr) {
+            module.outputs.push_back(ModuleParameter());
+            ModuleParameter& moduleParameter = module.outputs.back();
+            if (moduleOutputXML->QueryIntAttribute("IOMapByteOffset", &moduleParameter.ioMapByteOffset) != XML_SUCCESS) return Logger::warn("Could not load IOMapByteOffset Attribute");
+            if (moduleOutputXML->QueryIntAttribute("IOMapBitOffset", &moduleParameter.ioMapBitOffset) != XML_SUCCESS) return Logger::warn("Could not load IOMapBitOffset Attribute");
+            moduleParameter.ioData = std::make_shared<ioData>();
+            if (!moduleParameter.ioData->load(moduleOutputXML)) return Logger::warn("Could not load module output parameter ioData");
+            moduleOutputXML = moduleOutputXML->NextSiblingElement("Output");
+        }
+
+        moduleXML = moduleXML->NextSiblingElement("Module");
+    }
+
+    for (Module& module : ioModules) {
+        for (auto& input : module.inputs) addIoData(input.ioData);
+        for (auto& output : module.outputs) addIoData(output.ioData);
+    }
+
     return true;
 }
 
@@ -282,20 +351,20 @@ bool VIPA_053_1EC01::loadDeviceData(tinyxml2::XMLElement* xml) {
 
 
 
-std::vector<VIPA_053_1EC01::SLIOModule> VIPA_053_1EC01::moduleTypes = {
-    {VIPA_053_1EC01::SLIOModule::Type::VIPA_022_1HD10, "DO4x Relais (1.8A)", "VIPA 022-1HD10", "Relais"},
-    {VIPA_053_1EC01::SLIOModule::Type::VIPA_021_1BF00, "DI8x (DC24V)", "VIPA 021-1BF00", "Digital"},
-    {VIPA_053_1EC01::SLIOModule::Type::UNKNOWN_MODULE, "Unknown Module", "UnknownModule", "None"}
+std::vector<VIPA_053_1EC01::ModuleType> VIPA_053_1EC01::moduleTypes = {
+    {VIPA_053_1EC01::ModuleType::Type::VIPA_022_1HD10, "DO4x Relais (1.8A)", "VIPA 022-1HD10", "Relais"},
+    {VIPA_053_1EC01::ModuleType::Type::VIPA_021_1BF00, "DI8x (DC24V)", "VIPA 021-1BF00", "Digital"},
+    {VIPA_053_1EC01::ModuleType::Type::UNKNOWN_MODULE, "Unknown Module", "UnknownModule", "None"}
 };
 
-VIPA_053_1EC01::SLIOModule* VIPA_053_1EC01::getModuleType(const char* saveName) {
+VIPA_053_1EC01::ModuleType* VIPA_053_1EC01::getModuleType(const char* saveName) {
     for (auto& sliomodule : moduleTypes) {
         if (strcmp(sliomodule.saveName, saveName) == 0) return &sliomodule;
     }
     return &moduleTypes.back();
 }
 
-VIPA_053_1EC01::SLIOModule* VIPA_053_1EC01::getModuleType(SLIOModule::Type type) {
+VIPA_053_1EC01::ModuleType* VIPA_053_1EC01::getModuleType(ModuleType::Type type) {
     for (auto& sliomodule : moduleTypes) {
         if (sliomodule.type == type) return &sliomodule;
     }

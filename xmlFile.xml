@@ -1,251 +1,76 @@
 <Environnement name="Default Environnement">
     <NodeGraph>
         <Nodes>
-            <Node ClassName="053-1EC01" UniqueID="1" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="true" CustomName="8x Relais 8x Input">
-                <InputNodeEditorPosition x="-6536" y="-6992"/>
-                <OutputNodeEditorPosition x="-8971" y="-6235"/>
-                <NodeSpecificData>
-                    <Identification Type="ExplicitDeviceID" ExplicitDeviceID="63"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin Name="Module 1 Relais Output 1" DataType="Boolean" UniqueID="15" Boolean="true" Visible="true"/>
-                    <InputPin Name="Module 1 Relais Output 2" DataType="Boolean" UniqueID="16" Boolean="false" Visible="true"/>
-                    <InputPin Name="Module 1 Relais Output 3" DataType="Boolean" UniqueID="17" Boolean="false" Visible="true"/>
-                    <InputPin Name="Module 1 Relais Output 4" DataType="Boolean" UniqueID="18" Boolean="true" Visible="true"/>
-                    <InputPin Name="Module 3 Relais Output 1" DataType="Boolean" UniqueID="27" Boolean="true" Visible="true"/>
-                    <InputPin Name="Module 3 Relais Output 2" DataType="Boolean" UniqueID="28" Boolean="false" Visible="true"/>
-                    <InputPin Name="Module 3 Relais Output 3" DataType="Boolean" UniqueID="29" Boolean="false" Visible="true"/>
-                    <InputPin Name="Module 3 Relais Output 4" DataType="Boolean" UniqueID="30" Boolean="true" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="Module 2 Digital Input 1" DataType="Boolean" UniqueID="19" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 2 Digital Input 2" DataType="Boolean" UniqueID="20" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 2 Digital Input 3" DataType="Boolean" UniqueID="21" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 2 Digital Input 4" DataType="Boolean" UniqueID="22" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 2 Digital Input 5" DataType="Boolean" UniqueID="23" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 2 Digital Input 6" DataType="Boolean" UniqueID="24" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 2 Digital Input 7" DataType="Boolean" UniqueID="25" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 2 Digital Input 8" DataType="Boolean" UniqueID="26" Boolean="false" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Clock" UniqueID="31" NodeType="CLOCK" CustomName="Clock">
-                <NodeEditorPosition x="-8551" y="-6407"/>
-                <NodeSpecificData/>
-                <InputPins/>
-                <OutputPins>
-                    <OutputPin Name="output" DataType="Real" UniqueID="32" Real="1523.1551142999999" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Multiplication" UniqueID="33" NodeType="PROCESSOR" CustomName="Multiplication">
-                <NodeEditorPosition x="-8168" y="-6511"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="input" DataType="Real" UniqueID="34" Real="0" Visible="true"/>
-                    <InputPin Name="mult" DataType="Real" UniqueID="35" Real="10" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="result" DataType="Real" UniqueID="36" Real="15231.551142999999" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Bool" UniqueID="45" NodeType="PROCESSOR" CustomName="Bool">
-                <NodeEditorPosition x="-7052" y="-6127"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="in" DataType="Boolean" UniqueID="46" Boolean="false" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="out" DataType="Boolean" UniqueID="47" Boolean="true" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Addition" UniqueID="50" NodeType="PROCESSOR" CustomName="Addition">
-                <NodeEditorPosition x="-7770" y="-6161"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="input" DataType="Real" UniqueID="51" Real="0" Visible="true"/>
-                    <InputPin Name="offset" DataType="Real" UniqueID="52" Real="2.3500000000000001" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="result" DataType="Real" UniqueID="53" Real="18280.211371599999" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Addition" UniqueID="54" NodeType="PROCESSOR" CustomName="Addition">
-                <NodeEditorPosition x="-7768" y="-6399"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="input" DataType="Real" UniqueID="55" Real="0" Visible="true"/>
-                    <InputPin Name="offset" DataType="Real" UniqueID="56" Real="1.5700000000000001" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="result" DataType="Real" UniqueID="57" Real="16756.2762573" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Addition" UniqueID="58" NodeType="PROCESSOR" CustomName="Addition">
-                <NodeEditorPosition x="-7770" y="-6625"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="input" DataType="Real" UniqueID="59" Real="0" Visible="true"/>
-                    <InputPin Name="offset" DataType="Real" UniqueID="60" Real="0.78000000000000003" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="result" DataType="Real" UniqueID="61" Real="16755.486257299999" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Addition" UniqueID="62" NodeType="PROCESSOR" CustomName="Addition">
-                <NodeEditorPosition x="-7768" y="-6863"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="input" DataType="Real" UniqueID="63" Real="0" Visible="true"/>
-                    <InputPin Name="offset" DataType="Real" UniqueID="64" Real="0" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="result" DataType="Real" UniqueID="65" Real="15231.551142999999" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Sinus" UniqueID="66" NodeType="PROCESSOR" CustomName="Sinus">
-                <NodeEditorPosition x="-7404" y="-6852"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="in" DataType="Real" UniqueID="67" Real="0" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="out" DataType="Real" UniqueID="68" Real="0.89568018551003958" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Sinus" UniqueID="69" NodeType="PROCESSOR" CustomName="Sinus">
-                <NodeEditorPosition x="-7404" y="-6603"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="in" DataType="Real" UniqueID="70" Real="0" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="out" DataType="Real" UniqueID="71" Real="-0.98043034786151773" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Sinus" UniqueID="72" NodeType="PROCESSOR" CustomName="Sinus">
-                <NodeEditorPosition x="-7398" y="-6373"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="in" DataType="Real" UniqueID="73" Real="0" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="out" DataType="Real" UniqueID="74" Real="-0.82991591531908893" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Sinus" UniqueID="75" NodeType="PROCESSOR" CustomName="Sinus">
-                <NodeEditorPosition x="-7390" y="-6127"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="in" DataType="Real" UniqueID="76" Real="0" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="out" DataType="Real" UniqueID="77" Real="0.65658312642100025" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Bool" UniqueID="78" NodeType="PROCESSOR" CustomName="Bool">
-                <NodeEditorPosition x="-7083" y="-6819"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="in" DataType="Boolean" UniqueID="79" Boolean="false" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="out" DataType="Boolean" UniqueID="80" Boolean="true" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Bool" UniqueID="81" NodeType="PROCESSOR" CustomName="Bool">
-                <NodeEditorPosition x="-7073" y="-6583"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="in" DataType="Boolean" UniqueID="82" Boolean="false" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="out" DataType="Boolean" UniqueID="83" Boolean="false" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Bool" UniqueID="84" NodeType="PROCESSOR" CustomName="Bool">
-                <NodeEditorPosition x="-7057" y="-6353"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="in" DataType="Boolean" UniqueID="85" Boolean="false" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="out" DataType="Boolean" UniqueID="86" Boolean="false" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="053-1EC01" UniqueID="103" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="true" CustomName="4x Relais 16x Input">
-                <InputNodeEditorPosition x="-6552" y="-6454"/>
-                <OutputNodeEditorPosition x="-8971" y="-7096"/>
+            <Node ClassName="053-1EC01" UniqueID="1" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="false" CustomName="053-1EC01 (ID:3)">
+                <NodeEditorPosition x="-8999" y="-7069"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="3"/>
+                    <IOModules>
+                        <Module Type="VIPA 021-1BF00">
+                            <Inputs>
+                                <Input IOMapByteOffset="0" IOMapBitOffset="0" Name="Module 1 Digital Input 1" DataType="Boolean" UniqueID="4" Boolean="false" Visible="true"/>
+                                <Input IOMapByteOffset="0" IOMapBitOffset="1" Name="Module 1 Digital Input 2" DataType="Boolean" UniqueID="5" Boolean="false" Visible="true"/>
+                                <Input IOMapByteOffset="0" IOMapBitOffset="2" Name="Module 1 Digital Input 3" DataType="Boolean" UniqueID="6" Boolean="false" Visible="true"/>
+                                <Input IOMapByteOffset="0" IOMapBitOffset="3" Name="Module 1 Digital Input 4" DataType="Boolean" UniqueID="7" Boolean="false" Visible="true"/>
+                                <Input IOMapByteOffset="0" IOMapBitOffset="4" Name="Module 1 Digital Input 5" DataType="Boolean" UniqueID="8" Boolean="false" Visible="true"/>
+                                <Input IOMapByteOffset="0" IOMapBitOffset="5" Name="Module 1 Digital Input 6" DataType="Boolean" UniqueID="9" Boolean="false" Visible="true"/>
+                                <Input IOMapByteOffset="0" IOMapBitOffset="6" Name="Module 1 Digital Input 7" DataType="Boolean" UniqueID="10" Boolean="false" Visible="true"/>
+                                <Input IOMapByteOffset="0" IOMapBitOffset="7" Name="Module 1 Digital Input 8" DataType="Boolean" UniqueID="11" Boolean="false" Visible="true"/>
+                            </Inputs>
+                            <Outputs/>
+                        </Module>
+                        <Module Type="VIPA 021-1BF00">
+                            <Inputs>
+                                <Input IOMapByteOffset="1" IOMapBitOffset="0" Name="Module 2 Digital Input 1" DataType="Boolean" UniqueID="12" Boolean="false" Visible="true"/>
+                                <Input IOMapByteOffset="1" IOMapBitOffset="1" Name="Module 2 Digital Input 2" DataType="Boolean" UniqueID="13" Boolean="false" Visible="true"/>
+                                <Input IOMapByteOffset="1" IOMapBitOffset="2" Name="Module 2 Digital Input 3" DataType="Boolean" UniqueID="14" Boolean="false" Visible="true"/>
+                                <Input IOMapByteOffset="1" IOMapBitOffset="3" Name="Module 2 Digital Input 4" DataType="Boolean" UniqueID="15" Boolean="false" Visible="true"/>
+                                <Input IOMapByteOffset="1" IOMapBitOffset="4" Name="Module 2 Digital Input 5" DataType="Boolean" UniqueID="16" Boolean="false" Visible="true"/>
+                                <Input IOMapByteOffset="1" IOMapBitOffset="5" Name="Module 2 Digital Input 6" DataType="Boolean" UniqueID="17" Boolean="false" Visible="true"/>
+                                <Input IOMapByteOffset="1" IOMapBitOffset="6" Name="Module 2 Digital Input 7" DataType="Boolean" UniqueID="18" Boolean="false" Visible="true"/>
+                                <Input IOMapByteOffset="1" IOMapBitOffset="7" Name="Module 2 Digital Input 8" DataType="Boolean" UniqueID="19" Boolean="false" Visible="true"/>
+                            </Inputs>
+                            <Outputs/>
+                        </Module>
+                        <Module Type="VIPA 022-1HD10">
+                            <Inputs/>
+                            <Outputs>
+                                <Output IOMapByteOffset="0" IOMapBitOffset="0" Name="Module 3 Relais Output 1" DataType="Boolean" UniqueID="20" Boolean="false" Visible="true"/>
+                                <Output IOMapByteOffset="0" IOMapBitOffset="1" Name="Module 3 Relais Output 2" DataType="Boolean" UniqueID="21" Boolean="false" Visible="true"/>
+                                <Output IOMapByteOffset="0" IOMapBitOffset="2" Name="Module 3 Relais Output 3" DataType="Boolean" UniqueID="22" Boolean="false" Visible="true"/>
+                                <Output IOMapByteOffset="0" IOMapBitOffset="3" Name="Module 3 Relais Output 4" DataType="Boolean" UniqueID="23" Boolean="false" Visible="true"/>
+                            </Outputs>
+                        </Module>
+                    </IOModules>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin Name="Module 3 Relais Output 1" DataType="Boolean" UniqueID="133" Boolean="true" Visible="true"/>
-                    <InputPin Name="Module 3 Relais Output 2" DataType="Boolean" UniqueID="134" Boolean="false" Visible="true"/>
-                    <InputPin Name="Module 3 Relais Output 3" DataType="Boolean" UniqueID="135" Boolean="false" Visible="true"/>
-                    <InputPin Name="Module 3 Relais Output 4" DataType="Boolean" UniqueID="136" Boolean="true" Visible="true"/>
+                    <InputPin Name="Module 3 Relais Output 1" DataType="Boolean" UniqueID="20" Boolean="false" Visible="true"/>
+                    <InputPin Name="Module 3 Relais Output 2" DataType="Boolean" UniqueID="21" Boolean="false" Visible="true"/>
+                    <InputPin Name="Module 3 Relais Output 3" DataType="Boolean" UniqueID="22" Boolean="false" Visible="true"/>
+                    <InputPin Name="Module 3 Relais Output 4" DataType="Boolean" UniqueID="23" Boolean="false" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin Name="Module 1 Digital Input 1" DataType="Boolean" UniqueID="117" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 1 Digital Input 2" DataType="Boolean" UniqueID="118" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 1 Digital Input 3" DataType="Boolean" UniqueID="119" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 1 Digital Input 4" DataType="Boolean" UniqueID="120" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 1 Digital Input 5" DataType="Boolean" UniqueID="121" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 1 Digital Input 6" DataType="Boolean" UniqueID="122" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 1 Digital Input 7" DataType="Boolean" UniqueID="123" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 1 Digital Input 8" DataType="Boolean" UniqueID="124" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 2 Digital Input 1" DataType="Boolean" UniqueID="125" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 2 Digital Input 2" DataType="Boolean" UniqueID="126" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 2 Digital Input 3" DataType="Boolean" UniqueID="127" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 2 Digital Input 4" DataType="Boolean" UniqueID="128" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 2 Digital Input 5" DataType="Boolean" UniqueID="129" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 2 Digital Input 6" DataType="Boolean" UniqueID="130" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 2 Digital Input 7" DataType="Boolean" UniqueID="131" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Module 2 Digital Input 8" DataType="Boolean" UniqueID="132" Boolean="false" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="Multiplication" UniqueID="151" NodeType="PROCESSOR" CustomName="Multiplication">
-                <NodeEditorPosition x="-8330" y="-6055"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin Name="input" DataType="Real" UniqueID="152" Real="0" Visible="true"/>
-                    <InputPin Name="mult" DataType="Real" UniqueID="153" Real="1" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="result" DataType="Real" UniqueID="154" Real="1523.1551142999999" Visible="true"/>
+                    <OutputPin Name="GPIO" DataType="unknown" UniqueID="3" Visible="true"/>
+                    <OutputPin Name="Module 1 Digital Input 1" DataType="Boolean" UniqueID="4" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Module 1 Digital Input 2" DataType="Boolean" UniqueID="5" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Module 1 Digital Input 3" DataType="Boolean" UniqueID="6" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Module 1 Digital Input 4" DataType="Boolean" UniqueID="7" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Module 1 Digital Input 5" DataType="Boolean" UniqueID="8" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Module 1 Digital Input 6" DataType="Boolean" UniqueID="9" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Module 1 Digital Input 7" DataType="Boolean" UniqueID="10" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Module 1 Digital Input 8" DataType="Boolean" UniqueID="11" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Module 2 Digital Input 1" DataType="Boolean" UniqueID="12" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Module 2 Digital Input 2" DataType="Boolean" UniqueID="13" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Module 2 Digital Input 3" DataType="Boolean" UniqueID="14" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Module 2 Digital Input 4" DataType="Boolean" UniqueID="15" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Module 2 Digital Input 5" DataType="Boolean" UniqueID="16" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Module 2 Digital Input 6" DataType="Boolean" UniqueID="17" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Module 2 Digital Input 7" DataType="Boolean" UniqueID="18" Boolean="false" Visible="true"/>
+                    <OutputPin Name="Module 2 Digital Input 8" DataType="Boolean" UniqueID="19" Boolean="false" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
-        <Links>
-            <Link UniqueID="37" StartPin="32" EndPin="34"/>
-            <Link UniqueID="87" StartPin="36" EndPin="63"/>
-            <Link UniqueID="88" StartPin="36" EndPin="59"/>
-            <Link UniqueID="89" StartPin="36" EndPin="55"/>
-            <Link UniqueID="90" StartPin="36" EndPin="51"/>
-            <Link UniqueID="91" StartPin="53" EndPin="76"/>
-            <Link UniqueID="92" StartPin="57" EndPin="73"/>
-            <Link UniqueID="93" StartPin="61" EndPin="70"/>
-            <Link UniqueID="94" StartPin="65" EndPin="67"/>
-            <Link UniqueID="95" StartPin="68" EndPin="79"/>
-            <Link UniqueID="96" StartPin="71" EndPin="82"/>
-            <Link UniqueID="97" StartPin="74" EndPin="85"/>
-            <Link UniqueID="98" StartPin="77" EndPin="46"/>
-            <Link UniqueID="99" StartPin="80" EndPin="15"/>
-            <Link UniqueID="100" StartPin="83" EndPin="16"/>
-            <Link UniqueID="101" StartPin="86" EndPin="17"/>
-            <Link UniqueID="102" StartPin="47" EndPin="18"/>
-            <Link UniqueID="141" StartPin="80" EndPin="27"/>
-            <Link UniqueID="142" StartPin="83" EndPin="28"/>
-            <Link UniqueID="143" StartPin="86" EndPin="29"/>
-            <Link UniqueID="144" StartPin="47" EndPin="30"/>
-            <Link UniqueID="145" StartPin="80" EndPin="133"/>
-            <Link UniqueID="146" StartPin="83" EndPin="134"/>
-            <Link UniqueID="147" StartPin="86" EndPin="135"/>
-            <Link UniqueID="148" StartPin="47" EndPin="136"/>
-            <Link UniqueID="149" StartPin="32" EndPin="59"/>
-            <Link UniqueID="150" StartPin="32" EndPin="51"/>
-            <Link UniqueID="155" StartPin="32" EndPin="152"/>
-            <Link UniqueID="156" StartPin="154" EndPin="51"/>
-            <Link UniqueID="157" StartPin="154" EndPin="55"/>
-        </Links>
+        <Links/>
     </NodeGraph>
 </Environnement>
 
@@ -253,5 +78,5 @@
     <NetworkInterfaceCard>
         <Primary Description="Realtek USB NIC" Name="\Device\NPF_{42C81A11-795E-4D7C-83AE-39EF61932528}"/>
     </NetworkInterfaceCard>
-    <Timing ProcessIntervalMilliseconds="1.5" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612" SlaveStateCheckCycleCount="50"/>
+    <Timing ProcessIntervalMilliseconds="1.5" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000000000001" SlaveStateCheckCycleCount="50"/>
 </FieldbusSettings>

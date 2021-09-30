@@ -56,6 +56,8 @@ public:
 		setup(t, d, n);
 	}
 
+	ioData() {}
+
 	//data infos
 	const char* getName() { return name; }
 	bool isInput() { return direction == DataDirection::NODE_INPUT; }
