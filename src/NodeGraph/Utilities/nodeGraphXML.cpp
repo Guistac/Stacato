@@ -178,7 +178,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			}
 			if (matchingPin == nullptr) return Logger::warn("Could not find pin Matching name: {}  datatype: {}", saveNameString, dataTypeString);
 			if (matchingPin->getUniqueID() > largestUniqueID) largestUniqueID = matchingPin->getUniqueID();
-			Logger::trace("Loaded Input Pin {} (DisplayName: '{}') with dataType: {} visibility: {}", matchingPin->getSaveName(), matchingPin->getDisplayName(), matchingPin->getTypeName(), matchingPin->isVisible());
+			Logger::trace("Loaded Input Pin {} (DisplayName: '{}') with dataType: {} visibility: {}", matchingPin->getSaveName(), matchingPin->getDisplayName(), getNodeDataType(matchingPin->getType())->displayName, matchingPin->isVisible());
 			inputPinXML = inputPinXML->NextSiblingElement();
 		}
 		XMLElement* outputPinsXML = nodeXML->FirstChildElement("OutputPins");
@@ -199,7 +199,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			}
 			if (matchingPin == nullptr) return Logger::warn("Could not find pin Matching name: {}  datatype: {}", saveNameString, dataTypeString);
 			if (matchingPin->getUniqueID() > largestUniqueID) largestUniqueID = matchingPin->getUniqueID();
-			Logger::trace("Loaded Output Pin {} (DisplayName: '{}') with dataType: {} visibility: {}", matchingPin->getSaveName(), matchingPin->getDisplayName(), matchingPin->getTypeName(), matchingPin->isVisible());
+			Logger::trace("Loaded Output Pin {} (DisplayName: '{}') with dataType: {} visibility: {}", matchingPin->getSaveName(), matchingPin->getDisplayName(), getNodeDataType(matchingPin->getType())->displayName, matchingPin->isVisible());
 			outputPinXML = outputPinXML->NextSiblingElement();
 		}
 

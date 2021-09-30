@@ -179,12 +179,12 @@ std::vector<std::shared_ptr<Node>> NodePin::getNodesLinkedAtInputs() {
 bool NodePin::save(tinyxml2::XMLElement* xml) {
 	xml->SetAttribute("SaveName", getSaveName());
 	xml->SetAttribute("DisplayName", getDisplayName());
-	xml->SetAttribute("DataType", getTypeName());
+	xml->SetAttribute("DataType", getNodeDataType(getType())->saveName);
 	xml->SetAttribute("UniqueID", getUniqueID());
 	switch (getType()) {
-		case NodeData::BOOLEAN_VALUE: xml->SetAttribute(getTypeName(), getBoolean()); break;
-		case NodeData::INTEGER_VALUE: xml->SetAttribute(getTypeName(), getInteger()); break;
-		case NodeData::REAL_VALUE: xml->SetAttribute(getTypeName(), getReal()); break;
+		case NodeData::BOOLEAN_VALUE: xml->SetAttribute(getNodeDataType(getType())->saveName, getBoolean()); break;
+		case NodeData::INTEGER_VALUE: xml->SetAttribute(getNodeDataType(getType())->saveName, getInteger()); break;
+		case NodeData::REAL_VALUE: xml->SetAttribute(getNodeDataType(getType())->saveName, getReal()); break;
 	}
 	xml->SetAttribute("Visible", isVisible());
 
@@ -245,12 +245,12 @@ bool NodePin::load(tinyxml2::XMLElement* xml) {
 }
 
 bool NodePin::matches(const char* saveNameString, const char* dataTypeString) {
-	return strcmp(saveName, saveNameString) == 0 && strcmp(dataTypeString, getTypeName()) == 0;
+	return strcmp(saveName, saveNameString) == 0 && strcmp(dataTypeString, getNodeDataType(getType())->saveName) == 0;
 }
 
 
 
-std::vector<NodeData> NodeDatas = {
+std::vector<NodeData> NodeDataTypes = {
 	{NodeData::Type::BOOLEAN_VALUE, "Boolean", "Boolean"},
 	{NodeData::Type::INTEGER_VALUE, "Integer", "Integer"},
 	{NodeData::Type::REAL_VALUE, "Real", "Real"},
@@ -258,14 +258,17 @@ std::vector<NodeData> NodeDatas = {
 	{NodeData::Type::POSITIONFEEDBACK_DEVICELINK, "Position Feedback", "PositionFeedbackDeviceLink"},
 	{NodeData::Type::GPIO_DEVICELINK, "GPIO", "GPIODeviceLink"}
 };
-NodeData* getDataType(NodeData::Type type) {
-	for (NodeData& dataType : NodeDatas) {
+std::vector<NodeData>& getNodeDataTypes() {
+	return NodeDataTypes;
+}
+NodeData* getNodeDataType(NodeData::Type type) {
+	for (NodeData& dataType : NodeDataTypes) {
 		if (type == dataType.type) return &dataType;
 	}
 	return nullptr;
 }
-NodeData* getDataType(const char* saveName) {
-	for (NodeData& dataType : NodeDatas) {
+NodeData* getNodeDataType(const char* saveName) {
+	for (NodeData& dataType : NodeDataTypes) {
 		if (strcmp(saveName, dataType.saveName)) return &dataType;
 	}
 	return nullptr;

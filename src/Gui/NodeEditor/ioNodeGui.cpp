@@ -288,7 +288,7 @@ void Node::propertiesGui() {
                         ImGui::TableSetColumnIndex(1);
                         ImGui::Text("%s", data->getDisplayName());
                         ImGui::TableSetColumnIndex(2);
-                        ImGui::Text("%s", data->getTypeName());
+                        ImGui::Text("%s", getNodeDataType(data->getType())->displayName);
                         ImGui::TableSetColumnIndex(3);
                         ImGui::Text("%s", data->getValueString());
                     }

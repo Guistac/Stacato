@@ -22,9 +22,10 @@ struct NodeData {
 	char displayName[64];
 	char saveName[64];
 };
-extern std::vector<NodeData> NodeDatas;
-NodeData* getDataType(NodeData::Type type);
-NodeData* getDataType(const char* saveName);
+extern std::vector<NodeData> NodeDataTypes;
+std::vector<NodeData>& getNodeDataTypes();
+NodeData* getNodeDataType(NodeData::Type type);
+NodeData* getNodeDataType(const char* saveName);
 
 enum DataDirection {
 	NODE_INPUT,
@@ -36,10 +37,10 @@ enum NodePinFlags {
 	NodePinFlags_None					= 0,
 	NodePinFlags_AcceptMultipleInputs	= 1 << 0,
 	NodePinFlags_DisablePin				= 1 << 1,
-	NodePinFlags_NoDataField				= 1 << 2,
+	NodePinFlags_NoDataField			= 1 << 2,
 	NodePinFlags_ForceDataField			= 1 << 3,
 	NodePinFlags_DisableDataField		= 1 << 4,
-	NodePinFlags_HidePin					= 1 << 5
+	NodePinFlags_HidePin				= 1 << 5
 };
 
 inline NodePinFlags operator|(NodePinFlags a, NodePinFlags b){
@@ -74,11 +75,6 @@ public:
 	bool isOutput() { return direction == DataDirection::NODE_OUTPUT; }
 
 	NodeData::Type getType() { return type; }
-	const char* getTypeName() { 
-		NodeData* dataType = getDataType(type);
-		if (dataType == nullptr) return "unknown";
-		else return dataType->displayName;
-	}
 	bool isSameTypeAs(NodePin& other) { return other.type == type; }
 	void setType(NodeData::Type t) {
 		switch (t){
