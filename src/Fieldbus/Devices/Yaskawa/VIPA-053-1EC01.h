@@ -18,7 +18,7 @@ public:
         int ioMapByteOffset;    //byte index in the ioMap
         int ioMapBitOffset;     //bit offset in the ioMap byte
         char saveName[64];      //used to match NodePin pin
-        NodePinType::Type dataType;      //used to match NodePin pin
+        NodeData::Type dataType;      //used to match NodePin pin
         std::shared_ptr<NodePin> NodePin; //actual NodePin pin for nodegraph logic
     };
 
@@ -63,7 +63,7 @@ public:
     //subdevices
     std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
 
-    std::shared_ptr<NodePin> gpNodeLink = std::make_shared<NodePin>(NodePinType::Type::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
+    std::shared_ptr<NodePin> gpNodeLink = std::make_shared<NodePin>(NodeData::Type::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
     std::vector<Module> ioModules;
 
 

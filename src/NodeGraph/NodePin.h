@@ -9,7 +9,7 @@ class NodeLink;
 
 namespace tinyxml2 { class XMLElement; }
 
-struct NodePinType {
+struct NodeData {
 	enum Type {
 		BOOLEAN_VALUE,
 		INTEGER_VALUE,
@@ -22,9 +22,9 @@ struct NodePinType {
 	char displayName[64];
 	char saveName[64];
 };
-extern std::vector<NodePinType> NodePinTypes;
-NodePinType* getDataType(NodePinType::Type type);
-NodePinType* getDataType(const char* saveName);
+extern std::vector<NodeData> NodeDatas;
+NodeData* getDataType(NodeData::Type type);
+NodeData* getDataType(const char* saveName);
 
 enum DataDirection {
 	NODE_INPUT,
@@ -49,19 +49,19 @@ inline NodePinFlags operator|(NodePinFlags a, NodePinFlags b){
 class NodePin {
 public:
 
-	NodePin(NodePinType::Type t, DataDirection d, const char* displayN, const char* saveN, NodePinFlags flags) : type(t), direction(d) {
+	NodePin(NodeData::Type t, DataDirection d, const char* displayN, const char* saveN, NodePinFlags flags) : type(t), direction(d) {
 		setup(t, d, displayN, saveN, flags);
 	}
 
-	NodePin(NodePinType::Type t, DataDirection d, const char* displayN, NodePinFlags flags) : type(t), direction(d) {
+	NodePin(NodeData::Type t, DataDirection d, const char* displayN, NodePinFlags flags) : type(t), direction(d) {
 		setup(t, d, displayN, displayN, flags); //displayName is used as savename
 	}
 
-	NodePin(NodePinType::Type t, DataDirection d, const char* displayN, const char* saveN) : type(t), direction(d) {
+	NodePin(NodeData::Type t, DataDirection d, const char* displayN, const char* saveN) : type(t), direction(d) {
 		setup(t, d, displayN, saveN, NodePinFlags_None);
 	}
 
-	NodePin(NodePinType::Type t, DataDirection d, const char* displayN) : type(t), direction(d) {
+	NodePin(NodeData::Type t, DataDirection d, const char* displayN) : type(t), direction(d) {
 		setup(t, d, displayN, displayN, NodePinFlags_None); //displayName is used as savename
 	}
 
@@ -73,21 +73,21 @@ public:
 	bool isInput() { return direction == DataDirection::NODE_INPUT; }
 	bool isOutput() { return direction == DataDirection::NODE_OUTPUT; }
 
-	NodePinType::Type getType() { return type; }
+	NodeData::Type getType() { return type; }
 	const char* getTypeName() { 
-		NodePinType* dataType = getDataType(type);
+		NodeData* dataType = getDataType(type);
 		if (dataType == nullptr) return "unknown";
 		else return dataType->displayName;
 	}
 	bool isSameTypeAs(NodePin& other) { return other.type == type; }
-	void setType(NodePinType::Type t) {
+	void setType(NodeData::Type t) {
 		switch (t){
-			case NodePinType::Type::BOOLEAN_VALUE: set(getBoolean()); break;
-			case NodePinType::Type::INTEGER_VALUE: set(getInteger()); break;
-			case NodePinType::Type::REAL_VALUE: set(getReal()); break;
-			case NodePinType::Type::ACTUATOR_DEVICELINK: break;
-			case NodePinType::Type::POSITIONFEEDBACK_DEVICELINK: break;
-			case NodePinType::Type::GPIO_DEVICELINK: break;
+			case NodeData::Type::BOOLEAN_VALUE: set(getBoolean()); break;
+			case NodeData::Type::INTEGER_VALUE: set(getInteger()); break;
+			case NodeData::Type::REAL_VALUE: set(getReal()); break;
+			case NodeData::Type::ACTUATOR_DEVICELINK: break;
+			case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: break;
+			case NodeData::Type::GPIO_DEVICELINK: break;
 		}
 		type = t;
 	}
@@ -105,12 +105,12 @@ public:
 	bool& isVisible() { return b_visible; }
 
 	//datatype infos
-	bool isBool()							{ return type == NodePinType::Type::BOOLEAN_VALUE; }
-	bool isInteger()						{ return type == NodePinType::Type::INTEGER_VALUE; }
-	bool isDouble()							{ return type == NodePinType::Type::REAL_VALUE; }
-	bool isActuatorDeviceLink()				{ return type == NodePinType::Type::ACTUATOR_DEVICELINK; }
-	bool isPositionFeedbackDeviceLink()		{ return type == NodePinType::Type::POSITIONFEEDBACK_DEVICELINK; }
-	bool isGpioDeviceLink()					{ return type == NodePinType::Type::GPIO_DEVICELINK; }
+	bool isBool()							{ return type == NodeData::Type::BOOLEAN_VALUE; }
+	bool isInteger()						{ return type == NodeData::Type::INTEGER_VALUE; }
+	bool isDouble()							{ return type == NodeData::Type::REAL_VALUE; }
+	bool isActuatorDeviceLink()				{ return type == NodeData::Type::ACTUATOR_DEVICELINK; }
+	bool isPositionFeedbackDeviceLink()		{ return type == NodeData::Type::POSITIONFEEDBACK_DEVICELINK; }
+	bool isGpioDeviceLink()					{ return type == NodeData::Type::GPIO_DEVICELINK; }
 
 	//setting data (with data conversions)
 	void set(bool boolean);
@@ -153,7 +153,7 @@ private:
 	int uniqueID = -1;
 	bool b_visible = true;
 
-	NodePinType::Type type;
+	NodeData::Type type;
 	DataDirection direction;
 	char saveName[64];		//used for matching
 	char displayName[64];	//used for displaying
@@ -171,7 +171,7 @@ private:
 	std::shared_ptr<PositionFeedbackDevice> positionFeedbackDevice = nullptr;
 	std::shared_ptr<GpioDevice> gpioDevice = nullptr;
 
-	void setup(NodePinType::Type t, DataDirection d, const char* displayN, const char* saveN, NodePinFlags flags) {
+	void setup(NodeData::Type t, DataDirection d, const char* displayN, const char* saveN, NodePinFlags flags) {
 		strcpy(displayName, displayN);
 		strcpy(saveName, saveN);
 		b_acceptsMultipleInputs = flags & NodePinFlags_AcceptMultipleInputs;
@@ -181,12 +181,12 @@ private:
 		b_disableDataField = flags & NodePinFlags_DisableDataField;
 		b_visible = !(flags & NodePinFlags_HidePin);
 		switch (type) {
-			case NodePinType::Type::BOOLEAN_VALUE: booleanValue = false; break;
-			case NodePinType::Type::INTEGER_VALUE: integerValue = 0; break;
-			case NodePinType::Type::REAL_VALUE: realValue = 0.0; break;
-			case NodePinType::Type::ACTUATOR_DEVICELINK:
-			case NodePinType::Type::POSITIONFEEDBACK_DEVICELINK:
-			case NodePinType::Type::GPIO_DEVICELINK:
+			case NodeData::Type::BOOLEAN_VALUE: booleanValue = false; break;
+			case NodeData::Type::INTEGER_VALUE: integerValue = 0; break;
+			case NodeData::Type::REAL_VALUE: realValue = 0.0; break;
+			case NodeData::Type::ACTUATOR_DEVICELINK:
+			case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
+			case NodeData::Type::GPIO_DEVICELINK:
 					b_noDataField = true;
 					b_forceDataField = false;
 					break;

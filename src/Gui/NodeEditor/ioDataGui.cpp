@@ -27,13 +27,13 @@ void NodePin::dataGui() {
 
     ImGui::PushID(getUniqueID());
     switch (getType()) {
-    case NodePinType::BOOLEAN_VALUE:
+    case NodeData::BOOLEAN_VALUE:
         ImGui::Checkbox("##", &booleanValue);
         break;
-    case NodePinType::INTEGER_VALUE:
+    case NodeData::INTEGER_VALUE:
         ImGui::InputScalar("##", ImGuiDataType_S64, &integerValue);
         break;
-    case NodePinType::REAL_VALUE:
+    case NodeData::REAL_VALUE:
         ImGui::InputDouble("##", &realValue, 0.0, 0.0, "%.3f");
         break;
     }
@@ -54,7 +54,7 @@ float NodePin::getGuiWidth() {
     //if the pin is connected, don't display its value, but add space for an icon
     if (!shouldDisplayDataGui())  return pinTextWidth + ImGui::GetStyle().ItemSpacing.x + iconDummyWidth;
     //if it is connected and the type is boolean, add the width and spacing for a checkbox and icon
-    else if (getType() == NodePinType::BOOLEAN_VALUE)  return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + ImGui::GetFrameHeight();
+    else if (getType() == NodeData::BOOLEAN_VALUE)  return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + ImGui::GetFrameHeight();
     //if it is connected and is not a boolean, add the width and spacing for an input field and icon
     else                                            return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + dataFieldWidth;
 }
@@ -75,9 +75,9 @@ void NodePin::pinGui() {
 
     pinIcon icon;
     switch (getType()) {
-    case NodePinType::BOOLEAN_VALUE: icon = ROUNDED_SQUARED; break;
-    case NodePinType::INTEGER_VALUE: icon = DIAMOND; break;
-    case NodePinType::REAL_VALUE: icon = ARROW; break;
+    case NodeData::BOOLEAN_VALUE: icon = ROUNDED_SQUARED; break;
+    case NodeData::INTEGER_VALUE: icon = DIAMOND; break;
+    case NodeData::REAL_VALUE: icon = ARROW; break;
     default: icon = CIRCLE_ARROW_OUT; break;
     }
 

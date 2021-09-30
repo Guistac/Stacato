@@ -17,17 +17,17 @@ public:
 	DEFINE_AXIS_NODE("Axis", Axis);
 
 	//Device Links
-	std::shared_ptr<NodePin> actuatorDeviceLinks = std::make_shared<NodePin>(NodePinType::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuators", NodePinFlags_AcceptMultipleInputs);
-	std::shared_ptr<NodePin> feedbackDeviceLink = std::make_shared<NodePin>(NodePinType::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_INPUT, "Encoder");
-	std::shared_ptr<NodePin> referenceDeviceLinks = std::make_shared<NodePin>(NodePinType::GPIO_DEVICELINK, DataDirection::NODE_INPUT, "Reference Devices", NodePinFlags_AcceptMultipleInputs);
+	std::shared_ptr<NodePin> actuatorDeviceLinks = std::make_shared<NodePin>(NodeData::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuators", NodePinFlags_AcceptMultipleInputs);
+	std::shared_ptr<NodePin> feedbackDeviceLink = std::make_shared<NodePin>(NodeData::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_INPUT, "Encoder");
+	std::shared_ptr<NodePin> referenceDeviceLinks = std::make_shared<NodePin>(NodeData::GPIO_DEVICELINK, DataDirection::NODE_INPUT, "Reference Devices", NodePinFlags_AcceptMultipleInputs);
 
 	//Inputs
-	std::shared_ptr<NodePin> positionFeedback = std::make_shared<NodePin>(NodePinType::REAL_VALUE, DataDirection::NODE_INPUT, "Position Feedback");
-	std::shared_ptr<NodePin> positionReferences = std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "References", NodePinFlags_AcceptMultipleInputs);
+	std::shared_ptr<NodePin> positionFeedback = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "Position Feedback");
+	std::shared_ptr<NodePin> positionReferences = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "References", NodePinFlags_AcceptMultipleInputs);
 
 	//Outputs
-	std::shared_ptr<NodePin> actuatorCommand = std::make_shared<NodePin>(NodePinType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Command", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> resetPositionFeedback = std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Position Feedback", NodePinFlags_DisableDataField | NodePinFlags_HidePin);
+	std::shared_ptr<NodePin> actuatorCommand = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Command", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> resetPositionFeedback = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Position Feedback", NodePinFlags_DisableDataField | NodePinFlags_HidePin);
 
 
 	//==================== AXIS DATA ====================
@@ -152,14 +152,14 @@ public:
 
 	DEFINE_AXIS_NODE("State Machine Axis", StateMachineAxis);
 
-	std::shared_ptr<NodePin> deviceLink = std::make_shared<NodePin>(NodePinType::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuators", NodePinFlags_AcceptMultipleInputs);
-	std::shared_ptr<NodePin> state0ref = std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "State 0 Feedback");
-	std::shared_ptr<NodePin> state1ref = std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "State 1 Feedback");
-	std::shared_ptr<NodePin> state2ref = std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "State 2 Feedback");
+	std::shared_ptr<NodePin> deviceLink = std::make_shared<NodePin>(NodeData::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuators", NodePinFlags_AcceptMultipleInputs);
+	std::shared_ptr<NodePin> state0ref = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "State 0 Feedback");
+	std::shared_ptr<NodePin> state1ref = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "State 1 Feedback");
+	std::shared_ptr<NodePin> state2ref = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "State 2 Feedback");
 
-	std::shared_ptr<NodePin> state0Command = std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "State 0 Command", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> state1Command = std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "State 0 Command", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> state2Command = std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "State 0 Command", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> state0Command = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "State 0 Command", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> state1Command = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "State 0 Command", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> state2Command = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "State 0 Command", NodePinFlags_DisableDataField);
 
 	virtual void assignIoData() {
 		addIoData(deviceLink);

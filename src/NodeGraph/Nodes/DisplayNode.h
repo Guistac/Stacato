@@ -12,7 +12,7 @@ public:
 		addIoData(displayInput);
 	}
 
-	std::shared_ptr<NodePin> displayInput = std::make_shared<NodePin>(NodePinType::REAL_VALUE, DataDirection::NODE_INPUT, "value: ", NodePinFlags_DisableDataField | NodePinFlags_ForceDataField);
+	std::shared_ptr<NodePin> displayInput = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "value: ", NodePinFlags_DisableDataField | NodePinFlags_ForceDataField);
 
 	virtual void process() {
 		if (displayInput->isConnected()) displayInput->set(displayInput->getLinks().front()->getInputData()->getReal());

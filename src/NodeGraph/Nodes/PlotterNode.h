@@ -22,7 +22,7 @@ public:
 	ScrollingBuffer data;
 	bool wasConnected = false;
 
-	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePinType::REAL_VALUE, DataDirection::NODE_INPUT, "input", NodePinFlags_ForceDataField | NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "input", NodePinFlags_ForceDataField | NodePinFlags_DisableDataField);
 
 	virtual void process() {
 		if (input->isConnected()) {

@@ -8,59 +8,59 @@
 
 bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> otherData) {
 	switch (type) {
-		case NodePinType::Type::BOOLEAN_VALUE:
+		case NodeData::Type::BOOLEAN_VALUE:
 			switch (otherData->getType()) {
-				case NodePinType::Type::BOOLEAN_VALUE:
-				case NodePinType::Type::INTEGER_VALUE:
-				case NodePinType::Type::REAL_VALUE: return true;
-				case NodePinType::Type::ACTUATOR_DEVICELINK:
-				case NodePinType::Type::POSITIONFEEDBACK_DEVICELINK:
-				case NodePinType::Type::GPIO_DEVICELINK: return false;
+				case NodeData::Type::BOOLEAN_VALUE:
+				case NodeData::Type::INTEGER_VALUE:
+				case NodeData::Type::REAL_VALUE: return true;
+				case NodeData::Type::ACTUATOR_DEVICELINK:
+				case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
+				case NodeData::Type::GPIO_DEVICELINK: return false;
 			}
-		case NodePinType::Type::INTEGER_VALUE:
+		case NodeData::Type::INTEGER_VALUE:
 			switch (otherData->getType()) {
-				case NodePinType::Type::BOOLEAN_VALUE:
-				case NodePinType::Type::INTEGER_VALUE:
-				case NodePinType::Type::REAL_VALUE: return true;
-				case NodePinType::Type::ACTUATOR_DEVICELINK:
-				case NodePinType::Type::POSITIONFEEDBACK_DEVICELINK:
-				case NodePinType::Type::GPIO_DEVICELINK: return false;
+				case NodeData::Type::BOOLEAN_VALUE:
+				case NodeData::Type::INTEGER_VALUE:
+				case NodeData::Type::REAL_VALUE: return true;
+				case NodeData::Type::ACTUATOR_DEVICELINK:
+				case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
+				case NodeData::Type::GPIO_DEVICELINK: return false;
 			}
-		case NodePinType::Type::REAL_VALUE:
+		case NodeData::Type::REAL_VALUE:
 			switch (otherData->getType()) {
-				case NodePinType::Type::BOOLEAN_VALUE:
-				case NodePinType::Type::INTEGER_VALUE:
-				case NodePinType::Type::REAL_VALUE: return true;
-				case NodePinType::Type::ACTUATOR_DEVICELINK:
-				case NodePinType::Type::POSITIONFEEDBACK_DEVICELINK:
-				case NodePinType::Type::GPIO_DEVICELINK: return false;
+				case NodeData::Type::BOOLEAN_VALUE:
+				case NodeData::Type::INTEGER_VALUE:
+				case NodeData::Type::REAL_VALUE: return true;
+				case NodeData::Type::ACTUATOR_DEVICELINK:
+				case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
+				case NodeData::Type::GPIO_DEVICELINK: return false;
 			}
-		case NodePinType::Type::ACTUATOR_DEVICELINK:
+		case NodeData::Type::ACTUATOR_DEVICELINK:
 			switch (otherData->getType()) {
-				case NodePinType::Type::BOOLEAN_VALUE:
-				case NodePinType::Type::INTEGER_VALUE:
-				case NodePinType::Type::REAL_VALUE: return false;
-				case NodePinType::Type::ACTUATOR_DEVICELINK: return true;
-				case NodePinType::Type::POSITIONFEEDBACK_DEVICELINK:
-				case NodePinType::Type::GPIO_DEVICELINK: return false;
+				case NodeData::Type::BOOLEAN_VALUE:
+				case NodeData::Type::INTEGER_VALUE:
+				case NodeData::Type::REAL_VALUE: return false;
+				case NodeData::Type::ACTUATOR_DEVICELINK: return true;
+				case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
+				case NodeData::Type::GPIO_DEVICELINK: return false;
 			}
-		case NodePinType::Type::POSITIONFEEDBACK_DEVICELINK:
+		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
 			switch (otherData->getType()) {
-				case NodePinType::Type::BOOLEAN_VALUE:
-				case NodePinType::Type::INTEGER_VALUE:
-				case NodePinType::Type::REAL_VALUE: 
-				case NodePinType::Type::ACTUATOR_DEVICELINK: return false;
-				case NodePinType::Type::POSITIONFEEDBACK_DEVICELINK: return true;
-				case NodePinType::Type::GPIO_DEVICELINK: return false;
+				case NodeData::Type::BOOLEAN_VALUE:
+				case NodeData::Type::INTEGER_VALUE:
+				case NodeData::Type::REAL_VALUE: 
+				case NodeData::Type::ACTUATOR_DEVICELINK: return false;
+				case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: return true;
+				case NodeData::Type::GPIO_DEVICELINK: return false;
 			}
-		case NodePinType::Type::GPIO_DEVICELINK:
+		case NodeData::Type::GPIO_DEVICELINK:
 			switch (otherData->getType()) {
-				case NodePinType::Type::BOOLEAN_VALUE:
-				case NodePinType::Type::INTEGER_VALUE:
-				case NodePinType::Type::REAL_VALUE:
-				case NodePinType::Type::ACTUATOR_DEVICELINK:
-				case NodePinType::Type::POSITIONFEEDBACK_DEVICELINK: return false;
-				case NodePinType::Type::GPIO_DEVICELINK: return true;
+				case NodeData::Type::BOOLEAN_VALUE:
+				case NodeData::Type::INTEGER_VALUE:
+				case NodeData::Type::REAL_VALUE:
+				case NodeData::Type::ACTUATOR_DEVICELINK:
+				case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: return false;
+				case NodeData::Type::GPIO_DEVICELINK: return true;
 			}
 	}
 }
@@ -68,27 +68,27 @@ bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> otherData) {
 //setting data (with data conversions)
 void NodePin::set(bool boolean) {
 	switch (type) {
-		case NodePinType::Type::BOOLEAN_VALUE: booleanValue = boolean; break;
-		case NodePinType::Type::INTEGER_VALUE: integerValue = boolean; break;
-		case NodePinType::Type::REAL_VALUE: realValue = boolean; break;
+		case NodeData::Type::BOOLEAN_VALUE: booleanValue = boolean; break;
+		case NodeData::Type::INTEGER_VALUE: integerValue = boolean; break;
+		case NodeData::Type::REAL_VALUE: realValue = boolean; break;
 		default: break;
 	}
 }
 
 void NodePin::set(long long int integer) {
 	switch (type) {
-		case NodePinType::Type::INTEGER_VALUE: integerValue = integer; break;
-		case NodePinType::Type::BOOLEAN_VALUE: booleanValue = integer > 0; break;
-		case NodePinType::Type::REAL_VALUE: realValue = integer; break;
+		case NodeData::Type::INTEGER_VALUE: integerValue = integer; break;
+		case NodeData::Type::BOOLEAN_VALUE: booleanValue = integer > 0; break;
+		case NodeData::Type::REAL_VALUE: realValue = integer; break;
 		default: break;
 	}
 }
 
 void NodePin::set(double real) {
 	switch (type) {
-		case NodePinType::Type::REAL_VALUE: realValue = real; break;
-		case NodePinType::Type::BOOLEAN_VALUE: booleanValue = real > 0.0; break;
-		case NodePinType::Type::INTEGER_VALUE: integerValue = real; break;
+		case NodeData::Type::REAL_VALUE: realValue = real; break;
+		case NodeData::Type::BOOLEAN_VALUE: booleanValue = real > 0.0; break;
+		case NodeData::Type::INTEGER_VALUE: integerValue = real; break;
 		default: break;
 	}
 }
@@ -108,25 +108,25 @@ void NodePin::set(std::shared_ptr<GpioDevice> device) {
 //reading data (with data conversions)
 bool NodePin::getBoolean() {
 	switch (type) {
-		case NodePinType::Type::BOOLEAN_VALUE: return booleanValue;
-		case NodePinType::Type::INTEGER_VALUE: return integerValue > 0;
-		case NodePinType::Type::REAL_VALUE: return realValue > 0;
+		case NodeData::Type::BOOLEAN_VALUE: return booleanValue;
+		case NodeData::Type::INTEGER_VALUE: return integerValue > 0;
+		case NodeData::Type::REAL_VALUE: return realValue > 0;
 		default: return false;
 	}
 }
 long long int NodePin::getInteger() {
 	switch (type) {
-		case NodePinType::Type::INTEGER_VALUE: return integerValue;
-		case NodePinType::Type::BOOLEAN_VALUE: return (long long int)booleanValue;
-		case NodePinType::Type::REAL_VALUE: return (long long int)realValue;
+		case NodeData::Type::INTEGER_VALUE: return integerValue;
+		case NodeData::Type::BOOLEAN_VALUE: return (long long int)booleanValue;
+		case NodeData::Type::REAL_VALUE: return (long long int)realValue;
 		default: return 0;
 	}
 }
 double NodePin::getReal() {
 	switch (type) {
-		case NodePinType::Type::REAL_VALUE: return realValue;
-		case NodePinType::Type::BOOLEAN_VALUE: return (double)booleanValue;
-		case NodePinType::Type::INTEGER_VALUE: return (double)integerValue;
+		case NodeData::Type::REAL_VALUE: return realValue;
+		case NodeData::Type::BOOLEAN_VALUE: return (double)booleanValue;
+		case NodeData::Type::INTEGER_VALUE: return (double)integerValue;
 		default: return 0.0;
 	}
 }
@@ -149,13 +149,13 @@ std::shared_ptr<GpioDevice> NodePin::getGpioDevice() {
 const char* NodePin::getValueString() {
 	static char output[32];
 	switch (type) {
-		case NodePinType::Type::BOOLEAN_VALUE: strcpy(output, booleanValue ? "True" : "False"); break;
-		case NodePinType::Type::INTEGER_VALUE: sprintf(output, "%i", integerValue); break;
-		case NodePinType::Type::REAL_VALUE: sprintf(output, "%.5f", realValue); break;
+		case NodeData::Type::BOOLEAN_VALUE: strcpy(output, booleanValue ? "True" : "False"); break;
+		case NodeData::Type::INTEGER_VALUE: sprintf(output, "%i", integerValue); break;
+		case NodeData::Type::REAL_VALUE: sprintf(output, "%.5f", realValue); break;
 			//TODO: get values of connected devices
-		case NodePinType::Type::ACTUATOR_DEVICELINK: getSaveName(); break;
-		case NodePinType::Type::POSITIONFEEDBACK_DEVICELINK: getSaveName(); break;
-		case NodePinType::Type::GPIO_DEVICELINK: getSaveName(); break;
+		case NodeData::Type::ACTUATOR_DEVICELINK: getSaveName(); break;
+		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: getSaveName(); break;
+		case NodeData::Type::GPIO_DEVICELINK: getSaveName(); break;
 	}
 	return (const char*)output;
 }
@@ -182,9 +182,9 @@ bool NodePin::save(tinyxml2::XMLElement* xml) {
 	xml->SetAttribute("DataType", getTypeName());
 	xml->SetAttribute("UniqueID", getUniqueID());
 	switch (getType()) {
-		case NodePinType::BOOLEAN_VALUE: xml->SetAttribute(getTypeName(), getBoolean()); break;
-		case NodePinType::INTEGER_VALUE: xml->SetAttribute(getTypeName(), getInteger()); break;
-		case NodePinType::REAL_VALUE: xml->SetAttribute(getTypeName(), getReal()); break;
+		case NodeData::BOOLEAN_VALUE: xml->SetAttribute(getTypeName(), getBoolean()); break;
+		case NodeData::INTEGER_VALUE: xml->SetAttribute(getTypeName(), getInteger()); break;
+		case NodeData::REAL_VALUE: xml->SetAttribute(getTypeName(), getReal()); break;
 	}
 	xml->SetAttribute("Visible", isVisible());
 
@@ -214,17 +214,17 @@ bool NodePin::load(tinyxml2::XMLElement* xml) {
 	const char* dataTypeName;
 	if (xml->QueryStringAttribute("DataType", &dataTypeName) != XML_SUCCESS) return Logger::warn("Could not load Pin Datatype");
 	switch (getType()) {
-		case NodePinType::BOOLEAN_VALUE:
+		case NodeData::BOOLEAN_VALUE:
 			bool booleanData;
 			if (xml->QueryBoolAttribute(dataTypeName, &booleanData) != XML_SUCCESS) return Logger::warn("Could not load data of type {}", dataTypeName);
 			set(booleanData);
 			break;
-		case NodePinType::INTEGER_VALUE:
+		case NodeData::INTEGER_VALUE:
 			long long int integerData;
 			if( xml->QueryInt64Attribute(dataTypeName, &integerData) != XML_SUCCESS) return Logger::warn("Could not load data of type {}", dataTypeName);
 			set(integerData);
 			break;
-		case NodePinType::REAL_VALUE:
+		case NodeData::REAL_VALUE:
 			double realData;
 			if (xml->QueryDoubleAttribute(dataTypeName, &realData) != XML_SUCCESS) return Logger::warn("Could not load data of type {}", dataTypeName);
 			set(realData);
@@ -250,22 +250,22 @@ bool NodePin::matches(const char* saveNameString, const char* dataTypeString) {
 
 
 
-std::vector<NodePinType> NodePinTypes = {
-	{NodePinType::Type::BOOLEAN_VALUE, "Boolean", "Boolean"},
-	{NodePinType::Type::INTEGER_VALUE, "Integer", "Integer"},
-	{NodePinType::Type::REAL_VALUE, "Real", "Real"},
-	{NodePinType::Type::ACTUATOR_DEVICELINK, "Actuator", "ActuatorDeviceLink"},
-	{NodePinType::Type::POSITIONFEEDBACK_DEVICELINK, "Position Feedback", "PositionFeedbackDeviceLink"},
-	{NodePinType::Type::GPIO_DEVICELINK, "GPIO", "GPIODeviceLink"}
+std::vector<NodeData> NodeDatas = {
+	{NodeData::Type::BOOLEAN_VALUE, "Boolean", "Boolean"},
+	{NodeData::Type::INTEGER_VALUE, "Integer", "Integer"},
+	{NodeData::Type::REAL_VALUE, "Real", "Real"},
+	{NodeData::Type::ACTUATOR_DEVICELINK, "Actuator", "ActuatorDeviceLink"},
+	{NodeData::Type::POSITIONFEEDBACK_DEVICELINK, "Position Feedback", "PositionFeedbackDeviceLink"},
+	{NodeData::Type::GPIO_DEVICELINK, "GPIO", "GPIODeviceLink"}
 };
-NodePinType* getDataType(NodePinType::Type type) {
-	for (NodePinType& dataType : NodePinTypes) {
+NodeData* getDataType(NodeData::Type type) {
+	for (NodeData& dataType : NodeDatas) {
 		if (type == dataType.type) return &dataType;
 	}
 	return nullptr;
 }
-NodePinType* getDataType(const char* saveName) {
-	for (NodePinType& dataType : NodePinTypes) {
+NodeData* getDataType(const char* saveName) {
+	for (NodeData& dataType : NodeDatas) {
 		if (strcmp(saveName, dataType.saveName)) return &dataType;
 	}
 	return nullptr;

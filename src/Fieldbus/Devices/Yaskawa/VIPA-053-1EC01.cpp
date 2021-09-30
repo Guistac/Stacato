@@ -155,7 +155,7 @@ void VIPA_053_1EC01::detectIoModules() {
                 char parameterDisplayName[64];
                 sprintf(parameterDisplayName, "Module %i %s Input %i", i+1, getModuleType(module.moduleType)->dataName, j+1);
                 sprintf(moduleParameter.saveName, "Module%i%sInput%i", i+1, getModuleType(module.moduleType)->dataName, j+1);
-                if (moduleParameter.bitCount == 1) moduleParameter.NodePin = std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, parameterDisplayName, moduleParameter.saveName);
+                if (moduleParameter.bitCount == 1) moduleParameter.NodePin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, parameterDisplayName, moduleParameter.saveName);
                 else {
                     Logger::critical("Can't Handle non boolean data in VIPA modules");
                     //TODO: for non boolean values, this will need to be handled differently
@@ -186,7 +186,7 @@ void VIPA_053_1EC01::detectIoModules() {
                 char parameterDisplayName[128];
                 sprintf(parameterDisplayName, "Module %i %s Output %i", i+1, getModuleType(module.moduleType)->dataName, j+1);
                 sprintf(moduleParameter.saveName, "Module%i%sOutput%i", i+1, getModuleType(module.moduleType)->dataName, j+1);
-                if (moduleParameter.bitCount == 1) moduleParameter.NodePin = std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, parameterDisplayName, moduleParameter.saveName);
+                if (moduleParameter.bitCount == 1) moduleParameter.NodePin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, parameterDisplayName, moduleParameter.saveName);
                 else {
                     Logger::critical("Can't Handle non boolean data in VIPA modules");
                     //TODO: for non boolean values, this will need to be handled differently
