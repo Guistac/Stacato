@@ -132,8 +132,8 @@ bool EtherCatBaseData::dataEditFieldGui() {
 
 bool EtherCatBaseData::dataTypeSelectorGui() {
 	bool newTypeSelected = false;
-	if (ImGui::BeginCombo("##DataTypeSelector", getTypeString())) {
-		for (EtherCatData& type : dataTypes) {
+	if (ImGui::BeginCombo("##DataTypeSelector", getEtherCatDataType(dataType)->displayName)) {
+		for (EtherCatData& type : getEtherCatDataTypes()) {
 			if (type.type == EtherCatData::Type::NONE) continue;
 			if (ImGui::Selectable(type.displayName, type.type == dataType)) {
 				dataType = type.type;
@@ -148,8 +148,8 @@ bool EtherCatBaseData::dataTypeSelectorGui() {
 }
 
 void EtherCatBaseData::dataFormatSelectorGui() {
-	if (ImGui::BeginCombo("##DataRepresentation", getRepresentationString())) {
-		for (DataFormat& format : dataRepresentations) {
+	if (ImGui::BeginCombo("##DataRepresentation", getDataFormat(dataFormat)->displayName)) {
+		for (DataFormat& format : getDataFormats()) {
 			bool disableEntry = (dataType == EtherCatData::Type::STRING && format.type != DataFormat::STRING) || (dataType != EtherCatData::Type::STRING && format.type == DataFormat::STRING);
 			if (disableEntry) BEGIN_DISABLE_IMGUI_ELEMENT
 			if (ImGui::Selectable(format.displayName, dataFormat == format.type)) {

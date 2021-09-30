@@ -27,13 +27,13 @@ void ioData::dataGui() {
 
     ImGui::PushID(getUniqueID());
     switch (getType()) {
-    case DataType::BOOLEAN_VALUE:
+    case ioDataType::BOOLEAN_VALUE:
         ImGui::Checkbox("##", &booleanValue);
         break;
-    case DataType::INTEGER_VALUE:
+    case ioDataType::INTEGER_VALUE:
         ImGui::InputScalar("##", ImGuiDataType_S64, &integerValue);
         break;
-    case DataType::REAL_VALUE:
+    case ioDataType::REAL_VALUE:
         ImGui::InputDouble("##", &realValue, 0.0, 0.0, "%.3f");
         break;
     }
@@ -49,12 +49,12 @@ float ioData::getGuiWidth() {
     static float iconDummyWidth = ImGui::GetTextLineHeight() * 0.75;                //width the pin icon actually occupies
     static float dataFieldWidth = ImGui::GetTextLineHeight() * 4.0;
     //get the pin title width
-    float pinTextWidth = ImGui::CalcTextSize(getName()).x;
+    float pinTextWidth = ImGui::CalcTextSize(getDisplayName()).x;
 
     //if the pin is connected, don't display its value, but add space for an icon
     if (!shouldDisplayDataGui())  return pinTextWidth + ImGui::GetStyle().ItemSpacing.x + iconDummyWidth;
     //if it is connected and the type is boolean, add the width and spacing for a checkbox and icon
-    else if (getType() == DataType::BOOLEAN_VALUE)  return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + ImGui::GetFrameHeight();
+    else if (getType() == ioDataType::BOOLEAN_VALUE)  return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + ImGui::GetFrameHeight();
     //if it is connected and is not a boolean, add the width and spacing for an input field and icon
     else                                            return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + dataFieldWidth;
 }
@@ -75,9 +75,9 @@ void ioData::pinGui() {
 
     pinIcon icon;
     switch (getType()) {
-    case DataType::BOOLEAN_VALUE: icon = ROUNDED_SQUARED; break;
-    case DataType::INTEGER_VALUE: icon = DIAMOND; break;
-    case DataType::REAL_VALUE: icon = ARROW; break;
+    case ioDataType::BOOLEAN_VALUE: icon = ROUNDED_SQUARED; break;
+    case ioDataType::INTEGER_VALUE: icon = DIAMOND; break;
+    case ioDataType::REAL_VALUE: icon = ARROW; break;
     default: icon = CIRCLE_ARROW_OUT; break;
     }
 
@@ -100,7 +100,7 @@ void ioData::pinGui() {
             DrawPinIcon(ImGui::GetWindowDrawList(), min, max, icon, isConnected(), ImColor(pinColor), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
         }
         ImGui::SameLine();
-        ImGui::Text(getName());
+        ImGui::Text(getDisplayName());
         if (!b_disablePin) {
             NodeEditor::EndPin();
         }
@@ -120,7 +120,7 @@ void ioData::pinGui() {
             NodeEditor::BeginPin(getUniqueID(), NodeEditor::PinKind::Output);
             NodeEditor::PinPivotAlignment(ImVec2(1.0, 0.5));
         }
-        ImGui::Text(getName());
+        ImGui::Text(getDisplayName());
         ImGui::SameLine();
         //spacing.x
         ImGui::Dummy(glm::vec2(iconDummyWidth));

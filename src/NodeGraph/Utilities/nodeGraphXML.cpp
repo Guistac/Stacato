@@ -82,6 +82,8 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 
 	XMLElement* nodeXML = nodesXML->FirstChildElement("Node");
 	while (nodeXML) {
+
+		//Load General Node Attributes
 		const char* className;
 		if (nodeXML->QueryStringAttribute("ClassName", &className) != XML_SUCCESS) return Logger::warn("Could not load Node ClassName");
 		int nodeUniqueID;
@@ -96,6 +98,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			if (nodeXML->QueryBoolAttribute("Split", &isSplit) != XML_SUCCESS) return Logger::warn("Could not load split status");
 		}
 
+		//Construct Node Object from Type Attributes
 		Logger::trace("Loading node '{}'", className);
 		std::shared_ptr<ioNode> loadedNode = nullptr;
 		if (strcmp(nodeType, "PROCESSOR") == 0) loadedNode = ioNodeFactory::getIoNodeByName(className);
@@ -107,9 +110,9 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		}
 		else if (strcmp(nodeType, "AXIS") == 0) loadedNode = ioNodeFactory::getAxisByName(className);
 		else if (strcmp(nodeType, "CONTAINER") == 0) loadedNode = ioNodeFactory::getIoNodeByName(className);
-		
 		if (loadedNode == nullptr) return Logger::warn("Coult not load Node Class");
 	
+		//Get Node position in node editor
 		if (!isSplit) {
 			XMLElement* positionXML = nodeXML->FirstChildElement("NodeEditorPosition");
 			if (!positionXML) return Logger::warn("Could not load node position attribute");
@@ -133,6 +136,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			loadedNode->savedSplitPosition = glm::vec2(xOutput, yOutput);
 		}
 
+		//assign node data, creates default node pins and adds them to the node
 		loadedNode->setName(nodeCustomName);
 		loadedNode->assignIoData(); //this assigns a unique id if the parent nodegraph is assigned, we don't want that
 		loadedNode->uniqueID = nodeUniqueID;
@@ -150,50 +154,52 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			loadedPins.push_back(data);
 		}
 
+		//loads node specific data, creates modular node pins
 		XMLElement* nodeSpecificDataXML = nodeXML->FirstChildElement("NodeSpecificData");
 		if (!nodeSpecificDataXML) return Logger::warn("Could not load Node Specific Data");
 		if (!loadedNode->load(nodeSpecificDataXML)) return Logger::warn("Could not read node specific data");
 
+		//load pin information, matches pins by SaveName and DataType, then assigns unique ids, data and other information
 		XMLElement* inputPinsXML = nodeXML->FirstChildElement("InputPins");
 		if (!inputPinsXML) return Logger::warn("Could Not Load Node InputPins");
 		XMLElement* inputPinXML = inputPinsXML->FirstChildElement("InputPin");
 		while (inputPinXML) {
-			const char* pinName;
-			if (inputPinXML->QueryStringAttribute("Name", &pinName) != XML_SUCCESS) return Logger::warn("Could not load Node Pin Name");
-			const char* pinDataType;
-			if (inputPinXML->QueryStringAttribute("DataType", &pinDataType) != XML_SUCCESS) return Logger::warn("Could not load Node Pin DataType");
+			const char* saveNameString;
+			const char* dataTypeString;
+			if (inputPinXML->QueryStringAttribute("SaveName", &saveNameString) != XML_SUCCESS) return Logger::warn("Could not load Input Pin SaveName Attribute");
+			if (inputPinXML->QueryStringAttribute("DataType", &dataTypeString) != XML_SUCCESS) return Logger::warn("Could not load Input Pin DataType Attribute");
 			std::shared_ptr<ioData> matchingPin = nullptr;
 			for (auto pin : loadedNode->getNodeInputData()) {
-				if (pin->matches(pinName, pinDataType)) {
-					if (!pin->load(inputPinXML)) return Logger::warn("Could not load Node Pin '{}'", pinName);
+				if (pin->matches(saveNameString, dataTypeString)) {
+					if (!pin->load(inputPinXML)) return Logger::warn("Could not load Node Pin '{}'", saveNameString);
 					matchingPin = pin;
 					break;
 				}
 			}
-			if (matchingPin == nullptr) return Logger::warn("Could not find pin Matching name: {}  datatype: {}", pinName, pinDataType);
+			if (matchingPin == nullptr) return Logger::warn("Could not find pin Matching name: {}  datatype: {}", saveNameString, dataTypeString);
 			if (matchingPin->getUniqueID() > largestUniqueID) largestUniqueID = matchingPin->getUniqueID();
-			Logger::trace("Loaded Input Pin '{}' with dataType: {} visibility: {}", pinName, pinDataType, matchingPin->isVisible());
+			Logger::trace("Loaded Input Pin {} (DisplayName: '{}') with dataType: {} visibility: {}", matchingPin->getSaveName(), matchingPin->getDisplayName(), matchingPin->getTypeName(), matchingPin->isVisible());
 			inputPinXML = inputPinXML->NextSiblingElement();
 		}
 		XMLElement* outputPinsXML = nodeXML->FirstChildElement("OutputPins");
 		if (!outputPinsXML) return Logger::warn("Could Not Load Node OutputPins");
 		XMLElement* outputPinXML = outputPinsXML->FirstChildElement("OutputPin");
 		while (outputPinXML) {
-			const char* pinName;
-			if (outputPinXML->QueryStringAttribute("Name", &pinName) != XML_SUCCESS) return Logger::warn("Could not load Node Pin Name");
-			const char* pinDataType;
-			if (outputPinXML->QueryStringAttribute("DataType", &pinDataType) != XML_SUCCESS) return Logger::warn("Could not load Node Pin DataType");
+			const char* saveNameString;
+			const char* dataTypeString;
+			if (outputPinXML->QueryStringAttribute("SaveName", &saveNameString) != XML_SUCCESS) return Logger::warn("Could not load Output Pin SaveName Attribute");
+			if (outputPinXML->QueryStringAttribute("DataType", &dataTypeString) != XML_SUCCESS) return Logger::warn("Could not load Output Pin DataType Attribute");
 			std::shared_ptr<ioData> matchingPin = nullptr;
 			for (auto pin : loadedNode->getNodeOutputData()) {
-				if (pin->matches(pinName, pinDataType)) {
-					if (!pin->load(outputPinXML)) return Logger::warn("Could not load Node Pin '{}'", pinName);
+				if (pin->matches(saveNameString, dataTypeString)) {
+					if (!pin->load(outputPinXML)) return Logger::warn("Could not load Node Pin '{}'", saveNameString);
 					matchingPin = pin;
 					break;
 				}
 			}
-			if (matchingPin == nullptr) return Logger::warn("Could not find pin Matching name: {}  datatype: {}", pinName, pinDataType);
+			if (matchingPin == nullptr) return Logger::warn("Could not find pin Matching name: {}  datatype: {}", saveNameString, dataTypeString);
 			if (matchingPin->getUniqueID() > largestUniqueID) largestUniqueID = matchingPin->getUniqueID();
-			Logger::trace("Loaded Output Pin '{}' with dataType: {} visibility: {}", pinName, pinDataType, matchingPin->isVisible());
+			Logger::trace("Loaded Output Pin {} (DisplayName: '{}') with dataType: {} visibility: {}", matchingPin->getSaveName(), matchingPin->getDisplayName(), matchingPin->getTypeName(), matchingPin->isVisible());
 			outputPinXML = outputPinXML->NextSiblingElement();
 		}
 

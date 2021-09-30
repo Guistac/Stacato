@@ -19,8 +19,10 @@ struct EtherCatData {
 	const char displayName[64];
 	const char saveName[64];
 };
-
-extern std::vector<EtherCatData> dataTypes;
+extern std::vector<EtherCatData> etherCatDataTypes;
+std::vector<EtherCatData>& getEtherCatDataTypes();
+EtherCatData* getEtherCatDataType(const char* saveName);
+EtherCatData* getEtherCatDataType(EtherCatData::Type type);
 
 struct DataFormat {
 	enum Type {
@@ -34,7 +36,10 @@ struct DataFormat {
 	const char saveName[64];
 };
 
-extern std::vector<DataFormat> dataRepresentations;
+extern std::vector<DataFormat> dataFormats;
+std::vector<DataFormat>& getDataFormats();
+DataFormat* getDataFormat(const char* saveName);
+DataFormat* getDataFormat(DataFormat::Type type);
 
 class EtherCatBaseData {
 public:
@@ -74,14 +79,6 @@ public:
 	int64_t		s64 = 0;
 	char stringBuffer[128] = "0";
 	const int stringBufferSize = 128;
-
-	const char* getTypeString() {
-		return dataTypes[dataType].displayName;
-	}
-
-	const char* getRepresentationString() {
-		return dataRepresentations[dataFormat].displayName;
-	}
 
 	const char* getValueString() {
 		static char valueString[128];

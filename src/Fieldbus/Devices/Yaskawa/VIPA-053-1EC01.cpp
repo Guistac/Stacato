@@ -152,13 +152,14 @@ void VIPA_053_1EC01::detectIoModules() {
                 moduleParameter.ioMapByteOffset = inputByteCount + module.inputBitCount / 8;    //Byte index of the data in the slaves ioMap
                 moduleParameter.ioMapBitOffset = module.inputBitCount % 8;                      //Bit index in the byte of the ioMap
                 module.inputBitCount += moduleParameter.bitCount;
-                char parameterName[128];
-                sprintf(parameterName, "Module %i %s Input %i", i+1, getModuleType(module.moduleType)->dataName, j+1);
-                if (moduleParameter.bitCount == 1) moduleParameter.ioData = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, parameterName);
+                char parameterDisplayName[64];
+                sprintf(parameterDisplayName, "Module %i %s Input %i", i+1, getModuleType(module.moduleType)->dataName, j+1);
+                sprintf(moduleParameter.saveName, "Module%i%sInput%i", i+1, getModuleType(module.moduleType)->dataName, j+1);
+                if (moduleParameter.bitCount == 1) moduleParameter.ioData = std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, parameterDisplayName, moduleParameter.saveName);
                 else {
                     Logger::critical("Can't Handle non boolean data in VIPA modules");
                     //TODO: for non boolean values, this will need to be handled differently
-                    moduleParameter.ioData = std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, parameterName);
+                    //moduleParameter.ioData = std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, paramet);
                 }
             }
             //get the amount of full bytes the input section of the module fills (for example 4 bits are 1 byte, with 4 unused bits)
@@ -182,13 +183,14 @@ void VIPA_053_1EC01::detectIoModules() {
                 moduleParameter.ioMapByteOffset = outputByteCount + module.outputBitCount / 8;  //Byte index of the data in the slaves ioMap
                 moduleParameter.ioMapBitOffset = module.outputBitCount % 8;                     //Bit index in the byte of the ioMap
                 module.outputBitCount += moduleParameter.bitCount;
-                char parameterName[128];
-                sprintf(parameterName, "Module %i %s Output %i", i+1, getModuleType(module.moduleType)->dataName, j+1);
-                if (moduleParameter.bitCount == 1) moduleParameter.ioData = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, parameterName);
+                char parameterDisplayName[128];
+                sprintf(parameterDisplayName, "Module %i %s Output %i", i+1, getModuleType(module.moduleType)->dataName, j+1);
+                sprintf(moduleParameter.saveName, "Module%i%sOutput%i", i+1, getModuleType(module.moduleType)->dataName, j+1);
+                if (moduleParameter.bitCount == 1) moduleParameter.ioData = std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, parameterDisplayName, moduleParameter.saveName);
                 else {
                     Logger::critical("Can't Handle non boolean data in VIPA modules");
                     //TODO: for non boolean values, this will need to be handled differently
-                    moduleParameter.ioData = std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, parameterName);
+                    //moduleParameter.ioData = std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, parameterName);
                 }
             }
             //get the amount of full bytes the input section of the module fills (for example 11 bits are 2 bytes, with 5 unused bits)
@@ -273,17 +275,17 @@ bool VIPA_053_1EC01::saveDeviceData(tinyxml2::XMLElement* xml) {
         XMLElement* moduleInputs = moduleXML->InsertNewChildElement("Inputs");
         for (ModuleParameter& inputParameter : module.inputs) {
             XMLElement* inputXML = moduleInputs->InsertNewChildElement("Input");
+            inputXML->SetAttribute("SaveName", inputParameter.saveName);
             inputXML->SetAttribute("IOMapByteOffset", inputParameter.ioMapByteOffset);
             inputXML->SetAttribute("IOMapBitOffset", inputParameter.ioMapBitOffset);
-            inputParameter.ioData->save(inputXML);
         }
 
         XMLElement* moduleOutputs = moduleXML->InsertNewChildElement("Outputs");
         for (ModuleParameter& outputParameter : module.outputs) {
             XMLElement* outputXML = moduleOutputs->InsertNewChildElement("Output");
+            outputXML->SetAttribute("SaveName", outputParameter.saveName);
             outputXML->SetAttribute("IOMapByteOffset", outputParameter.ioMapByteOffset);
             outputXML->SetAttribute("IOMapBitOffset", outputParameter.ioMapBitOffset);
-            outputParameter.ioData->save(outputXML);
         }
     }
 
@@ -314,8 +316,9 @@ bool VIPA_053_1EC01::loadDeviceData(tinyxml2::XMLElement* xml) {
             ModuleParameter& moduleParameter = module.inputs.back();
             if (moduleInputXML->QueryIntAttribute("IOMapByteOffset", &moduleParameter.ioMapByteOffset) != XML_SUCCESS) return Logger::warn("Could not load IOMapByteOffset Attribute");
             if (moduleInputXML->QueryIntAttribute("IOMapBitOffset", &moduleParameter.ioMapBitOffset) != XML_SUCCESS) return Logger::warn("Could not load IOMapBitOffset Attribute");
-            moduleParameter.ioData = std::make_shared<ioData>();
-            if (!moduleParameter.ioData->load(moduleInputXML)) return Logger::warn("Could not load module input parameter ioData");
+            const char* saveNameString;
+            if(moduleInputXML->QueryStringAttribute("SaveName", &saveNameString) != XML_SUCCESS) return Logger::warn("Couldnot load SaveName Attribute");
+            strcpy(moduleParameter.saveName, saveNameString);
             moduleInputXML = moduleInputXML->NextSiblingElement("Input");
         }
 
@@ -327,8 +330,7 @@ bool VIPA_053_1EC01::loadDeviceData(tinyxml2::XMLElement* xml) {
             ModuleParameter& moduleParameter = module.outputs.back();
             if (moduleOutputXML->QueryIntAttribute("IOMapByteOffset", &moduleParameter.ioMapByteOffset) != XML_SUCCESS) return Logger::warn("Could not load IOMapByteOffset Attribute");
             if (moduleOutputXML->QueryIntAttribute("IOMapBitOffset", &moduleParameter.ioMapBitOffset) != XML_SUCCESS) return Logger::warn("Could not load IOMapBitOffset Attribute");
-            moduleParameter.ioData = std::make_shared<ioData>();
-            if (!moduleParameter.ioData->load(moduleOutputXML)) return Logger::warn("Could not load module output parameter ioData");
+
             moduleOutputXML = moduleOutputXML->NextSiblingElement("Output");
         }
 

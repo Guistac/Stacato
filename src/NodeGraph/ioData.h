@@ -4,26 +4,33 @@ class ActuatorDevice;
 class PositionFeedbackDevice;
 class GpioDevice;
 
-enum DataType {
-	BOOLEAN_VALUE,
-	INTEGER_VALUE,
-	REAL_VALUE,
-	ACTUATOR_DEVICELINK,
-	POSITIONFEEDBACK_DEVICELINK,
-	GPIO_DEVICELINK,
-	TYPE_COUNT
+class ioNode;
+class ioLink;
+
+namespace tinyxml2 { class XMLElement; }
+
+struct ioDataType {
+	enum Type {
+		BOOLEAN_VALUE,
+		INTEGER_VALUE,
+		REAL_VALUE,
+		ACTUATOR_DEVICELINK,
+		POSITIONFEEDBACK_DEVICELINK,
+		GPIO_DEVICELINK
+	};
+	Type type;
+	char displayName[64];
+	char saveName[64];
 };
+extern std::vector<ioDataType> ioDataTypes;
+ioDataType* getDataType(ioDataType::Type type);
+ioDataType* getDataType(const char* saveName);
 
 enum DataDirection {
 	NODE_INPUT,
 	NODE_OUTPUT,
 	NO_DIRECTION
 };
-
-class ioNode;
-class ioLink;
-
-namespace tinyxml2 { class XMLElement; }
 
 enum ioDataFlags {
 	ioDataFlags_None					= 0,
@@ -42,48 +49,45 @@ inline ioDataFlags operator|(ioDataFlags a, ioDataFlags b){
 class ioData {
 public:
 
-	ioData(DataType t, DataDirection d, const char* n, ioDataFlags flags) : type(t), direction(d) {
-		b_acceptsMultipleInputs = flags & ioDataFlags_AcceptMultipleInputs;
-		b_disablePin = flags & ioDataFlags_DisablePin;
-		b_noDataField = flags & ioDataFlags_NoDataField;
-		b_forceDataField = flags & ioDataFlags_ForceDataField;
-		b_disableDataField = flags & ioDataFlags_DisableDataField;
-		b_visible = !(flags & ioDataFlags_HidePin);
-		setup(t, d, n);
+	ioData(ioDataType::Type t, DataDirection d, const char* displayN, const char* saveN, ioDataFlags flags) : type(t), direction(d) {
+		setup(t, d, displayN, saveN, flags);
 	}
 
-	ioData(DataType t, DataDirection d, const char* n) : type(t), direction(d) {
-		setup(t, d, n);
+	ioData(ioDataType::Type t, DataDirection d, const char* displayN, ioDataFlags flags) : type(t), direction(d) {
+		setup(t, d, displayN, displayN, flags); //displayName is used as savename
 	}
 
-	ioData() {}
+	ioData(ioDataType::Type t, DataDirection d, const char* displayN, const char* saveN) : type(t), direction(d) {
+		setup(t, d, displayN, saveN, ioDataFlags_None);
+	}
+
+	ioData(ioDataType::Type t, DataDirection d, const char* displayN) : type(t), direction(d) {
+		setup(t, d, displayN, displayN, ioDataFlags_None); //displayName is used as savename
+	}
+
+	ioData() {} //default constructor is needed for dummy creation and later xml loading
 
 	//data infos
-	const char* getName() { return name; }
+	const char* getDisplayName() { return displayName; }
+	const char* getSaveName() { return saveName; }
 	bool isInput() { return direction == DataDirection::NODE_INPUT; }
 	bool isOutput() { return direction == DataDirection::NODE_OUTPUT; }
 
-	DataType getType() { return type; }
+	ioDataType::Type getType() { return type; }
 	const char* getTypeName() { 
-		switch (getType()) {
-			case BOOLEAN_VALUE: return "Boolean";
-			case INTEGER_VALUE:	return "Integer";
-			case REAL_VALUE: return	"Real";
-			case ACTUATOR_DEVICELINK: "Actuator Device";
-			case POSITIONFEEDBACK_DEVICELINK: "Position Feedback Device";
-			case GPIO_DEVICELINK: "Reference Device";
-			default: return "unknown";
-		}
+		ioDataType* dataType = getDataType(type);
+		if (dataType == nullptr) return "unknown";
+		else return dataType->displayName;
 	}
 	bool isSameTypeAs(ioData& other) { return other.type == type; }
-	void setType(DataType t) {
+	void setType(ioDataType::Type t) {
 		switch (t){
-			case BOOLEAN_VALUE: set(getBoolean()); break;
-			case INTEGER_VALUE: set(getInteger()); break;
-			case REAL_VALUE: set(getReal()); break;
-			case ACTUATOR_DEVICELINK: break;
-			case POSITIONFEEDBACK_DEVICELINK: break;
-			case GPIO_DEVICELINK: break;
+			case ioDataType::Type::BOOLEAN_VALUE: set(getBoolean()); break;
+			case ioDataType::Type::INTEGER_VALUE: set(getInteger()); break;
+			case ioDataType::Type::REAL_VALUE: set(getReal()); break;
+			case ioDataType::Type::ACTUATOR_DEVICELINK: break;
+			case ioDataType::Type::POSITIONFEEDBACK_DEVICELINK: break;
+			case ioDataType::Type::GPIO_DEVICELINK: break;
 		}
 		type = t;
 	}
@@ -101,12 +105,12 @@ public:
 	bool& isVisible() { return b_visible; }
 
 	//datatype infos
-	bool isBool()				{ return type == BOOLEAN_VALUE; }
-	bool isInteger()			{ return type == INTEGER_VALUE; }
-	bool isDouble()				{ return type == REAL_VALUE; }
-	bool isActuatorDeviceLink()		{ return type == ACTUATOR_DEVICELINK; }
-	bool isPositionFeedbackDeviceLink()		{ return type == POSITIONFEEDBACK_DEVICELINK; }
-	bool isGpioDeviceLink()	{ return type == GPIO_DEVICELINK; }
+	bool isBool()							{ return type == ioDataType::Type::BOOLEAN_VALUE; }
+	bool isInteger()						{ return type == ioDataType::Type::INTEGER_VALUE; }
+	bool isDouble()							{ return type == ioDataType::Type::REAL_VALUE; }
+	bool isActuatorDeviceLink()				{ return type == ioDataType::Type::ACTUATOR_DEVICELINK; }
+	bool isPositionFeedbackDeviceLink()		{ return type == ioDataType::Type::POSITIONFEEDBACK_DEVICELINK; }
+	bool isGpioDeviceLink()					{ return type == ioDataType::Type::GPIO_DEVICELINK; }
 
 	//setting data (with data conversions)
 	void set(bool boolean);
@@ -149,16 +153,16 @@ private:
 	int uniqueID = -1;
 	bool b_visible = true;
 
-	DataType type;
+	ioDataType::Type type;
 	DataDirection direction;
-	char name[64];
+	char saveName[64];		//used for matching
+	char displayName[64];	//used for displaying
 	bool b_acceptsMultipleInputs = false;
 	bool b_disablePin = false;
 	bool b_noDataField = false;
 	bool b_forceDataField = false;
 	bool b_disableDataField = false;
 
-	
 	//ACTUAL DATA
 	bool booleanValue = false;
 	long long int integerValue = 0;
@@ -167,18 +171,25 @@ private:
 	std::shared_ptr<PositionFeedbackDevice> positionFeedbackDevice = nullptr;
 	std::shared_ptr<GpioDevice> gpioDevice = nullptr;
 
-	void setup(DataType t, DataDirection d, const char* n) {
-		strcpy(name, n);
+	void setup(ioDataType::Type t, DataDirection d, const char* displayN, const char* saveN, ioDataFlags flags) {
+		strcpy(displayName, displayN);
+		strcpy(saveName, saveN);
+		b_acceptsMultipleInputs = flags & ioDataFlags_AcceptMultipleInputs;
+		b_disablePin = flags & ioDataFlags_DisablePin;
+		b_noDataField = flags & ioDataFlags_NoDataField;
+		b_forceDataField = flags & ioDataFlags_ForceDataField;
+		b_disableDataField = flags & ioDataFlags_DisableDataField;
+		b_visible = !(flags & ioDataFlags_HidePin);
 		switch (type) {
-			case BOOLEAN_VALUE: booleanValue = false; break;
-			case INTEGER_VALUE: integerValue = 0; break;
-			case REAL_VALUE: realValue = 0.0; break;
-			case ACTUATOR_DEVICELINK:
-			case POSITIONFEEDBACK_DEVICELINK:
-			case GPIO_DEVICELINK:
-				b_noDataField = true;
-				b_forceDataField = false;
-				break;
+			case ioDataType::Type::BOOLEAN_VALUE: booleanValue = false; break;
+			case ioDataType::Type::INTEGER_VALUE: integerValue = 0; break;
+			case ioDataType::Type::REAL_VALUE: realValue = 0.0; break;
+			case ioDataType::Type::ACTUATOR_DEVICELINK:
+			case ioDataType::Type::POSITIONFEEDBACK_DEVICELINK:
+			case ioDataType::Type::GPIO_DEVICELINK:
+					b_noDataField = true;
+					b_forceDataField = false;
+					break;
 		}
 	}
 };

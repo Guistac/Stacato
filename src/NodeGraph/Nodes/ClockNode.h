@@ -7,7 +7,7 @@ public:
 
 	DEFINE_CLOCK_NODE("Clock", ClockNode)
 
-	std::shared_ptr<ioData> output_seconds = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "output", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> output_seconds = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "output", ioDataFlags_DisableDataField);
 
 	virtual void assignIoData() {
 		addIoData(output_seconds);

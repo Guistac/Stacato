@@ -22,7 +22,7 @@ public:
 	ScrollingBuffer data;
 	bool wasConnected = false;
 
-	std::shared_ptr<ioData> input = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "input", ioDataFlags_ForceDataField | ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> input = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "input", ioDataFlags_ForceDataField | ioDataFlags_DisableDataField);
 
 	virtual void process() {
 		if (input->isConnected()) {

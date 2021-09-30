@@ -12,12 +12,14 @@ public:
     SLAVE_DEFINITION(VIPA_053_1EC01, "053-1EC01", "Yaskawa", "I/O")
 
     struct ModuleParameter {
-        uint16_t index;
-        uint8_t subindex;
-        uint8_t bitCount;
-        int ioMapByteOffset; //byte index in the ioMap
-        int ioMapBitOffset;  //bit offset in the ioMap byte
-        std::shared_ptr<ioData> ioData;
+        uint16_t index;         //for display of pdodata
+        uint8_t subindex;       //for display of pdodata
+        uint8_t bitCount;       //for display of pdodata and type matching
+        int ioMapByteOffset;    //byte index in the ioMap
+        int ioMapBitOffset;     //bit offset in the ioMap byte
+        char saveName[64];      //used to match ioData pin
+        ioDataType::Type dataType;      //used to match ioData pin
+        std::shared_ptr<ioData> ioData; //actual ioData pin for nodegraph logic
     };
 
     struct ModuleType {
@@ -61,7 +63,7 @@ public:
     //subdevices
     std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
 
-    std::shared_ptr<ioData> gpioLink = std::make_shared<ioData>(DataType::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
+    std::shared_ptr<ioData> gpioLink = std::make_shared<ioData>(ioDataType::Type::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
     std::vector<Module> ioModules;
 
 

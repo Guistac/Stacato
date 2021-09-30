@@ -12,7 +12,7 @@ public:
 		addIoData(displayInput);
 	}
 
-	std::shared_ptr<ioData> displayInput = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "value: ", ioDataFlags_DisableDataField | ioDataFlags_ForceDataField);
+	std::shared_ptr<ioData> displayInput = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "value: ", ioDataFlags_DisableDataField | ioDataFlags_ForceDataField);
 
 	virtual void process() {
 		if (displayInput->isConnected()) displayInput->set(displayInput->getLinks().front()->getInputData()->getReal());

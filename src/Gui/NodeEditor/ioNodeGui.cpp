@@ -286,7 +286,7 @@ void ioNode::propertiesGui() {
                         ImGui::Checkbox("##Visible", &data->isVisible());
                         ImGui::PopID();
                         ImGui::TableSetColumnIndex(1);
-                        ImGui::Text("%s", data->getName());
+                        ImGui::Text("%s", data->getDisplayName());
                         ImGui::TableSetColumnIndex(2);
                         ImGui::Text("%s", data->getTypeName());
                         ImGui::TableSetColumnIndex(3);

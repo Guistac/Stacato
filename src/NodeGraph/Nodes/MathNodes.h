@@ -11,7 +11,7 @@ public:
 		addIoData(value);
 	}
 
-	std::shared_ptr<ioData> value = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "value", ioDataFlags_ForceDataField);
+	std::shared_ptr<ioData> value = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "value", ioDataFlags_ForceDataField);
 
 	virtual void process() {}
 };
@@ -30,9 +30,9 @@ public:
 		output->set(0.0);
 	}
 
-	std::shared_ptr<ioData> input = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "input", ioDataFlags_AcceptMultipleInputs);
-	std::shared_ptr<ioData> offset = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "offset", ioDataFlags_DisablePin | ioDataFlags_ForceDataField);
-	std::shared_ptr<ioData> output = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "result", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> input = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "input", ioDataFlags_AcceptMultipleInputs);
+	std::shared_ptr<ioData> offset = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "offset", ioDataFlags_DisablePin | ioDataFlags_ForceDataField);
+	std::shared_ptr<ioData> output = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "result", ioDataFlags_DisableDataField);
 
 	virtual void process() {
 		double sum = 0.0;
@@ -59,10 +59,10 @@ public:
 		output->set(0.0);
 	}
 
-	std::shared_ptr<ioData> base = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "base", ioDataFlags_AcceptMultipleInputs);
-	std::shared_ptr<ioData> sub = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "sub", ioDataFlags_AcceptMultipleInputs);
-	std::shared_ptr<ioData> offset = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "offset", ioDataFlags_DisablePin | ioDataFlags_ForceDataField);
-	std::shared_ptr<ioData> output = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "result", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> base = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "base", ioDataFlags_AcceptMultipleInputs);
+	std::shared_ptr<ioData> sub = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "sub", ioDataFlags_AcceptMultipleInputs);
+	std::shared_ptr<ioData> offset = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "offset", ioDataFlags_DisablePin | ioDataFlags_ForceDataField);
+	std::shared_ptr<ioData> output = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "result", ioDataFlags_DisableDataField);
 
 	virtual void process() {
 		double sum = 0.0;
@@ -89,9 +89,9 @@ public:
 		output->set(0.0);
 	}
 
-	std::shared_ptr<ioData> input = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "input", ioDataFlags_AcceptMultipleInputs);
-	std::shared_ptr<ioData> multiplier = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "mult", ioDataFlags_DisablePin | ioDataFlags_ForceDataField);
-	std::shared_ptr<ioData> output = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "result", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> input = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "input", ioDataFlags_AcceptMultipleInputs);
+	std::shared_ptr<ioData> multiplier = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "mult", ioDataFlags_DisablePin | ioDataFlags_ForceDataField);
+	std::shared_ptr<ioData> output = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "result", ioDataFlags_DisableDataField);
 
 	virtual void process() {
 		double out = 1.0;
@@ -117,10 +117,10 @@ public:
 		output->set(0.0);
 	}
 
-	std::shared_ptr<ioData> base = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "base", ioDataFlags_AcceptMultipleInputs);
-	std::shared_ptr<ioData> div = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "div", ioDataFlags_AcceptMultipleInputs);
-	std::shared_ptr<ioData> mult = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "mult", ioDataFlags_DisablePin | ioDataFlags_ForceDataField);
-	std::shared_ptr<ioData> output = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "result", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> base = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "base", ioDataFlags_AcceptMultipleInputs);
+	std::shared_ptr<ioData> div = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "div", ioDataFlags_AcceptMultipleInputs);
+	std::shared_ptr<ioData> mult = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "mult", ioDataFlags_DisablePin | ioDataFlags_ForceDataField);
+	std::shared_ptr<ioData> output = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "result", ioDataFlags_DisableDataField);
 
 	virtual void process() {
 		double out = 1.0;
@@ -147,9 +147,9 @@ public:
 		output->set(0.0);
 	}
 
-	std::shared_ptr<ioData> base = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "base");
-	std::shared_ptr<ioData> exp = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "exp");
-	std::shared_ptr<ioData> output = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "result", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> base = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "base");
+	std::shared_ptr<ioData> exp = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "exp");
+	std::shared_ptr<ioData> output = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "result", ioDataFlags_DisableDataField);
 
 	virtual void process() {
 		double d_base, d_exp;
@@ -174,8 +174,8 @@ public:
 		output->set(0.0);
 	}
 
-	std::shared_ptr<ioData> input = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "in");
-	std::shared_ptr<ioData> output = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> input = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "in");
+	std::shared_ptr<ioData> output = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
 
 	virtual void process() {
 		if (input->isConnected()) output->set(std::abs(input->getLinks().front()->getInputData()->getReal()));
@@ -200,8 +200,8 @@ public:
 		out->set(0.0);
 	}
 
-	std::shared_ptr<ioData> in = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "in");
-	std::shared_ptr<ioData> out = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> in = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "in");
+	std::shared_ptr<ioData> out = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
 
 	virtual void process() {
 		if (in->isConnected()) out->set(std::sin(in->getLinks().front()->getInputData()->getReal()));
@@ -221,8 +221,8 @@ public:
 		out->set(0.0);
 	}
 
-	std::shared_ptr<ioData> in = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "in");
-	std::shared_ptr<ioData> out = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> in = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "in");
+	std::shared_ptr<ioData> out = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
 
 	virtual void process() {
 		if (in->isConnected()) out->set(std::cos(in->getLinks().front()->getInputData()->getReal()));
@@ -242,8 +242,8 @@ public:
 		out->set(0.0);
 	}
 
-	std::shared_ptr<ioData> in = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "in");
-	std::shared_ptr<ioData> out = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> in = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "in");
+	std::shared_ptr<ioData> out = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
 
 	virtual void process() {
 		if (in->isConnected()) out->set(std::tan(in->getLinks().front()->getInputData()->getReal()));
@@ -263,8 +263,8 @@ public:
 		out->set(0.0);
 	}
 
-	std::shared_ptr<ioData> in = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_INPUT, "in");
-	std::shared_ptr<ioData> out = std::make_shared<ioData>(DataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> in = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "in");
+	std::shared_ptr<ioData> out = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
 
 	virtual void process() {
 		if (in->isConnected()) out->set(1.0 / std::tan(in->getLinks().front()->getInputData()->getReal()));
@@ -295,8 +295,8 @@ public:
 		out->set(false);
 	}
 
-	std::shared_ptr<ioData> in = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "in");
-	std::shared_ptr<ioData> out = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> in = std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "in");
+	std::shared_ptr<ioData> out = std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
 
 	virtual void process() {
 		if (in->isConnected()) out->set(in->getLinks().front()->getInputData()->getBoolean());
@@ -316,8 +316,8 @@ public:
 		out->set(false);
 	}
 
-	std::shared_ptr<ioData> in = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "in");
-	std::shared_ptr<ioData> out = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> in = std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "in");
+	std::shared_ptr<ioData> out = std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
 
 	virtual void process() {
 		if (in->isConnected()) out->set(!in->getLinks().front()->getInputData()->getBoolean());
@@ -337,8 +337,8 @@ public:
 		out->set(false);
 	}
 
-	std::shared_ptr<ioData> in = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "in", ioDataFlags_AcceptMultipleInputs);
-	std::shared_ptr<ioData> out = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> in = std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "in", ioDataFlags_AcceptMultipleInputs);
+	std::shared_ptr<ioData> out = std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
 
 	virtual void process() {
 		if (in->isConnected()) {
@@ -366,8 +366,8 @@ public:
 		out->set(false);
 	}
 
-	std::shared_ptr<ioData> in = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "in", ioDataFlags_AcceptMultipleInputs);
-	std::shared_ptr<ioData> out = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
+	std::shared_ptr<ioData> in = std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "in", ioDataFlags_AcceptMultipleInputs);
+	std::shared_ptr<ioData> out = std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "out", ioDataFlags_DisableDataField);
 
 	virtual void process() {
 		if (in->isConnected()) {

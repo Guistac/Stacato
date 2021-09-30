@@ -3,7 +3,7 @@
 
 #include "EtherCatError.h"
 
-std::vector<EtherCatData> dataTypes = {
+std::vector<EtherCatData> etherCatDataTypes = {
 	{EtherCatData::Type::UINT8_T,	"uint8_t",	"UINT8_T"},
 	{EtherCatData::Type::INT8_T,	"int8_t",	"INT8_T"},
 	{EtherCatData::Type::UINT16_T,	"uint16_t", "UINT16_T"},
@@ -15,14 +15,39 @@ std::vector<EtherCatData> dataTypes = {
 	{EtherCatData::Type::STRING,	"string",	"STRING"},
 	{EtherCatData::Type::NONE,		"none",		"NONE"}
 };
+std::vector<EtherCatData>& getEtherCatDataTypes() { return etherCatDataTypes; }
+EtherCatData* getEtherCatDataType(const char* saveName) {
+	for (EtherCatData& etherCatData : etherCatDataTypes) {
+		if (strcmp(saveName, etherCatData.saveName) == 0) return &etherCatData;
+	}
+	return nullptr;
+}
+EtherCatData* getEtherCatDataType(EtherCatData::Type type) {
+	for (EtherCatData& etherCatData : etherCatDataTypes) {
+		if (type == etherCatData.type) return &etherCatData;
+	}
+	return nullptr;
+}
 
-std::vector<DataFormat> dataRepresentations = {
+std::vector<DataFormat> dataFormats = {
 	{DataFormat::Type::DECIMAL,		"Dec", "Dec"},
 	{DataFormat::Type::HEXADECIMAL, "Hex", "Hex"},
 	{DataFormat::Type::BINARY,		"Bin", "Bin"},
 	{DataFormat::Type::STRING,		"Str", "Str"}
 };
-
+std::vector<DataFormat>& getDataFormats() { return dataFormats; }
+DataFormat* getDataFormat(const char* saveName) {
+	for (DataFormat& dataFormat : dataFormats) {
+		if (strcmp(saveName, dataFormat.saveName) == 0) return &dataFormat;
+	}
+	return nullptr;
+}
+DataFormat* getDataFormat(DataFormat::Type type) {
+	for (DataFormat& dataFormat : dataFormats) {
+		if (type == dataFormat.type) return &dataFormat;
+	}
+	return nullptr;
+}
 
 bool EtherCatCoeData::write(uint16_t slaveIndex) {
 	bool success = false;
