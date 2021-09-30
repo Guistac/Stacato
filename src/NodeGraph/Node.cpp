@@ -1,24 +1,24 @@
 #include <pch.h>
 
-#include "ioNode.h"
+#include "Node.h"
 
 #include "NodeGraph.h"
-#include "ioData.h"
+#include "NodePin.h"
 
-void ioNode::addIoData(std::shared_ptr<ioData> ioData) {
-	if (ioData->isInput()) nodeInputData.push_back(ioData);
-	else if (ioData->isOutput()) nodeOutputData.push_back(ioData);
+void Node::addIoData(std::shared_ptr<NodePin> NodePin) {
+	if (NodePin->isInput()) nodeInputData.push_back(NodePin);
+	else if (NodePin->isOutput()) nodeOutputData.push_back(NodePin);
 
 	//if a pins gets added after if the node is already on the editor, this handles everything
 	if (parentNodeGraph) {
-		ioData->uniqueID = parentNodeGraph->uniqueID;
+		NodePin->uniqueID = parentNodeGraph->uniqueID;
 		parentNodeGraph->uniqueID++;
-		parentNodeGraph->ioDataList.push_back(ioData);
-		ioData->parentNode = shared_from_this();
+		parentNodeGraph->NodePinList.push_back(NodePin);
+		NodePin->parentNode = shared_from_this();
 	}
 }
 
-void ioNode::removeIoData(std::shared_ptr<ioData> removedIoData) {
+void Node::removeIoData(std::shared_ptr<NodePin> removedIoData) {
 	if (removedIoData->isInput()) {
 		for (int i = (int)nodeInputData.size() - 1; i >= 0; i--) {
 			if (nodeInputData[i] == removedIoData) {
@@ -37,10 +37,10 @@ void ioNode::removeIoData(std::shared_ptr<ioData> removedIoData) {
 	}
 
 	if (parentNodeGraph) {
-		std::vector<std::shared_ptr<ioData>>& ioDataList = parentNodeGraph->ioDataList;
-		for (int i = (int)ioDataList.size() - 1; i >= 0; i--) {
-			if (ioDataList[i] == removedIoData) {
-				ioDataList.erase(ioDataList.begin() + i);
+		std::vector<std::shared_ptr<NodePin>>& NodePinList = parentNodeGraph->NodePinList;
+		for (int i = (int)NodePinList.size() - 1; i >= 0; i--) {
+			if (NodePinList[i] == removedIoData) {
+				NodePinList.erase(NodePinList.begin() + i);
 				break;
 			}
 		}
@@ -48,7 +48,7 @@ void ioNode::removeIoData(std::shared_ptr<ioData> removedIoData) {
 }
 
 //check if all nodes linked to the inputs of this node were processed
-bool ioNode::areAllLinkedInputNodesProcessed() {
+bool Node::areAllLinkedInputNodesProcessed() {
 	for (auto inputData : nodeInputData) {
 		for (auto inputDataLink : inputData->getLinks()) {
 			if (!inputDataLink->getInputData()->getNode()->wasProcessed()) return false;

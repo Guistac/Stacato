@@ -4,11 +4,11 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatSlave.h"
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
-#include "NodeGraph/Utilities/ioNodeFactory.h"
+#include "NodeGraph/Utilities/NodeFactory.h"
 
-std::shared_ptr<ioNode> nodeAdderContextMenu() {
+std::shared_ptr<Node> nodeAdderContextMenu() {
 
-    std::shared_ptr<ioNode> output = nullptr;
+    std::shared_ptr<Node> output = nullptr;
 
     ImGui::MenuItem("Node Editor Menu", nullptr, false, false);
     ImGui::Separator();
@@ -61,7 +61,7 @@ std::shared_ptr<ioNode> nodeAdderContextMenu() {
     ImGui::Separator();
 
     if (ImGui::BeginMenu("Axis")) {
-        for (auto axis : ioNodeFactory::getAxisTypes()) {
+        for (auto axis : NodeFactory::getAxisTypes()) {
             if (ImGui::MenuItem(axis->getNodeName())) output = axis->getNewNodeInstance();
         }
         ImGui::EndMenu();
@@ -77,7 +77,7 @@ std::shared_ptr<ioNode> nodeAdderContextMenu() {
     ImGui::Separator();
 
     ImGui::MenuItem("Processing Nodes", nullptr, false, false);
-    for (auto category : ioNodeFactory::getNodesByCategory()) {
+    for (auto category : NodeFactory::getNodesByCategory()) {
         if (ImGui::BeginMenu(category.name)) {
             for (auto device : category.nodes) {
                 if (ImGui::MenuItem(device->getNodeName())) output = device->getNewNodeInstance();
@@ -184,7 +184,7 @@ void nodeAdder() {
         ImGui::PushFont(Fonts::robotoBold15);
         if (ImGui::CollapsingHeader("Axis")) {
             ImGui::PushFont(Fonts::robotoRegular15);
-            for (auto axis : ioNodeFactory::getAxisTypes()) {
+            for (auto axis : NodeFactory::getAxisTypes()) {
                 const char* axisName = axis->getNodeName();
                 ImGui::Selectable(axisName);
                 if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
@@ -210,9 +210,9 @@ void nodeAdder() {
         ImGui::PushFont(Fonts::robotoBold15);
         if (ImGui::CollapsingHeader("Data Processors")) {
             ImGui::PushFont(Fonts::robotoRegular15);
-            for (auto category : ioNodeFactory::getNodesByCategory()) {
+            for (auto category : NodeFactory::getNodesByCategory()) {
                 if (ImGui::TreeNode(category.name)) {
-                    for (ioNode* node : category.nodes) {
+                    for (Node* node : category.nodes) {
                         const char* nodeName = node->getNodeName();
                         ImGui::Selectable(nodeName);
                         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
@@ -234,14 +234,14 @@ void nodeAdder() {
     ImGui::PopStyleVar();
 }
 
-std::shared_ptr<ioNode> acceptDraggedNode() {
+std::shared_ptr<Node> acceptDraggedNode() {
     if (ImGui::BeginDragDropTarget()) {
         const ImGuiPayload* payload;
         glm::vec2 mousePosition = ImGui::GetMousePos();
         payload = ImGui::AcceptDragDropPayload("EtherCatSlave");
         if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
             const char* slaveDeviceName = *(const char**)payload->Data;
-            std::shared_ptr<ioNode> newSlave = EtherCatDeviceFactory::getDeviceByName(slaveDeviceName);
+            std::shared_ptr<Node> newSlave = EtherCatDeviceFactory::getDeviceByName(slaveDeviceName);
             return newSlave;
         }
         payload = ImGui::AcceptDragDropPayload("DetectedEtherCatSlave");
@@ -259,13 +259,13 @@ std::shared_ptr<ioNode> acceptDraggedNode() {
         payload = ImGui::AcceptDragDropPayload("ProcessorNode");
         if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
             const char* nodeName = *(const char**)payload->Data;
-            std::shared_ptr<ioNode> newNode = ioNodeFactory::getIoNodeByName(nodeName);
+            std::shared_ptr<Node> newNode = NodeFactory::getIoNodeByName(nodeName);
             return newNode;
         }
         payload = ImGui::AcceptDragDropPayload("Axis");
         if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
             const char* axisName = *(const char**)payload->Data;
-            std::shared_ptr<ioNode> newAxis = ioNodeFactory::getAxisByName(axisName);
+            std::shared_ptr<Node> newAxis = NodeFactory::getAxisByName(axisName);
             return newAxis;
         }
         ImGui::EndDragDropTarget();

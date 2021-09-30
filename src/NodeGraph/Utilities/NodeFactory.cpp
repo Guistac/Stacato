@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "ioNodeFactory.h"
+#include "NodeFactory.h"
 
 #include "NodeGraph/Nodes/ClockNode.h"
 #include "NodeGraph/Nodes/DisplayNode.h"
@@ -10,12 +10,12 @@
 
 #include "Motion/Axis/Axis.h"
 
-namespace ioNodeFactory {
+namespace NodeFactory {
 
-	std::vector<ioNode*> allNodes;
-	std::vector<ioNodeGroup> nodesByCategory;
+	std::vector<Node*> allNodes;
+	std::vector<NodeGroup> nodesByCategory;
 
-	std::vector<ioNode*> axisTypes;
+	std::vector<Node*> axisTypes;
 
 	void loadNodes() {
 		allNodes = {
@@ -44,10 +44,10 @@ namespace ioNodeFactory {
 		};
 
 		//sort devices by manufacturer
-		for (ioNode* node : allNodes) {
+		for (Node* node : allNodes) {
 			const char* category = node->getNodeCategory();
 			bool categoryExists = false;
-			for (ioNodeGroup& group : nodesByCategory) {
+			for (NodeGroup& group : nodesByCategory) {
 				if (strcmp(category, group.name) == 0) {
 					categoryExists = true;
 					group.nodes.push_back(node);
@@ -55,7 +55,7 @@ namespace ioNodeFactory {
 				}
 			}
 			if (!categoryExists) {
-				nodesByCategory.push_back(ioNodeGroup());
+				nodesByCategory.push_back(NodeGroup());
 				strcpy(nodesByCategory.back().name, node->getNodeCategory());
 				nodesByCategory.back().nodes.push_back(node);
 			}
@@ -67,22 +67,22 @@ namespace ioNodeFactory {
 		};
 	}
 
-	std::shared_ptr<ioNode> getIoNodeByName(const char* name) {
-		for (ioNode* device : allNodes) {
+	std::shared_ptr<Node> getIoNodeByName(const char* name) {
+		for (Node* device : allNodes) {
 			if (strcmp(name, device->getNodeName()) == 0) return device->getNewNodeInstance();
 		}
 		return nullptr;
 	}
 
-	std::vector<ioNodeGroup>& getNodesByCategory() { return nodesByCategory; }
+	std::vector<NodeGroup>& getNodesByCategory() { return nodesByCategory; }
 
-	std::shared_ptr<ioNode> getAxisByName(const char* name) {
-		for (ioNode* axis : axisTypes) {
+	std::shared_ptr<Node> getAxisByName(const char* name) {
+		for (Node* axis : axisTypes) {
 			if (strcmp(name, axis->getNodeName()) == 0) return axis->getNewNodeInstance();
 		}
 	}
 
-	std::vector<ioNode*>& getAxisTypes() {
+	std::vector<Node*>& getAxisTypes() {
 		return axisTypes;
 	}
 

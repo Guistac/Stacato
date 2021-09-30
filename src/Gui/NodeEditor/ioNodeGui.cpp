@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "nodeGraph/ioNode.h"
+#include "nodeGraph/Node.h"
 #include "nodeGraph/nodeGraph.h"
 
 #include "NodeEditorGui.h"
@@ -13,20 +13,20 @@
 
 namespace NodeEditor = ax::NodeEditor;
 
-float ioNode::getTitleWidth() {
+float Node::getTitleWidth() {
     ImGui::PushFont(Fonts::robotoBold15);
     float width = ImGui::CalcTextSize(getName()).x;
     ImGui::PopFont();
     return width;
 }
 
-void ioNode::titleGui() {
+void Node::titleGui() {
     ImGui::PushFont(Fonts::robotoBold15);
     ImGui::Text(getName());
     ImGui::PopFont();
 }
 
-void ioNode::nodeGui() {
+void Node::nodeGui() {
 
     static float nodePadding = NodeEditor::GetStyle().NodePadding.x;    //horizontal blank space at the inside edge of the node
     static float nodeBorderWidth = NodeEditor::GetStyle().NodeBorderWidth;  //offset from the border thickness of the node
@@ -263,14 +263,14 @@ void ioNode::nodeGui() {
 
 
 
-void ioNode::propertiesGui() {
+void Node::propertiesGui() {
     if (ImGui::BeginTabBar("PropertiesTabBar")) {
 
         nodeSpecificGui();
 
         if(ImGui::BeginTabItem("Node")) {
             
-            static auto displayDataTable = [](std::vector<std::shared_ptr<ioData>>& data, const char* tableName) {
+            static auto displayDataTable = [](std::vector<std::shared_ptr<NodePin>>& data, const char* tableName) {
                 ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
                 if (ImGui::BeginTable(tableName, 4, tableFlags)) {
                     ImGui::TableSetupColumn("Show");
@@ -322,16 +322,16 @@ void ioNode::propertiesGui() {
     }
 }
 
-glm::vec2 ioNode::getNodeGraphPosition() {
+glm::vec2 Node::getNodeGraphPosition() {
     return NodeEditor::GetNodePosition(getUniqueID());
 }
 
-void ioNode::getSplitNodeGraphPosition(glm::vec2& in, glm::vec2& out) {
+void Node::getSplitNodeGraphPosition(glm::vec2& in, glm::vec2& out) {
     in = NodeEditor::GetNodePosition(getUniqueID());
     out = NodeEditor::GetNodePosition(-getUniqueID());
 }
 
-void ioNode::restoreSavedPosition() {
+void Node::restoreSavedPosition() {
     NodeEditor::SetNodePosition(getUniqueID(), savedPosition);
     if (isSplit()) NodeEditor::SetNodePosition(-getUniqueID(), savedSplitPosition);
 }

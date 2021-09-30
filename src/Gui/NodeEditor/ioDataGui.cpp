@@ -6,12 +6,12 @@
 
 #include "Gui/NodeEditor/NodeEditorGui.h"
 
-#include "nodeGraph/ioNode.h"
+#include "nodeGraph/Node.h"
 #include "nodeGraph/nodeGraph.h"
 
 namespace NodeEditor = ax::NodeEditor;
 
-bool ioData::shouldDisplayDataGui() {
+bool NodePin::shouldDisplayDataGui() {
     if (b_noDataField) return false;
     else if (b_forceDataField) return true;
     else if (isOutput()) return parentNode->parentNodeGraph->b_showOutputValues;
@@ -19,7 +19,7 @@ bool ioData::shouldDisplayDataGui() {
     else return true;
 }
 
-void ioData::dataGui() {
+void NodePin::dataGui() {
     static float dataFieldWidth = ImGui::GetTextLineHeight() * 4.0;
     ImGui::SetNextItemWidth(dataFieldWidth);
 
@@ -27,13 +27,13 @@ void ioData::dataGui() {
 
     ImGui::PushID(getUniqueID());
     switch (getType()) {
-    case ioDataType::BOOLEAN_VALUE:
+    case NodePinType::BOOLEAN_VALUE:
         ImGui::Checkbox("##", &booleanValue);
         break;
-    case ioDataType::INTEGER_VALUE:
+    case NodePinType::INTEGER_VALUE:
         ImGui::InputScalar("##", ImGuiDataType_S64, &integerValue);
         break;
-    case ioDataType::REAL_VALUE:
+    case NodePinType::REAL_VALUE:
         ImGui::InputDouble("##", &realValue, 0.0, 0.0, "%.3f");
         break;
     }
@@ -44,7 +44,7 @@ void ioData::dataGui() {
     if (b_disableDataField) ImGui::PopItemFlag();
 }
 
-float ioData::getGuiWidth() {
+float NodePin::getGuiWidth() {
     static float iconSize = ImGui::GetTextLineHeight();                             //square size of the pin icons
     static float iconDummyWidth = ImGui::GetTextLineHeight() * 0.75;                //width the pin icon actually occupies
     static float dataFieldWidth = ImGui::GetTextLineHeight() * 4.0;
@@ -54,7 +54,7 @@ float ioData::getGuiWidth() {
     //if the pin is connected, don't display its value, but add space for an icon
     if (!shouldDisplayDataGui())  return pinTextWidth + ImGui::GetStyle().ItemSpacing.x + iconDummyWidth;
     //if it is connected and the type is boolean, add the width and spacing for a checkbox and icon
-    else if (getType() == ioDataType::BOOLEAN_VALUE)  return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + ImGui::GetFrameHeight();
+    else if (getType() == NodePinType::BOOLEAN_VALUE)  return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + ImGui::GetFrameHeight();
     //if it is connected and is not a boolean, add the width and spacing for an input field and icon
     else                                            return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + dataFieldWidth;
 }
@@ -68,16 +68,16 @@ enum pinIcon {
     DIAMOND = 5
 };
 
-void ioData::pinGui() {
+void NodePin::pinGui() {
     static float iconSize = ImGui::GetTextLineHeight();                             //square size of the pin icons
     static float iconDummyWidth = ImGui::GetTextLineHeight() * 0.75;                //width the pin icon actually occupies
     static float dataFieldWidth = ImGui::GetTextLineHeight() * 4.0;
 
     pinIcon icon;
     switch (getType()) {
-    case ioDataType::BOOLEAN_VALUE: icon = ROUNDED_SQUARED; break;
-    case ioDataType::INTEGER_VALUE: icon = DIAMOND; break;
-    case ioDataType::REAL_VALUE: icon = ARROW; break;
+    case NodePinType::BOOLEAN_VALUE: icon = ROUNDED_SQUARED; break;
+    case NodePinType::INTEGER_VALUE: icon = DIAMOND; break;
+    case NodePinType::REAL_VALUE: icon = ARROW; break;
     default: icon = CIRCLE_ARROW_OUT; break;
     }
 

@@ -333,25 +333,25 @@ private:
     std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
 
     //node input data
-    std::shared_ptr<ioData> positionCommand =   std::make_shared<ioData>(ioDataType::REAL_VALUE,    DataDirection::NODE_INPUT, "Position");
-    std::shared_ptr<ioData> velocityCommand =   std::make_shared<ioData>(ioDataType::REAL_VALUE,    DataDirection::NODE_INPUT, "Velocity");
-    std::shared_ptr<ioData> digitalOut0 =       std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ0");
-    std::shared_ptr<ioData> digitalOut1 =       std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ1");
-    std::shared_ptr<ioData> digitalOut2 =       std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ2");
+    std::shared_ptr<NodePin> positionCommand =   std::make_shared<NodePin>(NodePinType::REAL_VALUE,    DataDirection::NODE_INPUT, "Position");
+    std::shared_ptr<NodePin> velocityCommand =   std::make_shared<NodePin>(NodePinType::REAL_VALUE,    DataDirection::NODE_INPUT, "Velocity");
+    std::shared_ptr<NodePin> digitalOut0 =       std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ0");
+    std::shared_ptr<NodePin> digitalOut1 =       std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ1");
+    std::shared_ptr<NodePin> digitalOut2 =       std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ2");
 
     //node output data
-    std::shared_ptr<ioData> motorLink =         std::make_shared<ioData>(ioDataType::ACTUATOR_DEVICELINK, DataDirection::NODE_OUTPUT, "Motor");
-    std::shared_ptr<ioData> actualLoad =        std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Load", ioDataFlags_DisableDataField);
-    std::shared_ptr<ioData> encoderLink =       std::make_shared<ioData>(ioDataType::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_OUTPUT, "Encoder");
-    std::shared_ptr<ioData> actualPosition =    std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position", ioDataFlags_DisableDataField);
-    std::shared_ptr<ioData> actualVelocity =    std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity", ioDataFlags_DisableDataField);
-    std::shared_ptr<ioData> gpioLink =          std::make_shared<ioData>(ioDataType::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
-    std::shared_ptr<ioData> digitalIn0 =        std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI0", ioDataFlags_DisableDataField);
-    std::shared_ptr<ioData> digitalIn1 =        std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI1", ioDataFlags_DisableDataField);
-    std::shared_ptr<ioData> digitalIn2 =        std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI2", ioDataFlags_DisableDataField);
-    std::shared_ptr<ioData> digitalIn3 =        std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI3", ioDataFlags_DisableDataField);
-    std::shared_ptr<ioData> digitalIn4 =        std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI4", ioDataFlags_DisableDataField);
-    std::shared_ptr<ioData> digitalIn5 =        std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI5", ioDataFlags_DisableDataField);
+    std::shared_ptr<NodePin> motorLink =         std::make_shared<NodePin>(NodePinType::ACTUATOR_DEVICELINK, DataDirection::NODE_OUTPUT, "Motor");
+    std::shared_ptr<NodePin> actualLoad =        std::make_shared<NodePin>(NodePinType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Load", NodePinFlags_DisableDataField);
+    std::shared_ptr<NodePin> encoderLink =       std::make_shared<NodePin>(NodePinType::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_OUTPUT, "Encoder");
+    std::shared_ptr<NodePin> actualPosition =    std::make_shared<NodePin>(NodePinType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position", NodePinFlags_DisableDataField);
+    std::shared_ptr<NodePin> actualVelocity =    std::make_shared<NodePin>(NodePinType::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity", NodePinFlags_DisableDataField);
+    std::shared_ptr<NodePin> gpNodeLink =          std::make_shared<NodePin>(NodePinType::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
+    std::shared_ptr<NodePin> digitalIn0 =        std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI0", NodePinFlags_DisableDataField);
+    std::shared_ptr<NodePin> digitalIn1 =        std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI1", NodePinFlags_DisableDataField);
+    std::shared_ptr<NodePin> digitalIn2 =        std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI2", NodePinFlags_DisableDataField);
+    std::shared_ptr<NodePin> digitalIn3 =        std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI3", NodePinFlags_DisableDataField);
+    std::shared_ptr<NodePin> digitalIn4 =        std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI4", NodePinFlags_DisableDataField);
+    std::shared_ptr<NodePin> digitalIn5 =        std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI5", NodePinFlags_DisableDataField);
 
     //command flags to control state machine (interface to construct DCOM_control word)
     bool b_disableOperation = false;

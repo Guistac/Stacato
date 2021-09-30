@@ -87,7 +87,7 @@ void Lexium32::assignIoData() {
     encoderDevice->setParentDevice(thisDevice);
     encoderLink->set(encoderDevice);
     gpioDevice->setParentDevice(thisDevice);
-    gpioLink->set(gpioDevice);
+    gpNodeLink->set(gpioDevice);
 
     //node input data
     addIoData(positionCommand);
@@ -101,7 +101,7 @@ void Lexium32::assignIoData() {
     addIoData(encoderLink);
     addIoData(actualPosition);
     addIoData(actualVelocity);
-    addIoData(gpioLink);
+    addIoData(gpNodeLink);
     addIoData(digitalIn0);
     addIoData(digitalIn1);
     addIoData(digitalIn2);

@@ -17,9 +17,9 @@ public:
         uint8_t bitCount;       //for display of pdodata and type matching
         int ioMapByteOffset;    //byte index in the ioMap
         int ioMapBitOffset;     //bit offset in the ioMap byte
-        char saveName[64];      //used to match ioData pin
-        ioDataType::Type dataType;      //used to match ioData pin
-        std::shared_ptr<ioData> ioData; //actual ioData pin for nodegraph logic
+        char saveName[64];      //used to match NodePin pin
+        NodePinType::Type dataType;      //used to match NodePin pin
+        std::shared_ptr<NodePin> NodePin; //actual NodePin pin for nodegraph logic
     };
 
     struct ModuleType {
@@ -63,7 +63,7 @@ public:
     //subdevices
     std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
 
-    std::shared_ptr<ioData> gpioLink = std::make_shared<ioData>(ioDataType::Type::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
+    std::shared_ptr<NodePin> gpNodeLink = std::make_shared<NodePin>(NodePinType::Type::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
     std::vector<Module> ioModules;
 
 

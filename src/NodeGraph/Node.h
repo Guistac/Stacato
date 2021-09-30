@@ -1,36 +1,36 @@
 #pragma once
 
-//we include ioData.h so classes can be derived by including the ioNode.h file
-#include "ioData.h"
-#include "ioLink.h"
+//we include NodePin.h so classes can be derived by including the Node.h file
+#include "NodePin.h"
+#include "NodeLink.h"
 
 #define DEFINE_PROCESSOR_NODE(nodeName, className, category)	public:																							\
 																virtual const char* getNodeName() { return nodeName; }											\
 																virtual const char* getNodeCategory() { return category; }										\
 																className(){ setName(nodeName); }																\
 																virtual NodeType getType() { return NodeType::PROCESSOR; }										\
-																virtual std::shared_ptr<ioNode> getNewNodeInstance() { return std::make_shared<className>(); }	\
+																virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
 
 #define DEFINE_AXIS_NODE(nodeName, className)	public:																							\
 												virtual const char* getNodeName() { return nodeName; }											\
 												virtual const char* getNodeCategory() { return "Axis"; }										\
 												className(){ setName(nodeName); }																\
 												virtual NodeType getType() { return NodeType::AXIS; }											\
-												virtual std::shared_ptr<ioNode> getNewNodeInstance() { return std::make_shared<className>(); }	\
+												virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
 
 #define	DEFINE_CLOCK_NODE(nodeName, className)	public:																							\
 												virtual const char* getNodeName() { return nodeName; }											\
 												virtual const char* getNodeCategory() { return "Time"; }										\
 												className(){ setName(nodeName); }																\
 												virtual NodeType getType() { return NodeType::CLOCK; }											\
-												virtual std::shared_ptr<ioNode> getNewNodeInstance() { return std::make_shared<className>(); }	\
+												virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
 
 #define DEFINE_CONTAINER_NODE(nodeName, className, category)	public:																							\
 																virtual const char * getNodeName() { return nodeName; }											\
 																virtual const char* getNodeCategory() { return category; }										\
 																className(){ setName(nodeName); }																\
 																virtual NodeType getType() { return NodeType::CONTAINER; }										\
-																virtual std::shared_ptr<ioNode> getNewNodeInstance() { return std::make_shared<className>(); }	\
+																virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
 
 class NodeGraph;
 
@@ -44,13 +44,13 @@ enum NodeType {
 
 namespace tinyxml2 { class XMLElement; }
 
-class ioNode : public std::enable_shared_from_this<ioNode>{
+class Node : public std::enable_shared_from_this<Node>{
 public:
 
 	virtual NodeType getType() = 0;
 	virtual const char* getNodeName() = 0;
 	virtual const char* getNodeCategory() = 0;
-	virtual std::shared_ptr<ioNode> getNewNodeInstance() = 0;
+	virtual std::shared_ptr<Node> getNewNodeInstance() = 0;
 
 	void setName(const char* n) { strcpy(name, n); }
 	const char* getName() { return name; }
@@ -66,10 +66,10 @@ public:
 		}
 	}
 
-	void addIoData(std::shared_ptr<ioData> d);
-	void removeIoData(std::shared_ptr<ioData> d);
-	std::vector<std::shared_ptr<ioData>>& getNodeInputData() { return nodeInputData; }
-	std::vector<std::shared_ptr<ioData>>& getNodeOutputData() { return nodeOutputData; }
+	void addIoData(std::shared_ptr<NodePin> d);
+	void removeIoData(std::shared_ptr<NodePin> d);
+	std::vector<std::shared_ptr<NodePin>>& getNodeInputData() { return nodeInputData; }
+	std::vector<std::shared_ptr<NodePin>>& getNodeOutputData() { return nodeOutputData; }
 	bool hasInputs() { return !nodeInputData.empty(); }
 	bool hasOutputs() { return !nodeOutputData.empty(); }
 	virtual void assignIoData() = 0;
@@ -105,8 +105,8 @@ public:
 private:
 
 	friend class NodeGraph;
-	friend class ioData;
-	friend class ioLink;
+	friend class NodePin;
+	friend class NodeLink;
 
 	char name[128];
 
@@ -114,8 +114,8 @@ private:
 	bool b_isInNodeGraph = false;
 	int uniqueID = -1;
 
-	std::vector<std::shared_ptr<ioData>> nodeInputData;
-	std::vector<std::shared_ptr<ioData>> nodeOutputData;
+	std::vector<std::shared_ptr<NodePin>> nodeInputData;
+	std::vector<std::shared_ptr<NodePin>> nodeOutputData;
 
 	//processing flags
 	bool b_wasProcessed = false;

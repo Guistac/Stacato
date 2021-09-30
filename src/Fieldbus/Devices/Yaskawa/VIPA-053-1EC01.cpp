@@ -25,7 +25,7 @@ void VIPA_053_1EC01::onConnection() {}
 void VIPA_053_1EC01::assignIoData() {
     std::shared_ptr<DeviceNode> thisDevice = std::dynamic_pointer_cast<DeviceNode>(shared_from_this());
     gpioDevice->setParentDevice(thisDevice);
-    gpioLink->set(gpioDevice);
+    gpNodeLink->set(gpioDevice);
 
     //node input data
     //addIoData(relay1);
@@ -34,7 +34,7 @@ void VIPA_053_1EC01::assignIoData() {
     //addIoData(relay4);
     
     //node output data
-    addIoData(gpioLink);
+    addIoData(gpNodeLink);
     //addIoData(digitalIn1);
     //addIoData(digitalIn2);
     //addIoData(digitalIn3);
@@ -155,11 +155,11 @@ void VIPA_053_1EC01::detectIoModules() {
                 char parameterDisplayName[64];
                 sprintf(parameterDisplayName, "Module %i %s Input %i", i+1, getModuleType(module.moduleType)->dataName, j+1);
                 sprintf(moduleParameter.saveName, "Module%i%sInput%i", i+1, getModuleType(module.moduleType)->dataName, j+1);
-                if (moduleParameter.bitCount == 1) moduleParameter.ioData = std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, parameterDisplayName, moduleParameter.saveName);
+                if (moduleParameter.bitCount == 1) moduleParameter.NodePin = std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, parameterDisplayName, moduleParameter.saveName);
                 else {
                     Logger::critical("Can't Handle non boolean data in VIPA modules");
                     //TODO: for non boolean values, this will need to be handled differently
-                    //moduleParameter.ioData = std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, paramet);
+                    //moduleParameter.NodePin = std::make_shared<NodePin>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, paramet);
                 }
             }
             //get the amount of full bytes the input section of the module fills (for example 4 bits are 1 byte, with 4 unused bits)
@@ -186,11 +186,11 @@ void VIPA_053_1EC01::detectIoModules() {
                 char parameterDisplayName[128];
                 sprintf(parameterDisplayName, "Module %i %s Output %i", i+1, getModuleType(module.moduleType)->dataName, j+1);
                 sprintf(moduleParameter.saveName, "Module%i%sOutput%i", i+1, getModuleType(module.moduleType)->dataName, j+1);
-                if (moduleParameter.bitCount == 1) moduleParameter.ioData = std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, parameterDisplayName, moduleParameter.saveName);
+                if (moduleParameter.bitCount == 1) moduleParameter.NodePin = std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, parameterDisplayName, moduleParameter.saveName);
                 else {
                     Logger::critical("Can't Handle non boolean data in VIPA modules");
                     //TODO: for non boolean values, this will need to be handled differently
-                    //moduleParameter.ioData = std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, parameterName);
+                    //moduleParameter.NodePin = std::make_shared<NodePin>(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, parameterName);
                 }
             }
             //get the amount of full bytes the input section of the module fills (for example 11 bits are 2 bytes, with 5 unused bits)
@@ -209,16 +209,16 @@ void VIPA_053_1EC01::detectIoModules() {
     GuiMutex.lock();
     ioModules.clear();
     ioModules.swap(newModules);
-    //remove all old ioData
-    std::vector<std::shared_ptr<ioData>>& nodeInputData = getNodeInputData();
+    //remove all old NodePin
+    std::vector<std::shared_ptr<NodePin>>& nodeInputData = getNodeInputData();
     while (!nodeInputData.empty()) removeIoData(nodeInputData.back());
-    std::vector<std::shared_ptr<ioData>>& nodeOutputData = getNodeOutputData();
+    std::vector<std::shared_ptr<NodePin>>& nodeOutputData = getNodeOutputData();
     while (!nodeOutputData.empty()) removeIoData(nodeOutputData.back());
-    //add new ioData
-    addIoData(gpioLink);
+    //add new NodePin
+    addIoData(gpNodeLink);
     for (Module& module : ioModules) {
-        for (auto& input : module.inputs) addIoData(input.ioData);
-        for (auto& output : module.outputs) addIoData(output.ioData);
+        for (auto& input : module.inputs) addIoData(input.NodePin);
+        for (auto& output : module.outputs) addIoData(output.NodePin);
     }
     GuiMutex.unlock();
 
@@ -232,11 +232,11 @@ void VIPA_053_1EC01::readInputs() {
         for (auto inputParameter : module.inputs) {
             if (inputParameter.bitCount == 1) {
                 bool value = 1 == (0x1 & (inputBytes[inputParameter.ioMapByteOffset] >> inputParameter.ioMapBitOffset));
-                inputParameter.ioData->set(value);
+                inputParameter.NodePin->set(value);
             }
             else {
                 Logger::critical("Can't read non boolean values in VIPA modules");
-                //we need to format the data to an integer and pass it to the ioData object
+                //we need to format the data to an integer and pass it to the NodePin object
             }
         }
     }
@@ -248,17 +248,17 @@ void VIPA_053_1EC01::prepareOutputs(){
     for (Module& module : ioModules) {
         for (auto outputParameter : module.outputs) {
             if (outputParameter.bitCount == 1) {
-                std::shared_ptr<ioData> pin = outputParameter.ioData;
+                std::shared_ptr<NodePin> pin = outputParameter.NodePin;
                 if (pin->isConnected()) pin->set(pin->getLinks().front()->getInputData()->getBoolean());
                 bool value = pin->getBoolean();
                 //set a bit in the output byte to 1
-                if (outputParameter.ioData->getBoolean()) outputBytes[outputParameter.ioMapByteOffset] |= 0x1 << outputParameter.ioMapBitOffset;
+                if (outputParameter.NodePin->getBoolean()) outputBytes[outputParameter.ioMapByteOffset] |= 0x1 << outputParameter.ioMapBitOffset;
                 //clear a bit in the output byte to 0
                 else outputBytes[outputParameter.ioMapByteOffset] &= ~(0x1 << outputParameter.ioMapBitOffset);
             }
             else {
                 Logger::critical("Can't read non boolean values in VIPA modules");
-                //we need to format the data to an integer and pass it to the ioData object
+                //we need to format the data to an integer and pass it to the NodePin object
             }
         }
     }
@@ -338,8 +338,8 @@ bool VIPA_053_1EC01::loadDeviceData(tinyxml2::XMLElement* xml) {
     }
 
     for (Module& module : ioModules) {
-        for (auto& input : module.inputs) addIoData(input.ioData);
-        for (auto& output : module.outputs) addIoData(output.ioData);
+        for (auto& input : module.inputs) addIoData(input.NodePin);
+        for (auto& output : module.outputs) addIoData(output.NodePin);
     }
 
     return true;

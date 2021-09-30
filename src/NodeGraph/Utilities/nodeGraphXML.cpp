@@ -2,7 +2,7 @@
 
 #include "NodeGraph/NodeGraph.h"
 
-#include "ioNodeFactory.h"
+#include "NodeFactory.h"
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 
 #include <tinyxml2.h>
@@ -75,9 +75,9 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 	XMLElement* nodesXML = xml->FirstChildElement("Nodes");
 	if (!nodesXML) return Logger::warn("Could not load Nodes element from savefile");
 
-	std::vector<std::shared_ptr<ioNode>> loadedNodes;
-	std::vector<std::shared_ptr<ioData>> loadedPins;
-	std::vector<std::shared_ptr<ioLink>> loadedLinks;
+	std::vector<std::shared_ptr<Node>> loadedNodes;
+	std::vector<std::shared_ptr<NodePin>> loadedPins;
+	std::vector<std::shared_ptr<NodeLink>> loadedLinks;
 	int largestUniqueID = 0; //TODO: need to increment unique id counter to found biggest value so we can add more elements after loading
 
 	XMLElement* nodeXML = nodesXML->FirstChildElement("Node");
@@ -100,16 +100,16 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 
 		//Construct Node Object from Type Attributes
 		Logger::trace("Loading node '{}'", className);
-		std::shared_ptr<ioNode> loadedNode = nullptr;
-		if (strcmp(nodeType, "PROCESSOR") == 0) loadedNode = ioNodeFactory::getIoNodeByName(className);
-		else if (strcmp(nodeType, "CLOCK") == 0) loadedNode = ioNodeFactory::getIoNodeByName(className);
+		std::shared_ptr<Node> loadedNode = nullptr;
+		if (strcmp(nodeType, "PROCESSOR") == 0) loadedNode = NodeFactory::getIoNodeByName(className);
+		else if (strcmp(nodeType, "CLOCK") == 0) loadedNode = NodeFactory::getIoNodeByName(className);
 		else if (strcmp(nodeType, "IODEVICE") == 0) {
 			const char* deviceType;
 			if (nodeXML->QueryStringAttribute("DeviceType", &deviceType) != XML_SUCCESS) return Logger::warn("Could not load Node Device Type");
 			if (strcmp(deviceType, "ETHERCATSLAVE") == 0) loadedNode = EtherCatDeviceFactory::getDeviceByName(className);
 		}
-		else if (strcmp(nodeType, "AXIS") == 0) loadedNode = ioNodeFactory::getAxisByName(className);
-		else if (strcmp(nodeType, "CONTAINER") == 0) loadedNode = ioNodeFactory::getIoNodeByName(className);
+		else if (strcmp(nodeType, "AXIS") == 0) loadedNode = NodeFactory::getAxisByName(className);
+		else if (strcmp(nodeType, "CONTAINER") == 0) loadedNode = NodeFactory::getIoNodeByName(className);
 		if (loadedNode == nullptr) return Logger::warn("Coult not load Node Class");
 	
 		//Get Node position in node editor
@@ -145,11 +145,11 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		loadedNode->b_wasSplit = isSplit;
 		loadedNodes.push_back(loadedNode);
 		loadedNode->b_isInNodeGraph = true;
-		for (std::shared_ptr<ioData> data : loadedNode->nodeInputData) {
+		for (std::shared_ptr<NodePin> data : loadedNode->nodeInputData) {
 			data->parentNode = loadedNode;
 			loadedPins.push_back(data);
 		}
-		for (std::shared_ptr<ioData> data : loadedNode->nodeOutputData) {
+		for (std::shared_ptr<NodePin> data : loadedNode->nodeOutputData) {
 			data->parentNode = loadedNode;
 			loadedPins.push_back(data);
 		}
@@ -168,7 +168,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			const char* dataTypeString;
 			if (inputPinXML->QueryStringAttribute("SaveName", &saveNameString) != XML_SUCCESS) return Logger::warn("Could not load Input Pin SaveName Attribute");
 			if (inputPinXML->QueryStringAttribute("DataType", &dataTypeString) != XML_SUCCESS) return Logger::warn("Could not load Input Pin DataType Attribute");
-			std::shared_ptr<ioData> matchingPin = nullptr;
+			std::shared_ptr<NodePin> matchingPin = nullptr;
 			for (auto pin : loadedNode->getNodeInputData()) {
 				if (pin->matches(saveNameString, dataTypeString)) {
 					if (!pin->load(inputPinXML)) return Logger::warn("Could not load Node Pin '{}'", saveNameString);
@@ -189,7 +189,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			const char* dataTypeString;
 			if (outputPinXML->QueryStringAttribute("SaveName", &saveNameString) != XML_SUCCESS) return Logger::warn("Could not load Output Pin SaveName Attribute");
 			if (outputPinXML->QueryStringAttribute("DataType", &dataTypeString) != XML_SUCCESS) return Logger::warn("Could not load Output Pin DataType Attribute");
-			std::shared_ptr<ioData> matchingPin = nullptr;
+			std::shared_ptr<NodePin> matchingPin = nullptr;
 			for (auto pin : loadedNode->getNodeOutputData()) {
 				if (pin->matches(saveNameString, dataTypeString)) {
 					if (!pin->load(outputPinXML)) return Logger::warn("Could not load Node Pin '{}'", saveNameString);
@@ -219,7 +219,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		
 		if (linkUniqueID > largestUniqueID) largestUniqueID = linkUniqueID;
 
-		std::shared_ptr<ioData> startPin;
+		std::shared_ptr<NodePin> startPin;
 		for (auto pin : loadedPins) {
 			if (pin->getUniqueID() == startPinID) {
 				startPin = pin;
@@ -227,7 +227,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			}
 		}
 		if (!startPin) return Logger::warn("Could not find matching node pin ID for start pin");
-		std::shared_ptr<ioData> endPin;
+		std::shared_ptr<NodePin> endPin;
 		for (auto pin : loadedPins) {
 			if (pin->getUniqueID() == endPinID) {
 				endPin = pin;
@@ -237,21 +237,21 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		if (!endPin) return Logger::warn("Could not find matching node pin ID for end pin");
 
 		if (!isConnectionValid(startPin, endPin)) return Logger::warn("Saved link could not be evaluated as a valid connection");
-		std::shared_ptr<ioLink> newIoLink = std::make_shared<ioLink>();
+		std::shared_ptr<NodeLink> newIoLink = std::make_shared<NodeLink>();
 		newIoLink->uniqueID = linkUniqueID;
 		newIoLink->inputData = startPin->isOutput() ? startPin : endPin;
 		newIoLink->outputData = endPin->isInput() ? endPin : startPin;
-		startPin->ioLinks.push_back(newIoLink);
-		endPin->ioLinks.push_back(newIoLink);
+		startPin->NodeLinks.push_back(newIoLink);
+		endPin->NodeLinks.push_back(newIoLink);
 		loadedLinks.push_back(newIoLink);
 
 		Logger::trace("Loaded Node Link with ID: {}  StartPin: {}  EndPin: {}", linkUniqueID, startPinID, endPinID);
 		linkXML = linkXML->NextSiblingElement("Link");
 	}
 
-	ioNodeList.swap(loadedNodes);
-	ioDataList.swap(loadedPins);
-	ioLinkList.swap(loadedLinks);
+	NodeList.swap(loadedNodes);
+	NodePinList.swap(loadedPins);
+	NodeLinkList.swap(loadedLinks);
 	uniqueID = largestUniqueID + 1; //set this so we can add more elements to the node graph after loading
 
 	Logger::debug("Largest unique ID is {}", largestUniqueID);

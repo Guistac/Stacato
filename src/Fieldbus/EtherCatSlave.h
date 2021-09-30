@@ -18,13 +18,13 @@
 //Unknown devices will not and will be of the base type EtherCatSlave
 
 #define INTERFACE_DEFINITION(className, deviceName, manufacturerName, category)     public:                                                                                                 \
-                                                                                    /*ioNode Functions*/                                                                                    \
+                                                                                    /*Node Functions*/                                                                                    \
                                                                                     virtual NodeType getType() { return NodeType::IODEVICE; }                                               \
                                                                                     virtual DeviceType getDeviceType() { return DeviceType::ETHERCATSLAVE; }                                \
 														                            virtual const char * getNodeName() { return deviceName; }			                                    \
                                                                                     virtual const char * getNodeCategory() { return category; }			                                    \
                                                                                     virtual const char* getManufacturerName(){ return manufacturerName; }                                   \
-                                                                                    virtual std::shared_ptr<ioNode> getNewNodeInstance() { return nullptr; }                                \
+                                                                                    virtual std::shared_ptr<Node> getNewNodeInstance() { return nullptr; }                                \
 														                            className() { setName(deviceName); }												                    \
                                                                                     virtual void assignIoData(){}                                                                           \
                                                                                     virtual void process(){}                                                                                \
@@ -52,13 +52,13 @@
 
 //All Slave Device Classes Need to Implement this Macro 
 #define SLAVE_DEFINITION(className, deviceName, manufacturerName, category) public:                                                                                                 \
-                                                                            /*ioNode Functions*/                                                                                    \
+                                                                            /*Node Functions*/                                                                                    \
                                                                             virtual NodeType getType() { return NodeType::IODEVICE; }                                               \
                                                                             virtual DeviceType getDeviceType() { return DeviceType::ETHERCATSLAVE; }                                \
                                                                             virtual const char* getNodeName() { return deviceName; }			                                    \
                                                                             virtual const char * getNodeCategory() { return category; }			                                    \
                                                                             virtual const char* getManufacturerName() { return manufacturerName; }                                  \
-                                                                            virtual std::shared_ptr<ioNode> getNewNodeInstance() { return nullptr; }                                \
+                                                                            virtual std::shared_ptr<Node> getNewNodeInstance() { return nullptr; }                                \
                                                                             className(){ setName(deviceName); }                                                                     \
                                                                             virtual void assignIoData();                                                                            \
                                                                             /*DeviceNode Functions*/                                                                                \

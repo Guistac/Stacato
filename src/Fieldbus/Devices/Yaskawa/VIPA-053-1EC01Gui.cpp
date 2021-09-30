@@ -26,14 +26,14 @@ void VIPA_053_1EC01::deviceSpecificGui() {
                 for (int j = 0; j < module.inputs.size(); j++) {
                     ModuleParameter& parameter = module.inputs[j];
                     ImGui::Text("Input %i: InputByte: %i  InputBit: %i  BitSize: %i", i, parameter.ioMapByteOffset, parameter.ioMapBitOffset, parameter.bitCount);
-                    std::shared_ptr<ioData> ioData = parameter.ioData;
-                    //ImGui::Text("%s (%s)", ioData->getName(), ioData->getTypeName());
+                    std::shared_ptr<NodePin> NodePin = parameter.NodePin;
+                    //ImGui::Text("%s (%s)", NodePin->getName(), NodePin->getTypeName());
                 }
                 for (int j = 0; j < module.outputs.size(); j++) {
                     ModuleParameter& parameter = module.outputs[j];
                     ImGui::Text("Output %i: OutputByte: %i  OutputBit: %i  BitSize: %i", i, parameter.ioMapByteOffset, parameter.ioMapBitOffset, parameter.bitCount);
-                    std::shared_ptr<ioData> ioData = parameter.ioData;
-                    //ImGui::Text("%s (%s)", ioData->getName(), ioData->getTypeName());
+                    std::shared_ptr<NodePin> NodePin = parameter.NodePin;
+                    //ImGui::Text("%s (%s)", NodePin->getName(), NodePin->getTypeName());
                 }
                 ImGui::TreePop();
             }

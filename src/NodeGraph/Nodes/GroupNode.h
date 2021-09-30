@@ -1,8 +1,8 @@
 #pragma once
 
-#include "NodeGraph/ioNode.h"
+#include "NodeGraph/Node.h"
 
-class GroupNode : public ioNode {
+class GroupNode : public Node {
 public:																	
 	
 	DEFINE_CONTAINER_NODE("Group", GroupNode, "Utility");

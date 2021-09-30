@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ioNode.h"
+#include "Node.h"
 
 #define DEFINE_DEVICE_NODE(nodeName, className, deviceType, category)	public:																							\
 																		virtual const char * getNodeName() { return nodeName; }											\
@@ -8,7 +8,7 @@
 																		className(){ setName(nodeName); }																\
 																		virtual NodeType getType() { return NodeType::IODEVICE; }										\
 																		virtual DeviceType getDeviceType() { return deviceType; }										\
-																		virtual std::shared_ptr<ioNode> getNewNodeInstance() { return std::make_shared<className>(); }	\
+																		virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
 																		virtual bool isOnline();																		\
 																		virtual bool isReady();																			\
 																		virtual bool isEnabled();																		\
@@ -24,7 +24,7 @@ enum DeviceType {
 	USBDEVICE
 };
 
-class DeviceNode : public ioNode {
+class DeviceNode : public Node {
 public:
 
 	virtual DeviceType getDeviceType() = 0;

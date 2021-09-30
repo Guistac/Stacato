@@ -1,13 +1,13 @@
 #pragma once
 
-#include "NodeGraph/ioNode.h"
+#include "NodeGraph/Node.h"
 #include "Utilities/ScrollingBuffer.h"
 
 #include <imgui.h>
 #include <implot.h>
 #include <tinyxml2.h>
 
-class PlotterNode : public ioNode {
+class PlotterNode : public Node {
 public:
 
 	DEFINE_PROCESSOR_NODE("Plotter", PlotterNode, "Utility")
@@ -22,7 +22,7 @@ public:
 	ScrollingBuffer data;
 	bool wasConnected = false;
 
-	std::shared_ptr<ioData> input = std::make_shared<ioData>(ioDataType::REAL_VALUE, DataDirection::NODE_INPUT, "input", ioDataFlags_ForceDataField | ioDataFlags_DisableDataField);
+	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePinType::REAL_VALUE, DataDirection::NODE_INPUT, "input", NodePinFlags_ForceDataField | NodePinFlags_DisableDataField);
 
 	virtual void process() {
 		if (input->isConnected()) {

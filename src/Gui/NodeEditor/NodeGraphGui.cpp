@@ -9,10 +9,10 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatSlave.h"
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
-#include "NodeGraph/Utilities/ioNodeFactory.h"
+#include "NodeGraph/Utilities/NodeFactory.h"
 #include "Gui/Framework/Colors.h"
 
-std::vector<std::shared_ptr<ioNode>> selectedNodes;
+std::vector<std::shared_ptr<Node>> selectedNodes;
 
 namespace NodeEditor = ax::NodeEditor;
 
@@ -36,7 +36,7 @@ void nodeGraph() {
         //if there are no selected nodes, display the node adder list
         if (selectedNodes.empty()) nodeAdder();
         else if (selectedNodes.size() == 1) {
-            std::shared_ptr<ioNode> selectedNode = selectedNodes.front();
+            std::shared_ptr<Node> selectedNode = selectedNodes.front();
             ImGui::PushFont(Fonts::robotoBold20);
             ImGui::Text(selectedNode->getName());
             ImGui::PopFont();
@@ -92,7 +92,7 @@ void nodeGraph() {
     Environnement::nodeGraph.nodeEditorGui();
 
     if (isEditingAllowed()) {
-        std::shared_ptr<ioNode> newDraggedNode = acceptDraggedNode();
+        std::shared_ptr<Node> newDraggedNode = acceptDraggedNode();
         if (newDraggedNode) {
             Environnement::nodeGraph.addIoNode(newDraggedNode);
             NodeEditor::SetNodePosition(newDraggedNode->getUniqueID(), NodeEditor::ScreenToCanvas(ImGui::GetMousePos()));
@@ -157,11 +157,11 @@ void NodeGraph::nodeEditorGui() {
             NodeEditor::PinId pin1Id, pin2Id;
             if (NodeEditor::QueryNewLink(&pin1Id, &pin2Id)) {
                 if (pin1Id && pin2Id) {
-                    std::shared_ptr<ioData> pin1 = getIoData(pin1Id.Get());
-                    std::shared_ptr<ioData> pin2 = getIoData(pin2Id.Get());
+                    std::shared_ptr<NodePin> pin1 = getIoData(pin1Id.Get());
+                    std::shared_ptr<NodePin> pin2 = getIoData(pin2Id.Get());
                     if (pin1 && pin2 && isConnectionValid(pin1, pin2)) {
                         if (NodeEditor::AcceptNewItem(ImColor(1.0f, 1.0f, 1.0f), 3.0)) {
-                            std::shared_ptr<ioLink> link = connect(pin1, pin2);
+                            std::shared_ptr<NodeLink> link = connect(pin1, pin2);
                             //TODO: should we even process the node graph in the gui?
                             /*
                             if (pin1->isInput()) evaluate(pin1->getNode());
@@ -183,14 +183,14 @@ void NodeGraph::nodeEditorGui() {
             NodeEditor::LinkId deletedLinkId;
             while (NodeEditor::QueryDeletedLink(&deletedLinkId)) {
                 if (NodeEditor::AcceptDeletedItem()) {
-                    std::shared_ptr<ioLink> deletedLink = getIoLink(deletedLinkId.Get());
+                    std::shared_ptr<NodeLink> deletedLink = getIoLink(deletedLinkId.Get());
                     if (deletedLink) disconnect(deletedLink);
                 }
             }
 
             NodeEditor::NodeId deletedNodeId;
             while (NodeEditor::QueryDeletedNode(&deletedNodeId)) {
-                std::shared_ptr<ioNode> deletedNode = getIoNode(deletedNodeId.Get());
+                std::shared_ptr<Node> deletedNode = getIoNode(deletedNodeId.Get());
                 if (deletedNode && NodeEditor::AcceptDeletedItem()) {
                     removeIoNode(deletedNode);
                 }
@@ -233,7 +233,7 @@ void NodeGraph::nodeEditorGui() {
         static glm::vec2 mouseRightClickPosition;
         if (ImGui::IsMouseClicked(1)) mouseRightClickPosition = ImGui::GetMousePos();
         if (ImGui::BeginPopup("Background Context Menu")) {
-            std::shared_ptr<ioNode> newNode = nodeAdderContextMenu();
+            std::shared_ptr<Node> newNode = nodeAdderContextMenu();
             if (newNode) {
                 Environnement::nodeGraph.addIoNode(newNode);
                 NodeEditor::SetNodePosition(newNode->getUniqueID(), NodeEditor::ScreenToCanvas(mouseRightClickPosition));
@@ -279,7 +279,7 @@ void NodeGraph::nodeEditorGui() {
 
     if (b_justLoaded) {
         b_justLoaded = false;
-        for (auto node : ioNodeList) node->restoreSavedPosition();
+        for (auto node : NodeList) node->restoreSavedPosition();
         centerView();
         showFlow();
     }

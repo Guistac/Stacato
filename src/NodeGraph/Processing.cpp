@@ -4,12 +4,12 @@
 #include "DeviceNode.h"
 
 void NodeGraph::evaluate() {
-	std::vector<std::shared_ptr<ioNode>> dummyNodeList;
+	std::vector<std::shared_ptr<Node>> dummyNodeList;
 	evaluate(dummyNodeList);
 }
 
 void NodeGraph::evaluate(DeviceType deviceType) {
-	std::vector<std::shared_ptr<ioNode>> deviceNodes;
+	std::vector<std::shared_ptr<Node>> deviceNodes;
 	//get all the nodes that will be processed
 	for (auto node : getIoNodes()) {
 		if (node->getType() == NodeType::IODEVICE) {
@@ -20,18 +20,18 @@ void NodeGraph::evaluate(DeviceType deviceType) {
 	evaluate(deviceNodes);
 }
 
-void NodeGraph::evaluate(std::shared_ptr<ioNode> node) {
-	std::vector<std::shared_ptr<ioNode>> nodeList;
+void NodeGraph::evaluate(std::shared_ptr<Node> node) {
+	std::vector<std::shared_ptr<Node>> nodeList;
 	nodeList.push_back(node);
 	evaluate(nodeList);
 }
 
-void NodeGraph::evaluate(std::vector<std::shared_ptr<ioNode>> startNodes) {
+void NodeGraph::evaluate(std::vector<std::shared_ptr<Node>> startNodes) {
 
 	//regardless of the type of node thats being processed
 	//clock nodes always update their value, so they must always be processed
 	for (auto node : getIoNodes()) {
-		std::shared_ptr<ioNode> currentNode = node;
+		std::shared_ptr<Node> currentNode = node;
 		if (node->getType() == NodeType::CLOCK) {
 			startNodes.push_back(node);
 		}
@@ -42,16 +42,16 @@ void NodeGraph::evaluate(std::vector<std::shared_ptr<ioNode>> startNodes) {
 	//start from the start nodes and go down the tree adding each node to the nodesToProcess vector
 	//nodes can be added to the list more than one time, this is not important
 
-	std::vector<std::shared_ptr<ioNode>> nodesToProcess;
-	std::vector<std::shared_ptr<ioNode>> linkedNodes = startNodes;
-	std::vector<std::shared_ptr<ioNode>> nextLinkedNodes;
+	std::vector<std::shared_ptr<Node>> nodesToProcess;
+	std::vector<std::shared_ptr<Node>> linkedNodes = startNodes;
+	std::vector<std::shared_ptr<Node>> nextLinkedNodes;
 
 	mutex.lock();
 
 	std::chrono::time_point start = std::chrono::high_resolution_clock::now();
 
 	//set all nodes to unprocessed, so they will all be searched exactly once
-	for (auto node : ioNodeList) node->b_wasProcessed = false;
+	for (auto node : NodeList) node->b_wasProcessed = false;
 
 	while (!linkedNodes.empty()) {
 		//linked nodes are all nodes that were found on the outputs of the previous linked nodes
@@ -67,7 +67,7 @@ void NodeGraph::evaluate(std::vector<std::shared_ptr<ioNode>> startNodes) {
 			//and add it to the list of next linked nodes
 			for (auto outputData : node->getNodeOutputData()) {
 				for (auto outputLink : outputData->getLinks()) {
-					std::shared_ptr<ioNode> linkedOutputNode = outputLink->getOutputData()->getNode();
+					std::shared_ptr<Node> linkedOutputNode = outputLink->getOutputData()->getNode();
 					nextLinkedNodes.push_back(linkedOutputNode);
 				}
 			}
@@ -90,11 +90,11 @@ void NodeGraph::evaluate(std::vector<std::shared_ptr<ioNode>> startNodes) {
 
 	//set all nodes to processed except the ones that need to be processed
 	//this ensures only nodeToProcess will be processed
-	for (auto node : ioNodeList) node->b_wasProcessed = true;
-	for (auto node : ioNodeList) node->b_circularDependencyFlag = false;
+	for (auto node : NodeList) node->b_wasProcessed = true;
+	for (auto node : NodeList) node->b_circularDependencyFlag = false;
 	for (auto node : nodesToProcess) node->b_wasProcessed = false;
 
-	std::vector<std::shared_ptr<ioNode>> nextNodesToProcess;
+	std::vector<std::shared_ptr<Node>> nextNodesToProcess;
 
 	while (!nodesToProcess.empty()) {
 		//for each node to process, check if all the nodes connected to the current nodes inputs have been processed

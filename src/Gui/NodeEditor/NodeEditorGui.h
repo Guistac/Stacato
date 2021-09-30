@@ -2,7 +2,7 @@
 
 #include <imgui.h>
 
-#include "NodeGraph/ioNode.h"
+#include "NodeGraph/Node.h"
 
 namespace ImGuiNodeEditor {
 	void CreateContext();
@@ -11,9 +11,9 @@ namespace ImGuiNodeEditor {
 
 void nodeGraph();
 
-std::shared_ptr<ioNode> nodeAdderContextMenu();
+std::shared_ptr<Node> nodeAdderContextMenu();
 
-std::shared_ptr<ioNode> acceptDraggedNode();
+std::shared_ptr<Node> acceptDraggedNode();
 
 void nodeAdder();
 

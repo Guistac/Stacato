@@ -17,15 +17,15 @@ public:
 	//TxPDO
 	uint8_t buttonWord = 0;
 
-	std::shared_ptr<ioData> led0 = std::make_shared<ioData>(ioDataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-0");
-	std::shared_ptr<ioData> led1 = std::make_shared<ioData>(ioDataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-1");
-	std::shared_ptr<ioData> led2 = std::make_shared<ioData>(ioDataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-2");
-	std::shared_ptr<ioData> led3 = std::make_shared<ioData>(ioDataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-3");
-	std::shared_ptr<ioData> led4 = std::make_shared<ioData>(ioDataType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-4");
+	std::shared_ptr<NodePin> led0 = std::make_shared<NodePin>(NodePinType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-0");
+	std::shared_ptr<NodePin> led1 = std::make_shared<NodePin>(NodePinType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-1");
+	std::shared_ptr<NodePin> led2 = std::make_shared<NodePin>(NodePinType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-2");
+	std::shared_ptr<NodePin> led3 = std::make_shared<NodePin>(NodePinType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-3");
+	std::shared_ptr<NodePin> led4 = std::make_shared<NodePin>(NodePinType::INTEGER_VALUE, DataDirection::NODE_INPUT, "LED-4");
 
-	std::shared_ptr<ioData> button0		= std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button0", ioDataFlags_DisableDataField);
-	std::shared_ptr<ioData> button1		= std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button1", ioDataFlags_DisableDataField);
-	std::shared_ptr<ioData> button2		= std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button2", ioDataFlags_DisableDataField);
-	std::shared_ptr<ioData> button3		= std::make_shared<ioData>(ioDataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button3", ioDataFlags_DisableDataField);
+	std::shared_ptr<NodePin> button0		= std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button0", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> button1		= std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button1", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> button2		= std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button2", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> button3		= std::make_shared<NodePin>(NodePinType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Button3", NodePinFlags_DisableDataField);
 
 };

@@ -4,7 +4,7 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
-#include "NodeGraph/Utilities/ioNodeFactory.h"
+#include "NodeGraph/Utilities/NodeFactory.h"
 #include "Environnement/Environnement.h"
 
 int main() {
@@ -12,7 +12,7 @@ int main() {
 	Timing::start();
 
 	EtherCatDeviceFactory::loadDevices();
-	ioNodeFactory::loadNodes();
+	NodeFactory::loadNodes();
 	Environnement::load("xmlFile.xml");
 
 	EtherCatFieldbus::updateNetworkInterfaceCardList();
