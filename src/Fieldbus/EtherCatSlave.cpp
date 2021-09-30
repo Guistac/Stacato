@@ -226,6 +226,15 @@ bool EtherCatSlave::readSDO_S64(uint16_t index, uint8_t subindex, int64_t& data)
     } else return false;
 }
 
+bool EtherCatSlave::readSDO_String(uint16_t index, uint8_t subindex, char* data) {
+    EtherCatCoeData CoE_String(index, subindex, EtherCatData::Type::STRING);
+    if (CoE_String.read(getSlaveIndex())) {
+        strcpy(data, CoE_String.getString());
+        return true;
+    }
+    else return false;
+}
+
 //===== Writing SDO Data
 
 bool EtherCatSlave::writeSDO_U8(uint16_t index, uint8_t subindex, const uint8_t& data) {
@@ -274,5 +283,11 @@ bool EtherCatSlave::writeSDO_S64(uint16_t index, uint8_t subindex, const int64_t
     EtherCatCoeData CoE_S64(index, subindex);
     CoE_S64.setS64(data);
     return CoE_S64.write(getSlaveIndex());
+}
+
+bool EtherCatSlave::writeSDO_String(uint16_t index, uint8_t subindex, const char* data) {
+    EtherCatCoeData CoE_String(index, subindex);
+    CoE_String.setString(data);
+    return CoE_String.write(getSlaveIndex());
 }
 

@@ -2,7 +2,11 @@
 
 #include "Gui.h"
 
+std::mutex GuiMutex;
+
 void gui(bool closeWindowRequest) {
+	GuiMutex.lock();
+
 	mainMenuBar(closeWindowRequest);
 
 	float toolbarHeight = ImGui::GetTextLineHeight() * 3.2;
@@ -22,5 +26,7 @@ void gui(bool closeWindowRequest) {
 	ImGui::Begin("##Toolbar", nullptr, windowFlags);
 	toolbar(toolbarHeight);
 	ImGui::End();
+
+	GuiMutex.unlock();
 }
 

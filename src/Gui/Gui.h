@@ -9,6 +9,8 @@
 #include "Framework/Fonts.h"
 #include "NodeEditor/NodeEditorGui.h"
 
+extern std::mutex GuiMutex;
+
 void gui(bool closeWindowRequest);
 
 void mainMenuBar(bool closeWindowRequest);

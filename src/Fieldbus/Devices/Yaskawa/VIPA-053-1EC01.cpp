@@ -3,6 +3,7 @@
 #include "VIPA-053-1EC01.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include <tinyxml2.h>
+#include "Gui/Gui.h"
 
 bool VIPA_053_1EC01::isDeviceReady() {
     return true;
@@ -115,71 +116,154 @@ void VIPA_053_1EC01::detectIoModules() {
 
     uint8_t detectedModuleCount;
     if(!readSDO_U8(0xF050, 0x0, detectedModuleCount)) return;
-    detectedModules = std::vector<VIPAModule>(detectedModuleCount);
+    std::vector<Module> newModules = std::vector<Module>(detectedModuleCount);
+
+    int inputByteCount = 0;
+    int outputByteCount = 0;
 
     for (int i = 0; i < detectedModuleCount; i++) {
-        VIPAModule& module = detectedModules[i];
+        Module& module = newModules[i];
 
-        char buffer[256];
-        int size = 256;
-        int wc = ec_SDOread(getSlaveIndex(), 0x4100 + i, 0x1, false, &size, &buffer, EC_TIMEOUTSAFE);
-        if (wc == 0) return;
-        strcpy(module.name, buffer);
+        uint16_t moduleInformationIndex = 0x4100 + i;   //contains the name of the module as well as its serial number and version info
+        uint16_t inputObjectIndex = 0x6000 + i;         //index of the object that holds all input values, index holds number of input parameters
+        uint16_t inputMappingModule = 0x1A00 + i;       //index of the mapping module object that stores all input PDO mappings
+        uint16_t outputObjectIndex = 0x7000 + i;        //index of the object that holds all output values, index holds number of output parameters
+        uint16_t outputMappingModule = 0x1600 + i;      //index of the mapping module object that stores all output PDO mappings
+        //uint16_t parameterObjectIndex = 0x3100 + i;   //index of the object that stores all module parameters (there may not be one for every module)
 
-        if (!readSDO_U32(0xF050, i + 1, module.ID)) return;
+        if (!readSDO_String(moduleInformationIndex, 0x1, module.name)) return;
+        //if (!readSDO_U32(moduleInformationIndex, 0x2, module.ID)) return;
+        //if (!readSDO_String(moduleInformationIndex, 0x3, module.SerialNumber)) return;
+        //if (!readSDO_String(moduleInformationIndex, 0x4, module.ProductVersion)) return;
+        //if (!readSDO_String(moduleInformationIndex, 0x5, module.HardwareVersion)) return;
+        //if (!readSDO_String(moduleInformationIndex, 0x6, module.SoftwareVersion)) return;
+        //if (!readSDO_U16(moduleInformationIndex, 0x7, module.FPGAVersion)) return;
+        //if (!readSDO_String(moduleInformationIndex, 0x8, module.MxFile)) return;
+        module.moduleType = getModuleType(module.name)->type;
         
         uint8_t inputCount;
-        if (readSDO_U8(0x6000 + i, 0x0, inputCount)) {
+        if (readSDO_U8(inputObjectIndex, 0x0, inputCount)) {
             module.b_hasInputs = true;
-            module.inputsObject = 0x6000 + i;
-            module.inputParameters = std::vector<VIPAparameter>(inputCount);
-            uint16_t pdoMapping = 0x1A00 + i;
+            module.inputCount = inputCount;
+            module.inputs = std::vector<ModuleParameter>(inputCount);
+            module.inputBitCount = 0;
             for (int j = 0; j < inputCount; j++) {
-                VIPAparameter& parameter = module.inputParameters[j];
+                ModuleParameter& moduleParameter = module.inputs[j];
                 uint32_t parameterMapping;
-                if (!readSDO_U32(pdoMapping, j+1, parameterMapping)) return;
-                parameter.mappingModule = (parameterMapping & 0xFFFF0000) >> 16;
-                parameter.subindex = (parameterMapping & 0xFF00) >> 8;
-                parameter.bitCount = (parameterMapping & 0xFF);
+                readSDO_U32(inputMappingModule, j + 1, parameterMapping);
+                moduleParameter.index = (parameterMapping & 0xFFFF0000) >> 16;
+                moduleParameter.subindex = (parameterMapping & 0xFF00) >> 8;
+                moduleParameter.bitCount = (parameterMapping & 0xFF);
+                moduleParameter.ioMapByteOffset = inputByteCount + module.inputBitCount / 8;    //Byte index of the data in the slaves ioMap
+                moduleParameter.ioMapBitOffset = module.inputBitCount % 8;                      //Bit index in the byte of the ioMap
+                module.inputBitCount += moduleParameter.bitCount;
+                char parameterName[128];
+                sprintf(parameterName, "Module %i %s Input %i", i+1, getModuleType(module.moduleType)->dataName, j+1);
+                if (moduleParameter.bitCount == 1) moduleParameter.ioData = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, parameterName);
+                else {
+                    Logger::critical("Can't Handle non boolean data in VIPA modules");
+                    //TODO: for non boolean values, this will need to be handled differently
+                    moduleParameter.ioData = std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, parameterName);
+                }
             }
+            //get the amount of full bytes the input section of the module fills (for example 4 bits are 1 byte, with 4 unused bits)
+            module.inputByteCount = ceil((double)module.inputBitCount / 8.0);
+            inputByteCount += module.inputByteCount;
         }
-        else module.b_hasInputs = false;
-        
+
         uint8_t outputCount;
-        if (readSDO_U8(0x7000 + i, 0x0, outputCount)) {
+        if (readSDO_U8(outputObjectIndex, 0x0, outputCount)) {
             module.b_hasOutputs = true;
-            module.outputsObject = 0x7000 + i;
-            module.outputParameters = std::vector<VIPAparameter>(outputCount);
-            uint16_t pdoMapping = 0x1600 + i;
+            module.outputCount = outputCount;
+            module.outputs = std::vector<ModuleParameter>(outputCount);
+            module.outputBitCount = 0;
             for (int j = 0; j < outputCount; j++) {
-                VIPAparameter& parameter = module.outputParameters[j];
+                ModuleParameter& moduleParameter = module.outputs[j];
                 uint32_t parameterMapping;
-                if (!readSDO_U32(pdoMapping, j+1, parameterMapping)) return;
-                parameter.mappingModule = (parameterMapping & 0xFFFF0000) >> 16;
-                parameter.subindex = (parameterMapping & 0xFF00) >> 8;
-                parameter.bitCount = (parameterMapping & 0xFF);
+                readSDO_U32(outputMappingModule, j + 1, parameterMapping);
+                moduleParameter.index = (parameterMapping & 0xFFFF0000) >> 16;
+                moduleParameter.subindex = (parameterMapping & 0xFF00) >> 8;
+                moduleParameter.bitCount = (parameterMapping & 0xFF);
+                moduleParameter.ioMapByteOffset = outputByteCount + module.outputBitCount / 8;  //Byte index of the data in the slaves ioMap
+                moduleParameter.ioMapBitOffset = module.outputBitCount % 8;                     //Bit index in the byte of the ioMap
+                module.outputBitCount += moduleParameter.bitCount;
+                char parameterName[128];
+                sprintf(parameterName, "Module %i %s Output %i", i+1, getModuleType(module.moduleType)->dataName, j+1);
+                if (moduleParameter.bitCount == 1) moduleParameter.ioData = std::make_shared<ioData>(DataType::BOOLEAN_VALUE, DataDirection::NODE_INPUT, parameterName);
+                else {
+                    Logger::critical("Can't Handle non boolean data in VIPA modules");
+                    //TODO: for non boolean values, this will need to be handled differently
+                    moduleParameter.ioData = std::make_shared<ioData>(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, parameterName);
+                }
             }
+            //get the amount of full bytes the input section of the module fills (for example 11 bits are 2 bytes, with 5 unused bits)
+            module.outputByteCount = ceil((double)module.outputBitCount / 8.0);
+            outputByteCount += module.outputByteCount;
         }
-        else module.b_hasOutputs = false;
 
-        uint8_t parameterCount;
-        if (readSDO_U8(0x3100 + i, 0x0, parameterCount)) {
-            module.b_hasParameters = true;
-            module.parametersObject = 0x3100 + i;
-        }
-        else module.b_hasParameters = false;
-
+        //uint8_t parameterCount;
+        //if (readSDO_U8(0x3100 + i, 0x0, parameterCount)) {
+        //    module.b_hasParameters = true;
+        //    module.parametersObject = 0x3100 + i;
+        //}
+        //else module.b_hasParameters = false;
     }
+
+    GuiMutex.lock();
+    detectedModules.clear();
+    detectedModules.swap(newModules);
+    //remove all old ioData
+    std::vector<std::shared_ptr<ioData>>& nodeInputData = getNodeInputData();
+    while (!nodeInputData.empty()) removeIoData(nodeInputData.back());
+    std::vector<std::shared_ptr<ioData>>& nodeOutputData = getNodeOutputData();
+    while (!nodeOutputData.empty()) removeIoData(nodeOutputData.back());
+    //add new ioData
+    for (Module& module : detectedModules) {
+        for (auto& input : module.inputs) addIoData(input.ioData);
+        for (auto& output : module.outputs) addIoData(output.ioData);
+    }
+    GuiMutex.unlock();
 
 }
 
 
 
 void VIPA_053_1EC01::readInputs() {
+    uint8_t* inputBytes = identity->inputs;
+    for (Module& module : detectedModules) {
+        for (auto inputParameter : module.inputs) {
+            if (inputParameter.bitCount == 1) {
+                bool value = 1 == (0x1 & (inputBytes[inputParameter.ioMapByteOffset] >> inputParameter.ioMapBitOffset));
+                inputParameter.ioData->set(value);
+            }
+            else {
+                Logger::critical("Can't read non boolean values in VIPA modules");
+                //we need to format the data to an integer and pass it to the ioData object
+            }
+        }
+    }
 }
 
 
 void VIPA_053_1EC01::prepareOutputs(){
+    uint8_t* outputBytes = identity->outputs;
+    for (Module& module : detectedModules) {
+        for (auto outputParameter : module.outputs) {
+            if (outputParameter.bitCount == 1) {
+                std::shared_ptr<ioData> pin = outputParameter.ioData;
+                if (pin->isConnected()) pin->set(pin->getLinks().front()->getInputData()->getBoolean());
+                bool value = pin->getBoolean();
+                //set a bit in the output byte to 1
+                if (outputParameter.ioData->getBoolean()) outputBytes[outputParameter.ioMapByteOffset] |= 0x1 << outputParameter.ioMapBitOffset;
+                //clear a bit in the output byte to 0
+                else outputBytes[outputParameter.ioMapByteOffset] &= ~(0x1 << outputParameter.ioMapBitOffset);
+            }
+            else {
+                Logger::critical("Can't read non boolean values in VIPA modules");
+                //we need to format the data to an integer and pass it to the ioData object
+            }
+        }
+    }
 }
 
 bool VIPA_053_1EC01::saveDeviceData(tinyxml2::XMLElement* xml) {
@@ -188,4 +272,32 @@ bool VIPA_053_1EC01::saveDeviceData(tinyxml2::XMLElement* xml) {
 
 bool VIPA_053_1EC01::loadDeviceData(tinyxml2::XMLElement* xml) {
     return true;
+}
+
+
+
+
+
+
+
+
+
+std::vector<VIPA_053_1EC01::SLIOModule> VIPA_053_1EC01::moduleTypes = {
+    {VIPA_053_1EC01::SLIOModule::Type::VIPA_022_1HD10, "DO4x Relais (1.8A)", "VIPA 022-1HD10", "Relais"},
+    {VIPA_053_1EC01::SLIOModule::Type::VIPA_021_1BF00, "DI8x (DC24V)", "VIPA 021-1BF00", "Digital"},
+    {VIPA_053_1EC01::SLIOModule::Type::UNKNOWN_MODULE, "Unknown Module", "UnknownModule", "None"}
+};
+
+VIPA_053_1EC01::SLIOModule* VIPA_053_1EC01::getModuleType(const char* saveName) {
+    for (auto& sliomodule : moduleTypes) {
+        if (strcmp(sliomodule.saveName, saveName) == 0) return &sliomodule;
+    }
+    return &moduleTypes.back();
+}
+
+VIPA_053_1EC01::SLIOModule* VIPA_053_1EC01::getModuleType(SLIOModule::Type type) {
+    for (auto& sliomodule : moduleTypes) {
+        if (sliomodule.type == type) return &sliomodule;
+    }
+    return &moduleTypes.back();
 }

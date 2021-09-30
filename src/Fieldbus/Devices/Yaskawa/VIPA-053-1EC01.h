@@ -6,34 +6,63 @@
 #include <map>
 #include <string>
 
-struct VIPAparameter {
-    uint16_t mappingModule;
-    uint8_t subindex;
-    uint8_t bitCount;
-};
-
-struct VIPAModule {
-    char name[64];
-
-    uint32_t ID;
-
-    bool b_hasInputs;
-    bool b_hasOutputs;
-    bool b_hasParameters;
-
-    uint16_t inputsObject;
-    uint16_t outputsObject;
-    uint16_t parametersObject;
-
-    std::vector<VIPAparameter> inputParameters;
-    std::vector<VIPAparameter> outputParameters;
-
-};
-
 class VIPA_053_1EC01 : public EtherCatSlave {
 public:
 
     SLAVE_DEFINITION(VIPA_053_1EC01, "053-1EC01", "Yaskawa", "I/O")
+
+    struct ModuleParameter {
+        uint16_t index;
+        uint8_t subindex;
+        uint8_t bitCount;
+        int ioMapByteOffset; //byte index in the ioMap
+        int ioMapBitOffset;  //bit offset in the ioMap byte
+        std::shared_ptr<ioData> ioData;
+    };
+
+    struct SLIOModule {
+        enum class Type {
+            VIPA_022_1HD10,
+            VIPA_021_1BF00,
+            UNKNOWN_MODULE
+        };
+        Type type;
+        char displayName[64];
+        char saveName[64];
+        char dataName[64];
+    };
+    static std::vector<SLIOModule> moduleTypes;
+    SLIOModule* getModuleType(const char* saveName);
+    SLIOModule* getModuleType(SLIOModule::Type type);
+
+    struct Module {
+        char name[64];
+        uint32_t ID = 0x0;
+        char SerialNumber[64];
+        char ProductVersion[64];
+        char HardwareVersion[64];
+        char SoftwareVersion[64];
+        uint16_t FPGAVersion = 0x0;
+        char MxFile[64];
+
+        SLIOModule::Type moduleType;
+
+        bool b_hasInputs = false;
+        int inputCount = 0;
+        int inputByteCount = 0;
+        int inputBitCount = 0;
+        std::vector<ModuleParameter> inputs;
+
+        bool b_hasOutputs = false;
+        int outputCount = 0;
+        int outputByteCount = 0;
+        int outputBitCount = 0;
+        std::vector<ModuleParameter> outputs;
+
+        bool b_hasParameters = false;
+        int parameterCount = 0x0;
+        uint16_t parameterObject;
+    };
 
     //subdevices
     std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
@@ -57,8 +86,10 @@ public:
 
 
 
+    //std::vector<GpioDevice> 
 
 
-    std::vector<VIPAModule> detectedModules;
+
+    std::vector<Module> detectedModules;
     void detectIoModules();
 };

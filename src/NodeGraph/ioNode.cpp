@@ -14,6 +14,7 @@ void ioNode::addIoData(std::shared_ptr<ioData> ioData) {
 		ioData->uniqueID = parentNodeGraph->uniqueID;
 		parentNodeGraph->uniqueID++;
 		parentNodeGraph->ioDataList.push_back(ioData);
+		ioData->parentNode = shared_from_this();
 	}
 }
 
