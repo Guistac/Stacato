@@ -109,10 +109,10 @@ void aboutModal(bool openModal) {
 	ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 	if (ImGui::BeginPopupModal("About", &b_AboutPopupOpen, popupFlags)) {
 		ImGui::PushFont(Fonts::robotoBold42);
-		ImGui::Text("Stacatto");
+		ImGui::Text("Stacato");
 		ImGui::PopFont();
 		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Stage Control Automation Technology Toolbox");
+		ImGui::Text("Stage Control Automation Toolbox");
 		ImGui::PopFont();
 		ImGui::Text("Leo Becker - L'Atelier Artefact - 2021");
 		ImGui::Separator();

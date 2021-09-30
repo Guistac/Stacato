@@ -1,53 +1,6 @@
 <Environnement name="Default Environnement">
     <NodeGraph>
-        <Nodes>
-            <Node ClassName="053-1EC01" UniqueID="35" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="false" CustomName="053-1EC01 (ID:33)">
-                <NodeEditorPosition x="-1532" y="-3418"/>
-                <NodeSpecificData>
-                    <Identification Type="ExplicitDeviceID" ExplicitDeviceID="33"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin Name="Relay-1" DataType="Boolean" UniqueID="36" Boolean="false" Visible="true"/>
-                    <InputPin Name="Relay-2" DataType="Boolean" UniqueID="37" Boolean="false" Visible="true"/>
-                    <InputPin Name="Relay-3" DataType="Boolean" UniqueID="38" Boolean="false" Visible="true"/>
-                    <InputPin Name="Relay-4" DataType="Boolean" UniqueID="39" Boolean="false" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="GPIO" DataType="unknown" UniqueID="40" Visible="true"/>
-                    <OutputPin Name="Input-1" DataType="Boolean" UniqueID="41" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Input-2" DataType="Boolean" UniqueID="42" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Input-3" DataType="Boolean" UniqueID="43" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Input-4" DataType="Boolean" UniqueID="44" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Input-5" DataType="Boolean" UniqueID="45" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Input-6" DataType="Boolean" UniqueID="46" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Input-7" DataType="Boolean" UniqueID="47" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Input-8" DataType="Boolean" UniqueID="48" Boolean="false" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node ClassName="053-1EC01" UniqueID="49" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="false" CustomName="053-1EC01 (ID:3)">
-                <NodeEditorPosition x="-1144" y="-3384"/>
-                <NodeSpecificData>
-                    <Identification Type="ExplicitDeviceID" ExplicitDeviceID="3"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin Name="Relay-1" DataType="Boolean" UniqueID="50" Boolean="false" Visible="true"/>
-                    <InputPin Name="Relay-2" DataType="Boolean" UniqueID="51" Boolean="false" Visible="true"/>
-                    <InputPin Name="Relay-3" DataType="Boolean" UniqueID="52" Boolean="false" Visible="true"/>
-                    <InputPin Name="Relay-4" DataType="Boolean" UniqueID="53" Boolean="false" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin Name="GPIO" DataType="unknown" UniqueID="54" Visible="true"/>
-                    <OutputPin Name="Input-1" DataType="Boolean" UniqueID="55" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Input-2" DataType="Boolean" UniqueID="56" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Input-3" DataType="Boolean" UniqueID="57" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Input-4" DataType="Boolean" UniqueID="58" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Input-5" DataType="Boolean" UniqueID="59" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Input-6" DataType="Boolean" UniqueID="60" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Input-7" DataType="Boolean" UniqueID="61" Boolean="false" Visible="true"/>
-                    <OutputPin Name="Input-8" DataType="Boolean" UniqueID="62" Boolean="false" Visible="true"/>
-                </OutputPins>
-            </Node>
-        </Nodes>
+        <Nodes/>
         <Links/>
     </NodeGraph>
 </Environnement>

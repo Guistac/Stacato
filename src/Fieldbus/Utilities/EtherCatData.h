@@ -12,6 +12,7 @@ struct EtherCatData {
 		INT32_T,
 		UINT64_T,
 		INT64_T,
+		STRING,
 		NONE
 	};
 	Type type;
@@ -25,7 +26,8 @@ struct DataFormat {
 	enum Type {
 		DECIMAL,
 		HEXADECIMAL,
-		BINARY
+		BINARY,
+		STRING
 	};
 	Type type;
 	const char displayName[64];
@@ -46,13 +48,16 @@ public:
 	EtherCatBaseData(EtherCatData::Type t) {
 		sprintf(name, "");
 		dataType = t;
-		dataFormat = DataFormat::DECIMAL;
+		if (dataType == EtherCatData::Type::STRING) dataFormat = DataFormat::STRING;
+		else dataFormat = DataFormat::DECIMAL;
 	}
 
 	EtherCatBaseData(const char* n, EtherCatData::Type t, DataFormat::Type r) {
 		sprintf(name, n);
 		dataType = t;
-		dataFormat = r;
+		if (dataType == EtherCatData::Type::STRING) dataFormat = DataFormat::STRING;
+		else if (r = DataFormat::STRING) dataFormat = DataFormat::DECIMAL;
+		else dataFormat = r;
 	}
 
 	EtherCatData::Type dataType;
@@ -67,6 +72,8 @@ public:
 	int32_t		s32 = 0;
 	uint64_t	u64 = 0;
 	int64_t		s64 = 0;
+	char stringBuffer[128] = "0";
+	const int stringBufferSize = 128;
 
 	const char* getTypeString() {
 		return dataTypes[dataType].displayName;
@@ -77,7 +84,7 @@ public:
 	}
 
 	const char* getValueString() {
-		static char valueString[64];
+		static char valueString[128];
 		switch (dataType) {
 			case EtherCatData::Type::UINT8_T:	sprintf(valueString, "%i", u8); break;
 			case EtherCatData::Type::INT8_T:	sprintf(valueString, "%i", s8); break;
@@ -87,6 +94,7 @@ public:
 			case EtherCatData::Type::INT32_T:	sprintf(valueString, "%i", s32); break;
 			case EtherCatData::Type::UINT64_T:	sprintf(valueString, "%i", u64); break;
 			case EtherCatData::Type::INT64_T:	sprintf(valueString, "%i", s64); break;
+			case EtherCatData::Type::STRING:	return stringBuffer;
 		}
 		return valueString;
 	}
@@ -104,6 +112,7 @@ public:
 	void setS32(int32_t val)	{ s32 = val;	dataType = EtherCatData::Type::INT32_T; }
 	void setU64(uint64_t val)	{ u64 = val;	dataType = EtherCatData::Type::UINT64_T; }
 	void setS64(int64_t val)	{ s64 = val;	dataType = EtherCatData::Type::INT64_T;	}
+	void setString(const char* str) { strcpy(stringBuffer, str); dataType = EtherCatData::Type::STRING; }
 
 	uint8_t getU8() { return u8; }
 	int8_t getS8() { return s8; }
@@ -113,6 +122,7 @@ public:
 	int32_t getS32() { return s32; }
 	uint64_t getU64() { return u64; }
 	int64_t getS64() { return s64; }
+	const char* getString() { return stringBuffer; }
 
 	virtual bool write(uint16_t slaveIndex) = 0;
 	virtual bool read(uint16_t slaveIndex) = 0;

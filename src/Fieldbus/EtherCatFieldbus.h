@@ -27,6 +27,8 @@ namespace EtherCatFieldbus {
 
     bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID);
 
+    std::shared_ptr<EtherCatSlave> getSlaveByIndex(int index);
+
     double getCurrentCycleDeltaT_seconds();
 
     //process timing

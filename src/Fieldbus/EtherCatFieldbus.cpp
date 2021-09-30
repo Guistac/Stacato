@@ -4,6 +4,7 @@
 
 #include "Utilities/EtherCatDeviceFactory.h"
 #include "Environnement/Environnement.h"
+#include "Utilities/EtherCatError.h"
 
 namespace EtherCatFieldbus {
 
@@ -40,6 +41,7 @@ namespace EtherCatFieldbus {
     std::thread slaveDetectionHandler;
     std::thread etherCatRuntime;    //thread to read errors encountered by SOEM
     std::thread slaveStateHandler;  //thread to periodically check the state of all slaves and recover them if necessary
+    bool b_errorWatcherRunning = false;
     std::thread errorWatcher;       //cyclic exchange thread (needs a full cpu core to axchieve precise timing)
 
     std::chrono::high_resolution_clock::time_point previousCycleTime;
@@ -51,6 +53,8 @@ namespace EtherCatFieldbus {
     void startCyclicExchange();
     void startSlaveDetectionHandler();
     void stopSlaveDetectionHandler();
+    void startErrorWatcher();
+    void stopErrorWatcher();
 
 
     //------ Find Network Interface Cards --------
@@ -116,16 +120,26 @@ namespace EtherCatFieldbus {
     }
 
     void setup() {
+        startErrorWatcher();
+        scanNetwork();
+        metrics.init(processInterval_milliseconds);
+    }
+
+    void startErrorWatcher() {
+        b_errorWatcherRunning = true;
         errorWatcher = std::thread([]() {
             Logger::debug("===== Started EtherCAT Error Watchdog");
-            while (b_networkOpen) {
-                while (EcatError) Logger::error("##### EtherCAT Error: {}", ec_elist2string());
+            while (b_errorWatcherRunning) {
+                while (EtherCatError::hasError()) EtherCatError::logError();
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
             Logger::debug("===== Exited EtherCAT Error Watchdog");
             });
-        scanNetwork();
-        metrics.init(processInterval_milliseconds);
+    }
+
+    void stopErrorWatcher() {
+        b_errorWatcherRunning = false;
+        if (errorWatcher.joinable()) errorWatcher.join();
     }
 
 
@@ -137,6 +151,7 @@ namespace EtherCatFieldbus {
         stop();
         Logger::debug("===== Closing EtherCAT Network Interface Card");
         b_networkOpen = false;
+        stopErrorWatcher();
         if (errorWatcher.joinable()) errorWatcher.join();
         if (etherCatRuntime.joinable()) etherCatRuntime.join();
         if (slaveStateHandler.joinable()) slaveStateHandler.join();
@@ -672,6 +687,13 @@ namespace EtherCatFieldbus {
 
     double getCurrentCycleDeltaT_seconds() {
         return currentCycleDeltaT_seconds;
+    }
+
+    std::shared_ptr<EtherCatSlave> getSlaveByIndex(int index) {
+        if (index <= slaves.size() && index > 0) {
+            return slaves[index - 1];
+        }
+        else return nullptr;
     }
 
 }

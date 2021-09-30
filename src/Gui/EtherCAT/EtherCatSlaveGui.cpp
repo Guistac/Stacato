@@ -375,10 +375,10 @@ void EtherCatSlave::sendReceiveCanOpenGui() {
         ImGui::TableHeadersRow();
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Index").x);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 3.0);
         if (uploadCoeData.indexEditFieldGui()) uploadCoeData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(1);
-        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Sub").x);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 2.0);
         if (uploadCoeData.subindexEditFieldGui()) uploadCoeData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(2);
         ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
@@ -420,10 +420,10 @@ void EtherCatSlave::sendReceiveCanOpenGui() {
         ImGui::TableHeadersRow();
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Index").x);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 3.0);
         if (downloadCoeData.indexEditFieldGui()) downloadCoeData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(1);
-        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Sub").x);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 2.0);
         if (downloadCoeData.subindexEditFieldGui()) downloadCoeData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(2);
         ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
@@ -487,7 +487,7 @@ void EtherCatSlave::sendReceiveEtherCatRegisterGui() {
         ImGui::TableHeadersRow();
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Register").x);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 3.0);
         if (uploadRegisterData.registerEditFieldGui()) uploadRegisterData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(1);
         ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
@@ -528,7 +528,7 @@ void EtherCatSlave::sendReceiveEtherCatRegisterGui() {
         ImGui::TableHeadersRow();
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Register").x);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 3.0);
         if (downloadRegisterData.registerEditFieldGui()) downloadRegisterData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(1);
         ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
@@ -590,7 +590,7 @@ void EtherCatSlave::sendReceiveEepromGui() {
         ImGui::TableHeadersRow();
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Address").x);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 3.0);
         if (uploadEepromData.addressFieldGui()) uploadEepromData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(1);
         ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
@@ -627,7 +627,7 @@ void EtherCatSlave::sendReceiveEepromGui() {
         ImGui::TableHeadersRow();
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        ImGui::SetNextItemWidth(ImGui::CalcTextSize("Address").x);
+        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 3.0);
         if (downloadEepromData.addressFieldGui()) downloadEepromData.b_hasTransferred = false;
         ImGui::TableSetColumnIndex(1);
         ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
