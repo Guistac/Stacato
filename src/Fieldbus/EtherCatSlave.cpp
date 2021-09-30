@@ -291,3 +291,22 @@ bool EtherCatSlave::writeSDO_String(uint16_t index, uint8_t subindex, const char
     return CoE_String.write(getSlaveIndex());
 }
 
+
+
+//====================== DATA TRANSFER STATE =================================
+
+std::vector<EtherCatSlave::DataTransferState> EtherCatSlave::dataTransferStates = {
+    {DataTransferState::State::NO_TRANSFER, ""},
+    {DataTransferState::State::TRANSFERRING, "Transferring..."},
+    {DataTransferState::State::SUCCEEDED, "Transfer Succeeded"},
+    {DataTransferState::State::SAVING, "Saving to Device Memory..."},
+    {DataTransferState::State::SAVED, "Saved to Device Memory"},
+    {DataTransferState::State::FAILED, "Transfer Failed"}
+};
+
+EtherCatSlave::DataTransferState* EtherCatSlave::getDataTransferState(DataTransferState::State s) {
+    for (DataTransferState& state : dataTransferStates) {
+        if (s == state.state) return &state;
+    }
+    return nullptr;
+}

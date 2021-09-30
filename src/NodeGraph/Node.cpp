@@ -13,7 +13,7 @@ void Node::addIoData(std::shared_ptr<NodePin> NodePin) {
 	if (parentNodeGraph) {
 		NodePin->uniqueID = parentNodeGraph->uniqueID;
 		parentNodeGraph->uniqueID++;
-		parentNodeGraph->NodePinList.push_back(NodePin);
+		parentNodeGraph->pins.push_back(NodePin);
 		NodePin->parentNode = shared_from_this();
 	}
 }
@@ -37,7 +37,10 @@ void Node::removeIoData(std::shared_ptr<NodePin> removedIoData) {
 	}
 
 	if (parentNodeGraph) {
-		std::vector<std::shared_ptr<NodePin>>& NodePinList = parentNodeGraph->NodePinList;
+		for (auto nodeLink : removedIoData->getLinks()) {
+			parentNodeGraph->disconnect(nodeLink);
+		}
+		std::vector<std::shared_ptr<NodePin>>& NodePinList = parentNodeGraph->pins;
 		for (int i = (int)NodePinList.size() - 1; i >= 0; i--) {
 			if (NodePinList[i] == removedIoData) {
 				NodePinList.erase(NodePinList.begin() + i);

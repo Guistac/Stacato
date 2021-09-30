@@ -10,7 +10,7 @@ namespace Environnement {
 
 	std::vector<std::shared_ptr<EtherCatSlave>> getEtherCatSlaves() {
 		std::vector<std::shared_ptr<EtherCatSlave>> output;
-		for (auto node : nodeGraph.getIoNodes()) {
+		for (auto node : nodeGraph.getNodes()) {
 			if (node->getType() == NodeType::IODEVICE) {
 				std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(node);
 				if (device->getDeviceType() == DeviceType::ETHERCATSLAVE) {

@@ -18,13 +18,13 @@
 //Unknown devices will not and will be of the base type EtherCatSlave
 
 #define INTERFACE_DEFINITION(className, deviceName, manufacturerName, category)     public:                                                                                                 \
-                                                                                    /*Node Functions*/                                                                                    \
+                                                                                    /*Node Functions*/                                                                                      \
                                                                                     virtual NodeType getType() { return NodeType::IODEVICE; }                                               \
                                                                                     virtual DeviceType getDeviceType() { return DeviceType::ETHERCATSLAVE; }                                \
 														                            virtual const char * getNodeName() { return deviceName; }			                                    \
                                                                                     virtual const char * getNodeCategory() { return category; }			                                    \
                                                                                     virtual const char* getManufacturerName(){ return manufacturerName; }                                   \
-                                                                                    virtual std::shared_ptr<Node> getNewNodeInstance() { return nullptr; }                                \
+                                                                                    virtual std::shared_ptr<Node> getNewNodeInstance() { return nullptr; }                                  \
 														                            className() { setName(deviceName); }												                    \
                                                                                     virtual void assignIoData(){}                                                                           \
                                                                                     virtual void process(){}                                                                                \
@@ -45,6 +45,7 @@
                                                                                     virtual bool isDeviceReady(){ return false; }                                                           \
                                                                                     virtual bool isSlaveKnown(){ return false; }                                                            \
                                                                                     virtual bool startupConfiguration(){ return true; }                                                     \
+                                                                                    virtual void resetData(){}                                                                              \
                                                                                     virtual void deviceSpecificGui(){}                                                                      \
                                                                                     virtual bool saveDeviceData(tinyxml2::XMLElement* xml){ return true; }                                  \
                                                                                     virtual bool loadDeviceData(tinyxml2::XMLElement* xml){ return true; }                                  \
@@ -52,13 +53,13 @@
 
 //All Slave Device Classes Need to Implement this Macro 
 #define SLAVE_DEFINITION(className, deviceName, manufacturerName, category) public:                                                                                                 \
-                                                                            /*Node Functions*/                                                                                    \
+                                                                            /*Node Functions*/                                                                                      \
                                                                             virtual NodeType getType() { return NodeType::IODEVICE; }                                               \
                                                                             virtual DeviceType getDeviceType() { return DeviceType::ETHERCATSLAVE; }                                \
                                                                             virtual const char* getNodeName() { return deviceName; }			                                    \
                                                                             virtual const char * getNodeCategory() { return category; }			                                    \
                                                                             virtual const char* getManufacturerName() { return manufacturerName; }                                  \
-                                                                            virtual std::shared_ptr<Node> getNewNodeInstance() { return nullptr; }                                \
+                                                                            virtual std::shared_ptr<Node> getNewNodeInstance() { return nullptr; }                                  \
                                                                             className(){ setName(deviceName); }                                                                     \
                                                                             virtual void assignIoData();                                                                            \
                                                                             /*DeviceNode Functions*/                                                                                \
@@ -73,6 +74,7 @@
                                                                             virtual bool isDeviceReady();                                                                           \
                                                                             virtual bool isSlaveKnown(){ return true; }                                                             \
                                                                             virtual bool startupConfiguration();                                                                    \
+                                                                            virtual void resetData();                                                                               \
                                                                             virtual void deviceSpecificGui();                                                                       \
                                                                             virtual bool saveDeviceData(tinyxml2::XMLElement* xml);                                                 \
                                                                             virtual bool loadDeviceData(tinyxml2::XMLElement* xml);                                                 \
@@ -169,6 +171,23 @@ public:
     EtherCatCoeData downloadCoeData = EtherCatCoeData("uploadData", 0x0, 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::DECIMAL);
     EtherCatEepromData uploadEepromData = EtherCatEepromData("uploadData", 0x0, DataFormat::Type::HEXADECIMAL);
     EtherCatEepromData downloadEepromData = EtherCatEepromData("downloadData", 0x0, DataFormat::Type::HEXADECIMAL);
+
+    //===== Upload Status Variables =====
+
+    struct DataTransferState {
+        enum class State {
+            NO_TRANSFER,
+            TRANSFERRING,
+            SUCCEEDED,
+            SAVING,
+            SAVED,
+            FAILED
+        };
+        State state;
+        char displayName[64];
+    };
+    static std::vector<DataTransferState> dataTransferStates;
+    DataTransferState* getDataTransferState(DataTransferState::State s);
 
     //======== GUI ========
 

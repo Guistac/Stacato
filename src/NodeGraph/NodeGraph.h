@@ -21,13 +21,13 @@ public:
 	std::shared_ptr<NodeLink> connect(std::shared_ptr<NodePin>, std::shared_ptr<NodePin>);
 	void disconnect(std::shared_ptr<NodeLink>);
 
-	std::shared_ptr<Node> getIoNode(int);
-	std::shared_ptr<NodePin> getIoData(int);
-	std::shared_ptr<NodeLink> getIoLink(int);
+	std::shared_ptr<Node> getNode(int);
+	std::shared_ptr<NodePin> getPin(int);
+	std::shared_ptr<NodeLink> getLink(int);
 
-	std::vector<std::shared_ptr<Node>>& getIoNodes() { return NodeList; }
-	std::vector<std::shared_ptr<NodePin>>& getIoData() { return NodePinList; }
-	std::vector<std::shared_ptr<NodeLink>>& getIoLinks() { return NodeLinkList; }
+	std::vector<std::shared_ptr<Node>>& getNodes() { return nodes; }
+	std::vector<std::shared_ptr<NodePin>>& getPins() { return pins; }
+	std::vector<std::shared_ptr<NodeLink>>& getLinks() { return links; }
 
 	void evaluate();
 	void evaluate(DeviceType deviceType);
@@ -49,9 +49,9 @@ private:
 	friend class NodePin;
 	friend class NodeLink;
 
-	std::vector<std::shared_ptr<Node>> NodeList;
-	std::vector<std::shared_ptr<NodePin>> NodePinList;
-	std::vector<std::shared_ptr<NodeLink>> NodeLinkList;
+	std::vector<std::shared_ptr<Node>> nodes;
+	std::vector<std::shared_ptr<NodePin>> pins;
+	std::vector<std::shared_ptr<NodeLink>> links;
 
 	//counter to add new nodes, pins and links
 	//all items are odd numbers except for split node counterparts which are the an even number above the main node ID

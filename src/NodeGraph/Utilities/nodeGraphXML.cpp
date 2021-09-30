@@ -11,7 +11,7 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	XMLElement* nodes = xml->InsertNewChildElement("Nodes");
 
-	for (auto node : getIoNodes()) {
+	for (auto node : getNodes()) {
 		XMLElement* nodeXML = nodes->InsertNewChildElement("Node");
 
 		nodeXML->SetAttribute("ClassName", node->getNodeName());
@@ -57,7 +57,7 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 	}
 
 	XMLElement* links = xml->InsertNewChildElement("Links");
-	for (auto link : getIoLinks()) {
+	for (auto link : getLinks()) {
 		XMLElement* linkXML = links->InsertNewChildElement("Link");
 		linkXML->SetAttribute("UniqueID", link->getUniqueID());
 		linkXML->SetAttribute("StartPin", link->getInputData()->getUniqueID());
@@ -78,7 +78,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 	std::vector<std::shared_ptr<Node>> loadedNodes;
 	std::vector<std::shared_ptr<NodePin>> loadedPins;
 	std::vector<std::shared_ptr<NodeLink>> loadedLinks;
-	int largestUniqueID = 0; //TODO: need to increment unique id counter to found biggest value so we can add more elements after loading
+	int largestUniqueID = 0;
 
 	XMLElement* nodeXML = nodesXML->FirstChildElement("Node");
 	while (nodeXML) {
@@ -136,9 +136,21 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			loadedNode->savedSplitPosition = glm::vec2(xOutput, yOutput);
 		}
 
-		//assign node data, creates default node pins and adds them to the node
+		//assign node data, creates static/static node pins and adds them to the nodes input and output data lists
+		//no unique ids are loaded or generated here
+		loadedNode->assignIoData();
+
+		//load node specific XML data
+		//this also loads dynamically created pins and adds them to the nods input and output data lists
+		//no unique ids are loaded or generated here
+		XMLElement* nodeSpecificDataXML = nodeXML->FirstChildElement("NodeSpecificData");
+		if (!nodeSpecificDataXML) return Logger::warn("Could not load Node Specific Data");
+		if (!loadedNode->load(nodeSpecificDataXML)) return Logger::warn("Could not read node specific data");
+
+		//Set General Node Data
+		//All pins should be loaded now, so we build add them to the pin list of the node graph
+		//set dependencies between node and nodegraph, between node and its pins
 		loadedNode->setName(nodeCustomName);
-		loadedNode->assignIoData(); //this assigns a unique id if the parent nodegraph is assigned, we don't want that
 		loadedNode->uniqueID = nodeUniqueID;
 		loadedNode->parentNodeGraph = this;
 		loadedNode->b_isSplit = isSplit;
@@ -154,23 +166,21 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			loadedPins.push_back(data);
 		}
 
-		//loads node specific data, creates modular node pins
-		XMLElement* nodeSpecificDataXML = nodeXML->FirstChildElement("NodeSpecificData");
-		if (!nodeSpecificDataXML) return Logger::warn("Could not load Node Specific Data");
-		if (!loadedNode->load(nodeSpecificDataXML)) return Logger::warn("Could not read node specific data");
-
-		//load pin information, matches pins by SaveName and DataType, then assigns unique ids, data and other information
+		//load pin data
+		//matches loaded pins by SaveName and DataType, then assigns unique ids, data and other information
 		XMLElement* inputPinsXML = nodeXML->FirstChildElement("InputPins");
 		if (!inputPinsXML) return Logger::warn("Could Not Load Node InputPins");
 		XMLElement* inputPinXML = inputPinsXML->FirstChildElement("InputPin");
 		while (inputPinXML) {
 			const char* saveNameString;
-			const char* dataTypeString;
 			if (inputPinXML->QueryStringAttribute("SaveName", &saveNameString) != XML_SUCCESS) return Logger::warn("Could not load Input Pin SaveName Attribute");
-			if (inputPinXML->QueryStringAttribute("DataType", &dataTypeString) != XML_SUCCESS) return Logger::warn("Could not load Input Pin DataType Attribute");
+			const char* dataTypeString = "";
+			inputPinXML->QueryStringAttribute("DataType", &dataTypeString);
+			if(getNodeDataType(dataTypeString) == nullptr) return Logger::warn("Coul not read Input Pin DataType Attribute");
+			NodeData::Type dataType = getNodeDataType(dataTypeString)->type;
 			std::shared_ptr<NodePin> matchingPin = nullptr;
 			for (auto pin : loadedNode->getNodeInputData()) {
-				if (pin->matches(saveNameString, dataTypeString)) {
+				if (pin->matches(saveNameString, dataType)) {
 					if (!pin->load(inputPinXML)) return Logger::warn("Could not load Node Pin '{}'", saveNameString);
 					matchingPin = pin;
 					break;
@@ -186,12 +196,14 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		XMLElement* outputPinXML = outputPinsXML->FirstChildElement("OutputPin");
 		while (outputPinXML) {
 			const char* saveNameString;
-			const char* dataTypeString;
 			if (outputPinXML->QueryStringAttribute("SaveName", &saveNameString) != XML_SUCCESS) return Logger::warn("Could not load Output Pin SaveName Attribute");
-			if (outputPinXML->QueryStringAttribute("DataType", &dataTypeString) != XML_SUCCESS) return Logger::warn("Could not load Output Pin DataType Attribute");
+			const char* dataTypeString = "";
+			outputPinXML->QueryStringAttribute("DataType", &dataTypeString);
+			if (getNodeDataType(dataTypeString) == nullptr) return Logger::warn("Coul not read Output Pin DataType Attribute");
+			NodeData::Type dataType = getNodeDataType(dataTypeString)->type;
 			std::shared_ptr<NodePin> matchingPin = nullptr;
 			for (auto pin : loadedNode->getNodeOutputData()) {
-				if (pin->matches(saveNameString, dataTypeString)) {
+				if (pin->matches(saveNameString, dataType)) {
 					if (!pin->load(outputPinXML)) return Logger::warn("Could not load Node Pin '{}'", saveNameString);
 					matchingPin = pin;
 					break;
@@ -249,12 +261,12 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		linkXML = linkXML->NextSiblingElement("Link");
 	}
 
-	NodeList.swap(loadedNodes);
-	NodePinList.swap(loadedPins);
-	NodeLinkList.swap(loadedLinks);
+	nodes.swap(loadedNodes);
+	pins.swap(loadedPins);
+	links.swap(loadedLinks);
 	uniqueID = largestUniqueID + 1; //set this so we can add more elements to the node graph after loading
 
-	Logger::debug("Largest unique ID is {}", largestUniqueID);
+	Logger::trace("Largest unique ID is {}", largestUniqueID);
 	Logger::info("Successfully loaded Node Graph");
 
 	b_justLoaded = true;

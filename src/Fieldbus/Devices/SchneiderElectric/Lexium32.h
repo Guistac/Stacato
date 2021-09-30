@@ -8,8 +8,6 @@ public:
 
     SLAVE_DEFINITION(Lexium32, "LXM32M EtherCAT", "Schneider Electric", "Servo Drives")
 
-    void reset();
-
     //===== drive status =====
     
     enum class State {
@@ -90,23 +88,6 @@ public:
     const int velocityUnitsPerRpm = 100;
     const int positionUnitsPerRevolution = 131072;
     const int currentUnitsPerAmp = 100;
-
-    //===== Upload Status Variables =====
-
-    struct DataTransferState {
-        enum class State {
-            NO_TRANSFER,
-            TRANSFERRING,
-            SUCCEEDED,
-            SAVING,
-            SAVED,
-            FAILED
-        };
-        State state;
-        char displayName[64];
-    };
-    static std::vector<DataTransferState> dataTransferStates;
-    DataTransferState* getDataTransferState(DataTransferState::State s);
 
     //===== General Settings =====
 

@@ -201,6 +201,7 @@ bool NodePin::load(tinyxml2::XMLElement* xml) {
 	//TODO: differentiate between pins that were added by default and pins that were added after node creation
 	using namespace tinyxml2;
 
+	//here we load SaveName again, this should not be necessary since we already matched it or it was declared in the static object pin?
 	const char* saveNameString;
 	if (xml->QueryStringAttribute("SaveName", &saveNameString) != XML_SUCCESS) return Logger::warn("Could not load Pin SaveName");
 	strcpy(saveName, saveNameString);
@@ -211,22 +212,27 @@ bool NodePin::load(tinyxml2::XMLElement* xml) {
 	int pinUniqueID;
 	if (xml->QueryIntAttribute("UniqueID", &pinUniqueID) != XML_SUCCESS) return Logger::warn("Could not load Pin ID");
 	uniqueID = pinUniqueID;
-	const char* dataTypeName;
-	if (xml->QueryStringAttribute("DataType", &dataTypeName) != XML_SUCCESS) return Logger::warn("Could not load Pin Datatype");
-	switch (getType()) {
+
+	//here we load dataType again, this should not be necessary since we already matched it or an object declared the type on construction
+	const char* dataTypeString;
+	if (xml->QueryStringAttribute("DataType", &dataTypeString) != XML_SUCCESS) return Logger::warn("Could not load Pin Datatype");
+	if (getNodeDataType(dataTypeString) == nullptr) return Logger::warn("Could not read Pin DataType");
+	type = getNodeDataType(dataTypeString)->type;
+
+	switch (type) {
 		case NodeData::BOOLEAN_VALUE:
 			bool booleanData;
-			if (xml->QueryBoolAttribute(dataTypeName, &booleanData) != XML_SUCCESS) return Logger::warn("Could not load data of type {}", dataTypeName);
+			if (xml->QueryBoolAttribute(dataTypeString, &booleanData) != XML_SUCCESS) return Logger::warn("Could not find data of type {}", dataTypeString);
 			set(booleanData);
 			break;
 		case NodeData::INTEGER_VALUE:
 			long long int integerData;
-			if( xml->QueryInt64Attribute(dataTypeName, &integerData) != XML_SUCCESS) return Logger::warn("Could not load data of type {}", dataTypeName);
+			if( xml->QueryInt64Attribute(dataTypeString, &integerData) != XML_SUCCESS) return Logger::warn("Could not find data of type {}", dataTypeString);
 			set(integerData);
 			break;
 		case NodeData::REAL_VALUE:
 			double realData;
-			if (xml->QueryDoubleAttribute(dataTypeName, &realData) != XML_SUCCESS) return Logger::warn("Could not load data of type {}", dataTypeName);
+			if (xml->QueryDoubleAttribute(dataTypeString, &realData) != XML_SUCCESS) return Logger::warn("Could not find data of type {}", dataTypeString);
 			set(realData);
 			break;
 	}
@@ -244,8 +250,8 @@ bool NodePin::load(tinyxml2::XMLElement* xml) {
 	return true;
 }
 
-bool NodePin::matches(const char* saveNameString, const char* dataTypeString) {
-	return strcmp(saveName, saveNameString) == 0 && strcmp(dataTypeString, getNodeDataType(getType())->saveName) == 0;
+bool NodePin::matches(const char* saveNameString, NodeData::Type type) {
+	return strcmp(saveName, saveNameString) == 0 && type == getType();
 }
 
 
@@ -269,7 +275,7 @@ NodeData* getNodeDataType(NodeData::Type type) {
 }
 NodeData* getNodeDataType(const char* saveName) {
 	for (NodeData& dataType : NodeDataTypes) {
-		if (strcmp(saveName, dataType.saveName)) return &dataType;
+		if (strcmp(saveName, dataType.saveName) == 0) return &dataType;
 	}
 	return nullptr;
 }

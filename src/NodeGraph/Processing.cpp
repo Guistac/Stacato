@@ -11,7 +11,7 @@ void NodeGraph::evaluate() {
 void NodeGraph::evaluate(DeviceType deviceType) {
 	std::vector<std::shared_ptr<Node>> deviceNodes;
 	//get all the nodes that will be processed
-	for (auto node : getIoNodes()) {
+	for (auto node : getNodes()) {
 		if (node->getType() == NodeType::IODEVICE) {
 			std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(node);
 			if(device->getDeviceType() == deviceType) deviceNodes.push_back(node);
@@ -30,7 +30,7 @@ void NodeGraph::evaluate(std::vector<std::shared_ptr<Node>> startNodes) {
 
 	//regardless of the type of node thats being processed
 	//clock nodes always update their value, so they must always be processed
-	for (auto node : getIoNodes()) {
+	for (auto node : getNodes()) {
 		std::shared_ptr<Node> currentNode = node;
 		if (node->getType() == NodeType::CLOCK) {
 			startNodes.push_back(node);
@@ -51,7 +51,7 @@ void NodeGraph::evaluate(std::vector<std::shared_ptr<Node>> startNodes) {
 	std::chrono::time_point start = std::chrono::high_resolution_clock::now();
 
 	//set all nodes to unprocessed, so they will all be searched exactly once
-	for (auto node : NodeList) node->b_wasProcessed = false;
+	for (auto node : nodes) node->b_wasProcessed = false;
 
 	while (!linkedNodes.empty()) {
 		//linked nodes are all nodes that were found on the outputs of the previous linked nodes
@@ -90,8 +90,8 @@ void NodeGraph::evaluate(std::vector<std::shared_ptr<Node>> startNodes) {
 
 	//set all nodes to processed except the ones that need to be processed
 	//this ensures only nodeToProcess will be processed
-	for (auto node : NodeList) node->b_wasProcessed = true;
-	for (auto node : NodeList) node->b_circularDependencyFlag = false;
+	for (auto node : nodes) node->b_wasProcessed = true;
+	for (auto node : nodes) node->b_circularDependencyFlag = false;
 	for (auto node : nodesToProcess) node->b_wasProcessed = false;
 
 	std::vector<std::shared_ptr<Node>> nextNodesToProcess;

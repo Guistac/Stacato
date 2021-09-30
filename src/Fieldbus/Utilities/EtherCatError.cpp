@@ -22,7 +22,7 @@ namespace EtherCatError {
 		switch (error.Etype) {
 			case EC_ERR_TYPE_SDO_ERROR:
 				errorString = ec_sdoerror2string(error.AbortCode);
-				Logger::warn("SDO Error: Slave '{}' Address: 0x{:X}:{:X} : {}", slaveName, error.Index, error.SubIdx, errorString); break;
+				Logger::debug("SDO Error: Slave '{}' 0x{:X}:{:X} {}", slaveName, error.Index, error.SubIdx, errorString); break;
 			case EC_ERR_TYPE_PACKET_ERROR:
 				switch (error.AbortCode) {
 					case 1: errorString = "Unexpected Frame Returned"; break;
@@ -30,10 +30,10 @@ namespace EtherCatError {
 					case 10: errorString = "SM larger than EC_MAXSM"; break;
 					default: "Unknown Abort Code"; break;
 				}
-				Logger::warn("PACKET Error: Slave '{}' Address: 0x{:X}:{:X} AbortCode: {:X} {}", slaveName, error.Index, error.SubIdx, error.AbortCode, errorString); break;
+				Logger::warn("PACKET Error: Slave '{}' 0x{:X}:{:X} AbortCode: {:X} {}", slaveName, error.Index, error.SubIdx, error.AbortCode, errorString); break;
 			case EC_ERR_TYPE_SDOINFO_ERROR:
 				errorString = ec_sdoerror2string(error.AbortCode);
-				Logger::warn("SDO-INFO Error: Slave '{}' Address: 0x{:X}:{:X} {}", slaveName, error.Index, error.SubIdx, errorString); break;
+				Logger::debug("SDO-INFO Error: Slave '{}' 0x{:X}:{:X} {}", slaveName, error.Index, error.SubIdx, errorString); break;
             case EC_ERR_TYPE_EMERGENCY:
                 Logger::error("EMERGENCY Error: Slave '{}' ErrorCode:{:X}", slaveName, error.ErrorCode); break;
             case EC_ERR_TYPE_SOE_ERROR:

@@ -135,12 +135,12 @@ void NodeGraph::nodeEditorGui() {
 
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2, ImGui::GetTextLineHeight() * 0.2));
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(ImGui::GetTextLineHeight() * 0.2, 0));
-    for (auto node : Environnement::nodeGraph.getIoNodes()) node->nodeGui();
+    for (auto node : Environnement::nodeGraph.getNodes()) node->nodeGui();
     ImGui::PopStyleVar(2);
 
     //===== DRAW LINKS =====
 
-    for (auto link : Environnement::nodeGraph.getIoLinks())
+    for (auto link : Environnement::nodeGraph.getLinks())
         NodeEditor::Link(link->getUniqueID(),
             link->getInputData()->getUniqueID(),
             link->getOutputData()->getUniqueID(),
@@ -157,8 +157,8 @@ void NodeGraph::nodeEditorGui() {
             NodeEditor::PinId pin1Id, pin2Id;
             if (NodeEditor::QueryNewLink(&pin1Id, &pin2Id)) {
                 if (pin1Id && pin2Id) {
-                    std::shared_ptr<NodePin> pin1 = getIoData(pin1Id.Get());
-                    std::shared_ptr<NodePin> pin2 = getIoData(pin2Id.Get());
+                    std::shared_ptr<NodePin> pin1 = getPin(pin1Id.Get());
+                    std::shared_ptr<NodePin> pin2 = getPin(pin2Id.Get());
                     if (pin1 && pin2 && isConnectionValid(pin1, pin2)) {
                         if (NodeEditor::AcceptNewItem(ImColor(1.0f, 1.0f, 1.0f), 3.0)) {
                             std::shared_ptr<NodeLink> link = connect(pin1, pin2);
@@ -183,14 +183,14 @@ void NodeGraph::nodeEditorGui() {
             NodeEditor::LinkId deletedLinkId;
             while (NodeEditor::QueryDeletedLink(&deletedLinkId)) {
                 if (NodeEditor::AcceptDeletedItem()) {
-                    std::shared_ptr<NodeLink> deletedLink = getIoLink(deletedLinkId.Get());
+                    std::shared_ptr<NodeLink> deletedLink = getLink(deletedLinkId.Get());
                     if (deletedLink) disconnect(deletedLink);
                 }
             }
 
             NodeEditor::NodeId deletedNodeId;
             while (NodeEditor::QueryDeletedNode(&deletedNodeId)) {
-                std::shared_ptr<Node> deletedNode = getIoNode(deletedNodeId.Get());
+                std::shared_ptr<Node> deletedNode = getNode(deletedNodeId.Get());
                 if (deletedNode && NodeEditor::AcceptDeletedItem()) {
                     removeIoNode(deletedNode);
                 }
@@ -220,7 +220,7 @@ void NodeGraph::nodeEditorGui() {
 
         if (ImGui::BeginPopup("Pin Context Menu")) {
             ImGui::Text("Pin Context Menu, Pin#%i", contextPinId);
-            ImGui::Text(Environnement::nodeGraph.getIoData(contextPinId.Get())->getValueString());
+            ImGui::Text(Environnement::nodeGraph.getPin(contextPinId.Get())->getValueString());
             ImGui::EndPopup();
         }
 
@@ -270,7 +270,7 @@ void NodeGraph::nodeEditorGui() {
             if (!alreadyInSelectedIds) selectedIds.push_back(selectedNodeId);
         }
         for (int id : selectedIds) {
-            selectedNodes.push_back(getIoNode(id));
+            selectedNodes.push_back(getNode(id));
         }
     }
 
@@ -279,7 +279,7 @@ void NodeGraph::nodeEditorGui() {
 
     if (b_justLoaded) {
         b_justLoaded = false;
-        for (auto node : NodeList) node->restoreSavedPosition();
+        for (auto node : nodes) node->restoreSavedPosition();
         centerView();
         showFlow();
     }
@@ -291,7 +291,7 @@ void NodeGraph::centerView() {
 }
 
 void NodeGraph::showFlow() {
-    for (auto link : getIoLinks()) {
+    for (auto link : getLinks()) {
         NodeEditor::Flow(link->getUniqueID());
     }
 }

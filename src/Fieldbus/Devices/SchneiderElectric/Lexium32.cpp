@@ -33,15 +33,15 @@ bool Lexium32::isEnabled() {
 
 void Lexium32::onConnection() {
     pushEvent("Device Connected", false);
-    reset();
+    //resetData();
 }
 
 void Lexium32::onDisconnection() {
     pushEvent("Device Disconnected", true);
-    reset();
+    //resetData();
 }
 
-void Lexium32::reset() {
+void Lexium32::resetData() {
     actualOperatingMode = OperatingMode::Mode::UNKNOWN;
     state = State::SwitchOnDisabled;
     manualVelocityCommand_rpm = 0.0;
@@ -1284,26 +1284,6 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
     
     return true;
 }
-
-
-//====================== DATA TRANSFER STATE =================================
-
-std::vector<Lexium32::DataTransferState> Lexium32::dataTransferStates = {
-    {DataTransferState::State::NO_TRANSFER, ""},
-    {DataTransferState::State::TRANSFERRING, "Transferring..."},
-    {DataTransferState::State::SUCCEEDED, "Transfer Succeeded"},
-    {DataTransferState::State::SAVING, "Saving to Device Memory..."},
-    {DataTransferState::State::SAVED, "Saved to Device Memory"},
-    {DataTransferState::State::FAILED, "Transfer Failed"}
-};
-
-Lexium32::DataTransferState* Lexium32::getDataTransferState(DataTransferState::State s) {
-    for (DataTransferState& state : dataTransferStates) {
-        if (s == state.state) return &state;
-    }
-    return nullptr;
-}
-
 
 //============================= DEVICE MODES =================================
 

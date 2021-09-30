@@ -136,7 +136,7 @@ public:
 
 	bool save(tinyxml2::XMLElement* xml);
 	bool load(tinyxml2::XMLElement* xml);
-	bool matches(const char* name, const char* dataTypeString);
+	bool matches(const char* saveName, NodeData::Type type);
 
 private:
 
@@ -148,6 +148,7 @@ private:
 	std::vector<std::shared_ptr<NodeLink>> NodeLinks;
 	int uniqueID = -1;
 	bool b_visible = true;
+	bool b_isEditingDisplayName = false;
 
 	NodeData::Type type;
 	DataDirection direction;

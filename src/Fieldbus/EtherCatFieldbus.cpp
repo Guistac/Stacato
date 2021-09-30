@@ -435,6 +435,8 @@ namespace EtherCatFieldbus {
             //if we reached this state of the configuration, all slaves are detected and we are about to start exchanging data
             //we can set trigger the onConnection event of all slaves
             for (auto slave : slaves) {
+                slave->resetData();
+                slave->pushEvent("Device Connected", false);
                 slave->onConnection();
             }
 
@@ -578,12 +580,19 @@ namespace EtherCatFieldbus {
                                     //detect state changes by comparing the previous state with the current state
                                     for (auto slave : slaves) {
                                         if (slave->identity->state != slave->previousState) {
-                                            if (!slave->isOnline()){
+                                            if (slave->previousState == EC_STATE_OPERATIONAL && !slave->isOnline()){
+                                                slave->resetData();
+                                                slave->pushEvent("Device Disconnected", true);
                                                 slave->onDisconnection();
                                                 Logger::error("Slave '{}' Disconnected...", slave->getName());
                                             }
-                                            else if (slave->previousState == EC_STATE_NONE && slave->isOnline()) {
+                                            else if (slave->previousState != EC_STATE_OPERATIONAL && slave->isStateOperational()) {
+                                                slave->resetData();
+                                                slave->pushEvent("Device Reconnected (in state change compare)", false);
                                                 slave->onConnection();
+                                                Logger::info("Slave '{}' is back in Operational State", slave->getName());
+                                            }
+                                            else if (slave->previousState == EC_STATE_NONE && slave->isOnline()) {
                                                 Logger::info("Slave '{}' Reconnected with state {}", slave->getName(), slave->getEtherCatStateChar());
                                             }
                                             else if (slave->isStateOperational() && !slave->hasStateError()) {
@@ -610,8 +619,12 @@ namespace EtherCatFieldbus {
                                             //set the slave back to operational after reconfiguration
                                             slave->identity->state = EC_STATE_OPERATIONAL;
                                             ec_writestate(slave->getSlaveIndex());
-                                            if (EC_STATE_OPERATIONAL == ec_statecheck(slave->getSlaveIndex(), EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE))
+                                            if (EC_STATE_OPERATIONAL == ec_statecheck(slave->getSlaveIndex(), EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE)) {
+                                                slave->resetData();
+                                                slave->pushEvent("Device Reconnected (in recover section)", false);
+                                                slave->onConnection();
                                                 Logger::info("Slave '{}' is back in Operational State!", slave->getName());
+                                            }
                                         }
                                         else if (!slave->isStateOperational() || slave->hasStateError()) {
                                             //reconfigure looks for a slave that still has the same configured address
@@ -676,7 +689,11 @@ namespace EtherCatFieldbus {
         if (b_processRunning) {
             Logger::debug("===== Stopping Cyclic Exchange...");
             for (auto slave : slaves) {
-                if (slave->isOnline()) slave->onDisconnection();
+                if (slave->isOnline()) {
+                    slave->resetData();
+                    slave->pushEvent("Device Disconnected (Fieldbus Shutdown)", false);
+                    slave->onDisconnection();
+                }
                 slave->identity->state = EC_STATE_NONE;
             }
             b_allOperational = false;

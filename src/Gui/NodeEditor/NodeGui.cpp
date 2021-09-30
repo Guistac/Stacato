@@ -5,7 +5,7 @@
 
 #include "NodeEditorGui.h"
 
-
+#include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <imgui_node_editor.h>
 #include "Gui/Framework/Fonts.h"
@@ -36,8 +36,6 @@ void Node::nodeGui() {
     glm::vec4 labelColor = glm::vec4(0.1, 0.1, 0.6, 0.5);
     bool nodeIsOffline = false;
 
-    //NodeEditor::PushStyleColor(NodeEditor::StyleColor::)
-
     if (getType() == NodeType::IODEVICE) {
         std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(shared_from_this());
         nodeIsOffline = !device->isDetected() && !device->isOnline();
@@ -53,8 +51,6 @@ void Node::nodeGui() {
                 break;
         }
     }
-
-
 
     if (nodeIsOffline) {
         ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
@@ -267,7 +263,7 @@ void Node::propertiesGui() {
     if (ImGui::BeginTabBar("PropertiesTabBar")) {
 
         nodeSpecificGui();
-
+        
         if(ImGui::BeginTabItem("Node")) {
             
             static auto displayDataTable = [](std::vector<std::shared_ptr<NodePin>>& data, const char* tableName) {
@@ -280,17 +276,29 @@ void Node::propertiesGui() {
                     ImGui::TableHeadersRow();
                     int checkBoxID = 9999999;
                     for (auto data : data) {
+                        ImGui::PushID(data->getSaveName());
+                        
                         ImGui::TableNextRow();
                         ImGui::TableSetColumnIndex(0);
                         ImGui::PushID(checkBoxID++);
                         ImGui::Checkbox("##Visible", &data->isVisible());
                         ImGui::PopID();
                         ImGui::TableSetColumnIndex(1);
-                        ImGui::Text("%s", data->getDisplayName());
+
+                        if (data->b_isEditingDisplayName) ImGui::InputText("##NameEdit", data->displayName, 64);
+
+                        else ImGui::Text("%s", data->getDisplayName());
+                        if (ImGui::IsItemClicked(0)) {
+                            data->b_isEditingDisplayName = true;
+                        }
+                        else if (data->b_isEditingDisplayName && (ImGui::IsKeyPressed(GLFW_KEY_ENTER) || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE))) data->b_isEditingDisplayName = false;
+                        
                         ImGui::TableSetColumnIndex(2);
                         ImGui::Text("%s", getNodeDataType(data->getType())->displayName);
                         ImGui::TableSetColumnIndex(3);
                         ImGui::Text("%s", data->getValueString());
+
+                        ImGui::PopID();
                     }
                     ImGui::EndTable();
                 }

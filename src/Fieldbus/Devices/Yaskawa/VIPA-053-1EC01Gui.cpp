@@ -12,12 +12,16 @@
 
 void VIPA_053_1EC01::deviceSpecificGui() {
     if (ImGui::BeginTabItem("VIPA")) {
+        
         if (ImGui::Button("Detect I/O Modules")) {
-            std::thread ioModuleDetectionHandler([this]() { detectIoModules(); });
+            std::thread ioModuleDetectionHandler([this]() { configureFromDeviceModules(); });
             ioModuleDetectionHandler.detach();
         }
-        for (int i = 0; i < ioModules.size(); i++) {
-            Module& module = ioModules[i];
+        ImGui::SameLine();
+        ImGui::Text(getDataTransferState(configureFromDeviceModulesDownloadStatus)->displayName);
+        
+        for (int i = 0; i < modules.size(); i++) {
+            Module& module = modules[i];
             ImGui::PushID(i);
             if (ImGui::TreeNode(getModuleType(module.moduleType)->displayName)) {
                 //ImGui::Text(module.name);
@@ -25,14 +29,14 @@ void VIPA_053_1EC01::deviceSpecificGui() {
                 //ImGui::Text("Outputs: ByteCount: %i  BitCount: %i", module.outputByteCount, module.outputBitCount);
                 for (int j = 0; j < module.inputs.size(); j++) {
                     ModuleParameter& parameter = module.inputs[j];
-                    ImGui::Text("Input %i: InputByte: %i  InputBit: %i  BitSize: %i", i, parameter.ioMapByteOffset, parameter.ioMapBitOffset, parameter.bitCount);
-                    std::shared_ptr<NodePin> NodePin = parameter.NodePin;
+                    ImGui::Text("Input %i: InputByte: %i  InputBit: %i  BitSize: %i", i, parameter.ioMapByteOffset, parameter.ioMapBitOffset, parameter.bitSize);
+                    std::shared_ptr<NodePin> NodePin = parameter.nodePin;
                     //ImGui::Text("%s (%s)", NodePin->getName(), NodePin->getTypeName());
                 }
                 for (int j = 0; j < module.outputs.size(); j++) {
                     ModuleParameter& parameter = module.outputs[j];
-                    ImGui::Text("Output %i: OutputByte: %i  OutputBit: %i  BitSize: %i", i, parameter.ioMapByteOffset, parameter.ioMapBitOffset, parameter.bitCount);
-                    std::shared_ptr<NodePin> NodePin = parameter.NodePin;
+                    ImGui::Text("Output %i: OutputByte: %i  OutputBit: %i  BitSize: %i", i, parameter.ioMapByteOffset, parameter.ioMapBitOffset, parameter.bitSize);
+                    std::shared_ptr<NodePin> NodePin = parameter.nodePin;
                     //ImGui::Text("%s (%s)", NodePin->getName(), NodePin->getTypeName());
                 }
                 ImGui::TreePop();
