@@ -225,9 +225,12 @@ bool Lexium32::startupConfiguration() {
     //interval should be the same as the frame cycle time, and offset should be zero
     //the frame cycle time is offset 50% from dc_sync time (which is a integer multiple of the interval time)
     //by setting the sync0 event at 0 offset, maximum time offset is garanteed between the sync event and the frame receive time
-    uint32_t sync0Interval_nanoseconds = EtherCatFieldbus::processInterval_milliseconds * 1000000.0L;
-    uint32_t sync0offset_nanoseconds = 0;
+    uint32_t sync0Interval_nanoseconds = EtherCatFieldbus::processInterval_milliseconds * 1000000.0;
+    uint32_t sync0offset_nanoseconds = sync0Interval_nanoseconds / 2;
     ec_dcsync0(getSlaveIndex(), true, sync0Interval_nanoseconds, sync0offset_nanoseconds);
+
+
+
     //TODO: does this still apply with a lot of slaves ?
     //if propagation delays add up, might the last slaves have their sync event happen at the same time as their frame receive time?
 
@@ -379,10 +382,12 @@ void Lexium32::prepareOutputs(){
     if (digitalOut1->isConnected()) digitalOut1->set(digitalOut1->getLinks().front()->getInputData()->getBoolean());
     if (digitalOut2->isConnected()) digitalOut2->set(digitalOut2->getLinks().front()->getInputData()->getBoolean());
 
+    double now_seconds = EtherCatFieldbus::getReferenceClock_seconds();
+    double deltaT_seconds = now_seconds - previousProfilePointTime_seconds;
+    previousProfilePointTime_seconds = now_seconds;
+
     //internal profile generator
     if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY) {
-
-        double deltaT_seconds = EtherCatFieldbus::getCurrentCycleDeltaT_seconds();
 
         if (manualVelocityCommand_rpm > profileVelocity_rpm) {
             double deltaV_rps = manualAcceleration_rps2 * deltaT_seconds;

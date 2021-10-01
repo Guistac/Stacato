@@ -35,12 +35,13 @@ namespace EtherCatFieldbus {
 
     EtherCatMetrics metrics;
 
+    int64_t referenceClockStartTime_nanoseconds;
+    double referenceClock_seconds = 0.0;
+
     double processInterval_milliseconds = 3.0;
     double processDataTimeout_milliseconds = 1.5;
     double clockStableThreshold_milliseconds = 0.1;
-    int slaveStateCheckCycleCount = 50;
     double fieldbusTimeout_milliseconds = 100.0;
-    std::chrono::high_resolution_clock::time_point lastProcessDataFrameReturnTime;
 
     bool b_detectionHandlerRunning = false;
     std::thread slaveDetectionHandler;
@@ -48,9 +49,6 @@ namespace EtherCatFieldbus {
     std::thread slaveStateHandler;  //thread to periodically check the state of all slaves and recover them if necessary
     bool b_errorWatcherRunning = false;
     std::thread errorWatcher;       //cyclic exchange thread (needs a full cpu core to axchieve precise timing)
-
-    std::chrono::high_resolution_clock::time_point previousCycleTime;
-    double currentCycleDeltaT_seconds = 0.0;
 
     //====== non public functions ======
 
@@ -458,22 +456,21 @@ namespace EtherCatFieldbus {
     void cyclicExchange() {
         //thread timing variables
         using namespace std::chrono;
+
         uint64_t processInterval_nanoseconds = processInterval_milliseconds * 1000000.0L;
         uint64_t processDataTimeout_microseconds = processDataTimeout_milliseconds * 1000.0L;
         uint64_t systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count() + processInterval_nanoseconds;
         uint64_t cycleStartTime_nanoseconds = systemTime_nanoseconds + processInterval_nanoseconds;
-        uint64_t previousCycleStartTime_nanoseconds;
+        uint64_t previousCycleStartTime_nanoseconds = systemTime_nanoseconds;
+        uint64_t clockStableThreshold_nanoseconds = clockStableThreshold_milliseconds * 1000000.0;
+        double averageDCTimeDelta_nanoseconds = (double)processInterval_nanoseconds / 2.0;
+        int clockDriftCorrectionintegral = 0;
+        referenceClockStartTime_nanoseconds = 0;
+        std::chrono::high_resolution_clock::time_point lastProcessDataFrameReturnTime = high_resolution_clock::now();
 
         Logger::info("===== Waiting For clocks to stabilize before requesting Operational State...");
-
-        //initialize average clock error to its max absolute value;
-        metrics.averageDcTimeError_milliseconds = processInterval_milliseconds / 2.0;
-
         i_startupProgress = ec_slavecount + 4;
         sprintf(startupStatusString, "Waiting For Clocks To Stabilize");
-
-        //reset fieldbus timeout watchdog
-        lastProcessDataFrameReturnTime = high_resolution_clock::now();
 
         //slaves are considered online when they are detected and actively exchanging data with the master
         //if we reached this state of the configuration, all slaves are detected and we are about to start exchanging data
@@ -486,6 +483,8 @@ namespace EtherCatFieldbus {
 
         while (b_processRunning) {
 
+            //EtherCAT runtime loop start
+
             //bruteforce timing precision by using 100% of CPU core
             //update and compare system time to next process 
             do { systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count(); } while (systemTime_nanoseconds < cycleStartTime_nanoseconds);
@@ -493,113 +492,93 @@ namespace EtherCatFieldbus {
             //send ethercat frame
             ec_send_processdata();
             uint64_t frameSentTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
-            //TODO: in case sending the data takes longer than a certain time, the rest of the loop should be aborted
 
-            //wait for return of the frame until timeout
+            //waits for return of the frame until timeout
             int workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
             uint64_t frameReceivedTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
 
-
-            high_resolution_clock::time_point now = high_resolution_clock::now();
             if (workingCounter <= 0) {
-                //check timeout watchdog
-                if (now - lastProcessDataFrameReturnTime > milliseconds((int)fieldbusTimeout_milliseconds)) {
+                if (high_resolution_clock::now() - lastProcessDataFrameReturnTime > milliseconds((int)fieldbusTimeout_milliseconds)) {
                     Logger::critical("Fieldbus timed out...");
                     stop();
                     break; //breaks out of the main while loop
                 }
-                //adjust the copy of the reference clock in case no frame was received
-                ec_DCtime += processInterval_nanoseconds;
+                ec_DCtime += processInterval_nanoseconds; //adjust the copy of the reference clock in case no frame was received
             }
-            else {
-                //reset timeout watchdog
-                lastProcessDataFrameReturnTime = now;
-            }
-
-            long long currentCycleDeltaT_nanoseconds = duration_cast<nanoseconds>(now - previousCycleTime).count();
-            currentCycleDeltaT_seconds = (double)currentCycleDeltaT_nanoseconds / 1000000000.0;
-            previousCycleTime = now;
+            else lastProcessDataFrameReturnTime = high_resolution_clock::now(); //reset timeout watchdog
 
             //don't update the devices while the fieldbus isn't fully started
             if (b_allOperational) {
-                //interpret the data that was received for all slaves
+                //interpret all slaves input data if operational
                 for (auto slave : slaves) if (slave->isStateOperational()) slave->readInputs();
                 //update all nodes connected to ethercat slave nodes
                 Environnement::nodeGraph.evaluate(DeviceType::ETHERCATSLAVE);
-                //prepare the output data to be sent
+                //prepare all slaves output data if operational
                 for (auto slave : slaves) if (slave->isStateOperational()) slave->prepareOutputs();
             }
 
+            //=============== SYSTEM CLOCK =====================
+
+            //Update a time value that will serve as synchronisation reference for the whole system.
+            //All clock times are in multiples of the process interval !
+            //Here we round ec_DCtime up or down to the nearest processinterval multiple
+            int64_t referenceClockRoundedToProcessInterval_nanoseconds = ec_DCtime - (ec_DCtime + (processInterval_nanoseconds / 2)) % processInterval_nanoseconds;
+            //if the value is 0, this means the fieldbus just started and we save the value as clock start time
+            if (referenceClockStartTime_nanoseconds == 0) referenceClockStartTime_nanoseconds = referenceClockRoundedToProcessInterval_nanoseconds;
+            //on each cycle we take the time value and calculate a system reference time in seconds, with the start time as 0 reference
+            int64_t referenceClockTimeRounded_nanoseconds = referenceClockRoundedToProcessInterval_nanoseconds;
+            referenceClock_seconds = (double)(referenceClockTimeRounded_nanoseconds - referenceClockStartTime_nanoseconds) / 1000000000.0;
+
+
             //========= HANDLE MASTER AND REFERENCE CLOCK DRIFT ===========
 
-            //dctime_offset: *reference clock* offset target for the receiving of a frame by the first dc slave
-            //the offset is calculated as a distance from the -dc sync time-, which is a whole multiple of the process interval time
-            //setting this to half the process interval time garantees a smoothn easily mesureable approach to the target value
-            //this approach can be monitored to check when the frame time is synchronized to the dc sync time
-            //since the frame receive time is offset 50% of the cycle interval, sync0 and sync1 events should be set to happen at dc sync time, or 0% offset.
-            //else they will interfere with the frame receive time, this 50% offset garantees one frame is received per Sync0 or Sync1 Event
-            static uint64_t dctime_offset_nanoseconds = processInterval_nanoseconds / 2;
-            //the code block below calculates an offset correction to be applied to the next cycle start time of the *master clock*
-            //this correction will make sure the frame is will be received at the correct ec_DCtime
-            //this effectively aligns the cycle interval of the master to the ethercat reference clock
-            //since the master clock and reference clock will drift over time, and the frames should be received at the correct slave reference time (ec_DCtime)
-            //this offset ensures that the chosen cycle interval is synchronous with the reference clock and the frames are received at the correct time
-            //this regulating code block is taken from the soem example red_test.c
-            //it implements a PI controller (proportional integral) that regulates ec_DCTime using an offset to be added to the system time
-            static int64_t integral = 0;
-            if (metrics.cycleCounter == 0) integral = 0; //this value should be reset on cyclic exchange start
-            int64_t delta = (ec_DCtime - dctime_offset_nanoseconds) % processInterval_nanoseconds;
-            if (delta > (processInterval_nanoseconds / 2)) { delta = delta - processInterval_nanoseconds; }
-            if (delta > 0) { integral++; }
-            if (delta < 0) { integral--; }
-            int64_t offsetTime = -(delta / 100) - (integral / 20);
-            //the offset time should be added to the incrementation of the next cycle time of the master clock
-            //calculate the start of the next cycle, taking clock drift compensation into account
-            previousCycleStartTime_nanoseconds = cycleStartTime_nanoseconds;
-            cycleStartTime_nanoseconds += processInterval_nanoseconds + offsetTime;
+            //----- Adjust clock drift between the reference clock (ec_DCtime, time of process data receive at first slave) and the master clock ------
+            //We do this by adjusting the time of next the next process cycle start.
+            //This way the refresh rate of the current cyclic exchange loop is synchronized with the EtherCAT reference clock.
+            //The target is to synchronize reception of the process frame with an integer multiple of the process interval.
+            //For example, if the process interval is 100, the frame should be received by the reference clock slave at 0, 100, 200, 300, etc.
+            //This is done by calculating the time error between the reference clock and the desired reception time (an integer multiple of the process interval)
+            //We then use this dellta value in a simple control loop to produce a time offset that we will be added to the next cycle start time.
+            //This effectively synchronises the cyclic exchange loop with the EtherCAT reference clock.
+            int64_t referenceClockError_nanoseconds = ec_DCtime % processInterval_nanoseconds;
+            if (referenceClockError_nanoseconds > processInterval_nanoseconds / 2) referenceClockError_nanoseconds -= processInterval_nanoseconds;
+            averageDCTimeDelta_nanoseconds = averageDCTimeDelta_nanoseconds * 0.95 + (double)abs(referenceClockError_nanoseconds) * 0.05;
+            if (referenceClockError_nanoseconds > 0) { clockDriftCorrectionintegral++; }
+            if (referenceClockError_nanoseconds < 0) { clockDriftCorrectionintegral--; }
+            int64_t masterClockCorrection_nanoseconds = -(referenceClockError_nanoseconds / 100) - (clockDriftCorrectionintegral / 20);
+            previousCycleStartTime_nanoseconds = cycleStartTime_nanoseconds;            
+            cycleStartTime_nanoseconds += processInterval_nanoseconds + masterClockCorrection_nanoseconds;
 
-            //======= UPDATE METRICS =======
-
-            float dcTimeError_milliseconds = ((double)(ec_DCtime % processInterval_nanoseconds) - (double)dctime_offset_nanoseconds) / 1000000.0L;
-            if (metrics.cycleCounter == 0) {
-                metrics.startTime_nanoseconds = systemTime_nanoseconds;
-            }
-            metrics.averageDcTimeError_milliseconds = metrics.averageDcTimeError_milliseconds * 0.97 + 0.03 * abs(dcTimeError_milliseconds);
-
-            metrics.processTime_nanoseconds = systemTime_nanoseconds - metrics.startTime_nanoseconds;
-            metrics.processTime_seconds = (double)(systemTime_nanoseconds - metrics.startTime_nanoseconds) / 1000000000.0L;
-
-            double frameSendDelay_milliseconds = (double)(frameSentTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
-            double frameReceiveDelay_milliseconds = (double)(frameReceivedTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
-            double timeoutDelay_milliseconds = frameSendDelay_milliseconds + processDataTimeout_milliseconds;
-            double cycleLength_milliseconds = (double)(cycleStartTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
-
-            metrics.dcTimeErrors.addPoint(glm::vec2(metrics.processTime_seconds, dcTimeError_milliseconds));
-            metrics.averageDcTimeErrors.addPoint(glm::vec2(metrics.processTime_seconds, metrics.averageDcTimeError_milliseconds));
-            metrics.sendDelays.addPoint(glm::vec2(metrics.processTime_seconds, frameSendDelay_milliseconds));
-            metrics.receiveDelays.addPoint(glm::vec2(metrics.processTime_seconds, frameReceiveDelay_milliseconds));
-            metrics.timeoutDelays.addPoint(glm::vec2(metrics.processTime_seconds, timeoutDelay_milliseconds));
-            metrics.cycleLengths.addPoint(glm::vec2(metrics.processTime_seconds, cycleLength_milliseconds));;
-            metrics.addWorkingCounter(workingCounter, metrics.processTime_seconds);
-
-            if (workingCounter == EC_NOFRAME) metrics.timeouts.addPoint(glm::vec2(metrics.processTime_seconds, frameReceiveDelay_milliseconds));
-
-            uint64_t processedTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
-            double processDelay_milliseconds = (double)(processedTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
-            metrics.processDelays.addPoint(glm::vec2(metrics.processTime_seconds, processDelay_milliseconds));
-
-            metrics.cycleCounter++;
-
-            //======= HANDLE STATE TRANSITIONS =======
-
-            if (!b_clockStable && abs(metrics.averageDcTimeError_milliseconds) < clockStableThreshold_milliseconds) {
+            if (!b_clockStable && averageDCTimeDelta_nanoseconds < clockStableThreshold_nanoseconds) {
                 b_clockStable = true;
                 sprintf(startupStatusString, "Setting All Slaves to Operational State");
                 std::thread opStateHandler([]() { transitionToOperationalState(); });
                 opStateHandler.detach();
             }
 
-            //===== EtherCat Runtime End =====
+            //======= UPDATE METRICS =======
+            metrics.referenceClock_seconds = referenceClock_seconds;
+            metrics.averageDcTimeError_milliseconds = averageDCTimeDelta_nanoseconds / 1000000.0;       //used to display clock drift correction progress
+            double frameSendDelay_milliseconds = (double)(frameSentTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
+            double frameReceiveDelay_milliseconds = (double)(frameReceivedTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
+            double timeoutDelay_milliseconds = frameSendDelay_milliseconds + processDataTimeout_milliseconds;
+            double cycleLength_milliseconds = (double)(cycleStartTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
+            metrics.dcTimeErrors.addPoint(glm::vec2(referenceClock_seconds, referenceClockError_nanoseconds / 1000000.0));
+            metrics.averageDcTimeErrors.addPoint(glm::vec2(referenceClock_seconds, averageDCTimeDelta_nanoseconds / 1000000.0));
+            metrics.sendDelays.addPoint(glm::vec2(referenceClock_seconds, frameSendDelay_milliseconds));
+            metrics.receiveDelays.addPoint(glm::vec2(referenceClock_seconds, frameReceiveDelay_milliseconds));
+            metrics.timeoutDelays.addPoint(glm::vec2(referenceClock_seconds, timeoutDelay_milliseconds));
+            metrics.cycleLengths.addPoint(glm::vec2(referenceClock_seconds, cycleLength_milliseconds));;
+            metrics.addWorkingCounter(workingCounter, referenceClock_seconds);
+            if (workingCounter <= 0) metrics.timeouts.addPoint(glm::vec2(referenceClock_seconds, frameReceiveDelay_milliseconds));
+
+            //======== END MEASUREMENTS ========
+            uint64_t processedTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
+            double processDelay_milliseconds = (double)(processedTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
+            metrics.processDelays.addPoint(glm::vec2(referenceClock_seconds, processDelay_milliseconds));
+            metrics.cycleCounter++;
+
+            //===== EtherCat Runtime Loop End =====
         }
         b_processRunning = false;
         Logger::info("===== Cyclic Exchange Stopped !");
@@ -716,14 +695,7 @@ namespace EtherCatFieldbus {
         Logger::debug("Exited Slave State Handler Thread");
     }
 
-
-
-
-
-
-
-    double getCurrentCycleDeltaT_seconds() {
-        return currentCycleDeltaT_seconds;
+    double getReferenceClock_seconds() {
+        return referenceClock_seconds;
     }
-
 }

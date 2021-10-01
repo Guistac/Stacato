@@ -8,6 +8,8 @@
 #include "Gui/Framework/Colors.h"
 #include "Gui/Framework/Fonts.h"
 
+#include "Fieldbus/EtherCatFieldbus.h"
+
 
 
 void VIPA_053_1EC01::deviceSpecificGui() {
@@ -43,6 +45,7 @@ void VIPA_053_1EC01::deviceSpecificGui() {
             }
             ImGui::PopID();
         }
+
         ImGui::EndTabItem();
     }
 }

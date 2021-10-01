@@ -9,6 +9,7 @@
 #include <sstream>
 #include <bitset>
 #include <map>
+#include <cmath>
 
 #include <glm/glm.hpp>
 

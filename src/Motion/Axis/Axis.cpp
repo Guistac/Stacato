@@ -7,12 +7,14 @@
 #include "Motion/MotionTypes.h"
 
 
-
+#include "Fieldbus/EtherCatFieldbus.h"
 
 
 void Axis::process() {
-	double updateTime_seconds = Timing::getTime_seconds();
-	double deltaT_seconds = updateTime_seconds - lastProfileUpdateTime_seconds;
+
+	double now_seconds = EtherCatFieldbus::getReferenceClock_seconds();
+	double deltaT_seconds = now_seconds - lastProfileUpdateTime_seconds;
+	lastProfileUpdateTime_seconds = now_seconds;
 
 	if (b_enabled) {
 
@@ -38,7 +40,6 @@ void Axis::process() {
 		actuatorCommand->set(positionFeedback->getLinks().front()->getInputData()->getReal());
 	}
 
-	lastProfileUpdateTime_seconds = updateTime_seconds;
 }
 
 

@@ -32,12 +32,8 @@ public:
 	}
 
 	uint64_t cycleCounter;
-	uint64_t startTime_nanoseconds;
-
-	uint64_t processTime_nanoseconds;
-	double processTime_seconds;
-	
-	float averageDcTimeError_milliseconds;
+	double referenceClock_seconds;
+	float averageDcTimeError_milliseconds; //latest reference clock error, used to track clock sync progress when starting the fieldbus
 
 	ScrollingBuffer dcTimeErrors;
 	ScrollingBuffer averageDcTimeErrors;

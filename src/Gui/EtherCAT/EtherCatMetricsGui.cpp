@@ -11,7 +11,7 @@ void etherCatMetrics() {
 	if (ImGui::BeginChild("MetricsChild")) {
 
 		ImGui::Text("Process Time: %.1fs  cycles: %i (%.1fms/cycle)",
-			EtherCatFieldbus::metrics.processTime_seconds,
+			EtherCatFieldbus::metrics.referenceClock_seconds,
 			(int)EtherCatFieldbus::metrics.cycleCounter,
 			EtherCatFieldbus::processInterval_milliseconds);
 

@@ -77,6 +77,7 @@ public:
     
     double profileVelocity_rpm = 0.0;
     double profilePosition_r = 0.0;
+    double previousProfilePointTime_seconds = 0.0;
 
     //===== Manual Controls =====
 

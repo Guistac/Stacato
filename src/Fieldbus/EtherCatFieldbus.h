@@ -60,9 +60,7 @@ namespace EtherCatFieldbus {
     bool save(tinyxml2::XMLElement* xml);
     bool load(tinyxml2::XMLElement* xml);
 
+    double getReferenceClock_seconds();
 
-
-    //deprecated
-    double getCurrentCycleDeltaT_seconds();
 };
 
