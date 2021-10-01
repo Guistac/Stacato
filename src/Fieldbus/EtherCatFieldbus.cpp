@@ -57,6 +57,7 @@ namespace EtherCatFieldbus {
     //SOEM extension to read Explicit Device ID
     bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID);
 
+    bool discoverDevices();
     bool configureSlaves();
     void startCyclicExchange();
     void cyclicExchange();
@@ -141,33 +142,47 @@ namespace EtherCatFieldbus {
 
     void terminate() {
         stop();
-        Logger::debug("===== Closing EtherCAT Network Interface Card");
-        b_networkOpen = false;
         stopErrorWatcher();
-        if (errorWatcher.joinable()) errorWatcher.join();
-        if (etherCatRuntime.joinable()) etherCatRuntime.join();
-        if (slaveStateHandler.joinable()) slaveStateHandler.join();
         stopSlaveDetectionHandler();
+        Logger::debug("===== Closing EtherCAT Network Interface Card");
         ec_close();
+        b_networkOpen = false;
         Logger::info("===== Stopped EtherCAT fieldbus");
+    }
+
+    //================= SCAN REQUEST FROM GUI =================
+
+    void scanNetwork() {
+        stopSlaveDetectionHandler();
+        discoverDevices();
+        startSlaveDetectionHandler();
     }
 
     //================= START CYCLIC EXCHANGE =================
 
     void start() {
         if (!b_processStarting) {
-            stopSlaveDetectionHandler();
-            if (etherCatRuntime.joinable()) etherCatRuntime.join();
-            if (slaveStateHandler.joinable()) slaveStateHandler.join();
-            b_startupError = false;
-            i_startupProgress = 0;
-            sprintf(startupStatusString, "Starting Fieldbus Configuration");
             Logger::info("===== Starting Fieldbus Configuration");
-            b_processStarting = true;
             std::thread etherCatProcessStarter([]() {
-                if (scanNetwork() && configureSlaves()) startCyclicExchange();
+                b_startupError = false;
+                i_startupProgress = 0;
+                sprintf(startupStatusString, "Starting Fieldbus Configuration");
+
+                b_processStarting = true;
+                stopSlaveDetectionHandler();
+
+                i_startupProgress = 0;
+                sprintf(startupStatusString, "Scanning Network");
+                if (!discoverDevices()) {
+                    b_startupError = true;
+                    sprintf(startupStatusString, "Found no EtherCAT slaves on the network");
+                    return false;
+                }
+
+                if (!configureSlaves()) return false;
+                startCyclicExchange();
                 b_processStarting = false;
-                });
+            });
             etherCatProcessStarter.detach();
         }
     }
@@ -177,16 +192,9 @@ namespace EtherCatFieldbus {
     void stop() {
         if (b_processRunning) {
             Logger::debug("===== Stopping Cyclic Exchange...");
-            for (auto slave : slaves) {
-                if (slave->isOnline()) {
-                    slave->resetData();
-                    slave->pushEvent("Device Disconnected (Fieldbus Shutdown)", false);
-                    slave->onDisconnection();
-                }
-                slave->identity->state = EC_STATE_NONE;
-            }
-            b_allOperational = false;
             b_processRunning = false;
+            if (etherCatRuntime.joinable()) etherCatRuntime.join();
+            if (slaveStateHandler.joinable()) slaveStateHandler.join();
             startSlaveDetectionHandler();
         }
     }
@@ -240,12 +248,7 @@ namespace EtherCatFieldbus {
 
     //=================== DISCOVER ETHERCAT DEVICES ON THE NETWORK =====================
 
-    bool scanNetwork() {
-
-        i_startupProgress = 0;
-        sprintf(startupStatusString, "Scanning Network");
-
-        stopSlaveDetectionHandler();
+    bool discoverDevices() {
 
         //when rescanning the network, all previous slaves are now considered to be offline before being detected again
         //for a slave to appear as offline, we set its identity object (ec_slavet) to nullptr
@@ -324,14 +327,9 @@ namespace EtherCatFieldbus {
                 slaves.push_back(slave);
             }
 
-            startSlaveDetectionHandler();
-
             return true;
         }
 
-        //if no device was found on the network
-        b_startupError = true;
-        sprintf(startupStatusString, "Found no EtherCAT slaves on the network");
         Logger::warn("===== No EtherCAT Slaves found...");
         return false;
     }
@@ -474,10 +472,10 @@ namespace EtherCatFieldbus {
 
         //slaves are considered online when they are detected and actively exchanging data with the master
         //if we reached this state of the configuration, all slaves are detected and we are about to start exchanging data
-        //we can set trigger the onConnection event of all slaves
+        //we can trigger the onConnection event of all slaves
         for (auto slave : slaves) {
             slave->resetData();
-            slave->pushEvent("Device Connected", false);
+            slave->pushEvent("Device Connected (Fieldbus Started)", false);
             slave->onConnection();
         }
 
@@ -584,6 +582,15 @@ namespace EtherCatFieldbus {
             //======================== RUNTIME LOOP END =========================
         }
         b_processRunning = false;
+        b_allOperational = false;
+        for (auto slave : slaves) {
+            if (slave->isOnline()) {
+                slave->resetData();
+                slave->pushEvent("Device Disconnected (Fieldbus Shutdown)", false);
+                slave->onDisconnection();
+            }
+            slave->identity->state = EC_STATE_NONE;
+        }
         Logger::info("===== Cyclic Exchange Stopped !");
     }
 
@@ -634,39 +641,41 @@ namespace EtherCatFieldbus {
             //detect state changes by comparing the previous state with the current state
             for (auto slave : slaves) {
                 if (slave->identity->state != slave->previousState) {
-                    if (slave->previousState == EC_STATE_OPERATIONAL && !slave->isOnline()) {
+                    if (slave->isStateNone()) {
                         slave->resetData();
                         slave->pushEvent("Device Disconnected", true);
                         slave->onDisconnection();
                         Logger::error("Slave '{}' Disconnected...", slave->getName());
                     }
-                    else if (slave->previousState != EC_STATE_OPERATIONAL && slave->isStateOperational()) {
+                    else if (slave->previousState == EC_STATE_NONE) {
                         slave->resetData();
-                        slave->pushEvent("Device Reconnected (in state change compare)", false);
+                        char eventString[64];
+                        sprintf(eventString, "Device Reconnected with state %s", slave->getEtherCatStateChar());
+                        slave->pushEvent(eventString, false);
                         slave->onConnection();
-                        Logger::info("Slave '{}' is back in Operational State", slave->getName());
+                        Logger::info("Slave '{}' reconnected with state {}", slave->getName(), slave->getEtherCatStateChar());
                     }
-                    else if (slave->previousState == EC_STATE_NONE && slave->isOnline()) {
-                        Logger::info("Slave '{}' Reconnected with state {}", slave->getName(), slave->getEtherCatStateChar());
+                    else {
+                        char eventString[64];
+                        sprintf(eventString, "EtherCAT state changed to %s", slave->getEtherCatStateChar());
+                        slave->pushEvent(eventString, false);
+                        Logger::info("Slave '{}' state changed to {}", slave->getEtherCatStateChar());
                     }
-                    else if (slave->isStateOperational() && !slave->hasStateError()) {
-                        Logger::info("Slave '{}' transitionned to Operational State", slave->getName());
-                    }
-                    else Logger::warn("Slave '{}' transitionned to {} {}", slave->getName(), slave->getEtherCatStateChar(), slave->hasStateError() ? "(State Error)" : "");
-
-                    ;
                 }
             }
 
             //try to recover slaves that are not online or in operational state
             for (auto slave : slaves) {
-                if (!slave->isOnline()) {
+                if (slave->isStateNone()) {
                     //recover is useful to detect a slave that has a power cycle and lost its configured address
                     //recover uses incremental addressing to detect if an offline slave pops up at the same place in the network
                     //if a slave responds at that address, the function verify it matches the previous slave at that address
                     //it then reattributes an configured address to the slave
                     //the function returns 1 if the slave was successfully recovered with its previous configured address
                     if (1 == ec_recover_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
+                        slave->resetData();
+                        slave->pushEvent("Device Reconnected after power cycle", false);
+                        slave->onConnection();
                         Logger::info("Recovered slave '{}' !", slave->getName());
                     }
                 }
@@ -675,9 +684,7 @@ namespace EtherCatFieldbus {
                     slave->identity->state = EC_STATE_OPERATIONAL;
                     ec_writestate(slave->getSlaveIndex());
                     if (EC_STATE_OPERATIONAL == ec_statecheck(slave->getSlaveIndex(), EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE)) {
-                        slave->resetData();
-                        slave->pushEvent("Device Reconnected (in recover section)", false);
-                        slave->onConnection();
+                        slave->pushEvent("Device back in operational state", false);
                         Logger::info("Slave '{}' is back in Operational State!", slave->getName());
                     }
                 }
@@ -688,8 +695,10 @@ namespace EtherCatFieldbus {
                     //reconfigure takes the slave back to init and reconfigures it all the way through safeoperational
                     //we then need to set it back to operational
                     //the ec_reconfig_slave function returns the status of the slave
-                    if (EC_STATE_SAFE_OP == ec_reconfig_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3))
+                    if (EC_STATE_SAFE_OP == ec_reconfig_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
+                        slave->pushEvent("Device Reconfigured", false);
                         Logger::info("Slave '{}' Successfully Reconfigured", slave->getName());
+                    }
                 }
             }
 

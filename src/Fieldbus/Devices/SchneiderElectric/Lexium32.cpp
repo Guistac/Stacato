@@ -32,13 +32,9 @@ bool Lexium32::isEnabled() {
 }
 
 void Lexium32::onConnection() {
-    pushEvent("Device Connected", false);
-    //resetData();
 }
 
 void Lexium32::onDisconnection() {
-    pushEvent("Device Disconnected", true);
-    //resetData();
 }
 
 void Lexium32::resetData() {

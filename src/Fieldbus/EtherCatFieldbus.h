@@ -28,7 +28,7 @@ namespace EtherCatFieldbus {
     void terminate();
 
     //Discover Slave Devices
-    bool scanNetwork();
+    void scanNetwork();
     extern std::vector<std::shared_ptr<EtherCatSlave>> slaves;              //all slaves discovered on the network
     extern std::vector<std::shared_ptr<EtherCatSlave>> slaves_unassigned;   //discovered slaves that are not in the nodegraph
 

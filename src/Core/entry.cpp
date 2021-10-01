@@ -2,7 +2,6 @@
 
 #include "Gui/Framework/GuiWindow.h"
 #include "Fieldbus/EtherCatFieldbus.h"
-
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 #include "NodeGraph/Utilities/NodeFactory.h"
 #include "Environnement/Environnement.h"
