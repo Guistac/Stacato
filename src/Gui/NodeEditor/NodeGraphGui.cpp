@@ -17,7 +17,7 @@ std::vector<std::shared_ptr<Node>> selectedNodes;
 namespace NodeEditor = ax::NodeEditor;
 
 bool isEditingAllowed() {
-    return !EtherCatFieldbus::b_processRunning;
+    return !EtherCatFieldbus::isCyclicExchangeActive();
 }
 
 void nodeGraph() {

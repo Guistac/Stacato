@@ -11,9 +11,9 @@ void toolbar(float height) {
 
 	glm::vec2 buttonSize(100.0, ImGui::GetTextLineHeight() * 2.0);
 
-	bool disableButton = EtherCatFieldbus::b_processStarting;
-	if (disableButton) BEGIN_DISABLE_IMGUI_ELEMENT
-	if (!EtherCatFieldbus::b_processRunning) {
+	bool disableStartButton = EtherCatFieldbus::isCyclicExchangeStarting();
+	if (disableStartButton) BEGIN_DISABLE_IMGUI_ELEMENT
+	if (!EtherCatFieldbus::isCyclicExchangeActive()) {
 		if (ImGui::Button("Start", buttonSize)) {
 			EtherCatFieldbus::start();
 			ImGui::OpenPopup("Starting EtherCAT Fieldbus");
@@ -24,11 +24,11 @@ void toolbar(float height) {
 		if (ImGui::Button("Stop", buttonSize)) EtherCatFieldbus::stop();
 		ImGui::PopStyleColor();
 	}
-	if (disableButton) END_DISABLE_IMGUI_ELEMENT
+	if (disableStartButton) END_DISABLE_IMGUI_ELEMENT
 
 	ImGui::SameLine();
 
-	bool disableScan = EtherCatFieldbus::b_processRunning;
+	bool disableScan = EtherCatFieldbus::isCyclicExchangeActive();
 	if(disableScan) BEGIN_DISABLE_IMGUI_ELEMENT
 	if (ImGui::Button("Scan", buttonSize)) EtherCatFieldbus::scanNetwork();
 	if(disableScan) END_DISABLE_IMGUI_ELEMENT

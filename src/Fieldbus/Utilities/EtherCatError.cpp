@@ -13,7 +13,8 @@ namespace EtherCatError {
 	void logError() {
 		ec_errort error;
 		ec_poperror(&error);
-		std::shared_ptr<EtherCatSlave> errorSlave = EtherCatFieldbus::getSlaveByIndex(error.Slave);
+		std::shared_ptr<EtherCatSlave> errorSlave = nullptr;
+		if (error.Slave <= EtherCatFieldbus::slaves.size() && error.Slave > 0) errorSlave = EtherCatFieldbus::slaves[error.Slave - 1];
 		const char* slaveName;
 		if (errorSlave != nullptr) slaveName = errorSlave->getName();
 		else slaveName = "";

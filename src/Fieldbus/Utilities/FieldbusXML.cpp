@@ -22,7 +22,6 @@ namespace EtherCatFieldbus {
 		timingXML->SetAttribute("ProcessIntervalMilliseconds", EtherCatFieldbus::processDataTimeout_milliseconds);
 		timingXML->SetAttribute("ProcessDataTimeoutMilliseconds", EtherCatFieldbus::processDataTimeout_milliseconds);
 		timingXML->SetAttribute("ClockStableThresholdMilliseconds", EtherCatFieldbus::clockStableThreshold_milliseconds);
-		timingXML->SetAttribute("SlaveStateCheckCycleCount", EtherCatFieldbus::slaveStateCheckCycleCount);
 
 		return true;
 	}
@@ -56,8 +55,6 @@ namespace EtherCatFieldbus {
 		if (timingXML->QueryDoubleAttribute("ProcessDataTimeoutMilliseconds", &processDataTimeoutMilliseconds) != XML_SUCCESS) return Logger::warn("Could not load process data timeout value");
 		double clockStableThresholdMilliseconds;
 		if (timingXML->QueryDoubleAttribute("ClockStableThresholdMilliseconds", &clockStableThresholdMilliseconds) != XML_SUCCESS) return Logger::warn("Coult not load clock stable threshold value");
-		int slaveStateCheckCycleCount;
-		if (timingXML->QueryIntAttribute("SlaveStateCheckCycleCount", &slaveStateCheckCycleCount) != XML_SUCCESS) return Logger::warn("Couldnot load slave state check cycle count value");
 		
 		Logger::info("Successfully Loaded Fieldbus Parameters");
 

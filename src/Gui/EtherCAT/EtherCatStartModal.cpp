@@ -11,12 +11,12 @@ void etherCatStartModal() {
 		static bool firstSuccess;
 		static long long successTime_milliseconds;
 		static long long successCloseDelay_milliseconds = 500;
-		if (EtherCatFieldbus::b_clockStable && EtherCatFieldbus::b_allOperational) {
+		if (EtherCatFieldbus::isCyclicExchangeStartSuccessfull()) {
 			//display a full progress bar and close the popup after some time (1 second)
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.3, 0.8, 0.0, 1.0));
 			ImGui::ProgressBar(1.0);
 			ImGui::PopStyleColor();
-			ImGui::Text(EtherCatFieldbus::configurationStatus);
+			ImGui::Text(EtherCatFieldbus::startupStatusString);
 			using namespace std::chrono;
 			if (firstSuccess) {
 				firstSuccess = false;
@@ -26,16 +26,16 @@ void etherCatStartModal() {
 				ImGui::CloseCurrentPopup();
 			}
 		}
-		else if (EtherCatFieldbus::b_configurationError) {
+		else if (EtherCatFieldbus::b_startupError) {
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.7, 0.0, 0.0, 1.0));
 			ImGui::ProgressBar(1.0);
 			ImGui::PopStyleColor();
-			ImGui::Text("Error: %s", EtherCatFieldbus::configurationStatus);
+			ImGui::Text("Error: %s", EtherCatFieldbus::startupStatusString);
 		}
 		else {
 			firstSuccess = true; // set static variable to true, so success time will be measured once
 
-			int progress = EtherCatFieldbus::i_configurationProgress;
+			int progress = EtherCatFieldbus::i_startupProgress;
 			int maxProgress = EtherCatFieldbus::slaves.size() + 5;
 			int clockProgress = maxProgress - 1;
 
@@ -55,17 +55,17 @@ void etherCatStartModal() {
 			progressSmooth = progressSmooth * 0.8 + progress_f * 0.2;
 
 			ImGui::ProgressBar(progressSmooth);
-			ImGui::Text(EtherCatFieldbus::configurationStatus);
+			ImGui::Text(EtherCatFieldbus::startupStatusString);
 		}
 
-		bool disableCancelButton = EtherCatFieldbus::b_processStarting;
+		bool disableCancelButton = EtherCatFieldbus::isCyclicExchangeStarting();
 		if (disableCancelButton) BEGIN_DISABLE_IMGUI_ELEMENT
 		if (ImGui::Button("Cancel")) {
 			EtherCatFieldbus::stop();
 			ImGui::CloseCurrentPopup();
 		}
 		if (disableCancelButton) END_DISABLE_IMGUI_ELEMENT
-		else if (EtherCatFieldbus::b_configurationError) {
+		else if (EtherCatFieldbus::b_startupError) {
 			ImGui::SameLine();
 			if (ImGui::Button("Retry")) {
 				EtherCatFieldbus::start();

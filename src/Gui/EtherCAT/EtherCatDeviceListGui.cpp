@@ -9,9 +9,10 @@ void etherCatSlaves() {
 
 	ImGui::BeginGroup();
 
-	if (EtherCatFieldbus::b_processRunning || EtherCatFieldbus::b_processStarting) BEGIN_DISABLE_IMGUI_ELEMENT
+	bool disableScanButton = EtherCatFieldbus::isCyclicExchangeActive() || EtherCatFieldbus::isCyclicExchangeStarting();
+	if (disableScanButton) BEGIN_DISABLE_IMGUI_ELEMENT
 	if (ImGui::Button("Scan Network")) EtherCatFieldbus::scanNetwork();
-	if (EtherCatFieldbus::b_processRunning || EtherCatFieldbus::b_processStarting) END_DISABLE_IMGUI_ELEMENT
+	if (disableScanButton) END_DISABLE_IMGUI_ELEMENT
 	ImGui::SameLine();
 	ImGui::Text("%i Devices Found", EtherCatFieldbus::slaves.size());
 

@@ -71,7 +71,7 @@ bool EtherCatSlave::isDetected() {
 }
 
 bool EtherCatSlave::isOnline() {
-    return isDetected() && !isStateNone() && EtherCatFieldbus::b_processRunning;
+    return isDetected() && !isStateNone() && EtherCatFieldbus::isCyclicExchangeActive();;
 }
 
 bool EtherCatSlave::isReady() {

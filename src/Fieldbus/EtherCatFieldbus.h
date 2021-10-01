@@ -13,56 +13,56 @@ namespace tinyxml2 { class XMLElement; }
 
 namespace EtherCatFieldbus {
 
+    //Get Network Interface Cards
     void updateNetworkInterfaceCardList();
+    extern std::vector<NetworkInterfaceCard> networkInterfaceCards;
+
+    //Initialize EtherCAT using one or two Network Interface Cards
     bool init(NetworkInterfaceCard&);
     bool init(NetworkInterfaceCard&, NetworkInterfaceCard&);
-    void terminate();
-
-    bool scanNetwork();
-    void start();
-    void stop();
-
-    bool save(tinyxml2::XMLElement* xml);
-    bool load(tinyxml2::XMLElement* xml);
-
-    bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID);
-
-    std::shared_ptr<EtherCatSlave> getSlaveByIndex(int index);
-
-    double getCurrentCycleDeltaT_seconds();
-
-    //process timing
-    extern double processInterval_milliseconds;
-    extern double processDataTimeout_milliseconds;
-    extern double clockStableThreshold_milliseconds;
-    extern int slaveStateCheckCycleCount;
-    extern double fieldbusTimeout_milliseconds;
-
-    //metrics
-    extern EtherCatMetrics metrics;
-
-    //network hardware
-    extern std::vector<NetworkInterfaceCard> networkInterfaceCards;
     extern NetworkInterfaceCard networkInterfaceCard;
     extern NetworkInterfaceCard redundantNetworkInterfaceCard;
     extern bool b_redundant;
 
-    //slave devices
-    extern std::vector<std::shared_ptr<EtherCatSlave>> slaves;
-    extern std::vector<std::shared_ptr<EtherCatSlave>> slaves_unassigned;
+    //Terminate EtherCAT, releasing the network hardware
+    void terminate();
 
-    //process data
-    int getExpectedWorkingCounter();
-    extern int expectedWorkingCounter;
+    //Discover Slave Devices
+    bool scanNetwork();
+    extern std::vector<std::shared_ptr<EtherCatSlave>> slaves;              //all slaves discovered on the network
+    extern std::vector<std::shared_ptr<EtherCatSlave>> slaves_unassigned;   //discovered slaves that are not in the nodegraph
 
-    extern bool b_networkOpen;              //high when one or more network interface cards are opened
-    extern bool b_processStarting;          //high during initial fieldbus setup, before starting cyclic exchange (prevents concurrent restarting)   
-    extern int i_configurationProgress;     //counts up during network configuration to display a progress bar
-    extern bool b_configurationError;       //high if configuration failed at some point
-    extern char configurationStatus[128];   //updated to display the current network configuration step or error
-    extern bool b_processRunning;           //high while the cyclic exchange is running (also controls its shutdown)
-    extern bool b_clockStable;              //high when clock drift is under the threshold value
-    extern bool b_allOperational;           //high when all states reached operational state after clock stabilisation, indicates successful fiedlbus configuration
+    //Cyclic Echange Timing Settings
+    extern double processInterval_milliseconds;
+    extern double processDataTimeout_milliseconds;
+    extern double clockStableThreshold_milliseconds;
+    extern double fieldbusTimeout_milliseconds;
 
+    //Start Cyclic Exchange
+    void start();
+    extern int i_startupProgress;     //counts up during network configuration to display a progress bar
+    extern bool b_startupError;       //high if configuration failed at some point
+    extern char startupStatusString[128];   //updated to display the current network configuration step or error
+
+    //Metrics to monitor the Cyclic Exchange
+    extern EtherCatMetrics metrics;
+
+    
+    bool isNetworkInitialized();                //Is EtherCAT Initializer with a network interface card
+    bool isCyclicExchangeStarting();            //Is the Cyclic Exchange in Startup
+    bool isCyclicExchangeActive();              //Is the Cyclic Exchange Running
+    bool isCyclicExchangeStartSuccessfull();    //Is the Cyclic Exchange Successfully Started
+
+    //Stop Cyclic Exchange
+    void stop();
+
+    //Save and load EtherCAT settings
+    bool save(tinyxml2::XMLElement* xml);
+    bool load(tinyxml2::XMLElement* xml);
+
+
+
+    //deprecated
+    double getCurrentCycleDeltaT_seconds();
 };
 

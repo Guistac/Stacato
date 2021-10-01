@@ -151,7 +151,7 @@ void nodeAdder() {
             ImGui::Text("Detected Slaves");
             ImGui::PopStyleColor();
             static bool b_scanningNetwork = false;
-            bool disableScanButton = EtherCatFieldbus::b_processRunning;
+            bool disableScanButton = EtherCatFieldbus::isCyclicExchangeActive();
             if (disableScanButton) BEGIN_DISABLE_IMGUI_ELEMENT
             if (ImGui::Button("Scan Network")) {
                 std::thread etherCatNetworkScanner = std::thread([]() {

@@ -132,7 +132,6 @@ void etherCatMetrics() {
 		if (ImPlot::BeginPlot("Working Counter", NULL, NULL, ImVec2(-1, plotHeight), plotFlags)) {
 			ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 2.0);
 			ImPlot::PlotStairs("##WorkingCounter", &workingCounters.front().x, &workingCounters.front().y, workingCounters.size(), workingCounters.offset(), workingCounters.stride());
-			ImPlot::PlotHLines("Expected Working Counter", &EtherCatFieldbus::expectedWorkingCounter, 1);
 			ImPlot::EndPlot();
 		}
 
