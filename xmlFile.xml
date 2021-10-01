@@ -2,8 +2,8 @@
     <NodeGraph>
         <Nodes>
             <Node ClassName="LXM32M EtherCAT" UniqueID="62" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="true" CustomName="LXM32M EtherCAT (Alias:333)">
-                <InputNodeEditorPosition x="-9160" y="-10361"/>
-                <OutputNodeEditorPosition x="-10278" y="-10507"/>
+                <InputNodeEditorPosition x="-9544" y="-10412"/>
+                <OutputNodeEditorPosition x="-10615" y="-10569"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="333"/>
                     <KinematicLimits velocityLimit_rpm="5000" accelerationLimit_rpmps="100"/>
@@ -14,7 +14,7 @@
                     <EncoderSettings Assignement="Internal" RangeShifted="false"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="63" Real="7165.6224949409389" Visible="true"/>
+                    <InputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="63" Real="2335.6074676513672" Visible="true"/>
                     <InputPin SaveName="DQ0" DisplayName="DQ0" DataType="Boolean" UniqueID="64" Boolean="false" Visible="true"/>
                     <InputPin SaveName="DQ1" DisplayName="DQ1" DataType="Boolean" UniqueID="65" Boolean="false" Visible="true"/>
                     <InputPin SaveName="DQ2" DisplayName="DQ2" DataType="Boolean" UniqueID="66" Boolean="false" Visible="true"/>
@@ -23,10 +23,10 @@
                     <OutputPin SaveName="Motor" DisplayName="Motor" DataType="ActuatorDeviceLink" UniqueID="67" Visible="true" NoDataField="true"/>
                     <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="68" Real="0" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Encoder" DisplayName="Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="69" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="70" Real="0" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="71" Real="0" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="70" Real="2335.6074676513672" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="71" Real="-0.46999999999999997" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="72" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="DI0" DisplayName="DI0" DataType="Boolean" UniqueID="73" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="DI0" DisplayName="DI0" DataType="Boolean" UniqueID="73" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="DI1" DisplayName="DI1" DataType="Boolean" UniqueID="74" Boolean="false" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="DI2" DisplayName="DI2" DataType="Boolean" UniqueID="75" Boolean="false" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="DI3" DisplayName="DI3" DataType="Boolean" UniqueID="76" Boolean="false" Visible="true" DisableDataField="true"/>
@@ -35,14 +35,14 @@
                 </OutputPins>
             </Node>
             <Node ClassName="Axis" UniqueID="79" NodeType="AXIS" CustomName="Axis">
-                <NodeEditorPosition x="-9720" y="-10415"/>
+                <NodeEditorPosition x="-9990" y="-10454"/>
                 <NodeSpecificData>
                     <Axis Type="Linear" Unit="Meter"/>
                     <Feedback Type="Absolute" Unit="Degrees" UnitsPerAxisUnit="1"/>
                     <Command Type="Position" Unit="Rotations" UnitsPerAxisUnit="0"/>
                     <PositionReference Type="None" MaxPositiveDeviation="0" MaxNegativeDeviation="0"/>
                     <KinematicLimits VelocityLimit_degreesPerSecond="100" AccelerationLimit_degreesPerSecondSquared="50"/>
-                    <DefaultManualParameters Velocity_degreesPerSecond="10" Acceleration_degreesPerSecondSquared="50"/>
+                    <DefaultManualParameters Velocity_degreesPerSecond="10" Acceleration_degreesPerSecondSquared="10"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveName="Actuators" DisplayName="Actuators" DataType="ActuatorDeviceLink" UniqueID="80" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
@@ -52,19 +52,194 @@
                     <InputPin SaveName="References" DisplayName="References" DataType="Boolean" UniqueID="84" Boolean="false" Visible="true" AcceptsMultipleInputs="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveName="Command" DisplayName="Command" DataType="Real" UniqueID="85" Real="7165.6224949409389" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Command" DisplayName="Command" DataType="Real" UniqueID="85" Real="2335.6074676513672" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Reset Position Feedback" DisplayName="Reset Position Feedback" DataType="Boolean" UniqueID="86" Boolean="false" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node ClassName="Plotter" UniqueID="93" NodeType="PROCESSOR" CustomName="Plotter">
-                <NodeEditorPosition x="-9224" y="-10655"/>
+            <Node ClassName="053-1EC01" UniqueID="96" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="true" CustomName="053-1EC01 (ID:63)">
+                <InputNodeEditorPosition x="-10488" y="-9721"/>
+                <OutputNodeEditorPosition x="-10958" y="-9759"/>
                 <NodeSpecificData>
-                    <Plotter BufferSize="512" DisplayLengthSeconds="5"/>
+                    <Identification Type="ExplicitDeviceID" ExplicitDeviceID="63"/>
+                    <IOModules>
+                        <Module Type="VIPA 022-1HD10">
+                            <Inputs/>
+                            <Outputs>
+                                <Output PinSaveName="Module1RelaisOutput1" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="0" BitSize="1" Index="7000" Subindex="31"/>
+                                <Output PinSaveName="Module1RelaisOutput2" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="1" BitSize="1" Index="7000" Subindex="32"/>
+                                <Output PinSaveName="Module1RelaisOutput3" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="2" BitSize="1" Index="7000" Subindex="33"/>
+                                <Output PinSaveName="Module1RelaisOutput4" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="3" BitSize="1" Index="7000" Subindex="34"/>
+                            </Outputs>
+                        </Module>
+                        <Module Type="VIPA 021-1BF00">
+                            <Inputs>
+                                <Input PinSaveName="Module2DigitalInput1" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="0" BitSize="1" Index="6001" Subindex="31"/>
+                                <Input PinSaveName="Module2DigitalInput2" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="1" BitSize="1" Index="6001" Subindex="32"/>
+                                <Input PinSaveName="Module2DigitalInput3" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="2" BitSize="1" Index="6001" Subindex="33"/>
+                                <Input PinSaveName="Module2DigitalInput4" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="3" BitSize="1" Index="6001" Subindex="34"/>
+                                <Input PinSaveName="Module2DigitalInput5" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="4" BitSize="1" Index="6001" Subindex="35"/>
+                                <Input PinSaveName="Module2DigitalInput6" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="5" BitSize="1" Index="6001" Subindex="36"/>
+                                <Input PinSaveName="Module2DigitalInput7" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="6" BitSize="1" Index="6001" Subindex="37"/>
+                                <Input PinSaveName="Module2DigitalInput8" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="7" BitSize="1" Index="6001" Subindex="38"/>
+                            </Inputs>
+                            <Outputs/>
+                        </Module>
+                        <Module Type="VIPA 022-1HD10">
+                            <Inputs/>
+                            <Outputs>
+                                <Output PinSaveName="Module3RelaisOutput1" PinDataType="Boolean" IOMapByteOffset="1" IOMapBitOffset="0" BitSize="1" Index="7002" Subindex="31"/>
+                                <Output PinSaveName="Module3RelaisOutput2" PinDataType="Boolean" IOMapByteOffset="1" IOMapBitOffset="1" BitSize="1" Index="7002" Subindex="32"/>
+                                <Output PinSaveName="Module3RelaisOutput3" PinDataType="Boolean" IOMapByteOffset="1" IOMapBitOffset="2" BitSize="1" Index="7002" Subindex="33"/>
+                                <Output PinSaveName="Module3RelaisOutput4" PinDataType="Boolean" IOMapByteOffset="1" IOMapBitOffset="3" BitSize="1" Index="7002" Subindex="34"/>
+                            </Outputs>
+                        </Module>
+                    </IOModules>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveName="input" DisplayName="input" DataType="Real" UniqueID="94" Real="0" Visible="true" ForceDataField="true" DisableDataField="true"/>
+                    <InputPin SaveName="Module1RelaisOutput1" DisplayName="Module 1 Relais Output 1" DataType="Boolean" UniqueID="101" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Module1RelaisOutput2" DisplayName="Module 1 Relais Output 2" DataType="Boolean" UniqueID="102" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Module1RelaisOutput3" DisplayName="Module 1 Relais Output 3" DataType="Boolean" UniqueID="103" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Module1RelaisOutput4" DisplayName="Module 1 Relais Output 4" DataType="Boolean" UniqueID="104" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Module3RelaisOutput1" DisplayName="Module 3 Relais Output 1" DataType="Boolean" UniqueID="113" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Module3RelaisOutput2" DisplayName="Module 3 Relais Output 2" DataType="Boolean" UniqueID="114" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Module3RelaisOutput3" DisplayName="Module 3 Relais Output 3" DataType="Boolean" UniqueID="115" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Module3RelaisOutput4" DisplayName="Module 3 Relais Output 4" DataType="Boolean" UniqueID="116" Boolean="false" Visible="true"/>
                 </InputPins>
-                <OutputPins/>
+                <OutputPins>
+                    <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="100" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="Module2DigitalInput1" DisplayName="Module 2 Digital Input 1" DataType="Boolean" UniqueID="105" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module2DigitalInput2" DisplayName="Module 2 Digital Input 2" DataType="Boolean" UniqueID="106" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module2DigitalInput3" DisplayName="Module 2 Digital Input 3" DataType="Boolean" UniqueID="107" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module2DigitalInput4" DisplayName="Module 2 Digital Input 4" DataType="Boolean" UniqueID="108" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module2DigitalInput5" DisplayName="Module 2 Digital Input 5" DataType="Boolean" UniqueID="109" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module2DigitalInput6" DisplayName="Module 2 Digital Input 6" DataType="Boolean" UniqueID="110" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module2DigitalInput7" DisplayName="Module 2 Digital Input 7" DataType="Boolean" UniqueID="111" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module2DigitalInput8" DisplayName="Module 2 Digital Input 8" DataType="Boolean" UniqueID="112" Boolean="false" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node ClassName="053-1EC01" UniqueID="98" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="true" CustomName="053-1EC01 (ID:3)">
+                <InputNodeEditorPosition x="-9496" y="-9974"/>
+                <OutputNodeEditorPosition x="-9934" y="-10011"/>
+                <NodeSpecificData>
+                    <Identification Type="ExplicitDeviceID" ExplicitDeviceID="3"/>
+                    <IOModules>
+                        <Module Type="VIPA 021-1BF00">
+                            <Inputs>
+                                <Input PinSaveName="Module1DigitalInput1" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="0" BitSize="1" Index="6000" Subindex="31"/>
+                                <Input PinSaveName="Module1DigitalInput2" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="1" BitSize="1" Index="6000" Subindex="32"/>
+                                <Input PinSaveName="Module1DigitalInput3" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="2" BitSize="1" Index="6000" Subindex="33"/>
+                                <Input PinSaveName="Module1DigitalInput4" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="3" BitSize="1" Index="6000" Subindex="34"/>
+                                <Input PinSaveName="Module1DigitalInput5" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="4" BitSize="1" Index="6000" Subindex="35"/>
+                                <Input PinSaveName="Module1DigitalInput6" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="5" BitSize="1" Index="6000" Subindex="36"/>
+                                <Input PinSaveName="Module1DigitalInput7" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="6" BitSize="1" Index="6000" Subindex="37"/>
+                                <Input PinSaveName="Module1DigitalInput8" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="7" BitSize="1" Index="6000" Subindex="38"/>
+                            </Inputs>
+                            <Outputs/>
+                        </Module>
+                        <Module Type="VIPA 021-1BF00">
+                            <Inputs>
+                                <Input PinSaveName="Module2DigitalInput1" PinDataType="Boolean" IOMapByteOffset="1" IOMapBitOffset="0" BitSize="1" Index="6001" Subindex="31"/>
+                                <Input PinSaveName="Module2DigitalInput2" PinDataType="Boolean" IOMapByteOffset="1" IOMapBitOffset="1" BitSize="1" Index="6001" Subindex="32"/>
+                                <Input PinSaveName="Module2DigitalInput3" PinDataType="Boolean" IOMapByteOffset="1" IOMapBitOffset="2" BitSize="1" Index="6001" Subindex="33"/>
+                                <Input PinSaveName="Module2DigitalInput4" PinDataType="Boolean" IOMapByteOffset="1" IOMapBitOffset="3" BitSize="1" Index="6001" Subindex="34"/>
+                                <Input PinSaveName="Module2DigitalInput5" PinDataType="Boolean" IOMapByteOffset="1" IOMapBitOffset="4" BitSize="1" Index="6001" Subindex="35"/>
+                                <Input PinSaveName="Module2DigitalInput6" PinDataType="Boolean" IOMapByteOffset="1" IOMapBitOffset="5" BitSize="1" Index="6001" Subindex="36"/>
+                                <Input PinSaveName="Module2DigitalInput7" PinDataType="Boolean" IOMapByteOffset="1" IOMapBitOffset="6" BitSize="1" Index="6001" Subindex="37"/>
+                                <Input PinSaveName="Module2DigitalInput8" PinDataType="Boolean" IOMapByteOffset="1" IOMapBitOffset="7" BitSize="1" Index="6001" Subindex="38"/>
+                            </Inputs>
+                            <Outputs/>
+                        </Module>
+                        <Module Type="VIPA 022-1HD10">
+                            <Inputs/>
+                            <Outputs>
+                                <Output PinSaveName="Module3RelaisOutput1" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="0" BitSize="1" Index="7002" Subindex="31"/>
+                                <Output PinSaveName="Module3RelaisOutput2" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="1" BitSize="1" Index="7002" Subindex="32"/>
+                                <Output PinSaveName="Module3RelaisOutput3" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="2" BitSize="1" Index="7002" Subindex="33"/>
+                                <Output PinSaveName="Module3RelaisOutput4" PinDataType="Boolean" IOMapByteOffset="0" IOMapBitOffset="3" BitSize="1" Index="7002" Subindex="34"/>
+                            </Outputs>
+                        </Module>
+                    </IOModules>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveName="Module3RelaisOutput1" DisplayName="Module 3 Relais Output 1" DataType="Boolean" UniqueID="134" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Module3RelaisOutput2" DisplayName="Module 3 Relais Output 2" DataType="Boolean" UniqueID="135" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Module3RelaisOutput3" DisplayName="Module 3 Relais Output 3" DataType="Boolean" UniqueID="136" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Module3RelaisOutput4" DisplayName="Module 3 Relais Output 4" DataType="Boolean" UniqueID="137" Boolean="false" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="117" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="Module1DigitalInput1" DisplayName="Module 1 Digital Input 1" DataType="Boolean" UniqueID="118" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module1DigitalInput2" DisplayName="Module 1 Digital Input 2" DataType="Boolean" UniqueID="119" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module1DigitalInput3" DisplayName="Module 1 Digital Input 3" DataType="Boolean" UniqueID="120" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module1DigitalInput4" DisplayName="Module 1 Digital Input 4" DataType="Boolean" UniqueID="121" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module1DigitalInput5" DisplayName="Module 1 Digital Input 5" DataType="Boolean" UniqueID="122" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module1DigitalInput6" DisplayName="Module 1 Digital Input 6" DataType="Boolean" UniqueID="123" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module1DigitalInput7" DisplayName="Module 1 Digital Input 7" DataType="Boolean" UniqueID="124" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module1DigitalInput8" DisplayName="Module 1 Digital Input 8" DataType="Boolean" UniqueID="125" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module2DigitalInput1" DisplayName="Module 2 Digital Input 1" DataType="Boolean" UniqueID="126" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module2DigitalInput2" DisplayName="Module 2 Digital Input 2" DataType="Boolean" UniqueID="127" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module2DigitalInput3" DisplayName="Module 2 Digital Input 3" DataType="Boolean" UniqueID="128" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module2DigitalInput4" DisplayName="Module 2 Digital Input 4" DataType="Boolean" UniqueID="129" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module2DigitalInput5" DisplayName="Module 2 Digital Input 5" DataType="Boolean" UniqueID="130" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module2DigitalInput6" DisplayName="Module 2 Digital Input 6" DataType="Boolean" UniqueID="131" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module2DigitalInput7" DisplayName="Module 2 Digital Input 7" DataType="Boolean" UniqueID="132" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Module2DigitalInput8" DisplayName="Module 2 Digital Input 8" DataType="Boolean" UniqueID="133" Boolean="false" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node ClassName="LXM32M EtherCAT" UniqueID="138" NodeType="IODEVICE" DeviceType="ETHERCATSLAVE" Split="true" CustomName="LXM32M EtherCAT (Alias:303)">
+                <InputNodeEditorPosition x="-9560" y="-11071"/>
+                <OutputNodeEditorPosition x="-10615" y="-11284"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="303"/>
+                    <KinematicLimits velocityLimit_rpm="5000" accelerationLimit_rpmps="100"/>
+                    <InvertDirectionOfMovement Invert="false"/>
+                    <CurrentLimis maxCurrent_amps="5" maxQuickstopCurrent_amps="9"/>
+                    <NegativeLimitSwitch Pin="Unassigned"/>
+                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <EncoderSettings Assignement="Internal" RangeShifted="false"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="139" Real="1370.433235168457" Visible="true"/>
+                    <InputPin SaveName="DQ0" DisplayName="DQ0" DataType="Boolean" UniqueID="140" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="DQ1" DisplayName="DQ1" DataType="Boolean" UniqueID="141" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="DQ2" DisplayName="DQ2" DataType="Boolean" UniqueID="142" Boolean="false" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="Motor" DisplayName="Motor" DataType="ActuatorDeviceLink" UniqueID="143" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="144" Real="0.021999999999999999" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Encoder" DisplayName="Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="145" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="146" Real="1370.433235168457" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="147" Real="0.17000000000000001" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="148" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="DI0" DisplayName="DI0" DataType="Boolean" UniqueID="149" Boolean="true" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="DI1" DisplayName="DI1" DataType="Boolean" UniqueID="150" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="DI2" DisplayName="DI2" DataType="Boolean" UniqueID="151" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="DI3" DisplayName="DI3" DataType="Boolean" UniqueID="152" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="DI4" DisplayName="DI4" DataType="Boolean" UniqueID="153" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="DI5" DisplayName="DI5" DataType="Boolean" UniqueID="154" Boolean="false" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node ClassName="Axis" UniqueID="155" NodeType="AXIS" CustomName="Axis">
+                <NodeEditorPosition x="-10008" y="-11096"/>
+                <NodeSpecificData>
+                    <Axis Type="Linear" Unit="Meter"/>
+                    <Feedback Type="Absolute" Unit="Degrees" UnitsPerAxisUnit="0"/>
+                    <Command Type="Position" Unit="Degrees" UnitsPerAxisUnit="0"/>
+                    <PositionReference Type="None" MaxPositiveDeviation="0" MaxNegativeDeviation="0"/>
+                    <KinematicLimits VelocityLimit_degreesPerSecond="100" AccelerationLimit_degreesPerSecondSquared="10"/>
+                    <DefaultManualParameters Velocity_degreesPerSecond="10" Acceleration_degreesPerSecondSquared="5"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveName="Actuators" DisplayName="Actuators" DataType="ActuatorDeviceLink" UniqueID="156" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveName="Encoder" DisplayName="Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="157" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Position Feedback" DisplayName="Position Feedback" DataType="Real" UniqueID="158" Real="0" Visible="true"/>
+                    <InputPin SaveName="Reference Devices" DisplayName="Reference Devices" DataType="GPIODeviceLink" UniqueID="159" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveName="References" DisplayName="References" DataType="Boolean" UniqueID="160" Boolean="false" Visible="true" AcceptsMultipleInputs="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="Command" DisplayName="Command" DataType="Real" UniqueID="161" Real="1370.433235168457" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Reset Position Feedback" DisplayName="Reset Position Feedback" DataType="Boolean" UniqueID="162" Boolean="false" Visible="false" DisableDataField="true"/>
+                </OutputPins>
             </Node>
         </Nodes>
         <Links>
@@ -74,7 +249,12 @@
             <Link UniqueID="90" StartPin="72" EndPin="83"/>
             <Link UniqueID="91" StartPin="73" EndPin="84"/>
             <Link UniqueID="92" StartPin="85" EndPin="63"/>
-            <Link UniqueID="95" StartPin="85" EndPin="94"/>
+            <Link UniqueID="163" StartPin="143" EndPin="156"/>
+            <Link UniqueID="164" StartPin="145" EndPin="157"/>
+            <Link UniqueID="165" StartPin="146" EndPin="158"/>
+            <Link UniqueID="166" StartPin="148" EndPin="159"/>
+            <Link UniqueID="167" StartPin="149" EndPin="160"/>
+            <Link UniqueID="168" StartPin="161" EndPin="139"/>
         </Links>
     </NodeGraph>
 </Environnement>
@@ -83,5 +263,5 @@
     <NetworkInterfaceCard>
         <Primary Description="Realtek USB NIC" Name="\Device\NPF_{42C81A11-795E-4D7C-83AE-39EF61932528}"/>
     </NetworkInterfaceCard>
-    <Timing ProcessIntervalMilliseconds="1.5" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000000000001"/>
+    <Timing ProcessIntervalMilliseconds="1.5" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>

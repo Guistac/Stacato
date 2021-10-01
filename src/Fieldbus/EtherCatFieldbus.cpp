@@ -454,9 +454,9 @@ namespace EtherCatFieldbus {
     //======================== CYCLIC DATA EXCHANGE =========================
 
     void cyclicExchange() {
-        //thread timing variables
         using namespace std::chrono;
 
+        //thread timing variables
         uint64_t processInterval_nanoseconds = processInterval_milliseconds * 1000000.0L;
         uint64_t processDataTimeout_microseconds = processDataTimeout_milliseconds * 1000.0L;
         uint64_t systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count() + processInterval_nanoseconds;
@@ -483,19 +483,20 @@ namespace EtherCatFieldbus {
 
         while (b_processRunning) {
 
-            //EtherCAT runtime loop start
+            //======================= THREAD TIMING =========================
 
             //bruteforce timing precision by using 100% of CPU core
             //update and compare system time to next process 
             do { systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count(); } while (systemTime_nanoseconds < cycleStartTime_nanoseconds);
 
-            //send ethercat frame
+            //============= PROCESS DATA SENDING AND RECEIVING ==============
+            
             ec_send_processdata();
             uint64_t frameSentTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
-
-            //waits for return of the frame until timeout
             int workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
             uint64_t frameReceivedTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
+
+            //===================== TIMEOUT HANDLING ========================
 
             if (workingCounter <= 0) {
                 if (high_resolution_clock::now() - lastProcessDataFrameReturnTime > milliseconds((int)fieldbusTimeout_milliseconds)) {
@@ -507,7 +508,8 @@ namespace EtherCatFieldbus {
             }
             else lastProcessDataFrameReturnTime = high_resolution_clock::now(); //reset timeout watchdog
 
-            //don't update the devices while the fieldbus isn't fully started
+            //===================== DEVICE IO HANDLING =======================
+
             if (b_allOperational) {
                 //interpret all slaves input data if operational
                 for (auto slave : slaves) if (slave->isStateOperational()) slave->readInputs();
@@ -517,7 +519,7 @@ namespace EtherCatFieldbus {
                 for (auto slave : slaves) if (slave->isStateOperational()) slave->prepareOutputs();
             }
 
-            //=============== SYSTEM CLOCK =====================
+            //======================== SYSTEM CLOCK ==========================
 
             //Update a time value that will serve as synchronisation reference for the whole system.
             //All clock times are in multiples of the process interval !
@@ -530,7 +532,7 @@ namespace EtherCatFieldbus {
             referenceClock_seconds = (double)(referenceClockTimeRounded_nanoseconds - referenceClockStartTime_nanoseconds) / 1000000000.0;
 
 
-            //========= HANDLE MASTER AND REFERENCE CLOCK DRIFT ===========
+            //=========== HANDLE MASTER AND REFERENCE CLOCK DRIFT ============
 
             //----- Adjust clock drift between the reference clock (ec_DCtime, time of process data receive at first slave) and the master clock ------
             //We do this by adjusting the time of next the next process cycle start.
@@ -549,6 +551,8 @@ namespace EtherCatFieldbus {
             previousCycleStartTime_nanoseconds = cycleStartTime_nanoseconds;            
             cycleStartTime_nanoseconds += processInterval_nanoseconds + masterClockCorrection_nanoseconds;
 
+            //================= OPERATIONAL STATE TRANSITION ==================
+
             if (!b_clockStable && averageDCTimeDelta_nanoseconds < clockStableThreshold_nanoseconds) {
                 b_clockStable = true;
                 sprintf(startupStatusString, "Setting All Slaves to Operational State");
@@ -556,7 +560,8 @@ namespace EtherCatFieldbus {
                 opStateHandler.detach();
             }
 
-            //======= UPDATE METRICS =======
+            //==================== UPDATE FIELDBUS METRICS =====================
+            
             metrics.referenceClock_seconds = referenceClock_seconds;
             metrics.averageDcTimeError_milliseconds = averageDCTimeDelta_nanoseconds / 1000000.0;       //used to display clock drift correction progress
             double frameSendDelay_milliseconds = (double)(frameSentTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
@@ -571,14 +576,12 @@ namespace EtherCatFieldbus {
             metrics.cycleLengths.addPoint(glm::vec2(referenceClock_seconds, cycleLength_milliseconds));;
             metrics.addWorkingCounter(workingCounter, referenceClock_seconds);
             if (workingCounter <= 0) metrics.timeouts.addPoint(glm::vec2(referenceClock_seconds, frameReceiveDelay_milliseconds));
-
-            //======== END MEASUREMENTS ========
             uint64_t processedTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
             double processDelay_milliseconds = (double)(processedTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
             metrics.processDelays.addPoint(glm::vec2(referenceClock_seconds, processDelay_milliseconds));
             metrics.cycleCounter++;
 
-            //===== EtherCat Runtime Loop End =====
+            //======================== RUNTIME LOOP END =========================
         }
         b_processRunning = false;
         Logger::info("===== Cyclic Exchange Stopped !");
