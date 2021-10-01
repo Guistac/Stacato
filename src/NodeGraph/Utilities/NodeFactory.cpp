@@ -67,7 +67,7 @@ namespace NodeFactory {
 		};
 	}
 
-	std::shared_ptr<Node> getIoNodeByName(const char* name) {
+	std::shared_ptr<Node> getNodeByName(const char* name) {
 		for (Node* device : allNodes) {
 			if (strcmp(name, device->getNodeName()) == 0) return device->getNewNodeInstance();
 		}

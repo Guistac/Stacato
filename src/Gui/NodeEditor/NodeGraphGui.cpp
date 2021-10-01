@@ -94,7 +94,7 @@ void nodeGraph() {
     if (isEditingAllowed()) {
         std::shared_ptr<Node> newDraggedNode = acceptDraggedNode();
         if (newDraggedNode) {
-            Environnement::nodeGraph.addIoNode(newDraggedNode);
+            Environnement::nodeGraph.addNode(newDraggedNode);
             NodeEditor::SetNodePosition(newDraggedNode->getUniqueID(), NodeEditor::ScreenToCanvas(ImGui::GetMousePos()));
         }
     }
@@ -192,7 +192,7 @@ void NodeGraph::nodeEditorGui() {
             while (NodeEditor::QueryDeletedNode(&deletedNodeId)) {
                 std::shared_ptr<Node> deletedNode = getNode(deletedNodeId.Get());
                 if (deletedNode && NodeEditor::AcceptDeletedItem()) {
-                    removeIoNode(deletedNode);
+                    removeNode(deletedNode);
                 }
                 else NodeEditor::RejectDeletedItem();
             }
@@ -235,7 +235,7 @@ void NodeGraph::nodeEditorGui() {
         if (ImGui::BeginPopup("Background Context Menu")) {
             std::shared_ptr<Node> newNode = nodeAdderContextMenu();
             if (newNode) {
-                Environnement::nodeGraph.addIoNode(newNode);
+                Environnement::nodeGraph.addNode(newNode);
                 NodeEditor::SetNodePosition(newNode->getUniqueID(), NodeEditor::ScreenToCanvas(mouseRightClickPosition));
                 NodeEditor::SelectNode(newNode->getUniqueID());
                 ImGui::CloseCurrentPopup();
@@ -276,6 +276,29 @@ void NodeGraph::nodeEditorGui() {
 
 
 	NodeEditor::End();
+
+    static std::vector<std::shared_ptr<Node>> copiedNodes;
+
+    if (ImGui::IsItemHovered()) {
+        if ((ImGui::IsKeyDown(GLFW_KEY_LEFT_CONTROL) || ImGui::IsKeyDown(GLFW_KEY_RIGHT_CONTROL))) {
+        
+            if (ImGui::IsKeyPressed(GLFW_KEY_C, false)) {
+                if (!selectedNodes.empty()) {
+                    copiedNodes = selectedNodes;
+                    Logger::warn("Copied {} Nodes", copiedNodes.size());
+                }
+            }
+            if (ImGui::IsKeyPressed(GLFW_KEY_V, false)) {
+                for (auto copiedNode : copiedNodes) {
+                    //TODO: Duplicate Node and add to nodegraph
+                    //std::shared_ptr<Node> copy = std::make_shared<Node>(copiedNode);
+                    //addNode(copy);
+                }
+            }
+        }
+    }
+
+
 
     if (b_justLoaded) {
         b_justLoaded = false;

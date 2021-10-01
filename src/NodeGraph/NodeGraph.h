@@ -14,8 +14,8 @@ namespace tinyxml2 { class XMLElement; }
 class NodeGraph {
 public:
 
-	void addIoNode(std::shared_ptr<Node>);
-	void removeIoNode(std::shared_ptr<Node>);
+	void addNode(std::shared_ptr<Node>);
+	void removeNode(std::shared_ptr<Node>);
 
 	bool isConnectionValid(std::shared_ptr<NodePin>, std::shared_ptr<NodePin>);
 	std::shared_ptr<NodeLink> connect(std::shared_ptr<NodePin>, std::shared_ptr<NodePin>);

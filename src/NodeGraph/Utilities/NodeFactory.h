@@ -11,7 +11,7 @@ namespace NodeFactory {
 
 	void loadNodes();
 
-	std::shared_ptr<Node> getIoNodeByName(const char* name);
+	std::shared_ptr<Node> getNodeByName(const char* name);
 	
 	std::vector<NodeGroup>& getNodesByCategory();
 

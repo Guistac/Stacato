@@ -101,15 +101,15 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		//Construct Node Object from Type Attributes
 		Logger::trace("Loading node '{}'", className);
 		std::shared_ptr<Node> loadedNode = nullptr;
-		if (strcmp(nodeType, "PROCESSOR") == 0) loadedNode = NodeFactory::getIoNodeByName(className);
-		else if (strcmp(nodeType, "CLOCK") == 0) loadedNode = NodeFactory::getIoNodeByName(className);
+		if (strcmp(nodeType, "PROCESSOR") == 0) loadedNode = NodeFactory::getNodeByName(className);
+		else if (strcmp(nodeType, "CLOCK") == 0) loadedNode = NodeFactory::getNodeByName(className);
 		else if (strcmp(nodeType, "IODEVICE") == 0) {
 			const char* deviceType;
 			if (nodeXML->QueryStringAttribute("DeviceType", &deviceType) != XML_SUCCESS) return Logger::warn("Could not load Node Device Type");
 			if (strcmp(deviceType, "ETHERCATSLAVE") == 0) loadedNode = EtherCatDeviceFactory::getDeviceByName(className);
 		}
 		else if (strcmp(nodeType, "AXIS") == 0) loadedNode = NodeFactory::getAxisByName(className);
-		else if (strcmp(nodeType, "CONTAINER") == 0) loadedNode = NodeFactory::getIoNodeByName(className);
+		else if (strcmp(nodeType, "CONTAINER") == 0) loadedNode = NodeFactory::getNodeByName(className);
 		if (loadedNode == nullptr) return Logger::warn("Coult not load Node Class");
 	
 		//Get Node position in node editor

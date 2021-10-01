@@ -5,41 +5,41 @@
 #include "NodePin.h"
 #include "NodeLink.h"
 
-void NodeGraph::addIoNode(std::shared_ptr<Node> newIoNode) {
-	newIoNode->uniqueID = uniqueID;
+void NodeGraph::addNode(std::shared_ptr<Node> newNode) {
+	newNode->uniqueID = uniqueID;
 	uniqueID++;
-	nodes.push_back(newIoNode);
-	newIoNode->assignIoData(); //this tries to generate an ID and adds all data to the nodelist if a parent was specified, we don't want this so we add the parent afterwards
-	for (std::shared_ptr<NodePin> data : newIoNode->nodeInputData) {
+	nodes.push_back(newNode);
+	newNode->assignIoData(); //this tries to generate an ID and adds all data to the nodelist if a parent was specified, we don't want this so we add the parent afterwards
+	for (std::shared_ptr<NodePin> data : newNode->nodeInputData) {
 		data->uniqueID = uniqueID;
 		uniqueID++;
-		data->parentNode = newIoNode;
+		data->parentNode = newNode;
 		pins.push_back(data);
 	}
-	for (std::shared_ptr<NodePin> data : newIoNode->nodeOutputData) {
+	for (std::shared_ptr<NodePin> data : newNode->nodeOutputData) {
 		data->uniqueID = uniqueID;
 		uniqueID++;
-		data->parentNode = newIoNode;
+		data->parentNode = newNode;
 		pins.push_back(data);
 	}
-	newIoNode->parentNodeGraph = this;
-	newIoNode->b_isInNodeGraph = true;
+	newNode->parentNodeGraph = this;
+	newNode->b_isInNodeGraph = true;
 }
 
-void NodeGraph::removeIoNode(std::shared_ptr<Node> removedIoNode) {
-	for (auto data : removedIoNode->nodeInputData) {
+void NodeGraph::removeNode(std::shared_ptr<Node> removedNode) {
+	for (auto data : removedNode->nodeInputData) {
 		for (std::shared_ptr<NodeLink> link : data->NodeLinks) disconnect(link);
 	}
-	for (auto data : removedIoNode->nodeOutputData) {
+	for (auto data : removedNode->nodeOutputData) {
 		for (std::shared_ptr<NodeLink> link : data->NodeLinks) disconnect(link);
 	}
 	for (int i = (int)nodes.size() - 1; i >= 0; i--) {
-		if (nodes[i] == removedIoNode) {
+		if (nodes[i] == removedNode) {
 			nodes.erase(nodes.begin() + i);
 			break;
 		}
 	}
-	removedIoNode->b_isInNodeGraph = false;
+	removedNode->b_isInNodeGraph = false;
 }
 
 

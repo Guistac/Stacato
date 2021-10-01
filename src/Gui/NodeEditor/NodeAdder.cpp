@@ -259,7 +259,7 @@ std::shared_ptr<Node> acceptDraggedNode() {
         payload = ImGui::AcceptDragDropPayload("ProcessorNode");
         if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
             const char* nodeName = *(const char**)payload->Data;
-            std::shared_ptr<Node> newNode = NodeFactory::getIoNodeByName(nodeName);
+            std::shared_ptr<Node> newNode = NodeFactory::getNodeByName(nodeName);
             return newNode;
         }
         payload = ImGui::AcceptDragDropPayload("Axis");
