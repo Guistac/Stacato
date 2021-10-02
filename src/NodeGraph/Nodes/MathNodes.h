@@ -157,7 +157,7 @@ public:
 		else d_base = base->getReal();
 		if (exp->isConnected()) d_exp = exp->getLinks().front()->getInputData()->getReal();
 		else d_exp = exp->getReal();
-		output->set(std::pow<double>(d_base, d_exp));
+		//output->set(std::pow<double>(d_base, d_exp));
 	}
 };
 

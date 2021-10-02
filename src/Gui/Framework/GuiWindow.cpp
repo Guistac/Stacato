@@ -69,7 +69,7 @@ void GuiWindow::onInit() {
 #endif
     
 #ifdef MACOS
-    scaleTuning = 1.0;
+    scaleTuning = 0.75;
 #endif
     
     float scale = xScale * scaleTuning;

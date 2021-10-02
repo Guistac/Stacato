@@ -6,7 +6,8 @@ workspace "Stacato"
         "Debug",
         "Release"
     }
-
+    
+    cppdialect "C++17"
     startproject "Stacato"
  
     filter "system:windows"
@@ -32,7 +33,6 @@ project "Stacato"
 	location "" --directory of the project
 	kind "consoleApp" --executable file
 	language "C++"
-	cppdialect "C++17"
 
     pchsource "%{prj.location}/src/Core/pch.cpp"
 
