@@ -175,11 +175,16 @@ namespace EtherCatFieldbus {
                 sprintf(startupStatusString, "Scanning Network");
                 if (!discoverDevices()) {
                     b_startupError = true;
+                    b_processStarting = false;
                     sprintf(startupStatusString, "Found no EtherCAT slaves on the network");
-                    return false;
+                    return;
                 }
 
-                if (!configureSlaves()) return false;
+                if (!configureSlaves()) {
+                    b_processStarting = false;
+                    return;
+                }
+
                 startCyclicExchange();
                 b_processStarting = false;
             });
