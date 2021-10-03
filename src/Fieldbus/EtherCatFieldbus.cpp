@@ -664,7 +664,7 @@ namespace EtherCatFieldbus {
                         char eventString[64];
                         sprintf(eventString, "EtherCAT state changed to %s", slave->getEtherCatStateChar());
                         slave->pushEvent(eventString, false);
-                        Logger::info("Slave '{}' state changed to {}", slave->getEtherCatStateChar());
+                        Logger::info("Slave '{}' state changed to {}", slave->getName(), slave->getEtherCatStateChar());
                     }
                 }
             }
