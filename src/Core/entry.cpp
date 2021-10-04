@@ -7,8 +7,9 @@
 #include "Environnement/Environnement.h"
 
 int main() {
+    GuiWindow::init(); //sets working directory to macos application bundle resources folder
+    Timing::start();
 	Logger::init();
-	Timing::start();
 
 	EtherCatDeviceFactory::loadDevices();
 	NodeFactory::loadNodes();

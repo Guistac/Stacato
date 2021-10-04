@@ -31,7 +31,8 @@ workspace "Stacato"
 
 project "Stacato"
 	location "" --directory of the project
-	kind "consoleApp" --executable file
+	--kind "consoleApp" --executable file
+    kind "WindowedApp"
 	language "C++"
 
     pchsource "%{prj.location}/src/Core/pch.cpp"
@@ -101,6 +102,9 @@ project "Stacato"
     filter "system:macosx"
         pchheader "%{prj.location}/src/Core/pch.h"
         defines{}
+        files{
+            "Info.plist"
+        }
         sysincludedirs{
             "%{wks.location}/dependencies/soem/osal/macosx",
             "%{wks.location}/dependencies/soem/oshw/macosx"

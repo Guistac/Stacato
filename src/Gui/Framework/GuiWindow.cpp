@@ -12,8 +12,11 @@
 GLFWwindow* GuiWindow::window;
 bool GuiWindow::b_shouldClose = false;
 
+void GuiWindow::init(){
+    glfwInit();
+}
+
 void GuiWindow::open(int w, int h) {
-	glfwInit();
 #ifdef MACOS
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
