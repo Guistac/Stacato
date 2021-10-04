@@ -3,8 +3,9 @@
 #include "NodeGraph/Node.h"
 #include "Motion/Subdevice.h"
 #include "Motion/MotionTypes.h"
+#include "Motion/MotionCurve.h"
 
-enum ControlMode {
+enum class ControlMode {
 	VELOCITY_CONTROL,
 	TARGET_CONTROL,
 	FOLLOW_CURVE,
@@ -54,27 +55,31 @@ public:
 	double velocityLimit_degreesPerSecond = 0.0;
 	double accelerationLimit_degreesPerSecondSquared = 0.0;
 
-	//Default Manual Movement
-	double defaultManualVelocity_degreesPerSecond = 10.0;
-	double defaultManualAcceleration_degreesPerSecondSquared = 5.0;
-
 	//Reference Deviation and Homing Velocity
 	double homingVelocity_degreesPerSecond = 0.0;
 	double allowedPositiveDeviationFromReference_degrees = 0.0;
 	double allowedNegativeDeviationFromReference_degrees = 0.0;
 
+	//Default Manual Movement
+	double defaultManualVelocity_degreesPerSecond = 10.0;
+	double defaultManualAcceleration_degreesPerSecondSquared = 5.0;
 
 	//============== CONTROL VARIABLES ===================
 
-
-	ControlMode controlMode = VELOCITY_CONTROL;
-	double velocityControlTarget_degreesPerSecond = 0.0;
-
 	//motion profile generator variables
-	double lastProfileUpdateTime_seconds = 0.0; //used to calculate deltaT
+	double lastProfilePointTime_seconds = 0.0; //used to calculate deltaT
 	double profilePosition_degrees = 0.0;
 	double profileVelocity_degreesPerSecond = 0.0;
 	double profileAcceleration_degreesPerSecondSquared = 0.0;
+
+	ControlMode controlMode = ControlMode::VELOCITY_CONTROL;
+
+	//Manual Velocity Control
+	double velocityControlTarget_degreesPerSecond = 0.0;
+	double velocityControlTarget_degreesPerSecondSquared = 0.0;
+
+	//Manual Target Control
+	MotionCurve::CurveProfile targetCurveProfile;
 
 	//Axis State Control
 	void enable();

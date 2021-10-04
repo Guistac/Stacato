@@ -14,7 +14,7 @@
                     <EncoderSettings Assignement="Internal" RangeShifted="false"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="63" Real="2216.9457473754883" Visible="true"/>
+                    <InputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="63" Real="2642.8253707885742" Visible="true"/>
                     <InputPin SaveName="DQ0" DisplayName="DQ0" DataType="Boolean" UniqueID="64" Boolean="false" Visible="true"/>
                     <InputPin SaveName="DQ1" DisplayName="DQ1" DataType="Boolean" UniqueID="65" Boolean="false" Visible="true"/>
                     <InputPin SaveName="DQ2" DisplayName="DQ2" DataType="Boolean" UniqueID="66" Boolean="false" Visible="true"/>
@@ -23,8 +23,8 @@
                     <OutputPin SaveName="Motor" DisplayName="Motor" DataType="ActuatorDeviceLink" UniqueID="67" Visible="true" NoDataField="true"/>
                     <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="68" Real="0" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Encoder" DisplayName="Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="69" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="70" Real="2216.9457473754883" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="71" Real="0.080000000000000002" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="70" Real="2642.8253707885742" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="71" Real="0.40000000000000002" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="72" Visible="true" NoDataField="true"/>
                     <OutputPin SaveName="DI0" DisplayName="DI0" DataType="Boolean" UniqueID="73" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="DI1" DisplayName="DI1" DataType="Boolean" UniqueID="74" Boolean="false" Visible="true" DisableDataField="true"/>
@@ -52,7 +52,7 @@
                     <InputPin SaveName="References" DisplayName="References" DataType="Boolean" UniqueID="84" Boolean="false" Visible="true" AcceptsMultipleInputs="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveName="Command" DisplayName="Command" DataType="Real" UniqueID="85" Real="2216.9457473754883" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Command" DisplayName="Command" DataType="Real" UniqueID="85" Real="2642.8253707885742" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Reset Position Feedback" DisplayName="Reset Position Feedback" DataType="Boolean" UniqueID="86" Boolean="false" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
@@ -199,17 +199,17 @@
                     <EncoderSettings Assignement="Internal" RangeShifted="false"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="139" Real="2384.2003707885742" Visible="true"/>
+                    <InputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="139" Real="3259.3424922613945" Visible="true"/>
                     <InputPin SaveName="DQ0" DisplayName="DQ0" DataType="Boolean" UniqueID="140" Boolean="false" Visible="true"/>
                     <InputPin SaveName="DQ1" DisplayName="DQ1" DataType="Boolean" UniqueID="141" Boolean="false" Visible="true"/>
                     <InputPin SaveName="DQ2" DisplayName="DQ2" DataType="Boolean" UniqueID="142" Boolean="false" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Motor" DisplayName="Motor" DataType="ActuatorDeviceLink" UniqueID="143" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="144" Real="0" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="144" Real="0.016" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Encoder" DisplayName="Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="145" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="146" Real="2384.2003707885742" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="147" Real="0.070000000000000007" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="146" Real="3259.2916717529297" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="147" Real="365.22000000000003" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="148" Visible="true" NoDataField="true"/>
                     <OutputPin SaveName="DI0" DisplayName="DI0" DataType="Boolean" UniqueID="149" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="DI1" DisplayName="DI1" DataType="Boolean" UniqueID="150" Boolean="false" Visible="true" DisableDataField="true"/>
@@ -237,7 +237,7 @@
                     <InputPin SaveName="References" DisplayName="References" DataType="Boolean" UniqueID="160" Boolean="false" Visible="true" AcceptsMultipleInputs="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveName="Command" DisplayName="Command" DataType="Real" UniqueID="161" Real="2384.2003707885742" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Command" DisplayName="Command" DataType="Real" UniqueID="161" Real="3259.3424922613945" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Reset Position Feedback" DisplayName="Reset Position Feedback" DataType="Boolean" UniqueID="162" Boolean="false" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
@@ -261,7 +261,7 @@
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en5" Name="en5"/>
+        <Primary Description="Microsoft" Name="\Device\NPF_{94C82131-D635-43BC-AA0D-763132AE31BA}"/>
     </NetworkInterfaceCard>
-    <Timing ProcessIntervalMilliseconds="1.5" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612"/>
+    <Timing ProcessIntervalMilliseconds="1.5" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000000000001"/>
 </FieldbusSettings>

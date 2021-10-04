@@ -2,9 +2,11 @@
 
 #include "Gui/Gui.h"
 
+/*
 void sequencer() {
 	ImGui::Text("This is a sequencer");
 }
+*/
 
 
 

@@ -28,7 +28,8 @@ void mainWindow() {
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Sequencer")) {
-			ImGui::Text("This will be a sequencer");
+			//ImGui::Text("This will be a sequencer");
+			sequencer();
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Stage View")) {

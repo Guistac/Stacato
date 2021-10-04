@@ -12,9 +12,10 @@
 
 void Axis::process() {
 
+	//TODO: the axis should get timing information from the actuator object
 	double now_seconds = EtherCatFieldbus::getReferenceClock_seconds();
-	double deltaT_seconds = now_seconds - lastProfileUpdateTime_seconds;
-	lastProfileUpdateTime_seconds = now_seconds;
+	double deltaT_seconds = now_seconds - lastProfilePointTime_seconds;
+	lastProfilePointTime_seconds = now_seconds;
 
 	if (b_enabled) {
 
