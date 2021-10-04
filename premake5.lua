@@ -96,6 +96,7 @@ project "Stacato"
             "Ws2_32.lib",
         }
         postbuildcommands {
+            --copy the resources directory next to the executable
             "xcopy %{wks.location}dir %{cfg.buildtarget.directory} /s /e /y /q"
         }
     
@@ -115,9 +116,10 @@ project "Stacato"
             --we need to manually link with libpcap in xcode or else we need to build it ourselves
         }
         postbuildcommands {
+            --copy the resources directory into the application bundle
             "rm -rf %{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}/%{prj.name}.app/Contents/Resources/",
             "mkdir -p %{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}/%{prj.name}.app/Contents/Resources/",
-            "cp -a %{wks.location}/dir/ %{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}/%{prj.name}.app/Contents/Resources/"
+            "cp -a %{wks.location}/dir/Resources %{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}/%{prj.name}.app/Contents/"
         }
 
 --=================================================================================================================

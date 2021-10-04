@@ -6,10 +6,6 @@
 #include "NodeGraph/Utilities/NodeFactory.h"
 #include "Environnement/Environnement.h"
 
-#include <filesystem>
-#include <iostream>
-
-
 #ifdef MACOS
 int main() {
 #endif
