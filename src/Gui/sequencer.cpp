@@ -44,6 +44,8 @@ void sequencer() {
 	ImGui::InputDouble("V", &velocity, 0.01, 0.1);
 
 
+	//calculate total delta P of the curve (negative for negative moves)
+	double totalDeltaPosition = endPoint.position - startPoint.position;
 
 	//get stopping distance from initial velocity
 	double rampInStoppingDeltaPosition = std::pow(startPoint.velocity, 2.0) / (2.0 * std::abs(startPoint.acceleration));
@@ -52,6 +54,12 @@ void sequencer() {
 	//get stopping distance from end velocity
 	double rampOutStoppingDeltaPosition = std::pow(endPoint.velocity, 2.0) / (2.0 * std::abs(endPoint.acceleration));
 	if (endPoint.velocity < 0) rampOutStoppingDeltaPosition *= -1.0;
+
+	double totalRampStoppingDeltaPosition = rampInStoppingDeltaPosition + rampOutStoppingDeltaPosition;
+
+	bool exceededSomething;
+	if (totalDeltaPosition) exceededSomething = totalDeltaPosition < totalRampStoppingDeltaPosition;
+	else exceededSomething = totalDeltaPosition > totalRampStoppingDeltaPosition;
 
 	//calculate stopping position from the stopping deltas and start/end positions
 	double rampInStoppingPosition = startPoint.position + rampInStoppingDeltaPosition;
@@ -66,9 +74,6 @@ void sequencer() {
 	//use the constant velocity to get the signs of in and out accelerations
 	double rampInAcceleration = constantVelocity > startPoint.velocity ? std::abs(startPoint.acceleration) : -std::abs(startPoint.acceleration);
 	double rampOutAcceleration = constantVelocity < endPoint.velocity ? std::abs(endPoint.acceleration) : -std::abs(endPoint.acceleration);
-
-	//calculate total delta P of the curve (negative for negative moves)
-	double totalDeltaPosition = endPoint.position - startPoint.position;
 
 	//get the two delta p associated with the ramp in and ramp out phases
 	double rampInDeltaPosition = (std::pow(constantVelocity, 2.0) - std::pow(startPoint.velocity, 2.0)) / (2 * rampInAcceleration);
@@ -169,9 +174,13 @@ void sequencer() {
 		ImPlot::EndPlot();
 	}
 
+	ImGui::Text("totalDeltaPosition: %.3f", totalDeltaPosition);
 
 	ImGui::Text("rampInStoppingDeltaPosition: %.3f", rampInStoppingDeltaPosition);
 	ImGui::Text("rampOutStoppingDeltaPosition: %.3f", rampOutStoppingDeltaPosition);
+	
+	ImGui::Text("totalRampStoppingDeltaPosition: %.3f", totalRampStoppingDeltaPosition);
+	ImGui::Text("exceededSomething: %i", exceededSomething);
 
 	ImGui::Text("rampInStoppingPosition: %.3f", rampInStoppingPosition);
 	ImGui::Text("rampOutStoppingPosition: %.3f", rampOutStoppingPosition);
@@ -183,7 +192,6 @@ void sequencer() {
 	ImGui::Text("rampInAcceleration: %.3f", rampInAcceleration);
 	ImGui::Text("rampOutAcceleration: %.3f", rampOutAcceleration);
 
-	ImGui::Text("totalDeltaPosition: %.3f", totalDeltaPosition);
 	
 	ImGui::Text("rampInDeltaPosition: %.3f", rampInDeltaPosition);
 	ImGui::Text("rampOutDeltaPosition: %.3f", rampOutDeltaPosition);
