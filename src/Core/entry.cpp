@@ -6,7 +6,21 @@
 #include "NodeGraph/Utilities/NodeFactory.h"
 #include "Environnement/Environnement.h"
 
+#include <filesystem>
+#include <iostream>
+
+
+#ifdef MACOS
 int main() {
+#endif
+
+#ifdef WIN32
+int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
+	//set working directory to "Resources" folder located next to executable
+	std::string defaultWorkingDirectory = std::filesystem::current_path().string();
+	std::filesystem::current_path(defaultWorkingDirectory + "/Resources");
+#endif
+
     GuiWindow::init(); //sets working directory to macos application bundle resources folder
     Timing::start();
 	Logger::init();
