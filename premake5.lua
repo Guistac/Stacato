@@ -36,10 +36,10 @@ project "Stacato"
 
     pchsource "%{prj.location}/src/Core/pch.cpp"
 
-	targetdir "%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}"
+    targetdir "%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}"
 	objdir "%{wks.location}/bin/obj"
 
-	debugdir "%{wks.location}/"
+    debugdir "%{wks.location}/dir"
 
 	files{
 		"%{prj.location}/src/**.h",
@@ -94,6 +94,9 @@ project "Stacato"
             "%{wks.location}/dependencies/soem/oshw/win32/wpcap/Lib/x64/wpcap.lib",
             "Ws2_32.lib",
         }
+        postbuildcommands {
+            "xcopy %{wks.location}dir %{cfg.buildtarget.directory} /s /e /y /q"
+        }
     
     filter "system:macosx"
         pchheader "%{prj.location}/src/Core/pch.h"
@@ -107,6 +110,11 @@ project "Stacato"
             "IOKit.framework"
             --we need to manually link with libpcap in xcode or else we need to build it ourselves
         }
+        postbuildcommands {
+            "rm -rf %{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}/%{prj.name}.app/Contents/Resources/",
+            "mkdir -p %{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}/%{prj.name}.app/Contents/Resources/",
+            "cp -a %{wks.location}/dir/ %{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}/%{prj.name}.app/Contents/Resources/"
+        }
 
 --=================================================================================================================
 
@@ -115,8 +123,8 @@ project "SOEM"
     kind "StaticLib"
     language "C"
 
-    targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
-    objdir ("%{wks.location}/bin/obj");
+    targetdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
+	objdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
 
     files{
         "%{prj.location}/soem/*.h",
@@ -168,8 +176,8 @@ project "glad"
     kind "StaticLib"
     language "C"
 
-    targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
-    objdir ("%{wks.location}/bin/obj");
+    targetdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
+	objdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
 
     files {
         "%{prj.location}/include/glad/glad.h",
@@ -188,8 +196,8 @@ project "glfw"
 	kind "StaticLib"
 	language "C"
 
-	targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
-	objdir ("%{wks.location}/bin/obj");
+    targetdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
+	objdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
 
 	files{
 		"%{prj.location}/include/GLFW/glfw3.h",
@@ -251,8 +259,8 @@ project "dearimgui"
     kind "StaticLib"
     language "C++"
 
-    targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
-    objdir ("%{wks.location}/bin/obj");
+    targetdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
+	objdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
 
     files{
         "%{prj.location}/imconfig.h",
@@ -279,8 +287,8 @@ project "implot"
     kind "StaticLib"
     language "C++"
 
-    targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
-    objdir ("%{wks.location}/bin/obj");
+    targetdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
+	objdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
 
     files{
         "%{prj.location}/implot.cpp",
@@ -302,8 +310,8 @@ project "imgui-node-editor"
     kind "StaticLib"
     language "C++"
 
-    targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
-    objdir ("%{wks.location}/bin/obj");
+    targetdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
+	objdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
 
     files{
 		"%{prj.location}/crude_json.cpp",
@@ -334,8 +342,8 @@ project "tinyxml2"
     kind "StaticLib"
     language "C++"
 
-    targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
-    objdir ("%{wks.location}/bin/obj");
+    targetdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
+	objdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
 
     files{
         "%{prj.location}/tinyxml2.h",
@@ -354,8 +362,8 @@ project "spdlog"
     kind "StaticLib"
     language "C++"
 
-    targetdir ("%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.platform}/dependencies");
-    objdir ("%{wks.location}/bin/obj");
+    targetdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
+	objdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
 
     files{
         "%{prj.location}/src/*.h",

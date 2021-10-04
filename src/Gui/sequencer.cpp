@@ -209,5 +209,7 @@ void sequencer() {
 	ImGui::Text("rampOutStartTime: %.3f", rampOutStartTime);
 	ImGui::Text("curveEndTime: %.3f", curveEndTime);
 	ImGui::Text("curveEndPosition: %.3f", endPoint.position);
+
+	ImGui::Text("test");
 	
 }
