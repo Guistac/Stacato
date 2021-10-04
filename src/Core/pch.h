@@ -10,6 +10,7 @@
 #include <bitset>
 #include <map>
 #include <cmath>
+#include <filesystem>
 
 #include <glm/glm.hpp>
 
