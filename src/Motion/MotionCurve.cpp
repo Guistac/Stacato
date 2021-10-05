@@ -118,7 +118,7 @@ namespace MotionCurve {
         switch (getCurvePhaseAtTime(time, curveProfile)) {
             case CurvePhase::NOT_STARTED:
                 output.position = curveProfile.rampInStartPosition;
-                output.velocity = 0.0;
+                output.velocity = curveProfile.rampInStartVelocity;
                 output.acceleration = 0.0;
                 break;
             case CurvePhase::RAMP_IN:
@@ -141,7 +141,7 @@ namespace MotionCurve {
                 break;
             case CurvePhase::FINISHED:
                 output.position = curveProfile.rampOutEndPosition;
-                output.velocity = 0.0;
+                output.velocity = curveProfile.rampOutEndVelocity;
                 output.acceleration = 0.0;
                 break;
         }

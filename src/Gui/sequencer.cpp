@@ -46,34 +46,60 @@ void sequencer() {
 
 	//calculate total delta P of the curve (negative for negative moves)
 	double totalDeltaPosition = endPoint.position - startPoint.position;
+	
+	//first condition evaluation, do we overshoot the target if we decelerate at the max acceleration ?
+	double largerAcceleration = std::abs(startPoint.acceleration) > std::abs(endPoint.acceleration) ? std::abs(startPoint.acceleration) : std::abs(endPoint.acceleration);
+	if (endPoint.velocity < startPoint.velocity) largerAcceleration *= -1.0;
+	double overshootDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(startPoint.velocity, 2.0)) / (2.0 * largerAcceleration);
 
-	//get stopping distance from initial velocity
-	double rampInStoppingDeltaPosition = std::pow(startPoint.velocity, 2.0) / (2.0 * std::abs(startPoint.acceleration));
-	if (startPoint.velocity < 0) rampInStoppingDeltaPosition *= -1.0;
 
-	//get stopping distance from end velocity
-	double rampOutStoppingDeltaPosition = std::pow(endPoint.velocity, 2.0) / (2.0 * std::abs(endPoint.acceleration));
-	if (endPoint.velocity < 0) rampOutStoppingDeltaPosition *= -1.0;
+	bool overshootCondition = false;
 
-	double totalRampStoppingDeltaPosition = rampInStoppingDeltaPosition + rampOutStoppingDeltaPosition;
-
-	bool exceededSomething;
-	if (totalDeltaPosition) exceededSomething = totalDeltaPosition < totalRampStoppingDeltaPosition;
-	else exceededSomething = totalDeltaPosition > totalRampStoppingDeltaPosition;
-
-	//calculate stopping position from the stopping deltas and start/end positions
-	double rampInStoppingPosition = startPoint.position + rampInStoppingDeltaPosition;
-	double rampOutStoppingPosition = endPoint.position - rampOutStoppingDeltaPosition;
-
-	//calculate the delta between the stopping positions
-	double rampStoppingDeltaPosition = rampOutStoppingPosition - rampInStoppingPosition;
-
-	//use the delta to determine the sign of the constant velocity
-	double constantVelocity = rampStoppingDeltaPosition > 0.0 ? std::abs(velocity) : -std::abs(velocity);
+	//determine the sign of accelerations and constant velocity
+	double constantVelocity;
+	if (totalDeltaPosition > 0) {
+		if (totalDeltaPosition > overshootDeltaPosition) {
+			constantVelocity = std::abs(velocity);
+			ImGui::Text("positive move");
+		}
+		else {
+			//instead of just flipping the constant velocity
+			//we should check if juste flipping the rampin (or ramout?) acceleration is enough
+			constantVelocity = -std::abs(velocity);
+			overshootCondition = true;
+			ImGui::Text("positive move and overshoot");
+		}
+	}
+	else {
+		if (totalDeltaPosition < overshootDeltaPosition) {
+			constantVelocity = -std::abs(velocity);
+			ImGui::Text("negative but no overshoot");
+		}
+		else {
+			//same here, check with one inverted acceleration first
+			constantVelocity = std::abs(velocity);
+			overshootCondition = true;
+			ImGui::Text("negative and overshoot");
+		}
+	}
 
 	//use the constant velocity to get the signs of in and out accelerations
-	double rampInAcceleration = constantVelocity > startPoint.velocity ? std::abs(startPoint.acceleration) : -std::abs(startPoint.acceleration);
-	double rampOutAcceleration = constantVelocity < endPoint.velocity ? std::abs(endPoint.acceleration) : -std::abs(endPoint.acceleration);
+	double rampInAcceleration = startPoint.velocity < constantVelocity ? std::abs(startPoint.acceleration) : -std::abs(startPoint.acceleration);
+	double rampOutAcceleration = endPoint.velocity > constantVelocity ? std::abs(endPoint.acceleration) : -std::abs(endPoint.acceleration);
+
+	if (overshootCondition) {
+		double rampInDeltaPosition = (std::pow(startPoint.velocity, 2.0) - std::pow(endPoint.velocity, 2.0) - 2.0 * rampInAcceleration * totalDeltaPosition) / (2.0 * rampInAcceleration - 2.0 * rampOutAcceleration);
+		double rampTransitionVelocity = std::sqrt(std::pow(startPoint.velocity, 2.0) + 2.0 * startPoint.acceleration * rampInDeltaPosition);
+		if (rampTransitionVelocity > velocity) rampTransitionVelocity = velocity;
+		if (constantVelocity < 0) rampTransitionVelocity *= -1.0;
+		constantVelocity = rampTransitionVelocity;
+	}
+
+	ImGui::Text("ConstantVelocity: %.3f", constantVelocity);
+
+	ImGui::Text("Acceleration: %s  Deceleration: %s", rampInAcceleration > 0.0 ? "+" : "-", rampOutAcceleration > 0.0 ? "+" : "-");
+	ImGui::Text("overshootDeltaPosition: %.3f  totalDeltaPosition: %.3f  overshot: %s", overshootDeltaPosition, totalDeltaPosition, overshootCondition ? "true" : "false");
+
 
 	//get the two delta p associated with the ramp in and ramp out phases
 	double rampInDeltaPosition = (std::pow(constantVelocity, 2.0) - std::pow(startPoint.velocity, 2.0)) / (2 * rampInAcceleration);
@@ -82,15 +108,17 @@ void sequencer() {
 	double rampInDeltaTime = (constantVelocity - startPoint.velocity) / rampInAcceleration;
 	double rampOutDeltaTime = (endPoint.velocity - constantVelocity) / rampOutAcceleration;
 
-	bool constantVelocityReachable;
-	if (totalDeltaPosition > 0) constantVelocityReachable = rampInDeltaPosition + rampOutDeltaPosition < totalDeltaPosition;
-	else constantVelocityReachable = rampInDeltaPosition + rampOutDeltaPosition > totalDeltaPosition;
+	double totalRampDeltaPosition = rampInDeltaPosition + rampOutDeltaPosition;
 
-	if ((rampStoppingDeltaPosition < 0 && totalDeltaPosition > 0) || (rampStoppingDeltaPosition > 0 && totalDeltaPosition < 0)) {
-		constantVelocityReachable = !constantVelocityReachable;
-	}
+	ImGui::Text("RampInDeltaPosition: %.3f  RampOutDeltaPosition: %.3f", rampInDeltaPosition, rampOutDeltaPosition);
+	ImGui::Text("totalRampDeltaPosition: %.3f", totalRampDeltaPosition);
 
-	if (!constantVelocityReachable) {
+	bool constantVelocityReachable = true;
+	if (totalDeltaPosition > 0) constantVelocityReachable = totalRampDeltaPosition < totalDeltaPosition;
+	else constantVelocityReachable = totalRampDeltaPosition > totalDeltaPosition;
+
+
+	if (!constantVelocityReachable && !overshootCondition) {
 
 		//since we can't reach the constant velocity, we calculate a new ramp transition velocity
 		//the simplest way to do this is by first calculating the position delta of the ramp transition
@@ -98,7 +126,7 @@ void sequencer() {
 
 		//we then can use this delta to calculate the transition velocity, taking care to set its sign equal to the initial constant velocity
 		double rampTransitionVelocity = std::sqrt(std::pow(startPoint.velocity, 2.0) + 2.0 * rampInAcceleration * rampTransitionDeltaPosition);
-		if (rampStoppingDeltaPosition < 0.0) rampTransitionVelocity *= -1.0;
+		if (constantVelocity < 0.0) rampTransitionVelocity *= -1.0;
 
 		if (rampTransitionVelocity > velocity) {
 			rampTransitionVelocity = velocity;
@@ -118,6 +146,8 @@ void sequencer() {
 		rampInDeltaTime = (rampTransitionVelocity - startPoint.velocity) / rampInAcceleration;
 		rampOutDeltaTime = (endPoint.velocity - rampTransitionVelocity) / rampOutAcceleration;
 	}
+	
+	
 
 	//end position of ramp-In is start + ramping delta
 	double rampInEndPosition = startPoint.position + rampInDeltaPosition;
@@ -158,14 +188,26 @@ void sequencer() {
 		double T = profile.rampInStartTime + i * deltaT;
 		points.push_back(MotionCurve::getCurvePointAtTime(T, profile));
 	}
+	double velocityTangentLength = 1.0;
+	std::vector<glm::vec2> rampInVelocity;
+	rampInVelocity.push_back(glm::vec2(profile.rampInStartTime, profile.rampInStartPosition));
+	rampInVelocity.push_back(glm::vec2(profile.rampInStartTime + velocityTangentLength, profile.rampInStartPosition + profile.rampInStartVelocity * velocityTangentLength));
+
+	std::vector<glm::vec2> rampOutVelocity;
+	rampOutVelocity.push_back(glm::vec2(profile.rampOutEndTime, profile.rampOutEndPosition));
+	rampOutVelocity.push_back(glm::vec2(profile.rampOutEndTime - velocityTangentLength, profile.rampOutEndPosition - profile.rampOutEndVelocity * velocityTangentLength));
 
 	if (ImPlot::BeginPlot("##curveTest", 0, 0, ImVec2(ImGui::GetContentRegionAvail().x, 800.0), ImPlotFlags_None)) {
 	
 		ImPlot::DragLineY("end", &endPoint.position);
 	
+		ImPlot::PlotLine("RampIn Velocity", &rampInVelocity.front().x, &rampInVelocity.front().y, 2, 0, sizeof(glm::vec2));
+		ImPlot::PlotLine("RampOut Velocity", &rampOutVelocity.front().x, &rampOutVelocity.front().y, 2, 0, sizeof(glm::vec2));
+
+		ImPlot::DragPoint("rampBegin", &profile.rampInStartTime, &profile.rampInStartPosition);
 		ImPlot::DragPoint("rampInEnd", &profile.rampInEndTime, &profile.rampInEndPosition);
 		ImPlot::DragPoint("rampOutBegin", &profile.rampOutStartTime, &profile.rampOutStartPosition);
-		ImPlot::DragPoint("actualCurveEnd", &profile.rampOutEndTime, &profile.rampOutEndPosition);
+		ImPlot::DragPoint("rampOutEnd", &profile.rampOutEndTime, &profile.rampOutEndPosition);
 
 		ImPlot::PlotLine("position", &points.front().time, &points.front().position, pointCount + 1, 0, sizeof(MotionCurve::CurvePoint));
 		ImPlot::PlotLine("velocity", &points.front().time, &points.front().velocity, pointCount + 1, 0, sizeof(MotionCurve::CurvePoint));
@@ -174,18 +216,7 @@ void sequencer() {
 		ImPlot::EndPlot();
 	}
 
-	ImGui::Text("totalDeltaPosition: %.3f", totalDeltaPosition);
-
-	ImGui::Text("rampInStoppingDeltaPosition: %.3f", rampInStoppingDeltaPosition);
-	ImGui::Text("rampOutStoppingDeltaPosition: %.3f", rampOutStoppingDeltaPosition);
-	
-	ImGui::Text("totalRampStoppingDeltaPosition: %.3f", totalRampStoppingDeltaPosition);
-	ImGui::Text("exceededSomething: %i", exceededSomething);
-
-	ImGui::Text("rampInStoppingPosition: %.3f", rampInStoppingPosition);
-	ImGui::Text("rampOutStoppingPosition: %.3f", rampOutStoppingPosition);
-
-	ImGui::Text("rampStoppingDeltaPosition: %.3f", rampStoppingDeltaPosition);
+	//ImGui::Text("deltaPositionTransition: %.3f", deltaPositionTransition);
 
 	ImGui::Text("constantVelocity: %.3f", constantVelocity);
 
@@ -199,7 +230,7 @@ void sequencer() {
 	ImGui::Text("rampInDeltaTime: %.3f", rampInDeltaTime);
 	ImGui::Text("rampOutDeltaTime: %.3f", rampOutDeltaTime);
 	
-	ImGui::Text("constantVelocityReachable: %i", constantVelocityReachable);
+	//ImGui::Text("constantVelocityReachable: %i", constantVelocityReachable);
 
 	ImGui::Separator();
 
