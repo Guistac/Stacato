@@ -43,55 +43,54 @@ void sequencer() {
 	ImGui::SetNextItemWidth(inputWidth);
 	ImGui::InputDouble("V", &velocity, 0.01, 0.1);
 
+	
+	
+	//=======================================================================================================================================
+	//=======================================================================================================================================
+	//=======================================================================================================================================
+	//=======================================================================================================================================
+
 
 	//calculate total delta P of the curve (negative for negative moves)
 	double totalDeltaPosition = endPoint.position - startPoint.position;
 	
-	//first condition evaluation, do we overshoot the target when using only the larger of the two acceleration values ?
+	//assume the coast phase velocity sign is the same as the total deltaV (this may change depending on later checks)
+	double constantVelocity;
+	if (totalDeltaPosition > 0) constantVelocity = std::abs(velocity);
+	else constantVelocity = -std::abs(velocity);
+
+	//===== first condition evaluation =====
+	//do we overshoot the target when using only the larger of the two acceleration values ?
+	//if yes we might need to change signs of acceleration and velocities to reach the target at the right position and velocity
+
+	//get the larger absolute value of the two accelerations (in the edge case, we would only use the larger accleration to reach the target)
 	double largerAcceleration;
 	if (std::abs(startPoint.acceleration > std::abs(endPoint.acceleration))) largerAcceleration = std::abs(startPoint.acceleration);
 	else largerAcceleration = std::abs(endPoint.acceleration);
-	//make sure to get the correct sign of the larger acceleration
+	//get the sign of the larger acceleration by comparing the rampIn and rampOut velocities (the accelerations needs to transition between the velocities)
 	if (endPoint.velocity < startPoint.velocity) largerAcceleration *= -1.0;
 	double overshootDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(startPoint.velocity, 2.0)) / (2.0 * largerAcceleration);
 
-
-
-	//overshoot condition might be on when the transition velocity is higher than the move velocity
+	//figure out if the overshoot condition is triggered
+	//if yes, we need to invert the sign of the coast phase velocity to reach the target position at target velocity
 	bool overshootCondition = false;
+	if (totalDeltaPosition > 0) overshootCondition = totalDeltaPosition < overshootDeltaPosition;
+	else overshootCondition = totalDeltaPosition > overshootDeltaPosition;
+	if (overshootCondition) constantVelocity *= -1.0;
 
-	//determine the sign of accelerations and constant velocity
-	double constantVelocity;
-	if (totalDeltaPosition > 0) {
-		if (totalDeltaPosition > overshootDeltaPosition) {
-			constantVelocity = std::abs(velocity);
-		}
-		else {
-			//instead of just flipping the constant velocity
-			//we should check if juste flipping the rampin (or rampout?) acceleration is enough
-			constantVelocity = -std::abs(velocity);
-			overshootCondition = true;
-		}
-	}
-	else {
-		if (totalDeltaPosition < overshootDeltaPosition) {
-			constantVelocity = -std::abs(velocity);
-		}
-		else {
-			//same here, check with one inverted acceleration first
-			constantVelocity = std::abs(velocity);
-			overshootCondition = true;
-		}
-	}
+	//===== end of first condition =====
 
-	//use the constant velocity to get the signs of in and out accelerations
+	//we need to get the sign of the in and out acceleration values
+	//we do this by comparing the coast phase velocity with the rampIn and rampOut velocities
 	double rampInAcceleration;
 	if (startPoint.velocity < constantVelocity) rampInAcceleration = std::abs(startPoint.acceleration);
 	else rampInAcceleration = -std::abs(startPoint.acceleration);
-
 	double rampOutAcceleration;
 	if (endPoint.velocity > constantVelocity) rampOutAcceleration = std::abs(endPoint.acceleration);
 	else rampOutAcceleration = -std::abs(endPoint.acceleration);
+
+	//if we are in the overshoot condition, this means that the coast phase velocity was inverted
+	//we actually still need to find the value of the ciast phase velocity
 
 	double rampInTransitionDeltaPosition = 0.0;
 	double rampOutTransitionDeltaPosition = 0.0;
@@ -119,9 +118,6 @@ void sequencer() {
 	//get the two delta p associated with the ramp in and ramp out phases
 	double rampInDeltaPosition = (std::pow(constantVelocity, 2.0) - std::pow(startPoint.velocity, 2.0)) / (2 * rampInAcceleration);
 	double rampOutDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(constantVelocity, 2.0)) / (2 * rampOutAcceleration);
-
-	double rampInDeltaTime = (constantVelocity - startPoint.velocity) / rampInAcceleration;
-	double rampOutDeltaTime = (endPoint.velocity - constantVelocity) / rampOutAcceleration;
 
 	double totalRampDeltaPosition = rampInDeltaPosition + rampOutDeltaPosition;
 
@@ -157,10 +153,10 @@ void sequencer() {
 		rampOutDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(rampInTransitionVelocity, 2.0)) / (2 * rampOutAcceleration);
 
 		constantVelocity = rampInTransitionVelocity;
-
-		rampInDeltaTime = (rampInTransitionVelocity - startPoint.velocity) / rampInAcceleration;
-		rampOutDeltaTime = (endPoint.velocity - rampInTransitionVelocity) / rampOutAcceleration;
 	}
+
+	double rampInDeltaTime = (constantVelocity - startPoint.velocity) / rampInAcceleration;
+	double rampOutDeltaTime = (endPoint.velocity - constantVelocity) / rampOutAcceleration;
 
 	ImGui::Text("RampInTransitionDeltaPosition: %.3f", rampInTransitionDeltaPosition);
 	ImGui::Text("RampOuTransitionDeltaPosition: %.3f", rampOutTransitionDeltaPosition);
@@ -201,6 +197,15 @@ void sequencer() {
 	profile.rampOutEndPosition = endPoint.position;		//position of curve end
 	profile.rampOutEndVelocity = endPoint.velocity;		//velocity of curve end
 	
+														
+	//=======================================================================================================================================
+	//=======================================================================================================================================
+	//=======================================================================================================================================
+	//=======================================================================================================================================
+	
+
+
+
 	int pointCount = 200;
 	double deltaT = (profile.rampOutEndTime - profile.rampInStartTime) / pointCount;
 	std::vector<MotionCurve::CurvePoint> points;
