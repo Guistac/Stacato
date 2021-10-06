@@ -11,7 +11,7 @@ void sequencer() {
 	static MotionCurve::MotionConstraints constraints;
 	static MotionCurve::CurvePoint startPoint;
 	static MotionCurve::CurvePoint endPoint;
-	static double velocity = 0.2;
+	static double requestedVelocity = 0.2;
 
 	if (init) {
 		startPoint.position = 0.0;
@@ -41,7 +41,7 @@ void sequencer() {
 	ImGui::InputDouble("Ao", &endPoint.acceleration, 0.01, 0.1);
 	ImGui::Separator();
 	ImGui::SetNextItemWidth(inputWidth);
-	ImGui::InputDouble("V", &velocity, 0.01, 0.1);
+	ImGui::InputDouble("V", &requestedVelocity, 0.01, 0.1);
 
 	
 	
@@ -49,7 +49,159 @@ void sequencer() {
 	//=======================================================================================================================================
 	//=======================================================================================================================================
 	//=======================================================================================================================================
+	
+	auto getAbsMax = [](double a, double b) -> double {
+		if (std::abs(a) > std::abs(b)) return std::abs(a);
+		return std::abs(b);
+	};
 
+	auto getSignMultiplierFromDouble = [](double a) -> double {
+		if (a > 0.0) return 1.0;
+		return -1.0;
+	};
+
+	auto invert = [](double& a) {
+		a *= -1.0;
+	};
+
+	auto clamp = [](double& in, double rangeA, double rangeB) -> bool {
+		if (rangeA > rangeB) {
+			if (in < rangeB) {
+				in = rangeB;
+				return true;
+			}
+			else if (in > rangeA) {
+				in = rangeA;
+				return true;
+			}
+		}
+		else {
+			if (in < rangeA) {
+				in = rangeA;
+				return true;
+			}
+			else if (in > rangeB) {
+				in = rangeB;
+				return true;
+			}
+		}
+		return false;
+	};
+
+
+	double totalDeltaPosition = endPoint.position - startPoint.position;
+	bool totalDeltaPositionSign = totalDeltaPosition > 0.0;
+
+	double totalDeltaVelocity = endPoint.velocity - startPoint.velocity;
+	bool totalDeltaVelocitySign = totalDeltaVelocity > 0.0;
+
+	double transitionVelocity = std::abs(requestedVelocity) * getSignMultiplierFromDouble(totalDeltaPosition);
+	double rampInAcceleration = std::abs(startPoint.acceleration);
+	double rampOutAcceleration = std::abs(endPoint.acceleration);
+
+	auto updateAccelerationSigns = [&]() {
+		if (startPoint.velocity < transitionVelocity) rampInAcceleration = std::abs(rampInAcceleration);
+		else rampInAcceleration = -std::abs(rampInAcceleration);
+		if (transitionVelocity < endPoint.velocity) rampOutAcceleration = std::abs(rampOutAcceleration);
+		else rampOutAcceleration = -std::abs(rampOutAcceleration);
+	};
+
+	updateAccelerationSigns();
+
+	auto isTargetOvershot = [&]()->bool{
+		double overshootEdgeCaseAcceleration = getAbsMax(rampInAcceleration, rampOutAcceleration) * getSignMultiplierFromDouble(totalDeltaVelocity);
+		double overshootDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(startPoint.velocity, 2.0)) / (2.0 * overshootEdgeCaseAcceleration);
+		if (totalDeltaPositionSign && totalDeltaPosition < overshootDeltaPosition) return true;
+		else if (!totalDeltaPositionSign && totalDeltaPosition > overshootDeltaPosition) return true;
+		else return false;
+	};
+
+	auto isTargetVelocityReachable = [&]()->bool {
+		double rampInDeltaPosition = (std::pow(transitionVelocity, 2.0) - std::pow(startPoint.velocity, 2.0)) / (2 * rampInAcceleration);
+		double rampOutDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(transitionVelocity, 2.0)) / (2 * rampOutAcceleration);
+		double totalRampDeltaPosition = rampInDeltaPosition + rampOutDeltaPosition;
+		if (totalDeltaPositionSign > 0) return totalRampDeltaPosition < totalDeltaPosition;
+		else return totalRampDeltaPosition > totalDeltaPosition;
+	};
+
+	auto getAbsRampTangentVelocity = [&]()->double {
+		double rampInTangentDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(startPoint.velocity, 2.0) - 2.0 * rampOutAcceleration * totalDeltaPosition) / (2.0 * (rampInAcceleration - rampOutAcceleration));
+		//double rampOutTransitionDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(startPoint.velocity, 2.0) - 2.0 * rampInAcceleration * totalDeltaPosition) / (2.0 * rampOutAcceleration - 2.0 * rampInAcceleration);
+		double rampTangentVelocity = std::sqrt(std::pow(startPoint.velocity, 2.0) + 2.0 * rampInAcceleration * rampInTangentDeltaPosition);
+		//double rampOutTransitionVelocity = std::sqrt(std::pow(endPoint.velocity, 2.0) - 2.0 * rampOutAcceleration * rampOutTransitionDeltaPosition);
+		if (isnan(rampTangentVelocity) || rampTangentVelocity < 0.0) rampTangentVelocity = std::numeric_limits<double>::infinity();
+		//this function potentially returns garbage values, if the values are out of range they need to be handled
+		return rampTangentVelocity;
+	};
+
+	bool overshot = false;
+	bool targetvelocityNotReachable = false;
+	bool transitionVelocityExceeded = false;
+	bool isRampTangentVelocityBug = false;
+
+	if (isTargetOvershot()) {
+		overshot = true;
+		//here we absolutely cannot reach the target by moving in the same direction as the total delta, we invert the transition velocity sign and get new acceleration signs
+		invert(transitionVelocity);
+		updateAccelerationSigns();
+		//we then get a new tagent transition velocity value
+		double rampTangentVelocity = getAbsRampTangentVelocity() * getSignMultiplierFromDouble(transitionVelocity);
+		clamp(rampTangentVelocity, -requestedVelocity, requestedVelocity);
+		transitionVelocity = rampTangentVelocity;
+		updateAccelerationSigns();
+	}
+	else if (!isTargetVelocityReachable()) {
+		targetvelocityNotReachable = true;
+		//this can mean multiple things, depending on the tangent ramp transition velocity
+		double absRampTangentVelocity = getAbsRampTangentVelocity();
+		if (absRampTangentVelocity < std::abs(requestedVelocity)) {
+			//either we can get a fast transition with a new velocity that is below the requested one
+			//in this case we transition between the ramps with no coast phase
+			transitionVelocity = absRampTangentVelocity * getSignMultiplierFromDouble(totalDeltaPosition);
+			updateAccelerationSigns();
+		}
+		else {
+			transitionVelocityExceeded = true;
+			//or we can get a fast transition with a velocity that is above the requetsed one
+			//in which case we absolutely cannot reach the target by moving in the same direction as the total delta
+			//so we flip the velocity and do the calculation again
+			invert(transitionVelocity);
+			updateAccelerationSigns();
+			transitionVelocity = getAbsRampTangentVelocity() * getSignMultiplierFromDouble(transitionVelocity);
+			//make sure the tangent transition velocity doesn't exceed the requested velocity
+			if (clamp(transitionVelocity, -requestedVelocity, requestedVelocity)) updateAccelerationSigns();
+		}
+	}
+
+	double rampInDeltaPosition = (std::pow(transitionVelocity, 2.0) - std::pow(startPoint.velocity, 2.0)) / (2 * rampInAcceleration);
+	double rampOutDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(transitionVelocity, 2.0)) / (2 * rampOutAcceleration);
+	double rampInDeltaTime = (transitionVelocity - startPoint.velocity) / rampInAcceleration;
+	double rampOutDeltaTime = (endPoint.velocity - transitionVelocity) / rampOutAcceleration;
+
+	double rampInEndPosition = startPoint.position + rampInDeltaPosition;
+	double rampInEndTime = startPoint.time + rampInDeltaTime;
+	double rampOutStartPosition = endPoint.position - rampOutDeltaPosition;
+	double rampOutStartTime = rampInEndTime + (rampOutStartPosition - rampInEndPosition) / transitionVelocity;
+	double curveEndTime = rampOutStartTime + rampOutDeltaTime;
+
+	MotionCurve::CurveProfile profile;
+	profile.rampInStartTime = startPoint.time;			//time of curve start
+	profile.rampInStartPosition = startPoint.position;	//position of curve start
+	profile.rampInStartVelocity = startPoint.velocity;	//velocity at curve start
+	profile.rampInAcceleration = rampInAcceleration;	//acceleration of curve
+	profile.rampInEndPosition = rampInEndPosition;		//position of curve after acceleration phase
+	profile.rampInEndTime = rampInEndTime;			    //time of acceleration end
+	profile.coastVelocity = transitionVelocity;			//velocity of constant velocity phase
+	profile.rampOutStartPosition = rampOutStartPosition;//position of deceleration start
+	profile.rampOutStartTime = rampOutStartTime;		//time of deceleration start
+	profile.rampOutAcceleration = rampOutAcceleration;	//deceleration of curve
+	profile.rampOutEndTime = curveEndTime;			    //time of curve end
+	profile.rampOutEndPosition = endPoint.position;		//position of curve end
+	profile.rampOutEndVelocity = endPoint.velocity;		//velocity of curve end
+
+
+	
+	/*
 
 	//calculate total delta P of the curve (negative for negative moves)
 	double totalDeltaPosition = endPoint.position - startPoint.position;
@@ -178,23 +330,8 @@ void sequencer() {
 	//end of curve time is ramp out start time + ramp out delta time
 	double curveEndTime = rampOutStartTime + rampOutDeltaTime;
 
+	*/
 
-	MotionCurve::CurveProfile profile;
-
-	profile.rampInStartTime = startPoint.time;			//time of curve start
-	profile.rampInStartPosition = startPoint.position;	//position of curve start
-	profile.rampInStartVelocity = startPoint.velocity;	//velocity at curve start
-	profile.rampInAcceleration = rampInAcceleration;	//acceleration of curve
-	profile.rampInEndPosition = rampInEndPosition;		//position of curve after acceleration phase
-	profile.rampInEndTime = rampInEndTime;			    //time of acceleration end
-	profile.coastVelocity = transitionVelocity;			//velocity of constant velocity phase
-	profile.rampOutStartPosition = rampOutStartPosition;//position of deceleration start
-	profile.rampOutStartTime = rampOutStartTime;		//time of deceleration start
-	profile.rampOutAcceleration = rampOutAcceleration;	//deceleration of curve
-	profile.rampOutEndTime = curveEndTime;			    //time of curve end
-	profile.rampOutEndPosition = endPoint.position;		//position of curve end
-	profile.rampOutEndVelocity = endPoint.velocity;		//velocity of curve end
-	
 														
 	//=======================================================================================================================================
 	//=======================================================================================================================================
@@ -239,7 +376,12 @@ void sequencer() {
 		ImPlot::EndPlot();
 	}
 
+	ImGui::Text("overshot: %i", overshot);
+	ImGui::Text("targetvelocityNotReachable: %i", targetvelocityNotReachable);
+	ImGui::Text("transitionVelocityExceeded: %i", transitionVelocityExceeded);
+	ImGui::Text("isRampTangentVelocityBug: %i", isRampTangentVelocityBug);
 
+	/*
 	ImGui::Text("RampInDeltaPosition: %.3f  RampOutDeltaPosition: %.3f", rampInDeltaPosition, rampOutDeltaPosition);
 	ImGui::Text("totalRampDeltaPosition: %.3f  ConstantVelocityReachable: %s", totalRampDeltaPosition, constantVelocityReachable ? "true" : "false");
 
@@ -273,5 +415,6 @@ void sequencer() {
 	ImGui::Text("curveEndPosition: %.3f", endPoint.position);
 
 	ImGui::Text("test");
+	*/
 	
 }
