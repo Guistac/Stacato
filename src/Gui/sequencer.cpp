@@ -49,48 +49,33 @@ void sequencer() {
 	//=======================================================================================================================================
 	//=======================================================================================================================================
 	//=======================================================================================================================================
-	
-	auto getAbsMax = [](double a, double b) -> double {
-		if (std::abs(a) > std::abs(b)) return std::abs(a);
-		return std::abs(b);
-	};
-
-	auto getAbsMin = [](double a, double b) -> double {
-		if (std::abs(a) < std::abs(b)) return std::abs(a);
-		return std::abs(b);
-	};
 
 	auto getSignMultiplierFromDouble = [](double a) -> double {
 		if (a > 0.0) return 1.0;
 		return -1.0;
 	};
 
-	auto invert = [](double& a) {
-		a *= -1.0;
-	};
-
-	auto clamp = [](double& in, double rangeA, double rangeB) -> bool {
+	auto clamp = [](double& in, double rangeA, double rangeB) {
 		if (rangeA > rangeB) {
-			if (in < rangeB) { in = rangeB; return true;}
-			else if (in > rangeA) { in = rangeA; return true; }
+			if (in < rangeB) in = rangeB;
+			else if (in > rangeA) in = rangeA;
 		}
 		else {
-			if (in < rangeA) { in = rangeA; return true; }
-			else if (in > rangeB) { in = rangeB; return true; }
+			if (in < rangeA) in = rangeA;
+			else if (in > rangeB) in = rangeB;
 		}
-		return false;
 	};
 
+	const double totalDeltaPosition = endPoint.position - startPoint.position;
+	const double totalDeltaVelocity = endPoint.velocity - startPoint.velocity;
+	const double rampInVelocity = startPoint.velocity;
+	const double rampOutVelocity = endPoint.velocity;
 
-	double totalDeltaPosition = endPoint.position - startPoint.position;
+	double transitionVelocity;
+	double rampInAcceleration;
+	double rampOutAcceleration;
 
-	double totalDeltaVelocity = endPoint.velocity - startPoint.velocity;
-	bool totalDeltaVelocitySign = totalDeltaVelocity > 0.0;
-
-	double transitionVelocity = std::abs(requestedVelocity) * getSignMultiplierFromDouble(totalDeltaPosition);
-	double rampInAcceleration = std::abs(startPoint.acceleration);
-	double rampOutAcceleration = std::abs(endPoint.acceleration);
-
+	//compare the rampIn and rampOut velocities with the transition velocity to set the signs if the rampIn and rampOut acceleration values
 	auto updateAccelerationSigns = [&]() {
 		if (startPoint.velocity < transitionVelocity) rampInAcceleration = std::abs(rampInAcceleration);
 		else rampInAcceleration = -std::abs(rampInAcceleration);
@@ -98,24 +83,35 @@ void sequencer() {
 		else rampOutAcceleration = -std::abs(rampOutAcceleration);
 	};
 
-	updateAccelerationSigns();
-
-	auto isTargetOvershot = [&]()->bool{
-		double overshootEdgeCaseAcceleration = getAbsMax(rampInAcceleration, rampOutAcceleration) * getSignMultiplierFromDouble(totalDeltaVelocity);
-		double overshootDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(startPoint.velocity, 2.0)) / (2.0 * overshootEdgeCaseAcceleration);
+	//is the target too close to be reached using only the highest of the two acceleration values ?
+	auto isTargetOvershotWithLargerAcceleration = [&]()->bool{
+		//get the absolute value of the larger acceleration
+		double largerAcceleration;
+		if (std::abs(rampInAcceleration) > std::abs(rampOutAcceleration)) largerAcceleration = std::abs(rampInAcceleration);
+		else largerAcceleration = std::abs(rampOutAcceleration);
+		//sign the acceleration based on the total velocity delta
+		largerAcceleration *= getSignMultiplierFromDouble(totalDeltaVelocity);
+		double overshootDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(startPoint.velocity, 2.0)) / (2.0 * largerAcceleration);
 		if (totalDeltaPosition > 0.0 && totalDeltaPosition < overshootDeltaPosition) return true;
 		else if (totalDeltaPosition < 0.0 && totalDeltaPosition > overshootDeltaPosition) return true;
 		else return false;
 	};
 
+	//is the target too close to be reached using only the lowest of the two acceleration values ?
 	auto isTargetOvershotWithSmallerAcceleration = [&]()->bool {
-		double overshootEdgeCaseAcceleration = getAbsMin(rampInAcceleration, rampOutAcceleration) * getSignMultiplierFromDouble(totalDeltaVelocity);
-		double overshootDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(startPoint.velocity, 2.0)) / (2.0 * overshootEdgeCaseAcceleration);
+		//get the absolute value of the larger acceleration
+		double smallerAcceleration;
+		if (std::abs(rampInAcceleration) < std::abs(rampOutAcceleration)) smallerAcceleration = std::abs(rampInAcceleration);
+		else smallerAcceleration = std::abs(rampOutAcceleration);
+		//sign the acceleration based on the total velocity delta
+		smallerAcceleration *= getSignMultiplierFromDouble(totalDeltaVelocity);
+		double overshootDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(startPoint.velocity, 2.0)) / (2.0 * smallerAcceleration);
 		if (totalDeltaPosition > 0.0 && totalDeltaPosition < overshootDeltaPosition) return true;
 		else if (totalDeltaPosition < 0.0 && totalDeltaPosition > overshootDeltaPosition) return true;
 		else return false;
 	};
 
+	//is the target close enough for the movement to reach the requested velocity ?
 	auto isTargetVelocityReachable = [&]()->bool {
 		double rampInDeltaPosition = (std::pow(transitionVelocity, 2.0) - std::pow(startPoint.velocity, 2.0)) / (2 * rampInAcceleration);
 		double rampOutDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(transitionVelocity, 2.0)) / (2 * rampOutAcceleration);
@@ -124,6 +120,7 @@ void sequencer() {
 		else return totalRampDeltaPosition > totalDeltaPosition;
 	};
 
+	//get the velocity at the transition point between two tangent velocity ramps
 	auto getAbsRampTangentVelocity = [&]()->double {
 		double rampInTangentDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(startPoint.velocity, 2.0) - 2.0 * rampOutAcceleration * totalDeltaPosition) / (2.0 * (rampInAcceleration - rampOutAcceleration));
 		double rampOutTransitionDeltaPosition = (std::pow(endPoint.velocity, 2.0) - std::pow(startPoint.velocity, 2.0) - 2.0 * rampInAcceleration * totalDeltaPosition) / (2.0 * (rampOutAcceleration - rampInAcceleration));
@@ -134,81 +131,72 @@ void sequencer() {
 		return rampTangentVelocity;
 	};
 
-	bool hasConstantVelocityPhase = true;
-	bool weirdCondition = false;
+	//set the default transition velocity sign based on the movement direction
+	transitionVelocity = std::abs(requestedVelocity) * getSignMultiplierFromDouble(totalDeltaPosition);
+	//initialize the default acceleration values
+	rampInAcceleration = std::abs(startPoint.acceleration);
+	rampOutAcceleration = std::abs(endPoint.acceleration);
+	//get default acceleration signs based on the requested transition velocity
+	updateAccelerationSigns();
+	//by default, we assume these signs are correct and a basic move with acceleration to transition velocity followed by deceleration is possible
+	//however, several cases need different parameters and the following condition checking will separate and handle them
+	//some moves will not be able to reach the requested velocity, other moves will invert the acceleration signs or even the transition velocity sign
+	bool requestedVelocityReacheable;
 
-	if (isTargetOvershot()) {
-		//here we absolutely cannot reach the target by moving in the same direction as the total delta, we invert the transition velocity sign and get new acceleration signs
-		invert(transitionVelocity);
+	//the most specific case is handled first
+	if (isTargetOvershotWithLargerAcceleration()) {
+		//here the target is too close to be reached using only the max acceleration value
+		//we need invert the transition velocity and get new acceleration signs
+		//we effectively backtrack to come back to the target at the correct end point position and velocity
+		transitionVelocity *= -1.0;
 		updateAccelerationSigns();
-		//we then get a new tagent transition velocity value
+		//we then get a new transition velocity value that represents the fastest way to get to the target
 		transitionVelocity = getAbsRampTangentVelocity() * getSignMultiplierFromDouble(transitionVelocity);
+		requestedVelocityReacheable = std::abs(transitionVelocity) >= std::abs(requestedVelocity);
 		//we make sure the velocity doesn't exceed the requested velocity
-		if (std::abs(transitionVelocity) < std::abs(requestedVelocity)) {
-			hasConstantVelocityPhase = false;
-		}
-		else {
-			clamp(transitionVelocity, -requestedVelocity, requestedVelocity);
-			hasConstantVelocityPhase = true;
-		}
+		if(requestedVelocityReacheable) clamp(transitionVelocity, -requestedVelocity, requestedVelocity);
+		//we get new acceleration signs in case they need to change
 		updateAccelerationSigns();
-	}
-	
-	else if (isTargetOvershotWithSmallerAcceleration()) {
-		//weird transition case
-		//we know the position is reachable without inverting the direction but we need to get new acceleration signs without knowing the transition velocity
-		if (totalDeltaPosition > 0.0) {
-			if (totalDeltaVelocity < 0.0) {
-				rampInAcceleration = -std::abs(rampInAcceleration);
-				rampOutAcceleration = -std::abs(rampOutAcceleration);
-			}
-			else {
-				rampInAcceleration = std::abs(rampInAcceleration);
-				rampOutAcceleration = -std::abs(rampOutAcceleration);
-			}
-		}
-		else {
-			if (totalDeltaVelocity > 0.0) {
-				rampInAcceleration = std::abs(rampInAcceleration);
-				rampOutAcceleration = std::abs(rampOutAcceleration);
-			}
-			else {
-				rampInAcceleration = -std::abs(rampInAcceleration);
-				rampOutAcceleration = std::abs(rampOutAcceleration);
-			}
-		}
-		transitionVelocity = getAbsRampTangentVelocity() * getSignMultiplierFromDouble(transitionVelocity);
-		hasConstantVelocityPhase = false;
-		weirdCondition = true;
-	}
-	
+	}	
 	else if (!isTargetVelocityReachable()) {
-		//this can mean multiple things, depending on the tangent ramp transition velocity
+		//here the target can be reached, but is too close for the requested velocity to be reached
+		//this can have multiple outcomes:
+		if (isTargetOvershotWithSmallerAcceleration()) {
+			//here the target is not reachable using only the smaller of the two acceleration values
+			//it can still be reached by using a blend of the two accelerations, and without inverting the direction of motion
+			//but we need to get new acceleration signs without knowing the transition velocity
+			//the velocity in that segment will be somewhere between the input and outputvelocity
+			//we can use the average of the two to find out acceleration signs and get a real transition velocity values later
+			transitionVelocity = (startPoint.velocity + endPoint.velocity) / 2.0;
+			updateAccelerationSigns();
+		}
+		//find the fastest possible transition velocity
 		double absRampTangentVelocity = getAbsRampTangentVelocity();
 		if (absRampTangentVelocity < std::abs(requestedVelocity)) {
-			//either we can get a fast transition with a new velocity that is below the requested one
-			//in this case we transition between the ramps with no coast phase
-			transitionVelocity = absRampTangentVelocity * getSignMultiplierFromDouble(totalDeltaPosition);
+			//here we can get a transition velocity that is below the requested one
+			//in this case we keep the same movement direction, but without reaching the requested velocity
+			transitionVelocity = absRampTangentVelocity * getSignMultiplierFromDouble(transitionVelocity);
 			updateAccelerationSigns();
-			hasConstantVelocityPhase = false;
+			requestedVelocityReacheable = false;
 		}
 		else {
-			//or we can get a fast transition with a velocity that is above the requetsed one
-			//in which case we absolutely cannot reach the target by moving in the same direction as the total delta
+			//in this case, the fastest transition velocity is higher than the requested one
+			//here we absolutely cannot reach the target by moving in the same direction as the total delta
 			//so we flip the velocity and do the calculation again
-			invert(transitionVelocity);
+			transitionVelocity *= -1.0;
 			updateAccelerationSigns();
 			transitionVelocity = getAbsRampTangentVelocity() * getSignMultiplierFromDouble(transitionVelocity);
+			requestedVelocityReacheable = std::abs(transitionVelocity) >= std::abs(requestedVelocity);
 			//make sure the tangent transition velocity doesn't exceed the requested velocity
-			if (std::abs(transitionVelocity) < std::abs(requestedVelocity)) {
-				hasConstantVelocityPhase = false;
-			}
-			else {
-				clamp(transitionVelocity, -requestedVelocity, requestedVelocity);
-				hasConstantVelocityPhase = true;
-			}
+			if (requestedVelocityReacheable) clamp(transitionVelocity, -requestedVelocity, requestedVelocity);
+			//we get new acceleration signs in case they need to change
 			updateAccelerationSigns();
 		}
+	}
+	else {
+		//this is the basic case for regular moves
+		//no additional logic is required
+		requestedVelocityReacheable = true;
 	}
 
 	double rampInDeltaPosition = (std::pow(transitionVelocity, 2.0) - std::pow(startPoint.velocity, 2.0)) / (2 * rampInAcceleration);
@@ -222,7 +210,7 @@ void sequencer() {
 	double rampOutStartTime;
 	double curveEndTime;
 
-	if (hasConstantVelocityPhase) {
+	if (requestedVelocityReacheable) {
 		rampInEndPosition = startPoint.position + rampInDeltaPosition;
 		rampInEndTime = startPoint.time + rampInDeltaTime;
 		rampOutStartPosition = endPoint.position - rampOutDeltaPosition;
@@ -269,20 +257,20 @@ void sequencer() {
 		points.push_back(MotionCurve::getCurvePointAtTime(T, profile));
 	}
 	double velocityTangentLength = 1.0;
-	std::vector<glm::vec2> rampInVelocity;
-	rampInVelocity.push_back(glm::vec2(profile.rampInStartTime, profile.rampInStartPosition));
-	rampInVelocity.push_back(glm::vec2(profile.rampInStartTime + velocityTangentLength, profile.rampInStartPosition + profile.rampInStartVelocity * velocityTangentLength));
+	std::vector<glm::vec2> rampInVelocityPoints;
+	rampInVelocityPoints.push_back(glm::vec2(profile.rampInStartTime, profile.rampInStartPosition));
+	rampInVelocityPoints.push_back(glm::vec2(profile.rampInStartTime + velocityTangentLength, profile.rampInStartPosition + profile.rampInStartVelocity * velocityTangentLength));
 
-	std::vector<glm::vec2> rampOutVelocity;
-	rampOutVelocity.push_back(glm::vec2(profile.rampOutEndTime, profile.rampOutEndPosition));
-	rampOutVelocity.push_back(glm::vec2(profile.rampOutEndTime - velocityTangentLength, profile.rampOutEndPosition - profile.rampOutEndVelocity * velocityTangentLength));
+	std::vector<glm::vec2> rampOutVelocityPoints;
+	rampOutVelocityPoints.push_back(glm::vec2(profile.rampOutEndTime, profile.rampOutEndPosition));
+	rampOutVelocityPoints.push_back(glm::vec2(profile.rampOutEndTime - velocityTangentLength, profile.rampOutEndPosition - profile.rampOutEndVelocity * velocityTangentLength));
 
 	if (ImPlot::BeginPlot("##curveTest", 0, 0, ImVec2(ImGui::GetContentRegionAvail().x, 800.0), ImPlotFlags_None)) {
 	
 		ImPlot::DragLineY("end", &endPoint.position);
 	
-		ImPlot::PlotLine("RampIn Velocity", &rampInVelocity.front().x, &rampInVelocity.front().y, 2, 0, sizeof(glm::vec2));
-		ImPlot::PlotLine("RampOut Velocity", &rampOutVelocity.front().x, &rampOutVelocity.front().y, 2, 0, sizeof(glm::vec2));
+		ImPlot::PlotLine("RampIn Velocity", &rampInVelocityPoints.front().x, &rampInVelocityPoints.front().y, 2, 0, sizeof(glm::vec2));
+		ImPlot::PlotLine("RampOut Velocity", &rampOutVelocityPoints.front().x, &rampOutVelocityPoints.front().y, 2, 0, sizeof(glm::vec2));
 
 		ImPlot::DragPoint("rampBegin", &profile.rampInStartTime, &profile.rampInStartPosition);
 		ImPlot::DragPoint("rampInEnd", &profile.rampInEndTime, &profile.rampInEndPosition);
@@ -296,9 +284,7 @@ void sequencer() {
 		ImPlot::EndPlot();
 	}
 
-
-	ImGui::Text("weirdCondition: %s", weirdCondition ? "true" : "false");
-	ImGui::Text("HasConstantVelocityPhase: %s", hasConstantVelocityPhase ? "true" : "false");
+	ImGui::Text("HasConstantVelocityPhase: %s", requestedVelocityReacheable ? "true" : "false");
 	ImGui::Separator();
 	ImGui::Text("RampInEndPosition: %.3f", rampInEndPosition);
 	ImGui::Text("rampInEndTime: %.3f", rampInEndTime);
