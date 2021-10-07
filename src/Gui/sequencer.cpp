@@ -137,11 +137,11 @@ void sequencer() {
 	};
 
 	//is the target close enough for the movement to reach the requested velocity ?
-	auto isTargetVelocityReachable = [&]()->bool {
+	auto isTransitionVelocityReachable = [&]()->bool {
 		double rampInDeltaPosition = (std::pow(transitionVelocity, 2.0) - std::pow(rampInVelocity, 2.0)) / (2 * rampInAcceleration);
 		double rampOutDeltaPosition = (std::pow(rampOutVelocity, 2.0) - std::pow(transitionVelocity, 2.0)) / (2 * rampOutAcceleration);
 		double totalRampDeltaPosition = rampInDeltaPosition + rampOutDeltaPosition;
-		if (totalDeltaPosition > 0.0) return totalRampDeltaPosition < totalDeltaPosition;
+		if (transitionVelocity > 0.0) return totalRampDeltaPosition < totalDeltaPosition;
 		else return totalRampDeltaPosition > totalDeltaPosition;
 	};
 
@@ -159,17 +159,22 @@ void sequencer() {
 		//first invert the transition velocity and adjust acceleration signs
 		transitionVelocity *= -1.0;
 		updateAccelerationSigns();
-		//get the fastest velocity for a ramp to ramp transition to the target
-		transitionVelocity = getAbsRampTangentVelocity() * getSignMultiplier(transitionVelocity);
-		requestedVelocityReacheable = std::abs(transitionVelocity) >= requestedVelocity;
-		//make sure the velocity doesn't exceed the requested velocity
-		if (transitionVelocity < -requestedVelocity) transitionVelocity = -requestedVelocity;
-		else if (transitionVelocity > requestedVelocity) transitionVelocity = requestedVelocity;
-		//get new acceleration signs in case they need to change
-		updateAccelerationSigns();
+		//after inverting the direction, check if the inverted direction is reachable
+		if (isTransitionVelocityReachable()) {
+			//if the inverted direction is reachable we have all we need to know about the movement
+			requestedVelocityReacheable = true;
+		}
+		else {
+			//else get the fastest velocity for a ramp to ramp transition to the target
+			transitionVelocity = getAbsRampTangentVelocity() * getSignMultiplier(transitionVelocity);
+			requestedVelocityReacheable = std::abs(transitionVelocity) >= requestedVelocity;
+			//make sure the velocity doesn't exceed the requested velocity
+			if (transitionVelocity < -requestedVelocity) transitionVelocity = -requestedVelocity;
+			else if (transitionVelocity > requestedVelocity) transitionVelocity = requestedVelocity;
+			//get new acceleration signs in case they need to change
+			updateAccelerationSigns();
+		}
 	};
-
-	bool weirdCondition = false;
 
 	//set the default transition velocity sign based on the movement direction
 	transitionVelocity = requestedVelocity * getSignMultiplier(totalDeltaPosition);
@@ -183,14 +188,13 @@ void sequencer() {
 	//some moves will not be able to reach the requested velocity, other moves will invert the acceleration signs or even the transition velocity sign
 
 	//the most specific case is handled first
-	if (isTargetOvershotWithLargerAcceleration() && !isTargetVelocityReachable()) {
+	if (isTargetOvershotWithLargerAcceleration()/* && !isTransitionVelocityReachable()*/) {
 		//here the target is too close to be reached using only the max acceleration value
 		//we need invert the transition velocity and get new acceleration signs
 		//we effectively backtrack to come back to the target at the correct end point position and velocity
 		makeInvertedMovement();
-		weirdCondition = true;
 	}	
-	else if (!isTargetVelocityReachable()) {
+	else if (!isTransitionVelocityReachable()) {
 		//here the target can be reached, but is too close for the requested velocity to be reached
 		//this can have multiple outcomes:
 		if (isTargetOvershotWithSmallerAcceleration()) {
@@ -309,7 +313,6 @@ void sequencer() {
 		ImPlot::EndPlot();
 	}
 
-	ImGui::Text("weirdCondition: %s", weirdCondition ? "true" : "false");
 	ImGui::Text("HasConstantVelocityPhase: %s", requestedVelocityReacheable ? "true" : "false");
 	ImGui::Separator();
 	ImGui::Text("RampInEndPosition: %.3f", rampInEndPosition);
