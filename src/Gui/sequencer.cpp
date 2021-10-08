@@ -189,6 +189,7 @@ void sequencer() {
 	double bTerm;
 	double cTerm;
 	double rTerm;
+	double solutionVelocity;
 
 	auto solveCurve = [&](MotionCurve::CurveProfile& profile) -> bool {
 
@@ -204,27 +205,25 @@ void sequencer() {
 		double a = ai - ao; //solution undefined if == 0
 		double b = 2.0 * (ao * vi - ai * vo + ai * ao * dt);
 		double c = ai * square(vo) - ao * square(vi) - 2.0 * ai * ao * dp;
-
+		double r = square(b) - 4.0 * a * c; //quadratic root term
 		aTerm = a;
 		bTerm = b;
 		cTerm = c;
-
-		//quadratic formula root term (solution undefined if < 0)
-		double r = square(b) - 4.0 * a * c;
-
 		rTerm = r;
 
-		//quadratic solution
-		double vt_plus = (-b + sqrt(r)) / (2.0 * a);
-		double vt_minus = (-b - sqrt(r)) / (2.0 * a);
+		double vt;
+		if (a == 0) {
+			vt = -c / b;
+		}
+		else {
+			//quadratic solutions
+			double vt_plus = (-b + sqrt(r)) / (2.0 * a);
+			double vt_minus = (-b - sqrt(r)) / (2.0 * a);
+			if (rootTermSign) vt = vt_plus;
+			else vt = vt_minus;
+		}
 
-		//=========================================================================
-
-		//using the final transition velocity value and signed acceleration values
-		//we can get time and position deltas as well as absolute position and time points for the ramps
-		double vt = 0.0;
-		if (rootTermSign) vt = vt_plus;
-		else vt = vt_minus;
+		solutionVelocity = vt;
 
 		double dti = (vt - vi) / ai;
 		double dto = (vo - vt) / ao;
@@ -252,8 +251,8 @@ void sequencer() {
 		profile.rampOutEndVelocity = endPoint.velocity;		//velocity of curve end
 
 		//checks for a successfull solve
-		if (a == 0.0) return false;
-		if (r < 0.0) return false;
+		//if (a == 0.0) return false;
+		if (r < 0.0 && a != 0.0) return false;
 		if (dti < 0.0) return false;
 		if (dto < 0.0) return false;
 		if (dti > to - dto) return false;
@@ -308,6 +307,20 @@ void sequencer() {
 		solved = solveCurve(profile);
 		if (solved) break;
 	}
+
+
+	double maxV = 10.0;
+	if (!solved || std::abs(solutionVelocity) > maxV) {
+		profile = MotionCurve::getVelocityContrainedProfile(startPoint, endPoint, maxV, constraints);
+	}
+	
+	
+
+	/*
+	if (!solved) {
+		//MotionCurve::getVelocityContrainedProfile(startPoint, endPoint, )
+	}
+	*/
 	
 	
 
@@ -326,6 +339,7 @@ void sequencer() {
 	ImGui::Text("%.3fx^2 + %.3fx + %.3f", aTerm, bTerm, cTerm);
 	ImGui::SameLine();
 	ImGui::Text("Root Term: %.3f", rTerm);
+	ImGui::Text("Velocity: %.3f", solutionVelocity);
 	
 	ImGui::Text("deltaP: %.3f", dp);
 	ImGui::SameLine();
@@ -344,7 +358,7 @@ void sequencer() {
 
 
 
-	int pointCount = 200;
+	int pointCount = 2000;
 	double deltaT = (profile.rampOutEndTime - profile.rampInStartTime) / pointCount;
 	std::vector<MotionCurve::CurvePoint> points;
 	for (int i = 0; i <= pointCount; i++) {
