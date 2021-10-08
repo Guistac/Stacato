@@ -6,23 +6,21 @@
 
 void sequencer() {
 
-	/*
-
 	static MotionCurve::MotionConstraints constraints;
 	static MotionCurve::CurvePoint startPoint;
 	static MotionCurve::CurvePoint endPoint;
-	static double reqvelocity = 0.2;
+	static double reqvelocity = 2.0;
 
 	static bool init = true;
 	if (init) {
 		startPoint.position = 0.0;
 		startPoint.time = 0.0;
 		startPoint.velocity = 0.0;
-		startPoint.acceleration = 0.1;
+		startPoint.acceleration = 10.0;
 		endPoint.position = 1.0;
 		endPoint.time = 1.0;
 		endPoint.velocity = 0.0;
-		endPoint.acceleration = 0.1;
+		endPoint.acceleration = 10.0;
 		constraints.maxAcceleration = 10000.0;
 		constraints.maxVelocity = 100000.0;
 		constraints.minPosition = -1000000.0;
@@ -46,34 +44,275 @@ void sequencer() {
 	ImGui::SetNextItemWidth(inputWidth);
 	ImGui::InputDouble("V", &reqvelocity, 0.01, 0.1);
 
-	MotionCurve::CurveProfile profile = MotionCurve::getVelocityContrainedProfile(startPoint, endPoint, reqvelocity, constraints);
+	
+
+	std::vector<MotionCurve::CurveProfile> solutions;
+
+	auto square = [](double in) -> double { return std::pow(in, 2.0); };
+
+	double pi = startPoint.position;
+	double ti = startPoint.time;
+	double vi = startPoint.velocity;
+	double ai = std::abs(startPoint.acceleration);
+
+	double vt = reqvelocity;
+
+	double po = endPoint.position;
+	double vo = endPoint.velocity;
+	double ao = std::abs(endPoint.acceleration);
+
+	double dp = endPoint.position - startPoint.position;
+	double dv = endPoint.velocity - startPoint.velocity;
+
+	static bool ai_sign = false;
+	static bool ao_sign = false;
+	static bool velocity_sign = false;
+
+	auto solveCurveForVelocity = [&](MotionCurve::CurveProfile& profile) -> bool {
+
+		//initialize acceleration signs
+		if (!ai_sign) ai = -std::abs(ai);
+		else ai = std::abs(ai);
+		if (!ao_sign) ao = -std::abs(ao);
+		else ao = std::abs(ao);
+		if (!velocity_sign) vt = -std::abs(vt);
+		else vt = std::abs(vt);
+
+		double a = (vt - vi) / ai;
+		double b = (vo - vt) / ao;
+		double c = (square(vt) - square(vi)) / (2.0 * ai);
+		double d = (square(vo) - square(vt)) / (2.0 * ao);
+		double dt = a + b + vt * (dp - c - d);
+
+		//solve end
+
+		double dti = (vt - vi) / ai;
+		double dto = (vo - vt) / ao;
+		double dpi = vi * dti + ai * square(dti) / 2.0;
+		double dpo = vt * dto + ao * square(dto) / 2.0;
+
+		double rampInEndPosition = pi + dpi;
+		double rampInEndTime = ti + dti;
+		double rampOutStartPosition = po - dpo;
+		double rampOutStartTime = rampInEndTime + (rampOutStartPosition - rampInEndPosition) / vt;
+		double to = rampOutStartTime + dto;
+
+		profile.rampInStartTime = startPoint.time;			//time of curve start
+		profile.rampInStartPosition = startPoint.position;	//position of curve start
+		profile.rampInStartVelocity = startPoint.velocity;	//velocity at curve start
+		profile.rampInAcceleration = ai;	//acceleration of curve
+		profile.rampInEndPosition = rampInEndPosition;		//position of curve after acceleration phase
+		profile.rampInEndTime = rampInEndTime;			    //time of acceleration end
+		profile.coastVelocity = vt;			//velocity of constant velocity phase
+		profile.rampOutStartPosition = rampOutStartPosition;//position of deceleration start
+		profile.rampOutStartTime = rampOutStartTime;		//time of deceleration start
+		profile.rampOutAcceleration = ao;	//deceleration of curve
+		profile.rampOutEndTime = to;			    //time of curve end
+		profile.rampOutEndPosition = endPoint.position;		//position of curve end
+		profile.rampOutEndVelocity = endPoint.velocity;		//velocity of curve end
+
+		if (dti < 0.0) return false;
+		if (dto < 0.0) return false;
+		if (dti > to - dto) return false;
+		return dt > 0.0;
+	};
+
+	
+	for (int i = 0; i < 8; i++) {
+		switch (i) {
+		case 0: //000
+			ai_sign = false;
+			ao_sign = false;
+			velocity_sign = false;
+			break;
+		case 1: //001
+			ai_sign = false;
+			ao_sign = false;
+			velocity_sign = true;
+			break;
+		case 2: //010
+			ai_sign = false;
+			ao_sign = true;
+			velocity_sign = false;
+			break;
+		case 3: //011
+			ai_sign = false;
+			ao_sign = true;
+			velocity_sign = true;
+			break;
+		case 4: //100
+			ai_sign = true;
+			ao_sign = false;
+			velocity_sign = false;
+			break;
+		case 5: //101
+			ai_sign = true;
+			ao_sign = false;
+			velocity_sign = true;
+			break;
+		case 6: //110
+			ai_sign = true;
+			ao_sign = true;
+			velocity_sign = false;
+			break;
+		case 7: //111
+			ai_sign = true;
+			ao_sign = true;
+			velocity_sign = true;
+			break;
+		}
+		MotionCurve::CurveProfile profile;
+		if (solveCurveForVelocity(profile)) solutions.push_back(profile);
+	}
+
+
+	static bool squareRootSign = false;
+
+	auto solveTangentCurve = [&](MotionCurve::CurveProfile& profile) {
+	
+		//initialize acceleration signs
+		if (!ai_sign) ai = -std::abs(ai);
+		else ai = std::abs(ai);
+		if (!ao_sign) ao = -std::abs(ao);
+		else ao = std::abs(ao);
+
+		double dpi = (square(vo) - square(vi) - 2.0 * ao * dp) / (2.0 * (ai - ao));
+		double r = square(vi) + 2.0 * ai * dpi;
+		//choose square root solution sign
+		if (!squareRootSign) vt = -std::sqrt(r);
+		else vt = std::sqrt(r);
+		
+		double dti = (vt - vi) / ai;
+		double dto = (vo - vt) / ao;
+		double dpo = (square(vo) - square(vt)) / (2.0 * ao);
+
+		double rampInEndPosition = pi + dpi;
+		double rampInEndTime = ti + dti;
+		double rampOutStartPosition = rampInEndPosition;
+		double rampOutStartTime = rampInEndTime;
+		double to = rampOutStartTime + dto;
+
+		profile.rampInStartTime = startPoint.time;			//time of curve start
+		profile.rampInStartPosition = startPoint.position;	//position of curve start
+		profile.rampInStartVelocity = startPoint.velocity;	//velocity at curve start
+		profile.rampInAcceleration = ai;	//acceleration of curve
+		profile.rampInEndPosition = rampInEndPosition;		//position of curve after acceleration phase
+		profile.rampInEndTime = rampInEndTime;			    //time of acceleration end
+		profile.coastVelocity = vt;			//velocity of constant velocity phase
+		profile.rampOutStartPosition = rampOutStartPosition;//position of deceleration start
+		profile.rampOutStartTime = rampOutStartTime;		//time of deceleration start
+		profile.rampOutAcceleration = ao;	//deceleration of curve
+		profile.rampOutEndTime = to;			    //time of curve end
+		profile.rampOutEndPosition = endPoint.position;		//position of curve end
+		profile.rampOutEndVelocity = endPoint.velocity;		//velocity of curve end
+
+		//reject non-real and illogical solutions
+		if (ai == ao) return false;
+		if (r < 0) return false;
+		if (dti < 0.0) return false;
+		if (dto < 0.0) return false;
+		if (dti + dto > to) return false;
+		return true;
+	};
+
+	for (int i = 0; i < 8; i++) {
+		switch (i) {
+		case 0: //000
+			ai_sign = false;
+			ao_sign = false;
+			squareRootSign = false;
+			break;
+		case 1: //001
+			ai_sign = false;
+			ao_sign = false;
+			squareRootSign = true;
+			break;
+		case 2: //010
+			ai_sign = false;
+			ao_sign = true;
+			squareRootSign = false;
+			break;
+		case 3: //011
+			ai_sign = false;
+			ao_sign = true;
+			squareRootSign = true;
+			break;
+		case 4: //100
+			ai_sign = true;
+			ao_sign = false;
+			squareRootSign = false;
+			break;
+		case 5: //101
+			ai_sign = true;
+			ao_sign = false;
+			squareRootSign = true;
+			break;
+		case 6: //110
+			ai_sign = true;
+			ao_sign = true;
+			squareRootSign = false;
+			break;
+		case 7: //111
+			ai_sign = true;
+			ao_sign = true;
+			squareRootSign = true;
+			break;
+		}
+		MotionCurve::CurveProfile profile;
+		if (solveTangentCurve(profile)) solutions.push_back(profile);
+	}
+	
+
+	ImGui::Text("%s  (%i solutions)", solutions.empty() ? "Could not Solve" : "Solved !", solutions.size());
+
+	static char selectedString[64];
+	static int selectedSolution = 0;
+	if (selectedSolution >= solutions.size()) selectedSolution = solutions.size() - 1;
+	if (selectedSolution >= 0) sprintf(selectedString, "Solution %i", selectedSolution);
+	else sprintf(selectedString, "No Solutions");
+	ImGui::SetNextItemWidth(inputWidth);
+	if (ImGui::BeginCombo("##Solution", selectedString)) {
+		for (int i = 0; i < solutions.size(); i++) {
+			char solutionString[64];
+			sprintf(solutionString, "Solution %i", i);
+			if (ImGui::Selectable(solutionString, selectedSolution == i)) selectedSolution = i;
+		}
+		ImGui::EndCombo();
+	}
+
+	MotionCurve::CurveProfile& selectedProfile = solutions[selectedSolution];
+
+
+	ImGui::Text("Time: %.6f  MaxV: %.6f", selectedProfile.rampOutEndTime - selectedProfile.rampInStartTime, selectedProfile.coastVelocity);
+
 
 	int pointCount = 200;
-	double deltaT = (profile.rampOutEndTime - profile.rampInStartTime) / pointCount;
+	double deltaT = (selectedProfile.rampOutEndTime - selectedProfile.rampInStartTime) / pointCount;
 	std::vector<MotionCurve::CurvePoint> points;
 	for (int i = 0; i <= pointCount; i++) {
-		double T = profile.rampInStartTime + i * deltaT;
-		points.push_back(MotionCurve::getCurvePointAtTime(T, profile));
+		double T = selectedProfile.rampInStartTime + i * deltaT;
+		points.push_back(MotionCurve::getCurvePointAtTime(T, selectedProfile));
 	}
 
 	glm::vec2 rampInHandle(1.0, startPoint.velocity);
 	rampInHandle = glm::normalize(rampInHandle);
-	//rampInHandle *= 1.0;// * startPoint.acceleration;
+	rampInHandle *= startPoint.acceleration / 100.0;
 
 	glm::vec2 rampOutHandle(-1.0, -endPoint.velocity);
 	glm::normalize(rampOutHandle);
-	//rampOutHandle *= 1.0;// *endPoint.acceleration;
+	rampOutHandle *= endPoint.acceleration / 100.0;
 
 	double velocityTangentLength = 1.0;
 	std::vector<glm::vec2> rampInHandlePoints;
-	rampInHandlePoints.push_back(glm::vec2(profile.rampInStartTime, profile.rampInStartPosition));
-	rampInHandlePoints.push_back(glm::vec2(profile.rampInStartTime, profile.rampInStartPosition) + rampInHandle);
+	rampInHandlePoints.push_back(glm::vec2(selectedProfile.rampInStartTime, selectedProfile.rampInStartPosition));
+	rampInHandlePoints.push_back(glm::vec2(selectedProfile.rampInStartTime, selectedProfile.rampInStartPosition) + rampInHandle);
 
 	std::vector<glm::vec2> rampOutHandlePoints;
-	rampOutHandlePoints.push_back(glm::vec2(profile.rampOutEndTime, profile.rampOutEndPosition));
-	rampOutHandlePoints.push_back(glm::vec2(profile.rampOutEndTime, profile.rampOutEndPosition) + rampOutHandle);
+	rampOutHandlePoints.push_back(glm::vec2(selectedProfile.rampOutEndTime, selectedProfile.rampOutEndPosition));
+	rampOutHandlePoints.push_back(glm::vec2(selectedProfile.rampOutEndTime, selectedProfile.rampOutEndPosition) + rampOutHandle);
 
 	double minreqdvel = -reqvelocity;
+	ImPlot::SetNextPlotLimits(-0.2, 1.5, -3.0, 3.0, ImGuiCond_FirstUseEver);
 	if (ImPlot::BeginPlot("##curveTest", 0, 0, ImVec2(ImGui::GetContentRegionAvail().x, 1500.0), ImPlotFlags_None)) {
 		ImPlot::DragLineY("end", &endPoint.position);
 		ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 0.5, 1.0), 2.0);
@@ -90,17 +329,31 @@ void sequencer() {
 		ImPlot::PlotLine("RampIn", &rampInHandlePoints.front().x, &rampInHandlePoints.front().y, 2, 0, sizeof(glm::vec2));
 		ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 1.0), 2.0);
 		ImPlot::PlotLine("RampOut", &rampOutHandlePoints.front().x, &rampOutHandlePoints.front().y, 2, 0, sizeof(glm::vec2));
-		ImPlot::DragPoint("rampBegin", &profile.rampInStartTime, &profile.rampInStartPosition);
-		ImPlot::DragPoint("rampInEnd", &profile.rampInEndTime, &profile.rampInEndPosition);
-		ImPlot::DragPoint("rampOutBegin", &profile.rampOutStartTime, &profile.rampOutStartPosition);
-		ImPlot::DragPoint("rampOutEnd", &profile.rampOutEndTime, &profile.rampOutEndPosition);
+		ImPlot::DragPoint("rampBegin", &selectedProfile.rampInStartTime, &selectedProfile.rampInStartPosition);
+		ImPlot::DragPoint("rampInEnd", &selectedProfile.rampInEndTime, &selectedProfile.rampInEndPosition);
+		ImPlot::DragPoint("rampOutBegin", &selectedProfile.rampOutStartTime, &selectedProfile.rampOutStartPosition);
+		ImPlot::DragPoint("rampOutEnd", &selectedProfile.rampOutEndTime, &selectedProfile.rampOutEndPosition);
 		ImPlot::EndPlot();
 	}
 
-	*/
+	
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/*
 	static MotionCurve::MotionConstraints constraints;
 	static MotionCurve::CurvePoint startPoint;
 	static MotionCurve::CurvePoint endPoint;
@@ -178,7 +431,6 @@ void sequencer() {
 	};
 
 
-
 	static bool ai_sign = true;
 	static bool ao_sign = false;
 	static bool rootTermSign = true;
@@ -213,6 +465,7 @@ void sequencer() {
 
 		double vt;
 		if (a == 0) {
+			//if the a term is zero, the problems turns into a simple linear function
 			vt = -c / b;
 		}
 		else {
@@ -316,24 +569,6 @@ void sequencer() {
 	
 	
 
-	/*
-	if (!solved) {
-		//MotionCurve::getVelocityContrainedProfile(startPoint, endPoint, )
-	}
-	*/
-	
-	
-
-	
-	/*
-	ImGui::Checkbox("RootTermSign", &rootTermSign);
-	ImGui::SameLine();
-	ImGui::Checkbox("RampInAcceleration", &ai_sign);
-	ImGui::SameLine();
-	ImGui::Checkbox("RampOutAcceleration", &ao_sign);
-	bool solved = solveCurve(profile);
-	*/
-
 	ImGui::Text("%s", solved ? "Solved" : "Failed to Solve");
 	ImGui::SameLine();
 	ImGui::Text("%.3fx^2 + %.3fx + %.3f", aTerm, bTerm, cTerm);
@@ -352,8 +587,6 @@ void sequencer() {
 	ImGui::Text("ai%s", ai_sign ? "+" : "-");
 	ImGui::SameLine();
 	ImGui::Text("ao%s", ao_sign ? "+" : "-");
-
-
 
 
 
@@ -402,4 +635,6 @@ void sequencer() {
 		ImPlot::DragPoint("rampOutEnd", &profile.rampOutEndTime, &profile.rampOutEndPosition);
 		ImPlot::EndPlot();
 	}
+
+	*/
 }

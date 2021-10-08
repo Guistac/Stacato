@@ -13,7 +13,108 @@ namespace MotionCurve {
 	//=======================================================================================================================================
 	//=======================================================================================================================================
 
+	/*
+	CurveProfile getVelocityConstrainedProfile(const CurvePoint& startPoint, const CurvePoint& endPoint, double velocity, const MotionConstraints& constraints) {
+	
+
+		CurveProfile profile;
+
+		auto square = [](double in) -> double { return std::pow(in, 2.0); };
+
+		double pi = startPoint.position;
+		double ti = startPoint.time;
+		double vi = startPoint.velocity;
+		double ai = std::abs(startPoint.acceleration);
+
+		double vt = velocity;
+
+		double po = endPoint.position;
+		double vo = endPoint.velocity;
+		double ao = std::abs(endPoint.acceleration);
+
+		double dp = endPoint.position - startPoint.position;
+		double dv = endPoint.velocity - startPoint.velocity;
+
+		bool ai_sign = false;
+		bool ao_sign = false;
+		bool velocity_sign = false;
+
+		auto solveCurveForVelocity = [&](MotionCurve::CurveProfile& profile) -> bool {
+
+			//initialize acceleration signs
+			if (!ai_sign) ai = -std::abs(ai);
+			else ai = std::abs(ai);
+			if (!ao_sign) ao = -std::abs(ao);
+			else ao = std::abs(ao);
+			if (!velocity_sign) vt = -std::abs(vt);
+			else vt = std::abs(vt);
+
+			double a = (vt - vi) / ai;
+			double b = (vo - vt) / ao;
+			double c = (square(vt) - square(vi)) / (2.0 * ai);
+			double d = (square(vo) - square(vt)) / (2.0 * ao);
+			double dt = a + b + vt * (dp - c - d);
+
+			return dt > 0.0;
+		};
+
+
+		bool solved = false;
+		for (int i = 0; i < 8; i++) {
+			switch (i) {
+			case 0: //000
+				ai_sign = false;
+				ao_sign = false;
+				velocity_sign = false;
+				break;
+			case 1: //001
+				ai_sign = false;
+				ao_sign = false;
+				velocity_sign = true;
+				break;
+			case 2: //010
+				ai_sign = false;
+				ao_sign = true;
+				velocity_sign = false;
+				break;
+			case 3: //011
+				ai_sign = false;
+				ao_sign = true;
+				velocity_sign = true;
+				break;
+			case 4: //100
+				ai_sign = true;
+				ao_sign = false;
+				velocity_sign = false;
+				break;
+			case 5: //101
+				ai_sign = true;
+				ao_sign = false;
+				velocity_sign = true;
+				break;
+			case 6: //110
+				ai_sign = true;
+				ao_sign = true;
+				velocity_sign = false;
+				break;
+			case 7: //111
+				ai_sign = true;
+				ao_sign = true;
+				velocity_sign = true;
+				break;
+			}
+			solved = solveCurveForVelocity(profile);
+			if (solved) break;
+		}
+
+
+		return profile;
+	}
+	*/
+
+	
     CurveProfile getVelocityContrainedProfile(const CurvePoint& startPoint, const CurvePoint& endPoint, double velocity, const MotionConstraints& constraints) {
+
 
 		//Algorithm for procuding a motion curve of the 2nd degree:
 		//this algorithm takes the following parameters:
@@ -251,7 +352,7 @@ namespace MotionCurve {
 
 		return profile;
     }
-
+	
 	//=======================================================================================================================================
 	//=======================================================================================================================================
 	//=======================================================================================================================================
