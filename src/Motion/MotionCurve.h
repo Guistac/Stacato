@@ -59,7 +59,7 @@ namespace MotionCurve {
 	//returns a profile using the position, velocity, acceleration and time data of the two specified points, while respecting the provided motion constraints
 	CurveProfile getTimeConstrainedProfile(CurvePoint startPoint, CurvePoint endPoint, MotionConstraints contraints);
 	//return a profile using the position, velocity and acceleration values of the two specified points, using the specified velocity as a target while respecting the provided motion constraints
-	CurveProfile getVelocityContrainedProfile(const CurvePoint& startPoint, const CurvePoint& endPoint, double velocity, const MotionConstraints& constraints);
+	std::vector<CurveProfile> getVelocityContrainedProfiles(const CurvePoint& startPoint, const CurvePoint& endPoint, double velocity, const MotionConstraints& constraints);
 
 	bool isInsideCurveTime(double time, CurveProfile& curvePoints);
 
