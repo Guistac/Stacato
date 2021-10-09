@@ -6,28 +6,39 @@ namespace MotionCurve {
 	CurveProfile getTimeConstrainedProfile(CurvePoint startPoint, CurvePoint endPoint, MotionConstraints constraints) {
 
 		auto square = [](double in) -> double { return std::pow(in, 2.0); };
+		auto clamp = [](double in, double rangeA, double rangeB) -> double {
+			if (rangeA < rangeB) {
+				if (in < rangeA) return rangeA;
+				else if (in > rangeB) return rangeB;
+			}
+			else {
+				if (in < rangeB) return rangeB;
+				else if (in > rangeA) return rangeA;
+			}
+			return in;
+		};
 
 		double pi = startPoint.position;
 		double ti = startPoint.time;
 		double vi = startPoint.velocity;
-		double ai = std::abs(startPoint.acceleration);
+		double ai = clamp(std::abs(startPoint.acceleration), 0.0, constraints.maxAcceleration);
 
-		double po = endPoint.position;
-		double vo = endPoint.velocity;
-		double ao = std::abs(endPoint.acceleration);
+		double maxv = constraints.maxVelocity;
+
+		double po = clamp(endPoint.position, constraints.minPosition, constraints.maxPosition);
+		double vo = clamp(endPoint.velocity, -constraints.maxVelocity, constraints.maxVelocity);
+		double ao = clamp(std::abs(endPoint.acceleration), 0.0, constraints.maxAcceleration);
 
 		double dt = endPoint.time - startPoint.time;
 		double dp = endPoint.position - startPoint.position;
 		double dv = endPoint.velocity - startPoint.velocity;
-
+		
+		//solution choice variables
 		bool ai_sign = true;
 		bool ao_sign = false;
 		bool rootTermSign = true;
 
-		double aTerm;
-		double bTerm;
-		double cTerm;
-		double rTerm;
+		//output
 		double vt;
 
 		auto solveCurve = [&](MotionCurve::CurveProfile& profile) -> bool {
@@ -45,10 +56,6 @@ namespace MotionCurve {
 			double b = 2.0 * (ao * vi - ai * vo + ai * ao * dt);
 			double c = ai * square(vo) - ao * square(vi) - 2.0 * ai * ao * dp;
 			double r = square(b) - 4.0 * a * c; //quadratic root term
-			aTerm = a;
-			bTerm = b;
-			cTerm = c;
-			rTerm = r;
 
 			if (a == 0) {
 				//if the a term is zero, the problems turns into a simple linear function
@@ -87,16 +94,16 @@ namespace MotionCurve {
 			profile.rampOutEndPosition = endPoint.position;		//position of curve end
 			profile.rampOutEndVelocity = endPoint.velocity;		//velocity of curve end
 
-			//checks for a successfull solve
-			//if (a == 0.0) return false;
+			//reject invalid solutions
 			if (r < 0.0 && a != 0.0) return false;
 			if (dti < 0.0) return false;
 			if (dto < 0.0) return false;
 			if (dti > to - dto) return false;
+			if (std::abs(vt) > std::abs(maxv)) return false;
 			return true;
 		};
 
-		MotionCurve::CurveProfile profile;
+		std::vector<CurveProfile> timeConstrainedSolutions;
 
 		bool solved = false;
 		for (int i = 0; i < 8; i++) {
@@ -142,16 +149,44 @@ namespace MotionCurve {
 				rootTermSign = true;
 				break;
 			}
-			solved = solveCurve(profile);
-			if (solved) break;
+			CurveProfile profile;
+			if (solveCurve(profile)) timeConstrainedSolutions.push_back(profile);
 		}
 
-		double maxV = 10.0;
-		if (!solved || std::abs(vt) > maxV) {
-			std::vector<CurveProfile> velocityConstrainedSolutions = MotionCurve::getVelocityContrainedProfiles(startPoint, endPoint, maxV, constraints);
-			//TODO: choose a suitable profile from the list
+		if (timeConstrainedSolutions.empty()) {
+			//if no solution exists for a time constrained profile
+			//we pick the fastest profile among all profiles that are slower than the requested time
+			//if there is no slower profile (weird) we pick the slowest profile among the fast ones
+			std::vector<CurveProfile> velocityConstrainedSolutions = MotionCurve::getVelocityContrainedProfiles(startPoint, endPoint, maxv, constraints);
+			std::vector<CurveProfile> slowerThanRequestedSolutions;
+			for (auto& solution : velocityConstrainedSolutions) {
+				if (solution.rampOutEndTime > endPoint.time) slowerThanRequestedSolutions.push_back(solution);
+			}
+			if (slowerThanRequestedSolutions.empty()) {
+				CurveProfile* slowestProfileBelowRequested = nullptr;
+				for (auto& solution : velocityConstrainedSolutions) {
+					if (slowestProfileBelowRequested == nullptr) slowestProfileBelowRequested = &solution;
+					else if (solution.rampOutEndTime > slowestProfileBelowRequested->rampOutEndTime) slowestProfileBelowRequested = &solution;
+				}
+				return *slowestProfileBelowRequested;
+			}
+			else {
+				CurveProfile* fastestProfileAboveRequested = nullptr;
+				for (auto& solution : slowerThanRequestedSolutions) {
+					if (fastestProfileAboveRequested == nullptr) fastestProfileAboveRequested = &solution;
+					else if (solution.rampOutEndTime > endPoint.time && solution.rampOutEndTime < fastestProfileAboveRequested->rampOutEndTime) fastestProfileAboveRequested = &solution;
+				}
+				return *fastestProfileAboveRequested;
+			}
 		}
-		return profile;
+		else {
+			CurveProfile* fastestProfileAboveRequested = nullptr;
+			for (auto& solution : timeConstrainedSolutions) {
+				if (fastestProfileAboveRequested == nullptr) fastestProfileAboveRequested = &solution;
+				else if (solution.rampOutEndTime > endPoint.time && solution.rampOutEndTime < fastestProfileAboveRequested->rampOutEndTime) fastestProfileAboveRequested = &solution;
+			}
+			return *fastestProfileAboveRequested;
+		}
 	}
 
 	//=======================================================================================================================================
