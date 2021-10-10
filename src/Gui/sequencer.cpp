@@ -15,11 +15,11 @@ void sequencer() {
 		startPoint.position = 0.0;
 		startPoint.time = 0.0;
 		startPoint.velocity = 0.0;
-		startPoint.acceleration = 10.0;
+		startPoint.acceleration = 4.0;
 		endPoint.position = 1.0;
 		endPoint.time = 1.0;
 		endPoint.velocity = 0.0;
-		endPoint.acceleration = 10.0;
+		endPoint.acceleration = 4.0;
 		constraints.maxAcceleration = 100.0;
 		constraints.maxVelocity = 2.0;
 		constraints.minPosition = -1000000.0;
@@ -29,22 +29,26 @@ void sequencer() {
 
 	float inputWidth = 300.0;
 	ImGui::SetNextItemWidth(inputWidth);
+	ImGui::InputDouble("TargetPosition", &endPoint.position, 0.01, 0.1);
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(inputWidth);
+	ImGui::InputDouble("TargetTime", &endPoint.time, 0.01, 0.1);
+	ImGui::Separator();
+	ImGui::SetNextItemWidth(inputWidth);
 	ImGui::InputDouble("Vi", &startPoint.velocity, 0.01, 0.1);
+	ImGui::SameLine();
 	ImGui::SetNextItemWidth(inputWidth);
 	ImGui::InputDouble("Ai", &startPoint.acceleration, 0.01, 0.1);
 	ImGui::Separator();
 	ImGui::SetNextItemWidth(inputWidth);
 	ImGui::InputDouble("Vo", &endPoint.velocity, 0.01, 0.1);
+	ImGui::SameLine();
 	ImGui::SetNextItemWidth(inputWidth);
 	ImGui::InputDouble("Ao", &endPoint.acceleration, 0.01, 0.1);
 	ImGui::Separator();
 	ImGui::SetNextItemWidth(inputWidth);
-	ImGui::InputDouble("TargetPosition", &endPoint.position, 0.01, 0.1);
-	ImGui::SetNextItemWidth(inputWidth);
-	ImGui::InputDouble("TargetTime", &endPoint.time, 0.01, 0.1);
-	ImGui::Separator();
-	ImGui::SetNextItemWidth(inputWidth);
 	ImGui::InputDouble("maxV", &constraints.maxVelocity, 0.01, 0.1);
+	ImGui::SameLine();
 	ImGui::SetNextItemWidth(inputWidth);
 	ImGui::InputDouble("maxA", &constraints.maxAcceleration, 0.01, 0.1);
 
@@ -81,11 +85,11 @@ void sequencer() {
 
 	glm::vec2 rampInHandle(1.0, startPoint.velocity);
 	rampInHandle = glm::normalize(rampInHandle);
-	//rampInHandle *= 1.0;// * startPoint.acceleration;
+	rampInHandle *= startPoint.acceleration * 0.1;
 
 	glm::vec2 rampOutHandle(-1.0, -endPoint.velocity);
 	glm::normalize(rampOutHandle);
-	//rampOutHandle *= 1.0;// *endPoint.acceleration;
+	rampOutHandle *= endPoint.acceleration * 0.1;
 
 	double velocityTangentLength = 1.0;
 	std::vector<glm::vec2> rampInHandlePoints;
@@ -99,7 +103,7 @@ void sequencer() {
 	std::vector<double> velocityLimits = { -constraints.maxVelocity, constraints.maxVelocity };
 
 	ImPlot::SetNextPlotLimits(-0.2, 1.5, -3.0, 3.0, ImGuiCond_FirstUseEver);
-	if (ImPlot::BeginPlot("##motionCurve", 0, 0, ImVec2(ImGui::GetContentRegionAvail().x, 1100.0), ImPlotFlags_None)) {
+	if (ImPlot::BeginPlot("##motionCurve", 0, 0, ImVec2(ImGui::GetContentRegionAvail().x, 1400.0), ImPlotFlags_None)) {
 		ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 0.5, 1.0), 2.0);
 		ImPlot::PlotHLines("Velocity Limits", &velocityLimits.front(), 2);
 		ImPlot::DragPoint("target", &endPoint.time, &endPoint.position, true, glm::vec4(1.0, 1.0, 1.0, 1.0), 10.0);
@@ -117,11 +121,15 @@ void sequencer() {
 		ImPlot::DragPoint("rampInEnd", &profile.rampInEndTime, &profile.rampInEndPosition);
 		ImPlot::DragPoint("rampOutBegin", &profile.rampOutStartTime, &profile.rampOutStartPosition);
 		ImPlot::DragPoint("rampOutEnd", &profile.rampOutEndTime, &profile.rampOutEndPosition);
+		ImPlot::DragPoint("RampInControlPoint", &rampInHandlePoints.back().x, &rampInHandlePoints.back().y, true, glm::vec4(1.0, 1.0, 1.0, 1.0), 4.0);
+		ImPlot::DragPoint("RampOutControlPoint", &rampOutHandlePoints.front().x, &rampOutHandlePoints.front().y, true, glm::vec4(1.0, 1.0, 1.0, 1.0), 4.0);
 		ImPlot::EndPlot();
 	}
 
-	ImGui::Text("RampEndTime: %3.f", profile.rampOutEndTime);
+	ImGui::Text("RampEndTime: %.3f", profile.rampOutEndTime);
+	ImGui::SameLine();
 	ImGui::Text("RampInAcceleration: %.3f", profile.rampInAcceleration);
+	ImGui::SameLine();
 	ImGui::Text("RampOutAcceleration: %.3f", profile.rampOutAcceleration);
 
 	

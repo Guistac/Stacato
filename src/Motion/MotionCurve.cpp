@@ -5,6 +5,11 @@ namespace MotionCurve {
 
 	CurveProfile getTimeConstrainedProfile(CurvePoint startPoint, CurvePoint endPoint, MotionConstraints constraints) {
 
+		//TODO: solve special cases:
+		//vt == 0
+		//dt == 0
+		//ai == 0 || ao == 0
+
 		auto square = [](double in) -> double { return std::pow(in, 2.0); };
 		auto clamp = [](double in, double rangeA, double rangeB) -> double {
 			if (rangeA < rangeB) {
@@ -52,7 +57,7 @@ namespace MotionCurve {
 			//============ QUADRATIC FUNCTION FOR CONSTANT VELOCITY VALUE ============
 
 			//Quadratic equation constants for ax² + bx + c = 0
-			double a = ai - ao; //solution undefined if == 0
+			double a = ai - ao;
 			double b = 2.0 * (ao * vi - ai * vo + ai * ao * dt);
 			double c = ai * square(vo) - ao * square(vi) - 2.0 * ai * ao * dp;
 			double r = square(b) - 4.0 * a * c; //quadratic root term
@@ -79,6 +84,7 @@ namespace MotionCurve {
 			double rampOutStartPosition = po - dpo;
 			double rampOutStartTime = rampInEndTime + (rampOutStartPosition - rampInEndPosition) / vt;
 			double to = rampOutStartTime + dto;
+			//TODO: for a time constrained profile, to should be equal to the requested time ?
 
 			profile.rampInStartTime = startPoint.time;			//time of curve start
 			profile.rampInStartPosition = startPoint.position;	//position of curve start
