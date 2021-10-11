@@ -1,6 +1,6 @@
-# Stacatto
+# Stacato
 
-## Stage Control Automation Technology Toolbox
+## Stage Control Automation Toolbox
 
 Future Milestones
 - Axis Objects with multiple subtypes
