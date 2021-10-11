@@ -33,6 +33,21 @@ void Axis::process() {
 	else {
 		actuatorCommand->set(positionFeedback->getLinks().front()->getInputData()->getReal());
 	}
+
+	std::shared_ptr<PositionFeedbackDevice> feedbackDevice = feedbackDeviceLink->getLinks().front()->getInputData()->getPositionFeedbackDevice();
+	std::shared_ptr<ActuatorDevice> actuatorDevice = actuatorDeviceLinks->getLinks().front()->getInputData()->getActuatorDevice();
+
+	double actualPosition = feedbackDevice->getPosition();
+	double positionError = profilePosition_degrees - feedbackDevice->getPosition();
+
+	positionHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profilePosition_degrees));
+	actualPositionHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, actualPosition));
+	positionErrorHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, positionError));
+	velocityHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profileVelocity_degreesPerSecond));
+	accelerationHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profileAcceleration_degreesPerSecondSquared));
+	loadHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, actuatorDevice->getLoad()));
+
+	Logger::warn("Load {}", actuatorDevice->getLoad());
 }
 
 

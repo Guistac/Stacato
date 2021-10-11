@@ -4,8 +4,38 @@
 
 #include "Motion/MotionCurve.h"
 
+#include "Utilities/CircularBuffer.h"
+
 void sequencer() {
 	
+	static CircularBuffer circularBuffer(8);
+
+	glm::vec2* data;
+	size_t size = circularBuffer.getBuffer(&data);
+
+	static int count = 0;
+
+	if (ImGui::Button("Add")) {
+		circularBuffer.addPoint(glm::vec2(count, Timing::getTime_seconds()));
+		count++;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Clear")) {
+		circularBuffer.clear();
+		count = 0;
+	}
+	if (ImGui::BeginListBox("##test2", glm::vec2(500, 1000))) {
+		for (int i = 0; i < size; i++) {
+			glm::vec2& entry = data[i];
+			int number = entry.x;
+			ImGui::Text("[%i] x: %i   y: %.1f", i, number, entry.y);
+		}
+		ImGui::EndListBox();
+	}
+
+
+
+
 	static MotionCurve::CurvePoint startPoint;
 	static MotionCurve::CurvePoint endPoint;
 	static double maxVelocity = 3.0;

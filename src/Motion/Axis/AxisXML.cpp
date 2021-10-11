@@ -147,8 +147,8 @@ bool Axis::load(tinyxml2::XMLElement* xml) {
 
 	XMLElement* defaultManualParametersXML = xml->FirstChildElement("DefaultManualParameters");
 	if (!defaultManualParametersXML) return Logger::warn("Could not load default movement parameters");
-	if (defaultManualParametersXML->QueryDoubleAttribute("Velocity_degreesPerSecond", &defaultManualVelocity_degreesPerSecond) != XML_SUCCESS) Logger::warn("Could not load default movement velocity");
-	if (defaultManualParametersXML->QueryDoubleAttribute("Acceleration_degreesPerSecondSquared", &defaultManualAcceleration_degreesPerSecondSquared) != XML_SUCCESS) Logger::warn("Could not load default movement acceleration");
+	if (defaultManualParametersXML->QueryDoubleAttribute("Velocity_degreesPerSecond", &targetVelocity) != XML_SUCCESS) Logger::warn("Could not load default movement velocity");
+	if (defaultManualParametersXML->QueryDoubleAttribute("Acceleration_degreesPerSecondSquared", &manualControlAcceleration_degreesPerSecond) != XML_SUCCESS) Logger::warn("Could not load default movement acceleration");
 
 	return true;
 }

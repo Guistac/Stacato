@@ -4,6 +4,7 @@
 #include "Motion/Subdevice.h"
 #include "Motion/MotionTypes.h"
 #include "Motion/MotionCurve.h"
+#include "Utilities/CircularBuffer.h"
 
 class Axis : public Node {
 public:
@@ -88,9 +89,9 @@ public:
 	void moveToPositionInTime(double position_axisUnits, double movementTime_seconds, double acceleration_axisUnits);
 	void positionTargetControl();
 	MotionCurve::CurveProfile targetCurveProfile;
-	float targetPosition = 0.0;
-	float targetVelocity = 0.0;
-	float targetTime = 0.0;
+	double targetPosition = 0.0;
+	double targetVelocity = 0.0;
+	double targetTime = 0.0;
 
 	//Curve following
 	void followCurveControl();
@@ -100,6 +101,14 @@ public:
 	void cancelHoming();
 	bool isHoming();
 	void homingControl();
+
+	const size_t historyLength = 2048;
+	CircularBuffer positionHistory = CircularBuffer(historyLength);
+	CircularBuffer actualPositionHistory = CircularBuffer(historyLength);
+	CircularBuffer positionErrorHistory = CircularBuffer(historyLength);
+	CircularBuffer velocityHistory = CircularBuffer(historyLength);
+	CircularBuffer accelerationHistory = CircularBuffer(historyLength);
+	CircularBuffer loadHistory = CircularBuffer(historyLength);
 
 	//Axis State Control
 	void enable();
@@ -113,10 +122,6 @@ public:
 
 	const char* getAxisUnitStringSingular() { return getPositionUnitType(axisPositionUnit)->displayName; }
 	const char* getAxisUnitStringPlural() { return getPositionUnitType(axisPositionUnit)->displayNamePlural; }
-
-	void controlsGui();
-	void settingsGui();
-	void devicesGui();
 
 	virtual void assignIoData() {
 		addIoData(actuatorDeviceLinks);
@@ -132,6 +137,10 @@ public:
 	virtual void process();
 
 	virtual void nodeSpecificGui();
+	void controlsGui();
+	void settingsGui();
+	void devicesGui();
+	void metricsGui();
 
 	virtual bool load(tinyxml2::XMLElement* xml);
 	virtual bool save(tinyxml2::XMLElement* xml);

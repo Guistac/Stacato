@@ -5,6 +5,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include "Gui/Framework/Fonts.h"
+#include <implot.h>
 
 #include "NodeGraph/DeviceNode.h"
 
@@ -20,6 +21,10 @@ void Axis::nodeSpecificGui() {
 	}
 	if (ImGui::BeginTabItem("Devices")) {
 		devicesGui();
+		ImGui::EndTabItem();
+	}
+	if (ImGui::BeginTabItem("Metrics")) {
+		metricsGui();
 		ImGui::EndTabItem();
 	}
 }
@@ -109,13 +114,13 @@ void Axis::controlsGui() {
 		float tripleWidgetWidth = (widgetWidth - 2 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
 		glm::vec2 tripleButtonSize(tripleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
 		ImGui::SetNextItemWidth(tripleWidgetWidth);
-		ImGui::InputFloat("##TargetPosition", &targetPosition, 0.0, 0.0, "%.3f deg");
+		ImGui::InputDouble("##TargetPosition", &targetPosition, 0.0, 0.0, "%.3f deg");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(tripleWidgetWidth);
-		ImGui::InputFloat("##TargetVelocity", &targetVelocity, 0.0, 0.0, "%.3f deg/s");
+		ImGui::InputDouble("##TargetVelocity", &targetVelocity, 0.0, 0.0, "%.3f deg/s");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(tripleWidgetWidth);
-		ImGui::InputFloat("##TargetTime", &targetTime, 0.0, 0.0, "%.3f s");
+		ImGui::InputDouble("##TargetTime", &targetTime, 0.0, 0.0, "%.3f s");
 		if (ImGui::Button("Fast Move", tripleButtonSize)) {
 			moveToPositionWithVelocity(targetPosition, velocityLimit_degreesPerSecond, manualControlAcceleration_degreesPerSecond);
 		}
@@ -513,6 +518,73 @@ void Axis::devicesGui() {
 
 			ImGui::PopID();
 
+		}
+
+		ImGui::EndChild();
+	}
+}
+
+void Axis::metricsGui() {
+	if (ImGui::BeginChild("Metrics")) {
+
+		glm::vec2* positionBuffer;
+		size_t positionPointCount = positionHistory.getBuffer(&positionBuffer);
+
+		glm::vec2* actualPositionBuffer;
+		size_t actualPositionPointCount = actualPositionHistory.getBuffer(&actualPositionBuffer);
+
+		glm::vec2* positionErrorBuffer;
+		size_t positionErrorPointCount = positionErrorHistory.getBuffer(&positionErrorBuffer);
+
+		glm::vec2* velocityBuffer;
+		size_t velocityPointCount = velocityHistory.getBuffer(&velocityBuffer);
+
+		glm::vec2* accelerationBuffer;
+		size_t accelerationPointCount = accelerationHistory.getBuffer(&accelerationBuffer);
+
+		glm::vec2* loadBuffer;
+		size_t loadPointCount = loadHistory.getBuffer(&loadBuffer);
+
+		if (positionPointCount) {
+			ImPlot::SetNextPlotLimitsX(positionBuffer[0].x, positionBuffer[positionPointCount - 1].x, ImGuiCond_Always);
+			ImPlot::FitNextPlotAxes(false, true, false, false);
+		}
+		ImPlot::SetNextPlotLimitsY(-velocityLimit_degreesPerSecond * 1.1, velocityLimit_degreesPerSecond * 1.1, ImGuiCond_Always, ImPlotYAxis_2);
+		ImPlot::SetNextPlotLimitsY(-1.0, 1.0, ImGuiCond_Always, ImPlotYAxis_3);
+
+		float zero = 0.0;
+		float maxV = velocityLimit_degreesPerSecond;
+		float minV = -velocityLimit_degreesPerSecond;
+
+		ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_CanvasOnly | ImPlotFlags_NoChild | ImPlotFlags_YAxis2 | ImPlotFlags_YAxis3;
+
+		if(ImPlot::BeginPlot("##Metrics", 0, 0, glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 20.0), plotFlags)) {
+		
+			ImPlot::SetPlotYAxis(ImPlotYAxis_2);
+			ImPlot::SetNextLineStyle(glm::vec4(0.3, 0.3, 0.3, 1.0), 2.0);
+			ImPlot::PlotHLines("zero", &zero, 1);
+			ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 0.5, 1.0), 2.0);
+			ImPlot::PlotHLines("MaxV", &maxV, 1);
+			ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 0.5, 1.0), 2.0);
+			ImPlot::PlotHLines("MinV", &minV, 1);
+			ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 1.0, 1.0), 4.0);
+			if (velocityPointCount > 0) ImPlot::PlotLine("Profile Velocity", &velocityBuffer[1].x, &velocityBuffer[1].y, velocityPointCount-1, 0, sizeof(glm::vec2));
+			ImPlot::SetNextLineStyle(glm::vec4(0.5, 0.5, 0.5, 1.0), 4.0);
+			if (accelerationPointCount > 0) ImPlot::PlotLine("Profile Acceleration", &accelerationBuffer[1].x, &accelerationBuffer[1].y, accelerationPointCount-1, 0, sizeof(glm::vec2));
+
+			ImPlot::SetPlotYAxis(ImPlotYAxis_3);
+			//ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 0.0, 1.0), 2.0);
+			//if (positionErrorPointCount > 0) ImPlot::PlotLine("Position Error", &positionErrorBuffer[1].x, &positionErrorBuffer[1].y, positionErrorPointCount - 1, 0, sizeof(glm::vec2));
+			ImPlot::SetNextLineStyle(glm::vec4(1.0, 0.0, 1.0, 1.0), 2.0);
+			if (loadPointCount > 0) ImPlot::PlotLine("Load", &loadBuffer[1].x, &loadBuffer[1].y, loadPointCount - 1, 0, sizeof(glm::vec2));
+
+			ImPlot::SetPlotYAxis(ImPlotYAxis_1);
+			ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 1.0), 4.0);
+			if (positionPointCount > 0) ImPlot::PlotLine("Profile Position", &positionBuffer[1].x, &positionBuffer[1].y, positionPointCount - 1, 0, sizeof(glm::vec2));
+			ImPlot::SetNextLineStyle(glm::vec4(1.0, 0.0, 0.0, 1.0), 2.0);
+			if (actualPositionPointCount > 0) ImPlot::PlotLine("Actual Position", &actualPositionBuffer[1].x, &actualPositionBuffer[1].y, actualPositionPointCount - 1, 0, sizeof(glm::vec2));
+
+			ImPlot::EndPlot();
 		}
 
 		ImGui::EndChild();

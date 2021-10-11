@@ -337,6 +337,9 @@ void Lexium32::readInputs() {
     //set the encoder position in revolution units
     encoderDevice->positionRaw_positionUnits = (double)_p_act / (double)positionUnitsPerRevolution;
 
+    //set motor device load
+    motorDevice->load = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
+
     //assign public input data
     actualPosition->set(encoderDevice->getPosition());
     actualVelocity->set((double)_v_act / (double)velocityUnitsPerRpm);
