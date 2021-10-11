@@ -6,9 +6,12 @@
 
 void sequencer() {
 	
-	static MotionCurve::MotionConstraints constraints;
 	static MotionCurve::CurvePoint startPoint;
 	static MotionCurve::CurvePoint endPoint;
+	static double maxVelocity = 3.0;
+	static double maxAcceleration = 10.0;
+	static double minPosition = -100000.0;
+	static double maxPosition = 100000.0;
 
 	static bool init = true;
 	if (init) {
@@ -20,10 +23,6 @@ void sequencer() {
 		endPoint.time = 1.0;
 		endPoint.velocity = 0.0;
 		endPoint.acceleration = 4.0;
-		constraints.maxAcceleration = 100.0;
-		constraints.maxVelocity = 2.0;
-		constraints.minPosition = -1000000.0;
-		constraints.maxPosition = 10000000.0;
 		init = false;
 	}
 
@@ -47,13 +46,13 @@ void sequencer() {
 	ImGui::InputDouble("Ao", &endPoint.acceleration, 0.01, 0.1);
 	ImGui::Separator();
 	ImGui::SetNextItemWidth(inputWidth);
-	ImGui::InputDouble("maxV", &constraints.maxVelocity, 0.01, 0.1);
+	ImGui::InputDouble("maxV", &maxVelocity, 0.01, 0.1);
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(inputWidth);
-	ImGui::InputDouble("maxA", &constraints.maxAcceleration, 0.01, 0.1);
+	ImGui::InputDouble("maxA", &maxAcceleration, 0.01, 0.1);
 
-	constraints.maxVelocity = std::max(constraints.maxVelocity, 0.0);
-	constraints.maxAcceleration = std::max(constraints.maxAcceleration, 0.0);
+	maxVelocity = std::max(maxVelocity, 0.0);
+	maxAcceleration = std::max(maxAcceleration, 0.0);
 
 	auto clamp = [](double in, double rangeA, double rangeB) -> double {
 		if (rangeA < rangeB) {
@@ -67,13 +66,13 @@ void sequencer() {
 		return in;
 	};
 
-	startPoint.acceleration = clamp(startPoint.acceleration, 0.0, constraints.maxAcceleration);
-	endPoint.velocity = clamp(endPoint.velocity, -constraints.maxVelocity, constraints.maxVelocity);
-	endPoint.position = clamp(endPoint.position, constraints.minPosition, constraints.maxPosition);
-	endPoint.acceleration = clamp(endPoint.acceleration, 0.0, constraints.maxAcceleration);
+	startPoint.acceleration = clamp(startPoint.acceleration, 0.0, maxAcceleration);
+	endPoint.velocity = clamp(endPoint.velocity, -maxVelocity, maxVelocity);
+	endPoint.position = clamp(endPoint.position, minPosition, maxPosition);
+	endPoint.acceleration = clamp(endPoint.acceleration, 0.0, maxAcceleration);
 	
-	MotionCurve::CurveProfile profile = MotionCurve::getTimeConstrainedProfile(startPoint, endPoint, constraints);
-
+	MotionCurve::CurveProfile profile;
+	bool hasSolution = MotionCurve::getTimeConstrainedProfile(startPoint, endPoint, maxVelocity, profile);
 
 	int pointCount = 2000;
 	double deltaT = (profile.rampOutEndTime - profile.rampInStartTime) / pointCount;
@@ -95,34 +94,38 @@ void sequencer() {
 	std::vector<glm::vec2> rampInHandlePoints;
 	rampInHandlePoints.push_back(glm::vec2(profile.rampInStartTime, profile.rampInStartPosition));
 	rampInHandlePoints.push_back(glm::vec2(profile.rampInStartTime, profile.rampInStartPosition) + rampInHandle);
+	double rampInHandleX = rampInHandlePoints.back().x;
+	double rampInHandleY = rampInHandlePoints.back().y;
 
 	std::vector<glm::vec2> rampOutHandlePoints;
 	rampOutHandlePoints.push_back(glm::vec2(profile.rampOutEndTime, profile.rampOutEndPosition));
 	rampOutHandlePoints.push_back(glm::vec2(profile.rampOutEndTime, profile.rampOutEndPosition) + rampOutHandle);
+	double rampOutHandleX = rampOutHandlePoints.back().x;
+	double rampOutHandleY = rampOutHandlePoints.back().y;
 
-	std::vector<double> velocityLimits = { -constraints.maxVelocity, constraints.maxVelocity };
+	std::vector<double> velocityLimits = { -maxVelocity, maxVelocity };
 
 	ImPlot::SetNextPlotLimits(-0.2, 1.5, -3.0, 3.0, ImGuiCond_FirstUseEver);
 	if (ImPlot::BeginPlot("##motionCurve", 0, 0, ImVec2(ImGui::GetContentRegionAvail().x, 1400.0), ImPlotFlags_None)) {
-		ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 0.5, 1.0), 2.0);
-		ImPlot::PlotHLines("Velocity Limits", &velocityLimits.front(), 2);
-		ImPlot::DragPoint("target", &endPoint.time, &endPoint.position, true, glm::vec4(1.0, 1.0, 1.0, 1.0), 10.0);
-		ImPlot::SetNextLineStyle(glm::vec4(0.5, 0.5, 0.5, 1.0), 2.0);
-		ImPlot::PlotLine("acceleration", &points.front().time, &points.front().acceleration, pointCount + 1, 0, sizeof(MotionCurve::CurvePoint));
-		ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 1.0, 1.0), 4.0);
-		ImPlot::PlotLine("velocity", &points.front().time, &points.front().velocity, pointCount + 1, 0, sizeof(MotionCurve::CurvePoint));
-		ImPlot::SetNextLineStyle(glm::vec4(1.0, 0.0, 0.0, 1.0), 4.0);
-		ImPlot::PlotLine("position", &points.front().time, &points.front().position, pointCount + 1, 0, sizeof(MotionCurve::CurvePoint));
-		ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 1.0), 2.0);
-		ImPlot::PlotLine("RampIn", &rampInHandlePoints.front().x, &rampInHandlePoints.front().y, 2, 0, sizeof(glm::vec2));
-		ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 1.0), 2.0);
-		ImPlot::PlotLine("RampOut", &rampOutHandlePoints.front().x, &rampOutHandlePoints.front().y, 2, 0, sizeof(glm::vec2));
-		ImPlot::DragPoint("rampBegin", &profile.rampInStartTime, &profile.rampInStartPosition);
-		ImPlot::DragPoint("rampInEnd", &profile.rampInEndTime, &profile.rampInEndPosition);
-		ImPlot::DragPoint("rampOutBegin", &profile.rampOutStartTime, &profile.rampOutStartPosition);
-		ImPlot::DragPoint("rampOutEnd", &profile.rampOutEndTime, &profile.rampOutEndPosition);
-		ImPlot::DragPoint("RampInControlPoint", &rampInHandlePoints.back().x, &rampInHandlePoints.back().y, true, glm::vec4(1.0, 1.0, 1.0, 1.0), 4.0);
-		ImPlot::DragPoint("RampOutControlPoint", &rampOutHandlePoints.front().x, &rampOutHandlePoints.front().y, true, glm::vec4(1.0, 1.0, 1.0, 1.0), 4.0);
+		if (hasSolution) {
+			ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 0.5, 1.0), 2.0);
+			ImPlot::PlotHLines("Velocity Limits", &velocityLimits.front(), 2);
+			ImPlot::DragPoint("target", &endPoint.time, &endPoint.position, true, glm::vec4(1.0, 1.0, 1.0, 1.0), 10.0);
+			ImPlot::SetNextLineStyle(glm::vec4(0.5, 0.5, 0.5, 1.0), 2.0);
+			ImPlot::PlotLine("acceleration", &points.front().time, &points.front().acceleration, pointCount + 1, 0, sizeof(MotionCurve::CurvePoint));
+			ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 1.0, 1.0), 4.0);
+			ImPlot::PlotLine("velocity", &points.front().time, &points.front().velocity, pointCount + 1, 0, sizeof(MotionCurve::CurvePoint));
+			ImPlot::SetNextLineStyle(glm::vec4(1.0, 0.0, 0.0, 1.0), 4.0);
+			ImPlot::PlotLine("position", &points.front().time, &points.front().position, pointCount + 1, 0, sizeof(MotionCurve::CurvePoint));
+			ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 1.0), 2.0);
+			ImPlot::PlotLine("RampIn", &rampInHandlePoints.front().x, &rampInHandlePoints.front().y, 2, 0, sizeof(glm::vec2));
+			ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 1.0), 2.0);
+			ImPlot::PlotLine("RampOut", &rampOutHandlePoints.front().x, &rampOutHandlePoints.front().y, 2, 0, sizeof(glm::vec2));
+			ImPlot::DragPoint("rampInEnd", &profile.rampInEndTime, &profile.rampInEndPosition, true, glm::vec4(1.0, 0.0, 0.0, 1.0), 4.0);
+			ImPlot::DragPoint("rampOutBegin", &profile.rampOutStartTime, &profile.rampOutStartPosition, true, glm::vec4(1.0, 0.0, 0.0, 1.0), 4.0);
+			ImPlot::DragPoint("RampInControlPoint", &rampInHandleX, &rampInHandleY, true, glm::vec4(1.0, 1.0, 1.0, 1.0), 8.0);
+			ImPlot::DragPoint("RampOutControlPoint", &rampOutHandleX, &rampOutHandleY, true, glm::vec4(1.0, 1.0, 1.0, 1.0), 8.0);
+		}
 		ImPlot::EndPlot();
 	}
 
@@ -131,6 +134,7 @@ void sequencer() {
 	ImGui::Text("RampInAcceleration: %.3f", profile.rampInAcceleration);
 	ImGui::SameLine();
 	ImGui::Text("RampOutAcceleration: %.3f", profile.rampOutAcceleration);
-
+	ImGui::SameLine();
+	ImGui::Text("TransitionVelocity: %.3f", profile.coastVelocity);
 	
 }

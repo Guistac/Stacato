@@ -3,41 +3,27 @@
 
 namespace MotionCurve {
 
-	CurveProfile getTimeConstrainedProfile(CurvePoint startPoint, CurvePoint endPoint, MotionConstraints constraints) {
-
-		//TODO: solve special cases:
-		//vt == 0
-		//dt == 0
-		//ai == 0 || ao == 0
+	bool getTimeConstrainedProfile(const CurvePoint& startPoint, const CurvePoint& endPoint, double maxVelocity, CurveProfile& output) {
 
 		auto square = [](double in) -> double { return std::pow(in, 2.0); };
-		auto clamp = [](double in, double rangeA, double rangeB) -> double {
-			if (rangeA < rangeB) {
-				if (in < rangeA) return rangeA;
-				else if (in > rangeB) return rangeB;
-			}
-			else {
-				if (in < rangeB) return rangeB;
-				else if (in > rangeA) return rangeA;
-			}
-			return in;
-		};
 
-		double pi = startPoint.position;
-		double ti = startPoint.time;
-		double vi = startPoint.velocity;
-		double ai = clamp(std::abs(startPoint.acceleration), 0.0, constraints.maxAcceleration);
+		const double pi = startPoint.position;
+		const double ti = startPoint.time;
+		const double vi = startPoint.velocity;
+		double ai = std::abs(startPoint.acceleration);
 
-		double maxv = constraints.maxVelocity;
+		const double po = endPoint.position;
+		const double to = endPoint.time;
+		const double vo = endPoint.velocity;
+		double ao = std::abs(endPoint.acceleration);
 
-		double po = clamp(endPoint.position, constraints.minPosition, constraints.maxPosition);
-		double vo = clamp(endPoint.velocity, -constraints.maxVelocity, constraints.maxVelocity);
-		double ao = clamp(std::abs(endPoint.acceleration), 0.0, constraints.maxAcceleration);
+		//if one of these is zero, no profile can be generated
+		if (ai == 0.0 || ao == 0.0 || maxVelocity == 0.0) return false;
 
-		double dt = endPoint.time - startPoint.time;
-		double dp = endPoint.position - startPoint.position;
-		double dv = endPoint.velocity - startPoint.velocity;
-		
+		const double dt = endPoint.time - startPoint.time;
+		const double dp = endPoint.position - startPoint.position;
+		const double dv = endPoint.velocity - startPoint.velocity;
+
 		//solution choice variables
 		bool ai_sign = true;
 		bool ao_sign = false;
@@ -46,7 +32,7 @@ namespace MotionCurve {
 		//output
 		double vt;
 
-		auto solveCurve = [&](MotionCurve::CurveProfile& profile) -> bool {
+		auto solveCurve = [&]() -> CurveProfile {
 
 			//initialize acceleration signs
 			if (!ai_sign) ai = -std::abs(ai);
@@ -74,6 +60,8 @@ namespace MotionCurve {
 				else vt = vt_minus;
 			}
 
+			//=========================================================================
+
 			double dti = (vt - vi) / ai;
 			double dto = (vo - vt) / ao;
 			double dpi = vi * dti + ai * square(dti) / 2.0;
@@ -82,10 +70,9 @@ namespace MotionCurve {
 			double rampInEndPosition = pi + dpi;
 			double rampInEndTime = ti + dti;
 			double rampOutStartPosition = po - dpo;
-			double rampOutStartTime = rampInEndTime + (rampOutStartPosition - rampInEndPosition) / vt;
-			double to = rampOutStartTime + dto;
-			//TODO: for a time constrained profile, to should be equal to the requested time ?
+			double rampOutStartTime = to - dto;
 
+			CurveProfile profile;
 			profile.rampInStartTime = startPoint.time;			//time of curve start
 			profile.rampInStartPosition = startPoint.position;	//position of curve start
 			profile.rampInStartVelocity = startPoint.velocity;	//velocity at curve start
@@ -99,99 +86,71 @@ namespace MotionCurve {
 			profile.rampOutEndTime = to;			    //time of curve end
 			profile.rampOutEndPosition = endPoint.position;		//position of curve end
 			profile.rampOutEndVelocity = endPoint.velocity;		//velocity of curve end
+			//TODO: add a continuity check to see if the coast phase actually arrives at the rampout begin
 
-			//reject invalid solutions
-			if (r < 0.0 && a != 0.0) return false;
-			if (dti < 0.0) return false;
-			if (dto < 0.0) return false;
-			if (dti > to - dto) return false;
-			if (std::abs(vt) > std::abs(maxv)) return false;
-			return true;
+			//reject unreal and illogical solutions
+			if (r < 0.0 && a != 0.0) profile.isDefined = false;
+			else if (dti < 0.0) profile.isDefined = false;
+			else if (dto < 0.0) profile.isDefined = false;
+			else if (dti > to - dto) profile.isDefined = false;
+			else if (std::abs(vt) > std::abs(maxVelocity)) profile.isDefined = false;
+			else profile.isDefined = true;
+
+			return profile;
 		};
 
 		std::vector<CurveProfile> timeConstrainedSolutions;
 
-		bool solved = false;
-		for (int i = 0; i < 8; i++) {
-			switch (i) {
-			case 0: //000
-				ai_sign = false;
-				ao_sign = false;
-				rootTermSign = false;
-				break;
-			case 1: //001
-				ai_sign = false;
-				ao_sign = false;
-				rootTermSign = true;
-				break;
-			case 2: //010
-				ai_sign = false;
-				ao_sign = true;
-				rootTermSign = false;
-				break;
-			case 3: //011
-				ai_sign = false;
-				ao_sign = true;
-				rootTermSign = true;
-				break;
-			case 4: //100
-				ai_sign = true;
-				ao_sign = false;
-				rootTermSign = false;
-				break;
-			case 5: //101
-				ai_sign = true;
-				ao_sign = false;
-				rootTermSign = true;
-				break;
-			case 6: //110
-				ai_sign = true;
-				ao_sign = true;
-				rootTermSign = false;
-				break;
-			case 7: //111
-				ai_sign = true;
-				ao_sign = true;
-				rootTermSign = true;
-				break;
-			}
-			CurveProfile profile;
-			if (solveCurve(profile)) timeConstrainedSolutions.push_back(profile);
+		for (char c = 0; c < 8; c++) {
+			ai_sign = c & 0x1;
+			ao_sign = (c >> 1) & 0x1;
+			rootTermSign = (c >> 2) & 0x1;
+			CurveProfile profile = solveCurve();
+			if (profile.isDefined) timeConstrainedSolutions.push_back(profile);
 		}
 
 		if (timeConstrainedSolutions.empty()) {
 			//if no solution exists for a time constrained profile
-			//we pick the fastest profile among all profiles that are slower than the requested time
-			//if there is no slower profile (weird) we pick the slowest profile among the fast ones
-			std::vector<CurveProfile> velocityConstrainedSolutions = MotionCurve::getVelocityContrainedProfiles(startPoint, endPoint, maxv, constraints);
+			//we try finding profiles based on the max velocity
+			std::vector<CurveProfile> velocityConstrainedSolutions;
+			//if no solution is found here, there is no solution
+			if (!MotionCurve::getVelocityContrainedProfiles(startPoint, endPoint, maxVelocity, velocityConstrainedSolutions)) return false;
+
+			//first filter out all profiles that are slower or equal to the requested time
 			std::vector<CurveProfile> slowerThanRequestedSolutions;
 			for (auto& solution : velocityConstrainedSolutions) {
-				if (solution.rampOutEndTime > endPoint.time) slowerThanRequestedSolutions.push_back(solution);
+				if (solution.rampOutEndTime >= endPoint.time) slowerThanRequestedSolutions.push_back(solution);
 			}
+
 			if (slowerThanRequestedSolutions.empty()) {
-				CurveProfile* slowestProfileBelowRequested = nullptr;
-				for (auto& solution : velocityConstrainedSolutions) {
-					if (slowestProfileBelowRequested == nullptr) slowestProfileBelowRequested = &solution;
-					else if (solution.rampOutEndTime > slowestProfileBelowRequested->rampOutEndTime) slowestProfileBelowRequested = &solution;
+				//if there is no profile slower than the requested time we pick the slowest profile
+				CurveProfile* slowestProfileBelowRequested = &velocityConstrainedSolutions.front();
+				for (int i = 1; i < velocityConstrainedSolutions.size(); i++) {
+					if (velocityConstrainedSolutions[i].rampOutEndTime > slowestProfileBelowRequested->rampOutEndTime)
+						slowestProfileBelowRequested = &velocityConstrainedSolutions[i];
 				}
-				return *slowestProfileBelowRequested;
+				output = *slowestProfileBelowRequested;
+				return true;
 			}
 			else {
-				CurveProfile* fastestProfileAboveRequested = nullptr;
-				for (auto& solution : slowerThanRequestedSolutions) {
-					if (fastestProfileAboveRequested == nullptr) fastestProfileAboveRequested = &solution;
-					else if (solution.rampOutEndTime > endPoint.time && solution.rampOutEndTime < fastestProfileAboveRequested->rampOutEndTime) fastestProfileAboveRequested = &solution;
+				//else we pick the fastest profile of the remaining ones
+				CurveProfile* fastestProfileAboveRequested = &slowerThanRequestedSolutions.front();
+				for (int i = 0; i < slowerThanRequestedSolutions.size(); i++) {
+					if (slowerThanRequestedSolutions[i].rampOutEndTime < fastestProfileAboveRequested->rampOutEndTime)
+						fastestProfileAboveRequested = &slowerThanRequestedSolutions[i];
 				}
-				return *fastestProfileAboveRequested;
+				output = *fastestProfileAboveRequested;
+				return true;
 			}
 		}
 		else {
-			CurveProfile* fastestProfileAboveRequested = nullptr;
+			CurveProfile* fastestProfileAboveRequested = &timeConstrainedSolutions.front();
 			for (auto& solution : timeConstrainedSolutions) {
-				if (fastestProfileAboveRequested == nullptr) fastestProfileAboveRequested = &solution;
-				else if (solution.rampOutEndTime > endPoint.time && solution.rampOutEndTime < fastestProfileAboveRequested->rampOutEndTime) fastestProfileAboveRequested = &solution;
+				if (solution.rampOutEndTime < fastestProfileAboveRequested->rampOutEndTime)
+					fastestProfileAboveRequested = &solution;
 			}
-			return *fastestProfileAboveRequested;
+			output = *fastestProfileAboveRequested;
+			return true;
 		}
 	}
 
@@ -201,31 +160,31 @@ namespace MotionCurve {
 	//=======================================================================================================================================
 
 	
-    std::vector<CurveProfile> getVelocityContrainedProfiles(const CurvePoint& startPoint, const CurvePoint& endPoint, double velocity, const MotionConstraints& constraints) {
-
-		std::vector<CurveProfile> solutions;
+    bool getVelocityContrainedProfiles(const CurvePoint& startPoint, const CurvePoint& endPoint, double velocity, std::vector<CurveProfile>& output) {
 
 		auto square = [](double in) -> double { return std::pow(in, 2.0); };
 
-		double pi = startPoint.position;
-		double ti = startPoint.time;
-		double vi = startPoint.velocity;
+		const double pi = startPoint.position;
+		const double ti = startPoint.time;
+		const double vi = startPoint.velocity;
 		double ai = std::abs(startPoint.acceleration);
 
 		double vt = velocity;
 
-		double po = endPoint.position;
-		double vo = endPoint.velocity;
+		const double po = endPoint.position;
+		const double vo = endPoint.velocity;
 		double ao = std::abs(endPoint.acceleration);
 
-		double dp = endPoint.position - startPoint.position;
-		double dv = endPoint.velocity - startPoint.velocity;
+		if (ai == 0.0 || ao == 0.0 || vt == 0.0) return false;
+
+		const double dp = endPoint.position - startPoint.position;
+		const double dv = endPoint.velocity - startPoint.velocity;
 
 		bool ai_sign = false;
 		bool ao_sign = false;
 		bool velocity_sign = false;
 
-		auto solveCurveForVelocity = [&](MotionCurve::CurveProfile& profile) -> bool {
+		auto solveCurveForVelocity = [&]() -> CurveProfile {
 
 			//initialize acceleration signs
 			if (!ai_sign) ai = -std::abs(ai);
@@ -235,13 +194,15 @@ namespace MotionCurve {
 			if (!velocity_sign) vt = -std::abs(vt);
 			else vt = std::abs(vt);
 
+			//====================== FUNCTION FOR VELOCITY BASED SOLVE =========================
+
 			double a = (vt - vi) / ai;
 			double b = (vo - vt) / ao;
 			double c = (square(vt) - square(vi)) / (2.0 * ai);
 			double d = (square(vo) - square(vt)) / (2.0 * ao);
 			double dt = a + b + vt * (dp - c - d);
 
-			//solve end
+			//==================================================================================
 
 			double dti = (vt - vi) / ai;
 			double dto = (vo - vt) / ao;
@@ -254,6 +215,7 @@ namespace MotionCurve {
 			double rampOutStartTime = rampInEndTime + (rampOutStartPosition - rampInEndPosition) / vt;
 			double to = rampOutStartTime + dto;
 
+			CurveProfile profile;
 			profile.rampInStartTime = startPoint.time;			//time of curve start
 			profile.rampInStartPosition = startPoint.position;	//position of curve start
 			profile.rampInStartVelocity = startPoint.velocity;	//velocity at curve start
@@ -268,63 +230,27 @@ namespace MotionCurve {
 			profile.rampOutEndPosition = endPoint.position;		//position of curve end
 			profile.rampOutEndVelocity = endPoint.velocity;		//velocity of curve end
 
-			if (dti < 0.0) return false;
-			if (dto < 0.0) return false;
-			if (dti > to - dto) return false;
-			return dt > 0.0;
+			//reject illogical solutions
+			if (dti < 0.0) profile.isDefined = false;
+			else if (dto < 0.0) profile.isDefined = false;
+			else if (dti > to - dto) profile.isDefined = false;
+			else profile.isDefined = dt > 0.0;
+
+			return profile;
 		};
 
-		for (int i = 0; i < 8; i++) {
-			switch (i) {
-			case 0: //000
-				ai_sign = false;
-				ao_sign = false;
-				velocity_sign = false;
-				break;
-			case 1: //001
-				ai_sign = false;
-				ao_sign = false;
-				velocity_sign = true;
-				break;
-			case 2: //010
-				ai_sign = false;
-				ao_sign = true;
-				velocity_sign = false;
-				break;
-			case 3: //011
-				ai_sign = false;
-				ao_sign = true;
-				velocity_sign = true;
-				break;
-			case 4: //100
-				ai_sign = true;
-				ao_sign = false;
-				velocity_sign = false;
-				break;
-			case 5: //101
-				ai_sign = true;
-				ao_sign = false;
-				velocity_sign = true;
-				break;
-			case 6: //110
-				ai_sign = true;
-				ao_sign = true;
-				velocity_sign = false;
-				break;
-			case 7: //111
-				ai_sign = true;
-				ao_sign = true;
-				velocity_sign = true;
-				break;
-			}
-			MotionCurve::CurveProfile profile;
-			if (solveCurveForVelocity(profile)) solutions.push_back(profile);
+		for (char c = 0; c < 8; c++) {
+			ai_sign = c & 0x1;
+			ao_sign = (c >> 1) & 0x1;
+			velocity_sign = (c >> 2) & 0x1;
+			CurveProfile profile = solveCurveForVelocity();
+			if (profile.isDefined) output.push_back(profile);
 		}
 
 
 		bool squareRootSign = false;
 
-		auto solveTangentCurve = [&](MotionCurve::CurveProfile& profile) {
+		auto solveTangentCurve = [&]() -> CurveProfile {
 
 			//initialize acceleration signs
 			if (!ai_sign) ai = -std::abs(ai);
@@ -332,11 +258,15 @@ namespace MotionCurve {
 			if (!ao_sign) ao = -std::abs(ao);
 			else ao = std::abs(ao);
 
+			//==================== FUNCTION FOR SOLVING WITHOUT COAST PHASE ======================
+
 			double dpi = (square(vo) - square(vi) - 2.0 * ao * dp) / (2.0 * (ai - ao));
 			double r = square(vi) + 2.0 * ai * dpi;
 			//choose square root solution sign
 			if (!squareRootSign) vt = -std::sqrt(r);
 			else vt = std::sqrt(r);
+
+			//====================================================================================
 
 			double dti = (vt - vi) / ai;
 			double dto = (vo - vt) / ao;
@@ -348,6 +278,7 @@ namespace MotionCurve {
 			double rampOutStartTime = rampInEndTime;
 			double to = rampOutStartTime + dto;
 
+			CurveProfile profile;
 			profile.rampInStartTime = startPoint.time;			//time of curve start
 			profile.rampInStartPosition = startPoint.position;	//position of curve start
 			profile.rampInStartVelocity = startPoint.velocity;	//velocity at curve start
@@ -363,62 +294,26 @@ namespace MotionCurve {
 			profile.rampOutEndVelocity = endPoint.velocity;		//velocity of curve end
 
 			//reject non-real and illogical solutions
-			if (ai == ao) return false;
-			if (r < 0) return false;
-			if (dti < 0.0) return false;
-			if (dto < 0.0) return false;
-			if (dti + dto > to) return false;
-			if (std::abs(vt) > velocity) return false;
-			return true;
+			if (ai == ao) profile.isDefined = false;
+			else if (r < 0) profile.isDefined = false;
+			else if (dti < 0.0) profile.isDefined = false;
+			else if (dto < 0.0) profile.isDefined = false;
+			else if (dti + dto > to) profile.isDefined = false;
+			else if (std::abs(vt) > velocity) profile.isDefined = false;
+			else profile.isDefined = true;
+
+			return profile;
 		};
 
-		for (int i = 0; i < 8; i++) {
-			switch (i) {
-			case 0: //000
-				ai_sign = false;
-				ao_sign = false;
-				squareRootSign = false;
-				break;
-			case 1: //001
-				ai_sign = false;
-				ao_sign = false;
-				squareRootSign = true;
-				break;
-			case 2: //010
-				ai_sign = false;
-				ao_sign = true;
-				squareRootSign = false;
-				break;
-			case 3: //011
-				ai_sign = false;
-				ao_sign = true;
-				squareRootSign = true;
-				break;
-			case 4: //100
-				ai_sign = true;
-				ao_sign = false;
-				squareRootSign = false;
-				break;
-			case 5: //101
-				ai_sign = true;
-				ao_sign = false;
-				squareRootSign = true;
-				break;
-			case 6: //110
-				ai_sign = true;
-				ao_sign = true;
-				squareRootSign = false;
-				break;
-			case 7: //111
-				ai_sign = true;
-				ao_sign = true;
-				squareRootSign = true;
-				break;
-			}
-			MotionCurve::CurveProfile profile;
-			if (solveTangentCurve(profile)) solutions.push_back(profile);
+		for (char c = 0; c < 8; c++) {
+			ai_sign = c & 0x1;
+			ao_sign = (c >> 1) & 0x1;
+			squareRootSign = (c >> 2) & 0x1;
+			MotionCurve::CurveProfile profile = solveTangentCurve();
+			if (profile.isDefined) output.push_back(profile);
 		}
-		return solutions;
+		
+		return !output.empty();
     }
 	
 	//=======================================================================================================================================
@@ -427,11 +322,22 @@ namespace MotionCurve {
 	//=======================================================================================================================================
 
 
-
-
-
-	bool isInsideCurveTime(double time, CurveProfile& curvePoints) {
+	bool getFastestVelocityConstrainedProfile(const CurvePoint& startPoint, const CurvePoint& endPoint, double velocity, CurveProfile& output) {
+		std::vector<CurveProfile> velocityBasedProfiles;
+		if (getVelocityContrainedProfiles(startPoint, endPoint, velocity, velocityBasedProfiles)) {
+			CurveProfile* fastestProfile = &velocityBasedProfiles.front();
+			for (int i = 1; i < velocityBasedProfiles.size(); i++) {
+				if (velocityBasedProfiles[i].rampOutEndTime < fastestProfile->rampOutEndTime)
+					fastestProfile = &velocityBasedProfiles[i];
+			}
+			output = *fastestProfile;
+			return true;
+		}
 		return false;
+	}
+
+	bool isInsideCurveTime(double time, CurveProfile& profile) {
+		return time >= profile.rampInStartTime && time <= profile.rampOutEndTime;
 	}
 
 	CurvePoint getCurvePointAtTime(double time, CurveProfile& curveProfile) {

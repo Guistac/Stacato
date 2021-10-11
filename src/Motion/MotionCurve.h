@@ -3,7 +3,7 @@
 namespace MotionCurve {
 
 	struct CurvePoint {
-		CurvePoint() {}
+		CurvePoint() : time(0.0), position(0.0), velocity(0.0), acceleration(0.0) {}
 		CurvePoint(double t, double p, double a) : time(t), position(p), acceleration(a), velocity(0.0) {}
 		CurvePoint(double t, double p, double a, double v) : time(t), position(p), acceleration(a), velocity(v) {}
 		double time;
@@ -12,40 +12,26 @@ namespace MotionCurve {
 		double acceleration;
 	};
 
-	struct MotionConstraints {
-		MotionConstraints() {}
-		MotionConstraints(double maxV, double maxA) : maxAcceleration(maxA), maxVelocity(maxV), minPosition(FLT_MIN), maxPosition(FLT_MAX) {}
-		MotionConstraints(double maxV, double maxA, double minPos, double maxPos) : maxAcceleration(maxA), maxVelocity(maxV), minPosition(FLT_MIN), maxPosition(FLT_MAX) {}
-		double maxVelocity;
-		double maxAcceleration;
-		double maxPosition;
-		double minPosition;
-	};
-
 	struct CurveProfile {
+		bool isDefined = false;
 
-		CurvePoint requestedStartPoint;
-		CurvePoint requestedEndPoint;
+		double rampInStartTime = 0.0;		//time of curve start
+		double rampInStartPosition = 0.0;	//position of curve start
+		double rampInStartVelocity = 0.0;	//velocity at curve start
+		double rampInAcceleration = 0.0;	//acceleration of curve
 
-		double rampInStartTime;			//time of curve start
-		double rampInStartPosition;		//position of curve start
-		double rampInStartVelocity;		//velocity at curve start
+		double rampInEndPosition = 0.0;		//position of curve after acceleration phase
+		double rampInEndTime = 0.0;			//time of acceleration end
 
-		double rampInAcceleration;		//acceleration of curve
+		double coastVelocity = 0.0;			//velocity of constant velocity phase
 
-		double rampInEndPosition;		//position of curve after acceleration phase
-		double rampInEndTime;			//time of acceleration end
+		double rampOutStartPosition = 0.0;	//position of deceleration start
+		double rampOutStartTime = 0.0;		//time of deceleration start
 
-		double coastVelocity;			//velocity of constant velocity phase
-
-		double rampOutStartPosition;	//position of deceleration start
-		double rampOutStartTime;		//time of deceleration start
-
-		double rampOutAcceleration;		//deceleration of curve
-
-		double rampOutEndTime;			//time of curve end
-		double rampOutEndPosition;		//position of curve end
-		double rampOutEndVelocity;		//velocity of curve end
+		double rampOutAcceleration = 0.0;	//deceleration of curve
+		double rampOutEndTime = 0.0;		//time of curve end
+		double rampOutEndPosition = 0.0;	//position of curve end
+		double rampOutEndVelocity = 0.0;	//velocity of curve end
 	};
 
 	enum class CurvePhase {
@@ -57,14 +43,14 @@ namespace MotionCurve {
 	};
 
 	//returns a profile using the position, velocity, acceleration and time data of the two specified points, while respecting the provided motion constraints
-	CurveProfile getTimeConstrainedProfile(CurvePoint startPoint, CurvePoint endPoint, MotionConstraints contraints);
+	bool getTimeConstrainedProfile(const CurvePoint& startPoint, const CurvePoint& endPoint, double maxVelocity, CurveProfile& output);
 	//return a profile using the position, velocity and acceleration values of the two specified points, using the specified velocity as a target while respecting the provided motion constraints
-	std::vector<CurveProfile> getVelocityContrainedProfiles(const CurvePoint& startPoint, const CurvePoint& endPoint, double velocity, const MotionConstraints& constraints);
+	bool getVelocityContrainedProfiles(const CurvePoint& startPoint, const CurvePoint& endPoint, double velocity, std::vector<CurveProfile>& output);
+
+	bool getFastestVelocityConstrainedProfile(const CurvePoint& startPoint, const CurvePoint& endPoint, double velocity, CurveProfile& output);
 
 	bool isInsideCurveTime(double time, CurveProfile& curvePoints);
-
 	CurvePoint getCurvePointAtTime(double time, CurveProfile& curveProfile);
-
 	CurvePhase getCurvePhaseAtTime(double time, CurveProfile& curveProfile);
 
 }
