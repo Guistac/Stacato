@@ -15,10 +15,13 @@
 void VIPA_053_1EC01::deviceSpecificGui() {
     if (ImGui::BeginTabItem("VIPA")) {
         
+        bool disableModuleDetectionButton = !isDetected();
+        if (disableModuleDetectionButton) BEGIN_DISABLE_IMGUI_ELEMENT
         if (ImGui::Button("Detect I/O Modules")) {
             std::thread ioModuleDetectionHandler([this]() { configureFromDeviceModules(); });
             ioModuleDetectionHandler.detach();
         }
+        if (disableModuleDetectionButton) END_DISABLE_IMGUI_ELEMENT
         ImGui::SameLine();
         ImGui::Text(getDataTransferState(configureFromDeviceModulesDownloadStatus)->displayName);
         
