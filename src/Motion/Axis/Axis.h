@@ -5,13 +5,6 @@
 #include "Motion/MotionTypes.h"
 #include "Motion/MotionCurve.h"
 
-enum class ControlMode {
-	VELOCITY_CONTROL,
-	TARGET_CONTROL,
-	FOLLOW_CURVE,
-	HOMING
-};
-
 class Axis : public Node {
 public:
 
@@ -67,19 +60,46 @@ public:
 	//============== CONTROL VARIABLES ===================
 
 	//motion profile generator variables
-	double lastProfilePointTime_seconds = 0.0; //used to calculate deltaT
+	double previousProfilePointTime_seconds = 0.0; //used to calculate deltaT
+	double currentProfilePointTime_seconds = 0.0;
+	double currentProfilePointDeltaT_seconds = 0.0;
 	double profilePosition_degrees = 0.0;
 	double profileVelocity_degreesPerSecond = 0.0;
 	double profileAcceleration_degreesPerSecondSquared = 0.0;
 
-	ControlMode controlMode = ControlMode::VELOCITY_CONTROL;
+	enum class ControlMode {
+		VELOCITY_TARGET,
+		POSITION_TARGET,
+		FOLLOW_CURVE,
+		HOMING
+	};
+
+	ControlMode controlMode = ControlMode::VELOCITY_TARGET;
+
+	double manualControlAcceleration_degreesPerSecond = 0.0;
 
 	//Manual Velocity Control
-	double velocityControlTarget_degreesPerSecond = 0.0;
-	double velocityControlTarget_degreesPerSecondSquared = 0.0;
+	void setVelocity(double velocity_axisUnits);
+	void velocityTargetControl();
+	float manualVelocityTarget_degreesPerSecond = 0.0;
 
 	//Manual Target Control
+	void moveToPositionWithVelocity(double position_axisUnits, double velocity_axisUnits, double acceleration_axisUnits);
+	void moveToPositionInTime(double position_axisUnits, double movementTime_seconds, double acceleration_axisUnits);
+	void positionTargetControl();
 	MotionCurve::CurveProfile targetCurveProfile;
+	float targetPosition = 0.0;
+	float targetVelocity = 0.0;
+	float targetTime = 0.0;
+
+	//Curve following
+	void followCurveControl();
+
+	//Homing Control
+	void startHoming();
+	void cancelHoming();
+	bool isHoming();
+	void homingControl();
 
 	//Axis State Control
 	void enable();
@@ -90,16 +110,6 @@ public:
 	bool areAllDevicesReady();
 	void enableAllActuators();
 	void disableAllActuators();
-
-	//Manual Control Commands
-	void setVelocity(double velocity_axisUnits);
-	void moveToPosition(double position_axisUnits, double velocity_axisUnits, double acceleration_axisUnits);
-
-	//Homing Control
-	void startHoming();
-	void cancelHoming();
-	bool isHoming();
-
 
 	const char* getAxisUnitStringSingular() { return getPositionUnitType(axisPositionUnit)->displayName; }
 	const char* getAxisUnitStringPlural() { return getPositionUnitType(axisPositionUnit)->displayNamePlural; }

@@ -49,8 +49,9 @@ namespace MotionCurve {
 
 	bool getFastestVelocityConstrainedProfile(const CurvePoint& startPoint, const CurvePoint& endPoint, double velocity, CurveProfile& output);
 
-	bool isInsideCurveTime(double time, CurveProfile& curvePoints);
-	CurvePoint getCurvePointAtTime(double time, CurveProfile& curveProfile);
-	CurvePhase getCurvePhaseAtTime(double time, CurveProfile& curveProfile);
+	bool isInsideCurveTime(double time, const CurveProfile& curveProfile);
+	CurvePoint getCurvePointAtTime(double time, const CurveProfile& curveProfile);
+	CurvePhase getCurvePhaseAtTime(double time, const CurveProfile& curveProfile);
+	float getMotionCurveProgress(double time, const CurveProfile& curveProfile);
 
 }

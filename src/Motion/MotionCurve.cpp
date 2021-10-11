@@ -64,6 +64,8 @@ namespace MotionCurve {
 
 			double dti = (vt - vi) / ai;
 			double dto = (vo - vt) / ao;
+			double dtt = dt - dti - dto;
+			double dpt = dtt * vt;
 			double dpi = vi * dti + ai * square(dti) / 2.0;
 			double dpo = vt * dto + ao * square(dto) / 2.0;
 
@@ -86,13 +88,10 @@ namespace MotionCurve {
 			profile.rampOutEndTime = to;			    //time of curve end
 			profile.rampOutEndPosition = endPoint.position;		//position of curve end
 			profile.rampOutEndVelocity = endPoint.velocity;		//velocity of curve end
-			//TODO: add a continuity check to see if the coast phase actually arrives at the rampout begin
 
 			//reject unreal and illogical solutions
 			if (r < 0.0 && a != 0.0) profile.isDefined = false;
-			else if (dti < 0.0) profile.isDefined = false;
-			else if (dto < 0.0) profile.isDefined = false;
-			else if (dti > to - dto) profile.isDefined = false;
+			else if (dtt < 0.0 || dti < 0.0 || dto < 0.0) profile.isDefined = false;
 			else if (std::abs(vt) > std::abs(maxVelocity)) profile.isDefined = false;
 			else profile.isDefined = true;
 
@@ -206,6 +205,8 @@ namespace MotionCurve {
 
 			double dti = (vt - vi) / ai;
 			double dto = (vo - vt) / ao;
+			double dtt = dt - dti - dto;
+			double dpt = dtt * vt;
 			double dpi = vi * dti + ai * square(dti) / 2.0;
 			double dpo = vt * dto + ao * square(dto) / 2.0;
 
@@ -231,10 +232,8 @@ namespace MotionCurve {
 			profile.rampOutEndVelocity = endPoint.velocity;		//velocity of curve end
 
 			//reject illogical solutions
-			if (dti < 0.0) profile.isDefined = false;
-			else if (dto < 0.0) profile.isDefined = false;
-			else if (dti > to - dto) profile.isDefined = false;
-			else profile.isDefined = dt > 0.0;
+			if (dt < 0.0 || dtt < 0.0 || dto < 0.0 || dti < 0.0) profile.isDefined = false;
+			else profile.isDefined = true;
 
 			return profile;
 		};
@@ -336,11 +335,11 @@ namespace MotionCurve {
 		return false;
 	}
 
-	bool isInsideCurveTime(double time, CurveProfile& profile) {
+	bool isInsideCurveTime(double time, const CurveProfile& profile) {
 		return time >= profile.rampInStartTime && time <= profile.rampOutEndTime;
 	}
 
-	CurvePoint getCurvePointAtTime(double time, CurveProfile& curveProfile) {
+	CurvePoint getCurvePointAtTime(double time, const CurveProfile& curveProfile) {
         CurvePoint output;
         output.time = time;
         double deltaT;
@@ -377,12 +376,16 @@ namespace MotionCurve {
 		return output;
 	}
 
-	CurvePhase getCurvePhaseAtTime(double time, CurveProfile& curveProfile) {
+	CurvePhase getCurvePhaseAtTime(double time, const CurveProfile& curveProfile) {
         if (time < curveProfile.rampInStartTime) return CurvePhase::NOT_STARTED;
         else if (time < curveProfile.rampInEndTime) return CurvePhase::RAMP_IN;
         else if (time < curveProfile.rampOutStartTime) return CurvePhase::COAST;
         else if (time < curveProfile.rampOutEndTime) return CurvePhase::RAMP_OUT;
         else return CurvePhase::FINISHED;
+	}
+
+	float getMotionCurveProgress(double time, const CurveProfile& curveProfile) {
+		return (time - curveProfile.rampInStartTime) / (curveProfile.rampOutEndTime - curveProfile.rampInStartTime);
 	}
 
 }

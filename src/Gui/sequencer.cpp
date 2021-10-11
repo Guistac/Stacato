@@ -28,10 +28,15 @@ void sequencer() {
 
 	float inputWidth = 300.0;
 	ImGui::SetNextItemWidth(inputWidth);
-	ImGui::InputDouble("TargetPosition", &endPoint.position, 0.01, 0.1);
+	ImGui::InputDouble("StartPosition", &startPoint.position, 0.01, 0.1);
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(inputWidth);
-	ImGui::InputDouble("TargetTime", &endPoint.time, 0.01, 0.1);
+	ImGui::InputDouble("StartTime", &startPoint.time, 0.01, 0.1);
+	ImGui::SetNextItemWidth(inputWidth);
+	ImGui::InputDouble("EndPosition", &endPoint.position, 0.01, 0.1);
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(inputWidth);
+	ImGui::InputDouble("EndTime", &endPoint.time, 0.01, 0.1);
 	ImGui::Separator();
 	ImGui::SetNextItemWidth(inputWidth);
 	ImGui::InputDouble("Vi", &startPoint.velocity, 0.01, 0.1);

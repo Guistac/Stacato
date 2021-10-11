@@ -6,41 +6,33 @@
 
 #include "Motion/MotionTypes.h"
 
+#include "Motion/MotionCurve.h"
+
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
 
 void Axis::process() {
 
+	//TODO: we should get device status and update axis status before processing motion
+
 	//TODO: the axis should get timing information from the actuator object
-	double now_seconds = EtherCatFieldbus::getReferenceClock_seconds();
-	double deltaT_seconds = now_seconds - lastProfilePointTime_seconds;
-	lastProfilePointTime_seconds = now_seconds;
+	currentProfilePointTime_seconds = EtherCatFieldbus::getReferenceClock_seconds();
+	currentProfilePointDeltaT_seconds = currentProfilePointTime_seconds - previousProfilePointTime_seconds;
+	previousProfilePointTime_seconds = currentProfilePointTime_seconds;
 
 	if (b_enabled) {
-
-		if (profileVelocity_degreesPerSecond != velocityControlTarget_degreesPerSecond) {
-			double deltaV_degreesPerSecond;
-			deltaV_degreesPerSecond = defaultManualAcceleration_degreesPerSecondSquared * deltaT_seconds;
-			if (profileVelocity_degreesPerSecond < velocityControlTarget_degreesPerSecond) {
-				profileVelocity_degreesPerSecond += deltaV_degreesPerSecond;
-				if (profileVelocity_degreesPerSecond > velocityControlTarget_degreesPerSecond) profileVelocity_degreesPerSecond = velocityControlTarget_degreesPerSecond;
-			}
-			else {
-				profileVelocity_degreesPerSecond -= deltaV_degreesPerSecond;
-				if (profileVelocity_degreesPerSecond < velocityControlTarget_degreesPerSecond) profileVelocity_degreesPerSecond = velocityControlTarget_degreesPerSecond;
-			}
+		switch (controlMode) {
+			case ControlMode::VELOCITY_TARGET: velocityTargetControl(); break;
+			case ControlMode::POSITION_TARGET: positionTargetControl(); break;
+			case ControlMode::FOLLOW_CURVE: followCurveControl(); break;
+			case ControlMode::HOMING: homingControl(); break;
 		}
-		double deltaP_degrees = profileVelocity_degreesPerSecond * deltaT_seconds;
-
-		profilePosition_degrees += deltaP_degrees;
-
 		actuatorCommand->set(profilePosition_degrees);
 	}
 	else {
 		actuatorCommand->set(positionFeedback->getLinks().front()->getInputData()->getReal());
 	}
-
 }
 
 
@@ -154,3 +146,69 @@ void Axis::disableAllActuators() {
 		actuatorDevice->disable();
 	}
 }
+
+//================================= MANUAL CONTROLS ===================================
+
+void Axis::setVelocity(double velocity_axisUnits) {
+	manualVelocityTarget_degreesPerSecond = velocity_axisUnits;
+	controlMode = ControlMode::VELOCITY_TARGET;
+}
+
+void Axis::velocityTargetControl() {
+	if (profileVelocity_degreesPerSecond != manualVelocityTarget_degreesPerSecond) {
+		double deltaV_degreesPerSecond = manualControlAcceleration_degreesPerSecond * currentProfilePointDeltaT_seconds;
+		if (profileVelocity_degreesPerSecond < manualVelocityTarget_degreesPerSecond) {
+			profileVelocity_degreesPerSecond += deltaV_degreesPerSecond;
+			profileAcceleration_degreesPerSecondSquared = manualControlAcceleration_degreesPerSecond;
+			if (profileVelocity_degreesPerSecond > manualVelocityTarget_degreesPerSecond) profileVelocity_degreesPerSecond = manualVelocityTarget_degreesPerSecond;
+		}
+		else {
+			profileVelocity_degreesPerSecond -= deltaV_degreesPerSecond;
+			profileAcceleration_degreesPerSecondSquared = -manualControlAcceleration_degreesPerSecond;
+			if (profileVelocity_degreesPerSecond < manualVelocityTarget_degreesPerSecond) profileVelocity_degreesPerSecond = manualVelocityTarget_degreesPerSecond;
+		}
+	}
+	else profileAcceleration_degreesPerSecondSquared = 0.0;
+	double deltaP_degrees = profileVelocity_degreesPerSecond * currentProfilePointDeltaT_seconds;
+	profilePosition_degrees += deltaP_degrees;
+}
+
+void Axis::moveToPositionWithVelocity(double position_axisUnits, double velocity_axisUnits, double acceleration_axisUnits) {
+	MotionCurve::CurvePoint startPoint(currentProfilePointTime_seconds, profilePosition_degrees, acceleration_axisUnits, profileVelocity_degreesPerSecond);
+	MotionCurve::CurvePoint endPoint(0.0, position_axisUnits, acceleration_axisUnits, 0.0);
+	if (MotionCurve::getFastestVelocityConstrainedProfile(startPoint, endPoint, velocity_axisUnits, targetCurveProfile)) {
+		controlMode = ControlMode::POSITION_TARGET;
+	}
+	else {
+		setVelocity(0.0);
+	}
+}
+
+void Axis::moveToPositionInTime(double position_axisUnits, double movementTime_seconds, double acceleration_axisUnits) {
+	MotionCurve::CurvePoint startPoint(currentProfilePointTime_seconds, profilePosition_degrees, acceleration_axisUnits, profileVelocity_degreesPerSecond);
+	MotionCurve::CurvePoint endPoint(currentProfilePointTime_seconds + movementTime_seconds, position_axisUnits, acceleration_axisUnits, 0.0);
+	if (MotionCurve::getTimeConstrainedProfile(startPoint, endPoint, velocityLimit_degreesPerSecond, targetCurveProfile)) {
+		controlMode = ControlMode::POSITION_TARGET;
+	}
+	else {
+		setVelocity(0.0);
+	}
+}
+
+void Axis::positionTargetControl() {
+	if (MotionCurve::isInsideCurveTime(currentProfilePointTime_seconds, targetCurveProfile)) {
+		MotionCurve::CurvePoint curvePoint = MotionCurve::getCurvePointAtTime(currentProfilePointTime_seconds, targetCurveProfile);
+		profilePosition_degrees = curvePoint.position;
+		profileVelocity_degreesPerSecond = curvePoint.velocity;
+		profileAcceleration_degreesPerSecondSquared = curvePoint.acceleration;
+	}
+	else {
+		setVelocity(0.0);
+	}
+}
+
+//=================================================================
+
+void Axis::followCurveControl() {}
+
+void Axis::homingControl() {}

@@ -79,20 +79,24 @@ void Axis::controlsGui() {
 
 		//------------------- VELOCITY CONTROLS ------------------------
 
+		ImGui::Text("Acceleration for manual controls");
+		ImGui::InputDouble("##TargetAcceleration", &manualControlAcceleration_degreesPerSecond, 0.0, 0.0, "%.3f deg/s2");
+
 		float widgetWidth = ImGui::GetContentRegionAvail().x;
 
 		ImGui::PushFont(Fonts::robotoBold20);
 		ImGui::Text("Manual Velocity Control");
 		ImGui::PopFont();
 
-		float targetVelocity_degreesPerSecond = velocityControlTarget_degreesPerSecond;
 		ImGui::SetNextItemWidth(widgetWidth);
-		ImGui::SliderFloat("##Velocity", &targetVelocity_degreesPerSecond, -velocityLimit_degreesPerSecond, velocityLimit_degreesPerSecond, "%.3f deg/s");
-		ImGui::SetNextItemWidth(widgetWidth);
-		ImGui::InputDouble("##ManAcceleration", &defaultManualAcceleration_degreesPerSecondSquared, 0.0, 0.0, "%.3f deg/s2");
+		if (ImGui::SliderFloat("##Velocity", &manualVelocityTarget_degreesPerSecond, -velocityLimit_degreesPerSecond, velocityLimit_degreesPerSecond, "%.3f deg/s")) {
+			setVelocity(manualVelocityTarget_degreesPerSecond);
+		}
 		float velocityProgress = (profileVelocity_degreesPerSecond + velocityLimit_degreesPerSecond) / (2 * velocityLimit_degreesPerSecond);
 		ImGui::ProgressBar(velocityProgress, ImVec2(widgetWidth, ImGui::GetTextLineHeight()));
-		if (ImGui::Button("Stop##Velocity", glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 2))) targetVelocity_degreesPerSecond = 0.0;
+		if (ImGui::Button("Stop##Velocity", glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 2))) {
+			setVelocity(0.0);
+		}
 
 		ImGui::Separator();
 
@@ -102,10 +106,8 @@ void Axis::controlsGui() {
 		ImGui::Text("Manual Position Control");
 		ImGui::PopFont();
 
-		static float targetPosition = 0.0;
-		static float targetVelocity = defaultManualVelocity_degreesPerSecond;
-		static float targetAcceleration = defaultManualAcceleration_degreesPerSecondSquared;
 		float tripleWidgetWidth = (widgetWidth - 2 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
+		glm::vec2 tripleButtonSize(tripleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
 		ImGui::SetNextItemWidth(tripleWidgetWidth);
 		ImGui::InputFloat("##TargetPosition", &targetPosition, 0.0, 0.0, "%.3f deg");
 		ImGui::SameLine();
@@ -113,15 +115,24 @@ void Axis::controlsGui() {
 		ImGui::InputFloat("##TargetVelocity", &targetVelocity, 0.0, 0.0, "%.3f deg/s");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(tripleWidgetWidth);
-		ImGui::InputFloat("##TargetAcceleration", &targetAcceleration, 0.0, 0.0, "%.3f deg/s2");
-		float doubleWidgetWidth = (widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0;
-		glm::vec2 doubleButtonWidth((widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, ImGui::GetTextLineHeight() * 1.5);
-		if (ImGui::Button("Move", doubleButtonWidth)) {}
+		ImGui::InputFloat("##TargetTime", &targetTime, 0.0, 0.0, "%.3f s");
+		if (ImGui::Button("Fast Move", tripleButtonSize)) {
+			moveToPositionWithVelocity(targetPosition, velocityLimit_degreesPerSecond, manualControlAcceleration_degreesPerSecond);
+		}
 		ImGui::SameLine();
-		if (ImGui::Button("Fast Move", doubleButtonWidth)) {}
-		if (ImGui::Button("Stop##Target", glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 2))) targetVelocity_degreesPerSecond = 0.0;
-
-		velocityControlTarget_degreesPerSecond = targetVelocity_degreesPerSecond;
+		if (ImGui::Button("Velocity Move", tripleButtonSize)) {
+			moveToPositionWithVelocity(targetPosition, targetVelocity, manualControlAcceleration_degreesPerSecond);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Timed Move", tripleButtonSize)) {
+			moveToPositionInTime(targetPosition, targetTime, manualControlAcceleration_degreesPerSecond);
+		}
+		float targetProgress = targetProgress = MotionCurve::getMotionCurveProgress(currentProfilePointTime_seconds, targetCurveProfile);
+		if (controlMode != ControlMode::POSITION_TARGET) targetProgress = 1.0;
+		ImGui::ProgressBar(targetProgress);
+		if (ImGui::Button("Stop##Target", glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 2))) {
+			setVelocity(0.0);
+		}
 
 		ImGui::Separator();
 
@@ -136,9 +147,9 @@ void Axis::controlsGui() {
 		case PositionReference::Type::HIGH_LIMIT:
 		case PositionReference::Type::LOW_AND_HIGH_LIMIT:
 		case PositionReference::Type::POSITION_REFERENCE:
-			if (ImGui::Button("Start Homing", doubleButtonWidth)) {}
+			if (ImGui::Button("Start Homing", tripleButtonSize)) {}
 			ImGui::SameLine();
-			if (ImGui::Button("Cancel Homing", doubleButtonWidth)) {}
+			if (ImGui::Button("Cancel Homing", tripleButtonSize)) {}
 			break;
 		case PositionReference::Type::NO_LIMIT:
 			if (ImGui::Button("Reset Position Feedback")) {}
