@@ -386,7 +386,7 @@ void Lexium32::encoderGui() {
 
     ImGui::TextWrapped("All Encoder settings are stored in the drive."
                         "\nFor the settings to take effect, the drive has to be restared. "
-                        "\nChanging these settings will invalidate all current position references of the corresponding axis, homing procedures will need to be reexecuted.");
+                        "\nChanging these settings will invalidate all current position references of the corresponding machine, homing procedures will need to be reexecuted.");
 
     if (ImGui::Button("Download Settings From Drive")) {
         std::thread encoderSettingsDownloader([this]() { downloadEncoderSettings(); });

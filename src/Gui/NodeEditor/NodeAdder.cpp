@@ -60,9 +60,9 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
 
     ImGui::Separator();
 
-    if (ImGui::BeginMenu("Axis")) {
-        for (auto axis : NodeFactory::getAxisTypes()) {
-            if (ImGui::MenuItem(axis->getNodeName())) output = axis->getNewNodeInstance();
+    if (ImGui::BeginMenu("Machine")) {
+        for (auto machine : NodeFactory::getMachineTypes()) {
+            if (ImGui::MenuItem(machine->getNodeName())) output = machine->getNewNodeInstance();
         }
         ImGui::EndMenu();
     }
@@ -182,14 +182,14 @@ void nodeAdder() {
         ImGui::PopFont();
 
         ImGui::PushFont(Fonts::robotoBold15);
-        if (ImGui::CollapsingHeader("Axis")) {
+        if (ImGui::CollapsingHeader("Machine")) {
             ImGui::PushFont(Fonts::robotoRegular15);
-            for (auto axis : NodeFactory::getAxisTypes()) {
-                const char* axisName = axis->getNodeName();
-                ImGui::Selectable(axisName);
+            for (auto machine : NodeFactory::getMachineTypes()) {
+                const char* machineName = machine->getNodeName();
+                ImGui::Selectable(machineName);
                 if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                    ImGui::SetDragDropPayload("Axis", &axisName, sizeof(const char*));
-                    ImGui::Text(axisName);
+                    ImGui::SetDragDropPayload("Machine", &machineName, sizeof(const char*));
+                    ImGui::Text(machineName);
                     ImGui::EndDragDropSource();
                 }
             }
@@ -262,11 +262,11 @@ std::shared_ptr<Node> acceptDraggedNode() {
             std::shared_ptr<Node> newNode = NodeFactory::getNodeByName(nodeName);
             return newNode;
         }
-        payload = ImGui::AcceptDragDropPayload("Axis");
+        payload = ImGui::AcceptDragDropPayload("Machine");
         if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
-            const char* axisName = *(const char**)payload->Data;
-            std::shared_ptr<Node> newAxis = NodeFactory::getAxisByName(axisName);
-            return newAxis;
+            const char* machineName = *(const char**)payload->Data;
+            std::shared_ptr<Node> newMachine = NodeFactory::getMachineByName(machineName);
+            return newMachine;
         }
         ImGui::EndDragDropTarget();
     }

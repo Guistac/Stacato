@@ -6,10 +6,10 @@
 #include "Motion/MotionCurve.h"
 #include "Utilities/CircularBuffer.h"
 
-class Axis : public Node {
+class Machine : public Node {
 public:
 
-	DEFINE_AXIS_NODE("Axis", Axis);
+	DEFINE_AXIS_NODE("Machine", Machine);
 
 	//Device Links
 	std::shared_ptr<NodePin> actuatorDeviceLinks = std::make_shared<NodePin>(NodeData::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuators", NodePinFlags_AcceptMultipleInputs);
@@ -27,19 +27,19 @@ public:
 
 	//==================== AXIS DATA ====================
 
-	//Axis Type
-	UnitType axisUnitType = UnitType::LINEAR;
-	PositionUnit::Unit axisPositionUnit = PositionUnit::Unit::METER;
+	//Machine Type
+	UnitType machineUnitType = UnitType::LINEAR;
+	PositionUnit::Unit machinePositionUnit = PositionUnit::Unit::METER;
 
 	//Feedback Type
 	PositionFeedback::Type positionFeedbackType = PositionFeedback::Type::ABSOLUTE_FEEDBACK;
 	PositionUnit::Unit feedbackPositionUnit = PositionUnit::Unit::DEGREE;
-	double feedbackUnitsPerAxisUnits = 0.0;
+	double feedbackUnitsPerMachineUnits = 0.0;
 
 	//CommandType
 	CommandType::Type commandType = CommandType::Type::POSITION_COMMAND;
 	PositionUnit::Unit commandPositionUnit = PositionUnit::Unit::DEGREE;
-	double commandUnitsPerAxisUnits = 0.0;
+	double commandUnitsPerMachineUnits = 0.0;
 
 	//Reference and Homing Type
 	PositionReference::Type positionReferenceType = PositionReference::Type::NO_LIMIT;
@@ -80,13 +80,13 @@ public:
 	double manualControlAcceleration_degreesPerSecond = 0.0;
 
 	//Manual Velocity Control
-	void setVelocity(double velocity_axisUnits);
+	void setVelocity(double velocity_machineUnits);
 	void velocityTargetControl();
 	float manualVelocityTarget_degreesPerSecond = 0.0;
 
 	//Manual Target Control
-	void moveToPositionWithVelocity(double position_axisUnits, double velocity_axisUnits, double acceleration_axisUnits);
-	void moveToPositionInTime(double position_axisUnits, double movementTime_seconds, double acceleration_axisUnits);
+	void moveToPositionWithVelocity(double position_machineUnits, double velocity_machineUnits, double acceleration_machineUnits);
+	void moveToPositionInTime(double position_machineUnits, double movementTime_seconds, double acceleration_machineUnits);
 	void positionTargetControl();
 	MotionCurve::CurveProfile targetCurveProfile;
 	double targetPosition = 0.0;
@@ -110,7 +110,7 @@ public:
 	CircularBuffer accelerationHistory = CircularBuffer(historyLength);
 	CircularBuffer loadHistory = CircularBuffer(historyLength);
 
-	//Axis State Control
+	//Machine State Control
 	void enable();
 	void onEnable();
 	void disable();
@@ -122,8 +122,8 @@ public:
 	void enableAllActuators();
 	void disableAllActuators();
 
-	const char* getAxisUnitStringSingular() { return getPositionUnitType(axisPositionUnit)->displayName; }
-	const char* getAxisUnitStringPlural() { return getPositionUnitType(axisPositionUnit)->displayNamePlural; }
+	const char* getMachineUnitStringSingular() { return getPositionUnitType(machinePositionUnit)->displayName; }
+	const char* getMachineUnitStringPlural() { return getPositionUnitType(machinePositionUnit)->displayNamePlural; }
 
 	virtual void assignIoData() {
 		addIoData(actuatorDeviceLinks);
@@ -173,10 +173,10 @@ public:
 
 
 
-class StateMachineAxis : public Node {
+class StateMachineMachine : public Node {
 public:
 
-	DEFINE_AXIS_NODE("State Machine Axis", StateMachineAxis);
+	DEFINE_AXIS_NODE("State Machine Machine", StateMachineMachine);
 
 	std::shared_ptr<NodePin> deviceLink = std::make_shared<NodePin>(NodeData::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuators", NodePinFlags_AcceptMultipleInputs);
 	std::shared_ptr<NodePin> state0ref = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "State 0 Feedback");

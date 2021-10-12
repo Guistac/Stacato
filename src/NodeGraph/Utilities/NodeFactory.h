@@ -15,6 +15,6 @@ namespace NodeFactory {
 	
 	std::vector<NodeGroup>& getNodesByCategory();
 
-	std::shared_ptr<Node> getAxisByName(const char* name);
-	std::vector<Node*>& getAxisTypes();
+	std::shared_ptr<Node> getMachineByName(const char* name);
+	std::vector<Node*>& getMachineTypes();
 }

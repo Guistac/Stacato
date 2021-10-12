@@ -108,7 +108,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			if (nodeXML->QueryStringAttribute("DeviceType", &deviceType) != XML_SUCCESS) return Logger::warn("Could not load Node Device Type");
 			if (strcmp(deviceType, "ETHERCATSLAVE") == 0) loadedNode = EtherCatDeviceFactory::getDeviceByName(className);
 		}
-		else if (strcmp(nodeType, "AXIS") == 0) loadedNode = NodeFactory::getAxisByName(className);
+		else if (strcmp(nodeType, "MACHINE") == 0) loadedNode = NodeFactory::getMachineByName(className);
 		else if (strcmp(nodeType, "CONTAINER") == 0) loadedNode = NodeFactory::getNodeByName(className);
 		if (loadedNode == nullptr) return Logger::warn("Coult not load Node Class");
 	

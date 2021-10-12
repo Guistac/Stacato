@@ -3,23 +3,23 @@
 #include "MotionTypes.h"
 
 
-std::vector<AxisType> axisTypes = {
-	{UnitType::ANGULAR, "Rotating Axis", "Rotating"},
-	{UnitType::LINEAR, "Linear Axis", "Linear"}
+std::vector<MachineType> machineTypes = {
+	{UnitType::ANGULAR, "Rotating Machine", "Rotating"},
+	{UnitType::LINEAR, "Linear Machine", "Linear"}
 };
 
-std::vector<AxisType>& getAxisTypes() { return axisTypes; }
+std::vector<MachineType>& getMachineTypes() { return machineTypes; }
 
-AxisType* getAxisType(UnitType t) {
-	for (AxisType& axis : axisTypes) {
-		if (axis.unitType == t) return &axis;
+MachineType* getMachineType(UnitType t) {
+	for (MachineType& machine : machineTypes) {
+		if (machine.unitType == t) return &machine;
 	}
 	return nullptr;
 }
 
-AxisType* getAxisType(const char* saveName) {
-	for (AxisType& axis : axisTypes) {
-		if (strcmp(axis.saveName, saveName) == 0) return &axis;
+MachineType* getMachineType(const char* saveName) {
+	for (MachineType& machine : machineTypes) {
+		if (strcmp(machine.saveName, saveName) == 0) return &machine;
 	}
 	return nullptr;
 }

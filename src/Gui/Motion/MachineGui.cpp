@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "Motion/Axis/Axis.h"
+#include "Motion/Machine/Machine.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -11,7 +11,7 @@
 #include "Gui/Framework/Colors.h"
 
 
-void Axis::nodeSpecificGui() {
+void Machine::nodeSpecificGui() {
 	if (ImGui::BeginTabItem("Controls")) {
 		controlsGui();
 		ImGui::EndTabItem();
@@ -33,14 +33,14 @@ void Axis::nodeSpecificGui() {
 
 
 
-void Axis::controlsGui() {
+void Machine::controlsGui() {
 
 	if (ImGui::BeginChild("ControlsGui")) {
 
 		//====================== AXIS MANUAL CONTROLS ==============================
 
 		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Axis Control");
+		ImGui::Text("Machine Control");
 		ImGui::PopFont();
 
 		glm::vec2 buttonSize;
@@ -48,33 +48,33 @@ void Axis::controlsGui() {
 		buttonSize.x = (ImGui::GetContentRegionAvail().x - (buttonCount - 1) * ImGui::GetStyle().ItemSpacing.x) / buttonCount;
 		buttonSize.y = ImGui::GetTextLineHeight() * 2.0;
 
-		bool isAxisReady = areAllDevicesReady();
+		bool isMachineReady = areAllDevicesReady();
 
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		if (isEnabled()) {
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-			ImGui::Button("Axis Enabled", buttonSize);
+			ImGui::Button("Machine Enabled", buttonSize);
 		}
-		else if (isAxisReady) {
+		else if (isMachineReady) {
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-			ImGui::Button("Axis Ready", buttonSize);
+			ImGui::Button("Machine Ready", buttonSize);
 		}
 		else {
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
-			ImGui::Button("Axis Not Ready", buttonSize);
+			ImGui::Button("Machine Not Ready", buttonSize);
 		}
 		ImGui::PopStyleColor();
 		ImGui::PopItemFlag();
 
 		ImGui::SameLine();
-		if(!isAxisReady) BEGIN_DISABLE_IMGUI_ELEMENT
+		if(!isMachineReady) BEGIN_DISABLE_IMGUI_ELEMENT
 		if (isEnabled()) {
-			if (ImGui::Button("Disable Axis", buttonSize)) disable();
+			if (ImGui::Button("Disable Machine", buttonSize)) disable();
 		}
 		else {
-			if (ImGui::Button("Enable Axis", buttonSize)) enable();
+			if (ImGui::Button("Enable Machine", buttonSize)) enable();
 		}
-		if (!isAxisReady) END_DISABLE_IMGUI_ELEMENT
+		if (!isMachineReady) END_DISABLE_IMGUI_ELEMENT
 
 		ImGui::Separator();
 
@@ -237,31 +237,31 @@ void Axis::controlsGui() {
 
 
 
-void Axis::settingsGui() {
+void Machine::settingsGui() {
 
 	if (ImGui::BeginChild("SettingsGui")) {
 
 		//=================== AXIS SETTINGS ====================
 
 		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Axis Settings");
+		ImGui::Text("Machine Settings");
 		ImGui::PopFont();
 
 		//------------------ AXIS TYPE -------------------------
 
-		ImGui::Text("Axis Type");
-		if (ImGui::BeginCombo("##AxisType", getAxisType(axisUnitType)->displayName)) {
-			for (AxisType& axisType : getAxisTypes()) {
-				if (ImGui::Selectable(axisType.displayName, axisUnitType == axisType.unitType)) {
-					axisUnitType = axisType.unitType;
-					//if the axis type is changed but the axis unit is of the wrong type
-					//change the axis unit to the first correct type automatically
-					if (getPositionUnitType(axisPositionUnit)->type != axisType.unitType) {
-						if (axisType.unitType == UnitType::ANGULAR) {
-							axisPositionUnit = getAngularPositionUnits().front().unit;
+		ImGui::Text("Machine Type");
+		if (ImGui::BeginCombo("##MachineType", getMachineType(machineUnitType)->displayName)) {
+			for (MachineType& machineType : getMachineTypes()) {
+				if (ImGui::Selectable(machineType.displayName, machineUnitType == machineType.unitType)) {
+					machineUnitType = machineType.unitType;
+					//if the machine type is changed but the machine unit is of the wrong type
+					//change the machine unit to the first correct type automatically
+					if (getPositionUnitType(machinePositionUnit)->type != machineType.unitType) {
+						if (machineType.unitType == UnitType::ANGULAR) {
+							machinePositionUnit = getAngularPositionUnits().front().unit;
 						}
-						else if (axisType.unitType == UnitType::LINEAR) {
-							axisPositionUnit = getLinearPositionUnits().front().unit;
+						else if (machineType.unitType == UnitType::LINEAR) {
+							machinePositionUnit = getLinearPositionUnits().front().unit;
 						}
 					}
 				}
@@ -269,16 +269,16 @@ void Axis::settingsGui() {
 			ImGui::EndCombo();
 		}
 
-		ImGui::Text("Axis Position Unit");
-		if (ImGui::BeginCombo("##AxisUnit", getPositionUnitType(axisPositionUnit)->displayName)) {
-			if (axisUnitType == UnitType::LINEAR) {
+		ImGui::Text("Machine Position Unit");
+		if (ImGui::BeginCombo("##MachineUnit", getPositionUnitType(machinePositionUnit)->displayName)) {
+			if (machineUnitType == UnitType::LINEAR) {
 				for (PositionUnit& unit : getLinearPositionUnits()) {
-					if (ImGui::Selectable(unit.displayName, axisPositionUnit == unit.unit)) axisPositionUnit = unit.unit;
+					if (ImGui::Selectable(unit.displayName, machinePositionUnit == unit.unit)) machinePositionUnit = unit.unit;
 				}
 			}
-			else if (axisUnitType == UnitType::ANGULAR) {
+			else if (machineUnitType == UnitType::ANGULAR) {
 				for (PositionUnit& unit : getAngularPositionUnits()) {
-					if (ImGui::Selectable(unit.displayName, axisPositionUnit == unit.unit)) axisPositionUnit = unit.unit;
+					if (ImGui::Selectable(unit.displayName, machinePositionUnit == unit.unit)) machinePositionUnit = unit.unit;
 				}
 			}
 			ImGui::EndCombo();
@@ -320,8 +320,8 @@ void Axis::settingsGui() {
 				ImGui::EndCombo();
 			}
 
-			ImGui::Text("Feedback %s per Axis %s", getPositionUnitType(feedbackPositionUnit)->displayNamePlural, getPositionUnitType(axisPositionUnit)->displayName);
-			ImGui::InputDouble("##feedbackCoupling", &feedbackUnitsPerAxisUnits);
+			ImGui::Text("Feedback %s per Machine %s", getPositionUnitType(feedbackPositionUnit)->displayNamePlural, getPositionUnitType(machinePositionUnit)->displayName);
+			ImGui::InputDouble("##feedbackCoupling", &feedbackUnitsPerMachineUnits);
 		}
 
 		ImGui::Separator();
@@ -342,7 +342,7 @@ void Axis::settingsGui() {
 
 		if (commandType == CommandType::Type::VELOCITY_COMMAND) {
 			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-			ImGui::TextWrapped("Actuators with velocity command are not yet supported. Actuators with velocity command would need a PID controller with position feedback to regulate the axis position");
+			ImGui::TextWrapped("Actuators with velocity command are not yet supported. Actuators with velocity command would need a PID controller with position feedback to regulate the machine position");
 			ImGui::PopStyleColor();
 		}
 		else {
@@ -354,8 +354,8 @@ void Axis::settingsGui() {
 				ImGui::EndCombo();
 			}
 
-			ImGui::Text("Actuator %s per Axis %s", getPositionUnitType(commandPositionUnit)->displayNamePlural, getPositionUnitType(axisPositionUnit)->displayName);
-			ImGui::InputDouble("##actuatorCoupling", &commandUnitsPerAxisUnits);
+			ImGui::Text("Actuator %s per Machine %s", getPositionUnitType(commandPositionUnit)->displayNamePlural, getPositionUnitType(machinePositionUnit)->displayName);
+			ImGui::InputDouble("##actuatorCoupling", &commandUnitsPerMachineUnits);
 		}
 
 		ImGui::Separator();
@@ -366,15 +366,15 @@ void Axis::settingsGui() {
 		ImGui::Text("Kinematic Limits");
 		ImGui::PopFont();
 
-		ImGui::Text("Velocity Limit (%s per second)", getAxisUnitStringPlural());
+		ImGui::Text("Velocity Limit (%s per second)", getMachineUnitStringPlural());
 		ImGui::InputDouble("##VelLimit", &velocityLimit_degreesPerSecond, 0.0, 0.0, "%.3f u/s");
-		ImGui::Text("Acceleration Limit (%s per second squared)", getAxisUnitStringPlural());
+		ImGui::Text("Acceleration Limit (%s per second squared)", getMachineUnitStringPlural());
 		ImGui::InputDouble("##AccLimit", &accelerationLimit_degreesPerSecondSquared, 0.0, 0.0, "%.3f u/s2");
 
-		ImGui::Text("Default Manual Acceleration (%s per second squared)", getAxisUnitStringPlural());
+		ImGui::Text("Default Manual Acceleration (%s per second squared)", getMachineUnitStringPlural());
 		ImGui::InputDouble("##defmanAcc", &defaultManualAcceleration_degreesPerSecondSquared, 0.0, 0.0, "%.3f u/s");
 		clamp(defaultManualAcceleration_degreesPerSecondSquared, 0.0, accelerationLimit_degreesPerSecondSquared);
-		ImGui::Text("Default Manual Movement Velocity (%s per second)", getAxisUnitStringPlural());
+		ImGui::Text("Default Manual Movement Velocity (%s per second)", getMachineUnitStringPlural());
 		ImGui::InputDouble("##defmanvel", &defaultManualVelocity_degreesPerSecond, 0.0, 0.0, "%.3f u/s");
 		clamp(defaultManualVelocity_degreesPerSecond, 0.0, velocityLimit_degreesPerSecond);
 
@@ -403,7 +403,7 @@ void Axis::settingsGui() {
 			ImGui::Text("Homing Velocity");
 			ImGui::InputDouble("##HomingVelocity", &homingVelocity_degreesPerSecond, 0.0, 0.0, "%.3f deg/s");
 			if (homingVelocity_degreesPerSecond < 0) homingVelocity_degreesPerSecond = abs(homingVelocity_degreesPerSecond);
-			ImGui::TextWrapped("Single Limit Signal at the negative end of the axis travel. Homing will move the axis in the negative direction");
+			ImGui::TextWrapped("Single Limit Signal at the negative end of the machine travel. Homing will move the machine in the negative direction");
 			break;
 		case PositionReference::Type::HIGH_LIMIT:
 			ImGui::Text("Max Deviation From High Limit");
@@ -412,7 +412,7 @@ void Axis::settingsGui() {
 			ImGui::Text("Homing Velocity");
 			ImGui::InputDouble("##HomingVelocity", &homingVelocity_degreesPerSecond, 0.0, 0.0, "%.3f deg/s");
 			if (homingVelocity_degreesPerSecond < 0) homingVelocity_degreesPerSecond = abs(homingVelocity_degreesPerSecond);
-			ImGui::TextWrapped("Single Limit Signal at the positive end of the axis travel. Homing will move the axis in the position direction");
+			ImGui::TextWrapped("Single Limit Signal at the positive end of the machine travel. Homing will move the machine in the position direction");
 			break;
 		case PositionReference::Type::LOW_AND_HIGH_LIMIT:
 			ImGui::Text("Homing Direction");
@@ -426,7 +426,7 @@ void Axis::settingsGui() {
 			ImGui::Text("Homing Velocity");
 			ImGui::InputDouble("##HomingVelocity", &homingVelocity_degreesPerSecond, 0.0, 0.0, "%.3f deg/s");
 			if (homingVelocity_degreesPerSecond < 0) homingVelocity_degreesPerSecond = abs(homingVelocity_degreesPerSecond);
-			ImGui::TextWrapped("Two Limit Signals at each end of the axis travel. Homing will first move the axis in the specified direction, then the other direction");
+			ImGui::TextWrapped("Two Limit Signals at each end of the machine travel. Homing will first move the machine in the specified direction, then the other direction");
 			break;
 		case PositionReference::Type::POSITION_REFERENCE:
 			ImGui::Text("Homing Direction");
@@ -446,7 +446,7 @@ void Axis::settingsGui() {
 			ImGui::Text("Homing Velocity");
 			ImGui::InputDouble("##HomingVelocity", &homingVelocity_degreesPerSecond, 0.0, 0.0, "%.3f deg/s");
 			if (homingVelocity_degreesPerSecond < 0) homingVelocity_degreesPerSecond = abs(homingVelocity_degreesPerSecond);
-			ImGui::TextWrapped("Single Limit Signal inside the axis travel range. Homing will find the position reference using the specified direction. The axis will not go over the max deviations from the position reference. (Not recommended for axis with physical limits)");
+			ImGui::TextWrapped("Single Limit Signal inside the machine travel range. Homing will find the position reference using the specified direction. The machine will not go over the max deviations from the position reference. (Not recommended for machine with physical limits)");
 			break;
 		case PositionReference::Type::NO_LIMIT:
 			ImGui::Text("Max Positive Deviation");
@@ -455,7 +455,7 @@ void Axis::settingsGui() {
 			ImGui::Text("Max Negative Deviation");
 			ImGui::InputDouble("##MaxNegativeDeviation", &allowedNegativeDeviationFromReference_degrees, 0.0, 0.0, "%.3f");
 			if (allowedNegativeDeviationFromReference_degrees > 0.0) allowedNegativeDeviationFromReference_degrees = 0.0;
-			ImGui::TextWrapped("No Limit Signal. Setting of the origin has to be done by manually moving the axis to the desired position reference and resetting the position feedback. (Not recommended for position feedback types other than absolute)");
+			ImGui::TextWrapped("No Limit Signal. Setting of the origin has to be done by manually moving the machine to the desired position reference and resetting the position feedback. (Not recommended for position feedback types other than absolute)");
 		}
 
 		ImGui::EndChild();
@@ -472,7 +472,7 @@ void Axis::settingsGui() {
 
 
 
-void Axis::devicesGui() {
+void Machine::devicesGui() {
 
 	if (ImGui::BeginChild("DevicesGui")) {
 
@@ -595,7 +595,7 @@ void Axis::devicesGui() {
 	}
 }
 
-void Axis::metricsGui() {
+void Machine::metricsGui() {
 	if (ImGui::BeginChild("Metrics")) {
 
 		glm::vec2* positionBuffer;

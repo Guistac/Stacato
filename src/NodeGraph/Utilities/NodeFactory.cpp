@@ -8,14 +8,14 @@
 #include "NodeGraph/Nodes/GroupNode.h"
 #include "NodeGraph/Nodes/PlotterNode.h"
 
-#include "Motion/Axis/Axis.h"
+#include "Motion/Machine/Machine.h"
 
 namespace NodeFactory {
 
 	std::vector<Node*> allNodes;
 	std::vector<NodeGroup> nodesByCategory;
 
-	std::vector<Node*> axisTypes;
+	std::vector<Node*> machineTypes;
 
 	void loadNodes() {
 		allNodes = {
@@ -61,9 +61,9 @@ namespace NodeFactory {
 			}
 		}
 
-		axisTypes = {
-			new Axis(),
-			new StateMachineAxis()
+		machineTypes = {
+			new Machine(),
+			new StateMachineMachine()
 		};
 	}
 
@@ -76,14 +76,14 @@ namespace NodeFactory {
 
 	std::vector<NodeGroup>& getNodesByCategory() { return nodesByCategory; }
 
-	std::shared_ptr<Node> getAxisByName(const char* name) {
-		for (Node* axis : axisTypes) {
-			if (strcmp(name, axis->getNodeName()) == 0) return axis->getNewNodeInstance();
+	std::shared_ptr<Node> getMachineByName(const char* name) {
+		for (Node* machine : machineTypes) {
+			if (strcmp(name, machine->getNodeName()) == 0) return machine->getNewNodeInstance();
 		}
 	}
 
-	std::vector<Node*>& getAxisTypes() {
-		return axisTypes;
+	std::vector<Node*>& getMachineTypes() {
+		return machineTypes;
 	}
 
 }

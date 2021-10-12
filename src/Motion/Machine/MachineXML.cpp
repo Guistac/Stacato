@@ -1,29 +1,29 @@
 #include <pch.h>
 
-#include "Motion/Axis/Axis.h"
+#include "Motion/Machine/Machine.h"
 
 #include <tinyxml2.h>
 
 
-bool Axis::save(tinyxml2::XMLElement* xml) {
+bool Machine::save(tinyxml2::XMLElement* xml) {
 
 	using namespace tinyxml2;
 	
-	XMLElement* axisTypeXML = xml->InsertNewChildElement("Axis");
-	axisTypeXML->SetAttribute("Type", getAxisType(axisUnitType)->saveName);
-	axisTypeXML->SetAttribute("Unit", getPositionUnitType(axisPositionUnit)->saveName);
+	XMLElement* machineTypeXML = xml->InsertNewChildElement("Machine");
+	machineTypeXML->SetAttribute("Type", getMachineType(machineUnitType)->saveName);
+	machineTypeXML->SetAttribute("Unit", getPositionUnitType(machinePositionUnit)->saveName);
 
 	XMLElement* feedbackXML = xml->InsertNewChildElement("Feedback");
 	feedbackXML->SetAttribute("Type", getPositionFeedbackType(positionFeedbackType)->saveName);
 	if (positionFeedbackType != PositionFeedback::Type::NO_FEEDBACK) {
 		feedbackXML->SetAttribute("Unit", getPositionUnitType(feedbackPositionUnit)->saveName);
-		feedbackXML->SetAttribute("UnitsPerAxisUnit", feedbackUnitsPerAxisUnits);
+		feedbackXML->SetAttribute("UnitsPerMachineUnit", feedbackUnitsPerMachineUnits);
 	}
 
 	XMLElement* commandXML = xml->InsertNewChildElement("Command");
 	commandXML->SetAttribute("Type", getCommandType(commandType)->saveName);
 	commandXML->SetAttribute("Unit", getPositionUnitType(commandPositionUnit)->saveName);
-	commandXML->SetAttribute("UnitsPerAxisUnit", commandUnitsPerAxisUnits);
+	commandXML->SetAttribute("UnitsPerMachineUnit", commandUnitsPerMachineUnits);
 
 	XMLElement* positionReferenceXML = xml->InsertNewChildElement("PositionReference");
 	positionReferenceXML->SetAttribute("Type", getPositionReferenceType(positionReferenceType)->saveName);
@@ -64,25 +64,25 @@ bool Axis::save(tinyxml2::XMLElement* xml) {
 
 
 
-bool Axis::load(tinyxml2::XMLElement* xml) {
+bool Machine::load(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 
-	XMLElement* axisXML = xml->FirstChildElement("Axis");
-	if (!axisXML) return Logger::warn("Could not load Axis Attributes");
-	const char* axisUnitTypeString;
+	XMLElement* machineXML = xml->FirstChildElement("Machine");
+	if (!machineXML) return Logger::warn("Could not load Machine Attributes");
+	const char* machineUnitTypeString;
 	
 
-	if (axisXML->QueryStringAttribute("Type", &axisUnitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Axis Type");
-	if (getAxisType(axisUnitTypeString) == nullptr) return Logger::warn("Could not read Axis Type");
-	axisUnitType = getAxisType(axisUnitTypeString)->unitType;
-	const char* axisUnitString;
-	if (axisXML->QueryStringAttribute("Unit", &axisUnitString) != XML_SUCCESS) return Logger::warn("Could not load Axis Unit");
-	if (getPositionUnitType(axisUnitString) == nullptr) return Logger::warn("Could not read Axis Unit");
-	axisPositionUnit = getPositionUnitType(axisUnitString)->unit;
+	if (machineXML->QueryStringAttribute("Type", &machineUnitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Machine Type");
+	if (getMachineType(machineUnitTypeString) == nullptr) return Logger::warn("Could not read Machine Type");
+	machineUnitType = getMachineType(machineUnitTypeString)->unitType;
+	const char* machineUnitString;
+	if (machineXML->QueryStringAttribute("Unit", &machineUnitString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit");
+	if (getPositionUnitType(machineUnitString) == nullptr) return Logger::warn("Could not read Machine Unit");
+	machinePositionUnit = getPositionUnitType(machineUnitString)->unit;
 
 
 	XMLElement* feedbackXML = xml->FirstChildElement("Feedback");
-	if (!feedbackXML) return Logger::warn("Could not load Axis Feedback");
+	if (!feedbackXML) return Logger::warn("Could not load Machine Feedback");
 	const char* feedbackTypeString;
 	if (feedbackXML->QueryStringAttribute("Type", &feedbackTypeString) != XML_SUCCESS) return Logger::warn("Could not load Feedback Type");
 	if (getPositionFeedbackType(feedbackTypeString) == nullptr) return Logger::warn("Could not read Feedback Type");
@@ -92,12 +92,12 @@ bool Axis::load(tinyxml2::XMLElement* xml) {
 		if (feedbackXML->QueryStringAttribute("Unit", &feedbackUnitString) != XML_SUCCESS) return Logger::warn("Could not load Feedback Unit");
 		if (getPositionUnitType(feedbackUnitString) == nullptr) return Logger::warn("Could not read Feedback Unit");
 		feedbackPositionUnit = getPositionUnitType(feedbackUnitString)->unit;
-		if (feedbackXML->QueryDoubleAttribute("UnitsPerAxisUnit", &feedbackUnitsPerAxisUnits) != XML_SUCCESS) return Logger::warn("Could not load Feedback Units Per Axis Unit");
+		if (feedbackXML->QueryDoubleAttribute("UnitsPerMachineUnit", &feedbackUnitsPerMachineUnits) != XML_SUCCESS) return Logger::warn("Could not load Feedback Units Per Machine Unit");
 	}
 
 
 	XMLElement* commandXML = xml->FirstChildElement("Command");
-	if (!commandXML) return Logger::warn("Could not load Axis Command Attribute");
+	if (!commandXML) return Logger::warn("Could not load Machine Command Attribute");
 	const char* commandTypeString;
 	if (commandXML->QueryStringAttribute("Type", &commandTypeString) != XML_SUCCESS) return Logger::warn("Could not load Command Type");
 	if (getCommandType(commandTypeString) == nullptr) return Logger::warn("Could not read Command Type");
@@ -106,11 +106,11 @@ bool Axis::load(tinyxml2::XMLElement* xml) {
 	if (commandXML->QueryStringAttribute("Unit", &commandUnitString) != XML_SUCCESS) return Logger::warn("Could not load Command Unit");
 	if (getPositionUnitType(commandUnitString) == nullptr) return Logger::warn("Could not read Command Unit");
 	commandPositionUnit = getPositionUnitType(commandUnitString)->unit;
-	if (commandXML->QueryDoubleAttribute("UnitsPerAxisUnit", &commandUnitsPerAxisUnits) != XML_SUCCESS) return Logger::warn("Could not load Command Units Per Axis Units");
+	if (commandXML->QueryDoubleAttribute("UnitsPerMachineUnit", &commandUnitsPerMachineUnits) != XML_SUCCESS) return Logger::warn("Could not load Command Units Per Machine Units");
 
 
 	XMLElement* positionReferenceXML = xml->FirstChildElement("PositionReference");
-	if (!positionReferenceXML) return Logger::warn("Could not load Axis Position Reference");
+	if (!positionReferenceXML) return Logger::warn("Could not load Machine Position Reference");
 	const char* positionReferenceTypeString;
 	if (positionReferenceXML->QueryStringAttribute("Type", &positionReferenceTypeString) != XML_SUCCESS) return Logger::warn("Could not load Position Reference Type");
 	if (getPositionReferenceType(positionReferenceTypeString) == nullptr) return Logger::warn("Could not read Position Reference Type");
@@ -141,7 +141,7 @@ bool Axis::load(tinyxml2::XMLElement* xml) {
 
 
 	XMLElement* kinematicLimitsXML = xml->FirstChildElement("KinematicLimits");
-	if (!kinematicLimitsXML) return Logger::warn("Could not load Axis Kinematic Kimits");
+	if (!kinematicLimitsXML) return Logger::warn("Could not load Machine Kinematic Kimits");
 	if (kinematicLimitsXML->QueryDoubleAttribute("VelocityLimit_degreesPerSecond", &velocityLimit_degreesPerSecond)) Logger::warn("Could not load velocity limit");
 	if (kinematicLimitsXML->QueryDoubleAttribute("AccelerationLimit_degreesPerSecondSquared", &accelerationLimit_degreesPerSecondSquared) != XML_SUCCESS) Logger::warn("Could not load acceleration limit");
 

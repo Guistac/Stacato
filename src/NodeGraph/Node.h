@@ -13,7 +13,7 @@
 
 #define DEFINE_AXIS_NODE(nodeName, className)	public:																							\
 												virtual const char* getNodeName() { return nodeName; }											\
-												virtual const char* getNodeCategory() { return "Axis"; }										\
+												virtual const char* getNodeCategory() { return "Machine"; }										\
 												className(){ setName(nodeName); }																\
 												virtual NodeType getType() { return NodeType::AXIS; }											\
 												virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
