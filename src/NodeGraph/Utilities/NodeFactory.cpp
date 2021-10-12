@@ -8,7 +8,8 @@
 #include "NodeGraph/Nodes/GroupNode.h"
 #include "NodeGraph/Nodes/PlotterNode.h"
 
-#include "Motion/Machine/Machine.h"
+#include "Motion/Machine/SingleAxisMachine.h"
+#include "Motion/Machine/StateMachine.h"
 
 namespace NodeFactory {
 
@@ -62,8 +63,8 @@ namespace NodeFactory {
 		}
 
 		machineTypes = {
-			new Machine(),
-			new StateMachineMachine()
+			new SingleAxisMachine(),
+			new StateMachine()
 		};
 	}
 

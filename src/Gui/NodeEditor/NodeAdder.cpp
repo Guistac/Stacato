@@ -6,91 +6,6 @@
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 #include "NodeGraph/Utilities/NodeFactory.h"
 
-std::shared_ptr<Node> nodeAdderContextMenu() {
-
-    std::shared_ptr<Node> output = nullptr;
-
-    ImGui::MenuItem("Node Editor Menu", nullptr, false, false);
-    ImGui::Separator();
-    ImGui::MenuItem("EtherCAT devices", nullptr, false, false);
-    if (ImGui::BeginMenu("By Manufaturer")){
-        for (auto manufacturer : EtherCatDeviceFactory::getDevicesByManufacturer()) {
-            if (ImGui::BeginMenu(manufacturer.name)) {
-                for (auto device : manufacturer.devices) {
-                    if (ImGui::MenuItem(device->getNodeName())) output = device->getNewDeviceInstance();
-                }
-                ImGui::EndMenu();
-            }
-        }
-        ImGui::EndMenu();
-    }
-    if (ImGui::BeginMenu("By Category")) {
-        for (auto manufacturer : EtherCatDeviceFactory::getDevicesByCategory()) {
-            if (ImGui::BeginMenu(manufacturer.name)) {
-                for (auto device : manufacturer.devices) {
-                    if (ImGui::MenuItem(device->getNodeName())) output = device->getNewDeviceInstance();
-                }
-                ImGui::EndMenu();
-            }
-        }
-        ImGui::EndMenu();
-    }
-
-    std::shared_ptr<EtherCatSlave> selectedDetectedSlave = nullptr;
-    if (!EtherCatFieldbus::slaves_unassigned.empty()) {
-        if (ImGui::BeginMenu("Detected Slaves")) {
-            for (auto detectedSlave : EtherCatFieldbus::slaves_unassigned) {
-                if (ImGui::MenuItem(detectedSlave->getName())) {
-                    output = detectedSlave;
-                    selectedDetectedSlave = detectedSlave;
-                }
-            }
-            ImGui::EndMenu();
-        }
-    }
-    if (selectedDetectedSlave) {
-        std::vector<std::shared_ptr<EtherCatSlave>>& unassignedSlaves = EtherCatFieldbus::slaves_unassigned;
-        for (int i = 0; i < unassignedSlaves.size(); i++) {
-            if (unassignedSlaves[i] == selectedDetectedSlave) {
-                unassignedSlaves.erase(unassignedSlaves.begin() + i);
-                break;
-            }
-        }
-    }
-
-    ImGui::Separator();
-
-    if (ImGui::BeginMenu("Machine")) {
-        for (auto machine : NodeFactory::getMachineTypes()) {
-            if (ImGui::MenuItem(machine->getNodeName())) output = machine->getNewNodeInstance();
-        }
-        ImGui::EndMenu();
-    }
-    
-    ImGui::Separator();
-    
-    if (ImGui::BeginMenu("Network")) {
-        
-        ImGui::EndMenu();
-    }
-
-    ImGui::Separator();
-
-    ImGui::MenuItem("Processing Nodes", nullptr, false, false);
-    for (auto category : NodeFactory::getNodesByCategory()) {
-        if (ImGui::BeginMenu(category.name)) {
-            for (auto device : category.nodes) {
-                if (ImGui::MenuItem(device->getNodeName())) output = device->getNewNodeInstance();
-            }
-            ImGui::EndMenu();
-        }
-    }
-
-    return output;
-}
-
-
-
 void nodeAdder() {
 
     ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, ImGui::GetTextLineHeight() * 1.0);
@@ -182,7 +97,7 @@ void nodeAdder() {
         ImGui::PopFont();
 
         ImGui::PushFont(Fonts::robotoBold15);
-        if (ImGui::CollapsingHeader("Machine")) {
+        if (ImGui::CollapsingHeader("Machines")) {
             ImGui::PushFont(Fonts::robotoRegular15);
             for (auto machine : NodeFactory::getMachineTypes()) {
                 const char* machineName = machine->getNodeName();
@@ -272,3 +187,89 @@ std::shared_ptr<Node> acceptDraggedNode() {
     }
     return nullptr;
 }
+
+
+
+std::shared_ptr<Node> nodeAdderContextMenu() {
+
+    std::shared_ptr<Node> output = nullptr;
+
+    ImGui::MenuItem("Node Editor Menu", nullptr, false, false);
+    ImGui::Separator();
+    ImGui::MenuItem("EtherCAT devices", nullptr, false, false);
+    if (ImGui::BeginMenu("By Manufaturer")) {
+        for (auto manufacturer : EtherCatDeviceFactory::getDevicesByManufacturer()) {
+            if (ImGui::BeginMenu(manufacturer.name)) {
+                for (auto device : manufacturer.devices) {
+                    if (ImGui::MenuItem(device->getNodeName())) output = device->getNewDeviceInstance();
+                }
+                ImGui::EndMenu();
+            }
+        }
+        ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("By Category")) {
+        for (auto manufacturer : EtherCatDeviceFactory::getDevicesByCategory()) {
+            if (ImGui::BeginMenu(manufacturer.name)) {
+                for (auto device : manufacturer.devices) {
+                    if (ImGui::MenuItem(device->getNodeName())) output = device->getNewDeviceInstance();
+                }
+                ImGui::EndMenu();
+            }
+        }
+        ImGui::EndMenu();
+    }
+
+    std::shared_ptr<EtherCatSlave> selectedDetectedSlave = nullptr;
+    if (!EtherCatFieldbus::slaves_unassigned.empty()) {
+        if (ImGui::BeginMenu("Detected Slaves")) {
+            for (auto detectedSlave : EtherCatFieldbus::slaves_unassigned) {
+                if (ImGui::MenuItem(detectedSlave->getName())) {
+                    output = detectedSlave;
+                    selectedDetectedSlave = detectedSlave;
+                }
+            }
+            ImGui::EndMenu();
+        }
+    }
+    if (selectedDetectedSlave) {
+        std::vector<std::shared_ptr<EtherCatSlave>>& unassignedSlaves = EtherCatFieldbus::slaves_unassigned;
+        for (int i = 0; i < unassignedSlaves.size(); i++) {
+            if (unassignedSlaves[i] == selectedDetectedSlave) {
+                unassignedSlaves.erase(unassignedSlaves.begin() + i);
+                break;
+            }
+        }
+    }
+
+    ImGui::Separator();
+
+    if (ImGui::BeginMenu("Machine")) {
+        for (auto machine : NodeFactory::getMachineTypes()) {
+            if (ImGui::MenuItem(machine->getNodeName())) output = machine->getNewNodeInstance();
+        }
+        ImGui::EndMenu();
+    }
+
+    ImGui::Separator();
+
+    if (ImGui::BeginMenu("Network")) {
+
+        ImGui::EndMenu();
+    }
+
+    ImGui::Separator();
+
+    ImGui::MenuItem("Processing Nodes", nullptr, false, false);
+    for (auto category : NodeFactory::getNodesByCategory()) {
+        if (ImGui::BeginMenu(category.name)) {
+            for (auto device : category.nodes) {
+                if (ImGui::MenuItem(device->getNodeName())) output = device->getNewNodeInstance();
+            }
+            ImGui::EndMenu();
+        }
+    }
+
+    return output;
+}
+
