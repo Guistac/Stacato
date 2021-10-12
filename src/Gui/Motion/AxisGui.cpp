@@ -8,6 +8,7 @@
 #include <implot.h>
 
 #include "NodeGraph/DeviceNode.h"
+#include "Gui/Framework/Colors.h"
 
 
 void Axis::nodeSpecificGui() {
@@ -38,9 +39,6 @@ void Axis::controlsGui() {
 
 		//====================== AXIS MANUAL CONTROLS ==============================
 
-		static glm::vec4 redColor = glm::vec4(0.7, 0.1, 0.1, 1.0);
-		static glm::vec4 greenColor = glm::vec4(0.3, 0.7, 0.1, 1.0);
-
 		ImGui::PushFont(Fonts::robotoBold20);
 		ImGui::Text("Axis Control");
 		ImGui::PopFont();
@@ -50,42 +48,47 @@ void Axis::controlsGui() {
 		buttonSize.x = (ImGui::GetContentRegionAvail().x - (buttonCount - 1) * ImGui::GetStyle().ItemSpacing.x) / buttonCount;
 		buttonSize.y = ImGui::GetTextLineHeight() * 2.0;
 
+		bool isAxisReady = areAllDevicesReady();
+
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-		ImGui::Button("Position Feedback", buttonSize);
-		ImGui::SameLine();
-		ImGui::Button("Position Reference", buttonSize);
+		if (isEnabled()) {
+			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+			ImGui::Button("Axis Enabled", buttonSize);
+		}
+		else if (isAxisReady) {
+			ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+			ImGui::Button("Axis Ready", buttonSize);
+		}
+		else {
+			ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+			ImGui::Button("Axis Not Ready", buttonSize);
+		}
+		ImGui::PopStyleColor();
 		ImGui::PopItemFlag();
 
-
-		if (areAllDevicesReady()) {
-			ImGui::PushStyleColor(ImGuiCol_Button, greenColor);
-			if (ImGui::Button("Disable Actuator", buttonSize)) disableAllActuators();
-			ImGui::PopStyleColor();
-		}
-		else {
-			ImGui::PushStyleColor(ImGuiCol_Button, redColor);
-			if (ImGui::Button("Enable Actuator", buttonSize)) enableAllActuators();
-			ImGui::PopStyleColor();
-		}
-
 		ImGui::SameLine();
-
+		if(!isAxisReady) BEGIN_DISABLE_IMGUI_ELEMENT
 		if (isEnabled()) {
-			ImGui::PushStyleColor(ImGuiCol_Button, greenColor);
 			if (ImGui::Button("Disable Axis", buttonSize)) disable();
-			ImGui::PopStyleColor();
 		}
 		else {
-			ImGui::PushStyleColor(ImGuiCol_Button, redColor);
 			if (ImGui::Button("Enable Axis", buttonSize)) enable();
-			ImGui::PopStyleColor();
 		}
+		if (!isAxisReady) END_DISABLE_IMGUI_ELEMENT
 
+		ImGui::Separator();
+
+		bool disableManualControls = !b_enabled;
+		if(disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
+
+		//------------------- MASTER MANUAL ACCELERATION ------------------------
+
+		ImGui::Text("Acceleration for manual controls :");
+		ImGui::InputDouble("##TargetAcceleration", &manualControlAcceleration_degreesPerSecond, 0.0, 0.0, "%.3f deg/s2");
+		clamp(manualControlAcceleration_degreesPerSecond, 0.0, accelerationLimit_degreesPerSecondSquared);
+		ImGui::Separator();
 
 		//------------------- VELOCITY CONTROLS ------------------------
-
-		ImGui::Text("Acceleration for manual controls");
-		ImGui::InputDouble("##TargetAcceleration", &manualControlAcceleration_degreesPerSecond, 0.0, 0.0, "%.3f deg/s2");
 
 		float widgetWidth = ImGui::GetContentRegionAvail().x;
 
@@ -95,10 +98,9 @@ void Axis::controlsGui() {
 
 		ImGui::SetNextItemWidth(widgetWidth);
 		if (ImGui::SliderFloat("##Velocity", &manualVelocityTarget_degreesPerSecond, -velocityLimit_degreesPerSecond, velocityLimit_degreesPerSecond, "%.3f deg/s")) {
+			clamp(manualVelocityTarget_degreesPerSecond, -velocityLimit_degreesPerSecond, velocityLimit_degreesPerSecond);
 			setVelocity(manualVelocityTarget_degreesPerSecond);
 		}
-		float velocityProgress = (profileVelocity_degreesPerSecond + velocityLimit_degreesPerSecond) / (2 * velocityLimit_degreesPerSecond);
-		ImGui::ProgressBar(velocityProgress, ImVec2(widgetWidth, ImGui::GetTextLineHeight()));
 		if (ImGui::Button("Stop##Velocity", glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 2))) {
 			setVelocity(0.0);
 		}
@@ -118,6 +120,7 @@ void Axis::controlsGui() {
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(tripleWidgetWidth);
 		ImGui::InputDouble("##TargetVelocity", &targetVelocity, 0.0, 0.0, "%.3f deg/s");
+		clamp(targetVelocity, 0.0, velocityLimit_degreesPerSecond);
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(tripleWidgetWidth);
 		ImGui::InputDouble("##TargetTime", &targetTime, 0.0, 0.0, "%.3f s");
@@ -132,12 +135,72 @@ void Axis::controlsGui() {
 		if (ImGui::Button("Timed Move", tripleButtonSize)) {
 			moveToPositionInTime(targetPosition, targetTime, manualControlAcceleration_degreesPerSecond);
 		}
-		float targetProgress = targetProgress = MotionCurve::getMotionCurveProgress(currentProfilePointTime_seconds, targetCurveProfile);
-		if (controlMode != ControlMode::POSITION_TARGET) targetProgress = 1.0;
-		ImGui::ProgressBar(targetProgress);
+
 		if (ImGui::Button("Stop##Target", glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 2))) {
 			setVelocity(0.0);
 		}
+
+		ImGui::Separator();
+
+		//-------------------------------- FEEDBACK --------------------------------
+
+		
+		if (std::abs(profileVelocity_degreesPerSecond) == std::abs(velocityLimit_degreesPerSecond)) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::orange);
+		else if (std::abs(profileVelocity_degreesPerSecond) > std::abs(velocityLimit_degreesPerSecond)) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
+		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+		char velocityString[16];
+		sprintf(velocityString, "%.2f u/s", profileVelocity_degreesPerSecond);
+		float velocityProgress = std::abs(profileVelocity_degreesPerSecond) / velocityLimit_degreesPerSecond;
+		ImGui::Text("Current Velocity :");
+		ImGui::ProgressBar(velocityProgress, ImVec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), velocityString);
+		ImGui::PopStyleColor();
+
+		float targetProgress = targetProgress = MotionCurve::getMotionCurveProgress(currentProfilePointTime_seconds, targetCurveProfile);
+		double movementSecondsLeft = 0.0;
+		if (controlMode != ControlMode::POSITION_TARGET) {
+			targetProgress = 1.0;
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+		}
+		else {
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
+			movementSecondsLeft = targetCurveProfile.rampOutEndTime - currentProfilePointTime_seconds;
+		}
+		char movementProgressChar[8];
+		sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
+		ImGui::Text("Movement Time Remaining :");
+		ImGui::ProgressBar(targetProgress, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), movementProgressChar);
+		ImGui::PopStyleColor();
+
+
+		std::shared_ptr<PositionFeedbackDevice> positionFeedbackDevice = nullptr;
+		double range;
+		char rangeString[64];
+		if (feedbackDeviceLink->isConnected()) {
+			positionFeedbackDevice = feedbackDeviceLink->getConnectedPins().front()->getPositionFeedbackDevice();
+			range = positionFeedbackDevice->getPositionInRange();
+			if (!positionFeedbackDevice->isReady()) {
+				ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+				range = 1.0;
+				sprintf(rangeString, "Feedback device not ready");
+			}
+			else if (range < 1.0 && range > 0.0) {
+				ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+				sprintf(rangeString, "%.3f%%", range * 100.0);
+			}
+			else {
+				ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
+				sprintf(rangeString, "Encoder Outside Working Range ! (%.3f%%)", range * 100.0);
+				range = 1.0;
+			}
+		}
+		else {
+			range = 1.0;
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
+			sprintf(rangeString, "No Feedback Device Connected");
+		}
+		ImGui::Text("Encoder Position in Working Range :");
+		ImGui::ProgressBar(range, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), rangeString);
+		ImGui::PopStyleColor();
 
 		ImGui::Separator();
 
@@ -161,6 +224,7 @@ void Axis::controlsGui() {
 			break;
 		}
 
+		if(disableManualControls) END_DISABLE_IMGUI_ELEMENT
 
 		ImGui::EndChild();
 	}
@@ -306,6 +370,13 @@ void Axis::settingsGui() {
 		ImGui::InputDouble("##VelLimit", &velocityLimit_degreesPerSecond, 0.0, 0.0, "%.3f u/s");
 		ImGui::Text("Acceleration Limit (%s per second squared)", getAxisUnitStringPlural());
 		ImGui::InputDouble("##AccLimit", &accelerationLimit_degreesPerSecondSquared, 0.0, 0.0, "%.3f u/s2");
+
+		ImGui::Text("Default Manual Acceleration (%s per second squared)", getAxisUnitStringPlural());
+		ImGui::InputDouble("##defmanAcc", &defaultManualAcceleration_degreesPerSecondSquared, 0.0, 0.0, "%.3f u/s");
+		clamp(defaultManualAcceleration_degreesPerSecondSquared, 0.0, accelerationLimit_degreesPerSecondSquared);
+		ImGui::Text("Default Manual Movement Velocity (%s per second)", getAxisUnitStringPlural());
+		ImGui::InputDouble("##defmanvel", &defaultManualVelocity_degreesPerSecond, 0.0, 0.0, "%.3f u/s");
+		clamp(defaultManualVelocity_degreesPerSecond, 0.0, velocityLimit_degreesPerSecond);
 
 		ImGui::Separator();
 
@@ -545,47 +616,89 @@ void Axis::metricsGui() {
 		glm::vec2* loadBuffer;
 		size_t loadPointCount = loadHistory.getBuffer(&loadBuffer);
 
-		if (positionPointCount) {
-			ImPlot::SetNextPlotLimitsX(positionBuffer[0].x, positionBuffer[positionPointCount - 1].x, ImGuiCond_Always);
-			ImPlot::FitNextPlotAxes(false, true, false, false);
-		}
-		ImPlot::SetNextPlotLimitsY(-velocityLimit_degreesPerSecond * 1.1, velocityLimit_degreesPerSecond * 1.1, ImGuiCond_Always, ImPlotYAxis_2);
-		ImPlot::SetNextPlotLimitsY(-1.0, 1.0, ImGuiCond_Always, ImPlotYAxis_3);
+		static int bufferSkip = 4;
+		static double maxPositionFitOffset = 5.0;
 
 		float zero = 0.0;
+		float one = 1.0;
 		float maxV = velocityLimit_degreesPerSecond;
 		float minV = -velocityLimit_degreesPerSecond;
+		float minA = -accelerationLimit_degreesPerSecondSquared;
+		float maxA = accelerationLimit_degreesPerSecondSquared;
 
-		ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_CanvasOnly | ImPlotFlags_NoChild | ImPlotFlags_YAxis2 | ImPlotFlags_YAxis3;
+		if (positionPointCount > bufferSkip) {
+			ImPlot::SetNextPlotLimitsX(positionBuffer[bufferSkip].x, positionBuffer[positionPointCount - bufferSkip].x, ImGuiCond_Always);
+			ImPlot::FitNextPlotAxes(false, true, false, false);
+		}
+		ImPlot::SetNextPlotLimitsY(minV * 1.1, maxV * 1.1, ImGuiCond_Always, ImPlotYAxis_2);
+		ImPlot::SetNextPlotLimitsY(minA * 1.1, maxA * 1.1, ImGuiCond_Always, ImPlotYAxis_3);
 
-		if(ImPlot::BeginPlot("##Metrics", 0, 0, glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 20.0), plotFlags)) {
-		
+
+		ImPlotFlags plot1Flags = ImPlotFlags_AntiAliased | ImPlotFlags_NoChild | ImPlotFlags_YAxis2 | ImPlotFlags_YAxis3 | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoMousePos;
+
+		if(ImPlot::BeginPlot("##Metrics", 0, 0, glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 20.0), plot1Flags)) {
+
 			ImPlot::SetPlotYAxis(ImPlotYAxis_2);
 			ImPlot::SetNextLineStyle(glm::vec4(0.3, 0.3, 0.3, 1.0), 2.0);
-			ImPlot::PlotHLines("zero", &zero, 1);
+			ImPlot::PlotHLines("##zero", &zero, 1);
 			ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 0.5, 1.0), 2.0);
-			ImPlot::PlotHLines("MaxV", &maxV, 1);
+			ImPlot::PlotHLines("##MaxV", &maxV, 1);
 			ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 0.5, 1.0), 2.0);
-			ImPlot::PlotHLines("MinV", &minV, 1);
+			ImPlot::PlotHLines("##MinV", &minV, 1);
 			ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 1.0, 1.0), 4.0);
-			if (velocityPointCount > 0) ImPlot::PlotLine("Profile Velocity", &velocityBuffer[1].x, &velocityBuffer[1].y, velocityPointCount-1, 0, sizeof(glm::vec2));
-			ImPlot::SetNextLineStyle(glm::vec4(0.5, 0.5, 0.5, 1.0), 4.0);
-			if (accelerationPointCount > 0) ImPlot::PlotLine("Profile Acceleration", &accelerationBuffer[1].x, &accelerationBuffer[1].y, accelerationPointCount-1, 0, sizeof(glm::vec2));
-
+			if (velocityPointCount > bufferSkip) ImPlot::PlotLine("Profile Velocity", &velocityBuffer[bufferSkip].x, &velocityBuffer[bufferSkip].y, velocityPointCount- bufferSkip, 0, sizeof(glm::vec2));
+			
 			ImPlot::SetPlotYAxis(ImPlotYAxis_3);
-			//ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 0.0, 1.0), 2.0);
-			//if (positionErrorPointCount > 0) ImPlot::PlotLine("Position Error", &positionErrorBuffer[1].x, &positionErrorBuffer[1].y, positionErrorPointCount - 1, 0, sizeof(glm::vec2));
-			ImPlot::SetNextLineStyle(glm::vec4(1.0, 0.0, 1.0, 1.0), 2.0);
-			if (loadPointCount > 0) ImPlot::PlotLine("Load", &loadBuffer[1].x, &loadBuffer[1].y, loadPointCount - 1, 0, sizeof(glm::vec2));
+			ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 0.3), 2.0);
+			ImPlot::PlotHLines("##MaxA", &maxA, 1);
+			ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 0.3), 2.0);
+			ImPlot::PlotHLines("##MinA", &minA, 1);
+			ImPlot::SetNextLineStyle(glm::vec4(0.5, 0.5, 0.5, 1.0), 4.0);
+			if (accelerationPointCount > bufferSkip) ImPlot::PlotLine("Profile Acceleration", &accelerationBuffer[bufferSkip].x, &accelerationBuffer[bufferSkip].y, accelerationPointCount- bufferSkip, 0, sizeof(glm::vec2));
 
 			ImPlot::SetPlotYAxis(ImPlotYAxis_1);
 			ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 1.0), 4.0);
-			if (positionPointCount > 0) ImPlot::PlotLine("Profile Position", &positionBuffer[1].x, &positionBuffer[1].y, positionPointCount - 1, 0, sizeof(glm::vec2));
+			if (positionPointCount > bufferSkip) {
+				ImPlot::PlotLine("Profile Position", &positionBuffer[bufferSkip].x, &positionBuffer[bufferSkip].y, positionPointCount - bufferSkip, 0, sizeof(glm::vec2));
+				double pUp = positionBuffer[positionPointCount - 1].y + maxPositionFitOffset;
+				double pDown = positionBuffer[positionPointCount - 1].y - maxPositionFitOffset;
+				ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 0.0), 0.0);
+				ImPlot::PlotHLines("##upperbound", &pUp, 1);
+				ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 0.0), 0.0);
+				ImPlot::PlotHLines("##lowerbound", &pDown, 1);
+			}
 			ImPlot::SetNextLineStyle(glm::vec4(1.0, 0.0, 0.0, 1.0), 2.0);
-			if (actualPositionPointCount > 0) ImPlot::PlotLine("Actual Position", &actualPositionBuffer[1].x, &actualPositionBuffer[1].y, actualPositionPointCount - 1, 0, sizeof(glm::vec2));
+			if (actualPositionPointCount > bufferSkip) ImPlot::PlotLine("Actual Position", &actualPositionBuffer[bufferSkip].x, &actualPositionBuffer[bufferSkip].y, actualPositionPointCount - bufferSkip, 0, sizeof(glm::vec2));
 
 			ImPlot::EndPlot();
 		}
+
+
+		ImPlotFlags plot2Flags = ImPlotFlags_AntiAliased | ImPlotFlags_NoChild | ImPlotFlags_YAxis2;
+
+		if (positionErrorPointCount > bufferSkip) {
+			ImPlot::SetNextPlotLimitsX(positionErrorBuffer[bufferSkip].x, positionErrorBuffer[positionErrorPointCount - bufferSkip].x, ImGuiCond_Always);
+		}
+		ImPlot::SetNextPlotLimitsY(-1.0, 1.0, ImGuiCond_Always, ImPlotYAxis_1);
+		ImPlot::SetNextPlotLimitsY(-0.1, 1.1, ImGuiCond_Always, ImPlotYAxis_2);
+
+		if (ImPlot::BeginPlot("##LoadAndError", 0, 0, glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 20.0), plot2Flags)) {
+
+			ImPlot::SetPlotYAxis(ImPlotYAxis_1);
+			ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 0.0, 1.0), 2.0);
+			if (positionErrorPointCount > bufferSkip) ImPlot::PlotLine("Position Error", &positionErrorBuffer[bufferSkip].x, &positionErrorBuffer[bufferSkip].y, positionErrorPointCount - bufferSkip, 0, sizeof(glm::vec2));
+			ImPlot::SetPlotYAxis(ImPlotYAxis_2);
+			ImPlot::SetNextLineStyle(glm::vec4(1.0, 0.0, 1.0, 0.5), 2.0);
+			ImPlot::PlotHLines("##zero", &zero, 1);
+			ImPlot::SetNextLineStyle(glm::vec4(1.0, 0.0, 1.0, 0.5), 2.0);
+			ImPlot::PlotHLines("##one", &one, 1);
+			ImPlot::SetNextLineStyle(glm::vec4(1.0, 0.0, 1.0, 1.0), 2.0);
+			if (loadPointCount > bufferSkip) ImPlot::PlotLine("Load", &loadBuffer[bufferSkip].x, &loadBuffer[bufferSkip].y, loadPointCount - bufferSkip, 0, sizeof(glm::vec2));
+
+			ImPlot::EndPlot();
+		}
+
+
 
 		ImGui::EndChild();
 	}

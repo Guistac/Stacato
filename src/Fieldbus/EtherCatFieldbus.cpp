@@ -142,6 +142,7 @@ namespace EtherCatFieldbus {
 
     void terminate() {
         stop();
+        if (etherCatRuntime.joinable()) etherCatRuntime.join();
         stopErrorWatcher();
         stopSlaveDetectionHandler();
         Logger::debug("===== Closing EtherCAT Network Interface Card");
@@ -164,6 +165,10 @@ namespace EtherCatFieldbus {
         if (!b_processStarting) {
             Logger::info("===== Starting Fieldbus Configuration");
             std::thread etherCatProcessStarter([]() {
+
+                //join the cyclic echange thread if it was terminated previously
+                if (etherCatRuntime.joinable()) etherCatRuntime.join();
+
                 b_startupError = false;
                 i_startupProgress = 0;
                 sprintf(startupStatusString, "Starting Fieldbus Configuration");
@@ -198,9 +203,6 @@ namespace EtherCatFieldbus {
         if (b_processRunning) {
             Logger::debug("===== Stopping Cyclic Exchange...");
             b_processRunning = false;
-            if (etherCatRuntime.joinable()) etherCatRuntime.join();
-            if (slaveStateHandler.joinable()) slaveStateHandler.join();
-            startSlaveDetectionHandler();
         }
     }
 
@@ -504,7 +506,7 @@ namespace EtherCatFieldbus {
             if (workingCounter <= 0) {
                 if (high_resolution_clock::now() - lastProcessDataFrameReturnTime > milliseconds((int)fieldbusTimeout_milliseconds)) {
                     Logger::critical("Fieldbus timed out...");
-                    stop();
+                    //stop();
                     break; //breaks out of the main while loop
                 }
                 ec_DCtime += processInterval_nanoseconds; //adjust the copy of the reference clock in case no frame was received
@@ -588,15 +590,32 @@ namespace EtherCatFieldbus {
         }
         b_processRunning = false;
         b_allOperational = false;
+
+        //send one last frame to all slaves to disable them
+        //this way motors don't suddenly jerk to a stop when stopping the fieldbus in the middle of a movement
         for (auto slave : slaves) {
-            if (slave->isOnline()) {
+            slave->disable();
+            slave->prepareOutputs();
+        }
+        ec_send_processdata();
+        
+        //terminate and disable all slaves
+        for (auto slave : slaves) {
+            if (slave->isDetected()) {
                 slave->resetData();
                 slave->pushEvent("Device Disconnected (Fieldbus Shutdown)", false);
                 slave->onDisconnection();
             }
             slave->identity->state = EC_STATE_NONE;
         }
+        //evaluate all nodes one last time to propagate the disconnection of devices
+        Environnement::nodeGraph.evaluate(DeviceType::ETHERCATSLAVE);
+        
         Logger::info("===== Cyclic Exchange Stopped !");
+        
+        //cleanup threads and relaunc slave detection handler
+        if (slaveStateHandler.joinable()) slaveStateHandler.join();
+        startSlaveDetectionHandler();
     }
 
     //============== TRANSITION ALL SLAVES TO OPERATIONAL AFTER REFERENCE CLOCK AND MASTER CLOCKS ALIGNED ===================

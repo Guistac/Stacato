@@ -173,7 +173,6 @@ public:
     static EncoderModule* getEncoderModule(EncoderModule::Type moduleType);
     static EncoderModule* getEncoderModule(uint16_t CoeData);
 
-
     struct EncoderType {
         enum class Type {
             NONE,

@@ -31,8 +31,8 @@ workspace "Stacato"
 
 project "Stacato"
 	location "" --directory of the project
-	--kind "consoleApp" --executable file
-    kind "WindowedApp"
+	kind "consoleApp"
+    --kind "WindowedApp"
 	language "C++"
 
     pchsource "%{prj.location}/src/Core/pch.cpp"

@@ -89,22 +89,10 @@ void sequencer() {
 	maxVelocity = std::max(maxVelocity, 0.0);
 	maxAcceleration = std::max(maxAcceleration, 0.0);
 
-	auto clamp = [](double in, double rangeA, double rangeB) -> double {
-		if (rangeA < rangeB) {
-			if (in < rangeA) return rangeA;
-			else if (in > rangeB) return rangeB;
-		}
-		else {
-			if (in < rangeB) return rangeB;
-			else if (in > rangeA) return rangeA;
-		}
-		return in;
-	};
-
-	startPoint.acceleration = clamp(startPoint.acceleration, 0.0, maxAcceleration);
-	endPoint.velocity = clamp(endPoint.velocity, -maxVelocity, maxVelocity);
-	endPoint.position = clamp(endPoint.position, minPosition, maxPosition);
-	endPoint.acceleration = clamp(endPoint.acceleration, 0.0, maxAcceleration);
+	clamp(startPoint.acceleration, 0.0, maxAcceleration);
+	clamp(endPoint.velocity, -maxVelocity, maxVelocity);
+	clamp(endPoint.position, minPosition, maxPosition);
+	clamp(endPoint.acceleration, 0.0, maxAcceleration);
 	
 	MotionCurve::CurveProfile profile;
 	bool hasSolution = MotionCurve::getTimeConstrainedProfile(startPoint, endPoint, maxVelocity, profile);

@@ -114,9 +114,11 @@ public:
 	void enable();
 	void onEnable();
 	void disable();
+	void onDisable();
 	bool isEnabled();
 	bool b_enabled = false;
 	bool areAllDevicesReady();
+	bool areAllDevicesEnabled();
 	void enableAllActuators();
 	void disableAllActuators();
 

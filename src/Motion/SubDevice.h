@@ -102,7 +102,7 @@ public:
 	//get the position with included offset in specified units
 	double getPosition() { return positionRaw_positionUnits - positionOffset_positionUnits; }
 
-	double positionRaw_positionUnits;
+	double positionRaw_positionUnits = 0.0;
 	double positionOffset_positionUnits = 0.0;
 
 	double rangeMax_positionUnits;

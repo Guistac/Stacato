@@ -90,6 +90,7 @@ public:
 
 	//link infos
 	std::vector<std::shared_ptr<NodeLink>>& getLinks() { return NodeLinks; }
+	std::vector<std::shared_ptr<NodePin>> getConnectedPins();
 	bool isConnected() { return !NodeLinks.empty(); }
 	bool acceptsMultipleInputs() { return b_acceptsMultipleInputs; }
 	bool hasMultipleLinks() { return NodeLinks.size() > 1; }

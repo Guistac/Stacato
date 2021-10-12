@@ -32,9 +32,11 @@ bool Lexium32::isEnabled() {
 }
 
 void Lexium32::onConnection() {
+    resetData();
 }
 
 void Lexium32::onDisconnection() {
+    resetData();
 }
 
 void Lexium32::resetData() {
@@ -925,6 +927,11 @@ void Lexium32::downloadEncoderSettings() {
     else if (ShiftEncWorkRange.getU16() == 1) b_encoderRangeShifted = true;
     else goto downloadfailed;
     }
+
+    float lowEncoderRange, highEncoderRange;
+    getEncoderWorkingRange(lowEncoderRange, highEncoderRange);
+    encoderDevice->rangeMin_positionUnits = lowEncoderRange;
+    encoderDevice->rangeMax_positionUnits = highEncoderRange;
         
     encoderSettingsDownloadState = DataTransferState::State::SUCCEEDED;
     return;
@@ -1321,7 +1328,12 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
             }
             break;
     }
-    encoderSettingsXML->SetAttribute("RangeShifted", b_encoderRangeShifted);
+    if (encoderSettingsXML->QueryBoolAttribute("RangeShifted", &b_encoderRangeShifted) != XML_SUCCESS) return Logger::warn("Could not find encoder range shift attribute");
+
+    float lowEncoderRange, highEncoderRange;
+    getEncoderWorkingRange(lowEncoderRange, highEncoderRange);
+    encoderDevice->rangeMin_positionUnits = lowEncoderRange;
+    encoderDevice->rangeMax_positionUnits = highEncoderRange;
     
     return true;
 }

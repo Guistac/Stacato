@@ -14,7 +14,24 @@
 
 void Axis::process() {
 
-	//TODO: we should get device status and update axis status before processing motion
+	//get devices
+	std::vector<std::shared_ptr<ActuatorDevice>> actuators;
+	for (auto& pin : actuatorDeviceLinks->getConnectedPins()) actuators.push_back(pin->getActuatorDevice());
+	std::shared_ptr<PositionFeedbackDevice> positionFeedbackDevice = nullptr;
+	if (feedbackDeviceLink->isConnected()) positionFeedbackDevice = feedbackDeviceLink->getConnectedPins().front()->getPositionFeedbackDevice();
+	std::vector<std::shared_ptr<GpioDevice>> referenceDevices;
+	for (auto& pin : referenceDeviceLinks->getConnectedPins()) referenceDevices.push_back(pin->getGpioDevice());
+
+	//handle device state transitions
+	if (b_enabled) {
+		for (auto actuator : actuators) {
+			if (!actuator->b_enabled) disable();
+		}
+		if (!positionFeedbackDevice->b_ready) disable();
+		for (auto referenceDevice : referenceDevices) {
+			if (!referenceDevice->b_ready) disable();
+		}
+	}
 
 	//TODO: the axis should get timing information from the actuator object
 	currentProfilePointTime_seconds = EtherCatFieldbus::getReferenceClock_seconds();
@@ -46,66 +63,77 @@ void Axis::process() {
 	velocityHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profileVelocity_degreesPerSecond));
 	accelerationHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profileAcceleration_degreesPerSecondSquared));
 	loadHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, actuatorDevice->getLoad()));
-
-	Logger::warn("Load {}", actuatorDevice->getLoad());
 }
 
 
 
 
 void Axis::enable() {
-	Logger::info("Enabling axis {}", getName());
-	bool canAxisBeEnabled = true;
-	if (actuatorDeviceLinks->isConnected()) {
-		for (auto link : actuatorDeviceLinks->getLinks()) {
-			std::shared_ptr<ActuatorDevice> actuatorDevice = link->getInputData()->getActuatorDevice();
-			if (!actuatorDevice->isEnabled()) {
-				canAxisBeEnabled = false;
-				Logger::warn("Actuator subdevice '{}' of device '{}' is not enabled", actuatorDevice->getName(), actuatorDevice->parentDevice->getName());
-			}
+	std::thread axisEnabler([this]() {
+		//enable devices
+		enableAllActuators();
+		std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+		//wait for devices to be enabled
+		while (std::chrono::system_clock::now() - start < std::chrono::milliseconds(500)) {
+			if (areAllDevicesEnabled()) break;
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		}
-	}
-	else {
-		canAxisBeEnabled = false;
-		Logger::warn("No Actuators are connected to axis '{}'", getName());
-	}
-	if (positionFeedbackType != PositionFeedback::Type::NO_FEEDBACK) {
-		if (feedbackDeviceLink->isConnected()) {
-			std::shared_ptr<PositionFeedbackDevice> feedbackDevice = feedbackDeviceLink->getLinks().front()->getInputData()->getPositionFeedbackDevice();
-			if (!feedbackDevice->isReady()) {
-				canAxisBeEnabled = false;
-				Logger::warn("Position feedback subdevice '{}' of device '{}' is not ready", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
-			}
-		}
-		else {
-			canAxisBeEnabled = false;
-			Logger::warn("No Position Feedback device is connected to axis '{}'", getName());
-		}
-	}
-	if (positionReferenceType != PositionReference::Type::NO_LIMIT) {
-		if (referenceDeviceLinks->isConnected()) {
-			for (auto link : referenceDeviceLinks->getLinks()) {
-				std::shared_ptr<GpioDevice> gpioDevice = link->getInputData()->getGpioDevice();
-				if (!gpioDevice->isReady()) {
+		//start axis or return feedback about failure mode
+		Logger::info("Enabling axis {}", getName());
+		bool canAxisBeEnabled = true;
+		if (actuatorDeviceLinks->isConnected()) {
+			for (auto link : actuatorDeviceLinks->getLinks()) {
+				std::shared_ptr<ActuatorDevice> actuatorDevice = link->getInputData()->getActuatorDevice();
+				if (!actuatorDevice->isEnabled()) {
 					canAxisBeEnabled = false;
-					Logger::warn("Position reference subdevice '{}' of device '{}' is not ready", gpioDevice->getName(), gpioDevice->parentDevice->getName());
+					Logger::warn("Actuator subdevice '{}' of device '{}' is not enabled", actuatorDevice->getName(), actuatorDevice->parentDevice->getName());
 				}
 			}
 		}
 		else {
 			canAxisBeEnabled = false;
-			Logger::warn("No Position reference device is connected to axis '{}'", getName());
+			Logger::warn("No Actuators are connected to axis '{}'", getName());
 		}
-	}
-	if (!canAxisBeEnabled) Logger::warn("Axis '{}' cannot be enabled", getName());
-	else {
-		onEnable();
-		Logger::info("Axis '{}' was enabled", getName());
-	}
+		if (positionFeedbackType != PositionFeedback::Type::NO_FEEDBACK) {
+			if (feedbackDeviceLink->isConnected()) {
+				std::shared_ptr<PositionFeedbackDevice> feedbackDevice = feedbackDeviceLink->getLinks().front()->getInputData()->getPositionFeedbackDevice();
+				if (!feedbackDevice->isReady()) {
+					canAxisBeEnabled = false;
+					Logger::warn("Position feedback subdevice '{}' of device '{}' is not ready", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
+				}
+			}
+			else {
+				canAxisBeEnabled = false;
+				Logger::warn("No Position Feedback device is connected to axis '{}'", getName());
+			}
+		}
+		if (positionReferenceType != PositionReference::Type::NO_LIMIT) {
+			if (referenceDeviceLinks->isConnected()) {
+				for (auto link : referenceDeviceLinks->getLinks()) {
+					std::shared_ptr<GpioDevice> gpioDevice = link->getInputData()->getGpioDevice();
+					if (!gpioDevice->isReady()) {
+						canAxisBeEnabled = false;
+						Logger::warn("Position reference subdevice '{}' of device '{}' is not ready", gpioDevice->getName(), gpioDevice->parentDevice->getName());
+					}
+				}
+			}
+			else {
+				canAxisBeEnabled = false;
+				Logger::warn("No Position reference device is connected to axis '{}'", getName());
+			}
+		}
+		if (!canAxisBeEnabled) Logger::warn("Axis '{}' cannot be enabled", getName());
+		else {
+			onEnable();
+			Logger::info("Axis '{}' was enabled", getName());
+		}
+	});
+	axisEnabler.detach();
 }
 
 void Axis::onEnable() {
 	profilePosition_degrees = positionFeedback->getLinks().front()->getInputData()->getReal();
+	targetCurveProfile = MotionCurve::CurveProfile();
 	profileVelocity_degreesPerSecond = 0.0;
 	profileAcceleration_degreesPerSecondSquared = 0.0;
 	b_enabled = true;
@@ -113,19 +141,27 @@ void Axis::onEnable() {
 
 void Axis::disable() {
 	b_enabled = false;
+	onDisable();
 	Logger::info("Axis {} disabled", getName());
+}
+
+void Axis::onDisable() {
+	disableAllActuators();
+	targetCurveProfile = MotionCurve::CurveProfile();
+	manualVelocityTarget_degreesPerSecond = 0.0;
+	profileVelocity_degreesPerSecond = 0.0;
+	profileAcceleration_degreesPerSecondSquared = 0.0;
 }
 
 bool Axis::isEnabled() {
 	return b_enabled;
 }
 
-
 bool Axis::areAllDevicesReady() {
 	if (actuatorDeviceLinks->isConnected()) {
-		for (auto link : actuatorDeviceLinks->getLinks()) {
-			std::shared_ptr<ActuatorDevice> actuatorDevice = link->getInputData()->getActuatorDevice();
-			if (!actuatorDevice->isEnabled()) return false;
+		for (auto pin : actuatorDeviceLinks->getConnectedPins()) {
+			std::shared_ptr<ActuatorDevice> actuatorDevice = pin->getActuatorDevice();
+			if (!actuatorDevice->isReady()) return false;
 		}
 	}
 	else return false;
@@ -138,8 +174,8 @@ bool Axis::areAllDevicesReady() {
 	}
 	if (positionReferenceType != PositionReference::Type::NO_LIMIT) {
 		if (referenceDeviceLinks->isConnected()) {
-			for (auto link : referenceDeviceLinks->getLinks()) {
-				std::shared_ptr<GpioDevice> gpioDevice = link->getInputData()->getGpioDevice();
+			for (auto pin : referenceDeviceLinks->getConnectedPins()) {
+				std::shared_ptr<GpioDevice> gpioDevice = pin->getGpioDevice();
 				if (!gpioDevice->isReady()) return false;
 			}
 		}
@@ -148,16 +184,25 @@ bool Axis::areAllDevicesReady() {
 	return true;
 }
 
+bool Axis::areAllDevicesEnabled() {
+	if (!areAllDevicesReady()) return false;
+	for (auto pin : actuatorDeviceLinks->getConnectedPins()) {
+		std::shared_ptr<ActuatorDevice> actuatorDevice = pin->getActuatorDevice();
+		if (!actuatorDevice->isEnabled()) return false;
+	}
+	return true;
+}
+
 void Axis::enableAllActuators() {
-	for (auto link : actuatorDeviceLinks->getLinks()) {
-		std::shared_ptr<ActuatorDevice> actuatorDevice = link->getInputData()->getActuatorDevice();
+	for (auto pin : actuatorDeviceLinks->getConnectedPins()) {
+		std::shared_ptr<ActuatorDevice> actuatorDevice = pin->getActuatorDevice();
 		actuatorDevice->enable();
 	}
 }
 
 void Axis::disableAllActuators() {
-	for (auto link : actuatorDeviceLinks->getLinks()) {
-		std::shared_ptr<ActuatorDevice> actuatorDevice = link->getInputData()->getActuatorDevice();
+	for (auto pin : actuatorDeviceLinks->getConnectedPins()) {
+		std::shared_ptr<ActuatorDevice> actuatorDevice = pin->getActuatorDevice();
 		actuatorDevice->disable();
 	}
 }
@@ -166,6 +211,9 @@ void Axis::disableAllActuators() {
 
 void Axis::setVelocity(double velocity_axisUnits) {
 	manualVelocityTarget_degreesPerSecond = velocity_axisUnits;
+	if (controlMode == ControlMode::POSITION_TARGET) {
+		targetCurveProfile = MotionCurve::CurveProfile();
+	}
 	controlMode = ControlMode::VELOCITY_TARGET;
 }
 
@@ -193,6 +241,7 @@ void Axis::moveToPositionWithVelocity(double position_axisUnits, double velocity
 	MotionCurve::CurvePoint endPoint(0.0, position_axisUnits, acceleration_axisUnits, 0.0);
 	if (MotionCurve::getFastestVelocityConstrainedProfile(startPoint, endPoint, velocity_axisUnits, targetCurveProfile)) {
 		controlMode = ControlMode::POSITION_TARGET;
+		manualVelocityTarget_degreesPerSecond = 0.0;
 	}
 	else {
 		setVelocity(0.0);
@@ -204,6 +253,7 @@ void Axis::moveToPositionInTime(double position_axisUnits, double movementTime_s
 	MotionCurve::CurvePoint endPoint(currentProfilePointTime_seconds + movementTime_seconds, position_axisUnits, acceleration_axisUnits, 0.0);
 	if (MotionCurve::getTimeConstrainedProfile(startPoint, endPoint, velocityLimit_degreesPerSecond, targetCurveProfile)) {
 		controlMode = ControlMode::POSITION_TARGET;
+		manualVelocityTarget_degreesPerSecond = 0.0;
 	}
 	else {
 		setVelocity(0.0);
