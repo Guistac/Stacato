@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "SingleAxisMachine.h"
-#include "NodeGraph/DeviceNode.h"
+#include "NodeGraph/Device.h"
 #include "Motion/MotionTypes.h"
 #include "Motion/MotionCurve.h"
 #include "Fieldbus/EtherCatFieldbus.h"

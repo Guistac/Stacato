@@ -7,7 +7,7 @@
 #include "Gui/Framework/Fonts.h"
 #include <implot.h>
 
-#include "NodeGraph/DeviceNode.h"
+#include "NodeGraph/Device.h"
 #include "Gui/Framework/Colors.h"
 
 

@@ -2,7 +2,7 @@
 
 #include "Utilities/EtherCatMetrics.h"
 
-class EtherCatSlave;
+class EtherCatDevice;
 
 struct NetworkInterfaceCard {
     char description[128];
@@ -29,8 +29,8 @@ namespace EtherCatFieldbus {
 
     //Discover Slave Devices
     void scanNetwork();
-    extern std::vector<std::shared_ptr<EtherCatSlave>> slaves;              //all slaves discovered on the network
-    extern std::vector<std::shared_ptr<EtherCatSlave>> slaves_unassigned;   //discovered slaves that are not in the nodegraph
+    extern std::vector<std::shared_ptr<EtherCatDevice>> slaves;              //all slaves discovered on the network
+    extern std::vector<std::shared_ptr<EtherCatDevice>> slaves_unassigned;   //discovered slaves that are not in the nodegraph
 
     //Cyclic Echange Timing Settings
     extern double processInterval_milliseconds;

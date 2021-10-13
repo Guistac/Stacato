@@ -2,7 +2,7 @@
 
 #include "Gui/Gui.h"
 #include "Fieldbus/EtherCatFieldbus.h"
-#include "Fieldbus/EtherCatSlave.h"
+#include "Fieldbus/EtherCatDevice.h"
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 #include "NodeGraph/Utilities/NodeFactory.h"
 
@@ -32,7 +32,7 @@ void nodeAdder() {
                         const char* deviceName = slave->getNodeName();
                         ImGui::Selectable(deviceName);
                         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                            ImGui::SetDragDropPayload("EtherCatSlave", &deviceName, sizeof(const char*));
+                            ImGui::SetDragDropPayload("EtherCatDevice", &deviceName, sizeof(const char*));
                             ImGui::Text(deviceName);
                             ImGui::EndDragDropSource();
                         }
@@ -51,7 +51,7 @@ void nodeAdder() {
                         const char* deviceName = slave->getNodeName();
                         ImGui::Selectable(deviceName);
                         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                            ImGui::SetDragDropPayload("EtherCatSlave", &deviceName, sizeof(const char*));
+                            ImGui::SetDragDropPayload("EtherCatDevice", &deviceName, sizeof(const char*));
                             ImGui::Text(deviceName);
                             ImGui::EndDragDropSource();
                         }
@@ -84,7 +84,7 @@ void nodeAdder() {
             for (auto slave : EtherCatFieldbus::slaves_unassigned) {
                 ImGui::Selectable(slave->getName());
                 if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                    ImGui::SetDragDropPayload("DetectedEtherCatSlave", &slave, sizeof(std::shared_ptr<EtherCatSlave>));
+                    ImGui::SetDragDropPayload("DetectedEtherCatDevice", &slave, sizeof(std::shared_ptr<EtherCatDevice>));
                     ImGui::Text(slave->getName());
                     ImGui::EndDragDropSource();
                 }
@@ -153,16 +153,16 @@ std::shared_ptr<Node> acceptDraggedNode() {
     if (ImGui::BeginDragDropTarget()) {
         const ImGuiPayload* payload;
         glm::vec2 mousePosition = ImGui::GetMousePos();
-        payload = ImGui::AcceptDragDropPayload("EtherCatSlave");
+        payload = ImGui::AcceptDragDropPayload("EtherCatDevice");
         if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
             const char* slaveDeviceName = *(const char**)payload->Data;
             std::shared_ptr<Node> newSlave = EtherCatDeviceFactory::getDeviceByName(slaveDeviceName);
             return newSlave;
         }
-        payload = ImGui::AcceptDragDropPayload("DetectedEtherCatSlave");
-        if (payload != nullptr && payload->DataSize == sizeof(std::shared_ptr<EtherCatSlave>)) {
-            std::shared_ptr<EtherCatSlave> detectedSlave = *(std::shared_ptr<EtherCatSlave>*)payload->Data;
-            std::vector<std::shared_ptr<EtherCatSlave>>& unassignedSlaves = EtherCatFieldbus::slaves_unassigned;
+        payload = ImGui::AcceptDragDropPayload("DetectedEtherCatDevice");
+        if (payload != nullptr && payload->DataSize == sizeof(std::shared_ptr<EtherCatDevice>)) {
+            std::shared_ptr<EtherCatDevice> detectedSlave = *(std::shared_ptr<EtherCatDevice>*)payload->Data;
+            std::vector<std::shared_ptr<EtherCatDevice>>& unassignedSlaves = EtherCatFieldbus::slaves_unassigned;
             for (int i = 0; i < unassignedSlaves.size(); i++) {
                 if (unassignedSlaves[i] == detectedSlave) {
                     unassignedSlaves.erase(unassignedSlaves.begin() + i);
@@ -220,7 +220,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
         ImGui::EndMenu();
     }
 
-    std::shared_ptr<EtherCatSlave> selectedDetectedSlave = nullptr;
+    std::shared_ptr<EtherCatDevice> selectedDetectedSlave = nullptr;
     if (!EtherCatFieldbus::slaves_unassigned.empty()) {
         if (ImGui::BeginMenu("Detected Slaves")) {
             for (auto detectedSlave : EtherCatFieldbus::slaves_unassigned) {
@@ -233,7 +233,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
         }
     }
     if (selectedDetectedSlave) {
-        std::vector<std::shared_ptr<EtherCatSlave>>& unassignedSlaves = EtherCatFieldbus::slaves_unassigned;
+        std::vector<std::shared_ptr<EtherCatDevice>>& unassignedSlaves = EtherCatFieldbus::slaves_unassigned;
         for (int i = 0; i < unassignedSlaves.size(); i++) {
             if (unassignedSlaves[i] == selectedDetectedSlave) {
                 unassignedSlaves.erase(unassignedSlaves.begin() + i);

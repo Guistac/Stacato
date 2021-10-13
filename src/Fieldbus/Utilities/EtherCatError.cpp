@@ -2,7 +2,7 @@
 
 #include <ethercat.h>
 #include "Fieldbus/EtherCatFieldbus.h"
-#include "Fieldbus/EtherCatSlave.h"
+#include "Fieldbus/EtherCatDevice.h"
 
 namespace EtherCatError {
 
@@ -13,7 +13,7 @@ namespace EtherCatError {
 	void logError() {
 		ec_errort error;
 		ec_poperror(&error);
-		std::shared_ptr<EtherCatSlave> errorSlave = nullptr;
+		std::shared_ptr<EtherCatDevice> errorSlave = nullptr;
 		if (error.Slave <= EtherCatFieldbus::slaves.size() && error.Slave > 0) errorSlave = EtherCatFieldbus::slaves[error.Slave - 1];
 		const char* slaveName;
 		if (errorSlave != nullptr) slaveName = errorSlave->getName();

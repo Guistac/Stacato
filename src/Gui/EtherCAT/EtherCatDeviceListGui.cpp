@@ -3,7 +3,7 @@
 #include "Gui/Gui.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
-#include "Fieldbus/EtherCatSlave.h"
+#include "Fieldbus/EtherCatDevice.h"
 
 void etherCatSlaves() {
 
@@ -34,7 +34,7 @@ void etherCatSlaves() {
 	ImGui::EndGroup();
 	ImGui::SameLine();
 
-    std::shared_ptr<EtherCatSlave> selectedSlave = nullptr;
+    std::shared_ptr<EtherCatDevice> selectedSlave = nullptr;
 	for (auto slave : EtherCatFieldbus::slaves) 
 		if (slave->getSlaveIndex() == selectedSlaveIndex) { selectedSlave = slave; break; }
 

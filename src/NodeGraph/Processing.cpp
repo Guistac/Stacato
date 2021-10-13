@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "NodeGraph.h"
-#include "DeviceNode.h"
+#include "Device.h"
 
 void NodeGraph::evaluate() {
 	std::vector<std::shared_ptr<Node>> dummyNodeList;

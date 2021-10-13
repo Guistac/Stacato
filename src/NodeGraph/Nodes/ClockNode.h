@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NodeGraph/DeviceNode.h"
+#include "NodeGraph/Node.h"
 
 class ClockNode : public Node {
 public:

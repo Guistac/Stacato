@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Fieldbus/EtherCatSlave.h"
+#include "Fieldbus/EtherCatDevice.h"
 
-class LedsAndButtons : public EtherCatSlave {
+class LedsAndButtons : public EtherCatDevice {
 public:
 
-	SLAVE_DEFINITION(LedsAndButtons, "LedsAndButtons", "Bausano", "I/O")
+	ETHERCAT_DEVICE_DEFINITION(LedsAndButtons, "LedsAndButtons", "Bausano", "I/O")
 
 	//RxPDO
 	uint8_t ui8_led0 = 0;

@@ -3,7 +3,7 @@
 #include "Node.h"
 #include "NodePin.h"
 #include "NodeLink.h"
-#include "DeviceNode.h"
+#include "Device.h"
 
 class Node;
 class NodePin;

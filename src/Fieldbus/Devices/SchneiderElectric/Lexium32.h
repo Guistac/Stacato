@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Fieldbus/EtherCatSlave.h"
+#include "Fieldbus/EtherCatDevice.h"
 #include "Utilities/ScrollingBuffer.h"
 
-class Lexium32 : public EtherCatSlave {
+class Lexium32 : public EtherCatDevice {
 public:
 
-    SLAVE_DEFINITION(Lexium32, "LXM32M EtherCAT", "Schneider Electric", "Servo Drives")
+    ETHERCAT_DEVICE_DEFINITION(Lexium32, "LXM32M EtherCAT", "Schneider Electric", "Servo Drives")
 
     //===== drive status =====
     

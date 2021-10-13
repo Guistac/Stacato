@@ -18,7 +18,7 @@ each device can have a one line entry to be added to all lists
 
 namespace EtherCatDeviceFactory {
 	
-	std::vector<EtherCatSlave*> allDevices;
+	std::vector<EtherCatDevice*> allDevices;
 	std::vector<EtherCatDeviceGroup> devicesByManufacturer;
 	std::vector<EtherCatDeviceGroup> devicesByCategory;
 
@@ -31,7 +31,7 @@ namespace EtherCatDeviceFactory {
 		};
 
 		//sort devices by manufacturer
-		for (EtherCatSlave* device : allDevices) {
+		for (EtherCatDevice* device : allDevices) {
 			const char * manufacturer = device->getManufacturerName();
 			bool manufacturerExists = false;
 			for (EtherCatDeviceGroup& group : devicesByManufacturer) {
@@ -49,7 +49,7 @@ namespace EtherCatDeviceFactory {
 		}
 
 		//sort device by manufacturer
-		for (EtherCatSlave* device : allDevices) {
+		for (EtherCatDevice* device : allDevices) {
 			const char* deviceCategory = device->getNodeCategory();
 			bool categoryExists = false;
 			for (EtherCatDeviceGroup& group : devicesByCategory) {
@@ -67,11 +67,11 @@ namespace EtherCatDeviceFactory {
 		}
 	}
 
-	std::shared_ptr<EtherCatSlave> getDeviceByName(const char* name) {
-		for (EtherCatSlave* device : allDevices) {
+	std::shared_ptr<EtherCatDevice> getDeviceByName(const char* name) {
+		for (EtherCatDevice* device : allDevices) {
 			if (strcmp(name, device->getNodeName()) == 0) return device->getNewDeviceInstance();
 		}
-		return std::make_shared<EtherCatSlave>();
+		return std::make_shared<EtherCatDevice>();
 	}
 
 	const std::vector<EtherCatDeviceGroup>& getDevicesByManufacturer() { return devicesByManufacturer; }

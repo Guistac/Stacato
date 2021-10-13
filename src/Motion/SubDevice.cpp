@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "SubDevice.h"
 
-#include "NodeGraph/DeviceNode.h"
+#include "NodeGraph/Device.h"
 
 bool Subdevice::isDetected() {
 	return (parentDevice->isDetected() && b_detected);

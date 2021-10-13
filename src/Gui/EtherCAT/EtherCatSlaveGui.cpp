@@ -3,10 +3,10 @@
 #include "Gui/Gui.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
-#include "Fieldbus/EtherCatSlave.h"
+#include "Fieldbus/EtherCatDevice.h"
 #include "Gui/Framework/Colors.h"
 
-void EtherCatSlave::nodeSpecificGui() {
+void EtherCatDevice::nodeSpecificGui() {
 
     deviceSpecificGui();
 
@@ -75,7 +75,7 @@ void EtherCatSlave::nodeSpecificGui() {
     }
 }
     
-void EtherCatSlave::generalGui() {
+void EtherCatDevice::generalGui() {
 
     float displayWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
     glm::vec2 statusDisplaySize(displayWidth, ImGui::GetTextLineHeight() * 2.0);
@@ -109,7 +109,7 @@ void EtherCatSlave::generalGui() {
     ImGui::PopItemFlag();
 }
 
-void EtherCatSlave::identificationGui() {
+void EtherCatDevice::identificationGui() {
 
     ImGui::TextWrapped("The device will be matched using the following parameters. Make sure each device has unique identifier parameters.");
 
@@ -132,7 +132,7 @@ void EtherCatSlave::identificationGui() {
     }
 
     switch (identificationType) {
-    case EtherCatSlaveIdentification::Type::STATION_ALIAS:
+    case EtherCatDeviceIdentification::Type::STATION_ALIAS:
         ImGui::PushFont(Fonts::robotoBold15);
         ImGui::Text("Station Alias:");
         ImGui::PopFont();
@@ -145,7 +145,7 @@ void EtherCatSlave::identificationGui() {
             ImGui::EndTooltip();
         }
         break;
-    case EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID:
+    case EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID:
         ImGui::PushFont(Fonts::robotoBold15);
         ImGui::Text("Explicit Device ID:");
         ImGui::PopFont();
@@ -163,7 +163,7 @@ void EtherCatSlave::identificationGui() {
 
 }
 
-void EtherCatSlave::genericInfoGui() {
+void EtherCatDevice::genericInfoGui() {
 
     ImGui::Text("Station Alias Address: %i", identity->aliasadr);
     ImGui::Text("Assigned Address: %i", getAssignedAddress());
@@ -287,7 +287,7 @@ void EtherCatSlave::genericInfoGui() {
     if (hasNoIdentity) END_DISABLE_IMGUI_ELEMENT
 }
 
-void EtherCatSlave::pdoDataGui() {
+void EtherCatDevice::pdoDataGui() {
 
     static auto displayPDO = [](EtherCatPdoAssignement& pdo, const char* pdoName) {
         ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
@@ -349,7 +349,7 @@ void EtherCatSlave::pdoDataGui() {
 
 
 
-void EtherCatSlave::sendReceiveCanOpenGui() {
+void EtherCatDevice::sendReceiveCanOpenGui() {
 
     ImGui::PushID("Coe");
 
@@ -465,7 +465,7 @@ void EtherCatSlave::sendReceiveCanOpenGui() {
 
 
 
-void EtherCatSlave::sendReceiveEtherCatRegisterGui() {
+void EtherCatDevice::sendReceiveEtherCatRegisterGui() {
 
     ImGui::PushID("ESC");
 
@@ -569,7 +569,7 @@ void EtherCatSlave::sendReceiveEtherCatRegisterGui() {
 
 
 
-void EtherCatSlave::sendReceiveEepromGui() {
+void EtherCatDevice::sendReceiveEepromGui() {
 
     ImGui::PushID("EPPROM");
 
@@ -666,7 +666,7 @@ void EtherCatSlave::sendReceiveEepromGui() {
 
 #include <iomanip>
 
-void EtherCatSlave::eventListGui() {
+void EtherCatDevice::eventListGui() {
 
     if (ImGui::Button("Clear Error List")) clearEventList();
 

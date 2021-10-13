@@ -2,7 +2,7 @@
 
 #include <ethercat.h>
 
-#include "NodeGraph/DeviceNode.h"
+#include "NodeGraph/Device.h"
 
 #include "Utilities/EtherCatPDO.h"
 
@@ -15,7 +15,7 @@
 //the non static method is an override to see what the subclass name is from a base class reference or pointer
 //the rest of the functions are the basic mandatory interface members for an ethercat device (config and process)
 //Device that are matched against a device class will return true for isDeviceKnown()
-//Unknown devices will not and will be of the base type EtherCatSlave
+//Unknown devices will not and will be of the base type EtherCatDevice
 
 #define INTERFACE_DEFINITION(className, deviceName, manufacturerName, category)     public:                                                                                                 \
                                                                                     /*Node Functions*/                                                                                      \
@@ -30,7 +30,7 @@
                                                                                     virtual void process(){}                                                                                \
                                                                                     virtual bool save(tinyxml2::XMLElement* xml);                                                           \
                                                                                     virtual bool load(tinyxml2::XMLElement* xml);                                                           \
-                                                                                    /*DeviceNode Functions*/                                                                                \
+                                                                                    /*Device Functions*/                                                                                    \
                                                                                     virtual bool isDetected();              /*checks generic ethercat status first*/                        \
                                                                                     virtual bool isOnline();                /*checks generic ethercat status first*/                        \
                                                                                     virtual bool isReady();                 /*checks generic ethercat status first*/                        \
@@ -41,7 +41,7 @@
                                                                                     virtual void prepareOutputs(){}                                                                         \
                                                                                     virtual void onConnection(){}                                                                           \
                                                                                     virtual void onDisconnection(){}                                                                        \
-                                                                                    /*EtherCAT Slave Functions*/                                                                            \
+                                                                                    /*EtherCAT Device Functions*/                                                                           \
                                                                                     virtual bool isDeviceReady(){ return false; }                                                           \
                                                                                     virtual bool isSlaveKnown(){ return false; }                                                            \
                                                                                     virtual bool startupConfiguration(){ return true; }                                                     \
@@ -49,40 +49,42 @@
                                                                                     virtual void deviceSpecificGui(){}                                                                      \
                                                                                     virtual bool saveDeviceData(tinyxml2::XMLElement* xml){ return true; }                                  \
                                                                                     virtual bool loadDeviceData(tinyxml2::XMLElement* xml){ return true; }                                  \
-                                                                                    virtual std::shared_ptr<EtherCatSlave> getNewDeviceInstance() { return std::make_shared<className>(); } \
+                                                                                    virtual std::shared_ptr<EtherCatDevice> getNewDeviceInstance() { return std::make_shared<className>(); } \
 
 //All Slave Device Classes Need to Implement this Macro 
-#define SLAVE_DEFINITION(className, deviceName, manufacturerName, category) public:                                                                                                 \
-                                                                            /*Node Functions*/                                                                                      \
-                                                                            virtual Node::Type getType() { return Node::Type::IODEVICE; }                                           \
-                                                                            virtual Device::Type getDeviceType() { return Device::Type::ETHERCATSLAVE; }                            \
-                                                                            virtual const char* getNodeName() { return deviceName; }			                                    \
-                                                                            virtual const char * getNodeCategory() { return category; }			                                    \
-                                                                            virtual const char* getManufacturerName() { return manufacturerName; }                                  \
-                                                                            virtual std::shared_ptr<Node> getNewNodeInstance() { return nullptr; }                                  \
-                                                                            className(){ setName(deviceName); }                                                                     \
-                                                                            virtual void assignIoData();                                                                            \
-                                                                            /*DeviceNode Functions*/                                                                                \
-                                                                            virtual void enable();                  														        \
-                                                                            virtual void disable();                 															    \
-                                                                            virtual bool isEnabled();               																\
-                                                                            virtual void readInputs();                                                                              \
-                                                                            virtual void prepareOutputs();                                                                          \
-                                                                            virtual void onConnection();                                                                            \
-                                                                            virtual void onDisconnection();                                                                         \
-                                                                            /*EtherCAT Slave Functions*/                                                                            \
-                                                                            virtual bool isDeviceReady();                                                                           \
-                                                                            virtual bool isSlaveKnown(){ return true; }                                                             \
-                                                                            virtual bool startupConfiguration();                                                                    \
-                                                                            virtual void resetData();                                                                               \
-                                                                            virtual void deviceSpecificGui();                                                                       \
-                                                                            virtual bool saveDeviceData(tinyxml2::XMLElement* xml);                                                 \
-                                                                            virtual bool loadDeviceData(tinyxml2::XMLElement* xml);                                                 \
-                                                                            virtual std::shared_ptr<EtherCatSlave> getNewDeviceInstance() { return std::make_shared<className>(); } \
+#define ETHERCAT_DEVICE_DEFINITION(className, deviceName, manufacturerName, category)   public:                                                                                                 \
+                                                                                        /*Node Functions*/                                                                                      \
+                                                                                        virtual Node::Type getType() { return Node::Type::IODEVICE; }                                           \
+                                                                                        virtual Device::Type getDeviceType() { return Device::Type::ETHERCATSLAVE; }                            \
+                                                                                        virtual const char* getNodeName() { return deviceName; }			                                    \
+                                                                                        virtual const char * getNodeCategory() { return category; }			                                    \
+                                                                                        virtual const char* getManufacturerName() { return manufacturerName; }                                  \
+                                                                                        virtual std::shared_ptr<Node> getNewNodeInstance() { return nullptr; }                                  \
+                                                                                        className(){ setName(deviceName); }                                                                     \
+                                                                                        virtual void assignIoData();                                                                            \
+                                                                                        /*DeviceNode Functions*/                                                                                \
+                                                                                        virtual void enable();                  														        \
+                                                                                        virtual void disable();                 															    \
+                                                                                        virtual bool isEnabled();               																\
+                                                                                        virtual void readInputs();                                                                              \
+                                                                                        virtual void prepareOutputs();                                                                          \
+                                                                                        virtual void onConnection();                                                                            \
+                                                                                        virtual void onDisconnection();                                                                         \
+                                                                                        /*EtherCAT Device Functions*/                                                                           \
+                                                                                        virtual bool isDeviceReady();                                                                           \
+                                                                                        virtual bool isSlaveKnown(){ return true; }                                                             \
+                                                                                        virtual bool startupConfiguration();                                                                    \
+                                                                                        virtual void resetData();                                                                               \
+                                                                                        virtual void deviceSpecificGui();                                                                       \
+                                                                                        virtual bool saveDeviceData(tinyxml2::XMLElement* xml);                                                 \
+                                                                                        virtual bool loadDeviceData(tinyxml2::XMLElement* xml);                                                 \
+                                                                                        virtual std::shared_ptr<EtherCatDevice> getNewDeviceInstance() { return std::make_shared<className>(); } \
 
-#define RETURN_SLAVE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getNodeNameStatic()) == 0) return std::make_shared<className>()
+#define RETURN_ETHERCAT_DEVICE_IF_TYPE_MATCHING(name, className) if(strcmp(name, className::getNodeNameStatic()) == 0) return std::make_shared<className>()
 
-struct EtherCatSlaveIdentification {
+
+
+struct EtherCatDeviceIdentification {
     enum class Type {
         STATION_ALIAS,
         EXPLICIT_DEVICE_ID
@@ -91,21 +93,22 @@ struct EtherCatSlaveIdentification {
     const char displayName[64];
     const char saveName[64];
 };
+extern std::vector<EtherCatDeviceIdentification> indentificationTypes;
+std::vector<EtherCatDeviceIdentification>& getIdentificationTypes();
+EtherCatDeviceIdentification* getIdentificationType(const char *);
+EtherCatDeviceIdentification* getIdentificationType(EtherCatDeviceIdentification::Type t);
 
-extern std::vector<EtherCatSlaveIdentification> indentificationTypes;
-std::vector<EtherCatSlaveIdentification>& getIdentificationTypes();
-EtherCatSlaveIdentification* getIdentificationType(const char *);
-EtherCatSlaveIdentification* getIdentificationType(EtherCatSlaveIdentification::Type t);
 
-class EtherCatSlave : public Device {
+
+class EtherCatDevice : public Device {
 public:
 
     //===== Base EtherCAT device
     //serves as device interface and as default device type for unknow devices
-    INTERFACE_DEFINITION(EtherCatSlave, "Unknown Device", "Unknown manufacturer", "No Category");
+    INTERFACE_DEFINITION(EtherCatDevice, "Unknown Device", "Unknown manufacturer", "No Category");
 
     ec_slavet* identity = nullptr;
-    EtherCatSlaveIdentification::Type identificationType = EtherCatSlaveIdentification::Type::STATION_ALIAS;
+    EtherCatDeviceIdentification::Type identificationType = EtherCatDeviceIdentification::Type::STATION_ALIAS;
     int slaveIndex = -1;
     uint16_t stationAlias = 0;
     uint16_t explicitDeviceID = 0;

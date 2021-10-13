@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Fieldbus/EtherCatSlave.h"
+#include "Fieldbus/EtherCatDevice.h"
 
-class EasyCAT : public EtherCatSlave {
+class EasyCAT : public EtherCatDevice {
 public:
 
-	SLAVE_DEFINITION(EasyCAT, "Artefact", "Bausano", "I/O")
+	ETHERCAT_DEVICE_DEFINITION(EasyCAT, "Artefact", "Bausano", "I/O")
 
 	std::shared_ptr<NodePin> byteOut =		std::make_shared<NodePin>(NodeData::INTEGER_VALUE, DataDirection::NODE_INPUT, "byte0-out");
 	std::shared_ptr<NodePin> shortOut =		std::make_shared<NodePin>(NodeData::INTEGER_VALUE, DataDirection::NODE_INPUT, "short0-out");

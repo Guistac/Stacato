@@ -2,20 +2,20 @@
 
 #include "Environnement.h"
 
-#include "Fieldbus/EtherCatSlave.h"
+#include "Fieldbus/EtherCatDevice.h"
 #include "Motion/Machine/Machine.h"
 
 namespace Environnement {
 
 	NodeGraph nodeGraph;
 
-	std::vector<std::shared_ptr<EtherCatSlave>> getEtherCatSlaves() {
-		std::vector<std::shared_ptr<EtherCatSlave>> output;
+	std::vector<std::shared_ptr<EtherCatDevice>> getEtherCatDevices() {
+		std::vector<std::shared_ptr<EtherCatDevice>> output;
 		for (auto node : nodeGraph.getNodes()) {
 			if (node->getType() == Node::Type::IODEVICE) {
 				std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);
 				if (device->getDeviceType() == Device::Type::ETHERCATSLAVE) {
-					std::shared_ptr<EtherCatSlave> otherSlave = std::dynamic_pointer_cast<EtherCatSlave>(device);
+					std::shared_ptr<EtherCatDevice> otherSlave = std::dynamic_pointer_cast<EtherCatDevice>(device);
 					output.push_back(otherSlave);
 				}
 			}

@@ -13,8 +13,8 @@ namespace EtherCatFieldbus {
     NetworkInterfaceCard redundantNetworkInterfaceCard;
     bool b_redundant = false;
 
-    std::vector<std::shared_ptr<EtherCatSlave>> slaves;
-    std::vector<std::shared_ptr<EtherCatSlave>> slaves_unassigned;
+    std::vector<std::shared_ptr<EtherCatDevice>> slaves;
+    std::vector<std::shared_ptr<EtherCatDevice>> slaves_unassigned;
     uint8_t ioMap[4096];
     int ioMapSize = 0;
 
@@ -283,19 +283,19 @@ namespace EtherCatFieldbus {
                 uint16_t stationAlias = identity.aliasadr;
                 Logger::debug("      Station Alias: {}", stationAlias);
                 
-                std::shared_ptr<EtherCatSlave> slave = nullptr;
+                std::shared_ptr<EtherCatDevice> slave = nullptr;
 
-                for (auto environnementSlave : Environnement::getEtherCatSlaves()) {
+                for (auto environnementSlave : Environnement::getEtherCatDevices()) {
                     if (strcmp(environnementSlave->getNodeName(), identity.name) != 0) continue;
                     switch (environnementSlave->identificationType) {
-                        case EtherCatSlaveIdentification::Type::STATION_ALIAS:
+                        case EtherCatDeviceIdentification::Type::STATION_ALIAS:
                             if (environnementSlave->stationAlias == stationAlias) {
                                 slave = environnementSlave;
                                 Logger::info("      Matched Environnement Slave by Name & Station Alias");
                                 break;
                             }
                             else continue;
-                        case EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID:
+                        case EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID:
                             if (environnementSlave->explicitDeviceID == explicitDeviceID) {
                                 slave = environnementSlave;
                                 Logger::info("      Matched Environnement Slave by Name & Explicit Device ID");
@@ -312,11 +312,11 @@ namespace EtherCatFieldbus {
                     slave->explicitDeviceID = explicitDeviceID;
                     char name[128];
                     if (explicitDeviceIdSupported && explicitDeviceID != 0) {
-                        slave->identificationType = EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID;
+                        slave->identificationType = EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID;
                         sprintf(name, "%s (ID:%i)", slave->getNodeName(), slave->explicitDeviceID);
                     }
                     else {
-                        slave->identificationType = EtherCatSlaveIdentification::Type::STATION_ALIAS;
+                        slave->identificationType = EtherCatDeviceIdentification::Type::STATION_ALIAS;
                         sprintf(name, "%s (Alias:%i)", slave->getNodeName(), slave->stationAlias);
                     }
                     slave->setName(name);

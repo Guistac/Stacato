@@ -1,35 +1,35 @@
 #include <pch.h>
 
-#include "EtherCatSlave.h"
+#include "EtherCatDevice.h"
 #include "EtherCatFieldbus.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <tinyxml2.h>
 
-std::vector<EtherCatSlaveIdentification> identificationTypes = {
-    {EtherCatSlaveIdentification::Type::STATION_ALIAS, "Station Alias", "StationAlias"},
-    {EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID, "Explicit Device ID", "ExplicitDeviceID"}
+std::vector<EtherCatDeviceIdentification> identificationTypes = {
+    {EtherCatDeviceIdentification::Type::STATION_ALIAS, "Station Alias", "StationAlias"},
+    {EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID, "Explicit Device ID", "ExplicitDeviceID"}
 };
 
-std::vector<EtherCatSlaveIdentification>& getIdentificationTypes() {
+std::vector<EtherCatDeviceIdentification>& getIdentificationTypes() {
     return identificationTypes;
 }
-EtherCatSlaveIdentification* getIdentificationType(const char* saveName) {
-    for (EtherCatSlaveIdentification& identification : identificationTypes) {
+EtherCatDeviceIdentification* getIdentificationType(const char* saveName) {
+    for (EtherCatDeviceIdentification& identification : identificationTypes) {
         if (strcmp(saveName, identification.saveName) == 0) return &identification;
     }
     return nullptr;
 }
-EtherCatSlaveIdentification* getIdentificationType(EtherCatSlaveIdentification::Type t) {
-    for (EtherCatSlaveIdentification& identification : identificationTypes) {
+EtherCatDeviceIdentification* getIdentificationType(EtherCatDeviceIdentification::Type t) {
+    for (EtherCatDeviceIdentification& identification : identificationTypes) {
         if (t == identification.type) return &identification;
     }
     return nullptr;
 }
 
 /*
-bool EtherCatSlave::getPDOMapping(EtherCatPDO& pdo, uint16_t pdoIndex, const char* pdoDescription) {
+bool EtherCatDevice::getPDOMapping(EtherCatPDO& pdo, uint16_t pdoIndex, const char* pdoDescription) {
 
     pdo.modules.clear();
     uint8_t moduleCount;
@@ -66,28 +66,28 @@ bool EtherCatSlave::getPDOMapping(EtherCatPDO& pdo, uint16_t pdoIndex, const cha
 }
 */
 
-bool EtherCatSlave::isDetected() {
+bool EtherCatDevice::isDetected() {
     return identity != nullptr && identity->state != EC_STATE_NONE;
 }
 
-bool EtherCatSlave::isOnline() {
+bool EtherCatDevice::isOnline() {
     return isDetected() && !isStateNone() && EtherCatFieldbus::isCyclicExchangeActive();;
 }
 
-bool EtherCatSlave::isReady() {
+bool EtherCatDevice::isReady() {
     if (!isOnline() || !isStateOperational()) return false;
     else return isDeviceReady();
 }
 
-bool EtherCatSlave::save(tinyxml2::XMLElement* xml) {
+bool EtherCatDevice::save(tinyxml2::XMLElement* xml) {
     using namespace tinyxml2;
     XMLElement* identificationXML = xml->InsertNewChildElement("Identification");
     identificationXML->SetAttribute("Type", getIdentificationType(identificationType)->saveName);
     switch (identificationType) {
-        case EtherCatSlaveIdentification::Type::STATION_ALIAS:
+        case EtherCatDeviceIdentification::Type::STATION_ALIAS:
             identificationXML->SetAttribute("StationAlias", stationAlias);
             break;
-        case EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID:
+        case EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID:
             identificationXML->SetAttribute("ExplicitDeviceID", explicitDeviceID);
             break;
     }
@@ -95,7 +95,7 @@ bool EtherCatSlave::save(tinyxml2::XMLElement* xml) {
     return true;
 }
 
-bool EtherCatSlave::load(tinyxml2::XMLElement* xml) {
+bool EtherCatDevice::load(tinyxml2::XMLElement* xml) {
     using namespace tinyxml2;
     
     XMLElement* identificationXML = xml->FirstChildElement("Identification");
@@ -105,12 +105,12 @@ bool EtherCatSlave::load(tinyxml2::XMLElement* xml) {
     if (getIdentificationType(identificationTypeString) == nullptr) return Logger::warn("Could not read identification Type");
     identificationType = getIdentificationType(identificationTypeString)->type;
     switch (identificationType) {
-        case EtherCatSlaveIdentification::Type::STATION_ALIAS:
+        case EtherCatDeviceIdentification::Type::STATION_ALIAS:
             int alias;
             if (identificationXML->QueryIntAttribute("StationAlias", &alias) != XML_SUCCESS) return Logger::warn("Could not load Station Alias");
             stationAlias = alias;
             break;
-        case EtherCatSlaveIdentification::Type::EXPLICIT_DEVICE_ID:
+        case EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID:
             int id;
             if (identificationXML->QueryIntAttribute("ExplicitDeviceID", &id) != XML_SUCCESS) return Logger::warn("Could not load Explicit Device ID");
             explicitDeviceID = id;
@@ -121,7 +121,7 @@ bool EtherCatSlave::load(tinyxml2::XMLElement* xml) {
 }
 
 
-const char* EtherCatSlave::getEtherCatStateChar() {
+const char* EtherCatDevice::getEtherCatStateChar() {
     if (!isDetected()) return "Offline";
     uint16_t stateWithoutErrorBit = identity->state & 0xF;
     switch (stateWithoutErrorBit) {
@@ -135,25 +135,25 @@ const char* EtherCatSlave::getEtherCatStateChar() {
     }
 }
 
-bool EtherCatSlave::hasStateError() {
+bool EtherCatDevice::hasStateError() {
     return identity->state & EC_STATE_ERROR;
 }
 
 //=========================== DEVICE EVENTS ==========================
 
-void EtherCatSlave::pushEvent(const char* eventMessage, bool isError) {
+void EtherCatDevice::pushEvent(const char* eventMessage, bool isError) {
     eventListMutex.lock();
     eventList.push_back(new Event(eventMessage, isError));
     eventListMutex.unlock();
 }
 
-void EtherCatSlave::pushEvent(uint16_t errorCode) {
+void EtherCatDevice::pushEvent(uint16_t errorCode) {
     eventListMutex.lock();
     eventList.push_back(new Event(errorCode));
     eventListMutex.unlock();
 }
 
-void EtherCatSlave::clearEventList() {
+void EtherCatDevice::clearEventList() {
     eventListMutex.lock();
     for (Event* event : eventList) delete event;
     eventList.clear();
@@ -162,14 +162,14 @@ void EtherCatSlave::clearEventList() {
 
 //===== Reading SDO Data
 
-bool EtherCatSlave::readSDO_U8(uint16_t index, uint8_t subindex, uint8_t& data) {
+bool EtherCatDevice::readSDO_U8(uint16_t index, uint8_t subindex, uint8_t& data) {
     EtherCatCoeData CoE_U8(index, subindex, EtherCatData::Type::UINT8_T);
     if (CoE_U8.read(getSlaveIndex())) {
         data = CoE_U8.getU8();
         return true;
     } else return false;
 }
-bool EtherCatSlave::readSDO_S8(uint16_t index, uint8_t subindex, int8_t& data) {
+bool EtherCatDevice::readSDO_S8(uint16_t index, uint8_t subindex, int8_t& data) {
     EtherCatCoeData CoE_S8(index, subindex, EtherCatData::Type::INT8_T);
     if (CoE_S8.read(getSlaveIndex())) {
         data = CoE_S8.getS8();
@@ -177,7 +177,7 @@ bool EtherCatSlave::readSDO_S8(uint16_t index, uint8_t subindex, int8_t& data) {
     } else return false;
 }
 
-bool EtherCatSlave::readSDO_U16(uint16_t index, uint8_t subindex, uint16_t& data) {
+bool EtherCatDevice::readSDO_U16(uint16_t index, uint8_t subindex, uint16_t& data) {
     EtherCatCoeData CoE_U16(index, subindex, EtherCatData::Type::UINT16_T);
     if (CoE_U16.read(getSlaveIndex())) {
         data = CoE_U16.getU16();
@@ -185,7 +185,7 @@ bool EtherCatSlave::readSDO_U16(uint16_t index, uint8_t subindex, uint16_t& data
     } else return false;
 }
 
-bool EtherCatSlave::readSDO_S16(uint16_t index, uint8_t subindex, int16_t& data) {
+bool EtherCatDevice::readSDO_S16(uint16_t index, uint8_t subindex, int16_t& data) {
     EtherCatCoeData CoE_S16(index, subindex, EtherCatData::Type::INT16_T);
     if (CoE_S16.read(getSlaveIndex())) {
         data = CoE_S16.getS16();
@@ -193,7 +193,7 @@ bool EtherCatSlave::readSDO_S16(uint16_t index, uint8_t subindex, int16_t& data)
     } else return false;
 }
 
-bool EtherCatSlave::readSDO_U32(uint16_t index, uint8_t subindex, uint32_t& data) {
+bool EtherCatDevice::readSDO_U32(uint16_t index, uint8_t subindex, uint32_t& data) {
     EtherCatCoeData CoE_U32(index, subindex, EtherCatData::Type::UINT32_T);
     if (CoE_U32.read(getSlaveIndex())) {
         data = CoE_U32.getU32();
@@ -202,7 +202,7 @@ bool EtherCatSlave::readSDO_U32(uint16_t index, uint8_t subindex, uint32_t& data
     else return false;
 }
 
-bool EtherCatSlave::readSDO_S32(uint16_t index, uint8_t subindex, int32_t& data) {
+bool EtherCatDevice::readSDO_S32(uint16_t index, uint8_t subindex, int32_t& data) {
     EtherCatCoeData CoE_S32(index, subindex, EtherCatData::Type::INT32_T);
     if (CoE_S32.read(getSlaveIndex())) {
         data = CoE_S32.getS32();
@@ -210,7 +210,7 @@ bool EtherCatSlave::readSDO_S32(uint16_t index, uint8_t subindex, int32_t& data)
     } else return false;
 }
 
-bool EtherCatSlave::readSDO_U64(uint16_t index, uint8_t subindex, uint64_t& data) {
+bool EtherCatDevice::readSDO_U64(uint16_t index, uint8_t subindex, uint64_t& data) {
     EtherCatCoeData CoE_U64(index, subindex, EtherCatData::Type::UINT64_T);
     if (CoE_U64.read(getSlaveIndex())) {
         data = CoE_U64.getU64();
@@ -218,7 +218,7 @@ bool EtherCatSlave::readSDO_U64(uint16_t index, uint8_t subindex, uint64_t& data
     } else return false;
 }
 
-bool EtherCatSlave::readSDO_S64(uint16_t index, uint8_t subindex, int64_t& data) {
+bool EtherCatDevice::readSDO_S64(uint16_t index, uint8_t subindex, int64_t& data) {
     EtherCatCoeData CoE_S64(index, subindex, EtherCatData::Type::INT64_T);
     if (CoE_S64.read(getSlaveIndex())) {
         data = CoE_S64.getS64();
@@ -226,7 +226,7 @@ bool EtherCatSlave::readSDO_S64(uint16_t index, uint8_t subindex, int64_t& data)
     } else return false;
 }
 
-bool EtherCatSlave::readSDO_String(uint16_t index, uint8_t subindex, char* data) {
+bool EtherCatDevice::readSDO_String(uint16_t index, uint8_t subindex, char* data) {
     EtherCatCoeData CoE_String(index, subindex, EtherCatData::Type::STRING);
     if (CoE_String.read(getSlaveIndex())) {
         strcpy(data, CoE_String.getString());
@@ -237,55 +237,55 @@ bool EtherCatSlave::readSDO_String(uint16_t index, uint8_t subindex, char* data)
 
 //===== Writing SDO Data
 
-bool EtherCatSlave::writeSDO_U8(uint16_t index, uint8_t subindex, const uint8_t& data) {
+bool EtherCatDevice::writeSDO_U8(uint16_t index, uint8_t subindex, const uint8_t& data) {
     EtherCatCoeData CoE_U8(index, subindex);
     CoE_U8.setU8(data);
     return CoE_U8.write(getSlaveIndex());
 }
 
-bool EtherCatSlave::writeSDO_S8(uint16_t index, uint8_t subindex, const int8_t& data) {
+bool EtherCatDevice::writeSDO_S8(uint16_t index, uint8_t subindex, const int8_t& data) {
     EtherCatCoeData CoE_S8(index, subindex);
     CoE_S8.setS8(data);
     return CoE_S8.write(getSlaveIndex());
 }
 
-bool EtherCatSlave::writeSDO_U16(uint16_t index, uint8_t subindex, const uint16_t& data) {
+bool EtherCatDevice::writeSDO_U16(uint16_t index, uint8_t subindex, const uint16_t& data) {
     EtherCatCoeData CoE_U16(index, subindex);
     CoE_U16.setU16(data);
     return CoE_U16.write(getSlaveIndex());
 }
 
-bool EtherCatSlave::writeSDO_S16(uint16_t index, uint8_t subindex, const int16_t& data) {
+bool EtherCatDevice::writeSDO_S16(uint16_t index, uint8_t subindex, const int16_t& data) {
     EtherCatCoeData CoE_S16(index, subindex);
     CoE_S16.setS16(data);
     return CoE_S16.write(getSlaveIndex());
 }
 
-bool EtherCatSlave::writeSDO_U32(uint16_t index, uint8_t subindex, const uint32_t& data) {
+bool EtherCatDevice::writeSDO_U32(uint16_t index, uint8_t subindex, const uint32_t& data) {
     EtherCatCoeData CoE_U32(index, subindex);
     CoE_U32.setU32(data);
     return CoE_U32.write(getSlaveIndex());
 }
 
-bool EtherCatSlave::writeSDO_S32(uint16_t index, uint8_t subindex, const int32_t& data) {
+bool EtherCatDevice::writeSDO_S32(uint16_t index, uint8_t subindex, const int32_t& data) {
     EtherCatCoeData CoE_S32(index, subindex);
     CoE_S32.setS32(data);
     return CoE_S32.write(getSlaveIndex());
 }
 
-bool EtherCatSlave::writeSDO_U64(uint16_t index, uint8_t subindex, const uint64_t& data) {
+bool EtherCatDevice::writeSDO_U64(uint16_t index, uint8_t subindex, const uint64_t& data) {
     EtherCatCoeData CoE_U64(index, subindex);
     CoE_U64.setU64(data);
     return CoE_U64.write(getSlaveIndex());
 }
 
-bool EtherCatSlave::writeSDO_S64(uint16_t index, uint8_t subindex, const int64_t& data) {
+bool EtherCatDevice::writeSDO_S64(uint16_t index, uint8_t subindex, const int64_t& data) {
     EtherCatCoeData CoE_S64(index, subindex);
     CoE_S64.setS64(data);
     return CoE_S64.write(getSlaveIndex());
 }
 
-bool EtherCatSlave::writeSDO_String(uint16_t index, uint8_t subindex, const char* data) {
+bool EtherCatDevice::writeSDO_String(uint16_t index, uint8_t subindex, const char* data) {
     EtherCatCoeData CoE_String(index, subindex);
     CoE_String.setString(data);
     return CoE_String.write(getSlaveIndex());
@@ -295,7 +295,7 @@ bool EtherCatSlave::writeSDO_String(uint16_t index, uint8_t subindex, const char
 
 //====================== DATA TRANSFER STATE =================================
 
-std::vector<EtherCatSlave::DataTransferState> EtherCatSlave::dataTransferStates = {
+std::vector<EtherCatDevice::DataTransferState> EtherCatDevice::dataTransferStates = {
     {DataTransferState::State::NO_TRANSFER, ""},
     {DataTransferState::State::TRANSFERRING, "Transferring..."},
     {DataTransferState::State::SUCCEEDED, "Transfer Succeeded"},
@@ -304,7 +304,7 @@ std::vector<EtherCatSlave::DataTransferState> EtherCatSlave::dataTransferStates 
     {DataTransferState::State::FAILED, "Transfer Failed"}
 };
 
-EtherCatSlave::DataTransferState* EtherCatSlave::getDataTransferState(DataTransferState::State s) {
+EtherCatDevice::DataTransferState* EtherCatDevice::getDataTransferState(DataTransferState::State s) {
     for (DataTransferState& state : dataTransferStates) {
         if (s == state.state) return &state;
     }

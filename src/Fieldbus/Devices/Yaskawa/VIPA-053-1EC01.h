@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Fieldbus/EtherCatSlave.h"
+#include "Fieldbus/EtherCatDevice.h"
 #include "Utilities/ScrollingBuffer.h"
 
 #include <map>
 #include <string>
 
-class VIPA_053_1EC01 : public EtherCatSlave {
+class VIPA_053_1EC01 : public EtherCatDevice {
 public:
 
-    SLAVE_DEFINITION(VIPA_053_1EC01, "053-1EC01", "Yaskawa", "I/O")
+    ETHERCAT_DEVICE_DEFINITION(VIPA_053_1EC01, "053-1EC01", "Yaskawa", "I/O")
 
     struct ModuleParameter {
         uint16_t index;         //Coe Data Index (for display of pdodata)

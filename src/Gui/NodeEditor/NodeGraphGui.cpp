@@ -7,7 +7,7 @@
 
 #include "Environnement/Environnement.h"
 #include "Fieldbus/EtherCatFieldbus.h"
-#include "Fieldbus/EtherCatSlave.h"
+#include "Fieldbus/EtherCatDevice.h"
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 #include "NodeGraph/Utilities/NodeFactory.h"
 #include "Gui/Framework/Colors.h"
