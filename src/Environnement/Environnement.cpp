@@ -3,6 +3,7 @@
 #include "Environnement.h"
 
 #include "Fieldbus/EtherCatSlave.h"
+#include "Motion/Machine/Machine.h"
 
 namespace Environnement {
 
@@ -11,12 +12,23 @@ namespace Environnement {
 	std::vector<std::shared_ptr<EtherCatSlave>> getEtherCatSlaves() {
 		std::vector<std::shared_ptr<EtherCatSlave>> output;
 		for (auto node : nodeGraph.getNodes()) {
-			if (node->getType() == NodeType::IODEVICE) {
-				std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(node);
-				if (device->getDeviceType() == DeviceType::ETHERCATSLAVE) {
+			if (node->getType() == Node::Type::IODEVICE) {
+				std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);
+				if (device->getDeviceType() == Device::Type::ETHERCATSLAVE) {
 					std::shared_ptr<EtherCatSlave> otherSlave = std::dynamic_pointer_cast<EtherCatSlave>(device);
 					output.push_back(otherSlave);
 				}
+			}
+		}
+		return output;
+	}
+
+	std::vector<std::shared_ptr<Machine>> getMachines() {
+		std::vector<std::shared_ptr<Machine>> output;
+		for (auto node : nodeGraph.getNodes()) {
+			if (node->getType() == Node::Type::MACHINE) {
+				std::shared_ptr<Machine> machine = std::dynamic_pointer_cast<Machine>(node);
+				output.push_back(machine);
 			}
 		}
 		return output;

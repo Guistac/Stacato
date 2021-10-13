@@ -8,14 +8,14 @@ enum class UnitType {
 };
 
 
-struct MachineType {
+struct AxisType {
 	UnitType unitType;
 	const char displayName[64];
 	const char saveName[64];
 };
-std::vector<MachineType>& getMachineTypes();
-MachineType* getMachineType(UnitType t);
-MachineType* getMachineType(const char* savedName);
+std::vector<AxisType>& getAxisTypes();
+AxisType* getAxisType(UnitType t);
+AxisType* getAxisType(const char* savedName);
 
 
 struct PositionUnit {

@@ -17,8 +17,8 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 		nodeXML->SetAttribute("ClassName", node->getNodeName());
 		nodeXML->SetAttribute("UniqueID", node->getUniqueID());
 		nodeXML->SetAttribute("NodeType", node->getTypeString());
-		if (node->getType() == NodeType::IODEVICE) {
-			std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(node);
+		if (node->getType() == Node::Type::IODEVICE) {
+			std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);
 			nodeXML->SetAttribute("DeviceType", device->getDeviceTypeString());
 			nodeXML->SetAttribute("Split", node->isSplit());
 		}

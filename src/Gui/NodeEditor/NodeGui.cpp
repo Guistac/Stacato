@@ -36,17 +36,17 @@ void Node::nodeGui() {
     glm::vec4 labelColor = glm::vec4(0.1, 0.1, 0.6, 0.5);
     bool nodeIsOffline = false;
 
-    if (getType() == NodeType::IODEVICE) {
-        std::shared_ptr<DeviceNode> device = std::dynamic_pointer_cast<DeviceNode>(shared_from_this());
+    if (getType() == Node::Type::IODEVICE) {
+        std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(shared_from_this());
         nodeIsOffline = !device->isDetected() && !device->isOnline();
         switch (device->getDeviceType()) {
-            case DeviceType::ETHERCATSLAVE:
+            case Device::Type::ETHERCATSLAVE:
                 labelColor = glm::vec4(0.7, 0.2, 0.0, 0.5f);
                 break;
-            case DeviceType::NETWORKDEVICE:
+            case Device::Type::NETWORKDEVICE:
                 labelColor = glm::vec4(0.6f, 0.1f, 0.6f, 0.5f);
                 break;
-            case DeviceType::USBDEVICE:
+            case Device::Type::USBDEVICE:
                 labelColor = glm::vec4(0.1f, 0.1f, 0.6f, 0.5f);
                 break;
         }
@@ -56,7 +56,7 @@ void Node::nodeGui() {
         ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
     }
 
-    if (getType() == NodeType::CONTAINER) {
+    if (getType() == Node::Type::CONTAINER) {
 
         NodeEditor::BeginNode(getUniqueID());
         ImGui::Text(getName());
@@ -307,7 +307,7 @@ void Node::propertiesGui() {
             ImGui::Text("Node Name");
             ImGui::InputText("##nodeCustomName", (char*)getName(), 128);
 
-            if (getType() == NodeType::IODEVICE) {
+            if (getType() == Node::Type::IODEVICE) {
                 ImGui::Checkbox("Split Inputs and Outputs", &b_isSplit);
             }
 

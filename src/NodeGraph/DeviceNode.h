@@ -6,8 +6,8 @@
 																		virtual const char * getNodeName() { return nodeName; }											\
 																		virtual const char* getNodeCategory() { return category; }										\
 																		className(){ setName(nodeName); }																\
-																		virtual NodeType getType() { return NodeType::IODEVICE; }										\
-																		virtual DeviceType getDeviceType() { return deviceType; }										\
+																		virtual Node::Type getType() { return Node::Type::IODEVICE; }									\
+																		virtual Device::Type getDeviceType() { return deviceType; }										\
 																		virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
 																		virtual bool isOnline();																		\
 																		virtual bool isReady();																			\
@@ -18,23 +18,23 @@
 																		virtual void disable();																			\
 																		virtual void clearError();																		\
 
-enum DeviceType {
-	ETHERCATSLAVE,
-	NETWORKDEVICE,
-	USBDEVICE
-};
-
-class DeviceNode : public Node {
+class Device : public Node {
 public:
 
-	virtual DeviceType getDeviceType() = 0;
+	enum class Type {
+		ETHERCATSLAVE,
+		NETWORKDEVICE,
+		USBDEVICE
+	};
+
+	virtual Type getDeviceType() = 0;
 
 	const char* getDeviceTypeString() {
 		switch (getDeviceType()) {
-		case ETHERCATSLAVE: return "ETHERCATSLAVE";
-		case NETWORKDEVICE: return "NETWORKDEVICE";
-		case USBDEVICE: return "USBDEVICE";
-		default: return "";
+			case Type::ETHERCATSLAVE: return "ETHERCATSLAVE";
+			case Type::NETWORKDEVICE: return "NETWORKDEVICE";
+			case Type::USBDEVICE: return "USBDEVICE";
+			default: return "";
 		}
 	}
 

@@ -221,9 +221,9 @@ void SingleAxisMachine::settingsGui() {
 
 	//------------------ AXIS TYPE -------------------------
 
-	ImGui::Text("Machine Type");
-	if (ImGui::BeginCombo("##MachineType", getMachineType(machineUnitType)->displayName)) {
-		for (MachineType& machineType : getMachineTypes()) {
+	ImGui::Text("Axis Type");
+	if (ImGui::BeginCombo("##MachineType", getAxisType(machineUnitType)->displayName)) {
+		for (AxisType& machineType : getAxisTypes()) {
 			if (ImGui::Selectable(machineType.displayName, machineUnitType == machineType.unitType)) {
 				machineUnitType = machineType.unitType;
 				//if the machine type is changed but the machine unit is of the wrong type

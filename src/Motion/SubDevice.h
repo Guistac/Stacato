@@ -2,7 +2,7 @@
 
 #include "MotionTypes.h"
 
-class DeviceNode;
+class Device;
 
 class Subdevice {
 public:
@@ -21,8 +21,8 @@ public:
 	char name[128];
 	
 	//set the parent device, which will provide further information on device status
-	void setParentDevice(std::shared_ptr<DeviceNode> pd) { parentDevice = pd; }
-	std::shared_ptr<DeviceNode> parentDevice;
+	void setParentDevice(std::shared_ptr<Device> pd) { parentDevice = pd; }
+	std::shared_ptr<Device> parentDevice;
 
 	//has the device been discovered / seen
 	bool isDetected();

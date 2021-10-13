@@ -27,7 +27,7 @@ void VIPA_053_1EC01::resetData() {}
 void VIPA_053_1EC01::assignIoData() {
     //by default, this node only has one pin
     //no modules are loaded by default
-    std::shared_ptr<DeviceNode> thisDevice = std::dynamic_pointer_cast<DeviceNode>(shared_from_this());
+    std::shared_ptr<Device> thisDevice = std::dynamic_pointer_cast<Device>(shared_from_this());
     gpioDevice->setParentDevice(thisDevice);
     gpioDeviceLink->set(gpioDevice);
     //gpio device link pin

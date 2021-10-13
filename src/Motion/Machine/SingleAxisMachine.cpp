@@ -284,7 +284,7 @@ bool SingleAxisMachine::save(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 
 	XMLElement* machineTypeXML = xml->InsertNewChildElement("Machine");
-	machineTypeXML->SetAttribute("Type", getMachineType(machineUnitType)->saveName);
+	machineTypeXML->SetAttribute("Type", getAxisType(machineUnitType)->saveName);
 	machineTypeXML->SetAttribute("Unit", getPositionUnitType(machinePositionUnit)->saveName);
 
 	XMLElement* feedbackXML = xml->InsertNewChildElement("Feedback");
@@ -347,8 +347,8 @@ bool SingleAxisMachine::load(tinyxml2::XMLElement* xml) {
 
 
 	if (machineXML->QueryStringAttribute("Type", &machineUnitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Machine Type");
-	if (getMachineType(machineUnitTypeString) == nullptr) return Logger::warn("Could not read Machine Type");
-	machineUnitType = getMachineType(machineUnitTypeString)->unitType;
+	if (getAxisType(machineUnitTypeString) == nullptr) return Logger::warn("Could not read Machine Type");
+	machineUnitType = getAxisType(machineUnitTypeString)->unitType;
 	const char* machineUnitString;
 	if (machineXML->QueryStringAttribute("Unit", &machineUnitString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit");
 	if (getPositionUnitType(machineUnitString) == nullptr) return Logger::warn("Could not read Machine Unit");

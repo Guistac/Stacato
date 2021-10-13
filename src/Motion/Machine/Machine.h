@@ -6,8 +6,23 @@
 #include "Motion/MotionCurve.h"
 #include "Utilities/CircularBuffer.h"
 
+
+#define DEFINE_MACHINE_NODE(nodeName, className, machineType)	public:																							\
+																virtual const char* getNodeName() { return nodeName; }											\
+																virtual const char* getNodeCategory() { return "Machine"; }										\
+																className(){ setName(nodeName); }																\
+																virtual Node::Type getType() { return Node::Type::MACHINE; }									\
+																virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
+																/*machine specific*/																			\
+																virtual Machine::Type getMachineType(){ return machineType; }									\
+
 class Machine : public Node {
 public:
+
+	enum class Type {
+		SINGLE_AXIS_MACHINE,
+		STATE_MACHINE
+	};
 
 	virtual void controlsGui() = 0;
 	virtual void settingsGui() = 0;
@@ -19,6 +34,7 @@ public:
 
 	//reference to stage geometry
 	//reference to a parent axis
+	//vector of animatable parameters
 
 	bool isEnabled() { return b_isEnabled; }
 	bool isReady() { return b_isReady; }

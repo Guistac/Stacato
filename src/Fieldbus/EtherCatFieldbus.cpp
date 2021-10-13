@@ -519,7 +519,7 @@ namespace EtherCatFieldbus {
                 //interpret all slaves input data if operational
                 for (auto slave : slaves) if (slave->isStateOperational()) slave->readInputs();
                 //update all nodes connected to ethercat slave nodes
-                Environnement::nodeGraph.evaluate(DeviceType::ETHERCATSLAVE);
+                Environnement::nodeGraph.evaluate(Device::Type::ETHERCATSLAVE);
                 //prepare all slaves output data if operational
                 for (auto slave : slaves) if (slave->isStateOperational()) slave->prepareOutputs();
             }
@@ -609,7 +609,7 @@ namespace EtherCatFieldbus {
             slave->identity->state = EC_STATE_NONE;
         }
         //evaluate all nodes one last time to propagate the disconnection of devices
-        Environnement::nodeGraph.evaluate(DeviceType::ETHERCATSLAVE);
+        Environnement::nodeGraph.evaluate(Device::Type::ETHERCATSLAVE);
         
         Logger::info("===== Cyclic Exchange Stopped !");
         

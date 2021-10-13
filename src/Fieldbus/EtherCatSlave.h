@@ -19,8 +19,8 @@
 
 #define INTERFACE_DEFINITION(className, deviceName, manufacturerName, category)     public:                                                                                                 \
                                                                                     /*Node Functions*/                                                                                      \
-                                                                                    virtual NodeType getType() { return NodeType::IODEVICE; }                                               \
-                                                                                    virtual DeviceType getDeviceType() { return DeviceType::ETHERCATSLAVE; }                                \
+                                                                                    virtual Node::Type getType() { return Node::Type::IODEVICE; }                                           \
+                                                                                    virtual Device::Type getDeviceType() { return Device::Type::ETHERCATSLAVE; }                    \
 														                            virtual const char * getNodeName() { return deviceName; }			                                    \
                                                                                     virtual const char * getNodeCategory() { return category; }			                                    \
                                                                                     virtual const char* getManufacturerName(){ return manufacturerName; }                                   \
@@ -54,8 +54,8 @@
 //All Slave Device Classes Need to Implement this Macro 
 #define SLAVE_DEFINITION(className, deviceName, manufacturerName, category) public:                                                                                                 \
                                                                             /*Node Functions*/                                                                                      \
-                                                                            virtual NodeType getType() { return NodeType::IODEVICE; }                                               \
-                                                                            virtual DeviceType getDeviceType() { return DeviceType::ETHERCATSLAVE; }                                \
+                                                                            virtual Node::Type getType() { return Node::Type::IODEVICE; }                                           \
+                                                                            virtual Device::Type getDeviceType() { return Device::Type::ETHERCATSLAVE; }                            \
                                                                             virtual const char* getNodeName() { return deviceName; }			                                    \
                                                                             virtual const char * getNodeCategory() { return category; }			                                    \
                                                                             virtual const char* getManufacturerName() { return manufacturerName; }                                  \
@@ -97,7 +97,7 @@ std::vector<EtherCatSlaveIdentification>& getIdentificationTypes();
 EtherCatSlaveIdentification* getIdentificationType(const char *);
 EtherCatSlaveIdentification* getIdentificationType(EtherCatSlaveIdentification::Type t);
 
-class EtherCatSlave : public DeviceNode {
+class EtherCatSlave : public Device {
 public:
 
     //===== Base EtherCAT device

@@ -30,7 +30,7 @@ public:
 	std::vector<std::shared_ptr<NodeLink>>& getLinks() { return links; }
 
 	void evaluate();
-	void evaluate(DeviceType deviceType);
+	void evaluate(Device::Type deviceType);
 	void evaluate(std::shared_ptr<Node> node);
 	void evaluate(std::vector<std::shared_ptr<Node>> nodes);
 

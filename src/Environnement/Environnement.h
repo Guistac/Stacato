@@ -4,10 +4,12 @@
 #include <tinyxml2.h>
 
 class EtherCatSlave;
+class Machine;
 
 namespace Environnement{
 	
 	std::vector<std::shared_ptr<EtherCatSlave>> getEtherCatSlaves();
+	std::vector<std::shared_ptr<Machine>> getMachines();
 
 	extern NodeGraph nodeGraph;
 

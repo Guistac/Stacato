@@ -79,7 +79,7 @@ void Lexium32::resetData() {
 }
 
 void Lexium32::assignIoData() {
-    std::shared_ptr<DeviceNode> thisDevice = std::dynamic_pointer_cast<DeviceNode>(shared_from_this());
+    std::shared_ptr<Device> thisDevice = std::dynamic_pointer_cast<Device>(shared_from_this());
     motorDevice->setParentDevice(thisDevice);
     motorLink->set(motorDevice);
     encoderDevice->setParentDevice(thisDevice);

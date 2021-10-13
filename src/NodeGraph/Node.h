@@ -8,46 +8,39 @@
 																virtual const char* getNodeName() { return nodeName; }											\
 																virtual const char* getNodeCategory() { return category; }										\
 																className(){ setName(nodeName); }																\
-																virtual NodeType getType() { return NodeType::PROCESSOR; }										\
+																virtual Node::Type getType() { return Node::Type::PROCESSOR; }									\
 																virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
-
-#define DEFINE_AXIS_NODE(nodeName, className)	public:																							\
-												virtual const char* getNodeName() { return nodeName; }											\
-												virtual const char* getNodeCategory() { return "Machine"; }										\
-												className(){ setName(nodeName); }																\
-												virtual NodeType getType() { return NodeType::AXIS; }											\
-												virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
 
 #define	DEFINE_CLOCK_NODE(nodeName, className)	public:																							\
 												virtual const char* getNodeName() { return nodeName; }											\
 												virtual const char* getNodeCategory() { return "Time"; }										\
 												className(){ setName(nodeName); }																\
-												virtual NodeType getType() { return NodeType::CLOCK; }											\
+												virtual Node::Type getType() { return Node::Type::CLOCK; }										\
 												virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
 
 #define DEFINE_CONTAINER_NODE(nodeName, className, category)	public:																							\
 																virtual const char * getNodeName() { return nodeName; }											\
 																virtual const char* getNodeCategory() { return category; }										\
 																className(){ setName(nodeName); }																\
-																virtual NodeType getType() { return NodeType::CONTAINER; }										\
+																virtual Node::Type getType() { return Node::Type::CONTAINER; }									\
 																virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
 
 class NodeGraph;
-
-enum NodeType {
-	IODEVICE,
-	PROCESSOR,
-	CLOCK,
-	AXIS,
-	CONTAINER
-};
 
 namespace tinyxml2 { class XMLElement; }
 
 class Node : public std::enable_shared_from_this<Node>{
 public:
 
-	virtual NodeType getType() = 0;
+	enum class Type {
+		IODEVICE,
+		PROCESSOR,
+		CLOCK,
+		MACHINE,
+		CONTAINER
+	};
+
+	virtual Type getType() = 0;
 	virtual const char* getNodeName() = 0;
 	virtual const char* getNodeCategory() = 0;
 	virtual std::shared_ptr<Node> getNewNodeInstance() = 0;
@@ -57,11 +50,11 @@ public:
 
 	const char* getTypeString() {
 		switch (getType()) {
-			case IODEVICE: return "IODEVICE";
-			case PROCESSOR: return "PROCESSOR";
-			case CLOCK: return "CLOCK";
-			case AXIS: return "AXIS";
-			case CONTAINER: return "CONTAINER";
+			case Type::IODEVICE: return "IODevice";
+			case Type::PROCESSOR: return "Processor";
+			case Type::CLOCK: return "Clock";
+			case Type::MACHINE: return "Machine";
+			case Type::CONTAINER: return "Container";
 			default: return "";
 		}
 	}
