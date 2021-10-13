@@ -3,7 +3,7 @@
 #include "Gui.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
-#include "EtherCAT/EtherCatGui.h"
+#include "Fieldbus/EtherCatGui.h"
 
 void mainWindow() {
 

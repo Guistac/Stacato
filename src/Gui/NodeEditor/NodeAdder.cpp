@@ -20,7 +20,7 @@ void nodeAdder() {
 
 
         ImGui::PushFont(Fonts::robotoBold15);
-        if (ImGui::CollapsingHeader("EtherCAT Slaves")) {
+        if (ImGui::CollapsingHeader("EtherCAT Devices")) {
 
             ImGui::PushFont(Fonts::robotoRegular15);
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));
@@ -63,7 +63,7 @@ void nodeAdder() {
 
             ImGui::Separator();
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));
-            ImGui::Text("Detected Slaves");
+            ImGui::Text("Detected Devices");
             ImGui::PopStyleColor();
             static bool b_scanningNetwork = false;
             bool disableScanButton = EtherCatFieldbus::isCyclicExchangeActive();
