@@ -4,6 +4,7 @@
 
 #include "NodeFactory.h"
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
+#include "Environnement/Environnement.h"
 
 #include <tinyxml2.h>
 
@@ -280,6 +281,11 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 	pins.swap(loadedPins);
 	links.swap(loadedLinks);
 	uniqueID = largestUniqueID + 1; //set this so we can add more elements to the node graph after loading
+
+	//adds all relevant nodes to the environnement (machines and devices)
+	for (auto node : Environnement::nodeGraph.getNodes()) {
+		Environnement::addNode(node);
+	}
 
 	Logger::trace("Largest unique ID is {}", largestUniqueID);
 	Logger::info("Successfully loaded Node Graph");

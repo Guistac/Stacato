@@ -95,6 +95,7 @@ void nodeGraph() {
         std::shared_ptr<Node> newDraggedNode = acceptDraggedNode();
         if (newDraggedNode) {
             Environnement::nodeGraph.addNode(newDraggedNode);
+            Environnement::addNode(newDraggedNode);
             NodeEditor::SetNodePosition(newDraggedNode->getUniqueID(), NodeEditor::ScreenToCanvas(ImGui::GetMousePos()));
         }
     }
@@ -192,7 +193,8 @@ void NodeGraph::nodeEditorGui() {
             while (NodeEditor::QueryDeletedNode(&deletedNodeId)) {
                 std::shared_ptr<Node> deletedNode = getNode(deletedNodeId.Get());
                 if (deletedNode && NodeEditor::AcceptDeletedItem()) {
-                    removeNode(deletedNode);
+                    Environnement::nodeGraph.removeNode(deletedNode);
+                    Environnement::removeNode(deletedNode);
                 }
                 else NodeEditor::RejectDeletedItem();
             }
@@ -236,6 +238,7 @@ void NodeGraph::nodeEditorGui() {
             std::shared_ptr<Node> newNode = nodeAdderContextMenu();
             if (newNode) {
                 Environnement::nodeGraph.addNode(newNode);
+                Environnement::addNode(newNode);
                 NodeEditor::SetNodePosition(newNode->getUniqueID(), NodeEditor::ScreenToCanvas(mouseRightClickPosition));
                 NodeEditor::SelectNode(newNode->getUniqueID());
                 ImGui::CloseCurrentPopup();

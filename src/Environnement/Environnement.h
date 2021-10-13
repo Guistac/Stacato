@@ -8,10 +8,13 @@ class Machine;
 
 namespace Environnement{
 	
-	std::vector<std::shared_ptr<EtherCatDevice>> getEtherCatDevices();
-	std::vector<std::shared_ptr<Machine>> getMachines();
-
 	extern NodeGraph nodeGraph;
+
+	std::vector<std::shared_ptr<EtherCatDevice>>& getEtherCatDevices();
+	std::vector<std::shared_ptr<Machine>>& getMachines();
+
+	void addNode(std::shared_ptr<Node> node);
+	void removeNode(std::shared_ptr<Node> node);
 
 	bool save(const char* filePath);
 	bool load(const char* filePath);

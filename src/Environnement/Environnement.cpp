@@ -8,30 +8,67 @@
 namespace Environnement {
 
 	NodeGraph nodeGraph;
+	std::vector<std::shared_ptr<EtherCatDevice>> etherCatDevices;
+	std::vector<std::shared_ptr<Machine>> machines;
 
-	std::vector<std::shared_ptr<EtherCatDevice>> getEtherCatDevices() {
-		std::vector<std::shared_ptr<EtherCatDevice>> output;
-		for (auto node : nodeGraph.getNodes()) {
-			if (node->getType() == Node::Type::IODEVICE) {
-				std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);
-				if (device->getDeviceType() == Device::Type::ETHERCATSLAVE) {
-					std::shared_ptr<EtherCatDevice> otherSlave = std::dynamic_pointer_cast<EtherCatDevice>(device);
-					output.push_back(otherSlave);
-				}
-			}
-		}
-		return output;
+	std::vector<std::shared_ptr<EtherCatDevice>>& getEtherCatDevices() {
+		return etherCatDevices;
 	}
 
-	std::vector<std::shared_ptr<Machine>> getMachines() {
-		std::vector<std::shared_ptr<Machine>> output;
-		for (auto node : nodeGraph.getNodes()) {
-			if (node->getType() == Node::Type::MACHINE) {
-				std::shared_ptr<Machine> machine = std::dynamic_pointer_cast<Machine>(node);
-				output.push_back(machine);
-			}
+	std::vector<std::shared_ptr<Machine>>& getMachines() {
+		return machines;
+	}
+
+	void Environnement::addNode(std::shared_ptr<Node> node) {
+		switch (node->getType()) {
+			case Node::Type::MACHINE:
+				machines.push_back(std::dynamic_pointer_cast<Machine>(node));
+				break;
+			case Node::Type::IODEVICE:{
+				std::shared_ptr<Device> deviceNode = std::dynamic_pointer_cast<Device>(node);
+				switch (deviceNode->getDeviceType()) {
+					case Device::Type::ETHERCATSLAVE:
+						etherCatDevices.push_back(std::dynamic_pointer_cast<EtherCatDevice>(deviceNode));
+						break;
+					case Device::Type::NETWORKDEVICE:
+						break;
+					case Device::Type::USBDEVICE:
+						break;
+				}
+			}break;
 		}
-		return output;
+	}
+
+	void Environnement::removeNode(std::shared_ptr<Node> node){
+		switch (node->getType()) {
+			case Node::Type::MACHINE:{
+				std::shared_ptr<Machine> machineNode = std::dynamic_pointer_cast<Machine>(node);
+				for (int i = 0; i < machines.size(); i++) {
+					if (machines[i] == machineNode) {
+						machines.erase(machines.begin() + i);
+						break;
+					}
+				}
+			}break;
+			case Node::Type::IODEVICE:{
+				std::shared_ptr<Device> deviceNode = std::dynamic_pointer_cast<Device>(node);
+				switch (deviceNode->getDeviceType()) {
+				case Device::Type::ETHERCATSLAVE: {
+					std::shared_ptr<EtherCatDevice> etherCatDeviceNode;
+					for (int i = 0; i < etherCatDevices.size(); i++) {
+						if (etherCatDevices[i] == etherCatDeviceNode) {
+							etherCatDevices.erase(etherCatDevices.begin() + i);
+							break;
+						}
+					}
+				}break;
+				case Device::Type::NETWORKDEVICE: {
+				}break;
+				case Device::Type::USBDEVICE: {
+				}break;
+				}
+			}break;
+		}
 	}
 
 	char name[256] = "Default Environnement";

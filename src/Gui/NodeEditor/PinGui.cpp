@@ -37,9 +37,6 @@ void NodePin::dataGui() {
         ImGui::InputDouble("##", &realValue, 0.0, 0.0, "%.3f");
         break;
     }
-    if (ImGui::IsItemEdited()) {
-        parentNode->parentNodeGraph->evaluate(parentNode);
-    }
     ImGui::PopID();
     if (b_disableDataField) ImGui::PopItemFlag();
 }
