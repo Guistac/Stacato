@@ -23,6 +23,14 @@ void mainWindow() {
 			log();
 			ImGui::EndTabItem();
 		}
+		if (ImGui::BeginTabItem("Environnement")) {
+			environnementGui();
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Machines")) {
+			machineListGui();
+			ImGui::EndTabItem();
+		}
 		if (ImGui::BeginTabItem("Cue List")) {
 			ImGui::Text("This will be a cue list");
 			ImGui::EndTabItem();

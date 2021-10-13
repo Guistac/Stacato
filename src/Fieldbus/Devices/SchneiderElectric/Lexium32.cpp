@@ -89,6 +89,7 @@ void Lexium32::assignIoData() {
 
     //node input data
     addIoData(positionCommand);
+    addIoData(velocityCommand);
     addIoData(digitalOut0);
     addIoData(digitalOut1);
     addIoData(digitalOut2);

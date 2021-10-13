@@ -3,47 +3,24 @@
 #include "MotionTypes.h"
 
 
-std::vector<AxisType> axisTypes = {
-	{UnitType::ANGULAR, "Rotating Machine", "Rotating"},
-	{UnitType::LINEAR, "Linear Machine", "Linear"}
-};
-
-std::vector<AxisType>& getAxisTypes() { return axisTypes; }
-
-AxisType* getAxisType(UnitType t) {
-	for (AxisType& machine : axisTypes) {
-		if (machine.unitType == t) return &machine;
-	}
-	return nullptr;
-}
-
-AxisType* getAxisType(const char* saveName) {
-	for (AxisType& machine : axisTypes) {
-		if (strcmp(machine.saveName, saveName) == 0) return &machine;
-	}
-	return nullptr;
-}
-
-
-
 
 
 std::vector<PositionUnit> linearPositionUnits = {
-	{PositionUnit::Unit::METER, UnitType::LINEAR,		"Meter",		"Meters",		"Meter"},
-	{PositionUnit::Unit::MILLIMETER, UnitType::LINEAR,	"Millimeter",	"Millimeters",	"Millimeter"}
+	{PositionUnit::Unit::METER, PositionUnit::Type::LINEAR,			"Meter",		"Meters",		"Meter"},
+	{PositionUnit::Unit::MILLIMETER, PositionUnit::Type::LINEAR,	"Millimeter",	"Millimeters",	"Millimeter"}
 };
 
 std::vector<PositionUnit> angularPositionUnits = {
-	{PositionUnit::Unit::DEGREE, UnitType::ANGULAR,		"Degree",		"Degrees",		"Degrees"},
-	{PositionUnit::Unit::RADIAN, UnitType::ANGULAR,		"Radian",		"Radians",		"Radians"},
-	{PositionUnit::Unit::REVOLUTION, UnitType::ANGULAR,	"Rotation",		"Rotations",	"Rotations"}
+	{PositionUnit::Unit::DEGREE, PositionUnit::Type::ANGULAR,		"Degree",		"Degrees",		"Degrees"},
+	{PositionUnit::Unit::RADIAN, PositionUnit::Type::ANGULAR,		"Radian",		"Radians",		"Radians"},
+	{PositionUnit::Unit::REVOLUTION, PositionUnit::Type::ANGULAR,	"Rotation",		"Rotations",	"Rotations"}
 };
 
 std::vector<PositionUnit>& getLinearPositionUnits() { return linearPositionUnits; }
 
 std::vector<PositionUnit>& getAngularPositionUnits() { return angularPositionUnits; }
 
-PositionUnit* getPositionUnitType(PositionUnit::Unit u) {
+PositionUnit* getPositionUnit(PositionUnit::Unit u) {
 	for (PositionUnit& unit : linearPositionUnits) {
 		if (unit.unit == u) return &unit;
 	}
@@ -53,12 +30,30 @@ PositionUnit* getPositionUnitType(PositionUnit::Unit u) {
 	return nullptr;
 }
 
-PositionUnit* getPositionUnitType(const char* saveName) {
+PositionUnit* getPositionUnit(const char* saveName) {
 	for (PositionUnit& unit : linearPositionUnits) {
 		if (strcmp(unit.saveName, saveName) == 0) return &unit;
 	}
 	for (PositionUnit& unit : angularPositionUnits) {
 		if (strcmp(unit.saveName, saveName) == 0) return &unit;
+	}
+	return nullptr;
+}
+
+std::vector<PositionUnitType> positionUnitTypes = {
+	{PositionUnit::Type::LINEAR, "Linear", "Linear"},
+	{PositionUnit::Type::ANGULAR, "Angular", "Angular"}
+};
+std::vector<PositionUnitType>& getPositionUnitTypes() { return positionUnitTypes; }
+PositionUnitType* getPositionUnitType(PositionUnit::Type t) {
+	for (PositionUnitType& type : positionUnitTypes) {
+		if (t == type.type) return &type;
+	}
+	return nullptr;
+}
+PositionUnitType* getPositionUnitType(const char* saveName) {
+	for (PositionUnitType& type : positionUnitTypes) {
+		if (strcmp(saveName, type.saveName) == 0) return &type;
 	}
 	return nullptr;
 }

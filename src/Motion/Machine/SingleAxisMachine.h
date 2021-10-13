@@ -9,33 +9,33 @@ public:
 
 	//Device Links
 	std::shared_ptr<NodePin> actuatorDeviceLinks = std::make_shared<NodePin>(NodeData::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuators", NodePinFlags_AcceptMultipleInputs);
-	std::shared_ptr<NodePin> feedbackDeviceLink = std::make_shared<NodePin>(NodeData::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_INPUT, "Encoder");
+	std::shared_ptr<NodePin> positionFeedbackDeviceLink = std::make_shared<NodePin>(NodeData::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_INPUT, "Position Feedback");
 	std::shared_ptr<NodePin> referenceDeviceLinks = std::make_shared<NodePin>(NodeData::GPIO_DEVICELINK, DataDirection::NODE_INPUT, "Reference Devices", NodePinFlags_AcceptMultipleInputs);
 
 	//Inputs
-	std::shared_ptr<NodePin> positionFeedback = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "Position Feedback");
 	std::shared_ptr<NodePin> positionReferences = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "References", NodePinFlags_AcceptMultipleInputs);
 
 	//Outputs
-	std::shared_ptr<NodePin> actuatorCommand = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Command", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> actuatorCommand = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Actuator Command", NodePinFlags_DisableDataField);
 	std::shared_ptr<NodePin> resetPositionFeedback = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Position Feedback", NodePinFlags_DisableDataField | NodePinFlags_HidePin);
-
 
 	//==================== AXIS DATA ====================
 
 	//Machine Type
-	UnitType machineUnitType = UnitType::LINEAR;
-	PositionUnit::Unit machinePositionUnit = PositionUnit::Unit::METER;
+	PositionUnit::Type axisPositionUnitType = PositionUnit::Type::LINEAR;
+	PositionUnit::Unit axisPositionUnit = PositionUnit::Unit::METER;
 
 	//Feedback Type
 	PositionFeedback::Type positionFeedbackType = PositionFeedback::Type::ABSOLUTE_FEEDBACK;
+	PositionUnit::Type feedbackPositionUnitType = PositionUnit::Type::ANGULAR;
 	PositionUnit::Unit feedbackPositionUnit = PositionUnit::Unit::DEGREE;
-	double feedbackUnitsPerMachineUnits = 0.0;
+	double feedbackUnitsPerAxisUnits = 0.0;
 
 	//CommandType
-	CommandType::Type commandType = CommandType::Type::POSITION_COMMAND;
-	PositionUnit::Unit commandPositionUnit = PositionUnit::Unit::DEGREE;
-	double commandUnitsPerMachineUnits = 0.0;
+	CommandType::Type actuatorCommandType = CommandType::Type::POSITION_COMMAND;
+	PositionUnit::Type actuatorPositionUnitType = PositionUnit::Type::ANGULAR;
+	PositionUnit::Unit actuatorPositionUnit = PositionUnit::Unit::DEGREE;
+	double actuatorUnitsPerAxisUnits = 0.0;
 
 	//Reference and Homing Type
 	PositionReference::Type positionReferenceType = PositionReference::Type::NO_LIMIT;
@@ -107,43 +107,29 @@ public:
 	CircularBuffer loadHistory = CircularBuffer(historyLength);
 
 	//Machine State Control
-	void enable();
 	void onEnable();
-	void disable();
-	void onDisable();
-	bool isEnabled();
+	void onDisable(); 
 	bool b_enabled = false;
 	bool areAllDevicesReady();
-	bool areAllDevicesEnabled();
 	void enableAllActuators();
 	void disableAllActuators();
 
-	const char* getMachineUnitStringSingular() { return getPositionUnitType(machinePositionUnit)->displayName; }
-	const char* getMachineUnitStringPlural() { return getPositionUnitType(machinePositionUnit)->displayNamePlural; }
+	const char* getMachinePositionUnitStringSingular() { return getPositionUnit(axisPositionUnit)->displayName; }
+	const char* getMachinePositionUnitStringPlural() { return getPositionUnit(axisPositionUnit)->displayNamePlural; }
 
 	virtual void assignIoData() {
+		//inputs
 		addIoData(actuatorDeviceLinks);
-		addIoData(feedbackDeviceLink);
-		addIoData(positionFeedback);
+		addIoData(positionFeedbackDeviceLink);
 		addIoData(referenceDeviceLinks);
 		addIoData(positionReferences);
-
+		//outputs
 		addIoData(actuatorCommand);
 		addIoData(resetPositionFeedback);
 	}
 
 	virtual void process();
 
-	virtual void controlsGui();
-	virtual void settingsGui();
-	virtual void devicesGui();
-	virtual void metricsGui();
-	virtual void miniatureGui() {};
-
 	virtual bool load(tinyxml2::XMLElement* xml);
 	virtual bool save(tinyxml2::XMLElement* xml);
-
-	virtual void machineStatusGui() {}
-	virtual void machineControlsGui() {}
-
 };

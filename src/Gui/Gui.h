@@ -25,3 +25,7 @@ void toolbar(float height);
 
 void sequencer();
 
+void machineListGui();
+
+void environnementGui();
+

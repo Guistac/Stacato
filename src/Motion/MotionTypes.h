@@ -1,24 +1,11 @@
 #pragma once
 
-
-enum class UnitType {
-	LINEAR,
-	ANGULAR,
-	UNKNOWN
-};
-
-
-struct AxisType {
-	UnitType unitType;
-	const char displayName[64];
-	const char saveName[64];
-};
-std::vector<AxisType>& getAxisTypes();
-AxisType* getAxisType(UnitType t);
-AxisType* getAxisType(const char* savedName);
-
-
 struct PositionUnit {
+	enum class Type {
+		LINEAR,
+		ANGULAR,
+		UNKNOWN
+	};
 	enum class Unit {
 		DEGREE,
 		RADIAN,
@@ -28,15 +15,24 @@ struct PositionUnit {
 		UNKNOWN
 	};
 	Unit unit;
-	UnitType type;
+	PositionUnit::Type type;
 	const char displayName[64];
 	const char displayNamePlural[64];
 	const char saveName[64];
 };
 std::vector<PositionUnit>& getLinearPositionUnits();
 std::vector<PositionUnit>& getAngularPositionUnits();
-PositionUnit* getPositionUnitType(PositionUnit::Unit u);
-PositionUnit* getPositionUnitType(const char* savedName);
+PositionUnit* getPositionUnit(PositionUnit::Unit u);
+PositionUnit* getPositionUnit(const char* savedName);
+
+struct PositionUnitType {
+	PositionUnit::Type type;
+	const char displayName[64];
+	const char saveName[64];
+};
+std::vector<PositionUnitType>& getPositionUnitTypes();
+PositionUnitType* getPositionUnitType(PositionUnit::Type t);
+PositionUnitType* getPositionUnitType(const char* saveName);
 
 
 struct PositionFeedback {

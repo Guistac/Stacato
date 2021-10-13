@@ -11,6 +11,10 @@
 #include "Gui/Framework/Colors.h"
 
 
+void SingleAxisMachine::miniatureGui() {
+	ImGui::Text("test");
+}
+
 void SingleAxisMachine::controlsGui() {
 
 	//====================== AXIS MANUAL CONTROLS ==============================
@@ -24,7 +28,7 @@ void SingleAxisMachine::controlsGui() {
 	buttonSize.x = (ImGui::GetContentRegionAvail().x - (buttonCount - 1) * ImGui::GetStyle().ItemSpacing.x) / buttonCount;
 	buttonSize.y = ImGui::GetTextLineHeight() * 2.0;
 
-	bool isMachineReady = areAllDevicesReady();
+	bool isMachineReady = isReady();
 
 	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 	if (isEnabled()) {
@@ -151,8 +155,8 @@ void SingleAxisMachine::controlsGui() {
 	std::shared_ptr<PositionFeedbackDevice> positionFeedbackDevice = nullptr;
 	double range;
 	char rangeString[64];
-	if (feedbackDeviceLink->isConnected()) {
-		positionFeedbackDevice = feedbackDeviceLink->getConnectedPins().front()->getPositionFeedbackDevice();
+	if (positionFeedbackDeviceLink->isConnected()) {
+		positionFeedbackDevice = positionFeedbackDeviceLink->getConnectedPins().front()->getPositionFeedbackDevice();
 		range = positionFeedbackDevice->getPositionInRange();
 		if (!positionFeedbackDevice->isReady()) {
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
@@ -216,24 +220,24 @@ void SingleAxisMachine::settingsGui() {
 	//=================== AXIS SETTINGS ====================
 
 	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Machine Settings");
+	ImGui::Text("Axis Settings");
 	ImGui::PopFont();
 
 	//------------------ AXIS TYPE -------------------------
 
-	ImGui::Text("Axis Type");
-	if (ImGui::BeginCombo("##MachineType", getAxisType(machineUnitType)->displayName)) {
-		for (AxisType& machineType : getAxisTypes()) {
-			if (ImGui::Selectable(machineType.displayName, machineUnitType == machineType.unitType)) {
-				machineUnitType = machineType.unitType;
+	ImGui::Text("Position Unit Type");
+	if (ImGui::BeginCombo("##AxisUnitType", getPositionUnitType(axisPositionUnitType)->displayName)) {
+		for (PositionUnitType& unitType : getPositionUnitTypes()) {
+			if (ImGui::Selectable(unitType.displayName, axisPositionUnitType == unitType.type)) {
+				axisPositionUnitType = unitType.type;
 				//if the machine type is changed but the machine unit is of the wrong type
 				//change the machine unit to the first correct type automatically
-				if (getPositionUnitType(machinePositionUnit)->type != machineType.unitType) {
-					if (machineType.unitType == UnitType::ANGULAR) {
-						machinePositionUnit = getAngularPositionUnits().front().unit;
+				if (getPositionUnit(axisPositionUnit)->type != unitType.type) {
+					if (unitType.type == PositionUnit::Type::ANGULAR) {
+						axisPositionUnit = getAngularPositionUnits().front().unit;
 					}
-					else if (machineType.unitType == UnitType::LINEAR) {
-						machinePositionUnit = getLinearPositionUnits().front().unit;
+					else if (unitType.type == PositionUnit::Type::LINEAR) {
+						axisPositionUnit = getLinearPositionUnits().front().unit;
 					}
 				}
 			}
@@ -241,16 +245,16 @@ void SingleAxisMachine::settingsGui() {
 		ImGui::EndCombo();
 	}
 
-	ImGui::Text("Machine Position Unit");
-	if (ImGui::BeginCombo("##MachineUnit", getPositionUnitType(machinePositionUnit)->displayName)) {
-		if (machineUnitType == UnitType::LINEAR) {
+	ImGui::Text("Position Unit");
+	if (ImGui::BeginCombo("##AxisUnit", getPositionUnit(axisPositionUnit)->displayName)) {
+		if (axisPositionUnitType == PositionUnit::Type::LINEAR) {
 			for (PositionUnit& unit : getLinearPositionUnits()) {
-				if (ImGui::Selectable(unit.displayName, machinePositionUnit == unit.unit)) machinePositionUnit = unit.unit;
+				if (ImGui::Selectable(unit.displayName, axisPositionUnit == unit.unit)) axisPositionUnit = unit.unit;
 			}
 		}
-		else if (machineUnitType == UnitType::ANGULAR) {
+		else if (axisPositionUnitType == PositionUnit::Type::ANGULAR) {
 			for (PositionUnit& unit : getAngularPositionUnits()) {
-				if (ImGui::Selectable(unit.displayName, machinePositionUnit == unit.unit)) machinePositionUnit = unit.unit;
+				if (ImGui::Selectable(unit.displayName, axisPositionUnit == unit.unit)) axisPositionUnit = unit.unit;
 			}
 		}
 		ImGui::EndCombo();
@@ -284,16 +288,43 @@ void SingleAxisMachine::settingsGui() {
 	}
 	else {
 
-		ImGui::Text("Feedback Position Unit");
-		if (ImGui::BeginCombo("##FeedbackUnit", getPositionUnitType(feedbackPositionUnit)->displayNamePlural)) {
-			for (PositionUnit& unit : getAngularPositionUnits()) {
-				if (ImGui::Selectable(unit.displayNamePlural, feedbackPositionUnit == unit.unit)) feedbackPositionUnit = unit.unit;
+		ImGui::Text("Position Unit Type");
+		if (ImGui::BeginCombo("##FeedbackUnitType", getPositionUnitType(feedbackPositionUnitType)->displayName)) {
+			for (PositionUnitType& unitType : getPositionUnitTypes()) {
+				if (ImGui::Selectable(unitType.displayName, feedbackPositionUnitType == unitType.type)) {
+					feedbackPositionUnitType = unitType.type;
+					//if the machine type is changed but the machine unit is of the wrong type
+					//change the machine unit to the first correct type automatically
+					if (getPositionUnit(feedbackPositionUnit)->type != unitType.type) {
+						if (unitType.type == PositionUnit::Type::ANGULAR) {
+							feedbackPositionUnit = getAngularPositionUnits().front().unit;
+						}
+						else if (unitType.type == PositionUnit::Type::LINEAR) {
+							feedbackPositionUnit = getLinearPositionUnits().front().unit;
+						}
+					}
+				}
 			}
 			ImGui::EndCombo();
 		}
 
-		ImGui::Text("Feedback %s per Machine %s", getPositionUnitType(feedbackPositionUnit)->displayNamePlural, getPositionUnitType(machinePositionUnit)->displayName);
-		ImGui::InputDouble("##feedbackCoupling", &feedbackUnitsPerMachineUnits);
+		ImGui::Text("Position Unit");
+		if (ImGui::BeginCombo("##FeedbackUnit", getPositionUnit(feedbackPositionUnit)->displayName)) {
+			if (feedbackPositionUnitType == PositionUnit::Type::LINEAR) {
+				for (PositionUnit& unit : getLinearPositionUnits()) {
+					if (ImGui::Selectable(unit.displayName, feedbackPositionUnit == unit.unit)) feedbackPositionUnit = unit.unit;
+				}
+			}
+			else if (feedbackPositionUnitType == PositionUnit::Type::ANGULAR) {
+				for (PositionUnit& unit : getAngularPositionUnits()) {
+					if (ImGui::Selectable(unit.displayName, feedbackPositionUnit == unit.unit)) feedbackPositionUnit = unit.unit;
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		ImGui::Text("Feedback %s per Machine %s", getPositionUnit(feedbackPositionUnit)->displayNamePlural, getPositionUnit(axisPositionUnit)->displayName);
+		ImGui::InputDouble("##feedbackCoupling", &feedbackUnitsPerAxisUnits);
 	}
 
 	ImGui::Separator();
@@ -304,30 +335,58 @@ void SingleAxisMachine::settingsGui() {
 	ImGui::Text("Actuator");
 	ImGui::PopFont();
 
-	ImGui::Text("Command Type");
-	if (ImGui::BeginCombo("##CommandType", getCommandType(commandType)->displayName)) {
+	ImGui::Text("Actuator Command Type");
+	if (ImGui::BeginCombo("##CommandType", getCommandType(actuatorCommandType)->displayName)) {
 		for (CommandType& command : getCommandTypes()) {
-			if (ImGui::Selectable(command.displayName, commandType == command.type)) commandType = command.type;
+			if (ImGui::Selectable(command.displayName, actuatorCommandType == command.type)) actuatorCommandType = command.type;
 		}
 		ImGui::EndCombo();
 	}
 
-	if (commandType == CommandType::Type::VELOCITY_COMMAND) {
+	if (actuatorCommandType == CommandType::Type::VELOCITY_COMMAND) {
 		ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
 		ImGui::TextWrapped("Actuators with velocity command are not yet supported. Actuators with velocity command would need a PID controller with position feedback to regulate the machine position");
 		ImGui::PopStyleColor();
 	}
 	else {
-		ImGui::Text("Command Position Unit");
-		if (ImGui::BeginCombo("##CommandUnit", getPositionUnitType(commandPositionUnit)->displayName)) {
-			for (PositionUnit& unit : getAngularPositionUnits()) {
-				if (ImGui::Selectable(unit.displayName, commandPositionUnit == unit.unit)) commandPositionUnit = unit.unit;
+
+		ImGui::Text("Position Unit Type");
+		if (ImGui::BeginCombo("##ActuatorUnitType", getPositionUnitType(actuatorPositionUnitType)->displayName)) {
+			for (PositionUnitType& unitType : getPositionUnitTypes()) {
+				if (ImGui::Selectable(unitType.displayName, actuatorPositionUnitType == unitType.type)) {
+					actuatorPositionUnitType = unitType.type;
+					//if the machine type is changed but the machine unit is of the wrong type
+					//change the machine unit to the first correct type automatically
+					if (getPositionUnit(actuatorPositionUnit)->type != unitType.type) {
+						if (unitType.type == PositionUnit::Type::ANGULAR) {
+							actuatorPositionUnit = getAngularPositionUnits().front().unit;
+						}
+						else if (unitType.type == PositionUnit::Type::LINEAR) {
+							actuatorPositionUnit = getLinearPositionUnits().front().unit;
+						}
+					}
+				}
 			}
 			ImGui::EndCombo();
 		}
 
-		ImGui::Text("Actuator %s per Machine %s", getPositionUnitType(commandPositionUnit)->displayNamePlural, getPositionUnitType(machinePositionUnit)->displayName);
-		ImGui::InputDouble("##actuatorCoupling", &commandUnitsPerMachineUnits);
+		ImGui::Text("Position Unit");
+		if (ImGui::BeginCombo("##ActuatorUnit", getPositionUnit(actuatorPositionUnit)->displayName)) {
+			if (actuatorPositionUnitType == PositionUnit::Type::LINEAR) {
+				for (PositionUnit& unit : getLinearPositionUnits()) {
+					if (ImGui::Selectable(unit.displayName, actuatorPositionUnit == unit.unit)) actuatorPositionUnit = unit.unit;
+				}
+			}
+			else if (actuatorPositionUnitType == PositionUnit::Type::ANGULAR) {
+				for (PositionUnit& unit : getAngularPositionUnits()) {
+					if (ImGui::Selectable(unit.displayName, actuatorPositionUnit == unit.unit)) actuatorPositionUnit = unit.unit;
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		ImGui::Text("Actuator %s per Machine %s", getPositionUnit(actuatorPositionUnit)->displayNamePlural, getPositionUnit(axisPositionUnit)->displayName);
+		ImGui::InputDouble("##actuatorCoupling", &actuatorUnitsPerAxisUnits);
 	}
 
 	ImGui::Separator();
@@ -338,15 +397,15 @@ void SingleAxisMachine::settingsGui() {
 	ImGui::Text("Kinematic Limits");
 	ImGui::PopFont();
 
-	ImGui::Text("Velocity Limit (%s per second)", getMachineUnitStringPlural());
+	ImGui::Text("Velocity Limit (%s per second)", getMachinePositionUnitStringPlural());
 	ImGui::InputDouble("##VelLimit", &velocityLimit_degreesPerSecond, 0.0, 0.0, "%.3f u/s");
-	ImGui::Text("Acceleration Limit (%s per second squared)", getMachineUnitStringPlural());
+	ImGui::Text("Acceleration Limit (%s per second squared)", getMachinePositionUnitStringPlural());
 	ImGui::InputDouble("##AccLimit", &accelerationLimit_degreesPerSecondSquared, 0.0, 0.0, "%.3f u/s2");
 
-	ImGui::Text("Default Manual Acceleration (%s per second squared)", getMachineUnitStringPlural());
+	ImGui::Text("Default Manual Acceleration (%s per second squared)", getMachinePositionUnitStringPlural());
 	ImGui::InputDouble("##defmanAcc", &defaultManualAcceleration_degreesPerSecondSquared, 0.0, 0.0, "%.3f u/s");
 	clamp(defaultManualAcceleration_degreesPerSecondSquared, 0.0, accelerationLimit_degreesPerSecondSquared);
-	ImGui::Text("Default Manual Movement Velocity (%s per second)", getMachineUnitStringPlural());
+	ImGui::Text("Default Manual Velocity (%s per second)", getMachinePositionUnitStringPlural());
 	ImGui::InputDouble("##defmanvel", &defaultManualVelocity_degreesPerSecond, 0.0, 0.0, "%.3f u/s");
 	clamp(defaultManualVelocity_degreesPerSecond, 0.0, velocityLimit_degreesPerSecond);
 
@@ -452,7 +511,7 @@ void SingleAxisMachine::devicesGui() {
 	ImGui::Text("Position Feedback: ");
 	ImGui::PopFont();
 
-	for (auto link : feedbackDeviceLink->getLinks()) {
+	for (auto link : positionFeedbackDeviceLink->getLinks()) {
 
 		std::shared_ptr<PositionFeedbackDevice> feedbackDevice = link->getInputData()->getPositionFeedbackDevice();
 

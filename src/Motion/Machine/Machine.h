@@ -15,6 +15,15 @@
 																virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
 																/*machine specific*/																			\
 																virtual Machine::Type getMachineType(){ return machineType; }									\
+																virtual bool isEnabled();																		\
+																virtual bool isReady();																			\
+																virtual void enable();																			\
+																virtual void disable();																			\
+																virtual void controlsGui();																		\
+																virtual void settingsGui();																		\
+																virtual void devicesGui();																		\
+																virtual void metricsGui();																		\
+																virtual void miniatureGui();																	\
 
 class Machine : public Node {
 public:
@@ -35,14 +44,10 @@ public:
 	//reference to stage geometry
 	//reference to a parent axis
 	//vector of animatable parameters
+	//machine unique number
 
-	bool isEnabled() { return b_isEnabled; }
-	bool isReady() { return b_isReady; }
-	void enable() { b_setEnable = true; }
-
-private:
-
-	bool b_setEnable = false;
-	bool b_isReady = false;
-	bool b_isEnabled = false;
+	virtual bool isEnabled() = 0;
+	virtual bool isReady() = 0;
+	virtual void enable() = 0;
+	virtual void disable() = 0;
 };

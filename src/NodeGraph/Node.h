@@ -48,17 +48,6 @@ public:
 	void setName(const char* n) { strcpy(name, n); }
 	const char* getName() { return name; }
 
-	const char* getTypeString() {
-		switch (getType()) {
-			case Type::IODEVICE: return "IODevice";
-			case Type::PROCESSOR: return "Processor";
-			case Type::CLOCK: return "Clock";
-			case Type::MACHINE: return "Machine";
-			case Type::CONTAINER: return "Container";
-			default: return "";
-		}
-	}
-
 	void addIoData(std::shared_ptr<NodePin> d);
 	void removeIoData(std::shared_ptr<NodePin> d);
 	std::vector<std::shared_ptr<NodePin>>& getNodeInputData() { return nodeInputData; }
@@ -121,3 +110,11 @@ private:
 	glm::vec2 savedPosition;
 	glm::vec2 savedSplitPosition;
 };
+
+struct NodeType {
+	Node::Type type;
+	const char displayName[64];
+	const char saveName[64];
+};
+NodeType* getNodeType(Node::Type t);
+NodeType* getNodeType(const char* saveName);

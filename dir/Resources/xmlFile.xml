@@ -1,19 +1,67 @@
 <Environnement name="Default Environnement">
     <NodeGraph>
         <Nodes>
-            <Node ClassName="State Machine" UniqueID="9" NodeType="AXIS" CustomName="State Machine">
-                <NodeEditorPosition x="-10840" y="-10849"/>
-                <NodeSpecificData/>
+            <Node NodeType="Machine" ClassName="Single Axis Machine" CustomName="Costière" UniqueID="1">
+                <NodeEditorPosition x="-10732" y="-10934"/>
+                <NodeSpecificData>
+                    <Axis UnitType="Linear" Unit="Meter"/>
+                    <Feedback Type="Absolute" UnitType="Angular" Unit="Degrees" UnitsPerAxisUnit="0"/>
+                    <Actuator Command="Position" UnitType="Angular" Unit="Degrees" UnitsPerAxisUnit="0"/>
+                    <PositionReference Type="None" MaxPositiveDeviation="0" MaxNegativeDeviation="0"/>
+                    <KinematicLimits VelocityLimit_degreesPerSecond="0" AccelerationLimit_degreesPerSecondSquared="0"/>
+                    <DefaultManualParameters Velocity_degreesPerSecond="10" Acceleration_degreesPerSecondSquared="5"/>
+                </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveName="Actuators" DisplayName="Actuators" DataType="ActuatorDeviceLink" UniqueID="10" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveName="State 0 Feedback" DisplayName="State 0 Feedback" DataType="Boolean" UniqueID="11" Boolean="false" Visible="true"/>
-                    <InputPin SaveName="State 1 Feedback" DisplayName="State 1 Feedback" DataType="Boolean" UniqueID="12" Boolean="false" Visible="true"/>
-                    <InputPin SaveName="State 2 Feedback" DisplayName="State 2 Feedback" DataType="Boolean" UniqueID="13" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Actuators" DisplayName="Actuators" DataType="ActuatorDeviceLink" UniqueID="2" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveName="Position Feedback" DisplayName="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="3" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Reference Devices" DisplayName="Reference Devices" DataType="GPIODeviceLink" UniqueID="4" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveName="References" DisplayName="References" DataType="Boolean" UniqueID="5" Boolean="false" Visible="true" AcceptsMultipleInputs="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveName="State 0 Command" DisplayName="State 0 Command" DataType="Boolean" UniqueID="14" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="State 0 Command" DisplayName="State 0 Command" DataType="Boolean" UniqueID="15" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="State 0 Command" DisplayName="State 0 Command" DataType="Boolean" UniqueID="16" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Actuator Command" DisplayName="Actuator Command" DataType="Real" UniqueID="6" Real="0" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Reset Position Feedback" DisplayName="Reset Position Feedback" DataType="Boolean" UniqueID="7" Boolean="false" Visible="false" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="Single Axis Machine" CustomName="Patience" UniqueID="16">
+                <NodeEditorPosition x="-10280" y="-11078"/>
+                <NodeSpecificData>
+                    <Axis UnitType="Linear" Unit="Meter"/>
+                    <Feedback Type="Absolute" UnitType="Angular" Unit="Degrees" UnitsPerAxisUnit="0"/>
+                    <Actuator Command="Position" UnitType="Angular" Unit="Degrees" UnitsPerAxisUnit="0"/>
+                    <PositionReference Type="None" MaxPositiveDeviation="0" MaxNegativeDeviation="0"/>
+                    <KinematicLimits VelocityLimit_degreesPerSecond="0" AccelerationLimit_degreesPerSecondSquared="0"/>
+                    <DefaultManualParameters Velocity_degreesPerSecond="10" Acceleration_degreesPerSecondSquared="5"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveName="Actuators" DisplayName="Actuators" DataType="ActuatorDeviceLink" UniqueID="17" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveName="Position Feedback" DisplayName="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="18" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Reference Devices" DisplayName="Reference Devices" DataType="GPIODeviceLink" UniqueID="19" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveName="References" DisplayName="References" DataType="Boolean" UniqueID="20" Boolean="false" Visible="true" AcceptsMultipleInputs="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="Actuator Command" DisplayName="Actuator Command" DataType="Real" UniqueID="21" Real="0" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Reset Position Feedback" DisplayName="Reset Position Feedback" DataType="Boolean" UniqueID="22" Boolean="false" Visible="false" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="Single Axis Machine" CustomName="Tournette" UniqueID="23">
+                <NodeEditorPosition x="-10362" y="-10711"/>
+                <NodeSpecificData>
+                    <Axis UnitType="Linear" Unit="Meter"/>
+                    <Feedback Type="Absolute" UnitType="Angular" Unit="Degrees" UnitsPerAxisUnit="0"/>
+                    <Actuator Command="Position" UnitType="Angular" Unit="Degrees" UnitsPerAxisUnit="0"/>
+                    <PositionReference Type="None" MaxPositiveDeviation="0" MaxNegativeDeviation="0"/>
+                    <KinematicLimits VelocityLimit_degreesPerSecond="0" AccelerationLimit_degreesPerSecondSquared="0"/>
+                    <DefaultManualParameters Velocity_degreesPerSecond="10" Acceleration_degreesPerSecondSquared="5"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveName="Actuators" DisplayName="Actuators" DataType="ActuatorDeviceLink" UniqueID="24" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveName="Position Feedback" DisplayName="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="25" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Reference Devices" DisplayName="Reference Devices" DataType="GPIODeviceLink" UniqueID="26" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveName="References" DisplayName="References" DataType="Boolean" UniqueID="27" Boolean="false" Visible="true" AcceptsMultipleInputs="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="Actuator Command" DisplayName="Actuator Command" DataType="Real" UniqueID="28" Real="0" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Reset Position Feedback" DisplayName="Reset Position Feedback" DataType="Boolean" UniqueID="29" Boolean="false" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -23,7 +71,7 @@
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="Realtek USB NIC" Name="\Device\NPF_{42C81A11-795E-4D7C-83AE-39EF61932528}"/>
+        <Primary Description="Microsoft" Name="\Device\NPF_{94C82131-D635-43BC-AA0D-763132AE31BA}"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="1.5" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000000000001"/>
 </FieldbusSettings>

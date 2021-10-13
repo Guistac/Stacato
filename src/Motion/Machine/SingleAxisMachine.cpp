@@ -14,7 +14,7 @@ void SingleAxisMachine::process() {
 	std::vector<std::shared_ptr<ActuatorDevice>> actuators;
 	for (auto& pin : actuatorDeviceLinks->getConnectedPins()) actuators.push_back(pin->getActuatorDevice());
 	std::shared_ptr<PositionFeedbackDevice> positionFeedbackDevice = nullptr;
-	if (feedbackDeviceLink->isConnected()) positionFeedbackDevice = feedbackDeviceLink->getConnectedPins().front()->getPositionFeedbackDevice();
+	if (positionFeedbackDeviceLink->isConnected()) positionFeedbackDevice = positionFeedbackDeviceLink->getConnectedPins().front()->getPositionFeedbackDevice();
 	std::vector<std::shared_ptr<GpioDevice>> referenceDevices;
 	for (auto& pin : referenceDeviceLinks->getConnectedPins()) referenceDevices.push_back(pin->getGpioDevice());
 
@@ -44,10 +44,10 @@ void SingleAxisMachine::process() {
 		actuatorCommand->set(profilePosition_degrees);
 	}
 	else {
-		actuatorCommand->set(positionFeedback->getLinks().front()->getInputData()->getReal());
+		actuatorCommand->set(positionFeedbackDeviceLink->getLinks().front()->getInputData()->getReal());
 	}
 
-	std::shared_ptr<PositionFeedbackDevice> feedbackDevice = feedbackDeviceLink->getLinks().front()->getInputData()->getPositionFeedbackDevice();
+	std::shared_ptr<PositionFeedbackDevice> feedbackDevice = positionFeedbackDeviceLink->getLinks().front()->getInputData()->getPositionFeedbackDevice();
 	std::shared_ptr<ActuatorDevice> actuatorDevice = actuatorDeviceLinks->getLinks().front()->getInputData()->getActuatorDevice();
 
 	double actualPosition = feedbackDevice->getPosition();
@@ -70,7 +70,7 @@ void SingleAxisMachine::enable() {
 		std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 		//wait for devices to be enabled
 		while (std::chrono::system_clock::now() - start < std::chrono::milliseconds(500)) {
-			if (areAllDevicesEnabled()) break;
+			if (isReady()) break;
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		}
 		//start machine or return feedback about failure mode
@@ -90,8 +90,8 @@ void SingleAxisMachine::enable() {
 			Logger::warn("No Actuators are connected to machine '{}'", getName());
 		}
 		if (positionFeedbackType != PositionFeedback::Type::NO_FEEDBACK) {
-			if (feedbackDeviceLink->isConnected()) {
-				std::shared_ptr<PositionFeedbackDevice> feedbackDevice = feedbackDeviceLink->getLinks().front()->getInputData()->getPositionFeedbackDevice();
+			if (positionFeedbackDeviceLink->isConnected()) {
+				std::shared_ptr<PositionFeedbackDevice> feedbackDevice = positionFeedbackDeviceLink->getLinks().front()->getInputData()->getPositionFeedbackDevice();
 				if (!feedbackDevice->isReady()) {
 					canMachineBeEnabled = false;
 					Logger::warn("Position feedback subdevice '{}' of device '{}' is not ready", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
@@ -127,7 +127,7 @@ void SingleAxisMachine::enable() {
 }
 
 void SingleAxisMachine::onEnable() {
-	profilePosition_degrees = positionFeedback->getLinks().front()->getInputData()->getReal();
+	profilePosition_degrees = positionFeedbackDeviceLink->getLinks().front()->getInputData()->getReal();
 	targetCurveProfile = MotionCurve::CurveProfile();
 	profileVelocity_degreesPerSecond = 0.0;
 	profileAcceleration_degreesPerSecondSquared = 0.0;
@@ -161,8 +161,8 @@ bool SingleAxisMachine::areAllDevicesReady() {
 	}
 	else return false;
 	if (positionFeedbackType != PositionFeedback::Type::NO_FEEDBACK) {
-		if (feedbackDeviceLink->isConnected()) {
-			std::shared_ptr<PositionFeedbackDevice> feedbackDevice = feedbackDeviceLink->getLinks().front()->getInputData()->getPositionFeedbackDevice();
+		if (positionFeedbackDeviceLink->isConnected()) {
+			std::shared_ptr<PositionFeedbackDevice> feedbackDevice = positionFeedbackDeviceLink->getLinks().front()->getInputData()->getPositionFeedbackDevice();
 			if (!feedbackDevice->isReady()) return false;
 		}
 		else return false;
@@ -179,7 +179,7 @@ bool SingleAxisMachine::areAllDevicesReady() {
 	return true;
 }
 
-bool SingleAxisMachine::areAllDevicesEnabled() {
+bool SingleAxisMachine::isReady() {
 	if (!areAllDevicesReady()) return false;
 	for (auto pin : actuatorDeviceLinks->getConnectedPins()) {
 		std::shared_ptr<ActuatorDevice> actuatorDevice = pin->getActuatorDevice();
@@ -283,21 +283,23 @@ bool SingleAxisMachine::save(tinyxml2::XMLElement* xml) {
 
 	using namespace tinyxml2;
 
-	XMLElement* machineTypeXML = xml->InsertNewChildElement("Machine");
-	machineTypeXML->SetAttribute("Type", getAxisType(machineUnitType)->saveName);
-	machineTypeXML->SetAttribute("Unit", getPositionUnitType(machinePositionUnit)->saveName);
+	XMLElement* axisTypeXML = xml->InsertNewChildElement("Axis");
+	axisTypeXML->SetAttribute("UnitType", getPositionUnitType(axisPositionUnitType)->saveName);
+	axisTypeXML->SetAttribute("Unit", getPositionUnit(axisPositionUnit)->saveName);
 
 	XMLElement* feedbackXML = xml->InsertNewChildElement("Feedback");
 	feedbackXML->SetAttribute("Type", getPositionFeedbackType(positionFeedbackType)->saveName);
 	if (positionFeedbackType != PositionFeedback::Type::NO_FEEDBACK) {
-		feedbackXML->SetAttribute("Unit", getPositionUnitType(feedbackPositionUnit)->saveName);
-		feedbackXML->SetAttribute("UnitsPerMachineUnit", feedbackUnitsPerMachineUnits);
+		feedbackXML->SetAttribute("UnitType", getPositionUnitType(feedbackPositionUnitType)->saveName);
+		feedbackXML->SetAttribute("Unit", getPositionUnit(feedbackPositionUnit)->saveName);
+		feedbackXML->SetAttribute("UnitsPerAxisUnit", feedbackUnitsPerAxisUnits);
 	}
 
-	XMLElement* commandXML = xml->InsertNewChildElement("Command");
-	commandXML->SetAttribute("Type", getCommandType(commandType)->saveName);
-	commandXML->SetAttribute("Unit", getPositionUnitType(commandPositionUnit)->saveName);
-	commandXML->SetAttribute("UnitsPerMachineUnit", commandUnitsPerMachineUnits);
+	XMLElement* actuatorXML = xml->InsertNewChildElement("Actuator");
+	actuatorXML->SetAttribute("Command", getCommandType(actuatorCommandType)->saveName);
+	actuatorXML->SetAttribute("UnitType", getPositionUnitType(actuatorPositionUnitType)->saveName);
+	actuatorXML->SetAttribute("Unit", getPositionUnit(actuatorPositionUnit)->saveName);
+	actuatorXML->SetAttribute("UnitsPerAxisUnit", actuatorUnitsPerAxisUnits);
 
 	XMLElement* positionReferenceXML = xml->InsertNewChildElement("PositionReference");
 	positionReferenceXML->SetAttribute("Type", getPositionReferenceType(positionReferenceType)->saveName);
@@ -341,19 +343,16 @@ bool SingleAxisMachine::save(tinyxml2::XMLElement* xml) {
 bool SingleAxisMachine::load(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 
-	XMLElement* machineXML = xml->FirstChildElement("Machine");
-	if (!machineXML) return Logger::warn("Could not load Machine Attributes");
-	const char* machineUnitTypeString;
-
-
-	if (machineXML->QueryStringAttribute("Type", &machineUnitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Machine Type");
-	if (getAxisType(machineUnitTypeString) == nullptr) return Logger::warn("Could not read Machine Type");
-	machineUnitType = getAxisType(machineUnitTypeString)->unitType;
-	const char* machineUnitString;
-	if (machineXML->QueryStringAttribute("Unit", &machineUnitString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit");
-	if (getPositionUnitType(machineUnitString) == nullptr) return Logger::warn("Could not read Machine Unit");
-	machinePositionUnit = getPositionUnitType(machineUnitString)->unit;
-
+	XMLElement* axisXML = xml->FirstChildElement("Axis");
+	if (!axisXML) return Logger::warn("Could not load Axis Attributes");
+	const char* axisUnitTypeString;
+	if (axisXML->QueryStringAttribute("UnitType", &axisUnitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Axis Unit Type");
+	if (getPositionUnitType(axisUnitTypeString) == nullptr) return Logger::warn("Could not read Axis Unit Type");
+	axisPositionUnitType = getPositionUnitType(axisUnitTypeString)->type;
+	const char* axisUnitString;
+	if (axisXML->QueryStringAttribute("Unit", &axisUnitString) != XML_SUCCESS) return Logger::warn("Could not load Axis Unit");
+	if (getPositionUnit(axisUnitString) == nullptr) return Logger::warn("Could not read Axis Unit");
+	axisPositionUnit = getPositionUnit(axisUnitString)->unit;
 
 	XMLElement* feedbackXML = xml->FirstChildElement("Feedback");
 	if (!feedbackXML) return Logger::warn("Could not load Machine Feedback");
@@ -364,23 +363,27 @@ bool SingleAxisMachine::load(tinyxml2::XMLElement* xml) {
 	if (positionFeedbackType != PositionFeedback::Type::NO_FEEDBACK) {
 		const char* feedbackUnitString;
 		if (feedbackXML->QueryStringAttribute("Unit", &feedbackUnitString) != XML_SUCCESS) return Logger::warn("Could not load Feedback Unit");
-		if (getPositionUnitType(feedbackUnitString) == nullptr) return Logger::warn("Could not read Feedback Unit");
-		feedbackPositionUnit = getPositionUnitType(feedbackUnitString)->unit;
-		if (feedbackXML->QueryDoubleAttribute("UnitsPerMachineUnit", &feedbackUnitsPerMachineUnits) != XML_SUCCESS) return Logger::warn("Could not load Feedback Units Per Machine Unit");
+		if (getPositionUnit(feedbackUnitString) == nullptr) return Logger::warn("Could not read Feedback Unit");
+		feedbackPositionUnit = getPositionUnit(feedbackUnitString)->unit;
+		if (feedbackXML->QueryDoubleAttribute("UnitsPerAxisUnit", &feedbackUnitsPerAxisUnits) != XML_SUCCESS) return Logger::warn("Could not load Feedback Units Per Machine Unit");
 	}
 
 
-	XMLElement* commandXML = xml->FirstChildElement("Command");
-	if (!commandXML) return Logger::warn("Could not load Machine Command Attribute");
+	XMLElement* actuatorXML = xml->FirstChildElement("Actuator");
+	if (!actuatorXML) return Logger::warn("Could not load Machine Command Attribute");
 	const char* commandTypeString;
-	if (commandXML->QueryStringAttribute("Type", &commandTypeString) != XML_SUCCESS) return Logger::warn("Could not load Command Type");
+	if (actuatorXML->QueryStringAttribute("Command", &commandTypeString) != XML_SUCCESS) return Logger::warn("Could not load Actuator Command Type");
 	if (getCommandType(commandTypeString) == nullptr) return Logger::warn("Could not read Command Type");
-	commandType = getCommandType(commandTypeString)->type;
-	const char* commandUnitString;
-	if (commandXML->QueryStringAttribute("Unit", &commandUnitString) != XML_SUCCESS) return Logger::warn("Could not load Command Unit");
-	if (getPositionUnitType(commandUnitString) == nullptr) return Logger::warn("Could not read Command Unit");
-	commandPositionUnit = getPositionUnitType(commandUnitString)->unit;
-	if (commandXML->QueryDoubleAttribute("UnitsPerMachineUnit", &commandUnitsPerMachineUnits) != XML_SUCCESS) return Logger::warn("Could not load Command Units Per Machine Units");
+	actuatorCommandType = getCommandType(commandTypeString)->type;
+	const char* actuatorUnitTypeString;
+	if (actuatorXML->QueryStringAttribute("UnitType", &actuatorUnitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Actuator Unit Type");
+	if (getPositionUnitType(actuatorUnitTypeString) == nullptr) return Logger::warn("Could not read Actuator Unit Type");
+	actuatorPositionUnitType = getPositionUnitType(actuatorUnitTypeString)->type;
+	const char* actuatorUnitString;
+	if (actuatorXML->QueryStringAttribute("Unit", &actuatorUnitString) != XML_SUCCESS) return Logger::warn("Could not load Actuator Unit");
+	if (getPositionUnit(actuatorUnitString) == nullptr) return Logger::warn("Could not read Actuator Unit");
+	actuatorPositionUnit = getPositionUnit(actuatorUnitString)->unit;
+	if (actuatorXML->QueryDoubleAttribute("UnitsPerAxisUnit", &actuatorUnitsPerAxisUnits) != XML_SUCCESS) return Logger::warn("Could not load Command Units Per Machine Units");
 
 
 	XMLElement* positionReferenceXML = xml->FirstChildElement("PositionReference");

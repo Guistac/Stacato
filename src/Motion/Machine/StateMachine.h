@@ -29,10 +29,4 @@ public:
 
 	virtual bool load(tinyxml2::XMLElement* xml) { return true; }
 	virtual bool save(tinyxml2::XMLElement* xml) { return true; }
-
-	virtual void controlsGui() {}
-	virtual void settingsGui() {}
-	virtual void devicesGui() {}
-	virtual void metricsGui() {}
-	virtual void miniatureGui() {};
 };

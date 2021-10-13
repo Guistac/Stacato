@@ -14,15 +14,15 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 	for (auto node : getNodes()) {
 		XMLElement* nodeXML = nodes->InsertNewChildElement("Node");
 
+		nodeXML->SetAttribute("NodeType", getNodeType(node->getType())->saveName);
 		nodeXML->SetAttribute("ClassName", node->getNodeName());
-		nodeXML->SetAttribute("UniqueID", node->getUniqueID());
-		nodeXML->SetAttribute("NodeType", node->getTypeString());
 		if (node->getType() == Node::Type::IODEVICE) {
 			std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);
 			nodeXML->SetAttribute("DeviceType", device->getDeviceTypeString());
 			nodeXML->SetAttribute("Split", node->isSplit());
 		}
 		nodeXML->SetAttribute("CustomName", node->getName());
+		nodeXML->SetAttribute("UniqueID", node->getUniqueID());
 
 		if (!node->isSplit()) {
 			XMLElement* positionXML = nodeXML->InsertNewChildElement("NodeEditorPosition");
@@ -91,25 +91,40 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		if (nodeUniqueID > largestUniqueID) largestUniqueID = nodeUniqueID;
 		const char* nodeCustomName;
 		if (nodeXML->QueryStringAttribute("CustomName", &nodeCustomName) != XML_SUCCESS) return Logger::warn("Could not load Node Custom Name");
-		const char* nodeType;
-		if (nodeXML->QueryStringAttribute("NodeType", &nodeType) != XML_SUCCESS) return Logger::warn("Could not load Node Type");
-		bool isSplit = false;
-		if (strcmp(nodeType, "IODEVICE") == 0) {
-			if (nodeXML->QueryBoolAttribute("Split", &isSplit) != XML_SUCCESS) return Logger::warn("Could not load split status");
-		}
+		const char* nodeTypeString;
+		if (nodeXML->QueryStringAttribute("NodeType", &nodeTypeString) != XML_SUCCESS) return Logger::warn("Could not load Node Type");
+		if (getNodeType(nodeTypeString) == nullptr) return Logger::warn("Could not read node type");
+		Node::Type nodeType = getNodeType(nodeTypeString)->type;
 
 		//Construct Node Object from Type Attributes
 		Logger::trace("Loading node '{}'", className);
 		std::shared_ptr<Node> loadedNode = nullptr;
-		if (strcmp(nodeType, "PROCESSOR") == 0) loadedNode = NodeFactory::getNodeByName(className);
-		else if (strcmp(nodeType, "CLOCK") == 0) loadedNode = NodeFactory::getNodeByName(className);
-		else if (strcmp(nodeType, "IODEVICE") == 0) {
-			const char* deviceType;
-			if (nodeXML->QueryStringAttribute("DeviceType", &deviceType) != XML_SUCCESS) return Logger::warn("Could not load Node Device Type");
-			if (strcmp(deviceType, "ETHERCATSLAVE") == 0) loadedNode = EtherCatDeviceFactory::getDeviceByName(className);
+		bool isSplit = false;
+		switch (nodeType) {
+			case Node::Type::IODEVICE:
+				{
+					const char* deviceTypeString;
+					if (nodeXML->QueryStringAttribute("DeviceType", &deviceTypeString) != XML_SUCCESS) return Logger::warn("Could not load Node Device Type");
+					if (strcmp(deviceTypeString, "EtherCatDevice") == 0) loadedNode = EtherCatDeviceFactory::getDeviceByName(className);
+					else return Logger::warn("Unknown Device Type");
+					if (strcmp(nodeTypeString, "IODevice") == 0) {
+						if (nodeXML->QueryBoolAttribute("Split", &isSplit) != XML_SUCCESS) return Logger::warn("Could not load split status");
+					}
+				}
+				break;
+			case Node::Type::PROCESSOR:
+				loadedNode = NodeFactory::getNodeByName(className);
+				break;
+			case Node::Type::CLOCK:
+				loadedNode = NodeFactory::getNodeByName(className);
+				break;
+			case Node::Type::CONTAINER:
+				loadedNode = NodeFactory::getNodeByName(className);
+				break;
+			case Node::Type::MACHINE:
+				loadedNode = NodeFactory::getMachineByName(className);
+				break;
 		}
-		else if (strcmp(nodeType, "MACHINE") == 0) loadedNode = NodeFactory::getMachineByName(className);
-		else if (strcmp(nodeType, "CONTAINER") == 0) loadedNode = NodeFactory::getNodeByName(className);
 		if (loadedNode == nullptr) return Logger::warn("Coult not load Node Class");
 	
 		//Get Node position in node editor

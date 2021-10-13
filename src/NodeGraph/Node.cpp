@@ -59,3 +59,24 @@ bool Node::areAllLinkedInputNodesProcessed() {
 	}
 	return true;
 }
+
+
+static std::vector<NodeType> nodeTypes = {
+	{Node::Type::IODEVICE,	"IODevice",		"IODevice"},
+	{Node::Type::PROCESSOR, "Processor",	"Processor"},
+	{Node::Type::CLOCK,		"Clock",		"Clock"},
+	{Node::Type::MACHINE,	"Machine",		"Machine"},
+	{Node::Type::CONTAINER, "Container",	"Container"}
+};
+NodeType* getNodeType(Node::Type t) {
+	for (NodeType& nodeType : nodeTypes) {
+		if (t == nodeType.type) return &nodeType;
+	}
+	return nullptr;
+}
+NodeType* getNodeType(const char* saveName) {
+	for (NodeType& nodeType : nodeTypes) {
+		if (strcmp(nodeType.saveName, saveName) == 0) return &nodeType;
+	}
+	return nullptr;
+}
