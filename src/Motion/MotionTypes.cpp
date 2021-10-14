@@ -6,14 +6,14 @@
 
 
 std::vector<PositionUnit> linearPositionUnits = {
-	{PositionUnit::Unit::METER, PositionUnit::Type::LINEAR,			"Meter",		"Meters",		"Meter"},
-	{PositionUnit::Unit::MILLIMETER, PositionUnit::Type::LINEAR,	"Millimeter",	"Millimeters",	"Millimeter"}
+	{PositionUnit::Unit::METER, PositionUnit::Type::LINEAR,			"Meter",		"Meters",		"m",		"Meter"},
+	{PositionUnit::Unit::MILLIMETER, PositionUnit::Type::LINEAR,	"Millimeter",	"Millimeters",	"mm",		"Millimeter"}
 };
 
 std::vector<PositionUnit> angularPositionUnits = {
-	{PositionUnit::Unit::DEGREE, PositionUnit::Type::ANGULAR,		"Degree",		"Degrees",		"Degrees"},
-	{PositionUnit::Unit::RADIAN, PositionUnit::Type::ANGULAR,		"Radian",		"Radians",		"Radians"},
-	{PositionUnit::Unit::REVOLUTION, PositionUnit::Type::ANGULAR,	"Rotation",		"Rotations",	"Rotations"}
+	{PositionUnit::Unit::DEGREE, PositionUnit::Type::ANGULAR,		"Degree",		"Degrees",		"deg",		"Degrees"},
+	{PositionUnit::Unit::RADIAN, PositionUnit::Type::ANGULAR,		"Radian",		"Radians",		"rad",		"Radians"},
+	{PositionUnit::Unit::REVOLUTION, PositionUnit::Type::ANGULAR,	"Revolution",	"Revolutions",	"rev",		"Revolutions"}
 };
 
 std::vector<PositionUnit>& getLinearPositionUnits() { return linearPositionUnits; }
@@ -38,6 +38,33 @@ PositionUnit* getPositionUnit(const char* saveName) {
 		if (strcmp(unit.saveName, saveName) == 0) return &unit;
 	}
 	return nullptr;
+}
+const char* getPositionUnitStringSingular(PositionUnit::Unit u) {
+	for (PositionUnit& unit : linearPositionUnits) {
+		if (unit.unit == u) return unit.displayName;
+	}
+	for (PositionUnit& unit : angularPositionUnits) {
+		if (unit.unit == u) return unit.displayName;
+	}
+	return "";
+}
+const char* getPositionUnitStringPlural(PositionUnit::Unit u) {
+	for (PositionUnit& unit : linearPositionUnits) {
+		if (unit.unit == u) return unit.displayNamePlural;
+	}
+	for (PositionUnit& unit : angularPositionUnits) {
+		if (unit.unit == u) return unit.displayNamePlural;
+	}
+	return "";
+}
+const char* getPositionUnitStringShort(PositionUnit::Unit u) {
+	for (PositionUnit& unit : linearPositionUnits) {
+		if (unit.unit == u) return unit.shortForm;
+	}
+	for (PositionUnit& unit : angularPositionUnits) {
+		if (unit.unit == u) return unit.shortForm;
+	}
+	return "";
 }
 
 std::vector<PositionUnitType> positionUnitTypes = {
@@ -88,30 +115,73 @@ PositionFeedback* getPositionFeedbackType(const char* saveName) {
 
 
 
-std::vector<PositionReference> positionReferenceTypes = {
-	{PositionReference::Type::LOW_LIMIT, "Low Limit", "Low"},
-	{PositionReference::Type::HIGH_LIMIT, "High Limit", "High"},
-	{PositionReference::Type::LOW_AND_HIGH_LIMIT, "Low and High Limit", "LowHigh"},
-	{PositionReference::Type::POSITION_REFERENCE, "Position Reference", "Reference"},
-	{PositionReference::Type::NO_LIMIT, "No Limit", "None"}
+std::vector<PositionLimitType> linearPositionLimitTypes = {
+	{PositionLimitType::Type::LOW_LIMIT_SIGNAL, "Low Limit Signal", "Low"},
+	{PositionLimitType::Type::HIGH_LIMIT_SIGNAL, "High Limit Signal", "High"},
+	{PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS, "Low and High Limit Signals", "LowHigh"}
+};
+std::vector<PositionLimitType> angularPositionLimitTypes = {
+	{PositionLimitType::Type::LOW_LIMIT_SIGNAL, "Low Limit Signal", "Low"},
+	{PositionLimitType::Type::HIGH_LIMIT_SIGNAL, "High Limit Signal", "High"},
+	{PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS, "Low and High Limit Signals", "LowHigh"},
+	{PositionLimitType::Type::REFERENCE_SIGNAL, "Reference Signal", "Reference"},
+	{PositionLimitType::Type::FEEDBACK_REFERENCE, "Feedback Reference", "Feedback"},
+	{PositionLimitType::Type::NO_LIMIT, "No Position Limits", "None"}
+};
+std::vector<PositionLimitType>& getLinearPositionLimitTypes() { return linearPositionLimitTypes; }
+std::vector<PositionLimitType>& getAngularPositionLimitTypes() { return angularPositionLimitTypes; }
+PositionLimitType* getPositionLimitType(PositionLimitType::Type t) {
+	for (PositionLimitType& positionLimit : linearPositionLimitTypes) {
+		if (positionLimit.type == t) return &positionLimit;
+	}
+	for (PositionLimitType& positionLimit : angularPositionLimitTypes) {
+		if (positionLimit.type == t) return &positionLimit;
+	}
+	return nullptr;
+}
+PositionLimitType* getPositionLimitType(const char* saveName) {
+	for (PositionLimitType& positionLimit : linearPositionLimitTypes) {
+		if (strcmp(saveName, positionLimit.saveName) == 0) return &positionLimit;
+	}
+	for (PositionLimitType& positionLimit : angularPositionLimitTypes) {
+		if (strcmp(saveName, positionLimit.saveName) == 0) return &positionLimit;
+	}
+	return nullptr;
+}
+bool isLinearPositionLimit(PositionLimitType::Type t) {
+	for (PositionLimitType& positionLimit : linearPositionLimitTypes) {
+		if (positionLimit.type == t) return true;
+	}
+	return false;
+}
+bool isAngularPositionLimit(PositionLimitType::Type t) {
+	for (PositionLimitType& positionLimit : angularPositionLimitTypes) {
+		if (positionLimit.type == t) return true;
+	}
+	return false;
+}
+
+
+
+
+std::vector<MotionControlType> motionControlTypes = {
+	{MotionControlType::Type::CLOSED_LOOP_CONTROL, "Closed Loop", "ClosedLoop"},
+	{MotionControlType::Type::OPEN_LOOP_CONTROL, "Open Loop", "OpenLoop"}
 };
 
-std::vector<PositionReference>& getPositionReferenceTypes() { return positionReferenceTypes; }
-
-PositionReference* getPositionReferenceType(PositionReference::Type t) {
-	for (PositionReference& reference : positionReferenceTypes) {
-		if (reference.type == t) return &reference;
+std::vector<MotionControlType>& getMotionControlTypes() { return motionControlTypes; }
+MotionControlType* getMotionControlType(MotionControlType::Type t) {
+	for (MotionControlType& motionControlType : motionControlTypes) {
+		if (motionControlType.type == t) return &motionControlType;
 	}
 	return nullptr;
 }
-
-PositionReference* getPositionReferenceType(const char* saveName) {
-	for (PositionReference& reference : positionReferenceTypes) {
-		if (strcmp(saveName, reference.saveName) == 0) return &reference;
+MotionControlType* getMotionControlType(const char* saveName) {
+	for (MotionControlType& motionControlType : motionControlTypes) {
+		if (strcmp(saveName, motionControlType.saveName) == 0) return &motionControlType;
 	}
 	return nullptr;
 }
-
 
 
 
@@ -144,8 +214,7 @@ CommandType* getCommandType(const char* saveName) {
 
 std::vector<HomingDirection> homingDirectionTypes = {
 	{HomingDirection::Type::NEGATIVE, "Negative", "Negative"},
-	{HomingDirection::Type::POSITIVE, "Positive", "Positive"},
-	{HomingDirection::Type::DONT_CARE, "Don't Care", "DontCare"}
+	{HomingDirection::Type::POSITIVE, "Positive", "Positive"}
 };
 
 std::vector<HomingDirection>& getHomingDirectionTypes() { return homingDirectionTypes; }

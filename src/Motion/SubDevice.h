@@ -40,11 +40,12 @@ public:
 class ActuatorDevice : public Subdevice{
 public:
 
-	ActuatorDevice(const char* n, PositionUnit::Unit unit) : Subdevice(n), positionUnit(unit) {}
+	ActuatorDevice(const char* n, PositionUnit::Unit unit, CommandType::Type type) : Subdevice(n), positionUnit(unit), commandType(type) {}
 	virtual Type getSubdeviceType() { return Type::ACTUATOR; }
 
 	PositionUnit::Unit getPositionUnit() { return positionUnit; }
 	PositionUnit::Unit positionUnit;
+	CommandType::Type commandType;
 
 	//enable power
 	void enable() { b_setEnabled = true; }						
@@ -87,11 +88,12 @@ public:
 class PositionFeedbackDevice : public Subdevice {
 public:
 
-	PositionFeedbackDevice(const char* n, PositionUnit::Unit unit) : Subdevice(n), positionUnit(unit) {}
+	PositionFeedbackDevice(const char* n, PositionUnit::Unit unit, PositionFeedback::Type type) : Subdevice(n), positionUnit(unit), feedbackType(type) {}
 	virtual Type getSubdeviceType() { return Type::POSITION_FEEDBACK; }
 
 	PositionUnit::Unit getPositionUnit() { return positionUnit; }
 	PositionUnit::Unit positionUnit;
+	PositionFeedback::Type feedbackType;
 
 	//set the current position of the actuator as the offset, this will zero the position
 	void captureOffset() { positionOffset_positionUnits = positionRaw_positionUnits; }

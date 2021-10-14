@@ -307,8 +307,8 @@ private:
     uint16_t previousErrorCode = 0;
 
     //subdevices
-    std::shared_ptr<ActuatorDevice> motorDevice = std::make_shared<ActuatorDevice>("Motor", PositionUnit::Unit::REVOLUTION);
-    std::shared_ptr<PositionFeedbackDevice> encoderDevice = std::make_shared<PositionFeedbackDevice>("Encoder", PositionUnit::Unit::REVOLUTION);
+    std::shared_ptr<ActuatorDevice> motorDevice = std::make_shared<ActuatorDevice>("Motor", PositionUnit::Unit::REVOLUTION, CommandType::Type::POSITION_COMMAND);
+    std::shared_ptr<PositionFeedbackDevice> encoderDevice = std::make_shared<PositionFeedbackDevice>("Encoder", PositionUnit::Unit::REVOLUTION, PositionFeedback::Type::ABSOLUTE_FEEDBACK);
     std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
 
     //node input data
