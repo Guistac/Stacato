@@ -3,7 +3,7 @@
 #include "Node.h"
 
 #define DEFINE_DEVICE_NODE(nodeName, className, deviceType, category)	public:																							\
-																		virtual const char * getNodeName() { return nodeName; }											\
+																		virtual const char * getSaveName() { return nodeName; }											\
 																		virtual const char* getNodeCategory() { return category; }										\
 																		className(){ setName(nodeName); }																\
 																		virtual Node::Type getType() { return Node::Type::IODEVICE; }									\

@@ -4,29 +4,28 @@
 #include "NodePin.h"
 #include "NodeLink.h"
 
-#define DEFINE_PROCESSOR_NODE(nodeName, className, category)	public:																							\
-																virtual const char* getNodeName() { return nodeName; }											\
-																virtual const char* getNodeCategory() { return category; }										\
-																className(){ setName(nodeName); }																\
-																virtual Node::Type getType() { return Node::Type::PROCESSOR; }									\
-																virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
+#define DEFINE_PROCESSOR_NODE(className, nodeName, saveName, category)	public:							\
+		virtual const char* getSaveName() { return saveName; }											\
+		virtual const char* getNodeCategory() { return category; }										\
+		className(){ setName(nodeName); }																\
+		virtual Node::Type getType() { return Node::Type::PROCESSOR; }									\
+		virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
 
-#define	DEFINE_CLOCK_NODE(nodeName, className)	public:																							\
-												virtual const char* getNodeName() { return nodeName; }											\
-												virtual const char* getNodeCategory() { return "Time"; }										\
-												className(){ setName(nodeName); }																\
-												virtual Node::Type getType() { return Node::Type::CLOCK; }										\
-												virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
+#define	DEFINE_CLOCK_NODE(className, nodeName, saveName, category)	public:								\
+		virtual const char* getSaveName() { return saveName; }											\
+		virtual const char* getNodeCategory() { return category; }										\
+		className(){ setName(nodeName); }																\
+		virtual Node::Type getType() { return Node::Type::CLOCK; }										\
+		virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
 
-#define DEFINE_CONTAINER_NODE(nodeName, className, category)	public:																							\
-																virtual const char * getNodeName() { return nodeName; }											\
-																virtual const char* getNodeCategory() { return category; }										\
-																className(){ setName(nodeName); }																\
-																virtual Node::Type getType() { return Node::Type::CONTAINER; }									\
-																virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
+#define DEFINE_CONTAINER_NODE(className, nodeName, saveName, category)	public:							\
+		virtual const char * getSaveName() { return saveName; }											\
+		virtual const char* getNodeCategory() { return category; }										\
+		className(){ setName(nodeName); }																\
+		virtual Node::Type getType() { return Node::Type::CONTAINER; }									\
+		virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
 
 class NodeGraph;
-
 namespace tinyxml2 { class XMLElement; }
 
 class Node : public std::enable_shared_from_this<Node>{
@@ -41,7 +40,7 @@ public:
 	};
 
 	virtual Type getType() = 0;
-	virtual const char* getNodeName() = 0;
+	virtual const char* getSaveName() = 0;
 	virtual const char* getNodeCategory() = 0;
 	virtual std::shared_ptr<Node> getNewNodeInstance() = 0;
 

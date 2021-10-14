@@ -16,7 +16,7 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 		XMLElement* nodeXML = nodes->InsertNewChildElement("Node");
 
 		nodeXML->SetAttribute("NodeType", getNodeType(node->getType())->saveName);
-		nodeXML->SetAttribute("ClassName", node->getNodeName());
+		nodeXML->SetAttribute("ClassName", node->getSaveName());
 		if (node->getType() == Node::Type::IODEVICE) {
 			std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);
 			nodeXML->SetAttribute("DeviceType", getDeviceType(device->getDeviceType())->saveName);
@@ -85,8 +85,8 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 	while (nodeXML) {
 
 		//Load General Node Attributes
-		const char* className;
-		if (nodeXML->QueryStringAttribute("ClassName", &className) != XML_SUCCESS) return Logger::warn("Could not load Node ClassName");
+		const char* nodeSaveNameString;
+		if (nodeXML->QueryStringAttribute("ClassName", &nodeSaveNameString) != XML_SUCCESS) return Logger::warn("Could not load Node ClassName");
 		int nodeUniqueID;
 		if (nodeXML->QueryIntAttribute("UniqueID", &nodeUniqueID) != XML_SUCCESS) return Logger::warn("Could not load Node ID");
 		if (nodeUniqueID > largestUniqueID) largestUniqueID = nodeUniqueID;
@@ -98,7 +98,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		Node::Type nodeType = getNodeType(nodeTypeString)->type;
 
 		//Construct Node Object from Type Attributes
-		Logger::trace("Loading node '{}'", className);
+		Logger::trace("Loading node '{}' of type '{}'", nodeCustomName, nodeSaveNameString);
 		std::shared_ptr<Node> loadedNode = nullptr;
 		bool isSplit = false;
 		switch (nodeType) {
@@ -110,7 +110,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 					Device::Type deviceType = getDeviceType(deviceTypeString)->type;
 					switch (deviceType) {
 						case Device::Type::ETHERCAT_DEVICE:
-							loadedNode = EtherCatDeviceFactory::getDeviceByName(className);
+							loadedNode = EtherCatDeviceFactory::getDeviceBySaveName(nodeSaveNameString);
 							break;
 						case Device::Type::NETWORK_DEVICE:
 							return Logger::warn("Loading of network devices is unsupported");
@@ -121,16 +121,16 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 				}
 				break;
 			case Node::Type::PROCESSOR:
-				loadedNode = NodeFactory::getNodeByName(className);
+				loadedNode = NodeFactory::getNodeBySaveName(nodeSaveNameString);
 				break;
 			case Node::Type::CLOCK:
-				loadedNode = NodeFactory::getNodeByName(className);
+				loadedNode = NodeFactory::getNodeBySaveName(nodeSaveNameString);
 				break;
 			case Node::Type::CONTAINER:
-				loadedNode = NodeFactory::getNodeByName(className);
+				loadedNode = NodeFactory::getNodeBySaveName(nodeSaveNameString);
 				break;
 			case Node::Type::MACHINE:
-				loadedNode = NodeFactory::getMachineByName(className);
+				loadedNode = NodeFactory::getMachineBySaveName(nodeSaveNameString);
 				break;
 		}
 		if (loadedNode == nullptr) return Logger::warn("Coult not load Node Class");
@@ -238,7 +238,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			outputPinXML = outputPinXML->NextSiblingElement();
 		}
 
-		Logger::debug("Loaded Node {} (name: '{}') type: {}  ID: {}", className, nodeCustomName, nodeType, nodeUniqueID);
+		Logger::debug("Loaded Node {} (name: '{}') type: {}  ID: {}", nodeSaveNameString, nodeCustomName, nodeType, nodeUniqueID);
 		nodeXML = nodeXML->NextSiblingElement();
 	}
 

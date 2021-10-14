@@ -3,7 +3,7 @@
 class StateMachine : public Machine {
 public:
 
-	DEFINE_MACHINE_NODE("State Machine", StateMachine, Machine::Type::STATE_MACHINE);
+	DEFINE_MACHINE_NODE(StateMachine, "State Machine", "StateMachine", Machine::Type::STATE_MACHINE);
 
 	std::shared_ptr<NodePin> deviceLink = std::make_shared<NodePin>(NodeData::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuators", NodePinFlags_AcceptMultipleInputs);
 	std::shared_ptr<NodePin> state0ref = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "State 0 Feedback");

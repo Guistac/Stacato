@@ -16,9 +16,15 @@ namespace NodeFactory {
 	std::vector<Node*> allNodes;
 	std::vector<NodeGroup> nodesByCategory;
 
-	std::vector<Node*> machineTypes;
+	std::vector<Node*> allMachineNodes;
 
 	void loadNodes() {
+
+		allMachineNodes = {
+			new SingleAxisMachine(),
+			new StateMachine()
+		};
+
 		allNodes = {
 			new ClockNode(),
 
@@ -61,30 +67,25 @@ namespace NodeFactory {
 				nodesByCategory.back().nodes.push_back(node);
 			}
 		}
-
-		machineTypes = {
-			new SingleAxisMachine(),
-			new StateMachine()
-		};
 	}
 
-	std::shared_ptr<Node> getNodeByName(const char* name) {
+	std::shared_ptr<Node> getNodeBySaveName(const char* saveName) {
 		for (Node* device : allNodes) {
-			if (strcmp(name, device->getNodeName()) == 0) return device->getNewNodeInstance();
+			if (strcmp(saveName, device->getSaveName()) == 0) return device->getNewNodeInstance();
 		}
 		return nullptr;
 	}
 
 	std::vector<NodeGroup>& getNodesByCategory() { return nodesByCategory; }
 
-	std::shared_ptr<Node> getMachineByName(const char* name) {
-		for (Node* machine : machineTypes) {
-			if (strcmp(name, machine->getNodeName()) == 0) return machine->getNewNodeInstance();
+	std::shared_ptr<Node> getMachineBySaveName(const char* saveName) {
+		for (Node* machine : allMachineNodes) {
+			if (strcmp(saveName, machine->getSaveName()) == 0) return machine->getNewNodeInstance();
 		}
 	}
 
 	std::vector<Node*>& getMachineTypes() {
-		return machineTypes;
+		return allMachineNodes;
 	}
 
 }

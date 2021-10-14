@@ -67,9 +67,16 @@ namespace EtherCatDeviceFactory {
 		}
 	}
 
-	std::shared_ptr<EtherCatDevice> getDeviceByName(const char* name) {
+	std::shared_ptr<EtherCatDevice> getDeviceByEtherCatName(const char* etherCatName) {
 		for (EtherCatDevice* device : allDevices) {
-			if (strcmp(name, device->getNodeName()) == 0) return device->getNewDeviceInstance();
+			if (strcmp(etherCatName, device->getEtherCatName()) == 0) return device->getNewDeviceInstance();
+		}
+		return std::make_shared<EtherCatDevice>();
+	}
+
+	std::shared_ptr<EtherCatDevice> getDeviceBySaveName(const char* saveName) {
+		for (EtherCatDevice* device : allDevices) {
+			if (strcmp(saveName, device->getSaveName()) == 0) return device->getNewDeviceInstance();
 		}
 		return std::make_shared<EtherCatDevice>();
 	}

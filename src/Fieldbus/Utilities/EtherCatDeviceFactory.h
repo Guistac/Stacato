@@ -11,7 +11,8 @@ namespace EtherCatDeviceFactory {
 
 	void loadDevices();
 
-	std::shared_ptr<EtherCatDevice> getDeviceByName(const char* name);
+	std::shared_ptr<EtherCatDevice> getDeviceByEtherCatName(const char* name);
+	std::shared_ptr<EtherCatDevice> getDeviceBySaveName(const char* name);
 
 	const std::vector<EtherCatDeviceGroup>& getDevicesByManufacturer();
 	const std::vector<EtherCatDeviceGroup>& getDevicesByCategory();

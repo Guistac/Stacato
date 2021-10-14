@@ -9,7 +9,7 @@
 class VIPA_053_1EC01 : public EtherCatDevice {
 public:
 
-    ETHERCAT_DEVICE_DEFINITION(VIPA_053_1EC01, "053-1EC01", "Yaskawa", "I/O")
+    DEFINE_ETHERCAT_DEVICE(VIPA_053_1EC01, "053-1EC01", "VIPA 053-1EC01", "VIPA-053-1EC01", "Yaskawa", "I/O")
 
     struct ModuleParameter {
         uint16_t index;         //Coe Data Index (for display of pdodata)

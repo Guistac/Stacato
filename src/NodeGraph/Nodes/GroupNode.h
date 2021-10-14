@@ -5,7 +5,7 @@
 class GroupNode : public Node {
 public:																	
 	
-	DEFINE_CONTAINER_NODE("Group", GroupNode, "Utility");
+	DEFINE_CONTAINER_NODE(GroupNode, "Group", "Group", "Utility");
 
 	virtual void process() {}
 	virtual void assignIoData() {}

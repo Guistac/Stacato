@@ -1,41 +1,16 @@
 <Environnement name="Default Environnement">
     <NodeGraph>
         <Nodes>
-            <Node NodeType="IODevice" ClassName="LXM32M EtherCAT" DeviceType="EtherCatDevice" Split="false" CustomName="LXM32M EtherCAT" UniqueID="1">
-                <NodeEditorPosition x="-10914" y="-11248"/>
-                <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="0"/>
-                    <KinematicLimits velocityLimit_rpm="5000" accelerationLimit_rpmps="100"/>
-                    <InvertDirectionOfMovement Invert="false"/>
-                    <CurrentLimis maxCurrent_amps="5" maxQuickstopCurrent_amps="9"/>
-                    <NegativeLimitSwitch Pin="Unassigned"/>
-                    <PositiveLimitSwitch Pin="Unassigned"/>
-                    <EncoderSettings Assignement="Internal" RangeShifted="false"/>
-                </NodeSpecificData>
+            <Node NodeType="Processor" ClassName="Display" CustomName="Display" UniqueID="1">
+                <NodeEditorPosition x="-11374" y="-11091"/>
+                <NodeSpecificData/>
                 <InputPins>
-                    <InputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="2" Real="0" Visible="true"/>
-                    <InputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="3" Real="0" Visible="false"/>
-                    <InputPin SaveName="DQ0" DisplayName="DQ0" DataType="Boolean" UniqueID="4" Boolean="false" Visible="true"/>
-                    <InputPin SaveName="DQ1" DisplayName="DQ1" DataType="Boolean" UniqueID="5" Boolean="false" Visible="true"/>
-                    <InputPin SaveName="DQ2" DisplayName="DQ2" DataType="Boolean" UniqueID="6" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="value: " DisplayName="value: " DataType="Real" UniqueID="2" Real="0" Visible="true" ForceDataField="true" DisableDataField="true"/>
                 </InputPins>
-                <OutputPins>
-                    <OutputPin SaveName="Motor" DisplayName="Motor" DataType="ActuatorDeviceLink" UniqueID="7" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="8" Real="0" Visible="false" DisableDataField="true"/>
-                    <OutputPin SaveName="Encoder" DisplayName="Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="9" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="10" Real="0" Visible="false" DisableDataField="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="11" Real="0" Visible="false" DisableDataField="true"/>
-                    <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="12" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="DI0" DisplayName="DI0" DataType="Boolean" UniqueID="13" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="DI1" DisplayName="DI1" DataType="Boolean" UniqueID="14" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="DI2" DisplayName="DI2" DataType="Boolean" UniqueID="15" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="DI3" DisplayName="DI3" DataType="Boolean" UniqueID="16" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="DI4" DisplayName="DI4" DataType="Boolean" UniqueID="17" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="DI5" DisplayName="DI5" DataType="Boolean" UniqueID="18" Boolean="false" Visible="true" DisableDataField="true"/>
-                </OutputPins>
+                <OutputPins/>
             </Node>
-            <Node NodeType="Machine" ClassName="Single Axis Machine" CustomName="Single Axis Machine" UniqueID="19">
-                <NodeEditorPosition x="-11307" y="-10720"/>
+            <Node NodeType="Machine" ClassName="SingleAxisMachine" CustomName="Single Axis Machine" UniqueID="3">
+                <NodeEditorPosition x="-10986" y="-11069"/>
                 <NodeSpecificData>
                     <Axis UnitType="Linear" Unit="Meter"/>
                     <Feedback Type="Absolute" UnitType="Angular" Unit="Degrees" UnitsPerAxisUnit="0"/>
@@ -45,14 +20,14 @@
                     <DefaultManualParameters Velocity_degreesPerSecond="10" Acceleration_degreesPerSecondSquared="5"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveName="Actuators" DisplayName="Actuators" DataType="ActuatorDeviceLink" UniqueID="20" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveName="Position Feedback" DisplayName="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="21" Visible="true" NoDataField="true"/>
-                    <InputPin SaveName="Reference Devices" DisplayName="Reference Devices" DataType="GPIODeviceLink" UniqueID="22" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveName="References" DisplayName="References" DataType="Boolean" UniqueID="23" Boolean="false" Visible="true" AcceptsMultipleInputs="true"/>
+                    <InputPin SaveName="Actuators" DisplayName="Actuators" DataType="ActuatorDeviceLink" UniqueID="4" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveName="Position Feedback" DisplayName="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="5" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Reference Devices" DisplayName="Reference Devices" DataType="GPIODeviceLink" UniqueID="6" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveName="References" DisplayName="References" DataType="Boolean" UniqueID="7" Boolean="false" Visible="true" AcceptsMultipleInputs="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveName="Actuator Command" DisplayName="Actuator Command" DataType="Real" UniqueID="24" Real="0" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Reset Position Feedback" DisplayName="Reset Position Feedback" DataType="Boolean" UniqueID="25" Boolean="false" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="Actuator Command" DisplayName="Actuator Command" DataType="Real" UniqueID="8" Real="0" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Reset Position Feedback" DisplayName="Reset Position Feedback" DataType="Boolean" UniqueID="9" Boolean="false" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
         </Nodes>

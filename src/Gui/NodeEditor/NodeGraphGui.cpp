@@ -57,7 +57,7 @@ void nodeGraph() {
                     //we have to use pushID and PopID to avoid problems when selecting multiple nodes of the same type
                     //this way we can have multiple tabs with the same name
                     ImGui::PushID(node->getUniqueID());
-                    if (ImGui::BeginTabItem(node->getNodeName())) {
+                    if (ImGui::BeginTabItem(node->getSaveName())) {
                         if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {
                             node->propertiesGui();
                             ImGui::EndChild();

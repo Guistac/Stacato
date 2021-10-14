@@ -28,12 +28,13 @@ void nodeAdder() {
             ImGui::PopStyleColor();
             for (auto& manufacturer : EtherCatDeviceFactory::getDevicesByManufacturer()) {
                 if (ImGui::TreeNode(manufacturer.name)) {
-                    for (auto& slave : manufacturer.devices) {
-                        const char* deviceName = slave->getNodeName();
-                        ImGui::Selectable(deviceName);
+                    for (auto& device : manufacturer.devices) {
+                        const char* deviceDisplayName = device->getName();
+                        ImGui::Selectable(deviceDisplayName);
+                        const char* deviceSaveName = device->getSaveName();
                         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                            ImGui::SetDragDropPayload("EtherCatDevice", &deviceName, sizeof(const char*));
-                            ImGui::Text(deviceName);
+                            ImGui::SetDragDropPayload("EtherCatDevice", &deviceSaveName, sizeof(const char*));
+                            ImGui::Text(deviceDisplayName);
                             ImGui::EndDragDropSource();
                         }
                     }
@@ -47,12 +48,13 @@ void nodeAdder() {
             ImGui::PopStyleColor();
             for (auto& manufacturer : EtherCatDeviceFactory::getDevicesByCategory()) {
                 if (ImGui::TreeNode(manufacturer.name)) {
-                    for (auto& slave : manufacturer.devices) {
-                        const char* deviceName = slave->getNodeName();
-                        ImGui::Selectable(deviceName);
+                    for (auto& device : manufacturer.devices) {
+                        const char* deviceDisplayName = device->getName();
+                        ImGui::Selectable(deviceDisplayName);
+                        const char* deviceSaveName = device->getSaveName();
                         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                            ImGui::SetDragDropPayload("EtherCatDevice", &deviceName, sizeof(const char*));
-                            ImGui::Text(deviceName);
+                            ImGui::SetDragDropPayload("EtherCatDevice", &deviceSaveName, sizeof(const char*));
+                            ImGui::Text(deviceDisplayName);
                             ImGui::EndDragDropSource();
                         }
                     }
@@ -81,11 +83,13 @@ void nodeAdder() {
                 ImGui::SameLine();
                 ImGui::Text("Scanning...");
             }
-            for (auto slave : EtherCatFieldbus::slaves_unassigned) {
-                ImGui::Selectable(slave->getName());
+            for (auto device : EtherCatFieldbus::slaves_unassigned) {
+                const char* deviceDisplayName = device->getName();
+                ImGui::Selectable(deviceDisplayName);
+                const char* deviceSaveName = device->getSaveName();
                 if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                    ImGui::SetDragDropPayload("DetectedEtherCatDevice", &slave, sizeof(std::shared_ptr<EtherCatDevice>));
-                    ImGui::Text(slave->getName());
+                    ImGui::SetDragDropPayload("DetectedEtherCatDevice", &deviceSaveName, sizeof(std::shared_ptr<EtherCatDevice>));
+                    ImGui::Text(deviceDisplayName);
                     ImGui::EndDragDropSource();
                 }
             }
@@ -100,11 +104,12 @@ void nodeAdder() {
         if (ImGui::CollapsingHeader("Machines")) {
             ImGui::PushFont(Fonts::robotoRegular15);
             for (auto machine : NodeFactory::getMachineTypes()) {
-                const char* machineName = machine->getNodeName();
-                ImGui::Selectable(machineName);
+                const char* machineDisplayName = machine->getName();
+                ImGui::Selectable(machineDisplayName);
+                const char* machineSaveName = machine->getSaveName();
                 if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                    ImGui::SetDragDropPayload("Machine", &machineName, sizeof(const char*));
-                    ImGui::Text(machineName);
+                    ImGui::SetDragDropPayload("Machine", &machineSaveName, sizeof(const char*));
+                    ImGui::Text(machineDisplayName);
                     ImGui::EndDragDropSource();
                 }
             }
@@ -128,11 +133,12 @@ void nodeAdder() {
             for (auto category : NodeFactory::getNodesByCategory()) {
                 if (ImGui::TreeNode(category.name)) {
                     for (Node* node : category.nodes) {
-                        const char* nodeName = node->getNodeName();
-                        ImGui::Selectable(nodeName);
+                        const char* nodeDisplayName = node->getName();
+                        const char* nodeSaveName = node->getSaveName();
+                        ImGui::Selectable(nodeDisplayName);
                         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                            ImGui::SetDragDropPayload("ProcessorNode", &nodeName, sizeof(const char*));
-                            ImGui::Text(nodeName);
+                            ImGui::SetDragDropPayload("ProcessorNode", &nodeSaveName, sizeof(const char*));
+                            ImGui::Text(nodeDisplayName);
                             ImGui::EndDragDropSource();
                         }
                     }
@@ -155,13 +161,14 @@ std::shared_ptr<Node> acceptDraggedNode() {
         glm::vec2 mousePosition = ImGui::GetMousePos();
         payload = ImGui::AcceptDragDropPayload("EtherCatDevice");
         if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
-            const char* slaveDeviceName = *(const char**)payload->Data;
-            std::shared_ptr<Node> newSlave = EtherCatDeviceFactory::getDeviceByName(slaveDeviceName);
+            const char* deviceName = *(const char**)payload->Data;
+            std::shared_ptr<Node> newSlave = EtherCatDeviceFactory::getDeviceBySaveName(deviceName);
             return newSlave;
         }
         payload = ImGui::AcceptDragDropPayload("DetectedEtherCatDevice");
         if (payload != nullptr && payload->DataSize == sizeof(std::shared_ptr<EtherCatDevice>)) {
             std::shared_ptr<EtherCatDevice> detectedSlave = *(std::shared_ptr<EtherCatDevice>*)payload->Data;
+            //TODO: removing the slave from the fieldbus vector should not be done in Gui code
             std::vector<std::shared_ptr<EtherCatDevice>>& unassignedSlaves = EtherCatFieldbus::slaves_unassigned;
             for (int i = 0; i < unassignedSlaves.size(); i++) {
                 if (unassignedSlaves[i] == detectedSlave) {
@@ -171,17 +178,17 @@ std::shared_ptr<Node> acceptDraggedNode() {
             }
             return detectedSlave;
         }
-        payload = ImGui::AcceptDragDropPayload("ProcessorNode");
-        if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
-            const char* nodeName = *(const char**)payload->Data;
-            std::shared_ptr<Node> newNode = NodeFactory::getNodeByName(nodeName);
-            return newNode;
-        }
         payload = ImGui::AcceptDragDropPayload("Machine");
         if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
-            const char* machineName = *(const char**)payload->Data;
-            std::shared_ptr<Node> newMachine = NodeFactory::getMachineByName(machineName);
+            const char* machineSaveName = *(const char**)payload->Data;
+            std::shared_ptr<Node> newMachine = NodeFactory::getMachineBySaveName(machineSaveName);
             return newMachine;
+        }
+        payload = ImGui::AcceptDragDropPayload("ProcessorNode");
+        if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
+            const char* nodeSaveName = *(const char**)payload->Data;
+            std::shared_ptr<Node> newNode = NodeFactory::getNodeBySaveName(nodeSaveName);
+            return newNode;
         }
         ImGui::EndDragDropTarget();
     }
@@ -201,7 +208,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
         for (auto manufacturer : EtherCatDeviceFactory::getDevicesByManufacturer()) {
             if (ImGui::BeginMenu(manufacturer.name)) {
                 for (auto device : manufacturer.devices) {
-                    if (ImGui::MenuItem(device->getNodeName())) output = device->getNewDeviceInstance();
+                    if (ImGui::MenuItem(device->getName())) output = device->getNewDeviceInstance();
                 }
                 ImGui::EndMenu();
             }
@@ -212,7 +219,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
         for (auto manufacturer : EtherCatDeviceFactory::getDevicesByCategory()) {
             if (ImGui::BeginMenu(manufacturer.name)) {
                 for (auto device : manufacturer.devices) {
-                    if (ImGui::MenuItem(device->getNodeName())) output = device->getNewDeviceInstance();
+                    if (ImGui::MenuItem(device->getName())) output = device->getNewDeviceInstance();
                 }
                 ImGui::EndMenu();
             }
@@ -232,6 +239,8 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
             ImGui::EndMenu();
         }
     }
+
+    //TODO: removing a slave from the fieldbus vector should not be done in gui code
     if (selectedDetectedSlave) {
         std::vector<std::shared_ptr<EtherCatDevice>>& unassignedSlaves = EtherCatFieldbus::slaves_unassigned;
         for (int i = 0; i < unassignedSlaves.size(); i++) {
@@ -246,7 +255,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
 
     if (ImGui::BeginMenu("Machine")) {
         for (auto machine : NodeFactory::getMachineTypes()) {
-            if (ImGui::MenuItem(machine->getNodeName())) output = machine->getNewNodeInstance();
+            if (ImGui::MenuItem(machine->getName())) output = machine->getNewNodeInstance();
         }
         ImGui::EndMenu();
     }
@@ -264,7 +273,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
     for (auto category : NodeFactory::getNodesByCategory()) {
         if (ImGui::BeginMenu(category.name)) {
             for (auto device : category.nodes) {
-                if (ImGui::MenuItem(device->getNodeName())) output = device->getNewNodeInstance();
+                if (ImGui::MenuItem(device->getName())) output = device->getNewNodeInstance();
             }
             ImGui::EndMenu();
         }

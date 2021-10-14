@@ -7,23 +7,23 @@
 #include "Utilities/CircularBuffer.h"
 
 
-#define DEFINE_MACHINE_NODE(nodeName, className, machineType)	public:																							\
-																virtual const char* getNodeName() { return nodeName; }											\
-																virtual const char* getNodeCategory() { return "Machine"; }										\
-																className(){ setName(nodeName); }																\
-																virtual Node::Type getType() { return Node::Type::MACHINE; }									\
-																virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
-																/*machine specific*/																			\
-																virtual Machine::Type getMachineType(){ return machineType; }									\
-																virtual bool isEnabled();																		\
-																virtual bool isReady();																			\
-																virtual void enable();																			\
-																virtual void disable();																			\
-																virtual void controlsGui();																		\
-																virtual void settingsGui();																		\
-																virtual void devicesGui();																		\
-																virtual void metricsGui();																		\
-																virtual void miniatureGui();																	\
+#define DEFINE_MACHINE_NODE(className, nodeName, saveName, machineType)	public:																							\
+																		virtual const char* getSaveName() { return saveName; }											\
+																		virtual const char* getNodeCategory() { return "Machine"; }										\
+																		className(){ setName(nodeName); }																\
+																		virtual Node::Type getType() { return Node::Type::MACHINE; }									\
+																		virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
+																		/*machine specific*/																			\
+																		virtual Machine::Type getMachineType(){ return machineType; }									\
+																		virtual bool isEnabled();																		\
+																		virtual bool isReady();																			\
+																		virtual void enable();																			\
+																		virtual void disable();																			\
+																		virtual void controlsGui();																		\
+																		virtual void settingsGui();																		\
+																		virtual void devicesGui();																		\
+																		virtual void metricsGui();																		\
+																		virtual void miniatureGui();																	\
 
 class Machine : public Node {
 public:

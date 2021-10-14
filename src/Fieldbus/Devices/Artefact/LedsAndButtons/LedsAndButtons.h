@@ -5,7 +5,7 @@
 class LedsAndButtons : public EtherCatDevice {
 public:
 
-	ETHERCAT_DEVICE_DEFINITION(LedsAndButtons, "LedsAndButtons", "Bausano", "I/O")
+	DEFINE_ETHERCAT_DEVICE(LedsAndButtons, "LedsAndButtons", "EasyCAT-Pro", "LedsAndButtons", "Bausano", "I/O")
 
 	//RxPDO
 	uint8_t ui8_led0 = 0;

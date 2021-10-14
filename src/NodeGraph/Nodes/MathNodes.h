@@ -5,7 +5,7 @@
 class ConstantNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE("Constant", ConstantNode, "Math")
+	DEFINE_PROCESSOR_NODE(ConstantNode, "Constant", "Constant", "Math")
 
 	virtual void assignIoData() {
 		addIoData(value);
@@ -19,7 +19,7 @@ public:
 class AdditionNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE("Addition", AdditionNode, "Math")
+	DEFINE_PROCESSOR_NODE(AdditionNode, "Addition", "Addition", "Math")
 	
 	virtual void assignIoData() {
 		addIoData(input);
@@ -46,7 +46,7 @@ public:
 class SubtractionNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE("Subtraction", SubtractionNode, "Math")
+	DEFINE_PROCESSOR_NODE(SubtractionNode, "Subtraction", "Subtraction", "Math")
 
 	virtual void assignIoData() {
 		addIoData(base);
@@ -78,7 +78,7 @@ public:
 class MultiplicationNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE("Multiplication", MultiplicationNode,"Math")
+	DEFINE_PROCESSOR_NODE(MultiplicationNode, "Multiplication", "Mutliplication", "Math")
 
 	virtual void assignIoData() {
 		addIoData(input);
@@ -104,7 +104,7 @@ public:
 class DivisionNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE("Division", DivisionNode, "Math")
+	DEFINE_PROCESSOR_NODE(DivisionNode, "Division", "Division", "Math")
 
 	virtual void assignIoData() {
 		addIoData(base);
@@ -136,7 +136,7 @@ public:
 class ExponentNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE("Exponent", ExponentNode, "Math")
+	DEFINE_PROCESSOR_NODE(ExponentNode, "Exponent", "Exponent", "Math")
 
 	virtual void assignIoData() {
 		addIoData(base);
@@ -157,6 +157,7 @@ public:
 		else d_base = base->getReal();
 		if (exp->isConnected()) d_exp = exp->getLinks().front()->getInputData()->getReal();
 		else d_exp = exp->getReal();
+		//TODO: somehow this is not working on mac
 		//output->set(std::pow<double>(d_base, d_exp));
 	}
 };
@@ -165,7 +166,7 @@ public:
 class AbsoluteNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE("Absolute", AbsoluteNode, "Math")
+	DEFINE_PROCESSOR_NODE(AbsoluteNode, "Absolute", "Absolute", "Math")
 
 	virtual void assignIoData() {
 		addIoData(input);
@@ -191,7 +192,7 @@ public:
 class SinusNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE("Sinus", SinusNode, "Trigonometry")
+	DEFINE_PROCESSOR_NODE(SinusNode, "Sinus", "Sinus", "Trigonometry")
 
 	virtual void assignIoData() {
 		addIoData(in);
@@ -212,7 +213,7 @@ public:
 class CosinusNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE("Cosinus", CosinusNode, "Trigonometry")
+	DEFINE_PROCESSOR_NODE(CosinusNode, "Cosinus", "Cosinus", "Trigonometry")
 
 	virtual void assignIoData() {
 		addIoData(in);
@@ -233,7 +234,7 @@ public:
 class TangentNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE("Tangent", TangentNode, "Trigonometry")
+	DEFINE_PROCESSOR_NODE(TangentNode, "Tangent", "Tangent", "Trigonometry")
 
 	virtual void assignIoData() {
 		addIoData(in);
@@ -254,7 +255,7 @@ public:
 class CotangentNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE("Cotangent", CotangentNode, "Trigonometry")
+	DEFINE_PROCESSOR_NODE(CotangentNode, "Cotangent", "Cotangent", "Trigonometry")
 
 	virtual void assignIoData() {
 		addIoData(in);
@@ -286,7 +287,7 @@ public:
 class BoolNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE("Bool", BoolNode, "Logic")
+	DEFINE_PROCESSOR_NODE(BoolNode, "Bool", "Bool", "Logic")
 
 	virtual void assignIoData() {
 		addIoData(in);
@@ -307,7 +308,7 @@ public:
 class NotNode : public Node{
 public:
 
-	DEFINE_PROCESSOR_NODE("Not", NotNode, "Logic")
+	DEFINE_PROCESSOR_NODE(NotNode, "Not", "Not", "Logic")
 
 	virtual void assignIoData() {
 		addIoData(in);
@@ -328,7 +329,7 @@ public:
 class AndNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE("And", AndNode, "Logic")
+	DEFINE_PROCESSOR_NODE(AndNode, "And", "And", "Logic")
 
 	virtual void assignIoData() {
 		addIoData(in);
@@ -357,7 +358,7 @@ public:
 class OrNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE("Or", OrNode, "Logic")
+	DEFINE_PROCESSOR_NODE(OrNode, "Or", "Or", "Logic")
 
 	virtual void assignIoData() {
 		addIoData(in);

@@ -5,7 +5,7 @@
 class DisplayNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE("Display", DisplayNode, "Utility")
+	DEFINE_PROCESSOR_NODE(DisplayNode, "Display", "Display", "Utility")
 	
 
 	virtual void assignIoData() {

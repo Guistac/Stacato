@@ -6,7 +6,7 @@
 class Lexium32 : public EtherCatDevice {
 public:
 
-    ETHERCAT_DEVICE_DEFINITION(Lexium32, "LXM32M EtherCAT", "Schneider Electric", "Servo Drives")
+    DEFINE_ETHERCAT_DEVICE(Lexium32, "LXM32M EtherCAT", "Lexium32M", "Lexium32M", "Schneider Electric", "Servo Drives")
 
     //===== drive status =====
     

@@ -286,7 +286,7 @@ namespace EtherCatFieldbus {
                 std::shared_ptr<EtherCatDevice> slave = nullptr;
 
                 for (auto environnementSlave : Environnement::getEtherCatDevices()) {
-                    if (strcmp(environnementSlave->getNodeName(), identity.name) != 0) continue;
+                    if (strcmp(environnementSlave->getSaveName(), identity.name) != 0) continue;
                     switch (environnementSlave->identificationType) {
                         case EtherCatDeviceIdentification::Type::STATION_ALIAS:
                             if (environnementSlave->stationAlias == stationAlias) {
@@ -307,17 +307,17 @@ namespace EtherCatFieldbus {
 
                 if (slave == nullptr) {
                     Logger::info("      Slave did not match any Environnement Slave");
-                    slave = EtherCatDeviceFactory::getDeviceByName(identity.name);
+                    slave = EtherCatDeviceFactory::getDeviceByEtherCatName(identity.name);
                     slave->stationAlias = stationAlias;
                     slave->explicitDeviceID = explicitDeviceID;
                     char name[128];
                     if (explicitDeviceIdSupported && explicitDeviceID != 0) {
                         slave->identificationType = EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID;
-                        sprintf(name, "%s (ID:%i)", slave->getNodeName(), slave->explicitDeviceID);
+                        sprintf(name, "%s (ID:%i)", slave->getSaveName(), slave->explicitDeviceID);
                     }
                     else {
                         slave->identificationType = EtherCatDeviceIdentification::Type::STATION_ALIAS;
-                        sprintf(name, "%s (Alias:%i)", slave->getNodeName(), slave->stationAlias);
+                        sprintf(name, "%s (Alias:%i)", slave->getSaveName(), slave->stationAlias);
                     }
                     slave->setName(name);
                     slaves_unassigned.push_back(slave);
@@ -410,7 +410,7 @@ namespace EtherCatFieldbus {
         for (auto slave : slaves) {
             Logger::debug("   [{}] '{}' {} bytes ({} bits)",
                 slave->getSlaveIndex(),
-                slave->getNodeName(),
+                slave->getSaveName(),
                 slave->identity->Ibytes + slave->identity->Obytes,
                 slave->identity->Ibits + slave->identity->Obits);
             Logger::debug("          Inputs: {} bytes ({} bits)", slave->identity->Ibytes, slave->identity->Ibits);

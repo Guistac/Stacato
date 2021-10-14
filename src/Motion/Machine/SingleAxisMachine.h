@@ -5,7 +5,7 @@
 class SingleAxisMachine : public Machine {
 public:
 
-	DEFINE_MACHINE_NODE("Single Axis Machine", SingleAxisMachine, Machine::Type::SINGLE_AXIS_MACHINE);
+	DEFINE_MACHINE_NODE(SingleAxisMachine, "Single Axis Machine", "SingleAxisMachine", Machine::Type::SINGLE_AXIS_MACHINE);
 
 	//Device Links
 	std::shared_ptr<NodePin> actuatorDeviceLinks = std::make_shared<NodePin>(NodeData::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuators", NodePinFlags_AcceptMultipleInputs);
