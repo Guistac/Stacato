@@ -1,43 +1,13 @@
 <Environnement name="Default Environnement">
     <NodeGraph>
-        <Nodes>
-            <Node NodeType="Processor" ClassName="Display" CustomName="Display" UniqueID="1">
-                <NodeEditorPosition x="-11374" y="-11091"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin SaveName="value: " DisplayName="value: " DataType="Real" UniqueID="2" Real="0" Visible="true" ForceDataField="true" DisableDataField="true"/>
-                </InputPins>
-                <OutputPins/>
-            </Node>
-            <Node NodeType="Machine" ClassName="SingleAxisMachine" CustomName="Single Axis Machine" UniqueID="3">
-                <NodeEditorPosition x="-10986" y="-11069"/>
-                <NodeSpecificData>
-                    <Axis UnitType="Linear" Unit="Meter"/>
-                    <Feedback Type="Absolute" UnitType="Angular" Unit="Degrees" UnitsPerAxisUnit="0"/>
-                    <Actuator Command="Position" UnitType="Angular" Unit="Degrees" UnitsPerAxisUnit="0"/>
-                    <PositionReference Type="None" MaxPositiveDeviation="0" MaxNegativeDeviation="0"/>
-                    <KinematicLimits VelocityLimit_degreesPerSecond="0" AccelerationLimit_degreesPerSecondSquared="0"/>
-                    <DefaultManualParameters Velocity_degreesPerSecond="10" Acceleration_degreesPerSecondSquared="5"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveName="Actuators" DisplayName="Actuators" DataType="ActuatorDeviceLink" UniqueID="4" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveName="Position Feedback" DisplayName="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="5" Visible="true" NoDataField="true"/>
-                    <InputPin SaveName="Reference Devices" DisplayName="Reference Devices" DataType="GPIODeviceLink" UniqueID="6" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveName="References" DisplayName="References" DataType="Boolean" UniqueID="7" Boolean="false" Visible="true" AcceptsMultipleInputs="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveName="Actuator Command" DisplayName="Actuator Command" DataType="Real" UniqueID="8" Real="0" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Reset Position Feedback" DisplayName="Reset Position Feedback" DataType="Boolean" UniqueID="9" Boolean="false" Visible="false" DisableDataField="true"/>
-                </OutputPins>
-            </Node>
-        </Nodes>
+        <Nodes/>
         <Links/>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="Microsoft" Name="\Device\NPF_{94C82131-D635-43BC-AA0D-763132AE31BA}"/>
+        <Primary Description="Realtek USB NIC" Name="\Device\NPF_{42C81A11-795E-4D7C-83AE-39EF61932528}"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="1.5" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000000000001"/>
 </FieldbusSettings>

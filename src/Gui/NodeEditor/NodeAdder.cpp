@@ -86,9 +86,8 @@ void nodeAdder() {
             for (auto device : EtherCatFieldbus::slaves_unassigned) {
                 const char* deviceDisplayName = device->getName();
                 ImGui::Selectable(deviceDisplayName);
-                const char* deviceSaveName = device->getSaveName();
                 if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                    ImGui::SetDragDropPayload("DetectedEtherCatDevice", &deviceSaveName, sizeof(std::shared_ptr<EtherCatDevice>));
+                    ImGui::SetDragDropPayload("DetectedEtherCatDevice", &device, sizeof(std::shared_ptr<EtherCatDevice>));
                     ImGui::Text(deviceDisplayName);
                     ImGui::EndDragDropSource();
                 }
@@ -168,14 +167,7 @@ std::shared_ptr<Node> acceptDraggedNode() {
         payload = ImGui::AcceptDragDropPayload("DetectedEtherCatDevice");
         if (payload != nullptr && payload->DataSize == sizeof(std::shared_ptr<EtherCatDevice>)) {
             std::shared_ptr<EtherCatDevice> detectedSlave = *(std::shared_ptr<EtherCatDevice>*)payload->Data;
-            //TODO: removing the slave from the fieldbus vector should not be done in Gui code
-            std::vector<std::shared_ptr<EtherCatDevice>>& unassignedSlaves = EtherCatFieldbus::slaves_unassigned;
-            for (int i = 0; i < unassignedSlaves.size(); i++) {
-                if (unassignedSlaves[i] == detectedSlave) {
-                    unassignedSlaves.erase(unassignedSlaves.begin() + i);
-                    break;
-                }
-            }
+            EtherCatFieldbus::removeFromUnassignedSlaves(detectedSlave);
             return detectedSlave;
         }
         payload = ImGui::AcceptDragDropPayload("Machine");
@@ -234,20 +226,10 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
                 if (ImGui::MenuItem(detectedSlave->getName())) {
                     output = detectedSlave;
                     selectedDetectedSlave = detectedSlave;
+                    EtherCatFieldbus::removeFromUnassignedSlaves(selectedDetectedSlave);
                 }
             }
             ImGui::EndMenu();
-        }
-    }
-
-    //TODO: removing a slave from the fieldbus vector should not be done in gui code
-    if (selectedDetectedSlave) {
-        std::vector<std::shared_ptr<EtherCatDevice>>& unassignedSlaves = EtherCatFieldbus::slaves_unassigned;
-        for (int i = 0; i < unassignedSlaves.size(); i++) {
-            if (unassignedSlaves[i] == selectedDetectedSlave) {
-                unassignedSlaves.erase(unassignedSlaves.begin() + i);
-                break;
-            }
         }
     }
 

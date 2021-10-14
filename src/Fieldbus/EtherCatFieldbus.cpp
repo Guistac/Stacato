@@ -286,7 +286,8 @@ namespace EtherCatFieldbus {
                 std::shared_ptr<EtherCatDevice> slave = nullptr;
 
                 for (auto environnementSlave : Environnement::getEtherCatDevices()) {
-                    if (strcmp(environnementSlave->getSaveName(), identity.name) != 0) continue;
+                    //match the detected device name against the expected ethercat name of the environnement device
+                    if (strcmp(environnementSlave->getEtherCatName(), identity.name) != 0) continue;
                     switch (environnementSlave->identificationType) {
                         case EtherCatDeviceIdentification::Type::STATION_ALIAS:
                             if (environnementSlave->stationAlias == stationAlias) {
@@ -339,6 +340,15 @@ namespace EtherCatFieldbus {
 
         Logger::warn("===== No EtherCAT Slaves found...");
         return false;
+    }
+
+    void removeFromUnassignedSlaves(std::shared_ptr<EtherCatDevice> removedDevice) {
+        for (int i = 0; i < slaves_unassigned.size(); i++) {
+            if (slaves_unassigned[i] == removedDevice) {
+                slaves_unassigned.erase(slaves_unassigned.begin() + i);
+                break;
+            }
+        }
     }
 
     //================ Slave Pinging Utility during no cyclic exchange ====================

@@ -54,7 +54,7 @@ namespace Environnement {
 				std::shared_ptr<Device> deviceNode = std::dynamic_pointer_cast<Device>(node);
 				switch (deviceNode->getDeviceType()) {
 				case Device::Type::ETHERCAT_DEVICE: {
-					std::shared_ptr<EtherCatDevice> etherCatDeviceNode;
+					std::shared_ptr<EtherCatDevice> etherCatDeviceNode = std::dynamic_pointer_cast<EtherCatDevice>(deviceNode);
 					for (int i = 0; i < etherCatDevices.size(); i++) {
 						if (etherCatDevices[i] == etherCatDeviceNode) {
 							etherCatDevices.erase(etherCatDevices.begin() + i);

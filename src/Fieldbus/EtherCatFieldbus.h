@@ -31,6 +31,7 @@ namespace EtherCatFieldbus {
     void scanNetwork();
     extern std::vector<std::shared_ptr<EtherCatDevice>> slaves;              //all slaves discovered on the network
     extern std::vector<std::shared_ptr<EtherCatDevice>> slaves_unassigned;   //discovered slaves that are not in the nodegraph
+    void removeFromUnassignedSlaves(std::shared_ptr<EtherCatDevice> removedDevice);
 
     //Cyclic Echange Timing Settings
     extern double processInterval_milliseconds;

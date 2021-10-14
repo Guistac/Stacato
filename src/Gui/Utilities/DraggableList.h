@@ -82,44 +82,46 @@ public:
 	}
 
 	void endList() {
-		ImDrawList* fgDrawList = ImGui::GetForegroundDrawList();
-		for (auto& item : items) {
-			item.center = item.position;
-			item.center.x += item.size.x * 0.5;
-			item.center.y += item.size.y * 0.5;
-		}
-		constrainedXPosition = items.front().position.x;
-		if (itemIsDragging && draggedItemIndex > -1 && draggedItemIndex < items.size()) {
-			double listpositionY = ImGui::GetWindowPos().y;
-			double listSizeY = ImGui::GetWindowSize().y;
-			minYPosition = listpositionY;
-			maxYPosition = listpositionY + listSizeY - items[draggedItemIndex].size.y;
-			dropPositionIndex = getDropIndex();
-			ImVec2 dropPosition;
-			if (dropPositionIndex == draggedItemIndex) {
-				dropPosition = items[draggedItemIndex].center;
+		if (!items.empty()) {
+			ImDrawList* fgDrawList = ImGui::GetForegroundDrawList();
+			for (auto& item : items) {
+				item.center = item.position;
+				item.center.x += item.size.x * 0.5;
+				item.center.y += item.size.y * 0.5;
 			}
-			else if (dropPositionIndex < draggedItemIndex) {
-				dropPosition = items[dropPositionIndex].position;
-				dropPosition.x += items[dropPositionIndex].size.x * 0.5;
-			}
-			else if (dropPositionIndex > draggedItemIndex) {
-				dropPosition = items[dropPositionIndex].position;
-				dropPosition.x += items[dropPositionIndex].size.x * 0.5;
-				dropPosition.y += items[dropPositionIndex].size.y;
-			}
-			fgDrawList->AddCircle(dropPosition, 10.0, ImColor(ImVec4(1.0, 0.0, 0.0, 1.0)), 20, 10.0);
+			constrainedXPosition = items.front().position.x;
+			if (itemIsDragging && draggedItemIndex > -1 && draggedItemIndex < items.size()) {
+				double listpositionY = ImGui::GetWindowPos().y;
+				double listSizeY = ImGui::GetWindowSize().y;
+				minYPosition = listpositionY;
+				maxYPosition = listpositionY + listSizeY - items[draggedItemIndex].size.y;
+				dropPositionIndex = getDropIndex();
+				ImVec2 dropPosition;
+				if (dropPositionIndex == draggedItemIndex) {
+					dropPosition = items[draggedItemIndex].center;
+				}
+				else if (dropPositionIndex < draggedItemIndex) {
+					dropPosition = items[dropPositionIndex].position;
+					dropPosition.x += items[dropPositionIndex].size.x * 0.5;
+				}
+				else if (dropPositionIndex > draggedItemIndex) {
+					dropPosition = items[dropPositionIndex].position;
+					dropPosition.x += items[dropPositionIndex].size.x * 0.5;
+					dropPosition.y += items[dropPositionIndex].size.y;
+				}
+				fgDrawList->AddCircle(dropPosition, 10.0, ImColor(ImVec4(1.0, 0.0, 0.0, 1.0)), 20, 10.0);
 
-			float mousePosY = ImGui::GetMousePos().y;
-			if (draggedItemPositionY <= minYPosition) {
-				float thresholdMouseYPosition = minYPosition + itemClickPosition.y;
-				float scrollOffset = std::abs(mousePosY - thresholdMouseYPosition);
-				ImGui::SetScrollY(ImGui::GetScrollY() - scrollOffset * 0.1);
-			}
-			else if (draggedItemPositionY >= maxYPosition) {
-				float thresholdMouseYPosition = maxYPosition + itemClickPosition.y;
-				float scrollOffset = std::abs(mousePosY - thresholdMouseYPosition);
-				ImGui::SetScrollY(ImGui::GetScrollY() + scrollOffset * 0.1);
+				float mousePosY = ImGui::GetMousePos().y;
+				if (draggedItemPositionY <= minYPosition) {
+					float thresholdMouseYPosition = minYPosition + itemClickPosition.y;
+					float scrollOffset = std::abs(mousePosY - thresholdMouseYPosition);
+					ImGui::SetScrollY(ImGui::GetScrollY() - scrollOffset * 0.1);
+				}
+				else if (draggedItemPositionY >= maxYPosition) {
+					float thresholdMouseYPosition = maxYPosition + itemClickPosition.y;
+					float scrollOffset = std::abs(mousePosY - thresholdMouseYPosition);
+					ImGui::SetScrollY(ImGui::GetScrollY() + scrollOffset * 0.1);
+				}
 			}
 		}
 		ImGui::EndChild();
