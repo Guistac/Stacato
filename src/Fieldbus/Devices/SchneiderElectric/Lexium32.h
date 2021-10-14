@@ -75,26 +75,24 @@ public:
 
     //===== INTERNAL MOTION PROFILE GENERATOR =====
     
-    double profileVelocity_rpm = 0.0;
+    double profileVelocity_rps = 0.0;
     double profilePosition_r = 0.0;
     double previousProfilePointTime_seconds = 0.0;
 
     //===== Manual Controls =====
 
-    float manualVelocityCommand_rpm = 0;
-    float manualAcceleration_rps2 = 50.0;
+    float manualVelocityCommand_rps = 0.0;
+    float manualAcceleration_rpsps = 1.0;
+    float defaultManualAcceleration_rpsps = 1.0;
 
     //===== Unit Settings =====
 
     const int velocityUnitsPerRpm = 100;
     const int positionUnitsPerRevolution = 131072;
     const int currentUnitsPerAmp = 100;
+    float maxMotorVelocity_rps = 0.0;
 
     //===== General Settings =====
-
-    //profile generator limits, not stored in drive
-    double velocityLimit_rpm = 5000.0;    
-    double accelerationLimit_rpmps = 100.0;
 
     bool b_invertDirectionOfMotorMovement = false;
 

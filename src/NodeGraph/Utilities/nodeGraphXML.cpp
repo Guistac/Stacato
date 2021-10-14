@@ -16,11 +16,14 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 		XMLElement* nodeXML = nodes->InsertNewChildElement("Node");
 
 		nodeXML->SetAttribute("NodeType", getNodeType(node->getType())->saveName);
-		nodeXML->SetAttribute("ClassName", node->getSaveName());
 		if (node->getType() == Node::Type::IODEVICE) {
 			std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);
 			nodeXML->SetAttribute("DeviceType", getDeviceType(device->getDeviceType())->saveName);
+			nodeXML->SetAttribute("ClassName", node->getSaveName());
 			nodeXML->SetAttribute("Split", node->isSplit());
+		}
+		else {
+			nodeXML->SetAttribute("ClassName", node->getSaveName());
 		}
 		nodeXML->SetAttribute("CustomName", node->getName());
 		nodeXML->SetAttribute("UniqueID", node->getUniqueID());

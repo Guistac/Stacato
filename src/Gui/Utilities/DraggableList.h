@@ -7,14 +7,17 @@ class DraggableList {
 
 public:
 
-	bool beginList(const char* id, ImVec2 size) {
+	bool beginList(const char* id, ImVec2 size, float verticalSpacing) {
 		if (ImGui::BeginChild(id, size, true) == false) {
 			ImGui::EndChild();
 			return false;
 		}
+		defaultVerticalItemSpacing = ImGui::GetStyle().ItemSpacing.y;
+		ImGui::GetStyle().ItemSpacing.y = verticalSpacing;
 		begunTooltip = false;
 		begunChild = false;
 		itemDropped = false;
+		items.swap(previousItems);
 		items.clear();
 		ImVec2 mousePosition = ImGui::GetMousePos();
 		bool isMouseDown = ImGui::IsMouseDown(ImGuiMouseButton_Left);
@@ -29,16 +32,32 @@ public:
 			itemIsDragging = false;
 			draggedItemIndex = -1;
 		}
+		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 8.0);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 8.0);
 		return true;
 	}
 
-	bool beginItem(ImVec2 size) {
+	bool beginItem(ImVec2 size, bool selected = false) {
+		bool hovered = false;
+		if (items.size() < previousItems.size()) hovered = previousItems[items.size()].hovered;
+		if (hovered) {
+			ImGui::PushStyleColor(ImGuiCol_ChildBg, glm::vec4(0.15, 0.15, 0.15, 1.0));
+			ImGui::PushStyleColor(ImGuiCol_PopupBg, glm::vec4(0.15, 0.15, 0.15, 1.0));
+		}
+		else if (!selected) {
+			ImGui::PushStyleColor(ImGuiCol_ChildBg, glm::vec4(0.1, 0.1, 0.1, 1.0));
+			ImGui::PushStyleColor(ImGuiCol_PopupBg, glm::vec4(0.1, 0.1, 0.1, 1.0));
+		}
+		else {
+			ImGui::PushStyleColor(ImGuiCol_ChildBg, glm::vec4(0.1, 0.1, 0.4, 1.0));
+			ImGui::PushStyleColor(ImGuiCol_PopupBg, glm::vec4(0.1, 0.1, 0.4, 1.0));
+		}
 		ImVec2 position;
 		currentIndex = items.size();
 		ImGui::PushID(currentIndex);
 		if (itemIsDragging && currentIndex == draggedItemIndex) {
 			ImGui::Dummy(size);
-			position = ImGui::GetItemRectMin();
+			currentItemPosition = ImGui::GetItemRectMin();
 			ImVec2 mousePosition = ImGui::GetMousePos();
 			draggedItemPositionY = mousePosition.y - itemClickPosition.y;
 			if (draggedItemPositionY < minYPosition) draggedItemPositionY = minYPosition;
@@ -50,19 +69,23 @@ public:
 		}
 		else {
 			begunChild = ImGui::BeginChild("Item", size, true);
-			position = ImGui::GetWindowPos();
+			currentItemPosition = ImGui::GetWindowPos();
 		}
-		items.push_back(DraggableItemInfo(position, size));
+		currentItemSize = size;
+		
 		if (begunTooltip || begunChild) return true;
 		else {
 			//BeginChild only tells us if the window is collapsed or fully clipped, we have to EndChild after each BeginChild call
 			ImGui::EndChild();
 			ImGui::PopID();
+			ImGui::PopStyleColor(2);
 			return false;
 		}
 	}
 
-	void endItem() {
+	bool endItem() {
+		bool activated = false;
+		bool hovered = false;
 		if (begunTooltip) {
 			ImGui::EndTooltip();
 		}
@@ -75,10 +98,17 @@ public:
 				itemClickPosition.x = mousePosition.x - childPos.x;
 				itemClickPosition.y = mousePosition.y - childPos.y;
 			}
+			if(ImGui::IsItemHovered()){
+				hovered = true;
+				if (!itemIsDragging && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) activated = true;
+			}
 		}
+		items.push_back(DraggableItemInfo(currentItemPosition, currentItemSize, hovered));
 		ImGui::PopID();
+		ImGui::PopStyleColor(2);
 		begunTooltip = false;
 		begunChild = false;
+		return activated;
 	}
 
 	void endList() {
@@ -124,6 +154,8 @@ public:
 				}
 			}
 		}
+		ImGui::PopStyleVar(2);
+		ImGui::GetStyle().ItemSpacing.y = defaultVerticalItemSpacing;
 		ImGui::EndChild();
 	}
 
@@ -156,12 +188,16 @@ private:
 		return items.size() - 1;
 	};
 
+	float defaultVerticalItemSpacing;
+
 	//persistent values
 	bool itemIsDragging = false;
 	int draggedItemIndex = -1;
 	ImVec2 itemClickPosition;
 
 	//currently submitted item
+	ImVec2 currentItemPosition;
+	ImVec2 currentItemSize;
 	bool begunTooltip = false;
 	bool begunChild = false;
 	int currentIndex;
@@ -176,11 +212,13 @@ private:
 	int dropPositionIndex = -1;
 
 	struct DraggableItemInfo {
-		DraggableItemInfo(ImVec2 p, ImVec2 s) : position(p), size(s), center(ImVec2(0, 0)) {}
+		DraggableItemInfo(ImVec2 p, ImVec2 s, bool h) : position(p), size(s), center(ImVec2(0, 0)), hovered(h) {}
 		ImVec2 position;
 		ImVec2 size;
 		ImVec2 center;
+		bool hovered;
 	};
 	//list of items gets refreshed each time the gui gets submitted
 	std::vector<DraggableItemInfo> items;
+	std::vector<DraggableItemInfo> previousItems;
 };

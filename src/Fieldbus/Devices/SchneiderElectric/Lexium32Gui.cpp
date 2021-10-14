@@ -208,39 +208,80 @@ void Lexium32::controlsGui() {
         }
         ImGui::EndCombo();
     }
+    float widgetWidth = ImGui::GetItemRectSize().x;
     if (disableModeSwitch) END_DISABLE_IMGUI_ELEMENT
+
+    float maxV = motorDevice->velocityLimit_positionUnitsPerSecond;
+    float maxA = motorDevice->accelerationLimit_positionUnitsPerSecondSquared;
+
+    if (actualOperatingMode == OperatingMode::Mode::UNKNOWN) {}
+    else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION) {}
+    else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY) {
+        float vCommand_rps = manualVelocityCommand_rps;
+        bool disableManualControls = !isEnabled();
+        if (disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
+        ImGui::SliderFloat("##manualVelocity", &vCommand_rps, -maxV, maxV, "%.1frps");
+        if (!ImGui::IsItemActive()) vCommand_rps = 0.0;
+
+        if (vCommand_rps > maxV) vCommand_rps = maxV;
+        else if (vCommand_rps < -maxV) vCommand_rps = -maxV;
+        manualVelocityCommand_rps = vCommand_rps;
+        ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rpsps, 0.0, maxA, "Acceleration: %.3f rps/s");
+        if (manualAcceleration_rpsps > maxA) manualAcceleration_rpsps = maxA;
+        if (ImGui::Button("Stop Movement", glm::vec2(ImGui::GetItemRectSize().x, ImGui::GetTextLineHeight() * 2.0))) manualVelocityCommand_rps = 0.0;
+        if (disableManualControls) END_DISABLE_IMGUI_ELEMENT
+    }
 
     ImGui::Separator();
 
 
-    if (actualOperatingMode == OperatingMode::Mode::UNKNOWN) {
+    float velocityFraction;
+    static char actualVelocityString[32];
+    if (!encoderDevice->isReady()) {
+        sprintf(actualVelocityString, "Not Ready");
+        ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+        velocityFraction = 1.0;
+    }
+    else {
+        double velocity = encoderDevice->getVelocity();
+        sprintf(actualVelocityString, "%.1f rps", velocity);
+        velocityFraction = std::abs(velocity) / maxV;
+        if(velocityFraction >= 1.0) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
+        else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+    }
+    ImGui::Text("Motor Velocity :");
+    ImGui::ProgressBar(velocityFraction, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), actualVelocityString);
+    ImGui::PopStyleColor();
 
-    }
-    else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION) {
-        float velocityFraction = (actualVelocity->getReal() + velocityLimit_rpm) / (2 * velocityLimit_rpm);
-        static char actualVelocityString[32];
-        sprintf(actualVelocityString, "%.1frpm", actualVelocity->getReal());
-        ImGui::ProgressBar(velocityFraction, ImVec2(ImGui::GetContentRegionAvail().x, 0), actualVelocityString);
-    }
-    else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY) {
-        float maxV = velocityLimit_rpm;
-        float vCommand_rpm = manualVelocityCommand_rpm;
+    char rangeString[64];
 
-        bool disableManualControls = !isEnabled();
-        if (disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
-        ImGui::SliderFloat("##manualVelocity", &vCommand_rpm, -velocityLimit_rpm, velocityLimit_rpm, "%.1frpm");
-        if (vCommand_rpm > velocityLimit_rpm) vCommand_rpm = velocityLimit_rpm;
-        else if (vCommand_rpm < -velocityLimit_rpm) vCommand_rpm = -velocityLimit_rpm;
-        manualVelocityCommand_rpm = vCommand_rpm;
-        float velocityFraction = (actualVelocity->getReal() + velocityLimit_rpm) / (2 * velocityLimit_rpm);
-        static char actualVelocityString[32];
-        sprintf(actualVelocityString, "%.1frpm", actualVelocity->getReal());
-        ImGui::ProgressBar(velocityFraction, ImGui::GetItemRectSize(), actualVelocityString);
-        ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rps2, 0.0, (float)accelerationLimit_rpmps, "Acceleration: %.3f rpm/s");
-        if (manualAcceleration_rps2 > accelerationLimit_rpmps) manualAcceleration_rps2 = accelerationLimit_rpmps;
-        if (ImGui::Button("Stop Movement", glm::vec2(ImGui::GetItemRectSize().x, ImGui::GetTextLineHeight() * 2.0))) manualVelocityCommand_rpm = 0.0;
-        if (disableManualControls) END_DISABLE_IMGUI_ELEMENT
+    double range = encoderDevice->getPositionInRange();
+    if (!encoderDevice->isReady()) {
+        ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+        range = 1.0;
+        sprintf(rangeString, "Not ready");
     }
+    else if (range < 1.0 && range > 0.0) {
+        ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+        sprintf(rangeString, "%.3f%%", range * 100.0);
+    }
+    else {
+        ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
+        sprintf(rangeString, "Encoder Outside Working Range ! (%.3f%%)", range * 100.0);
+        range = 1.0;
+    }
+
+    ImGui::Text("Encoder Position in Working Range :");
+    ImGui::ProgressBar(range, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), rangeString);
+    ImGui::PopStyleColor();
+
+    if (encoderDevice->isReady()) {
+        ImGui::Text("Current Position is %.3f revolutions", encoderDevice->positionRaw_positionUnits);
+        ImGui::Text("Range is from %.3f to %.3f revolutions", encoderDevice->rangeMin_positionUnits, encoderDevice->rangeMax_positionUnits);
+    }
+
+
+
 }
 
 
@@ -263,10 +304,18 @@ void Lexium32::generalGui() {
 
     ImGui::TextWrapped("These settings are not stored on the drive, but regulate the speed and position commands sent to the drive.");
 
-    ImGui::Text("Max Velocity");
-    ImGui::InputDouble("##maxV", &velocityLimit_rpm, 0.0, 0.0, "%.1frpm");
-    ImGui::Text("Max Acceleration");
-    ImGui::InputDouble("##maxA", &accelerationLimit_rpmps, 0.0, 0.0, "%.1frpm/s");
+    if (maxMotorVelocity_rps != 0.0) {
+        ImGui::TextWrapped("The Maximum Velocity of the Motor is %.3f rotations per second ", maxMotorVelocity_rps);
+        if (motorDevice->velocityLimit_positionUnitsPerSecond > maxMotorVelocity_rps) motorDevice->velocityLimit_positionUnitsPerSecond = maxMotorVelocity_rps;
+    }
+
+    ImGui::Text("Velocity Limit (rotations per second)");
+    ImGui::InputDouble("##maxV", &motorDevice->velocityLimit_positionUnitsPerSecond, 0.0, 0.0, "%.1f rotations/s");
+    ImGui::Text("Acceleration Limit (rotations per second per second)");
+    ImGui::InputDouble("##maxA", &motorDevice->accelerationLimit_positionUnitsPerSecondSquared, 0.0, 0.0, "%.1f rotations/s2");
+
+    ImGui::Text("Default Manual Acceleration (rotations per second per second)");
+    ImGui::InputFloat("##defmaxacc", &defaultManualAcceleration_rpsps, 0.0, 0.0, "%.3f rps/s");
 
     ImGui::Separator();
 

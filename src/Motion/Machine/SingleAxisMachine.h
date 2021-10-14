@@ -113,6 +113,17 @@ public:
 	bool areAllDevicesReady();
 	void enableAllActuators();
 	void disableAllActuators();
+	bool areAllActuatorsEnabled();
+
+	bool isPositionFeedbackDeviceConnected();
+	std::shared_ptr<PositionFeedbackDevice> getPositionFeedbackDevice();
+	double getPositionFeedback();
+
+	bool isReferenceDeviceConnected();
+	void getReferenceDevices(std::vector<std::shared_ptr<GpioDevice>>& output);
+
+	bool isActuatorDeviceConnected();
+	void getActuatorDevices(std::vector<std::shared_ptr<ActuatorDevice>>& output);
 
 	const char* getMachinePositionUnitStringSingular() { return getPositionUnit(axisPositionUnit)->displayName; }
 	const char* getMachinePositionUnitStringPlural() { return getPositionUnit(axisPositionUnit)->displayNamePlural; }

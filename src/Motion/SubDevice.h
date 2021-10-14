@@ -22,7 +22,7 @@ public:
 	
 	//set the parent device, which will provide further information on device status
 	void setParentDevice(std::shared_ptr<Device> pd) { parentDevice = pd; }
-	std::shared_ptr<Device> parentDevice;
+	std::shared_ptr<Device> parentDevice = nullptr;
 
 	//has the device been discovered / seen
 	bool isDetected();
@@ -79,9 +79,9 @@ public:
 	bool b_setDisabled = false;
 	bool b_setQuickstop = false;
 
-	double velocityLimit_positionUnitsPerSecond;
-	double accelerationLimit_positionUnitsPerSecondSquared;
-	double load;
+	double velocityLimit_positionUnitsPerSecond = 0.0;
+	double accelerationLimit_positionUnitsPerSecondSquared = 0.0;
+	double load = 0.0;
 };
 
 class PositionFeedbackDevice : public Subdevice {
@@ -104,6 +104,9 @@ public:
 
 	double positionRaw_positionUnits = 0.0;
 	double positionOffset_positionUnits = 0.0;
+
+	double velocity_positionUnitsPerSecond = 0.0;
+	double getVelocity() { return velocity_positionUnitsPerSecond; }
 
 	double rangeMax_positionUnits;
 	double rangeMin_positionUnits;

@@ -15,15 +15,15 @@ bool Lexium32::isDeviceReady() {
 
 void Lexium32::enable() {
     b_enableOperation = true;
-    manualVelocityCommand_rpm = 0.0;
-    profileVelocity_rpm = 0.0;
+    manualVelocityCommand_rps = 0.0;
+    profileVelocity_rps = 0.0;
     profilePosition_r = 0.0;
 }
 
 void Lexium32::disable() {
     b_disableOperation = true;
-    manualVelocityCommand_rpm = 0.0;
-    profileVelocity_rpm = 0.0;
+    manualVelocityCommand_rps = 0.0;
+    profileVelocity_rps = 0.0;
     profilePosition_r = 0.0;
 }
 
@@ -42,9 +42,9 @@ void Lexium32::onDisconnection() {
 void Lexium32::resetData() {
     actualOperatingMode = OperatingMode::Mode::UNKNOWN;
     state = State::SwitchOnDisabled;
-    manualVelocityCommand_rpm = 0.0;
+    manualVelocityCommand_rps = 0.0;
     profilePosition_r = 0.0;
-    profileVelocity_rpm = 0.0;
+    profileVelocity_rps = 0.0;
     b_emergencyStopActive = false;
     encoderDevice->positionRaw_positionUnits = 0.0;
     actualPosition->set(0.0);
@@ -80,10 +80,19 @@ void Lexium32::resetData() {
 
 void Lexium32::assignIoData() {
     std::shared_ptr<Device> thisDevice = std::dynamic_pointer_cast<Device>(shared_from_this());
+    
     motorDevice->setParentDevice(thisDevice);
+    motorDevice->velocityLimit_positionUnitsPerSecond = 10.0;
+    motorDevice->accelerationLimit_positionUnitsPerSecondSquared = 1.0;
+    
     motorLink->set(motorDevice);
     encoderDevice->setParentDevice(thisDevice);
     encoderLink->set(encoderDevice);
+    float lowEncoderRange, highEncoderRange;
+    getEncoderWorkingRange(lowEncoderRange, highEncoderRange);
+    encoderDevice->rangeMin_positionUnits = lowEncoderRange;
+    encoderDevice->rangeMax_positionUnits = highEncoderRange;
+
     gpioDevice->setParentDevice(thisDevice);
     gpNodeLink->set(gpioDevice);
 
@@ -181,6 +190,7 @@ bool Lexium32::startupConfiguration() {
 
     uint16_t _M_n_max; //max motor spec velocity in rpm
     if (!readSDO_U16(0x300D, 0x4, _M_n_max)) return false;
+    maxMotorVelocity_rps = (double)_M_n_max / 60.0;
 
     uint32_t CTRL_v_max = _M_n_max * velocityUnitsPerRpm; //Velocity Limit in usr_v units
     if (!writeSDO_U32(0x3011, 0x10, CTRL_v_max)) return false;
@@ -285,9 +295,17 @@ void Lexium32::readInputs() {
     validPositionReference =    _DCOMstatus & 0x8000;   //drive has a valid position reference
 
     //retrieve the operating mode id
+    OperatingMode::Mode previousOperatingMode = actualOperatingMode;
     OperatingMode* operatingMode = getOperatingMode(_DCOMopmd_act);
     if (operatingMode != nullptr) actualOperatingMode = operatingMode->mode;
     else actualOperatingMode = OperatingMode::Mode::UNKNOWN;
+
+    //if we switched operating modes, reset the profile generator and manual velocity command
+    if (previousOperatingMode != actualOperatingMode) {
+        manualVelocityCommand_rps = 0.0;
+        profileVelocity_rps = 0.0;
+        velocityCommand->set(0.0);
+    }
 
     State previousState = state;
 
@@ -337,16 +355,17 @@ void Lexium32::readInputs() {
         b_emergencyStopActive = actualEstop;
     }
 
-    //set the encoder position in revolution units
+    //set the encoder position in revolution units and velocity in revolutions per second
     encoderDevice->positionRaw_positionUnits = (double)_p_act / (double)positionUnitsPerRevolution;
+    encoderDevice->velocity_positionUnitsPerSecond = (double)_v_act / ((double)velocityUnitsPerRpm * 60.0);
 
     //set motor device load
     motorDevice->load = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
 
     //assign public input data
     actualPosition->set(encoderDevice->getPosition());
-    actualVelocity->set((double)_v_act / (double)velocityUnitsPerRpm);
-    actualLoad->set(((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps);
+    actualVelocity->set(encoderDevice->getVelocity());
+    actualLoad->set(motorDevice->getLoad());
     digitalIn0->set((_IO_act & 0x1) != 0x0);
     digitalIn1->set((_IO_act & 0x2) != 0x0);
     digitalIn2->set((_IO_act & 0x4) != 0x0);
@@ -379,6 +398,7 @@ void Lexium32::prepareOutputs(){
 
     //get data from connected nodes
     if (positionCommand->isConnected()) positionCommand->set(positionCommand->getLinks().front()->getInputData()->getReal());
+    else positionCommand->set(actualPosition->getReal());
     if (velocityCommand->isConnected()) velocityCommand->set(velocityCommand->getLinks().front()->getInputData()->getReal());
     if (digitalOut0->isConnected()) digitalOut0->set(digitalOut0->getLinks().front()->getInputData()->getBoolean());
     if (digitalOut1->isConnected()) digitalOut1->set(digitalOut1->getLinks().front()->getInputData()->getBoolean());
@@ -391,19 +411,19 @@ void Lexium32::prepareOutputs(){
     //internal profile generator
     if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY) {
 
-        if (manualVelocityCommand_rpm > profileVelocity_rpm) {
-            double deltaV_rps = manualAcceleration_rps2 * deltaT_seconds;
-            profileVelocity_rpm += deltaV_rps * 60.0;
-            if (profileVelocity_rpm > manualVelocityCommand_rpm) profileVelocity_rpm = manualVelocityCommand_rpm;
+        if (manualVelocityCommand_rps > profileVelocity_rps) {
+            double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
+            profileVelocity_rps += deltaV_rps * 60.0;
+            if (profileVelocity_rps > manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
         }
-        else if (manualVelocityCommand_rpm < profileVelocity_rpm) {
-            double deltaV_rps = manualAcceleration_rps2 * deltaT_seconds;
-            profileVelocity_rpm -= deltaV_rps * 60.0;
-            if (profileVelocity_rpm < manualVelocityCommand_rpm) profileVelocity_rpm = manualVelocityCommand_rpm;
+        else if (manualVelocityCommand_rps < profileVelocity_rps) {
+            double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
+            profileVelocity_rps -= deltaV_rps * 60.0;
+            if (profileVelocity_rps < manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
         }
         profilePosition_r = actualPosition->getReal();
 
-        velocityCommand->set(profileVelocity_rpm);
+        velocityCommand->set(profileVelocity_rps);
     }
     else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION) {
         //in this operating mode, we verify that the input velocity and acceleration don't exceed internal values
@@ -483,7 +503,8 @@ void Lexium32::prepareOutputs(){
     DCOMopmode = operatingModeID;
 
     PPp_target = (int32_t)(positionCommand->getReal() * positionUnitsPerRevolution);
-    PVv_target = (int32_t)(velocityCommand->getReal() * velocityUnitsPerRpm);
+    //don't forget to convert from rotations per second to rpm
+    PVv_target = (int32_t)(velocityCommand->getReal() * velocityUnitsPerRpm * 60.0);
 
     IO_DQ_set = 0;
     if (digitalOut0->getBoolean()) IO_DQ_set |= 0x1;
@@ -1182,8 +1203,9 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
     using namespace tinyxml2;
 
     XMLElement* kinematicLimitsXML = xml->InsertNewChildElement("KinematicLimits");
-    kinematicLimitsXML->SetAttribute("velocityLimit_rpm", velocityLimit_rpm);
-    kinematicLimitsXML->SetAttribute("accelerationLimit_rpmps", accelerationLimit_rpmps);
+    kinematicLimitsXML->SetAttribute("velocityLimit_rps", motorDevice->velocityLimit_positionUnitsPerSecond);
+    kinematicLimitsXML->SetAttribute("accelerationLimit_rpsps", motorDevice->accelerationLimit_positionUnitsPerSecondSquared);
+    kinematicLimitsXML->SetAttribute("defaultManualAcceleration_rpsps", defaultManualAcceleration_rpsps);
 
     XMLElement* invertDirectionOfMovementXML = xml->InsertNewChildElement("InvertDirectionOfMovement");
     invertDirectionOfMovementXML->SetAttribute("Invert", b_invertDirectionOfMotorMovement);
@@ -1243,8 +1265,10 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
     XMLElement* kinematicLimitsXML = xml->FirstChildElement("KinematicLimits");
     if (kinematicLimitsXML == nullptr) return Logger::warn("Could not find kinematic limits attribute");
 
-    if (kinematicLimitsXML->QueryDoubleAttribute("velocityLimit_rpm", &velocityLimit_rpm) != XML_SUCCESS) return Logger::warn("Could not read velocity limit attribute");
-    if (kinematicLimitsXML->QueryDoubleAttribute("accelerationLimit_rpmps", &accelerationLimit_rpmps) != XML_SUCCESS) return Logger::warn("Could not read acceleration limit attribute");
+    if (kinematicLimitsXML->QueryDoubleAttribute("velocityLimit_rps", &motorDevice->velocityLimit_positionUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not read velocity limit attribute");
+    if (kinematicLimitsXML->QueryDoubleAttribute("accelerationLimit_rpsps", &motorDevice->accelerationLimit_positionUnitsPerSecondSquared) != XML_SUCCESS) return Logger::warn("Could not read acceleration limit attribute");
+    if (kinematicLimitsXML->QueryFloatAttribute("defaultManualAcceleration_rpsps", &defaultManualAcceleration_rpsps) != XML_SUCCESS) return Logger::warn("Could not read acceleration limit attribute");
+    manualAcceleration_rpsps = defaultManualAcceleration_rpsps;
 
     XMLElement* invertDirectionOfMovementXML = xml->FirstChildElement("InvertDirectionOfMovement");
     if (invertDirectionOfMovementXML == nullptr) return Logger::warn("Could not find invert direction of movement attribute");

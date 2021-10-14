@@ -28,14 +28,14 @@ void SingleAxisMachine::controlsGui() {
 	buttonSize.x = (ImGui::GetContentRegionAvail().x - (buttonCount - 1) * ImGui::GetStyle().ItemSpacing.x) / buttonCount;
 	buttonSize.y = ImGui::GetTextLineHeight() * 2.0;
 
-	bool isMachineReady = isReady();
+	bool readyToEnable = isReady();
 
 	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 	if (isEnabled()) {
 		ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 		ImGui::Button("Machine Enabled", buttonSize);
 	}
-	else if (isMachineReady) {
+	else if (readyToEnable) {
 		ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
 		ImGui::Button("Machine Ready", buttonSize);
 	}
@@ -47,14 +47,14 @@ void SingleAxisMachine::controlsGui() {
 	ImGui::PopItemFlag();
 
 	ImGui::SameLine();
-	if(!isMachineReady) BEGIN_DISABLE_IMGUI_ELEMENT
+	if(!readyToEnable) BEGIN_DISABLE_IMGUI_ELEMENT
 	if (isEnabled()) {
 		if (ImGui::Button("Disable Machine", buttonSize)) disable();
 	}
 	else {
 		if (ImGui::Button("Enable Machine", buttonSize)) enable();
 	}
-	if (!isMachineReady) END_DISABLE_IMGUI_ELEMENT
+	if (!readyToEnable) END_DISABLE_IMGUI_ELEMENT
 
 	ImGui::Separator();
 

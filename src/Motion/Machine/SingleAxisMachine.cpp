@@ -11,16 +11,16 @@
 void SingleAxisMachine::process() {
 
 	//get devices
-	std::vector<std::shared_ptr<ActuatorDevice>> actuators;
-	for (auto& pin : actuatorDeviceLinks->getConnectedPins()) actuators.push_back(pin->getActuatorDevice());
+	std::vector<std::shared_ptr<ActuatorDevice>> actuatorDevices;
+	getActuatorDevices(actuatorDevices);
 	std::shared_ptr<PositionFeedbackDevice> positionFeedbackDevice = nullptr;
-	if (positionFeedbackDeviceLink->isConnected()) positionFeedbackDevice = positionFeedbackDeviceLink->getConnectedPins().front()->getPositionFeedbackDevice();
+	if (isPositionFeedbackDeviceConnected()) positionFeedbackDevice = positionFeedbackDevice = getPositionFeedbackDevice();
 	std::vector<std::shared_ptr<GpioDevice>> referenceDevices;
-	for (auto& pin : referenceDeviceLinks->getConnectedPins()) referenceDevices.push_back(pin->getGpioDevice());
+	getReferenceDevices(referenceDevices);
 
 	//handle device state transitions
 	if (b_enabled) {
-		for (auto actuator : actuators) {
+		for (auto actuator : actuatorDevices) {
 			if (!actuator->b_enabled) disable();
 		}
 		if (!positionFeedbackDevice->b_ready) disable();
@@ -29,39 +29,40 @@ void SingleAxisMachine::process() {
 		}
 	}
 
+	//Control Loop
 	//TODO: the machine should get timing information from the actuator object
 	currentProfilePointTime_seconds = EtherCatFieldbus::getReferenceClock_seconds();
 	currentProfilePointDeltaT_seconds = currentProfilePointTime_seconds - previousProfilePointTime_seconds;
 	previousProfilePointTime_seconds = currentProfilePointTime_seconds;
-
 	if (b_enabled) {
 		switch (controlMode) {
-		case ControlMode::VELOCITY_TARGET: velocityTargetControl(); break;
-		case ControlMode::POSITION_TARGET: positionTargetControl(); break;
-		case ControlMode::FOLLOW_CURVE: followCurveControl(); break;
-		case ControlMode::HOMING: homingControl(); break;
+			case ControlMode::VELOCITY_TARGET: velocityTargetControl(); break;
+			case ControlMode::POSITION_TARGET: positionTargetControl(); break;
+			case ControlMode::FOLLOW_CURVE: followCurveControl(); break;
+			case ControlMode::HOMING: homingControl(); break;
 		}
-		actuatorCommand->set(profilePosition_degrees);
 	}
 	else {
-		actuatorCommand->set(positionFeedbackDeviceLink->getLinks().front()->getInputData()->getReal());
+		profilePosition_degrees = getPositionFeedback();
 	}
+	actuatorCommand->set(profilePosition_degrees);
 
-	std::shared_ptr<PositionFeedbackDevice> feedbackDevice = positionFeedbackDeviceLink->getLinks().front()->getInputData()->getPositionFeedbackDevice();
-	std::shared_ptr<ActuatorDevice> actuatorDevice = actuatorDeviceLinks->getLinks().front()->getInputData()->getActuatorDevice();
-
-	double actualPosition = feedbackDevice->getPosition();
-	double positionError = profilePosition_degrees - feedbackDevice->getPosition();
-
+	//prepare metrics data
+	double actualPosition;
+	if (positionFeedbackDevice) actualPosition = getPositionFeedback();
+	double positionError = profilePosition_degrees - actualPosition;
+	double actualLoad = 0.0;
+	for (auto actuator : actuatorDevices) actualLoad += actuator->getLoad();
+	actualLoad /= (double)actuatorDevices.size();
 	positionHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profilePosition_degrees));
 	actualPositionHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, actualPosition));
 	positionErrorHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, positionError));
 	velocityHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profileVelocity_degreesPerSecond));
 	accelerationHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profileAcceleration_degreesPerSecondSquared));
-	loadHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, actuatorDevice->getLoad()));
+	loadHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, actualLoad));
 }
 
-
+//=================================== STATE CONTROL ============================================
 
 void SingleAxisMachine::enable() {
 	std::thread machineEnabler([this]() {
@@ -69,8 +70,10 @@ void SingleAxisMachine::enable() {
 		enableAllActuators();
 		std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 		//wait for devices to be enabled
-		while (std::chrono::system_clock::now() - start < std::chrono::milliseconds(500)) {
-			if (isReady()) break;
+		while (!areAllActuatorsEnabled()) {
+			if (std::chrono::system_clock::now() - start > std::chrono::milliseconds(500)) {
+				return Logger::warn("Could not enable Machine '{}', all actuators did not enable on time", getName());
+			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		}
 		//start machine or return feedback about failure mode
@@ -127,7 +130,6 @@ void SingleAxisMachine::enable() {
 }
 
 void SingleAxisMachine::onEnable() {
-	profilePosition_degrees = positionFeedbackDeviceLink->getLinks().front()->getInputData()->getReal();
 	targetCurveProfile = MotionCurve::CurveProfile();
 	profileVelocity_degreesPerSecond = 0.0;
 	profileAcceleration_degreesPerSecondSquared = 0.0;
@@ -151,6 +153,8 @@ void SingleAxisMachine::onDisable() {
 bool SingleAxisMachine::isEnabled() {
 	return b_enabled;
 }
+
+//========================== IO DEVICES =============================
 
 bool SingleAxisMachine::areAllDevicesReady() {
 	if (actuatorDeviceLinks->isConnected()) {
@@ -180,12 +184,7 @@ bool SingleAxisMachine::areAllDevicesReady() {
 }
 
 bool SingleAxisMachine::isReady() {
-	if (!areAllDevicesReady()) return false;
-	for (auto pin : actuatorDeviceLinks->getConnectedPins()) {
-		std::shared_ptr<ActuatorDevice> actuatorDevice = pin->getActuatorDevice();
-		if (!actuatorDevice->isEnabled()) return false;
-	}
-	return true;
+	return areAllDevicesReady();
 }
 
 void SingleAxisMachine::enableAllActuators() {
@@ -201,6 +200,47 @@ void SingleAxisMachine::disableAllActuators() {
 		actuatorDevice->disable();
 	}
 }
+
+bool SingleAxisMachine::areAllActuatorsEnabled() {
+	for (auto pin : actuatorDeviceLinks->getConnectedPins()) {
+		std::shared_ptr<ActuatorDevice> actuatorDevice = pin->getActuatorDevice();
+		if (!actuatorDevice->isEnabled()) return false;
+	}
+	return true;
+}
+
+bool SingleAxisMachine::isPositionFeedbackDeviceConnected() {
+	return positionFeedbackDeviceLink->isConnected();
+}
+
+std::shared_ptr<PositionFeedbackDevice> SingleAxisMachine::getPositionFeedbackDevice() {
+	return positionFeedbackDeviceLink->getConnectedPins().front()->getPositionFeedbackDevice();
+}
+
+double SingleAxisMachine::getPositionFeedback() {
+	return positionFeedbackDeviceLink->getConnectedPins().front()->getPositionFeedbackDevice()->getPosition();
+}
+
+
+bool SingleAxisMachine::isReferenceDeviceConnected() {
+	return referenceDeviceLinks->isConnected();
+}
+
+void SingleAxisMachine::getReferenceDevices(std::vector<std::shared_ptr<GpioDevice>>& output) {
+	for (auto referenceDeviceLink : referenceDeviceLinks->getLinks()) {
+		output.push_back(referenceDeviceLink->getInputData()->getGpioDevice());
+	}
+}
+
+bool SingleAxisMachine::isActuatorDeviceConnected() {
+	return actuatorDeviceLinks->isConnected();
+}
+void SingleAxisMachine::getActuatorDevices(std::vector<std::shared_ptr<ActuatorDevice>>& output) {
+	for (auto actuatorDeviceLink : actuatorDeviceLinks->getLinks()) {
+		output.push_back(actuatorDeviceLink->getInputData()->getActuatorDevice());
+	}
+}
+
 
 //================================= MANUAL CONTROLS ===================================
 
