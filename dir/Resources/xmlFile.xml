@@ -1,7 +1,69 @@
 <Environnement name="Default Environnement">
     <NodeGraph>
-        <Nodes/>
-        <Links/>
+        <Nodes>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="true" CustomName="Variateur Tournette A" UniqueID="1">
+                <InputNodeEditorPosition x="-11752" y="-10959"/>
+                <OutputNodeEditorPosition x="-12567" y="-11067"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="303"/>
+                    <KinematicLimits velocityLimit_rpm="5000" accelerationLimit_rpmps="100"/>
+                    <InvertDirectionOfMovement Invert="false"/>
+                    <CurrentLimis maxCurrent_amps="5" maxQuickstopCurrent_amps="9"/>
+                    <NegativeLimitSwitch Pin="Unassigned"/>
+                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <EncoderSettings Assignement="Internal" RangeShifted="false"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="2" Real="500.00001250000003" Visible="true"/>
+                    <InputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="3" Real="0" Visible="false"/>
+                    <InputPin SaveName="DQ0" DisplayName="DQ0" DataType="Boolean" UniqueID="4" Boolean="false" Visible="false"/>
+                    <InputPin SaveName="DQ1" DisplayName="DQ1" DataType="Boolean" UniqueID="5" Boolean="false" Visible="false"/>
+                    <InputPin SaveName="DQ2" DisplayName="DQ2" DataType="Boolean" UniqueID="6" Boolean="false" Visible="false"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="Motor" DisplayName="Motor" DataType="ActuatorDeviceLink" UniqueID="7" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="8" Real="0.012" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="Encoder" DisplayName="Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="9" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="10" Real="500.00002288818359" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="11" Real="0.73999999999999999" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="12" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="DI0" DisplayName="DI0" DataType="Boolean" UniqueID="13" Boolean="true" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="DI1" DisplayName="DI1" DataType="Boolean" UniqueID="14" Boolean="false" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="DI2" DisplayName="DI2" DataType="Boolean" UniqueID="15" Boolean="false" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="DI3" DisplayName="DI3" DataType="Boolean" UniqueID="16" Boolean="false" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="DI4" DisplayName="DI4" DataType="Boolean" UniqueID="17" Boolean="false" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="DI5" DisplayName="DI5" DataType="Boolean" UniqueID="18" Boolean="false" Visible="false" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="SingleAxisMachine" CustomName="Tournette A" UniqueID="19">
+                <NodeEditorPosition x="-12152" y="-11062"/>
+                <NodeSpecificData>
+                    <Axis UnitType="Linear" Unit="Meter"/>
+                    <Feedback Type="Absolute" UnitType="Angular" Unit="Degrees" UnitsPerAxisUnit="0"/>
+                    <Actuator Command="Position" UnitType="Angular" Unit="Degrees" UnitsPerAxisUnit="0"/>
+                    <PositionReference Type="None" MaxPositiveDeviation="0" MaxNegativeDeviation="0"/>
+                    <KinematicLimits VelocityLimit_degreesPerSecond="100" AccelerationLimit_degreesPerSecondSquared="50"/>
+                    <DefaultManualParameters Velocity_degreesPerSecond="50" Acceleration_degreesPerSecondSquared="25"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveName="Actuators" DisplayName="Actuators" DataType="ActuatorDeviceLink" UniqueID="20" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveName="Position Feedback" DisplayName="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="21" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Reference Devices" DisplayName="Reference Devices" DataType="GPIODeviceLink" UniqueID="22" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveName="References" DisplayName="References" DataType="Boolean" UniqueID="23" Boolean="false" Visible="true" AcceptsMultipleInputs="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="Actuator Command" DisplayName="Actuator Command" DataType="Real" UniqueID="24" Real="500.00001250000003" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Reset Position Feedback" DisplayName="Reset Position Feedback" DataType="Boolean" UniqueID="25" Boolean="false" Visible="false" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+        </Nodes>
+        <Links>
+            <Link UniqueID="26" StartPin="7" EndPin="20"/>
+            <Link UniqueID="27" StartPin="9" EndPin="21"/>
+            <Link UniqueID="28" StartPin="12" EndPin="22"/>
+            <Link UniqueID="29" StartPin="13" EndPin="23"/>
+            <Link UniqueID="30" StartPin="24" EndPin="2"/>
+        </Links>
     </NodeGraph>
 </Environnement>
 
