@@ -20,7 +20,7 @@
 #define INTERFACE_DEFINITION(className, deviceName, manufacturerName, category)     public:                                                                                                 \
                                                                                     /*Node Functions*/                                                                                      \
                                                                                     virtual Node::Type getType() { return Node::Type::IODEVICE; }                                           \
-                                                                                    virtual Device::Type getDeviceType() { return Device::Type::ETHERCATSLAVE; }                    \
+                                                                                    virtual Device::Type getDeviceType() { return Device::Type::ETHERCAT_DEVICE; }                          \
 														                            virtual const char * getNodeName() { return deviceName; }			                                    \
                                                                                     virtual const char * getNodeCategory() { return category; }			                                    \
                                                                                     virtual const char* getManufacturerName(){ return manufacturerName; }                                   \
@@ -55,7 +55,7 @@
 #define ETHERCAT_DEVICE_DEFINITION(className, deviceName, manufacturerName, category)   public:                                                                                                 \
                                                                                         /*Node Functions*/                                                                                      \
                                                                                         virtual Node::Type getType() { return Node::Type::IODEVICE; }                                           \
-                                                                                        virtual Device::Type getDeviceType() { return Device::Type::ETHERCATSLAVE; }                            \
+                                                                                        virtual Device::Type getDeviceType() { return Device::Type::ETHERCAT_DEVICE; }                          \
                                                                                         virtual const char* getNodeName() { return deviceName; }			                                    \
                                                                                         virtual const char * getNodeCategory() { return category; }			                                    \
                                                                                         virtual const char* getManufacturerName() { return manufacturerName; }                                  \

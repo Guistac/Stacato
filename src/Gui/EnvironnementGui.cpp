@@ -10,6 +10,7 @@
 #include "Gui/Utilities/DraggableList.h"
 
 void environnementGui() {
+
 	static DraggableList machineList;
 	if (machineList.beginList("##MachineList", glm::vec2(ImGui::GetTextLineHeight() * 15.0, ImGui::GetContentRegionAvail().y))) {
 		std::vector<std::shared_ptr<Machine>>& machines = Environnement::getMachines();

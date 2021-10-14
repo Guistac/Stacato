@@ -22,21 +22,12 @@ class Device : public Node {
 public:
 
 	enum class Type {
-		ETHERCATSLAVE,
-		NETWORKDEVICE,
-		USBDEVICE
+		ETHERCAT_DEVICE,
+		NETWORK_DEVICE,
+		USB_DEVICE
 	};
 
 	virtual Type getDeviceType() = 0;
-
-	const char* getDeviceTypeString() {
-		switch (getDeviceType()) {
-			case Type::ETHERCATSLAVE: return "ETHERCATSLAVE";
-			case Type::NETWORKDEVICE: return "NETWORKDEVICE";
-			case Type::USBDEVICE: return "USBDEVICE";
-			default: return "";
-		}
-	}
 
 	//we define process() here so device subclasses don't have to define it.
 	//for device nodes, processing takes place inside the device.
@@ -57,3 +48,12 @@ public:
 	virtual void disable() = 0;
 
 };
+
+struct DeviceType {
+	Device::Type type;
+	const char* saveName;
+	const char* displayName;
+};
+
+DeviceType* getDeviceType(const char* saveName);
+DeviceType* getDeviceType(Device::Type t);

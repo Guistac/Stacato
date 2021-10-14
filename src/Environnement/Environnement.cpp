@@ -27,12 +27,12 @@ namespace Environnement {
 			case Node::Type::IODEVICE:{
 				std::shared_ptr<Device> deviceNode = std::dynamic_pointer_cast<Device>(node);
 				switch (deviceNode->getDeviceType()) {
-					case Device::Type::ETHERCATSLAVE:
+					case Device::Type::ETHERCAT_DEVICE:
 						etherCatDevices.push_back(std::dynamic_pointer_cast<EtherCatDevice>(deviceNode));
 						break;
-					case Device::Type::NETWORKDEVICE:
+					case Device::Type::NETWORK_DEVICE:
 						break;
-					case Device::Type::USBDEVICE:
+					case Device::Type::USB_DEVICE:
 						break;
 				}
 			}break;
@@ -53,7 +53,7 @@ namespace Environnement {
 			case Node::Type::IODEVICE:{
 				std::shared_ptr<Device> deviceNode = std::dynamic_pointer_cast<Device>(node);
 				switch (deviceNode->getDeviceType()) {
-				case Device::Type::ETHERCATSLAVE: {
+				case Device::Type::ETHERCAT_DEVICE: {
 					std::shared_ptr<EtherCatDevice> etherCatDeviceNode;
 					for (int i = 0; i < etherCatDevices.size(); i++) {
 						if (etherCatDevices[i] == etherCatDeviceNode) {
@@ -62,9 +62,9 @@ namespace Environnement {
 						}
 					}
 				}break;
-				case Device::Type::NETWORKDEVICE: {
+				case Device::Type::NETWORK_DEVICE: {
 				}break;
-				case Device::Type::USBDEVICE: {
+				case Device::Type::USB_DEVICE: {
 				}break;
 				}
 			}break;

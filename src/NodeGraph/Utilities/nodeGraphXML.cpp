@@ -19,7 +19,7 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 		nodeXML->SetAttribute("ClassName", node->getNodeName());
 		if (node->getType() == Node::Type::IODEVICE) {
 			std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);
-			nodeXML->SetAttribute("DeviceType", device->getDeviceTypeString());
+			nodeXML->SetAttribute("DeviceType", getDeviceType(device->getDeviceType())->saveName);
 			nodeXML->SetAttribute("Split", node->isSplit());
 		}
 		nodeXML->SetAttribute("CustomName", node->getName());
@@ -106,11 +106,18 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 				{
 					const char* deviceTypeString;
 					if (nodeXML->QueryStringAttribute("DeviceType", &deviceTypeString) != XML_SUCCESS) return Logger::warn("Could not load Node Device Type");
-					if (strcmp(deviceTypeString, "EtherCatDevice") == 0) loadedNode = EtherCatDeviceFactory::getDeviceByName(className);
-					else return Logger::warn("Unknown Device Type");
-					if (strcmp(nodeTypeString, "IODevice") == 0) {
-						if (nodeXML->QueryBoolAttribute("Split", &isSplit) != XML_SUCCESS) return Logger::warn("Could not load split status");
+					if (getDeviceType(deviceTypeString) == nullptr) return Logger::warn("Could not read Device Type");
+					Device::Type deviceType = getDeviceType(deviceTypeString)->type;
+					switch (deviceType) {
+						case Device::Type::ETHERCAT_DEVICE:
+							loadedNode = EtherCatDeviceFactory::getDeviceByName(className);
+							break;
+						case Device::Type::NETWORK_DEVICE:
+							return Logger::warn("Loading of network devices is unsupported");
+						case Device::Type::USB_DEVICE:
+							return Logger::warn("Loading of usb devices is unsupported");
 					}
+					if (nodeXML->QueryBoolAttribute("Split", &isSplit) != XML_SUCCESS) return Logger::warn("Could not load split status");
 				}
 				break;
 			case Node::Type::PROCESSOR:

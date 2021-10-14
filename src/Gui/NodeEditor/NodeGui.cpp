@@ -40,13 +40,13 @@ void Node::nodeGui() {
         std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(shared_from_this());
         nodeIsOffline = !device->isDetected() && !device->isOnline();
         switch (device->getDeviceType()) {
-            case Device::Type::ETHERCATSLAVE:
+            case Device::Type::ETHERCAT_DEVICE:
                 labelColor = glm::vec4(0.7, 0.2, 0.0, 0.5f);
                 break;
-            case Device::Type::NETWORKDEVICE:
+            case Device::Type::NETWORK_DEVICE:
                 labelColor = glm::vec4(0.6f, 0.1f, 0.6f, 0.5f);
                 break;
-            case Device::Type::USBDEVICE:
+            case Device::Type::USB_DEVICE:
                 labelColor = glm::vec4(0.1f, 0.1f, 0.6f, 0.5f);
                 break;
         }
