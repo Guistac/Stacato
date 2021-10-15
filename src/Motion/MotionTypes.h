@@ -40,8 +40,7 @@ PositionUnitType* getPositionUnitType(const char* saveName);
 struct PositionFeedback {
 	enum class Type {
 		ABSOLUTE_FEEDBACK,
-		INCREMENTAL_FEEDBACK,
-		NO_FEEDBACK
+		INCREMENTAL_FEEDBACK
 	};
 	Type type;
 	const char displayName[64];

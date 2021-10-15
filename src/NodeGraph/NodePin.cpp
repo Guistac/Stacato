@@ -24,7 +24,8 @@ bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> otherData) {
 				case NodeData::Type::REAL_VALUE: return true;
 				case NodeData::Type::ACTUATOR_DEVICELINK:
 				case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
-				case NodeData::Type::GPIO_DEVICELINK: return false;
+				case NodeData::Type::GPIO_DEVICELINK:
+				case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return false;
 			}
 		case NodeData::Type::REAL_VALUE:
 			switch (otherData->getType()) {
@@ -33,7 +34,8 @@ bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> otherData) {
 				case NodeData::Type::REAL_VALUE: return true;
 				case NodeData::Type::ACTUATOR_DEVICELINK:
 				case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
-				case NodeData::Type::GPIO_DEVICELINK: return false;
+				case NodeData::Type::GPIO_DEVICELINK:
+				case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return false;
 			}
 		case NodeData::Type::ACTUATOR_DEVICELINK:
 			switch (otherData->getType()) {
@@ -42,7 +44,8 @@ bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> otherData) {
 				case NodeData::Type::REAL_VALUE: return false;
 				case NodeData::Type::ACTUATOR_DEVICELINK: return true;
 				case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
-				case NodeData::Type::GPIO_DEVICELINK: return false;
+				case NodeData::Type::GPIO_DEVICELINK:
+				case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return false;
 			}
 		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
 			switch (otherData->getType()) {
@@ -51,7 +54,8 @@ bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> otherData) {
 				case NodeData::Type::REAL_VALUE: 
 				case NodeData::Type::ACTUATOR_DEVICELINK: return false;
 				case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: return true;
-				case NodeData::Type::GPIO_DEVICELINK: return false;
+				case NodeData::Type::GPIO_DEVICELINK:
+				case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return false;
 			}
 		case NodeData::Type::GPIO_DEVICELINK:
 			switch (otherData->getType()) {
@@ -61,6 +65,17 @@ bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> otherData) {
 				case NodeData::Type::ACTUATOR_DEVICELINK:
 				case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: return false;
 				case NodeData::Type::GPIO_DEVICELINK: return true;
+				case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return false;
+			}
+		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK:
+			switch (otherData->getType()) {
+				case NodeData::Type::BOOLEAN_VALUE:
+				case NodeData::Type::INTEGER_VALUE:
+				case NodeData::Type::REAL_VALUE:
+				case NodeData::Type::ACTUATOR_DEVICELINK:
+				case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
+				case NodeData::Type::GPIO_DEVICELINK: return false;
+				case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return true;
 			}
 	}
 }
@@ -105,6 +120,10 @@ void NodePin::set(std::shared_ptr<GpioDevice> device) {
 	if (isGpioDeviceLink()) gpioDevice = device;
 }
 
+void NodePin::set(std::shared_ptr<ServoActuatorDevice> device) {
+	if (isServoActuatorDeviceLink()) servoActuatorDevice = device;
+}
+
 //reading data (with data conversions)
 bool NodePin::getBoolean() {
 	switch (type) {
@@ -146,6 +165,11 @@ std::shared_ptr<GpioDevice> NodePin::getGpioDevice() {
 	return nullptr;
 }
 
+std::shared_ptr<ServoActuatorDevice> NodePin::getServoActuatorDevice() {
+	if (isServoActuatorDeviceLink()) return servoActuatorDevice;
+	return nullptr;
+}
+
 const char* NodePin::getValueString() {
 	static char output[32];
 	switch (type) {
@@ -156,6 +180,7 @@ const char* NodePin::getValueString() {
 		case NodeData::Type::ACTUATOR_DEVICELINK: getSaveName(); break;
 		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: getSaveName(); break;
 		case NodeData::Type::GPIO_DEVICELINK: getSaveName(); break;
+		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: getSaveName(); break;
 	}
 	return (const char*)output;
 }
@@ -277,7 +302,8 @@ std::vector<NodeData> NodeDataTypes = {
 	{NodeData::Type::REAL_VALUE, "Real", "Real"},
 	{NodeData::Type::ACTUATOR_DEVICELINK, "Actuator", "ActuatorDeviceLink"},
 	{NodeData::Type::POSITIONFEEDBACK_DEVICELINK, "Position Feedback", "PositionFeedbackDeviceLink"},
-	{NodeData::Type::GPIO_DEVICELINK, "GPIO", "GPIODeviceLink"}
+	{NodeData::Type::GPIO_DEVICELINK, "GPIO", "GPIODeviceLink"},
+	{NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK, "Servo Actuator", "ServoActuatorDeviceLink"},
 };
 std::vector<NodeData>& getNodeDataTypes() {
 	return NodeDataTypes;

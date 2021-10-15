@@ -12,7 +12,8 @@ public:
 	enum class Type {
 		ACTUATOR,
 		POSITION_FEEDBACK,
-		GPIO
+		GPIO,
+		SERVO_ACTUATOR
 	};
 	virtual Type getSubdeviceType() = 0;
 
@@ -40,19 +41,17 @@ public:
 class ActuatorDevice : public Subdevice{
 public:
 
-	ActuatorDevice(const char* n, PositionUnit::Unit unit, CommandType::Type type) : Subdevice(n), positionUnit(unit), commandType(type) {}
+	ActuatorDevice(const char* n, PositionUnit::Unit unit) : Subdevice(n), positionUnit(unit) {}
 	virtual Type getSubdeviceType() { return Type::ACTUATOR; }
 
-	PositionUnit::Unit getPositionUnit() { return positionUnit; }
 	PositionUnit::Unit positionUnit;
-	CommandType::Type commandType;
 
 	//enable power
 	void enable() { b_setEnabled = true; }						
 	//disable power
 	void disable() { b_setDisabled = true; }						
 	//set command
-	void setCommand(double c) { command = c; }
+	void setVelocityCommand(double command) { velocityCommand = command; }
 	//don't allow powering the actuator
 	void park() { b_setDisabled = true; b_parked = true; }			
 	//allow powereing of the actuator
@@ -77,16 +76,17 @@ public:
 	bool b_enabled = false;
 	bool b_parked = false;
 	bool b_emergencyStopActive = false;
+	double velocityLimit_positionUnitsPerSecond = 0.0;
+	double accelerationLimit_positionUnitsPerSecondSquared = 0.0;
+	double load = 0.0;
 
 	bool b_setEnabled = false;
 	bool b_setDisabled = false;
 	bool b_setQuickstop = false;
-
-	double velocityLimit_positionUnitsPerSecond = 0.0;
-	double accelerationLimit_positionUnitsPerSecondSquared = 0.0;
-	double load = 0.0;
-	double command = 0.0;
+	double velocityCommand = 0.0;
 };
+
+
 
 class PositionFeedbackDevice : public Subdevice {
 public:
@@ -94,7 +94,6 @@ public:
 	PositionFeedbackDevice(const char* n, PositionUnit::Unit unit, PositionFeedback::Type type) : Subdevice(n), positionUnit(unit), feedbackType(type) {}
 	virtual Type getSubdeviceType() { return Type::POSITION_FEEDBACK; }
 
-	PositionUnit::Unit getPositionUnit() { return positionUnit; }
 	PositionUnit::Unit positionUnit;
 	PositionFeedback::Type feedbackType;
 
@@ -106,21 +105,91 @@ public:
 	double getPositionInRange() { return (positionRaw_positionUnits - rangeMin_positionUnits) / (rangeMax_positionUnits - rangeMin_positionUnits); }
 	//get the position with included offset in specified units
 	double getPosition() { return positionRaw_positionUnits - positionOffset_positionUnits; }
+	//get velocity of encoder movement
+	double getVelocity() { return velocity_positionUnitsPerSecond; }
 
 	double positionRaw_positionUnits = 0.0;
 	double positionOffset_positionUnits = 0.0;
-
-	double velocity_positionUnitsPerSecond = 0.0;
-	double getVelocity() { return velocity_positionUnitsPerSecond; }
-
 	double rangeMax_positionUnits;
 	double rangeMin_positionUnits;
+	double velocity_positionUnitsPerSecond = 0.0;
 };
+
+
 
 class GpioDevice : public Subdevice {
 public:
 
 	GpioDevice(const char* n) : Subdevice(n) {}
 	virtual Type getSubdeviceType() { return Type::GPIO; }
+
+};
+
+
+
+class ServoActuatorDevice : public Subdevice {
+public:
+
+	ServoActuatorDevice(const char* n, PositionUnit::Unit unit, PositionFeedback::Type feedback) : Subdevice(n){}
+	virtual Type getSubdeviceType() { return Type::SERVO_ACTUATOR; }
+
+	PositionUnit::Unit positionUnit;
+	PositionFeedback::Type feedbackType;
+
+	//enable power
+	void enable() { b_setEnabled = true; }
+	//disable power
+	void disable() { b_setDisabled = true; }
+	//set command
+	void setPositionCommand(double command) { positionCommand = command; }
+	//don't allow powering the actuator
+	void park() { b_setDisabled = true; b_parked = true; }
+	//allow powereing of the actuator
+	void unpark() { b_parked = false; }
+	//force a controlled stop
+	void quickstop() { b_setQuickstop = true; }
+
+	//is the actuator powered
+	bool isEnabled() { return b_enabled; }
+	//is the actuator allowed to power on
+	bool isParked() { return b_parked; }
+	//is the device disabled by an external emergency stop signal
+	bool isEmergencyStopActive() { return b_emergencyStopActive; }
+
+	//get the normalized load of the device
+	double getLoad() { return load; }
+	//get the velocity limit in device position units per second
+	double getVelocityLimit() { return velocityLimit_positionUnitsPerSecond; }
+	//get the acceleration limit in device position units per second squared
+	double getAccelerationLimit() { return accelerationLimit_positionUnitsPerSecondSquared; }
+
+	bool b_enabled = false;
+	bool b_parked = false;
+	bool b_emergencyStopActive = false;
+	double velocityLimit_positionUnitsPerSecond = 0.0;
+	double accelerationLimit_positionUnitsPerSecondSquared = 0.0;
+	double load = 0.0;
+
+	bool b_setEnabled = false;
+	bool b_setDisabled = false;
+	bool b_setQuickstop = false;
+	double positionCommand = 0.0;
+
+	//set the current position of the actuator as the offset, this will zero the position
+	void captureOffset() { positionOffset_positionUnits = positionRaw_positionUnits; }
+	//is the position feedback inside its operational range
+	bool isInRange() { return positionRaw_positionUnits < rangeMax_positionUnits&& positionRaw_positionUnits > rangeMin_positionUnits; }
+	//get the normalized position in the operational range of the feedback device
+	double getPositionInRange() { return (positionRaw_positionUnits - rangeMin_positionUnits) / (rangeMax_positionUnits - rangeMin_positionUnits); }
+	//get the position with included offset in specified units
+	double getPosition() { return positionRaw_positionUnits - positionOffset_positionUnits; }
+	//get velocity of the encoder movement
+	double getVelocity() { return velocity_positionUnitsPerSecond; }
+
+	double positionRaw_positionUnits = 0.0;
+	double positionOffset_positionUnits = 0.0;
+	double rangeMax_positionUnits;
+	double rangeMin_positionUnits;
+	double velocity_positionUnitsPerSecond = 0.0;
 
 };

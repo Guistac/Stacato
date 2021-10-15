@@ -211,8 +211,8 @@ void Lexium32::controlsGui() {
     float widgetWidth = ImGui::GetItemRectSize().x;
     if (disableModeSwitch) END_DISABLE_IMGUI_ELEMENT
 
-    float maxV = motorDevice->velocityLimit_positionUnitsPerSecond;
-    float maxA = motorDevice->accelerationLimit_positionUnitsPerSecondSquared;
+    float maxV = servoMotorDevice->velocityLimit_positionUnitsPerSecond;
+    float maxA = servoMotorDevice->accelerationLimit_positionUnitsPerSecondSquared;
 
     if (actualOperatingMode == OperatingMode::Mode::UNKNOWN) {}
     else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION) {}
@@ -237,13 +237,13 @@ void Lexium32::controlsGui() {
 
     float velocityFraction;
     static char actualVelocityString[32];
-    if (!encoderDevice->isReady()) {
+    if (!servoMotorDevice->isReady()) {
         sprintf(actualVelocityString, "Not Ready");
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
         velocityFraction = 1.0;
     }
     else {
-        double velocity = encoderDevice->getVelocity();
+        double velocity = servoMotorDevice->getVelocity();
         sprintf(actualVelocityString, "%.1f rps", velocity);
         velocityFraction = std::abs(velocity) / maxV;
         if(velocityFraction >= 1.0) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
@@ -255,8 +255,8 @@ void Lexium32::controlsGui() {
 
     char rangeString[64];
 
-    double range = encoderDevice->getPositionInRange();
-    if (!encoderDevice->isReady()) {
+    double range = servoMotorDevice->getPositionInRange();
+    if (!servoMotorDevice->isReady()) {
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
         range = 1.0;
         sprintf(rangeString, "Not ready");
@@ -275,9 +275,9 @@ void Lexium32::controlsGui() {
     ImGui::ProgressBar(range, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), rangeString);
     ImGui::PopStyleColor();
 
-    if (encoderDevice->isReady()) {
-        ImGui::Text("Current Position is %.3f revolutions", encoderDevice->positionRaw_positionUnits);
-        ImGui::Text("Range is from %.3f to %.3f revolutions", encoderDevice->rangeMin_positionUnits, encoderDevice->rangeMax_positionUnits);
+    if (servoMotorDevice->isReady()) {
+        ImGui::Text("Current Position is %.3f revolutions", servoMotorDevice->positionRaw_positionUnits);
+        ImGui::Text("Range is from %.3f to %.3f revolutions", servoMotorDevice->rangeMin_positionUnits, servoMotorDevice->rangeMax_positionUnits);
     }
 
 
@@ -306,13 +306,13 @@ void Lexium32::generalGui() {
 
     if (maxMotorVelocity_rps != 0.0) {
         ImGui::TextWrapped("The Maximum Velocity of the Motor is %.3f rotations per second ", maxMotorVelocity_rps);
-        if (motorDevice->velocityLimit_positionUnitsPerSecond > maxMotorVelocity_rps) motorDevice->velocityLimit_positionUnitsPerSecond = maxMotorVelocity_rps;
+        if (servoMotorDevice->velocityLimit_positionUnitsPerSecond > maxMotorVelocity_rps) servoMotorDevice->velocityLimit_positionUnitsPerSecond = maxMotorVelocity_rps;
     }
 
     ImGui::Text("Velocity Limit");
-    ImGui::InputDouble("##maxV", &motorDevice->velocityLimit_positionUnitsPerSecond, 0.0, 0.0, "%.1f rev/s");
+    ImGui::InputDouble("##maxV", &servoMotorDevice->velocityLimit_positionUnitsPerSecond, 0.0, 0.0, "%.1f rev/s");
     ImGui::Text("Acceleration Limit");
-    ImGui::InputDouble("##maxA", &motorDevice->accelerationLimit_positionUnitsPerSecondSquared, 0.0, 0.0, u8"%.1f rev/s²");
+    ImGui::InputDouble("##maxA", &servoMotorDevice->accelerationLimit_positionUnitsPerSecondSquared, 0.0, 0.0, u8"%.1f rev/s²");
 
     ImGui::Text("Default Manual Acceleration");
     ImGui::InputFloat("##defmaxacc", &defaultManualAcceleration_rpsps, 0.0, 0.0, u8"%.1f rev/s²");

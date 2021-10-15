@@ -8,6 +8,29 @@ public:
 
     DEFINE_ETHERCAT_DEVICE(Lexium32, "LXM32M EtherCAT", "Lexium32M", "Lexium32M", "Schneider Electric", "Servo Drives")
 
+    //subdevices
+    std::shared_ptr<ServoActuatorDevice> servoMotorDevice = std::make_shared<ServoActuatorDevice>("Servo", PositionUnit::Unit::REVOLUTION, PositionFeedback::Type::ABSOLUTE_FEEDBACK);
+    std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
+
+    //node input data
+    std::shared_ptr<NodePin> digitalOut0 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ0");
+    std::shared_ptr<NodePin> digitalOut1 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ1");
+    std::shared_ptr<NodePin> digitalOut2 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ2");
+
+    //node output data
+    std::shared_ptr<NodePin> servoMotorLink = std::make_shared<NodePin>(NodeData::SERVO_ACTUATOR_DEVICE_LINK, DataDirection::NODE_OUTPUT, "Servo Motor");
+    std::shared_ptr<NodePin> actualLoad = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Load", NodePinFlags_DisableDataField | NodePinFlags_HidePin);
+    std::shared_ptr<NodePin> actualPosition = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position", NodePinFlags_DisableDataField | NodePinFlags_HidePin);
+    std::shared_ptr<NodePin> actualVelocity = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity", NodePinFlags_DisableDataField | NodePinFlags_HidePin);
+    std::shared_ptr<NodePin> gpNodeLink = std::make_shared<NodePin>(NodeData::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
+    std::shared_ptr<NodePin> digitalIn0 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI0", NodePinFlags_DisableDataField);
+    std::shared_ptr<NodePin> digitalIn1 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI1", NodePinFlags_DisableDataField);
+    std::shared_ptr<NodePin> digitalIn2 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI2", NodePinFlags_DisableDataField);
+    std::shared_ptr<NodePin> digitalIn3 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI3", NodePinFlags_DisableDataField);
+    std::shared_ptr<NodePin> digitalIn4 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI4", NodePinFlags_DisableDataField);
+    std::shared_ptr<NodePin> digitalIn5 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI5", NodePinFlags_DisableDataField);
+
+
     //===== drive status =====
     
     enum class State {
@@ -305,32 +328,6 @@ private:
 
     //used to track change in _LastError
     uint16_t previousErrorCode = 0;
-
-    //subdevices
-    std::shared_ptr<ActuatorDevice> motorDevice = std::make_shared<ActuatorDevice>("Motor", PositionUnit::Unit::REVOLUTION, CommandType::Type::POSITION_COMMAND);
-    std::shared_ptr<PositionFeedbackDevice> encoderDevice = std::make_shared<PositionFeedbackDevice>("Encoder", PositionUnit::Unit::REVOLUTION, PositionFeedback::Type::ABSOLUTE_FEEDBACK);
-    std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
-
-    //node input data
-    //std::shared_ptr<NodePin> positionCommand =   std::make_shared<NodePin>(NodeData::REAL_VALUE,    DataDirection::NODE_INPUT, "Position");
-    //std::shared_ptr<NodePin> velocityCommand =   std::make_shared<NodePin>(NodeData::REAL_VALUE,    DataDirection::NODE_INPUT, "Velocity", NodePinFlags_HidePin);
-    std::shared_ptr<NodePin> digitalOut0 =       std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ0");
-    std::shared_ptr<NodePin> digitalOut1 =       std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ1");
-    std::shared_ptr<NodePin> digitalOut2 =       std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ2");
-
-    //node output data
-    std::shared_ptr<NodePin> motorLink =         std::make_shared<NodePin>(NodeData::ACTUATOR_DEVICELINK, DataDirection::NODE_OUTPUT, "Motor");
-    std::shared_ptr<NodePin> actualLoad =        std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Load", NodePinFlags_DisableDataField | NodePinFlags_HidePin);
-    std::shared_ptr<NodePin> encoderLink =       std::make_shared<NodePin>(NodeData::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_OUTPUT, "Encoder");
-    std::shared_ptr<NodePin> actualPosition =    std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position", NodePinFlags_DisableDataField | NodePinFlags_HidePin);
-    std::shared_ptr<NodePin> actualVelocity =    std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity", NodePinFlags_DisableDataField | NodePinFlags_HidePin);
-    std::shared_ptr<NodePin> gpNodeLink =          std::make_shared<NodePin>(NodeData::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
-    std::shared_ptr<NodePin> digitalIn0 =        std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI0", NodePinFlags_DisableDataField);
-    std::shared_ptr<NodePin> digitalIn1 =        std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI1", NodePinFlags_DisableDataField);
-    std::shared_ptr<NodePin> digitalIn2 =        std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI2", NodePinFlags_DisableDataField);
-    std::shared_ptr<NodePin> digitalIn3 =        std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI3", NodePinFlags_DisableDataField);
-    std::shared_ptr<NodePin> digitalIn4 =        std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI4", NodePinFlags_DisableDataField);
-    std::shared_ptr<NodePin> digitalIn5 =        std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI5", NodePinFlags_DisableDataField);
 
     //command flags to control state machine (interface to construct DCOM_control word)
     bool b_disableOperation = false;

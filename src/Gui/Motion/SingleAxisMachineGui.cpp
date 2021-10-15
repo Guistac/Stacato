@@ -201,7 +201,7 @@ void SingleAxisMachine::controlsGui() {
 	ImGui::PopStyleColor();
 	
 	//encoder position in working range
-	if (needsPositionFeedbackDevice()) {
+	if (needsPositionFeedbackDevice() && isPositionFeedbackDeviceConnected()) {
 		std::shared_ptr<PositionFeedbackDevice> feedbackDevice = getPositionFeedbackDevice();
 		double range;
 		static char rangeString[64];
@@ -399,44 +399,12 @@ void SingleAxisMachine::settingsGui() {
 
 	if (isActuatorDeviceConnected()) {
 		std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
-		CommandType* actuatorCommandType = getCommandType(actuator->commandType);
 
 		ImGui::PushFont(Fonts::robotoBold15);
 		ImGui::Text("Device:");
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::Text("%s on %s", actuator->getName(), actuator->parentDevice->getName());
-
-		ImGui::PushFont(Fonts::robotoBold15);
-		ImGui::Text("Command Type:");
-		ImGui::PopFont();
-		ImGui::SameLine();
-		ImGui::Text("%s", actuatorCommandType->displayName);
-
-		switch (actuator->commandType) {
-			case CommandType::Type::POSITION_COMMAND:
-				switch (motionControlType) {
-				case MotionControlType::Type::OPEN_LOOP_CONTROL:
-					ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-					ImGui::TextWrapped("Actuators with Position Command are incompatible with Open Loop Control Mode. Select Servo Control Mode.");
-					ImGui::PopStyleColor();
-					break;
-				case MotionControlType::Type::CLOSED_LOOP_CONTROL:
-					ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-					ImGui::TextWrapped("Actuators with Position Command are incompatible with Closed Loop Control Mode. Select Servo Control Mode.");
-					ImGui::PopStyleColor();
-					break;
-				}
-			default: break;
-			case CommandType::Type::VELOCITY_COMMAND:
-				switch (motionControlType) {
-					case MotionControlType::Type::SERVO_CONTROL:
-						ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-						ImGui::TextWrapped("Actuators with Velocity Command are incompatible with Servo Control Mode. Select Closed or Open Loop Control Mode.");
-						ImGui::PopStyleColor();
-						break;
-				}
-		}
 
 		ImGui::PushFont(Fonts::robotoBold15);
 		ImGui::Text("Position Unit:");

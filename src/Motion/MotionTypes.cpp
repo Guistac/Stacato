@@ -91,8 +91,7 @@ PositionUnitType* getPositionUnitType(const char* saveName) {
 
 std::vector<PositionFeedback> positionFeedbackTypes = {
 	{PositionFeedback::Type::ABSOLUTE_FEEDBACK, "Absolute Feedback", "Absolute"},
-	{PositionFeedback::Type::INCREMENTAL_FEEDBACK, "Incremental Feedback", "Incremental"},
-	{PositionFeedback::Type::NO_FEEDBACK, "No Feedback", "None"}
+	{PositionFeedback::Type::INCREMENTAL_FEEDBACK, "Incremental Feedback", "Incremental"}
 };
 
 std::vector<PositionFeedback>& getPositionFeedbackTypes() { return positionFeedbackTypes; }

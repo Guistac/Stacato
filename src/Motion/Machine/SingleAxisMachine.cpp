@@ -62,7 +62,7 @@ void SingleAxisMachine::process() {
 
 	switch (motionControlType) {
 		case MotionControlType::Type::SERVO_CONTROL:
-			actuatorDevice->setCommand(profilePosition_machineUnits * actuatorUnitsPerMachineUnits);
+			actuatorDevice->setVelocityCommand(profilePosition_machineUnits * actuatorUnitsPerMachineUnits);
 			break;
 		case MotionControlType::Type::CLOSED_LOOP_CONTROL:
 		case MotionControlType::Type::OPEN_LOOP_CONTROL:
@@ -136,15 +136,6 @@ bool SingleAxisMachine::isReady() {
 	std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
 	if (!actuator->isReady()) return false;
 
-	switch (motionControlType) {
-		case MotionControlType::Type::SERVO_CONTROL:
-			if (actuator->commandType == CommandType::Type::VELOCITY_COMMAND) return false;
-			break;
-		case MotionControlType::Type::CLOSED_LOOP_CONTROL:
-		case MotionControlType::Type::OPEN_LOOP_CONTROL:
-			if (actuator->commandType == CommandType::Type::POSITION_COMMAND) return false;
-			break;
-	}
 	if (needsPositionFeedbackDevice() && (!isPositionFeedbackDeviceConnected() || !getPositionFeedbackDevice()->isReady())) return false;
 	if (needsReferenceDevice() && (!isReferenceDeviceConnected() || !getReferenceDevice()->isReady())) return false;
 
@@ -201,6 +192,7 @@ std::shared_ptr<ActuatorDevice> SingleAxisMachine::getActuatorDevice() {
 }
 
 void SingleAxisMachine::getPositionRange(double& lowLimit, double& highLimit) {
+	if (!isPositionFeedbackDeviceConnected())return;
 	switch (positionLimitType) {
 		case PositionLimitType::Type::LOW_LIMIT_SIGNAL:
 		case PositionLimitType::Type::HIGH_LIMIT_SIGNAL:

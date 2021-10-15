@@ -3,6 +3,7 @@
 class ActuatorDevice;
 class PositionFeedbackDevice;
 class GpioDevice;
+class ServoActuatorDevice;
 
 class Node;
 class NodeLink;
@@ -16,7 +17,8 @@ struct NodeData {
 		REAL_VALUE,
 		ACTUATOR_DEVICELINK,
 		POSITIONFEEDBACK_DEVICELINK,
-		GPIO_DEVICELINK
+		GPIO_DEVICELINK,
+		SERVO_ACTUATOR_DEVICE_LINK
 	};
 	Type type;
 	char displayName[64];
@@ -84,6 +86,7 @@ public:
 			case NodeData::Type::ACTUATOR_DEVICELINK: break;
 			case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: break;
 			case NodeData::Type::GPIO_DEVICELINK: break;
+			case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: break;
 		}
 		type = t;
 	}
@@ -108,6 +111,7 @@ public:
 	bool isActuatorDeviceLink()				{ return type == NodeData::Type::ACTUATOR_DEVICELINK; }
 	bool isPositionFeedbackDeviceLink()		{ return type == NodeData::Type::POSITIONFEEDBACK_DEVICELINK; }
 	bool isGpioDeviceLink()					{ return type == NodeData::Type::GPIO_DEVICELINK; }
+	bool isServoActuatorDeviceLink()		{ return type == NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK; }
 
 	//setting data (with data conversions)
 	void set(bool boolean);
@@ -116,6 +120,7 @@ public:
 	void set(std::shared_ptr<ActuatorDevice>);
 	void set(std::shared_ptr<PositionFeedbackDevice>);
 	void set(std::shared_ptr<GpioDevice>);
+	void set(std::shared_ptr<ServoActuatorDevice>);
 
 	//reading data (with data conversions)
 	bool getBoolean();
@@ -124,6 +129,7 @@ public:
 	std::shared_ptr<ActuatorDevice> getActuatorDevice();
 	std::shared_ptr<PositionFeedbackDevice> getPositionFeedbackDevice();
 	std::shared_ptr<GpioDevice> getGpioDevice();
+	std::shared_ptr<ServoActuatorDevice> getServoActuatorDevice();
 
 	const char* getValueString();
 
@@ -168,6 +174,7 @@ private:
 	std::shared_ptr<ActuatorDevice> actuatorDevice = nullptr;
 	std::shared_ptr<PositionFeedbackDevice> positionFeedbackDevice = nullptr;
 	std::shared_ptr<GpioDevice> gpioDevice = nullptr;
+	std::shared_ptr<ServoActuatorDevice> servoActuatorDevice = nullptr;
 
 	void setup(NodeData::Type t, DataDirection d, const char* displayN, const char* saveN, NodePinFlags flags) {
 		strcpy(displayName, displayN);
@@ -185,6 +192,7 @@ private:
 			case NodeData::Type::ACTUATOR_DEVICELINK:
 			case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
 			case NodeData::Type::GPIO_DEVICELINK:
+			case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK:
 					b_noDataField = true;
 					b_forceDataField = false;
 					break;
