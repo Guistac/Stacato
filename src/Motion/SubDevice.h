@@ -51,6 +51,8 @@ public:
 	void enable() { b_setEnabled = true; }						
 	//disable power
 	void disable() { b_setDisabled = true; }						
+	//set command
+	void setCommand(double c) { command = c; }
 	//don't allow powering the actuator
 	void park() { b_setDisabled = true; b_parked = true; }			
 	//allow powereing of the actuator
@@ -83,6 +85,7 @@ public:
 	double velocityLimit_positionUnitsPerSecond = 0.0;
 	double accelerationLimit_positionUnitsPerSecondSquared = 0.0;
 	double load = 0.0;
+	double command = 0.0;
 };
 
 class PositionFeedbackDevice : public Subdevice {

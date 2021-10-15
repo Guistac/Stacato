@@ -166,7 +166,8 @@ bool isAngularPositionLimit(PositionLimitType::Type t) {
 
 std::vector<MotionControlType> motionControlTypes = {
 	{MotionControlType::Type::CLOSED_LOOP_CONTROL, "Closed Loop", "ClosedLoop"},
-	{MotionControlType::Type::OPEN_LOOP_CONTROL, "Open Loop", "OpenLoop"}
+	{MotionControlType::Type::OPEN_LOOP_CONTROL, "Open Loop", "OpenLoop"},
+	{MotionControlType::Type::SERVO_CONTROL, "Servo Control", "Servo"}
 };
 
 std::vector<MotionControlType>& getMotionControlTypes() { return motionControlTypes; }

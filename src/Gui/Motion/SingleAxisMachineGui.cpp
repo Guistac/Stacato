@@ -1,4 +1,4 @@
-#include <pch.h>
+﻿#include <pch.h>
 
 #include "Motion/Machine/SingleAxisMachine.h"
 
@@ -47,25 +47,25 @@ void SingleAxisMachine::controlsGui() {
 	ImGui::PopItemFlag();
 
 	ImGui::SameLine();
-	if(!readyToEnable) BEGIN_DISABLE_IMGUI_ELEMENT
-	if (isEnabled()) {
-		if (ImGui::Button("Disable Machine", buttonSize)) disable();
-	}
-	else {
-		if (ImGui::Button("Enable Machine", buttonSize)) enable();
-	}
+	if (!readyToEnable) BEGIN_DISABLE_IMGUI_ELEMENT
+		if (isEnabled()) {
+			if (ImGui::Button("Disable Machine", buttonSize)) disable();
+		}
+		else {
+			if (ImGui::Button("Enable Machine", buttonSize)) enable();
+		}
 	if (!readyToEnable) END_DISABLE_IMGUI_ELEMENT
 
-	ImGui::Separator();
+		ImGui::Separator();
 
 	bool disableManualControls = !b_enabled;
-	if(disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
+	if (disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
 
-	//------------------- MASTER MANUAL ACCELERATION ------------------------
+		//------------------- MASTER MANUAL ACCELERATION ------------------------
 
-	ImGui::Text("Acceleration for manual controls :");
+		ImGui::Text("Acceleration for manual controls :");
 	static char accelerationString[32];
-	sprintf(accelerationString, "%.3f %s/s2", manualControlAcceleration_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
+	sprintf(accelerationString, u8"%.3f %s/s²", manualControlAcceleration_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
 	ImGui::InputDouble("##TargetAcceleration", &manualControlAcceleration_machineUnitsPerSecond, 0.0, 0.0, accelerationString);
 	clamp(manualControlAcceleration_machineUnitsPerSecond, 0.0, accelerationLimit_machineUnitsPerSecondSquared);
 	ImGui::Separator();
@@ -132,7 +132,7 @@ void SingleAxisMachine::controlsGui() {
 
 	//-------------------------------- FEEDBACK --------------------------------
 
-		
+
 	if (std::abs(profileVelocity_machineUnitsPerSecond) == std::abs(velocityLimit_machineUnitsPerSecond)) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::orange);
 	else if (std::abs(profileVelocity_machineUnitsPerSecond) > std::abs(velocityLimit_machineUnitsPerSecond)) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
 	else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
@@ -213,7 +213,7 @@ void SingleAxisMachine::controlsGui() {
 		break;
 	}
 
-	if(disableManualControls) END_DISABLE_IMGUI_ELEMENT
+	if (disableManualControls) END_DISABLE_IMGUI_ELEMENT
 
 }
 
@@ -271,22 +271,6 @@ void SingleAxisMachine::settingsGui() {
 		ImGui::EndCombo();
 	}
 
-	ImGui::Text("Actuator Command Type :");
-	if (ImGui::BeginCombo("##CommandType", getCommandType(commandType)->displayName)) {
-		for (CommandType& command : getCommandTypes()) {
-			if (ImGui::Selectable(command.displayName, commandType == command.type)) commandType = command.type;
-		}
-		ImGui::EndCombo();
-	}
-	switch (commandType) {
-		case CommandType::Type::POSITION_COMMAND: break;
-		case CommandType::Type::VELOCITY_COMMAND:
-			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-			ImGui::TextWrapped("Actuators with velocity command are not yet supported. In Closed Loop Control, the machine object would need a PID controller with position feedback to regulate position.");
-			ImGui::PopStyleColor();
-			break;
-	}
-
 	ImGui::Text("Motion Control Type :");
 	if (ImGui::BeginCombo("##MotionControlType", getMotionControlType(motionControlType)->displayName)) {
 		for (MotionControlType& control : getMotionControlTypes()) {
@@ -295,12 +279,26 @@ void SingleAxisMachine::settingsGui() {
 		ImGui::EndCombo();
 	}
 	switch (motionControlType) {
-		case MotionControlType::Type::CLOSED_LOOP_CONTROL: break;
-		case MotionControlType::Type::OPEN_LOOP_CONTROL:
-			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-			ImGui::TextWrapped("Open Loop Controlled Machines are not yet Supported. In this control mode, no position feedback is used. Only use when there is no need for position control.");
-			ImGui::PopStyleColor();
-			break;
+	case MotionControlType::Type::SERVO_CONTROL:
+		ImGui::TextWrapped("In this mode, closed loop control takes place in the servo drive itself."
+			"\nA Position command is sent to the drive and the drive reports its current position."
+			"\nCompatible only with Servo Actuators expecting Position Commands.");
+		break;
+	case MotionControlType::Type::CLOSED_LOOP_CONTROL: 
+		ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
+		ImGui::TextWrapped("Closed Loop Controlled Machines are not yet Supported."
+							"\nIn this control mode, position feedback is used to to update a PID controller which regulates axis position by sending velocity commands."
+							"\nCompatible only with Actuators expecting Velocity Commands.");
+		ImGui::PopStyleColor();
+		break;
+	case MotionControlType::Type::OPEN_LOOP_CONTROL:
+		ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
+		ImGui::TextWrapped("Open Loop Controlled Machines are not yet Supported."
+							"\nIn this control mode, no position feedback is used."
+							"\nOnly use when there is no need for position control."
+							"\nCompatible only with Actuators expecting Velocity Commands.");
+		ImGui::PopStyleColor();
+		break;
 	}
 
 	ImGui::Separator();
@@ -308,7 +306,7 @@ void SingleAxisMachine::settingsGui() {
 
 	//---------------------- POSITION FEEDBACK ---------------------------
 
-	if (motionControlType == MotionControlType::Type::CLOSED_LOOP_CONTROL) {
+	if (motionControlType != MotionControlType::Type::OPEN_LOOP_CONTROL) {
 
 		ImGui::PushFont(Fonts::robotoBold20);
 		ImGui::Text("Position Feedback");
@@ -329,25 +327,29 @@ void SingleAxisMachine::settingsGui() {
 			ImGui::SameLine();
 			ImGui::Text("%s", feedbackType->displayName);
 
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("Position Unit:");
-			ImGui::PopFont();
-			ImGui::SameLine();
-			ImGui::Text("%s", getPositionUnit(feedbackDevice->positionUnit)->displayNamePlural);
+			if (motionControlType != MotionControlType::Type::SERVO_CONTROL) {
+				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::Text("Position Unit:");
+				ImGui::PopFont();
+				ImGui::SameLine();
+				ImGui::Text("%s", getPositionUnit(feedbackDevice->positionUnit)->displayNamePlural);
+			}
 
 			switch (feedbackDevice->feedbackType) {
-			case PositionFeedback::Type::INCREMENTAL_FEEDBACK:
-				ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-				ImGui::TextWrapped("With incremental position feedback, the homing routine needs to be executed on each system power cycle");
-				ImGui::PopStyleColor();
-				break;
-			case PositionFeedback::Type::ABSOLUTE_FEEDBACK: break;
+				case PositionFeedback::Type::INCREMENTAL_FEEDBACK:
+					ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
+					ImGui::TextWrapped("With incremental position feedback, the homing routine needs to be executed on each system power cycle");
+					ImGui::PopStyleColor();
+					break;
+				default: break;
 			}
-			ImGui::Text("%s %s per Machine %s :", feedbackDevice->getName(), getPositionUnit(feedbackDevice->positionUnit)->displayNamePlural, getPositionUnit(machinePositionUnit)->displayName);
 
-			if(feedbackAndActuatorConversionIdentical) BEGIN_DISABLE_IMGUI_ELEMENT
-			ImGui::InputDouble("##feedbackCoupling", &feedbackUnitsPerMachineUnits);
-			if(feedbackAndActuatorConversionIdentical) END_DISABLE_IMGUI_ELEMENT
+			if (motionControlType != MotionControlType::Type::SERVO_CONTROL) {
+				if (feedbackAndActuatorConversionIdentical) BEGIN_DISABLE_IMGUI_ELEMENT
+				ImGui::Text("%s %s per Machine %s :", feedbackDevice->getName(), getPositionUnit(feedbackDevice->positionUnit)->displayNamePlural, getPositionUnit(machinePositionUnit)->displayName);
+				ImGui::InputDouble("##feedbackCoupling", &feedbackUnitsPerMachineUnits);
+				if (feedbackAndActuatorConversionIdentical) END_DISABLE_IMGUI_ELEMENT
+			}
 		}
 		else {
 			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
@@ -364,14 +366,14 @@ void SingleAxisMachine::settingsGui() {
 	ImGui::PopFont();
 
 	if (isActuatorDeviceConnected()) {
-		std::shared_ptr<ActuatorDevice> actuators = getActuatorDevice();
-		CommandType* actuatorCommandType = getCommandType(actuators->commandType);
+		std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
+		CommandType* actuatorCommandType = getCommandType(actuator->commandType);
 
 		ImGui::PushFont(Fonts::robotoBold15);
 		ImGui::Text("Device:");
 		ImGui::PopFont();
 		ImGui::SameLine();
-		ImGui::Text("%s on %s", actuators->getName(), actuators->parentDevice->getName());
+		ImGui::Text("%s on %s", actuator->getName(), actuator->parentDevice->getName());
 
 		ImGui::PushFont(Fonts::robotoBold15);
 		ImGui::Text("Command Type:");
@@ -379,24 +381,48 @@ void SingleAxisMachine::settingsGui() {
 		ImGui::SameLine();
 		ImGui::Text("%s", actuatorCommandType->displayName);
 
-		if (actuatorCommandType->type != commandType) {
-			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-			ImGui::TextWrapped("Actuator Command Type doesn't match Machine command Type");
-			ImGui::PopStyleColor();
+		switch (actuator->commandType) {
+			case CommandType::Type::POSITION_COMMAND:
+				switch (motionControlType) {
+				case MotionControlType::Type::OPEN_LOOP_CONTROL:
+					ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
+					ImGui::TextWrapped("Actuators with Position Command are incompatible with Open Loop Control Mode. Select Servo Control Mode.");
+					ImGui::PopStyleColor();
+					break;
+				case MotionControlType::Type::CLOSED_LOOP_CONTROL:
+					ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
+					ImGui::TextWrapped("Actuators with Position Command are incompatible with Closed Loop Control Mode. Select Servo Control Mode.");
+					ImGui::PopStyleColor();
+					break;
+				}
+			default: break;
+			case CommandType::Type::VELOCITY_COMMAND:
+				switch (motionControlType) {
+					case MotionControlType::Type::SERVO_CONTROL:
+						ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
+						ImGui::TextWrapped("Actuators with Velocity Command are incompatible with Servo Control Mode. Select Closed or Open Loop Control Mode.");
+						ImGui::PopStyleColor();
+						break;
+				}
 		}
 
 		ImGui::PushFont(Fonts::robotoBold15);
 		ImGui::Text("Position Unit:");
 		ImGui::PopFont();
 		ImGui::SameLine();
-		ImGui::Text("%s", getPositionUnit(actuators->positionUnit)->displayNamePlural);
+		ImGui::Text("%s", getPositionUnit(actuator->positionUnit)->displayNamePlural);
 
-		ImGui::Text("%s %s per Machine %s :", actuators->getName(), getPositionUnit(actuators->positionUnit)->displayNamePlural, getPositionUnit(machinePositionUnit)->displayName);
+		ImGui::Text("%s %s per Machine %s :", actuator->getName(), getPositionUnit(actuator->positionUnit)->displayNamePlural, getPositionUnit(machinePositionUnit)->displayName);
 		ImGui::InputDouble("##actuatorCoupling", &actuatorUnitsPerMachineUnits);
 
-		ImGui::Checkbox("##actFeedIdent", &feedbackAndActuatorConversionIdentical);
-		ImGui::SameLine();
-		ImGui::Text("Actuator and Feedback Coupling are identical");
+		if (motionControlType == MotionControlType::Type::SERVO_CONTROL) {
+			feedbackAndActuatorConversionIdentical = true;
+		}
+		if (motionControlType == MotionControlType::Type::CLOSED_LOOP_CONTROL){
+			ImGui::Checkbox("##actFeedIdent", &feedbackAndActuatorConversionIdentical);
+			ImGui::SameLine();
+			ImGui::Text("Actuator and Feedback Coupling are identical");
+		}
 		if (feedbackAndActuatorConversionIdentical) {
 			feedbackUnitsPerMachineUnits = actuatorUnitsPerMachineUnits;
 		}
@@ -406,7 +432,7 @@ void SingleAxisMachine::settingsGui() {
 		ImGui::TextWrapped("No Actuator device connected.");
 		ImGui::PopStyleColor();
 	}
-	
+
 	ImGui::Separator();
 
 	//-------------------------- KINEMATIC LIMITS ----------------------------
@@ -415,12 +441,26 @@ void SingleAxisMachine::settingsGui() {
 	ImGui::Text("Kinematic Limits");
 	ImGui::PopFont();
 
+	double actuatorVelocityLimit_machineUnitsPerSecond;
+	double actuatorAccelerationLimit_machineUnitsPerSecondSquared;
+	if (isActuatorDeviceConnected()) {
+		std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
+		actuatorVelocityLimit_machineUnitsPerSecond = actuator->getVelocityLimit() / actuatorUnitsPerMachineUnits;
+		actuatorAccelerationLimit_machineUnitsPerSecondSquared = actuator->getAccelerationLimit() / actuatorUnitsPerMachineUnits;
+		ImGui::TextWrapped(u8"Max actuator velocity is %.1f %s/s and max acceleration is %.1f %s/s²", actuator->getVelocityLimit(), getPositionUnit(actuator->positionUnit)->shortForm, actuator->getAccelerationLimit(), getPositionUnit(actuator->positionUnit)->shortForm);
+		ImGui::TextWrapped(u8"Machine is limited to %.3f %s/s and %.3f %s/s²", actuatorVelocityLimit_machineUnitsPerSecond, getPositionUnit(machinePositionUnit)->shortForm, actuatorAccelerationLimit_machineUnitsPerSecondSquared, getPositionUnit(machinePositionUnit)->shortForm);
+		clamp(velocityLimit_machineUnitsPerSecond, 0.0, actuatorVelocityLimit_machineUnitsPerSecond);
+		clamp(accelerationLimit_machineUnitsPerSecondSquared, 0.0, actuatorAccelerationLimit_machineUnitsPerSecondSquared);
+		clamp(defaultManualVelocity_machineUnitsPerSecond, 0.0, actuatorVelocityLimit_machineUnitsPerSecond);
+		clamp(defaultManualAcceleration_machineUnitsPerSecondSquared, 0.0, actuatorAccelerationLimit_machineUnitsPerSecondSquared);	
+	}
+
 	ImGui::Text("Velocity Limit");
 	static char velLimitString[16];
 	sprintf(velLimitString, "%.3f %s/s", velocityLimit_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
 	ImGui::InputDouble("##VelLimit", &velocityLimit_machineUnitsPerSecond, 0.0, 0.0, velLimitString);
 	static char accLimitString[16];
-	sprintf(accLimitString, "%.3f %s/s2", accelerationLimit_machineUnitsPerSecondSquared, getPositionUnitStringShort(machinePositionUnit));
+	sprintf(accLimitString, u8"%.3f %s/s²", accelerationLimit_machineUnitsPerSecondSquared, getPositionUnitStringShort(machinePositionUnit));
 	ImGui::Text("Acceleration Limit");
 	ImGui::InputDouble("##AccLimit", &accelerationLimit_machineUnitsPerSecondSquared, 0.0, 0.0, accLimitString);
 
@@ -429,7 +469,7 @@ void SingleAxisMachine::settingsGui() {
 	ImGui::Text("Default Manual Control Parameters", getPositionUnitStringPlural(machinePositionUnit));
 	ImGui::SetNextItemWidth(halfWidgetWidth);
 	static char manAccString[16];
-	sprintf(manAccString, "%.3f %s/s2", defaultManualAcceleration_machineUnitsPerSecondSquared, getPositionUnitStringShort(machinePositionUnit));
+	sprintf(manAccString, u8"%.3f %s/s²", defaultManualAcceleration_machineUnitsPerSecondSquared, getPositionUnitStringShort(machinePositionUnit));
 	ImGui::InputDouble("##defmanAcc", &defaultManualAcceleration_machineUnitsPerSecondSquared, 0.0, 0.0, manAccString);
 	clamp(defaultManualAcceleration_machineUnitsPerSecondSquared, 0.0, accelerationLimit_machineUnitsPerSecondSquared);
 	ImGui::SameLine();
@@ -444,12 +484,12 @@ void SingleAxisMachine::settingsGui() {
 	//----------------- POSITION REFERENCES AND HOMING -----------------
 
 	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Position Limits");
+	ImGui::Text("Position Reference and Limits");
 	ImGui::PopFont();
 
 	ImGui::Text("Limit Type");
 	if (ImGui::BeginCombo("##PositionReference", getPositionLimitType(positionLimitType)->displayName)) {
-		switch(machinePositionUnitType){
+		switch (machinePositionUnitType) {
 		case PositionUnit::Type::LINEAR:
 			for (PositionLimitType& reference : getLinearPositionLimitTypes()) {
 				bool selected = positionLimitType == reference.type;
@@ -483,7 +523,8 @@ void SingleAxisMachine::settingsGui() {
 		ImGui::InputDouble("##HomingVelocity", &homingVelocity_machineUnitsPerSecond, 0.0, 0.0, homVelString);
 		if (homingVelocity_machineUnitsPerSecond < 0) homingVelocity_machineUnitsPerSecond = abs(homingVelocity_machineUnitsPerSecond);
 		ImGui::TextWrapped("Single Limit Signal at the negative end of the machine travel."
-			"\nHoming will move the machine in the negative direction");
+			"\nHoming will move the machine in the negative direction"
+			"\nMachine Zero is set at the low limit.");
 		break;
 	case PositionLimitType::Type::HIGH_LIMIT_SIGNAL:
 		ImGui::Text("Max Deviation From High Limit", getPositionUnit(machinePositionUnit)->displayNamePlural);
@@ -493,7 +534,8 @@ void SingleAxisMachine::settingsGui() {
 		ImGui::InputDouble("##HomingVelocity", &homingVelocity_machineUnitsPerSecond, 0.0, 0.0, homVelString);
 		if (homingVelocity_machineUnitsPerSecond < 0) homingVelocity_machineUnitsPerSecond = abs(homingVelocity_machineUnitsPerSecond);
 		ImGui::TextWrapped("Single Limit Signal at the positive end of the machine travel."
-			"\nHoming will move the machine in the position direction");
+			"\nHoming will move the machine in the position direction"
+			"\nMachine Zero is set at a negative offset from high limit.");
 		break;
 	case PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
 		ImGui::Text("Homing Direction");
@@ -508,7 +550,8 @@ void SingleAxisMachine::settingsGui() {
 		ImGui::InputDouble("##HomingVelocity", &homingVelocity_machineUnitsPerSecond, 0.0, 0.0, homVelString);
 		if (homingVelocity_machineUnitsPerSecond < 0) homingVelocity_machineUnitsPerSecond = abs(homingVelocity_machineUnitsPerSecond);
 		ImGui::TextWrapped("Two Limit Signals at each end of the machine travel."
-			"\nHoming will first move the machine in the specified direction, then the other direction");
+			"\nHoming will first move the machine in the specified direction, then in the other direction"
+			"\nMachine Zero is set at the low limit.");
 		break;
 	case PositionLimitType::Type::REFERENCE_SIGNAL:
 		ImGui::Text("Homing Direction");
@@ -530,7 +573,8 @@ void SingleAxisMachine::settingsGui() {
 		if (homingVelocity_machineUnitsPerSecond < 0) homingVelocity_machineUnitsPerSecond = abs(homingVelocity_machineUnitsPerSecond);
 		ImGui::TextWrapped("Single Limit Signal inside the machine travel range."
 			"\nHoming will find the position reference using the specified direction."
-			"\nThe machine will not go over the max deviations from the position reference. (Not recommended for machine with physical limits)");
+			"\nThe machine will not go over the max deviations from the position reference. (Not recommended for machine with physical limits)"
+			"\nMachine Zero is set at a negative offset from the reference position.");
 		break;
 	case PositionLimitType::Type::FEEDBACK_REFERENCE:
 		ImGui::Text("Max Positive Deviation");
@@ -540,11 +584,13 @@ void SingleAxisMachine::settingsGui() {
 		ImGui::InputDouble("##MaxNegativeDeviation", &allowedNegativeDeviationFromReference_machineUnits, 0.0, 0.0, negDevString);
 		if (allowedNegativeDeviationFromReference_machineUnits > 0.0) allowedNegativeDeviationFromReference_machineUnits = 0.0;
 		ImGui::TextWrapped("No Limit Signal, the machine position is limited in reference to the feedback position."
-			"\nSetting of the origin has to be done by manually moving the machine to the desired position reference and resetting the position feedback. (Not recommended for position feedback types other than absolute)");
+			"\nSetting of the origin has to be done by manually moving the machine to the desired position reference and resetting the position feedback. (Not recommended for position feedback types other than absolute)"
+			"\nMachine zero is set manually.");
 		break;
 	case PositionLimitType::Type::NO_LIMIT:
 		ImGui::TextWrapped("No Position Limits."
-			"\nMovement is unconstrained in every direction.");
+			"\nMovement is unconstrained in every direction."
+			"\nMachine Zero is set manually.");
 		break;
 	}
 }
@@ -720,7 +766,7 @@ void SingleAxisMachine::metricsGui() {
 
 	ImPlotFlags plot1Flags = ImPlotFlags_AntiAliased | ImPlotFlags_NoChild | ImPlotFlags_YAxis2 | ImPlotFlags_YAxis3 | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoMousePos;
 
-	if(ImPlot::BeginPlot("##Metrics", 0, 0, glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 20.0), plot1Flags)) {
+	if (ImPlot::BeginPlot("##Metrics", 0, 0, glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 20.0), plot1Flags)) {
 
 		ImPlot::SetPlotYAxis(ImPlotYAxis_2);
 		ImPlot::SetNextLineStyle(glm::vec4(0.3, 0.3, 0.3, 1.0), 2.0);
@@ -730,15 +776,15 @@ void SingleAxisMachine::metricsGui() {
 		ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 0.5, 1.0), 2.0);
 		ImPlot::PlotHLines("##MinV", &minV, 1);
 		ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 1.0, 1.0), 4.0);
-		if (velocityPointCount > bufferSkip) ImPlot::PlotLine("Profile Velocity", &velocityBuffer[bufferSkip].x, &velocityBuffer[bufferSkip].y, velocityPointCount- bufferSkip, 0, sizeof(glm::vec2));
-			
+		if (velocityPointCount > bufferSkip) ImPlot::PlotLine("Profile Velocity", &velocityBuffer[bufferSkip].x, &velocityBuffer[bufferSkip].y, velocityPointCount - bufferSkip, 0, sizeof(glm::vec2));
+
 		ImPlot::SetPlotYAxis(ImPlotYAxis_3);
 		ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 0.3), 2.0);
 		ImPlot::PlotHLines("##MaxA", &maxA, 1);
 		ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 0.3), 2.0);
 		ImPlot::PlotHLines("##MinA", &minA, 1);
 		ImPlot::SetNextLineStyle(glm::vec4(0.5, 0.5, 0.5, 1.0), 4.0);
-		if (accelerationPointCount > bufferSkip) ImPlot::PlotLine("Profile Acceleration", &accelerationBuffer[bufferSkip].x, &accelerationBuffer[bufferSkip].y, accelerationPointCount- bufferSkip, 0, sizeof(glm::vec2));
+		if (accelerationPointCount > bufferSkip) ImPlot::PlotLine("Profile Acceleration", &accelerationBuffer[bufferSkip].x, &accelerationBuffer[bufferSkip].y, accelerationPointCount - bufferSkip, 0, sizeof(glm::vec2));
 
 		ImPlot::SetPlotYAxis(ImPlotYAxis_1);
 		ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 1.0), 4.0);

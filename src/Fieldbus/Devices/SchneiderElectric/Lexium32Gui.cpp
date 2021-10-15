@@ -309,13 +309,13 @@ void Lexium32::generalGui() {
         if (motorDevice->velocityLimit_positionUnitsPerSecond > maxMotorVelocity_rps) motorDevice->velocityLimit_positionUnitsPerSecond = maxMotorVelocity_rps;
     }
 
-    ImGui::Text("Velocity Limit (rotations per second)");
-    ImGui::InputDouble("##maxV", &motorDevice->velocityLimit_positionUnitsPerSecond, 0.0, 0.0, "%.1f rotations/s");
-    ImGui::Text("Acceleration Limit (rotations per second per second)");
-    ImGui::InputDouble("##maxA", &motorDevice->accelerationLimit_positionUnitsPerSecondSquared, 0.0, 0.0, "%.1f rotations/s2");
+    ImGui::Text("Velocity Limit");
+    ImGui::InputDouble("##maxV", &motorDevice->velocityLimit_positionUnitsPerSecond, 0.0, 0.0, "%.1f rev/s");
+    ImGui::Text("Acceleration Limit");
+    ImGui::InputDouble("##maxA", &motorDevice->accelerationLimit_positionUnitsPerSecondSquared, 0.0, 0.0, u8"%.1f rev/s²");
 
-    ImGui::Text("Default Manual Acceleration (rotations per second per second)");
-    ImGui::InputFloat("##defmaxacc", &defaultManualAcceleration_rpsps, 0.0, 0.0, "%.3f rps/s");
+    ImGui::Text("Default Manual Acceleration");
+    ImGui::InputFloat("##defmaxacc", &defaultManualAcceleration_rpsps, 0.0, 0.0, u8"%.1f rev/s²");
 
     ImGui::Separator();
 

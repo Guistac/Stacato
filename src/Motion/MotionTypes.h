@@ -75,7 +75,8 @@ bool isAngularPositionLimit(PositionLimitType::Type t);
 struct MotionControlType {
 	enum class Type {
 		CLOSED_LOOP_CONTROL,
-		OPEN_LOOP_CONTROL
+		OPEN_LOOP_CONTROL,
+		SERVO_CONTROL
 	};
 	Type type;
 	const char displayName[64];

@@ -16,8 +16,8 @@ public:
 	std::shared_ptr<NodePin> positionReferences = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "References", NodePinFlags_AcceptMultipleInputs);
 
 	//Outputs
-	std::shared_ptr<NodePin> actuatorCommand = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Actuator Command", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> resetPositionFeedback = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Position Feedback", NodePinFlags_DisableDataField | NodePinFlags_HidePin);
+	//std::shared_ptr<NodePin> actuatorCommand = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Actuator Command", NodePinFlags_DisableDataField);
+	//std::shared_ptr<NodePin> resetPositionFeedback = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Position Feedback", NodePinFlags_DisableDataField | NodePinFlags_HidePin);
 
 	//==================== AXIS DATA ====================
 
@@ -25,7 +25,6 @@ public:
 	PositionUnit::Type machinePositionUnitType = PositionUnit::Type::LINEAR;
 	PositionUnit::Unit machinePositionUnit = PositionUnit::Unit::METER;
 	MotionControlType::Type motionControlType = MotionControlType::Type::CLOSED_LOOP_CONTROL;
-	CommandType::Type commandType = CommandType::Type::POSITION_COMMAND;
 
 	//Unit Conversions
 	double feedbackUnitsPerMachineUnits = 0.0;
@@ -128,8 +127,8 @@ public:
 		addIoData(referenceDeviceLink);
 		addIoData(positionReferences);
 		//outputs
-		addIoData(actuatorCommand);
-		addIoData(resetPositionFeedback);
+		//addIoData(actuatorCommand);
+		//addIoData(resetPositionFeedback);
 	}
 
 	virtual void process();

@@ -97,8 +97,8 @@ void Lexium32::assignIoData() {
     gpNodeLink->set(gpioDevice);
 
     //node input data
-    addIoData(positionCommand);
-    addIoData(velocityCommand);
+    //addIoData(positionCommand);
+    //addIoData(velocityCommand);
     addIoData(digitalOut0);
     addIoData(digitalOut1);
     addIoData(digitalOut2);
@@ -304,7 +304,7 @@ void Lexium32::readInputs() {
     if (previousOperatingMode != actualOperatingMode) {
         manualVelocityCommand_rps = 0.0;
         profileVelocity_rps = 0.0;
-        velocityCommand->set(0.0);
+        //velocityCommand->set(0.0);
     }
 
     State previousState = state;
@@ -361,6 +361,8 @@ void Lexium32::readInputs() {
 
     //set motor device load
     motorDevice->load = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
+    //motor is only ready to be driven in cyclic synchronous position mode, not in manual velocity mode
+    motorDevice->b_ready = actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION;
 
     //assign public input data
     actualPosition->set(encoderDevice->getPosition());
@@ -397,9 +399,10 @@ void Lexium32::readInputs() {
 void Lexium32::prepareOutputs(){
 
     //get data from connected nodes
-    if (positionCommand->isConnected()) positionCommand->set(positionCommand->getLinks().front()->getInputData()->getReal());
-    else positionCommand->set(actualPosition->getReal());
-    if (velocityCommand->isConnected()) velocityCommand->set(velocityCommand->getLinks().front()->getInputData()->getReal());
+    //if (positionCommand->isConnected()) positionCommand->set(positionCommand->getLinks().front()->getInputData()->getReal());
+    //else positionCommand->set(actualPosition->getReal());
+    //if (velocityCommand->isConnected()) velocityCommand->set(velocityCommand->getLinks().front()->getInputData()->getReal());
+    
     if (digitalOut0->isConnected()) digitalOut0->set(digitalOut0->getLinks().front()->getInputData()->getBoolean());
     if (digitalOut1->isConnected()) digitalOut1->set(digitalOut1->getLinks().front()->getInputData()->getBoolean());
     if (digitalOut2->isConnected()) digitalOut2->set(digitalOut2->getLinks().front()->getInputData()->getBoolean());
@@ -423,7 +426,7 @@ void Lexium32::prepareOutputs(){
         }
         profilePosition_r = actualPosition->getReal();
 
-        velocityCommand->set(profileVelocity_rps);
+        //velocityCommand->set(profileVelocity_rps);
     }
     else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION) {
         //in this operating mode, we verify that the input velocity and acceleration don't exceed internal values
@@ -502,9 +505,9 @@ void Lexium32::prepareOutputs(){
     if (operatingMode != nullptr) operatingModeID = operatingMode->id;
     DCOMopmode = operatingModeID;
 
-    PPp_target = (int32_t)(positionCommand->getReal() * positionUnitsPerRevolution);
+    PPp_target = (int32_t)(motorDevice->command * positionUnitsPerRevolution);
     //don't forget to convert from rotations per second to rpm
-    PVv_target = (int32_t)(velocityCommand->getReal() * velocityUnitsPerRpm * 60.0);
+    PVv_target = (int32_t)(profileVelocity_rps * velocityUnitsPerRpm * 60.0);
 
     IO_DQ_set = 0;
     if (digitalOut0->getBoolean()) IO_DQ_set |= 0x1;

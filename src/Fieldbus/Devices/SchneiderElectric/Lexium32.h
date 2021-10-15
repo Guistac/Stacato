@@ -312,8 +312,8 @@ private:
     std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
 
     //node input data
-    std::shared_ptr<NodePin> positionCommand =   std::make_shared<NodePin>(NodeData::REAL_VALUE,    DataDirection::NODE_INPUT, "Position");
-    std::shared_ptr<NodePin> velocityCommand =   std::make_shared<NodePin>(NodeData::REAL_VALUE,    DataDirection::NODE_INPUT, "Velocity", NodePinFlags_HidePin);
+    //std::shared_ptr<NodePin> positionCommand =   std::make_shared<NodePin>(NodeData::REAL_VALUE,    DataDirection::NODE_INPUT, "Position");
+    //std::shared_ptr<NodePin> velocityCommand =   std::make_shared<NodePin>(NodeData::REAL_VALUE,    DataDirection::NODE_INPUT, "Velocity", NodePinFlags_HidePin);
     std::shared_ptr<NodePin> digitalOut0 =       std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ0");
     std::shared_ptr<NodePin> digitalOut1 =       std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ1");
     std::shared_ptr<NodePin> digitalOut2 =       std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ2");

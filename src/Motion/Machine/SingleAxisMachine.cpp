@@ -60,12 +60,14 @@ void SingleAxisMachine::process() {
 		actualVelocity_machineUnitsPerSecond = profileVelocity_machineUnitsPerSecond;
 	}
 
-	switch (commandType) {
-		case CommandType::Type::POSITION_COMMAND:
-			actuatorCommand->set(profilePosition_machineUnits * actuatorUnitsPerMachineUnits);
+	switch (motionControlType) {
+		case MotionControlType::Type::SERVO_CONTROL:
+			actuatorDevice->setCommand(profilePosition_machineUnits * actuatorUnitsPerMachineUnits);
 			break;
-		case CommandType::Type::VELOCITY_COMMAND:
+		case MotionControlType::Type::CLOSED_LOOP_CONTROL:
+		case MotionControlType::Type::OPEN_LOOP_CONTROL:
 			Logger::critical("Velocity Commands are not supported yet");
+			//actuatorDevice->setCommand(profileVelocity_machineUnitsPerSecond * actuatorUnitsPerMachineUnits);
 			//todo:
 			//for closed loop, pid control with adjustable gains
 			//for open loop, just send velocity values with unit scaling
@@ -87,45 +89,19 @@ void SingleAxisMachine::process() {
 
 void SingleAxisMachine::enable() {
 	std::thread machineEnabler([this]() {
-		
 		//enable actuator
 		std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
 		actuator->enable();
-
 		std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
-		//wait for devices to be enabled
+		//wait for actuator to be enabled
 		while (!actuator->isEnabled()) {
 			if (std::chrono::system_clock::now() - start > std::chrono::milliseconds(500)) {
 				return Logger::warn("Could not enable Machine '{}', actuator did not enable on time", getName());
 			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		}
-		//start machine or return feedback about failure mode
-		Logger::info("Enabling machine {}", getName());
-		bool canMachineBeEnabled = true;
-
-		
-		if (isPositionFeedbackDeviceConnected()) {
-			std::shared_ptr<PositionFeedbackDevice> feedbackDevice = getPositionFeedbackDevice();
-			if (!feedbackDevice->isReady()) {
-				canMachineBeEnabled = false;
-				Logger::warn("Position feedback subdevice '{}' of device '{}' is not ready", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
-			}
-		}
-		else return false;
-
-		if (positionLimitType != PositionLimitType::Type::NO_LIMIT) {
-			std::shared_ptr<GpioDevice> referenceDevice = getReferenceDevice();
-			if (!referenceDevice->isReady()) {
-				canMachineBeEnabled = false;
-				Logger::warn("Position reference subdevice '{}' of device '{}' is not ready", referenceDevice->getName(), referenceDevice->parentDevice->getName());
-			}
-		}
-
-		if (!canMachineBeEnabled) Logger::warn("Machine '{}' cannot be enabled", getName());
-		else {
-			onEnable();
-		}
+		if (!isReady()) Logger::warn("Machine '{}' cannot be enabled", getName());
+		else onEnable();
 	});
 	machineEnabler.detach();
 }
@@ -154,21 +130,36 @@ bool SingleAxisMachine::isEnabled() {
 }
 
 bool SingleAxisMachine::isReady() {
-	//checks if all connected devices are ready
-	if (!isActuatorDeviceConnected() || !getActuatorDevice()->isReady()) return false;
-	if (!isPositionFeedbackDeviceConnected() || !getPositionFeedbackDevice()->isReady()) return false;
-	if (positionLimitType != PositionLimitType::Type::NO_LIMIT) {
-		if (!isReferenceDeviceConnected() || !getReferenceDevice()->isReady()) return false;
+	//checks if all connected devices are ready and compatible
+
+	if (!isActuatorDeviceConnected()) return false;
+	std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
+	if (!actuator->isReady()) return false;
+
+	switch (motionControlType) {
+		case MotionControlType::Type::SERVO_CONTROL:
+			if (actuator->commandType == CommandType::Type::VELOCITY_COMMAND) return false;
+			break;
+		case MotionControlType::Type::CLOSED_LOOP_CONTROL:
+		case MotionControlType::Type::OPEN_LOOP_CONTROL:
+			if (actuator->commandType == CommandType::Type::POSITION_COMMAND) return false;
+			break;
 	}
+	if (needsPositionFeedbackDevice() && (!isPositionFeedbackDeviceConnected() || !getPositionFeedbackDevice()->isReady())) return false;
+	if (needsReferenceDevice() && (!isReferenceDeviceConnected() || !getReferenceDevice()->isReady())) return false;
+
 	return true;
 }
 
 //========================== IO DEVICES =============================
 
 bool SingleAxisMachine::needsPositionFeedbackDevice() {
-	return motionControlType == MotionControlType::Type::CLOSED_LOOP_CONTROL;
+	switch (motionControlType) {
+		case MotionControlType::Type::CLOSED_LOOP_CONTROL: return true;
+		case MotionControlType::Type::SERVO_CONTROL: return true;
+		default: return false;
+	}
 }
-
 
 bool SingleAxisMachine::isPositionFeedbackDeviceConnected() {
 	return positionFeedbackDeviceLink->isConnected();
@@ -294,7 +285,6 @@ bool SingleAxisMachine::save(tinyxml2::XMLElement* xml) {
 	XMLElement* machineXML = xml->InsertNewChildElement("Machine");
 	machineXML->SetAttribute("UnitType", getPositionUnitType(machinePositionUnitType)->saveName);
 	machineXML->SetAttribute("Unit", getPositionUnit(machinePositionUnit)->saveName);
-	machineXML->SetAttribute("Command", getCommandType(commandType)->saveName);
 	machineXML->SetAttribute("MotionControl", getMotionControlType(motionControlType)->saveName);
 
 	XMLElement* unitConversionXML = xml->InsertNewChildElement("UnitConversion");
@@ -359,10 +349,6 @@ bool SingleAxisMachine::load(tinyxml2::XMLElement* xml) {
 	if (machineXML->QueryStringAttribute("Unit", &machineUnitString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit");
 	if (getPositionUnit(machineUnitString) == nullptr) return Logger::warn("Could not read Machine Unit");
 	machinePositionUnit = getPositionUnit(machineUnitString)->unit;
-	const char* commandTypeString;
-	if (machineXML->QueryStringAttribute("Command", &commandTypeString) != XML_SUCCESS) return Logger::warn("Could not load Command Type");
-	if (getCommandType(commandTypeString) == nullptr) return Logger::warn("Coudl not read Command Type");
-	commandType = getCommandType(commandTypeString)->type;
 	const char* motionControlTypeString;
 	if (machineXML->QueryStringAttribute("MotionControl", &motionControlTypeString) != XML_SUCCESS) return Logger::warn("Could not load Motion Control Type");
 	if (getMotionControlType(motionControlTypeString) == nullptr) return Logger::warn("Could not read Motion Control Type");
