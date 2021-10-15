@@ -361,8 +361,6 @@ void Lexium32::readInputs() {
 
     //set motor device load
     motorDevice->load = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
-    //motor is only ready to be driven in cyclic synchronous position mode, not in manual velocity mode
-    motorDevice->b_ready = actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION;
 
     //assign public input data
     actualPosition->set(encoderDevice->getPosition());
@@ -376,7 +374,7 @@ void Lexium32::readInputs() {
     digitalIn5->set((_IO_act & 0x20) != 0x0);
 
     //set actuator subdevice
-    motorDevice->b_ready = (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled);
+    motorDevice->b_ready = actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION && (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled);
     motorDevice->b_enabled = state == State::OperationEnabled;
     motorDevice->b_online = isOnline() && motorVoltagePresent;
     motorDevice->b_emergencyStopActive = b_emergencyStopActive;

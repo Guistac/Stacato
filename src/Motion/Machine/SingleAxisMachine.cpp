@@ -200,6 +200,20 @@ std::shared_ptr<ActuatorDevice> SingleAxisMachine::getActuatorDevice() {
 	return actuatorDeviceLink->getConnectedPins().front()->getActuatorDevice();
 }
 
+void SingleAxisMachine::getPositionRange(double& lowLimit, double& highLimit) {
+	switch (positionLimitType) {
+		case PositionLimitType::Type::LOW_LIMIT_SIGNAL:
+		case PositionLimitType::Type::HIGH_LIMIT_SIGNAL:
+		case PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
+		case PositionLimitType::Type::REFERENCE_SIGNAL:
+		case PositionLimitType::Type::FEEDBACK_REFERENCE:
+		case PositionLimitType::Type::NO_LIMIT:
+			lowLimit = getPositionFeedbackDevice()->rangeMin_positionUnits / feedbackUnitsPerMachineUnits;
+			highLimit = getPositionFeedbackDevice()->rangeMax_positionUnits / feedbackUnitsPerMachineUnits;
+			break;
+	}
+}
+
 
 //================================= MANUAL CONTROLS ===================================
 

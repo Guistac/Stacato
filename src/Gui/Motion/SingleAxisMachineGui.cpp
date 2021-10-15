@@ -4,9 +4,9 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
-#include "Gui/Framework/Fonts.h"
 #include <implot.h>
 
+#include "Gui/Framework/Fonts.h"
 #include "NodeGraph/Device.h"
 #include "Gui/Framework/Colors.h"
 
@@ -14,6 +14,10 @@
 void SingleAxisMachine::miniatureGui() {
 	ImGui::Text("test");
 }
+
+
+
+
 
 void SingleAxisMachine::controlsGui() {
 
@@ -132,46 +136,82 @@ void SingleAxisMachine::controlsGui() {
 
 	//-------------------------------- FEEDBACK --------------------------------
 
+	//actual position in range
+	double minPosition, maxPosition, positionProgress;
+	getPositionRange(minPosition, maxPosition);
+	static char positionString[32];
+	if (!isEnabled()) {
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+		positionProgress = 1.0;
+		sprintf(positionString, "Machine Disabled");
+	}
+	else {
+		positionProgress = (actualPosition_machineUnits - minPosition) / (maxPosition - minPosition);
+		sprintf(positionString, "%.2f %s", actualPosition_machineUnits, getPositionUnit(machinePositionUnit)->shortForm);
+		if (actualPosition_machineUnits < minPosition || actualPosition_machineUnits > maxPosition)
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
+		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+	}
+	ImGui::Text("Current Position : (in range from %.2f%s to %.2f%s)", minPosition, getPositionUnitStringShort(machinePositionUnit), maxPosition, getPositionUnitStringShort(machinePositionUnit));
+	ImGui::ProgressBar(positionProgress, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), positionString);
+	ImGui::PopStyleColor();
+	
+	//actual velocity
+	float velocityProgress;
+	static char velocityString[32];
+	if (!isEnabled()) {
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+		velocityProgress = 1.0;
+		sprintf(velocityString, "Machine Disabled");
+	}
+	else {
+		velocityProgress = std::abs(actualVelocity_machineUnitsPerSecond) / velocityLimit_machineUnitsPerSecond;
+		sprintf(velocityString, "%.2f %s/s", actualVelocity_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
+		if (std::abs(actualVelocity_machineUnitsPerSecond) > std::abs(velocityLimit_machineUnitsPerSecond))
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
+		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+	}
 
-	if (std::abs(profileVelocity_machineUnitsPerSecond) == std::abs(velocityLimit_machineUnitsPerSecond)) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::orange);
-	else if (std::abs(profileVelocity_machineUnitsPerSecond) > std::abs(velocityLimit_machineUnitsPerSecond)) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
-	else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-	static char velocityString[16];
-	sprintf(velocityString, "%.2f %s/s", profileVelocity_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
-	float velocityProgress = std::abs(profileVelocity_machineUnitsPerSecond) / velocityLimit_machineUnitsPerSecond;
-	ImGui::Text("Current Velocity :");
+	ImGui::Text("Current Velocity : (max %.2f%s/s)", velocityLimit_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
 	ImGui::ProgressBar(velocityProgress, ImVec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), velocityString);
 	ImGui::PopStyleColor();
 
-	float targetProgress = targetProgress = MotionCurve::getMotionCurveProgress(currentProfilePointTime_seconds, targetCurveProfile);
+	//target movement progress
+	float targetProgress;
 	double movementSecondsLeft = 0.0;
-	if (controlMode != ControlMode::POSITION_TARGET) {
+	static char movementProgressChar[8];
+	if (!isEnabled()) {
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+		sprintf(movementProgressChar, "Machine Disabled");
+		targetProgress = 1.0;
+	}
+	else if (controlMode != ControlMode::POSITION_TARGET) {
+		sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
 		targetProgress = 1.0;
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 	}
 	else {
+		targetProgress = targetProgress = MotionCurve::getMotionCurveProgress(currentProfilePointTime_seconds, targetCurveProfile);
+		sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
 		movementSecondsLeft = targetCurveProfile.rampOutEndTime - currentProfilePointTime_seconds;
 	}
-	static char movementProgressChar[8];
-	sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
 	ImGui::Text("Movement Time Remaining :");
 	ImGui::ProgressBar(targetProgress, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), movementProgressChar);
 	ImGui::PopStyleColor();
-
-
-	std::shared_ptr<PositionFeedbackDevice> positionFeedbackDevice = nullptr;
-	double range;
-	static char rangeString[64];
-	if (positionFeedbackDeviceLink->isConnected()) {
-		positionFeedbackDevice = positionFeedbackDeviceLink->getConnectedPins().front()->getPositionFeedbackDevice();
-		range = positionFeedbackDevice->getPositionInRange();
-		if (!positionFeedbackDevice->isReady()) {
+	
+	//encoder position in working range
+	if (needsPositionFeedbackDevice()) {
+		std::shared_ptr<PositionFeedbackDevice> feedbackDevice = getPositionFeedbackDevice();
+		double range;
+		static char rangeString[64];
+		if (!isEnabled()) {
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 			range = 1.0;
-			sprintf(rangeString, "Feedback device not ready");
+			sprintf(rangeString, "Machine Disabled");
 		}
 		else if (range < 1.0 && range > 0.0) {
+			range = feedbackDevice->getPositionInRange();
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 			sprintf(rangeString, "%.3f%%", range * 100.0);
 		}
@@ -180,15 +220,10 @@ void SingleAxisMachine::controlsGui() {
 			sprintf(rangeString, "Encoder Outside Working Range ! (%.3f%%)", range * 100.0);
 			range = 1.0;
 		}
+		ImGui::Text("Encoder Position in Working Range : (%.2f%s to %.2f%s)", feedbackDevice->rangeMin_positionUnits,getPositionUnit(feedbackDevice->positionUnit)->shortForm, feedbackDevice->rangeMax_positionUnits, getPositionUnit(feedbackDevice->positionUnit)->shortForm);
+		ImGui::ProgressBar(range, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), rangeString);
+		ImGui::PopStyleColor();
 	}
-	else {
-		range = 1.0;
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
-		sprintf(rangeString, "No Feedback Device Connected");
-	}
-	ImGui::Text("Encoder Position in Working Range :");
-	ImGui::ProgressBar(range, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), rangeString);
-	ImGui::PopStyleColor();
 
 	ImGui::Separator();
 
@@ -199,26 +234,23 @@ void SingleAxisMachine::controlsGui() {
 	ImGui::PopFont();
 
 	switch (positionLimitType) {
-	case PositionLimitType::Type::LOW_LIMIT_SIGNAL:
-	case PositionLimitType::Type::HIGH_LIMIT_SIGNAL:
-	case PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
-	case PositionLimitType::Type::REFERENCE_SIGNAL:
-		if (ImGui::Button("Start Homing", tripleButtonSize)) {}
-		ImGui::SameLine();
-		if (ImGui::Button("Cancel Homing", tripleButtonSize)) {}
-		break;
-	case PositionLimitType::Type::FEEDBACK_REFERENCE:
-	case PositionLimitType::Type::NO_LIMIT:
-		if (ImGui::Button("Reset Position Feedback")) {}
-		break;
+		case PositionLimitType::Type::LOW_LIMIT_SIGNAL:
+		case PositionLimitType::Type::HIGH_LIMIT_SIGNAL:
+		case PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
+		case PositionLimitType::Type::REFERENCE_SIGNAL:
+			if (ImGui::Button("Start Homing", tripleButtonSize)) {}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel Homing", tripleButtonSize)) {}
+			break;
+		case PositionLimitType::Type::FEEDBACK_REFERENCE:
+		case PositionLimitType::Type::NO_LIMIT:
+			if (ImGui::Button("Reset Position Feedback")) {}
+			break;
 	}
 
 	if (disableManualControls) END_DISABLE_IMGUI_ELEMENT
 
 }
-
-
-
 
 
 
@@ -599,12 +631,6 @@ void SingleAxisMachine::settingsGui() {
 
 
 
-
-
-
-
-
-
 void SingleAxisMachine::devicesGui() {
 
 	//======================== CONNECTED DEVICES ==========================
@@ -723,6 +749,8 @@ void SingleAxisMachine::devicesGui() {
 	}
 
 }
+
+
 
 
 

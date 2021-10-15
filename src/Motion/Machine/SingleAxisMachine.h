@@ -62,6 +62,8 @@ public:
 	double actualPosition_machineUnits;
 	double actualVelocity_machineUnitsPerSecond;
 
+	void getPositionRange(double& lowLimit, double& highLimit);
+
 	enum class ControlMode {
 		VELOCITY_TARGET,
 		POSITION_TARGET,
@@ -96,6 +98,8 @@ public:
 	bool isHoming();
 	void homingControl();
 
+	//============= METRICS ============
+
 	const size_t historyLength = 2048;
 	CircularBuffer positionHistory = CircularBuffer(historyLength);
 	CircularBuffer actualPositionHistory = CircularBuffer(historyLength);
@@ -104,9 +108,12 @@ public:
 	CircularBuffer accelerationHistory = CircularBuffer(historyLength);
 	CircularBuffer loadHistory = CircularBuffer(historyLength);
 
-	//Machine State Control
+	//=========== MACHINE STATE ==============
+
 	void onEnable();
 	bool b_enabled = false;
+
+	//========= SUBDEVICSE ===========
 
 	bool needsPositionFeedbackDevice();
 	bool isPositionFeedbackDeviceConnected();
@@ -119,6 +126,8 @@ public:
 
 	bool isActuatorDeviceConnected();
 	std::shared_ptr<ActuatorDevice> getActuatorDevice();
+
+	//============ NODE DATA ==============
 
 	virtual void assignIoData() {
 		//inputs
