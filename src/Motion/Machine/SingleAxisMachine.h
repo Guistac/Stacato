@@ -114,6 +114,10 @@ public:
 	void cancelHoming();
 	bool isHoming();
 	void homingControl();
+	HomingStep::Step homingStep = HomingStep::Step::NOT_STARTED;
+
+	//display data to set the machine coupling
+	double machineScalingPosition_machineUnits = 0.0;
 
 	//============= METRICS ============
 

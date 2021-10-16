@@ -185,13 +185,19 @@ void SingleAxisMachine::controlsGui() {
 		targetProgress = 1.0;
 	}
 	else if (controlMode != ControlMode::POSITION_TARGET) {
-		sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+		sprintf(movementProgressChar, "No Target Movement");
 		targetProgress = 1.0;
+	}
+	else if (MotionCurve::getMotionCurveProgress(currentProfilePointTime_seconds, targetCurveProfile) >= 1.0) {
+		targetProgress = 1.0;
+		sprintf(movementProgressChar, "Movement Finished");
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 	}
 	else {
-		targetProgress = targetProgress = MotionCurve::getMotionCurveProgress(currentProfilePointTime_seconds, targetCurveProfile);
+		targetProgress = MotionCurve::getMotionCurveProgress(currentProfilePointTime_seconds, targetCurveProfile);
 		movementSecondsLeft = targetCurveProfile.rampOutEndTime - currentProfilePointTime_seconds;
+		if (movementSecondsLeft < 0.0) movementSecondsLeft = 0.0;
 		sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
 	}
@@ -213,19 +219,19 @@ void SingleAxisMachine::controlsGui() {
 			std::shared_ptr<PositionFeedbackDevice> feedbackDevice = getPositionFeedbackDevice();
 			deviceReady = feedbackDevice->isReady();
 			range = feedbackDevice->getPositionInRange();
-			rangeMin_deviceUnits = feedbackDevice->rangeMin_positionUnits;
-			rangeMax_deviceUnits = feedbackDevice->rangeMax_positionUnits;
+			rangeMin_deviceUnits = feedbackDevice->getMinPosition();
+			rangeMax_deviceUnits = feedbackDevice->getMaxPosition();
 			devicePositionUnit = feedbackDevice->positionUnit;
-			feedbackPosition_deviceUnits = feedbackDevice->positionRaw_positionUnits;
+			feedbackPosition_deviceUnits = feedbackDevice->getPosition();
 		}
 		else if (needsServoActuatorDevice()) {
 			std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
 			deviceReady = servo->isReady();
 			range = servo->getPositionInRange();
-			rangeMin_deviceUnits = servo->rangeMin_positionUnits;
-			rangeMax_deviceUnits = servo->rangeMax_positionUnits;
+			rangeMin_deviceUnits = servo->getMinPosition();
+			rangeMax_deviceUnits = servo->getMaxPosition();
 			devicePositionUnit = servo->positionUnit;
-			feedbackPosition_deviceUnits = servo->positionRaw_positionUnits;
+			feedbackPosition_deviceUnits = servo->getPosition();
 		}
 
 		if (!isEnabled()) {
@@ -253,23 +259,55 @@ void SingleAxisMachine::controlsGui() {
 	//-------------------------- HOMING CONTROLS ---------------------------
 
 	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Homing");
+	ImGui::Text("Homing & Reference Setting");
 	ImGui::PopFont();
+
+	static char positionScalingString[32];
+	sprintf(positionScalingString, "%.3f %s", machineScalingPosition_machineUnits, getPositionUnit(machinePositionUnit)->shortForm);
+
+	glm::vec2 homingButtonSize((widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, ImGui::GetTextLineHeight() * 1.5);
 
 	switch (positionReference) {
 		case PositionReference::Type::LOW_LIMIT_SIGNAL:
-		case PositionReference::Type::HIGH_LIMIT_SIGNAL:
-		case PositionReference::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
-		case PositionReference::Type::REFERENCE_SIGNAL:
-			if (ImGui::Button("Start Homing", tripleButtonSize)) {}
+			if (ImGui::Button("Start Homing", homingButtonSize)) {}
 			ImGui::SameLine();
-			if (ImGui::Button("Cancel Homing", tripleButtonSize)) {}
+			if (ImGui::Button("Cancel Homing", homingButtonSize)) {}
+			if (ImGui::Button("Set Positive Limit", homingButtonSize)) {}
+			break;
+		case PositionReference::Type::HIGH_LIMIT_SIGNAL:
+			if (ImGui::Button("Start Homing", homingButtonSize)) {}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel Homing", homingButtonSize)) {}
+			if (ImGui::Button("Set Negative Limit", homingButtonSize)) {}
+			break;
+		case PositionReference::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
+			if (ImGui::Button("Start Homing", homingButtonSize)) {}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel Homing", homingButtonSize)) {}
+			break;
+		case PositionReference::Type::REFERENCE_SIGNAL:
+			if (ImGui::Button("Start Homing", homingButtonSize)) {}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel Homing", homingButtonSize)) {}
+			if (ImGui::Button("Set Positive Limit", homingButtonSize)) {}
+			ImGui::SameLine();
+			if (ImGui::Button("Set Negative Limit", homingButtonSize)) {}
 			break;
 		case PositionReference::Type::FEEDBACK_REFERENCE:
+			if (ImGui::Button("Set Machine Zero", homingButtonSize)) {}
+			if (ImGui::Button("Set Positive Limit", homingButtonSize)) {}
+			ImGui::SameLine();
+			if (ImGui::Button("Set Negative Limit", homingButtonSize)) {}
+			break;
 		case PositionReference::Type::NO_LIMIT:
-			if (ImGui::Button("Set Machine Zero")) {}
+			if (ImGui::Button("Set Machine Zero", homingButtonSize)) {}
 			break;
 	}
+
+	ImGui::SetNextItemWidth(homingButtonSize.x);
+	ImGui::InputDouble("##posScal", &machineScalingPosition_machineUnits, 0.0, 0.0, positionScalingString);
+	ImGui::SameLine();
+	if (ImGui::Button("Set Position", ImGui::GetItemRectSize())) {}
 
 	if (disableManualControls) END_DISABLE_IMGUI_ELEMENT
 

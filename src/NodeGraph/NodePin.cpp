@@ -4,6 +4,7 @@
 #include "NodePin.h"
 #include "NodeLink.h"
 #include "Node.h"
+#include "Motion/Subdevice.h"
 
 #include <tinyxml2.h>
 
@@ -184,11 +185,10 @@ const char* NodePin::getValueString() {
 		case NodeData::Type::BOOLEAN_VALUE: strcpy(output, booleanValue ? "True" : "False"); break;
 		case NodeData::Type::INTEGER_VALUE: sprintf(output, "%i", integerValue); break;
 		case NodeData::Type::REAL_VALUE: sprintf(output, "%.5f", realValue); break;
-			//TODO: get values of connected devices
-		case NodeData::Type::ACTUATOR_DEVICELINK: getSaveName(); break;
-		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: getSaveName(); break;
-		case NodeData::Type::GPIO_DEVICELINK: getSaveName(); break;
-		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: getSaveName(); break;
+		case NodeData::Type::ACTUATOR_DEVICELINK: return "No Value";
+		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: return "No Value";
+		case NodeData::Type::GPIO_DEVICELINK: return "No Value";
+		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return "No Value";
 	}
 	return (const char*)output;
 }

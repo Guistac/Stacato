@@ -268,6 +268,9 @@ public:
 
     void getEncoderWorkingRange(float& low, float& high);
 
+    //display variable for the new encoder position setting
+    double newEncoderPosition = 0.0;
+
     //====== AUTO TUNING ========
 
     std::thread autoTuningHandler;

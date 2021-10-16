@@ -10,10 +10,15 @@
 
 void SingleAxisMachine::process() {
 
+	//check connection requirements and abort processing if the requirements are not met
 	bool needsFeedback = needsPositionFeedbackDevice();
 	bool needsReference = needsReferenceDevice();
 	bool needsActuator = needsActuatorDevice();
 	bool needsServo = needsServoActuatorDevice();
+	if (needsFeedback && !isPositionFeedbackDeviceConnected()) return;
+	if (needsReference && !isReferenceDeviceConnected()) return;
+	if (needsActuator && !isActuatorDeviceConnected()) return;
+	if (needsServo && !isServoActuatorDeviceConnected()) return;
 
 	//get devices
 	std::shared_ptr<ActuatorDevice> actuatorDevice;
@@ -333,7 +338,8 @@ void SingleAxisMachine::positionTargetControl() {
 		profileAcceleration_machineUnitsPerSecondSquared = curvePoint.acceleration;
 	}
 	else {
-		setVelocity(0.0);
+		profileVelocity_machineUnitsPerSecond = 0.0;
+		profileAcceleration_machineUnitsPerSecondSquared = 0.0;
 	}
 }
 
@@ -343,7 +349,63 @@ void SingleAxisMachine::positionTargetControl() {
 void SingleAxisMachine::followCurveControl() {}
 
 
-void SingleAxisMachine::homingControl() {}
+void SingleAxisMachine::homingControl() {
+
+	switch (positionReference) {
+		case PositionReference::Type::LOW_LIMIT_SIGNAL:
+
+			switch (homingStep) {
+				case HomingStep::Step::NOT_STARTED:
+					homingStep = HomingStep::Step::SEARCHING_LOW_LIMIT_COARSE;
+					break;
+				case HomingStep::Step::SEARCHING_LOW_LIMIT_COARSE:
+					setVelocity(-homingVelocity_machineUnitsPerSecond);
+					if (true/*hit limit*/) homingStep = HomingStep::Step::FOUND_LOW_LIMIT_COARSE;
+					break;
+				case HomingStep::Step::FOUND_LOW_LIMIT_COARSE:
+					setVelocity(0.0);
+					if (true/*stopped*/) homingStep = HomingStep::Step::SEARCHING_LOW_LIMIT_FINE;
+					break;
+				case HomingStep::Step::SEARCHING_LOW_LIMIT_FINE:
+					setVelocity(homingVelocity_machineUnitsPerSecond / 10.0);
+					if (true/*release limit*/) homingStep = HomingStep::Step::FOUND_LOW_LIMIT_FINE;
+					break;
+				case HomingStep::Step::FOUND_LOW_LIMIT_FINE:
+					setVelocity(0.0);
+					if (true/*stopped*/) homingStep = HomingStep::Step::RESETTING_POSITION_FEEDBACK;
+					break;
+				case HomingStep::Step::RESETTING_POSITION_FEEDBACK:
+					if (needsServoActuatorDevice()) {
+						std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
+						servo->setEncoderPosition(0.0);
+						profilePosition_machineUnits = servo->getPosition() / feedbackUnitsPerMachineUnits;
+					}
+					else if (needsPositionFeedbackDevice()) {
+						std::shared_ptr<PositionFeedbackDevice> feedback = getPositionFeedbackDevice();
+						feedback->setPosition(0.0);
+						profilePosition_machineUnits = feedback->getPosition() / feedbackUnitsPerMachineUnits;
+					}
+					homingStep = HomingStep::Step::FINISHED;
+					break;
+				case HomingStep::Step::FINISHED:
+					break;
+			}
+			break;
+
+		case PositionReference::Type::HIGH_LIMIT_SIGNAL:
+			//touch off high limit, set encoder to max negative deviation
+		case PositionReference::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
+			//touch off low limit, set encoder to 0, touch off high limit, set high limit)
+			//touch off high limit, remember high limit, touch off low limit, remember low limit, set encoder to 0, set high limit to difference between remembered high and low limits
+		case PositionReference::Type::REFERENCE_SIGNAL:
+			//touch off reference from one side, touch off reference from other side, go to middle of two touches, set encoder to zero
+		case PositionReference::Type::FEEDBACK_REFERENCE:
+			//no homing
+		case PositionReference::Type::NO_LIMIT:
+			//no homing
+			break;
+	}
+}
 
 
 //==================================== SAVING AND LOADING =========================================

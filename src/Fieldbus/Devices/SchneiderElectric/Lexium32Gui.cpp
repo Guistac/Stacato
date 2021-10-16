@@ -180,6 +180,10 @@ void Lexium32::statusGui() {
 
 
 void Lexium32::controlsGui() {
+
+    bool disableControls = !isEnabled();
+    if (disableControls) BEGIN_DISABLE_IMGUI_ELEMENT
+
     ImGui::PushFont(Fonts::robotoBold20);
     ImGui::Text("Device Mode");
     ImGui::PopFont();
@@ -209,6 +213,7 @@ void Lexium32::controlsGui() {
         ImGui::EndCombo();
     }
     float widgetWidth = ImGui::GetItemRectSize().x;
+    float widgetHeight = ImGui::GetItemRectSize().y;
     if (disableModeSwitch) END_DISABLE_IMGUI_ELEMENT
 
     float maxV = servoMotorDevice->velocityLimit_positionUnitsPerSecond;
@@ -217,16 +222,15 @@ void Lexium32::controlsGui() {
     switch (actualOperatingMode) {
         case OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY: {
             float vCommand_rps = manualVelocityCommand_rps;
-            bool disableManualControls = !isEnabled();
-            if (disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
-            ImGui::SliderFloat("##manualVelocity", &vCommand_rps, -maxV, maxV, "%.1frps");
+            ImGui::SliderFloat("##manualVelocity", &vCommand_rps, -maxV, maxV, "%.1f rev/s");
             if (!ImGui::IsItemActive()) vCommand_rps = 0.0; //only set the command if the slider is held down
             if (vCommand_rps > maxV) vCommand_rps = maxV;
             else if (vCommand_rps < -maxV) vCommand_rps = -maxV;
             manualVelocityCommand_rps = vCommand_rps;
-            ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rpsps, 0.0, maxA, "Acceleration: %.3f rps/s");
+            static char accelerationString[32];
+            sprintf(accelerationString, u8"Acceleration: %.2f rev/s²", manualAcceleration_rpsps);
+            ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rpsps, 0.0, maxA, accelerationString);
             if (manualAcceleration_rpsps > maxA) manualAcceleration_rpsps = maxA;
-            if (disableManualControls) END_DISABLE_IMGUI_ELEMENT
         }break;
         default: break;
     }
@@ -245,7 +249,7 @@ void Lexium32::controlsGui() {
     }
     else {
         double velocity = servoMotorDevice->getVelocity();
-        sprintf(actualVelocityString, "%.1f rps", velocity);
+        sprintf(actualVelocityString, "%.1f rev/s", velocity);
         velocityFraction = std::abs(velocity) / maxV;
         if(velocityFraction >= 1.0) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
         else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
@@ -254,35 +258,40 @@ void Lexium32::controlsGui() {
     ImGui::ProgressBar(velocityFraction, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), actualVelocityString);
     ImGui::PopStyleColor();
 
-    char rangeString[64];
-
+    char encoderPositionString[64];
     double range = servoMotorDevice->getPositionInRange();
     if (!isReady()) {
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
         range = 1.0;
-        sprintf(rangeString, "Not ready");
+        sprintf(encoderPositionString, "Not ready");
     }
     else if (range < 1.0 && range > 0.0) {
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-        sprintf(rangeString, "%.3f%%", range * 100.0);
+        sprintf(encoderPositionString, "%.3f rev", servoMotorDevice->getPosition());
     }
     else {
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
-        sprintf(rangeString, "Encoder Outside Working Range ! (%.3f%%)", range * 100.0);
+        double distanceOutsideRange = range > 1.0 ? servoMotorDevice->getPosition() - servoMotorDevice->getMaxPosition() : servoMotorDevice->getPosition() - servoMotorDevice->getMinPosition();
+        sprintf(encoderPositionString, "Encoder Outside Working Range by %.3f rev)", distanceOutsideRange);
         range = 1.0;
     }
 
-    ImGui::Text("Encoder Position in Working Range :");
-    ImGui::ProgressBar(range, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), rangeString);
+    ImGui::Text("Encoder Position in Working Range (%.2f rev to %.2f rev)", servoMotorDevice->getMinPosition(), servoMotorDevice->getMaxPosition());
+    ImGui::ProgressBar(range, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), encoderPositionString);
     ImGui::PopStyleColor();
 
-    if (servoMotorDevice->isReady()) {
-        ImGui::Text("Current Position is %.3f revolutions", servoMotorDevice->positionRaw_positionUnits);
-        ImGui::Text("Range is from %.3f to %.3f revolutions", servoMotorDevice->rangeMin_positionUnits, servoMotorDevice->rangeMax_positionUnits);
-    }
+    double tripleWidgetWidth = (widgetWidth - 2.0 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
+
+    ImGui::Text("Soft Setting of Encoder Position (Current Offset: %.2f)", servoMotorDevice->positionOffset_positionUnits);
+    ImGui::SetNextItemWidth(tripleWidgetWidth);
+    ImGui::InputDouble("##encoderPosition", &newEncoderPosition, 0.0, 0.0, "%.3f rev");
+    ImGui::SameLine();
+    if (ImGui::Button("Set", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotorDevice->setEncoderPosition(newEncoderPosition);
+    ImGui::SameLine();
+    if (ImGui::Button("Reset", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotorDevice->positionOffset_positionUnits = 0.0;
 
 
-
+    if (disableControls) END_DISABLE_IMGUI_ELEMENT
 }
 
 
@@ -599,16 +608,17 @@ void Lexium32::encoderGui() {
     ImGui::Text("Manual Absolute Position setting");
     ImGui::PopFont();
 
-    ImGui::TextWrapped("Overwrite the absolute position of the current encoder."
-        "\nUseful to get the encoder back into its working range and prevent it from exceeding it during normal operation.");
+    ImGui::TextWrapped("Overwrite the hard absolute position of the current encoder as stored on the drive."
+        "\nUseful to get the encoder back into its working range and prevent it from exceeding it during normal operation."
+        "\nThe drive needs to be restarted for this change to take effect.");
 
     ImGui::PushFont(Fonts::robotoBold15);
     switch(encoderAssignement) {
         case EncoderAssignement::Type::INTERNAL_ENCODER:
-            ImGui::Text("Assign absolute position of Internal Encoder");
+            ImGui::Text("Assign hard absolute position of Internal Encoder");
             break;
         case EncoderAssignement::Type::ENCODER_MODULE:
-            ImGui::Text("Assign absolute position of Module Encoder");
+            ImGui::Text("Assign hard absolute position of Module Encoder");
             break;
     }
     ImGui::PopFont();

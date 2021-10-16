@@ -97,12 +97,16 @@ public:
 	PositionUnit::Unit positionUnit;
 	PositionFeedback::Type feedbackType;
 
-	//set the current position of the actuator as the offset, this will zero the position
-	void captureOffset() { positionOffset_positionUnits = positionRaw_positionUnits; }
+	//set the current position of the encoder by adjusting the zero offset
+	void setPosition(double position) { positionOffset_positionUnits = positionRaw_positionUnits - position; }
 	//is the position feedback inside its operational range
 	bool isInRange() { return positionRaw_positionUnits < rangeMax_positionUnits&& positionRaw_positionUnits > rangeMin_positionUnits; }
 	//get the normalized position in the operational range of the feedback device
 	double getPositionInRange() { return (positionRaw_positionUnits - rangeMin_positionUnits) / (rangeMax_positionUnits - rangeMin_positionUnits); }
+	//get smallest encoder position withing working range relative to zero offset
+	double getMinPosition() { return rangeMin_positionUnits - positionOffset_positionUnits; }
+	//get largest encoder position withing working range relative to zero offset
+	double getMaxPosition() { return rangeMax_positionUnits - positionOffset_positionUnits; }
 	//get the position with included offset in specified units
 	double getPosition() { return positionRaw_positionUnits - positionOffset_positionUnits; }
 	//get velocity of encoder movement
@@ -140,11 +144,13 @@ public:
 	void enable() { b_setEnabled = true; }
 	//disable power
 	void disable() { b_setDisabled = true; }
-	//set command
+	//set position command
 	void setPositionCommand(double command) { positionCommand = command; }
+	//get position command
+	double getPositionCommand() { return positionCommand + positionOffset_positionUnits; }
 	//don't allow powering the actuator
 	void park() { b_setDisabled = true; b_parked = true; }
-	//allow powereing of the actuator
+	//allow powering of the actuator
 	void unpark() { b_parked = false; }
 	//force a controlled stop
 	void quickstop() { b_setQuickstop = true; }
@@ -163,33 +169,40 @@ public:
 	//get the acceleration limit in device position units per second squared
 	double getAccelerationLimit() { return accelerationLimit_positionUnitsPerSecondSquared; }
 
-	bool b_enabled = false;
-	bool b_parked = false;
-	bool b_emergencyStopActive = false;
-	double velocityLimit_positionUnitsPerSecond = 0.0;
-	double accelerationLimit_positionUnitsPerSecondSquared = 0.0;
-	double load = 0.0;
-
-	bool b_setEnabled = false;
-	bool b_setDisabled = false;
-	bool b_setQuickstop = false;
-	double positionCommand = 0.0;
-
-	//set the current position of the actuator as the offset, this will zero the position
-	void captureOffset() { positionOffset_positionUnits = positionRaw_positionUnits; }
+	//set the current position of the encoder by adjusting the zero offset
+	void setEncoderPosition(double position) { positionOffset_positionUnits = positionRaw_positionUnits - position; }
 	//is the position feedback inside its operational range
 	bool isInRange() { return positionRaw_positionUnits < rangeMax_positionUnits&& positionRaw_positionUnits > rangeMin_positionUnits; }
 	//get the normalized position in the operational range of the feedback device
 	double getPositionInRange() { return (positionRaw_positionUnits - rangeMin_positionUnits) / (rangeMax_positionUnits - rangeMin_positionUnits); }
+	//get smallest encoder position withing working range relative to zero offset
+	double getMinPosition() { return rangeMin_positionUnits - positionOffset_positionUnits; }
+	//get largest encoder position withing working range relative to zero offset
+	double getMaxPosition() { return rangeMax_positionUnits - positionOffset_positionUnits; }
 	//get the position with included offset in specified units
 	double getPosition() { return positionRaw_positionUnits - positionOffset_positionUnits; }
 	//get velocity of the encoder movement
 	double getVelocity() { return velocity_positionUnitsPerSecond; }
 
-	double positionRaw_positionUnits = 0.0;
+	//parameters
+	double velocityLimit_positionUnitsPerSecond = 0.0;
+	double accelerationLimit_positionUnitsPerSecondSquared = 0.0;
 	double positionOffset_positionUnits = 0.0;
 	double rangeMax_positionUnits;
 	double rangeMin_positionUnits;
+
+	//data
+	bool b_enabled = false;
+	bool b_parked = false;
+	bool b_emergencyStopActive = false;
+	double load = 0.0;
+	double positionRaw_positionUnits = 0.0;
 	double velocity_positionUnitsPerSecond = 0.0;
+
+	//commands
+	bool b_setEnabled = false;
+	bool b_setDisabled = false;
+	bool b_setQuickstop = false;
+	double positionCommand = 0.0;
 
 };

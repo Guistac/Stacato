@@ -486,7 +486,7 @@ void Lexium32::prepareOutputs(){
     DCOMopmode = operatingModeID;
 
     //get the position command from the servo actuator subdevice
-    PPp_target = (int32_t)(servoMotorDevice->positionCommand * positionUnitsPerRevolution);
+    PPp_target = (int32_t)(servoMotorDevice->getPositionCommand() * positionUnitsPerRevolution);
     //don't forget to convert from rotations per second to rpm
     PVv_target = (int32_t)(profileVelocity_rps * velocityUnitsPerRpm * 60.0);
 
@@ -1237,6 +1237,7 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
             break;
     }
     encoderSettingsXML->SetAttribute("RangeShifted", b_encoderRangeShifted);
+    encoderSettingsXML->SetAttribute("PositionOffset_revolutions", servoMotorDevice->positionOffset_positionUnits);
 
     return true;
 }
@@ -1338,7 +1339,7 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
             break;
     }
     if (encoderSettingsXML->QueryBoolAttribute("RangeShifted", &b_encoderRangeShifted) != XML_SUCCESS) return Logger::warn("Could not find encoder range shift attribute");
-
+    if (encoderSettingsXML->QueryDoubleAttribute("PositionOffset_revolutions", &servoMotorDevice->positionOffset_positionUnits) != XML_SUCCESS) return Logger::warn("Could not find position offset attribute");
     float lowEncoderRange, highEncoderRange;
     getEncoderWorkingRange(lowEncoderRange, highEncoderRange);
     servoMotorDevice->rangeMin_positionUnits = lowEncoderRange;
