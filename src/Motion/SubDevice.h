@@ -130,7 +130,7 @@ public:
 class ServoActuatorDevice : public Subdevice {
 public:
 
-	ServoActuatorDevice(const char* n, PositionUnit::Unit unit, PositionFeedback::Type feedback) : Subdevice(n){}
+	ServoActuatorDevice(const char* n, PositionUnit::Unit unit, PositionFeedback::Type feedback) : Subdevice(n), positionUnit(unit), feedbackType(feedback) {}
 	virtual Type getSubdeviceType() { return Type::SERVO_ACTUATOR; }
 
 	PositionUnit::Unit positionUnit;

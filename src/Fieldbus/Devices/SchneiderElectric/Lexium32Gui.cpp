@@ -214,30 +214,31 @@ void Lexium32::controlsGui() {
     float maxV = servoMotorDevice->velocityLimit_positionUnitsPerSecond;
     float maxA = servoMotorDevice->accelerationLimit_positionUnitsPerSecondSquared;
 
-    if (actualOperatingMode == OperatingMode::Mode::UNKNOWN) {}
-    else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION) {}
-    else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY) {
-        float vCommand_rps = manualVelocityCommand_rps;
-        bool disableManualControls = !isEnabled();
-        if (disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
-        ImGui::SliderFloat("##manualVelocity", &vCommand_rps, -maxV, maxV, "%.1frps");
-        if (!ImGui::IsItemActive()) vCommand_rps = 0.0;
-
-        if (vCommand_rps > maxV) vCommand_rps = maxV;
-        else if (vCommand_rps < -maxV) vCommand_rps = -maxV;
-        manualVelocityCommand_rps = vCommand_rps;
-        ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rpsps, 0.0, maxA, "Acceleration: %.3f rps/s");
-        if (manualAcceleration_rpsps > maxA) manualAcceleration_rpsps = maxA;
-        if (ImGui::Button("Stop Movement", glm::vec2(ImGui::GetItemRectSize().x, ImGui::GetTextLineHeight() * 2.0))) manualVelocityCommand_rps = 0.0;
-        if (disableManualControls) END_DISABLE_IMGUI_ELEMENT
+    switch (actualOperatingMode) {
+        case OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY: {
+            float vCommand_rps = manualVelocityCommand_rps;
+            bool disableManualControls = !isEnabled();
+            if (disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
+            ImGui::SliderFloat("##manualVelocity", &vCommand_rps, -maxV, maxV, "%.1frps");
+            if (!ImGui::IsItemActive()) vCommand_rps = 0.0; //only set the command if the slider is held down
+            if (vCommand_rps > maxV) vCommand_rps = maxV;
+            else if (vCommand_rps < -maxV) vCommand_rps = -maxV;
+            manualVelocityCommand_rps = vCommand_rps;
+            ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rpsps, 0.0, maxA, "Acceleration: %.3f rps/s");
+            if (manualAcceleration_rpsps > maxA) manualAcceleration_rpsps = maxA;
+            if (disableManualControls) END_DISABLE_IMGUI_ELEMENT
+        }break;
+        default: break;
     }
+
 
     ImGui::Separator();
 
+    //------------------------- FEEDBACK ------------------------
 
     float velocityFraction;
     static char actualVelocityString[32];
-    if (!servoMotorDevice->isReady()) {
+    if (!isReady()) {
         sprintf(actualVelocityString, "Not Ready");
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
         velocityFraction = 1.0;
@@ -256,7 +257,7 @@ void Lexium32::controlsGui() {
     char rangeString[64];
 
     double range = servoMotorDevice->getPositionInRange();
-    if (!servoMotorDevice->isReady()) {
+    if (!isReady()) {
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
         range = 1.0;
         sprintf(rangeString, "Not ready");

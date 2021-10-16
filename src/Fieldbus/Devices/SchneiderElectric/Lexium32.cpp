@@ -400,29 +400,22 @@ void Lexium32::prepareOutputs(){
 
     //internal profile generator
     if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY) {
-
         if (manualVelocityCommand_rps > profileVelocity_rps) {
             double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
-            profileVelocity_rps += deltaV_rps * 60.0;
+            profileVelocity_rps += deltaV_rps;
             if (profileVelocity_rps > manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
         }
         else if (manualVelocityCommand_rps < profileVelocity_rps) {
             double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
-            profileVelocity_rps -= deltaV_rps * 60.0;
+            profileVelocity_rps -= deltaV_rps;
             if (profileVelocity_rps < manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
         }
         profilePosition_r = actualPosition->getReal();
-
-        //velocityCommand->set(profileVelocity_rps);
     }
     else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION) {
+        //TODO:
         //in this operating mode, we verify that the input velocity and acceleration don't exceed internal values
-
     }
-    else {
-        //in tuning mode don't use the profile generator
-    }
-
 
     //handle commands from subdevices
     if (servoMotorDevice->b_setEnabled) {

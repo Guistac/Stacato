@@ -12,20 +12,22 @@ void SingleAxisMachine::process() {
 
 	bool needsFeedback = needsPositionFeedbackDevice();
 	bool needsReference = needsReferenceDevice();
+	bool needsActuator = needsActuatorDevice();
 	bool needsServo = needsServoActuatorDevice();
 
 	//get devices
-	std::shared_ptr<ActuatorDevice> actuatorDevice = getActuatorDevice();
+	std::shared_ptr<ActuatorDevice> actuatorDevice;
 	std::shared_ptr<GpioDevice> referenceDevice;
 	std::shared_ptr<PositionFeedbackDevice> positionFeedbackDevice;
 	std::shared_ptr<ServoActuatorDevice> servoActuatorDevice;
 	if (needsFeedback) positionFeedbackDevice = getPositionFeedbackDevice();
 	if (needsReference) referenceDevice = getReferenceDevice();
+	if (needsActuator) actuatorDevice = getActuatorDevice();
 	if (needsServo) servoActuatorDevice = getServoActuatorDevice();
 
 	//handle device state transitions
 	if (b_enabled) {
-		if (!actuatorDevice->b_enabled) disable();
+		if (needsActuator && !actuatorDevice->b_enabled) disable();
 		if (needsFeedback && !positionFeedbackDevice->b_ready) disable();
 		if (needsReference && !referenceDevice->b_ready) disable();
 		if (needsServo && (!servoActuatorDevice->b_ready || !servoActuatorDevice->b_enabled)) disable();
@@ -68,12 +70,12 @@ void SingleAxisMachine::process() {
 		actualVelocity_machineUnitsPerSecond = profileVelocity_machineUnitsPerSecond;
 	}
 
-	switch (motionControlType) {
-		case MotionControlType::Type::SERVO_CONTROL:
+	switch (motionControl) {
+		case MotionControl::Type::SERVO_CONTROL:
 			servoActuatorDevice->setPositionCommand(profilePosition_machineUnits * actuatorUnitsPerMachineUnits);
 			break;
-		case MotionControlType::Type::CLOSED_LOOP_CONTROL:
-		case MotionControlType::Type::OPEN_LOOP_CONTROL:
+		case MotionControl::Type::CLOSED_LOOP_CONTROL:
+		case MotionControl::Type::OPEN_LOOP_CONTROL:
 			Logger::critical("Velocity Commands are not supported yet");
 			//actuatorDevice->setCommand(profileVelocity_machineUnitsPerSecond * actuatorUnitsPerMachineUnits);
 			//todo:
@@ -82,9 +84,14 @@ void SingleAxisMachine::process() {
 			break;
 	}
 
+	position->set(actualPosition_machineUnits);
+	velocity->set(actualVelocity_machineUnitsPerSecond);
+
 	//prepare metrics data
 	double positionError = profilePosition_machineUnits - actualPosition_machineUnits / feedbackUnitsPerMachineUnits;
-	double actualLoad = actuatorDevice->getLoad();
+	double actualLoad;
+	if (needsActuator) actualLoad = actuatorDevice->getLoad();
+	else if (needsServo) actualLoad = servoActuatorDevice->getLoad();
 	positionHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profilePosition_machineUnits));
 	actualPositionHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, actualPosition_machineUnits));
 	positionErrorHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, positionError));
@@ -131,7 +138,8 @@ void SingleAxisMachine::onEnable() {
 
 void SingleAxisMachine::disable() {
 	b_enabled = false;
-	getActuatorDevice()->disable();
+	if (needsActuatorDevice()) getActuatorDevice()->disable();
+	else if (needsServoActuatorDevice()) getServoActuatorDevice()->disable();
 	targetCurveProfile = MotionCurve::CurveProfile();
 	manualVelocityTarget_machineUnitsPerSecond = 0.0;
 	profileVelocity_machineUnitsPerSecond = 0.0;
@@ -155,11 +163,11 @@ bool SingleAxisMachine::isReady() {
 //========================== IO DEVICES =============================
 
 bool SingleAxisMachine::needsPositionFeedbackDevice() {
-	switch (motionControlType) {
-		case MotionControlType::Type::CLOSED_LOOP_CONTROL:
+	switch (motionControl) {
+		case MotionControl::Type::CLOSED_LOOP_CONTROL:
 			return true;
-		case MotionControlType::Type::OPEN_LOOP_CONTROL:
-		case MotionControlType::Type::SERVO_CONTROL:
+		case MotionControl::Type::OPEN_LOOP_CONTROL:
+		case MotionControl::Type::SERVO_CONTROL:
 			return false;
 	}
 }
@@ -175,11 +183,11 @@ std::shared_ptr<PositionFeedbackDevice> SingleAxisMachine::getPositionFeedbackDe
 
 
 bool SingleAxisMachine::needsReferenceDevice() {
-	switch (positionLimitType) {
-		case PositionLimitType::Type::LOW_LIMIT_SIGNAL:
-		case PositionLimitType::Type::HIGH_LIMIT_SIGNAL:
-		case PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
-		case PositionLimitType::Type::REFERENCE_SIGNAL:
+	switch (positionReference) {
+		case PositionReference::Type::LOW_LIMIT_SIGNAL:
+		case PositionReference::Type::HIGH_LIMIT_SIGNAL:
+		case PositionReference::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
+		case PositionReference::Type::REFERENCE_SIGNAL:
 			return true;
 		default:
 			return false;
@@ -197,11 +205,11 @@ std::shared_ptr<GpioDevice> SingleAxisMachine::getReferenceDevice() {
 
 
 bool SingleAxisMachine::needsActuatorDevice() {
-	switch (motionControlType) {
-		case MotionControlType::Type::CLOSED_LOOP_CONTROL:
-		case MotionControlType::Type::OPEN_LOOP_CONTROL:
+	switch (motionControl) {
+		case MotionControl::Type::CLOSED_LOOP_CONTROL:
+		case MotionControl::Type::OPEN_LOOP_CONTROL:
 			return true;
-		case MotionControlType::Type::SERVO_CONTROL:
+		case MotionControl::Type::SERVO_CONTROL:
 			return false;
 	}
 }
@@ -214,16 +222,31 @@ std::shared_ptr<ActuatorDevice> SingleAxisMachine::getActuatorDevice() {
 }
 
 void SingleAxisMachine::getPositionRange(double& lowLimit, double& highLimit) {
-	if (!isPositionFeedbackDeviceConnected())return;
-	switch (positionLimitType) {
-		case PositionLimitType::Type::LOW_LIMIT_SIGNAL:
-		case PositionLimitType::Type::HIGH_LIMIT_SIGNAL:
-		case PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
-		case PositionLimitType::Type::REFERENCE_SIGNAL:
-		case PositionLimitType::Type::FEEDBACK_REFERENCE:
-		case PositionLimitType::Type::NO_LIMIT:
-			lowLimit = getPositionFeedbackDevice()->rangeMin_positionUnits / feedbackUnitsPerMachineUnits;
-			highLimit = getPositionFeedbackDevice()->rangeMax_positionUnits / feedbackUnitsPerMachineUnits;
+	if (needsPositionFeedbackDevice() && !isPositionFeedbackDeviceConnected()) {
+		lowLimit = 0.0;
+		highLimit = 0.0;
+		return;
+	}
+	else if (needsServoActuatorDevice() && !isServoActuatorDeviceConnected()) {
+		lowLimit = 0.0;
+		highLimit = 0.0;
+		return;
+	}
+	switch (positionReference) {
+		case PositionReference::Type::LOW_LIMIT_SIGNAL:
+		case PositionReference::Type::HIGH_LIMIT_SIGNAL:
+		case PositionReference::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
+		case PositionReference::Type::REFERENCE_SIGNAL:
+		case PositionReference::Type::FEEDBACK_REFERENCE:
+		case PositionReference::Type::NO_LIMIT:
+			if (needsPositionFeedbackDevice()) {
+				lowLimit = getPositionFeedbackDevice()->rangeMin_positionUnits / feedbackUnitsPerMachineUnits;
+				highLimit = getPositionFeedbackDevice()->rangeMax_positionUnits / feedbackUnitsPerMachineUnits;
+			}
+			else if (needsServoActuatorDevice()) {
+				lowLimit = getServoActuatorDevice()->rangeMin_positionUnits / feedbackUnitsPerMachineUnits;
+				highLimit = getServoActuatorDevice()->rangeMax_positionUnits / feedbackUnitsPerMachineUnits;
+			}
 			break;
 	}
 }
@@ -231,11 +254,11 @@ void SingleAxisMachine::getPositionRange(double& lowLimit, double& highLimit) {
 
 
 bool SingleAxisMachine::needsServoActuatorDevice() {
-	switch (motionControlType) {
-		case MotionControlType::Type::CLOSED_LOOP_CONTROL:
-		case MotionControlType::Type::OPEN_LOOP_CONTROL:
+	switch (motionControl) {
+		case MotionControl::Type::CLOSED_LOOP_CONTROL:
+		case MotionControl::Type::OPEN_LOOP_CONTROL:
 			return false;
-		case MotionControlType::Type::SERVO_CONTROL:
+		case MotionControl::Type::SERVO_CONTROL:
 			return true;
 	}
 }
@@ -333,7 +356,7 @@ bool SingleAxisMachine::save(tinyxml2::XMLElement* xml) {
 	XMLElement* machineXML = xml->InsertNewChildElement("Machine");
 	machineXML->SetAttribute("UnitType", getPositionUnitType(machinePositionUnitType)->saveName);
 	machineXML->SetAttribute("Unit", getPositionUnit(machinePositionUnit)->saveName);
-	machineXML->SetAttribute("MotionControl", getMotionControlType(motionControlType)->saveName);
+	machineXML->SetAttribute("MotionControl", getMotionControlType(motionControl)->saveName);
 
 	XMLElement* unitConversionXML = xml->InsertNewChildElement("UnitConversion");
 	unitConversionXML->SetAttribute("FeedbackUnitsPerMachineUnit", feedbackUnitsPerMachineUnits);
@@ -345,34 +368,34 @@ bool SingleAxisMachine::save(tinyxml2::XMLElement* xml) {
 	kinematicLimitsXML->SetAttribute("AccelerationLimit_machineUnitsPerSecondSquared", accelerationLimit_machineUnitsPerSecondSquared);
 
 	XMLElement* positionReferenceXML = xml->InsertNewChildElement("PositionReference");
-	positionReferenceXML->SetAttribute("Type", getPositionLimitType(positionLimitType)->saveName);
-	switch (positionLimitType) {
-	case PositionLimitType::Type::LOW_LIMIT_SIGNAL:
-		positionReferenceXML->SetAttribute("MaxPositiveDeviation_machineUnits", allowedPositiveDeviationFromReference_machineUnits);
-		positionReferenceXML->SetAttribute("HomingVelocity_machineUnitsPerSecond", homingVelocity_machineUnitsPerSecond);
-		break;
-	case PositionLimitType::Type::HIGH_LIMIT_SIGNAL:
-		positionReferenceXML->SetAttribute("MaxNegativeDeviation_machineUnits", allowedNegativeDeviationFromReference_machineUnits);
-		positionReferenceXML->SetAttribute("HomingVelocity_machineUnitsPerSecond", homingVelocity_machineUnitsPerSecond);
-		break;
-	case PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
-		positionReferenceXML->SetAttribute("MaxPositiveDeviation_machineUnits", allowedPositiveDeviationFromReference_machineUnits);
-		positionReferenceXML->SetAttribute("MaxNegativeDeviation_machineUnits", allowedNegativeDeviationFromReference_machineUnits);
-		positionReferenceXML->SetAttribute("HomingVelocity_machineUnitsPerSecond", homingVelocity_machineUnitsPerSecond);
-		positionReferenceXML->SetAttribute("HomingDirection", getHomingDirectionType(homingDirectionType)->saveName);
-		break;
-	case PositionLimitType::Type::REFERENCE_SIGNAL:
-		positionReferenceXML->SetAttribute("MaxPositiveDeviation_machineUnits", allowedPositiveDeviationFromReference_machineUnits);
-		positionReferenceXML->SetAttribute("MaxNegativeDeviation_machineUnits", allowedNegativeDeviationFromReference_machineUnits);
-		positionReferenceXML->SetAttribute("HomingVelocity_machineUnitsPerSecond", homingVelocity_machineUnitsPerSecond);
-		positionReferenceXML->SetAttribute("HomingDirection", getHomingDirectionType(homingDirectionType)->saveName);
-		break;
-	case PositionLimitType::Type::FEEDBACK_REFERENCE:
-		positionReferenceXML->SetAttribute("MaxPositiveDeviation_machineUnits", allowedPositiveDeviationFromReference_machineUnits);
-		positionReferenceXML->SetAttribute("MaxNegativeDeviation_machineUnits", allowedNegativeDeviationFromReference_machineUnits);
-		break;
-	case PositionLimitType::Type::NO_LIMIT:
-		break;
+	positionReferenceXML->SetAttribute("Type", getPositionReference(positionReference)->saveName);
+	switch (positionReference) {
+		case PositionReference::Type::LOW_LIMIT_SIGNAL:
+			positionReferenceXML->SetAttribute("MaxPositiveDeviation_machineUnits", allowedPositiveDeviationFromReference_machineUnits);
+			positionReferenceXML->SetAttribute("HomingVelocity_machineUnitsPerSecond", homingVelocity_machineUnitsPerSecond);
+			break;
+		case PositionReference::Type::HIGH_LIMIT_SIGNAL:
+			positionReferenceXML->SetAttribute("MaxNegativeDeviation_machineUnits", allowedNegativeDeviationFromReference_machineUnits);
+			positionReferenceXML->SetAttribute("HomingVelocity_machineUnitsPerSecond", homingVelocity_machineUnitsPerSecond);
+			break;
+		case PositionReference::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
+			positionReferenceXML->SetAttribute("MaxPositiveDeviation_machineUnits", allowedPositiveDeviationFromReference_machineUnits);
+			positionReferenceXML->SetAttribute("MaxNegativeDeviation_machineUnits", allowedNegativeDeviationFromReference_machineUnits);
+			positionReferenceXML->SetAttribute("HomingVelocity_machineUnitsPerSecond", homingVelocity_machineUnitsPerSecond);
+			positionReferenceXML->SetAttribute("HomingDirection", getHomingDirection(homingDirection)->saveName);
+			break;
+		case PositionReference::Type::REFERENCE_SIGNAL:
+			positionReferenceXML->SetAttribute("MaxPositiveDeviation_machineUnits", allowedPositiveDeviationFromReference_machineUnits);
+			positionReferenceXML->SetAttribute("MaxNegativeDeviation_machineUnits", allowedNegativeDeviationFromReference_machineUnits);
+			positionReferenceXML->SetAttribute("HomingVelocity_machineUnitsPerSecond", homingVelocity_machineUnitsPerSecond);
+			positionReferenceXML->SetAttribute("HomingDirection", getHomingDirection(homingDirection)->saveName);
+			break;
+		case PositionReference::Type::FEEDBACK_REFERENCE:
+			positionReferenceXML->SetAttribute("MaxPositiveDeviation_machineUnits", allowedPositiveDeviationFromReference_machineUnits);
+			positionReferenceXML->SetAttribute("MaxNegativeDeviation_machineUnits", allowedNegativeDeviationFromReference_machineUnits);
+			break;
+		case PositionReference::Type::NO_LIMIT:
+			break;
 	}
 
 	XMLElement* defaultManualParametersXML = xml->InsertNewChildElement("DefaultManualParameters");
@@ -412,34 +435,34 @@ bool SingleAxisMachine::load(tinyxml2::XMLElement* xml) {
 	if (!positionReferenceXML) return Logger::warn("Could not load Machine Position Reference");
 	const char* positionLimitTypeString;
 	if (positionReferenceXML->QueryStringAttribute("Type", &positionLimitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Position Reference Type");
-	if (getPositionLimitType(positionLimitTypeString) == nullptr) return Logger::warn("Could not read Position Reference Type");
-	setPositionLimitType(getPositionLimitType(positionLimitTypeString)->type);
+	if (getPositionReference(positionLimitTypeString) == nullptr) return Logger::warn("Could not read Position Reference Type");
+	setPositionReferenceType(getPositionReference(positionLimitTypeString)->type);
 
-	switch (positionLimitType) {
-	case PositionLimitType::Type::LOW_LIMIT_SIGNAL:
-		if (positionReferenceXML->QueryDoubleAttribute("MaxPositiveDeviation_machineUnits", &allowedPositiveDeviationFromReference_machineUnits) != XML_SUCCESS) return Logger::warn("Could not load max positive deviation");
-		if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity_machineUnitsPerSecond", &homingVelocity_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
-		break;
-	case PositionLimitType::Type::HIGH_LIMIT_SIGNAL:
-		if (positionReferenceXML->QueryDoubleAttribute("MaxNegativeDeviation_machineUnits", &allowedNegativeDeviationFromReference_machineUnits) != XML_SUCCESS) return Logger::warn("Could not load max negative deviation");
-		if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity_machineUnitsPerSecond", &homingVelocity_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
-		break;
-	case PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
-	case PositionLimitType::Type::REFERENCE_SIGNAL:
-		if (positionReferenceXML->QueryDoubleAttribute("MaxPositiveDeviation_machineUnits", &allowedPositiveDeviationFromReference_machineUnits) != XML_SUCCESS) return Logger::warn("Could not load max positive deviation");
-		if (positionReferenceXML->QueryDoubleAttribute("MaxNegativeDeviation_machineUnits", &allowedNegativeDeviationFromReference_machineUnits) != XML_SUCCESS) return Logger::warn("Could not load max negative deviation");
-		if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity_machineUnitsPerSecond", &homingVelocity_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
-		const char* homingDirectionString;
-		if (positionReferenceXML->QueryStringAttribute("HomingDirection", &homingDirectionString)) return Logger::warn("Could not load homing direction");
-		if (getHomingDirectionType(homingDirectionString) == nullptr) return Logger::warn("Could not read homing direction");
-		homingDirectionType = getHomingDirectionType(homingDirectionString)->type;
-		break;
-	case PositionLimitType::Type::FEEDBACK_REFERENCE:
-		if (positionReferenceXML->QueryDoubleAttribute("MaxPositiveDeviation_machineUnits", &allowedPositiveDeviationFromReference_machineUnits) != XML_SUCCESS) return Logger::warn("Could not load max positive deviation");
-		if (positionReferenceXML->QueryDoubleAttribute("MaxNegativeDeviation_machineUnits", &allowedNegativeDeviationFromReference_machineUnits) != XML_SUCCESS) return Logger::warn("Could not load max negative deviation");
-		break;
-	case PositionLimitType::Type::NO_LIMIT:
-		break;
+	switch (positionReference) {
+		case PositionReference::Type::LOW_LIMIT_SIGNAL:
+			if (positionReferenceXML->QueryDoubleAttribute("MaxPositiveDeviation_machineUnits", &allowedPositiveDeviationFromReference_machineUnits) != XML_SUCCESS) return Logger::warn("Could not load max positive deviation");
+			if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity_machineUnitsPerSecond", &homingVelocity_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
+			break;
+		case PositionReference::Type::HIGH_LIMIT_SIGNAL:
+			if (positionReferenceXML->QueryDoubleAttribute("MaxNegativeDeviation_machineUnits", &allowedNegativeDeviationFromReference_machineUnits) != XML_SUCCESS) return Logger::warn("Could not load max negative deviation");
+			if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity_machineUnitsPerSecond", &homingVelocity_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
+			break;
+		case PositionReference::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
+		case PositionReference::Type::REFERENCE_SIGNAL:
+			if (positionReferenceXML->QueryDoubleAttribute("MaxPositiveDeviation_machineUnits", &allowedPositiveDeviationFromReference_machineUnits) != XML_SUCCESS) return Logger::warn("Could not load max positive deviation");
+			if (positionReferenceXML->QueryDoubleAttribute("MaxNegativeDeviation_machineUnits", &allowedNegativeDeviationFromReference_machineUnits) != XML_SUCCESS) return Logger::warn("Could not load max negative deviation");
+			if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity_machineUnitsPerSecond", &homingVelocity_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
+			const char* homingDirectionString;
+			if (positionReferenceXML->QueryStringAttribute("HomingDirection", &homingDirectionString)) return Logger::warn("Could not load homing direction");
+			if (getHomingDirection(homingDirectionString) == nullptr) return Logger::warn("Could not read homing direction");
+			homingDirection = getHomingDirection(homingDirectionString)->type;
+			break;
+		case PositionReference::Type::FEEDBACK_REFERENCE:
+			if (positionReferenceXML->QueryDoubleAttribute("MaxPositiveDeviation_machineUnits", &allowedPositiveDeviationFromReference_machineUnits) != XML_SUCCESS) return Logger::warn("Could not load max positive deviation");
+			if (positionReferenceXML->QueryDoubleAttribute("MaxNegativeDeviation_machineUnits", &allowedNegativeDeviationFromReference_machineUnits) != XML_SUCCESS) return Logger::warn("Could not load max negative deviation");
+			break;
+		case PositionReference::Type::NO_LIMIT:
+			break;
 	}
 
 	XMLElement* kinematicLimitsXML = xml->FirstChildElement("KinematicLimits");
@@ -459,44 +482,44 @@ bool SingleAxisMachine::load(tinyxml2::XMLElement* xml) {
 
 
 
-void SingleAxisMachine::setMotionControlType(MotionControlType::Type type) {
+void SingleAxisMachine::setMotionControlType(MotionControl::Type type) {
 	removeIoData(referenceDeviceLink);
 	removeIoData(positionReferences);
 	switch (type) {
-		case MotionControlType::Type::OPEN_LOOP_CONTROL:
+		case MotionControl::Type::OPEN_LOOP_CONTROL:
 			addIoData(actuatorDeviceLink);
 			removeIoData(positionFeedbackDeviceLink);
 			removeIoData(servoActuatorDeviceLink);
 			break;
-		case MotionControlType::Type::CLOSED_LOOP_CONTROL:
+		case MotionControl::Type::CLOSED_LOOP_CONTROL:
 			addIoData(actuatorDeviceLink);
 			addIoData(positionFeedbackDeviceLink);
 			removeIoData(servoActuatorDeviceLink);
 			break;
-		case MotionControlType::Type::SERVO_CONTROL:
+		case MotionControl::Type::SERVO_CONTROL:
 			addIoData(servoActuatorDeviceLink);
 			removeIoData(actuatorDeviceLink);
 			removeIoData(positionFeedbackDeviceLink);
 			break;
 	}
-	motionControlType = type;
-	setPositionLimitType(positionLimitType);
+	motionControl = type;
+	setPositionReferenceType(positionReference);
 }
 
-void SingleAxisMachine::setPositionLimitType(PositionLimitType::Type type) {
+void SingleAxisMachine::setPositionReferenceType(PositionReference::Type type) {
 	switch (type) {
-		case PositionLimitType::Type::LOW_LIMIT_SIGNAL:
-		case PositionLimitType::Type::HIGH_LIMIT_SIGNAL:
-		case PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
-		case PositionLimitType::Type::REFERENCE_SIGNAL:
+		case PositionReference::Type::LOW_LIMIT_SIGNAL:
+		case PositionReference::Type::HIGH_LIMIT_SIGNAL:
+		case PositionReference::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
+		case PositionReference::Type::REFERENCE_SIGNAL:
 			addIoData(referenceDeviceLink);
 			addIoData(positionReferences);
 			break;
-		case PositionLimitType::Type::FEEDBACK_REFERENCE:
-		case PositionLimitType::Type::NO_LIMIT:
+		case PositionReference::Type::FEEDBACK_REFERENCE:
+		case PositionReference::Type::NO_LIMIT:
 			removeIoData(referenceDeviceLink);
 			removeIoData(positionReferences);
 			break;
 	}
-	positionLimitType = type;
+	positionReference = type;
 }

@@ -27,6 +27,7 @@ const char* getPositionUnitStringSingular(PositionUnit::Unit u);
 const char* getPositionUnitStringPlural(PositionUnit::Unit u);
 const char* getPositionUnitStringShort(PositionUnit::Unit u);
 
+
 struct PositionUnitType {
 	PositionUnit::Type type;
 	const char displayName[64];
@@ -51,7 +52,7 @@ PositionFeedback* getPositionFeedbackType(PositionFeedback::Type t);
 PositionFeedback* getPositionFeedbackType(const char* savedName);
 
 
-struct PositionLimitType {
+struct PositionReference {
 	enum class Type {
 		LOW_LIMIT_SIGNAL,
 		HIGH_LIMIT_SIGNAL,
@@ -64,14 +65,14 @@ struct PositionLimitType {
 	const char displayName[64];
 	const char saveName[64];
 };
-std::vector<PositionLimitType>& getLinearPositionLimitTypes();
-std::vector<PositionLimitType>& getAngularPositionLimitTypes();
-PositionLimitType* getPositionLimitType(PositionLimitType::Type t);
-PositionLimitType* getPositionLimitType(const char* savedName);
-bool isLinearPositionLimit(PositionLimitType::Type t);
-bool isAngularPositionLimit(PositionLimitType::Type t);
+std::vector<PositionReference>& getLinearPositionReferences();
+std::vector<PositionReference>& getAngularPositionReferences();
+PositionReference* getPositionReference(PositionReference::Type t);
+PositionReference* getPositionReference(const char* savedName);
+bool isLinearPositionReference(PositionReference::Type t);
+bool isAngularPositionReference(PositionReference::Type t);
 
-struct MotionControlType {
+struct MotionControl {
 	enum class Type {
 		CLOSED_LOOP_CONTROL,
 		OPEN_LOOP_CONTROL,
@@ -81,9 +82,9 @@ struct MotionControlType {
 	const char displayName[64];
 	const char saveName[64];
 };
-std::vector<MotionControlType>& getMotionControlTypes();
-MotionControlType* getMotionControlType(MotionControlType::Type t);
-MotionControlType* getMotionControlType(const char*);
+std::vector<MotionControl>& getMotionControlTypes();
+MotionControl* getMotionControlType(MotionControl::Type t);
+MotionControl* getMotionControlType(const char*);
 
 struct CommandType {
 	enum class Type {
@@ -107,6 +108,6 @@ struct HomingDirection {
 	const char displayName[64];
 	const char saveName[64];
 };
-std::vector<HomingDirection>& getHomingDirectionTypes();
-HomingDirection* getHomingDirectionType(HomingDirection::Type t);
-HomingDirection* getHomingDirectionType(const char* savedName);
+std::vector<HomingDirection>& getHomingDirections();
+HomingDirection* getHomingDirection(HomingDirection::Type t);
+HomingDirection* getHomingDirection(const char* savedName);

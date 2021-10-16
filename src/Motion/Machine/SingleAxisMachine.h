@@ -39,8 +39,8 @@ public:
 	//Machine Type
 	PositionUnit::Type machinePositionUnitType = PositionUnit::Type::LINEAR;
 	PositionUnit::Unit machinePositionUnit = PositionUnit::Unit::METER;
-	MotionControlType::Type motionControlType = MotionControlType::Type::CLOSED_LOOP_CONTROL;
-	void setMotionControlType(MotionControlType::Type type);
+	MotionControl::Type motionControl = MotionControl::Type::CLOSED_LOOP_CONTROL;
+	void setMotionControlType(MotionControl::Type type);
 
 	//Unit Conversions
 	double feedbackUnitsPerMachineUnits = 0.0;
@@ -48,9 +48,9 @@ public:
 	bool feedbackAndActuatorConversionIdentical = false;
 
 	//Reference and Homing Type
-	PositionLimitType::Type positionLimitType = PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS;
-	HomingDirection::Type homingDirectionType = HomingDirection::Type::NEGATIVE;
-	void setPositionLimitType(PositionLimitType::Type type);
+	PositionReference::Type positionReference = PositionReference::Type::LOW_AND_HIGH_LIMIT_SIGNALS;
+	HomingDirection::Type homingDirection = HomingDirection::Type::NEGATIVE;
+	void setPositionReferenceType(PositionReference::Type type);
 
 	//Kinematic Limits
 	double velocityLimit_machineUnitsPerSecond = 0.0;
@@ -130,7 +130,7 @@ public:
 	void onEnable();
 	bool b_enabled = false;
 
-	//========= SUBDEVICSE ===========
+	//========= SUBDEVICES ===========
 
 	bool needsPositionFeedbackDevice();
 	bool isPositionFeedbackDeviceConnected();

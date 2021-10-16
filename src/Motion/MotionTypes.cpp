@@ -114,47 +114,47 @@ PositionFeedback* getPositionFeedbackType(const char* saveName) {
 
 
 
-std::vector<PositionLimitType> linearPositionLimitTypes = {
-	{PositionLimitType::Type::LOW_LIMIT_SIGNAL, "Low Limit Signal", "Low"},
-	{PositionLimitType::Type::HIGH_LIMIT_SIGNAL, "High Limit Signal", "High"},
-	{PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS, "Low and High Limit Signals", "LowHigh"}
+std::vector<PositionReference> linearPositionReferences = {
+	{PositionReference::Type::LOW_LIMIT_SIGNAL, "Low Limit Signal", "Low"},
+	{PositionReference::Type::HIGH_LIMIT_SIGNAL, "High Limit Signal", "High"},
+	{PositionReference::Type::LOW_AND_HIGH_LIMIT_SIGNALS, "Low and High Limit Signals", "LowHigh"}
 };
-std::vector<PositionLimitType> angularPositionLimitTypes = {
-	{PositionLimitType::Type::LOW_LIMIT_SIGNAL, "Low Limit Signal", "Low"},
-	{PositionLimitType::Type::HIGH_LIMIT_SIGNAL, "High Limit Signal", "High"},
-	{PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS, "Low and High Limit Signals", "LowHigh"},
-	{PositionLimitType::Type::REFERENCE_SIGNAL, "Reference Signal", "Reference"},
-	{PositionLimitType::Type::FEEDBACK_REFERENCE, "Feedback Reference", "Feedback"},
-	{PositionLimitType::Type::NO_LIMIT, "No Position Limits", "None"}
+std::vector<PositionReference> angularPositionReferences = {
+	{PositionReference::Type::LOW_LIMIT_SIGNAL, "Low Limit Signal", "Low"},
+	{PositionReference::Type::HIGH_LIMIT_SIGNAL, "High Limit Signal", "High"},
+	{PositionReference::Type::LOW_AND_HIGH_LIMIT_SIGNALS, "Low and High Limit Signals", "LowHigh"},
+	{PositionReference::Type::REFERENCE_SIGNAL, "Reference Signal", "Reference"},
+	{PositionReference::Type::FEEDBACK_REFERENCE, "Feedback Reference", "Feedback"},
+	{PositionReference::Type::NO_LIMIT, "No Position Limits", "None"}
 };
-std::vector<PositionLimitType>& getLinearPositionLimitTypes() { return linearPositionLimitTypes; }
-std::vector<PositionLimitType>& getAngularPositionLimitTypes() { return angularPositionLimitTypes; }
-PositionLimitType* getPositionLimitType(PositionLimitType::Type t) {
-	for (PositionLimitType& positionLimit : linearPositionLimitTypes) {
+std::vector<PositionReference>& getLinearPositionReferences() { return linearPositionReferences; }
+std::vector<PositionReference>& getAngularPositionReferences() { return angularPositionReferences; }
+PositionReference* getPositionReference(PositionReference::Type t) {
+	for (PositionReference& positionLimit : linearPositionReferences) {
 		if (positionLimit.type == t) return &positionLimit;
 	}
-	for (PositionLimitType& positionLimit : angularPositionLimitTypes) {
+	for (PositionReference& positionLimit : angularPositionReferences) {
 		if (positionLimit.type == t) return &positionLimit;
 	}
 	return nullptr;
 }
-PositionLimitType* getPositionLimitType(const char* saveName) {
-	for (PositionLimitType& positionLimit : linearPositionLimitTypes) {
+PositionReference* getPositionReference(const char* saveName) {
+	for (PositionReference& positionLimit : linearPositionReferences) {
 		if (strcmp(saveName, positionLimit.saveName) == 0) return &positionLimit;
 	}
-	for (PositionLimitType& positionLimit : angularPositionLimitTypes) {
+	for (PositionReference& positionLimit : angularPositionReferences) {
 		if (strcmp(saveName, positionLimit.saveName) == 0) return &positionLimit;
 	}
 	return nullptr;
 }
-bool isLinearPositionLimit(PositionLimitType::Type t) {
-	for (PositionLimitType& positionLimit : linearPositionLimitTypes) {
+bool isLinearPositionReference(PositionReference::Type t) {
+	for (PositionReference& positionLimit : linearPositionReferences) {
 		if (positionLimit.type == t) return true;
 	}
 	return false;
 }
-bool isAngularPositionLimit(PositionLimitType::Type t) {
-	for (PositionLimitType& positionLimit : angularPositionLimitTypes) {
+bool isAngularPositionReference(PositionReference::Type t) {
+	for (PositionReference& positionLimit : angularPositionReferences) {
 		if (positionLimit.type == t) return true;
 	}
 	return false;
@@ -163,21 +163,21 @@ bool isAngularPositionLimit(PositionLimitType::Type t) {
 
 
 
-std::vector<MotionControlType> motionControlTypes = {
-	{MotionControlType::Type::CLOSED_LOOP_CONTROL, "Closed Loop", "ClosedLoop"},
-	{MotionControlType::Type::OPEN_LOOP_CONTROL, "Open Loop", "OpenLoop"},
-	{MotionControlType::Type::SERVO_CONTROL, "Servo Control", "Servo"}
+std::vector<MotionControl> motionControlTypes = {
+	{MotionControl::Type::CLOSED_LOOP_CONTROL, "Closed Loop", "ClosedLoop"},
+	{MotionControl::Type::OPEN_LOOP_CONTROL, "Open Loop", "OpenLoop"},
+	{MotionControl::Type::SERVO_CONTROL, "Servo Control", "Servo"}
 };
 
-std::vector<MotionControlType>& getMotionControlTypes() { return motionControlTypes; }
-MotionControlType* getMotionControlType(MotionControlType::Type t) {
-	for (MotionControlType& motionControlType : motionControlTypes) {
+std::vector<MotionControl>& getMotionControlTypes() { return motionControlTypes; }
+MotionControl* getMotionControlType(MotionControl::Type t) {
+	for (MotionControl& motionControlType : motionControlTypes) {
 		if (motionControlType.type == t) return &motionControlType;
 	}
 	return nullptr;
 }
-MotionControlType* getMotionControlType(const char* saveName) {
-	for (MotionControlType& motionControlType : motionControlTypes) {
+MotionControl* getMotionControlType(const char* saveName) {
+	for (MotionControl& motionControlType : motionControlTypes) {
 		if (strcmp(saveName, motionControlType.saveName) == 0) return &motionControlType;
 	}
 	return nullptr;
@@ -217,16 +217,16 @@ std::vector<HomingDirection> homingDirectionTypes = {
 	{HomingDirection::Type::POSITIVE, "Positive", "Positive"}
 };
 
-std::vector<HomingDirection>& getHomingDirectionTypes() { return homingDirectionTypes; }
+std::vector<HomingDirection>& getHomingDirections() { return homingDirectionTypes; }
 
-HomingDirection* getHomingDirectionType(HomingDirection::Type t) {
+HomingDirection* getHomingDirection(HomingDirection::Type t) {
 	for (HomingDirection& direction : homingDirectionTypes) {
 		if (direction.type == t) return &direction;
 	}
 	return nullptr;
 }
 
-HomingDirection* getHomingDirectionType(const char* saveName) {
+HomingDirection* getHomingDirection(const char* saveName) {
 	for (HomingDirection& direction : homingDirectionTypes) {
 		if (strcmp(saveName, direction.saveName)) return &direction;
 	}
