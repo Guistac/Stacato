@@ -306,7 +306,9 @@ void SingleAxisMachine::settingsGui() {
 	ImGui::Text("Motion Control Type :");
 	if (ImGui::BeginCombo("##MotionControlType", getMotionControlType(motionControlType)->displayName)) {
 		for (MotionControlType& control : getMotionControlTypes()) {
-			if (ImGui::Selectable(control.displayName, motionControlType == control.type)) motionControlType = control.type;
+			if (ImGui::Selectable(control.displayName, motionControlType == control.type)) {
+				setMotionControlType(control.type);
+			}
 		}
 		ImGui::EndCombo();
 	}
@@ -493,13 +495,17 @@ void SingleAxisMachine::settingsGui() {
 		case PositionUnit::Type::LINEAR:
 			for (PositionLimitType& reference : getLinearPositionLimitTypes()) {
 				bool selected = positionLimitType == reference.type;
-				if (ImGui::Selectable(reference.displayName, selected)) positionLimitType = reference.type;
+				if (ImGui::Selectable(reference.displayName, selected)) {
+					setPositionLimitType(reference.type);
+				}
 			}
 			break;
 		case PositionUnit::Type::ANGULAR:
 			for (PositionLimitType& reference : getAngularPositionLimitTypes()) {
 				bool selected = positionLimitType == reference.type;
-				if (ImGui::Selectable(reference.displayName, selected)) positionLimitType = reference.type;
+				if (ImGui::Selectable(reference.displayName, selected)) {
+					setPositionLimitType(reference.type);
+				}
 			}
 			break;
 		}

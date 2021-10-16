@@ -9,6 +9,7 @@ public:
 
 	//Device Links
 	std::shared_ptr<NodePin> actuatorDeviceLink = std::make_shared<NodePin>(NodeData::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuator");
+	std::shared_ptr<NodePin> servoActuatorDeviceLink = std::make_shared<NodePin>(NodeData::SERVO_ACTUATOR_DEVICE_LINK, DataDirection::NODE_INPUT, "Servo Actuator");
 	std::shared_ptr<NodePin> positionFeedbackDeviceLink = std::make_shared<NodePin>(NodeData::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_INPUT, "Position Feedback");
 	std::shared_ptr<NodePin> referenceDeviceLink = std::make_shared<NodePin>(NodeData::GPIO_DEVICELINK, DataDirection::NODE_INPUT, "Reference Device");
 
@@ -16,8 +17,22 @@ public:
 	std::shared_ptr<NodePin> positionReferences = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "References", NodePinFlags_AcceptMultipleInputs);
 
 	//Outputs
-	//std::shared_ptr<NodePin> actuatorCommand = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Actuator Command", NodePinFlags_DisableDataField);
-	//std::shared_ptr<NodePin> resetPositionFeedback = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Position Feedback", NodePinFlags_DisableDataField | NodePinFlags_HidePin);
+	std::shared_ptr<NodePin> position = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position");
+	std::shared_ptr<NodePin> velocity = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity");
+
+	virtual void assignIoData() {
+		//inputs
+		//add default inputs for closed loop control with limit signals
+		//these pins get removed if another motion contorl mode or position limit mode gets loaded or selected
+		addIoData(actuatorDeviceLink);
+		addIoData(positionFeedbackDeviceLink);
+		addIoData(referenceDeviceLink);
+		addIoData(positionReferences);
+		//outputs
+		//these pins are always present
+		addIoData(position);
+		addIoData(velocity);
+	}
 
 	//==================== AXIS DATA ====================
 
@@ -25,6 +40,7 @@ public:
 	PositionUnit::Type machinePositionUnitType = PositionUnit::Type::LINEAR;
 	PositionUnit::Unit machinePositionUnit = PositionUnit::Unit::METER;
 	MotionControlType::Type motionControlType = MotionControlType::Type::CLOSED_LOOP_CONTROL;
+	void setMotionControlType(MotionControlType::Type type);
 
 	//Unit Conversions
 	double feedbackUnitsPerMachineUnits = 0.0;
@@ -32,8 +48,9 @@ public:
 	bool feedbackAndActuatorConversionIdentical = false;
 
 	//Reference and Homing Type
-	PositionLimitType::Type positionLimitType = PositionLimitType::Type::NO_LIMIT;
+	PositionLimitType::Type positionLimitType = PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS;
 	HomingDirection::Type homingDirectionType = HomingDirection::Type::NEGATIVE;
+	void setPositionLimitType(PositionLimitType::Type type);
 
 	//Kinematic Limits
 	double velocityLimit_machineUnitsPerSecond = 0.0;
@@ -118,27 +135,20 @@ public:
 	bool needsPositionFeedbackDevice();
 	bool isPositionFeedbackDeviceConnected();
 	std::shared_ptr<PositionFeedbackDevice> getPositionFeedbackDevice();
-	double getPositionFeedback();
 
 	bool needsReferenceDevice();
 	bool isReferenceDeviceConnected();
 	std::shared_ptr<GpioDevice> getReferenceDevice();
 
+	bool needsActuatorDevice();
 	bool isActuatorDeviceConnected();
 	std::shared_ptr<ActuatorDevice> getActuatorDevice();
 
-	//============ NODE DATA ==============
+	bool needsServoActuatorDevice();
+	bool isServoActuatorDeviceConnected();
+	std::shared_ptr<ServoActuatorDevice> getServoActuatorDevice();
 
-	virtual void assignIoData() {
-		//inputs
-		addIoData(actuatorDeviceLink);
-		addIoData(positionFeedbackDeviceLink);
-		addIoData(referenceDeviceLink);
-		addIoData(positionReferences);
-		//outputs
-		//addIoData(actuatorCommand);
-		//addIoData(resetPositionFeedback);
-	}
+	//============ NODE DATA ==============
 
 	virtual void process();
 

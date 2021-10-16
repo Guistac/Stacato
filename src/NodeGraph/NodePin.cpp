@@ -1,10 +1,18 @@
 #include <pch.h>
 
+#include "NodeGraph.h"
 #include "NodePin.h"
 #include "NodeLink.h"
 #include "Node.h"
 
 #include <tinyxml2.h>
+
+void NodePin::disconnectAllLinks() {
+	if (parentNode == nullptr || parentNode->parentNodeGraph == nullptr) return;
+	while (isConnected()) {
+		parentNode->parentNodeGraph->disconnect(NodeLinks.front());
+	}
+}
 
 bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> otherData) {
 	switch (type) {

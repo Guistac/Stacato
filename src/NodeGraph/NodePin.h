@@ -98,6 +98,9 @@ public:
 	bool acceptsMultipleInputs() { return b_acceptsMultipleInputs; }
 	bool hasMultipleLinks() { return NodeLinks.size() > 1; }
 	bool isDataTypeCompatible(std::shared_ptr<NodePin> otherData);
+
+	//commands
+	void disconnectAllLinks();
 	
 	//nodegraph infos
 	int getUniqueID() { return uniqueID; }

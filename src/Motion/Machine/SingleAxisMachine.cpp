@@ -12,19 +12,23 @@ void SingleAxisMachine::process() {
 
 	bool needsFeedback = needsPositionFeedbackDevice();
 	bool needsReference = needsReferenceDevice();
+	bool needsServo = needsServoActuatorDevice();
 
 	//get devices
 	std::shared_ptr<ActuatorDevice> actuatorDevice = getActuatorDevice();
 	std::shared_ptr<GpioDevice> referenceDevice;
 	std::shared_ptr<PositionFeedbackDevice> positionFeedbackDevice;
+	std::shared_ptr<ServoActuatorDevice> servoActuatorDevice;
 	if (needsFeedback) positionFeedbackDevice = getPositionFeedbackDevice();
 	if (needsReference) referenceDevice = getReferenceDevice();
+	if (needsServo) servoActuatorDevice = getServoActuatorDevice();
 
 	//handle device state transitions
 	if (b_enabled) {
 		if (!actuatorDevice->b_enabled) disable();
 		if (needsFeedback && !positionFeedbackDevice->b_ready) disable();
 		if (needsReference && !referenceDevice->b_ready) disable();
+		if (needsServo && (!servoActuatorDevice->b_ready || !servoActuatorDevice->b_enabled)) disable();
 	}
 
 	if (needsFeedback) {
@@ -32,9 +36,13 @@ void SingleAxisMachine::process() {
 		actualPosition_machineUnits = positionFeedbackDevice->getPosition() / feedbackUnitsPerMachineUnits;
 		actualVelocity_machineUnitsPerSecond = positionFeedbackDevice->getVelocity() / feedbackUnitsPerMachineUnits;
 	}
+	else if (needsServo) {
+		actualPosition_machineUnits = servoActuatorDevice->getPosition() / actuatorUnitsPerMachineUnits;
+		actualVelocity_machineUnitsPerSecond = servoActuatorDevice->getVelocity() / actuatorUnitsPerMachineUnits;
+	}
 
 	//update timing
-	//TODO: the machine should get timing information from the actuator object
+	//TODO: the machine should get timing information from the actuator object or servo actuator object
 	currentProfilePointTime_seconds = EtherCatFieldbus::getReferenceClock_seconds();
 	currentProfilePointDeltaT_seconds = currentProfilePointTime_seconds - previousProfilePointTime_seconds;
 	previousProfilePointTime_seconds = currentProfilePointTime_seconds;
@@ -48,13 +56,13 @@ void SingleAxisMachine::process() {
 			case ControlMode::HOMING: homingControl(); break;
 		}
 	}
-	else if (needsFeedback){
+	else if (needsFeedback || needsServo){
 		//if the axis is disabled, copy position feedback data to profile generator
 		profilePosition_machineUnits = actualPosition_machineUnits;
 		profileVelocity_machineUnitsPerSecond = actualVelocity_machineUnitsPerSecond;
 	}
 
-	if (!needsFeedback) {
+	if (!needsFeedback && !needsServo) {
 		//if there is no position feedback, we assume the position of the axis based on the profile generator
 		actualPosition_machineUnits = profilePosition_machineUnits;
 		actualVelocity_machineUnitsPerSecond = profileVelocity_machineUnitsPerSecond;
@@ -62,7 +70,7 @@ void SingleAxisMachine::process() {
 
 	switch (motionControlType) {
 		case MotionControlType::Type::SERVO_CONTROL:
-			actuatorDevice->setVelocityCommand(profilePosition_machineUnits * actuatorUnitsPerMachineUnits);
+			servoActuatorDevice->setPositionCommand(profilePosition_machineUnits * actuatorUnitsPerMachineUnits);
 			break;
 		case MotionControlType::Type::CLOSED_LOOP_CONTROL:
 		case MotionControlType::Type::OPEN_LOOP_CONTROL:
@@ -90,15 +98,21 @@ void SingleAxisMachine::process() {
 void SingleAxisMachine::enable() {
 	std::thread machineEnabler([this]() {
 		//enable actuator
-		std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
-		actuator->enable();
-		std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+		if (needsActuatorDevice()) getServoActuatorDevice()->enable();
+		else if (needsServoActuatorDevice()) getServoActuatorDevice()->enable();
 		//wait for actuator to be enabled
-		while (!actuator->isEnabled()) {
-			if (std::chrono::system_clock::now() - start > std::chrono::milliseconds(500)) {
-				return Logger::warn("Could not enable Machine '{}', actuator did not enable on time", getName());
+		std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+		if (needsActuatorDevice()) {
+			while (!getActuatorDevice()->isEnabled()) {
+				if (std::chrono::system_clock::now() - start > std::chrono::milliseconds(500)) return Logger::warn("Could not enable Machine '{}', actuator did not enable on time", getName());
+				std::this_thread::sleep_for(std::chrono::milliseconds(20));
 			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(20));
+		}
+		else if (needsServoActuatorDevice()) {
+			while (!getServoActuatorDevice()->isEnabled()) {
+				if (std::chrono::system_clock::now() - start > std::chrono::milliseconds(500)) return Logger::warn("Could not enable Machine '{}', servo actuator did not enable on time", getName());
+				std::this_thread::sleep_for(std::chrono::milliseconds(20));
+			}
 		}
 		if (!isReady()) Logger::warn("Machine '{}' cannot be enabled", getName());
 		else onEnable();
@@ -130,15 +144,11 @@ bool SingleAxisMachine::isEnabled() {
 }
 
 bool SingleAxisMachine::isReady() {
-	//checks if all connected devices are ready and compatible
-
-	if (!isActuatorDeviceConnected()) return false;
-	std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
-	if (!actuator->isReady()) return false;
-
+	//checks if all connected devices are connected and ready
+	if (needsActuatorDevice() && (!isActuatorDeviceConnected() || !getActuatorDevice()->isReady())) return false;
+	else if (needsServoActuatorDevice() && (!isServoActuatorDeviceConnected() || !getServoActuatorDevice()->isReady())) return false;
 	if (needsPositionFeedbackDevice() && (!isPositionFeedbackDeviceConnected() || !getPositionFeedbackDevice()->isReady())) return false;
 	if (needsReferenceDevice() && (!isReferenceDeviceConnected() || !getReferenceDevice()->isReady())) return false;
-
 	return true;
 }
 
@@ -146,9 +156,11 @@ bool SingleAxisMachine::isReady() {
 
 bool SingleAxisMachine::needsPositionFeedbackDevice() {
 	switch (motionControlType) {
-		case MotionControlType::Type::CLOSED_LOOP_CONTROL: return true;
-		case MotionControlType::Type::SERVO_CONTROL: return true;
-		default: return false;
+		case MotionControlType::Type::CLOSED_LOOP_CONTROL:
+			return true;
+		case MotionControlType::Type::OPEN_LOOP_CONTROL:
+		case MotionControlType::Type::SERVO_CONTROL:
+			return false;
 	}
 }
 
@@ -160,9 +172,7 @@ std::shared_ptr<PositionFeedbackDevice> SingleAxisMachine::getPositionFeedbackDe
 	return positionFeedbackDeviceLink->getConnectedPins().front()->getPositionFeedbackDevice();
 }
 
-double SingleAxisMachine::getPositionFeedback() {
-	return positionFeedbackDeviceLink->getConnectedPins().front()->getPositionFeedbackDevice()->getPosition();
-}
+
 
 bool SingleAxisMachine::needsReferenceDevice() {
 	switch (positionLimitType) {
@@ -182,6 +192,18 @@ bool SingleAxisMachine::isReferenceDeviceConnected() {
 
 std::shared_ptr<GpioDevice> SingleAxisMachine::getReferenceDevice() {
 	return referenceDeviceLink->getConnectedPins().front()->getGpioDevice();
+}
+
+
+
+bool SingleAxisMachine::needsActuatorDevice() {
+	switch (motionControlType) {
+		case MotionControlType::Type::CLOSED_LOOP_CONTROL:
+		case MotionControlType::Type::OPEN_LOOP_CONTROL:
+			return true;
+		case MotionControlType::Type::SERVO_CONTROL:
+			return false;
+	}
 }
 
 bool SingleAxisMachine::isActuatorDeviceConnected() {
@@ -204,6 +226,26 @@ void SingleAxisMachine::getPositionRange(double& lowLimit, double& highLimit) {
 			highLimit = getPositionFeedbackDevice()->rangeMax_positionUnits / feedbackUnitsPerMachineUnits;
 			break;
 	}
+}
+
+
+
+bool SingleAxisMachine::needsServoActuatorDevice() {
+	switch (motionControlType) {
+		case MotionControlType::Type::CLOSED_LOOP_CONTROL:
+		case MotionControlType::Type::OPEN_LOOP_CONTROL:
+			return false;
+		case MotionControlType::Type::SERVO_CONTROL:
+			return true;
+	}
+}
+
+bool SingleAxisMachine::isServoActuatorDeviceConnected() {
+	return servoActuatorDeviceLink->isConnected();
+}
+
+std::shared_ptr<ServoActuatorDevice> SingleAxisMachine::getServoActuatorDevice() {
+	return servoActuatorDeviceLink->getConnectedPins().front()->getServoActuatorDevice();
 }
 
 
@@ -358,7 +400,7 @@ bool SingleAxisMachine::load(tinyxml2::XMLElement* xml) {
 	const char* motionControlTypeString;
 	if (machineXML->QueryStringAttribute("MotionControl", &motionControlTypeString) != XML_SUCCESS) return Logger::warn("Could not load Motion Control Type");
 	if (getMotionControlType(motionControlTypeString) == nullptr) return Logger::warn("Could not read Motion Control Type");
-	motionControlType = getMotionControlType(motionControlTypeString)->type;
+	setMotionControlType(getMotionControlType(motionControlTypeString)->type);
 
 	XMLElement* unitConversionXML = xml->FirstChildElement("UnitConversion");
 	if (!unitConversionXML) return Logger::warn("Could not load Unit Conversion");
@@ -371,7 +413,8 @@ bool SingleAxisMachine::load(tinyxml2::XMLElement* xml) {
 	const char* positionLimitTypeString;
 	if (positionReferenceXML->QueryStringAttribute("Type", &positionLimitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Position Reference Type");
 	if (getPositionLimitType(positionLimitTypeString) == nullptr) return Logger::warn("Could not read Position Reference Type");
-	positionLimitType = getPositionLimitType(positionLimitTypeString)->type;
+	setPositionLimitType(getPositionLimitType(positionLimitTypeString)->type);
+
 	switch (positionLimitType) {
 	case PositionLimitType::Type::LOW_LIMIT_SIGNAL:
 		if (positionReferenceXML->QueryDoubleAttribute("MaxPositiveDeviation_machineUnits", &allowedPositiveDeviationFromReference_machineUnits) != XML_SUCCESS) return Logger::warn("Could not load max positive deviation");
@@ -399,7 +442,6 @@ bool SingleAxisMachine::load(tinyxml2::XMLElement* xml) {
 		break;
 	}
 
-
 	XMLElement* kinematicLimitsXML = xml->FirstChildElement("KinematicLimits");
 	if (!kinematicLimitsXML) return Logger::warn("Could not load Machine Kinematic Kimits");
 	if (kinematicLimitsXML->QueryDoubleAttribute("VelocityLimit_machineUnitsPerSecond", &velocityLimit_machineUnitsPerSecond)) Logger::warn("Could not load velocity limit");
@@ -413,4 +455,48 @@ bool SingleAxisMachine::load(tinyxml2::XMLElement* xml) {
 	targetVelocity_machineUnitsPerSecond = defaultManualVelocity_machineUnitsPerSecond;
 
 	return true;
+}
+
+
+
+void SingleAxisMachine::setMotionControlType(MotionControlType::Type type) {
+	removeIoData(referenceDeviceLink);
+	removeIoData(positionReferences);
+	switch (type) {
+		case MotionControlType::Type::OPEN_LOOP_CONTROL:
+			addIoData(actuatorDeviceLink);
+			removeIoData(positionFeedbackDeviceLink);
+			removeIoData(servoActuatorDeviceLink);
+			break;
+		case MotionControlType::Type::CLOSED_LOOP_CONTROL:
+			addIoData(actuatorDeviceLink);
+			addIoData(positionFeedbackDeviceLink);
+			removeIoData(servoActuatorDeviceLink);
+			break;
+		case MotionControlType::Type::SERVO_CONTROL:
+			addIoData(servoActuatorDeviceLink);
+			removeIoData(actuatorDeviceLink);
+			removeIoData(positionFeedbackDeviceLink);
+			break;
+	}
+	motionControlType = type;
+	setPositionLimitType(positionLimitType);
+}
+
+void SingleAxisMachine::setPositionLimitType(PositionLimitType::Type type) {
+	switch (type) {
+		case PositionLimitType::Type::LOW_LIMIT_SIGNAL:
+		case PositionLimitType::Type::HIGH_LIMIT_SIGNAL:
+		case PositionLimitType::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
+		case PositionLimitType::Type::REFERENCE_SIGNAL:
+			addIoData(referenceDeviceLink);
+			addIoData(positionReferences);
+			break;
+		case PositionLimitType::Type::FEEDBACK_REFERENCE:
+		case PositionLimitType::Type::NO_LIMIT:
+			removeIoData(referenceDeviceLink);
+			removeIoData(positionReferences);
+			break;
+	}
+	positionLimitType = type;
 }

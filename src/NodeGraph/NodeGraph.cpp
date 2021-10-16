@@ -82,29 +82,24 @@ void NodeGraph::disconnect(std::shared_ptr<NodeLink> removedIoLink) {
 	std::vector<std::shared_ptr<NodeLink>>& inputDataLinks = removedIoLink->inputData->NodeLinks;
 	std::vector<std::shared_ptr<NodeLink>>& outputDataLinks = removedIoLink->outputData->NodeLinks;
 
-	std::shared_ptr<Node> updatedNode = removedIoLink->getOutputData()->getNode();
-
-	for (int i = (int)inputDataLinks.size() - 1; i >= 0; i--) {
+	for (int i = 0; i < inputDataLinks.size(); i++) {
 		if (inputDataLinks[i] == removedIoLink) {
 			inputDataLinks.erase(inputDataLinks.begin() + i);
 			break;
 		}
 	}
-	for (int i = (int)outputDataLinks.size() - 1; i >= 0; i--) {
+	for (int i = 0; i < outputDataLinks.size(); i++) {
 		if (outputDataLinks[i] == removedIoLink) {
 			outputDataLinks.erase(outputDataLinks.begin() + i);
 			break;
 		}
 	}
-	for (int i = (int)links.size() - 1; i >= 0; i--) {
+	for (int i = 0; i < links.size(); i++) {
 		if (links[i] == removedIoLink) {
 			links.erase(links.begin() + i);
 			break;
 		}
 	}
-
-	//TODO: gui should not evaluate node graph ?
-	//evaluate(updatedNode);
 }
 
 std::shared_ptr<Node> NodeGraph::getNode(int Id) {

@@ -6,6 +6,11 @@
 #include "NodePin.h"
 
 void Node::addIoData(std::shared_ptr<NodePin> NodePin) {
+
+	//don't add the nodepin if the node already has it
+	for (auto input : nodeInputData) if (input == NodePin) return;
+	for (auto output : nodeOutputData) if (output == NodePin) return;
+
 	if (NodePin->isInput()) nodeInputData.push_back(NodePin);
 	else if (NodePin->isOutput()) nodeOutputData.push_back(NodePin);
 
@@ -35,11 +40,8 @@ void Node::removeIoData(std::shared_ptr<NodePin> removedIoData) {
 			}
 		}
 	}
-
+	removedIoData->disconnectAllLinks();
 	if (parentNodeGraph) {
-		for (auto nodeLink : removedIoData->getLinks()) {
-			parentNodeGraph->disconnect(nodeLink);
-		}
 		std::vector<std::shared_ptr<NodePin>>& NodePinList = parentNodeGraph->pins;
 		for (int i = (int)NodePinList.size() - 1; i >= 0; i--) {
 			if (NodePinList[i] == removedIoData) {

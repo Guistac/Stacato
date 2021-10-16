@@ -216,18 +216,73 @@ void NodeGraph::nodeEditorGui() {
 
 
         if (ImGui::BeginPopup("Node Context Menu")) {
-            ImGui::Text("Node Context Menu, Node#%i", contextNodeId);
+            std::shared_ptr<Node> node = getNode(contextNodeId.Get());
+            ImGui::Text("Node : %s", node->getName());
+            ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+            ImGui::Text("(#%i)", node->getUniqueID());
+            ImGui::PopStyleColor();
+            switch (node->getType()) {
+            case Node::Type::PROCESSOR:
+            case Node::Type::CONTAINER:
+            case Node::Type::CLOCK:
+            case Node::Type::MACHINE:
+                ImGui::Text("Type: %s", getNodeType(node->getType())->displayName);
+                break;
+            case Node::Type::IODEVICE: {
+                std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);
+                ImGui::Text("Type: %s", getDeviceType(device->getDeviceType())->displayName);
+                if (device->isOnline()) ImGui::Text("Status: Online");
+                else if (device->isDetected()) ImGui::Text("Status: Detected");
+                else ImGui::Text("Status: Offline");
+            }
+            }
+
+            ImGui::Separator();
+            if (node->getType() == Node::Type::IODEVICE) {
+                ImGui::MenuItem("Split Inputs and Outputs", nullptr, &node->b_isSplit, true);
+            }
+            if (ImGui::MenuItem("Delete")) removeNode(node);
             ImGui::EndPopup();
         }
 
         if (ImGui::BeginPopup("Pin Context Menu")) {
-            ImGui::Text("Pin Context Menu, Pin#%i", contextPinId);
-            ImGui::Text(Environnement::nodeGraph.getPin(contextPinId.Get())->getValueString());
+            std::shared_ptr<NodePin> pin = getPin(contextPinId.Get());
+            ImGui::Text("Pin : %s", pin->getDisplayName());
+            ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+            ImGui::Text("(#%i)", pin->getUniqueID());
+            ImGui::PopStyleColor();
+            ImGui::Text("Type: %s", getNodeDataType(pin->getType())->displayName);
+            ImGui::Text("Value: %s", pin->getValueString());
+            if (ImGui::BeginMenu("Connected Pins")) {
+                for (auto connectedPin : pin->getConnectedPins()) {
+                    ImGui::Text("\"%s\" (%s #%i) on Node \"%s\" (#%i)",
+                        connectedPin->getDisplayName(),
+                        getNodeDataType(connectedPin->getType())->displayName,
+                        connectedPin->getUniqueID(),
+                        connectedPin->parentNode->getName(),
+                        connectedPin->parentNode->getUniqueID());
+                }
+                ImGui::EndMenu();
+            }
+            ImGui::Separator();
+            if (ImGui::MenuItem("Hide")) {
+                pin->b_visible = false;
+            }
+            if (ImGui::MenuItem("Disconnect")) {
+                pin->disconnectAllLinks();
+            }
             ImGui::EndPopup();
         }
 
         if (ImGui::BeginPopup("Link Context Menu")) {
-            ImGui::Text("Link Context Menu, Link#%i", contextLinkId);
+            std::shared_ptr<NodeLink> link = getLink(contextLinkId.Get());
+            ImGui::Text("Link #%i", link->getUniqueID());
+            ImGui::Text("Input: \"%s\" on node \"%s\"", link->getInputData()->getDisplayName(), link->getInputData()->parentNode->getName());
+            ImGui::Text("Output: \"%s\" on node \"%s\"", link->getOutputData()->getDisplayName(), link->getOutputData()->parentNode->getName());
+            ImGui::Separator();
+            if (ImGui::MenuItem("Disconnect")) disconnect(link);
             ImGui::EndPopup();
         }
 
@@ -245,6 +300,7 @@ void NodeGraph::nodeEditorGui() {
             }
             ImGui::EndPopup();
         }
+
         NodeEditor::Resume();
 
     }
