@@ -8,6 +8,7 @@ bool Lexium32::isDeviceReady() {
     switch (state) {
         case State::OperationEnabled:
         case State::SwitchedOn:
+        case State::QuickStopActive:
         case State::ReadyToSwitchOn: return true;
         default: return false;
     }
@@ -147,7 +148,10 @@ bool Lexium32::startupConfiguration() {
     uint16_t MOD_enable_set = 0;
     if (!writeSDO_U16(0x3006, 0x38, MOD_enable_set)) return false;
 
-    int16_t LIM_QStopReact_set = -1;
+    //on quickstop, come to a stop using a torque ramp (intensity defined by max quickstop current)
+    //transition to operatin state Quickstop, this allows us to go back to operationEnabled and move the motor while the limit signal is still triggered
+    //if we choose to trigger the fault state, we would not be able to go back to operationEnabled while the limit signal is still high
+    int16_t LIM_QStopReact_set = 7;
     if (!writeSDO_S16(0x3006, 0x18, LIM_QStopReact_set)) return false;
 
     uint16_t IOSigRespOfPS_set = 1;
@@ -366,12 +370,12 @@ void Lexium32::readInputs() {
     digitalIn5->set((_IO_act & 0x20) != 0x0);
 
     //set actuator subdevice
-    servoMotorDevice->b_ready = actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION && (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled);
+    servoMotorDevice->b_ready = actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION && (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled || state == State::QuickStopActive);
     servoMotorDevice->b_enabled = state == State::OperationEnabled;
     servoMotorDevice->b_online = isOnline() && motorVoltagePresent;
     servoMotorDevice->b_emergencyStopActive = b_emergencyStopActive;
     //set gpio subdevice status
-    gpioDevice->b_ready = (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled);
+    gpioDevice->b_ready = isOnline(); //gpio is always ready when lexium is in ESM operational state
     gpioDevice->b_online = isOnline();
 }
 
@@ -485,6 +489,7 @@ void Lexium32::prepareOutputs(){
     if (operatingMode != nullptr) operatingModeID = operatingMode->id;
     DCOMopmode = operatingModeID;
 
+    if (!servoMotorLink->isConnected()) servoMotorDevice->setPositionCommand(servoMotorDevice->getPosition());
     //get the position command from the servo actuator subdevice
     PPp_target = (int32_t)(servoMotorDevice->getPositionCommand() * positionUnitsPerRevolution);
     //don't forget to convert from rotations per second to rpm

@@ -113,7 +113,7 @@ HomingDirection* getHomingDirection(HomingDirection::Type t);
 HomingDirection* getHomingDirection(const char* savedName);
 
 
-struct HomingStep {
+namespace Homing {
 	enum class Step {
 		NOT_STARTED,
 
@@ -134,21 +134,34 @@ struct HomingStep {
 		//steps for searching position reference
 		SEARCHING_REFERENCE_FROM_BELOW_COARSE,
 		FOUND_REFERENCE_FROM_BELOW_COARSE,
-		MOVING_BACK_BELOW_REFERENCE,
 		SEARCHING_REFERENCE_FROM_BELOW_FINE,
 		FOUND_REFERENCE_FROM_BELOW_FINE,
 		SETTING_REFERENCE_LOW,
-		MOVING_ABOVE_REFERENCE,
 		SEARCHING_REFERENCE_FROM_ABOVE_COARSE,
 		FOUND_REFERENCE_FROM_ABOVE_COARSE,
-		MOVING_BACK_ABOVE_REFERENCE,
 		SEARCHING_REFERENCE_FROM_ABOVE_FINE,
 		FOUND_REFERENCE_FROM_ABOVE_FINE,
 		SETTING_REFERENCE_HIGH,
-		MOVING_BELOW_REFERENCE,
 		MOVING_TO_REFERENCE_MIDDLE,
 
 		FINISHED
 	};
+
+	enum class Error {
+		NONE,
+		HOMING_CANCELED,
+		TRIGGERED_WRONG_LIMIT_SIGNAL
+	};
+}
+
+struct HomingStep {
+	Homing::Step step;
+	const char displayName[64];
 };
-HomingStep* getHomingStep(HomingStep::Step s);
+HomingStep* getHomingStep(Homing::Step s);
+
+struct HomingError {
+	Homing::Error error;
+	const char displayName[64];
+};
+HomingError* getHomingError(Homing::Error e);

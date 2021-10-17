@@ -14,7 +14,9 @@ public:
 	std::shared_ptr<NodePin> referenceDeviceLink = std::make_shared<NodePin>(NodeData::GPIO_DEVICELINK, DataDirection::NODE_INPUT, "Reference Device");
 
 	//Inputs
-	std::shared_ptr<NodePin> positionReferences = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "References", NodePinFlags_AcceptMultipleInputs);
+	std::shared_ptr<NodePin> lowLimitSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Low Limit Signal");
+	std::shared_ptr<NodePin> highLimitSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "High Limit Signal");
+	std::shared_ptr<NodePin> referenceSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Reference Signal");
 
 	//Outputs
 	std::shared_ptr<NodePin> position = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position");
@@ -27,7 +29,8 @@ public:
 		addIoData(actuatorDeviceLink);
 		addIoData(positionFeedbackDeviceLink);
 		addIoData(referenceDeviceLink);
-		addIoData(positionReferences);
+		addIoData(lowLimitSignalPin);
+		addIoData(highLimitSignalPin);
 		//outputs
 		//these pins are always present
 		addIoData(position);
@@ -37,8 +40,8 @@ public:
 	//==================== AXIS DATA ====================
 
 	//Machine Type
-	PositionUnit::Type machinePositionUnitType = PositionUnit::Type::LINEAR;
-	PositionUnit::Unit machinePositionUnit = PositionUnit::Unit::METER;
+	PositionUnit::Type machinePositionUnitType = PositionUnit::Type::ANGULAR;
+	PositionUnit::Unit machinePositionUnit = PositionUnit::Unit::DEGREE;
 	MotionControl::Type motionControl = MotionControl::Type::CLOSED_LOOP_CONTROL;
 	void setMotionControlType(MotionControl::Type type);
 
@@ -75,6 +78,15 @@ public:
 	double profileVelocity_machineUnitsPerSecond = 0.0;
 	double profileAcceleration_machineUnitsPerSecondSquared = 0.0;
 
+	//limit and reference signals
+	void updateReferenceSignals();
+	bool lowLimitSignal = false;
+	bool previousLowLimitSignal = false;
+	bool highLimitSignal = false;
+	bool previousHighLimitSignal = false;
+	bool referenceSignal = false;
+	bool previousReferenceSignal = false;
+
 	//actual machine state based on feedback data
 	double actualPosition_machineUnits;
 	double actualVelocity_machineUnitsPerSecond;
@@ -84,9 +96,10 @@ public:
 	enum class ControlMode {
 		VELOCITY_TARGET,
 		POSITION_TARGET,
-		FOLLOW_CURVE,
-		HOMING
+		FOLLOW_CURVE
 	};
+
+	bool b_isHoming = false;
 
 	ControlMode controlMode = ControlMode::VELOCITY_TARGET;
 
@@ -113,8 +126,13 @@ public:
 	void startHoming();
 	void cancelHoming();
 	bool isHoming();
+	bool didHomingSucceed();
+	bool didHomingFail();
 	void homingControl();
-	HomingStep::Step homingStep = HomingStep::Step::NOT_STARTED;
+	void onHomingSuccess();
+	void onHomingError();
+	Homing::Step homingStep = Homing::Step::NOT_STARTED;
+	Homing::Error homingError = Homing::Error::NONE;
 
 	//display data to set the machine coupling
 	double machineScalingPosition_machineUnits = 0.0;

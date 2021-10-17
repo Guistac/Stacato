@@ -232,3 +232,49 @@ HomingDirection* getHomingDirection(const char* saveName) {
 	}
 	return nullptr;
 }
+
+std::vector<HomingStep> homingSteps = {
+	{Homing::Step::NOT_STARTED,								"Not Started"},
+	{Homing::Step::SEARCHING_LOW_LIMIT_COARSE,				"Searching Low Limit Coarse"},
+	{Homing::Step::FOUND_LOW_LIMIT_COARSE,					"Found Low Limit Coarse"},
+	{Homing::Step::SEARCHING_LOW_LIMIT_FINE,				"Searching Low Limit Fine"},
+	{Homing::Step::FOUND_LOW_LIMIT_FINE,					"Found Low Limit Fine"},
+	{Homing::Step::RESETTING_POSITION_FEEDBACK,				"Resetting Position Feedback"},
+	{Homing::Step::SEARCHING_HIGH_LIMIT_COARSE,				"Searching High Limit Coarse"},
+	{Homing::Step::FOUND_HIGH_LIMIT_COARSE,					"Found High Limit Coarse"},
+	{Homing::Step::SEARCHING_HIGH_LIMIT_FINE,				"Seraching High Limit Fine"},
+	{Homing::Step::FOUND_HIGH_LIMIT_FINE,					"Found High Limit Fine"},
+	{Homing::Step::SETTING_HIGH_LIMIT,						"Setting High Limit"},
+	{Homing::Step::SEARCHING_REFERENCE_FROM_BELOW_COARSE,	"Searching Reference From Below Coarse"},
+	{Homing::Step::FOUND_REFERENCE_FROM_BELOW_COARSE,		"Found Reference From Below Coarse"},
+	{Homing::Step::SEARCHING_REFERENCE_FROM_BELOW_FINE,		"Searching Reference From Below Fine"},
+	{Homing::Step::FOUND_REFERENCE_FROM_BELOW_FINE,			"Found Reference From Below Fine"},
+	{Homing::Step::SETTING_REFERENCE_LOW,					"Setting Reference Low"},
+	{Homing::Step::SEARCHING_REFERENCE_FROM_ABOVE_COARSE,	"Searching Reference From Above Coarse"},
+	{Homing::Step::FOUND_REFERENCE_FROM_ABOVE_COARSE,		"Found Reference From Above Coarse"},
+	{Homing::Step::SEARCHING_REFERENCE_FROM_ABOVE_FINE,		"Searching Reference From Above Fine"},
+	{Homing::Step::FOUND_REFERENCE_FROM_ABOVE_FINE,			"Found Reference From Above Fine"},
+	{Homing::Step::SETTING_REFERENCE_HIGH,					"Setting Reference High"},
+	{Homing::Step::MOVING_TO_REFERENCE_MIDDLE,				"Moving To Reference Middle"},
+	{Homing::Step::FINISHED,								"Finished"}
+};
+
+HomingStep* getHomingStep(Homing::Step s) {
+	for (auto& step : homingSteps) {
+		if (s == step.step) return &step;
+	}
+	return nullptr;
+}
+
+std::vector<HomingError> homingErrors = {
+	{Homing::Error::NONE,							"No Error"},
+	{Homing::Error::HOMING_CANCELED,				"Homing Canceled"},
+	{Homing::Error::TRIGGERED_WRONG_LIMIT_SIGNAL,	"Error: Hit Wrong Limit Signal"}
+};
+
+HomingError* getHomingError(Homing::Error e) {
+	for (auto& error : homingErrors) {
+		if (e == error.error) return &error;
+	}
+	return nullptr;
+}

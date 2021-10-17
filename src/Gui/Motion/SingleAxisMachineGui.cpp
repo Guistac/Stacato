@@ -269,26 +269,26 @@ void SingleAxisMachine::controlsGui() {
 
 	switch (positionReference) {
 		case PositionReference::Type::LOW_LIMIT_SIGNAL:
-			if (ImGui::Button("Start Homing", homingButtonSize)) {}
+			if (ImGui::Button("Start Homing", homingButtonSize)) startHoming();
 			ImGui::SameLine();
-			if (ImGui::Button("Cancel Homing", homingButtonSize)) {}
+			if (ImGui::Button("Cancel Homing", homingButtonSize)) cancelHoming();
 			if (ImGui::Button("Set Positive Limit", homingButtonSize)) {}
 			break;
 		case PositionReference::Type::HIGH_LIMIT_SIGNAL:
-			if (ImGui::Button("Start Homing", homingButtonSize)) {}
+			if (ImGui::Button("Start Homing", homingButtonSize)) startHoming();
 			ImGui::SameLine();
-			if (ImGui::Button("Cancel Homing", homingButtonSize)) {}
+			if (ImGui::Button("Cancel Homing", homingButtonSize)) cancelHoming();
 			if (ImGui::Button("Set Negative Limit", homingButtonSize)) {}
 			break;
 		case PositionReference::Type::LOW_AND_HIGH_LIMIT_SIGNALS:
-			if (ImGui::Button("Start Homing", homingButtonSize)) {}
+			if (ImGui::Button("Start Homing", homingButtonSize)) startHoming();
 			ImGui::SameLine();
-			if (ImGui::Button("Cancel Homing", homingButtonSize)) {}
+			if (ImGui::Button("Cancel Homing", homingButtonSize)) cancelHoming();
 			break;
 		case PositionReference::Type::REFERENCE_SIGNAL:
-			if (ImGui::Button("Start Homing", homingButtonSize)) {}
+			if (ImGui::Button("Start Homing", homingButtonSize)) startHoming();
 			ImGui::SameLine();
-			if (ImGui::Button("Cancel Homing", homingButtonSize)) {}
+			if (ImGui::Button("Cancel Homing", homingButtonSize)) cancelHoming();
 			if (ImGui::Button("Set Positive Limit", homingButtonSize)) {}
 			ImGui::SameLine();
 			if (ImGui::Button("Set Negative Limit", homingButtonSize)) {}
@@ -304,13 +304,17 @@ void SingleAxisMachine::controlsGui() {
 			break;
 	}
 
+	if (isHoming()) ImGui::Text("Homing Progress: %s", getHomingStep(homingStep)->displayName);
+	else if (didHomingSucceed()) ImGui::Text("Homing Finished");
+	else if (didHomingFail()) ImGui::Text("Homing Failed: %s", getHomingError(homingError)->displayName);
+	else ImGui::Text("No Homing Ongoing");
+
 	ImGui::SetNextItemWidth(homingButtonSize.x);
 	ImGui::InputDouble("##posScal", &machineScalingPosition_machineUnits, 0.0, 0.0, positionScalingString);
 	ImGui::SameLine();
 	if (ImGui::Button("Set Position", ImGui::GetItemRectSize())) {}
 
 	if (disableManualControls) END_DISABLE_IMGUI_ELEMENT
-
 }
 
 
