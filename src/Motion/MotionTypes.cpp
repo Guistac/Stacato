@@ -182,22 +182,22 @@ PositionControl* getPositionControlType(const char* saveName) {
 
 
 
-std::vector<CommandType> commandTypes = {
-	{CommandType::Type::POSITION_COMMAND, "Position Command", "Position"},
-	{CommandType::Type::VELOCITY_COMMAND, "Velocity Command", "Velocity"}
+std::vector<MotionCommand> motionCommandTypes = {
+	{MotionCommand::Type::POSITION_COMMAND, "Position Command", "Position"},
+	{MotionCommand::Type::VELOCITY_COMMAND, "Velocity Command", "Velocity"}
 };
 
-std::vector<CommandType>& getCommandTypes() { return commandTypes; }
+std::vector<MotionCommand>& getCommandTypes() { return motionCommandTypes; }
 
-CommandType* getCommandType(CommandType::Type t) {
-	for (CommandType& command : commandTypes) {
+MotionCommand* getCommandType(MotionCommand::Type t) {
+	for (MotionCommand& command : motionCommandTypes) {
 		if (command.type == t) return &command;
 	}
 	return nullptr;
 }
 
-CommandType* getCommandType(const char* saveName) {
-	for (CommandType& command : commandTypes) {
+MotionCommand* getCommandType(const char* saveName) {
+	for (MotionCommand& command : motionCommandTypes) {
 		if (strcmp(saveName, command.saveName) == 0) return &command;
 	}
 	return nullptr;
