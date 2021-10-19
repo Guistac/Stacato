@@ -48,6 +48,8 @@ void Lexium32::resetData() {
     profileVelocity_rps = 0.0;
     b_emergencyStopActive = false;
     servoMotorDevice->positionRaw_positionUnits = 0.0;
+    servoMotorDevice->velocity_positionUnitsPerSecond = 0.0;
+    servoMotorDevice->b_moving = false;
     actualPosition->set(0.0);
     actualVelocity->set(0.0);
     actualLoad->set(0.0);
@@ -355,6 +357,7 @@ void Lexium32::readInputs() {
     //set the encoder position in revolution units and velocity in revolutions per second
     servoMotorDevice->positionRaw_positionUnits = (double)_p_act / (double)positionUnitsPerRevolution;
     servoMotorDevice->velocity_positionUnitsPerSecond = (double)_v_act / ((double)velocityUnitsPerRpm * 60.0);
+    servoMotorDevice->b_moving = std::abs(servoMotorDevice->velocity_positionUnitsPerSecond) > 0.03;
     //set motor device load
     servoMotorDevice->load = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
 

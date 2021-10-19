@@ -249,7 +249,7 @@ void Lexium32::controlsGui() {
     }
     else {
         double velocity = servoMotorDevice->getVelocity();
-        sprintf(actualVelocityString, "%.1f rev/s", velocity);
+        sprintf(actualVelocityString, "%.2f rev/s", velocity);
         velocityFraction = std::abs(velocity) / maxV;
         if(velocityFraction >= 1.0) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
         else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);

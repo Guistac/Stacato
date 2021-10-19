@@ -52,39 +52,36 @@ PositionFeedback* getPositionFeedbackType(PositionFeedback::Type t);
 PositionFeedback* getPositionFeedbackType(const char* savedName);
 
 
-struct PositionReference {
+struct PositionReferenceSignal {
 	enum class Type {
-		LOW_LIMIT_SIGNAL,
-		HIGH_LIMIT_SIGNAL,
-		LOW_AND_HIGH_LIMIT_SIGNALS,
-		REFERENCE_SIGNAL,
-		FEEDBACK_REFERENCE,
-		NO_LIMIT
+		SIGNAL_AT_LOWER_LIMIT,
+		SIGNAL_AT_LOWER_AND_UPPER_LIMIT,
+		SIGNAL_AT_ORIGIN,
+		NO_SIGNAL
 	};
 	Type type;
 	const char displayName[64];
 	const char saveName[64];
 };
-std::vector<PositionReference>& getLinearPositionReferences();
-std::vector<PositionReference>& getAngularPositionReferences();
-PositionReference* getPositionReference(PositionReference::Type t);
-PositionReference* getPositionReference(const char* savedName);
-bool isLinearPositionReference(PositionReference::Type t);
-bool isAngularPositionReference(PositionReference::Type t);
+std::vector<PositionReferenceSignal>& getLinearPositionReferenceSignals();
+std::vector<PositionReferenceSignal>& getAngularPositionReferenceSignals();
+PositionReferenceSignal* getPositionReferenceSignal(PositionReferenceSignal::Type t);
+PositionReferenceSignal* getPositionReferenceSignal(const char* savedName);
+bool isLinearPositionReferenceSignal(PositionReferenceSignal::Type t);
+bool isAngularPositionReferenceSignal(PositionReferenceSignal::Type t);
 
-struct MotionControl {
+struct PositionControl {
 	enum class Type {
-		CLOSED_LOOP_CONTROL,
-		OPEN_LOOP_CONTROL,
-		SERVO_CONTROL
+		CLOSED_LOOP,
+		SERVO
 	};
 	Type type;
 	const char displayName[64];
 	const char saveName[64];
 };
-std::vector<MotionControl>& getMotionControlTypes();
-MotionControl* getMotionControlType(MotionControl::Type t);
-MotionControl* getMotionControlType(const char*);
+std::vector<PositionControl>& getPositionControlTypes();
+PositionControl* getPositionControlType(PositionControl::Type t);
+PositionControl* getPositionControlType(const char* s);
 
 struct CommandType {
 	enum class Type {

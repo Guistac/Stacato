@@ -1,84 +1,62 @@
 <Environnement name="Default Environnement">
     <NodeGraph>
         <Nodes>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M (Alias:333)" UniqueID="16">
-                <NodeEditorPosition x="-13896" y="-12060"/>
+            <Node NodeType="Machine" ClassName="SingleAxisMachine" CustomName="Single Axis Machine" UniqueID="1">
+                <NodeEditorPosition x="-13384" y="-11955"/>
                 <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="333"/>
-                    <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="50" defaultManualAcceleration_rpsps="10"/>
+                    <Machine UnitType="Angular" Unit="Degrees" PositionControl="Servo"/>
+                    <UnitConversion FeedbackUnitsPerMachineUnit="0" ActuatorUnitsPerMachineUnit="0" FeedbackAndActuatorConversionIdentical="false"/>
+                    <KinematicLimits VelocityLimit_machineUnitsPerSecond="0" AccelerationLimit_machineUnitsPerSecondSquared="0"/>
+                    <PositionReferenceSignals Type="LowHighSignals" MaxPositiveDeviation_machineUnits="0" MaxNegativeDeviation_machineUnits="0" HomingVelocity_machineUnitsPerSecond="0" HomingDirection="Negative"/>
+                    <DefaultManualParameters Velocity_machineUnitsPerSecond="0" Acceleration_machineUnitsPerSecondSquared="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveName="Servo Actuator" DisplayName="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="9" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Reference Device" DisplayName="Reference Device" DataType="GPIODeviceLink" UniqueID="10" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="High Limit Signal" DisplayName="High Limit Signal" DataType="Boolean" UniqueID="11" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Low Limit Signal" DisplayName="Low Limit Signal" DataType="Boolean" UniqueID="12" Boolean="false" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="7" Real="0" Visible="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="8" Real="0" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M" UniqueID="13">
+                <NodeEditorPosition x="-13778" y="-12130"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                    <KinematicLimits velocityLimit_rps="10" accelerationLimit_rpsps="1" defaultManualAcceleration_rpsps="1"/>
                     <InvertDirectionOfMovement Invert="false"/>
-                    <CurrentLimis maxCurrent_amps="9" maxQuickstopCurrent_amps="9"/>
-                    <NegativeLimitSwitch Pin="DI0" NormallyClosed="true"/>
-                    <PositiveLimitSwitch Pin="DI1" NormallyClosed="true"/>
-                    <EncoderSettings Assignement="Internal" RangeShifted="true" PositionOffset_revolutions="1500.9379806518555"/>
+                    <CurrentLimis maxCurrent_amps="5" maxQuickstopCurrent_amps="9"/>
+                    <NegativeLimitSwitch Pin="Unassigned"/>
+                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <EncoderSettings Assignement="Internal" RangeShifted="false" PositionOffset_revolutions="0"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveName="DQ0" DisplayName="DQ0" DataType="Boolean" UniqueID="17" Boolean="false" Visible="true"/>
-                    <InputPin SaveName="DQ1" DisplayName="DQ1" DataType="Boolean" UniqueID="18" Boolean="false" Visible="true"/>
-                    <InputPin SaveName="DQ2" DisplayName="DQ2" DataType="Boolean" UniqueID="19" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="DQ0" DisplayName="DQ0" DataType="Boolean" UniqueID="14" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="DQ1" DisplayName="DQ1" DataType="Boolean" UniqueID="15" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="DQ2" DisplayName="DQ2" DataType="Boolean" UniqueID="16" Boolean="false" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveName="Servo Motor" DisplayName="Servo Motor" DataType="ServoActuatorDeviceLink" UniqueID="20" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="21" Real="0" Visible="false" DisableDataField="true"/>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="22" Real="0" Visible="false" DisableDataField="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="23" Real="0" Visible="false" DisableDataField="true"/>
-                    <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="24" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="DI0" DisplayName="DI0" DataType="Boolean" UniqueID="25" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="DI1" DisplayName="DI1" DataType="Boolean" UniqueID="26" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="DI2" DisplayName="DI2" DataType="Boolean" UniqueID="27" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="DI3" DisplayName="DI3" DataType="Boolean" UniqueID="28" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="DI4" DisplayName="DI4" DataType="Boolean" UniqueID="29" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="DI5" DisplayName="DI5" DataType="Boolean" UniqueID="30" Boolean="false" Visible="true" DisableDataField="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Machine" ClassName="SingleAxisMachine" CustomName="Single Axis Machine" UniqueID="31">
-                <NodeEditorPosition x="-13151" y="-11931"/>
-                <NodeSpecificData>
-                    <Machine UnitType="Angular" Unit="Degrees" MotionControl="Servo"/>
-                    <UnitConversion FeedbackUnitsPerMachineUnit="5" ActuatorUnitsPerMachineUnit="5" FeedbackAndActuatorConversionIdentical="false"/>
-                    <KinematicLimits VelocityLimit_machineUnitsPerSecond="20" AccelerationLimit_machineUnitsPerSecondSquared="10"/>
-                    <PositionReference Type="LowHigh" MaxPositiveDeviation_machineUnits="0" MaxNegativeDeviation_machineUnits="0" HomingVelocity_machineUnitsPerSecond="0.5" HomingDirection="Negative"/>
-                    <DefaultManualParameters Velocity_machineUnitsPerSecond="10" Acceleration_machineUnitsPerSecondSquared="10"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveName="Servo Actuator" DisplayName="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="39" Visible="true" NoDataField="true"/>
-                    <InputPin SaveName="Reference Device" DisplayName="Reference Device" DataType="GPIODeviceLink" UniqueID="40" Visible="true" NoDataField="true"/>
-                    <InputPin SaveName="High Limit Signal" DisplayName="High Limit Signal" DataType="Boolean" UniqueID="41" Boolean="true" Visible="true"/>
-                    <InputPin SaveName="Low Limit Signal" DisplayName="Low Limit Signal" DataType="Boolean" UniqueID="42" Boolean="true" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="37" Real="-300.18759613037111" Visible="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="38" Real="-0.00043333333333333331" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Processor" ClassName="Not" CustomName="Not" UniqueID="49">
-                <NodeEditorPosition x="-13452" y="-11583"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin SaveName="in" DisplayName="in" DataType="Boolean" UniqueID="50" Boolean="true" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveName="out" DisplayName="out" DataType="Boolean" UniqueID="51" Boolean="true" Visible="true" DisableDataField="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Processor" ClassName="Not" CustomName="Not" UniqueID="52">
-                <NodeEditorPosition x="-13432" y="-11775"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin SaveName="in" DisplayName="in" DataType="Boolean" UniqueID="53" Boolean="true" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveName="out" DisplayName="out" DataType="Boolean" UniqueID="54" Boolean="true" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Servo Motor" DisplayName="Servo Motor" DataType="ServoActuatorDeviceLink" UniqueID="17" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="18" Real="0" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="19" Real="0" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="20" Real="0" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="21" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="DI0" DisplayName="DI0" DataType="Boolean" UniqueID="22" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="DI1" DisplayName="DI1" DataType="Boolean" UniqueID="23" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="DI2" DisplayName="DI2" DataType="Boolean" UniqueID="24" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="DI3" DisplayName="DI3" DataType="Boolean" UniqueID="25" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="DI4" DisplayName="DI4" DataType="Boolean" UniqueID="26" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="DI5" DisplayName="DI5" DataType="Boolean" UniqueID="27" Boolean="false" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
         <Links>
-            <Link UniqueID="43" StartPin="20" EndPin="39"/>
-            <Link UniqueID="44" StartPin="24" EndPin="40"/>
-            <Link UniqueID="55" StartPin="25" EndPin="53"/>
-            <Link UniqueID="56" StartPin="26" EndPin="50"/>
-            <Link UniqueID="57" StartPin="54" EndPin="42"/>
-            <Link UniqueID="58" StartPin="51" EndPin="41"/>
+            <Link UniqueID="28" StartPin="17" EndPin="9"/>
+            <Link UniqueID="29" StartPin="21" EndPin="10"/>
+            <Link UniqueID="30" StartPin="22" EndPin="11"/>
+            <Link UniqueID="31" StartPin="23" EndPin="12"/>
         </Links>
     </NodeGraph>
 </Environnement>

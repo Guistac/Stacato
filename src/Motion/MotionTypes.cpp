@@ -114,47 +114,44 @@ PositionFeedback* getPositionFeedbackType(const char* saveName) {
 
 
 
-std::vector<PositionReference> linearPositionReferences = {
-	{PositionReference::Type::LOW_LIMIT_SIGNAL, "Low Limit Signal", "Low"},
-	{PositionReference::Type::HIGH_LIMIT_SIGNAL, "High Limit Signal", "High"},
-	{PositionReference::Type::LOW_AND_HIGH_LIMIT_SIGNALS, "Low and High Limit Signals", "LowHigh"}
+std::vector<PositionReferenceSignal> linearPositionReferenceSignals = {
+	{PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT, "Signal At Lower Limit", "LowSignal"},
+	{PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT, "Signal At Lower and Upper Limit", "LowHighSignals"}
 };
-std::vector<PositionReference> angularPositionReferences = {
-	{PositionReference::Type::LOW_LIMIT_SIGNAL, "Low Limit Signal", "Low"},
-	{PositionReference::Type::HIGH_LIMIT_SIGNAL, "High Limit Signal", "High"},
-	{PositionReference::Type::LOW_AND_HIGH_LIMIT_SIGNALS, "Low and High Limit Signals", "LowHigh"},
-	{PositionReference::Type::REFERENCE_SIGNAL, "Reference Signal", "Reference"},
-	{PositionReference::Type::FEEDBACK_REFERENCE, "Feedback Reference", "Feedback"},
-	{PositionReference::Type::NO_LIMIT, "No Position Limits", "None"}
+std::vector<PositionReferenceSignal> angularPositionReferenceSignals = {
+	{PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT, "Low Limit Signal", "LowSignal"},
+	{PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT, "Low and High Limit Signals", "LowHighSignals"},
+	{PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN, "Signal at Origin", "OriginSignal"},
+	{PositionReferenceSignal::Type::NO_SIGNAL, "No Reference Signal", "None"}
 };
-std::vector<PositionReference>& getLinearPositionReferences() { return linearPositionReferences; }
-std::vector<PositionReference>& getAngularPositionReferences() { return angularPositionReferences; }
-PositionReference* getPositionReference(PositionReference::Type t) {
-	for (PositionReference& positionLimit : linearPositionReferences) {
+std::vector<PositionReferenceSignal>& getLinearPositionReferenceSignals() { return linearPositionReferenceSignals; }
+std::vector<PositionReferenceSignal>& getAngularPositionReferenceSignals() { return angularPositionReferenceSignals; }
+PositionReferenceSignal* getPositionReferenceSignal(PositionReferenceSignal::Type t) {
+	for (PositionReferenceSignal& positionLimit : linearPositionReferenceSignals) {
 		if (positionLimit.type == t) return &positionLimit;
 	}
-	for (PositionReference& positionLimit : angularPositionReferences) {
+	for (PositionReferenceSignal& positionLimit : angularPositionReferenceSignals) {
 		if (positionLimit.type == t) return &positionLimit;
 	}
 	return nullptr;
 }
-PositionReference* getPositionReference(const char* saveName) {
-	for (PositionReference& positionLimit : linearPositionReferences) {
+PositionReferenceSignal* getPositionReferenceSignal(const char* saveName) {
+	for (PositionReferenceSignal& positionLimit : linearPositionReferenceSignals) {
 		if (strcmp(saveName, positionLimit.saveName) == 0) return &positionLimit;
 	}
-	for (PositionReference& positionLimit : angularPositionReferences) {
+	for (PositionReferenceSignal& positionLimit : angularPositionReferenceSignals) {
 		if (strcmp(saveName, positionLimit.saveName) == 0) return &positionLimit;
 	}
 	return nullptr;
 }
-bool isLinearPositionReference(PositionReference::Type t) {
-	for (PositionReference& positionLimit : linearPositionReferences) {
+bool isLinearPositionReferenceSignal(PositionReferenceSignal::Type t) {
+	for (PositionReferenceSignal& positionLimit : linearPositionReferenceSignals) {
 		if (positionLimit.type == t) return true;
 	}
 	return false;
 }
-bool isAngularPositionReference(PositionReference::Type t) {
-	for (PositionReference& positionLimit : angularPositionReferences) {
+bool isAngularPositionReferenceSignal(PositionReferenceSignal::Type t) {
+	for (PositionReferenceSignal& positionLimit : angularPositionReferenceSignals) {
 		if (positionLimit.type == t) return true;
 	}
 	return false;
@@ -163,21 +160,20 @@ bool isAngularPositionReference(PositionReference::Type t) {
 
 
 
-std::vector<MotionControl> motionControlTypes = {
-	{MotionControl::Type::CLOSED_LOOP_CONTROL, "Closed Loop", "ClosedLoop"},
-	{MotionControl::Type::OPEN_LOOP_CONTROL, "Open Loop", "OpenLoop"},
-	{MotionControl::Type::SERVO_CONTROL, "Servo Control", "Servo"}
+std::vector<PositionControl> positionControlTypes = {
+	{PositionControl::Type::CLOSED_LOOP, "Closed Loop", "ClosedLoop"},
+	{PositionControl::Type::SERVO, "Servo", "Servo"}
 };
 
-std::vector<MotionControl>& getMotionControlTypes() { return motionControlTypes; }
-MotionControl* getMotionControlType(MotionControl::Type t) {
-	for (MotionControl& motionControlType : motionControlTypes) {
+std::vector<PositionControl>& getPositionControlTypes() { return positionControlTypes; }
+PositionControl* getPositionControlType(PositionControl::Type t) {
+	for (PositionControl& motionControlType : positionControlTypes) {
 		if (motionControlType.type == t) return &motionControlType;
 	}
 	return nullptr;
 }
-MotionControl* getMotionControlType(const char* saveName) {
-	for (MotionControl& motionControlType : motionControlTypes) {
+PositionControl* getPositionControlType(const char* saveName) {
+	for (PositionControl& motionControlType : positionControlTypes) {
 		if (strcmp(saveName, motionControlType.saveName) == 0) return &motionControlType;
 	}
 	return nullptr;

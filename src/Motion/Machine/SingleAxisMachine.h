@@ -13,7 +13,7 @@ public:
 	std::shared_ptr<NodePin> positionFeedbackDeviceLink = std::make_shared<NodePin>(NodeData::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_INPUT, "Position Feedback");
 	std::shared_ptr<NodePin> referenceDeviceLink = std::make_shared<NodePin>(NodeData::GPIO_DEVICELINK, DataDirection::NODE_INPUT, "Reference Device");
 
-	//Inputs
+	//Reference Signals
 	std::shared_ptr<NodePin> lowLimitSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Low Limit Signal");
 	std::shared_ptr<NodePin> highLimitSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "High Limit Signal");
 	std::shared_ptr<NodePin> referenceSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Reference Signal");
@@ -42,27 +42,30 @@ public:
 	//Machine Type
 	PositionUnit::Type machinePositionUnitType = PositionUnit::Type::ANGULAR;
 	PositionUnit::Unit machinePositionUnit = PositionUnit::Unit::DEGREE;
-	MotionControl::Type motionControl = MotionControl::Type::CLOSED_LOOP_CONTROL;
-	void setMotionControlType(MotionControl::Type type);
+	PositionControl::Type positionControl = PositionControl::Type::CLOSED_LOOP;
+	void setPositionControlType(PositionControl::Type type);
 
 	//Unit Conversions
 	double feedbackUnitsPerMachineUnits = 0.0;
 	double actuatorUnitsPerMachineUnits = 0.0;
 	bool feedbackAndActuatorConversionIdentical = false;
 
-	//Reference and Homing Type
-	PositionReference::Type positionReference = PositionReference::Type::LOW_AND_HIGH_LIMIT_SIGNALS;
-	HomingDirection::Type homingDirection = HomingDirection::Type::NEGATIVE;
-	void setPositionReferenceType(PositionReference::Type type);
-
 	//Kinematic Limits
 	double velocityLimit_machineUnitsPerSecond = 0.0;
 	double accelerationLimit_machineUnitsPerSecondSquared = 0.0;
 
-	//Reference Deviation and Homing Velocity
+	//Reference and Homing Type
+	PositionReferenceSignal::Type positionReferenceSignal = PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT;
+	void setPositionReferenceSignalType(PositionReferenceSignal::Type type);
+	HomingDirection::Type homingDirection = HomingDirection::Type::NEGATIVE;
 	double homingVelocity_machineUnitsPerSecond = 0.0;
-	double allowedPositiveDeviationFromReference_machineUnits = 0.0;
-	double allowedNegativeDeviationFromReference_machineUnits = 0.0;
+
+	//Reference Deviation and Homing Velocity
+	double maxPositiveDeviation_machineUnits = 0.0;
+	double maxNegativeDeviation_machineUnits = 0.0;
+	bool limitToFeedbackWorkingRange = true;
+	bool enableNegativeLimit = true;
+	bool enablePositiveLimit = true;
 
 	//Default Manual Movement
 	double defaultManualVelocity_machineUnitsPerSecond = 10.0;
@@ -91,7 +94,15 @@ public:
 	double actualPosition_machineUnits;
 	double actualVelocity_machineUnitsPerSecond;
 
-	void getPositionRange(double& lowLimit, double& highLimit);
+	bool isActuatorMoving();
+	double getLowAxisPositionLimit();
+	double getHighAxisPositionLimit();
+	double getAxisPositionProgress();
+	double getLowFeedbackPositionLimit();
+	double getHighFeedbackPositionLimit();
+	void setCurrentAxisPosition(double distanceFromAxisOrigin);
+	void setCurrentPositionAsNegativeLimit();
+	void setCurrentPositionAsPositiveLimit();
 
 	enum class ControlMode {
 		VELOCITY_TARGET,

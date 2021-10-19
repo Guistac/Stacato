@@ -745,3 +745,6 @@ namespace EtherCatFieldbus {
         return referenceClock_seconds;
     }
 }
+
+
+//TODO: ALStatusCode reading and displaying on device error

@@ -61,6 +61,8 @@ public:
 
 	//is the actuator powered
 	bool isEnabled() { return b_enabled; }
+	//is the actuator moving
+	bool isMoving() { return b_moving;  }
 	//is the actuator allowed to power on
 	bool isParked() { return b_parked; }
 	//is the device disabled by an external emergency stop signal
@@ -74,6 +76,7 @@ public:
 	double getAccelerationLimit() { return accelerationLimit_positionUnitsPerSecondSquared; }
 
 	bool b_enabled = false;
+	bool b_moving = false;
 	bool b_parked = false;
 	bool b_emergencyStopActive = false;
 	double velocityLimit_positionUnitsPerSecond = 0.0;
@@ -157,6 +160,8 @@ public:
 
 	//is the actuator powered
 	bool isEnabled() { return b_enabled; }
+	//is the actuator moving
+	bool isMoving() { return b_moving; }
 	//is the actuator allowed to power on
 	bool isParked() { return b_parked; }
 	//is the device disabled by an external emergency stop signal
@@ -193,6 +198,7 @@ public:
 
 	//data
 	bool b_enabled = false;
+	bool b_moving = false;
 	bool b_parked = false;
 	bool b_emergencyStopActive = false;
 	double load = 0.0;
