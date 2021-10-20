@@ -1,10 +1,10 @@
 #include <pch.h>
 
-#include "Motion/Machine/Machine.h"
+#include "Motion/Axis/Axis.h"
 
 #include <imgui.h>
 
-void Machine::nodeSpecificGui() {
+void Axis::nodeSpecificGui() {
 	if (ImGui::BeginTabItem("Controls")) {
 		if (ImGui::BeginChild("Controls")) {
 			controlsGui();

@@ -1,6 +1,6 @@
 ﻿#include <pch.h>
 
-#include "Motion/Machine/SingleAxisMachine.h"
+#include "Motion/Axis/PositionControlledAxis.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -12,15 +12,7 @@
 #include "Gui/Utilities/HelpMarker.h"
 
 
-void SingleAxisMachine::miniatureGui() {
-	ImGui::Text("test");
-}
-
-
-
-
-
-void SingleAxisMachine::controlsGui() {
+void PositionControlledAxis::controlsGui() {
 
 	//====================== AXIS MANUAL CONTROLS ==============================
 
@@ -437,7 +429,7 @@ void SingleAxisMachine::controlsGui() {
 
 
 
-void SingleAxisMachine::settingsGui() {
+void PositionControlledAxis::settingsGui() {
 
 	//------------------ GENERAL MACHINE SETTINGS -------------------------
 
@@ -949,7 +941,7 @@ void SingleAxisMachine::settingsGui() {
 
 
 
-void SingleAxisMachine::devicesGui() {
+void PositionControlledAxis::devicesGui() {
 
 	//======================== CONNECTED DEVICES ==========================
 
@@ -1069,7 +1061,7 @@ void SingleAxisMachine::devicesGui() {
 
 
 
-void SingleAxisMachine::metricsGui() {
+void PositionControlledAxis::metricsGui() {
 
 	glm::vec2* positionBuffer;
 	size_t positionPointCount = positionHistory.getBuffer(&positionBuffer);
