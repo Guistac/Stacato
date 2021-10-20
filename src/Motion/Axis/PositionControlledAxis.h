@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Machine.h"
+#include "Axis.h"
 
-class SingleAxisMachine : public Machine {
+class PositionControlledAxis : public Axis {
 public:
 
-	DEFINE_MACHINE_NODE(SingleAxisMachine, "Single Axis Machine", "SingleAxisMachine", Machine::Type::SINGLE_AXIS_MACHINE);
+	DEFINE_AXIS_NODE(PositionControlledAxis, "Position Controlled Axis", "PositionControllerAxis", Axis::Type::POSITION_CONTROLLED_AXIS);
 
 	//Device Links
 	std::shared_ptr<NodePin> actuatorDeviceLink = std::make_shared<NodePin>(NodeData::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuator");
@@ -19,27 +19,9 @@ public:
 	std::shared_ptr<NodePin> referenceSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Reference Signal");
 
 	//Outputs
+	std::shared_ptr<NodePin> axisLink = std::make_shared<NodePin>(NodeData::AXIS_LINK, DataDirection::NODE_OUTPUT, "Axis");
 	std::shared_ptr<NodePin> position = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position");
 	std::shared_ptr<NodePin> velocity = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity");
-
-	virtual void assignIoData() {
-		//inputs
-		//add default inputs for closed loop control with limit signals
-		//these pins get removed if another motion contorl mode or position limit mode gets loaded or selected
-		addIoData(actuatorDeviceLink);
-		addIoData(servoActuatorDeviceLink);
-		addIoData(positionFeedbackDeviceLink);
-		addIoData(referenceDeviceLink);
-		addIoData(lowLimitSignalPin);
-		addIoData(highLimitSignalPin);
-		addIoData(referenceSignalPin);
-		//outputs
-		//these pins are always present
-		addIoData(position);
-		addIoData(velocity);
-		setPositionControlType(positionControl);
-		setPositionReferenceSignalType(positionReferenceSignal);
-	}
 
 	//==================== AXIS DATA ====================
 
@@ -98,13 +80,12 @@ public:
 	double actualPosition_machineUnits;
 	double actualVelocity_machineUnitsPerSecond;
 
-	bool isMoving();
-	double getLowAxisPositionLimit();
-	double getHighAxisPositionLimit();
+	double getLowPositionLimit();
+	double getHighPositionLimit();
 	double getPositionProgress();
 	double getLowFeedbackPositionLimit();
 	double getHighFeedbackPositionLimit();
-	void setCurrentAxisPosition(double distanceFromAxisOrigin);
+	void setCurrentPosition(double distanceFromAxisOrigin);
 	void setCurrentPositionAsNegativeLimit();
 	void setCurrentPositionAsPositiveLimit();
 	void scaleFeedbackToMatchPosition(double position_axisUnits);
@@ -187,8 +168,6 @@ public:
 	std::shared_ptr<ServoActuatorDevice> getServoActuatorDevice();
 
 	//============ NODE DATA ==============
-
-	virtual void process();
 
 	virtual bool load(tinyxml2::XMLElement* xml);
 	virtual bool save(tinyxml2::XMLElement* xml);

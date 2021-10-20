@@ -41,7 +41,6 @@ void nodeAdder() {
                     ImGui::TreePop();
                 }
             }
-
             ImGui::Separator();
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));
             ImGui::Text("By Category");
@@ -61,8 +60,6 @@ void nodeAdder() {
                     ImGui::TreePop();
                 }
             }
-
-
             ImGui::Separator();
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));
             ImGui::Text("Detected Devices");
@@ -92,27 +89,42 @@ void nodeAdder() {
                     ImGui::EndDragDropSource();
                 }
             }
-
-
-
             ImGui::PopFont();
         }
         ImGui::PopFont();
 
         ImGui::PushFont(Fonts::robotoBold15);
-        if (ImGui::CollapsingHeader("Machines")) {
-            ImGui::PushFont(Fonts::robotoRegular15);
-            for (auto machine : NodeFactory::getMachineTypes()) {
-                const char* machineDisplayName = machine->getName();
-                ImGui::Selectable(machineDisplayName);
-                const char* machineSaveName = machine->getSaveName();
-                if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                    ImGui::SetDragDropPayload("Machine", &machineSaveName, sizeof(const char*));
-                    ImGui::Text(machineDisplayName);
-                    ImGui::EndDragDropSource();
+        if (ImGui::CollapsingHeader("Motion")) {
+            if(ImGui::TreeNode("Axis")){
+                ImGui::PushFont(Fonts::robotoRegular15);
+                for (auto axis : NodeFactory::getAxisTypes()) {
+                    const char* axisDisplayName = axis->getName();
+                    ImGui::Selectable(axisDisplayName);
+                    const char* axisSaveName = axis->getSaveName();
+                    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+                        ImGui::SetDragDropPayload("Axis", &axisSaveName, sizeof(const char*));
+                        ImGui::Text(axisDisplayName);
+                        ImGui::EndDragDropSource();
+                    }
                 }
+                ImGui::TreePop();
+                ImGui::PopFont();
             }
-            ImGui::PopFont();
+            if (ImGui::TreeNode("Machines")) {
+                ImGui::PushFont(Fonts::robotoRegular15);
+                for (auto machine : NodeFactory::getMachineTypes()) {
+                    const char* machineDisplayName = machine->getName();
+                    ImGui::Selectable(machineDisplayName);
+                    const char* machineSaveName = machine->getSaveName();
+                    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+                        ImGui::SetDragDropPayload("Machine", &machineSaveName, sizeof(const char*));
+                        ImGui::Text(machineDisplayName);
+                        ImGui::EndDragDropSource();
+                    }
+                }
+                ImGui::TreePop();
+                ImGui::PopFont();
+            }
         }
         ImGui::PopFont();
 
@@ -169,6 +181,12 @@ std::shared_ptr<Node> acceptDraggedNode() {
             std::shared_ptr<EtherCatDevice> detectedSlave = *(std::shared_ptr<EtherCatDevice>*)payload->Data;
             EtherCatFieldbus::removeFromUnassignedSlaves(detectedSlave);
             return detectedSlave;
+        }
+        payload = ImGui::AcceptDragDropPayload("Axis");
+        if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
+            const char* axisSaveName = *(const char**)payload->Data;
+            std::shared_ptr<Node> newAxis = NodeFactory::getAxisBySaveName(axisSaveName);
+            return newAxis;
         }
         payload = ImGui::AcceptDragDropPayload("Machine");
         if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
@@ -235,9 +253,18 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
 
     ImGui::Separator();
 
-    if (ImGui::BeginMenu("Machine")) {
-        for (auto machine : NodeFactory::getMachineTypes()) {
-            if (ImGui::MenuItem(machine->getName())) output = machine->getNewNodeInstance();
+    if (ImGui::BeginMenu("Motion")) {
+        if (ImGui::BeginMenu("Axis")) {
+            for (auto axis : NodeFactory::getAxisTypes()) {
+                if (ImGui::MenuItem(axis->getName())) output = axis->getNewNodeInstance();
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Machines")) {
+            for (auto machine : NodeFactory::getMachineTypes()) {
+                if (ImGui::MenuItem(machine->getName())) output = machine->getNewNodeInstance();
+            }
+            ImGui::EndMenu();
         }
         ImGui::EndMenu();
     }

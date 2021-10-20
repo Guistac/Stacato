@@ -8,21 +8,30 @@
 #include "NodeGraph/Nodes/GroupNode.h"
 #include "NodeGraph/Nodes/PlotterNode.h"
 
-#include "Motion/Machine/SingleAxisMachine.h"
-#include "Motion/Machine/StateMachine.h"
+#include "Motion/Axis/PositionControlledAxis.h"
+
+#include "Motion/Machine/Machines/Basic/SingleAxisLinearMachine.h"
+#include "Motion/Machine/Machines/Basic/SingleAxisRotatingMachine.h"
+#include "Motion/Machine/Machines/StateMachines/HoodedLiftStateMachine.h"
 
 namespace NodeFactory {
 
 	std::vector<Node*> allNodes;
 	std::vector<NodeGroup> nodesByCategory;
 
+	std::vector<Node*> allAxisNodes;
 	std::vector<Node*> allMachineNodes;
 
 	void loadNodes() {
 
+		allAxisNodes = {
+			new PositionControlledAxis()
+		};
+
 		allMachineNodes = {
-			new SingleAxisMachine(),
-			new StateMachine()
+			new SingleAxisLinearMachine(),
+			new SingleAxisRotatingMachine(),
+			new HoodedLiftStateMachine()
 		};
 
 		allNodes = {
@@ -78,12 +87,22 @@ namespace NodeFactory {
 
 	std::vector<NodeGroup>& getNodesByCategory() { return nodesByCategory; }
 
+	std::shared_ptr<Node> getAxisBySaveName(const char* saveName) {
+		for (Node* axis : allAxisNodes) {
+			if (strcmp(saveName, axis->getSaveName()) == 0) return axis->getNewNodeInstance();
+		}
+	}
+	
+	std::vector<Node*>& getAxisTypes() {
+		return allAxisNodes;
+	}
+
+
 	std::shared_ptr<Node> getMachineBySaveName(const char* saveName) {
 		for (Node* machine : allMachineNodes) {
 			if (strcmp(saveName, machine->getSaveName()) == 0) return machine->getNewNodeInstance();
 		}
 	}
-
 	std::vector<Node*>& getMachineTypes() {
 		return allMachineNodes;
 	}

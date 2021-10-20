@@ -18,17 +18,17 @@ void etherCatMetrics() {
 		EtherCatMetrics& metrics = EtherCatFieldbus::metrics;
 		float plotHeight = ImGui::GetTextLineHeight() * 20.0;
 
-		static bool lockXMachine = true;
-		static bool lockYMachine = true;
-		ImGui::Checkbox("Lock X Machine", &lockXMachine);
+		static bool lockXAxis = true;
+		static bool lockYAxis = true;
+		ImGui::Checkbox("Lock X Machine", &lockXAxis);
 		ImGui::SameLine();
-		ImGui::Checkbox("Lock Y Machine", &lockYMachine);
+		ImGui::Checkbox("Lock Y Machine", &lockYAxis);
 		ImGui::SameLine();
 		static float historyLength_seconds = 10.0;
 		ImGui::SliderFloat("##History Length", &historyLength_seconds, 1.0, EtherCatFieldbus::metrics.scrollingBufferLength_seconds, "%g seconds");
 
 		ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus;
-		if (lockXMachine && lockYMachine) plotFlags |= ImPlotFlags_NoChild;
+		if (lockXAxis && lockYAxis) plotFlags |= ImPlotFlags_NoChild;
 
 		ScrollingBuffer& dcTimeErrors = EtherCatFieldbus::metrics.dcTimeErrors;
 		ScrollingBuffer& averageDcTimeErrors = EtherCatFieldbus::metrics.averageDcTimeErrors;
@@ -36,8 +36,8 @@ void etherCatMetrics() {
 		float maxNegativeDrift = -maxPositiveDrift;
 		float positiveThreshold = EtherCatFieldbus::clockStableThreshold_milliseconds;
 		float negativeThreshold = -positiveThreshold;
-		if (lockXMachine) ImPlot::SetNextPlotLimitsX((double)dcTimeErrors.newest().x - (double)historyLength_seconds, dcTimeErrors.newest().x, ImGuiCond_Always);
-		if (lockYMachine) ImPlot::SetNextPlotLimitsY(-1.0, 1.0, ImGuiCond_Always);
+		if (lockXAxis) ImPlot::SetNextPlotLimitsX((double)dcTimeErrors.newest().x - (double)historyLength_seconds, dcTimeErrors.newest().x, ImGuiCond_Always);
+		if (lockYAxis) ImPlot::SetNextPlotLimitsY(-1.0, 1.0, ImGuiCond_Always);
 		ImPlot::SetNextPlotFormatY("%gms");
 		ImPlot::SetNextPlotFormatX("%gs");
 
@@ -64,8 +64,8 @@ void etherCatMetrics() {
 		ScrollingBuffer& processDelays = EtherCatFieldbus::metrics.processDelays;
 		ScrollingBuffer& cycleLengths = EtherCatFieldbus::metrics.cycleLengths;
 
-		if (lockXMachine) ImPlot::SetNextPlotLimitsX((double)dcTimeErrors.newest().x - (double)historyLength_seconds, dcTimeErrors.newest().x, ImGuiCond_Always);
-		if (lockYMachine) ImPlot::SetNextPlotLimitsY(0.0, EtherCatFieldbus::processInterval_milliseconds * 1.1, ImGuiCond_Always);
+		if (lockXAxis) ImPlot::SetNextPlotLimitsX((double)dcTimeErrors.newest().x - (double)historyLength_seconds, dcTimeErrors.newest().x, ImGuiCond_Always);
+		if (lockYAxis) ImPlot::SetNextPlotLimitsY(0.0, EtherCatFieldbus::processInterval_milliseconds * 1.1, ImGuiCond_Always);
 		ImPlot::SetNextPlotFormatY("%gms");
 		ImPlot::SetNextPlotFormatX("%gs");
 		if (ImPlot::BeginPlot("Cycle Timing", NULL, NULL, ImVec2(-1, plotHeight), plotFlags)) {
@@ -125,7 +125,7 @@ void etherCatMetrics() {
 		ImGui::SameLine();
 
 		ScrollingBuffer& workingCounters = EtherCatFieldbus::metrics.workingCounters;
-		if (lockXMachine) ImPlot::SetNextPlotLimitsX((double)workingCounters.newest().x - (double)historyLength_seconds, workingCounters.newest().x, ImGuiCond_Always);
+		if (lockXAxis) ImPlot::SetNextPlotLimitsX((double)workingCounters.newest().x - (double)historyLength_seconds, workingCounters.newest().x, ImGuiCond_Always);
 		ImPlot::SetNextPlotLimitsY(-6.0, 10.0, ImGuiCond_Always);
 
 		ImPlot::SetNextPlotFormatX("%gs");

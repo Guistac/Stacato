@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "SingleAxisMachine.h"
+#include "PositionControlledAxis.h"
 #include "NodeGraph/Device.h"
 #include "Motion/MotionTypes.h"
 #include "Motion/MotionCurve.h"
@@ -8,7 +8,27 @@
 
 #include <tinyxml2.h>
 
-void SingleAxisMachine::process() {
+void PositionControlledAxis::assignIoData() {
+	//inputs
+	addIoData(actuatorDeviceLink);
+	addIoData(servoActuatorDeviceLink);
+	addIoData(positionFeedbackDeviceLink);
+	addIoData(referenceDeviceLink);
+	addIoData(lowLimitSignalPin);
+	addIoData(highLimitSignalPin);
+	addIoData(referenceSignalPin);
+	//outputs
+	//these pins are always present
+	std::shared_ptr<Axis> thisAxis = std::dynamic_pointer_cast<Axis>(shared_from_this());
+	axisLink->set(thisAxis);
+	addIoData(axisLink);
+	addIoData(position);
+	addIoData(velocity);
+	setPositionControlType(positionControl);
+	setPositionReferenceSignalType(positionReferenceSignal);
+}
+
+void PositionControlledAxis::process() {
 
 	//check connection requirements and abort processing if the requirements are not met
 	bool needsFeedback = needsPositionFeedbackDevice();
@@ -108,7 +128,7 @@ void SingleAxisMachine::process() {
 
 //=================================== STATE CONTROL ============================================
 
-void SingleAxisMachine::enable() {
+void PositionControlledAxis::enable() {
 	std::thread machineEnabler([this]() {
 		//enable actuator
 		if (needsActuatorDevice()) getServoActuatorDevice()->enable();
@@ -133,7 +153,7 @@ void SingleAxisMachine::enable() {
 	machineEnabler.detach();
 }
 
-void SingleAxisMachine::onEnable() {
+void PositionControlledAxis::onEnable() {
 	targetCurveProfile = MotionCurve::CurveProfile();
 	manualVelocityTarget_machineUnitsPerSecond = 0.0;
 	profileVelocity_machineUnitsPerSecond = 0.0;
@@ -142,7 +162,7 @@ void SingleAxisMachine::onEnable() {
 	Logger::info("Machine '{}' was enabled", getName());
 }
 
-void SingleAxisMachine::disable() {
+void PositionControlledAxis::disable() {
 	b_enabled = false;
 	if (needsActuatorDevice()) getActuatorDevice()->disable();
 	else if (needsServoActuatorDevice()) getServoActuatorDevice()->disable();
@@ -153,11 +173,11 @@ void SingleAxisMachine::disable() {
 	Logger::info("Machine {} disabled", getName());
 }
 
-bool SingleAxisMachine::isEnabled() {
+bool PositionControlledAxis::isEnabled() {
 	return b_enabled;
 }
 
-bool SingleAxisMachine::isReady() {
+bool PositionControlledAxis::isReady() {
 	if (needsActuatorDevice() && (!isActuatorDeviceConnected() || !getActuatorDevice()->isReady())) return false;
 	else if (needsServoActuatorDevice() && (!isServoActuatorDeviceConnected() || !getServoActuatorDevice()->isReady())) return false;
 	if (needsPositionFeedbackDevice() && (!isPositionFeedbackDeviceConnected() || !getPositionFeedbackDevice()->isReady())) return false;
@@ -179,7 +199,7 @@ bool SingleAxisMachine::isReady() {
 
 //========================== DEVICES =============================
 
-bool SingleAxisMachine::needsPositionFeedbackDevice() {
+bool PositionControlledAxis::needsPositionFeedbackDevice() {
 	switch (positionControl) {
 	case PositionControl::Type::CLOSED_LOOP:
 		return true;
@@ -188,15 +208,15 @@ bool SingleAxisMachine::needsPositionFeedbackDevice() {
 	}
 }
 
-bool SingleAxisMachine::isPositionFeedbackDeviceConnected() {
+bool PositionControlledAxis::isPositionFeedbackDeviceConnected() {
 	return positionFeedbackDeviceLink->isConnected();
 }
 
-std::shared_ptr<PositionFeedbackDevice> SingleAxisMachine::getPositionFeedbackDevice() {
+std::shared_ptr<PositionFeedbackDevice> PositionControlledAxis::getPositionFeedbackDevice() {
 	return positionFeedbackDeviceLink->getConnectedPins().front()->getPositionFeedbackDevice();
 }
 
-bool SingleAxisMachine::needsReferenceDevice() {
+bool PositionControlledAxis::needsReferenceDevice() {
 	switch (positionReferenceSignal) {
 	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
 	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
@@ -207,15 +227,15 @@ bool SingleAxisMachine::needsReferenceDevice() {
 	}
 }
 
-bool SingleAxisMachine::isReferenceDeviceConnected() {
+bool PositionControlledAxis::isReferenceDeviceConnected() {
 	return referenceDeviceLink->isConnected();
 }
 
-std::shared_ptr<GpioDevice> SingleAxisMachine::getReferenceDevice() {
+std::shared_ptr<GpioDevice> PositionControlledAxis::getReferenceDevice() {
 	return referenceDeviceLink->getConnectedPins().front()->getGpioDevice();
 }
 
-bool SingleAxisMachine::needsActuatorDevice() {
+bool PositionControlledAxis::needsActuatorDevice() {
 	switch (positionControl) {
 	case PositionControl::Type::CLOSED_LOOP:
 		return true;
@@ -224,14 +244,14 @@ bool SingleAxisMachine::needsActuatorDevice() {
 	}
 }
 
-bool SingleAxisMachine::isActuatorDeviceConnected() {
+bool PositionControlledAxis::isActuatorDeviceConnected() {
 	return actuatorDeviceLink->isConnected();
 }
-std::shared_ptr<ActuatorDevice> SingleAxisMachine::getActuatorDevice() {
+std::shared_ptr<ActuatorDevice> PositionControlledAxis::getActuatorDevice() {
 	return actuatorDeviceLink->getConnectedPins().front()->getActuatorDevice();
 }
 
-bool SingleAxisMachine::needsServoActuatorDevice() {
+bool PositionControlledAxis::needsServoActuatorDevice() {
 	switch (positionControl) {
 	case PositionControl::Type::CLOSED_LOOP:
 		return false;
@@ -240,11 +260,11 @@ bool SingleAxisMachine::needsServoActuatorDevice() {
 	}
 }
 
-bool SingleAxisMachine::isServoActuatorDeviceConnected() {
+bool PositionControlledAxis::isServoActuatorDeviceConnected() {
 	return servoActuatorDeviceLink->isConnected();
 }
 
-std::shared_ptr<ServoActuatorDevice> SingleAxisMachine::getServoActuatorDevice() {
+std::shared_ptr<ServoActuatorDevice> PositionControlledAxis::getServoActuatorDevice() {
 	return servoActuatorDeviceLink->getConnectedPins().front()->getServoActuatorDevice();
 }
 
@@ -252,7 +272,7 @@ std::shared_ptr<ServoActuatorDevice> SingleAxisMachine::getServoActuatorDevice()
 
 //============================= DEVICE AND SIGNAL LINKS ================================
 
-void SingleAxisMachine::setPositionControlType(PositionControl::Type type) {
+void PositionControlledAxis::setPositionControlType(PositionControl::Type type) {
 	switch (type) {
 	case PositionControl::Type::CLOSED_LOOP:
 		actuatorDeviceLink->setVisible(true);
@@ -272,7 +292,7 @@ void SingleAxisMachine::setPositionControlType(PositionControl::Type type) {
 	positionControl = type;
 }
 
-void SingleAxisMachine::setPositionReferenceSignalType(PositionReferenceSignal::Type type) {
+void PositionControlledAxis::setPositionReferenceSignalType(PositionReferenceSignal::Type type) {
 	switch (type) {
 	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
 		referenceDeviceLink->setVisible(true);
@@ -321,7 +341,7 @@ void SingleAxisMachine::setPositionReferenceSignalType(PositionReferenceSignal::
 
 //============================== LIMITS, ORIGIN AND REFERENCES ================================
 
-void SingleAxisMachine::updateReferenceSignals() {
+void PositionControlledAxis::updateReferenceSignals() {
 	switch (positionReferenceSignal) {
 	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
 		previousLowLimitSignal = lowLimitSignal;
@@ -345,7 +365,7 @@ void SingleAxisMachine::updateReferenceSignals() {
 	}
 }
 
-bool SingleAxisMachine::isMoving() {
+bool PositionControlledAxis::isMoving() {
 	switch (positionControl) {
 	case PositionControl::Type::SERVO:
 		return getServoActuatorDevice()->isMoving();
@@ -356,7 +376,7 @@ bool SingleAxisMachine::isMoving() {
 	}
 }
 
-double SingleAxisMachine::getPositionProgress() {
+double PositionControlledAxis::getPositionProgress() {
 	double lowLimit = getLowPositionLimit();
 	double highLimit = getHighPositionLimit();
 	double current = actualPosition_machineUnits;
@@ -364,7 +384,7 @@ double SingleAxisMachine::getPositionProgress() {
 }
 
 
-double SingleAxisMachine::getLowPositionLimit() {
+double PositionControlledAxis::getLowPositionLimit() {
 	double lowLimit = -std::numeric_limits<double>::infinity();
 	if (enableNegativeLimit) lowLimit = maxNegativeDeviation_machineUnits;
 	if (limitToFeedbackWorkingRange) {
@@ -374,7 +394,7 @@ double SingleAxisMachine::getLowPositionLimit() {
 	return lowLimit;
 }
 
-double SingleAxisMachine::getHighPositionLimit() {
+double PositionControlledAxis::getHighPositionLimit() {
 	double highLimit = std::numeric_limits<double>::infinity();
 	if (enablePositiveLimit) highLimit = maxPositiveDeviation_machineUnits;
 	if (limitToFeedbackWorkingRange) {
@@ -384,7 +404,7 @@ double SingleAxisMachine::getHighPositionLimit() {
 	return highLimit;
 }
 
-double SingleAxisMachine::getLowFeedbackPositionLimit() {
+double PositionControlledAxis::getLowFeedbackPositionLimit() {
 	switch (positionControl) {
 	case PositionControl::Type::SERVO:
 		if (isServoActuatorDeviceConnected()) return getServoActuatorDevice()->getMinPosition() / feedbackUnitsPerMachineUnits;
@@ -395,7 +415,7 @@ double SingleAxisMachine::getLowFeedbackPositionLimit() {
 	}
 }
 
-double SingleAxisMachine::getHighFeedbackPositionLimit() {
+double PositionControlledAxis::getHighFeedbackPositionLimit() {
 	switch (positionControl) {
 	case PositionControl::Type::SERVO:
 		if (isServoActuatorDeviceConnected()) return getServoActuatorDevice()->getMaxPosition() / feedbackUnitsPerMachineUnits;
@@ -407,7 +427,7 @@ double SingleAxisMachine::getHighFeedbackPositionLimit() {
 }
 
 
-void SingleAxisMachine::setCurrentPosition(double distance) {
+void PositionControlledAxis::setCurrentPosition(double distance) {
 	switch (positionControl) {
 	case PositionControl::Type::SERVO:
 		getServoActuatorDevice()->setPosition(distance * feedbackUnitsPerMachineUnits);
@@ -419,7 +439,7 @@ void SingleAxisMachine::setCurrentPosition(double distance) {
 	profilePosition_machineUnits = distance;
 }
 
-void SingleAxisMachine::setCurrentPositionAsNegativeLimit() {
+void PositionControlledAxis::setCurrentPositionAsNegativeLimit() {
 	switch (positionControl) {
 	case PositionControl::Type::SERVO:
 		maxNegativeDeviation_machineUnits = getServoActuatorDevice()->getPosition() / feedbackUnitsPerMachineUnits;
@@ -430,7 +450,7 @@ void SingleAxisMachine::setCurrentPositionAsNegativeLimit() {
 	}
 }
 
-void SingleAxisMachine::setCurrentPositionAsPositiveLimit() {
+void PositionControlledAxis::setCurrentPositionAsPositiveLimit() {
 	switch (positionControl) {
 	case PositionControl::Type::SERVO:
 		maxPositiveDeviation_machineUnits = getServoActuatorDevice()->getPosition() / feedbackUnitsPerMachineUnits;
@@ -441,7 +461,7 @@ void SingleAxisMachine::setCurrentPositionAsPositiveLimit() {
 	}
 }
 
-void SingleAxisMachine::scaleFeedbackToMatchPosition(double position_axisUnits) {
+void PositionControlledAxis::scaleFeedbackToMatchPosition(double position_axisUnits) {
 	double feedbackDevicePosition_feedbackUnits;
 	switch (positionControl) {
 	case PositionControl::Type::SERVO:
@@ -461,7 +481,7 @@ void SingleAxisMachine::scaleFeedbackToMatchPosition(double position_axisUnits) 
 
 //================================= VELOCITY TARGET CONTROL ===================================
 
-void SingleAxisMachine::setVelocity(double velocity_machineUnits) {
+void PositionControlledAxis::setVelocity(double velocity_machineUnits) {
 	manualVelocityTarget_machineUnitsPerSecond = velocity_machineUnits;
 	if (controlMode == ControlMode::POSITION_TARGET) {
 		targetCurveProfile = MotionCurve::CurveProfile();
@@ -469,7 +489,7 @@ void SingleAxisMachine::setVelocity(double velocity_machineUnits) {
 	controlMode = ControlMode::VELOCITY_TARGET;
 }
 
-void SingleAxisMachine::velocityTargetControl() {
+void PositionControlledAxis::velocityTargetControl() {
 	if (profileVelocity_machineUnitsPerSecond != manualVelocityTarget_machineUnitsPerSecond) {
 		double deltaV_machineUnitsPerSecond = manualControlAcceleration_machineUnitsPerSecond * currentProfilePointDeltaT_seconds;
 		if (profileVelocity_machineUnitsPerSecond < manualVelocityTarget_machineUnitsPerSecond) {
@@ -492,7 +512,7 @@ void SingleAxisMachine::velocityTargetControl() {
 
 //================================= POSITION TARGET CONTROL ===================================
 
-void SingleAxisMachine::moveToPositionWithVelocity(double position_machineUnits, double velocity_machineUnits, double acceleration_machineUnits) {
+void PositionControlledAxis::moveToPositionWithVelocity(double position_machineUnits, double velocity_machineUnits, double acceleration_machineUnits) {
 	if (position_machineUnits > maxPositiveDeviation_machineUnits && enablePositiveLimit) position_machineUnits = maxPositiveDeviation_machineUnits;
 	else if (position_machineUnits < maxNegativeDeviation_machineUnits && enableNegativeLimit) position_machineUnits = maxNegativeDeviation_machineUnits;
 	MotionCurve::CurvePoint startPoint(currentProfilePointTime_seconds, profilePosition_machineUnits, acceleration_machineUnits, profileVelocity_machineUnitsPerSecond);
@@ -506,7 +526,7 @@ void SingleAxisMachine::moveToPositionWithVelocity(double position_machineUnits,
 	}
 }
 
-void SingleAxisMachine::moveToPositionInTime(double position_machineUnits, double movementTime_seconds, double acceleration_machineUnits) {
+void PositionControlledAxis::moveToPositionInTime(double position_machineUnits, double movementTime_seconds, double acceleration_machineUnits) {
 	if (position_machineUnits > maxPositiveDeviation_machineUnits && enablePositiveLimit) position_machineUnits = maxPositiveDeviation_machineUnits;
 	else if (position_machineUnits < maxNegativeDeviation_machineUnits && enableNegativeLimit) position_machineUnits = maxNegativeDeviation_machineUnits;
 	MotionCurve::CurvePoint startPoint(currentProfilePointTime_seconds, profilePosition_machineUnits, acceleration_machineUnits, profileVelocity_machineUnitsPerSecond);
@@ -520,7 +540,7 @@ void SingleAxisMachine::moveToPositionInTime(double position_machineUnits, doubl
 	}
 }
 
-void SingleAxisMachine::positionTargetControl() {
+void PositionControlledAxis::positionTargetControl() {
 	if (MotionCurve::isInsideCurveTime(currentProfilePointTime_seconds, targetCurveProfile)) {
 		MotionCurve::CurvePoint curvePoint = MotionCurve::getCurvePointAtTime(currentProfilePointTime_seconds, targetCurveProfile);
 		profilePosition_machineUnits = curvePoint.position;
@@ -538,48 +558,48 @@ void SingleAxisMachine::positionTargetControl() {
 //=================================================================
 
 
-void SingleAxisMachine::followCurveControl() {}
+void PositionControlledAxis::followCurveControl() {}
 
 
 //==================================== HOMING =====================================
 
-void SingleAxisMachine::startHoming() {
+void PositionControlledAxis::startHoming() {
 	b_isHoming = true;
 	homingStep = Homing::Step::NOT_STARTED;
 	homingError = Homing::Error::NONE;
 }
 
-void SingleAxisMachine::cancelHoming() {
+void PositionControlledAxis::cancelHoming() {
 	b_isHoming = false;
 	homingStep = Homing::Step::NOT_STARTED;
 	controlMode = ControlMode::VELOCITY_TARGET;
 	setVelocity(0.0);
 }
 
-bool SingleAxisMachine::isHoming() {
+bool PositionControlledAxis::isHoming() {
 	return b_isHoming;
 }
 
-bool SingleAxisMachine::didHomingSucceed() {
+bool PositionControlledAxis::didHomingSucceed() {
 	return !isHoming() && homingStep == Homing::Step::FINISHED;
 }
 
-bool SingleAxisMachine::didHomingFail() {
+bool PositionControlledAxis::didHomingFail() {
 	return homingError != Homing::Error::NONE;
 }
 
-void SingleAxisMachine::onHomingSuccess() {
+void PositionControlledAxis::onHomingSuccess() {
 	b_isHoming = false;
 	homingStep = Homing::Step::FINISHED;
 }
 
-void SingleAxisMachine::onHomingError() {
+void PositionControlledAxis::onHomingError() {
 	b_isHoming = false;
 	homingStep = Homing::Step::NOT_STARTED;
 	disable();
 }
 
-void SingleAxisMachine::homingControl() {
+void PositionControlledAxis::homingControl() {
 	using namespace Homing;
 
 	switch (positionReferenceSignal) {
@@ -872,7 +892,7 @@ void SingleAxisMachine::homingControl() {
 //==================================== SAVING AND LOADING =========================================
 
 
-bool SingleAxisMachine::save(tinyxml2::XMLElement* xml) {
+bool PositionControlledAxis::save(tinyxml2::XMLElement* xml) {
 
 	using namespace tinyxml2;
 
@@ -922,7 +942,7 @@ bool SingleAxisMachine::save(tinyxml2::XMLElement* xml) {
 
 
 
-bool SingleAxisMachine::load(tinyxml2::XMLElement* xml) {
+bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 
 	XMLElement* machineXML = xml->FirstChildElement("Machine");

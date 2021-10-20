@@ -105,8 +105,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		std::shared_ptr<Node> loadedNode = nullptr;
 		bool isSplit = false;
 		switch (nodeType) {
-			case Node::Type::IODEVICE:
-				{
+			case Node::Type::IODEVICE:{
 					const char* deviceTypeString;
 					if (nodeXML->QueryStringAttribute("DeviceType", &deviceTypeString) != XML_SUCCESS) return Logger::warn("Could not load Node Device Type");
 					if (getDeviceType(deviceTypeString) == nullptr) return Logger::warn("Could not read Device Type");
@@ -121,8 +120,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 							return Logger::warn("Loading of usb devices is unsupported");
 					}
 					if (nodeXML->QueryBoolAttribute("Split", &isSplit) != XML_SUCCESS) return Logger::warn("Could not load split status");
-				}
-				break;
+				}break;
 			case Node::Type::PROCESSOR:
 				loadedNode = NodeFactory::getNodeBySaveName(nodeSaveNameString);
 				break;
@@ -131,6 +129,9 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 				break;
 			case Node::Type::CONTAINER:
 				loadedNode = NodeFactory::getNodeBySaveName(nodeSaveNameString);
+				break;
+			case Node::Type::AXIS:
+				loadedNode = NodeFactory::getAxisBySaveName(nodeSaveNameString);
 				break;
 			case Node::Type::MACHINE:
 				loadedNode = NodeFactory::getMachineBySaveName(nodeSaveNameString);

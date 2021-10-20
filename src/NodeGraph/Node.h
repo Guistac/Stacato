@@ -35,6 +35,7 @@ public:
 		IODEVICE,
 		PROCESSOR,
 		CLOCK,
+		AXIS,
 		MACHINE,
 		CONTAINER
 	};

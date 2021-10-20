@@ -4,7 +4,6 @@
 #include "NodePin.h"
 #include "NodeLink.h"
 #include "Node.h"
-#include "Motion/Subdevice.h"
 
 #include <tinyxml2.h>
 
@@ -19,72 +18,49 @@ bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> otherData) {
 	switch (type) {
 	case NodeData::Type::BOOLEAN_VALUE:
 		switch (otherData->getType()) {
-		case NodeData::Type::BOOLEAN_VALUE:
-		case NodeData::Type::INTEGER_VALUE:
-		case NodeData::Type::REAL_VALUE: return true;
-		case NodeData::Type::ACTUATOR_DEVICELINK:
-		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
-		case NodeData::Type::GPIO_DEVICELINK: return false;
+			case NodeData::Type::BOOLEAN_VALUE:
+			case NodeData::Type::INTEGER_VALUE:
+			case NodeData::Type::REAL_VALUE: return true;
+			default: return false;
 		}
 	case NodeData::Type::INTEGER_VALUE:
 		switch (otherData->getType()) {
-		case NodeData::Type::BOOLEAN_VALUE:
-		case NodeData::Type::INTEGER_VALUE:
-		case NodeData::Type::REAL_VALUE: return true;
-		case NodeData::Type::ACTUATOR_DEVICELINK:
-		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
-		case NodeData::Type::GPIO_DEVICELINK:
-		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return false;
+			case NodeData::Type::BOOLEAN_VALUE:
+			case NodeData::Type::INTEGER_VALUE:
+			case NodeData::Type::REAL_VALUE: return true;
+			default: return false;
 		}
 	case NodeData::Type::REAL_VALUE:
 		switch (otherData->getType()) {
-		case NodeData::Type::BOOLEAN_VALUE:
-		case NodeData::Type::INTEGER_VALUE:
-		case NodeData::Type::REAL_VALUE: return true;
-		case NodeData::Type::ACTUATOR_DEVICELINK:
-		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
-		case NodeData::Type::GPIO_DEVICELINK:
-		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return false;
+			case NodeData::Type::BOOLEAN_VALUE:
+			case NodeData::Type::INTEGER_VALUE:
+			case NodeData::Type::REAL_VALUE: return true;
+			default: return false;
 		}
 	case NodeData::Type::ACTUATOR_DEVICELINK:
 		switch (otherData->getType()) {
-		case NodeData::Type::BOOLEAN_VALUE:
-		case NodeData::Type::INTEGER_VALUE:
-		case NodeData::Type::REAL_VALUE: return false;
-		case NodeData::Type::ACTUATOR_DEVICELINK: return true;
-		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
-		case NodeData::Type::GPIO_DEVICELINK:
-		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return false;
+			case NodeData::Type::ACTUATOR_DEVICELINK: return true;
+			default: return false;
 		}
 	case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
 		switch (otherData->getType()) {
-		case NodeData::Type::BOOLEAN_VALUE:
-		case NodeData::Type::INTEGER_VALUE:
-		case NodeData::Type::REAL_VALUE:
-		case NodeData::Type::ACTUATOR_DEVICELINK: return false;
-		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: return true;
-		case NodeData::Type::GPIO_DEVICELINK:
-		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return false;
+			case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: return true;
+			default: return false;
 		}
 	case NodeData::Type::GPIO_DEVICELINK:
 		switch (otherData->getType()) {
-		case NodeData::Type::BOOLEAN_VALUE:
-		case NodeData::Type::INTEGER_VALUE:
-		case NodeData::Type::REAL_VALUE:
-		case NodeData::Type::ACTUATOR_DEVICELINK:
-		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: return false;
-		case NodeData::Type::GPIO_DEVICELINK: return true;
-		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return false;
+			case NodeData::Type::GPIO_DEVICELINK: return true;
+			default: return false;
 		}
 	case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK:
 		switch (otherData->getType()) {
-		case NodeData::Type::BOOLEAN_VALUE:
-		case NodeData::Type::INTEGER_VALUE:
-		case NodeData::Type::REAL_VALUE:
-		case NodeData::Type::ACTUATOR_DEVICELINK:
-		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
-		case NodeData::Type::GPIO_DEVICELINK: return false;
-		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return true;
+			case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return true;
+			default: return false;
+		}
+	case NodeData::Type::AXIS_LINK:
+		switch (otherData->getType()) {
+			case NodeData::Type::AXIS_LINK: return true;
+			default: return false;
 		}
 	}
 }
@@ -133,29 +109,33 @@ void NodePin::set(std::shared_ptr<ServoActuatorDevice> device) {
 	if (isServoActuatorDeviceLink()) servoActuatorDevice = device;
 }
 
+void NodePin::set(std::shared_ptr<Axis> ax) {
+	if (isAxisLink()) axis = ax;
+}
+
 //reading data (with data conversions)
 bool NodePin::getBoolean() {
 	switch (type) {
-	case NodeData::Type::BOOLEAN_VALUE: return booleanValue;
-	case NodeData::Type::INTEGER_VALUE: return integerValue > 0;
-	case NodeData::Type::REAL_VALUE: return realValue > 0;
-	default: return false;
+		case NodeData::Type::BOOLEAN_VALUE: return booleanValue;
+		case NodeData::Type::INTEGER_VALUE: return integerValue > 0;
+		case NodeData::Type::REAL_VALUE: return realValue > 0;
+		default: return false;
 	}
 }
 long long int NodePin::getInteger() {
 	switch (type) {
-	case NodeData::Type::INTEGER_VALUE: return integerValue;
-	case NodeData::Type::BOOLEAN_VALUE: return (long long int)booleanValue;
-	case NodeData::Type::REAL_VALUE: return (long long int)realValue;
-	default: return 0;
+		case NodeData::Type::INTEGER_VALUE: return integerValue;
+		case NodeData::Type::BOOLEAN_VALUE: return (long long int)booleanValue;
+		case NodeData::Type::REAL_VALUE: return (long long int)realValue;
+		default: return 0;
 	}
 }
 double NodePin::getReal() {
 	switch (type) {
-	case NodeData::Type::REAL_VALUE: return realValue;
-	case NodeData::Type::BOOLEAN_VALUE: return (double)booleanValue;
-	case NodeData::Type::INTEGER_VALUE: return (double)integerValue;
-	default: return 0.0;
+		case NodeData::Type::REAL_VALUE: return realValue;
+		case NodeData::Type::BOOLEAN_VALUE: return (double)booleanValue;
+		case NodeData::Type::INTEGER_VALUE: return (double)integerValue;
+		default: return std::numeric_limits<double>::signaling_NaN();
 	}
 }
 
@@ -179,16 +159,18 @@ std::shared_ptr<ServoActuatorDevice> NodePin::getServoActuatorDevice() {
 	return nullptr;
 }
 
+std::shared_ptr<Axis> NodePin::getAxis() {
+	if (isAxisLink()) return axis;
+	return nullptr;
+}
+
 const char* NodePin::getValueString() {
 	static char output[32];
 	switch (type) {
-	case NodeData::Type::BOOLEAN_VALUE: strcpy(output, booleanValue ? "True" : "False"); break;
-	case NodeData::Type::INTEGER_VALUE: sprintf(output, "%i", integerValue); break;
-	case NodeData::Type::REAL_VALUE: sprintf(output, "%.5f", realValue); break;
-	case NodeData::Type::ACTUATOR_DEVICELINK: return "No Value";
-	case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: return "No Value";
-	case NodeData::Type::GPIO_DEVICELINK: return "No Value";
-	case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return "No Value";
+		case NodeData::Type::BOOLEAN_VALUE: strcpy(output, booleanValue ? "True" : "False"); break;
+		case NodeData::Type::INTEGER_VALUE: sprintf(output, "%i", integerValue); break;
+		case NodeData::Type::REAL_VALUE: sprintf(output, "%.5f", realValue); break;
+		default: return "No Value";
 	}
 	return (const char*)output;
 }
@@ -230,18 +212,17 @@ bool NodePin::save(tinyxml2::XMLElement* xml) {
 	xml->SetAttribute("DataType", getNodeDataType(getType())->saveName);
 	xml->SetAttribute("UniqueID", getUniqueID());
 	switch (getType()) {
-	case NodeData::BOOLEAN_VALUE: xml->SetAttribute(getNodeDataType(getType())->saveName, getBoolean()); break;
-	case NodeData::INTEGER_VALUE: xml->SetAttribute(getNodeDataType(getType())->saveName, getInteger()); break;
-	case NodeData::REAL_VALUE: xml->SetAttribute(getNodeDataType(getType())->saveName, getReal()); break;
+		case NodeData::BOOLEAN_VALUE: xml->SetAttribute(getNodeDataType(getType())->saveName, getBoolean()); break;
+		case NodeData::INTEGER_VALUE: xml->SetAttribute(getNodeDataType(getType())->saveName, getInteger()); break;
+		case NodeData::REAL_VALUE: xml->SetAttribute(getNodeDataType(getType())->saveName, getReal()); break;
+		default: break;
 	}
 	xml->SetAttribute("Visible", isVisible());
-
 	if (b_acceptsMultipleInputs) xml->SetAttribute("AcceptsMultipleInputs", true);
 	if (b_disablePin) xml->SetAttribute("DisablePin", true);
 	if (b_noDataField) xml->SetAttribute("NoDataField", true);
 	if (b_forceDataField) xml->SetAttribute("ForceDataField", true);
 	if (b_disableDataField) xml->SetAttribute("DisableDataField", true);
-
 	return true;
 }
 
@@ -268,25 +249,24 @@ bool NodePin::load(tinyxml2::XMLElement* xml) {
 	type = getNodeDataType(dataTypeString)->type;
 
 	switch (type) {
-	case NodeData::BOOLEAN_VALUE:
-		bool booleanData;
-		if (xml->QueryBoolAttribute(dataTypeString, &booleanData) != XML_SUCCESS) return Logger::warn("Could not find data of type {}", dataTypeString);
-		set(booleanData);
-		break;
-	case NodeData::INTEGER_VALUE:
-		long long int integerData;
-		if (xml->QueryInt64Attribute(dataTypeString, &integerData) != XML_SUCCESS) return Logger::warn("Could not find data of type {}", dataTypeString);
-		set(integerData);
-		break;
-	case NodeData::REAL_VALUE:
-		double realData;
-		if (xml->QueryDoubleAttribute(dataTypeString, &realData) != XML_SUCCESS) return Logger::warn("Could not find data of type {}", dataTypeString);
-		set(realData);
-		break;
+		case NodeData::BOOLEAN_VALUE: {
+			bool booleanData;
+			if (xml->QueryBoolAttribute(dataTypeString, &booleanData) != XML_SUCCESS) return Logger::warn("Could not find data of type {}", dataTypeString);
+			set(booleanData);
+		}break;
+		case NodeData::INTEGER_VALUE: {
+			long long int integerData;
+			if (xml->QueryInt64Attribute(dataTypeString, &integerData) != XML_SUCCESS) return Logger::warn("Could not find data of type {}", dataTypeString);
+			set(integerData);
+			}break;
+		case NodeData::REAL_VALUE: {
+			double realData;
+			if (xml->QueryDoubleAttribute(dataTypeString, &realData) != XML_SUCCESS) return Logger::warn("Could not find data of type {}", dataTypeString);
+			set(realData);
+			}break;
+		default: break;
 	}
-	bool visible;
-	if (xml->QueryBoolAttribute("Visible", &visible) != XML_SUCCESS) return Logger::warn("Could not load pin visibility");
-	b_visible = visible;
+	if (xml->QueryBoolAttribute("Visible", &b_visible) != XML_SUCCESS) return Logger::warn("Could not load pin visibility");
 
 	//these are optionnally defined, so we don't do success checking
 	xml->QueryBoolAttribute("AcceptsMultipleInputs", &b_acceptsMultipleInputs);
@@ -312,6 +292,7 @@ std::vector<NodeData> NodeDataTypes = {
 	{NodeData::Type::POSITIONFEEDBACK_DEVICELINK, "Position Feedback", "PositionFeedbackDeviceLink"},
 	{NodeData::Type::GPIO_DEVICELINK, "GPIO", "GPIODeviceLink"},
 	{NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK, "Servo Actuator", "ServoActuatorDeviceLink"},
+	{NodeData::Type::AXIS_LINK, "Axis", "AxisLink"}
 };
 std::vector<NodeData>& getNodeDataTypes() {
 	return NodeDataTypes;

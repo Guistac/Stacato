@@ -7,47 +7,44 @@
 #include "Utilities/CircularBuffer.h"
 
 
-#define DEFINE_MACHINE_NODE(className, nodeName, saveName, machineType)	public:																							\
-																		virtual const char* getSaveName() { return saveName; }											\
-																		virtual const char* getNodeCategory() { return "Machine"; }										\
-																		className(){ setName(nodeName); }																\
-																		virtual Node::Type getType() { return Node::Type::MACHINE; }									\
-																		virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
-																		/*machine specific*/																			\
-																		virtual Machine::Type getMachineType(){ return machineType; }									\
-																		virtual bool isEnabled();																		\
-																		virtual bool isReady();																			\
-																		virtual void enable();																			\
-																		virtual void disable();																			\
-																		virtual void controlsGui();																		\
-																		virtual void settingsGui();																		\
-																		virtual void devicesGui();																		\
-																		virtual void metricsGui();																		\
-																		virtual void miniatureGui();																	\
+#define DEFINE_AXIS_NODE(className, nodeName, saveName, axisType) public:							\
+	virtual const char* getSaveName() { return saveName; }											\
+	virtual const char* getNodeCategory() { return "Axis"; }										\
+	className(){ setName(nodeName); }																\
+	virtual Node::Type getType() { return Node::Type::AXIS; }										\
+	virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
+	virtual void assignIoData();																	\
+	virtual void process();																			\
+	/*Axis specific*/																				\
+	virtual Axis::Type getAxisType(){ return axisType; }											\
+	virtual bool isEnabled();																		\
+	virtual bool isReady();																			\
+	virtual void enable();																			\
+	virtual void disable();																			\
+	virtual void controlsGui();																		\
+	virtual void settingsGui();																		\
+	virtual void devicesGui();																		\
+	virtual void metricsGui();																		\
+	virtual bool isMoving();																		\
 
-class Machine : public Node {
+class Axis : public Node {
 public:
 
 	enum class Type {
-		SINGLE_AXIS_MACHINE,
-		STATE_MACHINE
+		POSITION_CONTROLLED_AXIS,
+		VELOCITY_CONTROLLED_AXIS
 	};
 
 	virtual void controlsGui() = 0;
 	virtual void settingsGui() = 0;
 	virtual void devicesGui() = 0;
 	virtual void metricsGui() = 0;
-	virtual void miniatureGui() = 0;
 
 	virtual void nodeSpecificGui();
-
-	//reference to stage geometry
-	//reference to a parent axis
-	//vector of animatable parameters
-	//machine unique number
 
 	virtual bool isEnabled() = 0;
 	virtual bool isReady() = 0;
 	virtual void enable() = 0;
 	virtual void disable() = 0;
+	virtual bool isMoving() = 0;
 };
