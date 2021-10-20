@@ -8,9 +8,8 @@ public:
 
     DEFINE_ETHERCAT_DEVICE(Lexium32, "LXM32M EtherCAT", "Lexium32M", "Lexium32M", "Schneider Electric", "Servo Drives")
 
-    //subdevices
-    std::shared_ptr<ActuatorDevice> servoMotorDevice = std::make_shared<ActuatorDevice>("Servo Motor", PositionUnit::Unit::REVOLUTION, MotionCommand::Type::POSITION_COMMAND);
-    std::shared_ptr<PositionFeedbackDevice> encoderDevice = std::make_shared<PositionFeedbackDevice>("Encoder", PositionUnit::Unit::REVOLUTION, PositionFeedback::Type::ABSOLUTE_FEEDBACK);
+        //subdevices
+        std::shared_ptr<ServoActuatorDevice> servoMotorDevice = std::make_shared<ServoActuatorDevice>("Servo", PositionUnit::Unit::REVOLUTION, PositionFeedback::Type::ABSOLUTE_FEEDBACK);
     std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
 
     //node input data
@@ -33,7 +32,7 @@ public:
 
 
     //===== drive status =====
-    
+
     enum class State {
         NotReadyToSwitchOn,
         SwitchOnDisabled,
@@ -49,14 +48,14 @@ public:
 
     const char* getStateChar() {
         switch (state) {
-            case State::NotReadyToSwitchOn: return "Restart Needed";
-            case State::SwitchOnDisabled: return "Switch On Disabled";
-            case State::ReadyToSwitchOn: return "Ready To Switch On";
-            case State::SwitchedOn: return "Switched On";
-            case State::OperationEnabled: return "Operation Enabled";
-            case State::QuickStopActive: return "Quick Stop Active";
-            case State::FaultReactionActive: return "Fault Reaction Active";
-            case State::Fault: return "Fault";
+        case State::NotReadyToSwitchOn: return "Restart Needed";
+        case State::SwitchOnDisabled: return "Switch On Disabled";
+        case State::ReadyToSwitchOn: return "Ready To Switch On";
+        case State::SwitchedOn: return "Switched On";
+        case State::OperationEnabled: return "Operation Enabled";
+        case State::QuickStopActive: return "Quick Stop Active";
+        case State::FaultReactionActive: return "Fault Reaction Active";
+        case State::Fault: return "Fault";
         }
     }
 
@@ -98,7 +97,7 @@ public:
     void quickStop() { b_quickStop = true; }
 
     //===== INTERNAL MOTION PROFILE GENERATOR =====
-    
+
     double profileVelocity_rps = 0.0;
     double profilePosition_r = 0.0;
     double previousProfilePointTime_seconds = 0.0;
@@ -319,7 +318,7 @@ public:
 
 
 private:
- 
+
     //Rx PDO display Data
     uint16_t DCOMcontrol = 0;
     int8_t DCOMopmode = 0;

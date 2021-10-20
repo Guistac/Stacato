@@ -3,6 +3,7 @@
 class ActuatorDevice;
 class PositionFeedbackDevice;
 class GpioDevice;
+class ServoActuatorDevice;
 
 class Node;
 class NodeLink;
@@ -16,7 +17,8 @@ struct NodeData {
 		REAL_VALUE,
 		ACTUATOR_DEVICELINK,
 		POSITIONFEEDBACK_DEVICELINK,
-		GPIO_DEVICELINK
+		GPIO_DEVICELINK,
+		SERVO_ACTUATOR_DEVICE_LINK
 	};
 	Type type;
 	char displayName[64];
@@ -34,16 +36,16 @@ enum DataDirection {
 };
 
 enum NodePinFlags {
-	NodePinFlags_None					= 0,
-	NodePinFlags_AcceptMultipleInputs	= 1 << 0,
-	NodePinFlags_DisablePin				= 1 << 1,
-	NodePinFlags_NoDataField			= 1 << 2,
-	NodePinFlags_ForceDataField			= 1 << 3,
-	NodePinFlags_DisableDataField		= 1 << 4,
-	NodePinFlags_HidePin				= 1 << 5
+	NodePinFlags_None = 0,
+	NodePinFlags_AcceptMultipleInputs = 1 << 0,
+	NodePinFlags_DisablePin = 1 << 1,
+	NodePinFlags_NoDataField = 1 << 2,
+	NodePinFlags_ForceDataField = 1 << 3,
+	NodePinFlags_DisableDataField = 1 << 4,
+	NodePinFlags_HidePin = 1 << 5
 };
 
-inline NodePinFlags operator|(NodePinFlags a, NodePinFlags b){
+inline NodePinFlags operator|(NodePinFlags a, NodePinFlags b) {
 	return static_cast<NodePinFlags>(static_cast<int>(a) | static_cast<int>(b));
 }
 
@@ -77,13 +79,14 @@ public:
 	NodeData::Type getType() { return type; }
 	bool isSameTypeAs(NodePin& other) { return other.type == type; }
 	void setType(NodeData::Type t) {
-		switch (t){
-			case NodeData::Type::BOOLEAN_VALUE: set(getBoolean()); break;
-			case NodeData::Type::INTEGER_VALUE: set(getInteger()); break;
-			case NodeData::Type::REAL_VALUE: set(getReal()); break;
-			case NodeData::Type::ACTUATOR_DEVICELINK: break;
-			case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: break;
-			case NodeData::Type::GPIO_DEVICELINK: break;
+		switch (t) {
+		case NodeData::Type::BOOLEAN_VALUE: set(getBoolean()); break;
+		case NodeData::Type::INTEGER_VALUE: set(getInteger()); break;
+		case NodeData::Type::REAL_VALUE: set(getReal()); break;
+		case NodeData::Type::ACTUATOR_DEVICELINK: break;
+		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: break;
+		case NodeData::Type::GPIO_DEVICELINK: break;
+		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: break;
 		}
 		type = t;
 	}
@@ -98,19 +101,20 @@ public:
 
 	//commands
 	void disconnectAllLinks();
-	
+
 	//nodegraph infos
 	int getUniqueID() { return uniqueID; }
 	std::shared_ptr<Node> getNode() { return parentNode; }
 	bool& isVisible() { return b_visible; }
 
 	//datatype infos
-	bool isBool()							{ return type == NodeData::Type::BOOLEAN_VALUE; }
-	bool isInteger()						{ return type == NodeData::Type::INTEGER_VALUE; }
-	bool isDouble()							{ return type == NodeData::Type::REAL_VALUE; }
-	bool isActuatorDeviceLink()				{ return type == NodeData::Type::ACTUATOR_DEVICELINK; }
-	bool isPositionFeedbackDeviceLink()		{ return type == NodeData::Type::POSITIONFEEDBACK_DEVICELINK; }
-	bool isGpioDeviceLink()					{ return type == NodeData::Type::GPIO_DEVICELINK; }
+	bool isBool() { return type == NodeData::Type::BOOLEAN_VALUE; }
+	bool isInteger() { return type == NodeData::Type::INTEGER_VALUE; }
+	bool isDouble() { return type == NodeData::Type::REAL_VALUE; }
+	bool isActuatorDeviceLink() { return type == NodeData::Type::ACTUATOR_DEVICELINK; }
+	bool isPositionFeedbackDeviceLink() { return type == NodeData::Type::POSITIONFEEDBACK_DEVICELINK; }
+	bool isGpioDeviceLink() { return type == NodeData::Type::GPIO_DEVICELINK; }
+	bool isServoActuatorDeviceLink() { return type == NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK; }
 
 	//setting data (with data conversions)
 	void set(bool boolean);
@@ -119,6 +123,7 @@ public:
 	void set(std::shared_ptr<ActuatorDevice>);
 	void set(std::shared_ptr<PositionFeedbackDevice>);
 	void set(std::shared_ptr<GpioDevice>);
+	void set(std::shared_ptr<ServoActuatorDevice>);
 
 	//reading data (with data conversions)
 	bool getBoolean();
@@ -127,6 +132,7 @@ public:
 	std::shared_ptr<ActuatorDevice> getActuatorDevice();
 	std::shared_ptr<PositionFeedbackDevice> getPositionFeedbackDevice();
 	std::shared_ptr<GpioDevice> getGpioDevice();
+	std::shared_ptr<ServoActuatorDevice> getServoActuatorDevice();
 
 	const char* getValueString();
 
@@ -171,6 +177,7 @@ private:
 	std::shared_ptr<ActuatorDevice> actuatorDevice = nullptr;
 	std::shared_ptr<PositionFeedbackDevice> positionFeedbackDevice = nullptr;
 	std::shared_ptr<GpioDevice> gpioDevice = nullptr;
+	std::shared_ptr<ServoActuatorDevice> servoActuatorDevice = nullptr;
 
 	void setup(NodeData::Type t, DataDirection d, const char* displayN, const char* saveN, NodePinFlags flags) {
 		strcpy(displayName, displayN);
@@ -182,15 +189,16 @@ private:
 		b_disableDataField = flags & NodePinFlags_DisableDataField;
 		b_visible = !(flags & NodePinFlags_HidePin);
 		switch (type) {
-			case NodeData::Type::BOOLEAN_VALUE: booleanValue = false; break;
-			case NodeData::Type::INTEGER_VALUE: integerValue = 0; break;
-			case NodeData::Type::REAL_VALUE: realValue = 0.0; break;
-			case NodeData::Type::ACTUATOR_DEVICELINK:
-			case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
-			case NodeData::Type::GPIO_DEVICELINK:
-					b_noDataField = true;
-					b_forceDataField = false;
-					break;
+		case NodeData::Type::BOOLEAN_VALUE: booleanValue = false; break;
+		case NodeData::Type::INTEGER_VALUE: integerValue = 0; break;
+		case NodeData::Type::REAL_VALUE: realValue = 0.0; break;
+		case NodeData::Type::ACTUATOR_DEVICELINK:
+		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
+		case NodeData::Type::GPIO_DEVICELINK:
+		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK:
+			b_noDataField = true;
+			b_forceDataField = false;
+			break;
 		}
 	}
 };

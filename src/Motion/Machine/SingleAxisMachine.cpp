@@ -39,7 +39,7 @@ void SingleAxisMachine::process() {
 		if (needsFeedback && !positionFeedbackDevice->b_ready) disable();
 		if (needsReference && !referenceDevice->b_ready) disable();
 		if (needsServo && (!servoActuatorDevice->b_ready || !servoActuatorDevice->b_enabled)) {
-			if(!isHoming())	disable();
+			if (!isHoming())	disable();
 		}
 	}
 
@@ -67,27 +67,27 @@ void SingleAxisMachine::process() {
 	if (b_enabled) {
 		if (b_isHoming) homingControl();
 		switch (controlMode) {
-			case ControlMode::VELOCITY_TARGET: velocityTargetControl(); break;
-			case ControlMode::POSITION_TARGET: positionTargetControl(); break;
-			case ControlMode::FOLLOW_CURVE: followCurveControl(); break;
+		case ControlMode::VELOCITY_TARGET: velocityTargetControl(); break;
+		case ControlMode::POSITION_TARGET: positionTargetControl(); break;
+		case ControlMode::FOLLOW_CURVE: followCurveControl(); break;
 		}
 	}
-	else if (needsFeedback || needsServo){
+	else if (needsFeedback || needsServo) {
 		//if the axis is disabled, copy position feedback data to profile generator
 		profilePosition_machineUnits = actualPosition_machineUnits;
 		profileVelocity_machineUnitsPerSecond = actualVelocity_machineUnitsPerSecond;
 	}
 
 	switch (positionControl) {
-		case PositionControl::Type::SERVO:
-			servoActuatorDevice->setCommand(profilePosition_machineUnits * actuatorUnitsPerMachineUnits);
-			break;
-		case PositionControl::Type::CLOSED_LOOP:
-			Logger::critical("Closed loop control is not supported yet");
-			actuatorDevice->setCommand(profileVelocity_machineUnitsPerSecond * actuatorUnitsPerMachineUnits);
-			//TODO:
-			//for closed loop, implement pid control with adjustable gains
-			break;
+	case PositionControl::Type::SERVO:
+		servoActuatorDevice->setCommand(profilePosition_machineUnits * actuatorUnitsPerMachineUnits);
+		break;
+	case PositionControl::Type::CLOSED_LOOP:
+		Logger::critical("Closed loop control is not supported yet");
+		actuatorDevice->setCommand(profileVelocity_machineUnitsPerSecond * actuatorUnitsPerMachineUnits);
+		//TODO:
+		//for closed loop, implement pid control with adjustable gains
+		break;
 	}
 
 	position->set(actualPosition_machineUnits);
@@ -129,7 +129,7 @@ void SingleAxisMachine::enable() {
 		}
 		if (!isReady()) Logger::warn("Machine '{}' cannot be enabled", getName());
 		else onEnable();
-	});
+		});
 	machineEnabler.detach();
 }
 
@@ -164,16 +164,16 @@ bool SingleAxisMachine::isReady() {
 	if (needsPositionFeedbackDevice() && (!isPositionFeedbackDeviceConnected() || !getPositionFeedbackDevice()->isReady())) return false;
 	if (needsReferenceDevice() && (!isReferenceDeviceConnected() || !getReferenceDevice()->isReady())) return false;
 	switch (positionReferenceSignal) {
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-			if (!lowLimitSignalPin->isConnected()) return false;
-			break;
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-			if (!lowLimitSignalPin->isConnected()) return false;
-			if (!highLimitSignalPin->isConnected()) return false;
-			break;
-		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
-			if (!referenceSignalPin->isConnected()) return false;
-			break;
+	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+		if (!lowLimitSignalPin->isConnected()) return false;
+		break;
+	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+		if (!lowLimitSignalPin->isConnected()) return false;
+		if (!highLimitSignalPin->isConnected()) return false;
+		break;
+	case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
+		if (!referenceSignalPin->isConnected()) return false;
+		break;
 	}
 	return true;
 }
@@ -252,10 +252,10 @@ void SingleAxisMachine::positionTargetControl() {
 
 bool SingleAxisMachine::needsPositionFeedbackDevice() {
 	switch (positionControl) {
-		case PositionControl::Type::CLOSED_LOOP:
-			return true;
-		case PositionControl::Type::SERVO:
-			return false;
+	case PositionControl::Type::CLOSED_LOOP:
+		return true;
+	case PositionControl::Type::SERVO:
+		return false;
 	}
 }
 
@@ -271,12 +271,12 @@ std::shared_ptr<PositionFeedbackDevice> SingleAxisMachine::getPositionFeedbackDe
 
 bool SingleAxisMachine::needsReferenceDevice() {
 	switch (positionReferenceSignal) {
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
-			return true;
-		case PositionReferenceSignal::Type::NO_SIGNAL:
-			return false;
+	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+	case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
+		return true;
+	case PositionReferenceSignal::Type::NO_SIGNAL:
+		return false;
 	}
 }
 
@@ -290,10 +290,10 @@ std::shared_ptr<GpioDevice> SingleAxisMachine::getReferenceDevice() {
 
 bool SingleAxisMachine::needsActuatorDevice() {
 	switch (positionControl) {
-		case PositionControl::Type::CLOSED_LOOP:
-			return true;
-		case PositionControl::Type::SERVO:
-			return false;
+	case PositionControl::Type::CLOSED_LOOP:
+		return true;
+	case PositionControl::Type::SERVO:
+		return false;
 	}
 }
 
@@ -352,12 +352,12 @@ void SingleAxisMachine::updateReferenceSignals() {
 
 bool SingleAxisMachine::isMoving() {
 	switch (positionControl) {
-		case PositionControl::Type::SERVO:
-			return getServoActuatorDevice()->isMoving();
-			break;
-		case PositionControl::Type::CLOSED_LOOP:
-			getPositionFeedbackDevice()->isMoving();
-			break;
+	case PositionControl::Type::SERVO:
+		return getServoActuatorDevice()->isMoving();
+		break;
+	case PositionControl::Type::CLOSED_LOOP:
+		getPositionFeedbackDevice()->isMoving();
+		break;
 	}
 }
 
@@ -391,73 +391,73 @@ double SingleAxisMachine::getHighAxisPositionLimit() {
 
 double SingleAxisMachine::getLowFeedbackPositionLimit() {
 	switch (positionControl) {
-		case PositionControl::Type::SERVO:
-			if (isServoActuatorDeviceConnected()) return getServoActuatorDevice()->getMinPosition() / feedbackUnitsPerMachineUnits;
-			else return -std::numeric_limits<double>::infinity();
-		case PositionControl::Type::CLOSED_LOOP:
-			if(isPositionFeedbackDeviceConnected()) return getPositionFeedbackDevice()->getMinPosition() / feedbackUnitsPerMachineUnits;
-			else return -std::numeric_limits<double>::infinity();
+	case PositionControl::Type::SERVO:
+		if (isServoActuatorDeviceConnected()) return getServoActuatorDevice()->getMinPosition() / feedbackUnitsPerMachineUnits;
+		else return -std::numeric_limits<double>::infinity();
+	case PositionControl::Type::CLOSED_LOOP:
+		if (isPositionFeedbackDeviceConnected()) return getPositionFeedbackDevice()->getMinPosition() / feedbackUnitsPerMachineUnits;
+		else return -std::numeric_limits<double>::infinity();
 	}
 }
 
 double SingleAxisMachine::getHighFeedbackPositionLimit() {
 	switch (positionControl) {
-		case PositionControl::Type::SERVO:
-			if (isServoActuatorDeviceConnected()) return getServoActuatorDevice()->getMaxPosition() / feedbackUnitsPerMachineUnits;
-			else return std::numeric_limits<double>::infinity();
-		case PositionControl::Type::CLOSED_LOOP:
-			if (isPositionFeedbackDeviceConnected()) return getPositionFeedbackDevice()->getMaxPosition() / feedbackUnitsPerMachineUnits;
-			else return std::numeric_limits<double>::infinity();
+	case PositionControl::Type::SERVO:
+		if (isServoActuatorDeviceConnected()) return getServoActuatorDevice()->getMaxPosition() / feedbackUnitsPerMachineUnits;
+		else return std::numeric_limits<double>::infinity();
+	case PositionControl::Type::CLOSED_LOOP:
+		if (isPositionFeedbackDeviceConnected()) return getPositionFeedbackDevice()->getMaxPosition() / feedbackUnitsPerMachineUnits;
+		else return std::numeric_limits<double>::infinity();
 	}
 }
 
 
 void SingleAxisMachine::setCurrentAxisPosition(double distance) {
 	switch (positionControl) {
-		case PositionControl::Type::SERVO:
-			getServoActuatorDevice()->setPosition(distance * feedbackUnitsPerMachineUnits);
-			break;
-		case PositionControl::Type::CLOSED_LOOP:
-			getPositionFeedbackDevice()->setPosition(distance * feedbackUnitsPerMachineUnits);
-			break;
+	case PositionControl::Type::SERVO:
+		getServoActuatorDevice()->setPosition(distance * feedbackUnitsPerMachineUnits);
+		break;
+	case PositionControl::Type::CLOSED_LOOP:
+		getPositionFeedbackDevice()->setPosition(distance * feedbackUnitsPerMachineUnits);
+		break;
 	}
 	profilePosition_machineUnits = distance;
 }
 
 void SingleAxisMachine::setCurrentPositionAsNegativeLimit() {
 	switch (positionControl) {
-		case PositionControl::Type::SERVO:
-			maxNegativeDeviation_machineUnits = getServoActuatorDevice()->getPosition() / feedbackUnitsPerMachineUnits;
-			break;
-		case PositionControl::Type::CLOSED_LOOP:
-			maxNegativeDeviation_machineUnits = getPositionFeedbackDevice()->getPosition() / feedbackUnitsPerMachineUnits;
-			break;
+	case PositionControl::Type::SERVO:
+		maxNegativeDeviation_machineUnits = getServoActuatorDevice()->getPosition() / feedbackUnitsPerMachineUnits;
+		break;
+	case PositionControl::Type::CLOSED_LOOP:
+		maxNegativeDeviation_machineUnits = getPositionFeedbackDevice()->getPosition() / feedbackUnitsPerMachineUnits;
+		break;
 	}
 }
 
 void SingleAxisMachine::setCurrentPositionAsPositiveLimit() {
 	switch (positionControl) {
-		case PositionControl::Type::SERVO:
-			maxPositiveDeviation_machineUnits = getServoActuatorDevice()->getPosition() / feedbackUnitsPerMachineUnits;
-			break;
-		case PositionControl::Type::CLOSED_LOOP:
-			maxPositiveDeviation_machineUnits = getPositionFeedbackDevice()->getPosition() / feedbackUnitsPerMachineUnits;
-			break;
+	case PositionControl::Type::SERVO:
+		maxPositiveDeviation_machineUnits = getServoActuatorDevice()->getPosition() / feedbackUnitsPerMachineUnits;
+		break;
+	case PositionControl::Type::CLOSED_LOOP:
+		maxPositiveDeviation_machineUnits = getPositionFeedbackDevice()->getPosition() / feedbackUnitsPerMachineUnits;
+		break;
 	}
 }
 
 void SingleAxisMachine::scaleFeedbackToMatchPosition(double position_axisUnits) {
 	double feedbackDevicePosition_feedbackUnits;
 	switch (positionControl) {
-		case PositionControl::Type::SERVO:
-			feedbackDevicePosition_feedbackUnits = getServoActuatorDevice()->getPosition();
-			feedbackUnitsPerMachineUnits = feedbackDevicePosition_feedbackUnits / position_axisUnits;
-			actuatorUnitsPerMachineUnits = feedbackUnitsPerMachineUnits;
-			break;
-		case PositionControl::Type::CLOSED_LOOP:
-			feedbackDevicePosition_feedbackUnits = getPositionFeedbackDevice()->getPosition();
-			feedbackUnitsPerMachineUnits = feedbackDevicePosition_feedbackUnits / position_axisUnits;
-			break;
+	case PositionControl::Type::SERVO:
+		feedbackDevicePosition_feedbackUnits = getServoActuatorDevice()->getPosition();
+		feedbackUnitsPerMachineUnits = feedbackDevicePosition_feedbackUnits / position_axisUnits;
+		actuatorUnitsPerMachineUnits = feedbackUnitsPerMachineUnits;
+		break;
+	case PositionControl::Type::CLOSED_LOOP:
+		feedbackDevicePosition_feedbackUnits = getPositionFeedbackDevice()->getPosition();
+		feedbackUnitsPerMachineUnits = feedbackDevicePosition_feedbackUnits / position_axisUnits;
+		break;
 	}
 	profilePosition_machineUnits = feedbackDevicePosition_feedbackUnits / feedbackUnitsPerMachineUnits;
 }
@@ -512,294 +512,294 @@ void SingleAxisMachine::homingControl() {
 
 
 
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+
+		switch (homingStep) {
+		case Step::NOT_STARTED:
+			homingStep = Step::SEARCHING_LOW_LIMIT_COARSE;
+			break;
+		case Step::SEARCHING_LOW_LIMIT_COARSE:
+			setVelocity(-homingVelocity_machineUnitsPerSecond);
+			if (!previousLowLimitSignal && lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_COARSE;
+			break;
+		case Step::FOUND_LOW_LIMIT_COARSE:
+			setVelocity(0.0);
+			if (!isMoving()) {
+				if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
+					getServoActuatorDevice()->enable();
+					profilePosition_machineUnits = actualPosition_machineUnits;
+					profileVelocity_machineUnitsPerSecond = 0.0;
+					profileAcceleration_machineUnitsPerSecondSquared = 0.0;
+				}
+				else homingStep = Step::SEARCHING_LOW_LIMIT_FINE;
+			}
+			break;
+		case Step::SEARCHING_LOW_LIMIT_FINE:
+			setVelocity(homingVelocity_machineUnitsPerSecond / 10.0);
+			if (previousLowLimitSignal && !lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_FINE;
+			break;
+		case Step::FOUND_LOW_LIMIT_FINE:
+			setVelocity(0.0);
+			if (!isMoving()) homingStep = Step::RESETTING_POSITION_FEEDBACK;
+			break;
+		case Step::RESETTING_POSITION_FEEDBACK:
+			setCurrentAxisPosition(0.0);
+			onHomingSuccess();
+			break;
+		}
+		break;
+
+
+
+	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+
+		if (homingDirection == HomingDirection::Type::NEGATIVE) {
 
 			switch (homingStep) {
-				case Step::NOT_STARTED:
-					homingStep = Step::SEARCHING_LOW_LIMIT_COARSE;
-					break;
-				case Step::SEARCHING_LOW_LIMIT_COARSE:
-					setVelocity(-homingVelocity_machineUnitsPerSecond);
-					if (!previousLowLimitSignal && lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_COARSE;
-					break;
-				case Step::FOUND_LOW_LIMIT_COARSE:
-					setVelocity(0.0);
-					if (!isMoving()) {
-						if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
-							getServoActuatorDevice()->enable();
-							profilePosition_machineUnits = actualPosition_machineUnits;
-							profileVelocity_machineUnitsPerSecond = 0.0;
-							profileAcceleration_machineUnitsPerSecondSquared = 0.0;
-						}
-						else homingStep = Step::SEARCHING_LOW_LIMIT_FINE;
+			case Step::NOT_STARTED:
+				homingStep = Step::SEARCHING_LOW_LIMIT_COARSE;
+				break;
+			case Step::SEARCHING_LOW_LIMIT_COARSE:
+				setVelocity(-homingVelocity_machineUnitsPerSecond);
+				if (!previousHighLimitSignal && highLimitSignal) {
+					homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
+					onHomingError();
+				}
+				else if (!previousLowLimitSignal && lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_COARSE;
+				break;
+			case Step::FOUND_LOW_LIMIT_COARSE:
+				setVelocity(0.0);
+				if (!isMoving()) {
+					if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
+						getServoActuatorDevice()->enable();
+						profilePosition_machineUnits = actualPosition_machineUnits;
+						profileVelocity_machineUnitsPerSecond = 0.0;
+						profileAcceleration_machineUnitsPerSecondSquared = 0.0;
 					}
-					break;
-				case Step::SEARCHING_LOW_LIMIT_FINE:
-					setVelocity(homingVelocity_machineUnitsPerSecond / 10.0);
-					if (previousLowLimitSignal && !lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_FINE;
-					break;
-				case Step::FOUND_LOW_LIMIT_FINE:
-					setVelocity(0.0);
-					if (!isMoving()) homingStep = Step::RESETTING_POSITION_FEEDBACK;
-					break;
-				case Step::RESETTING_POSITION_FEEDBACK:
+					else homingStep = Step::SEARCHING_LOW_LIMIT_FINE;
+				}
+				break;
+			case Step::SEARCHING_LOW_LIMIT_FINE:
+				setVelocity(homingVelocity_machineUnitsPerSecond / 10.0);
+				if (previousLowLimitSignal && !lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_FINE;
+				break;
+			case Step::FOUND_LOW_LIMIT_FINE:
+				setVelocity(0.0);
+				if (!isMoving()) homingStep = Step::RESETTING_POSITION_FEEDBACK;
+				break;
+			case Step::RESETTING_POSITION_FEEDBACK:
+				setCurrentAxisPosition(0.0);
+				homingStep = Step::SEARCHING_HIGH_LIMIT_COARSE;
+				break;
+			case Step::SEARCHING_HIGH_LIMIT_COARSE:
+				setVelocity(homingVelocity_machineUnitsPerSecond);
+				if (!previousLowLimitSignal && lowLimitSignal) {
+					homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
+					onHomingError();
+				}
+				else if (!previousHighLimitSignal && highLimitSignal) homingStep = Step::FOUND_HIGH_LIMIT_COARSE;
+				break;
+			case Step::FOUND_HIGH_LIMIT_COARSE:
+				setVelocity(0.0);
+				if (!isMoving()) {
+					if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
+						getServoActuatorDevice()->enable();
+						profilePosition_machineUnits = actualPosition_machineUnits;
+						profileVelocity_machineUnitsPerSecond = 0.0;
+						profileAcceleration_machineUnitsPerSecondSquared = 0.0;
+					}
+					else homingStep = Step::SEARCHING_HIGH_LIMIT_FINE;
+				}
+				break;
+			case Step::SEARCHING_HIGH_LIMIT_FINE:
+				setVelocity(-homingVelocity_machineUnitsPerSecond / 10.0);
+				if (previousHighLimitSignal && !highLimitSignal) homingStep = Step::FOUND_HIGH_LIMIT_FINE;
+				break;
+			case Step::FOUND_HIGH_LIMIT_FINE:
+				setVelocity(0.0);
+				if (!isMoving()) homingStep = Step::SETTING_HIGH_LIMIT;
+				break;
+			case Step::SETTING_HIGH_LIMIT:
+				setCurrentPositionAsPositiveLimit();
+				homingStep = Step::FINISHED;
+				onHomingSuccess();
+				break;
+			}
+			break;
+
+		}
+		else if (homingDirection == HomingDirection::Type::POSITIVE) {
+
+
+			switch (homingStep) {
+			case Step::NOT_STARTED:
+				homingStep = Step::SEARCHING_HIGH_LIMIT_COARSE;
+				break;
+			case Step::SEARCHING_HIGH_LIMIT_COARSE:
+				setVelocity(homingVelocity_machineUnitsPerSecond);
+				if (!previousLowLimitSignal && lowLimitSignal) {
+					homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
+					onHomingError();
+				}
+				else if (!previousHighLimitSignal && highLimitSignal) homingStep = Step::FOUND_HIGH_LIMIT_COARSE;
+				break;
+			case Step::FOUND_HIGH_LIMIT_COARSE:
+				setVelocity(0.0);
+				if (!isMoving()) {
+					if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
+						getServoActuatorDevice()->enable();
+						profilePosition_machineUnits = actualPosition_machineUnits;
+						profileVelocity_machineUnitsPerSecond = 0.0;
+						profileAcceleration_machineUnitsPerSecondSquared = 0.0;
+					}
+					else homingStep = Step::SEARCHING_HIGH_LIMIT_FINE;
+				}
+				break;
+			case Step::SEARCHING_HIGH_LIMIT_FINE:
+				setVelocity(-homingVelocity_machineUnitsPerSecond / 10.0);
+				if (previousHighLimitSignal && !highLimitSignal) homingStep = Step::FOUND_HIGH_LIMIT_FINE;
+				break;
+			case Step::FOUND_HIGH_LIMIT_FINE:
+				setVelocity(0.0);
+				if (!isMoving()) homingStep = Step::SETTING_HIGH_LIMIT;
+				break;
+			case Step::SETTING_HIGH_LIMIT:
+				setCurrentAxisPosition(0.0);
+				homingStep = Step::SEARCHING_LOW_LIMIT_COARSE;
+				break;
+			case Step::SEARCHING_LOW_LIMIT_COARSE:
+				setVelocity(-homingVelocity_machineUnitsPerSecond);
+				if (!previousHighLimitSignal && highLimitSignal) {
+					homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
+					onHomingError();
+				}
+				else if (!previousLowLimitSignal && lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_COARSE;
+				break;
+			case Step::FOUND_LOW_LIMIT_COARSE:
+				setVelocity(0.0);
+				if (!isMoving()) {
+					if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
+						getServoActuatorDevice()->enable();
+						profilePosition_machineUnits = actualPosition_machineUnits;
+						profileVelocity_machineUnitsPerSecond = 0.0;
+						profileAcceleration_machineUnitsPerSecondSquared = 0.0;
+					}
+					else homingStep = Step::SEARCHING_LOW_LIMIT_FINE;
+				}
+				break;
+			case Step::SEARCHING_LOW_LIMIT_FINE:
+				setVelocity(homingVelocity_machineUnitsPerSecond / 10.0);
+				if (previousLowLimitSignal && !lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_FINE;
+				break;
+			case Step::FOUND_LOW_LIMIT_FINE:
+				setVelocity(0.0);
+				if (!isMoving()) homingStep = Step::RESETTING_POSITION_FEEDBACK;
+				break;
+			case Step::RESETTING_POSITION_FEEDBACK:
+				maxPositiveDeviation_machineUnits = std::abs(actualPosition_machineUnits);
+				setCurrentAxisPosition(0.0);
+				homingStep = Step::FINISHED;
+				onHomingSuccess();
+				break;
+			}
+			break;
+
+		}
+
+	case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
+
+		if (homingDirection == HomingDirection::Type::POSITIVE) {
+
+			switch (homingStep) {
+			case Step::NOT_STARTED:
+				homingStep = Step::SEARCHING_REFERENCE_FROM_BELOW_COARSE;
+				break;
+			case Step::SEARCHING_REFERENCE_FROM_BELOW_COARSE:
+				setVelocity(homingVelocity_machineUnitsPerSecond);
+				if (!previousReferenceSignal && referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_BELOW_COARSE;
+				break;
+			case Step::FOUND_REFERENCE_FROM_BELOW_COARSE:
+				setVelocity(0.0);
+				if (!isMoving()) homingStep = Step::SEARCHING_REFERENCE_FROM_BELOW_FINE;
+				break;
+			case Step::SEARCHING_REFERENCE_FROM_BELOW_FINE:
+				setVelocity(-homingVelocity_machineUnitsPerSecond / 10.0);
+				if (previousReferenceSignal && !referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_BELOW_FINE;
+				break;
+			case Step::FOUND_REFERENCE_FROM_BELOW_FINE:
+				setVelocity(0.0);
+				if (!isMoving()) {
 					setCurrentAxisPosition(0.0);
+					homingStep = Step::SEARCHING_REFERENCE_FROM_ABOVE_FINE;
+				}
+				break;
+			case Step::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
+				setVelocity(homingVelocity_machineUnitsPerSecond / 10.0);
+				if (previousReferenceSignal && !referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_ABOVE_FINE;
+				break;
+			case Step::FOUND_REFERENCE_FROM_ABOVE_FINE:
+				setVelocity(0.0);
+				if (!isMoving()) {
+					setCurrentAxisPosition(actualPosition_machineUnits / 2.0);
+					moveToPositionInTime(0.0, 0.0, 1.0);
 					onHomingSuccess();
-					break;
-			}
-			break;
-			
-
-
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-			
-			if (homingDirection == HomingDirection::Type::NEGATIVE) {
-
-				switch (homingStep) {
-					case Step::NOT_STARTED:
-						homingStep = Step::SEARCHING_LOW_LIMIT_COARSE;
-						break;
-					case Step::SEARCHING_LOW_LIMIT_COARSE:
-						setVelocity(-homingVelocity_machineUnitsPerSecond);
-						if (!previousHighLimitSignal && highLimitSignal) {
-							homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
-							onHomingError();
-						}
-						else if (!previousLowLimitSignal && lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_COARSE;
-						break;
-					case Step::FOUND_LOW_LIMIT_COARSE:
-						setVelocity(0.0);
-						if (!isMoving()) {
-							if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
-								getServoActuatorDevice()->enable();
-								profilePosition_machineUnits = actualPosition_machineUnits;
-								profileVelocity_machineUnitsPerSecond = 0.0;
-								profileAcceleration_machineUnitsPerSecondSquared = 0.0;
-							}
-							else homingStep = Step::SEARCHING_LOW_LIMIT_FINE;
-						}
-						break;
-					case Step::SEARCHING_LOW_LIMIT_FINE:
-						setVelocity(homingVelocity_machineUnitsPerSecond / 10.0);
-						if (previousLowLimitSignal && !lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_FINE;
-						break;
-					case Step::FOUND_LOW_LIMIT_FINE:
-						setVelocity(0.0);
-						if (!isMoving()) homingStep = Step::RESETTING_POSITION_FEEDBACK;
-						break;
-					case Step::RESETTING_POSITION_FEEDBACK:
-						setCurrentAxisPosition(0.0);
-						homingStep = Step::SEARCHING_HIGH_LIMIT_COARSE;
-						break;
-					case Step::SEARCHING_HIGH_LIMIT_COARSE:
-						setVelocity(homingVelocity_machineUnitsPerSecond);
-						if (!previousLowLimitSignal && lowLimitSignal) {
-							homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
-							onHomingError();
-						}
-						else if (!previousHighLimitSignal && highLimitSignal) homingStep = Step::FOUND_HIGH_LIMIT_COARSE;
-						break;
-					case Step::FOUND_HIGH_LIMIT_COARSE:
-						setVelocity(0.0);
-						if (!isMoving()) {
-							if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
-								getServoActuatorDevice()->enable();
-								profilePosition_machineUnits = actualPosition_machineUnits;
-								profileVelocity_machineUnitsPerSecond = 0.0;
-								profileAcceleration_machineUnitsPerSecondSquared = 0.0;
-							}
-							else homingStep = Step::SEARCHING_HIGH_LIMIT_FINE;
-						}
-						break;
-					case Step::SEARCHING_HIGH_LIMIT_FINE:
-						setVelocity(-homingVelocity_machineUnitsPerSecond / 10.0);
-						if (previousHighLimitSignal && !highLimitSignal) homingStep = Step::FOUND_HIGH_LIMIT_FINE;
-						break;
-					case Step::FOUND_HIGH_LIMIT_FINE:
-						setVelocity(0.0);
-						if (!isMoving()) homingStep = Step::SETTING_HIGH_LIMIT;
-						break;
-					case Step::SETTING_HIGH_LIMIT:
-						setCurrentPositionAsPositiveLimit();
-						homingStep = Step::FINISHED;
-						onHomingSuccess();
-						break;
 				}
 				break;
-
 			}
-			else if (homingDirection == HomingDirection::Type::POSITIVE) {
-			
-			
-				switch (homingStep) {
-					case Step::NOT_STARTED:
-						homingStep = Step::SEARCHING_HIGH_LIMIT_COARSE;
-						break;
-					case Step::SEARCHING_HIGH_LIMIT_COARSE:
-						setVelocity(homingVelocity_machineUnitsPerSecond);
-						if (!previousLowLimitSignal && lowLimitSignal) {
-							homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
-							onHomingError();
-						}
-						else if (!previousHighLimitSignal && highLimitSignal) homingStep = Step::FOUND_HIGH_LIMIT_COARSE;
-						break;
-					case Step::FOUND_HIGH_LIMIT_COARSE:
-						setVelocity(0.0);
-						if (!isMoving()) {
-							if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
-								getServoActuatorDevice()->enable();
-								profilePosition_machineUnits = actualPosition_machineUnits;
-								profileVelocity_machineUnitsPerSecond = 0.0;
-								profileAcceleration_machineUnitsPerSecondSquared = 0.0;
-							}
-							else homingStep = Step::SEARCHING_HIGH_LIMIT_FINE;
-						}
-						break;
-					case Step::SEARCHING_HIGH_LIMIT_FINE:
-						setVelocity(-homingVelocity_machineUnitsPerSecond / 10.0);
-						if (previousHighLimitSignal && !highLimitSignal) homingStep = Step::FOUND_HIGH_LIMIT_FINE;
-						break;
-					case Step::FOUND_HIGH_LIMIT_FINE:
-						setVelocity(0.0);
-						if (!isMoving()) homingStep = Step::SETTING_HIGH_LIMIT;
-						break;
-					case Step::SETTING_HIGH_LIMIT:
-						setCurrentAxisPosition(0.0);
-						homingStep = Step::SEARCHING_LOW_LIMIT_COARSE;
-						break;
-					case Step::SEARCHING_LOW_LIMIT_COARSE:
-						setVelocity(-homingVelocity_machineUnitsPerSecond);
-						if (!previousHighLimitSignal && highLimitSignal) {
-							homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
-							onHomingError();
-						}
-						else if (!previousLowLimitSignal && lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_COARSE;
-						break;
-					case Step::FOUND_LOW_LIMIT_COARSE:
-						setVelocity(0.0);
-						if (!isMoving()) {
-							if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
-								getServoActuatorDevice()->enable();
-								profilePosition_machineUnits = actualPosition_machineUnits;
-								profileVelocity_machineUnitsPerSecond = 0.0;
-								profileAcceleration_machineUnitsPerSecondSquared = 0.0;
-							}
-							else homingStep = Step::SEARCHING_LOW_LIMIT_FINE;
-						}
-						break;
-					case Step::SEARCHING_LOW_LIMIT_FINE:
-						setVelocity(homingVelocity_machineUnitsPerSecond / 10.0);
-						if (previousLowLimitSignal && !lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_FINE;
-						break;
-					case Step::FOUND_LOW_LIMIT_FINE:
-						setVelocity(0.0);
-						if (!isMoving()) homingStep = Step::RESETTING_POSITION_FEEDBACK;
-						break;
-					case Step::RESETTING_POSITION_FEEDBACK:
-						maxPositiveDeviation_machineUnits = std::abs(actualPosition_machineUnits);
-						setCurrentAxisPosition(0.0);
-						homingStep = Step::FINISHED;
-						onHomingSuccess();
-						break;
+
+		}
+		else if (homingDirection == HomingDirection::Type::NEGATIVE) {
+
+
+
+			switch (homingStep) {
+			case Step::NOT_STARTED:
+				homingStep = Step::SEARCHING_REFERENCE_FROM_ABOVE_COARSE;
+				break;
+			case Step::SEARCHING_REFERENCE_FROM_ABOVE_COARSE:
+				setVelocity(-homingVelocity_machineUnitsPerSecond);
+				if (!previousReferenceSignal && referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_ABOVE_COARSE;
+				break;
+			case Step::FOUND_REFERENCE_FROM_ABOVE_COARSE:
+				setVelocity(0.0);
+				if (!isMoving()) homingStep = Step::SEARCHING_REFERENCE_FROM_ABOVE_FINE;
+				break;
+			case Step::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
+				setVelocity(homingVelocity_machineUnitsPerSecond / 10.0);
+				if (previousReferenceSignal && !referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_ABOVE_FINE;
+				break;
+			case Step::FOUND_REFERENCE_FROM_ABOVE_FINE:
+				setVelocity(0.0);
+				if (!isMoving()) {
+					setCurrentAxisPosition(0.0);
+					homingStep = Step::SEARCHING_REFERENCE_FROM_BELOW_FINE;
 				}
 				break;
-			
-			}
-
-		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
-			
-			if (homingDirection == HomingDirection::Type::POSITIVE) {
-
-				switch (homingStep) {
-					case Step::NOT_STARTED:
-						homingStep = Step::SEARCHING_REFERENCE_FROM_BELOW_COARSE;
-						break;
-					case Step::SEARCHING_REFERENCE_FROM_BELOW_COARSE:
-						setVelocity(homingVelocity_machineUnitsPerSecond);
-						if (!previousReferenceSignal && referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_BELOW_COARSE;
-						break;
-					case Step::FOUND_REFERENCE_FROM_BELOW_COARSE:
-						setVelocity(0.0);
-						if (!isMoving()) homingStep = Step::SEARCHING_REFERENCE_FROM_BELOW_FINE;
-						break;
-					case Step::SEARCHING_REFERENCE_FROM_BELOW_FINE:
-						setVelocity(-homingVelocity_machineUnitsPerSecond / 10.0);
-						if (previousReferenceSignal && !referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_BELOW_FINE;
-						break;
-					case Step::FOUND_REFERENCE_FROM_BELOW_FINE:
-						setVelocity(0.0);
-						if (!isMoving()) {
-							setCurrentAxisPosition(0.0);
-							homingStep = Step::SEARCHING_REFERENCE_FROM_ABOVE_FINE;
-						}
-						break;
-					case Step::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
-						setVelocity(homingVelocity_machineUnitsPerSecond / 10.0);
-						if (previousReferenceSignal && !referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_ABOVE_FINE;
-						break;
-					case Step::FOUND_REFERENCE_FROM_ABOVE_FINE:
-						setVelocity(0.0);
-						if (!isMoving()) {
-							setCurrentAxisPosition(actualPosition_machineUnits / 2.0);
-							moveToPositionInTime(0.0, 0.0, 1.0);
-							onHomingSuccess();
-						}
-						break;
+			case Step::SEARCHING_REFERENCE_FROM_BELOW_FINE:
+				setVelocity(-homingVelocity_machineUnitsPerSecond / 10.0);
+				if (previousReferenceSignal && !referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_BELOW_FINE;
+				break;
+			case Step::FOUND_REFERENCE_FROM_BELOW_FINE:
+				setVelocity(0.0);
+				if (!isMoving()) {
+					setCurrentAxisPosition(actualPosition_machineUnits / 2.0);
+					moveToPositionInTime(0.0, 0.0, 1.0);
+					onHomingSuccess();
 				}
-
+				break;
 			}
-			else if (homingDirection == HomingDirection::Type::NEGATIVE) {
-			
-			
 
-				switch (homingStep) {
-					case Step::NOT_STARTED:
-						homingStep = Step::SEARCHING_REFERENCE_FROM_ABOVE_COARSE;
-						break;
-					case Step::SEARCHING_REFERENCE_FROM_ABOVE_COARSE:
-						setVelocity(-homingVelocity_machineUnitsPerSecond);
-						if (!previousReferenceSignal && referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_ABOVE_COARSE;
-						break;
-					case Step::FOUND_REFERENCE_FROM_ABOVE_COARSE:
-						setVelocity(0.0);
-						if (!isMoving()) homingStep = Step::SEARCHING_REFERENCE_FROM_ABOVE_FINE;
-						break;
-					case Step::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
-						setVelocity(homingVelocity_machineUnitsPerSecond / 10.0);
-						if (previousReferenceSignal && !referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_ABOVE_FINE;
-						break;
-					case Step::FOUND_REFERENCE_FROM_ABOVE_FINE:
-						setVelocity(0.0);
-						if (!isMoving()) {
-							setCurrentAxisPosition(0.0);
-							homingStep = Step::SEARCHING_REFERENCE_FROM_BELOW_FINE;
-						}
-						break;
-					case Step::SEARCHING_REFERENCE_FROM_BELOW_FINE:
-						setVelocity(-homingVelocity_machineUnitsPerSecond / 10.0);
-						if (previousReferenceSignal && !referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_BELOW_FINE;
-						break;
-					case Step::FOUND_REFERENCE_FROM_BELOW_FINE:
-						setVelocity(0.0);
-						if (!isMoving()) {
-							setCurrentAxisPosition(actualPosition_machineUnits / 2.0);
-							moveToPositionInTime(0.0, 0.0, 1.0);
-							onHomingSuccess();
-						}
-						break;
-				}
 
-			
-			}
-			//touch off reference from one side, touch off reference from other side, go to middle of two touches, set encoder to zero
+		}
+		//touch off reference from one side, touch off reference from other side, go to middle of two touches, set encoder to zero
 
 
 
 
 
 
-		case PositionReferenceSignal::Type::NO_SIGNAL:
-			break;
+	case PositionReferenceSignal::Type::NO_SIGNAL:
+		break;
 	}
 }
 
@@ -829,16 +829,16 @@ bool SingleAxisMachine::save(tinyxml2::XMLElement* xml) {
 	positionReferenceXML->SetAttribute("Type", getPositionReferenceSignal(positionReferenceSignal)->saveName);
 
 	switch (positionReferenceSignal) {
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-			positionReferenceXML->SetAttribute("HomingVelocity_machineUnitsPerSecond", homingVelocity_machineUnitsPerSecond);
-			break;
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
-			positionReferenceXML->SetAttribute("HomingVelocity_machineUnitsPerSecond", homingVelocity_machineUnitsPerSecond);
-			positionReferenceXML->SetAttribute("HomingDirection", getHomingDirection(homingDirection)->saveName);
-			break;
-		case PositionReferenceSignal::Type::NO_SIGNAL:
-			break;
+	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+		positionReferenceXML->SetAttribute("HomingVelocity_machineUnitsPerSecond", homingVelocity_machineUnitsPerSecond);
+		break;
+	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+	case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
+		positionReferenceXML->SetAttribute("HomingVelocity_machineUnitsPerSecond", homingVelocity_machineUnitsPerSecond);
+		positionReferenceXML->SetAttribute("HomingDirection", getHomingDirection(homingDirection)->saveName);
+		break;
+	case PositionReferenceSignal::Type::NO_SIGNAL:
+		break;
 	}
 
 	XMLElement* positionLimitsXML = xml->InsertNewChildElement("PositionLimits");
@@ -898,19 +898,19 @@ bool SingleAxisMachine::load(tinyxml2::XMLElement* xml) {
 	setPositionReferenceSignalType(getPositionReferenceSignal(positionLimitTypeString)->type);
 
 	switch (positionReferenceSignal) {
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-			if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity_machineUnitsPerSecond", &homingVelocity_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
-			break;
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN: {
-			if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity_machineUnitsPerSecond", &homingVelocity_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
-			const char* homingDirectionString;
-			if (positionReferenceXML->QueryStringAttribute("HomingDirection", &homingDirectionString)) return Logger::warn("Could not load homing direction");
-			if (getHomingDirection(homingDirectionString) == nullptr) return Logger::warn("Could not read homing direction");
-			homingDirection = getHomingDirection(homingDirectionString)->type;
-			}break;
-		case PositionReferenceSignal::Type::NO_SIGNAL:
-			break;
+	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+		if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity_machineUnitsPerSecond", &homingVelocity_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
+		break;
+	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+	case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN: {
+		if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity_machineUnitsPerSecond", &homingVelocity_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
+		const char* homingDirectionString;
+		if (positionReferenceXML->QueryStringAttribute("HomingDirection", &homingDirectionString)) return Logger::warn("Could not load homing direction");
+		if (getHomingDirection(homingDirectionString) == nullptr) return Logger::warn("Could not read homing direction");
+		homingDirection = getHomingDirection(homingDirectionString)->type;
+	}break;
+	case PositionReferenceSignal::Type::NO_SIGNAL:
+		break;
 	}
 
 	XMLElement* kinematicLimitsXML = xml->FirstChildElement("KinematicLimits");
@@ -941,14 +941,14 @@ void SingleAxisMachine::setPositionControlType(PositionControl::Type type) {
 	removeIoData(highLimitSignalPin);
 	removeIoData(referenceSignalPin);
 	switch (type) {
-		case PositionControl::Type::CLOSED_LOOP:
-			addIoData(actuatorDeviceLink);
-			addIoData(positionFeedbackDeviceLink);
-			break;
-		case PositionControl::Type::SERVO:
-			addIoData(servoActuatorDeviceLink);
-			feedbackUnitsPerMachineUnits = actuatorUnitsPerMachineUnits;
-			break;
+	case PositionControl::Type::CLOSED_LOOP:
+		addIoData(actuatorDeviceLink);
+		addIoData(positionFeedbackDeviceLink);
+		break;
+	case PositionControl::Type::SERVO:
+		addIoData(servoActuatorDeviceLink);
+		feedbackUnitsPerMachineUnits = actuatorUnitsPerMachineUnits;
+		break;
 	}
 	positionControl = type;
 	setPositionReferenceSignalType(positionReferenceSignal);
@@ -960,26 +960,26 @@ void SingleAxisMachine::setPositionReferenceSignalType(PositionReferenceSignal::
 	removeIoData(highLimitSignalPin);
 	removeIoData(referenceSignalPin);
 	switch (type) {
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-			addIoData(referenceDeviceLink);
-			addIoData(lowLimitSignalPin);
-			maxNegativeDeviation_machineUnits = 0.0;
-			enableNegativeLimit = true;
-			break;
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-			addIoData(referenceDeviceLink);
-			addIoData(highLimitSignalPin);
-			addIoData(lowLimitSignalPin);
-			maxNegativeDeviation_machineUnits = 0.0;
-			enableNegativeLimit = true;
-			enablePositiveLimit = true;
-			break;
-		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
-			addIoData(referenceDeviceLink);
-			addIoData(referenceSignalPin);
-			break;
-		case PositionReferenceSignal::Type::NO_SIGNAL:
-			break;
+	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+		addIoData(referenceDeviceLink);
+		addIoData(lowLimitSignalPin);
+		maxNegativeDeviation_machineUnits = 0.0;
+		enableNegativeLimit = true;
+		break;
+	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+		addIoData(referenceDeviceLink);
+		addIoData(highLimitSignalPin);
+		addIoData(lowLimitSignalPin);
+		maxNegativeDeviation_machineUnits = 0.0;
+		enableNegativeLimit = true;
+		enablePositiveLimit = true;
+		break;
+	case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
+		addIoData(referenceDeviceLink);
+		addIoData(referenceSignalPin);
+		break;
+	case PositionReferenceSignal::Type::NO_SIGNAL:
+		break;
 	}
 	positionReferenceSignal = type;
 }
