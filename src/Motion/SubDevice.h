@@ -44,7 +44,6 @@ public:
 	PositionUnit::Unit positionUnit;
 };
 
-
 class ActuatorDevice : public virtual PositionDevice {
 public:
 
@@ -149,5 +148,4 @@ public:
 	virtual void setCommand(double positionCommand) { command_deviceUnits = positionCommand; }
 	//get velocity command
 	virtual double getCommand() { return command_deviceUnits + positionOffset_positionUnits; }
-
 };

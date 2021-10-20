@@ -47,9 +47,9 @@ void Lexium32::resetData() {
     profilePosition_r = 0.0;
     profileVelocity_rps = 0.0;
     b_emergencyStopActive = false;
-    servoMotorDevice->positionRaw_positionUnits = 0.0;
-    servoMotorDevice->velocity_positionUnitsPerSecond = 0.0;
-    servoMotorDevice->b_moving = false;
+    encoderDevice->positionRaw_positionUnits = 0.0;
+    encoderDevice->velocity_positionUnitsPerSecond = 0.0;
+    encoderDevice->b_moving = false;
     actualPosition->set(0.0);
     actualVelocity->set(0.0);
     actualLoad->set(0.0);
@@ -89,8 +89,8 @@ void Lexium32::assignIoData() {
     
     float lowEncoderRange, highEncoderRange;
     getEncoderWorkingRange(lowEncoderRange, highEncoderRange);
-    servoMotorDevice->rangeMin_positionUnits = lowEncoderRange;
-    servoMotorDevice->rangeMax_positionUnits = highEncoderRange;
+    encoderDevice->rangeMin_positionUnits = lowEncoderRange;
+    encoderDevice->rangeMax_positionUnits = highEncoderRange;
 
     gpioDevice->setParentDevice(thisDevice);
     gpNodeLink->set(gpioDevice);
@@ -355,15 +355,15 @@ void Lexium32::readInputs() {
     }
 
     //set the encoder position in revolution units and velocity in revolutions per second
-    servoMotorDevice->positionRaw_positionUnits = (double)_p_act / (double)positionUnitsPerRevolution;
-    servoMotorDevice->velocity_positionUnitsPerSecond = (double)_v_act / ((double)velocityUnitsPerRpm * 60.0);
-    servoMotorDevice->b_moving = std::abs(servoMotorDevice->velocity_positionUnitsPerSecond) > 0.03;
+    encoderDevice->positionRaw_positionUnits = (double)_p_act / (double)positionUnitsPerRevolution;
+    encoderDevice->velocity_positionUnitsPerSecond = (double)_v_act / ((double)velocityUnitsPerRpm * 60.0);
+    encoderDevice->b_moving = std::abs(encoderDevice->velocity_positionUnitsPerSecond) > 0.03;
     //set motor device load
     servoMotorDevice->load = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
 
     //assign public input data
-    actualPosition->set(servoMotorDevice->getPosition());
-    actualVelocity->set(servoMotorDevice->getVelocity());
+    actualPosition->set(encoderDevice->getPosition());
+    actualVelocity->set(encoderDevice->getVelocity());
     actualLoad->set(servoMotorDevice->getLoad());
     bool DI0 = (_IO_act & 0x1) != 0x0;
     digitalIn0->set(b_invertDI0 ? !DI0 : DI0);
@@ -950,8 +950,8 @@ void Lexium32::downloadEncoderSettings() {
 
     float lowEncoderRange, highEncoderRange;
     getEncoderWorkingRange(lowEncoderRange, highEncoderRange);
-    servoMotorDevice->rangeMin_positionUnits = lowEncoderRange;
-    servoMotorDevice->rangeMax_positionUnits = highEncoderRange;
+    encoderDevice->rangeMin_positionUnits = lowEncoderRange;
+    encoderDevice->rangeMax_positionUnits = highEncoderRange;
         
     encoderSettingsDownloadState = DataTransferState::State::SUCCEEDED;
     return;
@@ -1259,7 +1259,7 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
             break;
     }
     encoderSettingsXML->SetAttribute("RangeShifted", b_encoderRangeShifted);
-    encoderSettingsXML->SetAttribute("PositionOffset_revolutions", servoMotorDevice->positionOffset_positionUnits);
+    encoderSettingsXML->SetAttribute("PositionOffset_revolutions", encoderDevice->positionOffset_positionUnits);
 
     return true;
 }
@@ -1370,11 +1370,11 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
             break;
     }
     if (encoderSettingsXML->QueryBoolAttribute("RangeShifted", &b_encoderRangeShifted) != XML_SUCCESS) return Logger::warn("Could not find encoder range shift attribute");
-    if (encoderSettingsXML->QueryDoubleAttribute("PositionOffset_revolutions", &servoMotorDevice->positionOffset_positionUnits) != XML_SUCCESS) return Logger::warn("Could not find position offset attribute");
+    if (encoderSettingsXML->QueryDoubleAttribute("PositionOffset_revolutions", &encoderDevice->positionOffset_positionUnits) != XML_SUCCESS) return Logger::warn("Could not find position offset attribute");
     float lowEncoderRange, highEncoderRange;
     getEncoderWorkingRange(lowEncoderRange, highEncoderRange);
-    servoMotorDevice->rangeMin_positionUnits = lowEncoderRange;
-    servoMotorDevice->rangeMax_positionUnits = highEncoderRange;
+    encoderDevice->rangeMin_positionUnits = lowEncoderRange;
+    encoderDevice->rangeMax_positionUnits = highEncoderRange;
     
     return true;
 }

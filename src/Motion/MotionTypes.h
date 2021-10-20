@@ -83,7 +83,7 @@ std::vector<PositionControl>& getPositionControlTypes();
 PositionControl* getPositionControlType(PositionControl::Type t);
 PositionControl* getPositionControlType(const char* s);
 
-struct CommandType {
+struct MotionCommand {
 	enum class Type {
 		POSITION_COMMAND,
 		VELOCITY_COMMAND
@@ -92,9 +92,9 @@ struct CommandType {
 	const char displayName[64];
 	const char saveName[64];
 };
-std::vector<CommandType>& getCommandTypes();
-CommandType* getCommandType(CommandType::Type t);
-CommandType* getCommandType(const char*);
+std::vector<MotionCommand>& getCommandTypes();
+MotionCommand* getMotionCommand(MotionCommand::Type t);
+MotionCommand* getMotionCommand(const char*);
 
 struct HomingDirection {
 	enum class Type {

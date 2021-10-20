@@ -236,7 +236,7 @@ void SingleAxisMachine::controlsGui() {
 			feedbackPosition_deviceUnits = feedbackDevice->getPosition();
 		}
 		else if (needsServoActuatorDevice()) {
-			std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
+			std::shared_ptr<ActuatorDevice> servo = getServoActuatorDevice();
 			deviceReady = servo->isReady();
 			range = servo->getPositionInRange();
 			rangeMin_deviceUnits = servo->getMinPosition();
@@ -518,61 +518,61 @@ void SingleAxisMachine::settingsGui() {
 
 	//---------------------- POSITION FEEDBACK ---------------------------
 
-	if (needsPositionFeedbackDevice()) {
+	
 
-		ImGui::Separator();
+	ImGui::Separator();
 
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Position Feedback");
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Position Feedback");
+	ImGui::PopFont();
+
+	if (isPositionFeedbackDeviceConnected()) {
+		std::shared_ptr<PositionFeedbackDevice> feedbackDevice = getPositionFeedbackDevice();
+		PositionFeedback* feedbackType = getPositionFeedbackType(feedbackDevice->feedbackType);
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("Device:");
 		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::Text("%s on %s", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
 
-		if (isPositionFeedbackDeviceConnected()) {
-			std::shared_ptr<PositionFeedbackDevice> feedbackDevice = getPositionFeedbackDevice();
-			PositionFeedback* feedbackType = getPositionFeedbackType(feedbackDevice->feedbackType);
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("Device:");
-			ImGui::PopFont();
-			ImGui::SameLine();
-			ImGui::Text("%s on %s", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("Type:");
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::Text("%s", feedbackType->displayName);
 
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("Type:");
-			ImGui::PopFont();
-			ImGui::SameLine();
-			ImGui::Text("%s", feedbackType->displayName);
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("Position Unit:");
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::Text("%s", getPositionUnit(feedbackDevice->positionUnit)->displayNamePlural);
 
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("Position Unit:");
-			ImGui::PopFont();
-			ImGui::SameLine();
-			ImGui::Text("%s", getPositionUnit(feedbackDevice->positionUnit)->displayNamePlural);
-
-			switch (feedbackDevice->feedbackType) {
-				case PositionFeedback::Type::INCREMENTAL_FEEDBACK:
-					ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-					ImGui::TextWrapped("With incremental position feedback, the homing routine needs to be executed on each system power cycle");
-					ImGui::PopStyleColor();
-					break;
-				default: break;
-			}
-
-			if (feedbackAndActuatorConversionIdentical) BEGIN_DISABLE_IMGUI_ELEMENT
-			ImGui::Text("%s %s per Machine %s :", feedbackDevice->getName(), getPositionUnit(feedbackDevice->positionUnit)->displayNamePlural, getPositionUnit(machinePositionUnit)->displayName);
-			ImGui::InputDouble("##feedbackCoupling", &feedbackUnitsPerMachineUnits);
-			if (feedbackUnitsPerMachineUnits < 0.0) feedbackUnitsPerMachineUnits = 0.0;
-			if (feedbackAndActuatorConversionIdentical) END_DISABLE_IMGUI_ELEMENT
-
+		switch (feedbackDevice->feedbackType) {
+			case PositionFeedback::Type::INCREMENTAL_FEEDBACK:
+				ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
+				ImGui::TextWrapped("With incremental position feedback, the homing routine needs to be executed on each system power cycle");
+				ImGui::PopStyleColor();
+				break;
+			default: break;
 		}
-		else {
-			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-			ImGui::TextWrapped("No Feedback device connected.");
-			ImGui::PopStyleColor();
-		}
+    
+    if (feedbackAndActuatorConversionIdentical) BEGIN_DISABLE_IMGUI_ELEMENT
+    ImGui::Text("%s %s per Machine %s :", feedbackDevice->getName(), getPositionUnit(feedbackDevice->positionUnit)->displayNamePlural, getPositionUnit(machinePositionUnit)->displayName);
+    ImGui::InputDouble("##feedbackCoupling", &feedbackUnitsPerMachineUnits);
+    if (feedbackUnitsPerMachineUnits < 0.0) feedbackUnitsPerMachineUnits = 0.0;
+    if (feedbackAndActuatorConversionIdentical) END_DISABLE_IMGUI_ELEMENT
+
 	}
+	else {
+		ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
+		ImGui::TextWrapped("No Feedback device connected.");
+		ImGui::PopStyleColor();
+	}
+	
 
 	//---------------------- ACTUATOR -------------------------
 
-	if (needsActuatorDevice()) {
+	
 
 		ImGui::Separator();
 
