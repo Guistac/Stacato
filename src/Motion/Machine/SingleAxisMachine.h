@@ -101,7 +101,7 @@ public:
 	bool isMoving();
 	double getLowAxisPositionLimit();
 	double getHighAxisPositionLimit();
-	double getAxisPositionProgress();
+	double getPositionProgress();
 	double getLowFeedbackPositionLimit();
 	double getHighFeedbackPositionLimit();
 	void setCurrentAxisPosition(double distanceFromAxisOrigin);

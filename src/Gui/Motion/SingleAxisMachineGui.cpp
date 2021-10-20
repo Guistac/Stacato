@@ -147,9 +147,9 @@ void SingleAxisMachine::controlsGui() {
 		sprintf(positionString, "Machine Disabled");
 	}
 	else {
-		minPosition = getLowAxisPositionLimit();
-		maxPosition = getHighAxisPositionLimit();
-		positionProgress = getAxisPositionProgress();
+		minPosition = getLowPositionLimit();
+		maxPosition = getHighPositionLimit();
+		positionProgress = getPositionProgress();
 
 		if (positionProgress <= 1.0 && positionProgress >= 0.0) {
 			sprintf(positionString, "%.2f %s", actualPosition_machineUnits, getPositionUnit(machinePositionUnit)->shortForm);
@@ -385,7 +385,7 @@ void SingleAxisMachine::controlsGui() {
 				if (ImGui::Button("Capture Negative Limit", tripleButtonSize)) setCurrentPositionAsNegativeLimit();
 			if (disableCaptureLowerLimit) END_DISABLE_IMGUI_ELEMENT
 				ImGui::SameLine();
-			if (ImGui::Button("Capture Origin", tripleButtonSize)) setCurrentAxisPosition(0.0);
+			if (ImGui::Button("Capture Origin", tripleButtonSize)) setCurrentPosition(0.0);
 			ImGui::SameLine();
 			if (disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
 				if (ImGui::Button("Capture Positive Limit", tripleButtonSize)) setCurrentPositionAsPositiveLimit();
@@ -935,9 +935,9 @@ void SingleAxisMachine::settingsGui() {
 	ImGui::Text("Limit Axis to Position Feedback Working Range");
 
 	ImGui::Text("Axis Is Limited between %.3f %s and %.3f %s",
-		getLowAxisPositionLimit(),
+		getLowPositionLimit(),
 		getPositionUnit(machinePositionUnit)->displayNamePlural,
-		getHighAxisPositionLimit(),
+		getHighPositionLimit(),
 		getPositionUnit(machinePositionUnit)->displayNamePlural);
 
 }
