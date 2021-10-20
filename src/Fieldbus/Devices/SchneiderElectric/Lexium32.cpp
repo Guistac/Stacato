@@ -365,12 +365,18 @@ void Lexium32::readInputs() {
     actualPosition->set(servoMotorDevice->getPosition());
     actualVelocity->set(servoMotorDevice->getVelocity());
     actualLoad->set(servoMotorDevice->getLoad());
-    digitalIn0->set((_IO_act & 0x1) != 0x0);
-    digitalIn1->set((_IO_act & 0x2) != 0x0);
-    digitalIn2->set((_IO_act & 0x4) != 0x0);
-    digitalIn3->set((_IO_act & 0x8) != 0x0);
-    digitalIn4->set((_IO_act & 0x10) != 0x0);
-    digitalIn5->set((_IO_act & 0x20) != 0x0);
+    bool DI0 = (_IO_act & 0x1) != 0x0;
+    digitalIn0->set(b_invertDI0 ? !DI0 : DI0);
+    bool DI1 = (_IO_act & 0x2) != 0x0;
+    digitalIn1->set(b_invertDI1 ? !DI1 : DI1);
+    bool DI2 = (_IO_act & 0x4) != 0x0;
+    digitalIn2->set(b_invertDI2 ? !DI2 : DI2);
+    bool DI3 = (_IO_act & 0x8) != 0x0;
+    digitalIn3->set(b_invertDI3 ? !DI3 : DI3);
+    bool DI4 = (_IO_act & 0x10) != 0x0;
+    digitalIn4->set(b_invertDI4 ? !DI4 : DI4);
+    bool DI5 = (_IO_act & 0x20) != 0x0;
+    digitalIn5->set(b_invertDI5 ? !DI5 : DI5);
 
     //set actuator subdevice
     servoMotorDevice->b_ready = actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION && (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled || state == State::QuickStopActive);
@@ -492,9 +498,9 @@ void Lexium32::prepareOutputs(){
     if (operatingMode != nullptr) operatingModeID = operatingMode->id;
     DCOMopmode = operatingModeID;
 
-    if (!servoMotorLink->isConnected()) servoMotorDevice->setPositionCommand(servoMotorDevice->getPosition());
+    if (!servoMotorLink->isConnected()) servoMotorDevice->setCommand(servoMotorDevice->getPosition());
     //get the position command from the servo actuator subdevice
-    PPp_target = (int32_t)(servoMotorDevice->getPositionCommand() * positionUnitsPerRevolution);
+    PPp_target = (int32_t)(servoMotorDevice->getCommand() * positionUnitsPerRevolution);
     //don't forget to convert from rotations per second to rpm
     PVv_target = (int32_t)(profileVelocity_rps * velocityUnitsPerRpm * 60.0);
 
@@ -1214,6 +1220,14 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
     positiveLimitSwitchXML->SetAttribute("Pin", getInputPin(positiveLimitSwitchPin)->saveName);
     if (positiveLimitSwitchPin != InputPin::Pin::NONE) positiveLimitSwitchXML->SetAttribute("NormallyClosed", b_positiveLimitSwitchNormallyClosed);
 
+    XMLElement* pinInversionXML = xml->InsertNewChildElement("DigitalPinInversion");
+    pinInversionXML->SetAttribute("DI0", b_invertDI0);
+    pinInversionXML->SetAttribute("DI1", b_invertDI1);
+    pinInversionXML->SetAttribute("DI2", b_invertDI2);
+    pinInversionXML->SetAttribute("DI3", b_invertDI3);
+    pinInversionXML->SetAttribute("DI4", b_invertDI4);
+    pinInversionXML->SetAttribute("DI5", b_invertDI5);
+
     XMLElement* encoderSettingsXML = xml->InsertNewChildElement("EncoderSettings");
     encoderSettingsXML->SetAttribute("Assignement", getEncoderAssignement(encoderAssignement)->saveName);
     switch (encoderAssignement) {
@@ -1291,6 +1305,15 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
     if (positiveLimitSwitchPin != InputPin::Pin::NONE) {
         if (positiveLimitSwitchXML->QueryBoolAttribute("NormallyClosed", &b_positiveLimitSwitchNormallyClosed) != XML_SUCCESS) return Logger::warn("Could not read normally closed attribute of positive limit switch");
     }
+
+    XMLElement* pinInversionXML = xml->FirstChildElement("DigitalPinInversion");
+    if (pinInversionXML == nullptr) return Logger::warn("Could not find pin inversion attribute");
+    if (pinInversionXML->QueryBoolAttribute("DI0", &b_invertDI0) != XML_SUCCESS) return Logger::warn("Could not find inver DI0 attribute");
+    if (pinInversionXML->QueryBoolAttribute("DI1", &b_invertDI1) != XML_SUCCESS) return Logger::warn("Could not find inver DI1 attribute");
+    if (pinInversionXML->QueryBoolAttribute("DI2", &b_invertDI2) != XML_SUCCESS) return Logger::warn("Could not find inver DI2 attribute");
+    if (pinInversionXML->QueryBoolAttribute("DI3", &b_invertDI3) != XML_SUCCESS) return Logger::warn("Could not find inver DI3 attribute");
+    if (pinInversionXML->QueryBoolAttribute("DI4", &b_invertDI4) != XML_SUCCESS) return Logger::warn("Could not find inver DI4 attribute");
+    if (pinInversionXML->QueryBoolAttribute("DI5", &b_invertDI5) != XML_SUCCESS) return Logger::warn("Could not find inver DI5 attribute");
 
     XMLElement* encoderSettingsXML = xml->FirstChildElement("EncoderSettings");
     if (encoderSettingsXML == nullptr) return Logger::warn("Could not find Encoder Settings Attribute");

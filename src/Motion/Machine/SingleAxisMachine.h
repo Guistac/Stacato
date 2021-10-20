@@ -50,17 +50,17 @@ public:
 	double actuatorUnitsPerMachineUnits = 0.0;
 	bool feedbackAndActuatorConversionIdentical = false;
 
-	//Kinematic Limits
-	double velocityLimit_machineUnitsPerSecond = 0.0;
-	double accelerationLimit_machineUnitsPerSecondSquared = 0.0;
-
-	//Reference and Homing Type
+	//Reference Signals and Homing
 	PositionReferenceSignal::Type positionReferenceSignal = PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT;
 	void setPositionReferenceSignalType(PositionReferenceSignal::Type type);
 	HomingDirection::Type homingDirection = HomingDirection::Type::NEGATIVE;
 	double homingVelocity_machineUnitsPerSecond = 0.0;
 
-	//Reference Deviation and Homing Velocity
+	//Kinematic Limits
+	double velocityLimit_machineUnitsPerSecond = 0.0;
+	double accelerationLimit_machineUnitsPerSecondSquared = 0.0;
+
+	//Position Limits
 	double maxPositiveDeviation_machineUnits = 0.0;
 	double maxNegativeDeviation_machineUnits = 0.0;
 	bool limitToFeedbackWorkingRange = true;
@@ -94,7 +94,7 @@ public:
 	double actualPosition_machineUnits;
 	double actualVelocity_machineUnitsPerSecond;
 
-	bool isActuatorMoving();
+	bool isMoving();
 	double getLowAxisPositionLimit();
 	double getHighAxisPositionLimit();
 	double getAxisPositionProgress();
@@ -103,6 +103,7 @@ public:
 	void setCurrentAxisPosition(double distanceFromAxisOrigin);
 	void setCurrentPositionAsNegativeLimit();
 	void setCurrentPositionAsPositiveLimit();
+	void scaleFeedbackToMatchPosition(double position_axisUnits);
 
 	enum class ControlMode {
 		VELOCITY_TARGET,

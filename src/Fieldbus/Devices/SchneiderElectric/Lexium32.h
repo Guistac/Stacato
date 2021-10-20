@@ -155,6 +155,13 @@ public:
     InputPin::Pin positiveLimitSwitchPin = InputPin::Pin::NONE;
     bool b_positiveLimitSwitchNormallyClosed = false;
 
+    bool b_invertDI0 = false;
+    bool b_invertDI1 = false;
+    bool b_invertDI2 = false;
+    bool b_invertDI3 = false;
+    bool b_invertDI4 = false;
+    bool b_invertDI5 = false;
+
     void uploadPinAssignements();
     DataTransferState::State pinAssignementUploadState = DataTransferState::State::NO_TRANSFER;
     void downloadPinAssignements();

@@ -9,6 +9,7 @@
 #include "Gui/Framework/Fonts.h"
 #include "NodeGraph/Device.h"
 #include "Gui/Framework/Colors.h"
+#include "Gui/Utilities/HelpMarker.h"
 
 
 void SingleAxisMachine::miniatureGui() {
@@ -149,12 +150,18 @@ void SingleAxisMachine::controlsGui() {
 		minPosition = getLowAxisPositionLimit();
 		maxPosition = getHighAxisPositionLimit();
 		positionProgress = getAxisPositionProgress();
-		sprintf(positionString, "%.2f %s", actualPosition_machineUnits, getPositionUnit(machinePositionUnit)->shortForm);
-		if (actualPosition_machineUnits < minPosition || actualPosition_machineUnits > maxPosition)
+
+		if (positionProgress <= 1.0 && positionProgress >= 0.0) {
+			sprintf(positionString, "%.2f %s", actualPosition_machineUnits, getPositionUnit(machinePositionUnit)->shortForm);
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+		}
+		else {
+			positionProgress = 1.0;
+			sprintf(positionString, "Axis out of limits : %.2f %s", actualPosition_machineUnits, getPositionUnit(machinePositionUnit)->shortForm);
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
-		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+		}
 	}
-	ImGui::Text("Current Position : (in range from %.2f%s to %.2f%s)", minPosition, getPositionUnitStringShort(machinePositionUnit), maxPosition, getPositionUnitStringShort(machinePositionUnit));
+	ImGui::Text("Current Position : (in range from %.2f %s to %.2f %s)", minPosition, getPositionUnitStringShort(machinePositionUnit), maxPosition, getPositionUnitStringShort(machinePositionUnit));
 	ImGui::ProgressBar(positionProgress, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), positionString);
 	ImGui::PopStyleColor();
 	
@@ -266,30 +273,48 @@ void SingleAxisMachine::controlsGui() {
 	ImGui::Text("Origin and Limit Setting");
 	ImGui::PopFont();
 
-	static char positionScalingString[32];
-	sprintf(positionScalingString, "%.3f %s", machineScalingPosition_machineUnits, getPositionUnit(machinePositionUnit)->shortForm);
+	ImGui::SameLine();
+	if (beginHelpMarker("(help)")) {
+		switch (positionReferenceSignal) {
+			case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::Text("Signal At Lower Limit");
+				ImGui::PopFont();
+				ImGui::TextWrapped("The Homing Sequence will move the axis in the negative direction until the negative limit signal is triggered."
+					"\nThe Axis Origin will be set at the negative limit signal."
+					"\nThe Positive Limit is set by manually moving the axis to the desired position and capturing it as the limit.");
+				break;
+			case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::Text("Signal At Lower and Upper Limit");
+				ImGui::PopFont();
+				ImGui::TextWrapped("The Homing Sequence will first move the axis in the %s direction, then in the %s direction until each limit signal is triggered."
+					"\nThe Axis Origin will be set at the negative limit signal."
+					"\nThe Positive Limit will be set at the positive limit signal.",
+					homingDirection == HomingDirection::Type::NEGATIVE ? "Negative" : "Positive",
+					homingDirection == HomingDirection::Type::NEGATIVE ? "Positive" : "Negative");
+				break;
+			case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
+				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::Text("Signal At Origin");
+				ImGui::PopFont();
+				ImGui::TextWrapped("The Homing Sequence will move the axis in the %s direction until the reference signal is triggered."
+					"\nThe Axis Origin will be set at the reference signal."
+					"\nThe Positive and Negative limits can be set by manually moving the axis to the desired limits and capturing the positions.",
+					homingDirection == HomingDirection::Type::NEGATIVE ? "Negative" : "Positive");
+				break;
+			case PositionReferenceSignal::Type::NO_SIGNAL:
+				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::Text("No Position Reference Signal");
+				ImGui::PopFont();
+				ImGui::TextWrapped("No Homing Sequence is available."
+					"\nThe Axis origin and limits have to be set manually.");
+				break;
+		}
+		endHelpMarker();
+	}
 
 	glm::vec2 homingButtonSize((widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, ImGui::GetTextLineHeight() * 1.5);
-
-	switch (positionReferenceSignal) {
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-			ImGui::TextWrapped("The Homing Sequence will move the axis in the negative direction until the negative limit signal is triggered."
-			"\nThe Axis Origin will be set at the negative limit signal."
-			"\nThe Positive Limit is set by manually moving the axis to the desired position and capturing it as the limit.");
-			break;
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-			ImGui::TextWrapped("The Homing Sequence will move the axis in both directions until each limit signal is triggered."
-				"\nThe Axis Origin will be set at the negative limit signal."
-				"\nThe Positive Limit will be set at the positive limit signal.");
-			break;
-		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
-			ImGui::TextWrapped("The Homing Sequence will move the axis until the reference signal is triggered."
-				"\nThe Axis Origin will be set at the reference signal."
-				"\nThe Positive and Negative limits can be set by manually moving the axis to the desired limits and capturing the positions.");
-			break;
-		default:
-			break;
-	}
 
 	switch (positionReferenceSignal) {
 		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
@@ -303,48 +328,107 @@ void SingleAxisMachine::controlsGui() {
 				if (!homing) BEGIN_DISABLE_IMGUI_ELEMENT
 				if (ImGui::Button("Stop Homing", homingButtonSize)) cancelHoming();
 				if (!homing) END_DISABLE_IMGUI_ELEMENT
-				if (isHoming()) ImGui::Text("Homing Progress: %s", getHomingStep(homingStep)->displayName);
-				else if (didHomingSucceed()) ImGui::Text("Homing Finished");
-				else if (didHomingFail()) ImGui::Text("Homing Failed: %s", getHomingError(homingError)->displayName);
-				else ImGui::Text("No Homing Ongoing");
+
+				static char homingStatusString[128];
+				glm::vec2 homingStatusSize(widgetWidth, ImGui::GetTextLineHeight() * 1.5);
+				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+				if (isHoming()) {
+					sprintf(homingStatusString, "Homing Status: %s", getHomingStep(homingStep)->displayName);
+					ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+				}
+				else if (didHomingSucceed()){
+					sprintf(homingStatusString, "Homing Succeeded");
+					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+				}
+				else if (didHomingFail()) {
+					sprintf(homingStatusString, "Homing Failed: %s", getHomingError(homingError)->displayName);
+					ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+				}
+				else {
+					sprintf(homingStatusString, "No Homing Ongoing");
+					ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
+				}
+				ImGui::Button(homingStatusString, homingStatusSize);
+				ImGui::PopItemFlag();
+				ImGui::PopStyleColor();
 			}break;
 		case PositionReferenceSignal::Type::NO_SIGNAL:
 			break;
 	}
 
-	if (isEnabled()) {
-		ImGui::Text("Low Limit: %.3f %s", getLowAxisPositionLimit(), getPositionUnit(machinePositionUnit)->shortForm);
-		ImGui::Text("High Limit: %.3f %s", getHighAxisPositionLimit(), getPositionUnit(machinePositionUnit)->shortForm);
-	}
+	glm::vec2 singleButtonSize(widgetWidth, tripleButtonSize.y);
+	glm::vec2 doubleButtonSize((widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, tripleButtonSize.y);
 
+	bool disableCaptureButtons = !isEnabled() || isMoving();
+	bool disableCaptureLowerLimit = actualPosition_machineUnits > 0.0;
+	bool disableCaptureHigherLimit = actualPosition_machineUnits < 0.0;
+	if(disableCaptureButtons) BEGIN_DISABLE_IMGUI_ELEMENT
 	switch (positionReferenceSignal) {
 		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-			if (ImGui::Button("Capture Positive Limit", homingButtonSize)) setCurrentPositionAsPositiveLimit();
+			if(disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+			if (ImGui::Button("Capture Positive Limit", singleButtonSize)) setCurrentPositionAsPositiveLimit();
+			if(disableCaptureHigherLimit) END_DISABLE_IMGUI_ELEMENT
 			break;
 		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
 			break;
 		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
-			if (ImGui::Button("Capture Positive Limit", homingButtonSize)) setCurrentPositionAsNegativeLimit();
-			if (ImGui::Button("Capture Negative Limit", homingButtonSize)) setCurrentPositionAsPositiveLimit();
+			if (disableCaptureLowerLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+			if (ImGui::Button("Capture Negative Limit", doubleButtonSize)) setCurrentPositionAsNegativeLimit();
+			if (disableCaptureLowerLimit) END_DISABLE_IMGUI_ELEMENT
+			ImGui::SameLine();
+			if (disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+			if (ImGui::Button("Capture Positive Limit", doubleButtonSize)) setCurrentPositionAsPositiveLimit();
+			if (disableCaptureHigherLimit) END_DISABLE_IMGUI_ELEMENT
 			break;
 		case PositionReferenceSignal::Type::NO_SIGNAL:
-			if (ImGui::Button("Capture Origin", homingButtonSize)) setCurrentAxisPosition(0.0);
+			if (disableCaptureLowerLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+			if (ImGui::Button("Capture Negative Limit", tripleButtonSize)) setCurrentPositionAsNegativeLimit();
+			if (disableCaptureLowerLimit) END_DISABLE_IMGUI_ELEMENT
+			ImGui::SameLine();
+			if (ImGui::Button("Capture Origin", tripleButtonSize)) setCurrentAxisPosition(0.0);
+			ImGui::SameLine();
+			if (disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+			if (ImGui::Button("Capture Positive Limit", tripleButtonSize)) setCurrentPositionAsPositiveLimit();
+			if (disableCaptureHigherLimit) END_DISABLE_IMGUI_ELEMENT
 			break;
 	}
+	if (disableCaptureButtons) END_DISABLE_IMGUI_ELEMENT
+
 	
-	/*
 	ImGui::Separator();
 
 	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Feedback Coupling Setting");
+	ImGui::Text("Position Feedback Scaling");
 	ImGui::PopFont();
 
-	ImGui::TextWrapped("After setting the origin");
-	ImGui::SetNextItemWidth(homingButtonSize.x);
-	ImGui::InputDouble("##posScal", &machineScalingPosition_machineUnits, 0.0, 0.0, positionScalingString);
 	ImGui::SameLine();
-	if (ImGui::Button("Set Position", ImGui::GetItemRectSize())) {}
-	*/
+	if (beginHelpMarker("(help)")) {
+
+		ImGui::TextWrapped("This utility allows the setting of feedback to axis unit conversion ratio."
+							"\nMove the axis to its origin (0.0) and physically mark down the position of the axis."
+							"\nMove the axis to another position and measure the distance to the initial mark."
+							"\nEnter the measured distance into the utility and click the \"Set Scaling\" Button."
+							"\nThe display will now match the actual position and the conversion ratio will be set correctly."
+							"\nLarger and more precise measured distance will yield a greater precision in the ratio.");
+
+		endHelpMarker();
+	}
+
+	static char scalingString[64];
+	sprintf(scalingString, "%.4f %s", machineScalingPosition_machineUnits, getPositionUnit(machinePositionUnit)->shortForm);
+
+	ImGui::TextWrapped("Current Axis Position Relative to the origin");
+	ImGui::SetNextItemWidth(doubleButtonSize.x);
+	ImGui::InputDouble("##posScal", &machineScalingPosition_machineUnits, 0.0, 0.0, scalingString);
+	ImGui::SameLine();
+
+	bool disableSetScaling = (machineScalingPosition_machineUnits > 0.0 && actualPosition_machineUnits < 0.0)
+		|| (machineScalingPosition_machineUnits < 0.0 && actualPosition_machineUnits > 0.0)
+		|| machineScalingPosition_machineUnits == 0.0
+		|| isMoving();
+	if(disableSetScaling) BEGIN_DISABLE_IMGUI_ELEMENT
+	if (ImGui::Button("Set Scaling", ImGui::GetItemRectSize())) scaleFeedbackToMatchPosition(machineScalingPosition_machineUnits);
+	if(disableSetScaling) END_DISABLE_IMGUI_ELEMENT
 
 	if (disableManualControls) END_DISABLE_IMGUI_ELEMENT
 }
@@ -384,6 +468,8 @@ void SingleAxisMachine::settingsGui() {
 		}
 		ImGui::EndCombo();
 	}
+
+	float widgetWidth = ImGui::GetItemRectSize().x;
 
 	ImGui::Text("Position Unit :");
 	if (ImGui::BeginCombo("##AxisUnit", getPositionUnit(machinePositionUnit)->displayName)) {
@@ -473,6 +559,7 @@ void SingleAxisMachine::settingsGui() {
 			if (feedbackAndActuatorConversionIdentical) BEGIN_DISABLE_IMGUI_ELEMENT
 			ImGui::Text("%s %s per Machine %s :", feedbackDevice->getName(), getPositionUnit(feedbackDevice->positionUnit)->displayNamePlural, getPositionUnit(machinePositionUnit)->displayName);
 			ImGui::InputDouble("##feedbackCoupling", &feedbackUnitsPerMachineUnits);
+			if (feedbackUnitsPerMachineUnits < 0.0) feedbackUnitsPerMachineUnits = 0.0;
 			if (feedbackAndActuatorConversionIdentical) END_DISABLE_IMGUI_ELEMENT
 
 		}
@@ -515,6 +602,7 @@ void SingleAxisMachine::settingsGui() {
 			ImGui::SameLine();
 			ImGui::Text("Actuator and Feedback Coupling are identical");
 
+			if (actuatorUnitsPerMachineUnits < 0.0) actuatorUnitsPerMachineUnits = 0.0;
 			if (feedbackAndActuatorConversionIdentical) feedbackUnitsPerMachineUnits = actuatorUnitsPerMachineUnits;
 		}
 		else {
@@ -568,6 +656,7 @@ void SingleAxisMachine::settingsGui() {
 
 			ImGui::Text("%s %s per Machine %s :", servo->getName(), getPositionUnit(servo->positionUnit)->displayNamePlural, getPositionUnit(machinePositionUnit)->displayName);
 			ImGui::InputDouble("##servoActuatorCoupling", &actuatorUnitsPerMachineUnits);
+			if (actuatorUnitsPerMachineUnits < 0.0) actuatorUnitsPerMachineUnits = 0.0;
 			feedbackUnitsPerMachineUnits = actuatorUnitsPerMachineUnits;
 
 		}
@@ -607,6 +696,7 @@ void SingleAxisMachine::settingsGui() {
 		}
 		actuatorVelocityLimit_machineUnitsPerSecond = actuatorVelocityLimit_actuatorUnitsPerSecond / actuatorUnitsPerMachineUnits;
 		actuatorAccelerationLimit_machineUnitsPerSecondSquared = actuatorAccelerationLimit_actuatorUnitsPerSecondSquared / actuatorUnitsPerMachineUnits;
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 		ImGui::TextWrapped(u8"Max actuator velocity is %.1f %s/s and max acceleration is %.1f %s/s²",
 			actuatorVelocityLimit_actuatorUnitsPerSecond,
 			getPositionUnit(actuatorUnit)->shortForm,
@@ -617,6 +707,7 @@ void SingleAxisMachine::settingsGui() {
 			getPositionUnit(machinePositionUnit)->shortForm,
 			actuatorAccelerationLimit_machineUnitsPerSecondSquared,
 			getPositionUnit(machinePositionUnit)->shortForm);
+		ImGui::PopStyleColor();
 		clamp(velocityLimit_machineUnitsPerSecond, 0.0, actuatorVelocityLimit_machineUnitsPerSecond);
 		clamp(accelerationLimit_machineUnitsPerSecondSquared, 0.0, actuatorAccelerationLimit_machineUnitsPerSecondSquared);
 		clamp(defaultManualVelocity_machineUnitsPerSecond, 0.0, actuatorVelocityLimit_machineUnitsPerSecond);
@@ -649,73 +740,79 @@ void SingleAxisMachine::settingsGui() {
 
 	ImGui::Separator();
 
-	//----------------- POSITION REFERENCES AND HOMING -----------------
+	//----------------- REFERENCE SIGNALS, ORIGN AND HOMING -----------------
 
 	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Position Reference and Limits");
+	ImGui::Text("Reference Signals & Homing");
 	ImGui::PopFont();
 
 	static auto showPositionReferenceDescription = [](PositionReferenceSignal::Type type) {
 		switch (type) {
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-			ImGui::TextWrapped("Single Limit Signal at the negative end of the machine travel."
-				"\nHoming will move the machine in the negative direction"
-				"\Axis Origin is set at the low limit.");
-			break;
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-			ImGui::TextWrapped("Two Limit Signals at each end of the axis travel."
-				"\nHoming will first move the axis in the specified direction, then in the other direction"
-				"\Axis Origin is set at the low limit.");
-			break;
-		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
-			ImGui::TextWrapped("Single Reference Signal inside the axis travel range."
-				"\nHoming will find the signal using the specified direction."
-				"\nAxis Origin is set at the reference signal.");
-			break;
-		case PositionReferenceSignal::Type::NO_SIGNAL:
-			ImGui::TextWrapped("No reference Signal, the machine is positionned using only feedback data."
-				"\Axis origin is set by manually moving the machine to the desired position and resetting the position feedback.");
-			break;
+			case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+				ImGui::TextWrapped("Single Limit Signal at the negative end of the machine travel."
+					"\nHoming will move the machine in the negative direction"
+					"\nAxis Origin is set at the low limit.");
+				break;
+			case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+				ImGui::TextWrapped("Two Limit Signals at each end of the axis travel."
+					"\nHoming will first move the axis in the specified direction, then in the other direction"
+					"\nAxis Origin is set at the low limit.");
+				break;
+			case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
+				ImGui::TextWrapped("Single Reference Signal inside the axis travel range."
+					"\nHoming will find the signal using the specified direction."
+					"\nAxis Origin is set at the reference signal.");
+				break;
+			case PositionReferenceSignal::Type::NO_SIGNAL:
+				ImGui::TextWrapped("No reference Signal, the machine is positionned using only feedback data."
+					"\nAxis origin is set by manually moving the machine to the desired position and capturing the origin.");
+				break;
 		}
 	};
 
-	if (ImGui::BeginCombo("##PositionReference", getPositionReferenceSignal(positionReferenceSignal)->displayName)) {
+	ImGui::Text("Reference Signal Type");
+	if (ImGui::BeginCombo("##MovementType", getPositionReferenceSignal(positionReferenceSignal)->displayName)) {
 		switch (machinePositionUnitType) {
-		case PositionUnit::Type::LINEAR:
-			for (PositionReferenceSignal& reference : getLinearPositionReferenceSignals()) {
-				bool selected = positionReferenceSignal == reference.type;
-				if (ImGui::Selectable(reference.displayName, selected)) {
-					setPositionReferenceSignalType(reference.type);
+			case PositionUnit::Type::LINEAR:
+				for (PositionReferenceSignal& reference : getLinearPositionReferenceSignals()) {
+					bool selected = positionReferenceSignal == reference.type;
+					if (ImGui::Selectable(reference.displayName, selected)) {
+						setPositionReferenceSignalType(reference.type);
+					}
+					if (ImGui::IsItemHovered()) {
+						ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
+						ImGui::BeginTooltip();
+						showPositionReferenceDescription(reference.type);
+						ImGui::EndTooltip();
+					}
 				}
-				if (ImGui::IsItemHovered()) {
-					ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
-					ImGui::BeginTooltip();
-					showPositionReferenceDescription(reference.type);
-					ImGui::EndTooltip();
+				break;
+			case PositionUnit::Type::ANGULAR:
+				for (PositionReferenceSignal& reference : getAngularPositionReferenceSignals()) {
+					bool selected = positionReferenceSignal == reference.type;
+					if (ImGui::Selectable(reference.displayName, selected)) {
+						setPositionReferenceSignalType(reference.type);
+					}
+					if (ImGui::IsItemHovered()) {
+						ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
+						ImGui::BeginTooltip();
+						showPositionReferenceDescription(reference.type);
+						ImGui::EndTooltip();
+					}
 				}
-			}
-			break;
-		case PositionUnit::Type::ANGULAR:
-			for (PositionReferenceSignal& reference : getAngularPositionReferenceSignals()) {
-				bool selected = positionReferenceSignal == reference.type;
-				if (ImGui::Selectable(reference.displayName, selected)) {
-					setPositionReferenceSignalType(reference.type);
-				}
-				if (ImGui::IsItemHovered()) {
-					ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
-					ImGui::BeginTooltip();
-					showPositionReferenceDescription(reference.type);
-					ImGui::EndTooltip();
-				}
-			}
-			break;
+				break;
 		}
 		ImGui::EndCombo();
 	}
 
-	bool showPositionReferenceSettings = true;
+
 	if (needsReferenceDevice()) {
-		if (isReferenceDeviceConnected()) {
+		if (!isReferenceDeviceConnected()) {
+			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
+			ImGui::TextWrapped("No Reference Device connected.");
+			ImGui::PopStyleColor();
+		}
+		else {
 			std::shared_ptr<GpioDevice> gpioDevice = getReferenceDevice();
 			ImGui::PushFont(Fonts::robotoBold15);
 			ImGui::Text("Reference Device:");
@@ -723,45 +820,32 @@ void SingleAxisMachine::settingsGui() {
 			ImGui::SameLine();
 			ImGui::Text("%s on %s", gpioDevice->getName(), gpioDevice->parentDevice->getName());
 		}
-		else {
-			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-			ImGui::TextWrapped("No Reference Device connected.");
-			ImGui::PopStyleColor();
-			showPositionReferenceSettings = false;
+
+		ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
+		switch (positionReferenceSignal) {
+			case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+				if (!lowLimitSignalPin->isConnected()) ImGui::TextWrapped("No Negative Limit Signal Connected.");
+				break;
+			case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+				if (!lowLimitSignalPin->isConnected()) ImGui::TextWrapped("No Negative Limit Signal Connected.");
+				if (!highLimitSignalPin->isConnected()) ImGui::TextWrapped("No Positive Limit Signal Connected.");
+				break;
+			case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
+				if (!referenceSignalPin->isConnected()) ImGui::TextWrapped("No Reference Signal Connected.");
+				break;
 		}
-	}
+		ImGui::PopStyleColor();
 
-	if (showPositionReferenceSettings) {
-
-		static char negDevString[16];
-		sprintf(negDevString, "%.3f %s", maxNegativeDeviation_machineUnits, getPositionUnitStringShort(machinePositionUnit));
-		static char posDevString[16];
-		sprintf(posDevString, "%.3f %s", maxPositiveDeviation_machineUnits, getPositionUnitStringShort(machinePositionUnit));
 		static char homVelString[16];
 		sprintf(homVelString, "%.3f %s/s", homingVelocity_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
 
 		switch (positionReferenceSignal) {
 			case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-				ImGui::Text("Max Distance From Origin");
-				ImGui::InputDouble("##MaxDeviation", &maxPositiveDeviation_machineUnits, 0.0, 0.0, posDevString);
-				if (maxPositiveDeviation_machineUnits < 0.0) maxPositiveDeviation_machineUnits = 0.0;
 				ImGui::Text("Homing Velocity", getPositionUnit(machinePositionUnit)->displayNamePlural);
 				ImGui::InputDouble("##HomingVelocity", &homingVelocity_machineUnitsPerSecond, 0.0, 0.0, homVelString);
 				if (homingVelocity_machineUnitsPerSecond < 0) homingVelocity_machineUnitsPerSecond = abs(homingVelocity_machineUnitsPerSecond);
 				break;
 			case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-				ImGui::Text("Homing Direction");
-				if (ImGui::BeginCombo("##HomingDirection", getHomingDirection(homingDirection)->displayName)) {
-					for (HomingDirection& direction : getHomingDirections()) {
-						bool selected = homingDirection == direction.type;
-						if (ImGui::Selectable(direction.displayName, selected)) homingDirection = direction.type;
-					}
-					ImGui::EndCombo();
-				}
-				ImGui::Text("Homing Velocity", getPositionUnit(machinePositionUnit)->displayNamePlural);
-				ImGui::InputDouble("##HomingVelocity", &homingVelocity_machineUnitsPerSecond, 0.0, 0.0, homVelString);
-				if (homingVelocity_machineUnitsPerSecond < 0) homingVelocity_machineUnitsPerSecond = abs(homingVelocity_machineUnitsPerSecond);
-				break;
 			case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
 				ImGui::Text("Homing Direction");
 				if (ImGui::BeginCombo("##HomingDirection", getHomingDirection(homingDirection)->displayName)) {
@@ -771,27 +855,95 @@ void SingleAxisMachine::settingsGui() {
 					}
 					ImGui::EndCombo();
 				}
-				ImGui::Text("Max Positive Distance From Origin");
-				ImGui::InputDouble("##MaxPositiveDeviation", &maxPositiveDeviation_machineUnits, 0.0, 0.0, posDevString);
-				if (maxPositiveDeviation_machineUnits < 0.0) maxPositiveDeviation_machineUnits = 0.0;
-				ImGui::Text("Max Negative Distance From Origin");
-				ImGui::InputDouble("##MaxNegativeDeviation", &maxNegativeDeviation_machineUnits, 0.0, 0.0, negDevString);
-				if (maxNegativeDeviation_machineUnits > 0.0) maxNegativeDeviation_machineUnits = 0.0;
 				ImGui::Text("Homing Velocity", getPositionUnit(machinePositionUnit)->displayNamePlural);
 				ImGui::InputDouble("##HomingVelocity", &homingVelocity_machineUnitsPerSecond, 0.0, 0.0, homVelString);
 				if (homingVelocity_machineUnitsPerSecond < 0) homingVelocity_machineUnitsPerSecond = abs(homingVelocity_machineUnitsPerSecond);
 				break;
 			case PositionReferenceSignal::Type::NO_SIGNAL:
-				ImGui::Text("Max Positive Distance From Origin");
-				ImGui::InputDouble("##MaxPositiveDeviation", &maxPositiveDeviation_machineUnits, 0.0, 0.0, posDevString);
-				if (maxPositiveDeviation_machineUnits < 0.0) maxPositiveDeviation_machineUnits = 0.0;
-				ImGui::Text("Max Negative Distance From Origin");
-				ImGui::InputDouble("##MaxNegativeDeviation", &maxNegativeDeviation_machineUnits, 0.0, 0.0, negDevString);
-				if (maxNegativeDeviation_machineUnits > 0.0) maxNegativeDeviation_machineUnits = 0.0;
 				break;
 		}
+
+	
 	}
+
+	ImGui::Separator();
+
+	//----------------- POSITION LIMITS -----------------
+
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Position Limits");
+	ImGui::PopFont();
+
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+	switch (positionReferenceSignal) {
+		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+			ImGui::TextWrapped("Axis is limited between Lower Limit Signal (Origin) and an Upper Limit Parameter.");
+			break;
+		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+			ImGui::TextWrapped("Axis is limited between Lower and Upper Limit Signals.");
+			break;
+		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
+			ImGui::TextWrapped("Axis is limited between Lower and Upper Limit Parameters.");
+			break;
+		case PositionReferenceSignal::Type::NO_SIGNAL:
+			ImGui::TextWrapped("Axis is limited between Lower and Upper Limit Parameters.");
+			break;
+	}
+	ImGui::PopStyleColor();
+
+	static char negDevString[16];
+	sprintf(negDevString, "%.3f %s", maxNegativeDeviation_machineUnits, getPositionUnitStringShort(machinePositionUnit));
+	static char posDevString[16];
+	sprintf(posDevString, "%.3f %s", maxPositiveDeviation_machineUnits, getPositionUnitStringShort(machinePositionUnit));
+
+	switch (positionReferenceSignal) {
+		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+			ImGui::Text("Max Distance From Origin");
+			ImGui::SetNextItemWidth(halfWidgetWidth);
+			ImGui::InputDouble("##MaxDeviation", &maxPositiveDeviation_machineUnits, 0.0, 0.0, posDevString);
+			if (maxPositiveDeviation_machineUnits < 0.0) maxPositiveDeviation_machineUnits = 0.0;
+			ImGui::SameLine();
+			ImGui::Checkbox("##enableUpperLimit", &enablePositiveLimit);
+			ImGui::SameLine();
+			ImGui::Text("Enable Upper Axis Limit");
+			break;
+		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+			break;
+		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
+		case PositionReferenceSignal::Type::NO_SIGNAL:
+			ImGui::Text("Max Positive Distance From Origin");
+			ImGui::SetNextItemWidth(halfWidgetWidth);
+			ImGui::InputDouble("##MaxPositiveDeviation", &maxPositiveDeviation_machineUnits, 0.0, 0.0, posDevString);
+			if (maxPositiveDeviation_machineUnits < 0.0) maxPositiveDeviation_machineUnits = 0.0;
+			ImGui::SameLine();
+			ImGui::Checkbox("##enableUpperLimit", &enablePositiveLimit);
+			ImGui::SameLine();
+			ImGui::Text("Enable Upper Axis Limit");
+			ImGui::Text("Max Negative Distance From Origin");
+			ImGui::SetNextItemWidth(halfWidgetWidth);
+			ImGui::InputDouble("##MaxNegativeDeviation", &maxNegativeDeviation_machineUnits, 0.0, 0.0, negDevString);
+			if (maxNegativeDeviation_machineUnits > 0.0) maxNegativeDeviation_machineUnits = 0.0;
+			ImGui::SameLine();
+			ImGui::Checkbox("##enableLowerLimit", &enableNegativeLimit);
+			ImGui::SameLine();
+			ImGui::Text("Enable Lower Axis Limit");
+			break;
+	}
+
+	ImGui::Checkbox("##limitToFeedbackRange", &limitToFeedbackWorkingRange);
+	ImGui::SameLine();
+	ImGui::Text("Limit Axis to Position Feedback Working Range");
+
+	ImGui::Text("Axis Is Limited between %.3f %s and %.3f %s",
+		getLowAxisPositionLimit(),
+		getPositionUnit(machinePositionUnit)->displayNamePlural,
+		getHighAxisPositionLimit(),
+		getPositionUnit(machinePositionUnit)->displayNamePlural);
+
 }
+
+
+
 
 
 
