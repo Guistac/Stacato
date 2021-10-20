@@ -37,22 +37,27 @@ public:
 	bool b_ready = false;
 };
 
+class PositionDevice: public Subdevice {
+public:
+	PositionDevice(const char* name, PositionUnit::Unit unit) : Subdevice(name), positionUnit(unit) {}
+	PositionUnit::Unit getPositionUnit() { return positionUnit; }
+	PositionUnit::Unit positionUnit;
+};
 
-class ActuatorDevice : public Subdevice{
+class ActuatorDevice : public virtual PositionDevice {
 public:
 
-	ActuatorDevice(const char* n, PositionUnit::Unit unit, MotionCommand::Type command) : Subdevice(n), positionUnit(unit), commandType(command) {}
-	virtual Type getSubdeviceType() { return Type::ACTUATOR; }
-
-	PositionUnit::Unit positionUnit;
-	MotionCommand::Type commandType;
+	ActuatorDevice(const char* name, PositionUnit::Unit unit) : PositionDevice(name, unit) {}
+	virtual Subdevice::Type getSubdeviceType() { return Subdevice::Type::ACTUATOR; }
 
 	//enable power
 	void enable() { b_setEnabled = true; }						
 	//disable power
 	void disable() { b_setDisabled = true; }						
-	//set command
-	void setCommand(double command) { command_deviceUnits = command; }
+	//set velocity command
+	virtual void setCommand(double velocityCommand) { command_deviceUnits = velocityCommand; }
+	//get velocity command
+	virtual double getCommand() { return command_deviceUnits; }
 	//don't allow powering the actuator
 	void park() { b_setDisabled = true; b_parked = true; }			
 	//allow powereing of the actuator
@@ -89,14 +94,14 @@ public:
 
 
 
-class PositionFeedbackDevice : public Subdevice {
+class PositionFeedbackDevice : public virtual PositionDevice {
 public:
 
-	PositionFeedbackDevice(const char* n, PositionUnit::Unit unit, PositionFeedback::Type type) : Subdevice(n), positionUnit(unit), feedbackType(type) {}
-	virtual Type getSubdeviceType() { return Type::POSITION_FEEDBACK; }
+	PositionFeedbackDevice(const char* name, PositionUnit::Unit unit, PositionFeedback::Type type) : PositionDevice(name, unit), feedbackType(type) {}
+	virtual Subdevice::Type getSubdeviceType() { return Subdevice::Type::POSITION_FEEDBACK; }
 
-	PositionUnit::Unit positionUnit;
 	PositionFeedback::Type feedbackType;
+	PositionFeedback::Type getPositionFeedbackType() { return feedbackType; }
 
 	//set the current position of the encoder by adjusting the zero offset
 	void setPosition(double position) { positionOffset_positionUnits = positionRaw_positionUnits - position; }
@@ -112,7 +117,7 @@ public:
 	double getPosition() { return positionRaw_positionUnits - positionOffset_positionUnits; }
 	//get velocity of encoder movement
 	double getVelocity() { return velocity_positionUnitsPerSecond; }
-	//is encoder moving
+	//is the position moving
 	bool isMoving() { return b_moving; }
 
 	double positionRaw_positionUnits = 0.0;
@@ -127,8 +132,20 @@ public:
 
 class GpioDevice : public Subdevice {
 public:
-
 	GpioDevice(const char* n) : Subdevice(n) {}
 	virtual Type getSubdeviceType() { return Type::GPIO; }
+};
 
+
+
+class ServoActuatorDevice : public ActuatorDevice, public PositionFeedbackDevice {
+public:
+
+	ServoActuatorDevice(const char* name, PositionUnit::Unit unit, PositionFeedback::Type feedback) : PositionDevice(name, unit), ActuatorDevice(name, unit), PositionFeedbackDevice(name, unit, feedback) {}
+	virtual Subdevice::Type getSubdeviceType() { return Subdevice::Type::SERVO_ACTUATOR; }
+
+	//set command
+	virtual void setCommand(double positionCommand) { command_deviceUnits = positionCommand; }
+	//get velocity command
+	virtual double getCommand() { return command_deviceUnits + positionOffset_positionUnits; }
 };

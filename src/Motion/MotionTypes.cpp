@@ -119,7 +119,7 @@ std::vector<PositionReferenceSignal> linearPositionReferenceSignals = {
 	{PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT, "Signal At Lower and Upper Limit", "LowHighSignals"}
 };
 std::vector<PositionReferenceSignal> angularPositionReferenceSignals = {
-	{PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT, "Low Limit Signal", "LowSignal"},
+	{PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT, "Signal At Lower Limit", "LowSignal"},
 	{PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT, "Low and High Limit Signals", "LowHighSignals"},
 	{PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN, "Signal at Origin", "OriginSignal"},
 	{PositionReferenceSignal::Type::NO_SIGNAL, "No Reference Signal", "None"}

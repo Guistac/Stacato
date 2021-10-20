@@ -286,7 +286,7 @@ void Lexium32::controlsGui() {
     ImGui::SetNextItemWidth(tripleWidgetWidth);
     ImGui::InputDouble("##encoderPosition", &newEncoderPosition, 0.0, 0.0, "%.3f rev");
     ImGui::SameLine();
-    if (ImGui::Button("Set", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotorDevice->setEncoderPosition(newEncoderPosition);
+    if (ImGui::Button("Set", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotorDevice->setPosition(newEncoderPosition);
     ImGui::SameLine();
     if (ImGui::Button("Reset", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotorDevice->positionOffset_positionUnits = 0.0;
 
@@ -432,6 +432,36 @@ void Lexium32::gpioGui() {
     if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
     ImGui::Text(getDataTransferState(pinAssignementUploadState)->displayName);
+
+    ImGui::Separator();
+
+    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::Text("Signal Inversion");
+    ImGui::PopFont();
+
+    ImGui::Checkbox("##di0", &b_invertDI0);
+    ImGui::SameLine();
+    ImGui::Text("Invert DI0");
+
+    ImGui::Checkbox("##di1", &b_invertDI1);
+    ImGui::SameLine();
+    ImGui::Text("Invert DI1");
+
+    ImGui::Checkbox("##di2", &b_invertDI2);
+    ImGui::SameLine();
+    ImGui::Text("Invert DI2");
+
+    ImGui::Checkbox("##di3", &b_invertDI3);
+    ImGui::SameLine();
+    ImGui::Text("Invert DI3");
+
+    ImGui::Checkbox("##di4", &b_invertDI4);
+    ImGui::SameLine();
+    ImGui::Text("Invert DI4");
+
+    ImGui::Checkbox("##di5", &b_invertDI5);
+    ImGui::SameLine();
+    ImGui::Text("Invert DI5");
 }
 
 
