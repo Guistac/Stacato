@@ -1,26 +1,6 @@
 <Environnement name="Default Environnement">
     <NodeGraph>
         <Nodes>
-            <Node NodeType="Machine" ClassName="SingleAxisMachine" CustomName="Single Axis Machine" UniqueID="1">
-                <NodeEditorPosition x="-13624" y="-12166"/>
-                <NodeSpecificData>
-                    <Machine UnitType="Angular" Unit="Degrees" PositionControl="Servo"/>
-                    <UnitConversion FeedbackUnitsPerMachineUnit="10" ActuatorUnitsPerMachineUnit="10" FeedbackAndActuatorConversionIdentical="false"/>
-                    <KinematicLimits VelocityLimit_machineUnitsPerSecond="10" AccelerationLimit_machineUnitsPerSecondSquared="10"/>
-                    <PositionReferenceSignals Type="LowSignal" HomingVelocity_machineUnitsPerSecond="5"/>
-                    <PositionLimits MaxNegativeDeviation_machineUnits="0" EnableNegativeLimit="true" MaxPositionDeviation_machineUnits="100" EnablePositiveLimit="true" LimitToFeedbackWorkingRange="true"/>
-                    <DefaultManualParameters Velocity_machineUnitsPerSecond="10" Acceleration_machineUnitsPerSecondSquared="10"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveName="Servo Actuator" DisplayName="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="24" Visible="true" NoDataField="true"/>
-                    <InputPin SaveName="Reference Device" DisplayName="Reference Device" DataType="GPIODeviceLink" UniqueID="36" Visible="true" NoDataField="true"/>
-                    <InputPin SaveName="Low Limit Signal" DisplayName="Low Limit Signal" DataType="Boolean" UniqueID="37" Boolean="false" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="7" Real="-8.0096893310546875" Visible="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="8" Real="0" Visible="true"/>
-                </OutputPins>
-            </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M" UniqueID="9">
                 <NodeEditorPosition x="-14002" y="-12187"/>
                 <NodeSpecificData>
@@ -52,12 +32,32 @@
                     <OutputPin SaveName="DI5" DisplayName="DI5" DataType="Boolean" UniqueID="23" Boolean="false" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Machine" ClassName="SingleAxisMachine" CustomName="Single Axis Machine" UniqueID="40">
+                <NodeEditorPosition x="-13690" y="-12070"/>
+                <NodeSpecificData>
+                    <Machine UnitType="Angular" Unit="Degrees" PositionControl="ClosedLoop"/>
+                    <UnitConversion FeedbackUnitsPerMachineUnit="0" ActuatorUnitsPerMachineUnit="0" FeedbackAndActuatorConversionIdentical="false"/>
+                    <KinematicLimits VelocityLimit_machineUnitsPerSecond="0" AccelerationLimit_machineUnitsPerSecondSquared="0"/>
+                    <PositionReferenceSignals Type="LowHighSignals" HomingVelocity_machineUnitsPerSecond="0" HomingDirection="Negative"/>
+                    <PositionLimits MaxNegativeDeviation_machineUnits="0" EnableNegativeLimit="true" MaxPositionDeviation_machineUnits="0" EnablePositiveLimit="true" LimitToFeedbackWorkingRange="true"/>
+                    <DefaultManualParameters Velocity_machineUnitsPerSecond="10" Acceleration_machineUnitsPerSecondSquared="5"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveName="Actuator" DisplayName="Actuator" DataType="ActuatorDeviceLink" UniqueID="41" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Servo Actuator" DisplayName="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="42" Visible="false" NoDataField="true"/>
+                    <InputPin SaveName="Position Feedback" DisplayName="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="43" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Reference Device" DisplayName="Reference Device" DataType="GPIODeviceLink" UniqueID="44" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Low Limit Signal" DisplayName="Low Limit Signal" DataType="Boolean" UniqueID="45" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="High Limit Signal" DisplayName="High Limit Signal" DataType="Boolean" UniqueID="46" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Reference Signal" DisplayName="Reference Signal" DataType="Boolean" UniqueID="47" Boolean="false" Visible="false"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="48" Real="0" Visible="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="49" Real="0" Visible="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
-        <Links>
-            <Link UniqueID="28" StartPin="13" EndPin="24"/>
-            <Link UniqueID="38" StartPin="17" EndPin="36"/>
-            <Link UniqueID="39" StartPin="18" EndPin="37"/>
-        </Links>
+        <Links/>
     </NodeGraph>
 </Environnement>
 

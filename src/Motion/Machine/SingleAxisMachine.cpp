@@ -933,53 +933,65 @@ bool SingleAxisMachine::load(tinyxml2::XMLElement* xml) {
 void SingleAxisMachine::setPositionControlType(PositionControl::Type type) {
 	//remove all pins
 	//we then add them all again to assure the same pin order each time
-	removeIoData(positionFeedbackDeviceLink);
-	removeIoData(servoActuatorDeviceLink);
-	removeIoData(actuatorDeviceLink);
-	removeIoData(referenceDeviceLink);
-	removeIoData(lowLimitSignalPin);
-	removeIoData(highLimitSignalPin);
-	removeIoData(referenceSignalPin);
 	switch (type) {
-	case PositionControl::Type::CLOSED_LOOP:
-		addIoData(actuatorDeviceLink);
-		addIoData(positionFeedbackDeviceLink);
-		break;
-	case PositionControl::Type::SERVO:
-		addIoData(servoActuatorDeviceLink);
-		feedbackUnitsPerMachineUnits = actuatorUnitsPerMachineUnits;
-		break;
+		case PositionControl::Type::CLOSED_LOOP:
+			actuatorDeviceLink->setVisible(true);
+			positionFeedbackDeviceLink->setVisible(true);
+			servoActuatorDeviceLink->disconnectAllLinks();
+			servoActuatorDeviceLink->setVisible(false);
+			break;
+		case PositionControl::Type::SERVO:
+			actuatorDeviceLink->disconnectAllLinks();
+			actuatorDeviceLink->setVisible(false);
+			positionFeedbackDeviceLink->disconnectAllLinks();
+			positionFeedbackDeviceLink->setVisible(false);
+			servoActuatorDeviceLink->setVisible(true);
+			feedbackUnitsPerMachineUnits = actuatorUnitsPerMachineUnits;
+			break;
 	}
 	positionControl = type;
-	setPositionReferenceSignalType(positionReferenceSignal);
 }
 
 void SingleAxisMachine::setPositionReferenceSignalType(PositionReferenceSignal::Type type) {
-	removeIoData(referenceDeviceLink);
-	removeIoData(lowLimitSignalPin);
-	removeIoData(highLimitSignalPin);
-	removeIoData(referenceSignalPin);
 	switch (type) {
-	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-		addIoData(referenceDeviceLink);
-		addIoData(lowLimitSignalPin);
-		maxNegativeDeviation_machineUnits = 0.0;
-		enableNegativeLimit = true;
-		break;
-	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-		addIoData(referenceDeviceLink);
-		addIoData(highLimitSignalPin);
-		addIoData(lowLimitSignalPin);
-		maxNegativeDeviation_machineUnits = 0.0;
-		enableNegativeLimit = true;
-		enablePositiveLimit = true;
-		break;
-	case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
-		addIoData(referenceDeviceLink);
-		addIoData(referenceSignalPin);
-		break;
-	case PositionReferenceSignal::Type::NO_SIGNAL:
-		break;
+		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+			referenceDeviceLink->setVisible(true);
+			lowLimitSignalPin->setVisible(true);
+			highLimitSignalPin->disconnectAllLinks();
+			highLimitSignalPin->setVisible(false);
+			referenceSignalPin->disconnectAllLinks();
+			referenceSignalPin->setVisible(false);
+			maxNegativeDeviation_machineUnits = 0.0;
+			enableNegativeLimit = true;
+			break;
+		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+			referenceDeviceLink->setVisible(true);
+			lowLimitSignalPin->setVisible(true);
+			highLimitSignalPin->setVisible(true);
+			referenceSignalPin->disconnectAllLinks();
+			referenceSignalPin->setVisible(false);
+			maxNegativeDeviation_machineUnits = 0.0;
+			enableNegativeLimit = true;
+			enablePositiveLimit = true;
+			break;
+		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
+			referenceDeviceLink->setVisible(true);
+			lowLimitSignalPin->disconnectAllLinks();
+			lowLimitSignalPin->setVisible(false);
+			highLimitSignalPin->disconnectAllLinks();
+			highLimitSignalPin->setVisible(false);
+			referenceSignalPin->setVisible(true);
+			break;
+		case PositionReferenceSignal::Type::NO_SIGNAL:
+			referenceDeviceLink->disconnectAllLinks();
+			referenceDeviceLink->setVisible(false);
+			lowLimitSignalPin->disconnectAllLinks();
+			lowLimitSignalPin->setVisible(false);
+			highLimitSignalPin->disconnectAllLinks();
+			highLimitSignalPin->setVisible(false);
+			referenceSignalPin->disconnectAllLinks();
+			referenceSignalPin->setVisible(false);
+			break;
 	}
 	positionReferenceSignal = type;
 }

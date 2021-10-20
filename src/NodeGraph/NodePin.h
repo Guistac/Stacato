@@ -105,6 +105,8 @@ public:
 	//nodegraph infos
 	int getUniqueID() { return uniqueID; }
 	std::shared_ptr<Node> getNode() { return parentNode; }
+
+	void setVisible(bool v) { b_visible = v; }
 	bool& isVisible() { return b_visible; }
 
 	//datatype infos

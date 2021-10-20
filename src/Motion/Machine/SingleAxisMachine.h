@@ -27,14 +27,18 @@ public:
 		//add default inputs for closed loop control with limit signals
 		//these pins get removed if another motion contorl mode or position limit mode gets loaded or selected
 		addIoData(actuatorDeviceLink);
+		addIoData(servoActuatorDeviceLink);
 		addIoData(positionFeedbackDeviceLink);
 		addIoData(referenceDeviceLink);
 		addIoData(lowLimitSignalPin);
 		addIoData(highLimitSignalPin);
+		addIoData(referenceSignalPin);
 		//outputs
 		//these pins are always present
 		addIoData(position);
 		addIoData(velocity);
+		setPositionControlType(positionControl);
+		setPositionReferenceSignalType(positionReferenceSignal);
 	}
 
 	//==================== AXIS DATA ====================
