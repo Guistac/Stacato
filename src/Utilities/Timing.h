@@ -8,5 +8,6 @@ namespace Timing {
 	long long getProgramTime_nanoseconds();
 
 	double getSystemTime_seconds();
+	double getSystemTime_milliseconds();
 	long long getSystemTime_nanoseconds();
 };

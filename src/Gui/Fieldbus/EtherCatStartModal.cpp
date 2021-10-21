@@ -9,8 +9,8 @@ void etherCatStartModal() {
 	ImGui::SetNextWindowSize(ImVec2(ImGui::GetTextLineHeight() * 30.0, 0), ImGuiCond_Always);
 	if (ImGui::BeginPopupModal("Starting EtherCAT Fieldbus")) {
 		static bool firstSuccess;
-		static long long successTime_milliseconds;
-		static long long successCloseDelay_milliseconds = 500;
+		static double successTime_milliseconds;
+		static double successCloseDelay_milliseconds = 500.0;
 		if (EtherCatFieldbus::isCyclicExchangeStartSuccessfull()) {
 			//display a full progress bar and close the popup after some time (1 second)
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.3, 0.8, 0.0, 1.0));
@@ -20,9 +20,9 @@ void etherCatStartModal() {
 			using namespace std::chrono;
 			if (firstSuccess) {
 				firstSuccess = false;
-				successTime_milliseconds = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+				successTime_milliseconds = Timing::getSystemTime_milliseconds();
 			}
-			else if (duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count() - successTime_milliseconds > successCloseDelay_milliseconds) {
+			else if (Timing::getSystemTime_milliseconds() - successTime_milliseconds > successCloseDelay_milliseconds) {
 				ImGui::CloseCurrentPopup();
 			}
 		}

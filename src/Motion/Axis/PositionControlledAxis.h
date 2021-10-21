@@ -71,6 +71,13 @@ public:
 	double profileVelocity_axisUnitsPerSecond = 0.0;
 	double profileAcceleration_axisUnitsPerSecondSquared = 0.0;
 
+	//controller variables
+	double positionError_axisUnits = 0.0;
+	double proportionalGain = 0.0;
+	double integralGain = 0.0;
+	double derivativeGain = 0.0;
+	double maxPositionError_axisUnits = 0.0;
+
 	//limit and reference signals
 	void updateReferenceSignals();
 	bool lowLimitSignal = false;
@@ -98,6 +105,8 @@ public:
 		POSITION_TARGET,
 		MACHINE_CONTROL
 	};
+
+	void control();
 
 	bool b_isHoming = false;
 

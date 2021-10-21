@@ -471,7 +471,7 @@ namespace EtherCatFieldbus {
         //thread timing variables
         uint64_t processInterval_nanoseconds = processInterval_milliseconds * 1000000.0L;
         uint64_t processDataTimeout_microseconds = processDataTimeout_milliseconds * 1000.0L;
-        uint64_t systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count() + processInterval_nanoseconds;
+        uint64_t systemTime_nanoseconds = Timing::getProgramTime_nanoseconds() + processInterval_nanoseconds;
         uint64_t cycleStartTime_nanoseconds = systemTime_nanoseconds + processInterval_nanoseconds;
         uint64_t previousCycleStartTime_nanoseconds = systemTime_nanoseconds;
         uint64_t fieldbusStartTime_nanoseconds = cycleStartTime_nanoseconds;
@@ -501,14 +501,14 @@ namespace EtherCatFieldbus {
 
             //bruteforce timing precision by using 100% of CPU core
             //update and compare system time to next process 
-            do { systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count(); } while (systemTime_nanoseconds < cycleStartTime_nanoseconds);
+            do { systemTime_nanoseconds = Timing::getProgramTime_nanoseconds(); } while (systemTime_nanoseconds < cycleStartTime_nanoseconds);
 
             //============= PROCESS DATA SENDING AND RECEIVING ==============
 
             ec_send_processdata();
-            uint64_t frameSentTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
+            uint64_t frameSentTime_nanoseconds = Timing::getProgramTime_nanoseconds();
             int workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
-            uint64_t frameReceivedTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
+            uint64_t frameReceivedTime_nanoseconds = Timing::getProgramTime_nanoseconds();
 
             //===================== TIMEOUT HANDLING ========================
 
@@ -570,9 +570,9 @@ namespace EtherCatFieldbus {
 
             int64_t systemTimeError = systemTime_nanoseconds - systemTimeSmoothed_nanoseconds;
             systemTimeErrorSmoothed_nanoseconds = systemTimeErrorSmoothed_nanoseconds * systemTimeErrorFilter + (1.0 - systemTimeErrorFilter) * systemTimeError;
-            currentSystemCycleTime_nanoseconds = systemTimeSmoothed_nanoseconds;
-            currentSystemCycleTime_seconds = (double)systemTimeSmoothed_nanoseconds / 1000000000.0;
-            uint64_t fieldbusTimeSmoothed_nanoseconds = systemTimeSmoothed_nanoseconds - systemTimeSmoothed_nanoseconds;
+            currentCycleProgramTime_nanoseconds = systemTimeSmoothed_nanoseconds;
+            currentCycleProgramTime_seconds = (double)systemTimeSmoothed_nanoseconds / 1000000000.0;
+            uint64_t fieldbusTimeSmoothed_nanoseconds = systemTimeSmoothed_nanoseconds - fieldbusStartTime_nanoseconds;
             double fieldbusTimeSmoothed_seconds = (double)fieldbusTimeSmoothed_nanoseconds / 1000000000.0;
             systemTimeSmoothed_nanoseconds += processInterval_nanoseconds + systemTimeErrorSmoothed_nanoseconds * smoothedTimeCorrection_proportionalGain;
 
@@ -601,7 +601,7 @@ namespace EtherCatFieldbus {
             metrics.cycleLengths.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, cycleLength_milliseconds));;
             metrics.addWorkingCounter(workingCounter, fieldbusTimeSmoothed_seconds);
             if (workingCounter <= 0) metrics.timeouts.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, frameReceiveDelay_milliseconds));
-            uint64_t processedTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
+            uint64_t processedTime_nanoseconds = Timing::getProgramTime_nanoseconds();
             double processDelay_milliseconds = (double)(processedTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
             metrics.processDelays.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, processDelay_milliseconds));
             metrics.cycleCounter++;
@@ -751,14 +751,14 @@ namespace EtherCatFieldbus {
         Logger::debug("Exited Slave State Handler Thread");
     }
 
-    double currentSystemCycleTime_seconds = 0.0;
-    double getCycleTime_seconds() {
-        return currentSystemCycleTime_seconds;
+    double currentCycleProgramTime_seconds = 0.0;
+    double getCycleProgramTime_seconds() {
+        return currentCycleProgramTime_seconds;
     }
     
-    long long int currentSystemCycleTime_nanoseconds = 0;
-    long long int getCycleTime_nanoseconds() {
-        return currentSystemCycleTime_nanoseconds;
+    long long int currentCycleProgramTime_nanoseconds = 0;
+    long long int getCycleProgramTime_nanoseconds() {
+        return currentCycleProgramTime_nanoseconds;
     }
 }
 

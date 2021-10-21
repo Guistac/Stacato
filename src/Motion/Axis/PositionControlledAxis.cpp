@@ -73,53 +73,54 @@ void PositionControlledAxis::process() {
 		actualVelocity_axisUnitsPerSecond = servoActuatorDevice->getVelocity() / actuatorUnitsPerAxisUnits;
 	}
 
-	//update timing
-	//TODO: the machine should get timing information from the actuator object or servo actuator object
-
-	//if a machine is connected and machine control mode is enabled, we let the machine do its processing
-	//else the axis controls itself
-
-	currentProfilePointTime_seconds = EtherCatFieldbus::getCycleTime_seconds();
+	if (needsActuator) currentProfilePointTime_seconds = actuatorDevice->getCommandRequestTime_seconds();
+	else if (needsServo) currentProfilePointTime_seconds = servoActuatorDevice->getCommandRequestTime_seconds();
 	currentProfilePointDeltaT_seconds = currentProfilePointTime_seconds - previousProfilePointTime_seconds;
 	previousProfilePointTime_seconds = currentProfilePointTime_seconds;
 
+	//if a machine is connected and machine control mode is enabled, we let the connected machine do its processing
+	//otherwise the axis controls itself
+	if (!axisLink->isConnected()) control();
+}
+
+void PositionControlledAxis::control() {
 	//update profile generator
 	if (b_enabled) {
 		if (b_isHoming) homingControl();
 		switch (controlMode) {
-			case ControlMode::VELOCITY_TARGET: velocityTargetControl(); break;
-			case ControlMode::POSITION_TARGET: positionTargetControl(); break;
+			case ControlMode::VELOCITY_TARGET:
+				velocityTargetControl();
+				break;
+			case ControlMode::POSITION_TARGET:
+				positionTargetControl();
+				break;
 		}
 	}
-	else if (needsFeedback || needsServo) {
-		//if the axis is disabled, copy position feedback data to profile generator
+	else {
 		profilePosition_axisUnits = actualPosition_axisUnits;
 		profileVelocity_axisUnitsPerSecond = actualVelocity_axisUnitsPerSecond;
 	}
-
-	switch (positionControl) {
-		case PositionControl::Type::SERVO:
-			servoActuatorDevice->setCommand(profilePosition_axisUnits * actuatorUnitsPerAxisUnits);
-			break;
-		case PositionControl::Type::CLOSED_LOOP:
-			Logger::critical("Closed loop control is not supported yet");
-			actuatorDevice->setCommand(profileVelocity_axisUnitsPerSecond * actuatorUnitsPerAxisUnits);
-			//TODO:
-			//for closed loop, implement pid control with adjustable gains
-			break;
-	}
-
 	position->set(actualPosition_axisUnits);
 	velocity->set(actualVelocity_axisUnitsPerSecond);
 
-	//prepare metrics data
-	double positionError = profilePosition_axisUnits - actualPosition_axisUnits / feedbackUnitsPerAxisUnits;
-	double actualLoad;
-	if (needsActuator) actualLoad = actuatorDevice->getLoad();
-	else if (needsServo) actualLoad = servoActuatorDevice->getLoad();
+	double actualLoad = 0.0;
+	switch (positionControl) {
+		case PositionControl::Type::SERVO:
+			actualLoad = getServoActuatorDevice()->getLoad();
+			getServoActuatorDevice()->setCommand(profilePosition_axisUnits * actuatorUnitsPerAxisUnits);
+			break;
+		case PositionControl::Type::CLOSED_LOOP:
+			actualLoad = getActuatorDevice()->getLoad();
+			//for closed loop, implement pid control with adjustable gains
+			//getActuatorDevice()->setCommand(profileVelocity_axisUnitsPerSecond * actuatorUnitsPerAxisUnits);
+			break;
+	}
+	positionError_axisUnits = profilePosition_axisUnits - actualPosition_axisUnits / feedbackUnitsPerAxisUnits;
+
+	//update metrics
 	positionHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profilePosition_axisUnits));
 	actualPositionHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, actualPosition_axisUnits));
-	positionErrorHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, positionError));
+	positionErrorHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, positionError_axisUnits));
 	velocityHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profileVelocity_axisUnitsPerSecond));
 	accelerationHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profileAcceleration_axisUnitsPerSecondSquared));
 	loadHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, actualLoad));

@@ -20,6 +20,10 @@ namespace Timing {
 		return (double)getSystemTime_nanoseconds() / 1000000000.0;
 	}
 
+	double getSystemTime_milliseconds() {
+		return (double)getSystemTime_nanoseconds() / 1000000.0;
+	}
+
 	long long getSystemTime_nanoseconds() {
 		using namespace std::chrono;
 		return duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count();

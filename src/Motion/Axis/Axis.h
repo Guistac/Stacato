@@ -47,4 +47,12 @@ public:
 	virtual void enable() = 0;
 	virtual void disable() = 0;
 	virtual bool isMoving() = 0;
+
+	//Profile Generator Variables
+	//Command Timing
+	//Motion Limits
+	//Homing
+	//Motion Controls
+	//Fast Stop
+	//Braking Position
 };

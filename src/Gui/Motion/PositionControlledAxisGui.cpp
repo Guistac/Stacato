@@ -16,7 +16,7 @@
 
 void PositionControlledAxis::controlsGui() {
 
-	Logger::warn("{}", Timing::getProgramTime_seconds());
+	ImGui::Text("%.9f", EtherCatFieldbus::getCycleProgramTime_seconds());
 
 	//====================== AXIS MANUAL CONTROLS ==============================
 

@@ -383,6 +383,7 @@ void Lexium32::readInputs() {
     servoMotorDevice->b_enabled = state == State::OperationEnabled;
     servoMotorDevice->b_online = isOnline() && motorVoltagePresent;
     servoMotorDevice->b_emergencyStopActive = b_emergencyStopActive;
+    servoMotorDevice->commandRequestTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
     //set gpio subdevice status
     gpioDevice->b_ready = isOnline(); //gpio is always ready when lexium is in ESM operational state
     gpioDevice->b_online = isOnline();
@@ -398,16 +399,11 @@ void Lexium32::readInputs() {
 
 void Lexium32::prepareOutputs() {
 
-    //get data from connected nodes
-    //if (positionCommand->isConnected()) positionCommand->set(positionCommand->getLinks().front()->getInputData()->getReal());
-    //else positionCommand->set(actualPosition->getReal());
-    //if (velocityCommand->isConnected()) velocityCommand->set(velocityCommand->getLinks().front()->getInputData()->getReal());
-
     if (digitalOut0->isConnected()) digitalOut0->set(digitalOut0->getLinks().front()->getInputData()->getBoolean());
     if (digitalOut1->isConnected()) digitalOut1->set(digitalOut1->getLinks().front()->getInputData()->getBoolean());
     if (digitalOut2->isConnected()) digitalOut2->set(digitalOut2->getLinks().front()->getInputData()->getBoolean());
 
-    double now_seconds = EtherCatFieldbus::getCycleTime_seconds();
+    double now_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
     double deltaT_seconds = now_seconds - previousProfilePointTime_seconds;
     previousProfilePointTime_seconds = now_seconds;
 

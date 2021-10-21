@@ -60,10 +60,10 @@ namespace EtherCatFieldbus {
     bool save(tinyxml2::XMLElement* xml);
     bool load(tinyxml2::XMLElement* xml);
 
-    double getCycleTime_seconds();
-    extern double currentSystemCycleTime_seconds;
+    double getCycleProgramTime_seconds();
+    extern double currentCycleProgramTime_seconds;
 
-    extern long long int currentSystemCycleTime_nanoseconds;
-    long long int getCycleTime_nanoseconds();
+    extern long long int currentCycleProgramTime_nanoseconds;
+    long long int getCycleProgramTime_nanoseconds();
 };
 
