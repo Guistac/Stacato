@@ -19,7 +19,6 @@ int main(){
 #endif
 
     GuiWindow::init(); //sets working directory to macos application bundle resources folder
-    Timing::start();
 	Logger::init();
 
 	EtherCatDeviceFactory::loadDevices();

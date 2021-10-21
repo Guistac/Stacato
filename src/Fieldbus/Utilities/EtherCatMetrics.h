@@ -32,7 +32,7 @@ public:
 	}
 
 	uint64_t cycleCounter;
-	double referenceClock_seconds;
+	double fieldbusTime_seconds;
 	float averageDcTimeError_milliseconds; //latest reference clock error, used to track clock sync progress when starting the fieldbus
 
 	ScrollingBuffer dcTimeErrors;

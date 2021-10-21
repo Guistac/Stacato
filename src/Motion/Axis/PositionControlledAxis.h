@@ -26,46 +26,50 @@ public:
 	//==================== AXIS DATA ====================
 
 	//Machine Type
-	PositionUnit::Type machinePositionUnitType = PositionUnit::Type::ANGULAR;
-	PositionUnit::Unit machinePositionUnit = PositionUnit::Unit::DEGREE;
+	PositionUnit::Type axisPositionUnitType = PositionUnit::Type::ANGULAR;
+	PositionUnit::Unit axisPositionUnit = PositionUnit::Unit::DEGREE;
 	PositionControl::Type positionControl = PositionControl::Type::CLOSED_LOOP;
 	void setPositionControlType(PositionControl::Type type);
 
 	//Unit Conversions
-	double feedbackUnitsPerMachineUnits = 0.0;
-	double actuatorUnitsPerMachineUnits = 0.0;
+	double feedbackUnitsPerAxisUnits = 0.0;
+	double actuatorUnitsPerAxisUnits = 0.0;
 	bool feedbackAndActuatorConversionIdentical = false;
 
 	//Reference Signals and Homing
 	PositionReferenceSignal::Type positionReferenceSignal = PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT;
 	void setPositionReferenceSignalType(PositionReferenceSignal::Type type);
 	HomingDirection::Type homingDirection = HomingDirection::Type::NEGATIVE;
-	double homingVelocity_machineUnitsPerSecond = 0.0;
+	double homingVelocity_axisUnitsPerSecond = 0.0;
 
 	//Kinematic Limits
-	double velocityLimit_machineUnitsPerSecond = 0.0;
-	double accelerationLimit_machineUnitsPerSecondSquared = 0.0;
+	double velocityLimit_axisUnitsPerSecond = 0.0;
+	double accelerationLimit_axisUnitsPerSecondSquared = 0.0;
 
 	//Position Limits
-	double maxPositiveDeviation_machineUnits = 0.0;
-	double maxNegativeDeviation_machineUnits = 0.0;
+	double maxPositiveDeviation_axisUnits = 0.0;
+	double maxNegativeDeviation_axisUnits = 0.0;
 	bool limitToFeedbackWorkingRange = true;
 	bool enableNegativeLimit = true;
 	bool enablePositiveLimit = true;
 
 	//Default Manual Movement
-	double defaultManualVelocity_machineUnitsPerSecond = 10.0;
-	double defaultManualAcceleration_machineUnitsPerSecondSquared = 5.0;
+	double defaultManualVelocity_axisUnitsPerSecond = 10.0;
+	double defaultManualAcceleration_axisUnitsPerSecondSquared = 5.0;
 
 	//============== CONTROL VARIABLES ===================
+
+	//actual machine state based on feedback data
+	double actualPosition_axisUnits;
+	double actualVelocity_axisUnitsPerSecond;
 
 	//motion profile generator variables
 	double previousProfilePointTime_seconds = 0.0; //used to calculate deltaT
 	double currentProfilePointTime_seconds = 0.0;
 	double currentProfilePointDeltaT_seconds = 0.0;
-	double profilePosition_machineUnits = 0.0;
-	double profileVelocity_machineUnitsPerSecond = 0.0;
-	double profileAcceleration_machineUnitsPerSecondSquared = 0.0;
+	double profilePosition_axisUnits = 0.0;
+	double profileVelocity_axisUnitsPerSecond = 0.0;
+	double profileAcceleration_axisUnitsPerSecondSquared = 0.0;
 
 	//limit and reference signals
 	void updateReferenceSignals();
@@ -76,15 +80,14 @@ public:
 	bool referenceSignal = false;
 	bool previousReferenceSignal = false;
 
-	//actual machine state based on feedback data
-	double actualPosition_machineUnits;
-	double actualVelocity_machineUnitsPerSecond;
-
+	//position limits
 	double getLowPositionLimit();
 	double getHighPositionLimit();
 	double getPositionProgress();
 	double getLowFeedbackPositionLimit();
 	double getHighFeedbackPositionLimit();
+
+	//limits origin and scale setting
 	void setCurrentPosition(double distanceFromAxisOrigin);
 	void setCurrentPositionAsNegativeLimit();
 	void setCurrentPositionAsPositiveLimit();
@@ -93,27 +96,27 @@ public:
 	enum class ControlMode {
 		VELOCITY_TARGET,
 		POSITION_TARGET,
-		FOLLOW_CURVE
+		MACHINE_CONTROL
 	};
 
 	bool b_isHoming = false;
 
 	ControlMode controlMode = ControlMode::VELOCITY_TARGET;
 
-	double manualControlAcceleration_machineUnitsPerSecond = 0.0;
+	double manualControlAcceleration_axisUnitsPerSecond = 0.0;
 
 	//Manual Velocity Control
-	void setVelocity(double velocity_machineUnits);
+	void setVelocity(double velocity_axisUnits);
 	void velocityTargetControl();
-	float manualVelocityTarget_machineUnitsPerSecond = 0.0;
+	float manualVelocityTarget_axisUnitsPerSecond = 0.0;
 
 	//Manual Target Control
-	void moveToPositionWithVelocity(double position_machineUnits, double velocity_machineUnits, double acceleration_machineUnits);
-	void moveToPositionInTime(double position_machineUnits, double movementTime_seconds, double acceleration_machineUnits);
+	void moveToPositionWithVelocity(double position_axisUnits, double velocity_axisUnits, double acceleration_axisUnits);
+	void moveToPositionInTime(double position_axisUnits, double movementTime_seconds, double acceleration_axisUnits);
 	void positionTargetControl();
 	MotionCurve::CurveProfile targetCurveProfile;
-	double targetPosition_machineUnits = 0.0;
-	double targetVelocity_machineUnitsPerSecond = 0.0;
+	double targetPosition_axisUnits = 0.0;
+	double targetVelocity_axisUnitsPerSecond = 0.0;
 	double targetTime_seconds = 0.0;
 
 	//Curve following
@@ -132,7 +135,7 @@ public:
 	Homing::Error homingError = Homing::Error::NONE;
 
 	//display data to set the machine coupling
-	double machineScalingPosition_machineUnits = 0.0;
+	double machineScalingPosition_axisUnits = 0.0;
 
 	//============= METRICS ============
 

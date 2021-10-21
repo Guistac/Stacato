@@ -146,7 +146,7 @@ void Lexium32::statusGui() {
     glm::vec2 commandButtonSize(doubleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
 
     if (isEmergencyStopActive()) {
-        int millis = Timing::getTime_seconds() * 1000.0;
+        int millis = Timing::getProgramTime_seconds() * 1000.0;
         if (millis % 1000 < 500) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
         else ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkRed);
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
@@ -270,7 +270,7 @@ void Lexium32::controlsGui() {
         sprintf(encoderPositionString, "%.3f rev", servoMotorDevice->getPosition());
     }
     else {
-        ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
+        ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
         double distanceOutsideRange = range > 1.0 ? servoMotorDevice->getPosition() - servoMotorDevice->getMaxPosition() : servoMotorDevice->getPosition() - servoMotorDevice->getMinPosition();
         sprintf(encoderPositionString, "Encoder Outside Working Range by %.3f rev)", distanceOutsideRange);
         range = 1.0;

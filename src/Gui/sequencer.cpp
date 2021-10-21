@@ -16,7 +16,7 @@ void sequencer() {
 	static int count = 0;
 
 	if (ImGui::Button("Add")) {
-		circularBuffer.addPoint(glm::vec2(count, Timing::getTime_seconds()));
+		circularBuffer.addPoint(glm::vec2(count, Timing::getProgramTime_seconds()));
 		count++;
 	}
 	ImGui::SameLine();

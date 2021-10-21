@@ -48,7 +48,6 @@ namespace EtherCatFieldbus {
     //Metrics to monitor the Cyclic Exchange
     extern EtherCatMetrics metrics;
 
-    
     bool isNetworkInitialized();                //Is EtherCAT Initializer with a network interface card
     bool isCyclicExchangeStarting();            //Is the Cyclic Exchange in Startup
     bool isCyclicExchangeActive();              //Is the Cyclic Exchange Running
@@ -61,7 +60,10 @@ namespace EtherCatFieldbus {
     bool save(tinyxml2::XMLElement* xml);
     bool load(tinyxml2::XMLElement* xml);
 
-    double getReferenceClock_seconds();
+    double getCycleTime_seconds();
+    extern double currentSystemCycleTime_seconds;
 
+    extern long long int currentSystemCycleTime_nanoseconds;
+    long long int getCycleTime_nanoseconds();
 };
 

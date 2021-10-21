@@ -35,9 +35,6 @@ namespace EtherCatFieldbus {
 
     EtherCatMetrics metrics;
 
-    int64_t referenceClockStartTime_nanoseconds;
-    double referenceClock_seconds = 0.0;
-
     double processInterval_milliseconds = 3.0;
     double processDataTimeout_milliseconds = 1.5;
     double clockStableThreshold_milliseconds = 0.1;
@@ -192,7 +189,7 @@ namespace EtherCatFieldbus {
 
                 startCyclicExchange();
                 b_processStarting = false;
-            });
+                });
             etherCatProcessStarter.detach();
         }
     }
@@ -272,7 +269,7 @@ namespace EtherCatFieldbus {
             Logger::info("===== Found and Configured {} EtherCAT Slave{}", ec_slavecount, ((ec_slavecount == 1) ? ": " : "s: "));
 
             for (int i = 1; i <= ec_slavecount; i++) {
-                ec_slavet& identity = ec_slave[i];                
+                ec_slavet& identity = ec_slave[i];
 
                 Logger::info("    = Slave {} : '{}'  Address: {}", i, identity.name, identity.configadr);
 
@@ -282,27 +279,27 @@ namespace EtherCatFieldbus {
                 else Logger::debug("      Explicit Device ID is not supported");
                 uint16_t stationAlias = identity.aliasadr;
                 Logger::debug("      Station Alias: {}", stationAlias);
-                
+
                 std::shared_ptr<EtherCatDevice> slave = nullptr;
 
                 for (auto environnementSlave : Environnement::getEtherCatDevices()) {
                     //match the detected device name against the expected ethercat name of the environnement device
                     if (strcmp(environnementSlave->getEtherCatName(), identity.name) != 0) continue;
                     switch (environnementSlave->identificationType) {
-                        case EtherCatDeviceIdentification::Type::STATION_ALIAS:
-                            if (environnementSlave->stationAlias == stationAlias) {
-                                slave = environnementSlave;
-                                Logger::info("      Matched Environnement Slave by Name & Station Alias");
-                                break;
-                            }
-                            else continue;
-                        case EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID:
-                            if (environnementSlave->explicitDeviceID == explicitDeviceID) {
-                                slave = environnementSlave;
-                                Logger::info("      Matched Environnement Slave by Name & Explicit Device ID");
-                                break;
-                            }
-                            else continue;
+                    case EtherCatDeviceIdentification::Type::STATION_ALIAS:
+                        if (environnementSlave->stationAlias == stationAlias) {
+                            slave = environnementSlave;
+                            Logger::info("      Matched Environnement Slave by Name & Station Alias");
+                            break;
+                        }
+                        else continue;
+                    case EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID:
+                        if (environnementSlave->explicitDeviceID == explicitDeviceID) {
+                            slave = environnementSlave;
+                            Logger::info("      Matched Environnement Slave by Name & Explicit Device ID");
+                            break;
+                        }
+                        else continue;
                     }
                 }
 
@@ -323,14 +320,14 @@ namespace EtherCatFieldbus {
                     slave->setName(name);
                     slaves_unassigned.push_back(slave);
                 }
-                
+
                 slave->identity = &identity;
                 slave->slaveIndex = i;
 
                 if (!slave->isSlaveKnown()) {
                     Logger::warn("Found Unknown Slave: {}", identity.name);
                 }
-               
+
                 //add the slave to the list of slaves regardless of environnement presence
                 slaves.push_back(slave);
             }
@@ -363,7 +360,7 @@ namespace EtherCatFieldbus {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
             Logger::debug("Exited EtherCAT Detection Handler");
-        });
+            });
     }
 
     void stopSlaveDetectionHandler() {
@@ -477,10 +474,10 @@ namespace EtherCatFieldbus {
         uint64_t systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count() + processInterval_nanoseconds;
         uint64_t cycleStartTime_nanoseconds = systemTime_nanoseconds + processInterval_nanoseconds;
         uint64_t previousCycleStartTime_nanoseconds = systemTime_nanoseconds;
+        uint64_t fieldbusStartTime_nanoseconds = cycleStartTime_nanoseconds;
         uint64_t clockStableThreshold_nanoseconds = clockStableThreshold_milliseconds * 1000000.0;
         double averageDCTimeDelta_nanoseconds = (double)processInterval_nanoseconds / 2.0;
         int clockDriftCorrectionintegral = 0;
-        referenceClockStartTime_nanoseconds = 0;
         std::chrono::high_resolution_clock::time_point lastProcessDataFrameReturnTime = high_resolution_clock::now();
 
         Logger::info("===== Waiting For clocks to stabilize before requesting Operational State...");
@@ -498,6 +495,8 @@ namespace EtherCatFieldbus {
 
         while (b_processRunning) {
 
+
+
             //======================= THREAD TIMING =========================
 
             //bruteforce timing precision by using 100% of CPU core
@@ -505,7 +504,7 @@ namespace EtherCatFieldbus {
             do { systemTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count(); } while (systemTime_nanoseconds < cycleStartTime_nanoseconds);
 
             //============= PROCESS DATA SENDING AND RECEIVING ==============
-            
+
             ec_send_processdata();
             uint64_t frameSentTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
             int workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
@@ -534,19 +533,6 @@ namespace EtherCatFieldbus {
                 for (auto slave : slaves) if (slave->isStateOperational()) slave->prepareOutputs();
             }
 
-            //======================== SYSTEM CLOCK ==========================
-
-            //Update a time value that will serve as synchronisation reference for the whole system.
-            //All clock times are in multiples of the process interval !
-            //Here we round ec_DCtime up or down to the nearest processinterval multiple
-            int64_t referenceClockRoundedToProcessInterval_nanoseconds = ec_DCtime - (ec_DCtime + (processInterval_nanoseconds / 2)) % processInterval_nanoseconds;
-            //if the value is 0, this means the fieldbus just started and we save the value as clock start time
-            if (referenceClockStartTime_nanoseconds == 0) referenceClockStartTime_nanoseconds = referenceClockRoundedToProcessInterval_nanoseconds;
-            //on each cycle we take the time value and calculate a system reference time in seconds, with the start time as 0 reference
-            int64_t referenceClockTimeRounded_nanoseconds = referenceClockRoundedToProcessInterval_nanoseconds;
-            referenceClock_seconds = (double)(referenceClockTimeRounded_nanoseconds - referenceClockStartTime_nanoseconds) / 1000000000.0;
-
-
             //=========== HANDLE MASTER AND REFERENCE CLOCK DRIFT ============
 
             //----- Adjust clock drift between the reference clock (ec_DCtime, time of process data receive at first slave) and the master clock ------
@@ -563,8 +549,32 @@ namespace EtherCatFieldbus {
             if (referenceClockError_nanoseconds > 0) { clockDriftCorrectionintegral++; }
             if (referenceClockError_nanoseconds < 0) { clockDriftCorrectionintegral--; }
             int64_t masterClockCorrection_nanoseconds = -(referenceClockError_nanoseconds / 100) - (clockDriftCorrectionintegral / 20);
-            previousCycleStartTime_nanoseconds = cycleStartTime_nanoseconds;            
+            previousCycleStartTime_nanoseconds = cycleStartTime_nanoseconds;
             cycleStartTime_nanoseconds += processInterval_nanoseconds + masterClockCorrection_nanoseconds;
+
+            //======================== SYSTEM CLOCK ==========================
+
+            //update a time value that will serve as a synchronisation reference for all ethercat devices
+            //the time value is synchronous to the master system clock and is updated on each ethercat process cycle
+            //we start by initializing the time value to the first cycle start time
+            //we increment this time by the process interval time on each cycle
+            //to avoid drift from the actual system clock, we calculate the error between the incremented time and the actual system time.
+            //to avoid jitter we filter this error before applying it as a correction to the time value using a proportional gain weight.
+            //this way we get a time reference that is synchronous with the system clock and
+            //most importantly without high frequency jitter induced by corrections to keep the process cycle synchronized with the EtherCAT reference clock
+
+            static int64_t systemTimeErrorSmoothed_nanoseconds = 0;
+            static double systemTimeErrorFilter = 0.99;
+            static int64_t systemTimeSmoothed_nanoseconds = cycleStartTime_nanoseconds;
+            static double smoothedTimeCorrection_proportionalGain = 0.1;
+
+            int64_t systemTimeError = systemTime_nanoseconds - systemTimeSmoothed_nanoseconds;
+            systemTimeErrorSmoothed_nanoseconds = systemTimeErrorSmoothed_nanoseconds * systemTimeErrorFilter + (1.0 - systemTimeErrorFilter) * systemTimeError;
+            currentSystemCycleTime_nanoseconds = systemTimeSmoothed_nanoseconds;
+            currentSystemCycleTime_seconds = (double)systemTimeSmoothed_nanoseconds / 1000000000.0;
+            uint64_t fieldbusTimeSmoothed_nanoseconds = systemTimeSmoothed_nanoseconds - systemTimeSmoothed_nanoseconds;
+            double fieldbusTimeSmoothed_seconds = (double)fieldbusTimeSmoothed_nanoseconds / 1000000000.0;
+            systemTimeSmoothed_nanoseconds += processInterval_nanoseconds + systemTimeErrorSmoothed_nanoseconds * smoothedTimeCorrection_proportionalGain;
 
             //================= OPERATIONAL STATE TRANSITION ==================
 
@@ -576,24 +586,24 @@ namespace EtherCatFieldbus {
             }
 
             //==================== UPDATE FIELDBUS METRICS =====================
-            
-            metrics.referenceClock_seconds = referenceClock_seconds;
+
+            metrics.fieldbusTime_seconds = fieldbusTimeSmoothed_seconds;
             metrics.averageDcTimeError_milliseconds = averageDCTimeDelta_nanoseconds / 1000000.0;       //used to display clock drift correction progress
             double frameSendDelay_milliseconds = (double)(frameSentTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
             double frameReceiveDelay_milliseconds = (double)(frameReceivedTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
             double timeoutDelay_milliseconds = frameSendDelay_milliseconds + processDataTimeout_milliseconds;
             double cycleLength_milliseconds = (double)(cycleStartTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
-            metrics.dcTimeErrors.addPoint(glm::vec2(referenceClock_seconds, referenceClockError_nanoseconds / 1000000.0));
-            metrics.averageDcTimeErrors.addPoint(glm::vec2(referenceClock_seconds, averageDCTimeDelta_nanoseconds / 1000000.0));
-            metrics.sendDelays.addPoint(glm::vec2(referenceClock_seconds, frameSendDelay_milliseconds));
-            metrics.receiveDelays.addPoint(glm::vec2(referenceClock_seconds, frameReceiveDelay_milliseconds));
-            metrics.timeoutDelays.addPoint(glm::vec2(referenceClock_seconds, timeoutDelay_milliseconds));
-            metrics.cycleLengths.addPoint(glm::vec2(referenceClock_seconds, cycleLength_milliseconds));;
-            metrics.addWorkingCounter(workingCounter, referenceClock_seconds);
-            if (workingCounter <= 0) metrics.timeouts.addPoint(glm::vec2(referenceClock_seconds, frameReceiveDelay_milliseconds));
+            metrics.dcTimeErrors.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, referenceClockError_nanoseconds / 1000000.0));
+            metrics.averageDcTimeErrors.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, averageDCTimeDelta_nanoseconds / 1000000.0));
+            metrics.sendDelays.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, frameSendDelay_milliseconds));
+            metrics.receiveDelays.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, frameReceiveDelay_milliseconds));
+            metrics.timeoutDelays.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, timeoutDelay_milliseconds));
+            metrics.cycleLengths.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, cycleLength_milliseconds));;
+            metrics.addWorkingCounter(workingCounter, fieldbusTimeSmoothed_seconds);
+            if (workingCounter <= 0) metrics.timeouts.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, frameReceiveDelay_milliseconds));
             uint64_t processedTime_nanoseconds = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
             double processDelay_milliseconds = (double)(processedTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
-            metrics.processDelays.addPoint(glm::vec2(referenceClock_seconds, processDelay_milliseconds));
+            metrics.processDelays.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, processDelay_milliseconds));
             metrics.cycleCounter++;
 
             //======================== RUNTIME LOOP END =========================
@@ -608,7 +618,7 @@ namespace EtherCatFieldbus {
             slave->prepareOutputs();
         }
         ec_send_processdata();
-        
+
         //terminate and disable all slaves
         for (auto slave : slaves) {
             if (slave->isDetected()) {
@@ -620,9 +630,9 @@ namespace EtherCatFieldbus {
         }
         //evaluate all nodes one last time to propagate the disconnection of devices
         Environnement::nodeGraph.evaluate(Device::Type::ETHERCAT_DEVICE);
-        
+
         Logger::info("===== Cyclic Exchange Stopped !");
-        
+
         //cleanup threads and relaunc slave detection handler
         if (slaveStateHandler.joinable()) slaveStateHandler.join();
         startSlaveDetectionHandler();
@@ -741,8 +751,14 @@ namespace EtherCatFieldbus {
         Logger::debug("Exited Slave State Handler Thread");
     }
 
-    double getReferenceClock_seconds() {
-        return referenceClock_seconds;
+    double currentSystemCycleTime_seconds = 0.0;
+    double getCycleTime_seconds() {
+        return currentSystemCycleTime_seconds;
+    }
+    
+    long long int currentSystemCycleTime_nanoseconds = 0;
+    long long int getCycleTime_nanoseconds() {
+        return currentSystemCycleTime_nanoseconds;
     }
 }
 

@@ -11,8 +11,12 @@
 #include "Gui/Framework/Colors.h"
 #include "Gui/Utilities/HelpMarker.h"
 
+#include "Fieldbus/EtherCatFieldbus.h"
+
 
 void PositionControlledAxis::controlsGui() {
+
+	Logger::warn("{}", Timing::getProgramTime_seconds());
 
 	//====================== AXIS MANUAL CONTROLS ==============================
 
@@ -62,9 +66,9 @@ void PositionControlledAxis::controlsGui() {
 
 		ImGui::Text("Acceleration for manual controls :");
 	static char accelerationString[32];
-	sprintf(accelerationString, u8"%.3f %s/s²", manualControlAcceleration_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
-	ImGui::InputDouble("##TargetAcceleration", &manualControlAcceleration_machineUnitsPerSecond, 0.0, 0.0, accelerationString);
-	clamp(manualControlAcceleration_machineUnitsPerSecond, 0.0, accelerationLimit_machineUnitsPerSecondSquared);
+	sprintf(accelerationString, u8"%.3f %s/s²", manualControlAcceleration_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
+	ImGui::InputDouble("##TargetAcceleration", &manualControlAcceleration_axisUnitsPerSecond, 0.0, 0.0, accelerationString);
+	clamp(manualControlAcceleration_axisUnitsPerSecond, 0.0, accelerationLimit_axisUnitsPerSecondSquared);
 	ImGui::Separator();
 
 	//------------------- VELOCITY CONTROLS ------------------------
@@ -77,11 +81,11 @@ void PositionControlledAxis::controlsGui() {
 
 	ImGui::SetNextItemWidth(widgetWidth);
 	static char velocityTargetString[32];
-	sprintf(velocityTargetString, "%.3f %s/s", manualVelocityTarget_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
+	sprintf(velocityTargetString, "%.3f %s/s", manualVelocityTarget_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
 
-	float manualVelocityTarget = manualVelocityTarget_machineUnitsPerSecond;
-	if (ImGui::SliderFloat("##Velocity", &manualVelocityTarget, -velocityLimit_machineUnitsPerSecond, velocityLimit_machineUnitsPerSecond, velocityTargetString));
-	clamp(manualVelocityTarget_machineUnitsPerSecond, -velocityLimit_machineUnitsPerSecond, velocityLimit_machineUnitsPerSecond);
+	float manualVelocityTarget = manualVelocityTarget_axisUnitsPerSecond;
+	if (ImGui::SliderFloat("##Velocity", &manualVelocityTarget, -velocityLimit_axisUnitsPerSecond, velocityLimit_axisUnitsPerSecond, velocityTargetString));
+	clamp(manualVelocityTarget_axisUnitsPerSecond, -velocityLimit_axisUnitsPerSecond, velocityLimit_axisUnitsPerSecond);
 	if (ImGui::IsItemActive()) setVelocity(manualVelocityTarget);
 	else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocity(manualVelocityTarget = 0.0);
 
@@ -97,27 +101,27 @@ void PositionControlledAxis::controlsGui() {
 	glm::vec2 tripleButtonSize(tripleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
 	ImGui::SetNextItemWidth(tripleWidgetWidth);
 	static char targetPositionString[32];
-	sprintf(targetPositionString, "%.3f %s", targetPosition_machineUnits, getPositionUnitStringShort(machinePositionUnit));
-	ImGui::InputDouble("##TargetPosition", &targetPosition_machineUnits, 0.0, 0.0, targetPositionString);
+	sprintf(targetPositionString, "%.3f %s", targetPosition_axisUnits, getPositionUnitStringShort(axisPositionUnit));
+	ImGui::InputDouble("##TargetPosition", &targetPosition_axisUnits, 0.0, 0.0, targetPositionString);
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(tripleWidgetWidth);
 	static char targetVelocityString[32];
-	sprintf(targetVelocityString, "%.3f %s/s", targetVelocity_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
-	ImGui::InputDouble("##TargetVelocity", &targetVelocity_machineUnitsPerSecond, 0.0, 0.0, targetVelocityString);
-	clamp(targetVelocity_machineUnitsPerSecond, 0.0, velocityLimit_machineUnitsPerSecond);
+	sprintf(targetVelocityString, "%.3f %s/s", targetVelocity_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
+	ImGui::InputDouble("##TargetVelocity", &targetVelocity_axisUnitsPerSecond, 0.0, 0.0, targetVelocityString);
+	clamp(targetVelocity_axisUnitsPerSecond, 0.0, velocityLimit_axisUnitsPerSecond);
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(tripleWidgetWidth);
 	ImGui::InputDouble("##TargetTime", &targetTime_seconds, 0.0, 0.0, "%.3f s");
 	if (ImGui::Button("Fast Move", tripleButtonSize)) {
-		moveToPositionWithVelocity(targetPosition_machineUnits, velocityLimit_machineUnitsPerSecond, manualControlAcceleration_machineUnitsPerSecond);
+		moveToPositionWithVelocity(targetPosition_axisUnits, velocityLimit_axisUnitsPerSecond, manualControlAcceleration_axisUnitsPerSecond);
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Velocity Move", tripleButtonSize)) {
-		moveToPositionWithVelocity(targetPosition_machineUnits, targetVelocity_machineUnitsPerSecond, manualControlAcceleration_machineUnitsPerSecond);
+		moveToPositionWithVelocity(targetPosition_axisUnits, targetVelocity_axisUnitsPerSecond, manualControlAcceleration_axisUnitsPerSecond);
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Timed Move", tripleButtonSize)) {
-		moveToPositionInTime(targetPosition_machineUnits, targetTime_seconds, manualControlAcceleration_machineUnitsPerSecond);
+		moveToPositionInTime(targetPosition_axisUnits, targetTime_seconds, manualControlAcceleration_axisUnitsPerSecond);
 	}
 
 	if (ImGui::Button("Stop##Target", glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 2))) {
@@ -144,16 +148,16 @@ void PositionControlledAxis::controlsGui() {
 		positionProgress = getPositionProgress();
 
 		if (positionProgress <= 1.0 && positionProgress >= 0.0) {
-			sprintf(positionString, "%.2f %s", actualPosition_machineUnits, getPositionUnit(machinePositionUnit)->shortForm);
+			sprintf(positionString, "%.2f %s", actualPosition_axisUnits, getPositionUnit(axisPositionUnit)->shortForm);
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 		}
 		else {
 			positionProgress = 1.0;
-			sprintf(positionString, "Axis out of limits : %.2f %s", actualPosition_machineUnits, getPositionUnit(machinePositionUnit)->shortForm);
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
+			sprintf(positionString, "Axis out of limits : %.2f %s", actualPosition_axisUnits, getPositionUnit(axisPositionUnit)->shortForm);
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
 		}
 	}
-	ImGui::Text("Current Position : (in range from %.2f %s to %.2f %s)", minPosition, getPositionUnitStringShort(machinePositionUnit), maxPosition, getPositionUnitStringShort(machinePositionUnit));
+	ImGui::Text("Current Position : (in range from %.2f %s to %.2f %s)", minPosition, getPositionUnitStringShort(axisPositionUnit), maxPosition, getPositionUnitStringShort(axisPositionUnit));
 	ImGui::ProgressBar(positionProgress, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), positionString);
 	ImGui::PopStyleColor();
 
@@ -167,14 +171,14 @@ void PositionControlledAxis::controlsGui() {
 		sprintf(velocityString, "Machine Disabled");
 	}
 	else {
-		velocityProgress = std::abs(actualVelocity_machineUnitsPerSecond) / velocityLimit_machineUnitsPerSecond;
-		sprintf(velocityString, "%.2f %s/s", actualVelocity_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
-		if (std::abs(actualVelocity_machineUnitsPerSecond) > std::abs(velocityLimit_machineUnitsPerSecond))
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
+		velocityProgress = std::abs(actualVelocity_axisUnitsPerSecond) / velocityLimit_axisUnitsPerSecond;
+		sprintf(velocityString, "%.2f %s/s", actualVelocity_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
+		if (std::abs(actualVelocity_axisUnitsPerSecond) > std::abs(velocityLimit_axisUnitsPerSecond))
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
 		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 	}
 
-	ImGui::Text("Current Velocity : (max %.2f%s/s)", velocityLimit_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
+	ImGui::Text("Current Velocity : (max %.2f%s/s)", velocityLimit_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
 	ImGui::ProgressBar(velocityProgress, ImVec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), velocityString);
 	ImGui::PopStyleColor();
 
@@ -247,7 +251,7 @@ void PositionControlledAxis::controlsGui() {
 			sprintf(rangeString, "%.2f%s", feedbackPosition_deviceUnits, getPositionUnit(devicePositionUnit)->shortForm);
 		}
 		else {
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
 			double distanceOutsideRange = range > 1.0 ? feedbackPosition_deviceUnits - rangeMax_deviceUnits : feedbackPosition_deviceUnits - rangeMin_deviceUnits;
 			sprintf(rangeString, "Encoder Outside Working Range by %.2f%s", distanceOutsideRange, getPositionUnit(devicePositionUnit)->shortForm);
 			range = 1.0;
@@ -352,8 +356,8 @@ void PositionControlledAxis::controlsGui() {
 	glm::vec2 doubleButtonSize((widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, tripleButtonSize.y);
 
 	bool disableCaptureButtons = !isEnabled() || isMoving();
-	bool disableCaptureLowerLimit = actualPosition_machineUnits > 0.0;
-	bool disableCaptureHigherLimit = actualPosition_machineUnits < 0.0;
+	bool disableCaptureLowerLimit = actualPosition_axisUnits > 0.0;
+	bool disableCaptureHigherLimit = actualPosition_axisUnits < 0.0;
 	if (disableCaptureButtons) BEGIN_DISABLE_IMGUI_ELEMENT
 		switch (positionReferenceSignal) {
 		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
@@ -407,19 +411,19 @@ void PositionControlledAxis::controlsGui() {
 	}
 
 	static char scalingString[64];
-	sprintf(scalingString, "%.4f %s", machineScalingPosition_machineUnits, getPositionUnit(machinePositionUnit)->shortForm);
+	sprintf(scalingString, "%.4f %s", machineScalingPosition_axisUnits, getPositionUnit(axisPositionUnit)->shortForm);
 
 	ImGui::TextWrapped("Current Axis Position Relative to the origin");
 	ImGui::SetNextItemWidth(doubleButtonSize.x);
-	ImGui::InputDouble("##posScal", &machineScalingPosition_machineUnits, 0.0, 0.0, scalingString);
+	ImGui::InputDouble("##posScal", &machineScalingPosition_axisUnits, 0.0, 0.0, scalingString);
 	ImGui::SameLine();
 
-	bool disableSetScaling = (machineScalingPosition_machineUnits > 0.0 && actualPosition_machineUnits < 0.0)
-		|| (machineScalingPosition_machineUnits < 0.0 && actualPosition_machineUnits > 0.0)
-		|| machineScalingPosition_machineUnits == 0.0
+	bool disableSetScaling = (machineScalingPosition_axisUnits > 0.0 && actualPosition_axisUnits < 0.0)
+		|| (machineScalingPosition_axisUnits < 0.0 && actualPosition_axisUnits > 0.0)
+		|| machineScalingPosition_axisUnits == 0.0
 		|| isMoving();
 	if (disableSetScaling) BEGIN_DISABLE_IMGUI_ELEMENT
-		if (ImGui::Button("Set Scaling", ImGui::GetItemRectSize())) scaleFeedbackToMatchPosition(machineScalingPosition_machineUnits);
+		if (ImGui::Button("Set Scaling", ImGui::GetItemRectSize())) scaleFeedbackToMatchPosition(machineScalingPosition_axisUnits);
 	if (disableSetScaling) END_DISABLE_IMGUI_ELEMENT
 
 		if (disableManualControls) END_DISABLE_IMGUI_ELEMENT
@@ -438,20 +442,20 @@ void PositionControlledAxis::settingsGui() {
 	ImGui::PopFont();
 
 	ImGui::Text("Movement Type :");
-	if (ImGui::BeginCombo("##AxisUnitType", getPositionUnitType(machinePositionUnitType)->displayName)) {
+	if (ImGui::BeginCombo("##AxisUnitType", getPositionUnitType(axisPositionUnitType)->displayName)) {
 		for (PositionUnitType& unitType : getPositionUnitTypes()) {
-			if (ImGui::Selectable(unitType.displayName, machinePositionUnitType == unitType.type)) {
-				machinePositionUnitType = unitType.type;
+			if (ImGui::Selectable(unitType.displayName, axisPositionUnitType == unitType.type)) {
+				axisPositionUnitType = unitType.type;
 				//if the machine type is changed but the machine unit is of the wrong type
 				//change the machine unit to the first correct type automatically
-				if (getPositionUnit(machinePositionUnit)->type != unitType.type) {
+				if (getPositionUnit(axisPositionUnit)->type != unitType.type) {
 					switch (unitType.type) {
 					case PositionUnit::Type::ANGULAR:
-						machinePositionUnit = getAngularPositionUnits().front().unit;
+						axisPositionUnit = getAngularPositionUnits().front().unit;
 						positionReferenceSignal = getAngularPositionReferenceSignals().front().type;
 						break;
 					case PositionUnit::Type::LINEAR:
-						machinePositionUnit = getLinearPositionUnits().front().unit;
+						axisPositionUnit = getLinearPositionUnits().front().unit;
 						positionReferenceSignal = getLinearPositionReferenceSignals().front().type;
 						break;
 					}
@@ -464,15 +468,15 @@ void PositionControlledAxis::settingsGui() {
 	float widgetWidth = ImGui::GetItemRectSize().x;
 
 	ImGui::Text("Position Unit :");
-	if (ImGui::BeginCombo("##AxisUnit", getPositionUnit(machinePositionUnit)->displayName)) {
-		if (machinePositionUnitType == PositionUnit::Type::LINEAR) {
+	if (ImGui::BeginCombo("##AxisUnit", getPositionUnit(axisPositionUnit)->displayName)) {
+		if (axisPositionUnitType == PositionUnit::Type::LINEAR) {
 			for (PositionUnit& unit : getLinearPositionUnits()) {
-				if (ImGui::Selectable(unit.displayName, machinePositionUnit == unit.unit)) machinePositionUnit = unit.unit;
+				if (ImGui::Selectable(unit.displayName, axisPositionUnit == unit.unit)) axisPositionUnit = unit.unit;
 			}
 		}
-		else if (machinePositionUnitType == PositionUnit::Type::ANGULAR) {
+		else if (axisPositionUnitType == PositionUnit::Type::ANGULAR) {
 			for (PositionUnit& unit : getAngularPositionUnits()) {
-				if (ImGui::Selectable(unit.displayName, machinePositionUnit == unit.unit)) machinePositionUnit = unit.unit;
+				if (ImGui::Selectable(unit.displayName, axisPositionUnit == unit.unit)) axisPositionUnit = unit.unit;
 			}
 		}
 		ImGui::EndCombo();
@@ -549,9 +553,9 @@ void PositionControlledAxis::settingsGui() {
 			}
 
 			if (feedbackAndActuatorConversionIdentical) BEGIN_DISABLE_IMGUI_ELEMENT
-				ImGui::Text("%s %s per Machine %s :", feedbackDevice->getName(), getPositionUnit(feedbackDevice->positionUnit)->displayNamePlural, getPositionUnit(machinePositionUnit)->displayName);
-			ImGui::InputDouble("##feedbackCoupling", &feedbackUnitsPerMachineUnits);
-			if (feedbackUnitsPerMachineUnits < 0.0) feedbackUnitsPerMachineUnits = 0.0;
+				ImGui::Text("%s %s per Machine %s :", feedbackDevice->getName(), getPositionUnit(feedbackDevice->positionUnit)->displayNamePlural, getPositionUnit(axisPositionUnit)->displayName);
+			ImGui::InputDouble("##feedbackCoupling", &feedbackUnitsPerAxisUnits);
+			if (feedbackUnitsPerAxisUnits < 0.0) feedbackUnitsPerAxisUnits = 0.0;
 			if (feedbackAndActuatorConversionIdentical) END_DISABLE_IMGUI_ELEMENT
 
 		}
@@ -587,15 +591,15 @@ void PositionControlledAxis::settingsGui() {
 			ImGui::SameLine();
 			ImGui::Text("%s", getPositionUnit(actuator->positionUnit)->displayNamePlural);
 
-			ImGui::Text("%s %s per Machine %s :", actuator->getName(), getPositionUnit(actuator->positionUnit)->displayNamePlural, getPositionUnit(machinePositionUnit)->displayName);
-			ImGui::InputDouble("##actuatorCoupling", &actuatorUnitsPerMachineUnits);
+			ImGui::Text("%s %s per Machine %s :", actuator->getName(), getPositionUnit(actuator->positionUnit)->displayNamePlural, getPositionUnit(axisPositionUnit)->displayName);
+			ImGui::InputDouble("##actuatorCoupling", &actuatorUnitsPerAxisUnits);
 
 			ImGui::Checkbox("##actFeedIdent", &feedbackAndActuatorConversionIdentical);
 			ImGui::SameLine();
 			ImGui::Text("Actuator and Feedback Coupling are identical");
 
-			if (actuatorUnitsPerMachineUnits < 0.0) actuatorUnitsPerMachineUnits = 0.0;
-			if (feedbackAndActuatorConversionIdentical) feedbackUnitsPerMachineUnits = actuatorUnitsPerMachineUnits;
+			if (actuatorUnitsPerAxisUnits < 0.0) actuatorUnitsPerAxisUnits = 0.0;
+			if (feedbackAndActuatorConversionIdentical) feedbackUnitsPerAxisUnits = actuatorUnitsPerAxisUnits;
 		}
 		else {
 			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
@@ -646,10 +650,10 @@ void PositionControlledAxis::settingsGui() {
 			default: break;
 			}
 
-			ImGui::Text("%s %s per Machine %s :", servo->getName(), getPositionUnit(servo->positionUnit)->displayNamePlural, getPositionUnit(machinePositionUnit)->displayName);
-			ImGui::InputDouble("##servoActuatorCoupling", &actuatorUnitsPerMachineUnits);
-			if (actuatorUnitsPerMachineUnits < 0.0) actuatorUnitsPerMachineUnits = 0.0;
-			feedbackUnitsPerMachineUnits = actuatorUnitsPerMachineUnits;
+			ImGui::Text("%s %s per Machine %s :", servo->getName(), getPositionUnit(servo->positionUnit)->displayNamePlural, getPositionUnit(axisPositionUnit)->displayName);
+			ImGui::InputDouble("##servoActuatorCoupling", &actuatorUnitsPerAxisUnits);
+			if (actuatorUnitsPerAxisUnits < 0.0) actuatorUnitsPerAxisUnits = 0.0;
+			feedbackUnitsPerAxisUnits = actuatorUnitsPerAxisUnits;
 
 		}
 		else {
@@ -671,8 +675,8 @@ void PositionControlledAxis::settingsGui() {
 	if ((needsActuatorDevice() && isActuatorDeviceConnected()) || (needsServoActuatorDevice() && isServoActuatorDeviceConnected())) {
 		double actuatorVelocityLimit_actuatorUnitsPerSecond;
 		double actuatorAccelerationLimit_actuatorUnitsPerSecondSquared;
-		double actuatorVelocityLimit_machineUnitsPerSecond;
-		double actuatorAccelerationLimit_machineUnitsPerSecondSquared;
+		double actuatorVelocityLimit_axisUnitsPerSecond;
+		double actuatorAccelerationLimit_axisUnitsPerSecondSquared;
 		PositionUnit::Unit actuatorUnit;
 		if (needsActuatorDevice() && isActuatorDeviceConnected()) {
 			std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
@@ -686,8 +690,8 @@ void PositionControlledAxis::settingsGui() {
 			actuatorAccelerationLimit_actuatorUnitsPerSecondSquared = servo->getAccelerationLimit();
 			actuatorUnit = servo->positionUnit;
 		}
-		actuatorVelocityLimit_machineUnitsPerSecond = actuatorVelocityLimit_actuatorUnitsPerSecond / actuatorUnitsPerMachineUnits;
-		actuatorAccelerationLimit_machineUnitsPerSecondSquared = actuatorAccelerationLimit_actuatorUnitsPerSecondSquared / actuatorUnitsPerMachineUnits;
+		actuatorVelocityLimit_axisUnitsPerSecond = actuatorVelocityLimit_actuatorUnitsPerSecond / actuatorUnitsPerAxisUnits;
+		actuatorAccelerationLimit_axisUnitsPerSecondSquared = actuatorAccelerationLimit_actuatorUnitsPerSecondSquared / actuatorUnitsPerAxisUnits;
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 		ImGui::TextWrapped(u8"Max actuator velocity is %.1f %s/s and max acceleration is %.1f %s/s²",
 			actuatorVelocityLimit_actuatorUnitsPerSecond,
@@ -695,40 +699,40 @@ void PositionControlledAxis::settingsGui() {
 			actuatorAccelerationLimit_actuatorUnitsPerSecondSquared,
 			getPositionUnit(actuatorUnit)->shortForm);
 		ImGui::TextWrapped(u8"Machine is limited to %.3f %s/s and %.3f %s/s²",
-			actuatorVelocityLimit_machineUnitsPerSecond,
-			getPositionUnit(machinePositionUnit)->shortForm,
-			actuatorAccelerationLimit_machineUnitsPerSecondSquared,
-			getPositionUnit(machinePositionUnit)->shortForm);
+			actuatorVelocityLimit_axisUnitsPerSecond,
+			getPositionUnit(axisPositionUnit)->shortForm,
+			actuatorAccelerationLimit_axisUnitsPerSecondSquared,
+			getPositionUnit(axisPositionUnit)->shortForm);
 		ImGui::PopStyleColor();
-		clamp(velocityLimit_machineUnitsPerSecond, 0.0, actuatorVelocityLimit_machineUnitsPerSecond);
-		clamp(accelerationLimit_machineUnitsPerSecondSquared, 0.0, actuatorAccelerationLimit_machineUnitsPerSecondSquared);
-		clamp(defaultManualVelocity_machineUnitsPerSecond, 0.0, actuatorVelocityLimit_machineUnitsPerSecond);
-		clamp(defaultManualAcceleration_machineUnitsPerSecondSquared, 0.0, actuatorAccelerationLimit_machineUnitsPerSecondSquared);
+		clamp(velocityLimit_axisUnitsPerSecond, 0.0, actuatorVelocityLimit_axisUnitsPerSecond);
+		clamp(accelerationLimit_axisUnitsPerSecondSquared, 0.0, actuatorAccelerationLimit_axisUnitsPerSecondSquared);
+		clamp(defaultManualVelocity_axisUnitsPerSecond, 0.0, actuatorVelocityLimit_axisUnitsPerSecond);
+		clamp(defaultManualAcceleration_axisUnitsPerSecondSquared, 0.0, actuatorAccelerationLimit_axisUnitsPerSecondSquared);
 	}
 
 	ImGui::Text("Velocity Limit");
 	static char velLimitString[16];
-	sprintf(velLimitString, "%.3f %s/s", velocityLimit_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
-	ImGui::InputDouble("##VelLimit", &velocityLimit_machineUnitsPerSecond, 0.0, 0.0, velLimitString);
+	sprintf(velLimitString, "%.3f %s/s", velocityLimit_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
+	ImGui::InputDouble("##VelLimit", &velocityLimit_axisUnitsPerSecond, 0.0, 0.0, velLimitString);
 	static char accLimitString[16];
-	sprintf(accLimitString, u8"%.3f %s/s²", accelerationLimit_machineUnitsPerSecondSquared, getPositionUnitStringShort(machinePositionUnit));
+	sprintf(accLimitString, u8"%.3f %s/s²", accelerationLimit_axisUnitsPerSecondSquared, getPositionUnitStringShort(axisPositionUnit));
 	ImGui::Text("Acceleration Limit");
-	ImGui::InputDouble("##AccLimit", &accelerationLimit_machineUnitsPerSecondSquared, 0.0, 0.0, accLimitString);
+	ImGui::InputDouble("##AccLimit", &accelerationLimit_axisUnitsPerSecondSquared, 0.0, 0.0, accLimitString);
 
 	double halfWidgetWidth = (ImGui::GetItemRectSize().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
 
-	ImGui::Text("Default Manual Control Parameters", getPositionUnitStringPlural(machinePositionUnit));
+	ImGui::Text("Default Manual Control Parameters", getPositionUnitStringPlural(axisPositionUnit));
 	ImGui::SetNextItemWidth(halfWidgetWidth);
 	static char manAccString[16];
-	sprintf(manAccString, u8"%.3f %s/s²", defaultManualAcceleration_machineUnitsPerSecondSquared, getPositionUnitStringShort(machinePositionUnit));
-	ImGui::InputDouble("##defmanAcc", &defaultManualAcceleration_machineUnitsPerSecondSquared, 0.0, 0.0, manAccString);
-	clamp(defaultManualAcceleration_machineUnitsPerSecondSquared, 0.0, accelerationLimit_machineUnitsPerSecondSquared);
+	sprintf(manAccString, u8"%.3f %s/s²", defaultManualAcceleration_axisUnitsPerSecondSquared, getPositionUnitStringShort(axisPositionUnit));
+	ImGui::InputDouble("##defmanAcc", &defaultManualAcceleration_axisUnitsPerSecondSquared, 0.0, 0.0, manAccString);
+	clamp(defaultManualAcceleration_axisUnitsPerSecondSquared, 0.0, accelerationLimit_axisUnitsPerSecondSquared);
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(halfWidgetWidth);
 	static char manVelString[16];
-	sprintf(manVelString, "%.3f %s/s", defaultManualVelocity_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
-	ImGui::InputDouble("##defmanvel", &defaultManualVelocity_machineUnitsPerSecond, 0.0, 0.0, manVelString);
-	clamp(defaultManualVelocity_machineUnitsPerSecond, 0.0, velocityLimit_machineUnitsPerSecond);
+	sprintf(manVelString, "%.3f %s/s", defaultManualVelocity_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
+	ImGui::InputDouble("##defmanvel", &defaultManualVelocity_axisUnitsPerSecond, 0.0, 0.0, manVelString);
+	clamp(defaultManualVelocity_axisUnitsPerSecond, 0.0, velocityLimit_axisUnitsPerSecond);
 
 	ImGui::Separator();
 
@@ -764,7 +768,7 @@ void PositionControlledAxis::settingsGui() {
 
 	ImGui::Text("Reference Signal Type");
 	if (ImGui::BeginCombo("##MovementType", getPositionReferenceSignal(positionReferenceSignal)->displayName)) {
-		switch (machinePositionUnitType) {
+		switch (axisPositionUnitType) {
 		case PositionUnit::Type::LINEAR:
 			for (PositionReferenceSignal& reference : getLinearPositionReferenceSignals()) {
 				bool selected = positionReferenceSignal == reference.type;
@@ -829,13 +833,13 @@ void PositionControlledAxis::settingsGui() {
 		ImGui::PopStyleColor();
 
 		static char homVelString[16];
-		sprintf(homVelString, "%.3f %s/s", homingVelocity_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
+		sprintf(homVelString, "%.3f %s/s", homingVelocity_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
 
 		switch (positionReferenceSignal) {
 		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-			ImGui::Text("Homing Velocity", getPositionUnit(machinePositionUnit)->displayNamePlural);
-			ImGui::InputDouble("##HomingVelocity", &homingVelocity_machineUnitsPerSecond, 0.0, 0.0, homVelString);
-			if (homingVelocity_machineUnitsPerSecond < 0) homingVelocity_machineUnitsPerSecond = abs(homingVelocity_machineUnitsPerSecond);
+			ImGui::Text("Homing Velocity", getPositionUnit(axisPositionUnit)->displayNamePlural);
+			ImGui::InputDouble("##HomingVelocity", &homingVelocity_axisUnitsPerSecond, 0.0, 0.0, homVelString);
+			if (homingVelocity_axisUnitsPerSecond < 0) homingVelocity_axisUnitsPerSecond = abs(homingVelocity_axisUnitsPerSecond);
 			break;
 		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
 		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
@@ -847,9 +851,9 @@ void PositionControlledAxis::settingsGui() {
 				}
 				ImGui::EndCombo();
 			}
-			ImGui::Text("Homing Velocity", getPositionUnit(machinePositionUnit)->displayNamePlural);
-			ImGui::InputDouble("##HomingVelocity", &homingVelocity_machineUnitsPerSecond, 0.0, 0.0, homVelString);
-			if (homingVelocity_machineUnitsPerSecond < 0) homingVelocity_machineUnitsPerSecond = abs(homingVelocity_machineUnitsPerSecond);
+			ImGui::Text("Homing Velocity", getPositionUnit(axisPositionUnit)->displayNamePlural);
+			ImGui::InputDouble("##HomingVelocity", &homingVelocity_axisUnitsPerSecond, 0.0, 0.0, homVelString);
+			if (homingVelocity_axisUnitsPerSecond < 0) homingVelocity_axisUnitsPerSecond = abs(homingVelocity_axisUnitsPerSecond);
 			break;
 		case PositionReferenceSignal::Type::NO_SIGNAL:
 			break;
@@ -884,16 +888,16 @@ void PositionControlledAxis::settingsGui() {
 	ImGui::PopStyleColor();
 
 	static char negDevString[16];
-	sprintf(negDevString, "%.3f %s", maxNegativeDeviation_machineUnits, getPositionUnitStringShort(machinePositionUnit));
+	sprintf(negDevString, "%.3f %s", maxNegativeDeviation_axisUnits, getPositionUnitStringShort(axisPositionUnit));
 	static char posDevString[16];
-	sprintf(posDevString, "%.3f %s", maxPositiveDeviation_machineUnits, getPositionUnitStringShort(machinePositionUnit));
+	sprintf(posDevString, "%.3f %s", maxPositiveDeviation_axisUnits, getPositionUnitStringShort(axisPositionUnit));
 
 	switch (positionReferenceSignal) {
 	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
 		ImGui::Text("Max Distance From Origin");
 		ImGui::SetNextItemWidth(halfWidgetWidth);
-		ImGui::InputDouble("##MaxDeviation", &maxPositiveDeviation_machineUnits, 0.0, 0.0, posDevString);
-		if (maxPositiveDeviation_machineUnits < 0.0) maxPositiveDeviation_machineUnits = 0.0;
+		ImGui::InputDouble("##MaxDeviation", &maxPositiveDeviation_axisUnits, 0.0, 0.0, posDevString);
+		if (maxPositiveDeviation_axisUnits < 0.0) maxPositiveDeviation_axisUnits = 0.0;
 		ImGui::SameLine();
 		ImGui::Checkbox("##enableUpperLimit", &enablePositiveLimit);
 		ImGui::SameLine();
@@ -905,16 +909,16 @@ void PositionControlledAxis::settingsGui() {
 	case PositionReferenceSignal::Type::NO_SIGNAL:
 		ImGui::Text("Max Positive Distance From Origin");
 		ImGui::SetNextItemWidth(halfWidgetWidth);
-		ImGui::InputDouble("##MaxPositiveDeviation", &maxPositiveDeviation_machineUnits, 0.0, 0.0, posDevString);
-		if (maxPositiveDeviation_machineUnits < 0.0) maxPositiveDeviation_machineUnits = 0.0;
+		ImGui::InputDouble("##MaxPositiveDeviation", &maxPositiveDeviation_axisUnits, 0.0, 0.0, posDevString);
+		if (maxPositiveDeviation_axisUnits < 0.0) maxPositiveDeviation_axisUnits = 0.0;
 		ImGui::SameLine();
 		ImGui::Checkbox("##enableUpperLimit", &enablePositiveLimit);
 		ImGui::SameLine();
 		ImGui::Text("Enable Upper Axis Limit");
 		ImGui::Text("Max Negative Distance From Origin");
 		ImGui::SetNextItemWidth(halfWidgetWidth);
-		ImGui::InputDouble("##MaxNegativeDeviation", &maxNegativeDeviation_machineUnits, 0.0, 0.0, negDevString);
-		if (maxNegativeDeviation_machineUnits > 0.0) maxNegativeDeviation_machineUnits = 0.0;
+		ImGui::InputDouble("##MaxNegativeDeviation", &maxNegativeDeviation_axisUnits, 0.0, 0.0, negDevString);
+		if (maxNegativeDeviation_axisUnits > 0.0) maxNegativeDeviation_axisUnits = 0.0;
 		ImGui::SameLine();
 		ImGui::Checkbox("##enableLowerLimit", &enableNegativeLimit);
 		ImGui::SameLine();
@@ -928,9 +932,9 @@ void PositionControlledAxis::settingsGui() {
 
 	ImGui::Text("Axis Is Limited between %.3f %s and %.3f %s",
 		getLowPositionLimit(),
-		getPositionUnit(machinePositionUnit)->displayNamePlural,
+		getPositionUnit(axisPositionUnit)->displayNamePlural,
 		getHighPositionLimit(),
-		getPositionUnit(machinePositionUnit)->displayNamePlural);
+		getPositionUnit(axisPositionUnit)->displayNamePlural);
 
 }
 
@@ -1086,10 +1090,10 @@ void PositionControlledAxis::metricsGui() {
 
 	float zero = 0.0;
 	float one = 1.0;
-	float maxV = velocityLimit_machineUnitsPerSecond;
-	float minV = -velocityLimit_machineUnitsPerSecond;
-	float minA = -accelerationLimit_machineUnitsPerSecondSquared;
-	float maxA = accelerationLimit_machineUnitsPerSecondSquared;
+	float maxV = velocityLimit_axisUnitsPerSecond;
+	float minV = -velocityLimit_axisUnitsPerSecond;
+	float minA = -accelerationLimit_axisUnitsPerSecondSquared;
+	float maxA = accelerationLimit_axisUnitsPerSecondSquared;
 
 	if (positionPointCount > bufferSkip) {
 		ImPlot::SetNextPlotLimitsX(positionBuffer[bufferSkip].x, positionBuffer[positionPointCount - bufferSkip].x, ImGuiCond_Always);

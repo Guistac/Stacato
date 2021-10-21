@@ -31,7 +31,7 @@ public:
 				data.clear();
 			}
 			glm::vec2 newPoint;
-			newPoint.x = Timing::getTime_seconds();
+			newPoint.x = Timing::getProgramTime_seconds();
 			newPoint.y = input->getLinks().front()->getInputData()->getReal();
 			data.addPoint(newPoint);
 			input->set(newPoint.y);

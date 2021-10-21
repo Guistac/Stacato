@@ -9,7 +9,7 @@
 class LogMessage {
 public:
     LogMessage(std::string& msg, int l) : level(l){
-        message = "[" + std::to_string(Timing::getTime_seconds()) + "s] " + std::move(msg);
+        message = "[" + std::to_string(Timing::getProgramTime_seconds()) + "s] " + std::move(msg);
     }
     inline const char* getMessage() { return message.c_str(); }
     inline bool isTrace() { return level == 0; }

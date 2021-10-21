@@ -407,7 +407,7 @@ void Lexium32::prepareOutputs() {
     if (digitalOut1->isConnected()) digitalOut1->set(digitalOut1->getLinks().front()->getInputData()->getBoolean());
     if (digitalOut2->isConnected()) digitalOut2->set(digitalOut2->getLinks().front()->getInputData()->getBoolean());
 
-    double now_seconds = EtherCatFieldbus::getReferenceClock_seconds();
+    double now_seconds = EtherCatFieldbus::getCycleTime_seconds();
     double deltaT_seconds = now_seconds - previousProfilePointTime_seconds;
     previousProfilePointTime_seconds = now_seconds;
 

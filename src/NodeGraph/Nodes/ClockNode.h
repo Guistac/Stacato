@@ -14,6 +14,6 @@ public:
 	}
 
 	virtual void process() {
-		output_seconds->set(Timing::getTime_seconds());
+		output_seconds->set(Timing::getProgramTime_seconds());
 	}
 };

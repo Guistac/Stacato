@@ -67,6 +67,7 @@ static std::vector<NodeType> nodeTypes = {
 	{Node::Type::IODEVICE,	"IODevice",		"IODevice"},
 	{Node::Type::PROCESSOR, "Processor",	"Processor"},
 	{Node::Type::CLOCK,		"Clock",		"Clock"},
+	{Node::Type::AXIS,		"Axis",			"Axis"},
 	{Node::Type::MACHINE,	"Machine",		"Machine"},
 	{Node::Type::CONTAINER, "Container",	"Container"}
 };
