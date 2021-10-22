@@ -110,22 +110,43 @@ public:
 
     //===== Unit Settings =====
 
-    const int velocityUnitsPerRpm = 100;
     const int positionUnitsPerRevolution = 131072;
+    const int velocityUnitsPerRpm = 100;
+    const int accelerationUnitsPerRpmps = 1;
     const int currentUnitsPerAmp = 100;
-    float maxMotorVelocity_rps = 0.0;
 
     //===== General Settings =====
 
     bool b_invertDirectionOfMotorMovement = false;
 
-    double maxCurrent_amps = 5.0;
-    double maxQuickstopCurrent_amps = 9.0;
+    double maxCurrent_amps = 0.0;
+    
+    float maxMotorVelocity_rps = 0.0;
 
     void uploadGeneralParameters();
     DataTransferState::State generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
     void downloadGeneralParameters();
     DataTransferState::State generalParameterDownloadState = DataTransferState::State::NO_TRANSFER;
+
+    //======= QuickStop Settings =======
+    
+    struct QuickStopReaction {
+        enum class Type {
+            TORQUE_RAMP,
+            DECELERATION_RAMP
+        };
+        Type type;
+        const char displayName[64];
+        const char saveName[64];
+    };
+    static std::vector<QuickStopReaction> quickStopReactions;
+    std::vector<QuickStopReaction>& getQuickStopReactions();
+    QuickStopReaction* getQuickStopReaction(const char* saveName);
+    QuickStopReaction* getQuickStopReaction(QuickStopReaction::Type t);
+
+    QuickStopReaction::Type quickstopReaction = QuickStopReaction::Type::TORQUE_RAMP;
+    double maxQuickstopCurrent_amps = 0.0;
+    double quickStopDeceleration_revolutionsPerSecondSquared = 0.0;
 
     //===== GPIO settings ======
 
@@ -361,7 +382,7 @@ private:
     //Lexium GUI functions
     void statusGui();
     void controlsGui();
-    void generalGui();
+    void generalSettingsGui();
     void gpioGui();
     void encoderGui();
     void tuningGui();

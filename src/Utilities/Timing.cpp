@@ -4,16 +4,24 @@
 
 namespace Timing {
 
-	std::chrono::system_clock::time_point programStart = std::chrono::system_clock::now();
+	using namespace std::chrono;
+
+	system_clock::time_point programStartTime = system_clock::now();
 
 	double getProgramTime_seconds() {
-		return (double)getProgramTime_nanoseconds() / 1000000000.0L;
+		return (double)getProgramTime_nanoseconds() / 1000000000.0;
+	}
+
+	double getProgramTime_milliseconds() {
+		return (double)getProgramTime_nanoseconds() / 1000000.0;
+	}
+
+	double getProgramTime_microseconds() {
+		return (double)getProgramTime_nanoseconds() / 1000.0;
 	}
 
 	long long getProgramTime_nanoseconds() {
-		std::chrono::duration delay = std::chrono::system_clock::now() - programStart;
-		std::chrono::nanoseconds delayNanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(delay);
-		return delayNanoseconds.count();
+		return duration_cast<nanoseconds>(system_clock::now() - programStartTime).count();
 	}
 
 	double getSystemTime_seconds() {
@@ -24,8 +32,11 @@ namespace Timing {
 		return (double)getSystemTime_nanoseconds() / 1000000.0;
 	}
 
+	double getSystemTime_microseconds() {
+		return (double)getSystemTime_nanoseconds() / 1000.0;
+	}
+
 	long long getSystemTime_nanoseconds() {
-		using namespace std::chrono;
 		return duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count();
 	}
 

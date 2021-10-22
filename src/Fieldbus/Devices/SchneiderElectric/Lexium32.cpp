@@ -142,7 +142,7 @@ void Lexium32::assignIoData() {
 
 bool Lexium32::startupConfiguration() {
 
-    //Cia DS402 mandatory Startup Settings (According to Lexium32 EtherCAT module documentation)
+    //===== Cia DS402 mandatory Startup Settings (According to Lexium32 EtherCAT module documentation)
 
     uint16_t CompParSyncMot_set = 1;
     if (!writeSDO_U16(0x3006, 0x3D, CompParSyncMot_set)) return false;
@@ -151,7 +151,7 @@ bool Lexium32::startupConfiguration() {
     if (!writeSDO_U16(0x3006, 0x38, MOD_enable_set)) return false;
 
     //on quickstop, come to a stop using a torque ramp (intensity defined by max quickstop current)
-    //transition to operatin state Quickstop, this allows us to go back to operationEnabled and move the motor while the limit signal is still triggered
+    //transition to operating state Quickstop, this allows us to go back to operationEnabled and move the motor while the limit signal is still triggered
     //if we choose to trigger the fault state, we would not be able to go back to operationEnabled while the limit signal is still high
     int16_t LIM_QStopReact_set = 7;
     if (!writeSDO_S16(0x3006, 0x18, LIM_QStopReact_set)) return false;
@@ -162,6 +162,7 @@ bool Lexium32::startupConfiguration() {
     int32_t ScalePOSdenom_set = positionUnitsPerRevolution;
     if (!writeSDO_S32(0x3006, 0x7, ScalePOSdenom_set)) return false;
 
+    //setting becomes active after setting the numerator, so we set it last
     int32_t ScalePOSnum_set = 1;
     if (!writeSDO_S32(0x3006, 0x8, ScalePOSnum_set)) return false;
 
@@ -171,11 +172,14 @@ bool Lexium32::startupConfiguration() {
     uint16_t CTRL2_KFPp = 1000;
     if (!writeSDO_U16(0x3013, 0x6, CTRL2_KFPp)) return false;
 
+    //opmode cyclic synchronous position
     int8_t DCOMopmode_set = 8;
     if (!writeSDO_S8(0x6060, 0x0, DCOMopmode_set)) return false;
 
     uint32_t ECATinpshifttime_set = 250000;
     if (!writeSDO_U32(0x1C33, 0x3, ECATinpshifttime_set)) return false;
+
+    //====== Custom User Startup Settings ======
 
     //Upload velocity unit scaling
 
@@ -184,6 +188,13 @@ bool Lexium32::startupConfiguration() {
 
     int32_t ScaleVELnom = 1;
     if (!writeSDO_S32(0x3006, 0x22, ScaleVELnom)) return false;
+
+    //units per rpm/s
+    int32_t ScaleRAMPdenom = 1;
+    if (!writeSDO_S32(0x3006, 0x30, ScaleRAMPdenom)) return false;
+
+    int32_t ScaleRAMPnom = 1;
+    if (!writeSDO_S32(0x3006, 0x31, ScaleRAMPnom)) return false;
 
     //get max velocity and set as velocity limit
 
@@ -648,9 +659,29 @@ void Lexium32::uploadGeneralParameters() {
     }
 
     {
-        EtherCatCoeData LIM_I_maxQSTP(0x3011, 0xD, EtherCatData::Type::UINT16_T);
-        LIM_I_maxQSTP.setU16(maxQuickstopCurrent_amps * 100.0);
-        if (!LIM_I_maxQSTP.write(getSlaveIndex())) goto transferfailed;
+        EtherCatCoeData LIM_QStopReact(0x3006, 0x18, EtherCatData::Type::INT16_T);
+        switch (quickstopReaction) {
+            case QuickStopReaction::Type::DECELERATION_RAMP:
+                LIM_QStopReact.setS16(6);
+                break;
+            case QuickStopReaction::Type::TORQUE_RAMP:
+                LIM_QStopReact.setS16(7);
+                break;
+        }
+        if (!LIM_QStopReact.write(getSlaveIndex())) goto transferfailed;
+    }
+
+    switch (quickstopReaction) {
+        case QuickStopReaction::Type::DECELERATION_RAMP: {
+            EtherCatCoeData RAMPquickstop(0x3006, 0x12, EtherCatData::Type::UINT32_T);
+            RAMPquickstop.setU32(quickStopDeceleration_revolutionsPerSecondSquared * 60.0);
+            if (!RAMPquickstop.write(getSlaveIndex())) goto transferfailed;
+        }break;
+        case QuickStopReaction::Type::TORQUE_RAMP: {
+            EtherCatCoeData LIM_I_maxQSTP(0x3011, 0xD, EtherCatData::Type::UINT16_T);
+            LIM_I_maxQSTP.setU16(maxQuickstopCurrent_amps * 100.0);
+            if (!LIM_I_maxQSTP.write(getSlaveIndex())) goto transferfailed;
+        }break;
     }
 
     {
@@ -659,13 +690,13 @@ void Lexium32::uploadGeneralParameters() {
         if (!InvertDirOfMove.write(getSlaveIndex())) goto transferfailed;
     }
 
-    generalParameterUploadState = DataTransferState::State::SUCCEEDED;
-    Logger::warn("Max Current assignement Successfull");
+    generalParameterUploadState = DataTransferState::State::SAVING;
+    if (!saveToEEPROM()) goto transferfailed;
+    generalParameterUploadState = DataTransferState::State::SAVED;
     return;
 
 transferfailed:
     generalParameterUploadState = DataTransferState::State::FAILED;
-    Logger::warn("Max Current Assignement Failed");
     return;
 }
 
@@ -680,9 +711,33 @@ void Lexium32::downloadGeneralParameters() {
     }
 
     {
-        EtherCatCoeData LIM_I_maxQSTP(0x3011, 0xD, EtherCatData::Type::UINT16_T);
-        if (!LIM_I_maxQSTP.read(getSlaveIndex())) goto transferfailed;
-        maxQuickstopCurrent_amps = (float)LIM_I_maxQSTP.getU16() / 100.0;
+        EtherCatCoeData LIM_QStopReact(0x3006, 0x18, EtherCatData::Type::INT16_T);
+        if (!LIM_QStopReact.read(getSlaveIndex())) goto transferfailed;
+        switch (LIM_QStopReact.getS16()) {
+            case -1:
+            case 6:
+                quickstopReaction = QuickStopReaction::Type::DECELERATION_RAMP;
+                break;
+            case -2:
+            case 7:
+                quickstopReaction = QuickStopReaction::Type::TORQUE_RAMP;
+                break;
+            default:
+                goto transferfailed;
+        }
+    }
+
+    switch (quickstopReaction) {
+        case QuickStopReaction::Type::DECELERATION_RAMP: {
+            EtherCatCoeData RAMPquickstop(0x3006, 0x12, EtherCatData::Type::UINT32_T);
+            if (!RAMPquickstop.read(getSlaveIndex())) goto transferfailed;
+            quickStopDeceleration_revolutionsPerSecondSquared = ((double)RAMPquickstop.getU32() / (double)accelerationUnitsPerRpmps) / 60.0;
+        }break;
+        case QuickStopReaction::Type::TORQUE_RAMP: {
+            EtherCatCoeData LIM_I_maxQSTP(0x3011, 0xD, EtherCatData::Type::UINT16_T);
+            if (!LIM_I_maxQSTP.read(getSlaveIndex())) goto transferfailed;
+            maxQuickstopCurrent_amps = (float)LIM_I_maxQSTP.getU16() / 100.0;
+        }break;
     }
 
     {
@@ -1186,11 +1241,6 @@ void Lexium32::setStationAlias(uint16_t a) {
 
 
 
-
-//==============================================================
-//=========================== TYPES ============================
-//==============================================================
-
 //============================= SAVING AND LOADING DEVICE DATA ============================
 
 bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
@@ -1204,9 +1254,19 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
     XMLElement* invertDirectionOfMovementXML = xml->InsertNewChildElement("InvertDirectionOfMovement");
     invertDirectionOfMovementXML->SetAttribute("Invert", b_invertDirectionOfMotorMovement);
 
-    XMLElement* currentLimitsXML = xml->InsertNewChildElement("CurrentLimis");
-    currentLimitsXML->SetAttribute("maxCurrent_amps", maxCurrent_amps);
-    currentLimitsXML->SetAttribute("maxQuickstopCurrent_amps", maxQuickstopCurrent_amps);
+    XMLElement* currentLimitXML = xml->InsertNewChildElement("CurrentLimit");
+    currentLimitXML->SetAttribute("amps", maxCurrent_amps);
+    
+    XMLElement* quickstopReactionXML = xml->InsertNewChildElement("Quickstop");
+    quickstopReactionXML->SetAttribute("Reaction", getQuickStopReaction(quickstopReaction)->saveName);
+    switch (quickstopReaction) {
+        case QuickStopReaction::Type::DECELERATION_RAMP:
+            quickstopReactionXML->SetAttribute("Deceleration_RevolutionsPerSecondSquared", quickStopDeceleration_revolutionsPerSecondSquared);
+            break;
+        case QuickStopReaction::Type::TORQUE_RAMP:
+            quickstopReactionXML->SetAttribute("MaxCurrent_amps", maxQuickstopCurrent_amps);
+            break;
+    }
 
     XMLElement* negativeLimitSwitchXML = xml->InsertNewChildElement("NegativeLimitSwitch");
     negativeLimitSwitchXML->SetAttribute("Pin", getInputPin(negativeLimitSwitchPin)->saveName);
@@ -1277,10 +1337,27 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
     if (invertDirectionOfMovementXML == nullptr) return Logger::warn("Could not find invert direction of movement attribute");
     if (invertDirectionOfMovementXML->QueryBoolAttribute("Invert", &b_invertDirectionOfMotorMovement) != XML_SUCCESS) return Logger::warn("Could not read direciton of movement attribute");
 
-    XMLElement* currentLimitsXML = xml->FirstChildElement("CurrentLimis");
+    XMLElement* currentLimitsXML = xml->FirstChildElement("CurrentLimit");
     if (currentLimitsXML == nullptr) return Logger::warn("Could not find current limits attribute");
-    if (currentLimitsXML->QueryDoubleAttribute("maxCurrent_amps", &maxCurrent_amps) != XML_SUCCESS) return Logger::warn("Could not read Max Current Attribute");
-    if (currentLimitsXML->QueryDoubleAttribute("maxQuickstopCurrent_amps", &maxQuickstopCurrent_amps) != XML_SUCCESS) return Logger::warn("Could not read max Quickstop Current Attribute");
+    if (currentLimitsXML->QueryDoubleAttribute("amps", &maxCurrent_amps) != XML_SUCCESS) return Logger::warn("Could not read Max Current Attribute");
+
+
+
+    XMLElement* quickstopReactionXML = xml->FirstChildElement("Quickstop");
+    if (quickstopReactionXML == nullptr) return Logger::warn("Could not find quickstop attribute");
+    const char* quickstopReactionTypeString;
+    if (quickstopReactionXML->QueryStringAttribute("Reaction", &quickstopReactionTypeString) != XML_SUCCESS) return Logger::warn("Could not find quickstop reaction type attribute");
+    if (getQuickStopReaction(quickstopReactionTypeString) == nullptr) return Logger::warn("Could not read quickstop reaction type");
+    quickstopReaction = getQuickStopReaction(quickstopReactionTypeString)->type;
+      
+    switch (quickstopReaction) {
+        case QuickStopReaction::Type::DECELERATION_RAMP:
+            if (quickstopReactionXML->QueryDoubleAttribute("Deceleration_RevolutionsPerSecondSquared", &quickStopDeceleration_revolutionsPerSecondSquared) != XML_SUCCESS) return Logger::warn("Could not read quickstop deceleration value");
+            break;
+        case QuickStopReaction::Type::TORQUE_RAMP:
+            if (quickstopReactionXML->QueryDoubleAttribute("MaxCurrent_amps", &maxQuickstopCurrent_amps) != XML_SUCCESS) return Logger::warn("Could not read quickstop current value");
+            break;
+    }
 
     XMLElement* negativeLimitSwitchXML = xml->FirstChildElement("NegativeLimitSwitch");
     if (negativeLimitSwitchXML == nullptr) return Logger::warn("Could not find negative limit switch attribute");
@@ -1375,6 +1452,14 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
     return true;
 }
 
+
+
+
+
+//==============================================================
+//=========================== TYPES ============================
+//==============================================================
+
 //============================= DEVICE MODES =================================
 
 std::vector<Lexium32::OperatingMode> Lexium32::operatingModes = {
@@ -1420,6 +1505,28 @@ Lexium32::OperatingMode* Lexium32::getOperatingMode(int id) {
         if (id == operatingMode.id) return &operatingMode;
     }
     return &operatingModes.back();
+}
+
+//===================== QUICKSTOP REACTIONS ==========================
+
+std::vector<Lexium32::QuickStopReaction> Lexium32::quickStopReactions = {
+    {Lexium32::QuickStopReaction::Type::TORQUE_RAMP, "Torque Ramp", "TorqueRamp"},
+    {Lexium32::QuickStopReaction::Type::DECELERATION_RAMP, "Deceleration Ramp", "DecelerationRamp"}
+};
+std::vector<Lexium32::QuickStopReaction>& Lexium32::getQuickStopReactions() {
+    return quickStopReactions;
+}
+Lexium32::QuickStopReaction* Lexium32::getQuickStopReaction(const char* saveName) {
+    for (auto& quickstopReaction : quickStopReactions) {
+        if (strcmp(saveName, quickstopReaction.saveName) == 0) return &quickstopReaction;
+    }
+    return nullptr;
+}
+Lexium32::QuickStopReaction* Lexium32::getQuickStopReaction(QuickStopReaction::Type t) {
+    for (auto& quickstopReaction : quickStopReactions) {
+        if (t == quickstopReaction.type) return &quickstopReaction;
+    }
+    return nullptr;
 }
 
 //====================== INPUT PINS ===========================

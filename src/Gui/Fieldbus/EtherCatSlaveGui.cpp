@@ -274,6 +274,8 @@ void EtherCatDevice::genericInfoGui() {
     }
     else ImGui::Text("CoE is not Supported");
 
+    ImGui::Separator();
+
     ImGui::Text("FoE Details: %i", identity->FoEdetails);
     ImGui::Text("EoE Details: %i", identity->EoEdetails);
     ImGui::Text("SoE Details: %i", identity->SoEdetails);

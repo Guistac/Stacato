@@ -11,12 +11,9 @@
 #include "Gui/Framework/Colors.h"
 #include "Gui/Utilities/HelpMarker.h"
 
-#include "Fieldbus/EtherCatFieldbus.h"
 
 
 void PositionControlledAxis::controlsGui() {
-
-	ImGui::Text("%.9f", EtherCatFieldbus::getCycleProgramTime_seconds());
 
 	//====================== AXIS MANUAL CONTROLS ==============================
 

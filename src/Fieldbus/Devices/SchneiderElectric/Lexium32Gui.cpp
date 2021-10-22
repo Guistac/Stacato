@@ -8,6 +8,7 @@
 #include "Gui/Framework/Colors.h"
 #include "Gui/Framework/Fonts.h"
 
+#include "Gui/Utilities/HelpMarker.h"
 
 
 void Lexium32::deviceSpecificGui() {
@@ -27,7 +28,7 @@ void Lexium32::deviceSpecificGui() {
             }
             if (ImGui::BeginTabItem("General")) {
                 if (ImGui::BeginChild("General")) {
-                    generalGui();
+                    generalSettingsGui();
                     ImGui::EndChild();
                 }
                 ImGui::EndTabItem();
@@ -305,15 +306,17 @@ void Lexium32::controlsGui() {
 
 
 
-void Lexium32::generalGui() {
-    bool disableTransferButton = !isDetected();
+void Lexium32::generalSettingsGui() {
 
     ImGui::PushFont(Fonts::robotoBold20);
     ImGui::Text("Profile Generator Limits");
     ImGui::PopFont();
 
-    ImGui::TextWrapped("These settings are not stored on the drive, but regulate the speed and position commands sent to the drive.");
-
+    ImGui::SameLine();
+    if (beginHelpMarker("(help)")) {
+        ImGui::TextWrapped("These settings are not stored on the drive, but regulate the speed and position commands sent to the drive.");
+        endHelpMarker();
+    }
     if (maxMotorVelocity_rps != 0.0) {
         ImGui::TextWrapped("The Maximum Velocity of the Motor is %.3f rotations per second ", maxMotorVelocity_rps);
         if (servoMotorDevice->velocityLimit_positionUnitsPerSecond > maxMotorVelocity_rps) servoMotorDevice->velocityLimit_positionUnitsPerSecond = maxMotorVelocity_rps;
@@ -333,16 +336,37 @@ void Lexium32::generalGui() {
     ImGui::Text("General Settings");
     ImGui::PopFont();
 
+    ImGui::SameLine();
+    if (beginHelpMarker("(help)")) {
+        ImGui::TextWrapped("These are not stored on the drive and represent general system limits.");
+        endHelpMarker();
+    }
+
+    bool disableTransferButton = !isDetected();
     if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
     if (ImGui::Button("Download Settings From Drive")) {
-        std::thread maxCurrentDownloader([this]() { downloadGeneralParameters(); });
-        maxCurrentDownloader.detach();
+        std::thread generalParameterDownloader([this]() { downloadGeneralParameters(); });
+        generalParameterDownloader.detach();
     }
     if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
     ImGui::Text(getDataTransferState(generalParameterDownloadState)->displayName);
 
-    ImGui::TextWrapped("General Settings that are stored on the drive.");
+    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
+        if (ImGui::Button("Upload Setting To Drive")) {
+            std::thread generalParameterUploader([this]() { uploadGeneralParameters(); });
+            generalParameterUploader.detach();
+        }
+    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
+        ImGui::SameLine();
+    ImGui::Text(getDataTransferState(generalParameterUploadState)->displayName);
+
+    if (maxMotorVelocity_rps == 0.0) {
+        ImGui::Text("Max Motor Velocity is unknown : Download the value from the drive.");
+    }
+    else {
+        ImGui::Text("Max Motor Velocity: %.3f rev/s", maxMotorVelocity_rps);
+    }
 
     ImGui::Checkbox("##dir", &b_invertDirectionOfMotorMovement);
     ImGui::SameLine();
@@ -350,18 +374,55 @@ void Lexium32::generalGui() {
 
     ImGui::Text("Max Current");
     if (ImGui::InputDouble("##maxI", &maxCurrent_amps, 0.0, 0.0, "%.1f Amperes")) generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
-    
-    ImGui::Text("Max Quickstop Current");
-    if (ImGui::InputDouble("##maxqi", &maxQuickstopCurrent_amps, 0.0, 0.0, "%.1f Amperes")) generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
+ 
 
-    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
-    if (ImGui::Button("Upload Setting")) {
-        std::thread maxCurrentUploader([this]() { uploadGeneralParameters(); });
-        maxCurrentUploader.detach();
+    ImGui::Text("Quick Stop Reaction");
+    if (ImGui::BeginCombo("##QuickStopReaction", getQuickStopReaction(quickstopReaction)->displayName)) {
+        for (auto& reaction : getQuickStopReactions()) {
+            if (ImGui::Selectable(reaction.displayName, reaction.type == quickstopReaction)) {
+                quickstopReaction = reaction.type;
+            }
+            if (ImGui::IsItemHovered()) {
+                if (beginHelpTooltip()) {
+                    switch (reaction.type) {
+                        case QuickStopReaction::Type::TORQUE_RAMP:
+                            ImGui::TextWrapped("The Drives will come to a stop using the specified braking current.");
+                            break;
+                        case QuickStopReaction::Type::DECELERATION_RAMP:
+                            ImGui::TextWrapped("The Drive will come to a stop using the provided deceleration value.");
+                            break;
+                    }
+                    endHelpTooltip();
+                }
+            }
+        }
+        ImGui::EndCombo();
     }
-    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
+    
     ImGui::SameLine();
-    ImGui::Text(getDataTransferState(generalParameterUploadState)->displayName);
+    if (beginHelpMarker("(help)")) {
+        ImGui::TextWrapped("QuickStop is a fast controlled stopping of motion."
+            "\nHere the Drive will use power to brake the motion to a full stop. This is more controlled, and potentially quicker than a STO stop."
+            "\nSTO stops (Safe Torque Off) are triggered by the emergency stop signal and will simply remove all torque from the drive."
+            "\nA Quickstop is triggered automatically when the drive hits a limit signal. Quickstops can also be triggered manually.");
+        endHelpMarker();
+    }
+
+    switch (quickstopReaction) {
+        case QuickStopReaction::Type::TORQUE_RAMP:
+            ImGui::Text("Stopping Current");
+            if (ImGui::InputDouble("##maxqi", &maxQuickstopCurrent_amps, 0.0, 0.0, "%.1f Amperes")) generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
+            break;
+        case QuickStopReaction::Type::DECELERATION_RAMP: {
+            static char decelRampString[64];
+            sprintf(decelRampString, u8"%.3f rev/s²", quickStopDeceleration_revolutionsPerSecondSquared);
+            ImGui::Text("Stopping Deceleration");
+            if (ImGui::InputDouble("##rampA", &quickStopDeceleration_revolutionsPerSecondSquared, 0.0, 0.0, decelRampString)) generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
+            }break;
+    }
+
+
+  
 }
 
 
@@ -375,15 +436,21 @@ void Lexium32::generalGui() {
 
 
 void Lexium32::gpioGui() {
-    
-    bool disableTransferButton = !isDetected();
 
     ImGui::PushFont(Fonts::robotoBold20);
     ImGui::Text("Limit Signals");
     ImGui::PopFont();
 
+    ImGui::SameLine();
+    if (beginHelpMarker("(help)")) {
+        ImGui::TextWrapped("When the drive hits a limit switch it will trigger a quickstop."
+            "\nUnassigned Output Pins are set to be freely available."
+            "\nSettings can only be uploaded while the drive is disabled."
+            "\nThe Drive needs to be rebooted after uploading new settings.");   
+        endHelpMarker();
+    }
 
-
+    bool disableTransferButton = !isDetected();
     if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
     if (ImGui::Button("Download Settings from Drive")) {
         std::thread pinAssigmentDownloader([this]() { downloadPinAssignements(); });
@@ -392,6 +459,15 @@ void Lexium32::gpioGui() {
     if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
     ImGui::Text(getDataTransferState(pinAssignementDownloadState)->displayName);
+    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
+        if (ImGui::Button("Upload Settings To Drive")) {
+            std::thread pinAssigmentUploader([this]() { uploadPinAssignements(); });
+            pinAssigmentUploader.detach();
+        }
+    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
+        ImGui::SameLine();
+    ImGui::Text(getDataTransferState(pinAssignementUploadState)->displayName);
+
 
     ImGui::Text("Negative Limit Switch");
     if (ImGui::BeginCombo("##negativeLimitSwitch", getInputPin(negativeLimitSwitchPin)->displayName)) {
@@ -420,18 +496,6 @@ void Lexium32::gpioGui() {
         ImGui::SameLine();
         ImGui::Text("Normally Closed");
     }
-
-    ImGui::TextWrapped("Output Pins are set to be freely available by default."
-                       "\nSettings can only be uploaded while the drive is disabled. The Drive needs to be rebooted after uploading new settings.");
-
-    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
-    if (ImGui::Button("Upload Settings")) {
-        std::thread pinAssigmentUploader([this]() { uploadPinAssignements(); });
-        pinAssigmentUploader.detach();
-    }
-    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
-    ImGui::SameLine();
-    ImGui::Text(getDataTransferState(pinAssignementUploadState)->displayName);
 
     ImGui::Separator();
 
@@ -473,18 +537,33 @@ void Lexium32::encoderGui() {
     ImGui::Text("Encoder Settings");
     ImGui::PopFont();
 
-    ImGui::TextWrapped("All Encoder settings are stored in the drive."
-                        "\nFor the settings to take effect, the drive has to be restared. "
-                        "\nChanging these settings will invalidate all current position references of the corresponding machine, homing procedures will need to be reexecuted.");
-
+    ImGui::SameLine();
+    if (beginHelpMarker("(help)")) {
+        ImGui::TextWrapped("All Encoder settings are stored in the drive."
+            "\nFor the settings to take effect, the drive has to be restared. "
+            "\nChanging these settings will invalidate all current position references of the corresponding machine, homing procedures will need to be reexecuted.");
+        endHelpMarker();
+    }
+   
+    bool disableTransferButton = !isDetected();
+    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
     if (ImGui::Button("Download Settings From Drive")) {
         std::thread encoderSettingsDownloader([this]() { downloadEncoderSettings(); });
         encoderSettingsDownloader.detach();
     }
+    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
     ImGui::Text(getDataTransferState(encoderSettingsDownloadState)->displayName);
-
-    ImGui::Separator();
+    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
+        if (ImGui::Button("Upload Settings To Drive")) {
+            std::thread encoderSettingsUploader([this]() {
+                uploadEncoderSettings();
+                });
+            encoderSettingsUploader.detach();
+        }
+    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
+    ImGui::SameLine();
+    ImGui::Text(getDataTransferState(encoderSettingsUploadState)->displayName);
 
     ImGui::Text("Main Encoder used for absolute positionning:");
     if (ImGui::BeginCombo("##encoderAssignement", getEncoderAssignement(encoderAssignement)->displayName)) {
@@ -497,33 +576,19 @@ void Lexium32::encoderGui() {
     }
 
     float doublewidgetWidth = (ImGui::GetItemRectSize().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
-    bool disableEncoderUploadButton = false;
 
     if (encoderAssignement == EncoderAssignement::Type::INTERNAL_ENCODER) {
-
-        ImGui::Separator();
-        ImGui::PushFont(Fonts::robotoBold20);
-        ImGui::Text("Internal Encoder");
-        ImGui::PopFont();
         ImGui::TextWrapped("The Resolution of the internal motor encoder is 17 bits singleturn, 12 bits multiturn.");
-
     }
     else if (encoderAssignement == EncoderAssignement::Type::ENCODER_MODULE) {
        
-        bool disableDetectButton = !isDetected();
-        if (disableDetectButton) BEGIN_DISABLE_IMGUI_ELEMENT
+        if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
         ImGui::SameLine();
         if (ImGui::Button("Detect Module")) {
             std::thread encoderModuleDetector([this]() { detectEncoderModule(); });
             encoderModuleDetector.detach();
         }
-        if(disableDetectButton) END_DISABLE_IMGUI_ELEMENT
-
-        ImGui::Separator();
-
-        ImGui::PushFont(Fonts::robotoBold20);
-        ImGui::Text("%s", getEncoderModule(encoderModuleType)->displayName);
-        ImGui::PopFont();
+        if(disableTransferButton) END_DISABLE_IMGUI_ELEMENT
 
         switch (encoderModuleType) {
         case EncoderModule::Type::DIGITAL_MODULE:
@@ -581,7 +646,6 @@ void Lexium32::encoderGui() {
                 ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
                 ImGui::TextWrapped("Other Encoder Types are not yet supported");
                 ImGui::PopStyleColor();
-                disableEncoderUploadButton = true;
                 break;
             }
             break;
@@ -589,28 +653,22 @@ void Lexium32::encoderGui() {
             ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
             ImGui::TextWrapped("Analog Encoder Modules are not yet supported.");
             ImGui::PopStyleColor();
-            disableEncoderUploadButton = true;
             break;
         case EncoderModule::Type::RESOLVER_MODULE:
             ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
             ImGui::TextWrapped("Resolver Encoder Modules are not yet supported.");
             ImGui::PopStyleColor();
-            disableEncoderUploadButton = true;
             break;
         case EncoderModule::Type::NONE:
             ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
             ImGui::TextWrapped("No Encoder Module was detected in module slot 2."
                                 "\nRestart the drive and detect the module again. Never insert or remove modules while the drive is powered on.");
             ImGui::PopStyleColor();
-            disableEncoderUploadButton = true;
             break;
         }
     }
 
     ImGui::Spacing();
-    ImGui::PushFont(Fonts::robotoBold15);
-    ImGui::Text("Shift Encoder Working Range");
-    ImGui::PopFont();
     ImGui::Checkbox("##shifting", &b_encoderRangeShifted);
     ImGui::SameLine();
     ImGui::TextWrapped("Center the encoder working range around 0.");
@@ -618,29 +676,20 @@ void Lexium32::encoderGui() {
     getEncoderWorkingRange(low, high);
     ImGui::Text("Working Range : %.1f to %.1f motor revolutions", low, high);
 
-    if (disableEncoderUploadButton) BEGIN_DISABLE_IMGUI_ELEMENT
-    if (ImGui::Button("Upload Encoder Settings")) {
-        std::thread encoderSettingsUploader([this]() {
-            uploadEncoderSettings();
-        });
-        encoderSettingsUploader.detach();
-    }
-    if (disableEncoderUploadButton) END_DISABLE_IMGUI_ELEMENT
-    ImGui::SameLine();
-    ImGui::Text(getDataTransferState(encoderSettingsUploadState)->displayName);
-
     ImGui::Separator();
-
-
 
 
     ImGui::PushFont(Fonts::robotoBold20);
     ImGui::Text("Manual Absolute Position setting");
     ImGui::PopFont();
 
-    ImGui::TextWrapped("Overwrite the hard absolute position of the current encoder as stored on the drive."
-        "\nUseful to get the encoder back into its working range and prevent it from exceeding it during normal operation."
-        "\nThe drive needs to be restarted for this change to take effect.");
+    ImGui::SameLine();
+    if (beginHelpMarker("(help)")) {
+        ImGui::TextWrapped("Overwrite the hard absolute position of the current encoder as stored on the drive."
+            "\nUseful to get the encoder back into its working range and prevent it from exceeding it during normal operation."
+            "\nThe drive needs to be restarted for this change to take effect.");
+        endHelpMarker();
+    }
 
     ImGui::PushFont(Fonts::robotoBold15);
     switch(encoderAssignement) {
@@ -654,12 +703,13 @@ void Lexium32::encoderGui() {
     ImGui::PopFont();
     ImGui::InputFloat("##manualabsolute", &manualAbsoluteEncoderPosition_revolutions, 0.0, 0.0, "%.3f motor revolutions");
 
-
+    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
     ImGui::Spacing();
     if (ImGui::Button("Upload New Absolute Position")) {
         std::thread absolutePositionAssigner([this]() { uploadManualAbsoluteEncoderPosition(); });
         absolutePositionAssigner.detach();
     }
+    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
     ImGui::Text(getDataTransferState(encoderAbsolutePositionUploadState)->displayName);
 }
@@ -724,12 +774,13 @@ void Lexium32::miscellaneousGui() {
     ImGui::TextWrapped("Assigns a new station alias to the drive. The alias becomes active after the drive has been restarted.");
     static uint16_t newStationAlias = 0;
     ImGui::InputScalar("##alias", ImGuiDataType_U16, &newStationAlias);
+    bool disableTransferButton = !isDetected();
+    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
     if (ImGui::Button("Set Station Alias")) {
-        std::thread stationAliasSettingHandler([this]() {
-            setStationAlias(newStationAlias);
-            });
+        std::thread stationAliasSettingHandler([this]() {setStationAlias(newStationAlias);});
         stationAliasSettingHandler.detach();
     }
+    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
     ImGui::Text(getDataTransferState(stationAliasUploadState)->displayName);
 
@@ -738,12 +789,12 @@ void Lexium32::miscellaneousGui() {
     ImGui::Text("Factory Reset");
     ImGui::PopFont();
     ImGui::TextWrapped("Resets all internal drive settings to the original factory configuration.");
+    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
     if (ImGui::Button("Reset Lexium32 to Factory Settings")) {
-        std::thread factoryResetHandler([this]() {
-            factoryReset();
-        });
+        std::thread factoryResetHandler([this]() {factoryReset();});
         factoryResetHandler.detach();
     }
+    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
     ImGui::Text(getDataTransferState(factoryResetTransferState)->displayName);
     
