@@ -6,6 +6,7 @@
 #include "Fieldbus/Devices/Artefact/EasyCat/EasyCAT.h"
 #include "Fieldbus/Devices/Artefact/LedsAndButtons/LedsAndButtons.h"
 #include "Fieldbus/Devices/Yaskawa/VIPA-053-1EC01.h"
+#include "Fieldbus/Devices/Nanotec/PD4_E.h"
 
 //TODO:
 /*
@@ -26,6 +27,7 @@ namespace EtherCatDeviceFactory {
 		allDevices = {
 			new Lexium32(),
 			new VIPA_053_1EC01(),
+			new PD4_E(),
 			new EasyCAT(),
 			new LedsAndButtons()
 		};

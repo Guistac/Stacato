@@ -171,3 +171,80 @@ bool EtherCatEepromData::read(uint16_t slaveIndex) {
 	if (u32 == 0) return false;
 	return true;
 }
+
+
+
+//=============================== WRITE COE SDO ========================
+
+bool writeSDO_U8(uint16_t index, uint8_t subindex, uint8_t val, uint16_t slaveIndex) {
+	return 1 == ec_SDOwrite(slaveIndex, index, subindex, false, 1, &val, EC_TIMEOUTSAFE);
+}
+bool writeSDO_S8(uint16_t index, uint8_t subindex, int8_t val, uint16_t slaveIndex) {
+	return 1 == ec_SDOwrite(slaveIndex, index, subindex, false, 1, &val, EC_TIMEOUTSAFE);
+}
+bool writeSDO_U16(uint16_t index, uint8_t subindex, uint16_t val, uint16_t slaveIndex) {
+	return 1 == ec_SDOwrite(slaveIndex, index, subindex, false, 2, &val, EC_TIMEOUTSAFE);
+}
+bool writeSDO_S16(uint16_t index, uint8_t subindex, int16_t val, uint16_t slaveIndex) {
+	return 1 == ec_SDOwrite(slaveIndex, index, subindex, false, 2, &val, EC_TIMEOUTSAFE);
+}
+bool writeSDO_U32(uint16_t index, uint8_t subindex, uint32_t val, uint16_t slaveIndex) {
+	return 1 == ec_SDOwrite(slaveIndex, index, subindex, false, 4, &val, EC_TIMEOUTSAFE);
+}
+bool writeSDO_S32(uint16_t index, uint8_t subindex, int32_t val, uint16_t slaveIndex) {
+	return 1 == ec_SDOwrite(slaveIndex, index, subindex, false, 4, &val, EC_TIMEOUTSAFE);
+}
+bool writeSDO_U64(uint16_t index, uint8_t subindex, uint64_t val, uint16_t slaveIndex) {
+	return 1 == ec_SDOwrite(slaveIndex, index, subindex, false, 8, &val, EC_TIMEOUTSAFE);
+}
+bool writeSDO_S64(uint16_t index, uint8_t subindex, int64_t val, uint16_t slaveIndex) {
+	return 1 == ec_SDOwrite(slaveIndex, index, subindex, false, 8, &val, EC_TIMEOUTSAFE);
+}
+bool writeSDO_String(uint16_t index, uint8_t subindex, const char* val, uint16_t slaveIndex) {
+	return 1 == ec_SDOwrite(slaveIndex, index, subindex, false, strlen(val), &val, EC_TIMEOUTSAFE);
+}
+
+//=============================== READ COE SDO ========================
+
+bool readSDO_U8(uint16_t index, uint8_t subindex, uint8_t& val, uint16_t slaveIndex) {
+	int size = 1;
+	return 1 == ec_SDOread(slaveIndex, index, subindex, false, &size, &val, EC_TIMEOUTSAFE);
+}
+bool readSDO_S8(uint16_t index, uint8_t subindex, int8_t& val, uint16_t slaveIndex) {
+	int size = 1;
+	return 1 == ec_SDOread(slaveIndex, index, subindex, false, &size, &val, EC_TIMEOUTSAFE);
+}
+bool readSDO_U16(uint16_t index, uint8_t subindex, uint16_t& val, uint16_t slaveIndex) {
+	int size = 2;
+	return 1 == ec_SDOread(slaveIndex, index, subindex, false, &size, &val, EC_TIMEOUTSAFE);
+}
+bool readSDO_S16(uint16_t index, uint8_t subindex, int16_t& val, uint16_t slaveIndex) {
+	int size = 2;
+	return 1 == ec_SDOread(slaveIndex, index, subindex, false, &size, &val, EC_TIMEOUTSAFE);
+}
+bool readSDO_U32(uint16_t index, uint8_t subindex, uint32_t& val, uint16_t slaveIndex) {
+	int size = 4;
+	return 1 == ec_SDOread(slaveIndex, index, subindex, false, &size, &val, EC_TIMEOUTSAFE);
+}
+bool readSDO_S32(uint16_t index, uint8_t subindex, int32_t& val, uint16_t slaveIndex) {
+	int size = 4;
+	return 1 == ec_SDOread(slaveIndex, index, subindex, false, &size, &val, EC_TIMEOUTSAFE);
+}
+bool readSDO_U64(uint16_t index, uint8_t subindex, uint64_t& val, uint16_t slaveIndex) {
+	int size = 8;
+	return 1 == ec_SDOread(slaveIndex, index, subindex, false, &size, &val, EC_TIMEOUTSAFE);
+}
+bool readSDO_S64(uint16_t index, uint8_t subindex, int64_t& val, uint16_t slaveIndex) {
+	int size = 8;
+	return 1 == ec_SDOread(slaveIndex, index, subindex, false, &size, &val, EC_TIMEOUTSAFE);
+}
+bool readSDO_String(uint16_t index, uint8_t subindex, const char*& val, uint16_t slaveIndex) {
+	int size = 128;
+	char buffer[128];
+	int wc = ec_SDOread(slaveIndex, index, subindex, false, &size, &buffer, EC_TIMEOUTSAFE);
+	if (wc == 1) {
+		val = buffer;
+		return true;
+	}
+	return false;
+}
