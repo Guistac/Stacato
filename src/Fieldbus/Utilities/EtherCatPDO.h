@@ -65,28 +65,28 @@ struct EtherCatPdoAssignement {
 
 	bool mapToSyncManager(uint16_t slaveIndex, uint16_t syncManagerIndex) {
 		//disable sync manager
-		if (!writeSDO_U8(syncManagerIndex, 0x0, 0x0, slaveIndex)) return false;
+		if (!CanOpen::writeSDO_U8(syncManagerIndex, 0x0, 0x0, slaveIndex)) return false;
 		//for each mapping module
 		for (int i = 0; i < modules.size(); i++) {
 			EtherCatPdoMappingModule& pdoModule = modules[i];
 			//disable the module
-			if (!writeSDO_U8(pdoModule.index, 0x0, 0x0, slaveIndex)) return false;
+			if (!CanOpen::writeSDO_U8(pdoModule.index, 0x0, 0x0, slaveIndex)) return false;
 			for (int j = 0; j < pdoModule.getEntryCount(); j++) {
 				//concatenate the entry data
 				EtherCatPdoEntry& entry = pdoModule.entries[j];
 				uint32_t entryMapping = entry.index << 16 | entry.subindex << 8 | entry.bitCount;
 				//write the entry to the module
-				if (!writeSDO_U32(pdoModule.index, j + 1, entryMapping, slaveIndex)) return false;
+				if (!CanOpen::writeSDO_U32(pdoModule.index, j + 1, entryMapping, slaveIndex)) return false;
 			}
 			//enable the module by writing the entry count
-			if (!writeSDO_U8(pdoModule.index, 0x0, pdoModule.getEntryCount(), slaveIndex)) return false;
+			if (!CanOpen::writeSDO_U8(pdoModule.index, 0x0, pdoModule.getEntryCount(), slaveIndex)) return false;
 		}
 		for (int i = 0; i < modules.size(); i++) {
 			//assign each module to the sync manager
-			if (!writeSDO_U16(syncManagerIndex, i + 1, modules[i].index, slaveIndex)) return false;
+			if (!CanOpen::writeSDO_U16(syncManagerIndex, i + 1, modules[i].index, slaveIndex)) return false;
 		}
 		//enable the sync manager by setting the number of modules
-		if (!writeSDO_U8(syncManagerIndex, 0x0, getModuleCount(), slaveIndex)) return false;
+		if (!CanOpen::writeSDO_U8(syncManagerIndex, 0x0, getModuleCount(), slaveIndex)) return false;
 		return true;
 	}
 

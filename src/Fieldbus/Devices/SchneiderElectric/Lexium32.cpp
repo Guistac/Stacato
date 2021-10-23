@@ -114,21 +114,21 @@ void Lexium32::assignIoData() {
     addIoData(digitalIn5);
 
     rxPdoAssignement.addNewModule(0x1603);
-    rxPdoAssignement.addEntry(0x6040, 0x0, 2, "DCOMcontrol", &DCOMcontrol);
-    rxPdoAssignement.addEntry(0x6060, 0x0, 1, "DCOMopmode", &DCOMopmode);
-    rxPdoAssignement.addEntry(0x607A, 0x0, 4, "PPp_target", &PPp_target);
-    rxPdoAssignement.addEntry(0x60FF, 0x0, 4, "PVv_target", &PVv_target);
-    rxPdoAssignement.addEntry(0x3008, 0x11, 2, "IO_DQ_set", &IO_DQ_set);
+    rxPdoAssignement.addEntry(0x6040, 0x0, 16, "DCOMcontrol", &DCOMcontrol);
+    rxPdoAssignement.addEntry(0x6060, 0x0, 8, "DCOMopmode", &DCOMopmode);
+    rxPdoAssignement.addEntry(0x607A, 0x0, 32, "PPp_target", &PPp_target);
+    rxPdoAssignement.addEntry(0x60FF, 0x0, 32, "PVv_target", &PVv_target);
+    rxPdoAssignement.addEntry(0x3008, 0x11, 16, "IO_DQ_set", &IO_DQ_set);
 
     txPdoAssignement.addNewModule(0x1A03);
-    txPdoAssignement.addEntry(0x6041, 0x0, 2, "_DCOMstatus", &_DCOMstatus);
-    txPdoAssignement.addEntry(0x6061, 0x0, 1, "_DCOMopmd_act", &_DCOMopmd_act);
-    txPdoAssignement.addEntry(0x6064, 0x0, 4, "_p_act", &_p_act);
-    txPdoAssignement.addEntry(0x606C, 0x0, 4, "_v_act", &_v_act);
-    txPdoAssignement.addEntry(0x301E, 0x3, 2, "_I_act", &_I_act);
-    txPdoAssignement.addEntry(0x603F, 0x0, 2, "_LastError", &_LastError);
-    txPdoAssignement.addEntry(0x3008, 0x1, 2, "_IO_act", &_IO_act);
-    txPdoAssignement.addEntry(0x3008, 0x26, 2, "_IO_STO_act", &_IO_STO_act);
+    txPdoAssignement.addEntry(0x6041, 0x0, 16, "_DCOMstatus", &_DCOMstatus);
+    txPdoAssignement.addEntry(0x6061, 0x0, 8, "_DCOMopmd_act", &_DCOMopmd_act);
+    txPdoAssignement.addEntry(0x6064, 0x0, 32, "_p_act", &_p_act);
+    txPdoAssignement.addEntry(0x606C, 0x0, 32, "_v_act", &_v_act);
+    txPdoAssignement.addEntry(0x301E, 0x3, 16, "_I_act", &_I_act);
+    txPdoAssignement.addEntry(0x603F, 0x0, 16, "_LastError", &_LastError);
+    txPdoAssignement.addEntry(0x3008, 0x1, 16, "_IO_act", &_IO_act);
+    txPdoAssignement.addEntry(0x3008, 0x26, 16, "_IO_STO_act", &_IO_STO_act);
 }
 
 
@@ -207,36 +207,8 @@ bool Lexium32::startupConfiguration() {
 
     //=============== PROCESS DATA ASSIGNEMENT =============== 
 
-    uint16_t RxPDOmodule = 0x1603;
-    if (!writeSDO_U8(RxPDOmodule, 0x0, 0)) return false;            //disable PDO Module
-    if (!writeSDO_U32(RxPDOmodule, 0x1, 0x60400010)) return false;  //DCOMcontrol    (uint16_t)
-    if (!writeSDO_U32(RxPDOmodule, 0x2, 0x60600008)) return false;  //DCOMopmode     (int8_t)
-    if (!writeSDO_U32(RxPDOmodule, 0x3, 0x607A0020)) return false;  //PPp_target     (int32_t)
-    if (!writeSDO_U32(RxPDOmodule, 0x4, 0x60FF0020)) return false;  //PVv_target     (int32_t)
-    if (!writeSDO_U32(RxPDOmodule, 0x5, 0x30081110)) return false;  //IO_DQ_set      (uint16_t)
-    if (!writeSDO_U8(RxPDOmodule, 0x0, 5)) return false;            //5 parameters
-
-    uint16_t TxPDOmodule = 0x1A03;
-    if (!writeSDO_U8(TxPDOmodule, 0x0, 0)) return false;            //disable PDO Module
-    if (!writeSDO_U32(TxPDOmodule, 0x1, 0x60410010)) return false;  //_DCOMstatus   (uint16_t)
-    if (!writeSDO_U32(TxPDOmodule, 0x2, 0x60610008)) return false;  //_DCOMopmd_act (uint8_t) 
-    if (!writeSDO_U32(TxPDOmodule, 0x3, 0x60640020)) return false;  //_p_act        (int32_t) 
-    if (!writeSDO_U32(TxPDOmodule, 0x4, 0x606C0020)) return false;  //_v_act        (int32_t) 
-    if (!writeSDO_U32(TxPDOmodule, 0x5, 0x301E0310)) return false;  //_I_act        (int16_t) 
-    if (!writeSDO_U32(TxPDOmodule, 0x6, 0x603F0010)) return false;  //_LastError    (uint16_t)
-    if (!writeSDO_U32(TxPDOmodule, 0x7, 0x30080110)) return false;  //_IO_act       (uint16_t)  
-    if (!writeSDO_U32(TxPDOmodule, 0x8, 0x30082610)) return false;  //_IO_STO_act   (uint16_t)
-    if (!writeSDO_U8(TxPDOmodule, 0x0, 8)) return false;            //8 parameters
-
-    uint16_t RxPDO = 0x1C12;
-    if (!writeSDO_U8(RxPDO, 0x0, 0)) return false;                  //disable Sync Manager
-    if (!writeSDO_U16(RxPDO, 0x1, RxPDOmodule)) return false;       //assign pdo module object to sync manager
-    if (!writeSDO_U8(RxPDO, 0x0, 1)) return false;                  //1 PDO Module
-
-    uint16_t TxPDO = 0x1C13;
-    if (!writeSDO_U8(TxPDO, 0x0, 0)) return false;                  //disable Sync Manager
-    if (!writeSDO_U16(TxPDO, 0x1, TxPDOmodule)) return false;       //assign pdo module object to sync manager
-    if (!writeSDO_U8(TxPDO, 0x0, 1)) return false;                  //1 PDO Module
+    rxPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C12);
+    txPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C13);
 
     //=========================== TIMING AND SYNC CONFIGURATION ============================
 
@@ -272,17 +244,7 @@ void Lexium32::readInputs() {
     //_tq_act       (int16_t)   2
     //_LastError    (uint16_t)  2
     //_IO_act       (uint16_t)  2
-
-    //TxPDO Data
-    uint8_t* inByte = identity->inputs;
-    _DCOMstatus = inByte[0] | inByte[1] << 8; //State Machine Status   (ex: ready to switch on)
-    _DCOMopmd_act = inByte[2];                  //Current Operating Mode (ex: cyclic synchronous position)
-    _p_act = inByte[3] | inByte[4] << 8 | inByte[5] << 16 | inByte[6] << 24;
-    _v_act = inByte[7] | inByte[8] << 8 | inByte[9] << 16 | inByte[10] << 24;
-    _I_act = inByte[11] | inByte[12] << 8;
-    _LastError = inByte[13] | inByte[14] << 8;
-    _IO_act = inByte[15] | inByte[16] << 8;
-    _IO_STO_act = inByte[17] | inByte[18] << 8;
+    txPdoAssignement.pullDataFrom(identity->inputs);
 
     //state machine bits (0,1,2,3,5,6)
     bool readyToSwitchOn = _DCOMstatus & 0x1;
@@ -516,21 +478,7 @@ void Lexium32::prepareOutputs() {
     if (digitalOut1->getBoolean()) IO_DQ_set |= 0x2;
     if (digitalOut2->getBoolean()) IO_DQ_set |= 0x4;
 
-    //format and copy output data to iomap
-    uint8_t* outByte = identity->outputs;
-    outByte[0] = (DCOMcontrol >> 0) & 0xFF;
-    outByte[1] = (DCOMcontrol >> 8) & 0xFF;
-    outByte[2] = DCOMopmode;
-    outByte[3] = (PPp_target >> 0) & 0xFF;
-    outByte[4] = (PPp_target >> 8) & 0xFF;
-    outByte[5] = (PPp_target >> 16) & 0xFF;
-    outByte[6] = (PPp_target >> 24) & 0xFF;
-    outByte[7] = (PVv_target >> 0) & 0xFF;
-    outByte[8] = (PVv_target >> 8) & 0xFF;
-    outByte[9] = (PVv_target >> 16) & 0xFF;
-    outByte[10] = (PVv_target >> 24) & 0xFF;
-    outByte[11] = (IO_DQ_set >> 0) & 0xFF;
-    outByte[12] = (IO_DQ_set >> 8) & 0xFF;
+    rxPdoAssignement.pushDataTo(identity->outputs);
 }
 
 

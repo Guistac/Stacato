@@ -193,24 +193,26 @@ public:
 };
 
 
+namespace CanOpen {
 
-bool writeSDO_U8(uint16_t index, uint8_t subindex, uint8_t val, uint16_t slaveIndex);
-bool writeSDO_S8(uint16_t index, uint8_t subindex, int8_t val, uint16_t slaveIndex);
-bool writeSDO_U16(uint16_t index, uint8_t subindex, uint16_t val, uint16_t slaveIndex);
-bool writeSDO_S16(uint16_t index, uint8_t subindex, int16_t val, uint16_t slaveIndex);
-bool writeSDO_U32(uint16_t index, uint8_t subindex, uint32_t val, uint16_t slaveIndex);
-bool writeSDO_S32(uint16_t index, uint8_t subindex, int32_t val, uint16_t slaveIndex);
-bool writeSDO_U64(uint16_t index, uint8_t subindex, uint64_t val, uint16_t slaveIndex);
-bool writeSDO_S64(uint16_t index, uint8_t subindex, int64_t val, uint16_t slaveIndex);
-bool writeSDO_String(uint16_t index, uint8_t subindex, const char* val, uint16_t slaveIndex);
+	bool writeSDO_U8(uint16_t index, uint8_t subindex, uint8_t val, uint16_t slaveIndex);
+	bool writeSDO_S8(uint16_t index, uint8_t subindex, int8_t val, uint16_t slaveIndex);
+	bool writeSDO_U16(uint16_t index, uint8_t subindex, uint16_t val, uint16_t slaveIndex);
+	bool writeSDO_S16(uint16_t index, uint8_t subindex, int16_t val, uint16_t slaveIndex);
+	bool writeSDO_U32(uint16_t index, uint8_t subindex, uint32_t val, uint16_t slaveIndex);
+	bool writeSDO_S32(uint16_t index, uint8_t subindex, int32_t val, uint16_t slaveIndex);
+	bool writeSDO_U64(uint16_t index, uint8_t subindex, uint64_t val, uint16_t slaveIndex);
+	bool writeSDO_S64(uint16_t index, uint8_t subindex, int64_t val, uint16_t slaveIndex);
+	bool writeSDO_String(uint16_t index, uint8_t subindex, const char* val, uint16_t slaveIndex);
 
-bool readSDO_U8(uint16_t index, uint8_t subindex, uint8_t& val, uint16_t slaveIndex);
-bool readSDO_S8(uint16_t index, uint8_t subindex, int8_t& val, uint16_t slaveIndex);
-bool readSDO_U16(uint16_t index, uint8_t subindex, uint16_t& val, uint16_t slaveIndex);
-bool readSDO_S16(uint16_t index, uint8_t subindex, int16_t& val, uint16_t slaveIndex);
-bool readSDO_U32(uint16_t index, uint8_t subindex, uint32_t& val, uint16_t slaveIndex);
-bool readSDO_S32(uint16_t index, uint8_t subindex, int32_t& val, uint16_t slaveIndex);
-bool readSDO_U64(uint16_t index, uint8_t subindex, uint64_t& val, uint16_t slaveIndex);
-bool readSDO_S64(uint16_t index, uint8_t subindex, int64_t& val, uint16_t slaveIndex);
-bool readSDO_String(uint16_t index, uint8_t subindex, const char*& val, uint16_t slaveIndex);
+	bool readSDO_U8(uint16_t index, uint8_t subindex, uint8_t& val, uint16_t slaveIndex);
+	bool readSDO_S8(uint16_t index, uint8_t subindex, int8_t& val, uint16_t slaveIndex);
+	bool readSDO_U16(uint16_t index, uint8_t subindex, uint16_t& val, uint16_t slaveIndex);
+	bool readSDO_S16(uint16_t index, uint8_t subindex, int16_t& val, uint16_t slaveIndex);
+	bool readSDO_U32(uint16_t index, uint8_t subindex, uint32_t& val, uint16_t slaveIndex);
+	bool readSDO_S32(uint16_t index, uint8_t subindex, int32_t& val, uint16_t slaveIndex);
+	bool readSDO_U64(uint16_t index, uint8_t subindex, uint64_t& val, uint16_t slaveIndex);
+	bool readSDO_S64(uint16_t index, uint8_t subindex, int64_t& val, uint16_t slaveIndex);
+	bool readSDO_String(uint16_t index, uint8_t subindex, const char* val, int maxStringSize, uint16_t slaveIndex);
 
+}

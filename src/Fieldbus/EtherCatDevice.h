@@ -219,7 +219,7 @@ public:
     bool readSDO_S32(uint16_t index, uint8_t subindex, int32_t& data);
     bool readSDO_U64(uint16_t index, uint8_t subindex, uint64_t& data);
     bool readSDO_S64(uint16_t index, uint8_t subindex, int64_t& data);
-    bool readSDO_String(uint16_t index, uint8_t subindex, char* data);
+    bool readSDO_String(uint16_t index, uint8_t subindex, char* data, int bufferSize);
 
     bool writeSDO_U8(uint16_t index, uint8_t subindex, const uint8_t& data);
     bool writeSDO_S8(uint16_t index, uint8_t subindex, const int8_t& data);

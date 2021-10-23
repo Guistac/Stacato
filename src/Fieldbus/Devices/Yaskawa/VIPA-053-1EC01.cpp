@@ -104,7 +104,7 @@ bool VIPA_053_1EC01::downloadDeviceModules(std::vector<Module>& output) {
 
         //download the name of the module to get the module type
         char nameBuffer[128];
-        if (!readSDO_String(moduleInformationIndex, 0x1, nameBuffer)) return false;
+        if (!readSDO_String(moduleInformationIndex, 0x1, nameBuffer,128)) return false;
         ModuleType::Type moduleType = getModuleType(nameBuffer)->type;
         output.push_back(Module(moduleType));
         Module& module = output.back();
