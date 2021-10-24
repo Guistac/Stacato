@@ -158,14 +158,14 @@ bool EtherCatRegisterData::read(uint16_t slaveAddress) {
 }
 
 bool EtherCatEepromData::write(uint16_t slaveIndex) {
-	bool success = 1 == ec_writeeeprom(slaveIndex, address, u32, EC_TIMEOUTEEP);
+	bool success = 1 == ec_writeeeprom(slaveIndex, address, u16, EC_TIMEOUTEEP);
 	if (EtherCatError::hasError()) EtherCatError::logError();
 	return success;
 }
 
 bool EtherCatEepromData::read(uint16_t slaveIndex) {
-	u32 = ec_readeeprom(slaveIndex, address, EC_TIMEOUTEEP);
-	if (u32 == 0) return false;
+	u16 = ec_readeeprom(slaveIndex, address, EC_TIMEOUTEEP);
+	if (u16 == 0) return false;
 	return true;
 }
 

@@ -3,6 +3,7 @@
 #include "PD4_E.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 void PD4_E::deviceSpecificGui() {
 
@@ -11,60 +12,44 @@ void PD4_E::deviceSpecificGui() {
 
         ImGui::Text("Nanotec Drive Gui");
 
+        
+        ImGui::Text("Current Power State: %s", getDS402PowerState(powerState)->displayName);
+        ImGui::Text("Requested Power State: %s", getDS402PowerState(requestedPowerState)->displayName);
+
+		bool disablePowerControlButtons = !servoActuatorDevice->isReady();
+		if(disablePowerControlButtons) BEGIN_DISABLE_IMGUI_ELEMENT
+		if (servoActuatorDevice->isEnabled()) {
+			if (ImGui::Button("Disable Operation")) requestedPowerState = DS402PowerState::State::READY_TO_SWITCH_ON;
+		}
+		else {
+			if (ImGui::Button("Enable Operation")) requestedPowerState = DS402PowerState::State::OPERATION_ENABLED;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Quick Stop")) requestedPowerState = DS402PowerState::State::QUICKSTOP_ACTIVE;
+		ImGui::SameLine();
+		if(disablePowerControlButtons) END_DISABLE_IMGUI_ELEMENT
+		if (ImGui::Button("Fault Reset")) performFaultReset = true;
+
+		ImGui::Text("Operating Mode: %s", getOperatingMode(currentOperatingMode)->displayName);
+
+		if (ImGui::BeginCombo("##opmode", getOperatingMode(requestedOperatingMode)->displayName)) {
+
+			for (auto& mode : getOperatingModes()) {
+				if (ImGui::Selectable(mode.displayName, requestedOperatingMode == mode.mode)) {
+					requestedOperatingMode = mode.mode;
+				}
+			}
+
+			ImGui::EndCombo();
+		}
+		float maxVelocity = 2000;
+		float velocityControl = targetVelocity;
+		ImGui::SliderFloat("Velocity", &velocityControl, -maxVelocity, maxVelocity, "%.1f rpm");
+		targetVelocity = velocityControl;
+		float velocityProgress = std::abs((float)actualVelocity / maxVelocity);
+		ImGui::ProgressBar(velocityProgress);
+
         ImGui::EndTabItem();
     }
 }
 
-
-
-
-
-
-struct OperatingMode {
-	enum class Mode {
-		AUTO_SETUP,
-		NO_MODE_CHANGE_OR_NONE_ASSIGNED,
-		PROFILE_POSITION,
-		VELOCITY,
-		PROFILE_VELOCITY,
-		PROFILE_TORQUE,
-		HOMING,
-		INTERPOLATED_POSITION,
-		CYCLIC_SYNCHRONOUS_POSITION,
-		CYCLIC_SYNCHRONOUS_VELOCITY,
-		CYCLIC_SYNCHRONOUS_TORQUE
-	};
-	int8_t value;
-	Mode mode;
-	const char displayName[64];
-};
-
-std::vector<PD4_E::OperatingMode> operatingModes = {
-		{PD4_E::OperatingMode::Mode::AUTO_SETUP, -2, "Auto Setup"},
-		{PD4_E::OperatingMode::Mode::NO_MODE_CHANGE_OR_NONE_ASSIGNED, 0, "None"},
-		{PD4_E::OperatingMode::Mode::PROFILE_POSITION, 1, "Profile Position"},
-		{PD4_E::OperatingMode::Mode::VELOCITY, 2, "Velocity"},
-		{PD4_E::OperatingMode::Mode::PROFILE_VELOCITY, 3, "Profile Velocity"},
-		{PD4_E::OperatingMode::Mode::PROFILE_TORQUE, 4, "Profile Torque"},
-		{PD4_E::OperatingMode::Mode::HOMING, 6, "Homing"},
-		{PD4_E::OperatingMode::Mode::INTERPOLATED_POSITION, 7, "Interpolated Position"},
-		{PD4_E::OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION, 8, "Cyclic Synchronous Position"},
-		{PD4_E::OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY, 9, "Cyclic Synchronous Velocity"},
-		{PD4_E::OperatingMode::Mode::CYCLIC_SYNCHRONOUS_TORQUE, 10, "Cyclic Synchronous Torque"}
-};
-
-std::vector<PD4_E::OperatingMode>& PD4_E::getOperatingModes() {
-	return operatingModes;
-}
-PD4_E::OperatingMode* PD4_E::getOperatingMode(int8_t value) {
-	for (auto& mode : operatingModes) {
-		if (value == mode.value) return &mode;
-	}
-	return nullptr;
-}
-PD4_E::OperatingMode* PD4_E::getOperatingMode(OperatingMode::Mode m) {
-	for (auto& mode : operatingModes) {
-		if (m == mode.mode) return &mode;
-	}
-	return nullptr;
-}

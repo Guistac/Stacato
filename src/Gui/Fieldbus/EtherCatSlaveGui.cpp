@@ -662,6 +662,15 @@ void EtherCatDevice::sendReceiveEepromGui() {
 
     ImGui::PopID();
 
+    static uint8_t buffer[2048];
+    if (ImGui::Button("Dump EEPROM")) {
+        ec_esidump(getSlaveIndex(), buffer);
+        for (int i = 0; i < 2048; i++) {
+            Logger::warn("[{}] {:X}", i, buffer[i]);
+        }
+    }
+
+
 }
 
 
