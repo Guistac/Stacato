@@ -51,6 +51,9 @@ void EtherCatDevice::nodeSpecificGui() {
                         ImGui::Separator();
                         ImGui::Spacing();
                         sendReceiveEepromGui();
+                        ImGui::Separator();
+                        ImGui::Spacing();
+                        eepromToolGui();
                         ImGui::EndChild();
                     }
                     ImGui::EndTabItem();
@@ -661,16 +664,6 @@ void EtherCatDevice::sendReceiveEepromGui() {
     if (!allowRegisterSendReceive) END_DISABLE_IMGUI_ELEMENT
 
     ImGui::PopID();
-
-    static uint8_t buffer[2048];
-    if (ImGui::Button("Dump EEPROM")) {
-        ec_esidump(getSlaveIndex(), buffer);
-        for (int i = 0; i < 2048; i++) {
-            Logger::warn("[{}] {:X}", i, buffer[i]);
-        }
-    }
-
-
 }
 
 
@@ -703,5 +696,35 @@ void EtherCatDevice::eventListGui() {
     }
     ImGui::PopStyleVar();
     ImGui::PopStyleColor();
+
+}
+
+
+
+void EtherCatDevice::eepromToolGui() {
+
+
+
+    ImGui::InputText("##outputPath", eepromOutputFilePath, 256);
+    ImGui::SameLine();
+    if (ImGui::Button("Download")) {
+        bool success = downloadEEPROM(eepromOutputFilePath);
+        Logger::warn("EEPROM Download {}", success ? "Succeeded !" : "Failed...");
+    }
+
+    ImGui::InputText("##inputPath", eepromInputFilePath, 256);
+    ImGui::SameLine();
+    if (ImGui::Button("Flash")) {
+        bool success = flashEEPROM(eepromInputFilePath);
+        Logger::warn("EEPROM Flash {}", success ? "Succeeded !" : "Failed...");
+    }
+
+    static uint16_t newAlias = 0;
+    ImGui::InputScalar("##alias", ImGuiDataType_U16, &newAlias);
+    ImGui::SameLine();
+    if (ImGui::Button("Set Station Alias")) {
+        bool success = setStationAlias(newAlias);
+        Logger::warn("Set Station Alias {}", success ? "Succeeded !" : "Failed...");
+    }
 
 }

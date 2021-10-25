@@ -206,6 +206,10 @@ public:
     void sendReceiveEepromGui();
     void eventListGui();
 
+    char eepromInputFilePath[256] = { 0 };
+    char eepromOutputFilePath[256] = { 0 };
+    void eepromToolGui();
+
     //=====Reading and Writing SDO Data
 
     int maxSdoReadAttempts = 4;
@@ -230,5 +234,11 @@ public:
     bool writeSDO_U64(uint16_t index, uint8_t subindex, const uint64_t& data);
     bool writeSDO_S64(uint16_t index, uint8_t subindex, const int64_t& data);
     bool writeSDO_String(uint16_t index, uint8_t subindex, const char* data);
+
+    //===== Reading And Writing EEPROM Data
+
+    bool downloadEEPROM(char* fileName);
+    bool flashEEPROM(char* fileName);
+    bool setStationAlias(uint16_t alias);
 
 };
