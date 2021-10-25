@@ -6,6 +6,8 @@
 #include "Fieldbus/EtherCatDevice.h"
 #include "Gui/Framework/Colors.h"
 
+#include "Gui/Utilities/FileDialog.h"
+
 void EtherCatDevice::nodeSpecificGui() {
 
     deviceSpecificGui();
@@ -113,6 +115,34 @@ void EtherCatDevice::generalGui() {
 }
 
 void EtherCatDevice::identificationGui() {
+
+    if (ImGui::Button("Load")) {
+        FileDialog::FilePath filepath;
+        if (FileDialog::load(filepath)) Logger::warn("Path after ok: {}", filepath.path);
+    }
+    if (ImGui::Button("Load Multiple")) {
+        std::vector<FileDialog::FilePath> filePaths;
+        std::vector<FileDialog::FileTypeFilter> filters = {
+            {"Text Files", "txt,rtf"},
+            {"Images", "png,jpg,tiff,psd,gif,bmp"},
+            {"Executables", "exe,bin"},
+            {"Other", "mov,lel,ok"}
+        };
+        if (FileDialog::loadMultiple(filePaths, filters)) {
+            for (auto& filepath : filePaths) {
+                Logger::warn("Path: {}   FileName: {}   Extension: {}", filepath.path, filepath.file, filepath.extension);
+            }
+        }
+    }
+    if (ImGui::Button("Save")) {
+        FileDialog::FilePath filepath;
+        if(FileDialog::save(filepath)) Logger::warn("Path after ok: {}", filepath.path);
+    }
+    if (ImGui::Button("Open Folder")) {
+        FileDialog::FilePath filepath;
+        if(FileDialog::openFolder(filepath)) Logger::warn("Path after ok: {}", filepath.path);
+    }
+
 
     ImGui::TextWrapped("The device will be matched using the following parameters. Make sure each device has unique identifier parameters.");
 
@@ -726,5 +756,8 @@ void EtherCatDevice::eepromToolGui() {
         bool success = setStationAlias(newAlias);
         Logger::warn("Set Station Alias {}", success ? "Succeeded !" : "Failed...");
     }
+
+
+
 
 }

@@ -60,7 +60,8 @@ project "Stacato"
 		"%{wks.location}/dependencies/soem/osal",
 		"%{wks.location}/dependencies/asio/asio/include/",
         "%{wks.location}/dependencies/spdlog/include",
-        "%{wks.location}/dependencies/imguinodeeditor/"
+        "%{wks.location}/dependencies/imguinodeeditor/",
+        "%{wks.location}/dependencies/nativefiledialog-extended/src/include/"
 	}
 
 	links{
@@ -71,7 +72,8 @@ project "Stacato"
 		"implot",
 		"tinyxml2",
         "spdlog",
-        "imgui-node-editor"
+        "imgui-node-editor",
+        "nativefiledialog-extended"
 	}
 	
 	defines{
@@ -387,3 +389,39 @@ project "spdlog"
     defines{
         "SPDLOG_COMPILED_LIB"
     }
+
+--=================================================================================================================
+
+project "nativefiledialog-extended"
+    location "dependencies/nativefiledialog-extended"
+    kind "StaticLib"
+    language "C++"
+
+    targetdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
+    objdir "%{wks.location}/bin/obj/dependencies/%{cfg.buildcfg}-%{cfg.system}/"
+
+    files{
+        "%{prj.location}/src/include/nfd.h",
+        "%{prj.location}/src/include/nfd.hpp"
+    }
+
+    sysincludedirs{
+        "%{prj.location}/src/include/"
+    }
+
+    defines{
+    }
+
+    filter "system:windows"
+        defines{}
+        files{
+            "%{prj.location}/src/nfd_win.cpp"
+        }
+
+
+    filter "system:macosx"
+    defines{}
+    files{
+        "%{prj.location}/src/nfd_cocoa.m"
+    }
+    

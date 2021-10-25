@@ -7,6 +7,7 @@
 #include <backends/imgui_impl_opengl3.cpp>
 #include <backends/imgui_impl_glfw.cpp>
 
+#include "Gui/Utilities/FileDialog.h"
 #include "Gui/Gui.h"
 
 GLFWwindow* GuiWindow::window;
@@ -14,6 +15,7 @@ bool GuiWindow::b_shouldClose = false;
 
 void GuiWindow::init(){
     glfwInit();
+	FileDialog::init();
 }
 
 void GuiWindow::open(int w, int h) {
@@ -47,6 +49,7 @@ void GuiWindow::refresh() {
 void GuiWindow::close() {
 	onTerminate();
 	glfwSetWindowShouldClose(window, GLFW_TRUE);
+	FileDialog::terminate();
 	glfwTerminate();
 }
 

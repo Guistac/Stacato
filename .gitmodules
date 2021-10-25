@@ -35,3 +35,6 @@
 	path = dependencies/imguinodeeditor
 	url = https://github.com/thedmd/imgui-node-editor.git
 	ignore = dirty
+[submodule "dependencies/nativefiledialog-extended"]
+	path = dependencies/nativefiledialog-extended
+	url = https://github.com/btzy/nativefiledialog-extended.git
