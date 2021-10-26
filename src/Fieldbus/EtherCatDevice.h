@@ -170,13 +170,6 @@ public:
     void pushEvent(uint16_t errorCode);
     void clearEventList();
 
-    EtherCatRegisterData uploadRegisterData = EtherCatRegisterData("uploadData", 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::BINARY);
-    EtherCatRegisterData downloadRegisterData = EtherCatRegisterData("downloadData", 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::BINARY);
-    EtherCatCoeData uploadCoeData = EtherCatCoeData("uploadData", 0x0, 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::DECIMAL);
-    EtherCatCoeData downloadCoeData = EtherCatCoeData("uploadData", 0x0, 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::DECIMAL);
-    EtherCatEepromData uploadEepromData = EtherCatEepromData("uploadData", 0x0, DataFormat::Type::HEXADECIMAL);
-    EtherCatEepromData downloadEepromData = EtherCatEepromData("downloadData", 0x0, DataFormat::Type::HEXADECIMAL);
-
     //===== Upload Status Variables =====
 
     struct DataTransferState {
@@ -203,12 +196,9 @@ public:
     void identificationGui();
     void sendReceiveCanOpenGui();
     void sendReceiveEtherCatRegisterGui();
-    void sendReceiveEepromGui();
+    void sendReceiveSiiGui();
+    void sendReceiveEeprom();
     void eventListGui();
-
-    char eepromInputFilePath[256] = { 0 };
-    char eepromOutputFilePath[256] = { 0 };
-    void eepromToolGui();
 
     //=====Reading and Writing SDO Data
 
@@ -235,10 +225,25 @@ public:
     bool writeSDO_S64(uint16_t index, uint8_t subindex, const int64_t& data);
     bool writeSDO_String(uint16_t index, uint8_t subindex, const char* data);
 
-    //===== Reading And Writing EEPROM Data
+    //===== Reading And Writing Data
+
+    EtherCatRegisterData uploadRegisterData = EtherCatRegisterData("uploadData", 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::BINARY);
+    EtherCatRegisterData downloadRegisterData = EtherCatRegisterData("downloadData", 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::BINARY);
+    EtherCatCoeData uploadCoeData = EtherCatCoeData("uploadData", 0x0, 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::DECIMAL);
+    EtherCatCoeData downloadCoeData = EtherCatCoeData("uploadData", 0x0, 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::DECIMAL);
+    EtherCatEepromData uploadEepromData = EtherCatEepromData("uploadData", 0x0, DataFormat::Type::HEXADECIMAL);
+    EtherCatEepromData downloadEepromData = EtherCatEepromData("downloadData", 0x0, DataFormat::Type::HEXADECIMAL);
 
     bool downloadEEPROM(char* fileName);
+    DataTransferState::State eepromDownloadState = DataTransferState::State::NO_TRANSFER;
+    char eepromSaveFilePath[512];
+
     bool flashEEPROM(char* fileName);
+    DataTransferState::State eepromFlashState = DataTransferState::State::NO_TRANSFER;
+    char eepromLoadFilePath[512];
+
     bool setStationAlias(uint16_t alias);
+    uint16_t stationAliasToolValue = 0;
+    DataTransferState::State stationAliasAssignState = DataTransferState::State::NO_TRANSFER;
 
 };

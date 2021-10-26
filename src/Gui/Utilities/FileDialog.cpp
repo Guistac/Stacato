@@ -19,6 +19,12 @@ namespace FileDialog {
         return load(filePath, dummy);
     }
 
+    bool load(FilePath& filePath, FileTypeFilter& filter) {
+        std::vector<FileTypeFilter> filters;
+        filters.push_back(filter);
+        return load(filePath, filters);
+    }
+
 	bool load(FilePath& filePath, std::vector<FileTypeFilter>& fileTypeFilters) {
         NFD::UniquePath outPath;
         nfdfilteritem_t* filters = new nfdfilteritem_t[fileTypeFilters.size()];
@@ -39,6 +45,12 @@ namespace FileDialog {
     bool loadMultiple(std::vector<FilePath>& paths) {
         std::vector<FileTypeFilter> dummy;
         return loadMultiple(paths, dummy);
+    }
+    
+    bool loadMultiple(std::vector<FilePath>& paths, FileTypeFilter& filter) {
+        std::vector<FileTypeFilter> filters;
+        filters.push_back(filter);
+        return loadMultiple(paths, filters);
     }
 
     bool loadMultiple(std::vector<FilePath>& paths, std::vector<FileTypeFilter>& fileTypeFilters) {
@@ -66,19 +78,25 @@ namespace FileDialog {
         return false;
     }
 
-    bool save(FilePath& path) {
+    bool save(FilePath& path, const char* defaultName) {
         std::vector<FileTypeFilter> dummy;
-        return save(path, dummy);
+        return save(path, dummy, defaultName);
+    }
+    
+    bool save(FilePath& path, FileTypeFilter& filter, const char* defaultName) {
+        std::vector<FileTypeFilter> filters;
+        filters.push_back(filter);
+        return save(path, filters, defaultName);
     }
 
-    bool save(FilePath& path, std::vector<FileTypeFilter>& fileTypeFilters) {
+    bool save(FilePath& path, std::vector<FileTypeFilter>& fileTypeFilters, const char* defaultName) {
         NFD::UniquePath savePath;
         nfdfilteritem_t* filters = new nfdfilteritem_t[fileTypeFilters.size()];
         for (int i = 0; i < fileTypeFilters.size(); i++) {
             filters[i].name = fileTypeFilters[i].fileTypeString;
             filters[i].spec = fileTypeFilters[i].extensionsString;
         }
-        nfdresult_t result = NFD::SaveDialog(savePath, filters, fileTypeFilters.size(), NULL, "Untitled.c");
+        nfdresult_t result = NFD::SaveDialog(savePath, filters, fileTypeFilters.size(), NULL, defaultName);
         if (result == NFD_OKAY) {
             path.set(savePath.get());
             return true;

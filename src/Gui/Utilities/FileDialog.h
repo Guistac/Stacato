@@ -41,11 +41,14 @@ namespace FileDialog {
 
 
 	bool load(FilePath& path);
-	bool load(FilePath& path, std::vector<FileTypeFilter>& fileTypeFilter);	//TODO: default path
+	bool load(FilePath& path, std::vector<FileTypeFilter>& fileTypeFilters);
+	bool load(FilePath& path, FileTypeFilter& fileTypeFilter);
 	bool loadMultiple(std::vector<FilePath>& paths);
-	bool loadMultiple(std::vector<FilePath>& paths, std::vector<FileTypeFilter>& fileTypeFilter); //TODO: default path
-	bool save(FilePath& path);
-	bool save(FilePath& path, std::vector<FileTypeFilter>& fileTypeFiler); //TODO: default path, default name
-	bool openFolder(FilePath& path); //TODO: default path
+	bool loadMultiple(std::vector<FilePath>& paths, std::vector<FileTypeFilter>& fileTypeFilter);
+	bool loadMultiple(std::vector<FilePath>& paths, FileTypeFilter& fileTypeFilter);
+	bool save(FilePath& path, const char* defaultName = nullptr);
+	bool save(FilePath& path, std::vector<FileTypeFilter>& fileTypeFiler, const char* defaultName = nullptr);
+	bool save(FilePath& path, FileTypeFilter& fileTypeFilter, const char* defaultName = nullptr);
+	bool openFolder(FilePath& path);
 
 }

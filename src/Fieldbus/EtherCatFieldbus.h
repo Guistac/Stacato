@@ -18,6 +18,7 @@ namespace EtherCatFieldbus {
     extern std::vector<NetworkInterfaceCard> networkInterfaceCards;
 
     //Initialize EtherCAT using one or two Network Interface Cards
+    bool init();
     bool init(NetworkInterfaceCard&);
     bool init(NetworkInterfaceCard&, NetworkInterfaceCard&);
     extern NetworkInterfaceCard networkInterfaceCard;

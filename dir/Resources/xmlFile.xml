@@ -7,8 +7,8 @@
                     <Identification Type="StationAlias" StationAlias="303"/>
                     <KinematicLimits velocityLimit_rps="120" accelerationLimit_rpsps="10000" defaultManualAcceleration_rpsps="100"/>
                     <InvertDirectionOfMovement Invert="false"/>
-                    <CurrentLimit amps="0"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="0"/>
+                    <CurrentLimit amps="9"/>
+                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="7.4500000000000002"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
@@ -21,9 +21,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Servo Motor" DisplayName="Servo Motor" DataType="ServoActuatorDeviceLink" UniqueID="208" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="209" Real="0" Visible="false" DisableDataField="true"/>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="210" Real="0" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="211" Real="0" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="209" Real="0.01" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="210" Real="1977.2748489379883" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="211" Real="0.0036666666666666666" Visible="false" DisableDataField="true"/>
                     <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="212" Visible="true" NoDataField="true"/>
                     <OutputPin SaveName="DI0" DisplayName="DI0" DataType="Boolean" UniqueID="213" Boolean="false" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="DI1" DisplayName="DI1" DataType="Boolean" UniqueID="214" Boolean="false" Visible="true" DisableDataField="true"/>
@@ -39,12 +39,12 @@
                     <Identification Type="StationAlias" StationAlias="333"/>
                     <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="100" defaultManualAcceleration_rpsps="10"/>
                     <InvertDirectionOfMovement Invert="false"/>
-                    <CurrentLimit amps="0"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="0"/>
+                    <CurrentLimit amps="9"/>
+                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="9"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
-                    <EncoderSettings Assignement="Internal" RangeShifted="false" PositionOffset_revolutions="0"/>
+                    <EncoderSettings Assignement="Internal" RangeShifted="true" PositionOffset_revolutions="0"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveName="DQ0" DisplayName="DQ0" DataType="Boolean" UniqueID="220" Boolean="false" Visible="true"/>
@@ -54,11 +54,11 @@
                 <OutputPins>
                     <OutputPin SaveName="Servo Motor" DisplayName="Servo Motor" DataType="ServoActuatorDeviceLink" UniqueID="223" Visible="true" NoDataField="true"/>
                     <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="224" Real="0" Visible="false" DisableDataField="true"/>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="225" Real="0" Visible="false" DisableDataField="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="226" Real="0" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="225" Real="1874.2759552001953" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="226" Real="0.0050000000000000001" Visible="false" DisableDataField="true"/>
                     <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="227" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="DI0" DisplayName="DI0" DataType="Boolean" UniqueID="228" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="DI1" DisplayName="DI1" DataType="Boolean" UniqueID="229" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="DI0" DisplayName="DI0" DataType="Boolean" UniqueID="228" Boolean="true" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="DI1" DisplayName="DI1" DataType="Boolean" UniqueID="229" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="DI2" DisplayName="DI2" DataType="Boolean" UniqueID="230" Boolean="false" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="DI3" DisplayName="DI3" DataType="Boolean" UniqueID="231" Boolean="false" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="DI4" DisplayName="DI4" DataType="Boolean" UniqueID="232" Boolean="false" Visible="true" DisableDataField="true"/>
@@ -95,9 +95,9 @@
                     </IOModules>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveName="Module1RelaisOutput1" DisplayName="Module 1 Relais Output 1" DataType="Boolean" UniqueID="321" Boolean="true" Visible="true"/>
-                    <InputPin SaveName="Module1RelaisOutput2" DisplayName="Module 1 Relais Output 2" DataType="Boolean" UniqueID="322" Boolean="true" Visible="true"/>
-                    <InputPin SaveName="Module1RelaisOutput3" DisplayName="Module 1 Relais Output 3" DataType="Boolean" UniqueID="323" Boolean="true" Visible="true"/>
+                    <InputPin SaveName="Module1RelaisOutput1" DisplayName="Module 1 Relais Output 1" DataType="Boolean" UniqueID="321" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Module1RelaisOutput2" DisplayName="Module 1 Relais Output 2" DataType="Boolean" UniqueID="322" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Module1RelaisOutput3" DisplayName="Module 1 Relais Output 3" DataType="Boolean" UniqueID="323" Boolean="false" Visible="true"/>
                     <InputPin SaveName="Module1RelaisOutput4" DisplayName="Module 1 Relais Output 4" DataType="Boolean" UniqueID="324" Boolean="false" Visible="true"/>
                 </InputPins>
                 <OutputPins>
@@ -214,14 +214,6 @@
                 <InputPins/>
                 <OutputPins/>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="PD4-E" Split="false" CustomName="PD4-E (Alias:3030)" UniqueID="334">
-                <NodeEditorPosition x="-14956" y="-12270"/>
-                <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="3030"/>
-                </NodeSpecificData>
-                <InputPins/>
-                <OutputPins/>
-            </Node>
             <Node NodeType="Processor" ClassName="Sinus" CustomName="Sinus" UniqueID="335">
                 <NodeEditorPosition x="-15046" y="-12641"/>
                 <NodeSpecificData/>
@@ -229,8 +221,16 @@
                     <InputPin SaveName="in" DisplayName="in" DataType="Real" UniqueID="336" Real="0" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveName="out" DisplayName="out" DataType="Real" UniqueID="337" Real="0" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="out" DisplayName="out" DataType="Real" UniqueID="337" Real="-0.93668995794445908" Visible="true" DisableDataField="true"/>
                 </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="PD4-E" Split="false" CustomName="PD4-E (Alias:0)" UniqueID="340">
+                <NodeEditorPosition x="-15040" y="-12288"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
             </Node>
         </Nodes>
         <Links>
@@ -244,5 +244,5 @@
     <NetworkInterfaceCard>
         <Primary Description="Realtek USB NIC" Name="\Device\NPF_{42C81A11-795E-4D7C-83AE-39EF61932528}"/>
     </NetworkInterfaceCard>
-    <Timing ProcessIntervalMilliseconds="1.5" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000000000001"/>
+    <Timing ProcessIntervalMilliseconds="2" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.20000000298023224"/>
 </FieldbusSettings>

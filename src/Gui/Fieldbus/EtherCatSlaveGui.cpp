@@ -6,6 +6,7 @@
 #include "Fieldbus/EtherCatDevice.h"
 #include "Gui/Framework/Colors.h"
 
+#include "Gui/Utilities/HelpMarker.h"
 #include "Gui/Utilities/FileDialog.h"
 
 void EtherCatDevice::nodeSpecificGui() {
@@ -46,16 +47,19 @@ void EtherCatDevice::nodeSpecificGui() {
 
                 if (ImGui::BeginTabItem("Data Exchange")) {
                     if (ImGui::BeginChild("DataExchange")) {
+                        bool disableDataExchange = !isDetected();
+                        if(disableDataExchange) BEGIN_DISABLE_IMGUI_ELEMENT
                         sendReceiveEtherCatRegisterGui();
                         ImGui::Separator();
                         ImGui::Spacing();
                         sendReceiveCanOpenGui();
                         ImGui::Separator();
                         ImGui::Spacing();
-                        sendReceiveEepromGui();
+                        sendReceiveSiiGui();
                         ImGui::Separator();
                         ImGui::Spacing();
-                        eepromToolGui();
+                        sendReceiveEeprom();
+                        if (disableDataExchange) END_DISABLE_IMGUI_ELEMENT
                         ImGui::EndChild();
                     }
                     ImGui::EndTabItem();
@@ -116,39 +120,18 @@ void EtherCatDevice::generalGui() {
 
 void EtherCatDevice::identificationGui() {
 
-    if (ImGui::Button("Load")) {
-        FileDialog::FilePath filepath;
-        if (FileDialog::load(filepath)) Logger::warn("Path after ok: {}", filepath.path);
-    }
-    if (ImGui::Button("Load Multiple")) {
-        std::vector<FileDialog::FilePath> filePaths;
-        std::vector<FileDialog::FileTypeFilter> filters = {
-            {"Text Files", "txt,rtf"},
-            {"Images", "png,jpg,tiff,psd,gif,bmp"},
-            {"Executables", "exe,bin"},
-            {"Other", "mov,lel,ok"}
-        };
-        if (FileDialog::loadMultiple(filePaths, filters)) {
-            for (auto& filepath : filePaths) {
-                Logger::warn("Path: {}   FileName: {}   Extension: {}", filepath.path, filepath.file, filepath.extension);
-            }
-        }
-    }
-    if (ImGui::Button("Save")) {
-        FileDialog::FilePath filepath;
-        if(FileDialog::save(filepath)) Logger::warn("Path after ok: {}", filepath.path);
-    }
-    if (ImGui::Button("Open Folder")) {
-        FileDialog::FilePath filepath;
-        if(FileDialog::openFolder(filepath)) Logger::warn("Path after ok: {}", filepath.path);
-    }
-
-
-    ImGui::TextWrapped("The device will be matched using the following parameters. Make sure each device has unique identifier parameters.");
-
-    ImGui::PushFont(Fonts::robotoBold15);
-    ImGui::Text("Identification Type");
+    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::Text("Device Identification");
     ImGui::PopFont();
+
+    ImGui::SameLine();
+    if (beginHelpMarker("(help)")) {
+        ImGui::TextWrapped("When scanning the network, Stacato will match devices against their stored identification parameters."
+            "\nMake sure each device has unique identifier parameters.");
+        endHelpMarker();
+    }
+
+    ImGui::Text("Identification Type");
     if (ImGui::BeginCombo("##identificationType", getIdentificationType(identificationType)->displayName)) {
         for (auto& identification : getIdentificationTypes()) {
             if (ImGui::Selectable(identification.displayName, identificationType == identification.type)) {
@@ -157,39 +140,44 @@ void EtherCatDevice::identificationGui() {
         }
         ImGui::EndCombo();
     }
-    if (ImGui::IsItemHovered()) {
-        ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
-        ImGui::BeginTooltip();
-        ImGui::TextWrapped("When scanning the network, each device will be identified by its internal name and selected identification method.");
-        ImGui::EndTooltip();
-    }
 
     switch (identificationType) {
-    case EtherCatDeviceIdentification::Type::STATION_ALIAS:
-        ImGui::PushFont(Fonts::robotoBold15);
+    case EtherCatDeviceIdentification::Type::STATION_ALIAS: {
         ImGui::Text("Station Alias:");
-        ImGui::PopFont();
-        ImGui::InputScalar("##stationAlias", ImGuiDataType_U16, &stationAlias);
-        if (ImGui::IsItemHovered()) {
-            ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
-            ImGui::BeginTooltip();
-            ImGui::TextWrapped("The Station Alias, or Second EtherCAT Address is a value manually set on the device either through a user interface or by writing to the device EEPROM."
+        ImGui::SameLine();
+        if (beginHelpMarker("(help)")) {
+            ImGui::TextWrapped("The Station Alias, or Second EtherCAT Address is a value manually set on the device either through a user interface or by using the alias setting tool below."
                 "\nAddresses must be unique and range from 0 to 65535.");
-            ImGui::EndTooltip();
+            endHelpMarker();
         }
-        break;
+        ImGui::InputScalar("##stationAlias", ImGuiDataType_U16, &stationAlias);
+        ImGui::Separator();
+        bool disableAliasTool = !isDetected();
+        if (disableAliasTool) BEGIN_DISABLE_IMGUI_ELEMENT
+            ImGui::Text("Upload New Station Alias to Device");
+        ImGui::SameLine();
+        if (beginHelpMarker("(help)")) {
+            ImGui::TextWrapped("Assigns a new station alias to the device."
+                "\nThe new Alias is loaded by the device after it has been restarted.");
+            endHelpMarker();
+        }
+        ImGui::InputScalar("##aliasassign", ImGuiDataType_U16, &stationAliasToolValue);
+        if (ImGui::Button("Upload Station Alias")) {
+            setStationAlias(stationAliasToolValue);
+        }
+        ImGui::SameLine();
+        ImGui::Text(getDataTransferState(stationAliasAssignState)->displayName);
+        if (disableAliasTool) END_DISABLE_IMGUI_ELEMENT
+        }break;
     case EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID:
-        ImGui::PushFont(Fonts::robotoBold15);
         ImGui::Text("Explicit Device ID:");
-        ImGui::PopFont();
-        ImGui::InputScalar("##explicitDeviceID", ImGuiDataType_U16, &explicitDeviceID);
-        if (ImGui::IsItemHovered()) {
-            ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
-            ImGui::BeginTooltip();
+        ImGui::SameLine();
+        if (beginHelpMarker("(help)")) {
             ImGui::TextWrapped("The Explicit Device ID is an address that is manually set on the device, typically by adjusting dip switches or another input method available on the device."
                 "\nIDs must be unique and range from 0 to 65535.");
-            ImGui::EndTooltip();
+            endHelpMarker();
         }
+        ImGui::InputScalar("##explicitDeviceID", ImGuiDataType_U16, &explicitDeviceID);
 
         break;
     }
@@ -392,13 +380,11 @@ void EtherCatDevice::sendReceiveCanOpenGui() {
     ImGui::Text("CanOpen data");
     ImGui::PopFont();
 
-    bool allowCoeSendReceive = false;
-    if (isDetected() && isCoeSupported()) allowCoeSendReceive = true;
+    bool disableCoeSendReceive = !isDetected() || !isCoeSupported();
 
-    if (!isDetected()) ImGui::TextWrapped("Sending and Receving CanOpen Data is disabled while the device is not detected");
-    else if (!isCoeSupported()) ImGui::TextWrapped("Sending and Received CanOpen Data is disabled because the device doesn't support CanOpen over EtherCAT");
+    if (disableCoeSendReceive) ImGui::TextWrapped("Sending and Received CanOpen Data is disabled because the device doesn't support CanOpen over EtherCAT");
 
-    if (!allowCoeSendReceive) BEGIN_DISABLE_IMGUI_ELEMENT
+    if (disableCoeSendReceive) BEGIN_DISABLE_IMGUI_ELEMENT
 
     ImGui::PushID("DataUpload");
     ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
@@ -490,7 +476,7 @@ void EtherCatDevice::sendReceiveCanOpenGui() {
         ImGui::Text(downloadCoeData.b_isTransfering ? "Downloading..." : (downloadCoeData.b_transferSuccessfull ? "Download Successfull" : "Download Failed"));
     }
 
-    if (!allowCoeSendReceive) END_DISABLE_IMGUI_ELEMENT
+    if (disableCoeSendReceive) END_DISABLE_IMGUI_ELEMENT
 
     ImGui::PopID();
     
@@ -507,11 +493,6 @@ void EtherCatDevice::sendReceiveEtherCatRegisterGui() {
     ImGui::PushFont(Fonts::robotoBold20);
     ImGui::Text("EtherCAT register data");
     ImGui::PopFont();
-
-    bool allowRegisterSendReceive = isDetected();
-    if (!isDetected()) ImGui::TextWrapped("Sending and Receving CanOpen Data is disabled while the device is not detected");
-
-    if (!allowRegisterSendReceive) BEGIN_DISABLE_IMGUI_ELEMENT
 
     ImGui::PushID("DataUpload");
     ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
@@ -595,8 +576,6 @@ void EtherCatDevice::sendReceiveEtherCatRegisterGui() {
         ImGui::Text(downloadRegisterData.b_isTransfering ? "Downloading..." : (downloadRegisterData.b_transferSuccessfull ? "Download Successfull" : "Download Failed"));
     }
 
-    if (!allowRegisterSendReceive) END_DISABLE_IMGUI_ELEMENT
-
     ImGui::PopID();
     
 }
@@ -604,23 +583,18 @@ void EtherCatDevice::sendReceiveEtherCatRegisterGui() {
 
 
 
-void EtherCatDevice::sendReceiveEepromGui() {
+void EtherCatDevice::sendReceiveSiiGui() {
 
-    ImGui::PushID("EPPROM");
+    ImGui::PushID("SII");
 
     ImGui::PushFont(Fonts::robotoBold20);
-    ImGui::Text("EEPROM data");
+    ImGui::Text("Slave Information Interface Data");
     ImGui::PopFont();
-
-    bool allowRegisterSendReceive = isDetected();
-    if (!isDetected()) ImGui::TextWrapped("Sending and Receving CanOpen Data is disabled while the device is not detected");
-
-    if (!allowRegisterSendReceive) BEGIN_DISABLE_IMGUI_ELEMENT
 
     ImGui::PushID("DataUpload");
     ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
     if (ImGui::BeginTable("##ConfigurationData", 2, tableFlags)) {
-        ImGui::TableSetupColumn("Address");
+        ImGui::TableSetupColumn("Word");
         ImGui::TableSetupColumn("Format");
         ImGui::TableHeadersRow();
         ImGui::TableNextRow();
@@ -657,7 +631,7 @@ void EtherCatDevice::sendReceiveEepromGui() {
 
     ImGui::PushID("DownloadData");
     if (ImGui::BeginTable("##ConfigurationData", 2, tableFlags)) {
-        ImGui::TableSetupColumn("Address");
+        ImGui::TableSetupColumn("Word");
         ImGui::TableSetupColumn("Format");
         ImGui::TableHeadersRow();
         ImGui::TableNextRow();
@@ -691,12 +665,43 @@ void EtherCatDevice::sendReceiveEepromGui() {
         ImGui::Text(downloadEepromData.b_isTransfering ? "Downloading..." : (downloadEepromData.b_transferSuccessfull ? "Download Successfull" : "Download Failed or Result was 0"));
     }
 
-    if (!allowRegisterSendReceive) END_DISABLE_IMGUI_ELEMENT
-
     ImGui::PopID();
 }
 
+void EtherCatDevice::sendReceiveEeprom() {
 
+    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::Text("Device EEPROM");
+    ImGui::PopFont();
+
+    ImGui::Text("Download Device EEPROM to File");
+    if (ImGui::Button("Download EEPROM")) {
+        FileDialog::FileTypeFilter filter("EEPROM Hex File", "hex");
+        FileDialog::FilePath filePath;
+        char defaultFileName[128];
+        sprintf(defaultFileName, "%s.hex", getSaveName());
+        if (FileDialog::save(filePath, filter, defaultFileName)) {
+            strcpy(eepromSaveFilePath, filePath.path);
+            std::thread eepromdownloader([&]() { downloadEEPROM(eepromSaveFilePath); });
+            eepromdownloader.detach();
+        }
+    }
+    ImGui::SameLine();
+    ImGui::Text(getDataTransferState(eepromDownloadState)->displayName);
+
+    ImGui::Text("Flash file to Device EEPROM");
+    if (ImGui::Button("Flash EEPROM")) {
+        FileDialog::FileTypeFilter filter("EEPROM Hex File", "hex");
+        FileDialog::FilePath filePath;
+        if (FileDialog::load(filePath, filter)) {
+            strcpy(eepromLoadFilePath, filePath.path);
+            std::thread eepromflasher([&]() { flashEEPROM(eepromLoadFilePath); });
+            eepromflasher.detach();
+        }
+    }
+    ImGui::SameLine();
+    ImGui::Text(getDataTransferState(eepromFlashState)->displayName);
+}
 
 #include <iomanip>
 
@@ -726,38 +731,5 @@ void EtherCatDevice::eventListGui() {
     }
     ImGui::PopStyleVar();
     ImGui::PopStyleColor();
-
-}
-
-
-
-void EtherCatDevice::eepromToolGui() {
-
-
-
-    ImGui::InputText("##outputPath", eepromOutputFilePath, 256);
-    ImGui::SameLine();
-    if (ImGui::Button("Download")) {
-        bool success = downloadEEPROM(eepromOutputFilePath);
-        Logger::warn("EEPROM Download {}", success ? "Succeeded !" : "Failed...");
-    }
-
-    ImGui::InputText("##inputPath", eepromInputFilePath, 256);
-    ImGui::SameLine();
-    if (ImGui::Button("Flash")) {
-        bool success = flashEEPROM(eepromInputFilePath);
-        Logger::warn("EEPROM Flash {}", success ? "Succeeded !" : "Failed...");
-    }
-
-    static uint16_t newAlias = 0;
-    ImGui::InputScalar("##alias", ImGuiDataType_U16, &newAlias);
-    ImGui::SameLine();
-    if (ImGui::Button("Set Station Alias")) {
-        bool success = setStationAlias(newAlias);
-        Logger::warn("Set Station Alias {}", success ? "Succeeded !" : "Failed...");
-    }
-
-
-
 
 }

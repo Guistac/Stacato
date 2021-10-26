@@ -26,7 +26,7 @@ int main(){
 	Environnement::load("xmlFile.xml");
 
 	EtherCatFieldbus::updateNetworkInterfaceCardList();
-	EtherCatFieldbus::init(EtherCatFieldbus::networkInterfaceCards.front());
+	EtherCatFieldbus::init();
 
 	GuiWindow::open(3000,2000);
 	GuiWindow::refresh();

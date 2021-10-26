@@ -185,16 +185,30 @@ uint16 SIIcrc(uint8* buf)
 
 
 bool EtherCatDevice::downloadEEPROM(char* fileName) {
-    if (eeprom_read(getSlaveIndex(), 0x0000, MINBUF) != 1) return false; // read first 128 bytes
+    eepromDownloadState = DataTransferState::State::TRANSFERRING;
+    if (eeprom_read(getSlaveIndex(), 0x0000, MINBUF) != 1) { // read first 128 bytes
+        eepromDownloadState = DataTransferState::State::FAILED;
+        return false;
+    }
     uint16* wbuf = (uint16*)&ebuf[0];   //cast to buffer of eeprom words (2 bytes)
     int eepromSize = (*(wbuf + 0x3E) + 1) * 128; //get eeprom size
     if (eepromSize > MAXBUF) eepromSize = MAXBUF;
-    if (eepromSize > MINBUF) if (eeprom_read(getSlaveIndex(), MINBUF, eepromSize - MINBUF) != 1) return false; // read reminder
-    if (output_bin(fileName, eepromSize) != 1) return false;
+    if (eepromSize > MINBUF) {
+        if (eeprom_read(getSlaveIndex(), MINBUF, eepromSize - MINBUF) != 1) {
+            eepromDownloadState = DataTransferState::State::FAILED;
+            return false; // read reminder
+        }
+    }
+    if (output_bin(fileName, eepromSize) != 1) {
+        eepromDownloadState = DataTransferState::State::FAILED;
+        return false;
+    }
+    eepromDownloadState = DataTransferState::State::SUCCEEDED;
     return true;
 }
 
 bool EtherCatDevice::flashEEPROM(char* fileName) {
+    eepromFlashState = DataTransferState::State::TRANSFERRING;
 
     int estart = 0;
     int rc = 0;
@@ -206,19 +220,30 @@ bool EtherCatDevice::flashEEPROM(char* fileName) {
     if (rc > 0) {
         wbuf = (uint16*)&ebuf[0];
         fflush(stdout);
-        if (eeprom_write(getSlaveIndex(), estart, esize) != 1) return false;
-        return true;
+        int result = eeprom_write(getSlaveIndex(), estart, esize);
+        if (result == 1) {
+            eepromFlashState = DataTransferState::State::SUCCEEDED;
+            return true;
+        }
+        eepromFlashState = DataTransferState::State::FAILED;
+        return false;
     }
-    else return false;
-
+    eepromFlashState = DataTransferState::State::FAILED;
+    return false;
 }
 
 bool EtherCatDevice::setStationAlias(uint16_t alias) {
+    stationAliasAssignState = DataTransferState::State::TRANSFERRING;
     if (eeprom_read(getSlaveIndex(), 0x0000, CRCBUF)) { // read first 14 bytes
         uint16* wbuf = (uint16*)&ebuf[0];
         *(wbuf + 0x04) = alias;
-        if (eeprom_writealias(getSlaveIndex(), alias, SIIcrc(&ebuf[0]))) return true;
+        if (eeprom_writealias(getSlaveIndex(), alias, SIIcrc(&ebuf[0]))) {
+            stationAliasAssignState = DataTransferState::State::SUCCEEDED;
+            return true;
+        }
+        stationAliasAssignState = DataTransferState::State::FAILED;
         return false;
     }
+    stationAliasAssignState = DataTransferState::State::FAILED;
     return false;
 }

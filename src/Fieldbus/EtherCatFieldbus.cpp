@@ -92,6 +92,39 @@ namespace EtherCatFieldbus {
 
     //============== INTIALIZE FIELDBUS WITH AND OPEN NETWORK INTERFACE CARD ==============
 
+    bool init() {
+        if (b_redundant) {
+            bool foundPrimaryNic = false;
+            bool foundRedundantNic = false;
+            for (auto& nic : networkInterfaceCards) {
+                if (strcmp(nic.description, networkInterfaceCard.description) == 0) {
+                    networkInterfaceCard = nic;
+                    foundPrimaryNic = true;
+                }
+                if (strcmp(nic.description, redundantNetworkInterfaceCard.description) == 0) {
+                    redundantNetworkInterfaceCard = nic;
+                    foundRedundantNic = true;
+                }
+            }
+            if (foundPrimaryNic && foundRedundantNic) return init(networkInterfaceCard, redundantNetworkInterfaceCard);
+            b_redundant = false;
+        }
+        else {
+            for (auto& nic : networkInterfaceCards) {
+                if (strcmp(nic.description, networkInterfaceCard.description) == 0) {
+                    networkInterfaceCard = nic;
+                    return init(networkInterfaceCard);
+                    break;
+                }
+            }
+        }
+        if (!networkInterfaceCards.empty()) {
+            Logger::warn("===== Could not find saved network interface card... Starting Fieldbus on default nic.");
+            return init(networkInterfaceCards.front());
+        }
+        return Logger::warn("===== No Network interface cards present... Could not start EtherCAT Fieldbus");
+    }
+
     bool init(NetworkInterfaceCard& nic) {
         if (b_networkOpen) terminate();
         networkInterfaceCard = nic;
