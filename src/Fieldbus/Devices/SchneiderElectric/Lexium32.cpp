@@ -675,6 +675,12 @@ void Lexium32::downloadGeneralParameters() {
         }
     }
 
+    {
+        EtherCatCoeData _M_n_max(0x300D, 0x4, EtherCatData::Type::UINT16_T);
+        if (!_M_n_max.read(getSlaveIndex())) goto transferfailed;
+        maxMotorVelocity_rps = (double)_M_n_max.getU16() / 60.0;
+    }
+
     switch (quickstopReaction) {
         case QuickStopReaction::Type::DECELERATION_RAMP: {
             EtherCatCoeData RAMPquickstop(0x3006, 0x12, EtherCatData::Type::UINT32_T);

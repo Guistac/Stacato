@@ -92,9 +92,24 @@ struct MotionCommand {
 	const char displayName[64];
 	const char saveName[64];
 };
-std::vector<MotionCommand>& getCommandTypes();
+std::vector<MotionCommand>& getMotionCommand();
 MotionCommand* getMotionCommand(MotionCommand::Type t);
 MotionCommand* getMotionCommand(const char*);
+
+struct ControlMode {
+	enum class Mode {
+		MANUAL_VELOCITY_TARGET,
+		MANUAL_POSITION_TARGET,
+		FOLLOW_PARAMETER
+	};
+	Mode mode;
+	const char displayName[64];
+	const char saveName[64];
+};
+std::vector<ControlMode>& getControlModes();
+ControlMode* getControlMode(ControlMode::Mode m);
+ControlMode* getControlMode(const char*);
+
 
 struct HomingDirection {
 	enum class Type {

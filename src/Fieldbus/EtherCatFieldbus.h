@@ -64,6 +64,10 @@ namespace EtherCatFieldbus {
     double getCycleProgramTime_seconds();
     extern double currentCycleProgramTime_seconds;
 
+    double getCycleTimeDelta_seconds();
+    extern double currentCycleDeltaT_seconds;
+
+
     extern long long int currentCycleProgramTime_nanoseconds;
     long long int getCycleProgramTime_nanoseconds();
 };

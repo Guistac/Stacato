@@ -526,6 +526,9 @@ namespace EtherCatFieldbus {
             slave->onConnection();
         }
 
+        int64_t systemTimeErrorSmoothed_nanoseconds = 0;
+        int64_t systemTimeSmoothed_nanoseconds = cycleStartTime_nanoseconds;
+
         while (b_processRunning) {
 
 
@@ -596,17 +599,17 @@ namespace EtherCatFieldbus {
             //this way we get a time reference that is synchronous with the system clock and
             //most importantly without high frequency jitter induced by corrections to keep the process cycle synchronized with the EtherCAT reference clock
 
-            static int64_t systemTimeErrorSmoothed_nanoseconds = 0;
-            static double systemTimeErrorFilter = 0.99;
-            static int64_t systemTimeSmoothed_nanoseconds = cycleStartTime_nanoseconds;
-            static double smoothedTimeCorrection_proportionalGain = 0.1;
-
+            static double systemTimeErrorFilter = 0.99; //smoothing of the error to get a get a stable value
+            static double smoothedTimeCorrection_proportionalGain = 0.002; //strength of the correction applied to the time value (tested and working for cycle times between 1ms and 20 ms)
             int64_t systemTimeError = systemTime_nanoseconds - systemTimeSmoothed_nanoseconds;
             systemTimeErrorSmoothed_nanoseconds = systemTimeErrorSmoothed_nanoseconds * systemTimeErrorFilter + (1.0 - systemTimeErrorFilter) * systemTimeError;
             currentCycleProgramTime_nanoseconds = systemTimeSmoothed_nanoseconds;
+            double previousCycleProgramTime_seconds = currentCycleProgramTime_seconds;
             currentCycleProgramTime_seconds = (double)systemTimeSmoothed_nanoseconds / 1000000000.0;
+            currentCycleDeltaT_seconds = currentCycleProgramTime_seconds - previousCycleProgramTime_seconds;
             uint64_t fieldbusTimeSmoothed_nanoseconds = systemTimeSmoothed_nanoseconds - fieldbusStartTime_nanoseconds;
             double fieldbusTimeSmoothed_seconds = (double)fieldbusTimeSmoothed_nanoseconds / 1000000000.0;
+
             systemTimeSmoothed_nanoseconds += processInterval_nanoseconds + systemTimeErrorSmoothed_nanoseconds * smoothedTimeCorrection_proportionalGain;
 
             //================= OPERATIONAL STATE TRANSITION ==================
@@ -787,6 +790,10 @@ namespace EtherCatFieldbus {
     double currentCycleProgramTime_seconds = 0.0;
     double getCycleProgramTime_seconds() {
         return currentCycleProgramTime_seconds;
+    }
+    double currentCycleDeltaT_seconds = 0.0;
+    double getCycleTimeDelta_seconds() {
+        return currentCycleDeltaT_seconds;
     }
     
     long long int currentCycleProgramTime_nanoseconds = 0;

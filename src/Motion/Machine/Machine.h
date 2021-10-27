@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NodeGraph/Node.h"
+#include "AnimatableParameter.h"
 
 #define DEFINE_MACHINE_NODE(className, nodeName, saveName) public:									\
 	virtual const char* getSaveName() { return saveName; }											\
@@ -19,11 +20,14 @@
 	virtual void miniatureGui();																	\
 	virtual bool isEnabled();																		\
 	virtual bool isReady();																			\
+	virtual bool isMoving();																		\
 	virtual void enable();																			\
 	virtual void disable();																			\
-	virtual bool isMoving();																		\
+	virtual void moveToParameter();																	\
 
 class Machine : public Node {
+
+	virtual void nodeSpecificGui();
 
 	virtual void controlsGui() = 0;
 	virtual void settingsGui() = 0;
@@ -34,11 +38,14 @@ class Machine : public Node {
 
 	virtual bool isEnabled() = 0;
 	virtual bool isReady() = 0;
-	virtual void enable() = 0;
-	virtual void disable() = 0;
 	virtual bool isMoving() = 0;
 
-	virtual void nodeSpecificGui();
+	virtual void enable() = 0;
+	virtual void disable() = 0;
+
+	virtual void moveToParameter() = 0;
+
+	std::vector<AnimatableParameter> animatableParameters;
 
 	//reference to stage geometry
 	//vector of animatable parameters

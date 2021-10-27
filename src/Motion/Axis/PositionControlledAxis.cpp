@@ -63,8 +63,8 @@ void PositionControlledAxis::process() {
 		}
 	}
 
+	//get actual realtime axis motion values
 	if (needsFeedback) {
-		//convert feedback units to axis units
 		actualPosition_axisUnits = positionFeedbackDevice->getPosition() / feedbackUnitsPerAxisUnits;
 		actualVelocity_axisUnitsPerSecond = positionFeedbackDevice->getVelocity() / feedbackUnitsPerAxisUnits;
 	}
@@ -72,52 +72,67 @@ void PositionControlledAxis::process() {
 		actualPosition_axisUnits = servoActuatorDevice->getPosition() / actuatorUnitsPerAxisUnits;
 		actualVelocity_axisUnitsPerSecond = servoActuatorDevice->getVelocity() / actuatorUnitsPerAxisUnits;
 	}
+	position->set(actualPosition_axisUnits);
+	velocity->set(actualVelocity_axisUnitsPerSecond);
+	switch (positionControl) {
+		case PositionControl::Type::SERVO:
+			actualLoad = getServoActuatorDevice()->getLoad();
+			break;
+		case PositionControl::Type::CLOSED_LOOP:
+			actualLoad = getActuatorDevice()->getLoad();
+			break;
+	}
 
+	//update timing
 	if (needsActuator) currentProfilePointTime_seconds = actuatorDevice->getCommandRequestTime_seconds();
 	else if (needsServo) currentProfilePointTime_seconds = servoActuatorDevice->getCommandRequestTime_seconds();
 	currentProfilePointDeltaT_seconds = currentProfilePointTime_seconds - previousProfilePointTime_seconds;
 	previousProfilePointTime_seconds = currentProfilePointTime_seconds;
 
-	//if a machine is connected and machine control mode is enabled, we let the connected machine do its processing
-	//otherwise the axis controls itself
-	if (!axisLink->isConnected()) control();
-}
-
-void PositionControlledAxis::control() {
-	//update profile generator
-	if (b_enabled) {
+	//UPDATE PROFILE GENERATOR
+	if (isEnabled() && hasManualControlsEnabled()) {
+		//if the axis is enabled and manual controls are enabled
+		//the axis controls itself and sends commands to the actuators
 		if (b_isHoming) homingControl();
 		switch (controlMode) {
-			case ControlMode::VELOCITY_TARGET:
+			case ControlMode::Mode::MANUAL_VELOCITY_TARGET:
 				velocityTargetControl();
 				break;
-			case ControlMode::POSITION_TARGET:
+			case ControlMode::Mode::MANUAL_POSITION_TARGET:
 				positionTargetControl();
 				break;
 		}
 	}
-	else {
+	else  {
 		profilePosition_axisUnits = actualPosition_axisUnits;
 		profileVelocity_axisUnitsPerSecond = actualVelocity_axisUnitsPerSecond;
 	}
-	position->set(actualPosition_axisUnits);
-	velocity->set(actualVelocity_axisUnitsPerSecond);
+	if (axisLink->isConnected() && isEnabled() && !hasManualControlsEnabled()) {
+		//here the machine controls the profile and actuator command sending
+	}
+	else {
+		setActuatorCommands();
+	}
+}
 
-	double actualLoad = 0.0;
+void PositionControlledAxis::setActuatorCommands() {
+	//here we expect that the motion profile has new values
+	//we use those values to send commands to the actuators
+	positionError_axisUnits = profilePosition_axisUnits - actualPosition_axisUnits / feedbackUnitsPerAxisUnits;
 	switch (positionControl) {
 		case PositionControl::Type::SERVO:
-			actualLoad = getServoActuatorDevice()->getLoad();
+			//for servo mode, we just request a new position from the actuator
 			getServoActuatorDevice()->setCommand(profilePosition_axisUnits * actuatorUnitsPerAxisUnits);
 			break;
 		case PositionControl::Type::CLOSED_LOOP:
-			actualLoad = getActuatorDevice()->getLoad();
 			//for closed loop, implement pid control with adjustable gains
 			//getActuatorDevice()->setCommand(profileVelocity_axisUnitsPerSecond * actuatorUnitsPerAxisUnits);
 			break;
 	}
-	positionError_axisUnits = profilePosition_axisUnits - actualPosition_axisUnits / feedbackUnitsPerAxisUnits;
+	updateMetrics();
+}
 
-	//update metrics
+void PositionControlledAxis::updateMetrics() {
 	positionHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profilePosition_axisUnits));
 	actualPositionHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, actualPosition_axisUnits));
 	positionErrorHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, positionError_axisUnits));
@@ -156,8 +171,8 @@ void PositionControlledAxis::enable() {
 void PositionControlledAxis::onEnable() {
 	targetCurveProfile = MotionCurve::CurveProfile();
 	manualVelocityTarget_axisUnitsPerSecond = 0.0;
-	profileVelocity_axisUnitsPerSecond = 0.0;
-	profileAcceleration_axisUnitsPerSecondSquared = 0.0;
+	//profileVelocity_axisUnitsPerSecond = 0.0;
+	//profileAcceleration_axisUnitsPerSecondSquared = 0.0;
 	b_enabled = true;
 	Logger::info("Machine '{}' was enabled", getName());
 }
@@ -168,8 +183,8 @@ void PositionControlledAxis::disable() {
 	else if (needsServoActuatorDevice()) getServoActuatorDevice()->disable();
 	targetCurveProfile = MotionCurve::CurveProfile();
 	manualVelocityTarget_axisUnitsPerSecond = 0.0;
-	profileVelocity_axisUnitsPerSecond = 0.0;
-	profileAcceleration_axisUnitsPerSecondSquared = 0.0;
+	//profileVelocity_axisUnitsPerSecond = 0.0;
+	//profileAcceleration_axisUnitsPerSecondSquared = 0.0;
 	Logger::info("Machine {} disabled", getName());
 }
 
@@ -376,14 +391,6 @@ bool PositionControlledAxis::isMoving() {
 	}
 }
 
-double PositionControlledAxis::getPositionProgress() {
-	double lowLimit = getLowPositionLimit();
-	double highLimit = getHighPositionLimit();
-	double current = actualPosition_axisUnits;
-	return (current - lowLimit) / (highLimit - lowLimit);
-}
-
-
 double PositionControlledAxis::getLowPositionLimit() {
 	double lowLimit = -std::numeric_limits<double>::infinity();
 	if (enableNegativeLimit) lowLimit = maxNegativeDeviation_axisUnits;
@@ -483,10 +490,10 @@ void PositionControlledAxis::scaleFeedbackToMatchPosition(double position_axisUn
 
 void PositionControlledAxis::setVelocity(double velocity_axisUnits) {
 	manualVelocityTarget_axisUnitsPerSecond = velocity_axisUnits;
-	if (controlMode == ControlMode::POSITION_TARGET) {
+	if (controlMode == ControlMode::Mode::MANUAL_POSITION_TARGET) {
 		targetCurveProfile = MotionCurve::CurveProfile();
 	}
-	controlMode = ControlMode::VELOCITY_TARGET;
+	controlMode = ControlMode::Mode::MANUAL_VELOCITY_TARGET;
 }
 
 void PositionControlledAxis::velocityTargetControl() {
@@ -518,7 +525,7 @@ void PositionControlledAxis::moveToPositionWithVelocity(double position_axisUnit
 	MotionCurve::CurvePoint startPoint(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
 	MotionCurve::CurvePoint endPoint(0.0, position_axisUnits, acceleration_axisUnits, 0.0);
 	if (MotionCurve::getFastestVelocityConstrainedProfile(startPoint, endPoint, velocity_axisUnits, targetCurveProfile)) {
-		controlMode = ControlMode::POSITION_TARGET;
+		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
 		manualVelocityTarget_axisUnitsPerSecond = 0.0;
 	}
 	else {
@@ -532,7 +539,7 @@ void PositionControlledAxis::moveToPositionInTime(double position_axisUnits, dou
 	MotionCurve::CurvePoint startPoint(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
 	MotionCurve::CurvePoint endPoint(currentProfilePointTime_seconds + movementTime_seconds, position_axisUnits, acceleration_axisUnits, 0.0);
 	if (MotionCurve::getTimeConstrainedProfile(startPoint, endPoint, velocityLimit_axisUnitsPerSecond, targetCurveProfile)) {
-		controlMode = ControlMode::POSITION_TARGET;
+		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
 		manualVelocityTarget_axisUnitsPerSecond = 0.0;
 	}
 	else {
@@ -554,14 +561,16 @@ void PositionControlledAxis::positionTargetControl() {
 }
 
 
-
-//=================================================================
-
-
-void PositionControlledAxis::followCurveControl() {}
-
-
 //==================================== HOMING =====================================
+
+bool PositionControlledAxis::isHomeable() {
+	switch (positionReferenceSignal) {
+		case PositionReferenceSignal::Type::NO_SIGNAL:
+			return false;
+		default: 
+			return true;
+	}
+}
 
 void PositionControlledAxis::startHoming() {
 	b_isHoming = true;
@@ -572,7 +581,7 @@ void PositionControlledAxis::startHoming() {
 void PositionControlledAxis::cancelHoming() {
 	b_isHoming = false;
 	homingStep = Homing::Step::NOT_STARTED;
-	controlMode = ControlMode::VELOCITY_TARGET;
+	controlMode = ControlMode::Mode::MANUAL_VELOCITY_TARGET;
 	setVelocity(0.0);
 }
 

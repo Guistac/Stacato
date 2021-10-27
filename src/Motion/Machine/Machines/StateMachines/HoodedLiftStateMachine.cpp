@@ -35,3 +35,4 @@ bool HoodedLiftStateMachine::isReady() { return false; }
 void HoodedLiftStateMachine::enable() {}
 void HoodedLiftStateMachine::disable() {}
 bool HoodedLiftStateMachine::isMoving() { return false; }
+void HoodedLiftStateMachine::moveToParameter() {}

@@ -5,7 +5,9 @@
 class PositionControlledAxis : public Axis {
 public:
 
-	DEFINE_AXIS_NODE(PositionControlledAxis, "Position Controlled Axis", "PositionControllerAxis", Axis::Type::POSITION_CONTROLLED_AXIS);
+	DEFINE_AXIS_NODE(PositionControlledAxis, "Position Controlled Axis", "PositionControllerAxis", MotionCommand::Type::POSITION_COMMAND);
+	virtual MotionCommand::Type getCommandType() { return MotionCommand::Type::POSITION_COMMAND; }
+	virtual PositionUnit::Type getMotionType() { return axisPositionUnitType; }
 
 	//Device Links
 	std::shared_ptr<NodePin> actuatorDeviceLink = std::make_shared<NodePin>(NodeData::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuator");
@@ -25,9 +27,7 @@ public:
 
 	//==================== AXIS DATA ====================
 
-	//Machine Type
-	PositionUnit::Type axisPositionUnitType = PositionUnit::Type::ANGULAR;
-	PositionUnit::Unit axisPositionUnit = PositionUnit::Unit::DEGREE;
+	//Control Type
 	PositionControl::Type positionControl = PositionControl::Type::CLOSED_LOOP;
 	void setPositionControlType(PositionControl::Type type);
 
@@ -42,10 +42,6 @@ public:
 	HomingDirection::Type homingDirection = HomingDirection::Type::NEGATIVE;
 	double homingVelocity_axisUnitsPerSecond = 0.0;
 
-	//Kinematic Limits
-	double velocityLimit_axisUnitsPerSecond = 0.0;
-	double accelerationLimit_axisUnitsPerSecondSquared = 0.0;
-
 	//Position Limits
 	double maxPositiveDeviation_axisUnits = 0.0;
 	double maxNegativeDeviation_axisUnits = 0.0;
@@ -58,18 +54,6 @@ public:
 	double defaultManualAcceleration_axisUnitsPerSecondSquared = 5.0;
 
 	//============== CONTROL VARIABLES ===================
-
-	//actual machine state based on feedback data
-	double actualPosition_axisUnits;
-	double actualVelocity_axisUnitsPerSecond;
-
-	//motion profile generator variables
-	double previousProfilePointTime_seconds = 0.0; //used to calculate deltaT
-	double currentProfilePointTime_seconds = 0.0;
-	double currentProfilePointDeltaT_seconds = 0.0;
-	double profilePosition_axisUnits = 0.0;
-	double profileVelocity_axisUnitsPerSecond = 0.0;
-	double profileAcceleration_axisUnitsPerSecondSquared = 0.0;
 
 	//controller variables
 	double positionError_axisUnits = 0.0;
@@ -88,9 +72,6 @@ public:
 	bool previousReferenceSignal = false;
 
 	//position limits
-	double getLowPositionLimit();
-	double getHighPositionLimit();
-	double getPositionProgress();
 	double getLowFeedbackPositionLimit();
 	double getHighFeedbackPositionLimit();
 
@@ -100,17 +81,9 @@ public:
 	void setCurrentPositionAsPositiveLimit();
 	void scaleFeedbackToMatchPosition(double position_axisUnits);
 
-	enum class ControlMode {
-		VELOCITY_TARGET,
-		POSITION_TARGET,
-		MACHINE_CONTROL
-	};
-
-	void control();
-
 	bool b_isHoming = false;
 
-	ControlMode controlMode = ControlMode::VELOCITY_TARGET;
+	ControlMode::Mode controlMode = ControlMode::Mode::MANUAL_VELOCITY_TARGET;
 
 	double manualControlAcceleration_axisUnitsPerSecond = 0.0;
 
@@ -128,15 +101,7 @@ public:
 	double targetVelocity_axisUnitsPerSecond = 0.0;
 	double targetTime_seconds = 0.0;
 
-	//Curve following
-	void followCurveControl();
-
 	//Homing Control
-	void startHoming();
-	void cancelHoming();
-	bool isHoming();
-	bool didHomingSucceed();
-	bool didHomingFail();
 	void homingControl();
 	void onHomingSuccess();
 	void onHomingError();
@@ -148,6 +113,7 @@ public:
 
 	//============= METRICS ============
 
+	void updateMetrics();
 	const size_t historyLength = 2048;
 	CircularBuffer positionHistory = CircularBuffer(historyLength);
 	CircularBuffer actualPositionHistory = CircularBuffer(historyLength);

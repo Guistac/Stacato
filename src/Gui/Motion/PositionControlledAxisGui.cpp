@@ -12,120 +12,140 @@
 #include "Gui/Utilities/HelpMarker.h"
 
 
+#include "Fieldbus/EtherCatFieldbus.h"
 
 void PositionControlledAxis::controlsGui() {
 
 	//====================== AXIS MANUAL CONTROLS ==============================
 
 	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Machine Control");
+	ImGui::Text("Manual Axis Control");
 	ImGui::PopFont();
+
+	if (ImGui::Checkbox("##manualControls", &b_manualControlsEnabled)) {
+		disable();
+	}
+	ImGui::SameLine();
+	ImGui::Text("Enable Manual Axis Controls");
+	ImGui::SameLine();
+
+	if (beginHelpMarker("(help)")) {
+		ImGui::TextWrapped("When Manual Controls are enabled, the connected Machine cannot control the axis."
+			"\nThis is useful for technical movements, tests and homing routines");
+		endHelpMarker();
+	}
 
 	glm::vec2 buttonSize;
 	int buttonCount = 2;
 	buttonSize.x = (ImGui::GetContentRegionAvail().x - (buttonCount - 1) * ImGui::GetStyle().ItemSpacing.x) / buttonCount;
 	buttonSize.y = ImGui::GetTextLineHeight() * 2.0;
 
-	bool readyToEnable = isReady();
-
 	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 	if (isEnabled()) {
 		ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-		ImGui::Button("Machine Enabled", buttonSize);
+		ImGui::Button("Axis Enabled", buttonSize);
 	}
-	else if (readyToEnable) {
+	else if (isReady()) {
 		ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-		ImGui::Button("Machine Ready", buttonSize);
+		ImGui::Button("Axis Ready", buttonSize);
 	}
 	else {
 		ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
-		ImGui::Button("Machine Not Ready", buttonSize);
+		ImGui::Button("Axis Not Ready", buttonSize);
 	}
 	ImGui::PopStyleColor();
 	ImGui::PopItemFlag();
 
+	bool disableEnableButton = !isReady() || !b_manualControlsEnabled;
+
 	ImGui::SameLine();
-	if (!readyToEnable) BEGIN_DISABLE_IMGUI_ELEMENT
+	if (disableEnableButton) BEGIN_DISABLE_IMGUI_ELEMENT
 		if (isEnabled()) {
-			if (ImGui::Button("Disable Machine", buttonSize)) disable();
+			if (ImGui::Button("Disable Axis", buttonSize)) disable();
 		}
 		else {
-			if (ImGui::Button("Enable Machine", buttonSize)) enable();
+			if (ImGui::Button("Enable Axis", buttonSize)) enable();
 		}
-	if (!readyToEnable) END_DISABLE_IMGUI_ELEMENT
+	if (disableEnableButton) END_DISABLE_IMGUI_ELEMENT
 
-		ImGui::Separator();
 
-	bool disableManualControls = !b_enabled;
-	if (disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
+
+	ImGui::Separator();
+
+	float widgetWidth = ImGui::GetContentRegionAvail().x;
+	float tripleWidgetWidth = (widgetWidth - 2 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
+	glm::vec2 tripleButtonSize(tripleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
+
+	bool axisDisabled = !b_enabled;
+	if (axisDisabled) BEGIN_DISABLE_IMGUI_ELEMENT
+
+	if (b_manualControlsEnabled) {
 
 		//------------------- MASTER MANUAL ACCELERATION ------------------------
 
 		ImGui::Text("Acceleration for manual controls :");
-	static char accelerationString[32];
-	sprintf(accelerationString, u8"%.3f %s/s²", manualControlAcceleration_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
-	ImGui::InputDouble("##TargetAcceleration", &manualControlAcceleration_axisUnitsPerSecond, 0.0, 0.0, accelerationString);
-	clamp(manualControlAcceleration_axisUnitsPerSecond, 0.0, accelerationLimit_axisUnitsPerSecondSquared);
-	ImGui::Separator();
+		static char accelerationString[32];
+		sprintf(accelerationString, u8"%.3f %s/s²", manualControlAcceleration_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
+		ImGui::InputDouble("##TargetAcceleration", &manualControlAcceleration_axisUnitsPerSecond, 0.0, 0.0, accelerationString);
+		clamp(manualControlAcceleration_axisUnitsPerSecond, 0.0, accelerationLimit_axisUnitsPerSecondSquared);
+		ImGui::Separator();
 
-	//------------------- VELOCITY CONTROLS ------------------------
+		//------------------- VELOCITY CONTROLS ------------------------
 
-	float widgetWidth = ImGui::GetContentRegionAvail().x;
+		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::Text("Manual Velocity Control");
+		ImGui::PopFont();
 
-	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Manual Velocity Control");
-	ImGui::PopFont();
+		ImGui::SetNextItemWidth(widgetWidth);
+		static char velocityTargetString[32];
+		sprintf(velocityTargetString, "%.3f %s/s", manualVelocityTarget_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
 
-	ImGui::SetNextItemWidth(widgetWidth);
-	static char velocityTargetString[32];
-	sprintf(velocityTargetString, "%.3f %s/s", manualVelocityTarget_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
+		float manualVelocityTarget = manualVelocityTarget_axisUnitsPerSecond;
+		if (ImGui::SliderFloat("##Velocity", &manualVelocityTarget, -velocityLimit_axisUnitsPerSecond, velocityLimit_axisUnitsPerSecond, velocityTargetString));
+		clamp(manualVelocityTarget_axisUnitsPerSecond, -velocityLimit_axisUnitsPerSecond, velocityLimit_axisUnitsPerSecond);
+		if (ImGui::IsItemActive()) setVelocity(manualVelocityTarget);
+		else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocity(manualVelocityTarget = 0.0);
 
-	float manualVelocityTarget = manualVelocityTarget_axisUnitsPerSecond;
-	if (ImGui::SliderFloat("##Velocity", &manualVelocityTarget, -velocityLimit_axisUnitsPerSecond, velocityLimit_axisUnitsPerSecond, velocityTargetString));
-	clamp(manualVelocityTarget_axisUnitsPerSecond, -velocityLimit_axisUnitsPerSecond, velocityLimit_axisUnitsPerSecond);
-	if (ImGui::IsItemActive()) setVelocity(manualVelocityTarget);
-	else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocity(manualVelocityTarget = 0.0);
+		ImGui::Separator();
 
-	ImGui::Separator();
+		//------------------------- POSITION CONTROLS --------------------------
 
-	//------------------------- POSITION CONTROLS --------------------------
+		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::Text("Manual Position Control");
+		ImGui::PopFont();
 
-	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Manual Position Control");
-	ImGui::PopFont();
+		ImGui::SetNextItemWidth(tripleWidgetWidth);
+		static char targetPositionString[32];
+		sprintf(targetPositionString, "%.3f %s", targetPosition_axisUnits, getPositionUnitStringShort(axisPositionUnit));
+		ImGui::InputDouble("##TargetPosition", &targetPosition_axisUnits, 0.0, 0.0, targetPositionString);
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(tripleWidgetWidth);
+		static char targetVelocityString[32];
+		sprintf(targetVelocityString, "%.3f %s/s", targetVelocity_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
+		ImGui::InputDouble("##TargetVelocity", &targetVelocity_axisUnitsPerSecond, 0.0, 0.0, targetVelocityString);
+		clamp(targetVelocity_axisUnitsPerSecond, 0.0, velocityLimit_axisUnitsPerSecond);
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(tripleWidgetWidth);
+		ImGui::InputDouble("##TargetTime", &targetTime_seconds, 0.0, 0.0, "%.3f s");
+		if (ImGui::Button("Fast Move", tripleButtonSize)) {
+			moveToPositionWithVelocity(targetPosition_axisUnits, velocityLimit_axisUnitsPerSecond, manualControlAcceleration_axisUnitsPerSecond);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Velocity Move", tripleButtonSize)) {
+			moveToPositionWithVelocity(targetPosition_axisUnits, targetVelocity_axisUnitsPerSecond, manualControlAcceleration_axisUnitsPerSecond);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Timed Move", tripleButtonSize)) {
+			moveToPositionInTime(targetPosition_axisUnits, targetTime_seconds, manualControlAcceleration_axisUnitsPerSecond);
+		}
 
-	float tripleWidgetWidth = (widgetWidth - 2 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
-	glm::vec2 tripleButtonSize(tripleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
-	ImGui::SetNextItemWidth(tripleWidgetWidth);
-	static char targetPositionString[32];
-	sprintf(targetPositionString, "%.3f %s", targetPosition_axisUnits, getPositionUnitStringShort(axisPositionUnit));
-	ImGui::InputDouble("##TargetPosition", &targetPosition_axisUnits, 0.0, 0.0, targetPositionString);
-	ImGui::SameLine();
-	ImGui::SetNextItemWidth(tripleWidgetWidth);
-	static char targetVelocityString[32];
-	sprintf(targetVelocityString, "%.3f %s/s", targetVelocity_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
-	ImGui::InputDouble("##TargetVelocity", &targetVelocity_axisUnitsPerSecond, 0.0, 0.0, targetVelocityString);
-	clamp(targetVelocity_axisUnitsPerSecond, 0.0, velocityLimit_axisUnitsPerSecond);
-	ImGui::SameLine();
-	ImGui::SetNextItemWidth(tripleWidgetWidth);
-	ImGui::InputDouble("##TargetTime", &targetTime_seconds, 0.0, 0.0, "%.3f s");
-	if (ImGui::Button("Fast Move", tripleButtonSize)) {
-		moveToPositionWithVelocity(targetPosition_axisUnits, velocityLimit_axisUnitsPerSecond, manualControlAcceleration_axisUnitsPerSecond);
+		if (ImGui::Button("Stop##Target", glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 2))) {
+			setVelocity(0.0);
+		}
+
+		ImGui::Separator();
+
 	}
-	ImGui::SameLine();
-	if (ImGui::Button("Velocity Move", tripleButtonSize)) {
-		moveToPositionWithVelocity(targetPosition_axisUnits, targetVelocity_axisUnitsPerSecond, manualControlAcceleration_axisUnitsPerSecond);
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Timed Move", tripleButtonSize)) {
-		moveToPositionInTime(targetPosition_axisUnits, targetTime_seconds, manualControlAcceleration_axisUnitsPerSecond);
-	}
-
-	if (ImGui::Button("Stop##Target", glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 2))) {
-		setVelocity(0.0);
-	}
-
-	ImGui::Separator();
 
 	//-------------------------------- FEEDBACK --------------------------------
 
@@ -179,35 +199,37 @@ void PositionControlledAxis::controlsGui() {
 	ImGui::ProgressBar(velocityProgress, ImVec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), velocityString);
 	ImGui::PopStyleColor();
 
-	//target movement progress
-	float targetProgress;
-	double movementSecondsLeft = 0.0;
-	static char movementProgressChar[8];
-	if (!isEnabled()) {
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		sprintf(movementProgressChar, "Machine Disabled");
-		targetProgress = 1.0;
+	if (b_manualControlsEnabled) {
+		//target movement progress
+		float targetProgress;
+		double movementSecondsLeft = 0.0;
+		static char movementProgressChar[8];
+		if (!isEnabled()) {
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+			sprintf(movementProgressChar, "Machine Disabled");
+			targetProgress = 1.0;
+		}
+		else if (controlMode != ControlMode::Mode::MANUAL_POSITION_TARGET) {
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+			sprintf(movementProgressChar, "No Target Movement");
+			targetProgress = 1.0;
+		}
+		else if (MotionCurve::getMotionCurveProgress(currentProfilePointTime_seconds, targetCurveProfile) >= 1.0) {
+			targetProgress = 1.0;
+			sprintf(movementProgressChar, "Movement Finished");
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+		}
+		else {
+			targetProgress = MotionCurve::getMotionCurveProgress(currentProfilePointTime_seconds, targetCurveProfile);
+			movementSecondsLeft = targetCurveProfile.rampOutEndTime - currentProfilePointTime_seconds;
+			if (movementSecondsLeft < 0.0) movementSecondsLeft = 0.0;
+			sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
+		}
+		ImGui::Text("Movement Time Remaining :");
+		ImGui::ProgressBar(targetProgress, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), movementProgressChar);
+		ImGui::PopStyleColor();
 	}
-	else if (controlMode != ControlMode::POSITION_TARGET) {
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		sprintf(movementProgressChar, "No Target Movement");
-		targetProgress = 1.0;
-	}
-	else if (MotionCurve::getMotionCurveProgress(currentProfilePointTime_seconds, targetCurveProfile) >= 1.0) {
-		targetProgress = 1.0;
-		sprintf(movementProgressChar, "Movement Finished");
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-	}
-	else {
-		targetProgress = MotionCurve::getMotionCurveProgress(currentProfilePointTime_seconds, targetCurveProfile);
-		movementSecondsLeft = targetCurveProfile.rampOutEndTime - currentProfilePointTime_seconds;
-		if (movementSecondsLeft < 0.0) movementSecondsLeft = 0.0;
-		sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
-	}
-	ImGui::Text("Movement Time Remaining :");
-	ImGui::ProgressBar(targetProgress, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), movementProgressChar);
-	ImGui::PopStyleColor();
 
 	//encoder position in working range
 	if ((needsPositionFeedbackDevice() && isPositionFeedbackDeviceConnected()) || (needsServoActuatorDevice() && isServoActuatorDeviceConnected())) {
@@ -258,172 +280,175 @@ void PositionControlledAxis::controlsGui() {
 		ImGui::PopStyleColor();
 	}
 
-	ImGui::Separator();
-
-	//-------------------------- HOMING CONTROLS ---------------------------
-
-	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Origin and Limit Setting");
-	ImGui::PopFont();
-
-	ImGui::SameLine();
-	if (beginHelpMarker("(help)")) {
-		switch (positionReferenceSignal) {
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("Signal At Lower Limit");
-			ImGui::PopFont();
-			ImGui::TextWrapped("The Homing Sequence will move the axis in the negative direction until the negative limit signal is triggered."
-				"\nThe Axis Origin will be set at the negative limit signal."
-				"\nThe Positive Limit is set by manually moving the axis to the desired position and capturing it as the limit.");
-			break;
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("Signal At Lower and Upper Limit");
-			ImGui::PopFont();
-			ImGui::TextWrapped("The Homing Sequence will first move the axis in the %s direction, then in the %s direction until each limit signal is triggered."
-				"\nThe Axis Origin will be set at the negative limit signal."
-				"\nThe Positive Limit will be set at the positive limit signal.",
-				homingDirection == HomingDirection::Type::NEGATIVE ? "Negative" : "Positive",
-				homingDirection == HomingDirection::Type::NEGATIVE ? "Positive" : "Negative");
-			break;
-		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("Signal At Origin");
-			ImGui::PopFont();
-			ImGui::TextWrapped("The Homing Sequence will move the axis in the %s direction until the reference signal is triggered."
-				"\nThe Axis Origin will be set at the reference signal."
-				"\nThe Positive and Negative limits can be set by manually moving the axis to the desired limits and capturing the positions.",
-				homingDirection == HomingDirection::Type::NEGATIVE ? "Negative" : "Positive");
-			break;
-		case PositionReferenceSignal::Type::NO_SIGNAL:
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("No Position Reference Signal");
-			ImGui::PopFont();
-			ImGui::TextWrapped("No Homing Sequence is available."
-				"\nThe Axis origin and limits have to be set manually.");
-			break;
-		}
-		endHelpMarker();
-	}
-
-	glm::vec2 homingButtonSize((widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, ImGui::GetTextLineHeight() * 1.5);
-
-	switch (positionReferenceSignal) {
-	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-	case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN: {
-		bool homing = isHoming();
-		if (homing) BEGIN_DISABLE_IMGUI_ELEMENT
-			if (ImGui::Button("Start Homing", homingButtonSize)) startHoming();
-		if (homing) END_DISABLE_IMGUI_ELEMENT
-			ImGui::SameLine();
-		if (!homing) BEGIN_DISABLE_IMGUI_ELEMENT
-			if (ImGui::Button("Stop Homing", homingButtonSize)) cancelHoming();
-		if (!homing) END_DISABLE_IMGUI_ELEMENT
-
-			static char homingStatusString[128];
-		glm::vec2 homingStatusSize(widgetWidth, ImGui::GetTextLineHeight() * 1.5);
-		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-		if (isHoming()) {
-			sprintf(homingStatusString, "Homing Status: %s", getHomingStep(homingStep)->displayName);
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-		}
-		else if (didHomingSucceed()) {
-			sprintf(homingStatusString, "Homing Succeeded");
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-		}
-		else if (didHomingFail()) {
-			sprintf(homingStatusString, "Homing Failed: %s", getHomingError(homingError)->displayName);
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
-		}
-		else {
-			sprintf(homingStatusString, "No Homing Ongoing");
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
-		}
-		ImGui::Button(homingStatusString, homingStatusSize);
-		ImGui::PopItemFlag();
-		ImGui::PopStyleColor();
-	}break;
-	case PositionReferenceSignal::Type::NO_SIGNAL:
-		break;
-	}
-
-	glm::vec2 singleButtonSize(widgetWidth, tripleButtonSize.y);
-	glm::vec2 doubleButtonSize((widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, tripleButtonSize.y);
-
-	bool disableCaptureButtons = !isEnabled() || isMoving();
-	bool disableCaptureLowerLimit = actualPosition_axisUnits > 0.0;
-	bool disableCaptureHigherLimit = actualPosition_axisUnits < 0.0;
-	if (disableCaptureButtons) BEGIN_DISABLE_IMGUI_ELEMENT
-		switch (positionReferenceSignal) {
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-			if (disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
-				if (ImGui::Button("Capture Positive Limit", singleButtonSize)) setCurrentPositionAsPositiveLimit();
-			if (disableCaptureHigherLimit) END_DISABLE_IMGUI_ELEMENT
-				break;
-		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-			break;
-		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
-			if (disableCaptureLowerLimit) BEGIN_DISABLE_IMGUI_ELEMENT
-				if (ImGui::Button("Capture Negative Limit", doubleButtonSize)) setCurrentPositionAsNegativeLimit();
-			if (disableCaptureLowerLimit) END_DISABLE_IMGUI_ELEMENT
-				ImGui::SameLine();
-			if (disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
-				if (ImGui::Button("Capture Positive Limit", doubleButtonSize)) setCurrentPositionAsPositiveLimit();
-			if (disableCaptureHigherLimit) END_DISABLE_IMGUI_ELEMENT
-				break;
-		case PositionReferenceSignal::Type::NO_SIGNAL:
-			if (disableCaptureLowerLimit) BEGIN_DISABLE_IMGUI_ELEMENT
-				if (ImGui::Button("Capture Negative Limit", tripleButtonSize)) setCurrentPositionAsNegativeLimit();
-			if (disableCaptureLowerLimit) END_DISABLE_IMGUI_ELEMENT
-				ImGui::SameLine();
-			if (ImGui::Button("Capture Origin", tripleButtonSize)) setCurrentPosition(0.0);
-			ImGui::SameLine();
-			if (disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
-				if (ImGui::Button("Capture Positive Limit", tripleButtonSize)) setCurrentPositionAsPositiveLimit();
-			if (disableCaptureHigherLimit) END_DISABLE_IMGUI_ELEMENT
-				break;
-		}
-	if (disableCaptureButtons) END_DISABLE_IMGUI_ELEMENT
-
+	if (b_manualControlsEnabled) {
 
 		ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Position Feedback Scaling");
-	ImGui::PopFont();
+		//-------------------------- HOMING CONTROLS ---------------------------
 
-	ImGui::SameLine();
-	if (beginHelpMarker("(help)")) {
+		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::Text("Origin and Limit Setting");
+		ImGui::PopFont();
 
-		ImGui::TextWrapped("This utility allows the setting of feedback to axis unit conversion ratio."
-			"\nMove the axis to its origin (0.0) and physically mark down the position of the axis."
-			"\nMove the axis to another position and measure the distance to the initial mark."
-			"\nEnter the measured distance into the utility and click the \"Set Scaling\" Button."
-			"\nThe display will now match the actual position and the conversion ratio will be set correctly."
-			"\nLarger and more precise measured distance will yield a greater precision in the ratio.");
+		ImGui::SameLine();
+		if (beginHelpMarker("(help)")) {
+			switch (positionReferenceSignal) {
+			case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::Text("Signal At Lower Limit");
+				ImGui::PopFont();
+				ImGui::TextWrapped("The Homing Sequence will move the axis in the negative direction until the negative limit signal is triggered."
+					"\nThe Axis Origin will be set at the negative limit signal."
+					"\nThe Positive Limit is set by manually moving the axis to the desired position and capturing it as the limit.");
+				break;
+			case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::Text("Signal At Lower and Upper Limit");
+				ImGui::PopFont();
+				ImGui::TextWrapped("The Homing Sequence will first move the axis in the %s direction, then in the %s direction until each limit signal is triggered."
+					"\nThe Axis Origin will be set at the negative limit signal."
+					"\nThe Positive Limit will be set at the positive limit signal.",
+					homingDirection == HomingDirection::Type::NEGATIVE ? "Negative" : "Positive",
+					homingDirection == HomingDirection::Type::NEGATIVE ? "Positive" : "Negative");
+				break;
+			case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
+				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::Text("Signal At Origin");
+				ImGui::PopFont();
+				ImGui::TextWrapped("The Homing Sequence will move the axis in the %s direction until the reference signal is triggered."
+					"\nThe Axis Origin will be set at the reference signal."
+					"\nThe Positive and Negative limits can be set by manually moving the axis to the desired limits and capturing the positions.",
+					homingDirection == HomingDirection::Type::NEGATIVE ? "Negative" : "Positive");
+				break;
+			case PositionReferenceSignal::Type::NO_SIGNAL:
+				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::Text("No Position Reference Signal");
+				ImGui::PopFont();
+				ImGui::TextWrapped("No Homing Sequence is available."
+					"\nThe Axis origin and limits have to be set manually.");
+				break;
+			}
+			endHelpMarker();
+		}
 
-		endHelpMarker();
+		glm::vec2 homingButtonSize((widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, ImGui::GetTextLineHeight() * 1.5);
+
+		switch (positionReferenceSignal) {
+		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN: {
+			bool homing = isHoming();
+			if (homing) BEGIN_DISABLE_IMGUI_ELEMENT
+				if (ImGui::Button("Start Homing", homingButtonSize)) startHoming();
+			if (homing) END_DISABLE_IMGUI_ELEMENT
+				ImGui::SameLine();
+			if (!homing) BEGIN_DISABLE_IMGUI_ELEMENT
+				if (ImGui::Button("Stop Homing", homingButtonSize)) cancelHoming();
+			if (!homing) END_DISABLE_IMGUI_ELEMENT
+
+				static char homingStatusString[128];
+			glm::vec2 homingStatusSize(widgetWidth, ImGui::GetTextLineHeight() * 1.5);
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+			if (isHoming()) {
+				sprintf(homingStatusString, "Homing Status: %s", getHomingStep(homingStep)->displayName);
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+			}
+			else if (didHomingSucceed()) {
+				sprintf(homingStatusString, "Homing Succeeded");
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+			}
+			else if (didHomingFail()) {
+				sprintf(homingStatusString, "Homing Failed: %s", getHomingError(homingError)->displayName);
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+			}
+			else {
+				sprintf(homingStatusString, "No Homing Ongoing");
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
+			}
+			ImGui::Button(homingStatusString, homingStatusSize);
+			ImGui::PopItemFlag();
+			ImGui::PopStyleColor();
+		}break;
+		case PositionReferenceSignal::Type::NO_SIGNAL:
+			break;
+		}
+
+		glm::vec2 singleButtonSize(widgetWidth, tripleButtonSize.y);
+		glm::vec2 doubleButtonSize((widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, tripleButtonSize.y);
+
+		bool disableCaptureButtons = !isEnabled() || isMoving();
+		bool disableCaptureLowerLimit = actualPosition_axisUnits > 0.0;
+		bool disableCaptureHigherLimit = actualPosition_axisUnits < 0.0;
+		if (disableCaptureButtons) BEGIN_DISABLE_IMGUI_ELEMENT
+			switch (positionReferenceSignal) {
+			case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+				if (disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+					if (ImGui::Button("Capture Positive Limit", singleButtonSize)) setCurrentPositionAsPositiveLimit();
+				if (disableCaptureHigherLimit) END_DISABLE_IMGUI_ELEMENT
+					break;
+			case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+				break;
+			case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
+				if (disableCaptureLowerLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+					if (ImGui::Button("Capture Negative Limit", doubleButtonSize)) setCurrentPositionAsNegativeLimit();
+				if (disableCaptureLowerLimit) END_DISABLE_IMGUI_ELEMENT
+					ImGui::SameLine();
+				if (disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+					if (ImGui::Button("Capture Positive Limit", doubleButtonSize)) setCurrentPositionAsPositiveLimit();
+				if (disableCaptureHigherLimit) END_DISABLE_IMGUI_ELEMENT
+					break;
+			case PositionReferenceSignal::Type::NO_SIGNAL:
+				if (disableCaptureLowerLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+					if (ImGui::Button("Capture Negative Limit", tripleButtonSize)) setCurrentPositionAsNegativeLimit();
+				if (disableCaptureLowerLimit) END_DISABLE_IMGUI_ELEMENT
+					ImGui::SameLine();
+				if (ImGui::Button("Capture Origin", tripleButtonSize)) setCurrentPosition(0.0);
+				ImGui::SameLine();
+				if (disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+					if (ImGui::Button("Capture Positive Limit", tripleButtonSize)) setCurrentPositionAsPositiveLimit();
+				if (disableCaptureHigherLimit) END_DISABLE_IMGUI_ELEMENT
+					break;
+			}
+		if (disableCaptureButtons) END_DISABLE_IMGUI_ELEMENT
+
+
+			ImGui::Separator();
+
+		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::Text("Position Feedback Scaling");
+		ImGui::PopFont();
+
+		ImGui::SameLine();
+		if (beginHelpMarker("(help)")) {
+
+			ImGui::TextWrapped("This utility allows the setting of feedback to axis unit conversion ratio."
+				"\nMove the axis to its origin (0.0) and physically mark down the position of the axis."
+				"\nMove the axis to another position and measure the distance to the initial mark."
+				"\nEnter the measured distance into the utility and click the \"Set Scaling\" Button."
+				"\nThe display will now match the actual position and the conversion ratio will be set correctly."
+				"\nLarger and more precise measured distance will yield a greater precision in the ratio.");
+
+			endHelpMarker();
+		}
+
+		static char scalingString[64];
+		sprintf(scalingString, "%.4f %s", machineScalingPosition_axisUnits, getPositionUnit(axisPositionUnit)->shortForm);
+
+		ImGui::TextWrapped("Current Axis Position Relative to the origin");
+		ImGui::SetNextItemWidth(doubleButtonSize.x);
+		ImGui::InputDouble("##posScal", &machineScalingPosition_axisUnits, 0.0, 0.0, scalingString);
+		ImGui::SameLine();
+
+		bool disableSetScaling = (machineScalingPosition_axisUnits > 0.0 && actualPosition_axisUnits < 0.0)
+			|| (machineScalingPosition_axisUnits < 0.0 && actualPosition_axisUnits > 0.0)
+			|| machineScalingPosition_axisUnits == 0.0
+			|| isMoving();
+		if (disableSetScaling) BEGIN_DISABLE_IMGUI_ELEMENT
+			if (ImGui::Button("Set Scaling", ImGui::GetItemRectSize())) scaleFeedbackToMatchPosition(machineScalingPosition_axisUnits);
+		if (disableSetScaling) END_DISABLE_IMGUI_ELEMENT
 	}
 
-	static char scalingString[64];
-	sprintf(scalingString, "%.4f %s", machineScalingPosition_axisUnits, getPositionUnit(axisPositionUnit)->shortForm);
-
-	ImGui::TextWrapped("Current Axis Position Relative to the origin");
-	ImGui::SetNextItemWidth(doubleButtonSize.x);
-	ImGui::InputDouble("##posScal", &machineScalingPosition_axisUnits, 0.0, 0.0, scalingString);
-	ImGui::SameLine();
-
-	bool disableSetScaling = (machineScalingPosition_axisUnits > 0.0 && actualPosition_axisUnits < 0.0)
-		|| (machineScalingPosition_axisUnits < 0.0 && actualPosition_axisUnits > 0.0)
-		|| machineScalingPosition_axisUnits == 0.0
-		|| isMoving();
-	if (disableSetScaling) BEGIN_DISABLE_IMGUI_ELEMENT
-		if (ImGui::Button("Set Scaling", ImGui::GetItemRectSize())) scaleFeedbackToMatchPosition(machineScalingPosition_axisUnits);
-	if (disableSetScaling) END_DISABLE_IMGUI_ELEMENT
-
-		if (disableManualControls) END_DISABLE_IMGUI_ELEMENT
+	if (axisDisabled) END_DISABLE_IMGUI_ELEMENT
 }
 
 

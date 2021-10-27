@@ -187,18 +187,39 @@ std::vector<MotionCommand> motionCommandTypes = {
 	{MotionCommand::Type::VELOCITY_COMMAND, "Velocity Command", "Velocity"}
 };
 
-std::vector<MotionCommand>& getCommandTypes() { return motionCommandTypes; }
+std::vector<MotionCommand>& getMotionCommands() { return motionCommandTypes; }
 
-MotionCommand* getCommandType(MotionCommand::Type t) {
+MotionCommand* getMotionCommand(MotionCommand::Type t) {
 	for (MotionCommand& command : motionCommandTypes) {
 		if (command.type == t) return &command;
 	}
 	return nullptr;
 }
 
-MotionCommand* getCommandType(const char* saveName) {
+MotionCommand* getMotionCommand(const char* saveName) {
 	for (MotionCommand& command : motionCommandTypes) {
 		if (strcmp(saveName, command.saveName) == 0) return &command;
+	}
+	return nullptr;
+}
+
+std::vector<ControlMode> controlModes = {
+	{ControlMode::Mode::MANUAL_VELOCITY_TARGET, "Manual Velocity Target", "ManualVelocityTarget"},
+	{ControlMode::Mode::MANUAL_POSITION_TARGET, "Manual Position Target", "ManualPositionTarget"},
+	{ControlMode::Mode::FOLLOW_PARAMETER,		"Follow Paramter", "FollowParameter"}
+};
+std::vector<ControlMode>& getControlModes() {
+	return controlModes;
+}
+ControlMode* getControlMode(ControlMode::Mode m) {
+	for (auto& controlMode : controlModes) {
+		if (m == controlMode.mode) return &controlMode;
+	}
+	return nullptr;
+}
+ControlMode* getControlMode(const char* saveName) {
+	for (auto& controlMode : controlModes) {
+		if (strcmp(saveName, controlMode.saveName) == 0) return &controlMode;
 	}
 	return nullptr;
 }

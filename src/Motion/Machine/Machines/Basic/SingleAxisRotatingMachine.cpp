@@ -13,6 +13,7 @@ bool SingleAxisRotatingMachine::isReady() { return false; }
 void SingleAxisRotatingMachine::enable() {}
 void SingleAxisRotatingMachine::disable() {}
 bool SingleAxisRotatingMachine::isMoving() { return false; }
+void SingleAxisRotatingMachine::moveToParameter() {}
 
 void SingleAxisRotatingMachine::assignIoData() {
 	addIoData(axisLink);
