@@ -22,6 +22,7 @@ namespace DS402 {
 
 	struct OperatingMode {
 		enum class Mode {
+			NONE,
 			PROFILE_POSITION,
 			VELOCITY,
 			PROFILE_VELOCITY,
@@ -95,7 +96,6 @@ namespace DS402 {
 		void setManufacturerSpecificByte15(bool state);
 		void updateControlWord();
 	};
-
 
 
 	extern uint16_t statusWordIndex;

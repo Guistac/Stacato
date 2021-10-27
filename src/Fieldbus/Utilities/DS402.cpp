@@ -27,6 +27,7 @@ namespace DS402 {
 	}
 	
 	std::vector<OperatingMode> operatingModes = {
+		{OperatingMode::Mode::NONE,												0, "None"},
 		{OperatingMode::Mode::PROFILE_POSITION,									1, "Profile Position"},
 		{OperatingMode::Mode::VELOCITY,											2, "Velocity"},
 		{OperatingMode::Mode::PROFILE_VELOCITY,									3, "Profile Velocity"},
@@ -80,7 +81,7 @@ namespace DS402 {
 		}
 	}
 	OperatingMode::Mode Status::getOperatingMode() {
-		DS402::getOperatingMode(operatingModeDisplay)->mode;
+		return DS402::getOperatingMode(operatingModeDisplay)->mode;
 	}
 	bool Status::hasFault() { return (statusWord >> 3) & 0x1; }
 	bool Status::hasWarning() { return (statusWord >> 7) & 0x1; }
@@ -156,26 +157,22 @@ namespace DS402 {
 	void Control::updateControlWord() {
 		bool wasFaultResetHigh = (controlWord >> 7) & 0x1;
 		controlWord = 0x0;
-		controlWord &= powerStateControlBits;
-		controlWord &= b4 << 4;
-		controlWord &= b5 << 5;
-		controlWord &= b6 << 6;
+		controlWord |= powerStateControlBits;
+		controlWord |= b4 << 4;
+		controlWord |= b5 << 5;
+		controlWord |= b6 << 6;
 		if(faultResetBit && !wasFaultResetHigh) {
-			controlWord &= 0x1 << 7;
+			controlWord |= 0x1 << 7;
 			faultResetBit = false;
 		}
-		controlWord &= haltBit << 8;
-		controlWord &= b9 << 9;
-		controlWord &= b11 << 11;
-		controlWord &= b12 << 12;
-		controlWord &= b13 << 13;
-		controlWord &= b14 << 14;
-		controlWord &= b15 << 15;
+		controlWord |= haltBit << 8;
+		controlWord |= b9 << 9;
+		controlWord |= b11 << 11;
+		controlWord |= b12 << 12;
+		controlWord |= b13 << 13;
+		controlWord |= b14 << 14;
+		controlWord |= b15 << 15;
 	}
-
-
-
-
 
 	uint16_t statusWordIndex = 0x6041;
 	uint16_t controlWordIndex = 0x6040;
