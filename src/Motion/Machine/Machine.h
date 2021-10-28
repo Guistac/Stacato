@@ -1,7 +1,8 @@
 #pragma once
 
 #include "NodeGraph/Node.h"
-#include "AnimatableParameter.h"
+
+class AnimatableParameter;
 
 #define DEFINE_MACHINE_NODE(className, nodeName, saveName) public:									\
 	virtual const char* getSaveName() { return saveName; }											\
@@ -26,6 +27,10 @@
 	virtual void moveToParameter();																	\
 
 class Machine : public Node {
+public:
+
+	const char shortName[16] = "M-1";
+	const char* getShortName() { return shortName; }
 
 	virtual void nodeSpecificGui();
 
@@ -45,7 +50,7 @@ class Machine : public Node {
 
 	virtual void moveToParameter() = 0;
 
-	std::vector<AnimatableParameter> animatableParameters;
+	std::vector<std::shared_ptr<AnimatableParameter>> animatableParameters;
 
 	//reference to stage geometry
 	//vector of animatable parameters

@@ -8,6 +8,13 @@
 #include <imgui.h>
 
 void machineListGui() {
+
+	for (auto machine : Environnement::getMachines()) {
+		machine->miniatureGui();
+		ImGui::SameLine();
+	}
+	ImGui::NewLine();
+
 	/*
 	glm::vec2 maxMachineGuiSize(ImGui::GetTextLineHeight() * 30.0, ImGui::GetTextLineHeight() * 10.0);
 	glm::vec2 minMachineGuiSize(ImGui::GetTextLineHeight() * 15.0, ImGui::GetTextLineHeight() * 5.0);

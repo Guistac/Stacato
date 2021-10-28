@@ -3,12 +3,14 @@
 #include "Motion/MotionCurve.h"
 #include "Motion/MotionTypes.h"
 
-class SingleAxisLinearMachine : public Machine{
+class SingleAxisMachine : public Machine{
 	
-	DEFINE_MACHINE_NODE(SingleAxisLinearMachine, "Single Axis Linear Machine", "SingleAxisLinearMachine")
+	DEFINE_MACHINE_NODE(SingleAxisMachine, "Single Axis Linear Machine", "SingleAxisMachine")
 
 	std::shared_ptr<NodePin> axisLink = std::make_shared<NodePin>(NodeData::Type::AXIS_LINK, DataDirection::NODE_INPUT, "Linear Axis");
 	
+	std::shared_ptr<AnimatableParameter> positionParameter;
+
 	double actualPosition_machineUnits = 0.0;
 	double actualVelocity_machineUnits = 0.0;
 

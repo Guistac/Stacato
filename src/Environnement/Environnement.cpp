@@ -19,6 +19,32 @@ namespace Environnement {
 		return machines;
 	}
 
+
+	void Environnement::enableAllMachines() {
+		for (auto machine : machines) {
+			machine->enable();
+		}
+	}
+	void Environnement::disableAllMachines() {
+		for (auto machine : machines) {
+			machine->disable();
+		}
+	}
+	bool Environnement::areAllMachinesEnabled() {
+		for (auto machine : machines) {
+			if (!machine->isEnabled()) return false;
+		}
+		return true;
+	}
+	bool Environnement::areNoMachinesEnabled() {
+		for(auto machine : machines) {
+			if (machine->isEnabled()) return false;
+		}
+		return true;
+	}
+
+
+
 	void Environnement::addNode(std::shared_ptr<Node> node) {
 		switch (node->getType()) {
 			case Node::Type::MACHINE:

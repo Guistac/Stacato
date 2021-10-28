@@ -40,8 +40,8 @@ public:
 
 	virtual MotionCommand::Type getCommandType() = 0;
 
-	PositionUnit::Unit axisPositionUnit;
-	PositionUnit::Type axisPositionUnitType;
+	PositionUnit::Unit axisPositionUnit = PositionUnit::Unit::DEGREE;
+	PositionUnit::Type axisPositionUnitType = PositionUnit::Type::ANGULAR;
 
 	virtual void nodeSpecificGui();
 
@@ -92,7 +92,7 @@ public:
 
 	virtual void setActuatorCommands() = 0;
 
-	bool b_manualControlsEnabled = true;
+	bool b_manualControlsEnabled = false;
 	bool hasManualControlsEnabled() { return b_manualControlsEnabled; }
 
 	//Fast Stop

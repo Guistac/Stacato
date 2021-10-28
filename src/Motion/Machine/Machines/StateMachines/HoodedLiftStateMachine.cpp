@@ -24,12 +24,6 @@ void HoodedLiftStateMachine::process() {
 
 }
 
-void HoodedLiftStateMachine::controlsGui() {}
-void HoodedLiftStateMachine::settingsGui() {}
-void HoodedLiftStateMachine::axisGui() {}
-void HoodedLiftStateMachine::deviceGui() {}
-void HoodedLiftStateMachine::metricsGui() {}
-void HoodedLiftStateMachine::miniatureGui() {}
 bool HoodedLiftStateMachine::isEnabled() { return false; }
 bool HoodedLiftStateMachine::isReady() { return false; }
 void HoodedLiftStateMachine::enable() {}

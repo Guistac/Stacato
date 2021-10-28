@@ -10,8 +10,7 @@
 
 #include "Motion/Axis/PositionControlledAxis.h"
 
-#include "Motion/Machine/Machines/Basic/SingleAxisLinearMachine.h"
-#include "Motion/Machine/Machines/Basic/SingleAxisRotatingMachine.h"
+#include "Motion/Machine/Machines/Basic/SingleAxisMachine.h"
 #include "Motion/Machine/Machines/StateMachines/HoodedLiftStateMachine.h"
 
 namespace NodeFactory {
@@ -29,8 +28,7 @@ namespace NodeFactory {
 		};
 
 		allMachineNodes = {
-			new SingleAxisLinearMachine(),
-			new SingleAxisRotatingMachine(),
+			new SingleAxisMachine(),
 			new HoodedLiftStateMachine()
 		};
 
@@ -91,6 +89,7 @@ namespace NodeFactory {
 		for (Node* axis : allAxisNodes) {
 			if (strcmp(saveName, axis->getSaveName()) == 0) return axis->getNewNodeInstance();
 		}
+		return nullptr;
 	}
 	
 	std::vector<Node*>& getAxisTypes() {
@@ -102,6 +101,7 @@ namespace NodeFactory {
 		for (Node* machine : allMachineNodes) {
 			if (strcmp(saveName, machine->getSaveName()) == 0) return machine->getNewNodeInstance();
 		}
+		return nullptr;
 	}
 	std::vector<Node*>& getMachineTypes() {
 		return allMachineNodes;

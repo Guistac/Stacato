@@ -13,6 +13,11 @@ namespace Environnement{
 	std::vector<std::shared_ptr<EtherCatDevice>>& getEtherCatDevices();
 	std::vector<std::shared_ptr<Machine>>& getMachines();
 
+	void enableAllMachines();
+	void disableAllMachines();
+	bool areAllMachinesEnabled();
+	bool areNoMachinesEnabled();
+
 	void addNode(std::shared_ptr<Node> node);
 	void removeNode(std::shared_ptr<Node> node);
 
