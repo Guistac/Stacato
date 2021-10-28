@@ -2,6 +2,9 @@
 #include "Environnement.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
+#include "NodeGraph/NodeGraph.h"
+
+#include <tinyxml2.h>
 
 namespace Environnement {
 
@@ -19,7 +22,7 @@ namespace Environnement {
 		//====== NODE GRAPH SAVING ======
 
 		XMLElement* nodeGraphXML = environnementXML->InsertNewChildElement("NodeGraph");
-		Environnement::nodeGraph.save(nodeGraphXML);
+		Environnement::nodeGraph->save(nodeGraphXML);
 
 		//====== FIELDBUS PARAMETER SAVING ======
 
@@ -57,7 +60,7 @@ namespace Environnement {
 
 		XMLElement* nodeGraphXML = environnementXML->FirstChildElement("NodeGraph");
 		if (!nodeGraphXML) return Logger::warn("Could not load NodeGraph from SaveFile");
-		if (!Environnement::nodeGraph.load(nodeGraphXML)) return Logger::warn("Error reading NodeGraph data");
+		if (!Environnement::nodeGraph->load(nodeGraphXML)) return Logger::warn("Error reading NodeGraph data");
 
 		//====== FIELDBUS PARAMETER LOADING ======
 
@@ -66,6 +69,16 @@ namespace Environnement {
 		if (!EtherCatFieldbus::load(fieldbusSettingsXML)) return Logger::warn("Error reading Fieldbus settings data");
 
 		return Logger::info("Successfully loaded Save File");
+	}
+
+
+	void createNew() {
+		nodeGraph = nullptr;
+
+		getEtherCatDevices().clear();
+		getMachines().clear();
+
+		nodeGraph = std::make_shared<NodeGraph>();
 	}
 
 };

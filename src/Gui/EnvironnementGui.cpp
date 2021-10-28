@@ -10,7 +10,7 @@
 #include "Gui/Utilities/DraggableList.h"
 
 void environnementGui() {
-	/*
+	
 	static DraggableList machineList;
 	static DraggableList etherCatDeviceList;
 
@@ -73,5 +73,5 @@ void environnementGui() {
 
 		ImGui::EndTabBar();
 	}
-	*/
+	
 }

@@ -3,8 +3,9 @@
 #include "EtherCatFieldbus.h"
 
 #include "Utilities/EtherCatDeviceFactory.h"
-#include "Environnement/Environnement.h"
 #include "Utilities/EtherCatError.h"
+#include "Environnement/Environnement.h"
+#include "NodeGraph/NodeGraph.h"
 
 namespace EtherCatFieldbus {
 
@@ -564,7 +565,7 @@ namespace EtherCatFieldbus {
                 //interpret all slaves input data if operational
                 for (auto slave : slaves) if (slave->isStateOperational()) slave->readInputs();
                 //update all nodes connected to ethercat slave nodes
-                Environnement::nodeGraph.evaluate(Device::Type::ETHERCAT_DEVICE);
+                Environnement::nodeGraph->evaluate(Device::Type::ETHERCAT_DEVICE);
                 //prepare all slaves output data if operational
                 for (auto slave : slaves) if (slave->isStateOperational()) slave->prepareOutputs();
             }
@@ -665,7 +666,7 @@ namespace EtherCatFieldbus {
             slave->identity->state = EC_STATE_NONE;
         }
         //evaluate all nodes one last time to propagate the disconnection of devices
-        Environnement::nodeGraph.evaluate(Device::Type::ETHERCAT_DEVICE);
+        Environnement::nodeGraph->evaluate(Device::Type::ETHERCAT_DEVICE);
 
         Logger::info("===== Cyclic Exchange Stopped !");
 

@@ -47,7 +47,7 @@ void toolbar(float height) {
 	}
 	else {
 		if (disableMachineToggleButton) ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
-		else if(Environnement::areNoMachinesEnabled) ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
+		else if(Environnement::areNoMachinesEnabled()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
 		else ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
 		if (ImGui::Button("Enable All", buttonSize)) {
 			Environnement::enableAllMachines();

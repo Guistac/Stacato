@@ -4,6 +4,11 @@
 #include "Framework/GuiWindow.h"
 
 #include "Environnement/Environnement.h"
+#include "Plot/Plot.h"
+
+#include "Gui/Utilities/Filedialog.h"
+
+#include "Project/Project.h"
 
 bool imguiDemoWindowOpen = false;
 bool imguiMetricsWindowOpen = false;
@@ -24,11 +29,47 @@ void mainMenuBar(bool closeWindowRequest) {
 		ImGui::EndMenu();
 	}
 	if (ImGui::BeginMenu("File")) {
-		if (ImGui::MenuItem("Save")) Environnement::save("xmlFile.xml");
-		if (ImGui::MenuItem("Load")) Environnement::load("xmlFile.xml");
+		if (ImGui::MenuItem("New Project")) Project::createNew();
+		if (ImGui::MenuItem("Open Project...")) {
+			FileDialog::FilePath path;
+			if (FileDialog::openFolder(path)) {
+				Project::load(path.path);
+			}
+		}
+		ImGui::Separator();
+		bool hasDefaultSavePath = !Project::hasDefaultSavePath();
+		if (hasDefaultSavePath) BEGIN_DISABLE_IMGUI_ELEMENT
+		if (ImGui::MenuItem("Save")) Project::save();
+		if(hasDefaultSavePath) END_DISABLE_IMGUI_ELEMENT
+		if (ImGui::MenuItem("Save As...")) {
+			FileDialog::FilePath path;
+			if (FileDialog::save(path, "ProjectFolder")) {
+				Project::saveAs(path.path);
+			}
+		}
+		ImGui::Separator();
+		if (hasDefaultSavePath) BEGIN_DISABLE_IMGUI_ELEMENT
+		if (ImGui::MenuItem("Reload Saved")) Project::reload();
+		if (hasDefaultSavePath) END_DISABLE_IMGUI_ELEMENT
+
 		ImGui::EndMenu();
 	}
 	if (ImGui::BeginMenu("Edit")) {
+
+		BEGIN_DISABLE_IMGUI_ELEMENT
+		static char currentPlotString[256];
+		sprintf(currentPlotString, "Current Plot: %s", Project::currentPlot->name);
+		ImGui::MenuItem(currentPlotString);
+		END_DISABLE_IMGUI_ELEMENT
+
+		if (ImGui::BeginMenu("Plots")) {
+			for (auto plot : Project::plots) {
+				if (ImGui::MenuItem(plot->name, nullptr, plot == Project::currentPlot)) {
+					Project::currentPlot = plot;
+				}
+			}
+			ImGui::EndMenu();
+		}
 		ImGui::EndMenu();
 	}
 	if (ImGui::IsKeyDown(GLFW_KEY_LEFT_ALT) && ImGui::IsKeyDown(GLFW_KEY_LEFT_SUPER)) {

@@ -4,7 +4,7 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 #include "NodeGraph/Utilities/NodeFactory.h"
-#include "Environnement/Environnement.h"
+#include "Project/Project.h"
 
 #ifdef MACOS
 int main() {
@@ -23,7 +23,7 @@ int main(){
 
 	EtherCatDeviceFactory::loadDevices();
 	NodeFactory::loadNodes();
-	Environnement::load("xmlFile.xml");
+	Project::load("Project");
 
 	EtherCatFieldbus::updateNetworkInterfaceCardList();
 	EtherCatFieldbus::init();

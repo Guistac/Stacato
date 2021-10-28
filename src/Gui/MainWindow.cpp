@@ -2,6 +2,8 @@
 
 #include "Gui.h"
 
+#include "Plot/PlotGui.h"
+
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatGui.h"
 
@@ -32,7 +34,7 @@ void mainWindow() {
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Cue List")) {
-			ImGui::Text("This will be a cue list");
+			cueListGui();
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Sequencer")) {

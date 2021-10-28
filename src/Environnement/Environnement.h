@@ -1,14 +1,14 @@
 #pragma once
 
-#include "nodeGraph/nodeGraph.h"
-#include <tinyxml2.h>
-
+class NodeGraph;
+class Node;
 class EtherCatDevice;
 class Machine;
+class Plot;
 
 namespace Environnement{
-	
-	extern NodeGraph nodeGraph;
+
+	extern std::shared_ptr<NodeGraph> nodeGraph;
 
 	std::vector<std::shared_ptr<EtherCatDevice>>& getEtherCatDevices();
 	std::vector<std::shared_ptr<Machine>>& getMachines();
@@ -21,6 +21,7 @@ namespace Environnement{
 	void addNode(std::shared_ptr<Node> node);
 	void removeNode(std::shared_ptr<Node> node);
 
+	void createNew();
 	bool save(const char* filePath);
 	bool load(const char* filePath);
 

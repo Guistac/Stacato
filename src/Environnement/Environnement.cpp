@@ -2,12 +2,14 @@
 
 #include "Environnement.h"
 
+
+#include "NodeGraph/NodeGraph.h"
 #include "Fieldbus/EtherCatDevice.h"
 #include "Motion/Machine/Machine.h"
 
 namespace Environnement {
 
-	NodeGraph nodeGraph;
+	std::shared_ptr<NodeGraph> nodeGraph = std::make_shared<NodeGraph>();
 	std::vector<std::shared_ptr<EtherCatDevice>> etherCatDevices;
 	std::vector<std::shared_ptr<Machine>> machines;
 
@@ -31,6 +33,7 @@ namespace Environnement {
 		}
 	}
 	bool Environnement::areAllMachinesEnabled() {
+		if (machines.empty()) return false;
 		for (auto machine : machines) {
 			if (!machine->isEnabled()) return false;
 		}

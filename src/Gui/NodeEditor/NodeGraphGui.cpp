@@ -4,7 +4,7 @@
 #include <imgui_internal.h>
 
 
-
+#include "NodeGraph/NodeGraph.h"
 #include "Environnement/Environnement.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatDevice.h"
@@ -89,22 +89,22 @@ void nodeGraph() {
 	ImGui::BeginGroup();
 
     //Draw the entire node editor
-    Environnement::nodeGraph.nodeEditorGui();
+    Environnement::nodeGraph->nodeEditorGui();
 
     if (isEditingAllowed()) {
         std::shared_ptr<Node> newDraggedNode = acceptDraggedNode();
         if (newDraggedNode) {
-            Environnement::nodeGraph.addNode(newDraggedNode);
+            Environnement::nodeGraph->addNode(newDraggedNode);
             Environnement::addNode(newDraggedNode);
             NodeEditor::SetNodePosition(newDraggedNode->getUniqueID(), NodeEditor::ScreenToCanvas(ImGui::GetMousePos()));
         }
     }
 
-    if (ImGui::Button("Center View")) Environnement::nodeGraph.centerView();
+    if (ImGui::Button("Center View")) Environnement::nodeGraph->centerView();
     ImGui::SameLine();
-    if (ImGui::Button("Show Flow")) Environnement::nodeGraph.showFlow();
+    if (ImGui::Button("Show Flow")) Environnement::nodeGraph->showFlow();
     ImGui::SameLine();
-    ImGui::Checkbox("Show Output Values", &Environnement::nodeGraph.b_showOutputValues);
+    ImGui::Checkbox("Show Output Values", &Environnement::nodeGraph->b_showOutputValues);
     ImGui::SameLine();
 
     if(!isEditingAllowed()) ImGui::TextColored(Colors::gray, "Editing is disabled while the system is running");
@@ -136,12 +136,12 @@ void NodeGraph::nodeEditorGui() {
 
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2, ImGui::GetTextLineHeight() * 0.2));
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(ImGui::GetTextLineHeight() * 0.2, 0));
-    for (auto node : Environnement::nodeGraph.getNodes()) node->nodeGui();
+    for (auto node : Environnement::nodeGraph->getNodes()) node->nodeGui();
     ImGui::PopStyleVar(2);
 
     //===== DRAW LINKS =====
 
-    for (auto link : Environnement::nodeGraph.getLinks())
+    for (auto link : Environnement::nodeGraph->getLinks())
         NodeEditor::Link(link->getUniqueID(),
             link->getInputData()->getUniqueID(),
             link->getOutputData()->getUniqueID(),
@@ -193,7 +193,7 @@ void NodeGraph::nodeEditorGui() {
             while (NodeEditor::QueryDeletedNode(&deletedNodeId)) {
                 std::shared_ptr<Node> deletedNode = getNode(deletedNodeId.Get());
                 if (deletedNode && NodeEditor::AcceptDeletedItem()) {
-                    Environnement::nodeGraph.removeNode(deletedNode);
+                    Environnement::nodeGraph->removeNode(deletedNode);
                     Environnement::removeNode(deletedNode);
                 }
                 else NodeEditor::RejectDeletedItem();
@@ -292,7 +292,7 @@ void NodeGraph::nodeEditorGui() {
         if (ImGui::BeginPopup("Background Context Menu")) {
             std::shared_ptr<Node> newNode = nodeAdderContextMenu();
             if (newNode) {
-                Environnement::nodeGraph.addNode(newNode);
+                Environnement::nodeGraph->addNode(newNode);
                 Environnement::addNode(newNode);
                 NodeEditor::SetNodePosition(newNode->getUniqueID(), NodeEditor::ScreenToCanvas(mouseRightClickPosition));
                 NodeEditor::SelectNode(newNode->getUniqueID());

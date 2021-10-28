@@ -294,7 +294,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 	uniqueID = largestUniqueID + 1; //set this so we can add more elements to the node graph after loading
 
 	//adds all relevant nodes to the environnement (machines and devices)
-	for (auto node : Environnement::nodeGraph.getNodes()) {
+	for (auto node : Environnement::nodeGraph->getNodes()) {
 		Environnement::addNode(node);
 	}
 
