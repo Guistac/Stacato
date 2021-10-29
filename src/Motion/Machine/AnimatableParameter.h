@@ -10,33 +10,23 @@ public:
 		BOOLEAN_PARAMETER,
 		INTEGER_PARAMETER,
 		REAL_PARAMETER,
-		VECTOR_2D,
-		VECTOR_3D
+		VECTOR_2D_PARAMETER,
+		VECTOR_3D_PARAMETER,
+		KINEMATIC_POSITION_CURVE,
+		KINEMATIC_2D_POSITION_CURVE,
+		KINEMATIC_3D_POSITION_CURVE
 	};
 
-	enum class Constraint {
-		NONE,
-		CLAMP, //constrain only the value itself
-		POSITION_PROFILE //constrain position, velocity and acceleration
-	};
-
-	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, Type datat, Constraint constr) : machine(mach), dataType(datat), constraint(constr) {
+	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, Type datat) : machine(mach), dataType(datat) {
 		strcpy(name, nm);
 	}
 
 	char name[128];
 	Type dataType;
-	Constraint constraint;
-	//TODO: constraint specific data (limits, kinematic contraints, ...)
-
 	std::shared_ptr<Machine> machine;
 
-};
 
-struct KeyFrame {
-	//data:
-	bool boolData;
-	int intData;
-	double realData;
-	//CurvePoint positionCurvePointData;
+
+
+	//TODO: constraint specific data (limits, kinematic contraints, ...)
 };

@@ -131,6 +131,27 @@
                     <OutputPin SaveName="DI5" DisplayName="DI5" DataType="Boolean" UniqueID="96" Boolean="false" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip C2" UniqueID="101">
+                <NodeEditorPosition x="-14816" y="-13517"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="102" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Hood Shut" DisplayName="Hood Shut" DataType="Boolean" UniqueID="103" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Hood Open" DisplayName="Hood Open" DataType="Boolean" UniqueID="104" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Lift Lowered" DisplayName="Lift Lowered" DataType="Boolean" UniqueID="105" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Lift Raised" DisplayName="Lift Raised" DataType="Boolean" UniqueID="106" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Emergency Stop Active" DisplayName="Emergency Stop Active" DataType="Boolean" UniqueID="107" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Remote Control Enabled" DisplayName="Remote Control Enabled" DataType="Boolean" UniqueID="108" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Hood Motor Fuse" DisplayName="Hood Motor Fuse" DataType="Boolean" UniqueID="109" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Lift Motor Fuse" DisplayName="Lift Motor Fuse" DataType="Boolean" UniqueID="110" Boolean="false" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="Shut Lid Command" DisplayName="Shut Lid Command" DataType="Boolean" UniqueID="111" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Open Lid Command" DisplayName="Open Lid Command" DataType="Boolean" UniqueID="112" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Platform Commmand" DisplayName="Lower Platform Commmand" DataType="Boolean" UniqueID="113" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Raise Platform Command" DisplayName="Raise Platform Command" DataType="Boolean" UniqueID="114" Boolean="false" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="62" StartPin="21" EndPin="34"/>

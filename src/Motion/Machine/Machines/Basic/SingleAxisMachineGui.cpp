@@ -203,14 +203,14 @@ void SingleAxisMachine::controlsGui() {
 		sprintf(movementProgressChar, "No Target Movement");
 		targetProgress = 1.0;
 	}
-	else if (Motion::PositionCurve::D1::getInterpolationProgress(profileTime_seconds, targetIntepolation) >= 1.0) {
+	else if (targetIntepolation.getProgressAtTime(profileTime_seconds) >= 1.0) {
 		targetProgress = 1.0;
 		sprintf(movementProgressChar, "Movement Finished");
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 	}
 	else {
-		targetProgress = Motion::PositionCurve::D1::getInterpolationProgress(profileTime_seconds, targetIntepolation);
-		movementSecondsLeft = targetIntepolation.rampOutEndTime - profileTime_seconds;
+		targetProgress = targetIntepolation.getProgressAtTime(profileTime_seconds);
+		movementSecondsLeft = targetIntepolation.outTime - profileTime_seconds;
 		if (movementSecondsLeft < 0.0) movementSecondsLeft = 0.0;
 		sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
@@ -229,34 +229,12 @@ void SingleAxisMachine::axisGui() {}
 void SingleAxisMachine::deviceGui() {}
 void SingleAxisMachine::metricsGui() {}
 
-void SingleAxisMachine::miniatureGui() {
-	glm::vec2 miniatureSize(ImGui::GetTextLineHeight() * 6.0, ImGui::GetTextLineHeight() * 20.0);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
-	ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImGui::GetTextLineHeight() * 0.2);
-	ImGui::PushStyleColor(ImGuiCol_ChildBg, Colors::almostBlack);
-	if (ImGui::BeginChild(getName(), miniatureSize, true)) {
+float SingleAxisMachine::getMiniatureWidth() {
+	return ImGui::GetTextLineHeight() * 8.0;
+}
 
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, -ImGui::GetTextLineHeight() * 0.2));
-
-		float availableWidth = ImGui::GetContentRegionAvail().x;
-		ImGui::PushFont(Fonts::robotoBold20);
-		float bigNameWidth = ImGui::CalcTextSize(getShortName()).x;
-		ImGui::SameLine((availableWidth - bigNameWidth) * 0.5 + ImGui::GetStyle().WindowPadding.x);
-		ImGui::Text(getShortName());
-		ImGui::PopFont();
-
-		ImGui::PopStyleVar();
-
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.3));
-
-		ImGui::NewLine();
-		ImGui::PushFont(Fonts::robotoBold15);
-		float smallNameWidth = ImGui::CalcTextSize(getName()).x;
-		ImGui::SameLine((availableWidth - smallNameWidth) * 0.5 + ImGui::GetStyle().WindowPadding.x);
-		ImGui::Text(getName());
-		ImGui::PopFont();
-
-		float bottomControlsHeight = ImGui::GetTextLineHeight() * 5.1;
+void SingleAxisMachine::machineSpecificMiniatureGui() {
+		float bottomControlsHeight = ImGui::GetTextLineHeight() * 3.3;
 		float sliderHeight = ImGui::GetContentRegionAvail().y - bottomControlsHeight;
 		float tripleWidgetWidth = (ImGui::GetContentRegionAvail().x - 2.0 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
 		glm::vec2 verticalSliderSize(tripleWidgetWidth, sliderHeight);
@@ -296,7 +274,7 @@ void SingleAxisMachine::miniatureGui() {
 		sprintf(targetPositionString, "%.1f %s", targetPosition_machineUnits, getPositionUnitStringShort(positionUnit));
 		ImGui::InputDouble("##TargetPosition", &targetPosition_machineUnits, 0.0, 0.0, targetPositionString);
 
-		float motionProgress = Motion::PositionCurve::D1::getInterpolationProgress(profileTime_seconds, targetIntepolation);
+		float motionProgress = targetIntepolation.getProgressAtTime(profileTime_seconds);
 		if (motionProgress > 0.0 && motionProgress < 1.0) {
 			glm::vec2 targetmin = ImGui::GetItemRectMin();
 			glm::vec2 targetmax = ImGui::GetItemRectMax();
@@ -317,34 +295,4 @@ void SingleAxisMachine::miniatureGui() {
 		if (ImGui::Button("Stop", doubleButtonSize)) {
 			setVelocity(0.0);
 		}
-
-		glm::vec2 singleButtonSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.5);
-		if (isEnabled()) {
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-			if (ImGui::Button("Disable", singleButtonSize)) {
-				disable();
-			}
-		}
-		else if (isReady()) {
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-			if (ImGui::Button("Enable", singleButtonSize)) {
-				enable();
-			}
-		}
-		else {
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-			ImGui::Button("Not Ready", singleButtonSize);
-			ImGui::PopItemFlag();
-		}
-		ImGui::PopStyleColor();
-
-
-
-
-		ImGui::PopStyleVar();
-	}
-	ImGui::EndChild();
-	ImGui::PopStyleColor();
-	ImGui::PopStyleVar(2);
 }

@@ -9,7 +9,7 @@
 void SingleAxisMachine::assignIoData() {
 	addIoData(axisLink);
 	std::shared_ptr<Machine> thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
-	positionParameter = std::make_shared<AnimatableParameter>("Position", thisMachine, AnimatableParameter::Type::REAL_PARAMETER, AnimatableParameter::Constraint::POSITION_PROFILE);
+	positionParameter = std::make_shared<AnimatableParameter>("Position", thisMachine, AnimatableParameter::Type::KINEMATIC_POSITION_CURVE);
 	animatableParameters.push_back(positionParameter);
 	//TODO: initialize animatable parameter
 }
@@ -122,7 +122,7 @@ void SingleAxisMachine::moveToParameter() {}
 
 void SingleAxisMachine::setVelocity(double velocity_axisUnits) {
 	manualVelocityTarget_machineUnitsPerSecond = velocity_axisUnits;
-	if (controlMode == ControlMode::Mode::MANUAL_POSITION_TARGET) targetIntepolation = Motion::PositionCurve::D1::Interpolation();
+	if (controlMode == ControlMode::Mode::MANUAL_POSITION_TARGET) targetIntepolation = Motion::Interpolation();
 	controlMode = ControlMode::Mode::MANUAL_VELOCITY_TARGET;
 }
 
@@ -150,7 +150,6 @@ void SingleAxisMachine::velocityTargetControl() {
 //================================= MANUAL POSITION TARGET CONTROL ===================================
 
 void SingleAxisMachine::moveToPositionWithVelocity(double position_machineUnits, double velocity_machineUnits, double acceleration_machineUnits) {
-	using namespace Motion::PositionCurve;
 	std::shared_ptr<Axis> axis = getAxis();
 	double lowPositionLimit = axis->getLowPositionLimit();
 	double highPositionLimit = axis->getHighPositionLimit();
@@ -159,9 +158,9 @@ void SingleAxisMachine::moveToPositionWithVelocity(double position_machineUnits,
 	if (position_machineUnits > highPositionLimit) position_machineUnits = highPositionLimit;
 	else if (position_machineUnits < lowPositionLimit) position_machineUnits = lowPositionLimit;
 
-	D1::Point startPoint(profileTime_seconds, profilePosition_machineUnits, acceleration_machineUnits, profileVelocity_machineUnitsPerSecond);
-	D1::Point endPoint(0.0, position_machineUnits, acceleration_machineUnits, 0.0);
-	if (D1::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, velocity_machineUnits, targetIntepolation)) {
+	auto startPoint = std::make_shared<Motion::Point>(profileTime_seconds, profilePosition_machineUnits, acceleration_machineUnits, profileVelocity_machineUnitsPerSecond);
+	auto endPoint= std::make_shared<Motion::Point>(0.0, position_machineUnits, acceleration_machineUnits, 0.0);
+	if (Motion::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, velocity_machineUnits, targetIntepolation)) {
 		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
 		manualVelocityTarget_machineUnitsPerSecond = 0.0;
 	}
@@ -169,7 +168,6 @@ void SingleAxisMachine::moveToPositionWithVelocity(double position_machineUnits,
 }
 
 void SingleAxisMachine::moveToPositionInTime(double position_machineUnits, double movementTime_seconds, double acceleration_machineUnits) {
-	using namespace Motion::PositionCurve;
 	std::shared_ptr<Axis> axis = getAxis();
 	double lowPositionLimit = axis->getLowPositionLimit();
 	double highPositionLimit = axis->getHighPositionLimit();
@@ -178,9 +176,9 @@ void SingleAxisMachine::moveToPositionInTime(double position_machineUnits, doubl
 	if (position_machineUnits > highPositionLimit) position_machineUnits = highPositionLimit;
 	else if (position_machineUnits < lowPositionLimit) position_machineUnits = lowPositionLimit;
 
-	D1::Point startPoint(profileTime_seconds, profilePosition_machineUnits, acceleration_machineUnits, profileVelocity_machineUnitsPerSecond);
-	D1::Point endPoint(profileTime_seconds + movementTime_seconds, position_machineUnits, acceleration_machineUnits, 0.0);
-	if (D1::getTimeConstrainedInterpolation(startPoint, endPoint, velocityLimit, targetIntepolation)) {
+	auto startPoint= std::make_shared<Motion::Point>(profileTime_seconds, profilePosition_machineUnits, acceleration_machineUnits, profileVelocity_machineUnitsPerSecond);
+	auto endPoint= std::make_shared<Motion::Point>(profileTime_seconds + movementTime_seconds, position_machineUnits, acceleration_machineUnits, 0.0);
+	if (Motion::getTimeConstrainedInterpolation(startPoint, endPoint, velocityLimit, targetIntepolation)) {
 		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
 		manualVelocityTarget_machineUnitsPerSecond = 0.0;
 	}
@@ -188,11 +186,15 @@ void SingleAxisMachine::moveToPositionInTime(double position_machineUnits, doubl
 }
 
 void SingleAxisMachine::positionTargetControl() {
-	using namespace Motion::PositionCurve;
-	if (D1::isInsideInterpolation(profileTime_seconds, targetIntepolation)) {
-		D1::Point curvePoint = D1::getInterpolationAtTime(profileTime_seconds, targetIntepolation);
-		profilePosition_machineUnits = curvePoint.position;
-		profileVelocity_machineUnitsPerSecond = curvePoint.velocity;
+	if (targetIntepolation.isTimeInside(profileTime_seconds)) {
+		std::shared_ptr<Motion::Point> curvePoint = targetIntepolation.getPointAtTime(profileTime_seconds);
+		profilePosition_machineUnits = curvePoint->position;
+		profileVelocity_machineUnitsPerSecond = curvePoint->velocity;
 	}
 	else profileVelocity_machineUnitsPerSecond = 0.0;
+}
+
+
+void SingleAxisMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
+	if (isAxisConnected()) getAxis()->getDevices(output);
 }

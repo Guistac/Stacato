@@ -1,11 +1,8 @@
 #include <pch.h>
 
 #include "ParameterSequence.h"
-
-double ParameterSequence::getLength_seconds() {
-	return 0.0;
-}
-
+#include "Motion/Machine/AnimatableParameter.h"
+#include "Motion/Curves/Curve.h"
 
 std::vector<SequenceType> sequenceTypes = {
 	{SequenceType::Type::SIMPLE_TIMED_MOVE, "Simple Timed Movement", "SimpleTimedMove"},

@@ -4,12 +4,13 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <implot.h>
 
 #include "Gui/Framework/Fonts.h"
 #include "Environnement/Environnement.h"
 #include "Motion/Machine/Machine.h"
 #include "Motion/Machine/AnimatableParameter.h"
-#include "Motion/Machine/ParameterSequence.h"
+#include "Plot/ParameterSequence.h"
 
 void Manoeuvre::listGui() {
 
@@ -61,7 +62,9 @@ void Manoeuvre::editGui() {
 		ImGui::EndPopup();
 	}
 
-	if (ImGui::BeginTable("##parameters", 9, ImGuiTableFlags_Borders)) {
+	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit;
+
+	if (ImGui::BeginTable("##parameters", 9, tableFlags)) {
 	
 		ImGui::TableSetupColumn("Machine");
 		ImGui::TableSetupColumn("Parameter");
@@ -74,12 +77,18 @@ void Manoeuvre::editGui() {
 		ImGui::TableSetupColumn("Ramp Out");
 		ImGui::TableHeadersRow();
 
+		if (parameterSequences.empty()) {
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("No Parameters");
+		}
+
 		for (auto& parameterSequence : parameterSequences) {
-			
+
 			ImGui::PushID(parameterSequence->parameter->name);
 			ImGui::PushID(parameterSequence->parameter->machine->getName());
 
-			ImGui::TableNextRow();
+			ImGui::TableNextRow(ImGuiTableRowFlags_None, ImGui::GetTextLineHeight()*5.0);
 
 			ImGui::TableSetColumnIndex(0);
 			ImGui::Text(parameterSequence->parameter->machine->getName());
@@ -95,37 +104,33 @@ void Manoeuvre::editGui() {
 				}
 				ImGui::EndCombo();
 			}
+			if(parameterSequence->type == SequenceType::Type::COMPLEX_ANIMATED_MOVE) BEGIN_DISABLE_IMGUI_ELEMENT
 			ImGui::TableSetColumnIndex(3);
-			double dummyTarget = 0.0;
-			ImGui::InputDouble("##target", &dummyTarget, 0.0, 0.0, "%.3f u");
-			ImGui::TableSetColumnIndex(4);
-			double dummyConstraint = 0.0;
-			ImGui::InputDouble("##constraint", &dummyConstraint, 0.0, 0.0, "%.3f u");
-			ImGui::TableSetColumnIndex(5);
-			double dummyTimeOffset = 0.0;
-			ImGui::InputDouble("##timeOffset", &dummyTimeOffset, 0.0, 0.0, "%.3f u");
-			ImGui::TableSetColumnIndex(6);
-			double dummyRampIn = 0.0;
-			ImGui::InputDouble("##rampIn", &dummyRampIn, 0.0, 0.0, "%.3f u");
-			ImGui::TableSetColumnIndex(7);
-			bool dummyRampEqual = false;
-			ImGui::Checkbox("##rampEqual", &dummyRampEqual);
-			ImGui::TableSetColumnIndex(8);
-			double dummyRampOut = 0.0;
-			ImGui::InputDouble("##rampOut", &dummyRampOut, 0.0, 0.0, "%.3f u");
-
-			/*
-			machine
-			parameter
-			sequencetype
-			target
-			constraint(vel/time)
-			offsettime
-			rampIn
-			rampEqual
-			rampOut
-			*/
-
+			ImGui::InputDouble("##target", &parameterSequence->target, 0.0, 0.0, "%.3f u");
+			if (parameterSequence->type != SequenceType::Type::COMPLEX_ANIMATED_MOVE) {
+				ImGui::TableSetColumnIndex(4);
+				switch (parameterSequence->type) {
+					case SequenceType::Type::SIMPLE_TIMED_MOVE:
+						ImGui::InputDouble("##constraint", &parameterSequence->constraint, 0.0, 0.0, "%.3f s");
+						break;
+					case SequenceType::Type::SIMPLE_VELOCITY_MOVE:
+						ImGui::InputDouble("##constraint", &parameterSequence->constraint, 0.0, 0.0, "%.3f u/s");
+						break;
+					default:
+						break;
+				}
+				ImGui::TableSetColumnIndex(5);
+				ImGui::InputDouble("##timeOffset", &parameterSequence->offsetTime, 0.0, 0.0, "%.3f s");
+				ImGui::TableSetColumnIndex(6);
+				ImGui::InputDouble("##rampIn", &parameterSequence->rampIn, 0.0, 0.0, "%.3f u");
+				ImGui::TableSetColumnIndex(7);
+				ImGui::Checkbox("##rampEqual", &parameterSequence->rampEqual);
+				ImGui::TableSetColumnIndex(8);
+				if (parameterSequence->rampEqual) BEGIN_DISABLE_IMGUI_ELEMENT
+					ImGui::InputDouble("##rampOut", &parameterSequence->rampOut, 0.0, 0.0, "%.3f u");
+				if (parameterSequence->rampEqual) END_DISABLE_IMGUI_ELEMENT
+			}
+			if(parameterSequence->type == SequenceType::Type::COMPLEX_ANIMATED_MOVE) END_DISABLE_IMGUI_ELEMENT
 
 			ImGui::PopID();
 			ImGui::PopID();
@@ -136,7 +141,11 @@ void Manoeuvre::editGui() {
 		ImGui::EndTable();
 	}
 
+	ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoChild;
+	if (ImPlot::BeginPlot("##SequenceCurveDisplay", 0, 0, ImGui::GetContentRegionAvail(), plotFlags)) {
 
+		ImPlot::EndPlot();
+	}
 
 
 }

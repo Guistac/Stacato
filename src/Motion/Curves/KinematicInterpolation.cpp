@@ -1,28 +1,29 @@
 ﻿#include <pch.h>
-#include "D1PositionCurve.h"
 
-namespace Motion::PositionCurve::D1 {
+#include "Curve.h"
 
-	bool getTimeConstrainedInterpolation(const Point& startPoint, const Point& endPoint, double maxVelocity, Interpolation& output) {
+namespace Motion {
+
+	bool getTimeConstrainedInterpolation(std::shared_ptr<Point>& startPoint, std::shared_ptr<Point>& endPoint, double maxVelocity, Interpolation& output) {
 
 		auto square = [](double in) -> double { return std::pow(in, 2.0); };
 
-		const double pi = startPoint.position;
-		const double ti = startPoint.time;
-		const double vi = startPoint.velocity;
-		double ai = std::abs(startPoint.acceleration);
+		const double pi = startPoint->position;
+		const double ti = startPoint->time;
+		const double vi = startPoint->velocity;
+		double ai = std::abs(startPoint->acceleration);
 
-		const double po = endPoint.position;
-		const double to = endPoint.time;
-		const double vo = endPoint.velocity;
-		double ao = std::abs(endPoint.acceleration);
+		const double po = endPoint->position;
+		const double to = endPoint->time;
+		const double vo = endPoint->velocity;
+		double ao = std::abs(endPoint->acceleration);
 
 		//if one of these is zero, no profile can be generated
 		if (ai == 0.0 || ao == 0.0 || maxVelocity == 0.0) return false;
 
-		const double dt = endPoint.time - startPoint.time;
-		const double dp = endPoint.position - startPoint.position;
-		const double dv = endPoint.velocity - startPoint.velocity;
+		const double dt = endPoint->time - startPoint->time;
+		const double dp = endPoint->position - startPoint->position;
+		const double dv = endPoint->velocity - startPoint->velocity;
 
 		//solution choice variables
 		bool ai_sign = true;
@@ -75,19 +76,19 @@ namespace Motion::PositionCurve::D1 {
 			double rampOutStartTime = to - dto;
 
 			Interpolation profile;
-			profile.rampInStartTime = startPoint.time;			//time of curve start
-			profile.rampInStartPosition = startPoint.position;	//position of curve start
-			profile.rampInStartVelocity = startPoint.velocity;	//velocity at curve start
-			profile.rampInAcceleration = ai;	//acceleration of curve
+			profile.inTime = startPoint->time;			//time of curve start
+			profile.inPosition = startPoint->position;	//position of curve start
+			profile.inVelocity = startPoint->velocity;	//velocity at curve start
+			profile.inAcceleration = ai;	//acceleration of curve
 			profile.rampInEndPosition = rampInEndPosition;		//position of curve after acceleration phase
 			profile.rampInEndTime = rampInEndTime;			    //time of acceleration end
-			profile.coastVelocity = vt;			//velocity of constant velocity phase
+			profile.interpolationVelocity = vt;			//velocity of constant velocity phase
 			profile.rampOutStartPosition = rampOutStartPosition;//position of deceleration start
 			profile.rampOutStartTime = rampOutStartTime;		//time of deceleration start
-			profile.rampOutAcceleration = ao;	//deceleration of curve
-			profile.rampOutEndTime = to;			    //time of curve end
-			profile.rampOutEndPosition = endPoint.position;		//position of curve end
-			profile.rampOutEndVelocity = endPoint.velocity;		//velocity of curve end
+			profile.outAcceleration = ao;	//deceleration of curve
+			profile.outTime = to;			    //time of curve end
+			profile.outPosition = endPoint->position;		//position of curve end
+			profile.outVelocity = endPoint->velocity;		//velocity of curve end
 
 			//reject unreal and illogical solutions
 			if (r < 0.0 && a != 0.0) profile.isDefined = false;
@@ -118,14 +119,14 @@ namespace Motion::PositionCurve::D1 {
 			//first filter out all profiles that are slower or equal to the requested time
 			std::vector<Interpolation> slowerThanRequestedSolutions;
 			for (auto& solution : velocityConstrainedSolutions) {
-				if (solution.rampOutEndTime >= endPoint.time) slowerThanRequestedSolutions.push_back(solution);
+				if (solution.outTime >= endPoint->time) slowerThanRequestedSolutions.push_back(solution);
 			}
 
 			if (slowerThanRequestedSolutions.empty()) {
 				//if there is no profile slower than the requested time we pick the slowest profile
 				Interpolation* slowestProfileBelowRequested = &velocityConstrainedSolutions.front();
 				for (int i = 1; i < velocityConstrainedSolutions.size(); i++) {
-					if (velocityConstrainedSolutions[i].rampOutEndTime > slowestProfileBelowRequested->rampOutEndTime)
+					if (velocityConstrainedSolutions[i].outTime > slowestProfileBelowRequested->outTime)
 						slowestProfileBelowRequested = &velocityConstrainedSolutions[i];
 				}
 				output = *slowestProfileBelowRequested;
@@ -135,7 +136,7 @@ namespace Motion::PositionCurve::D1 {
 				//else we pick the fastest profile of the remaining ones
 				Interpolation* fastestProfileAboveRequested = &slowerThanRequestedSolutions.front();
 				for (int i = 0; i < slowerThanRequestedSolutions.size(); i++) {
-					if (slowerThanRequestedSolutions[i].rampOutEndTime < fastestProfileAboveRequested->rampOutEndTime)
+					if (slowerThanRequestedSolutions[i].outTime < fastestProfileAboveRequested->outTime)
 						fastestProfileAboveRequested = &slowerThanRequestedSolutions[i];
 				}
 				output = *fastestProfileAboveRequested;
@@ -145,7 +146,7 @@ namespace Motion::PositionCurve::D1 {
 		else {
 			Interpolation* fastestProfileAboveRequested = &timeConstrainedSolutions.front();
 			for (auto& solution : timeConstrainedSolutions) {
-				if (solution.rampOutEndTime < fastestProfileAboveRequested->rampOutEndTime)
+				if (solution.outTime < fastestProfileAboveRequested->outTime)
 					fastestProfileAboveRequested = &solution;
 			}
 			output = *fastestProfileAboveRequested;
@@ -159,25 +160,25 @@ namespace Motion::PositionCurve::D1 {
 	//=======================================================================================================================================
 
 	
-    bool getVelocityContrainedInterpolations(const Point& startPoint, const Point& endPoint, double velocity, std::vector<Interpolation>& output) {
+    bool getVelocityContrainedInterpolations(std::shared_ptr<Point>& startPoint, std::shared_ptr<Point>& endPoint, double velocity, std::vector<Interpolation>& output) {
 
 		auto square = [](double in) -> double { return std::pow(in, 2.0); };
 
-		const double pi = startPoint.position;
-		const double ti = startPoint.time;
-		const double vi = startPoint.velocity;
-		double ai = std::abs(startPoint.acceleration);
+		const double pi = startPoint->position;
+		const double ti = startPoint->time;
+		const double vi = startPoint->velocity;
+		double ai = std::abs(startPoint->acceleration);
 
 		double vt = velocity;
 
-		const double po = endPoint.position;
-		const double vo = endPoint.velocity;
-		double ao = std::abs(endPoint.acceleration);
+		const double po = endPoint->position;
+		const double vo = endPoint->velocity;
+		double ao = std::abs(endPoint->acceleration);
 
 		if (ai == 0.0 || ao == 0.0 || vt == 0.0) return false;
 
-		const double dp = endPoint.position - startPoint.position;
-		const double dv = endPoint.velocity - startPoint.velocity;
+		const double dp = endPoint->position - startPoint->position;
+		const double dv = endPoint->velocity - startPoint->velocity;
 
 		bool ai_sign = false;
 		bool ao_sign = false;
@@ -217,19 +218,19 @@ namespace Motion::PositionCurve::D1 {
 			double to = rampOutStartTime + dto;
 
 			Interpolation profile;
-			profile.rampInStartTime = startPoint.time;			//time of curve start
-			profile.rampInStartPosition = startPoint.position;	//position of curve start
-			profile.rampInStartVelocity = startPoint.velocity;	//velocity at curve start
-			profile.rampInAcceleration = ai;					//acceleration of curve
+			profile.inTime = startPoint->time;			//time of curve start
+			profile.inPosition = startPoint->position;	//position of curve start
+			profile.inVelocity = startPoint->velocity;	//velocity at curve start
+			profile.inAcceleration = ai;					//acceleration of curve
 			profile.rampInEndPosition = rampInEndPosition;		//position of curve after acceleration phase
 			profile.rampInEndTime = rampInEndTime;			    //time of acceleration end
-			profile.coastVelocity = vt;							//velocity of constant velocity phase
+			profile.interpolationVelocity = vt;							//velocity of constant velocity phase
 			profile.rampOutStartPosition = rampOutStartPosition;//position of deceleration start
 			profile.rampOutStartTime = rampOutStartTime;		//time of deceleration start
-			profile.rampOutAcceleration = ao;					//deceleration of curve
-			profile.rampOutEndTime = to;						//time of curve end
-			profile.rampOutEndPosition = endPoint.position;		//position of curve end
-			profile.rampOutEndVelocity = endPoint.velocity;		//velocity of curve end
+			profile.outAcceleration = ao;					//deceleration of curve
+			profile.outTime = to;						//time of curve end
+			profile.outPosition = endPoint->position;		//position of curve end
+			profile.outVelocity = endPoint->velocity;		//velocity of curve end
 
 			//reject illogical solutions
 			if (dt < 0.0 || dtt < 0.0 || dto < 0.0 || dti < 0.0) profile.isDefined = false;
@@ -278,19 +279,19 @@ namespace Motion::PositionCurve::D1 {
 			double to = rampOutStartTime + dto;
 
 			Interpolation profile;
-			profile.rampInStartTime = startPoint.time;			//time of curve start
-			profile.rampInStartPosition = startPoint.position;	//position of curve start
-			profile.rampInStartVelocity = startPoint.velocity;	//velocity at curve start
-			profile.rampInAcceleration = ai;	//acceleration of curve
+			profile.inTime = startPoint->time;			//time of curve start
+			profile.inPosition = startPoint->position;	//position of curve start
+			profile.inVelocity = startPoint->velocity;	//velocity at curve start
+			profile.inAcceleration = ai;	//acceleration of curve
 			profile.rampInEndPosition = rampInEndPosition;		//position of curve after acceleration phase
 			profile.rampInEndTime = rampInEndTime;			    //time of acceleration end
-			profile.coastVelocity = vt;			//velocity of constant velocity phase
+			profile.interpolationVelocity = vt;			//velocity of constant velocity phase
 			profile.rampOutStartPosition = rampOutStartPosition;//position of deceleration start
 			profile.rampOutStartTime = rampOutStartTime;		//time of deceleration start
-			profile.rampOutAcceleration = ao;	//deceleration of curve
-			profile.rampOutEndTime = to;			    //time of curve end
-			profile.rampOutEndPosition = endPoint.position;		//position of curve end
-			profile.rampOutEndVelocity = endPoint.velocity;		//velocity of curve end
+			profile.outAcceleration = ao;	//deceleration of curve
+			profile.outTime = to;			    //time of curve end
+			profile.outPosition = endPoint->position;		//position of curve end
+			profile.outVelocity = endPoint->velocity;		//velocity of curve end
 
 			//reject non-real and illogical solutions
 			if (ai == ao) profile.isDefined = false;
@@ -321,71 +322,18 @@ namespace Motion::PositionCurve::D1 {
 	//=======================================================================================================================================
 
 
-	bool getFastestVelocityConstrainedInterpolation(const Point& startPoint, const Point& endPoint, double velocity, Interpolation& output) {
+	bool getFastestVelocityConstrainedInterpolation(std::shared_ptr<Point>& startPoint, std::shared_ptr<Point>& endPoint, double velocity, Interpolation& output) {
 		std::vector<Interpolation> velocityBasedProfiles;
 		if (getVelocityContrainedInterpolations(startPoint, endPoint, velocity, velocityBasedProfiles)) {
 			Interpolation* fastestProfile = &velocityBasedProfiles.front();
 			for (int i = 1; i < velocityBasedProfiles.size(); i++) {
-				if (velocityBasedProfiles[i].rampOutEndTime < fastestProfile->rampOutEndTime)
+				if (velocityBasedProfiles[i].outTime < fastestProfile->outTime)
 					fastestProfile = &velocityBasedProfiles[i];
 			}
 			output = *fastestProfile;
 			return true;
 		}
 		return false;
-	}
-
-	bool isInsideInterpolation(double time, const Interpolation& profile) {
-		return time >= profile.rampInStartTime && time <= profile.rampOutEndTime;
-	}
-
-	Point getInterpolationAtTime(double time, const Interpolation& curveProfile) {
-        Point output;
-        output.time = time;
-        double deltaT;
-        switch (getInterpolationPhaseAtTime(time, curveProfile)) {
-            case CurvePhase::NOT_STARTED:
-                output.position = curveProfile.rampInStartPosition;
-                output.velocity = curveProfile.rampInStartVelocity;
-                output.acceleration = 0.0;
-                break;
-            case CurvePhase::RAMP_IN:
-                deltaT = time - curveProfile.rampInStartTime;
-                output.position = curveProfile.rampInStartPosition + curveProfile.rampInStartVelocity * deltaT + curveProfile.rampInAcceleration * std::pow(deltaT, 2.0) / 2.0;
-                output.velocity = curveProfile.rampInStartVelocity + curveProfile.rampInAcceleration * deltaT;
-                output.acceleration = curveProfile.rampInAcceleration;
-                break;
-            case CurvePhase::COAST:
-                deltaT = time - curveProfile.rampInEndTime;
-                output.position = curveProfile.rampInEndPosition + deltaT * curveProfile.coastVelocity;
-                output.velocity = curveProfile.coastVelocity;
-                output.acceleration = 0.0;
-                break;
-            case CurvePhase::RAMP_OUT:
-                deltaT = time - curveProfile.rampOutStartTime;
-                output.position = curveProfile.rampOutStartPosition + curveProfile.coastVelocity * deltaT + curveProfile.rampOutAcceleration * std::pow(deltaT, 2.0) / 2.0;
-                output.velocity = curveProfile.coastVelocity + curveProfile.rampOutAcceleration * deltaT;
-                output.acceleration = curveProfile.rampOutAcceleration;
-                break;
-            case CurvePhase::FINISHED:
-                output.position = curveProfile.rampOutEndPosition;
-                output.velocity = curveProfile.rampOutEndVelocity;
-                output.acceleration = 0.0;
-                break;
-        }
-		return output;
-	}
-
-	CurvePhase getInterpolationPhaseAtTime(double time, const Interpolation& curveProfile) {
-        if (time < curveProfile.rampInStartTime) return CurvePhase::NOT_STARTED;
-        else if (time < curveProfile.rampInEndTime) return CurvePhase::RAMP_IN;
-        else if (time < curveProfile.rampOutStartTime) return CurvePhase::COAST;
-        else if (time < curveProfile.rampOutEndTime) return CurvePhase::RAMP_OUT;
-        else return CurvePhase::FINISHED;
-	}
-
-	float getInterpolationProgress(double time, const Interpolation& curveProfile) {
-		return (time - curveProfile.rampInStartTime) / (curveProfile.rampOutEndTime - curveProfile.rampInStartTime);
 	}
 
 }

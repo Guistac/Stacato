@@ -3,6 +3,7 @@
 #include "NodeGraph/Node.h"
 
 class AnimatableParameter;
+class Device;
 
 #define DEFINE_MACHINE_NODE(className, nodeName, saveName) public:									\
 	virtual const char* getSaveName() { return saveName; }											\
@@ -18,13 +19,15 @@ class AnimatableParameter;
 	virtual void axisGui();																			\
 	virtual void deviceGui();																		\
 	virtual void metricsGui();																		\
-	virtual void miniatureGui();																	\
+	virtual float getMiniatureWidth();																\
+	virtual void machineSpecificMiniatureGui();														\
 	virtual bool isEnabled();																		\
 	virtual bool isReady();																			\
 	virtual bool isMoving();																		\
 	virtual void enable();																			\
 	virtual void disable();																			\
 	virtual void moveToParameter();																	\
+	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output);							\
 
 class Machine : public Node {
 public:
@@ -39,7 +42,11 @@ public:
 	virtual void axisGui() = 0;
 	virtual void deviceGui() = 0;
 	virtual void metricsGui() = 0;
-	virtual void miniatureGui() = 0;
+
+	void miniatureGui();
+
+	virtual float getMiniatureWidth() = 0;
+	virtual void machineSpecificMiniatureGui() = 0;
 
 	virtual bool isEnabled() = 0;
 	virtual bool isReady() = 0;
@@ -49,6 +56,8 @@ public:
 	virtual void disable() = 0;
 
 	virtual void moveToParameter() = 0;
+
+	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output) = 0;
 
 	std::vector<std::shared_ptr<AnimatableParameter>> animatableParameters;
 

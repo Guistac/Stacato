@@ -3,8 +3,9 @@
 #include "PositionControlledAxis.h"
 #include "NodeGraph/Device.h"
 #include "Motion/MotionTypes.h"
-#include "Motion/Curves/Position/D1PositionCurve.h"
+#include "Motion/Curves/Curve.h"
 #include "Fieldbus/EtherCatFieldbus.h"
+#include "NodeGraph/Device.h"
 
 #include <tinyxml2.h>
 
@@ -169,7 +170,7 @@ void PositionControlledAxis::enable() {
 }
 
 void PositionControlledAxis::onEnable() {
-	targetInterpolation = Motion::PositionCurve::D1::Interpolation();
+	targetInterpolation = Motion::Interpolation();
 	manualVelocityTarget_axisUnitsPerSecond = 0.0;
 	//profileVelocity_axisUnitsPerSecond = 0.0;
 	//profileAcceleration_axisUnitsPerSecondSquared = 0.0;
@@ -181,7 +182,7 @@ void PositionControlledAxis::disable() {
 	b_enabled = false;
 	if (needsActuatorDevice()) getActuatorDevice()->disable();
 	else if (needsServoActuatorDevice()) getServoActuatorDevice()->disable();
-	targetInterpolation = Motion::PositionCurve::D1::Interpolation();
+	targetInterpolation = Motion::Interpolation();
 	manualVelocityTarget_axisUnitsPerSecond = 0.0;
 	//profileVelocity_axisUnitsPerSecond = 0.0;
 	//profileAcceleration_axisUnitsPerSecondSquared = 0.0;
@@ -491,7 +492,7 @@ void PositionControlledAxis::scaleFeedbackToMatchPosition(double position_axisUn
 void PositionControlledAxis::setVelocity(double velocity_axisUnits) {
 	manualVelocityTarget_axisUnitsPerSecond = velocity_axisUnits;
 	if (controlMode == ControlMode::Mode::MANUAL_POSITION_TARGET) {
-		targetInterpolation = Motion::PositionCurve::D1::Interpolation();
+		targetInterpolation = Motion::Interpolation();
 	}
 	controlMode = ControlMode::Mode::MANUAL_VELOCITY_TARGET;
 }
@@ -520,12 +521,11 @@ void PositionControlledAxis::velocityTargetControl() {
 //================================= POSITION TARGET CONTROL ===================================
 
 void PositionControlledAxis::moveToPositionWithVelocity(double position_axisUnits, double velocity_axisUnits, double acceleration_axisUnits) {
-	using namespace Motion::PositionCurve;
 	if (position_axisUnits > maxPositiveDeviation_axisUnits && enablePositiveLimit) position_axisUnits = maxPositiveDeviation_axisUnits;
 	else if (position_axisUnits < maxNegativeDeviation_axisUnits && enableNegativeLimit) position_axisUnits = maxNegativeDeviation_axisUnits;
-	D1::Point startPoint(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
-	D1::Point endPoint(0.0, position_axisUnits, acceleration_axisUnits, 0.0);
-	if (D1::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, velocity_axisUnits, targetInterpolation)) {
+	auto startPoint= std::make_shared<Motion::Point>(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
+	auto endPoint = std::make_shared<Motion::Point>(0.0, position_axisUnits, acceleration_axisUnits, 0.0);
+	if (Motion::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, velocity_axisUnits, targetInterpolation)) {
 		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
 		manualVelocityTarget_axisUnitsPerSecond = 0.0;
 	}
@@ -535,12 +535,11 @@ void PositionControlledAxis::moveToPositionWithVelocity(double position_axisUnit
 }
 
 void PositionControlledAxis::moveToPositionInTime(double position_axisUnits, double movementTime_seconds, double acceleration_axisUnits) {
-	using namespace Motion::PositionCurve;
 	if (position_axisUnits > maxPositiveDeviation_axisUnits && enablePositiveLimit) position_axisUnits = maxPositiveDeviation_axisUnits;
 	else if (position_axisUnits < maxNegativeDeviation_axisUnits && enableNegativeLimit) position_axisUnits = maxNegativeDeviation_axisUnits;
-	D1::Point startPoint(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
-	D1::Point endPoint(currentProfilePointTime_seconds + movementTime_seconds, position_axisUnits, acceleration_axisUnits, 0.0);
-	if (D1::getTimeConstrainedInterpolation(startPoint, endPoint, velocityLimit_axisUnitsPerSecond, targetInterpolation)) {
+	auto startPoint = std::make_shared<Motion::Point>(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
+	auto endPoint = std::make_shared<Motion::Point>(currentProfilePointTime_seconds + movementTime_seconds, position_axisUnits, acceleration_axisUnits, 0.0);
+	if (Motion::getTimeConstrainedInterpolation(startPoint, endPoint, velocityLimit_axisUnitsPerSecond, targetInterpolation)) {
 		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
 		manualVelocityTarget_axisUnitsPerSecond = 0.0;
 	}
@@ -550,12 +549,11 @@ void PositionControlledAxis::moveToPositionInTime(double position_axisUnits, dou
 }
 
 void PositionControlledAxis::positionTargetControl() {
-	using namespace Motion::PositionCurve;
-	if (D1::isInsideInterpolation(currentProfilePointTime_seconds, targetInterpolation)) {
-		D1::Point curvePoint = D1::getInterpolationAtTime(currentProfilePointTime_seconds, targetInterpolation);
-		profilePosition_axisUnits = curvePoint.position;
-		profileVelocity_axisUnitsPerSecond = curvePoint.velocity;
-		profileAcceleration_axisUnitsPerSecondSquared = curvePoint.acceleration;
+	if (targetInterpolation.isTimeInside(currentProfilePointTime_seconds)) {
+		std::shared_ptr<Motion::Point> curvePoint = targetInterpolation.getPointAtTime(currentProfilePointTime_seconds);
+		profilePosition_axisUnits = curvePoint->position;
+		profileVelocity_axisUnitsPerSecond = curvePoint->velocity;
+		profileAcceleration_axisUnitsPerSecondSquared = curvePoint->acceleration;
 	}
 	else {
 		profileVelocity_axisUnitsPerSecond = 0.0;
@@ -1023,4 +1021,15 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	targetVelocity_axisUnitsPerSecond = defaultManualVelocity_axisUnitsPerSecond;
 
 	return true;
+}
+
+
+
+
+
+void PositionControlledAxis::getDevices(std::vector<std::shared_ptr<Device>>& output) {
+	if (needsActuatorDevice() && isActuatorDeviceConnected()) output.push_back(getActuatorDevice()->parentDevice);
+	if (needsServoActuatorDevice() && isServoActuatorDeviceConnected()) output.push_back(getServoActuatorDevice()->parentDevice);
+	if (needsPositionFeedbackDevice() && isPositionFeedbackDeviceConnected()) output.push_back(getPositionFeedbackDevice()->parentDevice);
+	if (needsReferenceDevice() && isReferenceDeviceConnected())output.push_back(getReferenceDevice()->parentDevice);
 }

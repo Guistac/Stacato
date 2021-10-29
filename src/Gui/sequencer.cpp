@@ -2,7 +2,7 @@
 
 #include "Gui.h"
 
-#include "Motion/Curves/Position/D1PositionCurve.h"
+#include "Motion/Curves/Curve.h"
 
 #include "Utilities/CircularBuffer.h"
 
@@ -36,8 +36,8 @@ void sequencer() {
 
 
 
-	static Motion::PositionCurve::D1::Point startPoint;
-	static Motion::PositionCurve::D1::Point endPoint;
+	static auto startPoint = std::make_shared<Motion::Point>();
+	static auto endPoint= std::make_shared<Motion::Point>();
 	static double maxVelocity = 3.0;
 	static double maxAcceleration = 10.0;
 	static double minPosition = -100000.0;
@@ -45,40 +45,40 @@ void sequencer() {
 
 	static bool init = true;
 	if (init) {
-		startPoint.position = 0.0;
-		startPoint.time = 0.0;
-		startPoint.velocity = 0.0;
-		startPoint.acceleration = 4.0;
-		endPoint.position = 1.0;
-		endPoint.time = 1.0;
-		endPoint.velocity = 0.0;
-		endPoint.acceleration = 4.0;
+		startPoint->position = 0.0;
+		startPoint->time = 0.0;
+		startPoint->velocity = 0.0;
+		startPoint->acceleration = 4.0;
+		endPoint->position = 1.0;
+		endPoint->time = 1.0;
+		endPoint->velocity = 0.0;
+		endPoint->acceleration = 4.0;
 		init = false;
 	}
 
 	float inputWidth = 300.0;
 	ImGui::SetNextItemWidth(inputWidth);
-	ImGui::InputDouble("StartPosition", &startPoint.position, 0.01, 0.1);
+	ImGui::InputDouble("StartPosition", &startPoint->position, 0.01, 0.1);
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(inputWidth);
-	ImGui::InputDouble("StartTime", &startPoint.time, 0.01, 0.1);
+	ImGui::InputDouble("StartTime", &startPoint->time, 0.01, 0.1);
 	ImGui::SetNextItemWidth(inputWidth);
-	ImGui::InputDouble("EndPosition", &endPoint.position, 0.01, 0.1);
+	ImGui::InputDouble("EndPosition", &endPoint->position, 0.01, 0.1);
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(inputWidth);
-	ImGui::InputDouble("EndTime", &endPoint.time, 0.01, 0.1);
+	ImGui::InputDouble("EndTime", &endPoint->time, 0.01, 0.1);
 	ImGui::Separator();
 	ImGui::SetNextItemWidth(inputWidth);
-	ImGui::InputDouble("Vi", &startPoint.velocity, 0.01, 0.1);
+	ImGui::InputDouble("Vi", &startPoint->velocity, 0.01, 0.1);
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(inputWidth);
-	ImGui::InputDouble("Ai", &startPoint.acceleration, 0.01, 0.1);
+	ImGui::InputDouble("Ai", &startPoint->acceleration, 0.01, 0.1);
 	ImGui::Separator();
 	ImGui::SetNextItemWidth(inputWidth);
-	ImGui::InputDouble("Vo", &endPoint.velocity, 0.01, 0.1);
+	ImGui::InputDouble("Vo", &endPoint->velocity, 0.01, 0.1);
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(inputWidth);
-	ImGui::InputDouble("Ao", &endPoint.acceleration, 0.01, 0.1);
+	ImGui::InputDouble("Ao", &endPoint->acceleration, 0.01, 0.1);
 	ImGui::Separator();
 	ImGui::SetNextItemWidth(inputWidth);
 	ImGui::InputDouble("maxV", &maxVelocity, 0.01, 0.1);
@@ -89,40 +89,41 @@ void sequencer() {
 	maxVelocity = std::max(maxVelocity, 0.0);
 	maxAcceleration = std::max(maxAcceleration, 0.0);
 
-	clamp(startPoint.acceleration, 0.0, maxAcceleration);
-	clamp(endPoint.velocity, -maxVelocity, maxVelocity);
-	clamp(endPoint.position, minPosition, maxPosition);
-	clamp(endPoint.acceleration, 0.0, maxAcceleration);
+	clamp(startPoint->acceleration, 0.0, maxAcceleration);
+	clamp(endPoint->velocity, -maxVelocity, maxVelocity);
+	clamp(endPoint->position, minPosition, maxPosition);
+	clamp(endPoint->acceleration, 0.0, maxAcceleration);
 	
-	Motion::PositionCurve::D1::Interpolation profile;
-	bool hasSolution = Motion::PositionCurve::D1::getTimeConstrainedInterpolation(startPoint, endPoint, maxVelocity, profile);
+	Motion::Interpolation profile;
+	bool hasSolution = Motion::getTimeConstrainedInterpolation(startPoint, endPoint, maxVelocity, profile);
 
 	int pointCount = 2000;
-	double deltaT = (profile.rampOutEndTime - profile.rampInStartTime) / pointCount;
-	std::vector<Motion::PositionCurve::D1::Point> points;
+	double deltaT = (profile.outTime - profile.inTime) / pointCount;
+	std::vector<Motion::Point> points;
 	for (int i = 0; i <= pointCount; i++) {
-		double T = profile.rampInStartTime + i * deltaT;
-		points.push_back(Motion::PositionCurve::D1::getInterpolationAtTime(T, profile));
+		double T = profile.inTime + i * deltaT;
+		auto pointp = profile.getPointAtTime(T);
+		points.push_back(Motion::Point(pointp->time, pointp->position, pointp->acceleration, pointp->velocity));
 	}
 
-	glm::vec2 rampInHandle(1.0, startPoint.velocity);
+	glm::vec2 rampInHandle(1.0, startPoint->velocity);
 	rampInHandle = glm::normalize(rampInHandle);
-	rampInHandle *= startPoint.acceleration * 0.1;
+	rampInHandle *= startPoint->acceleration * 0.1;
 
-	glm::vec2 rampOutHandle(-1.0, -endPoint.velocity);
+	glm::vec2 rampOutHandle(-1.0, -endPoint->velocity);
 	glm::normalize(rampOutHandle);
-	rampOutHandle *= endPoint.acceleration * 0.1;
+	rampOutHandle *= endPoint->acceleration * 0.1;
 
 	double velocityTangentLength = 1.0;
 	std::vector<glm::vec2> rampInHandlePoints;
-	rampInHandlePoints.push_back(glm::vec2(profile.rampInStartTime, profile.rampInStartPosition));
-	rampInHandlePoints.push_back(glm::vec2(profile.rampInStartTime, profile.rampInStartPosition) + rampInHandle);
+	rampInHandlePoints.push_back(glm::vec2(profile.inTime, profile.inPosition));
+	rampInHandlePoints.push_back(glm::vec2(profile.inTime, profile.inPosition) + rampInHandle);
 	double rampInHandleX = rampInHandlePoints.back().x;
 	double rampInHandleY = rampInHandlePoints.back().y;
 
 	std::vector<glm::vec2> rampOutHandlePoints;
-	rampOutHandlePoints.push_back(glm::vec2(profile.rampOutEndTime, profile.rampOutEndPosition));
-	rampOutHandlePoints.push_back(glm::vec2(profile.rampOutEndTime, profile.rampOutEndPosition) + rampOutHandle);
+	rampOutHandlePoints.push_back(glm::vec2(profile.outTime, profile.outPosition));
+	rampOutHandlePoints.push_back(glm::vec2(profile.outTime, profile.outPosition) + rampOutHandle);
 	double rampOutHandleX = rampOutHandlePoints.back().x;
 	double rampOutHandleY = rampOutHandlePoints.back().y;
 
@@ -133,13 +134,13 @@ void sequencer() {
 		if (hasSolution) {
 			ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 0.5, 1.0), 2.0);
 			ImPlot::PlotHLines("Velocity Limits", &velocityLimits.front(), 2);
-			ImPlot::DragPoint("target", &endPoint.time, &endPoint.position, true, glm::vec4(1.0, 1.0, 1.0, 1.0), 10.0);
+			ImPlot::DragPoint("target", &endPoint->time, &endPoint->position, true, glm::vec4(1.0, 1.0, 1.0, 1.0), 10.0);
 			ImPlot::SetNextLineStyle(glm::vec4(0.5, 0.5, 0.5, 1.0), 2.0);
-			ImPlot::PlotLine("acceleration", &points.front().time, &points.front().acceleration, pointCount + 1, 0, sizeof(Motion::PositionCurve::D1::Point));
+			ImPlot::PlotLine("acceleration", &points.front().time, &points.front().acceleration, pointCount + 1, 0, sizeof(Motion::Point));
 			ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 1.0, 1.0), 4.0);
-			ImPlot::PlotLine("velocity", &points.front().time, &points.front().velocity, pointCount + 1, 0, sizeof(Motion::PositionCurve::D1::Point));
+			ImPlot::PlotLine("velocity", &points.front().time, &points.front().velocity, pointCount + 1, 0, sizeof(Motion::Point));
 			ImPlot::SetNextLineStyle(glm::vec4(1.0, 0.0, 0.0, 1.0), 4.0);
-			ImPlot::PlotLine("position", &points.front().time, &points.front().position, pointCount + 1, 0, sizeof(Motion::PositionCurve::D1::Point));
+			ImPlot::PlotLine("position", &points.front().time, &points.front().position, pointCount + 1, 0, sizeof(Motion::Point));
 			ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 1.0), 2.0);
 			ImPlot::PlotLine("RampIn", &rampInHandlePoints.front().x, &rampInHandlePoints.front().y, 2, 0, sizeof(glm::vec2));
 			ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 1.0), 2.0);
@@ -152,12 +153,12 @@ void sequencer() {
 		ImPlot::EndPlot();
 	}
 
-	ImGui::Text("RampEndTime: %.3f", profile.rampOutEndTime);
+	ImGui::Text("RampEndTime: %.3f", profile.outTime);
 	ImGui::SameLine();
-	ImGui::Text("RampInAcceleration: %.3f", profile.rampInAcceleration);
+	ImGui::Text("RampInAcceleration: %.3f", profile.inAcceleration);
 	ImGui::SameLine();
-	ImGui::Text("RampOutAcceleration: %.3f", profile.rampOutAcceleration);
+	ImGui::Text("RampOutAcceleration: %.3f", profile.outAcceleration);
 	ImGui::SameLine();
-	ImGui::Text("TransitionVelocity: %.3f", profile.coastVelocity);
+	ImGui::Text("TransitionVelocity: %.3f", profile.interpolationVelocity);
 	
 }

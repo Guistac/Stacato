@@ -3,7 +3,7 @@
 #include "NodeGraph/Node.h"
 #include "Motion/Subdevice.h"
 #include "Motion/MotionTypes.h"
-#include "Motion/Curves/Position/D1PositionCurve.h"
+#include "Motion/Curves/Curve.h"
 #include "Utilities/CircularBuffer.h"
 
 
@@ -34,6 +34,7 @@
 	virtual bool isHoming();																		\
 	virtual bool didHomingSucceed();																\
 	virtual bool didHomingFail();																	\
+	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output);							\
 
 class Axis : public Node {
 public:
@@ -94,6 +95,8 @@ public:
 
 	bool b_manualControlsEnabled = false;
 	bool hasManualControlsEnabled() { return b_manualControlsEnabled; }
+
+	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output) = 0;
 
 	//Fast Stop
 	//Braking Position
