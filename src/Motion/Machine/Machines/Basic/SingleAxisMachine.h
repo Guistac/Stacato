@@ -1,6 +1,6 @@
 #include "Motion/Machine/Machine.h"
 
-#include "Motion/MotionCurve.h"
+#include "Motion/Curves/Position/D1PositionCurve.h"
 #include "Motion/MotionTypes.h"
 
 class SingleAxisMachine : public Machine{
@@ -33,7 +33,7 @@ class SingleAxisMachine : public Machine{
 	void moveToPositionWithVelocity(double position_axisUnits, double velocity_axisUnits, double acceleration_axisUnits);
 	void moveToPositionInTime(double position_axisUnits, double movementTime_seconds, double acceleration_axisUnits);
 	void positionTargetControl();
-	MotionCurve::CurveProfile targetCurveProfile;
+	Motion::PositionCurve::D1::Interpolation targetIntepolation;
 	double targetPosition_machineUnits = 0.0;
 	double targetVelocity_machineUnitsPerSecond = 0.0;
 	double targetTime_seconds = 0.0;

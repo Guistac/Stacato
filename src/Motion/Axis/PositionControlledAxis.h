@@ -96,7 +96,7 @@ public:
 	void moveToPositionWithVelocity(double position_axisUnits, double velocity_axisUnits, double acceleration_axisUnits);
 	void moveToPositionInTime(double position_axisUnits, double movementTime_seconds, double acceleration_axisUnits);
 	void positionTargetControl();
-	MotionCurve::CurveProfile targetCurveProfile;
+	Motion::PositionCurve::D1::Interpolation targetInterpolation;
 	double targetPosition_axisUnits = 0.0;
 	double targetVelocity_axisUnitsPerSecond = 0.0;
 	double targetTime_seconds = 0.0;

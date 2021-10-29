@@ -41,6 +41,8 @@ public:
 	rampOut
 	*/
 
+	//std::vector<std::shared_ptr<Motion::>>
+
 	std::vector<std::shared_ptr<CurvePoint>> points;
 
 	double getLength_seconds();

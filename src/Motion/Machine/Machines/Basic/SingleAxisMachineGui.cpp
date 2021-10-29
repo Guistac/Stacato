@@ -203,14 +203,14 @@ void SingleAxisMachine::controlsGui() {
 		sprintf(movementProgressChar, "No Target Movement");
 		targetProgress = 1.0;
 	}
-	else if (MotionCurve::getMotionCurveProgress(profileTime_seconds, targetCurveProfile) >= 1.0) {
+	else if (Motion::PositionCurve::D1::getInterpolationProgress(profileTime_seconds, targetIntepolation) >= 1.0) {
 		targetProgress = 1.0;
 		sprintf(movementProgressChar, "Movement Finished");
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 	}
 	else {
-		targetProgress = MotionCurve::getMotionCurveProgress(profileTime_seconds, targetCurveProfile);
-		movementSecondsLeft = targetCurveProfile.rampOutEndTime - profileTime_seconds;
+		targetProgress = Motion::PositionCurve::D1::getInterpolationProgress(profileTime_seconds, targetIntepolation);
+		movementSecondsLeft = targetIntepolation.rampOutEndTime - profileTime_seconds;
 		if (movementSecondsLeft < 0.0) movementSecondsLeft = 0.0;
 		sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
@@ -296,7 +296,7 @@ void SingleAxisMachine::miniatureGui() {
 		sprintf(targetPositionString, "%.1f %s", targetPosition_machineUnits, getPositionUnitStringShort(positionUnit));
 		ImGui::InputDouble("##TargetPosition", &targetPosition_machineUnits, 0.0, 0.0, targetPositionString);
 
-		float motionProgress = MotionCurve::getMotionCurveProgress(profileTime_seconds, targetCurveProfile);
+		float motionProgress = Motion::PositionCurve::D1::getInterpolationProgress(profileTime_seconds, targetIntepolation);
 		if (motionProgress > 0.0 && motionProgress < 1.0) {
 			glm::vec2 targetmin = ImGui::GetItemRectMin();
 			glm::vec2 targetmax = ImGui::GetItemRectMax();

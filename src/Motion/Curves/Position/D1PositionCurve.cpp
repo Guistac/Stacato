@@ -1,9 +1,9 @@
 ﻿#include <pch.h>
-#include "MotionCurve.h"
+#include "D1PositionCurve.h"
 
-namespace MotionCurve {
+namespace Motion::PositionCurve::D1 {
 
-	bool getTimeConstrainedProfile(const CurvePoint& startPoint, const CurvePoint& endPoint, double maxVelocity, CurveProfile& output) {
+	bool getTimeConstrainedInterpolation(const Point& startPoint, const Point& endPoint, double maxVelocity, Interpolation& output) {
 
 		auto square = [](double in) -> double { return std::pow(in, 2.0); };
 
@@ -32,7 +32,7 @@ namespace MotionCurve {
 		//output
 		double vt;
 
-		auto solveCurve = [&]() -> CurveProfile {
+		auto solveCurve = [&]() -> Interpolation {
 
 			//initialize acceleration signs
 			if (!ai_sign) ai = -std::abs(ai);
@@ -74,7 +74,7 @@ namespace MotionCurve {
 			double rampOutStartPosition = po - dpo;
 			double rampOutStartTime = to - dto;
 
-			CurveProfile profile;
+			Interpolation profile;
 			profile.rampInStartTime = startPoint.time;			//time of curve start
 			profile.rampInStartPosition = startPoint.position;	//position of curve start
 			profile.rampInStartVelocity = startPoint.velocity;	//velocity at curve start
@@ -98,32 +98,32 @@ namespace MotionCurve {
 			return profile;
 		};
 
-		std::vector<CurveProfile> timeConstrainedSolutions;
+		std::vector<Interpolation> timeConstrainedSolutions;
 
 		for (char c = 0; c < 8; c++) {
 			ai_sign = c & 0x1;
 			ao_sign = (c >> 1) & 0x1;
 			rootTermSign = (c >> 2) & 0x1;
-			CurveProfile profile = solveCurve();
+			Interpolation profile = solveCurve();
 			if (profile.isDefined) timeConstrainedSolutions.push_back(profile);
 		}
 
 		if (timeConstrainedSolutions.empty()) {
 			//if no solution exists for a time constrained profile
 			//we try finding profiles based on the max velocity
-			std::vector<CurveProfile> velocityConstrainedSolutions;
+			std::vector<Interpolation> velocityConstrainedSolutions;
 			//if no solution is found here, there is no solution
-			if (!MotionCurve::getVelocityContrainedProfiles(startPoint, endPoint, maxVelocity, velocityConstrainedSolutions)) return false;
+			if (!getVelocityContrainedInterpolations(startPoint, endPoint, maxVelocity, velocityConstrainedSolutions)) return false;
 
 			//first filter out all profiles that are slower or equal to the requested time
-			std::vector<CurveProfile> slowerThanRequestedSolutions;
+			std::vector<Interpolation> slowerThanRequestedSolutions;
 			for (auto& solution : velocityConstrainedSolutions) {
 				if (solution.rampOutEndTime >= endPoint.time) slowerThanRequestedSolutions.push_back(solution);
 			}
 
 			if (slowerThanRequestedSolutions.empty()) {
 				//if there is no profile slower than the requested time we pick the slowest profile
-				CurveProfile* slowestProfileBelowRequested = &velocityConstrainedSolutions.front();
+				Interpolation* slowestProfileBelowRequested = &velocityConstrainedSolutions.front();
 				for (int i = 1; i < velocityConstrainedSolutions.size(); i++) {
 					if (velocityConstrainedSolutions[i].rampOutEndTime > slowestProfileBelowRequested->rampOutEndTime)
 						slowestProfileBelowRequested = &velocityConstrainedSolutions[i];
@@ -133,7 +133,7 @@ namespace MotionCurve {
 			}
 			else {
 				//else we pick the fastest profile of the remaining ones
-				CurveProfile* fastestProfileAboveRequested = &slowerThanRequestedSolutions.front();
+				Interpolation* fastestProfileAboveRequested = &slowerThanRequestedSolutions.front();
 				for (int i = 0; i < slowerThanRequestedSolutions.size(); i++) {
 					if (slowerThanRequestedSolutions[i].rampOutEndTime < fastestProfileAboveRequested->rampOutEndTime)
 						fastestProfileAboveRequested = &slowerThanRequestedSolutions[i];
@@ -143,7 +143,7 @@ namespace MotionCurve {
 			}
 		}
 		else {
-			CurveProfile* fastestProfileAboveRequested = &timeConstrainedSolutions.front();
+			Interpolation* fastestProfileAboveRequested = &timeConstrainedSolutions.front();
 			for (auto& solution : timeConstrainedSolutions) {
 				if (solution.rampOutEndTime < fastestProfileAboveRequested->rampOutEndTime)
 					fastestProfileAboveRequested = &solution;
@@ -159,7 +159,7 @@ namespace MotionCurve {
 	//=======================================================================================================================================
 
 	
-    bool getVelocityContrainedProfiles(const CurvePoint& startPoint, const CurvePoint& endPoint, double velocity, std::vector<CurveProfile>& output) {
+    bool getVelocityContrainedInterpolations(const Point& startPoint, const Point& endPoint, double velocity, std::vector<Interpolation>& output) {
 
 		auto square = [](double in) -> double { return std::pow(in, 2.0); };
 
@@ -183,7 +183,7 @@ namespace MotionCurve {
 		bool ao_sign = false;
 		bool velocity_sign = false;
 
-		auto solveCurveForVelocity = [&]() -> CurveProfile {
+		auto solveCurveForVelocity = [&]() -> Interpolation {
 
 			//initialize acceleration signs
 			if (!ai_sign) ai = -std::abs(ai);
@@ -216,7 +216,7 @@ namespace MotionCurve {
 			double rampOutStartTime = rampInEndTime + (rampOutStartPosition - rampInEndPosition) / vt;
 			double to = rampOutStartTime + dto;
 
-			CurveProfile profile;
+			Interpolation profile;
 			profile.rampInStartTime = startPoint.time;			//time of curve start
 			profile.rampInStartPosition = startPoint.position;	//position of curve start
 			profile.rampInStartVelocity = startPoint.velocity;	//velocity at curve start
@@ -242,14 +242,14 @@ namespace MotionCurve {
 			ai_sign = c & 0x1;
 			ao_sign = (c >> 1) & 0x1;
 			velocity_sign = (c >> 2) & 0x1;
-			CurveProfile profile = solveCurveForVelocity();
+			Interpolation profile = solveCurveForVelocity();
 			if (profile.isDefined) output.push_back(profile);
 		}
 
 
 		bool squareRootSign = false;
 
-		auto solveTangentCurve = [&]() -> CurveProfile {
+		auto solveTangentCurve = [&]() -> Interpolation {
 
 			//initialize acceleration signs
 			if (!ai_sign) ai = -std::abs(ai);
@@ -277,7 +277,7 @@ namespace MotionCurve {
 			double rampOutStartTime = rampInEndTime;
 			double to = rampOutStartTime + dto;
 
-			CurveProfile profile;
+			Interpolation profile;
 			profile.rampInStartTime = startPoint.time;			//time of curve start
 			profile.rampInStartPosition = startPoint.position;	//position of curve start
 			profile.rampInStartVelocity = startPoint.velocity;	//velocity at curve start
@@ -308,7 +308,7 @@ namespace MotionCurve {
 			ai_sign = c & 0x1;
 			ao_sign = (c >> 1) & 0x1;
 			squareRootSign = (c >> 2) & 0x1;
-			MotionCurve::CurveProfile profile = solveTangentCurve();
+			Interpolation profile = solveTangentCurve();
 			if (profile.isDefined) output.push_back(profile);
 		}
 		
@@ -321,10 +321,10 @@ namespace MotionCurve {
 	//=======================================================================================================================================
 
 
-	bool getFastestVelocityConstrainedProfile(const CurvePoint& startPoint, const CurvePoint& endPoint, double velocity, CurveProfile& output) {
-		std::vector<CurveProfile> velocityBasedProfiles;
-		if (getVelocityContrainedProfiles(startPoint, endPoint, velocity, velocityBasedProfiles)) {
-			CurveProfile* fastestProfile = &velocityBasedProfiles.front();
+	bool getFastestVelocityConstrainedInterpolation(const Point& startPoint, const Point& endPoint, double velocity, Interpolation& output) {
+		std::vector<Interpolation> velocityBasedProfiles;
+		if (getVelocityContrainedInterpolations(startPoint, endPoint, velocity, velocityBasedProfiles)) {
+			Interpolation* fastestProfile = &velocityBasedProfiles.front();
 			for (int i = 1; i < velocityBasedProfiles.size(); i++) {
 				if (velocityBasedProfiles[i].rampOutEndTime < fastestProfile->rampOutEndTime)
 					fastestProfile = &velocityBasedProfiles[i];
@@ -335,15 +335,15 @@ namespace MotionCurve {
 		return false;
 	}
 
-	bool isInsideCurveTime(double time, const CurveProfile& profile) {
+	bool isInsideInterpolation(double time, const Interpolation& profile) {
 		return time >= profile.rampInStartTime && time <= profile.rampOutEndTime;
 	}
 
-	CurvePoint getCurvePointAtTime(double time, const CurveProfile& curveProfile) {
-        CurvePoint output;
+	Point getInterpolationAtTime(double time, const Interpolation& curveProfile) {
+        Point output;
         output.time = time;
         double deltaT;
-        switch (getCurvePhaseAtTime(time, curveProfile)) {
+        switch (getInterpolationPhaseAtTime(time, curveProfile)) {
             case CurvePhase::NOT_STARTED:
                 output.position = curveProfile.rampInStartPosition;
                 output.velocity = curveProfile.rampInStartVelocity;
@@ -376,7 +376,7 @@ namespace MotionCurve {
 		return output;
 	}
 
-	CurvePhase getCurvePhaseAtTime(double time, const CurveProfile& curveProfile) {
+	CurvePhase getInterpolationPhaseAtTime(double time, const Interpolation& curveProfile) {
         if (time < curveProfile.rampInStartTime) return CurvePhase::NOT_STARTED;
         else if (time < curveProfile.rampInEndTime) return CurvePhase::RAMP_IN;
         else if (time < curveProfile.rampOutStartTime) return CurvePhase::COAST;
@@ -384,7 +384,7 @@ namespace MotionCurve {
         else return CurvePhase::FINISHED;
 	}
 
-	float getMotionCurveProgress(double time, const CurveProfile& curveProfile) {
+	float getInterpolationProgress(double time, const Interpolation& curveProfile) {
 		return (time - curveProfile.rampInStartTime) / (curveProfile.rampOutEndTime - curveProfile.rampInStartTime);
 	}
 

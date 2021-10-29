@@ -214,14 +214,14 @@ void PositionControlledAxis::controlsGui() {
 			sprintf(movementProgressChar, "No Target Movement");
 			targetProgress = 1.0;
 		}
-		else if (MotionCurve::getMotionCurveProgress(currentProfilePointTime_seconds, targetCurveProfile) >= 1.0) {
+		else if (Motion::PositionCurve::D1::getInterpolationProgress(currentProfilePointTime_seconds, targetInterpolation) >= 1.0) {
 			targetProgress = 1.0;
 			sprintf(movementProgressChar, "Movement Finished");
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 		}
 		else {
-			targetProgress = MotionCurve::getMotionCurveProgress(currentProfilePointTime_seconds, targetCurveProfile);
-			movementSecondsLeft = targetCurveProfile.rampOutEndTime - currentProfilePointTime_seconds;
+			targetProgress = Motion::PositionCurve::D1::getInterpolationProgress(currentProfilePointTime_seconds, targetInterpolation);
+			movementSecondsLeft = targetInterpolation.rampOutEndTime - currentProfilePointTime_seconds;
 			if (movementSecondsLeft < 0.0) movementSecondsLeft = 0.0;
 			sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);

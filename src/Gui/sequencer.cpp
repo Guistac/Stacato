@@ -2,7 +2,7 @@
 
 #include "Gui.h"
 
-#include "Motion/MotionCurve.h"
+#include "Motion/Curves/Position/D1PositionCurve.h"
 
 #include "Utilities/CircularBuffer.h"
 
@@ -36,8 +36,8 @@ void sequencer() {
 
 
 
-	static MotionCurve::CurvePoint startPoint;
-	static MotionCurve::CurvePoint endPoint;
+	static Motion::PositionCurve::D1::Point startPoint;
+	static Motion::PositionCurve::D1::Point endPoint;
 	static double maxVelocity = 3.0;
 	static double maxAcceleration = 10.0;
 	static double minPosition = -100000.0;
@@ -94,15 +94,15 @@ void sequencer() {
 	clamp(endPoint.position, minPosition, maxPosition);
 	clamp(endPoint.acceleration, 0.0, maxAcceleration);
 	
-	MotionCurve::CurveProfile profile;
-	bool hasSolution = MotionCurve::getTimeConstrainedProfile(startPoint, endPoint, maxVelocity, profile);
+	Motion::PositionCurve::D1::Interpolation profile;
+	bool hasSolution = Motion::PositionCurve::D1::getTimeConstrainedInterpolation(startPoint, endPoint, maxVelocity, profile);
 
 	int pointCount = 2000;
 	double deltaT = (profile.rampOutEndTime - profile.rampInStartTime) / pointCount;
-	std::vector<MotionCurve::CurvePoint> points;
+	std::vector<Motion::PositionCurve::D1::Point> points;
 	for (int i = 0; i <= pointCount; i++) {
 		double T = profile.rampInStartTime + i * deltaT;
-		points.push_back(MotionCurve::getCurvePointAtTime(T, profile));
+		points.push_back(Motion::PositionCurve::D1::getInterpolationAtTime(T, profile));
 	}
 
 	glm::vec2 rampInHandle(1.0, startPoint.velocity);
@@ -135,11 +135,11 @@ void sequencer() {
 			ImPlot::PlotHLines("Velocity Limits", &velocityLimits.front(), 2);
 			ImPlot::DragPoint("target", &endPoint.time, &endPoint.position, true, glm::vec4(1.0, 1.0, 1.0, 1.0), 10.0);
 			ImPlot::SetNextLineStyle(glm::vec4(0.5, 0.5, 0.5, 1.0), 2.0);
-			ImPlot::PlotLine("acceleration", &points.front().time, &points.front().acceleration, pointCount + 1, 0, sizeof(MotionCurve::CurvePoint));
+			ImPlot::PlotLine("acceleration", &points.front().time, &points.front().acceleration, pointCount + 1, 0, sizeof(Motion::PositionCurve::D1::Point));
 			ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 1.0, 1.0), 4.0);
-			ImPlot::PlotLine("velocity", &points.front().time, &points.front().velocity, pointCount + 1, 0, sizeof(MotionCurve::CurvePoint));
+			ImPlot::PlotLine("velocity", &points.front().time, &points.front().velocity, pointCount + 1, 0, sizeof(Motion::PositionCurve::D1::Point));
 			ImPlot::SetNextLineStyle(glm::vec4(1.0, 0.0, 0.0, 1.0), 4.0);
-			ImPlot::PlotLine("position", &points.front().time, &points.front().position, pointCount + 1, 0, sizeof(MotionCurve::CurvePoint));
+			ImPlot::PlotLine("position", &points.front().time, &points.front().position, pointCount + 1, 0, sizeof(Motion::PositionCurve::D1::Point));
 			ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 1.0), 2.0);
 			ImPlot::PlotLine("RampIn", &rampInHandlePoints.front().x, &rampInHandlePoints.front().y, 2, 0, sizeof(glm::vec2));
 			ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 1.0), 2.0);

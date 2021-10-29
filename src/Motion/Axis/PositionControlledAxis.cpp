@@ -3,7 +3,7 @@
 #include "PositionControlledAxis.h"
 #include "NodeGraph/Device.h"
 #include "Motion/MotionTypes.h"
-#include "Motion/MotionCurve.h"
+#include "Motion/Curves/Position/D1PositionCurve.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 
 #include <tinyxml2.h>
@@ -169,7 +169,7 @@ void PositionControlledAxis::enable() {
 }
 
 void PositionControlledAxis::onEnable() {
-	targetCurveProfile = MotionCurve::CurveProfile();
+	targetInterpolation = Motion::PositionCurve::D1::Interpolation();
 	manualVelocityTarget_axisUnitsPerSecond = 0.0;
 	//profileVelocity_axisUnitsPerSecond = 0.0;
 	//profileAcceleration_axisUnitsPerSecondSquared = 0.0;
@@ -181,7 +181,7 @@ void PositionControlledAxis::disable() {
 	b_enabled = false;
 	if (needsActuatorDevice()) getActuatorDevice()->disable();
 	else if (needsServoActuatorDevice()) getServoActuatorDevice()->disable();
-	targetCurveProfile = MotionCurve::CurveProfile();
+	targetInterpolation = Motion::PositionCurve::D1::Interpolation();
 	manualVelocityTarget_axisUnitsPerSecond = 0.0;
 	//profileVelocity_axisUnitsPerSecond = 0.0;
 	//profileAcceleration_axisUnitsPerSecondSquared = 0.0;
@@ -491,7 +491,7 @@ void PositionControlledAxis::scaleFeedbackToMatchPosition(double position_axisUn
 void PositionControlledAxis::setVelocity(double velocity_axisUnits) {
 	manualVelocityTarget_axisUnitsPerSecond = velocity_axisUnits;
 	if (controlMode == ControlMode::Mode::MANUAL_POSITION_TARGET) {
-		targetCurveProfile = MotionCurve::CurveProfile();
+		targetInterpolation = Motion::PositionCurve::D1::Interpolation();
 	}
 	controlMode = ControlMode::Mode::MANUAL_VELOCITY_TARGET;
 }
@@ -520,11 +520,12 @@ void PositionControlledAxis::velocityTargetControl() {
 //================================= POSITION TARGET CONTROL ===================================
 
 void PositionControlledAxis::moveToPositionWithVelocity(double position_axisUnits, double velocity_axisUnits, double acceleration_axisUnits) {
+	using namespace Motion::PositionCurve;
 	if (position_axisUnits > maxPositiveDeviation_axisUnits && enablePositiveLimit) position_axisUnits = maxPositiveDeviation_axisUnits;
 	else if (position_axisUnits < maxNegativeDeviation_axisUnits && enableNegativeLimit) position_axisUnits = maxNegativeDeviation_axisUnits;
-	MotionCurve::CurvePoint startPoint(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
-	MotionCurve::CurvePoint endPoint(0.0, position_axisUnits, acceleration_axisUnits, 0.0);
-	if (MotionCurve::getFastestVelocityConstrainedProfile(startPoint, endPoint, velocity_axisUnits, targetCurveProfile)) {
+	D1::Point startPoint(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
+	D1::Point endPoint(0.0, position_axisUnits, acceleration_axisUnits, 0.0);
+	if (D1::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, velocity_axisUnits, targetInterpolation)) {
 		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
 		manualVelocityTarget_axisUnitsPerSecond = 0.0;
 	}
@@ -534,11 +535,12 @@ void PositionControlledAxis::moveToPositionWithVelocity(double position_axisUnit
 }
 
 void PositionControlledAxis::moveToPositionInTime(double position_axisUnits, double movementTime_seconds, double acceleration_axisUnits) {
+	using namespace Motion::PositionCurve;
 	if (position_axisUnits > maxPositiveDeviation_axisUnits && enablePositiveLimit) position_axisUnits = maxPositiveDeviation_axisUnits;
 	else if (position_axisUnits < maxNegativeDeviation_axisUnits && enableNegativeLimit) position_axisUnits = maxNegativeDeviation_axisUnits;
-	MotionCurve::CurvePoint startPoint(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
-	MotionCurve::CurvePoint endPoint(currentProfilePointTime_seconds + movementTime_seconds, position_axisUnits, acceleration_axisUnits, 0.0);
-	if (MotionCurve::getTimeConstrainedProfile(startPoint, endPoint, velocityLimit_axisUnitsPerSecond, targetCurveProfile)) {
+	D1::Point startPoint(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
+	D1::Point endPoint(currentProfilePointTime_seconds + movementTime_seconds, position_axisUnits, acceleration_axisUnits, 0.0);
+	if (D1::getTimeConstrainedInterpolation(startPoint, endPoint, velocityLimit_axisUnitsPerSecond, targetInterpolation)) {
 		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
 		manualVelocityTarget_axisUnitsPerSecond = 0.0;
 	}
@@ -548,8 +550,9 @@ void PositionControlledAxis::moveToPositionInTime(double position_axisUnits, dou
 }
 
 void PositionControlledAxis::positionTargetControl() {
-	if (MotionCurve::isInsideCurveTime(currentProfilePointTime_seconds, targetCurveProfile)) {
-		MotionCurve::CurvePoint curvePoint = MotionCurve::getCurvePointAtTime(currentProfilePointTime_seconds, targetCurveProfile);
+	using namespace Motion::PositionCurve;
+	if (D1::isInsideInterpolation(currentProfilePointTime_seconds, targetInterpolation)) {
+		D1::Point curvePoint = D1::getInterpolationAtTime(currentProfilePointTime_seconds, targetInterpolation);
 		profilePosition_axisUnits = curvePoint.position;
 		profileVelocity_axisUnitsPerSecond = curvePoint.velocity;
 		profileAcceleration_axisUnitsPerSecondSquared = curvePoint.acceleration;
