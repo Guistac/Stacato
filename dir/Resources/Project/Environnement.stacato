@@ -147,7 +147,7 @@
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="Realtek USB NIC" Name="\Device\NPF_{42C81A11-795E-4D7C-83AE-39EF61932528}"/>
+        <Primary Description="Microsoft" Name="\Device\NPF_{94C82131-D635-43BC-AA0D-763132AE31BA}"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="4" ProcessDataTimeoutMilliseconds="3" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>

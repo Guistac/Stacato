@@ -12,7 +12,7 @@
 #include "Gui/Framework/Fonts.h"
 #include "Gui/Framework/Colors.h"
 
-void cueListGui() {
+void manoeuvreListGui() {
 	
 	static DraggableList cueList;
 

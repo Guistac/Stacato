@@ -1,6 +1,7 @@
 #pragma once
 
 class Machine;
+class CurvePoint;
 
 class AnimatableParameter {
 public:
@@ -26,13 +27,16 @@ public:
 	char name[128];
 	Type dataType;
 	Constraint constraint;
+	//TODO: constraint specific data (limits, kinematic contraints, ...)
 
 	std::shared_ptr<Machine> machine;
 
+};
+
+struct KeyFrame {
 	//data:
 	bool boolData;
 	int intData;
 	double realData;
-	glm::vec2 vec2Data;
-	glm::vec3 vec3Data;
+	//CurvePoint positionCurvePointData;
 };

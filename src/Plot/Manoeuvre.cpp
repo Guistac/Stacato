@@ -1,11 +1,29 @@
 #include <pch.h>
 
 #include "Manoeuvre.h"
+#include "Motion/Machine/ParameterSequence.h"
 
 
+void Manoeuvre::addParameter(std::shared_ptr<AnimatableParameter>& parameter) {
+	std::shared_ptr<ParameterSequence> parameterSequence = std::make_shared<ParameterSequence>(parameter, SequenceType::Type::SIMPLE_TIMED_MOVE);
+	parameterSequences.push_back(parameterSequence);
+}
 
+void Manoeuvre::removeParameter(std::shared_ptr<AnimatableParameter>& parameter) {
+	for (int i = 0; i < parameterSequences.size(); i++) {
+		if (parameterSequences[i]->parameter == parameter) {
+			parameterSequences.erase(parameterSequences.begin() + i);
+			break;
+		}
+	}
+}
 
-
+bool Manoeuvre::hasParameter(std::shared_ptr<AnimatableParameter>& parameter) {
+	for (auto& p : parameterSequences) {
+		if (p->parameter == parameter) return true;
+	}
+	return false;
+}
 
 
 bool Manoeuvre::save(tinyxml2::XMLElement* manoeuvreXML) {

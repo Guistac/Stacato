@@ -33,13 +33,8 @@ void mainWindow() {
 			machineListGui();
 			ImGui::EndTabItem();
 		}
-		if (ImGui::BeginTabItem("Cue List")) {
-			cueListGui();
-			ImGui::EndTabItem();
-		}
-		if (ImGui::BeginTabItem("Sequencer")) {
-			//ImGui::Text("This will be a sequencer");
-			sequencer();
+		if (ImGui::BeginTabItem("Manoeuvres")) {
+			manoeuvreListGui();
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Stage View")) {
