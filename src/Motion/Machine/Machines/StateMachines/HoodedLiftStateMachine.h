@@ -1,5 +1,7 @@
 #include "Motion/Machine/Machine.h"
 
+#include "Motion/Machine/AnimatableParameter.h"
+
 class HoodedLiftStateMachine : public Machine {
 public:
 
@@ -20,6 +22,18 @@ public:
 	std::shared_ptr<NodePin> openLidCommandPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Open Lid Command", NodePinFlags_DisableDataField);
 	std::shared_ptr<NodePin> lowerPlatformCommandPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Lower Platform Commmand", NodePinFlags_DisableDataField);
 	std::shared_ptr<NodePin> raisePlatformCommandPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Raise Platform Command", NodePinFlags_DisableDataField);
+
+	std::shared_ptr<AnimatableParameter> targetStateParameter;
+	std::shared_ptr<AnimatableParameter> targetIntParameter;
+	std::shared_ptr<AnimatableParameter> dummyRealParameter;
+	std::shared_ptr<AnimatableParameter> dummyVec2Parameter;
+	std::shared_ptr<AnimatableParameter> dummyVec3Parameter;
+
+	std::vector<StateParameterValue> states = {
+		{0, "Shut", "Shut"},
+		{1, "Open", "Open"},
+		{2, "Lifted", "Lifted"}
+	};
 
 	bool hoodShut = false;
 	bool hoodOpen = false;

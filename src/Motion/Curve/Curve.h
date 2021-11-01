@@ -1,10 +1,11 @@
 #pragma once
 
+#include "Motion/MotionTypes.h"
+
 namespace Motion {
 
 	struct Point;
 	class Interpolation;
-	struct InterpolationType;
 	class Curve;
 
 	struct Point {
@@ -25,23 +26,9 @@ namespace Motion {
 		std::shared_ptr<Interpolation> outInterpolation;
 	};
 
-	struct InterpolationType {
-		enum class Type {
-			NONE,
-			LINEAR,
-			BEZIER,
-			KINEMATIC
-		};
-		Type type;
-		const char displayName[64];
-		const char saveName[64];
-	};
-	std::vector<InterpolationType>& getInterpolationTypes();
-	InterpolationType* getInterpolationType(InterpolationType::Type t);
-	InterpolationType* getInterpolationType(const char* saveName);
-
 	class Interpolation {
 	public:
+
 		InterpolationType::Type type;
 		std::shared_ptr<Point> inPoint;
 		std::shared_ptr<Point> outPoint;
@@ -88,6 +75,8 @@ namespace Motion {
 		double getLength();
 		bool isTimeInsideCurve(double time);
 		std::shared_ptr<Point> getPointAtTime(double time);
+
+		std::vector<SequenceType::Type> getCompatibleSequenceTypes();
 	};
 
 

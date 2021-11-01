@@ -12,7 +12,7 @@ namespace Motion {
 		std::shared_ptr<Point> output = std::make_shared<Point>();
 		output->time = time;
 		switch (type) {
-			case InterpolationType::Type::NONE:
+			case InterpolationType::Type::STEP:
 				output->position = inPoint->position;
 				break;
 			case InterpolationType::Type::LINEAR:
@@ -21,7 +21,7 @@ namespace Motion {
 			case InterpolationType::Type::BEZIER:
 				output->position = inPoint->position;
 				break;
-			case InterpolationType::Type::KINEMATIC: {
+			case InterpolationType::Type::TRAPEZOIDAL: {
 				if (time < inTime) {
 					output->position = inPosition;
 					output->velocity = inVelocity;
@@ -130,41 +130,28 @@ namespace Motion {
 		}
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	std::vector<InterpolationType> interpolationTypes = {
-		{InterpolationType::Type::NONE,			"None", "None"},
-		{InterpolationType::Type::LINEAR ,		"Linear", "Linear"},
-		{InterpolationType::Type::BEZIER,		"Bezier", "Bezier"},
-		{InterpolationType::Type::KINEMATIC,	"Kinematic", "Kinematic"},
-	};
-
-	std::vector<InterpolationType>& getInterpolationTypes() {
-		return interpolationTypes;
-	}
-	InterpolationType* getInterpolationType(InterpolationType::Type t) {
-		for (auto& interpolation : interpolationTypes) {
-			if (t == interpolation.type) return &interpolation;
+	std::vector<SequenceType::Type> Curve::getCompatibleSequenceTypes() {
+		std::vector<SequenceType::Type> output;
+		switch (interpolationType) {
+			case InterpolationType::Type::STEP:
+				output.push_back(SequenceType::Type::STEP_MOVE);
+				output.push_back(SequenceType::Type::ANIMATED_MOVE);
+				break;
+			case InterpolationType::Type::LINEAR:
+				output.push_back(SequenceType::Type::TIMED_MOVE);
+				output.push_back(SequenceType::Type::ANIMATED_MOVE);
+				break;
+			case InterpolationType::Type::BEZIER:
+				output.push_back(SequenceType::Type::TIMED_MOVE);
+				output.push_back(SequenceType::Type::ANIMATED_MOVE);
+				break;
+			case InterpolationType::Type::TRAPEZOIDAL:
+				output.push_back(SequenceType::Type::TIMED_MOVE);
+				output.push_back(SequenceType::Type::VELOCITY_MOVE);
+				output.push_back(SequenceType::Type::ANIMATED_MOVE);
+				break;
 		}
-		return nullptr;
-	}
-	InterpolationType* getInterpolationType(const char* saveName) {
-		for (auto& interpolation : interpolationTypes) {
-			if (strcmp(saveName, interpolation.saveName) == 0) return &interpolation;
-		}
-		return nullptr;
+		return output;
 	}
 
 };

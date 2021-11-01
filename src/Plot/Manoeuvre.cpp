@@ -1,11 +1,11 @@
 #include <pch.h>
 
 #include "Manoeuvre.h"
-#include "Motion/Machine/ParameterSequence.h"
+#include "Motion/ParameterSequence.h"
 
 
 void Manoeuvre::addParameter(std::shared_ptr<AnimatableParameter>& parameter) {
-	std::shared_ptr<ParameterSequence> parameterSequence = std::make_shared<ParameterSequence>(parameter, SequenceType::Type::SIMPLE_TIMED_MOVE);
+	std::shared_ptr<ParameterSequence> parameterSequence = std::make_shared<ParameterSequence>(parameter);
 	parameterSequences.push_back(parameterSequence);
 }
 

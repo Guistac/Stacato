@@ -10,7 +10,10 @@
 #include "Environnement/Environnement.h"
 #include "Motion/Machine/Machine.h"
 #include "Motion/Machine/AnimatableParameter.h"
-#include "Plot/ParameterSequence.h"
+#include "Motion/ParameterSequence.h"
+#include "Gui/Framework/Colors.h"
+#include "Gui/Framework/Fonts.h"
+#include "Gui/Utilities/CustomWidgets.h"
 
 void Manoeuvre::listGui() {
 
@@ -42,101 +45,152 @@ void Manoeuvre::editGui() {
 	ImGui::PopFont();
 	ImGui::Separator();
 
-
-	if (ImGui::Button("Add Parameter")) ImGui::OpenPopup("ManoeuvreParameterAdder");
-	if (ImGui::BeginPopup("ManoeuvreParameterAdder")){
-
-		for (auto& machine : Environnement::getMachines()) {
-			if (ImGui::BeginMenu(machine->getName())) {
-				for (auto& parameter : machine->animatableParameters) {
-					bool isSelected = hasParameter(parameter);
-					if (ImGui::MenuItem(parameter->name, nullptr, isSelected)) {
-						if (!isSelected) addParameter(parameter);
-						else removeParameter(parameter);
-					}
-				}
-				ImGui::EndMenu();
-			}
-		}
-
-		ImGui::EndPopup();
-	}
-
 	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit;
 
-	if (ImGui::BeginTable("##parameters", 9, tableFlags)) {
-	
+	if (ImGui::BeginTable("##parameters", 13, tableFlags)) {
+		
+		ImGui::TableSetupColumn("Manage");
 		ImGui::TableSetupColumn("Machine");
 		ImGui::TableSetupColumn("Parameter");
-		ImGui::TableSetupColumn("Sequence Type");
+		ImGui::TableSetupColumn("Interpolation");
+		ImGui::TableSetupColumn("Movement Type");
+		ImGui::TableSetupColumn("Chain");
+		ImGui::TableSetupColumn("Origin");
 		ImGui::TableSetupColumn("Target");
 		ImGui::TableSetupColumn("Constraint");
 		ImGui::TableSetupColumn("Time Offset");
 		ImGui::TableSetupColumn("Ramp In");
-		ImGui::TableSetupColumn("Copy Ramp");
+		ImGui::TableSetupColumn("=");
 		ImGui::TableSetupColumn("Ramp Out");
+
 		ImGui::TableHeadersRow();
 
-		if (parameterSequences.empty()) {
-			ImGui::TableNextRow();
-			ImGui::TableSetColumnIndex(0);
-			ImGui::Text("No Parameters");
-		}
+		std::shared_ptr<ParameterSequence> removedSequence = nullptr;
+		std::shared_ptr<ParameterSequence> movedUpSequence = nullptr;
+		std::shared_ptr<ParameterSequence> movedDownSequence = nullptr;
 
 		for (auto& parameterSequence : parameterSequences) {
 
 			ImGui::PushID(parameterSequence->parameter->name);
 			ImGui::PushID(parameterSequence->parameter->machine->getName());
 
-			ImGui::TableNextRow(ImGuiTableRowFlags_None, ImGui::GetTextLineHeight()*5.0);
+			ImGui::TableNextRow(ImGuiTableRowFlags_None);
 
 			ImGui::TableSetColumnIndex(0);
-			ImGui::Text(parameterSequence->parameter->machine->getName());
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.1));
+			if (buttonCross("##remove")) removedSequence = parameterSequence;
+			ImGui::SameLine();
+			bool disableMoveUp = parameterSequence == parameterSequences.front();
+			if(disableMoveUp) BEGIN_DISABLE_IMGUI_ELEMENT
+			if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpSequence = parameterSequence;
+			if(disableMoveUp) END_DISABLE_IMGUI_ELEMENT
+			ImGui::SameLine();
+			bool disableMoveDown = parameterSequence == parameterSequences.back();
+			if(disableMoveDown) BEGIN_DISABLE_IMGUI_ELEMENT
+			if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownSequence = parameterSequence;
+			if(disableMoveDown) END_DISABLE_IMGUI_ELEMENT
+			ImGui::PopStyleVar();
+
 			ImGui::TableSetColumnIndex(1);
-			ImGui::Text(parameterSequence->parameter->name);
+			ImGui::Text(parameterSequence->parameter->machine->getName());
+			
 			ImGui::TableSetColumnIndex(2);
-			if (ImGui::BeginCombo("##SequenceTypeSelector", getSequenceType(parameterSequence->type)->displayName)) {
-				for (auto& sequenceType : getSequenceTypes()) {
-					if (ImGui::Selectable(sequenceType.displayName, parameterSequence->type == sequenceType.type)) {
-						parameterSequence->type = sequenceType.type;
-						//TODO: Switch sequence type
-					}
-				}
-				ImGui::EndCombo();
-			}
-			if(parameterSequence->type == SequenceType::Type::COMPLEX_ANIMATED_MOVE) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::Text(parameterSequence->parameter->name);
+
 			ImGui::TableSetColumnIndex(3);
-			ImGui::InputDouble("##target", &parameterSequence->target, 0.0, 0.0, "%.3f u");
-			if (parameterSequence->type != SequenceType::Type::COMPLEX_ANIMATED_MOVE) {
-				ImGui::TableSetColumnIndex(4);
-				switch (parameterSequence->type) {
-					case SequenceType::Type::SIMPLE_TIMED_MOVE:
-						ImGui::InputDouble("##constraint", &parameterSequence->constraint, 0.0, 0.0, "%.3f s");
-						break;
-					case SequenceType::Type::SIMPLE_VELOCITY_MOVE:
-						ImGui::InputDouble("##constraint", &parameterSequence->constraint, 0.0, 0.0, "%.3f u/s");
-						break;
-					default:
-						break;
-				}
-				ImGui::TableSetColumnIndex(5);
-				ImGui::InputDouble("##timeOffset", &parameterSequence->offsetTime, 0.0, 0.0, "%.3f s");
-				ImGui::TableSetColumnIndex(6);
-				ImGui::InputDouble("##rampIn", &parameterSequence->rampIn, 0.0, 0.0, "%.3f u");
-				ImGui::TableSetColumnIndex(7);
-				ImGui::Checkbox("##rampEqual", &parameterSequence->rampEqual);
-				ImGui::TableSetColumnIndex(8);
-				if (parameterSequence->rampEqual) BEGIN_DISABLE_IMGUI_ELEMENT
-					ImGui::InputDouble("##rampOut", &parameterSequence->rampOut, 0.0, 0.0, "%.3f u");
-				if (parameterSequence->rampEqual) END_DISABLE_IMGUI_ELEMENT
-			}
-			if(parameterSequence->type == SequenceType::Type::COMPLEX_ANIMATED_MOVE) END_DISABLE_IMGUI_ELEMENT
+			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
+			parameterSequence->interpolationTypeSelectorGui();
+
+			ImGui::TableSetColumnIndex(4);
+			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 9.0);
+			parameterSequence->sequenceTypeSelectorGui();
+
+			ImGui::TableSetColumnIndex(5);
+			parameterSequence->chainPreviousTargetCheckboxGui();
+
+			ImGui::TableSetColumnIndex(6);
+			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+			parameterSequence->originInputGui();
+
+			ImGui::TableSetColumnIndex(7);
+			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+			parameterSequence->targetInputGui();
+
+			ImGui::TableSetColumnIndex(8);
+			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+			parameterSequence->constraintInputGui();
+
+			ImGui::TableSetColumnIndex(9);
+			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+			parameterSequence->timeOffsetInputGui();
+
+			ImGui::TableSetColumnIndex(10);
+			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+			parameterSequence->rampIntInputGui();
+
+			ImGui::TableSetColumnIndex(11);
+			parameterSequence->equalRampsCheckboxGui();
+
+			ImGui::TableSetColumnIndex(12);
+			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+			parameterSequence->rampOutInputGui();			
 
 			ImGui::PopID();
 			ImGui::PopID();
-			
 		}
 
+		ImGui::TableNextRow();
+
+		ImGui::TableSetColumnIndex(0);
+		if (ImGui::Button("Add Parameter")) ImGui::OpenPopup("ManoeuvreParameterAdder");
+		if (ImGui::BeginPopup("ManoeuvreParameterAdder")) {
+
+			for (auto& machine : Environnement::getMachines()) {
+				if (ImGui::BeginMenu(machine->getName())) {
+					for (auto& parameter : machine->animatableParameters) {
+						bool isSelected = hasParameter(parameter);
+						if (ImGui::MenuItem(parameter->name, nullptr, isSelected)) {
+							if (!isSelected) addParameter(parameter);
+							else removeParameter(parameter);
+						}
+					}
+					ImGui::EndMenu();
+				}
+			}
+
+			ImGui::EndPopup();
+		}
+
+
+		if (removedSequence) removeParameter(removedSequence->parameter);
+		else if (movedUpSequence) {
+			int oldIndex;
+			for (int i = 0; i < parameterSequences.size(); i++) {
+				if (parameterSequences[i] == movedUpSequence) {
+					oldIndex = i;
+					break;
+				}
+			}
+			int newIndex = oldIndex - 1;
+			if (newIndex >= 0) {
+				parameterSequences.erase(parameterSequences.begin() + oldIndex);
+				parameterSequences.insert(parameterSequences.begin() + newIndex, movedUpSequence);
+			}
+		}
+		else if (movedDownSequence) {
+			int oldIndex;
+			for (int i = 0; i < parameterSequences.size(); i++) {
+				if (parameterSequences[i] == movedDownSequence) {
+					oldIndex = i;
+					break;
+				}
+			}
+			int newIndex = oldIndex + 1;
+			if (newIndex < parameterSequences.size()) {
+				parameterSequences.erase(parameterSequences.begin() + oldIndex);
+				parameterSequences.insert(parameterSequences.begin() + newIndex, movedDownSequence);
+			}
+		}
 
 		ImGui::EndTable();
 	}

@@ -3,7 +3,7 @@
 #include "NodeGraph/Node.h"
 #include "Motion/Subdevice.h"
 #include "Motion/MotionTypes.h"
-#include "Motion/Curves/Curve.h"
+#include "Motion/Curve/Curve.h"
 #include "Utilities/CircularBuffer.h"
 
 

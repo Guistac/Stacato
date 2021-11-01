@@ -2,6 +2,7 @@
 
 #include "HoodedLiftStateMachine.h"
 #include "Motion/Subdevice.h"
+#include "Motion/Machine/AnimatableParameter.h"
 
 void HoodedLiftStateMachine::assignIoData() {
 	addIoData(gpioDeviceLink);
@@ -19,6 +20,18 @@ void HoodedLiftStateMachine::assignIoData() {
 	addIoData(openLidCommandPin);
 	addIoData(lowerPlatformCommandPin);
 	addIoData(raisePlatformCommandPin);
+
+	std::shared_ptr<Machine> thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
+	targetStateParameter = std::make_shared<AnimatableParameter>("State", thisMachine, &states);
+	animatableParameters.push_back(targetStateParameter);
+	targetIntParameter = std::make_shared<AnimatableParameter>("Int Test", thisMachine, ParameterDataType::INTEGER_PARAMETER);
+	animatableParameters.push_back(targetIntParameter);
+	dummyRealParameter = std::make_shared<AnimatableParameter>("Real Test", thisMachine, ParameterDataType::REAL_PARAMETER);
+	animatableParameters.push_back(dummyRealParameter);
+	dummyVec2Parameter = std::make_shared<AnimatableParameter>("Vec2 Test", thisMachine, ParameterDataType::VECTOR_2D_PARAMETER);
+	animatableParameters.push_back(dummyVec2Parameter);
+	dummyVec3Parameter = std::make_shared<AnimatableParameter>("Vec3 Test", thisMachine, ParameterDataType::VECTOR_3D_PARAMETER);
+	animatableParameters.push_back(dummyVec3Parameter);
 }
 
 void HoodedLiftStateMachine::process() {

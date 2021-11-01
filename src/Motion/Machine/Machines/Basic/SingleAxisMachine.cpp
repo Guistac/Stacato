@@ -9,7 +9,7 @@
 void SingleAxisMachine::assignIoData() {
 	addIoData(axisLink);
 	std::shared_ptr<Machine> thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
-	positionParameter = std::make_shared<AnimatableParameter>("Position", thisMachine, AnimatableParameter::Type::KINEMATIC_POSITION_CURVE);
+	positionParameter = std::make_shared<AnimatableParameter>("Position", thisMachine, ParameterDataType::KINEMATIC_POSITION_CURVE);
 	animatableParameters.push_back(positionParameter);
 	//TODO: initialize animatable parameter
 }

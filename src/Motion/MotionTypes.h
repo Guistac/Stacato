@@ -177,3 +177,49 @@ struct HomingError {
 	const char displayName[64];
 };
 HomingError* getHomingError(Homing::Error e);
+
+
+enum class ParameterDataType {
+	BOOLEAN_PARAMETER,
+	INTEGER_PARAMETER,
+	STATE_PARAMETER,
+	REAL_PARAMETER,
+	VECTOR_2D_PARAMETER,
+	VECTOR_3D_PARAMETER,
+	KINEMATIC_POSITION_CURVE,
+	KINEMATIC_2D_POSITION_CURVE,
+	KINEMATIC_3D_POSITION_CURVE
+};
+
+
+struct SequenceType {
+	enum class Type {
+		STEP_MOVE,
+		TIMED_MOVE,
+		VELOCITY_MOVE,
+		ANIMATED_MOVE
+	};
+	Type type;
+	const char displayName[64];
+	const char saveName[64];
+};
+
+std::vector<SequenceType>& getSequenceTypes();
+SequenceType* getSequenceType(SequenceType::Type t);
+SequenceType* getSequenceType(const char* saveName);
+
+struct InterpolationType {
+	enum class Type {
+		STEP,
+		LINEAR,
+		TRAPEZOIDAL,
+		BEZIER
+	};
+	Type type;
+	const char displayName[64];
+	const char saveName[64];
+};
+
+std::vector<InterpolationType>& getInterpolationTypes();
+InterpolationType* getInterpolationType(InterpolationType::Type t);
+InterpolationType* getInterpolationType(const char* saveName);

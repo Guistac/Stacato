@@ -1,32 +1,71 @@
 #pragma once
 
+#include "Motion/MotionTypes.h"
+
 class Machine;
-class CurvePoint;
+
+struct StateParameterValue {
+	int integerEquivalent;
+	const char displayName[64];
+	const char saveName[64];
+};
+
+struct AnimatableParameterValue {
+public:
+
+	AnimatableParameterValue() {}
+	AnimatableParameterValue(ParameterDataType t) { type = t; }
+	AnimatableParameterValue(bool v) { boolValue = v; type = ParameterDataType::BOOLEAN_PARAMETER; }
+	AnimatableParameterValue(int v) { integerValue = v; type = ParameterDataType::INTEGER_PARAMETER; }
+	AnimatableParameterValue(StateParameterValue* v, std::vector<StateParameterValue>* o) { stateValue = v; stateValues = o; type = ParameterDataType::STATE_PARAMETER; }
+	AnimatableParameterValue(double v) { realValue = v; type = ParameterDataType::REAL_PARAMETER; }
+	AnimatableParameterValue(glm::vec2 v) { vector2value = v; type = ParameterDataType::VECTOR_2D_PARAMETER; }
+	AnimatableParameterValue(glm::vec3 v) { vector3value = v; type = ParameterDataType::VECTOR_2D_PARAMETER; }
+	ParameterDataType type;
+
+	void inputFieldGui();
+
+	bool boolValue = false;
+	int integerValue = false;
+	StateParameterValue* stateValue = nullptr;
+	std::vector<StateParameterValue>* stateValues = nullptr;
+	double realValue = false;
+	glm::vec2 vector2value;
+	glm::vec3 vector3value;
+};
+
 
 class AnimatableParameter {
 public:
 
-	enum class Type {
-		BOOLEAN_PARAMETER,
-		INTEGER_PARAMETER,
-		REAL_PARAMETER,
-		VECTOR_2D_PARAMETER,
-		VECTOR_3D_PARAMETER,
-		KINEMATIC_POSITION_CURVE,
-		KINEMATIC_2D_POSITION_CURVE,
-		KINEMATIC_3D_POSITION_CURVE
-	};
-
-	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, Type datat) : machine(mach), dataType(datat) {
+	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, ParameterDataType datat) : machine(mach), dataType(datat) {
 		strcpy(name, nm);
+		lowLimit.type = dataType;
+		highLimit.type = dataType;
+		velocityLimit.type = dataType;
+		accelerationLimit.type = dataType;
+	}
+
+	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, std::vector<StateParameterValue>* stateValues) : machine(mach), stateParameterValues(stateValues) {
+		strcpy(name, nm);
+		dataType = ParameterDataType::STATE_PARAMETER;
 	}
 
 	char name[128];
-	Type dataType;
+	ParameterDataType dataType;
 	std::shared_ptr<Machine> machine;
 
+	//general parameter limits
+	AnimatableParameterValue lowLimit;
+	AnimatableParameterValue highLimit;
 
+	//limits for trapezoidal profiles
+	AnimatableParameterValue velocityLimit;
+	AnimatableParameterValue accelerationLimit;
 
+	std::vector<InterpolationType::Type> getCompatibleInterpolationTypes();
 
-	//TODO: constraint specific data (limits, kinematic contraints, ...)
+	std::vector<StateParameterValue>* stateParameterValues;
+
+	//TODO: parameter units
 };

@@ -1,6 +1,6 @@
 #include "Motion/Machine/Machine.h"
 
-#include "Motion/Curves/Curve.h"
+#include "Motion/Curve/Curve.h"
 #include "Motion/MotionTypes.h"
 
 class SingleAxisMachine : public Machine{

@@ -2,7 +2,7 @@
 
 #include "Gui.h"
 
-#include "Motion/Curves/Curve.h"
+#include "Motion/Curve/Curve.h"
 
 #include "Utilities/CircularBuffer.h"
 
