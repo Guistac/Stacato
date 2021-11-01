@@ -2,7 +2,7 @@
 
 #include "Curve.h"
 
-namespace Motion {
+namespace Motion::TrapezoidalInterpolation {
 
 	bool getTimeConstrainedInterpolation(std::shared_ptr<Point>& startPoint, std::shared_ptr<Point>& endPoint, double maxVelocity, Interpolation& output) {
 

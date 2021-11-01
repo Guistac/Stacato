@@ -72,24 +72,51 @@ namespace Motion {
 	}
 
 	void Curve::addPoint(std::shared_ptr<Point> point) {
-		for (auto& interpolation : interpolations) {
-			if (interpolation->isTimeInside(point->time)) {
+		points.push_back(point);
+	}
 
-
-
+	void Curve::removePoint(std::shared_ptr<Point> point) {
+		for (int i = 0; i < points.size(); i++) {
+			if (points[i] == point) {
+				points.erase(points.begin() + i);
+				break;
 			}
 		}
 	}
 
-	void Curve::removePoint(std::shared_ptr<Point> point) {
-	
-	
+	void Curve::removeAllPoints() {
+		points.clear();
+		interpolations.clear();
 	}
 
 	void Curve::refresh() {
-	
-		//reorder points based on their timeand recalculate interpolation values
-	
+		interpolations.clear();
+		auto sortfunction = [](std::shared_ptr<Motion::Point>& a, std::shared_ptr<Motion::Point>& b) -> bool {
+			return a->time > b->time;
+		};
+		std::sort(points.begin(), points.end(), sortfunction);
+		for (int i = 0; i < points.size() - 1; i++) {
+			std::shared_ptr<Motion::Interpolation> interpolation = std::make_shared<Motion::Interpolation>();
+			std::shared_ptr<Motion::Point>& inPoint = points[i];
+			std::shared_ptr<Motion::Point>& outPoint = points[i + 1];
+			switch (interpolationType) {
+				case InterpolationType::Type::STEP:
+					//nothing needs to be done here
+					break;
+				case InterpolationType::Type::LINEAR:
+					//notsupported yet:
+					break;
+				case InterpolationType::Type::BEZIER:
+					//not supported yet:
+					break;
+				case InterpolationType::Type::TRAPEZOIDAL:
+					Motion::TrapezoidalInterpolation::getTimeConstrainedInterpolation(inPoint, outPoint, 100000, *interpolation);
+					break;
+			}
+			interpolation->inPoint = inPoint;
+			interpolation->outPoint = outPoint;
+			interpolations.push_back(interpolation);
+		}
 	}
 
 	std::shared_ptr<Point> Curve::getStart() {

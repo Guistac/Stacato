@@ -525,7 +525,7 @@ void PositionControlledAxis::moveToPositionWithVelocity(double position_axisUnit
 	else if (position_axisUnits < maxNegativeDeviation_axisUnits && enableNegativeLimit) position_axisUnits = maxNegativeDeviation_axisUnits;
 	auto startPoint= std::make_shared<Motion::Point>(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
 	auto endPoint = std::make_shared<Motion::Point>(0.0, position_axisUnits, acceleration_axisUnits, 0.0);
-	if (Motion::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, velocity_axisUnits, targetInterpolation)) {
+	if (Motion::TrapezoidalInterpolation::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, velocity_axisUnits, targetInterpolation)) {
 		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
 		manualVelocityTarget_axisUnitsPerSecond = 0.0;
 	}
@@ -539,7 +539,7 @@ void PositionControlledAxis::moveToPositionInTime(double position_axisUnits, dou
 	else if (position_axisUnits < maxNegativeDeviation_axisUnits && enableNegativeLimit) position_axisUnits = maxNegativeDeviation_axisUnits;
 	auto startPoint = std::make_shared<Motion::Point>(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
 	auto endPoint = std::make_shared<Motion::Point>(currentProfilePointTime_seconds + movementTime_seconds, position_axisUnits, acceleration_axisUnits, 0.0);
-	if (Motion::getTimeConstrainedInterpolation(startPoint, endPoint, velocityLimit_axisUnitsPerSecond, targetInterpolation)) {
+	if (Motion::TrapezoidalInterpolation::getTimeConstrainedInterpolation(startPoint, endPoint, velocityLimit_axisUnitsPerSecond, targetInterpolation)) {
 		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
 		manualVelocityTarget_axisUnitsPerSecond = 0.0;
 	}

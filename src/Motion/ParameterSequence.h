@@ -43,12 +43,26 @@ public:
 	}
 
 	std::shared_ptr<AnimatableParameter> parameter;
-	std::shared_ptr<Motion::Curve> curve;
-
 	SequenceType::Type sequenceType;
-	bool originIsPreviousTarget = false;
-	bool rampsAreEqual = false;
+	InterpolationType::Type interpolationType;
 
+	std::shared_ptr<Motion::Curve> curve;
+	std::shared_ptr<Motion::Curve> curveY; //for 2D parameters
+	std::shared_ptr<Motion::Curve> curveZ; //for 3D parameters
+	void updateCurve();
+
+	//points for simple movement sequences (not manual animated moves)
+	std::shared_ptr<Motion::Point> startPoint = std::make_shared<Motion::Point>();
+	std::shared_ptr<Motion::Point> startPointY = std::make_shared<Motion::Point>();
+	std::shared_ptr<Motion::Point> startPointZ = std::make_shared<Motion::Point>();
+	std::shared_ptr<Motion::Point> endPoint = std::make_shared<Motion::Point>();
+	std::shared_ptr<Motion::Point> endPointY = std::make_shared<Motion::Point>();
+	std::shared_ptr<Motion::Point> endPointZ = std::make_shared<Motion::Point>();
+	std::shared_ptr<Motion::Interpolation> sequenceInterpolation = std::make_shared<Motion::Interpolation>();
+	std::shared_ptr<Motion::Interpolation> sequenceInterpolationY = std::make_shared<Motion::Interpolation>();
+	std::shared_ptr<Motion::Interpolation> sequenceInterpolationZ = std::make_shared<Motion::Interpolation>();
+
+	bool originIsPreviousTarget = false;
 	AnimatableParameterValue origin;
 	AnimatableParameterValue target;
 	double velocityConstraint = 0.0;
@@ -56,6 +70,7 @@ public:
 	double timeOffset = 0.0;
 	double rampIn = 0.0;
 	double rampOut = 0.0;
+	bool rampsAreEqual = false;
 
 
 	void sequenceTypeSelectorGui();

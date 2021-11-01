@@ -56,18 +56,20 @@ namespace Motion {
 		double rampOutStartTime = 0.0;		//time of deceleration start
 
 		bool Interpolation::isTimeInside(double time);
-		std::shared_ptr<Point> Interpolation::getPointAtTime(double time);
+		std::shared_ptr<Point> getPointAtTime(double time);
 		double getProgressAtTime(double time);
 	};
 
 	class Curve {
 	public:
-		std::vector<std::shared_ptr<Interpolation>> interpolations;
+		std::vector<std::shared_ptr<Point>> points;
 		InterpolationType::Type interpolationType;
+		std::vector<std::shared_ptr<Interpolation>> interpolations;
 
 		void getPoints(std::vector<std::shared_ptr<Point>>& output);
 		void addPoint(std::shared_ptr<Point> point);
 		void removePoint(std::shared_ptr<Point> point);
+		void removeAllPoints();
 		void refresh();
 
 		std::shared_ptr<Point> getStart();
@@ -81,17 +83,19 @@ namespace Motion {
 
 
 
+	namespace TrapezoidalInterpolation {
 
-	//KINEMATIC POSITION INTERPOLATION
+		//KINEMATIC POSITION INTERPOLATION
 
-	//returns a profile using the position, velocity, acceleration and time data of the two specified points, while respecting the provided motion constraints
-	bool getTimeConstrainedInterpolation(std::shared_ptr<Point>& startPoint, std::shared_ptr<Point>& endPoint, double maxVelocity, Interpolation& output);
+		//returns a profile using the position, velocity, acceleration and time data of the two specified points, while respecting the provided motion constraints
+		bool getTimeConstrainedInterpolation(std::shared_ptr<Point>& startPoint, std::shared_ptr<Point>& endPoint, double maxVelocity, Interpolation& output);
 
-	//return a profile using the position, velocity and acceleration values of the two specified points, using the specified velocity as a target while respecting the provided motion constraints
-	bool getVelocityContrainedInterpolations(std::shared_ptr<Point>& startPoint, std::shared_ptr<Point>& endPoint, double velocity, std::vector<Interpolation>& output);
+		//return a profile using the position, velocity and acceleration values of the two specified points, using the specified velocity as a target while respecting the provided motion constraints
+		bool getVelocityContrainedInterpolations(std::shared_ptr<Point>& startPoint, std::shared_ptr<Point>& endPoint, double velocity, std::vector<Interpolation>& output);
 
-	//return a the fastest profile using the position, velocity and acceleration values of the two specified points, while respecting those motion constraints
-	bool getFastestVelocityConstrainedInterpolation(std::shared_ptr<Point>& startPoint, std::shared_ptr<Point>& endPoint, double velocity, Interpolation& output);
+		//return a the fastest profile using the position, velocity and acceleration values of the two specified points, while respecting those motion constraints
+		bool getFastestVelocityConstrainedInterpolation(std::shared_ptr<Point>& startPoint, std::shared_ptr<Point>& endPoint, double velocity, Interpolation& output);
 
+	}
 
 }

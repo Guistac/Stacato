@@ -95,7 +95,7 @@ void sequencer() {
 	clamp(endPoint->acceleration, 0.0, maxAcceleration);
 	
 	Motion::Interpolation profile;
-	bool hasSolution = Motion::getTimeConstrainedInterpolation(startPoint, endPoint, maxVelocity, profile);
+	bool hasSolution = Motion::TrapezoidalInterpolation::getTimeConstrainedInterpolation(startPoint, endPoint, maxVelocity, profile);
 
 	int pointCount = 2000;
 	double deltaT = (profile.outTime - profile.inTime) / pointCount;
