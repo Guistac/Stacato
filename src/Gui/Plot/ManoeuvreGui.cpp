@@ -53,10 +53,10 @@ void Manoeuvre::editGui() {
 		ImGui::TableSetupColumn("Machine");
 		ImGui::TableSetupColumn("Parameter");
 		ImGui::TableSetupColumn("Interpolation");
-		ImGui::TableSetupColumn("Movement Type");
+		ImGui::TableSetupColumn("Movement");
 		ImGui::TableSetupColumn("Chain");
-		ImGui::TableSetupColumn("Origin");
-		ImGui::TableSetupColumn("Target");
+		ImGui::TableSetupColumn("Start");
+		ImGui::TableSetupColumn("End");
 		ImGui::TableSetupColumn("Constraint");
 		ImGui::TableSetupColumn("Time Offset");
 		ImGui::TableSetupColumn("Ramp In");
@@ -102,7 +102,7 @@ void Manoeuvre::editGui() {
 			parameterSequence->interpolationTypeSelectorGui();
 
 			ImGui::TableSetColumnIndex(4);
-			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 9.0);
+			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.5);
 			parameterSequence->sequenceTypeSelectorGui();
 
 			ImGui::TableSetColumnIndex(5);

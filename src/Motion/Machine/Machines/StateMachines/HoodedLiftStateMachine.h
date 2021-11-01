@@ -23,11 +23,7 @@ public:
 	std::shared_ptr<NodePin> lowerPlatformCommandPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Lower Platform Commmand", NodePinFlags_DisableDataField);
 	std::shared_ptr<NodePin> raisePlatformCommandPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Raise Platform Command", NodePinFlags_DisableDataField);
 
-	std::shared_ptr<AnimatableParameter> targetStateParameter;
-	std::shared_ptr<AnimatableParameter> targetIntParameter;
-	std::shared_ptr<AnimatableParameter> dummyRealParameter;
-	std::shared_ptr<AnimatableParameter> dummyVec2Parameter;
-	std::shared_ptr<AnimatableParameter> dummyVec3Parameter;
+	std::shared_ptr<AnimatableParameter> stateParameter;
 
 	std::vector<StateParameterValue> states = {
 		{0, "Shut", "Shut"},
