@@ -6,7 +6,7 @@
 #include "Gui/Gui.h"
 
 bool VIPA_053_1EC01::isDeviceReady() {
-    return true;
+    return isStateOperational();
 }
 
 void VIPA_053_1EC01::enable() {
@@ -16,13 +16,18 @@ void VIPA_053_1EC01::disable() {
 }
 
 bool VIPA_053_1EC01::isEnabled() {
-    return true;
+    return isStateOperational();
 }
 
 void VIPA_053_1EC01::onDisconnection() {}
+
 void VIPA_053_1EC01::onConnection() {}
 
-void VIPA_053_1EC01::resetData() {}
+void VIPA_053_1EC01::resetData() {
+    gpioDevice->b_detected = false;
+    gpioDevice->b_online = false;
+    gpioDevice->b_ready = false;
+}
 
 void VIPA_053_1EC01::assignIoData() {
     //by default, this node only has one pin
@@ -227,6 +232,9 @@ void VIPA_053_1EC01::readInputs() {
             }
         }
     }
+    gpioDevice->b_detected = true;
+    gpioDevice->b_online = true;
+    gpioDevice->b_ready = isStateOperational();
 }
 
 

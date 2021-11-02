@@ -33,42 +33,44 @@ void HoodedLiftStateMachine::assignIoData() {
 
 void HoodedLiftStateMachine::process() {
 	
-	if (isGpioDeviceConnected()) updateGpioInSignals();
-	else {
-		liftLowered = false;
-		liftRaised = false;
-		hoodShut = false;
-		hoodOpen = false;
+	//update inputs signals & state machine
+	if (b_enabled || areGpioSignalsReady()) {
+		updateGpioInSignals();
+		if (hoodShut && !hoodOpen) {
+			if (liftLowered && !liftRaised) actualState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
+			else if (liftRaised && !liftLowered) actualState = MachineState::State::UNEXPECTED_STATE;
+			else if (!liftLowered && !liftRaised) actualState = MachineState::State::UNEXPECTED_STATE;
+			else if (liftLowered && liftRaised) actualState = MachineState::State::UNEXPECTED_STATE;
+		}
+		else if (hoodOpen && !hoodShut) {
+			if (liftLowered && !liftRaised) actualState = MachineState::State::LIFT_LOWERED_HOOD_OPEN;
+			else if (liftRaised && !liftLowered) actualState = MachineState::State::LIFT_RAISED_HOOD_OPEN;
+			else if (!liftLowered && !liftRaised) actualState = MachineState::State::LIFT_MOVING_HOOD_OPEN;
+			else if (liftLowered && liftRaised) actualState = MachineState::State::UNEXPECTED_STATE;
+		}
+		else if (!hoodOpen && !hoodShut) {
+			if (liftLowered && !liftRaised) actualState = MachineState::State::LIFT_LOWERED_HOOD_MOVING;
+			else if (liftRaised && !liftLowered) actualState = MachineState::State::UNEXPECTED_STATE;
+			else if (!liftLowered && !liftRaised) actualState = MachineState::State::UNKNOWN;
+			else if (liftLowered && liftRaised) actualState = MachineState::State::UNEXPECTED_STATE;
+		}
+		else if (hoodOpen && hoodShut) {
+			actualState = MachineState::State::UNEXPECTED_STATE;
+		}
 	}
 
-	if (hoodShut && !hoodOpen) {
-		if (liftLowered && !liftRaised) actualState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
-		else if (liftRaised && !liftLowered) actualState = MachineState::State::UNEXPECTED_STATE;
-		else if (!liftLowered && !liftRaised) actualState = MachineState::State::UNEXPECTED_STATE;
-		else if (liftLowered && liftRaised) actualState = MachineState::State::UNEXPECTED_STATE;
-	}
-	else if (hoodOpen && !hoodShut) {
-		if (liftLowered && !liftRaised) actualState = MachineState::State::LIFT_LOWERED_HOOD_OPEN;
-		else if (liftRaised && !liftLowered) actualState = MachineState::State::LIFT_RAISED_HOOD_OPEN;
-		else if (!liftLowered && !liftRaised) actualState = MachineState::State::LIFT_MOVING_HOOD_OPEN;
-		else if (liftLowered && liftRaised) actualState = MachineState::State::UNEXPECTED_STATE;
-	}
-	else if (!hoodOpen && !hoodShut) {
-		if (liftLowered && !liftRaised) actualState = MachineState::State::LIFT_LOWERED_HOOD_MOVING;
-		else if (liftRaised && !liftLowered) actualState = MachineState::State::UNEXPECTED_STATE;
-		else if (!liftLowered && !liftRaised) actualState = MachineState::State::UNKNOWN;
-		else if (liftLowered && liftRaised) actualState = MachineState::State::UNEXPECTED_STATE;
-	}
-	else if (hoodOpen && hoodShut) {
-		actualState = MachineState::State::UNEXPECTED_STATE;
-	}
-
+	//handle disabling condition
 	if (b_enabled) {
 		if (actualState == MachineState::State::UNEXPECTED_STATE) disable();
 		else if (actualState == MachineState::State::UNKNOWN) disable();
+		else if (emergencyStopActive) disable();
+		else if (!remoteControlEnabled) disable();
+		else if (liftMotorFuseBurned) disable();
+		else if (hoodMotorFuseBurned) disable();
 	}
 
-	if (b_enabled && actualState != requestedState) {
+	//update outputs signals
+	if (b_enabled) {
 		switch (requestedState) {
 			case MachineState::State::LIFT_LOWERED_HOOD_SHUT:
 				shutLid = true;
@@ -89,7 +91,9 @@ void HoodedLiftStateMachine::process() {
 				raisePlatform = true;
 				break;
 			default:
-				//this condition should never be hit, since the only requested states are the ones above
+				//in case a transition state is requested, we stop all movement
+				//the only case where this is possible is when the machine was activated while being in a transition case
+				//here we don't move until a selection to return to one of the fixed states is made
 				shutLid = false;
 				openLid = false;
 				lowerPlatform = false;
@@ -111,13 +115,19 @@ bool HoodedLiftStateMachine::isEnabled() {
 }
 
 bool HoodedLiftStateMachine::isReady() { 
-	if (!isGpioDeviceConnected()) return false;
-	if (!getGpioDevice()->isReady()) return false;
+	if (!areGpioSignalsReady()) return false;
+	else if (actualState == MachineState::State::UNEXPECTED_STATE) return false;
+	else if (actualState == MachineState::State::UNKNOWN) return false;
+	else if (!remoteControlEnabled) return false;
+	else if (hoodMotorFuseBurned) return false;
+	else if (liftMotorFuseBurned) return false;
+	else if (emergencyStopActive) return false;
+	return true;
 }
 
 void HoodedLiftStateMachine::enable() {
-	if (isReady()) {
-		requestedState = MachineState::State::UNKNOWN;
+	if (!isEnabled() && isReady()) {
+		requestedState = actualState;
 		b_enabled = true;
 	}
 }
@@ -156,6 +166,27 @@ void HoodedLiftStateMachine::updateGpioOutSignals() {
 	lowerPlatformCommandPin->set(lowerPlatform);
 	shutLidCommandPin->set(shutLid);
 	openLidCommandPin->set(openLid);
+}
+
+bool HoodedLiftStateMachine::areGpioSignalsReady() {
+	//device
+	if (!isGpioDeviceConnected()) return false;
+	if (!getGpioDevice()->isReady()) return false;
+	//inputs
+	if (!hoodOpenSignalPin->isConnected()) return false;
+	if (!hoodShutSignalPin->isConnected()) return false;
+	if (!liftRaisedSignalPin->isConnected()) return false;
+	if (!liftLoweredSignalPin->isConnected()) return false;
+	if (!emergencyStopSignalPin->isConnected()) return false;
+	if (!remoteControlEnabledSignalPin->isConnected()) return false;
+	if (!hoodMotorFuseSignalPin->isConnected()) return false;
+	if (!liftMotorFuseSignalPin->isConnected()) return false;
+	//outputs
+	if (!raisePlatformCommandPin->isConnected()) return false;
+	if (!lowerPlatformCommandPin->isConnected()) return false;
+	if (!shutLidCommandPin->isConnected()) return false;
+	if (!openLidCommandPin->isConnected()) return false;
+	return true;
 }
 
 bool HoodedLiftStateMachine::isMoving() { 

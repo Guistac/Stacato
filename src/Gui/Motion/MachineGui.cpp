@@ -38,6 +38,41 @@ void Machine::nodeSpecificGui() {
 	}
 }
 
+void Machine::powerControlGui() {
+	glm::vec2 buttonSize;
+	int buttonCount = 2;
+	buttonSize.x = (ImGui::GetContentRegionAvail().x - (buttonCount - 1) * ImGui::GetStyle().ItemSpacing.x) / buttonCount;
+	buttonSize.y = ImGui::GetTextLineHeight() * 2.0;
+
+	bool readyToEnable = isReady();
+
+	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+	if (isEnabled()) {
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+		ImGui::Button("Machine Enabled", buttonSize);
+	}
+	else if (readyToEnable) {
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+		ImGui::Button("Machine Ready", buttonSize);
+	}
+	else {
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+		ImGui::Button("Machine Not Ready", buttonSize);
+	}
+	ImGui::PopStyleColor();
+	ImGui::PopItemFlag();
+
+	ImGui::SameLine();
+	if (!readyToEnable) BEGIN_DISABLE_IMGUI_ELEMENT
+	if (isEnabled()) {
+		if (ImGui::Button("Disable Machine", buttonSize)) disable();
+	}
+	else {
+		if (ImGui::Button("Enable Machine", buttonSize)) enable();
+	}
+	if (!readyToEnable) END_DISABLE_IMGUI_ELEMENT
+}
+
 void Machine::miniatureGui() {
 
 	glm::vec2 miniatureSize(getMiniatureWidth(), ImGui::GetTextLineHeight() * 20.0);
@@ -104,7 +139,5 @@ void Machine::miniatureGui() {
 	ImGui::EndChild();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleVar(2);
-
-
 
 }

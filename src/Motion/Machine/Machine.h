@@ -35,6 +35,7 @@ public:
 	const char shortName[16] = "M-1";
 	const char* getShortName() { return shortName; }
 
+	void powerControlGui();
 	virtual void nodeSpecificGui();
 
 	virtual void controlsGui() = 0;
