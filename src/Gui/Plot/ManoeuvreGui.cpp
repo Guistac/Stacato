@@ -18,12 +18,19 @@
 void Manoeuvre::listGui() {
 
 	ImGui::PushFont(Fonts::robotoBold20);
+	float headerStripWidth = ImGui::CalcTextSize(name).x + ImGui::GetStyle().ItemSpacing.x;
+	glm::vec2 min = ImGui::GetWindowPos();
+	glm::vec2 max = min + glm::vec2(headerStripWidth, ImGui::GetWindowSize().y);
+	ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(Colors::darkGray), 10.0, ImDrawFlags_RoundCornersLeft);
+	ImGui::SameLine(ImGui::GetStyle().ItemSpacing.x / 2.0);
 	ImGui::Text(name);
 	ImGui::PopFont();
 
+
+
 	ImGui::SameLine();
 	ImGui::Text(description);
-
+	
 }
 
 

@@ -33,8 +33,8 @@ void mainWindow() {
 			machineListGui();
 			ImGui::EndTabItem();
 		}
-		if (ImGui::BeginTabItem("Manoeuvres")) {
-			manoeuvreListGui();
+		if (ImGui::BeginTabItem("Plot")) {
+			plotGui();
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Stage View")) {

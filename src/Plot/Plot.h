@@ -16,6 +16,8 @@ public:
 	bool save(const char* path);
 	bool load(const char* path);
 
+	void selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre);
+	std::shared_ptr<Manoeuvre> getSelectedManoeuvre();
 	void addManoeuvre();
 	void deleteSelectedManoeuvre();
 	void duplicateSelectedManoeuvre();

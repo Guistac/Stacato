@@ -7,8 +7,8 @@ class DraggableList {
 
 public:
 
-	bool beginList(const char* id, ImVec2 size, float verticalSpacing) {
-		if (ImGui::BeginChild(id, size, true) == false) {
+	bool beginList(const char* id, ImVec2 size, float verticalSpacing, bool borders = false) {
+		if (ImGui::BeginChild(id, size, borders) == false) {
 			ImGui::EndChild();
 			return false;
 		}
@@ -32,12 +32,17 @@ public:
 			itemIsDragging = false;
 			draggedItemIndex = -1;
 		}
+		itemsHaveBorders = borders;
+		if (!itemsHaveBorders) {
+			ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0);
+			ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 0);
+		}
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 8.0);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 8.0);
 		return true;
 	}
 
-	bool beginItem(ImVec2 size, bool selected = false) {
+	bool beginItem(ImVec2 size, bool selected = false, ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None) {
 		bool hovered = false;
 		if (items.size() < previousItems.size()) hovered = previousItems[items.size()].hovered;
 		if (hovered) {
@@ -68,7 +73,7 @@ public:
 			begunTooltip = true;
 		}
 		else {
-			begunChild = ImGui::BeginChild("Item", size, true);
+			begunChild = ImGui::BeginChild("Item", size, true, windowFlags);
 			currentItemPosition = ImGui::GetWindowPos();
 		}
 		currentItemSize = size;
@@ -154,6 +159,9 @@ public:
 				}
 			}
 		}
+		if (!itemsHaveBorders) {
+			ImGui::PopStyleVar(2);
+		}
 		ImGui::PopStyleVar(2);
 		ImGui::GetStyle().ItemSpacing.y = defaultVerticalItemSpacing;
 		ImGui::EndChild();
@@ -210,6 +218,8 @@ private:
 	bool itemDropped = false;
 	int droppedItemIndex = -1;
 	int dropPositionIndex = -1;
+
+	bool itemsHaveBorders;
 
 	struct DraggableItemInfo {
 		DraggableItemInfo(ImVec2 p, ImVec2 s, bool h) : position(p), size(s), center(ImVec2(0, 0)), hovered(h) {}

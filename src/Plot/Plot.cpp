@@ -6,6 +6,14 @@
 
 #include "Plot/Manoeuvre.h"
 
+void Plot::selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre) {
+	selectedManoeuvre = manoeuvre;
+}
+
+std::shared_ptr<Manoeuvre> Plot::getSelectedManoeuvre() {
+	return selectedManoeuvre;
+}
+
 void Plot::addManoeuvre() {
 	std::shared_ptr<Manoeuvre> newManoeuvre = std::make_shared<Manoeuvre>();
 	sprintf(newManoeuvre->name, "M-%i", (int)manoeuvres.size());
@@ -29,6 +37,7 @@ void Plot::deleteSelectedManoeuvre() {
 			}
 		}
 	}
+	selectedManoeuvre = nullptr;
 }
 
 void Plot::duplicateSelectedManoeuvre() {
