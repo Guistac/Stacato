@@ -84,24 +84,24 @@ void HoodedLiftStateMachine::controlsGui() {
 	ImGui::PopFont();
 
 	if (inputsAreValid) {
-		if (emergencyStopActive) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
-		else ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+		if (emergencyStopClear) ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+		else ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
 		ImGui::Button("Emergency Stop", quadButtonSize);
 		ImGui::PopStyleColor();
 		ImGui::SameLine();
-		if (remoteControlEnabled) ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-		else ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+		if (localControlEnabled) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+		else ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 		ImGui::Button("Remote Active", quadButtonSize);
 		ImGui::PopStyleColor();
 		ImGui::SameLine();
-		if (liftMotorFuseBurned) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+		if (liftMotorCircuitBreakerTripped) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
 		else ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-		ImGui::Button("Lift Motor Fuse", quadButtonSize);
+		ImGui::Button("Lift Motor Circuit Breaker", quadButtonSize);
 		ImGui::PopStyleColor();
 		ImGui::SameLine();
-		if (hoodMotorFuseBurned) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+		if (hoodMotorCircuitBreakerTripped) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
 		else ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-		ImGui::Button("Hood Motor Fuse", quadButtonSize);
+		ImGui::Button("Hood Motor Circuit Breaker", quadButtonSize);
 		ImGui::PopStyleColor();
 	}
 	else {

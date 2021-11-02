@@ -7,19 +7,19 @@
 void HoodedLiftStateMachine::assignIoData() {
 	addIoData(gpioDeviceLink);
 
-	addIoData(hoodShutSignalPin);
 	addIoData(hoodOpenSignalPin);
-	addIoData(liftLoweredSignalPin);
+	addIoData(hoodShutSignalPin);
 	addIoData(liftRaisedSignalPin);
-	addIoData(emergencyStopSignalPin);
-	addIoData(remoteControlEnabledSignalPin);
-	addIoData(hoodMotorFuseSignalPin);
-	addIoData(liftMotorFuseSignalPin);
+	addIoData(liftLoweredSignalPin);
+	addIoData(hoodMotorCircuitBreakerSignalPin);
+	addIoData(liftMotorCircuitBreakerSignalPin);
+	addIoData(emergencyStopClearSignalPin);
+	addIoData(localControlEnabledSignalPin);
 
-	addIoData(shutLidCommandPin);
-	addIoData(openLidCommandPin);
-	addIoData(lowerPlatformCommandPin);
-	addIoData(raisePlatformCommandPin);
+	addIoData(openHoodCommandPin);
+	addIoData(shutHoodCommandPin);
+	addIoData(raiseLiftCommandPin);
+	addIoData(lowerLiftCommandPin);
 
 	std::shared_ptr<Machine> thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
 	stateParameter = std::make_shared<AnimatableParameter>("State", thisMachine, &states);
@@ -63,10 +63,10 @@ void HoodedLiftStateMachine::process() {
 	if (b_enabled) {
 		if (actualState == MachineState::State::UNEXPECTED_STATE) disable();
 		else if (actualState == MachineState::State::UNKNOWN) disable();
-		else if (emergencyStopActive) disable();
-		else if (!remoteControlEnabled) disable();
-		else if (liftMotorFuseBurned) disable();
-		else if (hoodMotorFuseBurned) disable();
+		else if (!emergencyStopClear) disable();
+		else if (localControlEnabled) disable();
+		else if (liftMotorCircuitBreakerTripped) disable();
+		else if (hoodMotorCircuitBreakerTripped) disable();
 	}
 
 	//update outputs signals
@@ -118,10 +118,10 @@ bool HoodedLiftStateMachine::isReady() {
 	if (!areGpioSignalsReady()) return false;
 	else if (actualState == MachineState::State::UNEXPECTED_STATE) return false;
 	else if (actualState == MachineState::State::UNKNOWN) return false;
-	else if (!remoteControlEnabled) return false;
-	else if (hoodMotorFuseBurned) return false;
-	else if (liftMotorFuseBurned) return false;
-	else if (emergencyStopActive) return false;
+	else if (localControlEnabled) return false;
+	else if (hoodMotorCircuitBreakerTripped) return false;
+	else if (liftMotorCircuitBreakerTripped) return false;
+	else if (!emergencyStopClear) return false;
 	return true;
 }
 
@@ -151,21 +151,21 @@ std::shared_ptr<GpioDevice> HoodedLiftStateMachine::getGpioDevice() {
 }
 
 void HoodedLiftStateMachine::updateGpioInSignals() {
-	hoodShut = hoodShutSignalPin->getConnectedPins().front()->getBoolean();
 	hoodOpen = hoodOpenSignalPin->getConnectedPins().front()->getBoolean();
-	liftLowered = liftLoweredSignalPin->getConnectedPins().front()->getBoolean();
+	hoodShut = hoodShutSignalPin->getConnectedPins().front()->getBoolean();
 	liftRaised = liftRaisedSignalPin->getConnectedPins().front()->getBoolean();
-	emergencyStopActive = emergencyStopSignalPin->getConnectedPins().front()->getBoolean();
-	remoteControlEnabled = remoteControlEnabledSignalPin->getConnectedPins().front()->getBoolean();
-	hoodMotorFuseBurned = hoodMotorFuseSignalPin->getConnectedPins().front()->getBoolean();
-	liftMotorFuseBurned = liftMotorFuseSignalPin->getConnectedPins().front()->getBoolean();
+	liftLowered = liftLoweredSignalPin->getConnectedPins().front()->getBoolean();
+	hoodMotorCircuitBreakerTripped = hoodMotorCircuitBreakerSignalPin->getConnectedPins().front()->getBoolean();
+	liftMotorCircuitBreakerTripped = liftMotorCircuitBreakerSignalPin->getConnectedPins().front()->getBoolean();
+	emergencyStopClear = emergencyStopClearSignalPin->getConnectedPins().front()->getBoolean();
+	localControlEnabled = localControlEnabledSignalPin->getConnectedPins().front()->getBoolean();
 }
 
 void HoodedLiftStateMachine::updateGpioOutSignals() {
-	raisePlatformCommandPin->set(raisePlatform);
-	lowerPlatformCommandPin->set(lowerPlatform);
-	shutLidCommandPin->set(shutLid);
-	openLidCommandPin->set(openLid);
+	openHoodCommandPin->set(openLid);
+	shutHoodCommandPin->set(shutLid);
+	lowerLiftCommandPin->set(lowerPlatform);
+	raiseLiftCommandPin->set(raisePlatform);
 }
 
 bool HoodedLiftStateMachine::areGpioSignalsReady() {
@@ -177,15 +177,15 @@ bool HoodedLiftStateMachine::areGpioSignalsReady() {
 	if (!hoodShutSignalPin->isConnected()) return false;
 	if (!liftRaisedSignalPin->isConnected()) return false;
 	if (!liftLoweredSignalPin->isConnected()) return false;
-	if (!emergencyStopSignalPin->isConnected()) return false;
-	if (!remoteControlEnabledSignalPin->isConnected()) return false;
-	if (!hoodMotorFuseSignalPin->isConnected()) return false;
-	if (!liftMotorFuseSignalPin->isConnected()) return false;
+	if (!emergencyStopClearSignalPin->isConnected()) return false;
+	if (!localControlEnabledSignalPin->isConnected()) return false;
+	if (!hoodMotorCircuitBreakerSignalPin->isConnected()) return false;
+	if (!liftMotorCircuitBreakerSignalPin->isConnected()) return false;
 	//outputs
-	if (!raisePlatformCommandPin->isConnected()) return false;
-	if (!lowerPlatformCommandPin->isConnected()) return false;
-	if (!shutLidCommandPin->isConnected()) return false;
-	if (!openLidCommandPin->isConnected()) return false;
+	if (!raiseLiftCommandPin->isConnected()) return false;
+	if (!lowerLiftCommandPin->isConnected()) return false;
+	if (!shutHoodCommandPin->isConnected()) return false;
+	if (!openHoodCommandPin->isConnected()) return false;
 	return true;
 }
 
