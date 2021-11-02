@@ -16,14 +16,21 @@ public:
 		ImGui::GetStyle().ItemSpacing.y = verticalSpacing;
 		begunTooltip = false;
 		begunChild = false;
-		itemDropped = false;
 		items.swap(previousItems);
 		items.clear();
-		ImVec2 mousePosition = ImGui::GetMousePos();
+		
+
+		if (itemDropped) {
+			//clear drop event data after it was processed
+			itemDropped = false;
+			droppedItemIndex = -1;
+			dropPositionIndex = -1;
+		}
+
 		bool isMouseDown = ImGui::IsMouseDown(ImGuiMouseButton_Left);
-		if (!itemIsDragging && isMouseDown && draggedItemIndex != -1 && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-			//Starts Item Dragging
-			itemIsDragging = true;
+
+		if (itemIsPressed && !isMouseDown) {
+			itemIsPressed = false;
 		}
 		else if (itemIsDragging && !isMouseDown) {
 			//Triggers Dropped Item Event
@@ -84,6 +91,7 @@ public:
 			ImGui::EndChild();
 			ImGui::PopID();
 			ImGui::PopStyleColor(2);
+			items.push_back(DraggableItemInfo(currentItemPosition, currentItemSize, false));
 			return false;
 		}
 	}
@@ -97,11 +105,25 @@ public:
 		else if (begunChild) {
 			ImVec2 childPos = ImGui::GetWindowPos();
 			ImGui::EndChild();
-			if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-				draggedItemIndex = currentIndex;
+			if (ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
 				ImVec2 mousePosition = ImGui::GetMousePos();
-				itemClickPosition.x = mousePosition.x - childPos.x;
-				itemClickPosition.y = mousePosition.y - childPos.y;
+				if (mousePosition.x > currentItemPosition.x && mousePosition.y > currentItemPosition.y) {
+					if (mousePosition.y < currentItemPosition.y + currentItemSize.y && mousePosition.x < currentItemPosition.x + currentItemSize.x) {
+						if (!itemIsPressed) {
+							itemIsPressed = true;
+							itemClickPosition.x = mousePosition.x - childPos.x;
+							itemClickPosition.y = mousePosition.y - childPos.y;
+						}
+						else if (!itemIsDragging && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+							itemIsPressed = false;
+							itemIsDragging = true;
+							draggedItemIndex = currentIndex;
+							draggedItemPositionY = mousePosition.y - itemClickPosition.y;
+							if (draggedItemPositionY < minYPosition) draggedItemPositionY = minYPosition;
+							else if (draggedItemPositionY > maxYPosition) draggedItemPositionY = maxYPosition;
+						}
+					}
+				}
 			}
 			if(ImGui::IsItemHovered()){
 				hovered = true;
@@ -125,11 +147,18 @@ public:
 				item.center.y += item.size.y * 0.5;
 			}
 			constrainedXPosition = items.front().position.x;
+
+			double listpositionY = ImGui::GetWindowPos().y;
+			double listSizeY = ImGui::GetWindowSize().y;
+			minYPosition = listpositionY;
 			if (itemIsDragging && draggedItemIndex > -1 && draggedItemIndex < items.size()) {
-				double listpositionY = ImGui::GetWindowPos().y;
-				double listSizeY = ImGui::GetWindowSize().y;
-				minYPosition = listpositionY;
 				maxYPosition = listpositionY + listSizeY - items[draggedItemIndex].size.y;
+			}
+			else {
+				maxYPosition = listpositionY + listSizeY;
+			}
+
+			if (itemIsDragging && draggedItemIndex > -1 && draggedItemIndex < items.size()) {
 				dropPositionIndex = getDropIndex();
 				ImVec2 dropPosition;
 				if (dropPositionIndex == draggedItemIndex) {
@@ -151,11 +180,13 @@ public:
 					float thresholdMouseYPosition = minYPosition + itemClickPosition.y;
 					float scrollOffset = std::abs(mousePosY - thresholdMouseYPosition);
 					ImGui::SetScrollY(ImGui::GetScrollY() - scrollOffset * 0.1);
+					Logger::warn("ScrollA");
 				}
 				else if (draggedItemPositionY >= maxYPosition) {
 					float thresholdMouseYPosition = maxYPosition + itemClickPosition.y;
 					float scrollOffset = std::abs(mousePosY - thresholdMouseYPosition);
 					ImGui::SetScrollY(ImGui::GetScrollY() + scrollOffset * 0.1);
+					Logger::warn("ScrollB");
 				}
 			}
 		}
@@ -184,7 +215,7 @@ private:
 	int getDropIndex() {
 		DraggableItemInfo& draggedItem = items[draggedItemIndex];
 		double draggedItemCenterY = draggedItemPositionY + draggedItem.size.y * 0.5;
-		if (draggedItemCenterY < items[0].center.y) return 0;
+		if (draggedItemCenterY <= items.front().center.y) return 0;
 		for (int i = 0; i < items.size() - 1; i++) {
 			DraggableItemInfo& previousItem = items[i];
 			DraggableItemInfo& nextItem = items[i + 1];
@@ -199,6 +230,7 @@ private:
 	float defaultVerticalItemSpacing;
 
 	//persistent values
+	bool itemIsPressed = false;
 	bool itemIsDragging = false;
 	int draggedItemIndex = -1;
 	ImVec2 itemClickPosition;
