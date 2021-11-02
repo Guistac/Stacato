@@ -3,6 +3,12 @@
 #include "Manoeuvre.h"
 #include "Motion/ParameterTrack.h"
 
+Manoeuvre::Manoeuvre(const Manoeuvre& original) {
+	for (auto& track : original.tracks) {
+		std::shared_ptr<ParameterTrack> copiedTrack = std::make_shared<ParameterTrack>(*track);
+		tracks.push_back(copiedTrack);
+	}
+}
 
 void Manoeuvre::addTrack(std::shared_ptr<AnimatableParameter>& parameter) {
 	std::shared_ptr<ParameterTrack> parameterSequence = std::make_shared<ParameterTrack>(parameter);

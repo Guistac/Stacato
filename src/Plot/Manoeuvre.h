@@ -8,6 +8,9 @@ class AnimatableParameter;
 class Manoeuvre{
 public:
 
+	Manoeuvre() {}
+	Manoeuvre(const Manoeuvre& original);
+
 	char name[64] = "";
 	char description[256] = "";
 

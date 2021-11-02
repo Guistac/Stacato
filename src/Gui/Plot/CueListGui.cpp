@@ -13,13 +13,26 @@
 #include "Gui/Framework/Colors.h"
 
 void manoeuvreListGui() {
-	
+
 	static DraggableList cueList;
 
 	std::shared_ptr<Plot> currentPlot = Project::currentPlot;
 	std::vector<std::shared_ptr<Manoeuvre>>& manoeuvres = Project::currentPlot->manoeuvres;
 
 	glm::vec2 cueListSize(ImGui::GetTextLineHeight() * 15.0, ImGui::GetContentRegionAvail().y);
+
+	glm::vec2 listButtonSize((cueListSize.x - ImGui::GetStyle().ItemSpacing.x * 2.0) / 3.0, ImGui::GetTextLineHeight() * 2.0);
+
+	ImGui::BeginGroup();
+
+	if (ImGui::Button("Create", listButtonSize)) currentPlot->addManoeuvre();
+	ImGui::SameLine();
+	bool disablSelectionBasedButtons = currentPlot->selectedManoeuvre == nullptr;
+	if (disablSelectionBasedButtons) BEGIN_DISABLE_IMGUI_ELEMENT
+	if (ImGui::Button("Duplicate", listButtonSize)) currentPlot->duplicateSelectedManoeuvre();
+	ImGui::SameLine();
+	if (ImGui::Button("Delete", listButtonSize)) currentPlot->deleteSelectedManoeuvre();
+	if(disablSelectionBasedButtons) END_DISABLE_IMGUI_ELEMENT
 
 	if (cueList.beginList("##CueList", cueListSize, ImGui::GetTextLineHeight() * 0.3)) {
 	
@@ -45,6 +58,8 @@ void manoeuvreListGui() {
 			manoeuvres.insert(manoeuvres.begin() + newIndex, tmp);
 		}
 	}
+
+	ImGui::EndGroup();
 
 	ImGui::SameLine();
 

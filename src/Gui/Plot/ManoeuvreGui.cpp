@@ -45,7 +45,7 @@ void Manoeuvre::editGui() {
 	ImGui::PopFont();
 	ImGui::Separator();
 
-	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit;
+	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
 
 	if (ImGui::BeginTable("##parameters", 13, tableFlags)) {
 		
@@ -142,9 +142,8 @@ void Manoeuvre::editGui() {
 		ImGui::TableNextRow();
 
 		ImGui::TableSetColumnIndex(0);
-		if (ImGui::Button("Add Parameter")) ImGui::OpenPopup("ManoeuvreParameterAdder");
-		if (ImGui::BeginPopup("ManoeuvreParameterAdder")) {
-
+		if (ImGui::Button("Add Track")) ImGui::OpenPopup("ManoeuvreTrackAdder");
+		if (ImGui::BeginPopup("ManoeuvreTrackAdder")) {
 			for (auto& machine : Environnement::getMachines()) {
 				if (ImGui::BeginMenu(machine->getName())) {
 					for (auto& parameter : machine->animatableParameters) {
@@ -157,7 +156,6 @@ void Manoeuvre::editGui() {
 					ImGui::EndMenu();
 				}
 			}
-
 			ImGui::EndPopup();
 		}
 

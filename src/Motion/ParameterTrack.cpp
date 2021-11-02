@@ -4,6 +4,93 @@
 #include "Motion/AnimatableParameter.h"
 #include "Motion/Curve/Curve.h"
 
+
+ParameterTrack::ParameterTrack(std::shared_ptr<AnimatableParameter>& param) : parameter(param) {
+	initialize();
+}
+
+//COPY CONSTRUCTOR
+ParameterTrack::ParameterTrack(const ParameterTrack& original) {
+	parameter = original.parameter;
+	initialize();
+	for (int i = 0; i < original.startPoints.size(); i++) {
+		curves[i] = std::make_shared<Motion::Curve>(*original.curves[i]);
+		startPoints[i] = std::make_shared<Motion::Point>(*original.startPoints[i]);
+		endPoints[i] = std::make_shared<Motion::Point>(*original.endPoints[i]);
+		sequenceInterpolations[i] = std::make_shared<Motion::Interpolation>(*original.sequenceInterpolations[i]);
+	}
+	sequenceType = original.sequenceType;
+	interpolationType = original.interpolationType;
+	originIsPreviousTarget = original.originIsPreviousTarget;
+	origin = original.origin;
+	target = original.target;
+	velocityConstraint = original.velocityConstraint;
+	timeConstraint = original.timeConstraint;
+	timeOffset = original.timeOffset;
+	rampIn = original.rampIn;
+	rampOut = original.rampOut;
+	rampsAreEqual = original.rampsAreEqual;
+}
+
+void ParameterTrack::initialize() {
+	switch (parameter->dataType) {
+		case ParameterDataType::BOOLEAN_PARAMETER:
+		case ParameterDataType::INTEGER_PARAMETER:
+		case ParameterDataType::STATE_PARAMETER:
+			curves.push_back(std::make_shared<Motion::Curve>());
+			startPoints.push_back(std::make_shared<Motion::Point>());
+			endPoints.push_back(std::make_shared<Motion::Point>());
+			sequenceInterpolations.push_back(std::make_shared<Motion::Interpolation>());
+			interpolationType = InterpolationType::Type::STEP;
+			sequenceType = SequenceType::Type::STEP_MOVE;
+			break;
+		case ParameterDataType::REAL_PARAMETER:
+			curves.push_back(std::make_shared<Motion::Curve>());
+			startPoints.push_back(std::make_shared<Motion::Point>());
+			endPoints.push_back(std::make_shared<Motion::Point>());
+			sequenceInterpolations.push_back(std::make_shared<Motion::Interpolation>());
+		case ParameterDataType::VECTOR_2D_PARAMETER:
+			curves.push_back(std::make_shared<Motion::Curve>());
+			startPoints.push_back(std::make_shared<Motion::Point>());
+			endPoints.push_back(std::make_shared<Motion::Point>());
+			sequenceInterpolations.push_back(std::make_shared<Motion::Interpolation>());
+		case ParameterDataType::VECTOR_3D_PARAMETER:
+			curves.push_back(std::make_shared<Motion::Curve>());
+			startPoints.push_back(std::make_shared<Motion::Point>());
+			endPoints.push_back(std::make_shared<Motion::Point>());
+			sequenceInterpolations.push_back(std::make_shared<Motion::Interpolation>());
+			interpolationType = InterpolationType::Type::LINEAR;
+			sequenceType = SequenceType::Type::TIMED_MOVE;
+			break;
+		case ParameterDataType::KINEMATIC_POSITION_CURVE:
+			curves.push_back(std::make_shared<Motion::Curve>());
+			startPoints.push_back(std::make_shared<Motion::Point>());
+			endPoints.push_back(std::make_shared<Motion::Point>());
+			sequenceInterpolations.push_back(std::make_shared<Motion::Interpolation>());
+		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+			curves.push_back(std::make_shared<Motion::Curve>());
+			startPoints.push_back(std::make_shared<Motion::Point>());
+			endPoints.push_back(std::make_shared<Motion::Point>());
+			sequenceInterpolations.push_back(std::make_shared<Motion::Interpolation>());
+		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+			curves.push_back(std::make_shared<Motion::Curve>());
+			startPoints.push_back(std::make_shared<Motion::Point>());
+			endPoints.push_back(std::make_shared<Motion::Point>());
+			sequenceInterpolations.push_back(std::make_shared<Motion::Interpolation>());
+			interpolationType = InterpolationType::Type::TRAPEZOIDAL;
+			sequenceType = SequenceType::Type::TIMED_MOVE;
+			break;
+	}
+	origin.type = parameter->dataType;
+	target.type = parameter->dataType;
+	if (parameter->dataType == ParameterDataType::STATE_PARAMETER) {
+		origin.stateValues = parameter->stateParameterValues;
+		target.stateValues = parameter->stateParameterValues;
+		origin.stateValue = &(*parameter->stateParameterValues)[0];
+		target.stateValue = &(*parameter->stateParameterValues)[0];
+	}
+}
+
 void ParameterTrack::setInterpolationType(InterpolationType::Type t) {
 	interpolationType = t;
 	bool sequenceTypeCompatible = false;

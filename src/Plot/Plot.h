@@ -15,6 +15,10 @@ public:
 
 	bool save(const char* path);
 	bool load(const char* path);
+
+	void addManoeuvre();
+	void deleteSelectedManoeuvre();
+	void duplicateSelectedManoeuvre();
  
 };
 

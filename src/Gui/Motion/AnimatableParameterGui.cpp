@@ -7,6 +7,7 @@
 
 void AnimatableParameterValue::inputFieldGui(float width) {
 	ImGui::SetNextItemWidth(width);
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.1));
 	switch (type) {
 		case ParameterDataType::BOOLEAN_PARAMETER:
 			ImGui::Checkbox("##parameter", &boolValue);
@@ -44,4 +45,5 @@ void AnimatableParameterValue::inputFieldGui(float width) {
 			ImGui::InputFloat("##Z", &vector3value.z, 0.0, 0.0, "Z: %.3f");
 			break;
 	}
+	ImGui::PopStyleVar();
 }
