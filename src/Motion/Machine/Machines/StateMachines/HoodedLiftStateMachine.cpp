@@ -2,7 +2,7 @@
 
 #include "HoodedLiftStateMachine.h"
 #include "Motion/Subdevice.h"
-#include "Motion/Machine/AnimatableParameter.h"
+#include "Motion/AnimatableParameter.h"
 
 void HoodedLiftStateMachine::assignIoData() {
 	addIoData(gpioDeviceLink);
@@ -24,6 +24,11 @@ void HoodedLiftStateMachine::assignIoData() {
 	std::shared_ptr<Machine> thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
 	stateParameter = std::make_shared<AnimatableParameter>("State", thisMachine, &states);
 	animatableParameters.push_back(stateParameter);
+
+	f3Parameter = std::make_shared<AnimatableParameter>("3F", thisMachine, ParameterDataType::KINEMATIC_3D_POSITION_CURVE);
+	animatableParameters.push_back(f3Parameter);
+	f2Parameter = std::make_shared<AnimatableParameter>("2F", thisMachine, ParameterDataType::VECTOR_2D_PARAMETER);
+	animatableParameters.push_back(f2Parameter);
 }
 
 void HoodedLiftStateMachine::process() {

@@ -1,6 +1,6 @@
 #include "Motion/Machine/Machine.h"
 
-#include "Motion/Machine/AnimatableParameter.h"
+#include "Motion/AnimatableParameter.h"
 
 class HoodedLiftStateMachine : public Machine {
 public:
@@ -24,6 +24,8 @@ public:
 	std::shared_ptr<NodePin> raisePlatformCommandPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Raise Platform Command", NodePinFlags_DisableDataField);
 
 	std::shared_ptr<AnimatableParameter> stateParameter;
+	std::shared_ptr<AnimatableParameter> f3Parameter;
+	std::shared_ptr<AnimatableParameter> f2Parameter;
 
 	std::vector<StateParameterValue> states = {
 		{0, "Shut", "Shut"},

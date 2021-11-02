@@ -77,8 +77,6 @@ namespace Motion {
 		double getLength();
 		bool isTimeInsideCurve(double time);
 		std::shared_ptr<Point> getPointAtTime(double time);
-
-		std::vector<SequenceType::Type> getCompatibleSequenceTypes();
 	};
 
 

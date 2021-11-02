@@ -1,25 +1,25 @@
 #include <pch.h>
 
 #include "Manoeuvre.h"
-#include "Motion/ParameterSequence.h"
+#include "Motion/ParameterTrack.h"
 
 
-void Manoeuvre::addParameter(std::shared_ptr<AnimatableParameter>& parameter) {
-	std::shared_ptr<ParameterSequence> parameterSequence = std::make_shared<ParameterSequence>(parameter);
-	parameterSequences.push_back(parameterSequence);
+void Manoeuvre::addTrack(std::shared_ptr<AnimatableParameter>& parameter) {
+	std::shared_ptr<ParameterTrack> parameterSequence = std::make_shared<ParameterTrack>(parameter);
+	tracks.push_back(parameterSequence);
 }
 
-void Manoeuvre::removeParameter(std::shared_ptr<AnimatableParameter>& parameter) {
-	for (int i = 0; i < parameterSequences.size(); i++) {
-		if (parameterSequences[i]->parameter == parameter) {
-			parameterSequences.erase(parameterSequences.begin() + i);
+void Manoeuvre::removeTrack(std::shared_ptr<AnimatableParameter>& parameter) {
+	for (int i = 0; i < tracks.size(); i++) {
+		if (tracks[i]->parameter == parameter) {
+			tracks.erase(tracks.begin() + i);
 			break;
 		}
 	}
 }
 
-bool Manoeuvre::hasParameter(std::shared_ptr<AnimatableParameter>& parameter) {
-	for (auto& p : parameterSequences) {
+bool Manoeuvre::hasTrack(std::shared_ptr<AnimatableParameter>& parameter) {
+	for (auto& p : tracks) {
 		if (p->parameter == parameter) return true;
 	}
 	return false;

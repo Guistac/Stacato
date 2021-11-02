@@ -3,7 +3,7 @@
 #include "SingleAxisMachine.h"
 
 #include "Motion/Axis/Axis.h"
-#include "Motion/Machine/AnimatableParameter.h"
+#include "Motion/AnimatableParameter.h"
 
 
 void SingleAxisMachine::assignIoData() {

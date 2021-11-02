@@ -9,8 +9,8 @@
 #include "Gui/Framework/Fonts.h"
 #include "Environnement/Environnement.h"
 #include "Motion/Machine/Machine.h"
-#include "Motion/Machine/AnimatableParameter.h"
-#include "Motion/ParameterSequence.h"
+#include "Motion/AnimatableParameter.h"
+#include "Motion/ParameterTrack.h"
 #include "Gui/Framework/Colors.h"
 #include "Gui/Framework/Fonts.h"
 #include "Gui/Utilities/CustomWidgets.h"
@@ -65,11 +65,11 @@ void Manoeuvre::editGui() {
 
 		ImGui::TableHeadersRow();
 
-		std::shared_ptr<ParameterSequence> removedSequence = nullptr;
-		std::shared_ptr<ParameterSequence> movedUpSequence = nullptr;
-		std::shared_ptr<ParameterSequence> movedDownSequence = nullptr;
+		std::shared_ptr<ParameterTrack> removedSequence = nullptr;
+		std::shared_ptr<ParameterTrack> movedUpSequence = nullptr;
+		std::shared_ptr<ParameterTrack> movedDownSequence = nullptr;
 
-		for (auto& parameterSequence : parameterSequences) {
+		for (auto& parameterSequence : tracks) {
 
 			ImGui::PushID(parameterSequence->parameter->name);
 			ImGui::PushID(parameterSequence->parameter->machine->getName());
@@ -80,12 +80,12 @@ void Manoeuvre::editGui() {
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.1));
 			if (buttonCross("##remove")) removedSequence = parameterSequence;
 			ImGui::SameLine();
-			bool disableMoveUp = parameterSequence == parameterSequences.front();
+			bool disableMoveUp = parameterSequence == tracks.front();
 			if(disableMoveUp) BEGIN_DISABLE_IMGUI_ELEMENT
 			if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpSequence = parameterSequence;
 			if(disableMoveUp) END_DISABLE_IMGUI_ELEMENT
 			ImGui::SameLine();
-			bool disableMoveDown = parameterSequence == parameterSequences.back();
+			bool disableMoveDown = parameterSequence == tracks.back();
 			if(disableMoveDown) BEGIN_DISABLE_IMGUI_ELEMENT
 			if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownSequence = parameterSequence;
 			if(disableMoveDown) END_DISABLE_IMGUI_ELEMENT
@@ -148,10 +148,10 @@ void Manoeuvre::editGui() {
 			for (auto& machine : Environnement::getMachines()) {
 				if (ImGui::BeginMenu(machine->getName())) {
 					for (auto& parameter : machine->animatableParameters) {
-						bool isSelected = hasParameter(parameter);
+						bool isSelected = hasTrack(parameter);
 						if (ImGui::MenuItem(parameter->name, nullptr, isSelected)) {
-							if (!isSelected) addParameter(parameter);
-							else removeParameter(parameter);
+							if (!isSelected) addTrack(parameter);
+							else removeTrack(parameter);
 						}
 					}
 					ImGui::EndMenu();
@@ -162,33 +162,33 @@ void Manoeuvre::editGui() {
 		}
 
 
-		if (removedSequence) removeParameter(removedSequence->parameter);
+		if (removedSequence) removeTrack(removedSequence->parameter);
 		else if (movedUpSequence) {
 			int oldIndex;
-			for (int i = 0; i < parameterSequences.size(); i++) {
-				if (parameterSequences[i] == movedUpSequence) {
+			for (int i = 0; i < tracks.size(); i++) {
+				if (tracks[i] == movedUpSequence) {
 					oldIndex = i;
 					break;
 				}
 			}
 			int newIndex = oldIndex - 1;
 			if (newIndex >= 0) {
-				parameterSequences.erase(parameterSequences.begin() + oldIndex);
-				parameterSequences.insert(parameterSequences.begin() + newIndex, movedUpSequence);
+				tracks.erase(tracks.begin() + oldIndex);
+				tracks.insert(tracks.begin() + newIndex, movedUpSequence);
 			}
 		}
 		else if (movedDownSequence) {
 			int oldIndex;
-			for (int i = 0; i < parameterSequences.size(); i++) {
-				if (parameterSequences[i] == movedDownSequence) {
+			for (int i = 0; i < tracks.size(); i++) {
+				if (tracks[i] == movedDownSequence) {
 					oldIndex = i;
 					break;
 				}
 			}
 			int newIndex = oldIndex + 1;
-			if (newIndex < parameterSequences.size()) {
-				parameterSequences.erase(parameterSequences.begin() + oldIndex);
-				parameterSequences.insert(parameterSequences.begin() + newIndex, movedDownSequence);
+			if (newIndex < tracks.size()) {
+				tracks.erase(tracks.begin() + oldIndex);
+				tracks.insert(tracks.begin() + newIndex, movedDownSequence);
 			}
 		}
 

@@ -1,6 +1,6 @@
 #pragma once
 
-class ParameterSequence;
+class ParameterTrack;
 class AnimatableParameter;
 
 #include <tinyxml2.h>
@@ -11,11 +11,11 @@ public:
 	char name[64] = "";
 	char description[256] = "";
 
-	std::vector<std::shared_ptr<ParameterSequence>> parameterSequences;
+	std::vector<std::shared_ptr<ParameterTrack>> tracks;
 
-	void addParameter(std::shared_ptr<AnimatableParameter>& parameter);
-	void removeParameter(std::shared_ptr<AnimatableParameter>& parameter);
-	bool hasParameter(std::shared_ptr<AnimatableParameter>& parameter);
+	void addTrack(std::shared_ptr<AnimatableParameter>& parameter);
+	void removeTrack(std::shared_ptr<AnimatableParameter>& parameter);
+	bool hasTrack(std::shared_ptr<AnimatableParameter>& parameter);
 
 	void listGui();
 	void editGui();

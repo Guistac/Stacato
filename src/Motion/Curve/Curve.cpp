@@ -157,28 +157,4 @@ namespace Motion {
 		}
 	}
 
-	std::vector<SequenceType::Type> Curve::getCompatibleSequenceTypes() {
-		std::vector<SequenceType::Type> output;
-		switch (interpolationType) {
-			case InterpolationType::Type::STEP:
-				output.push_back(SequenceType::Type::STEP_MOVE);
-				output.push_back(SequenceType::Type::ANIMATED_MOVE);
-				break;
-			case InterpolationType::Type::LINEAR:
-				output.push_back(SequenceType::Type::TIMED_MOVE);
-				output.push_back(SequenceType::Type::ANIMATED_MOVE);
-				break;
-			case InterpolationType::Type::BEZIER:
-				output.push_back(SequenceType::Type::TIMED_MOVE);
-				output.push_back(SequenceType::Type::ANIMATED_MOVE);
-				break;
-			case InterpolationType::Type::TRAPEZOIDAL:
-				output.push_back(SequenceType::Type::TIMED_MOVE);
-				output.push_back(SequenceType::Type::VELOCITY_MOVE);
-				output.push_back(SequenceType::Type::ANIMATED_MOVE);
-				break;
-		}
-		return output;
-	}
-
 };

@@ -1,48 +1,50 @@
 #include <pch.h>
 
-#include "ParameterSequence.h"
-#include "Motion/Machine/AnimatableParameter.h"
+#include "ParameterTrack.h"
+#include "Motion/AnimatableParameter.h"
 #include "Motion/Curve/Curve.h"
 
-void ParameterSequence::setInterpolationType(InterpolationType::Type t) {
-	curve->interpolationType = t;
+void ParameterTrack::setInterpolationType(InterpolationType::Type t) {
+	interpolationType = t;
 	bool sequenceTypeCompatible = false;
-	for (auto sequenceT : curve->getCompatibleSequenceTypes()) {
-		if (sequenceT == sequenceType) {
+	for (auto st : getCompatibleSequenceTypes()) {
+		if (st == sequenceType) {
 			sequenceTypeCompatible = true;
 			break;
 		}
 	}
+	for (auto& curve : curves) curve->interpolationType = t;
 	if (!sequenceTypeCompatible) {
-		setSequenceType(curve->getCompatibleSequenceTypes().front());
+		setSequenceType(getCompatibleSequenceTypes().front());
 	}
-	curve->interpolationType = interpolationType;
-	curveY->interpolationType = interpolationType;
-	curveZ->interpolationType = interpolationType;
-	updateCurve();
-}
-
-void ParameterSequence::setSequenceType(SequenceType::Type t) {
-	if (t != sequenceType) {
-		sequenceType = t;
-		switch (sequenceType) {
-			case SequenceType::Type::STEP_MOVE:
-			case SequenceType::Type::VELOCITY_MOVE:
-			case SequenceType::Type::TIMED_MOVE: {
-				curve->removeAllPoints();
-				curve->addPoint(startPoint);
-				curve->addPoint(endPoint);
-				//reduce to two curve points
-			}break;
-			case SequenceType::Type::ANIMATED_MOVE:
-				//keep the points, but editing will allow more points in the graph
-				break;
-		}
-		updateCurve();
+	else {
+		updateCurves();
 	}
 }
 
-void ParameterSequence::updateCurve() {
+void ParameterTrack::setSequenceType(SequenceType::Type t) {
+	sequenceType = t;
+	switch (sequenceType) {
+		case SequenceType::Type::STEP_MOVE:
+		case SequenceType::Type::VELOCITY_MOVE:
+		case SequenceType::Type::TIMED_MOVE: {
+			//reduce to two curve points
+			for (int i = 0; i < curves.size(); i++) {
+				curves[i]->removeAllPoints();
+				curves[i]->addPoint(startPoints[i]);
+				curves[i]->addPoint(endPoints[i]);
+			}
+		}break;
+		case SequenceType::Type::ANIMATED_MOVE:
+			//keep the points, but editing will allow more points in the graph
+			break;
+	}
+	updateCurves();
+}
+
+void ParameterTrack::updateCurves() {
+
+	/*
 
 	//all manoeuvres start and stop with zero velocity
 	startPoint->velocity = 0.0;
@@ -189,21 +191,6 @@ void ParameterSequence::updateCurve() {
 	sequenceInterpolationY->type = interpolationType;
 	sequenceInterpolationZ->type = interpolationType;
 
-	/*
-	switch (interpolationType) {
-		case InterpolationType::Type::STEP:
-		case InterpolationType::Type::LINEAR:
-		case InterpolationType::Type::BEZIER:
-			break;
-		case InterpolationType::Type::TRAPEZOIDAL:
-			switch (sequenceType) {
-				case SequenceType::Type::TIMED_MOVE:
-					//Motion::TrapezoidalInterpolation::getTimeConstrainedInterpolation(startPoint, endPoint, 100000, )
-				case SequenceType::Type::VELOCITY_MOVE:
-			}
-	}
-	*/
-
 	switch (parameter->dataType) {
 		case ParameterDataType::VECTOR_3D_PARAMETER:
 		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
@@ -217,6 +204,33 @@ void ParameterSequence::updateCurve() {
 			curve->refresh();
 			break;
 	}
+	*/
+
+}
 
 
+
+
+std::vector<SequenceType::Type> ParameterTrack::getCompatibleSequenceTypes() {
+	std::vector<SequenceType::Type> output;
+	switch (interpolationType) {
+	case InterpolationType::Type::STEP:
+		output.push_back(SequenceType::Type::STEP_MOVE);
+		output.push_back(SequenceType::Type::ANIMATED_MOVE);
+		break;
+	case InterpolationType::Type::LINEAR:
+		output.push_back(SequenceType::Type::TIMED_MOVE);
+		output.push_back(SequenceType::Type::ANIMATED_MOVE);
+		break;
+	case InterpolationType::Type::BEZIER:
+		output.push_back(SequenceType::Type::TIMED_MOVE);
+		output.push_back(SequenceType::Type::ANIMATED_MOVE);
+		break;
+	case InterpolationType::Type::TRAPEZOIDAL:
+		output.push_back(SequenceType::Type::TIMED_MOVE);
+		output.push_back(SequenceType::Type::VELOCITY_MOVE);
+		output.push_back(SequenceType::Type::ANIMATED_MOVE);
+		break;
+	}
+	return output;
 }

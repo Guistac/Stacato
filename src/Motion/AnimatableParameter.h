@@ -23,15 +23,15 @@ public:
 	AnimatableParameterValue(glm::vec3 v) { vector3value = v; type = ParameterDataType::VECTOR_2D_PARAMETER; }
 	ParameterDataType type;
 
-	void inputFieldGui();
+	void inputFieldGui(float width);
 
 	bool boolValue = false;
 	int integerValue = false;
 	StateParameterValue* stateValue = nullptr;
 	std::vector<StateParameterValue>* stateValues = nullptr;
 	double realValue = false;
-	glm::vec2 vector2value;
-	glm::vec3 vector3value;
+	glm::vec2 vector2value = glm::vec2(0);
+	glm::vec3 vector3value = glm::vec3(0);
 };
 
 

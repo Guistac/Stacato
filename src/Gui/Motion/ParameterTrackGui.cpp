@@ -1,58 +1,66 @@
 #include <pch.h>
 
-#include "Motion/ParameterSequence.h"
+#include "Motion/ParameterTrack.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
 
 
-void ParameterSequence::interpolationTypeSelectorGui() {
-	if (ImGui::BeginCombo("##InterpolationSelector", getInterpolationType(curve->interpolationType)->displayName)) {
-		for (auto& interpolationType : parameter->getCompatibleInterpolationTypes()) {
-			if (ImGui::Selectable(getInterpolationType(interpolationType)->displayName, interpolationType == curve->interpolationType)) {
-				setInterpolationType(interpolationType);
+void ParameterTrack::interpolationTypeSelectorGui() {
+	auto compatibleInterpolations = parameter->getCompatibleInterpolationTypes();
+	bool disableCombo = compatibleInterpolations.size() < 2;
+	if(disableCombo) BEGIN_DISABLE_IMGUI_ELEMENT
+	if (ImGui::BeginCombo("##InterpolationSelector", getInterpolationType(interpolationType)->displayName)) {
+		for (auto& it : compatibleInterpolations) {
+			if (ImGui::Selectable(getInterpolationType(it)->displayName, it == interpolationType)) {
+				setInterpolationType(it);
 			}
 		}
 		ImGui::EndCombo();
 	}
+	if(disableCombo) END_DISABLE_IMGUI_ELEMENT
 }
 
-void ParameterSequence::sequenceTypeSelectorGui() {
+void ParameterTrack::sequenceTypeSelectorGui() {
+	auto compatibleSequenceTypes = getCompatibleSequenceTypes();
+	bool disableCombo = compatibleSequenceTypes.size() < 2;
+	if(disableCombo) BEGIN_DISABLE_IMGUI_ELEMENT
 	if (ImGui::BeginCombo("##SequenceTypeSelector", getSequenceType(sequenceType)->displayName)) {
-		for (auto& sequenceT : curve->getCompatibleSequenceTypes()) {
-			if (ImGui::Selectable(getSequenceType(sequenceT)->displayName, sequenceT == sequenceType)) {
-				setSequenceType(sequenceT);
+		for (auto& st : compatibleSequenceTypes) {
+			if (ImGui::Selectable(getSequenceType(st)->displayName, st == sequenceType)) {
+				setSequenceType(st);
 			}
 		}
 		ImGui::EndCombo();
 	}
+	if(disableCombo) END_DISABLE_IMGUI_ELEMENT
 }
 
 
-void ParameterSequence::chainPreviousTargetCheckboxGui() {
+void ParameterTrack::chainPreviousTargetCheckboxGui() {
 	ImGui::Checkbox("##Chain", &originIsPreviousTarget);
 }
 
 
-void ParameterSequence::originInputGui() {
+void ParameterTrack::originInputGui() {
 	if (originIsPreviousTarget) BEGIN_DISABLE_IMGUI_ELEMENT
-		if (sequenceType == SequenceType::Type::ANIMATED_MOVE) BEGIN_DISABLE_IMGUI_ELEMENT
-			ImGui::PushID("Origin");
-	origin.inputFieldGui();
+	if (sequenceType == SequenceType::Type::ANIMATED_MOVE) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::PushID("Origin");
+	origin.inputFieldGui(ImGui::GetTextLineHeight() * 5.0);
 	ImGui::PopID();
 	if (sequenceType == SequenceType::Type::ANIMATED_MOVE) END_DISABLE_IMGUI_ELEMENT
 	if (originIsPreviousTarget) END_DISABLE_IMGUI_ELEMENT
 }
 
-void ParameterSequence::targetInputGui() {
+void ParameterTrack::targetInputGui() {
 	if (sequenceType == SequenceType::Type::ANIMATED_MOVE) BEGIN_DISABLE_IMGUI_ELEMENT
-		ImGui::PushID("Target");
-	target.inputFieldGui();
+	ImGui::PushID("Target");
+	target.inputFieldGui(ImGui::GetTextLineHeight() * 5.0);
 	ImGui::PopID();
 	if (sequenceType == SequenceType::Type::ANIMATED_MOVE) END_DISABLE_IMGUI_ELEMENT
 }
 
-void ParameterSequence::constraintInputGui() {
+void ParameterTrack::constraintInputGui() {
 	switch (sequenceType) {
 		case SequenceType::Type::TIMED_MOVE:
 			ImGui::InputDouble("##constraint", &timeConstraint, 0.0, 0.0, "%.3f s");
@@ -65,7 +73,7 @@ void ParameterSequence::constraintInputGui() {
 	}
 }
 
-void ParameterSequence::timeOffsetInputGui() {
+void ParameterTrack::timeOffsetInputGui() {
 	switch (sequenceType) {
 		case SequenceType::Type::ANIMATED_MOVE:
 			break;
@@ -76,11 +84,11 @@ void ParameterSequence::timeOffsetInputGui() {
 }
 
 
-void ParameterSequence::rampIntInputGui() {
+void ParameterTrack::rampIntInputGui() {
 	switch (sequenceType) {
 		case SequenceType::Type::VELOCITY_MOVE:
 		case SequenceType::Type::TIMED_MOVE:
-			switch (curve->interpolationType) {
+			switch (interpolationType) {
 				case InterpolationType::Type::BEZIER:
 				case InterpolationType::Type::TRAPEZOIDAL:
 					ImGui::InputDouble("##rampIn", &rampIn, 0.0, 0.0, "%.3f u");
@@ -94,11 +102,11 @@ void ParameterSequence::rampIntInputGui() {
 	}
 }
 
-void ParameterSequence::rampOutInputGui() {
+void ParameterTrack::rampOutInputGui() {
 	switch (sequenceType) {
 		case SequenceType::Type::VELOCITY_MOVE:
 		case SequenceType::Type::TIMED_MOVE:
-			switch (curve->interpolationType) {
+			switch (interpolationType) {
 				case InterpolationType::Type::BEZIER:
 					break;
 				case InterpolationType::Type::TRAPEZOIDAL:
@@ -115,11 +123,11 @@ void ParameterSequence::rampOutInputGui() {
 	}
 }
 
-void ParameterSequence::equalRampsCheckboxGui() {
+void ParameterTrack::equalRampsCheckboxGui() {
 	switch (sequenceType) {
 		case SequenceType::Type::VELOCITY_MOVE:
 		case SequenceType::Type::TIMED_MOVE:
-			switch (curve->interpolationType) {
+			switch (interpolationType) {
 				case InterpolationType::Type::BEZIER:
 				case InterpolationType::Type::TRAPEZOIDAL:
 					ImGui::Checkbox("##rampEqual", &rampsAreEqual);
