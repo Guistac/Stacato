@@ -33,7 +33,7 @@ class SingleAxisMachine : public Machine{
 	void moveToPositionWithVelocity(double position_axisUnits, double velocity_axisUnits, double acceleration_axisUnits);
 	void moveToPositionInTime(double position_axisUnits, double movementTime_seconds, double acceleration_axisUnits);
 	void positionTargetControl();
-	Motion::Interpolation targetIntepolation;
+	std::shared_ptr<Motion::Interpolation> targetIntepolation = std::make_shared<Motion::Interpolation>();
 	double targetPosition_machineUnits = 0.0;
 	double targetVelocity_machineUnitsPerSecond = 0.0;
 	double targetTime_seconds = 0.0;

@@ -122,7 +122,7 @@ void SingleAxisMachine::moveToParameter() {}
 
 void SingleAxisMachine::setVelocity(double velocity_axisUnits) {
 	manualVelocityTarget_machineUnitsPerSecond = velocity_axisUnits;
-	if (controlMode == ControlMode::Mode::MANUAL_POSITION_TARGET) targetIntepolation = Motion::Interpolation();
+	if (controlMode == ControlMode::Mode::MANUAL_POSITION_TARGET) targetIntepolation->resetValues();
 	controlMode = ControlMode::Mode::MANUAL_VELOCITY_TARGET;
 }
 
@@ -158,8 +158,8 @@ void SingleAxisMachine::moveToPositionWithVelocity(double position_machineUnits,
 	if (position_machineUnits > highPositionLimit) position_machineUnits = highPositionLimit;
 	else if (position_machineUnits < lowPositionLimit) position_machineUnits = lowPositionLimit;
 
-	auto startPoint = std::make_shared<Motion::Point>(profileTime_seconds, profilePosition_machineUnits, acceleration_machineUnits, profileVelocity_machineUnitsPerSecond);
-	auto endPoint= std::make_shared<Motion::Point>(0.0, position_machineUnits, acceleration_machineUnits, 0.0);
+	auto startPoint = std::make_shared<Motion::ControlPoint>(profileTime_seconds, profilePosition_machineUnits, acceleration_machineUnits, profileVelocity_machineUnitsPerSecond);
+	auto endPoint= std::make_shared<Motion::ControlPoint>(0.0, position_machineUnits, acceleration_machineUnits, 0.0);
 	if (Motion::TrapezoidalInterpolation::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, velocity_machineUnits, targetIntepolation)) {
 		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
 		manualVelocityTarget_machineUnitsPerSecond = 0.0;
@@ -176,8 +176,8 @@ void SingleAxisMachine::moveToPositionInTime(double position_machineUnits, doubl
 	if (position_machineUnits > highPositionLimit) position_machineUnits = highPositionLimit;
 	else if (position_machineUnits < lowPositionLimit) position_machineUnits = lowPositionLimit;
 
-	auto startPoint= std::make_shared<Motion::Point>(profileTime_seconds, profilePosition_machineUnits, acceleration_machineUnits, profileVelocity_machineUnitsPerSecond);
-	auto endPoint= std::make_shared<Motion::Point>(profileTime_seconds + movementTime_seconds, position_machineUnits, acceleration_machineUnits, 0.0);
+	auto startPoint= std::make_shared<Motion::ControlPoint>(profileTime_seconds, profilePosition_machineUnits, acceleration_machineUnits, profileVelocity_machineUnitsPerSecond);
+	auto endPoint= std::make_shared<Motion::ControlPoint>(profileTime_seconds + movementTime_seconds, position_machineUnits, acceleration_machineUnits, 0.0);
 	if (Motion::TrapezoidalInterpolation::getTimeConstrainedInterpolation(startPoint, endPoint, velocityLimit, targetIntepolation)) {
 		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
 		manualVelocityTarget_machineUnitsPerSecond = 0.0;
@@ -186,10 +186,10 @@ void SingleAxisMachine::moveToPositionInTime(double position_machineUnits, doubl
 }
 
 void SingleAxisMachine::positionTargetControl() {
-	if (targetIntepolation.isTimeInside(profileTime_seconds)) {
-		std::shared_ptr<Motion::Point> curvePoint = targetIntepolation.getPointAtTime(profileTime_seconds);
-		profilePosition_machineUnits = curvePoint->position;
-		profileVelocity_machineUnitsPerSecond = curvePoint->velocity;
+	if (targetIntepolation->isTimeInside(profileTime_seconds)) {
+		Motion::CurvePoint curvePoint = targetIntepolation->getPointAtTime(profileTime_seconds);
+		profilePosition_machineUnits = curvePoint.position;
+		profileVelocity_machineUnitsPerSecond = curvePoint.velocity;
 	}
 	else profileVelocity_machineUnitsPerSecond = 0.0;
 }

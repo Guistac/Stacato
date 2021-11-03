@@ -4,6 +4,12 @@
 #include "Motion/Subdevice.h"
 #include "Motion/AnimatableParameter.h"
 
+std::vector<StateParameterValue> HoodedLiftStateMachine::stateParameterValues = {
+	{0, "Shut", "Shut"},
+	{1, "Open", "Open"},
+	{2, "Raised", "Raised"}
+};
+
 void HoodedLiftStateMachine::assignIoData() {
 	addIoData(gpioDeviceLink);
 
@@ -22,13 +28,11 @@ void HoodedLiftStateMachine::assignIoData() {
 	addIoData(lowerLiftCommandPin);
 
 	std::shared_ptr<Machine> thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
-	stateParameter = std::make_shared<AnimatableParameter>("State", thisMachine, &states);
+	stateParameter = std::make_shared<AnimatableParameter>("State", thisMachine, &stateParameterValues);
 	animatableParameters.push_back(stateParameter);
 
-	f3Parameter = std::make_shared<AnimatableParameter>("3F", thisMachine, ParameterDataType::KINEMATIC_3D_POSITION_CURVE);
-	animatableParameters.push_back(f3Parameter);
-	f2Parameter = std::make_shared<AnimatableParameter>("2F", thisMachine, ParameterDataType::VECTOR_2D_PARAMETER);
-	animatableParameters.push_back(f2Parameter);
+	realParameter = std::make_shared<AnimatableParameter>("Real", thisMachine, ParameterDataType::REAL_PARAMETER);
+	animatableParameters.push_back(realParameter);
 }
 
 void HoodedLiftStateMachine::process() {

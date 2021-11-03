@@ -26,11 +26,11 @@ public:
 
 	std::vector<std::shared_ptr<Motion::Curve>> curves;
 	void updateCurves();
+	int getCurveCount() { return curves.size(); }
 
 	//points for simple movement sequences (not manual animated moves)
-	std::vector<std::shared_ptr<Motion::Point>> startPoints;
-	std::vector<std::shared_ptr<Motion::Point>> endPoints;
-	std::vector<std::shared_ptr<Motion::Interpolation>> sequenceInterpolations;
+	std::vector<std::shared_ptr<Motion::ControlPoint>> startPoints;
+	std::vector<std::shared_ptr<Motion::ControlPoint>> endPoints;
 
 	bool originIsPreviousTarget = false;
 	AnimatableParameterValue origin;
@@ -42,14 +42,14 @@ public:
 	double rampOut = 0.0;
 	bool rampsAreEqual = false;
 
-	void sequenceTypeSelectorGui();
-	void interpolationTypeSelectorGui();
-	void chainPreviousTargetCheckboxGui();
-	void originInputGui();
-	void targetInputGui();
-	void constraintInputGui();
-	void timeOffsetInputGui();
-	void rampIntInputGui();
-	void rampOutInputGui();
-	void equalRampsCheckboxGui();
+	bool sequenceTypeSelectorGui();
+	bool interpolationTypeSelectorGui();
+	bool chainPreviousTargetCheckboxGui();
+	bool originInputGui();
+	bool targetInputGui();
+	bool constraintInputGui();
+	bool timeOffsetInputGui();
+	bool rampIntInputGui();
+	bool rampOutInputGui();
+	bool equalRampsCheckboxGui();
 };

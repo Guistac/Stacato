@@ -6,92 +6,111 @@
 #include <imgui_internal.h>
 
 
-void ParameterTrack::interpolationTypeSelectorGui() {
+bool ParameterTrack::interpolationTypeSelectorGui() {
+	bool valueChanged = false;
 	auto compatibleInterpolations = parameter->getCompatibleInterpolationTypes();
 	bool disableCombo = compatibleInterpolations.size() < 2;
 	if(disableCombo) BEGIN_DISABLE_IMGUI_ELEMENT
 	if (ImGui::BeginCombo("##InterpolationSelector", getInterpolationType(interpolationType)->displayName)) {
 		for (auto& it : compatibleInterpolations) {
+			if(it == InterpolationType::Type::BEZIER) BEGIN_DISABLE_IMGUI_ELEMENT
 			if (ImGui::Selectable(getInterpolationType(it)->displayName, it == interpolationType)) {
 				setInterpolationType(it);
+				valueChanged = true;
 			}
+			if(it == InterpolationType::Type::BEZIER) END_DISABLE_IMGUI_ELEMENT
 		}
 		ImGui::EndCombo();
 	}
-	if(disableCombo) END_DISABLE_IMGUI_ELEMENT
+	if (disableCombo) END_DISABLE_IMGUI_ELEMENT
+	return valueChanged;
 }
 
-void ParameterTrack::sequenceTypeSelectorGui() {
+bool ParameterTrack::sequenceTypeSelectorGui() {
+	bool valueChanged = false;
 	auto compatibleSequenceTypes = getCompatibleSequenceTypes();
 	bool disableCombo = compatibleSequenceTypes.size() < 2;
 	if(disableCombo) BEGIN_DISABLE_IMGUI_ELEMENT
 	if (ImGui::BeginCombo("##SequenceTypeSelector", getSequenceType(sequenceType)->displayName)) {
 		for (auto& st : compatibleSequenceTypes) {
+			if(st == SequenceType::Type::ANIMATED_MOVE) BEGIN_DISABLE_IMGUI_ELEMENT
 			if (ImGui::Selectable(getSequenceType(st)->displayName, st == sequenceType)) {
 				setSequenceType(st);
+				valueChanged = true;
 			}
+			if(st == SequenceType::Type::ANIMATED_MOVE) END_DISABLE_IMGUI_ELEMENT
 		}
 		ImGui::EndCombo();
 	}
-	if(disableCombo) END_DISABLE_IMGUI_ELEMENT
+	if (disableCombo) END_DISABLE_IMGUI_ELEMENT
+	return valueChanged;
 }
 
 
-void ParameterTrack::chainPreviousTargetCheckboxGui() {
-	ImGui::Checkbox("##Chain", &originIsPreviousTarget);
+bool ParameterTrack::chainPreviousTargetCheckboxGui() {
+	return ImGui::Checkbox("##Chain", &originIsPreviousTarget);
 }
 
 
-void ParameterTrack::originInputGui() {
+bool ParameterTrack::originInputGui() {
+	bool valueChanged = false;
 	if (originIsPreviousTarget) BEGIN_DISABLE_IMGUI_ELEMENT
 	if (sequenceType == SequenceType::Type::ANIMATED_MOVE) BEGIN_DISABLE_IMGUI_ELEMENT
 	ImGui::PushID("Origin");
-	origin.inputFieldGui(ImGui::GetTextLineHeight() * 5.0);
+	valueChanged = origin.inputFieldGui(ImGui::GetTextLineHeight() * 5.0);
 	ImGui::PopID();
 	if (sequenceType == SequenceType::Type::ANIMATED_MOVE) END_DISABLE_IMGUI_ELEMENT
 	if (originIsPreviousTarget) END_DISABLE_IMGUI_ELEMENT
+	return valueChanged;
 }
 
-void ParameterTrack::targetInputGui() {
+bool ParameterTrack::targetInputGui() {
+	bool valueChanged = false;
 	if (sequenceType == SequenceType::Type::ANIMATED_MOVE) BEGIN_DISABLE_IMGUI_ELEMENT
 	ImGui::PushID("Target");
-	target.inputFieldGui(ImGui::GetTextLineHeight() * 5.0);
+	valueChanged = target.inputFieldGui(ImGui::GetTextLineHeight() * 5.0);
 	ImGui::PopID();
 	if (sequenceType == SequenceType::Type::ANIMATED_MOVE) END_DISABLE_IMGUI_ELEMENT
+	return valueChanged;
 }
 
-void ParameterTrack::constraintInputGui() {
+bool ParameterTrack::constraintInputGui() {
+	bool valueChanged = false;
 	switch (sequenceType) {
 		case SequenceType::Type::TIMED_MOVE:
-			ImGui::InputDouble("##constraint", &timeConstraint, 0.0, 0.0, "%.3f s");
+			valueChanged = ImGui::InputDouble("##constraint", &timeConstraint, 0.0, 0.0, "%.3f s");
 			break;
 		case SequenceType::Type::VELOCITY_MOVE:
-			ImGui::InputDouble("##constraint", &velocityConstraint, 0.0, 0.0, "%.3f u/s");
+			valueChanged = ImGui::InputDouble("##constraint", &velocityConstraint, 0.0, 0.0, "%.3f u/s");
 			break;
 		default:
 			break;
 	}
+	return valueChanged;
 }
 
-void ParameterTrack::timeOffsetInputGui() {
+bool ParameterTrack::timeOffsetInputGui() {
+	bool valueChanged = false;
 	switch (sequenceType) {
 		case SequenceType::Type::ANIMATED_MOVE:
 			break;
 		default:
-			ImGui::InputDouble("##timeOffset", &timeOffset, 0.0, 0.0, "%.3f s");
+			valueChanged = ImGui::InputDouble("##timeOffset", &timeOffset, 0.0, 0.0, "%.3f s");
 			break;
 	}
+	return valueChanged;
 }
 
 
-void ParameterTrack::rampIntInputGui() {
+bool ParameterTrack::rampIntInputGui() {
+	bool valueChanged = false;
 	switch (sequenceType) {
 		case SequenceType::Type::VELOCITY_MOVE:
 		case SequenceType::Type::TIMED_MOVE:
 			switch (interpolationType) {
 				case InterpolationType::Type::BEZIER:
 				case InterpolationType::Type::TRAPEZOIDAL:
-					ImGui::InputDouble("##rampIn", &rampIn, 0.0, 0.0, "%.3f u");
+					valueChanged = ImGui::InputDouble("##rampIn", &rampIn, 0.0, 0.0, "%.3f u");
 					break;
 				default:
 					break;
@@ -100,9 +119,11 @@ void ParameterTrack::rampIntInputGui() {
 	default:
 		break;
 	}
+	return valueChanged;
 }
 
-void ParameterTrack::rampOutInputGui() {
+bool ParameterTrack::rampOutInputGui() {
+	bool valueChanged = false;
 	switch (sequenceType) {
 		case SequenceType::Type::VELOCITY_MOVE:
 		case SequenceType::Type::TIMED_MOVE:
@@ -111,7 +132,7 @@ void ParameterTrack::rampOutInputGui() {
 					break;
 				case InterpolationType::Type::TRAPEZOIDAL:
 					if (rampsAreEqual) BEGIN_DISABLE_IMGUI_ELEMENT
-					ImGui::InputDouble("##rampOut", &rampOut, 0.0, 0.0, "%.3f u");
+					valueChanged = ImGui::InputDouble("##rampOut", &rampOut, 0.0, 0.0, "%.3f u");
 					if (rampsAreEqual) END_DISABLE_IMGUI_ELEMENT
 					break;
 				default:
@@ -121,16 +142,18 @@ void ParameterTrack::rampOutInputGui() {
 	default:
 		break;
 	}
+	return valueChanged;
 }
 
-void ParameterTrack::equalRampsCheckboxGui() {
+bool ParameterTrack::equalRampsCheckboxGui() {
+	bool valueChanged = false;
 	switch (sequenceType) {
 		case SequenceType::Type::VELOCITY_MOVE:
 		case SequenceType::Type::TIMED_MOVE:
 			switch (interpolationType) {
 				case InterpolationType::Type::BEZIER:
 				case InterpolationType::Type::TRAPEZOIDAL:
-					ImGui::Checkbox("##rampEqual", &rampsAreEqual);
+					valueChanged = ImGui::Checkbox("##rampEqual", &rampsAreEqual);
 					break;
 				default:
 					break;
@@ -139,4 +162,5 @@ void ParameterTrack::equalRampsCheckboxGui() {
 		default:
 			break;
 	}
+	return valueChanged;
 }

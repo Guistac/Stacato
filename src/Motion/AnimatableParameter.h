@@ -23,7 +23,7 @@ public:
 	AnimatableParameterValue(glm::vec3 v) { vector3value = v; type = ParameterDataType::VECTOR_2D_PARAMETER; }
 	ParameterDataType type;
 
-	void inputFieldGui(float width);
+	bool inputFieldGui(float width);
 
 	bool boolValue = false;
 	int integerValue = false;

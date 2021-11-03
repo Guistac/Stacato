@@ -15,6 +15,8 @@
 #include "Gui/Framework/Fonts.h"
 #include "Gui/Utilities/CustomWidgets.h"
 
+#include "Motion/Curve/Curve.h"
+
 void Manoeuvre::listGui() {
 
 	ImGui::PushFont(Fonts::robotoBold20);
@@ -76,74 +78,78 @@ void Manoeuvre::editGui() {
 		std::shared_ptr<ParameterTrack> movedUpSequence = nullptr;
 		std::shared_ptr<ParameterTrack> movedDownSequence = nullptr;
 
-		for (auto& parameterSequence : tracks) {
+		for (auto& parameterTrack : tracks) {
 
-			ImGui::PushID(parameterSequence->parameter->name);
-			ImGui::PushID(parameterSequence->parameter->machine->getName());
+			bool refreshSequence = false;
+
+			ImGui::PushID(parameterTrack->parameter->name);
+			ImGui::PushID(parameterTrack->parameter->machine->getName());
 
 			ImGui::TableNextRow(ImGuiTableRowFlags_None);
 
 			ImGui::TableSetColumnIndex(0);
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.1));
-			if (buttonCross("##remove")) removedSequence = parameterSequence;
+			if (buttonCross("##remove")) removedSequence = parameterTrack;
 			ImGui::SameLine();
-			bool disableMoveUp = parameterSequence == tracks.front();
+			bool disableMoveUp = parameterTrack == tracks.front();
 			if(disableMoveUp) BEGIN_DISABLE_IMGUI_ELEMENT
-			if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpSequence = parameterSequence;
+			if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpSequence = parameterTrack;
 			if(disableMoveUp) END_DISABLE_IMGUI_ELEMENT
 			ImGui::SameLine();
-			bool disableMoveDown = parameterSequence == tracks.back();
+			bool disableMoveDown = parameterTrack == tracks.back();
 			if(disableMoveDown) BEGIN_DISABLE_IMGUI_ELEMENT
-			if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownSequence = parameterSequence;
+			if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownSequence = parameterTrack;
 			if(disableMoveDown) END_DISABLE_IMGUI_ELEMENT
 			ImGui::PopStyleVar();
 
 			ImGui::TableSetColumnIndex(1);
-			ImGui::Text(parameterSequence->parameter->machine->getName());
+			ImGui::Text(parameterTrack->parameter->machine->getName());
 			
 			ImGui::TableSetColumnIndex(2);
-			ImGui::Text(parameterSequence->parameter->name);
+			ImGui::Text(parameterTrack->parameter->name);
 
 			ImGui::TableSetColumnIndex(3);
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
-			parameterSequence->interpolationTypeSelectorGui();
+			refreshSequence |= parameterTrack->interpolationTypeSelectorGui();
 
 			ImGui::TableSetColumnIndex(4);
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.5);
-			parameterSequence->sequenceTypeSelectorGui();
+			refreshSequence |= parameterTrack->sequenceTypeSelectorGui();
 
 			ImGui::TableSetColumnIndex(5);
-			parameterSequence->chainPreviousTargetCheckboxGui();
+			refreshSequence |= parameterTrack->chainPreviousTargetCheckboxGui();
 
 			ImGui::TableSetColumnIndex(6);
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-			parameterSequence->originInputGui();
+			refreshSequence |= parameterTrack->originInputGui();
 
 			ImGui::TableSetColumnIndex(7);
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-			parameterSequence->targetInputGui();
+			refreshSequence |= parameterTrack->targetInputGui();
 
 			ImGui::TableSetColumnIndex(8);
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-			parameterSequence->constraintInputGui();
+			refreshSequence |= parameterTrack->constraintInputGui();
 
 			ImGui::TableSetColumnIndex(9);
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-			parameterSequence->timeOffsetInputGui();
+			refreshSequence |= parameterTrack->timeOffsetInputGui();
 
 			ImGui::TableSetColumnIndex(10);
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-			parameterSequence->rampIntInputGui();
+			refreshSequence |= parameterTrack->rampIntInputGui();
 
 			ImGui::TableSetColumnIndex(11);
-			parameterSequence->equalRampsCheckboxGui();
+			refreshSequence |= parameterTrack->equalRampsCheckboxGui();
 
 			ImGui::TableSetColumnIndex(12);
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-			parameterSequence->rampOutInputGui();			
+			refreshSequence |= parameterTrack->rampOutInputGui();
 
 			ImGui::PopID();
 			ImGui::PopID();
+
+			if (refreshSequence) parameterTrack->updateCurves();
 		}
 
 		ImGui::TableNextRow();
@@ -200,11 +206,32 @@ void Manoeuvre::editGui() {
 		ImGui::EndTable();
 	}
 
+	//ImPlot::FitNextPlotAxes();
 	ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoChild;
 	if (ImPlot::BeginPlot("##SequenceCurveDisplay", 0, 0, ImGui::GetContentRegionAvail(), plotFlags)) {
 
+		for (auto& parameterTrack : tracks) {
+			for (auto& curve : parameterTrack->curves) {
+				std::vector<Motion::CurvePoint>& points = curve->displayCurvePoints;
+				if (!points.empty()) {
+					ImPlot::PlotLine("test", &points.front().time, &points.front().position, points.size(), 0, sizeof(Motion::CurvePoint));
+				}
+			}
+		}
+
+
+		int id = 0;
+		for (auto& parameterTrack : tracks) {
+			for (auto& curve : parameterTrack->curves) {
+				for (auto& point : curve->points) {
+					ImPlot::DragPoint(point->name, &point->time, &point->position, true, Colors::white, 10.0);
+				}
+				id++;
+			}
+		}
+
 		ImPlot::EndPlot();
 	}
-
+	
 
 }

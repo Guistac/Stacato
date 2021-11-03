@@ -5,50 +5,65 @@
 namespace Motion {
 
 	bool Interpolation::isTimeInside(double time) {
-		return time >= inPoint->time && time < outPoint->time;
+		return time >= inTime && time < outTime;
 	}
 
-	std::shared_ptr<Point> Interpolation::getPointAtTime(double time) {
-		std::shared_ptr<Point> output = std::make_shared<Point>();
-		output->time = time;
+	CurvePoint Interpolation::getPointAtTime(double time) {
+		CurvePoint output;
+		output.time = time;
 		switch (type) {
 			case InterpolationType::Type::STEP:
-				output->position = inPoint->position;
+				if (time < inTime || time < outTime) output.position = inPoint->position;
+				else output.position = outPoint->position;
+				output.velocity = 0.0;
+				output.acceleration = 0.0;
 				break;
 			case InterpolationType::Type::LINEAR:
-				output->position = inPoint->position + (time - inPoint->time) * interpolationVelocity;
+				if (time < inTime) {
+					output.position = inPoint->position;
+					output.velocity = 0.0;
+				}
+				else if (time < outTime) {
+					output.position = inPoint->position + (time - inPoint->time) * interpolationVelocity;
+					output.velocity = interpolationVelocity;
+				}
+				else {
+					output.position = outPoint->position;
+					output.velocity = 0.0;
+				}
+				output.acceleration = 0.0;
 				break;
 			case InterpolationType::Type::BEZIER:
-				output->position = inPoint->position;
+				output.position = inPoint->position;
 				break;
 			case InterpolationType::Type::TRAPEZOIDAL: {
 				if (time < inTime) {
-					output->position = inPosition;
-					output->velocity = inVelocity;
-					output->acceleration = 0.0;
+					output.position = inPosition;
+					output.velocity = inVelocity;
+					output.acceleration = 0.0;
 				}
 				else if (time < rampInEndTime) {
 					double deltaT = time - inTime;
-					output->position = inPosition + inVelocity * deltaT + inAcceleration * std::pow(deltaT, 2.0) / 2.0;
-					output->velocity = inVelocity + inAcceleration * deltaT;
-					output->acceleration = inAcceleration;
+					output.position = inPosition + inVelocity * deltaT + inAcceleration * std::pow(deltaT, 2.0) / 2.0;
+					output.velocity = inVelocity + inAcceleration * deltaT;
+					output.acceleration = inAcceleration;
 				}
 				else if (time < rampOutStartTime) {
 					double deltaT = time - rampInEndTime;
-					output->position = rampInEndPosition + deltaT * interpolationVelocity;
-					output->velocity = interpolationVelocity;
-					output->acceleration = 0.0;
+					output.position = rampInEndPosition + deltaT * interpolationVelocity;
+					output.velocity = interpolationVelocity;
+					output.acceleration = 0.0;
 				}
 				else if (time < outTime) {
 					double deltaT = time - rampOutStartTime;
-					output->position = rampOutStartPosition + interpolationVelocity * deltaT + outAcceleration * std::pow(deltaT, 2.0) / 2.0;
-					output->velocity = interpolationVelocity + outAcceleration * deltaT;
-					output->acceleration = outAcceleration;
+					output.position = rampOutStartPosition + interpolationVelocity * deltaT + outAcceleration * std::pow(deltaT, 2.0) / 2.0;
+					output.velocity = interpolationVelocity + outAcceleration * deltaT;
+					output.acceleration = outAcceleration;
 				}
 				else {
-					output->position = outPosition;
-					output->velocity = outVelocity;
-					output->acceleration = 0.0;
+					output.position = outPosition;
+					output.velocity = outVelocity;
+					output.acceleration = 0.0;
 				}
 			}break;
 
@@ -63,19 +78,34 @@ namespace Motion {
 		return progress;
 	}
 
-	void Curve::getPoints(std::vector<std::shared_ptr<Point>>& output) {
-		output.reserve(interpolations.size());
-		for (auto& interpolation : interpolations) {
-			output.push_back(interpolation->inPoint);
-		}
-		output.push_back(interpolations.back()->outPoint);
+	void Interpolation::resetValues() {
+		inPoint = nullptr;
+		outPoint = nullptr;
+		inTime = 0.0;
+		inPosition = 0.0;
+		inVelocity = 0.0;
+		inAcceleration = 0.0;
+		outTime = 0.0;
+		outPosition = 0.0;
+		outVelocity = 0.0;
+		outAcceleration = 0.0;
+		isDefined = false;
+		interpolationVelocity = 0.0;
+		rampInEndPosition = 0.0;	
+		rampInEndTime = 0.0;		
+		rampOutStartPosition = 0.0;	
+		rampOutStartTime = 0.0;		
 	}
 
-	void Curve::addPoint(std::shared_ptr<Point> point) {
+	std::vector<std::shared_ptr<ControlPoint>>& Curve::getPoints() {
+		return points;
+	}
+
+	void Curve::addPoint(std::shared_ptr<ControlPoint> point) {
 		points.push_back(point);
 	}
 
-	void Curve::removePoint(std::shared_ptr<Point> point) {
+	void Curve::removePoint(std::shared_ptr<ControlPoint> point) {
 		for (int i = 0; i < points.size(); i++) {
 			if (points[i] == point) {
 				points.erase(points.begin() + i);
@@ -90,41 +120,42 @@ namespace Motion {
 	}
 
 	void Curve::refresh() {
+		
+		//remove all previous interpolations
 		interpolations.clear();
-		auto sortfunction = [](std::shared_ptr<Motion::Point>& a, std::shared_ptr<Motion::Point>& b) -> bool {
-			return a->time > b->time;
-		};
+		
+		auto sortfunction = [](std::shared_ptr<Motion::ControlPoint>& a, std::shared_ptr<Motion::ControlPoint>& b) -> bool { return a->time < b->time; };
 		std::sort(points.begin(), points.end(), sortfunction);
+
 		for (int i = 0; i < points.size() - 1; i++) {
+			std::shared_ptr<Motion::ControlPoint>& inPoint = points[i];
+			std::shared_ptr<Motion::ControlPoint>& outPoint = points[i + 1];
 			std::shared_ptr<Motion::Interpolation> interpolation = std::make_shared<Motion::Interpolation>();
-			std::shared_ptr<Motion::Point>& inPoint = points[i];
-			std::shared_ptr<Motion::Point>& outPoint = points[i + 1];
 			switch (interpolationType) {
 				case InterpolationType::Type::STEP:
-					//nothing needs to be done here
+					Motion::StepInterpolation::getInterpolation(inPoint, outPoint, interpolation);
 					break;
 				case InterpolationType::Type::LINEAR:
-					//notsupported yet:
+					Motion::LinearInterpolation::getTimeConstrainedInterpolation(inPoint, outPoint, interpolation);
 					break;
 				case InterpolationType::Type::BEZIER:
 					//not supported yet:
 					break;
 				case InterpolationType::Type::TRAPEZOIDAL:
-					Motion::TrapezoidalInterpolation::getTimeConstrainedInterpolation(inPoint, outPoint, 100000, *interpolation);
+					Motion::TrapezoidalInterpolation::getTimeConstrainedInterpolation(inPoint, outPoint, 100, interpolation);
 					break;
 			}
-			interpolation->inPoint = inPoint;
-			interpolation->outPoint = outPoint;
 			interpolations.push_back(interpolation);
 		}
+		updateDisplayCurvePoints();
 	}
 
-	std::shared_ptr<Point> Curve::getStart() {
-		return interpolations.front()->inPoint;
+	std::shared_ptr<ControlPoint> Curve::getStart() {
+		return points.front();
 	}
 
-	std::shared_ptr<Point> Curve::getEnd() {
-		return interpolations.back()->outPoint;
+	std::shared_ptr<ControlPoint> Curve::getEnd() {
+		return points.back();
 	}
 
 	double Curve::getLength() {
@@ -135,17 +166,21 @@ namespace Motion {
 		return time >= getStart()->time && time < getEnd()->time;
 	}
 
-	std::shared_ptr<Point> Curve::getPointAtTime(double time) {
+	CurvePoint Curve::getPointAtTime(double time) {
 		if (time < getStart()->time) {
-			std::shared_ptr<Point> output = std::make_shared<Point>();
-			output->position = getStart()->position;
-			output->time = time;
+			CurvePoint output;
+			output.position = getStart()->position;
+			output.time = time;
+			output.velocity = 0.0;
+			output.acceleration = 0.0;
 			return output;
 		}
-		else if (time >= getStart()->time) {
-			std::shared_ptr<Point> output = std::make_shared<Point>();
-			output->position = getEnd()->position;
-			output->time = time;
+		else if (time >= getEnd()->time) {
+			CurvePoint output;
+			output.position = getEnd()->position;
+			output.time = time;
+			output.velocity = 0.0;
+			output.acceleration = 0.0;
 			return output;
 		}
 		else {
@@ -154,6 +189,19 @@ namespace Motion {
 					return interpolation->getPointAtTime(time);
 				}
 			}
+		}
+	}
+
+
+	void Curve::updateDisplayCurvePoints() {
+		displayCurvePoints.clear();
+		int pointCount = 1000;
+		double length_seconds = getLength();
+		double start_seconds = getStart()->time;
+		displayCurvePoints.reserve(pointCount);
+		for (int i = 0; i < pointCount; i++) {
+			double time_seconds = start_seconds + length_seconds * i / (pointCount - 1);
+			displayCurvePoints.push_back(getPointAtTime(time_seconds));
 		}
 	}
 

@@ -24,14 +24,8 @@ public:
 	std::shared_ptr<NodePin> lowerLiftCommandPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Lower Lift", NodePinFlags_DisableDataField);
 
 	std::shared_ptr<AnimatableParameter> stateParameter;
-	std::shared_ptr<AnimatableParameter> f3Parameter;
-	std::shared_ptr<AnimatableParameter> f2Parameter;
-
-	std::vector<StateParameterValue> states = {
-		{0, "Shut", "Shut"},
-		{1, "Open", "Open"},
-		{2, "Lifted", "Lifted"}
-	};
+	std::shared_ptr<AnimatableParameter> realParameter;
+	static std::vector<StateParameterValue> stateParameterValues;
 
 	bool hoodShut = false;
 	bool hoodOpen = false;

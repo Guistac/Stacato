@@ -4,19 +4,23 @@
 
 namespace Motion {
 
-	struct Point;
+	struct ControlPoint;
 	class Interpolation;
 	class Curve;
 
-	struct Point {
-
-		Point() {}
-		Point(double t, double p, double a, double v) : time(t), position(p), velocity(v), acceleration(a) {}
-
+	struct CurvePoint {
+		CurvePoint() {}
+		CurvePoint(double t, double p, double a, double v) : time(t), position(p), velocity(v), acceleration(a) {}
 		double time;
 		double position;
 		double velocity;
 		double acceleration;
+	};
+
+	struct ControlPoint : public CurvePoint {
+
+		ControlPoint() {}
+		ControlPoint(double t, double p, double a, double v) : CurvePoint(t,p,a,v) {}
 
 		double velocityIn;
 		double velocityOut;
@@ -24,14 +28,16 @@ namespace Motion {
 		double rampOut;
 		std::shared_ptr<Interpolation> inInterpolation;
 		std::shared_ptr<Interpolation> outInterpolation;
+
+		char name[64] = "";
 	};
 
 	class Interpolation {
 	public:
 
 		InterpolationType::Type type;
-		std::shared_ptr<Point> inPoint;
-		std::shared_ptr<Point> outPoint;
+		std::shared_ptr<ControlPoint> inPoint;
+		std::shared_ptr<ControlPoint> outPoint;
 
 		double inTime = 0.0;
 		double inPosition = 0.0;
@@ -56,44 +62,50 @@ namespace Motion {
 		double rampOutStartTime = 0.0;		//time of deceleration start
 
 		bool Interpolation::isTimeInside(double time);
-		std::shared_ptr<Point> getPointAtTime(double time);
+		CurvePoint getPointAtTime(double time);
 		double getProgressAtTime(double time);
+
+		void resetValues();
 	};
 
 	class Curve {
 	public:
-		std::vector<std::shared_ptr<Point>> points;
+		std::vector<std::shared_ptr<ControlPoint>> points;
 		InterpolationType::Type interpolationType;
 		std::vector<std::shared_ptr<Interpolation>> interpolations;
 
-		void getPoints(std::vector<std::shared_ptr<Point>>& output);
-		void addPoint(std::shared_ptr<Point> point);
-		void removePoint(std::shared_ptr<Point> point);
+		std::vector<std::shared_ptr<ControlPoint>>& getPoints();
+		void addPoint(std::shared_ptr<ControlPoint> point);
+		void removePoint(std::shared_ptr<ControlPoint> point);
 		void removeAllPoints();
 		void refresh();
 
-		std::shared_ptr<Point> getStart();
-		std::shared_ptr<Point> getEnd();
+		std::shared_ptr<ControlPoint> getStart();
+		std::shared_ptr<ControlPoint> getEnd();
 		double getLength();
 		bool isTimeInsideCurve(double time);
-		std::shared_ptr<Point> getPointAtTime(double time);
+		CurvePoint getPointAtTime(double time);
+
+		void updateDisplayCurvePoints();
+		std::vector<CurvePoint> displayCurvePoints;
 	};
 
 
 
 	namespace TrapezoidalInterpolation {
-
-		//KINEMATIC POSITION INTERPOLATION
-
 		//returns a profile using the position, velocity, acceleration and time data of the two specified points, while respecting the provided motion constraints
-		bool getTimeConstrainedInterpolation(std::shared_ptr<Point>& startPoint, std::shared_ptr<Point>& endPoint, double maxVelocity, Interpolation& output);
-
-		//return a profile using the position, velocity and acceleration values of the two specified points, using the specified velocity as a target while respecting the provided motion constraints
-		bool getVelocityContrainedInterpolations(std::shared_ptr<Point>& startPoint, std::shared_ptr<Point>& endPoint, double velocity, std::vector<Interpolation>& output);
-
+		bool getTimeConstrainedInterpolation(std::shared_ptr<ControlPoint>& startPoint, std::shared_ptr<ControlPoint>& endPoint, double maxVelocity, std::shared_ptr<Interpolation>& output);
 		//return a the fastest profile using the position, velocity and acceleration values of the two specified points, while respecting those motion constraints
-		bool getFastestVelocityConstrainedInterpolation(std::shared_ptr<Point>& startPoint, std::shared_ptr<Point>& endPoint, double velocity, Interpolation& output);
+		bool getFastestVelocityConstrainedInterpolation(std::shared_ptr<ControlPoint>& startPoint, std::shared_ptr<ControlPoint>& endPoint, double velocity, std::shared_ptr<Interpolation>& output);
+	}
 
+	namespace LinearInterpolation {
+		void getTimeConstrainedInterpolation(std::shared_ptr<ControlPoint>& startPoint, std::shared_ptr<ControlPoint>& endPoint, std::shared_ptr<Interpolation>& output);
+		void getVelocityConstrainedInterpolation(std::shared_ptr<ControlPoint>& startPoint, std::shared_ptr<ControlPoint>& endPoint, double velocity, std::shared_ptr<Interpolation>& output);
+	}
+
+	namespace StepInterpolation {
+		void getInterpolation(std::shared_ptr<ControlPoint>& startPoints, std::shared_ptr<ControlPoint>& endPoint, std::shared_ptr<Interpolation>& output);
 	}
 
 }

@@ -96,7 +96,7 @@ public:
 	void moveToPositionWithVelocity(double position_axisUnits, double velocity_axisUnits, double acceleration_axisUnits);
 	void moveToPositionInTime(double position_axisUnits, double movementTime_seconds, double acceleration_axisUnits);
 	void positionTargetControl();
-	Motion::Interpolation targetInterpolation;
+	std::shared_ptr<Motion::Interpolation> targetInterpolation = std::make_shared<Motion::Interpolation>();
 	double targetPosition_axisUnits = 0.0;
 	double targetVelocity_axisUnitsPerSecond = 0.0;
 	double targetTime_seconds = 0.0;

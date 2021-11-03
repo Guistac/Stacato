@@ -169,14 +169,14 @@ void SingleAxisMachine::controlsGui() {
 		sprintf(movementProgressChar, "No Target Movement");
 		targetProgress = 1.0;
 	}
-	else if (targetIntepolation.getProgressAtTime(profileTime_seconds) >= 1.0) {
+	else if (targetIntepolation->getProgressAtTime(profileTime_seconds) >= 1.0) {
 		targetProgress = 1.0;
 		sprintf(movementProgressChar, "Movement Finished");
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 	}
 	else {
-		targetProgress = targetIntepolation.getProgressAtTime(profileTime_seconds);
-		movementSecondsLeft = targetIntepolation.outTime - profileTime_seconds;
+		targetProgress = targetIntepolation->getProgressAtTime(profileTime_seconds);
+		movementSecondsLeft = targetIntepolation->outTime - profileTime_seconds;
 		if (movementSecondsLeft < 0.0) movementSecondsLeft = 0.0;
 		sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
@@ -240,7 +240,7 @@ void SingleAxisMachine::machineSpecificMiniatureGui() {
 		sprintf(targetPositionString, "%.1f %s", targetPosition_machineUnits, getPositionUnitStringShort(positionUnit));
 		ImGui::InputDouble("##TargetPosition", &targetPosition_machineUnits, 0.0, 0.0, targetPositionString);
 
-		float motionProgress = targetIntepolation.getProgressAtTime(profileTime_seconds);
+		float motionProgress = targetIntepolation->getProgressAtTime(profileTime_seconds);
 		if (motionProgress > 0.0 && motionProgress < 1.0) {
 			glm::vec2 targetmin = ImGui::GetItemRectMin();
 			glm::vec2 targetmax = ImGui::GetItemRectMax();

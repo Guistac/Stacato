@@ -5,21 +5,23 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-void AnimatableParameterValue::inputFieldGui(float width) {
+bool AnimatableParameterValue::inputFieldGui(float width) {
+	bool valueChanged = false;
 	ImGui::SetNextItemWidth(width);
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.1));
 	switch (type) {
 		case ParameterDataType::BOOLEAN_PARAMETER:
-			ImGui::Checkbox("##parameter", &boolValue);
+			valueChanged = ImGui::Checkbox("##parameter", &boolValue);
 			break;
 		case ParameterDataType::INTEGER_PARAMETER:
-			ImGui::InputInt("##parameter", &integerValue);
+			valueChanged = ImGui::InputInt("##parameter", &integerValue);
 			break;
 		case ParameterDataType::STATE_PARAMETER:
 			if (ImGui::BeginCombo("##parameter", stateValue->displayName)) {
 				for (auto& val : *stateValues) {
 					if (ImGui::Selectable(val.displayName, stateValue == &val)) {
 						stateValue = &val;
+						valueChanged = true;
 						break;
 					}
 				}
@@ -28,22 +30,23 @@ void AnimatableParameterValue::inputFieldGui(float width) {
 			break;
 		case ParameterDataType::REAL_PARAMETER:
 		case ParameterDataType::KINEMATIC_POSITION_CURVE:
-			ImGui::InputDouble("##parameter", &realValue);
+			valueChanged = ImGui::InputDouble("##parameter", &realValue);
 			break;
 		case ParameterDataType::VECTOR_2D_PARAMETER:
 		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
-			ImGui::InputFloat("##X", &vector2value.x, 0.0, 0.0, "X: %.3f");
+			valueChanged |= ImGui::InputFloat("##X", &vector2value.x, 0.0, 0.0, "X: %.3f");
 			ImGui::SetNextItemWidth(width);
-			ImGui::InputFloat("##Y", &vector2value.y, 0.0, 0.0, "Y: %.3f");
+			valueChanged |= ImGui::InputFloat("##Y", &vector2value.y, 0.0, 0.0, "Y: %.3f");
 			break;
 		case ParameterDataType::VECTOR_3D_PARAMETER:
 		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
-			ImGui::InputFloat("##X", &vector3value.x, 0.0, 0.0, "X: %.3f");
+			valueChanged |= ImGui::InputFloat("##X", &vector3value.x, 0.0, 0.0, "X: %.3f");
 			ImGui::SetNextItemWidth(width);
-			ImGui::InputFloat("##Y", &vector3value.y, 0.0, 0.0, "Y: %.3f");
+			valueChanged |= ImGui::InputFloat("##Y", &vector3value.y, 0.0, 0.0, "Y: %.3f");
 			ImGui::SetNextItemWidth(width);
-			ImGui::InputFloat("##Z", &vector3value.z, 0.0, 0.0, "Z: %.3f");
+			valueChanged |= ImGui::InputFloat("##Z", &vector3value.z, 0.0, 0.0, "Z: %.3f");
 			break;
 	}
 	ImGui::PopStyleVar();
+	return valueChanged;
 }

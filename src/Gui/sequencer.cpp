@@ -36,8 +36,8 @@ void sequencer() {
 
 
 
-	static auto startPoint = std::make_shared<Motion::Point>();
-	static auto endPoint= std::make_shared<Motion::Point>();
+	static auto startPoint = std::make_shared<Motion::ControlPoint>();
+	static auto endPoint= std::make_shared<Motion::ControlPoint>();
 	static double maxVelocity = 3.0;
 	static double maxAcceleration = 10.0;
 	static double minPosition = -100000.0;
@@ -94,16 +94,15 @@ void sequencer() {
 	clamp(endPoint->position, minPosition, maxPosition);
 	clamp(endPoint->acceleration, 0.0, maxAcceleration);
 	
-	Motion::Interpolation profile;
+	static std::shared_ptr<Motion::Interpolation> profile;
 	bool hasSolution = Motion::TrapezoidalInterpolation::getTimeConstrainedInterpolation(startPoint, endPoint, maxVelocity, profile);
 
 	int pointCount = 2000;
-	double deltaT = (profile.outTime - profile.inTime) / pointCount;
-	std::vector<Motion::Point> points;
+	double deltaT = (profile->outTime - profile->inTime) / pointCount;
+	std::vector<Motion::CurvePoint> points;
 	for (int i = 0; i <= pointCount; i++) {
-		double T = profile.inTime + i * deltaT;
-		auto pointp = profile.getPointAtTime(T);
-		points.push_back(Motion::Point(pointp->time, pointp->position, pointp->acceleration, pointp->velocity));
+		double T = profile->inTime + i * deltaT;
+		points.push_back(profile->getPointAtTime(T));
 	}
 
 	glm::vec2 rampInHandle(1.0, startPoint->velocity);
@@ -116,14 +115,14 @@ void sequencer() {
 
 	double velocityTangentLength = 1.0;
 	std::vector<glm::vec2> rampInHandlePoints;
-	rampInHandlePoints.push_back(glm::vec2(profile.inTime, profile.inPosition));
-	rampInHandlePoints.push_back(glm::vec2(profile.inTime, profile.inPosition) + rampInHandle);
+	rampInHandlePoints.push_back(glm::vec2(profile->inTime, profile->inPosition));
+	rampInHandlePoints.push_back(glm::vec2(profile->inTime, profile->inPosition) + rampInHandle);
 	double rampInHandleX = rampInHandlePoints.back().x;
 	double rampInHandleY = rampInHandlePoints.back().y;
 
 	std::vector<glm::vec2> rampOutHandlePoints;
-	rampOutHandlePoints.push_back(glm::vec2(profile.outTime, profile.outPosition));
-	rampOutHandlePoints.push_back(glm::vec2(profile.outTime, profile.outPosition) + rampOutHandle);
+	rampOutHandlePoints.push_back(glm::vec2(profile->outTime, profile->outPosition));
+	rampOutHandlePoints.push_back(glm::vec2(profile->outTime, profile->outPosition) + rampOutHandle);
 	double rampOutHandleX = rampOutHandlePoints.back().x;
 	double rampOutHandleY = rampOutHandlePoints.back().y;
 
@@ -136,29 +135,29 @@ void sequencer() {
 			ImPlot::PlotHLines("Velocity Limits", &velocityLimits.front(), 2);
 			ImPlot::DragPoint("target", &endPoint->time, &endPoint->position, true, glm::vec4(1.0, 1.0, 1.0, 1.0), 10.0);
 			ImPlot::SetNextLineStyle(glm::vec4(0.5, 0.5, 0.5, 1.0), 2.0);
-			ImPlot::PlotLine("acceleration", &points.front().time, &points.front().acceleration, pointCount + 1, 0, sizeof(Motion::Point));
+			ImPlot::PlotLine("acceleration", &points.front().time, &points.front().acceleration, pointCount + 1, 0, sizeof(Motion::CurvePoint));
 			ImPlot::SetNextLineStyle(glm::vec4(0.0, 0.0, 1.0, 1.0), 4.0);
-			ImPlot::PlotLine("velocity", &points.front().time, &points.front().velocity, pointCount + 1, 0, sizeof(Motion::Point));
+			ImPlot::PlotLine("velocity", &points.front().time, &points.front().velocity, pointCount + 1, 0, sizeof(Motion::CurvePoint));
 			ImPlot::SetNextLineStyle(glm::vec4(1.0, 0.0, 0.0, 1.0), 4.0);
-			ImPlot::PlotLine("position", &points.front().time, &points.front().position, pointCount + 1, 0, sizeof(Motion::Point));
+			ImPlot::PlotLine("position", &points.front().time, &points.front().position, pointCount + 1, 0, sizeof(Motion::CurvePoint));
 			ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 1.0), 2.0);
 			ImPlot::PlotLine("RampIn", &rampInHandlePoints.front().x, &rampInHandlePoints.front().y, 2, 0, sizeof(glm::vec2));
 			ImPlot::SetNextLineStyle(glm::vec4(1.0, 1.0, 1.0, 1.0), 2.0);
 			ImPlot::PlotLine("RampOut", &rampOutHandlePoints.front().x, &rampOutHandlePoints.front().y, 2, 0, sizeof(glm::vec2));
-			ImPlot::DragPoint("rampInEnd", &profile.rampInEndTime, &profile.rampInEndPosition, true, glm::vec4(1.0, 0.0, 0.0, 1.0), 4.0);
-			ImPlot::DragPoint("rampOutBegin", &profile.rampOutStartTime, &profile.rampOutStartPosition, true, glm::vec4(1.0, 0.0, 0.0, 1.0), 4.0);
+			ImPlot::DragPoint("rampInEnd", &profile->rampInEndTime, &profile->rampInEndPosition, true, glm::vec4(1.0, 0.0, 0.0, 1.0), 4.0);
+			ImPlot::DragPoint("rampOutBegin", &profile->rampOutStartTime, &profile->rampOutStartPosition, true, glm::vec4(1.0, 0.0, 0.0, 1.0), 4.0);
 			ImPlot::DragPoint("RampInControlPoint", &rampInHandleX, &rampInHandleY, true, glm::vec4(1.0, 1.0, 1.0, 1.0), 8.0);
 			ImPlot::DragPoint("RampOutControlPoint", &rampOutHandleX, &rampOutHandleY, true, glm::vec4(1.0, 1.0, 1.0, 1.0), 8.0);
 		}
 		ImPlot::EndPlot();
 	}
 
-	ImGui::Text("RampEndTime: %.3f", profile.outTime);
+	ImGui::Text("RampEndTime: %.3f", profile->outTime);
 	ImGui::SameLine();
-	ImGui::Text("RampInAcceleration: %.3f", profile.inAcceleration);
+	ImGui::Text("RampInAcceleration: %.3f", profile->inAcceleration);
 	ImGui::SameLine();
-	ImGui::Text("RampOutAcceleration: %.3f", profile.outAcceleration);
+	ImGui::Text("RampOutAcceleration: %.3f", profile->outAcceleration);
 	ImGui::SameLine();
-	ImGui::Text("TransitionVelocity: %.3f", profile.interpolationVelocity);
+	ImGui::Text("TransitionVelocity: %.3f", profile->interpolationVelocity);
 	
 }
