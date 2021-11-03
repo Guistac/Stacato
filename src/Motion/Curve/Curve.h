@@ -90,6 +90,8 @@ namespace Motion {
 		CurvePoint getPointAtTime(double time);
 
 		void updateDisplayCurvePoints();
+
+		char name[64] = "";
 	};
 
 

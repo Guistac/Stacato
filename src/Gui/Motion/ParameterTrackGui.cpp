@@ -164,20 +164,34 @@ bool ParameterTrack::equalRampsCheckboxGui() {
 }
 
 
-void ParameterTrack::drawCurves() {
+void ParameterTrack::drawCurves(double startTime, double endTime) {
 	for (auto& curve : curves) {
+		auto& startPoint = curve->getStart();
+		if (startPoint->time > startTime) {
+			std::vector<glm::vec2> headerPoints;
+			headerPoints.push_back(glm::vec2(startTime, startPoint->position));
+			headerPoints.push_back(glm::vec2(startPoint->time, startPoint->position));
+			ImPlot::PlotLine(curve->name, &headerPoints.front().x, &headerPoints.front().y, headerPoints.size(), 0, sizeof(glm::vec2));
+		}
 		for (auto& interpolation : curve->interpolations) {
 			if (interpolation->isDefined) {
 				std::vector<Motion::CurvePoint>& points = interpolation->displayPoints;
-				ImPlot::PlotLine("test", &points.front().time, &points.front().position, points.size(), 0, sizeof(Motion::CurvePoint));
+				ImPlot::PlotLine(curve->name, &points.front().time, &points.front().position, points.size(), 0, sizeof(Motion::CurvePoint));
 			}
 			else {
 				std::vector<Motion::CurvePoint> errorPoints;
 				errorPoints.push_back(*interpolation->inPoint);
 				errorPoints.push_back(*interpolation->outPoint);
 				ImPlot::SetNextLineStyle(Colors::red, ImGui::GetTextLineHeight() * 0.2);
-				ImPlot::PlotLine("error", &errorPoints.front().time, &errorPoints.front().position, errorPoints.size(), 0, sizeof(Motion::CurvePoint));
+				ImPlot::PlotLine(curve->name, &errorPoints.front().time, &errorPoints.front().position, errorPoints.size(), 0, sizeof(Motion::CurvePoint));
 			}
+		}
+		auto& endPoint = curve->getEnd();
+		if (endPoint->time < endTime) {
+			std::vector<glm::vec2> trailerPoints;
+			trailerPoints.push_back(glm::vec2(endPoint->time, endPoint->position));
+			trailerPoints.push_back(glm::vec2(endTime, endPoint->position));
+			ImPlot::PlotLine(curve->name, &trailerPoints.front().x, &trailerPoints.front().y, trailerPoints.size(), 0, sizeof(glm::vec2));
 		}
 	}
 }
@@ -185,8 +199,11 @@ void ParameterTrack::drawCurves() {
 bool ParameterTrack::drawControlPoints() {
 	bool pointEdited = false;
 	for (auto& curve : curves) {
-		for (auto& point : curve->points) {
-			if (ImPlot::DragPoint(point->name, &point->time, &point->position, true, Colors::white, 10.0)) {
+		for (int i = 0; i < curve->getPoints().size(); i++) {
+			//don't draw the first control point of a step interpolation sequence, since we can't edit it anyway
+			if (sequenceType == SequenceType::Type::TIMED_MOVE && interpolationType == InterpolationType::Type::STEP && i == 0) continue;
+			auto& controlPoint = curve->getPoints()[i];
+			if (ImPlot::DragPoint(controlPoint->name, &controlPoint->time, &controlPoint->position, true, Colors::white, 10.0)) {
 				updateParametersAfterCurveEdit();
 				pointEdited = true;
 			}

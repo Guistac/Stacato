@@ -19,6 +19,7 @@ public:
 	void addTrack(std::shared_ptr<AnimatableParameter>& parameter);
 	void removeTrack(std::shared_ptr<AnimatableParameter>& parameter);
 	bool hasTrack(std::shared_ptr<AnimatableParameter>& parameter);
+	double getLength_seconds();
 
 	void listGui();
 	void editGui();

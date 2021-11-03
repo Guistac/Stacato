@@ -27,6 +27,7 @@ public:
 	void updateCurves();
 	void updateParametersAfterCurveEdit();
 	int getCurveCount();
+	double getLength_seconds();
 
 	//points for simple movement sequences (not manual animated moves)
 	std::vector<std::shared_ptr<Motion::ControlPoint>> startPoints;
@@ -52,6 +53,6 @@ public:
 	bool rampOutInputGui();
 	bool equalRampsCheckboxGui();
 
-	void drawCurves();
+	void drawCurves(double startTime, double endTime);
 	bool drawControlPoints();
 };

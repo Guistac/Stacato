@@ -3,6 +3,7 @@
 #include "ParameterTrack.h"
 #include "Motion/AnimatableParameter.h"
 #include "Motion/Curve/Curve.h"
+#include "Motion/Machine/Machine.h"
 
 
 ParameterTrack::ParameterTrack(std::shared_ptr<AnimatableParameter>& param) : parameter(param) {
@@ -120,20 +121,26 @@ void ParameterTrack::initialize() {
 		case 1:
 			sprintf(startPoints.back()->name, "Start Point");
 			sprintf(endPoints.back()->name, "End Point");
+			sprintf(curves.back()->name, "%s %s %s", parameter->machine->getName(), parameter->name, "");
 			break;
 		case 2:
 			sprintf(startPoints[0]->name, "X Start Point");
 			sprintf(endPoints[0]->name, "X End Point");
+			sprintf(curves.back()->name, "%s %s %s", parameter->machine->getName(), parameter->name, "X");
 			sprintf(startPoints[1]->name, "Y Start Point");
 			sprintf(endPoints[1]->name, "Y End Point");
+			sprintf(curves.back()->name, "%s %s %s", parameter->machine->getName(), parameter->name, "Y");
 			break;
 		case 3:
 			sprintf(startPoints[0]->name, "X Start Point");
 			sprintf(endPoints[0]->name, "X End Point");
+			sprintf(curves.back()->name, "%s %s %s", parameter->machine->getName(), parameter->name, "X");
 			sprintf(startPoints[1]->name, "Y Start Point");
 			sprintf(endPoints[1]->name, "Y End Point");
+			sprintf(curves.back()->name, "%s %s %s", parameter->machine->getName(), parameter->name, "Y");
 			sprintf(startPoints[2]->name, "Z Start Point");
 			sprintf(endPoints[2]->name, "Z End Point");
+			sprintf(curves.back()->name, "%s %s %s", parameter->machine->getName(), parameter->name, "Z");
 			break;
 	}
 }
@@ -306,3 +313,14 @@ void ParameterTrack::updateParametersAfterCurveEdit() {
 
 }
 
+
+
+double ParameterTrack::getLength_seconds() {
+	double longestCurve = 0.0;
+	for (auto& curve : curves) {
+		if (curve->getEnd()->time > longestCurve) {
+			longestCurve = curve->getEnd()->time;
+		}
+	}
+	return longestCurve;
+}

@@ -48,3 +48,14 @@ bool Manoeuvre::load(tinyxml2::XMLElement* manoeuvreXML) {
 	strcpy(description, descriptionString);
 	return true;
 }
+
+double Manoeuvre::getLength_seconds() {
+	double longestTrack = 0.0;
+	for (auto& track : tracks) {
+		double trackTime = track->getLength_seconds();
+		if (trackTime > longestTrack) {
+			longestTrack = trackTime;
+		}
+	}
+	return longestTrack;
+}

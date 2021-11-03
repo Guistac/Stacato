@@ -206,18 +206,43 @@ void Manoeuvre::editGui() {
 		ImGui::EndTable();
 	}
 
-	//ImPlot::FitNextPlotAxes();
+	
+	if (ImGui::Button("Center On Curves")) {
+		ImPlot::FitNextPlotAxes();
+	}
 	ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoChild;
 	if (ImPlot::BeginPlot("##SequenceCurveDisplay", 0, 0, ImGui::GetContentRegionAvail(), plotFlags)) {
-		for (auto& parameterTrack : tracks) {
-			parameterTrack->drawCurves();
-		}
-		for (auto& parameterTrack : tracks) {
-			if (parameterTrack->drawControlPoints()) {
 
-				//update curves after point edit
-			}
+		//draw manoeuvre bounds
+		glm::vec2 plotBoundsMin(ImPlot::GetPlotLimits().X.Min, ImPlot::GetPlotLimits().Y.Max);
+		glm::vec2 plotBoundsMax(ImPlot::GetPlotLimits().X.Max, ImPlot::GetPlotLimits().Y.Min);
+		double startTime = 0.0;
+		double endTime = getLength_seconds();
+		std::vector<glm::vec2> limits;
+		limits.push_back(glm::vec2(plotBoundsMin.x, plotBoundsMin.y));
+		limits.push_back(glm::vec2(startTime, plotBoundsMin.y));
+		limits.push_back(glm::vec2(startTime, plotBoundsMax.y));
+		limits.push_back(glm::vec2(endTime, plotBoundsMax.y));
+		limits.push_back(glm::vec2(endTime, plotBoundsMin.y));
+		limits.push_back(glm::vec2(plotBoundsMax.x, plotBoundsMin.y));
+		if (endTime > 0.0) {
+			ImPlot::SetNextFillStyle(Colors::black, 0.5);
+			ImPlot::PlotShaded("##shaded", &limits.front().x, &limits.front().y, limits.size(), -INFINITY, 0, sizeof(glm::vec2));
+			ImPlot::PlotVLines("##Limits1", &startTime, 1);
+			ImPlot::PlotVLines("##Limits2", &endTime, 1);
 		}
+
+		for (auto& parameterTrack : tracks) {
+			parameterTrack->drawCurves(startTime, endTime);
+		}
+		for (auto& parameterTrack : tracks) {
+			ImGui::PushID(parameterTrack->parameter->machine->getName());
+			ImGui::PushID(parameterTrack->parameter->name);
+			parameterTrack->drawControlPoints();
+			ImGui::PopID();
+			ImGui::PopID();
+		}
+
 		ImPlot::EndPlot();
 	}
 	
