@@ -7,6 +7,7 @@
 
 ParameterTrack::ParameterTrack(std::shared_ptr<AnimatableParameter>& param) : parameter(param) {
 	initialize();
+	updateCurves();
 }
 
 //COPY CONSTRUCTOR
@@ -17,7 +18,6 @@ ParameterTrack::ParameterTrack(const ParameterTrack& original) {
 		curves[i] = std::make_shared<Motion::Curve>(*original.curves[i]);
 		startPoints[i] = std::make_shared<Motion::ControlPoint>(*original.startPoints[i]);
 		endPoints[i] = std::make_shared<Motion::ControlPoint>(*original.endPoints[i]);
-		//sequenceInterpolations[i] = std::make_shared<Motion::Interpolation>(*original.sequenceInterpolations[i]);
 	}
 	sequenceType = original.sequenceType;
 	interpolationType = original.interpolationType;
@@ -30,38 +30,68 @@ ParameterTrack::ParameterTrack(const ParameterTrack& original) {
 	rampIn = original.rampIn;
 	rampOut = original.rampOut;
 	rampsAreEqual = original.rampsAreEqual;
+	updateCurves();
 }
 
-void ParameterTrack::initialize() {
-
+int ParameterTrack::getCurveCount() {
 	switch (parameter->dataType) {
 		case ParameterDataType::BOOLEAN_PARAMETER:
 		case ParameterDataType::INTEGER_PARAMETER:
 		case ParameterDataType::STATE_PARAMETER:
 		case ParameterDataType::REAL_PARAMETER:
 		case ParameterDataType::KINEMATIC_POSITION_CURVE:
-			curves.push_back(std::make_shared<Motion::Curve>());
-			startPoints.push_back(std::make_shared<Motion::ControlPoint>());
-			endPoints.push_back(std::make_shared<Motion::ControlPoint>());
-			//sequenceInterpolations.push_back(std::make_shared<Motion::Interpolation>());
+			return 1;
+		case ParameterDataType::VECTOR_2D_PARAMETER:
+		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+			return 2;
+		case ParameterDataType::VECTOR_3D_PARAMETER:
+		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+			return 3;
+	}
+}
+
+void ParameterTrack::initialize() {
+
+	for (int i = 0; i < getCurveCount(); i++) {
+		curves.push_back(std::make_shared<Motion::Curve>());
+		startPoints.push_back(std::make_shared<Motion::ControlPoint>());
+		endPoints.push_back(std::make_shared<Motion::ControlPoint>());
+	}
+
+	origin.type = parameter->dataType;
+	target.type = parameter->dataType;
+	if (parameter->dataType == ParameterDataType::STATE_PARAMETER) {
+		origin.stateValues = parameter->stateParameterValues;
+		target.stateValues = parameter->stateParameterValues;
+	}
+
+	switch (parameter->dataType) {
+		case ParameterDataType::BOOLEAN_PARAMETER:
+			origin.boolValue = false;
+			target.boolValue = true;
+			break;
+		case ParameterDataType::INTEGER_PARAMETER:
+			origin.integerValue = 0;
+			target.integerValue = 1;
+			break;
+		case ParameterDataType::STATE_PARAMETER:
+			origin.stateValue = &origin.stateValues->front();
+			target.stateValue = &origin.stateValues->at(1);
+			break;
+		case ParameterDataType::REAL_PARAMETER:
+		case ParameterDataType::KINEMATIC_POSITION_CURVE:
+			origin.realValue = 0.0;
+			target.realValue = 1.0;
 			break;
 		case ParameterDataType::VECTOR_2D_PARAMETER:
 		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
-			for (int i = 0; i < 2; i++) {
-				curves.push_back(std::make_shared<Motion::Curve>());
-				startPoints.push_back(std::make_shared<Motion::ControlPoint>());
-				endPoints.push_back(std::make_shared<Motion::ControlPoint>());
-				//sequenceInterpolations.push_back(std::make_shared<Motion::Interpolation>());
-			}
+			origin.vector2value = glm::vec2(0.0);
+			target.vector2value = glm::vec2(1.0);
 			break;
 		case ParameterDataType::VECTOR_3D_PARAMETER:
 		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
-			for (int i = 0; i < 3; i++) {
-				curves.push_back(std::make_shared<Motion::Curve>());
-				startPoints.push_back(std::make_shared<Motion::ControlPoint>());
-				endPoints.push_back(std::make_shared<Motion::ControlPoint>());
-				//sequenceInterpolations.push_back(std::make_shared<Motion::Interpolation>());
-			}
+			origin.vector3value = glm::vec3(0.0);
+			target.vector3value = glm::vec3(1.0);
 			break;
 	}
 
@@ -106,16 +136,6 @@ void ParameterTrack::initialize() {
 			sprintf(startPoints[2]->name, "Z Start Point");
 			sprintf(endPoints[2]->name, "Z End Point");
 			break;
-	}
-
-
-	origin.type = parameter->dataType;
-	target.type = parameter->dataType;
-	if (parameter->dataType == ParameterDataType::STATE_PARAMETER) {
-		origin.stateValues = parameter->stateParameterValues;
-		target.stateValues = parameter->stateParameterValues;
-		origin.stateValue = &(*parameter->stateParameterValues)[0];
-		target.stateValue = &(*parameter->stateParameterValues)[0];
 	}
 }
 
@@ -246,15 +266,80 @@ void ParameterTrack::updateCurves() {
 
 	for (int i = 0; i < getCurveCount(); i++) {
 		curves[i]->removeAllPoints();
-		//curves[i]->interpolationType = interpolationType;
-		//curves[i]->interpolations.push_back(sequenceInterpolations[i]);
 		curves[i]->addPoint(startPoints[i]);
 		curves[i]->addPoint(endPoints[i]);
 		curves[i]->interpolationType = interpolationType;
 		curves[i]->refresh();
 	}
+}
+
+
+void ParameterTrack::updateParametersAfterCurveEdit() {
+	//copy the settings from the start and endpoints to the track settings
+
+	switch (parameter->dataType) {
+		case ParameterDataType::BOOLEAN_PARAMETER:
+			origin.boolValue = startPoints.front()->position > 0.5 ? true : false;
+			target.boolValue = endPoints.front()->position > 0.5 ? true : false;
+			break;
+		case ParameterDataType::INTEGER_PARAMETER:
+			origin.integerValue = std::round(startPoints.front()->position);
+			target.integerValue = std::round(endPoints.front()->position);
+			break;
+		case ParameterDataType::STATE_PARAMETER: {
+			int originInteger = std::round(startPoints.front()->position);
+			clamp(originInteger, 0, origin.stateValues->size() - 1)
+			origin.stateValue = &origin.stateValues->at(originInteger);
+			int targetInteger = std::round(endPoints.front()->position);
+			clamp(targetInteger, 0, target.stateValues->size() - 1)
+			target.stateValue = &target.stateValues->at(targetInteger);
+			}break;
+		case ParameterDataType::VECTOR_3D_PARAMETER:
+		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+			origin.vector3value.x = startPoints[0]->position;
+			origin.vector3value.y = startPoints[1]->position;
+			origin.vector3value.z = startPoints[2]->position;
+			target.vector3value.x = endPoints[0]->position;
+			target.vector3value.y = endPoints[1]->position;
+			target.vector3value.z = endPoints[2]->position;
+			break;
+		case ParameterDataType::VECTOR_2D_PARAMETER:
+		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+			origin.vector2value.x = startPoints[0]->position;
+			origin.vector2value.y = startPoints[1]->position;
+			target.vector2value.x = endPoints[0]->position;
+			target.vector2value.y = endPoints[1]->position;
+			break;
+		case ParameterDataType::REAL_PARAMETER:
+		case ParameterDataType::KINEMATIC_POSITION_CURVE:
+			origin.realValue = startPoints[0]->position;
+			target.realValue = endPoints[0]->position;
+			break;
+	}
+
+	//detect if the endpoint was moved (movement time constraint changed)
+	for (int i = 0; i < getCurveCount(); i++) {
+		double thisCurveTimeConstraint = endPoints[i]->time - startPoints[i]->time;
+		if (thisCurveTimeConstraint != timeConstraint) {
+			timeConstraint = thisCurveTimeConstraint;
+			break;
+		}
+	}
+
+	//detect if the startpoint was moved (offset time changed)
+	for (int i = 0; i < getCurveCount(); i++) {
+		if (startPoints[i]->time != timeOffset) {
+			timeOffset = startPoints[i]->time;
+			break;
+		}
+	}
+
+	updateCurves();
+
+	//double rampIn = 0.1;
+	//double rampOut = 0.1;
+	//bool rampsAreEqual = true;
 
 
 }
-
 

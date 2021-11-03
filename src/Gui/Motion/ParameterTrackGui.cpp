@@ -4,7 +4,9 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <implot.h>
 
+#include "Gui/Framework/Colors.h"
 
 bool ParameterTrack::interpolationTypeSelectorGui() {
 	bool valueChanged = false;
@@ -163,4 +165,36 @@ bool ParameterTrack::equalRampsCheckboxGui() {
 			break;
 	}
 	return valueChanged;
+}
+
+
+void ParameterTrack::drawCurves() {
+	for (auto& curve : curves) {
+		for (auto& interpolation : curve->interpolations) {
+			if (interpolation->isDefined) {
+				std::vector<Motion::CurvePoint>& points = interpolation->displayPoints;
+				ImPlot::PlotLine("test", &points.front().time, &points.front().position, points.size(), 0, sizeof(Motion::CurvePoint));
+			}
+			else {
+				std::vector<Motion::CurvePoint> errorPoints;
+				errorPoints.push_back(*interpolation->inPoint);
+				errorPoints.push_back(*interpolation->outPoint);
+				ImPlot::SetNextLineStyle(Colors::red, ImGui::GetTextLineHeight() * 0.2);
+				ImPlot::PlotLine("error", &errorPoints.front().time, &errorPoints.front().position, errorPoints.size(), 0, sizeof(Motion::CurvePoint));
+			}
+		}
+	}
+}
+
+bool ParameterTrack::drawControlPoints() {
+	bool pointEdited = false;
+	for (auto& curve : curves) {
+		for (auto& point : curve->points) {
+			if (ImPlot::DragPoint(point->name, &point->time, &point->position, true, Colors::white, 10.0)) {
+				updateParametersAfterCurveEdit();
+				pointEdited = true;
+			}
+		}
+	}
+	return pointEdited;
 }

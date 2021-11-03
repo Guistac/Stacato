@@ -66,6 +66,9 @@ namespace Motion {
 		double getProgressAtTime(double time);
 
 		void resetValues();
+
+		void updateDisplayCurvePoints();
+		std::vector<CurvePoint> displayPoints;
 	};
 
 	class Curve {
@@ -87,7 +90,6 @@ namespace Motion {
 		CurvePoint getPointAtTime(double time);
 
 		void updateDisplayCurvePoints();
-		std::vector<CurvePoint> displayCurvePoints;
 	};
 
 

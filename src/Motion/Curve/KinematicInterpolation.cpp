@@ -23,7 +23,12 @@ namespace Motion::TrapezoidalInterpolation {
 		double ao = std::abs(endPoint->acceleration);
 
 		//if one of these is zero, no profile can be generated
-		if (ai == 0.0 || ao == 0.0 || maxVelocity == 0.0) return false;
+		if (ai == 0.0 || ao == 0.0 || maxVelocity == 0.0) {
+			output->inPoint = startPoint;
+			output->outPoint = endPoint;
+			output->isDefined = false;
+			return false;
+		}
 
 		const double dt = endPoint->time - startPoint->time;
 		const double dp = endPoint->position - startPoint->position;
@@ -113,7 +118,7 @@ namespace Motion::TrapezoidalInterpolation {
 			if (profile.isDefined) timeConstrainedSolutions.push_back(profile);
 		}
 
-		Interpolation* solution = nullptr;
+		Interpolation solution;
 
 		if (timeConstrainedSolutions.empty()) {
 			//if no solution exists for a time constrained profile
@@ -124,9 +129,9 @@ namespace Motion::TrapezoidalInterpolation {
 			if (!getVelocityContrainedInterpolations(startPoint, endPoint, maxVelocity, velocityConstrainedSolutions)) return false;
 
 			//first filter out all profiles that are slower or equal to the requested time
-			std::vector<Interpolation> slowerThanRequestedSolutions;
+			std::vector<Interpolation*> slowerThanRequestedSolutions;
 			for (auto& solution : velocityConstrainedSolutions) {
-				if (solution.outTime >= endPoint->time) slowerThanRequestedSolutions.push_back(solution);
+				if (solution.outTime >= endPoint->time) slowerThanRequestedSolutions.push_back(&solution);
 			}
 
 			if (slowerThanRequestedSolutions.empty()) {
@@ -136,18 +141,18 @@ namespace Motion::TrapezoidalInterpolation {
 					if (velocityConstrainedSolutions[i].outTime > slowestProfileBelowRequested->outTime)
 						slowestProfileBelowRequested = &velocityConstrainedSolutions[i];
 				}
-				solution = slowestProfileBelowRequested;
+				solution = *slowestProfileBelowRequested;
 				//output = *slowestProfileBelowRequested;
 				//return true;
 			}
 			else {
 				//else we pick the fastest profile of the remaining ones
-				Interpolation* fastestProfileAboveRequested = &slowerThanRequestedSolutions.front();
+				Interpolation* fastestProfileAboveRequested = slowerThanRequestedSolutions.front();
 				for (int i = 0; i < slowerThanRequestedSolutions.size(); i++) {
-					if (slowerThanRequestedSolutions[i].outTime < fastestProfileAboveRequested->outTime)
-						fastestProfileAboveRequested = &slowerThanRequestedSolutions[i];
+					if (slowerThanRequestedSolutions[i]->outTime < fastestProfileAboveRequested->outTime)
+						fastestProfileAboveRequested = slowerThanRequestedSolutions[i];
 				}
-				solution = fastestProfileAboveRequested;
+				solution = *fastestProfileAboveRequested;
 				//output = *fastestProfileAboveRequested;
 				//return true;
 			}
@@ -158,40 +163,40 @@ namespace Motion::TrapezoidalInterpolation {
 				if (solution.outTime < fastestProfileAboveRequested->outTime)
 					fastestProfileAboveRequested = &solution;
 			}
-			solution = fastestProfileAboveRequested;
+			solution = *fastestProfileAboveRequested;
 			//output = *fastestProfileAboveRequested;
 			//return true;
 		}
 
-		output->inTime = solution->inTime;
-		output->inPosition = solution->inPosition;
-		output->inVelocity = solution->inVelocity;
-		output->inAcceleration = solution->inAcceleration;
-		output->outTime = solution->outTime;
-		output->outPosition = solution->outPosition;
-		output->outVelocity = solution->outVelocity;
-		output->outAcceleration = solution->outAcceleration;
-		output->rampInEndTime = solution->rampInEndTime;
-		output->rampInEndPosition = solution->rampInEndPosition;
-		output->rampOutStartTime = solution->rampOutStartTime;
-		output->rampOutStartPosition = solution->rampOutStartPosition;
-		output->interpolationVelocity = solution->interpolationVelocity;
+		output->inTime = solution.inTime;
+		output->inPosition = solution.inPosition;
+		output->inVelocity = solution.inVelocity;
+		output->inAcceleration = solution.inAcceleration;
+		output->outTime = solution.outTime;
+		output->outPosition = solution.outPosition;
+		output->outVelocity = solution.outVelocity;
+		output->outAcceleration = solution.outAcceleration;
+		output->rampInEndTime = solution.rampInEndTime;
+		output->rampInEndPosition = solution.rampInEndPosition;
+		output->rampOutStartTime = solution.rampOutStartTime;
+		output->rampOutStartPosition = solution.rampOutStartPosition;
+		output->interpolationVelocity = solution.interpolationVelocity;
 		output->isDefined = true;
 		output->inPoint = startPoint;
 		output->outPoint = endPoint;
-		startPoint->time = solution->inTime;
-		startPoint->position = solution->inPosition;
-		startPoint->velocity = solution->inVelocity;
+		startPoint->time = solution.inTime;
+		startPoint->position = solution.inPosition;
+		startPoint->velocity = solution.inVelocity;
 		startPoint->acceleration = 0.0;
-		startPoint->rampOut = solution->inAcceleration;
-		startPoint->velocityOut = solution->inVelocity;
+		startPoint->rampOut = solution.inAcceleration;
+		startPoint->velocityOut = solution.inVelocity;
 		startPoint->outInterpolation = output;
-		endPoint->time = solution->outTime;
-		endPoint->position = solution->outPosition;
-		endPoint->velocity = solution->outVelocity;
+		endPoint->time = solution.outTime;
+		endPoint->position = solution.outPosition;
+		endPoint->velocity = solution.outVelocity;
 		endPoint->acceleration = 0.0;
-		endPoint->rampIn = solution->outAcceleration;
-		endPoint->velocityIn = solution->outVelocity;
+		endPoint->rampIn = solution.outAcceleration;
+		endPoint->velocityIn = solution.outVelocity;
 		endPoint->inInterpolation = output;
 		output->type = InterpolationType::Type::TRAPEZOIDAL;
 		return true;

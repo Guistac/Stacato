@@ -97,6 +97,39 @@ namespace Motion {
 		rampOutStartTime = 0.0;		
 	}
 
+	void Interpolation::updateDisplayCurvePoints() {
+		displayPoints.clear();
+		switch (type) {
+			case InterpolationType::Type::STEP:
+				displayPoints.reserve(3);
+				displayPoints.push_back(CurvePoint(inTime, inPosition, 0.0, 0.0));
+				displayPoints.push_back(CurvePoint(outTime, inPosition, 0.0, 0.0));
+				displayPoints.push_back(CurvePoint(outTime, outPosition, 0.0, 0.0));
+				break;
+			case InterpolationType::Type::LINEAR:
+				displayPoints.reserve(2);
+				displayPoints.push_back(CurvePoint(inTime, inPosition, 0.0, 0.0));
+				displayPoints.push_back(CurvePoint(outTime, outPosition, 0.0, 0.0));
+				break;
+			case InterpolationType::Type::BEZIER:
+				displayPoints.reserve(16);
+				break;
+			case InterpolationType::Type::TRAPEZOIDAL:
+				displayPoints.reserve(32);
+				double rampInLength_seconds = rampInEndTime - inTime;
+				for (int i = 0; i < 16; i++) {
+					double time_seconds = inTime + rampInLength_seconds * i / (16 - 1);
+					displayPoints.push_back(getPointAtTime(time_seconds));
+				}
+				double rampOutLength_seconds = outTime - rampOutStartTime;
+				for (int i = 0; i < 16; i++) {
+					double time_seconds = rampOutStartTime + rampOutLength_seconds * i / (16 - 1);
+					displayPoints.push_back(getPointAtTime(time_seconds));
+				}
+				break;
+		}
+	}
+
 	std::vector<std::shared_ptr<ControlPoint>>& Curve::getPoints() {
 		return points;
 	}
@@ -194,14 +227,8 @@ namespace Motion {
 
 
 	void Curve::updateDisplayCurvePoints() {
-		displayCurvePoints.clear();
-		int pointCount = 1000;
-		double length_seconds = getLength();
-		double start_seconds = getStart()->time;
-		displayCurvePoints.reserve(pointCount);
-		for (int i = 0; i < pointCount; i++) {
-			double time_seconds = start_seconds + length_seconds * i / (pointCount - 1);
-			displayCurvePoints.push_back(getPointAtTime(time_seconds));
+		for (auto& interpolation : interpolations) {
+			interpolation->updateDisplayCurvePoints();
 		}
 	}
 

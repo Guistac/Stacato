@@ -26,7 +26,8 @@ public:
 
 	std::vector<std::shared_ptr<Motion::Curve>> curves;
 	void updateCurves();
-	int getCurveCount() { return curves.size(); }
+	void updateParametersAfterCurveEdit();
+	int getCurveCount();
 
 	//points for simple movement sequences (not manual animated moves)
 	std::vector<std::shared_ptr<Motion::ControlPoint>> startPoints;
@@ -35,12 +36,12 @@ public:
 	bool originIsPreviousTarget = false;
 	AnimatableParameterValue origin;
 	AnimatableParameterValue target;
-	double velocityConstraint = 0.0;
-	double timeConstraint = 0.0;
+	double velocityConstraint = 0.5;
+	double timeConstraint = 1.0;
 	double timeOffset = 0.0;
-	double rampIn = 0.0;
-	double rampOut = 0.0;
-	bool rampsAreEqual = false;
+	double rampIn = 0.1;
+	double rampOut = 0.1;
+	bool rampsAreEqual = true;
 
 	bool sequenceTypeSelectorGui();
 	bool interpolationTypeSelectorGui();
@@ -52,4 +53,7 @@ public:
 	bool rampIntInputGui();
 	bool rampOutInputGui();
 	bool equalRampsCheckboxGui();
+
+	void drawCurves();
+	bool drawControlPoints();
 };

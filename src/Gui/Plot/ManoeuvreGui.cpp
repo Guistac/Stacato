@@ -209,27 +209,15 @@ void Manoeuvre::editGui() {
 	//ImPlot::FitNextPlotAxes();
 	ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoChild;
 	if (ImPlot::BeginPlot("##SequenceCurveDisplay", 0, 0, ImGui::GetContentRegionAvail(), plotFlags)) {
-
 		for (auto& parameterTrack : tracks) {
-			for (auto& curve : parameterTrack->curves) {
-				std::vector<Motion::CurvePoint>& points = curve->displayCurvePoints;
-				if (!points.empty()) {
-					ImPlot::PlotLine("test", &points.front().time, &points.front().position, points.size(), 0, sizeof(Motion::CurvePoint));
-				}
+			parameterTrack->drawCurves();
+		}
+		for (auto& parameterTrack : tracks) {
+			if (parameterTrack->drawControlPoints()) {
+
+				//update curves after point edit
 			}
 		}
-
-
-		int id = 0;
-		for (auto& parameterTrack : tracks) {
-			for (auto& curve : parameterTrack->curves) {
-				for (auto& point : curve->points) {
-					ImPlot::DragPoint(point->name, &point->time, &point->position, true, Colors::white, 10.0);
-				}
-				id++;
-			}
-		}
-
 		ImPlot::EndPlot();
 	}
 	
