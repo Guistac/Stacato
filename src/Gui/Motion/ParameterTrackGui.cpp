@@ -30,21 +30,17 @@ bool ParameterTrack::interpolationTypeSelectorGui() {
 
 bool ParameterTrack::sequenceTypeSelectorGui() {
 	bool valueChanged = false;
-	auto compatibleSequenceTypes = getCompatibleSequenceTypes();
-	bool disableCombo = compatibleSequenceTypes.size() < 2;
-	if(disableCombo) BEGIN_DISABLE_IMGUI_ELEMENT
 	if (ImGui::BeginCombo("##SequenceTypeSelector", getSequenceType(sequenceType)->displayName)) {
-		for (auto& st : compatibleSequenceTypes) {
-			if(st == SequenceType::Type::ANIMATED_MOVE) BEGIN_DISABLE_IMGUI_ELEMENT
-			if (ImGui::Selectable(getSequenceType(st)->displayName, st == sequenceType)) {
-				setSequenceType(st);
+		for (auto& st : getSequenceTypes()) {
+			if(st.type == SequenceType::Type::ANIMATED_MOVE) BEGIN_DISABLE_IMGUI_ELEMENT
+			if (ImGui::Selectable(st.displayName, st.type == sequenceType)) {
+				setSequenceType(st.type);
 				valueChanged = true;
 			}
-			if(st == SequenceType::Type::ANIMATED_MOVE) END_DISABLE_IMGUI_ELEMENT
+			if(st.type == SequenceType::Type::ANIMATED_MOVE) END_DISABLE_IMGUI_ELEMENT
 		}
 		ImGui::EndCombo();
 	}
-	if (disableCombo) END_DISABLE_IMGUI_ELEMENT
 	return valueChanged;
 }
 
@@ -76,14 +72,11 @@ bool ParameterTrack::targetInputGui() {
 	return valueChanged;
 }
 
-bool ParameterTrack::constraintInputGui() {
+bool ParameterTrack::timeInputGui() {
 	bool valueChanged = false;
 	switch (sequenceType) {
 		case SequenceType::Type::TIMED_MOVE:
-			valueChanged = ImGui::InputDouble("##constraint", &timeConstraint, 0.0, 0.0, "%.3f s");
-			break;
-		case SequenceType::Type::VELOCITY_MOVE:
-			valueChanged = ImGui::InputDouble("##constraint", &velocityConstraint, 0.0, 0.0, "%.3f u/s");
+			valueChanged = ImGui::InputDouble("##constraint", &movementTime, 0.0, 0.0, "%.3f s");
 			break;
 		default:
 			break;
@@ -97,7 +90,13 @@ bool ParameterTrack::timeOffsetInputGui() {
 		case SequenceType::Type::ANIMATED_MOVE:
 			break;
 		default:
-			valueChanged = ImGui::InputDouble("##timeOffset", &timeOffset, 0.0, 0.0, "%.3f s");
+			switch (interpolationType) {
+				case InterpolationType::Type::STEP:
+					break;
+				default:
+					valueChanged = ImGui::InputDouble("##timeOffset", &timeOffset, 0.0, 0.0, "%.3f s");
+					break;
+			}
 			break;
 	}
 	return valueChanged;
@@ -107,7 +106,6 @@ bool ParameterTrack::timeOffsetInputGui() {
 bool ParameterTrack::rampIntInputGui() {
 	bool valueChanged = false;
 	switch (sequenceType) {
-		case SequenceType::Type::VELOCITY_MOVE:
 		case SequenceType::Type::TIMED_MOVE:
 			switch (interpolationType) {
 				case InterpolationType::Type::BEZIER:
@@ -118,8 +116,8 @@ bool ParameterTrack::rampIntInputGui() {
 					break;
 			}
 			break;
-	default:
-		break;
+		default:
+			break;
 	}
 	return valueChanged;
 }
@@ -127,7 +125,6 @@ bool ParameterTrack::rampIntInputGui() {
 bool ParameterTrack::rampOutInputGui() {
 	bool valueChanged = false;
 	switch (sequenceType) {
-		case SequenceType::Type::VELOCITY_MOVE:
 		case SequenceType::Type::TIMED_MOVE:
 			switch (interpolationType) {
 				case InterpolationType::Type::BEZIER:
@@ -150,7 +147,6 @@ bool ParameterTrack::rampOutInputGui() {
 bool ParameterTrack::equalRampsCheckboxGui() {
 	bool valueChanged = false;
 	switch (sequenceType) {
-		case SequenceType::Type::VELOCITY_MOVE:
 		case SequenceType::Type::TIMED_MOVE:
 			switch (interpolationType) {
 				case InterpolationType::Type::BEZIER:

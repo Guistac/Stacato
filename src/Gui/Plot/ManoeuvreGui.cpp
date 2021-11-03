@@ -66,7 +66,7 @@ void Manoeuvre::editGui() {
 		ImGui::TableSetupColumn("Chain");
 		ImGui::TableSetupColumn("Start");
 		ImGui::TableSetupColumn("End");
-		ImGui::TableSetupColumn("Constraint");
+		ImGui::TableSetupColumn("Time");
 		ImGui::TableSetupColumn("Time Offset");
 		ImGui::TableSetupColumn("Ramp In");
 		ImGui::TableSetupColumn("=");
@@ -129,7 +129,7 @@ void Manoeuvre::editGui() {
 
 			ImGui::TableSetColumnIndex(8);
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-			refreshSequence |= parameterTrack->constraintInputGui();
+			refreshSequence |= parameterTrack->timeInputGui();
 
 			ImGui::TableSetColumnIndex(9);
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);

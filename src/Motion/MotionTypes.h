@@ -194,9 +194,7 @@ enum class ParameterDataType {
 
 struct SequenceType {
 	enum class Type {
-		STEP_MOVE,
 		TIMED_MOVE,
-		VELOCITY_MOVE,
 		ANIMATED_MOVE
 	};
 	Type type;

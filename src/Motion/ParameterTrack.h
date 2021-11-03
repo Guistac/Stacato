@@ -22,7 +22,6 @@ public:
 	InterpolationType::Type interpolationType;
 	void setInterpolationType(InterpolationType::Type t);
 	void setSequenceType(SequenceType::Type t);
-	std::vector<SequenceType::Type> getCompatibleSequenceTypes();
 
 	std::vector<std::shared_ptr<Motion::Curve>> curves;
 	void updateCurves();
@@ -36,8 +35,7 @@ public:
 	bool originIsPreviousTarget = false;
 	AnimatableParameterValue origin;
 	AnimatableParameterValue target;
-	double velocityConstraint = 0.5;
-	double timeConstraint = 1.0;
+	double movementTime = 1.0;
 	double timeOffset = 0.0;
 	double rampIn = 0.1;
 	double rampOut = 0.1;
@@ -48,7 +46,7 @@ public:
 	bool chainPreviousTargetCheckboxGui();
 	bool originInputGui();
 	bool targetInputGui();
-	bool constraintInputGui();
+	bool timeInputGui();
 	bool timeOffsetInputGui();
 	bool rampIntInputGui();
 	bool rampOutInputGui();

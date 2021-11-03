@@ -24,8 +24,7 @@ ParameterTrack::ParameterTrack(const ParameterTrack& original) {
 	originIsPreviousTarget = original.originIsPreviousTarget;
 	origin = original.origin;
 	target = original.target;
-	velocityConstraint = original.velocityConstraint;
-	timeConstraint = original.timeConstraint;
+	movementTime = original.movementTime;
 	timeOffset = original.timeOffset;
 	rampIn = original.rampIn;
 	rampOut = original.rampOut;
@@ -101,7 +100,7 @@ void ParameterTrack::initialize() {
 		case ParameterDataType::INTEGER_PARAMETER:
 		case ParameterDataType::STATE_PARAMETER:
 			interpolationType = InterpolationType::Type::STEP;
-			sequenceType = SequenceType::Type::STEP_MOVE;
+			sequenceType = SequenceType::Type::TIMED_MOVE;
 			break;
 		case ParameterDataType::REAL_PARAMETER:
 		case ParameterDataType::VECTOR_2D_PARAMETER:
@@ -141,27 +140,13 @@ void ParameterTrack::initialize() {
 
 void ParameterTrack::setInterpolationType(InterpolationType::Type t) {
 	interpolationType = t;
-	bool sequenceTypeCompatible = false;
-	for (auto st : getCompatibleSequenceTypes()) {
-		if (st == sequenceType) {
-			sequenceTypeCompatible = true;
-			break;
-		}
-	}
 	for (auto& curve : curves) curve->interpolationType = t;
-	if (!sequenceTypeCompatible) {
-		setSequenceType(getCompatibleSequenceTypes().front());
-	}
-	else {
-		updateCurves();
-	}
+	updateCurves();
 }
 
 void ParameterTrack::setSequenceType(SequenceType::Type t) {
 	sequenceType = t;
 	switch (sequenceType) {
-		case SequenceType::Type::STEP_MOVE:
-		case SequenceType::Type::VELOCITY_MOVE:
 		case SequenceType::Type::TIMED_MOVE: {
 			//reduce to two curve points
 			for (int i = 0; i < curves.size(); i++) {
@@ -176,33 +161,6 @@ void ParameterTrack::setSequenceType(SequenceType::Type t) {
 	}
 	updateCurves();
 }
-
-
-std::vector<SequenceType::Type> ParameterTrack::getCompatibleSequenceTypes() {
-	std::vector<SequenceType::Type> output;
-	switch (interpolationType) {
-	case InterpolationType::Type::STEP:
-		output.push_back(SequenceType::Type::STEP_MOVE);
-		output.push_back(SequenceType::Type::ANIMATED_MOVE);
-		break;
-	case InterpolationType::Type::LINEAR:
-		output.push_back(SequenceType::Type::TIMED_MOVE);
-		output.push_back(SequenceType::Type::ANIMATED_MOVE);
-		break;
-	case InterpolationType::Type::BEZIER:
-		output.push_back(SequenceType::Type::TIMED_MOVE);
-		output.push_back(SequenceType::Type::ANIMATED_MOVE);
-		break;
-	case InterpolationType::Type::TRAPEZOIDAL:
-		output.push_back(SequenceType::Type::TIMED_MOVE);
-		output.push_back(SequenceType::Type::VELOCITY_MOVE);
-		output.push_back(SequenceType::Type::ANIMATED_MOVE);
-		break;
-	}
-	return output;
-}
-
-
 
 
 void ParameterTrack::updateCurves() {
@@ -245,19 +203,10 @@ void ParameterTrack::updateCurves() {
 
 	//assign time and acceleration values for in and out points
 	switch (sequenceType) {
-		case SequenceType::Type::STEP_MOVE:
-			for (int i = 0; i < getCurveCount(); i++) {
-				startPoints[i]->time = 0.0;
-				endPoints[i]->time = timeOffset;
-				startPoints[i]->acceleration = 0.0;
-				endPoints[i]->acceleration = 0.0;
-			}
-			break;
 		case SequenceType::Type::TIMED_MOVE:
-		case SequenceType::Type::VELOCITY_MOVE:
 			for (int i = 0; i < getCurveCount(); i++) {
 				startPoints[i]->time = timeOffset;
-				endPoints[i]->time = timeOffset + timeConstraint;
+				endPoints[i]->time = timeOffset + movementTime;
 				startPoints[i]->acceleration = rampIn;
 				endPoints[i]->acceleration = rampOut;
 			}
@@ -317,20 +266,34 @@ void ParameterTrack::updateParametersAfterCurveEdit() {
 			break;
 	}
 
-	//detect if the endpoint was moved (movement time constraint changed)
-	for (int i = 0; i < getCurveCount(); i++) {
-		double thisCurveTimeConstraint = endPoints[i]->time - startPoints[i]->time;
-		if (thisCurveTimeConstraint != timeConstraint) {
-			timeConstraint = thisCurveTimeConstraint;
-			break;
-		}
-	}
-
+	bool offsetChanged = false;
 	//detect if the startpoint was moved (offset time changed)
 	for (int i = 0; i < getCurveCount(); i++) {
 		if (startPoints[i]->time != timeOffset) {
 			timeOffset = startPoints[i]->time;
+			if (timeOffset < 0) timeOffset = 0;
+			offsetChanged = true;
 			break;
+		}
+	}
+
+	switch (interpolationType) {
+		case InterpolationType::Type::STEP:
+			timeOffset = 0.0;
+			break;
+		default:
+			break;
+	}
+
+	if (!offsetChanged) {
+		//detect if the endpoint was moved (movement time constraint changed)
+		for (int i = 0; i < getCurveCount(); i++) {
+			double thisCurveTimeConstraint = endPoints[i]->time - startPoints[i]->time;
+			if (thisCurveTimeConstraint != movementTime) {
+				movementTime = thisCurveTimeConstraint;
+				if (movementTime < 0) movementTime = 0;
+				break;
+			}
 		}
 	}
 

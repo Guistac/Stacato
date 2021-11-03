@@ -299,9 +299,7 @@ HomingError* getHomingError(Homing::Error e) {
 
 
 std::vector<SequenceType> sequenceTypes = {
-	{SequenceType::Type::STEP_MOVE, "Step", "StepMovement"},
 	{SequenceType::Type::TIMED_MOVE, "Timed", "TimedMove"},
-	{SequenceType::Type::VELOCITY_MOVE, "Velocity", "VelocityMove"},
 	{SequenceType::Type::ANIMATED_MOVE, "Animated", "AnimatedMove"}
 };
 std::vector<SequenceType>& getSequenceTypes() {
