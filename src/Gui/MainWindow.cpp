@@ -3,30 +3,15 @@
 #include "Gui.h"
 
 #include "Plot/PlotGui.h"
-
-#include "Fieldbus/EtherCatFieldbus.h"
-#include "Fieldbus/EtherCatGui.h"
+#include "Environnement/Environnement.h"
 
 void mainWindow() {
 
 	ImGui::PushStyleColor(ImGuiCol_TabActive, glm::vec4(0.6, 0.4, 0.0, 1.0));
 
 	if (ImGui::BeginTabBar("MainTabBar")) {
-
-		if (ImGui::BeginTabItem("Node Graph")) {
-			nodeGraph();
-			ImGui::EndTabItem();
-		}
-		if (ImGui::BeginTabItem("Fieldbus")) {
-			etherCatGui();
-			ImGui::EndTabItem();
-		}
-		if (ImGui::BeginTabItem("Log")) {
-			log();
-			ImGui::EndTabItem();
-		}
 		if (ImGui::BeginTabItem("Environnement")) {
-			environnementGui();
+			Environnement::gui();
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Machines")) {
@@ -44,8 +29,6 @@ void mainWindow() {
 
 		ImGui::EndTabBar();
 	}
-
-	etherCatStartModal();
 
 	ImGui::PopStyleColor();
 }

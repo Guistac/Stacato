@@ -3,6 +3,7 @@
 #include "NodeGraph/Node.h"
 
 class AnimatableParameter;
+class AnimatableParameterValue;
 class Device;
 
 #define DEFINE_MACHINE_NODE(className, nodeName, saveName) public:									\
@@ -26,8 +27,10 @@ class Device;
 	virtual bool isMoving();																		\
 	virtual void enable();																			\
 	virtual void disable();																			\
-	virtual void moveToParameter();																	\
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output);							\
+	virtual void primeParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
+	virtual float getParameterPrimingProgress(std::shared_ptr<AnimatableParameter> parameter);\
+	virtual bool isParameterPrimedToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
 
 class Machine : public Node {
 public:
@@ -56,14 +59,27 @@ public:
 	virtual void enable() = 0;
 	virtual void disable() = 0;
 
-	virtual void moveToParameter() = 0;
+
+
+
+	//interface to plots / manoeuvres / tracks
+	std::vector<std::shared_ptr<AnimatableParameter>> animatableParameters;
+
+	virtual void primeParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
+	virtual float getParameterPrimingProgress(std::shared_ptr<AnimatableParameter> parameter) = 0;
+	virtual bool isParameterPrimedToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
+	virtual void stopParameterPlayback();
 
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output) = 0;
 
-	std::vector<std::shared_ptr<AnimatableParameter>> animatableParameters;
 
-	//reference to stage geometry
-	//vector of animatable parameters
-	//machine unique number
+	//TODO: reference to stage geometry
+
+	//TODO: a way to be interrogated about the limits of a certain animatable parameter
+	//be it spatial limits of the actual parameter
+	//or kinematic limits like velocity and acceleration
+
+
+
 };
 

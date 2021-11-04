@@ -37,7 +37,7 @@ public:
 	bool load(tinyxml2::XMLElement* xml);
 	bool save(tinyxml2::XMLElement* xml);
 
-	void nodeEditorGui();
+	void editorGui();
 	void centerView();
 	void showFlow();
 

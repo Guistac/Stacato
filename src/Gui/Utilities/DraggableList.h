@@ -180,13 +180,11 @@ public:
 					float thresholdMouseYPosition = minYPosition + itemClickPosition.y;
 					float scrollOffset = std::abs(mousePosY - thresholdMouseYPosition);
 					ImGui::SetScrollY(ImGui::GetScrollY() - scrollOffset * 0.1);
-					Logger::warn("ScrollA");
 				}
 				else if (draggedItemPositionY >= maxYPosition) {
 					float thresholdMouseYPosition = maxYPosition + itemClickPosition.y;
 					float scrollOffset = std::abs(mousePosY - thresholdMouseYPosition);
 					ImGui::SetScrollY(ImGui::GetScrollY() + scrollOffset * 0.1);
-					Logger::warn("ScrollB");
 				}
 			}
 		}

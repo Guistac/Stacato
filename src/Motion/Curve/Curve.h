@@ -2,6 +2,22 @@
 
 #include "Motion/MotionTypes.h"
 
+struct InterpolationType {
+	enum class Type {
+		STEP,
+		LINEAR,
+		TRAPEZOIDAL,
+		BEZIER
+	};
+	Type type;
+	const char displayName[64];
+	const char saveName[64];
+};
+
+std::vector<InterpolationType>& getInterpolationTypes();
+InterpolationType* getInterpolationType(InterpolationType::Type t);
+InterpolationType* getInterpolationType(const char* saveName);
+
 namespace Motion {
 
 	struct ControlPoint;
@@ -49,7 +65,7 @@ namespace Motion {
 		double outVelocity = 0.0;
 		double outAcceleration = 0.0;
 
-		//is possible
+		//reports error when calculating the interpolation
 		bool isDefined = false;
 
 		//for linear and kinematic interpolation

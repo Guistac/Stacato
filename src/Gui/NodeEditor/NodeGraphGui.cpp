@@ -20,96 +20,100 @@ bool isEditingAllowed() {
     return !EtherCatFieldbus::isCyclicExchangeActive();
 }
 
-void nodeGraph() {
+namespace Environnement {
 
-    //TODO: should the graph be updated in the draw loop?
-    //Environnement::nodeGraph.evaluate();
+    void editorGui() {
 
-    //========= NODE INSPECTOR AND ADDER PANEL =========
+        //TODO: should the graph be updated in the draw loop?
+        //Environnement::nodeGraph.evaluate();
 
-    static float sideBarWidth = ImGui::GetTextLineHeight() * 28.0;
-    static float minSideBarWidth = ImGui::GetTextLineHeight() * 5.0;
+        //========= NODE INSPECTOR AND ADDER PANEL =========
 
-    glm::vec2 sideBarSize(sideBarWidth, ImGui::GetContentRegionAvail().y);
-    if (ImGui::BeginChild("SideBar", sideBarSize)) {
+        static float sideBarWidth = ImGui::GetTextLineHeight() * 28.0;
+        static float minSideBarWidth = ImGui::GetTextLineHeight() * 5.0;
 
-        //if there are no selected nodes, display the node adder list
-        if (selectedNodes.empty()) nodeAdder();
-        else if (selectedNodes.size() == 1) {
-            std::shared_ptr<Node> selectedNode = selectedNodes.front();
-            ImGui::PushFont(Fonts::robotoBold20);
-            ImGui::Text(selectedNode->getName());
-            ImGui::PopFont();
-            ImGui::Separator();
-            if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {
-                selectedNode->propertiesGui();
-                ImGui::EndChild();
-            }
-        }
-        else {
-            ImGui::PushFont(Fonts::robotoBold20);
-            ImGui::Text("Multiple Nodes Selected");
-            ImGui::PopFont();
-            if (ImGui::BeginTabBar("NodeEditorSidePanel")) {
-                for (auto node : selectedNodes) {
-                    //we don't display the custom name in the tab
-                    //so we don't switch tabs while renaming the custom name of the node
-                    //we have to use pushID and PopID to avoid problems when selecting multiple nodes of the same type
-                    //this way we can have multiple tabs with the same name
-                    ImGui::PushID(node->getUniqueID());
-                    if (ImGui::BeginTabItem(node->getSaveName())) {
-                        if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {
-                            node->propertiesGui();
-                            ImGui::EndChild();
-                        }
-                        ImGui::EndTabItem();
-                    }
-                    ImGui::PopID();
+        glm::vec2 sideBarSize(sideBarWidth, ImGui::GetContentRegionAvail().y);
+        if (ImGui::BeginChild("SideBar", sideBarSize)) {
+
+            //if there are no selected nodes, display the node adder list
+            if (selectedNodes.empty()) nodeAdder();
+            else if (selectedNodes.size() == 1) {
+                std::shared_ptr<Node> selectedNode = selectedNodes.front();
+                ImGui::PushFont(Fonts::robotoBold20);
+                ImGui::Text(selectedNode->getName());
+                ImGui::PopFont();
+                ImGui::Separator();
+                if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {
+                    selectedNode->propertiesGui();
+                    ImGui::EndChild();
                 }
-                ImGui::EndTabBar();
+            }
+            else {
+                ImGui::PushFont(Fonts::robotoBold20);
+                ImGui::Text("Multiple Nodes Selected");
+                ImGui::PopFont();
+                if (ImGui::BeginTabBar("NodeEditorSidePanel")) {
+                    for (auto node : selectedNodes) {
+                        //we don't display the custom name in the tab
+                        //so we don't switch tabs while renaming the custom name of the node
+                        //we have to use pushID and PopID to avoid problems when selecting multiple nodes of the same type
+                        //this way we can have multiple tabs with the same name
+                        ImGui::PushID(node->getUniqueID());
+                        if (ImGui::BeginTabItem(node->getSaveName())) {
+                            if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {
+                                node->propertiesGui();
+                                ImGui::EndChild();
+                            }
+                            ImGui::EndTabItem();
+                        }
+                        ImGui::PopID();
+                    }
+                    ImGui::EndTabBar();
+                }
+            }
+
+            ImGui::EndChild();
+        }
+
+        //========= VERTICAL MOVABLE SEPARATOR ==========
+
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+        ImGui::SameLine();
+        ImGui::InvisibleButton("VerticalSplitter", glm::vec2(ImGui::GetTextLineHeight() / 3.0, ImGui::GetContentRegionAvail().y));
+        if (ImGui::IsItemActive()) sideBarWidth += ImGui::GetIO().MouseDelta.x;
+        if (ImGui::IsItemHovered()) ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+        if (sideBarWidth < minSideBarWidth) sideBarWidth = minSideBarWidth;
+        ImGui::SameLine();
+        ImGui::PopStyleVar();
+
+        //========== NODE EDITOR BLOCK ============
+
+        ImGui::BeginGroup();
+
+        //Draw the entire node editor
+        Environnement::nodeGraph->editorGui();
+
+        if (isEditingAllowed()) {
+            std::shared_ptr<Node> newDraggedNode = acceptDraggedNode();
+            if (newDraggedNode) {
+                Environnement::nodeGraph->addNode(newDraggedNode);
+                Environnement::addNode(newDraggedNode);
+                NodeEditor::SetNodePosition(newDraggedNode->getUniqueID(), NodeEditor::ScreenToCanvas(ImGui::GetMousePos()));
             }
         }
 
-        ImGui::EndChild();
+        if (ImGui::Button("Center View")) Environnement::nodeGraph->centerView();
+        ImGui::SameLine();
+        if (ImGui::Button("Show Flow")) Environnement::nodeGraph->showFlow();
+        ImGui::SameLine();
+        ImGui::Checkbox("Show Output Values", &Environnement::nodeGraph->b_showOutputValues);
+        ImGui::SameLine();
+
+        if (!isEditingAllowed()) ImGui::TextColored(Colors::gray, "Editing is disabled while the system is running");
+
+        ImGui::EndGroup();
+
     }
-
-    //========= VERTICAL MOVABLE SEPARATOR ==========
-
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-	ImGui::SameLine();
-    ImGui::InvisibleButton("VerticalSplitter", glm::vec2(ImGui::GetTextLineHeight() / 3.0, ImGui::GetContentRegionAvail().y));
-    if (ImGui::IsItemActive()) sideBarWidth += ImGui::GetIO().MouseDelta.x;
-    if (ImGui::IsItemHovered()) ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-    if (sideBarWidth < minSideBarWidth) sideBarWidth = minSideBarWidth;
-    ImGui::SameLine();
-    ImGui::PopStyleVar();
-
-    //========== NODE EDITOR BLOCK ============
-
-	ImGui::BeginGroup();
-
-    //Draw the entire node editor
-    Environnement::nodeGraph->nodeEditorGui();
-
-    if (isEditingAllowed()) {
-        std::shared_ptr<Node> newDraggedNode = acceptDraggedNode();
-        if (newDraggedNode) {
-            Environnement::nodeGraph->addNode(newDraggedNode);
-            Environnement::addNode(newDraggedNode);
-            NodeEditor::SetNodePosition(newDraggedNode->getUniqueID(), NodeEditor::ScreenToCanvas(ImGui::GetMousePos()));
-        }
-    }
-
-    if (ImGui::Button("Center View")) Environnement::nodeGraph->centerView();
-    ImGui::SameLine();
-    if (ImGui::Button("Show Flow")) Environnement::nodeGraph->showFlow();
-    ImGui::SameLine();
-    ImGui::Checkbox("Show Output Values", &Environnement::nodeGraph->b_showOutputValues);
-    ImGui::SameLine();
-
-    if(!isEditingAllowed()) ImGui::TextColored(Colors::gray, "Editing is disabled while the system is running");
-
-	ImGui::EndGroup();
 
 }
 
@@ -127,7 +131,7 @@ namespace ImGuiNodeEditor {
     }
 }
 
-void NodeGraph::nodeEditorGui() {
+void NodeGraph::editorGui() {
 
 	NodeEditor::SetCurrentEditor(ImGuiNodeEditor::nodeEditorContext);
 	NodeEditor::Begin("Node Editor", ImVec2(0, ImGui::GetContentRegionAvail().y - ImGui::GetTextLineHeight() * 1.7));

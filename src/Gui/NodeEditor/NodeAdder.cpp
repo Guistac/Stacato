@@ -13,7 +13,7 @@ void nodeAdder() {
     if(ImGui::BeginChild("##NodeList", ImGui::GetContentRegionAvail())) {
 
         ImGui::PushFont(Fonts::robotoBold20);
-        ImGui::Text("Node Selector");
+        ImGui::Text("Environnement Editor");
         ImGui::PopFont();
         ImGui::Separator();
 

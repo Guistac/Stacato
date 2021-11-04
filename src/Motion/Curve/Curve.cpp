@@ -233,3 +233,32 @@ namespace Motion {
 	}
 
 };
+
+
+
+
+
+std::vector<InterpolationType> interpolationTypes = {
+	{InterpolationType::Type::STEP,			"Step", "Step"},
+	{InterpolationType::Type::LINEAR,		"Linear", "Linear"},
+	{InterpolationType::Type::TRAPEZOIDAL,	"Trapezoidal", "Trapezoidal"},
+	{InterpolationType::Type::BEZIER,		"Bezier", "Bezier"}
+};
+
+std::vector<InterpolationType>& getInterpolationTypes() {
+	return interpolationTypes;
+}
+
+InterpolationType* getInterpolationType(InterpolationType::Type t) {
+	for (auto& interpolation : interpolationTypes) {
+		if (t == interpolation.type) return &interpolation;
+	}
+	return nullptr;
+}
+
+InterpolationType* getInterpolationType(const char* saveName) {
+	for (auto& interpolation : interpolationTypes) {
+		if (strcmp(saveName, interpolation.saveName) == 0) return &interpolation;
+	}
+	return nullptr;
+}

@@ -1,6 +1,9 @@
 #include <pch.h>
 
 #include "AnimatableParameter.h"
+#include "ParameterTrack.h"
+#include "Curve/Curve.h"
+#include "Machine/Machine.h"
 
 std::vector<InterpolationType::Type> AnimatableParameter::getCompatibleInterpolationTypes() {
 	std::vector<InterpolationType::Type> output;
@@ -25,4 +28,9 @@ std::vector<InterpolationType::Type> AnimatableParameter::getCompatibleInterpola
 			break;
 	}
 	return output;
+}
+
+
+AnimatableParameterValue& AnimatableParameter::getActiveTrackParameterValue() {
+	return actualParameterTrack->getParameterValueAtPlaybackTime();
 }

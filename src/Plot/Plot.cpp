@@ -55,6 +55,33 @@ void Plot::duplicateSelectedManoeuvre() {
 }
 
 
+
+
+
+void Plot::primeSelectedManoeuvre() {
+	if (selectedManoeuvre) selectedManoeuvre->prime();
+}
+
+bool Plot::isSelectedManoeuvrePrimed() {
+	return false;
+}
+
+void Plot::startSelectedManoeuvre() {
+	if (selectedManoeuvre) selectedManoeuvre->startPlayback();
+}
+
+void Plot::stopAllManoeuvres() {
+	for (auto& manoeuvre : manoeuvres) {
+		manoeuvre->stopPlayback();
+	}
+}
+
+
+
+
+
+
+
 bool Plot::save(const char* path) {
 	using namespace tinyxml2;
 

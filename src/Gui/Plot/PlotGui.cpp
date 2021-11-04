@@ -30,7 +30,7 @@ void plotGui() {
 
 	glm::vec2 listButtonSize((sideBarWidth - ImGui::GetStyle().ItemSpacing.x * 2.0) / 3.0, ImGui::GetTextLineHeight() * 2.0);
 
-	float bottomSectionHeight = ImGui::GetTextLineHeightWithSpacing() + listButtonSize.y + ImGui::GetStyle().ItemSpacing.y * 1.0;
+	float bottomSectionHeight = ImGui::GetTextLineHeightWithSpacing() * 2.0 + listButtonSize.y * 2.0 + ImGui::GetStyle().ItemSpacing.y * 2.0;
 
 	std::vector<std::shared_ptr<Manoeuvre>>& manoeuvres = Project::currentPlot->manoeuvres;
 	std::shared_ptr<Manoeuvre> clickedManoeuvre = nullptr;
@@ -77,6 +77,24 @@ void plotGui() {
 	if (ImGui::Button("Duplicate", listButtonSize)) currentPlot->duplicateSelectedManoeuvre();
 	ImGui::SameLine();
 	if (ImGui::Button("Delete", listButtonSize)) currentPlot->deleteSelectedManoeuvre();
+	if (disablSelectionBasedButtons) END_DISABLE_IMGUI_ELEMENT
+
+	static const char* playbackControlsString = "Playback Controls";
+	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::NewLine();
+	ImGui::SameLine((sideBarWidth - ImGui::CalcTextSize(playbackControlsString).x) / 2.0);
+	ImGui::Text(playbackControlsString);
+	ImGui::PopFont();
+
+	if (disablSelectionBasedButtons) BEGIN_DISABLE_IMGUI_ELEMENT
+	if (ImGui::Button("Prime", listButtonSize)) currentPlot->primeSelectedManoeuvre();
+	ImGui::SameLine();
+	bool disableStartButton = currentPlot->isSelectedManoeuvrePrimed();
+	if (disableStartButton) BEGIN_DISABLE_IMGUI_ELEMENT
+	if (ImGui::Button("Start", listButtonSize)) currentPlot->startSelectedManoeuvre();
+	if(disableStartButton) END_DISABLE_IMGUI_ELEMENT
+	ImGui::SameLine();
+	if (ImGui::Button("Stop All", listButtonSize)) currentPlot->stopAllManoeuvres();
 	if (disablSelectionBasedButtons) END_DISABLE_IMGUI_ELEMENT
 
 	ImGui::EndGroup();

@@ -52,6 +52,7 @@ public:
 			LIFT_RAISED_HOOD_OPEN
 		};
 		State state;
+		float floatEquivalent;
 		const char displayName[64];
 	};
 	std::vector<MachineState>& getStates();
@@ -65,6 +66,10 @@ public:
 
 	MachineState::State actualState = MachineState::State::UNKNOWN;
 	MachineState::State requestedState = MachineState::State::UNKNOWN;
+
+	//used to track the progress of a requested parameter movement
+	MachineState::State parameterMovementStartState;
+	MachineState::State parameterMovementTargetState;
 
 	bool b_enabled = false;
 

@@ -197,20 +197,58 @@ bool HoodedLiftStateMachine::isMoving() {
 	return actualState == MachineState::State::LIFT_LOWERED_HOOD_MOVING || actualState == MachineState::State::LIFT_MOVING_HOOD_OPEN;
 }
 
-void HoodedLiftStateMachine::moveToParameter() {}
+void HoodedLiftStateMachine::primeParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+	if (parameter->dataType == value.type) {
+		if (parameter == stateParameter) {
+			switch (value.stateValue->integerEquivalent) {
+				case 0:
+					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
+					break;
+				case 1:
+					requestedState = MachineState::State::LIFT_LOWERED_HOOD_OPEN;
+					break;
+				case 2:
+					requestedState = MachineState::State::LIFT_RAISED_HOOD_OPEN;
+					break;
+			}
+		}
+	}
+}
+
+float HoodedLiftStateMachine::getParameterPrimingProgress(std::shared_ptr<AnimatableParameter> parameter) {
+	if (parameter == stateParameter) {
+		float actual = getState(actualState)->floatEquivalent;
+		float start = getState(parameterMovementStartState)->floatEquivalent;
+		float target = getState(parameterMovementTargetState)->floatEquivalent;
+		float progress = (actual - start) / (target - start);
+		if (progress < start) progress = start;
+		else if (progress > target) progress = target;
+		return progress;
+	}
+	return 0.0;
+}
+
+bool HoodedLiftStateMachine::isParameterPrimedToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+	if (parameter->dataType == value.type) {
+		if (parameter == stateParameter) {
+			if ((float)value.stateValue->integerEquivalent == getState(actualState)->floatEquivalent) return true;
+		}
+	}
+	return false;
+}
 
 void HoodedLiftStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
 	if (isGpioDeviceConnected()) output.push_back(getGpioDevice()->parentDevice);
 }
 
 std::vector<HoodedLiftStateMachine::MachineState> machineStates = {
-	{HoodedLiftStateMachine::MachineState::State::UNKNOWN,					"Unknown State"},
-	{HoodedLiftStateMachine::MachineState::State::UNEXPECTED_STATE,			"Unexpected State"},
-	{HoodedLiftStateMachine::MachineState::State::LIFT_LOWERED_HOOD_SHUT,	"Lift Lowered, Hood Shut"},
-	{HoodedLiftStateMachine::MachineState::State::LIFT_LOWERED_HOOD_MOVING,	"Lift Lowered, Hood Moving"},
-	{HoodedLiftStateMachine::MachineState::State::LIFT_LOWERED_HOOD_OPEN,	"Lift Lowered, Hood Open"},
-	{HoodedLiftStateMachine::MachineState::State::LIFT_MOVING_HOOD_OPEN,	"Lift Moving, Hood Open"},
-	{HoodedLiftStateMachine::MachineState::State::LIFT_RAISED_HOOD_OPEN,	"Lift Raised, Hood Open"},
+	{HoodedLiftStateMachine::MachineState::State::UNKNOWN,					-1.0,	"Unknown State"},
+	{HoodedLiftStateMachine::MachineState::State::UNEXPECTED_STATE,			-2.0,	"Unexpected State"},
+	{HoodedLiftStateMachine::MachineState::State::LIFT_LOWERED_HOOD_SHUT,	0.0,	"Lift Lowered, Hood Shut"},
+	{HoodedLiftStateMachine::MachineState::State::LIFT_LOWERED_HOOD_MOVING,	0.5,	"Lift Lowered, Hood Moving"},
+	{HoodedLiftStateMachine::MachineState::State::LIFT_LOWERED_HOOD_OPEN,	1.0,	"Lift Lowered, Hood Open"},
+	{HoodedLiftStateMachine::MachineState::State::LIFT_MOVING_HOOD_OPEN,	1.5, 	"Lift Moving, Hood Open"},
+	{HoodedLiftStateMachine::MachineState::State::LIFT_RAISED_HOOD_OPEN,	2.0,	"Lift Raised, Hood Open"},
 };
 
 std::vector<HoodedLiftStateMachine::MachineState>& HoodedLiftStateMachine::getStates() {

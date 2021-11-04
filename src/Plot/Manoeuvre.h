@@ -21,6 +21,20 @@ public:
 	bool hasTrack(std::shared_ptr<AnimatableParameter>& parameter);
 	double getLength_seconds();
 
+	bool b_isPriming = false;
+	void prime();
+	bool isPriming();
+	bool isPrimed();
+	float getPrimingProgress();
+
+	void startPlayback();
+	void stopPlayback();
+	bool isPlaying();
+	bool b_isPlaying = false;
+	double playbackStartTime_seconds = 0.0;
+	double getPlaybackTime_seconds();
+	float getPlaybackProgress();
+
 	void listGui();
 	void editGui();
 

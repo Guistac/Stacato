@@ -65,6 +65,9 @@ void SingleAxisMachine::process() {
 	actualPosition_machineUnits = axis->actualPosition_axisUnits;
 	actualVelocity_machineUnits = axis->actualVelocity_axisUnitsPerSecond;
 
+	//update parameter data
+	positionParameter->actualValue.realValue = actualPosition_machineUnits;
+
 	//Update Time
 	profileTime_seconds = axis->currentProfilePointTime_seconds;
 	profileDeltaTime_seconds = axis->currentProfilePointDeltaT_seconds;
@@ -78,15 +81,21 @@ void SingleAxisMachine::process() {
 		//if the machine is enabled
 		//its drives the profile generator values of the axis
 		//it also sends commands to the actuators of the axis
-		switch (controlMode) {
+
+		if (positionParameter->hasParameterTrack()) {
+			double previousProfilePosition = profilePosition_machineUnits;
+			profilePosition_machineUnits = positionParameter->getActiveTrackParameterValue().realValue;
+			profileVelocity_machineUnitsPerSecond = (profilePosition_machineUnits - previousProfilePosition) / profileDeltaTime_seconds;
+		}
+		else {
+			switch (controlMode) {
 			case ControlMode::Mode::MANUAL_VELOCITY_TARGET:
 				velocityTargetControl();
 				break;
 			case ControlMode::Mode::MANUAL_POSITION_TARGET:
 				positionTargetControl();
 				break;
-			case ControlMode::Mode::FOLLOW_PARAMETER:
-				break;
+			}
 		}
 		axis->profilePosition_axisUnits = profilePosition_machineUnits;
 		axis->profileVelocity_axisUnitsPerSecond = profileVelocity_machineUnitsPerSecond;
@@ -108,9 +117,32 @@ std::shared_ptr<Axis> SingleAxisMachine::getAxis() {
 	return axisLink->getConnectedPins().front()->getAxis();
 }
 
-void SingleAxisMachine::moveToParameter() {}
 
 
+
+void SingleAxisMachine::primeParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+	if (parameter->dataType == value.type) {
+		if (parameter == positionParameter) {
+			moveToPositionInTime(value.realValue, 0.0, getAxis()->accelerationLimit_axisUnitsPerSecondSquared);
+		}
+	}
+}
+
+float SingleAxisMachine::getParameterPrimingProgress(std::shared_ptr<AnimatableParameter> parameter) {
+	if (parameter == positionParameter) {
+		return targetIntepolation->getProgressAtTime(profileTime_seconds);
+	}
+	return 0.0;
+}
+
+bool SingleAxisMachine::isParameterPrimedToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+	if (parameter->dataType == value.type) {
+		if (parameter == positionParameter) {
+			if (std::abs(value.realValue - profilePosition_machineUnits) < 0.001) return true;
+		}
+	}
+	return false;
+}
 
 
 
@@ -124,6 +156,7 @@ void SingleAxisMachine::setVelocity(double velocity_axisUnits) {
 	manualVelocityTarget_machineUnitsPerSecond = velocity_axisUnits;
 	if (controlMode == ControlMode::Mode::MANUAL_POSITION_TARGET) targetIntepolation->resetValues();
 	controlMode = ControlMode::Mode::MANUAL_VELOCITY_TARGET;
+	stopParameterPlayback();
 }
 
 void SingleAxisMachine::velocityTargetControl() {
@@ -165,6 +198,7 @@ void SingleAxisMachine::moveToPositionWithVelocity(double position_machineUnits,
 		manualVelocityTarget_machineUnitsPerSecond = 0.0;
 	}
 	else setVelocity(0.0);
+	stopParameterPlayback();
 }
 
 void SingleAxisMachine::moveToPositionInTime(double position_machineUnits, double movementTime_seconds, double acceleration_machineUnits) {
@@ -183,6 +217,7 @@ void SingleAxisMachine::moveToPositionInTime(double position_machineUnits, doubl
 		manualVelocityTarget_machineUnitsPerSecond = 0.0;
 	}
 	else setVelocity(0.0);
+	stopParameterPlayback();
 }
 
 void SingleAxisMachine::positionTargetControl() {

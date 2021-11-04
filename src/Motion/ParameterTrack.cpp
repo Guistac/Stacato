@@ -4,6 +4,7 @@
 #include "Motion/AnimatableParameter.h"
 #include "Motion/Curve/Curve.h"
 #include "Motion/Machine/Machine.h"
+#include "Fieldbus/EtherCatFieldbus.h"
 
 
 ParameterTrack::ParameterTrack(std::shared_ptr<AnimatableParameter>& param) : parameter(param) {
@@ -314,6 +315,19 @@ void ParameterTrack::updateParametersAfterCurveEdit() {
 }
 
 
+void ParameterTrack::prime() {
+	if (parameter->machine->isEnabled()) {
+		parameter->machine->primeParameterToValue(parameter, origin);
+	}
+}
+
+bool ParameterTrack::isPrimed() {
+	return parameter->machine->isParameterPrimedToValue(parameter, origin);
+}
+
+float ParameterTrack::getPrimingProgress() {
+	return parameter->machine->getParameterPrimingProgress(parameter);
+}
 
 double ParameterTrack::getLength_seconds() {
 	double longestCurve = 0.0;
@@ -323,4 +337,66 @@ double ParameterTrack::getLength_seconds() {
 		}
 	}
 	return longestCurve;
+}
+
+
+AnimatableParameterValue ParameterTrack::getParameterValueAtPlaybackTime() {
+	double playbackTime = EtherCatFieldbus::getCycleProgramTime_seconds() - playbackStartTime_seconds;
+	AnimatableParameterValue output;
+	switch (parameter->dataType) {
+		case ParameterDataType::BOOLEAN_PARAMETER:
+			output.boolValue = curves[0]->getPointAtTime(playbackTime).position > 0.5;
+			break;
+		case ParameterDataType::INTEGER_PARAMETER:
+			output.integerValue = std::round(curves[0]->getPointAtTime(playbackTime).position);
+			break;
+		case ParameterDataType::STATE_PARAMETER:
+			for (auto& stateValue : *parameter->stateParameterValues) {
+				if (std::round(curves[0]->getPointAtTime(playbackTime).position) == stateValue.integerEquivalent) {
+					output.stateValue = &stateValue;
+					return output;
+				}
+			}
+			output.stateValue = &parameter->stateParameterValues->at(0);
+			break;
+		case ParameterDataType::VECTOR_3D_PARAMETER:
+		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+			output.vector3value.x = curves[0]->getPointAtTime(playbackTime).position;
+			output.vector3value.y = curves[1]->getPointAtTime(playbackTime).position;
+			output.vector3value.z = curves[2]->getPointAtTime(playbackTime).position;
+			break;
+		case ParameterDataType::VECTOR_2D_PARAMETER:
+		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+			output.vector2value.x = curves[0]->getPointAtTime(playbackTime).position;
+			output.vector2value.y = curves[1]->getPointAtTime(playbackTime).position;
+			break;
+		case ParameterDataType::REAL_PARAMETER:
+		case ParameterDataType::KINEMATIC_POSITION_CURVE:
+			output.realValue = curves[0]->getPointAtTime(playbackTime).position;
+			break;
+	}
+	return output;
+}
+
+
+
+
+std::vector<SequenceType> sequenceTypes = {
+	{SequenceType::Type::TIMED_MOVE, "Timed", "TimedMove"},
+	{SequenceType::Type::ANIMATED_MOVE, "Animated", "AnimatedMove"}
+};
+std::vector<SequenceType>& getSequenceTypes() {
+	return sequenceTypes;
+}
+SequenceType* getSequenceType(SequenceType::Type t) {
+	for (auto& sequenceType : sequenceTypes) {
+		if (sequenceType.type == t) return &sequenceType;
+	}
+	return nullptr;
+}
+SequenceType* getSequenceType(const char* saveName) {
+	for (auto& sequenceType : sequenceTypes) {
+		if (strcmp(sequenceType.saveName, saveName) == 0) return &sequenceType;
+	}
+	return nullptr;
 }

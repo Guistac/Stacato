@@ -7,6 +7,20 @@ class CurvePoint;
 #include "Motion/AnimatableParameter.h"
 #include "Motion/MotionTypes.h"
 
+struct SequenceType {
+	enum class Type {
+		TIMED_MOVE,
+		ANIMATED_MOVE
+	};
+	Type type;
+	const char displayName[64];
+	const char saveName[64];
+};
+
+std::vector<SequenceType>& getSequenceTypes();
+SequenceType* getSequenceType(SequenceType::Type t);
+SequenceType* getSequenceType(const char* saveName);
+
 class ParameterTrack{
 public:
 
@@ -17,6 +31,15 @@ public:
 	void initialize();
 
 	std::shared_ptr<AnimatableParameter> parameter;
+
+	AnimatableParameterValue primingStartPosition; //used to keep track of the priming progress
+	bool b_priming = false;
+	void prime();
+	bool isPrimed();
+	float getPrimingProgress();
+
+	double playbackStartTime_seconds;
+	AnimatableParameterValue getParameterValueAtPlaybackTime();
 
 	SequenceType::Type sequenceType;
 	InterpolationType::Type interpolationType;
@@ -33,6 +56,7 @@ public:
 	std::vector<std::shared_ptr<Motion::ControlPoint>> startPoints;
 	std::vector<std::shared_ptr<Motion::ControlPoint>> endPoints;
 
+	//parameters for timed sequences
 	bool originIsPreviousTarget = false;
 	AnimatableParameterValue origin;
 	AnimatableParameterValue target;
@@ -42,6 +66,7 @@ public:
 	double rampOut = 0.1;
 	bool rampsAreEqual = true;
 
+	//gui stuff
 	bool sequenceTypeSelectorGui();
 	bool interpolationTypeSelectorGui();
 	bool chainPreviousTargetCheckboxGui();

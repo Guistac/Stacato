@@ -21,6 +21,11 @@ public:
 	void addManoeuvre();
 	void deleteSelectedManoeuvre();
 	void duplicateSelectedManoeuvre();
+
+	void primeSelectedManoeuvre();
+	bool isSelectedManoeuvrePrimed();
+	void startSelectedManoeuvre();
+	void stopAllManoeuvres();
  
 };
 

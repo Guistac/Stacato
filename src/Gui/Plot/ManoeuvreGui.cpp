@@ -28,11 +28,34 @@ void Manoeuvre::listGui() {
 	ImGui::Text(name);
 	ImGui::PopFont();
 
-
-
 	ImGui::SameLine();
 	ImGui::Text(description);
-	
+
+	if (isPriming()) {
+		glm::vec2 windowPos = ImGui::GetWindowPos();
+		glm::vec2 maxsize = ImGui::GetWindowSize();
+		int trackCount = tracks.size();
+		float trackHeight = maxsize.y / (float)trackCount;
+		for (int i = 0; i < trackCount; i++) {
+			glm::vec2 min(windowPos.x, windowPos.y + trackHeight * i);
+			glm::vec2 max(min.x + maxsize.x * tracks[i]->getPrimingProgress(), min.y + trackHeight);
+			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
+		}
+	}
+	if (isPrimed()) {
+		ImGui::Text("Primed");
+	}
+	if (isPlaying()) {
+		ImGui::SameLine();
+		ImGui::Text("Playing");
+	}
+	if (isPlaying()) {
+		glm::vec2 min = ImGui::GetWindowPos();
+		glm::vec2 windowSize = ImGui::GetWindowSize();
+		float progress = getPlaybackProgress();
+		glm::vec2 max(min.x + windowSize.x * progress, min.y + windowSize.y);
+		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.4)), 5.0);
+	}
 }
 
 
@@ -53,6 +76,8 @@ void Manoeuvre::editGui() {
 	ImGui::Text(description);
 	ImGui::PopFont();
 	ImGui::Separator();
+
+	bool manoeuvreIsPlaying = isPlaying();
 
 	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
 
@@ -87,6 +112,8 @@ void Manoeuvre::editGui() {
 
 			ImGui::TableNextRow(ImGuiTableRowFlags_None);
 
+			if(manoeuvreIsPlaying) BEGIN_DISABLE_IMGUI_ELEMENT
+
 			ImGui::TableSetColumnIndex(0);
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.1));
 			if (buttonCross("##remove")) removedSequence = parameterTrack;
@@ -102,11 +129,15 @@ void Manoeuvre::editGui() {
 			if(disableMoveDown) END_DISABLE_IMGUI_ELEMENT
 			ImGui::PopStyleVar();
 
+			if(manoeuvreIsPlaying) END_DISABLE_IMGUI_ELEMENT
+
 			ImGui::TableSetColumnIndex(1);
 			ImGui::Text(parameterTrack->parameter->machine->getName());
 			
 			ImGui::TableSetColumnIndex(2);
 			ImGui::Text(parameterTrack->parameter->name);
+
+			if(manoeuvreIsPlaying) BEGIN_DISABLE_IMGUI_ELEMENT
 
 			ImGui::TableSetColumnIndex(3);
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
@@ -145,6 +176,8 @@ void Manoeuvre::editGui() {
 			ImGui::TableSetColumnIndex(12);
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
 			refreshSequence |= parameterTrack->rampOutInputGui();
+
+			if(manoeuvreIsPlaying) END_DISABLE_IMGUI_ELEMENT
 
 			ImGui::PopID();
 			ImGui::PopID();
@@ -241,6 +274,12 @@ void Manoeuvre::editGui() {
 			parameterTrack->drawControlPoints();
 			ImGui::PopID();
 			ImGui::PopID();
+		}
+
+		if (isPlaying()) {
+			double playbackTime = getPlaybackTime_seconds();
+			ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
+			ImPlot::PlotVLines("Playhead", &playbackTime, 1);
 		}
 
 		ImPlot::EndPlot();
