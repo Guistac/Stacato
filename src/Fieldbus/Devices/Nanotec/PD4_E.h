@@ -30,11 +30,11 @@ class PD4_E : public EtherCatDevice {
 	const int encoderSingleTurnResolutionBits = 12;
 	const int encoderMultiTurnResolutionBits = 18;
 	const double velocityUnitsPerRevolutionPerSecond = 100;
+	const double followingErrorTimeout_milliseconds = 1.0;
 
 	//settings:
 	double currentLimit_amperes = 2.1;
 	double maxFollowingError_revolutions = 1.0;
-	double followingErrorTimeout_milliseconds = 10;
 	double defaultManualAcceleration_revolutionsPerSecondSquared = 10.0;
 	double positionControllerProportionalGain = 500;
 	bool negativeLimitSwitchOnDigitalIn1 = false;
