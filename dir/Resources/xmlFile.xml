@@ -29,9 +29,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Servo Motor" DisplayName="Servo Motor" DataType="ServoActuatorDeviceLink" UniqueID="35" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="36" Real="0.0066666666666666662" Visible="false" DisableDataField="true"/>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="37" Real="999.99980163574219" Visible="false" DisableDataField="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="38" Real="-0.0060000000000000001" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="36" Real="0.0088888888888888889" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="37" Real="0.00045013427734375" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="38" Real="-0.00066666666666666664" Visible="false" DisableDataField="true"/>
                     <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="39" Visible="true" NoDataField="true"/>
                     <OutputPin SaveName="DI0" DisplayName="DI0" DataType="Boolean" UniqueID="40" Boolean="false" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="DI1" DisplayName="DI1" DataType="Boolean" UniqueID="41" Boolean="false" Visible="true" DisableDataField="true"/>
@@ -61,9 +61,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Servo Motor" DisplayName="Servo Motor" DataType="ServoActuatorDeviceLink" UniqueID="50" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="51" Real="0.0011111111111111111" Visible="false" DisableDataField="true"/>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="52" Real="999.99978637695312" Visible="false" DisableDataField="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="53" Real="-0.0021666666666666666" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="Load" DisplayName="Load" DataType="Real" UniqueID="51" Real="0.0044444444444444444" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="52" Real="99.997512817382812" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="53" Real="-0.0094999999999999998" Visible="false" DisableDataField="true"/>
                     <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="54" Visible="true" NoDataField="true"/>
                     <OutputPin SaveName="DI0" DisplayName="DI0" DataType="Boolean" UniqueID="55" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="DI1" DisplayName="DI1" DataType="Boolean" UniqueID="56" Boolean="true" Visible="true" DisableDataField="true"/>
@@ -94,8 +94,8 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Axis" DisplayName="Axis" DataType="AxisLink" UniqueID="69" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="70" Real="999.99978637695312" Visible="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="71" Real="-0.0021666666666666666" Visible="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="70" Real="99.997512817382812" Visible="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="71" Real="-0.0094999999999999998" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="PositionControllerAxis" CustomName="Position Controlled Axis" UniqueID="73">
@@ -119,8 +119,8 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Axis" DisplayName="Axis" DataType="AxisLink" UniqueID="81" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="82" Real="999.99980163574219" Visible="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="83" Real="-0.0060000000000000001" Visible="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="82" Real="0.00045013427734375" Visible="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="83" Real="-0.00066666666666666664" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="SingleAxisMachine" CustomName="Costière B" UniqueID="86">

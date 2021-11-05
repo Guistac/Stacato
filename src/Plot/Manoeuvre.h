@@ -5,14 +5,33 @@ class AnimatableParameter;
 
 #include <tinyxml2.h>
 
+struct ManoeuvreType {
+	enum class Type {
+		KEY_POSITION,
+		TIMED_MOVEMENT,
+		MOVEMENT_SEQUENCE
+	};
+	Type type;
+	const char displayName[64];
+	const char saveName[64];
+	const char shortName[16];
+};
+std::vector<ManoeuvreType>& getManoeuvreTypes();
+ManoeuvreType* getManoeuvreType(ManoeuvreType::Type t);
+ManoeuvreType* getManoeuvreType(const char* saveName);
+
 class Manoeuvre{
 public:
+
 
 	Manoeuvre() {}
 	Manoeuvre(const Manoeuvre& original);
 
 	char name[64] = "";
 	char description[256] = "";
+
+	void setType(ManoeuvreType::Type t);
+	ManoeuvreType::Type type = ManoeuvreType::Type::KEY_POSITION;
 
 	std::vector<std::shared_ptr<ParameterTrack>> tracks;
 
@@ -36,7 +55,12 @@ public:
 	float getPlaybackProgress();
 
 	void listGui();
+
 	void editGui();
+	void sequenceEditGui();
+
+	void playbackControlGui();
+	float getPlaybackControlGuiHeight();
 
 	bool save(tinyxml2::XMLElement* manoeuvreXML);
 	bool load(tinyxml2::XMLElement* manoeuvreXML);

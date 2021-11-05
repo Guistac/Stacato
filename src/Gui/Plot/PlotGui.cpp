@@ -14,11 +14,11 @@
 
 void plotGui() {
 
-	std::shared_ptr<Plot> currentPlot = Project::currentPlot;
-
 	float sideBarWidth = ImGui::GetTextLineHeight() * 15.0;
+	ImGui::BeginChild("##ManoeuvreList", glm::vec2(sideBarWidth, ImGui::GetContentRegionAvail().y), false);
 
-	ImGui::BeginGroup();
+	std::shared_ptr<Plot> currentPlot = Project::currentPlot;
+	std::shared_ptr<Manoeuvre> selectedManoeuvre = currentPlot->getSelectedManoeuvre();
 
 	ImGui::PushFont(Fonts::robotoBold20);
 	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
@@ -28,15 +28,20 @@ void plotGui() {
 	ImGui::PopItemFlag();
 	ImGui::PopFont();
 
-	glm::vec2 listButtonSize((sideBarWidth - ImGui::GetStyle().ItemSpacing.x * 2.0) / 3.0, ImGui::GetTextLineHeight() * 2.0);
+	glm::vec2 managerButtonSize((sideBarWidth - ImGui::GetStyle().ItemSpacing.x * 2.0) / 3.0, ImGui::GetTextLineHeight() * 2.0);
+	float bottomSectionHeight = ImGui::GetTextLineHeightWithSpacing() * 2.0;	//two title text lines
+	bottomSectionHeight += managerButtonSize.y * 2.0;							//two button rows (manager buttons & stop buttons)
+	bottomSectionHeight += ImGui::GetStyle().ItemSpacing.y * 2.0;				//spacing for the two button rows
+	if (selectedManoeuvre) bottomSectionHeight += selectedManoeuvre->getPlaybackControlGuiHeight();
+	else bottomSectionHeight += ImGui::GetTextLineHeightWithSpacing();			//if no selection, single text line for no selection display
 
-	float bottomSectionHeight = ImGui::GetTextLineHeightWithSpacing() * 2.0 + listButtonSize.y * 2.0 + ImGui::GetStyle().ItemSpacing.y * 2.0;
+	//================= MANOEUVRE LIST =======================
 
 	std::vector<std::shared_ptr<Manoeuvre>>& manoeuvres = Project::currentPlot->manoeuvres;
 	std::shared_ptr<Manoeuvre> clickedManoeuvre = nullptr;
-	static DraggableList cueList;
-	glm::vec2 cueListSize(sideBarWidth, ImGui::GetContentRegionAvail().y - bottomSectionHeight);
-	if (cueList.beginList("##CueList", cueListSize, ImGui::GetTextLineHeight() * 0.3)) {
+	static DraggableList manoeuvreList;
+	glm::vec2 manoeuvreListSize(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y - bottomSectionHeight);
+	if (manoeuvreList.beginList("##CueList", manoeuvreListSize, ImGui::GetTextLineHeight() * 0.3)) {
 		float previousVerticalWindowPadding = ImGui::GetStyle().WindowPadding.y;
 		//0 horizontal padding is to display the header background strip up to the edge of the cue window
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0, ImGui::GetTextLineHeight() * 0.2));
@@ -44,60 +49,68 @@ void plotGui() {
 		ImGuiWindowFlags cueWindowFlags = ImGuiWindowFlags_NoScrollbar;
 
 		for (auto& manoeuvre : manoeuvres) {
-			if (cueList.beginItem(cueSize, manoeuvre == currentPlot->selectedManoeuvre, cueWindowFlags)){
+			if (manoeuvreList.beginItem(cueSize, manoeuvre == currentPlot->selectedManoeuvre, cueWindowFlags)){
 				manoeuvre->listGui();
-				cueList.endItem();
+				manoeuvreList.endItem();
 			}
 			if (ImGui::IsItemClicked()) clickedManoeuvre = manoeuvre;
 		}
 		ImGui::PopStyleVar();
 
-		cueList.endList();
+		manoeuvreList.endList();
 	}
-
-	if (cueList.wasReordered()) {
+	if (manoeuvreList.wasReordered()) {
 		int oldIndex, newIndex;
-		cueList.getReorderedItemIndex(oldIndex, newIndex);
+		manoeuvreList.getReorderedItemIndex(oldIndex, newIndex);
 		std::shared_ptr<Manoeuvre> tmp = manoeuvres[oldIndex];
 		manoeuvres.erase(manoeuvres.begin() + oldIndex);
 		manoeuvres.insert(manoeuvres.begin() + newIndex, tmp);
 	}
 
+
+	//================== MANOEUVER MANAGER BUTTONS ========================
+
 	static const char* manoeuvreManagerString = "Manoeuvre Manager";
 	ImGui::PushFont(Fonts::robotoBold15);
 	ImGui::NewLine();
-	ImGui::SameLine((sideBarWidth - ImGui::CalcTextSize(manoeuvreManagerString).x) / 2.0);
+	ImGui::SameLine((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(manoeuvreManagerString).x) / 2.0);
 	ImGui::Text(manoeuvreManagerString);
 	ImGui::PopFont();
 
-	if (ImGui::Button("Create", listButtonSize)) currentPlot->addManoeuvre();
+	if (ImGui::Button("Create", managerButtonSize)) currentPlot->addManoeuvre();
 	ImGui::SameLine();
-	bool disablSelectionBasedButtons = currentPlot->selectedManoeuvre == nullptr;
+	bool disablSelectionBasedButtons = selectedManoeuvre == nullptr;
 	if (disablSelectionBasedButtons) BEGIN_DISABLE_IMGUI_ELEMENT
-	if (ImGui::Button("Duplicate", listButtonSize)) currentPlot->duplicateSelectedManoeuvre();
+	if (ImGui::Button("Duplicate", managerButtonSize)) currentPlot->duplicateSelectedManoeuvre();
 	ImGui::SameLine();
-	if (ImGui::Button("Delete", listButtonSize)) currentPlot->deleteSelectedManoeuvre();
+	if (ImGui::Button("Delete", managerButtonSize)) currentPlot->deleteSelectedManoeuvre();
 	if (disablSelectionBasedButtons) END_DISABLE_IMGUI_ELEMENT
 
 	static const char* playbackControlsString = "Playback Controls";
 	ImGui::PushFont(Fonts::robotoBold15);
 	ImGui::NewLine();
-	ImGui::SameLine((sideBarWidth - ImGui::CalcTextSize(playbackControlsString).x) / 2.0);
+	ImGui::SameLine((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(playbackControlsString).x) / 2.0);
 	ImGui::Text(playbackControlsString);
 	ImGui::PopFont();
 
-	if (disablSelectionBasedButtons) BEGIN_DISABLE_IMGUI_ELEMENT
-	if (ImGui::Button("Prime", listButtonSize)) currentPlot->primeSelectedManoeuvre();
-	ImGui::SameLine();
-	bool disableStartButton = currentPlot->isSelectedManoeuvrePrimed();
-	if (disableStartButton) BEGIN_DISABLE_IMGUI_ELEMENT
-	if (ImGui::Button("Start", listButtonSize)) currentPlot->startSelectedManoeuvre();
-	if(disableStartButton) END_DISABLE_IMGUI_ELEMENT
-	ImGui::SameLine();
-	if (ImGui::Button("Stop All", listButtonSize)) currentPlot->stopAllManoeuvres();
-	if (disablSelectionBasedButtons) END_DISABLE_IMGUI_ELEMENT
+	//===================== PLAYBACK MANAGER BUTTONS =======================
 
-	ImGui::EndGroup();
+	static const char* noManoeuvreSelectedString = "No Manoeuvre Selected";
+
+	if (selectedManoeuvre) {
+		selectedManoeuvre->playbackControlGui();
+	}
+	else {
+		ImGui::NewLine();
+		ImGui::SameLine((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(noManoeuvreSelectedString).x) / 2.0);
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		ImGui::Text("No Manoeuvre Selected");
+		ImGui::PopStyleColor();
+	}
+
+	if (ImGui::Button("Stop All", glm::vec2(ImGui::GetContentRegionAvail().x, managerButtonSize.y))) currentPlot->stopAllManoeuvres();
+
+	ImGui::EndChild();
 
 	ImGui::SameLine();
 
@@ -105,7 +118,7 @@ void plotGui() {
 	
 		if (currentPlot->selectedManoeuvre == nullptr) {
 			ImGui::PushFont(Fonts::robotoRegular20);
-			ImGui::Text("No Manoeuvre Selected.");
+			ImGui::Text(noManoeuvreSelectedString);
 			ImGui::PopFont();
 		}
 		else {

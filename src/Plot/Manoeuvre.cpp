@@ -128,7 +128,9 @@ float Manoeuvre::getPlaybackProgress() {
 
 
 
-
+void Manoeuvre::setType(ManoeuvreType::Type t) {
+	type = t;
+}
 
 
 
@@ -159,4 +161,28 @@ double Manoeuvre::getLength_seconds() {
 		}
 	}
 	return longestTrack;
+}
+
+
+
+std::vector<ManoeuvreType> manoeuvreTypes = {
+	{ManoeuvreType::Type::KEY_POSITION,		"Key Position",		"KeyPosition",		"KEY"},
+	{ManoeuvreType::Type::TIMED_MOVEMENT,	"Timed Movement",	"TimedMovement",	"TIM"},
+	{ManoeuvreType::Type::MOVEMENT_SEQUENCE,"Movement Sequence","MovementSequence", "SEQ"}
+};
+
+std::vector<ManoeuvreType>& getManoeuvreTypes() {
+	return manoeuvreTypes;
+}
+ManoeuvreType* getManoeuvreType(ManoeuvreType::Type t) {
+	for (auto& manoeuvreType : manoeuvreTypes) {
+		if (t == manoeuvreType.type) return &manoeuvreType;
+	}
+	return nullptr;
+}
+ManoeuvreType* getManoeuvreType(const char* saveName) {
+	for (auto& manoeuvreType : manoeuvreTypes) {
+		if (strcmp(manoeuvreType.saveName, saveName) == 0) return &manoeuvreType;
+	}
+	return nullptr;
 }
