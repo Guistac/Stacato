@@ -632,6 +632,7 @@ void PositionControlledAxis::homingControl() {
 						profilePosition_axisUnits = actualPosition_axisUnits;
 						profileVelocity_axisUnitsPerSecond = 0.0;
 						profileAcceleration_axisUnitsPerSecondSquared = 0.0;
+						//Logger::warn("Trying To Enable Axis");
 					}
 					else homingStep = Step::SEARCHING_LOW_LIMIT_FINE;
 				}
