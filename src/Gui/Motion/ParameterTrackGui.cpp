@@ -1,12 +1,15 @@
 #include <pch.h>
 
-#include "Motion/ParameterTrack.h"
+#include "Motion/Manoeuvre/ParameterTrack.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <implot.h>
 
 #include "Gui/Framework/Colors.h"
+
+#include "Motion/Curve/Curve.h"
+#include "Motion/AnimatableParameter.h"
 
 bool ParameterTrack::interpolationTypeSelectorGui() {
 	bool valueChanged = false;
@@ -45,8 +48,12 @@ bool ParameterTrack::sequenceTypeSelectorGui() {
 }
 
 
-bool ParameterTrack::chainPreviousTargetCheckboxGui() {
-	return ImGui::Checkbox("##Chain", &originIsPreviousTarget);
+bool ParameterTrack::originIsPreviousTargetCheckboxGui() {
+	return ImGui::Checkbox("##ChainPrevious", &originIsPreviousTarget);
+}
+
+bool ParameterTrack::targetIsNextOriginCheckboxGui() {
+	return ImGui::Checkbox("##ChainNext", &targetIsNextOrigin);
 }
 
 

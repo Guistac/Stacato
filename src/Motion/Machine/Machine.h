@@ -28,9 +28,13 @@ class Device;
 	virtual void enable();																			\
 	virtual void disable();																			\
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output);							\
-	virtual void primeParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
-	virtual float getParameterPrimingProgress(std::shared_ptr<AnimatableParameter> parameter);\
-	virtual bool isParameterPrimedToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
+	virtual void rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
+	virtual void cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter); \
+	virtual float getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter); \
+	virtual bool isParameterAtValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
+
+
+
 
 class Machine : public Node {
 public:
@@ -65,10 +69,12 @@ public:
 	//interface to plots / manoeuvres / tracks
 	std::vector<std::shared_ptr<AnimatableParameter>> animatableParameters;
 
-	virtual void primeParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
-	virtual float getParameterPrimingProgress(std::shared_ptr<AnimatableParameter> parameter) = 0;
-	virtual bool isParameterPrimedToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
-	virtual void stopParameterPlayback();
+	virtual void rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
+	virtual void cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) = 0;
+	virtual float getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) = 0;
+	virtual bool isParameterAtValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
+
+	void stopParameterPlayback(std::shared_ptr<AnimatableParameter> parameter);
 
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output) = 0;
 

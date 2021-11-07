@@ -4,7 +4,7 @@
 
 #include "NodeFactory.h"
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
-#include "Environnement/Environnement.h"
+#include "Project/Environnement.h"
 
 #include <tinyxml2.h>
 

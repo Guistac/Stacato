@@ -3,7 +3,7 @@
 #include "Gui.h"
 
 #include "Plot/PlotGui.h"
-#include "Environnement/Environnement.h"
+#include "Project/Environnement.h"
 
 void mainWindow() {
 

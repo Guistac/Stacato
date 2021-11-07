@@ -12,6 +12,7 @@
 
 #include "Motion/Machine/Machines/Basic/SingleAxisMachine.h"
 #include "Motion/Machine/Machines/StateMachines/HoodedLiftStateMachine.h"
+#include "Motion/Machine/Machines/Animated/Oscillator3x.h"
 
 namespace NodeFactory {
 
@@ -29,7 +30,8 @@ namespace NodeFactory {
 
 		allMachineNodes = {
 			new SingleAxisMachine(),
-			new HoodedLiftStateMachine()
+			new HoodedLiftStateMachine(),
+			new Oscillator3x()
 		};
 
 		allNodes = {

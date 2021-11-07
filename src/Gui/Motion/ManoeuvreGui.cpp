@@ -1,31 +1,33 @@
 #include <pch.h>
 
-#include "Plot/Manoeuvre.h"
+#include "Motion/Manoeuvre/Manoeuvre.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <implot.h>
 
-#include "Gui/Framework/Fonts.h"
-#include "Environnement/Environnement.h"
-#include "Motion/Machine/Machine.h"
-#include "Motion/AnimatableParameter.h"
-#include "Motion/ParameterTrack.h"
 #include "Gui/Framework/Colors.h"
 #include "Gui/Framework/Fonts.h"
 #include "Gui/Utilities/CustomWidgets.h"
 
+#include "Project/Environnement.h"
+#include "Motion/Machine/Machine.h"
+#include "Motion/AnimatableParameter.h"
+#include "Motion/Manoeuvre/ParameterTrack.h"
 #include "Motion/Curve/Curve.h"
 
-void Manoeuvre::listGui() {
+#include "Motion/Playback.h"
+
+
+void Manoeuvre::listGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 	ImGui::BeginGroup();
 
 	ImGui::PushFont(Fonts::robotoBold20);
-	float cueNameWidth = ImGui::CalcTextSize(name).x;
+	float cueNameWidth = ImGui::CalcTextSize(manoeuvre->name).x;
 	ImGui::PopFont();
 	ImGui::PushFont(Fonts::robotoLight20);
-	const char* manoeuvreTypeShortName = getManoeuvreType(type)->shortName;
+	const char* manoeuvreTypeShortName = getManoeuvreType(manoeuvre->type)->shortName;
 	float typeNameWidth = ImGui::CalcTextSize(manoeuvreTypeShortName).x;
 	ImGui::PopFont();
 
@@ -33,7 +35,7 @@ void Manoeuvre::listGui() {
 	glm::vec2 min = ImGui::GetWindowPos();
 	glm::vec2 max = min + glm::vec2(headerStripWidth, ImGui::GetWindowSize().y);
 	glm::vec4 headerStripColor;
-	switch (type) {
+	switch (manoeuvre->type) {
 		case ManoeuvreType::Type::KEY_POSITION:
 			headerStripColor = Colors::darkYellow;
 			break;
@@ -48,7 +50,7 @@ void Manoeuvre::listGui() {
 
 	ImGui::PushFont(Fonts::robotoBold20);
 	ImGui::SameLine(ImGui::GetStyle().ItemSpacing.x / 2.0);
-	ImGui::Text(name);
+	ImGui::Text(manoeuvre->name);
 	ImGui::PopFont();
 
 	ImGui::PushFont(Fonts::robotoLight20);
@@ -63,59 +65,57 @@ void Manoeuvre::listGui() {
 
 
 	ImGui::SameLine();
-	ImGui::Text(description);
+	ImGui::Text(manoeuvre->description);
 
-	if (isPriming()) {
+	if (Playback::isPriming(manoeuvre)) {
 		glm::vec2 windowPos = ImGui::GetWindowPos();
 		glm::vec2 maxsize = ImGui::GetWindowSize();
-		int trackCount = tracks.size();
+		int trackCount = manoeuvre->tracks.size();
 		float trackHeight = maxsize.y / (float)trackCount;
 		for (int i = 0; i < trackCount; i++) {
 			glm::vec2 min(windowPos.x, windowPos.y + trackHeight * i);
-			glm::vec2 max(min.x + maxsize.x * tracks[i]->getPrimingProgress(), min.y + trackHeight);
+			glm::vec2 max(min.x + maxsize.x * manoeuvre->tracks[i]->getPrimingProgress(), min.y + trackHeight);
 			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
 		}
 	}
-	if (isPrimed()) {
+	if (Playback::isPrimed(manoeuvre)) {
 		ImGui::Text("Primed");
 	}
-	if (isPlaying()) {
+	if (Playback::isPlaying(manoeuvre)) {
 		ImGui::SameLine();
 		ImGui::Text("Playing");
-	}
-	if (isPlaying()) {
 		glm::vec2 min = ImGui::GetWindowPos();
 		glm::vec2 windowSize = ImGui::GetWindowSize();
-		float progress = getPlaybackProgress();
+		float progress = manoeuvre->getPlaybackProgress();
 		glm::vec2 max(min.x + windowSize.x * progress, min.y + windowSize.y);
 		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.4)), 5.0);
 	}
 }
 
 
-void Manoeuvre::editGui() {
+void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 	ImGui::PushFont(Fonts::robotoBold42);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 2.0);
-	ImGui::InputText("##cueName", name, 64);
+	ImGui::InputText("##cueName", manoeuvre->name, 64);
 	ImGui::PopFont();
 	ImGui::SameLine();
 	glm::vec2 descriptionFieldSize(ImGui::GetContentRegionAvail().x, ImGui::GetItemRectSize().y);
 	ImGui::PushFont(Fonts::robotoRegular20);
-	ImGui::InputTextMultiline("##cueDescription", description, 256, descriptionFieldSize, ImGuiInputTextFlags_CtrlEnterForNewLine);
+	ImGui::InputTextMultiline("##cueDescription", manoeuvre->description, 256, descriptionFieldSize, ImGuiInputTextFlags_CtrlEnterForNewLine);
 	ImGui::PopFont();
 
-	if (ImGui::BeginCombo("##manoeuvreTypeSelector", getManoeuvreType(type)->displayName)) {
+	if (ImGui::BeginCombo("##manoeuvreTypeSelector", getManoeuvreType(manoeuvre->type)->displayName)) {
 		for (auto& manoeuvreType : getManoeuvreTypes()) {
-			if (ImGui::Selectable(manoeuvreType.displayName, type == manoeuvreType.type)) {
-				setType(manoeuvreType.type);
+			if (ImGui::Selectable(manoeuvreType.displayName, manoeuvre->type == manoeuvreType.type)) {
+				manoeuvre->setType(manoeuvreType.type);
 			}
 		}
 		ImGui::EndCombo();
 	}
 
 
-	bool manoeuvreIsPlaying = isPlaying();
+	bool manoeuvreIsPlaying = Playback::isPlaying(manoeuvre);
 
 	std::shared_ptr<ParameterTrack> removedTrack = nullptr;
 	std::shared_ptr<ParameterTrack> movedUpTrack = nullptr;
@@ -124,15 +124,15 @@ void Manoeuvre::editGui() {
 	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
 
 	int columnCount;
-	switch (type) {
+	switch (manoeuvre->type) {
 	case ManoeuvreType::Type::KEY_POSITION:
 		columnCount = 4;
 		break;
 	case ManoeuvreType::Type::TIMED_MOVEMENT:
-		columnCount = 10;
+		columnCount = 13;
 		break;
 	case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
-		columnCount = 13;
+		columnCount = 14;
 		break;
 	}
 
@@ -141,16 +141,19 @@ void Manoeuvre::editGui() {
 		ImGui::TableSetupColumn("Manage");
 		ImGui::TableSetupColumn("Machine");
 		ImGui::TableSetupColumn("Parameter");
-		if (type != ManoeuvreType::Type::KEY_POSITION) {
+		if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
 			ImGui::TableSetupColumn("Interpolation");
 		}
-		if (type == ManoeuvreType::Type::MOVEMENT_SEQUENCE) {
+		if (manoeuvre->type == ManoeuvreType::Type::MOVEMENT_SEQUENCE) {
 			ImGui::TableSetupColumn("Movement");
+		}
+		if(manoeuvre->type != ManoeuvreType::Type::KEY_POSITION){
 			ImGui::TableSetupColumn("Chain");
 			ImGui::TableSetupColumn("Start");
+			ImGui::TableSetupColumn("Chain");
 		}
 		ImGui::TableSetupColumn("Target");
-		if (type != ManoeuvreType::Type::KEY_POSITION) {
+		if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
 			ImGui::TableSetupColumn("Time");
 			ImGui::TableSetupColumn("Time Offset");
 			ImGui::TableSetupColumn("Ramp In");
@@ -160,7 +163,7 @@ void Manoeuvre::editGui() {
 
 		ImGui::TableHeadersRow();
 
-		for (auto& parameterTrack : tracks) {
+		for (auto& parameterTrack : manoeuvre->tracks) {
 
 			bool refreshSequence = false;
 
@@ -175,12 +178,12 @@ void Manoeuvre::editGui() {
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.1));
 			if (buttonCross("##remove")) removedTrack = parameterTrack;
 			ImGui::SameLine();
-			bool disableMoveUp = parameterTrack == tracks.front();
+			bool disableMoveUp = parameterTrack == manoeuvre->tracks.front();
 			if (disableMoveUp) BEGIN_DISABLE_IMGUI_ELEMENT
 				if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpTrack = parameterTrack;
 			if (disableMoveUp) END_DISABLE_IMGUI_ELEMENT
 				ImGui::SameLine();
-			bool disableMoveDown = parameterTrack == tracks.back();
+			bool disableMoveDown = parameterTrack == manoeuvre->tracks.back();
 			if (disableMoveDown) BEGIN_DISABLE_IMGUI_ELEMENT
 				if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownTrack = parameterTrack;
 			if (disableMoveDown) END_DISABLE_IMGUI_ELEMENT
@@ -196,30 +199,42 @@ void Manoeuvre::editGui() {
 
 			if (manoeuvreIsPlaying) BEGIN_DISABLE_IMGUI_ELEMENT
 
-				if (type != ManoeuvreType::Type::KEY_POSITION) {
+				if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
 					ImGui::TableNextColumn();
 					ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
 					refreshSequence |= parameterTrack->interpolationTypeSelectorGui();
 				}
 
-			if (type == ManoeuvreType::Type::MOVEMENT_SEQUENCE) {
+			if (manoeuvre->type == ManoeuvreType::Type::MOVEMENT_SEQUENCE) {
 				ImGui::TableNextColumn();
 				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.5);
 				refreshSequence |= parameterTrack->sequenceTypeSelectorGui();
+			}
+
+			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION){
+
+				bool disableOriginFields = manoeuvre->type == ManoeuvreType::Type::TIMED_MOVEMENT;
+
+				if(disableOriginFields) BEGIN_DISABLE_IMGUI_ELEMENT
 
 				ImGui::TableNextColumn();
-				refreshSequence |= parameterTrack->chainPreviousTargetCheckboxGui();
+				refreshSequence |= parameterTrack->originIsPreviousTargetCheckboxGui();
 
 				ImGui::TableNextColumn();
 				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
 				refreshSequence |= parameterTrack->originInputGui();
+
+				if(disableOriginFields) END_DISABLE_IMGUI_ELEMENT
+
+				ImGui::TableNextColumn();
+				refreshSequence |= parameterTrack->targetIsNextOriginCheckboxGui();
 			}
 
 			ImGui::TableNextColumn();
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
 			refreshSequence |= parameterTrack->targetInputGui();
 
-			if (type != ManoeuvreType::Type::KEY_POSITION) {
+			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
 				ImGui::TableNextColumn();
 				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
 				refreshSequence |= parameterTrack->timeInputGui();
@@ -256,10 +271,10 @@ void Manoeuvre::editGui() {
 			for (auto& machine : Environnement::getMachines()) {
 				if (ImGui::BeginMenu(machine->getName())) {
 					for (auto& parameter : machine->animatableParameters) {
-						bool isSelected = hasTrack(parameter);
+						bool isSelected = manoeuvre->hasTrack(parameter);
 						if (ImGui::MenuItem(parameter->name, nullptr, isSelected)) {
-							if (!isSelected) addTrack(parameter);
-							else removeTrack(parameter);
+							if (!isSelected) manoeuvre->addTrack(parameter);
+							else manoeuvre->removeTrack(parameter);
 						}
 					}
 					ImGui::EndMenu();
@@ -271,42 +286,42 @@ void Manoeuvre::editGui() {
 		ImGui::EndTable();
 	}
 
-	if (removedTrack) removeTrack(removedTrack->parameter);
+	if (removedTrack) manoeuvre->removeTrack(removedTrack->parameter);
 	else if (movedUpTrack) {
 		int oldIndex;
-		for (int i = 0; i < tracks.size(); i++) {
-			if (tracks[i] == movedUpTrack) {
+		for (int i = 0; i < manoeuvre->tracks.size(); i++) {
+			if (manoeuvre->tracks[i] == movedUpTrack) {
 				oldIndex = i;
 				break;
 			}
 		}
 		int newIndex = oldIndex - 1;
 		if (newIndex >= 0) {
-			tracks.erase(tracks.begin() + oldIndex);
-			tracks.insert(tracks.begin() + newIndex, movedUpTrack);
+			manoeuvre->tracks.erase(manoeuvre->tracks.begin() + oldIndex);
+			manoeuvre->tracks.insert(manoeuvre->tracks.begin() + newIndex, movedUpTrack);
 		}
 	}
 	else if (movedDownTrack) {
 		int oldIndex;
-		for (int i = 0; i < tracks.size(); i++) {
-			if (tracks[i] == movedDownTrack) {
+		for (int i = 0; i < manoeuvre->tracks.size(); i++) {
+			if (manoeuvre->tracks[i] == movedDownTrack) {
 				oldIndex = i;
 				break;
 			}
 		}
 		int newIndex = oldIndex + 1;
-		if (newIndex < tracks.size()) {
-			tracks.erase(tracks.begin() + oldIndex);
-			tracks.insert(tracks.begin() + newIndex, movedDownTrack);
+		if (newIndex < manoeuvre->tracks.size()) {
+			manoeuvre->tracks.erase(manoeuvre->tracks.begin() + oldIndex);
+			manoeuvre->tracks.insert(manoeuvre->tracks.begin() + newIndex, movedDownTrack);
 		}
 	}
 
-	if (type == ManoeuvreType::Type::MOVEMENT_SEQUENCE) {
-		sequenceEditGui();
+	if (manoeuvre->type == ManoeuvreType::Type::MOVEMENT_SEQUENCE) {
+		Manoeuvre::sequenceEditGui(manoeuvre);
 	}
 }
 
-void Manoeuvre::sequenceEditGui() {
+void Manoeuvre::sequenceEditGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 	if (ImGui::Button("Center On Curves")) {
 		ImPlot::FitNextPlotAxes();
@@ -318,7 +333,7 @@ void Manoeuvre::sequenceEditGui() {
 		glm::vec2 plotBoundsMin(ImPlot::GetPlotLimits().X.Min, ImPlot::GetPlotLimits().Y.Max);
 		glm::vec2 plotBoundsMax(ImPlot::GetPlotLimits().X.Max, ImPlot::GetPlotLimits().Y.Min);
 		double startTime = 0.0;
-		double endTime = getLength_seconds();
+		double endTime = manoeuvre->getLength_seconds();
 		std::vector<glm::vec2> limits;
 		limits.push_back(glm::vec2(plotBoundsMin.x, plotBoundsMin.y));
 		limits.push_back(glm::vec2(startTime, plotBoundsMin.y));
@@ -333,10 +348,10 @@ void Manoeuvre::sequenceEditGui() {
 			ImPlot::PlotVLines("##Limits2", &endTime, 1);
 		}
 
-		for (auto& parameterTrack : tracks) {
+		for (auto& parameterTrack : manoeuvre->tracks) {
 			parameterTrack->drawCurves(startTime, endTime);
 		}
-		for (auto& parameterTrack : tracks) {
+		for (auto& parameterTrack : manoeuvre->tracks) {
 			ImGui::PushID(parameterTrack->parameter->machine->getName());
 			ImGui::PushID(parameterTrack->parameter->name);
 			parameterTrack->drawControlPoints();
@@ -344,8 +359,8 @@ void Manoeuvre::sequenceEditGui() {
 			ImGui::PopID();
 		}
 
-		if (isPlaying()) {
-			double playbackTime = getPlaybackTime_seconds();
+		if (Playback::isPlaying(manoeuvre)) {
+			double playbackTime = manoeuvre->getPlaybackTime_seconds();
 			ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
 			ImPlot::PlotVLines("Playhead", &playbackTime, 1);
 		}
@@ -359,41 +374,84 @@ void Manoeuvre::sequenceEditGui() {
 
 
 
-void Manoeuvre::playbackControlGui() {
+void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
+
+	static auto fastMoveProgressOverlay = [&]() {
+		glm::vec2 min = ImGui::GetItemRectMin();
+		glm::vec2 size = ImGui::GetItemRectSize();
+		glm::vec2 max(min.x + size.x * Playback::getPrimingProgress(manoeuvre), min.y + size.y);
+		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.2)), 5.0);
+	};
+	static auto playbackProgressOverlay = [&]() {
+		glm::vec2 min = ImGui::GetItemRectMin();
+		glm::vec2 size = ImGui::GetItemRectSize();
+		glm::vec2 max(min.x + size.x * Playback::getPrimingProgress(manoeuvre), min.y + size.y);
+		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.4)), 5.0);
+	};
+
 	float buttonHeight = ImGui::GetTextLineHeight() * 2.0;
 	float availableWidth = ImGui::GetContentRegionAvail().x;
 	glm::vec2 singleButtonSize(availableWidth, buttonHeight);
 	glm::vec2 doubleButtonSize((availableWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, buttonHeight);
 	glm::vec2 tripleButtonSize((availableWidth - ImGui::GetStyle().ItemSpacing.x * 2.0) / 3.0, buttonHeight);
-	switch (type) {
+	switch (manoeuvre->type) {
 	case ManoeuvreType::Type::KEY_POSITION:
-		if (ImGui::Button("Fast Move To Key Position", singleButtonSize)) {}
+		if (Playback::isPriming(manoeuvre)) {
+			if (ImGui::Button("Cancel Rapid")) Playback::stopPriming(manoeuvre);
+			fastMoveProgressOverlay();
+		}
+		else {
+			if (ImGui::Button("Rapid To Key Position", singleButtonSize)) {}
+		}
 		break;
 	case ManoeuvreType::Type::TIMED_MOVEMENT:
-		if (ImGui::Button("Timed Move", doubleButtonSize)) {}
+		if (Playback::isPriming(manoeuvre)) {
+			if (ImGui::Button("Cancel Rapid", doubleButtonSize)) Playback::stopPriming(manoeuvre);
+			fastMoveProgressOverlay();
+		}
+		else {
+			if (ImGui::Button("Rapid Move", doubleButtonSize)) {}
+		}
 		ImGui::SameLine();
-		if (ImGui::Button("Fast Move", doubleButtonSize)) {}
+		if (Playback::isPlaying(manoeuvre)) {
+			if (ImGui::Button("Stop", doubleButtonSize)) Playback::stopPlayback(manoeuvre);
+			playbackProgressOverlay();
+		}
+		else {
+			if (ImGui::Button("Timed Move", doubleButtonSize)) {}
+		}
 		break;
 	case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
-		if (ImGui::Button("Fast Move To Start", doubleButtonSize)) prime();
-		ImGui::SameLine();
-		if (ImGui::Button("Fast Move To End", doubleButtonSize)) {}
-
-		static double targetTime = 0.0;
-		ImGui::SetNextItemWidth(doubleButtonSize.x);
-		ImGui::InputDouble("##targetTime", &targetTime, 0.0, 0.0, "%.1f seconds");
-		if (targetTime < 0.0) targetTime = 0.0;
-		else if (targetTime > getLength_seconds()) targetTime = getLength_seconds();
-		ImGui::SameLine();
-		if (ImGui::Button("Fast Move To Time", glm::vec2(doubleButtonSize.x, ImGui::GetItemRectSize().y))) {}
-
-		if (ImGui::Button("Start Sequence", singleButtonSize)) startPlayback();
+		if (Playback::isPriming(manoeuvre)) {
+			glm::vec2 cancelButtonSize(singleButtonSize.x, singleButtonSize.y + ImGui::GetFrameHeight() + ImGui::GetStyle().ItemSpacing.y);
+			if (ImGui::Button("Cancel Rapid", cancelButtonSize)) Playback::stopPriming(manoeuvre);
+			fastMoveProgressOverlay();
+		}
+		else {
+			if (ImGui::Button("Rapid To Start", doubleButtonSize)) Playback::startPriming(manoeuvre);
+			ImGui::SameLine();
+			if (ImGui::Button("Rapid To End", doubleButtonSize)) {}
+			static double targetTime = 0.0;
+			ImGui::SetNextItemWidth(doubleButtonSize.x);
+			ImGui::InputDouble("##targetTime", &targetTime, 0.0, 0.0, "%.1f seconds");
+			if (targetTime < 0.0) targetTime = 0.0;
+			else if (targetTime > manoeuvre->getLength_seconds()) targetTime = manoeuvre->getLength_seconds();
+			ImGui::SameLine();
+			if (ImGui::Button("Rapid To Time", glm::vec2(doubleButtonSize.x, ImGui::GetItemRectSize().y))) {}
+		}
+		if (Playback::isPlaying(manoeuvre)) {
+			if (ImGui::Button("Stop", singleButtonSize)) Playback::stopPlayback(manoeuvre);
+			playbackProgressOverlay();
+		}
+		else {
+			if (ImGui::Button("Start Sequence", singleButtonSize)) Playback::startPlayback(manoeuvre);
+		}
 		break;
 	}
 }
 
-float Manoeuvre::getPlaybackControlGuiHeight() {
-	switch (type) {
+float Manoeuvre::getPlaybackControlGuiHeight(const std::shared_ptr<Manoeuvre>& manoeuvre) {
+	switch (manoeuvre->type) {
 		case ManoeuvreType::Type::KEY_POSITION:
 			return ImGui::GetTextLineHeight() * 2.0 //single row of buttons
 				+ ImGui::GetStyle().ItemSpacing.y;	//spacing

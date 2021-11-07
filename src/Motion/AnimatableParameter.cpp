@@ -1,29 +1,31 @@
 #include <pch.h>
 
 #include "AnimatableParameter.h"
-#include "ParameterTrack.h"
+#include "Motion/Manoeuvre/ParameterTrack.h"
 #include "Curve/Curve.h"
 #include "Machine/Machine.h"
+
+#include <tinyxml2.h>
 
 std::vector<InterpolationType::Type> AnimatableParameter::getCompatibleInterpolationTypes() {
 	std::vector<InterpolationType::Type> output;
 	switch (dataType) {
-		case ParameterDataType::BOOLEAN_PARAMETER:
-		case ParameterDataType::INTEGER_PARAMETER:
-		case ParameterDataType::STATE_PARAMETER:
+		case ParameterDataType::Type::BOOLEAN_PARAMETER:
+		case ParameterDataType::Type::INTEGER_PARAMETER:
+		case ParameterDataType::Type::STATE_PARAMETER:
 			output.push_back(InterpolationType::Type::STEP);
 			break;
-		case ParameterDataType::REAL_PARAMETER:
-		case ParameterDataType::VECTOR_2D_PARAMETER:
-		case ParameterDataType::VECTOR_3D_PARAMETER:
+		case ParameterDataType::Type::REAL_PARAMETER:
+		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
+		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
 			output.push_back(InterpolationType::Type::STEP);
 			output.push_back(InterpolationType::Type::LINEAR);
 			output.push_back(InterpolationType::Type::TRAPEZOIDAL);
 			output.push_back(InterpolationType::Type::BEZIER);
 			break;
-		case ParameterDataType::KINEMATIC_POSITION_CURVE:
-		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
-		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
+		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
+		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
 			output.push_back(InterpolationType::Type::TRAPEZOIDAL);
 			break;
 	}
@@ -31,6 +33,105 @@ std::vector<InterpolationType::Type> AnimatableParameter::getCompatibleInterpola
 }
 
 
-AnimatableParameterValue& AnimatableParameter::getActiveTrackParameterValue() {
-	return actualParameterTrack->getParameterValueAtPlaybackTime();
+void AnimatableParameter::getActiveTrackParameterValue(AnimatableParameterValue& output) {
+	return actualParameterTrack->getParameterValueAtPlaybackTime(output);
+}
+
+
+bool AnimatableParameterValue::save(tinyxml2::XMLElement* parameterValueXML) {
+	parameterValueXML->SetAttribute("Type", getParameterDataType(type)->saveName);
+	switch (type) {
+	case ParameterDataType::Type::BOOLEAN_PARAMETER:
+			parameterValueXML->SetAttribute("Boolean", boolValue);
+			break;
+		case ParameterDataType::Type::INTEGER_PARAMETER:
+			parameterValueXML->SetAttribute("Integer", integerValue);
+			break;
+		case ParameterDataType::Type::STATE_PARAMETER:
+			parameterValueXML->SetAttribute("State", stateValue->saveName);
+			break;
+		case ParameterDataType::Type::REAL_PARAMETER:
+		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
+			parameterValueXML->SetAttribute("Real", realValue);
+			break;
+		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
+		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
+			parameterValueXML->SetAttribute("X", vector2value.x);
+			parameterValueXML->SetAttribute("Y", vector2value.y);
+			break;
+		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
+		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
+			parameterValueXML->SetAttribute("X", vector3value.x);
+			parameterValueXML->SetAttribute("Y", vector3value.y);
+			parameterValueXML->SetAttribute("Z", vector3value.z);
+			break;
+	}
+	return true;
+}
+
+
+
+bool AnimatableParameterValue::load(tinyxml2::XMLElement* parameterValueXML) {
+	using namespace tinyxml2;
+	const char* typeString;
+	if (parameterValueXML->QueryStringAttribute("Type", &typeString) != XML_SUCCESS) return Logger::warn("Could not find parameter data type");
+	if (getParameterDataType(typeString) == nullptr) return Logger::warn("Could not read parameter data type");
+	type = getParameterDataType(typeString)->type;
+	switch (type) {
+		case ParameterDataType::Type::BOOLEAN_PARAMETER:
+			if (parameterValueXML->QueryBoolAttribute("Boolean", &boolValue) != XML_SUCCESS) return Logger::warn("Could not read bool value");
+			break;
+		case ParameterDataType::Type::INTEGER_PARAMETER:
+			if (parameterValueXML->QueryIntAttribute("Integer", &integerValue) != XML_SUCCESS) return Logger::warn("Could not read int value");
+			break;
+		case ParameterDataType::Type::STATE_PARAMETER: {
+			const char* stateValueString;
+				if (parameterValueXML->QueryStringAttribute("State", &stateValueString) != XML_SUCCESS) return Logger::warn("Could not read state value");
+			}break;
+		case ParameterDataType::Type::REAL_PARAMETER:
+		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
+			if (parameterValueXML->QueryDoubleAttribute("Real", &realValue) != XML_SUCCESS) return Logger::warn("Could not read real value");
+			break;
+		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
+		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
+			if(parameterValueXML->QueryFloatAttribute("X", &vector2value.x) != XML_SUCCESS) return Logger::warn("Could not read vector2.x value");
+			if(parameterValueXML->QueryFloatAttribute("Y", &vector2value.y) != XML_SUCCESS) return Logger::warn("Could not read vector2.y value");
+			break;
+		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
+		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
+			if(parameterValueXML->QueryFloatAttribute("X", &vector3value.x) != XML_SUCCESS) return Logger::warn("Could not read vector3.x value");
+			if(parameterValueXML->QueryFloatAttribute("Y", &vector3value.y) != XML_SUCCESS) return Logger::warn("Could not read vector3.y value");
+			if(parameterValueXML->QueryFloatAttribute("Z", &vector3value.z) != XML_SUCCESS) return Logger::warn("Could not read vector3.z value");
+			break;
+	}
+	return true;
+}
+
+
+
+std::vector<ParameterDataType> parameterDataTypes = {
+	{ParameterDataType::Type::BOOLEAN_PARAMETER, "Boolean", "Boolean"},
+	{ParameterDataType::Type::INTEGER_PARAMETER, "Integer", "Integer"},
+	{ParameterDataType::Type::STATE_PARAMETER, "State", "State"},
+	{ParameterDataType::Type::VECTOR_2D_PARAMETER, "2D Vector", "2DVector"},
+	{ParameterDataType::Type::VECTOR_3D_PARAMETER, "3D Vector", "3DVector"},
+	{ParameterDataType::Type::KINEMATIC_POSITION_CURVE, "Kinematic", "Kinematic"},
+	{ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE, "2D Kinematic", "2DKinematic"},
+	{ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE, "3D Kinematic", "3DKinematic"}
+};
+
+std::vector<ParameterDataType>& getParameterDataTypes() {
+	return parameterDataTypes;
+}
+ParameterDataType* getParameterDataType(const char* saveName) {
+	for (auto& type : parameterDataTypes) {
+		if (strcmp(saveName, type.saveName) == 0) return &type;
+	}
+	return nullptr;
+}
+ParameterDataType* getParameterDataType(ParameterDataType::Type t) {
+	for (auto& type : parameterDataTypes) {
+		if (t == type.type) return &type;
+	}
+	return nullptr;
 }

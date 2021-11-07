@@ -3,8 +3,6 @@
 #include "MotionTypes.h"
 
 
-
-
 std::vector<PositionUnit> linearPositionUnits = {
 	{PositionUnit::Unit::METER, PositionUnit::Type::LINEAR,			"Meter",		"Meters",		"m",		"Meter"},
 	{PositionUnit::Unit::MILLIMETER, PositionUnit::Type::LINEAR,	"Millimeter",	"Millimeters",	"mm",		"Millimeter"}

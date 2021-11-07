@@ -1,9 +1,10 @@
 #include <pch.h>
 
 #include "Project.h"
-#include "Environnement/Environnement.h"
-#include "Plot/Plot.h"
-#include "Plot/Manoeuvre.h"
+
+#include "Project/Environnement.h"
+#include "Project/Plot.h"
+#include "Motion/Manoeuvre/Manoeuvre.h"
 
 namespace Project {
 

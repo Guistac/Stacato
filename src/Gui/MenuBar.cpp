@@ -3,8 +3,8 @@
 #include "Gui.h"
 #include "Framework/GuiWindow.h"
 
-#include "Environnement/Environnement.h"
-#include "Plot/Plot.h"
+#include "Project/Environnement.h"
+#include "Project/Plot.h"
 
 #include "Gui/Utilities/Filedialog.h"
 

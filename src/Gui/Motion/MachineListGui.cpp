@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "Gui/Gui.h"
-#include "Environnement/Environnement.h"
+#include "Project/Environnement.h"
 #include "Motion/Machine/Machine.h"
 #include "Gui/Framework/Colors.h"
 

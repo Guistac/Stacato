@@ -5,17 +5,29 @@
 class Machine;
 class ParameterTrack;
 
-enum class ParameterDataType {
-	BOOLEAN_PARAMETER,
-	INTEGER_PARAMETER,
-	STATE_PARAMETER,
-	REAL_PARAMETER,
-	VECTOR_2D_PARAMETER,
-	VECTOR_3D_PARAMETER,
-	KINEMATIC_POSITION_CURVE,
-	KINEMATIC_2D_POSITION_CURVE,
-	KINEMATIC_3D_POSITION_CURVE
+#include <tinyxml2.h>
+
+struct ParameterDataType {
+	enum class Type {
+		BOOLEAN_PARAMETER,
+		INTEGER_PARAMETER,
+		STATE_PARAMETER,
+		REAL_PARAMETER,
+		VECTOR_2D_PARAMETER,
+		VECTOR_3D_PARAMETER,
+		KINEMATIC_POSITION_CURVE,
+		KINEMATIC_2D_POSITION_CURVE,
+		KINEMATIC_3D_POSITION_CURVE
+	};
+	Type type;
+	const char displayName[64];
+	const char saveName[64];
 };
+
+std::vector<ParameterDataType>& getParameterDataTypes();
+ParameterDataType* getParameterDataType(const char* saveName);
+ParameterDataType* getParameterDataType(ParameterDataType::Type t);
+
 
 struct StateParameterValue {
 	int integerEquivalent;
@@ -26,34 +38,39 @@ struct StateParameterValue {
 struct AnimatableParameterValue {
 public:
 
-	ParameterDataType type;
+	ParameterDataType::Type type;
 
 	bool inputFieldGui(float width);
+
+	std::vector<StateParameterValue>* stateValues = nullptr;
 
 	bool boolValue = false;
 	int integerValue = false;
 	StateParameterValue* stateValue = nullptr;
-	std::vector<StateParameterValue>* stateValues = nullptr;
 	double realValue = false;
 	glm::vec2 vector2value = glm::vec2(0);
 	glm::vec3 vector3value = glm::vec3(0);
+
+	bool save(tinyxml2::XMLElement* parameterValueXML);
+	bool load(tinyxml2::XMLElement* parameterValueXML);
+
 };
 
 
-class AnimatableParameter : public std::enable_shared_from_this<AnimatableParameter> {
+class AnimatableParameter {
 public:
 
-	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, ParameterDataType datat) : machine(mach), dataType(datat) {
+	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, ParameterDataType::Type datat) : machine(mach), dataType(datat) {
 		strcpy(name, nm);
 	}
 
 	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, std::vector<StateParameterValue>* stateValues) : machine(mach), stateParameterValues(stateValues) {
 		strcpy(name, nm);
-		dataType = ParameterDataType::STATE_PARAMETER;
+		dataType = ParameterDataType::Type::STATE_PARAMETER;
 	}
 
 
-	ParameterDataType dataType;
+	ParameterDataType::Type dataType;
 	std::vector<InterpolationType::Type> getCompatibleInterpolationTypes();
 
 	char name[128];
@@ -113,7 +130,7 @@ public:
 	//bool isInsideErrorTreshold(glm::vec3 pos3);
 
 	
-	AnimatableParameterValue& getActiveTrackParameterValue();
+	void getActiveTrackParameterValue(AnimatableParameterValue& output);
 	AnimatableParameterValue& getActualMachineParameterValue() { return actualValue; }
 	
 	bool hasParameterTrack() { return actualParameterTrack != nullptr; }

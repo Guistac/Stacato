@@ -31,7 +31,7 @@ void HoodedLiftStateMachine::assignIoData() {
 	stateParameter = std::make_shared<AnimatableParameter>("State", thisMachine, &stateParameterValues);
 	animatableParameters.push_back(stateParameter);
 
-	realParameter = std::make_shared<AnimatableParameter>("Real", thisMachine, ParameterDataType::REAL_PARAMETER);
+	realParameter = std::make_shared<AnimatableParameter>("Real", thisMachine, ParameterDataType::Type::REAL_PARAMETER);
 	animatableParameters.push_back(realParameter);
 }
 
@@ -197,7 +197,7 @@ bool HoodedLiftStateMachine::isMoving() {
 	return actualState == MachineState::State::LIFT_LOWERED_HOOD_MOVING || actualState == MachineState::State::LIFT_MOVING_HOOD_OPEN;
 }
 
-void HoodedLiftStateMachine::primeParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+void HoodedLiftStateMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if (parameter->dataType == value.type) {
 		if (parameter == stateParameter) {
 			switch (value.stateValue->integerEquivalent) {
@@ -215,7 +215,7 @@ void HoodedLiftStateMachine::primeParameterToValue(std::shared_ptr<AnimatablePar
 	}
 }
 
-float HoodedLiftStateMachine::getParameterPrimingProgress(std::shared_ptr<AnimatableParameter> parameter) {
+float HoodedLiftStateMachine::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == stateParameter) {
 		float actual = getState(actualState)->floatEquivalent;
 		float start = getState(parameterMovementStartState)->floatEquivalent;
@@ -228,7 +228,7 @@ float HoodedLiftStateMachine::getParameterPrimingProgress(std::shared_ptr<Animat
 	return 0.0;
 }
 
-bool HoodedLiftStateMachine::isParameterPrimedToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+bool HoodedLiftStateMachine::isParameterAtValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if (parameter->dataType == value.type) {
 		if (parameter == stateParameter) {
 			if ((float)value.stateValue->integerEquivalent == getState(actualState)->floatEquivalent) return true;
@@ -236,6 +236,8 @@ bool HoodedLiftStateMachine::isParameterPrimedToValue(std::shared_ptr<Animatable
 	}
 	return false;
 }
+
+void HoodedLiftStateMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {}
 
 void HoodedLiftStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
 	if (isGpioDeviceConnected()) output.push_back(getGpioDevice()->parentDevice);

@@ -1,14 +1,14 @@
 #pragma once
 
-class AnimatableParameter;
 class CurvePoint;
 
-#include "Motion/Curve/Curve.h"
 #include "Motion/AnimatableParameter.h"
-#include "Motion/MotionTypes.h"
+
+#include <tinyxml2.h>
 
 struct SequenceType {
 	enum class Type {
+		NO_MOVE,
 		TIMED_MOVE,
 		ANIMATED_MOVE
 	};
@@ -24,22 +24,22 @@ SequenceType* getSequenceType(const char* saveName);
 class ParameterTrack{
 public:
 
+	ParameterTrack() {}
 	ParameterTrack(const ParameterTrack& original);
-
 	ParameterTrack(std::shared_ptr<AnimatableParameter>& param);
 
 	void initialize();
 
 	std::shared_ptr<AnimatableParameter> parameter;
 
-	AnimatableParameterValue primingStartPosition; //used to keep track of the priming progress
 	bool b_priming = false;
 	void prime();
+	void cancelPriming();
 	bool isPrimed();
 	float getPrimingProgress();
 
 	double playbackStartTime_seconds;
-	AnimatableParameterValue getParameterValueAtPlaybackTime();
+	void getParameterValueAtPlaybackTime(AnimatableParameterValue& output);
 
 	SequenceType::Type sequenceType;
 	InterpolationType::Type interpolationType;
@@ -58,6 +58,7 @@ public:
 
 	//parameters for timed sequences
 	bool originIsPreviousTarget = false;
+	bool targetIsNextOrigin = false;
 	AnimatableParameterValue origin;
 	AnimatableParameterValue target;
 	double movementTime = 1.0;
@@ -69,7 +70,8 @@ public:
 	//gui stuff
 	bool sequenceTypeSelectorGui();
 	bool interpolationTypeSelectorGui();
-	bool chainPreviousTargetCheckboxGui();
+	bool originIsPreviousTargetCheckboxGui();
+	bool targetIsNextOriginCheckboxGui();
 	bool originInputGui();
 	bool targetInputGui();
 	bool timeInputGui();
@@ -80,4 +82,7 @@ public:
 
 	void drawCurves(double startTime, double endTime);
 	bool drawControlPoints();
+
+	bool save(tinyxml2::XMLElement* trackXML);
+	bool load(tinyxml2::XMLElement* trackXML);
 };

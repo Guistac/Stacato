@@ -4,7 +4,7 @@
 
 #include <imgui.h>
 
-#include "Environnement/Environnement.h"
+#include "Project/Environnement.h"
 #include "Motion/Machine/Machine.h"
 #include "Fieldbus/EtherCatDevice.h"
 #include "Gui/Utilities/DraggableList.h"
