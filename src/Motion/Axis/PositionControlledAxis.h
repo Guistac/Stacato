@@ -45,6 +45,7 @@ public:
 	//Position Limits
 	double maxPositiveDeviation_axisUnits = 0.0;
 	double maxNegativeDeviation_axisUnits = 0.0;
+	double limitClearance_axisUnits = 0.0;
 	bool limitToFeedbackWorkingRange = true;
 	bool enableNegativeLimit = true;
 	bool enablePositiveLimit = true;
@@ -86,6 +87,9 @@ public:
 	ControlMode::Mode controlMode = ControlMode::Mode::MANUAL_VELOCITY_TARGET;
 
 	double manualControlAcceleration_axisUnitsPerSecond = 0.0;
+
+	//Fast Stop Control
+	void fastStopControl();
 
 	//Manual Velocity Control
 	void setVelocity(double velocity_axisUnits);

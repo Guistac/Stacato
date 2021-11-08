@@ -102,6 +102,9 @@ void PositionControlledAxis::process() {
 			case ControlMode::Mode::MANUAL_POSITION_TARGET:
 				positionTargetControl();
 				break;
+			case ControlMode::Mode::FAST_STOP:
+				fastStopControl();
+				break;
 		}
 	}
 	else  {
@@ -412,6 +415,14 @@ double PositionControlledAxis::getHighPositionLimit() {
 	return highLimit;
 }
 
+double PositionControlledAxis::getLowPositionLimitWithClearance() {
+	return getLowPositionLimit() + limitClearance_axisUnits;
+}
+
+double PositionControlledAxis::getHighPositionLimitWithClearance() {
+	return getHighPositionLimit() - limitClearance_axisUnits;
+}
+
 double PositionControlledAxis::getLowFeedbackPositionLimit() {
 	switch (positionControl) {
 	case PositionControl::Type::SERVO:
@@ -489,6 +500,30 @@ void PositionControlledAxis::scaleFeedbackToMatchPosition(double position_axisUn
 
 //================================= VELOCITY TARGET CONTROL ===================================
 
+void PositionControlledAxis::fastStop() {
+	controlMode = ControlMode::Mode::FAST_STOP;
+}
+
+void PositionControlledAxis::fastStopControl() {
+	if (profileVelocity_axisUnitsPerSecond != 0.0) {
+		double deltaV_axisUnitsPerSecond = accelerationLimit_axisUnitsPerSecondSquared * currentProfilePointDeltaT_seconds;
+		if (profileVelocity_axisUnitsPerSecond > 0.0) {
+			profileVelocity_axisUnitsPerSecond -= deltaV_axisUnitsPerSecond;
+			if (profileVelocity_axisUnitsPerSecond < 0.0) profileVelocity_axisUnitsPerSecond = 0.0;
+		}
+		else {
+			profileVelocity_axisUnitsPerSecond += deltaV_axisUnitsPerSecond;
+			if (profileVelocity_axisUnitsPerSecond > 0.0) profileVelocity_axisUnitsPerSecond = 0.0;
+		}
+		double deltaP_axisUnits = profileVelocity_axisUnitsPerSecond * currentProfilePointDeltaT_seconds;
+		profilePosition_axisUnits += deltaP_axisUnits;
+	}
+	else {
+		profileVelocity_axisUnitsPerSecond = 0.0;
+		setVelocity(0.0);
+	}
+}
+
 void PositionControlledAxis::setVelocity(double velocity_axisUnits) {
 	manualVelocityTarget_axisUnitsPerSecond = velocity_axisUnits;
 	if (controlMode == ControlMode::Mode::MANUAL_POSITION_TARGET) {
@@ -498,6 +533,28 @@ void PositionControlledAxis::setVelocity(double velocity_axisUnits) {
 }
 
 void PositionControlledAxis::velocityTargetControl() {
+
+	if (!isHoming()) {
+		double brakingPositionAtMaxDeceleration = getBrakingPositionAtMaxDeceleration();
+		if (brakingPositionAtMaxDeceleration < getLowPositionLimitWithClearance()) {
+			if (profileVelocity_axisUnitsPerSecond < 0.0) {
+				fastStop();
+				fastStopControl();
+				return;
+			}
+			else if (manualVelocityTarget_axisUnitsPerSecond < 0.0) manualVelocityTarget_axisUnitsPerSecond = 0.0;
+		}
+		else if (brakingPositionAtMaxDeceleration > getHighPositionLimitWithClearance()) {
+			if (profileVelocity_axisUnitsPerSecond > 0.0) {
+				fastStop();
+				fastStopControl();
+				return;
+			}
+			else if (manualVelocityTarget_axisUnitsPerSecond > 0.0) manualVelocityTarget_axisUnitsPerSecond = 0.0;
+		}
+	}
+
+
 	if (profileVelocity_axisUnitsPerSecond != manualVelocityTarget_axisUnitsPerSecond) {
 		double deltaV_axisUnitsPerSecond = manualControlAcceleration_axisUnitsPerSecond * currentProfilePointDeltaT_seconds;
 		if (profileVelocity_axisUnitsPerSecond < manualVelocityTarget_axisUnitsPerSecond) {
@@ -521,8 +578,8 @@ void PositionControlledAxis::velocityTargetControl() {
 //================================= POSITION TARGET CONTROL ===================================
 
 void PositionControlledAxis::moveToPositionWithVelocity(double position_axisUnits, double velocity_axisUnits, double acceleration_axisUnits) {
-	if (position_axisUnits > maxPositiveDeviation_axisUnits && enablePositiveLimit) position_axisUnits = maxPositiveDeviation_axisUnits;
-	else if (position_axisUnits < maxNegativeDeviation_axisUnits && enableNegativeLimit) position_axisUnits = maxNegativeDeviation_axisUnits;
+	if (position_axisUnits > getHighPositionLimitWithClearance()) position_axisUnits = getHighPositionLimitWithClearance();
+	else if (position_axisUnits < getLowPositionLimitWithClearance()) position_axisUnits = getLowPositionLimitWithClearance();
 	auto startPoint= std::make_shared<Motion::ControlPoint>(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
 	auto endPoint = std::make_shared<Motion::ControlPoint>(0.0, position_axisUnits, acceleration_axisUnits, 0.0);
 	if (Motion::TrapezoidalInterpolation::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, velocity_axisUnits, targetInterpolation)) {
@@ -535,8 +592,8 @@ void PositionControlledAxis::moveToPositionWithVelocity(double position_axisUnit
 }
 
 void PositionControlledAxis::moveToPositionInTime(double position_axisUnits, double movementTime_seconds, double acceleration_axisUnits) {
-	if (position_axisUnits > maxPositiveDeviation_axisUnits && enablePositiveLimit) position_axisUnits = maxPositiveDeviation_axisUnits;
-	else if (position_axisUnits < maxNegativeDeviation_axisUnits && enableNegativeLimit) position_axisUnits = maxNegativeDeviation_axisUnits;
+	if (position_axisUnits > getHighPositionLimitWithClearance()) position_axisUnits = getHighPositionLimitWithClearance();
+	else if (position_axisUnits < getLowPositionLimitWithClearance()) position_axisUnits = getLowPositionLimitWithClearance();
 	auto startPoint = std::make_shared<Motion::ControlPoint>(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
 	auto endPoint = std::make_shared<Motion::ControlPoint>(currentProfilePointTime_seconds + movementTime_seconds, position_axisUnits, acceleration_axisUnits, 0.0);
 	if (Motion::TrapezoidalInterpolation::getTimeConstrainedInterpolation(startPoint, endPoint, velocityLimit_axisUnitsPerSecond, targetInterpolation)) {
@@ -942,6 +999,7 @@ bool PositionControlledAxis::save(tinyxml2::XMLElement* xml) {
 	positionLimitsXML->SetAttribute("EnableNegativeLimit", enableNegativeLimit);
 	positionLimitsXML->SetAttribute("MaxPositionDeviation_axisUnits", maxPositiveDeviation_axisUnits);
 	positionLimitsXML->SetAttribute("EnablePositiveLimit", enablePositiveLimit);
+	positionLimitsXML->SetAttribute("LimitClearance_axisUnits", limitClearance_axisUnits);
 	positionLimitsXML->SetAttribute("LimitToFeedbackWorkingRange", limitToFeedbackWorkingRange);
 
 	XMLElement* defaultManualParametersXML = xml->InsertNewChildElement("DefaultManualParameters");
@@ -983,6 +1041,7 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if (positionLimitsXML->QueryBoolAttribute("EnableNegativeLimit", &enableNegativeLimit) != XML_SUCCESS) return Logger::warn("could not load enable negative limit attribute");
 	if (positionLimitsXML->QueryDoubleAttribute("MaxPositionDeviation_axisUnits", &maxPositiveDeviation_axisUnits) != XML_SUCCESS) return Logger::warn("could not load max positive deviation attribute");
 	if (positionLimitsXML->QueryBoolAttribute("EnablePositiveLimit", &enablePositiveLimit) != XML_SUCCESS) return Logger::warn("Could not load enable positive limit attribute");
+	if (positionLimitsXML->QueryDoubleAttribute("LimitClearance_axisUnits", &limitClearance_axisUnits) != XML_SUCCESS) Logger::warn("Could not load limit clearnce attribute");
 	if (positionLimitsXML->QueryBoolAttribute("LimitToFeedbackWorkingRange", &limitToFeedbackWorkingRange) != XML_SUCCESS) return Logger::warn("Could not load limit to feedback working range attribute");
 
 

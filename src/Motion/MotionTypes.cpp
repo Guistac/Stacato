@@ -204,7 +204,7 @@ MotionCommand* getMotionCommand(const char* saveName) {
 std::vector<ControlMode> controlModes = {
 	{ControlMode::Mode::MANUAL_VELOCITY_TARGET, "Manual Velocity Target", "ManualVelocityTarget"},
 	{ControlMode::Mode::MANUAL_POSITION_TARGET, "Manual Position Target", "ManualPositionTarget"},
-	{ControlMode::Mode::FOLLOW_PARAMETER,		"Follow Paramter", "FollowParameter"}
+	{ControlMode::Mode::FAST_STOP,				"Fast Stop", "FastStop"}
 };
 std::vector<ControlMode>& getControlModes() {
 	return controlModes;

@@ -25,8 +25,11 @@
 	virtual void devicesGui();																		\
 	virtual void metricsGui();																		\
 	virtual bool isMoving();																		\
+	virtual void fastStop();																		\
 	virtual double getLowPositionLimit();															\
 	virtual double getHighPositionLimit();															\
+	virtual double getLowPositionLimitWithClearance();												\
+	virtual double getHighPositionLimitWithClearance();												\
 	virtual void setActuatorCommands();																\
 	virtual bool isHomeable();																		\
 	virtual void startHoming();																		\
@@ -78,10 +81,21 @@ public:
 	//Position Limits
 	virtual double getLowPositionLimit() = 0;
 	virtual double getHighPositionLimit() = 0;
+	virtual double getLowPositionLimitWithClearance() = 0;
+	virtual double getHighPositionLimitWithClearance() = 0;
+
 	double getPositionProgress() {
 		double low = getLowPositionLimit();
 		double high = getHighPositionLimit();
 		return (actualPosition_axisUnits - low) / (high - low);
+	}
+
+	double getBrakingPositionAtMaxDeceleration() {
+		double decelerationSigned = std::abs(accelerationLimit_axisUnitsPerSecondSquared);
+		if (profileVelocity_axisUnitsPerSecond < 0.0) decelerationSigned *= -1.0;
+		double decelerationPositionDelta = std::pow(profileVelocity_axisUnitsPerSecond, 2.0) / (2.0 * decelerationSigned);
+		double brakingPosition_positionUnits = profilePosition_axisUnits + decelerationPositionDelta;
+		return brakingPosition_positionUnits + profileVelocity_axisUnitsPerSecond * currentProfilePointDeltaT_seconds;
 	}
 
 	virtual bool isHomeable() = 0;
@@ -92,6 +106,8 @@ public:
 	virtual bool didHomingFail() = 0;
 
 	virtual void setActuatorCommands() = 0;
+
+	virtual void fastStop() = 0;
 
 	bool b_manualControlsEnabled = false;
 	bool hasManualControlsEnabled() { return b_manualControlsEnabled; }

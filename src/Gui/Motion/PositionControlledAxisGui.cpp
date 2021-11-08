@@ -139,9 +139,12 @@ void PositionControlledAxis::controlsGui() {
 			moveToPositionInTime(targetPosition_axisUnits, targetTime_seconds, manualControlAcceleration_axisUnitsPerSecond);
 		}
 
-		if (ImGui::Button("Stop##Target", glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 2))) {
-			setVelocity(0.0);
-		}
+		float doubleWidgetWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
+
+		if (ImGui::Button("Stop", glm::vec2(doubleWidgetWidth, ImGui::GetTextLineHeight() * 2))) setVelocity(0.0);
+		ImGui::SameLine();
+		if (ImGui::Button("Fast Stop", glm::vec2(doubleWidgetWidth, ImGui::GetTextLineHeight() * 2))) fastStop();
+		
 
 		ImGui::Separator();
 
@@ -160,18 +163,24 @@ void PositionControlledAxis::controlsGui() {
 		sprintf(positionString, "Machine Disabled");
 	}
 	else {
-		minPosition = getLowPositionLimit();
-		maxPosition = getHighPositionLimit();
+
+		minPosition = getLowPositionLimitWithClearance();
+		maxPosition = getHighPositionLimitWithClearance();
 		positionProgress = getPositionProgress();
 
-		if (positionProgress <= 1.0 && positionProgress >= 0.0) {
-			sprintf(positionString, "%.2f %s", actualPosition_axisUnits, getPositionUnit(axisPositionUnit)->shortForm);
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+		if (actualPosition_axisUnits < minPosition || actualPosition_axisUnits > maxPosition) {
+			if (actualPosition_axisUnits < getLowPositionLimit() || actualPosition_axisUnits > getHighPositionLimit()) {
+				sprintf(positionString, "Axis out of limits : %.2f %s", actualPosition_axisUnits, getPositionUnit(axisPositionUnit)->shortForm);
+				ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
+			}
+			else {
+				sprintf(positionString, "%.2f %s", actualPosition_axisUnits, getPositionUnit(axisPositionUnit)->shortForm);
+				ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::orange);
+			}
 		}
 		else {
-			positionProgress = 1.0;
-			sprintf(positionString, "Axis out of limits : %.2f %s", actualPosition_axisUnits, getPositionUnit(axisPositionUnit)->shortForm);
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
+			sprintf(positionString, "%.2f %s", actualPosition_axisUnits, getPositionUnit(axisPositionUnit)->shortForm);
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green); 
 		}
 	}
 	ImGui::Text("Current Position : (in range from %.2f %s to %.2f %s)", minPosition, getPositionUnitStringShort(axisPositionUnit), maxPosition, getPositionUnitStringShort(axisPositionUnit));
@@ -278,6 +287,7 @@ void PositionControlledAxis::controlsGui() {
 		ImGui::Text("Feedback Position in Working Range : (%.2f%s to %.2f%s)", rangeMin_deviceUnits, getPositionUnit(devicePositionUnit)->shortForm, rangeMax_deviceUnits, getPositionUnit(devicePositionUnit)->shortForm);
 		ImGui::ProgressBar(range, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), rangeString);
 		ImGui::PopStyleColor();
+		ImGui::Text("Braking Position %.3f", getBrakingPositionAtMaxDeceleration());
 	}
 
 	if (b_manualControlsEnabled) {
@@ -947,6 +957,11 @@ void PositionControlledAxis::settingsGui() {
 		ImGui::Text("Enable Lower Axis Limit");
 		break;
 	}
+
+	static char clearanceString[16];
+	sprintf(clearanceString, "%.3f %s", limitClearance_axisUnits, getPositionUnitStringShort(axisPositionUnit));
+	ImGui::Text("Limit Clearance");
+	ImGui::InputDouble("##limitclearance", &limitClearance_axisUnits, 0.0, 0.0, clearanceString);
 
 	ImGui::Checkbox("##limitToFeedbackRange", &limitToFeedbackWorkingRange);
 	ImGui::SameLine();

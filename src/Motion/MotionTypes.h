@@ -100,7 +100,7 @@ struct ControlMode {
 	enum class Mode {
 		MANUAL_VELOCITY_TARGET,
 		MANUAL_POSITION_TARGET,
-		FOLLOW_PARAMETER
+		FAST_STOP
 	};
 	Mode mode;
 	const char displayName[64];
