@@ -41,8 +41,9 @@ public:
 	
 	double getLength_seconds();
 	double playbackStartTime_seconds = 0.0;
-	double getPlaybackTime_seconds();
+	double playbackPosition_seconds = 0.0;
 	float getPlaybackProgress();
+	bool b_isPaused = false;
 
 	static void listGui(const std::shared_ptr<Manoeuvre>& manoeuvre);
 	static void editGui(const std::shared_ptr<Manoeuvre>& manoeuvre);

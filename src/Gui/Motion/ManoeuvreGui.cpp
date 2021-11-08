@@ -67,18 +67,18 @@ void Manoeuvre::listGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 	ImGui::SameLine();
 	ImGui::Text(manoeuvre->description);
 
-	if (Playback::isPriming(manoeuvre)) {
+	if (Playback::isInRapid(manoeuvre)) {
 		glm::vec2 windowPos = ImGui::GetWindowPos();
 		glm::vec2 maxsize = ImGui::GetWindowSize();
 		int trackCount = manoeuvre->tracks.size();
 		float trackHeight = maxsize.y / (float)trackCount;
 		for (int i = 0; i < trackCount; i++) {
 			glm::vec2 min(windowPos.x, windowPos.y + trackHeight * i);
-			glm::vec2 max(min.x + maxsize.x * manoeuvre->tracks[i]->getPrimingProgress(), min.y + trackHeight);
+			glm::vec2 max(min.x + maxsize.x * manoeuvre->tracks[i]->getRapidProgress(), min.y + trackHeight);
 			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
 		}
 	}
-	if (Playback::isPrimed(manoeuvre)) {
+	if (Playback::isPrimedToStart(manoeuvre)) {
 		ImGui::Text("Primed");
 	}
 	if (Playback::isPlaying(manoeuvre)) {
@@ -260,7 +260,7 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 				ImGui::PopID();
 			ImGui::PopID();
 
-			if (refreshSequence) parameterTrack->updateCurves();
+			if (refreshSequence) parameterTrack->refreshAfterParameterEdit();
 		}
 
 		ImGui::TableNextRow();
@@ -359,11 +359,11 @@ void Manoeuvre::sequenceEditGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 			ImGui::PopID();
 		}
 
-		if (Playback::isPlaying(manoeuvre)) {
-			double playbackTime = manoeuvre->getPlaybackTime_seconds();
+		//if (Playback::isPlaying(manoeuvre)) {
+			double playbackTime = manoeuvre->playbackPosition_seconds;
 			ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
 			ImPlot::PlotVLines("Playhead", &playbackTime, 1);
-		}
+		//}
 
 		ImPlot::EndPlot();
 	}
@@ -379,13 +379,13 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 	static auto fastMoveProgressOverlay = [&]() {
 		glm::vec2 min = ImGui::GetItemRectMin();
 		glm::vec2 size = ImGui::GetItemRectSize();
-		glm::vec2 max(min.x + size.x * Playback::getPrimingProgress(manoeuvre), min.y + size.y);
+		glm::vec2 max(min.x + size.x * Playback::getRapidProgress(manoeuvre), min.y + size.y);
 		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.2)), 5.0);
 	};
 	static auto playbackProgressOverlay = [&]() {
 		glm::vec2 min = ImGui::GetItemRectMin();
 		glm::vec2 size = ImGui::GetItemRectSize();
-		glm::vec2 max(min.x + size.x * Playback::getPrimingProgress(manoeuvre), min.y + size.y);
+		glm::vec2 max(min.x + size.x * manoeuvre->getPlaybackProgress(), min.y + size.y);
 		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.4)), 5.0);
 	};
 
@@ -394,58 +394,187 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 	glm::vec2 singleButtonSize(availableWidth, buttonHeight);
 	glm::vec2 doubleButtonSize((availableWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, buttonHeight);
 	glm::vec2 tripleButtonSize((availableWidth - ImGui::GetStyle().ItemSpacing.x * 2.0) / 3.0, buttonHeight);
+
+
 	switch (manoeuvre->type) {
-	case ManoeuvreType::Type::KEY_POSITION:
-		if (Playback::isPriming(manoeuvre)) {
-			if (ImGui::Button("Cancel Rapid")) Playback::stopPriming(manoeuvre);
-			fastMoveProgressOverlay();
-		}
-		else {
-			if (ImGui::Button("Rapid To Key Position", singleButtonSize)) {}
-		}
-		break;
-	case ManoeuvreType::Type::TIMED_MOVEMENT:
-		if (Playback::isPriming(manoeuvre)) {
-			if (ImGui::Button("Cancel Rapid", doubleButtonSize)) Playback::stopPriming(manoeuvre);
-			fastMoveProgressOverlay();
-		}
-		else {
-			if (ImGui::Button("Rapid Move", doubleButtonSize)) {}
-		}
-		ImGui::SameLine();
-		if (Playback::isPlaying(manoeuvre)) {
-			if (ImGui::Button("Stop", doubleButtonSize)) Playback::stopPlayback(manoeuvre);
-			playbackProgressOverlay();
-		}
-		else {
-			if (ImGui::Button("Timed Move", doubleButtonSize)) {}
-		}
-		break;
-	case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
-		if (Playback::isPriming(manoeuvre)) {
-			glm::vec2 cancelButtonSize(singleButtonSize.x, singleButtonSize.y + ImGui::GetFrameHeight() + ImGui::GetStyle().ItemSpacing.y);
-			if (ImGui::Button("Cancel Rapid", cancelButtonSize)) Playback::stopPriming(manoeuvre);
-			fastMoveProgressOverlay();
-		}
-		else {
-			if (ImGui::Button("Rapid To Start", doubleButtonSize)) Playback::startPriming(manoeuvre);
-			ImGui::SameLine();
-			if (ImGui::Button("Rapid To End", doubleButtonSize)) {}
-			static double targetTime = 0.0;
-			ImGui::SetNextItemWidth(doubleButtonSize.x);
-			ImGui::InputDouble("##targetTime", &targetTime, 0.0, 0.0, "%.1f seconds");
-			if (targetTime < 0.0) targetTime = 0.0;
-			else if (targetTime > manoeuvre->getLength_seconds()) targetTime = manoeuvre->getLength_seconds();
-			ImGui::SameLine();
-			if (ImGui::Button("Rapid To Time", glm::vec2(doubleButtonSize.x, ImGui::GetItemRectSize().y))) {}
-		}
-		if (Playback::isPlaying(manoeuvre)) {
-			if (ImGui::Button("Stop", singleButtonSize)) Playback::stopPlayback(manoeuvre);
-			playbackProgressOverlay();
-		}
-		else {
-			if (ImGui::Button("Start Sequence", singleButtonSize)) Playback::startPlayback(manoeuvre);
-		}
+		case ManoeuvreType::Type::KEY_POSITION:
+
+
+
+			if (Playback::isInRapid(manoeuvre)) {
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+				if (ImGui::Button("Cancel Rapid", singleButtonSize)) Playback::stopRapid(manoeuvre);
+				ImGui::PopStyleColor();
+				fastMoveProgressOverlay();
+			}
+			else {
+				bool isAtKeyPosition = Playback::isPrimedToEnd(manoeuvre);
+				if (isAtKeyPosition) {
+					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+					if (ImGui::Button("Rapid To Key Position", singleButtonSize)) Playback::rapidToEnd(manoeuvre);
+					ImGui::PopStyleColor();
+					ImGui::PopItemFlag();
+				}
+				else {
+					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+					if (ImGui::Button("At Key Position", singleButtonSize)) Playback::rapidToEnd(manoeuvre);
+					ImGui::PopStyleColor();
+				}
+			}
+			break;
+
+
+
+		case ManoeuvreType::Type::TIMED_MOVEMENT:
+
+
+
+			if (Playback::isInRapid(manoeuvre)) {
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+				if (ImGui::Button("Cancel Rapid", singleButtonSize)) Playback::stopRapid(manoeuvre);
+				ImGui::PopStyleColor();
+				fastMoveProgressOverlay();
+			}
+			else {
+				bool disableRapidButtons = Playback::isPlaying(manoeuvre);
+				if (disableRapidButtons) BEGIN_DISABLE_IMGUI_ELEMENT
+				bool primedToStart = Playback::isPrimedToStart(manoeuvre);
+				if (primedToStart) {
+					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+				}
+				if (ImGui::Button("Rapid To Start", doubleButtonSize)) Playback::rapidToStart(manoeuvre);
+				if (primedToStart) {
+					ImGui::PopStyleColor();
+					ImGui::PopItemFlag();
+				}
+				ImGui::SameLine();
+				bool primedToEnd = Playback::isPrimedToEnd(manoeuvre);
+				if (primedToEnd) {
+					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+				}
+				if (ImGui::Button("Rapid To End", doubleButtonSize)) Playback::rapidToEnd(manoeuvre);
+				if (primedToEnd) {
+					ImGui::PopStyleColor();
+					ImGui::PopItemFlag();
+				}
+				if (disableRapidButtons) END_DISABLE_IMGUI_ELEMENT
+			}
+			if (Playback::isPlaying(manoeuvre)) {
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkRed);
+				if (ImGui::Button("Stop", doubleButtonSize)) Playback::stopPlayback(manoeuvre);
+				ImGui::PopStyleColor();
+				ImGui::SameLine();
+				if (Playback::isPaused(manoeuvre)) {
+					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+					if (ImGui::Button("Resume", doubleButtonSize)) Playback::resumePlayback(manoeuvre);
+					ImGui::PopStyleColor();
+				}
+				else {
+					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+					if (ImGui::Button("Pause", doubleButtonSize)) Playback::pausePlayback(manoeuvre);
+					ImGui::PopStyleColor();
+				}
+				playbackProgressOverlay();
+			}
+			else {
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+				if (ImGui::Button("Timed Move", singleButtonSize)) Playback::startPlayback(manoeuvre);
+				ImGui::PopStyleColor();
+			}
+			break;
+
+
+
+		case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
+
+
+			if (Playback::isInRapid(manoeuvre)) {
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+				if (ImGui::Button("Cancel Rapid", singleButtonSize)) Playback::stopRapid(manoeuvre);
+				ImGui::PopStyleColor();
+				fastMoveProgressOverlay();
+			}
+			else {
+				bool disableRapidButtons = Playback::isPlaying(manoeuvre);
+				if(disableRapidButtons) BEGIN_DISABLE_IMGUI_ELEMENT
+					bool primedToStart = Playback::isPrimedToStart(manoeuvre);
+				if (primedToStart) {
+					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+				}
+				if (ImGui::Button("Rapid To Start", doubleButtonSize)) Playback::rapidToStart(manoeuvre);
+				if (primedToStart) {
+					ImGui::PopStyleColor();
+					ImGui::PopItemFlag();
+				}
+				ImGui::SameLine();
+				bool primedToEnd = Playback::isPrimedToEnd(manoeuvre);
+				if (primedToEnd) {
+					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+				}
+				if (ImGui::Button("Rapid To End", doubleButtonSize)) Playback::rapidToEnd(manoeuvre);
+				if (primedToEnd) {
+					ImGui::PopStyleColor();
+					ImGui::PopItemFlag();
+				}
+				if(disableRapidButtons) END_DISABLE_IMGUI_ELEMENT
+			}
+
+			ImGui::SetNextItemWidth(singleButtonSize.x);
+			if (Playback::isPlaying(manoeuvre) && !Playback::isPaused(manoeuvre)) {
+				double playhead = manoeuvre->playbackPosition_seconds;
+				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+				ImGui::InputDouble("##playbackPosition", &playhead, 0.0, 0.0, "%.3f s");
+				ImGui::PopItemFlag();
+			}
+			else {
+				ImGui::InputDouble("##targetTime", &manoeuvre->playbackPosition_seconds, 0.0, 0.0, "%.1f seconds");
+				if (manoeuvre->playbackPosition_seconds < 0.0) manoeuvre->playbackPosition_seconds = 0.0;
+				else if (manoeuvre->playbackPosition_seconds > manoeuvre->getLength_seconds()) manoeuvre->playbackPosition_seconds = manoeuvre->getLength_seconds();
+			}
+			if(manoeuvre->getPlaybackProgress() != 0.0) playbackProgressOverlay();
+			if (Playback::isPlaying(manoeuvre)) {
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkRed);
+				if (ImGui::Button("Stop", doubleButtonSize)) Playback::stopPlayback(manoeuvre);
+				ImGui::PopStyleColor();
+				ImGui::SameLine();
+				if (Playback::isPaused(manoeuvre)) {
+					if (!Playback::isPrimedToPlaybackPosition(manoeuvre)) {
+						ImGui::PushStyleColor(ImGuiCol_Button, Colors::orange);
+						if (ImGui::Button("Rapid To Time", doubleButtonSize)) Playback::rapidToPlaybackPosition(manoeuvre);
+						ImGui::PopStyleColor();
+					}
+					else {
+						ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+						if (ImGui::Button("Resume", doubleButtonSize)) Playback::resumePlayback(manoeuvre);
+						ImGui::PopStyleColor();
+					}
+				}
+				else {
+					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+					if (ImGui::Button("Pause", doubleButtonSize)) Playback::pausePlayback(manoeuvre);
+					ImGui::PopStyleColor();
+				}
+			}
+			else {
+				if (!Playback::isPrimedToPlaybackPosition(manoeuvre)) {
+					ImGui::PushStyleColor(ImGuiCol_Button, Colors::orange);
+					if (ImGui::Button("Rapid to Playback Position", singleButtonSize)) Playback::rapidToPlaybackPosition(manoeuvre);
+					ImGui::PopStyleColor();
+				}
+				else {
+					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+					if (ImGui::Button("Start Playback", singleButtonSize)) Playback::startPlayback(manoeuvre);
+					ImGui::PopStyleColor();
+				}
+			}
+
+
+
 		break;
 	}
 }
@@ -456,8 +585,8 @@ float Manoeuvre::getPlaybackControlGuiHeight(const std::shared_ptr<Manoeuvre>& m
 			return ImGui::GetTextLineHeight() * 2.0 //single row of buttons
 				+ ImGui::GetStyle().ItemSpacing.y;	//spacing
 		case ManoeuvreType::Type::TIMED_MOVEMENT:
-			return ImGui::GetTextLineHeight() * 2.0	//single row of buttons
-				+ ImGui::GetStyle().ItemSpacing.y;	//spacing
+			return ImGui::GetTextLineHeight() * 2.0 * 2.0	//single row of buttons
+				+ ImGui::GetStyle().ItemSpacing.y * 2.0;	//spacing
 		case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
 			return ImGui::GetTextLineHeight() * 2.0 * 2.0 //two rows of buttons
 				+ ImGui::GetFrameHeight()			//one row of widgets

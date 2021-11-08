@@ -114,7 +114,7 @@ bool ParameterTrack::load(tinyxml2::XMLElement* trackXML) {
 			origin.load(originXML);
 		}
 		if (trackXML->QueryBoolAttribute("TargetIsNextOrigin", &targetIsNextOrigin) != XML_SUCCESS) return Logger::warn("Could not read origin equal");
-		if (targetIsNextOrigin) {
+		if (!targetIsNextOrigin) {
 			XMLElement* targetXML = trackXML->FirstChildElement("Target");
 			if (targetXML == nullptr) return Logger::warn("Could not find target attribute");
 			target.load(targetXML);
@@ -137,5 +137,7 @@ bool ParameterTrack::load(tinyxml2::XMLElement* trackXML) {
 		break;
 	}
 	
+	refreshAfterParameterEdit();
+
 	return true;
 }

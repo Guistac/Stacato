@@ -11,7 +11,7 @@
 
 ParameterTrack::ParameterTrack(std::shared_ptr<AnimatableParameter>& param) : parameter(param) {
 	initialize();
-	updateCurves();
+	refreshAfterParameterEdit();
 }
 
 //COPY CONSTRUCTOR
@@ -33,7 +33,7 @@ ParameterTrack::ParameterTrack(const ParameterTrack& original) {
 	rampIn = original.rampIn;
 	rampOut = original.rampOut;
 	rampsAreEqual = original.rampsAreEqual;
-	updateCurves();
+	refreshAfterParameterEdit();
 }
 
 int ParameterTrack::getCurveCount() {
@@ -153,7 +153,7 @@ void ParameterTrack::initialize() {
 void ParameterTrack::setInterpolationType(InterpolationType::Type t) {
 	interpolationType = t;
 	for (auto& curve : curves) curve->interpolationType = t;
-	updateCurves();
+	refreshAfterParameterEdit();
 }
 
 void ParameterTrack::setSequenceType(SequenceType::Type t) {
@@ -171,11 +171,11 @@ void ParameterTrack::setSequenceType(SequenceType::Type t) {
 			//keep the points, but editing will allow more points in the graph
 			break;
 	}
-	updateCurves();
+	refreshAfterParameterEdit();
 }
 
 
-void ParameterTrack::updateCurves() {
+void ParameterTrack::refreshAfterParameterEdit() {
 
 	//all manoeuvres start and stop with zero velocity
 	for (int i = 0; i < getCurveCount(); i++) {
@@ -235,7 +235,7 @@ void ParameterTrack::updateCurves() {
 }
 
 
-void ParameterTrack::updateParametersAfterCurveEdit() {
+void ParameterTrack::refreshAfterCurveEdit() {
 	//copy the settings from the start and endpoints to the track settings
 
 	switch (parameter->dataType) {
@@ -309,7 +309,7 @@ void ParameterTrack::updateParametersAfterCurveEdit() {
 		}
 	}
 
-	updateCurves();
+	refreshAfterParameterEdit();
 
 	//double rampIn = 0.1;
 	//double rampOut = 0.1;
@@ -319,22 +319,48 @@ void ParameterTrack::updateParametersAfterCurveEdit() {
 }
 
 
-void ParameterTrack::prime() {
+void ParameterTrack::rapidToStart() {
 	if (parameter->machine->isEnabled()) {
 		parameter->machine->rapidParameterToValue(parameter, origin);
 	}
 }
 
-void ParameterTrack::cancelPriming() {
+void ParameterTrack::rapidToEnd() {
+	if (parameter->machine->isEnabled()) {
+		parameter->machine->rapidParameterToValue(parameter, target);
+	}
+}
+
+void ParameterTrack::rapidToPlaybackPosition() {
+	if (parameter->machine->isEnabled()) {
+		AnimatableParameterValue parameterValueAtPlaybackPosition;
+		getParameterValueAtPlaybackTime(parameterValueAtPlaybackPosition);
+		parameter->machine->rapidParameterToValue(parameter, parameterValueAtPlaybackPosition);
+	}
+}
+
+void ParameterTrack::cancelRapid() {
 	parameter->machine->cancelParameterRapid(parameter);
 }
 
-bool ParameterTrack::isPrimed() {
+
+float ParameterTrack::getRapidProgress() {
+	return parameter->machine->getParameterRapidProgress(parameter);
+}
+
+
+bool ParameterTrack::isPrimedToStart() {
 	return parameter->machine->isParameterAtValue(parameter, origin);
 }
 
-float ParameterTrack::getPrimingProgress() {
-	return parameter->machine->getParameterRapidProgress(parameter);
+bool ParameterTrack::isPrimedToEnd() {
+	return parameter->machine->isParameterAtValue(parameter, target);
+}
+
+bool ParameterTrack::isPrimedToPlaybackPosition() {
+	AnimatableParameterValue parameterValueAtPlaybackPosition;
+	getParameterValueAtPlaybackTime(parameterValueAtPlaybackPosition);
+	return parameter->machine->isParameterAtValue(parameter, parameterValueAtPlaybackPosition);
 }
 
 double ParameterTrack::getLength_seconds() {
@@ -348,18 +374,26 @@ double ParameterTrack::getLength_seconds() {
 }
 
 
+AnimatableParameterValue& ParameterTrack::getOrigin() {
+	return origin;
+}
+
+AnimatableParameterValue& ParameterTrack::getTarget() {
+	return target;
+}
+
 void ParameterTrack::getParameterValueAtPlaybackTime(AnimatableParameterValue& output) {
-	double playbackTime = EtherCatFieldbus::getCycleProgramTime_seconds() - playbackStartTime_seconds;
+	output.type = parameter->dataType;
 	switch (parameter->dataType) {
 		case ParameterDataType::Type::BOOLEAN_PARAMETER:
-			output.boolValue = curves[0]->getPointAtTime(playbackTime).position > 0.5;
+			output.boolValue = curves[0]->getPointAtTime(playbackPosition_seconds).position > 0.5;
 			break;
 		case ParameterDataType::Type::INTEGER_PARAMETER:
-			output.integerValue = std::round(curves[0]->getPointAtTime(playbackTime).position);
+			output.integerValue = std::round(curves[0]->getPointAtTime(playbackPosition_seconds).position);
 			break;
 		case ParameterDataType::Type::STATE_PARAMETER:
 			for (auto& stateValue : *parameter->stateParameterValues) {
-				if (std::round(curves[0]->getPointAtTime(playbackTime).position) == stateValue.integerEquivalent) {
+				if (std::round(curves[0]->getPointAtTime(playbackPosition_seconds).position) == stateValue.integerEquivalent) {
 					output.stateValue = &stateValue;
 					return;
 				}
@@ -368,18 +402,18 @@ void ParameterTrack::getParameterValueAtPlaybackTime(AnimatableParameterValue& o
 			break;
 		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
 		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
-			output.vector3value.x = curves[0]->getPointAtTime(playbackTime).position;
-			output.vector3value.y = curves[1]->getPointAtTime(playbackTime).position;
-			output.vector3value.z = curves[2]->getPointAtTime(playbackTime).position;
+			output.vector3value.x = curves[0]->getPointAtTime(playbackPosition_seconds).position;
+			output.vector3value.y = curves[1]->getPointAtTime(playbackPosition_seconds).position;
+			output.vector3value.z = curves[2]->getPointAtTime(playbackPosition_seconds).position;
 			break;
 		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
 		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
-			output.vector2value.x = curves[0]->getPointAtTime(playbackTime).position;
-			output.vector2value.y = curves[1]->getPointAtTime(playbackTime).position;
+			output.vector2value.x = curves[0]->getPointAtTime(playbackPosition_seconds).position;
+			output.vector2value.y = curves[1]->getPointAtTime(playbackPosition_seconds).position;
 			break;
 		case ParameterDataType::Type::REAL_PARAMETER:
 		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
-			output.realValue = curves[0]->getPointAtTime(playbackTime).position;
+			output.realValue = curves[0]->getPointAtTime(playbackPosition_seconds).position;
 			break;
 	}
 }

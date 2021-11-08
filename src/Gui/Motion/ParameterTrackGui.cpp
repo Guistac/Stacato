@@ -211,7 +211,7 @@ bool ParameterTrack::drawControlPoints() {
 			if (sequenceType == SequenceType::Type::TIMED_MOVE && interpolationType == InterpolationType::Type::STEP && i == 0) continue;
 			auto& controlPoint = curve->getPoints()[i];
 			if (ImPlot::DragPoint(controlPoint->name, &controlPoint->time, &controlPoint->position, true, Colors::white, 10.0)) {
-				updateParametersAfterCurveEdit();
+				refreshAfterCurveEdit();
 				pointEdited = true;
 			}
 		}

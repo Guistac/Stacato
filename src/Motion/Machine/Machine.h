@@ -74,6 +74,10 @@ public:
 	virtual float getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) = 0;
 	virtual bool isParameterAtValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
 
+	//virtual void getTimedMovementTo(const std::shared_ptr<AnimatableParameter> parameter, const AnimatableParameterValue& value, const std::vector<std::shared_ptr<Motion::Curve>>& curves);
+	//virtual bool validateControlPoint(const std::shared_ptr<Motion::ControlPoint> controlPoint, char* errorMessage);
+	//virtual bool validateInterpolation(const std::shared_ptr<Motion::Interpolation> interpolation);
+
 	void stopParameterPlayback(std::shared_ptr<AnimatableParameter> parameter);
 
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output) = 0;
@@ -81,11 +85,6 @@ public:
 
 	//TODO: reference to stage geometry
 
-	//TODO: a way to be interrogated about the limits of a certain animatable parameter
-	//be it spatial limits of the actual parameter
-	//or kinematic limits like velocity and acceleration
-
-
-
 };
 
+//sequences have to be primed to the desired playback position to be started

@@ -6,6 +6,7 @@
 #include "Utilities/EtherCatError.h"
 #include "Project/Environnement.h"
 #include "NodeGraph/NodeGraph.h"
+#include "Motion/Playback.h"
 
 namespace EtherCatFieldbus {
 
@@ -569,6 +570,8 @@ namespace EtherCatFieldbus {
                 //prepare all slaves output data if operational
                 for (auto slave : slaves) if (slave->isStateOperational()) slave->prepareOutputs();
             }
+
+            Playback::updateActiveManoeuvreState();
 
             //=========== HANDLE MASTER AND REFERENCE CLOCK DRIFT ============
 

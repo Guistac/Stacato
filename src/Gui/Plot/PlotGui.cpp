@@ -16,8 +16,8 @@
 
 void plotGui() {
 
-	static float minSideBarWidth = ImGui::GetTextLineHeight() * 10.0;
-	static float sideBarWidth = ImGui::GetTextLineHeight() * 15.0;
+	static float minSideBarWidth = ImGui::GetTextLineHeight() * 18.0;
+	static float sideBarWidth = ImGui::GetTextLineHeight() * 18.0;
 	ImGui::BeginChild("##ManoeuvreList", glm::vec2(sideBarWidth, ImGui::GetContentRegionAvail().y), false);
 
 	std::shared_ptr<Plot> currentPlot = Project::currentPlot;

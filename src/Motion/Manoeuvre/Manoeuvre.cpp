@@ -44,13 +44,8 @@ bool Manoeuvre::hasTrack(std::shared_ptr<AnimatableParameter>& parameter) {
 	return false;
 }
 
-
-double Manoeuvre::getPlaybackTime_seconds() {
-	return EtherCatFieldbus::getCycleProgramTime_seconds() - playbackStartTime_seconds;
-}
-
 float Manoeuvre::getPlaybackProgress() {
-	float timeInManoeuvre = getPlaybackTime_seconds();
+	float timeInManoeuvre = playbackPosition_seconds;
 	float manoeuvreLength = getLength_seconds();
 	float progress = timeInManoeuvre / manoeuvreLength;
 	if (progress < 0.0) return 0.0;

@@ -33,12 +33,18 @@ public:
 	std::shared_ptr<AnimatableParameter> parameter;
 
 	bool b_priming = false;
-	void prime();
-	void cancelPriming();
-	bool isPrimed();
-	float getPrimingProgress();
+	void rapidToStart();
+	void rapidToEnd();
+	void rapidToPlaybackPosition();
+	void cancelRapid();
+	float getRapidProgress();
 
-	double playbackStartTime_seconds;
+	//AnimatableParameterValue primingTarget;
+	bool isPrimedToStart(); //is axis at the same location as the playback position
+	bool isPrimedToEnd(); //is axis at the same location as the playback position
+	bool isPrimedToPlaybackPosition();
+
+	double playbackPosition_seconds;
 	void getParameterValueAtPlaybackTime(AnimatableParameterValue& output);
 
 	SequenceType::Type sequenceType;
@@ -47,8 +53,8 @@ public:
 	void setSequenceType(SequenceType::Type t);
 
 	std::vector<std::shared_ptr<Motion::Curve>> curves;
-	void updateCurves();
-	void updateParametersAfterCurveEdit();
+	void refreshAfterParameterEdit();
+	void refreshAfterCurveEdit();
 	int getCurveCount();
 	double getLength_seconds();
 
@@ -61,6 +67,9 @@ public:
 	bool targetIsNextOrigin = false;
 	AnimatableParameterValue origin;
 	AnimatableParameterValue target;
+	AnimatableParameterValue& getOrigin();
+	AnimatableParameterValue& getTarget();
+
 	double movementTime = 1.0;
 	double timeOffset = 0.0;
 	double rampIn = 0.1;
