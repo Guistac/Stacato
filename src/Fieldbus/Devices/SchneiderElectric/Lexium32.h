@@ -48,14 +48,15 @@ public:
 
     const char* getStateChar() {
         switch (state) {
-        case State::NotReadyToSwitchOn: return "Restart Needed";
-        case State::SwitchOnDisabled: return "Switch On Disabled";
-        case State::ReadyToSwitchOn: return "Ready To Switch On";
-        case State::SwitchedOn: return "Switched On";
-        case State::OperationEnabled: return "Operation Enabled";
-        case State::QuickStopActive: return "Quick Stop Active";
-        case State::FaultReactionActive: return "Fault Reaction Active";
-        case State::Fault: return "Fault";
+            case State::NotReadyToSwitchOn: return "Restart Needed";
+            case State::SwitchOnDisabled: return "Switch On Disabled";
+            case State::ReadyToSwitchOn: return "Ready To Switch On";
+            case State::SwitchedOn: return "Switched On";
+            case State::OperationEnabled: return "Operation Enabled";
+            case State::QuickStopActive: return "Quick Stop Active";
+            case State::FaultReactionActive: return "Fault Reaction Active";
+            case State::Fault: return "Fault";
+            default: return "";
         }
     }
 

@@ -1,0 +1,3 @@
+#define VERSION_MAJOR @Stacato_VERSION_MAJOR@
+#define VERSION_MINOR @Stacato_VERSION_MINOR@
+#cmakedefine DUMMY_TEST_OPTION

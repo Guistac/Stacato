@@ -89,8 +89,8 @@ public:
 			case EtherCatData::Type::INT16_T:	sprintf(valueString, "%i", s16); break;
 			case EtherCatData::Type::UINT32_T:	sprintf(valueString, "%i", u32); break;
 			case EtherCatData::Type::INT32_T:	sprintf(valueString, "%i", s32); break;
-			case EtherCatData::Type::UINT64_T:	sprintf(valueString, "%i", u64); break;
-			case EtherCatData::Type::INT64_T:	sprintf(valueString, "%i", s64); break;
+			case EtherCatData::Type::UINT64_T:	sprintf(valueString, "%lli", u64); break;
+			case EtherCatData::Type::INT64_T:	sprintf(valueString, "%lli", s64); break;
 			case EtherCatData::Type::STRING:	return stringBuffer;
 		}
 		return valueString;

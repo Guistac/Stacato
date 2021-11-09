@@ -62,6 +62,8 @@ bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> otherData) {
 			case NodeData::Type::AXIS_LINK: return true;
 			default: return false;
 		}
+	default:
+		return false;
 	}
 }
 
@@ -168,7 +170,7 @@ const char* NodePin::getValueString() {
 	static char output[32];
 	switch (type) {
 		case NodeData::Type::BOOLEAN_VALUE: strcpy(output, booleanValue ? "True" : "False"); break;
-		case NodeData::Type::INTEGER_VALUE: sprintf(output, "%i", integerValue); break;
+		case NodeData::Type::INTEGER_VALUE: sprintf(output, "%lli", integerValue); break;
 		case NodeData::Type::REAL_VALUE: sprintf(output, "%.5f", realValue); break;
 		default: return "No Value";
 	}

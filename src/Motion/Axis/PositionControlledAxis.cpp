@@ -156,13 +156,19 @@ void PositionControlledAxis::enable() {
 		std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 		if (needsActuatorDevice()) {
 			while (!getActuatorDevice()->isEnabled()) {
-				if (std::chrono::system_clock::now() - start > std::chrono::milliseconds(500)) return Logger::warn("Could not enable Machine '{}', actuator did not enable on time", getName());
+				if (std::chrono::system_clock::now() - start > std::chrono::milliseconds(500)) {
+					Logger::warn("Could not enable Machine '{}', actuator did not enable on time", getName());
+					return;
+				}
 				std::this_thread::sleep_for(std::chrono::milliseconds(20));
 			}
 		}
 		else if (needsServoActuatorDevice()) {
 			while (!getServoActuatorDevice()->isEnabled()) {
-				if (std::chrono::system_clock::now() - start > std::chrono::milliseconds(500)) return Logger::warn("Could not enable Machine '{}', servo actuator did not enable on time", getName());
+				if (std::chrono::system_clock::now() - start > std::chrono::milliseconds(500)) { 
+					Logger::warn("Could not enable Machine '{}', servo actuator did not enable on time", getName()); 
+					return;
+				}
 				std::this_thread::sleep_for(std::chrono::milliseconds(20));
 			}
 		}
@@ -224,6 +230,7 @@ bool PositionControlledAxis::needsPositionFeedbackDevice() {
 		return true;
 	case PositionControl::Type::SERVO:
 		return false;
+	default: return false;
 	}
 }
 
@@ -243,6 +250,7 @@ bool PositionControlledAxis::needsReferenceDevice() {
 		return true;
 	case PositionReferenceSignal::Type::NO_SIGNAL:
 		return false;
+	default: return false;
 	}
 }
 
@@ -260,6 +268,7 @@ bool PositionControlledAxis::needsActuatorDevice() {
 		return true;
 	case PositionControl::Type::SERVO:
 		return false;
+	default: return false;
 	}
 }
 
@@ -276,6 +285,7 @@ bool PositionControlledAxis::needsServoActuatorDevice() {
 		return false;
 	case PositionControl::Type::SERVO:
 		return true;
+	default: return false;
 	}
 }
 
@@ -386,12 +396,14 @@ void PositionControlledAxis::updateReferenceSignals() {
 
 bool PositionControlledAxis::isMoving() {
 	switch (positionControl) {
-	case PositionControl::Type::SERVO:
-		return getServoActuatorDevice()->isMoving();
-		break;
-	case PositionControl::Type::CLOSED_LOOP:
-		getPositionFeedbackDevice()->isMoving();
-		break;
+		case PositionControl::Type::SERVO:
+			return getServoActuatorDevice()->isMoving();
+			break;
+		case PositionControl::Type::CLOSED_LOOP:
+			return getPositionFeedbackDevice()->isMoving();
+			break;
+		default: 
+			return false;
 	}
 }
 
@@ -431,6 +443,7 @@ double PositionControlledAxis::getLowFeedbackPositionLimit() {
 	case PositionControl::Type::CLOSED_LOOP:
 		if (isPositionFeedbackDeviceConnected()) return getPositionFeedbackDevice()->getMinPosition() / feedbackUnitsPerAxisUnits;
 		else return -std::numeric_limits<double>::infinity();
+	default: return 0.0;
 	}
 }
 
@@ -442,6 +455,7 @@ double PositionControlledAxis::getHighFeedbackPositionLimit() {
 	case PositionControl::Type::CLOSED_LOOP:
 		if (isPositionFeedbackDeviceConnected()) return getPositionFeedbackDevice()->getMaxPosition() / feedbackUnitsPerAxisUnits;
 		else return std::numeric_limits<double>::infinity();
+	default: return 0.0;
 	}
 }
 
