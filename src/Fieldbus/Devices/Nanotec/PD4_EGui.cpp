@@ -243,6 +243,10 @@ void PD4_E::limitsGui() {
     ImGui::InputDouble("##kp", &positionControllerProportionalGain);
     if (positionControllerProportionalGain < 0.0) positionControllerProportionalGain = 0.0;
 
+    ImGui::Checkbox("##invertdir", &invertDirectionOfMotion);
+    ImGui::SameLine();
+    ImGui::Text("Invert Direction of Motor Motion");
+
 }
 
 

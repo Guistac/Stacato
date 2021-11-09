@@ -45,6 +45,7 @@ class PD4_E : public EtherCatDevice {
 	bool invertDigitalInput4 = false;
 	bool invertDigitalInput5 = false;
 	bool invertDigitalInput6 = false;
+	bool invertDirectionOfMotion = false;
 	
 	//TODO: add drive controller settings
 
@@ -53,6 +54,8 @@ class PD4_E : public EtherCatDevice {
 
 	DS402::OperatingMode::Mode requestedOperatingMode = DS402::OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION;
 	DS402::OperatingMode::Mode actualOperatingMode = DS402::OperatingMode::Mode::NONE;
+
+	bool b_directionOfMotionIsInverted = false;
 
 	struct ControlMode {
 		enum class Mode {
