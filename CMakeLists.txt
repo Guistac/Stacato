@@ -9,16 +9,8 @@ set(CMAKE_CSS_STANDARD_REQUIRED True)
 
 #======= Dependencies =========
 
-#add other CMakeLists.txt files located in these subdirectories
-add_subdirectory(dependencies/dearimgui)
-add_subdirectory(dependencies/glad)
-add_subdirectory(dependencies/glfw)
-add_subdirectory(dependencies/imguinodeeditor)
-add_subdirectory(dependencies/implot)
-add_subdirectory(dependencies/nativefiledialog-extended)
-add_subdirectory(dependencies/soem)
-add_subdirectory(dependencies/spdlog)
-add_subdirectory(dependencies/tinyxml2)
+#add all dependencies
+add_subdirectory(dependencies)
 
 ##====== actual main project ========
 
