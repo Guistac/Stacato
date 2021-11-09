@@ -9,24 +9,25 @@ set(CMAKE_CSS_STANDARD_REQUIRED True)
 
 #======= Dependencies =========
 
-#add other CMakeLists.txt files located in these subdirectories
-add_subdirectory(dependencies/dearimgui)
-add_subdirectory(dependencies/glad)
-add_subdirectory(dependencies/glfw)
-add_subdirectory(dependencies/imguinodeeditor)
-add_subdirectory(dependencies/implot)
-add_subdirectory(dependencies/nativefiledialog-extended)
-add_subdirectory(dependencies/soem)
-add_subdirectory(dependencies/spdlog)
-add_subdirectory(dependencies/tinyxml2)
+#add all dependencies
+add_subdirectory(dependencies)
 
 ##====== actual main project ========
 
 #add directory containing all Project Source Files
 #define the executable target
-add_subdirectory(src)
+##add_subdirectory(src)
 
-target_compile_definitions("${PROJECT_NAME}" PUBLIC
+file(GLOB_RECURSE SOURCE_FILE_LIST "src/*.cpp" "src/*.h")
+
+#add files to the project
+add_executable(${PROJECT_NAME} ${SOURCE_FILE_LIST} )
+
+# Create the source groups for source tree with root at CMAKE_CURRENT_SOURCE_DIR.
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCE_FILE_LIST})
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC
 	ASIO_STANDALONE
 	_CRT_SECURE_NO_WARNINGS
 )
@@ -90,7 +91,13 @@ if(WIN32)
 		_WINDOWS
 		_WIN32_WINNT=0x0601
 	)
+	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/dir"
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    )
 	set_target_properties(${PROJECT_NAME}
+		#sets debug working direction for visual studio solution
 		PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/dir"
 	)
 endif()

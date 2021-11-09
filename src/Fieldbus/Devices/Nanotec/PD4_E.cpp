@@ -130,6 +130,14 @@ bool PD4_E::startupConfiguration() {
 	if (invertDigitalInput6) digitalInputFunctionInverted |= 0x20;
 	if (!writeSDO_U32(0x3240, 0x2, digitalInputFunctionInverted)) return false;
 
+	//changes the direction of motion of the motor
+	uint8_t overrideFieldInversion;
+	if (invertDirectionOfMotion) overrideFieldInversion = 0x80;
+	else overrideFieldInversion = 0x0;
+	Logger::critical("invert: {}", overrideFieldInversion);
+	if (!writeSDO_U8(0x607E, 0x0, overrideFieldInversion)) return false;
+	b_directionOfMotionIsInverted = invertDirectionOfMotion;
+
 	//set limit switch reaction to quickstop ramp & change to power state quickstop
 	int16_t limitSwitchReaction = 6;
 	if (!writeSDO_S16(0x3701, 0x0, limitSwitchReaction)) return false;
@@ -152,6 +160,17 @@ void PD4_E::readInputs() {
 
 	DS402::PowerState::State previousPowerState = actualPowerState;
 
+	if ((b_startAutoSetup || b_autoSetupActive) && ds402status.operatingModeDisplay == -2) {
+		if (!b_autoSetupActive) {
+			b_autoSetupActive = true;
+			b_startAutoSetup = false;
+		}
+		if (ds402status.getOperationModeSpecificByte12()) {
+			b_autoSetupComplete = true;
+			b_autoSetupActive = false;
+			servoMotor->disable();
+		}
+	}
 	actualOperatingMode = ds402status.getOperatingMode();
 	actualPowerState = ds402status.getPowerState();
 
@@ -179,11 +198,13 @@ void PD4_E::readInputs() {
 
 	int encoderIncrementsPerRevolution = 0x1 << encoderSingleTurnResolutionBits;
 	actualPosition_revolutions = (double)actualPosition / (double)encoderIncrementsPerRevolution;
+	if(b_directionOfMotionIsInverted) actualPosition_revolutions *= -1.0;
+
 	actualFollowingError_revolutions = (double)actualError / (double)encoderIncrementsPerRevolution;
 	actualVelocity_revolutionsPerSecond = (double)actualVelocity / velocityUnitsPerRevolutionPerSecond;
 	actualCurrent_amperes = std::abs((double)actualCurrent / 1000.0);
 	positionPin->set(actualPosition_revolutions);
-	velocityPin->set(actualFollowingError_revolutions);
+	velocityPin->set(actualVelocity_revolutionsPerSecond);
 
 	digitalIn1 = (digitalInputs >> 16) & 0x1;
 	digitalIn2 = (digitalInputs >> 17) & 0x1;
@@ -296,9 +317,18 @@ void PD4_E::prepareOutputs() {
 		requestedPowerState = DS402::PowerState::State::QUICKSTOP_ACTIVE;
 	}
 
-	if (ds402status.hasFault()) ds402control.performFaultReset();
+	if (ds402status.hasFault()) {
+		ds402control.performFaultReset();
+	}
 	ds402control.setPowerState(requestedPowerState, actualPowerState);
-	ds402control.setOperatingMode(requestedOperatingMode);
+	if (b_startAutoSetup || b_autoSetupActive) {
+		ds402control.operatingModeControl = -2;
+		servoMotor->enable();
+		if (servoMotor->isEnabled()) {
+			ds402control.setOperatingModeSpecificByte4(true);
+		}
+	}
+	else ds402control.setOperatingMode(requestedOperatingMode);
 	ds402control.updateControlWord();
 
 	rxPdoAssignement.pushDataTo(identity->outputs);
@@ -312,6 +342,7 @@ bool PD4_E::saveDeviceData(tinyxml2::XMLElement* xml) {
 	limitsXML->SetAttribute("AccelerationLimit_revolutionsPerSecondSquared", servoMotor->accelerationLimit_positionUnitsPerSecondSquared);
 	limitsXML->SetAttribute("CurrentLimit_amps", currentLimit_amperes);
 	limitsXML->SetAttribute("MaxFollowingError_revolutions", maxFollowingError_revolutions);
+	limitsXML->SetAttribute("InvertDirectionOfMotion", invertDirectionOfMotion);
 
 	XMLElement* defaultManualAccelerationXML = xml->InsertNewChildElement("DefaultManualAcceleration");
 	defaultManualAccelerationXML->SetAttribute("revolutionsPerSecondSquared", defaultManualAcceleration_revolutionsPerSecondSquared);
@@ -346,6 +377,7 @@ bool PD4_E::loadDeviceData(tinyxml2::XMLElement* xml) {
 	if(limitsXML->QueryDoubleAttribute("AccelerationLimit_revolutionsPerSecondSquared", &servoMotor->accelerationLimit_positionUnitsPerSecondSquared) != XML_SUCCESS) return Logger::warn("Could not find acceleration Limit attribute");
 	if(limitsXML->QueryDoubleAttribute("CurrentLimit_amps", &currentLimit_amperes) != XML_SUCCESS) return Logger::warn("Could not find current Limit attribute");
 	if(limitsXML->QueryDoubleAttribute("MaxFollowingError_revolutions", &maxFollowingError_revolutions) != XML_SUCCESS) return Logger::warn("Could not find following error Limit attribute");
+	if(limitsXML->QueryBoolAttribute("InvertDirectionOfMotion", &invertDirectionOfMotion) != XML_SUCCESS) return Logger::warn("Could not find Invert direction of motion attribute");
 
 	XMLElement* defaultManualAccelerationXML = xml->FirstChildElement("DefaultManualAcceleration");
 	if (defaultManualAccelerationXML == nullptr) return Logger::warn("Could not find default manual acceleration value limit");
