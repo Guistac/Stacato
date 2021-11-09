@@ -1,4 +1,5 @@
 #include <pch.h>
+#include "config.h"
 
 #include "Gui/Framework/GuiWindow.h"
 #include "Fieldbus/EtherCatFieldbus.h"
@@ -18,6 +19,8 @@ int main(){
 	std::filesystem::current_path(defaultWorkingDirectory + "/Resources");
 #endif
 
+	//Logger::info("STACATO Version {}.{}", VERSION_MAJOR, VERSION_MINOR);
+
     GuiWindow::init(); //sets working directory to macos application bundle resources folder
 	Logger::init();
 
@@ -36,5 +39,3 @@ int main(){
 
 	Logger::terminate();
 }
-
-

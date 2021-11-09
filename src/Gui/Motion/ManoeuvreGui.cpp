@@ -591,5 +591,6 @@ float Manoeuvre::getPlaybackControlGuiHeight(const std::shared_ptr<Manoeuvre>& m
 			return ImGui::GetTextLineHeight() * 2.0 * 2.0 //two rows of buttons
 				+ ImGui::GetFrameHeight()			//one row of widgets
 				+ImGui::GetStyle().ItemSpacing.y * 3.0;	//three spacings
+		default: return 0.0;
 	}
 }

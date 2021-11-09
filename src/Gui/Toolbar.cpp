@@ -4,7 +4,7 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatGui.h"
-#include "Environnement/Environnement.h"
+#include "Project/Environnement.h"
 
 #include "Framework/Colors.h"
 

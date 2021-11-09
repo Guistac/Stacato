@@ -200,6 +200,11 @@ namespace Motion {
 	}
 
 	CurvePoint Curve::getPointAtTime(double time) {
+		for (auto& interpolation : interpolations) {
+			if (interpolation->isTimeInside(time)) {
+				return interpolation->getPointAtTime(time);
+			}
+		}
 		if (time < getStart()->time) {
 			CurvePoint output;
 			output.position = getStart()->position;
@@ -208,20 +213,13 @@ namespace Motion {
 			output.acceleration = 0.0;
 			return output;
 		}
-		else if (time >= getEnd()->time) {
+		else {
 			CurvePoint output;
 			output.position = getEnd()->position;
 			output.time = time;
 			output.velocity = 0.0;
 			output.acceleration = 0.0;
 			return output;
-		}
-		else {
-			for (auto& interpolation : interpolations) {
-				if (interpolation->isTimeInside(time)) {
-					return interpolation->getPointAtTime(time);
-				}
-			}
 		}
 	}
 
