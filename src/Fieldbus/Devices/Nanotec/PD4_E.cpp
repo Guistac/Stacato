@@ -160,6 +160,17 @@ void PD4_E::readInputs() {
 
 	DS402::PowerState::State previousPowerState = actualPowerState;
 
+	if ((b_startAutoSetup || b_autoSetupActive) && ds402status.operatingModeDisplay == -2) {
+		if (!b_autoSetupActive) {
+			b_autoSetupActive = true;
+			b_startAutoSetup = false;
+		}
+		if (ds402status.getOperationModeSpecificByte12()) {
+			b_autoSetupComplete = true;
+			b_autoSetupActive = false;
+			servoMotor->disable();
+		}
+	}
 	actualOperatingMode = ds402status.getOperatingMode();
 	actualPowerState = ds402status.getPowerState();
 
@@ -310,7 +321,14 @@ void PD4_E::prepareOutputs() {
 		ds402control.performFaultReset();
 	}
 	ds402control.setPowerState(requestedPowerState, actualPowerState);
-	ds402control.setOperatingMode(requestedOperatingMode);
+	if (b_startAutoSetup || b_autoSetupActive) {
+		ds402control.operatingModeControl = -2;
+		servoMotor->enable();
+		if (servoMotor->isEnabled()) {
+			ds402control.setOperatingModeSpecificByte4(true);
+		}
+	}
+	else ds402control.setOperatingMode(requestedOperatingMode);
 	ds402control.updateControlWord();
 
 	rxPdoAssignement.pushDataTo(identity->outputs);

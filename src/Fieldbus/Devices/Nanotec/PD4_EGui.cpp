@@ -38,6 +38,13 @@ void PD4_E::deviceSpecificGui() {
                 ImGui::EndTabItem();
             }
 
+            if (ImGui::BeginTabItem("Auto Setup")) {
+                ImGui::BeginChild("Auto Setup");
+                autosetupGui();
+                ImGui::EndChild();
+                ImGui::EndTabItem();
+            }
+
             ImGui::EndTabBar();
         }
 
@@ -307,4 +314,20 @@ void PD4_E::gpioGui() {
     ImGui::Checkbox("##D6Invert", &invertDigitalInput6);
     ImGui::SameLine();
     ImGui::Text("Invert");
+}
+
+
+void PD4_E::autosetupGui() {
+    if (ImGui::Button("Start Auto Setup")) {
+        b_startAutoSetup = true;
+        b_autoSetupComplete = false;
+    }
+
+    if (b_autoSetupActive) {
+        ImGui::Text("Auto Setup is Active");
+    }
+    else if (b_autoSetupComplete) {
+        ImGui::Text("Auto Setup is Complete");
+    }
+
 }

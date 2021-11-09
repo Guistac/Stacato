@@ -56,6 +56,9 @@ class PD4_E : public EtherCatDevice {
 	DS402::OperatingMode::Mode actualOperatingMode = DS402::OperatingMode::Mode::NONE;
 
 	bool b_directionOfMotionIsInverted = false;
+	bool b_startAutoSetup = false;
+	bool b_autoSetupActive = false;
+	bool b_autoSetupComplete = false;
 
 	struct ControlMode {
 		enum class Mode {
@@ -128,4 +131,5 @@ class PD4_E : public EtherCatDevice {
 	void controlGui();
 	void limitsGui();
 	void gpioGui();
+	void autosetupGui();
 };
