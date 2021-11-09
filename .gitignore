@@ -1,6 +1,7 @@
 #=== Directories =======
 
 /Build
+/out
 .vs/
 bin/
 bin-int/
