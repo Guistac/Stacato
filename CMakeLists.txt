@@ -68,7 +68,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 	##=== Windowing & Gui ===
 	glfw
-	glad
+	#glad
 	dearimgui
 	imguinodeeditor
 	implot

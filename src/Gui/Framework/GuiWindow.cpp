@@ -13,9 +13,9 @@
 #include <glfw/glfw3.h>
 
 //#include <glad/glad.h>
-//#define IMGUI_IMPL_OPENGL_LOADER_GLAD
-//#include <backends/imgui_impl_opengl3.cpp>
-//#include <backends/imgui_impl_glfw.cpp>
+#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM "config.h"
+#include <backends/imgui_impl_opengl3.cpp>
+#include <backends/imgui_impl_glfw.cpp>
 
 //#include "Gui/Utilities/FileDialog.h"
 //#include "Gui/Gui.h"
@@ -53,12 +53,7 @@ void GuiWindow::refresh() {
 
 	{
 
-		//Create Magnum context in an isolated scope
-		//Platform::GLContext ctx{ argc, argv };
-		int argc = 0;
-		const char** argv = nullptr;
-		Platform::GLContext ctx{ argc, argv };
-
+		Platform::GLContext ctx;
 		
 		// Setup the colored triangle
 		using namespace Math::Literals;
@@ -92,6 +87,8 @@ void GuiWindow::refresh() {
 			// Render here
 			GL::defaultFramebuffer.clear(GL::FramebufferClear::Color);
 			shader.draw(mesh);
+
+			//ImGui::Begin("Test"); ImGui::End();
 
 			// Swap front and back buffers
 			glfwSwapBuffers(window);
@@ -182,7 +179,7 @@ void GuiWindow::onRenderEnd() {
 	//ImGui::Render();
 	//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     
-	// Update and Render additional Platform Windows
+	//Update and Render additional Platform Windows
 	//if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
 	//	ImGui::UpdatePlatformWindows();
 	//	ImGui::RenderPlatformWindowsDefault();
