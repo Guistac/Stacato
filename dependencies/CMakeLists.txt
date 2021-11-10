@@ -7,9 +7,40 @@ add_subdirectory(soem)
 add_subdirectory(spdlog)
 add_subdirectory(tinyxml2)
 
-add_subdirectory(corrade)
-add_subdirectory(magnum)
+#------ Magnum & Corrade Engine -------
 
+set(WITH_WGLCONTEXT ON)
+
+add_subdirectory(corrade  EXCLUDE_FROM_ALL)
+add_subdirectory(magnum EXCLUDE_FROM_ALL)
+set(Corrade_DIR corrade/modules)
+set(Magnum_DIR magnum/modules)
+find_package(Corrade REQUIRED Main)
+find_package(Magnum REQUIRED GL Shaders)
+
+if(CORRADE_TARGET_APPLE)
+    find_package(Magnum REQUIRED CglContext)
+elseif(CORRADE_TARGET_UNIX)
+    find_package(Magnum REQUIRED GlxContext)
+elseif(CORRADE_TARGET_WINDOWS)
+    find_package(Magnum REQUIRED WglContext)
+else()
+    message(FATAL_ERROR "No context handler available on this platform")
+endif()
+
+
+set_directory_properties(PROPERTIES CORRADE_USE_PEDANTIC_FLAGS ON)
+
+add_library(MagnumLibs INTERFACE)
+
+target_link_libraries(MagnumLibs INTERFACE
+    Corrade::Main
+    Magnum::GL
+    Magnum::GLContext
+	Magnum::Magnum
+	Magnum::Shaders
+)
+    
 #----- Below are build infos for dependencies that don't ship a CMakeLists.txt file -----
 
 #============= DEAR IMGUI ==============
@@ -28,6 +59,10 @@ add_library(dearimgui
     "dearimgui/imgui_demo.cpp"
 )
 
+target_include_directories(dearimgui PUBLIC
+    "dearimgui/"
+)
+
 #================== IMPLOT =================
 
 add_library(implot
@@ -39,6 +74,7 @@ add_library(implot
 )
 
 target_include_directories(implot PUBLIC
+    "implot/"
     "dearimgui/"
     "glm/"
 )
@@ -63,6 +99,7 @@ add_library(imguinodeeditor
 
 
 target_include_directories(imguinodeeditor PUBLIC
+    "imguinodeeditor"
 	"dearimgui/"
 	"glm/"
 )
@@ -77,4 +114,24 @@ add_library(glad
 
 target_include_directories(glad PUBLIC
    "glad/include/"
+)
+
+#=================== ASIO =====================
+
+add_library(asio INTERFACE)
+
+target_include_directories(asio INTERFACE
+    "asio/asio/include/"
+)
+
+target_compile_definitions(asio INTERFACE
+    ASIO_STANDALONE
+)
+
+#================== GLM ====================
+
+add_library(glm INTERFACE)
+
+target_include_directories(glm INTERFACE
+    "glm/"
 )

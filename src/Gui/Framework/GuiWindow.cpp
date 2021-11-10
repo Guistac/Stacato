@@ -2,8 +2,8 @@
 
 #include "GuiWindow.h"
 
-#include <Magnum/Platform/GLContext.h>
 
+#include <Magnum/Platform/GLContext.h>
 #include <Magnum/GL/Buffer.h>
 #include <Magnum/GL/DefaultFramebuffer.h>
 #include <Magnum/GL/Mesh.h>
@@ -52,16 +52,17 @@ void GuiWindow::refresh() {
 	using namespace Magnum;
 
 	{
-		/* Create Magnum context in an isolated scope */
+
+		//Create Magnum context in an isolated scope
 		//Platform::GLContext ctx{ argc, argv };
 		int argc = 0;
 		const char** argv = nullptr;
 		Platform::GLContext ctx{ argc, argv };
 
-		/* Setup the colored triangle */
+		
+		// Setup the colored triangle
 		using namespace Math::Literals;
 
-		/*
 		struct TriangleVertex {
 			Vector2 position;
 			Color3 color;
@@ -74,6 +75,7 @@ void GuiWindow::refresh() {
 
 		GL::Buffer buffer;
 		buffer.setData(data);
+		
 
 		GL::Mesh mesh;
 		mesh.setPrimitive(GL::MeshPrimitive::Triangles)
@@ -83,7 +85,7 @@ void GuiWindow::refresh() {
 				Shaders::VertexColorGL2D::Color3{});
 
 		Shaders::VertexColorGL2D shader;
-
+		
 		// Loop until the user closes the window
 		while (!glfwWindowShouldClose(window)) {
 
@@ -97,7 +99,7 @@ void GuiWindow::refresh() {
 			// Poll for and process events
 			glfwPollEvents();
 		}
-		*/
+
 	}
 
 
