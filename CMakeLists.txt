@@ -20,6 +20,8 @@ configure_file(src/core/config.h.in src/core/config.h)
 add_subdirectory(dependencies)
 
 
+
+
 ##====== actual main project ========
 
 #add directory containing all Project Source Files

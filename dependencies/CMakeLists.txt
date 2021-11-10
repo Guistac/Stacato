@@ -7,16 +7,24 @@ add_subdirectory(soem)
 add_subdirectory(spdlog)
 add_subdirectory(tinyxml2)
 
+
+
+
 #------ Magnum & Corrade Engine -------
 
-set(WITH_WGLCONTEXT ON)
+if(WIN32)
+    set(WITH_WGLCONTEXT ON)
+endif()
 
-add_subdirectory(corrade  EXCLUDE_FROM_ALL)
+#add corrade and magnum as subprojects
+add_subdirectory(corrade EXCLUDE_FROM_ALL)
 add_subdirectory(magnum EXCLUDE_FROM_ALL)
+
+#set the directory for corrade and magnum package modules
 set(Corrade_DIR corrade/modules)
 set(Magnum_DIR magnum/modules)
-find_package(Corrade REQUIRED Main)
-find_package(Magnum REQUIRED GL Shaders)
+
+find_package(Magnum REQUIRED)
 
 if(CORRADE_TARGET_APPLE)
     find_package(Magnum REQUIRED CglContext)
@@ -28,19 +36,21 @@ else()
     message(FATAL_ERROR "No context handler available on this platform")
 endif()
 
-
 set_directory_properties(PROPERTIES CORRADE_USE_PEDANTIC_FLAGS ON)
 
 add_library(MagnumLibs INTERFACE)
 
 target_link_libraries(MagnumLibs INTERFACE
-    Corrade::Main
     Magnum::GL
     Magnum::GLContext
 	Magnum::Magnum
 	Magnum::Shaders
 )
     
+
+
+
+
 #----- Below are build infos for dependencies that don't ship a CMakeLists.txt file -----
 
 #============= DEAR IMGUI ==============
