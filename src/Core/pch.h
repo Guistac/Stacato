@@ -24,7 +24,7 @@
 
 #define END_DISABLE_IMGUI_ELEMENT	{ ImGui::PopItemFlag(); ImGui::PopStyleColor();	}
 
-#define clamp(in,rangeA,rangeB) if(rangeA < rangeB) {					\
+#define clampValue(in,rangeA,rangeB) if(rangeA < rangeB) {					\
 									if (in < rangeA) in = rangeA;		\
 									else if(in > rangeB) in = rangeB;	\
 								}										\

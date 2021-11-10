@@ -2,7 +2,14 @@
 
 #include "Gui.h"
 
+
+void gui(bool closeWindowRequest) {
+
+}
+
+
 std::mutex GuiMutex;
+/*
 
 void gui(bool closeWindowRequest) {
 	GuiMutex.lock();
@@ -29,4 +36,5 @@ void gui(bool closeWindowRequest) {
 
 	GuiMutex.unlock();
 }
+*/
 

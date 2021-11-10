@@ -87,7 +87,7 @@ void PositionControlledAxis::controlsGui() {
 		static char accelerationString[32];
 		sprintf(accelerationString, u8"%.3f %s/s²", manualControlAcceleration_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
 		ImGui::InputDouble("##TargetAcceleration", &manualControlAcceleration_axisUnitsPerSecond, 0.0, 0.0, accelerationString);
-		clamp(manualControlAcceleration_axisUnitsPerSecond, 0.0, accelerationLimit_axisUnitsPerSecondSquared);
+		clampValue(manualControlAcceleration_axisUnitsPerSecond, 0.0, accelerationLimit_axisUnitsPerSecondSquared);
 		ImGui::Separator();
 
 		//------------------- VELOCITY CONTROLS ------------------------
@@ -102,7 +102,7 @@ void PositionControlledAxis::controlsGui() {
 
 		float manualVelocityTarget = manualVelocityTarget_axisUnitsPerSecond;
 		if (ImGui::SliderFloat("##Velocity", &manualVelocityTarget, -velocityLimit_axisUnitsPerSecond, velocityLimit_axisUnitsPerSecond, velocityTargetString));
-		clamp(manualVelocityTarget_axisUnitsPerSecond, -velocityLimit_axisUnitsPerSecond, velocityLimit_axisUnitsPerSecond);
+		clampValue(manualVelocityTarget_axisUnitsPerSecond, -velocityLimit_axisUnitsPerSecond, velocityLimit_axisUnitsPerSecond);
 		if (ImGui::IsItemActive()) setVelocity(manualVelocityTarget);
 		else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocity(manualVelocityTarget = 0.0);
 
@@ -123,7 +123,7 @@ void PositionControlledAxis::controlsGui() {
 		static char targetVelocityString[32];
 		sprintf(targetVelocityString, "%.3f %s/s", targetVelocity_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
 		ImGui::InputDouble("##TargetVelocity", &targetVelocity_axisUnitsPerSecond, 0.0, 0.0, targetVelocityString);
-		clamp(targetVelocity_axisUnitsPerSecond, 0.0, velocityLimit_axisUnitsPerSecond);
+		clampValue(targetVelocity_axisUnitsPerSecond, 0.0, velocityLimit_axisUnitsPerSecond);
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(tripleWidgetWidth);
 		ImGui::InputDouble("##TargetTime", &targetTime_seconds, 0.0, 0.0, "%.3f s");
@@ -736,10 +736,10 @@ void PositionControlledAxis::settingsGui() {
 			actuatorAccelerationLimit_axisUnitsPerSecondSquared,
 			getPositionUnit(axisPositionUnit)->shortForm);
 		ImGui::PopStyleColor();
-		clamp(velocityLimit_axisUnitsPerSecond, 0.0, actuatorVelocityLimit_axisUnitsPerSecond);
-		clamp(accelerationLimit_axisUnitsPerSecondSquared, 0.0, actuatorAccelerationLimit_axisUnitsPerSecondSquared);
-		clamp(defaultManualVelocity_axisUnitsPerSecond, 0.0, actuatorVelocityLimit_axisUnitsPerSecond);
-		clamp(defaultManualAcceleration_axisUnitsPerSecondSquared, 0.0, actuatorAccelerationLimit_axisUnitsPerSecondSquared);
+		clampValue(velocityLimit_axisUnitsPerSecond, 0.0, actuatorVelocityLimit_axisUnitsPerSecond);
+		clampValue(accelerationLimit_axisUnitsPerSecondSquared, 0.0, actuatorAccelerationLimit_axisUnitsPerSecondSquared);
+		clampValue(defaultManualVelocity_axisUnitsPerSecond, 0.0, actuatorVelocityLimit_axisUnitsPerSecond);
+		clampValue(defaultManualAcceleration_axisUnitsPerSecondSquared, 0.0, actuatorAccelerationLimit_axisUnitsPerSecondSquared);
 	}
 
 	ImGui::Text("Velocity Limit");
@@ -758,13 +758,13 @@ void PositionControlledAxis::settingsGui() {
 	static char manAccString[16];
 	sprintf(manAccString, u8"%.3f %s/s²", defaultManualAcceleration_axisUnitsPerSecondSquared, getPositionUnitStringShort(axisPositionUnit));
 	ImGui::InputDouble("##defmanAcc", &defaultManualAcceleration_axisUnitsPerSecondSquared, 0.0, 0.0, manAccString);
-	clamp(defaultManualAcceleration_axisUnitsPerSecondSquared, 0.0, accelerationLimit_axisUnitsPerSecondSquared);
+	clampValue(defaultManualAcceleration_axisUnitsPerSecondSquared, 0.0, accelerationLimit_axisUnitsPerSecondSquared);
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(halfWidgetWidth);
 	static char manVelString[16];
 	sprintf(manVelString, "%.3f %s/s", defaultManualVelocity_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
 	ImGui::InputDouble("##defmanvel", &defaultManualVelocity_axisUnitsPerSecond, 0.0, 0.0, manVelString);
-	clamp(defaultManualVelocity_axisUnitsPerSecond, 0.0, velocityLimit_axisUnitsPerSecond);
+	clampValue(defaultManualVelocity_axisUnitsPerSecond, 0.0, velocityLimit_axisUnitsPerSecond);
 
 	ImGui::Separator();
 

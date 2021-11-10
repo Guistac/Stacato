@@ -7,6 +7,9 @@ add_subdirectory(soem)
 add_subdirectory(spdlog)
 add_subdirectory(tinyxml2)
 
+add_subdirectory(corrade)
+add_subdirectory(magnum)
+
 #----- Below are build infos for dependencies that don't ship a CMakeLists.txt file -----
 
 #============= DEAR IMGUI ==============

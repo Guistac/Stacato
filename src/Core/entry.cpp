@@ -15,27 +15,27 @@ int main() {
 //int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
 int main(){
 	//set working directory to "Resources" folder located next to executable
-	std::string defaultWorkingDirectory = std::filesystem::current_path().string();
-	std::filesystem::current_path(defaultWorkingDirectory + "/Resources");
+	//std::string defaultWorkingDirectory = std::filesystem::current_path().string();
+	//std::filesystem::current_path(defaultWorkingDirectory + "/Resources");
 #endif
 
     GuiWindow::init(); //sets working directory to macos application bundle resources folder
 
 	Logger::init();
 	Logger::info("Stacato Version {}.{}", VERSION_MAJOR, VERSION_MINOR);
-
-	EtherCatDeviceFactory::loadDevices();
-	NodeFactory::loadNodes();
-	Project::load("Project");
-
-	EtherCatFieldbus::updateNetworkInterfaceCardList();
-	EtherCatFieldbus::init();
+	
+	//EtherCatDeviceFactory::loadDevices();
+	//NodeFactory::loadNodes();
+	//Project::load("Project");
+	
+	//EtherCatFieldbus::updateNetworkInterfaceCardList();
+	//EtherCatFieldbus::init();
 
 	GuiWindow::open(3000,2000);
 	GuiWindow::refresh();
 	GuiWindow::close();
 
-	EtherCatFieldbus::terminate();
+	//EtherCatFieldbus::terminate();
 
 	Logger::terminate();
 }

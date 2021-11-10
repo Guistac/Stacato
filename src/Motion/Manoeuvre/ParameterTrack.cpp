@@ -249,10 +249,10 @@ void ParameterTrack::refreshAfterCurveEdit() {
 			break;
 		case ParameterDataType::Type::STATE_PARAMETER: {
 			int originInteger = std::round(startPoints.front()->position);
-			clamp(originInteger, 0, origin.stateValues->size() - 1)
+			clampValue(originInteger, 0, origin.stateValues->size() - 1)
 			origin.stateValue = &origin.stateValues->at(originInteger);
 			int targetInteger = std::round(endPoints.front()->position);
-			clamp(targetInteger, 0, target.stateValues->size() - 1)
+			clampValue(targetInteger, 0, target.stateValues->size() - 1)
 			target.stateValue = &target.stateValues->at(targetInteger);
 			}break;
 		case ParameterDataType::Type::VECTOR_3D_PARAMETER:

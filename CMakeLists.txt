@@ -36,17 +36,31 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 configure_file(src/core/config.h.in src/core/config.h)
 
 #link the project with librairies we just added
-target_link_libraries(${PROJECT_NAME} 
-	glfw
+target_link_libraries(${PROJECT_NAME}
+	#=== Logging ===
 	spdlog
+
+	#=== Fieldbus ===
 	soem
+
+	#=== Saving & Loading Files ====
 	nfd
 	tinyxml2
-	dearimgui
+
+	##=== Windowing & Gui ===
+	glfw
 	glad
+	dearimgui
 	imguinodeeditor
 	implot
+	
+	##=== Magnum Modules === 
+	Magnum
+	MagnumGL
+	MagnumShaders
+	MagnumFlextGLObjects
 )
+
 
 #add the following include directories to the project
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -64,6 +78,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 	${PROJECT_SOURCE_DIR}/dependencies/dearimgui/
 	${PROJECT_SOURCE_DIR}/dependencies/implot/
 	${PROJECT_SOURCE_DIR}/dependencies/imguinodeeditor/
+
+	${PROJECT_SOURCE_DIR}/dependencies/magnum/
 
 	${PROJECT_SOURCE_DIR}/src
 	${PROJECT_SOURCE_DIR}/src/Core
