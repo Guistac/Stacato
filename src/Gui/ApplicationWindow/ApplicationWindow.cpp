@@ -2,27 +2,18 @@
 
 #include "ApplicationWindow.h"
 
-
+//we include magnums gl context first since it loads the opengl functions
 #include <Magnum/Platform/GLContext.h>
-#include <Magnum/GL/Buffer.h>
-#include <Magnum/GL/DefaultFramebuffer.h>
-#include <Magnum/GL/Mesh.h>
-#include <Magnum/Math/Color.h>
-#include <Magnum/Platform/GLContext.h>
-#include <Magnum/Shaders/VertexColorGL.h>
-
+//we include glfw after so it doesn't do any gl loading
 #include <glfw/glfw3.h>
-
-//custom loader is FlextGL inside magnum engine "config.h" is a dummy include to satisfy imgui
+//we declare the following so imgui doesn't try to do any importing of external gl loaders (config.h is just a dummy import)
 #define IMGUI_IMPL_OPENGL_LOADER_CUSTOM "config.h"
 #include <backends/imgui_impl_opengl3.cpp>
 #include <backends/imgui_impl_glfw.cpp>
 
 #include <implot.h>
 #include "Gui/NodeEditor/NodeEditorGui.h"
-
 #include "Gui/Utilities/FileDialog.h"
-
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
@@ -152,38 +143,7 @@ namespace ApplicationWindow {
 
 
 	void onRender(bool shouldClose) {
-
 		drawGui();
-
-		using namespace Magnum;
-		// Setup the colored triangle
-		using namespace Math::Literals;
-
-		struct TriangleVertex {
-			Vector2 position;
-			Color3 color;
-		};
-		const TriangleVertex data[]{
-			{{-0.5f, -0.5f}, 0xff0000_rgbf},    //Left vertex, red color
-			{{ 0.5f, -0.5f}, 0x00ff00_rgbf},    //Right vertex, green color
-			{{ 0.0f,  0.5f}, 0x0000ff_rgbf}     //Top vertex, blue color
-		};
-
-		GL::Buffer buffer;
-		buffer.setData(data);
-
-
-		GL::Mesh mesh;
-		mesh.setPrimitive(GL::MeshPrimitive::Triangles)
-			.setCount(3)
-			.addVertexBuffer(buffer, 0,
-				Shaders::VertexColorGL2D::Position{},
-				Shaders::VertexColorGL2D::Color3{});
-
-		Shaders::VertexColorGL2D shader;
-
-		GL::defaultFramebuffer.clear(GL::FramebufferClear::Color);
-		shader.draw(mesh);
 	}
 
 }

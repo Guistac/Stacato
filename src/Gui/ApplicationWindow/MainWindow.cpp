@@ -7,6 +7,7 @@
 
 #include "Gui/Project/ProjectGui.h"
 #include "Project/Environnement.h"
+#include "Gui/StageView/StageView.h"
 
 namespace ApplicationWindow {
 
@@ -55,7 +56,7 @@ namespace ApplicationWindow {
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Stage View")) {
-				ImGui::Text("There will be a stage 2D or 3D model here");
+				stageView();
 				ImGui::EndTabItem();
 			}
 			ImGui::EndTabBar();
