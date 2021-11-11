@@ -230,7 +230,7 @@ void Lexium32::controlsGui() {
             else if (vCommand_rps < -maxV) vCommand_rps = -maxV;
             manualVelocityCommand_rps = vCommand_rps;
             static char accelerationString[32];
-            sprintf(accelerationString, u8"Acceleration: %.2f rev/s²", manualAcceleration_rpsps);
+            sprintf(accelerationString, /*u8*/"Acceleration: %.2f rev/s²", manualAcceleration_rpsps);
             ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rpsps, 0.0, maxA, accelerationString);
             if (manualAcceleration_rpsps > maxA) manualAcceleration_rpsps = maxA;
         }break;
@@ -326,10 +326,10 @@ void Lexium32::generalSettingsGui() {
     ImGui::Text("Velocity Limit");
     ImGui::InputDouble("##maxV", &servoMotorDevice->velocityLimit_positionUnitsPerSecond, 0.0, 0.0, "%.1f rev/s");
     ImGui::Text("Acceleration Limit");
-    ImGui::InputDouble("##maxA", &servoMotorDevice->accelerationLimit_positionUnitsPerSecondSquared, 0.0, 0.0, u8"%.1f rev/s²");
+    ImGui::InputDouble("##maxA", &servoMotorDevice->accelerationLimit_positionUnitsPerSecondSquared, 0.0, 0.0, /*u8*/"%.1f rev/s²");
 
     ImGui::Text("Default Manual Acceleration");
-    ImGui::InputFloat("##defmaxacc", &defaultManualAcceleration_rpsps, 0.0, 0.0, u8"%.1f rev/s²");
+    ImGui::InputFloat("##defmaxacc", &defaultManualAcceleration_rpsps, 0.0, 0.0, /*u8*/"%.1f rev/s²");
 
     ImGui::Separator();
 
@@ -416,7 +416,7 @@ void Lexium32::generalSettingsGui() {
             break;
         case QuickStopReaction::Type::DECELERATION_RAMP: {
             static char decelRampString[64];
-            sprintf(decelRampString, u8"%.3f rev/s²", quickStopDeceleration_revolutionsPerSecondSquared);
+            sprintf(decelRampString, /*u8*/"%.3f rev/s²", quickStopDeceleration_revolutionsPerSecondSquared);
             ImGui::Text("Stopping Deceleration");
             if (ImGui::InputDouble("##rampA", &quickStopDeceleration_revolutionsPerSecondSquared, 0.0, 0.0, decelRampString)) generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
             }break;

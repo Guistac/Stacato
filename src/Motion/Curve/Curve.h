@@ -77,7 +77,7 @@ namespace Motion {
 		double rampOutStartPosition = 0.0;	//position of deceleration start
 		double rampOutStartTime = 0.0;		//time of deceleration start
 
-		bool Interpolation::isTimeInside(double time);
+		bool isTimeInside(double time);
 		CurvePoint getPointAtTime(double time);
 		double getProgressAtTime(double time);
 

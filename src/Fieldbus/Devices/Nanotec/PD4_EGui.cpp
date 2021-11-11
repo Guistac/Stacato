@@ -168,7 +168,7 @@ void PD4_E::controlGui() {
     switch (actualControlMode) {
         case ControlMode::Mode::MANUAL_VELOCITY_CONTROL: {
             ImGui::SetNextItemWidth(widgetWidth);
-            ImGui::InputDouble("##manualAcceleration", &manualAcceleration_revolutionPerSecondSquared, 0.0, 0.0, u8"%.1f rev/s²");
+            ImGui::InputDouble("##manualAcceleration", &manualAcceleration_revolutionPerSecondSquared, 0.0, 0.0, /*u8*/"%.1f rev/s²");
             float vTarget = manualVelocityTarget_revolutionsPerSecond;
             ImGui::SetNextItemWidth(widgetWidth);
             ImGui::SliderFloat("##Velocity", &vTarget, -servoMotor->velocityLimit_positionUnitsPerSecond, servoMotor->velocityLimit_positionUnitsPerSecond, "%.1f rev/s");
@@ -228,13 +228,13 @@ void PD4_E::limitsGui() {
     ImGui::PushFont(Fonts::robotoBold15);
     ImGui::Text("Acceleration Limit");
     ImGui::PopFont();
-    ImGui::InputDouble("##accelerationLimit", &servoMotor->accelerationLimit_positionUnitsPerSecondSquared, 0.0, 0.0, u8"%.3f rev/s²");
+    ImGui::InputDouble("##accelerationLimit", &servoMotor->accelerationLimit_positionUnitsPerSecondSquared, 0.0, 0.0, /*u8*/"%.3f rev/s²");
     if (servoMotor->accelerationLimit_positionUnitsPerSecondSquared < 0.0) servoMotor->accelerationLimit_positionUnitsPerSecondSquared = 0.0;
     
     ImGui::PushFont(Fonts::robotoBold15);
     ImGui::Text("Default Manual Acceleration");
     ImGui::PopFont();
-    ImGui::InputDouble("##defmanacc", &defaultManualAcceleration_revolutionsPerSecondSquared, 0.0, 0.0, u8"%.3f rev/s²");
+    ImGui::InputDouble("##defmanacc", &defaultManualAcceleration_revolutionsPerSecondSquared, 0.0, 0.0, /*u8*/"%.3f rev/s²");
     if (defaultManualAcceleration_revolutionsPerSecondSquared > servoMotor->accelerationLimit_positionUnitsPerSecondSquared) defaultManualAcceleration_revolutionsPerSecondSquared = servoMotor->accelerationLimit_positionUnitsPerSecondSquared;
     else if (defaultManualAcceleration_revolutionsPerSecondSquared < 0.0) defaultManualAcceleration_revolutionsPerSecondSquared = 0.0;
 

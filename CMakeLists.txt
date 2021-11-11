@@ -26,7 +26,11 @@ add_subdirectory(dependencies)
 file(GLOB_RECURSE SOURCE_FILE_LIST "src/*.cpp" "src/*.h")
 
 # Main Executable with all source files in src/
-add_executable(${PROJECT_NAME} ${SOURCE_FILE_LIST})
+if(WIN32)
+    add_executable(${PROJECT_NAME} ${SOURCE_FILE_LIST})
+elseif(APPLE)
+    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILE_LIST})
+endif()
 
 # Create the source groups for source tree with root at CMAKE_CURRENT_SOURCE_DIR.
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCE_FILE_LIST})
@@ -95,6 +99,7 @@ if(WIN32)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE
 		_WINDOWS
 		_WIN32_WINNT=0x0601
+        WIN32
 	)
 	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -112,15 +117,19 @@ endif()
 
 if(APPLE)
 	target_link_libraries(${PROJECT_NAME} PRIVATE
-		Cocoa.framework
-        IOKit.framework
+		#Cocoa.framework
+        #IOKit.framework
 	)
 	target_include_directories(${PROJECT_NAME} PRIVATE
 		${PROJECT_SOURCE_DIR}/dependencies/soem/osal/macosx
         ${PROJECT_SOURCE_DIR}/dependencies/soem/oshw/macosx
 	)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/dir/Resources"
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Resources
+    )
 	target_compile_definitions("${PROJECT_NAME}" PRIVATE
-		_WINDOWS
-		_WIN32_WINNT=0x0601
+		MACOS
 	)
 endif()

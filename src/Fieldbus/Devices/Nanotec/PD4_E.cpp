@@ -408,7 +408,7 @@ bool PD4_E::loadDeviceData(tinyxml2::XMLElement* xml) {
 	return true;
 }
 
-std::vector<PD4_E::ControlMode> controlModes = {
+std::vector<PD4_E::ControlMode> PD4_E::controlModes = {
 	{PD4_E::ControlMode::Mode::MANUAL_VELOCITY_CONTROL, "Manual Velocity Control"},
 	{PD4_E::ControlMode::Mode::EXTERNAL_CONTROL, "External Control"}
 };

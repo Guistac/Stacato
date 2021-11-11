@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EtherCatFieldbus.h"
+#include "Fieldbus/EtherCatFieldbus.h"
 #include "Utilities/ScrollingBuffer.h"
 
 class EtherCatMetrics {

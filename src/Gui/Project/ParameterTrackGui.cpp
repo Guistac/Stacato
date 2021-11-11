@@ -174,7 +174,7 @@ bool ParameterTrack::equalRampsCheckboxGui() {
 
 void ParameterTrack::drawCurves(double startTime, double endTime) {
 	for (auto& curve : curves) {
-		auto& startPoint = curve->getStart();
+		auto startPoint = curve->getStart();
 		if (startPoint->time > startTime) {
 			std::vector<glm::vec2> headerPoints;
 			headerPoints.push_back(glm::vec2(startTime, startPoint->position));
@@ -194,7 +194,7 @@ void ParameterTrack::drawCurves(double startTime, double endTime) {
 				ImPlot::PlotLine(curve->name, &errorPoints.front().time, &errorPoints.front().position, errorPoints.size(), 0, sizeof(Motion::CurvePoint));
 			}
 		}
-		auto& endPoint = curve->getEnd();
+		auto endPoint = curve->getEnd();
 		if (endPoint->time < endTime) {
 			std::vector<glm::vec2> trailerPoints;
 			trailerPoints.push_back(glm::vec2(endPoint->time, endPoint->position));

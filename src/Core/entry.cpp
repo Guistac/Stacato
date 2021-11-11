@@ -7,6 +7,8 @@
 #include "NodeGraph/Utilities/NodeFactory.h"
 #include "Project/Project.h"
 
+#include <iostream>
+
 #ifdef MACOS
 int main() {
 #endif
@@ -17,10 +19,13 @@ int main(){
 	//set working directory to "Resources" folder located next to executable
 	std::string defaultWorkingDirectory = std::filesystem::current_path().string();
 	std::filesystem::current_path(defaultWorkingDirectory + "/Resources");
+    
 #endif
 
 	ApplicationWindow::init(); //sets working directory to macos application bundle resources folder
-
+    
+    std::cout << std::filesystem::current_path() << std::endl;
+    
 	Logger::init();
 	Logger::info("Stacato Version {}.{}", VERSION_MAJOR, VERSION_MINOR);
 	

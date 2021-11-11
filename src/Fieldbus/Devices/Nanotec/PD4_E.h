@@ -68,6 +68,7 @@ class PD4_E : public EtherCatDevice {
 		Mode mode;
 		const char displayName[64];
 	};
+    static std::vector<ControlMode> controlModes;
 	static std::vector<ControlMode>& getControlModes();
 	ControlMode* getControlMode(ControlMode::Mode m);
 

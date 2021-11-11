@@ -5,8 +5,6 @@ message("---GLFW---")
 add_subdirectory(glfw)
 message("---NativeFileDialog---")
 add_subdirectory(nativefiledialog-extended)
-message("---SOEM---")
-add_subdirectory(soem)
 message("---SpdLog---")
 add_subdirectory(spdlog)
 message("---TinyXML2---")
@@ -14,11 +12,27 @@ add_subdirectory(tinyxml2)
 
 
 
+if(WIN32)
+   message("---SOEM---")
+   add_subdirectory(soem)
+elseif(APPLE)
+
+	add_library(SOEM PUBLIC
+		soem/*.h
+		soem/*.c
+		soem/osal/osal.h
+		
+	)
+
+endif()
 
 #------ Magnum & Corrade Engine -------
 
 if(WIN32)
     set(WITH_WGLCONTEXT ON)
+endif()
+if(APPLE)
+    set(WITH_CGLCONTEXT ON)
 endif()
 
 if(WIN32)

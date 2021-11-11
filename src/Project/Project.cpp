@@ -33,19 +33,19 @@ namespace Project {
 		}
 
 		std::string stageFolderPath = projectFolderPath + "Stage/";
-		if (!std::filesystem::exists(std::filesystem::path(stageFolderPath))) return false;
+		if (!std::filesystem::exists(std::filesystem::path(stageFolderPath))) {}
 
 		std::string plotsFolderPath = projectFolderPath + "Plots/";
-		if (!std::filesystem::exists(std::filesystem::path(plotsFolderPath))) return false;
-
-		for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::path(plotsFolderPath))) {
-			if (entry.path().extension() == ".plot") {
-				std::shared_ptr<Plot> plot = std::make_shared<Plot>();
-				if (plot->load(entry.path().u8string().c_str())) {
-					plots.push_back(plot);
-				}
-			}
-		}
+        if (std::filesystem::exists(std::filesystem::path(plotsFolderPath))) {
+            for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::path(plotsFolderPath))) {
+                if (entry.path().extension() == ".plot") {
+                    std::shared_ptr<Plot> plot = std::make_shared<Plot>();
+                    if (plot->load(entry.path().u8string().c_str())) {
+                        plots.push_back(plot);
+                    }
+                }
+            }
+        }
 
 		if (plots.empty()) {
 			plots.push_back(std::make_shared<Plot>());
