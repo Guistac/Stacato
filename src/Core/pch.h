@@ -18,13 +18,13 @@
 #include "Utilities/Logger.h"
 #include "Utilities/Timing.h"
 
-#define IMGUI_USER_CONFIG "Gui/Framework/imguiCustomConfiguration.h"
+#define IMGUI_USER_CONFIG "Gui/ApplicationWindow/ImGuiCustomConfiguration.h"
 
 #define BEGIN_DISABLE_IMGUI_ELEMENT	{ ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));	}
 
 #define END_DISABLE_IMGUI_ELEMENT	{ ImGui::PopItemFlag(); ImGui::PopStyleColor();	}
 
-#define clamp(in,rangeA,rangeB) if(rangeA < rangeB) {					\
+#define clampValue(in,rangeA,rangeB) if(rangeA < rangeB) {					\
 									if (in < rangeA) in = rangeA;		\
 									else if(in > rangeB) in = rangeB;	\
 								}										\

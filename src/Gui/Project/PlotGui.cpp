@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "PlotGui.h"
+#include "ProjectGui.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -9,8 +9,9 @@
 #include "Project/Project.h"
 #include "Project/Plot.h"
 #include "Motion/Manoeuvre/Manoeuvre.h"
-#include "Gui/Framework/Fonts.h"
-#include "Gui/Framework/Colors.h"
+
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
 
 #include "Motion/Playback.h"
 

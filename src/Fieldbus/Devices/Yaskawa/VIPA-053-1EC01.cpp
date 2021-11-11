@@ -3,7 +3,6 @@
 #include "VIPA-053-1EC01.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include <tinyxml2.h>
-#include "Gui/Gui.h"
 
 bool VIPA_053_1EC01::isDeviceReady() {
     return isStateOperational();
@@ -198,7 +197,6 @@ void VIPA_053_1EC01::configureFromDeviceModules() {
         return;
     }
 
-    GuiMutex.lock();
     modules.clear();
     modules.swap(deviceModules);
     //remove all old NodePins from Node and NodeGraph
@@ -212,7 +210,6 @@ void VIPA_053_1EC01::configureFromDeviceModules() {
         for (auto& input : module.inputs) addIoData(input.nodePin);
         for (auto& output : module.outputs) addIoData(output.nodePin);
     }
-    GuiMutex.unlock();
 
     configureFromDeviceModulesDownloadStatus = DataTransferState::State::SUCCEEDED;
 }

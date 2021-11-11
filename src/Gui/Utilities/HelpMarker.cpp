@@ -2,7 +2,9 @@
 
 #include "HelpMarker.h"
 #include <imgui.h>
-#include "Gui/Framework/Colors.h"
+
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
 
 bool beginHelpMarker(const char* displayText) {
 	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);

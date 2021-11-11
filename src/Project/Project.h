@@ -16,6 +16,8 @@ namespace Project {
 	bool save();
 
 	void createNew();
+	
+	bool isEditingAllowed();
 
 };
 

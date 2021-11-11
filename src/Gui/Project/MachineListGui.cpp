@@ -1,9 +1,12 @@
 #include <pch.h>
 
-#include "Gui/Gui.h"
+#include "ProjectGui.h"
+
 #include "Project/Environnement.h"
 #include "Motion/Machine/Machine.h"
-#include "Gui/Framework/Colors.h"
+
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
 
 #include <imgui.h>
 

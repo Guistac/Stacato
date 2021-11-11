@@ -27,9 +27,4 @@ namespace Environnement{
 
 	void setName(const char*);
 	const char* getName();
-
-	void gui();
-	void machineManagerGui();
-	void deviceManagerGui();
-	void editorGui();
 };

@@ -8,8 +8,9 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <imgui_node_editor.h>
-#include "Gui/Framework/Fonts.h"
-#include "Gui/Framework/Colors.h"
+
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
 
 namespace NodeEditor = ax::NodeEditor;
 

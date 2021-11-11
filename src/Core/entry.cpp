@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "config.h"
 
-#include "Gui/Framework/GuiWindow.h"
+#include "Gui/ApplicationWindow/ApplicationWindow.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 #include "NodeGraph/Utilities/NodeFactory.h"
@@ -19,23 +19,23 @@ int main(){
 	std::filesystem::current_path(defaultWorkingDirectory + "/Resources");
 #endif
 
-    GuiWindow::init(); //sets working directory to macos application bundle resources folder
+	ApplicationWindow::init(); //sets working directory to macos application bundle resources folder
 
 	Logger::init();
 	Logger::info("Stacato Version {}.{}", VERSION_MAJOR, VERSION_MINOR);
-
+	
 	EtherCatDeviceFactory::loadDevices();
 	NodeFactory::loadNodes();
 	Project::load("Project");
-
+	
 	EtherCatFieldbus::updateNetworkInterfaceCardList();
 	EtherCatFieldbus::init();
 
-	GuiWindow::open(3000,2000);
-	GuiWindow::refresh();
-	GuiWindow::close();
+	ApplicationWindow::open(3000,2000);
 
 	EtherCatFieldbus::terminate();
 
 	Logger::terminate();
+
+	ApplicationWindow::terminate();
 }

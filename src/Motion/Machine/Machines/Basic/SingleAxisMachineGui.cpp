@@ -5,8 +5,10 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
-#include "Gui/Framework/Fonts.h"
-#include "Gui/Framework/Colors.h"
+
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
+
 #include "Gui/Utilities/CustomWidgets.h"
 
 
@@ -35,7 +37,7 @@ void SingleAxisMachine::controlsGui() {
 	static char accelerationString[32];
 	sprintf(accelerationString, u8"%.3f %s/s²", manualControlAcceleration_machineUnitsPerSecondSquared, getPositionUnitStringShort(machinePositionUnit));
 	ImGui::InputDouble("##TargetAcceleration", &manualControlAcceleration_machineUnitsPerSecondSquared, 0.0, 0.0, accelerationString);
-	clamp(manualControlAcceleration_machineUnitsPerSecondSquared, 0.0, accelerationLimit_machineUnits);
+	clampValue(manualControlAcceleration_machineUnitsPerSecondSquared, 0.0, accelerationLimit_machineUnits);
 	ImGui::Separator();
 
 	//------------------- VELOCITY CONTROLS ------------------------
@@ -52,7 +54,7 @@ void SingleAxisMachine::controlsGui() {
 
 	float manualVelocityTarget = manualVelocityTarget_machineUnitsPerSecond;
 	if (ImGui::SliderFloat("##Velocity", &manualVelocityTarget, -velocityLimit_machineUnits, velocityLimit_machineUnits, velocityTargetString));
-	clamp(manualVelocityTarget, -velocityLimit_machineUnits, velocityLimit_machineUnits);
+	clampValue(manualVelocityTarget, -velocityLimit_machineUnits, velocityLimit_machineUnits);
 	if (ImGui::IsItemActive()) setVelocity(manualVelocityTarget);
 	else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocity(manualVelocityTarget = 0.0);
 
@@ -75,7 +77,7 @@ void SingleAxisMachine::controlsGui() {
 	static char targetVelocityString[32];
 	sprintf(targetVelocityString, "%.3f %s/s", targetVelocity_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
 	ImGui::InputDouble("##TargetVelocity", &targetVelocity_machineUnitsPerSecond, 0.0, 0.0, targetVelocityString);
-	clamp(targetVelocity_machineUnitsPerSecond, 0.0, velocityLimit_machineUnits);
+	clampValue(targetVelocity_machineUnitsPerSecond, 0.0, velocityLimit_machineUnits);
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(tripleWidgetWidth);
 	ImGui::InputDouble("##TargetTime", &targetTime_seconds, 0.0, 0.0, "%.3f s");
@@ -221,7 +223,7 @@ void SingleAxisMachine::machineSpecificMiniatureGui() {
 
 		float manualVelocityTarget = manualVelocityTarget_machineUnitsPerSecond;
 		ImGui::VSliderFloat("##ManualVelocity", verticalSliderSize, &manualVelocityTarget, -velocityLimit, velocityLimit, "%.3f m/s");
-		clamp(manualVelocityTarget, -velocityLimit, velocityLimit);
+		clampValue(manualVelocityTarget, -velocityLimit, velocityLimit);
 		if (ImGui::IsItemActive()) setVelocity(manualVelocityTarget);
 		else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocity(manualVelocityTarget = 0.0);
 
