@@ -4,6 +4,9 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
+#include <imgui.h>
+#include <implot.h>
+
 void etherCatMetrics() {
 
 	//=====METRICS=====

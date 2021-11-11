@@ -6,9 +6,10 @@
 #include <imgui_internal.h>
 #include <implot.h>
 
-#include "Gui/Framework/Fonts.h"
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
+
 #include "NodeGraph/Device.h"
-#include "Gui/Framework/Colors.h"
 #include "Gui/Utilities/HelpMarker.h"
 
 

@@ -1,10 +1,13 @@
 #include <pch.h>
 
-#include "Gui/Gui.h"
+#include <imgui.h>
+#include <imgui_internal.h>
+
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatDevice.h"
-#include "Gui/Framework/Colors.h"
 
 #include "Gui/Utilities/HelpMarker.h"
 #include "Gui/Utilities/FileDialog.h"

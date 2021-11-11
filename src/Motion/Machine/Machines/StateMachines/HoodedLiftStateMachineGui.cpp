@@ -6,8 +6,10 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
-#include "Gui/Framework/Fonts.h"
-#include "Gui/Framework/Colors.h"
+
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
+
 #include "Gui/Utilities/CustomWidgets.h"
 
 void HoodedLiftStateMachine::controlsGui() {

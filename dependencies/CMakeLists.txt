@@ -1,10 +1,15 @@
 
 #----- CMakeLists.txt file for all dependencies -----
 
+message("---GLFW---")
 add_subdirectory(glfw)
+message("---NativeFileDialog---")
 add_subdirectory(nativefiledialog-extended)
+message("---SOEM---")
 add_subdirectory(soem)
+message("---SpdLog---")
 add_subdirectory(spdlog)
+message("---TinyXML2---")
 add_subdirectory(tinyxml2)
 
 
@@ -16,14 +21,19 @@ if(WIN32)
     set(WITH_WGLCONTEXT ON)
 endif()
 
-#add corrade and magnum as subprojects
+if(WIN32)
+	set(MSVC2019_COMPATIBILITY ON) ##avoid warning when including corrade
+endIf()
+
+message("---Corrade---")
 add_subdirectory(corrade EXCLUDE_FROM_ALL)
+
+message("---Magnum---")
 add_subdirectory(magnum EXCLUDE_FROM_ALL)
 
 #set the directory for corrade and magnum package modules
 set(Corrade_DIR corrade/modules)
 set(Magnum_DIR magnum/modules)
-
 find_package(Magnum REQUIRED)
 
 if(CORRADE_TARGET_APPLE)

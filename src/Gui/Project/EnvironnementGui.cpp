@@ -1,8 +1,12 @@
 #include <pch.h>
 
-#include "Gui.h"
-
 #include <imgui.h>
+#include <imgui_internal.h>
+
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
+
+#include "ProjectGui.h"
 
 #include "Project/Environnement.h"
 #include "Motion/Machine/Machine.h"
@@ -10,42 +14,44 @@
 #include "Gui/Utilities/DraggableList.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
-#include "Fieldbus/EtherCatGui.h"
+#include "Gui/Fieldbus/EtherCatGui.h"
+
+#include "Gui/Utilities/Log.h"
 
 
-namespace Environnement {
 
 
 
-	void gui() {
-		if (ImGui::BeginTabBar("##EnvironnementTabBar")) {
-			if (ImGui::BeginTabItem("Editor")) {
-				Environnement::editorGui();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Machine Manager")) {
-				machineManagerGui();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Device Manager")) {
-				deviceManagerGui();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Stage View Editor")) {
-				ImGui::Text("3D Scene Graph / Geometry importer / Machine movement assignement");
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Fieldbus")) {
-				etherCatGui();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Log")) {
-				log();
-				ImGui::EndTabItem();
-			}
-			ImGui::EndTabBar();
+
+void environnementGui() {
+	if (ImGui::BeginTabBar("##EnvironnementTabBar")) {
+		if (ImGui::BeginTabItem("Editor")) {
+			EnvironnementNodeEditorGui();
+			ImGui::EndTabItem();
 		}
+		if (ImGui::BeginTabItem("Machine Manager")) {
+			machineManagerGui();
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Device Manager")) {
+			deviceManagerGui();
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Stage View Editor")) {
+			ImGui::Text("3D Scene Graph / Geometry importer / Machine movement assignement");
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Fieldbus")) {
+			etherCatGui();
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Log")) {
+			log();
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
 	}
+}
 
 
 
@@ -106,4 +112,5 @@ namespace Environnement {
 		}
 	}
 
-}
+
+

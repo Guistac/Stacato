@@ -6,7 +6,8 @@
 #include <imgui_internal.h>
 #include <implot.h>
 
-#include "Gui/Framework/Colors.h"
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
 
 #include "Motion/Curve/Curve.h"
 #include "Motion/AnimatableParameter.h"

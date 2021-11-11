@@ -5,6 +5,7 @@
 #include "Project/Environnement.h"
 #include "Project/Plot.h"
 #include "Motion/Manoeuvre/Manoeuvre.h"
+#include "Fieldbus/EtherCatFieldbus.h"
 
 namespace Project {
 
@@ -40,8 +41,9 @@ namespace Project {
 		for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::path(plotsFolderPath))) {
 			if (entry.path().extension() == ".plot") {
 				std::shared_ptr<Plot> plot = std::make_shared<Plot>();
-				if (!plot->load(entry.path().u8string().c_str())) return false;
-				plots.push_back(plot);
+				if (plot->load(entry.path().u8string().c_str())) {
+					plots.push_back(plot);
+				}
 			}
 		}
 
@@ -99,6 +101,10 @@ namespace Project {
 		strcpy(currentPlot->name, "Default Plot");
 		plots.push_back(currentPlot);
 		strcpy(projectDirectory, "");
+	}
+
+	bool isEditingAllowed() {
+		return !EtherCatFieldbus::isCyclicExchangeActive();
 	}
 
 };

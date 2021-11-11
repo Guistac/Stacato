@@ -43,6 +43,8 @@ public:
 
 	bool b_showOutputValues = false;
 
+	std::vector<std::shared_ptr<Node>> selectedNodes;
+
 private:
 
 	friend class Node;

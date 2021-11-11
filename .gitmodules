@@ -45,3 +45,6 @@
 [submodule "dependencies/magnum"]
 	path = dependencies/magnum
 	url = https://github.com/mosra/magnum.git
+[submodule "dependencies/magnumintegration"]
+	path = dependencies/magnumintegration
+	url = https://github.com/mosra/magnum-integration
