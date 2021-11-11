@@ -13,12 +13,10 @@ configure_file(src/core/config.h.in src/core/config.h)
 
 
 
-
 #======= Dependencies =========
 
 #add all dependencies
 add_subdirectory(dependencies)
-
 
 
 
@@ -38,7 +36,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 target_precompile_headers(${PROJECT_NAME} PRIVATE
 	${PROJECT_SOURCE_DIR}/src/Core/pch.h
 )
-
 
 #add the following include directories to the project
 target_include_directories(${PROJECT_NAME} PRIVATE
