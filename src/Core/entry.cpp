@@ -14,8 +14,7 @@ int main() {
 #endif
 
 #ifdef WIN32
-//int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
-int main(){
+int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
 	//set working directory to "Resources" folder located next to executable
 	std::string defaultWorkingDirectory = std::filesystem::current_path().string();
 	std::filesystem::current_path(defaultWorkingDirectory + "/Resources");

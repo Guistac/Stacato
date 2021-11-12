@@ -27,7 +27,7 @@ file(GLOB_RECURSE SOURCE_FILE_LIST "src/*.cpp" "src/*.h")
 
 # Main Executable with all source files in src/
 if(WIN32)
-    add_executable(${PROJECT_NAME} ${SOURCE_FILE_LIST})
+    add_executable(${PROJECT_NAME} WIN32 ${SOURCE_FILE_LIST})
 elseif(APPLE)
     add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILE_LIST})
 endif()
