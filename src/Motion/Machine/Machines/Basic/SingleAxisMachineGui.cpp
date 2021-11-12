@@ -35,7 +35,7 @@ void SingleAxisMachine::controlsGui() {
 
 	ImGui::Text("Acceleration for manual controls :");
 	static char accelerationString[32];
-	sprintf(accelerationString, /*u8*/"%.3f %s/s²", manualControlAcceleration_machineUnitsPerSecondSquared, getPositionUnitStringShort(machinePositionUnit));
+	sprintf(accelerationString, "%.3f %s/s\xc2\xb2", manualControlAcceleration_machineUnitsPerSecondSquared, getPositionUnitStringShort(machinePositionUnit));
 	ImGui::InputDouble("##TargetAcceleration", &manualControlAcceleration_machineUnitsPerSecondSquared, 0.0, 0.0, accelerationString);
 	clampValue(manualControlAcceleration_machineUnitsPerSecondSquared, 0.0, accelerationLimit_machineUnits);
 	ImGui::Separator();

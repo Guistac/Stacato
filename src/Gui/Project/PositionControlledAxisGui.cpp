@@ -86,7 +86,7 @@ void PositionControlledAxis::controlsGui() {
 
 		ImGui::Text("Acceleration for manual controls :");
 		static char accelerationString[32];
-		sprintf(accelerationString, /*u8*/"%.3f %s/s²", manualControlAcceleration_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
+		sprintf(accelerationString, "%.3f %s/s\xc2\xb2", manualControlAcceleration_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
 		ImGui::InputDouble("##TargetAcceleration", &manualControlAcceleration_axisUnitsPerSecond, 0.0, 0.0, accelerationString);
 		clampValue(manualControlAcceleration_axisUnitsPerSecond, 0.0, accelerationLimit_axisUnitsPerSecondSquared);
 		ImGui::Separator();
@@ -726,12 +726,12 @@ void PositionControlledAxis::settingsGui() {
 		actuatorVelocityLimit_axisUnitsPerSecond = actuatorVelocityLimit_actuatorUnitsPerSecond / actuatorUnitsPerAxisUnits;
 		actuatorAccelerationLimit_axisUnitsPerSecondSquared = actuatorAccelerationLimit_actuatorUnitsPerSecondSquared / actuatorUnitsPerAxisUnits;
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-		ImGui::TextWrapped(/*u8*/"Max actuator velocity is %.1f %s/s and max acceleration is %.1f %s/s²",
+		ImGui::TextWrapped("Max actuator velocity is %.1f %s/s and max acceleration is %.1f %s/s\xc2\xb2",
 			actuatorVelocityLimit_actuatorUnitsPerSecond,
 			getPositionUnit(actuatorUnit)->shortForm,
 			actuatorAccelerationLimit_actuatorUnitsPerSecondSquared,
 			getPositionUnit(actuatorUnit)->shortForm);
-		ImGui::TextWrapped(/*u8*/"Machine is limited to %.3f %s/s and %.3f %s/s²",
+		ImGui::TextWrapped("Machine is limited to %.3f %s/s and %.3f %s/s\xc2\xb2",
 			actuatorVelocityLimit_axisUnitsPerSecond,
 			getPositionUnit(axisPositionUnit)->shortForm,
 			actuatorAccelerationLimit_axisUnitsPerSecondSquared,
@@ -748,7 +748,7 @@ void PositionControlledAxis::settingsGui() {
 	sprintf(velLimitString, "%.3f %s/s", velocityLimit_axisUnitsPerSecond, getPositionUnitStringShort(axisPositionUnit));
 	ImGui::InputDouble("##VelLimit", &velocityLimit_axisUnitsPerSecond, 0.0, 0.0, velLimitString);
 	static char accLimitString[16];
-	sprintf(accLimitString, /*u8*/"%.3f %s/s²", accelerationLimit_axisUnitsPerSecondSquared, getPositionUnitStringShort(axisPositionUnit));
+	sprintf(accLimitString, "%.3f %s/s\xc2\xb2", accelerationLimit_axisUnitsPerSecondSquared, getPositionUnitStringShort(axisPositionUnit));
 	ImGui::Text("Acceleration Limit");
 	ImGui::InputDouble("##AccLimit", &accelerationLimit_axisUnitsPerSecondSquared, 0.0, 0.0, accLimitString);
 
@@ -757,7 +757,7 @@ void PositionControlledAxis::settingsGui() {
 	ImGui::Text("Default Manual Control Parameters", getPositionUnitStringPlural(axisPositionUnit));
 	ImGui::SetNextItemWidth(halfWidgetWidth);
 	static char manAccString[16];
-	sprintf(manAccString, /*u8*/"%.3f %s/s²", defaultManualAcceleration_axisUnitsPerSecondSquared, getPositionUnitStringShort(axisPositionUnit));
+	sprintf(manAccString, "%.3f %s/s\xc2\xb2", defaultManualAcceleration_axisUnitsPerSecondSquared, getPositionUnitStringShort(axisPositionUnit));
 	ImGui::InputDouble("##defmanAcc", &defaultManualAcceleration_axisUnitsPerSecondSquared, 0.0, 0.0, manAccString);
 	clampValue(defaultManualAcceleration_axisUnitsPerSecondSquared, 0.0, accelerationLimit_axisUnitsPerSecondSquared);
 	ImGui::SameLine();

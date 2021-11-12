@@ -27,7 +27,12 @@ file(GLOB_RECURSE SOURCE_FILE_LIST "src/*.cpp" "src/*.h")
 
 # Main Executable with all source files in src/
 if(WIN32)
-    add_executable(${PROJECT_NAME} WIN32 ${SOURCE_FILE_LIST})
+	option(STACATO_WIN32_APPLICATION ON)
+	if(STACATO_WIN32_APPLICATION)
+		add_executable(${PROJECT_NAME} WIN32 ${SOURCE_FILE_LIST})
+	else()
+		add_executable(${PROJECT_NAME} ${SOURCE_FILE_LIST})
+	endif()
 elseif(APPLE)
     add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILE_LIST})
 endif()
@@ -101,6 +106,9 @@ if(WIN32)
 		_WIN32_WINNT=0x0601
         WIN32
 	)
+	if(STACATO_WIN32_APPLICATION)
+			target_compile_definitions(${PROJECT_NAME} PRIVATE STACATO_WIN32_APPLICATION)
+	endif()
 	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${PROJECT_SOURCE_DIR}/dir"
