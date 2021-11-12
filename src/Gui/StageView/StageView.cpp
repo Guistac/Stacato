@@ -1,81 +1,95 @@
 #include "StageView.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
-#include <Magnum/Platform/GLContext.h>
-#include <Magnum/GL/Buffer.h>
-#include <Magnum/GL/DefaultFramebuffer.h>
-#include <Magnum/GL/Mesh.h>
-#include <Magnum/Math/Color.h>
-#include <Magnum/Shaders/VertexColorGL.h>
+#include "GlApplet.h"
 
-#include <Magnum/GL/Texture.h>
-#include <Magnum/GL/Renderbuffer.h>
-#include <Magnum/GL/RenderbufferFormat.h>
-#include <Magnum/GL/TextureFormat.h>
-#include <Magnum/Math/Vector.h>
-#include <Magnum/GL/Framebuffer.h>
 
-bool firstFrame = true;
 
-void stageView() {
+class TestGlApplet : public GlApplet {
+public:
 
+	Magnum::GL::Buffer buffer;
+	Magnum::GL::Mesh mesh;
+
+	Magnum::GL::Buffer mouseBuffer;
+	Magnum::GL::Mesh mouseMesh;
+
+	Magnum::Shaders::VertexColorGL2D shader;
+
+	TestGlApplet(glm::vec2 s);
+	virtual void updateEvent();
+};
+
+
+struct TriangleVertex {
+	Magnum::Vector2 position;
+	Magnum::Color3 color;
+};
+
+TestGlApplet::TestGlApplet(glm::vec2 s) : GlApplet(s) {
 	using namespace Magnum;
-
-	static glm::vec2 canvasSize = ImGui::GetContentRegionAvail();
-	glm::vec2 actualCanvasSize = ImGui::GetContentRegionAvail();
-
-	static Magnum::GL::Texture2D color;
-	static Magnum::GL::Renderbuffer depthStencil;
-	static Magnum::Math::Vector2<int> size(canvasSize.x, canvasSize.y);
-	static GL::Framebuffer framebuffer{ {{}, size} };
-
-	if (firstFrame || canvasSize != actualCanvasSize) {
-		firstFrame = false;
-		canvasSize = actualCanvasSize;
-		color.setStorage(1, GL::TextureFormat::RGBA8, size);
-		depthStencil.setStorage(GL::RenderbufferFormat::Depth24Stencil8, size);
-		
-		framebuffer.attachTexture(GL::Framebuffer::ColorAttachment{ 0 }, color, 0);
-		framebuffer.attachRenderbuffer(GL::Framebuffer::BufferAttachment::DepthStencil, depthStencil);
-	}
-
-	//bind drawing framebuffer
-	framebuffer.clear(GL::FramebufferClear::Color | GL::FramebufferClear::Depth).bind();
-
-	// Setup the colored triangle
 	using namespace Math::Literals;
-
-	struct TriangleVertex {
-		Vector2 position;
-		Color3 color;
-	};
 	const TriangleVertex data[]{
 		{{-0.5f, -0.5f}, 0xff0000_rgbf},    //Left vertex, red color
 		{{ 0.5f, -0.5f}, 0x00ff00_rgbf},    //Right vertex, green color
 		{{ 0.0f,  0.5f}, 0x0000ff_rgbf}     //Top vertex, blue color
 	};
-
-	GL::Buffer buffer;
 	buffer.setData(data);
-
-
-	GL::Mesh mesh;
 	mesh.setPrimitive(GL::MeshPrimitive::Triangles)
 		.setCount(3)
 		.addVertexBuffer(buffer, 0,
 			Shaders::VertexColorGL2D::Position{},
 			Shaders::VertexColorGL2D::Color3{});
+}
 
-	Shaders::VertexColorGL2D shader;
+void TestGlApplet::updateEvent() {
+
+	glm::vec2 rectMin = ImGui::GetItemRectMin();
+	glm::vec2 rectMax = ImGui::GetItemRectMax();
+	glm::vec2 mousePos = ImGui::GetMousePos();
+	glm::vec2 mouseBufferpos;
+	mouseBufferpos.x = (mousePos.x - rectMin.x) / (rectMax.x - rectMin.x);
+	mouseBufferpos.y = (mousePos.y - rectMin.y) / (rectMax.y - rectMin.y);
+	mouseBufferpos.x = mouseBufferpos.x * 2.0 - 1.0;
+	mouseBufferpos.y = mouseBufferpos.y * -2.0 + 1.0;
+
+	using namespace Magnum;
+	using namespace Math::Literals;
+
+	float dist = 0.1;
+	const TriangleVertex mouse[]{
+		{{mouseBufferpos.x - dist, mouseBufferpos.y - dist}, 0xffffff_rgbf},    //Left vertex, red color
+		{{mouseBufferpos.x + dist, mouseBufferpos.y - dist}, 0xffffff_rgbf},    //Right vertex, green color
+		{{mouseBufferpos.x,  mouseBufferpos.y + dist}, 0xffffff_rgbf}     //Top vertex, blue color
+	};
+	mouseBuffer.setData(mouse);
+
+	mouseMesh.setPrimitive(GL::MeshPrimitive::Triangles)
+		.setCount(3)
+		.addVertexBuffer(mouseBuffer, 0,
+			Shaders::VertexColorGL2D::Position{},
+			Shaders::VertexColorGL2D::Color3{});
 
 	shader.draw(mesh);
-
-	/* Switch back to the default framebuffer */
-	GL::defaultFramebuffer.bind();
-
-
-	ImGui::Image((ImTextureID)color.id(), canvasSize, glm::vec2(0,1), glm::vec2(1,0), glm::vec4(1.0, 1.0, 1.0, 1.0));
+	shader.draw(mouseMesh);
+}
 
 
+
+
+void stageView() {
+
+	glm::vec2 canvasSize = ImGui::GetContentRegionAvail();
+	
+	ImGui::InvisibleButton("##MagnumCanvas", canvasSize);
+	
+	static TestGlApplet applet(canvasSize);
+	
+	if (applet.getSize() != canvasSize) applet.setFramebufferSize(canvasSize);
+
+	applet.update();	
+
+	ImGui::GetWindowDrawList()->AddImage((ImTextureID)applet.getFrameBufferTextureId(), ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), glm::vec2(0, 1), glm::vec2(1, 0));
 }
