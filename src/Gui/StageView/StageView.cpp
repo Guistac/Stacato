@@ -29,8 +29,6 @@ class TestGlApplet : public GlApplet {
 public:
 
 	//triangle example
-	Magnum::GL::Buffer buffer;
-	Magnum::GL::Mesh mesh;
 	Magnum::GL::Buffer mouseBuffer;
 	Magnum::GL::Mesh mouseMesh;
 	Magnum::Shaders::VertexColorGL2D shader;
@@ -59,20 +57,6 @@ struct TriangleVertex {
 TestGlApplet::TestGlApplet(glm::vec2 s) : GlApplet(s) {
 	using namespace Magnum;
 	using namespace Math::Literals;
-
-	//=============== Triangle Example =============
-
-	const TriangleVertex data[]{
-		{{-0.5f, -0.5f}, 0xff0000_rgbf},    //Left vertex, red color
-		{{ 0.5f, -0.5f}, 0x00ff00_rgbf},    //Right vertex, green color
-		{{ 0.0f,  0.5f}, 0x0000ff_rgbf}     //Top vertex, blue color
-	};
-	buffer.setData(data);
-	mesh.setPrimitive(GL::MeshPrimitive::Triangles)
-		.setCount(3)
-		.addVertexBuffer(buffer, 0,
-			Shaders::VertexColorGL2D::Position{},
-			Shaders::VertexColorGL2D::Color3{});
 
 	//================= Primitive Examples =================
 
@@ -137,7 +121,6 @@ void TestGlApplet::updateEvent() {
 			Shaders::VertexColorGL2D::Position{},
 			Shaders::VertexColorGL2D::Color3{});
 
-	shader.draw(mesh);
 	shader.draw(mouseMesh);
 
 	if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
