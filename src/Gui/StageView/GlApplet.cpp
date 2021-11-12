@@ -2,6 +2,9 @@
 
 #include "GlApplet.h"
 
+#include <Magnum/GL/TextureFormat.h>
+#include <Magnum/GL/RenderbufferFormat.h>
+#include <Magnum/GL/DefaultFramebuffer.h>
 
 GlApplet::GlApplet(glm::vec2 s) : size(s) {
 	viewPortRange = Magnum::Range2Di(Magnum::Vector2i(0, 0), Magnum::Vector2i(size.x, size.y));

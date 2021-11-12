@@ -5,22 +5,47 @@
 
 #include "GlApplet.h"
 
+#include <Magnum/GL/Buffer.h>
+#include <Magnum/GL/Mesh.h>
+#include <Magnum/Shaders/VertexColorGL.h>
+#include <Magnum/Math/Color.h>
+
+
+//#include <Magnum/Platform/GLContext.h>
+//#include <Magnum/Math/Vector.h>
+
+#include <Magnum/Shaders/PhongGL.h>
+#include <Magnum/Math/Matrix4.h>
+#include <Magnum/GL/Renderer.h>
+#include <Magnum/Trade/MeshData.h>
+#include <Magnum/Primitives/Cube.h>
+#include <Magnum/MeshTools/Interleave.h>
+#include <Magnum/MeshTools/CompressIndices.h>
+
+
 
 
 class TestGlApplet : public GlApplet {
 public:
 
+	//triangle example
 	Magnum::GL::Buffer buffer;
 	Magnum::GL::Mesh mesh;
-
 	Magnum::GL::Buffer mouseBuffer;
 	Magnum::GL::Mesh mouseMesh;
-
 	Magnum::Shaders::VertexColorGL2D shader;
+
+	//primitives example
+	Magnum::GL::Mesh cubeMesh;
+	Magnum::Shaders::PhongGL phongShader;
+	Magnum::Matrix4 _transformation, _projection;
+	Magnum::Color3 _color;
 
 	TestGlApplet(glm::vec2 s);
 	virtual void updateEvent();
 };
+
+
 
 
 struct TriangleVertex {
@@ -28,9 +53,15 @@ struct TriangleVertex {
 	Magnum::Color3 color;
 };
 
+
+
+
 TestGlApplet::TestGlApplet(glm::vec2 s) : GlApplet(s) {
 	using namespace Magnum;
 	using namespace Math::Literals;
+
+	//=============== Triangle Example =============
+
 	const TriangleVertex data[]{
 		{{-0.5f, -0.5f}, 0xff0000_rgbf},    //Left vertex, red color
 		{{ 0.5f, -0.5f}, 0x00ff00_rgbf},    //Right vertex, green color
@@ -42,7 +73,41 @@ TestGlApplet::TestGlApplet(glm::vec2 s) : GlApplet(s) {
 		.addVertexBuffer(buffer, 0,
 			Shaders::VertexColorGL2D::Position{},
 			Shaders::VertexColorGL2D::Color3{});
+
+	//================= Primitive Examples =================
+
+	GL::Renderer::enable(GL::Renderer::Feature::DepthTest);
+	GL::Renderer::enable(GL::Renderer::Feature::FaceCulling);
+
+	Trade::MeshData cube = Primitives::cubeSolid();
+
+	GL::Buffer vertices;
+	vertices.setData(MeshTools::interleave(cube.positions3DAsArray(),
+		cube.normalsAsArray()));
+
+	std::pair<Containers::Array<char>, MeshIndexType> compressed =
+		MeshTools::compressIndices(cube.indicesAsArray());
+	GL::Buffer indices;
+	indices.setData(compressed.first);
+
+	cubeMesh.setPrimitive(cube.primitive())
+		.setCount(cube.indexCount())
+		.addVertexBuffer(std::move(vertices), 0, Shaders::PhongGL::Position{},
+			Shaders::PhongGL::Normal{})
+		.setIndexBuffer(std::move(indices), 0, compressed.second);
+
+	_transformation =
+		Matrix4::rotationX(30.0_degf) * Matrix4::rotationY(40.0_degf);
+	_projection =
+		Matrix4::perspectiveProjection(
+			35.0_degf, Vector2{ Math::Vector2<int>(getSize().x, getSize().y) }.aspectRatio(), 0.01f, 100.0f) *
+		Matrix4::translation(Vector3::zAxis(-10.0f));
+	_color = Color3::fromHsv({ 35.0_degf, 1.0f, 1.0f });
 }
+
+
+
+
 
 void TestGlApplet::updateEvent() {
 
@@ -74,7 +139,30 @@ void TestGlApplet::updateEvent() {
 
 	shader.draw(mesh);
 	shader.draw(mouseMesh);
+
+	if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+		_color = Color3::fromHsv({ _color.hue() + 50.0_degf, 1.0f, 1.0f });
+	}
+
+	static glm::vec2 previousMousePosition = ImGui::GetMousePos();
+	glm::vec2 currentMousePosition = ImGui::GetMousePos();
+	glm::vec2 dragDelta = currentMousePosition - previousMousePosition;
+	previousMousePosition = currentMousePosition;
+
+	if (ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+		glm::vec2 rotationDragDelta = dragDelta * glm::vec2(0.005);
+		_transformation = Matrix4::rotationX(Rad{ rotationDragDelta.y }) * _transformation * Matrix4::rotationY(Rad{ rotationDragDelta.x });
+	}
+
+	phongShader.setLightPositions({ {1.4f, 1.0f, 0.75f, 0.0f} })
+		.setDiffuseColor(_color)
+		.setAmbientColor(Color3::fromHsv({ _color.hue(), 1.0f, 0.3f }))
+		.setTransformationMatrix(_transformation)
+		.setNormalMatrix(_transformation.normalMatrix())
+		.setProjectionMatrix(_projection)
+		.draw(cubeMesh);
 }
+
 
 
 

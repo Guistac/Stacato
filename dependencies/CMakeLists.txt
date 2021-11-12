@@ -69,6 +69,8 @@ target_link_libraries(MagnumLibs INTERFACE
     Magnum::GLContext
 	Magnum::Magnum
 	Magnum::Shaders
+    Magnum::MeshTools
+    Magnum::Primitives
 )
     
 
