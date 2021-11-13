@@ -137,7 +137,11 @@ if(APPLE)
         "${PROJECT_SOURCE_DIR}/dir/Resources"
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Resources
     )
-	target_compile_definitions("${PROJECT_NAME}" PRIVATE
+	target_compile_definitions(${PROJECT_NAME} PRIVATE
 		MACOS
 	)
+     set_target_properties(${PROJECT_NAME} PROPERTIES
+      MACOSX_BUNDLE TRUE
+      MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist
+    )
 endif()

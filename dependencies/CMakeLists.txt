@@ -9,22 +9,8 @@ message("---SpdLog---")
 add_subdirectory(spdlog)
 message("---TinyXML2---")
 add_subdirectory(tinyxml2)
-
-
-
-if(WIN32)
-   message("---SOEM---")
-   add_subdirectory(soem)
-elseif(APPLE)
-
-	add_library(SOEM PUBLIC
-		soem/*.h
-		soem/*.c
-		soem/osal/osal.h
-		
-	)
-
-endif()
+message("---SOEM---")
+add_subdirectory(soem)
 
 #------ Magnum & Corrade Engine -------
 

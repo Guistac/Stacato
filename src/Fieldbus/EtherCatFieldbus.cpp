@@ -299,6 +299,12 @@ namespace EtherCatFieldbus {
 
         //setup all slaves, get slave count and info in ec_slave, setup mailboxes, request state PRE-OP for all slaves
         int workingCounter = ec_config_init(FALSE); //what is usetable??
+        
+        ec_readstate();
+        for(int i = 1; i <= ec_slavecount; i++){
+            if(ec_slave[i].state == EC_STATE_PRE_OP) Logger::critical("slave {} state PreOp", i);
+            else Logger::critical("slave {} state not preop...", i);
+        }
 
         if (workingCounter > 0) {
             Logger::info("===== Found and Configured {} EtherCAT Slave{}", ec_slavecount, ((ec_slavecount == 1) ? ": " : "s: "));
@@ -307,11 +313,16 @@ namespace EtherCatFieldbus {
                 ec_slavet& identity = ec_slave[i];
 
                 Logger::info("    = Slave {} : '{}'  Address: {}", i, identity.name, identity.configadr);
-
+                
+                bool explicitDeviceIdSupported = false;
+                uint16_t explicitDeviceID = 0;
+                /*
                 uint16_t explicitDeviceID;
                 bool explicitDeviceIdSupported = getExplicitDeviceID(identity.configadr, explicitDeviceID);
                 if (explicitDeviceIdSupported) Logger::debug("    = Explicit Device ID: {}", explicitDeviceID);
                 else Logger::debug("      Explicit Device ID is not supported");
+                */
+                
                 uint16_t stationAlias = identity.aliasadr;
                 Logger::debug("      Station Alias: {}", stationAlias);
 
@@ -440,6 +451,17 @@ namespace EtherCatFieldbus {
                 return 0;
             };
         }
+        
+        
+        
+        ec_readstate();
+        for(int i = 1; i <= ec_slavecount; i++){
+            if(ec_slave[i].state == EC_STATE_PRE_OP) Logger::critical("slave {} state PreOp", i);
+            else Logger::critical("slave {} state not preop...", i);
+        }
+        
+        //prior to this, all slaves should be in state pre-operational
+        //after having been configured in the discoverslaves method
         ioMapSize = ec_config_map(ioMap); //this function starts the configuration
         if (ioMapSize <= 0) {
             b_startupError = true;
