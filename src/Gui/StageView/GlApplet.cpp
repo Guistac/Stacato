@@ -7,6 +7,7 @@
 #include <Magnum/GL/DefaultFramebuffer.h>
 
 GlApplet::GlApplet(glm::vec2 s) : size(s) {
+	Logger::critical("Constructed GlApplet");
 	viewPortRange = Magnum::Range2Di(Magnum::Vector2i(0, 0), Magnum::Vector2i(size.x, size.y));
 	frameBuffer = new Magnum::GL::Framebuffer(viewPortRange);
 	setFramebufferSize(s);

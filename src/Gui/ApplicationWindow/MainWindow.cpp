@@ -56,7 +56,7 @@ namespace ApplicationWindow {
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Stage View")) {
-				stageView();
+				StageView::draw();
 				ImGui::EndTabItem();
 			}
 			ImGui::EndTabBar();

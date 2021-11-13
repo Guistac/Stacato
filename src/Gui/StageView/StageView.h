@@ -1,4 +1,6 @@
 #pragma once
 
-
-void stageView();
+namespace StageView {
+	void draw();
+	void terminate();
+}
