@@ -66,9 +66,7 @@ void plotGui() {
 	if (manoeuvreList.wasReordered()) {
 		int oldIndex, newIndex;
 		manoeuvreList.getReorderedItemIndex(oldIndex, newIndex);
-		std::shared_ptr<Manoeuvre> tmp = manoeuvres[oldIndex];
-		manoeuvres.erase(manoeuvres.begin() + oldIndex);
-		manoeuvres.insert(manoeuvres.begin() + newIndex, tmp);
+		currentPlot->reorderManoeuvre(manoeuvres[oldIndex], oldIndex, newIndex);
 	}
 
 

@@ -38,6 +38,57 @@ void AnimatableParameter::getActiveTrackParameterValue(AnimatableParameterValue&
 }
 
 
+void AnimatableParameterValue::reset() {
+	switch (type) {
+		case ParameterDataType::Type::BOOLEAN_PARAMETER:
+			boolValue = false;
+			break;
+		case ParameterDataType::Type::INTEGER_PARAMETER:
+			integerValue = 0;
+			break;
+		case ParameterDataType::Type::STATE_PARAMETER:
+			stateValue = &stateValues->at(0);
+			break;
+		case ParameterDataType::Type::REAL_PARAMETER:
+		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
+			realValue = 0.0;
+			break;
+		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
+		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
+			vector2value.x = 0.0;
+			vector2value.y = 0.0;
+			break;
+		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
+		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
+			vector3value.x = 0.0;
+			vector3value.y = 0.0;
+			vector3value.z = 0.0;
+			break;
+	}
+}
+
+bool AnimatableParameterValue::equals(AnimatableParameterValue& other) {
+	switch (type) {
+		case ParameterDataType::Type::BOOLEAN_PARAMETER:
+			return boolValue == other.boolValue;
+		case ParameterDataType::Type::INTEGER_PARAMETER:
+			return integerValue == other.integerValue;
+		case ParameterDataType::Type::STATE_PARAMETER:
+			return stateValue == other.stateValue;
+		case ParameterDataType::Type::REAL_PARAMETER:
+		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
+			return realValue == other.realValue;
+		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
+		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
+			return vector2value == other.vector2value;
+		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
+		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
+			return vector3value == other.vector3value;
+		default:
+			return false;
+	}
+}
+
 bool AnimatableParameterValue::save(tinyxml2::XMLElement* parameterValueXML) {
 	parameterValueXML->SetAttribute("Type", getParameterDataType(type)->saveName);
 	switch (type) {

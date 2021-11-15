@@ -58,6 +58,20 @@ bool Oscillator3x::isParameterAtValue(std::shared_ptr<AnimatableParameter> param
 
 void Oscillator3x::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {}
 
+
+
+
+bool Oscillator3x::validateParameterCurve(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& curves) {
+	return false;
+}
+
+bool Oscillator3x::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
+	return true;
+}
+
+void Oscillator3x::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {}
+
+
 void Oscillator3x::getDevices(std::vector<std::shared_ptr<Device>>& output) {
 }
 

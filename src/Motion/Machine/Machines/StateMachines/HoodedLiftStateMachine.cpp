@@ -243,6 +243,21 @@ void HoodedLiftStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& ou
 	if (isGpioDeviceConnected()) output.push_back(getGpioDevice()->parentDevice);
 }
 
+
+
+bool HoodedLiftStateMachine::validateParameterCurve(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& curves) {
+	return false;
+}
+
+bool HoodedLiftStateMachine::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
+	return true;
+}
+
+void HoodedLiftStateMachine::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {}
+
+
+
+
 std::vector<HoodedLiftStateMachine::MachineState> machineStates = {
 	{HoodedLiftStateMachine::MachineState::State::UNKNOWN,					-1.0,	"Unknown State"},
 	{HoodedLiftStateMachine::MachineState::State::UNEXPECTED_STATE,			-2.0,	"Unexpected State"},

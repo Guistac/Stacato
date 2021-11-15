@@ -23,7 +23,7 @@ namespace Motion::LinearInterpolation {
 		output->outPosition = po;
 		output->outVelocity = v;
 		output->outAcceleration = 0.0;
-		output->isDefined = true;
+		output->b_valid = true;
 
 		startPoint->velocityOut = v;
 		startPoint->rampOut = 0.0;
@@ -55,7 +55,7 @@ namespace Motion::LinearInterpolation {
 		output->outPosition = po;
 		output->outVelocity = v;
 		output->outAcceleration = 0.0;
-		output->isDefined = true;
+		output->b_valid = true;
 
 		endPoint->time = to;
 		startPoint->velocityOut = v;

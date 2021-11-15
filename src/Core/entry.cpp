@@ -31,7 +31,7 @@ int main() {
 	EtherCatFieldbus::updateNetworkInterfaceCardList();
 	EtherCatFieldbus::init();
 
-	ApplicationWindow::open(3000,2000);
+	ApplicationWindow::open(3500,2000);
 
 	EtherCatFieldbus::terminate();
 

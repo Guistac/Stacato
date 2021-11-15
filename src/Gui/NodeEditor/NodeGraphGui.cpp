@@ -244,7 +244,9 @@ void NodeGraph::editorGui() {
             if (node->getType() == Node::Type::IODEVICE) {
                 ImGui::MenuItem("Split Inputs and Outputs", nullptr, &node->b_isSplit, true);
             }
-            if (ImGui::MenuItem("Delete")) removeNode(node);
+            if (ImGui::MenuItem("Delete")) {
+                NodeEditor::DeleteNode(node->getUniqueID());
+            }
             ImGui::EndPopup();
         }
 
@@ -356,6 +358,12 @@ void NodeGraph::editorGui() {
                     //addNode(copy);
                 }
             }
+        }
+    }
+
+    if (!selectedNodes.empty() && ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE)) {
+        for (auto& node : selectedNodes) {
+            NodeEditor::DeleteNode(node->getUniqueID());
         }
     }
 

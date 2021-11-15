@@ -2,6 +2,7 @@
 
 class ParameterTrack;
 class AnimatableParameter;
+class Plot;
 
 namespace tinyxml2 { class XMLElement; }
 
@@ -22,14 +23,15 @@ ManoeuvreType* getManoeuvreType(const char* saveName);
 
 
 
-class Manoeuvre{
+class Manoeuvre : public std::enable_shared_from_this<Manoeuvre> {
 public:
 
-	Manoeuvre() {}
+	Manoeuvre(std::shared_ptr<Plot> p) : parentPlot(p) {}
 	Manoeuvre(const Manoeuvre& original);
 
 	char name[64] = "";
 	char description[256] = "";
+	std::shared_ptr<Plot> parentPlot = nullptr;
 
 	void setType(ManoeuvreType::Type t);
 	ManoeuvreType::Type type = ManoeuvreType::Type::KEY_POSITION;
@@ -38,7 +40,11 @@ public:
 	void addTrack(std::shared_ptr<AnimatableParameter>& parameter);
 	void removeTrack(std::shared_ptr<AnimatableParameter>& parameter);
 	bool hasTrack(std::shared_ptr<AnimatableParameter>& parameter);
+	std::shared_ptr<ParameterTrack> getTrack(std::shared_ptr<AnimatableParameter>& parameter);
 	
+	void refresh();
+	bool b_valid = false;
+
 	double getLength_seconds();
 	double playbackStartTime_seconds = 0.0;
 	double playbackPosition_seconds = 0.0;

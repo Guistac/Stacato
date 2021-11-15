@@ -89,7 +89,7 @@ namespace Motion {
 		outPosition = 0.0;
 		outVelocity = 0.0;
 		outAcceleration = 0.0;
-		isDefined = false;
+		b_valid = false;
 		interpolationVelocity = 0.0;
 		rampInEndPosition = 0.0;	
 		rampInEndTime = 0.0;		
@@ -126,6 +126,8 @@ namespace Motion {
 					double time_seconds = rampOutStartTime + rampOutLength_seconds * i / (16 - 1);
 					displayPoints.push_back(getPointAtTime(time_seconds));
 				}
+				displayInflectionPoints.push_back(getPointAtTime(rampInEndTime));
+				displayInflectionPoints.push_back(getPointAtTime(rampOutStartTime));
 				break;
 		}
 	}
@@ -175,7 +177,7 @@ namespace Motion {
 					//not supported yet:
 					break;
 				case InterpolationType::Type::TRAPEZOIDAL:
-					Motion::TrapezoidalInterpolation::getTimeConstrainedInterpolation(inPoint, outPoint, 100, interpolation);
+					Motion::TrapezoidalInterpolation::getTimeConstrainedInterpolation(inPoint, outPoint, interpolation);
 					break;
 			}
 			interpolations.push_back(interpolation);
@@ -230,6 +232,31 @@ namespace Motion {
 		}
 	}
 
+
+	std::vector<ValidationError> validationErrors = {
+		{ValidationError::Error::NO_VALIDATION_ERROR,								"No Validation Error"},
+		{ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE,				"Point Out of Range"},
+		{ValidationError::Error::CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED,				"Point Velocity Limit Exceeded"},
+		{ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED,	"Point Input Acceleration Limit Exceeded"},
+		{ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED,	"Point Output Acceleration Limit Exceeded"},
+		{ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO,			"Point Input Acceleration Is Zero"},
+		{ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO,			"Point Output Acceleration Is Zero"},
+		{ValidationError::Error::INTERPOLATION_UNDEFINED,							"Interpolation Undefined"},
+		{ValidationError::Error::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED,				"Interpolation Velocity Limit Exceeded"},
+		{ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE,				"Interpolation Position Out of Range"},
+		{ValidationError::Error::INTERPOLATION_INPUT_ACCELERATION_IS_ZERO,			"Interpolation Input Acceleration is Zero"},
+		{ValidationError::Error::INTERPOLATION_OUTPUT_ACCELERATION_IS_ZERO,			"Interpolation Output Acceleration Is Zero"}
+	};
+
+
+	ValidationError* getValidationError(ValidationError::Error e) {
+		for (auto& error : validationErrors) {
+			if (e == error.error) return &error;
+		}
+		return &validationErrors.front();
+	}
+
+
 };
 
 
@@ -260,3 +287,5 @@ InterpolationType* getInterpolationType(const char* saveName) {
 	}
 	return nullptr;
 }
+
+

@@ -51,6 +51,9 @@ public:
 	glm::vec2 vector2value = glm::vec2(0);
 	glm::vec3 vector3value = glm::vec3(0);
 
+	void reset();
+	bool equals(AnimatableParameterValue& other);
+
 	bool save(tinyxml2::XMLElement* parameterValueXML);
 	bool load(tinyxml2::XMLElement* parameterValueXML);
 

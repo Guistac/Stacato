@@ -136,8 +136,6 @@ bool ParameterTrack::load(tinyxml2::XMLElement* trackXML) {
 		}
 		break;
 	}
-	
-	refreshAfterParameterEdit();
 
 	return true;
 }

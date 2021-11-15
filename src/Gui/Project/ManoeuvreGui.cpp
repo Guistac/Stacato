@@ -16,6 +16,7 @@
 #include "Motion/AnimatableParameter.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
 #include "Motion/Curve/Curve.h"
+#include "Project/Plot.h"
 
 #include "Motion/Playback.h"
 
@@ -49,10 +50,16 @@ void Manoeuvre::listGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 	}
 	ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(headerStripColor), 10.0, ImDrawFlags_RoundCornersLeft);
 
+	if (!manoeuvre->b_valid) {
+		bool blink = (int)Timing::getProgramTime_milliseconds() % 1000 > 500;
+		ImGui::PushStyleColor(ImGuiCol_Text, blink ? Colors::red : Colors::yellow);
+	}
+	else ImGui::PushStyleColor(ImGuiCol_Text, Colors::white);
 	ImGui::PushFont(Fonts::robotoBold20);
 	ImGui::SameLine(ImGui::GetStyle().ItemSpacing.x / 2.0);
 	ImGui::Text(manoeuvre->name);
 	ImGui::PopFont();
+	ImGui::PopStyleColor();
 
 	ImGui::PushFont(Fonts::robotoLight20);
 	ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 1.0, 1.0, 0.3));
@@ -63,7 +70,6 @@ void Manoeuvre::listGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 	ImGui::PopFont();
 
 	ImGui::EndGroup();
-
 
 	ImGui::SameLine();
 	ImGui::Text(manoeuvre->description);
@@ -106,13 +112,22 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 	ImGui::InputTextMultiline("##cueDescription", manoeuvre->description, 256, descriptionFieldSize, ImGuiInputTextFlags_CtrlEnterForNewLine);
 	ImGui::PopFont();
 
+	bool refreshAllTracks = false;
+
 	if (ImGui::BeginCombo("##manoeuvreTypeSelector", getManoeuvreType(manoeuvre->type)->displayName)) {
 		for (auto& manoeuvreType : getManoeuvreTypes()) {
 			if (ImGui::Selectable(manoeuvreType.displayName, manoeuvre->type == manoeuvreType.type)) {
 				manoeuvre->setType(manoeuvreType.type);
+				refreshAllTracks = true;
 			}
 		}
 		ImGui::EndCombo();
+	}
+
+	if (refreshAllTracks) {
+		for (auto& track : manoeuvre->tracks) {
+			track->refreshAfterParameterEdit();
+		}
 	}
 
 
@@ -149,9 +164,9 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 			ImGui::TableSetupColumn("Movement");
 		}
 		if(manoeuvre->type != ManoeuvreType::Type::KEY_POSITION){
-			ImGui::TableSetupColumn("Chain");
+			ImGui::TableSetupColumn("Chain Previous");
 			ImGui::TableSetupColumn("Start");
-			ImGui::TableSetupColumn("Chain");
+			ImGui::TableSetupColumn("Chain Next");
 		}
 		ImGui::TableSetupColumn("Target");
 		if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
@@ -166,7 +181,8 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 		for (auto& parameterTrack : manoeuvre->tracks) {
 
-			bool refreshSequence = false;
+			bool trackEdited = false;
+			bool chainingDependenciesEdited = false;
 
 			ImGui::PushID(parameterTrack->parameter->name);
 			ImGui::PushID(parameterTrack->parameter->machine->getName());
@@ -192,7 +208,9 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 			if (manoeuvreIsPlaying) END_DISABLE_IMGUI_ELEMENT
 
-				ImGui::TableNextColumn();
+			
+
+			ImGui::TableNextColumn();
 			ImGui::Text(parameterTrack->parameter->machine->getName());
 
 			ImGui::TableNextColumn();
@@ -203,13 +221,13 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 				if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
 					ImGui::TableNextColumn();
 					ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
-					refreshSequence |= parameterTrack->interpolationTypeSelectorGui();
+					trackEdited |= parameterTrack->interpolationTypeSelectorGui();
 				}
 
 			if (manoeuvre->type == ManoeuvreType::Type::MOVEMENT_SEQUENCE) {
 				ImGui::TableNextColumn();
 				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.5);
-				refreshSequence |= parameterTrack->sequenceTypeSelectorGui();
+				trackEdited |= parameterTrack->sequenceTypeSelectorGui();
 			}
 
 			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION){
@@ -219,41 +237,41 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 				if(disableOriginFields) BEGIN_DISABLE_IMGUI_ELEMENT
 
 				ImGui::TableNextColumn();
-				refreshSequence |= parameterTrack->originIsPreviousTargetCheckboxGui();
+				chainingDependenciesEdited |= parameterTrack->originIsPreviousTargetCheckboxGui();
 
 				ImGui::TableNextColumn();
 				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-				refreshSequence |= parameterTrack->originInputGui();
+				trackEdited |= parameterTrack->originInputGui();
 
 				if(disableOriginFields) END_DISABLE_IMGUI_ELEMENT
 
 				ImGui::TableNextColumn();
-				refreshSequence |= parameterTrack->targetIsNextOriginCheckboxGui();
+				chainingDependenciesEdited |= parameterTrack->targetIsNextOriginCheckboxGui();
 			}
 
 			ImGui::TableNextColumn();
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-			refreshSequence |= parameterTrack->targetInputGui();
+			trackEdited |= parameterTrack->targetInputGui();
 
 			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
 				ImGui::TableNextColumn();
 				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-				refreshSequence |= parameterTrack->timeInputGui();
+				trackEdited |= parameterTrack->timeInputGui();
 
 				ImGui::TableNextColumn();
 				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-				refreshSequence |= parameterTrack->timeOffsetInputGui();
+				trackEdited |= parameterTrack->timeOffsetInputGui();
 
 				ImGui::TableNextColumn();
 				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-				refreshSequence |= parameterTrack->rampIntInputGui();
+				trackEdited |= parameterTrack->rampInInputGui();
 
 				ImGui::TableNextColumn();
-				refreshSequence |= parameterTrack->equalRampsCheckboxGui();
+				trackEdited |= parameterTrack->equalRampsCheckboxGui();
 
 				ImGui::TableNextColumn();
 				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-				refreshSequence |= parameterTrack->rampOutInputGui();
+				trackEdited |= parameterTrack->rampOutInputGui();
 			}
 
 			if (manoeuvreIsPlaying) END_DISABLE_IMGUI_ELEMENT
@@ -261,7 +279,13 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 				ImGui::PopID();
 			ImGui::PopID();
 
-			if (refreshSequence) parameterTrack->refreshAfterParameterEdit();
+
+			if (chainingDependenciesEdited) {
+				manoeuvre->parentPlot->refreshChainingDependencies();
+			}
+			else if (trackEdited) {
+				parameterTrack->refreshAfterParameterEdit();
+			}
 		}
 
 		ImGui::TableNextRow();
@@ -355,20 +379,18 @@ void Manoeuvre::sequenceEditGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 		for (auto& parameterTrack : manoeuvre->tracks) {
 			ImGui::PushID(parameterTrack->parameter->machine->getName());
 			ImGui::PushID(parameterTrack->parameter->name);
-			parameterTrack->drawControlPoints();
+			bool controlPointEdited = parameterTrack->drawControlPoints();
 			ImGui::PopID();
 			ImGui::PopID();
 		}
 
-		//if (Playback::isPlaying(manoeuvre)) {
-			double playbackTime = manoeuvre->playbackPosition_seconds;
-			ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
-			ImPlot::PlotVLines("Playhead", &playbackTime, 1);
-		//}
+
+		double playbackTime = manoeuvre->playbackPosition_seconds;
+		ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
+		ImPlot::PlotVLines("Playhead", &playbackTime, 1);
 
 		ImPlot::EndPlot();
 	}
-
 }
 
 

@@ -5,9 +5,16 @@
 #include "Motion/Manoeuvre/ParameterTrack.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 
+#include "Project/Plot.h"
+
 #include <tinyxml2.h>
 
+//Copy Constructor
 Manoeuvre::Manoeuvre(const Manoeuvre& original) {
+	sprintf(name, "%s*", original.name);
+	sprintf(description, "(copy) %s", original.description);
+	type = original.type;
+	parentPlot = original.parentPlot;
 	for (auto& track : original.tracks) {
 		std::shared_ptr<ParameterTrack> copiedTrack = std::make_shared<ParameterTrack>(*track);
 		tracks.push_back(copiedTrack);
@@ -15,7 +22,8 @@ Manoeuvre::Manoeuvre(const Manoeuvre& original) {
 }
 
 void Manoeuvre::addTrack(std::shared_ptr<AnimatableParameter>& parameter) {
-	std::shared_ptr<ParameterTrack> newTrack = std::make_shared<ParameterTrack>(parameter);
+	std::shared_ptr<Manoeuvre> thisManoeuvre = shared_from_this();
+	std::shared_ptr<ParameterTrack> newTrack = std::make_shared<ParameterTrack>(parameter, thisManoeuvre);
 	tracks.push_back(newTrack);
 	switch (type) {
 	case ManoeuvreType::Type::KEY_POSITION:
@@ -26,6 +34,8 @@ void Manoeuvre::addTrack(std::shared_ptr<AnimatableParameter>& parameter) {
 			newTrack->originIsPreviousTarget = true;
 			newTrack->setSequenceType(SequenceType::Type::TIMED_MOVE);
 	}
+	parentPlot->refreshChainingDependencies();
+	newTrack->refreshAfterParameterEdit();
 }
 
 void Manoeuvre::removeTrack(std::shared_ptr<AnimatableParameter>& parameter) {
@@ -35,6 +45,7 @@ void Manoeuvre::removeTrack(std::shared_ptr<AnimatableParameter>& parameter) {
 			break;
 		}
 	}
+	parentPlot->refreshChainingDependencies();
 }
 
 bool Manoeuvre::hasTrack(std::shared_ptr<AnimatableParameter>& parameter) {
@@ -42,6 +53,13 @@ bool Manoeuvre::hasTrack(std::shared_ptr<AnimatableParameter>& parameter) {
 		if (p->parameter == parameter) return true;
 	}
 	return false;
+}
+
+std::shared_ptr<ParameterTrack> Manoeuvre::getTrack(std::shared_ptr<AnimatableParameter>& parameter) {
+	for (auto& track : tracks) {
+		if (track->parameter == parameter) return track;
+	}
+	return nullptr;
 }
 
 float Manoeuvre::getPlaybackProgress() {
@@ -105,7 +123,12 @@ double Manoeuvre::getLength_seconds() {
 
 
 
-
+void Manoeuvre::refresh() {
+	b_valid = true;
+	for (auto& track : tracks) {
+		if (!track->b_valid) { b_valid = false; break; }
+	}
+}
 
 
 
@@ -140,7 +163,7 @@ bool Manoeuvre::load(tinyxml2::XMLElement* manoeuvreXML) {
 
 	XMLElement* trackXML = manoeuvreXML->FirstChildElement("Track");
 	while (trackXML != nullptr) {
-		std::shared_ptr<ParameterTrack> track = std::make_shared<ParameterTrack>();
+		std::shared_ptr<ParameterTrack> track = std::make_shared<ParameterTrack>(shared_from_this());
 		if (!track->load(trackXML)) return false;
 		tracks.push_back(track);
 		trackXML = trackXML->NextSiblingElement("Track");

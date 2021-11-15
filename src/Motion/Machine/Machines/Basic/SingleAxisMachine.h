@@ -19,6 +19,11 @@ class SingleAxisMachine : public Machine{
 	bool isAxisConnected();
 	std::shared_ptr<Axis> getAxis();
 
+	double getLowPositionLimit();
+	double getHighPositionLimit();
+	double getVelocityLimit();
+	double getAccelerationLimit();
+
 	ControlMode::Mode controlMode = ControlMode::Mode::MANUAL_VELOCITY_TARGET;
 
 	//Master Acceleration For Manual Controls

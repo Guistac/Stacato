@@ -15,7 +15,7 @@ namespace Motion::StepInterpolation {
 		output->outPosition = endPoint->position;
 		output->outVelocity = 0.0;
 		output->outAcceleration = 0.0;
-		output->isDefined = true;
+		output->b_valid = true;
 
 		startPoint->velocityOut = 0.0;
 		startPoint->rampOut = 0.0;

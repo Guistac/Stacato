@@ -7,11 +7,12 @@
 #include "Motion/Machine/Machine.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Project/Environnement.h"
+#include "Motion/Manoeuvre/Manoeuvre.h"
+#include "Project/Plot.h"
 
 
-ParameterTrack::ParameterTrack(std::shared_ptr<AnimatableParameter>& param) : parameter(param) {
+ParameterTrack::ParameterTrack(std::shared_ptr<AnimatableParameter>& param, std::shared_ptr<Manoeuvre> m) : parameter(param), parentManoeuvre(m) {
 	initialize();
-	refreshAfterParameterEdit();
 }
 
 //COPY CONSTRUCTOR
@@ -33,7 +34,6 @@ ParameterTrack::ParameterTrack(const ParameterTrack& original) {
 	rampIn = original.rampIn;
 	rampOut = original.rampOut;
 	rampsAreEqual = original.rampsAreEqual;
-	refreshAfterParameterEdit();
 }
 
 int ParameterTrack::getCurveCount() {
@@ -150,10 +150,13 @@ void ParameterTrack::initialize() {
 	}
 }
 
+
+//================================== EDITING ==================================
+
+
 void ParameterTrack::setInterpolationType(InterpolationType::Type t) {
 	interpolationType = t;
 	for (auto& curve : curves) curve->interpolationType = t;
-	refreshAfterParameterEdit();
 }
 
 void ParameterTrack::setSequenceType(SequenceType::Type t) {
@@ -171,16 +174,31 @@ void ParameterTrack::setSequenceType(SequenceType::Type t) {
 			//keep the points, but editing will allow more points in the graph
 			break;
 	}
-	refreshAfterParameterEdit();
 }
 
 
 void ParameterTrack::refreshAfterParameterEdit() {
+	if (sequenceType == SequenceType::Type::NO_MOVE) origin = target;
 
-	//all manoeuvres start and stop with zero velocity
-	for (int i = 0; i < getCurveCount(); i++) {
-		startPoints[i]->velocity = 0.0;
-		endPoints[i]->velocity = 0.0;
+	if (nextChainedSlaveTrack) {
+		nextChainedSlaveTrack->origin = target;
+		nextChainedSlaveTrack->refreshAfterChainedDependenciesRefresh();
+		nextChainedSlaveTrack->parentManoeuvre->refresh();
+	}
+	if (previousChainedSlaveTrack) {
+		previousChainedSlaveTrack->target = origin;
+		previousChainedSlaveTrack->refreshAfterChainedDependenciesRefresh();
+		previousChainedSlaveTrack->parentManoeuvre->refresh();
+	}
+	
+	refreshAfterChainedDependenciesRefresh();
+	parentManoeuvre->refresh();
+}
+
+void ParameterTrack::refreshAfterChainedDependenciesRefresh() {
+
+	if (rampsAreEqual) {
+		rampOut = rampIn;
 	}
 
 	//set start & stop point position values of in and out points
@@ -210,30 +228,66 @@ void ParameterTrack::refreshAfterParameterEdit() {
 		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
 			startPoints[0]->position = origin.realValue;
 			endPoints[0]->position = target.realValue;
+			startPoints[0]->acceleration = rampIn;
+			startPoints[0]->rampIn = rampIn;
+			startPoints[0]->rampOut = rampIn;
+			endPoints[0]->acceleration = rampOut;
+			endPoints[0]->rampIn = rampOut;
+			endPoints[0]->rampOut = rampOut;
 			break;
 	}
 
-	//assign time and acceleration values for in and out points
+	//all manoeuvres always start and stop with zero velocity
+	for (int i = 0; i < getCurveCount(); i++) {
+		startPoints[i]->velocity = 0.0;
+		endPoints[i]->velocity = 0.0;
+	}
+
 	switch (sequenceType) {
-		case SequenceType::Type::TIMED_MOVE:
+		case SequenceType::Type::TIMED_MOVE: {
+
+			//assign time and acceleration values for in and out points
 			for (int i = 0; i < getCurveCount(); i++) {
 				startPoints[i]->time = timeOffset;
 				endPoints[i]->time = timeOffset + movementTime;
-				startPoints[i]->acceleration = rampIn;
-				endPoints[i]->acceleration = rampOut;
 			}
+
+			//construct curve from start and end points
+			for (int i = 0; i < getCurveCount(); i++) {
+				curves[i]->removeAllPoints();
+				curves[i]->addPoint(startPoints[i]);
+				curves[i]->addPoint(endPoints[i]);
+				curves[i]->interpolationType = interpolationType;
+				curves[i]->refresh();
+			}
+
+			//validate curve and validate parameter track
+			b_valid = true;
+			if (!parameter->machine->validateParameterCurve(parameter, curves)) b_valid = false;
+			else if (isNextCrossChained()) b_valid = false;
+			else if (isPreviousCrossChained()) b_valid = false;
+			else if (isNextChainingMasterMissing()) b_valid = false;
+			else if (isPreviousChainingMasterMissing()) b_valid = false;
+
+		}break;
+
+		case SequenceType::Type::ANIMATED_MOVE:
+			b_valid = false;
 			break;
+		case SequenceType::Type::NO_MOVE: {
+			origin = target;
+			for (int i = 0; i < getCurveCount(); i++) {
+				curves[i]->removeAllPoints();
+				curves[i]->addPoint(endPoints[i]);
+				curves[i]->interpolationType = InterpolationType::Type::LINEAR;
+				curves[i]->refresh();
+			}
+			b_valid = true;
+			if (!parameter->machine->validateParameterCurve(parameter, curves)) b_valid = false;
+		}break;
 	}
-
-	for (int i = 0; i < getCurveCount(); i++) {
-		curves[i]->removeAllPoints();
-		curves[i]->addPoint(startPoints[i]);
-		curves[i]->addPoint(endPoints[i]);
-		curves[i]->interpolationType = interpolationType;
-		curves[i]->refresh();
-	}
+	
 }
-
 
 void ParameterTrack::refreshAfterCurveEdit() {
 	//copy the settings from the start and endpoints to the track settings
@@ -310,13 +364,28 @@ void ParameterTrack::refreshAfterCurveEdit() {
 	}
 
 	refreshAfterParameterEdit();
-
-	//double rampIn = 0.1;
-	//double rampOut = 0.1;
-	//bool rampsAreEqual = true;
-
-
 }
+
+
+bool ParameterTrack::isNextChainingMasterMissing() {
+	return targetIsNextOrigin && nextChainedMasterTrack == nullptr;
+}
+
+bool ParameterTrack::isPreviousChainingMasterMissing() {
+	return originIsPreviousTarget && previousChainedMasterTrack == nullptr;
+}
+
+bool ParameterTrack::isPreviousCrossChained() {
+	return originIsPreviousTarget && previousChainedMasterTrack && previousChainedMasterTrack->targetIsNextOrigin;
+}
+
+bool ParameterTrack::isNextCrossChained() {
+	return targetIsNextOrigin && nextChainedMasterTrack && nextChainedMasterTrack->originIsPreviousTarget;
+}
+
+
+//========================================== PLAYBACK ====================================================
+
 
 
 void ParameterTrack::rapidToStart() {

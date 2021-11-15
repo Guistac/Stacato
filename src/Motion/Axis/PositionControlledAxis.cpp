@@ -610,13 +610,7 @@ void PositionControlledAxis::moveToPositionInTime(double position_axisUnits, dou
 	else if (position_axisUnits < getLowPositionLimitWithClearance()) position_axisUnits = getLowPositionLimitWithClearance();
 	auto startPoint = std::make_shared<Motion::ControlPoint>(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
 	auto endPoint = std::make_shared<Motion::ControlPoint>(currentProfilePointTime_seconds + movementTime_seconds, position_axisUnits, acceleration_axisUnits, 0.0);
-	if (Motion::TrapezoidalInterpolation::getTimeConstrainedInterpolation(startPoint, endPoint, velocityLimit_axisUnitsPerSecond, targetInterpolation)) {
-		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
-		manualVelocityTarget_axisUnitsPerSecond = 0.0;
-	}
-	else {
-		setVelocity(0.0);
-	}
+	Motion::TrapezoidalInterpolation::getClosestTimeAndVelocityConstrainedInterpolation(startPoint, endPoint, velocityLimit_axisUnitsPerSecond, targetInterpolation);
 }
 
 void PositionControlledAxis::positionTargetControl() {

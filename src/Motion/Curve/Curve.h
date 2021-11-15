@@ -20,6 +20,27 @@ InterpolationType* getInterpolationType(const char* saveName);
 
 namespace Motion {
 
+	struct ValidationError {
+		enum class Error {
+			NO_VALIDATION_ERROR,
+			CONTROL_POINT_POSITION_OUT_OF_RANGE,
+			CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED,
+			CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED,
+			CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED,
+			CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO,
+			CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO,
+			INTERPOLATION_UNDEFINED,
+			INTERPOLATION_VELOCITY_LIMIT_EXCEEDED,
+			INTERPOLATION_POSITION_OUT_OF_RANGE,
+			INTERPOLATION_INPUT_ACCELERATION_IS_ZERO,
+			INTERPOLATION_OUTPUT_ACCELERATION_IS_ZERO
+		};
+		Error error;
+		const char displayName[128];
+	};
+	ValidationError* getValidationError(ValidationError::Error e);
+
+
 	struct ControlPoint;
 	class Interpolation;
 	class Curve;
@@ -46,6 +67,8 @@ namespace Motion {
 		std::shared_ptr<Interpolation> outInterpolation;
 
 		char name[64] = "";
+		bool b_valid = false;
+		ValidationError::Error validationError = ValidationError::Error::NO_VALIDATION_ERROR;
 	};
 
 	class Interpolation {
@@ -65,9 +88,6 @@ namespace Motion {
 		double outVelocity = 0.0;
 		double outAcceleration = 0.0;
 
-		//reports error when calculating the interpolation
-		bool isDefined = false;
-
 		//for linear and kinematic interpolation
 		double interpolationVelocity = 0.0;
 
@@ -85,6 +105,11 @@ namespace Motion {
 
 		void updateDisplayCurvePoints();
 		std::vector<CurvePoint> displayPoints;
+		std::vector<CurvePoint> displayInflectionPoints;
+
+		//reports error when calculating the interpolation
+		bool b_valid = false;
+		ValidationError::Error validationError = ValidationError::Error::NO_VALIDATION_ERROR;
 	};
 
 	class Curve {
@@ -108,15 +133,19 @@ namespace Motion {
 		void updateDisplayCurvePoints();
 
 		char name[64] = "";
+
+		bool b_valid = false;
 	};
 
 
 
 	namespace TrapezoidalInterpolation {
 		//returns a profile using the position, velocity, acceleration and time data of the two specified points, while respecting the provided motion constraints
-		bool getTimeConstrainedInterpolation(std::shared_ptr<ControlPoint>& startPoint, std::shared_ptr<ControlPoint>& endPoint, double maxVelocity, std::shared_ptr<Interpolation>& output);
-		//return a the fastest profile using the position, velocity and acceleration values of the two specified points, while respecting those motion constraints
+		bool getTimeConstrainedInterpolation(std::shared_ptr<ControlPoint>& startPoint, std::shared_ptr<ControlPoint>& endPoint, std::shared_ptr<Interpolation>& output);
+		//return the fastest profile using the position, velocity and acceleration values of the two specified points, while respecting those motion constraints
 		bool getFastestVelocityConstrainedInterpolation(std::shared_ptr<ControlPoint>& startPoint, std::shared_ptr<ControlPoint>& endPoint, double velocity, std::shared_ptr<Interpolation>& output);
+		//get the best matching time based profile, not faster than the specified time
+		bool getClosestTimeAndVelocityConstrainedInterpolation(std::shared_ptr<ControlPoint>& startPoint, std::shared_ptr<ControlPoint>& endPoint, double maxVelocity, std::shared_ptr<Interpolation>& output);
 	}
 
 	namespace LinearInterpolation {

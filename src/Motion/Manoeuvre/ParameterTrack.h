@@ -1,6 +1,7 @@
 #pragma once
 
 class CurvePoint;
+class Manoeuvre;
 
 #include "Motion/AnimatableParameter.h"
 
@@ -21,15 +22,16 @@ std::vector<SequenceType>& getSequenceTypes();
 SequenceType* getSequenceType(SequenceType::Type t);
 SequenceType* getSequenceType(const char* saveName);
 
-class ParameterTrack{
+class ParameterTrack : public std::enable_shared_from_this<ParameterTrack> {
 public:
 
-	ParameterTrack() {}
+	ParameterTrack(std::shared_ptr<Manoeuvre> m) : parentManoeuvre(m) {}
 	ParameterTrack(const ParameterTrack& original);
-	ParameterTrack(std::shared_ptr<AnimatableParameter>& param);
+	ParameterTrack(std::shared_ptr<AnimatableParameter>& param, std::shared_ptr<Manoeuvre> m);
 
 	void initialize();
 
+	std::shared_ptr<Manoeuvre> parentManoeuvre = nullptr;
 	std::shared_ptr<AnimatableParameter> parameter;
 
 	bool b_priming = false;
@@ -38,6 +40,8 @@ public:
 	void rapidToPlaybackPosition();
 	void cancelRapid();
 	float getRapidProgress();
+
+	bool b_valid = false;
 
 	//AnimatableParameterValue primingTarget;
 	bool isPrimedToStart(); //is axis at the same location as the playback position
@@ -54,6 +58,7 @@ public:
 
 	std::vector<std::shared_ptr<Motion::Curve>> curves;
 	void refreshAfterParameterEdit();
+	void refreshAfterChainedDependenciesRefresh();
 	void refreshAfterCurveEdit();
 	int getCurveCount();
 	double getLength_seconds();
@@ -65,6 +70,15 @@ public:
 	//parameters for timed sequences
 	bool originIsPreviousTarget = false;
 	bool targetIsNextOrigin = false;
+	std::shared_ptr<ParameterTrack> previousChainedMasterTrack = nullptr;
+	std::shared_ptr<ParameterTrack> nextChainedMasterTrack = nullptr;
+	std::shared_ptr<ParameterTrack> previousChainedSlaveTrack = nullptr;
+	std::shared_ptr<ParameterTrack> nextChainedSlaveTrack = nullptr;
+	bool isNextChainingMasterMissing();
+	bool isPreviousChainingMasterMissing();
+	bool isPreviousCrossChained();
+	bool isNextCrossChained();
+
 	AnimatableParameterValue origin;
 	AnimatableParameterValue target;
 	AnimatableParameterValue& getOrigin();
@@ -85,7 +99,7 @@ public:
 	bool targetInputGui();
 	bool timeInputGui();
 	bool timeOffsetInputGui();
-	bool rampIntInputGui();
+	bool rampInInputGui();
 	bool rampOutInputGui();
 	bool equalRampsCheckboxGui();
 
