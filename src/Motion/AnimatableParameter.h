@@ -39,6 +39,7 @@ struct AnimatableParameterValue {
 public:
 
 	ParameterDataType::Type type;
+	const char* shortUnitString = nullptr;
 
 	bool inputFieldGui(float width);
 
@@ -63,12 +64,14 @@ public:
 class AnimatableParameter {
 public:
 
-	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, ParameterDataType::Type datat) : machine(mach), dataType(datat) {
+	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, ParameterDataType::Type datat, const char* unitShortStr) : machine(mach), dataType(datat) {
 		strcpy(name, nm);
+		sprintf(shortUnitString, unitShortStr);
 	}
 
 	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, std::vector<StateParameterValue>* stateValues) : machine(mach), stateParameterValues(stateValues) {
 		strcpy(name, nm);
+		strcpy(shortUnitString, "state");
 		dataType = ParameterDataType::Type::STATE_PARAMETER;
 	}
 
@@ -77,6 +80,7 @@ public:
 	std::vector<InterpolationType::Type> getCompatibleInterpolationTypes();
 
 	char name[128];
+	char shortUnitString[16];
 	std::shared_ptr<Machine> machine;
 
 	//parameter limit query

@@ -79,6 +79,11 @@ public:
 	bool isPreviousCrossChained();
 	bool isNextCrossChained();
 
+	void refreshPreviousChainedCurvePoints();
+	void refreshNextChainedCurvePoints();
+	std::vector<std::vector<Motion::CurvePoint>> nextChainedCurvePoints;
+	std::vector<std::vector<Motion::CurvePoint>> previousChainedCurvePoints;
+
 	AnimatableParameterValue origin;
 	AnimatableParameterValue target;
 	AnimatableParameterValue& getOrigin();
@@ -93,18 +98,17 @@ public:
 	//gui stuff
 	bool sequenceTypeSelectorGui();
 	bool interpolationTypeSelectorGui();
-	bool originIsPreviousTargetCheckboxGui();
-	bool targetIsNextOriginCheckboxGui();
-	bool originInputGui();
-	bool targetInputGui();
+	bool chainPreviousGui(float width);
+	bool chainNextGui(float width);
+	bool originInputGui(float width);
+	bool targetInputGui(float width);
 	bool timeInputGui();
 	bool timeOffsetInputGui();
-	bool rampInInputGui();
-	bool rampOutInputGui();
-	bool equalRampsCheckboxGui();
+	bool rampInputGui(float width);
 
 	void drawCurves(double startTime, double endTime);
 	bool drawControlPoints();
+	void drawChainedCurves();
 
 	bool save(tinyxml2::XMLElement* trackXML);
 	bool load(tinyxml2::XMLElement* trackXML);

@@ -1,11 +1,19 @@
 <Environnement name="Default Environnement">
     <NodeGraph>
         <Nodes>
-            <Node NodeType="Machine" ClassName="SingleAxisMachine" CustomName="Linear Machine" UniqueID="77">
+            <Node NodeType="Machine" ClassName="SingleAxisMachine" CustomName="Costière 1" UniqueID="77">
                 <NodeEditorPosition x="-17976" y="-14479"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="Linear Axis" DisplayName="Linear Axis" DataType="AxisLink" UniqueID="78" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="Machine" ClassName="SingleAxisMachine" CustomName="Tournette B" UniqueID="81">
+                <NodeEditorPosition x="-18664" y="-14552"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveName="Linear Axis" DisplayName="Linear Axis" DataType="AxisLink" UniqueID="82" Visible="true" NoDataField="true"/>
                 </InputPins>
                 <OutputPins/>
             </Node>

@@ -62,9 +62,13 @@ void ParameterTrack::initialize() {
 		startPoints.push_back(std::make_shared<Motion::ControlPoint>());
 		endPoints.push_back(std::make_shared<Motion::ControlPoint>());
 	}
+	nextChainedCurvePoints.resize(getCurveCount());
+	previousChainedCurvePoints.resize(getCurveCount());
 
 	origin.type = parameter->dataType;
 	target.type = parameter->dataType;
+	origin.shortUnitString = parameter->shortUnitString;
+	target.shortUnitString = parameter->shortUnitString;
 	if (parameter->dataType == ParameterDataType::Type::STATE_PARAMETER) {
 		origin.stateValues = parameter->stateParameterValues;
 		target.stateValues = parameter->stateParameterValues;
@@ -183,16 +187,13 @@ void ParameterTrack::refreshAfterParameterEdit() {
 	if (nextChainedSlaveTrack) {
 		nextChainedSlaveTrack->origin = target;
 		nextChainedSlaveTrack->refreshAfterChainedDependenciesRefresh();
-		nextChainedSlaveTrack->parentManoeuvre->refresh();
 	}
 	if (previousChainedSlaveTrack) {
 		previousChainedSlaveTrack->target = origin;
 		previousChainedSlaveTrack->refreshAfterChainedDependenciesRefresh();
-		previousChainedSlaveTrack->parentManoeuvre->refresh();
 	}
 	
 	refreshAfterChainedDependenciesRefresh();
-	parentManoeuvre->refresh();
 }
 
 void ParameterTrack::refreshAfterChainedDependenciesRefresh() {
@@ -287,6 +288,20 @@ void ParameterTrack::refreshAfterChainedDependenciesRefresh() {
 		}break;
 	}
 	
+	//the current track just updated its curve display points
+	//we use this opportunity to update the chained display points of chained curves
+	if (previousChainedSlaveTrack) previousChainedSlaveTrack->refreshNextChainedCurvePoints();
+	if (previousChainedMasterTrack) previousChainedMasterTrack->refreshNextChainedCurvePoints();
+	if (nextChainedSlaveTrack) nextChainedSlaveTrack->refreshPreviousChainedCurvePoints();
+	if (nextChainedMasterTrack) nextChainedMasterTrack->refreshPreviousChainedCurvePoints();
+
+	//the current manoeuvre length might have changed
+	//so we also update the chained curve points of the current manoeuvre
+	for (auto& track : parentManoeuvre->tracks) {
+		track->refreshNextChainedCurvePoints();
+	}
+
+	parentManoeuvre->refresh();
 }
 
 void ParameterTrack::refreshAfterCurveEdit() {
@@ -381,6 +396,62 @@ bool ParameterTrack::isPreviousCrossChained() {
 
 bool ParameterTrack::isNextCrossChained() {
 	return targetIsNextOrigin && nextChainedMasterTrack && nextChainedMasterTrack->originIsPreviousTarget;
+}
+
+void ParameterTrack::refreshPreviousChainedCurvePoints() {
+	if (previousChainedMasterTrack || previousChainedSlaveTrack) {
+		std::shared_ptr<ParameterTrack> previousChainedTrack;
+		if (previousChainedMasterTrack) previousChainedTrack = previousChainedMasterTrack;
+		else previousChainedTrack = previousChainedSlaveTrack;
+		double currentManoeuvreLength = parentManoeuvre->getLength_seconds();
+		for (int i = 0; i < getCurveCount(); i++) {
+			previousChainedCurvePoints[i].clear();
+			if (previousChainedTrack->curves[i]->interpolations.empty()) continue;
+			int pointCount = 2;
+			for (auto& interpolation : previousChainedTrack->curves[i]->interpolations) {
+				pointCount += interpolation->displayPoints.size();
+			}
+			previousChainedCurvePoints[i].reserve(pointCount);
+			double previousTrackStartPosition = previousChainedTrack->curves[i]->points.front()->position;
+			double previousTrackLength = previousChainedTrack->parentManoeuvre->getLength_seconds();
+			previousChainedCurvePoints[i].push_back(Motion::CurvePoint(-previousTrackLength, previousTrackStartPosition, 0.0, 0.0));
+			for (auto& interpolation : previousChainedTrack->curves[i]->interpolations) {
+				for (auto& point : interpolation->displayPoints) {
+					previousChainedCurvePoints[i].push_back(Motion::CurvePoint(point.time - previousTrackLength, point.position, point.acceleration, point.velocity));
+				}
+			}
+			double previousTrackEndPosition = previousChainedTrack->curves[i]->interpolations.back()->displayPoints.back().position;
+			previousChainedCurvePoints[i].push_back(Motion::CurvePoint(0.0, previousTrackEndPosition, 0.0, 0.0));
+		}
+	}
+}
+
+void ParameterTrack::refreshNextChainedCurvePoints() {
+	if (nextChainedSlaveTrack || nextChainedMasterTrack) {
+		std::shared_ptr<ParameterTrack> nextChainedTrack;
+		if (nextChainedSlaveTrack) nextChainedTrack = nextChainedSlaveTrack;
+		else nextChainedTrack = nextChainedMasterTrack;
+		double currentManoeuvreLength = parentManoeuvre->getLength_seconds();
+		for (int i = 0; i < getCurveCount(); i++) {
+			nextChainedCurvePoints[i].clear();
+			if (nextChainedTrack->curves[i]->interpolations.empty()) continue;
+			int pointCount = 2;
+			for (auto& interpolation : nextChainedTrack->curves[i]->interpolations) {
+				pointCount += interpolation->displayPoints.size();
+			}
+			nextChainedCurvePoints[i].reserve(pointCount);
+			double nextTrackStartPosition = nextChainedTrack->curves[i]->points.front()->position;
+			nextChainedCurvePoints[i].push_back(Motion::CurvePoint(currentManoeuvreLength, nextTrackStartPosition, 0.0, 0.0));
+			for (auto& interpolation : nextChainedTrack->curves[i]->interpolations) {
+				for (auto& point : interpolation->displayPoints) {
+					nextChainedCurvePoints[i].push_back(Motion::CurvePoint(currentManoeuvreLength + point.time, point.position, point.acceleration, point.velocity));
+				}
+			}
+			double nextTrackLength = nextChainedTrack->parentManoeuvre->getLength_seconds();
+			double nextTrackEndPosition = nextChainedTrack->curves[i]->interpolations.back()->displayPoints.back().position;
+			nextChainedCurvePoints[i].push_back(Motion::CurvePoint(currentManoeuvreLength + nextTrackLength, nextTrackEndPosition, 0.0, 0.0));
+		}
+	}
 }
 
 

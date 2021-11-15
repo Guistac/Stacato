@@ -15,9 +15,9 @@ void Oscillator3x::assignIoData() {
 
 	std::shared_ptr<Machine> thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
 
-	frequencyParameter = std::make_shared<AnimatableParameter>("Frequency", thisMachine, ParameterDataType::Type::REAL_PARAMETER);
-	amplitudeParameter = std::make_shared<AnimatableParameter>("Amplitude", thisMachine, ParameterDataType::Type::REAL_PARAMETER);
-	phaseOffsetParameter = std::make_shared<AnimatableParameter>("Phase Offset", thisMachine, ParameterDataType::Type::REAL_PARAMETER);
+	frequencyParameter = std::make_shared<AnimatableParameter>("Frequency", thisMachine, ParameterDataType::Type::REAL_PARAMETER, "Hz");
+	amplitudeParameter = std::make_shared<AnimatableParameter>("Amplitude", thisMachine, ParameterDataType::Type::REAL_PARAMETER, "mm");
+	phaseOffsetParameter = std::make_shared<AnimatableParameter>("Phase Offset", thisMachine, ParameterDataType::Type::REAL_PARAMETER, "\xC2\xB0");
 
 	animatableParameters.push_back(frequencyParameter);
 	animatableParameters.push_back(amplitudeParameter);

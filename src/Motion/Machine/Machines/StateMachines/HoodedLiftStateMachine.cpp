@@ -30,9 +30,6 @@ void HoodedLiftStateMachine::assignIoData() {
 	std::shared_ptr<Machine> thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
 	stateParameter = std::make_shared<AnimatableParameter>("State", thisMachine, &stateParameterValues);
 	animatableParameters.push_back(stateParameter);
-
-	realParameter = std::make_shared<AnimatableParameter>("Real", thisMachine, ParameterDataType::Type::REAL_PARAMETER);
-	animatableParameters.push_back(realParameter);
 }
 
 void HoodedLiftStateMachine::process() {

@@ -52,78 +52,132 @@ bool ParameterTrack::sequenceTypeSelectorGui() {
 }
 
 
-bool ParameterTrack::originIsPreviousTargetCheckboxGui() {
+bool ParameterTrack::chainPreviousGui(float width) {
+	bool edited = false;
+	static char chainingButtonString[128];
+	glm::vec2 buttonSize(width, ImGui::GetFrameHeight());
 	if (isPreviousCrossChained()) {
-		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::black);
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
 		ImGui::PushFont(Fonts::robotoBold15);
-		ImGui::Checkbox("##ChainPrevious", &originIsPreviousTarget);
-		ImGui::SameLine();
-		ImGui::Text("Cross Chained");
+		if (ImGui::Button("Can't Cross-Chain##ChainPrevious", buttonSize)) {
+			originIsPreviousTarget = !originIsPreviousTarget;
+			edited = true;
+		}
 		ImGui::PopFont();
-		ImGui::PopStyleColor();
+		ImGui::PopStyleColor(2);
 	}
 	else if (isPreviousChainingMasterMissing()) {
-		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::black);
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
 		ImGui::PushFont(Fonts::robotoBold15);
-		ImGui::Checkbox("##ChainPrevious", &originIsPreviousTarget);
-		ImGui::SameLine();
-		ImGui::Text("First Track");
+		if (ImGui::Button("Can't Chain Previous##ChainPrevious", buttonSize)) {
+			originIsPreviousTarget = !originIsPreviousTarget;
+			edited = true;
+		}
 		ImGui::PopFont();
-		ImGui::PopStyleColor();
+		ImGui::PopStyleColor(2);
 	}
 	else if (previousChainedSlaveTrack) {
-		ImGui::Text("Chained by %s", previousChainedSlaveTrack->parentManoeuvre->name);
-		return false;
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGreen);
+		sprintf(chainingButtonString, "Chained by %s##ChainPrevious", previousChainedSlaveTrack->parentManoeuvre->name);
+		if (ImGui::Button(chainingButtonString, buttonSize)) {
+			originIsPreviousTarget = !originIsPreviousTarget;
+		}
+		ImGui::PopStyleColor();
+		ImGui::PopItemFlag();
 	}
 	else {
 		bool previousValue = originIsPreviousTarget;
-		bool edited = ImGui::Checkbox("##ChainPrevious", &originIsPreviousTarget);
-		ImGui::SameLine();
 		if (previousValue) {
-			if (previousChainedMasterTrack) ImGui::Text("Chaining %s", previousChainedMasterTrack->parentManoeuvre->name);
+			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+			sprintf(chainingButtonString, "Chaining %s##ChainPrevious", previousChainedMasterTrack->parentManoeuvre->name);
 		}
-		else ImGui::Text("Not Chained");
-		return edited;
+		else {
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+			ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
+			sprintf(chainingButtonString, "Not Chaining##ChainPrevious");
+		}
+		if (ImGui::Button(chainingButtonString, buttonSize)) {
+			originIsPreviousTarget = !originIsPreviousTarget;
+			edited = true;
+		}
+		if (previousValue) {
+			ImGui::PopFont();
+			ImGui::PopStyleColor();
+		}
+		else ImGui::PopStyleColor(2);
 	}
+	return edited;
 }
 
-bool ParameterTrack::targetIsNextOriginCheckboxGui() {
+bool ParameterTrack::chainNextGui(float width) {
+	bool edited = false;
+	static char chainingButtonString[128];
+	glm::vec2 buttonSize(width, ImGui::GetFrameHeight());
 	if (isNextCrossChained()) {
-		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::black);
 		ImGui::PushFont(Fonts::robotoBold15);
-		ImGui::Checkbox("##ChainNext", &targetIsNextOrigin);
-		ImGui::SameLine();
-		ImGui::Text("Cross Chained");
+		if (ImGui::Button("Can't Cross-Chain##ChainNext", buttonSize)) {
+			targetIsNextOrigin = !targetIsNextOrigin;
+			edited = true;
+		}
 		ImGui::PopFont();
-		ImGui::PopStyleColor();
+		ImGui::PopStyleColor(2);
 	}
 	else if (isNextChainingMasterMissing()) {
-		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::black);
 		ImGui::PushFont(Fonts::robotoBold15);
-		ImGui::Checkbox("##ChainNext", &targetIsNextOrigin);
-		ImGui::SameLine();
-		ImGui::Text("Last Track");
+		if (ImGui::Button("Can't Chain Next##ChainNext", buttonSize)) {
+			targetIsNextOrigin = !targetIsNextOrigin;
+			edited = true;
+		}
 		ImGui::PopFont();
-		ImGui::PopStyleColor();
+		ImGui::PopStyleColor(2);
 	}
 	else if (nextChainedSlaveTrack) {
-		ImGui::Text("Chained by %s", nextChainedSlaveTrack->parentManoeuvre->name);
-		return false;
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGreen);
+		sprintf(chainingButtonString, "Chained by %s##ChainNext", nextChainedSlaveTrack->parentManoeuvre->name);
+		if (ImGui::Button(chainingButtonString, buttonSize)) {
+			targetIsNextOrigin = !targetIsNextOrigin;
+		}
+		ImGui::PopStyleColor();
+		ImGui::PopItemFlag();
 	}
 	else {
 		bool previousValue = targetIsNextOrigin;
-		bool edited = ImGui::Checkbox("##ChainNext", &targetIsNextOrigin);
-		ImGui::SameLine();
 		if (previousValue) {
-			if (nextChainedMasterTrack) ImGui::Text("Chaining %s", nextChainedMasterTrack->parentManoeuvre->name);
+			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+			sprintf(chainingButtonString, "Chaining %s##ChainNext", nextChainedMasterTrack->parentManoeuvre->name);
 		}
-		else ImGui::Text("Not Chained");
-		return edited;
+		else {
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+			ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
+			sprintf(chainingButtonString, "Not Chaining##ChainNext");
+		}
+		if (ImGui::Button(chainingButtonString, buttonSize)) {
+			targetIsNextOrigin = !targetIsNextOrigin;
+			edited = true;
+		}
+		if (previousValue) {
+			ImGui::PopStyleColor();
+			ImGui::PopFont();
+		}
+		else {
+			ImGui::PopStyleColor(2);
+		}
 	}
+	return edited;
 }
 
 
-bool ParameterTrack::originInputGui() {
+bool ParameterTrack::originInputGui(float width) {
 	bool originValidationError = false;
 	for (auto& point : startPoints) {
 		if (point->validationError == Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE) {
@@ -138,7 +192,7 @@ bool ParameterTrack::originInputGui() {
 		ImGui::PushFont(Fonts::robotoBold15);
 	}
 	ImGui::PushID("Origin");
-	valueChanged = origin.inputFieldGui(ImGui::GetTextLineHeight() * 5.0);
+	valueChanged = origin.inputFieldGui(width);
 	ImGui::PopID();
 	if (originValidationError) {
 		ImGui::PopStyleColor();
@@ -148,7 +202,7 @@ bool ParameterTrack::originInputGui() {
 	return valueChanged;
 }
 
-bool ParameterTrack::targetInputGui() {
+bool ParameterTrack::targetInputGui(float width) {
 	bool targetValidationError = false;
 	for (auto& point : endPoints) {
 		if (point->validationError == Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE) {
@@ -163,7 +217,7 @@ bool ParameterTrack::targetInputGui() {
 		ImGui::PushFont(Fonts::robotoBold15);
 	}
 	ImGui::PushID("Target");
-	valueChanged = target.inputFieldGui(ImGui::GetTextLineHeight() * 5.0);
+	valueChanged = target.inputFieldGui(width);
 	ImGui::PopID();
 	if (targetValidationError) {
 		ImGui::PopStyleColor();
@@ -231,142 +285,125 @@ bool ParameterTrack::timeOffsetInputGui() {
 }
 
 
-bool ParameterTrack::rampInInputGui() {
-	bool validationError = false;
+
+bool ParameterTrack::rampInputGui(float width) {
+	bool valueChanged = false;
+
+	static char rampInputString[128];
+
+	switch (sequenceType) {
+		case SequenceType::Type::TIMED_MOVE:
+			switch (interpolationType) {
+				case InterpolationType::Type::BEZIER:
+				case InterpolationType::Type::TRAPEZOIDAL:
+					break;
+				default:
+					return false;
+			}
+			break;
+		default:
+			return false;
+	}
+
+	ImGui::BeginGroup();
+
+	bool inRampValidationError = false;
 	for (auto& point : startPoints) {
 		switch (point->validationError) {
 		case Motion::ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO:
 		case Motion::ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED:
 		case Motion::ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO:
 		case Motion::ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED:
-			validationError = true;
+			inRampValidationError = true;
 			break;
 		default:
 			break;
 		}
 	}
-	if (!validationError) {
+	if (!inRampValidationError) {
 		for (auto& curve : curves) {
 			for (auto& interpolation : curve->interpolations) {
 				switch (interpolation->validationError) {
 				case Motion::ValidationError::Error::INTERPOLATION_UNDEFINED:
-					validationError = true;
+					inRampValidationError = true;
 					break;
 				default:
 					break;
 				}
 			}
-			if (validationError) break;
+			if (inRampValidationError) break;
 		}
 	}
 
-	if (validationError) {
+	if (inRampValidationError) {
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
 		ImGui::PushFont(Fonts::robotoBold15);
 	}
-
-	bool valueChanged = false;
-	switch (sequenceType) {
-		case SequenceType::Type::TIMED_MOVE:
-			switch (interpolationType) {
-				case InterpolationType::Type::BEZIER:
-				case InterpolationType::Type::TRAPEZOIDAL:
-					valueChanged = ImGui::InputDouble("##rampIn", &rampIn, 0.0, 0.0, "%.3f u");
-					break;
-				default:
-					break;
-			}
-			break;
-		default:
-			break;
-	}
-
-	if (validationError) {
+	ImGui::SetNextItemWidth(width);
+	sprintf(rampInputString, "In: %.3f %s/s\xC2\xB2", rampIn, origin.shortUnitString);
+	valueChanged |= ImGui::InputDouble("##rampIn", &rampIn, 0.0, 0.0, rampInputString);
+	if (inRampValidationError) {
 		ImGui::PopStyleColor();
 		ImGui::PopFont();
 	}
-
-	return valueChanged;
-}
-
-bool ParameterTrack::rampOutInputGui() {
-
-	bool validationError = false;
+	
+	bool outRampValidationError = false;
 	for (auto& point : endPoints) {
 		switch (point->validationError) {
-			case Motion::ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO:
-			case Motion::ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED:
-			case Motion::ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO:
-			case Motion::ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED:
-				validationError = true;
-				break;
-			default:
-				break;
+		case Motion::ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO:
+		case Motion::ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED:
+		case Motion::ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO:
+		case Motion::ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED:
+			outRampValidationError = true;
+			break;
+		default:
+			break;
 		}
 	}
-	if (!validationError) {
+	if (!outRampValidationError) {
 		for (auto& curve : curves) {
 			for (auto& interpolation : curve->interpolations) {
 				switch (interpolation->validationError) {
 				case Motion::ValidationError::Error::INTERPOLATION_UNDEFINED:
-					validationError = true;
+					outRampValidationError = true;
 					break;
 				default:
 					break;
 				}
 			}
-			if (validationError) break;
+			if (outRampValidationError) break;
 		}
 	}
 
-	if (validationError) {
+	if (outRampValidationError) {
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
 		ImGui::PushFont(Fonts::robotoBold15);
 	}
 	if (rampsAreEqual) BEGIN_DISABLE_IMGUI_ELEMENT
-
-	bool valueChanged = false;
-	switch (sequenceType) {
-		case SequenceType::Type::TIMED_MOVE:
-			switch (interpolationType) {
-				case InterpolationType::Type::BEZIER:
-					break;
-				case InterpolationType::Type::TRAPEZOIDAL:
-					valueChanged = ImGui::InputDouble("##rampOut", &rampOut, 0.0, 0.0, "%.3f u");
-					break;
-				default:
-					break;
-			}
-			break;
-	default:
-		break;
-	}
-
+	ImGui::SetNextItemWidth(width);
+	sprintf(rampInputString, "Out: %.3f %s/s\xC2\xB2", rampOut, origin.shortUnitString);
+	valueChanged |= ImGui::InputDouble("##rampOut", &rampOut, 0.0, 0.0, rampInputString);
 	if (rampsAreEqual) END_DISABLE_IMGUI_ELEMENT
-	if (validationError) {
+	if (outRampValidationError) {
 		ImGui::PopStyleColor();
 		ImGui::PopFont();
 	}
+	
+	ImGui::EndGroup();
 
-	return valueChanged;
-}
+	ImGui::SameLine();
 
-bool ParameterTrack::equalRampsCheckboxGui() {
-	bool valueChanged = false;
-	switch (sequenceType) {
-		case SequenceType::Type::TIMED_MOVE:
-			switch (interpolationType) {
-				case InterpolationType::Type::BEZIER:
-				case InterpolationType::Type::TRAPEZOIDAL:
-					valueChanged = ImGui::Checkbox("##rampEqual", &rampsAreEqual);
-					break;
-				default:
-					break;
-			}
-			break;
-		default:
-			break;
+	glm::vec2 equalButtonSize(ImGui::GetFrameHeight(), ImGui::GetFrameHeight() * 2.0 + ImGui::GetStyle().ItemSpacing.y);
+	
+	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
+	if ((rampsAreEqual && ImGui::Button("=", equalButtonSize)) || (!rampsAreEqual && ImGui::Button("!=", equalButtonSize))) {
+		rampsAreEqual = !rampsAreEqual;
+		valueChanged |= true;
 	}
+	ImGui::PopStyleColor();
+	ImGui::PopFont();
+
 	return valueChanged;
 }
 
@@ -408,6 +445,19 @@ void ParameterTrack::drawCurves(double startTime, double endTime) {
 			trailerPoints.push_back(glm::vec2(endPoint->time, endPoint->position));
 			trailerPoints.push_back(glm::vec2(endTime, endPoint->position));
 			ImPlot::PlotLine(curve->name, &trailerPoints.front().x, &trailerPoints.front().y, trailerPoints.size(), 0, sizeof(glm::vec2));
+		}
+	}
+}
+
+void ParameterTrack::drawChainedCurves() {
+	for (int i = 0; i < curves.size(); i++) {
+		if (nextChainedMasterTrack || nextChainedSlaveTrack) {
+			std::vector<Motion::CurvePoint>& points = nextChainedCurvePoints[i];
+			if (!points.empty()) ImPlot::PlotLine(curves[i]->name, &points.front().time, &points.front().position, points.size(), 0, sizeof(Motion::CurvePoint));
+		}
+		if (previousChainedMasterTrack || previousChainedSlaveTrack) {
+			std::vector<Motion::CurvePoint>& points = previousChainedCurvePoints[i];
+			if (!points.empty()) ImPlot::PlotLine(curves[i]->name, &points.front().time, &points.front().position, points.size(), 0, sizeof(Motion::CurvePoint));
 		}
 	}
 }

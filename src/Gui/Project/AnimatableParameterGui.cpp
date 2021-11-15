@@ -6,9 +6,9 @@
 #include <imgui_internal.h>
 
 bool AnimatableParameterValue::inputFieldGui(float width) {
+	static char inputFieldString[128];
 	bool valueChanged = false;
 	ImGui::SetNextItemWidth(width);
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.1));
 	switch (type) {
 		case ParameterDataType::Type::BOOLEAN_PARAMETER:
 			valueChanged = ImGui::Checkbox("##parameter", &boolValue);
@@ -30,23 +30,28 @@ bool AnimatableParameterValue::inputFieldGui(float width) {
 			break;
 		case ParameterDataType::Type::REAL_PARAMETER:
 		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
-			valueChanged = ImGui::InputDouble("##parameter", &realValue);
+			sprintf(inputFieldString, "%.4f %s", realValue, shortUnitString);
+			valueChanged = ImGui::InputDouble("##parameter", &realValue, 0.0, 0.0, inputFieldString);
 			break;
 		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
 		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
-			valueChanged |= ImGui::InputFloat("##X", &vector2value.x, 0.0, 0.0, "X: %.3f");
+			sprintf(inputFieldString, "x: %.4f %s", vector2value.x, shortUnitString);
+			valueChanged |= ImGui::InputFloat("##X", &vector2value.x, 0.0, 0.0, inputFieldString);
 			ImGui::SetNextItemWidth(width);
-			valueChanged |= ImGui::InputFloat("##Y", &vector2value.y, 0.0, 0.0, "Y: %.3f");
+			sprintf(inputFieldString, "y: %.4f %s", vector2value.y, shortUnitString);
+			valueChanged |= ImGui::InputFloat("##Y", &vector2value.y, 0.0, 0.0, inputFieldString);
 			break;
 		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
 		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
-			valueChanged |= ImGui::InputFloat("##X", &vector3value.x, 0.0, 0.0, "X: %.3f");
+			sprintf(inputFieldString, "x: %.4f %s", vector3value.x, shortUnitString);
+			valueChanged |= ImGui::InputFloat("##X", &vector3value.x, 0.0, 0.0, inputFieldString);
 			ImGui::SetNextItemWidth(width);
-			valueChanged |= ImGui::InputFloat("##Y", &vector3value.y, 0.0, 0.0, "Y: %.3f");
+			sprintf(inputFieldString, "y: %.4f %s", vector3value.y, shortUnitString);
+			valueChanged |= ImGui::InputFloat("##Y", &vector3value.y, 0.0, 0.0, inputFieldString);
 			ImGui::SetNextItemWidth(width);
-			valueChanged |= ImGui::InputFloat("##Z", &vector3value.z, 0.0, 0.0, "Z: %.3f");
+			sprintf(inputFieldString, "z: %.4f %s", vector3value.z, shortUnitString);
+			valueChanged |= ImGui::InputFloat("##Z", &vector3value.z, 0.0, 0.0, inputFieldString);
 			break;
 	}
-	ImGui::PopStyleVar();
 	return valueChanged;
 }

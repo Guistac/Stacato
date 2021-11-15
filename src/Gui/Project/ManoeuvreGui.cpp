@@ -1,4 +1,4 @@
-#include <pch.h>
+﻿#include <pch.h>
 
 #include "Motion/Manoeuvre/Manoeuvre.h"
 
@@ -149,6 +149,9 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 			break;
 	}
 
+	ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
+
 	if (ImGui::BeginTable("##parameters", columnCount, tableFlags)) {
 
 		ImGui::TableSetupColumn("Manage");
@@ -185,27 +188,32 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 			ImGui::SameLine();
 			bool disableMoveUp = parameterTrack == manoeuvre->tracks.front();
 			if (disableMoveUp) BEGIN_DISABLE_IMGUI_ELEMENT
-				if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpTrack = parameterTrack;
+			if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpTrack = parameterTrack;
 			if (disableMoveUp) END_DISABLE_IMGUI_ELEMENT
-				ImGui::SameLine();
+			ImGui::SameLine();
 			bool disableMoveDown = parameterTrack == manoeuvre->tracks.back();
 			if (disableMoveDown) BEGIN_DISABLE_IMGUI_ELEMENT
-				if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownTrack = parameterTrack;
+			if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownTrack = parameterTrack;
 			if (disableMoveDown) END_DISABLE_IMGUI_ELEMENT
-				ImGui::PopStyleVar();
+			ImGui::PopStyleVar();
 
-			if (manoeuvreIsPlaying) END_DISABLE_IMGUI_ELEMENT
-
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::white);
+			ImGui::PushFont(Fonts::robotoBold15);
+			bool parameterValid = parameterTrack->b_valid;
+			if (!parameterValid) ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
 
 			//====== Machine Column ======
 			ImGui::TableNextColumn();
 			ImGui::Text(parameterTrack->parameter->machine->getName());
 
+
 			//====== Parameter Column ======
 			ImGui::TableNextColumn();
 			ImGui::Text(parameterTrack->parameter->name);
 
-			if (manoeuvreIsPlaying) BEGIN_DISABLE_IMGUI_ELEMENT
+			if (!parameterValid) ImGui::PopStyleColor();
+			ImGui::PopStyleColor();
+			ImGui::PopFont();
 
 			//====== Movement Column ======
 
@@ -223,17 +231,18 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 				}
 			}
 
+			float originTargetInputFieldWidth = ImGui::GetTextLineHeight() * 8.0;
+
 			//====== Origin Column ======
 
 			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
 				ImGui::TableNextColumn();
 
 				//--- Origin Input ---
-				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-				trackEdited |= parameterTrack->originInputGui();
+				trackEdited |= parameterTrack->originInputGui(originTargetInputFieldWidth);
 
 				//--- Chain Previous ---
-				chainingDependenciesEdited |= parameterTrack->originIsPreviousTargetCheckboxGui();
+				chainingDependenciesEdited |= parameterTrack->chainPreviousGui(originTargetInputFieldWidth);
 			}
 
 			//====== Target Column ======
@@ -242,19 +251,17 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 			//--- Target Input ---
 			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
-				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-				trackEdited |= parameterTrack->targetInputGui();
+				trackEdited |= parameterTrack->targetInputGui(originTargetInputFieldWidth);
 			}
 
 			//--- Chain Next ---
-			chainingDependenciesEdited |= parameterTrack->targetIsNextOriginCheckboxGui();
+			chainingDependenciesEdited |= parameterTrack->chainNextGui(originTargetInputFieldWidth);
 
 			//====== Timing Column ======
 
 			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
 				ImGui::TableNextColumn();
 				float timingcolumnWidth = ImGui::GetTextLineHeight() * 7.0;
-
 
 				//--- Movement Time Input ---
 				ImGui::SetNextItemWidth(timingcolumnWidth);
@@ -265,41 +272,25 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 				trackEdited |= parameterTrack->timeOffsetInputGui();
 
 				//====== Ramps Column ======
-
 				ImGui::TableNextColumn();
-
-				//--- Ramp In Input ---
-				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-				trackEdited |= parameterTrack->rampInInputGui();
-
-				//--- Ramp Out Input ---
-				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-				trackEdited |= parameterTrack->rampOutInputGui();
-
-				//--- Ramps Equal ---
-				ImGui::SameLine();
-				trackEdited |= parameterTrack->equalRampsCheckboxGui();
+				trackEdited |= parameterTrack->rampInputGui(ImGui::GetTextLineHeight() * 7.0);
 			}
 
 			if (manoeuvreIsPlaying) END_DISABLE_IMGUI_ELEMENT
 
-				ImGui::PopID();
+			ImGui::PopID();
 			ImGui::PopID();
 
-
-			if (chainingDependenciesEdited) {
-				manoeuvre->parentPlot->refreshChainingDependencies();
-			}
-			else if (trackEdited) {
-				parameterTrack->refreshAfterParameterEdit();
-			}
+			if (chainingDependenciesEdited) manoeuvre->parentPlot->refreshChainingDependencies();
+			else if (trackEdited) parameterTrack->refreshAfterParameterEdit();
 
 		}
 
 		ImGui::TableNextRow();
 
 		ImGui::TableSetColumnIndex(0);
-		if (ImGui::Button("Add Track")) ImGui::OpenPopup("ManoeuvreTrackAdder");
+		glm::vec2 addTrackButtonSize(ImGui::GetFrameHeight() * 3.0 + ImGui::GetStyle().ItemSpacing.x * 2.0, ImGui::GetFrameHeight());
+		if (ImGui::Button("Add Track", addTrackButtonSize)) ImGui::OpenPopup("ManoeuvreTrackAdder");
 		if (ImGui::BeginPopup("ManoeuvreTrackAdder")) {
 			for (auto& machine : Environnement::getMachines()) {
 				if (ImGui::BeginMenu(machine->getName())) {
@@ -319,6 +310,8 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 		ImGui::EndTable();
 		
 	}
+
+	ImGui::PopStyleVar(2); //cell padding & item spacing in editing table
 
 	if (removedTrack) manoeuvre->removeTrack(removedTrack->parameter);
 	else if (movedUpTrack) {
@@ -362,6 +355,10 @@ void Manoeuvre::sequenceEditGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 	}
 	ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoChild;
 	if (ImPlot::BeginPlot("##SequenceCurveDisplay", 0, 0, ImGui::GetContentRegionAvail(), plotFlags)) {
+
+		for (auto& parameterTrack : manoeuvre->tracks) {
+			parameterTrack->drawChainedCurves();
+		}
 
 		//draw manoeuvre bounds
 		glm::vec2 plotBoundsMin(ImPlot::GetPlotLimits().X.Min, ImPlot::GetPlotLimits().Y.Max);
