@@ -12,7 +12,7 @@ namespace ApplicationWindow {
 	void close();
 
 	void render();
-	void onRender(bool);
+	void onRender();
 
 	void drawGui();
 	void drawMainWindow();

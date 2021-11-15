@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef STACATO_USE_MAGNUM_ENGINE
+
 #include <Magnum/GL/Texture.h>
 #include <Magnum/GL/Renderbuffer.h>
 #include <Magnum/GL/Framebuffer.h>
@@ -23,3 +25,5 @@ private:
 
 	virtual void updateEvent() = 0;
 };
+
+#endif

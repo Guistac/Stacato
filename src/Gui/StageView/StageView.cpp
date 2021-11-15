@@ -3,9 +3,10 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-
-
-#include "StageViewApplet.h"
+#ifdef STACATO_USE_MAGNUM_ENGINE
+	#include <Magnum/GL/Context.h>
+	#include "StageViewApplet.h"
+#endif
 
 namespace StageView {
 
@@ -15,14 +16,21 @@ namespace StageView {
 
 		ImGui::InvisibleButton("##MagnumCanvas", canvasSize);
 
-		static TestGlApplet* glApplet = nullptr;
-		if (!glApplet) glApplet = new TestGlApplet(canvasSize);
+#ifdef STACATO_USE_MAGNUM_ENGINE
 
-		if (glApplet->getSize() != canvasSize) glApplet->setFramebufferSize(canvasSize);
+		if (Magnum::GL::Context::hasCurrent()) {
 
-		glApplet->update();
+			static TestGlApplet* glApplet = nullptr;
+			if (!glApplet) glApplet = new TestGlApplet(canvasSize);
 
-		ImGui::GetWindowDrawList()->AddImage((ImTextureID)glApplet->getFrameBufferTextureId(), ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), glm::vec2(0, 1), glm::vec2(1, 0));
+			if (glApplet->getSize() != canvasSize) glApplet->setFramebufferSize(canvasSize);
+
+			glApplet->update();
+
+			ImGui::GetWindowDrawList()->AddImage((ImTextureID)glApplet->getFrameBufferTextureId(), ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), glm::vec2(0, 1), glm::vec2(1, 0));
+		}
+#endif
+
 	}
 
 }

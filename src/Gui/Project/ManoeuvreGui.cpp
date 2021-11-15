@@ -141,15 +141,12 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 	int columnCount;
 	switch (manoeuvre->type) {
-	case ManoeuvreType::Type::KEY_POSITION:
-		columnCount = 4;
-		break;
-	case ManoeuvreType::Type::TIMED_MOVEMENT:
-		columnCount = 13;
-		break;
-	case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
-		columnCount = 14;
-		break;
+		case ManoeuvreType::Type::KEY_POSITION:
+			columnCount = 4;
+			break;
+		default:
+			columnCount = 8;
+			break;
 	}
 
 	if (ImGui::BeginTable("##parameters", columnCount, tableFlags)) {
@@ -158,23 +155,13 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 		ImGui::TableSetupColumn("Machine");
 		ImGui::TableSetupColumn("Parameter");
 		if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
-			ImGui::TableSetupColumn("Interpolation");
-		}
-		if (manoeuvre->type == ManoeuvreType::Type::MOVEMENT_SEQUENCE) {
 			ImGui::TableSetupColumn("Movement");
-		}
-		if(manoeuvre->type != ManoeuvreType::Type::KEY_POSITION){
-			ImGui::TableSetupColumn("Chain Previous");
-			ImGui::TableSetupColumn("Start");
-			ImGui::TableSetupColumn("Chain Next");
+			ImGui::TableSetupColumn("Origin");
 		}
 		ImGui::TableSetupColumn("Target");
 		if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
-			ImGui::TableSetupColumn("Time");
-			ImGui::TableSetupColumn("Time Offset");
-			ImGui::TableSetupColumn("Ramp In");
-			ImGui::TableSetupColumn("=");
-			ImGui::TableSetupColumn("Ramp Out");
+			ImGui::TableSetupColumn("Timing");
+			ImGui::TableSetupColumn("Ramps");
 		}
 
 		ImGui::TableHeadersRow();
@@ -191,7 +178,8 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 			if (manoeuvreIsPlaying) BEGIN_DISABLE_IMGUI_ELEMENT
 
-				ImGui::TableSetColumnIndex(0);
+			//====== Track Management Column ======
+			ImGui::TableSetColumnIndex(0);
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.1));
 			if (buttonCross("##remove")) removedTrack = parameterTrack;
 			ImGui::SameLine();
@@ -208,70 +196,89 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 			if (manoeuvreIsPlaying) END_DISABLE_IMGUI_ELEMENT
 
-			
 
+			//====== Machine Column ======
 			ImGui::TableNextColumn();
 			ImGui::Text(parameterTrack->parameter->machine->getName());
 
+			//====== Parameter Column ======
 			ImGui::TableNextColumn();
 			ImGui::Text(parameterTrack->parameter->name);
 
 			if (manoeuvreIsPlaying) BEGIN_DISABLE_IMGUI_ELEMENT
 
-				if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
-					ImGui::TableNextColumn();
-					ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
-					trackEdited |= parameterTrack->interpolationTypeSelectorGui();
-				}
-
-			if (manoeuvre->type == ManoeuvreType::Type::MOVEMENT_SEQUENCE) {
-				ImGui::TableNextColumn();
-				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.5);
-				trackEdited |= parameterTrack->sequenceTypeSelectorGui();
-			}
-
-			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION){
-
-				bool disableOriginFields = manoeuvre->type == ManoeuvreType::Type::TIMED_MOVEMENT;
-
-				if(disableOriginFields) BEGIN_DISABLE_IMGUI_ELEMENT
-
-				ImGui::TableNextColumn();
-				chainingDependenciesEdited |= parameterTrack->originIsPreviousTargetCheckboxGui();
-
-				ImGui::TableNextColumn();
-				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-				trackEdited |= parameterTrack->originInputGui();
-
-				if(disableOriginFields) END_DISABLE_IMGUI_ELEMENT
-
-				ImGui::TableNextColumn();
-				chainingDependenciesEdited |= parameterTrack->targetIsNextOriginCheckboxGui();
-			}
-
-			ImGui::TableNextColumn();
-			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-			trackEdited |= parameterTrack->targetInputGui();
+			//====== Movement Column ======
 
 			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
 				ImGui::TableNextColumn();
+
+				//--- Interpolation Selector ---
+				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
+				trackEdited |= parameterTrack->interpolationTypeSelectorGui();
+
+				//--- Sequence Type Selector ---
+				if (manoeuvre->type == ManoeuvreType::Type::MOVEMENT_SEQUENCE) {
+					ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
+					trackEdited |= parameterTrack->sequenceTypeSelectorGui();
+				}
+			}
+
+			//====== Origin Column ======
+
+			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
+				ImGui::TableNextColumn();
+
+				//--- Origin Input ---
 				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+				trackEdited |= parameterTrack->originInputGui();
+
+				//--- Chain Previous ---
+				chainingDependenciesEdited |= parameterTrack->originIsPreviousTargetCheckboxGui();
+			}
+
+			//====== Target Column ======
+
+			ImGui::TableNextColumn();
+
+			//--- Target Input ---
+			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
+				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+				trackEdited |= parameterTrack->targetInputGui();
+			}
+
+			//--- Chain Next ---
+			chainingDependenciesEdited |= parameterTrack->targetIsNextOriginCheckboxGui();
+
+			//====== Timing Column ======
+
+			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
+				ImGui::TableNextColumn();
+				float timingcolumnWidth = ImGui::GetTextLineHeight() * 7.0;
+
+
+				//--- Movement Time Input ---
+				ImGui::SetNextItemWidth(timingcolumnWidth);
 				trackEdited |= parameterTrack->timeInputGui();
 
-				ImGui::TableNextColumn();
-				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+				//--- Time Offset Input ---
+				ImGui::SetNextItemWidth(timingcolumnWidth);
 				trackEdited |= parameterTrack->timeOffsetInputGui();
 
+				//====== Ramps Column ======
+
 				ImGui::TableNextColumn();
+
+				//--- Ramp In Input ---
 				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
 				trackEdited |= parameterTrack->rampInInputGui();
 
-				ImGui::TableNextColumn();
-				trackEdited |= parameterTrack->equalRampsCheckboxGui();
-
-				ImGui::TableNextColumn();
+				//--- Ramp Out Input ---
 				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
 				trackEdited |= parameterTrack->rampOutInputGui();
+
+				//--- Ramps Equal ---
+				ImGui::SameLine();
+				trackEdited |= parameterTrack->equalRampsCheckboxGui();
 			}
 
 			if (manoeuvreIsPlaying) END_DISABLE_IMGUI_ELEMENT
@@ -286,6 +293,7 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 			else if (trackEdited) {
 				parameterTrack->refreshAfterParameterEdit();
 			}
+
 		}
 
 		ImGui::TableNextRow();
@@ -309,6 +317,7 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 		}
 
 		ImGui::EndTable();
+		
 	}
 
 	if (removedTrack) manoeuvre->removeTrack(removedTrack->parameter);

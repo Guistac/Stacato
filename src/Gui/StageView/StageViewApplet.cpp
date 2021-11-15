@@ -4,6 +4,8 @@
 
 #include "StageViewApplet.h"
 
+#ifdef STACATO_USE_MAGNUM_ENGINE
+
 #include <Magnum/GL/Renderer.h>
 #include <Magnum/Trade/MeshData.h>
 #include <Magnum/Primitives/Cube.h>
@@ -81,7 +83,7 @@ void TestGlApplet::updateEvent() {
 
 	shader.draw(mouseMesh);
 
-	if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+	if (ImGui::IsItemActive() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 		_color = Color3::fromHsv({ _color.hue() + 50.0_degf, 1.0f, 1.0f });
 	}
 
@@ -90,7 +92,7 @@ void TestGlApplet::updateEvent() {
 	glm::vec2 dragDelta = currentMousePosition - previousMousePosition;
 	previousMousePosition = currentMousePosition;
 
-	if (ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+	if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
 		glm::vec2 rotationDragDelta = dragDelta * glm::vec2(0.005);
 		_transformation = Matrix4::rotationX(Rad{ rotationDragDelta.y }) * _transformation * Matrix4::rotationY(Rad{ rotationDragDelta.x });
 	}
@@ -103,3 +105,5 @@ void TestGlApplet::updateEvent() {
 		.setProjectionMatrix(_projection)
 		.draw(cubeMesh);
 }
+
+#endif

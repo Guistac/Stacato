@@ -2,6 +2,8 @@
 
 #include "GlApplet.h"
 
+#ifdef STACATO_USE_MAGNUM_ENGINE
+
 #include <Magnum/GL/TextureFormat.h>
 #include <Magnum/GL/RenderbufferFormat.h>
 #include <Magnum/GL/DefaultFramebuffer.h>
@@ -35,3 +37,6 @@ void GlApplet::update() {
 	updateEvent();
 	Magnum::GL::defaultFramebuffer.bind();
 }
+
+
+#endif

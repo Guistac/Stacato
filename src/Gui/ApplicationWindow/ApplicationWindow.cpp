@@ -2,14 +2,23 @@
 
 #include "ApplicationWindow.h"
 
-//we include magnums gl context first since it loads the opengl functions
-#include <Magnum/Platform/GLContext.h>
-//we include glfw after so it doesn't do any gl loading
-#include <glfw/glfw3.h>
-//we declare the following so imgui doesn't try to do any importing of external gl loaders (config.h is just a dummy import)
-#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM "config.h"
-#include <backends/imgui_impl_opengl3.cpp>
-#include <backends/imgui_impl_glfw.cpp>
+#ifdef STACATO_USE_MAGNUM_ENGINE
+	//we include magnums gl context first since it loads the opengl functions
+	#include <Magnum/Platform/GLContext.h>
+	//we include glfw after so it doesn't do any gl loading
+	#include <glfw/glfw3.h>
+	//we declare the following so imgui doesn't try to do any importing of external gl loaders (config.h is just a dummy import)
+	#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM "config.h"
+	#include <backends/imgui_impl_opengl3.cpp>
+	#include <backends/imgui_impl_glfw.cpp>
+#else
+	//Use the GLAD Gl Loader and disable Magnum
+	#include <glad/glad.h>
+	#define IMGUI_IMPL_OPENGL_LOADER_GLAD
+	#include <backends/imgui_impl_opengl3.cpp>
+	#include <backends/imgui_impl_glfw.cpp>
+	#include <GLFW/glfw3.h>
+#endif
 
 #include <implot.h>
 #include "Gui/NodeEditor/NodeEditorGui.h"
@@ -52,12 +61,20 @@ namespace ApplicationWindow {
 
 		//activate the opengl context
 		glfwMakeContextCurrent(window);
-		Logger::info("OpenGL Version {}", (const char*)glGetString(GL_VERSION));
+
 		//active V-Sync
 		glfwSwapInterval(1);
 
+#ifndef STACATO_USE_MAGNUM_ENGINE
+		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+#endif
+
+		Logger::info("OpenGL Version {}", (const char*)glGetString(GL_VERSION));
+
 		//initialize gl context for magnum engine
+#ifdef STACATO_USE_MAGNUM_ENGINE
 		Magnum::Platform::GLContext magnumGlContext;
+#endif
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -94,6 +111,7 @@ namespace ApplicationWindow {
 				glfwSetWindowShouldClose(window, GLFW_FALSE);
 				requestClose();
 			}
+			glfwMakeContextCurrent(window); //with multiple windows (docking) the context needs to be set each time
 			glfwPollEvents();
 			render();
 			glfwSwapBuffers(window);
@@ -129,7 +147,7 @@ namespace ApplicationWindow {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		onRender(false);
+		onRender();
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		//Update and Render additional Platform Windows
@@ -142,7 +160,7 @@ namespace ApplicationWindow {
 
 
 
-	void onRender(bool shouldClose) {
+	void onRender() {
 		drawGui();
 	}
 

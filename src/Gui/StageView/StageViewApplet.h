@@ -1,6 +1,8 @@
 
 #include "GlApplet.h"
 
+#ifdef STACATO_USE_MAGNUM_ENGINE
+
 #include <Magnum/GL/Buffer.h>
 #include <Magnum/GL/Mesh.h>
 #include <Magnum/Shaders/VertexColorGL.h>
@@ -25,3 +27,5 @@ public:
 	TestGlApplet(glm::vec2 s);
 	virtual void updateEvent();
 };
+
+#endif

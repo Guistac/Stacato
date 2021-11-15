@@ -11,6 +11,12 @@ set(CMAKE_CSS_STANDARD_REQUIRED True)
 #writes the project version number to config.h (will be in build binaries folder)
 configure_file(src/core/config.h.in src/core/config.h)
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+	message("Visual Studio : Enabling Edit and Continue")
+	set(CMAKE_CXX_FLAGS_DEBUG "/ZI")
+	set(CMAKE_SHARED_LINKER_FLAGS "/SAFESEH:NO")
+	set(CMAKE_EXE_LINKER_FLAGS "/SAFESEH:NO")
+endif()
 
 
 #======= Dependencies =========
@@ -59,6 +65,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 
 
+
 #link the project with librairies we just added
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	#=== Logging ===
@@ -66,7 +73,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 	#=== Network ===
 	soem
-	glm
+	asio
 
 	#=== Saving & Loading Files ====
 	nfd
@@ -74,31 +81,32 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 	##=== Windowing & Gui ===
 	glfw
-	#glad
 	dearimgui
 	imguinodeeditor
 	implot
 
 	#=== Math ===
-	asio
-
-	#=== Magnum Librairies ===
-	MagnumLibs
+	glm
 )
+
+option(STACATO_USE_MAGNUM_ENGINE OFF)
+
+if(STACATO_USE_MAGNUM_ENGINE)
+	target_link_libraries(${PROJECT_NAME} PRIVATE MagnumLibs)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE STACATO_USE_MAGNUM_ENGINE)
+else()
+	target_link_libraries(${PROJECT_NAME} PRIVATE glad)
+endif()
 
 
 if(WIN32)
 	target_link_directories(${PROJECT_NAME} PRIVATE
-		#=== directory of the wpcap .lib binary included in soem repo
+		#=== directory of the wpcap .lib binary included in soem repo ===
+		#=== soem CMakeLists.txt handles linking wpcap.lib ===
 		${PROJECT_SOURCE_DIR}/dependencies/soem/oshw/win32/wpcap/Lib/x64/
 	)
-	target_link_libraries(${PROJECT_NAME} PRIVATE
-		#=== links actual wpcap .lib binary included in soem repo
-		wpcap
-	)
 	target_include_directories(${PROJECT_NAME} PRIVATE
-		${PROJECT_SOURCE_DIR}/dependencies/soem/osal/win32
-		${PROJECT_SOURCE_DIR}/dependencies/soem/oshw/win32
+		#=== include path for wpcap.lib headers ===
 		${PROJECT_SOURCE_DIR}/dependencies/soem/oshw/win32/wpcap/Include
 	)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE
@@ -124,14 +132,6 @@ endif()
 
 
 if(APPLE)
-	target_link_libraries(${PROJECT_NAME} PRIVATE
-		#Cocoa.framework
-        #IOKit.framework
-	)
-	target_include_directories(${PROJECT_NAME} PRIVATE
-		${PROJECT_SOURCE_DIR}/dependencies/soem/osal/macosx
-        ${PROJECT_SOURCE_DIR}/dependencies/soem/oshw/macosx
-	)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${PROJECT_SOURCE_DIR}/dir/Resources"

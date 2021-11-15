@@ -198,7 +198,7 @@ bool ParameterTrack::timeInputGui() {
 	bool valueChanged = false;
 	switch (sequenceType) {
 		case SequenceType::Type::TIMED_MOVE:
-			valueChanged = ImGui::InputDouble("##constraint", &movementTime, 0.0, 0.0, "%.3f s");
+			valueChanged = ImGui::InputDouble("##movementTime", &movementTime, 0.0, 0.0, "Movement: %.1f s");
 			break;
 		default:
 			break;
@@ -222,7 +222,7 @@ bool ParameterTrack::timeOffsetInputGui() {
 				case InterpolationType::Type::STEP:
 					break;
 				default:
-					valueChanged = ImGui::InputDouble("##timeOffset", &timeOffset, 0.0, 0.0, "%.3f s");
+					valueChanged = ImGui::InputDouble("##timeOffset", &timeOffset, 0.0, 0.0, "Time Offset: %.1f s");
 					break;
 			}
 			break;
