@@ -74,6 +74,7 @@ namespace ApplicationWindow {
 		//initialize gl context for magnum engine
 #ifdef STACATO_USE_MAGNUM_ENGINE
 		Magnum::Platform::GLContext magnumGlContext;
+		//magnumGlContext.
 #endif
 
 		IMGUI_CHECKVERSION();

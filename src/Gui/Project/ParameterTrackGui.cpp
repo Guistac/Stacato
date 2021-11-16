@@ -38,7 +38,7 @@ bool ParameterTrack::sequenceTypeSelectorGui() {
 	bool valueChanged = false;
 	if (ImGui::BeginCombo("##SequenceTypeSelector", getSequenceType(sequenceType)->displayName)) {
 		for (auto& st : getSequenceTypes()) {
-			if (st.type == SequenceType::Type::NO_MOVE) continue;
+			if (st.type == SequenceType::Type::CONSTANT) continue;
 			if(st.type == SequenceType::Type::ANIMATED_MOVE) BEGIN_DISABLE_IMGUI_ELEMENT
 			if (ImGui::Selectable(st.displayName, st.type == sequenceType)) {
 				setSequenceType(st.type);
@@ -98,7 +98,7 @@ bool ParameterTrack::chainPreviousGui(float width) {
 		else {
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
-			sprintf(chainingButtonString, "Not Chaining##ChainPrevious");
+			sprintf(chainingButtonString, "Not Chained##ChainPrevious");
 		}
 		if (ImGui::Button(chainingButtonString, buttonSize)) {
 			originIsPreviousTarget = !originIsPreviousTarget;
@@ -159,7 +159,7 @@ bool ParameterTrack::chainNextGui(float width) {
 		else {
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
-			sprintf(chainingButtonString, "Not Chaining##ChainNext");
+			sprintf(chainingButtonString, "Not Chained##ChainNext");
 		}
 		if (ImGui::Button(chainingButtonString, buttonSize)) {
 			targetIsNextOrigin = !targetIsNextOrigin;
@@ -463,15 +463,25 @@ void ParameterTrack::drawChainedCurves() {
 }
 
 bool ParameterTrack::drawControlPoints() {
-	bool pointEdited = false;
+	bool edited = false;
+
+	if (sequenceType == SequenceType::Type::CONSTANT) {
+		for (int i = 0; i < getCurveCount(); i++) {
+			edited |= ImPlot::DragLineY(curves[i]->name, &endPoints[i]->position, true, Colors::gray, 4.0);
+		}
+		if (edited) refreshAfterCurveEdit();
+		return edited;
+	}
+
 	for (auto& curve : curves) {
+
 		for (int i = 0; i < curve->getPoints().size(); i++) {
 			//don't draw the first control point of a step interpolation sequence, since we can't edit it anyway
 			if (sequenceType == SequenceType::Type::TIMED_MOVE && interpolationType == InterpolationType::Type::STEP && i == 0) continue;
-			
+
 			auto& controlPoint = curve->getPoints()[i];
 			bool controlPointEdited = false;
-			
+
 			bool pointIsChained = (originIsPreviousTarget && i == 0) || (targetIsNextOrigin && i == curve->getPoints().size() - 1);
 
 			if (pointIsChained) {
@@ -524,12 +534,12 @@ bool ParameterTrack::drawControlPoints() {
 
 			}
 
-
 			if (controlPointEdited) {
 				refreshAfterCurveEdit();
-				pointEdited = true;
+				edited = true;
 			}
 		}
+
 	}
-	return pointEdited;
+	return edited;
 }

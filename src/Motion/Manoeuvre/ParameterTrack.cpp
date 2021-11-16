@@ -182,7 +182,7 @@ void ParameterTrack::setSequenceType(SequenceType::Type t) {
 
 
 void ParameterTrack::refreshAfterParameterEdit() {
-	if (sequenceType == SequenceType::Type::NO_MOVE) origin = target;
+	if (sequenceType == SequenceType::Type::CONSTANT) origin = target;
 
 	if (nextChainedSlaveTrack) {
 		nextChainedSlaveTrack->origin = target;
@@ -275,7 +275,7 @@ void ParameterTrack::refreshAfterChainedDependenciesRefresh() {
 		case SequenceType::Type::ANIMATED_MOVE:
 			b_valid = false;
 			break;
-		case SequenceType::Type::NO_MOVE: {
+		case SequenceType::Type::CONSTANT: {
 			origin = target;
 			for (int i = 0; i < getCurveCount(); i++) {
 				curves[i]->removeAllPoints();
@@ -506,9 +506,9 @@ bool ParameterTrack::isPrimedToPlaybackPosition() {
 double ParameterTrack::getLength_seconds() {
 	double longestCurve = 0.0;
 	for (auto& curve : curves) {
-		if (curve->getEnd()->time > longestCurve) {
-			longestCurve = curve->getEnd()->time;
-		}
+		double time;
+		if (curve->points.size() <= 1) time = 0;
+		else if (curve->getEnd()->time > longestCurve) longestCurve = curve->getEnd()->time;
 	}
 	return longestCurve;
 }
@@ -562,7 +562,7 @@ void ParameterTrack::getParameterValueAtPlaybackTime(AnimatableParameterValue& o
 
 
 std::vector<SequenceType> sequenceTypes = {
-	{SequenceType::Type::NO_MOVE, "No Move", "NoMove"},
+	{SequenceType::Type::CONSTANT, "Constant", "Constant"},
 	{SequenceType::Type::TIMED_MOVE, "Timed", "TimedMove"},
 	{SequenceType::Type::ANIMATED_MOVE, "Animated", "AnimatedMove"}
 };

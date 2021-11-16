@@ -142,7 +142,7 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 	int columnCount;
 	switch (manoeuvre->type) {
 		case ManoeuvreType::Type::KEY_POSITION:
-			columnCount = 4;
+			columnCount = 6;
 			break;
 		default:
 			columnCount = 8;
@@ -158,13 +158,18 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 		ImGui::TableSetupColumn("Machine");
 		ImGui::TableSetupColumn("Parameter");
 		if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
-			ImGui::TableSetupColumn("Movement");
+			if (manoeuvre->type == ManoeuvreType::Type::TIMED_MOVEMENT)
+				ImGui::TableSetupColumn("Interpolation");
+			else ImGui::TableSetupColumn("Movement");
 			ImGui::TableSetupColumn("Origin");
-		}
-		ImGui::TableSetupColumn("Target");
-		if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
+			ImGui::TableSetupColumn("Target");
 			ImGui::TableSetupColumn("Timing");
 			ImGui::TableSetupColumn("Ramps");
+		}
+		else {
+			ImGui::TableSetupColumn("Previous");
+			ImGui::TableSetupColumn("Target");
+			ImGui::TableSetupColumn("Next");
 		}
 
 		ImGui::TableHeadersRow();
@@ -237,25 +242,50 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
 				ImGui::TableNextColumn();
-
-				//--- Origin Input ---
-				trackEdited |= parameterTrack->originInputGui(originTargetInputFieldWidth);
+				
+				if (parameterTrack->sequenceType != SequenceType::Type::CONSTANT) {
+					//--- Origin Input ---
+					trackEdited |= parameterTrack->originInputGui(originTargetInputFieldWidth);
+				}
+				else ImGui::Dummy(glm::vec2(originTargetInputFieldWidth, ImGui::GetFrameHeight()));
 
 				//--- Chain Previous ---
+				bool disablePreviousChaining = manoeuvre->type == ManoeuvreType::Type::TIMED_MOVEMENT;
+				if (disablePreviousChaining) ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 				chainingDependenciesEdited |= parameterTrack->chainPreviousGui(originTargetInputFieldWidth);
+				if (disablePreviousChaining) ImGui::PopItemFlag();
 			}
 
-			//====== Target Column ======
 
-			ImGui::TableNextColumn();
+			if (manoeuvre->type == ManoeuvreType::Type::KEY_POSITION) {
+				float keyPositionChainingGuiWidh = ImGui::GetTextLineHeight() * 6.0;
 
-			//--- Target Input ---
-			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
+				//--- Previous Chained
+				ImGui::TableNextColumn();
+				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+				chainingDependenciesEdited |= parameterTrack->chainPreviousGui(keyPositionChainingGuiWidh);
+				ImGui::PopItemFlag();
+
+				//--- Target Input ----
+				ImGui::TableNextColumn();
 				trackEdited |= parameterTrack->targetInputGui(originTargetInputFieldWidth);
+				
+				//--- Next Chained ---
+				ImGui::TableNextColumn();
+				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+				chainingDependenciesEdited |= parameterTrack->chainNextGui(keyPositionChainingGuiWidh);
+				ImGui::PopItemFlag();
+			
+			}else{
+
+				//====== Target Column ======
+				ImGui::TableNextColumn();
+				//--- Target Input ---
+				trackEdited |= parameterTrack->targetInputGui(originTargetInputFieldWidth);
+				//--- Chain Next ---
+				chainingDependenciesEdited |= parameterTrack->chainNextGui(originTargetInputFieldWidth);
 			}
 
-			//--- Chain Next ---
-			chainingDependenciesEdited |= parameterTrack->chainNextGui(originTargetInputFieldWidth);
 
 			//====== Timing Column ======
 
@@ -267,9 +297,11 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 				ImGui::SetNextItemWidth(timingcolumnWidth);
 				trackEdited |= parameterTrack->timeInputGui();
 
-				//--- Time Offset Input ---
-				ImGui::SetNextItemWidth(timingcolumnWidth);
-				trackEdited |= parameterTrack->timeOffsetInputGui();
+				if (manoeuvre->type != ManoeuvreType::Type::TIMED_MOVEMENT) {
+					//--- Time Offset Input ---
+					ImGui::SetNextItemWidth(timingcolumnWidth);
+					trackEdited |= parameterTrack->timeOffsetInputGui();
+				}
 
 				//====== Ramps Column ======
 				ImGui::TableNextColumn();
@@ -343,9 +375,7 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 		}
 	}
 
-	if (manoeuvre->type == ManoeuvreType::Type::MOVEMENT_SEQUENCE) {
-		Manoeuvre::sequenceEditGui(manoeuvre);
-	}
+	Manoeuvre::sequenceEditGui(manoeuvre);
 }
 
 void Manoeuvre::sequenceEditGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
@@ -360,40 +390,59 @@ void Manoeuvre::sequenceEditGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 			parameterTrack->drawChainedCurves();
 		}
 
-		//draw manoeuvre bounds
-		glm::vec2 plotBoundsMin(ImPlot::GetPlotLimits().X.Min, ImPlot::GetPlotLimits().Y.Max);
-		glm::vec2 plotBoundsMax(ImPlot::GetPlotLimits().X.Max, ImPlot::GetPlotLimits().Y.Min);
-		double startTime = 0.0;
-		double endTime = manoeuvre->getLength_seconds();
-		std::vector<glm::vec2> limits;
-		limits.push_back(glm::vec2(plotBoundsMin.x, plotBoundsMin.y));
-		limits.push_back(glm::vec2(startTime, plotBoundsMin.y));
-		limits.push_back(glm::vec2(startTime, plotBoundsMax.y));
-		limits.push_back(glm::vec2(endTime, plotBoundsMax.y));
-		limits.push_back(glm::vec2(endTime, plotBoundsMin.y));
-		limits.push_back(glm::vec2(plotBoundsMax.x, plotBoundsMin.y));
-		if (endTime > 0.0) {
-			ImPlot::SetNextFillStyle(Colors::black, 0.5);
-			ImPlot::PlotShaded("##shaded", &limits.front().x, &limits.front().y, limits.size(), -INFINITY, 0, sizeof(glm::vec2));
-			ImPlot::PlotVLines("##Limits1", &startTime, 1);
-			ImPlot::PlotVLines("##Limits2", &endTime, 1);
+		if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
+
+			//draw manoeuvre bounds
+			glm::vec2 plotBoundsMin(ImPlot::GetPlotLimits().X.Min, ImPlot::GetPlotLimits().Y.Max);
+			glm::vec2 plotBoundsMax(ImPlot::GetPlotLimits().X.Max, ImPlot::GetPlotLimits().Y.Min);
+			double startTime = 0.0;
+			double endTime = manoeuvre->getLength_seconds();
+			std::vector<glm::vec2> limits;
+			limits.push_back(glm::vec2(plotBoundsMin.x, plotBoundsMin.y));
+			limits.push_back(glm::vec2(startTime, plotBoundsMin.y));
+			limits.push_back(glm::vec2(startTime, plotBoundsMax.y));
+			limits.push_back(glm::vec2(endTime, plotBoundsMax.y));
+			limits.push_back(glm::vec2(endTime, plotBoundsMin.y));
+			limits.push_back(glm::vec2(plotBoundsMax.x, plotBoundsMin.y));
+			if (endTime > 0.0) {
+				ImPlot::SetNextFillStyle(Colors::black, 0.5);
+				ImPlot::PlotShaded("##shaded", &limits.front().x, &limits.front().y, limits.size(), -INFINITY, 0, sizeof(glm::vec2));
+				ImPlot::PlotVLines("##Limits1", &startTime, 1);
+				ImPlot::PlotVLines("##Limits2", &endTime, 1);
+			}
+
+			for (auto& parameterTrack : manoeuvre->tracks) {
+				parameterTrack->drawCurves(startTime, endTime);
+			}
+			for (auto& parameterTrack : manoeuvre->tracks) {
+				ImGui::PushID(parameterTrack->parameter->machine->getName());
+				ImGui::PushID(parameterTrack->parameter->name);
+				bool controlPointEdited = parameterTrack->drawControlPoints();
+				ImGui::PopID();
+				ImGui::PopID();
+			}
+
+			double playbackTime = manoeuvre->playbackPosition_seconds;
+			ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
+			ImPlot::PlotVLines("Playhead", &playbackTime, 1);
+
+		}
+		else {
+		
+			double zero = 0.0;
+			ImPlot::SetNextLineStyle(Colors::white, 2.0);
+			ImPlot::PlotVLines("##ZeroTime", &zero, 1);
+
+			for (auto& parameterTrack : manoeuvre->tracks) {
+				ImGui::PushID(parameterTrack->parameter->machine->getName());
+				ImGui::PushID(parameterTrack->parameter->name);
+				bool controlPointEdited = parameterTrack->drawControlPoints();
+				ImGui::PopID();
+				ImGui::PopID();
+			}
+
 		}
 
-		for (auto& parameterTrack : manoeuvre->tracks) {
-			parameterTrack->drawCurves(startTime, endTime);
-		}
-		for (auto& parameterTrack : manoeuvre->tracks) {
-			ImGui::PushID(parameterTrack->parameter->machine->getName());
-			ImGui::PushID(parameterTrack->parameter->name);
-			bool controlPointEdited = parameterTrack->drawControlPoints();
-			ImGui::PopID();
-			ImGui::PopID();
-		}
-
-
-		double playbackTime = manoeuvre->playbackPosition_seconds;
-		ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
-		ImPlot::PlotVLines("Playhead", &playbackTime, 1);
 
 		ImPlot::EndPlot();
 	}

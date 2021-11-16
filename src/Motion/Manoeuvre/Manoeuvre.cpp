@@ -27,7 +27,7 @@ void Manoeuvre::addTrack(std::shared_ptr<AnimatableParameter>& parameter) {
 	tracks.push_back(newTrack);
 	switch (type) {
 	case ManoeuvreType::Type::KEY_POSITION:
-			newTrack->setSequenceType(SequenceType::Type::NO_MOVE);
+			newTrack->setSequenceType(SequenceType::Type::CONSTANT);
 			break;
 		case ManoeuvreType::Type::TIMED_MOVEMENT:
 		case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
@@ -86,7 +86,7 @@ void Manoeuvre::setType(ManoeuvreType::Type t) {
 	switch (type) {
 		case ManoeuvreType::Type::KEY_POSITION:
 			for (auto& track : tracks) {
-				track->setSequenceType(SequenceType::Type::NO_MOVE);
+				track->setSequenceType(SequenceType::Type::CONSTANT);
 			}
 			break;
 		case ManoeuvreType::Type::TIMED_MOVEMENT:

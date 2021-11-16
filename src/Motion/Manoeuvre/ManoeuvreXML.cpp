@@ -45,7 +45,7 @@ bool ParameterTrack::save(tinyxml2::XMLElement* trackXML) {
 		trackXML->SetAttribute("RampsAreEqual", rampsAreEqual);
 		if (!rampsAreEqual) trackXML->SetAttribute("RampOut", rampOut);
 		break;
-	case SequenceType::Type::NO_MOVE:
+	case SequenceType::Type::CONSTANT:
 		XMLElement* targetXML = trackXML->InsertNewChildElement("Target");
 		targetXML->SetAttribute("IsEqualToNextOrigin", targetIsNextOrigin);
 		if(!targetIsNextOrigin) target.save(targetXML);
@@ -127,7 +127,7 @@ bool ParameterTrack::load(tinyxml2::XMLElement* trackXML) {
 			if (trackXML->QueryDoubleAttribute("RampOut", &rampOut) != XML_SUCCESS) return Logger::warn("Could not read ramp out attribute");
 		}
 		break;
-	case SequenceType::Type::NO_MOVE:
+	case SequenceType::Type::CONSTANT:
 		if (targetIsNextOrigin) trackXML->SetAttribute("TargetIsNextOrigin", targetIsNextOrigin);
 		if (!targetIsNextOrigin) {
 			XMLElement* targetXML = trackXML->FirstChildElement("Target");

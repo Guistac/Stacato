@@ -9,7 +9,7 @@ class Manoeuvre;
 
 struct SequenceType {
 	enum class Type {
-		NO_MOVE,
+		CONSTANT,
 		TIMED_MOVE,
 		ANIMATED_MOVE
 	};
