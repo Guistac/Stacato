@@ -167,6 +167,10 @@ void SingleAxisMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter
 	}
 }
 
+void SingleAxisMachine::startParameterPlayback(std::shared_ptr<AnimatableParameter> parameters) {}
+
+void SingleAxisMachine::stopParameterPlayback(std::shared_ptr<AnimatableParameter> parameters) {}
+
 bool SingleAxisMachine::validateParameterCurve(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& curves) {
 	bool b_curveValid = true;
 
@@ -256,7 +260,11 @@ void SingleAxisMachine::getTimedParameterCurveTo(const std::shared_ptr<Animatabl
 }
 
 
-
+void SingleAxisMachine::enterSimulationMode() {}
+void SingleAxisMachine::exitSimulationMode() {}
+bool SingleAxisMachine::isInSimulationMode() {
+	return false;
+}
 
 
 
