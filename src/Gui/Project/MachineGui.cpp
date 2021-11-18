@@ -10,31 +10,33 @@
 
 void Machine::nodeSpecificGui() {
 	if (ImGui::BeginTabItem("Controls")) {
-		if (ImGui::BeginChild("Controls")) {
-			controlsGui();
-			ImGui::EndChild();
-		}
+		ImGui::BeginChild("Controls");
+		controlsGui();
+		ImGui::EndChild();
 		ImGui::EndTabItem();
 	}
 	if (ImGui::BeginTabItem("Settings")) {
-		if (ImGui::BeginChild("Settings")) {
-			settingsGui();
-			ImGui::EndChild();
-		}
+		ImGui::BeginChild("Settings");
+		settingsGui();
+		ImGui::EndChild();
+		ImGui::EndTabItem();
+	}
+	if (ImGui::BeginTabItem("Axis")) {
+		ImGui::BeginChild("Axis");
+		axisGui();
+		ImGui::EndChild();
 		ImGui::EndTabItem();
 	}
 	if (ImGui::BeginTabItem("Devices")) {
-		if (ImGui::BeginChild("Devices")) {
-			axisGui();
-			ImGui::EndChild();
-		}
+		ImGui::BeginChild("Devices");
+		deviceGui();
+		ImGui::EndChild();
 		ImGui::EndTabItem();
 	}
 	if (ImGui::BeginTabItem("Metrics")) {
-		if (ImGui::BeginChild("Metrics")) {
-			metricsGui();
-			ImGui::EndChild();
-		}
+		ImGui::BeginChild("Metrics");
+		metricsGui();
+		ImGui::EndChild();
 		ImGui::EndTabItem();
 	}
 }

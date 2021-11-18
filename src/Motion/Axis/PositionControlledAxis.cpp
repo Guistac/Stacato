@@ -29,6 +29,8 @@ void PositionControlledAxis::assignIoData() {
 	addIoData(velocity);
 	setPositionControlType(positionControl);
 	setPositionReferenceSignalType(positionReferenceSignal);
+
+	targetInterpolation = std::make_shared<Motion::Interpolation>();
 }
 
 void PositionControlledAxis::process() {
@@ -87,40 +89,37 @@ void PositionControlledAxis::process() {
 	}
 
 	//update timing
-	if (needsActuator) profileTime_seconds = actuatorDevice->getCommandRequestTime_seconds();
-	else if (needsServo) actualLoad_normalized = servoActuatorDevice->getCommandRequestTime_seconds();
-	//currentProfilePointDeltaT_seconds = currentProfilePointTime_seconds - previousProfilePointTime_seconds;
-	//previousProfilePointTime_seconds = currentProfilePointTime_seconds;
+	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
+	profileTimeDelta_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 
-	//UPDATE PROFILE GENERATOR
-	/*
-	if (isEnabled() && hasManualControlsEnabled()) {
-		//if the axis is enabled and manual controls are enabled
-		//the axis controls itself and sends commands to the actuators
+	//update profile generator
+	if (isEnabled()) {
+
+		//here the machine updates the motion profile of the axis and sends the commands to the actuators
+		if (controlMode == ControlMode::Mode::MACHINE_CONTROL && isAxisPinConnected()) return;
+		
+		//else the axis controls itself and sends commands to the actuators
 		if (b_isHoming) homingControl();
 		switch (controlMode) {
-			case ControlMode::Mode::MANUAL_VELOCITY_TARGET:
+			case ControlMode::Mode::VELOCITY_TARGET:
 				velocityTargetControl();
 				break;
-			case ControlMode::Mode::MANUAL_POSITION_TARGET:
+			case ControlMode::Mode::POSITION_TARGET:
 				positionTargetControl();
 				break;
 			case ControlMode::Mode::FAST_STOP:
 				fastStopControl();
 				break;
+			default:
+				break;
 		}
-	}
-	else  {
-		profilePosition_axisUnits = actualPosition_axisUnits;
-		profileVelocity_axisUnitsPerSecond = actualVelocity_axisUnitsPerSecond;
-	}
-	if (axisLink->isConnected() && isEnabled() && !hasManualControlsEnabled()) {
-		//here the machine controls the profile and actuator command sending
-	}
-	else {
 		sendActuatorCommands();
 	}
-	*/
+	else  {
+		//if the machine is disabled, we just update the motion profile using the actual feedback data
+		profilePosition_axisUnits = actualPosition_axisUnits;
+		profileVelocity_axisUnitsPerSecond = actualVelocity_axisUnitsPerSecond;
+	}	
 }
 
 void PositionControlledAxis::sendActuatorCommands() {
@@ -525,16 +524,14 @@ void PositionControlledAxis::fastStopControl() {
 	}
 	else {
 		profileVelocity_axisUnitsPerSecond = 0.0;
-		setVelocity(0.0);
+		setVelocityTarget(0.0);
 	}
 }
 
-void PositionControlledAxis::setVelocity(double velocity_axisUnits) {
+void PositionControlledAxis::setVelocityTarget(double velocity_axisUnits) {
 	manualVelocityTarget_axisUnitsPerSecond = velocity_axisUnits;
-	if (controlMode == ControlMode::Mode::MANUAL_POSITION_TARGET) {
-		targetInterpolation->resetValues();
-	}
-	controlMode = ControlMode::Mode::MANUAL_VELOCITY_TARGET;
+	if (controlMode == ControlMode::Mode::POSITION_TARGET) targetInterpolation->resetValues();
+	controlMode = ControlMode::Mode::VELOCITY_TARGET;
 }
 
 void PositionControlledAxis::velocityTargetControl() {
@@ -588,11 +585,11 @@ void PositionControlledAxis::moveToPositionWithVelocity(double position_axisUnit
 	auto startPoint = std::make_shared<Motion::ControlPoint>(profileTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
 	auto endPoint = std::make_shared<Motion::ControlPoint>(0.0, position_axisUnits, acceleration_axisUnits, 0.0);
 	if (Motion::TrapezoidalInterpolation::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, velocity_axisUnits, targetInterpolation)) {
-		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
+		controlMode = ControlMode::Mode::POSITION_TARGET;
 		manualVelocityTarget_axisUnitsPerSecond = 0.0;
 	}
 	else {
-		setVelocity(0.0);
+		setVelocityTarget(0.0);
 	}
 }
 
@@ -638,8 +635,8 @@ void PositionControlledAxis::startHoming() {
 void PositionControlledAxis::cancelHoming() {
 	b_isHoming = false;
 	homingStep = Homing::Step::NOT_STARTED;
-	controlMode = ControlMode::Mode::MANUAL_VELOCITY_TARGET;
-	setVelocity(0.0);
+	controlMode = ControlMode::Mode::VELOCITY_TARGET;
+	setVelocityTarget(0.0);
 }
 
 bool PositionControlledAxis::isHoming() {
@@ -677,11 +674,11 @@ void PositionControlledAxis::homingControl() {
 				homingStep = Step::SEARCHING_LOW_LIMIT_COARSE;
 				break;
 			case Step::SEARCHING_LOW_LIMIT_COARSE:
-				setVelocity(-homingVelocity_axisUnitsPerSecond);
+				setVelocityTarget(-homingVelocity_axisUnitsPerSecond);
 				if (!previousLowLimitSignal && lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_COARSE;
 				break;
 			case Step::FOUND_LOW_LIMIT_COARSE:
-				setVelocity(0.0);
+				setVelocityTarget(0.0);
 				if (!isMoving()) {
 					if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
 						getServoActuatorDevice()->enable();
@@ -694,11 +691,11 @@ void PositionControlledAxis::homingControl() {
 				}
 				break;
 			case Step::SEARCHING_LOW_LIMIT_FINE:
-				setVelocity(homingVelocity_axisUnitsPerSecond / 10.0);
+				setVelocityTarget(homingVelocity_axisUnitsPerSecond / 10.0);
 				if (previousLowLimitSignal && !lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_FINE;
 				break;
 			case Step::FOUND_LOW_LIMIT_FINE:
-				setVelocity(0.0);
+				setVelocityTarget(0.0);
 				if (!isMoving()) homingStep = Step::RESETTING_POSITION_FEEDBACK;
 				break;
 			case Step::RESETTING_POSITION_FEEDBACK:
@@ -717,7 +714,7 @@ void PositionControlledAxis::homingControl() {
 					homingStep = Step::SEARCHING_LOW_LIMIT_COARSE;
 					break;
 				case Step::SEARCHING_LOW_LIMIT_COARSE:
-					setVelocity(-homingVelocity_axisUnitsPerSecond);
+					setVelocityTarget(-homingVelocity_axisUnitsPerSecond);
 					if (!previousHighLimitSignal && highLimitSignal) {
 						homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
 						onHomingError();
@@ -725,7 +722,7 @@ void PositionControlledAxis::homingControl() {
 					else if (!previousLowLimitSignal && lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_COARSE;
 					break;
 				case Step::FOUND_LOW_LIMIT_COARSE:
-					setVelocity(0.0);
+					setVelocityTarget(0.0);
 					if (!isMoving()) {
 						if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
 							getServoActuatorDevice()->enable();
@@ -737,11 +734,11 @@ void PositionControlledAxis::homingControl() {
 					}
 					break;
 				case Step::SEARCHING_LOW_LIMIT_FINE:
-					setVelocity(homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(homingVelocity_axisUnitsPerSecond / 10.0);
 					if (previousLowLimitSignal && !lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_FINE;
 					break;
 				case Step::FOUND_LOW_LIMIT_FINE:
-					setVelocity(0.0);
+					setVelocityTarget(0.0);
 					if (!isMoving()) homingStep = Step::RESETTING_POSITION_FEEDBACK;
 					break;
 				case Step::RESETTING_POSITION_FEEDBACK:
@@ -749,7 +746,7 @@ void PositionControlledAxis::homingControl() {
 					homingStep = Step::SEARCHING_HIGH_LIMIT_COARSE;
 					break;
 				case Step::SEARCHING_HIGH_LIMIT_COARSE:
-					setVelocity(homingVelocity_axisUnitsPerSecond);
+					setVelocityTarget(homingVelocity_axisUnitsPerSecond);
 					if (!previousLowLimitSignal && lowLimitSignal) {
 						homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
 						onHomingError();
@@ -757,7 +754,7 @@ void PositionControlledAxis::homingControl() {
 					else if (!previousHighLimitSignal && highLimitSignal) homingStep = Step::FOUND_HIGH_LIMIT_COARSE;
 					break;
 				case Step::FOUND_HIGH_LIMIT_COARSE:
-					setVelocity(0.0);
+					setVelocityTarget(0.0);
 					if (!isMoving()) {
 						if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
 							getServoActuatorDevice()->enable();
@@ -769,11 +766,11 @@ void PositionControlledAxis::homingControl() {
 					}
 					break;
 				case Step::SEARCHING_HIGH_LIMIT_FINE:
-					setVelocity(-homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(-homingVelocity_axisUnitsPerSecond / 10.0);
 					if (previousHighLimitSignal && !highLimitSignal) homingStep = Step::FOUND_HIGH_LIMIT_FINE;
 					break;
 				case Step::FOUND_HIGH_LIMIT_FINE:
-					setVelocity(0.0);
+					setVelocityTarget(0.0);
 					if (!isMoving()) homingStep = Step::SETTING_HIGH_LIMIT;
 					break;
 				case Step::SETTING_HIGH_LIMIT:
@@ -793,7 +790,7 @@ void PositionControlledAxis::homingControl() {
 					homingStep = Step::SEARCHING_HIGH_LIMIT_COARSE;
 					break;
 				case Step::SEARCHING_HIGH_LIMIT_COARSE:
-					setVelocity(homingVelocity_axisUnitsPerSecond);
+					setVelocityTarget(homingVelocity_axisUnitsPerSecond);
 					if (!previousLowLimitSignal && lowLimitSignal) {
 						homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
 						onHomingError();
@@ -801,7 +798,7 @@ void PositionControlledAxis::homingControl() {
 					else if (!previousHighLimitSignal && highLimitSignal) homingStep = Step::FOUND_HIGH_LIMIT_COARSE;
 					break;
 				case Step::FOUND_HIGH_LIMIT_COARSE:
-					setVelocity(0.0);
+					setVelocityTarget(0.0);
 					if (!isMoving()) {
 						if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
 							getServoActuatorDevice()->enable();
@@ -813,11 +810,11 @@ void PositionControlledAxis::homingControl() {
 					}
 					break;
 				case Step::SEARCHING_HIGH_LIMIT_FINE:
-					setVelocity(-homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(-homingVelocity_axisUnitsPerSecond / 10.0);
 					if (previousHighLimitSignal && !highLimitSignal) homingStep = Step::FOUND_HIGH_LIMIT_FINE;
 					break;
 				case Step::FOUND_HIGH_LIMIT_FINE:
-					setVelocity(0.0);
+					setVelocityTarget(0.0);
 					if (!isMoving()) homingStep = Step::SETTING_HIGH_LIMIT;
 					break;
 				case Step::SETTING_HIGH_LIMIT:
@@ -825,7 +822,7 @@ void PositionControlledAxis::homingControl() {
 					homingStep = Step::SEARCHING_LOW_LIMIT_COARSE;
 					break;
 				case Step::SEARCHING_LOW_LIMIT_COARSE:
-					setVelocity(-homingVelocity_axisUnitsPerSecond);
+					setVelocityTarget(-homingVelocity_axisUnitsPerSecond);
 					if (!previousHighLimitSignal && highLimitSignal) {
 						homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
 						onHomingError();
@@ -833,7 +830,7 @@ void PositionControlledAxis::homingControl() {
 					else if (!previousLowLimitSignal && lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_COARSE;
 					break;
 				case Step::FOUND_LOW_LIMIT_COARSE:
-					setVelocity(0.0);
+					setVelocityTarget(0.0);
 					if (!isMoving()) {
 						if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
 							getServoActuatorDevice()->enable();
@@ -845,11 +842,11 @@ void PositionControlledAxis::homingControl() {
 					}
 					break;
 				case Step::SEARCHING_LOW_LIMIT_FINE:
-					setVelocity(homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(homingVelocity_axisUnitsPerSecond / 10.0);
 					if (previousLowLimitSignal && !lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_FINE;
 					break;
 				case Step::FOUND_LOW_LIMIT_FINE:
-					setVelocity(0.0);
+					setVelocityTarget(0.0);
 					if (!isMoving()) homingStep = Step::RESETTING_POSITION_FEEDBACK;
 					break;
 				case Step::RESETTING_POSITION_FEEDBACK:
@@ -872,30 +869,30 @@ void PositionControlledAxis::homingControl() {
 					homingStep = Step::SEARCHING_REFERENCE_FROM_BELOW_COARSE;
 					break;
 				case Step::SEARCHING_REFERENCE_FROM_BELOW_COARSE:
-					setVelocity(homingVelocity_axisUnitsPerSecond);
+					setVelocityTarget(homingVelocity_axisUnitsPerSecond);
 					if (!previousReferenceSignal && referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_BELOW_COARSE;
 					break;
 				case Step::FOUND_REFERENCE_FROM_BELOW_COARSE:
-					setVelocity(0.0);
+					setVelocityTarget(0.0);
 					if (!isMoving()) homingStep = Step::SEARCHING_REFERENCE_FROM_BELOW_FINE;
 					break;
 				case Step::SEARCHING_REFERENCE_FROM_BELOW_FINE:
-					setVelocity(-homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(-homingVelocity_axisUnitsPerSecond / 10.0);
 					if (previousReferenceSignal && !referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_BELOW_FINE;
 					break;
 				case Step::FOUND_REFERENCE_FROM_BELOW_FINE:
-					setVelocity(0.0);
+					setVelocityTarget(0.0);
 					if (!isMoving()) {
 						setCurrentPosition(0.0);
 						homingStep = Step::SEARCHING_REFERENCE_FROM_ABOVE_FINE;
 					}
 					break;
 				case Step::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
-					setVelocity(homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(homingVelocity_axisUnitsPerSecond / 10.0);
 					if (previousReferenceSignal && !referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_ABOVE_FINE;
 					break;
 				case Step::FOUND_REFERENCE_FROM_ABOVE_FINE:
-					setVelocity(0.0);
+					setVelocityTarget(0.0);
 					if (!isMoving()) {
 						setCurrentPosition(actualPosition_axisUnits / 2.0);
 						moveToPositionInTime(0.0, 0.0, 1.0);
@@ -914,30 +911,30 @@ void PositionControlledAxis::homingControl() {
 					homingStep = Step::SEARCHING_REFERENCE_FROM_ABOVE_COARSE;
 					break;
 				case Step::SEARCHING_REFERENCE_FROM_ABOVE_COARSE:
-					setVelocity(-homingVelocity_axisUnitsPerSecond);
+					setVelocityTarget(-homingVelocity_axisUnitsPerSecond);
 					if (!previousReferenceSignal && referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_ABOVE_COARSE;
 					break;
 				case Step::FOUND_REFERENCE_FROM_ABOVE_COARSE:
-					setVelocity(0.0);
+					setVelocityTarget(0.0);
 					if (!isMoving()) homingStep = Step::SEARCHING_REFERENCE_FROM_ABOVE_FINE;
 					break;
 				case Step::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
-					setVelocity(homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(homingVelocity_axisUnitsPerSecond / 10.0);
 					if (previousReferenceSignal && !referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_ABOVE_FINE;
 					break;
 				case Step::FOUND_REFERENCE_FROM_ABOVE_FINE:
-					setVelocity(0.0);
+					setVelocityTarget(0.0);
 					if (!isMoving()) {
 						setCurrentPosition(0.0);
 						homingStep = Step::SEARCHING_REFERENCE_FROM_BELOW_FINE;
 					}
 					break;
 				case Step::SEARCHING_REFERENCE_FROM_BELOW_FINE:
-					setVelocity(-homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(-homingVelocity_axisUnitsPerSecond / 10.0);
 					if (previousReferenceSignal && !referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_BELOW_FINE;
 					break;
 				case Step::FOUND_REFERENCE_FROM_BELOW_FINE:
-					setVelocity(0.0);
+					setVelocityTarget(0.0);
 					if (!isMoving()) {
 						setCurrentPosition(actualPosition_axisUnits / 2.0);
 						moveToPositionInTime(0.0, 0.0, 1.0);

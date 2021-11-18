@@ -73,10 +73,13 @@ public:
 
 	double manualControlAcceleration_axisUnitsPerSecond = 0.0;
 
-	virtual void setVelocity(double velocity_positionUnitsPerSecondSquare);
-	virtual void fastStop();
+	virtual void setVelocityTarget(double velocity_positionUnitsPerSecondSquare);
+	float manualVelocityTarget_axisUnitsPerSecond = 0.0;
 
-	bool isAxisPinConnected() { return velocityControlledAxisLink->isConnected(); }
+	virtual void fastStop();
+	virtual void fastStopControl();
+
+	virtual bool isAxisPinConnected() { return velocityControlledAxisLink->isConnected(); }
 	virtual void sendActuatorCommands();
 
 	//======= NODE ========

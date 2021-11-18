@@ -11,191 +11,163 @@
 
 #include "Gui/Utilities/CustomWidgets.h"
 
+#include "NodeGraph/Device.h"
+
 
 void PositionControlledSingleAxisMachine::controlsGui() {
-
-	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Manual Machine Control");
-	ImGui::PopFont();
-
-	powerControlGui();
-
-	PositionUnit::Unit machinePositionUnit = PositionUnit::Unit::DEGREE;
-	double accelerationLimit_machineUnits = 0;
-	double velocityLimit_machineUnits = 0;
-	if (isAxisConnected()) {
-		std::shared_ptr<PositionControlledAxis> axis = getAxis();
-		machinePositionUnit = axis->positionUnit;
-		accelerationLimit_machineUnits = axis->accelerationLimit_axisUnitsPerSecondSquared;
-		velocityLimit_machineUnits = axis->velocityLimit_axisUnitsPerSecond;
+	if(!isAxisConnected()) {
+		ImGui::Text("No Axis Connected");
+		return;
 	}
-
-
-	//------------------- MASTER MANUAL ACCELERATION ------------------------
-
-	ImGui::Text("Acceleration for manual controls :");
-	static char accelerationString[32];
-	sprintf(accelerationString, "%.3f %s/s\xc2\xb2", manualControlAcceleration_machineUnitsPerSecondSquared, getPositionUnitStringShort(machinePositionUnit));
-	ImGui::InputDouble("##TargetAcceleration", &manualControlAcceleration_machineUnitsPerSecondSquared, 0.0, 0.0, accelerationString);
-	clampValue(manualControlAcceleration_machineUnitsPerSecondSquared, 0.0, accelerationLimit_machineUnits);
-	ImGui::Separator();
-
-	//------------------- VELOCITY CONTROLS ------------------------
-
-	float widgetWidth = ImGui::GetContentRegionAvail().x;
-
-	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Manual Velocity Control");
-	ImGui::PopFont();
-
-	ImGui::SetNextItemWidth(widgetWidth);
-	static char velocityTargetString[32];
-	sprintf(velocityTargetString, "%.3f %s/s", manualVelocityTarget_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
-
-	float manualVelocityTarget = manualVelocityTarget_machineUnitsPerSecond;
-	if (ImGui::SliderFloat("##Velocity", &manualVelocityTarget, -velocityLimit_machineUnits, velocityLimit_machineUnits, velocityTargetString));
-	clampValue(manualVelocityTarget, -velocityLimit_machineUnits, velocityLimit_machineUnits);
-	if (ImGui::IsItemActive()) setVelocity(manualVelocityTarget);
-	else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocity(manualVelocityTarget = 0.0);
-
-	ImGui::Separator();
-
-	//------------------------- POSITION CONTROLS --------------------------
-
-	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Manual Position Control");
-	ImGui::PopFont();
-
-	float tripleWidgetWidth = (widgetWidth - 2 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
-	glm::vec2 tripleButtonSize(tripleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
-	ImGui::SetNextItemWidth(tripleWidgetWidth);
-	static char targetPositionString[32];
-	sprintf(targetPositionString, "%.3f %s", targetPosition_machineUnits, getPositionUnitStringShort(machinePositionUnit));
-	ImGui::InputDouble("##TargetPosition", &targetPosition_machineUnits, 0.0, 0.0, targetPositionString);
-	ImGui::SameLine();
-	ImGui::SetNextItemWidth(tripleWidgetWidth);
-	static char targetVelocityString[32];
-	sprintf(targetVelocityString, "%.3f %s/s", targetVelocity_machineUnitsPerSecond, getPositionUnitStringShort(machinePositionUnit));
-	ImGui::InputDouble("##TargetVelocity", &targetVelocity_machineUnitsPerSecond, 0.0, 0.0, targetVelocityString);
-	clampValue(targetVelocity_machineUnitsPerSecond, 0.0, velocityLimit_machineUnits);
-	ImGui::SameLine();
-	ImGui::SetNextItemWidth(tripleWidgetWidth);
-	ImGui::InputDouble("##TargetTime", &targetTime_seconds, 0.0, 0.0, "%.3f s");
-	if (ImGui::Button("Fast Move", tripleButtonSize)) {
-		moveToPositionWithVelocity(targetPosition_machineUnits, velocityLimit_machineUnits, manualControlAcceleration_machineUnitsPerSecondSquared);
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Velocity Move", tripleButtonSize)) {
-		moveToPositionWithVelocity(targetPosition_machineUnits, targetPosition_machineUnits, manualControlAcceleration_machineUnitsPerSecondSquared);
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Timed Move", tripleButtonSize)) {
-		moveToPositionInTime(targetPosition_machineUnits, targetTime_seconds, manualControlAcceleration_machineUnitsPerSecondSquared);
-	}
-
-	if (ImGui::Button("Stop##Target", glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 2))) {
-		setVelocity(0.0);
-	}
-
-	ImGui::Separator();
-
-
-	std::shared_ptr<PositionControlledAxis> axis;
-	PositionUnit::Unit positionUnit = PositionUnit::Unit::DEGREE;
-	double velocityLimit = 0.0;
-	//actual position in range
-	double minPosition = 0.0;
-	double maxPosition = 0.0;
-	double positionProgress = 0.0;
-	static char positionString[32];
-	if (!isEnabled()) {
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		positionProgress = 1.0;
-		sprintf(positionString, "Machine Disabled");
-	}
-	else {
-		axis = getAxis();
-		minPosition = axis->getLowPositionLimit();
-		maxPosition = axis->getHighPositionLimit();
-		positionProgress = axis->getActualPosition_normalized();
-		positionUnit = axis->positionUnit;
-		velocityLimit = getAxis()->velocityLimit_axisUnitsPerSecond;
-
-		if (positionProgress <= 1.0 && positionProgress >= 0.0) {
-			sprintf(positionString, "%.2f %s", actualVelocity_machineUnits, getPositionUnit(positionUnit)->shortForm);
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-		}
-		else {
-			positionProgress = 1.0;
-			sprintf(positionString, "Axis out of limits : %.2f %s", actualVelocity_machineUnits, getPositionUnit(positionUnit)->shortForm);
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
-		}
-	}
-	ImGui::Text("Current Position : (in range from %.2f %s to %.2f %s)", minPosition, getPositionUnitStringShort(positionUnit), maxPosition, getPositionUnitStringShort(positionUnit));
-	ImGui::ProgressBar(positionProgress, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), positionString);
-	ImGui::PopStyleColor();
-
-
-	//actual velocity
-	float velocityProgress;
-	static char velocityString[32];
-	if (!isEnabled()) {
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		velocityProgress = 1.0;
-		sprintf(velocityString, "Machine Disabled");
-	}
-	else {
-		velocityProgress = std::abs(actualVelocity_machineUnits) / velocityLimit;
-		sprintf(velocityString, "%.2f %s/s", actualVelocity_machineUnits, getPositionUnitStringShort(positionUnit));
-		if (std::abs(actualVelocity_machineUnits) > std::abs(velocityLimit))
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
-		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-	}
-
-	ImGui::Text("Current Velocity : (max %.2f%s/s)", velocityLimit, getPositionUnitStringShort(positionUnit));
-	ImGui::ProgressBar(velocityProgress, ImVec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), velocityString);
-	ImGui::PopStyleColor();
-
-
-	//target movement progress
-	float targetProgress;
-	double movementSecondsLeft = 0.0;
-	static char movementProgressChar[8];
-	if (!isEnabled()) {
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		sprintf(movementProgressChar, "Machine Disabled");
-		targetProgress = 1.0;
-	}
-	else if (controlMode != ControlMode::Mode::MANUAL_POSITION_TARGET) {
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		sprintf(movementProgressChar, "No Target Movement");
-		targetProgress = 1.0;
-	}
-	else if (targetIntepolation->getProgressAtTime(profileTime_seconds) >= 1.0) {
-		targetProgress = 1.0;
-		sprintf(movementProgressChar, "Movement Finished");
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-	}
-	else {
-		targetProgress = targetIntepolation->getProgressAtTime(profileTime_seconds);
-		movementSecondsLeft = targetIntepolation->outTime - profileTime_seconds;
-		if (movementSecondsLeft < 0.0) movementSecondsLeft = 0.0;
-		sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
-	}
-	ImGui::Text("Movement Time Remaining :");
-	ImGui::ProgressBar(targetProgress, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), movementProgressChar);
-	ImGui::PopStyleColor();
-
-
-	miniatureGui();
+	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 }
 
 
-void PositionControlledSingleAxisMachine::settingsGui() {}
-void PositionControlledSingleAxisMachine::axisGui() {}
-void PositionControlledSingleAxisMachine::deviceGui() {}
-void PositionControlledSingleAxisMachine::metricsGui() {}
+void PositionControlledSingleAxisMachine::settingsGui() {
+	if (!isAxisConnected()) {
+		ImGui::Text("No Axis Connected");
+		return;
+	}
+	std::shared_ptr<PositionControlledAxis> axis = getAxis();
+
+
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Machine Information");
+	ImGui::PopFont();
+
+	if(ImGui::BeginTable("##machineInfo", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit)){
+		
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("Position Unit");
+		ImGui::PopFont();
+		ImGui::TableSetColumnIndex(1);
+		ImGui::Text(getPositionUnit(axis->positionUnit)->displayName);
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("Lower Position Limit: ");
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::TableSetColumnIndex(1);
+		ImGui::Text("%.3f %s", axis->getLowPositionLimit(), getPositionUnit(axis->positionUnit)->shortForm);
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("Upper Position Limit: ");
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::TableSetColumnIndex(1);
+		ImGui::Text("%.3f %s", axis->getHighPositionLimit(), getPositionUnit(axis->positionUnit)->shortForm);
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("Velocity Limit: ");
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::TableSetColumnIndex(1);
+		ImGui::Text("%.3f %s/s", axis->getVelocityLimit_axisUnitsPerSecond(), getPositionUnit(axis->positionUnit)->shortForm);
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("Acceleration Limit: ");
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::TableSetColumnIndex(1);
+		ImGui::Text("%.3f %s/s\xC2\xB2", axis->getAccelerationLimit_axisUnitsPerSecondSquared(), getPositionUnit(axis->positionUnit)->shortForm);
+
+		ImGui::EndTable();
+	}
+
+	ImGui::Separator();
+
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Rapids");
+	ImGui::PopFont();
+
+	static char rapidVelocityString[128];
+	static char rapidAccelerationString[128];
+
+	ImGui::Text("Velocity for rapid movements :");
+	sprintf(rapidVelocityString, "%.3f %s/s", rapidVelocity_machineUnitsPerSecond, getPositionUnit(axis->positionUnit)->shortForm);
+	ImGui::InputDouble("##velRapid", &rapidVelocity_machineUnitsPerSecond, 0.0, 0.0, rapidVelocityString);
+	rapidVelocity_machineUnitsPerSecond = std::min(rapidVelocity_machineUnitsPerSecond, axis->getVelocityLimit_axisUnitsPerSecond());
+
+	ImGui::Text("Acceleration for rapid movements :");
+	sprintf(rapidAccelerationString, "%.3f %s/s\xC2\xB2", rapidAcceleration_machineUnitsPerSecond, getPositionUnit(axis->positionUnit)->shortForm);
+	ImGui::InputDouble("##accRapid", &rapidAcceleration_machineUnitsPerSecond, 0.0, 0.0, rapidAccelerationString);
+	rapidAcceleration_machineUnitsPerSecond = std::min(rapidAcceleration_machineUnitsPerSecond, axis->getAccelerationLimit_axisUnitsPerSecondSquared());
+}
+
+void PositionControlledSingleAxisMachine::axisGui() {
+	if (!isAxisConnected()) {
+		ImGui::Text("No Axis Connected");
+		return;
+	}
+	std::shared_ptr<PositionControlledAxis> axis = getAxis();
+
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text(axis->getName());
+	ImGui::PopFont();
+
+	if (ImGui::BeginTabBar("AxisTabBar")) {
+		if (ImGui::BeginTabItem("Settings")) {
+			ImGui::BeginChild("SettingsChild");
+			axis->settingsGui();
+			ImGui::EndChild();
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Devices")) {
+			ImGui::BeginChild("DevicesChild");
+			axis->devicesGui();
+			ImGui::EndChild();
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+	}
+}
+
+void PositionControlledSingleAxisMachine::deviceGui() {
+	std::vector<std::shared_ptr<Device>> devices;
+	getDevices(devices);
+
+	auto deviceTabBar = [](std::shared_ptr<Device> device) {
+		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::Text(device->getName());
+		ImGui::PopFont();
+		if (ImGui::BeginTabBar(device->getName())) {
+			device->nodeSpecificGui();
+			ImGui::EndTabBar();
+		}
+	};
+
+	if (devices.size() == 1) deviceTabBar(devices.front());
+	else if (!devices.empty()) {
+		if (ImGui::BeginTabBar("DevicesTabBar")) {
+			for (auto& device : devices) {
+				if (ImGui::BeginTabItem(device->getName())) {
+					deviceTabBar(device);
+					ImGui::EndTabItem();
+				}
+			}
+			ImGui::EndTabBar();
+		}
+	}
+}
+
+void PositionControlledSingleAxisMachine::metricsGui() {
+	if (!isAxisConnected()) {
+		ImGui::Text("No Axis Connected");
+		return;
+	}
+	std::shared_ptr<PositionControlledAxis> axis = getAxis();
+	axis->metricsGui();
+}
 
 float PositionControlledSingleAxisMachine::getMiniatureWidth() {
 	return ImGui::GetTextLineHeight() * 8.0;
@@ -207,7 +179,7 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 		float tripleWidgetWidth = (ImGui::GetContentRegionAvail().x - 2.0 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
 		glm::vec2 verticalSliderSize(tripleWidgetWidth, sliderHeight);
 
-		std::shared_ptr<PositionControlledAxis> axis;
+		std::shared_ptr<PositionControlledAxis> axis = getAxis();
 		PositionUnit::Unit positionUnit = PositionUnit::Unit::DEGREE;
 		float positionProgress = 1.0;
 		float velocityProgress = 1.0;
@@ -217,15 +189,15 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 			positionUnit = axis->positionUnit;
 			velocityLimit = axis->velocityLimit_axisUnitsPerSecond;
 			positionProgress = axis->getActualPosition_normalized();
-			velocityProgress = std::abs((actualVelocity_machineUnits / velocityLimit));
+			velocityProgress = std::abs((axis->getActualVelocity_axisUnitsPerSecond() / velocityLimit));
 			if (velocityProgress > 1.0) velocityProgress = 1.0;
 		}
 
-		float manualVelocityTarget = manualVelocityTarget_machineUnitsPerSecond;
+		float manualVelocityTarget = axis->manualVelocityTarget_axisUnitsPerSecond;
 		ImGui::VSliderFloat("##ManualVelocity", verticalSliderSize, &manualVelocityTarget, -velocityLimit, velocityLimit, "%.3f m/s");
 		clampValue(manualVelocityTarget, -velocityLimit, velocityLimit);
-		if (ImGui::IsItemActive()) setVelocity(manualVelocityTarget);
-		else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocity(manualVelocityTarget = 0.0);
+		if (ImGui::IsItemActive()) axis->setVelocityTarget(manualVelocityTarget);
+		else if (ImGui::IsItemDeactivatedAfterEdit()) axis->setVelocityTarget(manualVelocityTarget = 0.0);
 
 		ImGui::SameLine();
 
@@ -239,10 +211,10 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 		static char targetPositionString[32];
-		sprintf(targetPositionString, "%.1f %s", targetPosition_machineUnits, getPositionUnitStringShort(positionUnit));
-		ImGui::InputDouble("##TargetPosition", &targetPosition_machineUnits, 0.0, 0.0, targetPositionString);
+		sprintf(targetPositionString, "%.1f %s", axis->targetPosition_axisUnits, getPositionUnitStringShort(positionUnit));
+		ImGui::InputDouble("##TargetPosition", &axis->targetPosition_axisUnits, 0.0, 0.0, targetPositionString);
 
-		float motionProgress = targetIntepolation->getProgressAtTime(profileTime_seconds);
+		float motionProgress = axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds);
 		if (motionProgress > 0.0 && motionProgress < 1.0) {
 			glm::vec2 targetmin = ImGui::GetItemRectMin();
 			glm::vec2 targetmax = ImGui::GetItemRectMax();
@@ -257,10 +229,10 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 		glm::vec2 doubleButtonSize(doubleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
 
 		if (ImGui::Button("Move", doubleButtonSize)) {
-			moveToPositionWithVelocity(targetPosition_machineUnits, targetVelocity_machineUnitsPerSecond, manualControlAcceleration_machineUnitsPerSecondSquared);
+			axis->moveToPositionWithVelocity(axis->targetPosition_axisUnits, axis->targetVelocity_axisUnitsPerSecond, axis->manualControlAcceleration_axisUnitsPerSecond);
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Stop", doubleButtonSize)) {
-			setVelocity(0.0);
+			axis->setVelocityTarget(0.0);
 		}
 }

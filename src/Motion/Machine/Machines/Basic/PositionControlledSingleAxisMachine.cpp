@@ -5,6 +5,8 @@
 #include "Motion/Axis/PositionControlledAxis.h"
 #include "Motion/AnimatableParameter.h"
 
+#include <tinyxml2.h>
+
 
 void PositionControlledSingleAxisMachine::assignIoData() {
 	addIoData(positionControlledAxisLink);
@@ -58,6 +60,7 @@ void PositionControlledSingleAxisMachine::disable() {
 }
 
 void PositionControlledSingleAxisMachine::process() {
+	/*
 	if (!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
@@ -109,7 +112,12 @@ void PositionControlledSingleAxisMachine::process() {
 		profilePosition_machineUnits = axis->profilePosition_axisUnits;
 		profileVelocity_machineUnitsPerSecond = axis->profileVelocity_axisUnitsPerSecond;
 	}
+	*/
 }
+
+
+
+
 
 bool PositionControlledSingleAxisMachine::isAxisConnected() {
 	return positionControlledAxisLink->isConnected();
@@ -120,34 +128,23 @@ std::shared_ptr<PositionControlledAxis> PositionControlledSingleAxisMachine::get
 }
 
 
-double PositionControlledSingleAxisMachine::getLowPositionLimit() {
-	return 0.0;
-}
 
-double PositionControlledSingleAxisMachine::getHighPositionLimit() {
-	return 10.0;
-}
 
-double PositionControlledSingleAxisMachine::getVelocityLimit() {
-	return 5.0;
-}
-
-double PositionControlledSingleAxisMachine::getAccelerationLimit() {
-	return 5.0;
-}
 
 
 void PositionControlledSingleAxisMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if (parameter->dataType == value.type) {
 		if (parameter == positionParameter) {
-			moveToPositionInTime(value.realValue, 0.0, getAxis()->accelerationLimit_axisUnitsPerSecondSquared);
+			std::shared_ptr<PositionControlledAxis> axis = getAxis();
+			axis->moveToPositionWithVelocity(value.realValue, rapidVelocity_machineUnitsPerSecond, rapidAcceleration_machineUnitsPerSecond);
 		}
 	}
 }
 
 float PositionControlledSingleAxisMachine::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
-		return targetIntepolation->getProgressAtTime(profileTime_seconds);
+		std::shared_ptr<PositionControlledAxis> axis = getAxis();
+		axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds);
 	}
 	return 0.0;
 }
@@ -155,7 +152,8 @@ float PositionControlledSingleAxisMachine::getParameterRapidProgress(std::shared
 bool PositionControlledSingleAxisMachine::isParameterAtValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if (parameter->dataType == value.type) {
 		if (parameter == positionParameter) {
-			if (std::abs(value.realValue - profilePosition_machineUnits) < 0.001) return true;
+			std::shared_ptr<PositionControlledAxis> axis = getAxis();
+			return axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds) == 1.0;
 		}
 	}
 	return false;
@@ -163,12 +161,15 @@ bool PositionControlledSingleAxisMachine::isParameterAtValue(std::shared_ptr<Ani
 
 void PositionControlledSingleAxisMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
-		setVelocity(0.0);
+		std::shared_ptr<PositionControlledAxis> axis = getAxis();
+		axis->setVelocityTarget(0.0);
 	}
 }
 
 bool PositionControlledSingleAxisMachine::validateParameterCurve(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& curves) {
 	bool b_curveValid = true;
+
+	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
 	if (parameter == positionParameter && curves.size() == 1) {
 
@@ -178,13 +179,13 @@ bool PositionControlledSingleAxisMachine::validateParameterCurve(const std::shar
 		for (auto& controlPoint : curve->points) {
 			controlPoint->validationError = ValidationError::Error::NO_VALIDATION_ERROR;
 
-			if (controlPoint->position < getLowPositionLimit() || controlPoint->position > getHighPositionLimit())
+			if (controlPoint->position < axis->getLowPositionLimit() || controlPoint->position > axis->getHighPositionLimit())
 				controlPoint->validationError = ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE;
-			else if (std::abs(controlPoint->velocity) > getVelocityLimit())
+			else if (std::abs(controlPoint->velocity) > axis->getVelocityLimit_axisUnitsPerSecond())
 				controlPoint->validationError = ValidationError::Error::CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED;
-			else if (std::abs(controlPoint->rampIn) > getAccelerationLimit())
+			else if (std::abs(controlPoint->rampIn) > axis->getAccelerationLimit_axisUnitsPerSecondSquared())
 				controlPoint->validationError = ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED;
-			else if (std::abs(controlPoint->rampOut) > getAccelerationLimit())
+			else if (std::abs(controlPoint->rampOut) > axis->getAccelerationLimit_axisUnitsPerSecondSquared())
 				controlPoint->validationError = ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED;
 			else if (controlPoint->rampIn == 0.0)
 				controlPoint->validationError = ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO;
@@ -207,13 +208,13 @@ bool PositionControlledSingleAxisMachine::validateParameterCurve(const std::shar
 				//an validation error type was already set by the interpolation engine
 				b_curveValid = false;
 			}
-			else if (std::abs(interpolation->interpolationVelocity) > getVelocityLimit()) {
+			else if (std::abs(interpolation->interpolationVelocity) > axis->getVelocityLimit_axisUnitsPerSecond()) {
 				interpolation->validationError = ValidationError::Error::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED;
 				interpolation->b_valid = false;
 				b_curveValid = false;
 			}
 			for (auto& point : interpolation->displayPoints) {
-				if (point.position > getHighPositionLimit() || point.position < getLowPositionLimit()) {
+				if (point.position > axis->getHighPositionLimit() || point.position < axis->getLowPositionLimit()) {
 					interpolation->validationError = ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE;
 					interpolation->b_valid = false;
 					b_curveValid = false;
@@ -229,8 +230,9 @@ bool PositionControlledSingleAxisMachine::validateParameterCurve(const std::shar
 
 bool PositionControlledSingleAxisMachine::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
 	if (parameter == positionParameter && parameterCurves.size() == 1) {
-		lowLimit = getLowPositionLimit();
-		highLimit = getHighPositionLimit();
+		std::shared_ptr<PositionControlledAxis> axis = getAxis();
+		lowLimit = axis->getLowPositionLimit();
+		highLimit = axis->getHighPositionLimit();
 		return true;
 	}
 	return false;
@@ -240,16 +242,18 @@ bool PositionControlledSingleAxisMachine::getCurveLimitsAtTime(const std::shared
 void PositionControlledSingleAxisMachine::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {
 	if (parameter == positionParameter && outputCurves.size() == 1 && targetPoints.size() == 1) {
 	
+		std::shared_ptr<PositionControlledAxis> axis = getAxis();
+
 		std::shared_ptr<Motion::ControlPoint> startPoint = std::make_shared<Motion::ControlPoint>();
-		startPoint->position = actualPosition_machineUnits;
-		startPoint->velocity = actualVelocity_machineUnits;
-		startPoint->velocityOut = actualVelocity_machineUnits;
+		startPoint->position = axis->getActualPosition_axisUnits();
+		startPoint->velocity = axis->getActualVelocity_axisUnitsPerSecond();
+		startPoint->velocityOut = axis->getActualVelocity_axisUnitsPerSecond();
 		startPoint->rampOut = rampIn;
 
 		std::shared_ptr<Motion::ControlPoint> endPoint = targetPoints.front();
 		std::shared_ptr<Motion::Interpolation> timedInterpolation = std::make_shared<Motion::Interpolation>();
 
-		Motion::TrapezoidalInterpolation::getClosestTimeAndVelocityConstrainedInterpolation(startPoint, endPoint, getVelocityLimit(), timedInterpolation);
+		Motion::TrapezoidalInterpolation::getClosestTimeAndVelocityConstrainedInterpolation(startPoint, endPoint, axis->getVelocityLimit_axisUnitsPerSecond(), timedInterpolation);
 	
 	}
 	//movement from current position to the target position arriving at 0 velocity
@@ -263,86 +267,38 @@ void PositionControlledSingleAxisMachine::getTimedParameterCurveTo(const std::sh
 
 
 
-//================================= MANUAL VELOCITY TARGET CONTROL ===================================
 
-void PositionControlledSingleAxisMachine::setVelocity(double velocity_axisUnits) {
-	manualVelocityTarget_machineUnitsPerSecond = velocity_axisUnits;
-	if (controlMode == ControlMode::Mode::MANUAL_POSITION_TARGET) targetIntepolation->resetValues();
-	controlMode = ControlMode::Mode::MANUAL_VELOCITY_TARGET;
-	stopParameterPlayback(positionParameter);
-}
 
-void PositionControlledSingleAxisMachine::velocityTargetControl() {
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-	double lowPositionLimit = axis->getLowPositionLimit();
-	double highPositionLimit = axis->getHighPositionLimit();
-	double velocityLimit = axis->velocityLimit_axisUnitsPerSecond;
 
-	if (profileVelocity_machineUnitsPerSecond != manualVelocityTarget_machineUnitsPerSecond) {
-		double deltaV_axisUnitsPerSecond = manualControlAcceleration_machineUnitsPerSecondSquared * profileDeltaTime_seconds;
-		if (profileVelocity_machineUnitsPerSecond < manualVelocityTarget_machineUnitsPerSecond) {
-			profileVelocity_machineUnitsPerSecond += deltaV_axisUnitsPerSecond;
-			if (profileVelocity_machineUnitsPerSecond > manualVelocityTarget_machineUnitsPerSecond) profileVelocity_machineUnitsPerSecond = manualVelocityTarget_machineUnitsPerSecond;
-		}
-		else {
-			profileVelocity_machineUnitsPerSecond -= deltaV_axisUnitsPerSecond;
-			if (profileVelocity_machineUnitsPerSecond < manualVelocityTarget_machineUnitsPerSecond) profileVelocity_machineUnitsPerSecond = manualVelocityTarget_machineUnitsPerSecond;
-		}
-	}
-	double deltaPosition_machineUnits = profileVelocity_machineUnitsPerSecond * profileDeltaTime_seconds;
-	profilePosition_machineUnits += deltaPosition_machineUnits;
-}
 
-//================================= MANUAL POSITION TARGET CONTROL ===================================
-
-void PositionControlledSingleAxisMachine::moveToPositionWithVelocity(double position_machineUnits, double velocity_machineUnits, double acceleration_machineUnits) {
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-	double lowPositionLimit = axis->getLowPositionLimit();
-	double highPositionLimit = axis->getHighPositionLimit();
-	double velocityLimit = axis->velocityLimit_axisUnitsPerSecond;
-
-	if (position_machineUnits > highPositionLimit) position_machineUnits = highPositionLimit;
-	else if (position_machineUnits < lowPositionLimit) position_machineUnits = lowPositionLimit;
-
-	auto startPoint = std::make_shared<Motion::ControlPoint>(profileTime_seconds, profilePosition_machineUnits, acceleration_machineUnits, profileVelocity_machineUnitsPerSecond);
-	auto endPoint= std::make_shared<Motion::ControlPoint>(0.0, position_machineUnits, acceleration_machineUnits, 0.0);
-	if (Motion::TrapezoidalInterpolation::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, velocity_machineUnits, targetIntepolation)) {
-		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
-		manualVelocityTarget_machineUnitsPerSecond = 0.0;
-	}
-	else setVelocity(0.0);
-	stopParameterPlayback(positionParameter);
-}
-
-void PositionControlledSingleAxisMachine::moveToPositionInTime(double position_machineUnits, double movementTime_seconds, double acceleration_machineUnits) {
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-	double lowPositionLimit = axis->getLowPositionLimit();
-	double highPositionLimit = axis->getHighPositionLimit();
-	double velocityLimit = axis->velocityLimit_axisUnitsPerSecond;
-
-	if (position_machineUnits > highPositionLimit) position_machineUnits = highPositionLimit;
-	else if (position_machineUnits < lowPositionLimit) position_machineUnits = lowPositionLimit;
-
-	auto startPoint= std::make_shared<Motion::ControlPoint>(profileTime_seconds, profilePosition_machineUnits, acceleration_machineUnits, profileVelocity_machineUnitsPerSecond);
-	auto endPoint= std::make_shared<Motion::ControlPoint>(profileTime_seconds + movementTime_seconds, position_machineUnits, acceleration_machineUnits, 0.0);
-	
-	Motion::TrapezoidalInterpolation::getClosestTimeAndVelocityConstrainedInterpolation(startPoint, endPoint, velocityLimit, targetIntepolation);
-	
-	stopParameterPlayback(positionParameter);
-}
-
-void PositionControlledSingleAxisMachine::positionTargetControl() {
-	if (targetIntepolation->isTimeInside(profileTime_seconds)) {
-		Motion::CurvePoint curvePoint = targetIntepolation->getPointAtTime(profileTime_seconds);
-		profilePosition_machineUnits = curvePoint.position;
-		profileVelocity_machineUnitsPerSecond = curvePoint.velocity;
-	}
-	else {
-		setVelocity(0.0);
-	}
-}
 
 
 void PositionControlledSingleAxisMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
 	if (isAxisConnected()) getAxis()->getDevices(output);
+}
+
+
+
+
+
+
+bool PositionControlledSingleAxisMachine::load(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+
+	XMLElement* rapidsXML = xml->FirstChildElement("Rapids");
+	if (rapidsXML == nullptr) return Logger::warn("Could not find Rapids attribute");
+	if (rapidsXML->QueryDoubleAttribute("Velocity_machineUnitsPerSecond", &rapidVelocity_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could find rapid velocity attribute");
+	if (rapidsXML->QueryDoubleAttribute("Acceleration_machineUnitsPerSecondSquared", &rapidAcceleration_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could find rapid acceleration attribute");
+	
+	return true;
+}
+
+bool PositionControlledSingleAxisMachine::save(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+
+	XMLElement* rapidsXML = xml->InsertNewChildElement("Rapids");
+	rapidsXML->SetAttribute("Velocity_machineUnitsPerSecond", rapidVelocity_machineUnitsPerSecond);
+	rapidsXML->SetAttribute("Acceleration_machineUnitsPerSecondSquared", rapidAcceleration_machineUnitsPerSecond);
+	
+	return true;
 }

@@ -54,8 +54,6 @@ public:
 	void enable() { b_setEnabled = true; }						
 	//disable power
 	void disable() { b_setDisabled = true; }
-	//get the time at which the command is to be executed
-	double getCommandRequestTime_seconds() { return commandRequestTime_seconds; }
 	//set velocity command
 	virtual void setCommand(double velocityCommand) { command_deviceUnits = velocityCommand; }
 	//get velocity command
@@ -92,7 +90,6 @@ public:
 	bool b_setDisabled = false;
 	bool b_setQuickstop = false;
 	double command_deviceUnits = 0.0;
-	double commandRequestTime_seconds = 0;
 };
 
 

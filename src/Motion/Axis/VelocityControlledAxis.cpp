@@ -65,5 +65,6 @@ void VelocityControlledAxis::sendActuatorCommands() {
 	getActuatorDevice()->setCommand(profileVelocity_axisUnitsPerSecond);
 }
 
-void VelocityControlledAxis::setVelocity(double velocity_axisUnitsPerSecond) {}
+void VelocityControlledAxis::setVelocityTarget(double velocity_axisUnitsPerSecond) {}
 void VelocityControlledAxis::fastStop() {}
+void VelocityControlledAxis::fastStopControl() {}

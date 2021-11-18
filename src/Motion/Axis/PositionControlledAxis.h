@@ -98,18 +98,17 @@ public:
 	void setCurrentPositionAsPositiveLimit();
 	void scaleFeedbackToMatchPosition(double position_axisUnits);
 
-	ControlMode::Mode controlMode = ControlMode::Mode::MANUAL_VELOCITY_TARGET;
+	ControlMode::Mode controlMode = ControlMode::Mode::VELOCITY_TARGET;
+	virtual bool isAxisPinConnected() { return positionControlledAxisPin->isConnected(); }
 
 	//Fast Stop Control
 	void fastStop();
 	void fastStopControl();
-
 	double getFastStopBrakingPosition();
 
 	//Manual Velocity Control
-	void setVelocity(double velocity_axisUnits);
+	void setVelocityTarget(double velocity_axisUnits);
 	void velocityTargetControl();
-	float manualVelocityTarget_axisUnitsPerSecond = 0.0;
 
 	//Manual Target Control
 	void moveToPositionWithVelocity(double position_axisUnits, double velocity_axisUnits, double acceleration_axisUnits);
@@ -163,10 +162,6 @@ public:
 	CircularBuffer accelerationHistory = CircularBuffer(historyLength);
 	CircularBuffer loadHistory = CircularBuffer(historyLength);
 
-	//=========== MACHINE STATE ==============
-
-	bool b_enabled = false;
-
 	//============ NODE ==============
 
 	//Device Links
@@ -189,9 +184,16 @@ public:
 
 	//============== GUI ================
 
+	virtual void nodeSpecificGui();
+
+	virtual void stateControlGui();
 	virtual void controlsGui();
+	virtual void setupGui();
 	virtual void settingsGui();
 	virtual void devicesGui();
 	virtual void metricsGui();
+
+	float getFeedbackGuiHeight();
+	virtual void feedbackGui();
 
 };
