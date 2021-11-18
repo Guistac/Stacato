@@ -8,6 +8,7 @@ namespace Motion {
 	class Curve;
 }
 
+class ParameterTrack;
 class AnimatableParameter;
 class AnimatableParameterValue;
 class Device;
@@ -37,7 +38,10 @@ class Device;
 	virtual void rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
 	virtual void cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter); \
 	virtual float getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter); \
-	virtual bool isParameterAtValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
+	virtual bool isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
+	virtual void onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter);\
+	virtual void onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter);\
+	virtual void getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
 	virtual bool validateParameterCurve(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& curves);\
 	virtual void getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves);\
 	virtual bool getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit);\
@@ -45,19 +49,19 @@ class Device;
 class Machine : public Node {
 public:
 
-	const char shortName[16] = "M-1";
+	char shortName[16] = "M-1";
 	const char* getShortName() { return shortName; }
 
-	void powerControlGui();
 	virtual void nodeSpecificGui();
+	virtual void stateControlGui();
+	virtual void generalSettingsGui();
+	void miniatureGui();
 
 	virtual void controlsGui() = 0;
 	virtual void settingsGui() = 0;
 	virtual void axisGui() = 0;
 	virtual void deviceGui() = 0;
 	virtual void metricsGui() = 0;
-
-	void miniatureGui();
 
 	virtual float getMiniatureWidth() = 0;
 	virtual void machineSpecificMiniatureGui() = 0;
@@ -76,17 +80,28 @@ public:
 
 	//interface to plots / manoeuvres / tracks
 	std::vector<std::shared_ptr<AnimatableParameter>> animatableParameters;
+
+	//===== RAPIDS =====
 	virtual void rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
 	virtual void cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) = 0;
 	virtual float getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) = 0;
-	virtual bool isParameterAtValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
+	virtual bool isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
 
-	virtual bool validateParameterCurve(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& curves) = 0;
-	
-	virtual bool getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) = 0;
-
-	virtual void getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) = 0;
+	//===== PLAYBACK CONTROL ======
+	void startParameterPlayback(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<ParameterTrack> track);
 	void stopParameterPlayback(std::shared_ptr<AnimatableParameter> parameter);
+	virtual void onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) = 0;
+	virtual void onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter) = 0;
+
+	//====== PARAMETER VALUE =======
+	virtual void getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
+
+	//======= PARAMETER TRACK VALIDATION ======
+	virtual bool validateParameterCurve(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& curves) = 0;
+	virtual bool getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) = 0;
+	
+	//======= TIMED MOVEMENT ======
+	virtual void getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) = 0;
 
 
 	//TODO: reference to stage geometry, mesh index, available meshes...

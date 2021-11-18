@@ -9,11 +9,12 @@
 
 
 void PositionControlledSingleAxisMachine::assignIoData() {
-	addIoData(positionControlledAxisLink);
+	addIoData(positionControlledAxisPin);
+	addIoData(positionPin);
+	addIoData(velocityPin);
 	std::shared_ptr<Machine> thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
 	positionParameter = std::make_shared<AnimatableParameter>("Position", thisMachine, ParameterDataType::Type::KINEMATIC_POSITION_CURVE, "units");
 	animatableParameters.push_back(positionParameter);
-	//TODO: initialize animatable parameter
 }
 
 bool PositionControlledSingleAxisMachine::isEnabled() {
@@ -60,71 +61,59 @@ void PositionControlledSingleAxisMachine::disable() {
 }
 
 void PositionControlledSingleAxisMachine::process() {
-	/*
 	if (!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
 	//Get Realtime values from axis
-	actualPosition_machineUnits = axis->actualPosition_axisUnits;
-	actualVelocity_machineUnits = axis->actualVelocity_axisUnitsPerSecond;
+	double actualPosition_machineUnits = axis->getActualPosition_axisUnits();
+	double actualVelocity_machineUnits = axis->getActualVelocity_axisUnitsPerSecond();
+
+	positionPin->set(actualPosition_machineUnits);
+	velocityPin->set(actualVelocity_machineUnits);
 
 	//update parameter data
 	positionParameter->actualValue.realValue = actualPosition_machineUnits;
 
 	//Update Time
-	profileTime_seconds = axis->profileTime_seconds;
-	profileDeltaTime_seconds = axis->profileTimeDelta_seconds;
+	double profileTime_seconds = axis->profileTime_seconds;
+	double profileDeltaTime_seconds = axis->profileTimeDelta_seconds;
 
 	//Handle state changes
-	if (b_enabled) {
-		if (!axis->isEnabled()) disable();
-	}
+	if (b_enabled && !axis->isEnabled()) disable();
 
-	if (b_enabled) {
-		//if the machine is enabled
-		//its drives the profile generator values of the axis
-		//it also sends commands to the actuators of the axis
-
-		if (positionParameter->hasParameterTrack()) {
-			double previousProfilePosition = profilePosition_machineUnits;
-			AnimatableParameterValue playbackPosition;
-			positionParameter->getActiveTrackParameterValue(playbackPosition);
-			profilePosition_machineUnits = playbackPosition.realValue;
-			profileVelocity_machineUnitsPerSecond = (profilePosition_machineUnits - previousProfilePosition) / profileDeltaTime_seconds;
-		}
-		else {
-			switch (controlMode) {
-				case ControlMode::Mode::MANUAL_VELOCITY_TARGET:
-					velocityTargetControl();
-					break;
-				case ControlMode::Mode::MANUAL_POSITION_TARGET:
-					positionTargetControl();
-					break;
-			}
-		}
-		axis->profilePosition_axisUnits = profilePosition_machineUnits;
-		axis->profileVelocity_axisUnitsPerSecond = profileVelocity_machineUnitsPerSecond;
+	//Handle parameter track playback
+	if (positionParameter->hasParameterTrack()) {
+		double previousProfilePosition_machineUnits = axis->getProfilePosition_axisUnits();
+		AnimatableParameterValue playbackPosition;
+		positionParameter->getActiveTrackParameterValue(playbackPosition);
+		axis->profilePosition_axisUnits = playbackPosition.realValue;
+		axis->profileVelocity_axisUnitsPerSecond = (playbackPosition.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
 		axis->sendActuatorCommands();
 	}
-	else {
-		//if the machine is disabled
-		//we only update the profile generator by copying axis values
-		profilePosition_machineUnits = axis->profilePosition_axisUnits;
-		profileVelocity_machineUnitsPerSecond = axis->profileVelocity_axisUnitsPerSecond;
-	}
-	*/
 }
+
+
 
 
 
 
 
 bool PositionControlledSingleAxisMachine::isAxisConnected() {
-	return positionControlledAxisLink->isConnected();
+	return positionControlledAxisPin->isConnected();
 }
 
 std::shared_ptr<PositionControlledAxis> PositionControlledSingleAxisMachine::getAxis() {
-	return positionControlledAxisLink->getConnectedPins().front()->getPositionControlledAxis();
+	return positionControlledAxisPin->getConnectedPins().front()->getPositionControlledAxis();
+}
+
+
+
+void PositionControlledSingleAxisMachine::setVelocityTarget(double velocityTarget_machineUnitsPerSecond) {
+	getAxis()->setVelocityTarget(velocityTarget_machineUnitsPerSecond);
+}
+
+void PositionControlledSingleAxisMachine::moveToPosition(double target_machineUnitsPerSecond) {
+	getAxis()->moveToPositionWithVelocity(target_machineUnitsPerSecond, rapidVelocity_machineUnitsPerSecond, rapidAcceleration_machineUnitsPerSecond);
 }
 
 
@@ -149,15 +138,38 @@ float PositionControlledSingleAxisMachine::getParameterRapidProgress(std::shared
 	return 0.0;
 }
 
-bool PositionControlledSingleAxisMachine::isParameterAtValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+bool PositionControlledSingleAxisMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if (parameter->dataType == value.type) {
 		if (parameter == positionParameter) {
 			std::shared_ptr<PositionControlledAxis> axis = getAxis();
-			return axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds) == 1.0;
+			return axis->getProfilePosition_axisUnits() == value.realValue && axis->getProfileVelocity_axisUnitsPerSecondSquared() == 0.0;
 		}
 	}
 	return false;
 }
+
+void PositionControlledSingleAxisMachine::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {
+	if (parameter == positionParameter) {
+		getAxis()->controlMode = ControlMode::Mode::MACHINE_CONTROL;
+	}
+}
+
+void PositionControlledSingleAxisMachine::onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter) {
+	if (parameter == positionParameter) {
+		getAxis()->setVelocityTarget(0.0);
+	}
+}
+
+void PositionControlledSingleAxisMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+	if (parameter == positionParameter) {
+		value.realValue = getAxis()->getActualPosition_axisUnits();
+	}
+}
+
+
+
+
+
 
 void PositionControlledSingleAxisMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {

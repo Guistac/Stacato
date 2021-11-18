@@ -20,6 +20,77 @@ void PositionControlledSingleAxisMachine::controlsGui() {
 		return;
 	}
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
+
+	glm::vec2 manualControlsSize = ImGui::GetContentRegionAvail();
+	manualControlsSize.y -= axis->getFeedbackGuiHeight();
+	ImGui::BeginChild("##manualMachineControls", manualControlsSize);
+
+	float widgetWidth = ImGui::GetContentRegionAvail().x;
+	
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Manual Velocity Control");
+	ImGui::PopFont();
+
+	float manualVelocityTarget = manualVelocityTarget_machineUnitsPerSecond;
+	ImGui::SetNextItemWidth(widgetWidth);
+	ImGui::SliderFloat("##velTar", &manualVelocityTarget, -axis->getVelocityLimit_axisUnitsPerSecond(), axis->getVelocityLimit_axisUnitsPerSecond());
+	if (ImGui::IsItemActive()) setVelocityTarget(manualVelocityTarget);
+	else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocityTarget(0.0);
+
+	ImGui::Separator();
+
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Manual Position Control");
+	ImGui::PopFont();
+
+	static char positionTargetString[128];
+	sprintf(positionTargetString, "%.3f %s", manualPositionTarget_machineUnits, getPositionUnit(axis->positionUnit)->shortForm);
+	ImGui::SetNextItemWidth(widgetWidth);
+	ImGui::InputDouble("##postar", &manualPositionTarget_machineUnits, 0.0, 0.0, positionTargetString);
+
+	glm::vec2 halfButtonSize((widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, ImGui::GetTextLineHeight() * 2.0);
+
+	if (ImGui::Button("Move To Position", halfButtonSize)) {
+		moveToPosition(manualPositionTarget_machineUnits);
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Stop", halfButtonSize)) {
+		setVelocityTarget(0.0);
+	}
+
+	ImGui::Separator();
+
+	if (axis->isHomeable()) {
+
+		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::Text("Homing Controls");
+		ImGui::PopFont();
+
+		if (ImGui::Button("Start Homing", halfButtonSize)) {
+		
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel Homing", halfButtonSize)) {
+			
+		}
+
+		static char homingStateString[256];
+		sprintf(homingStateString, "Homing State: %s", getHomingStep(axis->homingStep)->displayName);
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
+		ImGui::Button(homingStateString, glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 1.5));
+		ImGui::PopStyleColor();
+		ImGui::PopItemFlag();
+
+
+	}
+
+	ImGui::EndChild();
+
+	ImGui::Separator();
+
+	axis->feedbackGui();
+
 }
 
 
@@ -30,9 +101,8 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 	}
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
-
 	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Machine Information");
+	ImGui::Text("General Information :");
 	ImGui::PopFont();
 
 	if(ImGui::BeginTable("##machineInfo", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit)){
@@ -83,8 +153,6 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 
 		ImGui::EndTable();
 	}
-
-	ImGui::Separator();
 
 	ImGui::PushFont(Fonts::robotoBold20);
 	ImGui::Text("Rapids");

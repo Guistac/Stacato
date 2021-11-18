@@ -9,14 +9,19 @@
 #include "Gui/Assets/Colors.h"
 
 void Machine::nodeSpecificGui() {
+
 	if (ImGui::BeginTabItem("Controls")) {
 		ImGui::BeginChild("Controls");
+		stateControlGui();
+		ImGui::Separator();
 		controlsGui();
 		ImGui::EndChild();
 		ImGui::EndTabItem();
 	}
 	if (ImGui::BeginTabItem("Settings")) {
 		ImGui::BeginChild("Settings");
+		generalSettingsGui();
+		ImGui::Separator();
 		settingsGui();
 		ImGui::EndChild();
 		ImGui::EndTabItem();
@@ -41,7 +46,7 @@ void Machine::nodeSpecificGui() {
 	}
 }
 
-void Machine::powerControlGui() {
+void Machine::stateControlGui() {
 	glm::vec2 buttonSize;
 	int buttonCount = 2;
 	buttonSize.x = (ImGui::GetContentRegionAvail().x - (buttonCount - 1) * ImGui::GetStyle().ItemSpacing.x) / buttonCount;
@@ -74,6 +79,16 @@ void Machine::powerControlGui() {
 		if (ImGui::Button("Enable Machine", buttonSize)) enable();
 	}
 	if (!readyToEnable) END_DISABLE_IMGUI_ELEMENT
+}
+
+void Machine::generalSettingsGui() {
+	ImGui::Text("Machine Name :");
+	int nameBufferSize;
+	char* nameBuffer = getNameBuffer(nameBufferSize);
+	ImGui::InputText("##name", nameBuffer, nameBufferSize);
+
+	ImGui::Text("Short Name :");
+	ImGui::InputText("##shortName", shortName, 16);
 }
 
 void Machine::miniatureGui() {

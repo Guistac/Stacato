@@ -490,18 +490,19 @@ float ParameterTrack::getRapidProgress() {
 
 
 bool ParameterTrack::isPrimedToStart() {
-	return parameter->machine->isParameterAtValue(parameter, origin);
+	return parameter->machine->isParameterReadyToStartPlaybackFromValue(parameter, origin);
 }
 
 bool ParameterTrack::isPrimedToEnd() {
-	return parameter->machine->isParameterAtValue(parameter, target);
+	return parameter->machine->isParameterReadyToStartPlaybackFromValue(parameter, target);
 }
 
 bool ParameterTrack::isPrimedToPlaybackPosition() {
 	AnimatableParameterValue parameterValueAtPlaybackPosition;
 	getParameterValueAtPlaybackTime(parameterValueAtPlaybackPosition);
-	return parameter->machine->isParameterAtValue(parameter, parameterValueAtPlaybackPosition);
+	return parameter->machine->isParameterReadyToStartPlaybackFromValue(parameter, parameterValueAtPlaybackPosition);
 }
+
 
 double ParameterTrack::getLength_seconds() {
 	double longestCurve = 0.0;

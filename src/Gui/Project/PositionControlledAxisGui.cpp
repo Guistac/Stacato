@@ -201,6 +201,10 @@ void PositionControlledAxis::controlsGui() {
 
 void PositionControlledAxis::feedbackGui() {
 
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Feedback");
+	ImGui::PopFont();
+
 	float widgetWidth = ImGui::GetContentRegionAvail().x;
 
 	//-------------------------------- FEEDBACK --------------------------------
@@ -342,7 +346,6 @@ void PositionControlledAxis::feedbackGui() {
 		ImGui::Text("Feedback Position in Working Range : (%.2f%s to %.2f%s)", rangeMin_deviceUnits, getPositionUnit(devicePositionUnit)->shortForm, rangeMax_deviceUnits, getPositionUnit(devicePositionUnit)->shortForm);
 		ImGui::ProgressBar(range, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), rangeString);
 		ImGui::PopStyleColor();
-		ImGui::Text("Braking Position %.3f", getFastStopBrakingPosition());
 	}
 
 }
