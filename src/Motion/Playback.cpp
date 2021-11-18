@@ -203,14 +203,8 @@ namespace Playback {
 		playingManoeuvres.clear();
 	}
 
-
-	void updateActiveManoeuvreState() {
-		for (int i = rapidManoeuvres.size() - 1; i >= 0; i--) {
-			if (getRapidProgress(rapidManoeuvres[i]) >= 1.0) {
-				Logger::warn("Manoeuvre {} Finished Priming", rapidManoeuvres[i]->name);
-				rapidManoeuvres.erase(rapidManoeuvres.begin() + i);
-			}
-		}
+	void incrementPlaybackPosition() {
+		//update the playback position of playing manoeuvres and tracks
 		double time = EtherCatFieldbus::getCycleProgramTime_seconds();
 		for (auto& playingManoeuvre : playingManoeuvres) {
 			if (!playingManoeuvre->b_isPaused) {
@@ -221,10 +215,22 @@ namespace Playback {
 				}
 			}
 		}
+	}
+
+	void updateActiveManoeuvreState() {
+		//check if manoeuvre rapids are finished
+		for (int i = rapidManoeuvres.size() - 1; i >= 0; i--) {
+			if (getRapidProgress(rapidManoeuvres[i]) >= 1.0) {
+				Logger::warn("Manoeuvre {} Finished Priming", rapidManoeuvres[i]->name);
+				rapidManoeuvres.erase(rapidManoeuvres.begin() + i);
+			}
+		}
+		//terminate playback of manoeuvres that are finished
 		for (int i = playingManoeuvres.size() - 1; i >= 0; i--) {
 			if (playingManoeuvres[i]->getPlaybackProgress() >= 1.0) {
 				playingManoeuvres[i]->playbackPosition_seconds = 0.0;
 				for (auto& track : playingManoeuvres[i]->tracks) {
+					//stop playback and reset playhead
 					track->parameter->machine->stopParameterPlayback(track->parameter);
 					track->playbackPosition_seconds = 0.0;
 				}

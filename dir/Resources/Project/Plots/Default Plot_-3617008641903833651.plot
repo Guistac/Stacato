@@ -10,13 +10,16 @@
         </Track>
     </Manoeuvre>
     <Manoeuvre Name="M-1*" Description="(copy) " Type="MovementSequence">
-        <Track Machine="Costière" MachineUniqueID="1" Parameter="Position" SequenceType="TimedMove" Interpolation="Trapezoidal" OriginIsPreviousTarget="true" TargetIsNextOrigin="false" MovementTime="25.785910778454699" TimeOffset="0" RampIn="3" RampsAreEqual="true">
+        <Track Machine="Costière" MachineUniqueID="1" Parameter="Position" SequenceType="TimedMove" Interpolation="Trapezoidal" OriginIsPreviousTarget="true" TargetIsNextOrigin="false" MovementTime="25.785910778454699" TimeOffset="0" RampIn="10" RampsAreEqual="false" RampOut="1.6499999999999999">
             <Target Type="Kinematic" Real="470.54112371886725"/>
         </Track>
     </Manoeuvre>
     <Manoeuvre Name="M-1**" Description="(copy) (copy) " Type="MovementSequence">
-        <Track Machine="Costière" MachineUniqueID="1" Parameter="Position" SequenceType="TimedMove" Interpolation="Trapezoidal" OriginIsPreviousTarget="true" TargetIsNextOrigin="false" MovementTime="25.57644256437608" TimeOffset="0" RampIn="10" RampsAreEqual="true">
-            <Target Type="Kinematic" Real="40.23765813380669"/>
+        <Track Machine="Costière" MachineUniqueID="1" Parameter="Position" SequenceType="TimedMove" Interpolation="Trapezoidal" OriginIsPreviousTarget="true" TargetIsNextOrigin="true" MovementTime="27" TimeOffset="0" RampIn="1.55" RampsAreEqual="false" RampOut="10"/>
+    </Manoeuvre>
+    <Manoeuvre Name="M-4" Description="" Type="KeyPosition">
+        <Track Machine="Costière" MachineUniqueID="1" Parameter="Position" SequenceType="Constant" Interpolation="Trapezoidal">
+            <Target IsEqualToNextOrigin="false" Type="Kinematic" Real="40"/>
         </Track>
     </Manoeuvre>
 </Plot>
