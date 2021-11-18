@@ -25,6 +25,7 @@ void verticalProgressBar(float fraction, const ImVec2& size_arg){
     fraction = ImSaturate(fraction);
     ImGui::RenderFrame(bb.Min, bb.Max, ImGui::GetColorU32(ImGuiCol_FrameBg), true, style.FrameRounding);
     bb.Expand(ImVec2(-style.FrameBorderSize, -style.FrameBorderSize));
+    if (fraction == 0.0) return;
     ImVec2 progressBarMin(pos.x, pos.y + size.y * (1.0 - fraction));
     ImGui::RenderFrame(progressBarMin, rectMax, ImGui::GetColorU32(ImGuiCol_PlotHistogram), false, style.FrameRounding);
 }

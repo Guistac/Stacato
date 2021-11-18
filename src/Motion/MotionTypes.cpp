@@ -9,7 +9,7 @@ std::vector<PositionUnit> linearPositionUnits = {
 };
 
 std::vector<PositionUnit> angularPositionUnits = {
-	{PositionUnit::Unit::DEGREE, PositionUnit::Type::ANGULAR,		"Degree",		"Degrees",		"deg",		"Degrees"},
+	{PositionUnit::Unit::DEGREE, PositionUnit::Type::ANGULAR,		"Degree",		"Degrees",		"\xC2\xB0",	"Degrees"},
 	{PositionUnit::Unit::RADIAN, PositionUnit::Type::ANGULAR,		"Radian",		"Radians",		"rad",		"Radians"},
 	{PositionUnit::Unit::REVOLUTION, PositionUnit::Type::ANGULAR,	"Revolution",	"Revolutions",	"rev",		"Revolutions"}
 };

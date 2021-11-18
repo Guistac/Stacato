@@ -24,10 +24,7 @@ bool PositionControlledSingleAxisMachine::isEnabled() {
 bool PositionControlledSingleAxisMachine::isReady() {
 	if (!isAxisConnected()) return false;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-	//if (axis->hasManualControlsEnabled()) return false;
 	if (!axis->isReady()) return false;
-	//if (axis->getCommandType() != MotionCommand::Type::POSITION_COMMAND) return false;
-	//if (axis->axisPositionUnitType != PositionUnit::Type::LINEAR) return false;
 	return true;
 }
 
@@ -109,6 +106,7 @@ std::shared_ptr<PositionControlledAxis> PositionControlledSingleAxisMachine::get
 
 
 void PositionControlledSingleAxisMachine::setVelocityTarget(double velocityTarget_machineUnitsPerSecond) {
+	manualVelocityTarget_machineUnitsPerSecond = velocityTarget_machineUnitsPerSecond;
 	getAxis()->setVelocityTarget(velocityTarget_machineUnitsPerSecond);
 }
 
@@ -133,7 +131,7 @@ void PositionControlledSingleAxisMachine::rapidParameterToValue(std::shared_ptr<
 float PositionControlledSingleAxisMachine::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
 		std::shared_ptr<PositionControlledAxis> axis = getAxis();
-		axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds);
+		return axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds);
 	}
 	return 0.0;
 }
@@ -288,11 +286,6 @@ void PositionControlledSingleAxisMachine::getTimedParameterCurveTo(const std::sh
 void PositionControlledSingleAxisMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
 	if (isAxisConnected()) getAxis()->getDevices(output);
 }
-
-
-
-
-
 
 bool PositionControlledSingleAxisMachine::load(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;

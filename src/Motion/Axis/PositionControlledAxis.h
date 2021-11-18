@@ -150,6 +150,8 @@ public:
 	//feedback position limits
 	double getLowPositionLimit();
 	double getHighPositionLimit();
+	double getLowPositionLimitWithoutClearance();
+	double getHighPositionLimitWithoutClearance();
 
 	//============= METRICS ============
 

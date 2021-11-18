@@ -21,27 +21,30 @@
 void PositionControlledAxis::nodeSpecificGui() {
 	if (ImGui::BeginTabItem("Control")) {
 
-		stateControlGui();
+		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::Text("Axis Controls");
+		ImGui::PopFont();
 
+		bool disableAxisControls = isAxisPinConnected();
+		if(disableAxisControls) BEGIN_DISABLE_IMGUI_ELEMENT
+		stateControlGui();
+		if(disableAxisControls) END_DISABLE_IMGUI_ELEMENT
+
+		disableAxisControls = isAxisPinConnected() || !b_enabled;
+		if(disableAxisControls) BEGIN_DISABLE_IMGUI_ELEMENT
 		glm::vec2 controlChildSize = ImGui::GetContentRegionAvail();
 		controlChildSize.y -= getFeedbackGuiHeight();
-
 		ImGui::BeginChild("ControlsChild", controlChildSize);
-		if (ImGui::BeginTabBar("ControlsTab")) {
-			if (ImGui::BeginTabItem("Manual Controls")) {
-				controlsGui();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Homing & Setup")) {
-				setupGui();
-				ImGui::EndTabItem();
-			}
-			ImGui::EndTabBar();
-		}
+		controlsGui();
+		setupGui();
 		ImGui::EndChild();
-		ImGui::Separator();
 
+		ImGui::Text("Profile Velocity: %.9f", getProfileVelocity_axisUnitsPerSecondSquared());
+		ImGui::Text("Profile Position: %.9f", getProfilePosition_axisUnits());
+
+		ImGui::Separator();
 		feedbackGui();
+		if (disableAxisControls) END_DISABLE_IMGUI_ELEMENT;
 
 		ImGui::EndTabItem();
 	}
@@ -115,81 +118,69 @@ void PositionControlledAxis::controlsGui() {
 	float tripleWidgetWidth = (widgetWidth - 2 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
 	glm::vec2 tripleButtonSize(tripleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
 
-	bool axisDisabled = !b_enabled;
-	if (axisDisabled) BEGIN_DISABLE_IMGUI_ELEMENT
+	//------------------- MASTER MANUAL ACCELERATION ------------------------
 
-	//if (b_manualControlsEnabled) {
+	ImGui::Text("Acceleration for manual controls :");
+	static char accelerationString[32];
+	sprintf(accelerationString, "%.3f %s/s\xc2\xb2", manualControlAcceleration_axisUnitsPerSecond, getPositionUnitStringShort(positionUnit));
+	ImGui::InputDouble("##TargetAcceleration", &manualControlAcceleration_axisUnitsPerSecond, 0.0, 0.0, accelerationString);
+	clampValue(manualControlAcceleration_axisUnitsPerSecond, 0.0, accelerationLimit_axisUnitsPerSecondSquared);
+	ImGui::Separator();
 
-		//------------------- MASTER MANUAL ACCELERATION ------------------------
+	//------------------- VELOCITY CONTROLS ------------------------
 
-		ImGui::Text("Acceleration for manual controls :");
-		static char accelerationString[32];
-		sprintf(accelerationString, "%.3f %s/s\xc2\xb2", manualControlAcceleration_axisUnitsPerSecond, getPositionUnitStringShort(positionUnit));
-		ImGui::InputDouble("##TargetAcceleration", &manualControlAcceleration_axisUnitsPerSecond, 0.0, 0.0, accelerationString);
-		clampValue(manualControlAcceleration_axisUnitsPerSecond, 0.0, accelerationLimit_axisUnitsPerSecondSquared);
-		ImGui::Separator();
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Manual Velocity Control");
+	ImGui::PopFont();
 
-		//------------------- VELOCITY CONTROLS ------------------------
+	ImGui::SetNextItemWidth(widgetWidth);
+	static char velocityTargetString[32];
+	sprintf(velocityTargetString, "%.3f %s/s", manualVelocityTarget_axisUnitsPerSecond, getPositionUnitStringShort(positionUnit));
 
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Manual Velocity Control");
-		ImGui::PopFont();
+	float manualVelocityTarget = manualVelocityTarget_axisUnitsPerSecond;
+	if (ImGui::SliderFloat("##Velocity", &manualVelocityTarget, -velocityLimit_axisUnitsPerSecond, velocityLimit_axisUnitsPerSecond, velocityTargetString));
+	clampValue(manualVelocityTarget_axisUnitsPerSecond, -velocityLimit_axisUnitsPerSecond, velocityLimit_axisUnitsPerSecond);
+	if (ImGui::IsItemActive()) setVelocityTarget(manualVelocityTarget);
+	else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocityTarget(manualVelocityTarget = 0.0);
 
-		ImGui::SetNextItemWidth(widgetWidth);
-		static char velocityTargetString[32];
-		sprintf(velocityTargetString, "%.3f %s/s", manualVelocityTarget_axisUnitsPerSecond, getPositionUnitStringShort(positionUnit));
+	ImGui::Separator();
 
-		float manualVelocityTarget = manualVelocityTarget_axisUnitsPerSecond;
-		if (ImGui::SliderFloat("##Velocity", &manualVelocityTarget, -velocityLimit_axisUnitsPerSecond, velocityLimit_axisUnitsPerSecond, velocityTargetString));
-		clampValue(manualVelocityTarget_axisUnitsPerSecond, -velocityLimit_axisUnitsPerSecond, velocityLimit_axisUnitsPerSecond);
-		if (ImGui::IsItemActive()) setVelocityTarget(manualVelocityTarget);
-		else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocityTarget(manualVelocityTarget = 0.0);
+	//------------------------- POSITION CONTROLS --------------------------
 
-		ImGui::Separator();
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Manual Position Control");
+	ImGui::PopFont();
 
-		//------------------------- POSITION CONTROLS --------------------------
+	ImGui::SetNextItemWidth(tripleWidgetWidth);
+	static char targetPositionString[32];
+	sprintf(targetPositionString, "%.3f %s", targetPosition_axisUnits, getPositionUnitStringShort(positionUnit));
+	ImGui::InputDouble("##TargetPosition", &targetPosition_axisUnits, 0.0, 0.0, targetPositionString);
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(tripleWidgetWidth);
+	static char targetVelocityString[32];
+	sprintf(targetVelocityString, "%.3f %s/s", targetVelocity_axisUnitsPerSecond, getPositionUnitStringShort(positionUnit));
+	ImGui::InputDouble("##TargetVelocity", &targetVelocity_axisUnitsPerSecond, 0.0, 0.0, targetVelocityString);
+	clampValue(targetVelocity_axisUnitsPerSecond, 0.0, velocityLimit_axisUnitsPerSecond);
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(tripleWidgetWidth);
+	ImGui::InputDouble("##TargetTime", &targetTime_seconds, 0.0, 0.0, "%.3f s");
+	if (ImGui::Button("Fast Move", tripleButtonSize)) {
+		moveToPositionWithVelocity(targetPosition_axisUnits, velocityLimit_axisUnitsPerSecond, manualControlAcceleration_axisUnitsPerSecond);
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Velocity Move", tripleButtonSize)) {
+		moveToPositionWithVelocity(targetPosition_axisUnits, targetVelocity_axisUnitsPerSecond, manualControlAcceleration_axisUnitsPerSecond);
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Timed Move", tripleButtonSize)) {
+		moveToPositionInTime(targetPosition_axisUnits, targetTime_seconds, manualControlAcceleration_axisUnitsPerSecond);
+	}
 
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Manual Position Control");
-		ImGui::PopFont();
+	float doubleWidgetWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
 
-		ImGui::SetNextItemWidth(tripleWidgetWidth);
-		static char targetPositionString[32];
-		sprintf(targetPositionString, "%.3f %s", targetPosition_axisUnits, getPositionUnitStringShort(positionUnit));
-		ImGui::InputDouble("##TargetPosition", &targetPosition_axisUnits, 0.0, 0.0, targetPositionString);
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(tripleWidgetWidth);
-		static char targetVelocityString[32];
-		sprintf(targetVelocityString, "%.3f %s/s", targetVelocity_axisUnitsPerSecond, getPositionUnitStringShort(positionUnit));
-		ImGui::InputDouble("##TargetVelocity", &targetVelocity_axisUnitsPerSecond, 0.0, 0.0, targetVelocityString);
-		clampValue(targetVelocity_axisUnitsPerSecond, 0.0, velocityLimit_axisUnitsPerSecond);
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(tripleWidgetWidth);
-		ImGui::InputDouble("##TargetTime", &targetTime_seconds, 0.0, 0.0, "%.3f s");
-		if (ImGui::Button("Fast Move", tripleButtonSize)) {
-			moveToPositionWithVelocity(targetPosition_axisUnits, velocityLimit_axisUnitsPerSecond, manualControlAcceleration_axisUnitsPerSecond);
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Velocity Move", tripleButtonSize)) {
-			moveToPositionWithVelocity(targetPosition_axisUnits, targetVelocity_axisUnitsPerSecond, manualControlAcceleration_axisUnitsPerSecond);
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Timed Move", tripleButtonSize)) {
-			moveToPositionInTime(targetPosition_axisUnits, targetTime_seconds, manualControlAcceleration_axisUnitsPerSecond);
-		}
-
-		float doubleWidgetWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
-
-		if (ImGui::Button("Stop", glm::vec2(doubleWidgetWidth, ImGui::GetTextLineHeight() * 2))) setVelocityTarget(0.0);
-		ImGui::SameLine();
-		if (ImGui::Button("Fast Stop", glm::vec2(doubleWidgetWidth, ImGui::GetTextLineHeight() * 2))) fastStop();
-		
-
-		ImGui::Separator();
-
-	//}
-
-	if (axisDisabled) END_DISABLE_IMGUI_ELEMENT
+	if (ImGui::Button("Stop", glm::vec2(doubleWidgetWidth, ImGui::GetTextLineHeight() * 2))) setVelocityTarget(0.0);
+	ImGui::SameLine();
+	if (ImGui::Button("Fast Stop", glm::vec2(doubleWidgetWidth, ImGui::GetTextLineHeight() * 2))) fastStop();
 }
 
 
@@ -221,14 +212,12 @@ void PositionControlledAxis::feedbackGui() {
 	}
 	else {
 
-		/*
-		minPosition = getLowPositionLimitWithClearance();
-		maxPosition = getHighPositionLimitWithClearance();
-		positionProgress = getPositionProgress();
-		*/
+		minPosition = getLowPositionLimit();
+		maxPosition = getHighPositionLimit();
+		positionProgress = getActualPosition_normalized();		
 
 		if (actualPosition_axisUnits < minPosition || actualPosition_axisUnits > maxPosition) {
-			if (actualPosition_axisUnits < getLowPositionLimit() || actualPosition_axisUnits > getHighPositionLimit()) {
+			if (actualPosition_axisUnits < getLowPositionLimitWithoutClearance() || actualPosition_axisUnits > getHighPositionLimitWithoutClearance()) {
 				sprintf(positionString, "Axis out of limits : %.2f %s", actualPosition_axisUnits, getPositionUnit(positionUnit)->shortForm);
 				ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
 			}

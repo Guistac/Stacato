@@ -113,13 +113,13 @@ void PositionControlledAxis::process() {
 			default:
 				break;
 		}
-		sendActuatorCommands();
 	}
 	else  {
 		//if the machine is disabled, we just update the motion profile using the actual feedback data
 		profilePosition_axisUnits = actualPosition_axisUnits;
 		profileVelocity_axisUnitsPerSecond = actualVelocity_axisUnitsPerSecond;
-	}	
+	}
+	sendActuatorCommands();
 }
 
 void PositionControlledAxis::sendActuatorCommands() {
@@ -160,7 +160,7 @@ void PositionControlledAxis::enable() {
 		if (needsActuatorDevice()) {
 			while (!getActuatorDevice()->isEnabled()) {
 				if (std::chrono::system_clock::now() - start > std::chrono::milliseconds(500)) {
-					Logger::warn("Could not enable Machine '{}', actuator did not enable on time", getName());
+					Logger::warn("Could not enable Axis '{}', actuator did not enable on time", getName());
 					return;
 				}
 				std::this_thread::sleep_for(std::chrono::milliseconds(20));
@@ -169,13 +169,13 @@ void PositionControlledAxis::enable() {
 		else if (needsServoActuatorDevice()) {
 			while (!getServoActuatorDevice()->isEnabled()) {
 				if (std::chrono::system_clock::now() - start > std::chrono::milliseconds(500)) { 
-					Logger::warn("Could not enable Machine '{}', servo actuator did not enable on time", getName()); 
+					Logger::warn("Could not enable Axis '{}', servo actuator did not enable on time", getName()); 
 					return;
 				}
 				std::this_thread::sleep_for(std::chrono::milliseconds(20));
 			}
 		}
-		if (!isReady()) Logger::warn("Machine '{}' cannot be enabled", getName());
+		if (!isReady()) Logger::warn("Axis '{}' cannot be enabled", getName());
 		else onEnable();
 	});
 	machineEnabler.detach();
@@ -184,10 +184,8 @@ void PositionControlledAxis::enable() {
 void PositionControlledAxis::onEnable() {
 	targetInterpolation->resetValues();
 	manualVelocityTarget_axisUnitsPerSecond = 0.0;
-	//profileVelocity_axisUnitsPerSecond = 0.0;
-	//profileAcceleration_axisUnitsPerSecondSquared = 0.0;
 	b_enabled = true;
-	Logger::info("Machine '{}' was enabled", getName());
+	Logger::info("Axis '{}' was enabled", getName());
 }
 
 void PositionControlledAxis::disable() {
@@ -196,9 +194,7 @@ void PositionControlledAxis::disable() {
 	else if (needsServoActuatorDevice()) getServoActuatorDevice()->disable();
 	targetInterpolation->resetValues();
 	manualVelocityTarget_axisUnitsPerSecond = 0.0;
-	//profileVelocity_axisUnitsPerSecond = 0.0;
-	//profileAcceleration_axisUnitsPerSecondSquared = 0.0;
-	Logger::info("Machine {} disabled", getName());
+	Logger::info("Axis {} disabled", getName());
 }
 
 bool PositionControlledAxis::isReady() {
@@ -400,23 +396,31 @@ bool PositionControlledAxis::isMoving() {
 }
 
 double PositionControlledAxis::getLowPositionLimit() {
+	return getLowPositionLimitWithoutClearance() + limitClearance_axisUnits;
+}
+
+double PositionControlledAxis::getHighPositionLimit() {
+	return getHighPositionLimitWithoutClearance() - limitClearance_axisUnits;
+}
+
+double PositionControlledAxis::getLowPositionLimitWithoutClearance() {
 	double lowLimit = -std::numeric_limits<double>::infinity();
 	if (enableNegativeLimit) lowLimit = maxNegativeDeviation_axisUnits;
 	if (limitToFeedbackWorkingRange) {
 		double lowFeedbackLimit = getLowFeedbackPositionLimit();
 		if (lowLimit < lowFeedbackLimit) lowLimit = lowFeedbackLimit;
 	}
-	return lowLimit + limitClearance_axisUnits;
+	return lowLimit;
 }
 
-double PositionControlledAxis::getHighPositionLimit() {
+double PositionControlledAxis::getHighPositionLimitWithoutClearance() {
 	double highLimit = std::numeric_limits<double>::infinity();
 	if (enablePositiveLimit) highLimit = maxPositiveDeviation_axisUnits;
 	if (limitToFeedbackWorkingRange) {
 		double highFeedbackLimit = getHighFeedbackPositionLimit();
 		if (highLimit > highFeedbackLimit) highLimit = highFeedbackLimit;
 	}
-	return highLimit - limitClearance_axisUnits;
+	return highLimit;
 }
 
 double PositionControlledAxis::getLowFeedbackPositionLimit() {
@@ -608,9 +612,15 @@ void PositionControlledAxis::positionTargetControl() {
 		profileVelocity_axisUnitsPerSecond = curvePoint.velocity;
 		profileAcceleration_axisUnitsPerSecondSquared = curvePoint.acceleration;
 	}
-	else {
+	else if (targetInterpolation->getProgressAtTime(profileTime_seconds) >= 1.0) {
+		profilePosition_axisUnits = targetInterpolation->outPosition;
 		profileVelocity_axisUnitsPerSecond = 0.0;
 		profileAcceleration_axisUnitsPerSecondSquared = 0.0;
+		setVelocityTarget(0.0);
+	}else{
+		profileVelocity_axisUnitsPerSecond = 0.0;
+		profileAcceleration_axisUnitsPerSecondSquared = 0.0;
+		setVelocityTarget(0.0);
 	}
 }
 

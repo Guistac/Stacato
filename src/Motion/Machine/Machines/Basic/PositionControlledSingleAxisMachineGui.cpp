@@ -242,47 +242,78 @@ float PositionControlledSingleAxisMachine::getMiniatureWidth() {
 }
 
 void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
-		float bottomControlsHeight = ImGui::GetTextLineHeight() * 3.3;
+		float bottomControlsHeight = ImGui::GetTextLineHeight() * 4.4;
 		float sliderHeight = ImGui::GetContentRegionAvail().y - bottomControlsHeight;
 		float tripleWidgetWidth = (ImGui::GetContentRegionAvail().x - 2.0 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
 		glm::vec2 verticalSliderSize(tripleWidgetWidth, sliderHeight);
-
-		std::shared_ptr<PositionControlledAxis> axis = getAxis();
-		PositionUnit::Unit positionUnit = PositionUnit::Unit::DEGREE;
+		
 		float positionProgress = 1.0;
 		float velocityProgress = 1.0;
-		float velocityLimit = 0.0;
-		if (isEnabled()) {
-			axis = getAxis();
-			positionUnit = axis->positionUnit;
-			velocityLimit = axis->velocityLimit_axisUnitsPerSecond;
+		float velocityLimit = 1.0;
+		const char* positionUnitShortFormString;
+		float motionProgress = 0.0;
+		static char velocityTargetString[32];
+		static char actualVelocityString[32];
+		static char actualPositionString[32];
+		bool disableControls = true;
+
+		if (isAxisConnected()) {
+			std::shared_ptr<PositionControlledAxis> axis = getAxis();
+			velocityLimit = axis->getVelocityLimit_axisUnitsPerSecond();
 			positionProgress = axis->getActualPosition_normalized();
-			velocityProgress = std::abs((axis->getActualVelocity_axisUnitsPerSecond() / velocityLimit));
+			velocityProgress = std::abs(axis->getActualVelocityNormalized());
 			if (velocityProgress > 1.0) velocityProgress = 1.0;
+			positionUnitShortFormString = getPositionUnitStringShort(axis->positionUnit);
+			motionProgress = axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds);
+			sprintf(velocityTargetString, "%.1f%s/s", manualVelocityTarget_machineUnitsPerSecond, positionUnitShortFormString);
+			sprintf(actualVelocityString, "%.1f%s/s", axis->getActualVelocity_axisUnitsPerSecond(), positionUnitShortFormString);
+			sprintf(actualPositionString, "%.1f%s", axis->getActualPosition_axisUnits(), positionUnitShortFormString);
+			disableControls = !axis->isEnabled();
+		}
+		else {
+			sprintf(velocityTargetString, "-");
+			sprintf(actualVelocityString, "-");
+			sprintf(actualPositionString, "-");
+			positionUnitShortFormString = "u";
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		}
 
-		float manualVelocityTarget = axis->manualVelocityTarget_axisUnitsPerSecond;
-		ImGui::VSliderFloat("##ManualVelocity", verticalSliderSize, &manualVelocityTarget, -velocityLimit, velocityLimit, "%.3f m/s");
+		if(disableControls) BEGIN_DISABLE_IMGUI_ELEMENT
+
+		float manualVelocityTarget = manualVelocityTarget_machineUnitsPerSecond;
+		ImGui::VSliderFloat("##ManualVelocity", verticalSliderSize, &manualVelocityTarget, -velocityLimit, velocityLimit, "");
 		clampValue(manualVelocityTarget, -velocityLimit, velocityLimit);
-		if (ImGui::IsItemActive()) axis->setVelocityTarget(manualVelocityTarget);
-		else if (ImGui::IsItemDeactivatedAfterEdit()) axis->setVelocityTarget(manualVelocityTarget = 0.0);
-
+		if (ImGui::IsItemActive()) setVelocityTarget(manualVelocityTarget);
+		else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocityTarget(0.0);
 		ImGui::SameLine();
-
 		verticalProgressBar(velocityProgress, verticalSliderSize);
 		ImGui::SameLine();
 		verticalProgressBar(positionProgress, verticalSliderSize);
 
+
+		ImGui::PushFont(Fonts::robotoRegular12);
+		glm::vec2 feedbackButtonSize(verticalSliderSize.x, ImGui::GetTextLineHeight());
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(0, 0));
+		ImGui::Button(velocityTargetString, feedbackButtonSize);
+		ImGui::SameLine();
+		ImGui::Button(actualVelocityString, feedbackButtonSize);
+		ImGui::SameLine();
+		ImGui::Button(actualPositionString, feedbackButtonSize);
+		ImGui::PopStyleVar();
+		ImGui::PopStyleColor();
+		ImGui::PopItemFlag();
+		ImGui::PopFont();
 
 		float framePaddingX = ImGui::GetStyle().FramePadding.x;
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(framePaddingX, ImGui::GetTextLineHeight() * 0.1));
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 		static char targetPositionString[32];
-		sprintf(targetPositionString, "%.1f %s", axis->targetPosition_axisUnits, getPositionUnitStringShort(positionUnit));
-		ImGui::InputDouble("##TargetPosition", &axis->targetPosition_axisUnits, 0.0, 0.0, targetPositionString);
+		sprintf(targetPositionString, "%.1f %s", manualPositionTarget_machineUnits, positionUnitShortFormString);
+		ImGui::InputDouble("##TargetPosition", &manualPositionTarget_machineUnits, 0.0, 0.0, targetPositionString);
 
-		float motionProgress = axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds);
 		if (motionProgress > 0.0 && motionProgress < 1.0) {
 			glm::vec2 targetmin = ImGui::GetItemRectMin();
 			glm::vec2 targetmax = ImGui::GetItemRectMax();
@@ -296,11 +327,16 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 		float doubleWidgetWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
 		glm::vec2 doubleButtonSize(doubleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
 
-		if (ImGui::Button("Move", doubleButtonSize)) {
-			axis->moveToPositionWithVelocity(axis->targetPosition_axisUnits, axis->targetVelocity_axisUnitsPerSecond, axis->manualControlAcceleration_axisUnitsPerSecond);
-		}
+		if (ImGui::Button("Move", doubleButtonSize)) moveToPosition(manualPositionTarget_machineUnits);
+
 		ImGui::SameLine();
-		if (ImGui::Button("Stop", doubleButtonSize)) {
-			axis->setVelocityTarget(0.0);
+
+		if (ImGui::Button("Stop", doubleButtonSize)) setVelocityTarget(0.0);
+
+		if (!isAxisConnected()) {
+			ImGui::PopStyleColor();
 		}
+
+		if(disableControls) END_DISABLE_IMGUI_ELEMENT
+
 }
