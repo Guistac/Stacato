@@ -8,6 +8,7 @@
 #include "NodeGraph/Nodes/GroupNode.h"
 #include "NodeGraph/Nodes/PlotterNode.h"
 
+#include "Motion/Axis/VelocityControlledAxis.h"
 #include "Motion/Axis/PositionControlledAxis.h"
 
 #include "Motion/Machine/Machines/Basic/SingleAxisMachine.h"
@@ -25,6 +26,7 @@ namespace NodeFactory {
 	void loadNodes() {
 
 		allAxisNodes = {
+			new VelocityControlledAxis(),
 			new PositionControlledAxis()
 		};
 

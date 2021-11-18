@@ -55,6 +55,12 @@ void VelocityControlledAxis::disable() {
 	b_enabled = false;
 }
 
+void VelocityControlledAxis::onEnable() {}
+void VelocityControlledAxis::onDisable() {}
+
 void VelocityControlledAxis::sendActuatorCommands() {
 	getActuatorDevice()->setCommand(profileVelocity_axisUnitsPerSecond);
 }
+
+void VelocityControlledAxis::setVelocity(double velocity_axisUnitsPerSecond) {}
+void VelocityControlledAxis::fastStop() {}

@@ -7,6 +7,8 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "NodeGraph/Device.h"
 
+#include "Motion/SubDevice.h"
+
 #include <tinyxml2.h>
 
 void PositionControlledAxis::assignIoData() {
@@ -20,8 +22,8 @@ void PositionControlledAxis::assignIoData() {
 	addIoData(referenceSignalPin);
 	//outputs
 	//these pins are always present
-	std::shared_ptr<Axis> thisAxis = std::dynamic_pointer_cast<Axis>(shared_from_this());
-	axisLink->set(thisAxis);
+	//std::shared_ptr<Axis> thisAxis = std::dynamic_pointer_cast<Axis>(shared_from_this());
+	//axisLink->set(thisAxis);
 	addIoData(axisLink);
 	addIoData(position);
 	addIoData(velocity);
@@ -77,20 +79,21 @@ void PositionControlledAxis::process() {
 	velocity->set(actualVelocity_axisUnitsPerSecond);
 	switch (positionControl) {
 		case PositionControl::Type::SERVO:
-			actualLoad = getServoActuatorDevice()->getLoad();
+			actualLoad_normalized = getServoActuatorDevice()->getLoad();
 			break;
 		case PositionControl::Type::CLOSED_LOOP:
-			actualLoad = getActuatorDevice()->getLoad();
+			actualLoad_normalized = getActuatorDevice()->getLoad();
 			break;
 	}
 
 	//update timing
-	if (needsActuator) currentProfilePointTime_seconds = actuatorDevice->getCommandRequestTime_seconds();
-	else if (needsServo) currentProfilePointTime_seconds = servoActuatorDevice->getCommandRequestTime_seconds();
-	currentProfilePointDeltaT_seconds = currentProfilePointTime_seconds - previousProfilePointTime_seconds;
-	previousProfilePointTime_seconds = currentProfilePointTime_seconds;
+	if (needsActuator) profileTime_seconds = actuatorDevice->getCommandRequestTime_seconds();
+	else if (needsServo) actualLoad_normalized = servoActuatorDevice->getCommandRequestTime_seconds();
+	//currentProfilePointDeltaT_seconds = currentProfilePointTime_seconds - previousProfilePointTime_seconds;
+	//previousProfilePointTime_seconds = currentProfilePointTime_seconds;
 
 	//UPDATE PROFILE GENERATOR
+	/*
 	if (isEnabled() && hasManualControlsEnabled()) {
 		//if the axis is enabled and manual controls are enabled
 		//the axis controls itself and sends commands to the actuators
@@ -115,11 +118,12 @@ void PositionControlledAxis::process() {
 		//here the machine controls the profile and actuator command sending
 	}
 	else {
-		setActuatorCommands();
+		sendActuatorCommands();
 	}
+	*/
 }
 
-void PositionControlledAxis::setActuatorCommands() {
+void PositionControlledAxis::sendActuatorCommands() {
 	//here we expect that the motion profile has new values
 	//we use those values to send commands to the actuators
 	positionError_axisUnits = profilePosition_axisUnits - actualPosition_axisUnits / feedbackUnitsPerAxisUnits;
@@ -137,12 +141,12 @@ void PositionControlledAxis::setActuatorCommands() {
 }
 
 void PositionControlledAxis::updateMetrics() {
-	positionHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profilePosition_axisUnits));
-	actualPositionHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, actualPosition_axisUnits));
-	positionErrorHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, positionError_axisUnits));
-	velocityHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profileVelocity_axisUnitsPerSecond));
-	accelerationHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, profileAcceleration_axisUnitsPerSecondSquared));
-	loadHistory.addPoint(glm::vec2(currentProfilePointTime_seconds, actualLoad));
+	positionHistory.addPoint(glm::vec2(profileTime_seconds, profilePosition_axisUnits));
+	actualPositionHistory.addPoint(glm::vec2(profileTime_seconds, actualPosition_axisUnits));
+	positionErrorHistory.addPoint(glm::vec2(profileTime_seconds, positionError_axisUnits));
+	velocityHistory.addPoint(glm::vec2(profileTime_seconds, profileVelocity_axisUnitsPerSecond));
+	accelerationHistory.addPoint(glm::vec2(profileTime_seconds, profileAcceleration_axisUnitsPerSecondSquared));
+	loadHistory.addPoint(glm::vec2(profileTime_seconds, actualLoad_normalized));
 }
 
 //=================================== STATE CONTROL ============================================
@@ -196,10 +200,6 @@ void PositionControlledAxis::disable() {
 	//profileVelocity_axisUnitsPerSecond = 0.0;
 	//profileAcceleration_axisUnitsPerSecondSquared = 0.0;
 	Logger::info("Machine {} disabled", getName());
-}
-
-bool PositionControlledAxis::isEnabled() {
-	return b_enabled;
 }
 
 bool PositionControlledAxis::isReady() {
@@ -270,13 +270,6 @@ bool PositionControlledAxis::needsActuatorDevice() {
 		return false;
 	default: return false;
 	}
-}
-
-bool PositionControlledAxis::isActuatorDeviceConnected() {
-	return actuatorDeviceLink->isConnected();
-}
-std::shared_ptr<ActuatorDevice> PositionControlledAxis::getActuatorDevice() {
-	return actuatorDeviceLink->getConnectedPins().front()->getActuatorDevice();
 }
 
 bool PositionControlledAxis::needsServoActuatorDevice() {
@@ -427,6 +420,7 @@ double PositionControlledAxis::getHighPositionLimit() {
 	return highLimit;
 }
 
+/*
 double PositionControlledAxis::getLowPositionLimitWithClearance() {
 	return getLowPositionLimit() + limitClearance_axisUnits;
 }
@@ -434,6 +428,7 @@ double PositionControlledAxis::getLowPositionLimitWithClearance() {
 double PositionControlledAxis::getHighPositionLimitWithClearance() {
 	return getHighPositionLimit() - limitClearance_axisUnits;
 }
+*/
 
 double PositionControlledAxis::getLowFeedbackPositionLimit() {
 	switch (positionControl) {
@@ -520,7 +515,7 @@ void PositionControlledAxis::fastStop() {
 
 void PositionControlledAxis::fastStopControl() {
 	if (profileVelocity_axisUnitsPerSecond != 0.0) {
-		double deltaV_axisUnitsPerSecond = accelerationLimit_axisUnitsPerSecondSquared * currentProfilePointDeltaT_seconds;
+		double deltaV_axisUnitsPerSecond = accelerationLimit_axisUnitsPerSecondSquared * profileTimeDelta_seconds;
 		if (profileVelocity_axisUnitsPerSecond > 0.0) {
 			profileVelocity_axisUnitsPerSecond -= deltaV_axisUnitsPerSecond;
 			if (profileVelocity_axisUnitsPerSecond < 0.0) profileVelocity_axisUnitsPerSecond = 0.0;
@@ -529,7 +524,7 @@ void PositionControlledAxis::fastStopControl() {
 			profileVelocity_axisUnitsPerSecond += deltaV_axisUnitsPerSecond;
 			if (profileVelocity_axisUnitsPerSecond > 0.0) profileVelocity_axisUnitsPerSecond = 0.0;
 		}
-		double deltaP_axisUnits = profileVelocity_axisUnitsPerSecond * currentProfilePointDeltaT_seconds;
+		double deltaP_axisUnits = profileVelocity_axisUnitsPerSecond * profileTimeDelta_seconds;
 		profilePosition_axisUnits += deltaP_axisUnits;
 	}
 	else {
@@ -549,8 +544,8 @@ void PositionControlledAxis::setVelocity(double velocity_axisUnits) {
 void PositionControlledAxis::velocityTargetControl() {
 
 	if (!isHoming()) {
-		double brakingPositionAtMaxDeceleration = getBrakingPositionAtMaxDeceleration();
-		if (brakingPositionAtMaxDeceleration < getLowPositionLimitWithClearance()) {
+		double brakingPositionAtMaxDeceleration = getFastStopBrakingPosition();
+		if (brakingPositionAtMaxDeceleration < getLowPositionLimit()) {
 			if (profileVelocity_axisUnitsPerSecond < 0.0) {
 				fastStop();
 				fastStopControl();
@@ -558,7 +553,7 @@ void PositionControlledAxis::velocityTargetControl() {
 			}
 			else if (manualVelocityTarget_axisUnitsPerSecond < 0.0) manualVelocityTarget_axisUnitsPerSecond = 0.0;
 		}
-		else if (brakingPositionAtMaxDeceleration > getHighPositionLimitWithClearance()) {
+		else if (brakingPositionAtMaxDeceleration > getHighPositionLimit()) {
 			if (profileVelocity_axisUnitsPerSecond > 0.0) {
 				fastStop();
 				fastStopControl();
@@ -570,7 +565,7 @@ void PositionControlledAxis::velocityTargetControl() {
 
 
 	if (profileVelocity_axisUnitsPerSecond != manualVelocityTarget_axisUnitsPerSecond) {
-		double deltaV_axisUnitsPerSecond = manualControlAcceleration_axisUnitsPerSecond * currentProfilePointDeltaT_seconds;
+		double deltaV_axisUnitsPerSecond = manualControlAcceleration_axisUnitsPerSecond * profileTimeDelta_seconds;
 		if (profileVelocity_axisUnitsPerSecond < manualVelocityTarget_axisUnitsPerSecond) {
 			profileVelocity_axisUnitsPerSecond += deltaV_axisUnitsPerSecond;
 			profileAcceleration_axisUnitsPerSecondSquared = manualControlAcceleration_axisUnitsPerSecond;
@@ -583,7 +578,7 @@ void PositionControlledAxis::velocityTargetControl() {
 		}
 	}
 	else profileAcceleration_axisUnitsPerSecondSquared = 0.0;
-	double deltaP_axisUnits = profileVelocity_axisUnitsPerSecond * currentProfilePointDeltaT_seconds;
+	double deltaP_axisUnits = profileVelocity_axisUnitsPerSecond * profileTimeDelta_seconds;
 	profilePosition_axisUnits += deltaP_axisUnits;
 }
 
@@ -592,9 +587,9 @@ void PositionControlledAxis::velocityTargetControl() {
 //================================= POSITION TARGET CONTROL ===================================
 
 void PositionControlledAxis::moveToPositionWithVelocity(double position_axisUnits, double velocity_axisUnits, double acceleration_axisUnits) {
-	if (position_axisUnits > getHighPositionLimitWithClearance()) position_axisUnits = getHighPositionLimitWithClearance();
-	else if (position_axisUnits < getLowPositionLimitWithClearance()) position_axisUnits = getLowPositionLimitWithClearance();
-	auto startPoint= std::make_shared<Motion::ControlPoint>(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
+	if (position_axisUnits > getHighPositionLimit()) position_axisUnits = getHighPositionLimit();
+	else if (position_axisUnits < getLowPositionLimit()) position_axisUnits = getLowPositionLimit();
+	auto startPoint = std::make_shared<Motion::ControlPoint>(profileTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
 	auto endPoint = std::make_shared<Motion::ControlPoint>(0.0, position_axisUnits, acceleration_axisUnits, 0.0);
 	if (Motion::TrapezoidalInterpolation::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, velocity_axisUnits, targetInterpolation)) {
 		controlMode = ControlMode::Mode::MANUAL_POSITION_TARGET;
@@ -606,16 +601,16 @@ void PositionControlledAxis::moveToPositionWithVelocity(double position_axisUnit
 }
 
 void PositionControlledAxis::moveToPositionInTime(double position_axisUnits, double movementTime_seconds, double acceleration_axisUnits) {
-	if (position_axisUnits > getHighPositionLimitWithClearance()) position_axisUnits = getHighPositionLimitWithClearance();
-	else if (position_axisUnits < getLowPositionLimitWithClearance()) position_axisUnits = getLowPositionLimitWithClearance();
-	auto startPoint = std::make_shared<Motion::ControlPoint>(currentProfilePointTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
-	auto endPoint = std::make_shared<Motion::ControlPoint>(currentProfilePointTime_seconds + movementTime_seconds, position_axisUnits, acceleration_axisUnits, 0.0);
+	if (position_axisUnits > getHighPositionLimit()) position_axisUnits = getHighPositionLimit();
+	else if (position_axisUnits < getLowPositionLimit()) position_axisUnits = getLowPositionLimit();
+	auto startPoint = std::make_shared<Motion::ControlPoint>(profileTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
+	auto endPoint = std::make_shared<Motion::ControlPoint>(profileTime_seconds + movementTime_seconds, position_axisUnits, acceleration_axisUnits, 0.0);
 	Motion::TrapezoidalInterpolation::getClosestTimeAndVelocityConstrainedInterpolation(startPoint, endPoint, velocityLimit_axisUnitsPerSecond, targetInterpolation);
 }
 
 void PositionControlledAxis::positionTargetControl() {
-	if (targetInterpolation->isTimeInside(currentProfilePointTime_seconds)) {
-		Motion::CurvePoint curvePoint = targetInterpolation->getPointAtTime(currentProfilePointTime_seconds);
+	if (targetInterpolation->isTimeInside(profileTime_seconds)) {
+		Motion::CurvePoint curvePoint = targetInterpolation->getPointAtTime(profileTime_seconds);
 		profilePosition_axisUnits = curvePoint.position;
 		profileVelocity_axisUnitsPerSecond = curvePoint.velocity;
 		profileAcceleration_axisUnitsPerSecondSquared = curvePoint.acceleration;
@@ -973,8 +968,8 @@ bool PositionControlledAxis::save(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 
 	XMLElement* machineXML = xml->InsertNewChildElement("Machine");
-	machineXML->SetAttribute("UnitType", getPositionUnitType(axisPositionUnitType)->saveName);
-	machineXML->SetAttribute("Unit", getPositionUnit(axisPositionUnit)->saveName);
+	machineXML->SetAttribute("UnitType", getPositionUnitType(positionUnitType)->saveName);
+	machineXML->SetAttribute("Unit", getPositionUnit(positionUnit)->saveName);
 	machineXML->SetAttribute("PositionControl", getPositionControlType(positionControl)->saveName);
 
 	XMLElement* unitConversionXML = xml->InsertNewChildElement("UnitConversion");
@@ -1027,11 +1022,11 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	const char* machineUnitTypeString;
 	if (machineXML->QueryStringAttribute("UnitType", &machineUnitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit Type");
 	if (getPositionUnitType(machineUnitTypeString) == nullptr) return Logger::warn("Could not read Machine Unit Type");
-	axisPositionUnitType = getPositionUnitType(machineUnitTypeString)->type;
+	positionUnitType = getPositionUnitType(machineUnitTypeString)->type;
 	const char* machineUnitString;
 	if (machineXML->QueryStringAttribute("Unit", &machineUnitString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit");
 	if (getPositionUnit(machineUnitString) == nullptr) return Logger::warn("Could not read Machine Unit");
-	axisPositionUnit = getPositionUnit(machineUnitString)->unit;
+	positionUnit = getPositionUnit(machineUnitString)->unit;
 	const char* motionControlTypeString;
 	if (machineXML->QueryStringAttribute("PositionControl", &motionControlTypeString) != XML_SUCCESS) return Logger::warn("Could not load Position Control Type");
 	if (getPositionControlType(motionControlTypeString) == nullptr) return Logger::warn("Could not read Position Control Type");
@@ -1100,4 +1095,11 @@ void PositionControlledAxis::getDevices(std::vector<std::shared_ptr<Device>>& ou
 	if (needsServoActuatorDevice() && isServoActuatorDeviceConnected()) output.push_back(getServoActuatorDevice()->parentDevice);
 	if (needsPositionFeedbackDevice() && isPositionFeedbackDeviceConnected()) output.push_back(getPositionFeedbackDevice()->parentDevice);
 	if (needsReferenceDevice() && isReferenceDeviceConnected())output.push_back(getReferenceDevice()->parentDevice);
+}
+
+
+void PositionControlledAxis::onDisable() {}
+
+double PositionControlledAxis::getFastStopBrakingPosition() {
+	return 0.0;
 }

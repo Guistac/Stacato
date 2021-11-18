@@ -25,6 +25,13 @@
 		virtual Node::Type getType() { return Node::Type::CONTAINER; }									\
 		virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
 
+#define DEFINE_AXIS_NODE(className, nodeName, saveName)	public:											\
+		virtual const char * getSaveName() { return saveName; }											\
+		virtual const char* getNodeCategory() { return "Axis"; }										\
+		className(){ setName(nodeName); }																\
+		virtual Node::Type getType() { return Node::Type::AXIS; }										\
+		virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
+
 class NodeGraph;
 namespace tinyxml2 { class XMLElement; }
 

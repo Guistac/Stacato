@@ -15,11 +15,8 @@ public:
 	virtual void assignIoData();
 	virtual void process();
 
+	//======== SETTINGS ========
 
-	//======== SETTINGS AND PROPRIETIES ========
-
-	PositionUnit::Unit getPositionUnit() { return positionUnit; }
-	PositionUnit::Type getPositionUnitType() { return positionUnitType; }
 	PositionUnit::Unit positionUnit = PositionUnit::Unit::DEGREE;
 	PositionUnit::Type positionUnitType = PositionUnit::Type::ANGULAR;
 
@@ -41,17 +38,22 @@ public:
 
 	//========= STATE ==========
 
-	virtual bool isEnabled() { return b_enabled; }
+	bool isEnabled() { return b_enabled; }
+	bool b_enabled = false;
+
 	virtual bool isReady();
 	virtual bool isMoving();
 
 	virtual void enable();
 	virtual void disable();
 
-	bool b_enabled = false;
+	virtual void onEnable();
+	virtual void onDisable();
 
 	//========= MOTION PROFILE =========
 
+	double profileTime_seconds = 0.0;
+	double profileTimeDelta_seconds = 0.0;
 	double profileVelocity_axisUnitsPerSecond = 0.0;
 	double profileAcceleration_axisUnitsPerSecondSquared = 0.0;
 
@@ -60,6 +62,7 @@ public:
 
 	double actualVelocity_axisUnitsPerSecond = 0.0;
 	double actualAcceleration_axisUnitsPerSecond = 0.0;
+	double actualLoad_normalized = 0.0;
 
 	double getActualVelocity_axisUnitsPerSecond() { return actualVelocity_axisUnitsPerSecond; }
 	double getActualAcceleration_axisUnitsPerSecondSquared() { return actualAcceleration_axisUnitsPerSecond; }
@@ -86,7 +89,10 @@ public:
 
 	//======= GUI ========
 
-	virtual void nodeSpecificGui() { axisSpecificGui(); }
-	virtual void axisSpecificGui() = 0;
+	virtual void nodeSpecificGui();
+	virtual void controlsGui();
+	virtual void settingsGui();
+	virtual void devicesGui();
+	virtual void metricsGui();
 
 };
