@@ -6,7 +6,9 @@
 
 void VelocityControlledAxis::assignIoData() {
 	addIoData(actuatorDeviceLink);
-	addIoData(axisLink);
+	std::shared_ptr<VelocityControlledAxis> thisAxis = std::dynamic_pointer_cast<VelocityControlledAxis>(shared_from_this());
+	velocityControlledAxisLink->set(thisAxis);
+	addIoData(velocityControlledAxisLink);
 	addIoData(velocity);
 }
 
@@ -27,7 +29,8 @@ bool VelocityControlledAxis::isReady() {
 }
 
 bool VelocityControlledAxis::isMoving() {
-	return actualVelocity_axisUnitsPerSecond != 0.0;
+	return false;
+	//return getActuatorDevice()->isMoving
 }
 
 void VelocityControlledAxis::enable() {

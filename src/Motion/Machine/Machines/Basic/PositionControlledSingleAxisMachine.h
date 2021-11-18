@@ -3,11 +3,13 @@
 #include "Motion/Curve/Curve.h"
 #include "Motion/MotionTypes.h"
 
-class SingleAxisMachine : public Machine{
-	
-	DEFINE_MACHINE_NODE(SingleAxisMachine, "Single Axis Linear Machine", "SingleAxisMachine")
+class PositionControlledAxis;
 
-	std::shared_ptr<NodePin> axisLink = std::make_shared<NodePin>(NodeData::Type::AXIS_LINK, DataDirection::NODE_INPUT, "Linear Axis");
+class PositionControlledSingleAxisMachine : public Machine{
+	
+	DEFINE_MACHINE_NODE(PositionControlledSingleAxisMachine, "Position Controlled Single Axis Machine", "PositionControlledPositionControlledSingleAxisMachine")
+
+	std::shared_ptr<NodePin> positionControlledAxisLink = std::make_shared<NodePin>(NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, DataDirection::NODE_INPUT, "Position Controlled Axis");
 	
 	std::shared_ptr<AnimatableParameter> positionParameter;
 
@@ -17,7 +19,7 @@ class SingleAxisMachine : public Machine{
 	bool b_enabled = false;
 
 	bool isAxisConnected();
-	std::shared_ptr<Axis> getAxis();
+	std::shared_ptr<PositionControlledAxis> getAxis();
 
 	double getLowPositionLimit();
 	double getHighPositionLimit();

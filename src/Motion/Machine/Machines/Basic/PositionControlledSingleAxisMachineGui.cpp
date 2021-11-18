@@ -1,7 +1,7 @@
 #include <pch.h>
 
-#include "SingleAxisMachine.h"
-#include "Motion/Axis/Axis.h"
+#include "PositionControlledSingleAxisMachine.h"
+#include "Motion/Axis/PositionControlledAxis.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -12,7 +12,7 @@
 #include "Gui/Utilities/CustomWidgets.h"
 
 
-void SingleAxisMachine::controlsGui() {
+void PositionControlledSingleAxisMachine::controlsGui() {
 
 	ImGui::PushFont(Fonts::robotoBold20);
 	ImGui::Text("Manual Machine Control");
@@ -24,8 +24,8 @@ void SingleAxisMachine::controlsGui() {
 	double accelerationLimit_machineUnits = 0;
 	double velocityLimit_machineUnits = 0;
 	if (isAxisConnected()) {
-		std::shared_ptr<Axis> axis = getAxis();
-		machinePositionUnit = axis->axisPositionUnit;
+		std::shared_ptr<PositionControlledAxis> axis = getAxis();
+		machinePositionUnit = axis->positionUnit;
 		accelerationLimit_machineUnits = axis->accelerationLimit_axisUnitsPerSecondSquared;
 		velocityLimit_machineUnits = axis->velocityLimit_axisUnitsPerSecond;
 	}
@@ -100,7 +100,7 @@ void SingleAxisMachine::controlsGui() {
 	ImGui::Separator();
 
 
-	std::shared_ptr<Axis> axis;
+	std::shared_ptr<PositionControlledAxis> axis;
 	PositionUnit::Unit positionUnit = PositionUnit::Unit::DEGREE;
 	double velocityLimit = 0.0;
 	//actual position in range
@@ -117,8 +117,8 @@ void SingleAxisMachine::controlsGui() {
 		axis = getAxis();
 		minPosition = axis->getLowPositionLimit();
 		maxPosition = axis->getHighPositionLimit();
-		positionProgress = axis->getPositionProgress();
-		positionUnit = axis->axisPositionUnit;
+		positionProgress = axis->getActualPosition_normalized();
+		positionUnit = axis->positionUnit;
 		velocityLimit = getAxis()->velocityLimit_axisUnitsPerSecond;
 
 		if (positionProgress <= 1.0 && positionProgress >= 0.0) {
@@ -192,31 +192,31 @@ void SingleAxisMachine::controlsGui() {
 }
 
 
-void SingleAxisMachine::settingsGui() {}
-void SingleAxisMachine::axisGui() {}
-void SingleAxisMachine::deviceGui() {}
-void SingleAxisMachine::metricsGui() {}
+void PositionControlledSingleAxisMachine::settingsGui() {}
+void PositionControlledSingleAxisMachine::axisGui() {}
+void PositionControlledSingleAxisMachine::deviceGui() {}
+void PositionControlledSingleAxisMachine::metricsGui() {}
 
-float SingleAxisMachine::getMiniatureWidth() {
+float PositionControlledSingleAxisMachine::getMiniatureWidth() {
 	return ImGui::GetTextLineHeight() * 8.0;
 }
 
-void SingleAxisMachine::machineSpecificMiniatureGui() {
+void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 		float bottomControlsHeight = ImGui::GetTextLineHeight() * 3.3;
 		float sliderHeight = ImGui::GetContentRegionAvail().y - bottomControlsHeight;
 		float tripleWidgetWidth = (ImGui::GetContentRegionAvail().x - 2.0 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
 		glm::vec2 verticalSliderSize(tripleWidgetWidth, sliderHeight);
 
-		std::shared_ptr<Axis> axis;
+		std::shared_ptr<PositionControlledAxis> axis;
 		PositionUnit::Unit positionUnit = PositionUnit::Unit::DEGREE;
 		float positionProgress = 1.0;
 		float velocityProgress = 1.0;
 		float velocityLimit = 0.0;
 		if (isEnabled()) {
 			axis = getAxis();
-			positionUnit = axis->axisPositionUnit;
+			positionUnit = axis->positionUnit;
 			velocityLimit = axis->velocityLimit_axisUnitsPerSecond;
-			positionProgress = axis->getPositionProgress();
+			positionProgress = axis->getActualPosition_normalized();
 			velocityProgress = std::abs((actualVelocity_machineUnits / velocityLimit));
 			if (velocityProgress > 1.0) velocityProgress = 1.0;
 		}

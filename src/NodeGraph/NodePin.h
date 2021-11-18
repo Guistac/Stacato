@@ -4,7 +4,8 @@ class ActuatorDevice;
 class PositionFeedbackDevice;
 class GpioDevice;
 class ServoActuatorDevice;
-class Axis;
+class VelocityControlledAxis;
+class PositionControlledAxis;
 
 class Node;
 class NodeLink;
@@ -20,7 +21,8 @@ struct NodeData {
 		POSITIONFEEDBACK_DEVICELINK,
 		GPIO_DEVICELINK,
 		SERVO_ACTUATOR_DEVICE_LINK,
-		AXIS_LINK
+		VELOCITY_CONTROLLED_AXIS_LINK,
+		POSITION_CONTROLLED_AXIS_LINK
 	};
 	Type type;
 	char displayName[64];
@@ -89,7 +91,8 @@ public:
 		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: break;
 		case NodeData::Type::GPIO_DEVICELINK: break;
 		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: break;
-		case NodeData::Type::AXIS_LINK: break;
+		case NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK: break;
+		case NodeData::Type::POSITION_CONTROLLED_AXIS_LINK: break;
 		}
 		type = t;
 	}
@@ -120,7 +123,8 @@ public:
 	bool isPositionFeedbackDeviceLink() { return type == NodeData::Type::POSITIONFEEDBACK_DEVICELINK; }
 	bool isGpioDeviceLink() { return type == NodeData::Type::GPIO_DEVICELINK; }
 	bool isServoActuatorDeviceLink() { return type == NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK; }
-	bool isAxisLink() { return type == NodeData::Type::AXIS_LINK; }
+	bool isVelocityControlledAxisLink() { return type == NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK; }
+	bool isPositionControlledAxisLink() { return type == NodeData::Type::POSITION_CONTROLLED_AXIS_LINK; }
 
 	//setting data (with data conversions)
 	void set(bool boolean);
@@ -130,7 +134,8 @@ public:
 	void set(std::shared_ptr<PositionFeedbackDevice>);
 	void set(std::shared_ptr<GpioDevice>);
 	void set(std::shared_ptr<ServoActuatorDevice>);
-	void set(std::shared_ptr<Axis>);
+	void set(std::shared_ptr<VelocityControlledAxis>);
+	void set(std::shared_ptr<PositionControlledAxis>);
 
 	//reading data (with data conversions)
 	bool getBoolean();
@@ -140,7 +145,8 @@ public:
 	std::shared_ptr<PositionFeedbackDevice> getPositionFeedbackDevice();
 	std::shared_ptr<GpioDevice> getGpioDevice();
 	std::shared_ptr<ServoActuatorDevice> getServoActuatorDevice();
-	std::shared_ptr<Axis> getAxis();
+	std::shared_ptr<VelocityControlledAxis> getVelocityControlledAxis();
+	std::shared_ptr<PositionControlledAxis> getPositionControlledAxis();
 
 	const char* getValueString();
 
@@ -186,7 +192,8 @@ private:
 	std::shared_ptr<PositionFeedbackDevice> positionFeedbackDevice = nullptr;
 	std::shared_ptr<GpioDevice> gpioDevice = nullptr;
 	std::shared_ptr<ServoActuatorDevice> servoActuatorDevice = nullptr;
-	std::shared_ptr<Axis> axis = nullptr;
+	std::shared_ptr<VelocityControlledAxis> velocityControlledAxis = nullptr;
+	std::shared_ptr<PositionControlledAxis> positionControlledAxis = nullptr;
 
 	void setup(NodeData::Type t, DataDirection d, const char* displayN, const char* saveN, NodePinFlags flags) {
 		strcpy(displayName, displayN);
@@ -205,7 +212,8 @@ private:
 		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
 		case NodeData::Type::GPIO_DEVICELINK:
 		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK:
-		case NodeData::Type::AXIS_LINK:
+		case NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK:
+		case NodeData::Type::POSITION_CONTROLLED_AXIS_LINK:
 			b_noDataField = true;
 			b_forceDataField = false;
 			break;

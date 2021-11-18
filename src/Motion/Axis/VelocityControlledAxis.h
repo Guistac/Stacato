@@ -1,19 +1,18 @@
 #pragma once
 
-#include "NodeGraph/Node.h"
+#include "Axis.h"
+
 #include "Motion/MotionTypes.h"
 #include "Utilities/CircularBuffer.h"
 
 class Device;
 
-class VelocityControlledAxis : public Node {
+class VelocityControlledAxis : public Axis {
 public:
 
 	DEFINE_AXIS_NODE(VelocityControlledAxis, "Velocity Controlled Axis", "VelocityControlledAxis")
 
 	virtual MotionCommand::Type getMotionCommandType() { return MotionCommand::Type::VELOCITY_COMMAND; }
-	virtual void assignIoData();
-	virtual void process();
 
 	//======== SETTINGS ========
 
@@ -77,14 +76,14 @@ public:
 	virtual void setVelocity(double velocity_positionUnitsPerSecondSquare);
 	virtual void fastStop();
 
-	bool isAxisPinConnected() { return axisLink->isConnected(); }
+	bool isAxisPinConnected() { return velocityControlledAxisLink->isConnected(); }
 	virtual void sendActuatorCommands();
 
 	//======= NODE ========
 
 	std::shared_ptr<NodePin> actuatorDeviceLink = std::make_shared<NodePin>(NodeData::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuator");
 	
-	std::shared_ptr<NodePin> axisLink = std::make_shared<NodePin>(NodeData::AXIS_LINK, DataDirection::NODE_OUTPUT, "Axis");
+	std::shared_ptr<NodePin> velocityControlledAxisLink = std::make_shared<NodePin>(NodeData::VELOCITY_CONTROLLED_AXIS_LINK, DataDirection::NODE_OUTPUT, "Velocity Controlled Axis");
 	std::shared_ptr<NodePin> velocity = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity");
 
 	//======= GUI ========

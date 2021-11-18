@@ -22,9 +22,9 @@ void PositionControlledAxis::assignIoData() {
 	addIoData(referenceSignalPin);
 	//outputs
 	//these pins are always present
-	//std::shared_ptr<Axis> thisAxis = std::dynamic_pointer_cast<Axis>(shared_from_this());
-	//axisLink->set(thisAxis);
-	addIoData(axisLink);
+	std::shared_ptr<PositionControlledAxis> thisAxis = std::dynamic_pointer_cast<PositionControlledAxis>(shared_from_this());
+	positionControlledAxisPin->set(thisAxis);
+	addIoData(positionControlledAxisPin);
 	addIoData(position);
 	addIoData(velocity);
 	setPositionControlType(positionControl);
@@ -407,7 +407,7 @@ double PositionControlledAxis::getLowPositionLimit() {
 		double lowFeedbackLimit = getLowFeedbackPositionLimit();
 		if (lowLimit < lowFeedbackLimit) lowLimit = lowFeedbackLimit;
 	}
-	return lowLimit;
+	return lowLimit + limitClearance_axisUnits;
 }
 
 double PositionControlledAxis::getHighPositionLimit() {
@@ -417,18 +417,8 @@ double PositionControlledAxis::getHighPositionLimit() {
 		double highFeedbackLimit = getHighFeedbackPositionLimit();
 		if (highLimit > highFeedbackLimit) highLimit = highFeedbackLimit;
 	}
-	return highLimit;
+	return highLimit - limitClearance_axisUnits;
 }
-
-/*
-double PositionControlledAxis::getLowPositionLimitWithClearance() {
-	return getLowPositionLimit() + limitClearance_axisUnits;
-}
-
-double PositionControlledAxis::getHighPositionLimitWithClearance() {
-	return getHighPositionLimit() - limitClearance_axisUnits;
-}
-*/
 
 double PositionControlledAxis::getLowFeedbackPositionLimit() {
 	switch (positionControl) {
@@ -505,6 +495,12 @@ void PositionControlledAxis::scaleFeedbackToMatchPosition(double position_axisUn
 	profilePosition_axisUnits = feedbackDevicePosition_feedbackUnits / feedbackUnitsPerAxisUnits;
 }
 
+
+float PositionControlledAxis::getActualPosition_normalized() {
+	double low = getLowPositionLimit();
+	double high = getHighPositionLimit();
+	return (actualPosition_axisUnits - low) / (high - low);
+}
 
 
 //================================= VELOCITY TARGET CONTROL ===================================
@@ -1101,5 +1097,9 @@ void PositionControlledAxis::getDevices(std::vector<std::shared_ptr<Device>>& ou
 void PositionControlledAxis::onDisable() {}
 
 double PositionControlledAxis::getFastStopBrakingPosition() {
-	return 0.0;
+	double decelerationSigned = std::abs(accelerationLimit_axisUnitsPerSecondSquared);
+	if (profileVelocity_axisUnitsPerSecond < 0.0) decelerationSigned *= -1.0;
+	double decelerationPositionDelta = std::pow(profileVelocity_axisUnitsPerSecond, 2.0) / (2.0 * decelerationSigned);
+	double brakingPosition_positionUnits = profilePosition_axisUnits + decelerationPositionDelta;
+	return brakingPosition_positionUnits + profileVelocity_axisUnitsPerSecond * profileTimeDelta_seconds;
 }

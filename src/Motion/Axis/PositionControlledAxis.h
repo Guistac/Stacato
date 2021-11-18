@@ -11,8 +11,6 @@ public:
 
 	DEFINE_AXIS_NODE(PositionControlledAxis, "Position Controlled Axis", "PositionControlledAxis")
 	virtual MotionCommand::Type getMotionCommandType() { return MotionCommand::Type::POSITION_COMMAND; }
-	virtual void assignIoData();
-	virtual void process();
 
 	//==================== SETTINGS ====================
 
@@ -83,11 +81,7 @@ public:
 	double actualPosition_axisUnits = 0.0;
 	double getActualPosition_axisUnits() { return actualPosition_axisUnits; }
 
-	float getActualPosition_normalized();/* {
-		double low = getLowPositionLimit();
-		double high = getHighPositionLimit();
-		return (actualPosition_axisUnits - low) / (high - low);
-	}*/
+	float getActualPosition_normalized();
 
 	//============== CONTROL ===================
 
@@ -110,13 +104,7 @@ public:
 	void fastStop();
 	void fastStopControl();
 
-	double getFastStopBrakingPosition();/* {
-		double decelerationSigned = std::abs(accelerationLimit_axisUnitsPerSecondSquared);
-		if (profileVelocity_axisUnitsPerSecond < 0.0) decelerationSigned *= -1.0;
-		double decelerationPositionDelta = std::pow(profileVelocity_axisUnitsPerSecond, 2.0) / (2.0 * decelerationSigned);
-		double brakingPosition_positionUnits = profilePosition_axisUnits + decelerationPositionDelta;
-		return brakingPosition_positionUnits + profileVelocity_axisUnitsPerSecond * currentProfilePointDeltaT_seconds;
-	}*/
+	double getFastStopBrakingPosition();
 
 	//Manual Velocity Control
 	void setVelocity(double velocity_axisUnits);
@@ -192,6 +180,7 @@ public:
 	std::shared_ptr<NodePin> referenceSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Reference Signal");
 
 	//Outputs
+	std::shared_ptr<NodePin> positionControlledAxisPin = std::make_shared<NodePin>(NodeData::POSITION_CONTROLLED_AXIS_LINK, DataDirection::NODE_OUTPUT, "Position Controlled Axis");
 	std::shared_ptr<NodePin> position = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position");
 
 
