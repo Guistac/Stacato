@@ -39,6 +39,7 @@
 	virtual bool didHomingFail();																	\
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output);							\
 
+
 class Axis : public Node {
 public:
 
