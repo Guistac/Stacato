@@ -9,6 +9,8 @@
 
 #include "Utilities/CircularBuffer.h"
 
+#include "Gui/Utilities/CustomWidgets.h"
+
 void Oscillator3x::controlsGui() {
 
 	std::vector<std::shared_ptr<PositionControlledAxis>> axes;
@@ -215,8 +217,6 @@ void Oscillator3x::axisGui() {
 			ImGui::EndTabItem();
 		}
 
-
-	
 		ImGui::EndTabBar();
 	}
 
@@ -229,4 +229,13 @@ void Oscillator3x::metricsGui() {}
 float Oscillator3x::getMiniatureWidth() {
 	return 50.0;
 }
-void Oscillator3x::machineSpecificMiniatureGui() {}
+void Oscillator3x::machineSpecificMiniatureGui() {
+	glm::vec2 sliderSize(ImGui::GetTextLineHeight() * 6.0, ImGui::GetTextLineHeight() * 15.0);
+	std::vector<float> velocityTargets(3, 0.0);
+	for (int i = 0; i < 3; i++) {
+		ImGui::VSliderFloat("##Axis1", sliderSize, &velocityTargets[i], -1.0, 1.0);
+		ImGui::SameLine();
+		//verticalProgressBar()
+
+	}
+}

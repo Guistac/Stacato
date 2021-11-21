@@ -152,6 +152,7 @@ public:
 	double getHighPositionLimit();
 	double getLowPositionLimitWithoutClearance();
 	double getHighPositionLimitWithoutClearance();
+	double getRange_axisUnits();
 
 	//============= METRICS ============
 

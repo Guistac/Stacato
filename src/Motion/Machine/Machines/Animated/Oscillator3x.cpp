@@ -77,7 +77,7 @@ void Oscillator3x::process() {
 		for (int i = 0; i < axisCount; i++) {
 			double axisXOffset_radians = oscillatorXOffset_radians - i * phaseOffsetRadians;
 
-			std::shared_ptr<PositionControlledAxis> axis = getAxis(i+1);
+			std::shared_ptr<PositionControlledAxis> axis = getAxis(i);
 			double low = axis->getLowPositionLimit();
 			double high = axis->getHighPositionLimit();
 
@@ -199,14 +199,117 @@ bool Oscillator3x::isInSimulationMode() {
 
 
 bool Oscillator3x::isAxisConnected(int idx) {
-	if (idx == 1) return linearAxis1Pin->isConnected();
-	else if (idx == 2) return linearAxis2Pin->isConnected();
-	else if (idx == 3) return linearAxis3Pin->isConnected();
+	if (idx == 0) return linearAxis1Pin->isConnected();
+	else if (idx == 1) return linearAxis2Pin->isConnected();
+	else if (idx == 2) return linearAxis3Pin->isConnected();
 	else return false;
 }
 std::shared_ptr<PositionControlledAxis> Oscillator3x::getAxis(int idx) {
-	if (idx == 1) return linearAxis1Pin->getConnectedPins().front()->getPositionControlledAxis();
-	else if (idx == 2) return linearAxis2Pin->getConnectedPins().front()->getPositionControlledAxis();
-	else if (idx == 3) return linearAxis3Pin->getConnectedPins().front()->getPositionControlledAxis();
+	if (idx == 0) return linearAxis1Pin->getConnectedPins().front()->getPositionControlledAxis();
+	else if (idx == 1) return linearAxis2Pin->getConnectedPins().front()->getPositionControlledAxis();
+	else if (idx == 2) return linearAxis3Pin->getConnectedPins().front()->getPositionControlledAxis();
 	else return nullptr;
+}
+bool Oscillator3x::getAxes(std::vector<std::shared_ptr<PositionControlledAxis>>& output) {
+	output.resize(3, nullptr);
+	bool axisConnected = false;
+	for (int i = 0; i < 3; i++) {
+		if (isAxisConnected(i)) {
+			output[i] = getAxis(i);
+			axisConnected = true;
+		}
+	}
+	return !axisConnected;
+}
+
+
+/*
+bool Oscillator3x::isOscillatorReadyToStartFromNormalizedPosition(double startPosition_normalized) {
+	std::vector<std::shared_ptr<PositionControlledAxis>> axes;
+	if (!getAxes(axes)) return false;
+	for (auto& axis : axes) {
+		if (axis) {
+			
+			
+
+		}
+	}
+}
+*/
+
+void Oscillator3x::startOscillator() {
+	
+}
+
+void Oscillator3x::stopOscillator() {
+	b_oscillatorActive = false;
+	
+	for (int i = 0; i < 3; i++) {
+		if (isAxisConnected(i)) getAxis(i)->setVelocityTarget(0.0);
+	}
+
+}
+
+
+
+
+//======= MANUAL CONTROLS ========
+
+void Oscillator3x::setVelocityTarget(int axisIndex, double velocityTarget_normalized) {
+	if (isAxisConnected(axisIndex)) {
+		std::shared_ptr<PositionControlledAxis> axis = getAxis(axisIndex);
+		double velocity_axisUnits = velocityTarget_normalized * axis->getRange_axisUnits();
+		stopOscillator();
+		axis->setVelocityTarget(velocity_axisUnits);
+	}
+}
+
+void Oscillator3x::moveToPosition(int axisIndex, double position_normalized) {
+	if (isAxisConnected(axisIndex)) {
+		std::shared_ptr<PositionControlledAxis> axis = getAxis(axisIndex);
+		double position_axisUnits = position_normalized * axis->getRange_axisUnits() + axis->getLowPositionLimit();
+		double velocity_axisUnits = maxVelocity_normalized * axis->getRange_axisUnits();
+		double acceleration_axisUnits = maxAcceleration_normalized * axis->getRange_axisUnits();
+		stopOscillator();
+		axis->moveToPositionWithVelocity(position_axisUnits, velocity_axisUnits, acceleration_axisUnits);
+	}
+}
+
+void Oscillator3x::moveAllToPosition(double position_normalized) {
+	stopOscillator();
+	for (int i = 0; i < 3; i++) {
+		moveToPosition(i, position_normalized);
+	}
+}
+
+
+//================== MACHINE LIMITS ==================
+
+void Oscillator3x::updateMachineLimits() {
+	std::vector<std::shared_ptr<PositionControlledAxis>> axes;
+	if (!getAxes(axes)) {
+		maxOscillationFrequency = 0.0;
+		maxVelocity_normalized = 0.0;
+		maxAcceleration_normalized = 0.0;
+		return;
+	}
+
+	double lowestNormalizedVelocity = std::numeric_limits<double>::infinity();
+	double lowestNormalizedAcceleration = std::numeric_limits<double>::infinity();
+
+	for (auto& axis : axes) {
+		if (axis) {
+			double normalizedVelocity = axis->getVelocityLimit_axisUnitsPerSecond() / axis->getRange_axisUnits();
+			double normalizedAcceleration = axis->getAccelerationLimit_axisUnitsPerSecondSquared() / axis->getRange_axisUnits();
+			lowestNormalizedVelocity = std::min(normalizedVelocity, lowestNormalizedVelocity);
+			lowestNormalizedAcceleration = std::min(normalizedAcceleration, lowestNormalizedAcceleration);
+		}
+	}
+
+	double maxFrequencyByVelocity = lowestNormalizedVelocity / (2.0 * M_PI);
+	double maxFrequencyByAcceleration = std::sqrt(lowestNormalizedAcceleration / (4.0 * std::pow(M_PI, 2.0)));
+
+	maxOscillationFrequency = std::min(maxFrequencyByVelocity, maxFrequencyByAcceleration);
+	maxVelocity_normalized = lowestNormalizedVelocity;
+	maxAcceleration_normalized = lowestNormalizedAcceleration;
 }

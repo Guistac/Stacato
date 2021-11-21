@@ -21,7 +21,6 @@ class Oscillator3x : public Machine {
 
 	bool b_enabled = false;
 	bool b_startAtLowerLimit = true;
-	bool b_oscillatorActive = false;
 
 	double previousCycleTime_seconds = 0.0;
 	double oscillatorXOffset_radians = 0.0;
@@ -31,7 +30,23 @@ class Oscillator3x : public Machine {
 
 	bool b_primingToOscillatorStart = false;
 
+	//=== Machine Limits ===
+	double maxOscillationFrequency = 0.0;
+	double maxVelocity_normalized = 0.0;
+	double maxAcceleration_normalized = 0.0;
+	void updateMachineLimits();
+
+
+	void setVelocityTarget(int axis, double velocityTarget_normalized);
+	void moveToPosition(int axis, double position_normalized);
+	void moveAllToPosition(double position_normalized);
+
+	bool isOscillatorReadyToStartFromPosition(double startPosition_normalized);
+	void startOscillator();
+	void stopOscillator();
+	bool b_oscillatorActive = false;
+
 	bool isAxisConnected(int);
 	std::shared_ptr<PositionControlledAxis> getAxis(int);
-
+	bool getAxes(std::vector<std::shared_ptr<PositionControlledAxis>>& output);
 };

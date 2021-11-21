@@ -423,6 +423,10 @@ double PositionControlledAxis::getHighPositionLimitWithoutClearance() {
 	return highLimit;
 }
 
+double PositionControlledAxis::getRange_axisUnits() {
+	return getHighPositionLimit() - getLowPositionLimit();
+}
+
 double PositionControlledAxis::getLowFeedbackPositionLimit() {
 	switch (positionControl) {
 	case PositionControl::Type::SERVO:
