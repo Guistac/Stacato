@@ -68,9 +68,6 @@ void PositionControlledSingleAxisMachine::process() {
 	positionPin->set(actualPosition_machineUnits);
 	velocityPin->set(actualVelocity_machineUnits);
 
-	//update parameter data
-	positionParameter->actualValue.realValue = actualPosition_machineUnits;
-
 	//Update Time
 	double profileTime_seconds = axis->profileTime_seconds;
 	double profileDeltaTime_seconds = axis->profileTimeDelta_seconds;

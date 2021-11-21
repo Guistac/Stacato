@@ -4,8 +4,9 @@
 
 class Machine;
 class ParameterTrack;
-
-#include <tinyxml2.h>
+namespace tinyxml2 {
+	class XMLElement;
+}
 
 struct ParameterDataType {
 	enum class Type {
@@ -17,7 +18,8 @@ struct ParameterDataType {
 		VECTOR_3D_PARAMETER,
 		KINEMATIC_POSITION_CURVE,
 		KINEMATIC_2D_POSITION_CURVE,
-		KINEMATIC_3D_POSITION_CURVE
+		KINEMATIC_3D_POSITION_CURVE,
+		PARAMETER_GROUP
 	};
 	Type type;
 	const char displayName[64];
@@ -29,125 +31,86 @@ ParameterDataType* getParameterDataType(const char* saveName);
 ParameterDataType* getParameterDataType(ParameterDataType::Type t);
 
 
+//=== value structure for State Data Type ===
 struct StateParameterValue {
 	int integerEquivalent;
 	const char displayName[64];
 	const char saveName[64];
 };
 
+
 struct AnimatableParameterValue {
 public:
 
+	//=== Base Information ===
 	ParameterDataType::Type type;
 	const char* shortUnitString = nullptr;
 
-	bool inputFieldGui(float width);
-
-	std::vector<StateParameterValue>* stateValues = nullptr;
-
+	//=== Value Data ===
 	bool boolValue = false;
 	int integerValue = false;
 	StateParameterValue* stateValue = nullptr;
 	double realValue = false;
 	glm::vec2 vector2value = glm::vec2(0);
 	glm::vec3 vector3value = glm::vec3(0);
+	
+	//=== State values for parameters with state data type ===
+	std::vector<StateParameterValue>* stateValues = nullptr;
 
+	//=== Reset and Comparison ===
 	void reset();
 	bool equals(AnimatableParameterValue& other);
 
+	//=== Editing Gui ===
+	bool inputFieldGui(float width);
+
+	//=== Saving and Loading ===
 	bool save(tinyxml2::XMLElement* parameterValueXML);
 	bool load(tinyxml2::XMLElement* parameterValueXML);
-
 };
 
 
-class AnimatableParameter {
+class AnimatableParameter : public std::enable_shared_from_this<AnimatableParameter> {
 public:
 
-	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, ParameterDataType::Type datat, const char* unitShortStr) : machine(mach), dataType(datat) {
-		strcpy(name, nm);
-		sprintf(shortUnitString, unitShortStr);
-	}
+	//Constructor for Base Parameter Types
+	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, ParameterDataType::Type datat, const char* unitShortStr);
 
-	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, std::vector<StateParameterValue>* stateValues) : machine(mach), stateParameterValues(stateValues) {
-		strcpy(name, nm);
-		strcpy(shortUnitString, "state");
-		dataType = ParameterDataType::Type::STATE_PARAMETER;
-	}
+	//Constructor for Parameter with State DataType
+	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, std::vector<StateParameterValue>* stateValues);
 
+	//Constructor for Parameter Group
+	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, std::vector<std::shared_ptr<AnimatableParameter>> children);
 
+	//=== Basic Parameter Information ===
 	ParameterDataType::Type dataType;
-	std::vector<InterpolationType::Type> getCompatibleInterpolationTypes();
-
 	char name[128];
-	char shortUnitString[16];
 	std::shared_ptr<Machine> machine;
 
-	//parameter limit query
-
-	//TYPE: boolean
-	//no limits
-
-	//TYPE: state / integer
-	//inside 1D range / get 1D range
-
-	//TYPE: 1D real
-	//inside 1D range / get 1D range (lower upper)
-	//1D velocity limit / 1D acceleration limit
-	//inside Error treshold / get Error threshold
-
-	//TYPE: 2D real
-	//inside 2D range / get 2D range (2D mesh ?)
-	//2D velocity limit / 2D acceleration limit
-	//inside Error threshold / get Error treshold
-
-	//TYPE: 3D real
-	//inside 3D range / get 3D range (3D mesh ?)
-	//3D velocity limit / 3D acceleration limit
-	//inside Error Threshold / get Error Treshold
-
-	bool isUnderVelocityLimit(double vel);
-	//bool isUnderVelocityLimit(glm::vec2 vel2);
-	//bool isUnderVelocityLimit(glm::vec3 vel3);
-
-	double getVelocityLimit1D();
-	//glm::vec2 getVelocityLimit2D();
-	//glm::vec3 getVelocityLimit3D();
-
-	bool isUnderAccelerationLimit(double acc);
-	//bool isUnderAccelerationLimit(glm::vec2 acc2);
-	//bool isUnderAccelerationLimit(glm::vec3 acc3);
-
-	double getAccelerationLimit1D();
-	//glm::vec2 getAccelerationLimit2D();
-	//glm::vec3 getAccelerationLimit3D();
-
-	bool isInsideRange(int pos);
-	bool isInsideRange(double pos);
-	///bool isInsideRange(glm::vec2 pos2);
-	//bool isInsideRange(glm::vec3 pos3);
-
-	int getRangeInt();
-	double getRange1D();
-	//double getRange2D();
-	//double getRange3D();
-
-	bool isInsideErrorTreshold(double pos);
-	//bool isInsideErrorTreshold(glm::vec2 pos2);
-	//bool isInsideErrorTreshold(glm::vec3 pos3);
-
+	//=== For Non-Group Parameters ===
+	std::vector<InterpolationType::Type> getCompatibleInterpolationTypes();
+	char shortUnitString[16];
 	
-	void getActiveTrackParameterValue(AnimatableParameterValue& output);
-	AnimatableParameterValue& getActualMachineParameterValue() { return actualValue; }
-	
-	bool hasParameterTrack() { return actualParameterTrack != nullptr; }
+	//=== For Parameters Controlled by ParameterTrack Animation ===
 	std::shared_ptr<ParameterTrack> actualParameterTrack = nullptr;
+	bool hasParameterTrack() {
+		return actualParameterTrack != nullptr;
+	}
+	void getActiveTrackParameterValue(AnimatableParameterValue& output);
 
-	AnimatableParameterValue actualValue;
-	AnimatableParameterValue requestedValue;
+	//=== For Parameters with State Type ===
+	std::vector<StateParameterValue>* stateParameterValues = nullptr;
+	std::vector<StateParameterValue>& getStateValues() {
+		return *stateParameterValues;
+	}
 
-	//this is limit interrogation in action
-	std::vector<StateParameterValue>* stateParameterValues;
-
-	//TODO: parameter units
+	//=== For Group Parameters or Parameters in a group ===
+	std::vector<std::shared_ptr<AnimatableParameter>> childParameters;
+	std::shared_ptr<AnimatableParameter> parentParameter = nullptr;
+	bool hasParentGroup() {
+		return parentParameter != nullptr;
+	}
+	std::shared_ptr<AnimatableParameter> getParentGroup() {
+		return parentParameter;
+	}
 };
