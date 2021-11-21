@@ -45,6 +45,9 @@ class Device;
 	virtual bool validateParameterCurve(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& curves);\
 	virtual void getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves);\
 	virtual bool getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit);\
+	virtual void enterSimulationMode();\
+	virtual void exitSimulationMode();\
+	virtual bool isInSimulationMode();\
 
 class Machine : public Node {
 public:

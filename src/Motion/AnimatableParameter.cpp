@@ -164,6 +164,7 @@ std::vector<ParameterDataType> parameterDataTypes = {
 	{ParameterDataType::Type::BOOLEAN_PARAMETER, "Boolean", "Boolean"},
 	{ParameterDataType::Type::INTEGER_PARAMETER, "Integer", "Integer"},
 	{ParameterDataType::Type::STATE_PARAMETER, "State", "State"},
+	{ParameterDataType::Type::REAL_PARAMETER, "Real", "Real"},
 	{ParameterDataType::Type::VECTOR_2D_PARAMETER, "2D Vector", "2DVector"},
 	{ParameterDataType::Type::VECTOR_3D_PARAMETER, "3D Vector", "3DVector"},
 	{ParameterDataType::Type::KINEMATIC_POSITION_CURVE, "Kinematic", "Kinematic"},
