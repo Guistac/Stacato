@@ -12,9 +12,8 @@ void PositionControlledSingleAxisMachine::assignIoData() {
 	addIoData(positionControlledAxisPin);
 	addIoData(positionPin);
 	addIoData(velocityPin);
-	std::shared_ptr<Machine> thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
-	positionParameter = std::make_shared<AnimatableParameter>("Position", thisMachine, ParameterDataType::Type::KINEMATIC_POSITION_CURVE, "units");
-	animatableParameters.push_back(positionParameter);
+
+	addAnimatableParameter(positionParameter);
 }
 
 bool PositionControlledSingleAxisMachine::isEnabled() {
@@ -119,6 +118,7 @@ void PositionControlledSingleAxisMachine::moveToPosition(double target_machineUn
 void PositionControlledSingleAxisMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if (parameter->dataType == value.type) {
 		if (parameter == positionParameter) {
+			if (!isAxisConnected()) return;
 			std::shared_ptr<PositionControlledAxis> axis = getAxis();
 			axis->moveToPositionWithVelocity(value.realValue, rapidVelocity_machineUnitsPerSecond, rapidAcceleration_machineUnitsPerSecond);
 		}
@@ -127,6 +127,7 @@ void PositionControlledSingleAxisMachine::rapidParameterToValue(std::shared_ptr<
 
 float PositionControlledSingleAxisMachine::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
+		if (!isAxisConnected()) return 0.0;
 		std::shared_ptr<PositionControlledAxis> axis = getAxis();
 		return axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds);
 	}
@@ -136,6 +137,7 @@ float PositionControlledSingleAxisMachine::getParameterRapidProgress(std::shared
 bool PositionControlledSingleAxisMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if (parameter->dataType == value.type) {
 		if (parameter == positionParameter) {
+			if (!isAxisConnected()) return false;
 			std::shared_ptr<PositionControlledAxis> axis = getAxis();
 			return axis->getProfilePosition_axisUnits() == value.realValue && axis->getProfileVelocity_axisUnitsPerSecondSquared() == 0.0;
 		}
@@ -176,6 +178,8 @@ void PositionControlledSingleAxisMachine::cancelParameterRapid(std::shared_ptr<A
 bool PositionControlledSingleAxisMachine::validateParameterCurve(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& curves) {
 	bool b_curveValid = true;
 
+
+	if (!isAxisConnected()) return false;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
 	if (parameter == positionParameter && curves.size() == 1) {

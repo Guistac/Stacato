@@ -70,17 +70,17 @@ public:
 };
 
 
-class AnimatableParameter : public std::enable_shared_from_this<AnimatableParameter> {
+class AnimatableParameter {
 public:
 
 	//Constructor for Base Parameter Types
-	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, ParameterDataType::Type datat, const char* unitShortStr);
+	AnimatableParameter(const char* nm, ParameterDataType::Type datat, const char* unitShortStr);
 
 	//Constructor for Parameter with State DataType
-	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, std::vector<StateParameterValue>* stateValues);
+	AnimatableParameter(const char* nm, std::vector<StateParameterValue>* stateValues);
 
 	//Constructor for Parameter Group
-	AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, std::vector<std::shared_ptr<AnimatableParameter>> children);
+	AnimatableParameter(const char* nm, std::vector<std::shared_ptr<AnimatableParameter>> children);
 
 	//=== Basic Parameter Information ===
 	ParameterDataType::Type dataType;
@@ -109,6 +109,9 @@ public:
 	std::shared_ptr<AnimatableParameter> parentParameter = nullptr;
 	bool hasParentGroup() {
 		return parentParameter != nullptr;
+	}
+	bool hasChildParameters() {
+		return !childParameters.empty();
 	}
 	std::shared_ptr<AnimatableParameter> getParentGroup() {
 		return parentParameter;

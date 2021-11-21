@@ -13,6 +13,12 @@
 
 ParameterTrack::ParameterTrack(std::shared_ptr<AnimatableParameter>& param, std::shared_ptr<Manoeuvre> m) : parameter(param), parentManoeuvre(m) {
 	initialize();
+	if (parameter->dataType == ParameterDataType::Type::PARAMETER_GROUP) {
+		for (auto& childParameter : parameter->childParameters) {
+			std::shared_ptr<ParameterTrack> childParameterTrack = std::make_shared<ParameterTrack>(childParameter, m);
+			childParameterTracks.push_back(childParameterTrack);
+		}
+	}
 }
 
 //COPY CONSTRUCTOR
@@ -34,6 +40,11 @@ ParameterTrack::ParameterTrack(const ParameterTrack& original) {
 	rampIn = original.rampIn;
 	rampOut = original.rampOut;
 	rampsAreEqual = original.rampsAreEqual;
+	childParameterTracks.clear();
+	for (const auto& childParameterTrack : original.childParameterTracks) {
+		std::shared_ptr<ParameterTrack> childParameterTrackCopy = std::make_shared<ParameterTrack>(*childParameterTrack);
+		childParameterTracks.push_back(childParameterTrackCopy);
+	}
 }
 
 int ParameterTrack::getCurveCount() {
@@ -50,6 +61,7 @@ int ParameterTrack::getCurveCount() {
 		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
 		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
 			return 3;
+		case ParameterDataType::Type::PARAMETER_GROUP:
 		default:
 			return 0;
 	}

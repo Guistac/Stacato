@@ -174,7 +174,15 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 		ImGui::TableHeadersRow();
 
-		for (auto& parameterTrack : manoeuvre->tracks) {
+
+
+
+
+
+
+		//============ BEGIN ROW LAMBDA =============
+
+		static auto parameterTrackRowGui = [&](std::shared_ptr<ParameterTrack>& parameterTrack) {
 
 			bool trackEdited = false;
 			bool chainingDependenciesEdited = false;
@@ -183,24 +191,27 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 			ImGui::PushID(parameterTrack->parameter->machine->getName());
 
 			ImGui::TableNextRow(ImGuiTableRowFlags_None);
-
+				
 			if (manoeuvreIsPlaying) BEGIN_DISABLE_IMGUI_ELEMENT
 
 			//====== Track Management Column ======
 			ImGui::TableSetColumnIndex(0);
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.1));
-			if (buttonCross("##remove")) removedTrack = parameterTrack;
-			ImGui::SameLine();
-			bool disableMoveUp = parameterTrack == manoeuvre->tracks.front();
-			if (disableMoveUp) BEGIN_DISABLE_IMGUI_ELEMENT
-			if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpTrack = parameterTrack;
-			if (disableMoveUp) END_DISABLE_IMGUI_ELEMENT
-			ImGui::SameLine();
-			bool disableMoveDown = parameterTrack == manoeuvre->tracks.back();
-			if (disableMoveDown) BEGIN_DISABLE_IMGUI_ELEMENT
-			if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownTrack = parameterTrack;
-			if (disableMoveDown) END_DISABLE_IMGUI_ELEMENT
-			ImGui::PopStyleVar();
+
+			if (!parameterTrack->hasParentParameterTrack()) {
+				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.1));
+				if (buttonCross("##remove")) removedTrack = parameterTrack;
+				ImGui::SameLine();
+				bool disableMoveUp = parameterTrack == manoeuvre->tracks.front();
+				if (disableMoveUp) BEGIN_DISABLE_IMGUI_ELEMENT
+					if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpTrack = parameterTrack;
+				if (disableMoveUp) END_DISABLE_IMGUI_ELEMENT
+					ImGui::SameLine();
+				bool disableMoveDown = parameterTrack == manoeuvre->tracks.back();
+				if (disableMoveDown) BEGIN_DISABLE_IMGUI_ELEMENT
+					if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownTrack = parameterTrack;
+				if (disableMoveDown) END_DISABLE_IMGUI_ELEMENT
+					ImGui::PopStyleVar();
+			}
 
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::white);
 			ImGui::PushFont(Fonts::robotoBold15);
@@ -209,8 +220,9 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 			//====== Machine Column ======
 			ImGui::TableNextColumn();
-			ImGui::Text(parameterTrack->parameter->machine->getName());
-
+			if (!parameterTrack->hasParentParameterTrack()) {
+				ImGui::Text(parameterTrack->parameter->machine->getName());
+			}
 
 			//====== Parameter Column ======
 			ImGui::TableNextColumn();
@@ -220,102 +232,122 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 			ImGui::PopStyleColor();
 			ImGui::PopFont();
 
-			//====== Movement Column ======
+			if (!parameterTrack->hasChildParameterTracks()) {
 
-			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
-				ImGui::TableNextColumn();
+				//====== Movement Column ======
 
-				//--- Interpolation Selector ---
-				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
-				trackEdited |= parameterTrack->interpolationTypeSelectorGui();
+				if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
+					ImGui::TableNextColumn();
 
-				//--- Sequence Type Selector ---
-				if (manoeuvre->type == ManoeuvreType::Type::MOVEMENT_SEQUENCE) {
+					//--- Interpolation Selector ---
 					ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
-					trackEdited |= parameterTrack->sequenceTypeSelectorGui();
+					trackEdited |= parameterTrack->interpolationTypeSelectorGui();
+
+					//--- Sequence Type Selector ---
+					if (manoeuvre->type == ManoeuvreType::Type::MOVEMENT_SEQUENCE) {
+						ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
+						trackEdited |= parameterTrack->sequenceTypeSelectorGui();
+					}
 				}
-			}
 
-			float originTargetInputFieldWidth = ImGui::GetTextLineHeight() * 8.0;
+				float originTargetInputFieldWidth = ImGui::GetTextLineHeight() * 8.0;
 
-			//====== Origin Column ======
+				//====== Origin Column ======
 
-			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
-				ImGui::TableNextColumn();
-				
-				if (parameterTrack->sequenceType != SequenceType::Type::CONSTANT) {
-					//--- Origin Input ---
-					trackEdited |= parameterTrack->originInputGui(originTargetInputFieldWidth);
+				if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
+					ImGui::TableNextColumn();
+
+					if (parameterTrack->sequenceType != SequenceType::Type::CONSTANT) {
+						//--- Origin Input ---
+						trackEdited |= parameterTrack->originInputGui(originTargetInputFieldWidth);
+					}
+					else ImGui::Dummy(glm::vec2(originTargetInputFieldWidth, ImGui::GetFrameHeight()));
+
+					//--- Chain Previous ---
+					bool disablePreviousChaining = manoeuvre->type == ManoeuvreType::Type::TIMED_MOVEMENT;
+					if (disablePreviousChaining) ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+					chainingDependenciesEdited |= parameterTrack->chainPreviousGui(originTargetInputFieldWidth);
+					if (disablePreviousChaining) ImGui::PopItemFlag();
 				}
-				else ImGui::Dummy(glm::vec2(originTargetInputFieldWidth, ImGui::GetFrameHeight()));
-
-				//--- Chain Previous ---
-				bool disablePreviousChaining = manoeuvre->type == ManoeuvreType::Type::TIMED_MOVEMENT;
-				if (disablePreviousChaining) ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-				chainingDependenciesEdited |= parameterTrack->chainPreviousGui(originTargetInputFieldWidth);
-				if (disablePreviousChaining) ImGui::PopItemFlag();
-			}
 
 
-			if (manoeuvre->type == ManoeuvreType::Type::KEY_POSITION) {
-				float keyPositionChainingGuiWidh = ImGui::GetTextLineHeight() * 6.0;
+				if (manoeuvre->type == ManoeuvreType::Type::KEY_POSITION) {
+					float keyPositionChainingGuiWidh = ImGui::GetTextLineHeight() * 6.0;
 
-				//--- Previous Chained
-				ImGui::TableNextColumn();
-				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-				chainingDependenciesEdited |= parameterTrack->chainPreviousGui(keyPositionChainingGuiWidh);
-				ImGui::PopItemFlag();
+					//--- Previous Chained
+					ImGui::TableNextColumn();
+					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+					chainingDependenciesEdited |= parameterTrack->chainPreviousGui(keyPositionChainingGuiWidh);
+					ImGui::PopItemFlag();
 
-				//--- Target Input ----
-				ImGui::TableNextColumn();
-				trackEdited |= parameterTrack->targetInputGui(originTargetInputFieldWidth);
-				
-				//--- Next Chained ---
-				ImGui::TableNextColumn();
-				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-				chainingDependenciesEdited |= parameterTrack->chainNextGui(keyPositionChainingGuiWidh);
-				ImGui::PopItemFlag();
-			
-			}else{
+					//--- Target Input ----
+					ImGui::TableNextColumn();
+					trackEdited |= parameterTrack->targetInputGui(originTargetInputFieldWidth);
 
-				//====== Target Column ======
-				ImGui::TableNextColumn();
-				//--- Target Input ---
-				trackEdited |= parameterTrack->targetInputGui(originTargetInputFieldWidth);
-				//--- Chain Next ---
-				chainingDependenciesEdited |= parameterTrack->chainNextGui(originTargetInputFieldWidth);
-			}
+					//--- Next Chained ---
+					ImGui::TableNextColumn();
+					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+					chainingDependenciesEdited |= parameterTrack->chainNextGui(keyPositionChainingGuiWidh);
+					ImGui::PopItemFlag();
+
+				}
+				else {
+
+					//====== Target Column ======
+					ImGui::TableNextColumn();
+					//--- Target Input ---
+					trackEdited |= parameterTrack->targetInputGui(originTargetInputFieldWidth);
+					//--- Chain Next ---
+					chainingDependenciesEdited |= parameterTrack->chainNextGui(originTargetInputFieldWidth);
+				}
 
 
-			//====== Timing Column ======
+				//====== Timing Column ======
 
-			if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
-				ImGui::TableNextColumn();
-				float timingcolumnWidth = ImGui::GetTextLineHeight() * 7.0;
+				if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
+					ImGui::TableNextColumn();
+					float timingcolumnWidth = ImGui::GetTextLineHeight() * 7.0;
 
-				//--- Movement Time Input ---
-				ImGui::SetNextItemWidth(timingcolumnWidth);
-				trackEdited |= parameterTrack->timeInputGui();
-
-				if (manoeuvre->type != ManoeuvreType::Type::TIMED_MOVEMENT) {
-					//--- Time Offset Input ---
+					//--- Movement Time Input ---
 					ImGui::SetNextItemWidth(timingcolumnWidth);
-					trackEdited |= parameterTrack->timeOffsetInputGui();
-				}
+					trackEdited |= parameterTrack->timeInputGui();
 
-				//====== Ramps Column ======
-				ImGui::TableNextColumn();
-				trackEdited |= parameterTrack->rampInputGui(ImGui::GetTextLineHeight() * 7.0);
+					if (manoeuvre->type != ManoeuvreType::Type::TIMED_MOVEMENT) {
+						//--- Time Offset Input ---
+						ImGui::SetNextItemWidth(timingcolumnWidth);
+						trackEdited |= parameterTrack->timeOffsetInputGui();
+					}
+
+					//====== Ramps Column ======
+					ImGui::TableNextColumn();
+					trackEdited |= parameterTrack->rampInputGui(ImGui::GetTextLineHeight() * 7.0);
+				}
 			}
 
 			if (manoeuvreIsPlaying) END_DISABLE_IMGUI_ELEMENT
 
-			ImGui::PopID();
+				ImGui::PopID();
 			ImGui::PopID();
 
 			if (chainingDependenciesEdited) manoeuvre->parentPlot->refreshChainingDependencies();
 			else if (trackEdited) parameterTrack->refreshAfterParameterEdit();
+		};
 
+		//============== END ROW LAMBDA =============
+
+
+
+
+
+
+		for (auto& parameterTrack : manoeuvre->tracks) {
+			if (parameterTrack->hasParentParameterTrack()) continue;
+			parameterTrackRowGui(parameterTrack);
+			if (parameterTrack->hasChildParameterTracks()) {
+				for (auto& childParameterTrack : parameterTrack->childParameterTracks) {
+					parameterTrackRowGui(childParameterTrack);
+				}
+			}
 		}
 
 		ImGui::TableNextRow();
@@ -327,6 +359,7 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 			for (auto& machine : Environnement::getMachines()) {
 				if (ImGui::BeginMenu(machine->getName())) {
 					for (auto& parameter : machine->animatableParameters) {
+						if (parameter->hasParentGroup()) continue;
 						bool isSelected = manoeuvre->hasTrack(parameter);
 						if (ImGui::MenuItem(parameter->name, nullptr, isSelected)) {
 							if (!isSelected) manoeuvre->addTrack(parameter);

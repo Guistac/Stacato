@@ -7,26 +7,23 @@
 #include <tinyxml2.h>
 
 //Constructor for Base Parameter Types
-AnimatableParameter::AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, ParameterDataType::Type datat, const char* unitShortStr) : machine(mach), dataType(datat) {
+AnimatableParameter::AnimatableParameter(const char* nm, ParameterDataType::Type datat, const char* unitShortStr) : dataType(datat) {
 	strcpy(name, nm);
 	sprintf(shortUnitString, unitShortStr);
 }
 
 //Constructor for Parameter with State DataType
-AnimatableParameter::AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, std::vector<StateParameterValue>* stateValues) : machine(mach), stateParameterValues(stateValues) {
+AnimatableParameter::AnimatableParameter(const char* nm, std::vector<StateParameterValue>* stateValues) : stateParameterValues(stateValues) {
 	strcpy(name, nm);
 	strcpy(shortUnitString, "state");
 	dataType = ParameterDataType::Type::STATE_PARAMETER;
 }
 
 //Constructor for Parameter Group
-AnimatableParameter::AnimatableParameter(const char* nm, std::shared_ptr<Machine> mach, std::vector<std::shared_ptr<AnimatableParameter>> children) : machine(mach), childParameters(children) {
+AnimatableParameter::AnimatableParameter(const char* nm, std::vector<std::shared_ptr<AnimatableParameter>> children) : childParameters(children) {
 	strcpy(name, nm);
 	strcpy(shortUnitString, "");
 	dataType = ParameterDataType::Type::PARAMETER_GROUP;
-	for (auto& childParameter : childParameters) {
-		childParameter->parentParameter = shared_from_this();
-	}
 }
 
 std::vector<InterpolationType::Type> AnimatableParameter::getCompatibleInterpolationTypes() {

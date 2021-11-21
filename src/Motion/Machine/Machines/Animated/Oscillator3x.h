@@ -10,15 +10,22 @@ class Oscillator3x : public Machine {
 	std::shared_ptr<NodePin> linearAxis2Pin = std::make_shared<NodePin>(NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, DataDirection::NODE_INPUT, "Linear Axis 2");
 	std::shared_ptr<NodePin> linearAxis3Pin = std::make_shared<NodePin>(NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, DataDirection::NODE_INPUT, "Linear Axis 3");
 
-	std::shared_ptr<AnimatableParameter> frequencyParameter;
-	std::shared_ptr<AnimatableParameter> minAmplitudeParameter;
-	std::shared_ptr<AnimatableParameter> maxAmplitudeParameter;
-	std::shared_ptr<AnimatableParameter> phaseOffsetParameter;
 
-	std::shared_ptr<AnimatableParameter> axis1Position;
-	std::shared_ptr<AnimatableParameter> axis2Position;
-	std::shared_ptr<AnimatableParameter> axis3Position;
-
+	std::shared_ptr<AnimatableParameter> frequencyParameter = std::make_shared<AnimatableParameter>("Frequency", ParameterDataType::Type::REAL_PARAMETER, "Hz");
+	std::shared_ptr<AnimatableParameter> minAmplitudeParameter = std::make_shared<AnimatableParameter>("Min Amplitude", ParameterDataType::Type::REAL_PARAMETER, "mm");
+	std::shared_ptr<AnimatableParameter> maxAmplitudeParameter = std::make_shared<AnimatableParameter>("Max Amplitude", ParameterDataType::Type::REAL_PARAMETER, "mm");
+	std::shared_ptr<AnimatableParameter> phaseOffsetParameter = std::make_shared<AnimatableParameter>("Phase Offset", ParameterDataType::Type::REAL_PARAMETER, "\x25"); //'°' == \xC2\xB0
+	std::shared_ptr<AnimatableParameter> oscillatorParameterGroup = std::make_shared<AnimatableParameter>("Oscillator", std::vector<std::shared_ptr<AnimatableParameter>>({
+		frequencyParameter,
+		minAmplitudeParameter,
+		maxAmplitudeParameter,
+		phaseOffsetParameter
+	}));
+	
+	std::shared_ptr<AnimatableParameter> axis1PositionParameter = std::make_shared<AnimatableParameter>("Axis 1 Position", ParameterDataType::Type::KINEMATIC_POSITION_CURVE, "mm");
+	std::shared_ptr<AnimatableParameter> axis2PositionParameter = std::make_shared<AnimatableParameter>("Axis 2 Position", ParameterDataType::Type::KINEMATIC_POSITION_CURVE, "mm");
+	std::shared_ptr<AnimatableParameter> axis3PositionParameter = std::make_shared<AnimatableParameter>("Axis 3 Position", ParameterDataType::Type::KINEMATIC_POSITION_CURVE, "mm");
+	
 	bool b_enabled = false;
 	bool b_startAtLowerLimit = true;
 

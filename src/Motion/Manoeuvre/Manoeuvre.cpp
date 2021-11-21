@@ -25,14 +25,20 @@ void Manoeuvre::addTrack(std::shared_ptr<AnimatableParameter>& parameter) {
 	std::shared_ptr<Manoeuvre> thisManoeuvre = shared_from_this();
 	std::shared_ptr<ParameterTrack> newTrack = std::make_shared<ParameterTrack>(parameter, thisManoeuvre);
 	tracks.push_back(newTrack);
+	if (newTrack->hasChildParameterTracks()) {
+		for (auto& childParameterTrack : newTrack->childParameterTracks) {
+			childParameterTrack->parentParameterTrack = newTrack;
+			tracks.push_back(childParameterTrack);
+		}
+	}
 	switch (type) {
-	case ManoeuvreType::Type::KEY_POSITION:
-			newTrack->setSequenceType(SequenceType::Type::CONSTANT);
-			break;
-		case ManoeuvreType::Type::TIMED_MOVEMENT:
-		case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
-			newTrack->originIsPreviousTarget = true;
-			newTrack->setSequenceType(SequenceType::Type::TIMED_MOVE);
+		case ManoeuvreType::Type::KEY_POSITION:
+				newTrack->setSequenceType(SequenceType::Type::CONSTANT);
+				break;
+			case ManoeuvreType::Type::TIMED_MOVEMENT:
+			case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
+				newTrack->originIsPreviousTarget = true;
+				newTrack->setSequenceType(SequenceType::Type::TIMED_MOVE);
 	}
 	parentPlot->refreshChainingDependencies();
 	newTrack->refreshAfterParameterEdit();
@@ -41,7 +47,11 @@ void Manoeuvre::addTrack(std::shared_ptr<AnimatableParameter>& parameter) {
 void Manoeuvre::removeTrack(std::shared_ptr<AnimatableParameter>& parameter) {
 	for (int i = 0; i < tracks.size(); i++) {
 		if (tracks[i]->parameter == parameter) {
+			std::shared_ptr<ParameterTrack> deletedTrack = tracks[i];
 			tracks.erase(tracks.begin() + i);
+			for (auto childParameterTrack : deletedTrack->childParameterTracks) {
+				removeTrack(childParameterTrack->parameter);
+			}
 			break;
 		}
 	}
@@ -131,46 +141,6 @@ void Manoeuvre::refresh() {
 }
 
 
-
-
-
-
-
-bool Manoeuvre::save(tinyxml2::XMLElement* manoeuvreXML) {
-	using namespace tinyxml2;
-	manoeuvreXML->SetAttribute("Name", name);
-	manoeuvreXML->SetAttribute("Description", description);
-	manoeuvreXML->SetAttribute("Type", getManoeuvreType(type)->saveName);
-	for (auto& track : tracks) {
-		XMLElement* trackXML = manoeuvreXML->InsertNewChildElement("Track");
-		track->save(trackXML);
-	}
-	return true;
-}
-
-bool Manoeuvre::load(tinyxml2::XMLElement* manoeuvreXML) {
-	using namespace tinyxml2;
-	const char* nameString;
-	if (manoeuvreXML->QueryStringAttribute("Name", &nameString) != XML_SUCCESS) return Logger::warn("Could not find Manoeuvre Name Attribute");
-	strcpy(name, nameString);
-	const char* descriptionString;
-	if (manoeuvreXML->QueryStringAttribute("Description", &descriptionString) != XML_SUCCESS) return Logger::warn("Could not find Manoeuvre Description Attribute");
-	strcpy(description, descriptionString);
-	const char* manoeuvreTypeString;
-	if(manoeuvreXML->QueryStringAttribute("Type", &manoeuvreTypeString) != XML_SUCCESS) return Logger::warn("Could not find Manoeuvre type");
-	if (getManoeuvreType(manoeuvreTypeString) == nullptr) return Logger::warn("Could not identify Manoeuvre type");
-	type = getManoeuvreType(manoeuvreTypeString)->type;
-
-	XMLElement* trackXML = manoeuvreXML->FirstChildElement("Track");
-	while (trackXML != nullptr) {
-		std::shared_ptr<ParameterTrack> track = std::make_shared<ParameterTrack>(shared_from_this());
-		if (!track->load(trackXML)) return false;
-		tracks.push_back(track);
-		trackXML = trackXML->NextSiblingElement("Track");
-	}
-
-	return true;
-}
 
 
 

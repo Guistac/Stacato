@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NodeGraph/Node.h"
+#include "Motion/AnimatableParameter.h"
 
 namespace Motion {
 	struct ControlPoint;
@@ -9,8 +10,6 @@ namespace Motion {
 }
 
 class ParameterTrack;
-class AnimatableParameter;
-class AnimatableParameterValue;
 class Device;
 
 #define DEFINE_MACHINE_NODE(className, nodeName, saveName, category) public:						\
@@ -54,6 +53,8 @@ public:
 
 	char shortName[16] = "M-1";
 	const char* getShortName() { return shortName; }
+
+	void addAnimatableParameter(std::shared_ptr<AnimatableParameter> parameter);
 
 	virtual void nodeSpecificGui();
 	virtual void stateControlGui();

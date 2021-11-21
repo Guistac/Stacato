@@ -23,8 +23,7 @@ public:
 	std::shared_ptr<NodePin> raiseLiftCommandPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Raise Lift", NodePinFlags_DisableDataField);
 	std::shared_ptr<NodePin> lowerLiftCommandPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Lower Lift", NodePinFlags_DisableDataField);
 
-	std::shared_ptr<AnimatableParameter> stateParameter;
-	std::shared_ptr<AnimatableParameter> realParameter;
+	std::shared_ptr<AnimatableParameter> stateParameter = std::make_shared<AnimatableParameter>("State", &stateParameterValues);
 	static std::vector<StateParameterValue> stateParameterValues;
 
 	bool hoodShut = false;

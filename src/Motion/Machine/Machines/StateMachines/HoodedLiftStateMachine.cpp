@@ -27,9 +27,7 @@ void HoodedLiftStateMachine::assignIoData() {
 	addIoData(raiseLiftCommandPin);
 	addIoData(lowerLiftCommandPin);
 
-	std::shared_ptr<Machine> thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
-	stateParameter = std::make_shared<AnimatableParameter>("State", thisMachine, &stateParameterValues);
-	animatableParameters.push_back(stateParameter);
+	addAnimatableParameter(stateParameter);
 }
 
 void HoodedLiftStateMachine::process() {

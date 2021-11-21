@@ -13,7 +13,7 @@ class PositionControlledSingleAxisMachine : public Machine{
 	std::shared_ptr<NodePin> positionPin = std::make_shared<NodePin>(NodeData::Type::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position");
 	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(NodeData::Type::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity");
 
-	std::shared_ptr<AnimatableParameter> positionParameter;
+	std::shared_ptr<AnimatableParameter> positionParameter = std::make_shared<AnimatableParameter>("Position", ParameterDataType::Type::KINEMATIC_POSITION_CURVE, "units");
 
 	bool isAxisConnected();
 	std::shared_ptr<PositionControlledAxis> getAxis();

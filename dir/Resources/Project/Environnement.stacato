@@ -231,7 +231,7 @@
                     <Machine UnitType="Linear" Unit="Millimeter" PositionControl="Servo"/>
                     <UnitConversion FeedbackUnitsPerMachineUnit="0" ActuatorUnitsPerMachineUnit="0" FeedbackAndActuatorConversionIdentical="false"/>
                     <KinematicLimits VelocityLimit_axisUnitsPerSecond="0" AccelerationLimit_axisUnitsPerSecondSquared="0"/>
-                    <PositionReferenceSignals Type="LowHighSignals" HomingVelocity_axisUnitsPerSecond="0" HomingDirection="Positive"/>
+                    <PositionReferenceSignals Type="LowHighSignals" HomingVelocity_axisUnitsPerSecond="0" HomingDirection="Negative"/>
                     <PositionLimits MaxNegativeDeviation_axisUnits="0" EnableNegativeLimit="true" MaxPositionDeviation_axisUnits="0" EnablePositiveLimit="true" LimitClearance_axisUnits="0" LimitToFeedbackWorkingRange="true"/>
                     <DefaultManualParameters Velocity_axisUnitsPerSecond="0" Acceleration_axisUnitsPerSecondSquared="0"/>
                 </NodeSpecificData>
@@ -256,7 +256,7 @@
                     <Machine UnitType="Linear" Unit="Millimeter" PositionControl="Servo"/>
                     <UnitConversion FeedbackUnitsPerMachineUnit="0" ActuatorUnitsPerMachineUnit="0" FeedbackAndActuatorConversionIdentical="false"/>
                     <KinematicLimits VelocityLimit_axisUnitsPerSecond="0" AccelerationLimit_axisUnitsPerSecondSquared="0"/>
-                    <PositionReferenceSignals Type="LowHighSignals" HomingVelocity_axisUnitsPerSecond="0" HomingDirection="Positive"/>
+                    <PositionReferenceSignals Type="LowHighSignals" HomingVelocity_axisUnitsPerSecond="0" HomingDirection="Negative"/>
                     <PositionLimits MaxNegativeDeviation_axisUnits="0" EnableNegativeLimit="true" MaxPositionDeviation_axisUnits="0" EnablePositiveLimit="true" LimitClearance_axisUnits="0" LimitToFeedbackWorkingRange="true"/>
                     <DefaultManualParameters Velocity_axisUnitsPerSecond="0" Acceleration_axisUnitsPerSecondSquared="0"/>
                 </NodeSpecificData>
@@ -281,7 +281,7 @@
                     <Machine UnitType="Linear" Unit="Millimeter" PositionControl="Servo"/>
                     <UnitConversion FeedbackUnitsPerMachineUnit="0" ActuatorUnitsPerMachineUnit="0" FeedbackAndActuatorConversionIdentical="false"/>
                     <KinematicLimits VelocityLimit_axisUnitsPerSecond="0" AccelerationLimit_axisUnitsPerSecondSquared="0"/>
-                    <PositionReferenceSignals Type="LowHighSignals" HomingVelocity_axisUnitsPerSecond="0" HomingDirection="Positive"/>
+                    <PositionReferenceSignals Type="LowHighSignals" HomingVelocity_axisUnitsPerSecond="0" HomingDirection="Negative"/>
                     <PositionLimits MaxNegativeDeviation_axisUnits="0" EnableNegativeLimit="true" MaxPositionDeviation_axisUnits="0" EnablePositiveLimit="true" LimitClearance_axisUnits="0" LimitToFeedbackWorkingRange="true"/>
                     <DefaultManualParameters Velocity_axisUnitsPerSecond="0" Acceleration_axisUnitsPerSecondSquared="0"/>
                 </NodeSpecificData>
@@ -309,6 +309,19 @@
                     <InputPin SaveName="Linear Axis 3" DisplayName="Linear Axis 3" DataType="PositionControlledAxisLink" UniqueID="204" Visible="true" NoDataField="true"/>
                 </InputPins>
                 <OutputPins/>
+            </Node>
+            <Node NodeType="Machine" ClassName="PositionControlledSingleAxisMachine" CustomName="Costière" UniqueID="208">
+                <NodeEditorPosition x="-19889" y="-14577"/>
+                <NodeSpecificData>
+                    <Rapids Velocity_machineUnitsPerSecond="0" Acceleration_machineUnitsPerSecondSquared="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveName="Position Controlled Axis" DisplayName="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="209" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="210" Real="0" Visible="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="211" Real="0" Visible="true"/>
+                </OutputPins>
             </Node>
         </Nodes>
         <Links>

@@ -15,25 +15,10 @@ void Oscillator3x::assignIoData() {
 	addIoData(linearAxis2Pin);
 	addIoData(linearAxis3Pin);
 
-	std::shared_ptr<Machine> thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
-
-	frequencyParameter = std::make_shared<AnimatableParameter>("Frequency", thisMachine, ParameterDataType::Type::REAL_PARAMETER, "Hz");
-	minAmplitudeParameter = std::make_shared<AnimatableParameter>("Min Amplitude", thisMachine, ParameterDataType::Type::REAL_PARAMETER, "mm");
-	maxAmplitudeParameter = std::make_shared<AnimatableParameter>("Max Amplitude", thisMachine, ParameterDataType::Type::REAL_PARAMETER, "mm");
-	phaseOffsetParameter = std::make_shared<AnimatableParameter>("Phase Offset", thisMachine, ParameterDataType::Type::REAL_PARAMETER, "\x25"); //'°' == \xC2\xB0
-
-	axis1Position = std::make_shared<AnimatableParameter>("Axis 1 Position", thisMachine, ParameterDataType::Type::KINEMATIC_POSITION_CURVE, "mm");
-	axis2Position = std::make_shared<AnimatableParameter>("Axis 2 Position", thisMachine, ParameterDataType::Type::KINEMATIC_POSITION_CURVE, "mm");
-	axis3Position = std::make_shared<AnimatableParameter>("Axis 3 Position", thisMachine, ParameterDataType::Type::KINEMATIC_POSITION_CURVE, "mm");
-
-	animatableParameters.push_back(frequencyParameter);
-	animatableParameters.push_back(minAmplitudeParameter);
-	animatableParameters.push_back(maxAmplitudeParameter);
-	animatableParameters.push_back(phaseOffsetParameter);
-
-	animatableParameters.push_back(axis1Position);
-	animatableParameters.push_back(axis2Position);
-	animatableParameters.push_back(axis3Position);
+	addAnimatableParameter(oscillatorParameterGroup);
+	addAnimatableParameter(axis1PositionParameter);
+	addAnimatableParameter(axis2PositionParameter);
+	addAnimatableParameter(axis3PositionParameter);
 }
 
 void Oscillator3x::process() {
@@ -128,30 +113,25 @@ bool Oscillator3x::isMoving() {
 }
 
 void Oscillator3x::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
-	if (parameter == frequencyParameter ||
+	if (parameter == oscillatorParameterGroup) {
+	
+		
+	}
+	else if (parameter == axis1PositionParameter) {
+		
+	}
+	else if (parameter == axis2PositionParameter) {
+	
+	}
+	else if (parameter == axis3PositionParameter) {
+		
+	}
+	else if (parameter == frequencyParameter ||
 		parameter == minAmplitudeParameter ||
 		parameter == maxAmplitudeParameter ||
 		parameter == phaseOffsetParameter) {
-		
-		if (!b_primingToOscillatorStart) {
-			b_primingToOscillatorStart = true;
 
-			if (b_startAtLowerLimit) {
-				//move all axis to their lowest position
-			}
-			else {
-				//move all axis to their highest position
-			}
-		}
-	}
-	else if (parameter == axis1Position) {
-		
-	}
-	else if (parameter == axis2Position) {
-	
-	}
-	else if (parameter == axis3Position) {
-		
+		Logger::critical("Oscillator should not receive an oscillator child parameter query, only query the group");
 	}
 }
 
