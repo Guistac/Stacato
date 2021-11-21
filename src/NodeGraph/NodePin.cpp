@@ -57,10 +57,15 @@ bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> otherData) {
 			case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return true;
 			default: return false;
 		}
-	case NodeData::Type::AXIS_LINK:
+	case NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK:
 		switch (otherData->getType()) {
-			case NodeData::Type::AXIS_LINK: return true;
+			case NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK: return true;
 			default: return false;
+		}
+	case NodeData::Type::POSITION_CONTROLLED_AXIS_LINK:
+		switch (otherData->getType()) {
+		case NodeData::Type::POSITION_CONTROLLED_AXIS_LINK: return true;
+		default: return false;
 		}
 	default:
 		return false;
@@ -111,8 +116,12 @@ void NodePin::set(std::shared_ptr<ServoActuatorDevice> device) {
 	if (isServoActuatorDeviceLink()) servoActuatorDevice = device;
 }
 
-void NodePin::set(std::shared_ptr<Axis> ax) {
-	if (isAxisLink()) axis = ax;
+void NodePin::set(std::shared_ptr<VelocityControlledAxis> ax) {
+	if (isVelocityControlledAxisLink()) velocityControlledAxis = ax;
+}
+
+void NodePin::set(std::shared_ptr<PositionControlledAxis> ax) {
+	if (isPositionControlledAxisLink()) positionControlledAxis = ax;
 }
 
 //reading data (with data conversions)
@@ -161,8 +170,13 @@ std::shared_ptr<ServoActuatorDevice> NodePin::getServoActuatorDevice() {
 	return nullptr;
 }
 
-std::shared_ptr<Axis> NodePin::getAxis() {
-	if (isAxisLink()) return axis;
+std::shared_ptr<VelocityControlledAxis> NodePin::getVelocityControlledAxis() {
+	if (isVelocityControlledAxisLink()) return velocityControlledAxis;
+	return nullptr;
+}
+
+std::shared_ptr<PositionControlledAxis> NodePin::getPositionControlledAxis() {
+	if (isPositionControlledAxisLink()) return positionControlledAxis;
 	return nullptr;
 }
 
@@ -294,7 +308,8 @@ std::vector<NodeData> NodeDataTypes = {
 	{NodeData::Type::POSITIONFEEDBACK_DEVICELINK, "Position Feedback", "PositionFeedbackDeviceLink"},
 	{NodeData::Type::GPIO_DEVICELINK, "GPIO", "GPIODeviceLink"},
 	{NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK, "Servo Actuator", "ServoActuatorDeviceLink"},
-	{NodeData::Type::AXIS_LINK, "Axis", "AxisLink"}
+	{NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK, "Velocity Controlled Axis", "VelocityControlledAxisLink"},
+	{NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, "Position Controlled Axis", "PositionControlledAxisLink"}
 };
 std::vector<NodeData>& getNodeDataTypes() {
 	return NodeDataTypes;

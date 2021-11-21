@@ -1,10 +1,10 @@
 #include <pch.h>
 
-#include "Motion/Axis/Axis.h"
+#include "Motion/Axis/VelocityControlledAxis.h"
 
 #include <imgui.h>
 
-void Axis::nodeSpecificGui() {
+void VelocityControlledAxis::nodeSpecificGui() {
 	if (ImGui::BeginTabItem("Controls")) {
 		if (ImGui::BeginChild("Controls")) {
 			controlsGui();
@@ -34,3 +34,8 @@ void Axis::nodeSpecificGui() {
 		ImGui::EndTabItem();
 	}
 }
+
+void VelocityControlledAxis::settingsGui() {}
+void VelocityControlledAxis::metricsGui() {}
+void VelocityControlledAxis::devicesGui() {}
+void VelocityControlledAxis::controlsGui() {}

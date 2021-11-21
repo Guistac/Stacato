@@ -285,15 +285,8 @@ void Node::propertiesGui() {
                         ImGui::Checkbox("##Visible", &data->isVisible());
                         ImGui::PopID();
                         ImGui::TableSetColumnIndex(1);
-
-                        if (data->b_isEditingDisplayName) ImGui::InputText("##NameEdit", data->displayName, 64);
-
-                        else ImGui::Text("%s", data->getDisplayName());
-                        if (ImGui::IsItemClicked(0)) {
-                            data->b_isEditingDisplayName = true;
-                        }
-                        else if (data->b_isEditingDisplayName && (ImGui::IsKeyPressed(GLFW_KEY_ENTER) || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE))) data->b_isEditingDisplayName = false;
-                        
+                        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 10.0);
+                        ImGui::InputText("##NameEdit", data->displayName, 64);
                         ImGui::TableSetColumnIndex(2);
                         ImGui::Text("%s", getNodeDataType(data->getType())->displayName);
                         ImGui::TableSetColumnIndex(3);

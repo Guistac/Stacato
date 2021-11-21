@@ -225,7 +225,7 @@ float HoodedLiftStateMachine::getParameterRapidProgress(std::shared_ptr<Animatab
 	return 0.0;
 }
 
-bool HoodedLiftStateMachine::isParameterAtValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+bool HoodedLiftStateMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if (parameter->dataType == value.type) {
 		if (parameter == stateParameter) {
 			if ((float)value.stateValue->integerEquivalent == getState(actualState)->floatEquivalent) return true;
@@ -233,6 +233,14 @@ bool HoodedLiftStateMachine::isParameterAtValue(std::shared_ptr<AnimatableParame
 	}
 	return false;
 }
+
+void HoodedLiftStateMachine::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {}
+
+void HoodedLiftStateMachine::onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter) {}
+
+void HoodedLiftStateMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {}
+
+
 
 void HoodedLiftStateMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {}
 

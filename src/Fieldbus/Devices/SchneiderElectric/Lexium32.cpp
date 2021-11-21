@@ -356,7 +356,6 @@ void Lexium32::readInputs() {
     servoMotorDevice->b_enabled = state == State::OperationEnabled;
     servoMotorDevice->b_online = isOnline() && motorVoltagePresent;
     servoMotorDevice->b_emergencyStopActive = b_emergencyStopActive;
-    servoMotorDevice->commandRequestTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
     //set gpio subdevice status
     gpioDevice->b_ready = isOnline(); //gpio is always ready when lexium is in ESM operational state
     gpioDevice->b_online = isOnline();

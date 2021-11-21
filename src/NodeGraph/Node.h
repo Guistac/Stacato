@@ -47,6 +47,10 @@ public:
 
 	void setName(const char* n) { strcpy(name, n); }
 	const char* getName() { return name; }
+	char* getNameBuffer(int& bufferSize) {
+		bufferSize = 128;
+		return name;
+	}
 
 	void addIoData(std::shared_ptr<NodePin> d);
 	void removeIoData(std::shared_ptr<NodePin> d);

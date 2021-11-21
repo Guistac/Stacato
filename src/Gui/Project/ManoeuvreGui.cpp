@@ -490,14 +490,12 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 				if (isAtKeyPosition) {
 					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-					if (ImGui::Button("Rapid To Key Position", singleButtonSize)) Playback::rapidToEnd(manoeuvre);
+					if (ImGui::Button("At Key Position", singleButtonSize)) Playback::rapidToEnd(manoeuvre);
 					ImGui::PopStyleColor();
 					ImGui::PopItemFlag();
 				}
 				else {
-					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-					if (ImGui::Button("At Key Position", singleButtonSize)) Playback::rapidToEnd(manoeuvre);
-					ImGui::PopStyleColor();
+					if (ImGui::Button("Rapid To Key Position", singleButtonSize)) Playback::rapidToEnd(manoeuvre);
 				}
 			}
 			break;

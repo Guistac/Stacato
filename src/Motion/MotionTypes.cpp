@@ -9,7 +9,7 @@ std::vector<PositionUnit> linearPositionUnits = {
 };
 
 std::vector<PositionUnit> angularPositionUnits = {
-	{PositionUnit::Unit::DEGREE, PositionUnit::Type::ANGULAR,		"Degree",		"Degrees",		"deg",		"Degrees"},
+	{PositionUnit::Unit::DEGREE, PositionUnit::Type::ANGULAR,		"Degree",		"Degrees",		"\xC2\xB0",	"Degrees"},
 	{PositionUnit::Unit::RADIAN, PositionUnit::Type::ANGULAR,		"Radian",		"Radians",		"rad",		"Radians"},
 	{PositionUnit::Unit::REVOLUTION, PositionUnit::Type::ANGULAR,	"Revolution",	"Revolutions",	"rev",		"Revolutions"}
 };
@@ -202,9 +202,10 @@ MotionCommand* getMotionCommand(const char* saveName) {
 }
 
 std::vector<ControlMode> controlModes = {
-	{ControlMode::Mode::MANUAL_VELOCITY_TARGET, "Manual Velocity Target", "ManualVelocityTarget"},
-	{ControlMode::Mode::MANUAL_POSITION_TARGET, "Manual Position Target", "ManualPositionTarget"},
-	{ControlMode::Mode::FAST_STOP,				"Fast Stop", "FastStop"}
+	{ControlMode::Mode::VELOCITY_TARGET,	"Velocity Target"},
+	{ControlMode::Mode::POSITION_TARGET,	"Position Target"},
+	{ControlMode::Mode::FAST_STOP,			"Fast Stop"},
+	{ControlMode::Mode::MACHINE_CONTROL,	"Machine Control"}
 };
 std::vector<ControlMode>& getControlModes() {
 	return controlModes;
@@ -212,12 +213,6 @@ std::vector<ControlMode>& getControlModes() {
 ControlMode* getControlMode(ControlMode::Mode m) {
 	for (auto& controlMode : controlModes) {
 		if (m == controlMode.mode) return &controlMode;
-	}
-	return nullptr;
-}
-ControlMode* getControlMode(const char* saveName) {
-	for (auto& controlMode : controlModes) {
-		if (strcmp(saveName, controlMode.saveName) == 0) return &controlMode;
 	}
 	return nullptr;
 }

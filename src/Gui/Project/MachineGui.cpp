@@ -9,37 +9,44 @@
 #include "Gui/Assets/Colors.h"
 
 void Machine::nodeSpecificGui() {
+
 	if (ImGui::BeginTabItem("Controls")) {
-		if (ImGui::BeginChild("Controls")) {
-			controlsGui();
-			ImGui::EndChild();
-		}
+		ImGui::BeginChild("Controls");
+		stateControlGui();
+		ImGui::Separator();
+		controlsGui();
+		ImGui::EndChild();
 		ImGui::EndTabItem();
 	}
 	if (ImGui::BeginTabItem("Settings")) {
-		if (ImGui::BeginChild("Settings")) {
-			settingsGui();
-			ImGui::EndChild();
-		}
+		ImGui::BeginChild("Settings");
+		generalSettingsGui();
+		ImGui::Separator();
+		settingsGui();
+		ImGui::EndChild();
+		ImGui::EndTabItem();
+	}
+	if (ImGui::BeginTabItem("Axis")) {
+		ImGui::BeginChild("Axis");
+		axisGui();
+		ImGui::EndChild();
 		ImGui::EndTabItem();
 	}
 	if (ImGui::BeginTabItem("Devices")) {
-		if (ImGui::BeginChild("Devices")) {
-			axisGui();
-			ImGui::EndChild();
-		}
+		ImGui::BeginChild("Devices");
+		deviceGui();
+		ImGui::EndChild();
 		ImGui::EndTabItem();
 	}
 	if (ImGui::BeginTabItem("Metrics")) {
-		if (ImGui::BeginChild("Metrics")) {
-			metricsGui();
-			ImGui::EndChild();
-		}
+		ImGui::BeginChild("Metrics");
+		metricsGui();
+		ImGui::EndChild();
 		ImGui::EndTabItem();
 	}
 }
 
-void Machine::powerControlGui() {
+void Machine::stateControlGui() {
 	glm::vec2 buttonSize;
 	int buttonCount = 2;
 	buttonSize.x = (ImGui::GetContentRegionAvail().x - (buttonCount - 1) * ImGui::GetStyle().ItemSpacing.x) / buttonCount;
@@ -72,6 +79,16 @@ void Machine::powerControlGui() {
 		if (ImGui::Button("Enable Machine", buttonSize)) enable();
 	}
 	if (!readyToEnable) END_DISABLE_IMGUI_ELEMENT
+}
+
+void Machine::generalSettingsGui() {
+	ImGui::Text("Machine Name :");
+	int nameBufferSize;
+	char* nameBuffer = getNameBuffer(nameBufferSize);
+	ImGui::InputText("##name", nameBuffer, nameBufferSize);
+
+	ImGui::Text("Short Name :");
+	ImGui::InputText("##shortName", shortName, 16);
 }
 
 void Machine::miniatureGui() {

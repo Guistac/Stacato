@@ -98,17 +98,16 @@ MotionCommand* getMotionCommand(const char*);
 
 struct ControlMode {
 	enum class Mode {
-		MANUAL_VELOCITY_TARGET,
-		MANUAL_POSITION_TARGET,
-		FAST_STOP
+		VELOCITY_TARGET,
+		POSITION_TARGET,
+		FAST_STOP,
+		MACHINE_CONTROL
 	};
 	Mode mode;
 	const char displayName[64];
-	const char saveName[64];
 };
 std::vector<ControlMode>& getControlModes();
 ControlMode* getControlMode(ControlMode::Mode m);
-ControlMode* getControlMode(const char*);
 
 
 struct HomingDirection {

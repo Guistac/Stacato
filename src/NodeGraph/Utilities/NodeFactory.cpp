@@ -8,9 +8,10 @@
 #include "NodeGraph/Nodes/GroupNode.h"
 #include "NodeGraph/Nodes/PlotterNode.h"
 
+#include "Motion/Axis/VelocityControlledAxis.h"
 #include "Motion/Axis/PositionControlledAxis.h"
 
-#include "Motion/Machine/Machines/Basic/SingleAxisMachine.h"
+#include "Motion/Machine/Machines/Basic/PositionControlledSingleAxisMachine.h"
 #include "Motion/Machine/Machines/StateMachines/HoodedLiftStateMachine.h"
 #include "Motion/Machine/Machines/Animated/Oscillator3x.h"
 
@@ -25,11 +26,12 @@ namespace NodeFactory {
 	void loadNodes() {
 
 		allAxisNodes = {
+			new VelocityControlledAxis(),
 			new PositionControlledAxis()
 		};
 
 		allMachineNodes = {
-			new SingleAxisMachine(),
+			new PositionControlledSingleAxisMachine(),
 			new HoodedLiftStateMachine(),
 			new Oscillator3x()
 		};

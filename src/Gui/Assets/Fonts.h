@@ -2,22 +2,25 @@
 
 struct ImFont;
 
-class Fonts {
-public:
+namespace Fonts {
 
-	static ImFont* robotoRegular15;
-	static ImFont* robotoBold15;
-	static ImFont* robotoLight15;
+	extern ImFont* robotoRegular12;
+	extern ImFont* robotoBold12;
+	extern ImFont* robotoLight12;
+	
+	extern ImFont* robotoRegular15;
+	extern ImFont* robotoBold15;
+	extern ImFont* robotoLight15;
+	
+	extern ImFont* robotoRegular20;
+	extern ImFont* robotoBold20;
+	extern ImFont* robotoLight20;
+	
+	extern ImFont* robotoRegular42;
+	extern ImFont* robotoBold42;
+	extern ImFont* robotoLight42;
 
-	static ImFont* robotoRegular20;
-	static ImFont* robotoBold20;
-	static ImFont* robotoLight20;
-
-	static ImFont* robotoRegular42;
-	static ImFont* robotoBold42;
-	static ImFont* robotoLight42;
-
-	static void load(float scale);
+	void load(float scale);
 };
 
 

@@ -232,7 +232,6 @@ void PD4_E::readInputs() {
 	servoMotor->positionRaw_positionUnits = actualPosition_revolutions;
 	servoMotor->velocity_positionUnitsPerSecond = actualVelocity_revolutionsPerSecond;
 	servoMotor->load = actualCurrent_amperes / maxCurrent_amperes;
-	servoMotor->commandRequestTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
 	servoMotor->b_online = true;
 	servoMotor->b_detected = true;
 	servoMotor->b_emergencyStopActive = false;

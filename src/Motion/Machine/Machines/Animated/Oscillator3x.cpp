@@ -159,9 +159,18 @@ float Oscillator3x::getParameterRapidProgress(std::shared_ptr<AnimatableParamete
 	return 0.0;
 }
 
-bool Oscillator3x::isParameterAtValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+
+bool Oscillator3x::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	return false;
 }
+
+void Oscillator3x::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {}
+
+void Oscillator3x::onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter) {}
+
+void Oscillator3x::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {}
+
+
 
 void Oscillator3x::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {}
 

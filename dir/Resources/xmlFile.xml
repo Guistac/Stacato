@@ -1,103 +1,254 @@
 <Environnement name="Default Environnement">
     <NodeGraph>
         <Nodes>
-            <Node NodeType="Axis" ClassName="PositionControllerAxis" CustomName="Axis 1" UniqueID="113">
-                <NodeEditorPosition x="-18585" y="-14646"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="PD4-E" Split="false" CustomName="PD4-E (Alias:1238)" UniqueID="52">
+                <NodeEditorPosition x="-19812" y="-14315"/>
                 <NodeSpecificData>
-                    <Machine UnitType="Angular" Unit="Degrees" PositionControl="Servo"/>
-                    <UnitConversion FeedbackUnitsPerMachineUnit="0" ActuatorUnitsPerMachineUnit="0" FeedbackAndActuatorConversionIdentical="false"/>
-                    <KinematicLimits VelocityLimit_axisUnitsPerSecond="100" AccelerationLimit_axisUnitsPerSecondSquared="300"/>
-                    <PositionReferenceSignals Type="None"/>
-                    <PositionLimits MaxNegativeDeviation_axisUnits="0" EnableNegativeLimit="true" MaxPositionDeviation_axisUnits="750" EnablePositiveLimit="true" LimitClearance_axisUnits="0" LimitToFeedbackWorkingRange="true"/>
-                    <DefaultManualParameters Velocity_axisUnitsPerSecond="0" Acceleration_axisUnitsPerSecondSquared="0"/>
+                    <Identification Type="StationAlias" StationAlias="1238"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="30" AccelerationLimit_revolutionsPerSecondSquared="100" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <DefaultManualAcceleration revolutionsPerSecondSquared="0"/>
+                    <Tuning PositionControllerProportionalGain="500"/>
+                    <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
+                    <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>
+                    <EncoderOffset Revolutions="0"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveName="Actuator" DisplayName="Actuator" DataType="ActuatorDeviceLink" UniqueID="114" Visible="false" NoDataField="true"/>
-                    <InputPin SaveName="Servo Actuator" DisplayName="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="115" Visible="true" NoDataField="true"/>
-                    <InputPin SaveName="Position Feedback" DisplayName="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="116" Visible="false" NoDataField="true"/>
-                    <InputPin SaveName="Reference Device" DisplayName="Reference Device" DataType="GPIODeviceLink" UniqueID="117" Visible="false" NoDataField="true"/>
-                    <InputPin SaveName="Low Limit Signal" DisplayName="Low Limit Signal" DataType="Boolean" UniqueID="118" Boolean="false" Visible="false"/>
-                    <InputPin SaveName="High Limit Signal" DisplayName="High Limit Signal" DataType="Boolean" UniqueID="119" Boolean="false" Visible="false"/>
-                    <InputPin SaveName="Reference Signal" DisplayName="Reference Signal" DataType="Boolean" UniqueID="120" Boolean="false" Visible="false"/>
+                    <InputPin SaveName="Digital Out 1" DisplayName="Digital Out 1" DataType="Boolean" UniqueID="53" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Out 2" DisplayName="Digital Out 2" DataType="Boolean" UniqueID="54" Boolean="true" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveName="Axis" DisplayName="Axis" DataType="AxisLink" UniqueID="121" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="122" Real="0" Visible="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="123" Real="0" Visible="true"/>
+                    <OutputPin SaveName="Servo Motor" DisplayName="Servo Motor" DataType="ServoActuatorDeviceLink" UniqueID="55" Visible="true" NoDataField="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="56" Real="5220.656494140625" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="57" Real="0" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Gpio" DisplayName="Gpio" DataType="GPIODeviceLink" UniqueID="58" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="Digital In 1" DisplayName="Digital In 1" DataType="Boolean" UniqueID="59" Boolean="true" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Digital In 2" DisplayName="Digital In 2" DataType="Boolean" UniqueID="60" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Digital In 3" DisplayName="Digital In 3" DataType="Boolean" UniqueID="61" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Digital In 4" DisplayName="Digital In 4" DataType="Boolean" UniqueID="62" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Digital In 5" DisplayName="Digital In 5" DataType="Boolean" UniqueID="63" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Digital In 6" DisplayName="Digital In 6" DataType="Boolean" UniqueID="64" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Analog In 1" DisplayName="Analog In 1" DataType="Real" UniqueID="65" Real="0" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Axis" ClassName="PositionControllerAxis" CustomName="Axis 2" UniqueID="124">
-                <NodeEditorPosition x="-18576" y="-14366"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="PD4-E" Split="false" CustomName="PD4-E (Alias:3333)" UniqueID="66">
+                <NodeEditorPosition x="-19458" y="-14252"/>
                 <NodeSpecificData>
-                    <Machine UnitType="Angular" Unit="Degrees" PositionControl="Servo"/>
-                    <UnitConversion FeedbackUnitsPerMachineUnit="0" ActuatorUnitsPerMachineUnit="0" FeedbackAndActuatorConversionIdentical="false"/>
-                    <KinematicLimits VelocityLimit_axisUnitsPerSecond="100" AccelerationLimit_axisUnitsPerSecondSquared="300"/>
-                    <PositionReferenceSignals Type="None"/>
-                    <PositionLimits MaxNegativeDeviation_axisUnits="0" EnableNegativeLimit="true" MaxPositionDeviation_axisUnits="750" EnablePositiveLimit="true" LimitClearance_axisUnits="0" LimitToFeedbackWorkingRange="true"/>
-                    <DefaultManualParameters Velocity_axisUnitsPerSecond="0" Acceleration_axisUnitsPerSecondSquared="0"/>
+                    <Identification Type="StationAlias" StationAlias="3333"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="30" AccelerationLimit_revolutionsPerSecondSquared="30" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <DefaultManualAcceleration revolutionsPerSecondSquared="0"/>
+                    <Tuning PositionControllerProportionalGain="500"/>
+                    <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
+                    <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>
+                    <EncoderOffset Revolutions="0"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveName="Actuator" DisplayName="Actuator" DataType="ActuatorDeviceLink" UniqueID="125" Visible="false" NoDataField="true"/>
-                    <InputPin SaveName="Servo Actuator" DisplayName="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="126" Visible="true" NoDataField="true"/>
-                    <InputPin SaveName="Position Feedback" DisplayName="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="127" Visible="false" NoDataField="true"/>
-                    <InputPin SaveName="Reference Device" DisplayName="Reference Device" DataType="GPIODeviceLink" UniqueID="128" Visible="false" NoDataField="true"/>
-                    <InputPin SaveName="Low Limit Signal" DisplayName="Low Limit Signal" DataType="Boolean" UniqueID="129" Boolean="false" Visible="false"/>
-                    <InputPin SaveName="High Limit Signal" DisplayName="High Limit Signal" DataType="Boolean" UniqueID="130" Boolean="false" Visible="false"/>
-                    <InputPin SaveName="Reference Signal" DisplayName="Reference Signal" DataType="Boolean" UniqueID="131" Boolean="false" Visible="false"/>
+                    <InputPin SaveName="Digital Out 1" DisplayName="Digital Out 1" DataType="Boolean" UniqueID="67" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Out 2" DisplayName="Digital Out 2" DataType="Boolean" UniqueID="68" Boolean="true" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveName="Axis" DisplayName="Axis" DataType="AxisLink" UniqueID="132" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="133" Real="0" Visible="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="134" Real="0" Visible="true"/>
+                    <OutputPin SaveName="Servo Motor" DisplayName="Servo Motor" DataType="ServoActuatorDeviceLink" UniqueID="69" Visible="true" NoDataField="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="70" Real="19989.412841796875" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="71" Real="0" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Gpio" DisplayName="Gpio" DataType="GPIODeviceLink" UniqueID="72" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="Digital In 1" DisplayName="Digital In 1" DataType="Boolean" UniqueID="73" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Digital In 2" DisplayName="Digital In 2" DataType="Boolean" UniqueID="74" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Digital In 3" DisplayName="Digital In 3" DataType="Boolean" UniqueID="75" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Digital In 4" DisplayName="Digital In 4" DataType="Boolean" UniqueID="76" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Digital In 5" DisplayName="Digital In 5" DataType="Boolean" UniqueID="77" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Digital In 6" DisplayName="Digital In 6" DataType="Boolean" UniqueID="78" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Analog In 1" DisplayName="Analog In 1" DataType="Real" UniqueID="79" Real="0" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Axis" ClassName="PositionControllerAxis" CustomName="Axis 3" UniqueID="135">
-                <NodeEditorPosition x="-18576" y="-14084"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="PD4-E" Split="false" CustomName="PD4-E (Alias:456)" UniqueID="80">
+                <NodeEditorPosition x="-19053" y="-14195"/>
                 <NodeSpecificData>
-                    <Machine UnitType="Angular" Unit="Degrees" PositionControl="Servo"/>
-                    <UnitConversion FeedbackUnitsPerMachineUnit="0" ActuatorUnitsPerMachineUnit="0" FeedbackAndActuatorConversionIdentical="false"/>
-                    <KinematicLimits VelocityLimit_axisUnitsPerSecond="100" AccelerationLimit_axisUnitsPerSecondSquared="300"/>
-                    <PositionReferenceSignals Type="None"/>
-                    <PositionLimits MaxNegativeDeviation_axisUnits="0" EnableNegativeLimit="true" MaxPositionDeviation_axisUnits="750" EnablePositiveLimit="true" LimitClearance_axisUnits="0" LimitToFeedbackWorkingRange="true"/>
-                    <DefaultManualParameters Velocity_axisUnitsPerSecond="0" Acceleration_axisUnitsPerSecondSquared="0"/>
+                    <Identification Type="StationAlias" StationAlias="456"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="30" AccelerationLimit_revolutionsPerSecondSquared="30" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <DefaultManualAcceleration revolutionsPerSecondSquared="0"/>
+                    <Tuning PositionControllerProportionalGain="500"/>
+                    <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
+                    <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>
+                    <EncoderOffset Revolutions="0"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveName="Actuator" DisplayName="Actuator" DataType="ActuatorDeviceLink" UniqueID="136" Visible="false" NoDataField="true"/>
-                    <InputPin SaveName="Servo Actuator" DisplayName="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="137" Visible="true" NoDataField="true"/>
-                    <InputPin SaveName="Position Feedback" DisplayName="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="138" Visible="false" NoDataField="true"/>
-                    <InputPin SaveName="Reference Device" DisplayName="Reference Device" DataType="GPIODeviceLink" UniqueID="139" Visible="false" NoDataField="true"/>
-                    <InputPin SaveName="Low Limit Signal" DisplayName="Low Limit Signal" DataType="Boolean" UniqueID="140" Boolean="false" Visible="false"/>
-                    <InputPin SaveName="High Limit Signal" DisplayName="High Limit Signal" DataType="Boolean" UniqueID="141" Boolean="false" Visible="false"/>
-                    <InputPin SaveName="Reference Signal" DisplayName="Reference Signal" DataType="Boolean" UniqueID="142" Boolean="false" Visible="false"/>
+                    <InputPin SaveName="Digital Out 1" DisplayName="Digital Out 1" DataType="Boolean" UniqueID="81" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Out 2" DisplayName="Digital Out 2" DataType="Boolean" UniqueID="82" Boolean="false" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveName="Axis" DisplayName="Axis" DataType="AxisLink" UniqueID="143" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="144" Real="0" Visible="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="145" Real="0" Visible="true"/>
+                    <OutputPin SaveName="Servo Motor" DisplayName="Servo Motor" DataType="ServoActuatorDeviceLink" UniqueID="83" Visible="true" NoDataField="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="84" Real="187.308349609375" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="85" Real="0" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Gpio" DisplayName="Gpio" DataType="GPIODeviceLink" UniqueID="86" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="Digital In 1" DisplayName="Digital In 1" DataType="Boolean" UniqueID="87" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Digital In 2" DisplayName="Digital In 2" DataType="Boolean" UniqueID="88" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Digital In 3" DisplayName="Digital In 3" DataType="Boolean" UniqueID="89" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Digital In 4" DisplayName="Digital In 4" DataType="Boolean" UniqueID="90" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Digital In 5" DisplayName="Digital In 5" DataType="Boolean" UniqueID="91" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Digital In 6" DisplayName="Digital In 6" DataType="Boolean" UniqueID="92" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Analog In 1" DisplayName="Analog In 1" DataType="Real" UniqueID="93" Real="0" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Machine" ClassName="TripleOscillator" CustomName="Triple Oscillator" UniqueID="146">
-                <NodeEditorPosition x="-18104" y="-14377"/>
+            <Node NodeType="Clock" ClassName="Clock" CustomName="Clock" UniqueID="94">
+                <NodeEditorPosition x="-20714" y="-13895"/>
+                <NodeSpecificData/>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveName="output" DisplayName="output" DataType="Real" UniqueID="95" Real="1420.0273554" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Sinus" CustomName="Sinus" UniqueID="96">
+                <NodeEditorPosition x="-20095" y="-14045"/>
                 <NodeSpecificData/>
                 <InputPins>
-                    <InputPin SaveName="Axis 1" DisplayName="Axis 1" DataType="AxisLink" UniqueID="147" Visible="true" NoDataField="true"/>
-                    <InputPin SaveName="Axis 2" DisplayName="Axis 2" DataType="AxisLink" UniqueID="148" Visible="true" NoDataField="true"/>
-                    <InputPin SaveName="Axis 3" DisplayName="Axis 3" DataType="AxisLink" UniqueID="149" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="in" DisplayName="in" DataType="Real" UniqueID="97" Real="0" Visible="true"/>
                 </InputPins>
-                <OutputPins/>
+                <OutputPins>
+                    <OutputPin SaveName="out" DisplayName="out" DataType="Real" UniqueID="98" Real="0.43209572902433352" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Mutliplication" CustomName="Multiplication" UniqueID="99">
+                <NodeEditorPosition x="-20424" y="-14111"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveName="input" DisplayName="input" DataType="Real" UniqueID="100" Real="0" Visible="true" AcceptsMultipleInputs="true"/>
+                    <InputPin SaveName="mult" DisplayName="mult" DataType="Real" UniqueID="101" Real="3.456" Visible="true" DisablePin="true" ForceDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="result" DisplayName="result" DataType="Real" UniqueID="102" Real="4907.6145402623997" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Mutliplication" CustomName="Multiplication" UniqueID="103">
+                <NodeEditorPosition x="-20413" y="-14351"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveName="input" DisplayName="input" DataType="Real" UniqueID="104" Real="0" Visible="true" AcceptsMultipleInputs="true"/>
+                    <InputPin SaveName="mult" DisplayName="mult" DataType="Real" UniqueID="105" Real="3.1230000000000002" Visible="true" DisablePin="true" ForceDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="result" DisplayName="result" DataType="Real" UniqueID="106" Real="4434.7454309142004" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Mutliplication" CustomName="Multiplication" UniqueID="107">
+                <NodeEditorPosition x="-20424" y="-13887"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveName="input" DisplayName="input" DataType="Real" UniqueID="108" Real="0" Visible="true" AcceptsMultipleInputs="true"/>
+                    <InputPin SaveName="mult" DisplayName="mult" DataType="Real" UniqueID="109" Real="4.1230000000000002" Visible="true" DisablePin="true" ForceDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="result" DisplayName="result" DataType="Real" UniqueID="110" Real="5854.7727863142009" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Mutliplication" CustomName="Multiplication" UniqueID="111">
+                <NodeEditorPosition x="-20440" y="-13647"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveName="input" DisplayName="input" DataType="Real" UniqueID="112" Real="0" Visible="true" AcceptsMultipleInputs="true"/>
+                    <InputPin SaveName="mult" DisplayName="mult" DataType="Real" UniqueID="113" Real="2.456" Visible="true" DisablePin="true" ForceDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="result" DisplayName="result" DataType="Real" UniqueID="114" Real="3487.5871848624001" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Mutliplication" CustomName="Multiplication" UniqueID="115">
+                <NodeEditorPosition x="-20429" y="-13407"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveName="input" DisplayName="input" DataType="Real" UniqueID="116" Real="0" Visible="true" AcceptsMultipleInputs="true"/>
+                    <InputPin SaveName="mult" DisplayName="mult" DataType="Real" UniqueID="117" Real="2.1139999999999999" Visible="true" DisablePin="true" ForceDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="result" DisplayName="result" DataType="Real" UniqueID="118" Real="3001.9378293156001" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Mutliplication" CustomName="Multiplication" UniqueID="119">
+                <NodeEditorPosition x="-20408" y="-13167"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveName="input" DisplayName="input" DataType="Real" UniqueID="120" Real="0" Visible="true" AcceptsMultipleInputs="true"/>
+                    <InputPin SaveName="mult" DisplayName="mult" DataType="Real" UniqueID="121" Real="2.8759999999999999" Visible="true" DisablePin="true" ForceDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="result" DisplayName="result" DataType="Real" UniqueID="122" Real="4083.9986741304001" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Sinus" CustomName="Sinus" UniqueID="129">
+                <NodeEditorPosition x="-20048" y="-14330"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveName="in" DisplayName="in" DataType="Real" UniqueID="130" Real="0" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="out" DisplayName="out" DataType="Real" UniqueID="131" Real="-0.92589428181868672" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Sinus" CustomName="Sinus" UniqueID="132">
+                <NodeEditorPosition x="-20100" y="-13802"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveName="in" DisplayName="in" DataType="Real" UniqueID="133" Real="0" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="out" DisplayName="out" DataType="Real" UniqueID="134" Real="-0.91516616808634521" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Sinus" CustomName="Sinus" UniqueID="135">
+                <NodeEditorPosition x="-20094" y="-13562"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveName="in" DisplayName="in" DataType="Real" UniqueID="136" Real="0" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="out" DisplayName="out" DataType="Real" UniqueID="137" Real="0.40715715723688806" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Sinus" CustomName="Sinus" UniqueID="138">
+                <NodeEditorPosition x="-20084" y="-13364"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveName="in" DisplayName="in" DataType="Real" UniqueID="139" Real="0" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="out" DisplayName="out" DataType="Real" UniqueID="140" Real="-0.9893538164851533" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Sinus" CustomName="Sinus" UniqueID="141">
+                <NodeEditorPosition x="-20070" y="-13124"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveName="in" DisplayName="in" DataType="Real" UniqueID="142" Real="0" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="out" DisplayName="out" DataType="Real" UniqueID="143" Real="-0.071713924201585524" Visible="true" DisableDataField="true"/>
+                </OutputPins>
             </Node>
         </Nodes>
         <Links>
-            <Link UniqueID="150" StartPin="121" EndPin="147"/>
-            <Link UniqueID="151" StartPin="132" EndPin="148"/>
-            <Link UniqueID="152" StartPin="143" EndPin="149"/>
+            <Link UniqueID="123" StartPin="95" EndPin="104"/>
+            <Link UniqueID="124" StartPin="95" EndPin="100"/>
+            <Link UniqueID="125" StartPin="95" EndPin="108"/>
+            <Link UniqueID="126" StartPin="95" EndPin="112"/>
+            <Link UniqueID="127" StartPin="95" EndPin="116"/>
+            <Link UniqueID="128" StartPin="95" EndPin="120"/>
+            <Link UniqueID="144" StartPin="122" EndPin="142"/>
+            <Link UniqueID="145" StartPin="118" EndPin="139"/>
+            <Link UniqueID="146" StartPin="114" EndPin="136"/>
+            <Link UniqueID="147" StartPin="110" EndPin="133"/>
+            <Link UniqueID="148" StartPin="102" EndPin="97"/>
+            <Link UniqueID="149" StartPin="106" EndPin="130"/>
+            <Link UniqueID="150" StartPin="131" EndPin="53"/>
+            <Link UniqueID="151" StartPin="98" EndPin="54"/>
+            <Link UniqueID="152" StartPin="134" EndPin="67"/>
+            <Link UniqueID="153" StartPin="137" EndPin="68"/>
+            <Link UniqueID="154" StartPin="140" EndPin="81"/>
+            <Link UniqueID="155" StartPin="143" EndPin="82"/>
         </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="Microsoft" Name="\Device\NPF_{94C82131-D635-43BC-AA0D-763132AE31BA}"/>
+        <Primary Description="Realtek USB NIC" Name="\Device\NPF_{42C81A11-795E-4D7C-83AE-39EF61932528}"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>

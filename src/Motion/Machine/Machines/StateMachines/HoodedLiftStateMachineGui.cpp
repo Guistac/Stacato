@@ -18,7 +18,7 @@ void HoodedLiftStateMachine::controlsGui() {
 	ImGui::Text("Manual Flip Controls");
 	ImGui::PopFont();
 
-	powerControlGui();
+	stateControlGui();
 
 	machineSpecificMiniatureGui();
 	

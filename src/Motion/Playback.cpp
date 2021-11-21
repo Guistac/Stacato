@@ -4,6 +4,7 @@
 #include "Motion/Manoeuvre/Manoeuvre.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
 #include "Fieldbus/EtherCatFieldbus.h"
+#include "Motion/Machine/Machine.h"
 
 namespace Playback {
 
@@ -103,7 +104,6 @@ namespace Playback {
 
 
 
-
 	void startPlayback(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 		if (!isPlaying(manoeuvre)) {
 			double time = EtherCatFieldbus::getCycleProgramTime_seconds();
@@ -116,8 +116,10 @@ namespace Playback {
 					break;
 				case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
 					for (auto& track : manoeuvre->tracks) {
-						track->parameter->actualParameterTrack = track;
+
 						track->playbackPosition_seconds = manoeuvre->playbackPosition_seconds;
+						track->parameter->machine->startParameterPlayback(track->parameter, track);
+
 					}
 					break;
 			}
@@ -130,7 +132,7 @@ namespace Playback {
 			manoeuvre->b_isPaused = true;
 			for (auto& track : manoeuvre->tracks) {
 				//this stops the machine track but doesn't remove it from the playback list
-				track->parameter->actualParameterTrack = nullptr;
+				track->parameter->machine->stopParameterPlayback(track->parameter);
 			}
 		}
 	}
@@ -150,8 +152,8 @@ namespace Playback {
 						double time = EtherCatFieldbus::getCycleProgramTime_seconds();
 						manoeuvre->playbackStartTime_seconds = time - manoeuvre->playbackPosition_seconds;
 						for (auto& track : manoeuvre->tracks) {
-							track->parameter->actualParameterTrack = track;
 							track->playbackPosition_seconds = manoeuvre->playbackPosition_seconds;
+							track->parameter->machine->startParameterPlayback(track->parameter, track);
 						}
 					}
 					break;
@@ -161,7 +163,9 @@ namespace Playback {
 	
 	void stopPlayback(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 		if (isPlaying(manoeuvre)) {
-			for (auto& track : manoeuvre->tracks) track->parameter->actualParameterTrack = nullptr;
+			for (auto& track : manoeuvre->tracks) {
+				track->parameter->machine->stopParameterPlayback(track->parameter);
+			}
 			for (int i = 0; i < playingManoeuvres.size(); i++) {
 				if (playingManoeuvres[i] == manoeuvre) {
 					playingManoeuvres[i]->playbackPosition_seconds = 0.0;
@@ -192,19 +196,15 @@ namespace Playback {
 
 	void stopAllManoeuvres() {
 		for (auto& manoeuvre : playingManoeuvres) {
-			for (auto& track : manoeuvre->tracks) track->parameter->actualParameterTrack = nullptr;
+			for (auto& track : manoeuvre->tracks) {
+				track->parameter->machine->stopParameterPlayback(track->parameter);
+			}
 		}
 		playingManoeuvres.clear();
 	}
 
-
-	void updateActiveManoeuvreState() {
-		for (int i = rapidManoeuvres.size() - 1; i >= 0; i--) {
-			if (getRapidProgress(rapidManoeuvres[i]) >= 1.0) {
-				Logger::warn("Manoeuvre {} Finished Priming", rapidManoeuvres[i]->name);
-				rapidManoeuvres.erase(rapidManoeuvres.begin() + i);
-			}
-		}
+	void incrementPlaybackPosition() {
+		//update the playback position of playing manoeuvres and tracks
 		double time = EtherCatFieldbus::getCycleProgramTime_seconds();
 		for (auto& playingManoeuvre : playingManoeuvres) {
 			if (!playingManoeuvre->b_isPaused) {
@@ -215,11 +215,23 @@ namespace Playback {
 				}
 			}
 		}
+	}
+
+	void updateActiveManoeuvreState() {
+		//check if manoeuvre rapids are finished
+		for (int i = rapidManoeuvres.size() - 1; i >= 0; i--) {
+			if (getRapidProgress(rapidManoeuvres[i]) >= 1.0) {
+				Logger::warn("Manoeuvre {} Finished Priming", rapidManoeuvres[i]->name);
+				rapidManoeuvres.erase(rapidManoeuvres.begin() + i);
+			}
+		}
+		//terminate playback of manoeuvres that are finished
 		for (int i = playingManoeuvres.size() - 1; i >= 0; i--) {
 			if (playingManoeuvres[i]->getPlaybackProgress() >= 1.0) {
 				playingManoeuvres[i]->playbackPosition_seconds = 0.0;
 				for (auto& track : playingManoeuvres[i]->tracks) {
-					track->parameter->actualParameterTrack = nullptr;
+					//stop playback and reset playhead
+					track->parameter->machine->stopParameterPlayback(track->parameter);
 					track->playbackPosition_seconds = 0.0;
 				}
 				playingManoeuvres.erase(playingManoeuvres.begin() + i);

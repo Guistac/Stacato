@@ -565,13 +565,15 @@ namespace EtherCatFieldbus {
             if (b_allOperational) {
                 //interpret all slaves input data if operational
                 for (auto slave : slaves) if (slave->isStateOperational()) slave->readInputs();
+                //increments the playback position of all active manoeuvres
+                Playback::incrementPlaybackPosition();
                 //update all nodes connected to ethercat slave nodes
                 Environnement::nodeGraph->evaluate(Device::Type::ETHERCAT_DEVICE);
+                //ends playback of finished manoeuvres and rapids
+                Playback::updateActiveManoeuvreState();
                 //prepare all slaves output data if operational
                 for (auto slave : slaves) if (slave->isStateOperational()) slave->prepareOutputs();
             }
-
-            Playback::updateActiveManoeuvreState();
 
             //=========== HANDLE MASTER AND REFERENCE CLOCK DRIFT ============
 

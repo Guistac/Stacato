@@ -23,6 +23,7 @@ namespace Playback {
 
 	void stopAllManoeuvres();
 
+	void incrementPlaybackPosition();
 	void updateActiveManoeuvreState();
 
 }
