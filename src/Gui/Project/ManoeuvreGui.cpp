@@ -341,8 +341,12 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 
 		for (auto& parameterTrack : manoeuvre->tracks) {
+			//child parameter tracks are listed in the manoeuvres track vector
+			//but they are drawn by the parent parameter group, so we skip them here
+			//and draw them after the parameter group
 			if (parameterTrack->hasParentParameterTrack()) continue;
 			parameterTrackRowGui(parameterTrack);
+			//draw the groups child parameter tracks
 			if (parameterTrack->hasChildParameterTracks()) {
 				for (auto& childParameterTrack : parameterTrack->childParameterTracks) {
 					parameterTrackRowGui(childParameterTrack);

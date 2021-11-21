@@ -16,6 +16,10 @@ bool Manoeuvre::save(tinyxml2::XMLElement* manoeuvreXML) {
 	manoeuvreXML->SetAttribute("Description", description);
 	manoeuvreXML->SetAttribute("Type", getManoeuvreType(type)->saveName);
 	for (auto& track : tracks) {
+		//tracks which have a group parent are listed in the manoeuvres track vector
+		//but they don't get saved in the main manoeuvre
+		//instead they are saved by their parent parameter track
+		if (track->hasParentParameterTrack()) continue;
 		XMLElement* trackXML = manoeuvreXML->InsertNewChildElement("Track");
 		track->save(trackXML);
 	}
@@ -43,6 +47,7 @@ bool Manoeuvre::load(tinyxml2::XMLElement* manoeuvreXML) {
 		if (track->hasChildParameterTracks()) {
 			for (auto& childParameterTrack : track->childParameterTracks) {
 				childParameterTrack->parentParameterTrack = track;
+				tracks.push_back(childParameterTrack);
 			}
 		}
 		trackXML = trackXML->NextSiblingElement("Track");
@@ -151,9 +156,7 @@ bool ParameterTrack::load(tinyxml2::XMLElement* trackXML) {
 		while (childParameterTrackXML != nullptr) {
 			std::shared_ptr<ParameterTrack> childParameterTrack = std::make_shared<ParameterTrack>(parentManoeuvre);
 			if (!childParameterTrack->load(childParameterTrackXML)) return Logger::warn("Could not load child parameter Track");
-			childParameterTrack->parentParameterTrack = shared_from_this();
 			childParameterTracks.push_back(childParameterTrack);
-			parentManoeuvre->tracks.push_back(childParameterTrack);
 			childParameterTrackXML = childParameterTrackXML->NextSiblingElement("ParameterTrack");
 		}
 		return true;
@@ -207,6 +210,7 @@ bool ParameterTrack::load(tinyxml2::XMLElement* trackXML) {
 			XMLElement* targetXML = trackXML->FirstChildElement("Target");
 			if (targetXML == nullptr) return Logger::warn("Could not find target attribute");
 			target.load(targetXML);
+			origin = target;
 		}
 		break;
 	}

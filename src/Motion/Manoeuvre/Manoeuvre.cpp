@@ -16,7 +16,14 @@ Manoeuvre::Manoeuvre(const Manoeuvre& original) {
 	type = original.type;
 	parentPlot = original.parentPlot;
 	for (auto& track : original.tracks) {
+		if (track->hasParentParameterTrack()) continue;
 		std::shared_ptr<ParameterTrack> copiedTrack = std::make_shared<ParameterTrack>(*track);
+		if (copiedTrack->hasChildParameterTracks()) {
+			for (auto& childParameterTrack : copiedTrack->childParameterTracks) {
+				childParameterTrack->parentParameterTrack = copiedTrack;
+				tracks.push_back(childParameterTrack);
+			}
+		}
 		tracks.push_back(copiedTrack);
 	}
 }

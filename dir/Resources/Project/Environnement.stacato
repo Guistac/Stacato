@@ -311,7 +311,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="Machine" ClassName="PositionControlledSingleAxisMachine" CustomName="Costière" UniqueID="208">
-                <NodeEditorPosition x="-19889" y="-14577"/>
+                <NodeEditorPosition x="-19868" y="-14655"/>
                 <NodeSpecificData>
                     <Rapids Velocity_machineUnitsPerSecond="0" Acceleration_machineUnitsPerSecondSquared="0"/>
                 </NodeSpecificData>
@@ -321,6 +321,31 @@
                 <OutputPins>
                     <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="210" Real="0" Visible="true"/>
                     <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="211" Real="0" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Position Controlled Axis" UniqueID="212">
+                <NodeEditorPosition x="-20452" y="-14885"/>
+                <NodeSpecificData>
+                    <Machine UnitType="Angular" Unit="Degrees" PositionControl="ClosedLoop"/>
+                    <UnitConversion FeedbackUnitsPerMachineUnit="0" ActuatorUnitsPerMachineUnit="0" FeedbackAndActuatorConversionIdentical="false"/>
+                    <KinematicLimits VelocityLimit_axisUnitsPerSecond="0" AccelerationLimit_axisUnitsPerSecondSquared="0"/>
+                    <PositionReferenceSignals Type="LowHighSignals" HomingVelocity_axisUnitsPerSecond="0" HomingDirection="Positive"/>
+                    <PositionLimits MaxNegativeDeviation_axisUnits="0" EnableNegativeLimit="true" MaxPositionDeviation_axisUnits="0" EnablePositiveLimit="true" LimitClearance_axisUnits="0" LimitToFeedbackWorkingRange="true"/>
+                    <DefaultManualParameters Velocity_axisUnitsPerSecond="10" Acceleration_axisUnitsPerSecondSquared="5"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveName="Actuator" DisplayName="Actuator" DataType="ActuatorDeviceLink" UniqueID="213" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Servo Actuator" DisplayName="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="214" Visible="false" NoDataField="true"/>
+                    <InputPin SaveName="Position Feedback" DisplayName="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="215" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Reference Device" DisplayName="Reference Device" DataType="GPIODeviceLink" UniqueID="216" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Low Limit Signal" DisplayName="Low Limit Signal" DataType="Boolean" UniqueID="217" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="High Limit Signal" DisplayName="High Limit Signal" DataType="Boolean" UniqueID="218" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Reference Signal" DisplayName="Reference Signal" DataType="Boolean" UniqueID="219" Boolean="false" Visible="false"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="Position Controlled Axis" DisplayName="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="220" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="221" Real="0" Visible="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="222" Real="0" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -358,6 +383,7 @@
             <Link UniqueID="205" StartPin="164" EndPin="202"/>
             <Link UniqueID="206" StartPin="175" EndPin="203"/>
             <Link UniqueID="207" StartPin="186" EndPin="204"/>
+            <Link UniqueID="223" StartPin="220" EndPin="209"/>
         </Links>
     </NodeGraph>
 </Environnement>

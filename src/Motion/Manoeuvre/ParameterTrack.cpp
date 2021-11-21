@@ -41,7 +41,7 @@ ParameterTrack::ParameterTrack(const ParameterTrack& original) {
 	rampOut = original.rampOut;
 	rampsAreEqual = original.rampsAreEqual;
 	childParameterTracks.clear();
-	for (const auto& childParameterTrack : original.childParameterTracks) {
+	for (auto& childParameterTrack : original.childParameterTracks) {
 		std::shared_ptr<ParameterTrack> childParameterTrackCopy = std::make_shared<ParameterTrack>(*childParameterTrack);
 		childParameterTracks.push_back(childParameterTrackCopy);
 	}
@@ -177,6 +177,9 @@ void ParameterTrack::setInterpolationType(InterpolationType::Type t) {
 
 void ParameterTrack::setSequenceType(SequenceType::Type t) {
 	sequenceType = t;
+	for (auto& childParameterTrack : childParameterTracks) {
+		childParameterTrack->setSequenceType(t);
+	}
 	switch (sequenceType) {
 		case SequenceType::Type::TIMED_MOVE: {
 			//reduce to two curve points
@@ -276,11 +279,11 @@ void ParameterTrack::refreshAfterChainedDependenciesRefresh() {
 
 			//validate curve and validate parameter track
 			b_valid = true;
-			if (!parameter->machine->validateParameterCurve(parameter, curves)) b_valid = false;
-			else if (isNextCrossChained()) b_valid = false;
-			else if (isPreviousCrossChained()) b_valid = false;
-			else if (isNextChainingMasterMissing()) b_valid = false;
-			else if (isPreviousChainingMasterMissing()) b_valid = false;
+			if (!parameter->machine->validateParameterTrack(shared_from_this())) b_valid = false;
+			if (isNextCrossChained()) b_valid = false;
+			if (isPreviousCrossChained()) b_valid = false;
+			if (isNextChainingMasterMissing()) b_valid = false;
+			if (isPreviousChainingMasterMissing()) b_valid = false;
 
 		}break;
 
@@ -296,7 +299,7 @@ void ParameterTrack::refreshAfterChainedDependenciesRefresh() {
 				curves[i]->refresh();
 			}
 			b_valid = true;
-			if (!parameter->machine->validateParameterCurve(parameter, curves)) b_valid = false;
+			if (!parameter->machine->validateParameterTrack(shared_from_this())) b_valid = false;
 		}break;
 	}
 	

@@ -3,6 +3,7 @@
 #include "Machine.h"
 
 #include "Motion/AnimatableParameter.h"
+#include "Motion/Manoeuvre/ParameterTrack.h"
 
 void Machine::addAnimatableParameter(std::shared_ptr<AnimatableParameter> parameter) {
 	parameter->machine = std::dynamic_pointer_cast<Machine>(shared_from_this());
@@ -16,11 +17,11 @@ void Machine::addAnimatableParameter(std::shared_ptr<AnimatableParameter> parame
 	animatableParameters.push_back(parameter);
 }
 
-void Machine::startParameterPlayback(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<ParameterTrack> track) {
+void Machine::startParameterPlayback(std::shared_ptr<ParameterTrack> track) {
 	for (auto& p : animatableParameters) {
-		if (parameter == p) {
-			parameter->actualParameterTrack = track;
-			onParameterPlaybackStart(parameter);
+		if (track->parameter == p) {
+			track->parameter->actualParameterTrack = track;
+			onParameterPlaybackStart(track->parameter);
 		}
 	}
 }

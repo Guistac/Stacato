@@ -6,6 +6,7 @@
 
 #include "Motion/Subdevice.h"
 #include "Motion/AnimatableParameter.h"
+#include "Motion/Manoeuvre/ParameterTrack.h"
 
 #include "Motion/Axis/PositionControlledAxis.h"
 #include "Fieldbus/EtherCatFieldbus.h"
@@ -76,10 +77,9 @@ void Oscillator3x::process() {
 
 	}
 
-
-
-
 }
+
+//======================= STATE CONTROL ========================
 
 bool Oscillator3x::isEnabled() {
 	return false;
@@ -112,118 +112,15 @@ bool Oscillator3x::isMoving() {
 	return false;
 }
 
-void Oscillator3x::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
-	if (parameter == oscillatorParameterGroup) {
-	
-		
-	}
-	else if (parameter == axis1PositionParameter) {
-		
-	}
-	else if (parameter == axis2PositionParameter) {
-	
-	}
-	else if (parameter == axis3PositionParameter) {
-		
-	}
-	else if (parameter == frequencyParameter ||
-		parameter == minAmplitudeParameter ||
-		parameter == maxAmplitudeParameter ||
-		parameter == phaseOffsetParameter) {
-
-		Logger::critical("Oscillator should not receive an oscillator child parameter query, only query the group");
-	}
-}
-
-float Oscillator3x::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
-	return 0.0;
-}
-
-
-bool Oscillator3x::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
-	return false;
-}
-
-void Oscillator3x::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {}
-
-void Oscillator3x::onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter) {}
-
-void Oscillator3x::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {}
-
-
-
-void Oscillator3x::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {}
-
-
-bool Oscillator3x::validateParameterCurve(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& curves) {
-	return false;
-}
-
-bool Oscillator3x::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
-	return true;
-}
-
-void Oscillator3x::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {}
-
-
-void Oscillator3x::getDevices(std::vector<std::shared_ptr<Device>>& output) {
-}
-
-
-void Oscillator3x::enterSimulationMode() {}
-void Oscillator3x::exitSimulationMode() {}
-bool Oscillator3x::isInSimulationMode() {
-	return false;
-}
-
-
-
-bool Oscillator3x::isAxisConnected(int idx) {
-	if (idx == 0) return linearAxis1Pin->isConnected();
-	else if (idx == 1) return linearAxis2Pin->isConnected();
-	else if (idx == 2) return linearAxis3Pin->isConnected();
-	else return false;
-}
-std::shared_ptr<PositionControlledAxis> Oscillator3x::getAxis(int idx) {
-	if (idx == 0) return linearAxis1Pin->getConnectedPins().front()->getPositionControlledAxis();
-	else if (idx == 1) return linearAxis2Pin->getConnectedPins().front()->getPositionControlledAxis();
-	else if (idx == 2) return linearAxis3Pin->getConnectedPins().front()->getPositionControlledAxis();
-	else return nullptr;
-}
-bool Oscillator3x::getAxes(std::vector<std::shared_ptr<PositionControlledAxis>>& output) {
-	output.resize(3, nullptr);
-	bool axisConnected = false;
-	for (int i = 0; i < 3; i++) {
-		if (isAxisConnected(i)) {
-			output[i] = getAxis(i);
-			axisConnected = true;
-		}
-	}
-	return !axisConnected;
-}
-
-
-/*
-bool Oscillator3x::isOscillatorReadyToStartFromNormalizedPosition(double startPosition_normalized) {
-	std::vector<std::shared_ptr<PositionControlledAxis>> axes;
-	if (!getAxes(axes)) return false;
-	for (auto& axis : axes) {
-		if (axis) {
-			
-			
-
-		}
-	}
-}
-*/
+//======================== OSCILLATOR CONTROL ============================
 
 void Oscillator3x::startOscillator() {
-	
+
 }
 
 void Oscillator3x::stopOscillator() {
 	b_oscillatorActive = false;
-	
+
 	for (int i = 0; i < 3; i++) {
 		if (isAxisConnected(i)) getAxis(i)->setVelocityTarget(0.0);
 	}
@@ -233,7 +130,7 @@ void Oscillator3x::stopOscillator() {
 
 
 
-//======= MANUAL CONTROLS ========
+//====================== MANUAL CONTROLS ==========================
 
 void Oscillator3x::setVelocityTarget(int axisIndex, double velocityTarget_normalized) {
 	if (isAxisConnected(axisIndex)) {
@@ -293,3 +190,275 @@ void Oscillator3x::updateMachineLimits() {
 	maxVelocity_normalized = lowestNormalizedVelocity;
 	maxAcceleration_normalized = lowestNormalizedAcceleration;
 }
+
+
+//=========================== AXES & DEVICES ==============================
+
+void Oscillator3x::getDevices(std::vector<std::shared_ptr<Device>>& output) {
+	for (int i = 0; i < 3; i++) {
+		if (isAxisConnected(i)) getAxis(i)->getDevices(output);
+	}
+}
+bool Oscillator3x::isAxisConnected(int idx) {
+	if (idx == 0) return linearAxis1Pin->isConnected();
+	else if (idx == 1) return linearAxis2Pin->isConnected();
+	else if (idx == 2) return linearAxis3Pin->isConnected();
+	else return false;
+}
+std::shared_ptr<PositionControlledAxis> Oscillator3x::getAxis(int idx) {
+	if (idx == 0) return linearAxis1Pin->getConnectedPins().front()->getPositionControlledAxis();
+	else if (idx == 1) return linearAxis2Pin->getConnectedPins().front()->getPositionControlledAxis();
+	else if (idx == 2) return linearAxis3Pin->getConnectedPins().front()->getPositionControlledAxis();
+	else return nullptr;
+}
+bool Oscillator3x::getAxes(std::vector<std::shared_ptr<PositionControlledAxis>>& output) {
+	output.resize(3, nullptr);
+	bool axisConnected = false;
+	for (int i = 0; i < 3; i++) {
+		if (isAxisConnected(i)) {
+			output[i] = getAxis(i);
+			axisConnected = true;
+		}
+	}
+	return !axisConnected;
+}
+
+
+
+
+
+//========================================================================
+//============================ PLOT INTERFACE ============================
+//========================================================================
+
+
+
+void Oscillator3x::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+	if (parameter == frequencyParameter ||
+		parameter == minAmplitudeParameter ||
+		parameter == maxAmplitudeParameter ||
+		parameter == phaseOffsetParameter ||
+		parameter == oscillatorParameterGroup) {
+	
+		//move to start or end
+		
+	}
+	else if (parameter == axis1PositionParameter) {
+		
+	}
+	else if (parameter == axis2PositionParameter) {
+	
+	}
+	else if (parameter == axis3PositionParameter) {
+		
+	}
+}
+
+float Oscillator3x::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
+	if (parameter == frequencyParameter ||
+		parameter == minAmplitudeParameter ||
+		parameter == maxAmplitudeParameter ||
+		parameter == phaseOffsetParameter ||
+		parameter == oscillatorParameterGroup) {
+
+		
+
+	}
+	else if (parameter == axis1PositionParameter) {
+
+	}
+	else if (parameter == axis2PositionParameter) {
+
+	}
+	else if (parameter == axis3PositionParameter) {
+
+	}
+	return 0.0;
+}
+
+
+bool Oscillator3x::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+	if (parameter == frequencyParameter ||
+		parameter == minAmplitudeParameter ||
+		parameter == maxAmplitudeParameter ||
+		parameter == phaseOffsetParameter ||
+		parameter == oscillatorParameterGroup) {
+
+
+	}
+	else if (parameter == axis1PositionParameter) {
+
+	}
+	else if (parameter == axis2PositionParameter) {
+
+	}
+	else if (parameter == axis3PositionParameter) {
+
+	}
+	return false;
+}
+
+void Oscillator3x::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {
+	if (parameter == frequencyParameter ||
+		parameter == minAmplitudeParameter ||
+		parameter == maxAmplitudeParameter ||
+		parameter == phaseOffsetParameter ||
+		parameter == oscillatorParameterGroup) {
+
+		//move to start or end
+
+	}
+	else if (parameter == axis1PositionParameter) {
+
+	}
+	else if (parameter == axis2PositionParameter) {
+
+	}
+	else if (parameter == axis3PositionParameter) {
+
+	}
+}
+
+void Oscillator3x::onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter) {
+	if (parameter == frequencyParameter ||
+		parameter == minAmplitudeParameter ||
+		parameter == maxAmplitudeParameter ||
+		parameter == phaseOffsetParameter ||
+		parameter == oscillatorParameterGroup) {
+
+		//move to start or end
+
+	}
+	else if (parameter == axis1PositionParameter) {
+
+	}
+	else if (parameter == axis2PositionParameter) {
+
+	}
+	else if (parameter == axis3PositionParameter) {
+
+	}
+}
+
+void Oscillator3x::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+	if (parameter == frequencyParameter ||
+		parameter == minAmplitudeParameter ||
+		parameter == maxAmplitudeParameter ||
+		parameter == phaseOffsetParameter ||
+		parameter == oscillatorParameterGroup) {
+
+		//move to start or end
+
+	}
+	else if (parameter == axis1PositionParameter) {
+
+	}
+	else if (parameter == axis2PositionParameter) {
+
+	}
+	else if (parameter == axis3PositionParameter) {
+
+	}
+}
+
+void Oscillator3x::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {
+	if (parameter == frequencyParameter ||
+		parameter == minAmplitudeParameter ||
+		parameter == maxAmplitudeParameter ||
+		parameter == phaseOffsetParameter ||
+		parameter == oscillatorParameterGroup) {
+
+		//move to start or end
+
+	}
+	else if (parameter == axis1PositionParameter) {
+
+	}
+	else if (parameter == axis2PositionParameter) {
+
+	}
+	else if (parameter == axis3PositionParameter) {
+
+	}
+}
+
+
+bool Oscillator3x::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
+	std::shared_ptr<AnimatableParameter> parameter = parameterTrack->parameter;
+	if (parameter == frequencyParameter ||
+		parameter == minAmplitudeParameter ||
+		parameter == maxAmplitudeParameter ||
+		parameter == phaseOffsetParameter ||
+		parameter == oscillatorParameterGroup){
+
+		std::shared_ptr<ParameterTrack> oscillatorParameterTrack;
+		if (parameter == oscillatorParameterGroup) oscillatorParameterTrack = parameterTrack;
+		else oscillatorParameterTrack = parameterTrack->parentParameterTrack;
+		//validate all oscillator parameter tracks
+
+
+	}
+	else if (parameter == axis1PositionParameter) {
+
+	}
+	else if (parameter == axis2PositionParameter) {
+
+	}
+	else if (parameter == axis3PositionParameter) {
+
+	}
+	return false;
+}
+
+bool Oscillator3x::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
+	if (parameter == frequencyParameter ||
+		parameter == minAmplitudeParameter ||
+		parameter == maxAmplitudeParameter ||
+		parameter == phaseOffsetParameter ||
+		parameter == oscillatorParameterGroup) {
+
+		//move to start or end
+
+	}
+	else if (parameter == axis1PositionParameter) {
+
+	}
+	else if (parameter == axis2PositionParameter) {
+
+	}
+	else if (parameter == axis3PositionParameter) {
+
+	}
+
+	return true;
+}
+
+void Oscillator3x::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {
+	if (parameter == frequencyParameter ||
+		parameter == minAmplitudeParameter ||
+		parameter == maxAmplitudeParameter ||
+		parameter == phaseOffsetParameter ||
+		parameter == oscillatorParameterGroup) {
+
+		//move to start or end
+
+	}
+	else if (parameter == axis1PositionParameter) {
+
+	}
+	else if (parameter == axis2PositionParameter) {
+
+	}
+	else if (parameter == axis3PositionParameter) {
+
+	}
+}
+
+
+
+void Oscillator3x::enterSimulationMode() {}
+void Oscillator3x::exitSimulationMode() {}
+bool Oscillator3x::isInSimulationMode() {
+	return false;
+}
+

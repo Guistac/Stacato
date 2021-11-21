@@ -4,6 +4,7 @@
 
 #include "Motion/Axis/PositionControlledAxis.h"
 #include "Motion/AnimatableParameter.h"
+#include "Motion/Manoeuvre/ParameterTrack.h"
 
 #include <tinyxml2.h>
 
@@ -175,17 +176,17 @@ void PositionControlledSingleAxisMachine::cancelParameterRapid(std::shared_ptr<A
 	}
 }
 
-bool PositionControlledSingleAxisMachine::validateParameterCurve(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& curves) {
+bool PositionControlledSingleAxisMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
 	bool b_curveValid = true;
-
 
 	if (!isAxisConnected()) return false;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
-	if (parameter == positionParameter && curves.size() == 1) {
+
+	if (parameterTrack->parameter == positionParameter && parameterTrack->curves.size() == 1) {
 
 		using namespace Motion;
-		std::shared_ptr<Curve> curve = curves.front();
+		std::shared_ptr<Curve> curve = parameterTrack->curves.front();
 
 		for (auto& controlPoint : curve->points) {
 			controlPoint->validationError = ValidationError::Error::NO_VALIDATION_ERROR;
