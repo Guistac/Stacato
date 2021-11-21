@@ -361,9 +361,12 @@ void NodeGraph::editorGui() {
         }
     }
 
-    if (!selectedNodes.empty() && ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE)) {
-        for (auto& node : selectedNodes) {
-            NodeEditor::DeleteNode(node->getUniqueID());
+    if (ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE)){
+        //node editor is hovered and no other item is active (such as text input fields)
+        if (!selectedNodes.empty() && !ImGui::IsAnyItemActive() && ImGui::IsItemHovered()) {
+            for (auto& node : selectedNodes) {
+                NodeEditor::DeleteNode(node->getUniqueID());
+            }
         }
     }
 

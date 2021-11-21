@@ -172,7 +172,6 @@ private:
 	std::vector<std::shared_ptr<NodeLink>> NodeLinks;
 	int uniqueID = -1;
 	bool b_visible = true;
-	bool b_isEditingDisplayName = false;
 
 	NodeData::Type type;
 	DataDirection direction;
