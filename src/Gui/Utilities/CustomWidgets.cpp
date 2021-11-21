@@ -7,6 +7,10 @@
 
 void verticalProgressBar(float fraction, const ImVec2& size_arg){
 
+    if (fraction > 1.0) fraction = 1.0;
+    else if (fraction < 0.0) fraction = 0.0;
+    else if (isnan(fraction)) fraction = 0.0;
+
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) return;
 

@@ -194,6 +194,7 @@ void PositionControlledAxis::disable() {
 	else if (needsServoActuatorDevice()) getServoActuatorDevice()->disable();
 	targetInterpolation->resetValues();
 	manualVelocityTarget_axisUnitsPerSecond = 0.0;
+	setVelocityTarget(0.0);
 	Logger::info("Axis {} disabled", getName());
 }
 

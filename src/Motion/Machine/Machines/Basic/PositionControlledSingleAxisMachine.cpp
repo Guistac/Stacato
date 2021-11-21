@@ -140,7 +140,7 @@ bool PositionControlledSingleAxisMachine::isParameterReadyToStartPlaybackFromVal
 		if (parameter == positionParameter) {
 			if (!isAxisConnected()) return false;
 			std::shared_ptr<PositionControlledAxis> axis = getAxis();
-			return axis->getProfilePosition_axisUnits() == value.realValue && axis->getProfileVelocity_axisUnitsPerSecondSquared() == 0.0;
+			return axis->getProfilePosition_axisUnits() == value.realValue && axis->getProfileVelocity_axisUnitsPerSecond() == 0.0;
 		}
 	}
 	return false;

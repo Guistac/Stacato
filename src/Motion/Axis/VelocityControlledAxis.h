@@ -56,7 +56,7 @@ public:
 	double profileVelocity_axisUnitsPerSecond = 0.0;
 	double profileAcceleration_axisUnitsPerSecondSquared = 0.0;
 
-	double getProfileVelocity_axisUnitsPerSecondSquared() { return profileVelocity_axisUnitsPerSecond; }
+	double getProfileVelocity_axisUnitsPerSecond() { return profileVelocity_axisUnitsPerSecond; }
 	double getProfileAcceleration_axisUnitsPerSecondSquared() { return profileAcceleration_axisUnitsPerSecondSquared; }
 
 	double actualVelocity_axisUnitsPerSecond = 0.0;

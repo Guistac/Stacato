@@ -24,54 +24,64 @@ void Oscillator3x::assignIoData() {
 
 void Oscillator3x::process() {
 
-	double cycleTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
-	double deltaTime_seconds = cycleTime_seconds - previousCycleTime_seconds;
-	previousCycleTime_seconds = cycleTime_seconds;
+	double profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
+	double profileDeltaTime_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 
-	if (!isEnabled()) return;
-	if (!isReady()) disable();
+	if (b_enabled) {
+		if (!isEnabled()) disable();
+		else if (!isReady()) disable();
+	}
 
-
-	if (!b_oscillatorActive
-		&& frequencyParameter->hasParameterTrack()
-		&& phaseOffsetParameter->hasParameterTrack()
-		&& minAmplitudeParameter->hasParameterTrack()
-		&& maxAmplitudeParameter->hasParameterTrack()) {
+	if (b_startOscillator && !b_oscillatorActive) {
+		b_startOscillator = false;
 		b_oscillatorActive = true;
 		oscillatorXOffset_radians = 0.0;
 		axis1NormalizedPosition = 0.0;
 		axis2NormalizedPosition = 0.0;
 		axis3NormalizedPosition = 0.0;
+		for (int i = 0; i < 3; i++) {
+			if (isAxisConnected(i)) getAxis(i)->controlMode = ControlMode::Mode::MACHINE_CONTROL;
+		}
+	}
+	else if (b_stopOscillator && b_oscillatorActive) {
+		b_stopOscillator = false;
+		b_oscillatorActive = false;
+		for (int i = 0; i < 3; i++) {
+			if (isAxisConnected(i)) getAxis(i)->setVelocityTarget(0.0);
+		}
 	}
 
 	if (b_oscillatorActive) {
-	
-		AnimatableParameterValue frequencyValue;
-		frequencyParameter->getActiveTrackParameterValue(frequencyValue);
-		AnimatableParameterValue phaseOffsetValue;
-		frequencyParameter->getActiveTrackParameterValue(phaseOffsetValue);
-		AnimatableParameterValue minAmplitudeValue;
-		minAmplitudeParameter->getActiveTrackParameterValue(minAmplitudeValue);
-		AnimatableParameterValue maxAmplitudeValue;
-		maxAmplitudeParameter->getActiveTrackParameterValue(maxAmplitudeValue);
+		//increment xOffset and get Phase Offset in radians
+		oscillatorXOffset_radians += profileDeltaTime_seconds * oscillatorFrequency_hertz * 2.0 * M_PI;
+		double phaseOffsetRadians = (oscillatorPhaseOffset_percent / 100.0) * 2.0 * M_PI;
 
-		oscillatorXOffset_radians += deltaTime_seconds * frequencyValue.realValue * 2.0 * M_PI;
-		double phaseOffsetRadians = (phaseOffsetValue.realValue / 100.0) * 2.0 * M_PI;
-
-		int axisCount = 3;
-
-		for (int i = 0; i < axisCount; i++) {
-			double axisXOffset_radians = oscillatorXOffset_radians - i * phaseOffsetRadians;
-
+		for (int i = 0; i < 3; i++) {
+			if (!isAxisConnected(i)) continue;
 			std::shared_ptr<PositionControlledAxis> axis = getAxis(i);
-			double low = axis->getLowPositionLimit();
-			double high = axis->getHighPositionLimit();
+			if (!axis->isEnabled()) continue;
 
-			double axisPosition = ((high - low) * (1.0 + std::cos(axisXOffset_radians)) / 2.0) + low;
-			double axisVelocity = low + M_PI * frequencyValue.realValue * (high - low) * std::sin(axisXOffset_radians);
+			//adjust local xOffset for phase offset of each axis
+			double axisXOffset_radians = oscillatorXOffset_radians - i * phaseOffsetRadians;
+			axisXOffset_radians = std::max(axisXOffset_radians, 0.0); //clamp negative xOffset value to 0.0
 
-			axis->profilePosition_axisUnits = axisPosition;
-			axis->profileVelocity_axisUnitsPerSecond = axisVelocity;
+			double positionNormalized;
+			//get oscillator position using frequency and phase offset
+			if (b_startAtLowerLimit) positionNormalized = (1.0 - std::cos(axisXOffset_radians)) / 2.0;
+			else positionNormalized = (1.0 + std::cos(axisXOffset_radians)) / 2.0;
+
+			//adjust for amplitude parameters
+			positionNormalized = oscillatorLowerAmplitude_normalized + positionNormalized * (oscillatorUpperAmplitude_normalized - oscillatorLowerAmplitude_normalized);
+
+			//convert normalized position to axis units
+			double position_axisUnits = axis->getLowPositionLimit() + axis->getRange_axisUnits() * positionNormalized;
+
+			//calculate current axis velocity
+			double velocity_axisUnits = (position_axisUnits - axis->getProfileVelocity_axisUnitsPerSecond()) / profileDeltaTime_seconds;
+
+			//send commands to axis
+			axis->profilePosition_axisUnits = position_axisUnits;
+			axis->profileVelocity_axisUnitsPerSecond = velocity_axisUnits;
 			axis->sendActuatorCommands();
 		}
 
@@ -82,52 +92,74 @@ void Oscillator3x::process() {
 //======================= STATE CONTROL ========================
 
 bool Oscillator3x::isEnabled() {
-	return false;
+	return b_enabled;
 }
 
 bool Oscillator3x::isReady() {
-	if (!isAxisConnected(1) || !getAxis(1)->isReady()) return false;
-	else if (!isAxisConnected(2) || !getAxis(2)->isReady()) return false;
-	else if (!isAxisConnected(3) || !getAxis(3)->isReady()) return false;
-	return true;
+	//the machine is ready when a minimum of 1 axis is ready
+	for (int i = 0; i < 3; i++) {
+		if (isAxisConnected(i) && getAxis(i)->isReady()) return true;
+	}
+	return false;
 }
 
 void Oscillator3x::enable() {
 	if (isReady()) {
-		getAxis(1)->enable();
-		getAxis(2)->enable();
-		getAxis(3)->enable();
-		b_enabled = true;
+		std::thread axisEnabler([this]() {	
+			for (int i = 0; i < 3; i++) {
+				if (isAxisConnected(i)) {
+					getAxis(i)->enable();
+				}
+			}
+			using namespace std::chrono;
+			system_clock::time_point enableTime = system_clock::now();
+			do {
+				bool allReadyEnabled = true;
+				for (int i = 0; i < 3; i++) {
+					if (!isAxisConnected(i)) continue;
+					std::shared_ptr<PositionControlledAxis> axis = getAxis(i);
+					if (axis->isReady() && !axis->isEnabled()) {
+						allReadyEnabled = false;
+					}
+				}
+				if (allReadyEnabled) {
+					b_enabled = true;
+					return Logger::info("Enabled Machine {}", getName());
+				}
+				std::this_thread::sleep_for(milliseconds(15));
+			} while (system_clock::now() - enableTime < milliseconds(100));
+			Logger::warn("Could not enable Machine {}, all axes were not enabled on time", getName());
+			b_enabled = false;
+		});
+		axisEnabler.detach();
 	}
 }
 
 void Oscillator3x::disable() {
-	getAxis(1)->disable();
-	getAxis(2)->disable();
-	getAxis(3)->disable();
+	for (int i = 0; i < 3; i++) {
+		if (isAxisConnected(i)) getAxis(i)->disable();
+	}
+	b_startOscillator = false;
+	b_oscillatorActive = false;
 	b_enabled = false;
 }
 
 bool Oscillator3x::isMoving() {
+	for (int i = 0; i < 3; i++) {
+		if (isAxisConnected(i) && getAxis(i)->isMoving()) return true;
+	}
 	return false;
 }
 
 //======================== OSCILLATOR CONTROL ============================
 
 void Oscillator3x::startOscillator() {
-
+	b_startOscillator = true;
 }
 
 void Oscillator3x::stopOscillator() {
-	b_oscillatorActive = false;
-
-	for (int i = 0; i < 3; i++) {
-		if (isAxisConnected(i)) getAxis(i)->setVelocityTarget(0.0);
-	}
-
+	b_stopOscillator = true;
 }
-
-
 
 
 //====================== MANUAL CONTROLS ==========================
@@ -147,18 +179,42 @@ void Oscillator3x::moveToPosition(int axisIndex, double position_normalized) {
 		double position_axisUnits = position_normalized * axis->getRange_axisUnits() + axis->getLowPositionLimit();
 		double velocity_axisUnits = maxVelocity_normalized * axis->getRange_axisUnits();
 		double acceleration_axisUnits = maxAcceleration_normalized * axis->getRange_axisUnits();
-		stopOscillator();
 		axis->moveToPositionWithVelocity(position_axisUnits, velocity_axisUnits, acceleration_axisUnits);
 	}
 }
 
 void Oscillator3x::moveAllToPosition(double position_normalized) {
-	stopOscillator();
 	for (int i = 0; i < 3; i++) {
 		moveToPosition(i, position_normalized);
 	}
 }
 
+bool Oscillator3x::isOscillatorReadyToStart() {
+	bool b_ready = true;
+	bool noAxisEnabled = true;
+	for (int i = 0; i < 3; i++) {
+		if (isAxisConnected(i)) {
+			std::shared_ptr<PositionControlledAxis> axis = getAxis(i);
+			if (axis->isEnabled()) {
+				noAxisEnabled = false;
+				double rangedPosition_normalized = (axis->getProfilePosition_axisUnits() - axis->getLowPositionLimit()) / axis->getRange_axisUnits();
+				if (b_startAtLowerLimit) {
+					if(std::abs(rangedPosition_normalized - oscillatorLowerAmplitude_normalized) > 0.001) b_ready = false;
+				}
+				else {
+					if(std::abs(rangedPosition_normalized - oscillatorUpperAmplitude_normalized) > 0.001) b_ready = false;
+				}
+			}
+		}
+	}
+	if (noAxisEnabled) return false;
+	return b_ready;
+}
+
+void Oscillator3x::moveToOscillatorStart() {
+	if (b_startAtLowerLimit) moveAllToPosition(oscillatorLowerAmplitude_normalized);
+	else moveAllToPosition(oscillatorUpperAmplitude_normalized);
+}
 
 //================== MACHINE LIMITS ==================
 
@@ -220,7 +276,7 @@ bool Oscillator3x::getAxes(std::vector<std::shared_ptr<PositionControlledAxis>>&
 			axisConnected = true;
 		}
 	}
-	return !axisConnected;
+	return axisConnected;
 }
 
 
