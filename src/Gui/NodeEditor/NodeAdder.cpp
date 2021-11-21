@@ -102,7 +102,7 @@ void nodeAdder() {
         if (ImGui::CollapsingHeader("Motion")) {
             if(ImGui::TreeNode("Axis")){
                 ImGui::PushFont(Fonts::robotoRegular15);
-                for (auto axis : NodeFactory::getAxisTypes()) {
+                for (auto axis : NodeFactory::getAllAxisTypes()) {
                     const char* axisDisplayName = axis->getName();
                     ImGui::Selectable(axisDisplayName);
                     const char* axisSaveName = axis->getSaveName();
@@ -115,20 +115,28 @@ void nodeAdder() {
                 ImGui::TreePop();
                 ImGui::PopFont();
             }
+
+
+
             if (ImGui::TreeNode("Machines")) {
-                ImGui::PushFont(Fonts::robotoRegular15);
-                for (auto machine : NodeFactory::getMachineTypes()) {
-                    const char* machineDisplayName = machine->getName();
-                    ImGui::Selectable(machineDisplayName);
-                    const char* machineSaveName = machine->getSaveName();
-                    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                        ImGui::SetDragDropPayload("Machine", &machineSaveName, sizeof(const char*));
-                        ImGui::Text(machineDisplayName);
-                        ImGui::EndDragDropSource();
+                for (auto& category : NodeFactory::getMachinesByCategory()) {
+                    if (ImGui::TreeNode(category.name)) {
+                        ImGui::PushFont(Fonts::robotoRegular15);
+                        for (auto& machine : category.nodes) {
+                            const char* machineDisplayName = machine->getName();
+                            ImGui::Selectable(machineDisplayName);
+                            const char* machineSaveName = machine->getSaveName();
+                            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+                                ImGui::SetDragDropPayload("Machine", &machineSaveName, sizeof(const char*));
+                                ImGui::Text(machineDisplayName);
+                                ImGui::EndDragDropSource();
+                            }
+                        }
+                        ImGui::PopFont();
+                        ImGui::TreePop();
                     }
                 }
                 ImGui::TreePop();
-                ImGui::PopFont();
             }
         }
         ImGui::PopFont();
@@ -260,14 +268,23 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
 
     if (ImGui::BeginMenu("Motion")) {
         if (ImGui::BeginMenu("Axis")) {
-            for (auto axis : NodeFactory::getAxisTypes()) {
+            for (auto axis : NodeFactory::getAllAxisTypes()) {
                 if (ImGui::MenuItem(axis->getName())) output = axis->getNewNodeInstance();
             }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Machines")) {
-            for (auto machine : NodeFactory::getMachineTypes()) {
-                if (ImGui::MenuItem(machine->getName())) output = machine->getNewNodeInstance();
+            for (auto& category : NodeFactory::getMachinesByCategory()) {
+                if (ImGui::BeginMenu(category.name)) {
+                
+                    for (auto& machine : category.nodes) {
+                        
+                        if (ImGui::MenuItem(machine->getName())) output = machine->getNewNodeInstance();
+                    
+                    }
+
+                    ImGui::EndMenu();
+                }
             }
             ImGui::EndMenu();
         }

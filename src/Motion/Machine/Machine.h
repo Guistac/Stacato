@@ -13,9 +13,9 @@ class AnimatableParameter;
 class AnimatableParameterValue;
 class Device;
 
-#define DEFINE_MACHINE_NODE(className, nodeName, saveName) public:									\
+#define DEFINE_MACHINE_NODE(className, nodeName, saveName, category) public:						\
 	virtual const char* getSaveName() { return saveName; }											\
-	virtual const char* getNodeCategory() { return "Machine"; }										\
+	virtual const char* getNodeCategory() { return category; }										\
 	className(){ setName(nodeName); }																\
 	virtual Node::Type getType() { return Node::Type::MACHINE; }									\
 	virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\

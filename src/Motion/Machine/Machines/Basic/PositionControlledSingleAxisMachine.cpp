@@ -272,7 +272,9 @@ void PositionControlledSingleAxisMachine::getTimedParameterCurveTo(const std::sh
 
 
 
-
+void PositionControlledSingleAxisMachine::enterSimulationMode() {}
+void PositionControlledSingleAxisMachine::exitSimulationMode() {}
+bool PositionControlledSingleAxisMachine::isInSimulationMode() { return false; }
 
 
 

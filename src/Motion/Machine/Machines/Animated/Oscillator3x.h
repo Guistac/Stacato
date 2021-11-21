@@ -4,7 +4,7 @@
 
 class Oscillator3x : public Machine {
 	
-	DEFINE_MACHINE_NODE(Oscillator3x, "Triple Oscillator", "TripleOscillator")
+	DEFINE_MACHINE_NODE(Oscillator3x, "Triple Oscillator", "TripleOscillator", "Oscillators")
 
 	std::shared_ptr<NodePin> linearAxis1Pin = std::make_shared<NodePin>(NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, DataDirection::NODE_INPUT, "Linear Axis 1");
 	std::shared_ptr<NodePin> linearAxis2Pin = std::make_shared<NodePin>(NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, DataDirection::NODE_INPUT, "Linear Axis 2");
@@ -32,6 +32,6 @@ class Oscillator3x : public Machine {
 	bool b_primingToOscillatorStart = false;
 
 	bool isAxisConnected(int);
-	std::shared_ptr<Axis> getAxis(int);
+	std::shared_ptr<PositionControlledAxis> getAxis(int);
 
 };

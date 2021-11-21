@@ -12,12 +12,11 @@ namespace NodeFactory {
 	void loadNodes();
 
 	std::shared_ptr<Node> getNodeBySaveName(const char* name);
-	
 	std::vector<NodeGroup>& getNodesByCategory();
 
 	std::shared_ptr<Node> getAxisBySaveName(const char* name);
-	std::vector<Node*>& getAxisTypes();
+	std::vector<Node*>& getAllAxisTypes();
 
 	std::shared_ptr<Node> getMachineBySaveName(const char* name);
-	std::vector<Node*>& getMachineTypes();
+	std::vector<NodeGroup>& getMachinesByCategory();
 }

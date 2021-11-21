@@ -5,14 +5,16 @@
 #include <imgui.h>
 #include <implot.h>
 
-#include "Motion/Axis/Axis.h"
+#include "Motion/Axis/PositionControlledAxis.h"
+
+#include "Utilities/CircularBuffer.h"
 
 void Oscillator3x::controlsGui() {
 
-	std::vector<std::shared_ptr<Axis>> axes;
-	if (axis1Pin->isConnected()) axes.push_back(axis1Pin->getConnectedPins().front()->getAxis());
-	if (axis2Pin->isConnected()) axes.push_back(axis2Pin->getConnectedPins().front()->getAxis());
-	if (axis3Pin->isConnected()) axes.push_back(axis3Pin->getConnectedPins().front()->getAxis());
+	std::vector<std::shared_ptr<PositionControlledAxis>> axes;
+	if (linearAxis1Pin->isConnected()) axes.push_back(linearAxis1Pin->getConnectedPins().front()->getPositionControlledAxis());
+	if (linearAxis2Pin->isConnected()) axes.push_back(linearAxis2Pin->getConnectedPins().front()->getPositionControlledAxis());
+	if (linearAxis3Pin->isConnected()) axes.push_back(linearAxis3Pin->getConnectedPins().front()->getPositionControlledAxis());
 
 	if (axes.empty()) return;
 
@@ -20,10 +22,10 @@ void Oscillator3x::controlsGui() {
 	double lowestNormalizedAcceleration = std::numeric_limits<double>::infinity();
 
 	for (auto& axis : axes) {
-		double highLimit = axis->getHighPositionLimitWithClearance();
-		double lowLimit = axis->getLowPositionLimitWithClearance();
-		double velocityLimit = axis->velocityLimit_axisUnitsPerSecond;
-		double accelerationLimit = axis->accelerationLimit_axisUnitsPerSecondSquared;
+		double highLimit = axis->getHighPositionLimit();
+		double lowLimit = axis->getLowPositionLimit();
+		double velocityLimit = axis->getVelocityLimit_axisUnitsPerSecond();
+		double accelerationLimit = axis->getAccelerationLimit_axisUnitsPerSecondSquared();
 
 		double motionRange = highLimit - lowLimit;
 		double normalizedVelocityLimit = velocityLimit / motionRange;
@@ -40,8 +42,8 @@ void Oscillator3x::controlsGui() {
 	if (ImGui::TreeNode("Axis Info")) {
 
 		for (auto& axis : axes) {
-			double highLimit = axis->getHighPositionLimitWithClearance();
-			double lowLimit = axis->getLowPositionLimitWithClearance();
+			double highLimit = axis->getHighPositionLimit();
+			double lowLimit = axis->getLowPositionLimit();
 			double velocityLimit = axis->velocityLimit_axisUnitsPerSecond;
 			double accelerationLimit = axis->accelerationLimit_axisUnitsPerSecondSquared;
 
@@ -174,9 +176,9 @@ void Oscillator3x::settingsGui() {}
 
 void Oscillator3x::axisGui() {
 
-	std::shared_ptr<Axis> axis1 = axis1Pin->getConnectedPins().front()->getAxis();
-	std::shared_ptr<Axis> axis2 = axis2Pin->getConnectedPins().front()->getAxis();
-	std::shared_ptr<Axis> axis3 = axis3Pin->getConnectedPins().front()->getAxis();
+	std::shared_ptr<Axis> axis1 = linearAxis1Pin->getConnectedPins().front()->getPositionControlledAxis();
+	std::shared_ptr<Axis> axis2 = linearAxis2Pin->getConnectedPins().front()->getPositionControlledAxis();
+	std::shared_ptr<Axis> axis3 = linearAxis3Pin->getConnectedPins().front()->getPositionControlledAxis();
 
 	if (ImGui::BeginTabBar("AxisTabBar")) {
 	

@@ -7,13 +7,13 @@
 #include "Motion/Subdevice.h"
 #include "Motion/AnimatableParameter.h"
 
-#include "Motion/Axis/Axis.h"
+#include "Motion/Axis/PositionControlledAxis.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 
 void Oscillator3x::assignIoData() {
-	addIoData(axis1Pin);
-	addIoData(axis2Pin);
-	addIoData(axis3Pin);
+	addIoData(linearAxis1Pin);
+	addIoData(linearAxis2Pin);
+	addIoData(linearAxis3Pin);
 
 	std::shared_ptr<Machine> thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
 
@@ -77,16 +77,16 @@ void Oscillator3x::process() {
 		for (int i = 0; i < axisCount; i++) {
 			double axisXOffset_radians = oscillatorXOffset_radians - i * phaseOffsetRadians;
 
-			std::shared_ptr<Axis> axis = getAxis(i+1);
-			double low = axis->getLowPositionLimitWithClearance();
-			double high = axis->getHighPositionLimitWithClearance();
+			std::shared_ptr<PositionControlledAxis> axis = getAxis(i+1);
+			double low = axis->getLowPositionLimit();
+			double high = axis->getHighPositionLimit();
 
 			double axisPosition = ((high - low) * (1.0 + std::cos(axisXOffset_radians)) / 2.0) + low;
 			double axisVelocity = low + M_PI * frequencyValue.realValue * (high - low) * std::sin(axisXOffset_radians);
 
 			axis->profilePosition_axisUnits = axisPosition;
 			axis->profileVelocity_axisUnitsPerSecond = axisVelocity;
-			axis->setActuatorCommands();
+			axis->sendActuatorCommands();
 		}
 
 	}
@@ -174,9 +174,6 @@ void Oscillator3x::getActualParameterValue(std::shared_ptr<AnimatableParameter> 
 
 void Oscillator3x::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {}
 
-void Oscillator3x::startParameterPlayback(std::shared_ptr<AnimatableParameter> parameters) {}
-void Oscillator3x::stopParameterPlayback(std::shared_ptr<AnimatableParameter> parameters) {}
-
 
 bool Oscillator3x::validateParameterCurve(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& curves) {
 	return false;
@@ -202,14 +199,14 @@ bool Oscillator3x::isInSimulationMode() {
 
 
 bool Oscillator3x::isAxisConnected(int idx) {
-	if (idx == 1) return axis1Pin->isConnected();
-	else if (idx == 2) return axis2Pin->isConnected();
-	else if (idx == 3) return axis3Pin->isConnected();
+	if (idx == 1) return linearAxis1Pin->isConnected();
+	else if (idx == 2) return linearAxis2Pin->isConnected();
+	else if (idx == 3) return linearAxis3Pin->isConnected();
 	else return false;
 }
-std::shared_ptr<Axis> Oscillator3x::getAxis(int idx) {
-	if (idx == 1) return axis1Pin->getConnectedPins().front()->getAxis();
-	else if (idx == 2) return axis2Pin->getConnectedPins().front()->getAxis();
-	else if (idx == 3) return axis3Pin->getConnectedPins().front()->getAxis();
+std::shared_ptr<PositionControlledAxis> Oscillator3x::getAxis(int idx) {
+	if (idx == 1) return linearAxis1Pin->getConnectedPins().front()->getPositionControlledAxis();
+	else if (idx == 2) return linearAxis2Pin->getConnectedPins().front()->getPositionControlledAxis();
+	else if (idx == 3) return linearAxis3Pin->getConnectedPins().front()->getPositionControlledAxis();
 	else return nullptr;
 }

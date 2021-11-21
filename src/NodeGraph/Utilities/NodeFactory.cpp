@@ -22,6 +22,7 @@ namespace NodeFactory {
 
 	std::vector<Node*> allAxisNodes;
 	std::vector<Node*> allMachineNodes;
+	std::vector<NodeGroup> machinesByCategory;
 
 	void loadNodes() {
 
@@ -78,6 +79,25 @@ namespace NodeFactory {
 				nodesByCategory.back().nodes.push_back(node);
 			}
 		}
+
+		for (Node* node : allMachineNodes) {
+			const char* category = node->getNodeCategory();
+			bool categoryExists = false;
+			for (NodeGroup& group : nodesByCategory) {
+				if (strcmp(category, group.name) == 0) {
+					categoryExists = true;
+					group.nodes.push_back(node);
+					break;
+				}
+			}
+			if (!categoryExists) {
+				machinesByCategory.push_back(NodeGroup());
+				strcpy(machinesByCategory.back().name, node->getNodeCategory());
+				machinesByCategory.back().nodes.push_back(node);
+			}
+		}
+
+
 	}
 
 	std::shared_ptr<Node> getNodeBySaveName(const char* saveName) {
@@ -87,7 +107,9 @@ namespace NodeFactory {
 		return nullptr;
 	}
 
-	std::vector<NodeGroup>& getNodesByCategory() { return nodesByCategory; }
+	std::vector<NodeGroup>& getNodesByCategory() {
+		return nodesByCategory;
+	}
 
 	std::shared_ptr<Node> getAxisBySaveName(const char* saveName) {
 		for (Node* axis : allAxisNodes) {
@@ -95,11 +117,9 @@ namespace NodeFactory {
 		}
 		return nullptr;
 	}
-	
-	std::vector<Node*>& getAxisTypes() {
+	std::vector<Node*>& getAllAxisTypes() {
 		return allAxisNodes;
 	}
-
 
 	std::shared_ptr<Node> getMachineBySaveName(const char* saveName) {
 		for (Node* machine : allMachineNodes) {
@@ -107,8 +127,8 @@ namespace NodeFactory {
 		}
 		return nullptr;
 	}
-	std::vector<Node*>& getMachineTypes() {
-		return allMachineNodes;
+	std::vector<NodeGroup>& getMachinesByCategory() {
+		return machinesByCategory;
 	}
 
 }
