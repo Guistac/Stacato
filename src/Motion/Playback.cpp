@@ -116,10 +116,8 @@ namespace Playback {
 					break;
 				case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
 					for (auto& track : manoeuvre->tracks) {
-
 						track->playbackPosition_seconds = manoeuvre->playbackPosition_seconds;
-						track->parameter->machine->startParameterPlayback(track->parameter, track);
-
+						track->parameter->machine->startParameterPlayback(track);
 					}
 					break;
 			}
@@ -153,7 +151,7 @@ namespace Playback {
 						manoeuvre->playbackStartTime_seconds = time - manoeuvre->playbackPosition_seconds;
 						for (auto& track : manoeuvre->tracks) {
 							track->playbackPosition_seconds = manoeuvre->playbackPosition_seconds;
-							track->parameter->machine->startParameterPlayback(track->parameter, track);
+							track->parameter->machine->startParameterPlayback(track);
 						}
 					}
 					break;

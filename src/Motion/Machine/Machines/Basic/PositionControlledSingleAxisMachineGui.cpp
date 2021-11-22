@@ -289,7 +289,7 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 		verticalProgressBar(velocityProgress, verticalSliderSize);
 		ImGui::SameLine();
 		verticalProgressBar(positionProgress, verticalSliderSize);
-
+		
 
 		ImGui::PushFont(Fonts::robotoRegular12);
 		glm::vec2 feedbackButtonSize(verticalSliderSize.x, ImGui::GetTextLineHeight());

@@ -13,6 +13,12 @@
 
 ParameterTrack::ParameterTrack(std::shared_ptr<AnimatableParameter>& param, std::shared_ptr<Manoeuvre> m) : parameter(param), parentManoeuvre(m) {
 	initialize();
+	if (parameter->dataType == ParameterDataType::Type::PARAMETER_GROUP) {
+		for (auto& childParameter : parameter->childParameters) {
+			std::shared_ptr<ParameterTrack> childParameterTrack = std::make_shared<ParameterTrack>(childParameter, m);
+			childParameterTracks.push_back(childParameterTrack);
+		}
+	}
 }
 
 //COPY CONSTRUCTOR
@@ -34,6 +40,11 @@ ParameterTrack::ParameterTrack(const ParameterTrack& original) {
 	rampIn = original.rampIn;
 	rampOut = original.rampOut;
 	rampsAreEqual = original.rampsAreEqual;
+	childParameterTracks.clear();
+	for (auto& childParameterTrack : original.childParameterTracks) {
+		std::shared_ptr<ParameterTrack> childParameterTrackCopy = std::make_shared<ParameterTrack>(*childParameterTrack);
+		childParameterTracks.push_back(childParameterTrackCopy);
+	}
 }
 
 int ParameterTrack::getCurveCount() {
@@ -50,6 +61,7 @@ int ParameterTrack::getCurveCount() {
 		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
 		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
 			return 3;
+		case ParameterDataType::Type::PARAMETER_GROUP:
 		default:
 			return 0;
 	}
@@ -165,6 +177,9 @@ void ParameterTrack::setInterpolationType(InterpolationType::Type t) {
 
 void ParameterTrack::setSequenceType(SequenceType::Type t) {
 	sequenceType = t;
+	for (auto& childParameterTrack : childParameterTracks) {
+		childParameterTrack->setSequenceType(t);
+	}
 	switch (sequenceType) {
 		case SequenceType::Type::TIMED_MOVE: {
 			//reduce to two curve points
@@ -244,6 +259,10 @@ void ParameterTrack::refreshAfterChainedDependenciesRefresh() {
 		endPoints[i]->velocity = 0.0;
 	}
 
+	if (parameter->dataType == ParameterDataType::Type::PARAMETER_GROUP) {
+		b_valid = true; //TODO; implement validation for group tracks in a proper manner
+	}
+
 	switch (sequenceType) {
 		case SequenceType::Type::TIMED_MOVE: {
 
@@ -264,11 +283,11 @@ void ParameterTrack::refreshAfterChainedDependenciesRefresh() {
 
 			//validate curve and validate parameter track
 			b_valid = true;
-			if (!parameter->machine->validateParameterCurve(parameter, curves)) b_valid = false;
-			else if (isNextCrossChained()) b_valid = false;
-			else if (isPreviousCrossChained()) b_valid = false;
-			else if (isNextChainingMasterMissing()) b_valid = false;
-			else if (isPreviousChainingMasterMissing()) b_valid = false;
+			if (!parameter->machine->validateParameterTrack(shared_from_this())) b_valid = false;
+			if (isNextCrossChained()) b_valid = false;
+			if (isPreviousCrossChained()) b_valid = false;
+			if (isNextChainingMasterMissing()) b_valid = false;
+			if (isPreviousChainingMasterMissing()) b_valid = false;
 
 		}break;
 
@@ -284,7 +303,7 @@ void ParameterTrack::refreshAfterChainedDependenciesRefresh() {
 				curves[i]->refresh();
 			}
 			b_valid = true;
-			if (!parameter->machine->validateParameterCurve(parameter, curves)) b_valid = false;
+			if (!parameter->machine->validateParameterTrack(shared_from_this())) b_valid = false;
 		}break;
 	}
 	

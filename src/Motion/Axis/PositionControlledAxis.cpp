@@ -56,7 +56,11 @@ void PositionControlledAxis::process() {
 	if (needsServo) servoActuatorDevice = getServoActuatorDevice();
 
 	//get reference signals
-	if (needsReference) updateReferenceSignals();
+	if (needsReference) {
+		updateReferenceSignals();
+		if (lowLimitSignal && profileVelocity_axisUnitsPerSecond < 0.0) fastStop();
+		if (highLimitSignal && profileVelocity_axisUnitsPerSecond > 0.0) fastStop();
+	}
 
 	//handle device state transitions
 	if (b_enabled) {
@@ -185,6 +189,7 @@ void PositionControlledAxis::onEnable() {
 	targetInterpolation->resetValues();
 	manualVelocityTarget_axisUnitsPerSecond = 0.0;
 	b_enabled = true;
+	b_isHoming = false;
 	Logger::info("Axis '{}' was enabled", getName());
 }
 
@@ -193,7 +198,9 @@ void PositionControlledAxis::disable() {
 	if (needsActuatorDevice()) getActuatorDevice()->disable();
 	else if (needsServoActuatorDevice()) getServoActuatorDevice()->disable();
 	targetInterpolation->resetValues();
+	b_isHoming = false;
 	manualVelocityTarget_axisUnitsPerSecond = 0.0;
+	setVelocityTarget(0.0);
 	Logger::info("Axis {} disabled", getName());
 }
 
@@ -689,7 +696,7 @@ void PositionControlledAxis::homingControl() {
 				break;
 			case Step::SEARCHING_LOW_LIMIT_COARSE:
 				setVelocityTarget(-homingVelocity_axisUnitsPerSecond);
-				if (!previousLowLimitSignal && lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_COARSE;
+				if (/*!previousLowLimitSignal && */lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_COARSE;
 				break;
 			case Step::FOUND_LOW_LIMIT_COARSE:
 				setVelocityTarget(0.0);
@@ -729,7 +736,7 @@ void PositionControlledAxis::homingControl() {
 					break;
 				case Step::SEARCHING_LOW_LIMIT_COARSE:
 					setVelocityTarget(-homingVelocity_axisUnitsPerSecond);
-					if (!previousHighLimitSignal && highLimitSignal) {
+					if (/*!previousHighLimitSignal && */highLimitSignal) {
 						homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
 						onHomingError();
 					}
@@ -761,7 +768,7 @@ void PositionControlledAxis::homingControl() {
 					break;
 				case Step::SEARCHING_HIGH_LIMIT_COARSE:
 					setVelocityTarget(homingVelocity_axisUnitsPerSecond);
-					if (!previousLowLimitSignal && lowLimitSignal) {
+					if (/*!previousLowLimitSignal && */lowLimitSignal) {
 						homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
 						onHomingError();
 					}
@@ -805,7 +812,7 @@ void PositionControlledAxis::homingControl() {
 					break;
 				case Step::SEARCHING_HIGH_LIMIT_COARSE:
 					setVelocityTarget(homingVelocity_axisUnitsPerSecond);
-					if (!previousLowLimitSignal && lowLimitSignal) {
+					if (/*!previousLowLimitSignal && */lowLimitSignal) {
 						homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
 						onHomingError();
 					}
@@ -837,7 +844,7 @@ void PositionControlledAxis::homingControl() {
 					break;
 				case Step::SEARCHING_LOW_LIMIT_COARSE:
 					setVelocityTarget(-homingVelocity_axisUnitsPerSecond);
-					if (!previousHighLimitSignal && highLimitSignal) {
+					if (/*!previousHighLimitSignal && */highLimitSignal) {
 						homingError = Error::TRIGGERED_WRONG_LIMIT_SIGNAL;
 						onHomingError();
 					}
@@ -884,7 +891,7 @@ void PositionControlledAxis::homingControl() {
 					break;
 				case Step::SEARCHING_REFERENCE_FROM_BELOW_COARSE:
 					setVelocityTarget(homingVelocity_axisUnitsPerSecond);
-					if (!previousReferenceSignal && referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_BELOW_COARSE;
+					if (/*!previousReferenceSignal && */referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_BELOW_COARSE;
 					break;
 				case Step::FOUND_REFERENCE_FROM_BELOW_COARSE:
 					setVelocityTarget(0.0);
@@ -926,7 +933,7 @@ void PositionControlledAxis::homingControl() {
 					break;
 				case Step::SEARCHING_REFERENCE_FROM_ABOVE_COARSE:
 					setVelocityTarget(-homingVelocity_axisUnitsPerSecond);
-					if (!previousReferenceSignal && referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_ABOVE_COARSE;
+					if (/*!previousReferenceSignal && */referenceSignal) homingStep = Step::FOUND_REFERENCE_FROM_ABOVE_COARSE;
 					break;
 				case Step::FOUND_REFERENCE_FROM_ABOVE_COARSE:
 					setVelocityTarget(0.0);

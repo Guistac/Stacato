@@ -95,6 +95,11 @@ public:
 	double rampOut = 0.1;
 	bool rampsAreEqual = true;
 
+	std::shared_ptr<ParameterTrack> parentParameterTrack = nullptr;
+	std::vector<std::shared_ptr<ParameterTrack>> childParameterTracks;
+	bool hasChildParameterTracks() { return !childParameterTracks.empty(); }
+	bool hasParentParameterTrack() { return parentParameterTrack != nullptr; }
+
 	//gui stuff
 	bool sequenceTypeSelectorGui();
 	bool interpolationTypeSelectorGui();

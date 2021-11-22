@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NodeGraph/Node.h"
+#include "Motion/AnimatableParameter.h"
 
 namespace Motion {
 	struct ControlPoint;
@@ -9,8 +10,6 @@ namespace Motion {
 }
 
 class ParameterTrack;
-class AnimatableParameter;
-class AnimatableParameterValue;
 class Device;
 
 #define DEFINE_MACHINE_NODE(className, nodeName, saveName, category) public:						\
@@ -42,7 +41,7 @@ class Device;
 	virtual void onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter);\
 	virtual void onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter);\
 	virtual void getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
-	virtual bool validateParameterCurve(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& curves);\
+	virtual bool validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack);\
 	virtual void getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves);\
 	virtual bool getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit);\
 	virtual void enterSimulationMode();\
@@ -54,6 +53,8 @@ public:
 
 	char shortName[16] = "M-1";
 	const char* getShortName() { return shortName; }
+
+	void addAnimatableParameter(std::shared_ptr<AnimatableParameter> parameter);
 
 	virtual void nodeSpecificGui();
 	virtual void stateControlGui();
@@ -91,7 +92,7 @@ public:
 	virtual bool isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
 
 	//===== PLAYBACK CONTROL ======
-	void startParameterPlayback(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<ParameterTrack> track);
+	void startParameterPlayback(std::shared_ptr<ParameterTrack> track);
 	void stopParameterPlayback(std::shared_ptr<AnimatableParameter> parameter);
 	virtual void onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) = 0;
 	virtual void onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter) = 0;
@@ -100,7 +101,7 @@ public:
 	virtual void getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
 
 	//======= PARAMETER TRACK VALIDATION ======
-	virtual bool validateParameterCurve(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& curves) = 0;
+	virtual bool validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) = 0;
 	virtual bool getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) = 0;
 	
 	//======= TIMED MOVEMENT ======

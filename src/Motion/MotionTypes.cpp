@@ -238,7 +238,7 @@ HomingDirection* getHomingDirection(HomingDirection::Type t) {
 
 HomingDirection* getHomingDirection(const char* saveName) {
 	for (HomingDirection& direction : homingDirectionTypes) {
-		if (strcmp(saveName, direction.saveName)) return &direction;
+		if (strcmp(saveName, direction.saveName) == 0) return &direction;
 	}
 	return nullptr;
 }
