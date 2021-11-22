@@ -207,6 +207,28 @@ bool Lexium32::startupConfiguration() {
 
     //=============== PROCESS DATA ASSIGNEMENT =============== 
 
+    /*
+    rxPdoAssignement.clear();
+    txPdoAssignement.clear();
+
+    rxPdoAssignement.addNewModule(0x1603);
+    rxPdoAssignement.addEntry(0x6040, 0x0, 16, "DCOMcontrol", &DCOMcontrol);
+    rxPdoAssignement.addEntry(0x6060, 0x0, 8, "DCOMopmode", &DCOMopmode);
+    rxPdoAssignement.addEntry(0x607A, 0x0, 32, "PPp_target", &PPp_target);
+    rxPdoAssignement.addEntry(0x60FF, 0x0, 32, "PVv_target", &PVv_target);
+    rxPdoAssignement.addEntry(0x3008, 0x11, 16, "IO_DQ_set", &IO_DQ_set);
+
+    txPdoAssignement.addNewModule(0x1A03);
+    txPdoAssignement.addEntry(0x6041, 0x0, 16, "_DCOMstatus", &_DCOMstatus);
+    txPdoAssignement.addEntry(0x6061, 0x0, 8, "_DCOMopmd_act", &_DCOMopmd_act);
+    txPdoAssignement.addEntry(0x6064, 0x0, 32, "_p_act", &_p_act);
+    txPdoAssignement.addEntry(0x606C, 0x0, 32, "_v_act", &_v_act);
+    txPdoAssignement.addEntry(0x301E, 0x3, 16, "_I_act", &_I_act);
+    txPdoAssignement.addEntry(0x603F, 0x0, 16, "_LastError", &_LastError);
+    txPdoAssignement.addEntry(0x3008, 0x1, 16, "_IO_act", &_IO_act);
+    txPdoAssignement.addEntry(0x3008, 0x26, 16, "_IO_STO_act", &_IO_STO_act);
+    */
+
     rxPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C12);
     txPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C13);
 
