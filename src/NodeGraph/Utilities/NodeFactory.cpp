@@ -14,6 +14,7 @@
 #include "Motion/Machine/Machines/Basic/PositionControlledSingleAxisMachine.h"
 #include "Motion/Machine/Machines/StateMachines/HoodedLiftStateMachine.h"
 #include "Motion/Machine/Machines/Animated/Oscillator3x.h"
+#include "Motion/Machine/Machines/Animated/BinaryOscillator6x.h"
 
 namespace NodeFactory {
 
@@ -34,7 +35,8 @@ namespace NodeFactory {
 		allMachineNodes = {
 			new PositionControlledSingleAxisMachine(),
 			new HoodedLiftStateMachine(),
-			new Oscillator3x()
+			new Oscillator3x(),
+			new BinaryOscillator6x()
 		};
 
 		allNodes = {
@@ -83,7 +85,7 @@ namespace NodeFactory {
 		for (Node* node : allMachineNodes) {
 			const char* category = node->getNodeCategory();
 			bool categoryExists = false;
-			for (NodeGroup& group : nodesByCategory) {
+			for (NodeGroup& group : machinesByCategory) {
 				if (strcmp(category, group.name) == 0) {
 					categoryExists = true;
 					group.nodes.push_back(node);

@@ -419,10 +419,9 @@ namespace EtherCatFieldbus {
         }
         Logger::info("===== Finished Configuring Distributed Clocks");
 
-        //build ioMap for PDO data, configure FMMU and SyncManager, request SAFE-OP state for all slaves
-        //also assign and execute slave startup methods
-        Logger::debug("===== Begin Building I/O Map and Slave Configuration...");
+        for (auto& slave : slaves) Logger::warn("I am slave {} with index {}", slave->getName(), slave->getSlaveIndex());
 
+        //also assign and execute slave startup methods
         for (int i = 1; i <= ec_slavecount; i++) {
             //set hook callback for configuring the PDOs of each slave
             //we don't use the PO2SOconfigx hook since it isn't supported by ec_reconfig_slave()
@@ -432,14 +431,23 @@ namespace EtherCatFieldbus {
                         sprintf(startupStatusString, "Configuring Slave #%i '%s'", slave->getSlaveIndex(), slave->getName());
                         i_startupProgress = slaveIndex + 1; //for progress bar display
                         Logger::debug("Configuring Slave '{}'", slave->getName());
-                        if (slave->startupConfiguration()) Logger::debug("Successfully configured Slave '{}'", slave->getName());
-                        else Logger::warn("Failed to configure slave '{}'", slave->getName());
-                        break;
+                        bool configurationResult = slave->startupConfiguration();
+                        if (configurationResult) {
+                            Logger::debug("Successfully configured Slave '{}'", slave->getName());
+                            return 1;
+                        }
+                        else {
+                            Logger::warn("Failed to configure slave '{}'", slave->getName());
+                            return 0;
+                        }
                     }
                 }
                 return 0;
             };
         }
+
+        //build ioMap for PDO data, configure FMMU and SyncManager, request SAFE-OP state for all slaves
+        Logger::debug("===== Begin Building I/O Map and Slave Configuration...");
         ioMapSize = ec_config_map(ioMap); //this function starts the configuration
         if (ioMapSize <= 0) {
             b_startupError = true;
