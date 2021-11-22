@@ -454,7 +454,7 @@ namespace EtherCatFieldbus {
         if (ioMapSize <= 0) {
             b_startupError = true;
             sprintf(startupStatusString, "Failed to Configure I/O Map");
-            Logger::error("===== Failed To Configure I/O Map...");
+            Logger::error("===== Failed To Configure I/O Map... (size={})", ioMapSize);
             return false;
         }
         Logger::info("===== Finished Building I/O Map (Size : {} bytes)", ioMapSize);
