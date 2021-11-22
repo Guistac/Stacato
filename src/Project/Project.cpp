@@ -22,6 +22,7 @@ namespace Project {
 
 		strcpy(projectDirectory, dir);
 
+#ifndef MACOS
 		std::string projectFolderPath = std::string(dir) + "/";
 		if (!std::filesystem::is_directory(projectFolderPath)) return false;
 
@@ -31,7 +32,7 @@ namespace Project {
 				break;
 			}
 		}
-
+        
 		std::string stageFolderPath = projectFolderPath + "Stage/";
 		if (!std::filesystem::exists(std::filesystem::path(stageFolderPath))) {}
 
@@ -46,7 +47,7 @@ namespace Project {
                 }
             }
         }
-
+#endif
 		if (plots.empty()) {
 			plots.push_back(std::make_shared<Plot>());
 			strcpy(plots.back()->name, "Default Plot");
@@ -65,7 +66,7 @@ namespace Project {
 	bool saveAs(const char* dir) {
 
 		strcpy(projectDirectory, dir);
-
+#ifndef MACOS
 		std::filesystem::path directory = dir;
 		if (!std::filesystem::exists(directory)) std::filesystem::create_directory(directory);
 
@@ -84,7 +85,7 @@ namespace Project {
 			std::string plotFilePath = plotsFolder + plot->name  + "_" + std::to_string(plot->saveTime) + ".plot";
 			plot->save(plotFilePath.c_str());
 		}
-
+#endif
 		return true;
 	}
 

@@ -16,14 +16,8 @@ if(WIN32)
    message("---SOEM---")
    add_subdirectory(soem)
 elseif(APPLE)
-
-	add_library(SOEM PUBLIC
-		soem/*.h
-		soem/*.c
-		soem/osal/osal.h
-		
-	)
-
+   message("---SOEM---")
+   add_subdirectory(soem)
 endif()
 
 #------ Magnum & Corrade Engine -------
