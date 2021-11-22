@@ -30,6 +30,8 @@ class Oscillator3x : public Machine {
 	double maxOscillationFrequency = 0.0;
 	double maxVelocity_normalized = 0.0;
 	double maxAcceleration_normalized = 0.0;
+	double rapidVelocity_normalized = 0.0;
+	double rapidAcceleration_normalized = 0.0;
 	void updateMachineLimits();
 
 	//=== Machine Settings ===
@@ -60,8 +62,20 @@ class Oscillator3x : public Machine {
 	void moveToPosition(int axis, double position_normalized);
 	void moveAllToPosition(double position_normalized);
 
+	//=== Homing ===
+	void startHoming();
+	void stopHoming();
+	bool isHoming();
+	bool b_startHoming = false;
+	bool b_stopHoming = false;
+	bool b_homing = false;
+
 	//=== Axes ===
 	bool isAxisConnected(int);
 	std::shared_ptr<PositionControlledAxis> getAxis(int);
 	bool getAxes(std::vector<std::shared_ptr<PositionControlledAxis>>& output);
+
+	//=== Saving & Loading ===
+	bool Oscillator3x::save(tinyxml2::XMLElement* xml);
+	bool Oscillator3x::load(tinyxml2::XMLElement* xml);
 };

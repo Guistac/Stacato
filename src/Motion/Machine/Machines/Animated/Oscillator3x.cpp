@@ -30,6 +30,54 @@ void Oscillator3x::process() {
 	if (b_enabled) {
 		if (!isEnabled()) disable();
 		else if (!isReady()) disable();
+		bool noneEnabled = true;
+		for (int i = 0; i < 3; i++) {
+			if (isAxisConnected(i)) {
+				if (getAxis(i)->isEnabled()) {
+					noneEnabled = false;
+					break;
+				}
+			}
+		}
+		if (noneEnabled) disable();
+	}
+
+	if (b_startHoming) {
+		b_startHoming = false;
+		b_homing = true;
+		for (int i = 0; i < 3; i++) {
+			if (isAxisConnected(i)) {
+				getAxis(i)->startHoming();
+			}
+		}
+	}
+	if (b_homing) {
+		bool homingFinished = true;
+		for (int i = 0; i < 3; i++) {
+			if (isAxisConnected(i)) {
+				std::shared_ptr<PositionControlledAxis> axis = getAxis(i);
+				if (axis->homingStep != Homing::Step::FINISHED) {
+					homingFinished = false;
+				}
+				if (axis->homingError != Homing::Error::NONE) {
+					homingFinished = false;
+					b_stopHoming = true;
+				}
+			}
+		}
+		if (homingFinished) {
+			b_homing = false;
+		}
+	}
+	if (b_stopHoming) {
+		b_stopHoming = false;
+		b_homing = false;
+		for (int i = 0; i < 3; i++) {
+			if (isAxisConnected(i)) {
+				getAxis(i)->cancelHoming();
+			}
+		}
+		Logger::warn("Cancel Homing");
 	}
 
 	if (b_startOscillator && !b_oscillatorActive) {
@@ -77,7 +125,7 @@ void Oscillator3x::process() {
 			double position_axisUnits = axis->getLowPositionLimit() + axis->getRange_axisUnits() * positionNormalized;
 
 			//calculate current axis velocity
-			double velocity_axisUnits = (position_axisUnits - axis->getProfileVelocity_axisUnitsPerSecond()) / profileDeltaTime_seconds;
+			double velocity_axisUnits = (position_axisUnits - axis->getProfilePosition_axisUnits()) / profileDeltaTime_seconds;
 
 			//send commands to axis
 			axis->profilePosition_axisUnits = position_axisUnits;
@@ -124,7 +172,8 @@ void Oscillator3x::enable() {
 				}
 				if (allReadyEnabled) {
 					b_enabled = true;
-					return Logger::info("Enabled Machine {}", getName());
+					Logger::info("Enabled Machine {}", getName());
+					return;
 				}
 				std::this_thread::sleep_for(milliseconds(15));
 			} while (system_clock::now() - enableTime < milliseconds(100));
@@ -177,9 +226,9 @@ void Oscillator3x::moveToPosition(int axisIndex, double position_normalized) {
 	if (isAxisConnected(axisIndex)) {
 		std::shared_ptr<PositionControlledAxis> axis = getAxis(axisIndex);
 		double position_axisUnits = position_normalized * axis->getRange_axisUnits() + axis->getLowPositionLimit();
-		double velocity_axisUnits = maxVelocity_normalized * axis->getRange_axisUnits();
-		double acceleration_axisUnits = maxAcceleration_normalized * axis->getRange_axisUnits();
-		axis->moveToPositionWithVelocity(position_axisUnits, velocity_axisUnits, acceleration_axisUnits);
+		double velocity_axisUnitsPerSecond = rapidVelocity_normalized * axis->getRange_axisUnits();
+		double acceleration_axisUnitsPerSecondSquared = rapidAcceleration_normalized * axis->getRange_axisUnits();
+		axis->moveToPositionWithVelocity(position_axisUnits, velocity_axisUnitsPerSecond, acceleration_axisUnitsPerSecondSquared);
 	}
 }
 
@@ -216,6 +265,20 @@ void Oscillator3x::moveToOscillatorStart() {
 	else moveAllToPosition(oscillatorUpperAmplitude_normalized);
 }
 
+//================ HOMING ====================
+
+void Oscillator3x::startHoming() {
+	b_startHoming = true;
+}
+
+void Oscillator3x::stopHoming() {
+	b_stopHoming = true;
+}
+
+bool Oscillator3x::isHoming() {
+	return b_homing;
+}
+
 //================== MACHINE LIMITS ==================
 
 void Oscillator3x::updateMachineLimits() {
@@ -239,8 +302,8 @@ void Oscillator3x::updateMachineLimits() {
 		}
 	}
 
-	double maxFrequencyByVelocity = lowestNormalizedVelocity / (2.0 * M_PI);
-	double maxFrequencyByAcceleration = std::sqrt(lowestNormalizedAcceleration / (4.0 * std::pow(M_PI, 2.0)));
+	double maxFrequencyByVelocity = lowestNormalizedVelocity / M_PI;
+	double maxFrequencyByAcceleration = std::sqrt(lowestNormalizedAcceleration / (2.0 * std::pow(M_PI, 2.0)));
 
 	maxOscillationFrequency = std::min(maxFrequencyByVelocity, maxFrequencyByAcceleration);
 	maxVelocity_normalized = lowestNormalizedVelocity;
@@ -518,3 +581,42 @@ bool Oscillator3x::isInSimulationMode() {
 	return false;
 }
 
+
+
+
+
+
+bool Oscillator3x::save(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+	XMLElement* limitsXML = xml->InsertNewChildElement("Limits");
+	limitsXML->SetAttribute("MaxFrequency", maxOscillationFrequency);
+	limitsXML->SetAttribute("MaxVelocity", maxVelocity_normalized);
+	limitsXML->SetAttribute("MaxAcceleration", maxAcceleration_normalized);
+	XMLElement* rapidsXML = xml->InsertNewChildElement("Rapids");
+	rapidsXML->SetAttribute("Velocity", rapidVelocity_normalized);
+	rapidsXML->SetAttribute("Acceleration", rapidAcceleration_normalized);
+	XMLElement* oscillatorXML = xml->InsertNewChildElement("Oscillator");
+	oscillatorXML->SetAttribute("StartFromLowerLimit", b_startAtLowerLimit);
+	return true;
+}
+
+bool Oscillator3x::load(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+	
+	XMLElement* limitsXML = xml->FirstChildElement("Limits");
+	if (limitsXML == nullptr) return Logger::warn("Could not find limits attribute");
+	if (limitsXML->QueryDoubleAttribute("MaxFrequency", &maxOscillationFrequency) != XML_SUCCESS) return Logger::warn("Could not find max frequency attribute");
+	if (limitsXML->QueryDoubleAttribute("MaxVelocity", &maxVelocity_normalized) != XML_SUCCESS) return Logger::warn("Could not find max velocity attribute");
+	if (limitsXML->QueryDoubleAttribute("MaxAcceleration", &maxAcceleration_normalized) != XML_SUCCESS) return Logger::warn("Could not find max acceleration attribute");
+
+	XMLElement* rapidsXML = xml->FirstChildElement("Rapids");
+	if (rapidsXML == nullptr) return Logger::warn("Could not finds rapids attribute");
+	if (rapidsXML->QueryDoubleAttribute("Velocity", &rapidVelocity_normalized) != XML_SUCCESS) return Logger::warn("Could not find rapid velocity Attribute");
+	if (rapidsXML->QueryDoubleAttribute("Acceleration", &rapidAcceleration_normalized) != XML_SUCCESS) return Logger::warn("Could not find rapid acceleration Attribute");
+
+	XMLElement* oscillatorXML = xml->FirstChildElement("Oscillator");
+	if (oscillatorXML == nullptr) return Logger::warn("Could not find Oscillator Attribute");
+	if (oscillatorXML->QueryBoolAttribute("StartFromLowerLimit", &b_startAtLowerLimit) != XML_SUCCESS) return Logger::warn("Could not find start from lower limit attribute");
+
+	return true;
+}

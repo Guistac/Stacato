@@ -28,13 +28,48 @@ void Oscillator3x::controlsGui() {
 	for (int i = 0; i < 3; i++) {
 		if (axes[i] != nullptr) {
 			ImGui::PushID(i);
-			ImGui::Text(axes[i]->getName());
+
+			std::shared_ptr<PositionControlledAxis> axis = axes[i];
+
+			ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+			ImGui::Button(axis->getName());
+			ImGui::PopItemFlag();
+			ImGui::PopStyleColor();
+
 			ImGui::SameLine();
-			if (axes[i]->isEnabled()) ImGui::Text("Enabled");
-			else if (axes[i]->isReady()) ImGui::Text("Ready");
-			else ImGui::Text("Not Ready");
+
+			if (axis->isEnabled()) {
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+				if (ImGui::Button("Disable")) {
+					axis->disable();
+				}
+			}
+			else if (axes[i]->isReady()) {
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+				if (ImGui::Button("Enable")) {
+					axis->enable();
+				}
+			}
+			else {
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+				ImGui::Button("Not Ready");
+				ImGui::PopItemFlag();
+			}
+			ImGui::PopStyleColor();
+
+			if (axis->isHoming()) {
+				ImGui::SameLine();
+				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+				ImGui::Button(getHomingStep(axis->homingStep)->displayName);
+				ImGui::PopStyleColor();
+				ImGui::PopItemFlag();
+			}
+
 			float velocityTarget = 0.0;
-			ImGui::SliderFloat("##AxisVelocity", &velocityTarget, -1.0, 1.0, "%.3f n/s");
+			ImGui::SliderFloat("##AxisVelocity", &velocityTarget, -maxVelocity_normalized, maxVelocity_normalized, "%.3f n/s");
 			if (ImGui::IsItemActive()) setVelocityTarget(i, velocityTarget);
 			else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocityTarget(i, 0.0);
 			float positionProgress = axes[i]->getActualPosition_normalized();
@@ -45,137 +80,86 @@ void Oscillator3x::controlsGui() {
 		}
 	}
 
+	ImGui::Separator();
+
 	ImGui::PushFont(Fonts::robotoBold20);
 	ImGui::Text("Manual Oscillator Control");
 	ImGui::PopFont();
 
 	ImGui::SliderFloat("##Freq", &oscillatorFrequency_hertz, 0.0, maxOscillationFrequency, "%.5f Hz");
+	bool disableControls = b_oscillatorActive;
+	if(disableControls) BEGIN_DISABLE_IMGUI_ELEMENT
 	ImGui::SliderFloat("##Phase", &oscillatorPhaseOffset_percent, 0.0, 100.0, "%.2f percent");
 	ImGui::SliderFloat("##MinAmp", &oscillatorLowerAmplitude_normalized, 0.0, 1.0, "%.2f n");
 	ImGui::SliderFloat("##MaxAmp", &oscillatorUpperAmplitude_normalized, 0.0, 1.0, "%.2f n");
+	if(disableControls) END_DISABLE_IMGUI_ELEMENT
 
 	float widgetWidth = ImGui::GetItemRectSize().x;
 	glm::vec2 doubleButtonSize((widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, ImGui::GetTextLineHeight() * 2.0);
 
 	if (b_oscillatorActive) {
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 		if (ImGui::Button("Stop Oscillator")) {
 			stopOscillator();
 		}
 	}
 	else if (isOscillatorReadyToStart()) {
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
 		if (ImGui::Button("Start Oscillator")) {
 			startOscillator();
 		}
 	}
-	else {
+	else if(isEnabled()){
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::orange);
 		if (ImGui::Button("Prime Oscillator")) {
 			moveToOscillatorStart();
 		}
 	}
-	ImGui::SameLine();
-
-
-	
-/*
-static double previousTime_seconds = Timing::getProgramTime_seconds();
-double time_seconds = Timing::getProgramTime_seconds();
-double deltaT_seconds = time_seconds - previousTime_seconds;
-previousTime_seconds = time_seconds;
-
-static float frequency = 0.1;
-static float minAmplitude = 0.0;
-static float maxAmplitude = 1.0;
-static float phaseOffset = 0.0;
-static bool startAtZero = false;
-
-static bool running = false;
-static double cycleStartTime = 0.0;
-static double cycleTime = 0.0;
-
-static double xOffset = 0.0;
-static std::vector<double> axisPositions(axes.size(), 0.0);
-static std::vector<CircularBuffer*> axisPositionBuffers;
-static bool b_initialized = false;
-
-if (!b_initialized) {
-	b_initialized = true;
-	for (int i = 0; i < axes.size(); i++) {
-		axisPositionBuffers.push_back(new CircularBuffer(1024));
+	else {
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+		ImGui::Button("Not Ready##Oscillator");
+		ImGui::PopItemFlag();
 	}
-}
+	ImGui::PopStyleColor();
 
-ImGui::SliderFloat("Frequency", &frequency, 0.0, maxFrequency);
-ImGui::SliderFloat("Min Amplitude", &minAmplitude, 0.0, 1.0);
-ImGui::SliderFloat("Max Amplitude", &maxAmplitude, 0.0, 1.0);
-ImGui::SliderFloat("Phase Offset", &phaseOffset, 0.0, 100.0);
-ImGui::Checkbox("Start At Zero", &startAtZero);
-if (running) {
-	if (ImGui::Button("Stop")) running = false;
 	ImGui::SameLine();
-	ImGui::Text("Time: %.3f", cycleTime);
-}
-else {
-	if (ImGui::Button("Start")){
-		running = true;
-		cycleStartTime = time_seconds;
-		for (int i = 0; i < axes.size(); i++) {
-			axisPositions[i] = 0.0;
-			axisPositionBuffers[i]->clear();
+
+	if (ImGui::Button("Stop All")) {
+		for (int i = 0; i < 3; i++) {
+			if (isAxisConnected(i)) setVelocityTarget(i, 0.0);
 		}
-		xOffset = 0.0;
-	}
-}
-
-if (running) {
-	cycleTime = time_seconds - cycleStartTime;
-	xOffset += deltaT_seconds * frequency * 2.0 * M_PI;
-	double phaseOffsetRadians = (phaseOffset / 100.0) * 2.0 * M_PI;
-	for (int i = 0; i < axes.size(); i++) {
-		double axisXOffset = xOffset - i * phaseOffsetRadians;
-		if (axisXOffset < 0.0) axisXOffset = 0.0;
-		double position = cos(axisXOffset);
-		if (startAtZero) position *= -1.0;
-		position = (position + 1.0) / 2.0;
-		position = position * (maxAmplitude - minAmplitude) + minAmplitude;
-		axisPositions[i] = position;
-		axisPositionBuffers[i]->addPoint(glm::vec2(cycleTime, axisPositions[i]));
-	}
-}
-
-
-
-ImGui::Text("XOffset: %.6f  Cycle: %.6f", xOffset, xOffset / (2.0 * M_PI));
-for (int i = 0; i < axes.size(); i++) {
-	ImGui::Text("Axis %i:  Position: %.6f", i, axisPositions[i]);
-}
-
-glm::vec2* firstBuffer;
-axisPositionBuffers.front()->getBuffer(&firstBuffer);
-int bufferSize = axisPositionBuffers.front()->size();
-if (bufferSize == 0) return;
-
-ImPlot::SetNextPlotLimits(firstBuffer[0].x, firstBuffer[bufferSize - 1].x, 0.0, 1.0, ImGuiCond_Always);
-if (ImPlot::BeginPlot("oscillator plot")) {
-
-	for (int i = 0; i < axes.size(); i++) {
-
-		glm::vec2* buffer;
-		size_t bufferSize = axisPositionBuffers[i]->size();
-		axisPositionBuffers[i]->getBuffer(&buffer);
-
-		ImPlot::PlotLine("##line", &buffer[0].x, &buffer[0].y, bufferSize, 0, sizeof(glm::vec2));
-
 	}
 
-	ImPlot::EndPlot();
-}
+	ImGui::Separator();
 
-for (auto position : axisPositions) {
-	float p = position;
-	ImGui::VSliderFloat("##axis1", glm::vec2(50, 500), &p, 0.0, 1.0);
-	ImGui::SameLine();
-}
-*/
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Homing");
+	ImGui::PopFont();
+
+	if (isEnabled()) {
+		if (isHoming()) {
+			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+			if (ImGui::Button("Stop Homing")) {
+				stopHoming();
+			}
+		}
+		else {
+			ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+			if (ImGui::Button("Start Homing")) {
+				startHoming();
+			}
+		}
+	}
+	else {
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+		ImGui::Button("Not Ready##Homing");
+		ImGui::PopItemFlag();
+	}
+	ImGui::PopStyleColor();
+
+
 }
 
 
@@ -206,8 +190,8 @@ void Oscillator3x::settingsGui() {
 				ImGui::TableNextColumn();
 				double maxNormalizedVelocity = axes[i]->getVelocityLimit_axisUnitsPerSecond() / axes[i]->getRange_axisUnits();
 				double maxNormalizedAcceleration = axes[i]->getAccelerationLimit_axisUnitsPerSecondSquared() / axes[i]->getRange_axisUnits();
-				double maxFrequencyByVelocity = maxNormalizedVelocity / (2.0 * M_PI);
-				double maxFrequencyByAcceleration = std::sqrt(maxNormalizedAcceleration / (4.0 * std::pow(M_PI, 2.0)));
+				double maxFrequencyByVelocity = maxNormalizedVelocity / M_PI;
+				double maxFrequencyByAcceleration = std::sqrt(maxNormalizedAcceleration / (2.0 * std::pow(M_PI, 2.0)));
 				ImGui::Text("%.6f Hz", maxFrequencyByVelocity);
 				ImGui::TableNextColumn();
 				ImGui::Text("%.6f Hz", maxFrequencyByAcceleration);
@@ -220,13 +204,24 @@ void Oscillator3x::settingsGui() {
 		ImGui::EndTable();
 	}
 
-	if (ImGui::Button("Update Machine Limits")) {
-		updateMachineLimits();
-	}
-	ImGui::SameLine();
 	ImGui::Text("Max Oscillation Frequency: %.5f", maxOscillationFrequency);
 	ImGui::Text("Max Velocity: %.5f", maxVelocity_normalized);
 	ImGui::Text("Max Acceleration: %.5f", maxAcceleration_normalized);
+	if (ImGui::Button("Update Machine Limits")) updateMachineLimits();
+
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Rapids");
+	ImGui::PopFont();
+
+	ImGui::Text("Velocity :");
+	ImGui::InputDouble("##rapidVel", &rapidVelocity_normalized, 0.0, 0.0, "%.5f n/s");
+	rapidVelocity_normalized = std::min(rapidVelocity_normalized, maxVelocity_normalized);
+	rapidVelocity_normalized = std::max(rapidVelocity_normalized, 0.0);
+	ImGui::Text("Acceleration :");
+	ImGui::InputDouble("##rapidAcc", &rapidAcceleration_normalized, 0.0, 0.0, "%.5f n/s2");
+	rapidAcceleration_normalized = std::min(rapidAcceleration_normalized, maxAcceleration_normalized);
+	rapidAcceleration_normalized = std::max(rapidAcceleration_normalized, 0.0);
+
 }
 
 
@@ -244,8 +239,19 @@ void Oscillator3x::axisGui() {
 			if (axes[i] != nullptr) {
 				ImGui::PushID(i);
 				if (ImGui::BeginTabItem(axes[i]->getName())) {
-					if (ImGui::BeginTabBar("AxisTabs")) {
-						axes[i]->nodeSpecificGui();
+						if (ImGui::BeginTabBar(axes[i]->getName())) {
+						if (ImGui::BeginTabItem("Settings")) {
+							ImGui::BeginChild("SettingsChild");
+							axes[i]->settingsGui();
+							ImGui::EndChild();
+							ImGui::EndTabItem();
+						}
+						if (ImGui::BeginTabItem("Devices")) {
+							ImGui::BeginChild("DevicesChild");
+							axes[i]->devicesGui();
+							ImGui::EndChild();
+							ImGui::EndTabItem();
+						}
 						ImGui::EndTabBar();
 					}
 					ImGui::EndTabItem();
@@ -260,27 +266,88 @@ void Oscillator3x::axisGui() {
 
 
 
-void Oscillator3x::deviceGui() {}
-void Oscillator3x::metricsGui() {}
+void Oscillator3x::deviceGui() {
+	std::vector<std::shared_ptr<PositionControlledAxis>> axes;
+	getAxes(axes);
+
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Metrics");
+	ImGui::PopFont();
+
+	if (ImGui::BeginTabBar("AxisTabBar")) {
+		for (int i = 0; i < axes.size(); i++) {
+			if (axes[i] != nullptr) {
+				ImGui::PushID(i);
+				if (ImGui::BeginTabItem(axes[i]->getName())) {
+					axes[i]->devicesGui();
+					ImGui::EndTabItem();
+				}
+				ImGui::PopID();
+			}
+		}
+		ImGui::EndTabBar();
+	}
+}
+
+
+void Oscillator3x::metricsGui() {
+	std::vector<std::shared_ptr<PositionControlledAxis>> axes;
+	getAxes(axes);
+
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Metrics");
+	ImGui::PopFont();
+
+	if (ImGui::BeginTabBar("AxisTabBar")) {
+		for (int i = 0; i < axes.size(); i++) {
+			if (axes[i] != nullptr) {
+				ImGui::PushID(i);
+				if (ImGui::BeginTabItem(axes[i]->getName())) {
+					axes[i]->metricsGui();
+					ImGui::EndTabItem();
+				}
+				ImGui::PopID();
+			}
+		}
+		ImGui::EndTabBar();
+	}
+}
+
+
 float Oscillator3x::getMiniatureWidth() {
 	return ImGui::GetTextLineHeight() * 10.0;
 }
 void Oscillator3x::machineSpecificMiniatureGui() {
 	glm::vec2 axisChildSize((ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x * 2.0) / 3.0, ImGui::GetContentRegionAvail().y);
-	float bottomSectionHeight = ImGui::GetTextLineHeight() * 3.0;
-	glm::vec2 positionIndicatorSize(ImGui::GetTextLineHeight() * 1.0, axisChildSize.y - bottomSectionHeight);
-	glm::vec2 velocitySliderSize(axisChildSize.x - positionIndicatorSize.x - ImGui::GetStyle().ItemSpacing.x, positionIndicatorSize.y);
+	float sliderHeight = axisChildSize.y - ImGui::GetTextLineHeight() * 3.3;
+	glm::vec2 positionIndicatorSize(ImGui::GetTextLineHeight() * 1.0, sliderHeight);
+	glm::vec2 velocitySliderSize(axisChildSize.x - positionIndicatorSize.x - ImGui::GetStyle().ItemSpacing.x, sliderHeight);
 	for (int i = 0; i < 3; i++) {
 		if (isAxisConnected(i)) {
 			std::shared_ptr<PositionControlledAxis> axis = getAxis(i);
 			ImGui::BeginChild(axis->getName(), axisChildSize);
+
+
+			ImGui::PushFont(Fonts::robotoBold12);
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(0));
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+			ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
+			ImGui::Button(axis->getName(), glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.0));
+			ImGui::PopStyleColor();
+			ImGui::PopItemFlag();
+			ImGui::PopFont();
+
+		
+			ImGui::PopStyleVar();
+			
+
 			float velocityTarget = 0.0;
-			ImGui::VSliderFloat("##Axis1", velocitySliderSize, &velocityTarget, -1.0, 1.0, "");
-			ImGui::SameLine();
-			float axisPositionNormalized = axis->getProfilePosition_axisUnits() / axis->getRange_axisUnits();
-			verticalProgressBar(axisPositionNormalized, positionIndicatorSize);
+			ImGui::VSliderFloat("##Axis1", velocitySliderSize, &velocityTarget, -maxVelocity_normalized, maxVelocity_normalized, "");
 			if (ImGui::IsItemActive()) setVelocityTarget(i, velocityTarget);
 			else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocityTarget(i, 0.0);
+			ImGui::SameLine();
+			float axisPositionNormalized = axis->getActualPosition_normalized();
+			verticalProgressBar(axisPositionNormalized, positionIndicatorSize);
 			static char positionString[32];
 			if (isnan(axisPositionNormalized)) axisPositionNormalized = 0.0;
 			sprintf(positionString, "%.2f", axisPositionNormalized);
@@ -290,9 +357,33 @@ void Oscillator3x::machineSpecificMiniatureGui() {
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
 			ImGui::Button(positionString, glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.0));
 			ImGui::PopStyleColor();
+			ImGui::PopItemFlag();
+			ImGui::PopFont();
+
+			ImGui::PushFont(Fonts::robotoLight12);
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+			glm::vec2 statusButtonSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.0);
+			if (axis->isEnabled()) {
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+				if (ImGui::Button("Enabled", statusButtonSize)) {
+					axis->disable();
+				}
+			}
+			else if (axis->isReady()) {
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+				if (ImGui::Button("Ready", statusButtonSize)) {
+					axis->enable();
+				}
+			}
+			else {
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+				ImGui::Button("Not Ready", statusButtonSize);
+			}
 			ImGui::PopStyleVar();
 			ImGui::PopItemFlag();
 			ImGui::PopFont();
+			ImGui::PopStyleColor();
+			
 			ImGui::EndChild();
 		}
 		else {
