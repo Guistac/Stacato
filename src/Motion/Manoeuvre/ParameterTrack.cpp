@@ -259,6 +259,10 @@ void ParameterTrack::refreshAfterChainedDependenciesRefresh() {
 		endPoints[i]->velocity = 0.0;
 	}
 
+	if (parameter->dataType == ParameterDataType::Type::PARAMETER_GROUP) {
+		b_valid = true; //TODO; implement validation for group tracks in a proper manner
+	}
+
 	switch (sequenceType) {
 		case SequenceType::Type::TIMED_MOVE: {
 

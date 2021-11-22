@@ -81,6 +81,7 @@ void Oscillator3x::process() {
 	}
 
 	if (b_startOscillator && !b_oscillatorActive) {
+		updateOscillatorParametersFromTracks();
 		b_startOscillator = false;
 		b_oscillatorActive = true;
 		oscillatorXOffset_radians = 0.0;
@@ -100,6 +101,7 @@ void Oscillator3x::process() {
 	}
 
 	if (b_oscillatorActive) {
+		updateOscillatorParametersFromTracks();
 		//increment xOffset and get Phase Offset in radians
 		oscillatorXOffset_radians += profileDeltaTime_seconds * oscillatorFrequency_hertz * 2.0 * M_PI;
 		double phaseOffsetRadians = (oscillatorPhaseOffset_percent / 100.0) * 2.0 * M_PI;
@@ -135,6 +137,24 @@ void Oscillator3x::process() {
 
 	}
 
+}void Oscillator3x::updateOscillatorParametersFromTracks() {
+	AnimatableParameterValue value;
+	if (frequencyParameter->hasParameterTrack()) {
+		frequencyParameter->getActiveTrackParameterValue(value);
+		oscillatorFrequency_hertz = value.realValue;
+	}
+	if (minAmplitudeParameter->hasParameterTrack()) {
+		minAmplitudeParameter->getActiveTrackParameterValue(value);
+		oscillatorLowerAmplitude_normalized = value.realValue;
+	}
+	if (maxAmplitudeParameter->hasParameterTrack()) {
+		maxAmplitudeParameter->getActiveTrackParameterValue(value);
+		oscillatorUpperAmplitude_normalized = value.realValue;
+	}
+	if (phaseOffsetParameter->hasParameterTrack()) {
+		phaseOffsetParameter->getActiveTrackParameterValue(value);
+		oscillatorPhaseOffset_percent = value.realValue;
+	}
 }
 
 //======================= STATE CONTROL ========================
@@ -353,57 +373,69 @@ bool Oscillator3x::getAxes(std::vector<std::shared_ptr<PositionControlledAxis>>&
 
 
 void Oscillator3x::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
-	if (parameter == frequencyParameter ||
-		parameter == minAmplitudeParameter ||
-		parameter == maxAmplitudeParameter ||
-		parameter == phaseOffsetParameter ||
-		parameter == oscillatorParameterGroup) {
-	
-		//move to start or end
-		
+	if (parameter == minAmplitudeParameter && b_startAtLowerLimit){
+		moveAllToPosition(value.realValue);
+	}
+	else if (parameter == maxAmplitudeParameter && !b_startAtLowerLimit) {
+		moveAllToPosition(value.realValue);
+	}
+	else if (parameter == frequencyParameter || parameter == phaseOffsetParameter || parameter == oscillatorParameterGroup) {
+		//do nothing here since we don't know the target position from these parameters
 	}
 	else if (parameter == axis1PositionParameter) {
-		
+		moveToPosition(0, value.realValue);
 	}
 	else if (parameter == axis2PositionParameter) {
-	
+		moveToPosition(1, value.realValue);
 	}
 	else if (parameter == axis3PositionParameter) {
-		
+		moveToPosition(2, value.realValue);
 	}
 }
 
 float Oscillator3x::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
-	if (parameter == frequencyParameter ||
-		parameter == minAmplitudeParameter ||
-		parameter == maxAmplitudeParameter ||
-		parameter == phaseOffsetParameter ||
-		parameter == oscillatorParameterGroup) {
-
-		
-
+	if (parameter == minAmplitudeParameter || parameter == maxAmplitudeParameter) {
+		float lowestRapidProgress = 1.0;
+		for (int i = 0; i < 3; i++) {
+			if (isAxisConnected(i)) {
+				std::shared_ptr<PositionControlledAxis> axis = getAxis(i);
+				if (axis->isEnabled()) {
+					float progress = axis->targetInterpolation->getProgressAtTime(EtherCatFieldbus::getCycleProgramTime_seconds());
+					lowestRapidProgress = std::min(lowestRapidProgress, lowestRapidProgress);
+				}
+			}
+		}
+		return lowestRapidProgress;
+	}else if (parameter == frequencyParameter || parameter == phaseOffsetParameter || parameter == oscillatorParameterGroup) {
+		return 1.0;
 	}
 	else if (parameter == axis1PositionParameter) {
-
+		return 0.0;
 	}
 	else if (parameter == axis2PositionParameter) {
-
+		return 0.0;
 	}
 	else if (parameter == axis3PositionParameter) {
-
+		return 0.0;
 	}
 	return 0.0;
 }
 
 
 bool Oscillator3x::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
-	if (parameter == frequencyParameter ||
-		parameter == minAmplitudeParameter ||
-		parameter == maxAmplitudeParameter ||
-		parameter == phaseOffsetParameter ||
-		parameter == oscillatorParameterGroup) {
-
-
+	if (parameter == frequencyParameter || parameter == phaseOffsetParameter || parameter == oscillatorParameterGroup) {
+		return true;
+	}
+	else if (parameter == minAmplitudeParameter) {
+		if (b_startAtLowerLimit) {
+			return isOscillatorReadyToStart();
+		}
+		else return true;
+	}else if(parameter == maxAmplitudeParameter) {
+		if (b_startAtLowerLimit) return true;
+		else {
+			return isOscillatorReadyToStart();
+		}
 	}
 	else if (parameter == axis1PositionParameter) {
 
@@ -418,14 +450,12 @@ bool Oscillator3x::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<Anim
 }
 
 void Oscillator3x::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {
-	if (parameter == frequencyParameter ||
-		parameter == minAmplitudeParameter ||
-		parameter == maxAmplitudeParameter ||
-		parameter == phaseOffsetParameter ||
-		parameter == oscillatorParameterGroup) {
-
-		//move to start or end
-
+	if (parameter == frequencyParameter || parameter == minAmplitudeParameter || parameter == maxAmplitudeParameter || parameter == phaseOffsetParameter) {
+		//do nothing here
+	}
+	else if(parameter == oscillatorParameterGroup) {
+		//start oscillator
+		b_startOscillator = true;
 	}
 	else if (parameter == axis1PositionParameter) {
 
@@ -444,9 +474,8 @@ void Oscillator3x::onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> 
 		parameter == maxAmplitudeParameter ||
 		parameter == phaseOffsetParameter ||
 		parameter == oscillatorParameterGroup) {
-
-		//move to start or end
-
+		//stop Oscillator
+		b_stopOscillator = true;
 	}
 	else if (parameter == axis1PositionParameter) {
 
@@ -487,7 +516,9 @@ void Oscillator3x::cancelParameterRapid(std::shared_ptr<AnimatableParameter> par
 		parameter == phaseOffsetParameter ||
 		parameter == oscillatorParameterGroup) {
 
-		//move to start or end
+		for (int i = 0; i < 3; i++) {
+			if (isAxisConnected(i)) setVelocityTarget(i, 0.0);
+		}
 
 	}
 	else if (parameter == axis1PositionParameter) {
@@ -501,21 +532,91 @@ void Oscillator3x::cancelParameterRapid(std::shared_ptr<AnimatableParameter> par
 	}
 }
 
-
+//validate curves, interpolations and points
 bool Oscillator3x::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
+	bool trackValid = true;
 	std::shared_ptr<AnimatableParameter> parameter = parameterTrack->parameter;
-	if (parameter == frequencyParameter ||
-		parameter == minAmplitudeParameter ||
-		parameter == maxAmplitudeParameter ||
-		parameter == phaseOffsetParameter ||
-		parameter == oscillatorParameterGroup){
-
-		std::shared_ptr<ParameterTrack> oscillatorParameterTrack;
-		if (parameter == oscillatorParameterGroup) oscillatorParameterTrack = parameterTrack;
-		else oscillatorParameterTrack = parameterTrack->parentParameterTrack;
-		//validate all oscillator parameter tracks
-
-
+	if (parameter == frequencyParameter) {
+		std::shared_ptr<Motion::Curve> curve = parameterTrack->curves.front();
+		curve->b_valid = true;
+		for (auto& point : curve->points) {
+			if (point->position < 0.0 || point->position > maxOscillationFrequency) { 
+				trackValid = false;
+				curve->b_valid = false;
+				point->validationError = Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+			}
+			else {
+				point->b_valid = true;
+				point->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			}
+		}
+		for (auto& interpolation : curve->interpolations) {
+			interpolation->b_valid = true;
+			interpolation->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			for (auto& point : interpolation->displayPoints) {
+				if (point.position < 0.0 || point.position > maxOscillationFrequency) {
+					trackValid = false;
+					curve->b_valid = false;
+					interpolation->validationError = Motion::ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE;
+					break;
+				}
+			}
+		}
+	}
+	else if (parameter == minAmplitudeParameter || parameter == maxAmplitudeParameter) {
+		std::shared_ptr<Motion::Curve> curve = parameterTrack->curves.front();
+		curve->b_valid = true;
+		for (auto& point : curve->points) {
+			if (point->position < 0.0 || point->position > 1.0) {
+				trackValid = false;
+				curve->b_valid = false;
+				point->validationError = Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+			}
+			else {
+				point->b_valid = true;
+				point->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			}
+		}
+		for (auto& interpolation : curve->interpolations) {
+			interpolation->b_valid = true;
+			interpolation->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			for (auto& point : interpolation->displayPoints) {
+				if (point.position < 0.0 || point.position > 1.0) {
+					trackValid = false;
+					curve->b_valid = false;
+					interpolation->validationError = Motion::ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE;
+					break;
+				}
+			}
+		}
+	}
+	else if (parameter == phaseOffsetParameter) {
+		std::shared_ptr<Motion::Curve> curve = parameterTrack->curves.front();
+		for (auto& point : curve->points) {
+			if (point->position < 0.0 || point->position > 100.0) {
+				trackValid = false;
+				curve->b_valid = false;
+				point->validationError = Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+			}
+			else {
+				point->b_valid = true;
+				point->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			}
+		}
+		for (auto& interpolation : curve->interpolations) {
+			interpolation->b_valid = true;
+			interpolation->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			for (auto& point : interpolation->displayPoints) {
+				if (point.position < 0.0 || point.position > 100.0) {
+					trackValid = false;
+					curve->b_valid = false;
+					interpolation->validationError = Motion::ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE;
+					break;
+				}
+			}
+		}
+	}else if(parameter == oscillatorParameterGroup){
+		trackValid = true;
 	}
 	else if (parameter == axis1PositionParameter) {
 
@@ -526,18 +627,25 @@ bool Oscillator3x::validateParameterTrack(const std::shared_ptr<ParameterTrack> 
 	else if (parameter == axis3PositionParameter) {
 
 	}
-	return false;
+	return trackValid;
 }
 
 bool Oscillator3x::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
-	if (parameter == frequencyParameter ||
-		parameter == minAmplitudeParameter ||
-		parameter == maxAmplitudeParameter ||
-		parameter == phaseOffsetParameter ||
-		parameter == oscillatorParameterGroup) {
-
-		//move to start or end
-
+	if (parameter == frequencyParameter) {
+		lowLimit = 0.0;
+		highLimit = maxOscillationFrequency;
+	}
+	else if (parameter == minAmplitudeParameter || parameter == maxAmplitudeParameter) {
+		lowLimit = 0.0;
+		highLimit = 1.0;
+	}
+	else if (parameter == phaseOffsetParameter) {
+		lowLimit = 0.0;
+		highLimit = 100.0;
+	}	
+	else if(parameter == oscillatorParameterGroup) {
+		lowLimit = 0.0;
+		highLimit = 0.0;
 	}
 	else if (parameter == axis1PositionParameter) {
 
