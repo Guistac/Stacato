@@ -1,4 +1,5 @@
 #include <pch.h>
+
 #include "config.h"
 
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
@@ -38,4 +39,5 @@ int main() {
 	Logger::terminate();
 
 	ApplicationWindow::terminate();
+	
 }
