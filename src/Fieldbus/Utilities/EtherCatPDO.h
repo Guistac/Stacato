@@ -29,6 +29,12 @@ struct EtherCatPdoAssignement {
 	int totalBitCount = 0;
 	size_t getModuleCount() { return modules.size(); }
 
+	void clear() {
+		modules.clear();
+		totalBitCount = 0;
+		totalBitCount = 0;
+	}
+
 	void addNewModule(uint16_t idx) { 
 		EtherCatPdoMappingModule module;
 		module.index = idx;

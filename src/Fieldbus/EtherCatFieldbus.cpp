@@ -300,6 +300,16 @@ namespace EtherCatFieldbus {
         //setup all slaves, get slave count and info in ec_slave, setup mailboxes, request state PRE-OP for all slaves
         int workingCounter = ec_config_init(FALSE); //what is usetable??
 
+        //wait and check if all slaves have reached Pre Operational State like requested by ec_config_init()
+        if (ec_statecheck(0, EC_STATE_PRE_OP, EC_TIMEOUTSTATE) != EC_STATE_PRE_OP) {
+            Logger::error("Not All Slaves Reached Pre-Operational State...");
+            for (int i = 1; i <= ec_slavecount; i++) {
+                if (ec_slave[i].state != EC_STATE_PRE_OP) {
+                    Logger::error("=== {} did not reach preop", ec_slave[i].name);
+                }
+            }
+        }
+
         if (workingCounter > 0) {
             Logger::info("===== Found and Configured {} EtherCAT Slave{}", ec_slavecount, ((ec_slavecount == 1) ? ": " : "s: "));
 
@@ -413,17 +423,14 @@ namespace EtherCatFieldbus {
         Logger::debug("===== Configuring Distributed Clocks");
         if (!ec_configdc()) {
             b_startupError = true;
-            sprintf(startupStatusString, "Could not configuredistributed clocks...");
+            sprintf(startupStatusString, "Could not configure distributed clocks...");
             Logger::error("===== Could not configure distributed clocks ...");
             return false;
         }
         Logger::info("===== Finished Configuring Distributed Clocks");
 
-        for (auto& slave : slaves) Logger::warn("I am slave {} with index {}", slave->getName(), slave->getSlaveIndex());
-
-        //also assign and execute slave startup methods
+        //assign slave startup hooks
         for (int i = 1; i <= ec_slavecount; i++) {
-            //set hook callback for configuring the PDOs of each slave
             //we don't use the PO2SOconfigx hook since it isn't supported by ec_reconfig_slave()
             ec_slave[i].PO2SOconfig = [](uint16_t slaveIndex) -> int {
                 for (auto slave : slaves) {
@@ -448,11 +455,12 @@ namespace EtherCatFieldbus {
 
         //build ioMap for PDO data, configure FMMU and SyncManager, request SAFE-OP state for all slaves
         Logger::debug("===== Begin Building I/O Map and Slave Configuration...");
+        sprintf(startupStatusString, "Configuring Devices");
         ioMapSize = ec_config_map(ioMap); //this function starts the configuration
         if (ioMapSize <= 0) {
             b_startupError = true;
             sprintf(startupStatusString, "Failed to Configure I/O Map");
-            Logger::error("===== Failed To Configure I/O Map...");
+            Logger::error("===== Failed To Configure I/O Map... (size={})", ioMapSize);
             return false;
         }
         Logger::info("===== Finished Building I/O Map (Size : {} bytes)", ioMapSize);
