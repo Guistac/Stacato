@@ -81,9 +81,11 @@ void Oscillator3x::process() {
 	}
 
 	if (b_startOscillator && !b_oscillatorActive) {
+		Logger::warn("Start 3x Osc");
 		updateOscillatorParametersFromTracks();
 		b_startOscillator = false;
 		b_oscillatorActive = true;
+		b_stopOscillator = false;
 		oscillatorXOffset_radians = 0.0;
 		axis1NormalizedPosition = 0.0;
 		axis2NormalizedPosition = 0.0;
@@ -93,6 +95,7 @@ void Oscillator3x::process() {
 		}
 	}
 	else if (b_stopOscillator && b_oscillatorActive) {
+		Logger::warn("Stop 3x Osc");
 		b_stopOscillator = false;
 		b_oscillatorActive = false;
 		for (int i = 0; i < 3; i++) {
@@ -101,6 +104,7 @@ void Oscillator3x::process() {
 	}
 
 	if (b_oscillatorActive) {
+		Logger::warn("3x Osc");
 		updateOscillatorParametersFromTracks();
 		//increment xOffset and get Phase Offset in radians
 		oscillatorXOffset_radians += profileDeltaTime_seconds * oscillatorFrequency_hertz * 2.0 * M_PI;

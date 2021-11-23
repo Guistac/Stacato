@@ -300,17 +300,18 @@ namespace EtherCatFieldbus {
         //setup all slaves, get slave count and info in ec_slave, setup mailboxes, request state PRE-OP for all slaves
         int workingCounter = ec_config_init(FALSE); //what is usetable??
 
-        //wait and check if all slaves have reached Pre Operational State like requested by ec_config_init()
-        if (ec_statecheck(0, EC_STATE_PRE_OP, EC_TIMEOUTSTATE) != EC_STATE_PRE_OP) {
-            Logger::error("Not All Slaves Reached Pre-Operational State...");
-            for (int i = 1; i <= ec_slavecount; i++) {
-                if (ec_slave[i].state != EC_STATE_PRE_OP) {
-                    Logger::error("=== {} did not reach preop", ec_slave[i].name);
+        if (workingCounter > 0) {
+
+            //wait and check if all slaves have reached Pre Operational State like requested by ec_config_init()
+            if (ec_statecheck(0, EC_STATE_PRE_OP, EC_TIMEOUTSTATE) != EC_STATE_PRE_OP) {
+                Logger::error("Not All Slaves Reached Pre-Operational State...");
+                for (int i = 1; i <= ec_slavecount; i++) {
+                    if (ec_slave[i].state != EC_STATE_PRE_OP) {
+                        Logger::error("=== {} did not reach preop", ec_slave[i].name);
+                    }
                 }
             }
-        }
 
-        if (workingCounter > 0) {
             Logger::info("===== Found and Configured {} EtherCAT Slave{}", ec_slavecount, ((ec_slavecount == 1) ? ": " : "s: "));
 
             for (int i = 1; i <= ec_slavecount; i++) {

@@ -24,7 +24,7 @@ int main() {
     
 	Logger::init();
 	Logger::info("Stacato Version {}.{}", VERSION_MAJOR, VERSION_MINOR);
-	
+
 	EtherCatDeviceFactory::loadDevices();
 	NodeFactory::loadNodes();
 	Project::load("Project");

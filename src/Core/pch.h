@@ -19,6 +19,7 @@
 
 #include "Utilities/Logger.h"
 #include "Utilities/Timing.h"
+#include "Utilities/Random.h"
 
 #define IMGUI_USER_CONFIG "Gui/ApplicationWindow/ImGuiCustomConfiguration.h"
 
