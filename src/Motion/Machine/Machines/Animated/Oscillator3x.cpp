@@ -419,7 +419,7 @@ float Oscillator3x::getParameterRapidProgress(std::shared_ptr<AnimatableParamete
 		}
 		return lowestRapidProgress;
 	}else if (parameter == frequencyParameter || parameter == phaseOffsetParameter || parameter == oscillatorParameterGroup) {
-		return 0.0;
+		return 1.0;
 	}
 	else if (parameter == axis1PositionParameter) {
 		return 1.0;

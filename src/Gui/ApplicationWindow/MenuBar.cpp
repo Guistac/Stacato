@@ -136,7 +136,7 @@ namespace ApplicationWindow {
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2, 0.4, 0.1, 1.0));
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3, 0.6, 0.2, 1.0));
 			if (ImGui::Button("Save and Quit") || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) {
-				quitApplication = Environnement::save("xmlFile.xml");
+                quitApplication = Project::save();
 			}
 			ImGui::PopStyleColor(3);
 			ImGui::EndPopup();

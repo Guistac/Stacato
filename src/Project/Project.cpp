@@ -104,8 +104,6 @@ namespace Project {
 			plot->save(plotFilePath.c_str());
 		}
 #else
-      
-        if(Environnement::save("TestFile.HAHAHAHAHAHA")) Logger::critical("TEST OK");
         
         std::string projectFolderPath = "Project/";
         std::string environnementFilePath = projectFolderPath + "Environnement.stacato";
