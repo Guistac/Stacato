@@ -104,7 +104,6 @@ void Oscillator3x::process() {
 	}
 
 	if (b_oscillatorActive) {
-		Logger::warn("3x Osc");
 		updateOscillatorParametersFromTracks();
 		//increment xOffset and get Phase Offset in radians
 		oscillatorXOffset_radians += profileDeltaTime_seconds * oscillatorFrequency_hertz * 2.0 * M_PI;
@@ -411,7 +410,7 @@ float Oscillator3x::getParameterRapidProgress(std::shared_ptr<AnimatableParamete
 		}
 		return lowestRapidProgress;
 	}else if (parameter == frequencyParameter || parameter == phaseOffsetParameter || parameter == oscillatorParameterGroup) {
-		return 1.0;
+		return 0.0;
 	}
 	else if (parameter == axis1PositionParameter) {
 		return 0.0;

@@ -190,6 +190,7 @@ std::shared_ptr<GpioDevice> BinaryOscillator6x::getGpioDevice(int i) {
 
 
 void BinaryOscillator6x::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+	stopOscillator();
 	for (int i = 0; i < 6; i++) {
 		setOutput(i, false);
 	}
