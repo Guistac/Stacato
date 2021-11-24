@@ -472,6 +472,9 @@ bool ParameterTrack::drawControlPoints() {
 		if (edited) refreshAfterCurveEdit();
 		return edited;
 	}
+    
+    float controlPointLarge = ImGui::GetTextLineHeight() * 0.5;
+    float controlPointMedium = ImGui::GetTextLineHeight() * 0.3;
 
 	for (auto& curve : curves) {
 
@@ -485,13 +488,13 @@ bool ParameterTrack::drawControlPoints() {
 			bool pointIsChained = (originIsPreviousTarget && i == 0) || (targetIsNextOrigin && i == curve->getPoints().size() - 1);
 
 			if (pointIsChained) {
-				if (controlPoint->b_valid) ImPlot::SetNextMarkerStyle(ImPlotMarker_Diamond, 10.0, Colors::black, 2.0, Colors::white);
-				else ImPlot::SetNextMarkerStyle(ImPlotMarker_Diamond, 15.0, Colors::red, 2.0, Colors::white);
+				if (controlPoint->b_valid) ImPlot::SetNextMarkerStyle(ImPlotMarker_Diamond, controlPointMedium, Colors::black, 2.0, Colors::white);
+				else ImPlot::SetNextMarkerStyle(ImPlotMarker_Diamond, controlPointLarge, Colors::red, 2.0, Colors::white);
 				ImPlot::PlotScatter("##ChaindPoint", &controlPoint->time, &controlPoint->position, 1);
 			}
 			else {
-				if (controlPoint->b_valid) controlPointEdited = ImPlot::DragPoint(controlPoint->name, &controlPoint->time, &controlPoint->position, true, Colors::white, 10.0);
-				else controlPointEdited = ImPlot::DragPoint(controlPoint->name, &controlPoint->time, &controlPoint->position, true, Colors::red, 15.0);
+				if (controlPoint->b_valid) controlPointEdited = ImPlot::DragPoint(controlPoint->name, &controlPoint->time, &controlPoint->position, true, Colors::white, controlPointMedium);
+				else controlPointEdited = ImPlot::DragPoint(controlPoint->name, &controlPoint->time, &controlPoint->position, true, Colors::red, controlPointLarge);
 			}
 
 			if (!controlPoint->b_valid) {

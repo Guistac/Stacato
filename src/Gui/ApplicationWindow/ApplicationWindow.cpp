@@ -92,7 +92,7 @@ namespace ApplicationWindow {
 		scaleTuning = 1.25;
 #endif
 #ifdef MACOS
-		scaleTuning = 0.75;
+		scaleTuning = 0.5;
 #endif
 		float scale = xScale * scaleTuning;
 		Fonts::load(scale);

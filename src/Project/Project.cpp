@@ -47,6 +47,24 @@ namespace Project {
                 }
             }
         }
+#else
+      
+        std::string projectFolderPath = std::string(dir) + "/";
+        std::string environnementFilePath = projectFolderPath + "Environnement.stacato";
+        if(!Environnement::load(environnementFilePath.c_str())) Logger::warn("Could not load Environnement.stacato");
+        else Logger::info("Loaded Environnement.stacato");
+        
+        std::string plotsFolderPath = projectFolderPath + "Plots/";
+        std::string plotFilePath = plotsFolderPath + "Default_Plot.plot";
+        
+        std::shared_ptr<Plot> plot = std::make_shared<Plot>();
+        if(plot->load(plotFilePath.c_str())){
+            plots.push_back(plot);
+            Logger::info("Loaded Default Plot");
+        }else{
+            Logger::warn("Failed to load Default Plot");
+        }
+        
 #endif
 		if (plots.empty()) {
 			plots.push_back(std::make_shared<Plot>());
@@ -85,6 +103,23 @@ namespace Project {
 			std::string plotFilePath = plotsFolder + plot->name  + "_" + std::to_string(plot->saveTime) + ".plot";
 			plot->save(plotFilePath.c_str());
 		}
+#else
+      
+        if(Environnement::save("TestFile.HAHAHAHAHAHA")) Logger::critical("TEST OK");
+        
+        std::string projectFolderPath = "Project/";
+        std::string environnementFilePath = projectFolderPath + "Environnement.stacato";
+        if(!Environnement::save(environnementFilePath.c_str())) Logger::warn("Could not save Environnement.stacato");
+        else Logger::info("Saved Environnement.stacato");
+        
+        std::string plotFolderPath = projectFolderPath + "Plots/";
+        std::string plotFilePath = plotFolderPath + "Default_Plot.plot";
+        if(plots.front()->save(plotFilePath.c_str())){
+            Logger::info("Saved Plot File");
+        }else{
+            Logger::warn("Failed To Save Plot File");
+        }
+        
 #endif
 		return true;
 	}
