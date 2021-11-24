@@ -78,6 +78,12 @@ void BinaryOscillator6x::process() {
 			outputPins[i]->set(outputSignals[i]);
 		}
 	}
+    
+    if(!b_enabled){
+        for(int i = 0; i < 6; i++){
+            setOutput(i, false);
+        }
+    }
 }
 
 void BinaryOscillator6x::updateOscillatorParametersFromTracks() {
