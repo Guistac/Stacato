@@ -160,6 +160,13 @@ void Oscillator3x::process() {
 	}
 }
 
+void Oscillator3x::stopOscillatorParameterPlayback() {
+	if (frequencyParameter->hasParameterTrack()) stopParameterPlayback(frequencyParameter);
+	if (minAmplitudeParameter->hasParameterTrack()) stopParameterPlayback(minAmplitudeParameter);
+	if (maxAmplitudeParameter->hasParameterTrack()) stopParameterPlayback(maxAmplitudeParameter);
+	if (phaseOffsetParameter->hasParameterTrack()) stopParameterPlayback(phaseOffsetParameter);
+}
+
 //======================= STATE CONTROL ========================
 
 bool Oscillator3x::isEnabled() {
@@ -182,6 +189,7 @@ void Oscillator3x::enable() {
 					getAxis(i)->enable();
 				}
 			}
+			stopOscillatorParameterPlayback();
 			using namespace std::chrono;
 			system_clock::time_point enableTime = system_clock::now();
 			do {
@@ -214,6 +222,7 @@ void Oscillator3x::disable() {
 	b_startOscillator = false;
 	b_oscillatorActive = false;
 	b_enabled = false;
+	stopOscillatorParameterPlayback();
 }
 
 bool Oscillator3x::isMoving() {
@@ -410,16 +419,16 @@ float Oscillator3x::getParameterRapidProgress(std::shared_ptr<AnimatableParamete
 		}
 		return lowestRapidProgress;
 	}else if (parameter == frequencyParameter || parameter == phaseOffsetParameter || parameter == oscillatorParameterGroup) {
-		return 0.0;
+		return 1.0;
 	}
 	else if (parameter == axis1PositionParameter) {
-		return 0.0;
+		return 1.0;
 	}
 	else if (parameter == axis2PositionParameter) {
-		return 0.0;
+		return 1.0;
 	}
 	else if (parameter == axis3PositionParameter) {
-		return 0.0;
+		return 1.0;
 	}
 	return 0.0;
 }

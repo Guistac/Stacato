@@ -193,7 +193,7 @@ float BinaryOscillator6x::getMiniatureWidth() {
 
 void BinaryOscillator6x::machineSpecificMiniatureGui() {
 
-	bool b_disableAllControls = !isEnabled();
+	bool b_disableAllControls = !isEnabled() || oscillatorParameterGroup->hasParameterTrack();
 
 	if(b_disableAllControls) BEGIN_DISABLE_IMGUI_ELEMENT
 

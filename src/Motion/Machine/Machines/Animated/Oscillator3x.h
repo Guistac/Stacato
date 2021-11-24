@@ -57,6 +57,7 @@ class Oscillator3x : public Machine {
 	float oscillatorLowerAmplitude_normalized = 0.0;
 	float oscillatorUpperAmplitude_normalized = 1.0;
 	void updateOscillatorParametersFromTracks();
+	void stopOscillatorParameterPlayback();
 
 	//=== Manual Controls ===
 	void setVelocityTarget(int axis, double velocityTarget_normalized);

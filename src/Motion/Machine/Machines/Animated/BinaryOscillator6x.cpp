@@ -32,6 +32,7 @@ void BinaryOscillator6x::process() {
 		updateOscillatorParametersFromTracks();
 		b_startOscillator = false;
 		b_oscillatorActive = true;
+		b_stopOscillator = false;
 		//when starting the oscillator
 		//turn all signals off
 		//plan next switch on time starting from 0 delay
@@ -135,6 +136,7 @@ bool BinaryOscillator6x::isReady() {
 void BinaryOscillator6x::enable() {
 	if (isReady()) {
 		b_enabled = true;
+		stopOscillatorParameterPlayback();
 	}
 }
 
@@ -144,6 +146,7 @@ void BinaryOscillator6x::disable() {
 	for (int i = 0; i < 6; i++) {
 		setOutput(i, false);
 	}
+	stopOscillatorParameterPlayback();
 }
 
 bool BinaryOscillator6x::isMoving() {

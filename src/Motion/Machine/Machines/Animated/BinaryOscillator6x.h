@@ -38,6 +38,7 @@ class BinaryOscillator6x : public Machine {
 	float minOnTime_seconds = 0.0;
 	float maxOnTime_seconds = 0.0;
 	void updateOscillatorParametersFromTracks();
+	void stopOscillatorParameterPlayback();
 
 	float maxTime_seconds = 60.0;
 
@@ -52,7 +53,6 @@ class BinaryOscillator6x : public Machine {
 	bool b_startOscillator = false;
 	bool b_stopOscillator = false;
 
-	void stopOscillatorParameterPlayback();
 
 	//=== Axes ===
 	int getGpioDeviceCount();

@@ -318,6 +318,10 @@ float Oscillator3x::getMiniatureWidth() {
 	return ImGui::GetTextLineHeight() * 10.0;
 }
 void Oscillator3x::machineSpecificMiniatureGui() {
+	bool b_disableAllControls = !isEnabled() || oscillatorParameterGroup->hasParameterTrack();
+
+	if(b_disableAllControls) BEGIN_DISABLE_IMGUI_ELEMENT
+
 	glm::vec2 axisChildSize((ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x * 2.0) / 3.0, ImGui::GetContentRegionAvail().y);
 	float sliderHeight = axisChildSize.y - ImGui::GetTextLineHeight() * 3.3;
 	glm::vec2 positionIndicatorSize(ImGui::GetTextLineHeight() * 1.0, sliderHeight);
@@ -390,4 +394,6 @@ void Oscillator3x::machineSpecificMiniatureGui() {
 		}
 		if (i < 2) ImGui::SameLine();
 	}
+
+	if(b_disableAllControls) END_DISABLE_IMGUI_ELEMENT
 }
