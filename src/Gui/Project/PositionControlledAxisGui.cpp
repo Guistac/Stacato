@@ -39,9 +39,6 @@ void PositionControlledAxis::nodeSpecificGui() {
 		setupGui();
 		ImGui::EndChild();
 
-		ImGui::Text("Profile Velocity: %.9f", getProfileVelocity_axisUnitsPerSecond());
-		ImGui::Text("Profile Position: %.9f", getProfilePosition_axisUnits());
-
 		ImGui::Separator();
 		feedbackGui();
 		if (disableAxisControls) END_DISABLE_IMGUI_ELEMENT;

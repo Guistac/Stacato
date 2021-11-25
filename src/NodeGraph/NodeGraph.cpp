@@ -39,6 +39,11 @@ void NodeGraph::removeNode(std::shared_ptr<Node> removedNode) {
 			break;
 		}
 	}
+	for (int i = (int)selectedNodes.size() - 1; i >= 0; i--) {
+		if (selectedNodes[i] == removedNode) {
+			selectedNodes.erase(selectedNodes.begin() + i);
+		}
+	}
 	removedNode->b_isInNodeGraph = false;
 }
 

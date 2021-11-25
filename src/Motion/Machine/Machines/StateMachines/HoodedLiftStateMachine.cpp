@@ -4,6 +4,8 @@
 #include "Motion/Subdevice.h"
 #include "Motion/AnimatableParameter.h"
 
+#include "Motion/Manoeuvre/ParameterTrack.h"
+
 std::vector<StateParameterValue> HoodedLiftStateMachine::stateParameterValues = {
 	{0, "Shut", "Shut"},
 	{1, "Open", "Open"},
@@ -70,6 +72,25 @@ void HoodedLiftStateMachine::process() {
 
 	//update outputs signals
 	if (b_enabled) {
+
+		if (stateParameter->hasParameterTrack()) {
+			AnimatableParameterValue value;
+			stateParameter->getActiveTrackParameterValue(value);
+			switch (value.stateValue->integerEquivalent) {
+				case 0:
+					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
+					break;
+				case 1:
+					requestedState = MachineState::State::LIFT_LOWERED_HOOD_OPEN;
+					break;
+				case 2:
+					requestedState = MachineState::State::LIFT_RAISED_HOOD_OPEN;
+					break;
+				default: 
+					break;
+			}
+		}
+
 		switch (requestedState) {
 			case MachineState::State::LIFT_LOWERED_HOOD_SHUT:
 				shutLid = true;
@@ -195,6 +216,7 @@ bool HoodedLiftStateMachine::isMoving() {
 void HoodedLiftStateMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if (parameter->dataType == value.type) {
 		if (parameter == stateParameter) {
+			parameterMovementStartState = actualState;
 			switch (value.stateValue->integerEquivalent) {
 				case 0:
 					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
@@ -206,6 +228,7 @@ void HoodedLiftStateMachine::rapidParameterToValue(std::shared_ptr<AnimatablePar
 					requestedState = MachineState::State::LIFT_RAISED_HOOD_OPEN;
 					break;
 			}
+			parameterMovementTargetState = requestedState;
 		}
 	}
 }
@@ -240,7 +263,9 @@ void HoodedLiftStateMachine::getActualParameterValue(std::shared_ptr<AnimatableP
 
 
 
-void HoodedLiftStateMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {}
+void HoodedLiftStateMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {
+	
+}
 
 void HoodedLiftStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
 	if (isGpioDeviceConnected()) output.push_back(getGpioDevice()->parentDevice);
@@ -249,10 +274,24 @@ void HoodedLiftStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& ou
 
 
 bool HoodedLiftStateMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
-	return false;
+	parameterTrack->b_valid = true;
+	for (auto& curve : parameterTrack->curves) {
+		curve->b_valid = true;
+		for (auto& point : curve->points) {
+			point->b_valid = true;
+			point->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+		}
+		for (auto& interpolation : curve->interpolations) {
+			interpolation->b_valid = true;
+			interpolation->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+		}
+	}
+	return true;
 }
 
 bool HoodedLiftStateMachine::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
+	lowLimit = 0.0;
+	highLimit = 2.0;
 	return true;
 }
 
