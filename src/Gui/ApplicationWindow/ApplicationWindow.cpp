@@ -1,5 +1,7 @@
 #include <pch.h>
 
+#include "config.h"
+
 #include "ApplicationWindow.h"
 
 #ifdef STACATO_USE_MAGNUM_ENGINE
@@ -33,7 +35,19 @@ namespace ApplicationWindow {
 	bool b_closeRequested = false;
 	bool b_shouldClose = false;
 
+#ifdef STACATO_WIN32
+    float scaleTuning = 1.25;
+#elseif STACATO_MACOS
+    float scaleTuning = 0.75;
+#else
+    float scaleTuning = 0.5;
+#endif
+
 	void init() {
+#ifdef STACATO_MACOS
+        glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, GLFW_FALSE);
+        //glfwInitHint(GLFW_COCOA_MENUBAR, GLFW_FALSE);
+#endif
 		glfwInit();
 		FileDialog::init();
 	}
@@ -44,7 +58,7 @@ namespace ApplicationWindow {
 	}
 
 	void open(int w, int h) {
-#ifdef MACOS
+#ifdef STACATO_MACOS
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
@@ -87,14 +101,8 @@ namespace ApplicationWindow {
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		float xScale, yScale;
 		glfwGetWindowContentScale(window, &xScale, &yScale);
-		float scaleTuning = 1.0;
-#ifdef WIN32
-		scaleTuning = 1.25;
-#endif
-#ifdef MACOS
-		scaleTuning = 0.5;
-#endif
 		float scale = xScale * scaleTuning;
+        Logger::info("Display Scale: {}  Scale Tuning: x{}  Gui Scale: {}", xScale, scaleTuning, scale);
 		Fonts::load(scale);
 		ImGui::GetStyle().ScaleAllSizes(scale);
 		ImGui::StyleColorsDark();
@@ -158,11 +166,12 @@ namespace ApplicationWindow {
 		}
 	}
 
-
-
-
 	void onRender() {
 		drawGui();
 	}
+
+    float getScaleTuning(){
+        return scaleTuning;
+    }
 
 }

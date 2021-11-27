@@ -141,7 +141,7 @@ bool VIPA_053_1EC01::downloadDeviceModules(std::vector<Module>& output) {
                     moduleParameter.nodePin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, pinDisplayName, pinSaveName);
                 }
                 else {
-                    Logger::critical("Can't Handle non boolean data in VIPA modules yet");
+                    moduleParameter.nodePin = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, pinDisplayName, pinSaveName);
                     //for non boolean values, this will need to be handled differently
                     //moduleParameter.NodePin = std::make_shared<NodePin>(DataType::INTEGER_VALUE, DataDirection::NODE_OUTPUT, paramet);
                 }
@@ -399,6 +399,8 @@ bool VIPA_053_1EC01::loadDeviceData(tinyxml2::XMLElement* xml) {
 std::vector<VIPA_053_1EC01::ModuleType> VIPA_053_1EC01::moduleTypes = {
     {VIPA_053_1EC01::ModuleType::Type::VIPA_022_1HD10, "DO4x Relais (1.8A)", "VIPA 022-1HD10", "Relais"},
     {VIPA_053_1EC01::ModuleType::Type::VIPA_021_1BF00, "DI8x (DC24V)", "VIPA 021-1BF00", "Digital"},
+    {VIPA_053_1EC01::ModuleType::Type::VIPA_050_1BS00, "SSI RS422 (DC24V)", "VIPA 050-1BS00", "SSI"},
+    {VIPA_053_1EC01::ModuleType::Type::VIPA_032_1BD70, "AO4x 12bit (±10V)", "VIPA 032-1BD70", "Analog"},
     {VIPA_053_1EC01::ModuleType::Type::UNKNOWN_MODULE, "Unknown Module", "UnknownModule", "None"}
 };
 

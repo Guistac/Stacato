@@ -53,6 +53,11 @@ public:
 
 	static void listGui(const std::shared_ptr<Manoeuvre>& manoeuvre);
 	static void editGui(const std::shared_ptr<Manoeuvre>& manoeuvre);
+    
+    static void trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre);
+    static void curveEditorGui(const std::shared_ptr<Manoeuvre>& manoeuvre);
+    static void spatialEditorGui(const std::shared_ptr<Manoeuvre>& manoeuvre);
+    
 	static void sequenceEditGui(const std::shared_ptr<Manoeuvre>& manoeuvre);
 	static void playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre);
 	static float getPlaybackControlGuiHeight(const std::shared_ptr<Manoeuvre>& manoeuvre);

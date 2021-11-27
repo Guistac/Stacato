@@ -48,7 +48,9 @@ namespace ApplicationWindow {
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Machines")) {
+                ImGui::BeginChild("Machine");
 				machineListGui();
+                ImGui::EndChild();
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Plot")) {

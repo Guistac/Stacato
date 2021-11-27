@@ -20,12 +20,14 @@ public:
         std::shared_ptr<NodePin> nodePin;   //actual NodePin pin for nodegraph logic
     };
 
-
+    
     //TODO: Add expected input and output count and size for each module type
     struct ModuleType {
         enum class Type {
-            VIPA_022_1HD10,
-            VIPA_021_1BF00,
+            VIPA_022_1HD10, //4x Relais Output
+            VIPA_021_1BF00, //8x Digital Input
+            VIPA_050_1BS00, //SSI Input
+            VIPA_032_1BD70, //4x 12bit Analog Input
             UNKNOWN_MODULE
         };
         Type type;

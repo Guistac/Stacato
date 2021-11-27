@@ -1723,7 +1723,7 @@
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="Realtek USB NIC" Name="\Device\NPF_{42C81A11-795E-4D7C-83AE-39EF61932528}"/>
+        <Primary Description="lo0" Name="lo0"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>

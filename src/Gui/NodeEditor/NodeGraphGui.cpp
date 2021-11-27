@@ -39,7 +39,7 @@ void EnvironnementNodeEditorGui() {
         else if (Environnement::nodeGraph->selectedNodes.size() == 1) {
             std::shared_ptr<Node> selectedNode = Environnement::nodeGraph->selectedNodes.front();
             ImGui::PushFont(Fonts::robotoBold20);
-            ImGui::Text(selectedNode->getName());
+            ImGui::Text("%s", selectedNode->getName());
             ImGui::PopFont();
             ImGui::Separator();
             if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {

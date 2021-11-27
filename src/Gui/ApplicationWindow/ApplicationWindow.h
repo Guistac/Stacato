@@ -22,6 +22,8 @@ namespace ApplicationWindow {
 	void quitApplicationModal();
 	void aboutModal();
 
+    float getScaleTuning();
+
 };
 
 

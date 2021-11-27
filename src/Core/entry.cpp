@@ -14,17 +14,20 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 int main() {
 #endif
 
-#ifdef WIN32
-	//set working directory to "Resources" folder located next to executable
-	std::string defaultWorkingDirectory = std::filesystem::current_path().string();
-	std::filesystem::current_path(defaultWorkingDirectory + "/Resources");
+#ifdef STACATO_WIN32
+    //set working directory to "Resources" folder located next to executable
+    std::string defaultWorkingDirectory = std::filesystem::current_path().string();
+    std::filesystem::current_path(defaultWorkingDirectory + "/Resources");
 #endif
-
-	ApplicationWindow::init(); //sets working directory to macos application bundle resources folder
+    
+    //for macos application bundles, this sets the working directory to the resources folder of the bundle
+	ApplicationWindow::init();
     
 	Logger::init();
-	Logger::info("Stacato Version {}.{}", VERSION_MAJOR, VERSION_MINOR);
-
+	Logger::info("Stacato Version {}.{} {}", VERSION_MAJOR, VERSION_MINOR, STACATO_OS_NAME);
+    
+    Logger::info("Application Directory: {}", std::filesystem::current_path().string());
+    
 	EtherCatDeviceFactory::loadDevices();
 	NodeFactory::loadNodes();
 	Project::load("Project");
