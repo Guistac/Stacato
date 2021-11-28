@@ -12,6 +12,8 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
+#include <GLFW/glfw3.h>
+
 namespace ApplicationWindow {
 
 	void drawToolbar(float height) {
@@ -65,7 +67,19 @@ namespace ApplicationWindow {
 
 
 		etherCatStartModal();
-
+		
+		ImGui::SameLine();
+		float x,y;
+		glfwGetWindowContentScale(ApplicationWindow::getGlfwWindow(), &x, &y);
+		ImGui::Text("Content Scale %.3f, %.3f", x,y);
+		int left, top, right, bottom;
+		glfwGetWindowFrameSize(ApplicationWindow::getGlfwWindow(), &left, &top, &right, &bottom);
+		ImGui::SameLine();
+		ImGui::Text("Window Frame %i %i %i %i", left, top, right, bottom);
+		int w, h;
+		glfwGetFramebufferSize(ApplicationWindow::getGlfwWindow(), &w, &h);
+		ImGui::SameLine();
+		ImGui::Text("Frame Buffer: %i %i", w,h);
 	}
 
 }

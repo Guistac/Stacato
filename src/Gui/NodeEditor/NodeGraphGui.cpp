@@ -22,7 +22,7 @@
 namespace NodeEditor = ax::NodeEditor;
 
 void EnvironnementNodeEditorGui() {
-
+	
     //TODO: should the graph be updated in the draw loop?
     //Environnement::nodeGraph.evaluate();
 
@@ -130,8 +130,8 @@ namespace ImGuiNodeEditor {
 }
 
 void NodeGraph::editorGui() {
-
-	NodeEditor::SetCurrentEditor(ImGuiNodeEditor::nodeEditorContext);
+	
+	NodeEditor::SetCurrentEditor(ImGuiNodeEditor::nodeEditorContext);	
 	NodeEditor::Begin("Node Editor", ImVec2(0, ImGui::GetContentRegionAvail().y - ImGui::GetTextLineHeight() * 1.7));
 
     //===== DRAW NODES =====

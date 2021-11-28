@@ -15,7 +15,7 @@ void nodeAdder() {
 
     ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, ImGui::GetTextLineHeight() * 1.0);
 
-    if(ImGui::BeginChild("##NodeList", ImGui::GetContentRegionAvail())) {
+	ImGui::BeginChild("##NodeList", ImGui::GetContentRegionAvail());
 
         ImGui::PushFont(Fonts::robotoBold20);
         ImGui::Text("Environnement Editor");
@@ -174,7 +174,7 @@ void nodeAdder() {
         ImGui::PopFont();
 
         ImGui::EndChild();
-    }
+    
 
     ImGui::PopStyleVar();
 }

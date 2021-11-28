@@ -76,6 +76,7 @@ public:
 			else if (draggedItemPositionY > maxYPosition) draggedItemPositionY = maxYPosition;
 			ImGui::SetNextWindowPos(ImVec2(constrainedXPosition, draggedItemPositionY), ImGuiCond_Always);
 			ImGui::SetNextWindowSize(size);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
 			ImGui::BeginTooltip();
 			begunTooltip = true;
 		}
@@ -101,6 +102,7 @@ public:
 		bool hovered = false;
 		if (begunTooltip) {
 			ImGui::EndTooltip();
+			ImGui::PopStyleVar();
 		}
 		else if (begunChild) {
 			ImVec2 childPos = ImGui::GetWindowPos();

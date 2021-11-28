@@ -13,6 +13,9 @@ namespace Environnement {
 	std::vector<std::shared_ptr<EtherCatDevice>> etherCatDevices;
 	std::vector<std::shared_ptr<Machine>> machines;
 
+	std::shared_ptr<Machine> selectedMachine;
+	std::shared_ptr<EtherCatDevice> selectedEtherCatDevice;
+
 	std::vector<std::shared_ptr<EtherCatDevice>>& getEtherCatDevices() {
 		return etherCatDevices;
 	}
@@ -21,34 +24,34 @@ namespace Environnement {
 		return machines;
 	}
 
-
-	void Environnement::enableAllMachines() {
+	void enableAllMachines() {
 		for (auto machine : machines) {
 			machine->enable();
 		}
 	}
-	void Environnement::disableAllMachines() {
+
+	void disableAllMachines() {
 		for (auto machine : machines) {
 			machine->disable();
 		}
 	}
-	bool Environnement::areAllMachinesEnabled() {
+
+	bool areAllMachinesEnabled() {
 		if (machines.empty()) return false;
 		for (auto machine : machines) {
 			if (!machine->isEnabled()) return false;
 		}
 		return true;
 	}
-	bool Environnement::areNoMachinesEnabled() {
+
+	bool areNoMachinesEnabled() {
 		for(auto machine : machines) {
 			if (machine->isEnabled()) return false;
 		}
 		return true;
 	}
 
-
-
-	void Environnement::addNode(std::shared_ptr<Node> node) {
+	void addNode(std::shared_ptr<Node> node) {
 		switch (node->getType()) {
 			case Node::Type::MACHINE:
 				machines.push_back(std::dynamic_pointer_cast<Machine>(node));
@@ -65,10 +68,12 @@ namespace Environnement {
 						break;
 				}
 			}break;
+			default:
+				break;
 		}
 	}
 
-	void Environnement::removeNode(std::shared_ptr<Node> node){
+	void removeNode(std::shared_ptr<Node> node){
 		switch (node->getType()) {
 			case Node::Type::MACHINE:{
 				std::shared_ptr<Machine> machineNode = std::dynamic_pointer_cast<Machine>(node);
@@ -97,6 +102,8 @@ namespace Environnement {
 				}break;
 				}
 			}break;
+			default:
+				break;
 		}
 	}
 

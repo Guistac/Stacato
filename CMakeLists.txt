@@ -24,6 +24,8 @@ endif()
 
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DSTACATO_DEBUG")
+
 # Generate config.h file (will be in build binaries folder)
 configure_file(src/core/config.h.in src/core/config.h)
 
@@ -66,9 +68,10 @@ elseif(APPLE)
     add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILE_LIST})
 endif()
 
-# Create the source groups for source tree with root at CMAKE_CURRENT_SOURCE_DIR.
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCE_FILE_LIST})
+# use folders in ide
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+# match on disk file structure for source files in ide
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCE_FILE_LIST})
 
 # Precompiled Headers
 target_precompile_headers(${PROJECT_NAME} PRIVATE

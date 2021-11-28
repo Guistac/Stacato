@@ -1,5 +1,7 @@
 #pragma once
 
+struct GLFWwindow;
+
 namespace ApplicationWindow {
 
 	void init();
@@ -23,6 +25,8 @@ namespace ApplicationWindow {
 	void aboutModal();
 
     float getScaleTuning();
+
+	GLFWwindow* getGlfwWindow();
 
 };
 

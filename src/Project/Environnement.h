@@ -27,4 +27,7 @@ namespace Environnement{
 
 	void setName(const char*);
 	const char* getName();
+
+	extern std::shared_ptr<Machine> selectedMachine;
+	extern std::shared_ptr<EtherCatDevice> selectedEtherCatDevice;
 };

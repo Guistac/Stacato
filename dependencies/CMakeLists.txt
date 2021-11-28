@@ -1,37 +1,39 @@
 
 #----- CMakeLists.txt file for all dependencies -----
 
+
+
 message("---GLFW---")
 add_subdirectory(glfw)
+set_target_properties(glfw PROPERTIES FOLDER "Dependencies/Graphics")
+
 message("---NativeFileDialog---")
 add_subdirectory(nativefiledialog-extended)
+set_target_properties(nfd PROPERTIES FOLDER "Dependencies/IO")
+
 message("---SpdLog---")
 add_subdirectory(spdlog)
+set_target_properties(spdlog PROPERTIES FOLDER "Dependencies/IO")
+
 message("---TinyXML2---")
 add_subdirectory(tinyxml2)
+set_target_properties(tinyxml2 PROPERTIES FOLDER "Dependencies/IO")
+
+message("---SOEM---")
+add_subdirectory(soem)
+set_target_properties(soem PROPERTIES FOLDER "Dependencies/Fieldbus")
 
 
 
-if(WIN32)
-   message("---SOEM---")
-   add_subdirectory(soem)
-elseif(APPLE)
-   message("---SOEM---")
-   add_subdirectory(soem)
-endif()
 
 #------ Magnum & Corrade Engine -------
 
 if(WIN32)
     set(WITH_WGLCONTEXT ON)
-endif()
-if(APPLE)
+	set(MSVC2019_COMPATIBILITY ON) ##avoid warning when including corrade
+elseif(APPLE)
     set(WITH_CGLCONTEXT ON)
 endif()
-
-if(WIN32)
-	set(MSVC2019_COMPATIBILITY ON) ##avoid warning when including corrade
-endIf()
 
 message("---Corrade---")
 add_subdirectory(corrade EXCLUDE_FROM_ALL)
@@ -51,7 +53,7 @@ elseif(CORRADE_TARGET_UNIX)
 elseif(CORRADE_TARGET_WINDOWS)
     find_package(Magnum REQUIRED WglContext)
 else()
-    message(FATAL_ERROR "No context handler available on this platform")
+    message(FATAL_ERROR "CORRADE: No context handler available on this platform")
 endif()
 
 set_directory_properties(PROPERTIES CORRADE_USE_PEDANTIC_FLAGS ON)
@@ -93,6 +95,8 @@ target_include_directories(dearimgui PUBLIC
     "dearimgui/"
 )
 
+set_target_properties(dearimgui PROPERTIES FOLDER "Dependencies/Gui")
+
 #================== IMPLOT =================
 
 add_library(implot
@@ -108,6 +112,8 @@ target_include_directories(implot PUBLIC
     "dearimgui/"
     "glm/"
 )
+
+set_target_properties(implot PROPERTIES FOLDER "Dependencies/Gui")
 
 #=============== IMGUI NODE EDITOR ===============
 
@@ -134,6 +140,8 @@ target_include_directories(imguinodeeditor PUBLIC
 	"glm/"
 )
 
+set_target_properties(imguinodeeditor PROPERTIES FOLDER "Dependencies/Gui")
+
 #=================== GLAD ===================
 
 add_library(glad
@@ -145,6 +153,8 @@ add_library(glad
 target_include_directories(glad PUBLIC
    "glad/include/"
 )
+
+set_target_properties(glad PROPERTIES FOLDER "Dependencies/Graphics")
 
 #=================== ASIO =====================
 

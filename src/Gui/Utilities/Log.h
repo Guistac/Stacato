@@ -34,7 +34,7 @@ void log() {
 
 	ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.0, 0.0, 0.0, 1.0));
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-	if(ImGui::BeginChild(ImGui::GetID("LogMessages"))){
+	ImGui::BeginChild(ImGui::GetID("LogMessages"));
 
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 
@@ -64,8 +64,9 @@ void log() {
 		ImGui::PopStyleVar();
 		if(previousMessageCount != messageCount && b_autoScroll) ImGui::SetScrollHereY(1.0f);
 		previousMessageCount = messageCount;
+	
 		ImGui::EndChild();
-	}
+	
 	ImGui::PopStyleVar();
 	ImGui::PopStyleColor();
 }

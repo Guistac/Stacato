@@ -57,7 +57,7 @@ void Manoeuvre::listGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 	else ImGui::PushStyleColor(ImGuiCol_Text, Colors::white);
 	ImGui::PushFont(Fonts::robotoBold20);
 	ImGui::SameLine(ImGui::GetStyle().ItemSpacing.x / 2.0);
-	ImGui::Text(manoeuvre->name);
+	ImGui::Text("%s", manoeuvre->name);
 	ImGui::PopFont();
 	ImGui::PopStyleColor();
 
@@ -65,14 +65,14 @@ void Manoeuvre::listGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 	ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 1.0, 1.0, 0.3));
 	ImGui::NewLine();
 	ImGui::SameLine(ImGui::GetStyle().ItemSpacing.x / 2.0);
-	ImGui::Text(manoeuvreTypeShortName);
+	ImGui::Text("%s", manoeuvreTypeShortName);
 	ImGui::PopStyleColor();
 	ImGui::PopFont();
 
 	ImGui::EndGroup();
 
 	ImGui::SameLine();
-	ImGui::Text(manoeuvre->description);
+	ImGui::Text("%s", manoeuvre->description);
 
 	if (Playback::isInRapid(manoeuvre)) {
 		glm::vec2 windowPos = ImGui::GetWindowPos();
@@ -246,12 +246,12 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
             //====== Machine Column ======
             ImGui::TableNextColumn();
             if (!parameterTrack->hasParentParameterTrack()) {
-                ImGui::Text(parameterTrack->parameter->machine->getName());
+                ImGui::Text("%s", parameterTrack->parameter->machine->getName());
             }
 
             //====== Parameter Column ======
             ImGui::TableNextColumn();
-            ImGui::Text(parameterTrack->parameter->name);
+            ImGui::Text("%s", parameterTrack->parameter->name);
 
             if (!parameterValid) ImGui::PopStyleColor();
             ImGui::PopStyleColor();
