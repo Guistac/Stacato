@@ -68,6 +68,7 @@ namespace ApplicationWindow {
 
 		etherCatStartModal();
 		
+		/*
 		ImGui::SameLine();
 		float x,y;
 		glfwGetWindowContentScale(ApplicationWindow::getGlfwWindow(), &x, &y);
@@ -80,6 +81,7 @@ namespace ApplicationWindow {
 		glfwGetFramebufferSize(ApplicationWindow::getGlfwWindow(), &w, &h);
 		ImGui::SameLine();
 		ImGui::Text("Frame Buffer: %i %i", w,h);
+		 */
 	}
 
 }

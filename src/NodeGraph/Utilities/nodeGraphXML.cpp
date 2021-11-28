@@ -33,18 +33,24 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 		if (!node->isSplit()) {
 			XMLElement* positionXML = nodeXML->InsertNewChildElement("NodeEditorPosition");
 			glm::vec2 position = node->getNodeGraphPosition();
-			positionXML->SetAttribute("x", position.x * ApplicationWindow::getScaleTuning());
-			positionXML->SetAttribute("y", position.y * ApplicationWindow::getScaleTuning());
+			//position.x *= ApplicationWindow::getScaleTuning();
+			//position.y *= ApplicationWindow::getScaleTuning();
+			positionXML->SetAttribute("x", position.x);
+			positionXML->SetAttribute("y", position.y);
 		}
 		else {
 			XMLElement* inputPositionXML = nodeXML->InsertNewChildElement("InputNodeEditorPosition");
 			XMLElement* outputPositionXML = nodeXML->InsertNewChildElement("OutputNodeEditorPosition");
 			glm::vec2 input, output;
 			node->getSplitNodeGraphPosition(input, output);
-			inputPositionXML->SetAttribute("x", input.x * ApplicationWindow::getScaleTuning());
-			inputPositionXML->SetAttribute("y", input.y * ApplicationWindow::getScaleTuning());
-			outputPositionXML->SetAttribute("x", output.x * ApplicationWindow::getScaleTuning());
-			outputPositionXML->SetAttribute("y", output.y * ApplicationWindow::getScaleTuning());
+			//input.x *= ApplicationWindow::getScaleTuning();
+			//input.y *= ApplicationWindow::getScaleTuning();
+			//output.x *= ApplicationWindow::getScaleTuning();
+			//output.y *= ApplicationWindow::getScaleTuning();
+			inputPositionXML->SetAttribute("x", input.x);
+			inputPositionXML->SetAttribute("y", input.y);
+			outputPositionXML->SetAttribute("x", output.x);
+			outputPositionXML->SetAttribute("y", output.y);
 		}
 
 		XMLElement* nodeSpecificDataXML = nodeXML->InsertNewChildElement("NodeSpecificData");
@@ -148,8 +154,8 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			float xPosition, yPosition;
 			positionXML->QueryFloatAttribute("x", &xPosition);
 			positionXML->QueryFloatAttribute("y", &yPosition);
-			xPosition *= ApplicationWindow::getScaleTuning();
-			yPosition *= ApplicationWindow::getScaleTuning();
+			//xPosition *= ApplicationWindow::getScaleTuning();
+			//yPosition *= ApplicationWindow::getScaleTuning();
 			loadedNode->savedPosition = glm::vec2(xPosition, yPosition);
 		}
 		else {
@@ -163,10 +169,10 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			float xOutput, yOutput;
 			outputPositionXML->QueryFloatAttribute("x", &xOutput);
 			outputPositionXML->QueryFloatAttribute("y", &yOutput);
-			xInput *= ApplicationWindow::getScaleTuning();
-			yInput *= ApplicationWindow::getScaleTuning();
-			xOutput *= ApplicationWindow::getScaleTuning();
-			yOutput *= ApplicationWindow::getScaleTuning();
+			//xInput *= ApplicationWindow::getScaleTuning();
+			//yInput *= ApplicationWindow::getScaleTuning();
+			//xOutput *= ApplicationWindow::getScaleTuning();
+			//yOutput *= ApplicationWindow::getScaleTuning();
 			loadedNode->savedPosition = glm::vec2(xInput, yInput);
 			loadedNode->savedSplitPosition = glm::vec2(xOutput, yOutput);
 		}

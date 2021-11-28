@@ -8,6 +8,8 @@
 #include "NodeGraph/NodeGraph.h"
 #include "Motion/Playback.h"
 
+#include "config.h"
+
 namespace EtherCatFieldbus {
 
     std::vector<NetworkInterfaceCard> networkInterfaceCards;
@@ -80,6 +82,14 @@ namespace EtherCatFieldbus {
         ec_adaptert* nics = ec_find_adapters();
         if (nics != nullptr) {
             while (nics != nullptr) {
+				
+#ifdef STACATO_MACOS
+				//on macos, we skip non ethernet network interfaces
+				if (strstr(nics->name, "en") == nullptr) {
+					nics = nics->next;
+					continue;
+				}
+#endif
                 NetworkInterfaceCard nic;
                 strcpy(nic.name, nics->name);
                 strcpy(nic.description, nics->desc);

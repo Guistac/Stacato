@@ -2,7 +2,7 @@
     <NodeGraph>
         <Nodes>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip A-J2" UniqueID="5">
-                <NodeEditorPosition x="-6833.3999" y="-4823.6997"/>
+                <NodeEditorPosition x="-13944" y="-9842"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="6" Visible="true" NoDataField="true"/>
@@ -23,7 +23,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip A-J1" UniqueID="19">
-                <NodeEditorPosition x="-6514.8999" y="-4829.2998"/>
+                <NodeEditorPosition x="-13292" y="-9854"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="20" Visible="true" NoDataField="true"/>
@@ -44,7 +44,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip A-axe" UniqueID="33">
-                <NodeEditorPosition x="-6180.2998" y="-4832.7998"/>
+                <NodeEditorPosition x="-12611" y="-9860"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="34" Visible="true" NoDataField="true"/>
@@ -65,7 +65,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip A-C1" UniqueID="47">
-                <NodeEditorPosition x="-5835.8999" y="-4847.5"/>
+                <NodeEditorPosition x="-11907" y="-9891"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="48" Visible="true" NoDataField="true"/>
@@ -86,7 +86,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip A-C2" UniqueID="61">
-                <NodeEditorPosition x="-5506.1997" y="-4827.8999"/>
+                <NodeEditorPosition x="-11235" y="-9850"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="62" Visible="true" NoDataField="true"/>
@@ -107,7 +107,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip C-J2" UniqueID="75">
-                <NodeEditorPosition x="-6834.7998" y="-5120.5"/>
+                <NodeEditorPosition x="-13945" y="-10448"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="76" Visible="true" NoDataField="true"/>
@@ -128,7 +128,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip C-J1" UniqueID="89">
-                <NodeEditorPosition x="-6515.6001" y="-5129.6001"/>
+                <NodeEditorPosition x="-13295" y="-10467"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="90" Visible="true" NoDataField="true"/>
@@ -149,7 +149,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip C-axe" UniqueID="103">
-                <NodeEditorPosition x="-6182.3999" y="-5131.6997"/>
+                <NodeEditorPosition x="-12615" y="-10471"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="104" Visible="true" NoDataField="true"/>
@@ -170,7 +170,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip C-C1" UniqueID="117">
-                <NodeEditorPosition x="-5835.1997" y="-5128.1997"/>
+                <NodeEditorPosition x="-11907" y="-10464"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="118" Visible="true" NoDataField="true"/>
@@ -191,7 +191,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip C-C2" UniqueID="131">
-                <NodeEditorPosition x="-5512.5" y="-5120.5"/>
+                <NodeEditorPosition x="-11248" y="-10448"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="132" Visible="true" NoDataField="true"/>
@@ -212,7 +212,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip E-J2" UniqueID="145">
-                <NodeEditorPosition x="-6832.6997" y="-5422.8999"/>
+                <NodeEditorPosition x="-13942" y="-11064"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="146" Visible="true" NoDataField="true"/>
@@ -233,7 +233,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip E-J1" UniqueID="159">
-                <NodeEditorPosition x="-6513.5" y="-5427.7998"/>
+                <NodeEditorPosition x="-13291" y="-11074"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="160" Visible="true" NoDataField="true"/>
@@ -254,7 +254,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip E-axe" UniqueID="173">
-                <NodeEditorPosition x="-6177.5" y="-5424.2998"/>
+                <NodeEditorPosition x="-12605" y="-11068"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="174" Visible="true" NoDataField="true"/>
@@ -275,7 +275,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip E-C1" UniqueID="187">
-                <NodeEditorPosition x="-5832.3999" y="-5425.6997"/>
+                <NodeEditorPosition x="-11901" y="-11071"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="188" Visible="true" NoDataField="true"/>
@@ -296,7 +296,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip E-C2" UniqueID="201">
-                <NodeEditorPosition x="-5507.6001" y="-5415.8999"/>
+                <NodeEditorPosition x="-11238" y="-11050"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="202" Visible="true" NoDataField="true"/>
@@ -317,7 +317,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip G-J2" UniqueID="215">
-                <NodeEditorPosition x="-6833.3999" y="-5730.8999"/>
+                <NodeEditorPosition x="-13944" y="-11692"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="216" Visible="true" NoDataField="true"/>
@@ -338,7 +338,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip G-J1" UniqueID="229">
-                <NodeEditorPosition x="-6517" y="-5734.3999"/>
+                <NodeEditorPosition x="-13300" y="-11701"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="230" Visible="true" NoDataField="true"/>
@@ -359,7 +359,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip G-axe" UniqueID="243">
-                <NodeEditorPosition x="-6184.5" y="-5733"/>
+                <NodeEditorPosition x="-12620" y="-11700"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="244" Visible="true" NoDataField="true"/>
@@ -380,7 +380,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip G-C1" UniqueID="257">
-                <NodeEditorPosition x="-5829.6001" y="-5733"/>
+                <NodeEditorPosition x="-11895" y="-11700"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="258" Visible="true" NoDataField="true"/>
@@ -401,7 +401,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip G-C2" UniqueID="271">
-                <NodeEditorPosition x="-5507.6001" y="-5733"/>
+                <NodeEditorPosition x="-11238" y="-11700"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="272" Visible="true" NoDataField="true"/>
@@ -422,8 +422,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:30)" UniqueID="285">
-                <InputNodeEditorPosition x="-6676.6001" y="-5279.3999"/>
-                <OutputNodeEditorPosition x="-6973.3999" y="-5431.2998"/>
+                <InputNodeEditorPosition x="-13624" y="-10772"/>
+                <OutputNodeEditorPosition x="-14230" y="-11082"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="30"/>
                     <IOModules>
@@ -470,8 +470,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:31)" UniqueID="313">
-                <InputNodeEditorPosition x="-6346.1997" y="-5273.7998"/>
-                <OutputNodeEditorPosition x="-6678.6997" y="-5466.2998"/>
+                <InputNodeEditorPosition x="-12950" y="-10760"/>
+                <OutputNodeEditorPosition x="-13628" y="-11154"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="31"/>
                     <IOModules>
@@ -518,8 +518,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:33)" UniqueID="341">
-                <InputNodeEditorPosition x="-5682.6001" y="-5275.8999"/>
-                <OutputNodeEditorPosition x="-5996.8999" y="-5441.7998"/>
+                <InputNodeEditorPosition x="-11595" y="-10764"/>
+                <OutputNodeEditorPosition x="-12235" y="-11102"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="33"/>
                     <IOModules>
@@ -566,8 +566,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:34)" UniqueID="356">
-                <InputNodeEditorPosition x="-5375.2998" y="-5268.1997"/>
-                <OutputNodeEditorPosition x="-5652.5" y="-5463.5"/>
+                <InputNodeEditorPosition x="-10968" y="-10750"/>
+                <OutputNodeEditorPosition x="-11534" y="-11148"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="34"/>
                     <IOModules>
@@ -614,8 +614,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:44)" UniqueID="371">
-                <InputNodeEditorPosition x="-5364.7998" y="-5597.1997"/>
-                <OutputNodeEditorPosition x="-5663.6997" y="-5766.6001"/>
+                <InputNodeEditorPosition x="-10945" y="-11421"/>
+                <OutputNodeEditorPosition x="-11557" y="-11767"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="44"/>
                     <IOModules>
@@ -662,8 +662,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:43)" UniqueID="386">
-                <InputNodeEditorPosition x="-5672.1001" y="-5575.5"/>
-                <OutputNodeEditorPosition x="-5996.8999" y="-5749.1001"/>
+                <InputNodeEditorPosition x="-11574" y="-11377"/>
+                <OutputNodeEditorPosition x="-12235" y="-11731"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="43"/>
                     <IOModules>
@@ -710,8 +710,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:42)" UniqueID="401">
-                <InputNodeEditorPosition x="-6016.5" y="-5567.1001"/>
-                <OutputNodeEditorPosition x="-6342.6997" y="-5740"/>
+                <InputNodeEditorPosition x="-12277" y="-11360"/>
+                <OutputNodeEditorPosition x="-12942" y="-11714"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="42"/>
                     <IOModules>
@@ -758,8 +758,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:41)" UniqueID="416">
-                <InputNodeEditorPosition x="-6351.7998" y="-5558"/>
-                <OutputNodeEditorPosition x="-6671.6997" y="-5759.6001"/>
+                <InputNodeEditorPosition x="-12960" y="-11342"/>
+                <OutputNodeEditorPosition x="-13614" y="-11752"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="41"/>
                     <IOModules>
@@ -806,8 +806,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:40)" UniqueID="431">
-                <InputNodeEditorPosition x="-6686.3999" y="-5573.3999"/>
-                <OutputNodeEditorPosition x="-6979" y="-5744.8999"/>
+                <InputNodeEditorPosition x="-13644" y="-11372"/>
+                <OutputNodeEditorPosition x="-14242" y="-11721"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="40"/>
                     <IOModules>
@@ -854,8 +854,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:20)" UniqueID="446">
-                <InputNodeEditorPosition x="-6680.1001" y="-4951.1001"/>
-                <OutputNodeEditorPosition x="-6973.3999" y="-5133.7998"/>
+                <InputNodeEditorPosition x="-13631" y="-10102"/>
+                <OutputNodeEditorPosition x="-14230" y="-10474"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="20"/>
                     <IOModules>
@@ -902,8 +902,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:21)" UniqueID="448">
-                <InputNodeEditorPosition x="-6356.6997" y="-4967.1997"/>
-                <OutputNodeEditorPosition x="-6666.1001" y="-5138"/>
+                <InputNodeEditorPosition x="-12971" y="-10135"/>
+                <OutputNodeEditorPosition x="-13602" y="-10485"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="21"/>
                     <IOModules>
@@ -950,8 +950,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:22)" UniqueID="450">
-                <InputNodeEditorPosition x="-6022.1001" y="-4953.8999"/>
-                <OutputNodeEditorPosition x="-6337.1001" y="-5149.8999"/>
+                <InputNodeEditorPosition x="-12288" y="-10107"/>
+                <OutputNodeEditorPosition x="-12931" y="-10507"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="22"/>
                     <IOModules>
@@ -998,8 +998,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:23)" UniqueID="452">
-                <InputNodeEditorPosition x="-5688.8999" y="-4971.3999"/>
-                <OutputNodeEditorPosition x="-6002.5" y="-5142.8999"/>
+                <InputNodeEditorPosition x="-11607" y="-10144"/>
+                <OutputNodeEditorPosition x="-12248" y="-10492"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="23"/>
                     <IOModules>
@@ -1046,8 +1046,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:24)" UniqueID="454">
-                <InputNodeEditorPosition x="-5364.7998" y="-4980.5"/>
-                <OutputNodeEditorPosition x="-5657.3999" y="-5153.3999"/>
+                <InputNodeEditorPosition x="-10945" y="-10162"/>
+                <OutputNodeEditorPosition x="-11544" y="-10515"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="24"/>
                     <IOModules>
@@ -1094,8 +1094,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:14)" UniqueID="456">
-                <InputNodeEditorPosition x="-5375.2998" y="-4688.6001"/>
-                <OutputNodeEditorPosition x="-5657.3999" y="-4841.8999"/>
+                <InputNodeEditorPosition x="-10968" y="-9567"/>
+                <OutputNodeEditorPosition x="-11544" y="-9878"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="14"/>
                     <IOModules>
@@ -1142,8 +1142,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:10)" UniqueID="458">
-                <InputNodeEditorPosition x="-6680.1001" y="-4657.7998"/>
-                <OutputNodeEditorPosition x="-6979" y="-4828.6001"/>
+                <InputNodeEditorPosition x="-13631" y="-9502"/>
+                <OutputNodeEditorPosition x="-14242" y="-9852"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="10"/>
                     <IOModules>
@@ -1190,8 +1190,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:11)" UniqueID="460">
-                <InputNodeEditorPosition x="-6346.1997" y="-4663.3999"/>
-                <OutputNodeEditorPosition x="-6666.1001" y="-4837.6997"/>
+                <InputNodeEditorPosition x="-12950" y="-9515"/>
+                <OutputNodeEditorPosition x="-13602" y="-9871"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="11"/>
                     <IOModules>
@@ -1238,8 +1238,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:12)" UniqueID="462">
-                <InputNodeEditorPosition x="-6016.5" y="-4645.8999"/>
-                <OutputNodeEditorPosition x="-6337.1001" y="-4848.1997"/>
+                <InputNodeEditorPosition x="-12277" y="-9478"/>
+                <OutputNodeEditorPosition x="-12931" y="-9892"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="12"/>
                     <IOModules>
@@ -1286,8 +1286,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:13)" UniqueID="464">
-                <InputNodeEditorPosition x="-5688.8999" y="-4656.3999"/>
-                <OutputNodeEditorPosition x="-6002.5" y="-4839.7998"/>
+                <InputNodeEditorPosition x="-11607" y="-9501"/>
+                <OutputNodeEditorPosition x="-12248" y="-9874"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="13"/>
                     <IOModules>
@@ -1334,8 +1334,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VIPA-053-1EC01" Split="true" CustomName="VIPA-053-1EC01 (ID:95)" UniqueID="596">
-                <InputNodeEditorPosition x="-6016.5" y="-5260.5"/>
-                <OutputNodeEditorPosition x="-6331.5" y="-5455.7998"/>
+                <InputNodeEditorPosition x="-12277" y="-10734"/>
+                <OutputNodeEditorPosition x="-12920" y="-11131"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="32"/>
                     <IOModules>
@@ -1382,7 +1382,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M (Alias:140)" UniqueID="845">
-                <NodeEditorPosition x="-7506.7998" y="-5571.2998"/>
+                <NodeEditorPosition x="-15317" y="-11368"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="140"/>
                     <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="500" defaultManualAcceleration_rpsps="100"/>
@@ -1414,7 +1414,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Position Controlled Axis" UniqueID="860">
-                <NodeEditorPosition x="-7335.2998" y="-5534.8999"/>
+                <NodeEditorPosition x="-14968" y="-11292"/>
                 <NodeSpecificData>
                     <Machine UnitType="Linear" Unit="Meter" PositionControl="Servo"/>
                     <UnitConversion FeedbackUnitsPerMachineUnit="62.406037333520281" ActuatorUnitsPerMachineUnit="62.406037333520281" FeedbackAndActuatorConversionIdentical="false"/>
@@ -1439,7 +1439,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="PositionControlledSingleAxisMachine" CustomName="Costière Test" UniqueID="874">
-                <NodeEditorPosition x="-7179.1997" y="-5521.6001"/>
+                <NodeEditorPosition x="-14650" y="-11267"/>
                 <NodeSpecificData>
                     <Rapids Velocity_machineUnitsPerSecond="0.5" Acceleration_machineUnitsPerSecondSquared="1"/>
                 </NodeSpecificData>
@@ -1723,7 +1723,7 @@
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="lo0" Name="lo0"/>
+        <Primary Description="en4" Name="en4"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>

@@ -65,8 +65,6 @@ void machineManagerGui(){
 		for (int i = 0; i < machines.size(); i++) {
 			std::shared_ptr<Machine> machine = machines[i];
 			if (machineList.beginItem(glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing()), machine == Environnement::selectedMachine)) {
-				
-				ImGui::BeginGroup();
 
 				ImGui::PushFont(Fonts::robotoBold15);
 				float shortNameWidth = ImGui::CalcTextSize(machine->shortName).x;
@@ -87,8 +85,6 @@ void machineManagerGui(){
 				ImGui::SameLine(ImGui::GetStyle().ItemSpacing.x / 2.0);
 				ImGui::Text("%s", machine->shortName);
 				ImGui::PopFont();
-
-				ImGui::EndGroup();
 
 				ImGui::SameLine();
 				ImGui::Text("%s", machine->getName());
@@ -150,9 +146,12 @@ void deviceManagerGui() {
 			std::shared_ptr<EtherCatDevice> etherCatDevice = etherCatDevices[i];
 			if (etherCatDeviceList.beginItem(glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing()))) {
 				
-				ImGui::BeginGroup();
+				ImGui::PushFont(Fonts::robotoBold15);
+				static char numberString[16];
+				if(!etherCatDevice->isDetected()) sprintf(numberString, "#-");
+				else sprintf(numberString, "#%i", etherCatDevice->getSlaveIndex());
 				
-				float headerStripWidth = ImGui::GetTextLineHeight() * 2.0;
+				float headerStripWidth = ImGui::CalcTextSize(numberString).x + ImGui::GetStyle().ItemSpacing.x;
 				glm::vec2 min = ImGui::GetWindowPos();
 				glm::vec2 max = min + glm::vec2(headerStripWidth, ImGui::GetWindowSize().y);
 				glm::vec4 headerStripColor;
@@ -163,19 +162,14 @@ void deviceManagerGui() {
 				else headerStripColor = Colors::blue;
 				
 				ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(headerStripColor), 10.0, ImDrawFlags_RoundCornersLeft);
-
-				ImGui::PushFont(Fonts::robotoBold15);
+			
 				ImGui::SameLine(ImGui::GetStyle().ItemSpacing.x / 2.0);
 				int slaveIndex = etherCatDevice->getSlaveIndex();
-				if(!etherCatDevice->isDetected()){
-					ImGui::PushStyleColor(ImGuiCol_Text, Colors::darkGray);
-					ImGui::Text("--");
-					ImGui::PopStyleColor();
-				}
-				else ImGui::Text("#%i", etherCatDevice->getSlaveIndex());
+				if(!etherCatDevice->isDetected()) ImGui::PushStyleColor(ImGuiCol_Text, Colors::darkGray);
+				else ImGui::PushStyleColor(ImGuiCol_Text, Colors::white);
+				ImGui::Text("%s", numberString);
+				ImGui::PopStyleColor();
 				ImGui::PopFont();
-
-				ImGui::EndGroup();
 
 				ImGui::SameLine();
 				ImGui::Text("%s", etherCatDevice->getName());
