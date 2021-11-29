@@ -173,6 +173,7 @@ bool VIPA_053_1EC01::downloadDeviceModules(std::vector<Module>& output) {
                     moduleParameter.nodePin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, pinDisplayName, pinSaveName);
                 }
                 else {
+					moduleParameter.nodePin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, pinDisplayName, pinSaveName);
                     Logger::critical("Can't Handle non boolean data in VIPA modules yet");
                     //for non boolean values, this will need to be handled differently
                     //moduleParameter.NodePin = std::make_shared<NodePin>(DataType::INTEGER_VALUE, DataDirection::NODE_INPUT, parameterName);
