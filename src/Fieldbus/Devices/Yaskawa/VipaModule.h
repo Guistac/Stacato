@@ -68,7 +68,7 @@ public:
 	//gui stuff
 	void moduleGui();
 	void informationGui();
-	virtual void moduleParameterGui(){}
+	virtual void moduleParameterGui();
 	
 	//saving and loading
 	virtual bool save(tinyxml2::XMLElement* xml){}

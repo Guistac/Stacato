@@ -371,29 +371,47 @@ void VIPA_050_1BS00::updateEncoderWorkingRange(){
 }
 
 bool VIPA_050_1BS00::save(tinyxml2::XMLElement* xml){
-	
-	
-	/*
-	PauseTime::Microseconds pausetime = PauseTime::Microseconds::_32_MICROSECONDS;
-	TransmissionRate::Frequency transmissionFrequency = TransmissionRate::Frequency::_500_KILOHERTZ;
-	int normalisationBitCount = 0;
-	int encoderBitCount = 24;
-	int singleTurnBitCount = 12;
-	BitShift::Direction bitshiftDirection = BitShift::Direction::MSB_FIRST;
-	ClockEdge::Edge clockEdge = ClockEdge::Edge::RISING_EDGE;
-	Encoding::Format encodingFormat = Encoding::Format::BINARY;
-	bool b_centerRangeOnZero = false;
-	*/
-	
-	//xml->
-	
-	
-	
-	
+	xml->SetAttribute("Encoding", getEncoding(encodingFormat)->saveName);
+	xml->SetAttribute("TransmissionRate", getTransmissionRate(transmissionFrequency)->saveName);
+	xml->SetAttribute("IdleTime", getPauseTime(pausetime)->saveName);
+	xml->SetAttribute("CenterRangeOnZero", b_centerRangeOnZero);
+	xml->SetAttribute("TotalBitCount", encoderBitCount);
+	xml->SetAttribute("SingleTurnBitCount", singleTurnBitCount);
+	xml->SetAttribute("IgnoredBitCount", normalisationBitCount);
+	xml->SetAttribute("BitShiftDirection", getBitShift(bitshiftDirection)->saveName);
+	xml->SetAttribute("ClockEdge", getClockEdge(clockEdge)->saveName);
+	xml->SetAttribute("Zero_revolutions", encoderDevice->positionOffset_positionUnits);
 	return true;
 }
 
 bool VIPA_050_1BS00::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	const char* encodingString;
+	if(xml->QueryStringAttribute("Encoding", &encodingString) != XML_SUCCESS) return Logger::warn("Could not find Encoding attribute");
+	if(getEncoding(encodingString) == nullptr) return Logger::warn("Could not identify Encoding attribute");
+	encodingFormat = getEncoding(encodingString)->format;
+	const char* frequencyString;
+	if(xml->QueryStringAttribute("TransmissionRate", &frequencyString) != XML_SUCCESS) return Logger::warn("Could not find Frequency attribute");
+	if(getTransmissionRate(frequencyString) == nullptr) return Logger::warn("Could not identify Transmission Rate attribute");
+	transmissionFrequency = getTransmissionRate(frequencyString)->frequency;
+	const char* idleTimeString;
+	if(xml->QueryStringAttribute("IdleTime", &idleTimeString) != XML_SUCCESS) return Logger::warn("Could not find Idle Time attribute");
+	if(getPauseTime(idleTimeString) == nullptr) return Logger::warn("Could not identify idle time attribute");
+	pausetime = getPauseTime(idleTimeString)->microseconds;
+	if(xml->QueryBoolAttribute("CenterRangeOnZero", &b_centerRangeOnZero) != XML_SUCCESS) return Logger::warn("Could not find Center on zero attribute");
+	if(xml->QueryIntAttribute("TotalBitCount", &encoderBitCount) != XML_SUCCESS) return Logger::warn("Could not find Total Bit Count attribute");
+	if(xml->QueryIntAttribute("SingleTurnBitCount", &singleTurnBitCount) != XML_SUCCESS) return Logger::warn("Could not find Singleturn bit count attribute");
+	if(xml->QueryIntAttribute("IgnoredBitCount", &normalisationBitCount) != XML_SUCCESS) return Logger::warn("Could not find ignored bit count attribute");
+	const char* bitShiftDirectionString;
+	if(xml->QueryStringAttribute("BitShiftDirection", &bitShiftDirectionString) != XML_SUCCESS) return Logger::warn("Could not find Bitshift Direction attribute");
+	if(getBitShift(bitShiftDirectionString) == nullptr) return Logger::warn("Could not identify Bit shift attribute");
+	bitshiftDirection = getBitShift(bitShiftDirectionString)->direction;
+	const char* clockEdgeString;
+	if(xml->QueryStringAttribute("ClockEdge", &clockEdgeString) != XML_SUCCESS) return Logger::warn("Could not find Clock Edge attribute");
+	if(getClockEdge(clockEdgeString) == nullptr) return Logger::warn("Could not identify Clock Edge Attribute");
+	clockEdge = getClockEdge(clockEdgeString)->edge;
+	if(xml->QueryDoubleAttribute("Zero_revolutions", &encoderDevice->positionOffset_positionUnits) != XML_SUCCESS) return Logger::warn("Could not find encoder zero attribute");
+	updateEncoderWorkingRange();
 	return true;
 }
 

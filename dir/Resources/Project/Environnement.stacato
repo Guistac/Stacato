@@ -2,11 +2,11 @@
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="false" CustomName="VipaBusCoupler-053-1EC01 (ID:64)" UniqueID="28">
-                <NodeEditorPosition x="-14594" y="-11460"/>
+                <NodeEditorPosition x="-14498" y="-11390"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="64"/>
                     <SLIOModules>
-                        <Module Type="VIPA 050-1BS00"/>
+                        <Module Type="VIPA 050-1BS00" Encoding="Gray" TransmissionRate="500Khz" IdleTime="32" CenterRangeOnZero="true" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" Zero_revolutions="0"/>
                         <Module Type="VIPA 021-1BF00"/>
                         <Module Type="VIPA 032-1BD70">
                             <Channel Range="ZeroToPositive10V" ShortCircuitDetection="true"/>
@@ -56,7 +56,7 @@
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en7" Name="en7"/>
+        <Primary Description="en4" Name="en4"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>

@@ -22,12 +22,13 @@ void VipaModule::moduleGui(){
 		
 		if(ImGui::BeginTabItem("Information")){
 			ImGui::BeginChild("##InformationChild");
+			informationGui();
 			ImGui::EndChild();
 			ImGui::EndTabItem();
 		}
 		if(ImGui::BeginTabItem("Settings")){
 			ImGui::BeginChild("##SettingsChild");
-			moduleSpecificGui();
+			moduleParameterGui();
 			ImGui::EndChild();
 			ImGui::EndTabItem();
 		}
@@ -36,6 +37,25 @@ void VipaModule::moduleGui(){
 	}
 }
 
-void VipaModule::moduleSpecificGui(){
+void VipaModule::informationGui(){
+	if(!inputPins.empty()){
+		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::Text("Outputs");
+		ImGui::PopFont();
+		for(auto& inputPin : inputPins){
+			ImGui::Text("%s", inputPin->getDisplayName());
+		}
+	}
+	if(!outputPins.empty()){
+		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::Text("Inputs");
+		ImGui::PopFont();
+		for(auto& outputPin : outputPins){
+			ImGui::Text("%s", outputPin->getDisplayName());
+		}
+	}
+}
+
+void VipaModule::moduleParameterGui(){
 	ImGui::Text("No Settings Are Available for this SLIO Module");
 }
