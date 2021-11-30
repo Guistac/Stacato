@@ -11,43 +11,117 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
-void VIPA_053_1EC01::deviceSpecificGui() {
+#include "Gui/Utilities/CustomWidgets.h"
+
+#include "VipaModule.h"
+
+void VipaBusCoupler_053_1EC01::deviceSpecificGui() {
     if (ImGui::BeginTabItem("VIPA")) {
         
-        bool disableModuleDetectionButton = !isDetected();
-        if (disableModuleDetectionButton) BEGIN_DISABLE_IMGUI_ELEMENT
-        if (ImGui::Button("Detect I/O Modules")) {
-            std::thread ioModuleDetectionHandler([this]() { configureFromDeviceModules(); });
-            ioModuleDetectionHandler.detach();
-        }
-        if (disableModuleDetectionButton) END_DISABLE_IMGUI_ELEMENT
-        ImGui::SameLine();
-        ImGui::Text(getDataTransferState(configureFromDeviceModulesDownloadStatus)->displayName);
-        
-        for (int i = 0; i < modules.size(); i++) {
-            Module& module = modules[i];
-            ImGui::PushID(i);
-            if (ImGui::TreeNode(getModuleType(module.moduleType)->displayName)) {
-                //ImGui::Text(module.name);
-                //ImGui::Text("Inputs: ByteCount: %i  BitCount: %i", module.inputByteCount, module.inputBitCount);
-                //ImGui::Text("Outputs: ByteCount: %i  BitCount: %i", module.outputByteCount, module.outputBitCount);
-                for (int j = 0; j < module.inputs.size(); j++) {
-                    ModuleParameter& parameter = module.inputs[j];
-                    ImGui::Text("Input %i: InputByte: %i  InputBit: %i  BitSize: %i", i, parameter.ioMapByteOffset, parameter.ioMapBitOffset, parameter.bitSize);
-                    std::shared_ptr<NodePin> NodePin = parameter.nodePin;
-                    //ImGui::Text("%s (%s)", NodePin->getName(), NodePin->getTypeName());
-                }
-                for (int j = 0; j < module.outputs.size(); j++) {
-                    ModuleParameter& parameter = module.outputs[j];
-                    ImGui::Text("Output %i: OutputByte: %i  OutputBit: %i  BitSize: %i", i, parameter.ioMapByteOffset, parameter.ioMapBitOffset, parameter.bitSize);
-                    std::shared_ptr<NodePin> NodePin = parameter.nodePin;
-                    //ImGui::Text("%s (%s)", NodePin->getName(), NodePin->getTypeName());
-                }
-                ImGui::TreePop();
-            }
-            ImGui::PopID();
-        }
-
+		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::Text("SLIO Modules");
+		ImGui::PopFont();
+		
+		ImGui::SameLine();
+		if(ImGui::Button("Auto Detect Modules")){
+			configureFromDeviceModules();
+		}
+		
+		ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit;
+		
+		if(ImGui::BeginTable("##VipaModuleTable", 4, tableFlags)){
+			
+			ImGui::TableSetupColumn("Manage");
+			ImGui::TableSetupColumn("Index");
+			ImGui::TableSetupColumn("Type");
+			ImGui::TableSetupColumn("Name");
+			ImGui::TableHeadersRow();
+			
+			std::shared_ptr<VipaModule> deletedModule = nullptr;
+			std::shared_ptr<VipaModule> movedUpModule = nullptr;
+			std::shared_ptr<VipaModule> movedDownModule = nullptr;
+			
+			float rowHeight = ImGui::GetFrameHeight() + ImGui::GetTextLineHeight() * 0.2;
+			
+			for(int i = 0; i < modules.size(); i++){
+				
+				ImGui::PushID(i);
+				
+				std::shared_ptr<VipaModule> module = modules[i];
+				ImGui::TableNextRow();
+				if(module == selectedModule) ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImColor(Colors::blue));
+				
+				ImGui::TableSetColumnIndex(0);
+				float spacing = ImGui::GetTextLineHeight() * 0.1;
+				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(spacing));
+				if (buttonCross("##remove")) deletedModule = module;
+				ImGui::SameLine();
+				bool disableButton = i == 0;
+				if(disableButton) BEGIN_DISABLE_IMGUI_ELEMENT
+				if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpModule = module;
+				if(disableButton) END_DISABLE_IMGUI_ELEMENT
+				ImGui::SameLine();
+				disableButton = i == modules.size() - 1;
+				if(disableButton) BEGIN_DISABLE_IMGUI_ELEMENT
+				if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownModule = module;
+				if(disableButton) END_DISABLE_IMGUI_ELEMENT
+				ImGui::PopStyleVar();
+				
+				ImGui::TableSetColumnIndex(1);
+				static char indexLabelString[16];
+				sprintf(indexLabelString, "%i", module->moduleIndex);
+				ImGuiSelectableFlags selectable_flags = ImGuiSelectableFlags_SpanAllColumns;
+				if (ImGui::Selectable(indexLabelString, false, selectable_flags, ImVec2(0.0, 0.0))){
+					selectedModule = module;
+				}
+				ImGui::TableSetColumnIndex(2);
+				ImGui::Text("%s", module->getDisplayName());
+				ImGui::TableSetColumnIndex(3);
+				ImGui::Text("%s", module->getSaveName());
+				
+				ImGui::PopID();
+			}
+			
+			ImGui::TableNextRow();
+			
+			ImGui::TableSetColumnIndex(0);
+			if(ImGui::Button("Add Module")) ImGui::OpenPopup("ModuleAdderPopup");
+			if (ImGui::BeginPopup("ModuleAdderPopup")) {
+				for (auto& module : VipaModuleFactory::getModules()) {
+					static char moduleItemString[128];
+					sprintf(moduleItemString, "%s (%s)", module->getDisplayName(), module->getSaveName());
+					if(ImGui::MenuItem(moduleItemString)){
+						addModule(module->getInstance());
+					}
+				}
+				ImGui::EndPopup();
+			}
+			if(modules.empty()){
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("No Modules");
+			}
+		
+			if(deletedModule) removeModule(deletedModule);
+			if(movedUpModule) moveModuleUp(movedUpModule);
+			if(movedDownModule) moveModuleDown(movedDownModule);
+			
+			ImGui::EndTable();
+		}
+		
+		ImGui::Separator();
+		
+		if(selectedModule){
+			selectedModule->moduleGui();
+		}
+	
+		
+		
+		
+		
+		
+		
+		
+		
         ImGui::EndTabItem();
     }
 }

@@ -350,6 +350,11 @@ void EtherCatDevice::pdoDataGui() {
                     ImGui::Text("%s", entry.name);
                     ImGui::TableSetColumnIndex(4);
                     switch (entry.byteCount) {
+					case 0: if(entry.bitCount == 1){
+						ImGui::Text(*(bool*)entry.dataPointer ? "true" : "false");
+					}else{
+						ImGui::Text("unknown bit size");
+					}break;
                     case 1: ImGui::Text("%X", *(uint8_t*)entry.dataPointer); break;
                     case 2: ImGui::Text("%X", *(uint16_t*)entry.dataPointer); break;
                     case 4: ImGui::Text("%X", *(uint32_t*)entry.dataPointer); break;

@@ -3,68 +3,30 @@
 #include "Fieldbus/EtherCatDevice.h"
 #include "Utilities/ScrollingBuffer.h"
 
-#include <map>
-#include <string>
+class VipaModule;
 
-class VIPA_053_1EC01 : public EtherCatDevice {
+
+class VipaBusCoupler_053_1EC01 : public EtherCatDevice {
 public:
 
-    DEFINE_ETHERCAT_DEVICE(VIPA_053_1EC01, "053-1EC01", "VIPA 053-1EC01", "VIPA-053-1EC01", "Yaskawa", "I/O")
-
-    struct ModuleParameter {
-        uint16_t index;         //Coe Data Index (for display of pdodata)
-        uint8_t subindex;       //Coe Data Subindex (for display of pdodata)
-        int bitSize;            //for type matching and display of pdodata
-        int ioMapByteOffset;    //byte index in the ioMap
-        int ioMapBitOffset;     //bit offset in the ioMap byte
-        std::shared_ptr<NodePin> nodePin;   //actual NodePin pin for nodegraph logic
-    };
-
-    
-    //TODO: Add expected input and output count and size for each module type
-    struct ModuleType {
-        enum class Type {
-            VIPA_022_1HD10, //4x Relais Output
-            VIPA_021_1BF00, //8x Digital Input
-            VIPA_050_1BS00, //SSI Input
-            VIPA_032_1BD70, //4x 12bit Analog Input
-            UNKNOWN_MODULE
-        };
-        Type type;
-        char displayName[64];
-        char saveName[64];
-        char dataName[64];
-    };
-    static std::vector<ModuleType> moduleTypes;
-    ModuleType* getModuleType(const char* saveName);
-    ModuleType* getModuleType(ModuleType::Type type);
-
-    class Module {
-    public:
-        Module(ModuleType::Type t) : moduleType(t) {}
-        ModuleType::Type moduleType;
-        
-        int inputByteCount = 0;
-        int inputBitCount = 0;
-        std::vector<ModuleParameter> inputs;
-
-        int outputByteCount = 0;
-        int outputBitCount = 0;
-        std::vector<ModuleParameter> outputs;
-    };
-
-    //subdevices
+    DEFINE_ETHERCAT_DEVICE(VipaBusCoupler_053_1EC01, "053-1EC01", "Vipa Bus Coupler (053_1EC01)", "VipaBusCoupler-053-1EC01", "Yaskawa", "I/O")
+	
+    //master GPIO Subdevice
     std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
     std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodeData::Type::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
-    std::vector<Module> modules;
-
-
-
-    //std::vector<GpioDevice> 
-
-
-    bool downloadDeviceModules(std::vector<Module>& output);
-
+	
+	//modules and module management
+	std::vector<std::shared_ptr<VipaModule>> modules;
+	void addModule(std::shared_ptr<VipaModule> module);
+	void removeModule(std::shared_ptr<VipaModule> module);
+	void reorderModule(int oldIndex, int newIndex);
+	void moveModuleUp(std::shared_ptr<VipaModule> module);
+	void moveModuleDown(std::shared_ptr<VipaModule> module);
+	std::shared_ptr<VipaModule> selectedModule = nullptr;
+	
+	//module configuration
+    bool downloadDeviceModules(std::vector<std::shared_ptr<VipaModule>>& output);
     void configureFromDeviceModules();
     DataTransferState::State configureFromDeviceModulesDownloadStatus = DataTransferState::State::NO_TRANSFER;
 };
+
