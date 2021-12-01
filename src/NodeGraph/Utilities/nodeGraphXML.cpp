@@ -131,6 +131,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 				}break;
 			case Node::Type::PROCESSOR:
 				loadedNode = NodeFactory::getNodeBySaveName(nodeSaveNameString);
+				if(loadedNode == nullptr) loadedNode = NodeFactory::getSafetyNodeBySaveName(nodeSaveNameString);
 				break;
 			case Node::Type::CLOCK:
 				loadedNode = NodeFactory::getNodeBySaveName(nodeSaveNameString);

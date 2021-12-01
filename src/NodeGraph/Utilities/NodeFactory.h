@@ -19,4 +19,7 @@ namespace NodeFactory {
 
 	std::shared_ptr<Node> getMachineBySaveName(const char* name);
 	std::vector<NodeGroup>& getMachinesByCategory();
+
+	std::shared_ptr<Node> getSafetyNodeBySaveName(const char* name);
+	std::vector<Node*>& getAllSafetyNodes();
 }
