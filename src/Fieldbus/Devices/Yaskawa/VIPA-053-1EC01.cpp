@@ -237,7 +237,7 @@ void VipaBusCoupler_053_1EC01::configureFromDeviceModules() {
 
 
 void VipaBusCoupler_053_1EC01::readInputs() {
-
+	
 	txPdoAssignement.pullDataFrom(identity->inputs);
 	
 	

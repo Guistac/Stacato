@@ -27,6 +27,9 @@ void VipaBusCoupler_053_1EC01::deviceSpecificGui() {
 			configureFromDeviceModules();
 		}
 		
+		ImGui::SameLine();
+		ImGui::Text("%s", getDataTransferState(configureFromDeviceModulesDownloadStatus)->displayName);
+		
 		ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit;
 		
 		if(ImGui::BeginTable("##VipaModuleTable", 4, tableFlags)){

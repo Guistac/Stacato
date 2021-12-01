@@ -7,6 +7,7 @@
 #include "Gui/Assets/Colors.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
+#include "Fieldbus/EtherCatDevice.h"
 
 void etherCatParameters(bool resetNicLists) {
 
@@ -117,7 +118,30 @@ void etherCatParameters(bool resetNicLists) {
 		ImGui::Text("These parameters become active the next time the fieldbus is started");
 
 
+		
+		for(auto& slave : EtherCatFieldbus::slaves){
+			uint8_t* outputs = slave->identity->outputs;
+			int outputByteCount = slave->identity->Obytes;
+			
+			uint8_t* inputs = slave->identity->inputs;
+			int inputByteCount = slave->identity->Ibytes;
+			
+			ImGui::Text("%s", slave->getName());
+			for(int i = 0; i < outputByteCount; i++){
+				ImGui::Text("0x%X", outputs[i]);
+				ImGui::SameLine();
+			}
+			ImGui::NewLine();
+			for(int i = 0; i < inputByteCount; i++){
+				ImGui::Text("0x%X", inputs[i]);
+				ImGui::SameLine();
+			}
+			ImGui::NewLine();
+		}
+		
+		
 		ImGui::EndChild();
 	}
-
+	
+	
 }

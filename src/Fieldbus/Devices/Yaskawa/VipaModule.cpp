@@ -63,10 +63,13 @@ void VIPA_022_1HD10::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignem
 void VIPA_022_1HD10::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignement){
 	rxPdoAssignement.addNewModule(0x1600 + moduleIndex);
 	uint16_t dataObjectIndex = 0x7000 + moduleIndex;
-	rxPdoAssignement.addEntry(dataObjectIndex, 0x1, 1, "Relais Output 0", &outputs[0]);
-	rxPdoAssignement.addEntry(dataObjectIndex, 0x2, 1, "Relais Output 1", &outputs[1]);
-	rxPdoAssignement.addEntry(dataObjectIndex, 0x3, 1, "Relais Output 2", &outputs[2]);
-	rxPdoAssignement.addEntry(dataObjectIndex, 0x4, 1, "Relais Output 3", &outputs[3]);
+	for(int i = 0; i < 4; i++){
+		uint8_t subindex = i + 1;
+		static char pdoEntryNameString[64];
+		sprintf(pdoEntryNameString, "Relais Output %i", i);
+		bool& dataReference = outputs[i];
+		rxPdoAssignement.addEntry(dataObjectIndex, subindex, 1, pdoEntryNameString, &dataReference);
+	}
 	rxPdoAssignement.addEntry(dataObjectIndex, 0x5, 4, "Reserved", &pdoSpacerBits);
 }
 bool VIPA_022_1HD10::configureParameters(){
@@ -78,8 +81,13 @@ void VIPA_022_1HD10::readInputs(){
 }
 void VIPA_022_1HD10::writeOutputs(){
 	for(int i = 0; i < 4; i++){
-		outputs[i] = inputPins[i]->getBoolean();
+		if(inputPins[i]->isConnected()){
+			outputs[i] = inputPins[i]->getConnectedPins().front()->getBoolean();
+		}else{
+			outputs[i] = inputPins[i]->getBoolean();
+		}
 	}
+	Logger::warn("{} {} {} {}", outputs[0],outputs[1],outputs[2],outputs[3]);
 }
 
 //=================================================================
@@ -110,8 +118,8 @@ void VIPA_021_1BF00::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignem
 		int bitSize = 1;
 		static char pdoEntryNameString[64];
 		sprintf(pdoEntryNameString, "Digital Input %i", i);
-		void* dataPointer = &inputs[i];
-		txPdoAssignement.addEntry(dataObjectIndex, subindex, bitSize, pdoEntryNameString, dataPointer);
+		bool& dataReference = inputs[i];
+		txPdoAssignement.addEntry(dataObjectIndex, subindex, bitSize, pdoEntryNameString, &dataReference);
 	}
 }
 void VIPA_021_1BF00::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignement){
@@ -147,14 +155,17 @@ void VIPA_022_1BF00::onConstruction(){
 	outputBitCount = 8;
 	outputByteCount = 1;
 }
+
 void VIPA_022_1BF00::onSetIndex(int i){
 	for(int i = 0; i < 8; i++){
 		sprintf((char*)inputPins[i]->getDisplayName(), "Module %i Digital Output %i", moduleIndex, i);
 	}
 }
+
 void VIPA_022_1BF00::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
 	//module has no rx pdo module
 }
+
 void VIPA_022_1BF00::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignement){
 	rxPdoAssignement.addNewModule(0x1600 + moduleIndex);
 	uint16_t dataObjectIndex = 0x7000 + moduleIndex;
@@ -163,20 +174,26 @@ void VIPA_022_1BF00::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignem
 		int bitSize = 1;
 		static char pdoEntryNameString[64];
 		sprintf(pdoEntryNameString, "Digital Input %i", i);
-		void* dataPointer = &outputs[i];
-		rxPdoAssignement.addEntry(dataObjectIndex, subindex, bitSize, pdoEntryNameString, dataPointer);
+		bool& dataReference = outputs[i];
+		rxPdoAssignement.addEntry(dataObjectIndex, subindex, bitSize, pdoEntryNameString, &dataReference);
 	}
 }
 bool VIPA_022_1BF00::configureParameters(){
 	//no parameter configuration for this SLIO module
 	return true;
 }
+
 void VIPA_022_1BF00::readInputs(){
 	//no input writing for this SLIO module
 }
+
 void VIPA_022_1BF00::writeOutputs(){
 	for(int i = 0; i < 8; i++){
-		outputs[i] = inputPins[i]->getBoolean();
+		if(inputPins[i]->isConnected()){
+			outputs[i] = inputPins[i]->getConnectedPins().front()->getBoolean();
+		}else{
+			outputs[i] = inputPins[i]->getBoolean();
+		}
 	}
 }
 //=================================================================
@@ -611,49 +628,55 @@ void VIPA_032_1BD70::onConstruction(){
 	outputBitCount = 64;
 	outputByteCount = 8;
 }
+
 void VIPA_032_1BD70::onSetIndex(int i){
 	for(int i = 0; i < 4; i++){
 		sprintf((char*)inputPins[i]->getDisplayName(), "Module %i Analog Output %i", moduleIndex, i);
 	}
 }
+
 void VIPA_032_1BD70::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
 	//this module has no tx pdo module
 }
+
 void VIPA_032_1BD70::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignement){
 	rxPdoAssignement.addNewModule(0x1600 + moduleIndex);
 	uint16_t dataObjectIndex = 0x7000 + moduleIndex;
-	rxPdoAssignement.addEntry(dataObjectIndex, 0x1, 16, "Analog Output 0", &outputs[0]);
-	rxPdoAssignement.addEntry(dataObjectIndex, 0x2, 16, "Analog Output 1", &outputs[1]);
-	rxPdoAssignement.addEntry(dataObjectIndex, 0x3, 16, "Analog Output 2", &outputs[2]);
-	rxPdoAssignement.addEntry(dataObjectIndex, 0x4, 16, "Analog Output 3", &outputs[3]);
+	for(int i = 0; i < 4; i++){
+		uint8_t subindex = i + 1;
+		static char pdoEntryNameString[64];
+		sprintf(pdoEntryNameString, "Analog Output %i", i);
+		rxPdoAssignement.addEntry(dataObjectIndex, subindex, 16, pdoEntryNameString, &outputs[i]);
+	}
 }
+
 bool VIPA_032_1BD70::configureParameters(){
-	
 	uint16_t settingsObjectIndex = 0x3100 + moduleIndex;
-	
 	uint8_t shortCircuitDetectionParameter = 0x0;
 	for(int i = 0; i < 4; i++){
-		if(shortCircuitDetectionSettings[i]) shortCircuitDetectionParameter |= 0x1 << 4;
+		if(shortCircuitDetectionSettings[i]) shortCircuitDetectionParameter |= 0x1 << i;
 	}
 	if(!parentBusCoupler->writeSDO_U8(settingsObjectIndex, 0x2, shortCircuitDetectionParameter)) return false;
-	
 	for(int i = 0; i < 4; i++){
 		uint8_t voltageRangeSettingSubindex = i + 3;
 		if(!parentBusCoupler->writeSDO_U8(settingsObjectIndex, voltageRangeSettingSubindex, getVoltageRange(voltageRangeSettings[i])->valueSetting)) return false;
 	}
-	
 	return true;
-	
 }
+
 void VIPA_032_1BD70::readInputs(){
 	//no input reading for this SLIO Module
 }
+
 void VIPA_032_1BD70::writeOutputs(){
 	for(int i = 0; i < 4; i++){
-		
-		double realValue = inputPins[i]->getReal();
+		double realValue;
+		if(inputPins[i]->isConnected()){
+			realValue = inputPins[i]->getConnectedPins().front()->getReal();
+		}else{
+			realValue = inputPins[i]->getReal();
+		}
 		int16_t outputValue;
-		
 		switch(voltageRangeSettings[i]){
 			case VoltageRange::Range::ZERO_TO_10V:
 				realValue = std::min(realValue, 10.0);
@@ -666,7 +689,6 @@ void VIPA_032_1BD70::writeOutputs(){
 				outputValue = 16384.0 * realValue / 10.0;
 				break;
 		}
-		
 		outputs[i] = outputValue;
 	}
 }

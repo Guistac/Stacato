@@ -130,6 +130,9 @@ struct EtherCatPdoAssignement {
 				}else{
 					//if the data is not full bytes and or is not aligned to a bit start
 					//copy and shift the data to a byte start
+					
+					//TODO: this does not work, and is probably not necessary either
+					/*
 					unsigned long long data = *((unsigned long long*)inBuffer) << entry.bitOffset;
 					unsigned long long mask;
 					if (entry.bitCount < 64) mask = (0x1ULL << entry.bitCount) - 1;
@@ -144,6 +147,7 @@ struct EtherCatPdoAssignement {
 					else if (entry.byteCount == 2) *((uint16_t*)entry.dataPointer) = data;
 					else if (entry.byteCount <= 4) *((uint32_t*)entry.dataPointer) = data;
 					else *((uint64_t*)entry.dataPointer) = data;
+					 */
 				}
 			}
 		}
@@ -168,11 +172,17 @@ struct EtherCatPdoAssignement {
 				}
 				else if(entry.bitCount == 1){
 					bool value = *(bool*)entry.dataPointer;
-					if(value) *outBuffer |= 0x1 << entry.bitOffset;
-					else *outBuffer &= ~(0x1 << entry.bitOffset);
+					uint8_t& outputData = *outBuffer;
+					if(value) outputData |= 0x1 << entry.bitOffset;
+					else outputData &= ~(0x1 << entry.bitOffset);
+					//if(value) *outBuffer |= 0x1 << entry.bitOffset;
+					//else *outBuffer &= ~(0x1 << entry.bitOffset);
 				}else{
 					//else if the data is not full bytes and or is not aligned to a byte start
 					//copy the data to the output buffer bit by bit
+					
+					//TODO: this does not work, and is probably not necessary either
+					/*
 					unsigned long long data;
 					if (entry.byteCount <= 1) data = *((uint8_t*)entry.dataPointer);
 					else if(entry.byteCount == 2) data = *((uint16_t*)entry.dataPointer);
@@ -180,11 +190,12 @@ struct EtherCatPdoAssignement {
 					else data = *((uint64_t*)entry.dataPointer);
 
 					for (int b = 0; b < entry.bitCount; b++) {
-						bool bit = (data >> b) & 0x1ULL;
+						bool bit = data & 0x1 << b;
 						int outputByteOffset = entry.byteOffset + b;
-						if(bit) *((unsigned long long*)outBuffer) |= 0x1ULL << outputByteOffset;
-						else *((unsigned long long*)outBuffer) &= ~(0x1ULL << outputByteOffset);
+						if(bit) *((unsigned long long*)outBuffer) |= 0x1 << outputByteOffset;
+						else *((unsigned long long*)outBuffer) &= ~(0x1 << outputByteOffset);
 					}
+					*/
 				}
 			}
 		}
