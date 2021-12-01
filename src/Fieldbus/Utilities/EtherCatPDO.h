@@ -44,7 +44,7 @@ struct EtherCatPdoAssignement {
 	void clear() {
 		modules.clear();
 		totalBitCount = 0;
-		totalBitCount = 0;
+		totalByteCount = 0;
 	}
 
 	void addNewModule(uint16_t idx) { 
@@ -166,7 +166,14 @@ struct EtherCatPdoAssignement {
 					//if the data size is only full bytes and aligned to a byte start
 					//cast the user data pointer to the correct size and copy it to the output buffer pointer
 					if (entry.byteCount == 1) *((uint8_t*)outBuffer) = *((uint8_t*)entry.dataPointer);
-					else if (entry.byteCount == 2) *((uint16_t*)outBuffer) = *((uint16_t*)entry.dataPointer);
+					else if (entry.byteCount == 2) {
+						
+						uint16_t dataValue = *(uint16_t*)entry.dataPointer;
+						uint16_t& outValue = *(uint16_t*)outBuffer;
+						outValue = dataValue;
+						
+						//*((uint16_t*)outBuffer) = *((uint16_t*)entry.dataPointer);
+					}
 					else if (entry.byteCount <= 4) *((uint32_t*)outBuffer) = *((uint32_t*)entry.dataPointer);
 					else if (entry.byteCount <= 8) *((uint64_t*)outBuffer) = *((uint64_t*)entry.dataPointer);
 				}

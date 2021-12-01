@@ -266,8 +266,8 @@ public:
 class VIPA_032_1BD70 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_032_1BD70, "VIPA 032-1BD70", "AO4x 12bit (±10V)")
-	int16_t outputs[4] = { 0, 0, 0, 0};
 	
+	int16_t outputs[4] = { 0, 0, 0, 0};
 	
 	struct VoltageRange{
 		enum class Range{

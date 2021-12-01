@@ -87,7 +87,6 @@ void VIPA_022_1HD10::writeOutputs(){
 			outputs[i] = inputPins[i]->getBoolean();
 		}
 	}
-	Logger::warn("{} {} {} {}", outputs[0],outputs[1],outputs[2],outputs[3]);
 }
 
 //=================================================================
@@ -646,7 +645,8 @@ void VIPA_032_1BD70::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignem
 		uint8_t subindex = i + 1;
 		static char pdoEntryNameString[64];
 		sprintf(pdoEntryNameString, "Analog Output %i", i);
-		rxPdoAssignement.addEntry(dataObjectIndex, subindex, 16, pdoEntryNameString, &outputs[i]);
+		int16_t& dataReference = outputs[i];
+		rxPdoAssignement.addEntry(dataObjectIndex, subindex, 16, pdoEntryNameString, &dataReference);
 	}
 }
 
