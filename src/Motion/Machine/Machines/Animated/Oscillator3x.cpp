@@ -706,7 +706,7 @@ bool Oscillator3x::isInSimulationMode() {
 
 
 
-bool Oscillator3x::save(tinyxml2::XMLElement* xml) {
+bool Oscillator3x::saveMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	XMLElement* limitsXML = xml->InsertNewChildElement("Limits");
 	limitsXML->SetAttribute("MaxFrequency", maxOscillationFrequency);
@@ -720,7 +720,7 @@ bool Oscillator3x::save(tinyxml2::XMLElement* xml) {
 	return true;
 }
 
-bool Oscillator3x::load(tinyxml2::XMLElement* xml) {
+bool Oscillator3x::loadMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	
 	XMLElement* limitsXML = xml->FirstChildElement("Limits");

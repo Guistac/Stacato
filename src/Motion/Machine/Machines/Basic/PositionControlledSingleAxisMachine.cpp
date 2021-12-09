@@ -291,7 +291,7 @@ void PositionControlledSingleAxisMachine::getDevices(std::vector<std::shared_ptr
 	if (isAxisConnected()) getAxis()->getDevices(output);
 }
 
-bool PositionControlledSingleAxisMachine::load(tinyxml2::XMLElement* xml) {
+bool PositionControlledSingleAxisMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 
 	XMLElement* rapidsXML = xml->FirstChildElement("Rapids");
@@ -302,7 +302,7 @@ bool PositionControlledSingleAxisMachine::load(tinyxml2::XMLElement* xml) {
 	return true;
 }
 
-bool PositionControlledSingleAxisMachine::save(tinyxml2::XMLElement* xml) {
+bool PositionControlledSingleAxisMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 
 	XMLElement* rapidsXML = xml->InsertNewChildElement("Rapids");

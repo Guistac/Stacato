@@ -20,9 +20,15 @@ bool VipaBusCoupler_053_1EC01::isEnabled() {
     return isStateOperational();
 }
 
-void VipaBusCoupler_053_1EC01::onDisconnection() {}
+void VipaBusCoupler_053_1EC01::onDisconnection() {
+	gpioDevice->b_detected = true;
+	gpioDevice->b_online = true;
+}
 
-void VipaBusCoupler_053_1EC01::onConnection() {}
+void VipaBusCoupler_053_1EC01::onConnection() {
+	gpioDevice->b_detected = true;
+	gpioDevice->b_online = true;
+}
 
 void VipaBusCoupler_053_1EC01::resetData() {
     gpioDevice->b_detected = false;
@@ -87,6 +93,7 @@ bool VipaBusCoupler_053_1EC01::startupConfiguration() {
 void VipaBusCoupler_053_1EC01::readInputs() {
 	txPdoAssignement.pullDataFrom(identity->inputs);
 	for(auto& module : modules) module->readInputs();
+	gpioDevice->b_ready = isStateOperational();
 }
 
 
