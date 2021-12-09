@@ -34,3 +34,19 @@ void Machine::stopParameterPlayback(std::shared_ptr<AnimatableParameter> paramet
 		}
 	}
 }
+
+bool Machine::save(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	xml->SetAttribute("ShortName", shortName);
+	saveMachine(xml);
+	return true;
+}
+
+bool Machine::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	const char* sName;
+	if(xml->QueryStringAttribute("ShortName", &sName) != tinyxml2::XML_SUCCESS) return Logger::warn("Could not find machine short name");
+	sprintf(shortName, "%s", sName);
+	loadMachine(xml);
+	return true;
+}

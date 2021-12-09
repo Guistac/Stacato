@@ -350,6 +350,11 @@ void EtherCatDevice::pdoDataGui() {
                     ImGui::Text("%s", entry.name);
                     ImGui::TableSetColumnIndex(4);
                     switch (entry.byteCount) {
+					case 0: if(entry.bitCount == 1){
+						ImGui::Text(*(bool*)entry.dataPointer ? "true" : "false");
+					}else{
+						ImGui::Text("unknown bit size");
+					}break;
                     case 1: ImGui::Text("%X", *(uint8_t*)entry.dataPointer); break;
                     case 2: ImGui::Text("%X", *(uint16_t*)entry.dataPointer); break;
                     case 4: ImGui::Text("%X", *(uint32_t*)entry.dataPointer); break;
@@ -580,7 +585,33 @@ void EtherCatDevice::sendReceiveEtherCatRegisterGui() {
     }
 
     ImGui::PopID();
-    
+
+	ImGui::Separator();
+	
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("AL Status Code");
+	ImGui::PopFont();
+	
+	if(ImGui::Button("Download")){
+		downloadALStatusCode();
+	}
+	ImGui::SameLine();
+	if(AlStatusCodeDownloadState != DataTransferState::State::NO_TRANSFER){
+		ImGui::Text("%s", getDataTransferState(AlStatusCodeDownloadState)->displayName);
+	}
+	const char* statusCodeString = ec_ALstatuscode2string(downloadedALStatuscode);
+	ImGui::Text("AL Status Code:");
+	bool errorCode = downloadedALStatuscode != 0x0;
+	if(errorCode){
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+		ImGui::PushFont(Fonts::robotoBold15);
+	}
+	ImGui::TextWrapped("%X : %s", downloadedALStatuscode, statusCodeString);
+	if(errorCode){
+		ImGui::PopStyleColor();
+		ImGui::PopFont();
+	}
+	
 }
 
 

@@ -21,6 +21,18 @@ struct EtherCatPdoMappingModule {
 	uint16_t index;
 	std::vector<EtherCatPdoEntry> entries;
 	size_t getEntryCount() { return entries.size(); }
+	
+	/*
+	void addEntry(uint16_t idx, uint8_t sidx, uint8_t bitCount, const char* n, void* data) {
+		EtherCatPdoEntry entry;
+		entry.index = idx;
+		entry.subindex = sidx;
+		entry.dataPointer = data;
+		entry.bitCount = bitCount;
+		entry.byteCount = bitCount / 8;
+		entries.push_back(entry);
+	}
+	*/
 };
 
 struct EtherCatPdoAssignement {
@@ -32,7 +44,7 @@ struct EtherCatPdoAssignement {
 	void clear() {
 		modules.clear();
 		totalBitCount = 0;
-		totalBitCount = 0;
+		totalByteCount = 0;
 	}
 
 	void addNewModule(uint16_t idx) { 
@@ -112,9 +124,15 @@ struct EtherCatPdoAssignement {
 					else if (entry.byteCount <= 4) *((uint32_t*)entry.dataPointer) = *(uint32_t*)inBuffer;
 					else *((uint64_t*)entry.dataPointer) = *(uint64_t*)inBuffer;
 				}
-				else {
+				else if (entry.bitCount == 1){
+					bool value = *inBuffer & (0x1 << entry.bitOffset);
+					*(bool*)entry.dataPointer = value;
+				}else{
 					//if the data is not full bytes and or is not aligned to a bit start
 					//copy and shift the data to a byte start
+					
+					//TODO: this does not work, and is probably not necessary either
+					/*
 					unsigned long long data = *((unsigned long long*)inBuffer) << entry.bitOffset;
 					unsigned long long mask;
 					if (entry.bitCount < 64) mask = (0x1ULL << entry.bitCount) - 1;
@@ -129,6 +147,7 @@ struct EtherCatPdoAssignement {
 					else if (entry.byteCount == 2) *((uint16_t*)entry.dataPointer) = data;
 					else if (entry.byteCount <= 4) *((uint32_t*)entry.dataPointer) = data;
 					else *((uint64_t*)entry.dataPointer) = data;
+					 */
 				}
 			}
 		}
@@ -147,13 +166,30 @@ struct EtherCatPdoAssignement {
 					//if the data size is only full bytes and aligned to a byte start
 					//cast the user data pointer to the correct size and copy it to the output buffer pointer
 					if (entry.byteCount == 1) *((uint8_t*)outBuffer) = *((uint8_t*)entry.dataPointer);
-					else if (entry.byteCount == 2) *((uint16_t*)outBuffer) = *((uint16_t*)entry.dataPointer);
+					else if (entry.byteCount == 2) {
+						
+						uint16_t dataValue = *(uint16_t*)entry.dataPointer;
+						uint16_t& outValue = *(uint16_t*)outBuffer;
+						outValue = dataValue;
+						
+						//*((uint16_t*)outBuffer) = *((uint16_t*)entry.dataPointer);
+					}
 					else if (entry.byteCount <= 4) *((uint32_t*)outBuffer) = *((uint32_t*)entry.dataPointer);
 					else if (entry.byteCount <= 8) *((uint64_t*)outBuffer) = *((uint64_t*)entry.dataPointer);
 				}
-				else {
+				else if(entry.bitCount == 1){
+					bool value = *(bool*)entry.dataPointer;
+					uint8_t& outputData = *outBuffer;
+					if(value) outputData |= 0x1 << entry.bitOffset;
+					else outputData &= ~(0x1 << entry.bitOffset);
+					//if(value) *outBuffer |= 0x1 << entry.bitOffset;
+					//else *outBuffer &= ~(0x1 << entry.bitOffset);
+				}else{
 					//else if the data is not full bytes and or is not aligned to a byte start
 					//copy the data to the output buffer bit by bit
+					
+					//TODO: this does not work, and is probably not necessary either
+					/*
 					unsigned long long data;
 					if (entry.byteCount <= 1) data = *((uint8_t*)entry.dataPointer);
 					else if(entry.byteCount == 2) data = *((uint16_t*)entry.dataPointer);
@@ -161,11 +197,12 @@ struct EtherCatPdoAssignement {
 					else data = *((uint64_t*)entry.dataPointer);
 
 					for (int b = 0; b < entry.bitCount; b++) {
-						bool bit = (data >> b) & 0x1ULL;
+						bool bit = data & 0x1 << b;
 						int outputByteOffset = entry.byteOffset + b;
-						if(bit) *((unsigned long long*)outBuffer) |= 0x1ULL << outputByteOffset;
-						else *((unsigned long long*)outBuffer) &= ~(0x1ULL << outputByteOffset);
+						if(bit) *((unsigned long long*)outBuffer) |= 0x1 << outputByteOffset;
+						else *((unsigned long long*)outBuffer) &= ~(0x1 << outputByteOffset);
 					}
+					*/
 				}
 			}
 		}

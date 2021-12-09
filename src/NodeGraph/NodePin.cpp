@@ -64,8 +64,13 @@ bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> otherData) {
 		}
 	case NodeData::Type::POSITION_CONTROLLED_AXIS_LINK:
 		switch (otherData->getType()) {
-		case NodeData::Type::POSITION_CONTROLLED_AXIS_LINK: return true;
-		default: return false;
+			case NodeData::Type::POSITION_CONTROLLED_AXIS_LINK: return true;
+			default: return false;
+		}
+	case NodeData::Type::DEAD_MANS_SWITCH_LINK:
+		switch(otherData->getType()){
+			case NodeData::Type::DEAD_MANS_SWITCH_LINK: return true;
+			default: return false;
 		}
 	default:
 		return false;
@@ -124,6 +129,10 @@ void NodePin::set(std::shared_ptr<PositionControlledAxis> ax) {
 	if (isPositionControlledAxisLink()) positionControlledAxis = ax;
 }
 
+void NodePin::set(std::shared_ptr<DeadMansSwitch> dms){
+	if(isDeadMansSwitchLink()) deadMansSwitch = dms;
+}
+
 //reading data (with data conversions)
 bool NodePin::getBoolean() {
 	switch (type) {
@@ -177,6 +186,11 @@ std::shared_ptr<VelocityControlledAxis> NodePin::getVelocityControlledAxis() {
 
 std::shared_ptr<PositionControlledAxis> NodePin::getPositionControlledAxis() {
 	if (isPositionControlledAxisLink()) return positionControlledAxis;
+	return nullptr;
+}
+
+std::shared_ptr<DeadMansSwitch> NodePin::getDeadMansSwitch(){
+	if(isDeadMansSwitchLink()) return deadMansSwitch;
 	return nullptr;
 }
 
@@ -309,7 +323,8 @@ std::vector<NodeData> NodeDataTypes = {
 	{NodeData::Type::GPIO_DEVICELINK, "GPIO", "GPIODeviceLink"},
 	{NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK, "Servo Actuator", "ServoActuatorDeviceLink"},
 	{NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK, "Velocity Controlled Axis", "VelocityControlledAxisLink"},
-	{NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, "Position Controlled Axis", "PositionControlledAxisLink"}
+	{NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, "Position Controlled Axis", "PositionControlledAxisLink"},
+	{NodeData::Type::DEAD_MANS_SWITCH_LINK, "Dead Man's Switch", "DeadMansSwitchLink"}
 };
 std::vector<NodeData>& getNodeDataTypes() {
 	return NodeDataTypes;

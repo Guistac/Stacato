@@ -339,7 +339,7 @@ bool BinaryOscillator6x::isInSimulationMode() {
 
 void BinaryOscillator6x::getDevices(std::vector<std::shared_ptr<Device>>& output) {}
 
-bool BinaryOscillator6x::save(tinyxml2::XMLElement* xml) {
+bool BinaryOscillator6x::saveMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	XMLElement* defaultOscillatorSettingsXML = xml->InsertNewChildElement("DefaultOscillatorSettings");
 	defaultOscillatorSettingsXML->SetAttribute("MinOffTime", minOffTime_seconds);
@@ -349,7 +349,7 @@ bool BinaryOscillator6x::save(tinyxml2::XMLElement* xml) {
 	return true;
 }
 
-bool BinaryOscillator6x::load(tinyxml2::XMLElement* xml) {
+bool BinaryOscillator6x::loadMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	XMLElement* defaultOscillatorSettingsXML = xml->FirstChildElement("DefaultOscillatorSettings");
 	if (defaultOscillatorSettingsXML == nullptr) return Logger::warn("Could not find default oscillator settings attribute");

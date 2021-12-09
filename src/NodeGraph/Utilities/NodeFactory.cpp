@@ -16,6 +16,8 @@
 #include "Motion/Machine/Machines/Animated/Oscillator3x.h"
 #include "Motion/Machine/Machines/Animated/BinaryOscillator6x.h"
 
+#include "Motion/Machine/DeadMansSwitch.h"
+
 namespace NodeFactory {
 
 	std::vector<Node*> allNodes;
@@ -24,6 +26,8 @@ namespace NodeFactory {
 	std::vector<Node*> allAxisNodes;
 	std::vector<Node*> allMachineNodes;
 	std::vector<NodeGroup> machinesByCategory;
+
+	std::vector<Node*> allSafetyNodes;
 
 	void loadNodes() {
 
@@ -62,6 +66,10 @@ namespace NodeFactory {
 			new NotNode(),
 			new AndNode(),
 			new OrNode()
+		};
+		
+		allSafetyNodes = {
+			new DeadMansSwitch()
 		};
 
 		//sort devices by manufacturer
@@ -131,6 +139,17 @@ namespace NodeFactory {
 	}
 	std::vector<NodeGroup>& getMachinesByCategory() {
 		return machinesByCategory;
+	}
+
+	std::shared_ptr<Node> getSafetyNodeBySaveName(const char* saveName){
+		for(Node* safetyNode : allSafetyNodes){
+			if(strcmp(saveName, safetyNode->getSaveName()) == 0) return safetyNode->getNewNodeInstance();
+		}
+		return nullptr;
+	}
+
+	std::vector<Node*>& getAllSafetyNodes(){
+		return allSafetyNodes;
 	}
 
 }

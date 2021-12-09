@@ -37,6 +37,6 @@ class PositionControlledSingleAxisMachine : public Machine{
 
 	//======== SAVING & LOADING ========
 
-	virtual bool load(tinyxml2::XMLElement* xml);
-	virtual bool save(tinyxml2::XMLElement* xml);
+	virtual bool loadMachine(tinyxml2::XMLElement* xml);
+	virtual bool saveMachine(tinyxml2::XMLElement* xml);
 };

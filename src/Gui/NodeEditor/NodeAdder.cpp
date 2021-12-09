@@ -39,7 +39,7 @@ void nodeAdder() {
                         const char* deviceSaveName = device->getSaveName();
                         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
                             ImGui::SetDragDropPayload("EtherCatDevice", &deviceSaveName, sizeof(const char*));
-                            ImGui::Text(deviceDisplayName);
+                            ImGui::Text("%s", deviceDisplayName);
                             ImGui::EndDragDropSource();
                         }
                     }
@@ -58,7 +58,7 @@ void nodeAdder() {
                         const char* deviceSaveName = device->getSaveName();
                         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
                             ImGui::SetDragDropPayload("EtherCatDevice", &deviceSaveName, sizeof(const char*));
-                            ImGui::Text(deviceDisplayName);
+                            ImGui::Text("%s", deviceDisplayName);
                             ImGui::EndDragDropSource();
                         }
                     }
@@ -90,7 +90,7 @@ void nodeAdder() {
                 ImGui::Selectable(deviceDisplayName);
                 if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
                     ImGui::SetDragDropPayload("DetectedEtherCatDevice", &device, sizeof(std::shared_ptr<EtherCatDevice>));
-                    ImGui::Text(deviceDisplayName);
+                    ImGui::Text("%s",deviceDisplayName);
                     ImGui::EndDragDropSource();
                 }
             }
@@ -100,6 +100,7 @@ void nodeAdder() {
 
         ImGui::PushFont(Fonts::robotoBold15);
         if (ImGui::CollapsingHeader("Motion")) {
+			
             if(ImGui::TreeNode("Axis")){
                 ImGui::PushFont(Fonts::robotoRegular15);
                 for (auto axis : NodeFactory::getAllAxisTypes()) {
@@ -108,7 +109,7 @@ void nodeAdder() {
                     const char* axisSaveName = axis->getSaveName();
                     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
                         ImGui::SetDragDropPayload("Axis", &axisSaveName, sizeof(const char*));
-                        ImGui::Text(axisDisplayName);
+                        ImGui::Text("%s",axisDisplayName);
                         ImGui::EndDragDropSource();
                     }
                 }
@@ -128,7 +129,7 @@ void nodeAdder() {
                             const char* machineSaveName = machine->getSaveName();
                             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
                                 ImGui::SetDragDropPayload("Machine", &machineSaveName, sizeof(const char*));
-                                ImGui::Text(machineDisplayName);
+								ImGui::Text("%s",machineDisplayName);
                                 ImGui::EndDragDropSource();
                             }
                         }
@@ -138,6 +139,24 @@ void nodeAdder() {
                 }
                 ImGui::TreePop();
             }
+			
+			if (ImGui::TreeNode("Safety")) {
+					
+				ImGui::PushFont(Fonts::robotoRegular15);
+				for (auto& safetyNode : NodeFactory::getAllSafetyNodes()) {
+					const char* safetyNodeDisplayName = safetyNode->getName();
+					ImGui::Selectable(safetyNodeDisplayName);
+					const char* safetyNodeSaveName = safetyNode->getSaveName();
+					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+						ImGui::SetDragDropPayload("SafetyNode", &safetyNodeSaveName, sizeof(const char*));
+						ImGui::Text("%s",safetyNodeDisplayName);
+						ImGui::EndDragDropSource();
+					}
+				}
+				ImGui::PopFont();
+				ImGui::TreePop();
+			}
+			
         }
         ImGui::PopFont();
 
@@ -162,7 +181,7 @@ void nodeAdder() {
                         ImGui::Selectable(nodeDisplayName);
                         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
                             ImGui::SetDragDropPayload("ProcessorNode", &nodeSaveName, sizeof(const char*));
-                            ImGui::Text(nodeDisplayName);
+                            ImGui::Text("%s", nodeDisplayName);
                             ImGui::EndDragDropSource();
                         }
                     }
@@ -207,6 +226,12 @@ std::shared_ptr<Node> acceptDraggedNode() {
             std::shared_ptr<Node> newMachine = NodeFactory::getMachineBySaveName(machineSaveName);
             return newMachine;
         }
+		payload = ImGui::AcceptDragDropPayload("SafetyNode");
+		if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
+			const char* safetyNodeSaveName = *(const char**)payload->Data;
+			std::shared_ptr<Node> newSafetyNode = NodeFactory::getSafetyNodeBySaveName(safetyNodeSaveName);
+			return newSafetyNode;
+		}
         payload = ImGui::AcceptDragDropPayload("ProcessorNode");
         if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
             const char* nodeSaveName = *(const char**)payload->Data;
@@ -288,6 +313,12 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
             }
             ImGui::EndMenu();
         }
+		if (ImGui::BeginMenu("Safety")) {
+			for (auto safetyNode : NodeFactory::getAllSafetyNodes()) {
+				if (ImGui::MenuItem(safetyNode->getName())) output = safetyNode->getNewNodeInstance();
+			}
+			ImGui::EndMenu();
+		}
         ImGui::EndMenu();
     }
 

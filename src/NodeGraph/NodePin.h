@@ -6,6 +6,7 @@ class GpioDevice;
 class ServoActuatorDevice;
 class VelocityControlledAxis;
 class PositionControlledAxis;
+class DeadMansSwitch;
 
 class Node;
 class NodeLink;
@@ -22,7 +23,8 @@ struct NodeData {
 		GPIO_DEVICELINK,
 		SERVO_ACTUATOR_DEVICE_LINK,
 		VELOCITY_CONTROLLED_AXIS_LINK,
-		POSITION_CONTROLLED_AXIS_LINK
+		POSITION_CONTROLLED_AXIS_LINK,
+		DEAD_MANS_SWITCH_LINK
 	};
 	Type type;
 	char displayName[64];
@@ -84,15 +86,16 @@ public:
 	bool isSameTypeAs(NodePin& other) { return other.type == type; }
 	void setType(NodeData::Type t) {
 		switch (t) {
-		case NodeData::Type::BOOLEAN_VALUE: set(getBoolean()); break;
-		case NodeData::Type::INTEGER_VALUE: set(getInteger()); break;
-		case NodeData::Type::REAL_VALUE: set(getReal()); break;
-		case NodeData::Type::ACTUATOR_DEVICELINK: break;
-		case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: break;
-		case NodeData::Type::GPIO_DEVICELINK: break;
-		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: break;
-		case NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK: break;
-		case NodeData::Type::POSITION_CONTROLLED_AXIS_LINK: break;
+			case NodeData::Type::BOOLEAN_VALUE: set(getBoolean()); break;
+			case NodeData::Type::INTEGER_VALUE: set(getInteger()); break;
+			case NodeData::Type::REAL_VALUE: set(getReal()); break;
+			case NodeData::Type::ACTUATOR_DEVICELINK: break;
+			case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: break;
+			case NodeData::Type::GPIO_DEVICELINK: break;
+			case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: break;
+			case NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK: break;
+			case NodeData::Type::POSITION_CONTROLLED_AXIS_LINK: break;
+			case NodeData::Type::DEAD_MANS_SWITCH_LINK: break;
 		}
 		type = t;
 	}
@@ -125,6 +128,7 @@ public:
 	bool isServoActuatorDeviceLink() { return type == NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK; }
 	bool isVelocityControlledAxisLink() { return type == NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK; }
 	bool isPositionControlledAxisLink() { return type == NodeData::Type::POSITION_CONTROLLED_AXIS_LINK; }
+	bool isDeadMansSwitchLink(){ return type == NodeData::Type::DEAD_MANS_SWITCH_LINK; }
 
 	//setting data (with data conversions)
 	void set(bool boolean);
@@ -136,6 +140,7 @@ public:
 	void set(std::shared_ptr<ServoActuatorDevice>);
 	void set(std::shared_ptr<VelocityControlledAxis>);
 	void set(std::shared_ptr<PositionControlledAxis>);
+	void set(std::shared_ptr<DeadMansSwitch>);
 
 	//reading data (with data conversions)
 	bool getBoolean();
@@ -147,6 +152,7 @@ public:
 	std::shared_ptr<ServoActuatorDevice> getServoActuatorDevice();
 	std::shared_ptr<VelocityControlledAxis> getVelocityControlledAxis();
 	std::shared_ptr<PositionControlledAxis> getPositionControlledAxis();
+	std::shared_ptr<DeadMansSwitch> getDeadMansSwitch();
 
 	const char* getValueString();
 
@@ -193,6 +199,7 @@ private:
 	std::shared_ptr<ServoActuatorDevice> servoActuatorDevice = nullptr;
 	std::shared_ptr<VelocityControlledAxis> velocityControlledAxis = nullptr;
 	std::shared_ptr<PositionControlledAxis> positionControlledAxis = nullptr;
+	std::shared_ptr<DeadMansSwitch> deadMansSwitch = nullptr;
 
 	void setup(NodeData::Type t, DataDirection d, const char* displayN, const char* saveN, NodePinFlags flags) {
 		strcpy(displayName, displayN);
@@ -213,6 +220,7 @@ private:
 		case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK:
 		case NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK:
 		case NodeData::Type::POSITION_CONTROLLED_AXIS_LINK:
+		case NodeData::Type::DEAD_MANS_SWITCH_LINK:
 			b_noDataField = true;
 			b_forceDataField = false;
 			break;

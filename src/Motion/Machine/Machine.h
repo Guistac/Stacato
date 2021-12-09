@@ -12,6 +12,8 @@ namespace Motion {
 class ParameterTrack;
 class Device;
 
+namespace tinyxml2{ struct XMLElement; }
+
 #define DEFINE_MACHINE_NODE(className, nodeName, saveName, category) public:						\
 	virtual const char* getSaveName() { return saveName; }											\
 	virtual const char* getNodeCategory() { return category; }										\
@@ -51,7 +53,7 @@ class Device;
 class Machine : public Node {
 public:
 
-	char shortName[16] = "M-1";
+	char shortName[16] = "M";
 	const char* getShortName() { return shortName; }
 
 	void addAnimatableParameter(std::shared_ptr<AnimatableParameter> parameter);
@@ -76,7 +78,14 @@ public:
 
 	virtual void enable() = 0;
 	virtual void disable() = 0;
-
+	
+	virtual bool save(tinyxml2::XMLElement* xml);
+	virtual bool load(tinyxml2::XMLElement* xml);
+	
+	virtual bool saveMachine(tinyxml2::XMLElement* xml){ return true; }
+	virtual bool loadMachine(tinyxml2::XMLElement* xml){ return true; }
+	
+	
 
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output) = 0;
 

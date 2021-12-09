@@ -78,6 +78,6 @@ class Oscillator3x : public Machine {
 	bool getAxes(std::vector<std::shared_ptr<PositionControlledAxis>>& output);
 
 	//=== Saving & Loading ===
-	bool save(tinyxml2::XMLElement* xml);
-	bool load(tinyxml2::XMLElement* xml);
+	bool saveMachine(tinyxml2::XMLElement* xml);
+	bool loadMachine(tinyxml2::XMLElement* xml);
 };

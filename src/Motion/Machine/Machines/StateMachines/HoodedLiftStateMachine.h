@@ -72,6 +72,6 @@ public:
 
 	bool b_enabled = false;
 
-	virtual bool load(tinyxml2::XMLElement* xml) { return true; }
-	virtual bool save(tinyxml2::XMLElement* xml) { return true; }
+	virtual bool loadMachine(tinyxml2::XMLElement* xml) { return true; }
+	virtual bool saveMachine(tinyxml2::XMLElement* xml) { return true; }
 };

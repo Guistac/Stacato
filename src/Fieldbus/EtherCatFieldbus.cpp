@@ -271,26 +271,86 @@ namespace EtherCatFieldbus {
     //============ Check Explicit ID compatibility and Read explicit ID of slave ============
 
     bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID) {
-        int maxTries = 4;
-        int tries = 0;
-        while (tries < maxTries) {
-            int wc = 0;
-            uint16_t ALstatus;
-            wc = ec_FPRD(configAddress, 0x130, 2, &ALstatus, EC_TIMEOUTSAFE);
-            uint16_t ALcontrol = ALstatus |= 0x20;
-            wc = ec_FPWR(configAddress, 0x120, 2, &ALcontrol, EC_TIMEOUTSAFE);
-            wc = ec_FPRD(configAddress, 0x130, 2, &ALstatus, EC_TIMEOUTSAFE);
-            bool supported = ALstatus & 0x20;
-            if (supported) {
-                uint16_t ALstatusCode;
-                wc = ec_FPRD(configAddress, 0x134, 2, &ALstatusCode, EC_TIMEOUTSAFE);
-                ID = ALstatusCode;
-            }
-            ALcontrol &= ~0x20;
-            ec_FPWR(configAddress, 0x120, 2, &ALcontrol, EC_TIMEOUTSAFE);
-            if (supported) return true;
-            tries++;
-        }
+		
+        int maxTries = 8;
+		bool success = false;
+		int tries = 0;
+		bool foundID = false;
+		
+		//read AL Status (state machine, error, and ID status)
+		uint16_t ALstatus;
+		while(tries < maxTries && !success){
+			int wc = ec_FPRD(configAddress, 0x130, 2, &ALstatus, EC_TIMEOUTSAFE);
+			if(wc == 1) success = true;
+			tries++;
+		}
+		
+		success = false;
+		tries = 0;
+		
+		//write AL Control to request device identification (bit 5 high)
+		uint16_t ALcontrol = ALstatus |= 0x20;
+		while(tries < maxTries && !success){
+			int wc = ec_FPWR(configAddress, 0x120, 2, &ALcontrol, EC_TIMEOUTSAFE);
+			if(wc == 1) success = true;
+			tries++;
+		}
+		
+		success = false;
+		tries = 0;
+		
+		//read AL status to see if device id is active
+		//this takes a considerable amount of time, a single read might be too soon, so we read multiple time
+		while(tries < maxTries && !success){
+			int wc = ec_FPRD(configAddress, 0x130, 2, &ALstatus, EC_TIMEOUTSAFE);
+			if(wc == 1 && ALstatus & 0x20) success = true;
+			tries++;
+		}
+		
+		if (success) {
+			
+			success = false;
+			tries = 0;
+			
+			//if it is supported read AL Status code (will contain explicit device ID)
+			uint16_t ALstatusCode;
+			
+			while(tries < maxTries && !success){
+				int wc = ec_FPRD(configAddress, 0x134, 2, &ALstatusCode, EC_TIMEOUTSAFE);
+				if(wc == 1) success = true;
+				tries++;
+			}
+			
+			if(success) {
+				ID = ALstatusCode;
+				foundID = true;
+			}else{
+				foundID = false;
+			}
+			
+		}else{
+			foundID = false;
+		}
+		
+		
+		success = false;
+		tries = 0;
+		
+		//write to AL Control to disable ID Display
+		ALcontrol &= ~0x20;
+		while(tries < maxTries && !success){
+			int wc = ec_FPWR(configAddress, 0x120, 2, &ALcontrol, EC_TIMEOUTSAFE);
+			if(wc == 1) success = true;
+			tries++;
+		}
+		
+		if(foundID) {
+			Logger::warn("OK! ID = {}", ID);
+			return true;
+		}
+		
+		Logger::critical("FAILED");
+		ID = 0;
         return false;
     }
 

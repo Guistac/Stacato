@@ -59,6 +59,6 @@ class BinaryOscillator6x : public Machine {
 	std::shared_ptr<GpioDevice> getGpioDevice(int i);
 
 	//=== Saving & Loading ===
-	bool save(tinyxml2::XMLElement* xml);
-	bool load(tinyxml2::XMLElement* xml);
+	bool saveMachine(tinyxml2::XMLElement* xml);
+	bool loadMachine(tinyxml2::XMLElement* xml);
 };

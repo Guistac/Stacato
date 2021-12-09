@@ -28,44 +28,6 @@ EtherCatDeviceIdentification* getIdentificationType(EtherCatDeviceIdentification
     return nullptr;
 }
 
-/*
-bool EtherCatDevice::getPDOMapping(EtherCatPDO& pdo, uint16_t pdoIndex, const char* pdoDescription) {
-
-    pdo.modules.clear();
-    uint8_t moduleCount;
-    Logger::trace("reading entry count of index 0x{:X}", pdoIndex);
-    if (!readSDO(pdoIndex, 0x0, moduleCount)) return false;
-    Logger::debug("***** {} Mapping Module count: {}", pdoDescription, (int)moduleCount);
-
-    for (int i = 1; i <= moduleCount; i++) {
-        EtherCatPDOModule module;
-        Logger::trace("reading index of pdo mapping module {}", i);
-        if (!readSDO(pdoIndex, i, module.index)) return false;
-        uint8_t entryCount;
-        Logger::trace("reading entry count of pdo mapping module {}", i);
-        if (!readSDO(module.index, 0x0, entryCount)) return false;
-
-        Logger::debug("  *** {} Mapping Module [{}] : 0x{:X} ({} entries)", pdoDescription, i, module.index, entryCount);
-
-        for (int j = 1; j <= entryCount; j++) {
-            EtherCatPDOEntry entry;
-            uint32_t entryData;
-            Logger::trace("reading index of pdo mapping module entry {}", j);
-            if (!readSDO(module.index, j, entryData)) return false;
-            entry.index = entryData >> 16;
-            entry.subindex = entryData >> 8;
-            entry.byteCount = entryData;
-            module.entries.push_back(entry);
-            Logger::debug("    * entry [{}] : index: 0x{:X}  subindex: 0x{:X}  size: {}", j, entry.index, entry.subindex, entry.byteCount);
-        }
-
-        pdo.modules.push_back(module);
-    }
-
-    return true;
-}
-*/
-
 bool EtherCatDevice::isDetected() {
     return identity != nullptr && identity->state != EC_STATE_NONE;
 }
@@ -253,4 +215,17 @@ EtherCatDevice::DataTransferState* EtherCatDevice::getDataTransferState(DataTran
         if (s == state.state) return &state;
     }
     return nullptr;
+}
+
+
+//================== AL Status Code Download =======================
+
+void EtherCatDevice::downloadALStatusCode(){
+	std::thread AlStatusDownloader([this](){
+		AlStatusCodeDownloadState = DataTransferState::State::TRANSFERRING;
+		int wc = ec_FPRD(getAssignedAddress(), 0x134, 2, &downloadedALStatuscode, EC_TIMEOUTSAFE);
+		if(wc == 1) AlStatusCodeDownloadState = DataTransferState::State::SUCCEEDED;
+		else AlStatusCodeDownloadState = DataTransferState::State::FAILED;
+	});
+	AlStatusDownloader.detach();
 }

@@ -108,8 +108,9 @@ bool saveAs(const char* dir) {
     std::string plotsFolder = projectFolderPath + "Plots/";
     if (!std::filesystem::exists(std::filesystem::path(plotsFolder))) std::filesystem::create_directory(std::filesystem::path(plotsFolder));
 
-    for (auto plot : plots) {
-        std::string plotFilePath = plotsFolder + plot->name  + "_" + std::to_string(plot->saveTime) + ".plot";
+	for (int i = 0; i < plots.size(); i++) {
+		std::shared_ptr<Plot> plot = plots[i];
+		std::string plotFilePath = plotsFolder + plot->name + "_" + std::to_string(i) + ".plot";
         plot->save(plotFilePath.c_str());
     }
     

@@ -234,6 +234,10 @@ public:
     EtherCatEepromData uploadEepromData = EtherCatEepromData("uploadData", 0x0, DataFormat::Type::HEXADECIMAL);
     EtherCatEepromData downloadEepromData = EtherCatEepromData("downloadData", 0x0, DataFormat::Type::HEXADECIMAL);
 
+	uint16_t downloadedALStatuscode = 0x0;
+	void downloadALStatusCode();
+	DataTransferState::State AlStatusCodeDownloadState = DataTransferState::State::NO_TRANSFER;
+	
     bool downloadEEPROM(char* fileName);
     DataTransferState::State eepromDownloadState = DataTransferState::State::NO_TRANSFER;
     char eepromSaveFilePath[512];
