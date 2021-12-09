@@ -2,8 +2,8 @@
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa A-J2" UniqueID="1">
-                <InputNodeEditorPosition x="328" y="941"/>
-                <OutputNodeEditorPosition x="-167" y="627"/>
+                <InputNodeEditorPosition x="344" y="934"/>
+                <OutputNodeEditorPosition x="-199" y="635"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="10"/>
                     <SLIOModules>
@@ -30,7 +30,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa A-J1" UniqueID="15">
-                <InputNodeEditorPosition x="840" y="948"/>
+                <InputNodeEditorPosition x="856" y="943"/>
                 <OutputNodeEditorPosition x="344" y="627"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="11"/>
@@ -58,7 +58,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa A-Axe" UniqueID="17">
-                <InputNodeEditorPosition x="1320" y="948"/>
+                <InputNodeEditorPosition x="1352" y="943"/>
                 <OutputNodeEditorPosition x="856" y="633"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="12"/>
@@ -86,7 +86,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa A-C1" UniqueID="19">
-                <InputNodeEditorPosition x="1832" y="943"/>
+                <InputNodeEditorPosition x="1848" y="941"/>
                 <OutputNodeEditorPosition x="1352" y="635"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="13"/>
@@ -103,18 +103,18 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="20" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Digital Input 0" DisplayName="Module 0 Digital Input 0" DataType="Boolean" UniqueID="47" Boolean="true" Visible="true"/>
-                    <OutputPin SaveName="Digital Input 1" DisplayName="Module 0 Digital Input 1" DataType="Boolean" UniqueID="48" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Digital Input 0" DisplayName="Module 0 Digital Input 0" DataType="Boolean" UniqueID="47" Boolean="false" Visible="true"/>
+                    <OutputPin SaveName="Digital Input 1" DisplayName="Module 0 Digital Input 1" DataType="Boolean" UniqueID="48" Boolean="true" Visible="true"/>
                     <OutputPin SaveName="Digital Input 2" DisplayName="Module 0 Digital Input 2" DataType="Boolean" UniqueID="49" Boolean="false" Visible="true"/>
                     <OutputPin SaveName="Digital Input 3" DisplayName="Module 0 Digital Input 3" DataType="Boolean" UniqueID="50" Boolean="true" Visible="true"/>
                     <OutputPin SaveName="Digital Input 4" DisplayName="Module 0 Digital Input 4" DataType="Boolean" UniqueID="51" Boolean="false" Visible="true"/>
                     <OutputPin SaveName="Digital Input 5" DisplayName="Module 0 Digital Input 5" DataType="Boolean" UniqueID="52" Boolean="false" Visible="true"/>
                     <OutputPin SaveName="Digital Input 6" DisplayName="Module 0 Digital Input 6" DataType="Boolean" UniqueID="53" Boolean="true" Visible="true"/>
-                    <OutputPin SaveName="Digital Input 7" DisplayName="Module 0 Digital Input 7" DataType="Boolean" UniqueID="54" Boolean="true" Visible="true"/>
+                    <OutputPin SaveName="Digital Input 7" DisplayName="Module 0 Digital Input 7" DataType="Boolean" UniqueID="54" Boolean="false" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa A-C2" UniqueID="21">
-                <InputNodeEditorPosition x="2328" y="927"/>
+                <InputNodeEditorPosition x="2344" y="941"/>
                 <OutputNodeEditorPosition x="1848" y="635"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="14"/>
@@ -142,8 +142,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa C-J2" UniqueID="71">
-                <InputNodeEditorPosition x="328" y="433"/>
-                <OutputNodeEditorPosition x="-151" y="112"/>
+                <InputNodeEditorPosition x="344" y="431"/>
+                <OutputNodeEditorPosition x="-182" y="120"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="20"/>
                     <SLIOModules>
@@ -170,7 +170,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa C-J1" UniqueID="73">
-                <InputNodeEditorPosition x="840" y="431"/>
+                <InputNodeEditorPosition x="856" y="429"/>
                 <OutputNodeEditorPosition x="344" y="117"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="21"/>
@@ -198,7 +198,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa C-Axe" UniqueID="75">
-                <InputNodeEditorPosition x="1336" y="431"/>
+                <InputNodeEditorPosition x="1352" y="429"/>
                 <OutputNodeEditorPosition x="856" y="121"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="22"/>
@@ -226,7 +226,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa C-C1" UniqueID="77">
-                <InputNodeEditorPosition x="1832" y="431"/>
+                <InputNodeEditorPosition x="1848" y="429"/>
                 <OutputNodeEditorPosition x="1352" y="119"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="23"/>
@@ -254,7 +254,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa C-C2" UniqueID="79">
-                <InputNodeEditorPosition x="2328" y="422"/>
+                <InputNodeEditorPosition x="2344" y="429"/>
                 <OutputNodeEditorPosition x="1848" y="117"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="24"/>
@@ -283,7 +283,7 @@
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa E-J2" UniqueID="141">
                 <InputNodeEditorPosition x="344" y="-76"/>
-                <OutputNodeEditorPosition x="-135" y="-406"/>
+                <OutputNodeEditorPosition x="-166" y="-397"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="30"/>
                     <SLIOModules>
@@ -310,8 +310,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa E-J1" UniqueID="143">
-                <InputNodeEditorPosition x="840" y="-78"/>
-                <OutputNodeEditorPosition x="360" y="-404"/>
+                <InputNodeEditorPosition x="856" y="-79"/>
+                <OutputNodeEditorPosition x="344" y="-402"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="31"/>
                     <SLIOModules>
@@ -366,7 +366,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa E-C1" UniqueID="147">
-                <InputNodeEditorPosition x="1832" y="-99"/>
+                <InputNodeEditorPosition x="1848" y="-101"/>
                 <OutputNodeEditorPosition x="1336" y="-420"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="33"/>
@@ -394,7 +394,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa E-C2" UniqueID="149">
-                <InputNodeEditorPosition x="2328" y="-112"/>
+                <InputNodeEditorPosition x="2344" y="-101"/>
                 <OutputNodeEditorPosition x="1848" y="-422"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="34"/>
@@ -423,7 +423,7 @@
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa G-J2" UniqueID="211">
                 <InputNodeEditorPosition x="344" y="-597"/>
-                <OutputNodeEditorPosition x="-135" y="-918"/>
+                <OutputNodeEditorPosition x="-166" y="-909"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="40"/>
                     <SLIOModules>
@@ -450,8 +450,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa G-J1" UniqueID="213">
-                <InputNodeEditorPosition x="840" y="-605"/>
-                <OutputNodeEditorPosition x="360" y="-918"/>
+                <InputNodeEditorPosition x="856" y="-605"/>
+                <OutputNodeEditorPosition x="344" y="-924"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="41"/>
                     <SLIOModules>
@@ -478,7 +478,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa G-Axe" UniqueID="215">
-                <InputNodeEditorPosition x="1336" y="-611"/>
+                <InputNodeEditorPosition x="1352" y="-609"/>
                 <OutputNodeEditorPosition x="856" y="-928"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="42"/>
@@ -506,7 +506,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa G-C1" UniqueID="217">
-                <InputNodeEditorPosition x="1832" y="-615"/>
+                <InputNodeEditorPosition x="1848" y="-611"/>
                 <OutputNodeEditorPosition x="1352" y="-934"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="43"/>
@@ -534,7 +534,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa G-C2" UniqueID="219">
-                <InputNodeEditorPosition x="2328" y="-615"/>
+                <InputNodeEditorPosition x="2344" y="-611"/>
                 <OutputNodeEditorPosition x="1848" y="-938"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="44"/>
@@ -562,7 +562,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip G-J2" UniqueID="281">
-                <NodeEditorPosition x="120" y="-874"/>
+                <NodeEditorPosition x="89" y="-865"/>
                 <NodeSpecificData ShortName="G-J2"/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="282" Visible="true" NoDataField="true"/>
@@ -577,9 +577,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="291" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="292" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="292" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="293" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="294" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="294" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip G-J1" UniqueID="295">
@@ -598,9 +598,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="305" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="306" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="306" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="307" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="308" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="308" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip G-Axe" UniqueID="309">
@@ -619,9 +619,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="319" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="320" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="320" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="321" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="322" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="322" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip G-C1" UniqueID="323">
@@ -640,9 +640,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="333" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="334" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="334" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="335" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="336" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="336" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip G-C2" UniqueID="337">
@@ -661,13 +661,13 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="347" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="348" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="348" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="349" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="350" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="350" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip E-J2" UniqueID="351">
-                <NodeEditorPosition x="116" y="-373"/>
+                <NodeEditorPosition x="85" y="-364"/>
                 <NodeSpecificData ShortName="E-J2"/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="352" Visible="true" NoDataField="true"/>
@@ -682,9 +682,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="361" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="362" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="362" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="363" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="364" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="364" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip E-J1" UniqueID="365">
@@ -703,9 +703,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="375" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="376" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="376" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="377" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="378" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="378" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip E-Axe" UniqueID="379">
@@ -724,9 +724,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="389" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="390" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="390" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="391" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="392" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="392" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip E-C1" UniqueID="393">
@@ -745,9 +745,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="403" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="404" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="404" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="405" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="406" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="406" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip E-C2" UniqueID="407">
@@ -766,13 +766,13 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="417" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="418" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="418" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="419" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="420" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="420" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip C-J2" UniqueID="421">
-                <NodeEditorPosition x="98" y="152"/>
+                <NodeEditorPosition x="67" y="160"/>
                 <NodeSpecificData ShortName="C-J2"/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="422" Visible="true" NoDataField="true"/>
@@ -787,9 +787,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="431" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="432" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="432" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="433" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="434" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="434" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip C-J1" UniqueID="435">
@@ -808,9 +808,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="445" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="446" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="446" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="447" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="448" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="448" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip C-Axe" UniqueID="449">
@@ -829,9 +829,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="459" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="460" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="460" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="461" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="462" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="462" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip C-C1" UniqueID="463">
@@ -850,9 +850,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="473" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="474" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="474" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="475" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="476" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="476" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip C-C2" UniqueID="477">
@@ -871,13 +871,13 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="487" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="488" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="488" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="489" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="490" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="490" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip A-J2" UniqueID="491">
-                <NodeEditorPosition x="87" y="656"/>
+                <NodeEditorPosition x="70" y="666"/>
                 <NodeSpecificData ShortName="A-J2"/>
                 <InputPins>
                     <InputPin SaveName="GPIO Device" DisplayName="GPIO Device" DataType="GPIODeviceLink" UniqueID="492" Visible="true" NoDataField="true"/>
@@ -892,9 +892,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="501" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="502" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="502" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="503" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="504" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="504" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip A-J1" UniqueID="505">
@@ -913,9 +913,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="515" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="516" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="516" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="517" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="518" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="518" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip A-Axe" UniqueID="519">
@@ -934,9 +934,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="529" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="530" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="530" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="531" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="532" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="532" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip A-C1" UniqueID="533">
@@ -955,9 +955,9 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="543" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="544" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="544" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="545" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="546" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="546" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip A-C2" UniqueID="547">
@@ -976,13 +976,13 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveName="Open Hood" DisplayName="Open Hood" DataType="Boolean" UniqueID="557" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="558" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Shut Hood" DisplayName="Shut Hood" DataType="Boolean" UniqueID="558" Boolean="true" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="Raise Lift" DisplayName="Raise Lift" DataType="Boolean" UniqueID="559" Boolean="false" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="560" Boolean="false" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveName="Lower Lift" DisplayName="Lower Lift" DataType="Boolean" UniqueID="560" Boolean="true" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Variateur Cositère Latérale" UniqueID="561">
-                <NodeEditorPosition x="648" y="1185"/>
+                <NodeEditorPosition x="2679" y="680"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="0"/>
                     <KinematicLimits velocityLimit_rps="10" accelerationLimit_rpsps="1" defaultManualAcceleration_rpsps="1"/>
@@ -1013,18 +1013,18 @@
                     <OutputPin SaveName="DI5" DisplayName="DI5" DataType="Boolean" UniqueID="575" Boolean="false" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Variateur Costière Milieu" UniqueID="576">
-                <NodeEditorPosition x="1320" y="1186"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Variateur Costière Centrale" UniqueID="576">
+                <NodeEditorPosition x="649" y="-1354"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="140"/>
-                    <KinematicLimits velocityLimit_rps="10" accelerationLimit_rpsps="1" defaultManualAcceleration_rpsps="1"/>
-                    <InvertDirectionOfMovement Invert="false"/>
-                    <CurrentLimit amps="0"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="0"/>
-                    <NegativeLimitSwitch Pin="Unassigned"/>
+                    <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="100" defaultManualAcceleration_rpsps="10"/>
+                    <InvertDirectionOfMovement Invert="true"/>
+                    <CurrentLimit amps="18"/>
+                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="18"/>
+                    <NegativeLimitSwitch Pin="DI0" NormallyClosed="true"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
-                    <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
-                    <EncoderSettings Assignement="Internal" RangeShifted="false" PositionOffset_revolutions="0"/>
+                    <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
+                    <EncoderSettings Assignement="Internal" RangeShifted="true" PositionOffset_revolutions="-1145.1874160766602"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveName="DQ0" DisplayName="DQ0" DataType="Boolean" UniqueID="577" Boolean="false" Visible="true"/>
@@ -1043,6 +1043,44 @@
                     <OutputPin SaveName="DI3" DisplayName="DI3" DataType="Boolean" UniqueID="588" Boolean="false" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="DI4" DisplayName="DI4" DataType="Boolean" UniqueID="589" Boolean="false" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveName="DI5" DisplayName="DI5" DataType="Boolean" UniqueID="590" Boolean="false" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Axe Costière Centrale" UniqueID="851">
+                <NodeEditorPosition x="942" y="-1274"/>
+                <NodeSpecificData>
+                    <Machine UnitType="Linear" Unit="Meter" PositionControl="Servo"/>
+                    <UnitConversion FeedbackUnitsPerMachineUnit="62.449929615424075" ActuatorUnitsPerMachineUnit="62.449929615424075" FeedbackAndActuatorConversionIdentical="false"/>
+                    <KinematicLimits VelocityLimit_axisUnitsPerSecond="1" AccelerationLimit_axisUnitsPerSecondSquared="1"/>
+                    <PositionReferenceSignals Type="LowSignal" HomingVelocity_axisUnitsPerSecond="0.050000000000000003"/>
+                    <PositionLimits MaxNegativeDeviation_axisUnits="0" EnableNegativeLimit="true" MaxPositionDeviation_axisUnits="9.5000001028347985" EnablePositiveLimit="true" LimitClearance_axisUnits="0.050000000000000003" LimitToFeedbackWorkingRange="true"/>
+                    <DefaultManualParameters Velocity_axisUnitsPerSecond="0" Acceleration_axisUnitsPerSecondSquared="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveName="Actuator" DisplayName="Actuator" DataType="ActuatorDeviceLink" UniqueID="852" Visible="false" NoDataField="true"/>
+                    <InputPin SaveName="Servo Actuator" DisplayName="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="853" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Position Feedback" DisplayName="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="854" Visible="false" NoDataField="true"/>
+                    <InputPin SaveName="Reference Device" DisplayName="Reference Device" DataType="GPIODeviceLink" UniqueID="855" Visible="true" NoDataField="true"/>
+                    <InputPin SaveName="Low Limit Signal" DisplayName="Low Limit Signal" DataType="Boolean" UniqueID="856" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="High Limit Signal" DisplayName="High Limit Signal" DataType="Boolean" UniqueID="857" Boolean="false" Visible="false"/>
+                    <InputPin SaveName="Reference Signal" DisplayName="Reference Signal" DataType="Boolean" UniqueID="858" Boolean="false" Visible="false"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="Position Controlled Axis" DisplayName="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="859" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="860" Real="18.337689459842373" Visible="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="861" Real="0" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="PositionControlledSingleAxisMachine" CustomName="Costière Centrale" UniqueID="865">
+                <NodeEditorPosition x="1225" y="-1232"/>
+                <NodeSpecificData ShortName="Cost-M">
+                    <Rapids Velocity_machineUnitsPerSecond="0.5" Acceleration_machineUnitsPerSecondSquared="0.5"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveName="Position Controlled Axis" DisplayName="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="866" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="867" Real="18.337689459842373" Visible="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="868" Real="0" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -1307,13 +1345,17 @@
             <Link UniqueID="848" StartPin="558" EndPin="68"/>
             <Link UniqueID="849" StartPin="559" EndPin="69"/>
             <Link UniqueID="850" StartPin="560" EndPin="70"/>
+            <Link UniqueID="862" StartPin="580" EndPin="853"/>
+            <Link UniqueID="863" StartPin="584" EndPin="855"/>
+            <Link UniqueID="864" StartPin="585" EndPin="856"/>
+            <Link UniqueID="869" StartPin="859" EndPin="866"/>
         </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en7" Name="en7"/>
+        <Primary Description="en4" Name="en4"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>
