@@ -63,64 +63,64 @@
     </Manoeuvre>
     <Manoeuvre Name="Shut" Description="All Flips Shut" Type="KeyPosition">
         <Track Machine="Flip G-J2" MachineUniqueID="281" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-J1" MachineUniqueID="295" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-Axe" MachineUniqueID="309" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-C1" MachineUniqueID="323" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-C2" MachineUniqueID="337" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-J2" MachineUniqueID="351" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-J1" MachineUniqueID="365" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-Axe" MachineUniqueID="379" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-C1" MachineUniqueID="393" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-C2" MachineUniqueID="407" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-J2" MachineUniqueID="421" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-J1" MachineUniqueID="435" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-Axe" MachineUniqueID="449" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-C1" MachineUniqueID="463" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-C2" MachineUniqueID="477" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-J2" MachineUniqueID="491" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-J1" MachineUniqueID="505" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-Axe" MachineUniqueID="519" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-C1" MachineUniqueID="533" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-C2" MachineUniqueID="547" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
     </Manoeuvre>
     <Manoeuvre Name="M-1" Description="All Chained with 0.2s delay" Type="MovementSequence">
@@ -187,64 +187,64 @@
     </Manoeuvre>
     <Manoeuvre Name="Shut" Description="All Flips Shut" Type="KeyPosition">
         <Track Machine="Flip G-J2" MachineUniqueID="281" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-J1" MachineUniqueID="295" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-Axe" MachineUniqueID="309" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-C1" MachineUniqueID="323" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-C2" MachineUniqueID="337" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-J2" MachineUniqueID="351" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-J1" MachineUniqueID="365" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-Axe" MachineUniqueID="379" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-C1" MachineUniqueID="393" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-C2" MachineUniqueID="407" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-J2" MachineUniqueID="421" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-J1" MachineUniqueID="435" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-Axe" MachineUniqueID="449" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-C1" MachineUniqueID="463" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-C2" MachineUniqueID="477" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-J2" MachineUniqueID="491" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-J1" MachineUniqueID="505" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-Axe" MachineUniqueID="519" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-C1" MachineUniqueID="533" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-C2" MachineUniqueID="547" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
     </Manoeuvre>
     <Manoeuvre Name="M-2" Description="V-Wave from back to front" Type="MovementSequence">
@@ -311,64 +311,64 @@
     </Manoeuvre>
     <Manoeuvre Name="Shut" Description="All Flips Shut" Type="KeyPosition">
         <Track Machine="Flip G-J2" MachineUniqueID="281" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-J1" MachineUniqueID="295" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-Axe" MachineUniqueID="309" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-C1" MachineUniqueID="323" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-C2" MachineUniqueID="337" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-J2" MachineUniqueID="351" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-J1" MachineUniqueID="365" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-Axe" MachineUniqueID="379" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-C1" MachineUniqueID="393" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-C2" MachineUniqueID="407" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-J2" MachineUniqueID="421" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-J1" MachineUniqueID="435" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-Axe" MachineUniqueID="449" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-C1" MachineUniqueID="463" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-C2" MachineUniqueID="477" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-J2" MachineUniqueID="491" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-J1" MachineUniqueID="505" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-Axe" MachineUniqueID="519" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-C1" MachineUniqueID="533" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-C2" MachineUniqueID="547" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
     </Manoeuvre>
     <Manoeuvre Name="M-3" Description="Straight from Wave Back to Front" Type="MovementSequence">
@@ -435,67 +435,67 @@
     </Manoeuvre>
     <Manoeuvre Name="Shut" Description="All Flips Shut" Type="KeyPosition">
         <Track Machine="Flip G-J2" MachineUniqueID="281" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-J1" MachineUniqueID="295" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-Axe" MachineUniqueID="309" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-C1" MachineUniqueID="323" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip G-C2" MachineUniqueID="337" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-J2" MachineUniqueID="351" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-J1" MachineUniqueID="365" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-Axe" MachineUniqueID="379" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-C1" MachineUniqueID="393" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip E-C2" MachineUniqueID="407" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-J2" MachineUniqueID="421" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-J1" MachineUniqueID="435" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-Axe" MachineUniqueID="449" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-C1" MachineUniqueID="463" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip C-C2" MachineUniqueID="477" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-J2" MachineUniqueID="491" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-J1" MachineUniqueID="505" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-Axe" MachineUniqueID="519" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-C1" MachineUniqueID="533" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
         <Track Machine="Flip A-C2" MachineUniqueID="547" Parameter="State" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Step">
-            <Target IsEqualToNextOrigin="false" Type="State" State="Open"/>
+            <Target IsEqualToNextOrigin="false" Type="State" State="Shut"/>
         </Track>
     </Manoeuvre>
-    <Manoeuvre Name="M-4" Description="£Straight Wave from Right to Left" Type="MovementSequence">
+    <Manoeuvre Name="M-4" Description="Straight Wave from Right to Left" Type="MovementSequence">
         <Track Machine="Flip G-J2" MachineUniqueID="281" Parameter="State" HasChildParameterTracks="false" SequenceType="TimedMove" Interpolation="Step" OriginIsPreviousTarget="true" TargetIsNextOrigin="false" MovementTime="2.6000000000000001" TimeOffset="0" RampIn="0.10000000000000001" RampsAreEqual="true">
             <Target Type="State" State="Open"/>
         </Track>

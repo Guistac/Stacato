@@ -188,31 +188,43 @@ bool AnimatableParameterValue::load(tinyxml2::XMLElement* parameterValueXML) {
 	if (getParameterDataType(typeString) == nullptr) return Logger::warn("Could not read parameter data type");
 	type = getParameterDataType(typeString)->type;
 	switch (type) {
-	case ParameterDataType::Type::BOOLEAN_PARAMETER:
-		if (parameterValueXML->QueryBoolAttribute("Boolean", &boolValue) != XML_SUCCESS) return Logger::warn("Could not read bool value");
-		break;
-	case ParameterDataType::Type::INTEGER_PARAMETER:
-		if (parameterValueXML->QueryIntAttribute("Integer", &integerValue) != XML_SUCCESS) return Logger::warn("Could not read int value");
-		break;
-	case ParameterDataType::Type::STATE_PARAMETER: {
-		const char* stateValueString;
-		if (parameterValueXML->QueryStringAttribute("State", &stateValueString) != XML_SUCCESS) return Logger::warn("Could not read state value");
-	}break;
-	case ParameterDataType::Type::REAL_PARAMETER:
-	case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
-		if (parameterValueXML->QueryDoubleAttribute("Real", &realValue) != XML_SUCCESS) return Logger::warn("Could not read real value");
-		break;
-	case ParameterDataType::Type::VECTOR_2D_PARAMETER:
-	case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
-		if (parameterValueXML->QueryFloatAttribute("X", &vector2value.x) != XML_SUCCESS) return Logger::warn("Could not read vector2.x value");
-		if (parameterValueXML->QueryFloatAttribute("Y", &vector2value.y) != XML_SUCCESS) return Logger::warn("Could not read vector2.y value");
-		break;
-	case ParameterDataType::Type::VECTOR_3D_PARAMETER:
-	case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
-		if (parameterValueXML->QueryFloatAttribute("X", &vector3value.x) != XML_SUCCESS) return Logger::warn("Could not read vector3.x value");
-		if (parameterValueXML->QueryFloatAttribute("Y", &vector3value.y) != XML_SUCCESS) return Logger::warn("Could not read vector3.y value");
-		if (parameterValueXML->QueryFloatAttribute("Z", &vector3value.z) != XML_SUCCESS) return Logger::warn("Could not read vector3.z value");
-		break;
+		case ParameterDataType::Type::BOOLEAN_PARAMETER:
+			if (parameterValueXML->QueryBoolAttribute("Boolean", &boolValue) != XML_SUCCESS) return Logger::warn("Could not read bool value");
+			break;
+		case ParameterDataType::Type::INTEGER_PARAMETER:
+			if (parameterValueXML->QueryIntAttribute("Integer", &integerValue) != XML_SUCCESS) return Logger::warn("Could not read int value");
+			break;
+		case ParameterDataType::Type::STATE_PARAMETER: {
+			const char* stateValueString;
+			if (parameterValueXML->QueryStringAttribute("State", &stateValueString) != XML_SUCCESS) return Logger::warn("Could not read state value");
+			
+			for(auto& sv : *stateValues){
+				if(strcmp(sv.saveName, stateValueString) == 0){
+					stateValue = &sv;
+					break;
+				}
+			}
+			
+			//decode state type
+			
+		}break;
+		case ParameterDataType::Type::REAL_PARAMETER:
+		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
+			if (parameterValueXML->QueryDoubleAttribute("Real", &realValue) != XML_SUCCESS) return Logger::warn("Could not read real value");
+			break;
+		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
+		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
+			if (parameterValueXML->QueryFloatAttribute("X", &vector2value.x) != XML_SUCCESS) return Logger::warn("Could not read vector2.x value");
+			if (parameterValueXML->QueryFloatAttribute("Y", &vector2value.y) != XML_SUCCESS) return Logger::warn("Could not read vector2.y value");
+			break;
+		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
+		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
+			if (parameterValueXML->QueryFloatAttribute("X", &vector3value.x) != XML_SUCCESS) return Logger::warn("Could not read vector3.x value");
+			if (parameterValueXML->QueryFloatAttribute("Y", &vector3value.y) != XML_SUCCESS) return Logger::warn("Could not read vector3.y value");
+			if (parameterValueXML->QueryFloatAttribute("Z", &vector3value.z) != XML_SUCCESS) return Logger::warn("Could not read vector3.z value");
+			break;
+		case ParameterDataType::Type::PARAMETER_GROUP:
+			break;
 	}
 	return true;
 }
