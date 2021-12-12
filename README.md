@@ -8,7 +8,7 @@
 - Stage Visualizer base on imported 3D models
 - Collision Detection through stage geometry
 - Physical Console compatibility (Serial Link, console protocol and integration)
-- Gui Layout Modes for different screen format and scenarios
+- Gui Layout Modes for different screen counts and formats and usage scenarios
 - Homing Procedure User Interface
 - OSC Node for sending feedback data
 - ArtNet Node for sending 3D feedback data
