@@ -2,13 +2,13 @@
 
 ### Future Milestones
 - Feature complete plot editor and playback engine (animated manoeuvres / on-the-fly plaback start or catch-up)
-- Offline Motion Simulation Mode
-- Timecode device communication
-- Manoeuvre Sequencer
-- Stage Visualizer base on imported 3D models
+- Stage Visualizer based on 3D models (.dwg importer, stage editor and visualizer)
 - Collision Detection through stage geometry
-- Physical Console compatibility (Serial Link, console protocol and integration)
-- Gui Layout Modes for different screen counts and formats and usage scenarios
+- Offline Motion Simulation Mode
+- Timecode Device Interface
+- Manoeuvre Sequencer
+- Physical Console compatibility (Serial Link and Communication protocol)
+- Gui Layout Modes for different screen counts, formats and usage scenarios
 - Homing Procedure User Interface
 - OSC Node for sending feedback data
 - ArtNet Node for sending 3D feedback data
