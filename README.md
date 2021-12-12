@@ -14,4 +14,5 @@
 - ArtNet Node for sending 3D feedback data
 - Copy/Paste in environnement editor and plot editor
 - Undo/Redo in environnement editor and plot editor
+- Feedback-Only Machine node exclusively for monitoring and sending position data
 - EtherCAT transmission error counter / Network cable diagnostics
