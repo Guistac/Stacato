@@ -1,6 +1,4 @@
-# Stacato
-
-## Stage Control Automation Toolbox
+# Stacato (Stage Control Automation Toolbox)
 
 ### Future Milestones
 - Feature complete manoeuvre editor and playback engine
