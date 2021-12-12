@@ -1,7 +1,7 @@
 # Stacato (Stage Control Automation Toolbox)
 
 ### Future Milestones
-- Feature complete plot editor and playback engine (animated manoeuvres / on-the-fly plaback start or catch-up)
+- Feature complete plot editor and playback engine (animated tracks / on-the-fly playback start or catch-up)
 - Stage Visualizer based on 3D models (.dwg importer, stage editor and visualizer)
 - Collision Detection through stage geometry
 - Offline Motion Simulation Mode
