@@ -1,6 +1,6 @@
 # Stacato (Stage Control Automation Toolbox)
 
-### Future Milestones
+### Feature Milestones
 - Feature complete plot editor and playback engine (animated tracks / on-the-fly playback start or catch-up)
 - Stage Visualizer based on 3D models (.dwg importer, stage editor and visualizer)
 - Collision Prediction using stage geometry
