@@ -20,3 +20,4 @@
 ### Housekeeping
 - Refactor Device Nodes
 - Refactor Node Pins
+- Profile Generator Class
