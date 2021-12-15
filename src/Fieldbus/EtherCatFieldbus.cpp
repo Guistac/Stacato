@@ -299,7 +299,7 @@ namespace EtherCatFieldbus {
 		success = false;
 		tries = 0;
 		
-		//read AL status to see if device id is active
+		//read AL status to see if device id is active (bit 5)
 		//this takes a considerable amount of time, a single read might be too soon, so we read multiple time
 		while(tries < maxTries && !success){
 			int wc = ec_FPRD(configAddress, 0x130, 2, &ALstatus, EC_TIMEOUTSAFE);
@@ -344,12 +344,8 @@ namespace EtherCatFieldbus {
 			tries++;
 		}
 		
-		if(foundID) {
-			Logger::warn("OK! ID = {}", ID);
-			return true;
-		}
+		if(foundID) return true;
 		
-		Logger::critical("FAILED");
 		ID = 0;
         return false;
     }
