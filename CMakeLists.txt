@@ -55,6 +55,9 @@ add_subdirectory(dependencies)
 file(GLOB_RECURSE SOURCE_FILE_LIST "src/*.cpp" "src/*.h")
 list(APPEND SOURCE_FILE_LIST "src/Core/config.h.in")
 list(APPEND SOURCE_FILE_LIST "${PROJECT_BINARY_DIR}/src/Core/config.h")
+if(APPLE)
+	list(APPEND SOURCE_FILE_LIST "${PROJECT_SOURCE_DIR}/src/Core/Info.plist")
+endif()
 
 # Main Executable with all source files in src/
 if(WIN32)
@@ -156,5 +159,5 @@ if(APPLE)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE MACOS)
     set_property(TARGET ${PROJECT_NAME} PROPERTY XCODE_SCHEME_WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/dir/Resources")
     set_property(GLOBAL PROPERTY XCODE_SCHEME_EXECUTABLE ${PROJECT_NAME})
-    
+    set_property(TARGET ${PROJECT_NAME} PROPERTY MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/src/Core/Info.plist")
 endif()
