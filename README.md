@@ -3,11 +3,11 @@
 ### Feature Milestones
 - Feature complete plot editor and playback engine (animated tracks / on-the-fly playback start or catch-up)
 - Stage Visualizer based on 3D models (.dwg importer, stage editor and visualizer)
-- Collision Prediction using stage geometry
+- Realtime Collision Prediction using stage geometry
 - Offline Motion Simulation Mode
 - Timecode Device Interface
-- Manoeuvre Sequencer
-- Physical Console compatibility (Serial Link and Communication protocol)
+- Manoeuvre Sequencer (Timeline)
+- Physical Console compatibility (Serial Link, Communication protocol Software Button Assignement)
 - Gui Layout Modes for different screen counts, formats and usage scenarios
 - Homing Procedure User Interface
 - OSC Node for sending feedback data
