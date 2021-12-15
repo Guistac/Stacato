@@ -22,3 +22,5 @@
 - Refactor Device Nodes
 - Refactor Node Pins
 - Profile Generator Class
+- Auto Scan Network Interfaces Function
+
