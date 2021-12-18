@@ -1,7 +1,7 @@
 # Stacato (Stage Control Automation Toolbox)
 
 ### Feature Milestones
-- Feature complete plot editor and playback engine (animated tracks / on-the-fly playback start or catch-up)
+- Feature complete plot editor and playback engine (animated tracks / on-the-fly playback start or catch-up, position capture, timed manoeuvres)
 - Stage Visualizer based on 3D models (.dwg importer, stage editor and visualizer)
 - Realtime Collision Prediction using stage geometry
 - Offline Motion Simulation Mode
@@ -16,7 +16,7 @@
 - Undo/Redo in environnement editor and plot editor
 - Feedback-Only Machine node exclusively for monitoring and sending position data
 - EtherCAT transmission error counter / Network cable diagnostics
-- Dead Mans Switch Integration
+- Dead Mans Switch
 
 ### Housekeeping
 - Refactor Device Nodes
