@@ -111,7 +111,7 @@ void open(int w, int h) {
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 #endif
 	
-	Logger::info("OpenGL Version {}", (const char*)glGetString(GL_VERSION));
+	Logger::debug("OpenGL Version {}", (const char*)glGetString(GL_VERSION));
 	
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -137,7 +137,7 @@ void open(int w, int h) {
 	glfwGetWindowContentScale(window, &xScale, &yScale);
 	
 	float scale = xScale * scaleTuning;
-	Logger::info("Display Scale: {}  Scale Tuning: x{}  Gui Scale: {}", xScale, scaleTuning, scale);
+	Logger::debug("Display Scale: {}  Scale Tuning: x{}  Gui Scale: {}", xScale, scaleTuning, scale);
 	Fonts::load(scale);
 	
 	ImGui::GetStyle().ScaleAllSizes(scale);

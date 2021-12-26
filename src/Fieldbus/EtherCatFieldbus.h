@@ -23,6 +23,7 @@ namespace EtherCatFieldbus {
     bool init();
     bool init(NetworkInterfaceCard&);
     bool init(NetworkInterfaceCard&, NetworkInterfaceCard&);
+	bool autoInit();
     extern NetworkInterfaceCard networkInterfaceCard;
     extern NetworkInterfaceCard redundantNetworkInterfaceCard;
     extern bool b_redundant;

@@ -83,6 +83,8 @@ void etherCatParameters(bool resetNicLists) {
 				}
 			}
 		}
+		ImGui::SameLine();
+		if(ImGui::Button("Auto Setup")) EtherCatFieldbus::autoInit();
 
 		ImGui::Separator();
 

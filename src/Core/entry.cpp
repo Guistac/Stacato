@@ -24,7 +24,7 @@ int main() {
 #else
 	Logger::info("Stacato Version {}.{} {} - Release Build", VERSION_MAJOR, VERSION_MINOR, STACATO_OS_NAME);
 #endif
-	Logger::info("Application Working Directory: {}", std::filesystem::current_path().string());
+	Logger::debug("Application Working Directory: {}", std::filesystem::current_path().string());
     
 	EtherCatDeviceFactory::loadDevices();
 	NodeFactory::loadNodes();

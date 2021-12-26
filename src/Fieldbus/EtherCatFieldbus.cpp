@@ -189,6 +189,17 @@ namespace EtherCatFieldbus {
         return true;
     }
 
+	bool autoInit(){
+		updateNetworkInterfaceCardList();
+		for(auto& nic : networkInterfaceCards){
+			if(!init(nic)) continue;
+			scanNetwork();
+			if(slaves.empty()) terminate();
+			else return true;
+		}
+		return false;
+	}
+
     void setup() {
         startErrorWatcher();
         scanNetwork();
