@@ -8,6 +8,8 @@
 #include "NodeGraph/NodeGraph.h"
 #include "Motion/Playback.h"
 
+#include "Utilities/ProgressIndicator.h"
+
 #include "config.h"
 
 namespace EtherCatFieldbus {
@@ -33,9 +35,7 @@ namespace EtherCatFieldbus {
     bool isCyclicExchangeActive() { return b_processRunning; }
     bool isCyclicExchangeStartSuccessfull() { return b_processRunning && b_clockStable && b_allOperational; }
 
-    bool b_startupError = false;
-    int i_startupProgress = 0;
-    char startupStatusString[128] = "";
+	ProgressIndicator startupProgress;
 
     EtherCatMetrics metrics;
 
@@ -247,30 +247,26 @@ namespace EtherCatFieldbus {
 
     void start() {
         if (!b_processStarting) {
-            Logger::info("===== Starting Fieldbus Configuration");
-            std::thread etherCatProcessStarter([]() {
+			
+			startupProgress.setStart("Starting Fieldbus Configuration");
+			
+			Logger::info("===== Starting Fieldbus Configuration");
+			std::thread etherCatProcessStarter([]() {
 
                 //join the cyclic echange thread if it was terminated previously
                 if (etherCatRuntime.joinable()) etherCatRuntime.join();
 
-                b_startupError = false;
-                i_startupProgress = 0;
-                sprintf(startupStatusString, "Starting Fieldbus Configuration");
-
                 b_processStarting = true;
                 stopSlaveDetectionHandler();
-
-                i_startupProgress = 0;
-                sprintf(startupStatusString, "Scanning Network");
+				
                 if (!discoverDevices()) {
-                    b_startupError = true;
                     b_processStarting = false;
-                    sprintf(startupStatusString, "Found no EtherCAT slaves on the network");
                     return;
                 }
 
                 if (!configureSlaves()) {
                     b_processStarting = false;
+					startupProgress.setFailure("Failed to configure EtherCAT devices.");
                     return;
                 }
 
@@ -399,6 +395,8 @@ namespace EtherCatFieldbus {
 
     bool discoverDevices() {
 
+		startupProgress.setProgress(0.01, "Scanning Network");
+		
         //when rescanning the network, all previous slaves are now considered to be offline before being detected again
         //for a slave to appear as offline, we set its identity object (ec_slavet) to nullptr
         for (auto slave : slaves) slave->identity = nullptr;
@@ -414,6 +412,7 @@ namespace EtherCatFieldbus {
 
             //wait and check if all slaves have reached Pre Operational State like requested by ec_config_init()
             if (ec_statecheck(0, EC_STATE_PRE_OP, EC_TIMEOUTSTATE) != EC_STATE_PRE_OP) {
+				startupProgress.setFailure("Not all slaves reached Pre-Operational State...");
                 Logger::error("Not All Slaves Reached Pre-Operational State...");
                 for (int i = 1; i <= ec_slavecount; i++) {
                     if (ec_slave[i].state != EC_STATE_PRE_OP) {
@@ -422,6 +421,8 @@ namespace EtherCatFieldbus {
                 }
             }
 
+			startupProgress.setProgress(0.05, "Identifying Devices");
+			
             Logger::info("===== Found and Configured {} EtherCAT Slave{}", ec_slavecount, ((ec_slavecount == 1) ? ": " : "s: "));
 
             for (int i = 1; i <= ec_slavecount; i++) {
@@ -491,6 +492,7 @@ namespace EtherCatFieldbus {
             return true;
         }
 
+		startupProgress.setFailure("No EtherCAT slaves found");
         Logger::warn("===== No EtherCAT Slaves found...");
         return false;
     }
@@ -528,17 +530,14 @@ namespace EtherCatFieldbus {
 
     bool configureSlaves() {
 
-        i_startupProgress = 1;
-        sprintf(startupStatusString, "Configuring Distributed Clocks");
-
+		startupProgress.setProgress(0.075, "Configuring Distributed Clocks");
         Logger::debug("===== Configuring Distributed Clocks");
+		
         if (!ec_configdc()) {
-            b_startupError = true;
-            sprintf(startupStatusString, "Could not configure distributed clocks...");
+			startupProgress.setFailure("Could not configure distributed clocks...");
             Logger::error("===== Could not configure distributed clocks ...");
             return false;
         }
-        Logger::info("===== Finished Configuring Distributed Clocks");
 
         //assign slave startup hooks
         for (int i = 1; i <= ec_slavecount; i++) {
@@ -546,9 +545,18 @@ namespace EtherCatFieldbus {
             ec_slave[i].PO2SOconfig = [](uint16_t slaveIndex) -> int {
                 for (auto slave : slaves) {
                     if (slave->getSlaveIndex() == slaveIndex) {
-                        sprintf(startupStatusString, "Configuring Slave #%i '%s'", slave->getSlaveIndex(), slave->getName());
-                        i_startupProgress = slaveIndex + 1; //for progress bar display
-                        Logger::debug("Configuring Slave '{}'", slave->getName());
+						
+						int slaveCount = slaves.size();
+						float confProgStart = 0.1;
+						float confProgEnd = 0.5;
+						float confIncrement = (confProgEnd - confProgStart) / slaveCount;
+						float configurationProgress = slave->getSlaveIndex() * confIncrement + confProgStart;
+						
+						static char slaveConfigurationString[256];
+						sprintf(slaveConfigurationString, "Configuring %s", slave->getName());
+						startupProgress.setProgress(configurationProgress, slaveConfigurationString);
+						
+						Logger::debug("Configuring Slave '{}'", slave->getName());
                         bool configurationResult = slave->startupConfiguration();
                         if (configurationResult) {
                             Logger::debug("Successfully configured Slave '{}'", slave->getName());
@@ -565,17 +573,17 @@ namespace EtherCatFieldbus {
         }
 
         //build ioMap for PDO data, configure FMMU and SyncManager, request SAFE-OP state for all slaves
-        Logger::debug("===== Begin Building I/O Map and Slave Configuration...");
-        sprintf(startupStatusString, "Configuring Devices");
+		startupProgress.setProgress(0.01, "Configuring Devices");
+        Logger::debug("===== Beginning Device Configuration and IOMap Building...");
         ioMapSize = ec_config_map(ioMap); //this function starts the configuration
         if (ioMapSize <= 0) {
-            b_startupError = true;
-            sprintf(startupStatusString, "Failed to Configure I/O Map");
-            Logger::error("===== Failed To Configure I/O Map... (size={})", ioMapSize);
+			startupProgress.setFailure("Failed to configure devices");
+            Logger::error("===== Failed To Configure Devices... (ioMap size : {})", ioMapSize);
             return false;
         }
-        Logger::info("===== Finished Building I/O Map (Size : {} bytes)", ioMapSize);
+        Logger::info("===== Finished Configuring Devices  (IOMap size : {} bytes)", ioMapSize);
 
+		
         for (auto slave : slaves) {
             Logger::debug("   [{}] '{}' {} bytes ({} bits)",
                 slave->getSlaveIndex(),
@@ -586,13 +594,11 @@ namespace EtherCatFieldbus {
             Logger::debug("          Outputs: {} bytes ({} bits)", slave->identity->Obytes, slave->identity->Obits);
         }
 
-        i_startupProgress = ec_slavecount + 2;
-        sprintf(startupStatusString, "Checking For Safe-Operational State");
-
+		
+		startupProgress.setProgress(0.55, "Waiting for Safe-Operational State");
         Logger::debug("===== Checking For Safe-Operational State...");
         if (ec_statecheck(0, EC_STATE_SAFE_OP, EC_TIMEOUTSTATE) != EC_STATE_SAFE_OP) {
-            b_startupError = true;
-            sprintf(startupStatusString, "Not All Slaves Reached Safe-Operational State");
+			startupProgress.setFailure("Not all slaves reached Safe-Operational State.");
             Logger::error("===== Not all slaves have reached Safe-Operational State...");
             for (auto slave : slaves) {
                 if (!slave->isStateSafeOperational() || !slave->isStateOperational() || slave->hasStateError()) {
@@ -612,8 +618,7 @@ namespace EtherCatFieldbus {
         //don't allow the thread to start if it is already running
         if (b_processRunning) return;
 
-        i_startupProgress = ec_slavecount + 3;
-        sprintf(startupStatusString, "Starting Cyclic Exchange");
+		startupProgress.setProgress(0.6, "Starting Cyclic Exchange");
         Logger::debug("===== Starting Cyclic Process Data Exchange");
 
         b_processRunning = true;
@@ -643,8 +648,7 @@ namespace EtherCatFieldbus {
         std::chrono::high_resolution_clock::time_point lastProcessDataFrameReturnTime = high_resolution_clock::now();
 
         Logger::info("===== Waiting For clocks to stabilize before requesting Operational State...");
-        i_startupProgress = ec_slavecount + 4;
-        sprintf(startupStatusString, "Waiting For Clocks To Stabilize");
+		startupProgress.setProgress(0.65, "Waiting for clocks to stabilize");
 
         //slaves are considered online when they are detected and actively exchanging data with the master
         //if we reached this state of the configuration, all slaves are detected and we are about to start exchanging data
@@ -659,8 +663,6 @@ namespace EtherCatFieldbus {
         int64_t systemTimeSmoothed_nanoseconds = cycleStartTime_nanoseconds;
 
         while (b_processRunning) {
-
-
 
             //======================= THREAD TIMING =========================
 
@@ -750,11 +752,24 @@ namespace EtherCatFieldbus {
             //================= OPERATIONAL STATE TRANSITION ==================
 
             if (!b_clockStable && averageDCTimeDelta_nanoseconds < clockStableThreshold_nanoseconds) {
+				//detect clock stabilisation and request operational state
                 b_clockStable = true;
-                sprintf(startupStatusString, "Setting All Slaves to Operational State");
+				startupProgress.setProgress(0.95, "Requesting Operational State");
                 std::thread opStateHandler([]() { transitionToOperationalState(); });
                 opStateHandler.detach();
-            }
+			}else if(!b_clockStable){
+				//while the clocks are stabilizing, update the startup progress bar
+				float from = 0.65;
+				float to = 1.0;
+				float maxValue = processInterval_milliseconds / 2.0;
+				float minValue = clockStableThreshold_milliseconds;
+				float value = metrics.averageDcTimeError_milliseconds;
+				float percentage = (value - minValue) / (maxValue - minValue);
+				percentage = std::min(1.0f, percentage);
+				percentage = std::max(0.0f, percentage);
+				float progress = from + (to - from) * percentage;
+				startupProgress.setProgress(progress, "Waiting for clocks to stabilize");
+			}
 
             //==================== UPDATE FIELDBUS METRICS =====================
 
@@ -818,19 +833,18 @@ namespace EtherCatFieldbus {
         ec_writestate(0);
         //wait for all slaves to reach OP state
         if (EC_STATE_OPERATIONAL == ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE)) {
-            sprintf(startupStatusString, "Successfully Started EtherCAT Fieldbus");
+			startupProgress.setCompletion("Successfully Started EtherCAT Fieldbus");
             b_allOperational = true;
             Logger::info("===== All slaves are operational");
             Logger::info("===== Successfully started EtherCAT Fieldbus");
             //addition read state is required to set the individual state of each slave
             //statecheck on slave zero doesn't assign the state of each individual slave, only global slave 0
             ec_readstate();
-
+			//start slave state handler thread
             slaveStateHandler = std::thread([]() { handleStateTransitions(); });
         }
         else {
-            b_startupError = true;
-            sprintf(startupStatusString, "Not all slaves reached Operational State");
+			startupProgress.setFailure("Not all slaves reached Operational State");
             Logger::error("===== Not all slaves reached operational state... ");
             for (auto slave : slaves) {
                 if (!slave->isStateOperational() || slave->hasStateError()) {

@@ -11,6 +11,8 @@ struct NetworkInterfaceCard {
 
 namespace tinyxml2 { class XMLElement; }
 
+struct ProgressIndicator;
+
 namespace EtherCatFieldbus {
 
     //Get Network Interface Cards
@@ -44,9 +46,7 @@ namespace EtherCatFieldbus {
 
     //Start Cyclic Exchange
     void start();
-    extern int i_startupProgress;     //counts up during network configuration to display a progress bar
-    extern bool b_startupError;       //high if configuration failed at some point
-    extern char startupStatusString[128];   //updated to display the current network configuration step or error
+	extern ProgressIndicator startupProgress;
 
     //Metrics to monitor the Cyclic Exchange
     extern EtherCatMetrics metrics;
