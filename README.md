@@ -25,6 +25,5 @@
 - Refactor Device Nodes
 - Refactor Node Pins
 - Profile Generator Class & Node Pin Type
-- Auto Scan Network Interfaces Function
 - Clean Up Lexium Node
 
