@@ -257,7 +257,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			outputPinXML = outputPinXML->NextSiblingElement();
 		}
 
-		Logger::debug("Loaded Node {} (name: '{}') type: {}  ID: {}", nodeSaveNameString, nodeCustomName, nodeType, nodeUniqueID);
+		Logger::trace("Loaded Node {} (name: '{}') type: {}  ID: {}", nodeSaveNameString, nodeCustomName, nodeType, nodeUniqueID);
 		nodeXML = nodeXML->NextSiblingElement();
 	}
 

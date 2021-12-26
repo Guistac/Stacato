@@ -8,7 +8,21 @@ class Plot;
 
 namespace Environnement{
 
-	extern std::shared_ptr<NodeGraph> nodeGraph;
+	void createNew();
+	bool save(const char* filePath);
+	bool load(const char* filePath);
+
+	void setName(const char*);
+	const char* getName();
+
+	void start();
+	void stop();
+	bool isRunning();
+	bool isSimulating();
+
+	void setSimulation(bool sim);
+
+	void update();
 
 	std::vector<std::shared_ptr<EtherCatDevice>>& getEtherCatDevices();
 	std::vector<std::shared_ptr<Machine>>& getMachines();
@@ -21,13 +35,7 @@ namespace Environnement{
 	void addNode(std::shared_ptr<Node> node);
 	void removeNode(std::shared_ptr<Node> node);
 
-	void createNew();
-	bool save(const char* filePath);
-	bool load(const char* filePath);
-
-	void setName(const char*);
-	const char* getName();
-
+	extern std::shared_ptr<NodeGraph> nodeGraph;
 	extern std::shared_ptr<Machine> selectedMachine;
 	extern std::shared_ptr<EtherCatDevice> selectedEtherCatDevice;
 };

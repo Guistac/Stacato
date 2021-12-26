@@ -64,9 +64,13 @@ namespace Environnement {
 
 		//====== FIELDBUS PARAMETER LOADING ======
 
+		EtherCatFieldbus::updateNetworkInterfaceCardList();
+		
 		XMLElement* fieldbusSettingsXML = document.FirstChildElement("FieldbusSettings");
 		if (!fieldbusSettingsXML) return Logger::warn("Could not load Fieldbus Settings from SaveFile");
 		if (!EtherCatFieldbus::load(fieldbusSettingsXML)) return Logger::warn("Error reading Fieldbus settings data");
+		
+		EtherCatFieldbus::init();
 
 		return Logger::info("Successfully loaded Save File");
 	}

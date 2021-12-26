@@ -15,18 +15,17 @@ namespace EtherCatFieldbus {
 
     //Get Network Interface Cards
     void updateNetworkInterfaceCardList();
-    extern std::vector<NetworkInterfaceCard> networkInterfaceCards;
+    extern std::vector<std::shared_ptr<NetworkInterfaceCard>> networkInterfaceCards;
 
 	bool hasNetworkPermissions();
 
     //Initialize EtherCAT using one or two Network Interface Cards
     bool init();
-    bool init(NetworkInterfaceCard&);
-    bool init(NetworkInterfaceCard&, NetworkInterfaceCard&);
+    bool init(std::shared_ptr<NetworkInterfaceCard>);
+    bool init(std::shared_ptr<NetworkInterfaceCard>, std::shared_ptr<NetworkInterfaceCard>);
 	bool autoInit();
-    extern NetworkInterfaceCard networkInterfaceCard;
-    extern NetworkInterfaceCard redundantNetworkInterfaceCard;
-    extern bool b_redundant;
+    extern std::shared_ptr<NetworkInterfaceCard> primaryNetworkInterfaceCard;
+    extern std::shared_ptr<NetworkInterfaceCard> redundantNetworkInterfaceCard;
 
     //Terminate EtherCAT, releasing the network hardware
     void terminate();
@@ -52,7 +51,8 @@ namespace EtherCatFieldbus {
     //Metrics to monitor the Cyclic Exchange
     extern EtherCatMetrics metrics;
 
-    bool isNetworkInitialized();                //Is EtherCAT Initializer with a network interface card
+    bool isNetworkInitialized();                //Is EtherCAT Initialized with a network interface card
+	bool isNetworkRedundant();					//Is EtherCAT Open with two network interface cards
     bool isCyclicExchangeStarting();            //Is the Cyclic Exchange in Startup
     bool isCyclicExchangeActive();              //Is the Cyclic Exchange Running
     bool isCyclicExchangeStartSuccessfull();    //Is the Cyclic Exchange Successfully Started
@@ -65,13 +65,8 @@ namespace EtherCatFieldbus {
     bool load(tinyxml2::XMLElement* xml);
 
     double getCycleProgramTime_seconds();
-    extern double currentCycleProgramTime_seconds;
-
-    double getCycleTimeDelta_seconds();
-    extern double currentCycleDeltaT_seconds;
-
-
-    extern long long int currentCycleProgramTime_nanoseconds;
     long long int getCycleProgramTime_nanoseconds();
+	double getCycleTimeDelta_seconds();
+	long long int getCycleTimeDelta_nanoseconds();
 };
 
