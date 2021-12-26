@@ -8,6 +8,8 @@
 #include "Fieldbus/EtherCatDevice.h"
 #include "Motion/Machine/Machine.h"
 
+#include "Gui/ApplicationWindow/ApplicationWindow.h"
+
 #include "Motion/Playback.h"
 
 namespace Environnement {
@@ -16,27 +18,30 @@ bool b_isStarting = false;
 bool b_isRunning = false;
 bool b_isSimulating = false;
 
+double simulationStartTime_seconds = 0.0;
+long long int simulationStartTime_nanoseconds = 0;
+double simulationTime_seconds = 0.0;
+long long int simulationTime_nanoseconds = 0;
+double simulationTimeDelta_seconds = 0.0;
+long long int simulationTimeDelta_nanoseconds = 0;
+
 void startSimulation();
+void stopSimulation();
+void startHardware();
+void stopHardware();
+
 void updateSimulation();
 std::thread environnementSimulator;
 
 
 void start(){
-	if(b_isSimulating){
-		startSimulation();
-	}else{
-		//EtherCatFieldbus::start();
-	}
+	if(b_isSimulating) startSimulation();
+	else startHardware();
 }
 
-
 void stop(){
-	if(b_isSimulating){
-		b_isRunning = false;
-		environnementSimulator.join();
-	}else{
-		//EtherCatFieldbus::stop();
-	}
+	if(b_isSimulating) stopSimulation();
+	else stopHardware();
 }
 
 bool isReady(){
@@ -62,7 +67,40 @@ void setSimulation(bool b_sim){
 
 
 
-void update(){
+
+
+void startSimulation(){
+	b_isRunning = true;
+	
+	simulationStartTime_seconds = Timing::getProgramTime_seconds();
+	simulationStartTime_nanoseconds = Timing::getProgramTime_nanoseconds();
+	
+	environnementSimulator = std::thread([](){
+		Logger::info("Started Environnement Simulation");
+		while(b_isRunning){
+			updateSimulation();
+			//run simulation at 100Hz and free the cpu core in between processing cycles
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		}
+		Logger::info("Stopped Environnement Simulation");
+	});
+}
+
+void stopSimulation(){
+	b_isRunning = false;
+	environnementSimulator.join();
+}
+
+void startHardware(){
+	//EtherCatFieldbus::start();
+}
+
+void stopHardware(){
+	//EtherCatFieldbus::stop();
+}
+
+
+void updateEtherCatHardware(){
 	//interpret all slaves input data if operational
 	for (auto slave : EtherCatFieldbus::slaves) if (slave->isStateOperational()) slave->readInputs();
 	
@@ -79,23 +117,20 @@ void update(){
 	for (auto slave : EtherCatFieldbus::slaves) if (slave->isStateOperational()) slave->prepareOutputs();
 }
 
-void startSimulation(){
-	b_isRunning = true;
-	
-	environnementSimulator = std::thread([](){
-		Logger::info("Started Environnement Simulation");
-		
-		while(b_isRunning){
-			updateSimulation();
-			//run simulation at 100Hz and free the cpu core in between processing cycles
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		}
-		
-		Logger::info("Stopped Environnement Simulation");
-	});
-}
-
 void updateSimulation(){
+	
+	//get current time
+	double currentSimulationTime_seconds = Timing::getProgramTime_seconds() - simulationStartTime_seconds;
+	long long int currentSimulationTime_nanoseconds = Timing::getProgramTime_nanoseconds() - simulationStartTime_nanoseconds;
+	
+	//update time deltas
+	simulationTimeDelta_seconds = currentSimulationTime_seconds - simulationTime_seconds;
+	simulationTimeDelta_nanoseconds = currentSimulationTime_nanoseconds - simulationTime_nanoseconds;
+	
+	//update current time
+	simulationTime_seconds = currentSimulationTime_seconds;
+	simulationTime_nanoseconds = currentSimulationTime_nanoseconds;
+	
 	Playback::incrementPlaybackPosition();
 	
 	for(auto& machine : getMachines()){
@@ -105,6 +140,7 @@ void updateSimulation(){
 	
 	Playback::updateActiveManoeuvreState();
 }
+
 
 double getTime_seconds(){
 	if(b_isSimulating) return 0.0;
@@ -145,15 +181,11 @@ std::vector<std::shared_ptr<Machine>>& getMachines() {
 }
 
 void enableAllMachines() {
-	for (auto machine : machines) {
-		machine->enable();
-	}
+	for (auto machine : machines) machine->enable();
 }
 
 void disableAllMachines() {
-	for (auto machine : machines) {
-		machine->disable();
-	}
+	for (auto machine : machines) machine->disable();
 }
 
 bool areAllMachinesEnabled() {
@@ -228,12 +260,23 @@ void removeNode(std::shared_ptr<Node> node){
 }
 
 char name[256] = "Default Environnement";
+char notes[65536] = "";
 
 void setName(const char* newName) {
 	strcpy(name, newName);
-	//TODO: change title of window
+	updateName();
+}
+
+void updateName(){
+	ApplicationWindow::setWindowName(name);
 }
 
 const char* getName() { return name; }
+
+const char* getNotes() { return notes; }
+
+void setNotes(const char* _notes){
+	sprintf(notes, "%s", _notes);
+}
 
 }

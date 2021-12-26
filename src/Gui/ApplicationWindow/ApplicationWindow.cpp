@@ -37,6 +37,8 @@ bool b_shouldClose = false;
 
 float scaleTuning = 1.0;
 
+char windowName[256] = "Stacato";
+
 GLFWwindow* getGlfwWindow(){
 	return window;
 }
@@ -88,7 +90,7 @@ void open(int w, int h) {
 #endif
 	
 	//this opens the main application window and creates the main opengl context
-	window = glfwCreateWindow(w, h, "Stacato", nullptr, nullptr);
+	window = glfwCreateWindow(w, h, windowName, nullptr, nullptr);
 
 	//set a lamdba callback to have the window draw while being resized
 	glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int w, int h) {
@@ -238,6 +240,11 @@ void onRender() {
 
 float getScaleTuning(){
 	return scaleTuning;
+}
+
+void setWindowName(const char* name){
+	if(window) glfwSetWindowTitle(window, name);
+	else sprintf(windowName, "%s", name);
 }
 
 

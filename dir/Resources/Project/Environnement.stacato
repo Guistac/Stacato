@@ -1,4 +1,5 @@
-<Environnement name="Default Environnement">
+<Environnement name="Starmania" notes="This is a Stacato Project.
+Starmania V1.0">
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa A-J2" UniqueID="1">

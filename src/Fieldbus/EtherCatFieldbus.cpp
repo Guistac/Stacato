@@ -689,7 +689,7 @@ namespace EtherCatFieldbus {
 
             //===================== ENVIRONNEMENT UPDATE =======================
 
-			if (b_allOperational) Environnement::update();
+			if (b_allOperational) Environnement::updateEtherCatHardware();
 
             //=========== HANDLE MASTER AND REFERENCE CLOCK DRIFT ============
 

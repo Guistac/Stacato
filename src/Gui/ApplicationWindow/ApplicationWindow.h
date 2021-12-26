@@ -26,6 +26,8 @@ namespace ApplicationWindow {
 
     float getScaleTuning();
 
+	void setWindowName(const char*);
+
 	GLFWwindow* getGlfwWindow();
 
 };

@@ -21,7 +21,7 @@ bool PositionControlledSingleAxisMachine::isEnabled() {
 	return b_enabled;
 }
 
-bool PositionControlledSingleAxisMachine::isReady() {
+bool PositionControlledSingleAxisMachine::isHardwareReady() {
 	if (!isAxisConnected()) return false;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 	if (!axis->isReady()) return false;
@@ -33,7 +33,7 @@ bool PositionControlledSingleAxisMachine::isMoving() {
 	return false;
 }
 
-void PositionControlledSingleAxisMachine::enable() {
+void PositionControlledSingleAxisMachine::enableHardware() {
 	if (isReady()) {
 		std::thread machineEnabler([this]() {
 			using namespace std::chrono;
@@ -44,6 +44,8 @@ void PositionControlledSingleAxisMachine::enable() {
 				std::this_thread::sleep_for(milliseconds(10));
 				if (axis->isEnabled()) {
 					b_enabled = true;
+					onEnable();
+					Logger::info("Enabled Machine {}", getName());
 					break;
 				}
 			}
@@ -52,9 +54,10 @@ void PositionControlledSingleAxisMachine::enable() {
 	}
 }
 
-void PositionControlledSingleAxisMachine::disable() {
+void PositionControlledSingleAxisMachine::disableHardware() {
 	b_enabled = false;
 	if (isAxisConnected()) getAxis()->disable();
+	onDisable();
 }
 
 void PositionControlledSingleAxisMachine::process() {
@@ -274,10 +277,15 @@ void PositionControlledSingleAxisMachine::getTimedParameterCurveTo(const std::sh
 
 
 
-void PositionControlledSingleAxisMachine::enterSimulationMode() {}
-void PositionControlledSingleAxisMachine::exitSimulationMode() {}
-bool PositionControlledSingleAxisMachine::isInSimulationMode() { return false; }
+void PositionControlledSingleAxisMachine::simulateProcess() {
+	//TODO: Simulate Single Axis
+}
 
+void PositionControlledSingleAxisMachine::onEnable() {
+}
+
+void PositionControlledSingleAxisMachine::onDisable() {
+}
 
 
 

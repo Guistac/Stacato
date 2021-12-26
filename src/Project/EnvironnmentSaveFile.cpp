@@ -18,6 +18,7 @@ namespace Environnement {
 		XMLElement* environnementXML = document.NewElement("Environnement");
 		document.InsertEndChild(environnementXML);
 		environnementXML->SetAttribute("name", Environnement::getName());
+		environnementXML->SetAttribute("notes", Environnement::getNotes());
 
 		//====== NODE GRAPH SAVING ======
 
@@ -55,6 +56,9 @@ namespace Environnement {
 		const char* environnementName;
 		if (environnementXML->QueryStringAttribute("name", &environnementName) != XML_SUCCESS) return Logger::warn("Could not load Environnement name");
 		Environnement::setName(environnementName);
+		const char* environnementNotes;
+		if(environnementXML->QueryStringAttribute("notes", &environnementNotes) != XML_SUCCESS) return Logger::warn("Could not load Environnement notes");
+		Environnement::setNotes(environnementNotes);
 
 		//====== NODE GRAPH LOADING ======
 

@@ -69,9 +69,4 @@ public:
 	//used to track the progress of a requested parameter movement
 	MachineState::State parameterMovementStartState;
 	MachineState::State parameterMovementTargetState;
-
-	bool b_enabled = false;
-
-	virtual bool loadMachine(tinyxml2::XMLElement* xml) { return true; }
-	virtual bool saveMachine(tinyxml2::XMLElement* xml) { return true; }
 };

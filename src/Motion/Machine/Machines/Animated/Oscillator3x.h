@@ -38,7 +38,6 @@ class Oscillator3x : public Machine {
 	bool b_startAtLowerLimit = true;
 
 	//=== Machine State ===
-	bool b_enabled = false;
 	bool b_startOscillator = false;
 	bool b_stopOscillator = false;
 	bool b_oscillatorActive = false;
@@ -76,8 +75,4 @@ class Oscillator3x : public Machine {
 	bool isAxisConnected(int);
 	std::shared_ptr<PositionControlledAxis> getAxis(int);
 	bool getAxes(std::vector<std::shared_ptr<PositionControlledAxis>>& output);
-
-	//=== Saving & Loading ===
-	bool saveMachine(tinyxml2::XMLElement* xml);
-	bool loadMachine(tinyxml2::XMLElement* xml);
 };
