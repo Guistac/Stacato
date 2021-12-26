@@ -13,6 +13,8 @@ namespace Project {
 	std::shared_ptr<Plot> currentPlot;
 	char projectDirectory[512] = "";
 
+	bool b_plotEditingAllowed = false;
+
 	bool hasDefaultSavePath() {
 		return strcmp(projectDirectory, "") != 0;
 	}
@@ -39,6 +41,14 @@ namespace Project {
 
 	bool isEditingAllowed() {
 		return !EtherCatFieldbus::isCyclicExchangeActive();
+	}
+
+	void setPlotEdit(bool isAllowed){
+		b_plotEditingAllowed = isAllowed;
+	}
+
+	bool isPlotEditAllowed(){
+		return b_plotEditingAllowed;
 	}
 
 };

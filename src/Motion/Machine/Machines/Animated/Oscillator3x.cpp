@@ -169,10 +169,6 @@ void Oscillator3x::stopOscillatorParameterPlayback() {
 
 //======================= STATE CONTROL ========================
 
-bool Oscillator3x::isEnabled() {
-	return b_enabled;
-}
-
 bool Oscillator3x::isHardwareReady() {
 	//the machine is ready when a minimum of 1 axis is ready
 	for (int i = 0; i < 3; i++) {

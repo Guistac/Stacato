@@ -6,6 +6,9 @@
 #include <imgui_internal.h>
 
 #include "Gui/Utilities/DraggableList.h"
+#include "Gui/Utilities/CustomWidgets.h"
+
+
 #include "Project/Project.h"
 #include "Project/Plot.h"
 #include "Motion/Manoeuvre/Manoeuvre.h"
@@ -24,13 +27,26 @@ void plotGui() {
 	std::shared_ptr<Plot> currentPlot = Project::currentPlot;
 	std::shared_ptr<Manoeuvre> selectedManoeuvre = currentPlot->getSelectedManoeuvre();
 
+	float plotHeaderHeight = ImGui::GetTextLineHeight() * 2.5;
+	glm::vec2 plotEditSwitchButtonSize(ImGui::GetTextLineHeight() * 5.0, plotHeaderHeight);
+	
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
+	
 	ImGui::PushFont(Fonts::robotoBold20);
 	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 	ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
-	ImGui::Button(currentPlot->name, glm::vec2(sideBarWidth, ImGui::GetTextLineHeight() * 1.5));
+	ImGui::Button(currentPlot->name, glm::vec2(sideBarWidth - ImGui::GetStyle().ItemSpacing.x - plotEditSwitchButtonSize.x, plotHeaderHeight));
 	ImGui::PopStyleColor();
 	ImGui::PopItemFlag();
 	ImGui::PopFont();
+	
+	ImGui::SameLine();
+	static ToggleSwitch editSwitch;
+	bool b_plotEditAllowed = Project::isPlotEditAllowed();
+	if(editSwitch.draw("##EditToggleSwitch", b_plotEditAllowed, "Editing", "Playback", plotEditSwitchButtonSize))
+		Project::setPlotEdit(!b_plotEditAllowed);
+	
+	ImGui::PopStyleVar();
 
 	glm::vec2 managerButtonSize((sideBarWidth - ImGui::GetStyle().ItemSpacing.x * 2.0) / 3.0, ImGui::GetTextLineHeight() * 2.0);
 	float bottomSectionHeight = ImGui::GetTextLineHeightWithSpacing() * 2.0;	//two title text lines

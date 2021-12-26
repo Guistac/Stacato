@@ -130,10 +130,6 @@ void HoodedLiftStateMachine::process() {
 	updateGpioOutSignals();
 }
 
-bool HoodedLiftStateMachine::isEnabled() {
-	return b_enabled;
-}
-
 bool HoodedLiftStateMachine::isHardwareReady() { 
 	if (!areGpioSignalsReady()) return false;
 	else if (actualState == MachineState::State::UNEXPECTED_STATE) return false;

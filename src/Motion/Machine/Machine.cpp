@@ -26,6 +26,10 @@ void Machine::disable(){
 	}else disableHardware();
 }
 
+bool Machine::isEnabled(){
+	return b_enabled;
+}
+
 void Machine::addAnimatableParameter(std::shared_ptr<AnimatableParameter> parameter) {
 	parameter->machine = std::dynamic_pointer_cast<Machine>(shared_from_this());
 	if (!parameter->childParameters.empty()) {

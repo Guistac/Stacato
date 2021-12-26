@@ -127,10 +127,6 @@ void BinaryOscillator6x::manuallySetOutput(int i, bool s) {
 
 //======================= STATE CONTROL ========================
 
-bool BinaryOscillator6x::isEnabled() {
-	return b_enabled;
-}
-
 bool BinaryOscillator6x::isHardwareReady() {
 	//machine is ready if at least one gpio device is ready
 	for (int i = 0; i < getGpioDeviceCount(); i++) {

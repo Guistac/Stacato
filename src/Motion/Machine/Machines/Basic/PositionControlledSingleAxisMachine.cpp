@@ -17,10 +17,6 @@ void PositionControlledSingleAxisMachine::assignIoData() {
 	addAnimatableParameter(positionParameter);
 }
 
-bool PositionControlledSingleAxisMachine::isEnabled() {
-	return b_enabled;
-}
-
 bool PositionControlledSingleAxisMachine::isHardwareReady() {
 	if (!isAxisConnected()) return false;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
