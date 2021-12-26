@@ -12,7 +12,7 @@
 
 namespace Environnement {
 
-
+bool b_isStarting = false;
 bool b_isRunning = false;
 bool b_isSimulating = false;
 
@@ -39,18 +39,25 @@ void stop(){
 	}
 }
 
+bool isReady(){
+	if(b_isSimulating) return true;
+	else return EtherCatFieldbus::isNetworkInitialized();
+}
+
+bool isStarting(){
+	return b_isStarting;
+}
 
 bool isRunning(){
 	return b_isRunning;
 }
 
-
 bool isSimulating(){
 	return b_isSimulating;
 }
 
-void setSimulation(bool sim){
-	if(!isRunning()) b_isSimulating = sim;
+void setSimulation(bool b_sim){
+	if(!isRunning()) b_isSimulating = b_sim;
 }
 
 

@@ -1355,7 +1355,7 @@
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en0" Name="en0"/>
+        <Primary Description="en4" Name="en4"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="5" ProcessDataTimeoutMilliseconds="3.5" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>

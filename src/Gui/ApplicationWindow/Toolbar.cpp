@@ -25,6 +25,8 @@ namespace ApplicationWindow {
 		glm::vec2 buttonSize(ImGui::GetTextLineHeight() * 4.0, ImGui::GetTextLineHeight() * 2.0);
 
 		
+		
+		
 		if(ImGui::IsKeyDown(GLFW_KEY_LEFT_ALT) || ImGui::IsKeyDown(GLFW_KEY_RIGHT_ALT)){
 			
 			bool disableScan = EtherCatFieldbus::isCyclicExchangeActive() || Environnement::isSimulating() || !EtherCatFieldbus::isNetworkInitialized();
@@ -34,17 +36,17 @@ namespace ApplicationWindow {
 				
 		}else{
 			
-			bool disableStartButton = EtherCatFieldbus::isCyclicExchangeStarting() || (!Environnement::isSimulating() && !EtherCatFieldbus::isNetworkInitialized());
+			bool disableStartButton = !Environnement::isReady() || Environnement::isStarting();
 			if (disableStartButton) BEGIN_DISABLE_IMGUI_ELEMENT
-				if (!EtherCatFieldbus::isCyclicExchangeActive()) {
-					if (ImGui::Button("Start", buttonSize)) {
-						EtherCatFieldbus::start();
-						ImGui::OpenPopup("Starting EtherCAT Fieldbus");
+		
+				if(!Environnement::isRunning()){
+					if(ImGui::Button("Start", buttonSize)){
+						Environnement::start();
+						//open environnement start popup
 					}
-				}
-				else {
+				}else{
 					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-					if (ImGui::Button("Stop", buttonSize)) EtherCatFieldbus::stop();
+					if(ImGui::Button("Stop", buttonSize)) Environnement::stop();
 					ImGui::PopStyleColor();
 				}
 			if (disableStartButton) END_DISABLE_IMGUI_ELEMENT
@@ -52,22 +54,32 @@ namespace ApplicationWindow {
 		}
 			
 			
+		
+		
+		
+		
 		ImGui::SameLine();
 			
 		static ToggleSwitch simulationToggle;
-		static bool b_simulation = Environnement::isSimulating();
+		bool b_simulation = Environnement::isSimulating();
 		
-		if(simulationToggle.draw("SimulationSwitch", b_simulation, "simulation", "devices", buttonSize)) {
+		bool disableSimulationSwitch = Environnement::isRunning() || Environnement::isStarting();
+		if(disableSimulationSwitch) BEGIN_DISABLE_IMGUI_ELEMENT
+		if(simulationToggle.draw("SimulationSwitch", b_simulation, "Simulation", "Hardware", buttonSize)) {
 			b_simulation = !b_simulation;
 			Environnement::setSimulation(b_simulation);
 		}
+		if(disableSimulationSwitch) END_DISABLE_IMGUI_ELEMENT
+			
+			
+			
 			
 			
 		ImGui::SameLine();
 
-		bool disableMachineToggleButton = !EtherCatFieldbus::isCyclicExchangeActive();
+		bool disableMachineToggleButtons = !Environnement::isRunning();
 
-		if (disableMachineToggleButton) BEGIN_DISABLE_IMGUI_ELEMENT
+		if (disableMachineToggleButtons) BEGIN_DISABLE_IMGUI_ELEMENT
 		
 		if (Environnement::areAllMachinesEnabled()) {
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
@@ -92,7 +104,7 @@ namespace ApplicationWindow {
 			if(ImGui::Button("Disable All", buttonSize)) Environnement::disableAllMachines();
 		}
 		
-		if (disableMachineToggleButton) END_DISABLE_IMGUI_ELEMENT
+		if (disableMachineToggleButtons) END_DISABLE_IMGUI_ELEMENT
 
 		
 		
