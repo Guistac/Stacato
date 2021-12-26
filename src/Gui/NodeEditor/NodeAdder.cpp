@@ -23,7 +23,6 @@ void nodeAdder() {
         ImGui::Separator();
 
 
-
         ImGui::PushFont(Fonts::robotoBold15);
         if (ImGui::CollapsingHeader("EtherCAT Devices")) {
 
@@ -163,9 +162,18 @@ void nodeAdder() {
         ImGui::PushFont(Fonts::robotoBold15);
         if (ImGui::CollapsingHeader("Network IO")) {
             ImGui::PushFont(Fonts::robotoRegular15);
-            ImGui::Selectable("OSC");
-            ImGui::Selectable("Artnet");
-            ImGui::Selectable("PSN");
+            
+			for (auto& networkIoNode : NodeFactory::getAllNetworkIoNodes()) {
+				const char* networkIoNodeDisplayName = networkIoNode->getName();
+				ImGui::Selectable(networkIoNodeDisplayName);
+				const char* networkIoNodeSaveName = networkIoNode->getSaveName();
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+					ImGui::SetDragDropPayload("NetworkIoNode", &networkIoNodeSaveName, sizeof(const char*));
+					ImGui::Text("%s",networkIoNodeDisplayName);
+					ImGui::EndDragDropSource();
+				}
+			}
+			
             ImGui::PopFont();
         }
         ImGui::PopFont();
@@ -231,6 +239,12 @@ std::shared_ptr<Node> acceptDraggedNode() {
 			const char* safetyNodeSaveName = *(const char**)payload->Data;
 			std::shared_ptr<Node> newSafetyNode = NodeFactory::getSafetyNodeBySaveName(safetyNodeSaveName);
 			return newSafetyNode;
+		}
+		payload = ImGui::AcceptDragDropPayload("NetworkIoNode");
+		if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
+			const char* networkIoNodeSaveName = *(const char**)payload->Data;
+			std::shared_ptr<Node> newNetworkIoNode = NodeFactory::getNetworkIoNodeBySaveName(networkIoNodeSaveName);
+			return newNetworkIoNode;
 		}
         payload = ImGui::AcceptDragDropPayload("ProcessorNode");
         if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
@@ -325,7 +339,9 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
     ImGui::Separator();
 
     if (ImGui::BeginMenu("Network")) {
-
+		for (auto networkIoNode : NodeFactory::getAllNetworkIoNodes()) {
+			if (ImGui::MenuItem(networkIoNode->getName())) output = networkIoNode->getNewNodeInstance();
+		}
         ImGui::EndMenu();
     }
 

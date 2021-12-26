@@ -73,6 +73,21 @@ namespace EtherCatFieldbus {
     bool configureSlaves();
     void startCyclicExchange();
 
+	//============= CHECK NETWORK PERMISSIONS ==============
+
+	//this checks if low lewel network packet manipulation permissions are granted to libpcap by the operating system
+	//on windows machine its unclear how these permissions are enabled (by some module installed by wireshark?)
+	//on macos permissions are disabled by default and can be enabled by running the "Install ChmodBPF.pkg" Installer provided with the repository in the utilities folder
+	//trying to execute pcap or ethercat functions without these permissions will result in a bad memory access and hard crash
+
+	bool hasNetworkPermissions(){
+		ecx_contextt* context = &ecx_context;
+		ecx_portt* port = context->port;
+		ec_stackT* stack = &port->stack;
+		pcap_t** socket_ptr = stack->sock;
+		pcap_t* socket = *socket_ptr;
+		return socket != nullptr;
+	}
 
     //============ LIST NETWORK INTERFACE CARDS ===============
 
@@ -197,6 +212,13 @@ namespace EtherCatFieldbus {
 
     void scanNetwork() {
         stopSlaveDetectionHandler();
+		
+		if(!hasNetworkPermissions()){
+			Logger::critical("Could not start EtherCAT Fieldbus because low level network packet manipulation is not allowed on the system.");
+			Logger::critical("Please install ChmodBPF.pkg and restart Stacato.");
+			return;
+		}
+		
         discoverDevices();
         startSlaveDetectionHandler();
     }

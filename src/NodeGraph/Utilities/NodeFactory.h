@@ -22,4 +22,7 @@ namespace NodeFactory {
 
 	std::shared_ptr<Node> getSafetyNodeBySaveName(const char* name);
 	std::vector<Node*>& getAllSafetyNodes();
+
+	std::shared_ptr<Node> getNetworkIoNodeBySaveName(const char* name);
+	std::vector<Node*>& getAllNetworkIoNodes();
 }

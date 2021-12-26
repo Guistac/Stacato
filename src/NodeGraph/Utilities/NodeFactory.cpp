@@ -18,6 +18,8 @@
 
 #include "Motion/Machine/DeadMansSwitch.h"
 
+#include "Networking/OscNode.h"
+
 namespace NodeFactory {
 
 	std::vector<Node*> allNodes;
@@ -26,8 +28,9 @@ namespace NodeFactory {
 	std::vector<Node*> allAxisNodes;
 	std::vector<Node*> allMachineNodes;
 	std::vector<NodeGroup> machinesByCategory;
-
 	std::vector<Node*> allSafetyNodes;
+
+	std::vector<Node*> allNetworkIoNodes;
 
 	void loadNodes() {
 
@@ -70,6 +73,10 @@ namespace NodeFactory {
 		
 		allSafetyNodes = {
 			new DeadMansSwitch()
+		};
+		
+		allNetworkIoNodes = {
+			new OscNode()
 		};
 
 		//sort devices by manufacturer
@@ -150,6 +157,17 @@ namespace NodeFactory {
 
 	std::vector<Node*>& getAllSafetyNodes(){
 		return allSafetyNodes;
+	}
+
+	std::shared_ptr<Node> getNetworkIoNodeBySaveName(const char* saveName){
+		for(Node* networkIoNode : allNetworkIoNodes){
+			if(strcmp(saveName, networkIoNode->getSaveName()) == 0) return networkIoNode->getNewNodeInstance();
+		}
+		return nullptr;
+	}
+
+	std::vector<Node*>& getAllNetworkIoNodes(){
+		return allNetworkIoNodes;
 	}
 
 }
