@@ -21,9 +21,10 @@
 - Dead Mans Switch
 
 ### Housekeeping
+- Refactor Environnement to prepare simulation mode and network nodes
 - Refactor Device Nodes
 - Refactor Node Pins
-- Profile Generator Class
+- Profile Generator Class & Node Pin Type
 - Auto Scan Network Interfaces Function
 - Clean Up Lexium Node
 
