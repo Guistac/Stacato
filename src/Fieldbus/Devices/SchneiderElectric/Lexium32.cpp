@@ -117,7 +117,6 @@ void Lexium32::assignIoData() {
     rxPdoAssignement.addEntry(0x6040, 0x0, 16, "DCOMcontrol", &DCOMcontrol);
     rxPdoAssignement.addEntry(0x6060, 0x0, 8, "DCOMopmode", &DCOMopmode);
     rxPdoAssignement.addEntry(0x607A, 0x0, 32, "PPp_target", &PPp_target);
-    rxPdoAssignement.addEntry(0x60FF, 0x0, 32, "PVv_target", &PVv_target);
     rxPdoAssignement.addEntry(0x3008, 0x11, 16, "IO_DQ_set", &IO_DQ_set);
 
     txPdoAssignement.addNewModule(0x1A03);
@@ -205,29 +204,7 @@ bool Lexium32::startupConfiguration() {
     uint32_t CTRL_v_max = _M_n_max * velocityUnitsPerRpm; //Velocity Limit in usr_v units
     if (!writeSDO_U32(0x3011, 0x10, CTRL_v_max)) return false;
 
-    //=============== PROCESS DATA ASSIGNEMENT =============== 
-
-    /*
-    rxPdoAssignement.clear();
-    txPdoAssignement.clear();
-
-    rxPdoAssignement.addNewModule(0x1603);
-    rxPdoAssignement.addEntry(0x6040, 0x0, 16, "DCOMcontrol", &DCOMcontrol);
-    rxPdoAssignement.addEntry(0x6060, 0x0, 8, "DCOMopmode", &DCOMopmode);
-    rxPdoAssignement.addEntry(0x607A, 0x0, 32, "PPp_target", &PPp_target);
-    rxPdoAssignement.addEntry(0x60FF, 0x0, 32, "PVv_target", &PVv_target);
-    rxPdoAssignement.addEntry(0x3008, 0x11, 16, "IO_DQ_set", &IO_DQ_set);
-
-    txPdoAssignement.addNewModule(0x1A03);
-    txPdoAssignement.addEntry(0x6041, 0x0, 16, "_DCOMstatus", &_DCOMstatus);
-    txPdoAssignement.addEntry(0x6061, 0x0, 8, "_DCOMopmd_act", &_DCOMopmd_act);
-    txPdoAssignement.addEntry(0x6064, 0x0, 32, "_p_act", &_p_act);
-    txPdoAssignement.addEntry(0x606C, 0x0, 32, "_v_act", &_v_act);
-    txPdoAssignement.addEntry(0x301E, 0x3, 16, "_I_act", &_I_act);
-    txPdoAssignement.addEntry(0x603F, 0x0, 16, "_LastError", &_LastError);
-    txPdoAssignement.addEntry(0x3008, 0x1, 16, "_IO_act", &_IO_act);
-    txPdoAssignement.addEntry(0x3008, 0x26, 16, "_IO_STO_act", &_IO_STO_act);
-    */
+    //=============== PROCESS DATA ASSIGNEMENT ===============
 
     rxPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C12);
     txPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C13);
@@ -242,10 +219,9 @@ bool Lexium32::startupConfiguration() {
     uint32_t sync0offset_nanoseconds = sync0Interval_nanoseconds / 2;
     ec_dcsync0(getSlaveIndex(), true, sync0Interval_nanoseconds, sync0offset_nanoseconds);
 
-
-
     //TODO: does this still apply with a lot of slaves ?
     //if propagation delays add up, might the last slaves have their sync event happen at the same time as their frame receive time?
+	//if so should the sync event happen earlier or later inside the cycle?
 
     return true;
 }
@@ -397,31 +373,31 @@ void Lexium32::prepareOutputs() {
     if (digitalOut1->isConnected()) digitalOut1->set(digitalOut1->getLinks().front()->getInputData()->getBoolean());
     if (digitalOut2->isConnected()) digitalOut2->set(digitalOut2->getLinks().front()->getInputData()->getBoolean());
 
-    double now_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
-	double deltaT_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
-
+	bool b_externalControl = servoMotorLink->isConnected();
+	
     //------ internal profile generator ------
-	if(!servoMotorDevice->isEnabled()){
-		//if the servo motor is not enabled
-		//update the motion profile with realtime encoder position data
-		profilePosition_r = servoMotorDevice->positionRaw_positionUnits;
-		profileVelocity_rps = servoMotorDevice->velocity_positionUnitsPerSecond;
-	}
-    else if (!servoMotorLink->isConnected()) {
-		//if the servo motor is enabled but not connected to another node
-		//generate new profile position points using the internal profile generator in manual velocity control
-		double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
-        if (manualVelocityCommand_rps > profileVelocity_rps) {
-            profileVelocity_rps += deltaV_rps;
-            if (profileVelocity_rps > manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
-        }
-        else if (manualVelocityCommand_rps < profileVelocity_rps) {
-            profileVelocity_rps -= deltaV_rps;
-            if (profileVelocity_rps < manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
-        }
-		double deltaP_r = profileVelocity_rps * deltaT_seconds;
-		profilePosition_r += deltaP_r;
-		servoMotorDevice->setCommand(profilePosition_r);
+	double deltaT_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
+	if (!b_externalControl) {
+		if(!servoMotorDevice->isEnabled()){
+			//if the servo motor is not enabled
+			//update the motion profile with realtime encoder position data
+			profilePosition_r = servoMotorDevice->positionRaw_positionUnits;
+			profileVelocity_rps = servoMotorDevice->velocity_positionUnitsPerSecond;
+		}else{
+			//if the servo motor is enabled but not connected to another node
+			//generate new profile position points using the internal profile generator in manual velocity control
+			double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
+			if (manualVelocityCommand_rps > profileVelocity_rps) {
+				profileVelocity_rps += deltaV_rps;
+				if (profileVelocity_rps > manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
+			}
+			else if (manualVelocityCommand_rps < profileVelocity_rps) {
+				profileVelocity_rps -= deltaV_rps;
+				if (profileVelocity_rps < manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
+			}
+			double deltaP_r = profileVelocity_rps * deltaT_seconds;
+			profilePosition_r += deltaP_r;
+		}
 	}else{
 		//if the servo motor is enable and controlled externally
 		//update the motion profile using the profile position points send to the servo motor
@@ -471,12 +447,10 @@ void Lexium32::prepareOutputs() {
         b_switchedOn = false;
     }
 
-
     //========== PREPARE RXPDO OUTPUTS ==========
     //DCOMcontrol   (uint16_t)  2
     //DCOMopmode    (int8_t)    1
     //PPp_target    (int32_t)   4
-    //PVv_target    (int32_t)   4
     //IO_DQ_set     (uint16_t)  2
 
     //state control word
@@ -491,16 +465,16 @@ void Lexium32::prepareOutputs() {
     if (b_faultReset)       DCOMcontrol |= 0x80;
     if (b_halted)           DCOMcontrol |= 0x100;
     if (opModeSpec9)        DCOMcontrol |= 0x200;
-    //bits 10 to 15 have to be 0
+    //bits 10 to 15 of control word have to be 0
 
-    OperatingMode* operatingMode = getOperatingMode(requestedOperatingMode);
-    int operatingModeID = 0;
-    if (operatingMode != nullptr) operatingModeID = operatingMode->id;
-    DCOMopmode = operatingModeID;
+	//set operating mode (cyclic synchronous position)
+    DCOMopmode = getOperatingMode(requestedOperatingMode)->id;
 
-    //get the position command from the servo actuator subdevice
-    PPp_target = (int32_t)(servoMotorDevice->getCommand() * positionUnitsPerRevolution);
-
+	//set profile position point
+	if(b_externalControl) PPp_target = (int32_t)(servoMotorDevice->getCommand() * positionUnitsPerRevolution);
+	else PPp_target = (int32_t)(profilePosition_r * positionUnitsPerRevolution);
+		
+	//set digital output signals
     IO_DQ_set = 0;
     if (digitalOut0->getBoolean()) IO_DQ_set |= 0x1;
     if (digitalOut1->getBoolean()) IO_DQ_set |= 0x2;

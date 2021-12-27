@@ -85,6 +85,9 @@ namespace EtherCatFieldbus {
     bool configureSlaves();
     void startCyclicExchange();
 
+	void logDeviceStates();
+	void logAlStatusCodes();
+
 	//============= CHECK NETWORK PERMISSIONS ==============
 
 	//this checks if low lewel network packet manipulation permissions are granted to libpcap by the operating system
@@ -262,12 +265,15 @@ namespace EtherCatFieldbus {
 				
                 if (!discoverDevices()) {
                     b_processStarting = false;
+					logDeviceStates();
+					logAlStatusCodes();
                     return;
                 }
 
                 if (!configureSlaves()) {
                     b_processStarting = false;
-					startupProgress.setFailure("Failed to configure EtherCAT devices.");
+					logDeviceStates();
+					logAlStatusCodes();
                     return;
                 }
 
@@ -413,13 +419,9 @@ namespace EtherCatFieldbus {
 
             //wait and check if all slaves have reached Pre Operational State like requested by ec_config_init()
             if (ec_statecheck(0, EC_STATE_PRE_OP, EC_TIMEOUTSTATE) != EC_STATE_PRE_OP) {
-				startupProgress.setFailure("Not all slaves reached Pre-Operational State...");
+				startupProgress.setFailure("Not all slaves reached Pre-Operational State. Check the Log for more detailed errors.");
                 Logger::error("Not All Slaves Reached Pre-Operational State...");
-                for (int i = 1; i <= ec_slavecount; i++) {
-                    if (ec_slave[i].state != EC_STATE_PRE_OP) {
-                        Logger::error("=== {} did not reach preop", ec_slave[i].name);
-                    }
-                }
+				return false;
             }
 
 			startupProgress.setProgress(0.05, "Identifying Devices");
@@ -535,7 +537,7 @@ namespace EtherCatFieldbus {
         Logger::debug("===== Configuring Distributed Clocks");
 		
         if (!ec_configdc()) {
-			startupProgress.setFailure("Could not configure distributed clocks...");
+			startupProgress.setFailure("Could not configure distributed clocks. Check the Log for more detailed errors.");
             Logger::error("===== Could not configure distributed clocks ...");
             return false;
         }
@@ -579,7 +581,7 @@ namespace EtherCatFieldbus {
         ioMapSize = ec_config_map(ioMap); //this function starts the configuration
         if (ioMapSize <= 0) {
 			startupProgress.setFailure("Failed to configure devices");
-            Logger::error("===== Failed To Configure Devices... (ioMap size : {})", ioMapSize);
+            Logger::error("===== Failed To Configure Devices. Check the Log for more detailed errors.", ioMapSize);
             return false;
         }
         Logger::info("===== Finished Configuring Devices  (IOMap size : {} bytes)", ioMapSize);
@@ -599,13 +601,8 @@ namespace EtherCatFieldbus {
 		startupProgress.setProgress(0.55, "Waiting for Safe-Operational State");
         Logger::debug("===== Checking For Safe-Operational State...");
         if (ec_statecheck(0, EC_STATE_SAFE_OP, EC_TIMEOUTSTATE) != EC_STATE_SAFE_OP) {
-			startupProgress.setFailure("Not all slaves reached Safe-Operational State.");
+			startupProgress.setFailure("Not all slaves reached Safe-Operational State. Check the Log for more detailed errors.");
             Logger::error("===== Not all slaves have reached Safe-Operational State...");
-            for (auto slave : slaves) {
-                if (!slave->isStateSafeOperational() || !slave->isStateOperational() || slave->hasStateError()) {
-                    Logger::warn("Slave '{}' has state {}", slave->getName(), slave->getEtherCatStateChar());
-                }
-            }
             return false;
         }
         Logger::info("===== All slaves are Safe-Operational");
@@ -845,8 +842,10 @@ namespace EtherCatFieldbus {
             slaveStateHandler = std::thread([]() { handleStateTransitions(); });
         }
         else {
-			startupProgress.setFailure("Not all slaves reached Operational State");
+			startupProgress.setFailure("Not all slaves reached Operational State. Check the Log for more detailed errors.");
             Logger::error("===== Not all slaves reached operational state... ");
+			logDeviceStates();
+			logAlStatusCodes();
             for (auto slave : slaves) {
                 if (!slave->isStateOperational() || slave->hasStateError()) {
                     Logger::error("Slave '{}' has state {}", slave->getName(), slave->getEtherCatStateChar());
@@ -936,6 +935,23 @@ namespace EtherCatFieldbus {
         }
         Logger::debug("Exited Slave State Handler Thread");
     }
+
+	//========= DEVICE STATE LOGGING ========
+
+	void logDeviceStates(){
+		for (auto& slave : slaves) {
+			Logger::warn("{} has state {}", slave->getName(), slave->getEtherCatStateChar());
+		}
+	}
+
+	void logAlStatusCodes(){
+		for(auto& slave : slaves){
+			uint16_t AlStatusCode = 0x0;
+			int wc = ec_FPRD(slave->getAssignedAddress(), 0x134, 2, &AlStatusCode, EC_TIMEOUTSAFE);
+			if(wc != 1) Logger::error("{} : Could not read AL Status Code}");
+			else if(AlStatusCode != 0x0) Logger::error("{} : AL Status Code 0x{:X} ({})", slave->getName(), AlStatusCode, ec_ALstatuscode2string(AlStatusCode));
+		}
+	}
 
 
 }

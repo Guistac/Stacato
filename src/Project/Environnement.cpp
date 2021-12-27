@@ -101,10 +101,10 @@ void startHardware(){
 	Logger::info("Starting Environnement Hardware");
 	EtherCatFieldbus::start();
 	std::thread environnementHardwareStarter([](){
-		while(EtherCatFieldbus::isCyclicExchangeStarting()){
+		while(EtherCatFieldbus::isCyclicExchangeStarting() || (EtherCatFieldbus::isCyclicExchangeActive() && !EtherCatFieldbus::isCyclicExchangeStartSuccessfull())){
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		}
-		if(!EtherCatFieldbus::isCyclicExchangeActive()) {
+		if(!EtherCatFieldbus::isCyclicExchangeStartSuccessfull()) {
 			b_isRunning = false;
 			b_isStarting = false;
 			Logger::warn("Failed to Start Environnement");

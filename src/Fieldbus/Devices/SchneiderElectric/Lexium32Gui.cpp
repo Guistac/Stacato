@@ -161,7 +161,8 @@ void Lexium32::statusGui() {
         ImGui::PopStyleColor();
     }
     else {
-        bool disableCommandButton = !isOnline();
+		bool b_externalControl = servoMotorLink->isConnected();
+        bool disableCommandButton = !isOnline() || b_externalControl;
         if (disableCommandButton) BEGIN_DISABLE_IMGUI_ELEMENT
         if (isEnabled()) { if (ImGui::Button("Disable Operation", commandButtonSize)) disable(); }
         else { if (ImGui::Button("Enable Operation", commandButtonSize)) enable(); }
@@ -190,10 +191,12 @@ void Lexium32::controlsGui() {
 	bool disableControls = !isEnabled();
 	if (disableControls) BEGIN_DISABLE_IMGUI_ELEMENT
 	
+	bool b_externalControl = servoMotorLink->isConnected();
+		
 	float maxV = servoMotorDevice->velocityLimit_positionUnitsPerSecond;
 	float maxA = servoMotorDevice->accelerationLimit_positionUnitsPerSecondSquared;
 	
-	if(servoMotorLink->isConnected()){
+	if(b_externalControl){
 		ImGui::TextWrapped("The device is controlled by its Servo Motor Node Pin."
 						   "\nTo control the device manually, disconnect the Node Pin.");
 	}else{
@@ -270,6 +273,8 @@ void Lexium32::controlsGui() {
 
     double tripleWidgetWidth = (widgetWidth - 2.0 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
 
+	if(b_externalControl) BEGIN_DISABLE_IMGUI_ELEMENT
+	
     ImGui::Text("Soft Setting of Encoder Position (Current Offset: %.2f)", servoMotorDevice->positionOffset_positionUnits);
     ImGui::SetNextItemWidth(tripleWidgetWidth);
     ImGui::InputDouble("##encoderPosition", &newEncoderPosition, 0.0, 0.0, "%.3f rev");
@@ -278,6 +283,7 @@ void Lexium32::controlsGui() {
     ImGui::SameLine();
     if (ImGui::Button("Reset", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotorDevice->positionOffset_positionUnits = 0.0;
 
+	if(b_externalControl) END_DISABLE_IMGUI_ELEMENT
 
     if (disableControls) END_DISABLE_IMGUI_ELEMENT
 }

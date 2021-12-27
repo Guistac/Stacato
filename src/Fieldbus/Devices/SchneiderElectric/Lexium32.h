@@ -89,7 +89,7 @@ public:
     static OperatingMode* getOperatingMode(int id);
 
     OperatingMode::Mode actualOperatingMode = OperatingMode::Mode::UNKNOWN;
-    OperatingMode::Mode requestedOperatingMode = OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION;
+    const OperatingMode::Mode requestedOperatingMode = OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION;
 
     //===== EMERGENCY STOP =====
 
@@ -344,7 +344,6 @@ private:
     uint16_t DCOMcontrol = 0;
     int8_t DCOMopmode = 0;
     int32_t PPp_target = 0;
-    int32_t PVv_target = 0;
     uint16_t IO_DQ_set = 0;
 
     //Tx PDO display Data
