@@ -722,7 +722,7 @@ namespace EtherCatFieldbus {
             //to avoid drift from the actual system clock, we calculate the error between the incremented time and the actual system time.
             //to avoid jitter we filter this error before applying it as a correction to the time value using a proportional gain weight.
             //this way we get a time reference that is synchronous with the system clock and
-            //most importantly without high frequency jitter induced by corrections to keep the process cycle synchronized with the EtherCAT reference clock
+            //most importantly without high frequency jitter induced by corrections that keep the process cycle synchronized with the EtherCAT reference clock
 
             static double systemTimeErrorFilter = 0.99; //smoothing of the error to get a get a stable value
             static double smoothedTimeCorrection_proportionalGain = 0.002; //strength of the correction applied to the time value (tested and working for cycle times between 1ms and 20 ms)
@@ -744,7 +744,7 @@ namespace EtherCatFieldbus {
 			
 			//assign new current time values (in reference to fieldbus start)
             currentCycleProgramTime_nanoseconds = fieldbusTimeSmoothed_nanoseconds;
-            currentCycleProgramTime_seconds = (double)fieldbusTimeSmoothed_seconds / 1000000000.0;
+            currentCycleProgramTime_seconds = (double)fieldbusTimeSmoothed_nanoseconds / 1000000000.0;
             
 			//calculate current delta time values
 			currentCycleDeltaT_seconds = currentCycleProgramTime_seconds - previousCycleProgramTime_seconds;
@@ -765,12 +765,11 @@ namespace EtherCatFieldbus {
 				float maxValue = processInterval_milliseconds / 2.0;
 				float minValue = clockStableThreshold_milliseconds;
 				float value = metrics.averageDcTimeError_milliseconds;
-				float percentage = (value - minValue) / (maxValue - minValue);
+				float percentage = 1.0 - ((value - minValue) / (maxValue - minValue));
 				percentage = std::min(1.0f, percentage);
 				percentage = std::max(0.0f, percentage);
 				float progress = from + (to - from) * percentage;
 				startupProgress.progress = progress;
-				//startupProgress.setProgress(progress, "Waiting for clocks to stabilize");
 			}
 
             //==================== UPDATE FIELDBUS METRICS =====================

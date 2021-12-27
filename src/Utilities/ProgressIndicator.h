@@ -3,26 +3,33 @@
 struct ProgressIndicator{
 	
 	float progress = 0.0;
+	float progressSmooth = 0.0;
 	char progressString[512] = "";
 	
 	void setStart(const char* progressMessage){
 		b_finished = false;
 		b_succeeded = false;
 		progress = 0.0;
+		progressSmooth = 0.0;
 		strcpy(progressString, progressMessage);
 	}
 	
 	void setProgress(float _progress, const char* progressMessage){
 		b_finished = false;
 		b_succeeded = false;
-		progress = 0.0;
+		progress = _progress;
 		strcpy(progressString, progressMessage);
+	}
+	
+	void updateSmoothProgress(){
+		progressSmooth = progressSmooth * 0.95 + 0.05 * progress;
 	}
 	
 	void setCompletion(const char* completionMessage){
 		b_finished = true;
 		b_succeeded = true;
 		progress = 1.0;
+		progressSmooth = 1.0;
 		strcpy(progressString, completionMessage);
 		finishTime_seconds = Timing::getProgramTime_seconds();
 	}
@@ -31,6 +38,7 @@ struct ProgressIndicator{
 		b_finished = true;
 		b_succeeded = false;
 		progress = 0.0;
+		progressSmooth = 0.0;
 		strcpy(progressString, errorMessage);
 	}
 	

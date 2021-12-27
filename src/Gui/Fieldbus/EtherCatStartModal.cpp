@@ -31,15 +31,12 @@ void etherCatStartModal() {
 			ImGui::PopStyleColor();
 			ImGui::Text("%s", progress.getProgressString());
 		}else{
-			ImGui::ProgressBar(progress.progress);
+			progress.updateSmoothProgress();
+			ImGui::ProgressBar(progress.progressSmooth);
 			ImGui::Text("%s", progress.getProgressString());
 		}
 	
-		if(progress.failed()){
-			if (ImGui::Button("Retry")) Environnement::start();
-		}
 		
-		ImGui::SameLine();
 		bool disableCancelButton = EtherCatFieldbus::isCyclicExchangeStarting();
 		if (disableCancelButton) BEGIN_DISABLE_IMGUI_ELEMENT
 		if (ImGui::Button("Cancel")) {
@@ -47,7 +44,12 @@ void etherCatStartModal() {
 			ImGui::CloseCurrentPopup();
 		}
 		if (disableCancelButton) END_DISABLE_IMGUI_ELEMENT
-		 
+		
+		if(progress.failed()){
+			ImGui::SameLine();
+			if (ImGui::Button("Retry")) Environnement::start();
+		}
+		
 		if(!disableCancelButton && ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)){
 			Environnement::stop();
 			ImGui::CloseCurrentPopup();
