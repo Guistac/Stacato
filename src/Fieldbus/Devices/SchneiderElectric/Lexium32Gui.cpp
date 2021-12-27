@@ -183,65 +183,51 @@ void Lexium32::statusGui() {
 
 void Lexium32::controlsGui() {
 
-    bool disableControls = !isEnabled();
-    if (disableControls) BEGIN_DISABLE_IMGUI_ELEMENT
-
-    ImGui::PushFont(Fonts::robotoBold20);
-    ImGui::Text("Device Mode");
-    ImGui::PopFont();
-
-    bool disableModeSwitch = !isOnline();
-    if (disableModeSwitch) BEGIN_DISABLE_IMGUI_ELEMENT
-    if (ImGui::BeginCombo("##ModeSelector", getOperatingMode(actualOperatingMode)->displayName, ImGuiComboFlags_HeightLargest)) {
-        for (OperatingMode& availableMode : availableOperatingModes) {
-            if (ImGui::Selectable(availableMode.displayName, actualOperatingMode == availableMode.mode)) requestedOperatingMode = availableMode.mode;
-            if (ImGui::IsItemHovered()) {
-                ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
-                ImGui::BeginTooltip();
-                switch (availableMode.mode) {
-                case OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION:
-                    ImGui::TextWrapped("Used for position control. No manual controls are available. The drive is completely controlled by the position command.");
-                    break;
-                case OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY:
-                    ImGui::TextWrapped("Used exclusively for manual velocity control. When the drive is in this mode, it will only respond to the modes parameters.");
-                    ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
-                    ImGui::TextWrapped("Caution: Except for the drives internal limits signals, any position and collision limits will be ignored.");
-                    ImGui::PopStyleColor();
-                    break;
-                }
-                ImGui::EndTooltip();
-            }
-        }
-        ImGui::EndCombo();
-    }
-    float widgetWidth = ImGui::GetItemRectSize().x;
-    float widgetHeight = ImGui::GetItemRectSize().y;
-    if (disableModeSwitch) END_DISABLE_IMGUI_ELEMENT
-
-    float maxV = servoMotorDevice->velocityLimit_positionUnitsPerSecond;
-    float maxA = servoMotorDevice->accelerationLimit_positionUnitsPerSecondSquared;
-
-    switch (actualOperatingMode) {
-        case OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY: {
-            float vCommand_rps = manualVelocityCommand_rps;
-            ImGui::SliderFloat("##manualVelocity", &vCommand_rps, -maxV, maxV, "%.1f rev/s");
-            if (!ImGui::IsItemActive()) vCommand_rps = 0.0; //only set the command if the slider is held down
-            if (vCommand_rps > maxV) vCommand_rps = maxV;
-            else if (vCommand_rps < -maxV) vCommand_rps = -maxV;
-            manualVelocityCommand_rps = vCommand_rps;
-            static char accelerationString[32];
-            sprintf(accelerationString, "Acceleration: %.2f rev/s\xc2\xb2", manualAcceleration_rpsps);
-            ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rpsps, 0.0, maxA, accelerationString);
-            if (manualAcceleration_rpsps > maxA) manualAcceleration_rpsps = maxA;
-        }break;
-        default: break;
-    }
-
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Device Control");
+	ImGui::PopFont();
+	
+	bool disableControls = !isEnabled();
+	if (disableControls) BEGIN_DISABLE_IMGUI_ELEMENT
+	
+	float maxV = servoMotorDevice->velocityLimit_positionUnitsPerSecond;
+	float maxA = servoMotorDevice->accelerationLimit_positionUnitsPerSecondSquared;
+	
+	if(servoMotorLink->isConnected()){
+		ImGui::TextWrapped("The device is controlled by its Servo Motor Node Pin."
+						   "\nTo control the device manually, disconnect the Node Pin.");
+	}else{
+		ImGui::Text("Manual Velocity Control :");
+		
+		float velocityTarget = manualVelocityCommand_rps;
+		
+		ImGui::SliderFloat("##manualVelocity", &velocityTarget, -maxV, maxV, "%.1f rev/s");
+		if (!ImGui::IsItemActive()) velocityTarget = 0.0; //only set the command if the slider is held down
+		velocityTarget = std::min(velocityTarget, maxV);
+		velocityTarget = std::max(velocityTarget, -maxV);
+		manualVelocityCommand_rps = velocityTarget;
+		
+		static char accelerationString[32];
+		sprintf(accelerationString, "Acceleration: %.2f rev/s\xc2\xb2", manualAcceleration_rpsps);
+		ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rpsps, 0.0, maxA, accelerationString);
+		if (manualAcceleration_rpsps > maxA) manualAcceleration_rpsps = maxA;
+	}
+	
+	float widgetWidth = ImGui::GetItemRectSize().x;
+	float widgetHeight = ImGui::GetItemRectSize().y;
 
     ImGui::Separator();
 
     //------------------------- FEEDBACK ------------------------
+	
+	if (disableControls) END_DISABLE_IMGUI_ELEMENT
+	
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Feedback");
+	ImGui::PopFont();
 
+	if (disableControls) BEGIN_DISABLE_IMGUI_ELEMENT
+	
     float velocityFraction;
     static char actualVelocityString[32];
     if (!isReady()) {

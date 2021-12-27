@@ -60,14 +60,14 @@
             </Node>
         </Nodes>
         <Links>
-            <Link UniqueID="88" StartPin="5" EndPin="75"/>
+            <Link UniqueID="84" StartPin="5" EndPin="75"/>
         </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en8" Name="en8"/>
+        <Primary Description="en5" Name="en5"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>

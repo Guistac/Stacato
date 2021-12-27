@@ -298,9 +298,8 @@ void Lexium32::readInputs() {
     if (previousOperatingMode != actualOperatingMode) {
         manualVelocityCommand_rps = 0.0;
         profileVelocity_rps = 0.0;
-        //velocityCommand->set(0.0);
     }
-
+	
     State previousState = state;
 
     //find the state using the state bits
@@ -374,7 +373,8 @@ void Lexium32::readInputs() {
     digitalIn5->set(b_invertDI5 ? !DI5 : DI5);
 
     //set actuator subdevice
-    servoMotorDevice->b_ready = actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION && (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled || state == State::QuickStopActive);
+    servoMotorDevice->b_ready = actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION
+								&& (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled || state == State::QuickStopActive);
     servoMotorDevice->b_enabled = state == State::OperationEnabled;
     servoMotorDevice->b_online = isOnline() && motorVoltagePresent;
     servoMotorDevice->b_emergencyStopActive = b_emergencyStopActive;
@@ -398,28 +398,38 @@ void Lexium32::prepareOutputs() {
     if (digitalOut2->isConnected()) digitalOut2->set(digitalOut2->getLinks().front()->getInputData()->getBoolean());
 
     double now_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
-    double deltaT_seconds = now_seconds - previousProfilePointTime_seconds;
-    previousProfilePointTime_seconds = now_seconds;
+	double deltaT_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 
-    //internal profile generator
-    if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY) {
+    //------ internal profile generator ------
+	if(!servoMotorDevice->isEnabled()){
+		//if the servo motor is not enabled
+		//update the motion profile with realtime encoder position data
+		profilePosition_r = servoMotorDevice->positionRaw_positionUnits;
+		profileVelocity_rps = servoMotorDevice->velocity_positionUnitsPerSecond;
+	}
+    else if (!servoMotorLink->isConnected()) {
+		//if the servo motor is enabled but not connected to another node
+		//generate new profile position points using the internal profile generator in manual velocity control
+		double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
         if (manualVelocityCommand_rps > profileVelocity_rps) {
-            double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
             profileVelocity_rps += deltaV_rps;
             if (profileVelocity_rps > manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
         }
         else if (manualVelocityCommand_rps < profileVelocity_rps) {
-            double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
             profileVelocity_rps -= deltaV_rps;
             if (profileVelocity_rps < manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
         }
-        profilePosition_r = actualPosition->getReal();
-    }
-    else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION) {
-        //TODO:
-        //in this operating mode, we verify that the input velocity and acceleration don't exceed internal values
-    }
-
+		double deltaP_r = profileVelocity_rps * deltaT_seconds;
+		profilePosition_r += deltaP_r;
+		servoMotorDevice->setCommand(profilePosition_r);
+	}else{
+		//if the servo motor is enable and controlled externally
+		//update the motion profile using the profile position points send to the servo motor
+		double newProfilePosition_r = servoMotorDevice->getCommand();
+		profileVelocity_rps = (newProfilePosition_r - profilePosition_r) / deltaT_seconds;
+		profilePosition_r = servoMotorDevice->getCommand();
+	}
+	
     //handle commands from subdevices
     if (servoMotorDevice->b_setEnabled) {
         servoMotorDevice->b_setEnabled = false;
@@ -488,11 +498,8 @@ void Lexium32::prepareOutputs() {
     if (operatingMode != nullptr) operatingModeID = operatingMode->id;
     DCOMopmode = operatingModeID;
 
-    if (!servoMotorLink->isConnected()) servoMotorDevice->setCommand(servoMotorDevice->getPosition());
     //get the position command from the servo actuator subdevice
     PPp_target = (int32_t)(servoMotorDevice->getCommand() * positionUnitsPerRevolution);
-    //don't forget to convert from rotations per second to rpm
-    PVv_target = (int32_t)(profileVelocity_rps * velocityUnitsPerRpm * 60.0);
 
     IO_DQ_set = 0;
     if (digitalOut0->getBoolean()) IO_DQ_set |= 0x1;
