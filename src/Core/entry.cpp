@@ -7,6 +7,7 @@
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 #include "NodeGraph/Utilities/NodeFactory.h"
 #include "Project/Project.h"
+#include "Project/Environnement.h"
 
 #ifdef STACATO_WIN32_APPLICATION
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
@@ -40,10 +41,12 @@ int main() {
 	//application gui runtime, function returns when application is quit
 	ApplicationWindow::open(3500,2000);
 
-	//shut down fieldbus and release network hardware
-	EtherCatFieldbus::terminate();
+	//stop hardware or simulation
+	Environnement::stop();
 
+	//shut down logger
 	Logger::terminate();
 
+	//terminate application
 	ApplicationWindow::terminate();
 }

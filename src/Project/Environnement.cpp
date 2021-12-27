@@ -89,7 +89,7 @@ void startSimulation(){
 void stopSimulation(){
 	disableAllMachines();
 	b_isRunning = false;
-	environnementSimulator.join();
+	if(environnementSimulator.joinable()) environnementSimulator.join();
 }
 
 void startHardware(){
@@ -154,10 +154,7 @@ void updateSimulation(){
 	
 	Playback::incrementPlaybackPosition();
 	
-	for(auto& machine : getMachines()){
-		//TODO: simulate machine motion
-		//machine->updateSimulation();
-	}
+	for(auto& machine : getMachines()) machine->simulateProcess();
 	
 	Playback::updateActiveManoeuvreState();
 }

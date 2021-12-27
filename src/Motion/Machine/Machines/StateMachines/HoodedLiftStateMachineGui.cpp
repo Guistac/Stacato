@@ -2,7 +2,7 @@
 
 #include "HoodedLiftStateMachine.h"
 
-#include "Motion/Subdevice.h"
+#include "Motion/SubDevice.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -71,13 +71,13 @@ void HoodedLiftStateMachine::controlsGui() {
 	ImGui::Text("Actual State:");
 	ImGui::PopFont();
 	ImGui::SameLine();
-	ImGui::Text(getState(actualState)->displayName);
+	ImGui::Text("%s", getState(actualState)->displayName);
 	ImGui::SameLine();
 	ImGui::PushFont(Fonts::robotoBold15);
 	ImGui::Text("Requested State:");
 	ImGui::PopFont();
 	ImGui::SameLine();
-	ImGui::Text(getState(requestedState)->displayName);
+	ImGui::Text("%s", getState(requestedState)->displayName);
 
 	ImGui::Separator();
 
@@ -126,17 +126,17 @@ void HoodedLiftStateMachine::axisGui() {}
 void HoodedLiftStateMachine::deviceGui() {}
 void HoodedLiftStateMachine::metricsGui() {}
 
+
 float HoodedLiftStateMachine::getMiniatureWidth() {
 	return ImGui::GetTextLineHeight() * 6.0;
 }
 
+
 void HoodedLiftStateMachine::machineSpecificMiniatureGui() {
 	glm::vec2 commandButtonSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 3.0);
 
-	bool inputsAreValid = isGpioDeviceConnected() && areGpioSignalsReady();
-
-	if (inputsAreValid) {
-
+	if(isReady()){
+		
 		bool disableManualCommandButtons = !isEnabled();
 		if(disableManualCommandButtons)BEGIN_DISABLE_IMGUI_ELEMENT
 
@@ -204,14 +204,15 @@ void HoodedLiftStateMachine::machineSpecificMiniatureGui() {
 
 		if(disableManualCommandButtons) END_DISABLE_IMGUI_ELEMENT
 
-	}
-	else {
+	}else{
+		
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
 		ImGui::Button("", commandButtonSize);
-		ImGui::Button("IO is not ready", commandButtonSize);
+		ImGui::Button("Not ready", commandButtonSize);
 		ImGui::Button("", commandButtonSize);
 		ImGui::PopStyleColor();
 		ImGui::PopItemFlag();
+		
 	}
 }

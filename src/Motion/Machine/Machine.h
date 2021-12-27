@@ -34,8 +34,10 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual bool isHardwareReady();\
 	virtual void enableHardware();\
 	virtual void disableHardware();\
-	virtual void onEnable();\
-	virtual void onDisable();\
+	virtual void onEnableHardware();\
+	virtual void onDisableHardware();\
+	virtual void onEnableSimulation();\
+	virtual void onDisableSimulation();\
 	virtual void simulateProcess();\
 	virtual bool saveMachine(tinyxml2::XMLElement* xml);\
 	virtual bool loadMachine(tinyxml2::XMLElement* xml);\
@@ -69,8 +71,10 @@ public:
 	virtual void enableHardware() = 0;
 	virtual void disableHardware() = 0;
 	virtual bool isMoving() = 0;
-	virtual void onEnable() = 0;
-	virtual void onDisable() = 0;
+	virtual void onEnableSimulation() = 0;
+	virtual void onDisableSimulation() = 0;
+	virtual void onEnableHardware() = 0;
+	virtual void onDisableHardware() = 0;
 	
 	//===== PROCESSING =====
 	virtual void process() = 0;

@@ -145,7 +145,7 @@ void HoodedLiftStateMachine::enableHardware() {
 	if (!isEnabled() && isReady()) {
 		requestedState = actualState;
 		b_enabled = true;
-		onEnable();
+		onEnableHardware();
 	}
 }
 
@@ -157,7 +157,7 @@ void HoodedLiftStateMachine::disableHardware() {
 	raisePlatform = false;
 	requestedState = MachineState::State::UNKNOWN;
 	updateGpioOutSignals();
-	onDisable();
+	onDisableHardware();
 }
 
 bool HoodedLiftStateMachine::isGpioDeviceConnected() {
@@ -296,15 +296,51 @@ bool HoodedLiftStateMachine::getCurveLimitsAtTime(const std::shared_ptr<Animatab
 void HoodedLiftStateMachine::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {}
 
 
+void HoodedLiftStateMachine::onEnableHardware() {
+	actualState = MachineState::State::UNKNOWN;
+	requestedState = MachineState::State::UNKNOWN;
+}
+
+void HoodedLiftStateMachine::onDisableHardware() {
+	actualState = MachineState::State::UNKNOWN;
+	requestedState = MachineState::State::UNKNOWN;
+}
+
 void HoodedLiftStateMachine::simulateProcess() {
-	//TODO: Simulate Flips
+
+	//update outputs signals
+	if (isEnabled()) {
+		if (stateParameter->hasParameterTrack()) {
+			AnimatableParameterValue value;
+			stateParameter->getActiveTrackParameterValue(value);
+			switch (value.stateValue->integerEquivalent) {
+				case 0:
+					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
+					break;
+				case 1:
+					requestedState = MachineState::State::LIFT_LOWERED_HOOD_OPEN;
+					break;
+				case 2:
+					requestedState = MachineState::State::LIFT_RAISED_HOOD_OPEN;
+					break;
+				default:
+					break;
+			}
+		}
+		actualState = requestedState;
+	}
+	
 }
 
 
-void HoodedLiftStateMachine::onEnable() {
+void HoodedLiftStateMachine::onEnableSimulation() {
+	actualState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
+	requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
 }
 
-void HoodedLiftStateMachine::onDisable() {
+void HoodedLiftStateMachine::onDisableSimulation() {
+	actualState = MachineState::State::UNKNOWN;
+	requestedState = MachineState::State::UNKNOWN;
 }
 
 

@@ -139,7 +139,7 @@ void BinaryOscillator6x::enableHardware() {
 	if (isReady()) {
 		b_enabled = true;
 		stopOscillatorParameterPlayback();
-		onEnable();
+		onEnableHardware();
 	}
 }
 
@@ -150,7 +150,7 @@ void BinaryOscillator6x::disableHardware() {
 		setOutput(i, false);
 	}
 	stopOscillatorParameterPlayback();
-	onDisable();
+	onDisableHardware();
 }
 
 bool BinaryOscillator6x::isMoving() {
@@ -324,6 +324,11 @@ void BinaryOscillator6x::getTimedParameterCurveTo(const std::shared_ptr<Animatab
 	*/
 }
 
+void BinaryOscillator6x::onEnableHardware() {
+}
+
+void BinaryOscillator6x::onDisableHardware() {
+}
 
 
 void BinaryOscillator6x::simulateProcess() {
@@ -332,12 +337,10 @@ void BinaryOscillator6x::simulateProcess() {
 
 
 
-void BinaryOscillator6x::onEnable() {
+void BinaryOscillator6x::onEnableSimulation() {
 }
 
-
-
-void BinaryOscillator6x::onDisable() {
+void BinaryOscillator6x::onDisableSimulation() {
 }
 
 

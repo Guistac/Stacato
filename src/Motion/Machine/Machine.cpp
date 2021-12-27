@@ -14,7 +14,7 @@ bool Machine::isReady(){
 
 void Machine::enable(){
 	if(Environnement::isSimulating()){
-		onEnable();
+		onEnableSimulation();
 		b_enabled = true;
 	}else enableHardware();
 }
@@ -22,7 +22,7 @@ void Machine::enable(){
 void Machine::disable(){
 	if(Environnement::isSimulating()){
 		b_enabled = false;
-		onDisable();
+		onDisableSimulation();
 	}else disableHardware();
 }
 
