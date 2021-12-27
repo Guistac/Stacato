@@ -7,23 +7,26 @@
 #include "Gui/Assets/Colors.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
+#include "Project/Environnement.h"
 #include "Utilities/ProgressIndicator.h"
+
+#include <GLFW/glfw3.h>
 
 void etherCatStartModal() {
 	ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5, 0.5));
 	ImGui::SetNextWindowSize(ImVec2(ImGui::GetTextLineHeight() * 30.0, 0), ImGuiCond_Always);
-	if (ImGui::BeginPopupModal("Starting EtherCAT Fieldbus")) {
+	if (ImGui::BeginPopupModal("Starting Environnement")) {
 		
 		ProgressIndicator& progress = EtherCatFieldbus::startupProgress;
 		
-		if(progress.b_finished && progress.b_succeeded){
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.3, 0.8, 0.0, 1.0));
+		if(progress.succeeded()){
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 			ImGui::ProgressBar(1.0);
 			ImGui::PopStyleColor();
 			ImGui::Text("%s", progress.getProgressString());
 			if(progress.getTimeSinceCompletion() > 0.5) ImGui::CloseCurrentPopup();
-		}else if(progress.b_finished && !progress.b_succeeded){
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.7, 0.0, 0.0, 1.0));
+		}else if(progress.failed()){
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
 			ImGui::ProgressBar(1.0);
 			ImGui::PopStyleColor();
 			ImGui::Text("%s", progress.getProgressString());
@@ -33,17 +36,23 @@ void etherCatStartModal() {
 		}
 	
 		if(progress.failed()){
-			if (ImGui::Button("Retry")) EtherCatFieldbus::start();
-		}else{
-			bool disableCancelButton = EtherCatFieldbus::isCyclicExchangeStarting();
-			if (disableCancelButton) BEGIN_DISABLE_IMGUI_ELEMENT
-			if (ImGui::Button("Cancel")) {
-				EtherCatFieldbus::stop();
-				ImGui::CloseCurrentPopup();
-			}
-			if (disableCancelButton) END_DISABLE_IMGUI_ELEMENT
+			if (ImGui::Button("Retry")) Environnement::start();
 		}
+		
+		ImGui::SameLine();
+		bool disableCancelButton = EtherCatFieldbus::isCyclicExchangeStarting();
+		if (disableCancelButton) BEGIN_DISABLE_IMGUI_ELEMENT
+		if (ImGui::Button("Cancel")) {
+			EtherCatFieldbus::stop();
+			ImGui::CloseCurrentPopup();
+		}
+		if (disableCancelButton) END_DISABLE_IMGUI_ELEMENT
 		 
+		if(!disableCancelButton && ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)){
+			Environnement::stop();
+			ImGui::CloseCurrentPopup();
+		}
+			
 		ImGui::EndPopup();
 	}
 }

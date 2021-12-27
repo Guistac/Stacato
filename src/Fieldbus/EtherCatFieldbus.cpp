@@ -93,6 +93,7 @@ namespace EtherCatFieldbus {
 	//trying to execute pcap or ethercat functions without these permissions will result in a bad memory access and hard crash
 
 	bool hasNetworkPermissions(){
+		//this will only report a correct status after a network interface card was opened
 		ecx_contextt* context = &ecx_context;
 		ecx_portt* port = context->port;
 		ec_stackT* stack = &port->stack;
@@ -114,7 +115,7 @@ namespace EtherCatFieldbus {
             while (nics != nullptr) {
 				
 #ifdef STACATO_MACOS
-				//on macos, we skip non ethernet network interfaces
+				//on macos, we can skip network interfaces that don't have a name with the format en
 				if (strstr(nics->name, "en") == nullptr) {
 					nics = nics->next;
 					continue;

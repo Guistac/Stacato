@@ -162,7 +162,7 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
     std::shared_ptr<ParameterTrack> movedUpTrack = nullptr;
     std::shared_ptr<ParameterTrack> movedDownTrack = nullptr;
 
-    ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
+    ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoHostExtendY;
 
     int columnCount;
     switch (manoeuvre->type) {
@@ -176,7 +176,7 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
 
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
-
+	
     if (ImGui::BeginTable("##parameters", columnCount, tableFlags)) {
 
         ImGui::TableSetupColumn("Manage");

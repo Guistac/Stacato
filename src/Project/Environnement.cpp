@@ -87,16 +87,37 @@ void startSimulation(){
 }
 
 void stopSimulation(){
+	disableAllMachines();
 	b_isRunning = false;
 	environnementSimulator.join();
 }
 
 void startHardware(){
-	//EtherCatFieldbus::start();
+	b_isStarting = true;
+	Logger::info("Starting Environnement Hardware");
+	EtherCatFieldbus::start();
+	std::thread environnementHardwareStarter([](){
+		while(EtherCatFieldbus::isCyclicExchangeStarting()){
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
+		}
+		if(!EtherCatFieldbus::isCyclicExchangeActive()) {
+			b_isRunning = false;
+			b_isStarting = false;
+			Logger::warn("Failed to Start Environnement");
+			return;
+		}
+		
+		Logger::info("Started Environnement Hardware");
+		b_isRunning = true;
+		b_isStarting = false;
+	});
+	environnementHardwareStarter.detach();
 }
 
+
 void stopHardware(){
-	//EtherCatFieldbus::stop();
+	EtherCatFieldbus::stop();
+	b_isRunning = false;
 }
 
 

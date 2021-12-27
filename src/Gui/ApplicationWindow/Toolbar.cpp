@@ -39,10 +39,15 @@ namespace ApplicationWindow {
 			bool disableStartButton = !Environnement::isReady() || Environnement::isStarting();
 			if (disableStartButton) BEGIN_DISABLE_IMGUI_ELEMENT
 		
-				if(!Environnement::isRunning()){
+				if(Environnement::isStarting()){
+					BEGIN_DISABLE_IMGUI_ELEMENT
+					ImGui::Button("Starting", buttonSize);
+					END_DISABLE_IMGUI_ELEMENT
+				}
+				else if(!Environnement::isRunning()){
 					if(ImGui::Button("Start", buttonSize)){
+						if(!Environnement::isSimulating()) ImGui::OpenPopup("Starting Environnement");
 						Environnement::start();
-						//open environnement start popup
 					}
 				}else{
 					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
