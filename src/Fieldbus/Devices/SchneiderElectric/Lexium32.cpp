@@ -123,6 +123,7 @@ void Lexium32::assignIoData() {
     txPdoAssignement.addEntry(0x6041, 0x0, 16, "_DCOMstatus", &_DCOMstatus);
     txPdoAssignement.addEntry(0x6061, 0x0, 8, "_DCOMopmd_act", &_DCOMopmd_act);
     txPdoAssignement.addEntry(0x6064, 0x0, 32, "_p_act", &_p_act);
+	txPdoAssignement.addEntry(0x301E, 0x14, 32, "_p_dif_usr", &_p_dif_usr);
     txPdoAssignement.addEntry(0x606C, 0x0, 32, "_v_act", &_v_act);
     txPdoAssignement.addEntry(0x301E, 0x3, 16, "_I_act", &_I_act);
     txPdoAssignement.addEntry(0x603F, 0x0, 16, "_LastError", &_LastError);
@@ -238,6 +239,7 @@ void Lexium32::readInputs() {
     //_DCOMstatus   (uint16_t)  2
     //_DCOMopmd_act (uint8_t)   1
     //_p_act        (int32_t)   4
+	//_p_dif_usr	(int32_t)	4
     //_v_act        (int32_t)   4
     //_tq_act       (int16_t)   2
     //_LastError    (uint16_t)  2
@@ -324,6 +326,8 @@ void Lexium32::readInputs() {
         b_emergencyStopActive = actualEstop;
     }
 
+	actualFollowingError_r = (double)_p_dif_usr / (double)positionUnitsPerRevolution;
+	
     //set the encoder position in revolution units and velocity in revolutions per second
     servoMotorDevice->positionRaw_positionUnits = (double)_p_act / (double)positionUnitsPerRevolution;
     servoMotorDevice->velocity_positionUnitsPerSecond = (double)_v_act / ((double)velocityUnitsPerRpm * 60.0);
@@ -602,6 +606,12 @@ transferfailed:
 void Lexium32::uploadGeneralParameters() {
     generalParameterUploadState = DataTransferState::State::TRANSFERRING;
 
+	{
+		EtherCatCoeData MON_p_dif_load_usr(0x3006, 0x3E, EtherCatData::Type::INT32_T);
+		MON_p_dif_load_usr.setS32(maxFollowingError_revolutions * positionUnitsPerRevolution);
+		if(!MON_p_dif_load_usr.write(getSlaveIndex())) goto transferfailed;
+	}
+	
     {
         EtherCatCoeData CTRL_I_max(0x3011, 0xC, EtherCatData::Type::UINT16_T);
         CTRL_I_max.setU16(maxCurrent_amps * 100.0);
@@ -654,6 +664,12 @@ transferfailed:
 void Lexium32::downloadGeneralParameters() {
     generalParameterDownloadState = DataTransferState::State::TRANSFERRING;
 
+	{
+		EtherCatCoeData MON_p_dif_load_usr(0x3006, 0x3E, EtherCatData::Type::INT32_T);
+		if(!MON_p_dif_load_usr.read(getSlaveIndex())) goto transferfailed;
+		maxFollowingError_revolutions = (float)MON_p_dif_load_usr.getS32() / positionUnitsPerRevolution;
+	}
+	
     {
         EtherCatCoeData CTRL_I_max(0x3011, 0xC, EtherCatData::Type::UINT16_T);
         if (!CTRL_I_max.read(getSlaveIndex())) goto transferfailed;
@@ -1209,6 +1225,9 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
 
     XMLElement* invertDirectionOfMovementXML = xml->InsertNewChildElement("InvertDirectionOfMovement");
     invertDirectionOfMovementXML->SetAttribute("Invert", b_invertDirectionOfMotorMovement);
+	
+	XMLElement* maxFollowingErrorXML = xml->InsertNewChildElement("MaxFollowingError");
+	maxFollowingErrorXML->SetAttribute("revolutions", maxFollowingError_revolutions);
 
     XMLElement* currentLimitXML = xml->InsertNewChildElement("CurrentLimit");
     currentLimitXML->SetAttribute("amps", maxCurrent_amps);
@@ -1293,6 +1312,10 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
     if (invertDirectionOfMovementXML == nullptr) return Logger::warn("Could not find invert direction of movement attribute");
     if (invertDirectionOfMovementXML->QueryBoolAttribute("Invert", &b_invertDirectionOfMotorMovement) != XML_SUCCESS) return Logger::warn("Could not read direciton of movement attribute");
 
+	XMLElement* maxFollowingErrorXML = xml->FirstChildElement("MaxFollowingError");
+	if(maxFollowingErrorXML == nullptr) return Logger::warn("Could not find max following error attribute");
+	if(maxFollowingErrorXML->QueryAttribute("revolutions", &maxFollowingError_revolutions) != XML_SUCCESS) return Logger::warn("Could not read max following error attribute");
+	
     XMLElement* currentLimitsXML = xml->FirstChildElement("CurrentLimit");
     if (currentLimitsXML == nullptr) return Logger::warn("Could not find current limits attribute");
     if (currentLimitsXML->QueryDoubleAttribute("amps", &maxCurrent_amps) != XML_SUCCESS) return Logger::warn("Could not read Max Current Attribute");

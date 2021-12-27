@@ -101,7 +101,8 @@ public:
 
     double profileVelocity_rps = 0.0;
     double profilePosition_r = 0.0;
-
+	double actualFollowingError_r = 0.0;
+	
     //===== Manual Controls =====
 
     float manualVelocityCommand_rps = 0.0;
@@ -122,6 +123,8 @@ public:
     double maxCurrent_amps = 0.0;
     
     float maxMotorVelocity_rps = 0.0;
+	
+	double maxFollowingError_revolutions = 0.0;
 
     void uploadGeneralParameters();
     DataTransferState::State generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
@@ -350,6 +353,7 @@ private:
     uint16_t _DCOMstatus = 0;
     int8_t _DCOMopmd_act = 0;
     int32_t _p_act = 0;
+	int32_t _p_dif_usr = 0;
     int32_t _v_act = 0;
     uint16_t _I_act = 0;
     uint16_t _LastError = 0;

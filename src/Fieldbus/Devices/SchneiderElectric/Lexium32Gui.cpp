@@ -266,8 +266,8 @@ void Lexium32::controlsGui() {
         sprintf(encoderPositionString, "Encoder Outside Working Range by %.3f rev)", distanceOutsideRange);
         range = 1.0;
     }
-
-    ImGui::Text("Encoder Position in Working Range (%.2f rev to %.2f rev)", servoMotorDevice->getMinPosition(), servoMotorDevice->getMaxPosition());
+	
+    ImGui::Text("Encoder Position in Working Range : (%.2f rev to %.2f rev)", servoMotorDevice->getMinPosition(), servoMotorDevice->getMaxPosition());
     ImGui::ProgressBar(range, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), encoderPositionString);
     ImGui::PopStyleColor();
 
@@ -283,6 +283,46 @@ void Lexium32::controlsGui() {
     ImGui::SameLine();
     if (ImGui::Button("Reset", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotorDevice->positionOffset_positionUnits = 0.0;
 
+	
+	ImGui::Text("Load :");
+	static char loadString[64];
+	float loadProgress;
+	if (!isReady()) {
+		loadProgress = 1.0;
+		sprintf(loadString, "Not Ready");
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+	}else{
+		sprintf(loadString, "%.1f%%", servoMotorDevice->getLoad() * 100.0);
+		loadProgress =servoMotorDevice->getLoad();
+		if(loadProgress >= 1.0) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
+		else if(loadProgress > 0.8) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::orange);
+		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+	}
+	ImGui::ProgressBar(loadProgress, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), loadString);
+	ImGui::PopStyleColor();
+	
+	
+	ImGui::Text("Following Error :");
+	static char followingErrorString[64];
+	float followingErrorProgress;
+	if(!isReady()){
+		followingErrorProgress = 1.0;
+		sprintf(followingErrorString, "Not Ready");
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+	}else{
+		sprintf(followingErrorString, "%.2f revs", actualFollowingError_r);
+		followingErrorProgress = std::abs(actualFollowingError_r / maxFollowingError_revolutions);
+		followingErrorProgress = std::min(followingErrorProgress, 1.0f);
+		followingErrorProgress = std::max(followingErrorProgress, 0.0f);
+		Logger::warn("{} / {} = {}", actualFollowingError_r, maxFollowingError_revolutions, followingErrorProgress);
+		if(followingErrorProgress > 0.95) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
+		else if(followingErrorProgress > 0.75) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::orange);
+		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+	}
+	ImGui::ProgressBar(followingErrorProgress, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), followingErrorString);
+	ImGui::PopStyleColor();
+	
+	
 	if(b_externalControl) END_DISABLE_IMGUI_ELEMENT
 
     if (disableControls) END_DISABLE_IMGUI_ELEMENT
@@ -310,13 +350,6 @@ void Lexium32::generalSettingsGui() {
         ImGui::TextWrapped("These settings are not stored on the drive, but regulate the speed and position commands sent to the drive.");
         endHelpMarker();
     }
-    if (maxMotorVelocity_rps != 0.0) {
-        ImGui::TextWrapped("The Maximum Velocity of the Motor is %.3f rotations per second ", maxMotorVelocity_rps);
-        if (servoMotorDevice->velocityLimit_positionUnitsPerSecond > maxMotorVelocity_rps) servoMotorDevice->velocityLimit_positionUnitsPerSecond = maxMotorVelocity_rps;
-    }
-
-
-
 
 
     ImGui::Text("Velocity Limit");
@@ -335,7 +368,7 @@ void Lexium32::generalSettingsGui() {
 
     ImGui::SameLine();
     if (beginHelpMarker("(help)")) {
-        ImGui::TextWrapped("These are not stored on the drive and represent general system limits.");
+        ImGui::TextWrapped("These settings are stored on the drive and represent general system limits.");
         endHelpMarker();
     }
 
@@ -347,28 +380,32 @@ void Lexium32::generalSettingsGui() {
     }
     if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
-    ImGui::Text(getDataTransferState(generalParameterDownloadState)->displayName);
+    ImGui::Text("%s", getDataTransferState(generalParameterDownloadState)->displayName);
 
     if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
-        if (ImGui::Button("Upload Setting To Drive")) {
+        if (ImGui::Button("Upload Settings To Drive")) {
             std::thread generalParameterUploader([this]() { uploadGeneralParameters(); });
             generalParameterUploader.detach();
         }
     if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
         ImGui::SameLine();
-    ImGui::Text(getDataTransferState(generalParameterUploadState)->displayName);
+    ImGui::Text("%s", getDataTransferState(generalParameterUploadState)->displayName);
 
-    if (maxMotorVelocity_rps == 0.0) {
-        ImGui::Text("Max Motor Velocity is unknown : Download the value from the drive.");
-    }
-    else {
-        ImGui::Text("Max Motor Velocity: %.3f rev/s", maxMotorVelocity_rps);
-    }
-
+	if (maxMotorVelocity_rps == 0.0) {
+		ImGui::Text("Max Motor Velocity is unknown : Download the value from the drive.");
+	}
+	else {
+		ImGui::Text("Max Motor Velocity: %.3f rev/s", maxMotorVelocity_rps);
+		if (servoMotorDevice->velocityLimit_positionUnitsPerSecond > maxMotorVelocity_rps) servoMotorDevice->velocityLimit_positionUnitsPerSecond = maxMotorVelocity_rps;
+	}
+	
     ImGui::Checkbox("##dir", &b_invertDirectionOfMotorMovement);
     ImGui::SameLine();
     ImGui::Text("Invert Direction of Movement");
 
+	ImGui::Text("Max Position Following Error");
+	if (ImGui::InputDouble("##MaxError", &maxFollowingError_revolutions, 0.0, 0.0, "%.3f revolutions")) generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
+	
     ImGui::Text("Max Current");
     if (ImGui::InputDouble("##maxI", &maxCurrent_amps, 0.0, 0.0, "%.1f Amperes")) generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
  
