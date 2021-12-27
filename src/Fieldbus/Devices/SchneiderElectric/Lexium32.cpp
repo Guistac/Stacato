@@ -1315,7 +1315,7 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
 	XMLElement* maxFollowingErrorXML = xml->FirstChildElement("MaxFollowingError");
 	if(maxFollowingErrorXML == nullptr) return Logger::warn("Could not find max following error attribute");
 	if(maxFollowingErrorXML->QueryAttribute("revolutions", &maxFollowingError_revolutions) != XML_SUCCESS) return Logger::warn("Could not read max following error attribute");
-	
+	 
     XMLElement* currentLimitsXML = xml->FirstChildElement("CurrentLimit");
     if (currentLimitsXML == nullptr) return Logger::warn("Could not find current limits attribute");
     if (currentLimitsXML->QueryDoubleAttribute("amps", &maxCurrent_amps) != XML_SUCCESS) return Logger::warn("Could not read Max Current Attribute");
