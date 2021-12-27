@@ -335,7 +335,9 @@ void BinaryOscillator6x::simulateProcess() {
 	//TODO: Simulate Oscillator
 }
 
-
+bool BinaryOscillator6x::isSimulationReady(){
+	return false;
+}
 
 void BinaryOscillator6x::onEnableSimulation() {
 }

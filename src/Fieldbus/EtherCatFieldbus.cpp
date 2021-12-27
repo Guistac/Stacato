@@ -769,7 +769,8 @@ namespace EtherCatFieldbus {
 				percentage = std::min(1.0f, percentage);
 				percentage = std::max(0.0f, percentage);
 				float progress = from + (to - from) * percentage;
-				startupProgress.setProgress(progress, "Waiting for clocks to stabilize");
+				startupProgress.progress = progress;
+				//startupProgress.setProgress(progress, "Waiting for clocks to stabilize");
 			}
 
             //==================== UPDATE FIELDBUS METRICS =====================

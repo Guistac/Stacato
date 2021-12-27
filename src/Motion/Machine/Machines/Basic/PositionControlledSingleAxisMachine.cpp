@@ -282,6 +282,10 @@ void PositionControlledSingleAxisMachine::simulateProcess() {
 	//TODO: Simulate Single Axis
 }
 
+bool PositionControlledSingleAxisMachine::isSimulationReady(){
+	return false;
+}
+
 void PositionControlledSingleAxisMachine::onEnableSimulation() {
 }
 

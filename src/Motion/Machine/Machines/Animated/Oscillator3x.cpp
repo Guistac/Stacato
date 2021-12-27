@@ -703,6 +703,10 @@ void Oscillator3x::simulateProcess() {
 	//TODO: Simulate Oscillator
 }
 
+bool Oscillator3x::isSimulationReady(){
+	return false;
+}
+
 void Oscillator3x::onEnableSimulation() {
 }
 

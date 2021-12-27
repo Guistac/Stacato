@@ -32,6 +32,7 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual void machineSpecificMiniatureGui();\
 	virtual bool isMoving();\
 	virtual bool isHardwareReady();\
+	virtual bool isSimulationReady();\
 	virtual void enableHardware();\
 	virtual void disableHardware();\
 	virtual void onEnableHardware();\
@@ -68,6 +69,7 @@ public:
 	void disable();
 	bool isEnabled();
 	virtual bool isHardwareReady() = 0;
+	virtual bool isSimulationReady() = 0;
 	virtual void enableHardware() = 0;
 	virtual void disableHardware() = 0;
 	virtual bool isMoving() = 0;

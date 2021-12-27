@@ -8,12 +8,12 @@
 #include "Project/Environnement.h"
 
 bool Machine::isReady(){
-	if(Environnement::isSimulating()) return Environnement::isRunning();
+	if(Environnement::isSimulating()) return isSimulationReady() && Environnement::isRunning();
 	else return isHardwareReady();
 }
 
 void Machine::enable(){
-	if(Environnement::isSimulating()){
+	if(Environnement::isSimulating() && isSimulationReady()){
 		onEnableSimulation();
 		b_enabled = true;
 	}else enableHardware();

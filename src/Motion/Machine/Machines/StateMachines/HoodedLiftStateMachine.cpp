@@ -332,6 +332,10 @@ void HoodedLiftStateMachine::simulateProcess() {
 	
 }
 
+bool HoodedLiftStateMachine::isSimulationReady(){
+	return true;
+}
+
 
 void HoodedLiftStateMachine::onEnableSimulation() {
 	actualState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
@@ -339,8 +343,7 @@ void HoodedLiftStateMachine::onEnableSimulation() {
 }
 
 void HoodedLiftStateMachine::onDisableSimulation() {
-	actualState = MachineState::State::UNKNOWN;
-	requestedState = MachineState::State::UNKNOWN;
+	actualState = requestedState;
 }
 
 
