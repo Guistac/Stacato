@@ -19,6 +19,7 @@
 - Undo/Redo in environnement editor and plot editor
 - EtherCAT transmission error counter / Network cable diagnostics
 - Dead Mans Switch
+- Add Groups to Machine Manager
 
 ### Housekeeping
 - Refactor Environnement to prepare simulation mode and network nodes
