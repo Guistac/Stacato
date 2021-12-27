@@ -44,6 +44,11 @@ void stop(){
 	else stopHardware();
 }
 
+void terminate(){
+	if(isRunning()) stop();
+	EtherCatFieldbus::terminate();
+}
+
 bool isReady(){
 	if(b_isSimulating) return true;
 	else return EtherCatFieldbus::isNetworkInitialized();
@@ -64,7 +69,6 @@ bool isSimulating(){
 void setSimulation(bool b_sim){
 	if(!isRunning()) b_isSimulating = b_sim;
 }
-
 
 
 
@@ -161,23 +165,23 @@ void updateSimulation(){
 
 
 double getTime_seconds(){
-	if(b_isSimulating) return 0.0;
+	if(b_isSimulating) return simulationTime_seconds;
 	else return EtherCatFieldbus::getCycleProgramTime_seconds();
 }
 
 long long int getTime_nanoseconds(){
-	if(b_isSimulating) return 0;
+	if(b_isSimulating) return simulationTime_nanoseconds;
 	else return EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 }
 
 double getDeltaTime_seconds(){
-	if(b_isSimulating) return 0.0;
+	if(b_isSimulating) return simulationTimeDelta_seconds;
 	else return EtherCatFieldbus::getCycleTimeDelta_seconds();
 }
 
 long long int getDeltaTime_nanoseconds(){
-	if(b_isSimulating) return 0;
-	else return 0;
+	if(b_isSimulating) return simulationTimeDelta_nanoseconds;
+	else return EtherCatFieldbus::getCycleTimeDelta_nanoseconds();
 }
 
 

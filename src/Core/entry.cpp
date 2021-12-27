@@ -41,8 +41,8 @@ int main() {
 	//application gui runtime, function returns when application is quit
 	ApplicationWindow::open(3500,2000);
 
-	//stop hardware or simulation
-	Environnement::stop();
+	//stop hardware or simulation and terminate fieldbus
+	Environnement::terminate();
 
 	//shut down logger
 	Logger::terminate();

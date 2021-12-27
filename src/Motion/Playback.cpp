@@ -3,14 +3,13 @@
 #include "Playback.h"
 #include "Motion/Manoeuvre/Manoeuvre.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
-#include "Fieldbus/EtherCatFieldbus.h"
 #include "Motion/Machine/Machine.h"
+#include "Project/Environnement.h"
 
 namespace Playback {
 
 	std::vector<std::shared_ptr<Manoeuvre>> rapidManoeuvres;
 	std::vector<std::shared_ptr<Manoeuvre>> playingManoeuvres;
-
 
 	void rapidToStart(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 		if (!isPlaying(manoeuvre)) {
@@ -106,9 +105,11 @@ namespace Playback {
 
 	void startPlayback(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 		if (!isPlaying(manoeuvre)) {
-			double time = EtherCatFieldbus::getCycleProgramTime_seconds();
+			double time = Environnement::getTime_seconds();
 			manoeuvre->playbackStartTime_seconds = time - manoeuvre->playbackPosition_seconds;
 			switch (manoeuvre->type) {
+				case ManoeuvreType::Type::KEY_POSITION:
+					break;
 				case ManoeuvreType::Type::TIMED_MOVEMENT:
 					for (auto& track : manoeuvre->tracks) {
 						//track->parameter->machine->getTimedMovementTo(parameter, parameterValue, curves);
@@ -139,6 +140,8 @@ namespace Playback {
 		if (manoeuvre->b_isPaused) {
 			manoeuvre->b_isPaused = false;
 			switch (manoeuvre->type) {
+				case ManoeuvreType::Type::KEY_POSITION:
+					break;
 				case ManoeuvreType::Type::TIMED_MOVEMENT:
 					for (auto& track : manoeuvre->tracks) {
 						track->parameter->actualParameterTrack = track;
@@ -147,7 +150,7 @@ namespace Playback {
 					break;
 				case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
 					if (isPrimedToPlaybackPosition(manoeuvre)) {
-						double time = EtherCatFieldbus::getCycleProgramTime_seconds();
+						double time = Environnement::getTime_seconds();
 						manoeuvre->playbackStartTime_seconds = time - manoeuvre->playbackPosition_seconds;
 						for (auto& track : manoeuvre->tracks) {
 							track->playbackPosition_seconds = manoeuvre->playbackPosition_seconds;
@@ -203,7 +206,7 @@ namespace Playback {
 
 	void incrementPlaybackPosition() {
 		//update the playback position of playing manoeuvres and tracks
-		double time = EtherCatFieldbus::getCycleProgramTime_seconds();
+		double time = Environnement::getTime_seconds();
 		for (auto& playingManoeuvre : playingManoeuvres) {
 			if (!playingManoeuvre->b_isPaused) {
 				double playbackPosition = time - playingManoeuvre->playbackStartTime_seconds;
