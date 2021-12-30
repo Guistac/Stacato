@@ -19,9 +19,8 @@
 - Undo/Redo in environnement editor and plot editor
 - EtherCAT transmission error counter / Network cable diagnostics
 - Dead Mans Switch
-- Add Groups to Machine Manager
+- Add Custom Layout System to Machine View
 
 ### Housekeeping
 - Refactor Node Pins (to hold void* of data instead of having a field for each type)
 - Add onPinUpdate method to nodes for settings propagation
-
