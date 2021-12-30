@@ -106,8 +106,8 @@ void EtherCatDevice::generalGui() {
 
     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
     ImGui::PushFont(Fonts::robotoBold15);
-    ImGui::PushStyleColor(ImGuiCol_Button, isOnline() ? Colors::green : (isDetected() ? Colors::yellow : Colors::red));
-    ImGui::Button(isOnline() ? "Online" : (isDetected() ? "Detected" : "Offline"), statusDisplaySize);
+    ImGui::PushStyleColor(ImGuiCol_Button, isConnected() ? Colors::green : (isDetected() ? Colors::yellow : Colors::red));
+    ImGui::Button(isConnected() ? "Online" : (isDetected() ? "Detected" : "Offline"), statusDisplaySize);
     ImGui::PopStyleColor();
     ImGui::SameLine();
 

@@ -246,19 +246,19 @@ void NodeGraph::editorGui() {
             ImGui::Text("(#%i)", node->getUniqueID());
             ImGui::PopStyleColor();
             switch (node->getType()) {
-            case Node::Type::PROCESSOR:
-            case Node::Type::CONTAINER:
-            case Node::Type::CLOCK:
-            case Node::Type::MACHINE:
-                ImGui::Text("Type: %s", getNodeType(node->getType())->displayName);
-                break;
-            case Node::Type::IODEVICE: {
-                std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);
-                ImGui::Text("Type: %s", getDeviceType(device->getDeviceType())->displayName);
-                if (device->isOnline()) ImGui::Text("Status: Online");
-                else if (device->isDetected()) ImGui::Text("Status: Detected");
-                else ImGui::Text("Status: Offline");
-            }
+				case Node::Type::PROCESSOR:
+				case Node::Type::CONTAINER:
+				case Node::Type::CLOCK:
+				case Node::Type::MACHINE:
+					ImGui::Text("Type: %s", getNodeType(node->getType())->displayName);
+					break;
+				case Node::Type::IODEVICE: {
+					std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);
+					ImGui::Text("Type: %s", getDeviceType(device->getDeviceType())->displayName);
+					if (device->isConnected()) ImGui::Text("Status: Online");
+					else if (device->isDetected()) ImGui::Text("Status: Detected");
+					else ImGui::Text("Status: Offline");
+				}
             }
 
             ImGui::Separator();

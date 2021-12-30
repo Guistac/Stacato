@@ -156,9 +156,8 @@ void deviceManagerGui() {
 				glm::vec2 max = min + glm::vec2(headerStripWidth, ImGui::GetWindowSize().y);
 				glm::vec4 headerStripColor;
 				
-				if(etherCatDevice->isReady()) headerStripColor = Colors::green;
-				else if(etherCatDevice->isOnline()) headerStripColor = Colors::yellow;
-				else if(etherCatDevice->isDetected()) headerStripColor = Colors::orange;
+				if(etherCatDevice->isConnected()) headerStripColor = Colors::green;
+				else if(etherCatDevice->isDetected()) headerStripColor = Colors::yellow;
 				else headerStripColor = Colors::blue;
 				
 				ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(headerStripColor), 10.0, ImDrawFlags_RoundCornersLeft);

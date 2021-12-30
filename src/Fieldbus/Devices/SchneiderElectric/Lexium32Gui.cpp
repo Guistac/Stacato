@@ -105,9 +105,9 @@ void Lexium32::statusGui() {
 
     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
     ImGui::PushFont(Fonts::robotoBold15);
-    ImGui::PushStyleColor(ImGuiCol_Button, isOnline() ? Colors::green : (isDetected() ? Colors::yellow : Colors::red));
+    ImGui::PushStyleColor(ImGuiCol_Button, isConnected() ? Colors::green : (isDetected() ? Colors::yellow : Colors::red));
 
-    ImGui::Button(isOnline() ? "Online" : (isDetected() ? "Detected" : "Offline"), statusDisplaySize);
+    ImGui::Button(isConnected() ? "Online" : (isDetected() ? "Detected" : "Offline"), statusDisplaySize);
     ImGui::PopStyleColor();
 
     ImGui::SameLine();
@@ -120,7 +120,7 @@ void Lexium32::statusGui() {
 
     ImGui::SameLine();
 
-    if (isOnline()) {
+    if (isConnected()) {
 
         glm::vec4 statusButtonColor;
         switch (state) {
@@ -162,10 +162,10 @@ void Lexium32::statusGui() {
     }
     else {
 		bool b_externalControl = servoMotorLink->isConnected();
-        bool disableCommandButton = !isOnline() || b_externalControl;
+        bool disableCommandButton = !isConnected() || b_externalControl;
         if (disableCommandButton) BEGIN_DISABLE_IMGUI_ELEMENT
-        if (isEnabled()) { if (ImGui::Button("Disable Operation", commandButtonSize)) disable(); }
-        else { if (ImGui::Button("Enable Operation", commandButtonSize)) enable(); }
+        if (servoMotorDevice->isEnabled()) { if (ImGui::Button("Disable Operation", commandButtonSize)) servoMotorDevice->disable(); }
+        else { if (ImGui::Button("Enable Operation", commandButtonSize)) servoMotorDevice->enable(); }
         ImGui::SameLine();
         if (ImGui::Button("Quick Stop", commandButtonSize)) quickStop();
         if (disableCommandButton) END_DISABLE_IMGUI_ELEMENT
@@ -188,7 +188,7 @@ void Lexium32::controlsGui() {
 	ImGui::Text("Device Control");
 	ImGui::PopFont();
 	
-	bool disableControls = !isEnabled();
+	bool disableControls = !servoMotorDevice->isEnabled();
 	if (disableControls) BEGIN_DISABLE_IMGUI_ELEMENT
 	
 	bool b_externalControl = servoMotorLink->isConnected();
@@ -233,7 +233,7 @@ void Lexium32::controlsGui() {
 	
     float velocityFraction;
     static char actualVelocityString[32];
-    if (!isReady()) {
+    if (!servoMotorDevice->isReady()) {
         sprintf(actualVelocityString, "Not Ready");
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
         velocityFraction = 1.0;
@@ -251,7 +251,7 @@ void Lexium32::controlsGui() {
 
     char encoderPositionString[64];
     double range = servoMotorDevice->getPositionInRange();
-    if (!isReady()) {
+    if (!servoMotorDevice->isReady()) {
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
         range = 1.0;
         sprintf(encoderPositionString, "Not ready");
@@ -287,7 +287,7 @@ void Lexium32::controlsGui() {
 	ImGui::Text("Load :");
 	static char loadString[64];
 	float loadProgress;
-	if (!isReady()) {
+	if (!servoMotorDevice->isReady()) {
 		loadProgress = 1.0;
 		sprintf(loadString, "Not Ready");
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
@@ -305,7 +305,7 @@ void Lexium32::controlsGui() {
 	ImGui::Text("Following Error :");
 	static char followingErrorString[64];
 	float followingErrorProgress;
-	if(!isReady()){
+	if(!servoMotorDevice->isReady()){
 		followingErrorProgress = 1.0;
 		sprintf(followingErrorString, "Not Ready");
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
@@ -792,7 +792,7 @@ void Lexium32::tuningGui() {
         }
     }
     else {
-        bool disableButton = isOnline() || !isDetected();
+        bool disableButton = isConnected() || !isDetected();
         if (disableButton) BEGIN_DISABLE_IMGUI_ELEMENT
         if (ImGui::Button("Start Auto Tuning")) startAutoTuning();
         if (disableButton) END_DISABLE_IMGUI_ELEMENT
@@ -816,7 +816,7 @@ void Lexium32::miscellaneousGui() {
     }
     if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
-    ImGui::Text(getDataTransferState(stationAliasUploadState)->displayName);
+    ImGui::Text("%s", getDataTransferState(stationAliasUploadState)->displayName);
 
     ImGui::Separator();
     ImGui::PushFont(Fonts::robotoBold15);

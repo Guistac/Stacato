@@ -50,13 +50,6 @@ void PD4_E::deviceSpecificGui() {
 
         ImGui::Separator();
 
-
-
-
-
-
-
-
         ImGui::EndTabItem();
     }
 }
@@ -86,9 +79,9 @@ void PD4_E::statusGui() {
 
     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
     ImGui::PushFont(Fonts::robotoBold15);
-    ImGui::PushStyleColor(ImGuiCol_Button, isOnline() ? Colors::green : (isDetected() ? Colors::yellow : Colors::red));
+    ImGui::PushStyleColor(ImGuiCol_Button, isConnected() ? Colors::green : (isDetected() ? Colors::yellow : Colors::red));
 
-    ImGui::Button(isOnline() ? "Online" : (isDetected() ? "Detected" : "Offline"), statusDisplaySize);
+    ImGui::Button(isConnected() ? "Online" : (isDetected() ? "Detected" : "Offline"), statusDisplaySize);
     ImGui::PopStyleColor();
 
     ImGui::SameLine();
@@ -101,18 +94,19 @@ void PD4_E::statusGui() {
 
     ImGui::SameLine();
 
-    if (isOnline()) {
+    if (isConnected()) {
 
         glm::vec4 statusButtonColor;
         switch (actualPowerState) {
-        case DS402::PowerState::State::NOT_READY_TO_SWITCH_ON:
-        case DS402::PowerState::State::SWITCH_ON_DISABLED: statusButtonColor = Colors::red; break;
-        case DS402::PowerState::State::READY_TO_SWITCH_ON: statusButtonColor = Colors::orange; break;
-        case DS402::PowerState::State::SWITCHED_ON: statusButtonColor = Colors::yellow; break;
-        case DS402::PowerState::State::OPERATION_ENABLED: statusButtonColor = Colors::green; break;
-        case DS402::PowerState::State::QUICKSTOP_ACTIVE:
-        case DS402::PowerState::State::FAULT_REACTION_ACTIVE:
-        case DS402::PowerState::State::FAULT: statusButtonColor = Colors::red; break;
+			case DS402::PowerState::State::NOT_READY_TO_SWITCH_ON:
+			case DS402::PowerState::State::SWITCH_ON_DISABLED: statusButtonColor = Colors::red; break;
+			case DS402::PowerState::State::READY_TO_SWITCH_ON: statusButtonColor = Colors::orange; break;
+			case DS402::PowerState::State::SWITCHED_ON: statusButtonColor = Colors::yellow; break;
+			case DS402::PowerState::State::OPERATION_ENABLED: statusButtonColor = Colors::green; break;
+			case DS402::PowerState::State::QUICKSTOP_ACTIVE:
+			case DS402::PowerState::State::FAULT_REACTION_ACTIVE:
+			case DS402::PowerState::State::FAULT: statusButtonColor = Colors::red; break;
+			case DS402::PowerState::State::UNKNOWN: break;
         }
         ImGui::PushStyleColor(ImGuiCol_Button, statusButtonColor);
         ImGui::Button(DS402::getPowerState(actualPowerState)->displayName, statusDisplaySize);
@@ -129,9 +123,9 @@ void PD4_E::statusGui() {
     glm::vec2 commandButtonSize(doubleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
 
 
-    bool disableCommandButton = !isOnline();
+    bool disableCommandButton = !isConnected();
     if (disableCommandButton) BEGIN_DISABLE_IMGUI_ELEMENT
-        if (isEnabled()) {
+        if (servoMotor->isEnabled()) {
             if (ImGui::Button("Disable Operation", commandButtonSize)) {
                 servoMotor->disable();
             }

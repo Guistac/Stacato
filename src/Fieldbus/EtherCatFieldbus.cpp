@@ -652,7 +652,6 @@ namespace EtherCatFieldbus {
         //if we reached this state of the configuration, all slaves are detected and we are about to start exchanging data
         //we can trigger the onConnection event of all slaves
         for (auto slave : slaves) {
-            slave->resetData();
             slave->pushEvent("Device Connected (Fieldbus Started)", false);
             slave->onConnection();
         }
@@ -798,7 +797,7 @@ namespace EtherCatFieldbus {
         //send one last frame to all slaves to disable them
         //this way motors don't suddenly jerk to a stop when stopping the fieldbus in the middle of a movement
         for (auto slave : slaves) {
-            slave->disable();
+            slave->onDisconnection();
             slave->prepareOutputs();
         }
         ec_send_processdata();
@@ -806,7 +805,6 @@ namespace EtherCatFieldbus {
         //terminate and disable all slaves
         for (auto slave : slaves) {
             if (slave->isDetected()) {
-                slave->resetData();
                 slave->pushEvent("Device Disconnected (Fieldbus Shutdown)", false);
                 slave->onDisconnection();
             }
@@ -871,13 +869,11 @@ namespace EtherCatFieldbus {
             for (auto slave : slaves) {
                 if (slave->identity->state != slave->previousState) {
                     if (slave->isStateNone()) {
-                        slave->resetData();
                         slave->pushEvent("Device Disconnected", true);
                         slave->onDisconnection();
                         Logger::error("Slave '{}' Disconnected...", slave->getName());
                     }
                     else if (slave->previousState == EC_STATE_NONE) {
-                        slave->resetData();
                         char eventString[64];
                         sprintf(eventString, "Device Reconnected with state %s", slave->getEtherCatStateChar());
                         slave->pushEvent(eventString, false);
@@ -902,7 +898,6 @@ namespace EtherCatFieldbus {
                     //it then reattributes an configured address to the slave
                     //the function returns 1 if the slave was successfully recovered with its previous configured address
                     if (1 == ec_recover_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
-                        slave->resetData();
                         slave->pushEvent("Device Reconnected after power cycle", false);
                         slave->onConnection();
                         Logger::info("Recovered slave '{}' !", slave->getName());

@@ -59,6 +59,8 @@ class PD4_E : public EtherCatDevice {
 	bool b_startAutoSetup = false;
 	bool b_autoSetupActive = false;
 	bool b_autoSetupComplete = false;
+	
+	void resetData();
 
 	struct ControlMode {
 		enum class Mode {

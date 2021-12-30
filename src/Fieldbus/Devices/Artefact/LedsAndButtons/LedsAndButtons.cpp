@@ -3,13 +3,8 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
-bool LedsAndButtons::isDeviceReady() { return false; }
-void LedsAndButtons::enable() {}
-void LedsAndButtons::disable() {}
-bool LedsAndButtons::isEnabled() { return false; }
 void LedsAndButtons::onDisconnection() {}
 void LedsAndButtons::onConnection() {}
-void LedsAndButtons::resetData() {}
 
 void LedsAndButtons::assignIoData() {
 

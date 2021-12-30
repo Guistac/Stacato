@@ -4,19 +4,6 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 #include <tinyxml2.h>
 
-bool PD4_E::isDeviceReady() {
-	return servoMotor->isReady();
-}
-void PD4_E::enable() {
-	servoMotor->enable();
-}
-void PD4_E::disable() {
-	servoMotor->disable();
-}
-bool PD4_E::isEnabled() {
-	return servoMotor->isEnabled();
-}
-
 void PD4_E::onDisconnection() {}
 
 void PD4_E::onConnection() {}

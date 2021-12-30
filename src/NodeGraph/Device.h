@@ -2,21 +2,26 @@
 
 #include "Node.h"
 
-#define DEFINE_DEVICE_NODE(nodeName, className, deviceType, category)	public:																							\
-																		virtual const char * getSaveName() { return nodeName; }											\
-																		virtual const char* getNodeCategory() { return category; }										\
-																		className(){ setName(nodeName); }																\
-																		virtual Node::Type getType() { return Node::Type::IODEVICE; }									\
-																		virtual Device::Type getDeviceType() { return deviceType; }										\
-																		virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }	\
-																		virtual bool isOnline();																		\
-																		virtual bool isReady();																			\
-																		virtual bool isEnabled();																		\
-																		virtual bool hasError();																		\
-																		virtual const char* getErrorString();															\
-																		virtual void enable();																			\
-																		virtual void disable();																			\
-																		virtual void clearError();																		\
+#define DEFINE_DEVICE_NODE(nodeName, className, deviceType, category)\
+	public:\
+	\
+	/*Node Specific*/\
+	virtual const char * getSaveName() { return nodeName; }\
+	virtual const char* getNodeCategory() { return category; }\
+	className(){ setName(nodeName); }\
+	virtual Node::Type getType() { return Node::Type::IODEVICE; }\
+	virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }\
+	virtual void assignIoData();\
+	virtual void nodeSpecificGui();\
+	\
+	/*Device Specific*/\
+	virtual void getDeviceType();\
+	virtual void readInputs();\
+	virtual void prepareOutputs();\
+	virtual bool isDetected();\
+	virtual bool isConnected();\
+	virtual void onConnection();\
+	virtual void onDisconnection();\
 
 class Device : public Node {
 public:
@@ -36,17 +41,11 @@ public:
 	virtual void process() {}
 	virtual void readInputs() = 0;
 	virtual void prepareOutputs() = 0;
-	virtual void onConnection() = 0;
-	virtual void onDisconnection() = 0;
 
 	virtual bool isDetected() = 0;
-	virtual bool isOnline() = 0;
-	virtual bool isReady() = 0;
-	virtual bool isEnabled() = 0;
-
-	virtual void enable() = 0;
-	virtual void disable() = 0;
-
+	virtual bool isConnected() = 0;
+	virtual void onConnection() = 0;
+	virtual void onDisconnection() = 0;
 };
 
 struct DeviceType {

@@ -6,36 +6,17 @@
 
 #include "VipaModule.h"
 
-bool VipaBusCoupler_053_1EC01::isDeviceReady() {
-    return isStateOperational();
-}
-
-void VipaBusCoupler_053_1EC01::enable() {
-}
-
-void VipaBusCoupler_053_1EC01::disable() {
-}
-
-bool VipaBusCoupler_053_1EC01::isEnabled() {
-    return isStateOperational();
-}
-
 void VipaBusCoupler_053_1EC01::onDisconnection() {
-	gpioDevice->b_detected = true;
-	gpioDevice->b_online = true;
+	gpioDevice->b_detected = false;
+	gpioDevice->b_online = false;
+	gpioDevice->b_ready = false;
 }
 
 void VipaBusCoupler_053_1EC01::onConnection() {
 	gpioDevice->b_detected = true;
 	gpioDevice->b_online = true;
+	gpioDevice->b_ready = true;
 }
-
-void VipaBusCoupler_053_1EC01::resetData() {
-    gpioDevice->b_detected = false;
-    gpioDevice->b_online = false;
-    gpioDevice->b_ready = false;
-}
-
 
 void VipaBusCoupler_053_1EC01::assignIoData() {
     //by default, this node only has one pin

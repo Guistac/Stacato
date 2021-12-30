@@ -269,7 +269,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
         for (auto manufacturer : EtherCatDeviceFactory::getDevicesByManufacturer()) {
             if (ImGui::BeginMenu(manufacturer.name)) {
                 for (auto device : manufacturer.devices) {
-                    if (ImGui::MenuItem(device->getName())) output = device->getNewDeviceInstance();
+                    if (ImGui::MenuItem(device->getName())) output = device->getNewNodeInstance();
                 }
                 ImGui::EndMenu();
             }
@@ -280,7 +280,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
         for (auto manufacturer : EtherCatDeviceFactory::getDevicesByCategory()) {
             if (ImGui::BeginMenu(manufacturer.name)) {
                 for (auto device : manufacturer.devices) {
-                    if (ImGui::MenuItem(device->getName())) output = device->getNewDeviceInstance();
+                    if (ImGui::MenuItem(device->getName())) output = device->getNewNodeInstance();
                 }
                 ImGui::EndMenu();
             }

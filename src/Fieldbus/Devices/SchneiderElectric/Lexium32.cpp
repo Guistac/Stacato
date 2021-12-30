@@ -4,34 +4,6 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 #include <tinyxml2.h>
 
-bool Lexium32::isDeviceReady() {
-    switch (state) {
-    case State::OperationEnabled:
-    case State::SwitchedOn:
-    case State::QuickStopActive:
-    case State::ReadyToSwitchOn: return true;
-    default: return false;
-    }
-}
-
-void Lexium32::enable() {
-    b_enableOperation = true;
-    manualVelocityCommand_rps = 0.0;
-    profileVelocity_rps = 0.0;
-    profilePosition_r = 0.0;
-}
-
-void Lexium32::disable() {
-    b_disableOperation = true;
-    manualVelocityCommand_rps = 0.0;
-    profileVelocity_rps = 0.0;
-    profilePosition_r = 0.0;
-}
-
-bool Lexium32::isEnabled() {
-    return state == State::OperationEnabled;
-}
-
 void Lexium32::onConnection() {
     resetData();
 }
@@ -311,7 +283,7 @@ void Lexium32::readInputs() {
     //if the error is the same as the previous one, don't log it again
     if (_LastError != previousErrorCode && _LastError != 0) {
         pushEvent(_LastError);
-        disable();
+        //disable(); //TODO: Verify that this is not necessary
     }
     previousErrorCode = _LastError;
 
@@ -319,7 +291,7 @@ void Lexium32::readInputs() {
     bool actualEstop = _IO_STO_act == 0;
     if (actualEstop != b_emergencyStopActive) {
         if (actualEstop) {
-            disable();
+            //disable(); //TODO: Verify that this is not necessary
             pushEvent("Emergency Stop Triggered", true);
         }
         else pushEvent("Emergency Stop Released", false);
@@ -356,11 +328,11 @@ void Lexium32::readInputs() {
     servoMotorDevice->b_ready = actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION
 								&& (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled || state == State::QuickStopActive);
     servoMotorDevice->b_enabled = state == State::OperationEnabled;
-    servoMotorDevice->b_online = isOnline() && motorVoltagePresent;
+    servoMotorDevice->b_online = isConnected() && motorVoltagePresent;
     servoMotorDevice->b_emergencyStopActive = b_emergencyStopActive;
     //set gpio subdevice status
-    gpioDevice->b_ready = isOnline(); //gpio is always ready when lexium is in ESM operational state
-    gpioDevice->b_online = isOnline();
+    gpioDevice->b_ready = isConnected(); //gpio is always ready when lexium is in ESM operational state
+    gpioDevice->b_online = isConnected();
 }
 
 

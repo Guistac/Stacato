@@ -1,7 +1,7 @@
 #include <pch.h>
 
-#include "nodeGraph/Node.h"
-#include "nodeGraph/nodeGraph.h"
+#include "NodeGraph/Node.h"
+#include "NodeGraph/nodeGraph.h"
 
 #include "NodeEditorGui.h"
 
@@ -23,7 +23,7 @@ float Node::getTitleWidth() {
 
 void Node::titleGui() {
     ImGui::PushFont(Fonts::robotoBold15);
-    ImGui::Text(getName());
+    ImGui::Text("%s", getName());
     ImGui::PopFont();
 }
 
@@ -39,7 +39,7 @@ void Node::nodeGui() {
 
     if (getType() == Node::Type::IODEVICE) {
         std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(shared_from_this());
-        nodeIsOffline = !device->isDetected() && !device->isOnline();
+        nodeIsOffline = !device->isDetected() && !device->isConnected();
         switch (device->getDeviceType()) {
             case Device::Type::ETHERCAT_DEVICE:
                 labelColor = glm::vec4(0.7, 0.2, 0.0, 0.5f);
@@ -60,7 +60,7 @@ void Node::nodeGui() {
     if (getType() == Node::Type::CONTAINER) {
 
         NodeEditor::BeginNode(getUniqueID());
-        ImGui::Text(getName());
+        ImGui::Text("%s", getName());
         NodeEditor::Group(NodeEditor::GetNodeSize(getUniqueID()));
         NodeEditor::EndNode();
         if (NodeEditor::BeginGroupHint(getUniqueID())) {

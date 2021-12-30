@@ -7,38 +7,12 @@
 #include <imgui_internal.h>
 #include <tinyxml2.h>
 
-std::vector<EtherCatDeviceIdentification> identificationTypes = {
-    {EtherCatDeviceIdentification::Type::STATION_ALIAS, "Station Alias", "StationAlias"},
-    {EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID, "Explicit Device ID", "ExplicitDeviceID"}
-};
-
-std::vector<EtherCatDeviceIdentification>& getIdentificationTypes() {
-    return identificationTypes;
-}
-EtherCatDeviceIdentification* getIdentificationType(const char* saveName) {
-    for (EtherCatDeviceIdentification& identification : identificationTypes) {
-        if (strcmp(saveName, identification.saveName) == 0) return &identification;
-    }
-    return nullptr;
-}
-EtherCatDeviceIdentification* getIdentificationType(EtherCatDeviceIdentification::Type t) {
-    for (EtherCatDeviceIdentification& identification : identificationTypes) {
-        if (t == identification.type) return &identification;
-    }
-    return nullptr;
-}
-
 bool EtherCatDevice::isDetected() {
     return identity != nullptr && identity->state != EC_STATE_NONE;
 }
 
-bool EtherCatDevice::isOnline() {
+bool EtherCatDevice::isConnected() {
     return isDetected() && !isStateNone() && EtherCatFieldbus::isCyclicExchangeActive();;
-}
-
-bool EtherCatDevice::isReady() {
-    if (!isOnline() || !isStateOperational()) return false;
-    else return isDeviceReady();
 }
 
 bool EtherCatDevice::save(tinyxml2::XMLElement* xml) {
@@ -107,12 +81,15 @@ void EtherCatDevice::pushEvent(const char* eventMessage, bool isError) {
     eventListMutex.lock();
     eventList.push_back(new Event(eventMessage, isError));
     eventListMutex.unlock();
+	if(isError) Logger::error("{} : {}", getName(), eventMessage);
+	else Logger::info("{} : {}", getName(), eventMessage);
 }
 
 void EtherCatDevice::pushEvent(uint16_t errorCode) {
     eventListMutex.lock();
     eventList.push_back(new Event(errorCode));
     eventListMutex.unlock();
+	Logger::error("{} : Error Code 0x{:X}", getName(), errorCode);
 }
 
 void EtherCatDevice::clearEventList() {
@@ -228,4 +205,35 @@ void EtherCatDevice::downloadALStatusCode(){
 		else AlStatusCodeDownloadState = DataTransferState::State::FAILED;
 	});
 	AlStatusDownloader.detach();
+}
+
+
+
+
+
+
+
+
+
+//=============== Identification Types ====================
+
+std::vector<EtherCatDeviceIdentification> identificationTypes = {
+	{EtherCatDeviceIdentification::Type::STATION_ALIAS, "Station Alias", "StationAlias"},
+	{EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID, "Explicit Device ID", "ExplicitDeviceID"}
+};
+
+std::vector<EtherCatDeviceIdentification>& getIdentificationTypes() {
+	return identificationTypes;
+}
+EtherCatDeviceIdentification* getIdentificationType(const char* saveName) {
+	for (EtherCatDeviceIdentification& identification : identificationTypes) {
+		if (strcmp(saveName, identification.saveName) == 0) return &identification;
+	}
+	return nullptr;
+}
+EtherCatDeviceIdentification* getIdentificationType(EtherCatDeviceIdentification::Type t) {
+	for (EtherCatDeviceIdentification& identification : identificationTypes) {
+		if (t == identification.type) return &identification;
+	}
+	return nullptr;
 }

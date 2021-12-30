@@ -31,6 +31,8 @@ public:
     std::shared_ptr<NodePin> digitalIn5 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI5", NodePinFlags_DisableDataField);
 
 
+	void resetData();
+	
     //===== drive status =====
 
     enum class State {
