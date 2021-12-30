@@ -22,6 +22,6 @@
 - Add Groups to Machine Manager
 
 ### Housekeeping
-- Refactor Node Pins
-- Profile Generator Class & Node Pin Type
+- Refactor Node Pins (to hold void* of data instead of having a field for each type)
+- Add onPinUpdate method to nodes for settings propagation
 
