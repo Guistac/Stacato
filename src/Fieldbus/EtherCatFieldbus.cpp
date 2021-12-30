@@ -704,7 +704,7 @@ namespace EtherCatFieldbus {
             if (referenceClockError_nanoseconds > processInterval_nanoseconds / 2) referenceClockError_nanoseconds -= processInterval_nanoseconds;
             averageDCTimeDelta_nanoseconds = averageDCTimeDelta_nanoseconds * 0.95 + (double)abs(referenceClockError_nanoseconds) * 0.05;
             if (referenceClockError_nanoseconds > 0) { clockDriftCorrectionintegral++; }
-            if (referenceClockError_nanoseconds < 0) { clockDriftCorrectionintegral--; }
+            else if (referenceClockError_nanoseconds < 0) { clockDriftCorrectionintegral--; }
             int64_t masterClockCorrection_nanoseconds = -(referenceClockError_nanoseconds / 100) - (clockDriftCorrectionintegral / 20);
             previousCycleStartTime_nanoseconds = cycleStartTime_nanoseconds;
             cycleStartTime_nanoseconds += processInterval_nanoseconds + masterClockCorrection_nanoseconds;

@@ -10,6 +10,12 @@
 
 #include "Gui/Assets/Fonts.h"
 
+int sleepMicroseconds (uint32_t usec){
+   struct timespec ts;
+   ts.tv_sec = usec / 1000000;
+   ts.tv_nsec = (usec % 1000000) * 1000;
+   return nanosleep(&ts, NULL);
+}
 void OscDevice::assignIoData(){}
 
 void OscDevice::connect(){
@@ -22,14 +28,73 @@ void OscDevice::connect(){
 	b_enabled = true;
 	runtime = std::thread([this](){
 		Logger::critical("START OSC THREAD");
+
+		float frequency = 1000.0;
+		long long interval_nanoseconds = 1000000000.0 / frequency;
+		
+		long long cycleTime = Timing::getSystemTime_nanoseconds();
+		long long previousTime = cycleTime - interval_nanoseconds;
+		long long cycleDeltaTime;
+		long long cycleDeltaTimeError;
+		long long cycleDeltaTimeErrorSmoothed = 0.0;
+		long long sleepTime = 0;
+		int integralTerm = 0;
+		
+		long long printTime = 0;
+		int cycleCount = 0;
+		
 		while(b_enabled){
+			
+			previousTime = cycleTime;
+			cycleTime = Timing::getSystemTime_nanoseconds();
+			cycleDeltaTime = cycleTime - previousTime;
+			long long deltaTimeError = interval_nanoseconds - cycleDeltaTime;
+			float deltaTimeErrorPercentage = 100.0 * ((float)deltaTimeError / (float)interval_nanoseconds);
+			
+#define METHOD_1
+#ifdef METHOD_1
+			
+			//timestamp based method
+			
+			int64_t timeError_nanoseconds = cycleTime % interval_nanoseconds;
+			if (timeError_nanoseconds > interval_nanoseconds / 2) timeError_nanoseconds -= interval_nanoseconds;
+			
+			if (timeError_nanoseconds > 0) { integralTerm++; }
+			else if (timeError_nanoseconds < 0) { integralTerm--; }
+			
+			sleepTime = interval_nanoseconds - (timeError_nanoseconds / 2) - (integralTerm * 5000);
+			if(sleepTime < 0) sleepTime = 0;
+			
+#else
+			
+			//interval based method
+			
+			int64_t timeError_nanoseconds = interval_nanoseconds - cycleDeltaTime;
+			
+			if (timeError_nanoseconds > 0) { integralTerm++; }
+			else if (timeError_nanoseconds < 0) { integralTerm--; }
+			
+			sleepTime = interval_nanoseconds + (timeError_nanoseconds / 4) + (integralTerm * 5000);
+			if(sleepTime < 0) sleepTime = 0;
+			
+#endif
+			
+			sleepMicroseconds(sleepTime / 1000);
 			
 			std::shared_ptr<OscMessage> message = std::make_shared<OscMessage>("/Stacato/TestMessage");
 			message->addFloat(Timing::getProgramTime_seconds());
 			oscSocket->send(message);
 			
-			Logger::warn("{}", Timing::getProgramTime_seconds());
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			cycleCount++;
+			
+			float errorPercentage = 100.0f * (float)timeError_nanoseconds / (float)interval_nanoseconds;
+			//Logger::info("error: {}%  {}  sleep: {}  integral: {}", deltaTimeErrorPercentage, deltaTimeError, sleepTime, integralTerm);
+			
+			if(cycleTime > printTime + 1000000000){
+				printTime = cycleTime;
+				Logger::warn("Cycles Per Second: {}", cycleCount);
+				cycleCount = 0;
+			}
 		}
 		Logger::critical("EXIT OSC THREAD");
 	});
