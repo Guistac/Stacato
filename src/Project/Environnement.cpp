@@ -13,6 +13,7 @@
 #include "Motion/Playback.h"
 
 #include "Networking/Network.h"
+#include "Networking/NetworkDevice.h"
 
 namespace Environnement {
 
@@ -96,7 +97,6 @@ void startSimulation(){
 	simulationStartTime_nanoseconds = Timing::getProgramTime_nanoseconds();
 	
 	environnementSimulator = std::thread([](){
-		Logger::info("Started Environnement Simulation");
 		while(b_isRunning){
 			updateSimulation();
 			//run simulation at 100Hz and free the cpu core in between processing cycles
@@ -104,10 +104,15 @@ void startSimulation(){
 		}
 		Logger::info("Stopped Environnement Simulation");
 	});
+	
+	for(auto& networkDevice : getNetworkDevices()) networkDevice->connect();
+	
+	Logger::info("Started Environnement Simulation");
 }
 
 void stopSimulation(){
 	disableAllMachines();
+	for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
 	b_isRunning = false;
 	if(environnementSimulator.joinable()) environnementSimulator.join();
 }
@@ -126,6 +131,7 @@ void startHardware(){
 			Logger::warn("Failed to Start Environnement");
 			return;
 		}
+		for(auto& networkDevice : getNetworkDevices()) networkDevice->connect();
 		
 		Logger::info("Started Environnement Hardware");
 		b_isRunning = true;
@@ -137,6 +143,7 @@ void startHardware(){
 
 void stopHardware(){
 	EtherCatFieldbus::stop();
+	for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
 	b_isRunning = false;
 }
 
@@ -206,6 +213,7 @@ long long int getDeltaTime_nanoseconds(){
 std::shared_ptr<NodeGraph> nodeGraph = std::make_shared<NodeGraph>();
 std::vector<std::shared_ptr<EtherCatDevice>> etherCatDevices;
 std::vector<std::shared_ptr<Machine>> machines;
+std::vector<std::shared_ptr<NetworkDevice>> networkDevices;
 
 std::shared_ptr<Machine> selectedMachine;
 std::shared_ptr<EtherCatDevice> selectedEtherCatDevice;
@@ -216,6 +224,10 @@ std::vector<std::shared_ptr<EtherCatDevice>>& getEtherCatDevices() {
 
 std::vector<std::shared_ptr<Machine>>& getMachines() {
 	return machines;
+}
+
+std::vector<std::shared_ptr<NetworkDevice>>& getNetworkDevices(){
+	return networkDevices;
 }
 
 void enableAllMachines() {
@@ -253,6 +265,7 @@ void addNode(std::shared_ptr<Node> node) {
 					etherCatDevices.push_back(std::dynamic_pointer_cast<EtherCatDevice>(deviceNode));
 					break;
 				case Device::Type::NETWORK_DEVICE:
+					networkDevices.push_back(std::dynamic_pointer_cast<NetworkDevice>(deviceNode));
 					break;
 				case Device::Type::USB_DEVICE:
 					break;
@@ -287,6 +300,13 @@ void removeNode(std::shared_ptr<Node> node){
 				}
 			}break;
 			case Device::Type::NETWORK_DEVICE: {
+				std::shared_ptr<NetworkDevice> networkDeviceNode = std::dynamic_pointer_cast<NetworkDevice>(deviceNode);
+				for (int i = 0; i < networkDevices.size(); i++) {
+					if (networkDevices[i] == networkDeviceNode) {
+						networkDevices.erase(networkDevices.begin() + i);
+						break;
+					}
+				}
 			}break;
 			case Device::Type::USB_DEVICE: {
 			}break;

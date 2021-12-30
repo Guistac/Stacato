@@ -18,7 +18,7 @@
 
 #include "Motion/Machine/DeadMansSwitch.h"
 
-#include "Networking/OscDevice.h"
+#include "Networking/Osc/OscDevice.h"
 
 namespace NodeFactory {
 

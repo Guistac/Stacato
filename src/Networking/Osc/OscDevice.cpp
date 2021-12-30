@@ -2,7 +2,7 @@
 
 #include "OscDevice.h"
 
-#include "Network.h"
+#include "Networking/Network.h"
 
 #include <imgui.h>
 #include <tinyxml2.h>
@@ -15,10 +15,32 @@ void OscDevice::assignIoData(){}
 void OscDevice::connect(){
 	oscSocket = std::make_shared<OscSocket>(4096);
 	oscSocket->open(listeningPort, std::vector<int>({remoteIP[0], remoteIP[1], remoteIP[2], remoteIP[3]}), remotePort);
+	
+	if(!oscSocket->isOpen()) return Logger::error("{} : Could not start Osc Socket", getName());
+	Logger::info("{} : Started Osc Socket, Remote Address: {}.{}.{}.{}:{}  Listening Port: {}", getName(), remoteIP[0], remoteIP[1], remoteIP[2], remoteIP[3], remotePort, listeningPort);
+	
+	b_enabled = true;
+	runtime = std::thread([this](){
+		Logger::critical("START OSC THREAD");
+		while(b_enabled){
+			
+			std::shared_ptr<OscMessage> message = std::make_shared<OscMessage>("/Stacato/TestMessage");
+			message->addFloat(Timing::getProgramTime_seconds());
+			oscSocket->send(message);
+			
+			Logger::warn("{}", Timing::getProgramTime_seconds());
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		}
+		Logger::critical("EXIT OSC THREAD");
+	});
+	
 }
 
 void OscDevice::disconnect(){
+	b_enabled = false;
+	runtime.join();
 	oscSocket = nullptr;
+	Logger::info("{} : Closed Osc Socket", getName());
 }
 
 bool OscDevice::isConnected(){}

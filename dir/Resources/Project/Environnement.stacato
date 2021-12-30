@@ -4,8 +4,8 @@
             <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="OscDevice" Split="false" CustomName="Osc Device" UniqueID="1">
                 <NodeEditorPosition x="677" y="-1093"/>
                 <NodeSpecificData>
-                    <RemoteIP ipv4-0="1" ipv4-1="2" ipv4-2="3" ipv4-3="4"/>
-                    <Ports send="123" receive="456"/>
+                    <RemoteIP ipv4-0="192" ipv4-1="168" ipv4-2="1" ipv4-3="3"/>
+                    <Ports send="6969" receive="456"/>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins/>

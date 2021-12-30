@@ -5,7 +5,6 @@
 #include <OscMessage.h>
 
 class OscSocket {
-
 public:
 
 	OscSocket(size_t bufferSize);
@@ -16,14 +15,14 @@ public:
 	bool isOpen();
 
 	void send(std::shared_ptr<OscMessage> message);
-	void send(char* buffer, int size);
+	
 	bool messageAvailable();
 	std::vector<std::shared_ptr<OscMessage>> getMessages();
 
 private:
 
 	bool b_isOpen = false;
-	std::unique_ptr<asio::ip::udp::socket> socket;
+	std::unique_ptr<asio::ip::udp::socket> udpSocket;
 
 	void asyncReceive();
 	std::vector<char> inBuffer;

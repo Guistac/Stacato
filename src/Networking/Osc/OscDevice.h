@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NetworkDevice.h"
+#include "Networking/NetworkDevice.h"
 
 class OscSocket;
 
@@ -30,7 +30,11 @@ class OscDevice : public NetworkDevice{
 	void networkGui();
 	void dataGui();
 	
+	bool b_enabled = false;
+	
 	std::shared_ptr<OscSocket> oscSocket;
+	
+	std::thread runtime;
 	
 	int remoteIP[4] = {0, 0, 0, 0};
 	int remotePort = 0;

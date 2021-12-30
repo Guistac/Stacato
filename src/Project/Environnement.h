@@ -5,6 +5,7 @@ class Node;
 class EtherCatDevice;
 class Machine;
 class Plot;
+class NetworkDevice;
 
 namespace Environnement{
 
@@ -53,6 +54,7 @@ namespace Environnement{
 	//nodegraph interface
 	std::vector<std::shared_ptr<EtherCatDevice>>& getEtherCatDevices();
 	std::vector<std::shared_ptr<Machine>>& getMachines();
+	std::vector<std::shared_ptr<NetworkDevice>>& getNetworkDevices();
 
 	void addNode(std::shared_ptr<Node> node);
 	void removeNode(std::shared_ptr<Node> node);

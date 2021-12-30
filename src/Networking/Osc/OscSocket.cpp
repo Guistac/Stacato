@@ -1,37 +1,33 @@
 #include <pch.h>
 #include "OscSocket.h"
 
-#include "Network.h"
+#include "Networking/Network.h"
 
 OscSocket::OscSocket(size_t bufferSize) : inBuffer(bufferSize) {}
 
-OscSocket::~OscSocket() {
-	close();
-}
+OscSocket::~OscSocket() { close(); }
 
 void OscSocket::open(int receivingPort, std::vector<int> destinationIp, int destinationPort) {
-	socket = Network::getUdpSocket(receivingPort, destinationIp, destinationPort);
-	if (socket == nullptr) return;
-	while (!socket->is_open()) {}
+	b_isOpen = false;
+	udpSocket = Network::getUdpSocket(receivingPort, destinationIp, destinationPort);
+	if (udpSocket == nullptr) return;
+	while (!udpSocket->is_open()) {}
 	b_isOpen = true;
 	asyncReceive();
-	Logger::debug("Started OSC Socket, listening on port {}, talking to remote address {}.{}.{}.{} on port {}",
-		receivingPort, destinationIp[0], destinationIp[1], destinationIp[2], destinationIp[3], destinationPort);
 }
 
 void OscSocket::close() {
 	if (isOpen()) {
 		try {
-			socket->close();
-			socket.release();
+			udpSocket->close();
+			udpSocket.release();
 			b_isOpen = false;
 			mutex.lock();
 			inPackets.clear();
 			mutex.unlock();
-			Logger::info("Closing OSC Socket");
 		}
 		catch (std::exception e) {
-			Logger::info("Failed To Close OSC socket: {}", e.what());
+			Logger::error("Failed To Close OSC socket: {}", e.what());
 		}
 	}
 }
@@ -64,7 +60,7 @@ void OscSocket::send(std::shared_ptr<OscMessage> message) {
 	int size = 1024;
 	int bufferSize = message->getBuffer(outBuffer, size);
 	try {
-		socket->async_send(asio::buffer(outBuffer, bufferSize), [](asio::error_code error, size_t byteCount) {
+		udpSocket->async_send(asio::buffer(outBuffer, bufferSize), [](asio::error_code error, size_t byteCount) {
 			if (error) Logger::debug("Failed to send OSC Message: {}", error.message());
 		});
 	}
@@ -73,22 +69,11 @@ void OscSocket::send(std::shared_ptr<OscMessage> message) {
 	}
 }
 
-void OscSocket::send(char* buffer, int size) {
-	if (!isOpen()) return;
-	try {
-		socket->async_send(asio::buffer(buffer, size), [](asio::error_code error, size_t byteCount) {
-			if (error) Logger::debug("Failed to send OSC Message: {}", error.message());
-			});
-	}
-	catch (std::exception e) {
-		Logger::error("Failed to start async_send: {}", e.what());
-	}
-}
 
 void OscSocket::asyncReceive() {
 	try {
 		auto buffer = asio::buffer(inBuffer.data(), inBuffer.size());
-		socket->async_receive(buffer, [this](asio::error_code error, size_t byteCount) {
+		udpSocket->async_receive(buffer, [this](asio::error_code error, size_t byteCount) {
 			if (error) {
 				Logger::debug("Failed to receive OSC Message: {}", error.message());
 			}else {
@@ -98,6 +83,7 @@ void OscSocket::asyncReceive() {
 					inPackets.push_back(message);
 				}
 				mutex.unlock();
+				//on receive
 				asyncReceive();
 			}
 		});
