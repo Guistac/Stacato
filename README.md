@@ -22,8 +22,6 @@
 - Add Groups to Machine Manager
 
 ### Housekeeping
-- Refactor Environnement to prepare simulation mode and network nodes
-- Refactor Device Nodes
 - Refactor Node Pins
 - Profile Generator Class & Node Pin Type
 
