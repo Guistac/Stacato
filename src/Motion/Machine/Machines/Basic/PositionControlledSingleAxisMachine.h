@@ -30,4 +30,5 @@ class PositionControlledSingleAxisMachine : public Machine{
 
 	double rapidVelocity_machineUnitsPerSecond = 0.0;
 	double rapidAcceleration_machineUnitsPerSecond = 0.0;
+
 };

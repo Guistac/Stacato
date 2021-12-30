@@ -8,6 +8,7 @@
 
 #include <tinyxml2.h>
 
+#include "Project/Environnement.h"
 
 void PositionControlledSingleAxisMachine::assignIoData() {
 	addIoData(positionControlledAxisPin);
@@ -279,14 +280,46 @@ void PositionControlledSingleAxisMachine::onDisableHardware() {
 
 
 void PositionControlledSingleAxisMachine::simulateProcess() {
-	//TODO: Simulate Single Axis
+	
+	//TODO: this is absolutely not working
+	/*
+	if (!isAxisConnected()) return;
+	std::shared_ptr<PositionControlledAxis> axis = getAxis();
+	
+	//Update Time
+	double profileTime_seconds = Environnement::getTime_seconds();
+	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
+	
+	axis->profileTime_seconds = profileTime_seconds;
+	axis->profileTimeDelta_seconds = profileDeltaTime_seconds;
+	axis->process();
+
+	positionPin->set(axis->profilePosition_axisUnits);
+	velocityPin->set(axis->profileVelocity_axisUnitsPerSecond);
+
+	//Handle parameter track playback
+	if (positionParameter->hasParameterTrack()) {
+		double previousProfilePosition_machineUnits = axis->getProfilePosition_axisUnits();
+		AnimatableParameterValue playbackPosition;
+		positionParameter->getActiveTrackParameterValue(playbackPosition);
+		axis->profilePosition_axisUnits = playbackPosition.realValue;
+		axis->profileVelocity_axisUnitsPerSecond = (playbackPosition.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
+	}
+	*/
+	
+	
 }
 
 bool PositionControlledSingleAxisMachine::isSimulationReady(){
-	return false;
+	return isAxisConnected();
 }
 
 void PositionControlledSingleAxisMachine::onEnableSimulation() {
+	/*
+	if (!isAxisConnected()) return;
+	std::shared_ptr<PositionControlledAxis> axis = getAxis();
+	axis->profilePosition_axisUnits = axis->getLowPositionLimit();
+	*/
 }
 
 void PositionControlledSingleAxisMachine::onDisableSimulation() {
