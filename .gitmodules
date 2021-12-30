@@ -45,3 +45,9 @@
 [submodule "dependencies/magnum"]
 	path = dependencies/magnum
 	url = https://github.com/mosra/magnum.git
+[submodule "src/Networking/dependencies/tinyosc"]
+	path = src/Networking/dependencies/tinyosc
+	url = https://github.com/Guistac/tinyosc.git
+[submodule "dependencies/tinyosc"]
+	path = dependencies/tinyosc
+	url = https://github.com/Guistac/tinyosc.git

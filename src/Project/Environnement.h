@@ -13,7 +13,11 @@ namespace Environnement{
 	bool save(const char* filePath);
 	bool load(const char* filePath);
 
+	void initialize();
 	void terminate();
+
+	void open();
+	void close();
 
 	//project text information
 	void setName(const char* _name);

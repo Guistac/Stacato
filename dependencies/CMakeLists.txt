@@ -168,6 +168,19 @@ target_compile_definitions(asio INTERFACE
     ASIO_STANDALONE
 )
 
+#=================== TINYOSC =====================
+
+add_library(tinyosc
+	"tinyosc/tinyosc.c"
+	"tinyosc/tinyosc.h"
+	"tinyosc/OscMessage.cpp"
+	"tinyosc/OscMessage.h"
+)
+
+target_include_directories(tinyosc PUBLIC "tinyosc/")
+
+set_target_properties(tinyosc PROPERTIES FOLDER "Dependencies/Networking")
+
 #================== GLM ====================
 
 add_library(glm INTERFACE)

@@ -1,29 +1,32 @@
 #pragma once
 
-#include "NetworkDevice.h"
+#include <asio.hpp>
+#include <tinyosc.h>
+#include <OscMessage.h>
 
-/*
-struct OscData{
-	enum class Type{
-		FLOAT_DATA,
-		DOUBLE_DATA,
-		INTEGER_DATA,
-		BOOLEAN_DATA
-	};
-	Type type;
-	char saveName[64];
-	char displayName[64];
+class OscSocket {
+
+public:
+
+	OscSocket(size_t bufferSize);
+	~OscSocket();
+
+	void open(int listeningPort, std::vector<int>, int remotePort);
+	void close();
+	bool isOpen();
+
+	void send(std::shared_ptr<OscMessage> message);
+	void send(char* buffer, int size);
+	bool messageAvailable();
+	std::vector<std::shared_ptr<OscMessage>> getMessages();
+
+private:
+
+	bool b_isOpen = false;
+	std::unique_ptr<asio::ip::udp::socket> socket;
+
+	void asyncReceive();
+	std::vector<char> inBuffer;
+	std::vector<std::shared_ptr<OscMessage>> inPackets;
+	std::mutex mutex;
 };
-
-struct OscMessage{
-	char address[256] = "/Stacato/";
-	std::vector<OscData> arguments;
-	uint64_t timestamp = 0;
-};
-*/
-
-class OscSocket : public NetworkDevice{
-	DEFINE_NETWORK_DEVICE(OscSocket, "Osc Socket", "OscSocket")
-};
-
-

@@ -13,6 +13,8 @@
 	virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }\
 	virtual void assignIoData();\
 	virtual void nodeSpecificGui();\
+	virtual bool load(tinyxml2::XMLElement* xml);\
+	virtual bool save(tinyxml2::XMLElement* xml);\
 	\
 	/*Device Specific*/\
 	virtual Device::Type getDeviceType() { return Type::NETWORK_DEVICE; }\
@@ -34,4 +36,6 @@ public:
 	
 	virtual void connect() = 0;
 	virtual void disconnect() = 0;
+	
+	
 };

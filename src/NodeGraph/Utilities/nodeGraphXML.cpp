@@ -123,7 +123,8 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 							loadedNode = EtherCatDeviceFactory::getDeviceBySaveName(nodeSaveNameString);
 							break;
 						case Device::Type::NETWORK_DEVICE:
-							return Logger::warn("Loading of network devices is unsupported");
+							loadedNode = NodeFactory::getNetworkIoNodeBySaveName(nodeSaveNameString);
+							break;
 						case Device::Type::USB_DEVICE:
 							return Logger::warn("Loading of usb devices is unsupported");
 					}

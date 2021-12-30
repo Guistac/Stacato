@@ -35,8 +35,14 @@ int main() {
 	EtherCatDeviceFactory::loadDevices();
 	NodeFactory::loadNodes();
 	
-	//load environnement and plots, initialize network interface card
+	//load network interfaces, initialize networking
+	Environnement::initialize();
+	
+	//load environnement and plots, configure ethercat network interfaces
 	Project::load("Project");
+	
+	//opens ethercat network interface
+	Environnement::open();
 
 	//application gui runtime, function returns when application is quit
 	ApplicationWindow::open(3500,2000);

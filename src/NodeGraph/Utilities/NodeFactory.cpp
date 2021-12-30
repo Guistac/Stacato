@@ -18,7 +18,7 @@
 
 #include "Motion/Machine/DeadMansSwitch.h"
 
-#include "Networking/OscSocket.h"
+#include "Networking/OscDevice.h"
 
 namespace NodeFactory {
 
@@ -76,7 +76,7 @@ namespace NodeFactory {
 		};
 		
 		allNetworkIoNodes = {
-			new OscSocket()
+			new OscDevice()
 		};
 
 		//sort devices by manufacturer

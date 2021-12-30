@@ -100,6 +100,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	#=== Network ===
 	soem
 	asio
+	tinyosc
 
 	#=== Saving & Loading Files ====
 	nfd

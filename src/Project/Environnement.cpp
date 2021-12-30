@@ -12,6 +12,8 @@
 
 #include "Motion/Playback.h"
 
+#include "Networking/Network.h"
+
 namespace Environnement {
 
 bool b_isStarting = false;
@@ -33,6 +35,25 @@ void stopHardware();
 void updateSimulation();
 std::thread environnementSimulator;
 
+void initialize(){
+	if(isRunning()) stop();
+	EtherCatFieldbus::updateNetworkInterfaceCardList();
+	Network::init();
+}
+
+void terminate(){
+	if(isRunning()) stop();
+	EtherCatFieldbus::terminate();
+	Network::terminate();
+}
+
+void open(){
+	EtherCatFieldbus::init();
+}
+
+void close(){
+	EtherCatFieldbus::terminate();
+}
 
 void start(){
 	if(b_isSimulating) startSimulation();
@@ -42,11 +63,6 @@ void start(){
 void stop(){
 	if(b_isSimulating) stopSimulation();
 	else stopHardware();
-}
-
-void terminate(){
-	if(isRunning()) stop();
-	EtherCatFieldbus::terminate();
 }
 
 bool isReady(){
