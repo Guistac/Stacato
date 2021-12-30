@@ -1,4 +1,5 @@
-<Environnement name="Default Environnement">
+<Environnement name="Starmania" notes="This is a Stacato Project.
+Starmania V1.0">
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa A-J2" UniqueID="1">
@@ -987,6 +988,7 @@
                     <Identification Type="StationAlias" StationAlias="0"/>
                     <KinematicLimits velocityLimit_rps="10" accelerationLimit_rpsps="1" defaultManualAcceleration_rpsps="1"/>
                     <InvertDirectionOfMovement Invert="false"/>
+                    <MaxFollowingError revolutions="0"/>
                     <CurrentLimit amps="0"/>
                     <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="0"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
@@ -1019,6 +1021,7 @@
                     <Identification Type="StationAlias" StationAlias="140"/>
                     <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="100" defaultManualAcceleration_rpsps="10"/>
                     <InvertDirectionOfMovement Invert="true"/>
+                    <MaxFollowingError revolutions="0"/>
                     <CurrentLimit amps="18"/>
                     <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="18"/>
                     <NegativeLimitSwitch Pin="DI0" NormallyClosed="true"/>
@@ -1355,7 +1358,7 @@
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en0" Name="en0"/>
+        <Primary Description="en4" Name="en4"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="5" ProcessDataTimeoutMilliseconds="3.5" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>

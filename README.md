@@ -26,5 +26,4 @@
 - Refactor Device Nodes
 - Refactor Node Pins
 - Profile Generator Class & Node Pin Type
-- Clean Up Lexium Node
 

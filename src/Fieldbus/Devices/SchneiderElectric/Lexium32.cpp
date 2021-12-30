@@ -117,13 +117,13 @@ void Lexium32::assignIoData() {
     rxPdoAssignement.addEntry(0x6040, 0x0, 16, "DCOMcontrol", &DCOMcontrol);
     rxPdoAssignement.addEntry(0x6060, 0x0, 8, "DCOMopmode", &DCOMopmode);
     rxPdoAssignement.addEntry(0x607A, 0x0, 32, "PPp_target", &PPp_target);
-    rxPdoAssignement.addEntry(0x60FF, 0x0, 32, "PVv_target", &PVv_target);
     rxPdoAssignement.addEntry(0x3008, 0x11, 16, "IO_DQ_set", &IO_DQ_set);
 
     txPdoAssignement.addNewModule(0x1A03);
     txPdoAssignement.addEntry(0x6041, 0x0, 16, "_DCOMstatus", &_DCOMstatus);
     txPdoAssignement.addEntry(0x6061, 0x0, 8, "_DCOMopmd_act", &_DCOMopmd_act);
     txPdoAssignement.addEntry(0x6064, 0x0, 32, "_p_act", &_p_act);
+	txPdoAssignement.addEntry(0x301E, 0x14, 32, "_p_dif_usr", &_p_dif_usr);
     txPdoAssignement.addEntry(0x606C, 0x0, 32, "_v_act", &_v_act);
     txPdoAssignement.addEntry(0x301E, 0x3, 16, "_I_act", &_I_act);
     txPdoAssignement.addEntry(0x603F, 0x0, 16, "_LastError", &_LastError);
@@ -205,29 +205,7 @@ bool Lexium32::startupConfiguration() {
     uint32_t CTRL_v_max = _M_n_max * velocityUnitsPerRpm; //Velocity Limit in usr_v units
     if (!writeSDO_U32(0x3011, 0x10, CTRL_v_max)) return false;
 
-    //=============== PROCESS DATA ASSIGNEMENT =============== 
-
-    /*
-    rxPdoAssignement.clear();
-    txPdoAssignement.clear();
-
-    rxPdoAssignement.addNewModule(0x1603);
-    rxPdoAssignement.addEntry(0x6040, 0x0, 16, "DCOMcontrol", &DCOMcontrol);
-    rxPdoAssignement.addEntry(0x6060, 0x0, 8, "DCOMopmode", &DCOMopmode);
-    rxPdoAssignement.addEntry(0x607A, 0x0, 32, "PPp_target", &PPp_target);
-    rxPdoAssignement.addEntry(0x60FF, 0x0, 32, "PVv_target", &PVv_target);
-    rxPdoAssignement.addEntry(0x3008, 0x11, 16, "IO_DQ_set", &IO_DQ_set);
-
-    txPdoAssignement.addNewModule(0x1A03);
-    txPdoAssignement.addEntry(0x6041, 0x0, 16, "_DCOMstatus", &_DCOMstatus);
-    txPdoAssignement.addEntry(0x6061, 0x0, 8, "_DCOMopmd_act", &_DCOMopmd_act);
-    txPdoAssignement.addEntry(0x6064, 0x0, 32, "_p_act", &_p_act);
-    txPdoAssignement.addEntry(0x606C, 0x0, 32, "_v_act", &_v_act);
-    txPdoAssignement.addEntry(0x301E, 0x3, 16, "_I_act", &_I_act);
-    txPdoAssignement.addEntry(0x603F, 0x0, 16, "_LastError", &_LastError);
-    txPdoAssignement.addEntry(0x3008, 0x1, 16, "_IO_act", &_IO_act);
-    txPdoAssignement.addEntry(0x3008, 0x26, 16, "_IO_STO_act", &_IO_STO_act);
-    */
+    //=============== PROCESS DATA ASSIGNEMENT ===============
 
     rxPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C12);
     txPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C13);
@@ -242,10 +220,9 @@ bool Lexium32::startupConfiguration() {
     uint32_t sync0offset_nanoseconds = sync0Interval_nanoseconds / 2;
     ec_dcsync0(getSlaveIndex(), true, sync0Interval_nanoseconds, sync0offset_nanoseconds);
 
-
-
     //TODO: does this still apply with a lot of slaves ?
     //if propagation delays add up, might the last slaves have their sync event happen at the same time as their frame receive time?
+	//if so should the sync event happen earlier or later inside the cycle?
 
     return true;
 }
@@ -262,6 +239,7 @@ void Lexium32::readInputs() {
     //_DCOMstatus   (uint16_t)  2
     //_DCOMopmd_act (uint8_t)   1
     //_p_act        (int32_t)   4
+	//_p_dif_usr	(int32_t)	4
     //_v_act        (int32_t)   4
     //_tq_act       (int16_t)   2
     //_LastError    (uint16_t)  2
@@ -298,9 +276,8 @@ void Lexium32::readInputs() {
     if (previousOperatingMode != actualOperatingMode) {
         manualVelocityCommand_rps = 0.0;
         profileVelocity_rps = 0.0;
-        //velocityCommand->set(0.0);
     }
-
+	
     State previousState = state;
 
     //find the state using the state bits
@@ -349,6 +326,8 @@ void Lexium32::readInputs() {
         b_emergencyStopActive = actualEstop;
     }
 
+	actualFollowingError_r = (double)_p_dif_usr / (double)positionUnitsPerRevolution;
+	
     //set the encoder position in revolution units and velocity in revolutions per second
     servoMotorDevice->positionRaw_positionUnits = (double)_p_act / (double)positionUnitsPerRevolution;
     servoMotorDevice->velocity_positionUnitsPerSecond = (double)_v_act / ((double)velocityUnitsPerRpm * 60.0);
@@ -374,7 +353,8 @@ void Lexium32::readInputs() {
     digitalIn5->set(b_invertDI5 ? !DI5 : DI5);
 
     //set actuator subdevice
-    servoMotorDevice->b_ready = actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION && (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled || state == State::QuickStopActive);
+    servoMotorDevice->b_ready = actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION
+								&& (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled || state == State::QuickStopActive);
     servoMotorDevice->b_enabled = state == State::OperationEnabled;
     servoMotorDevice->b_online = isOnline() && motorVoltagePresent;
     servoMotorDevice->b_emergencyStopActive = b_emergencyStopActive;
@@ -397,29 +377,39 @@ void Lexium32::prepareOutputs() {
     if (digitalOut1->isConnected()) digitalOut1->set(digitalOut1->getLinks().front()->getInputData()->getBoolean());
     if (digitalOut2->isConnected()) digitalOut2->set(digitalOut2->getLinks().front()->getInputData()->getBoolean());
 
-    double now_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
-    double deltaT_seconds = now_seconds - previousProfilePointTime_seconds;
-    previousProfilePointTime_seconds = now_seconds;
-
-    //internal profile generator
-    if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY) {
-        if (manualVelocityCommand_rps > profileVelocity_rps) {
-            double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
-            profileVelocity_rps += deltaV_rps;
-            if (profileVelocity_rps > manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
-        }
-        else if (manualVelocityCommand_rps < profileVelocity_rps) {
-            double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
-            profileVelocity_rps -= deltaV_rps;
-            if (profileVelocity_rps < manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
-        }
-        profilePosition_r = actualPosition->getReal();
-    }
-    else if (actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION) {
-        //TODO:
-        //in this operating mode, we verify that the input velocity and acceleration don't exceed internal values
-    }
-
+	bool b_externalControl = servoMotorLink->isConnected();
+	
+    //------ internal profile generator ------
+	double deltaT_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
+	if (!b_externalControl) {
+		if(!servoMotorDevice->isEnabled()){
+			//if the servo motor is not enabled
+			//update the motion profile with realtime encoder position data
+			profilePosition_r = servoMotorDevice->positionRaw_positionUnits;
+			profileVelocity_rps = servoMotorDevice->velocity_positionUnitsPerSecond;
+		}else{
+			//if the servo motor is enabled but not connected to another node
+			//generate new profile position points using the internal profile generator in manual velocity control
+			double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
+			if (manualVelocityCommand_rps > profileVelocity_rps) {
+				profileVelocity_rps += deltaV_rps;
+				if (profileVelocity_rps > manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
+			}
+			else if (manualVelocityCommand_rps < profileVelocity_rps) {
+				profileVelocity_rps -= deltaV_rps;
+				if (profileVelocity_rps < manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
+			}
+			double deltaP_r = profileVelocity_rps * deltaT_seconds;
+			profilePosition_r += deltaP_r;
+		}
+	}else{
+		//if the servo motor is enable and controlled externally
+		//update the motion profile using the profile position points send to the servo motor
+		double newProfilePosition_r = servoMotorDevice->getCommand();
+		profileVelocity_rps = (newProfilePosition_r - profilePosition_r) / deltaT_seconds;
+		profilePosition_r = servoMotorDevice->getCommand();
+	}
+	
     //handle commands from subdevices
     if (servoMotorDevice->b_setEnabled) {
         servoMotorDevice->b_setEnabled = false;
@@ -461,12 +451,10 @@ void Lexium32::prepareOutputs() {
         b_switchedOn = false;
     }
 
-
     //========== PREPARE RXPDO OUTPUTS ==========
     //DCOMcontrol   (uint16_t)  2
     //DCOMopmode    (int8_t)    1
     //PPp_target    (int32_t)   4
-    //PVv_target    (int32_t)   4
     //IO_DQ_set     (uint16_t)  2
 
     //state control word
@@ -481,19 +469,16 @@ void Lexium32::prepareOutputs() {
     if (b_faultReset)       DCOMcontrol |= 0x80;
     if (b_halted)           DCOMcontrol |= 0x100;
     if (opModeSpec9)        DCOMcontrol |= 0x200;
-    //bits 10 to 15 have to be 0
+    //bits 10 to 15 of control word have to be 0
 
-    OperatingMode* operatingMode = getOperatingMode(requestedOperatingMode);
-    int operatingModeID = 0;
-    if (operatingMode != nullptr) operatingModeID = operatingMode->id;
-    DCOMopmode = operatingModeID;
+	//set operating mode (cyclic synchronous position)
+    DCOMopmode = getOperatingMode(requestedOperatingMode)->id;
 
-    if (!servoMotorLink->isConnected()) servoMotorDevice->setCommand(servoMotorDevice->getPosition());
-    //get the position command from the servo actuator subdevice
-    PPp_target = (int32_t)(servoMotorDevice->getCommand() * positionUnitsPerRevolution);
-    //don't forget to convert from rotations per second to rpm
-    PVv_target = (int32_t)(profileVelocity_rps * velocityUnitsPerRpm * 60.0);
-
+	//set profile position point
+	if(b_externalControl) PPp_target = (int32_t)(servoMotorDevice->getCommand() * positionUnitsPerRevolution);
+	else PPp_target = (int32_t)(profilePosition_r * positionUnitsPerRevolution);
+		
+	//set digital output signals
     IO_DQ_set = 0;
     if (digitalOut0->getBoolean()) IO_DQ_set |= 0x1;
     if (digitalOut1->getBoolean()) IO_DQ_set |= 0x2;
@@ -621,6 +606,12 @@ transferfailed:
 void Lexium32::uploadGeneralParameters() {
     generalParameterUploadState = DataTransferState::State::TRANSFERRING;
 
+	{
+		EtherCatCoeData MON_p_dif_load_usr(0x3006, 0x3E, EtherCatData::Type::INT32_T);
+		MON_p_dif_load_usr.setS32(maxFollowingError_revolutions * positionUnitsPerRevolution);
+		if(!MON_p_dif_load_usr.write(getSlaveIndex())) goto transferfailed;
+	}
+	
     {
         EtherCatCoeData CTRL_I_max(0x3011, 0xC, EtherCatData::Type::UINT16_T);
         CTRL_I_max.setU16(maxCurrent_amps * 100.0);
@@ -673,6 +664,12 @@ transferfailed:
 void Lexium32::downloadGeneralParameters() {
     generalParameterDownloadState = DataTransferState::State::TRANSFERRING;
 
+	{
+		EtherCatCoeData MON_p_dif_load_usr(0x3006, 0x3E, EtherCatData::Type::INT32_T);
+		if(!MON_p_dif_load_usr.read(getSlaveIndex())) goto transferfailed;
+		maxFollowingError_revolutions = (float)MON_p_dif_load_usr.getS32() / positionUnitsPerRevolution;
+	}
+	
     {
         EtherCatCoeData CTRL_I_max(0x3011, 0xC, EtherCatData::Type::UINT16_T);
         if (!CTRL_I_max.read(getSlaveIndex())) goto transferfailed;
@@ -1228,6 +1225,9 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
 
     XMLElement* invertDirectionOfMovementXML = xml->InsertNewChildElement("InvertDirectionOfMovement");
     invertDirectionOfMovementXML->SetAttribute("Invert", b_invertDirectionOfMotorMovement);
+	
+	XMLElement* maxFollowingErrorXML = xml->InsertNewChildElement("MaxFollowingError");
+	maxFollowingErrorXML->SetAttribute("revolutions", maxFollowingError_revolutions);
 
     XMLElement* currentLimitXML = xml->InsertNewChildElement("CurrentLimit");
     currentLimitXML->SetAttribute("amps", maxCurrent_amps);
@@ -1312,6 +1312,10 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
     if (invertDirectionOfMovementXML == nullptr) return Logger::warn("Could not find invert direction of movement attribute");
     if (invertDirectionOfMovementXML->QueryBoolAttribute("Invert", &b_invertDirectionOfMotorMovement) != XML_SUCCESS) return Logger::warn("Could not read direciton of movement attribute");
 
+	XMLElement* maxFollowingErrorXML = xml->FirstChildElement("MaxFollowingError");
+	if(maxFollowingErrorXML == nullptr) return Logger::warn("Could not find max following error attribute");
+	if(maxFollowingErrorXML->QueryAttribute("revolutions", &maxFollowingError_revolutions) != XML_SUCCESS) return Logger::warn("Could not read max following error attribute");
+	 
     XMLElement* currentLimitsXML = xml->FirstChildElement("CurrentLimit");
     if (currentLimitsXML == nullptr) return Logger::warn("Could not find current limits attribute");
     if (currentLimitsXML->QueryDoubleAttribute("amps", &maxCurrent_amps) != XML_SUCCESS) return Logger::warn("Could not read Max Current Attribute");

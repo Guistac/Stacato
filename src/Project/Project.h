@@ -20,5 +20,8 @@ namespace Project {
 	
 	bool isEditingAllowed();
 
+	void setPlotEdit(bool isAllowed);
+	bool isPlotEditAllowed();
+
 };
 

@@ -29,7 +29,6 @@ class BinaryOscillator6x : public Machine {
 	}));
 
 	//=== Control Variables ===
-	bool b_enabled = false;
 	std::vector<bool> outputSignals = std::vector<bool>(6, false);
 	std::vector<double> currentStateLengths_seconds = std::vector<double>(6, 0.0);
 	std::vector<double> nextStateChangeDelay_seconds = std::vector<double>(6, 0.0);
@@ -57,8 +56,4 @@ class BinaryOscillator6x : public Machine {
 	//=== Axes ===
 	int getGpioDeviceCount();
 	std::shared_ptr<GpioDevice> getGpioDevice(int i);
-
-	//=== Saving & Loading ===
-	bool saveMachine(tinyxml2::XMLElement* xml);
-	bool loadMachine(tinyxml2::XMLElement* xml);
 };

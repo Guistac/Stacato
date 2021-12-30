@@ -21,9 +21,9 @@ void etherCatMetrics() {
 
 		static bool lockXAxis = true;
 		static bool lockYAxis = true;
-		ImGui::Checkbox("Lock X Machine", &lockXAxis);
+		ImGui::Checkbox("Lock X Axis", &lockXAxis);
 		ImGui::SameLine();
-		ImGui::Checkbox("Lock Y Machine", &lockYAxis);
+		ImGui::Checkbox("Lock Y Axis", &lockYAxis);
 		ImGui::SameLine();
 		static float historyLength_seconds = 10.0;
 		ImGui::SliderFloat("##History Length", &historyLength_seconds, 1.0, EtherCatFieldbus::metrics.scrollingBufferLength_seconds, "%g seconds");

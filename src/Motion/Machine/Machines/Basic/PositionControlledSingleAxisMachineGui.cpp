@@ -113,7 +113,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::Text("Position Unit");
 		ImGui::PopFont();
 		ImGui::TableSetColumnIndex(1);
-		ImGui::Text(getPositionUnit(axis->positionUnit)->displayName);
+		ImGui::Text("%s", getPositionUnit(axis->positionUnit)->displayName);
 
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
@@ -180,7 +180,7 @@ void PositionControlledSingleAxisMachine::axisGui() {
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
 	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text(axis->getName());
+	ImGui::Text("%s", axis->getName());
 	ImGui::PopFont();
 
 	if (ImGui::BeginTabBar("AxisTabBar")) {
@@ -206,7 +206,7 @@ void PositionControlledSingleAxisMachine::deviceGui() {
 
 	auto deviceTabBar = [](std::shared_ptr<Device> device) {
 		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text(device->getName());
+		ImGui::Text("%s", device->getName());
 		ImGui::PopFont();
 		if (ImGui::BeginTabBar(device->getName())) {
 			device->nodeSpecificGui();
@@ -268,7 +268,8 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 			sprintf(velocityTargetString, "%.1f%s/s", manualVelocityTarget_machineUnitsPerSecond, positionUnitShortFormString);
 			sprintf(actualVelocityString, "%.1f%s/s", axis->getActualVelocity_axisUnitsPerSecond(), positionUnitShortFormString);
 			sprintf(actualPositionString, "%.1f%s", axis->getActualPosition_axisUnits(), positionUnitShortFormString);
-			disableControls = !axis->isEnabled();
+			//disableControls = !axis->isEnabled();
+			disableControls = !isEnabled();
 		}
 		else {
 			sprintf(velocityTargetString, "-");

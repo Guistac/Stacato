@@ -7,6 +7,7 @@
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 #include "NodeGraph/Utilities/NodeFactory.h"
 #include "Project/Project.h"
+#include "Project/Environnement.h"
 
 #ifdef STACATO_WIN32_APPLICATION
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
@@ -19,26 +20,33 @@ int main() {
     
 	//Logger is initialized after working directory is defined to have log file access
 	Logger::init();
+	
+	Logger::info("Stacato Version {}.{} {} - "
 #ifdef STACATO_DEBUG
-	Logger::info("Stacato Version {}.{} {} - Debug Build", VERSION_MAJOR, VERSION_MINOR, STACATO_OS_NAME);
+				 "Debug Build",
 #else
-	Logger::info("Stacato Version {}.{} {} - Release Build", VERSION_MAJOR, VERSION_MINOR, STACATO_OS_NAME);
+				 "Release Build",
 #endif
+				 VERSION_MAJOR, VERSION_MINOR, STACATO_OS_NAME);
+	
 	Logger::debug("Application Working Directory: {}", std::filesystem::current_path().string());
     
+	//initialize node factory librairies
 	EtherCatDeviceFactory::loadDevices();
 	NodeFactory::loadNodes();
-	Project::load("Project");
 	
-	EtherCatFieldbus::updateNetworkInterfaceCardList();
-	EtherCatFieldbus::init();
+	//load environnement and plots, initialize network interface card
+	Project::load("Project");
 
+	//application gui runtime, function returns when application is quit
 	ApplicationWindow::open(3500,2000);
 
-	EtherCatFieldbus::terminate();
+	//stop hardware or simulation and terminate fieldbus
+	Environnement::terminate();
 
+	//shut down logger
 	Logger::terminate();
 
+	//terminate application
 	ApplicationWindow::terminate();
-	
 }

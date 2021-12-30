@@ -8,14 +8,15 @@
 #include "NodeGraph/NodeGraph.h"
 #include "Motion/Playback.h"
 
+#include "Utilities/ProgressIndicator.h"
+
 #include "config.h"
 
 namespace EtherCatFieldbus {
 
-    std::vector<NetworkInterfaceCard> networkInterfaceCards;
-    NetworkInterfaceCard networkInterfaceCard;
-    NetworkInterfaceCard redundantNetworkInterfaceCard;
-    bool b_redundant = false;
+    std::vector<std::shared_ptr<NetworkInterfaceCard>> networkInterfaceCards;
+	std::shared_ptr<NetworkInterfaceCard> primaryNetworkInterfaceCard;
+	std::shared_ptr<NetworkInterfaceCard> redundantNetworkInterfaceCard;
 
     std::vector<std::shared_ptr<EtherCatDevice>> slaves;
     std::vector<std::shared_ptr<EtherCatDevice>> slaves_unassigned;
@@ -29,13 +30,12 @@ namespace EtherCatFieldbus {
     bool b_allOperational = false;          //high when all states reached operational state after clock stabilisation, indicates successful fiedlbus configuration
 
     bool isNetworkInitialized() { return b_networkOpen; }
+	bool isNetworkRedundant(){ return isNetworkInitialized() && primaryNetworkInterfaceCard && redundantNetworkInterfaceCard; }
     bool isCyclicExchangeStarting() { return b_processStarting; }
     bool isCyclicExchangeActive() { return b_processRunning; }
     bool isCyclicExchangeStartSuccessfull() { return b_processRunning && b_clockStable && b_allOperational; }
 
-    bool b_startupError = false;
-    int i_startupProgress = 0;
-    char startupStatusString[128] = "";
+	ProgressIndicator startupProgress;
 
     EtherCatMetrics metrics;
 
@@ -50,6 +50,18 @@ namespace EtherCatFieldbus {
     std::thread slaveStateHandler;  //thread to periodically check the state of all slaves and recover them if necessary
     bool b_errorWatcherRunning = false;
     std::thread errorWatcher;       //cyclic exchange thread (needs a full cpu core to axchieve precise timing)
+
+	double currentCycleProgramTime_seconds = 0.0;
+	double getCycleProgramTime_seconds() { return currentCycleProgramTime_seconds; }
+
+	long long int currentCycleProgramTime_nanoseconds = 0;
+	long long int getCycleProgramTime_nanoseconds() { return currentCycleProgramTime_nanoseconds; }
+
+	double currentCycleDeltaT_seconds = 0.0;
+	double getCycleTimeDelta_seconds() { return currentCycleDeltaT_seconds; }
+
+	long long int currentCycleDeltaT_nanoseconds = 0;
+	long long int getCycleTimeDelta_nanoseconds() { return currentCycleDeltaT_nanoseconds; }
 
     //====== non public functions ======
 
@@ -73,6 +85,9 @@ namespace EtherCatFieldbus {
     bool configureSlaves();
     void startCyclicExchange();
 
+	void logDeviceStates();
+	void logAlStatusCodes();
+
 	//============= CHECK NETWORK PERMISSIONS ==============
 
 	//this checks if low lewel network packet manipulation permissions are granted to libpcap by the operating system
@@ -81,6 +96,7 @@ namespace EtherCatFieldbus {
 	//trying to execute pcap or ethercat functions without these permissions will result in a bad memory access and hard crash
 
 	bool hasNetworkPermissions(){
+		//this will only report a correct status after a network interface card was opened
 		ecx_contextt* context = &ecx_context;
 		ecx_portt* port = context->port;
 		ec_stackT* stack = &port->stack;
@@ -93,98 +109,91 @@ namespace EtherCatFieldbus {
 
     void updateNetworkInterfaceCardList() {
         Logger::info("===== Refreshing Network Interface Card List");
+		
+		std::vector<std::shared_ptr<NetworkInterfaceCard>> oldNics = networkInterfaceCards;
         networkInterfaceCards.clear();
+		
         ec_adaptert* nics = ec_find_adapters();
         if (nics != nullptr) {
             while (nics != nullptr) {
 				
 #ifdef STACATO_MACOS
-				//on macos, we skip non ethernet network interfaces
+				//on macos, we can skip network interfaces that don't have a name with the format en
 				if (strstr(nics->name, "en") == nullptr) {
 					nics = nics->next;
 					continue;
 				}
 #endif
-                NetworkInterfaceCard nic;
-                strcpy(nic.name, nics->name);
-                strcpy(nic.description, nics->desc);
-                networkInterfaceCards.push_back(std::move(nic));
+				
+				bool wasPresent = false;
+				for(auto& oldNic : oldNics){
+					if(strcmp(oldNic->name, nics->name) == 0 && strcmp(oldNic->description, nics->desc) == 0){
+						networkInterfaceCards.push_back(oldNic);
+						wasPresent = true;
+						break;
+					}
+				}
+				
+				if(!wasPresent){
+					std::shared_ptr<NetworkInterfaceCard> newNic = std::make_shared<NetworkInterfaceCard>();
+					strcpy(newNic->name, nics->name);
+					strcpy(newNic->description, nics->desc);
+					networkInterfaceCards.push_back(newNic);
+				}
+				
                 nics = nics->next;
             }
         }
         Logger::info("===== Found {} Network Interface Card{}", networkInterfaceCards.size(), networkInterfaceCards.size() == 1 ? "" : "s");
-        for (NetworkInterfaceCard& nic : networkInterfaceCards)
-            Logger::debug("    = {} (ID: {})", nic.description, nic.name);
+        for (auto& nic : networkInterfaceCards)
+            Logger::debug("    = {} (ID: {})", nic->description, nic->name);
     }
 
     //============== INTIALIZE FIELDBUS WITH AND OPEN NETWORK INTERFACE CARD ==============
 
     bool init() {
-        if (b_redundant) {
-            bool foundPrimaryNic = false;
-            bool foundRedundantNic = false;
-            for (auto& nic : networkInterfaceCards) {
-                if (strcmp(nic.description, networkInterfaceCard.description) == 0) {
-                    networkInterfaceCard = nic;
-                    foundPrimaryNic = true;
-                }
-                if (strcmp(nic.description, redundantNetworkInterfaceCard.description) == 0) {
-                    redundantNetworkInterfaceCard = nic;
-                    foundRedundantNic = true;
-                }
-            }
-            if (foundPrimaryNic && foundRedundantNic) return init(networkInterfaceCard, redundantNetworkInterfaceCard);
-            b_redundant = false;
-        }
-        else {
-            for (auto& nic : networkInterfaceCards) {
-                if (strcmp(nic.description, networkInterfaceCard.description) == 0) {
-                    networkInterfaceCard = nic;
-                    return init(networkInterfaceCard);
-                    break;
-                }
-            }
-        }
-        if (!networkInterfaceCards.empty()) {
-            Logger::warn("===== Could not find saved network interface card... Starting Fieldbus on default nic.");
-            return init(networkInterfaceCards.front());
-        }
+		if(primaryNetworkInterfaceCard && redundantNetworkInterfaceCard) return init(primaryNetworkInterfaceCard, redundantNetworkInterfaceCard);
+		else if(primaryNetworkInterfaceCard) return init(primaryNetworkInterfaceCard);
+		else if (!networkInterfaceCards.empty()) {
+			Logger::warn("===== Could not find saved network interface card... Starting Fieldbus on default nic.");
+			return init(networkInterfaceCards.front());
+		}
+		primaryNetworkInterfaceCard = nullptr;
+		redundantNetworkInterfaceCard = nullptr;
         return Logger::warn("===== No Network interface cards present... Could not start EtherCAT Fieldbus");
     }
 
-    bool init(NetworkInterfaceCard& nic) {
+
+    bool init(std::shared_ptr<NetworkInterfaceCard> nic) {
         if (b_networkOpen) terminate();
-        networkInterfaceCard = nic;
-        Logger::debug("===== Initializing EtherCAT Fieldbus on Network Interface Card '{}'", networkInterfaceCard.description);
-        int nicInitResult = ec_init(networkInterfaceCard.name);
+        primaryNetworkInterfaceCard = nic;
+		redundantNetworkInterfaceCard = nullptr;
+        Logger::debug("===== Initializing EtherCAT Fieldbus on Network Interface Card '{}'", primaryNetworkInterfaceCard->description);
+        int nicInitResult = ec_init(primaryNetworkInterfaceCard->name);
         if (nicInitResult < 0) {
             Logger::error("===== Failed to initialize network interface card ...");
             b_networkOpen = false;
-            b_redundant = false;
             return false;
         }
-        b_redundant = false;
         b_networkOpen = true;
-        Logger::info("===== Initialized network interface card '{}'", networkInterfaceCard.description);
+        Logger::info("===== Initialized network interface card '{}'", primaryNetworkInterfaceCard->description);
         setup();
         return true;
     }
 
-    bool init(NetworkInterfaceCard& nic, NetworkInterfaceCard& redNic) {
+    bool init(std::shared_ptr<NetworkInterfaceCard> nic, std::shared_ptr<NetworkInterfaceCard> redNic) {
         if (b_networkOpen) terminate();
-        networkInterfaceCard = nic;
+		primaryNetworkInterfaceCard = nic;
         redundantNetworkInterfaceCard = redNic;
-        Logger::debug("===== Initializing EtherCAT Fieldbus on Network Interface Card '{}' with redundancy on '{}'", networkInterfaceCard.description, redundantNetworkInterfaceCard.description);
-        int nicInitResult = ec_init_redundant(networkInterfaceCard.name, redundantNetworkInterfaceCard.name);
+        Logger::debug("===== Initializing EtherCAT Fieldbus on Network Interface Card '{}' with redundancy on '{}'", primaryNetworkInterfaceCard->description, redundantNetworkInterfaceCard->description);
+        int nicInitResult = ec_init_redundant(primaryNetworkInterfaceCard->name, redundantNetworkInterfaceCard->name);
         if (nicInitResult < 0) {
             Logger::error("===== Failed to initialize network interface cards ...");
             b_networkOpen = false;
-            b_redundant = false;
             return false;
         }
-        b_redundant = true;
         b_networkOpen = true;
-        Logger::info("===== Initialized network interface cards '{}' & '{}'", networkInterfaceCard.description, redundantNetworkInterfaceCard.description);
+        Logger::info("===== Initialized network interface cards '{}' & '{}'", primaryNetworkInterfaceCard->description, redundantNetworkInterfaceCard->description);
         setup();
         return true;
     }
@@ -211,12 +220,16 @@ namespace EtherCatFieldbus {
     void terminate() {
         stop();
         if (etherCatRuntime.joinable()) etherCatRuntime.join();
-        stopErrorWatcher();
-        stopSlaveDetectionHandler();
-        Logger::debug("===== Closing EtherCAT Network Interface Card");
-        ec_close();
-        b_networkOpen = false;
-        Logger::info("===== Stopped EtherCAT fieldbus");
+		if(isNetworkInitialized()){
+			stopErrorWatcher();
+			stopSlaveDetectionHandler();
+			Logger::debug("===== Closing EtherCAT Network Interface Card");
+			ec_close();
+			b_networkOpen = false;
+			Logger::info("===== Stopped EtherCAT fieldbus");
+		}
+		primaryNetworkInterfaceCard = nullptr;
+		redundantNetworkInterfaceCard = nullptr;
     }
 
     //================= SCAN REQUEST FROM GUI =================
@@ -238,36 +251,35 @@ namespace EtherCatFieldbus {
 
     void start() {
         if (!b_processStarting) {
-            Logger::info("===== Starting Fieldbus Configuration");
-            std::thread etherCatProcessStarter([]() {
+			
+			startupProgress.setStart("Starting Fieldbus Configuration");
+			
+			Logger::info("===== Starting Fieldbus Configuration");
+			std::thread etherCatProcessStarter([]() {
 
                 //join the cyclic echange thread if it was terminated previously
                 if (etherCatRuntime.joinable()) etherCatRuntime.join();
 
-                b_startupError = false;
-                i_startupProgress = 0;
-                sprintf(startupStatusString, "Starting Fieldbus Configuration");
-
                 b_processStarting = true;
                 stopSlaveDetectionHandler();
-
-                i_startupProgress = 0;
-                sprintf(startupStatusString, "Scanning Network");
+				
                 if (!discoverDevices()) {
-                    b_startupError = true;
                     b_processStarting = false;
-                    sprintf(startupStatusString, "Found no EtherCAT slaves on the network");
+					logDeviceStates();
+					logAlStatusCodes();
                     return;
                 }
 
                 if (!configureSlaves()) {
                     b_processStarting = false;
+					logDeviceStates();
+					logAlStatusCodes();
                     return;
                 }
 
                 startCyclicExchange();
                 b_processStarting = false;
-                });
+			});
             etherCatProcessStarter.detach();
         }
     }
@@ -302,6 +314,8 @@ namespace EtherCatFieldbus {
     }
 
     //============ Check Explicit ID compatibility and Read explicit ID of slave ============
+
+	//TODO: this could use some cleanup
 
     bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID) {
 		
@@ -388,6 +402,8 @@ namespace EtherCatFieldbus {
 
     bool discoverDevices() {
 
+		startupProgress.setProgress(0.01, "Scanning Network");
+		
         //when rescanning the network, all previous slaves are now considered to be offline before being detected again
         //for a slave to appear as offline, we set its identity object (ec_slavet) to nullptr
         for (auto slave : slaves) slave->identity = nullptr;
@@ -403,14 +419,13 @@ namespace EtherCatFieldbus {
 
             //wait and check if all slaves have reached Pre Operational State like requested by ec_config_init()
             if (ec_statecheck(0, EC_STATE_PRE_OP, EC_TIMEOUTSTATE) != EC_STATE_PRE_OP) {
+				startupProgress.setFailure("Not all slaves reached Pre-Operational State. Check the Log for more detailed errors.");
                 Logger::error("Not All Slaves Reached Pre-Operational State...");
-                for (int i = 1; i <= ec_slavecount; i++) {
-                    if (ec_slave[i].state != EC_STATE_PRE_OP) {
-                        Logger::error("=== {} did not reach preop", ec_slave[i].name);
-                    }
-                }
+				return false;
             }
 
+			startupProgress.setProgress(0.05, "Identifying Devices");
+			
             Logger::info("===== Found and Configured {} EtherCAT Slave{}", ec_slavecount, ((ec_slavecount == 1) ? ": " : "s: "));
 
             for (int i = 1; i <= ec_slavecount; i++) {
@@ -480,6 +495,7 @@ namespace EtherCatFieldbus {
             return true;
         }
 
+		startupProgress.setFailure("No EtherCAT slaves found");
         Logger::warn("===== No EtherCAT Slaves found...");
         return false;
     }
@@ -517,17 +533,14 @@ namespace EtherCatFieldbus {
 
     bool configureSlaves() {
 
-        i_startupProgress = 1;
-        sprintf(startupStatusString, "Configuring Distributed Clocks");
-
+		startupProgress.setProgress(0.075, "Configuring Distributed Clocks");
         Logger::debug("===== Configuring Distributed Clocks");
+		
         if (!ec_configdc()) {
-            b_startupError = true;
-            sprintf(startupStatusString, "Could not configure distributed clocks...");
+			startupProgress.setFailure("Could not configure distributed clocks. Check the Log for more detailed errors.");
             Logger::error("===== Could not configure distributed clocks ...");
             return false;
         }
-        Logger::info("===== Finished Configuring Distributed Clocks");
 
         //assign slave startup hooks
         for (int i = 1; i <= ec_slavecount; i++) {
@@ -535,9 +548,18 @@ namespace EtherCatFieldbus {
             ec_slave[i].PO2SOconfig = [](uint16_t slaveIndex) -> int {
                 for (auto slave : slaves) {
                     if (slave->getSlaveIndex() == slaveIndex) {
-                        sprintf(startupStatusString, "Configuring Slave #%i '%s'", slave->getSlaveIndex(), slave->getName());
-                        i_startupProgress = slaveIndex + 1; //for progress bar display
-                        Logger::debug("Configuring Slave '{}'", slave->getName());
+						
+						int slaveCount = slaves.size();
+						float confProgStart = 0.1;
+						float confProgEnd = 0.5;
+						float confIncrement = (confProgEnd - confProgStart) / slaveCount;
+						float configurationProgress = slave->getSlaveIndex() * confIncrement + confProgStart;
+						
+						static char slaveConfigurationString[256];
+						sprintf(slaveConfigurationString, "Configuring %s", slave->getName());
+						startupProgress.setProgress(configurationProgress, slaveConfigurationString);
+						
+						Logger::debug("Configuring Slave '{}'", slave->getName());
                         bool configurationResult = slave->startupConfiguration();
                         if (configurationResult) {
                             Logger::debug("Successfully configured Slave '{}'", slave->getName());
@@ -554,17 +576,17 @@ namespace EtherCatFieldbus {
         }
 
         //build ioMap for PDO data, configure FMMU and SyncManager, request SAFE-OP state for all slaves
-        Logger::debug("===== Begin Building I/O Map and Slave Configuration...");
-        sprintf(startupStatusString, "Configuring Devices");
+		startupProgress.setProgress(0.01, "Configuring Devices");
+        Logger::debug("===== Beginning Device Configuration and IOMap Building...");
         ioMapSize = ec_config_map(ioMap); //this function starts the configuration
         if (ioMapSize <= 0) {
-            b_startupError = true;
-            sprintf(startupStatusString, "Failed to Configure I/O Map");
-            Logger::error("===== Failed To Configure I/O Map... (size={})", ioMapSize);
+			startupProgress.setFailure("Failed to configure devices");
+            Logger::error("===== Failed To Configure Devices. Check the Log for more detailed errors.", ioMapSize);
             return false;
         }
-        Logger::info("===== Finished Building I/O Map (Size : {} bytes)", ioMapSize);
+        Logger::info("===== Finished Configuring Devices  (IOMap size : {} bytes)", ioMapSize);
 
+		
         for (auto slave : slaves) {
             Logger::debug("   [{}] '{}' {} bytes ({} bits)",
                 slave->getSlaveIndex(),
@@ -575,19 +597,12 @@ namespace EtherCatFieldbus {
             Logger::debug("          Outputs: {} bytes ({} bits)", slave->identity->Obytes, slave->identity->Obits);
         }
 
-        i_startupProgress = ec_slavecount + 2;
-        sprintf(startupStatusString, "Checking For Safe-Operational State");
-
+		
+		startupProgress.setProgress(0.55, "Waiting for Safe-Operational State");
         Logger::debug("===== Checking For Safe-Operational State...");
         if (ec_statecheck(0, EC_STATE_SAFE_OP, EC_TIMEOUTSTATE) != EC_STATE_SAFE_OP) {
-            b_startupError = true;
-            sprintf(startupStatusString, "Not All Slaves Reached Safe-Operational State");
+			startupProgress.setFailure("Not all slaves reached Safe-Operational State. Check the Log for more detailed errors.");
             Logger::error("===== Not all slaves have reached Safe-Operational State...");
-            for (auto slave : slaves) {
-                if (!slave->isStateSafeOperational() || !slave->isStateOperational() || slave->hasStateError()) {
-                    Logger::warn("Slave '{}' has state {}", slave->getName(), slave->getEtherCatStateChar());
-                }
-            }
             return false;
         }
         Logger::info("===== All slaves are Safe-Operational");
@@ -601,8 +616,7 @@ namespace EtherCatFieldbus {
         //don't allow the thread to start if it is already running
         if (b_processRunning) return;
 
-        i_startupProgress = ec_slavecount + 3;
-        sprintf(startupStatusString, "Starting Cyclic Exchange");
+		startupProgress.setProgress(0.6, "Starting Cyclic Exchange");
         Logger::debug("===== Starting Cyclic Process Data Exchange");
 
         b_processRunning = true;
@@ -632,8 +646,7 @@ namespace EtherCatFieldbus {
         std::chrono::high_resolution_clock::time_point lastProcessDataFrameReturnTime = high_resolution_clock::now();
 
         Logger::info("===== Waiting For clocks to stabilize before requesting Operational State...");
-        i_startupProgress = ec_slavecount + 4;
-        sprintf(startupStatusString, "Waiting For Clocks To Stabilize");
+		startupProgress.setProgress(0.65, "Waiting for clocks to stabilize");
 
         //slaves are considered online when they are detected and actively exchanging data with the master
         //if we reached this state of the configuration, all slaves are detected and we are about to start exchanging data
@@ -648,8 +661,6 @@ namespace EtherCatFieldbus {
         int64_t systemTimeSmoothed_nanoseconds = cycleStartTime_nanoseconds;
 
         while (b_processRunning) {
-
-
 
             //======================= THREAD TIMING =========================
 
@@ -669,27 +680,16 @@ namespace EtherCatFieldbus {
             if (workingCounter <= 0) {
                 if (high_resolution_clock::now() - lastProcessDataFrameReturnTime > milliseconds((int)fieldbusTimeout_milliseconds)) {
                     Logger::critical("Fieldbus timed out...");
-                    //stop();
-                    break; //breaks out of the main while loop
+                    break; //breaks out of the main while loop (which stops the fieldbus?)
                 }
-                ec_DCtime += processInterval_nanoseconds; //adjust the copy of the reference clock in case no frame was received
+				//adjust the copy of the reference clock in case no frame was received
+                ec_DCtime += processInterval_nanoseconds;
             }
             else lastProcessDataFrameReturnTime = high_resolution_clock::now(); //reset timeout watchdog
 
-            //===================== DEVICE IO HANDLING =======================
+            //===================== ENVIRONNEMENT UPDATE =======================
 
-            if (b_allOperational) {
-                //interpret all slaves input data if operational
-                for (auto slave : slaves) if (slave->isStateOperational()) slave->readInputs();
-                //increments the playback position of all active manoeuvres
-                Playback::incrementPlaybackPosition();
-                //update all nodes connected to ethercat slave nodes
-                Environnement::nodeGraph->evaluate(Device::Type::ETHERCAT_DEVICE);
-                //ends playback of finished manoeuvres and rapids
-                Playback::updateActiveManoeuvreState();
-                //prepare all slaves output data if operational
-                for (auto slave : slaves) if (slave->isStateOperational()) slave->prepareOutputs();
-            }
+			if (b_allOperational) Environnement::updateEtherCatHardware();
 
             //=========== HANDLE MASTER AND REFERENCE CLOCK DRIFT ============
 
@@ -719,29 +719,55 @@ namespace EtherCatFieldbus {
             //to avoid drift from the actual system clock, we calculate the error between the incremented time and the actual system time.
             //to avoid jitter we filter this error before applying it as a correction to the time value using a proportional gain weight.
             //this way we get a time reference that is synchronous with the system clock and
-            //most importantly without high frequency jitter induced by corrections to keep the process cycle synchronized with the EtherCAT reference clock
+            //most importantly without high frequency jitter induced by corrections that keep the process cycle synchronized with the EtherCAT reference clock
 
             static double systemTimeErrorFilter = 0.99; //smoothing of the error to get a get a stable value
             static double smoothedTimeCorrection_proportionalGain = 0.002; //strength of the correction applied to the time value (tested and working for cycle times between 1ms and 20 ms)
-            int64_t systemTimeError = systemTime_nanoseconds - systemTimeSmoothed_nanoseconds;
+            
+			//calculate the current time error
+			int64_t systemTimeError = systemTime_nanoseconds - systemTimeSmoothed_nanoseconds;
+			//smoothe the time error
             systemTimeErrorSmoothed_nanoseconds = systemTimeErrorSmoothed_nanoseconds * systemTimeErrorFilter + (1.0 - systemTimeErrorFilter) * systemTimeError;
-            currentCycleProgramTime_nanoseconds = systemTimeSmoothed_nanoseconds;
-            double previousCycleProgramTime_seconds = currentCycleProgramTime_seconds;
-            currentCycleProgramTime_seconds = (double)systemTimeSmoothed_nanoseconds / 1000000000.0;
-            currentCycleDeltaT_seconds = currentCycleProgramTime_seconds - previousCycleProgramTime_seconds;
-            uint64_t fieldbusTimeSmoothed_nanoseconds = systemTimeSmoothed_nanoseconds - fieldbusStartTime_nanoseconds;
-            double fieldbusTimeSmoothed_seconds = (double)fieldbusTimeSmoothed_nanoseconds / 1000000000.0;
-
-            systemTimeSmoothed_nanoseconds += processInterval_nanoseconds + systemTimeErrorSmoothed_nanoseconds * smoothedTimeCorrection_proportionalGain;
-
+			//apply a weighted error correction to the system time
+			systemTimeSmoothed_nanoseconds += processInterval_nanoseconds + systemTimeErrorSmoothed_nanoseconds * smoothedTimeCorrection_proportionalGain;
+			
+			//time values in reference to fieldbus start
+			uint64_t fieldbusTimeSmoothed_nanoseconds = systemTimeSmoothed_nanoseconds - fieldbusStartTime_nanoseconds;
+			double fieldbusTimeSmoothed_seconds = (double)fieldbusTimeSmoothed_nanoseconds / 1000000000.0;
+			
+			//save previous time values (in reference to fieldbus start)
+			uint64_t previousCycleProgramTime_nanoseconds = currentCycleProgramTime_nanoseconds;
+			double previousCycleProgramTime_seconds = currentCycleProgramTime_seconds;
+			
+			//assign new current time values (in reference to fieldbus start)
+            currentCycleProgramTime_nanoseconds = fieldbusTimeSmoothed_nanoseconds;
+            currentCycleProgramTime_seconds = (double)fieldbusTimeSmoothed_nanoseconds / 1000000000.0;
+            
+			//calculate current delta time values
+			currentCycleDeltaT_seconds = currentCycleProgramTime_seconds - previousCycleProgramTime_seconds;
+			currentCycleDeltaT_nanoseconds = currentCycleProgramTime_nanoseconds - previousCycleProgramTime_nanoseconds;
+			
             //================= OPERATIONAL STATE TRANSITION ==================
 
             if (!b_clockStable && averageDCTimeDelta_nanoseconds < clockStableThreshold_nanoseconds) {
+				//detect clock stabilisation and request operational state
                 b_clockStable = true;
-                sprintf(startupStatusString, "Setting All Slaves to Operational State");
+				startupProgress.setProgress(0.95, "Requesting Operational State");
                 std::thread opStateHandler([]() { transitionToOperationalState(); });
                 opStateHandler.detach();
-            }
+			}else if(!b_clockStable){
+				//while the clocks are stabilizing, update the startup progress bar
+				float from = 0.65;
+				float to = 1.0;
+				float maxValue = processInterval_milliseconds / 2.0;
+				float minValue = clockStableThreshold_milliseconds;
+				float value = metrics.averageDcTimeError_milliseconds;
+				float percentage = 1.0 - ((value - minValue) / (maxValue - minValue));
+				percentage = std::min(1.0f, percentage);
+				percentage = std::max(0.0f, percentage);
+				float progress = from + (to - from) * percentage;
+				startupProgress.progress = progress;
+			}
 
             //==================== UPDATE FIELDBUS METRICS =====================
 
@@ -805,20 +831,21 @@ namespace EtherCatFieldbus {
         ec_writestate(0);
         //wait for all slaves to reach OP state
         if (EC_STATE_OPERATIONAL == ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE)) {
-            sprintf(startupStatusString, "Successfully Started EtherCAT Fieldbus");
+			startupProgress.setCompletion("Successfully Started EtherCAT Fieldbus");
             b_allOperational = true;
             Logger::info("===== All slaves are operational");
             Logger::info("===== Successfully started EtherCAT Fieldbus");
             //addition read state is required to set the individual state of each slave
             //statecheck on slave zero doesn't assign the state of each individual slave, only global slave 0
             ec_readstate();
-
+			//start slave state handler thread
             slaveStateHandler = std::thread([]() { handleStateTransitions(); });
         }
         else {
-            b_startupError = true;
-            sprintf(startupStatusString, "Not all slaves reached Operational State");
+			startupProgress.setFailure("Not all slaves reached Operational State. Check the Log for more detailed errors.");
             Logger::error("===== Not all slaves reached operational state... ");
+			logDeviceStates();
+			logAlStatusCodes();
             for (auto slave : slaves) {
                 if (!slave->isStateOperational() || slave->hasStateError()) {
                     Logger::error("Slave '{}' has state {}", slave->getName(), slave->getEtherCatStateChar());
@@ -909,19 +936,24 @@ namespace EtherCatFieldbus {
         Logger::debug("Exited Slave State Handler Thread");
     }
 
-    double currentCycleProgramTime_seconds = 0.0;
-    double getCycleProgramTime_seconds() {
-        return currentCycleProgramTime_seconds;
-    }
-    double currentCycleDeltaT_seconds = 0.0;
-    double getCycleTimeDelta_seconds() {
-        return currentCycleDeltaT_seconds;
-    }
-    
-    long long int currentCycleProgramTime_nanoseconds = 0;
-    long long int getCycleProgramTime_nanoseconds() {
-        return currentCycleProgramTime_nanoseconds;
-    }
+	//========= DEVICE STATE LOGGING ========
+
+	void logDeviceStates(){
+		for (auto& slave : slaves) {
+			Logger::warn("{} has state {}", slave->getName(), slave->getEtherCatStateChar());
+		}
+	}
+
+	void logAlStatusCodes(){
+		for(auto& slave : slaves){
+			uint16_t AlStatusCode = 0x0;
+			int wc = ec_FPRD(slave->getAssignedAddress(), 0x134, 2, &AlStatusCode, EC_TIMEOUTSAFE);
+			if(wc != 1) Logger::error("{} : Could not read AL Status Code}");
+			else if(AlStatusCode != 0x0) Logger::error("{} : AL Status Code 0x{:X} ({})", slave->getName(), AlStatusCode, ec_ALstatuscode2string(AlStatusCode));
+		}
+	}
+
+
 }
 
 

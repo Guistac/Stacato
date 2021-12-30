@@ -127,11 +127,7 @@ void BinaryOscillator6x::manuallySetOutput(int i, bool s) {
 
 //======================= STATE CONTROL ========================
 
-bool BinaryOscillator6x::isEnabled() {
-	return b_enabled;
-}
-
-bool BinaryOscillator6x::isReady() {
+bool BinaryOscillator6x::isHardwareReady() {
 	//machine is ready if at least one gpio device is ready
 	for (int i = 0; i < getGpioDeviceCount(); i++) {
 		if (getGpioDevice(i)->isReady()) return true;
@@ -139,20 +135,22 @@ bool BinaryOscillator6x::isReady() {
 	return false;
 }
 
-void BinaryOscillator6x::enable() {
+void BinaryOscillator6x::enableHardware() {
 	if (isReady()) {
 		b_enabled = true;
 		stopOscillatorParameterPlayback();
+		onEnableHardware();
 	}
 }
 
-void BinaryOscillator6x::disable() {
+void BinaryOscillator6x::disableHardware() {
 	b_stopOscillator = true;
 	b_enabled = false;
 	for (int i = 0; i < 6; i++) {
 		setOutput(i, false);
 	}
 	stopOscillatorParameterPlayback();
+	onDisableHardware();
 }
 
 bool BinaryOscillator6x::isMoving() {
@@ -326,13 +324,28 @@ void BinaryOscillator6x::getTimedParameterCurveTo(const std::shared_ptr<Animatab
 	*/
 }
 
+void BinaryOscillator6x::onEnableHardware() {
+}
+
+void BinaryOscillator6x::onDisableHardware() {
+}
 
 
-void BinaryOscillator6x::enterSimulationMode() {}
-void BinaryOscillator6x::exitSimulationMode() {}
-bool BinaryOscillator6x::isInSimulationMode() {
+void BinaryOscillator6x::simulateProcess() {
+	//TODO: Simulate Oscillator
+}
+
+bool BinaryOscillator6x::isSimulationReady(){
 	return false;
 }
+
+void BinaryOscillator6x::onEnableSimulation() {
+}
+
+void BinaryOscillator6x::onDisableSimulation() {
+}
+
+
 
 
 

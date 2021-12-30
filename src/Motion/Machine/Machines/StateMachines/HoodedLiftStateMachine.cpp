@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "HoodedLiftStateMachine.h"
-#include "Motion/Subdevice.h"
+#include "Motion/SubDevice.h"
 #include "Motion/AnimatableParameter.h"
 
 #include "Motion/Manoeuvre/ParameterTrack.h"
@@ -130,11 +130,7 @@ void HoodedLiftStateMachine::process() {
 	updateGpioOutSignals();
 }
 
-bool HoodedLiftStateMachine::isEnabled() {
-	return b_enabled;
-}
-
-bool HoodedLiftStateMachine::isReady() { 
+bool HoodedLiftStateMachine::isHardwareReady() { 
 	if (!areGpioSignalsReady()) return false;
 	else if (actualState == MachineState::State::UNEXPECTED_STATE) return false;
 	else if (actualState == MachineState::State::UNKNOWN) return false;
@@ -145,14 +141,15 @@ bool HoodedLiftStateMachine::isReady() {
 	return true;
 }
 
-void HoodedLiftStateMachine::enable() {
+void HoodedLiftStateMachine::enableHardware() {
 	if (!isEnabled() && isReady()) {
 		requestedState = actualState;
 		b_enabled = true;
+		onEnableHardware();
 	}
 }
 
-void HoodedLiftStateMachine::disable() {
+void HoodedLiftStateMachine::disableHardware() {
 	b_enabled = false;
 	shutLid = false;
 	openLid = false;
@@ -160,6 +157,7 @@ void HoodedLiftStateMachine::disable() {
 	raisePlatform = false;
 	requestedState = MachineState::State::UNKNOWN;
 	updateGpioOutSignals();
+	onDisableHardware();
 }
 
 bool HoodedLiftStateMachine::isGpioDeviceConnected() {
@@ -298,13 +296,60 @@ bool HoodedLiftStateMachine::getCurveLimitsAtTime(const std::shared_ptr<Animatab
 void HoodedLiftStateMachine::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {}
 
 
-void HoodedLiftStateMachine::enterSimulationMode() {}
-void HoodedLiftStateMachine::exitSimulationMode() {}
-bool HoodedLiftStateMachine::isInSimulationMode() {
-	return false;
+void HoodedLiftStateMachine::onEnableHardware() {
+	actualState = MachineState::State::UNKNOWN;
+	requestedState = MachineState::State::UNKNOWN;
+}
+
+void HoodedLiftStateMachine::onDisableHardware() {
+	actualState = MachineState::State::UNKNOWN;
+	requestedState = MachineState::State::UNKNOWN;
+}
+
+void HoodedLiftStateMachine::simulateProcess() {
+
+	//update outputs signals
+	if (isEnabled()) {
+		if (stateParameter->hasParameterTrack()) {
+			AnimatableParameterValue value;
+			stateParameter->getActiveTrackParameterValue(value);
+			switch (value.stateValue->integerEquivalent) {
+				case 0:
+					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
+					break;
+				case 1:
+					requestedState = MachineState::State::LIFT_LOWERED_HOOD_OPEN;
+					break;
+				case 2:
+					requestedState = MachineState::State::LIFT_RAISED_HOOD_OPEN;
+					break;
+				default:
+					break;
+			}
+		}
+		actualState = requestedState;
+	}
+	
+}
+
+bool HoodedLiftStateMachine::isSimulationReady(){
+	return true;
 }
 
 
+void HoodedLiftStateMachine::onEnableSimulation() {
+	if(actualState == MachineState::State::UNKNOWN) actualState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
+	requestedState = actualState;
+}
+
+void HoodedLiftStateMachine::onDisableSimulation() {
+	actualState = requestedState;
+}
+
+
+
+bool HoodedLiftStateMachine::loadMachine(tinyxml2::XMLElement* xml) { return true; }
+bool HoodedLiftStateMachine::saveMachine(tinyxml2::XMLElement* xml) { return true; }
 
 
 

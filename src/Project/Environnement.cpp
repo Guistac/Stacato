@@ -4,116 +4,301 @@
 
 
 #include "NodeGraph/NodeGraph.h"
+#include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatDevice.h"
 #include "Motion/Machine/Machine.h"
 
+#include "Gui/ApplicationWindow/ApplicationWindow.h"
+
+#include "Motion/Playback.h"
+
 namespace Environnement {
 
-	std::shared_ptr<NodeGraph> nodeGraph = std::make_shared<NodeGraph>();
-	std::vector<std::shared_ptr<EtherCatDevice>> etherCatDevices;
-	std::vector<std::shared_ptr<Machine>> machines;
+bool b_isStarting = false;
+bool b_isRunning = false;
+bool b_isSimulating = false;
 
-	std::shared_ptr<Machine> selectedMachine;
-	std::shared_ptr<EtherCatDevice> selectedEtherCatDevice;
+double simulationStartTime_seconds = 0.0;
+long long int simulationStartTime_nanoseconds = 0;
+double simulationTime_seconds = 0.0;
+long long int simulationTime_nanoseconds = 0;
+double simulationTimeDelta_seconds = 0.0;
+long long int simulationTimeDelta_nanoseconds = 0;
 
-	std::vector<std::shared_ptr<EtherCatDevice>>& getEtherCatDevices() {
-		return etherCatDevices;
-	}
+void startSimulation();
+void stopSimulation();
+void startHardware();
+void stopHardware();
 
-	std::vector<std::shared_ptr<Machine>>& getMachines() {
-		return machines;
-	}
+void updateSimulation();
+std::thread environnementSimulator;
 
-	void enableAllMachines() {
-		for (auto machine : machines) {
-			machine->enable();
+
+void start(){
+	if(b_isSimulating) startSimulation();
+	else startHardware();
+}
+
+void stop(){
+	if(b_isSimulating) stopSimulation();
+	else stopHardware();
+}
+
+void terminate(){
+	if(isRunning()) stop();
+	EtherCatFieldbus::terminate();
+}
+
+bool isReady(){
+	if(b_isSimulating) return true;
+	else return EtherCatFieldbus::isNetworkInitialized();
+}
+
+bool isStarting(){
+	return b_isStarting;
+}
+
+bool isRunning(){
+	return b_isRunning;
+}
+
+bool isSimulating(){
+	return b_isSimulating;
+}
+
+void setSimulation(bool b_sim){
+	if(!isRunning()) b_isSimulating = b_sim;
+}
+
+
+
+
+void startSimulation(){
+	b_isRunning = true;
+	
+	simulationStartTime_seconds = Timing::getProgramTime_seconds();
+	simulationStartTime_nanoseconds = Timing::getProgramTime_nanoseconds();
+	
+	environnementSimulator = std::thread([](){
+		Logger::info("Started Environnement Simulation");
+		while(b_isRunning){
+			updateSimulation();
+			//run simulation at 100Hz and free the cpu core in between processing cycles
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
-	}
+		Logger::info("Stopped Environnement Simulation");
+	});
+}
 
-	void disableAllMachines() {
-		for (auto machine : machines) {
-			machine->disable();
+void stopSimulation(){
+	disableAllMachines();
+	b_isRunning = false;
+	if(environnementSimulator.joinable()) environnementSimulator.join();
+}
+
+void startHardware(){
+	b_isStarting = true;
+	Logger::info("Starting Environnement Hardware");
+	EtherCatFieldbus::start();
+	std::thread environnementHardwareStarter([](){
+		while(EtherCatFieldbus::isCyclicExchangeStarting() || (EtherCatFieldbus::isCyclicExchangeActive() && !EtherCatFieldbus::isCyclicExchangeStartSuccessfull())){
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		}
-	}
-
-	bool areAllMachinesEnabled() {
-		if (machines.empty()) return false;
-		for (auto machine : machines) {
-			if (!machine->isEnabled()) return false;
+		if(!EtherCatFieldbus::isCyclicExchangeStartSuccessfull()) {
+			b_isRunning = false;
+			b_isStarting = false;
+			Logger::warn("Failed to Start Environnement");
+			return;
 		}
-		return true;
-	}
+		
+		Logger::info("Started Environnement Hardware");
+		b_isRunning = true;
+		b_isStarting = false;
+	});
+	environnementHardwareStarter.detach();
+}
 
-	bool areNoMachinesEnabled() {
-		for(auto machine : machines) {
-			if (machine->isEnabled()) return false;
-		}
-		return true;
-	}
 
-	void addNode(std::shared_ptr<Node> node) {
-		switch (node->getType()) {
-			case Node::Type::MACHINE:
-				machines.push_back(std::dynamic_pointer_cast<Machine>(node));
-				break;
-			case Node::Type::IODEVICE:{
-				std::shared_ptr<Device> deviceNode = std::dynamic_pointer_cast<Device>(node);
-				switch (deviceNode->getDeviceType()) {
-					case Device::Type::ETHERCAT_DEVICE:
-						etherCatDevices.push_back(std::dynamic_pointer_cast<EtherCatDevice>(deviceNode));
-						break;
-					case Device::Type::NETWORK_DEVICE:
-						break;
-					case Device::Type::USB_DEVICE:
-						break;
+void stopHardware(){
+	EtherCatFieldbus::stop();
+	b_isRunning = false;
+}
+
+
+void updateEtherCatHardware(){
+	//interpret all slaves input data if operational
+	for (auto slave : EtherCatFieldbus::slaves) if (slave->isStateOperational()) slave->readInputs();
+	
+	//increments the playback position of all active manoeuvres
+	Playback::incrementPlaybackPosition();
+	
+	//update all nodes connected to ethercat slave nodes
+	Environnement::nodeGraph->evaluate(Device::Type::ETHERCAT_DEVICE);
+	
+	//ends playback of finished manoeuvres and rapids
+	Playback::updateActiveManoeuvreState();
+	
+	//prepare all slaves output data if operational
+	for (auto slave : EtherCatFieldbus::slaves) if (slave->isStateOperational()) slave->prepareOutputs();
+}
+
+void updateSimulation(){
+	
+	//get current time
+	double currentSimulationTime_seconds = Timing::getProgramTime_seconds() - simulationStartTime_seconds;
+	long long int currentSimulationTime_nanoseconds = Timing::getProgramTime_nanoseconds() - simulationStartTime_nanoseconds;
+	
+	//update time deltas
+	simulationTimeDelta_seconds = currentSimulationTime_seconds - simulationTime_seconds;
+	simulationTimeDelta_nanoseconds = currentSimulationTime_nanoseconds - simulationTime_nanoseconds;
+	
+	//update current time
+	simulationTime_seconds = currentSimulationTime_seconds;
+	simulationTime_nanoseconds = currentSimulationTime_nanoseconds;
+	
+	Playback::incrementPlaybackPosition();
+	
+	for(auto& machine : getMachines()) machine->simulateProcess();
+	
+	Playback::updateActiveManoeuvreState();
+}
+
+
+double getTime_seconds(){
+	if(b_isSimulating) return simulationTime_seconds;
+	else return EtherCatFieldbus::getCycleProgramTime_seconds();
+}
+
+long long int getTime_nanoseconds(){
+	if(b_isSimulating) return simulationTime_nanoseconds;
+	else return EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+}
+
+double getDeltaTime_seconds(){
+	if(b_isSimulating) return simulationTimeDelta_seconds;
+	else return EtherCatFieldbus::getCycleTimeDelta_seconds();
+}
+
+long long int getDeltaTime_nanoseconds(){
+	if(b_isSimulating) return simulationTimeDelta_nanoseconds;
+	else return EtherCatFieldbus::getCycleTimeDelta_nanoseconds();
+}
+
+
+
+
+std::shared_ptr<NodeGraph> nodeGraph = std::make_shared<NodeGraph>();
+std::vector<std::shared_ptr<EtherCatDevice>> etherCatDevices;
+std::vector<std::shared_ptr<Machine>> machines;
+
+std::shared_ptr<Machine> selectedMachine;
+std::shared_ptr<EtherCatDevice> selectedEtherCatDevice;
+
+std::vector<std::shared_ptr<EtherCatDevice>>& getEtherCatDevices() {
+	return etherCatDevices;
+}
+
+std::vector<std::shared_ptr<Machine>>& getMachines() {
+	return machines;
+}
+
+void enableAllMachines() {
+	for (auto machine : machines) machine->enable();
+}
+
+void disableAllMachines() {
+	for (auto machine : machines) machine->disable();
+}
+
+bool areAllMachinesEnabled() {
+	if (machines.empty()) return false;
+	for (auto machine : machines) {
+		if (!machine->isEnabled()) return false;
+	}
+	return true;
+}
+
+bool areNoMachinesEnabled() {
+	for(auto machine : machines) {
+		if (machine->isEnabled()) return false;
+	}
+	return true;
+}
+
+void addNode(std::shared_ptr<Node> node) {
+	switch (node->getType()) {
+		case Node::Type::MACHINE:
+			machines.push_back(std::dynamic_pointer_cast<Machine>(node));
+			break;
+		case Node::Type::IODEVICE:{
+			std::shared_ptr<Device> deviceNode = std::dynamic_pointer_cast<Device>(node);
+			switch (deviceNode->getDeviceType()) {
+				case Device::Type::ETHERCAT_DEVICE:
+					etherCatDevices.push_back(std::dynamic_pointer_cast<EtherCatDevice>(deviceNode));
+					break;
+				case Device::Type::NETWORK_DEVICE:
+					break;
+				case Device::Type::USB_DEVICE:
+					break;
+			}
+		}break;
+		default:
+			break;
+	}
+}
+
+void removeNode(std::shared_ptr<Node> node){
+	switch (node->getType()) {
+		case Node::Type::MACHINE:{
+			std::shared_ptr<Machine> machineNode = std::dynamic_pointer_cast<Machine>(node);
+			for (int i = 0; i < machines.size(); i++) {
+				if (machines[i] == machineNode) {
+					machines.erase(machines.begin() + i);
+					break;
 				}
-			}break;
-			default:
-				break;
-		}
-	}
-
-	void removeNode(std::shared_ptr<Node> node){
-		switch (node->getType()) {
-			case Node::Type::MACHINE:{
-				std::shared_ptr<Machine> machineNode = std::dynamic_pointer_cast<Machine>(node);
-				for (int i = 0; i < machines.size(); i++) {
-					if (machines[i] == machineNode) {
-						machines.erase(machines.begin() + i);
+			}
+		}break;
+		case Node::Type::IODEVICE:{
+			std::shared_ptr<Device> deviceNode = std::dynamic_pointer_cast<Device>(node);
+			switch (deviceNode->getDeviceType()) {
+			case Device::Type::ETHERCAT_DEVICE: {
+				std::shared_ptr<EtherCatDevice> etherCatDeviceNode = std::dynamic_pointer_cast<EtherCatDevice>(deviceNode);
+				for (int i = 0; i < etherCatDevices.size(); i++) {
+					if (etherCatDevices[i] == etherCatDeviceNode) {
+						etherCatDevices.erase(etherCatDevices.begin() + i);
 						break;
 					}
 				}
 			}break;
-			case Node::Type::IODEVICE:{
-				std::shared_ptr<Device> deviceNode = std::dynamic_pointer_cast<Device>(node);
-				switch (deviceNode->getDeviceType()) {
-				case Device::Type::ETHERCAT_DEVICE: {
-					std::shared_ptr<EtherCatDevice> etherCatDeviceNode = std::dynamic_pointer_cast<EtherCatDevice>(deviceNode);
-					for (int i = 0; i < etherCatDevices.size(); i++) {
-						if (etherCatDevices[i] == etherCatDeviceNode) {
-							etherCatDevices.erase(etherCatDevices.begin() + i);
-							break;
-						}
-					}
-				}break;
-				case Device::Type::NETWORK_DEVICE: {
-				}break;
-				case Device::Type::USB_DEVICE: {
-				}break;
-				}
+			case Device::Type::NETWORK_DEVICE: {
 			}break;
-			default:
-				break;
-		}
+			case Device::Type::USB_DEVICE: {
+			}break;
+			}
+		}break;
+		default:
+			break;
 	}
+}
 
-	char name[256] = "Default Environnement";
+char name[256] = "Default Environnement";
+char notes[65536] = "";
 
-	void setName(const char* newName) {
-		strcpy(name, newName);
-		//TODO: change title of window
-	}
+void setName(const char* newName) {
+	strcpy(name, newName);
+	updateName();
+}
 
-	const char* getName() { return name; }
+void updateName(){
+	ApplicationWindow::setWindowName(name);
+}
+
+const char* getName() { return name; }
+
+const char* getNotes() { return notes; }
+
+void setNotes(const char* _notes){
+	sprintf(notes, "%s", _notes);
+}
 
 }

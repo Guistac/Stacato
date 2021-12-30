@@ -18,10 +18,6 @@ class PositionControlledSingleAxisMachine : public Machine{
 	bool isAxisConnected();
 	std::shared_ptr<PositionControlledAxis> getAxis();
 
-	//======= STATE ========
-
-	bool b_enabled = false;
-
 	//======= MANUAL CONTROLS =========
 
 	double manualVelocityTarget_machineUnitsPerSecond = 0.0;
@@ -35,8 +31,4 @@ class PositionControlledSingleAxisMachine : public Machine{
 	double rapidVelocity_machineUnitsPerSecond = 0.0;
 	double rapidAcceleration_machineUnitsPerSecond = 0.0;
 
-	//======== SAVING & LOADING ========
-
-	virtual bool loadMachine(tinyxml2::XMLElement* xml);
-	virtual bool saveMachine(tinyxml2::XMLElement* xml);
 };

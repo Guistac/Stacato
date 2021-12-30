@@ -22,9 +22,6 @@
 namespace NodeEditor = ax::NodeEditor;
 
 void EnvironnementNodeEditorGui() {
-	
-    //TODO: should the graph be updated in the draw loop?
-    //Environnement::nodeGraph.evaluate();
 
     //========= NODE INSPECTOR AND ADDER PANEL =========
 
@@ -34,8 +31,32 @@ void EnvironnementNodeEditorGui() {
     glm::vec2 sideBarSize(sideBarWidth, ImGui::GetContentRegionAvail().y);
     if (ImGui::BeginChild("SideBar", sideBarSize)) {
 
-        //if there are no selected nodes, display the node adder list
-        if (Environnement::nodeGraph->selectedNodes.empty()) nodeAdder();
+        //if there are no selected nodes, display the Environnement Name Editor and Node adder list
+		if (Environnement::nodeGraph->selectedNodes.empty()) {
+			
+			ImGui::PushFont(Fonts::robotoBold20);
+			ImGui::Text("Environnement Editor");
+			ImGui::PopFont();
+			
+			
+			ImGui::PushFont(Fonts::robotoBold15);
+			if(ImGui::CollapsingHeader("Project")){
+				ImGui::PushFont(Fonts::robotoRegular15);
+				ImGui::Text("Project Name :");
+				ImGui::InputText("##EnvName", (char*)Environnement::getName(), 256);
+				if(ImGui::IsItemDeactivatedAfterEdit()) Environnement::updateName();
+				
+				ImGui::Text("Notes :");
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				ImGui::InputTextMultiline("##notes", (char*)Environnement::getNotes(), 65536);
+				ImGui::PopFont();
+			}
+			ImGui::PopFont();
+			
+			ImGui::Separator();
+			
+			nodeAdder();
+		}
         else if (Environnement::nodeGraph->selectedNodes.size() == 1) {
             std::shared_ptr<Node> selectedNode = Environnement::nodeGraph->selectedNodes.front();
             ImGui::PushFont(Fonts::robotoBold20);

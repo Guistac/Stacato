@@ -53,3 +53,61 @@ bool buttonCross(const char* id, float size) {
     ImGui::GetWindowDrawList()->AddLine(center + glm::vec2(+cross_extent, -cross_extent), center + glm::vec2(-cross_extent, +cross_extent), ImColor(glm::vec4(1.0, 1.0, 1.0, 1.0)), ImGui::GetTextLineHeight() * 0.15);
     return ret;
 }
+
+ToggleSwitch::ToggleSwitch(){
+	toggleTime_seconds = ImGui::GetTime() - travelTime_seconds;
+}
+
+bool ToggleSwitch::draw(const char* ID, bool& data, const char* option1, const char* option2, ImVec2 size){
+	
+	bool toggled = false;
+	if(ImGui::InvisibleButton(ID, size)) {
+		toggleTime_seconds = ImGui::GetTime();
+		toggled = true;
+	}
+	
+	ImVec2 min = ImGui::GetItemRectMin();
+	ImVec2 max = ImGui::GetItemRectMax();
+	
+	glm::vec2 opt1Min = min;
+	glm::vec2 opt1Max(max.x, min.y + size.y / 2.0);
+	glm::vec2 opt2Min(min.x, min.y + size.y / 2.0);
+	glm::vec2 opt2Max = max;
+	
+	ImDrawList* drawList = ImGui::GetWindowDrawList();
+	
+	drawList->AddRectFilled(min, max, ImGui::GetColorU32(ImGuiCol_MenuBarBg), 5.0);
+	
+	ImU32 selectionBoxColor = ImGui::GetColorU32(ImGuiCol_Button);
+	if(ImGui::IsItemActive()) selectionBoxColor = ImGui::GetColorU32(ImGuiCol_ButtonActive);
+	else if(ImGui::IsItemHovered()) selectionBoxColor = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
+	
+	float travelProgress = std::min(1.0, (ImGui::GetTime() - toggleTime_seconds) / travelTime_seconds);
+	
+	float selectionBoxHeight;
+	if(toggled) selectionBoxHeight = data ? min.y : opt2Min.y;
+	else selectionBoxHeight = data ? opt2Min.y - travelProgress * size.y / 2.0 : min.y + travelProgress * size.y / 2.0;
+	
+	ImVec2 selBoxMin = ImVec2(min.x, selectionBoxHeight);
+	ImVec2 selBoxMax = ImVec2(max.x, selBoxMin.y + size.y / 2.0);
+	
+	drawList->AddRectFilled(selBoxMin, selBoxMax, selectionBoxColor, 5.0);
+	 
+	ImVec2 opt1TextSize = ImGui::CalcTextSize(option1);
+	ImVec2 opt2TextSize = ImGui::CalcTextSize(option2);
+	
+	ImVec2 opt1TextPos = ImVec2(((opt1Min.x + opt1Max.x) / 2.0) - opt1TextSize.x / 2.0, ((opt1Min.y + opt1Max.y) / 2.0) - opt1TextSize.y / 2.0);
+	ImVec2 opt2TextPos = ImVec2(((opt2Min.x + opt2Max.x) / 2.0) - opt2TextSize.x / 2.0, ((opt2Min.y + opt2Max.y) / 2.0) - opt2TextSize.y / 2.0);
+	
+	bool itemDisabled = ImGui::GetItemFlags() & ImGuiItemFlags_Disabled;
+	
+	ImU32 opt1TextColor = data && travelProgress == 1.0 && !itemDisabled ? ImGui::GetColorU32(ImGuiCol_Text) : ImGui::GetColorU32(ImGuiCol_TextDisabled);
+	ImU32 opt2TextColor = !data && travelProgress == 1.0 && !itemDisabled ? ImGui::GetColorU32(ImGuiCol_Text) : ImGui::GetColorU32(ImGuiCol_TextDisabled);
+	
+	drawList->AddText(opt1TextPos, opt1TextColor, option1);
+	drawList->AddText(opt2TextPos, opt2TextColor, option2);
+	
+	
+	
+	return toggled;
+}

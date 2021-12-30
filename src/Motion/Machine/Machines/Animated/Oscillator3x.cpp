@@ -169,11 +169,7 @@ void Oscillator3x::stopOscillatorParameterPlayback() {
 
 //======================= STATE CONTROL ========================
 
-bool Oscillator3x::isEnabled() {
-	return b_enabled;
-}
-
-bool Oscillator3x::isReady() {
+bool Oscillator3x::isHardwareReady() {
 	//the machine is ready when a minimum of 1 axis is ready
 	for (int i = 0; i < 3; i++) {
 		if (isAxisConnected(i) && getAxis(i)->isReady()) return true;
@@ -181,7 +177,7 @@ bool Oscillator3x::isReady() {
 	return false;
 }
 
-void Oscillator3x::enable() {
+void Oscillator3x::enableHardware() {
 	if (isReady()) {
 		std::thread axisEnabler([this]() {	
 			for (int i = 0; i < 3; i++) {
@@ -203,6 +199,7 @@ void Oscillator3x::enable() {
 				}
 				if (allReadyEnabled) {
 					b_enabled = true;
+					onEnableHardware();
 					Logger::info("Enabled Machine {}", getName());
 					return;
 				}
@@ -215,10 +212,11 @@ void Oscillator3x::enable() {
 	}
 }
 
-void Oscillator3x::disable() {
+void Oscillator3x::disableHardware() {
 	for (int i = 0; i < 3; i++) {
 		if (isAxisConnected(i)) getAxis(i)->disable();
 	}
+	onDisableHardware();
 	b_startOscillator = false;
 	b_oscillatorActive = false;
 	b_enabled = false;
@@ -693,12 +691,26 @@ void Oscillator3x::getTimedParameterCurveTo(const std::shared_ptr<AnimatablePara
 	}
 }
 
+void Oscillator3x::onEnableHardware() {
+}
+
+void Oscillator3x::onDisableHardware() {
+}
 
 
-void Oscillator3x::enterSimulationMode() {}
-void Oscillator3x::exitSimulationMode() {}
-bool Oscillator3x::isInSimulationMode() {
+
+void Oscillator3x::simulateProcess() {
+	//TODO: Simulate Oscillator
+}
+
+bool Oscillator3x::isSimulationReady(){
 	return false;
+}
+
+void Oscillator3x::onEnableSimulation() {
+}
+
+void Oscillator3x::onDisableSimulation() {
 }
 
 

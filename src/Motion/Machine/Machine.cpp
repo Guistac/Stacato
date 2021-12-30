@@ -5,6 +5,31 @@
 #include "Motion/AnimatableParameter.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
 
+#include "Project/Environnement.h"
+
+bool Machine::isReady(){
+	if(Environnement::isSimulating()) return isSimulationReady() && Environnement::isRunning();
+	else return isHardwareReady();
+}
+
+void Machine::enable(){
+	if(Environnement::isSimulating() && isSimulationReady()){
+		onEnableSimulation();
+		b_enabled = true;
+	}else enableHardware();
+}
+
+void Machine::disable(){
+	if(Environnement::isSimulating()){
+		b_enabled = false;
+		onDisableSimulation();
+	}else disableHardware();
+}
+
+bool Machine::isEnabled(){
+	return b_enabled;
+}
+
 void Machine::addAnimatableParameter(std::shared_ptr<AnimatableParameter> parameter) {
 	parameter->machine = std::dynamic_pointer_cast<Machine>(shared_from_this());
 	if (!parameter->childParameters.empty()) {
