@@ -3,8 +3,6 @@
 #include "EtherCatDeviceFactory.h"
 
 #include "Fieldbus/Devices/SchneiderElectric/Lexium32.h"
-#include "Fieldbus/Devices/Artefact/EasyCAT/EasyCAT.h"
-#include "Fieldbus/Devices/Artefact/LedsAndButtons/LedsAndButtons.h"
 #include "Fieldbus/Devices/Yaskawa/VIPA-053-1EC01.h"
 #include "Fieldbus/Devices/Nanotec/PD4_E.h"
 
@@ -19,9 +17,7 @@ namespace EtherCatDeviceFactory {
 		allDevices = {
 			new Lexium32(),
 			new VipaBusCoupler_053_1EC01(),
-			new PD4_E(),
-			new EasyCAT(),
-			new LedsAndButtons()
+			new PD4_E()
 		};
 
 		//sort devices by manufacturer

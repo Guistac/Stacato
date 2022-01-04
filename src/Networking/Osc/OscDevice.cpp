@@ -4,18 +4,13 @@
 
 #include "Networking/Network.h"
 
-#include <imgui.h>
 #include <tinyxml2.h>
 #include "OscSocket.h"
 
-#include "Gui/Assets/Fonts.h"
+//SOEM Operating System Abstraction Layer
+//Uselful for precise thread sleep
+#include <osal.h>
 
-int sleepMicroseconds (uint32_t usec){
-   struct timespec ts;
-   ts.tv_sec = usec / 1000000;
-   ts.tv_nsec = (usec % 1000000) * 1000;
-   return nanosleep(&ts, NULL);
-}
 void OscDevice::assignIoData(){}
 
 void OscDevice::connect(){
@@ -29,7 +24,7 @@ void OscDevice::connect(){
 	runtime = std::thread([this](){
 		Logger::critical("START OSC THREAD");
 
-		float frequency = 1000.0;
+		float frequency = 120.0;
 		long long interval_nanoseconds = 1000000000.0 / frequency;
 		
 		long long cycleTime = Timing::getSystemTime_nanoseconds();
@@ -79,7 +74,7 @@ void OscDevice::connect(){
 			
 #endif
 			
-			sleepMicroseconds(sleepTime / 1000);
+			osal_usleep(sleepTime / 1000);
 			
 			std::shared_ptr<OscMessage> message = std::make_shared<OscMessage>("/Stacato/TestMessage");
 			message->addFloat(Timing::getProgramTime_seconds());
@@ -120,40 +115,215 @@ void OscDevice::readInputs(){}
 
 void OscDevice::prepareOutputs(){}
 
-void OscDevice::nodeSpecificGui(){
-	if(ImGui::BeginTabItem("Network")){
-		networkGui();
-		ImGui::EndTabItem();
-	}
-	if(ImGui::BeginTabItem("Data")){
-		dataGui();
-		ImGui::EndTabItem();
+
+
+void OscDevice::addOutgoingMessage(){
+	std::shared_ptr<OSC::Message> message = std::make_shared<OSC::Message>();
+	message->type = OSC::MessageType::OUTGOING_MESSAGE;
+	outgoingMessages.push_back(message);
+	selectMessage(message);
+}
+
+void OscDevice::addIncomingMessage(){
+	std::shared_ptr<OSC::Message> message = std::make_shared<OSC::Message>();
+	message->type = OSC::MessageType::INCOMING_MESSAGE;
+	incomingMessages.push_back(message);
+	selectMessage(message);
+}
+
+void OscDevice::deleteMessage(std::shared_ptr<OSC::Message> msg){
+	int messageIndex = getMessageIndex(msg);
+	if(messageIndex == -1) return;
+	selectedMessage = nullptr;
+	switch(msg->type){
+		case OSC::MessageType::OUTGOING_MESSAGE:
+			outgoingMessages.erase(outgoingMessages.begin() + messageIndex);
+			break;
+		case OSC::MessageType::INCOMING_MESSAGE:
+			incomingMessages.erase(incomingMessages.begin() + messageIndex);
+			break;
 	}
 }
 
-void OscDevice::networkGui(){
-	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("UDP Socket");
-	ImGui::PopFont();
-	ImGui::Text("Remote IP");
-	ImGui::InputInt4("##RemoteIP", remoteIP);
-	ImGui::Text("Remote Port");
-	ImGui::InputInt("##RemotePort", &remotePort);
-	ImGui::Text("Listening Port");
-	ImGui::InputInt("##ListeningPort", &listeningPort);
+void OscDevice::moveMessageUp(std::shared_ptr<OSC::Message> msg){
+	int messageIndex = getMessageIndex(msg);
+	switch(msg->type){
+		case OSC::MessageType::OUTGOING_MESSAGE:
+			if(messageIndex == -1 || messageIndex == 0) return;
+			outgoingMessages.erase(outgoingMessages.begin() + messageIndex);
+			outgoingMessages.insert(outgoingMessages.begin() + messageIndex - 1, msg);
+			break;
+		case OSC::MessageType::INCOMING_MESSAGE:
+			if(messageIndex == -1 || messageIndex == 0) return;
+			incomingMessages.erase(incomingMessages.begin() + messageIndex);
+			incomingMessages.insert(incomingMessages.begin() + messageIndex - 1, msg);
+			break;
+	}
 }
 
-void OscDevice::dataGui(){
-	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Outgoing Messages");
-	ImGui::PopFont();
-	
-	ImGui::Separator();
-	
-	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Incoming Messages");
-	ImGui::PopFont();
+void OscDevice::moveMessageDown(std::shared_ptr<OSC::Message> msg){
+	int messageIndex = getMessageIndex(msg);
+	switch(msg->type){
+		case OSC::MessageType::OUTGOING_MESSAGE:
+			if(messageIndex == -1 || messageIndex == outgoingMessages.size() - 1) return;
+			outgoingMessages.erase(outgoingMessages.begin() + messageIndex);
+			outgoingMessages.insert(outgoingMessages.begin() + messageIndex + 1, msg);
+			break;
+		case OSC::MessageType::INCOMING_MESSAGE:
+			if(messageIndex == -1 || messageIndex == incomingMessages.size() - 1) return;
+			incomingMessages.erase(incomingMessages.begin() + messageIndex);
+			incomingMessages.insert(incomingMessages.begin() + messageIndex + 1, msg);
+			break;
+	}
 }
+
+int OscDevice::getMessageIndex(std::shared_ptr<OSC::Message> msg){
+	switch(msg->type){
+		case OSC::MessageType::OUTGOING_MESSAGE:
+			for(int i = 0; i < outgoingMessages.size(); i++) if(outgoingMessages[i] == msg) return i;
+			break;
+		case OSC::MessageType::INCOMING_MESSAGE:
+			for(int i = 0; i < incomingMessages.size(); i++) if(incomingMessages[i] == msg) return i;
+			break;
+	}
+	return -1;
+}
+
+void OscDevice::selectMessage(std::shared_ptr<OSC::Message> msg){
+	selectedMessage = msg;
+}
+
+bool OscDevice::isMessageSelected(std::shared_ptr<OSC::Message> msg){
+	return selectedMessage == msg;
+}
+
+void OscDevice::addArgument(std::shared_ptr<OSC::Message> msg){
+	std::shared_ptr<OSC::Argument> argument = std::make_shared<OSC::Argument>(msg);
+	msg->arguments.push_back(argument);
+	addIoData(argument->pin);
+	updatePins();
+}
+
+void OscDevice::removeArgument(std::shared_ptr<OSC::Message> msg, std::shared_ptr<OSC::Argument> arg){
+	int argumentIndex = msg->getArgumentIndex(arg);
+	if(argumentIndex == -1) return;
+	removeIoData(arg->pin);
+	msg->arguments.erase(msg->arguments.begin() + argumentIndex);
+}
+
+void OscDevice::moveArgumentUp(std::shared_ptr<OSC::Message> msg, std::shared_ptr<OSC::Argument> arg){
+	int argumentIndex = msg->getArgumentIndex(arg);
+	if(argumentIndex == -1 || argumentIndex == 0) return;
+	msg->arguments.erase(msg->arguments.begin() + argumentIndex);
+	msg->arguments.insert(msg->arguments.begin() + argumentIndex - 1, arg);
+}
+
+void OscDevice::moveArgumentDown(std::shared_ptr<OSC::Message> msg, std::shared_ptr<OSC::Argument> arg){
+	int argumentIndex = msg->getArgumentIndex(arg);
+	if(argumentIndex == -1 || argumentIndex == msg->arguments.size() - 1) return;
+	msg->arguments.erase(msg->arguments.begin() + argumentIndex);
+	msg->arguments.insert(msg->arguments.begin() + argumentIndex + 1, arg);
+}
+
+void OscDevice::updatePins(){
+	for(int i = 0; i < outgoingMessages.size(); i++){
+		for(int j = 0; j < outgoingMessages[i]->arguments.size(); j++){
+			auto& arg = outgoingMessages[i]->arguments[j];
+			arg->setIndex(i, j);
+		}
+	}
+	for(int i = 0; i < incomingMessages.size(); i++){
+		for(int j = 0; j < incomingMessages[i]->arguments.size(); j++){
+			auto& arg = incomingMessages[i]->arguments[j];
+			arg->setIndex(i, j);
+		}
+	}
+	
+	//erase all input pins from the nodes pin vectors
+	std::vector<std::shared_ptr<NodePin>>& inputPins = getNodeInputData();
+	std::vector<std::shared_ptr<NodePin>>& outputPins = getNodeOutputData();
+	inputPins.clear();
+	outputPins.clear();
+	//and add them back in the correct order
+	for(auto& outgoingMessage : outgoingMessages){
+		for(auto& argument : outgoingMessage->arguments) inputPins.push_back(argument->pin);
+	}
+	for(auto& incomingMessage : incomingMessages){
+		for(auto& argument : incomingMessage->arguments) inputPins.push_back(argument->pin);
+	}
+}
+
+
+
+
+
+
+
+
+
+namespace OSC{
+
+std::vector<ArgumentType> argumentTypes = {
+	{ArgumentType::Type::FLOAT_DATA, "Float", "Float"},
+	{ArgumentType::Type::DOUBLE_DATA, "Double", "Double"},
+	{ArgumentType::Type::INTEGER_DATA, "Integer", "Integer"},
+	{ArgumentType::Type::BOOLEAN_DATA, "Boolean", "Boolean"}
+};
+
+std::vector<ArgumentType>& getArgumentTypes(){
+	return argumentTypes;
+}
+
+ArgumentType* getArgumentType(ArgumentType::Type t){
+	for(auto& argtype : argumentTypes){
+		if(t == argtype.type) return &argtype;
+	}
+	return nullptr;
+}
+
+ArgumentType* getArgumentType(const char* saveName){
+	for(auto& argtype : argumentTypes){
+		if(strcmp(argtype.saveName, saveName) == 0) return &argtype;
+	}
+	return nullptr;
+}
+
+Argument::Argument(std::shared_ptr<Message> msg) : parentMessage(msg){
+	switch(parentMessage->type){
+		case OSC::MessageType::OUTGOING_MESSAGE:
+			pin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "dummyName");
+			break;
+		case OSC::MessageType::INCOMING_MESSAGE:
+			pin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "dummyName");
+			break;
+	}
+}
+
+void Argument::setType(ArgumentType::Type t){
+	type = t;
+}
+
+int Message::getArgumentIndex(std::shared_ptr<Argument> arg){
+	for(int i = 0; i < arguments.size(); i++) if(arguments[i] == arg) return i;
+	return -1;
+}
+
+void Argument::setIndex(int messageIndex, int argumentIndex){
+	switch(parentMessage->type){
+		case OSC::MessageType::OUTGOING_MESSAGE:
+			sprintf((char*)pin->getSaveName(), "OutgoingMessage%iArgument%i", messageIndex, argumentIndex);
+			sprintf((char*)pin->getDisplayName(), "Outgoing Message %i Argument %i", messageIndex, argumentIndex);
+			break;
+		case OSC::MessageType::INCOMING_MESSAGE:
+			sprintf((char*)pin->getSaveName(), "IncomingMessage%iArgument%i", messageIndex, argumentIndex);
+			sprintf((char*)pin->getDisplayName(), "Incoming Message %i Argument %i", messageIndex, argumentIndex);
+			break;
+	}
+}
+
+};
+
+
 
 
 bool OscDevice::save(tinyxml2::XMLElement* xml){
