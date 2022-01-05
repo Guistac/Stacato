@@ -124,6 +124,7 @@ public:
 	DEFINE_VIPA_MODULE(VIPA_050_1BS00, "VIPA 050-1BS00", "SSI RS422 (DC24V)")
 	
 	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodeData::Type::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_OUTPUT, "SSI Encoder");
+	std::shared_ptr<NodePin> resetPin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Encoder");
 	
 	uint32_t encoderValue;
 	uint16_t time_microseconds;
@@ -139,6 +140,8 @@ public:
 	void onSetParentBusCoupler(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler);
 	std::shared_ptr<PositionFeedbackDevice> encoderDevice = std::make_shared<PositionFeedbackDevice>("SSI Encoder", PositionUnit::Unit::REVOLUTION, PositionFeedback::Type::ABSOLUTE_FEEDBACK);
 	void updateEncoderWorkingRange();
+	void updateResetPinVisibility();
+	bool b_isResetting = false;
 	
 	//==== Data Type ====
 	
@@ -247,6 +250,7 @@ public:
 	ClockEdge::Edge clockEdge = ClockEdge::Edge::RISING_EDGE;
 	Encoding::Format encodingFormat = Encoding::Format::BINARY;
 	bool b_centerRangeOnZero = false;
+	bool b_hasResetSignal = false;
 	
 	//==== Gui Stuff ====
 	virtual void moduleParameterGui();

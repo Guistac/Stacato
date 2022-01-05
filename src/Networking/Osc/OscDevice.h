@@ -14,6 +14,19 @@ namespace OSC{
 		INCOMING_MESSAGE
 	};
 
+/*
+	enum class ArgumentType{
+		FLOAT_DATA,
+		DOUBLE_DATA,
+		INTEGER_DATA,
+		BOOLEAN_DATA
+	};
+
+	const char* getSaveName(ArgumentType t);
+	const char* getDisplayName(ArgumentType t);
+	ArgumentType getType(const char* saveName);
+*/
+
 	struct ArgumentType{
 		enum class Type{
 			FLOAT_DATA,
@@ -25,6 +38,7 @@ namespace OSC{
 		char saveName[64];
 		char displayName[64];
 	};
+ 
 
 	std::vector<ArgumentType>& getArgumentTypes();
 	ArgumentType* getArgumentType(ArgumentType::Type t);

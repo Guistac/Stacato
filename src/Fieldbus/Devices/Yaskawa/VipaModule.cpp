@@ -5,6 +5,7 @@
 #include "NodeGraph/NodePin.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
@@ -202,10 +203,12 @@ void VIPA_022_1BF00::writeOutputs(){
 void VIPA_050_1BS00::onConstruction(){
 	encoderPin->set(encoderDevice);
 	outputPins.push_back(encoderPin);
+	outputPins.push_back(resetPin);
 	inputBitCount = 48;
 	inputByteCount = 6;
 	outputBitCount = 0;
 	outputByteCount = 0;
+	updateResetPinVisibility();
 }
 
 void VIPA_050_1BS00::onSetParentBusCoupler(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler){
@@ -214,6 +217,7 @@ void VIPA_050_1BS00::onSetParentBusCoupler(std::shared_ptr<VipaBusCoupler_053_1E
 
 void VIPA_050_1BS00::onSetIndex(int i){
 	sprintf((char*)encoderPin->getDisplayName(), "Module %i SSI Encoder", moduleIndex);
+	sprintf((char*)resetPin->getDisplayName(), "Module %i Encoder Reset", moduleIndex);
 }
 
 void VIPA_050_1BS00::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -265,7 +269,6 @@ bool VIPA_050_1BS00::configureParameters(){
 
 void VIPA_050_1BS00::readInputs(){
 	int incrementsPerRevolution = 0x1 << singleTurnBitCount;
-	
 	int multiturnBitCount = encoderBitCount - singleTurnBitCount;
 	int maxRevolutions = 0x1 << multiturnBitCount;
 	
@@ -281,6 +284,18 @@ void VIPA_050_1BS00::readInputs(){
 	
 	encoderDevice->positionRaw_positionUnits = encoderPosition_revolutions;
 	encoderDevice->velocity_positionUnitsPerSecond = encoderVelocity_revolutionsPerSecond;
+	
+	encoderDevice->b_canHardReset = b_hasResetSignal && resetPin->isConnected();
+	
+	if(encoderDevice->b_doHardReset){
+		encoderDevice->b_doHardReset = false;
+		b_isResetting = true;
+		resetPin->set(true);
+	}
+	else if(b_isResetting && encoderValue == 0x0) {
+		b_isResetting = false;
+		resetPin->set(false);
+	}
 }
 
 void VIPA_050_1BS00::writeOutputs(){ /*No Outputs*/ }
@@ -324,27 +339,12 @@ void VIPA_050_1BS00::moduleParameterGui(){
 	singleTurnBitCount = std::min(maxEncoderBits, singleTurnBitCount);
 	singleTurnBitCount = std::max(minEncoderBits, singleTurnBitCount);
 	
-	if(ImGui::Checkbox("Center Encoder Range on Zero", &b_centerRangeOnZero)){
-		updateEncoderWorkingRange();
-	}
+	if(ImGui::Checkbox("Has Reset Signal", &b_hasResetSignal)) updateResetPinVisibility();
+	
+	if(ImGui::Checkbox("Center Encoder Range on Zero", &b_centerRangeOnZero)) updateEncoderWorkingRange();
 	
 	int multiturnBitCount = encoderBitCount - singleTurnBitCount;
 	int maxRevolutions = 0x1 << multiturnBitCount;
-	
-	ImGui::Text("Encoder working range is %.3f revolutions to %.3f revolutions", encoderDevice->getMinPosition(), encoderDevice->getMaxPosition());
-	
-	glm::vec2 progressBarSize(widgetWidth, ImGui::GetFrameHeight());
-	
-	static char encoderRangeProgressString[64];
-	sprintf(encoderRangeProgressString, "%.3f revolutions", encoderDevice->positionRaw_positionUnits);
-	ImGui::ProgressBar((float)encoderDevice->getPositionInRange(), progressBarSize, encoderRangeProgressString);
-	   
-	static char encoderVelocityString[64];
-	sprintf(encoderVelocityString, "%.3f rev/s", encoderVelocity_revolutionsPerSecond);
-	float velocityProgress = std::abs(encoderVelocity_revolutionsPerSecond) / 10.0;
-	ImGui::ProgressBar(velocityProgress, progressBarSize, encoderVelocityString);
-	
-	ImGui::Separator();
 	
 	//----------- ADVANCED SSI SETTINGS -------------
 	
@@ -372,6 +372,26 @@ void VIPA_050_1BS00::moduleParameterGui(){
 		}
 		ImGui::TreePop();
 	}
+	
+	ImGui::Separator();
+	
+	ImGui::Text("Encoder position in working range (%.3f to %.3f revolutions)", encoderDevice->getMinPosition(), encoderDevice->getMaxPosition());
+	
+	glm::vec2 progressBarSize(widgetWidth, ImGui::GetFrameHeight());
+	
+	static char encoderRangeProgressString[64];
+	sprintf(encoderRangeProgressString, "%.3f revolutions", encoderDevice->positionRaw_positionUnits);
+	ImGui::ProgressBar((float)encoderDevice->getPositionInRange(), progressBarSize, encoderRangeProgressString);
+	   
+	static char encoderVelocityString[64];
+	sprintf(encoderVelocityString, "%.3f rev/s", encoderVelocity_revolutionsPerSecond);
+	float velocityProgress = std::abs(encoderVelocity_revolutionsPerSecond) / 10.0;
+	ImGui::ProgressBar(velocityProgress, progressBarSize, encoderVelocityString);
+	
+	bool disableResetButton = !b_hasResetSignal;
+	if(disableResetButton) BEGIN_DISABLE_IMGUI_ELEMENT
+	if(ImGui::Button("Reset Encoder")) encoderDevice->hardReset();
+	if(disableResetButton) END_DISABLE_IMGUI_ELEMENT
 }
 
 void VIPA_050_1BS00::updateEncoderWorkingRange(){
@@ -386,11 +406,16 @@ void VIPA_050_1BS00::updateEncoderWorkingRange(){
 	}
 }
 
+void VIPA_050_1BS00::updateResetPinVisibility(){
+	resetPin->setVisible(b_hasResetSignal);
+}
+
 bool VIPA_050_1BS00::save(tinyxml2::XMLElement* xml){
 	xml->SetAttribute("Encoding", getEncoding(encodingFormat)->saveName);
 	xml->SetAttribute("TransmissionRate", getTransmissionRate(transmissionFrequency)->saveName);
 	xml->SetAttribute("IdleTime", getPauseTime(pausetime)->saveName);
 	xml->SetAttribute("CenterRangeOnZero", b_centerRangeOnZero);
+	xml->SetAttribute("HasResetSignal", b_hasResetSignal);
 	xml->SetAttribute("TotalBitCount", encoderBitCount);
 	xml->SetAttribute("SingleTurnBitCount", singleTurnBitCount);
 	xml->SetAttribute("IgnoredBitCount", normalisationBitCount);
@@ -415,6 +440,7 @@ bool VIPA_050_1BS00::load(tinyxml2::XMLElement* xml){
 	if(getPauseTime(idleTimeString) == nullptr) return Logger::warn("Could not identify idle time attribute");
 	pausetime = getPauseTime(idleTimeString)->microseconds;
 	if(xml->QueryBoolAttribute("CenterRangeOnZero", &b_centerRangeOnZero) != XML_SUCCESS) return Logger::warn("Could not find Center on zero attribute");
+	if(xml->QueryBoolAttribute("HasResetSignal", &b_hasResetSignal) != XML_SUCCESS) return Logger::warn("Could not find Has Reset Signal attribute");
 	if(xml->QueryIntAttribute("TotalBitCount", &encoderBitCount) != XML_SUCCESS) return Logger::warn("Could not find Total Bit Count attribute");
 	if(xml->QueryIntAttribute("SingleTurnBitCount", &singleTurnBitCount) != XML_SUCCESS) return Logger::warn("Could not find Singleturn bit count attribute");
 	if(xml->QueryIntAttribute("IgnoredBitCount", &normalisationBitCount) != XML_SUCCESS) return Logger::warn("Could not find ignored bit count attribute");

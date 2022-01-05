@@ -10,6 +10,31 @@
                 <InputPins/>
                 <OutputPins/>
             </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="false" CustomName="Vipa Bus Coupler (053_1EC01)" UniqueID="2">
+                <NodeEditorPosition x="693" y="-1005"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                    <SLIOModules>
+                        <Module Type="VIPA 050-1BS00" Encoding="Binary" TransmissionRate="500Khz" IdleTime="32" CenterRangeOnZero="true" HasResetSignal="true" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" Zero_revolutions="0"/>
+                        <Module Type="VIPA 022-1BF00"/>
+                    </SLIOModules>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveName="Digital Output 0" DisplayName="Module 1 Digital Output 0" DataType="Boolean" UniqueID="6" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Output 1" DisplayName="Module 1 Digital Output 1" DataType="Boolean" UniqueID="7" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Output 2" DisplayName="Module 1 Digital Output 2" DataType="Boolean" UniqueID="8" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Output 3" DisplayName="Module 1 Digital Output 3" DataType="Boolean" UniqueID="9" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Output 4" DisplayName="Module 1 Digital Output 4" DataType="Boolean" UniqueID="10" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Output 5" DisplayName="Module 1 Digital Output 5" DataType="Boolean" UniqueID="11" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Output 6" DisplayName="Module 1 Digital Output 6" DataType="Boolean" UniqueID="12" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Output 7" DisplayName="Module 1 Digital Output 7" DataType="Boolean" UniqueID="13" Boolean="false" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="3" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="SSI Encoder" DisplayName="Module 0 SSI Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="4" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="Reset Encoder" DisplayName="Module 0 Encoder Reset" DataType="Boolean" UniqueID="5" Boolean="false" Visible="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links/>
     </NodeGraph>

@@ -119,6 +119,9 @@ public:
 	double getVelocity() { return velocity_positionUnitsPerSecond; }
 	//is the position moving
 	bool isMoving() { return b_moving; }
+	
+	bool canHardReset(){ return b_canHardReset; }
+	void hardReset(){ if(b_canHardReset) b_doHardReset = true; }
 
 	double positionRaw_positionUnits = 0.0;
 	double positionOffset_positionUnits = 0.0;
@@ -126,6 +129,9 @@ public:
 	double rangeMin_positionUnits;
 	double velocity_positionUnitsPerSecond = 0.0;
 	bool b_moving = false;
+	
+	bool b_doHardReset = true;
+	bool b_canHardReset = false;
 };
 
 
