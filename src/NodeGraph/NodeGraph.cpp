@@ -63,9 +63,6 @@ bool NodeGraph::isConnectionValid(std::shared_ptr<NodePin> data1, std::shared_pt
 		if (link->outputData == data2 || link->inputData == data2) return false;
 	}
 
-	//don't allow connecting two NodePin pins on the same node
-	//if (data1->parentNode == data2->parentNode) return false;
-
 	//if all checks pass, check if the data types are compatible to decide validity
 	return data1->isDataTypeCompatible(data2);
 }

@@ -180,7 +180,7 @@ void Node::nodeGui() {
         float outputLabelSpacing = (inputNodeWidth - outputLabelWidth - 2 * nodePadding) / 2.0;
         ImGui::SameLine(outputLabelSpacing);
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
-        ImGui::Text(outputLabel);
+        ImGui::Text("%s", outputLabel);
         ImGui::PopStyleColor();
         ImGui::Spacing();
 
@@ -235,7 +235,7 @@ void Node::nodeGui() {
         float inputLabelSpacing = (outputNodeWidth - inputLabelWidth - 2 * nodePadding) / 2.0;
         ImGui::SameLine(inputLabelSpacing, 0);
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
-        ImGui::Text(inputLabel);
+        ImGui::Text("%s", inputLabel);
         ImGui::PopStyleColor();
         ImGui::Spacing();
 

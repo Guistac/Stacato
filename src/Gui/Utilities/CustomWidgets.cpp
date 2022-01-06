@@ -111,3 +111,83 @@ bool ToggleSwitch::draw(const char* ID, bool& data, const char* option1, const c
 	
 	return toggled;
 }
+
+
+namespace ListManagerWidget{
+	Interaction draw(bool disableMoveUp, bool disableMoveDown, const char* ID, float buttonHeight){
+		
+		ImGui::PushID(ID);
+		ImGui::BeginGroup();
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
+		
+		if(buttonHeight == 0.0) buttonHeight = ImGui::GetTextLineHeight();
+		ImVec2 buttonSize = ImVec2(buttonHeight, buttonHeight);
+		float rounding = ImGui::GetStyle().FrameRounding;
+		
+		ImVec2 min, max;
+		ImColor buttonColor;
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		ImColor pictogramColor = ImGui::GetColorU32(ImGuiCol_Text);
+		
+		bool deletePressed = ImGui::InvisibleButton("##delete", buttonSize);
+		min = ImGui::GetItemRectMin();
+		max = ImGui::GetItemRectMax();
+		buttonColor = ImGui::GetColorU32( ImGui::IsItemActive() ? ImGuiCol_ButtonActive : ImGui::IsItemHovered() ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+		drawList->AddRectFilled(min, max, buttonColor, rounding, ImDrawFlags_RoundCornersLeft);
+		float crossSpacing = 0.3;
+		float lineThickness = ImGui::GetTextLineHeight() * 0.1;
+		drawList->AddLine(
+						  ImVec2(min.x + buttonHeight * crossSpacing, min.y + buttonHeight * crossSpacing),
+						  ImVec2(min.x + buttonHeight - buttonHeight * crossSpacing, min.y + buttonHeight - buttonHeight * crossSpacing),
+						  pictogramColor, lineThickness);
+		drawList->AddLine(
+						  ImVec2(min.x + buttonHeight - buttonHeight * 0.3, min.y + buttonHeight * 0.3),
+						  ImVec2(min.x + buttonHeight * 0.3, min.y + buttonHeight - buttonHeight * 0.3),
+						  pictogramColor, lineThickness);
+
+		float triangleSpacing = 0.3;
+		
+		ImGui::SameLine();
+		if(disableMoveUp) {
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+			pictogramColor = ImGui::GetColorU32(ImGuiCol_TextDisabled);
+		}else pictogramColor = ImGui::GetColorU32(ImGuiCol_Text);
+		bool moveUpPressed = ImGui::InvisibleButton("##moveup", buttonSize);
+		min = ImGui::GetItemRectMin();
+		max = ImGui::GetItemRectMax();
+		buttonColor = ImGui::GetColorU32( ImGui::IsItemActive() ? ImGuiCol_ButtonActive : ImGui::IsItemHovered() ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+		drawList->AddRectFilled(min, max, buttonColor);
+		drawList->AddTriangleFilled(
+									ImVec2(min.x + buttonHeight * 0.5f, min.y + buttonHeight * triangleSpacing),
+									ImVec2(min.x + buttonHeight - buttonHeight * triangleSpacing, min.y + buttonHeight - buttonHeight * triangleSpacing),
+									ImVec2(min.x + buttonHeight * triangleSpacing, min.y + buttonHeight - buttonHeight * triangleSpacing),
+									pictogramColor);
+		if(disableMoveUp) ImGui::PopItemFlag();
+		
+		ImGui::SameLine();
+		if(disableMoveDown) {
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+			pictogramColor = ImGui::GetColorU32(ImGuiCol_TextDisabled);
+		}else pictogramColor = ImGui::GetColorU32(ImGuiCol_Text);
+		bool moveDownPressed = ImGui::InvisibleButton("##movedown", buttonSize);
+		min = ImGui::GetItemRectMin();
+		max = ImGui::GetItemRectMax();
+		buttonColor = ImGui::GetColorU32( ImGui::IsItemActive() ? ImGuiCol_ButtonActive : ImGui::IsItemHovered() ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+		drawList->AddRectFilled(min, max, buttonColor, rounding, ImDrawFlags_RoundCornersRight);
+		drawList->AddTriangleFilled(
+									ImVec2(min.x + buttonHeight * 0.5f, min.y + buttonHeight - buttonHeight * triangleSpacing),
+									ImVec2(min.x + buttonHeight * triangleSpacing, min.y + buttonHeight * triangleSpacing),
+									ImVec2(min.x + buttonHeight - buttonHeight * triangleSpacing, min.y + buttonHeight * triangleSpacing),
+									pictogramColor);
+		if(disableMoveDown) ImGui::PopItemFlag();
+		
+		ImGui::PopStyleVar();
+		ImGui::EndGroup();
+		ImGui::PopID();
+		
+		if(moveUpPressed) return Interaction::MOVE_UP;
+		else if(moveDownPressed) return Interaction::MOVE_DOWN;
+		else if(deletePressed) return Interaction::DELETE;
+		else return Interaction::NONE;
+	}
+}

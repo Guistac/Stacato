@@ -18,3 +18,12 @@ public:
 	const double travelTime_seconds = 0.1;	
 };
 
+namespace ListManagerWidget{
+	enum class Interaction{
+		NONE,
+		MOVE_UP,
+		MOVE_DOWN,
+		DELETE
+	};
+	Interaction draw(bool disableMoveUp, bool disableMoveDown, const char* ID = "", float buttonHeight = 0.0);
+};

@@ -2,38 +2,27 @@
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="OscDevice" Split="false" CustomName="Osc Device" UniqueID="1">
-                <NodeEditorPosition x="677" y="-1093"/>
+                <NodeEditorPosition x="567" y="-971"/>
                 <NodeSpecificData>
-                    <RemoteIP ipv4-0="192" ipv4-1="168" ipv4-2="1" ipv4-3="3"/>
-                    <Ports send="6969" receive="456"/>
-                </NodeSpecificData>
-                <InputPins/>
-                <OutputPins/>
-            </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="false" CustomName="Vipa Bus Coupler (053_1EC01)" UniqueID="2">
-                <NodeEditorPosition x="693" y="-1005"/>
-                <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="0"/>
-                    <SLIOModules>
-                        <Module Type="VIPA 050-1BS00" Encoding="Binary" TransmissionRate="500Khz" IdleTime="32" CenterRangeOnZero="true" HasResetSignal="true" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" Zero_revolutions="0"/>
-                        <Module Type="VIPA 022-1BF00"/>
-                    </SLIOModules>
+                    <RemoteIP ipv4-0="1" ipv4-1="2" ipv4-2="3" ipv4-3="4"/>
+                    <Ports send="123" receive="123"/>
+                    <OutgoingMessages>
+                        <OSCMessage Address="/Stacato/" SendingFrequency="1" IncludeTimestamp="false">
+                            <OSCArgument DataType="Boolean" PinSaveName="OutgoingMessage0Argument0"/>
+                            <OSCArgument DataType="Float" PinSaveName="OutgoingMessage0Argument1"/>
+                            <OSCArgument DataType="Integer" PinSaveName="OutgoingMessage0Argument2"/>
+                            <OSCArgument DataType="Double" PinSaveName="OutgoingMessage0Argument3"/>
+                        </OSCMessage>
+                    </OutgoingMessages>
+                    <IncomingMessages/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveName="Digital Output 0" DisplayName="Module 1 Digital Output 0" DataType="Boolean" UniqueID="6" Boolean="false" Visible="true"/>
-                    <InputPin SaveName="Digital Output 1" DisplayName="Module 1 Digital Output 1" DataType="Boolean" UniqueID="7" Boolean="false" Visible="true"/>
-                    <InputPin SaveName="Digital Output 2" DisplayName="Module 1 Digital Output 2" DataType="Boolean" UniqueID="8" Boolean="false" Visible="true"/>
-                    <InputPin SaveName="Digital Output 3" DisplayName="Module 1 Digital Output 3" DataType="Boolean" UniqueID="9" Boolean="false" Visible="true"/>
-                    <InputPin SaveName="Digital Output 4" DisplayName="Module 1 Digital Output 4" DataType="Boolean" UniqueID="10" Boolean="false" Visible="true"/>
-                    <InputPin SaveName="Digital Output 5" DisplayName="Module 1 Digital Output 5" DataType="Boolean" UniqueID="11" Boolean="false" Visible="true"/>
-                    <InputPin SaveName="Digital Output 6" DisplayName="Module 1 Digital Output 6" DataType="Boolean" UniqueID="12" Boolean="false" Visible="true"/>
-                    <InputPin SaveName="Digital Output 7" DisplayName="Module 1 Digital Output 7" DataType="Boolean" UniqueID="13" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="OutgoingMessage0Argument0" DisplayName="BOOL" DataType="Boolean" UniqueID="2" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="OutgoingMessage0Argument1" DisplayName="FLOAT" DataType="Real" UniqueID="3" Real="0" Visible="true"/>
+                    <InputPin SaveName="OutgoingMessage0Argument2" DisplayName="INT" DataType="Real" UniqueID="4" Real="0" Visible="true"/>
+                    <InputPin SaveName="OutgoingMessage0Argument3" DisplayName="DOUBLE" DataType="Real" UniqueID="5" Real="0" Visible="true"/>
                 </InputPins>
-                <OutputPins>
-                    <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="3" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="SSI Encoder" DisplayName="Module 0 SSI Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="4" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveName="Reset Encoder" DisplayName="Module 0 Encoder Reset" DataType="Boolean" UniqueID="5" Boolean="false" Visible="true"/>
-                </OutputPins>
+                <OutputPins/>
             </Node>
         </Nodes>
         <Links/>

@@ -18,87 +18,15 @@ void OscDevice::connect(){
 	oscSocket->open(listeningPort, std::vector<int>({remoteIP[0], remoteIP[1], remoteIP[2], remoteIP[3]}), remotePort);
 	
 	if(!oscSocket->isOpen()) return Logger::error("{} : Could not start Osc Socket", getName());
-	Logger::info("{} : Started Osc Socket, Remote Address: {}.{}.{}.{}:{}  Listening Port: {}", getName(), remoteIP[0], remoteIP[1], remoteIP[2], remoteIP[3], remotePort, listeningPort);
+	Logger::info("{} : Started Osc Socket, Remote Address: {}.{}.{}.{}:{}, Listening on Port: {}", getName(), remoteIP[0], remoteIP[1], remoteIP[2], remoteIP[3], remotePort, listeningPort);
 	
+	for(auto& outgoingMessage : outgoingMessages) outgoingMessage->startSendingRuntime(oscSocket);
 	b_enabled = true;
-	runtime = std::thread([this](){
-		Logger::critical("START OSC THREAD");
-
-		float frequency = 120.0;
-		long long interval_nanoseconds = 1000000000.0 / frequency;
-		
-		long long cycleTime = Timing::getSystemTime_nanoseconds();
-		long long previousTime = cycleTime - interval_nanoseconds;
-		long long cycleDeltaTime;
-		long long cycleDeltaTimeError;
-		long long cycleDeltaTimeErrorSmoothed = 0.0;
-		long long sleepTime = 0;
-		int integralTerm = 0;
-		
-		long long printTime = 0;
-		int cycleCount = 0;
-		
-		while(b_enabled){
-			
-			previousTime = cycleTime;
-			cycleTime = Timing::getSystemTime_nanoseconds();
-			cycleDeltaTime = cycleTime - previousTime;
-			long long deltaTimeError = interval_nanoseconds - cycleDeltaTime;
-			float deltaTimeErrorPercentage = 100.0 * ((float)deltaTimeError / (float)interval_nanoseconds);
-			
-#define METHOD_1
-#ifdef METHOD_1
-			
-			//timestamp based method
-			
-			int64_t timeError_nanoseconds = cycleTime % interval_nanoseconds;
-			if (timeError_nanoseconds > interval_nanoseconds / 2) timeError_nanoseconds -= interval_nanoseconds;
-			
-			if (timeError_nanoseconds > 0) { integralTerm++; }
-			else if (timeError_nanoseconds < 0) { integralTerm--; }
-			
-			sleepTime = interval_nanoseconds - (timeError_nanoseconds / 2) - (integralTerm * 5000);
-			if(sleepTime < 0) sleepTime = 0;
-			
-#else
-			
-			//interval based method
-			
-			int64_t timeError_nanoseconds = interval_nanoseconds - cycleDeltaTime;
-			
-			if (timeError_nanoseconds > 0) { integralTerm++; }
-			else if (timeError_nanoseconds < 0) { integralTerm--; }
-			
-			sleepTime = interval_nanoseconds + (timeError_nanoseconds / 4) + (integralTerm * 5000);
-			if(sleepTime < 0) sleepTime = 0;
-			
-#endif
-			
-			osal_usleep(sleepTime / 1000);
-			
-			std::shared_ptr<OscMessage> message = std::make_shared<OscMessage>("/Stacato/TestMessage");
-			message->addFloat(Timing::getProgramTime_seconds());
-			oscSocket->send(message);
-			
-			cycleCount++;
-			
-			float errorPercentage = 100.0f * (float)timeError_nanoseconds / (float)interval_nanoseconds;
-			//Logger::info("error: {}%  {}  sleep: {}  integral: {}", deltaTimeErrorPercentage, deltaTimeError, sleepTime, integralTerm);
-			
-			if(cycleTime > printTime + 1000000000){
-				printTime = cycleTime;
-				Logger::warn("Cycles Per Second: {}", cycleCount);
-				cycleCount = 0;
-			}
-		}
-		Logger::critical("EXIT OSC THREAD");
-	});
-	
 }
 
 void OscDevice::disconnect(){
 	b_enabled = false;
-	runtime.join();
+	for(auto& outgoingMessage : outgoingMessages) outgoingMessage->stopSendingRuntime();
 	oscSocket = nullptr;
 	Logger::info("{} : Closed Osc Socket", getName());
 }
@@ -122,6 +50,7 @@ void OscDevice::addOutgoingMessage(){
 	message->type = OSC::MessageType::OUTGOING_MESSAGE;
 	outgoingMessages.push_back(message);
 	selectMessage(message);
+	updatePins();
 }
 
 void OscDevice::addIncomingMessage(){
@@ -129,20 +58,23 @@ void OscDevice::addIncomingMessage(){
 	message->type = OSC::MessageType::INCOMING_MESSAGE;
 	incomingMessages.push_back(message);
 	selectMessage(message);
+	updatePins();
 }
 
 void OscDevice::deleteMessage(std::shared_ptr<OSC::Message> msg){
 	int messageIndex = getMessageIndex(msg);
 	if(messageIndex == -1) return;
-	selectedMessage = nullptr;
 	switch(msg->type){
 		case OSC::MessageType::OUTGOING_MESSAGE:
 			outgoingMessages.erase(outgoingMessages.begin() + messageIndex);
+			if(isMessageSelected(msg)) selectedOutgoingMessage = nullptr;
 			break;
 		case OSC::MessageType::INCOMING_MESSAGE:
 			incomingMessages.erase(incomingMessages.begin() + messageIndex);
+			if(isMessageSelected(msg)) selectedIncomingMessage = nullptr;
 			break;
 	}
+	updatePins();
 }
 
 void OscDevice::moveMessageUp(std::shared_ptr<OSC::Message> msg){
@@ -159,6 +91,7 @@ void OscDevice::moveMessageUp(std::shared_ptr<OSC::Message> msg){
 			incomingMessages.insert(incomingMessages.begin() + messageIndex - 1, msg);
 			break;
 	}
+	updatePins();
 }
 
 void OscDevice::moveMessageDown(std::shared_ptr<OSC::Message> msg){
@@ -175,6 +108,7 @@ void OscDevice::moveMessageDown(std::shared_ptr<OSC::Message> msg){
 			incomingMessages.insert(incomingMessages.begin() + messageIndex + 1, msg);
 			break;
 	}
+	updatePins();
 }
 
 int OscDevice::getMessageIndex(std::shared_ptr<OSC::Message> msg){
@@ -190,16 +124,23 @@ int OscDevice::getMessageIndex(std::shared_ptr<OSC::Message> msg){
 }
 
 void OscDevice::selectMessage(std::shared_ptr<OSC::Message> msg){
-	selectedMessage = msg;
+	switch(msg->type){
+		case OSC::MessageType::INCOMING_MESSAGE: selectedIncomingMessage = msg; break;
+		case OSC::MessageType::OUTGOING_MESSAGE: selectedOutgoingMessage = msg; break;
+	}
 }
 
 bool OscDevice::isMessageSelected(std::shared_ptr<OSC::Message> msg){
-	return selectedMessage == msg;
+	switch(msg->type){
+		case OSC::MessageType::INCOMING_MESSAGE: return selectedIncomingMessage == msg;
+		case OSC::MessageType::OUTGOING_MESSAGE: return selectedOutgoingMessage == msg;
+	}
 }
 
 void OscDevice::addArgument(std::shared_ptr<OSC::Message> msg){
 	std::shared_ptr<OSC::Argument> argument = std::make_shared<OSC::Argument>(msg);
 	msg->arguments.push_back(argument);
+	argument->setIndex(getMessageIndex(msg), msg->arguments.size());
 	addIoData(argument->pin);
 	updatePins();
 }
@@ -209,6 +150,7 @@ void OscDevice::removeArgument(std::shared_ptr<OSC::Message> msg, std::shared_pt
 	if(argumentIndex == -1) return;
 	removeIoData(arg->pin);
 	msg->arguments.erase(msg->arguments.begin() + argumentIndex);
+	updatePins();
 }
 
 void OscDevice::moveArgumentUp(std::shared_ptr<OSC::Message> msg, std::shared_ptr<OSC::Argument> arg){
@@ -216,6 +158,7 @@ void OscDevice::moveArgumentUp(std::shared_ptr<OSC::Message> msg, std::shared_pt
 	if(argumentIndex == -1 || argumentIndex == 0) return;
 	msg->arguments.erase(msg->arguments.begin() + argumentIndex);
 	msg->arguments.insert(msg->arguments.begin() + argumentIndex - 1, arg);
+	updatePins();
 }
 
 void OscDevice::moveArgumentDown(std::shared_ptr<OSC::Message> msg, std::shared_ptr<OSC::Argument> arg){
@@ -223,6 +166,7 @@ void OscDevice::moveArgumentDown(std::shared_ptr<OSC::Message> msg, std::shared_
 	if(argumentIndex == -1 || argumentIndex == msg->arguments.size() - 1) return;
 	msg->arguments.erase(msg->arguments.begin() + argumentIndex);
 	msg->arguments.insert(msg->arguments.begin() + argumentIndex + 1, arg);
+	updatePins();
 }
 
 void OscDevice::updatePins(){
@@ -249,7 +193,7 @@ void OscDevice::updatePins(){
 		for(auto& argument : outgoingMessage->arguments) inputPins.push_back(argument->pin);
 	}
 	for(auto& incomingMessage : incomingMessages){
-		for(auto& argument : incomingMessage->arguments) inputPins.push_back(argument->pin);
+		for(auto& argument : incomingMessage->arguments) outputPins.push_back(argument->pin);
 	}
 }
 
@@ -291,16 +235,146 @@ ArgumentType* getArgumentType(const char* saveName){
 Argument::Argument(std::shared_ptr<Message> msg) : parentMessage(msg){
 	switch(parentMessage->type){
 		case OSC::MessageType::OUTGOING_MESSAGE:
-			pin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "dummyName");
+			pin = std::make_shared<NodePin>(NodeData::Type::REAL_VALUE, DataDirection::NODE_INPUT, "dummyName");
 			break;
 		case OSC::MessageType::INCOMING_MESSAGE:
-			pin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "dummyName");
+			pin = std::make_shared<NodePin>(NodeData::Type::REAL_VALUE, DataDirection::NODE_OUTPUT, "dummyName");
 			break;
 	}
+	setType(type);
 }
 
 void Argument::setType(ArgumentType::Type t){
 	type = t;
+	switch(type){
+		case ArgumentType::Type::FLOAT_DATA:
+		case ArgumentType::Type::DOUBLE_DATA:
+		case ArgumentType::Type::INTEGER_DATA:
+			pin->setType(NodeData::Type::REAL_VALUE);
+			break;
+		case ArgumentType::Type::BOOLEAN_DATA:
+			pin->setType(NodeData::Type::BOOLEAN_VALUE);
+			break;
+	}
+}
+
+void Argument::setIndex(int mesIndex, int argIndex){
+	static char previousDefaultDisplayString[128];
+	
+	switch(parentMessage->type){
+		case OSC::MessageType::OUTGOING_MESSAGE:
+			sprintf((char*)pin->getSaveName(), "OutgoingMessage%iArgument%i", messageIndex, argumentIndex);
+			
+			//only update the display name if it is not the default one
+			sprintf(previousDefaultDisplayString, "Outgoing Message %i Argument %i", messageIndex, argumentIndex);
+			if(strcmp(pin->getDisplayName(), previousDefaultDisplayString) == 0 || strcmp(pin->getDisplayName(), "dummyName") == 0){
+			   sprintf((char*)pin->getDisplayName(), "Outgoing Message %i Argument %i", mesIndex, argIndex);
+			}
+			break;
+		case OSC::MessageType::INCOMING_MESSAGE:
+			sprintf((char*)pin->getSaveName(), "IncomingMessage%iArgument%i", messageIndex, argumentIndex);
+	
+			//only update the display name if it is not the default one
+			sprintf(previousDefaultDisplayString, "Incoming Message %i Argument %i", messageIndex, argumentIndex);
+			if(strcmp(pin->getDisplayName(), previousDefaultDisplayString) == 0 || strcmp(pin->getDisplayName(), "dummyName") == 0){
+				sprintf((char*)pin->getDisplayName(), "Incoming Message %i Argument %i", mesIndex, argIndex);
+			}
+			break;
+	}
+	messageIndex = mesIndex;
+	argumentIndex = argIndex;
+}
+
+void Message::startSendingRuntime(std::shared_ptr<OscSocket> socket){
+	
+	oscSocket = socket;
+	
+	sendingRuntime = std::thread([this](){
+		
+		long long interval_nanoseconds = 1000000000.0 / outputFrequency_Hertz;
+		b_isSending = true;
+		
+		long long cycleTime = Timing::getSystemTime_nanoseconds();
+		long long previousTime = cycleTime - interval_nanoseconds;
+		long long cycleDeltaTime;
+		long long cycleDeltaTimeError;
+		long long cycleDeltaTimeErrorSmoothed = 0.0;
+		long long sleepTime = 0;
+		int integralTerm = 0;
+		
+		long long printTime = 0;
+		int cycleCount = 0;
+		
+		while(b_isSending){
+			
+			previousTime = cycleTime;
+			cycleTime = Timing::getSystemTime_nanoseconds();
+			cycleDeltaTime = cycleTime - previousTime;
+			long long deltaTimeError = interval_nanoseconds - cycleDeltaTime;
+			float deltaTimeErrorPercentage = 100.0 * ((float)deltaTimeError / (float)interval_nanoseconds);
+
+			//timestamp based method
+			
+			int64_t timeError_nanoseconds = cycleTime % interval_nanoseconds;
+			if (timeError_nanoseconds > interval_nanoseconds / 2) timeError_nanoseconds -= interval_nanoseconds;
+			
+			if (timeError_nanoseconds > 0) { integralTerm++; }
+			else if (timeError_nanoseconds < 0) { integralTerm--; }
+			
+			sleepTime = interval_nanoseconds - (timeError_nanoseconds / 2) - (integralTerm * 5000);
+			if(sleepTime < 0) sleepTime = 0;
+			
+			//interval based method
+			/*
+			int64_t timeError_nanoseconds = interval_nanoseconds - cycleDeltaTime;
+			
+			if (timeError_nanoseconds > 0) { integralTerm++; }
+			else if (timeError_nanoseconds < 0) { integralTerm--; }
+			
+			sleepTime = interval_nanoseconds + (timeError_nanoseconds / 4) + (integralTerm * 5000);
+			if(sleepTime < 0) sleepTime = 0;
+			*/
+			
+			osal_usleep(sleepTime / 1000);
+			
+			//construct message
+			std::shared_ptr<OscMessage> message = std::make_shared<OscMessage>(address);
+			for(auto& argument : arguments){
+				switch(argument->type){
+					case OSC::ArgumentType::Type::FLOAT_DATA:
+						message->addFloat(argument->pin->getReal());
+						break;
+					case OSC::ArgumentType::Type::DOUBLE_DATA:
+						message->addDouble(argument->pin->getReal());
+						break;
+					case OSC::ArgumentType::Type::INTEGER_DATA:
+						message->addInt32(std::round(argument->pin->getReal()));
+						break;
+					case OSC::ArgumentType::Type::BOOLEAN_DATA:
+						message->addBool(argument->pin->getBoolean());
+						break;
+				}
+			}
+			oscSocket->send(message);
+			
+			cycleCount++;
+			float errorPercentage = 100.0f * (float)timeError_nanoseconds / (float)interval_nanoseconds;
+			//Logger::info("error: {}%  {}  sleep: {}  integral: {}", deltaTimeErrorPercentage, deltaTimeError, sleepTime, integralTerm);
+			if(cycleTime > printTime + 1000000000){
+				printTime = cycleTime;
+				Logger::warn("Cycles Per Second: {}", cycleCount);
+				cycleCount = 0;
+			}
+			
+		}
+		
+	});
+}
+
+void Message::stopSendingRuntime(){
+	b_isSending = false;
+	if(sendingRuntime.joinable()) sendingRuntime.join();
+	oscSocket = nullptr;
 }
 
 int Message::getArgumentIndex(std::shared_ptr<Argument> arg){
@@ -308,18 +382,6 @@ int Message::getArgumentIndex(std::shared_ptr<Argument> arg){
 	return -1;
 }
 
-void Argument::setIndex(int messageIndex, int argumentIndex){
-	switch(parentMessage->type){
-		case OSC::MessageType::OUTGOING_MESSAGE:
-			sprintf((char*)pin->getSaveName(), "OutgoingMessage%iArgument%i", messageIndex, argumentIndex);
-			sprintf((char*)pin->getDisplayName(), "Outgoing Message %i Argument %i", messageIndex, argumentIndex);
-			break;
-		case OSC::MessageType::INCOMING_MESSAGE:
-			sprintf((char*)pin->getSaveName(), "IncomingMessage%iArgument%i", messageIndex, argumentIndex);
-			sprintf((char*)pin->getDisplayName(), "Incoming Message %i Argument %i", messageIndex, argumentIndex);
-			break;
-	}
-}
 
 };
 
@@ -339,6 +401,30 @@ bool OscDevice::save(tinyxml2::XMLElement* xml){
 	portsXML->SetAttribute("send", remotePort);
 	portsXML->SetAttribute("receive", listeningPort);
 	
+	XMLElement* outgoingMessagesXML = xml->InsertNewChildElement("OutgoingMessages");
+	for(auto& message : outgoingMessages){
+		XMLElement* messageXML = outgoingMessagesXML->InsertNewChildElement("OSCMessage");
+		messageXML->SetAttribute("Address", message->address);
+		messageXML->SetAttribute("SendingFrequency", message->outputFrequency_Hertz);
+		messageXML->SetAttribute("IncludeTimestamp", message->b_includeTimestamp);
+		for(auto& argument : message->arguments){
+			XMLElement* argumentXML = messageXML->InsertNewChildElement("OSCArgument");
+			argumentXML->SetAttribute("DataType", OSC::getArgumentType(argument->type)->saveName);
+			argumentXML->SetAttribute("PinSaveName", argument->pin->getSaveName());
+		}
+	}
+	
+	XMLElement* incomingMessagesXML = xml->InsertNewChildElement("IncomingMessages");
+	for(auto& message : incomingMessages){
+		XMLElement* messageXML = incomingMessagesXML->InsertNewChildElement("OSCMessage");
+		messageXML->SetAttribute("Address", message->address);
+		for(auto& argument : message->arguments){
+			XMLElement* argumentXML = messageXML->InsertNewChildElement("OSCArgument");
+			argumentXML->SetAttribute("DataType", OSC::getArgumentType(argument->type)->saveName);
+			argumentXML->SetAttribute("PinSaveName", argument->pin->getSaveName());
+		}
+	}
+	
 	return true;
 }
 
@@ -348,15 +434,102 @@ bool OscDevice::load(tinyxml2::XMLElement* xml){
 
 	XMLElement* remoteIPXML = xml->FirstChildElement("RemoteIP");
 	if(remoteIPXML == nullptr) return Logger::warn("Could not find remote ip attribute");
-	if(remoteIPXML->QueryAttribute("ipv4-0", &remoteIP[0]) != XML_SUCCESS) return Logger::warn("could not find ipv4#0 attribute");
-	if(remoteIPXML->QueryAttribute("ipv4-1", &remoteIP[1]) != XML_SUCCESS) return Logger::warn("could not find ipv4#1 attribute");
-	if(remoteIPXML->QueryAttribute("ipv4-2", &remoteIP[2]) != XML_SUCCESS) return Logger::warn("could not find ipv4#2 attribute");
-	if(remoteIPXML->QueryAttribute("ipv4-3", &remoteIP[3]) != XML_SUCCESS) return Logger::warn("could not find ipv4#3 attribute");
+	int ipv4[4];
+	if(remoteIPXML->QueryAttribute("ipv4-0", &ipv4[0]) != XML_SUCCESS) return Logger::warn("could not find ipv4#0 attribute");
+	if(remoteIPXML->QueryAttribute("ipv4-1", &ipv4[1]) != XML_SUCCESS) return Logger::warn("could not find ipv4#1 attribute");
+	if(remoteIPXML->QueryAttribute("ipv4-2", &ipv4[2]) != XML_SUCCESS) return Logger::warn("could not find ipv4#2 attribute");
+	if(remoteIPXML->QueryAttribute("ipv4-3", &ipv4[3]) != XML_SUCCESS) return Logger::warn("could not find ipv4#3 attribute");
+	for(int i = 0; i < 4; i++) remoteIP[i] = ipv4[i];
 	
 	XMLElement* portsXML = xml->FirstChildElement("Ports");
 	if(portsXML == nullptr) return Logger::warn("Could not find port attribute");
-	if(portsXML->QueryAttribute("send", &remotePort) != XML_SUCCESS) return Logger::warn("Could not find send port attribute");
-	if(portsXML->QueryAttribute("receive", &listeningPort) != XML_SUCCESS) return Logger::warn("Could not find receive port attribute");
+	int sendPort, receivePort;
+	if(portsXML->QueryAttribute("send", &sendPort) != XML_SUCCESS) return Logger::warn("Could not find send port attribute");
+	if(portsXML->QueryAttribute("receive", &receivePort) != XML_SUCCESS) return Logger::warn("Could not find receive port attribute");
+	remotePort = sendPort;
+	listeningPort = receivePort;
+	
+	XMLElement* outgoingMessagesXML = xml->FirstChildElement("OutgoingMessages");
+	if(outgoingMessagesXML == nullptr) return Logger::warn("Could not find Outgoing Messages Attribute");
+	
+	XMLElement* outMessageXML = outgoingMessagesXML->FirstChildElement("OSCMessage");
+	while(outMessageXML != nullptr){
+		
+		std::shared_ptr<OSC::Message> message = std::make_shared<OSC::Message>();
+		message->type = OSC::MessageType::OUTGOING_MESSAGE;
+		
+		const char* address;
+		if(outMessageXML->QueryStringAttribute("Address", &address) != XML_SUCCESS) return Logger::warn("Could not find message address attribute");
+		strcpy(message->address, address);
+		if(outMessageXML->QueryDoubleAttribute("SendingFrequency", &message->outputFrequency_Hertz) != XML_SUCCESS) return Logger::warn("Could not find sending frequency attribute");
+		if(outMessageXML->QueryBoolAttribute("IncludeTimestamp", &message->b_includeTimestamp) != XML_SUCCESS) return Logger::warn("Could not find include timestamp attribute");
+		
+		XMLElement* argumentXML = outMessageXML->FirstChildElement("OSCArgument");
+		
+		while(argumentXML != nullptr){
+			
+			std::shared_ptr<OSC::Argument> argument = std::make_shared<OSC::Argument>(message);
+			const char* dataTypeString;
+			if(argumentXML->QueryStringAttribute("DataType", &dataTypeString) != XML_SUCCESS) return Logger::warn("could not find osc argument data type attribute");
+			OSC::ArgumentType* argumentType = OSC::getArgumentType(dataTypeString);
+			if(argumentType == nullptr) return Logger::warn("Could not identify osc argument type");
+			argument->setType(argumentType->type);
+			const char* pinSaveNameString;
+			if(argumentXML->QueryStringAttribute("PinSaveName", &pinSaveNameString) != XML_SUCCESS) return Logger::warn("could not find osc argument pin save name attribute");
+			strcpy((char*)argument->pin->getSaveName(), pinSaveNameString);
+			
+			argument->messageIndex = outgoingMessages.size();
+			argument->argumentIndex = message->arguments.size();
+			message->arguments.push_back(argument);
+			addIoData(argument->pin);
+			
+			argumentXML = argumentXML->NextSiblingElement("OSCArgument");
+		}
+		
+		outgoingMessages.push_back(message);
+		
+		outMessageXML = outMessageXML->NextSiblingElement("OSCMessage");
+	}
+	
+	XMLElement* incomingMessagesXML = xml->FirstChildElement("IncomingMessages");
+	if(incomingMessagesXML == nullptr) return Logger::warn("Could not find Incoming Messages Attribute");
+	
+	XMLElement* inMessageXML = incomingMessagesXML->FirstChildElement("OSCMessage");
+	while(inMessageXML != nullptr){
+		
+		std::shared_ptr<OSC::Message> message = std::make_shared<OSC::Message>();
+		message->type = OSC::MessageType::INCOMING_MESSAGE;
+		
+		const char* address;
+		if(inMessageXML->QueryStringAttribute("Address", &address) != XML_SUCCESS) return Logger::warn("Could not find message address attribute");
+		strcpy(message->address, address);
+		
+		XMLElement* argumentXML = inMessageXML->FirstChildElement("OSCArgument");
+		
+		while(argumentXML != nullptr){
+			
+			std::shared_ptr<OSC::Argument> argument = std::make_shared<OSC::Argument>(message);
+			const char* dataTypeString;
+			if(argumentXML->QueryStringAttribute("DataType", &dataTypeString) != XML_SUCCESS) return Logger::warn("could not find osc argument data type attribute");
+			OSC::ArgumentType* argumentType = OSC::getArgumentType(dataTypeString);
+			if(argumentType == nullptr) return Logger::warn("Could not identify osc argument type");
+			argument->setType(argumentType->type);
+			const char* pinSaveNameString;
+			if(argumentXML->QueryStringAttribute("PinSaveName", &dataTypeString) != XML_SUCCESS) return Logger::warn("could not find osc argument pin save name attribute");
+			strcpy((char*)argument->pin->getSaveName(), pinSaveNameString);
+			
+			argument->messageIndex = incomingMessages.size();
+			argument->argumentIndex = message->arguments.size();
+			message->arguments.push_back(argument);
+			addIoData(argument->pin);
+			
+			argumentXML = argumentXML->NextSiblingElement("OSCArgument");
+		}
+		
+		incomingMessages.push_back(message);
+		
+		inMessageXML = inMessageXML->NextSiblingElement("OSCMessage");
+	}
 	
 	return true;
 }

@@ -10,6 +10,11 @@
 #include "Project/Environnement.h"
 
 
+#include <pcap/pcap.h>
+#include <pcap/pcap-util.h>
+#include <pcap/pcap-inttypes.h>
+
+
 #ifdef STACATO_WIN32_APPLICATION
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
 #else
@@ -22,6 +27,31 @@ int main() {
 	//Logger is initialized after working directory is defined to have log file access
 	Logger::init();
 	
+	pcap_if_t* nic = nullptr;
+	char ifcount = 0;
+	int ret = pcap_findalldevs(&nic, &ifcount);
+
+	while(nic != nullptr){
+		
+		
+		Logger::warn("{} {}", nic->name, nic->description == nullptr ? "..." : nic->description);
+		
+		if(nic->flags & PCAP_IF_LOOPBACK) Logger::info("Loopback");
+		if(nic->flags & PCAP_IF_UP) Logger::info("is Up");
+		if(nic->flags & PCAP_IF_RUNNING) Logger::info("is Running");
+		if(nic->flags & PCAP_IF_WIRELESS) Logger::info("Wireless");
+		if(nic->flags & PCAP_IF_CONNECTION_STATUS) Logger::info("Connection Status");
+		if(nic->flags & PCAP_IF_CONNECTION_STATUS_UNKNOWN) Logger::info("Status unknown");
+		if(nic->flags & PCAP_IF_CONNECTION_STATUS_CONNECTED) Logger::info("Status Connected");
+		if(nic->flags & PCAP_IF_CONNECTION_STATUS_DISCONNECTED) Logger::info("Status Disconnected");
+		if(nic->flags & PCAP_IF_CONNECTION_STATUS_NOT_APPLICABLE) Logger::info("Status Not Applicable");
+
+		
+		
+		
+		nic = nic->next;
+	}
+		
 	Logger::info("Stacato Version {}.{} {} - "
 #ifdef STACATO_DEBUG
 				 "Debug Build",
@@ -57,7 +87,6 @@ int main() {
 	//terminate application
 	ApplicationWindow::terminate();
 }
-
 
 /*
 	namespace TypeNamespace{
