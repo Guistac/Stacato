@@ -142,6 +142,7 @@ public:
 	void updateEncoderWorkingRange();
 	void updateResetPinVisibility();
 	bool b_isResetting = false;
+	uint64_t resetStartTime_nanoseconds = 0;
 	
 	//==== Data Type ====
 	
@@ -251,6 +252,7 @@ public:
 	Encoding::Format encodingFormat = Encoding::Format::BINARY;
 	bool b_centerRangeOnZero = false;
 	bool b_hasResetSignal = false;
+	float resetTime_milliseconds = 1.0;
 	
 	//==== Gui Stuff ====
 	virtual void moduleParameterGui();

@@ -1,31 +1,46 @@
 <Environnement name="Default Environnement" notes="">
     <NodeGraph>
         <Nodes>
-            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="OscDevice" Split="false" CustomName="Osc Device" UniqueID="1">
-                <NodeEditorPosition x="567" y="-971"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="false" CustomName="VipaBusCoupler-053-1EC01 (ID:1)" UniqueID="1">
+                <NodeEditorPosition x="143" y="-586"/>
                 <NodeSpecificData>
-                    <RemoteIP ipv4-0="192" ipv4-1="168" ipv4-2="1" ipv4-3="3"/>
-                    <Ports send="6969" receive="1234"/>
-                    <OutgoingMessages>
-                        <OSCMessage Address="/Stacato/" SendingFrequency="120" IncludeTimestamp="false">
-                            <OSCArgument DataType="Boolean" PinSaveName="OutgoingMessage0Argument0"/>
-                            <OSCArgument DataType="Float" PinSaveName="OutgoingMessage0Argument1"/>
-                            <OSCArgument DataType="Integer" PinSaveName="OutgoingMessage0Argument2"/>
-                            <OSCArgument DataType="Double" PinSaveName="OutgoingMessage0Argument3"/>
-                        </OSCMessage>
-                    </OutgoingMessages>
-                    <IncomingMessages/>
+                    <Identification Type="ExplicitDeviceID" ExplicitDeviceID="1"/>
+                    <SLIOModules>
+                        <Module Type="VIPA 022-1BF00"/>
+                        <Module Type="VIPA 050-1BS00" Encoding="Gray" TransmissionRate="500Khz" IdleTime="32" CenterRangeOnZero="true" HasResetSignal="true" ResetTime="1" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" Zero_revolutions="0"/>
+                    </SLIOModules>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveName="OutgoingMessage0Argument0" DisplayName="BOOL" DataType="Boolean" UniqueID="2" Boolean="false" Visible="true"/>
-                    <InputPin SaveName="OutgoingMessage0Argument1" DisplayName="FLOAT" DataType="Real" UniqueID="3" Real="4.5119999999999996" Visible="true"/>
-                    <InputPin SaveName="OutgoingMessage0Argument2" DisplayName="INT" DataType="Real" UniqueID="4" Real="3" Visible="true"/>
-                    <InputPin SaveName="OutgoingMessage0Argument3" DisplayName="DOUBLE" DataType="Real" UniqueID="5" Real="3.456" Visible="true"/>
+                    <InputPin SaveName="Digital Output 0" DisplayName="Module 0 Digital Output 0" DataType="Boolean" UniqueID="3" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Output 1" DisplayName="Module 0 Digital Output 1" DataType="Boolean" UniqueID="4" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Output 2" DisplayName="Module 0 Digital Output 2" DataType="Boolean" UniqueID="5" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Output 3" DisplayName="Module 0 Digital Output 3" DataType="Boolean" UniqueID="6" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Output 4" DisplayName="Module 0 Digital Output 4" DataType="Boolean" UniqueID="7" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Output 5" DisplayName="Module 0 Digital Output 5" DataType="Boolean" UniqueID="8" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Output 6" DisplayName="Module 0 Digital Output 6" DataType="Boolean" UniqueID="9" Boolean="false" Visible="true"/>
+                    <InputPin SaveName="Digital Output 7" DisplayName="Module 0 Digital Output 7" DataType="Boolean" UniqueID="10" Boolean="false" Visible="true"/>
                 </InputPins>
-                <OutputPins/>
+                <OutputPins>
+                    <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="2" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="SSI Encoder" DisplayName="Module 1 SSI Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="11" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveName="Reset Encoder" DisplayName="Module 1 Encoder Reset" DataType="Boolean" UniqueID="12" Boolean="false" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="false" CustomName="Vipa Bus Coupler (053_1EC01)" UniqueID="14">
+                <NodeEditorPosition x="-151" y="-534"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                    <SLIOModules/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveName="GPIO" DisplayName="GPIO" DataType="GPIODeviceLink" UniqueID="15" Visible="true" NoDataField="true"/>
+                </OutputPins>
             </Node>
         </Nodes>
-        <Links/>
+        <Links>
+            <Link UniqueID="13" StartPin="12" EndPin="8"/>
+        </Links>
     </NodeGraph>
 </Environnement>
 
@@ -33,5 +48,5 @@
     <NetworkInterfaceCard>
         <Primary Description="en4" Name="en4"/>
     </NetworkInterfaceCard>
-    <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000000000001"/>
+    <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>

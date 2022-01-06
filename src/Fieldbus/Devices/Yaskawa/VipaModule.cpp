@@ -11,6 +11,8 @@
 
 #include <tinyxml2.h>
 
+#include "Fieldbus/EtherCatFieldbus.h"
+
 namespace VipaModuleFactory{
 
 	std::vector<VipaModule*> modules = {
@@ -291,10 +293,15 @@ void VIPA_050_1BS00::readInputs(){
 		encoderDevice->b_doHardReset = false;
 		b_isResetting = true;
 		resetPin->set(true);
+		resetStartTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	}
-	else if(b_isResetting && encoderValue == 0x0) {
-		b_isResetting = false;
-		resetPin->set(false);
+	
+	if(b_isResetting) {
+		encoderDevice->velocity_positionUnitsPerSecond = 0.0;
+		if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() > resetStartTime_nanoseconds + resetTime_milliseconds * 1000000.0){
+			b_isResetting = false;
+			resetPin->set(false);
+		}
 	}
 }
 
@@ -340,6 +347,11 @@ void VIPA_050_1BS00::moduleParameterGui(){
 	singleTurnBitCount = std::max(minEncoderBits, singleTurnBitCount);
 	
 	if(ImGui::Checkbox("Has Reset Signal", &b_hasResetSignal)) updateResetPinVisibility();
+	
+	if(b_hasResetSignal){
+		ImGui::Text("Reset Time");
+		ImGui::InputFloat("##resetTime", &resetTime_milliseconds, 0.0, 0.0, "%.1f ms");
+	}
 	
 	if(ImGui::Checkbox("Center Encoder Range on Zero", &b_centerRangeOnZero)) updateEncoderWorkingRange();
 	
@@ -416,6 +428,7 @@ bool VIPA_050_1BS00::save(tinyxml2::XMLElement* xml){
 	xml->SetAttribute("IdleTime", getPauseTime(pausetime)->saveName);
 	xml->SetAttribute("CenterRangeOnZero", b_centerRangeOnZero);
 	xml->SetAttribute("HasResetSignal", b_hasResetSignal);
+	if(b_hasResetSignal) xml->SetAttribute("ResetTime", resetTime_milliseconds);
 	xml->SetAttribute("TotalBitCount", encoderBitCount);
 	xml->SetAttribute("SingleTurnBitCount", singleTurnBitCount);
 	xml->SetAttribute("IgnoredBitCount", normalisationBitCount);
@@ -441,6 +454,9 @@ bool VIPA_050_1BS00::load(tinyxml2::XMLElement* xml){
 	pausetime = getPauseTime(idleTimeString)->microseconds;
 	if(xml->QueryBoolAttribute("CenterRangeOnZero", &b_centerRangeOnZero) != XML_SUCCESS) return Logger::warn("Could not find Center on zero attribute");
 	if(xml->QueryBoolAttribute("HasResetSignal", &b_hasResetSignal) != XML_SUCCESS) return Logger::warn("Could not find Has Reset Signal attribute");
+	if(b_hasResetSignal){
+		if(xml->QueryFloatAttribute("ResetTime", &resetTime_milliseconds) != XML_SUCCESS) return Logger::warn("Could not find encoder reset time attribute");
+	}
 	if(xml->QueryIntAttribute("TotalBitCount", &encoderBitCount) != XML_SUCCESS) return Logger::warn("Could not find Total Bit Count attribute");
 	if(xml->QueryIntAttribute("SingleTurnBitCount", &singleTurnBitCount) != XML_SUCCESS) return Logger::warn("Could not find Singleturn bit count attribute");
 	if(xml->QueryIntAttribute("IgnoredBitCount", &normalisationBitCount) != XML_SUCCESS) return Logger::warn("Could not find ignored bit count attribute");

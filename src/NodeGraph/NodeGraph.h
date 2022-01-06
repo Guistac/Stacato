@@ -44,6 +44,7 @@ public:
 	bool b_showOutputValues = false;
 
 	std::vector<std::shared_ptr<Node>> selectedNodes;
+	std::vector<std::shared_ptr<NodeLink>> selectedLinks;
 
 private:
 

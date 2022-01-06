@@ -40,7 +40,7 @@ namespace Project {
 	}
 
 	bool isEditingAllowed() {
-		return !EtherCatFieldbus::isCyclicExchangeActive();
+		return !Environnement::isRunning();
 	}
 
 	void setPlotEdit(bool isAllowed){

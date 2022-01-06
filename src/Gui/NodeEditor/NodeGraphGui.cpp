@@ -129,7 +129,7 @@ void EnvironnementNodeEditorGui() {
     ImGui::Checkbox("Show Output Values", &Environnement::nodeGraph->b_showOutputValues);
     ImGui::SameLine();
 
-    if (!Project::isEditingAllowed()) ImGui::TextColored(Colors::gray, "Editing is disabled while the system is running");
+    if (!Project::isEditingAllowed()) ImGui::TextColored(Colors::gray, "Editing is disabled while the environnement is running");
 
     ImGui::EndGroup();
 
@@ -171,8 +171,6 @@ void NodeGraph::editorGui() {
             ImColor(1.0f, 1.0f, 1.0f),
             1.0);
 
-
-
     if (Project::isEditingAllowed()) {
 
         //===== Handle link creation action, returns true if editor want to create new link
@@ -186,11 +184,6 @@ void NodeGraph::editorGui() {
                     if (pin1 && pin2 && isConnectionValid(pin1, pin2)) {
                         if (NodeEditor::AcceptNewItem(ImColor(1.0f, 1.0f, 1.0f), 3.0)) {
                             std::shared_ptr<NodeLink> link = connect(pin1, pin2);
-                            //TODO: should we even process the node graph in the gui?
-                            /*
-                            if (pin1->isInput()) evaluate(pin1->getNode());
-                            else if (pin2->isInput()) evaluate(pin2->getNode());
-                            */
                             NodeEditor::Link(link->getUniqueID(), pin1Id, pin2Id);
                         }
                     }
@@ -249,6 +242,7 @@ void NodeGraph::editorGui() {
 				case Node::Type::PROCESSOR:
 				case Node::Type::CONTAINER:
 				case Node::Type::CLOCK:
+				case Node::Type::AXIS:
 				case Node::Type::MACHINE:
 					ImGui::Text("Type: %s", getNodeType(node->getType())->displayName);
 					break;
@@ -333,14 +327,14 @@ void NodeGraph::editorGui() {
 
     //===== Update list of selected nodes =====
 
-    static NodeEditor::NodeId selectedNodeIds[16];
-    int selectedNodeCount = NodeEditor::GetSelectedNodes(selectedNodeIds, 16);
+    static NodeEditor::NodeId selectedNodeIds[1024];
+    int selectedNodeCount = NodeEditor::GetSelectedNodes(selectedNodeIds, 1024);
     selectedNodes.clear();
     if (selectedNodeCount > 0) {
         std::vector<int> selectedIds;
         for (int i = 0; i < selectedNodeCount; i++) {
             int selectedNodeId = selectedNodeIds[i].Get();
-            //even unique ids represent split node halves
+            //negative unique ids represent split node halves
             if (selectedNodeId < 0) selectedNodeId = abs(selectedNodeId);
             //we don't add selected ids to the list twice
             //this can happen in case both parts of a split node are selected
@@ -357,10 +351,23 @@ void NodeGraph::editorGui() {
             selectedNodes.push_back(getNode(id));
         }
     }
-
+	
+	//===== Update list of selected links =====
+	
+	static NodeEditor::LinkId selectedLinkIds[1024];
+	int selectedLinkCount = NodeEditor::GetSelectedLinks(selectedLinkIds, 1024);
+	selectedLinks.clear();
+	if(selectedLinkCount > 0){
+		std::vector<int> selectedIds;
+		for(int i = 0; i < selectedLinkCount; i++){
+			int selectedLinkID = selectedLinkIds[i].Get();
+			selectedLinks.push_back(getLink(selectedLinkID));
+		}
+	}
 
 	NodeEditor::End();
 
+	/*
     static std::vector<std::shared_ptr<Node>> copiedNodes;
 
     if (ImGui::IsItemHovered()) {
@@ -381,13 +388,18 @@ void NodeGraph::editorGui() {
             }
         }
     }
+	 */
+	
 
     if (ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE)){
         //node editor is hovered and no other item is active (such as text input fields)
-        if (!selectedNodes.empty() && !ImGui::IsAnyItemActive() && ImGui::IsItemHovered()) {
-            for (auto& node : selectedNodes) {
-                NodeEditor::DeleteNode(node->getUniqueID());
-            }
+        if (!ImGui::IsAnyItemActive() && ImGui::IsItemHovered()) {
+			if(!selectedNodes.empty()){
+				for (auto& node : selectedNodes) NodeEditor::DeleteNode(node->getUniqueID());
+			}
+			if(!selectedLinks.empty()){
+				for(auto& link : selectedLinks) disconnect(link);
+			}
         }
     }
 

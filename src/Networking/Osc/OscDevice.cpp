@@ -338,7 +338,7 @@ void Message::startSendingRuntime(std::shared_ptr<OscSocket> socket){
 			osal_usleep(sleepTime / 1000);
 			
 			//construct message
-			std::shared_ptr<OscMessage> message = std::make_shared<OscMessage>(address);
+			std::shared_ptr<OscMessage> message = std::make_shared<OscMessage>(path);
 			for(auto& argument : arguments){
 				switch(argument->type){
 					case OSC::ArgumentType::Type::FLOAT_DATA:
@@ -404,7 +404,7 @@ bool OscDevice::save(tinyxml2::XMLElement* xml){
 	XMLElement* outgoingMessagesXML = xml->InsertNewChildElement("OutgoingMessages");
 	for(auto& message : outgoingMessages){
 		XMLElement* messageXML = outgoingMessagesXML->InsertNewChildElement("OSCMessage");
-		messageXML->SetAttribute("Address", message->address);
+		messageXML->SetAttribute("Path", message->path);
 		messageXML->SetAttribute("SendingFrequency", message->outputFrequency_Hertz);
 		messageXML->SetAttribute("IncludeTimestamp", message->b_includeTimestamp);
 		for(auto& argument : message->arguments){
@@ -417,7 +417,7 @@ bool OscDevice::save(tinyxml2::XMLElement* xml){
 	XMLElement* incomingMessagesXML = xml->InsertNewChildElement("IncomingMessages");
 	for(auto& message : incomingMessages){
 		XMLElement* messageXML = incomingMessagesXML->InsertNewChildElement("OSCMessage");
-		messageXML->SetAttribute("Address", message->address);
+		messageXML->SetAttribute("Path", message->path);
 		for(auto& argument : message->arguments){
 			XMLElement* argumentXML = messageXML->InsertNewChildElement("OSCArgument");
 			argumentXML->SetAttribute("DataType", OSC::getArgumentType(argument->type)->saveName);
@@ -458,9 +458,9 @@ bool OscDevice::load(tinyxml2::XMLElement* xml){
 		std::shared_ptr<OSC::Message> message = std::make_shared<OSC::Message>();
 		message->type = OSC::MessageType::OUTGOING_MESSAGE;
 		
-		const char* address;
-		if(outMessageXML->QueryStringAttribute("Address", &address) != XML_SUCCESS) return Logger::warn("Could not find message address attribute");
-		strcpy(message->address, address);
+		const char* path;
+		if(outMessageXML->QueryStringAttribute("Path", &path) != XML_SUCCESS) return Logger::warn("Could not find message address attribute");
+		strcpy(message->path, path);
 		if(outMessageXML->QueryDoubleAttribute("SendingFrequency", &message->outputFrequency_Hertz) != XML_SUCCESS) return Logger::warn("Could not find sending frequency attribute");
 		if(outMessageXML->QueryBoolAttribute("IncludeTimestamp", &message->b_includeTimestamp) != XML_SUCCESS) return Logger::warn("Could not find include timestamp attribute");
 		
@@ -501,8 +501,8 @@ bool OscDevice::load(tinyxml2::XMLElement* xml){
 		message->type = OSC::MessageType::INCOMING_MESSAGE;
 		
 		const char* address;
-		if(inMessageXML->QueryStringAttribute("Address", &address) != XML_SUCCESS) return Logger::warn("Could not find message address attribute");
-		strcpy(message->address, address);
+		if(inMessageXML->QueryStringAttribute("Path", &address) != XML_SUCCESS) return Logger::warn("Could not find message address attribute");
+		strcpy(message->path, address);
 		
 		XMLElement* argumentXML = inMessageXML->FirstChildElement("OSCArgument");
 		

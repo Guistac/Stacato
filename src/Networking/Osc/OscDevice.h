@@ -49,7 +49,7 @@ namespace OSC{
 	class Message : public std::enable_shared_from_this<Message>{
 	public:
 		MessageType type;
-		char address[256] = "/Stacato/";
+		char path[256] = "/Stacato/";
 		bool b_includeTimestamp = false;
 		double outputFrequency_Hertz = 1.0;
 		

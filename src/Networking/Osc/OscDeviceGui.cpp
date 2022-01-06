@@ -119,7 +119,7 @@ void OscDevice::outgoingMessagesGui(){
 			}
 			ImGui::TableSetColumnIndex(1);
 			ImGuiSelectableFlags selectable_flags = ImGuiSelectableFlags_SpanAllColumns;
-			if (ImGui::Selectable(message->address, false, selectable_flags, ImVec2(0.0, 0.0))) selectMessage(message);
+			if (ImGui::Selectable(message->path, false, selectable_flags, ImVec2(0.0, 0.0))) selectMessage(message);
 			ImGui::TableSetColumnIndex(2);
 			ImGui::Text("%i", (int)message->arguments.size());
 			ImGui::PopID();
@@ -195,7 +195,7 @@ void OscDevice::incomingMessagesGui(){
 			}
 			ImGui::TableSetColumnIndex(1);
 			ImGuiSelectableFlags selectable_flags = ImGuiSelectableFlags_SpanAllColumns;
-			if (ImGui::Selectable(message->address, false, selectable_flags, ImVec2(0.0, 0.0))) selectMessage(message);
+			if (ImGui::Selectable(message->path, false, selectable_flags, ImVec2(0.0, 0.0))) selectMessage(message);
 			ImGui::TableSetColumnIndex(2);
 			ImGui::Text("%i", (int)message->arguments.size());
 			ImGui::PopID();
@@ -251,9 +251,9 @@ void OscDevice::messageGui(std::shared_ptr<OSC::Message> msg){
 	ImGui::PopFont();
 	
 	ImGui::PushFont(Fonts::robotoBold15);
-	ImGui::Text("OSC Address :");
+	ImGui::Text("OSC Path :");
 	ImGui::PopFont();
-	ImGui::InputText("##address", msg->address, 256);
+	ImGui::InputText("##Path", msg->path, 256);
 	
 	if(msg->type == OSC::MessageType::OUTGOING_MESSAGE){
 		ImGui::PushFont(Fonts::robotoBold15);
