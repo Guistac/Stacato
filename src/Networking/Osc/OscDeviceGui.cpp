@@ -63,7 +63,7 @@ void OscDevice::networkGui(){
 		if(i != 0) ImGui::SameLine();
 		ImGui::PushID(i);
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 2.0);
-		ImGui::InputScalar("##ipv4", ImGuiDataType_U8, &remoteIP[0]);
+		ImGui::InputScalar("##ipv4", ImGuiDataType_U8, &remoteIP[i]);
 		ImGui::PopID();
 		if(i == 3) continue;
 		ImGui::SameLine();

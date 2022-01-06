@@ -4,10 +4,10 @@
             <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="OscDevice" Split="false" CustomName="Osc Device" UniqueID="1">
                 <NodeEditorPosition x="567" y="-971"/>
                 <NodeSpecificData>
-                    <RemoteIP ipv4-0="1" ipv4-1="2" ipv4-2="3" ipv4-3="4"/>
-                    <Ports send="123" receive="123"/>
+                    <RemoteIP ipv4-0="192" ipv4-1="168" ipv4-2="1" ipv4-3="3"/>
+                    <Ports send="6969" receive="1234"/>
                     <OutgoingMessages>
-                        <OSCMessage Address="/Stacato/" SendingFrequency="1" IncludeTimestamp="false">
+                        <OSCMessage Address="/Stacato/" SendingFrequency="120" IncludeTimestamp="false">
                             <OSCArgument DataType="Boolean" PinSaveName="OutgoingMessage0Argument0"/>
                             <OSCArgument DataType="Float" PinSaveName="OutgoingMessage0Argument1"/>
                             <OSCArgument DataType="Integer" PinSaveName="OutgoingMessage0Argument2"/>
@@ -18,9 +18,9 @@
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveName="OutgoingMessage0Argument0" DisplayName="BOOL" DataType="Boolean" UniqueID="2" Boolean="false" Visible="true"/>
-                    <InputPin SaveName="OutgoingMessage0Argument1" DisplayName="FLOAT" DataType="Real" UniqueID="3" Real="0" Visible="true"/>
-                    <InputPin SaveName="OutgoingMessage0Argument2" DisplayName="INT" DataType="Real" UniqueID="4" Real="0" Visible="true"/>
-                    <InputPin SaveName="OutgoingMessage0Argument3" DisplayName="DOUBLE" DataType="Real" UniqueID="5" Real="0" Visible="true"/>
+                    <InputPin SaveName="OutgoingMessage0Argument1" DisplayName="FLOAT" DataType="Real" UniqueID="3" Real="4.5119999999999996" Visible="true"/>
+                    <InputPin SaveName="OutgoingMessage0Argument2" DisplayName="INT" DataType="Real" UniqueID="4" Real="3" Visible="true"/>
+                    <InputPin SaveName="OutgoingMessage0Argument3" DisplayName="DOUBLE" DataType="Real" UniqueID="5" Real="3.456" Visible="true"/>
                 </InputPins>
                 <OutputPins/>
             </Node>
