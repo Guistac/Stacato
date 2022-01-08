@@ -34,7 +34,8 @@ void environnementGui() {
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Stage Editor")) {
-			ImGui::Text("3D Scene Graph / Geometry importer / Machine movement assignement");
+			stageEditorGui();
+//			ImGui::Text("3D Scene Graph / Geometry importer / Machine movement assignement");
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Fieldbus")) {

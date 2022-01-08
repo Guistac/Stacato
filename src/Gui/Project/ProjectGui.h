@@ -7,3 +7,5 @@ void environnementGui();
 void machineManagerGui();
 void deviceManagerGui();
 void EnvironnementNodeEditorGui();
+
+void stageEditorGui();

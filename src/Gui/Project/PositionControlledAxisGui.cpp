@@ -257,7 +257,7 @@ void PositionControlledAxis::feedbackGui() {
 		//target movement progress
 	float targetProgress;
 	double movementSecondsLeft = 0.0;
-	static char movementProgressChar[8];
+	static char movementProgressChar[32];
 	if (!isEnabled()) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		sprintf(movementProgressChar, "Machine Disabled");
@@ -809,7 +809,7 @@ void PositionControlledAxis::settingsGui() {
 
 	double halfWidgetWidth = (ImGui::GetItemRectSize().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
 
-	ImGui::Text("Default Manual Control Parameters", getPositionUnitStringPlural(positionUnit));
+	ImGui::Text("Default Manual Control Parameters");
 	ImGui::SetNextItemWidth(halfWidgetWidth);
 	static char manAccString[16];
 	sprintf(manAccString, "%.3f %s/s\xc2\xb2", defaultManualAcceleration_axisUnitsPerSecondSquared, getPositionUnitStringShort(positionUnit));
@@ -917,6 +917,8 @@ void PositionControlledAxis::settingsGui() {
 		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
 			if (!referenceSignalPin->isConnected()) ImGui::TextWrapped("No Reference Signal Connected.");
 			break;
+			case PositionReferenceSignal::Type::NO_SIGNAL:
+				break;
 		}
 		ImGui::PopStyleColor();
 
@@ -925,7 +927,7 @@ void PositionControlledAxis::settingsGui() {
 
 		switch (positionReferenceSignal) {
 		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-			ImGui::Text("Homing Velocity", getPositionUnit(positionUnit)->displayNamePlural);
+			ImGui::Text("Homing Velocity");
 			ImGui::InputDouble("##HomingVelocity", &homingVelocity_axisUnitsPerSecond, 0.0, 0.0, homVelString);
 			if (homingVelocity_axisUnitsPerSecond < 0) homingVelocity_axisUnitsPerSecond = abs(homingVelocity_axisUnitsPerSecond);
 			break;
@@ -939,7 +941,7 @@ void PositionControlledAxis::settingsGui() {
 				}
 				ImGui::EndCombo();
 			}
-			ImGui::Text("Homing Velocity", getPositionUnit(positionUnit)->displayNamePlural);
+			ImGui::Text("Homing Velocity");
 			ImGui::InputDouble("##HomingVelocity", &homingVelocity_axisUnitsPerSecond, 0.0, 0.0, homVelString);
 			if (homingVelocity_axisUnitsPerSecond < 0) homingVelocity_axisUnitsPerSecond = abs(homingVelocity_axisUnitsPerSecond);
 			break;

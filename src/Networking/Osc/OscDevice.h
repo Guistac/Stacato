@@ -68,7 +68,7 @@ namespace OSC{
 
 
 class OscDevice : public NetworkDevice{
-	DEFINE_NETWORK_DEVICE(OscDevice, "Osc Device", "OscDevice")
+	DEFINE_NETWORK_DEVICE(OscDevice, "Osc Connection", "OscConnection")
 	
 	void networkGui();
 	void outgoingMessagesGui();

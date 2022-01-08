@@ -340,23 +340,29 @@ void Message::startSendingRuntime(std::shared_ptr<OscSocket> socket){
 			//construct message
 			std::shared_ptr<OscMessage> message = std::make_shared<OscMessage>(path);
 			for(auto& argument : arguments){
+				std::shared_ptr<NodePin> pin = argument->pin;
 				switch(argument->type){
 					case OSC::ArgumentType::Type::FLOAT_DATA:
-						message->addFloat(argument->pin->getReal());
+						if(pin->isConnected()) message->addFloat(pin->getConnectedPins().front()->getReal());
+						else message->addFloat(argument->pin->getReal());
 						break;
 					case OSC::ArgumentType::Type::DOUBLE_DATA:
-						message->addDouble(argument->pin->getReal());
+						if(pin->isConnected()) message->addDouble(pin->getConnectedPins().front()->getReal());
+						else message->addDouble(argument->pin->getReal());
 						break;
 					case OSC::ArgumentType::Type::INTEGER_DATA:
-						message->addInt32(std::round(argument->pin->getReal()));
+						if(pin->isConnected()) message->addInt32(pin->getConnectedPins().front()->getReal());
+						else message->addInt32(argument->pin->getReal());
 						break;
 					case OSC::ArgumentType::Type::BOOLEAN_DATA:
-						message->addBool(argument->pin->getBoolean());
+						if(pin->isConnected()) message->addBool(pin->getConnectedPins().front()->getBoolean());
+						else message->addBool(argument->pin->getBoolean());
 						break;
 				}
 			}
 			oscSocket->send(message);
 			
+			/*
 			cycleCount++;
 			float errorPercentage = 100.0f * (float)timeError_nanoseconds / (float)interval_nanoseconds;
 			//Logger::info("error: {}%  {}  sleep: {}  integral: {}", deltaTimeErrorPercentage, deltaTimeError, sleepTime, integralTerm);
@@ -365,7 +371,7 @@ void Message::startSendingRuntime(std::shared_ptr<OscSocket> socket){
 				Logger::warn("Cycles Per Second: {}", cycleCount);
 				cycleCount = 0;
 			}
-			
+			*/
 		}
 		
 	});
