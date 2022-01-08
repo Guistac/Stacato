@@ -533,21 +533,7 @@ void PositionControlledAxis::settingsGui() {
 	if (ImGui::BeginCombo("##AxisUnitType", getPositionUnitType(positionUnitType)->displayName)) {
 		for (PositionUnitType& unitType : getPositionUnitTypes()) {
 			if (ImGui::Selectable(unitType.displayName, positionUnitType == unitType.type)) {
-				positionUnitType = unitType.type;
-				//if the machine type is changed but the machine unit is of the wrong type
-				//change the machine unit to the first correct type automatically
-				if (getPositionUnit(positionUnit)->type != unitType.type) {
-					switch (unitType.type) {
-					case PositionUnit::Type::ANGULAR:
-						positionUnit = getAngularPositionUnits().front().unit;
-						positionReferenceSignal = getAngularPositionReferenceSignals().front().type;
-						break;
-					case PositionUnit::Type::LINEAR:
-						positionUnit = getLinearPositionUnits().front().unit;
-						positionReferenceSignal = getLinearPositionReferenceSignals().front().type;
-						break;
-					}
-				}
+				setPositionUnitType(unitType.type);
 			}
 		}
 		ImGui::EndCombo();
@@ -559,12 +545,14 @@ void PositionControlledAxis::settingsGui() {
 	if (ImGui::BeginCombo("##AxisUnit", getPositionUnit(positionUnit)->displayName)) {
 		if (positionUnitType == PositionUnit::Type::LINEAR) {
 			for (PositionUnit& unit : getLinearPositionUnits()) {
-				if (ImGui::Selectable(unit.displayName, positionUnit == unit.unit)) positionUnit = unit.unit;
+				if (ImGui::Selectable(unit.displayName, positionUnit == unit.unit))
+					setPositionUnit(unit.unit);
 			}
 		}
 		else if (positionUnitType == PositionUnit::Type::ANGULAR) {
 			for (PositionUnit& unit : getAngularPositionUnits()) {
-				if (ImGui::Selectable(unit.displayName, positionUnit == unit.unit)) positionUnit = unit.unit;
+				if (ImGui::Selectable(unit.displayName, positionUnit == unit.unit))
+					setPositionUnit(unit.unit);
 			}
 		}
 		ImGui::EndCombo();
@@ -580,18 +568,18 @@ void PositionControlledAxis::settingsGui() {
 				ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
 				ImGui::BeginTooltip();
 				switch (control.type) {
-				case PositionControl::Type::SERVO:
-					ImGui::TextWrapped("In this mode, closed loop control takes place in the servo drive itself."
-						"\nA Position command is sent to the drive and the drive reports its current position."
-						"\nCompatible only with Servo Actuators expecting Position Commands.");
-					break;
-				case PositionControl::Type::CLOSED_LOOP:
-					ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-					ImGui::TextWrapped("Closed Loop Controlled Machines are not yet Supported.");
-					ImGui::PopStyleColor();
-					ImGui::TextWrapped("In this control mode, position feedback is used to to update a PID controller which regulates axis position by sending velocity commands."
-						"\nCompatible only with Actuators expecting Velocity Commands.");
-					break;
+					case PositionControl::Type::SERVO:
+						ImGui::TextWrapped("In this mode, closed loop control takes place in the servo drive itself."
+							"\nA Position command is sent to the drive and the drive reports its current position."
+							"\nCompatible only with Servo Actuators expecting Position Commands.");
+						break;
+					case PositionControl::Type::CLOSED_LOOP:
+						ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
+						ImGui::TextWrapped("Closed Loop Controlled Machines are not yet Supported.");
+						ImGui::PopStyleColor();
+						ImGui::TextWrapped("In this control mode, position feedback is used to to update a PID controller which regulates axis position by sending velocity commands."
+							"\nCompatible only with Actuators expecting Velocity Commands.");
+						break;
 				}
 				ImGui::EndTooltip();
 			}

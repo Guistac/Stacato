@@ -29,7 +29,6 @@ void PositionControlledAxis::assignIoData() {
 	addIoData(velocity);
 	setPositionControlType(positionControl);
 	setPositionReferenceSignalType(positionReferenceSignal);
-
 	targetInterpolation = std::make_shared<Motion::Interpolation>();
 }
 
@@ -210,16 +209,18 @@ bool PositionControlledAxis::isReady() {
 	if (needsPositionFeedbackDevice() && (!isPositionFeedbackDeviceConnected() || !getPositionFeedbackDevice()->isReady())) return false;
 	if (needsReferenceDevice() && (!isReferenceDeviceConnected() || !getReferenceDevice()->isReady())) return false;
 	switch (positionReferenceSignal) {
-	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-		if (!lowLimitSignalPin->isConnected()) return false;
-		break;
-	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-		if (!lowLimitSignalPin->isConnected()) return false;
-		if (!highLimitSignalPin->isConnected()) return false;
-		break;
-	case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
-		if (!referenceSignalPin->isConnected()) return false;
-		break;
+		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+			if (!lowLimitSignalPin->isConnected()) return false;
+			break;
+		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+			if (!lowLimitSignalPin->isConnected()) return false;
+			if (!highLimitSignalPin->isConnected()) return false;
+			break;
+		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
+			if (!referenceSignalPin->isConnected()) return false;
+			break;
+		case PositionReferenceSignal::Type::NO_SIGNAL:
+			break;
 	}
 	return true;
 }
@@ -296,66 +297,88 @@ std::shared_ptr<ServoActuatorDevice> PositionControlledAxis::getServoActuatorDev
 
 //============================= DEVICE AND SIGNAL LINKS ================================
 
+void PositionControlledAxis::setPositionUnitType(PositionUnit::Type type){
+	positionUnitType = type;
+	switch(type){
+		case PositionUnit::Type::ANGULAR:
+			if(!isAngularPositionUnit(positionUnit))
+				positionUnit = getAngularPositionUnits().front().unit;
+			if(!isAngularPositionReferenceSignal(positionReferenceSignal))
+				setPositionReferenceSignalType(getAngularPositionReferenceSignals().front().type);
+			break;
+		case PositionUnit::Type::LINEAR:
+			if(!isLinearPositionUnit(positionUnit))
+				positionUnit = getLinearPositionUnits().front().unit;
+			if(!isLinearPositionReferenceSignal(positionReferenceSignal))
+				setPositionReferenceSignalType(getLinearPositionReferenceSignals().front().type);
+			break;
+	}
+}
+
+void PositionControlledAxis::setPositionUnit(PositionUnit::Unit u){
+	positionUnit = u;
+}
+
 void PositionControlledAxis::setPositionControlType(PositionControl::Type type) {
 	switch (type) {
-	case PositionControl::Type::CLOSED_LOOP:
-		actuatorDeviceLink->setVisible(true);
-		positionFeedbackDeviceLink->setVisible(true);
-		servoActuatorDeviceLink->disconnectAllLinks();
-		servoActuatorDeviceLink->setVisible(false);
-		break;
-	case PositionControl::Type::SERVO:
-		actuatorDeviceLink->disconnectAllLinks();
-		actuatorDeviceLink->setVisible(false);
-		positionFeedbackDeviceLink->disconnectAllLinks();
-		positionFeedbackDeviceLink->setVisible(false);
-		servoActuatorDeviceLink->setVisible(true);
-		feedbackUnitsPerAxisUnits = actuatorUnitsPerAxisUnits;
-		break;
+		case PositionControl::Type::CLOSED_LOOP:
+			actuatorDeviceLink->setVisible(true);
+			positionFeedbackDeviceLink->setVisible(true);
+			servoActuatorDeviceLink->disconnectAllLinks();
+			servoActuatorDeviceLink->setVisible(false);
+			break;
+		case PositionControl::Type::SERVO:
+			actuatorDeviceLink->disconnectAllLinks();
+			actuatorDeviceLink->setVisible(false);
+			positionFeedbackDeviceLink->disconnectAllLinks();
+			positionFeedbackDeviceLink->setVisible(false);
+			servoActuatorDeviceLink->setVisible(true);
+			feedbackUnitsPerAxisUnits = actuatorUnitsPerAxisUnits;
+			break;
 	}
 	positionControl = type;
 }
 
 void PositionControlledAxis::setPositionReferenceSignalType(PositionReferenceSignal::Type type) {
 	switch (type) {
-	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
-		referenceDeviceLink->setVisible(true);
-		lowLimitSignalPin->setVisible(true);
-		highLimitSignalPin->disconnectAllLinks();
-		highLimitSignalPin->setVisible(false);
-		referenceSignalPin->disconnectAllLinks();
-		referenceSignalPin->setVisible(false);
-		maxNegativeDeviation_axisUnits = 0.0;
-		enableNegativeLimit = true;
-		break;
-	case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-		referenceDeviceLink->setVisible(true);
-		lowLimitSignalPin->setVisible(true);
-		highLimitSignalPin->setVisible(true);
-		referenceSignalPin->disconnectAllLinks();
-		referenceSignalPin->setVisible(false);
-		maxNegativeDeviation_axisUnits = 0.0;
-		enableNegativeLimit = true;
-		enablePositiveLimit = true;
-		break;
-	case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
-		referenceDeviceLink->setVisible(true);
-		lowLimitSignalPin->disconnectAllLinks();
-		lowLimitSignalPin->setVisible(false);
-		highLimitSignalPin->disconnectAllLinks();
-		highLimitSignalPin->setVisible(false);
-		referenceSignalPin->setVisible(true);
-		break;
-	case PositionReferenceSignal::Type::NO_SIGNAL:
-		referenceDeviceLink->disconnectAllLinks();
-		referenceDeviceLink->setVisible(false);
-		lowLimitSignalPin->disconnectAllLinks();
-		lowLimitSignalPin->setVisible(false);
-		highLimitSignalPin->disconnectAllLinks();
-		highLimitSignalPin->setVisible(false);
-		referenceSignalPin->disconnectAllLinks();
-		referenceSignalPin->setVisible(false);
-		break;
+		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
+			referenceDeviceLink->setVisible(true);
+			lowLimitSignalPin->setVisible(true);
+			highLimitSignalPin->disconnectAllLinks();
+			highLimitSignalPin->setVisible(false);
+			referenceSignalPin->disconnectAllLinks();
+			referenceSignalPin->setVisible(false);
+			maxNegativeDeviation_axisUnits = 0.0;
+			enableNegativeLimit = true;
+			break;
+		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+			referenceDeviceLink->setVisible(true);
+			lowLimitSignalPin->setVisible(true);
+			highLimitSignalPin->setVisible(true);
+			referenceSignalPin->disconnectAllLinks();
+			referenceSignalPin->setVisible(false);
+			maxNegativeDeviation_axisUnits = 0.0;
+			enableNegativeLimit = true;
+			enablePositiveLimit = true;
+			break;
+		case PositionReferenceSignal::Type::SIGNAL_AT_ORIGIN:
+			referenceDeviceLink->setVisible(true);
+			lowLimitSignalPin->disconnectAllLinks();
+			lowLimitSignalPin->setVisible(false);
+			highLimitSignalPin->disconnectAllLinks();
+			highLimitSignalPin->setVisible(false);
+			referenceSignalPin->setVisible(true);
+			break;
+		case PositionReferenceSignal::Type::NO_SIGNAL:
+			referenceDeviceLink->disconnectAllLinks();
+			referenceDeviceLink->setVisible(false);
+			lowLimitSignalPin->disconnectAllLinks();
+			lowLimitSignalPin->setVisible(false);
+			highLimitSignalPin->disconnectAllLinks();
+			highLimitSignalPin->setVisible(false);
+			referenceSignalPin->disconnectAllLinks();
+			referenceSignalPin->setVisible(false);
+			break;
 	}
 	positionReferenceSignal = type;
 }
@@ -691,40 +714,41 @@ void PositionControlledAxis::homingControl() {
 		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_LIMIT:
 
 			switch (homingStep) {
-			case Step::NOT_STARTED:
-				homingStep = Step::SEARCHING_LOW_LIMIT_COARSE;
-				break;
-			case Step::SEARCHING_LOW_LIMIT_COARSE:
-				setVelocityTarget(-homingVelocity_axisUnitsPerSecond);
-				if (/*!previousLowLimitSignal && */lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_COARSE;
-				break;
-			case Step::FOUND_LOW_LIMIT_COARSE:
-				setVelocityTarget(0.0);
-				if (!isMoving()) {
-					if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
-						getServoActuatorDevice()->enable();
-						profilePosition_axisUnits = actualPosition_axisUnits;
-						profileVelocity_axisUnitsPerSecond = 0.0;
-						profileAcceleration_axisUnitsPerSecondSquared = 0.0;
-						//Logger::warn("Trying To Enable Axis");
+				case Step::NOT_STARTED:
+					homingStep = Step::SEARCHING_LOW_LIMIT_COARSE;
+					break;
+				case Step::SEARCHING_LOW_LIMIT_COARSE:
+					setVelocityTarget(-homingVelocity_axisUnitsPerSecond);
+					if (/*!previousLowLimitSignal && */lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_COARSE;
+					break;
+				case Step::FOUND_LOW_LIMIT_COARSE:
+					setVelocityTarget(0.0);
+					if (!isMoving()) {
+						if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
+							getServoActuatorDevice()->enable();
+							profilePosition_axisUnits = actualPosition_axisUnits;
+							profileVelocity_axisUnitsPerSecond = 0.0;
+							profileAcceleration_axisUnitsPerSecondSquared = 0.0;
+							//Logger::warn("Trying To Enable Axis");
+						}
+						else homingStep = Step::SEARCHING_LOW_LIMIT_FINE;
 					}
-					else homingStep = Step::SEARCHING_LOW_LIMIT_FINE;
+					break;
+				case Step::SEARCHING_LOW_LIMIT_FINE:
+					setVelocityTarget(homingVelocity_axisUnitsPerSecond / 10.0);
+					if (previousLowLimitSignal && !lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_FINE;
+					break;
+				case Step::FOUND_LOW_LIMIT_FINE:
+					setVelocityTarget(0.0);
+					if (!isMoving()) homingStep = Step::RESETTING_POSITION_FEEDBACK;
+					break;
+				case Step::RESETTING_POSITION_FEEDBACK:
+					setCurrentPosition(0.0);
+					onHomingSuccess();
+					break;
+				default: break;
 				}
 				break;
-			case Step::SEARCHING_LOW_LIMIT_FINE:
-				setVelocityTarget(homingVelocity_axisUnitsPerSecond / 10.0);
-				if (previousLowLimitSignal && !lowLimitSignal) homingStep = Step::FOUND_LOW_LIMIT_FINE;
-				break;
-			case Step::FOUND_LOW_LIMIT_FINE:
-				setVelocityTarget(0.0);
-				if (!isMoving()) homingStep = Step::RESETTING_POSITION_FEEDBACK;
-				break;
-			case Step::RESETTING_POSITION_FEEDBACK:
-				setCurrentPosition(0.0);
-				onHomingSuccess();
-				break;
-			}
-			break;
 
 		case PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
 
@@ -799,6 +823,7 @@ void PositionControlledAxis::homingControl() {
 					homingStep = Step::FINISHED;
 					onHomingSuccess();
 					break;
+					default: break;
 				}
 				break;
 
@@ -876,6 +901,7 @@ void PositionControlledAxis::homingControl() {
 					homingStep = Step::FINISHED;
 					onHomingSuccess();
 					break;
+					default: break;
 				}
 				break;
 
@@ -920,6 +946,7 @@ void PositionControlledAxis::homingControl() {
 						onHomingSuccess();
 					}
 					break;
+					default: break;
 				}
 
 			}
@@ -962,6 +989,7 @@ void PositionControlledAxis::homingControl() {
 						onHomingSuccess();
 					}
 					break;
+					default: break;
 				}
 
 			}

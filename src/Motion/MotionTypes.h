@@ -27,6 +27,8 @@ const char* getPositionUnitStringSingular(PositionUnit::Unit u);
 const char* getPositionUnitStringPlural(PositionUnit::Unit u);
 const char* getPositionUnitStringShort(PositionUnit::Unit u);
 
+bool isLinearPositionUnit(PositionUnit::Unit t);
+bool isAngularPositionUnit(PositionUnit::Unit t);
 
 struct PositionUnitType {
 	PositionUnit::Type type;

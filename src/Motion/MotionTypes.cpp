@@ -18,6 +18,16 @@ std::vector<PositionUnit>& getLinearPositionUnits() { return linearPositionUnits
 
 std::vector<PositionUnit>& getAngularPositionUnits() { return angularPositionUnits; }
 
+bool isLinearPositionUnit(PositionUnit::Unit t){
+	for(auto& linearPositionUnit : linearPositionUnits) if(t == linearPositionUnit.unit) return true;
+	return false;
+}
+
+bool isAngularPositionUnit(PositionUnit::Unit t){
+	for(auto& angularPositionUnit : angularPositionUnits) if(t == angularPositionUnit.unit) return true;
+	return false;
+}
+
 PositionUnit* getPositionUnit(PositionUnit::Unit u) {
 	for (PositionUnit& unit : linearPositionUnits) {
 		if (unit.unit == u) return &unit;
@@ -124,6 +134,14 @@ std::vector<PositionReferenceSignal> angularPositionReferenceSignals = {
 };
 std::vector<PositionReferenceSignal>& getLinearPositionReferenceSignals() { return linearPositionReferenceSignals; }
 std::vector<PositionReferenceSignal>& getAngularPositionReferenceSignals() { return angularPositionReferenceSignals; }
+bool isLinearPositionReferenceSignal(PositionReferenceSignal::Type type){
+	for(auto& positionReferenceSignal : linearPositionReferenceSignals) if(positionReferenceSignal.type == type) return true;
+	return false;
+}
+bool isAngularPositionReferenceSignal(PositionReferenceSignal::Type type){
+	for(auto& positionReferenceSignal : angularPositionReferenceSignals) if(positionReferenceSignal.type == type) return true;
+	return false;
+}
 PositionReferenceSignal* getPositionReferenceSignal(PositionReferenceSignal::Type t) {
 	for (PositionReferenceSignal& positionLimit : linearPositionReferenceSignals) {
 		if (positionLimit.type == t) return &positionLimit;
@@ -142,20 +160,6 @@ PositionReferenceSignal* getPositionReferenceSignal(const char* saveName) {
 	}
 	return nullptr;
 }
-bool isLinearPositionReferenceSignal(PositionReferenceSignal::Type t) {
-	for (PositionReferenceSignal& positionLimit : linearPositionReferenceSignals) {
-		if (positionLimit.type == t) return true;
-	}
-	return false;
-}
-bool isAngularPositionReferenceSignal(PositionReferenceSignal::Type t) {
-	for (PositionReferenceSignal& positionLimit : angularPositionReferenceSignals) {
-		if (positionLimit.type == t) return true;
-	}
-	return false;
-}
-
-
 
 
 std::vector<PositionControl> positionControlTypes = {

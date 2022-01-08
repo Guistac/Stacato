@@ -14,6 +14,12 @@ public:
 
 	//==================== SETTINGS ====================
 
+	//movement type
+	void setPositionUnitType(PositionUnit::Type t);
+	
+	//position unit
+	void setPositionUnit(PositionUnit::Unit u);
+	
 	//Control Type
 	PositionControl::Type positionControl = PositionControl::Type::CLOSED_LOOP;
 	void setPositionControlType(PositionControl::Type type);
