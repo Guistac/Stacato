@@ -30,5 +30,11 @@ class PositionControlledSingleAxisMachine : public Machine{
 
 	double rapidVelocity_machineUnitsPerSecond = 0.0;
 	double rapidAcceleration_machineUnitsPerSecond = 0.0;
-
+	
+	double axisUnitOffset = 0.0;
+	bool b_invertDirection = false;
+	double axisPositionToMachinePosition(double axisPosition);
+	double axisVelocityToMachineVelocity(double axisVelocity);
+	double machinePositionToAxisPosition(double machinePosition);
+	double machineVelocityToAxisVelocity(double machineVelocity);
 };

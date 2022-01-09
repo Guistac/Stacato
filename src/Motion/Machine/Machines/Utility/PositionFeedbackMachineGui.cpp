@@ -2,6 +2,7 @@
 #include "PositionFeedbackMachine.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
@@ -163,6 +164,51 @@ float PositionFeedbackMachine::getMiniatureWidth(){
 	return ImGui::GetTextLineHeight() * 10.0;
 }
 void PositionFeedbackMachine::machineSpecificMiniatureGui(){
-	ImGui::Text("Test");
+	
+	std::shared_ptr<PositionFeedbackDevice> feedbackDevice;
+	float progressNormalized = 1.0;
+	static char positionString[128];
+	static char positionProgressString[128];
+	static char velocityString[128];
+	glm::vec2 widgetSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
+	bool disableResetButton = true;
+	
+	if(isEnabled()){
+		feedbackDevice = getFeedbackDevice();
+		progressNormalized = feedbackDevice->getPositionInRange();
+		sprintf(positionString, "%.3f %s", position, getPositionUnit(feedbackDevice->getPositionUnit())->shortForm);
+		sprintf(velocityString, "%.3f %s/s", velocity, getPositionUnit(feedbackDevice->getPositionUnit())->shortForm);
+		sprintf(positionProgressString, "%.1f%%", progressNormalized * 100.0);
+		disableResetButton = false;
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+	}else{
+		sprintf(positionString, "Disabled.");
+		sprintf(velocityString, "Disabled.");
+		sprintf(positionProgressString, "");
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+	}
+	
+	
+	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::Text("Position :");
+	ImGui::PopFont();
+	ImGui::SameLine();
+	ImGui::Text("%s", positionString);
+	ImGui::ProgressBar(progressNormalized, widgetSize, positionProgressString);
+	ImGui::PopStyleColor();
+	
+	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::Text("Velocity :");
+	ImGui::PopFont();
+	ImGui::SameLine();
+	ImGui::Text("%s", velocityString);
+	
+	ImGui::Separator();
+	
+	if(disableResetButton) BEGIN_DISABLE_IMGUI_ELEMENT
+	if(ImGui::Button("Hard Reset", widgetSize)) getFeedbackDevice()->hardReset();
+	if(disableResetButton) END_DISABLE_IMGUI_ELEMENT
+	
+	
 }
 

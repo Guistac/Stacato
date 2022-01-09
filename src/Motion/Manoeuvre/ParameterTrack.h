@@ -79,6 +79,9 @@ public:
 	bool isPreviousCrossChained();
 	bool isNextCrossChained();
 
+	void captureCurrentValueToOrigin();
+	void captureCurrentValueToTarget();
+	
 	void refreshPreviousChainedCurvePoints();
 	void refreshNextChainedCurvePoints();
 	std::vector<std::vector<Motion::CurvePoint>> nextChainedCurvePoints;

@@ -116,6 +116,7 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 	if (ImGui::BeginCombo("##manoeuvreTypeSelector", getManoeuvreType(manoeuvre->type)->displayName)) {
 		for (auto& manoeuvreType : getManoeuvreTypes()) {
+			if(manoeuvreType.type == ManoeuvreType::Type::TIMED_MOVEMENT) continue;
 			if (ImGui::Selectable(manoeuvreType.displayName, manoeuvre->type == manoeuvreType.type)) {
 				manoeuvre->setType(manoeuvreType.type);
 				refreshAllTracks = true;
@@ -143,12 +144,14 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
             ImGui::EndChild();
             ImGui::EndTabItem();
         }
+		/*
         if(ImGui::BeginTabItem("Space Editor")){
             ImGui::BeginChild("SpaceEditor");
             spatialEditorGui(manoeuvre);
             ImGui::EndChild();
             ImGui::EndTabItem();
         }
+		*/
         ImGui::EndTabBar();
     }
 }
@@ -385,7 +388,13 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
         glm::vec2 addTrackButtonSize(ImGui::GetFrameHeight() * 3.0 + ImGui::GetStyle().ItemSpacing.x * 2.0, ImGui::GetFrameHeight());
         if (ImGui::Button("Add Track", addTrackButtonSize)) ImGui::OpenPopup("ManoeuvreTrackAdder");
         if (ImGui::BeginPopup("ManoeuvreTrackAdder")) {
+			BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::MenuItem("Add Parameter Track");
+			ImGui::MenuItem("Machine List :");
+			END_DISABLE_IMGUI_ELEMENT
+			ImGui::Separator();
             for (auto& machine : Environnement::getMachines()) {
+				if(machine->animatableParameters.empty()) continue;
                 if (ImGui::BeginMenu(machine->getName())) {
                     for (auto& parameter : machine->animatableParameters) {
                         if (parameter->hasParentGroup()) continue;

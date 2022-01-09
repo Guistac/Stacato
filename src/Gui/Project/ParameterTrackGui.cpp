@@ -178,6 +178,7 @@ bool ParameterTrack::chainNextGui(float width) {
 
 
 bool ParameterTrack::originInputGui(float width) {
+	float captureButtonWidth = ImGui::GetTextLineHeight() * 3.5;
 	bool originValidationError = false;
 	for (auto& point : startPoints) {
 		if (point->validationError == Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE) {
@@ -192,17 +193,23 @@ bool ParameterTrack::originInputGui(float width) {
 		ImGui::PushFont(Fonts::robotoBold15);
 	}
 	ImGui::PushID("Origin");
-	valueChanged = origin.inputFieldGui(width);
-	ImGui::PopID();
+	valueChanged = origin.inputFieldGui(width - captureButtonWidth - ImGui::GetStyle().ItemSpacing.x);
 	if (originValidationError) {
 		ImGui::PopStyleColor();
 		ImGui::PopFont();
 	}
+	ImGui::SameLine();
+	if(ImGui::Button("Capture", glm::vec2(captureButtonWidth, ImGui::GetFrameHeight()))){
+		captureCurrentValueToOrigin();
+		valueChanged = true;
+	}
+	ImGui::PopID();
 	if (disableField) END_DISABLE_IMGUI_ELEMENT
 	return valueChanged;
 }
 
 bool ParameterTrack::targetInputGui(float width) {
+	float captureButtonWidth = ImGui::GetTextLineHeight() * 3.5;
 	bool targetValidationError = false;
 	for (auto& point : endPoints) {
 		if (point->validationError == Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE) {
@@ -217,12 +224,18 @@ bool ParameterTrack::targetInputGui(float width) {
 		ImGui::PushFont(Fonts::robotoBold15);
 	}
 	ImGui::PushID("Target");
-	valueChanged = target.inputFieldGui(width);
-	ImGui::PopID();
+	valueChanged = target.inputFieldGui(width - captureButtonWidth - ImGui::GetStyle().ItemSpacing.x);
 	if (targetValidationError) {
 		ImGui::PopStyleColor();
 		ImGui::PopFont();
 	}
+	ImGui::SameLine();
+	if(ImGui::Button("Capture", glm::vec2(captureButtonWidth, ImGui::GetFrameHeight()))){
+		captureCurrentValueToTarget();
+		valueChanged = true;
+	}
+	ImGui::PopID();
+
 	if (disableField) END_DISABLE_IMGUI_ELEMENT
 	return valueChanged;
 }

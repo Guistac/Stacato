@@ -575,8 +575,21 @@ void ParameterTrack::getParameterValueAtPlaybackTime(AnimatableParameterValue& o
 		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
 			output.realValue = curves[0]->getPointAtTime(playbackPosition_seconds).position;
 			break;
+		case ParameterDataType::Type::PARAMETER_GROUP:
+			break;
 	}
 }
+
+
+
+void ParameterTrack::captureCurrentValueToOrigin(){
+	parameter->machine->getActualParameterValue(parameter, origin);
+}
+
+void ParameterTrack::captureCurrentValueToTarget(){
+	parameter->machine->getActualParameterValue(parameter, target);
+}
+
 
 
 

@@ -357,3 +357,28 @@ bool PositionControlledSingleAxisMachine::saveMachine(tinyxml2::XMLElement* xml)
 	
 	return true;
 }
+
+
+
+
+
+double PositionControlledSingleAxisMachine::axisPositionToMachinePosition(double axisPosition){
+	if(b_invertDirection) return 1.0f * (axisPosition - axisUnitOffset);
+	else return axisPosition - axisUnitOffset;
+}
+
+double PositionControlledSingleAxisMachine::axisVelocityToMachineVelocity(double axisVelocity){
+	if(b_invertDirection) return axisVelocity * -1.0;
+	else return axisVelocity;
+}
+
+double PositionControlledSingleAxisMachine::machinePositionToAxisPosition(double machinePosition){
+	if(b_invertDirection) return 1.0f * (machinePosition + axisUnitOffset);
+	else return machinePosition - axisUnitOffset;
+}
+
+double PositionControlledSingleAxisMachine::machineVelocityToAxisVelocity(double machineVelocity){
+	if(b_invertDirection) return machineVelocity * -1.0;
+	else return machineVelocity;
+}
+

@@ -16,4 +16,6 @@ namespace Colors {
     const glm::vec4 orange = glm::vec4(0.6, 0.4, 0.0, 1.0);
     const glm::vec4 red = glm::vec4(0.7, 0.1, 0.1, 1.0);
     const glm::vec4 darkRed = glm::vec4(0.35, 0.05, 0.05, 1.0);
+	const glm::vec4 transparent = glm::vec4(0.0, 0.0, 0.0, 0.0);
+
 }
