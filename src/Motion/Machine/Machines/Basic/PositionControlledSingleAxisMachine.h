@@ -39,5 +39,14 @@ class PositionControlledSingleAxisMachine : public Machine{
 	
 	//=========== SIMULATION ==========
 	
+	enum class SimulationControlMode{
+		VELOCITY_TARGET,
+		POSITION_TARGET,
+		FAST_STOP,
+		PLOT
+	};
+	
+	SimulationControlMode controlMode = SimulationControlMode::VELOCITY_TARGET;
 	Motion::Profile simulationMotionProfile;
+	std::shared_ptr<Motion::Interpolation> simulationTargetInterpolation = std::make_shared<Motion::Interpolation>();
 };

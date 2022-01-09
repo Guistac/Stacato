@@ -13,6 +13,8 @@
 
 #include "NodeGraph/Device.h"
 
+#include "Project/Environnement.h"
+
 
 void PositionControlledSingleAxisMachine::controlsGui() {
 	if(!isAxisConnected()) {
@@ -260,14 +262,31 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 		if (isAxisConnected()) {
 			std::shared_ptr<PositionControlledAxis> axis = getAxis();
 			velocityLimit = axis->getVelocityLimit_axisUnitsPerSecond();
-			positionProgress = axis->getActualPosition_normalized();
-			velocityProgress = std::abs(axis->getActualVelocityNormalized());
-			if (velocityProgress > 1.0) velocityProgress = 1.0;
-			positionUnitShortFormString = getPositionUnitStringShort(axis->positionUnit);
-			motionProgress = axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds);
-			sprintf(velocityTargetString, "%.1f%s/s", manualVelocityTarget_machineUnitsPerSecond, positionUnitShortFormString);
-			sprintf(actualVelocityString, "%.1f%s/s", axis->getActualVelocity_axisUnitsPerSecond(), positionUnitShortFormString);
-			sprintf(actualPositionString, "%.1f%s", axis->getActualPosition_axisUnits(), positionUnitShortFormString);
+			
+			if(!isSimulating()){
+				positionProgress = axis->getActualPosition_normalized();
+				velocityProgress = std::abs(axis->getActualVelocityNormalized());
+				if (velocityProgress > 1.0) velocityProgress = 1.0;
+				positionUnitShortFormString = getPositionUnitStringShort(axis->positionUnit);
+				motionProgress = axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds);
+				sprintf(velocityTargetString, "%.1f%s/s", manualVelocityTarget_machineUnitsPerSecond, positionUnitShortFormString);
+				sprintf(actualVelocityString, "%.1f%s/s", axis->getActualVelocity_axisUnitsPerSecond(), positionUnitShortFormString);
+				sprintf(actualPositionString, "%.1f%s", axis->getActualPosition_axisUnits(), positionUnitShortFormString);
+			}else{
+				
+				//SIMULATION TEST
+				double lowLimit = axis->getLowPositionLimit();
+				double highLimit = axis->getHighPositionLimit();
+				positionProgress = (simulationMotionProfile.getPosition() - lowLimit) / (highLimit - lowLimit);
+				velocityProgress = std::abs(simulationMotionProfile.getVelocity() / velocityLimit);
+				if (velocityProgress > 1.0) velocityProgress = 1.0;
+				positionUnitShortFormString = getPositionUnitStringShort(axis->positionUnit);
+				motionProgress = simulationTargetInterpolation->getProgressAtTime(Environnement::getTime_seconds());
+				sprintf(velocityTargetString, "%.1f%s/s", manualVelocityTarget_machineUnitsPerSecond, positionUnitShortFormString);
+				sprintf(actualVelocityString, "%.1f%s/s", simulationMotionProfile.getVelocity(), positionUnitShortFormString);
+				sprintf(actualPositionString, "%.1f%s", simulationMotionProfile.getPosition(), positionUnitShortFormString);
+				
+			}
 			disableControls = !isEnabled();
 		}
 		else {

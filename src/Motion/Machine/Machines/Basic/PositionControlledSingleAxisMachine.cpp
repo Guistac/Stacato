@@ -86,6 +86,54 @@ void PositionControlledSingleAxisMachine::process() {
 	}
 }
 
+void PositionControlledSingleAxisMachine::simulateProcess() {
+	
+	if (!isAxisConnected()) return;
+	std::shared_ptr<PositionControlledAxis> axis = getAxis();
+
+	positionPin->set(simulationMotionProfile.getPosition());
+	velocityPin->set(simulationMotionProfile.getVelocity());
+
+	//Update Time
+	double profileTime_seconds = Environnement::getTime_seconds();
+	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
+
+	//Handle parameter track playback
+	if (positionParameter->hasParameterTrack()) {
+		double previousProfilePosition_machineUnits = simulationMotionProfile.getPosition();
+		AnimatableParameterValue playbackPosition;
+		positionParameter->getActiveTrackParameterValue(playbackPosition);
+		
+		Logger::warn("playback: {}", playbackPosition.realValue);
+		
+		simulationMotionProfile.setPosition(playbackPosition.realValue);
+		simulationMotionProfile.setVelocity((playbackPosition.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds);
+	}else if(controlMode == SimulationControlMode::VELOCITY_TARGET){
+		
+		simulationMotionProfile.matchVelocity(profileDeltaTime_seconds, manualVelocityTarget_machineUnitsPerSecond, rapidAcceleration_machineUnitsPerSecond);
+		
+	}else if(controlMode == SimulationControlMode::POSITION_TARGET){
+		
+		if (simulationTargetInterpolation->isTimeInside(profileTime_seconds)) {
+			Motion::CurvePoint curvePoint = simulationTargetInterpolation->getPointAtTime(profileTime_seconds);
+			simulationMotionProfile.setPosition(curvePoint.position);
+			simulationMotionProfile.setVelocity(curvePoint.velocity);
+			simulationMotionProfile.setAcceleration(curvePoint.acceleration);
+		}
+		else if (simulationTargetInterpolation->getProgressAtTime(profileTime_seconds) >= 1.0) {
+			simulationMotionProfile.setPosition(simulationTargetInterpolation->outPosition);
+			simulationMotionProfile.setVelocity(0.0);
+			simulationMotionProfile.setAcceleration(0.0);
+			setVelocityTarget(0.0);
+		}else{
+			simulationMotionProfile.setVelocity(0.0);
+			simulationMotionProfile.setAcceleration(0.0);
+			setVelocityTarget(0.0);
+		}
+		
+	}
+	
+}
 
 
 
@@ -102,13 +150,44 @@ std::shared_ptr<PositionControlledAxis> PositionControlledSingleAxisMachine::get
 
 
 
+//===================== MANUAL CONTROLS =========================
+
 void PositionControlledSingleAxisMachine::setVelocityTarget(double velocityTarget_machineUnitsPerSecond) {
 	manualVelocityTarget_machineUnitsPerSecond = velocityTarget_machineUnitsPerSecond;
-	getAxis()->setVelocityTarget(velocityTarget_machineUnitsPerSecond);
+	if(!isSimulating()) getAxis()->setVelocityTarget(velocityTarget_machineUnitsPerSecond);
+	else{
+		//SIMULATION TEST
+		controlMode = SimulationControlMode::VELOCITY_TARGET;
+		simulationTargetInterpolation->resetValues();
+	}
 }
 
-void PositionControlledSingleAxisMachine::moveToPosition(double target_machineUnitsPerSecond) {
-	getAxis()->moveToPositionWithVelocity(target_machineUnitsPerSecond, rapidVelocity_machineUnitsPerSecond, rapidAcceleration_machineUnitsPerSecond);
+void PositionControlledSingleAxisMachine::moveToPosition(double target_machineUnits) {
+	if(!isSimulating()) getAxis()->moveToPositionWithVelocity(target_machineUnits, rapidVelocity_machineUnitsPerSecond, rapidAcceleration_machineUnitsPerSecond);
+	else{
+		//SIMULATION TEST
+		
+		double highLimit = getAxis()->getHighPositionLimit();
+		double lowLimit = getAxis()->getLowPositionLimit();
+		
+		double simulationTime = Environnement::getTime_seconds();
+		double profilePosition = simulationMotionProfile.getPosition();
+		double profileAcceleration = simulationMotionProfile.getAcceleration();
+		double profileVelocity = simulationMotionProfile.getVelocity();
+		
+		if (target_machineUnits > highLimit) target_machineUnits = highLimit;
+		else if (target_machineUnits < lowLimit) target_machineUnits = lowLimit;
+		
+		auto startPoint = std::make_shared<Motion::ControlPoint>(simulationTime, profilePosition, rapidAcceleration_machineUnitsPerSecond, profileVelocity);
+		auto endPoint = std::make_shared<Motion::ControlPoint>(0.0, target_machineUnits, rapidAcceleration_machineUnitsPerSecond, 0.0);
+		
+		if (Motion::TrapezoidalInterpolation::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, rapidVelocity_machineUnitsPerSecond, simulationTargetInterpolation)) {
+			controlMode = SimulationControlMode::POSITION_TARGET;
+		}
+		else {
+			setVelocityTarget(0.0);
+		}
+	}
 }
 
 
@@ -121,7 +200,8 @@ void PositionControlledSingleAxisMachine::rapidParameterToValue(std::shared_ptr<
 		if (parameter == positionParameter) {
 			if (!isAxisConnected()) return;
 			std::shared_ptr<PositionControlledAxis> axis = getAxis();
-			axis->moveToPositionWithVelocity(value.realValue, rapidVelocity_machineUnitsPerSecond, rapidAcceleration_machineUnitsPerSecond);
+			//axis->moveToPositionWithVelocity(value.realValue, rapidVelocity_machineUnitsPerSecond, rapidAcceleration_machineUnitsPerSecond);
+			moveToPosition(value.realValue);
 		}
 	}
 }
@@ -129,8 +209,13 @@ void PositionControlledSingleAxisMachine::rapidParameterToValue(std::shared_ptr<
 float PositionControlledSingleAxisMachine::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
 		if (!isAxisConnected()) return 0.0;
-		std::shared_ptr<PositionControlledAxis> axis = getAxis();
-		return axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds);
+		if(!isSimulating()){
+			std::shared_ptr<PositionControlledAxis> axis = getAxis();
+			return axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds);
+		}else{
+			//SIMULATION TEST
+			return simulationTargetInterpolation->getProgressAtTime(Environnement::getTime_seconds());
+		}
 	}
 	return 0.0;
 }
@@ -139,8 +224,13 @@ bool PositionControlledSingleAxisMachine::isParameterReadyToStartPlaybackFromVal
 	if (parameter->dataType == value.type) {
 		if (parameter == positionParameter) {
 			if (!isAxisConnected()) return false;
-			std::shared_ptr<PositionControlledAxis> axis = getAxis();
-			return axis->getProfilePosition_axisUnits() == value.realValue && axis->getProfileVelocity_axisUnitsPerSecond() == 0.0;
+			if(!isSimulating()){
+				std::shared_ptr<PositionControlledAxis> axis = getAxis();
+				return axis->getProfilePosition_axisUnits() == value.realValue && axis->getProfileVelocity_axisUnitsPerSecond() == 0.0;
+			}else{
+				//SIMULATION TEST
+				return simulationMotionProfile.getPosition() == value.realValue && simulationMotionProfile.getVelocity() == 0.0;
+			}
 		}
 	}
 	return false;
@@ -148,19 +238,31 @@ bool PositionControlledSingleAxisMachine::isParameterReadyToStartPlaybackFromVal
 
 void PositionControlledSingleAxisMachine::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
-		getAxis()->controlMode = ControlMode::Mode::MACHINE_CONTROL;
+		if(!isSimulating()) getAxis()->controlMode = ControlMode::Mode::MACHINE_CONTROL;
+		else {
+			//SIMULATION TEST
+			controlMode = SimulationControlMode::PLOT;
+		}
 	}
 }
 
 void PositionControlledSingleAxisMachine::onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
-		getAxis()->setVelocityTarget(0.0);
+		if(!isSimulating()) getAxis()->setVelocityTarget(0.0);
+		else{
+			//SIMULATION TEST
+			setVelocityTarget(0.0);
+		}
 	}
 }
 
 void PositionControlledSingleAxisMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if (parameter == positionParameter) {
-		value.realValue = getAxis()->getActualPosition_axisUnits();
+		if(!isSimulating()) value.realValue = getAxis()->getActualPosition_axisUnits();
+		else{
+			//SIMULATION TEST
+			value.realValue = simulationMotionProfile.getPosition();
+		}
 	}
 }
 
@@ -171,8 +273,13 @@ void PositionControlledSingleAxisMachine::getActualParameterValue(std::shared_pt
 
 void PositionControlledSingleAxisMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
-		std::shared_ptr<PositionControlledAxis> axis = getAxis();
-		axis->setVelocityTarget(0.0);
+		if(!isSimulating()){
+			std::shared_ptr<PositionControlledAxis> axis = getAxis();
+			axis->setVelocityTarget(0.0);
+		}else{
+			//SIMULATION TEST
+			setVelocityTarget(0.0);
+		}
 	}
 }
 
@@ -277,31 +384,6 @@ void PositionControlledSingleAxisMachine::onEnableHardware() {
 }
 
 void PositionControlledSingleAxisMachine::onDisableHardware() {
-}
-
-
-void PositionControlledSingleAxisMachine::simulateProcess() {
-	
-	if (!isAxisConnected()) return;
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-
-	positionPin->set(simulationMotionProfile.getPosition());
-	velocityPin->set(simulationMotionProfile.getVelocity());
-
-	//Update Time
-	double profileTime_seconds = Environnement::getTime_seconds();
-	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
-
-	//Handle parameter track playback
-	if (positionParameter->hasParameterTrack()) {
-		double previousProfilePosition_machineUnits = simulationMotionProfile.getPosition();
-		AnimatableParameterValue playbackPosition;
-		positionParameter->getActiveTrackParameterValue(playbackPosition);
-		
-		simulationMotionProfile.setPosition(playbackPosition.realValue);
-		simulationMotionProfile.setPosition((playbackPosition.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds);
-	}
-	
 }
 
 bool PositionControlledSingleAxisMachine::isSimulationReady(){
