@@ -28,7 +28,7 @@
             </Node>
             <Node NodeType="Machine" ClassName="PositionFeedback" CustomName="Position Feedback" UniqueID="13">
                 <NodeEditorPosition x="648" y="-417"/>
-                <NodeSpecificData ShortName="M">
+                <NodeSpecificData ShortName="Fb">
                     <Units Type="Linear" Unit="Meter"/>
                     <Conversion UnitsPerFeedbackUnit="1" InvertDirectionOfMotion="true" UnitOffset="10"/>
                 </NodeSpecificData>
@@ -36,8 +36,8 @@
                     <InputPin SaveName="Feedback Device" DisplayName="Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="14" Visible="true" NoDataField="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="15" Real="0" Visible="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="16" Real="0" Visible="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="15" Real="14.91650390625" Visible="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="16" Real="-0" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="OscConnection" Split="false" CustomName="Osc Connection" UniqueID="19">
@@ -115,16 +115,16 @@
                     <OutputPin SaveName="DI5" DisplayName="DI5" DataType="Boolean" UniqueID="47" Boolean="false" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Machine" ClassName="PositionControlledSingleAxisMachine" CustomName="Position Controlled Single Axis Machine" UniqueID="51">
+            <Node NodeType="Machine" ClassName="PositionControlledSingleAxisMachine" CustomName="Linear Machine" UniqueID="51">
                 <NodeEditorPosition x="1048" y="-618"/>
-                <NodeSpecificData ShortName="M">
-                    <Rapids Velocity_machineUnitsPerSecond="0.5" Acceleration_machineUnitsPerSecondSquared="5"/>
+                <NodeSpecificData ShortName="M-1">
+                    <Rapids Velocity_machineUnitsPerSecond="2" Acceleration_machineUnitsPerSecondSquared="5"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveName="Position Controlled Axis" DisplayName="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="52" Visible="true" NoDataField="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="53" Real="7.2575192313104502" Visible="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="53" Real="0" Visible="true"/>
                     <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="54" Real="0" Visible="true"/>
                 </OutputPins>
             </Node>
@@ -143,7 +143,7 @@
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en4" Name="en4"/>
+        <Primary Description="en5" Name="en5"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>

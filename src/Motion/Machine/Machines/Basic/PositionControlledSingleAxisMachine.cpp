@@ -42,7 +42,6 @@ void PositionControlledSingleAxisMachine::enableHardware() {
 				if (axis->isEnabled()) {
 					b_enabled = true;
 					onEnableHardware();
-					Logger::info("Enabled Machine {}", getName());
 					break;
 				}
 			}
@@ -55,6 +54,30 @@ void PositionControlledSingleAxisMachine::disableHardware() {
 	b_enabled = false;
 	if (isAxisConnected()) getAxis()->disable();
 	onDisableHardware();
+}
+
+void PositionControlledSingleAxisMachine::onEnableHardware() {
+	Logger::info("Enabled Machine {}", getName());
+}
+
+void PositionControlledSingleAxisMachine::onDisableHardware() {
+	Logger::info("Disabled Machine {}", getName());
+}
+
+bool PositionControlledSingleAxisMachine::isSimulationReady(){
+	return isAxisConnected();
+}
+
+void PositionControlledSingleAxisMachine::onEnableSimulation() {
+	simulationTargetInterpolation->resetValues();
+	simulationMotionProfile.setVelocity(0.0);
+	simulationMotionProfile.setAcceleration(0.0);
+	setVelocityTarget(0.0);
+}
+
+void PositionControlledSingleAxisMachine::onDisableSimulation() {
+	simulationMotionProfile.setVelocity(0.0);
+	simulationMotionProfile.setAcceleration(0.0);
 }
 
 void PositionControlledSingleAxisMachine::process() {
@@ -100,17 +123,21 @@ void PositionControlledSingleAxisMachine::simulateProcess() {
 
 	//Handle parameter track playback
 	if (positionParameter->hasParameterTrack()) {
+		
 		double previousProfilePosition_machineUnits = simulationMotionProfile.getPosition();
 		AnimatableParameterValue playbackPosition;
 		positionParameter->getActiveTrackParameterValue(playbackPosition);
-		
-		Logger::warn("playback: {}", playbackPosition.realValue);
-		
 		simulationMotionProfile.setPosition(playbackPosition.realValue);
 		simulationMotionProfile.setVelocity((playbackPosition.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds);
-	}else if(controlMode == SimulationControlMode::VELOCITY_TARGET){
 		
-		simulationMotionProfile.matchVelocity(profileDeltaTime_seconds, manualVelocityTarget_machineUnitsPerSecond, rapidAcceleration_machineUnitsPerSecond);
+	}else if(controlMode == SimulationControlMode::VELOCITY_TARGET){
+				
+		simulationMotionProfile.matchVelocityAndRespectPositionLimits(profileDeltaTime_seconds,
+																	  manualVelocityTarget_machineUnitsPerSecond,
+																	  rapidAcceleration_machineUnitsPerSecond,
+																	  getAxis()->getLowPositionLimit(),
+																	  getAxis()->getHighPositionLimit(),
+																	  getAxis()->getAccelerationLimit_axisUnitsPerSecondSquared());
 		
 	}else if(controlMode == SimulationControlMode::POSITION_TARGET){
 		
@@ -377,25 +404,6 @@ void PositionControlledSingleAxisMachine::getTimedParameterCurveTo(const std::sh
 		Motion::TrapezoidalInterpolation::getClosestTimeAndVelocityConstrainedInterpolation(startPoint, endPoint, axis->getVelocityLimit_axisUnitsPerSecond(), timedInterpolation);
 	}
 	//movement from current position to the target position arriving at 0 velocity
-}
-
-
-void PositionControlledSingleAxisMachine::onEnableHardware() {
-}
-
-void PositionControlledSingleAxisMachine::onDisableHardware() {
-}
-
-bool PositionControlledSingleAxisMachine::isSimulationReady(){
-	return isAxisConnected();
-}
-
-void PositionControlledSingleAxisMachine::onEnableSimulation() {
-	//nothing to do here really
-}
-
-void PositionControlledSingleAxisMachine::onDisableSimulation() {
-	//nothing to here either
 }
 
 

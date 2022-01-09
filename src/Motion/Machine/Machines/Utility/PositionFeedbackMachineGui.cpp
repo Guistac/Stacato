@@ -194,14 +194,18 @@ void PositionFeedbackMachine::machineSpecificMiniatureGui(){
 	ImGui::PopFont();
 	ImGui::SameLine();
 	ImGui::Text("%s", positionString);
-	ImGui::ProgressBar(progressNormalized, widgetSize, positionProgressString);
-	ImGui::PopStyleColor();
 	
 	ImGui::PushFont(Fonts::robotoBold15);
 	ImGui::Text("Velocity :");
 	ImGui::PopFont();
 	ImGui::SameLine();
 	ImGui::Text("%s", velocityString);
+	
+	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::Text("Working Range :");
+	ImGui::PopFont();
+	ImGui::ProgressBar(progressNormalized, widgetSize, positionProgressString);
+	ImGui::PopStyleColor();
 	
 	ImGui::Separator();
 	
