@@ -418,16 +418,7 @@ void PositionControlledSingleAxisMachine::getDevices(std::vector<std::shared_ptr
 	if (isAxisConnected()) getAxis()->getDevices(output);
 }
 
-bool PositionControlledSingleAxisMachine::loadMachine(tinyxml2::XMLElement* xml) {
-	using namespace tinyxml2;
 
-	XMLElement* rapidsXML = xml->FirstChildElement("Rapids");
-	if (rapidsXML == nullptr) return Logger::warn("Could not find Rapids attribute");
-	if (rapidsXML->QueryDoubleAttribute("Velocity_machineUnitsPerSecond", &rapidVelocity_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could find rapid velocity attribute");
-	if (rapidsXML->QueryDoubleAttribute("Acceleration_machineUnitsPerSecondSquared", &rapidAcceleration_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could find rapid acceleration attribute");
-	
-	return true;
-}
 
 bool PositionControlledSingleAxisMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
@@ -436,16 +427,48 @@ bool PositionControlledSingleAxisMachine::saveMachine(tinyxml2::XMLElement* xml)
 	rapidsXML->SetAttribute("Velocity_machineUnitsPerSecond", rapidVelocity_machineUnitsPerSecond);
 	rapidsXML->SetAttribute("Acceleration_machineUnitsPerSecondSquared", rapidAcceleration_machineUnitsPerSecond);
 	
+	XMLElement* machineZeroXML = xml->InsertNewChildElement("MachineZero");
+	machineZeroXML->SetAttribute("MachineZero_AxisUnits", machineZero_axisUnits);
+	machineZeroXML->SetAttribute("InvertAxisDirection", b_invertDirection);
+	
+	return true;
+}
+
+
+bool PositionControlledSingleAxisMachine::loadMachine(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+
+	XMLElement* rapidsXML = xml->FirstChildElement("Rapids");
+	if (rapidsXML == nullptr) return Logger::warn("Could not find Rapids attribute");
+	if (rapidsXML->QueryDoubleAttribute("Velocity_machineUnitsPerSecond", &rapidVelocity_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could find rapid velocity attribute");
+	if (rapidsXML->QueryDoubleAttribute("Acceleration_machineUnitsPerSecondSquared", &rapidAcceleration_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could find rapid acceleration attribute");
+	
+	XMLElement* machineZeroXML = xml->FirstChildElement("MachineZero");
+	if(machineZeroXML == nullptr) return Logger::warn("Could not find Machine Zero Attribute");
+	if(machineZeroXML->QueryDoubleAttribute("MachineZero_AxisUnits", &machineZero_axisUnits) != XML_SUCCESS) return Logger::warn("Could not find machine zero value attribute");
+	if(machineZeroXML->QueryBoolAttribute("InvertAxisDirection", &b_invertDirection) != XML_SUCCESS) return Logger::warn("Could not find invert axis direction attribute");
+	
 	return true;
 }
 
 
 
 
+void PositionControlledSingleAxisMachine::captureMachineZero(){
+	if(!isSimulating()){
+		machineZero_axisUnits = getAxis()->getActualPosition_axisUnits();
+	}else{
+		//SIMULATION TEST
+		machineZero_axisUnits = simulationMotionProfile.getPosition();
+		
+	}
+}
+
+//TODO: Integrate this
 
 double PositionControlledSingleAxisMachine::axisPositionToMachinePosition(double axisPosition){
-	if(b_invertDirection) return 1.0f * (axisPosition - axisUnitOffset);
-	else return axisPosition - axisUnitOffset;
+	if(b_invertDirection) return -1.0f * (axisPosition - machineZero_axisUnits);
+	else return axisPosition - machineZero_axisUnits;
 }
 
 double PositionControlledSingleAxisMachine::axisVelocityToMachineVelocity(double axisVelocity){
@@ -454,8 +477,8 @@ double PositionControlledSingleAxisMachine::axisVelocityToMachineVelocity(double
 }
 
 double PositionControlledSingleAxisMachine::machinePositionToAxisPosition(double machinePosition){
-	if(b_invertDirection) return 1.0f * (machinePosition + axisUnitOffset);
-	else return machinePosition - axisUnitOffset;
+	if(b_invertDirection) return (-1.0f * machinePosition) + machineZero_axisUnits;
+	else return machinePosition + machineZero_axisUnits;
 }
 
 double PositionControlledSingleAxisMachine::machineVelocityToAxisVelocity(double machineVelocity){

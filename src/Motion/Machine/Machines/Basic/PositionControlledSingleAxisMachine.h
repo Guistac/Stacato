@@ -30,7 +30,8 @@ class PositionControlledSingleAxisMachine : public Machine{
 	double rapidVelocity_machineUnitsPerSecond = 0.0;
 	double rapidAcceleration_machineUnitsPerSecond = 0.0;
 	
-	double axisUnitOffset = 0.0;
+	double machineZero_axisUnits = 0.0;
+	void captureMachineZero();
 	bool b_invertDirection = false;
 	double axisPositionToMachinePosition(double axisPosition);
 	double axisVelocityToMachineVelocity(double axisVelocity);
