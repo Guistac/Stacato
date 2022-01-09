@@ -2,11 +2,9 @@
 
 ### Priority Features
 - Feature complete plot editor and playback engine (animated tracks / on-the-fly playback start or catch-up, position capture, timed manoeuvres)
-- Offline Motion Simulation Mode
 - Physical Console compatibility (Serial Link, Communication protocol Software Button Assignement)
 - Homing Procedure User Interface
-- OSC Node for sending feedback data
-- Feedback-Only Machine node exclusively for monitoring and sending position data
+- Simulation Compatible Machines
 
 ### Future Milestones
 - Stage Visualizer based on 3D models (.dwg importer, stage editor and visualizer)
