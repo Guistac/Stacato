@@ -44,7 +44,7 @@
                 <NodeEditorPosition x="868" y="-348"/>
                 <NodeSpecificData>
                     <RemoteIP ipv4-0="192" ipv4-1="168" ipv4-2="1" ipv4-3="3"/>
-                    <Ports send="6969" receive="0"/>
+                    <Ports send="6969" receive="123"/>
                     <OutgoingMessages>
                         <OSCMessage Path="/Stacato/Feedback" SendingFrequency="120" IncludeTimestamp="false">
                             <OSCArgument DataType="Float" PinSaveName="OutgoingMessage0Argument1"/>

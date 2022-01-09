@@ -2,8 +2,7 @@
 
 #include "Motion/Curve/Curve.h"
 #include "Motion/MotionTypes.h"
-
-class PositionControlledAxis;
+#include "Motion/Profile/Profile.h"
 
 class PositionControlledSingleAxisMachine : public Machine{
 	
@@ -37,4 +36,8 @@ class PositionControlledSingleAxisMachine : public Machine{
 	double axisVelocityToMachineVelocity(double axisVelocity);
 	double machinePositionToAxisPosition(double machinePosition);
 	double machineVelocityToAxisVelocity(double machineVelocity);
+	
+	//=========== SIMULATION ==========
+	
+	Motion::Profile simulationMotionProfile;
 };

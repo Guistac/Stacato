@@ -30,27 +30,29 @@ bool AnimatableParameterValue::inputFieldGui(float width) {
 			break;
 		case ParameterDataType::Type::REAL_PARAMETER:
 		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
-			sprintf(inputFieldString, "%.4f %s", realValue, shortUnitString);
+			sprintf(inputFieldString, "%.1f %s", realValue, shortUnitString);
 			valueChanged = ImGui::InputDouble("##parameter", &realValue, 0.0, 0.0, inputFieldString);
 			break;
 		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
 		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
-			sprintf(inputFieldString, "x: %.4f %s", vector2value.x, shortUnitString);
+			sprintf(inputFieldString, "x: %.1f %s", vector2value.x, shortUnitString);
 			valueChanged |= ImGui::InputFloat("##X", &vector2value.x, 0.0, 0.0, inputFieldString);
 			ImGui::SetNextItemWidth(width);
-			sprintf(inputFieldString, "y: %.4f %s", vector2value.y, shortUnitString);
+			sprintf(inputFieldString, "y: %.1f %s", vector2value.y, shortUnitString);
 			valueChanged |= ImGui::InputFloat("##Y", &vector2value.y, 0.0, 0.0, inputFieldString);
 			break;
 		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
 		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
-			sprintf(inputFieldString, "x: %.4f %s", vector3value.x, shortUnitString);
+			sprintf(inputFieldString, "x: %.1f %s", vector3value.x, shortUnitString);
 			valueChanged |= ImGui::InputFloat("##X", &vector3value.x, 0.0, 0.0, inputFieldString);
 			ImGui::SetNextItemWidth(width);
-			sprintf(inputFieldString, "y: %.4f %s", vector3value.y, shortUnitString);
+			sprintf(inputFieldString, "y: %.1f %s", vector3value.y, shortUnitString);
 			valueChanged |= ImGui::InputFloat("##Y", &vector3value.y, 0.0, 0.0, inputFieldString);
 			ImGui::SetNextItemWidth(width);
-			sprintf(inputFieldString, "z: %.4f %s", vector3value.z, shortUnitString);
+			sprintf(inputFieldString, "z: %.1f %s", vector3value.z, shortUnitString);
 			valueChanged |= ImGui::InputFloat("##Z", &vector3value.z, 0.0, 0.0, inputFieldString);
+			break;
+		case ParameterDataType::Type::PARAMETER_GROUP:
 			break;
 	}
 	return valueChanged;

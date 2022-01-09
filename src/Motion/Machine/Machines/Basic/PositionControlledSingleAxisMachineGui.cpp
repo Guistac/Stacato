@@ -268,7 +268,6 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 			sprintf(velocityTargetString, "%.1f%s/s", manualVelocityTarget_machineUnitsPerSecond, positionUnitShortFormString);
 			sprintf(actualVelocityString, "%.1f%s/s", axis->getActualVelocity_axisUnitsPerSecond(), positionUnitShortFormString);
 			sprintf(actualPositionString, "%.1f%s", axis->getActualPosition_axisUnits(), positionUnitShortFormString);
-			//disableControls = !axis->isEnabled();
 			disableControls = !isEnabled();
 		}
 		else {

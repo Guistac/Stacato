@@ -64,10 +64,12 @@ public:
 
 	//===== STATE CONTROL & MONITORING =====
 	bool b_enabled = false;
+	bool b_isSimulating = false;
 	bool isReady();
 	void enable();
 	void disable();
 	bool isEnabled();
+	bool isSimulating();
 	virtual bool isHardwareReady() = 0;
 	virtual bool isSimulationReady() = 0;
 	virtual void enableHardware() = 0;

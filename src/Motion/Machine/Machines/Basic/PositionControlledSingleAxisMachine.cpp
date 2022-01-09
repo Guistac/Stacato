@@ -219,11 +219,13 @@ bool PositionControlledSingleAxisMachine::validateParameterTrack(const std::shar
 				//no solution was found to begin with
 				//an validation error type was already set by the interpolation engine
 				b_curveValid = false;
+				continue;
 			}
 			else if (std::abs(interpolation->interpolationVelocity) > axis->getVelocityLimit_axisUnitsPerSecond()) {
 				interpolation->validationError = ValidationError::Error::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED;
 				interpolation->b_valid = false;
 				b_curveValid = false;
+				continue;
 			}
 			for (auto& point : interpolation->displayPoints) {
 				if (point.position > axis->getHighPositionLimit() || point.position < axis->getLowPositionLimit()) {
@@ -266,7 +268,6 @@ void PositionControlledSingleAxisMachine::getTimedParameterCurveTo(const std::sh
 		std::shared_ptr<Motion::Interpolation> timedInterpolation = std::make_shared<Motion::Interpolation>();
 
 		Motion::TrapezoidalInterpolation::getClosestTimeAndVelocityConstrainedInterpolation(startPoint, endPoint, axis->getVelocityLimit_axisUnitsPerSecond(), timedInterpolation);
-	
 	}
 	//movement from current position to the target position arriving at 0 velocity
 }
@@ -281,32 +282,25 @@ void PositionControlledSingleAxisMachine::onDisableHardware() {
 
 void PositionControlledSingleAxisMachine::simulateProcess() {
 	
-	//TODO: this is absolutely not working
-	/*
 	if (!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-	
+
+	positionPin->set(simulationMotionProfile.getPosition());
+	velocityPin->set(simulationMotionProfile.getVelocity());
+
 	//Update Time
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
-	
-	axis->profileTime_seconds = profileTime_seconds;
-	axis->profileTimeDelta_seconds = profileDeltaTime_seconds;
-	axis->process();
-
-	positionPin->set(axis->profilePosition_axisUnits);
-	velocityPin->set(axis->profileVelocity_axisUnitsPerSecond);
 
 	//Handle parameter track playback
 	if (positionParameter->hasParameterTrack()) {
-		double previousProfilePosition_machineUnits = axis->getProfilePosition_axisUnits();
+		double previousProfilePosition_machineUnits = simulationMotionProfile.getPosition();
 		AnimatableParameterValue playbackPosition;
 		positionParameter->getActiveTrackParameterValue(playbackPosition);
-		axis->profilePosition_axisUnits = playbackPosition.realValue;
-		axis->profileVelocity_axisUnitsPerSecond = (playbackPosition.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
+		
+		simulationMotionProfile.setPosition(playbackPosition.realValue);
+		simulationMotionProfile.setPosition((playbackPosition.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds);
 	}
-	*/
-	
 	
 }
 
@@ -315,14 +309,11 @@ bool PositionControlledSingleAxisMachine::isSimulationReady(){
 }
 
 void PositionControlledSingleAxisMachine::onEnableSimulation() {
-	/*
-	if (!isAxisConnected()) return;
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-	axis->profilePosition_axisUnits = axis->getLowPositionLimit();
-	*/
+	//nothing to do here really
 }
 
 void PositionControlledSingleAxisMachine::onDisableSimulation() {
+	//nothing to here either
 }
 
 
