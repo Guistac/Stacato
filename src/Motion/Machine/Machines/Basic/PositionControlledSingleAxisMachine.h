@@ -31,12 +31,20 @@ class PositionControlledSingleAxisMachine : public Machine{
 	double rapidAcceleration_machineUnitsPerSecond = 0.0;
 	
 	double machineZero_axisUnits = 0.0;
-	void captureMachineZero();
 	bool b_invertDirection = false;
+	void captureMachineZero();
+	
+	//======== MACHINE TO AXIS CONVERSION ========
+	
 	double axisPositionToMachinePosition(double axisPosition);
 	double axisVelocityToMachineVelocity(double axisVelocity);
 	double machinePositionToAxisPosition(double machinePosition);
 	double machineVelocityToAxisVelocity(double machineVelocity);
+	
+	double getLowPositionLimit();
+	double getHighPositionLimit();
+	double getPositionNormalized();
+	double getVelocityNormalized();
 	
 	//=========== SIMULATION ==========
 	

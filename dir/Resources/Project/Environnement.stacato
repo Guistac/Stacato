@@ -118,14 +118,14 @@
             <Node NodeType="Machine" ClassName="PositionControlledSingleAxisMachine" CustomName="Linear Machine" UniqueID="51">
                 <NodeEditorPosition x="1048" y="-618"/>
                 <NodeSpecificData ShortName="M-1">
-                    <Rapids Velocity_machineUnitsPerSecond="0.10000000000000001" Acceleration_machineUnitsPerSecondSquared="5"/>
+                    <Rapids Velocity_machineUnitsPerSecond="0.5" Acceleration_machineUnitsPerSecondSquared="5"/>
                     <MachineZero MachineZero_AxisUnits="3.1415000000000002" InvertAxisDirection="true"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveName="Position Controlled Axis" DisplayName="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="52" Visible="true" NoDataField="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="53" Real="4.0218405869900016" Visible="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="53" Real="-5.0493927547024322" Visible="true"/>
                     <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="54" Real="0" Visible="true"/>
                 </OutputPins>
             </Node>

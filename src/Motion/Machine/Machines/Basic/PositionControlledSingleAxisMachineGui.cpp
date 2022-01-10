@@ -338,10 +338,8 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 			}else{
 				
 				//SIMULATION TEST
-				double lowLimit = axis->getLowPositionLimit();
-				double highLimit = axis->getHighPositionLimit();
-				positionProgress = (simulationMotionProfile.getPosition() - lowLimit) / (highLimit - lowLimit);
-				velocityProgress = std::abs(simulationMotionProfile.getVelocity() / velocityLimit);
+				positionProgress = getPositionNormalized();
+				velocityProgress = std::abs(getVelocityNormalized());
 				if (velocityProgress > 1.0) velocityProgress = 1.0;
 				positionUnitShortFormString = getPositionUnitStringShort(axis->positionUnit);
 				motionProgress = simulationTargetInterpolation->getProgressAtTime(Environnement::getTime_seconds());
