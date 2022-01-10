@@ -6,16 +6,19 @@
 
 #include "VipaModule.h"
 
+//TODO: this onConnection & onDisconnection Methods don't get called at the operational state transition and this might cause issues with subdevice readyness state
 void VipaBusCoupler_053_1EC01::onDisconnection() {
 	gpioDevice->b_detected = false;
 	gpioDevice->b_online = false;
 	gpioDevice->b_ready = false;
+	for(auto& module : modules) module->onDisconnection();
 }
 
 void VipaBusCoupler_053_1EC01::onConnection() {
 	gpioDevice->b_detected = true;
 	gpioDevice->b_online = true;
 	gpioDevice->b_ready = true;
+	for(auto& module : modules) module->onConnection();
 }
 
 void VipaBusCoupler_053_1EC01::assignIoData() {

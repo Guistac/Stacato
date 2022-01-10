@@ -92,6 +92,7 @@ void setSimulation(bool b_sim){
 
 void startSimulation(){
 	b_isRunning = true;
+	Logger::info("Starting Environnement Simulation");
 	
 	simulationStartTime_seconds = Timing::getProgramTime_seconds();
 	simulationStartTime_nanoseconds = Timing::getProgramTime_nanoseconds();
@@ -122,15 +123,18 @@ void startHardware(){
 	Logger::info("Starting Environnement Hardware");
 	EtherCatFieldbus::start();
 	std::thread environnementHardwareStarter([](){
-		while(EtherCatFieldbus::isCyclicExchangeStarting() || (EtherCatFieldbus::isCyclicExchangeActive() && !EtherCatFieldbus::isCyclicExchangeStartSuccessfull())){
-			std::this_thread::sleep_for(std::chrono::milliseconds(20));
-		}
-		if(!EtherCatFieldbus::isCyclicExchangeStartSuccessfull()) {
+		//first sleep, to allow the fieldbus some time to start
+		//then check if the fieldbus is starting until it isn't anymore
+		do{ std::this_thread::sleep_for(std::chrono::milliseconds(20));
+		} while(EtherCatFieldbus::isStarting());
+		if(!EtherCatFieldbus::isRunning()) {
 			b_isRunning = false;
 			b_isStarting = false;
-			Logger::warn("Failed to Start Environnement");
+			EtherCatFieldbus::stop();
+			Logger::warn("Failed to Start Environnement Hardware");
 			return;
 		}
+		
 		for(auto& networkDevice : getNetworkDevices()) networkDevice->connect();
 		
 		Logger::info("Started Environnement Hardware");
@@ -142,6 +146,7 @@ void startHardware(){
 
 
 void stopHardware(){
+	for(auto& machine : getMachines()) machine->disable();
 	EtherCatFieldbus::stop();
 	for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
 	b_isRunning = false;

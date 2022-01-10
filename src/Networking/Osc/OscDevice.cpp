@@ -7,8 +7,8 @@
 #include <tinyxml2.h>
 #include "OscSocket.h"
 
-//SOEM Operating System Abstraction Layer
-//Uselful for precise thread sleep
+//Operating System Abstraction Layer from libSOEM
+//Uselful for precise cross-platform thread sleep
 #include <osal.h>
 
 void OscDevice::assignIoData(){}
@@ -17,31 +17,49 @@ void OscDevice::connect(){
 	oscSocket = std::make_shared<OscSocket>(4096);
 	oscSocket->open(listeningPort, std::vector<int>({remoteIP[0], remoteIP[1], remoteIP[2], remoteIP[3]}), remotePort);
 	
-	if(!oscSocket->isOpen()) return Logger::error("{} : Could not start Osc Socket", getName());
-	Logger::info("{} : Started Osc Socket, Remote Address: {}.{}.{}.{}:{}, Listening on Port: {}", getName(), remoteIP[0], remoteIP[1], remoteIP[2], remoteIP[3], remotePort, listeningPort);
+	if(!oscSocket->isOpen()) {
+		b_enabled = false;
+		oscSocket = nullptr;
+		return Logger::error("{} : Could not start Osc Socket", getName());
+	}
 	
+	onConnection();
+}
+
+void OscDevice::disconnect(){
+	onDisconnection();
+}
+
+bool OscDevice::isConnected(){
+	return b_enabled;
+}
+
+bool OscDevice::isDetected(){
+	return Network::isInitialized();
+}
+
+void OscDevice::onConnection(){
+	Logger::info("{} : Started Osc Socket, Remote Address: {}.{}.{}.{}:{}, Listening on Port: {}", getName(), remoteIP[0], remoteIP[1], remoteIP[2], remoteIP[3], remotePort, listeningPort);
 	for(auto& outgoingMessage : outgoingMessages) outgoingMessage->startSendingRuntime(oscSocket);
 	b_enabled = true;
 }
 
-void OscDevice::disconnect(){
+void OscDevice::onDisconnection(){
 	b_enabled = false;
 	for(auto& outgoingMessage : outgoingMessages) outgoingMessage->stopSendingRuntime();
 	oscSocket = nullptr;
 	Logger::info("{} : Closed Osc Socket", getName());
 }
 
-bool OscDevice::isConnected(){}
+void OscDevice::readInputs(){
+	//incoming messages should be read by and asynchronous asio routine
+}
 
-bool OscDevice::isDetected(){}
+void OscDevice::prepareOutputs(){
+	//outgoing messages should be sent by their respective timing thread
+}
 
-void OscDevice::onConnection(){}
 
-void OscDevice::onDisconnection(){}
-
-void OscDevice::readInputs(){}
-
-void OscDevice::prepareOutputs(){}
 
 
 

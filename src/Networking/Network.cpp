@@ -2,24 +2,29 @@
 
 #include "Network.h"
 
-asio::io_context Network::io_context;
-std::thread Network::io_context_handler;
+namespace Network{
 
-void Network::init() {
+asio::io_context io_context;
+std::thread io_context_handler;
+bool b_initialized;
+
+void init() {
 	io_context_handler = std::thread([&]() {
 		asio::io_context::work dummyWork(io_context);
-		Logger::info("start network io context");
+		b_initialized = true;
+		Logger::info("===== Started IP Network IO Context");
 		io_context.run();
-		Logger::info("exit network io context");
+		b_initialized = false;
+		Logger::info("===== Stopped IP Network IO Context");
 	});
 }
 
-void Network::terminate() {
+void terminate() {
 	io_context.stop();
 	if (io_context_handler.joinable()) io_context_handler.join();
 }
 
-std::unique_ptr<asio::ip::udp::socket> Network::getUdpSocket(int listeningPort, std::vector<int> remoteIp, int remotePort) {
+std::unique_ptr<asio::ip::udp::socket> getUdpSocket(int listeningPort, std::vector<int> remoteIp, int remotePort) {
 	std::unique_ptr<asio::ip::udp::socket> socket = nullptr;
 	if (remoteIp.size() != 4) return socket;
 	for (int octet : remoteIp) if (octet > 255 || octet < 0) return socket;
@@ -34,7 +39,13 @@ std::unique_ptr<asio::ip::udp::socket> Network::getUdpSocket(int listeningPort, 
 		socket->async_connect(remoteEndpoint, [](asio::error_code) {});
 	}
 	catch (std::exception e) {
-		Logger::error("Network Error: {}", e.what());
+		Logger::error("UDP Socket Creation Network Error: {}", e.what());
 	}
 	return socket;
+}
+
+bool isInitialized(){
+	return b_initialized;
+}
+
 }

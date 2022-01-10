@@ -16,6 +16,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include "Networking/NetworkDevice.h"
+
 namespace ApplicationWindow {
 
 
@@ -112,7 +114,42 @@ namespace ApplicationWindow {
 		if (disableMachineToggleButtons) END_DISABLE_IMGUI_ELEMENT
 
 		
+		ImGui::SameLine();
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		glm::vec2 separatorStart(ImGui::GetCursorPos().x, ImGui::GetWindowPos().y);
+		glm::vec2 separatorEnd(separatorStart.x, separatorStart.y + height);
+		drawList->AddLine(separatorStart, separatorEnd, ImColor(Colors::gray));
 		
+		ImGui::Dummy(glm::vec2(0));
+		
+		
+			
+		//========== Status Displays ==========
+			
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+		
+		glm::vec4 etherCatStatusColor;
+		if(EtherCatFieldbus::isRunning()) etherCatStatusColor = Colors::green;
+		else if(EtherCatFieldbus::isStarting()) etherCatStatusColor = Colors::yellow;
+		else if(EtherCatFieldbus::hasNetworkInterface()) etherCatStatusColor = Colors::blue;
+		else etherCatStatusColor = Colors::red;
+		ImGui::SameLine();
+		ImGui::PushStyleColor(ImGuiCol_Button, etherCatStatusColor);
+		ImGui::Button("EtherCAT", buttonSize);
+		ImGui::PopStyleColor();
+		
+		for(auto& networkDevice : Environnement::getNetworkDevices()){
+			ImGui::SameLine();
+			glm::vec4 networkDeviceStatusColor;
+			if(networkDevice->isConnected()) networkDeviceStatusColor = Colors::green;
+			else if(networkDevice->isDetected()) networkDeviceStatusColor = Colors::blue;
+			else networkDeviceStatusColor = Colors::red;
+			ImGui::PushStyleColor(ImGuiCol_Button, networkDeviceStatusColor);
+			ImGui::Button(networkDevice->getName(), buttonSize);
+			ImGui::PopStyleColor();
+		}
+		
+		ImGui::PopItemFlag();
 	
 		
 		etherCatStartModal();
