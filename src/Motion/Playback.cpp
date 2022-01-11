@@ -131,7 +131,7 @@ namespace Playback {
 			manoeuvre->b_isPaused = true;
 			for (auto& track : manoeuvre->tracks) {
 				//this stops the machine track but doesn't remove it from the playback list
-				track->parameter->machine->stopParameterPlayback(track->parameter);
+				track->parameter->machine->interruptParameterPlayback(track->parameter);
 			}
 		}
 	}
@@ -165,7 +165,7 @@ namespace Playback {
 	void stopPlayback(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 		if (isPlaying(manoeuvre)) {
 			for (auto& track : manoeuvre->tracks) {
-				track->parameter->machine->stopParameterPlayback(track->parameter);
+				track->parameter->machine->interruptParameterPlayback(track->parameter);
 			}
 			for (int i = 0; i < playingManoeuvres.size(); i++) {
 				if (playingManoeuvres[i] == manoeuvre) {
@@ -198,7 +198,7 @@ namespace Playback {
 	void stopAllManoeuvres() {
 		for (auto& manoeuvre : playingManoeuvres) {
 			for (auto& track : manoeuvre->tracks) {
-				track->parameter->machine->stopParameterPlayback(track->parameter);
+				track->parameter->machine->interruptParameterPlayback(track->parameter);
 			}
 		}
 		playingManoeuvres.clear();
@@ -209,7 +209,10 @@ namespace Playback {
 		double time = Environnement::getTime_seconds();
 		for (auto& playingManoeuvre : playingManoeuvres) {
 			if (!playingManoeuvre->b_isPaused) {
+				//get playback position, but limit it to the length of the manoeuvre
 				double playbackPosition = time - playingManoeuvre->playbackStartTime_seconds;
+				double manoeuvreLength = playingManoeuvre->getLength_seconds();
+				playbackPosition = std::min(playbackPosition, manoeuvreLength);
 				playingManoeuvre->playbackPosition_seconds = playbackPosition;
 				for (auto& track : playingManoeuvre->tracks) {
 					track->playbackPosition_seconds = playbackPosition;
@@ -222,7 +225,7 @@ namespace Playback {
 		//check if manoeuvre rapids are finished
 		for (int i = rapidManoeuvres.size() - 1; i >= 0; i--) {
 			if (getRapidProgress(rapidManoeuvres[i]) >= 1.0) {
-				Logger::warn("Manoeuvre {} Finished Priming", rapidManoeuvres[i]->name);
+				Logger::debug("Manoeuvre {} Finished Priming", rapidManoeuvres[i]->name);
 				rapidManoeuvres.erase(rapidManoeuvres.begin() + i);
 			}
 		}
@@ -232,7 +235,8 @@ namespace Playback {
 				playingManoeuvres[i]->playbackPosition_seconds = 0.0;
 				for (auto& track : playingManoeuvres[i]->tracks) {
 					//stop playback and reset playhead
-					track->parameter->machine->stopParameterPlayback(track->parameter);
+					//track->parameter->machine->interruptParameterPlayback(track->parameter);
+					track->parameter->machine->endParameterPlayback(track->parameter);
 					track->playbackPosition_seconds = 0.0;
 				}
 				playingManoeuvres.erase(playingManoeuvres.begin() + i);

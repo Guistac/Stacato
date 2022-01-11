@@ -161,10 +161,10 @@ void Oscillator3x::process() {
 }
 
 void Oscillator3x::stopOscillatorParameterPlayback() {
-	if (frequencyParameter->hasParameterTrack()) stopParameterPlayback(frequencyParameter);
-	if (minAmplitudeParameter->hasParameterTrack()) stopParameterPlayback(minAmplitudeParameter);
-	if (maxAmplitudeParameter->hasParameterTrack()) stopParameterPlayback(maxAmplitudeParameter);
-	if (phaseOffsetParameter->hasParameterTrack()) stopParameterPlayback(phaseOffsetParameter);
+	if (frequencyParameter->hasParameterTrack()) interruptParameterPlayback(frequencyParameter);
+	if (minAmplitudeParameter->hasParameterTrack()) interruptParameterPlayback(minAmplitudeParameter);
+	if (maxAmplitudeParameter->hasParameterTrack()) interruptParameterPlayback(maxAmplitudeParameter);
+	if (phaseOffsetParameter->hasParameterTrack()) interruptParameterPlayback(phaseOffsetParameter);
 }
 
 //======================= STATE CONTROL ========================
@@ -478,7 +478,27 @@ void Oscillator3x::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter>
 	}
 }
 
-void Oscillator3x::onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter) {
+void Oscillator3x::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) {
+	if (parameter == frequencyParameter ||
+		parameter == minAmplitudeParameter ||
+		parameter == maxAmplitudeParameter ||
+		parameter == phaseOffsetParameter ||
+		parameter == oscillatorParameterGroup) {
+		//stop Oscillator
+		b_stopOscillator = true;
+	}
+	else if (parameter == axis1PositionParameter) {
+
+	}
+	else if (parameter == axis2PositionParameter) {
+
+	}
+	else if (parameter == axis3PositionParameter) {
+
+	}
+}
+
+void Oscillator3x::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == frequencyParameter ||
 		parameter == minAmplitudeParameter ||
 		parameter == maxAmplitudeParameter ||

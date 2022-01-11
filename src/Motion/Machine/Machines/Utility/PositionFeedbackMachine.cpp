@@ -149,7 +149,8 @@ bool PositionFeedbackMachine::isParameterReadyToStartPlaybackFromValue(std::shar
 	return false;
 }
 void PositionFeedbackMachine::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter){}
-void PositionFeedbackMachine::onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter){}
+void PositionFeedbackMachine::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter){}
+void PositionFeedbackMachine::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter){}
 void PositionFeedbackMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value){}
 bool PositionFeedbackMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack){
 	return false;

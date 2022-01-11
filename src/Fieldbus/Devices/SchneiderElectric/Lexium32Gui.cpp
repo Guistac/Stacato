@@ -314,7 +314,6 @@ void Lexium32::controlsGui() {
 		followingErrorProgress = std::abs(actualFollowingError_r / maxFollowingError_revolutions);
 		followingErrorProgress = std::min(followingErrorProgress, 1.0f);
 		followingErrorProgress = std::max(followingErrorProgress, 0.0f);
-		Logger::warn("{} / {} = {}", actualFollowingError_r, maxFollowingError_revolutions, followingErrorProgress);
 		if(followingErrorProgress > 0.95) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
 		else if(followingErrorProgress > 0.75) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::orange);
 		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);

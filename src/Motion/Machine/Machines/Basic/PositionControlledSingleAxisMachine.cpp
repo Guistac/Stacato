@@ -6,6 +6,8 @@
 #include "Motion/AnimatableParameter.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
 
+#include "Motion/Manoeuvre/Manoeuvre.h"
+
 #include <tinyxml2.h>
 
 #include "Project/Environnement.h"
@@ -294,16 +296,35 @@ void PositionControlledSingleAxisMachine::onParameterPlaybackStart(std::shared_p
 	if (parameter == positionParameter) {
 		if(!isSimulating()) getAxis()->controlMode = ControlMode::Mode::MACHINE_CONTROL;
 		else {
+			
 			//SIMULATION TEST
 			controlMode = SimulationControlMode::PLOT;
 		}
 	}
 }
 
-void PositionControlledSingleAxisMachine::onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter) {
+void PositionControlledSingleAxisMachine::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) {
+	//here we just set the velocity target to 0 regardless of where we are at in the manoeuvre
 	if (parameter == positionParameter) {
-		if(!isSimulating()) getAxis()->setVelocityTarget(0.0);
+		if(!isSimulating()) setVelocityTarget(0.0);
 		else{
+			//SIMULATION TEST
+			setVelocityTarget(0.0);
+		}
+	}
+}
+
+void PositionControlledSingleAxisMachine::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) {
+	//here we have to make sure that the last position of the manoeuvre stays in the motion profile on the next loop
+	//to make sure of this we manually set the profile velocity to 0.0, and the target velocity to 0.0 to make sure nothing moves after the manoeuvre is done playing
+	if (parameter == positionParameter) {
+		if(!isSimulating()) {
+			getAxis()->profileVelocity_axisUnitsPerSecond = 0.0;
+			setVelocityTarget(0.0);
+		}
+		else{
+			Logger::critical("END PARAMETER");
+			simulationMotionProfile.setVelocity(0.0);
 			//SIMULATION TEST
 			setVelocityTarget(0.0);
 		}

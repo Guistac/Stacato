@@ -366,9 +366,9 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 				if (velocityProgress > 1.0) velocityProgress = 1.0;
 				positionUnitShortFormString = getPositionUnitStringShort(axis->positionUnit);
 				motionProgress = axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds);
-				sprintf(velocityTargetString, "%.1f%s/s", manualVelocityTarget_machineUnitsPerSecond, positionUnitShortFormString);
-				sprintf(actualVelocityString, "%.1f%s/s", machineVelocity, positionUnitShortFormString);
-				sprintf(actualPositionString, "%.1f%s", machinePosition, positionUnitShortFormString);
+				sprintf(velocityTargetString, "%.2f%s/s", manualVelocityTarget_machineUnitsPerSecond, positionUnitShortFormString);
+				sprintf(actualVelocityString, "%.2f%s/s", machineVelocity, positionUnitShortFormString);
+				sprintf(actualPositionString, "%.3f%s", machinePosition, positionUnitShortFormString);
 			}else{
 				
 				//SIMULATION TEST
@@ -377,9 +377,9 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 				if (velocityProgress > 1.0) velocityProgress = 1.0;
 				positionUnitShortFormString = getPositionUnitStringShort(axis->positionUnit);
 				motionProgress = simulationTargetInterpolation->getProgressAtTime(Environnement::getTime_seconds());
-				sprintf(velocityTargetString, "%.1f%s/s", manualVelocityTarget_machineUnitsPerSecond, positionUnitShortFormString);
-				sprintf(actualVelocityString, "%.1f%s/s", simulationMotionProfile.getVelocity(), positionUnitShortFormString);
-				sprintf(actualPositionString, "%.1f%s", simulationMotionProfile.getPosition(), positionUnitShortFormString);
+				sprintf(velocityTargetString, "%.2f%s/s", manualVelocityTarget_machineUnitsPerSecond, positionUnitShortFormString);
+				sprintf(actualVelocityString, "%.2f%s/s", simulationMotionProfile.getVelocity(), positionUnitShortFormString);
+				sprintf(actualPositionString, "%.3f%s", simulationMotionProfile.getPosition(), positionUnitShortFormString);
 				
 			}
 			disableControls = !isEnabled();

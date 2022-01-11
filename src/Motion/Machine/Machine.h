@@ -48,7 +48,8 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual float getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter); \
 	virtual bool isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
 	virtual void onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter);\
-	virtual void onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter);\
+	virtual void onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter);\
+	virtual void onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter);\
 	virtual void getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
 	virtual bool validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack);\
 	virtual void getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves);\
@@ -96,9 +97,11 @@ public:
 
 	//===== PLAYBACK CONTROL ======
 	void startParameterPlayback(std::shared_ptr<ParameterTrack> track);
-	void stopParameterPlayback(std::shared_ptr<AnimatableParameter> parameter);
+	void interruptParameterPlayback(std::shared_ptr<AnimatableParameter> parameter);
+	void endParameterPlayback(std::shared_ptr<AnimatableParameter> parameter);
 	virtual void onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) = 0;
-	virtual void onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter) = 0;
+	virtual void onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) = 0;
+	virtual void onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) = 0;
 
 	//====== PARAMETER VALUE =======
 	virtual void getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;

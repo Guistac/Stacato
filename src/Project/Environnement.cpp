@@ -158,12 +158,14 @@ void updateEtherCatHardware(){
 	for (auto slave : EtherCatFieldbus::slaves) if (slave->isStateOperational()) slave->readInputs();
 	
 	//increments the playback position of all active manoeuvres
+	//if a manoeuvre finishes playback, this sets its playback position to the exact end of the manoeuvre
 	Playback::incrementPlaybackPosition();
 	
 	//update all nodes connected to ethercat slave nodes
 	Environnement::nodeGraph->evaluate(Device::Type::ETHERCAT_DEVICE);
 	
 	//ends playback of finished manoeuvres and rapids
+	//triggers the onParameterPlaybackEnd() method of machines
 	Playback::updateActiveManoeuvreState();
 	
 	//prepare all slaves output data if operational
