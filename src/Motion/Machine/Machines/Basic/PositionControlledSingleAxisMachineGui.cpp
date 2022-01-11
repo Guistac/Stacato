@@ -343,10 +343,20 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 		static char actualVelocityString[32];
 		static char actualPositionString[32];
 		bool disableControls = true;
+		double minPosition = 0.0;
+		double maxPosition = 0.0;
+		bool b_hasPositionTarget = hasManualPositionTarget();
+		double positionTargetNormalized = 0.0;
 
 		if (isAxisConnected()) {
 			std::shared_ptr<PositionControlledAxis> axis = getAxis();
 			velocityLimit = axis->getVelocityLimit_axisUnitsPerSecond();
+			
+			minPosition = getLowPositionLimit();
+			maxPosition = getHighPositionLimit();
+			if(b_hasPositionTarget){
+				positionTargetNormalized = (getManualPositionTarget() - minPosition) / (maxPosition - minPosition);
+			}
 			
 			if(!isSimulating()){
 				positionProgress = getPositionNormalized();
@@ -393,6 +403,15 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 		verticalProgressBar(velocityProgress, verticalSliderSize);
 		ImGui::SameLine();
 		verticalProgressBar(positionProgress, verticalSliderSize);
+	
+		if(b_hasPositionTarget){
+			glm::vec2 min = ImGui::GetItemRectMin();
+			glm::vec2 max = ImGui::GetItemRectMax();
+			float height = max.y - (max.y - min.y) * positionTargetNormalized;
+			glm::vec2 lineStart(min.x, height);
+			glm::vec2 lineEnd(max.x, height);
+			ImGui::GetWindowDrawList()->AddLine(lineStart, lineEnd, ImColor(Colors::white));
+		}
 		
 
 		ImGui::PushFont(Fonts::robotoRegular12);
@@ -415,8 +434,10 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 		static char targetPositionString[32];
-		sprintf(targetPositionString, "%.1f %s", manualPositionTarget_machineUnits, positionUnitShortFormString);
+		sprintf(targetPositionString, "%.3f %s", manualPositionTarget_machineUnits, positionUnitShortFormString);
 		ImGui::InputDouble("##TargetPosition", &manualPositionTarget_machineUnits, 0.0, 0.0, targetPositionString);
+		manualPositionTarget_machineUnits = std::min(manualPositionTarget_machineUnits, maxPosition);
+		manualPositionTarget_machineUnits = std::max(manualPositionTarget_machineUnits, minPosition);
 
 		if (motionProgress > 0.0 && motionProgress < 1.0) {
 			glm::vec2 targetmin = ImGui::GetItemRectMin();

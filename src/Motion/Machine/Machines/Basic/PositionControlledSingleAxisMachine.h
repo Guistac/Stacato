@@ -58,4 +58,7 @@ class PositionControlledSingleAxisMachine : public Machine{
 	SimulationControlMode controlMode = SimulationControlMode::VELOCITY_TARGET;
 	Motion::Profile simulationMotionProfile;
 	std::shared_ptr<Motion::Interpolation> simulationTargetInterpolation = std::make_shared<Motion::Interpolation>();
+	
+	bool hasManualPositionTarget();
+	double getManualPositionTarget();
 };

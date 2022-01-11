@@ -558,3 +558,17 @@ double PositionControlledSingleAxisMachine::getVelocityNormalized(){
 	return getAxis()->getActualVelocityNormalized();
 }
 
+
+bool PositionControlledSingleAxisMachine::hasManualPositionTarget(){
+	if(!isAxisConnected()) return false;
+	auto axis = getAxis();
+	if(!isSimulating()) return axis->controlMode == ControlMode::Mode::POSITION_TARGET;
+	return controlMode == SimulationControlMode::POSITION_TARGET;
+}
+
+double PositionControlledSingleAxisMachine::getManualPositionTarget(){
+	if(!isAxisConnected()) return false;
+	auto axis = getAxis();
+	if(!isSimulating()) return axisPositionToMachinePosition(axis->targetInterpolation->outPosition);
+	return simulationTargetInterpolation->outPosition;
+}

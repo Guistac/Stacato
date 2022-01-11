@@ -1,10 +1,9 @@
 # Stacato (Stage Control Automation Toolbox)
 
 ### Priority Features
-- Feature complete plot editor and playback engine (animated tracks / on-the-fly playback start or catch-up, position capture, timed manoeuvres)
+- Feature complete plot editor and playback engine (animated tracks / on-the-fly playback start or catch-up, timed manoeuvres)
 - Physical Console compatibility (Serial Link, Communication protocol Software Button Assignement)
 - Homing Procedure User Interface
-- Simulation Compatible Machines
 
 ### Future Milestones
 - Stage Visualizer based on 3D models (.dwg importer, stage editor and visualizer)
