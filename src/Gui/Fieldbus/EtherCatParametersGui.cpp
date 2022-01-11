@@ -33,6 +33,8 @@ void etherCatParameters(bool resetNicLists) {
 		std::shared_ptr<NetworkInterfaceCard> selectedSecondaryNic = EtherCatFieldbus::redundantNetworkInterfaceCard;
 		bool b_nicSelected = false;
 		
+		bool disableNicButtons = EtherCatFieldbus::isRunning();
+		
 		ImGuiTableFlags tableFlags = ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit;
 		if(ImGui::BeginTable("##nicTable", 2, tableFlags)){
 			
@@ -44,6 +46,8 @@ void etherCatParameters(bool resetNicLists) {
 
 			ImGui::TableNextRow();
 			ImGui::TableNextColumn();
+			
+			if(disableNicButtons) BEGIN_DISABLE_IMGUI_ELEMENT
 			
 			ImGui::SetNextItemWidth(widgetWidth);
 			const char* primaryLabel = EtherCatFieldbus::primaryNetworkInterfaceCard == nullptr ? "None" : EtherCatFieldbus::primaryNetworkInterfaceCard->description;
@@ -90,6 +94,7 @@ void etherCatParameters(bool resetNicLists) {
 			 
 			if(disableSecondaryNicSelection) END_DISABLE_IMGUI_ELEMENT
 			
+			if(disableNicButtons) END_DISABLE_IMGUI_ELEMENT
 			
 			ImGui::EndTable();
 		}
@@ -118,10 +123,41 @@ void etherCatParameters(bool resetNicLists) {
 		ImGui::PopItemFlag();
 		ImGui::PopStyleColor();
 		ImGui::SameLine();
+		if(disableNicButtons) BEGIN_DISABLE_IMGUI_ELEMENT
 		if (ImGui::Button("Refresh Device List")) EtherCatFieldbus::updateNetworkInterfaceCardList();
 		ImGui::SameLine();
 		if(ImGui::Button("Auto Setup")) EtherCatFieldbus::autoInit();
-
+		if(disableNicButtons) END_DISABLE_IMGUI_ELEMENT
+		
+		static char deviceCountString[128];
+		sprintf(deviceCountString, "%i Device%s Detected", (int)EtherCatFieldbus::slaves.size(), EtherCatFieldbus::slaves.size() == 1 ? "" : "s");
+		glm::vec4 deviceCountButtonColor;
+		if(EtherCatFieldbus::slaves.empty()) deviceCountButtonColor = Colors::blue;
+		else deviceCountButtonColor = Colors::green;
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+		ImGui::PushStyleColor(ImGuiCol_Button, deviceCountButtonColor);
+		ImGui::Button(deviceCountString);
+		ImGui::PopStyleColor();
+		ImGui::PopItemFlag();
+		
+		if(ImGui::IsItemHovered()){
+			ImGui::BeginTooltip();
+			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::Text("Detected Devices:");
+			ImGui::PopFont();
+			for(auto& device : EtherCatFieldbus::slaves){
+				ImGui::Text("%s", device->getName());
+			}
+			ImGui::EndTooltip();
+		}
+		
+		ImGui::SameLine();
+		
+		bool disableScanButton = EtherCatFieldbus::isRunning();
+		if(disableScanButton) BEGIN_DISABLE_IMGUI_ELEMENT
+		if(ImGui::Button("Scan for Devices")) EtherCatFieldbus::scanNetwork();
+		if(disableScanButton) END_DISABLE_IMGUI_ELEMENT
+		
 		ImGui::Separator();
 
 		ImGui::PushFont(Fonts::robotoBold20);

@@ -131,8 +131,9 @@ namespace ApplicationWindow {
 		glm::vec4 etherCatStatusColor;
 		if(EtherCatFieldbus::isRunning()) etherCatStatusColor = Colors::green;
 		else if(EtherCatFieldbus::isStarting()) etherCatStatusColor = Colors::yellow;
-		else if(EtherCatFieldbus::hasNetworkInterface()) etherCatStatusColor = Colors::blue;
-		else etherCatStatusColor = Colors::red;
+		else if(!EtherCatFieldbus::hasNetworkInterface()) etherCatStatusColor = Colors::red;
+		else if(EtherCatFieldbus::slaves.empty()) etherCatStatusColor = Colors::orange;
+		else etherCatStatusColor = Colors::blue;
 		ImGui::SameLine();
 		ImGui::PushStyleColor(ImGuiCol_Button, etherCatStatusColor);
 		ImGui::Button("EtherCAT", buttonSize);

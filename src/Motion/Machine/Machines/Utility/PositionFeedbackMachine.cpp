@@ -15,13 +15,13 @@ std::shared_ptr<PositionFeedbackDevice> PositionFeedbackMachine::getFeedbackDevi
 }
 
 double PositionFeedbackMachine::feedbackPositionToMachinePosition(double feedbackPosition){
-	if(b_invertDirection) return (-1.0 * feedbackPosition * unitsPerFeedbackUnit) + unitOffset;
-	return (feedbackPosition * unitsPerFeedbackUnit) + unitOffset;
+	if(b_invertDirection) return (-1.0 * feedbackPosition * machineUnitsPerFeedbackUnit) + machineUnitOffset;
+	return (feedbackPosition * machineUnitsPerFeedbackUnit) + machineUnitOffset;
 }
 
 double PositionFeedbackMachine::feedbackVelocityToMachineVelocity(double feedbackVelocity){
-	if(b_invertDirection) return (-1.0 * feedbackVelocity * unitsPerFeedbackUnit);
-	return (feedbackVelocity * unitsPerFeedbackUnit);
+	if(b_invertDirection) return (-1.0 * feedbackVelocity * machineUnitsPerFeedbackUnit);
+	return (feedbackVelocity * machineUnitsPerFeedbackUnit);
 }
 
 void PositionFeedbackMachine::assignIoData(){
@@ -90,15 +90,23 @@ void PositionFeedbackMachine::simulateProcess(){
 	velocityPin->set(velocity);
 }
 
+
+
+void PositionFeedbackMachine::setScalingPosition(double realPosition_machineUnits){
+	machineUnitsPerFeedbackUnit = (realPosition_machineUnits - machineUnitOffset) / getFeedbackDevice()->getPosition();
+}
+
+
+
 bool PositionFeedbackMachine::saveMachine(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	XMLElement* unitsXML = xml->InsertNewChildElement("Units");
 	unitsXML->SetAttribute("Type", getPositionUnitType(movementType)->saveName);
 	unitsXML->SetAttribute("Unit", getPositionUnit(positionUnit)->saveName);
 	XMLElement* conversionXML = xml->InsertNewChildElement("Conversion");
-	conversionXML->SetAttribute("UnitsPerFeedbackUnit", unitsPerFeedbackUnit);
+	conversionXML->SetAttribute("UnitsPerFeedbackUnit", machineUnitsPerFeedbackUnit);
 	conversionXML->SetAttribute("InvertDirectionOfMotion", b_invertDirection);
-	conversionXML->SetAttribute("UnitOffset", unitOffset);
+	conversionXML->SetAttribute("UnitOffset", machineUnitOffset);
 	
 	return true;
 }
@@ -121,9 +129,9 @@ bool PositionFeedbackMachine::loadMachine(tinyxml2::XMLElement* xml){
 	
 	XMLElement* conversionXML = xml->FirstChildElement("Conversion");
 	if(conversionXML == nullptr) return Logger::warn("Could not find conversio attribute");
-	if(conversionXML->QueryDoubleAttribute("UnitsPerFeedbackUnit", &unitsPerFeedbackUnit) != XML_SUCCESS) return Logger::warn("Could not find units per feedback unit");
+	if(conversionXML->QueryDoubleAttribute("UnitsPerFeedbackUnit", &machineUnitsPerFeedbackUnit) != XML_SUCCESS) return Logger::warn("Could not find units per feedback unit");
 	if(conversionXML->QueryBoolAttribute("InvertDirectionOfMotion", &b_invertDirection) != XML_SUCCESS) return Logger::warn("Could not find invert direction");
-	if(conversionXML->QueryDoubleAttribute("UnitOffset", &unitOffset) != XML_SUCCESS) return Logger::warn("Could not find unit offset");
+	if(conversionXML->QueryDoubleAttribute("UnitOffset", &machineUnitOffset) != XML_SUCCESS) return Logger::warn("Could not find unit offset");
 	
 	return true;
 }

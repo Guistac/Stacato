@@ -52,6 +52,10 @@ void environnementGui() {
 
 
 void machineManagerGui(){
+	
+	static float listWidth = ImGui::GetTextLineHeight() * 15.0;
+	static float minlistWidth = ImGui::GetTextLineHeight() * 10.0;
+	
 	static DraggableList machineList;
 	std::shared_ptr<Machine> clickedMachine = nullptr;
 	
@@ -62,7 +66,7 @@ void machineManagerGui(){
 	ImGui::PopFont();
 	
 	std::vector<std::shared_ptr<Machine>>& machines = Environnement::getMachines();
-	if (machineList.beginList("##MachineList", glm::vec2(ImGui::GetTextLineHeight() * 15.0, ImGui::GetContentRegionAvail().y), 4.0)) {
+	if (machineList.beginList("##MachineList", glm::vec2(listWidth, ImGui::GetContentRegionAvail().y), 4.0)) {
 		for (int i = 0; i < machines.size(); i++) {
 			std::shared_ptr<Machine> machine = machines[i];
 			if (machineList.beginItem(glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing()), machine == Environnement::selectedMachine)) {
@@ -106,6 +110,26 @@ void machineManagerGui(){
 	ImGui::EndGroup();
 	
 	
+	
+	
+	static float splitterWidth = ImGui::GetTextLineHeight() * 0.5;
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+	ImGui::SameLine();
+	ImGui::InvisibleButton("VerticalSplitter", glm::vec2(splitterWidth, ImGui::GetContentRegionAvail().y));
+	if (ImGui::IsItemActive()) listWidth += ImGui::GetIO().MouseDelta.x;
+	if (ImGui::IsItemHovered()) ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+	if (listWidth < minlistWidth) listWidth = minlistWidth;
+	
+	glm::vec2 min = ImGui::GetItemRectMin();
+	glm::vec2 max = ImGui::GetItemRectMax();
+	float middle = (min.x + max.x) / 2.0;
+	ImGui::GetWindowDrawList()->AddLine(glm::vec2(middle, min.y), glm::vec2(middle, max.y), ImColor(Colors::darkGray), ImGui::GetTextLineHeight() * 0.1);
+	ImGui::SameLine();
+	ImGui::PopStyleVar();
+	
+	
+	
+	
 	ImGui::SameLine();
 	
 	ImGui::BeginChild("##selectedmachine", ImGui::GetContentRegionAvail());
@@ -131,6 +155,9 @@ void machineManagerGui(){
 
 void deviceManagerGui() {
 	
+	static float listWidth = ImGui::GetTextLineHeight() * 15.0;
+	static float minlistWidth = ImGui::GetTextLineHeight() * 15.0;
+	
 	static DraggableList etherCatDeviceList;
 	std::vector<std::shared_ptr<EtherCatDevice>>& etherCatDevices = Environnement::getEtherCatDevices();
 	
@@ -142,7 +169,7 @@ void deviceManagerGui() {
 	ImGui::Text("EtherCat Device Manager");
 	ImGui::PopFont();
 	
-	if (etherCatDeviceList.beginList("##EtherCatDeviceList", glm::vec2(ImGui::GetTextLineHeight() * 15.0, ImGui::GetContentRegionAvail().y), 4.0)) {
+	if (etherCatDeviceList.beginList("##EtherCatDeviceList", glm::vec2(listWidth, ImGui::GetContentRegionAvail().y), 4.0)) {
 		for (int i = 0; i < etherCatDevices.size(); i++) {
 			std::shared_ptr<EtherCatDevice> etherCatDevice = etherCatDevices[i];
 			if (etherCatDeviceList.beginItem(glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing()))) {
@@ -183,6 +210,24 @@ void deviceManagerGui() {
 	if(clickedDevice) Environnement::selectedEtherCatDevice = clickedDevice;
 	
 	ImGui::EndGroup();
+	
+	
+	static float splitterWidth = ImGui::GetTextLineHeight() * 0.5;
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+	ImGui::SameLine();
+	ImGui::InvisibleButton("VerticalSplitter", glm::vec2(splitterWidth, ImGui::GetContentRegionAvail().y));
+	if (ImGui::IsItemActive()) listWidth += ImGui::GetIO().MouseDelta.x;
+	if (ImGui::IsItemHovered()) ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+	if (listWidth < minlistWidth) listWidth = minlistWidth;
+	
+	glm::vec2 min = ImGui::GetItemRectMin();
+	glm::vec2 max = ImGui::GetItemRectMax();
+	float middle = (min.x + max.x) / 2.0;
+	ImGui::GetWindowDrawList()->AddLine(glm::vec2(middle, min.y), glm::vec2(middle, max.y), ImColor(Colors::darkGray), ImGui::GetTextLineHeight() * 0.1);
+	ImGui::SameLine();
+	ImGui::PopStyleVar();
+	
+	
 	
 	ImGui::SameLine();
 	

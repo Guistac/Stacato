@@ -9,10 +9,12 @@ void etherCatGui() {
 
 	if (ImGui::BeginTabBar("##FieldbusTabBar")) {
 
+		/*
 		if (ImGui::BeginTabItem("Devices")) {
 			etherCatSlaves();
 			ImGui::EndTabItem();
 		}
+		*/
 		
 		if (ImGui::BeginTabItem("Metrics")) {
 			etherCatMetrics();
