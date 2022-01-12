@@ -17,7 +17,8 @@
 - EtherCAT transmission error counter / Network cable diagnostics
 - Dead Mans Switch
 - Add Custom Layout System to Machine View
+- Support for multiple Plots per project
 
 ### Housekeeping
-- Refactor Node Pins (to hold void* of data instead of having a field for each type)
+- Refactor Node Pins (to hold void* instead of having a field for each type)
 - Add onPinUpdate method to nodes for settings propagation
