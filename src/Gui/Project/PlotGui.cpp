@@ -92,7 +92,7 @@ void plotGui() {
 	ImGui::PushFont(Fonts::robotoBold15);
 	ImGui::NewLine();
 	ImGui::SameLine((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(manoeuvreManagerString).x) / 2.0);
-	ImGui::Text(manoeuvreManagerString);
+	ImGui::Text("%s", manoeuvreManagerString);
 	ImGui::PopFont();
 
 	if (ImGui::Button("Create", managerButtonSize)) currentPlot->addManoeuvre();
@@ -108,7 +108,7 @@ void plotGui() {
 	ImGui::PushFont(Fonts::robotoBold15);
 	ImGui::NewLine();
 	ImGui::SameLine((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(playbackControlsString).x) / 2.0);
-	ImGui::Text(playbackControlsString);
+	ImGui::Text("%s", playbackControlsString);
 	ImGui::PopFont();
 
 	//===================== PLAYBACK MANAGER BUTTONS =======================
@@ -149,7 +149,7 @@ void plotGui() {
 	
 		if (currentPlot->selectedManoeuvre == nullptr) {
 			ImGui::PushFont(Fonts::robotoRegular20);
-			ImGui::Text(noManoeuvreSelectedString);
+			ImGui::Text("%s", noManoeuvreSelectedString);
 			ImGui::PopFont();
 		}
 		else {

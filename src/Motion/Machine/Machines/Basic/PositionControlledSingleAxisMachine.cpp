@@ -281,7 +281,11 @@ bool PositionControlledSingleAxisMachine::isParameterReadyToStartPlaybackFromVal
 				std::shared_ptr<PositionControlledAxis> axis = getAxis();
 				//MACHINE ZERO TEST
 				double profilePosition_machineUnits = axisPositionToMachinePosition(axis->getProfilePosition_axisUnits());
-				return profilePosition_machineUnits == value.realValue && axis->getProfileVelocity_axisUnitsPerSecond() == 0.0;
+				
+				return std::abs(profilePosition_machineUnits - value.realValue) < 0.001 && axis->getProfileVelocity_axisUnitsPerSecond() < 0.001;
+				
+				
+				//return profilePosition_machineUnits == value.realValue && axis->getProfileVelocity_axisUnitsPerSecond() == 0.0;
 				//return axis->getProfilePosition_axisUnits() == value.realValue && axis->getProfileVelocity_axisUnitsPerSecond() == 0.0;
 			}else{
 				//SIMULATION TEST

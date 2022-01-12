@@ -111,7 +111,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
 	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("General Information :");
+	ImGui::Text("Machine Limits :");
 	ImGui::PopFont();
 
 	if(ImGui::BeginTable("##machineInfo", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit)){
@@ -160,6 +160,14 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::TableSetColumnIndex(1);
 		ImGui::Text("%.3f %s/s\xC2\xB2", axis->getAccelerationLimit_axisUnitsPerSecondSquared(), getPositionUnit(axis->positionUnit)->shortForm);
 
+		ImGui::EndTable();
+	}
+	
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Current State :");
+	ImGui::PopFont();
+		
+	if(ImGui::BeginTable("##currentMachineState", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit)){
 		
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
@@ -168,8 +176,8 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		if(isSimulating()) ImGui::Text("%.3f %s", simulationMotionProfile.getPosition(), getPositionUnit(axis->positionUnit)->shortForm);
-		else ImGui::Text("%.3f %s", axisPositionToMachinePosition(axis->getActualPosition_axisUnits()), getPositionUnit(axis->positionUnit)->shortForm);
+		if(isSimulating()) ImGui::Text("%.20f %s", simulationMotionProfile.getPosition(), getPositionUnit(axis->positionUnit)->shortForm);
+		else ImGui::Text("%.20f %s", axisPositionToMachinePosition(axis->getActualPosition_axisUnits()), getPositionUnit(axis->positionUnit)->shortForm);
 		
 		
 		ImGui::TableNextRow();
@@ -179,8 +187,29 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		if(isSimulating()) ImGui::Text("%.3f %s/s", simulationMotionProfile.getVelocity(), getPositionUnit(axis->positionUnit)->shortForm);
-		else ImGui::Text("%.3f %s/s", axisVelocityToMachineVelocity(axis->getActualVelocity_axisUnitsPerSecond()), getPositionUnit(axis->positionUnit)->shortForm);
+		if(isSimulating()) ImGui::Text("%.20f %s/s", simulationMotionProfile.getVelocity(), getPositionUnit(axis->positionUnit)->shortForm);
+		else ImGui::Text("%.20f %s/s", axisVelocityToMachineVelocity(axis->getActualVelocity_axisUnitsPerSecond()), getPositionUnit(axis->positionUnit)->shortForm);
+		
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("Profile Position: ");
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::TableSetColumnIndex(1);
+		if(isSimulating()) ImGui::Text("%.20f %s", simulationMotionProfile.getPosition(), getPositionUnit(axis->positionUnit)->shortForm);
+		else ImGui::Text("%.20f %s", axisPositionToMachinePosition(axis->getProfilePosition_axisUnits()), getPositionUnit(axis->positionUnit)->shortForm);
+		
+		
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("Profile Velocity: ");
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::TableSetColumnIndex(1);
+		if(isSimulating()) ImGui::Text("%.20f %s/s", simulationMotionProfile.getVelocity(), getPositionUnit(axis->positionUnit)->shortForm);
+		else ImGui::Text("%.20f %s/s", axisVelocityToMachineVelocity(axis->getProfileVelocity_axisUnitsPerSecond()), getPositionUnit(axis->positionUnit)->shortForm);
 		
 		ImGui::EndTable();
 	}
