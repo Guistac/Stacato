@@ -65,7 +65,6 @@ public:
 
 	//===== STATE CONTROL & MONITORING =====
 	bool b_enabled = false;
-	bool b_isSimulating = false;
 	bool isReady();
 	void enable();
 	void disable();

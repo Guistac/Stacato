@@ -71,109 +71,138 @@ bool PositionControlledSingleAxisMachine::isSimulationReady(){
 }
 
 void PositionControlledSingleAxisMachine::onEnableSimulation() {
-	simulationTargetInterpolation->resetValues();
-	simulationMotionProfile.setVelocity(0.0);
-	simulationMotionProfile.setAcceleration(0.0);
+	targetInterpolation->resetValues();
+	motionProfile.setVelocity(0.0);
+	motionProfile.setAcceleration(0.0);
 	setVelocityTarget(0.0);
 }
 
 void PositionControlledSingleAxisMachine::onDisableSimulation() {
-	simulationMotionProfile.setVelocity(0.0);
-	simulationMotionProfile.setAcceleration(0.0);
+	motionProfile.setVelocity(0.0);
+	motionProfile.setAcceleration(0.0);
 }
 
 void PositionControlledSingleAxisMachine::process() {
 	if (!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
-	//Get Realtime values from axis
-	
-	//MACHINE ZERO TEST
+	//Get Realtime values from axis (for position and velocity pins only)
 	double actualPosition_machineUnits = axisPositionToMachinePosition(axis->getActualPosition_axisUnits());
 	double actualVelocity_machineUnits = axisVelocityToMachineVelocity(axis->getActualVelocity_axisUnitsPerSecond());
-	//double actualPosition_machineUnits = axis->getActualPosition_axisUnits();
-	//double actualVelocity_machineUnits = axis->getActualVelocity_axisUnitsPerSecond();
-	
 	positionPin->set(actualPosition_machineUnits);
 	velocityPin->set(actualVelocity_machineUnits);
 
-	//Update Time
+	//Handle Axis state changes
+	if (isEnabled() && !axis->isEnabled()) disable();
+	
+	//Abort the process if the axis is not enabled
+	if (!isEnabled()) return;
+	
+	//Update Timing
 	double profileTime_seconds = axis->profileTime_seconds;
 	double profileDeltaTime_seconds = axis->profileTimeDelta_seconds;
 
-	//Handle state changes
-	if (b_enabled && !axis->isEnabled()) disable();
-
-	//Handle parameter track playback
-	if (positionParameter->hasParameterTrack()) {
-		double previousProfilePosition_machineUnits = axis->getProfilePosition_axisUnits();
-		AnimatableParameterValue playbackPosition;
-		positionParameter->getActiveTrackParameterValue(playbackPosition);
-		
-		//MACHINE ZERO TEST
-		axis->profilePosition_axisUnits = machinePositionToAxisPosition(playbackPosition.realValue);
-		axis->profileVelocity_axisUnitsPerSecond = machineVelocityToAxisVelocity((playbackPosition.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds);
-		//axis->profilePosition_axisUnits = playbackPosition.realValue;
-		//axis->profileVelocity_axisUnitsPerSecond = (playbackPosition.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
-		
-		axis->sendActuatorCommands();
+	//Update Motion Profile
+	switch(controlMode){
+			
+		case ControlMode::PARAMETER_TRACK:{
+			AnimatableParameterValue playbackPosition;
+			positionParameter->getActiveTrackParameterValue(playbackPosition);
+			double previousProfilePosition_machineUnits = axis->getProfilePosition_axisUnits();
+			double parameterTrackVelocity_machineUnits = machineVelocityToAxisVelocity((playbackPosition.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds);
+			motionProfile.setPosition(playbackPosition.realValue);
+			motionProfile.setVelocity(parameterTrackVelocity_machineUnits);
+		}break;
+			
+		case ControlMode::VELOCITY_TARGET:{
+			double lowLimit_machineUnits = getLowPositionLimit();
+			double highLimit_machineUnits = getHighPositionLimit();
+			double accelerationLimit = axis->getAccelerationLimit_axisUnitsPerSecondSquared();
+			motionProfile.matchVelocityAndRespectPositionLimits(profileDeltaTime_seconds,
+																  manualVelocityTarget_machineUnitsPerSecond,
+																  rapidAcceleration_machineUnitsPerSecond,
+																  lowLimit_machineUnits,
+																  highLimit_machineUnits,
+																  accelerationLimit);
+		}break;
+			
+		case ControlMode::POSITION_TARGET:{
+			if (targetInterpolation->isTimeInside(profileTime_seconds)) {
+				Motion::CurvePoint curvePoint = targetInterpolation->getPointAtTime(profileTime_seconds);
+				motionProfile.setPosition(curvePoint.position);
+				motionProfile.setVelocity(curvePoint.velocity);
+				motionProfile.setAcceleration(curvePoint.acceleration);
+			}
+			else if(targetInterpolation->getProgressAtTime(profileTime_seconds) >= 1.0){
+				motionProfile.setPosition(targetInterpolation->outPosition);
+				motionProfile.setVelocity(0.0);
+				motionProfile.setAcceleration(0.0);
+				setVelocityTarget(0.0);
+			}else{
+				setVelocityTarget(0.0);
+			}
+		}break;
 	}
+	
+	//Send motion values to axis profile
+	axis->profilePosition_axisUnits = machinePositionToAxisPosition(motionProfile.getPosition());
+	axis->profileVelocity_axisUnitsPerSecond = machineVelocityToAxisVelocity(motionProfile.getVelocity());
+	axis->sendActuatorCommands();
 }
 
 void PositionControlledSingleAxisMachine::simulateProcess() {
-	
 	if (!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
-	positionPin->set(simulationMotionProfile.getPosition());
-	velocityPin->set(simulationMotionProfile.getVelocity());
+	//update position and velocity pins
+	positionPin->set(motionProfile.getPosition());
+	velocityPin->set(motionProfile.getVelocity());
 
 	//Update Time
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
 
-	//Handle parameter track playback
-	if (positionParameter->hasParameterTrack()) {
-		
-		double previousProfilePosition_machineUnits = simulationMotionProfile.getPosition();
-		AnimatableParameterValue playbackPosition;
-		positionParameter->getActiveTrackParameterValue(playbackPosition);
-		simulationMotionProfile.setPosition(playbackPosition.realValue);
-		simulationMotionProfile.setVelocity((playbackPosition.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds);
-		
-	}else if(controlMode == SimulationControlMode::VELOCITY_TARGET){
-		
-		//MACHINE ZERO TEST
-		double lowLimit_machineUnits = getLowPositionLimit();
-		double highLimit_machineUnits = getHighPositionLimit();
-		double accelerationLimit = getAxis()->getAccelerationLimit_axisUnitsPerSecondSquared();
-		
-		simulationMotionProfile.matchVelocityAndRespectPositionLimits(profileDeltaTime_seconds,
-																	  manualVelocityTarget_machineUnitsPerSecond,
-																	  rapidAcceleration_machineUnitsPerSecond,
-																	  lowLimit_machineUnits,
-																	  highLimit_machineUnits,
-																	  accelerationLimit);
-		
-	}else if(controlMode == SimulationControlMode::POSITION_TARGET){
-		
-		if (simulationTargetInterpolation->isTimeInside(profileTime_seconds)) {
-			Motion::CurvePoint curvePoint = simulationTargetInterpolation->getPointAtTime(profileTime_seconds);
-			simulationMotionProfile.setPosition(curvePoint.position);
-			simulationMotionProfile.setVelocity(curvePoint.velocity);
-			simulationMotionProfile.setAcceleration(curvePoint.acceleration);
-		}
-		else if (simulationTargetInterpolation->getProgressAtTime(profileTime_seconds) >= 1.0) {
-			simulationMotionProfile.setPosition(simulationTargetInterpolation->outPosition);
-			simulationMotionProfile.setVelocity(0.0);
-			simulationMotionProfile.setAcceleration(0.0);
-			setVelocityTarget(0.0);
-		}else{
-			simulationMotionProfile.setVelocity(0.0);
-			simulationMotionProfile.setAcceleration(0.0);
-			setVelocityTarget(0.0);
-		}
-		
+	//Update Motion Profile
+	switch(controlMode){
+			
+		case ControlMode::PARAMETER_TRACK:{
+			AnimatableParameterValue playbackPosition;
+			positionParameter->getActiveTrackParameterValue(playbackPosition);
+			double previousProfilePosition_machineUnits = motionProfile.getPosition();
+			double parameterTrackVelocity = (playbackPosition.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
+			motionProfile.setPosition(playbackPosition.realValue);
+			motionProfile.setVelocity(parameterTrackVelocity);
+		}break;
+			
+		case ControlMode::VELOCITY_TARGET:{
+			double lowLimit_machineUnits = getLowPositionLimit();
+			double highLimit_machineUnits = getHighPositionLimit();
+			double accelerationLimit = axis->getAccelerationLimit_axisUnitsPerSecondSquared();
+			motionProfile.matchVelocityAndRespectPositionLimits(profileDeltaTime_seconds,
+																  manualVelocityTarget_machineUnitsPerSecond,
+																  rapidAcceleration_machineUnitsPerSecond,
+																  lowLimit_machineUnits,
+																  highLimit_machineUnits,
+																  accelerationLimit);
+		}break;
+			
+		case ControlMode::POSITION_TARGET:{
+			if (targetInterpolation->isTimeInside(profileTime_seconds)) {
+				Motion::CurvePoint curvePoint = targetInterpolation->getPointAtTime(profileTime_seconds);
+				motionProfile.setPosition(curvePoint.position);
+				motionProfile.setVelocity(curvePoint.velocity);
+				motionProfile.setAcceleration(curvePoint.acceleration);
+			}
+			else if(targetInterpolation->getProgressAtTime(profileTime_seconds) >= 1.0){
+				motionProfile.setPosition(targetInterpolation->outPosition);
+				motionProfile.setVelocity(0.0);
+				motionProfile.setAcceleration(0.0);
+				setVelocityTarget(0.0);
+			}else{
+				setVelocityTarget(0.0);
+			}
+		}break;
+			
 	}
 	
 }
@@ -197,51 +226,26 @@ std::shared_ptr<PositionControlledAxis> PositionControlledSingleAxisMachine::get
 
 void PositionControlledSingleAxisMachine::setVelocityTarget(double velocityTarget_machineUnitsPerSecond) {
 	manualVelocityTarget_machineUnitsPerSecond = velocityTarget_machineUnitsPerSecond;
-	if(!isSimulating()) {
-		//MACHINE ZERO TEST
-		double velocityTarget_axisUnits = machineVelocityToAxisVelocity(velocityTarget_machineUnitsPerSecond);
-		getAxis()->setVelocityTarget(velocityTarget_axisUnits);
-		//getAxis()->setVelocityTarget(velocityTarget_machineUnitsPerSecond);
-	}
-	else{
-		//SIMULATION TEST
-		controlMode = SimulationControlMode::VELOCITY_TARGET;
-		simulationTargetInterpolation->resetValues();
-	}
+	if(controlMode == ControlMode::POSITION_TARGET) targetInterpolation->resetValues();
+	controlMode = ControlMode::VELOCITY_TARGET;
 }
 
 void PositionControlledSingleAxisMachine::moveToPosition(double target_machineUnits) {
-	if(!isSimulating()) {
-		
-		//MACHINE ZERO TEST
-		double target_axisUnits = machinePositionToAxisPosition(target_machineUnits);
-		getAxis()->moveToPositionWithVelocity(target_axisUnits, rapidVelocity_machineUnitsPerSecond, rapidAcceleration_machineUnitsPerSecond);
-		//getAxis()->moveToPositionWithVelocity(target_machineUnits, rapidVelocity_machineUnitsPerSecond, rapidAcceleration_machineUnitsPerSecond);
-	}
-	else{
-		//SIMULATION TEST
-		//MACHINE ZERO TEST
-		double highLimit_machineUnits = getHighPositionLimit();
-		double lowLimit_machineUnits = getLowPositionLimit();
-		
-		double simulationTime = Environnement::getTime_seconds();
-		double profilePosition = simulationMotionProfile.getPosition();
-		double profileAcceleration = simulationMotionProfile.getAcceleration();
-		double profileVelocity = simulationMotionProfile.getVelocity();
-		
-		if (target_machineUnits > highLimit_machineUnits) target_machineUnits = highLimit_machineUnits;
-		else if (target_machineUnits < lowLimit_machineUnits) target_machineUnits = lowLimit_machineUnits;
-		
-		auto startPoint = std::make_shared<Motion::ControlPoint>(simulationTime, profilePosition, rapidAcceleration_machineUnitsPerSecond, profileVelocity);
-		auto endPoint = std::make_shared<Motion::ControlPoint>(0.0, target_machineUnits, rapidAcceleration_machineUnitsPerSecond, 0.0);
-		
-		if (Motion::TrapezoidalInterpolation::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, rapidVelocity_machineUnitsPerSecond, simulationTargetInterpolation)) {
-			controlMode = SimulationControlMode::POSITION_TARGET;
-		}
-		else {
-			setVelocityTarget(0.0);
-		}
-	}
+	
+	double lowLimit_machineUnits = getLowPositionLimit();
+	double highLimit_machineUnits = getHighPositionLimit();
+	target_machineUnits = std::min(target_machineUnits, highLimit_machineUnits);
+	target_machineUnits = std::max(target_machineUnits, lowLimit_machineUnits);
+	
+	double startTime = Environnement::getTime_seconds();
+	double profilePosition = motionProfile.getPosition();
+	double profileVelocity = motionProfile.getVelocity();
+	
+	auto startPoint = std::make_shared<Motion::ControlPoint>(startTime, profilePosition, rapidAcceleration_machineUnitsPerSecond, profileVelocity);
+	auto endPoint = std::make_shared<Motion::ControlPoint>(0.0, target_machineUnits, rapidAcceleration_machineUnitsPerSecond, 0.0);
+	if (Motion::TrapezoidalInterpolation::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, rapidVelocity_machineUnitsPerSecond, targetInterpolation))
+		controlMode = ControlMode::POSITION_TARGET;
+	else setVelocityTarget(0.0);
 }
 
 
@@ -250,71 +254,41 @@ void PositionControlledSingleAxisMachine::moveToPosition(double target_machineUn
 
 
 void PositionControlledSingleAxisMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
-	if (parameter->dataType == value.type) {
-		if (parameter == positionParameter) {
-			if (!isAxisConnected()) return;
-			std::shared_ptr<PositionControlledAxis> axis = getAxis();
-			moveToPosition(value.realValue);
-		}
+	if (parameter == positionParameter && parameter->dataType == value.type) {
+		moveToPosition(value.realValue);
 	}
 }
 
 float PositionControlledSingleAxisMachine::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
-		if (!isAxisConnected()) return 0.0;
-		if(!isSimulating()){
-			std::shared_ptr<PositionControlledAxis> axis = getAxis();
-			return axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds);
-		}else{
-			//SIMULATION TEST
-			return simulationTargetInterpolation->getProgressAtTime(Environnement::getTime_seconds());
-		}
+		return targetInterpolation->getProgressAtTime(Environnement::getTime_seconds());
 	}
 	return 0.0;
 }
 
+void PositionControlledSingleAxisMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {
+	if (parameter == positionParameter) {
+		setVelocityTarget(0.0);
+	}
+}
+
 bool PositionControlledSingleAxisMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
-	if (parameter->dataType == value.type) {
-		if (parameter == positionParameter) {
-			if (!isAxisConnected()) return false;
-			if(!isSimulating()){
-				std::shared_ptr<PositionControlledAxis> axis = getAxis();
-				//MACHINE ZERO TEST
-				double profilePosition_machineUnits = axisPositionToMachinePosition(axis->getProfilePosition_axisUnits());
-				
-				return std::abs(profilePosition_machineUnits - value.realValue) < 0.001 && axis->getProfileVelocity_axisUnitsPerSecond() < 0.001;
-				
-				
-				//return profilePosition_machineUnits == value.realValue && axis->getProfileVelocity_axisUnitsPerSecond() == 0.0;
-				//return axis->getProfilePosition_axisUnits() == value.realValue && axis->getProfileVelocity_axisUnitsPerSecond() == 0.0;
-			}else{
-				//SIMULATION TEST
-				return simulationMotionProfile.getPosition() == value.realValue && simulationMotionProfile.getVelocity() == 0.0;
-			}
-		}
+	if (parameter == positionParameter && parameter->dataType == value.type) {
+		return motionProfile.getPosition() == value.realValue && motionProfile.getVelocity() == 0.0;
 	}
 	return false;
 }
 
 void PositionControlledSingleAxisMachine::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
-		if(!isSimulating()) getAxis()->controlMode = ControlMode::Mode::MACHINE_CONTROL;
-		else {
-			
-			//SIMULATION TEST
-			controlMode = SimulationControlMode::PLOT;
-		}
+		controlMode = ControlMode::PARAMETER_TRACK;
 	}
 }
 
 void PositionControlledSingleAxisMachine::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) {
 	//here we just set the velocity target to 0 regardless of where we are at in the manoeuvre
 	if (parameter == positionParameter) {
-		if(!isSimulating()) setVelocityTarget(0.0);
-		else{
-			//SIMULATION TEST
-			setVelocityTarget(0.0);
-		}
+		setVelocityTarget(0.0);
 	}
 }
 
@@ -322,130 +296,93 @@ void PositionControlledSingleAxisMachine::onParameterPlaybackEnd(std::shared_ptr
 	//here we have to make sure that the last position of the manoeuvre stays in the motion profile on the next loop
 	//to make sure of this we manually set the profile velocity to 0.0, and the target velocity to 0.0 to make sure nothing moves after the manoeuvre is done playing
 	if (parameter == positionParameter) {
-		if(!isSimulating()) {
-			getAxis()->profileVelocity_axisUnitsPerSecond = 0.0;
-			setVelocityTarget(0.0);
-		}
-		else{
-			Logger::critical("END PARAMETER");
-			simulationMotionProfile.setVelocity(0.0);
-			//SIMULATION TEST
-			setVelocityTarget(0.0);
-		}
+		motionProfile.setVelocity(0.0);
+		setVelocityTarget(0.0);
 	}
 }
 
 void PositionControlledSingleAxisMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if (parameter == positionParameter) {
-		if(!isSimulating()) {
-			//MACHINE ZERO TEST
-			double actualPosition_machineUnits = axisPositionToMachinePosition(getAxis()->getActualPosition_axisUnits());
-			//value.realValue = getAxis()->getActualPosition_axisUnits();
-			value.realValue = actualPosition_machineUnits;
-		}
-		else{
-			//SIMULATION TEST
-			value.realValue = simulationMotionProfile.getPosition();
-		}
+		value.realValue = motionProfile.getPosition();
 	}
 }
 
-
-
-
-
-
-void PositionControlledSingleAxisMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {
-	if (parameter == positionParameter) {
-		if(!isSimulating()){
-			std::shared_ptr<PositionControlledAxis> axis = getAxis();
-			axis->setVelocityTarget(0.0);
-		}else{
-			//SIMULATION TEST
-			setVelocityTarget(0.0);
-		}
-	}
-}
 
 bool PositionControlledSingleAxisMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
-	bool b_curveValid = true;
-
-	if (!isAxisConnected()) return false;
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
+	if (parameterTrack->parameter != positionParameter && parameterTrack->curves.size() != 1) return false;
+	else if (!isAxisConnected()) return false;
+	using namespace Motion;
 	
-	//MACHINE ZERO TEST
+	bool b_curveValid = true;
+	
 	double lowLimit_machineUnits = getLowPositionLimit();
 	double highLimit_machineUnits = getHighPositionLimit();
+	double velocityLimit_machineUnits = getAxis()->getVelocityLimit_axisUnitsPerSecond();
+	double accelerationLimit_machineUnits = getAxis()->getAccelerationLimit_axisUnitsPerSecondSquared();
+	
+	
+	//get a reference to the curve we need to validate
+	auto curve = parameterTrack->curves.front();
 
-	if (parameterTrack->parameter == positionParameter && parameterTrack->curves.size() == 1) {
-
-		using namespace Motion;
-		std::shared_ptr<Curve> curve = parameterTrack->curves.front();
-
-		for (auto& controlPoint : curve->points) {
-			controlPoint->validationError = ValidationError::Error::NO_VALIDATION_ERROR;
-
-			//MACHINE ZERO TEST
-			if (controlPoint->position < lowLimit_machineUnits || controlPoint->position > highLimit_machineUnits)
-				controlPoint->validationError = ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE;
-			else if (std::abs(controlPoint->velocity) > axis->getVelocityLimit_axisUnitsPerSecond())
-				controlPoint->validationError = ValidationError::Error::CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED;
-			else if (std::abs(controlPoint->rampIn) > axis->getAccelerationLimit_axisUnitsPerSecondSquared())
-				controlPoint->validationError = ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED;
-			else if (std::abs(controlPoint->rampOut) > axis->getAccelerationLimit_axisUnitsPerSecondSquared())
-				controlPoint->validationError = ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED;
-			else if (controlPoint->rampIn == 0.0)
-				controlPoint->validationError = ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO;
-			else if (controlPoint->rampOut == 0.0)
-				controlPoint->validationError = ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO;
-
-			if (controlPoint->validationError == ValidationError::Error::NO_VALIDATION_ERROR)
-				controlPoint->b_valid = true;
-			else {
-				controlPoint->b_valid = false;
-				b_curveValid = false;
-			}
-
-		}
-
-		for (auto& interpolation : curve->interpolations) {
-			if (!interpolation->b_valid) {
-				//if the interpolation is already marked invalid
-				//no solution was found to begin with
-				//an validation error type was already set by the interpolation engine
-				b_curveValid = false;
-				continue;
-			}
-			else if (std::abs(interpolation->interpolationVelocity) > axis->getVelocityLimit_axisUnitsPerSecond()) {
-				interpolation->validationError = ValidationError::Error::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED;
-				interpolation->b_valid = false;
-				b_curveValid = false;
-				continue;
-			}
-			for (auto& point : interpolation->displayPoints) {
-				//MACHINE ZERO TEST
-				if (point.position > highLimit_machineUnits || point.position < lowLimit_machineUnits) {
-					interpolation->validationError = ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE;
-					interpolation->b_valid = false;
-					b_curveValid = false;
-					break;
-				}
-			}
-		}
-		curve->b_valid = b_curveValid;
+	//validate all control points
+	for (auto& controlPoint : curve->points) {
+		//check all validation conditions and find validaiton error state
+		if (controlPoint->position < lowLimit_machineUnits || controlPoint->position > highLimit_machineUnits)
+			controlPoint->validationError = ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+		else if (std::abs(controlPoint->velocity) > velocityLimit_machineUnits)
+			controlPoint->validationError = ValidationError::Error::CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED;
+		else if (std::abs(controlPoint->rampIn) > accelerationLimit_machineUnits)
+			controlPoint->validationError = ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED;
+		else if (std::abs(controlPoint->rampOut) > accelerationLimit_machineUnits)
+			controlPoint->validationError = ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED;
+		else if (controlPoint->rampIn == 0.0)
+			controlPoint->validationError = ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO;
+		else if (controlPoint->rampOut == 0.0)
+			controlPoint->validationError = ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO;
+		else controlPoint->validationError = ValidationError::Error::NO_VALIDATION_ERROR; //All Checks Passed: No Validation Error !
+		//set valid flag for point, if invalid, set flag for whole curve
+		controlPoint->b_valid = controlPoint->validationError == ValidationError::Error::NO_VALIDATION_ERROR;
+		if(!controlPoint->b_valid) b_curveValid = false;
 	}
 
+	//validate all interpolations of the curve
+	for (auto& interpolation : curve->interpolations) {
+		//if the interpolation is already marked invalid an validation error type was already set by the interpolation engine
+		//in this case we don't overwrite the validation error value
+		if (!interpolation->b_valid) {
+			b_curveValid = false;
+			continue;
+		}
+		//check if the velocity of the interpolation exceeds the limit
+		if (std::abs(interpolation->interpolationVelocity) > velocityLimit_machineUnits) {
+			interpolation->validationError = ValidationError::Error::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED;
+			interpolation->b_valid = false;
+			b_curveValid = false;
+			continue;
+		}
+		//if all interpolation checks passed, we check all interpolation preview points for their range
+		for (auto& point : interpolation->displayPoints) {
+			if (point.position > highLimit_machineUnits || point.position < lowLimit_machineUnits) {
+				interpolation->validationError = ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE;
+				interpolation->b_valid = false;
+				b_curveValid = false;
+				break;
+			}
+		}
+	}
+	
+	//after performing all checks, we assign the curve validation flag
+	//the curve itself doesn't have a validation error value
+	curve->b_valid = b_curveValid;
+	
+	//we return the result of the validation
 	return b_curveValid;
 }
 
 bool PositionControlledSingleAxisMachine::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
 	if (parameter == positionParameter && parameterCurves.size() == 1) {
-		std::shared_ptr<PositionControlledAxis> axis = getAxis();
-		//MACHINE ZERO TEST
 		lowLimit = getLowPositionLimit();
 		highLimit = getHighPositionLimit();
-		//lowLimit = axis->getLowPositionLimit();
-		//highLimit = axis->getHighPositionLimit();
 		return true;
 	}
 	return false;
@@ -455,6 +392,8 @@ bool PositionControlledSingleAxisMachine::getCurveLimitsAtTime(const std::shared
 void PositionControlledSingleAxisMachine::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {
 	if (parameter == positionParameter && outputCurves.size() == 1 && targetPoints.size() == 1) {
 	
+		//TODO: this is a completely broken mess...
+		
 		std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
 		std::shared_ptr<Motion::ControlPoint> startPoint = std::make_shared<Motion::ControlPoint>();
@@ -526,16 +465,11 @@ bool PositionControlledSingleAxisMachine::loadMachine(tinyxml2::XMLElement* xml)
 
 
 void PositionControlledSingleAxisMachine::captureMachineZero(){
-	if(!isSimulating()){
-		machineZero_axisUnits = getAxis()->getActualPosition_axisUnits();
-	}else{
-		//SIMULATION TEST
-		machineZero_axisUnits = simulationMotionProfile.getPosition();
-		
-	}
+	machineZero_axisUnits = motionProfile.getPosition();
 }
 
-//TODO: Integrate this
+
+
 
 double PositionControlledSingleAxisMachine::axisPositionToMachinePosition(double axisPosition){
 	if(b_invertDirection) return -1.0f * (axisPosition - machineZero_axisUnits);
@@ -573,27 +507,25 @@ double PositionControlledSingleAxisMachine::getHighPositionLimit(){
 double PositionControlledSingleAxisMachine::getPositionNormalized(){
 	double lowLimit = getLowPositionLimit();
 	double highLimit = getHighPositionLimit();
-	if(isSimulating()) return (simulationMotionProfile.getPosition() - lowLimit) / (highLimit - lowLimit);
-	return getAxis()->getActualPosition_normalized();
+	double position;
+	if(isSimulating()) position = motionProfile.getPosition();
+	else position = axisPositionToMachinePosition(getAxis()->getActualPosition_normalized());
+	return (position - lowLimit) / (highLimit - lowLimit);
 }
 
 double PositionControlledSingleAxisMachine::getVelocityNormalized(){
 	double velocityLimit = getAxis()->getVelocityLimit_axisUnitsPerSecond();
-	if(isSimulating()) return simulationMotionProfile.getVelocity() / velocityLimit;
-	return getAxis()->getActualVelocityNormalized();
+	double velocity;
+	if(isSimulating()) velocity = motionProfile.getVelocity();
+	else velocity = axisVelocityToMachineVelocity(getAxis()->getActualVelocity_axisUnitsPerSecond());
+	return velocity / velocityLimit;
 }
 
 
 bool PositionControlledSingleAxisMachine::hasManualPositionTarget(){
-	if(!isAxisConnected()) return false;
-	auto axis = getAxis();
-	if(!isSimulating()) return axis->controlMode == ControlMode::Mode::POSITION_TARGET;
-	return controlMode == SimulationControlMode::POSITION_TARGET;
+	return controlMode == ControlMode::POSITION_TARGET;
 }
 
 double PositionControlledSingleAxisMachine::getManualPositionTarget(){
-	if(!isAxisConnected()) return false;
-	auto axis = getAxis();
-	if(!isSimulating()) return axisPositionToMachinePosition(axis->targetInterpolation->outPosition);
-	return simulationTargetInterpolation->outPosition;
+	return targetInterpolation->outPosition;
 }
