@@ -288,6 +288,8 @@ void VIPA_050_1BS00::readInputs(){
 	encoderDevice->velocity_positionUnitsPerSecond = encoderVelocity_revolutionsPerSecond;
 	
 	encoderDevice->b_canHardReset = b_hasResetSignal && resetPin->isConnected();
+	encoderDevice->b_detected = true;
+	encoderDevice->b_ready = parentBusCoupler->isStateOperational();
 	
 	if(encoderDevice->b_doHardReset){
 		encoderDevice->b_doHardReset = false;
@@ -306,6 +308,13 @@ void VIPA_050_1BS00::readInputs(){
 }
 
 void VIPA_050_1BS00::writeOutputs(){ /*No Outputs*/ }
+
+void VIPA_050_1BS00::onConnection(){
+	encoderDevice->b_ready = true;
+}
+void VIPA_050_1BS00::onDisconnection(){
+	encoderDevice->b_ready = false;
+}
 
 void VIPA_050_1BS00::moduleParameterGui(){
 	

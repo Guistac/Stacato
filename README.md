@@ -1,10 +1,9 @@
 # Stacato (Stage Control Automation Toolbox)
 
 ### Priority Features
-- Feature complete plot editor and playback engine (animated tracks / on-the-fly playback start or catch-up, position capture, timed manoeuvres)
+- Feature complete plot editor and playback engine (animated tracks / on-the-fly playback start or catch-up, timed manoeuvres)
 - Physical Console compatibility (Serial Link, Communication protocol Software Button Assignement)
 - Homing Procedure User Interface
-- Simulation Compatible Machines
 
 ### Future Milestones
 - Stage Visualizer based on 3D models (.dwg importer, stage editor and visualizer)
@@ -18,7 +17,8 @@
 - EtherCAT transmission error counter / Network cable diagnostics
 - Dead Mans Switch
 - Add Custom Layout System to Machine View
+- Support for multiple Plots per project
 
 ### Housekeeping
-- Refactor Node Pins (to hold void* of data instead of having a field for each type)
+- Refactor Node Pins (to hold void* instead of having a field for each type)
 - Add onPinUpdate method to nodes for settings propagation

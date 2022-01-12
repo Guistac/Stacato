@@ -7,7 +7,7 @@
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="1"/>
                     <SLIOModules>
                         <Module Type="VIPA 022-1BF00"/>
-                        <Module Type="VIPA 050-1BS00" Encoding="Gray" TransmissionRate="500Khz" IdleTime="32" CenterRangeOnZero="true" HasResetSignal="true" ResetTime="1" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" Zero_revolutions="0"/>
+                        <Module Type="VIPA 050-1BS00" Encoding="Gray" TransmissionRate="500Khz" IdleTime="32" CenterRangeOnZero="true" HasResetSignal="true" ResetTime="500" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" Zero_revolutions="0"/>
                     </SLIOModules>
                 </NodeSpecificData>
                 <InputPins>
@@ -28,19 +28,19 @@
             </Node>
             <Node NodeType="Machine" ClassName="PositionFeedback" CustomName="Position Feedback" UniqueID="13">
                 <NodeEditorPosition x="648" y="-417"/>
-                <NodeSpecificData ShortName="M">
+                <NodeSpecificData ShortName="Fb">
                     <Units Type="Linear" Unit="Meter"/>
-                    <Conversion UnitsPerFeedbackUnit="1" InvertDirectionOfMotion="true" UnitOffset="10"/>
+                    <Conversion UnitsPerFeedbackUnit="0.39998046970362777" InvertDirectionOfMotion="false" UnitOffset="1"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveName="Feedback Device" DisplayName="Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="14" Visible="true" NoDataField="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="15" Real="-16.470458984375" Visible="true"/>
-                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="16" Real="nan" Visible="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="15" Real="0" Visible="true"/>
+                    <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="16" Real="0" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="OscConnection" Split="false" CustomName="Osc Connection" UniqueID="19">
+            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="OscConnection" Split="false" CustomName="OSC" UniqueID="19">
                 <NodeEditorPosition x="868" y="-348"/>
                 <NodeSpecificData>
                     <RemoteIP ipv4-0="192" ipv4-1="168" ipv4-2="1" ipv4-3="3"/>
@@ -62,7 +62,7 @@
                 <NodeSpecificData>
                     <Machine UnitType="Linear" Unit="Meter" PositionControl="Servo"/>
                     <UnitConversion FeedbackUnitsPerMachineUnit="1" ActuatorUnitsPerMachineUnit="1" FeedbackAndActuatorConversionIdentical="false"/>
-                    <KinematicLimits VelocityLimit_axisUnitsPerSecond="10" AccelerationLimit_axisUnitsPerSecondSquared="1"/>
+                    <KinematicLimits VelocityLimit_axisUnitsPerSecond="10" AccelerationLimit_axisUnitsPerSecondSquared="10"/>
                     <PositionReferenceSignals Type="LowSignal" HomingVelocity_axisUnitsPerSecond="0.050000000000000003"/>
                     <PositionLimits MaxNegativeDeviation_axisUnits="0" EnableNegativeLimit="true" MaxPositionDeviation_axisUnits="10" EnablePositiveLimit="true" LimitClearance_axisUnits="0.050000000000000003" LimitToFeedbackWorkingRange="true"/>
                     <DefaultManualParameters Velocity_axisUnitsPerSecond="1" Acceleration_axisUnitsPerSecondSquared="1"/>
@@ -86,7 +86,7 @@
                 <NodeEditorPosition x="598" y="-786"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="0"/>
-                    <KinematicLimits velocityLimit_rps="10" accelerationLimit_rpsps="1" defaultManualAcceleration_rpsps="1"/>
+                    <KinematicLimits velocityLimit_rps="10" accelerationLimit_rpsps="10" defaultManualAcceleration_rpsps="1"/>
                     <InvertDirectionOfMovement Invert="false"/>
                     <MaxFollowingError revolutions="0"/>
                     <CurrentLimit amps="0"/>
@@ -115,16 +115,17 @@
                     <OutputPin SaveName="DI5" DisplayName="DI5" DataType="Boolean" UniqueID="47" Boolean="false" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Machine" ClassName="PositionControlledSingleAxisMachine" CustomName="Position Controlled Single Axis Machine" UniqueID="51">
+            <Node NodeType="Machine" ClassName="PositionControlledSingleAxisMachine" CustomName="Linear Machine" UniqueID="51">
                 <NodeEditorPosition x="1048" y="-618"/>
-                <NodeSpecificData ShortName="M">
-                    <Rapids Velocity_machineUnitsPerSecond="0" Acceleration_machineUnitsPerSecondSquared="0"/>
+                <NodeSpecificData ShortName="M-1">
+                    <Rapids Velocity_machineUnitsPerSecond="0.5" Acceleration_machineUnitsPerSecondSquared="5"/>
+                    <MachineZero MachineZero_AxisUnits="3.1415000000000002" InvertAxisDirection="true"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveName="Position Controlled Axis" DisplayName="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="52" Visible="true" NoDataField="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="53" Real="0" Visible="true"/>
+                    <OutputPin SaveName="Position" DisplayName="Position" DataType="Real" UniqueID="53" Real="2" Visible="true"/>
                     <OutputPin SaveName="Velocity" DisplayName="Velocity" DataType="Real" UniqueID="54" Real="0" Visible="true"/>
                 </OutputPins>
             </Node>
@@ -133,10 +134,10 @@
             <Link UniqueID="17" StartPin="12" EndPin="8"/>
             <Link UniqueID="18" StartPin="11" EndPin="14"/>
             <Link UniqueID="21" StartPin="15" EndPin="20"/>
-            <Link UniqueID="48" StartPin="37" EndPin="24"/>
-            <Link UniqueID="49" StartPin="41" EndPin="26"/>
-            <Link UniqueID="50" StartPin="42" EndPin="27"/>
             <Link UniqueID="55" StartPin="30" EndPin="52"/>
+            <Link UniqueID="57" StartPin="37" EndPin="24"/>
+            <Link UniqueID="58" StartPin="41" EndPin="26"/>
+            <Link UniqueID="59" StartPin="42" EndPin="27"/>
         </Links>
     </NodeGraph>
 </Environnement>

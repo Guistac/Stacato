@@ -57,6 +57,10 @@ namespace EtherCatFieldbus {
     bool isCyclicExchangeActive();              //Is the Cyclic Exchange Running
     bool isCyclicExchangeStartSuccessfull();    //Is the Cyclic Exchange Successfully Started
 
+	bool hasNetworkInterface();
+	bool isStarting();
+	bool isRunning();
+
     //Stop Cyclic Exchange
     void stop();
 

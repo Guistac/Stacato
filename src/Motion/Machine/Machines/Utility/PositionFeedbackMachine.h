@@ -12,9 +12,12 @@ class PositionFeedbackMachine : public Machine {
 	
 	PositionUnit::Type movementType = PositionUnit::Type::LINEAR;
 	PositionUnit::Unit positionUnit = PositionUnit::Unit::METER;
-	double unitsPerFeedbackUnit = 1.0;
-	double unitOffset = 0.0;
+	double machineUnitsPerFeedbackUnit = 1.0;
+	double machineUnitOffset = 0.0;
 	bool b_invertDirection = false;
+	
+	void setScalingPosition(double currentPosition_machineUnits);
+	
 	bool isFeedbackConnected();
 	std::shared_ptr<PositionFeedbackDevice> getFeedbackDevice();
 	

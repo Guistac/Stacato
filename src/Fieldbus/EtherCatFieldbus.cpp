@@ -29,11 +29,18 @@ namespace EtherCatFieldbus {
     bool b_clockStable = false;             //high when clock drift is under the threshold value
     bool b_allOperational = false;          //high when all states reached operational state after clock stabilisation, indicates successful fiedlbus configuration
 
+bool b_starting = false;
+bool b_running = false;
+
     bool isNetworkInitialized() { return b_networkOpen; }
 	bool isNetworkRedundant(){ return isNetworkInitialized() && primaryNetworkInterfaceCard && redundantNetworkInterfaceCard; }
     bool isCyclicExchangeStarting() { return b_processStarting; }
     bool isCyclicExchangeActive() { return b_processRunning; }
     bool isCyclicExchangeStartSuccessfull() { return b_processRunning && b_clockStable && b_allOperational; }
+
+bool hasNetworkInterface(){ return isNetworkInitialized(); }
+bool isStarting(){ return b_starting; }
+bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
 	ProgressIndicator startupProgress;
 
@@ -251,20 +258,23 @@ namespace EtherCatFieldbus {
 
     void start() {
         if (!b_processStarting) {
+
+			b_processStarting = true;
+			b_starting = true;
 			
 			startupProgress.setStart("Starting Fieldbus Configuration");
 			
 			Logger::info("===== Starting Fieldbus Configuration");
 			std::thread etherCatProcessStarter([]() {
-
+				
                 //join the cyclic echange thread if it was terminated previously
                 if (etherCatRuntime.joinable()) etherCatRuntime.join();
 
-                b_processStarting = true;
                 stopSlaveDetectionHandler();
 				
                 if (!discoverDevices()) {
                     b_processStarting = false;
+					b_starting = false;
 					logDeviceStates();
 					logAlStatusCodes();
                     return;
@@ -272,6 +282,7 @@ namespace EtherCatFieldbus {
 
                 if (!configureSlaves()) {
                     b_processStarting = false;
+					b_starting = false;
 					logDeviceStates();
 					logAlStatusCodes();
                     return;
@@ -290,6 +301,7 @@ namespace EtherCatFieldbus {
         if (b_processRunning) {
             Logger::debug("===== Stopping Cyclic Exchange...");
             b_processRunning = false;
+			b_starting = false;
         }
     }
 
@@ -851,6 +863,7 @@ namespace EtherCatFieldbus {
             }
             stop();
         }
+		b_starting = false;
     }
 
     //============== STATE HANDLING AND SLAVE RECOVERY =================

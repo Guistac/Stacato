@@ -130,7 +130,7 @@ public:
 	double velocity_positionUnitsPerSecond = 0.0;
 	bool b_moving = false;
 	
-	bool b_doHardReset = true;
+	bool b_doHardReset = false;
 	bool b_canHardReset = false;
 };
 

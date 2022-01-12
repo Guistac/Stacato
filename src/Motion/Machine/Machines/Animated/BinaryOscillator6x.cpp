@@ -108,11 +108,11 @@ void BinaryOscillator6x::updateOscillatorParametersFromTracks() {
 }
 
 void BinaryOscillator6x::stopOscillatorParameterPlayback() {
-	if (minOffTimeParameter->hasParameterTrack()) stopParameterPlayback(minOffTimeParameter);
-	if (maxOffTimeParameter->hasParameterTrack()) stopParameterPlayback(maxOffTimeParameter);
-	if (minOnTimeParameter->hasParameterTrack()) stopParameterPlayback(minOnTimeParameter);
-	if (maxOnTimeParameter->hasParameterTrack()) stopParameterPlayback(maxOnTimeParameter);
-	if (oscillatorParameterGroup->hasParameterTrack()) stopParameterPlayback(oscillatorParameterGroup);
+	if (minOffTimeParameter->hasParameterTrack()) interruptParameterPlayback(minOffTimeParameter);
+	if (maxOffTimeParameter->hasParameterTrack()) interruptParameterPlayback(maxOffTimeParameter);
+	if (minOnTimeParameter->hasParameterTrack()) interruptParameterPlayback(minOnTimeParameter);
+	if (maxOnTimeParameter->hasParameterTrack()) interruptParameterPlayback(maxOnTimeParameter);
+	if (oscillatorParameterGroup->hasParameterTrack()) interruptParameterPlayback(oscillatorParameterGroup);
 }
 
 void BinaryOscillator6x::setOutput(int i, bool s) {
@@ -226,13 +226,22 @@ void BinaryOscillator6x::onParameterPlaybackStart(std::shared_ptr<AnimatablePara
 	else if (parameter == oscillatorParameterGroup) startOscillator();
 }
 
-void BinaryOscillator6x::onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter) {
+void BinaryOscillator6x::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == minOffTimeParameter) stopOscillator();
 	else if (parameter == maxOffTimeParameter) stopOscillator();
 	else if (parameter == minOnTimeParameter) stopOscillator();
 	else if (parameter == maxOnTimeParameter) stopOscillator();
 	else if (parameter == oscillatorParameterGroup) stopOscillator();
 }
+
+void BinaryOscillator6x::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) {
+	if (parameter == minOffTimeParameter) stopOscillator();
+	else if (parameter == maxOffTimeParameter) stopOscillator();
+	else if (parameter == minOnTimeParameter) stopOscillator();
+	else if (parameter == maxOnTimeParameter) stopOscillator();
+	else if (parameter == oscillatorParameterGroup) stopOscillator();
+}
+
 
 void BinaryOscillator6x::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if (parameter == minOffTimeParameter) { value.realValue = minOffTime_seconds; }

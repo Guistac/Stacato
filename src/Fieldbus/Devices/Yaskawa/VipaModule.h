@@ -59,6 +59,13 @@ public:
 	int outputByteCount = 0;
 	int outputBitCount = 0;
 	
+	virtual void onConnection(){
+		Logger::warn("Vipa Module {} Connected !", getDisplayName());
+	}
+	virtual void onDisconnection(){
+		Logger::warn("Vipa Module {} Disconnected !", getDisplayName());
+	}
+	
 	virtual void addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement) = 0;
 	virtual void addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignement) = 0;
 	
@@ -125,6 +132,9 @@ public:
 	
 	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodeData::Type::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_OUTPUT, "SSI Encoder");
 	std::shared_ptr<NodePin> resetPin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Encoder");
+	
+	virtual void onConnection();
+	virtual void onDisconnection();
 	
 	uint32_t encoderValue;
 	uint16_t time_microseconds;

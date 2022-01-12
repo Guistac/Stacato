@@ -30,14 +30,35 @@ class PositionControlledSingleAxisMachine : public Machine{
 	double rapidVelocity_machineUnitsPerSecond = 0.0;
 	double rapidAcceleration_machineUnitsPerSecond = 0.0;
 	
-	double axisUnitOffset = 0.0;
+	double machineZero_axisUnits = 0.0;
 	bool b_invertDirection = false;
+	void captureMachineZero();
+	
+	//======== MACHINE TO AXIS CONVERSION ========
+	
 	double axisPositionToMachinePosition(double axisPosition);
 	double axisVelocityToMachineVelocity(double axisVelocity);
 	double machinePositionToAxisPosition(double machinePosition);
 	double machineVelocityToAxisVelocity(double machineVelocity);
 	
+	double getLowPositionLimit();
+	double getHighPositionLimit();
+	double getPositionNormalized();
+	double getVelocityNormalized();
+	
 	//=========== SIMULATION ==========
 	
+	enum class SimulationControlMode{
+		VELOCITY_TARGET,
+		POSITION_TARGET,
+		FAST_STOP,
+		PLOT
+	};
+	
+	SimulationControlMode controlMode = SimulationControlMode::VELOCITY_TARGET;
 	Motion::Profile simulationMotionProfile;
+	std::shared_ptr<Motion::Interpolation> simulationTargetInterpolation = std::make_shared<Motion::Interpolation>();
+	
+	bool hasManualPositionTarget();
+	double getManualPositionTarget();
 };

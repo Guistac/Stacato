@@ -63,11 +63,20 @@ void Machine::startParameterPlayback(std::shared_ptr<ParameterTrack> track) {
 	}
 }
 
-void Machine::stopParameterPlayback(std::shared_ptr<AnimatableParameter> parameter) {
+void Machine::interruptParameterPlayback(std::shared_ptr<AnimatableParameter> parameter) {
 	for (auto& p : animatableParameters) {
 		if (parameter == p) {
 			parameter->actualParameterTrack = nullptr;
-			onParameterPlaybackStop(parameter);
+			onParameterPlaybackInterrupt(parameter);
+		}
+	}
+}
+
+void Machine::endParameterPlayback(std::shared_ptr<AnimatableParameter> parameter){
+	for (auto& p : animatableParameters) {
+		if (parameter == p) {
+			parameter->actualParameterTrack = nullptr;
+			onParameterPlaybackEnd(parameter);
 		}
 	}
 }

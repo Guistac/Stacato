@@ -5,6 +5,8 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
+#include <glfw/glfw3.h>
+
 bool AnimatableParameterValue::inputFieldGui(float width) {
 	static char inputFieldString[128];
 	bool valueChanged = false;
@@ -30,30 +32,63 @@ bool AnimatableParameterValue::inputFieldGui(float width) {
 			break;
 		case ParameterDataType::Type::REAL_PARAMETER:
 		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
-			sprintf(inputFieldString, "%.1f %s", realValue, shortUnitString);
+			sprintf(inputFieldString, "%.3f %s", realValue, shortUnitString);
 			valueChanged = ImGui::InputDouble("##parameter", &realValue, 0.0, 0.0, inputFieldString);
 			break;
 		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
 		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
-			sprintf(inputFieldString, "x: %.1f %s", vector2value.x, shortUnitString);
+			sprintf(inputFieldString, "x: %.3f %s", vector2value.x, shortUnitString);
 			valueChanged |= ImGui::InputFloat("##X", &vector2value.x, 0.0, 0.0, inputFieldString);
 			ImGui::SetNextItemWidth(width);
-			sprintf(inputFieldString, "y: %.1f %s", vector2value.y, shortUnitString);
+			sprintf(inputFieldString, "y: %.3f %s", vector2value.y, shortUnitString);
 			valueChanged |= ImGui::InputFloat("##Y", &vector2value.y, 0.0, 0.0, inputFieldString);
 			break;
 		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
 		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
-			sprintf(inputFieldString, "x: %.1f %s", vector3value.x, shortUnitString);
+			sprintf(inputFieldString, "x: %.3f %s", vector3value.x, shortUnitString);
 			valueChanged |= ImGui::InputFloat("##X", &vector3value.x, 0.0, 0.0, inputFieldString);
 			ImGui::SetNextItemWidth(width);
-			sprintf(inputFieldString, "y: %.1f %s", vector3value.y, shortUnitString);
+			sprintf(inputFieldString, "y: %.3f %s", vector3value.y, shortUnitString);
 			valueChanged |= ImGui::InputFloat("##Y", &vector3value.y, 0.0, 0.0, inputFieldString);
 			ImGui::SetNextItemWidth(width);
-			sprintf(inputFieldString, "z: %.1f %s", vector3value.z, shortUnitString);
+			sprintf(inputFieldString, "z: %.3f %s", vector3value.z, shortUnitString);
 			valueChanged |= ImGui::InputFloat("##Z", &vector3value.z, 0.0, 0.0, inputFieldString);
 			break;
 		case ParameterDataType::Type::PARAMETER_GROUP:
 			break;
 	}
+
+	//hacky way of getting hover status regardless of ItemFlags_Disable
+	glm::vec2 min = ImGui::GetItemRectMin();
+	glm::vec2 max = ImGui::GetItemRectMax();
+	glm::vec2 mouse = ImGui::GetIO().MousePos;
+	bool b_hovered = mouse.x > min.x && mouse.x < max.x && mouse.y > min.y && mouse.y < max.y;
+	
+	if(b_hovered && ImGui::IsKeyDown(GLFW_KEY_LEFT_CONTROL)){
+		ImGui::BeginTooltip();
+		switch (type) {
+			case ParameterDataType::Type::REAL_PARAMETER:
+			case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
+				ImGui::Text("Type : Double");
+				ImGui::Text("Value : %.20f", realValue);
+				break;
+			case ParameterDataType::Type::VECTOR_2D_PARAMETER:
+			case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
+				ImGui::Text("Type : 2D Double");
+				ImGui::Text("Value X : %.20f", vector2value.x);
+				ImGui::Text("Value Y : %.20f", vector2value.y);
+				break;
+			case ParameterDataType::Type::VECTOR_3D_PARAMETER:
+			case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
+				ImGui::Text("Type : 3D Double");
+				ImGui::Text("Value X : %.20f", vector3value.x);
+				ImGui::Text("Value Y : %.20f", vector3value.y);
+				ImGui::Text("Value Z : %.20f", vector3value.z);
+				break;
+			default: break;
+		}
+		ImGui::EndTooltip();
+	}
+	
 	return valueChanged;
 }

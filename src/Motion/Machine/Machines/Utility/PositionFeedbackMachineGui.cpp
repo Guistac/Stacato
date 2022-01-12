@@ -13,6 +13,10 @@
 
 void PositionFeedbackMachine::controlsGui(){
 	
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Position Feedback");
+	ImGui::PopFont();
+	
 	if(!isFeedbackConnected()){
 		ImGui::TextColored(Colors::red, "No Feedback Device Connected");
 		return;
@@ -22,16 +26,27 @@ void PositionFeedbackMachine::controlsGui(){
 	
 	float widgetWidth = ImGui::GetContentRegionAvail().x;
 	
-	ImGui::Text("Current Position (in range from %.1f %s to %.1f %s",
+	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::Text("Current Position :");
+	ImGui::PopFont();
+	ImGui::SameLine();
+	ImGui::Text("%.3f %s (in range from %.1f %s to %.1f %s)",
+				position,
+				getPositionUnit(positionUnit)->shortForm,
 				feedbackPositionToMachinePosition(feedbackDevice->getMinPosition()),
 				getPositionUnit(positionUnit)->shortForm,
 				feedbackPositionToMachinePosition(feedbackDevice->getMaxPosition()),
 				getPositionUnit(positionUnit)->shortForm);
-	static char positionString[256];
-	sprintf(positionString, "%.3f %s", position, getPositionUnit(positionUnit)->shortForm);
-	ImGui::ProgressBar(feedbackDevice->getPositionInRange(), glm::vec2(widgetWidth, ImGui::GetFrameHeight()), positionString);
 	
-	ImGui::Text("Current Velocity: %.3f %s/s", velocity, getPositionUnit(positionUnit)->shortForm);
+	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::Text("Current Velocity :");
+	ImGui::PopFont();
+	ImGui::SameLine();
+	ImGui::Text("%.3f %s/s", velocity, getPositionUnit(positionUnit)->shortForm);
+	
+	static char workingRangeString[256];
+	sprintf(workingRangeString, "Working Range: %.3f%%", feedbackDevice->getPositionInRange() * 100.0);
+	ImGui::ProgressBar(feedbackDevice->getPositionInRange(), glm::vec2(widgetWidth, ImGui::GetFrameHeight()), workingRangeString);
 	
 	if(ImGui::Button("Hard Reset Position Feedback")){
 		feedbackDevice->hardReset();
@@ -42,11 +57,11 @@ void PositionFeedbackMachine::controlsGui(){
 
 void PositionFeedbackMachine::settingsGui(){
 	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Encoder Channel");
+	ImGui::Text("Feedback Settings");
 	ImGui::PopFont();
 	
 	ImGui::PushFont(Fonts::robotoBold15);
-	ImGui::Text("Feedback Device :");
+	ImGui::Text("Device :");
 	ImGui::PopFont();
 	ImGui::SameLine();
 	if(!isFeedbackConnected()){
@@ -108,7 +123,7 @@ void PositionFeedbackMachine::settingsGui(){
 	ImGui::PushFont(Fonts::robotoBold15);
 	ImGui::Text("%s per Feedback %s :", getPositionUnit(positionUnit)->displayNamePlural, getPositionUnit(feedbackDevice->getPositionUnit())->displayName);
 	ImGui::PopFont();
-	ImGui::InputDouble("##conversionRatio", &unitsPerFeedbackUnit);
+	ImGui::InputDouble("##conversionRatio", &machineUnitsPerFeedbackUnit);
 	
 	ImGui::Checkbox("Invert Direction of Motion", &b_invertDirection);
 	
@@ -116,24 +131,62 @@ void PositionFeedbackMachine::settingsGui(){
 	ImGui::Text("Position at Feedback Zero");
 	ImGui::PopFont();
 	static char offsetString[256];
-	sprintf(offsetString, "%.3f %s", unitOffset, getPositionUnit(positionUnit)->shortForm);
-	ImGui::InputDouble("##posatZero", &unitOffset, 0.0, 0.0, offsetString);
+	sprintf(offsetString, "%.3f %s", machineUnitOffset, getPositionUnit(positionUnit)->shortForm);
+	ImGui::InputDouble("##posatZero", &machineUnitOffset, 0.0, 0.0, offsetString);
 	
 	widgetWidth = ImGui::GetContentRegionAvail().x;
 	
-	ImGui::Text("Current Position (in range from %.1f %s to %.1f %s",
+	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::Text("Feedback Position :");
+	ImGui::PopFont();
+	ImGui::SameLine();
+	ImGui::Text("%.3f %s (in range from %.1f %s to %.1f %s)",
+				feedbackDevice->getPosition(),
+				getPositionUnit(feedbackDevice->getPositionUnit())->shortForm,
+				feedbackDevice->getMinPosition(),
+				getPositionUnit(feedbackDevice->getPositionUnit())->shortForm,
+				feedbackDevice->getMaxPosition(),
+				getPositionUnit(feedbackDevice->getPositionUnit())->shortForm);
+	
+	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::Text("Machine Position :");
+	ImGui::PopFont();
+	ImGui::SameLine();
+	ImGui::Text("%.3f %s (in range from %.1f %s to %.1f %s)",
+				position,
+				getPositionUnit(positionUnit)->shortForm,
 				feedbackPositionToMachinePosition(feedbackDevice->getMinPosition()),
 				getPositionUnit(positionUnit)->shortForm,
 				feedbackPositionToMachinePosition(feedbackDevice->getMaxPosition()),
 				getPositionUnit(positionUnit)->shortForm);
-	static char positionString[256];
-	sprintf(positionString, "%.3f %s", position, getPositionUnit(positionUnit)->shortForm);
-	ImGui::ProgressBar(feedbackDevice->getPositionInRange(), glm::vec2(widgetWidth, ImGui::GetFrameHeight()), positionString);
+	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::Text("Machine Velocity :");
+	ImGui::PopFont();
+	ImGui::SameLine();
+	ImGui::Text("%.3f %s/s", velocity, getPositionUnit(positionUnit)->shortForm);
 	
-	ImGui::Text("Current Velocity: %.3f %s/s", velocity, getPositionUnit(positionUnit)->shortForm);
+	static char workingRangeString[128];
+	sprintf(workingRangeString, "Working Range: %.3f%%", feedbackDevice->getPositionInRange() * 100.0);
+	ImGui::ProgressBar(feedbackDevice->getPositionInRange(), glm::vec2(widgetWidth, ImGui::GetFrameHeight()), workingRangeString);
+	
+	ImGui::Separator();
+	
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Zero & Scaling");
+	ImGui::PopFont();
 	
 	if(ImGui::Button("Hard Reset Position Feedback")){
 		feedbackDevice->hardReset();
+	}
+	
+	static double positionScalingValue = 0.0;
+	static char positionScalingString[128];
+	sprintf(positionScalingString, "%.3f %s", positionScalingValue, getPositionUnit(positionUnit)->shortForm);
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
+	ImGui::InputDouble("##scalingInput", &positionScalingValue, 0.0, 0.0, positionScalingString);
+	ImGui::SameLine();
+	if(ImGui::Button("Set Scaling")){
+		setScalingPosition(positionScalingValue);
 	}
 }
 
@@ -176,9 +229,9 @@ void PositionFeedbackMachine::machineSpecificMiniatureGui(){
 	if(isEnabled()){
 		feedbackDevice = getFeedbackDevice();
 		progressNormalized = feedbackDevice->getPositionInRange();
-		sprintf(positionString, "%.3f %s", position, getPositionUnit(feedbackDevice->getPositionUnit())->shortForm);
-		sprintf(velocityString, "%.3f %s/s", velocity, getPositionUnit(feedbackDevice->getPositionUnit())->shortForm);
-		sprintf(positionProgressString, "%.1f%%", progressNormalized * 100.0);
+		sprintf(positionString, "%.3f %s", position, getPositionUnit(positionUnit)->shortForm);
+		sprintf(velocityString, "%.3f %s/s", velocity, getPositionUnit(positionUnit)->shortForm);
+		sprintf(positionProgressString, "%.3f%%", progressNormalized * 100.0);
 		disableResetButton = false;
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 	}else{
@@ -194,14 +247,18 @@ void PositionFeedbackMachine::machineSpecificMiniatureGui(){
 	ImGui::PopFont();
 	ImGui::SameLine();
 	ImGui::Text("%s", positionString);
-	ImGui::ProgressBar(progressNormalized, widgetSize, positionProgressString);
-	ImGui::PopStyleColor();
 	
 	ImGui::PushFont(Fonts::robotoBold15);
 	ImGui::Text("Velocity :");
 	ImGui::PopFont();
 	ImGui::SameLine();
 	ImGui::Text("%s", velocityString);
+	
+	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::Text("Working Range :");
+	ImGui::PopFont();
+	ImGui::ProgressBar(progressNormalized, widgetSize, positionProgressString);
+	ImGui::PopStyleColor();
 	
 	ImGui::Separator();
 	

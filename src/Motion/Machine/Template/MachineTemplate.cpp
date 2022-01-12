@@ -103,9 +103,14 @@ void MachineTemplate::onParameterPlaybackStart(std::shared_ptr<AnimatableParamet
 	//called when playback of that parameter starts
 }
 
-void MachineTemplate::onParameterPlaybackStop(std::shared_ptr<AnimatableParameter> parameter) {
+void MachineTemplate::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) {
 	//check against all animatable parameters
-	//called when playback of that parameter stops
+	//called when playback of that parameter is interrupted
+}
+
+void MachineTemplate::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) {
+	//check against all animatable parameters
+	//called when playback of that parameter end / finishes
 }
 
 void MachineTemplate::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
