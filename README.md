@@ -5,7 +5,7 @@
 - Physical Console compatibility (Serial Link, Communication protocol Software Button Assignement)
 - Homing Procedure User Interface
 
-### Future Milestones
+### Future Features
 - Stage Visualizer based on 3D models (.dwg importer, stage editor and visualizer)
 - Realtime Collision Prediction using stage geometry
 - Timecode Device Interface
@@ -18,7 +18,3 @@
 - Dead Mans Switch
 - Add Custom Layout System to Machine View
 - Support for multiple Plots per project
-
-### Housekeeping
-- Refactor Node Pins (to hold void* instead of having a field for each type)
-- Add onPinUpdate method to nodes for settings propagation
