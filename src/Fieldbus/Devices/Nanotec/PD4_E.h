@@ -6,7 +6,7 @@ class PD4_E : public EtherCatDevice {
 
 	DEFINE_ETHERCAT_DEVICE(PD4_E, "Drive", "PD4-E", "PD4-E", "Nanotec", "Servo Drives")
 
-	std::shared_ptr<ServoActuatorDevice> servoMotor = std::make_shared<ServoActuatorDevice>("Servo", PositionUnit::Unit::REVOLUTION, PositionFeedback::Type::ABSOLUTE_FEEDBACK);
+	std::shared_ptr<ServoActuatorDevice> servoMotor = std::make_shared<ServoActuatorDevice>("Servo", PositionUnit::REVOLUTION, PositionFeedbackType::ABSOLUTE);
 	std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("Gpio");
 
 	std::shared_ptr<NodePin> servoActuatorDeviceLink = std::make_shared<NodePin>(NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK, DataDirection::NODE_OUTPUT, "Servo Motor", NodePinFlags_DisableDataField);

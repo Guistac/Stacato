@@ -4,7 +4,7 @@
 
 #include <pch.h>
 
-#include "Motion/Subdevice.h"
+#include "Motion/SubDevice.h"
 #include "Motion/AnimatableParameter.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
 
@@ -56,10 +56,10 @@ void Oscillator3x::process() {
 		for (int i = 0; i < 3; i++) {
 			if (isAxisConnected(i)) {
 				std::shared_ptr<PositionControlledAxis> axis = getAxis(i);
-				if (axis->homingStep != Homing::Step::FINISHED) {
+				if (axis->homingStep != HomingStep::FINISHED) {
 					homingFinished = false;
 				}
-				if (axis->homingError != Homing::Error::NONE) {
+				if (axis->homingError != HomingError::NONE) {
 					homingFinished = false;
 					b_stopHoming = true;
 				}

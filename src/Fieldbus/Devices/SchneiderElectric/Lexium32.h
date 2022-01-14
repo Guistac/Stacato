@@ -9,7 +9,7 @@ public:
     DEFINE_ETHERCAT_DEVICE(Lexium32, "LXM32M EtherCAT", "Lexium32M", "Lexium32M", "Schneider Electric", "Servo Drives")
 
     //subdevices
-    std::shared_ptr<ServoActuatorDevice> servoMotorDevice = std::make_shared<ServoActuatorDevice>("Servo", PositionUnit::Unit::REVOLUTION, PositionFeedback::Type::ABSOLUTE_FEEDBACK);
+    std::shared_ptr<ServoActuatorDevice> servoMotorDevice = std::make_shared<ServoActuatorDevice>("Servo", PositionUnit::REVOLUTION, PositionFeedbackType::ABSOLUTE);
     std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
 
     //node input data

@@ -148,7 +148,7 @@ public:
 	//==== Subdevices ====
 	
 	void onSetParentBusCoupler(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler);
-	std::shared_ptr<PositionFeedbackDevice> encoderDevice = std::make_shared<PositionFeedbackDevice>("SSI Encoder", PositionUnit::Unit::REVOLUTION, PositionFeedback::Type::ABSOLUTE_FEEDBACK);
+	std::shared_ptr<PositionFeedbackDevice> encoderDevice = std::make_shared<PositionFeedbackDevice>("SSI Encoder", PositionUnit::REVOLUTION, PositionFeedbackType::ABSOLUTE);
 	void updateEncoderWorkingRange();
 	void updateResetPinVisibility();
 	bool b_isResetting = false;

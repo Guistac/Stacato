@@ -33,61 +33,138 @@ DEFINE_ENUMERATOR(TestValue, EnumeratorStrings)
 namespace Enumerator{
 
 template<typename E>
-struct TypeStructure{
+struct Type{
 	E enumerator;
 	char displayString[256];
 	char saveString[256];
 };
 	
 template<typename E>
-std::vector<TypeStructure<E>>& getTypeStructures();
+std::vector<Type<E>>& getTypes();
 	
 template<typename E>
-TypeStructure<E>* getTypeStructure(E enumerator){
-	for(auto& typeStructure : getTypeStructures<E>()) if(enumerator == typeStructure.enumerator) return &typeStructure;
+Type<E>* getType(E enumerator){
+	for(auto& type : getTypes<E>()) if(enumerator == type.enumerator) return &type;
 	return nullptr;
 }
 
 template<typename E>
-const char* getSaveName(E enumerator){
-	TypeStructure<E>* typeStructure = getTypeStructure<E>(enumerator);
-	if(typeStructure) return typeStructure->saveString;
+const char* getSaveString(E enumerator){
+	Type<E>* type = getType<E>(enumerator);
+	if(type) return type->saveString;
 	return nullptr;
 }
 
 template<typename E>
-const char* getDisplayName(E enumerator){
-	TypeStructure<E>* typeStructure = getTypeStructure<E>(enumerator);
-	if(typeStructure) return typeStructure->displayString;
+const char* getDisplayString(E enumerator){
+	Type<E>* type = getType<E>(enumerator);
+	if(type) return type->displayString;
 	return nullptr;
 }
 
 template<typename E>
-TypeStructure<E>* getTypeStructureFromSaveString(const char* saveString){
-	for(auto& typeStructure : getTypeStructures<E>()) if(strcmp(saveString, typeStructure.saveString) == 0) return &typeStructure;
+Type<E>* getTypeFromSaveString(const char* saveString){
+	for(auto& type : getTypes<E>()) if(strcmp(saveString, type.saveString) == 0) return &type;
 	return nullptr;
 }
 
 template<typename E>
 bool isValidSaveName(const char* saveString){
-	return getTypeStructureFromSaveString<E>(saveString) != nullptr;
+	return getTypeFromSaveString<E>(saveString) != nullptr;
 }
 
 template<typename E>
 E getEnumeratorFromSaveString(const char* saveString){
-	return getTypeStructureFromSaveString<E>(saveString)->enumerator;
+	return getTypeFromSaveString<E>(saveString)->enumerator;
 }
 
 };
 	
 
-#define DEFINE_ENUMERATOR(TypeName, typeStructureList)\
+#define DEFINE_ENUMERATOR(TypeName, typeList)\
 namespace Enumerator{\
 template<>\
-std::vector<TypeStructure<TypeName>>& getTypeStructures<TypeName>(){\
-	static std::vector<TypeStructure<TypeName>> typeStructures = {typeStructureList};\
-	return typeStructures;\
+inline std::vector<Type<TypeName>>& getTypes<TypeName>(){\
+	static std::vector<Type<TypeName>> types = {typeList};\
+	return types;\
 }\
 }\
 
 	
+
+
+namespace Unit{
+
+template<typename E>
+struct Type{
+	E enumerator;
+	char displayString[256];
+	char displayStringPlural[256];
+	char abbreviatedString[256];
+	char saveString[256];
+};
+	
+template<typename E>
+std::vector<Type<E>>& getTypes();
+	
+template<typename E>
+Type<E>* getType(E enumerator){
+	for(auto& type : getTypes<E>()) if(enumerator == type.enumerator) return &type;
+	return nullptr;
+}
+
+template<typename E>
+const char* getSaveString(E enumerator){
+	Type<E>* type = getType<E>(enumerator);
+	if(type) return type->saveString;
+	return nullptr;
+}
+
+template<typename E>
+const char* getDisplayString(E enumerator){
+	Type<E>* type = getType<E>(enumerator);
+	if(type) return type->displayString;
+	return nullptr;
+}
+
+template<typename E>
+const char* getDisplayStringPlural(E enumerator){
+	Type<E>* type = getType<E>(enumerator);
+	if(type) return type->displayStringPlural;
+	return nullptr;
+}
+
+template<typename E>
+const char* getAbbreviatedString(E enumerator){
+	Type<E>* type = getType<E>(enumerator);
+	if(type) return type->abbreviatedString;
+	return nullptr;
+}
+
+template<typename E>
+Type<E>* getTypeFromSaveString(const char* saveString){
+	for(auto& type : getTypes<E>()) if(strcmp(saveString, type.saveString) == 0) return &type;
+	return nullptr;
+}
+
+template<typename E>
+bool isValidSaveName(const char* saveString){
+	return getTypeFromSaveString<E>(saveString) != nullptr;
+}
+
+template<typename E>
+E getEnumeratorFromSaveString(const char* saveString){
+	return getTypeFromSaveString<E>(saveString)->enumerator;
+}
+
+}
+
+
+#define DEFINE_UNIT(TypeName, typeList)\
+namespace Unit{\
+template<>\
+inline std::vector<Type<TypeName>>& getTypes<TypeName>(){\
+	static std::vector<Type<TypeName>> types = {typeList};\
+	return types;\
+}\
+}\

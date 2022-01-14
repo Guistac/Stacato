@@ -42,7 +42,7 @@ void PD4_E::assignIoData() {
 	addIoData(digitalOut1Pin);
 	addIoData(digitalOut2Pin);
 
-	servoMotor->positionUnit = PositionUnit::Unit::REVOLUTION;
+	servoMotor->positionUnit = PositionUnit::REVOLUTION;
 	double maxEncoderRevolutions = 1 << encoderMultiTurnResolutionBits;
 	servoMotor->rangeMin_positionUnits = -maxEncoderRevolutions / 2.0;
 	servoMotor->rangeMax_positionUnits = maxEncoderRevolutions / 2.0;

@@ -16,6 +16,6 @@
 class Axis : public Node {
 public:
 
-	virtual MotionCommand::Type getMotionCommandType() = 0;
+	virtual MotionCommand getMotionCommandType() = 0;
 
 };

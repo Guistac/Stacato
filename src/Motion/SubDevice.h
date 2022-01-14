@@ -39,15 +39,15 @@ public:
 
 class PositionDevice: public Subdevice {
 public:
-	PositionDevice(const char* name, PositionUnit::Unit unit) : Subdevice(name), positionUnit(unit) {}
-	PositionUnit::Unit getPositionUnit() { return positionUnit; }
-	PositionUnit::Unit positionUnit;
+	PositionDevice(const char* name, PositionUnit unit) : Subdevice(name), positionUnit(unit) {}
+	PositionUnit getPositionUnit() { return positionUnit; }
+	PositionUnit positionUnit;
 };
 
 class ActuatorDevice : public virtual PositionDevice {
 public:
 
-	ActuatorDevice(const char* name, PositionUnit::Unit unit) : PositionDevice(name, unit) {}
+	ActuatorDevice(const char* name, PositionUnit unit) : PositionDevice(name, unit) {}
 	virtual Subdevice::Type getSubdeviceType() { return Subdevice::Type::ACTUATOR; }
 
 	//enable power
@@ -97,11 +97,11 @@ public:
 class PositionFeedbackDevice : public virtual PositionDevice {
 public:
 
-	PositionFeedbackDevice(const char* name, PositionUnit::Unit unit, PositionFeedback::Type type) : PositionDevice(name, unit), feedbackType(type) {}
+	PositionFeedbackDevice(const char* name, PositionUnit unit, PositionFeedbackType feedback) : PositionDevice(name, unit), feedbackType(feedback) {}
 	virtual Subdevice::Type getSubdeviceType() { return Subdevice::Type::POSITION_FEEDBACK; }
 
-	PositionFeedback::Type feedbackType;
-	PositionFeedback::Type getPositionFeedbackType() { return feedbackType; }
+	PositionFeedbackType feedbackType;
+	PositionFeedbackType getPositionFeedbackType() { return feedbackType; }
 
 	//set the current position of the encoder by adjusting the zero offset
 	void setPosition(double position) { positionOffset_positionUnits = positionRaw_positionUnits - position; }
@@ -147,7 +147,7 @@ public:
 class ServoActuatorDevice : public ActuatorDevice, public PositionFeedbackDevice {
 public:
 
-	ServoActuatorDevice(const char* name, PositionUnit::Unit unit, PositionFeedback::Type feedback) : PositionDevice(name, unit), ActuatorDevice(name, unit), PositionFeedbackDevice(name, unit, feedback) {}
+	ServoActuatorDevice(const char* name, PositionUnit unit, PositionFeedbackType feedback) : PositionDevice(name, unit), ActuatorDevice(name, unit), PositionFeedbackDevice(name, unit, feedback) {}
 	virtual Subdevice::Type getSubdeviceType() { return Subdevice::Type::SERVO_ACTUATOR; }
 
 	//set command

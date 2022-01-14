@@ -12,12 +12,12 @@ public:
 
 	DEFINE_AXIS_NODE(VelocityControlledAxis, "Velocity Controlled Axis", "VelocityControlledAxis")
 
-	virtual MotionCommand::Type getMotionCommandType() { return MotionCommand::Type::VELOCITY_COMMAND; }
+	virtual MotionCommand getMotionCommandType() { return MotionCommand::VELOCITY; }
 
 	//======== SETTINGS ========
 
-	PositionUnit::Unit positionUnit = PositionUnit::Unit::DEGREE;
-	PositionUnit::Type positionUnitType = PositionUnit::Type::ANGULAR;
+	PositionUnit positionUnit = PositionUnit::DEGREE;
+	PositionUnitType positionUnitType = PositionUnitType::ANGULAR;
 
 	double getVelocityLimit_axisUnitsPerSecond() { return velocityLimit_axisUnitsPerSecond; }
 	double getAccelerationLimit_axisUnitsPerSecondSquared() { return accelerationLimit_axisUnitsPerSecondSquared; }

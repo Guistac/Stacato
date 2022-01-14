@@ -10,28 +10,28 @@ class PositionControlledAxis : public VelocityControlledAxis {
 public:
 
 	DEFINE_AXIS_NODE(PositionControlledAxis, "Position Controlled Axis", "PositionControlledAxis")
-	virtual MotionCommand::Type getMotionCommandType() { return MotionCommand::Type::POSITION_COMMAND; }
+	virtual MotionCommand getMotionCommandType() { return MotionCommand::POSITION; }
 
 	//==================== SETTINGS ====================
 
 	//movement type
-	void setPositionUnitType(PositionUnit::Type t);
+	void setPositionUnitType(PositionUnitType t);
 	
 	//position unit
-	void setPositionUnit(PositionUnit::Unit u);
+	void setPositionUnit(PositionUnit u);
 	
 	//Control Type
-	PositionControl::Type positionControl = PositionControl::Type::CLOSED_LOOP;
-	void setPositionControlType(PositionControl::Type type);
+	PositionControlType positionControlType = PositionControlType::CLOSED_LOOP;
+	void setPositionControlType(PositionControlType type);
 
 	//Unit Conversions
 	double feedbackUnitsPerAxisUnits = 0.0;
 	bool feedbackAndActuatorConversionIdentical = false;
 
 	//Reference Signals and Homing
-	PositionReferenceSignal::Type positionReferenceSignal = PositionReferenceSignal::Type::SIGNAL_AT_LOWER_AND_UPPER_LIMIT;
-	void setPositionReferenceSignalType(PositionReferenceSignal::Type type);
-	HomingDirection::Type homingDirection = HomingDirection::Type::NEGATIVE;
+	PositionReferenceSignal positionReferenceSignal = PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT;
+	void setPositionReferenceSignalType(PositionReferenceSignal type);
+	HomingDirection homingDirection = HomingDirection::NEGATIVE;
 	double homingVelocity_axisUnitsPerSecond = 0.0;
 
 	//Position Limits
@@ -136,8 +136,8 @@ public:
 	void homingControl();
 	void onHomingSuccess();
 	void onHomingError();
-	Homing::Step homingStep = Homing::Step::NOT_STARTED;
-	Homing::Error homingError = Homing::Error::NONE;
+	HomingStep homingStep = HomingStep::NOT_STARTED;
+	HomingError homingError = HomingError::NONE;
 
 	//display data to set the machine coupling
 	double machineScalingPosition_axisUnits = 0.0;

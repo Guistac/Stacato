@@ -24,6 +24,42 @@ double PositionFeedbackMachine::feedbackVelocityToMachineVelocity(double feedbac
 	return (feedbackVelocity * machineUnitsPerFeedbackUnit);
 }
 
+
+void PositionFeedbackMachine::setMovementType(PositionUnitType t){
+	movementType = t;
+	switch(movementType){
+		case PositionUnitType::LINEAR:
+			if(!isLinearPositionUnit(positionUnit)){
+				for(auto& type : Unit::getTypes<PositionUnit>()){
+					if(isLinearPositionUnit(type.enumerator)) setPositionUnit(type.enumerator);
+					break;
+				}
+			}
+			break;
+		case PositionUnitType::ANGULAR:
+			if(!isAngularPositionUnit(positionUnit)){
+				for(auto& type : Unit::getTypes<PositionUnit>()){
+					if(isAngularPositionUnit(type.enumerator)) setPositionUnit(type.enumerator);
+					break;
+				}
+			}
+			break;
+	}
+}
+
+void PositionFeedbackMachine::setPositionUnit(PositionUnit u){
+	switch(movementType){
+		case PositionUnitType::ANGULAR:
+			if(!isAngularPositionUnit(u)) return;
+			break;
+		case PositionUnitType::LINEAR:
+			if(!isLinearPositionUnit(u)) return;
+			break;
+	}
+	positionUnit = u;
+}
+
+
 void PositionFeedbackMachine::assignIoData(){
 	addIoData(positionFeedbackDevicePin);
 	addIoData(positionPin);
@@ -101,8 +137,8 @@ void PositionFeedbackMachine::setScalingPosition(double realPosition_machineUnit
 bool PositionFeedbackMachine::saveMachine(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	XMLElement* unitsXML = xml->InsertNewChildElement("Units");
-	unitsXML->SetAttribute("Type", getPositionUnitType(movementType)->saveName);
-	unitsXML->SetAttribute("Unit", getPositionUnit(positionUnit)->saveName);
+	unitsXML->SetAttribute("Type", Enumerator::getSaveString(movementType));
+	unitsXML->SetAttribute("Unit", Unit::getSaveString(positionUnit));
 	XMLElement* conversionXML = xml->InsertNewChildElement("Conversion");
 	conversionXML->SetAttribute("UnitsPerFeedbackUnit", machineUnitsPerFeedbackUnit);
 	conversionXML->SetAttribute("InvertDirectionOfMotion", b_invertDirection);
@@ -118,14 +154,12 @@ bool PositionFeedbackMachine::loadMachine(tinyxml2::XMLElement* xml){
 	if(unitsXML == nullptr) return Logger::warn("Could not find units attribute");
 	const char* unitTypeString;
 	if(unitsXML->QueryStringAttribute("Type", &unitTypeString) != XML_SUCCESS) return Logger::warn("could not find unit type attribute");
-	PositionUnitType* positionUnitType = getPositionUnitType(unitTypeString);
-	if(positionUnitType == nullptr) return Logger::warn("Could not identify Position Unit Type");
-	movementType = positionUnitType->type;
+	if(!Enumerator::isValidSaveName<PositionUnitType>(unitTypeString)) return Logger::warn("Could not identify Position Unit Type");
+	movementType = Enumerator::getEnumeratorFromSaveString<PositionUnitType>(unitTypeString);
 	const char* positionUnitString;
 	if(unitsXML->QueryStringAttribute("Unit", &positionUnitString) != XML_SUCCESS) return Logger::warn("Could not find unit attribute");
-	PositionUnit* positionUnit_t = getPositionUnit(positionUnitString);
-	if(positionUnit_t == nullptr) return Logger::warn("Could not identify position unit");
-	positionUnit = positionUnit_t->unit;
+	if(!Unit::isValidSaveName<PositionUnit>(positionUnitString)) return Logger::warn("Could not identify position unit");
+	positionUnit = Unit::getEnumeratorFromSaveString<PositionUnit>(positionUnitString);
 	
 	XMLElement* conversionXML = xml->FirstChildElement("Conversion");
 	if(conversionXML == nullptr) return Logger::warn("Could not find conversio attribute");
