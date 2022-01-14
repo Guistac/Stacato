@@ -10,4 +10,19 @@
             <Target Type="Kinematic" Real="2"/>
         </Track>
     </Manoeuvre>
+    <Manoeuvre Name="M-2" Description="" Type="KeyPosition">
+        <Track Machine="Linear Machine" MachineUniqueID="51" Parameter="Position" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Trapezoidal">
+            <Target IsEqualToNextOrigin="false" Type="Kinematic" Real="5"/>
+        </Track>
+    </Manoeuvre>
+    <Manoeuvre Name="M-2*" Description="(copy) " Type="KeyPosition">
+        <Track Machine="Linear Machine" MachineUniqueID="51" Parameter="Position" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Trapezoidal">
+            <Target IsEqualToNextOrigin="false" Type="Kinematic" Real="5"/>
+        </Track>
+    </Manoeuvre>
+    <Manoeuvre Name="M-2*" Description="(copy) " Type="KeyPosition">
+        <Track Machine="Linear Machine" MachineUniqueID="51" Parameter="Position" HasChildParameterTracks="false" SequenceType="Constant" Interpolation="Trapezoidal">
+            <Target IsEqualToNextOrigin="false" Type="Kinematic" Real="5"/>
+        </Track>
+    </Manoeuvre>
 </Plot>
