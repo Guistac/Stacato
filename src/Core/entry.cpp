@@ -17,6 +17,9 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 int main() {
 #endif
 	
+	//doStuff();
+	//return;
+	
     //initializes application window and sets working directory
 	ApplicationWindow::init();
     
@@ -58,3 +61,48 @@ int main() {
 	//terminate application
 	ApplicationWindow::terminate();
 }
+
+
+
+/*
+enum class TemperatureUnit{
+	   CELSIUS,
+	   KELVIN,
+	   FARENHEIT
+   };
+
+#define TemperatureUnitTypes \
+	{TemperatureUnit::KELVIN, "Kelvin", "SaveKelvin", "Kelvins", "K", true, 1.1, 2.2},\
+	{TemperatureUnit::CELSIUS, "Celsius", "SaveCelsius", "Celsii", "C", false, 3.3, 4.4},\
+	{TemperatureUnit::FARENHEIT, "Farenheit", "SaveFarenheit", "Farenheits", "F", false, 5.5, 6.6}\
+
+DEFINE_UNIT_ENUMERATOR(TemperatureUnit, TemperatureUnitTypes)
+
+	
+#include <iostream>
+
+const char* doStuff(){
+	for(auto& unitType : UnitEnumerator<TemperatureUnit>::getTypes()){
+		TemperatureUnit enumerator = unitType.enumerator;
+		
+		std::cout << UnitEnumerator<TemperatureUnit>::getSaveString(enumerator) << " "
+		<< UnitEnumerator<TemperatureUnit>::getDisplayString(enumerator) << " "
+		<< UnitEnumerator<TemperatureUnit>::getDisplayStringPlural(enumerator) << " "
+		<< UnitEnumerator<TemperatureUnit>::getDisplayStringAbbreviated(enumerator) << " "
+		<< UnitEnumerator<TemperatureUnit>::isBaseUnit(enumerator) << " "
+		<< UnitEnumerator<TemperatureUnit>::getBaseUnitMultiple(enumerator) << " "
+		<< UnitEnumerator<TemperatureUnit>::getBaseUnitOffset(enumerator) << std::endl;
+		
+		std::cout << Enumerator<TemperatureUnit>::getSaveString(enumerator) << " "
+		<< Enumerator<TemperatureUnit>::getDisplayString(enumerator) << std::endl;
+		
+		const char* display = UnitEnumerator<TemperatureUnit>::getDisplayString(enumerator);
+		const char* save = UnitEnumerator<TemperatureUnit>::getSaveString(enumerator);
+		const char* plural = UnitEnumerator<TemperatureUnit>::getDisplayStringPlural(enumerator);
+		const char* abbreviated = UnitEnumerator<TemperatureUnit>::getDisplayStringAbbreviated(enumerator);
+		
+		bool isBase = UnitEnumerator<TemperatureUnit>::isBaseUnit(enumerator);
+		
+	}
+}
+ */

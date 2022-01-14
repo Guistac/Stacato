@@ -99,18 +99,18 @@ void PositionControlledAxis::process() {
 	if (isEnabled()) {
 
 		//here the machine updates the motion profile of the axis and sends the commands to the actuators
-		if (controlMode == ControlMode::Mode::MACHINE_CONTROL && isAxisPinConnected()) return;
+		if (controlMode == ControlMode::MACHINE_CONTROL && isAxisPinConnected()) return;
 		
 		//else the axis controls itself and sends commands to the actuators
 		if (b_isHoming) homingControl();
 		switch (controlMode) {
-			case ControlMode::Mode::VELOCITY_TARGET:
+			case ControlMode::VELOCITY_TARGET:
 				velocityTargetControl();
 				break;
-			case ControlMode::Mode::POSITION_TARGET:
+			case ControlMode::POSITION_TARGET:
 				positionTargetControl();
 				break;
-			case ControlMode::Mode::FAST_STOP:
+			case ControlMode::FAST_STOP:
 				fastStopControl();
 				break;
 			default:
@@ -567,7 +567,7 @@ float PositionControlledAxis::getActualPosition_normalized() {
 //================================= VELOCITY TARGET CONTROL ===================================
 
 void PositionControlledAxis::fastStop() {
-	controlMode = ControlMode::Mode::FAST_STOP;
+	controlMode = ControlMode::FAST_STOP;
 }
 
 void PositionControlledAxis::fastStopControl() {
@@ -592,8 +592,8 @@ void PositionControlledAxis::fastStopControl() {
 
 void PositionControlledAxis::setVelocityTarget(double velocity_axisUnits) {
 	manualVelocityTarget_axisUnitsPerSecond = velocity_axisUnits;
-	if (controlMode == ControlMode::Mode::POSITION_TARGET) targetInterpolation->resetValues();
-	controlMode = ControlMode::Mode::VELOCITY_TARGET;
+	if (controlMode == ControlMode::POSITION_TARGET) targetInterpolation->resetValues();
+	controlMode = ControlMode::VELOCITY_TARGET;
 }
 
 void PositionControlledAxis::velocityTargetControl() {
@@ -647,7 +647,7 @@ void PositionControlledAxis::moveToPositionWithVelocity(double position_axisUnit
 	auto startPoint = std::make_shared<Motion::ControlPoint>(profileTime_seconds, profilePosition_axisUnits, acceleration_axisUnits, profileVelocity_axisUnitsPerSecond);
 	auto endPoint = std::make_shared<Motion::ControlPoint>(0.0, position_axisUnits, acceleration_axisUnits, 0.0);
 	if (Motion::TrapezoidalInterpolation::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, velocity_axisUnits, targetInterpolation)) {
-		controlMode = ControlMode::Mode::POSITION_TARGET;
+		controlMode = ControlMode::POSITION_TARGET;
 		manualVelocityTarget_axisUnitsPerSecond = 0.0;
 	}
 	else {
@@ -703,7 +703,7 @@ void PositionControlledAxis::startHoming() {
 void PositionControlledAxis::cancelHoming() {
 	b_isHoming = false;
 	homingStep = HomingStep::NOT_STARTED;
-	controlMode = ControlMode::Mode::VELOCITY_TARGET;
+	controlMode = ControlMode::VELOCITY_TARGET;
 	setVelocityTarget(0.0);
 }
 

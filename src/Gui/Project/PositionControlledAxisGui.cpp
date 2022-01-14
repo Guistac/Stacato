@@ -264,7 +264,7 @@ void PositionControlledAxis::feedbackGui() {
 		sprintf(movementProgressChar, "Machine Disabled");
 		targetProgress = 1.0;
 	}
-	else if (controlMode != ControlMode::Mode::POSITION_TARGET) {
+	else if (controlMode != ControlMode::POSITION_TARGET) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		sprintf(movementProgressChar, "No Target Movement");
 		targetProgress = 1.0;

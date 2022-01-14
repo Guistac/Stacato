@@ -26,18 +26,46 @@ enum class PositionUnit{
 	MILLIMETER
 };
 
-#define PositionUnitStrings \
-	{PositionUnit::METER,		"Meter",		"Meters",		"m",		"Meter"},\
-	{PositionUnit::CENTIMETER,	"Centimeter",	"Centimeters",	"cm",		"Centimeter"},\
-	{PositionUnit::MILLIMETER,	"Millimeter",	"Millimeters",	"mm",		"Millimeter"},\
-	{PositionUnit::DEGREE,		"Degree",		"Degrees",		"\xC2\xB0",	"Degrees"},\
-	{PositionUnit::RADIAN,		"Radian",		"Radians",		"rad",		"Radians"},\
-	{PositionUnit::REVOLUTION,	"Revolution",	"Revolutions",	"rev",		"Revolutions"}\
+#define PositionUnitTypes \
+	{PositionUnit::METER,		"Meter",		"Meters",		"m",		"Meter", 		true, 	0.0, 		0.0},\
+	{PositionUnit::CENTIMETER,	"Centimeter",	"Centimeters",	"cm",		"Centimeter",	false, 	0.01, 		0.0},\
+	{PositionUnit::MILLIMETER,	"Millimeter",	"Millimeters",	"mm",		"Millimeter", 	false, 	0.001, 		0.0},\
+	{PositionUnit::DEGREE,		"Degree",		"Degrees",		"\xC2\xB0",	"Degrees", 		true, 	0.0,		0.0},\
+	{PositionUnit::RADIAN,		"Radian",		"Radians",		"rad",		"Radians",		false, 	0.0174533, 	0.0},\
+	{PositionUnit::REVOLUTION,	"Revolution",	"Revolutions",	"rev",		"Revolutions",	false, 	360.0,		0.0}\
 
-DEFINE_UNIT(PositionUnit, PositionUnitStrings)
+DEFINE_UNIT(PositionUnit, PositionUnitTypes)
 
-bool isLinearPositionUnit(PositionUnit t);
-bool isAngularPositionUnit(PositionUnit t);
+inline bool isLinearPositionUnit(PositionUnit t){
+	switch(t){
+		case PositionUnit::DEGREE:
+		case PositionUnit::RADIAN:
+		case PositionUnit::REVOLUTION:
+			return false;
+		case PositionUnit::METER:
+		case PositionUnit::CENTIMETER:
+		case PositionUnit::MILLIMETER:
+			return true;
+	}
+}
+
+inline bool isAngularPositionUnit(PositionUnit t){
+	switch(t){
+		case PositionUnit::DEGREE:
+		case PositionUnit::RADIAN:
+		case PositionUnit::REVOLUTION:
+			return true;
+		case PositionUnit::METER:
+		case PositionUnit::CENTIMETER:
+		case PositionUnit::MILLIMETER:
+			return false;
+	}
+}
+
+
+
+
+
 
 
 
@@ -64,8 +92,22 @@ enum class PositionReferenceSignal{
 	NO_SIGNAL
 };
 
-bool isLinearPositionReferenceSignal(PositionReferenceSignal t);
-bool isAngularPositionReferenceSignal(PositionReferenceSignal t);
+inline bool isLinearPositionReferenceSignal(PositionReferenceSignal t){
+	switch(t){
+		case PositionReferenceSignal::NO_SIGNAL:
+		case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
+			return false;
+		default:
+			return true;
+	}
+}
+
+inline bool isAngularPositionReferenceSignal(PositionReferenceSignal t){
+	return true;
+}
+
+
+
 
 #define PositionReferenceSignalStrings \
 	{PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT, 			"Signal At Lower Limit", 			"LowSignal"},\
@@ -109,18 +151,23 @@ DEFINE_ENUMERATOR(MotionCommand, MotionCommandStrings)
 
 
 
-struct ControlMode {
-	enum class Mode {
-		VELOCITY_TARGET,
-		POSITION_TARGET,
-		FAST_STOP,
-		MACHINE_CONTROL
-	};
-	Mode mode;
-	const char displayName[64];
+
+enum class ControlMode{
+	VELOCITY_TARGET,
+	POSITION_TARGET,
+	FAST_STOP,
+	MACHINE_CONTROL
 };
-std::vector<ControlMode>& getControlModes();
-ControlMode* getControlMode(ControlMode::Mode m);
+
+#define ControlModeTypes\
+	{ControlMode::VELOCITY_TARGET,	"Velocity Target"},\
+	{ControlMode::POSITION_TARGET,	"Position Target"},\
+	{ControlMode::FAST_STOP,			"Fast Stop"},\
+	{ControlMode::MACHINE_CONTROL,	"Machine Control"}\
+
+DEFINE_ENUMERATOR(ControlMode, ControlModeTypes)
+
+
 
 
 

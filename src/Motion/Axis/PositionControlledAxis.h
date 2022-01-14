@@ -104,7 +104,7 @@ public:
 	void setCurrentPositionAsPositiveLimit();
 	void scaleFeedbackToMatchPosition(double position_axisUnits);
 
-	ControlMode::Mode controlMode = ControlMode::Mode::VELOCITY_TARGET;
+	ControlMode controlMode = ControlMode::VELOCITY_TARGET;
 	virtual bool isAxisPinConnected() { return positionControlledAxisPin->isConnected(); }
 
 	//Fast Stop Control

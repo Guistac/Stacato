@@ -91,7 +91,7 @@ void Oscillator3x::process() {
 		axis2NormalizedPosition = 0.0;
 		axis3NormalizedPosition = 0.0;
 		for (int i = 0; i < 3; i++) {
-			if (isAxisConnected(i)) getAxis(i)->controlMode = ControlMode::Mode::MACHINE_CONTROL;
+			if (isAxisConnected(i)) getAxis(i)->controlMode = ControlMode::MACHINE_CONTROL;
 		}
 	}
 	else if (b_stopOscillator && b_oscillatorActive) {
