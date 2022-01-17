@@ -1,6 +1,6 @@
 #pragma once
 
-
+//================================================================================================================================
 
 enum class PositionUnitType{
 	LINEAR,
@@ -13,9 +13,7 @@ enum class PositionUnitType{
 
 DEFINE_ENUMERATOR(PositionUnitType, PositionUnitTypeStrings)
 
-
-
-
+//================================================================================================================================
 
 enum class PositionUnit{
 	DEGREE,
@@ -26,15 +24,66 @@ enum class PositionUnit{
 	MILLIMETER
 };
 
-#define PositionUnitTypes \
-	{PositionUnit::METER,		"Meter",		"Meters",		"m",		"Meter", 		true, 	0.0, 		0.0},\
-	{PositionUnit::CENTIMETER,	"Centimeter",	"Centimeters",	"cm",		"Centimeter",	false, 	0.01, 		0.0},\
-	{PositionUnit::MILLIMETER,	"Millimeter",	"Millimeters",	"mm",		"Millimeter", 	false, 	0.001, 		0.0},\
-	{PositionUnit::DEGREE,		"Degree",		"Degrees",		"\xC2\xB0",	"Degrees", 		true, 	0.0,		0.0},\
-	{PositionUnit::RADIAN,		"Radian",		"Radians",		"rad",		"Radians",		false, 	0.0174533, 	0.0},\
-	{PositionUnit::REVOLUTION,	"Revolution",	"Revolutions",	"rev",		"Revolutions",	false, 	360.0,		0.0}\
+static std::vector<Unit::Type<PositionUnit>> getPositionUnitTypes(){
+	static std::vector<Unit::Type<PositionUnit>> types = {
+		{PositionUnit::METER,
+			.displayString = "Meter",
+			.displayStringPlural = "Meters",
+			.abbreviatedString = "m",
+			.saveString = "Meter",
+			.b_isBaseUnit = true,
+			.baseUnitMultiple = 0.0,
+			.baseUnitOffset = 0.0
+		},
+		{PositionUnit::CENTIMETER,
+			.displayString = "Centimeter",
+			.displayStringPlural = "Centimeters",
+			.abbreviatedString = "cm",
+			.saveString = "Centimeter",
+			.b_isBaseUnit = false,
+			.baseUnitMultiple = 0.01,
+			.baseUnitOffset = 0.0
+		},
+		{PositionUnit::MILLIMETER,
+			.displayString = "Millimeter",
+			.displayStringPlural = "Millimeters",
+			.abbreviatedString = "mm",
+			.saveString = "Millimeter",
+			.b_isBaseUnit = false,
+			.baseUnitMultiple = 0.001,
+			.baseUnitOffset = 0.0
+		},
+		{PositionUnit::DEGREE,
+			.displayString = "Degree",
+			.displayStringPlural = "Degrees",
+			.abbreviatedString = "\xC2\xB0",
+			.saveString = "Degrees",
+			.b_isBaseUnit = true,
+			.baseUnitMultiple = 0.0,
+			.baseUnitOffset = 0.0},
+		{PositionUnit::RADIAN,
+			.displayString = "Radian",
+			.displayStringPlural = "Radians",
+			.abbreviatedString = "rad",
+			.saveString = "Radians",
+			.b_isBaseUnit = false,
+			.baseUnitMultiple = 0.0174533,
+			.baseUnitOffset = 0.0
+		},
+		{PositionUnit::REVOLUTION,
+			.displayString = "Revolution",
+			.displayStringPlural = "Revolutions",
+			.abbreviatedString = "rev",
+			.saveString = "Revolutions",
+			.b_isBaseUnit = false,
+			.baseUnitMultiple = 360.0,
+			.baseUnitOffset = 0.0
+		}
+	};
+	return types;
+}
 
-DEFINE_UNIT(PositionUnit, PositionUnitTypes)
+DEFINE_UNIT(PositionUnit, getPositionUnitTypes())
 
 inline bool isLinearPositionUnit(PositionUnit t){
 	switch(t){
@@ -62,14 +111,7 @@ inline bool isAngularPositionUnit(PositionUnit t){
 	}
 }
 
-
-
-
-
-
-
-
-
+//================================================================================================================================
 
 enum class PositionFeedbackType{
 	ABSOLUTE,
@@ -81,9 +123,7 @@ enum class PositionFeedbackType{
 
 DEFINE_ENUMERATOR(PositionFeedbackType, PositionFeedbackTypeStrings)
 
-
-
-
+//================================================================================================================================
 
 enum class PositionReferenceSignal{
 	SIGNAL_AT_LOWER_LIMIT,
@@ -106,8 +146,7 @@ inline bool isAngularPositionReferenceSignal(PositionReferenceSignal t){
 	return true;
 }
 
-
-
+//================================================================================================================================
 
 #define PositionReferenceSignalStrings \
 	{PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT, 			"Signal At Lower Limit", 			"LowSignal"},\
@@ -119,9 +158,7 @@ inline bool isAngularPositionReferenceSignal(PositionReferenceSignal t){
 
 DEFINE_ENUMERATOR(PositionReferenceSignal, PositionReferenceSignalStrings)
 
-
-
-
+//================================================================================================================================
 
 enum class PositionControlType{
 	CLOSED_LOOP,
@@ -133,9 +170,7 @@ enum class PositionControlType{
 
 DEFINE_ENUMERATOR(PositionControlType, PositionControlTypeStrings)
 
-
-
-
+//================================================================================================================================
 
 enum class MotionCommand {
 	POSITION,
@@ -147,10 +182,7 @@ enum class MotionCommand {
 
 DEFINE_ENUMERATOR(MotionCommand, MotionCommandStrings)
 
-
-
-
-
+//================================================================================================================================
 
 enum class ControlMode{
 	VELOCITY_TARGET,
@@ -167,11 +199,7 @@ enum class ControlMode{
 
 DEFINE_ENUMERATOR(ControlMode, ControlModeTypes)
 
-
-
-
-
-
+//================================================================================================================================
 
 enum class HomingDirection{
 	NEGATIVE,
@@ -183,9 +211,7 @@ enum class HomingDirection{
 
 DEFINE_ENUMERATOR(HomingDirection, HomingDirectionTypeStrings)
 
-
-
-
+//================================================================================================================================
 
 enum class HomingStep{
 	NOT_STARTED,
@@ -221,35 +247,33 @@ enum class HomingStep{
 };
 
 #define HomingStepStrings \
-	{HomingStep::NOT_STARTED,							"Not Started"},\
-	{HomingStep::SEARCHING_LOW_LIMIT_COARSE,			"Searching Low Limit Coarse"},\
-	{HomingStep::FOUND_LOW_LIMIT_COARSE,				"Found Low Limit Coarse"},\
-	{HomingStep::SEARCHING_LOW_LIMIT_FINE,				"Searching Low Limit Fine"},\
-	{HomingStep::FOUND_LOW_LIMIT_FINE,					"Found Low Limit Fine"},\
-	{HomingStep::RESETTING_POSITION_FEEDBACK,			"Resetting Position Feedback"},\
-	{HomingStep::SEARCHING_HIGH_LIMIT_COARSE,			"Searching High Limit Coarse"},\
-	{HomingStep::FOUND_HIGH_LIMIT_COARSE,				"Found High Limit Coarse"},\
-	{HomingStep::SEARCHING_HIGH_LIMIT_FINE,				"Seraching High Limit Fine"},\
-	{HomingStep::FOUND_HIGH_LIMIT_FINE,					"Found High Limit Fine"},\
-	{HomingStep::SETTING_HIGH_LIMIT,					"Setting High Limit"},\
-	{HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE,	"Searching Reference From Below Coarse"},\
-	{HomingStep::FOUND_REFERENCE_FROM_BELOW_COARSE,		"Found Reference From Below Coarse"},\
-	{HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE,	"Searching Reference From Below Fine"},\
-	{HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE,		"Found Reference From Below Fine"},\
-	{HomingStep::SETTING_REFERENCE_LOW,					"Setting Reference Low"},\
-	{HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE,	"Searching Reference From Above Coarse"},\
-	{HomingStep::FOUND_REFERENCE_FROM_ABOVE_COARSE,		"Found Reference From Above Coarse"},\
-	{HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE,	"Searching Reference From Above Fine"},\
-	{HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE,		"Found Reference From Above Fine"},\
-	{HomingStep::SETTING_REFERENCE_HIGH,				"Setting Reference High"},\
-	{HomingStep::MOVING_TO_REFERENCE_MIDDLE,			"Moving To Reference Middle"},\
-	{HomingStep::FINISHED,								"Finished"}\
+	{HomingStep::NOT_STARTED,							.displayString = "Not Started"},\
+	{HomingStep::SEARCHING_LOW_LIMIT_COARSE,			.displayString = "Searching Low Limit Coarse"},\
+	{HomingStep::FOUND_LOW_LIMIT_COARSE,				.displayString = "Found Low Limit Coarse"},\
+	{HomingStep::SEARCHING_LOW_LIMIT_FINE,				.displayString = "Searching Low Limit Fine"},\
+	{HomingStep::FOUND_LOW_LIMIT_FINE,					.displayString = "Found Low Limit Fine"},\
+	{HomingStep::RESETTING_POSITION_FEEDBACK,			.displayString = "Resetting Position Feedback"},\
+	{HomingStep::SEARCHING_HIGH_LIMIT_COARSE,			.displayString = "Searching High Limit Coarse"},\
+	{HomingStep::FOUND_HIGH_LIMIT_COARSE,				.displayString = "Found High Limit Coarse"},\
+	{HomingStep::SEARCHING_HIGH_LIMIT_FINE,				.displayString = "Seraching High Limit Fine"},\
+	{HomingStep::FOUND_HIGH_LIMIT_FINE,					.displayString = "Found High Limit Fine"},\
+	{HomingStep::SETTING_HIGH_LIMIT,					.displayString = "Setting High Limit"},\
+	{HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE,	.displayString = "Searching Reference From Below Coarse"},\
+	{HomingStep::FOUND_REFERENCE_FROM_BELOW_COARSE,		.displayString = "Found Reference From Below Coarse"},\
+	{HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE,	.displayString = "Searching Reference From Below Fine"},\
+	{HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE,		.displayString = "Found Reference From Below Fine"},\
+	{HomingStep::SETTING_REFERENCE_LOW,					.displayString = "Setting Reference Low"},\
+	{HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE,	.displayString = "Searching Reference From Above Coarse"},\
+	{HomingStep::FOUND_REFERENCE_FROM_ABOVE_COARSE,		.displayString = "Found Reference From Above Coarse"},\
+	{HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE,	.displayString = "Searching Reference From Above Fine"},\
+	{HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE,		.displayString = "Found Reference From Above Fine"},\
+	{HomingStep::SETTING_REFERENCE_HIGH,				.displayString = "Setting Reference High"},\
+	{HomingStep::MOVING_TO_REFERENCE_MIDDLE,			.displayString = "Moving To Reference Middle"},\
+	{HomingStep::FINISHED,								.displayString = "Finished"}\
 
 DEFINE_ENUMERATOR(HomingStep, HomingStepStrings)
 
-
-
-
+//================================================================================================================================
 
 enum class HomingError{
 	NONE,

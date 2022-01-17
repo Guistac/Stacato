@@ -9,7 +9,7 @@
 #include "Project/Project.h"
 #include "Project/Environnement.h"
 
-const char* doStuff();
+void doStuff();
 
 #ifdef STACATO_WIN32_APPLICATION
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
@@ -17,8 +17,8 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 int main() {
 #endif
 	
-	//doStuff();
-	//return;
+	doStuff();
+	return;
 	
     //initializes application window and sets working directory
 	ApplicationWindow::init();
@@ -63,46 +63,159 @@ int main() {
 }
 
 
+	
+	
+	
+struct Thing{
+	int a = 2, b, c;
+	float d, e, f;
+};
+	
+class Pin {
+public:
+	
+	enum class DataType{
+		BOOLEAN,
+		INTEGER,
+		REAL,
+		THING
+	};
+	
+	std::weak_ptr<void> pointer;
+	DataType type;
+	
+	//Constructor : assigns data and sets datatype enumerator
+	//needs a template specialization for each supported type
+	template<typename T>
+	Pin(std::shared_ptr<T> sPtr);
+	
+	//Get a shared pointer of the specified type
+	template<typename T>
+	const std::shared_ptr<T> getSharedPointer(){
+		return std::static_pointer_cast<T>(pointer.lock());
+	}
+	
+	//Get a value directly or through implicit conversion
+	//needs a template specialization for each supported type
+	template<typename T>
+	T get();
+	
+	//return type compatibility
+	//indicate if type is the same or implicit conversion is possible
+	bool canConnectTo(std::shared_ptr<Pin> other){
+		switch(type){
+			case DataType::BOOLEAN:
+			case DataType::INTEGER:
+			case DataType::REAL:
+				switch(other->type){
+					case DataType::BOOLEAN:
+					case DataType::INTEGER:
+					case DataType::REAL:
+						return true;
+					default:
+						return false;
+				}
+			default:
+				return other->type == type;
+		}
+	}
+	
+};
+	
+	
+//==============================================================
+//============= Direct Return / Implicit Conversion ============
+//==============================================================
+	
+template<>
+bool Pin::get(){
+	switch(type){
+		case DataType::BOOLEAN: return *getSharedPointer<bool>();
+		case DataType::INTEGER: return *getSharedPointer<int>();
+		case DataType::REAL: return *getSharedPointer<double>();
+		default: return false;
+	}
+}
+	
+template<>
+int Pin::get(){
+	switch(type){
+		case DataType::BOOLEAN: return *getSharedPointer<bool>();
+		case DataType::INTEGER: return *getSharedPointer<int>();
+		case DataType::REAL: return *getSharedPointer<double>();
+		default: return 0;
+	}
+}
 
-/*
-enum class TemperatureUnit{
-	   CELSIUS,
-	   KELVIN,
-	   FARENHEIT
-   };
+template<>
+double Pin::get(){
+	switch(type){
+		case DataType::BOOLEAN: return *getSharedPointer<bool>();
+		case DataType::INTEGER: return *getSharedPointer<int>();
+		case DataType::REAL: return *getSharedPointer<double>();
+		default: return 0.0;
+	}
+}
 
-#define TemperatureUnitTypes \
-	{TemperatureUnit::KELVIN, "Kelvin", "SaveKelvin", "Kelvins", "K", true, 1.1, 2.2},\
-	{TemperatureUnit::CELSIUS, "Celsius", "SaveCelsius", "Celsii", "C", false, 3.3, 4.4},\
-	{TemperatureUnit::FARENHEIT, "Farenheit", "SaveFarenheit", "Farenheits", "F", false, 5.5, 6.6}\
 
-DEFINE_UNIT_ENUMERATOR(TemperatureUnit, TemperatureUnitTypes)
+//==============================================================
+//======================== Constructors ========================
+//==============================================================
+	
+template<>
+Pin::Pin(std::shared_ptr<bool> boolPtr) : pointer(boolPtr) {
+	type = DataType::BOOLEAN;
+}
+	
+template<>
+Pin::Pin(std::shared_ptr<int> intPtr) : pointer(intPtr) {
+	type = DataType::INTEGER;
+}
+
+template<>
+Pin::Pin(std::shared_ptr<double> realPtr) : pointer(realPtr) {
+	type = DataType::REAL;
+}
+	
+template<>
+Pin::Pin(std::shared_ptr<Thing> thingPtr) : pointer(thingPtr) {
+	type = DataType::THING;
+}
+	
+	
+	
+	
+	
+	
 
 	
 #include <iostream>
 
-const char* doStuff(){
-	for(auto& unitType : UnitEnumerator<TemperatureUnit>::getTypes()){
-		TemperatureUnit enumerator = unitType.enumerator;
-		
-		std::cout << UnitEnumerator<TemperatureUnit>::getSaveString(enumerator) << " "
-		<< UnitEnumerator<TemperatureUnit>::getDisplayString(enumerator) << " "
-		<< UnitEnumerator<TemperatureUnit>::getDisplayStringPlural(enumerator) << " "
-		<< UnitEnumerator<TemperatureUnit>::getDisplayStringAbbreviated(enumerator) << " "
-		<< UnitEnumerator<TemperatureUnit>::isBaseUnit(enumerator) << " "
-		<< UnitEnumerator<TemperatureUnit>::getBaseUnitMultiple(enumerator) << " "
-		<< UnitEnumerator<TemperatureUnit>::getBaseUnitOffset(enumerator) << std::endl;
-		
-		std::cout << Enumerator<TemperatureUnit>::getSaveString(enumerator) << " "
-		<< Enumerator<TemperatureUnit>::getDisplayString(enumerator) << std::endl;
-		
-		const char* display = UnitEnumerator<TemperatureUnit>::getDisplayString(enumerator);
-		const char* save = UnitEnumerator<TemperatureUnit>::getSaveString(enumerator);
-		const char* plural = UnitEnumerator<TemperatureUnit>::getDisplayStringPlural(enumerator);
-		const char* abbreviated = UnitEnumerator<TemperatureUnit>::getDisplayStringAbbreviated(enumerator);
-		
-		bool isBase = UnitEnumerator<TemperatureUnit>::isBaseUnit(enumerator);
-		
-	}
+	
+void doStuff(){
+	
+	std::shared_ptr<int> intPtr1 = std::make_shared<int>(3);
+	std::shared_ptr<int> intPtr2 = std::make_shared<int>(4);
+	std::shared_ptr<double> realPtr = std::make_shared<double>(3.3333);
+	std::shared_ptr<Thing> thingPtr = std::make_shared<Thing>();
+	
+	std::shared_ptr<Pin> intPin1 = std::make_shared<Pin>(intPtr1);
+	std::shared_ptr<Pin> intPin2 = std::make_shared<Pin>(intPtr2);
+	std::shared_ptr<Pin> realPin = std::make_shared<Pin>(realPtr);
+	std::shared_ptr<Pin> thingPin = std::make_shared<Pin>(thingPtr);
+	
+	std::vector<std::shared_ptr<Pin>> pins = {intPin1, intPin2, realPin, thingPin};
+	
+	int intval1 = intPin1->get<int>();
+	int intval2 = intPin2->get<int>();
+	double realVal = realPin->get<double>();
+	auto thingPtr2 = thingPin->getSharedPointer<Thing>();
+	
+	auto insptr = thingPin->getSharedPointer<int>();
+	int test = *insptr;
+	
+	std::cout << test << std::endl;
+	
+	std::cout << intval1 << " " << intval2 << " " << realVal << std::endl;
+	
 }
- */
