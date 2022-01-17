@@ -14,192 +14,16 @@ void NodePin::disconnectAllLinks() {
 	}
 }
 
-bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> otherData) {
-	switch (type) {
-	case NodeData::Type::BOOLEAN_VALUE:
-		switch (otherData->getType()) {
-			case NodeData::Type::BOOLEAN_VALUE:
-			case NodeData::Type::INTEGER_VALUE:
-			case NodeData::Type::REAL_VALUE: return true;
-			default: return false;
-		}
-	case NodeData::Type::INTEGER_VALUE:
-		switch (otherData->getType()) {
-			case NodeData::Type::BOOLEAN_VALUE:
-			case NodeData::Type::INTEGER_VALUE:
-			case NodeData::Type::REAL_VALUE: return true;
-			default: return false;
-		}
-	case NodeData::Type::REAL_VALUE:
-		switch (otherData->getType()) {
-			case NodeData::Type::BOOLEAN_VALUE:
-			case NodeData::Type::INTEGER_VALUE:
-			case NodeData::Type::REAL_VALUE: return true;
-			default: return false;
-		}
-	case NodeData::Type::ACTUATOR_DEVICELINK:
-		switch (otherData->getType()) {
-			case NodeData::Type::ACTUATOR_DEVICELINK: return true;
-			default: return false;
-		}
-	case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
-		switch (otherData->getType()) {
-			case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: return true;
-			default: return false;
-		}
-	case NodeData::Type::GPIO_DEVICELINK:
-		switch (otherData->getType()) {
-			case NodeData::Type::GPIO_DEVICELINK: return true;
-			default: return false;
-		}
-	case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK:
-		switch (otherData->getType()) {
-			case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return true;
-			default: return false;
-		}
-	case NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK:
-		switch (otherData->getType()) {
-			case NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK: return true;
-			default: return false;
-		}
-	case NodeData::Type::POSITION_CONTROLLED_AXIS_LINK:
-		switch (otherData->getType()) {
-			case NodeData::Type::POSITION_CONTROLLED_AXIS_LINK: return true;
-			default: return false;
-		}
-	case NodeData::Type::DEAD_MANS_SWITCH_LINK:
-		switch(otherData->getType()){
-			case NodeData::Type::DEAD_MANS_SWITCH_LINK: return true;
-			default: return false;
-		}
-	default:
-		return false;
-	}
-}
 
-//setting data (with data conversions)
-void NodePin::set(bool boolean) {
-	switch (type) {
-	case NodeData::Type::BOOLEAN_VALUE: booleanValue = boolean; break;
-	case NodeData::Type::INTEGER_VALUE: integerValue = boolean; break;
-	case NodeData::Type::REAL_VALUE: realValue = boolean; break;
-	default: break;
-	}
-}
 
-void NodePin::set(long long int integer) {
-	switch (type) {
-	case NodeData::Type::INTEGER_VALUE: integerValue = integer; break;
-	case NodeData::Type::BOOLEAN_VALUE: booleanValue = integer > 0; break;
-	case NodeData::Type::REAL_VALUE: realValue = integer; break;
-	default: break;
-	}
-}
 
-void NodePin::set(double real) {
-	switch (type) {
-	case NodeData::Type::REAL_VALUE: realValue = real; break;
-	case NodeData::Type::BOOLEAN_VALUE: booleanValue = real > 0.0; break;
-	case NodeData::Type::INTEGER_VALUE: integerValue = real; break;
-	default: break;
-	}
-}
-
-void NodePin::set(std::shared_ptr<ActuatorDevice> device) {
-	if (isActuatorDeviceLink()) actuatorDevice = device;
-}
-
-void NodePin::set(std::shared_ptr<PositionFeedbackDevice> device) {
-	if (isPositionFeedbackDeviceLink()) positionFeedbackDevice = device;
-}
-
-void NodePin::set(std::shared_ptr<GpioDevice> device) {
-	if (isGpioDeviceLink()) gpioDevice = device;
-}
-
-void NodePin::set(std::shared_ptr<ServoActuatorDevice> device) {
-	if (isServoActuatorDeviceLink()) servoActuatorDevice = device;
-}
-
-void NodePin::set(std::shared_ptr<VelocityControlledAxis> ax) {
-	if (isVelocityControlledAxisLink()) velocityControlledAxis = ax;
-}
-
-void NodePin::set(std::shared_ptr<PositionControlledAxis> ax) {
-	if (isPositionControlledAxisLink()) positionControlledAxis = ax;
-}
-
-void NodePin::set(std::shared_ptr<DeadMansSwitch> dms){
-	if(isDeadMansSwitchLink()) deadMansSwitch = dms;
-}
-
-//reading data (with data conversions)
-bool NodePin::getBoolean() {
-	switch (type) {
-		case NodeData::Type::BOOLEAN_VALUE: return booleanValue;
-		case NodeData::Type::INTEGER_VALUE: return integerValue > 0;
-		case NodeData::Type::REAL_VALUE: return realValue > 0;
-		default: return false;
-	}
-}
-long long int NodePin::getInteger() {
-	switch (type) {
-		case NodeData::Type::INTEGER_VALUE: return integerValue;
-		case NodeData::Type::BOOLEAN_VALUE: return (long long int)booleanValue;
-		case NodeData::Type::REAL_VALUE: return (long long int)realValue;
-		default: return 0;
-	}
-}
-double NodePin::getReal() {
-	switch (type) {
-		case NodeData::Type::REAL_VALUE: return realValue;
-		case NodeData::Type::BOOLEAN_VALUE: return (double)booleanValue;
-		case NodeData::Type::INTEGER_VALUE: return (double)integerValue;
-		default: return std::numeric_limits<double>::signaling_NaN();
-	}
-}
-
-std::shared_ptr<ActuatorDevice> NodePin::getActuatorDevice() {
-	if (isActuatorDeviceLink()) return actuatorDevice;
-	return nullptr;
-}
-
-std::shared_ptr<PositionFeedbackDevice> NodePin::getPositionFeedbackDevice() {
-	if (isPositionFeedbackDeviceLink()) return positionFeedbackDevice;
-	return nullptr;
-}
-
-std::shared_ptr<GpioDevice> NodePin::getGpioDevice() {
-	if (isGpioDeviceLink()) return gpioDevice;
-	return nullptr;
-}
-
-std::shared_ptr<ServoActuatorDevice> NodePin::getServoActuatorDevice() {
-	if (isServoActuatorDeviceLink()) return servoActuatorDevice;
-	return nullptr;
-}
-
-std::shared_ptr<VelocityControlledAxis> NodePin::getVelocityControlledAxis() {
-	if (isVelocityControlledAxisLink()) return velocityControlledAxis;
-	return nullptr;
-}
-
-std::shared_ptr<PositionControlledAxis> NodePin::getPositionControlledAxis() {
-	if (isPositionControlledAxisLink()) return positionControlledAxis;
-	return nullptr;
-}
-
-std::shared_ptr<DeadMansSwitch> NodePin::getDeadMansSwitch(){
-	if(isDeadMansSwitchLink()) return deadMansSwitch;
-	return nullptr;
-}
 
 const char* NodePin::getValueString() {
 	static char output[32];
 	switch (type) {
-		case NodeData::Type::BOOLEAN_VALUE: strcpy(output, booleanValue ? "True" : "False"); break;
-		case NodeData::Type::INTEGER_VALUE: sprintf(output, "%lli", integerValue); break;
-		case NodeData::Type::REAL_VALUE: sprintf(output, "%.5f", realValue); break;
+		case DataType::BOOLEAN: sprintf(output, "%s", get<bool>() ? "true" : "false");
+		case DataType::INTEGER: sprintf(output, "%i", get<int>()); break;
+		case DataType::REAL: sprintf(output, "%.5f", get<double>()); break;
 		default: return "No Value";
 	}
 	return (const char*)output;
@@ -207,16 +31,8 @@ const char* NodePin::getValueString() {
 
 std::vector<std::shared_ptr<NodePin>> NodePin::getConnectedPins() {
 	std::vector<std::shared_ptr<NodePin>> output;
-	if (isInput()) {
-		for (auto& link : NodeLinks) {
-			output.push_back(link->getInputData());
-		}
-	}
-	else {
-		for (auto& link : NodeLinks) {
-			output.push_back(link->getOutputData());
-		}
-	}
+	if (isInput()) for (auto& link : NodeLinks) output.push_back(link->getInputData());
+	else for (auto& link : NodeLinks) output.push_back(link->getOutputData());
 	return output;
 }
 
@@ -310,34 +126,4 @@ bool NodePin::load(tinyxml2::XMLElement* xml) {
 
 bool NodePin::matches(const char* saveNameString, NodeData::Type type) {
 	return strcmp(saveName, saveNameString) == 0 && type == getType();
-}
-
-
-
-std::vector<NodeData> NodeDataTypes = {
-	{NodeData::Type::BOOLEAN_VALUE, "Boolean", "Boolean"},
-	{NodeData::Type::INTEGER_VALUE, "Integer", "Integer"},
-	{NodeData::Type::REAL_VALUE, "Real", "Real"},
-	{NodeData::Type::ACTUATOR_DEVICELINK, "Actuator", "ActuatorDeviceLink"},
-	{NodeData::Type::POSITIONFEEDBACK_DEVICELINK, "Position Feedback", "PositionFeedbackDeviceLink"},
-	{NodeData::Type::GPIO_DEVICELINK, "GPIO", "GPIODeviceLink"},
-	{NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK, "Servo Actuator", "ServoActuatorDeviceLink"},
-	{NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK, "Velocity Controlled Axis", "VelocityControlledAxisLink"},
-	{NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, "Position Controlled Axis", "PositionControlledAxisLink"},
-	{NodeData::Type::DEAD_MANS_SWITCH_LINK, "Dead Man's Switch", "DeadMansSwitchLink"}
-};
-std::vector<NodeData>& getNodeDataTypes() {
-	return NodeDataTypes;
-}
-NodeData* getNodeDataType(NodeData::Type type) {
-	for (NodeData& dataType : NodeDataTypes) {
-		if (type == dataType.type) return &dataType;
-	}
-	return nullptr;
-}
-NodeData* getNodeDataType(const char* saveName) {
-	for (NodeData& dataType : NodeDataTypes) {
-		if (strcmp(saveName, dataType.saveName) == 0) return &dataType;
-	}
-	return nullptr;
 }
