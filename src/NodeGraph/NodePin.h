@@ -55,6 +55,18 @@ inline NodePinFlags operator|(NodePinFlags a, NodePinFlags b) {
 	return static_cast<NodePinFlags>(static_cast<int>(a) | static_cast<int>(b));
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
 class NodePin {
 public:
 
@@ -227,3 +239,122 @@ private:
 		}
 	}
 };
+
+
+
+
+
+
+
+
+
+
+
+/*
+ class Pin {
+ public:
+	 
+	 enum class DataType{
+		 BOOLEAN,
+		 INTEGER,
+		 REAL,
+		 THING
+	 };
+	 
+	 std::weak_ptr<void> pointer;
+	 DataType type;
+	 
+	 //Constructor : assigns data and sets datatype enumerator
+	 //needs a template specialization for each supported type
+	 template<typename T>
+	 Pin(std::shared_ptr<T> sPtr);
+	 
+	 //Get a shared pointer of the specified type
+	 template<typename T>
+	 const std::shared_ptr<T> getSharedPointer(){
+		 return std::static_pointer_cast<T>(pointer.lock());
+	 }
+	 
+	 //Get a value directly or through implicit conversion
+	 //needs a template specialization for each supported type
+	 template<typename T>
+	 T get();
+	 
+	 //return type compatibility
+	 //indicate if type is the same or implicit conversion is possible
+	 bool canConnectTo(std::shared_ptr<Pin> other){
+		 switch(type){
+			 case DataType::BOOLEAN:
+			 case DataType::INTEGER:
+			 case DataType::REAL:
+				 switch(other->type){
+					 case DataType::BOOLEAN:
+					 case DataType::INTEGER:
+					 case DataType::REAL:
+						 return true;
+					 default:
+						 return false;
+				 }
+			 default:
+				 return other->type == type;
+		 }
+	 }
+	 
+ };
+	 
+	 
+ //==============================================================
+ //============= Direct Return / Implicit Conversion ============
+ //==============================================================
+	 
+ template<>
+ bool Pin::get(){
+	 switch(type){
+		 case DataType::BOOLEAN: return *getSharedPointer<bool>();
+		 case DataType::INTEGER: return *getSharedPointer<int>();
+		 case DataType::REAL: return *getSharedPointer<double>();
+		 default: return false;
+	 }
+ }
+	 
+ template<>
+ int Pin::get(){
+	 switch(type){
+		 case DataType::BOOLEAN: return *getSharedPointer<bool>();
+		 case DataType::INTEGER: return *getSharedPointer<int>();
+		 case DataType::REAL: return *getSharedPointer<double>();
+		 default: return 0;
+	 }
+ }
+
+ template<>
+ double Pin::get(){
+	 switch(type){
+		 case DataType::BOOLEAN: return *getSharedPointer<bool>();
+		 case DataType::INTEGER: return *getSharedPointer<int>();
+		 case DataType::REAL: return *getSharedPointer<double>();
+		 default: return 0.0;
+	 }
+ }
+
+
+ //==============================================================
+ //======================== Constructors ========================
+ //==============================================================
+	 
+ template<>
+ Pin::Pin(std::shared_ptr<bool> boolPtr) : pointer(boolPtr) {
+	 type = DataType::BOOLEAN;
+ }
+	 
+ template<>
+ Pin::Pin(std::shared_ptr<int> intPtr) : pointer(intPtr) {
+	 type = DataType::INTEGER;
+ }
+
+ template<>
+ Pin::Pin(std::shared_ptr<double> realPtr) : pointer(realPtr) {
+	 type = DataType::REAL;
+ }
+
+*/
