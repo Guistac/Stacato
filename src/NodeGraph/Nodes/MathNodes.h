@@ -11,7 +11,7 @@ public:
 		addIoData(value);
 	}
 
-	std::shared_ptr<NodePin> value = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "value", NodePinFlags_ForceDataField);
+	std::shared_ptr<NodePin> value = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "value", NodePin::Flags::ForceDataField);
 
 	virtual void process() {}
 };
@@ -22,24 +22,36 @@ public:
 	DEFINE_PROCESSOR_NODE(AdditionNode, "Addition", "Addition", "Math")
 	
 	virtual void assignIoData() {
+		input->assignData(inputPinValue);
 		addIoData(input);
-		input->set(0.0);
+		offset->assignData(offsetPinValue);
 		addIoData(offset);
-		offset->set(0.0);
+		output->assignData(outputPinValue);
 		addIoData(output);
-		output->set(0.0);
 	}
 
-	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "input", NodePinFlags_AcceptMultipleInputs);
-	std::shared_ptr<NodePin> offset = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "offset", NodePinFlags_DisablePin | NodePinFlags_ForceDataField);
-	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "result", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", NodePin::Flags::AcceptMultipleInputs);
+	std::shared_ptr<NodePin> offset = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "offset", NodePin::Flags::DisablePin | NodePin::Flags::ForceDataField);
+	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "result", NodePin::Flags::DisableDataField);
 
+	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> offsetPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
+	
 	virtual void process() {
 		double sum = 0.0;
-		for (auto link : input->getLinks()) sum += link->getInputData()->getReal();
-		if(!input->isConnected()) sum += input->getReal();
-		sum += offset->getReal();
-		output->set(sum);
+		
+		if(input->hasMultipleConnections()) {
+			*inputPinValue = 0.0;
+			for (auto pin : input->getConnectedPins()) *inputPinValue += pin->get<double>();
+		}
+		else if (input->isConnected()){
+			*inputPinValue = input->getConnectedPin()->get<double>();
+		}
+		sum += *inputPinValue;
+		
+		sum += *offsetPinValue;
+		*outputPinValue = sum;
 	}
 };
 
@@ -49,29 +61,49 @@ public:
 	DEFINE_PROCESSOR_NODE(SubtractionNode, "Subtraction", "Subtraction", "Math")
 
 	virtual void assignIoData() {
+		base->assignData(basePinValue);
 		addIoData(base);
-		base->set(0.0);
+		sub->assignData(subPinValue);
 		addIoData(sub);
-		sub->set(0.0);
+		offset->assignData(offsetPinValue);
 		addIoData(offset);
-		offset->set(0.0);
+		output->assignData(outputPinValue);
 		addIoData(output);
-		output->set(0.0);
 	}
 
-	std::shared_ptr<NodePin> base = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "base", NodePinFlags_AcceptMultipleInputs);
-	std::shared_ptr<NodePin> sub = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "sub", NodePinFlags_AcceptMultipleInputs);
-	std::shared_ptr<NodePin> offset = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "offset", NodePinFlags_DisablePin | NodePinFlags_ForceDataField);
-	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "result", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> base = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "base", NodePin::Flags::AcceptMultipleInputs);
+	std::shared_ptr<NodePin> sub = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "sub", NodePin::Flags::AcceptMultipleInputs);
+	std::shared_ptr<NodePin> offset = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "offset", NodePin::Flags::DisablePin | NodePin::Flags::ForceDataField);
+	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "result", NodePin::Flags::DisableDataField);
 
+	std::shared_ptr<double> basePinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> subPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> offsetPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
+	
 	virtual void process() {
 		double sum = 0.0;
-		for (auto link : base->getLinks()) sum += link->getInputData()->getReal();
-		if (!base->isConnected()) sum += base->getReal();
-		for (auto link : sub->getLinks()) sum -= link->getInputData()->getReal();
-		if (!base->isConnected()) sum -= sub->getReal();
-		sum += offset->getReal();
-		output->set(sum);
+		
+		if(base->hasMultipleConnections()) {
+			*basePinValue = 0.0;
+			for(auto pin : base->getConnectedPins()) *basePinValue += pin->get<double>();
+		}
+		else if(base->isConnected()){
+			*basePinValue = base->getConnectedPin()->get<double>();
+		}
+		sum += *basePinValue;
+		
+		if(sub->hasMultipleConnections()) {
+			*subPinValue = 0.0;
+			for(auto pin : sub->getConnectedPins()) *subPinValue += pin->get<double>();
+		}else if(sub->isConnected()){
+			*subPinValue = sub->getConnectedPin()->get<double>();
+		}
+		sum -= *subPinValue;
+		
+		sum += *offsetPinValue;
+		
+		*outputPinValue = sum;
 	}
 };
 
@@ -81,23 +113,37 @@ public:
 	DEFINE_PROCESSOR_NODE(MultiplicationNode, "Multiplication", "Mutliplication", "Math")
 
 	virtual void assignIoData() {
+		input->assignData(inputPinValue);
 		addIoData(input);
-		input->set(0.0);
+		multiplier->assignData(multiplierPinValue);
 		addIoData(multiplier);
-		multiplier->set(1.0);
+		output->assignData(outputPinValue);
 		addIoData(output);
-		output->set(0.0);
 	}
 
-	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "input", NodePinFlags_AcceptMultipleInputs);
-	std::shared_ptr<NodePin> multiplier = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "mult", NodePinFlags_DisablePin | NodePinFlags_ForceDataField);
-	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "result", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", NodePin::Flags::AcceptMultipleInputs);
+	std::shared_ptr<NodePin> multiplier = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "mult", NodePin::Flags::DisablePin | NodePin::Flags::ForceDataField);
+	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "result", NodePin::Flags::DisableDataField);
 
+	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> multiplierPinValue = std::make_shared<double>(1.0);
+	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
+	
 	virtual void process() {
 		double out = 1.0;
-		for (auto link : input->getLinks()) out *= link->getInputData()->getReal();
-		if (!multiplier->isConnected()) out *= multiplier->getReal();
-		output->set(out);
+		
+		if(input->hasMultipleConnections()) {
+			*inputPinValue = 1.0;
+			for(auto pin : input->getConnectedPins()) *inputPinValue *= pin->get<double>();
+		}else if(input->isConnected()){
+			*inputPinValue = input->getConnectedPin()->get<double>();
+		}
+		out *= *inputPinValue;
+		
+		
+		out *= *multiplierPinValue;
+		
+		*outputPinValue = out;
 	}
 };
 
@@ -107,29 +153,49 @@ public:
 	DEFINE_PROCESSOR_NODE(DivisionNode, "Division", "Division", "Math")
 
 	virtual void assignIoData() {
+		base->assignData(basePinValue);
 		addIoData(base);
-		base->set(0.0);
+		div->assignData(divPinValue);
 		addIoData(div);
-		div->set(1.0);
+		mult->assignData(multPinValue);
 		addIoData(mult);
-		mult->set(1.0);
+		output->assignData(outputPinValue);
 		addIoData(output);
-		output->set(0.0);
 	}
 
-	std::shared_ptr<NodePin> base = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "base", NodePinFlags_AcceptMultipleInputs);
-	std::shared_ptr<NodePin> div = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "div", NodePinFlags_AcceptMultipleInputs);
-	std::shared_ptr<NodePin> mult = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "mult", NodePinFlags_DisablePin | NodePinFlags_ForceDataField);
-	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "result", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> base = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "base", NodePin::Flags::AcceptMultipleInputs);
+	std::shared_ptr<NodePin> div = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "div", NodePin::Flags::AcceptMultipleInputs);
+	std::shared_ptr<NodePin> mult = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "mult", NodePin::Flags::DisablePin | NodePin::Flags::ForceDataField);
+	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "result", NodePin::Flags::DisableDataField);
 
+	std::shared_ptr<double> basePinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> divPinValue = std::make_shared<double>(1.0);
+	std::shared_ptr<double> multPinValue = std::make_shared<double>(1.0);
+	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
+	
+	
 	virtual void process() {
 		double out = 1.0;
-		for (auto link : base->getLinks()) out *= link->getInputData()->getReal();
-		if (!base->isConnected()) out *= base->getReal();
-		for (auto link : div->getLinks()) out /= link->getInputData()->getReal();
-		if (!div->isConnected()) out /= div->getReal();
-		out *= mult->getReal();
-		output->set(out);
+		
+		if(base->hasMultipleConnections()){
+			*basePinValue = 0.0;
+			for(auto pin : base->getConnectedPins()) *basePinValue *= pin->get<double>();
+		}else if(base->isConnected()){
+			*basePinValue = base->get<double>();
+		}
+		out *= *basePinValue;
+		
+		if(div->hasMultipleConnections()){
+			*divPinValue = 0.0;
+			for(auto pin : div->getConnectedPins()) *divPinValue *= pin->get<double>();
+		}else if(div->isConnected()){
+			*divPinValue = div->get<double>();
+		}
+		out /= *divPinValue;
+		
+		out *= *multPinValue;
+		
+		*outputPinValue = out;
 	}
 };
 
@@ -139,26 +205,28 @@ public:
 	DEFINE_PROCESSOR_NODE(ExponentNode, "Exponent", "Exponent", "Math")
 
 	virtual void assignIoData() {
+		base->assignData(basePinValue);
 		addIoData(base);
-		base->set(0.0);
+		exp->assignData(expPinValue);
 		addIoData(exp);
-		exp->set(1.0);
+		output->assignData(outputPinValue);
 		addIoData(output);
-		output->set(0.0);
 	}
 
-	std::shared_ptr<NodePin> base = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "base");
-	std::shared_ptr<NodePin> exp = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "exp");
-	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "result", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> base = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "base");
+	std::shared_ptr<NodePin> exp = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "exp");
+	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "result", NodePin::Flags::DisableDataField);
 
+	std::shared_ptr<double> basePinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> expPinValue = std::make_shared<double>(1.0);
+	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
+	
 	virtual void process() {
-		double d_base, d_exp;
-		if (base->isConnected()) d_base = base->getLinks().front()->getInputData()->getReal();
-		else d_base = base->getReal();
-		if (exp->isConnected()) d_exp = exp->getLinks().front()->getInputData()->getReal();
-		else d_exp = exp->getReal();
-		//TODO: somehow this is not working on mac
-		//output->set(std::pow<double>(d_base, d_exp));
+		if(base->isConnected()) *basePinValue = base->getConnectedPin()->get<double>();
+		
+		if(exp->isConnected()) *expPinValue = exp->getConnectedPin()->get<double>();
+		
+		*outputPinValue = std::pow(*basePinValue, *expPinValue);
 	}
 };
 
@@ -169,18 +237,22 @@ public:
 	DEFINE_PROCESSOR_NODE(AbsoluteNode, "Absolute", "Absolute", "Math")
 
 	virtual void assignIoData() {
+		input->assignData(inputPinValue);
 		addIoData(input);
-		input->set(0.0);
+		output->assignData(outputPinValue);
 		addIoData(output);
-		output->set(0.0);
 	}
 
-	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "in");
-	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "out", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in");
+	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
 
+	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
+	
 	virtual void process() {
-		if (input->isConnected()) output->set(std::abs(input->getLinks().front()->getInputData()->getReal()));
-		else output->set(std::abs(input->getReal()));
+		if(input->isConnected()) *inputPinValue = input->getConnectedPin()->get<double>();
+		
+		*outputPinValue = std::abs(*inputPinValue);
 	}
 };
 
@@ -195,18 +267,21 @@ public:
 	DEFINE_PROCESSOR_NODE(SinusNode, "Sinus", "Sinus", "Trigonometry")
 
 	virtual void assignIoData() {
+		in->assignData(inputPinValue);
 		addIoData(in);
-		in->set(0.0);
+		out->assignData(outputPinValue);
 		addIoData(out);
-		out->set(0.0);
 	}
 
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "in");
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "out", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in");
+	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
+	
+	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 
 	virtual void process() {
-		if (in->isConnected()) out->set(std::sin(in->getLinks().front()->getInputData()->getReal()));
-		else out->set(std::sin(in->getReal()));
+		if(in->isConnected()) *inputPinValue = in->getConnectedPin()->get<double>();
+		*outputPinValue = std::sin(*inputPinValue);
 	}
 };
 
@@ -216,18 +291,21 @@ public:
 	DEFINE_PROCESSOR_NODE(CosinusNode, "Cosinus", "Cosinus", "Trigonometry")
 
 	virtual void assignIoData() {
+		in->assignData(inputPinValue);
 		addIoData(in);
-		in->set(1.0);
+		out->assignData(outputPinValue);
 		addIoData(out);
-		out->set(0.0);
 	}
 
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "in");
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "out", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in");
+	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
 
+	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> outputPinValue = std::make_shared<double>(1.0);
+	
 	virtual void process() {
-		if (in->isConnected()) out->set(std::cos(in->getLinks().front()->getInputData()->getReal()));
-		else out->set(std::cos(in->getReal()));
+		if(in->isConnected()) *inputPinValue = in->getConnectedPin()->get<double>();
+		*outputPinValue = std::cos(*inputPinValue);
 	}
 };
 
@@ -237,18 +315,21 @@ public:
 	DEFINE_PROCESSOR_NODE(TangentNode, "Tangent", "Tangent", "Trigonometry")
 
 	virtual void assignIoData() {
+		in->assignData(inputPinValue);
 		addIoData(in);
-		in->set(0.0);
+		out->assignData(outputPinValue);
 		addIoData(out);
-		out->set(0.0);
 	}
 
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "in");
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "out", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in");
+	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
 
+	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
+	
 	virtual void process() {
-		if (in->isConnected()) out->set(std::tan(in->getLinks().front()->getInputData()->getReal()));
-		else out->set(std::tan(in->getReal()));
+		if(in->isConnected()) *inputPinValue = in->getConnectedPin()->get<double>();
+		*outputPinValue = std::tan(*inputPinValue);
 	}
 };
 
@@ -258,18 +339,21 @@ public:
 	DEFINE_PROCESSOR_NODE(CotangentNode, "Cotangent", "Cotangent", "Trigonometry")
 
 	virtual void assignIoData() {
+		in->assignData(inputPinValue);
 		addIoData(in);
-		in->set(3.1415926);
+		out->assignData(outputPinValue);
 		addIoData(out);
-		out->set(0.0);
 	}
 
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "in");
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "out", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in");
+	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
 
+	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> outputPinValue = std::make_shared<double>(std::numeric_limits<double>::infinity());
+	
 	virtual void process() {
-		if (in->isConnected()) out->set(1.0 / std::tan(in->getLinks().front()->getInputData()->getReal()));
-		else out->set(1.0 / std::tan(in->getReal()));
+		if(in->isConnected()) *inputPinValue = in->getConnectedPin()->get<double>();
+		*outputPinValue = 1.0 / std::sin(*inputPinValue);
 	}
 };
 
@@ -290,18 +374,21 @@ public:
 	DEFINE_PROCESSOR_NODE(BoolNode, "Bool", "Bool", "Logic")
 
 	virtual void assignIoData() {
+		in->assignData(inputPinValue);
 		addIoData(in);
-		in->set(false);
+		out->assignData(outputPinValue);
 		addIoData(out);
-		out->set(false);
 	}
 
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "in");
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "out", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in");
+	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
 
+	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(false);
+	
 	virtual void process() {
-		if (in->isConnected()) out->set(in->getLinks().front()->getInputData()->getBoolean());
-		else out->set(in->getBoolean());
+		if(in->isConnected()) *inputPinValue = in->getConnectedPin()->get<bool>();
+		*outputPinValue = *inputPinValue;
 	}
 };
 
@@ -311,18 +398,21 @@ public:
 	DEFINE_PROCESSOR_NODE(NotNode, "Not", "Not", "Logic")
 
 	virtual void assignIoData() {
+		in->assignData(inputPinValue);
 		addIoData(in);
-		in->set(true);
+		out->assignData(outputPinValue);
 		addIoData(out);
-		out->set(false);
 	}
 
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "in");
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "out", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in");
+	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
+	
+	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(0.0);
+	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
 
 	virtual void process() {
-		if (in->isConnected()) out->set(!in->getLinks().front()->getInputData()->getBoolean());
-		else out->set(!in->getBoolean());
+		if(in->isConnected()) *inputPinValue = in->getConnectedPin()->get<bool>();
+		*outputPinValue = !*inputPinValue;
 	}
 };
 
@@ -332,26 +422,29 @@ public:
 	DEFINE_PROCESSOR_NODE(AndNode, "And", "And", "Logic")
 
 	virtual void assignIoData() {
+		in->assignData(inputPinValue);
 		addIoData(in);
-		in->set(false);
+		out->assignData(outputPinValue);
 		addIoData(out);
-		out->set(false);
 	}
 
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "in", NodePinFlags_AcceptMultipleInputs);
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "out", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in", NodePin::Flags::AcceptMultipleInputs);
+	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
 
+	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(0.0);
+	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
+	
 	virtual void process() {
-		if (in->isConnected()) {
-			for (auto link : in->getLinks()) {
-				if (!link->getInputData()->getBoolean()) {
-					out->set(false);
+		if(in->hasMultipleConnections()){
+			*inputPinValue = false;
+			for(auto pin : in->getConnectedPins()) {
+				if(!pin->get<bool>()){
+					*outputPinValue = false;
 					return;
 				}
 			}
-			out->set(true);
+			*outputPinValue = true;
 		}
-		else out->set(false);
 	}
 };
 
@@ -361,26 +454,29 @@ public:
 	DEFINE_PROCESSOR_NODE(OrNode, "Or", "Or", "Logic")
 
 	virtual void assignIoData() {
+		in->assignData(inputPinValue);
 		addIoData(in);
-		in->set(false);
+		out->assignData(outputPinValue);
 		addIoData(out);
-		out->set(false);
 	}
 
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "in", NodePinFlags_AcceptMultipleInputs);
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "out", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in", NodePin::Flags::AcceptMultipleInputs);
+	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
 
+	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(0.0);
+	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
+	
 	virtual void process() {
-		if (in->isConnected()) {
-			for (auto link : in->getLinks()) {
-				if (link->getInputData()->getBoolean()) {
-					out->set(true);
+		if(in->hasMultipleConnections()){
+			*inputPinValue = false;
+			for(auto pin : in->getConnectedPins()) {
+				if(pin->get<bool>()){
+					*outputPinValue = true;
 					return;
 				}
 			}
-			out->set(false);
+			*outputPinValue = false;
 		}
-		else out->set(false);
 	}
 };
 

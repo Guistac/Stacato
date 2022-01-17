@@ -5,24 +5,36 @@
 class PD4_E : public EtherCatDevice {
 
 	DEFINE_ETHERCAT_DEVICE(PD4_E, "Drive", "PD4-E", "PD4-E", "Nanotec", "Servo Drives")
-
+	
 	std::shared_ptr<ServoActuatorDevice> servoMotor = std::make_shared<ServoActuatorDevice>("Servo", PositionUnit::REVOLUTION, PositionFeedbackType::ABSOLUTE);
 	std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("Gpio");
 
-	std::shared_ptr<NodePin> servoActuatorDeviceLink = std::make_shared<NodePin>(NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK, DataDirection::NODE_OUTPUT, "Servo Motor", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> positionPin = std::make_shared<NodePin>(NodeData::Type::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(NodeData::Type::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity", NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> servoActuatorDeviceLink = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR, NodePin::Direction::NODE_OUTPUT, "Servo Motor", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> positionPin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Position", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Velocity", NodePin::Flags::DisableDataField);
+	std::shared_ptr<double> positionPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> velocityPinValue = std::make_shared<double>(0.0);
 	
-	std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodeData::Type::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "Gpio");
-	std::shared_ptr<NodePin> digitalIn1Pin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Digital In 1", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> digitalIn2Pin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Digital In 2", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> digitalIn3Pin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Digital In 3", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> digitalIn4Pin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Digital In 4", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> digitalIn5Pin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Digital In 5", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> digitalIn6Pin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Digital In 6", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> analogIn1Pin = std::make_shared<NodePin>(NodeData::Type::REAL_VALUE, DataDirection::NODE_OUTPUT, "Analog In 1", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> digitalOut1Pin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Digital Out 1");
-	std::shared_ptr<NodePin> digitalOut2Pin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Digital Out 2");
+	std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT, "Gpio");
+	std::shared_ptr<NodePin> digitalIn1Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Digital In 1", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalIn2Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Digital In 2", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalIn3Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Digital In 3", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalIn4Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Digital In 4", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalIn5Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Digital In 5", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalIn6Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Digital In 6", NodePin::Flags::DisableDataField);
+	std::shared_ptr<bool> digitalIn1PinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn2PinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn3PinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn4PinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn5PinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn6PinValue = std::make_shared<bool>(false);
+	
+	std::shared_ptr<NodePin> analogIn1Pin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Analog In 1", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalOut1Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Digital Out 1");
+	std::shared_ptr<NodePin> digitalOut2Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Digital Out 2");
+	std::shared_ptr<double> analogIn1PinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<bool> digitalOut1PinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalOut2PinValue = std::make_shared<bool>(false);
 
 	//constants
 	const double maxVelocity_revolutionsPerSecond = 42.0;

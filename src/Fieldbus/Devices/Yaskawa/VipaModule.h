@@ -97,7 +97,8 @@ class VIPA_022_1HD10 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_022_1HD10, "VIPA 022-1HD10", "DO4x Relais (1.8A)")
 	bool outputs[4] = {false, false, false, false};
-	uint8_t pdoSpacerBits = 0;
+	std::vector<std::shared_ptr<bool>> inputPinValues;
+	uint8_t pdoSpacerBits = 0; //TODO: is this used ?
 };
 
 
@@ -109,6 +110,7 @@ class VIPA_021_1BF00 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_021_1BF00, "VIPA 021-1BF00", "DI8x (DC24V)")
 	bool inputs[8] = {false, false, false, false, false, false, false, false};
+	std::vector<std::shared_ptr<bool>> outputPinValues;
 };
 
 //=================================================================
@@ -119,6 +121,7 @@ class VIPA_022_1BF00 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_022_1BF00, "VIPA 022-1BF00", "DO8x (DC24V0.5A)")
 	bool outputs[8] = {false, false, false, false, false, false, false, false};
+	std::vector<std::shared_ptr<bool>> inputPinValues;
 };
 
 //=================================================================
@@ -130,8 +133,11 @@ class VIPA_050_1BS00 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_050_1BS00, "VIPA 050-1BS00", "SSI RS422 (DC24V)")
 	
-	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodeData::Type::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_OUTPUT, "SSI Encoder");
-	std::shared_ptr<NodePin> resetPin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Encoder");
+	//output pins
+	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodePin::DataType::POSITIONFEEDBACK, NodePin::Direction::NODE_OUTPUT, "SSI Encoder");
+	std::shared_ptr<NodePin> resetPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Reset Encoder");
+	
+	std::shared_ptr<bool> resetPinValue = std::make_shared<bool>(false);
 	
 	virtual void onConnection();
 	virtual void onDisconnection();
@@ -284,6 +290,8 @@ public:
 	DEFINE_VIPA_MODULE(VIPA_032_1BD70, "VIPA 032-1BD70", "AO4x 12bit (±10V)")
 	
 	int16_t outputs[4] = { 0, 0, 0, 0};
+	
+	std::vector<std::shared_ptr<double>> inputPinValues;
 	
 	struct VoltageRange{
 		enum class Range{

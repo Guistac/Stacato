@@ -173,19 +173,24 @@ public:
 
 	//============ NODE ==============
 
-	//Device Links
-	std::shared_ptr<NodePin> servoActuatorDeviceLink = std::make_shared<NodePin>(NodeData::SERVO_ACTUATOR_DEVICE_LINK, DataDirection::NODE_INPUT, "Servo Actuator");
-	std::shared_ptr<NodePin> positionFeedbackDeviceLink = std::make_shared<NodePin>(NodeData::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_INPUT, "Position Feedback");
-	std::shared_ptr<NodePin> referenceDeviceLink = std::make_shared<NodePin>(NodeData::GPIO_DEVICELINK, DataDirection::NODE_INPUT, "Reference Device");
-
-	//Reference Signals
-	std::shared_ptr<NodePin> lowLimitSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Low Limit Signal");
-	std::shared_ptr<NodePin> highLimitSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "High Limit Signal");
-	std::shared_ptr<NodePin> referenceSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Reference Signal");
-
+	//Inputs
+	std::shared_ptr<NodePin> servoActuatorDeviceLink = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR, NodePin::Direction::NODE_INPUT, "Servo Actuator");
+	std::shared_ptr<NodePin> positionFeedbackDeviceLink = std::make_shared<NodePin>(NodePin::DataType::POSITIONFEEDBACK, NodePin::Direction::NODE_INPUT, "Position Feedback");
+	std::shared_ptr<NodePin> referenceDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_INPUT, "Reference Device");
+	std::shared_ptr<NodePin> lowLimitSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Low Limit Signal");
+	std::shared_ptr<NodePin> highLimitSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "High Limit Signal");
+	std::shared_ptr<NodePin> referenceSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Reference Signal");
+	
+	std::shared_ptr<bool> lowLimitSignalPinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> highLimitSignalPinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> referenceSignalPinValue = std::make_shared<bool>(false);
+	
+	
 	//Outputs
-	std::shared_ptr<NodePin> positionControlledAxisPin = std::make_shared<NodePin>(NodeData::POSITION_CONTROLLED_AXIS_LINK, DataDirection::NODE_OUTPUT, "Position Controlled Axis");
-	std::shared_ptr<NodePin> position = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position");
+	std::shared_ptr<NodePin> positionControlledAxisPin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS, NodePin::Direction::NODE_OUTPUT, "Position Controlled Axis");
+	std::shared_ptr<NodePin> position = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Position");
+	
+	std::shared_ptr<double> positionPinValue = std::make_shared<double>(0.0);
 
 
 	virtual bool load(tinyxml2::XMLElement* xml);

@@ -43,7 +43,7 @@ void VipaModule::informationGui(){
 		ImGui::Text("Outputs");
 		ImGui::PopFont();
 		for(auto& inputPin : inputPins){
-			ImGui::Text("%s", inputPin->getDisplayName());
+			ImGui::Text("%s", inputPin->getDisplayString());
 		}
 	}
 	if(!outputPins.empty()){
@@ -51,7 +51,7 @@ void VipaModule::informationGui(){
 		ImGui::Text("Inputs");
 		ImGui::PopFont();
 		for(auto& outputPin : outputPins){
-			ImGui::Text("%s", outputPin->getDisplayName());
+			ImGui::Text("%s", outputPin->getDisplayString());
 		}
 	}
 }

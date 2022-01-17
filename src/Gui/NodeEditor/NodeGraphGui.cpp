@@ -267,18 +267,18 @@ void NodeGraph::editorGui() {
 
         if (ImGui::BeginPopup("Pin Context Menu")) {
             std::shared_ptr<NodePin> pin = getPin(contextPinId.Get());
-            ImGui::Text("Pin : %s", pin->getDisplayName());
+            ImGui::Text("Pin : %s", pin->getDisplayString());
             ImGui::SameLine();
             ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
             ImGui::Text("(#%i)", pin->getUniqueID());
             ImGui::PopStyleColor();
-            ImGui::Text("Type: %s", getNodeDataType(pin->getType())->displayName);
+            ImGui::Text("Type: %s", Enumerator::getDisplayString(pin->dataType));
             ImGui::Text("Value: %s", pin->getValueString());
             if (ImGui::BeginMenu("Connected Pins")) {
                 for (auto connectedPin : pin->getConnectedPins()) {
                     ImGui::Text("\"%s\" (%s #%i) on Node \"%s\" (#%i)",
-                        connectedPin->getDisplayName(),
-                        getNodeDataType(connectedPin->getType())->displayName,
+                        connectedPin->getDisplayString(),
+                        Enumerator::getDisplayString(connectedPin->dataType),
                         connectedPin->getUniqueID(),
                         connectedPin->parentNode->getName(),
                         connectedPin->parentNode->getUniqueID());
@@ -298,8 +298,8 @@ void NodeGraph::editorGui() {
         if (ImGui::BeginPopup("Link Context Menu")) {
             std::shared_ptr<NodeLink> link = getLink(contextLinkId.Get());
             ImGui::Text("Link #%i", link->getUniqueID());
-            ImGui::Text("Input: \"%s\" on node \"%s\"", link->getInputData()->getDisplayName(), link->getInputData()->parentNode->getName());
-            ImGui::Text("Output: \"%s\" on node \"%s\"", link->getOutputData()->getDisplayName(), link->getOutputData()->parentNode->getName());
+            ImGui::Text("Input: \"%s\" on node \"%s\"", link->getInputData()->getDisplayString(), link->getInputData()->parentNode->getName());
+            ImGui::Text("Output: \"%s\" on node \"%s\"", link->getOutputData()->getDisplayString(), link->getOutputData()->parentNode->getName());
             ImGui::Separator();
             if (ImGui::MenuItem("Disconnect")) disconnect(link);
             ImGui::EndPopup();

@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "NodeGraph/Node.h"
-#include "NodeGraph/nodeGraph.h"
+#include "NodeGraph/NodeGraph.h"
 
 #include "NodeEditorGui.h"
 
@@ -277,7 +277,7 @@ void Node::propertiesGui() {
                     ImGui::TableHeadersRow();
                     int checkBoxID = 9999999;
                     for (auto data : data) {
-                        ImGui::PushID(data->getSaveName());
+                        ImGui::PushID(data->getSaveString());
                         
                         ImGui::TableNextRow();
                         ImGui::TableSetColumnIndex(0);
@@ -286,9 +286,9 @@ void Node::propertiesGui() {
                         ImGui::PopID();
                         ImGui::TableSetColumnIndex(1);
                         ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 10.0);
-                        ImGui::InputText("##NameEdit", data->displayName, 64);
+                        ImGui::InputText("##NameEdit", data->displayString, 64);
                         ImGui::TableSetColumnIndex(2);
-                        ImGui::Text("%s", getNodeDataType(data->getType())->displayName);
+                        ImGui::Text("%s", Enumerator::getDisplayString(data->dataType));
                         ImGui::TableSetColumnIndex(3);
                         ImGui::Text("%s", data->getValueString());
 

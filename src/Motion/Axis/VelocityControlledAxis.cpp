@@ -7,7 +7,7 @@
 void VelocityControlledAxis::assignIoData() {
 	addIoData(actuatorDeviceLink);
 	std::shared_ptr<VelocityControlledAxis> thisAxis = std::dynamic_pointer_cast<VelocityControlledAxis>(shared_from_this());
-	velocityControlledAxisLink->set(thisAxis);
+	velocityControlledAxisLink->assignData(thisAxis);
 	addIoData(velocityControlledAxisLink);
 	addIoData(velocity);
 }

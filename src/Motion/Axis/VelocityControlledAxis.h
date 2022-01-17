@@ -33,7 +33,7 @@ public:
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output);
 	
 	bool isActuatorDeviceConnected() { return actuatorDeviceLink->isConnected(); }
-	std::shared_ptr<ActuatorDevice> getActuatorDevice() { return actuatorDeviceLink->getConnectedPins().front()->getActuatorDevice(); }
+	std::shared_ptr<ActuatorDevice> getActuatorDevice() { return actuatorDeviceLink->getConnectedPins().front()->getSharedPointer<ActuatorDevice>(); }
 
 	//========= STATE ==========
 
@@ -84,10 +84,12 @@ public:
 
 	//======= NODE ========
 
-	std::shared_ptr<NodePin> actuatorDeviceLink = std::make_shared<NodePin>(NodeData::ACTUATOR_DEVICELINK, DataDirection::NODE_INPUT, "Actuator");
+	std::shared_ptr<NodePin> actuatorDeviceLink = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR, NodePin::Direction::NODE_INPUT, "Actuator");
 	
-	std::shared_ptr<NodePin> velocityControlledAxisLink = std::make_shared<NodePin>(NodeData::VELOCITY_CONTROLLED_AXIS_LINK, DataDirection::NODE_OUTPUT, "Velocity Controlled Axis");
-	std::shared_ptr<NodePin> velocity = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity");
+	std::shared_ptr<NodePin> velocityControlledAxisLink = std::make_shared<NodePin>(NodePin::DataType::VELOCITY_CONTROLLED_AXIS, NodePin::Direction::NODE_OUTPUT, "Velocity Controlled Axis");
+	std::shared_ptr<NodePin> velocity = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Velocity");
+	
+	std::shared_ptr<double> velocityPinValue = std::make_shared<double>(0.0);
 
 	//======= GUI ========
 

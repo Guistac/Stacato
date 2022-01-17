@@ -7,22 +7,36 @@ public:
 
 	DEFINE_MACHINE_NODE(HoodedLiftStateMachine, "Hooded Lift State Machine", "HoodedLiftStateMachine", "State Machines");
 
-	std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodeData::GPIO_DEVICELINK, DataDirection::NODE_INPUT, "GPIO Device", NodePinFlags_NoDataField);
+	std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_INPUT, "GPIO Device", NodePin::Flags::NoDataField);
 
-	std::shared_ptr<NodePin> hoodOpenSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Hood Open", NodePinFlags_NoDataField);
-	std::shared_ptr<NodePin> hoodShutSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Hood Shut", NodePinFlags_NoDataField);
-	std::shared_ptr<NodePin> liftRaisedSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Lift Raised", NodePinFlags_NoDataField);
-	std::shared_ptr<NodePin> liftLoweredSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Lift Lowered", NodePinFlags_NoDataField);
-	std::shared_ptr<NodePin> hoodMotorCircuitBreakerSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Hood Motor Fuse", NodePinFlags_NoDataField);
-	std::shared_ptr<NodePin> liftMotorCircuitBreakerSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Lift Motor Fuse", NodePinFlags_NoDataField);
-	std::shared_ptr<NodePin> emergencyStopClearSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Emergency Stop Clear", NodePinFlags_NoDataField);
-	std::shared_ptr<NodePin> localControlEnabledSignalPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "Local Control Enabled", NodePinFlags_NoDataField);
+	std::shared_ptr<NodePin> hoodOpenSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Hood Open", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> hoodShutSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Hood Shut", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> liftRaisedSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Lift Raised", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> liftLoweredSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Lift Lowered", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> hoodMotorCircuitBreakerSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Hood Motor Fuse", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> liftMotorCircuitBreakerSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Lift Motor Fuse", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> emergencyStopClearSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Emergency Stop Clear", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> localControlEnabledSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Local Control Enabled", NodePin::Flags::NoDataField);
 
-	std::shared_ptr<NodePin> openHoodCommandPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Open Hood", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> shutHoodCommandPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Shut Hood", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> raiseLiftCommandPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Raise Lift", NodePinFlags_DisableDataField);
-	std::shared_ptr<NodePin> lowerLiftCommandPin = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Lower Lift", NodePinFlags_DisableDataField);
+	std::shared_ptr<bool> hoodOpenSignalPinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> hoodShutSignalPinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> liftRaisedSignalPinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> liftLoweredSignalPinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> hoodMotorCircuitBreakerSignalPinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> liftMotorCircuitBreakerSignalPinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> emergencyStopClearSignalPinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> localControlEnabledSignalPinValue = std::make_shared<bool>(false);
+	
+	std::shared_ptr<NodePin> openHoodCommandPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Open Hood", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> shutHoodCommandPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Shut Hood", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> raiseLiftCommandPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Raise Lift", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> lowerLiftCommandPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Lower Lift", NodePin::Flags::DisableDataField);
 
+	std::shared_ptr<bool> openHoodCommandPinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> shutHoodCommandPinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> raiseLiftCommandPinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> lowerLiftCommandPinValue = std::make_shared<bool>(false);
+	
 	std::shared_ptr<AnimatableParameter> stateParameter = std::make_shared<AnimatableParameter>("State", &stateParameterValues);
 	static std::vector<StateParameterValue> stateParameterValues;
 

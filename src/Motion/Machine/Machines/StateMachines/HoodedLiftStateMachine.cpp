@@ -165,25 +165,46 @@ bool HoodedLiftStateMachine::isGpioDeviceConnected() {
 }
 
 std::shared_ptr<GpioDevice> HoodedLiftStateMachine::getGpioDevice() {
-	return gpioDeviceLink->getConnectedPins().front()->getGpioDevice();
+	return gpioDeviceLink->getConnectedPins().front()->getSharedPointer<GpioDevice>();
 }
 
 void HoodedLiftStateMachine::updateGpioInSignals() {
-	hoodOpen = hoodOpenSignalPin->getConnectedPins().front()->getBoolean();
-	hoodShut = hoodShutSignalPin->getConnectedPins().front()->getBoolean();
-	liftRaised = liftRaisedSignalPin->getConnectedPins().front()->getBoolean();
-	liftLowered = liftLoweredSignalPin->getConnectedPins().front()->getBoolean();
-	hoodMotorCircuitBreakerTripped = hoodMotorCircuitBreakerSignalPin->getConnectedPins().front()->getBoolean();
-	liftMotorCircuitBreakerTripped = liftMotorCircuitBreakerSignalPin->getConnectedPins().front()->getBoolean();
-	emergencyStopClear = emergencyStopClearSignalPin->getConnectedPins().front()->getBoolean();
-	localControlEnabled = localControlEnabledSignalPin->getConnectedPins().front()->getBoolean();
+	if(hoodOpenSignalPin->isConnected()) hoodOpenSignalPin->updateValueFromConnectedPinValue();
+	hoodOpen = *hoodOpenSignalPinValue;
+	
+	if(hoodShutSignalPin->isConnected()) hoodShutSignalPin->updateValueFromConnectedPinValue();
+	hoodShut = *hoodShutSignalPinValue;
+	
+	if(liftRaisedSignalPin->isConnected()) liftRaisedSignalPin->updateValueFromConnectedPinValue();
+	liftRaised = *liftRaisedSignalPinValue;
+	
+	if(liftLoweredSignalPin->isConnected()) liftLoweredSignalPin->updateValueFromConnectedPinValue();
+	liftLowered = *liftLoweredSignalPinValue;
+	
+	if(hoodMotorCircuitBreakerSignalPin->isConnected()) hoodMotorCircuitBreakerSignalPin->updateValueFromConnectedPinValue();
+	hoodMotorCircuitBreakerTripped = *hoodMotorCircuitBreakerSignalPinValue;
+	
+	if(liftMotorCircuitBreakerSignalPin->isConnected()) liftMotorCircuitBreakerSignalPin->updateValueFromConnectedPinValue();
+	liftMotorCircuitBreakerTripped = *liftMotorCircuitBreakerSignalPinValue;
+	
+	if(emergencyStopClearSignalPin->isConnected()) emergencyStopClearSignalPin->updateValueFromConnectedPinValue();
+	emergencyStopClear = *emergencyStopClearSignalPinValue;
+	
+	if(localControlEnabledSignalPin->isConnected()) localControlEnabledSignalPin->updateValueFromConnectedPinValue();
+	localControlEnabled = *localControlEnabledSignalPinValue;
 }
 
 void HoodedLiftStateMachine::updateGpioOutSignals() {
+	/*
 	openHoodCommandPin->set(openLid);
 	shutHoodCommandPin->set(shutLid);
 	lowerLiftCommandPin->set(lowerPlatform);
 	raiseLiftCommandPin->set(raisePlatform);
+	 */
+	*openHoodCommandPinValue = openLid;
+	*shutHoodCommandPinValue = shutLid;
+	*lowerLiftCommandPinValue = lowerPlatform;
+	*raiseLiftCommandPinValue = raisePlatform;
 }
 
 bool HoodedLiftStateMachine::areGpioSignalsReady() {

@@ -7,15 +7,16 @@ public:
 
 	DEFINE_PROCESSOR_NODE(DisplayNode, "Display", "Display", "Utility")
 	
-
 	virtual void assignIoData() {
+		displayInput->assignData(inputPinValue);
 		addIoData(displayInput);
 	}
 
-	std::shared_ptr<NodePin> displayInput = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "value: ", NodePinFlags_DisableDataField | NodePinFlags_ForceDataField);
-
+	std::shared_ptr<NodePin> displayInput = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "value: ", NodePin::Flags::DisableDataField | NodePin::Flags::ForceDataField);
+	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
+	
+	
 	virtual void process() {
-		if (displayInput->isConnected()) displayInput->set(displayInput->getLinks().front()->getInputData()->getReal());
-		else displayInput->set(0.0);
+		if (displayInput->isConnected()) *inputPinValue = displayInput->getConnectedPin()->get<double>();
 	}
 };

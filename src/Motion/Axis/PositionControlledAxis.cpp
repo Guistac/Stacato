@@ -17,15 +17,24 @@ void PositionControlledAxis::assignIoData() {
 	addIoData(servoActuatorDeviceLink);
 	addIoData(positionFeedbackDeviceLink);
 	addIoData(referenceDeviceLink);
+	
+	lowLimitSignalPin->assignData(lowLimitSignalPinValue);
+	highLimitSignalPin->assignData(highLimitSignalPinValue);
+	referenceSignalPin->assignData(referenceSignalPinValue);
+	
 	addIoData(lowLimitSignalPin);
 	addIoData(highLimitSignalPin);
 	addIoData(referenceSignalPin);
 	//outputs
 	//these pins are always present
 	std::shared_ptr<PositionControlledAxis> thisAxis = std::dynamic_pointer_cast<PositionControlledAxis>(shared_from_this());
-	positionControlledAxisPin->set(thisAxis);
+	positionControlledAxisPin->assignData(thisAxis);
 	addIoData(positionControlledAxisPin);
+	
+	position->assignData(positionPinValue);
 	addIoData(position);
+	
+	//velocity->assignData(velocityPinValue)
 	addIoData(velocity);
 	setPositionControlType(positionControlType);
 	setPositionReferenceSignalType(positionReferenceSignal);
@@ -80,8 +89,10 @@ void PositionControlledAxis::process() {
 		actualPosition_axisUnits = servoActuatorDevice->getPosition() / actuatorUnitsPerAxisUnits;
 		actualVelocity_axisUnitsPerSecond = servoActuatorDevice->getVelocity() / actuatorUnitsPerAxisUnits;
 	}
-	position->set(actualPosition_axisUnits);
-	velocity->set(actualVelocity_axisUnitsPerSecond);
+	
+	*positionPinValue = actualPosition_axisUnits;
+	*velocityPinValue = actualVelocity_axisUnitsPerSecond;
+	
 	switch (positionControlType) {
 		case PositionControlType::SERVO:
 			actualLoad_normalized = getServoActuatorDevice()->getLoad();
@@ -242,7 +253,7 @@ bool PositionControlledAxis::isPositionFeedbackDeviceConnected() {
 }
 
 std::shared_ptr<PositionFeedbackDevice> PositionControlledAxis::getPositionFeedbackDevice() {
-	return positionFeedbackDeviceLink->getConnectedPins().front()->getPositionFeedbackDevice();
+	return positionFeedbackDeviceLink->getConnectedPins().front()->getSharedPointer<PositionFeedbackDevice>();
 }
 
 bool PositionControlledAxis::needsReferenceDevice() {
@@ -262,7 +273,7 @@ bool PositionControlledAxis::isReferenceDeviceConnected() {
 }
 
 std::shared_ptr<GpioDevice> PositionControlledAxis::getReferenceDevice() {
-	return referenceDeviceLink->getConnectedPins().front()->getGpioDevice();
+	return referenceDeviceLink->getConnectedPins().front()->getSharedPointer<GpioDevice>();
 }
 
 bool PositionControlledAxis::needsActuatorDevice() {
@@ -290,7 +301,7 @@ bool PositionControlledAxis::isServoActuatorDeviceConnected() {
 }
 
 std::shared_ptr<ServoActuatorDevice> PositionControlledAxis::getServoActuatorDevice() {
-	return servoActuatorDeviceLink->getConnectedPins().front()->getServoActuatorDevice();
+	return servoActuatorDeviceLink->getConnectedPins().front()->getSharedPointer<ServoActuatorDevice>();
 }
 
 
@@ -416,21 +427,21 @@ void PositionControlledAxis::updateReferenceSignals() {
 	switch (positionReferenceSignal) {
 	case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
 		previousLowLimitSignal = lowLimitSignal;
-		if (lowLimitSignalPin->isConnected()) lowLimitSignalPin->set(lowLimitSignalPin->getConnectedPins().front()->getBoolean());
-		lowLimitSignal = lowLimitSignalPin->getBoolean();
+		if(lowLimitSignalPin->isConnected()) *lowLimitSignalPinValue = lowLimitSignalPin->getConnectedPin()->get<bool>();
+		lowLimitSignal = *lowLimitSignalPinValue;
 		break;
 	case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
 		previousLowLimitSignal = lowLimitSignal;
-		if (lowLimitSignalPin->isConnected()) lowLimitSignalPin->set(lowLimitSignalPin->getConnectedPins().front()->getBoolean());
-		lowLimitSignal = lowLimitSignalPin->getBoolean();
+		if (lowLimitSignalPin->isConnected()) *lowLimitSignalPinValue = lowLimitSignalPin->getConnectedPin()->get<bool>();
+		lowLimitSignal = *lowLimitSignalPinValue;
 		previousHighLimitSignal = highLimitSignal;
-		if (highLimitSignalPin->isConnected()) highLimitSignalPin->set(highLimitSignalPin->getConnectedPins().front()->getBoolean());
-		highLimitSignal = highLimitSignalPin->getBoolean();
+		if (highLimitSignalPin->isConnected()) *highLimitSignalPinValue = highLimitSignalPin->getConnectedPin()->get<bool>();
+			highLimitSignal = *highLimitSignalPinValue;
 		break;
 	case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
 		previousReferenceSignal = referenceSignal;
-		if (referenceSignalPin->isConnected()) referenceSignalPin->set(referenceSignalPin->getConnectedPins().front()->getBoolean());
-		referenceSignal = referenceSignalPin->getBoolean();
+			if (referenceSignalPin->isConnected()) *referenceSignalPinValue = referenceSignalPin->getConnectedPin()->get<bool>();
+		referenceSignal = *referenceSignalPinValue;
 		break;
 	default: break;
 	}

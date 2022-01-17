@@ -26,7 +26,7 @@ void VipaBusCoupler_053_1EC01::assignIoData() {
     //no modules are loaded by default
     std::shared_ptr<Device> thisDevice = std::dynamic_pointer_cast<Device>(shared_from_this());
     gpioDevice->setParentDevice(thisDevice);
-    gpioDeviceLink->set(gpioDevice);
+	gpioDeviceLink->assignData(gpioDevice);
     //gpio device link pin
     addIoData(gpioDeviceLink);
 }

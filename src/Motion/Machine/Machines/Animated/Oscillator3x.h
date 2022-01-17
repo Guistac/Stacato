@@ -6,9 +6,9 @@ class Oscillator3x : public Machine {
 	
 	DEFINE_MACHINE_NODE(Oscillator3x, "Triple Oscillator", "TripleOscillator", "Oscillators")
 
-	std::shared_ptr<NodePin> linearAxis1Pin = std::make_shared<NodePin>(NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, DataDirection::NODE_INPUT, "Linear Axis 1");
-	std::shared_ptr<NodePin> linearAxis2Pin = std::make_shared<NodePin>(NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, DataDirection::NODE_INPUT, "Linear Axis 2");
-	std::shared_ptr<NodePin> linearAxis3Pin = std::make_shared<NodePin>(NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, DataDirection::NODE_INPUT, "Linear Axis 3");
+	std::shared_ptr<NodePin> linearAxis1Pin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS, NodePin::Direction::NODE_INPUT, "Linear Axis 1");
+	std::shared_ptr<NodePin> linearAxis2Pin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS, NodePin::Direction::NODE_INPUT, "Linear Axis 2");
+	std::shared_ptr<NodePin> linearAxis3Pin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS, NodePin::Direction::NODE_INPUT, "Linear Axis 3");
 
 	std::shared_ptr<AnimatableParameter> frequencyParameter = std::make_shared<AnimatableParameter>("Frequency", ParameterDataType::Type::REAL_PARAMETER, "Hz");
 	std::shared_ptr<AnimatableParameter> minAmplitudeParameter = std::make_shared<AnimatableParameter>("Min Amplitude", ParameterDataType::Type::REAL_PARAMETER, "mm");

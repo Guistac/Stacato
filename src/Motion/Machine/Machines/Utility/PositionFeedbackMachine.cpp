@@ -11,7 +11,7 @@ bool PositionFeedbackMachine::isFeedbackConnected(){
 }
 
 std::shared_ptr<PositionFeedbackDevice> PositionFeedbackMachine::getFeedbackDevice(){
-	return positionFeedbackDevicePin->getConnectedPins().front()->getPositionFeedbackDevice();
+	return positionFeedbackDevicePin->getConnectedPins().front()->getSharedPointer<PositionFeedbackDevice>();
 }
 
 double PositionFeedbackMachine::feedbackPositionToMachinePosition(double feedbackPosition){
@@ -61,6 +61,8 @@ void PositionFeedbackMachine::setPositionUnit(PositionUnit u){
 
 
 void PositionFeedbackMachine::assignIoData(){
+	positionPin->assignData(positionPinValue);
+	velocityPin->assignData(velocityPinValue);
 	addIoData(positionFeedbackDevicePin);
 	addIoData(positionPin);
 	addIoData(velocityPin);
@@ -69,14 +71,12 @@ void PositionFeedbackMachine::assignIoData(){
 void PositionFeedbackMachine::process(){
 	if(isFeedbackConnected() && isEnabled()){
 		std::shared_ptr<PositionFeedbackDevice> feedback = getFeedbackDevice();
-		position = feedbackPositionToMachinePosition(feedback->getPosition());
-		velocity = feedbackVelocityToMachineVelocity(feedback->getVelocity());
+		*positionPinValue = feedbackPositionToMachinePosition(feedback->getPosition());
+		*velocityPinValue = feedbackVelocityToMachineVelocity(feedback->getVelocity());
 	}else{
-		position = 0.0;
-		velocity = 0.0;
+		*positionPinValue = 0.0;
+		*velocityPinValue = 0.0;
 	}
-	positionPin->set(position);
-	velocityPin->set(velocity);
 }
 
 bool PositionFeedbackMachine::isMoving(){
@@ -120,10 +120,8 @@ void PositionFeedbackMachine::onDisableSimulation(){
 }
 
 void PositionFeedbackMachine::simulateProcess(){
-	position = 0.0;
-	velocity = 0.0;
-	positionPin->set(position);
-	velocityPin->set(velocity);
+	*positionPinValue = 0.0;
+	*velocityPinValue = 0.0;
 }
 
 

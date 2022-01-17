@@ -48,7 +48,11 @@ void VIPA_022_1HD10::onConstruction(){
 	for(int i = 0; i < 4; i++){
 		static char pinName[64];
 		sprintf(pinName, "Relais Output %i", i);
-		inputPins.push_back(std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_INPUT, pinName));
+		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, pinName);
+		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
+		pin->assignData(pinValue);
+		inputPinValues.push_back(pinValue);
+		inputPins.push_back(pin);
 	}
 	inputBitCount = 0;
 	inputByteCount = 0;
@@ -57,7 +61,7 @@ void VIPA_022_1HD10::onConstruction(){
 }
 void VIPA_022_1HD10::onSetIndex(int i){
 	for(int i = 0; i < 4; i++){
-		sprintf((char*)inputPins[i]->getDisplayName(), "Module %i Relais Output %i", moduleIndex, i);
+		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Relais Output %i", moduleIndex, i);
 	}
 }
 void VIPA_022_1HD10::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -85,9 +89,9 @@ void VIPA_022_1HD10::readInputs(){
 void VIPA_022_1HD10::writeOutputs(){
 	for(int i = 0; i < 4; i++){
 		if(inputPins[i]->isConnected()){
-			outputs[i] = inputPins[i]->getConnectedPins().front()->getBoolean();
+			outputs[i] = inputPins[i]->getConnectedPins().front()->get<bool>();
 		}else{
-			outputs[i] = inputPins[i]->getBoolean();
+			outputs[i] = inputPins[i]->get<bool>();
 		}
 	}
 }
@@ -100,7 +104,11 @@ void VIPA_021_1BF00::onConstruction(){
 	for(int i = 0; i < 8; i++){
 		static char pinName[64];
 		sprintf(pinName, "Digital Input %i", i);
-		outputPins.push_back(std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, pinName));
+		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, pinName);
+		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
+		pin->assignData(pinValue);
+		outputPinValues.push_back(pinValue);
+		outputPins.push_back(pin);
 	}
 	inputBitCount = 8;
 	inputByteCount = 1;
@@ -109,7 +117,7 @@ void VIPA_021_1BF00::onConstruction(){
 }
 void VIPA_021_1BF00::onSetIndex(int i){
 	for(int i = 0; i < 8; i++){
-		sprintf((char*)outputPins[i]->getDisplayName(), "Module %i Digital Input %i", moduleIndex, i);
+		sprintf((char*)outputPins[i]->getDisplayString(), "Module %i Digital Input %i", moduleIndex, i);
 	}
 }
 void VIPA_021_1BF00::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -135,7 +143,7 @@ void VIPA_021_1BF00::readInputs(){
 	for(int i = 0; i < 8; i++){
 		bool value = inputs[i];
 		std::shared_ptr<NodePin> pin = outputPins[i];
-		pin->set(value);
+		*outputPinValues[i] = value;
 	}
 }
 void VIPA_021_1BF00::writeOutputs(){
@@ -150,7 +158,11 @@ void VIPA_022_1BF00::onConstruction(){
 	for(int i = 0; i < 8; i++){
 		static char pinName[64];
 		sprintf(pinName, "Digital Output %i", i);
-		inputPins.push_back(std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_INPUT, pinName));
+		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, pinName);
+		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
+		pin->assignData(pinValue);
+		inputPinValues.push_back(pinValue);
+		inputPins.push_back(pin);
 	}
 	inputBitCount = 0;
 	inputByteCount = 0;
@@ -160,7 +172,7 @@ void VIPA_022_1BF00::onConstruction(){
 
 void VIPA_022_1BF00::onSetIndex(int i){
 	for(int i = 0; i < 8; i++){
-		sprintf((char*)inputPins[i]->getDisplayName(), "Module %i Digital Output %i", moduleIndex, i);
+		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Digital Output %i", moduleIndex, i);
 	}
 }
 
@@ -191,11 +203,8 @@ void VIPA_022_1BF00::readInputs(){
 
 void VIPA_022_1BF00::writeOutputs(){
 	for(int i = 0; i < 8; i++){
-		if(inputPins[i]->isConnected()){
-			outputs[i] = inputPins[i]->getConnectedPins().front()->getBoolean();
-		}else{
-			outputs[i] = inputPins[i]->getBoolean();
-		}
+		if(inputPins[i]->isConnected()) *inputPinValues[i] = inputPins[i]->getConnectedPin()->get<bool>();
+		outputs[i] = *inputPinValues[i];
 	}
 }
 //=================================================================
@@ -203,8 +212,9 @@ void VIPA_022_1BF00::writeOutputs(){
 //=================================================================
 
 void VIPA_050_1BS00::onConstruction(){
-	encoderPin->set(encoderDevice);
+	encoderPin->assignData(encoderDevice);
 	outputPins.push_back(encoderPin);
+	resetPin->assignData(resetPinValue);
 	outputPins.push_back(resetPin);
 	inputBitCount = 48;
 	inputByteCount = 6;
@@ -218,8 +228,8 @@ void VIPA_050_1BS00::onSetParentBusCoupler(std::shared_ptr<VipaBusCoupler_053_1E
 }
 
 void VIPA_050_1BS00::onSetIndex(int i){
-	sprintf((char*)encoderPin->getDisplayName(), "Module %i SSI Encoder", moduleIndex);
-	sprintf((char*)resetPin->getDisplayName(), "Module %i Encoder Reset", moduleIndex);
+	sprintf((char*)encoderPin->getDisplayString(), "Module %i SSI Encoder", moduleIndex);
+	sprintf((char*)resetPin->getDisplayString(), "Module %i Encoder Reset", moduleIndex);
 }
 
 void VIPA_050_1BS00::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -294,7 +304,7 @@ void VIPA_050_1BS00::readInputs(){
 	if(encoderDevice->b_doHardReset){
 		encoderDevice->b_doHardReset = false;
 		b_isResetting = true;
-		resetPin->set(true);
+		*resetPinValue = true;
 		resetStartTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	}
 	
@@ -302,7 +312,7 @@ void VIPA_050_1BS00::readInputs(){
 		encoderDevice->velocity_positionUnitsPerSecond = 0.0;
 		if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() > resetStartTime_nanoseconds + resetTime_milliseconds * 1000000.0){
 			b_isResetting = false;
-			resetPin->set(false);
+			*resetPinValue = false;
 		}
 	}
 }
@@ -671,7 +681,11 @@ void VIPA_032_1BD70::onConstruction(){
 	for(int i = 0; i < 4; i++){
 		static char pinName[64];
 		sprintf(pinName, "Analog Output %i", i);
-		inputPins.push_back(std::make_shared<NodePin>(NodeData::Type::REAL_VALUE, DataDirection::NODE_INPUT, pinName));
+		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, pinName);
+		std::shared_ptr<double> pinValue = std::make_shared<double>(0.0);
+		pin->assignData(pinValue);
+		inputPinValues.push_back(pinValue);
+		inputPins.push_back(pin);
 	}
 	inputBitCount = 0;
 	inputByteCount = 0;
@@ -681,7 +695,7 @@ void VIPA_032_1BD70::onConstruction(){
 
 void VIPA_032_1BD70::onSetIndex(int i){
 	for(int i = 0; i < 4; i++){
-		sprintf((char*)inputPins[i]->getDisplayName(), "Module %i Analog Output %i", moduleIndex, i);
+		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Analog Output %i", moduleIndex, i);
 	}
 }
 
@@ -722,11 +736,8 @@ void VIPA_032_1BD70::readInputs(){
 void VIPA_032_1BD70::writeOutputs(){
 	for(int i = 0; i < 4; i++){
 		double realValue;
-		if(inputPins[i]->isConnected()){
-			realValue = inputPins[i]->getConnectedPins().front()->getReal();
-		}else{
-			realValue = inputPins[i]->getReal();
-		}
+		if(inputPins[i]->isConnected()) *inputPinValues[i] = inputPins[i]->getConnectedPin()->get<double>();
+		realValue = *inputPinValues[i];
 		int16_t outputValue;
 		switch(voltageRangeSettings[i]){
 			case VoltageRange::Range::ZERO_TO_10V:

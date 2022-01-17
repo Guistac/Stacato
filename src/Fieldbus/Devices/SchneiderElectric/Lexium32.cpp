@@ -22,15 +22,17 @@ void Lexium32::resetData() {
     servoMotorDevice->positionRaw_positionUnits = 0.0;
     servoMotorDevice->velocity_positionUnitsPerSecond = 0.0;
     servoMotorDevice->b_moving = false;
-    actualPosition->set(0.0);
-    actualVelocity->set(0.0);
-    actualLoad->set(0.0);
-    digitalIn0->set(false);
-    digitalIn1->set(false);
-    digitalIn2->set(false);
-    digitalIn3->set(false);
-    digitalIn4->set(false);
-    digitalIn5->set(false);
+	*positionPinValue = 0.0;
+	*velocityPinValue = 0.0;
+	*loadPinValue = 0.0;
+	*digitalIn1PinValue = false;
+	*digitalIn2PinValue = false;
+	*digitalIn3PinValue = false;
+	*digitalIn4PinValue = false;
+	*digitalIn5PinValue = false;
+	*digitalOut0PinValue = false;
+	*digitalOut1PinValue = false;
+	*digitalOut2PinValue = false;
     b_switchedOn = false;
     b_voltageEnabled = false;
     b_quickStopActive = true; //quickstop is active when bit is low
@@ -53,21 +55,26 @@ void Lexium32::resetData() {
 void Lexium32::assignIoData() {
     std::shared_ptr<Device> thisDevice = std::dynamic_pointer_cast<Device>(shared_from_this());
 
+	//servo device
     servoMotorDevice->setParentDevice(thisDevice);
     servoMotorDevice->velocityLimit_positionUnitsPerSecond = 10.0;
     servoMotorDevice->accelerationLimit_positionUnitsPerSecondSquared = 1.0;
     servoMotorDevice->setParentDevice(thisDevice);
-    servoMotorLink->set(servoMotorDevice);
+	float lowEncoderRange, highEncoderRange;
+	getEncoderWorkingRange(lowEncoderRange, highEncoderRange);
+	servoMotorDevice->rangeMin_positionUnits = lowEncoderRange;
+	servoMotorDevice->rangeMax_positionUnits = highEncoderRange;
+	servoMotorLink->assignData(servoMotorDevice);
 
-    float lowEncoderRange, highEncoderRange;
-    getEncoderWorkingRange(lowEncoderRange, highEncoderRange);
-    servoMotorDevice->rangeMin_positionUnits = lowEncoderRange;
-    servoMotorDevice->rangeMax_positionUnits = highEncoderRange;
-
+	//gpio device
     gpioDevice->setParentDevice(thisDevice);
-    gpNodeLink->set(gpioDevice);
+	gpioDeviceLink->assignData(gpioDevice);
 
     //node input data
+	digitalOut0->assignData(digitalOut0PinValue);
+	digitalOut1->assignData(digitalOut1PinValue);
+	digitalOut2->assignData(digitalOut2PinValue);
+	
     addIoData(digitalOut0);
     addIoData(digitalOut1);
     addIoData(digitalOut2);
@@ -77,7 +84,15 @@ void Lexium32::assignIoData() {
     addIoData(actualLoad);
     addIoData(actualPosition);
     addIoData(actualVelocity);
-    addIoData(gpNodeLink);
+    addIoData(gpioDeviceLink);
+	
+	digitalIn0->assignData(digitalIn0PinValue);
+	digitalIn1->assignData(digitalIn1PinValue);
+	digitalIn2->assignData(digitalIn2PinValue);
+	digitalIn3->assignData(digitalIn3PinValue);
+	digitalIn4->assignData(digitalIn4PinValue);
+	digitalIn5->assignData(digitalIn5PinValue);
+	
     addIoData(digitalIn0);
     addIoData(digitalIn1);
     addIoData(digitalIn2);
@@ -308,21 +323,23 @@ void Lexium32::readInputs() {
     servoMotorDevice->load = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
 
     //assign public input data
-    actualPosition->set(servoMotorDevice->getPosition());
-    actualVelocity->set(servoMotorDevice->getVelocity());
-    actualLoad->set(servoMotorDevice->getLoad());
+	*positionPinValue = servoMotorDevice->getPosition();
+	*velocityPinValue = servoMotorDevice->getVelocity();
+	*loadPinValue = servoMotorDevice->getLoad();
+	
     bool DI0 = (_IO_act & 0x1) != 0x0;
-    digitalIn0->set(b_invertDI0 ? !DI0 : DI0);
     bool DI1 = (_IO_act & 0x2) != 0x0;
-    digitalIn1->set(b_invertDI1 ? !DI1 : DI1);
     bool DI2 = (_IO_act & 0x4) != 0x0;
-    digitalIn2->set(b_invertDI2 ? !DI2 : DI2);
     bool DI3 = (_IO_act & 0x8) != 0x0;
-    digitalIn3->set(b_invertDI3 ? !DI3 : DI3);
     bool DI4 = (_IO_act & 0x10) != 0x0;
-    digitalIn4->set(b_invertDI4 ? !DI4 : DI4);
     bool DI5 = (_IO_act & 0x20) != 0x0;
-    digitalIn5->set(b_invertDI5 ? !DI5 : DI5);
+	
+	*digitalIn0PinValue = b_invertDI0 ? !DI0 : DI0;
+	*digitalIn1PinValue = b_invertDI1 ? !DI1 : DI1;
+	*digitalIn2PinValue = b_invertDI2 ? !DI2 : DI2;
+	*digitalIn3PinValue = b_invertDI3 ? !DI3 : DI3;
+	*digitalIn4PinValue = b_invertDI4 ? !DI4 : DI4;
+	*digitalIn5PinValue = b_invertDI5 ? !DI5 : DI5;
 
     //set actuator subdevice
     servoMotorDevice->b_ready = actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION
@@ -345,10 +362,10 @@ void Lexium32::readInputs() {
 
 void Lexium32::prepareOutputs() {
 
-    if (digitalOut0->isConnected()) digitalOut0->set(digitalOut0->getLinks().front()->getInputData()->getBoolean());
-    if (digitalOut1->isConnected()) digitalOut1->set(digitalOut1->getLinks().front()->getInputData()->getBoolean());
-    if (digitalOut2->isConnected()) digitalOut2->set(digitalOut2->getLinks().front()->getInputData()->getBoolean());
-
+	if (digitalOut0->isConnected()) *digitalOut0PinValue = digitalOut0->getConnectedPin()->get<bool>();
+	if (digitalOut1->isConnected()) *digitalOut1PinValue = digitalOut1->getConnectedPin()->get<bool>();
+	if (digitalOut2->isConnected()) *digitalOut2PinValue = digitalOut2->getConnectedPin()->get<bool>();
+	
 	bool b_externalControl = servoMotorLink->isConnected();
 	
     //------ internal profile generator ------
@@ -452,9 +469,9 @@ void Lexium32::prepareOutputs() {
 		
 	//set digital output signals
     IO_DQ_set = 0;
-    if (digitalOut0->getBoolean()) IO_DQ_set |= 0x1;
-    if (digitalOut1->getBoolean()) IO_DQ_set |= 0x2;
-    if (digitalOut2->getBoolean()) IO_DQ_set |= 0x4;
+    if (*digitalOut0PinValue) IO_DQ_set |= 0x1;
+    if (*digitalOut1PinValue) IO_DQ_set |= 0x2;
+    if (*digitalOut2PinValue) IO_DQ_set |= 0x4;
 
     rxPdoAssignement.pushDataTo(identity->outputs);
 }

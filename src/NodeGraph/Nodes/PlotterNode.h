@@ -22,19 +22,21 @@ public:
 	ScrollingBuffer data;
 	bool wasConnected = false;
 
-	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "input", NodePinFlags_ForceDataField | NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", NodePin::Flags::ForceDataField | NodePin::Flags::DisableDataField);
 
+	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
+	
 	virtual void process() {
 		if (input->isConnected()) {
+			*inputPinValue = input->getConnectedPin()->get<double>();
 			if (!wasConnected) {
 				wasConnected = true;
 				data.clear();
 			}
 			glm::vec2 newPoint;
 			newPoint.x = Timing::getProgramTime_seconds();
-			newPoint.y = input->getLinks().front()->getInputData()->getReal();
+			newPoint.y = *inputPinValue;
 			data.addPoint(newPoint);
-			input->set(newPoint.y);
 		}
 		else {
 			if (wasConnected) {

@@ -13,10 +13,16 @@
 #include "Project/Environnement.h"
 
 void PositionControlledSingleAxisMachine::assignIoData() {
+	//inputs
 	addIoData(positionControlledAxisPin);
+	
+	//outputs
+	positionPin->assignData(positionPinValue);
 	addIoData(positionPin);
+	velocityPin->assignData(velocityPinValue);
 	addIoData(velocityPin);
 
+	//machine parameters
 	addAnimatableParameter(positionParameter);
 }
 
@@ -89,8 +95,8 @@ void PositionControlledSingleAxisMachine::process() {
 	//Get Realtime values from axis (for position and velocity pins only)
 	double actualPosition_machineUnits = axisPositionToMachinePosition(axis->getActualPosition_axisUnits());
 	double actualVelocity_machineUnits = axisVelocityToMachineVelocity(axis->getActualVelocity_axisUnitsPerSecond());
-	positionPin->set(actualPosition_machineUnits);
-	velocityPin->set(actualVelocity_machineUnits);
+	*positionPinValue = actualPosition_machineUnits;
+	*velocityPinValue = actualVelocity_machineUnits;
 
 	//Handle Axis state changes
 	if (isEnabled() && !axis->isEnabled()) disable();
@@ -155,8 +161,8 @@ void PositionControlledSingleAxisMachine::simulateProcess() {
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
 	//update position and velocity pins
-	positionPin->set(motionProfile.getPosition());
-	velocityPin->set(motionProfile.getVelocity());
+	*positionPinValue = motionProfile.getPosition();
+	*velocityPinValue = motionProfile.getVelocity();
 
 	//Update Time
 	double profileTime_seconds = Environnement::getTime_seconds();
@@ -217,7 +223,7 @@ bool PositionControlledSingleAxisMachine::isAxisConnected() {
 }
 
 std::shared_ptr<PositionControlledAxis> PositionControlledSingleAxisMachine::getAxis() {
-	return positionControlledAxisPin->getConnectedPins().front()->getPositionControlledAxis();
+	return positionControlledAxisPin->getConnectedPins().front()->getSharedPointer<PositionControlledAxis>();
 }
 
 

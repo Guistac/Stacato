@@ -4,7 +4,7 @@
 
 #include <pch.h>
 
-#include "Motion/Subdevice.h"
+#include "Motion/SubDevice.h"
 #include "Motion/AnimatableParameter.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
 
@@ -16,7 +16,11 @@
 void BinaryOscillator6x::assignIoData() {
 
 	addIoData(gpioDevicePin);
-	for (auto& outputPin : outputPins) addIoData(outputPin);
+	
+	for (int i = 0; i < 6; i++) {
+		outputPins[i]->assignData(outputPinValues[i]);
+		addIoData(outputPins[i]);
+	}
 
 	addAnimatableParameter(oscillatorParameterGroup);
 }
@@ -28,7 +32,7 @@ void BinaryOscillator6x::process() {
 	}
 
 	if (b_startOscillator && !b_oscillatorActive) {
-		Logger::warn("START OSC");
+		Logger::warn("START OSCILLATOR");
 		updateOscillatorParametersFromTracks();
 		b_startOscillator = false;
 		b_oscillatorActive = true;
@@ -76,7 +80,8 @@ void BinaryOscillator6x::process() {
 					nextStateChangeDelay_seconds[i] = Random::getRanged(minOffTime_seconds, maxOffTime_seconds);
 				}
 			}
-			outputPins[i]->set(outputSignals[i]);
+			
+			*outputPinValues[i] = outputSignals[i];
 		}
 	}
     
@@ -117,7 +122,7 @@ void BinaryOscillator6x::stopOscillatorParameterPlayback() {
 
 void BinaryOscillator6x::setOutput(int i, bool s) {
 	outputSignals[i] = s;
-	outputPins[i]->set(s);
+	*outputPinValues[i] = outputSignals[i];
 }
 
 void BinaryOscillator6x::manuallySetOutput(int i, bool s) {
@@ -184,7 +189,7 @@ int BinaryOscillator6x::getGpioDeviceCount() {
 }
 
 std::shared_ptr<GpioDevice> BinaryOscillator6x::getGpioDevice(int i) {
-	return gpioDevicePin->getConnectedPins().at(i)->getGpioDevice();
+	return gpioDevicePin->getConnectedPins().at(i)->getSharedPointer<GpioDevice>();
 }
 
 

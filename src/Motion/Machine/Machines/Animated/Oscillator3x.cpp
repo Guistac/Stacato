@@ -355,9 +355,9 @@ bool Oscillator3x::isAxisConnected(int idx) {
 	else return false;
 }
 std::shared_ptr<PositionControlledAxis> Oscillator3x::getAxis(int idx) {
-	if (idx == 0) return linearAxis1Pin->getConnectedPins().front()->getPositionControlledAxis();
-	else if (idx == 1) return linearAxis2Pin->getConnectedPins().front()->getPositionControlledAxis();
-	else if (idx == 2) return linearAxis3Pin->getConnectedPins().front()->getPositionControlledAxis();
+	if (idx == 0) return linearAxis1Pin->getConnectedPin()->getSharedPointer<PositionControlledAxis>();
+	else if (idx == 1) return linearAxis2Pin->getConnectedPin()->getSharedPointer<PositionControlledAxis>();
+	else if (idx == 2) return linearAxis3Pin->getConnectedPin()->getSharedPointer<PositionControlledAxis>();
 	else return nullptr;
 }
 bool Oscillator3x::getAxes(std::vector<std::shared_ptr<PositionControlledAxis>>& output) {
