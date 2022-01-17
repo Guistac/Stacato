@@ -43,11 +43,9 @@ public:
 		
 		if(input->hasMultipleConnections()) {
 			*inputPinValue = 0.0;
-			for (auto pin : input->getConnectedPins()) *inputPinValue += pin->get<double>();
+			for (auto pin : input->getConnectedPins()) *inputPinValue += pin->read<double>();
 		}
-		else if (input->isConnected()){
-			*inputPinValue = input->getConnectedPin()->get<double>();
-		}
+		else if (input->isConnected()) input->copyConnectedPinValue();
 		sum += *inputPinValue;
 		
 		sum += *offsetPinValue;
@@ -86,19 +84,15 @@ public:
 		
 		if(base->hasMultipleConnections()) {
 			*basePinValue = 0.0;
-			for(auto pin : base->getConnectedPins()) *basePinValue += pin->get<double>();
+			for(auto pin : base->getConnectedPins()) *basePinValue += pin->read<double>();
 		}
-		else if(base->isConnected()){
-			*basePinValue = base->getConnectedPin()->get<double>();
-		}
+		else if(base->isConnected()) base->copyConnectedPinValue();
 		sum += *basePinValue;
 		
 		if(sub->hasMultipleConnections()) {
 			*subPinValue = 0.0;
-			for(auto pin : sub->getConnectedPins()) *subPinValue += pin->get<double>();
-		}else if(sub->isConnected()){
-			*subPinValue = sub->getConnectedPin()->get<double>();
-		}
+			for(auto pin : sub->getConnectedPins()) *subPinValue += pin->read<double>();
+		}else if(sub->isConnected()) sub->copyConnectedPinValue();
 		sum -= *subPinValue;
 		
 		sum += *offsetPinValue;
@@ -134,10 +128,8 @@ public:
 		
 		if(input->hasMultipleConnections()) {
 			*inputPinValue = 1.0;
-			for(auto pin : input->getConnectedPins()) *inputPinValue *= pin->get<double>();
-		}else if(input->isConnected()){
-			*inputPinValue = input->getConnectedPin()->get<double>();
-		}
+			for(auto pin : input->getConnectedPins()) *inputPinValue *= pin->read<double>();
+		}else if(input->isConnected()) input->copyConnectedPinValue();
 		out *= *inputPinValue;
 		
 		
@@ -179,18 +171,14 @@ public:
 		
 		if(base->hasMultipleConnections()){
 			*basePinValue = 0.0;
-			for(auto pin : base->getConnectedPins()) *basePinValue *= pin->get<double>();
-		}else if(base->isConnected()){
-			*basePinValue = base->get<double>();
-		}
+			for(auto pin : base->getConnectedPins()) *basePinValue *= pin->read<double>();
+		}else if(base->isConnected()) base->copyConnectedPinValue();
 		out *= *basePinValue;
 		
 		if(div->hasMultipleConnections()){
 			*divPinValue = 0.0;
-			for(auto pin : div->getConnectedPins()) *divPinValue *= pin->get<double>();
-		}else if(div->isConnected()){
-			*divPinValue = div->get<double>();
-		}
+			for(auto pin : div->getConnectedPins()) *divPinValue *= pin->read<double>();
+		}else if(div->isConnected()) div->copyConnectedPinValue();
 		out /= *divPinValue;
 		
 		out *= *multPinValue;
@@ -222,9 +210,9 @@ public:
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
 	virtual void process() {
-		if(base->isConnected()) *basePinValue = base->getConnectedPin()->get<double>();
+		if(base->isConnected()) base->copyConnectedPinValue();
 		
-		if(exp->isConnected()) *expPinValue = exp->getConnectedPin()->get<double>();
+		if(exp->isConnected()) exp->copyConnectedPinValue();
 		
 		*outputPinValue = std::pow(*basePinValue, *expPinValue);
 	}
@@ -250,7 +238,7 @@ public:
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
 	virtual void process() {
-		if(input->isConnected()) *inputPinValue = input->getConnectedPin()->get<double>();
+		if(input->isConnected()) input->copyConnectedPinValue();
 		
 		*outputPinValue = std::abs(*inputPinValue);
 	}
@@ -280,7 +268,7 @@ public:
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 
 	virtual void process() {
-		if(in->isConnected()) *inputPinValue = in->getConnectedPin()->get<double>();
+		if(in->isConnected()) in->copyConnectedPinValue();
 		*outputPinValue = std::sin(*inputPinValue);
 	}
 };
@@ -304,7 +292,7 @@ public:
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(1.0);
 	
 	virtual void process() {
-		if(in->isConnected()) *inputPinValue = in->getConnectedPin()->get<double>();
+		if(in->isConnected()) in->copyConnectedPinValue();
 		*outputPinValue = std::cos(*inputPinValue);
 	}
 };
@@ -328,7 +316,7 @@ public:
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
 	virtual void process() {
-		if(in->isConnected()) *inputPinValue = in->getConnectedPin()->get<double>();
+		if(in->isConnected()) in->copyConnectedPinValue();
 		*outputPinValue = std::tan(*inputPinValue);
 	}
 };
@@ -352,7 +340,7 @@ public:
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(std::numeric_limits<double>::infinity());
 	
 	virtual void process() {
-		if(in->isConnected()) *inputPinValue = in->getConnectedPin()->get<double>();
+		if(in->isConnected()) in->copyConnectedPinValue();
 		*outputPinValue = 1.0 / std::sin(*inputPinValue);
 	}
 };
@@ -387,7 +375,7 @@ public:
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(false);
 	
 	virtual void process() {
-		if(in->isConnected()) *inputPinValue = in->getConnectedPin()->get<bool>();
+		if(in->isConnected()) in->copyConnectedPinValue();
 		*outputPinValue = *inputPinValue;
 	}
 };
@@ -411,7 +399,7 @@ public:
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
 
 	virtual void process() {
-		if(in->isConnected()) *inputPinValue = in->getConnectedPin()->get<bool>();
+		if(in->isConnected()) in->copyConnectedPinValue();
 		*outputPinValue = !*inputPinValue;
 	}
 };
@@ -438,7 +426,7 @@ public:
 		if(in->hasMultipleConnections()){
 			*inputPinValue = false;
 			for(auto pin : in->getConnectedPins()) {
-				if(!pin->get<bool>()){
+				if(!pin->read<bool>()){
 					*outputPinValue = false;
 					return;
 				}
@@ -470,7 +458,7 @@ public:
 		if(in->hasMultipleConnections()){
 			*inputPinValue = false;
 			for(auto pin : in->getConnectedPins()) {
-				if(pin->get<bool>()){
+				if(pin->read<bool>()){
 					*outputPinValue = true;
 					return;
 				}

@@ -38,7 +38,6 @@ public:
 		NO_DIRECTION
 	};
 	
-	//TODO: check if this can be a scoped enum with string enumerator
 	enum Flags {
 		None = 0,
 		AcceptMultipleInputs = 1 << 0,
@@ -53,31 +52,40 @@ public:
 	//========================= Constructors =======================
 	//==============================================================
 	
-	//displayName, saveNamen, flags
-	NodePin(DataType type, Direction dir, const char* displayN, const char* saveN, Flags flags) {
-		initialize(type, dir, displayN, saveN, flags);
+	//Constructors with predeclared data type
+	
+	NodePin(DataType type, Direction dir, const char* displayN, const char* saveN, Flags flags = Flags::None) {
+		initialize(dir, displayN, saveN, flags);
+		setType(type);
 	}
-
-	//displayName, flags
-	NodePin(DataType type, Direction dir, const char* displayN, Flags flags) {
-		initialize(type, dir, displayN, displayN, flags); //displayName is used as savename
+	
+	NodePin(DataType type, Direction dir, const char* displayN, Flags flags = Flags::None){
+		initialize(dir, displayN, displayN, flags);
+		setType(type);
 	}
-
-	//displayName, saveName
-	NodePin(DataType type, Direction dir, const char* displayN, const char* saveN) {
-		initialize(type, dir, displayN, saveN, Flags::None);
+	
+	//Templated constructors with direct data assignement
+	
+	template<typename T>
+	NodePin(std::shared_ptr<T> dataPointer, Direction dir, const char* displayN, Flags flags = Flags::None){
+		initialize(dir, displayN, displayN, flags);
+		setType(detectType(dataPointer));
+		pointer = dataPointer;
 	}
-
-	//displayName
-	NodePin(DataType type, Direction dir, const char* displayN) {
-		initialize(type, dir, displayN, displayN, Flags::None); //displayName is used as savename
+	
+	template<typename T>
+	NodePin(std::shared_ptr<T> dataPointer, Direction dir, const char* displayN, const char* saveN, Flags flags = Flags::None){
+		initialize(dir, displayN, saveN, flags);
+		detectType(dataPointer);
+		setType(detectType(dataPointer));
+		pointer = dataPointer;
 	}
 
 	//default constructor is needed for dummy creation and later xml loading
 	NodePin() {}
 	
 	//==============================================================
-	//==================== Data Setting & Getting ==================
+	//============== Data Assigning / Reading & Writing ============
 	//==============================================================
 	
 	//Assigns data and sets datatype enumerator value
@@ -85,83 +93,59 @@ public:
 	template<typename T>
 	void assignData(std::shared_ptr<T> dataPointer);
 	
+	//Get a value directly or through implicit conversion
+	//needs a template specialization for each supported type
+	template<typename T>
+	inline T read();
+	
+	template<typename T>
+	inline void write(T data);
+	
 	//Get a shared pointer of the specified type
 	template<typename T>
 	const std::shared_ptr<T> getSharedPointer(){
 		return std::static_pointer_cast<T>(pointer.lock());
 	}
 	
-	//TODO: this should be called read and write
+	inline void copyConnectedPinValue();
 	
-	//Get a value directly or through implicit conversion
-	//needs a template specialization for each supported type
-	template<typename T>
-	inline T get();
+	//========================================================
 	
-	/*
-	template<typename T>
-	void set(T data);
-	*/
-	
-	inline void updateValueFromConnectedPinValue();
-	
-	
-	//TODO: function to assign value to pointer directly (bool int/double)
-	
-	
-	
-	//data infos
+	//strings
 	const char* getDisplayString() { return displayString; }
 	const char* getSaveString() { return saveString; }
+	const char* getValueString();
 	
+	//info
 	bool isInput() { return direction == Direction::NODE_INPUT; }
 	bool isOutput() { return direction == Direction::NODE_OUTPUT; }
+	bool isConnected() { return !nodeLinks.empty(); }
+	bool hasMultipleConnections() { return nodeLinks.size() > 1; }
+	bool acceptsMultipleInputs() { return b_acceptsMultipleInputs; }
+	bool& isVisible() { return b_visible; }
+	bool isDataTypeCompatible(std::shared_ptr<NodePin> other);
 	
-	//link infos
-	std::vector<std::shared_ptr<NodeLink>>& getLinks() { return NodeLinks; }
+	//connections
+	std::vector<std::shared_ptr<NodeLink>>& getLinks() { return nodeLinks; }
 	std::vector<std::shared_ptr<NodePin>> getConnectedPins();
 	std::shared_ptr<NodePin> getConnectedPin();
-	bool isConnected() { return !NodeLinks.empty(); }
-	bool hasMultipleConnections() { return NodeLinks.size() > 1; }
-	bool acceptsMultipleInputs() { return b_acceptsMultipleInputs; }
-	bool isDataTypeCompatible(std::shared_ptr<NodePin> other){
-		switch(dataType){
-			case DataType::BOOLEAN:
-			case DataType::INTEGER:
-			case DataType::REAL:
-				switch(other->dataType){
-					case DataType::BOOLEAN:
-					case DataType::INTEGER:
-					case DataType::REAL:
-						return true;
-					default:
-						return false;
-				}
-			default:
-				return other->dataType == dataType;
-		}
-	}
 	
 	//commands
 	void disconnectAllLinks();
-
-	//nodegraph infos
+	void setVisible(bool v) { b_visible = v; }
+	
+	//nodegraph
 	int getUniqueID() { return uniqueID; }
 	std::shared_ptr<Node> getNode() { return parentNode; }
 
-	void setVisible(bool v) { b_visible = v; }
-	bool& isVisible() { return b_visible; }
-
-	const char* getValueString();
-
-	std::vector<std::shared_ptr<Node>> getNodesLinkedAtOutputs();
-	std::vector<std::shared_ptr<Node>> getNodesLinkedAtInputs();
-
+	//gui
 	float getGuiWidth();
-	void pinGui();
 	bool shouldDisplayDataGui();
+	
+	void pinGui();
 	void dataGui();
 
+	//saving & loading
 	bool save(tinyxml2::XMLElement* xml);
 	bool load(tinyxml2::XMLElement* xml);
 	bool matches(const char* saveName, DataType type);
@@ -171,25 +155,8 @@ private:
 	friend class NodeGraph;
 	friend class Node;
 	friend class NodeLink;
-
-	std::shared_ptr<Node> parentNode;
-	std::vector<std::shared_ptr<NodeLink>> NodeLinks;
-	int uniqueID = -1;
 	
-	char displayString[64];	//used for displaying
-	char saveString[64];	//used for matching
-	
-	Direction direction;
-	
-	bool b_acceptsMultipleInputs = false;
-	bool b_disablePin = false;
-	bool b_noDataField = false;
-	bool b_forceDataField = false;
-	bool b_disableDataField = false;
-	bool b_visible = true;
-	
-	void initialize(DataType type, Direction dir, const char* displayStr, const char* saveStr, Flags flags) {
-		dataType = type;
+	void initialize(Direction dir, const char* displayStr, const char* saveStr, Flags flags) {
 		direction = dir;
 		strcpy(displayString, displayStr);
 		strcpy(saveString, saveStr);
@@ -199,6 +166,13 @@ private:
 		b_forceDataField = flags & Flags::ForceDataField;
 		b_disableDataField = flags & Flags::DisableDataField;
 		b_visible = !(flags & Flags::HidePin);
+	}
+	
+	template<typename T>
+	DataType detectType(std::shared_ptr<T> dataPointer);
+	
+	void setType(DataType type){
+		dataType = type;
 		switch (dataType) {
 			case DataType::BOOLEAN:
 			case DataType::INTEGER:
@@ -210,22 +184,56 @@ private:
 				break;
 		}
 	}
+
+	std::shared_ptr<Node> parentNode; //set when assigning when calling addIoData();
+	int uniqueID = -1;
 	
+	char displayString[64];	//used for displaying
+	char saveString[64];	//used for matching
+	
+	bool b_acceptsMultipleInputs = false;
+	bool b_disablePin = false;
+	bool b_noDataField = false;
+	bool b_forceDataField = false;
+	bool b_disableDataField = false;
+	bool b_visible = true;
+	
+	//actual data pointer, type and direction
 	std::weak_ptr<void> pointer;
 	DataType dataType;
+	Direction direction;
+	std::vector<std::shared_ptr<NodeLink>> nodeLinks;
 	
-	//Assigns data and sets datatype enumerator value
-	//needs a template specialization for each supported type
+	//========= ERROR Handling =========
+
 	template<typename T>
-	inline void setPointer(std::shared_ptr<T> sptr);
+	bool logTypeMismatchError(std::shared_ptr<T> assignedData){
+		return Logger::critical("Assigning Wrong NodePin DataType to Pin '{}'. Pin DataType is {} while assigned DataType is {}",
+								getDisplayString(),
+								Enumerator::getDisplayString(dataType),
+								Enumerator::getDisplayString(detectType(assignedData)));
+	}
 	
+	bool logReadNullPointerError(){
+		return Logger::critical("Cannot Read from NodePin '{}' because its data pointer is Null", getDisplayString());
+	}
+	
+	bool logWriteNullPointerError(){
+		return Logger::critical("Cannot Write to NodePin '{}' because its data pointer is Null", getDisplayString());
+	}
+	
+	bool logNoConnectionError(){
+		return Logger::critical("Could not complete operation because no pins are connected to NodePin '{}'", getDisplayString());
+	}
 };
 
 
 
 
 
-
+//==============================================================
+//========================= Enumerators ========================
+//==============================================================
 
 inline NodePin::Flags operator|(NodePin::Flags a, NodePin::Flags b) {
 	return static_cast<NodePin::Flags>(static_cast<int>(a) | static_cast<int>(b));
@@ -246,19 +254,15 @@ inline NodePin::Flags operator|(NodePin::Flags a, NodePin::Flags b) {
 DEFINE_ENUMERATOR(NodePin::DataType, NodePinDataTypes)
 
 
-
-
-
-
-
 //==============================================================
-//============= Direct Return / Implicit Conversion ============
+//=========== Direct Reading with Implicit Conversion ==========
 //==============================================================
 
-//these don't have to be defined for data types without implicit conversion ability
+//these are not to be specialized for data types without implicit conversion ability
 
 template<>
-inline bool NodePin::get(){
+inline bool NodePin::read(){
+	if(pointer.expired()) return logReadNullPointerError();
 	switch(dataType){
 		case DataType::BOOLEAN: return *getSharedPointer<bool>();
 		case DataType::INTEGER: return *getSharedPointer<int>();
@@ -268,7 +272,8 @@ inline bool NodePin::get(){
 }
 
 template<>
-inline int NodePin::get(){
+inline int NodePin::read(){
+	if(pointer.expired()) return logReadNullPointerError();
 	switch(dataType){
 		case DataType::BOOLEAN: return *getSharedPointer<bool>();
 		case DataType::INTEGER: return *getSharedPointer<int>();
@@ -278,7 +283,8 @@ inline int NodePin::get(){
 }
 
 template<>
-inline double NodePin::get(){
+inline double NodePin::read(){
+	if(pointer.expired()) return logReadNullPointerError();
 	switch(dataType){
 		case DataType::BOOLEAN: return *getSharedPointer<bool>();
 		case DataType::INTEGER: return *getSharedPointer<int>();
@@ -287,136 +293,203 @@ inline double NodePin::get(){
 	}
 }
 
-inline void NodePin::updateValueFromConnectedPinValue(){
+inline void NodePin::copyConnectedPinValue(){
+	if(!isConnected()) return logNoConnectionError();
 	switch(dataType){
 		case DataType::BOOLEAN:
-			*getSharedPointer<bool>() = getConnectedPin()->get<bool>();
+			*getSharedPointer<bool>() = getConnectedPin()->read<bool>();
 			break;
 		case DataType::INTEGER:
-			*getSharedPointer<int>() = getConnectedPin()->get<int>();
+			*getSharedPointer<int>() = getConnectedPin()->read<int>();
 			break;
 		case DataType::REAL:
-			*getSharedPointer<double>() = getConnectedPin()->get<double>();
+			*getSharedPointer<double>() = getConnectedPin()->read<double>();
 			break;
 		default:
 			break;
 	}
 }
-
-/*
-template<>
-void NodePin::set(bool data){
-	switch(dataType){
-		case DataType::BOOLEAN:
-			*getSharedPointer<bool>() = data;
-			break;
-		case DataType::INTEGER:
-			*getSharedPointer<int>() = data;
-			break;
-		case DataType::REAL:
-			*getSharedPointer<double>() = data;
-			break;
-		default:
-			break;
-	}
-}
-
-template<>
-void NodePin::set(int data){
-	switch(dataType){
-		case DataType::BOOLEAN:
-			*getSharedPointer<bool>() = data;
-			break;
-		case DataType::INTEGER:
-			*getSharedPointer<int>() = data;
-			break;
-		case DataType::REAL:
-			*getSharedPointer<double>() = data;
-			break;
-		default:
-			break;
-	}
-}
-
-template<>
-void NodePin::set(double data){
-	switch(dataType){
-		case DataType::BOOLEAN:
-			*getSharedPointer<bool>() = data;
-			break;
-		case DataType::INTEGER:
-			*getSharedPointer<int>() = data;
-			break;
-		case DataType::REAL:
-			*getSharedPointer<double>() = data;
-			break;
-		default:
-			break;
-	}
-}
- */
 
 
 //==============================================================
-//======================== Data Setters ========================
+//=========== Direct Writing with Implicit Conversion ==========
 //==============================================================
 
+//these are not to be specialized for data types without implicit conversion ability
+
 template<>
-inline void NodePin::assignData(std::shared_ptr<bool> booleanPointer) {
-	if(dataType != DataType::BOOLEAN) return;
-	pointer = booleanPointer;
+inline void NodePin::write(bool data){
+	if(pointer.expired()) return logWriteNullPointerError();
+	switch(dataType){
+		case DataType::BOOLEAN:
+			*getSharedPointer<bool>() = data;
+			break;
+		case DataType::INTEGER:
+			*getSharedPointer<int>() = data;
+			break;
+		case DataType::REAL:
+			*getSharedPointer<double>() = data;
+			break;
+		default:
+			break;
+	}
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<int> integerPointer) {
-	if(dataType != DataType::INTEGER) return;
-	pointer = integerPointer;
+inline void NodePin::write(int data){
+	if(pointer.expired()) return logWriteNullPointerError();
+	switch(dataType){
+		case DataType::BOOLEAN:
+			*getSharedPointer<bool>() = data;
+			break;
+		case DataType::INTEGER:
+			*getSharedPointer<int>() = data;
+			break;
+		case DataType::REAL:
+			*getSharedPointer<double>() = data;
+			break;
+		default:
+			break;
+	}
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<double> realPointer) {
-	if(dataType != DataType::REAL) return;
-	pointer = realPointer;
+inline void NodePin::write(double data){
+	if(pointer.expired()) return logWriteNullPointerError();
+	switch(dataType){
+		case DataType::BOOLEAN:
+			*getSharedPointer<bool>() = data;
+			break;
+		case DataType::INTEGER:
+			*getSharedPointer<int>() = data;
+			break;
+		case DataType::REAL:
+			*getSharedPointer<double>() = data;
+			break;
+		default:
+			break;
+	}
+}
+
+
+
+//==============================================================
+//================== Templated Type Detection ==================
+//==============================================================
+
+
+template<>
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<bool> ptr) {
+	return DataType::BOOLEAN;
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<ActuatorDevice> actuatorDevicePointer) {
-	if(dataType != DataType::ACTUATOR) return;
-	pointer = actuatorDevicePointer;
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<int> ptr) {
+	return DataType::INTEGER;
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<PositionFeedbackDevice> positionFeedbackDevicePointer) {
-	if(dataType != DataType::POSITIONFEEDBACK) return;
-	pointer = positionFeedbackDevicePointer;
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<double> ptr) {
+	return DataType::REAL;
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<GpioDevice> gpioDevicePointer) {
-	if(dataType != DataType::GPIO) return;
-	pointer = gpioDevicePointer;
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<ActuatorDevice> ptr) {
+	return DataType::ACTUATOR;
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<ServoActuatorDevice> servoActuatorDevicePointer) {
-	if(dataType != DataType::SERVO_ACTUATOR) return;
-	pointer = servoActuatorDevicePointer;
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<PositionFeedbackDevice> ptr) {
+	return DataType::POSITIONFEEDBACK;
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<VelocityControlledAxis> velocityControlledAxisPointer) {
-	if(dataType != DataType::VELOCITY_CONTROLLED_AXIS) return;
-	pointer = velocityControlledAxisPointer;
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<GpioDevice> ptr) {
+	return DataType::GPIO;
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<PositionControlledAxis> positionControlledAxisPointer) {
-	if(dataType != DataType::POSITION_CONTROLLED_AXIS) return;
-	pointer = positionControlledAxisPointer;
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<ServoActuatorDevice> ptr) {
+	return DataType::SERVO_ACTUATOR;
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<DeadMansSwitch> deadMansSwitchPointer) {
-	if(dataType != DataType::DEAD_MANS_SWITCH) return;
-	pointer = deadMansSwitchPointer;
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<VelocityControlledAxis> ptr) {
+	return DataType::VELOCITY_CONTROLLED_AXIS;
+}
+
+template<>
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<PositionControlledAxis> ptr) {
+	return DataType::POSITION_CONTROLLED_AXIS;
+}
+
+template<>
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<DeadMansSwitch> ptr) {
+	return DataType::DEAD_MANS_SWITCH;
+}
+
+
+//==============================================================
+//====================== Data Assignement ======================
+//==============================================================
+
+
+template<>
+inline void NodePin::assignData(std::shared_ptr<bool> ptr) {
+	if(dataType != DataType::BOOLEAN) return logTypeMismatchError(ptr);
+	pointer = ptr;
+}
+
+template<>
+inline void NodePin::assignData(std::shared_ptr<int> ptr) {
+	if(dataType != DataType::INTEGER) return logTypeMismatchError(ptr);
+	pointer = ptr;
+}
+
+template<>
+inline void NodePin::assignData(std::shared_ptr<double> ptr) {
+	if(dataType != DataType::REAL) return logTypeMismatchError(ptr);
+	pointer = ptr;
+}
+
+template<>
+inline void NodePin::assignData(std::shared_ptr<ActuatorDevice> ptr) {
+	if(dataType != DataType::ACTUATOR) return logTypeMismatchError(ptr);
+	pointer = ptr;
+}
+
+template<>
+inline void NodePin::assignData(std::shared_ptr<PositionFeedbackDevice> ptr) {
+	if(dataType != DataType::POSITIONFEEDBACK) return logTypeMismatchError(ptr);
+	pointer = ptr;
+}
+
+template<>
+inline void NodePin::assignData(std::shared_ptr<GpioDevice> ptr) {
+	if(dataType != DataType::GPIO) return logTypeMismatchError(ptr);
+	pointer = ptr;
+}
+
+template<>
+inline void NodePin::assignData(std::shared_ptr<ServoActuatorDevice> ptr) {
+	if(dataType != DataType::SERVO_ACTUATOR) return logTypeMismatchError(ptr);
+	pointer = ptr;
+}
+
+template<>
+inline void NodePin::assignData(std::shared_ptr<VelocityControlledAxis> ptr) {
+	if(dataType != DataType::VELOCITY_CONTROLLED_AXIS) return logTypeMismatchError(ptr);
+	pointer = ptr;
+}
+
+template<>
+inline void NodePin::assignData(std::shared_ptr<PositionControlledAxis> ptr) {
+	if(dataType != DataType::POSITION_CONTROLLED_AXIS) return logTypeMismatchError(ptr);
+	pointer = ptr;
+}
+
+template<>
+inline void NodePin::assignData(std::shared_ptr<DeadMansSwitch> ptr) {
+	if(dataType != DataType::DEAD_MANS_SWITCH) return logTypeMismatchError(ptr);
+	pointer = ptr;
 }

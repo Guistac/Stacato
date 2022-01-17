@@ -361,19 +361,19 @@ void Message::startSendingRuntime(std::shared_ptr<OscSocket> socket){
 			std::shared_ptr<OscMessage> message = std::make_shared<OscMessage>(path);
 			for(auto& argument : arguments){
 				std::shared_ptr<NodePin> pin = argument->pin;
-				if(pin->isConnected()) pin->updateValueFromConnectedPinValue();
+				if(pin->isConnected()) pin->copyConnectedPinValue();
 				switch(argument->type){
 					case OSC::ArgumentType::Type::FLOAT_DATA:
-						message->addFloat(pin->get<double>());
+						message->addFloat(pin->read<double>());
 						break;
 					case OSC::ArgumentType::Type::DOUBLE_DATA:
-						message->addDouble(argument->pin->get<double>());
+						message->addDouble(argument->pin->read<double>());
 						break;
 					case OSC::ArgumentType::Type::INTEGER_DATA:
-						message->addInt32(argument->pin->get<int>());
+						message->addInt32(argument->pin->read<int>());
 						break;
 					case OSC::ArgumentType::Type::BOOLEAN_DATA:
-						message->addBool(argument->pin->get<bool>());
+						message->addBool(argument->pin->read<bool>());
 						break;
 				}
 			}

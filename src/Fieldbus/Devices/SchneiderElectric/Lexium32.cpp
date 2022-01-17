@@ -362,9 +362,9 @@ void Lexium32::readInputs() {
 
 void Lexium32::prepareOutputs() {
 
-	if (digitalOut0->isConnected()) *digitalOut0PinValue = digitalOut0->getConnectedPin()->get<bool>();
-	if (digitalOut1->isConnected()) *digitalOut1PinValue = digitalOut1->getConnectedPin()->get<bool>();
-	if (digitalOut2->isConnected()) *digitalOut2PinValue = digitalOut2->getConnectedPin()->get<bool>();
+	if (digitalOut0->isConnected()) digitalOut0->copyConnectedPinValue();
+	if (digitalOut1->isConnected()) digitalOut1->copyConnectedPinValue();
+	if (digitalOut2->isConnected()) digitalOut2->copyConnectedPinValue();
 	
 	bool b_externalControl = servoMotorLink->isConnected();
 	

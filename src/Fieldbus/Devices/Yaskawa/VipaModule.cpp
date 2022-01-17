@@ -88,11 +88,8 @@ void VIPA_022_1HD10::readInputs(){
 }
 void VIPA_022_1HD10::writeOutputs(){
 	for(int i = 0; i < 4; i++){
-		if(inputPins[i]->isConnected()){
-			outputs[i] = inputPins[i]->getConnectedPins().front()->get<bool>();
-		}else{
-			outputs[i] = inputPins[i]->get<bool>();
-		}
+		if(inputPins[i]->isConnected()) inputPins[i]->copyConnectedPinValue();
+		outputs[i] = inputPins[i]->read<bool>();
 	}
 }
 
@@ -203,7 +200,7 @@ void VIPA_022_1BF00::readInputs(){
 
 void VIPA_022_1BF00::writeOutputs(){
 	for(int i = 0; i < 8; i++){
-		if(inputPins[i]->isConnected()) *inputPinValues[i] = inputPins[i]->getConnectedPin()->get<bool>();
+		if(inputPins[i]->isConnected()) inputPins[i]->copyConnectedPinValue();
 		outputs[i] = *inputPinValues[i];
 	}
 }
@@ -736,7 +733,7 @@ void VIPA_032_1BD70::readInputs(){
 void VIPA_032_1BD70::writeOutputs(){
 	for(int i = 0; i < 4; i++){
 		double realValue;
-		if(inputPins[i]->isConnected()) *inputPinValues[i] = inputPins[i]->getConnectedPin()->get<double>();
+		if(inputPins[i]->isConnected()) inputPins[i]->copyConnectedPinValue();
 		realValue = *inputPinValues[i];
 		int16_t outputValue;
 		switch(voltageRangeSettings[i]){

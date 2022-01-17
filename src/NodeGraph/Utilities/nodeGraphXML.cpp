@@ -305,8 +305,8 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		newIoLink->uniqueID = linkUniqueID;
 		newIoLink->inputData = startPin->isOutput() ? startPin : endPin;
 		newIoLink->outputData = endPin->isInput() ? endPin : startPin;
-		startPin->NodeLinks.push_back(newIoLink);
-		endPin->NodeLinks.push_back(newIoLink);
+		startPin->nodeLinks.push_back(newIoLink);
+		endPin->nodeLinks.push_back(newIoLink);
 		loadedLinks.push_back(newIoLink);
 
 		Logger::trace("Loaded Node Link with ID: {}  StartPin: {}  EndPin: {}", linkUniqueID, startPinID, endPinID);

@@ -302,8 +302,8 @@ void PD4_E::prepareOutputs() {
 	int encoderIncrementsPerRevolution = 0x1 << encoderSingleTurnResolutionBits;
 	targetPosition = profilePosition_revolutions * encoderIncrementsPerRevolution;
 
-	if (digitalOut1Pin->isConnected()) *digitalOut1PinValue = digitalOut1Pin->getConnectedPin()->get<bool>();
-	if (digitalOut2Pin->isConnected()) *digitalOut2PinValue = digitalOut2Pin->getConnectedPin()->get<bool>();
+	if (digitalOut1Pin->isConnected()) *digitalOut1PinValue = digitalOut1Pin->getConnectedPin()->read<bool>();
+	if (digitalOut2Pin->isConnected()) *digitalOut2PinValue = digitalOut2Pin->getConnectedPin()->read<bool>();
 	digitalOut1 = *digitalOut1PinValue;
 	digitalOut2 = *digitalOut2PinValue;
 	digitalOutputs = 0;

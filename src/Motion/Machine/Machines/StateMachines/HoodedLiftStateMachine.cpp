@@ -169,28 +169,28 @@ std::shared_ptr<GpioDevice> HoodedLiftStateMachine::getGpioDevice() {
 }
 
 void HoodedLiftStateMachine::updateGpioInSignals() {
-	if(hoodOpenSignalPin->isConnected()) hoodOpenSignalPin->updateValueFromConnectedPinValue();
+	if(hoodOpenSignalPin->isConnected()) hoodOpenSignalPin->copyConnectedPinValue();
 	hoodOpen = *hoodOpenSignalPinValue;
 	
-	if(hoodShutSignalPin->isConnected()) hoodShutSignalPin->updateValueFromConnectedPinValue();
+	if(hoodShutSignalPin->isConnected()) hoodShutSignalPin->copyConnectedPinValue();
 	hoodShut = *hoodShutSignalPinValue;
 	
-	if(liftRaisedSignalPin->isConnected()) liftRaisedSignalPin->updateValueFromConnectedPinValue();
+	if(liftRaisedSignalPin->isConnected()) liftRaisedSignalPin->copyConnectedPinValue();
 	liftRaised = *liftRaisedSignalPinValue;
 	
-	if(liftLoweredSignalPin->isConnected()) liftLoweredSignalPin->updateValueFromConnectedPinValue();
+	if(liftLoweredSignalPin->isConnected()) liftLoweredSignalPin->copyConnectedPinValue();
 	liftLowered = *liftLoweredSignalPinValue;
 	
-	if(hoodMotorCircuitBreakerSignalPin->isConnected()) hoodMotorCircuitBreakerSignalPin->updateValueFromConnectedPinValue();
+	if(hoodMotorCircuitBreakerSignalPin->isConnected()) hoodMotorCircuitBreakerSignalPin->copyConnectedPinValue();
 	hoodMotorCircuitBreakerTripped = *hoodMotorCircuitBreakerSignalPinValue;
 	
-	if(liftMotorCircuitBreakerSignalPin->isConnected()) liftMotorCircuitBreakerSignalPin->updateValueFromConnectedPinValue();
+	if(liftMotorCircuitBreakerSignalPin->isConnected()) liftMotorCircuitBreakerSignalPin->copyConnectedPinValue();
 	liftMotorCircuitBreakerTripped = *liftMotorCircuitBreakerSignalPinValue;
 	
-	if(emergencyStopClearSignalPin->isConnected()) emergencyStopClearSignalPin->updateValueFromConnectedPinValue();
+	if(emergencyStopClearSignalPin->isConnected()) emergencyStopClearSignalPin->copyConnectedPinValue();
 	emergencyStopClear = *emergencyStopClearSignalPinValue;
 	
-	if(localControlEnabledSignalPin->isConnected()) localControlEnabledSignalPin->updateValueFromConnectedPinValue();
+	if(localControlEnabledSignalPin->isConnected()) localControlEnabledSignalPin->copyConnectedPinValue();
 	localControlEnabled = *localControlEnabledSignalPinValue;
 }
 

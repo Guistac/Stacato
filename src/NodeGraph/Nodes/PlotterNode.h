@@ -28,7 +28,7 @@ public:
 	
 	virtual void process() {
 		if (input->isConnected()) {
-			*inputPinValue = input->getConnectedPin()->get<double>();
+			input->copyConnectedPinValue();
 			if (!wasConnected) {
 				wasConnected = true;
 				data.clear();

@@ -10,16 +10,16 @@
 void NodePin::disconnectAllLinks() {
 	if (parentNode == nullptr || parentNode->parentNodeGraph == nullptr) return;
 	while (isConnected()) {
-		parentNode->parentNodeGraph->disconnect(NodeLinks.front());
+		parentNode->parentNodeGraph->disconnect(nodeLinks.front());
 	}
 }
 
 const char* NodePin::getValueString() {
 	static char output[32];
 	switch (dataType) {
-		case DataType::BOOLEAN: sprintf(output, "%s", get<bool>() ? "true" : "false");
-		case DataType::INTEGER: sprintf(output, "%i", get<int>()); break;
-		case DataType::REAL: sprintf(output, "%.5f", get<double>()); break;
+		case DataType::BOOLEAN: sprintf(output, "%s", read<bool>() ? "true" : "false");
+		case DataType::INTEGER: sprintf(output, "%i", read<int>()); break;
+		case DataType::REAL: sprintf(output, "%.5f", read<double>()); break;
 		default: return "No Value";
 	}
 	return (const char*)output;
@@ -27,31 +27,33 @@ const char* NodePin::getValueString() {
 
 std::vector<std::shared_ptr<NodePin>> NodePin::getConnectedPins() {
 	std::vector<std::shared_ptr<NodePin>> output;
-	if (isInput()) for (auto& link : NodeLinks) output.push_back(link->getInputData());
-	else for (auto& link : NodeLinks) output.push_back(link->getOutputData());
+	if (isInput()) for (auto& link : nodeLinks) output.push_back(link->getInputData());
+	else for (auto& link : nodeLinks) output.push_back(link->getOutputData());
 	return output;
 }
 
 std::shared_ptr<NodePin> NodePin::getConnectedPin(){
-	if(NodeLinks.empty()) return nullptr;
-	if(isInput()) return NodeLinks.front()->getInputData();
-	if(isOutput()) return NodeLinks.front()->getOutputData();
+	if(nodeLinks.empty()) return nullptr;
+	if(isInput()) return nodeLinks.front()->getInputData();
+	if(isOutput()) return nodeLinks.front()->getOutputData();
 }
 
-std::vector<std::shared_ptr<Node>> NodePin::getNodesLinkedAtOutputs() {
-	std::vector<std::shared_ptr<Node>> linkedNodes;
-	for (auto link : NodeLinks) {
-		linkedNodes.push_back(link->getOutputData()->getNode());
+bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> other){
+	switch(dataType){
+		case DataType::BOOLEAN:
+		case DataType::INTEGER:
+		case DataType::REAL:
+			switch(other->dataType){
+				case DataType::BOOLEAN:
+				case DataType::INTEGER:
+				case DataType::REAL:
+					return true;
+				default:
+					return false;
+			}
+		default:
+			return other->dataType == dataType;
 	}
-	return linkedNodes;
-}
-
-std::vector<std::shared_ptr<Node>> NodePin::getNodesLinkedAtInputs() {
-	std::vector<std::shared_ptr<Node>> linkedNodes;
-	for (auto link : NodeLinks) {
-		linkedNodes.push_back(link->getInputData()->getNode());
-	}
-	return linkedNodes;
 }
 
 bool NodePin::save(tinyxml2::XMLElement* xml) {

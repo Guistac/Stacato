@@ -28,10 +28,10 @@ void NodeGraph::addNode(std::shared_ptr<Node> newNode) {
 
 void NodeGraph::removeNode(std::shared_ptr<Node> removedNode) {
 	for (auto data : removedNode->nodeInputData) {
-		for (std::shared_ptr<NodeLink> link : data->NodeLinks) disconnect(link);
+		for (std::shared_ptr<NodeLink> link : data->nodeLinks) disconnect(link);
 	}
 	for (auto data : removedNode->nodeOutputData) {
-		for (std::shared_ptr<NodeLink> link : data->NodeLinks) disconnect(link);
+		for (std::shared_ptr<NodeLink> link : data->nodeLinks) disconnect(link);
 	}
 	for (int i = (int)nodes.size() - 1; i >= 0; i--) {
 		if (nodes[i] == removedNode) {
@@ -55,11 +55,11 @@ bool NodeGraph::isConnectionValid(std::shared_ptr<NodePin> data1, std::shared_pt
 	else if (data1->isOutput() && data2->isOutput()) return false;
 
 	//don't allow multiple links on an input pin
-	if (data1->isInput() && !data1->NodeLinks.empty() && !data1->acceptsMultipleInputs()) return false;
-	else if (data2->isInput() && !data2->NodeLinks.empty() && !data2->acceptsMultipleInputs()) return false;
+	if (data1->isInput() && !data1->nodeLinks.empty() && !data1->acceptsMultipleInputs()) return false;
+	else if (data2->isInput() && !data2->nodeLinks.empty() && !data2->acceptsMultipleInputs()) return false;
 
 	//check if the link already exists, don't allow duplicates
-	for (std::shared_ptr<NodeLink> link : data1->NodeLinks) {
+	for (std::shared_ptr<NodeLink> link : data1->nodeLinks) {
 		if (link->outputData == data2 || link->inputData == data2) return false;
 	}
 
@@ -74,15 +74,15 @@ std::shared_ptr<NodeLink> NodeGraph::connect(std::shared_ptr<NodePin> data1, std
 	uniqueID++;
 	newIoLink->inputData = data1->isOutput() ? data1 : data2;
 	newIoLink->outputData = data2->isInput() ? data2 : data1;
-	data1->NodeLinks.push_back(newIoLink);
-	data2->NodeLinks.push_back(newIoLink);
+	data1->nodeLinks.push_back(newIoLink);
+	data2->nodeLinks.push_back(newIoLink);
 	links.push_back(newIoLink);
 	return newIoLink;
 }
 
 void NodeGraph::disconnect(std::shared_ptr<NodeLink> removedIoLink) {
-	std::vector<std::shared_ptr<NodeLink>>& inputDataLinks = removedIoLink->inputData->NodeLinks;
-	std::vector<std::shared_ptr<NodeLink>>& outputDataLinks = removedIoLink->outputData->NodeLinks;
+	std::vector<std::shared_ptr<NodeLink>>& inputDataLinks = removedIoLink->inputData->nodeLinks;
+	std::vector<std::shared_ptr<NodeLink>>& outputDataLinks = removedIoLink->outputData->nodeLinks;
 
 	for (int i = 0; i < inputDataLinks.size(); i++) {
 		if (inputDataLinks[i] == removedIoLink) {

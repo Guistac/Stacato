@@ -17,6 +17,6 @@ public:
 	
 	
 	virtual void process() {
-		if (displayInput->isConnected()) *inputPinValue = displayInput->getConnectedPin()->get<double>();
+		if (displayInput->isConnected()) displayInput->copyConnectedPinValue();
 	}
 };

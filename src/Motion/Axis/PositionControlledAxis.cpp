@@ -34,7 +34,7 @@ void PositionControlledAxis::assignIoData() {
 	position->assignData(positionPinValue);
 	addIoData(position);
 	
-	//velocity->assignData(velocityPinValue)
+	velocity->assignData(velocityPinValue);
 	addIoData(velocity);
 	setPositionControlType(positionControlType);
 	setPositionReferenceSignalType(positionReferenceSignal);
@@ -427,20 +427,20 @@ void PositionControlledAxis::updateReferenceSignals() {
 	switch (positionReferenceSignal) {
 	case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
 		previousLowLimitSignal = lowLimitSignal;
-		if(lowLimitSignalPin->isConnected()) *lowLimitSignalPinValue = lowLimitSignalPin->getConnectedPin()->get<bool>();
+		if(lowLimitSignalPin->isConnected()) lowLimitSignalPin->copyConnectedPinValue();
 		lowLimitSignal = *lowLimitSignalPinValue;
 		break;
 	case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
 		previousLowLimitSignal = lowLimitSignal;
-		if (lowLimitSignalPin->isConnected()) *lowLimitSignalPinValue = lowLimitSignalPin->getConnectedPin()->get<bool>();
+		if (lowLimitSignalPin->isConnected()) lowLimitSignalPin->copyConnectedPinValue();
 		lowLimitSignal = *lowLimitSignalPinValue;
 		previousHighLimitSignal = highLimitSignal;
-		if (highLimitSignalPin->isConnected()) *highLimitSignalPinValue = highLimitSignalPin->getConnectedPin()->get<bool>();
-			highLimitSignal = *highLimitSignalPinValue;
+		if (highLimitSignalPin->isConnected()) highLimitSignalPin->copyConnectedPinValue();
+		highLimitSignal = *highLimitSignalPinValue;
 		break;
 	case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
 		previousReferenceSignal = referenceSignal;
-			if (referenceSignalPin->isConnected()) *referenceSignalPinValue = referenceSignalPin->getConnectedPin()->get<bool>();
+		if (referenceSignalPin->isConnected()) referenceSignalPin->copyConnectedPinValue();
 		referenceSignal = *referenceSignalPinValue;
 		break;
 	default: break;
