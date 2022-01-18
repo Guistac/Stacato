@@ -11,7 +11,7 @@
 
 #include <tinyxml2.h>
 
-void PositionControlledAxis::assignIoData() {
+void PositionControlledAxis::initialize() {
 	//inputs
 	addIoData(actuatorDeviceLink);
 	addIoData(servoActuatorDeviceLink);

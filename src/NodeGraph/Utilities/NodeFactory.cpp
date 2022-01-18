@@ -121,7 +121,7 @@ namespace NodeFactory {
 
 	std::shared_ptr<Node> getNodeBySaveName(const char* saveName) {
 		for (Node* device : allNodes) {
-			if (strcmp(saveName, device->getSaveName()) == 0) return device->getNewNodeInstance();
+			if (strcmp(saveName, device->getSaveName()) == 0) return device->getNewInstance();
 		}
 		return nullptr;
 	}
@@ -132,7 +132,7 @@ namespace NodeFactory {
 
 	std::shared_ptr<Node> getAxisBySaveName(const char* saveName) {
 		for (Node* axis : allAxisNodes) {
-			if (strcmp(saveName, axis->getSaveName()) == 0) return axis->getNewNodeInstance();
+			if (strcmp(saveName, axis->getSaveName()) == 0) return axis->getNewInstance();
 		}
 		return nullptr;
 	}
@@ -142,7 +142,7 @@ namespace NodeFactory {
 
 	std::shared_ptr<Node> getMachineBySaveName(const char* saveName) {
 		for (Node* machine : allMachineNodes) {
-			if (strcmp(saveName, machine->getSaveName()) == 0) return machine->getNewNodeInstance();
+			if (strcmp(saveName, machine->getSaveName()) == 0) return machine->getNewInstance();
 		}
 		return nullptr;
 	}
@@ -152,7 +152,7 @@ namespace NodeFactory {
 
 	std::shared_ptr<Node> getSafetyNodeBySaveName(const char* saveName){
 		for(Node* safetyNode : allSafetyNodes){
-			if(strcmp(saveName, safetyNode->getSaveName()) == 0) return safetyNode->getNewNodeInstance();
+			if(strcmp(saveName, safetyNode->getSaveName()) == 0) return safetyNode->getNewInstance();
 		}
 		return nullptr;
 	}
@@ -163,7 +163,7 @@ namespace NodeFactory {
 
 	std::shared_ptr<Node> getNetworkIoNodeBySaveName(const char* saveName){
 		for(Node* networkIoNode : allNetworkIoNodes){
-			if(strcmp(saveName, networkIoNode->getSaveName()) == 0) return networkIoNode->getNewNodeInstance();
+			if(strcmp(saveName, networkIoNode->getSaveName()) == 0) return networkIoNode->getNewInstance();
 		}
 		return nullptr;
 	}

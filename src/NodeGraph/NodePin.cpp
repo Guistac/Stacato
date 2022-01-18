@@ -79,7 +79,7 @@ bool NodePin::load(tinyxml2::XMLElement* xml) {
 	if (xml->QueryStringAttribute("SaveString", &savestr) != XML_SUCCESS) return Logger::warn("Could not load Pin SaveName");
 	strcpy(saveString, savestr);
 	const char* displaystr;
-	if (xml->QueryStringAttribute("DisplayName", &displaystr) != XML_SUCCESS) return Logger::warn("Could not load Pin DisplayName");
+	if (xml->QueryStringAttribute("DisplayString", &displaystr) != XML_SUCCESS) return Logger::warn("Could not load Pin DisplayName");
 	strcpy(displayString, displaystr);
 
 	int pinUniqueID;

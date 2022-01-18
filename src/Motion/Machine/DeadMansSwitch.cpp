@@ -2,7 +2,7 @@
 
 #include "DeadMansSwitch.h"
 
-void DeadMansSwitch::assignIoData(){
+void DeadMansSwitch::initialize(){
 	//gpioDevicePin->assignData()
 	addIoData(gpioDevicePin);
 	

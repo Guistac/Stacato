@@ -109,6 +109,8 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		Node::Type nodeType = getNodeType(nodeTypeString)->type;
 
 		//Construct Node Object from Type Attributes
+		//on construction initialize() is called to assign node data, creates static/static node pins and adds them to the nodes input and output data lists
+		//no unique ids are loaded or generated here
 		Logger::trace("Loading node '{}' of type '{}'", nodeCustomName, nodeSaveNameString);
 		std::shared_ptr<Node> loadedNode = nullptr;
 		bool isSplit = false;
@@ -148,7 +150,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 				break;
 		}
 		if (loadedNode == nullptr) return Logger::warn("Coult not load Node Class");
-	
+		
 		//Get Node position in node editor
 		if (!isSplit) {
 			XMLElement* positionXML = nodeXML->FirstChildElement("NodeEditorPosition");
@@ -178,10 +180,6 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			loadedNode->savedPosition = glm::vec2(xInput, yInput);
 			loadedNode->savedSplitPosition = glm::vec2(xOutput, yOutput);
 		}
-
-		//assign node data, creates static/static node pins and adds them to the nodes input and output data lists
-		//no unique ids are loaded or generated here
-		loadedNode->assignIoData();
 
 		//load node specific XML data
 		//this also loads dynamically created pins and adds them to the nods input and output data lists
@@ -216,7 +214,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		XMLElement* inputPinXML = inputPinsXML->FirstChildElement("InputPin");
 		while (inputPinXML) {
 			const char* saveNameString;
-			if (inputPinXML->QueryStringAttribute("SaveName", &saveNameString) != XML_SUCCESS) return Logger::warn("Could not load Input Pin SaveName Attribute");
+			if (inputPinXML->QueryStringAttribute("SaveString", &saveNameString) != XML_SUCCESS) return Logger::warn("Could not load Input Pin SaveName Attribute");
 			const char* dataTypeString = "";
 			inputPinXML->QueryStringAttribute("DataType", &dataTypeString);
 			
@@ -244,7 +242,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		XMLElement* outputPinXML = outputPinsXML->FirstChildElement("OutputPin");
 		while (outputPinXML) {
 			const char* saveNameString;
-			if (outputPinXML->QueryStringAttribute("SaveName", &saveNameString) != XML_SUCCESS) return Logger::warn("Could not load Output Pin SaveName Attribute");
+			if (outputPinXML->QueryStringAttribute("SaveString", &saveNameString) != XML_SUCCESS) return Logger::warn("Could not load Output Pin SaveName Attribute");
 			const char* dataTypeString = "";
 			outputPinXML->QueryStringAttribute("DataType", &dataTypeString);
 			if (!Enumerator::isValidSaveName<NodePin::DataType>(dataTypeString)) return Logger::warn("Coul not read Output Pin DataType Attribute");

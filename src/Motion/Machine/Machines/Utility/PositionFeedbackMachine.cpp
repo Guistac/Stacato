@@ -60,7 +60,7 @@ void PositionFeedbackMachine::setPositionUnit(PositionUnit u){
 }
 
 
-void PositionFeedbackMachine::assignIoData(){
+void PositionFeedbackMachine::initialize(){
 	positionPin->assignData(positionPinValue);
 	velocityPin->assignData(velocityPinValue);
 	addIoData(positionFeedbackDevicePin);

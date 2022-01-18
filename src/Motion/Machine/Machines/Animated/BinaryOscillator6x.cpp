@@ -13,7 +13,7 @@
 
 #include <tinyxml2.h>
 
-void BinaryOscillator6x::assignIoData() {
+void BinaryOscillator6x::initialize() {
 
 	addIoData(gpioDevicePin);
 	

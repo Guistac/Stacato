@@ -52,7 +52,7 @@ void Lexium32::resetData() {
     gpioDevice->b_ready = false;
 }
 
-void Lexium32::assignIoData() {
+void Lexium32::initialize() {
     std::shared_ptr<Device> thisDevice = std::dynamic_pointer_cast<Device>(shared_from_this());
 
 	//servo device

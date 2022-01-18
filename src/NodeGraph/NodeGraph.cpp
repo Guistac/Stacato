@@ -9,7 +9,6 @@ void NodeGraph::addNode(std::shared_ptr<Node> newNode) {
 	newNode->uniqueID = uniqueID;
 	uniqueID++;
 	nodes.push_back(newNode);
-	newNode->assignIoData(); //this tries to generate an ID and adds all data to the nodelist if a parent was specified, we don't want this so we add the parent afterwards
 	for (std::shared_ptr<NodePin> data : newNode->nodeInputData) {
 		data->uniqueID = uniqueID;
 		uniqueID++;

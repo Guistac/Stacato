@@ -269,7 +269,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
         for (auto manufacturer : EtherCatDeviceFactory::getDevicesByManufacturer()) {
             if (ImGui::BeginMenu(manufacturer.name)) {
                 for (auto device : manufacturer.devices) {
-                    if (ImGui::MenuItem(device->getName())) output = device->getNewNodeInstance();
+                    if (ImGui::MenuItem(device->getName())) output = device->getNewInstance();
                 }
                 ImGui::EndMenu();
             }
@@ -280,7 +280,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
         for (auto manufacturer : EtherCatDeviceFactory::getDevicesByCategory()) {
             if (ImGui::BeginMenu(manufacturer.name)) {
                 for (auto device : manufacturer.devices) {
-                    if (ImGui::MenuItem(device->getName())) output = device->getNewNodeInstance();
+                    if (ImGui::MenuItem(device->getName())) output = device->getNewInstance();
                 }
                 ImGui::EndMenu();
             }
@@ -307,7 +307,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
     if (ImGui::BeginMenu("Motion")) {
         if (ImGui::BeginMenu("Axis")) {
             for (auto axis : NodeFactory::getAllAxisTypes()) {
-                if (ImGui::MenuItem(axis->getName())) output = axis->getNewNodeInstance();
+                if (ImGui::MenuItem(axis->getName())) output = axis->getNewInstance();
             }
             ImGui::EndMenu();
         }
@@ -317,7 +317,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
                 
                     for (auto& machine : category.nodes) {
                         
-                        if (ImGui::MenuItem(machine->getName())) output = machine->getNewNodeInstance();
+                        if (ImGui::MenuItem(machine->getName())) output = machine->getNewInstance();
                     
                     }
 
@@ -328,7 +328,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
         }
 		if (ImGui::BeginMenu("Safety")) {
 			for (auto safetyNode : NodeFactory::getAllSafetyNodes()) {
-				if (ImGui::MenuItem(safetyNode->getName())) output = safetyNode->getNewNodeInstance();
+				if (ImGui::MenuItem(safetyNode->getName())) output = safetyNode->getNewInstance();
 			}
 			ImGui::EndMenu();
 		}
@@ -339,7 +339,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
 
     if (ImGui::BeginMenu("Network")) {
 		for (auto networkIoNode : NodeFactory::getAllNetworkIoNodes()) {
-			if (ImGui::MenuItem(networkIoNode->getName())) output = networkIoNode->getNewNodeInstance();
+			if (ImGui::MenuItem(networkIoNode->getName())) output = networkIoNode->getNewInstance();
 		}
         ImGui::EndMenu();
     }
@@ -350,7 +350,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
     for (auto category : NodeFactory::getNodesByCategory()) {
         if (ImGui::BeginMenu(category.name)) {
             for (auto device : category.nodes) {
-                if (ImGui::MenuItem(device->getName())) output = device->getNewNodeInstance();
+                if (ImGui::MenuItem(device->getName())) output = device->getNewInstance();
             }
             ImGui::EndMenu();
         }

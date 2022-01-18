@@ -4,7 +4,7 @@
 
 #include "Motion/SubDevice.h"
 
-void VelocityControlledAxis::assignIoData() {
+void VelocityControlledAxis::initialize() {
 	addIoData(actuatorDeviceLink);
 	std::shared_ptr<VelocityControlledAxis> thisAxis = std::dynamic_pointer_cast<VelocityControlledAxis>(shared_from_this());
 	velocityControlledAxisLink->assignData(thisAxis);

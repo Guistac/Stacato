@@ -5,7 +5,9 @@
 
 
 class DeadMansSwitch : public Node {
-	DEFINE_PROCESSOR_NODE(DeadMansSwitch, "Dead Man's Switch", "DeadMansSwitch", "Safety")
+public:
+	
+	DEFINE_NODE(DeadMansSwitch, "Dead Man's Switch", "DeadMansSwitch", Node::Type::PROCESSOR, "Safety")
 	
 	std::shared_ptr<NodePin> gpioDevicePin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_INPUT, "Gpio Device");
 	std::shared_ptr<NodePin> switchPressedPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Switch Pressed");
@@ -19,6 +21,5 @@ class DeadMansSwitch : public Node {
 	
 	std::shared_ptr<bool> switchLedValue = std::make_shared<bool>(false);
 	
-	virtual void assignIoData();
 	virtual void process();
 };

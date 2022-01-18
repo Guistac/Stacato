@@ -10,12 +10,7 @@
 class PlotterNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(PlotterNode, "Plotter", "Plotter", "Utility")
-
-	virtual void assignIoData() {
-		addIoData(input);
-		data.setMaxSize(bufferSize);
-	}
+	DEFINE_NODE(PlotterNode, "Plotter", "Plotter", Node::Type::PROCESSOR, "Utility")
 
 	int bufferSize = 512;
 	float displayLengthSeconds = 5.0;
@@ -80,3 +75,8 @@ public:
 		return true;
 	}
 };
+
+void PlotterNode::initialize(){
+	addIoData(input);
+	data.setMaxSize(bufferSize);
+}

@@ -15,12 +15,7 @@ class Device;
 namespace tinyxml2{ struct XMLElement; }
 
 #define DEFINE_MACHINE_NODE(className, nodeName, saveName, category) public:\
-	virtual const char* getSaveName() { return saveName; }\
-	virtual const char* getNodeCategory() { return category; }\
-	className(){ setName(nodeName); }\
-	virtual Node::Type getType() { return Node::Type::MACHINE; }\
-	virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }\
-	virtual void assignIoData();\
+	DEFINE_NODE(className, nodeName, saveName, Node::Type::MACHINE, category)\
 	virtual void process();\
 	/*Machine Specific*/\
 	virtual void controlsGui();\

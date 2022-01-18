@@ -12,7 +12,7 @@ std::vector<StateParameterValue> HoodedLiftStateMachine::stateParameterValues = 
 	{2, "Raised", "Raised"}
 };
 
-void HoodedLiftStateMachine::assignIoData() {
+void HoodedLiftStateMachine::initialize() {
 	addIoData(gpioDeviceLink);
 
 	addIoData(hoodOpenSignalPin);

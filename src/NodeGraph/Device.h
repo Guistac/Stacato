@@ -2,6 +2,7 @@
 
 #include "Node.h"
 
+
 #define DEFINE_DEVICE_NODE(nodeName, className, deviceType, category)\
 	public:\
 	\
@@ -22,6 +23,7 @@
 	virtual bool isConnected();\
 	virtual void onConnection();\
 	virtual void onDisconnection();\
+
 
 class Device : public Node {
 public:

@@ -21,7 +21,7 @@ void PD4_E::resetData() {
 	gpioDevice->b_ready = false;
 }
 
-void PD4_E::assignIoData() {
+void PD4_E::initialize() {
 	servoMotor->setParentDevice(std::dynamic_pointer_cast<Device>(shared_from_this()));
 	servoActuatorDeviceLink->assignData(servoMotor);
 

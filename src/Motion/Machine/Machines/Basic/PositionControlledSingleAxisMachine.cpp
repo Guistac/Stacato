@@ -12,7 +12,7 @@
 
 #include "Project/Environnement.h"
 
-void PositionControlledSingleAxisMachine::assignIoData() {
+void PositionControlledSingleAxisMachine::initialize() {
 	//inputs
 	addIoData(positionControlledAxisPin);
 	

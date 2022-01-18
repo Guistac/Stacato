@@ -3,7 +3,7 @@
 
 //======= CONFIGURATION =========
 
-void MachineTemplate::assignIoData() {
+void MachineTemplate::initialize() {
 	//add node pins	addIoData(..);
 	//add animatable parameters addAnimatableParameter(...);
 }

@@ -11,7 +11,7 @@
 #include "Motion/Axis/PositionControlledAxis.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 
-void Oscillator3x::assignIoData() {
+void Oscillator3x::initialize() {
 	addIoData(linearAxis1Pin);
 	addIoData(linearAxis2Pin);
 	addIoData(linearAxis3Pin);

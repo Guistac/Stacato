@@ -21,7 +21,7 @@ void VipaBusCoupler_053_1EC01::onConnection() {
 	for(auto& module : modules) module->onConnection();
 }
 
-void VipaBusCoupler_053_1EC01::assignIoData() {
+void VipaBusCoupler_053_1EC01::initialize() {
     //by default, this node only has one pin
     //no modules are loaded by default
     std::shared_ptr<Device> thisDevice = std::dynamic_pointer_cast<Device>(shared_from_this());
@@ -30,8 +30,6 @@ void VipaBusCoupler_053_1EC01::assignIoData() {
     //gpio device link pin
     addIoData(gpioDeviceLink);
 }
-
-
 
 
 bool VipaBusCoupler_053_1EC01::startupConfiguration() {

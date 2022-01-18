@@ -20,15 +20,7 @@
 #define DEFINE_ETHERCAT_DEVICE_INTERFACE(className, EtherCatName, displayName, saveName, manufacturerName, category) public:\
 		\
         /*Node Specific*/\
-        virtual Node::Type getType() { return Node::Type::IODEVICE; }\
-        virtual const char * getSaveName() { return saveName; }\
-        virtual const char * getNodeCategory() { return category; }\
-		virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }\
-        className() { setName(displayName); }\
-        virtual bool save(tinyxml2::XMLElement* xml);\
-        virtual bool load(tinyxml2::XMLElement* xml);\
-		virtual void assignIoData(){}\
-		virtual void nodeSpecificGui();\
+		DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, category)\
 		\
         /*Device Specific*/\
 		virtual Device::Type getDeviceType() { return Device::Type::ETHERCAT_DEVICE; }\
@@ -52,12 +44,7 @@
 #define DEFINE_ETHERCAT_DEVICE(className, EtherCatName, displayName, saveName, manufacturerName, category) public:\
 		\
         /*Node Specific*/\
-        virtual Node::Type getType() { return Node::Type::IODEVICE; }\
-        virtual const char* getSaveName() { return saveName; }\
-        virtual const char * getNodeCategory() { return category; }\
-        virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }\
-        className(){ setName(displayName); }\
-        virtual void assignIoData();\
+		DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, category)\
 		\
         /*Device Specific*/\
 		virtual Device::Type getDeviceType() { return Device::Type::ETHERCAT_DEVICE; }\
@@ -75,7 +62,6 @@
         virtual bool loadDeviceData(tinyxml2::XMLElement* xml);\
 		virtual void deviceSpecificGui();\
 
-
 struct EtherCatDeviceIdentification {
     enum class Type {
         STATION_ALIAS,
@@ -90,7 +76,7 @@ std::vector<EtherCatDeviceIdentification>& getIdentificationTypes();
 EtherCatDeviceIdentification* getIdentificationType(const char *);
 EtherCatDeviceIdentification* getIdentificationType(EtherCatDeviceIdentification::Type t);
 
-
+namespace tinyxml2{ class XMLElement; }
 
 class EtherCatDevice : public Device {
 public:
@@ -179,6 +165,7 @@ public:
 
     //======== GUI ========
 
+	virtual void nodeSpecificGui();
     void genericInfoGui();
     void pdoDataGui();
     void generalGui();
@@ -235,5 +222,8 @@ public:
     bool setStationAlias(uint16_t alias);
     uint16_t stationAliasToolValue = 0;
     DataTransferState::State stationAliasAssignState = DataTransferState::State::NO_TRANSFER;
-
+	
+	
+	virtual bool save(tinyxml2::XMLElement* xml);
+	virtual bool load(tinyxml2::XMLElement* xml);
 };

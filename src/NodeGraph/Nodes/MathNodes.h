@@ -5,30 +5,23 @@
 class ConstantNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(ConstantNode, "Constant", "Constant", "Math")
-
-	virtual void assignIoData() {
-		addIoData(value);
-	}
+	DEFINE_NODE(ConstantNode, "Constant", "Constant", Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<NodePin> value = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "value", NodePin::Flags::ForceDataField);
 
 	virtual void process() {}
+	
 };
+
+void ConstantNode::initialize(){
+	addIoData(value);
+}
+
 
 class AdditionNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(AdditionNode, "Addition", "Addition", "Math")
-	
-	virtual void assignIoData() {
-		input->assignData(inputPinValue);
-		addIoData(input);
-		offset->assignData(offsetPinValue);
-		addIoData(offset);
-		output->assignData(outputPinValue);
-		addIoData(output);
-	}
+	DEFINE_NODE(AdditionNode, "Addition", "Addition", Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", NodePin::Flags::AcceptMultipleInputs);
 	std::shared_ptr<NodePin> offset = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "offset", NodePin::Flags::DisablePin | NodePin::Flags::ForceDataField);
@@ -53,21 +46,19 @@ public:
 	}
 };
 
+void AdditionNode::initialize(){
+	input->assignData(inputPinValue);
+	addIoData(input);
+	offset->assignData(offsetPinValue);
+	addIoData(offset);
+	output->assignData(outputPinValue);
+	addIoData(output);
+}
+
 class SubtractionNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(SubtractionNode, "Subtraction", "Subtraction", "Math")
-
-	virtual void assignIoData() {
-		base->assignData(basePinValue);
-		addIoData(base);
-		sub->assignData(subPinValue);
-		addIoData(sub);
-		offset->assignData(offsetPinValue);
-		addIoData(offset);
-		output->assignData(outputPinValue);
-		addIoData(output);
-	}
+	DEFINE_NODE(SubtractionNode, "Subtraction", "Subtraction", Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<NodePin> base = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "base", NodePin::Flags::AcceptMultipleInputs);
 	std::shared_ptr<NodePin> sub = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "sub", NodePin::Flags::AcceptMultipleInputs);
@@ -101,19 +92,21 @@ public:
 	}
 };
 
+void SubtractionNode::initialize(){
+	base->assignData(basePinValue);
+	addIoData(base);
+	sub->assignData(subPinValue);
+	addIoData(sub);
+	offset->assignData(offsetPinValue);
+	addIoData(offset);
+	output->assignData(outputPinValue);
+	addIoData(output);
+}
+
 class MultiplicationNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(MultiplicationNode, "Multiplication", "Mutliplication", "Math")
-
-	virtual void assignIoData() {
-		input->assignData(inputPinValue);
-		addIoData(input);
-		multiplier->assignData(multiplierPinValue);
-		addIoData(multiplier);
-		output->assignData(outputPinValue);
-		addIoData(output);
-	}
+	DEFINE_NODE(MultiplicationNode, "Multiplication", "Mutliplication", Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", NodePin::Flags::AcceptMultipleInputs);
 	std::shared_ptr<NodePin> multiplier = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "mult", NodePin::Flags::DisablePin | NodePin::Flags::ForceDataField);
@@ -139,21 +132,19 @@ public:
 	}
 };
 
+void MultiplicationNode::initialize(){
+	input->assignData(inputPinValue);
+	addIoData(input);
+	multiplier->assignData(multiplierPinValue);
+	addIoData(multiplier);
+	output->assignData(outputPinValue);
+	addIoData(output);
+}
+
 class DivisionNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(DivisionNode, "Division", "Division", "Math")
-
-	virtual void assignIoData() {
-		base->assignData(basePinValue);
-		addIoData(base);
-		div->assignData(divPinValue);
-		addIoData(div);
-		mult->assignData(multPinValue);
-		addIoData(mult);
-		output->assignData(outputPinValue);
-		addIoData(output);
-	}
+	DEFINE_NODE(DivisionNode, "Division", "Division", Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<NodePin> base = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "base", NodePin::Flags::AcceptMultipleInputs);
 	std::shared_ptr<NodePin> div = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "div", NodePin::Flags::AcceptMultipleInputs);
@@ -187,19 +178,21 @@ public:
 	}
 };
 
+void DivisionNode::initialize(){
+	base->assignData(basePinValue);
+	addIoData(base);
+	div->assignData(divPinValue);
+	addIoData(div);
+	mult->assignData(multPinValue);
+	addIoData(mult);
+	output->assignData(outputPinValue);
+	addIoData(output);
+}
+
 class ExponentNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(ExponentNode, "Exponent", "Exponent", "Math")
-
-	virtual void assignIoData() {
-		base->assignData(basePinValue);
-		addIoData(base);
-		exp->assignData(expPinValue);
-		addIoData(exp);
-		output->assignData(outputPinValue);
-		addIoData(output);
-	}
+	DEFINE_NODE(ExponentNode, "Exponent", "Exponent", Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<NodePin> base = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "base");
 	std::shared_ptr<NodePin> exp = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "exp");
@@ -218,18 +211,20 @@ public:
 	}
 };
 
+void ExponentNode::initialize(){
+	base->assignData(basePinValue);
+	addIoData(base);
+	exp->assignData(expPinValue);
+	addIoData(exp);
+	output->assignData(outputPinValue);
+	addIoData(output);
+}
+
 
 class AbsoluteNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(AbsoluteNode, "Absolute", "Absolute", "Math")
-
-	virtual void assignIoData() {
-		input->assignData(inputPinValue);
-		addIoData(input);
-		output->assignData(outputPinValue);
-		addIoData(output);
-	}
+	DEFINE_NODE(AbsoluteNode, "Absolute", "Absolute", Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in");
 	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
@@ -244,6 +239,13 @@ public:
 	}
 };
 
+void AbsoluteNode::initialize(){
+	input->assignData(inputPinValue);
+	addIoData(input);
+	output->assignData(outputPinValue);
+	addIoData(output);
+}
+
 
 
 
@@ -252,14 +254,7 @@ public:
 class SinusNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(SinusNode, "Sinus", "Sinus", "Trigonometry")
-
-	virtual void assignIoData() {
-		in->assignData(inputPinValue);
-		addIoData(in);
-		out->assignData(outputPinValue);
-		addIoData(out);
-	}
+	DEFINE_NODE(SinusNode, "Sinus", "Sinus", Node::Type::PROCESSOR, "Trigonometry")
 
 	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in");
 	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
@@ -273,17 +268,17 @@ public:
 	}
 };
 
+void SinusNode::initialize(){
+	in->assignData(inputPinValue);
+	addIoData(in);
+	out->assignData(outputPinValue);
+	addIoData(out);
+}
+
 class CosinusNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(CosinusNode, "Cosinus", "Cosinus", "Trigonometry")
-
-	virtual void assignIoData() {
-		in->assignData(inputPinValue);
-		addIoData(in);
-		out->assignData(outputPinValue);
-		addIoData(out);
-	}
+	DEFINE_NODE(CosinusNode, "Cosinus", "Cosinus", Node::Type::PROCESSOR, "Trigonometry")
 
 	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in");
 	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
@@ -297,17 +292,17 @@ public:
 	}
 };
 
+void CosinusNode::initialize(){
+	in->assignData(inputPinValue);
+	addIoData(in);
+	out->assignData(outputPinValue);
+	addIoData(out);
+}
+
 class TangentNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(TangentNode, "Tangent", "Tangent", "Trigonometry")
-
-	virtual void assignIoData() {
-		in->assignData(inputPinValue);
-		addIoData(in);
-		out->assignData(outputPinValue);
-		addIoData(out);
-	}
+	DEFINE_NODE(TangentNode, "Tangent", "Tangent", Node::Type::PROCESSOR, "Trigonometry")
 
 	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in");
 	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
@@ -321,17 +316,17 @@ public:
 	}
 };
 
+void TangentNode::initialize(){
+	in->assignData(inputPinValue);
+	addIoData(in);
+	out->assignData(outputPinValue);
+	addIoData(out);
+}
+
 class CotangentNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(CotangentNode, "Cotangent", "Cotangent", "Trigonometry")
-
-	virtual void assignIoData() {
-		in->assignData(inputPinValue);
-		addIoData(in);
-		out->assignData(outputPinValue);
-		addIoData(out);
-	}
+	DEFINE_NODE(CotangentNode, "Cotangent", "Cotangent", Node::Type::PROCESSOR, "Trigonometry")
 
 	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in");
 	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
@@ -344,6 +339,13 @@ public:
 		*outputPinValue = 1.0 / std::sin(*inputPinValue);
 	}
 };
+
+void CotangentNode::initialize(){
+	in->assignData(inputPinValue);
+	addIoData(in);
+	out->assignData(outputPinValue);
+	addIoData(out);
+}
 
 
 
@@ -359,14 +361,7 @@ public:
 class BoolNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(BoolNode, "Bool", "Bool", "Logic")
-
-	virtual void assignIoData() {
-		in->assignData(inputPinValue);
-		addIoData(in);
-		out->assignData(outputPinValue);
-		addIoData(out);
-	}
+	DEFINE_NODE(BoolNode, "Bool", "Bool", Node::Type::PROCESSOR, "Logic")
 
 	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in");
 	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
@@ -380,17 +375,17 @@ public:
 	}
 };
 
+void BoolNode::initialize(){
+	in->assignData(inputPinValue);
+	addIoData(in);
+	out->assignData(outputPinValue);
+	addIoData(out);
+}
+
 class NotNode : public Node{
 public:
 
-	DEFINE_PROCESSOR_NODE(NotNode, "Not", "Not", "Logic")
-
-	virtual void assignIoData() {
-		in->assignData(inputPinValue);
-		addIoData(in);
-		out->assignData(outputPinValue);
-		addIoData(out);
-	}
+	DEFINE_NODE(NotNode, "Not", "Not", Node::Type::PROCESSOR, "Logic")
 
 	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in");
 	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
@@ -404,18 +399,18 @@ public:
 	}
 };
 
+void NotNode::initialize(){
+	in->assignData(inputPinValue);
+	addIoData(in);
+	out->assignData(outputPinValue);
+	addIoData(out);
+}
+
 class AndNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(AndNode, "And", "And", "Logic")
-
-	virtual void assignIoData() {
-		in->assignData(inputPinValue);
-		addIoData(in);
-		out->assignData(outputPinValue);
-		addIoData(out);
-	}
-
+	DEFINE_NODE(AndNode, "And", "And", Node::Type::PROCESSOR, "Logic")
+	
 	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in", NodePin::Flags::AcceptMultipleInputs);
 	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
 
@@ -436,17 +431,17 @@ public:
 	}
 };
 
+void AndNode::initialize(){
+	in->assignData(inputPinValue);
+	addIoData(in);
+	out->assignData(outputPinValue);
+	addIoData(out);
+}
+
 class OrNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(OrNode, "Or", "Or", "Logic")
-
-	virtual void assignIoData() {
-		in->assignData(inputPinValue);
-		addIoData(in);
-		out->assignData(outputPinValue);
-		addIoData(out);
-	}
+	DEFINE_NODE(OrNode, "Or", "Or", Node::Type::PROCESSOR, "Logic")
 
 	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in", NodePin::Flags::AcceptMultipleInputs);
 	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
@@ -467,4 +462,11 @@ public:
 		}
 	}
 };
+
+void OrNode::initialize(){
+	in->assignData(inputPinValue);
+	addIoData(in);
+	out->assignData(outputPinValue);
+	addIoData(out);
+}
 
