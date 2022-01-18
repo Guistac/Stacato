@@ -18,75 +18,48 @@
 //Unknown devices will not and will be of the base type EtherCatDevice
 
 #define DEFINE_ETHERCAT_DEVICE_INTERFACE(className, EtherCatName, displayName, saveName, manufacturerName, category) public:\
-		\
-        /*Node Specific*/\
-		DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, category)\
-		\
-        /*Device Specific*/\
-		virtual Device::Type getDeviceType() { return Device::Type::ETHERCAT_DEVICE; }\
-        virtual bool isDetected();\
-        virtual bool isConnected();\
-        virtual void readInputs(){}\
-        virtual void prepareOutputs(){}\
-        virtual void onConnection(){}\
-        virtual void onDisconnection(){}\
-		\
-        /*EtherCAT Device Specific*/\
-		virtual const char* getManufacturerName(){ return manufacturerName; }\
-        virtual const char* getEtherCatName(){ return EtherCatName; }\
-        virtual bool isSlaveKnown(){ return false; }\
-        virtual bool startupConfiguration(){ return true; }\
-        virtual bool saveDeviceData(tinyxml2::XMLElement* xml){ return true; }\
-        virtual bool loadDeviceData(tinyxml2::XMLElement* xml){ return true; }\
-		virtual void deviceSpecificGui(){}\
-
+	DEFINE_DEVICE_NODE(className, displayName, saveName, Device::Type::ETHERCAT_DEVICE, category)\
+	/*EtherCat Device Specific*/\
+	virtual const char* getManufacturerName(){ return manufacturerName; }\
+	virtual const char* getEtherCatName(){ return EtherCatName; }\
+	virtual bool isSlaveKnown(){ return false; }\
+	virtual bool startupConfiguration(){ return true; }\
+	virtual bool saveDeviceData(tinyxml2::XMLElement* xml){ return true; }\
+	virtual bool loadDeviceData(tinyxml2::XMLElement* xml){ return true; }\
+	virtual void deviceSpecificGui(){}\
 
 #define DEFINE_ETHERCAT_DEVICE(className, EtherCatName, displayName, saveName, manufacturerName, category) public:\
-		\
-        /*Node Specific*/\
-		DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, category)\
-		\
-        /*Device Specific*/\
-		virtual Device::Type getDeviceType() { return Device::Type::ETHERCAT_DEVICE; }\
-        virtual void readInputs();\
-        virtual void prepareOutputs();\
-        virtual void onConnection();\
-        virtual void onDisconnection();\
-		\
-        /*EtherCAT Device Specific*/\
-		virtual const char* getManufacturerName() { return manufacturerName; }\
-        virtual const char* getEtherCatName(){ return EtherCatName; }\
-        virtual bool isSlaveKnown(){ return true; }\
-        virtual bool startupConfiguration();\
-        virtual bool saveDeviceData(tinyxml2::XMLElement* xml);\
-        virtual bool loadDeviceData(tinyxml2::XMLElement* xml);\
-		virtual void deviceSpecificGui();\
-
-struct EtherCatDeviceIdentification {
-    enum class Type {
-        STATION_ALIAS,
-        EXPLICIT_DEVICE_ID
-    };
-    Type type;
-    const char displayName[64];
-    const char saveName[64];
-};
-extern std::vector<EtherCatDeviceIdentification> indentificationTypes;
-std::vector<EtherCatDeviceIdentification>& getIdentificationTypes();
-EtherCatDeviceIdentification* getIdentificationType(const char *);
-EtherCatDeviceIdentification* getIdentificationType(EtherCatDeviceIdentification::Type t);
+	DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, category)\
+	virtual Device::Type getDeviceType() { return Device::Type::ETHERCAT_DEVICE; }\
+	virtual void onConnection();\
+	virtual void onDisconnection();\
+	virtual void readInputs();\
+	virtual void prepareOutputs();\
+	/*EtherCat Device Specific*/\
+	virtual const char* getManufacturerName() { return manufacturerName; }\
+	virtual const char* getEtherCatName(){ return EtherCatName; }\
+	virtual bool isSlaveKnown(){ return true; }\
+	virtual bool startupConfiguration();\
+	virtual bool saveDeviceData(tinyxml2::XMLElement* xml);\
+	virtual bool loadDeviceData(tinyxml2::XMLElement* xml);\
+	virtual void deviceSpecificGui();\
 
 namespace tinyxml2{ class XMLElement; }
 
 class EtherCatDevice : public Device {
 public:
+	
+	enum class IdentificationType{
+		STATION_ALIAS,
+		EXPLICIT_DEVICE_ID
+	};
 
     //===== Base EtherCAT device
     //serves as device interface and as default device type for unknow devices
     DEFINE_ETHERCAT_DEVICE_INTERFACE(EtherCatDevice, "Unknown Device", "Unknown Device", "UnknownDevice", "Unknown manufacturer", "No Category");
 
     ec_slavet* identity = nullptr;
-    EtherCatDeviceIdentification::Type identificationType = EtherCatDeviceIdentification::Type::STATION_ALIAS;
+    IdentificationType identificationType = IdentificationType::STATION_ALIAS;
     int slaveIndex = -1;
     uint16_t stationAlias = 0;
     uint16_t explicitDeviceID = 0;
@@ -148,20 +121,14 @@ public:
 
     //===== Upload Status Variables =====
 
-    struct DataTransferState {
-        enum class State {
-            NO_TRANSFER,
-            TRANSFERRING,
-            SUCCEEDED,
-            SAVING,
-            SAVED,
-            FAILED
-        };
-        State state;
-        char displayName[64];
-    };
-    static std::vector<DataTransferState> dataTransferStates;
-    DataTransferState* getDataTransferState(DataTransferState::State s);
+	enum class DataTransferState{
+		NO_TRANSFER,
+		TRANSFERRING,
+		SUCCEEDED,
+		SAVING,
+		SAVED,
+		FAILED
+	};
 
     //======== GUI ========
 
@@ -209,21 +176,38 @@ public:
 
 	uint16_t downloadedALStatuscode = 0x0;
 	void downloadALStatusCode();
-	DataTransferState::State AlStatusCodeDownloadState = DataTransferState::State::NO_TRANSFER;
+	DataTransferState AlStatusCodeDownloadState = DataTransferState::NO_TRANSFER;
 	
     bool downloadEEPROM(char* fileName);
-    DataTransferState::State eepromDownloadState = DataTransferState::State::NO_TRANSFER;
+    DataTransferState eepromDownloadState = DataTransferState::NO_TRANSFER;
     char eepromSaveFilePath[512];
 
     bool flashEEPROM(char* fileName);
-    DataTransferState::State eepromFlashState = DataTransferState::State::NO_TRANSFER;
+    DataTransferState eepromFlashState = DataTransferState::NO_TRANSFER;
     char eepromLoadFilePath[512];
 
     bool setStationAlias(uint16_t alias);
     uint16_t stationAliasToolValue = 0;
-    DataTransferState::State stationAliasAssignState = DataTransferState::State::NO_TRANSFER;
-	
+    DataTransferState stationAliasAssignState = DataTransferState::NO_TRANSFER;
 	
 	virtual bool save(tinyxml2::XMLElement* xml);
 	virtual bool load(tinyxml2::XMLElement* xml);
 };
+
+#define EtherCatIdentificationTypeStrings \
+	{EtherCatDevice::IdentificationType::STATION_ALIAS, "Station Alias", "StationAlias"},\
+	{EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID, "Explicit Device ID", "ExplicitDeviceID"}\
+
+DEFINE_ENUMERATOR(EtherCatDevice::IdentificationType, EtherCatIdentificationTypeStrings)
+
+//====================== DATA TRANSFER STATE =================================
+
+#define EtherCatDataTransferStateStrings \
+	{EtherCatDevice::DataTransferState::NO_TRANSFER, ""},\
+	{EtherCatDevice::DataTransferState::TRANSFERRING, "Transferring..."},\
+	{EtherCatDevice::DataTransferState::SUCCEEDED, "Transfer Succeeded"},\
+	{EtherCatDevice::DataTransferState::SAVING, "Saving to Device Memory..."},\
+	{EtherCatDevice::DataTransferState::SAVED, "Saved to Device Memory"},\
+	{EtherCatDevice::DataTransferState::FAILED, "Transfer Failed"}\
+
+DEFINE_ENUMERATOR(EtherCatDevice::DataTransferState, EtherCatDataTransferStateStrings)

@@ -202,8 +202,8 @@ void OscDevice::updatePins(){
 	}
 	
 	//erase all input pins from the nodes pin vectors
-	std::vector<std::shared_ptr<NodePin>>& inputPins = getNodeInputData();
-	std::vector<std::shared_ptr<NodePin>>& outputPins = getNodeOutputData();
+	std::vector<std::shared_ptr<NodePin>>& inputPins = getInputPins();
+	std::vector<std::shared_ptr<NodePin>>& outputPins = getOutputPins();
 	inputPins.clear();
 	outputPins.clear();
 	//and add them back in the correct order

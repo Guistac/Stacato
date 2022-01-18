@@ -135,17 +135,17 @@ void EtherCatDevice::identificationGui() {
     }
 
     ImGui::Text("Identification Type");
-    if (ImGui::BeginCombo("##identificationType", getIdentificationType(identificationType)->displayName)) {
-        for (auto& identification : getIdentificationTypes()) {
-            if (ImGui::Selectable(identification.displayName, identificationType == identification.type)) {
-                identificationType = identification.type;
+    if (ImGui::BeginCombo("##identificationType", Enumerator::getDisplayString(identificationType))) {
+        for (auto& type : Enumerator::getTypes<EtherCatDevice::IdentificationType>()) {
+            if (ImGui::Selectable(type.displayString, identificationType == type.enumerator)) {
+                identificationType = type.enumerator;
             }
         }
         ImGui::EndCombo();
     }
 
     switch (identificationType) {
-    case EtherCatDeviceIdentification::Type::STATION_ALIAS: {
+		case EtherCatDevice::IdentificationType::STATION_ALIAS: {
         ImGui::Text("Station Alias:");
         ImGui::SameLine();
         if (beginHelpMarker("(help)")) {
@@ -169,10 +169,10 @@ void EtherCatDevice::identificationGui() {
             setStationAlias(stationAliasToolValue);
         }
         ImGui::SameLine();
-        ImGui::Text(getDataTransferState(stationAliasAssignState)->displayName);
+        ImGui::Text("%s", Enumerator::getDisplayString(stationAliasAssignState));
         if (disableAliasTool) END_DISABLE_IMGUI_ELEMENT
         }break;
-    case EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID:
+		case EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID:
         ImGui::Text("Explicit Device ID:");
         ImGui::SameLine();
         if (beginHelpMarker("(help)")) {
@@ -293,7 +293,7 @@ void EtherCatDevice::genericInfoGui() {
         ImGui::Text("SDO info: %s", supportsCoE_SDOinfo() ? "supported" : "not supported");
         ImGui::Text("PDO assign: %s", supportsCoE_PDOassign() ? "supported" : "not supported");
         ImGui::Text("PDO config: %s", supportsCoE_PDOconfig() ? "supported" : "not supported");
-        ImGui::Text("Upload: % s", supportsCoE_upload() ? "supported" : "not supported");
+        ImGui::Text("Upload: %s", supportsCoE_upload() ? "supported" : "not supported");
         ImGui::Text("SDO Complete Access: %s", supportsCoE_SDOCA() ? "supported" : "not supported");
     }
     else ImGui::Text("CoE is not Supported");
@@ -331,7 +331,7 @@ void EtherCatDevice::pdoDataGui() {
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("Module 0x%4X", module.index);
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%i entries", module.getEntryCount());
+                ImGui::Text("%i entries", (int)module.getEntryCount());
                 ImGui::TableSetColumnIndex(2);
                 ImGui::Text("-");
                 ImGui::TableSetColumnIndex(3);
@@ -596,8 +596,8 @@ void EtherCatDevice::sendReceiveEtherCatRegisterGui() {
 		downloadALStatusCode();
 	}
 	ImGui::SameLine();
-	if(AlStatusCodeDownloadState != DataTransferState::State::NO_TRANSFER){
-		ImGui::Text("%s", getDataTransferState(AlStatusCodeDownloadState)->displayName);
+	if(AlStatusCodeDownloadState != DataTransferState::NO_TRANSFER){
+		ImGui::Text("%s", Enumerator::getDisplayString(AlStatusCodeDownloadState));
 	}
 	const char* statusCodeString = ec_ALstatuscode2string(downloadedALStatuscode);
 	ImGui::Text("AL Status Code:");
@@ -721,7 +721,7 @@ void EtherCatDevice::sendReceiveEeprom() {
         }
     }
     ImGui::SameLine();
-    ImGui::Text(getDataTransferState(eepromDownloadState)->displayName);
+    ImGui::Text("%s", Enumerator::getDisplayString(eepromDownloadState));
 
     ImGui::Text("Flash file to Device EEPROM");
     if (ImGui::Button("Flash EEPROM")) {
@@ -734,7 +734,7 @@ void EtherCatDevice::sendReceiveEeprom() {
         }
     }
     ImGui::SameLine();
-    ImGui::Text(getDataTransferState(eepromFlashState)->displayName);
+    ImGui::Text("%s", Enumerator::getDisplayString(eepromFlashState));
 }
 
 #include <iomanip>

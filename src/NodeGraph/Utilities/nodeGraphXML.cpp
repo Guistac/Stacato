@@ -17,7 +17,7 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 	for (auto node : getNodes()) {
 		XMLElement* nodeXML = nodes->InsertNewChildElement("Node");
 
-		nodeXML->SetAttribute("NodeType", getNodeType(node->getType())->saveName);
+		nodeXML->SetAttribute("NodeType", Enumerator::getSaveString(node->getType()));
 		if (node->getType() == Node::Type::IODEVICE) {
 			std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);
 			nodeXML->SetAttribute("DeviceType", getDeviceType(device->getDeviceType())->saveName);
@@ -57,12 +57,12 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 		node->save(nodeSpecificDataXML);
 
 		XMLElement* inputPinsXML = nodeXML->InsertNewChildElement("InputPins");
-		for (auto pin : node->getNodeInputData()) {
+		for (auto pin : node->getInputPins()) {
 			XMLElement* inputPinXML = inputPinsXML->InsertNewChildElement("InputPin");
 			pin->save(inputPinXML);
 		}
 		XMLElement* outputPinsXML = nodeXML->InsertNewChildElement("OutputPins");
-		for (auto pin : node->getNodeOutputData()) {
+		for (auto pin : node->getOutputPins()) {
 			XMLElement* outputPinXML = outputPinsXML->InsertNewChildElement("OutputPin");
 			pin->save(outputPinXML);
 		}
@@ -105,8 +105,8 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		if (nodeXML->QueryStringAttribute("CustomName", &nodeCustomName) != XML_SUCCESS) return Logger::warn("Could not load Node Custom Name");
 		const char* nodeTypeString;
 		if (nodeXML->QueryStringAttribute("NodeType", &nodeTypeString) != XML_SUCCESS) return Logger::warn("Could not load Node Type");
-		if (getNodeType(nodeTypeString) == nullptr) return Logger::warn("Could not read node type");
-		Node::Type nodeType = getNodeType(nodeTypeString)->type;
+		if (!Enumerator::isValidSaveName<Node::Type>(nodeTypeString)) return Logger::warn("Could not read node type");
+		Node::Type nodeType = Enumerator::getEnumeratorFromSaveString<Node::Type>(nodeTypeString);
 
 		//Construct Node Object from Type Attributes
 		//on construction initialize() is called to assign node data, creates static/static node pins and adds them to the nodes input and output data lists
@@ -198,11 +198,11 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		loadedNode->b_wasSplit = isSplit;
 		loadedNodes.push_back(loadedNode);
 		loadedNode->b_isInNodeGraph = true;
-		for (std::shared_ptr<NodePin> data : loadedNode->nodeInputData) {
+		for (std::shared_ptr<NodePin> data : loadedNode->nodeInputPins) {
 			data->parentNode = loadedNode;
 			loadedPins.push_back(data);
 		}
-		for (std::shared_ptr<NodePin> data : loadedNode->nodeOutputData) {
+		for (std::shared_ptr<NodePin> data : loadedNode->nodeOutputPins) {
 			data->parentNode = loadedNode;
 			loadedPins.push_back(data);
 		}
@@ -221,7 +221,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			if(!Enumerator::isValidSaveName<NodePin::DataType>(dataTypeString)) return Logger::warn("Could not read Input Pin DataType Attribute");
 			NodePin::DataType dataType = Enumerator::getEnumeratorFromSaveString<NodePin::DataType>(dataTypeString);
 			std::shared_ptr<NodePin> matchingPin = nullptr;
-			for (auto pin : loadedNode->getNodeInputData()) {
+			for (auto pin : loadedNode->getInputPins()) {
 				if (pin->matches(saveNameString, dataType)) {
 					if (!pin->load(inputPinXML)) return Logger::warn("Could not load Node Pin '{}'", saveNameString);
 					matchingPin = pin;
@@ -248,7 +248,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 			if (!Enumerator::isValidSaveName<NodePin::DataType>(dataTypeString)) return Logger::warn("Coul not read Output Pin DataType Attribute");
 			NodePin::DataType dataType = Enumerator::getEnumeratorFromSaveString<NodePin::DataType>(dataTypeString);
 			std::shared_ptr<NodePin> matchingPin = nullptr;
-			for (auto pin : loadedNode->getNodeOutputData()) {
+			for (auto pin : loadedNode->getOutputPins()) {
 				if (pin->matches(saveNameString, dataType)) {
 					if (!pin->load(outputPinXML)) return Logger::warn("Could not load Node Pin '{}'", saveNameString);
 					matchingPin = pin;

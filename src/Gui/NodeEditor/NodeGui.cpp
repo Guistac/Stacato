@@ -88,12 +88,12 @@ void Node::nodeGui() {
         //find the widest pin line
         float titleTextWidth = getTitleWidth();
         float widestPin = 0;
-        for (auto pin : getNodeInputData()) {
+        for (auto pin : getInputPins()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
             float pinWidth = pin->getGuiWidth();
             if (pinWidth > widestPin) widestPin = pinWidth;
         }
-        for (auto pin : getNodeOutputData()) {
+        for (auto pin : getOutputPins()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
             float pinWidth = pin->getGuiWidth() + ImGui::GetStyle().ItemSpacing.x; //spacing of the right align offset dummy
             if (pinWidth > widestPin) widestPin = pinWidth;
@@ -120,12 +120,12 @@ void Node::nodeGui() {
 
         //===== draw input and output pins =====
 
-        for (auto pin : getNodeInputData()) {
+        for (auto pin : getInputPins()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
             pin->pinGui();
         }
         ImGui::Spacing();
-        for (auto pin : getNodeOutputData()) {
+        for (auto pin : getOutputPins()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
             float rightAlignSpacingWidth = nodeWidth - 2 * nodePadding - ImGui::GetStyle().ItemSpacing.x - pin->getGuiWidth();
             ImGui::Dummy(glm::vec2(rightAlignSpacingWidth, 0));
@@ -155,7 +155,7 @@ void Node::nodeGui() {
         float inputTitleTextWidth = getTitleWidth();
         if (outputLabelWidth > inputTitleTextWidth) inputTitleTextWidth = outputLabelWidth;
         float widestInputPin = 0;
-        for (auto pin : getNodeInputData()) {
+        for (auto pin : getInputPins()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
             float pinWidth = pin->getGuiWidth();
             if (pinWidth > widestInputPin) widestInputPin = pinWidth;
@@ -184,7 +184,7 @@ void Node::nodeGui() {
         ImGui::PopStyleColor();
         ImGui::Spacing();
 
-        for (auto pin : getNodeInputData()) {
+        for (auto pin : getInputPins()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
             pin->pinGui();
         }
@@ -210,7 +210,7 @@ void Node::nodeGui() {
         float outputTitleTextWidth = getTitleWidth();
         if (inputLabelWidth > outputTitleTextWidth) outputTitleTextWidth = inputLabelWidth;
         float widestOutputPin = 0;
-        for (auto pin : getNodeOutputData()) {
+        for (auto pin : getOutputPins()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
             float pinWidth = pin->getGuiWidth();
             if (pinWidth > widestOutputPin) widestOutputPin = pinWidth;
@@ -240,7 +240,7 @@ void Node::nodeGui() {
         ImGui::Spacing();
 
         ImGui::Spacing();
-        for (auto pin : getNodeOutputData()) {
+        for (auto pin : getOutputPins()) {
             if (!pin->isVisible() && !pin->isConnected()) continue;
             float rightAlignSpacingWidth = outputNodeWidth - 2 * nodePadding - ImGui::GetStyle().ItemSpacing.x - pin->getGuiWidth();
             ImGui::Dummy(glm::vec2(rightAlignSpacingWidth, 0));
@@ -309,12 +309,12 @@ void Node::propertiesGui() {
 
             if (hasInputs()) {
                 ImGui::Text("Input Data:");
-                displayDataTable(getNodeInputData(), "Input Data");
+                displayDataTable(getInputPins(), "Input Data");
                 ImGui::Separator();
             }
             if (hasOutputs()) {
                 ImGui::Text("Output Data:");
-                displayDataTable(getNodeOutputData(), "Output Data");
+                displayDataTable(getOutputPins(), "Output Data");
                 ImGui::Separator();
             }
             ImGui::EndTabItem();

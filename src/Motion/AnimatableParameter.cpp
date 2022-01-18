@@ -9,7 +9,7 @@
 //Constructor for Base Parameter Types
 AnimatableParameter::AnimatableParameter(const char* nm, ParameterDataType::Type datat, const char* unitShortStr) : dataType(datat) {
 	strcpy(name, nm);
-	sprintf(shortUnitString, unitShortStr);
+	strcpy(shortUnitString, unitShortStr);
 }
 
 //Constructor for Parameter with State DataType
@@ -26,26 +26,26 @@ AnimatableParameter::AnimatableParameter(const char* nm, std::vector<std::shared
 	dataType = ParameterDataType::Type::PARAMETER_GROUP;
 }
 
-std::vector<InterpolationType::Type> AnimatableParameter::getCompatibleInterpolationTypes() {
-	std::vector<InterpolationType::Type> output;
+std::vector<Motion::InterpolationType> AnimatableParameter::getCompatibleInterpolationTypes() {
+	std::vector<Motion::InterpolationType> output;
 	switch (dataType) {
 		case ParameterDataType::Type::BOOLEAN_PARAMETER:
 		case ParameterDataType::Type::INTEGER_PARAMETER:
 		case ParameterDataType::Type::STATE_PARAMETER:
-			output.push_back(InterpolationType::Type::STEP);
+			output.push_back(Motion::InterpolationType::STEP);
 			break;
 		case ParameterDataType::Type::REAL_PARAMETER:
 		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
 		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
-			output.push_back(InterpolationType::Type::STEP);
-			output.push_back(InterpolationType::Type::LINEAR);
-			output.push_back(InterpolationType::Type::TRAPEZOIDAL);
-			output.push_back(InterpolationType::Type::BEZIER);
+			output.push_back(Motion::InterpolationType::STEP);
+			output.push_back(Motion::InterpolationType::LINEAR);
+			output.push_back(Motion::InterpolationType::TRAPEZOIDAL);
+			output.push_back(Motion::InterpolationType::BEZIER);
 			break;
 		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
 		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
 		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
-			output.push_back(InterpolationType::Type::TRAPEZOIDAL);
+			output.push_back(Motion::InterpolationType::TRAPEZOIDAL);
 			break;
 		case ParameterDataType::Type::PARAMETER_GROUP:
 			break;

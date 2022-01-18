@@ -14,8 +14,6 @@ class NodeLink;
 namespace tinyxml2 { class XMLElement; }
 
 
-
-
 class NodePin {
 public:
 	

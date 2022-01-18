@@ -334,20 +334,20 @@ bool PositionControlledSingleAxisMachine::validateParameterTrack(const std::shar
 	for (auto& controlPoint : curve->points) {
 		//check all validation conditions and find validaiton error state
 		if (controlPoint->position < lowLimit_machineUnits || controlPoint->position > highLimit_machineUnits)
-			controlPoint->validationError = ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+			controlPoint->validationError = ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
 		else if (std::abs(controlPoint->velocity) > velocityLimit_machineUnits)
-			controlPoint->validationError = ValidationError::Error::CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED;
+			controlPoint->validationError = ValidationError::CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED;
 		else if (std::abs(controlPoint->rampIn) > accelerationLimit_machineUnits)
-			controlPoint->validationError = ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED;
+			controlPoint->validationError = ValidationError::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED;
 		else if (std::abs(controlPoint->rampOut) > accelerationLimit_machineUnits)
-			controlPoint->validationError = ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED;
+			controlPoint->validationError = ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED;
 		else if (controlPoint->rampIn == 0.0)
-			controlPoint->validationError = ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO;
+			controlPoint->validationError = ValidationError::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO;
 		else if (controlPoint->rampOut == 0.0)
-			controlPoint->validationError = ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO;
-		else controlPoint->validationError = ValidationError::Error::NO_VALIDATION_ERROR; //All Checks Passed: No Validation Error !
+			controlPoint->validationError = ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO;
+		else controlPoint->validationError = ValidationError::NO_VALIDATION_ERROR; //All Checks Passed: No Validation Error !
 		//set valid flag for point, if invalid, set flag for whole curve
-		controlPoint->b_valid = controlPoint->validationError == ValidationError::Error::NO_VALIDATION_ERROR;
+		controlPoint->b_valid = controlPoint->validationError == ValidationError::NO_VALIDATION_ERROR;
 		if(!controlPoint->b_valid) b_curveValid = false;
 	}
 
@@ -361,7 +361,7 @@ bool PositionControlledSingleAxisMachine::validateParameterTrack(const std::shar
 		}
 		//check if the velocity of the interpolation exceeds the limit
 		if (std::abs(interpolation->interpolationVelocity) > velocityLimit_machineUnits) {
-			interpolation->validationError = ValidationError::Error::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED;
+			interpolation->validationError = ValidationError::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED;
 			interpolation->b_valid = false;
 			b_curveValid = false;
 			continue;
@@ -369,7 +369,7 @@ bool PositionControlledSingleAxisMachine::validateParameterTrack(const std::shar
 		//if all interpolation checks passed, we check all interpolation preview points for their range
 		for (auto& point : interpolation->displayPoints) {
 			if (point.position > highLimit_machineUnits || point.position < lowLimit_machineUnits) {
-				interpolation->validationError = ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE;
+				interpolation->validationError = ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
 				interpolation->b_valid = false;
 				b_curveValid = false;
 				break;

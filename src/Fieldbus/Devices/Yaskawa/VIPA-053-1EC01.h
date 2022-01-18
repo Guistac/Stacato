@@ -27,6 +27,6 @@ public:
 	//module configuration
     bool downloadDeviceModules(std::vector<std::shared_ptr<VipaModule>>& output);
     void configureFromDeviceModules();
-    DataTransferState::State configureFromDeviceModulesDownloadStatus = DataTransferState::State::NO_TRANSFER;
+    DataTransferState configureFromDeviceModulesDownloadStatus = DataTransferState::NO_TRANSFER;
 };
 

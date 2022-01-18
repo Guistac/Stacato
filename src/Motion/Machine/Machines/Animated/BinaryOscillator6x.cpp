@@ -273,11 +273,11 @@ bool BinaryOscillator6x::validateParameterTrack(const std::shared_ptr<ParameterT
 			for (auto& point : curve->points) {
 				if (point->position >= 1.0 && point->position <= maxTime_seconds) {
 					point->b_valid = true;
-					point->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+					point->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 				}
 				else {
 					point->b_valid = false;
-					point->validationError = Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+					point->validationError = Motion::ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
 					b_curveValid = false;
 				}
 			}
@@ -286,7 +286,7 @@ bool BinaryOscillator6x::validateParameterTrack(const std::shared_ptr<ParameterT
 				for (auto& point : interpolation->displayPoints) {
 					if (point.position < 1.0 && point.position > maxTime_seconds) {
 						interpolationValid = false;
-						interpolation->validationError = Motion::ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE;
+						interpolation->validationError = Motion::ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
 						b_curveValid = false;
 						break;
 					}

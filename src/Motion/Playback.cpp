@@ -108,14 +108,14 @@ namespace Playback {
 			double time = Environnement::getTime_seconds();
 			manoeuvre->playbackStartTime_seconds = time - manoeuvre->playbackPosition_seconds;
 			switch (manoeuvre->type) {
-				case ManoeuvreType::Type::KEY_POSITION:
+				case Manoeuvre::Type::KEY_POSITION:
 					break;
-				case ManoeuvreType::Type::TIMED_MOVEMENT:
+				case Manoeuvre::Type::TIMED_MOVEMENT:
 					for (auto& track : manoeuvre->tracks) {
 						//track->parameter->machine->getTimedMovementTo(parameter, parameterValue, curves);
 					}
 					break;
-				case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
+				case Manoeuvre::Type::MOVEMENT_SEQUENCE:
 					for (auto& track : manoeuvre->tracks) {
 						track->playbackPosition_seconds = manoeuvre->playbackPosition_seconds;
 						track->parameter->machine->startParameterPlayback(track);
@@ -140,15 +140,15 @@ namespace Playback {
 		if (manoeuvre->b_isPaused) {
 			manoeuvre->b_isPaused = false;
 			switch (manoeuvre->type) {
-				case ManoeuvreType::Type::KEY_POSITION:
+				case Manoeuvre::Type::KEY_POSITION:
 					break;
-				case ManoeuvreType::Type::TIMED_MOVEMENT:
+				case Manoeuvre::Type::TIMED_MOVEMENT:
 					for (auto& track : manoeuvre->tracks) {
 						track->parameter->actualParameterTrack = track;
 						//track->parameter->machine->getTimedMovementTo(parameter, parameterValue, curves);
 					}
 					break;
-				case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
+				case Manoeuvre::Type::MOVEMENT_SEQUENCE:
 					if (isPrimedToPlaybackPosition(manoeuvre)) {
 						double time = Environnement::getTime_seconds();
 						manoeuvre->playbackStartTime_seconds = time - manoeuvre->playbackPosition_seconds;

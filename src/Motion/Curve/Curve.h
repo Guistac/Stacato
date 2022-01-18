@@ -2,44 +2,29 @@
 
 #include "Motion/MotionTypes.h"
 
-struct InterpolationType {
-	enum class Type {
+namespace Motion {
+
+	enum class InterpolationType {
 		STEP,
 		LINEAR,
 		TRAPEZOIDAL,
 		BEZIER
 	};
-	Type type;
-	const char displayName[64];
-	const char saveName[64];
-};
 
-std::vector<InterpolationType>& getInterpolationTypes();
-InterpolationType* getInterpolationType(InterpolationType::Type t);
-InterpolationType* getInterpolationType(const char* saveName);
-
-namespace Motion {
-
-	struct ValidationError {
-		enum class Error {
-			NO_VALIDATION_ERROR,
-			CONTROL_POINT_POSITION_OUT_OF_RANGE,
-			CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED,
-			CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED,
-			CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED,
-			CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO,
-			CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO,
-			INTERPOLATION_UNDEFINED,
-			INTERPOLATION_VELOCITY_LIMIT_EXCEEDED,
-			INTERPOLATION_POSITION_OUT_OF_RANGE,
-			INTERPOLATION_INPUT_ACCELERATION_IS_ZERO,
-			INTERPOLATION_OUTPUT_ACCELERATION_IS_ZERO
-		};
-		Error error;
-		const char displayName[128];
+	enum class ValidationError {
+		NO_VALIDATION_ERROR,
+		CONTROL_POINT_POSITION_OUT_OF_RANGE,
+		CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED,
+		CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED,
+		CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED,
+		CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO,
+		CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO,
+		INTERPOLATION_UNDEFINED,
+		INTERPOLATION_VELOCITY_LIMIT_EXCEEDED,
+		INTERPOLATION_POSITION_OUT_OF_RANGE,
+		INTERPOLATION_INPUT_ACCELERATION_IS_ZERO,
+		INTERPOLATION_OUTPUT_ACCELERATION_IS_ZERO
 	};
-	ValidationError* getValidationError(ValidationError::Error e);
-
 
 	struct ControlPoint;
 	class Interpolation;
@@ -68,13 +53,13 @@ namespace Motion {
 
 		char name[64] = "";
 		bool b_valid = false;
-		ValidationError::Error validationError = ValidationError::Error::NO_VALIDATION_ERROR;
+		ValidationError validationError = ValidationError::NO_VALIDATION_ERROR;
 	};
 
 	class Interpolation {
 	public:
 
-		InterpolationType::Type type;
+		InterpolationType type;
 		std::shared_ptr<ControlPoint> inPoint;
 		std::shared_ptr<ControlPoint> outPoint;
 
@@ -109,13 +94,13 @@ namespace Motion {
 
 		//reports error when calculating the interpolation
 		bool b_valid = false;
-		ValidationError::Error validationError = ValidationError::Error::NO_VALIDATION_ERROR;
+		ValidationError validationError = ValidationError::NO_VALIDATION_ERROR;
 	};
 
 	class Curve {
 	public:
 		std::vector<std::shared_ptr<ControlPoint>> points;
-		InterpolationType::Type interpolationType;
+		InterpolationType interpolationType;
 		std::vector<std::shared_ptr<Interpolation>> interpolations;
 
 		std::vector<std::shared_ptr<ControlPoint>>& getPoints();
@@ -158,3 +143,27 @@ namespace Motion {
 	}
 
 }
+
+#define CurveValidationErrorTypeStrings \
+	{Motion::ValidationError::NO_VALIDATION_ERROR,								"No Validation Error"},\
+	{Motion::ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE,				"Point Out of Range"},\
+	{Motion::ValidationError::CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED,			"Point Velocity Limit Exceeded"},\
+	{Motion::ValidationError::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED,	"Point Input Acceleration Limit Exceeded"},\
+	{Motion::ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED,	"Point Output Acceleration Limit Exceeded"},\
+	{Motion::ValidationError::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO,			"Point Input Acceleration Is Zero"},\
+	{Motion::ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO,		"Point Output Acceleration Is Zero"},\
+	{Motion::ValidationError::INTERPOLATION_UNDEFINED,							"Interpolation Undefined"},\
+	{Motion::ValidationError::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED,			"Interpolation Velocity Limit Exceeded"},\
+	{Motion::ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE,				"Interpolation Position Out of Range"},\
+	{Motion::ValidationError::INTERPOLATION_INPUT_ACCELERATION_IS_ZERO,			"Interpolation Input Acceleration is Zero"},\
+	{Motion::ValidationError::INTERPOLATION_OUTPUT_ACCELERATION_IS_ZERO,		"Interpolation Output Acceleration Is Zero"}\
+
+DEFINE_ENUMERATOR(Motion::ValidationError, CurveValidationErrorTypeStrings)
+
+#define InterpolationTypeStrings \
+	{Motion::InterpolationType::STEP,			"Step", "Step"},\
+	{Motion::InterpolationType::LINEAR,			"Linear", "Linear"},\
+	{Motion::InterpolationType::TRAPEZOIDAL,	"Trapezoidal", "Trapezoidal"},\
+	{Motion::InterpolationType::BEZIER,			"Bezier", "Bezier"}\
+
+DEFINE_ENUMERATOR(Motion::InterpolationType, InterpolationTypeStrings)

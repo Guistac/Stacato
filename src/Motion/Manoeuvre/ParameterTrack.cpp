@@ -121,20 +121,22 @@ void ParameterTrack::initialize() {
 		case ParameterDataType::Type::BOOLEAN_PARAMETER:
 		case ParameterDataType::Type::INTEGER_PARAMETER:
 		case ParameterDataType::Type::STATE_PARAMETER:
-			interpolationType = InterpolationType::Type::STEP;
+			interpolationType = Motion::InterpolationType::STEP;
 			sequenceType = SequenceType::Type::TIMED_MOVE;
 			break;
 		case ParameterDataType::Type::REAL_PARAMETER:
 		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
 		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
-			interpolationType = InterpolationType::Type::LINEAR;
+			interpolationType = Motion::InterpolationType::LINEAR;
 			sequenceType = SequenceType::Type::TIMED_MOVE;
 			break;
 		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
 		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
 		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
-			interpolationType = InterpolationType::Type::TRAPEZOIDAL;
+			interpolationType = Motion::InterpolationType::TRAPEZOIDAL;
 			sequenceType = SequenceType::Type::TIMED_MOVE;
+			break;
+		default:
 			break;
 	}
 
@@ -170,7 +172,7 @@ void ParameterTrack::initialize() {
 //================================== EDITING ==================================
 
 
-void ParameterTrack::setInterpolationType(InterpolationType::Type t) {
+void ParameterTrack::setInterpolationType(Motion::InterpolationType t) {
 	interpolationType = t;
 	for (auto& curve : curves) curve->interpolationType = t;
 }
@@ -191,6 +193,8 @@ void ParameterTrack::setSequenceType(SequenceType::Type t) {
 		}break;
 		case SequenceType::Type::ANIMATED_MOVE:
 			//keep the points, but editing will allow more points in the graph
+			break;
+		case SequenceType::Type::CONSTANT:
 			break;
 	}
 }
@@ -299,7 +303,7 @@ void ParameterTrack::refreshAfterChainedDependenciesRefresh() {
 			for (int i = 0; i < getCurveCount(); i++) {
 				curves[i]->removeAllPoints();
 				curves[i]->addPoint(endPoints[i]);
-				curves[i]->interpolationType = InterpolationType::Type::LINEAR;
+				curves[i]->interpolationType = Motion::InterpolationType::LINEAR;
 				curves[i]->refresh();
 			}
 			b_valid = true;
@@ -364,6 +368,8 @@ void ParameterTrack::refreshAfterCurveEdit() {
 			origin.realValue = startPoints[0]->position;
 			target.realValue = endPoints[0]->position;
 			break;
+		case ParameterDataType::Type::PARAMETER_GROUP:
+			break;
 	}
 
 	bool offsetChanged = false;
@@ -378,7 +384,7 @@ void ParameterTrack::refreshAfterCurveEdit() {
 	}
 
 	switch (interpolationType) {
-		case InterpolationType::Type::STEP:
+		case Motion::InterpolationType::STEP:
 			timeOffset = 0.0;
 			break;
 		default:

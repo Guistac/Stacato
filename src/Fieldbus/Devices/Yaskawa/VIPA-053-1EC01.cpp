@@ -96,17 +96,17 @@ void VipaBusCoupler_053_1EC01::prepareOutputs(){
 
 
 void VipaBusCoupler_053_1EC01::configureFromDeviceModules() {
-    configureFromDeviceModulesDownloadStatus = DataTransferState::State::TRANSFERRING;
+    configureFromDeviceModulesDownloadStatus = DataTransferState::TRANSFERRING;
     std::vector<std::shared_ptr<VipaModule>> downloadedModules;
     if (!downloadDeviceModules(downloadedModules)) {
-        configureFromDeviceModulesDownloadStatus = DataTransferState::State::FAILED;
+        configureFromDeviceModulesDownloadStatus = DataTransferState::FAILED;
         return;
     }
 	for(int i = modules.size() - 1; i >= 0; i--) removeModule(modules[i]);
 	txPdoAssignement.clear();
 	rxPdoAssignement.clear();
 	for(auto& module : downloadedModules) addModule(module);
-    configureFromDeviceModulesDownloadStatus = DataTransferState::State::SUCCEEDED;
+    configureFromDeviceModulesDownloadStatus = DataTransferState::SUCCEEDED;
 }
 
 
@@ -178,8 +178,8 @@ void VipaBusCoupler_053_1EC01::reorderModule(int oldIndex, int newIndex){
 	modules.insert(modules.begin() + newIndex, temp);
 	
 	//erase all input pins from the nodes pin vectors
-	std::vector<std::shared_ptr<NodePin>>& inputPins = getNodeInputData();
-	std::vector<std::shared_ptr<NodePin>>& outputPins = getNodeOutputData();
+	std::vector<std::shared_ptr<NodePin>>& inputPins = getInputPins();
+	std::vector<std::shared_ptr<NodePin>>& outputPins = getOutputPins();
 	inputPins.clear();
 	outputPins.clear();
 	

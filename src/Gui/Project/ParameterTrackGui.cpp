@@ -19,14 +19,14 @@ bool ParameterTrack::interpolationTypeSelectorGui() {
 	auto compatibleInterpolations = parameter->getCompatibleInterpolationTypes();
 	bool disableCombo = compatibleInterpolations.size() < 2;
 	if(disableCombo) BEGIN_DISABLE_IMGUI_ELEMENT
-	if (ImGui::BeginCombo("##InterpolationSelector", getInterpolationType(interpolationType)->displayName)) {
+	if (ImGui::BeginCombo("##InterpolationSelector", Enumerator::getDisplayString(interpolationType))) {
 		for (auto& it : compatibleInterpolations) {
-			if(it == InterpolationType::Type::BEZIER) BEGIN_DISABLE_IMGUI_ELEMENT
-			if (ImGui::Selectable(getInterpolationType(it)->displayName, it == interpolationType)) {
+			if(it == Motion::InterpolationType::BEZIER) BEGIN_DISABLE_IMGUI_ELEMENT
+			if (ImGui::Selectable(Enumerator::getDisplayString(it), it == interpolationType)) {
 				setInterpolationType(it);
 				valueChanged = true;
 			}
-			if(it == InterpolationType::Type::BEZIER) END_DISABLE_IMGUI_ELEMENT
+			if(it == Motion::InterpolationType::BEZIER) END_DISABLE_IMGUI_ELEMENT
 		}
 		ImGui::EndCombo();
 	}
@@ -181,7 +181,7 @@ bool ParameterTrack::originInputGui(float width) {
 	float captureButtonWidth = ImGui::GetTextLineHeight() * 3.5;
 	bool originValidationError = false;
 	for (auto& point : startPoints) {
-		if (point->validationError == Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE) {
+		if (point->validationError == Motion::ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE) {
 			originValidationError = true;
 		}
 	}
@@ -212,7 +212,7 @@ bool ParameterTrack::targetInputGui(float width) {
 	float captureButtonWidth = ImGui::GetTextLineHeight() * 3.5;
 	bool targetValidationError = false;
 	for (auto& point : endPoints) {
-		if (point->validationError == Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE) {
+		if (point->validationError == Motion::ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE) {
 			targetValidationError = true;
 		}
 	}
@@ -246,8 +246,8 @@ bool ParameterTrack::timeInputGui() {
 	for (auto& curve : curves) {
 		for (auto& interpolation : curve->interpolations) {
 			switch (interpolation->validationError) {
-				case Motion::ValidationError::Error::INTERPOLATION_UNDEFINED:
-				case Motion::ValidationError::Error::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED:
+				case Motion::ValidationError::INTERPOLATION_UNDEFINED:
+				case Motion::ValidationError::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED:
 					validationError = true;
 					break;
 				default:
@@ -286,7 +286,7 @@ bool ParameterTrack::timeOffsetInputGui() {
 			break;
 		default:
 			switch (interpolationType) {
-				case InterpolationType::Type::STEP:
+				case Motion::InterpolationType::STEP:
 					break;
 				default:
 					valueChanged = ImGui::InputDouble("##timeOffset", &timeOffset, 0.0, 0.0, "Time Offset: %.1f s");
@@ -307,8 +307,8 @@ bool ParameterTrack::rampInputGui(float width) {
 	switch (sequenceType) {
 		case SequenceType::Type::TIMED_MOVE:
 			switch (interpolationType) {
-				case InterpolationType::Type::BEZIER:
-				case InterpolationType::Type::TRAPEZOIDAL:
+				case Motion::InterpolationType::BEZIER:
+				case Motion::InterpolationType::TRAPEZOIDAL:
 					break;
 				default:
 					return false;
@@ -323,10 +323,10 @@ bool ParameterTrack::rampInputGui(float width) {
 	bool inRampValidationError = false;
 	for (auto& point : startPoints) {
 		switch (point->validationError) {
-		case Motion::ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO:
-		case Motion::ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED:
-		case Motion::ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO:
-		case Motion::ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED:
+		case Motion::ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO:
+		case Motion::ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED:
+		case Motion::ValidationError::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO:
+		case Motion::ValidationError::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED:
 			inRampValidationError = true;
 			break;
 		default:
@@ -337,7 +337,7 @@ bool ParameterTrack::rampInputGui(float width) {
 		for (auto& curve : curves) {
 			for (auto& interpolation : curve->interpolations) {
 				switch (interpolation->validationError) {
-				case Motion::ValidationError::Error::INTERPOLATION_UNDEFINED:
+				case Motion::ValidationError::INTERPOLATION_UNDEFINED:
 					inRampValidationError = true;
 					break;
 				default:
@@ -363,10 +363,10 @@ bool ParameterTrack::rampInputGui(float width) {
 	bool outRampValidationError = false;
 	for (auto& point : endPoints) {
 		switch (point->validationError) {
-		case Motion::ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO:
-		case Motion::ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED:
-		case Motion::ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO:
-		case Motion::ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED:
+		case Motion::ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO:
+		case Motion::ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED:
+		case Motion::ValidationError::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO:
+		case Motion::ValidationError::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED:
 			outRampValidationError = true;
 			break;
 		default:
@@ -377,7 +377,7 @@ bool ParameterTrack::rampInputGui(float width) {
 		for (auto& curve : curves) {
 			for (auto& interpolation : curve->interpolations) {
 				switch (interpolation->validationError) {
-				case Motion::ValidationError::Error::INTERPOLATION_UNDEFINED:
+				case Motion::ValidationError::INTERPOLATION_UNDEFINED:
 					outRampValidationError = true;
 					break;
 				default:
@@ -447,7 +447,7 @@ void ParameterTrack::drawCurves(double startTime, double endTime) {
 				glm::vec2 averagePosition = glm::vec2(interpolation->inPoint->time, interpolation->inPoint->position) + glm::vec2(interpolation->outPoint->time, interpolation->outPoint->position);
 				averagePosition /= 2.0;
 				ImGui::PushFont(Fonts::robotoBold15);
-				ImPlot::Annotate(averagePosition.x, averagePosition.y, glm::vec2(0, 0), glm::vec4(0.5, 0.0, 0.0, 0.5), Motion::getValidationError(interpolation->validationError)->displayName);
+				ImPlot::Annotate(averagePosition.x, averagePosition.y, glm::vec2(0, 0), glm::vec4(0.5, 0.0, 0.0, 0.5), Enumerator::getDisplayString(interpolation->validationError));
 				
 				ImGui::PopFont();
 			}
@@ -493,7 +493,7 @@ bool ParameterTrack::drawControlPoints() {
 
 		for (int i = 0; i < curve->getPoints().size(); i++) {
 			//don't draw the first control point of a step interpolation sequence, since we can't edit it anyway
-			if (sequenceType == SequenceType::Type::TIMED_MOVE && interpolationType == InterpolationType::Type::STEP && i == 0) continue;
+			if (sequenceType == SequenceType::Type::TIMED_MOVE && interpolationType == Motion::InterpolationType::STEP && i == 0) continue;
 
 			auto& controlPoint = curve->getPoints()[i];
 			bool controlPointEdited = false;
@@ -512,7 +512,7 @@ bool ParameterTrack::drawControlPoints() {
 
 			if (!controlPoint->b_valid) {
 				static char errorAnnotationString[256];
-				sprintf(errorAnnotationString, Motion::getValidationError(controlPoint->validationError)->displayName);
+				sprintf(errorAnnotationString, Enumerator::getDisplayString(controlPoint->validationError));
 				ImPlot::Annotate(controlPoint->time, controlPoint->position, glm::vec2(30, -30), glm::vec4(0.5, 0.0, 0.0, 0.5), errorAnnotationString);
 			}
 

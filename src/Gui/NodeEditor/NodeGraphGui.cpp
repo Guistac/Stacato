@@ -244,7 +244,7 @@ void NodeGraph::editorGui() {
 				case Node::Type::CLOCK:
 				case Node::Type::AXIS:
 				case Node::Type::MACHINE:
-					ImGui::Text("Type: %s", getNodeType(node->getType())->displayName);
+					ImGui::Text("Type: %s", Enumerator::getDisplayString(node->getType()));
 					break;
 				case Node::Type::IODEVICE: {
 					std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);

@@ -34,7 +34,7 @@ namespace Motion::LinearInterpolation {
 		output->inPoint = startPoint;
 		output->outPoint = endPoint;
 
-		output->type = InterpolationType::Type::LINEAR;
+		output->type = InterpolationType::LINEAR;
 	}
 
 	void getVelocityConstrainedInterpolation(std::shared_ptr<ControlPoint>& startPoint, std::shared_ptr<ControlPoint>& endPoint, double velocity, std::shared_ptr<Interpolation>& output) {
@@ -67,7 +67,7 @@ namespace Motion::LinearInterpolation {
 		output->inPoint = startPoint;
 		output->outPoint = endPoint;
 
-		output->type = InterpolationType::Type::LINEAR;
+		output->type = InterpolationType::LINEAR;
 	}
 
 

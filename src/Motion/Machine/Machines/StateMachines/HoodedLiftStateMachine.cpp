@@ -300,11 +300,11 @@ bool HoodedLiftStateMachine::validateParameterTrack(const std::shared_ptr<Parame
 		curve->b_valid = true;
 		for (auto& point : curve->points) {
 			point->b_valid = true;
-			point->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			point->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 		}
 		for (auto& interpolation : curve->interpolations) {
 			interpolation->b_valid = true;
-			interpolation->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			interpolation->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 		}
 	}
 	return true;

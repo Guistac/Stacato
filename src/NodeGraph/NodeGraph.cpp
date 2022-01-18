@@ -9,13 +9,13 @@ void NodeGraph::addNode(std::shared_ptr<Node> newNode) {
 	newNode->uniqueID = uniqueID;
 	uniqueID++;
 	nodes.push_back(newNode);
-	for (std::shared_ptr<NodePin> data : newNode->nodeInputData) {
+	for (std::shared_ptr<NodePin> data : newNode->nodeInputPins) {
 		data->uniqueID = uniqueID;
 		uniqueID++;
 		data->parentNode = newNode;
 		pins.push_back(data);
 	}
-	for (std::shared_ptr<NodePin> data : newNode->nodeOutputData) {
+	for (std::shared_ptr<NodePin> data : newNode->nodeOutputPins) {
 		data->uniqueID = uniqueID;
 		uniqueID++;
 		data->parentNode = newNode;
@@ -26,10 +26,10 @@ void NodeGraph::addNode(std::shared_ptr<Node> newNode) {
 }
 
 void NodeGraph::removeNode(std::shared_ptr<Node> removedNode) {
-	for (auto data : removedNode->nodeInputData) {
+	for (auto data : removedNode->nodeInputPins) {
 		for (std::shared_ptr<NodeLink> link : data->nodeLinks) disconnect(link);
 	}
-	for (auto data : removedNode->nodeOutputData) {
+	for (auto data : removedNode->nodeOutputPins) {
 		for (std::shared_ptr<NodeLink> link : data->nodeLinks) disconnect(link);
 	}
 	for (int i = (int)nodes.size() - 1; i >= 0; i--) {

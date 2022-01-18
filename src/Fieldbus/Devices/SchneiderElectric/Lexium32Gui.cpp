@@ -379,7 +379,7 @@ void Lexium32::generalSettingsGui() {
     }
     if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
-    ImGui::Text("%s", getDataTransferState(generalParameterDownloadState)->displayName);
+    ImGui::Text("%s", Enumerator::getDisplayString(generalParameterDownloadState));
 
     if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
         if (ImGui::Button("Upload Settings To Drive")) {
@@ -388,7 +388,7 @@ void Lexium32::generalSettingsGui() {
         }
     if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
         ImGui::SameLine();
-    ImGui::Text("%s", getDataTransferState(generalParameterUploadState)->displayName);
+    ImGui::Text("%s", Enumerator::getDisplayString(generalParameterUploadState));
 
 	if (maxMotorVelocity_rps == 0.0) {
 		ImGui::Text("Max Motor Velocity is unknown : Download the value from the drive.");
@@ -403,25 +403,25 @@ void Lexium32::generalSettingsGui() {
     ImGui::Text("Invert Direction of Movement");
 
 	ImGui::Text("Max Position Following Error");
-	if (ImGui::InputDouble("##MaxError", &maxFollowingError_revolutions, 0.0, 0.0, "%.3f revolutions")) generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
+	if (ImGui::InputDouble("##MaxError", &maxFollowingError_revolutions, 0.0, 0.0, "%.3f revolutions")) generalParameterUploadState = DataTransferState::NO_TRANSFER;
 	
     ImGui::Text("Max Current");
-    if (ImGui::InputDouble("##maxI", &maxCurrent_amps, 0.0, 0.0, "%.1f Amperes")) generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
+    if (ImGui::InputDouble("##maxI", &maxCurrent_amps, 0.0, 0.0, "%.1f Amperes")) generalParameterUploadState = DataTransferState::NO_TRANSFER;
  
 
     ImGui::Text("Quick Stop Reaction");
-    if (ImGui::BeginCombo("##QuickStopReaction", getQuickStopReaction(quickstopReaction)->displayName)) {
-        for (auto& reaction : getQuickStopReactions()) {
-            if (ImGui::Selectable(reaction.displayName, reaction.type == quickstopReaction)) {
-                quickstopReaction = reaction.type;
+    if (ImGui::BeginCombo("##QuickStopReaction", Enumerator::getDisplayString(quickstopReaction))) {
+        for (auto& type : Enumerator::getTypes<QuickStopReaction>()) {
+            if (ImGui::Selectable(type.displayString, type.enumerator == quickstopReaction)) {
+                quickstopReaction = type.enumerator;
             }
             if (ImGui::IsItemHovered()) {
                 if (beginHelpTooltip()) {
-                    switch (reaction.type) {
-                        case QuickStopReaction::Type::TORQUE_RAMP:
+                    switch (type.enumerator) {
+                        case QuickStopReaction::TORQUE_RAMP:
                             ImGui::TextWrapped("The Drives will come to a stop using the specified braking current.");
                             break;
-                        case QuickStopReaction::Type::DECELERATION_RAMP:
+                        case QuickStopReaction::DECELERATION_RAMP:
                             ImGui::TextWrapped("The Drive will come to a stop using the provided deceleration value.");
                             break;
                     }
@@ -442,15 +442,15 @@ void Lexium32::generalSettingsGui() {
     }
 
     switch (quickstopReaction) {
-        case QuickStopReaction::Type::TORQUE_RAMP:
+        case QuickStopReaction::TORQUE_RAMP:
             ImGui::Text("Stopping Current");
-            if (ImGui::InputDouble("##maxqi", &maxQuickstopCurrent_amps, 0.0, 0.0, "%.1f Amperes")) generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
+            if (ImGui::InputDouble("##maxqi", &maxQuickstopCurrent_amps, 0.0, 0.0, "%.1f Amperes")) generalParameterUploadState = DataTransferState::NO_TRANSFER;
             break;
-        case QuickStopReaction::Type::DECELERATION_RAMP: {
+        case QuickStopReaction::DECELERATION_RAMP: {
             static char decelRampString[64];
             sprintf(decelRampString, "%.3f rev/s\xc2\xb2", quickStopDeceleration_revolutionsPerSecondSquared);
             ImGui::Text("Stopping Deceleration");
-            if (ImGui::InputDouble("##rampA", &quickStopDeceleration_revolutionsPerSecondSquared, 0.0, 0.0, decelRampString)) generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
+            if (ImGui::InputDouble("##rampA", &quickStopDeceleration_revolutionsPerSecondSquared, 0.0, 0.0, decelRampString)) generalParameterUploadState = DataTransferState::NO_TRANSFER;
             }break;
     }
 
@@ -491,7 +491,7 @@ void Lexium32::gpioGui() {
     }
     if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
-    ImGui::Text(getDataTransferState(pinAssignementDownloadState)->displayName);
+    ImGui::Text("%s", Enumerator::getDisplayString(pinAssignementDownloadState));
     if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
         if (ImGui::Button("Upload Settings To Drive")) {
             std::thread pinAssigmentUploader([this]() { uploadPinAssignements(); });
@@ -499,32 +499,32 @@ void Lexium32::gpioGui() {
         }
     if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
         ImGui::SameLine();
-    ImGui::Text(getDataTransferState(pinAssignementUploadState)->displayName);
+    ImGui::Text("%s", Enumerator::getDisplayString(pinAssignementUploadState));
 
 
     ImGui::Text("Negative Limit Switch");
-    if (ImGui::BeginCombo("##negativeLimitSwitch", getInputPin(negativeLimitSwitchPin)->displayName)) {
-        for (auto& inputPin : getInputPins()) {
-            if (positiveLimitSwitchPin != InputPin::Pin::NONE && positiveLimitSwitchPin == inputPin.pin) continue;
-            if(ImGui::Selectable(inputPin.displayName, negativeLimitSwitchPin == inputPin.pin)) negativeLimitSwitchPin = inputPin.pin;
+    if (ImGui::BeginCombo("##negativeLimitSwitch", Enumerator::getDisplayString(negativeLimitSwitchPin))) {
+        for (auto& type : Enumerator::getTypes<InputPin>()) {
+            if (positiveLimitSwitchPin != InputPin::NONE && positiveLimitSwitchPin == type.enumerator) continue;
+            if(ImGui::Selectable(type.displayString, negativeLimitSwitchPin == type.enumerator)) negativeLimitSwitchPin = type.enumerator;
         }
         ImGui::EndCombo();
     }
-    if (negativeLimitSwitchPin != InputPin::Pin::NONE) {
+    if (negativeLimitSwitchPin != InputPin::NONE) {
         ImGui::Checkbox("##negsig", &b_negativeLimitSwitchNormallyClosed);
         ImGui::SameLine();
         ImGui::Text("Normally Closed");
     }
 
     ImGui::Text("Positive Limit Switch");
-    if (ImGui::BeginCombo("##positiveLimitSwitch", getInputPin(positiveLimitSwitchPin)->displayName)) {
-        for (auto& inputPin : getInputPins()) {
-            if (negativeLimitSwitchPin != InputPin::Pin::NONE && negativeLimitSwitchPin == inputPin.pin) continue;
-            if (ImGui::Selectable(inputPin.displayName, positiveLimitSwitchPin == inputPin.pin)) positiveLimitSwitchPin = inputPin.pin;
+    if (ImGui::BeginCombo("##positiveLimitSwitch", Enumerator::getDisplayString(positiveLimitSwitchPin))) {
+        for (auto& type : Enumerator::getTypes<InputPin>()) {
+            if (negativeLimitSwitchPin != InputPin::NONE && negativeLimitSwitchPin == type.enumerator) continue;
+            if (ImGui::Selectable(type.displayString, positiveLimitSwitchPin == type.enumerator)) positiveLimitSwitchPin = type.enumerator;
         }
         ImGui::EndCombo();
     }
-    if (positiveLimitSwitchPin != InputPin::Pin::NONE) {
+    if (positiveLimitSwitchPin != InputPin::NONE) {
         ImGui::Checkbox("##possig", &b_positiveLimitSwitchNormallyClosed);
         ImGui::SameLine();
         ImGui::Text("Normally Closed");
@@ -586,7 +586,7 @@ void Lexium32::encoderGui() {
     }
     if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
-    ImGui::Text(getDataTransferState(encoderSettingsDownloadState)->displayName);
+    ImGui::Text("%s", Enumerator::getDisplayString(encoderSettingsDownloadState));
     if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
         if (ImGui::Button("Upload Settings To Drive")) {
             std::thread encoderSettingsUploader([this]() {
@@ -596,13 +596,13 @@ void Lexium32::encoderGui() {
         }
     if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
-    ImGui::Text(getDataTransferState(encoderSettingsUploadState)->displayName);
+    ImGui::Text("%s", Enumerator::getDisplayString(encoderSettingsUploadState));
 
     ImGui::Text("Main Encoder used for absolute positionning:");
-    if (ImGui::BeginCombo("##encoderAssignement", getEncoderAssignement(encoderAssignement)->displayName)) {
-        for (EncoderAssignement& assignement : encoderAssignements) {
-            if (ImGui::Selectable(assignement.displayName, assignement.type == encoderAssignement)) {
-                encoderAssignement = assignement.type;
+    if (ImGui::BeginCombo("##encoderAssignement", Enumerator::getDisplayString(encoderAssignement))) {
+        for (auto type : Enumerator::getTypes<EncoderAssignement>()) {
+            if (ImGui::Selectable(type.displayString, type.enumerator == encoderAssignement)) {
+                encoderAssignement = type.enumerator;
             }
         }
         ImGui::EndCombo();
@@ -610,10 +610,10 @@ void Lexium32::encoderGui() {
 
     float doublewidgetWidth = (ImGui::GetItemRectSize().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
 
-    if (encoderAssignement == EncoderAssignement::Type::INTERNAL_ENCODER) {
+    if (encoderAssignement == EncoderAssignement::INTERNAL_ENCODER) {
         ImGui::TextWrapped("The Resolution of the internal motor encoder is 17 bits singleturn, 12 bits multiturn.");
     }
-    else if (encoderAssignement == EncoderAssignement::Type::ENCODER_MODULE) {
+    else if (encoderAssignement == EncoderAssignement::ENCODER_MODULE) {
        
         if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
         ImGui::SameLine();
@@ -624,32 +624,32 @@ void Lexium32::encoderGui() {
         if(disableTransferButton) END_DISABLE_IMGUI_ELEMENT
 
         switch (encoderModuleType) {
-        case EncoderModule::Type::DIGITAL_MODULE:
+        case EncoderModule::DIGITAL_MODULE:
 
             ImGui::Text("Digital Encoder Type:");
-            if (ImGui::BeginCombo("##EncoderType", getEncoderType(encoderType)->displayName)) {
-                for (EncoderType& encoder : encoderTypes) {
-                    if (ImGui::Selectable(encoder.displayName, encoder.type == encoderType)) {
-                        encoderType = encoder.type;
+            if (ImGui::BeginCombo("##EncoderType", Enumerator::getDisplayString(encoderType))) {
+                for (auto type : Enumerator::getTypes<EncoderType>()) {
+                    if (ImGui::Selectable(type.displayString, type.enumerator == encoderType)) {
+                        encoderType = type.enumerator;
                     }
                 }
                 ImGui::EndCombo();
             }
 
             switch (encoderType) {
-            case EncoderType::Type::SSI_ROTARY:
+            case EncoderType::SSI_ROTARY:
 
                 ImGui::Text("Coding");
-                if (ImGui::BeginCombo("##Encoding", getEncoderCoding(encoderCoding)->displayName)) {
-                    for (auto& coding : encoderCodings) {
-                        if(ImGui::Selectable(coding.displayName, encoderCoding == coding.type)) encoderCoding = coding.type;
+                if (ImGui::BeginCombo("##Encoding", Enumerator::getDisplayString(encoderCoding))) {
+                    for (auto& type : Enumerator::getTypes<EncoderCoding>()) {
+                        if(ImGui::Selectable(type.displayString, encoderCoding == type.enumerator)) encoderCoding = type.enumerator;
                     }
                     ImGui::EndCombo();
                 }
                 ImGui::Text("Voltage");
-                if (ImGui::BeginCombo("##Voltage", getEncoderVoltage(encoderVoltage)->displayName)) {
-                    for (auto& voltage : encoderVoltages) {
-                        if (ImGui::Selectable(voltage.displayName, encoderVoltage == voltage.voltage)) encoderVoltage = voltage.voltage;
+                if (ImGui::BeginCombo("##Voltage", Enumerator::getDisplayString(encoderVoltage))) {
+                    for (auto& type : Enumerator::getTypes<EncoderVoltage>()) {
+                        if (ImGui::Selectable(type.displayString, encoderVoltage == type.enumerator)) encoderVoltage = type.enumerator;
                     }
                     ImGui::EndCombo();
                 }
@@ -675,24 +675,24 @@ void Lexium32::encoderGui() {
                 ImGui::Text("Max Motor Encoder Deviation from Module Encoder");
                 ImGui::InputDouble("##maxdev", &encoder2_maxDifferenceToMotorEncoder_rotations, 0.0, 0.0,"%.2f motor revolutions");
                 break;
-            case EncoderType::Type::NONE:
+            case EncoderType::NONE:
                 ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
                 ImGui::TextWrapped("Other Encoder Types are not yet supported");
                 ImGui::PopStyleColor();
                 break;
             }
             break;
-        case EncoderModule::Type::ANALOG_MODULE:
+        case EncoderModule::ANALOG_MODULE:
             ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
             ImGui::TextWrapped("Analog Encoder Modules are not yet supported.");
             ImGui::PopStyleColor();
             break;
-        case EncoderModule::Type::RESOLVER_MODULE:
+        case EncoderModule::RESOLVER_MODULE:
             ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
             ImGui::TextWrapped("Resolver Encoder Modules are not yet supported.");
             ImGui::PopStyleColor();
             break;
-        case EncoderModule::Type::NONE:
+        case EncoderModule::NONE:
             ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
             ImGui::TextWrapped("No Encoder Module was detected in module slot 2."
                                 "\nRestart the drive and detect the module again. Never insert or remove modules while the drive is powered on.");
@@ -726,10 +726,10 @@ void Lexium32::encoderGui() {
 
     ImGui::PushFont(Fonts::robotoBold15);
     switch(encoderAssignement) {
-        case EncoderAssignement::Type::INTERNAL_ENCODER:
+        case EncoderAssignement::INTERNAL_ENCODER:
             ImGui::Text("Assign hard absolute position of Internal Encoder");
             break;
-        case EncoderAssignement::Type::ENCODER_MODULE:
+        case EncoderAssignement::ENCODER_MODULE:
             ImGui::Text("Assign hard absolute position of Module Encoder");
             break;
     }
@@ -744,7 +744,7 @@ void Lexium32::encoderGui() {
     }
     if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
-    ImGui::Text(getDataTransferState(encoderAbsolutePositionUploadState)->displayName);
+    ImGui::Text("%s", Enumerator::getDisplayString(encoderAbsolutePositionUploadState));
 }
 
 
@@ -777,7 +777,7 @@ void Lexium32::tuningGui() {
             ImGui::Text("Auto Tuning Succeeded");
             ImGui::PopFont();
             ImGui::SameLine();
-            ImGui::Text("(%s)", getDataTransferState(autoTuningSaveState)->displayName);
+            ImGui::Text("(%s)", Enumerator::getDisplayString(autoTuningSaveState));
         }
 
         if(b_autoTuningSucceeded){
@@ -815,7 +815,7 @@ void Lexium32::miscellaneousGui() {
     }
     if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
-    ImGui::Text("%s", getDataTransferState(stationAliasUploadState)->displayName);
+    ImGui::Text("%s", Enumerator::getDisplayString(stationAliasUploadState));
 
     ImGui::Separator();
     ImGui::PushFont(Fonts::robotoBold15);
@@ -829,7 +829,7 @@ void Lexium32::miscellaneousGui() {
     }
     if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
     ImGui::SameLine();
-    ImGui::Text(getDataTransferState(factoryResetTransferState)->displayName);
+    ImGui::Text("%s", Enumerator::getDisplayString(factoryResetTransferState));
     
     ImGui::Separator();
 

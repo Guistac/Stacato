@@ -88,7 +88,7 @@ public:
 	std::shared_ptr<Machine> machine;
 
 	//=== For Non-Group Parameters ===
-	std::vector<InterpolationType::Type> getCompatibleInterpolationTypes();
+	std::vector<Motion::InterpolationType> getCompatibleInterpolationTypes();
 	char shortUnitString[16];
 	
 	//=== For Parameters Controlled by ParameterTrack Animation ===

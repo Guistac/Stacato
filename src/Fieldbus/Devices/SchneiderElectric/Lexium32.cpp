@@ -13,7 +13,7 @@ void Lexium32::onDisconnection() {
 }
 
 void Lexium32::resetData() {
-    actualOperatingMode = OperatingMode::Mode::UNKNOWN;
+    actualOperatingMode = OperatingMode::UNKNOWN;
     state = State::SwitchOnDisabled;
     manualVelocityCommand_rps = 0.0;
     profilePosition_r = 0.0;
@@ -254,10 +254,8 @@ void Lexium32::readInputs() {
     validPositionReference = _DCOMstatus & 0x8000;   //drive has a valid position reference
 
     //retrieve the operating mode id
-    OperatingMode::Mode previousOperatingMode = actualOperatingMode;
-    OperatingMode* operatingMode = getOperatingMode(_DCOMopmd_act);
-    if (operatingMode != nullptr) actualOperatingMode = operatingMode->mode;
-    else actualOperatingMode = OperatingMode::Mode::UNKNOWN;
+    OperatingMode previousOperatingMode = actualOperatingMode;
+    actualOperatingMode = getOperatingMode(_DCOMopmd_act);
 
     //if we switched operating modes, reset the profile generator and manual velocity command
     if (previousOperatingMode != actualOperatingMode) {
@@ -342,7 +340,7 @@ void Lexium32::readInputs() {
 	*digitalIn5PinValue = b_invertDI5 ? !DI5 : DI5;
 
     //set actuator subdevice
-    servoMotorDevice->b_ready = actualOperatingMode == OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION
+    servoMotorDevice->b_ready = actualOperatingMode == OperatingMode::CYCLIC_SYNCHRONOUS_POSITION
 								&& (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled || state == State::QuickStopActive);
     servoMotorDevice->b_enabled = state == State::OperationEnabled;
     servoMotorDevice->b_online = isConnected() && motorVoltagePresent;
@@ -461,7 +459,7 @@ void Lexium32::prepareOutputs() {
     //bits 10 to 15 of control word have to be 0
 
 	//set operating mode (cyclic synchronous position)
-    DCOMopmode = getOperatingMode(requestedOperatingMode)->id;
+    DCOMopmode = getOperatingModeId(requestedOperatingMode);
 
 	//set profile position point
 	if(b_externalControl) PPp_target = (int32_t)(servoMotorDevice->getCommand() * positionUnitsPerRevolution);
@@ -488,13 +486,13 @@ void Lexium32::prepareOutputs() {
 
 void Lexium32::uploadPinAssignements() {
 
-    pinAssignementUploadState = DataTransferState::State::TRANSFERRING;
+    pinAssignementUploadState = DataTransferState::TRANSFERRING;
 
-    for (auto& inputPin : getInputPins()) {
-        if (inputPin.pin == InputPin::Pin::NONE) continue;
-        EtherCatCoeData IOfunct_DIx(0x3007, inputPin.CoeSubindex, EtherCatData::Type::UINT16_T);
-        if (negativeLimitSwitchPin == inputPin.pin) IOfunct_DIx.setU16(23);
-        else if (positiveLimitSwitchPin == inputPin.pin) IOfunct_DIx.setU16(22);
+    for (auto& type : Enumerator::getTypes<InputPin>()) {
+        if (type.enumerator == InputPin::NONE) continue;
+        EtherCatCoeData IOfunct_DIx(0x3007, getInputPinSubindex(type.enumerator), EtherCatData::Type::UINT16_T);
+        if (negativeLimitSwitchPin == type.enumerator) IOfunct_DIx.setU16(23);
+        else if (positiveLimitSwitchPin == type.enumerator) IOfunct_DIx.setU16(22);
         else IOfunct_DIx.setU16(1);
         if (!IOfunct_DIx.write(getSlaveIndex())) goto transferfailed;
     }
@@ -503,11 +501,11 @@ void Lexium32::uploadPinAssignements() {
         EtherCatCoeData IOsigLIMN(0x3006, 0xF, EtherCatData::Type::UINT16_T);
         EtherCatCoeData IOsigLIMP(0x3006, 0x10, EtherCatData::Type::UINT16_T);
 
-        if (negativeLimitSwitchPin == InputPin::Pin::NONE) IOsigLIMN.setU16(0);
+        if (negativeLimitSwitchPin == InputPin::NONE) IOsigLIMN.setU16(0);
         else if (b_negativeLimitSwitchNormallyClosed) IOsigLIMN.setU16(1);
         else IOsigLIMN.setU16(2);
 
-        if (positiveLimitSwitchPin == InputPin::Pin::NONE) IOsigLIMP.setU16(0);
+        if (positiveLimitSwitchPin == InputPin::NONE) IOsigLIMP.setU16(0);
         else if (b_positiveLimitSwitchNormallyClosed) IOsigLIMP.setU16(1);
         else IOsigLIMP.setU16(2);
 
@@ -528,34 +526,34 @@ void Lexium32::uploadPinAssignements() {
         if (!IOfunct_DQ2.write(getSlaveIndex())) goto transferfailed;
     }
 
-    pinAssignementUploadState = DataTransferState::State::SAVING;
+    pinAssignementUploadState = DataTransferState::SAVING;
     if (!saveToEEPROM()) goto transferfailed;
-    pinAssignementUploadState = DataTransferState::State::SAVED;
+    pinAssignementUploadState = DataTransferState::SAVED;
     Logger::warn("Pin Assignement Successfull");
     return;
 
 transferfailed:
-    pinAssignementUploadState = DataTransferState::State::FAILED;
+    pinAssignementUploadState = DataTransferState::FAILED;
     Logger::warn("Pin Assignement Failed");
     return;
 }
 
 
 void Lexium32::downloadPinAssignements() {
-    pinAssignementDownloadState = DataTransferState::State::NO_TRANSFER;
+    pinAssignementDownloadState = DataTransferState::NO_TRANSFER;
 
-    for (auto& inputPin : getInputPins()) {
-        if (inputPin.pin == InputPin::Pin::NONE) continue;
-        EtherCatCoeData IOfunct_DIx(0x3007, inputPin.CoeSubindex, EtherCatData::Type::UINT16_T);
+    for (auto& type :Enumerator::getTypes<InputPin>()) {
+        if (type.enumerator == InputPin::NONE) continue;
+        EtherCatCoeData IOfunct_DIx(0x3007, getInputPinSubindex(type.enumerator), EtherCatData::Type::UINT16_T);
         if (!IOfunct_DIx.read(getSlaveIndex())) goto transferfailed;
         uint16_t pinFunction = IOfunct_DIx.getU16();
         //for each pin, read the function assignement stored on the drive
         switch (pinFunction) {
         case 23:
-            negativeLimitSwitchPin = inputPin.pin;
+            negativeLimitSwitchPin = type.enumerator;
             break;
         case 22:
-            positiveLimitSwitchPin = inputPin.pin;
+            positiveLimitSwitchPin = type.enumerator;
             break;
         case 1:
         default:
@@ -576,11 +574,11 @@ void Lexium32::downloadPinAssignements() {
         else if (IOsigLIMP.getU16() == 2) b_positiveLimitSwitchNormallyClosed = false;
     }
 
-    pinAssignementDownloadState = DataTransferState::State::SUCCEEDED;
+    pinAssignementDownloadState = DataTransferState::SUCCEEDED;
     return;
 
 transferfailed:
-    pinAssignementDownloadState = DataTransferState::State::FAILED;
+    pinAssignementDownloadState = DataTransferState::FAILED;
     return;
 }
 
@@ -593,7 +591,7 @@ transferfailed:
 //==============================================================
 
 void Lexium32::uploadGeneralParameters() {
-    generalParameterUploadState = DataTransferState::State::TRANSFERRING;
+    generalParameterUploadState = DataTransferState::TRANSFERRING;
 
 	{
 		EtherCatCoeData MON_p_dif_load_usr(0x3006, 0x3E, EtherCatData::Type::INT32_T);
@@ -610,10 +608,10 @@ void Lexium32::uploadGeneralParameters() {
     {
         EtherCatCoeData LIM_QStopReact(0x3006, 0x18, EtherCatData::Type::INT16_T);
         switch (quickstopReaction) {
-            case QuickStopReaction::Type::DECELERATION_RAMP:
+            case QuickStopReaction::DECELERATION_RAMP:
                 LIM_QStopReact.setS16(6);
                 break;
-            case QuickStopReaction::Type::TORQUE_RAMP:
+            case QuickStopReaction::TORQUE_RAMP:
                 LIM_QStopReact.setS16(7);
                 break;
         }
@@ -621,12 +619,12 @@ void Lexium32::uploadGeneralParameters() {
     }
 
     switch (quickstopReaction) {
-        case QuickStopReaction::Type::DECELERATION_RAMP: {
+        case QuickStopReaction::DECELERATION_RAMP: {
             EtherCatCoeData RAMPquickstop(0x3006, 0x12, EtherCatData::Type::UINT32_T);
             RAMPquickstop.setU32(quickStopDeceleration_revolutionsPerSecondSquared * 60.0);
             if (!RAMPquickstop.write(getSlaveIndex())) goto transferfailed;
         }break;
-        case QuickStopReaction::Type::TORQUE_RAMP: {
+        case QuickStopReaction::TORQUE_RAMP: {
             EtherCatCoeData LIM_I_maxQSTP(0x3011, 0xD, EtherCatData::Type::UINT16_T);
             LIM_I_maxQSTP.setU16(maxQuickstopCurrent_amps * 100.0);
             if (!LIM_I_maxQSTP.write(getSlaveIndex())) goto transferfailed;
@@ -639,19 +637,19 @@ void Lexium32::uploadGeneralParameters() {
         if (!InvertDirOfMove.write(getSlaveIndex())) goto transferfailed;
     }
 
-    generalParameterUploadState = DataTransferState::State::SAVING;
+    generalParameterUploadState = DataTransferState::SAVING;
     if (!saveToEEPROM()) goto transferfailed;
-    generalParameterUploadState = DataTransferState::State::SAVED;
+    generalParameterUploadState = DataTransferState::SAVED;
     return;
 
 transferfailed:
-    generalParameterUploadState = DataTransferState::State::FAILED;
+    generalParameterUploadState = DataTransferState::FAILED;
     return;
 }
 
 
 void Lexium32::downloadGeneralParameters() {
-    generalParameterDownloadState = DataTransferState::State::TRANSFERRING;
+    generalParameterDownloadState = DataTransferState::TRANSFERRING;
 
 	{
 		EtherCatCoeData MON_p_dif_load_usr(0x3006, 0x3E, EtherCatData::Type::INT32_T);
@@ -671,11 +669,11 @@ void Lexium32::downloadGeneralParameters() {
         switch (LIM_QStopReact.getS16()) {
             case -1:
             case 6:
-                quickstopReaction = QuickStopReaction::Type::DECELERATION_RAMP;
+                quickstopReaction = QuickStopReaction::DECELERATION_RAMP;
                 break;
             case -2:
             case 7:
-                quickstopReaction = QuickStopReaction::Type::TORQUE_RAMP;
+                quickstopReaction = QuickStopReaction::TORQUE_RAMP;
                 break;
             default:
                 goto transferfailed;
@@ -689,12 +687,12 @@ void Lexium32::downloadGeneralParameters() {
     }
 
     switch (quickstopReaction) {
-        case QuickStopReaction::Type::DECELERATION_RAMP: {
+        case QuickStopReaction::DECELERATION_RAMP: {
             EtherCatCoeData RAMPquickstop(0x3006, 0x12, EtherCatData::Type::UINT32_T);
             if (!RAMPquickstop.read(getSlaveIndex())) goto transferfailed;
             quickStopDeceleration_revolutionsPerSecondSquared = ((double)RAMPquickstop.getU32() / (double)accelerationUnitsPerRpmps) / 60.0;
         }break;
-        case QuickStopReaction::Type::TORQUE_RAMP: {
+        case QuickStopReaction::TORQUE_RAMP: {
             EtherCatCoeData LIM_I_maxQSTP(0x3011, 0xD, EtherCatData::Type::UINT16_T);
             if (!LIM_I_maxQSTP.read(getSlaveIndex())) goto transferfailed;
             maxQuickstopCurrent_amps = (float)LIM_I_maxQSTP.getU16() / 100.0;
@@ -710,11 +708,11 @@ void Lexium32::downloadGeneralParameters() {
         else goto transferfailed;
     }
 
-    generalParameterDownloadState = DataTransferState::State::SUCCEEDED;
+    generalParameterDownloadState = DataTransferState::SUCCEEDED;
     return;
 
 transferfailed:
-    generalParameterDownloadState = DataTransferState::State::FAILED;
+    generalParameterDownloadState = DataTransferState::FAILED;
     return;
 }
 
@@ -728,19 +726,17 @@ transferfailed:
 //==============================================================
 
 void Lexium32::detectEncoderModule() {
-    encoderModuleType = EncoderModule::Type::NONE;
+    encoderModuleType = EncoderModule::NONE;
+	
     EtherCatCoeData _ModuleSlot2(0x3002, 0x1A, EtherCatData::Type::UINT16_T);
     if (!_ModuleSlot2.read(getSlaveIndex())) return;
-    if (getEncoderModule(_ModuleSlot2.getU16()) == nullptr) {
-        encoderModuleType = EncoderModule::Type::NONE;
-        return;
-    }
-    encoderModuleType = getEncoderModule(_ModuleSlot2.getU16())->type;
+	
+	encoderModuleType = getEncoderModule(_ModuleSlot2.getU16());
 }
 
 void Lexium32::uploadEncoderSettings() {
 
-    encoderSettingsUploadState = DataTransferState::State::TRANSFERRING;
+    encoderSettingsUploadState = DataTransferState::TRANSFERRING;
 
     //switch between internal motor encoder and encoder module
     EtherCatCoeData ENC_abs_source(0x3005, 0x25, EtherCatData::Type::UINT16_T);
@@ -767,7 +763,7 @@ void Lexium32::uploadEncoderSettings() {
 
     switch (encoderAssignement) {
 
-    case EncoderAssignement::Type::INTERNAL_ENCODER:
+    case EncoderAssignement::INTERNAL_ENCODER:
     {
         ENC_abs_source.setU16(0); //INTERNAL MOTOR ENCODER
         ENC2_type.setU16(0);      //ENCODER 2 TYPE (none)
@@ -778,7 +774,7 @@ void Lexium32::uploadEncoderSettings() {
     }
     break;
 
-    case EncoderAssignement::Type::ENCODER_MODULE:
+    case EncoderAssignement::ENCODER_MODULE:
     {
         //encoder usage settings for encoder module
         ENC_abs_source.setU16(1); //absolute position reference is encoder 2 (encoder module)
@@ -795,12 +791,12 @@ void Lexium32::uploadEncoderSettings() {
 
     switch (encoderModuleType) {
 
-    case EncoderModule::Type::DIGITAL_MODULE:
+    case EncoderModule::DIGITAL_MODULE:
     {
         //digital encoder module setting
         switch (encoderVoltage) { //which power supply the digital encoder uses
-        case EncoderVoltage::Voltage::V5: ENCDigPowSupply.setU16(5); break;
-        case EncoderVoltage::Voltage::V12: ENCDigPowSupply.setU16(12); break;
+        case EncoderVoltage::V5: ENCDigPowSupply.setU16(5); break;
+        case EncoderVoltage::V12: ENCDigPowSupply.setU16(12); break;
         }
         if (!ENCDigPowSupply.write(getSlaveIndex())) goto transferfailed;
 
@@ -814,12 +810,12 @@ void Lexium32::uploadEncoderSettings() {
     }
 
     switch (encoderType) {
-    case EncoderType::Type::SSI_ROTARY:
+    case EncoderType::SSI_ROTARY:
     {
         ENC2_type.setU16(10); //encoder type is ssi rotary
         switch (encoderCoding) { //bit encoding of the encoder
-        case EncoderCoding::Type::BINARY: ENCDigSSICoding.setU16(0); break;
-        case EncoderCoding::Type::GRAY: ENCDigSSICoding.setU16(1); break;
+        case EncoderCoding::BINARY: ENCDigSSICoding.setU16(0); break;
+        case EncoderCoding::GRAY: ENCDigSSICoding.setU16(1); break;
         }
         ENCDigSSIMaxFreq.setU16(200);                                //SSI communication frequency in KHz
         ENCDigSSIResMult.setU16(encoder2_multiTurnResolutionBits);   //Multiturn resolution bits
@@ -854,14 +850,14 @@ void Lexium32::uploadEncoderSettings() {
         if (!ShiftEncWorkRange.write(getSlaveIndex())) goto transferfailed;
     }
 
-    encoderSettingsUploadState = DataTransferState::State::SAVING;
-    if (!saveToEEPROM()) encoderSettingsUploadState = DataTransferState::State::FAILED;
-    encoderSettingsUploadState = DataTransferState::State::SAVED;
+    encoderSettingsUploadState = DataTransferState::SAVING;
+    if (!saveToEEPROM()) encoderSettingsUploadState = DataTransferState::FAILED;
+    encoderSettingsUploadState = DataTransferState::SAVED;
     Logger::warn("Encoder assignement success");
     return;
 
 transferfailed:
-    encoderSettingsUploadState = DataTransferState::State::FAILED;
+    encoderSettingsUploadState = DataTransferState::FAILED;
     Logger::warn("Transfer Failed");
     return;
 
@@ -870,7 +866,7 @@ transferfailed:
 
 void Lexium32::downloadEncoderSettings() {
 
-    encoderSettingsDownloadState = DataTransferState::State::TRANSFERRING;
+    encoderSettingsDownloadState = DataTransferState::TRANSFERRING;
 
     //general settings for encoder2 if encoder module is selected
     EtherCatCoeData ENC2_type(0x3050, 0x3, EtherCatData::Type::UINT16_T);
@@ -891,21 +887,19 @@ void Lexium32::downloadEncoderSettings() {
         //main switch between internal motor encoder and encoder module
         EtherCatCoeData ENC_abs_source(0x3005, 0x25, EtherCatData::Type::UINT16_T);
         if (!ENC_abs_source.read(getSlaveIndex())) goto downloadfailed;
-        if (getEncoderAssignement(ENC_abs_source.getU16()) == nullptr) goto downloadfailed;
-        encoderAssignement = getEncoderAssignement(ENC_abs_source.getU16())->type;
+        encoderAssignement = getEncoderAssignement(ENC_abs_source.getU16());
     }
 
     switch (encoderAssignement) {
-    case EncoderAssignement::Type::INTERNAL_ENCODER:
+    case EncoderAssignement::INTERNAL_ENCODER:
         //no additionnal settings for internal encoder
         break;
-    case EncoderAssignement::Type::ENCODER_MODULE:
+    case EncoderAssignement::ENCODER_MODULE:
         detectEncoderModule();
 
         {
             if (!ENC2_type.read(getSlaveIndex())) goto downloadfailed;
-            else if (getEncoderType(ENC2_type.getU16()) == nullptr) goto downloadfailed;
-            encoderType = getEncoderType(ENC2_type.getU16())->type;
+            encoderType = getEncoderType(ENC2_type.getU16());
             if (!InvertDirOfMaEnc.read(getSlaveIndex())) goto downloadfailed;
             encoder2_invertDirection = InvertDirOfMaEnc.getU16() == 1;
             if (!p_MaxDifToENC2.read(getSlaveIndex())) goto downloadfailed;
@@ -913,24 +907,22 @@ void Lexium32::downloadEncoderSettings() {
         }
 
         switch (encoderModuleType) {
-        case EncoderModule::Type::ANALOG_MODULE:
-        case EncoderModule::Type::RESOLVER_MODULE:
-        case EncoderModule::Type::NONE: break;
-        case EncoderModule::Type::DIGITAL_MODULE:
+        case EncoderModule::ANALOG_MODULE:
+        case EncoderModule::RESOLVER_MODULE:
+        case EncoderModule::NONE: break;
+        case EncoderModule::DIGITAL_MODULE:
 
         {
             if (!ENCDigPowSupply.read(getSlaveIndex())) goto downloadfailed;
-            else if (getEncoderVoltage(ENCDigPowSupply.getU16()) == nullptr) goto downloadfailed;
-            encoderVoltage = getEncoderVoltage(ENCDigPowSupply.getU16())->voltage;
+            encoderVoltage = getEncoderVoltage(ENCDigPowSupply.getU16());
         }
 
         switch (encoderType) {
-        case EncoderType::Type::NONE: break;
-        case EncoderType::Type::SSI_ROTARY:
+			case EncoderType::NONE: break;
+			case EncoderType::SSI_ROTARY:
         {
             if (!ENCDigSSICoding.read(getSlaveIndex())) goto downloadfailed;
-            else if (getEncoderCoding(ENCDigSSICoding.getU16()) == nullptr) goto downloadfailed;
-            encoderCoding = getEncoderCoding(ENCDigSSICoding.getU16())->type;
+            encoderCoding = getEncoderCoding(ENCDigSSICoding.getU16());
             if (!ENCDigSSIResMult.read(getSlaveIndex())) goto downloadfailed;
             encoder2_multiTurnResolutionBits = ENCDigSSIResMult.getU16();
             if (!ENCDigSSIResSgl.read(getSlaveIndex())) goto downloadfailed;
@@ -965,29 +957,29 @@ void Lexium32::downloadEncoderSettings() {
     servoMotorDevice->rangeMin_positionUnits = lowEncoderRange;
     servoMotorDevice->rangeMax_positionUnits = highEncoderRange;
 
-    encoderSettingsDownloadState = DataTransferState::State::SUCCEEDED;
+    encoderSettingsDownloadState = DataTransferState::SUCCEEDED;
     return;
 
 downloadfailed:
-    encoderSettingsDownloadState = DataTransferState::State::FAILED;
+    encoderSettingsDownloadState = DataTransferState::FAILED;
     return;
 
 }
 
 
 void Lexium32::uploadManualAbsoluteEncoderPosition() {
-    encoderAbsolutePositionUploadState = DataTransferState::State::TRANSFERRING;
+    encoderAbsolutePositionUploadState = DataTransferState::TRANSFERRING;
     int absolutePositionEncoderIncrements;
     EtherCatCoeData ENC1_adjustment(0x3005, 0x16, EtherCatData::Type::INT32_T);
     EtherCatCoeData ENC2_adjustement(0x3005, 0x24, EtherCatData::Type::INT32_T);
     switch (encoderAssignement) {
-    case EncoderAssignement::Type::INTERNAL_ENCODER:
+    case EncoderAssignement::INTERNAL_ENCODER:
         absolutePositionEncoderIncrements = manualAbsoluteEncoderPosition_revolutions * (float)(0x1 << encoder1_singleTurnResolutionBits);
         ENC1_adjustment.setS32(absolutePositionEncoderIncrements);
         if (ENC1_adjustment.write(getSlaveIndex())) goto saving;
         else goto failed;
         break;
-    case EncoderAssignement::Type::ENCODER_MODULE:
+    case EncoderAssignement::ENCODER_MODULE:
         absolutePositionEncoderIncrements = manualAbsoluteEncoderPosition_revolutions * (float)(0x1 << encoder2_singleTurnResolutionBits);
         ENC2_adjustement.setS32(absolutePositionEncoderIncrements);
         if (ENC2_adjustement.write(getSlaveIndex())) goto saving;
@@ -997,14 +989,14 @@ void Lexium32::uploadManualAbsoluteEncoderPosition() {
 
 saving:
 
-    encoderAbsolutePositionUploadState = DataTransferState::State::SAVING;
-    if (saveToEEPROM()) encoderAbsolutePositionUploadState = DataTransferState::State::SAVED;
+    encoderAbsolutePositionUploadState = DataTransferState::SAVING;
+    if (saveToEEPROM()) encoderAbsolutePositionUploadState = DataTransferState::SAVED;
     else goto failed;
     return;
 
 failed:
 
-    encoderAbsolutePositionUploadState = DataTransferState::State::FAILED;
+    encoderAbsolutePositionUploadState = DataTransferState::FAILED;
     return;
 }
 
@@ -1012,7 +1004,7 @@ failed:
 
 void Lexium32::getEncoderWorkingRange(float& low, float& high) {
     switch (encoderAssignement) {
-    case EncoderAssignement::Type::INTERNAL_ENCODER:
+    case EncoderAssignement::INTERNAL_ENCODER:
         if (b_encoderRangeShifted) {
             low = -(float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
             high = (float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
@@ -1022,7 +1014,7 @@ void Lexium32::getEncoderWorkingRange(float& low, float& high) {
             high = (float)(0x1 << encoder1_multiTurnResolutionBits);
         }
         break;
-    case EncoderAssignement::Type::ENCODER_MODULE:
+    case EncoderAssignement::ENCODER_MODULE:
         if (b_encoderRangeShifted) {
             low = -(float)(0x1 << encoder2_multiTurnResolutionBits) * (float)encoder2_EncoderToMotorRatioDenominator / ((float)encoder2_EncoderToMotorRatioNumerator * 2.0);
             high = -low;
@@ -1050,7 +1042,7 @@ void Lexium32::startAutoTuning() {
     autoTuningHandler = std::thread([this]() {
 
         b_autoTuningSucceeded = false;
-        autoTuningSaveState = DataTransferState::State::NO_TRANSFER;
+        autoTuningSaveState = DataTransferState::NO_TRANSFER;
 
         //clear any error inthe drive by setting the error clear bit to 1 and then back to 0
         EtherCatCoeData DCOMcontrol(0x6040, 0x0, EtherCatData::Type::UINT16_T);
@@ -1130,14 +1122,14 @@ void Lexium32::startAutoTuning() {
 
 
             //saving tuning parameters to devuce EEPROM
-            autoTuningSaveState = DataTransferState::State::SAVING;
+            autoTuningSaveState = DataTransferState::SAVING;
             Logger::info("Saving Tuning parameters to EEPROM {}", getName());
             if (saveToEEPROM()) {
-                autoTuningSaveState = DataTransferState::State::SAVED;
+                autoTuningSaveState = DataTransferState::SAVED;
                 Logger::info("Saving Succeeded");
             }
             else {
-                autoTuningSaveState = DataTransferState::State::FAILED;
+                autoTuningSaveState = DataTransferState::FAILED;
                 Logger::error("Saving Failed");
             }
         }
@@ -1173,23 +1165,23 @@ bool Lexium32::saveToEEPROM() {
 }
 
 void Lexium32::factoryReset() {
-    factoryResetTransferState = DataTransferState::State::TRANSFERRING;
+    factoryResetTransferState = DataTransferState::TRANSFERRING;
     EtherCatCoeData PARuserReset(0x3004, 0x8, EtherCatData::Type::UINT16_T);
     PARuserReset.setU16(65535);
-    if (PARuserReset.write(getSlaveIndex())) factoryResetTransferState = DataTransferState::State::SUCCEEDED;
-    else factoryResetTransferState = DataTransferState::State::FAILED;
+    if (PARuserReset.write(getSlaveIndex())) factoryResetTransferState = DataTransferState::SUCCEEDED;
+    else factoryResetTransferState = DataTransferState::FAILED;
 }
 
 void Lexium32::setStationAlias(uint16_t a) {
-    stationAliasUploadState = DataTransferState::State::TRANSFERRING;
+    stationAliasUploadState = DataTransferState::TRANSFERRING;
     EtherCatCoeData ECAT2ndaddress(0x3045, 0x6, EtherCatData::Type::UINT16_T);
     ECAT2ndaddress.setU16(a);
     if (ECAT2ndaddress.write(getSlaveIndex())) {
-        stationAliasUploadState = DataTransferState::State::SAVING;
-        if (saveToEEPROM())  stationAliasUploadState = DataTransferState::State::SAVED;
-        else  stationAliasUploadState = DataTransferState::State::FAILED;
+        stationAliasUploadState = DataTransferState::SAVING;
+        if (saveToEEPROM())  stationAliasUploadState = DataTransferState::SAVED;
+        else  stationAliasUploadState = DataTransferState::FAILED;
     }
-    else stationAliasUploadState = DataTransferState::State::FAILED;
+    else stationAliasUploadState = DataTransferState::FAILED;
 }
 
 
@@ -1222,23 +1214,23 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
     currentLimitXML->SetAttribute("amps", maxCurrent_amps);
     
     XMLElement* quickstopReactionXML = xml->InsertNewChildElement("Quickstop");
-    quickstopReactionXML->SetAttribute("Reaction", getQuickStopReaction(quickstopReaction)->saveName);
+    quickstopReactionXML->SetAttribute("Reaction", Enumerator::getSaveString(quickstopReaction));
     switch (quickstopReaction) {
-        case QuickStopReaction::Type::DECELERATION_RAMP:
+        case QuickStopReaction::DECELERATION_RAMP:
             quickstopReactionXML->SetAttribute("Deceleration_RevolutionsPerSecondSquared", quickStopDeceleration_revolutionsPerSecondSquared);
             break;
-        case QuickStopReaction::Type::TORQUE_RAMP:
+        case QuickStopReaction::TORQUE_RAMP:
             quickstopReactionXML->SetAttribute("MaxCurrent_amps", maxQuickstopCurrent_amps);
             break;
     }
 
     XMLElement* negativeLimitSwitchXML = xml->InsertNewChildElement("NegativeLimitSwitch");
-    negativeLimitSwitchXML->SetAttribute("Pin", getInputPin(negativeLimitSwitchPin)->saveName);
-    if (negativeLimitSwitchPin != InputPin::Pin::NONE) negativeLimitSwitchXML->SetAttribute("NormallyClosed", b_negativeLimitSwitchNormallyClosed);
+    negativeLimitSwitchXML->SetAttribute("Pin", Enumerator::getSaveString(negativeLimitSwitchPin));
+    if (negativeLimitSwitchPin != InputPin::NONE) negativeLimitSwitchXML->SetAttribute("NormallyClosed", b_negativeLimitSwitchNormallyClosed);
 
     XMLElement* positiveLimitSwitchXML = xml->InsertNewChildElement("PositiveLimitSwitch");
-    positiveLimitSwitchXML->SetAttribute("Pin", getInputPin(positiveLimitSwitchPin)->saveName);
-    if (positiveLimitSwitchPin != InputPin::Pin::NONE) positiveLimitSwitchXML->SetAttribute("NormallyClosed", b_positiveLimitSwitchNormallyClosed);
+    positiveLimitSwitchXML->SetAttribute("Pin", Enumerator::getSaveString(positiveLimitSwitchPin));
+    if (positiveLimitSwitchPin != InputPin::NONE) positiveLimitSwitchXML->SetAttribute("NormallyClosed", b_positiveLimitSwitchNormallyClosed);
 
     XMLElement* pinInversionXML = xml->InsertNewChildElement("DigitalPinInversion");
     pinInversionXML->SetAttribute("DI0", b_invertDI0);
@@ -1249,29 +1241,29 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
     pinInversionXML->SetAttribute("DI5", b_invertDI5);
 
     XMLElement* encoderSettingsXML = xml->InsertNewChildElement("EncoderSettings");
-    encoderSettingsXML->SetAttribute("Assignement", getEncoderAssignement(encoderAssignement)->saveName);
+    encoderSettingsXML->SetAttribute("Assignement", Enumerator::getSaveString(encoderAssignement));
     switch (encoderAssignement) {
-    case EncoderAssignement::Type::INTERNAL_ENCODER:
+    case EncoderAssignement::INTERNAL_ENCODER:
         break;
-    case EncoderAssignement::Type::ENCODER_MODULE:
-        encoderSettingsXML->SetAttribute("EncoderModule", getEncoderModule(encoderModuleType)->saveName);
+    case EncoderAssignement::ENCODER_MODULE:
+        encoderSettingsXML->SetAttribute("EncoderModule", Enumerator::getSaveString(encoderModuleType));
         encoderSettingsXML->SetAttribute("EncoderToMotorRatioNumerator", encoder2_EncoderToMotorRatioNumerator);
         encoderSettingsXML->SetAttribute("EncoderToMotorRatioDenominator", encoder2_EncoderToMotorRatioDenominator);
         encoderSettingsXML->SetAttribute("InvertDirection", encoder2_invertDirection);
         encoderSettingsXML->SetAttribute("MaxDifferenceToMotorEncoder_revolutions", encoder2_maxDifferenceToMotorEncoder_rotations);
         switch (encoderModuleType) {
-        case EncoderModule::Type::ANALOG_MODULE: break;
-        case EncoderModule::Type::RESOLVER_MODULE: break;
-        case EncoderModule::Type::NONE: break;
-        case EncoderModule::Type::DIGITAL_MODULE:
-            encoderSettingsXML->SetAttribute("EncoderType", getEncoderType(encoderType)->saveName);
-            encoderSettingsXML->SetAttribute("Voltage", getEncoderVoltage(encoderVoltage)->saveName);
+        case EncoderModule::ANALOG_MODULE: break;
+        case EncoderModule::RESOLVER_MODULE: break;
+        case EncoderModule::NONE: break;
+        case EncoderModule::DIGITAL_MODULE:
+            encoderSettingsXML->SetAttribute("EncoderType", Enumerator::getSaveString(encoderType));
+            encoderSettingsXML->SetAttribute("Voltage", Enumerator::getSaveString(encoderVoltage));
             encoderSettingsXML->SetAttribute("SingleTurnBits", encoder2_singleTurnResolutionBits);
             encoderSettingsXML->SetAttribute("MultiTurnBits", encoder2_multiTurnResolutionBits);
             switch (encoderType) {
-            case EncoderType::Type::NONE: break;
-            case EncoderType::Type::SSI_ROTARY:
-                encoderSettingsXML->SetAttribute("SSIEncoding", getEncoderCoding(encoderCoding)->saveName);
+            case EncoderType::NONE: break;
+            case EncoderType::SSI_ROTARY:
+                encoderSettingsXML->SetAttribute("SSIEncoding", Enumerator::getSaveString(encoderCoding));
                 break;
             }
             break;
@@ -1315,14 +1307,14 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
     if (quickstopReactionXML == nullptr) return Logger::warn("Could not find quickstop attribute");
     const char* quickstopReactionTypeString;
     if (quickstopReactionXML->QueryStringAttribute("Reaction", &quickstopReactionTypeString) != XML_SUCCESS) return Logger::warn("Could not find quickstop reaction type attribute");
-    if (getQuickStopReaction(quickstopReactionTypeString) == nullptr) return Logger::warn("Could not read quickstop reaction type");
-    quickstopReaction = getQuickStopReaction(quickstopReactionTypeString)->type;
+    if (!Enumerator::isValidSaveName<QuickStopReaction>(quickstopReactionTypeString)) return Logger::warn("Could not read quickstop reaction type");
+	quickstopReaction = Enumerator::getEnumeratorFromSaveString<QuickStopReaction>(quickstopReactionTypeString);
       
     switch (quickstopReaction) {
-        case QuickStopReaction::Type::DECELERATION_RAMP:
+        case QuickStopReaction::DECELERATION_RAMP:
             if (quickstopReactionXML->QueryDoubleAttribute("Deceleration_RevolutionsPerSecondSquared", &quickStopDeceleration_revolutionsPerSecondSquared) != XML_SUCCESS) return Logger::warn("Could not read quickstop deceleration value");
             break;
-        case QuickStopReaction::Type::TORQUE_RAMP:
+        case QuickStopReaction::TORQUE_RAMP:
             if (quickstopReactionXML->QueryDoubleAttribute("MaxCurrent_amps", &maxQuickstopCurrent_amps) != XML_SUCCESS) return Logger::warn("Could not read quickstop current value");
             break;
     }
@@ -1331,9 +1323,9 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
     if (negativeLimitSwitchXML == nullptr) return Logger::warn("Could not find negative limit switch attribute");
     const char* negativeLimitSwitchPinString = "";
     negativeLimitSwitchXML->QueryStringAttribute("Pin", &negativeLimitSwitchPinString);
-    if (getInputPin(negativeLimitSwitchPinString) == nullptr) return Logger::warn("Could not read negative limit switch pin attribute");
-    negativeLimitSwitchPin = getInputPin(negativeLimitSwitchPinString)->pin;
-    if (negativeLimitSwitchPin != InputPin::Pin::NONE) {
+    if (!Enumerator::isValidSaveName<InputPin>(negativeLimitSwitchPinString)) return Logger::warn("Could not read negative limit switch pin attribute");
+	negativeLimitSwitchPin = Enumerator::getEnumeratorFromSaveString<InputPin>(negativeLimitSwitchPinString);
+    if (negativeLimitSwitchPin != InputPin::NONE) {
         if (negativeLimitSwitchXML->QueryBoolAttribute("NormallyClosed", &b_negativeLimitSwitchNormallyClosed) != XML_SUCCESS) return Logger::warn("Could not read normally closed attribute of negative limit switch");
     }
 
@@ -1341,9 +1333,9 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
     if (positiveLimitSwitchXML == nullptr) return Logger::warn("Could not find positive limit switch attribute");
     const char* positiveLimitSwitchPinString = "";
     positiveLimitSwitchXML->QueryStringAttribute("Pin", &positiveLimitSwitchPinString);
-    if (getInputPin(positiveLimitSwitchPinString) == nullptr) return Logger::warn("Could not read positive limit switch pin attribute");
-    positiveLimitSwitchPin = getInputPin(positiveLimitSwitchPinString)->pin;
-    if (positiveLimitSwitchPin != InputPin::Pin::NONE) {
+    if (!Enumerator::isValidSaveName<InputPin>(positiveLimitSwitchPinString)) return Logger::warn("Could not read positive limit switch pin attribute");
+	positiveLimitSwitchPin = Enumerator::getEnumeratorFromSaveString<InputPin>(positiveLimitSwitchPinString);
+    if (positiveLimitSwitchPin != InputPin::NONE) {
         if (positiveLimitSwitchXML->QueryBoolAttribute("NormallyClosed", &b_positiveLimitSwitchNormallyClosed) != XML_SUCCESS) return Logger::warn("Could not read normally closed attribute of positive limit switch");
     }
 
@@ -1360,18 +1352,18 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
     if (encoderSettingsXML == nullptr) return Logger::warn("Could not find Encoder Settings Attribute");
     const char* encoderAssignementString = "";
     encoderSettingsXML->QueryStringAttribute("Assignement", &encoderAssignementString);
-    if (getEncoderAssignement(encoderAssignementString) == nullptr) return Logger::warn("Could not read encoder assignement attribute");
-    encoderAssignement = getEncoderAssignement(encoderAssignementString)->type;
+    if (!Enumerator::isValidSaveName<EncoderAssignement>(encoderAssignementString)) return Logger::warn("Could not read encoder assignement attribute");
+	encoderAssignement = Enumerator::getEnumeratorFromSaveString<EncoderAssignement>(encoderAssignementString);
 
     switch (encoderAssignement) {
-    case EncoderAssignement::Type::INTERNAL_ENCODER:
+    case EncoderAssignement::INTERNAL_ENCODER:
         break;
-    case EncoderAssignement::Type::ENCODER_MODULE:
+    case EncoderAssignement::ENCODER_MODULE:
 
         const char* encoderModuleString = "";
         encoderSettingsXML->QueryStringAttribute("EncoderModule", &encoderModuleString);
-        if (getEncoderModule(encoderModuleString) == nullptr) return Logger::warn("Could not read encoder module attribute");
-        encoderModuleType = getEncoderModule(encoderModuleString)->type;
+        if (!Enumerator::isValidSaveName<EncoderModule>(encoderModuleString)) return Logger::warn("Could not read encoder module attribute");
+		encoderModuleType = Enumerator::getEnumeratorFromSaveString<EncoderModule>(encoderModuleString);
 
         if (encoderSettingsXML->QueryIntAttribute("EncoderToMotorRatioNumerator", &encoder2_EncoderToMotorRatioNumerator) != XML_SUCCESS) return Logger::warn("Could not read Encoder to Motor Ratio Numerator Attribute");
         if (encoderSettingsXML->QueryIntAttribute("EncoderToMotorRatioDenominator", &encoder2_EncoderToMotorRatioDenominator) != XML_SUCCESS) return Logger::warn("Could not read Encoder to Motor Ratio Denominator Attribute");
@@ -1379,31 +1371,31 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
         if (encoderSettingsXML->QueryDoubleAttribute("MaxDifferenceToMotorEncoder_revolutions", &encoder2_maxDifferenceToMotorEncoder_rotations) != XML_SUCCESS) return Logger::warn("Could not read Max Encoder to Motor Encoder Difference Attribute");
 
         switch (encoderModuleType) {
-        case EncoderModule::Type::ANALOG_MODULE: break;
-        case EncoderModule::Type::RESOLVER_MODULE: break;
-        case EncoderModule::Type::NONE: break;
-        case EncoderModule::Type::DIGITAL_MODULE:
+        case EncoderModule::ANALOG_MODULE: break;
+        case EncoderModule::RESOLVER_MODULE: break;
+        case EncoderModule::NONE: break;
+        case EncoderModule::DIGITAL_MODULE:
 
             const char* encoderTypeString = "";
             encoderSettingsXML->QueryStringAttribute("EncoderType", &encoderTypeString);
-            if (getEncoderType(encoderTypeString) == nullptr) return Logger::warn("Could not read encoder type attribute");
-            encoderType = getEncoderType(encoderTypeString)->type;
+            if (!Enumerator::isValidSaveName<EncoderType>(encoderTypeString)) return Logger::warn("Could not read encoder type attribute");
+			encoderType = Enumerator::getEnumeratorFromSaveString<EncoderType>(encoderTypeString);
 
             const char* encoderVoltageString = "";
             encoderSettingsXML->QueryStringAttribute("Voltage", &encoderVoltageString);
-            if (getEncoderVoltage(encoderVoltageString) == nullptr) return Logger::warn("Could not read encoder voltage attribute");
-            encoderVoltage = getEncoderVoltage(encoderVoltageString)->voltage;
+            if (!Enumerator::isValidSaveName<EncoderVoltage>(encoderVoltageString)) return Logger::warn("Could not read encoder voltage attribute");
+			encoderVoltage = Enumerator::getEnumeratorFromSaveString<EncoderVoltage>(encoderVoltageString);
 
             if (encoderSettingsXML->QueryIntAttribute("SingleTurnBits", &encoder2_singleTurnResolutionBits) != XML_SUCCESS) return Logger::warn("Could not read encoder Single Turn bit count attribute");
             if (encoderSettingsXML->QueryIntAttribute("MultiTurnBits", &encoder2_multiTurnResolutionBits) != XML_SUCCESS) return Logger::warn("Could not read encoder Multi Turn bit count attribute");
 
             switch (encoderType) {
-            case EncoderType::Type::NONE: break;
-            case EncoderType::Type::SSI_ROTARY:
+            case EncoderType::NONE: break;
+            case EncoderType::SSI_ROTARY:
                 const char* SSIencodingString = "";
-                encoderSettingsXML->QueryStringAttribute("SSIEncoding", &SSIencodingString);
-                if (getEncoderCoding(SSIencodingString) == nullptr) return Logger::warn("Could not read SSI encoding attribute");
-                encoderCoding = getEncoderCoding(SSIencodingString)->type;
+				if(encoderSettingsXML->QueryStringAttribute("SSIEncoding", &SSIencodingString) != XML_SUCCESS) return Logger::warn("Could not read ssi encoder encoding type");
+                if (!Enumerator::isValidSaveName<EncoderCoding>(SSIencodingString)) return Logger::warn("Could not read SSI encoding attribute");
+				encoderCoding = Enumerator::getEnumeratorFromSaveString<EncoderCoding>(SSIencodingString);
                 break;
             }
             break;
@@ -1418,239 +1410,4 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
     servoMotorDevice->rangeMax_positionUnits = highEncoderRange;
 
     return true;
-}
-
-
-
-
-
-//==============================================================
-//=========================== TYPES ============================
-//==============================================================
-
-//============================= DEVICE MODES =================================
-
-std::vector<Lexium32::OperatingMode> Lexium32::operatingModes = {
-    {-6, OperatingMode::Mode::TUNING , "Manual/Auto Tuning"},
-    {-3, OperatingMode::Mode::MOTION_SEQUENCE , "Motion Sequence"},
-    {-2, OperatingMode::Mode::ELECTRONIC_GEAR , "Electronic Gear"},
-    {-1, OperatingMode::Mode::JOG , "Jog"},
-    {1,  OperatingMode::Mode::PROFILE_POSITION ,"Profile Position"},
-    {3,  OperatingMode::Mode::PROFILE_VELOCITY ,"Profile Velocity"},
-    {4,  OperatingMode::Mode::PROFILE_TORQUE ,"Profile Torque"},
-    {6,  OperatingMode::Mode::HOMING ,"Homing"},
-    {7,  OperatingMode::Mode::INTERPOLATED_POSITION ,"Interpolated Position"},
-    {8,  OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION ,"Cyclic Synchronous Position"},
-    {9,  OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY ,"Cyclic Synchronous Velocity"},
-    {10, OperatingMode::Mode::CYCLIC_SYNCHRONOUS_TORQUE , "Cyclic Synchronous Torque"},
-    {333, OperatingMode::Mode::UNKNOWN, "Unknown Operating Mode"}
-};
-
-std::vector<Lexium32::OperatingMode> Lexium32::availableOperatingModes = {
-    {8, OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION, "Position Control"},
-    {9, OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY, "Manual Velocity Control"}
-};
-
-Lexium32::OperatingMode* Lexium32::getOperatingMode(OperatingMode::Mode opMode) {
-    for (OperatingMode& operatingMode : availableOperatingModes) {
-        if (opMode == operatingMode.mode) return &operatingMode;
-    }
-    for (OperatingMode& operatingMode : operatingModes) {
-        if (opMode == operatingMode.mode) return &operatingMode;
-    }
-    return &operatingModes.back();
-}
-
-Lexium32::OperatingMode* Lexium32::getOperatingMode(const char* displayName) {
-    for (OperatingMode& operatingMode : operatingModes) {
-        if (strcmp(displayName, operatingMode.displayName) == 0) return &operatingMode;
-    }
-    return &operatingModes.back();
-}
-
-Lexium32::OperatingMode* Lexium32::getOperatingMode(int id) {
-    for (OperatingMode& operatingMode : operatingModes) {
-        if (id == operatingMode.id) return &operatingMode;
-    }
-    return &operatingModes.back();
-}
-
-//===================== QUICKSTOP REACTIONS ==========================
-
-std::vector<Lexium32::QuickStopReaction> Lexium32::quickStopReactions = {
-    {Lexium32::QuickStopReaction::Type::TORQUE_RAMP, "Torque Ramp", "TorqueRamp"},
-    {Lexium32::QuickStopReaction::Type::DECELERATION_RAMP, "Deceleration Ramp", "DecelerationRamp"}
-};
-std::vector<Lexium32::QuickStopReaction>& Lexium32::getQuickStopReactions() {
-    return quickStopReactions;
-}
-Lexium32::QuickStopReaction* Lexium32::getQuickStopReaction(const char* saveName) {
-    for (auto& quickstopReaction : quickStopReactions) {
-        if (strcmp(saveName, quickstopReaction.saveName) == 0) return &quickstopReaction;
-    }
-    return nullptr;
-}
-Lexium32::QuickStopReaction* Lexium32::getQuickStopReaction(QuickStopReaction::Type t) {
-    for (auto& quickstopReaction : quickStopReactions) {
-        if (t == quickstopReaction.type) return &quickstopReaction;
-    }
-    return nullptr;
-}
-
-//====================== INPUT PINS ===========================
-
-std::vector<Lexium32::InputPin> Lexium32::inputPins = {
-    {Lexium32::InputPin::Pin::DI0, 0x1, "Digital Input 0", "DI0"},
-    {Lexium32::InputPin::Pin::DI1, 0x2, "Digital Input 1", "DI1"},
-    {Lexium32::InputPin::Pin::DI2, 0x3, "Digital Input 2", "DI2"},
-    {Lexium32::InputPin::Pin::DI3, 0x4, "Digital Input 3", "DI3"},
-    {Lexium32::InputPin::Pin::DI4, 0x5, "Digital Input 4", "DI4"},
-    {Lexium32::InputPin::Pin::DI5, 0x6, "Digital Input 5", "DI5"},
-    {Lexium32::InputPin::Pin::NONE, 0x0, "Unassigned", "Unassigned"}
-};
-std::vector<Lexium32::InputPin>& Lexium32::getInputPins() {
-    return inputPins;
-}
-Lexium32::InputPin* Lexium32::getInputPin(const char* saveName) {
-    for (auto& inputPin : inputPins) {
-        if (strcmp(saveName, inputPin.saveName) == 0) return &inputPin;
-    }
-    return nullptr;
-}
-Lexium32::InputPin* Lexium32::getInputPin(InputPin::Pin pin) {
-    for (auto& inputPin : inputPins) {
-        if (pin == inputPin.pin) return &inputPin;
-    }
-    return nullptr;
-}
-Lexium32::InputPin* Lexium32::getInputPin(uint8_t coeSubindex) {
-    for (auto& inputPin : inputPins) {
-        if (coeSubindex == inputPin.CoeSubindex) return &inputPin;
-    }
-    return nullptr;
-}
-
-//=========================== ENCODER ASSIGNEMENT ==============================
-
-std::vector<Lexium32::EncoderAssignement> Lexium32::encoderAssignements = {
-    {Lexium32::EncoderAssignement::Type::INTERNAL_ENCODER, 0, "Internal Motor Encoder", "Internal"},
-    {Lexium32::EncoderAssignement::Type::ENCODER_MODULE, 1, "Encoder Module", "Module"}
-};
-Lexium32::EncoderAssignement* Lexium32::getEncoderAssignement(const char* saveName) {
-    for (EncoderAssignement& assignement : encoderAssignements) {
-        if (strcmp(saveName, assignement.saveName) == 0) return &assignement;
-    }
-    return nullptr;
-}
-Lexium32::EncoderAssignement* Lexium32::getEncoderAssignement(EncoderAssignement::Type assignementType) {
-    for (EncoderAssignement& assignement : encoderAssignements) {
-        if (assignementType == assignement.type) return &assignement;
-    }
-    return nullptr;
-}
-Lexium32::EncoderAssignement* Lexium32::getEncoderAssignement(uint16_t CoeData) {
-    for (EncoderAssignement& assignement : encoderAssignements) {
-        if (CoeData == assignement.CoeData) return &assignement;
-    }
-    return nullptr;
-}
-
-
-std::vector<Lexium32::EncoderModule> Lexium32::encoderModules = {
-    {Lexium32::EncoderModule::Type::ANALOG_MODULE, 769, "Analog Encoder Module", "Analog"},
-    {Lexium32::EncoderModule::Type::DIGITAL_MODULE, 770, "Digital Encoder Module", "Digital"},
-    {Lexium32::EncoderModule::Type::RESOLVER_MODULE, 771, "Resolver Encoder Module", "Resolver"},
-    {Lexium32::EncoderModule::Type::NONE, 0, "No Encoder Module", "None"}
-};
-Lexium32::EncoderModule* Lexium32::getEncoderModule(const char* saveName) {
-    for (EncoderModule& module : encoderModules) {
-        if (strcmp(saveName, module.saveName) == 0) return &module;
-    }
-    return nullptr;
-}
-Lexium32::EncoderModule* Lexium32::getEncoderModule(EncoderModule::Type moduleType) {
-    for (EncoderModule& module : encoderModules) {
-        if (moduleType == module.type) return &module;
-    }
-    return nullptr;
-}
-Lexium32::EncoderModule* Lexium32::getEncoderModule(uint16_t CoeData) {
-    for (EncoderModule& module : encoderModules) {
-        if (CoeData == module.CoeData) return &module;
-    }
-    return nullptr;
-}
-
-
-
-std::vector<Lexium32::EncoderType> Lexium32::encoderTypes = {
-    {Lexium32::EncoderType::Type::NONE, 0, "None", "None"},
-    {Lexium32::EncoderType::Type::SSI_ROTARY, 10, "SSI Absolute Rotary", "SSIRotary"}
-};
-Lexium32::EncoderType* Lexium32::getEncoderType(const char* saveName) {
-    for (EncoderType& module : encoderTypes) {
-        if (strcmp(saveName, module.saveName) == 0) return &module;
-    }
-    return nullptr;
-}
-Lexium32::EncoderType* Lexium32::getEncoderType(EncoderType::Type encoderType) {
-    for (EncoderType& encoder : encoderTypes) {
-        if (encoderType == encoder.type) return &encoder;
-    }
-    return nullptr;
-}
-Lexium32::EncoderType* Lexium32::getEncoderType(uint16_t CoeData) {
-    for (EncoderType& encoder : encoderTypes) {
-        if (CoeData == encoder.CoeData) return &encoder;
-    }
-    return nullptr;
-}
-
-
-
-std::vector<Lexium32::EncoderCoding> Lexium32::encoderCodings = {
-    {Lexium32::EncoderCoding::Type::BINARY, 0, "Binary", "Binary"},
-    {Lexium32::EncoderCoding::Type::GRAY, 1, "Gray", "Gray"}
-};
-Lexium32::EncoderCoding* Lexium32::getEncoderCoding(const char* saveName) {
-    for (EncoderCoding& coding : encoderCodings) {
-        if (strcmp(saveName, coding.saveName) == 0) return &coding;
-    }
-    return nullptr;
-}
-Lexium32::EncoderCoding* Lexium32::getEncoderCoding(EncoderCoding::Type encodingType) {
-    for (EncoderCoding& coding : encoderCodings) {
-        if (coding.type == encodingType) return &coding;
-    }
-    return nullptr;
-}
-Lexium32::EncoderCoding* Lexium32::getEncoderCoding(uint16_t CoeData) {
-    for (EncoderCoding& coding : encoderCodings) {
-        if (coding.CoeData == CoeData) return &coding;
-    }
-    return nullptr;
-}
-
-
-std::vector<Lexium32::EncoderVoltage> Lexium32::encoderVoltages = {
-    {Lexium32::EncoderVoltage::Voltage::V5, 5, "5V", "5V"},
-    {Lexium32::EncoderVoltage::Voltage::V12, 12, "12V", "12V"}
-};
-Lexium32::EncoderVoltage* Lexium32::getEncoderVoltage(const char* saveName) {
-    for (EncoderVoltage& voltage : encoderVoltages) {
-        if (strcmp(saveName, voltage.saveName) == 0) return &voltage;
-    }
-    return nullptr;
-}
-Lexium32::EncoderVoltage* Lexium32::getEncoderVoltage(EncoderVoltage::Voltage v) {
-    for (EncoderVoltage& voltage : encoderVoltages) {
-        if (voltage.voltage == v) return &voltage;
-    }
-    return nullptr;
-}
-Lexium32::EncoderVoltage* Lexium32::getEncoderVoltage(uint16_t CoeData) {
-    for (EncoderVoltage& voltage : encoderVoltages) {
-        if (voltage.CoeData == CoeData) return &voltage;
-    }
-    return nullptr;
 }

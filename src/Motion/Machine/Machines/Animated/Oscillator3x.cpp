@@ -573,21 +573,21 @@ bool Oscillator3x::validateParameterTrack(const std::shared_ptr<ParameterTrack> 
 			if (point->position < 0.0 || point->position > maxOscillationFrequency) { 
 				trackValid = false;
 				curve->b_valid = false;
-				point->validationError = Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+				point->validationError = Motion::ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
 			}
 			else {
 				point->b_valid = true;
-				point->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+				point->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 			}
 		}
 		for (auto& interpolation : curve->interpolations) {
 			interpolation->b_valid = true;
-			interpolation->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			interpolation->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 			for (auto& point : interpolation->displayPoints) {
 				if (point.position < 0.0 || point.position > maxOscillationFrequency) {
 					trackValid = false;
 					curve->b_valid = false;
-					interpolation->validationError = Motion::ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE;
+					interpolation->validationError = Motion::ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
 					break;
 				}
 			}
@@ -600,21 +600,21 @@ bool Oscillator3x::validateParameterTrack(const std::shared_ptr<ParameterTrack> 
 			if (point->position < 0.0 || point->position > 1.0) {
 				trackValid = false;
 				curve->b_valid = false;
-				point->validationError = Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+				point->validationError = Motion::ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
 			}
 			else {
 				point->b_valid = true;
-				point->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+				point->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 			}
 		}
 		for (auto& interpolation : curve->interpolations) {
 			interpolation->b_valid = true;
-			interpolation->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			interpolation->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 			for (auto& point : interpolation->displayPoints) {
 				if (point.position < 0.0 || point.position > 1.0) {
 					trackValid = false;
 					curve->b_valid = false;
-					interpolation->validationError = Motion::ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE;
+					interpolation->validationError = Motion::ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
 					break;
 				}
 			}
@@ -626,21 +626,21 @@ bool Oscillator3x::validateParameterTrack(const std::shared_ptr<ParameterTrack> 
 			if (point->position < 0.0 || point->position > 100.0) {
 				trackValid = false;
 				curve->b_valid = false;
-				point->validationError = Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+				point->validationError = Motion::ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
 			}
 			else {
 				point->b_valid = true;
-				point->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+				point->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 			}
 		}
 		for (auto& interpolation : curve->interpolations) {
 			interpolation->b_valid = true;
-			interpolation->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			interpolation->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 			for (auto& point : interpolation->displayPoints) {
 				if (point.position < 0.0 || point.position > 100.0) {
 					trackValid = false;
 					curve->b_valid = false;
-					interpolation->validationError = Motion::ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE;
+					interpolation->validationError = Motion::ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
 					break;
 				}
 			}

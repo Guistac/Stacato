@@ -65,7 +65,7 @@ void NodeGraph::evaluate(std::vector<std::shared_ptr<Node>> startNodes) {
 			node->b_wasProcessed = true;
 			//get each node that is connected to an output of the current node
 			//and add it to the list of next linked nodes
-			for (auto outputData : node->getNodeOutputData()) {
+			for (auto outputData : node->getOutputPins()) {
 				for (auto outputLink : outputData->getLinks()) {
 					std::shared_ptr<Node> linkedOutputNode = outputLink->getOutputData()->getNode();
 					nextLinkedNodes.push_back(linkedOutputNode);
