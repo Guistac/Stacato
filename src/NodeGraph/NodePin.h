@@ -183,7 +183,7 @@ private:
 		}
 	}
 
-	std::shared_ptr<Node> parentNode; //set when assigning when calling addIoData();
+	std::shared_ptr<Node> parentNode; //set when assigning when calling addNodePin();
 	int uniqueID = -1;
 	
 	char displayString[64];	//used for displaying

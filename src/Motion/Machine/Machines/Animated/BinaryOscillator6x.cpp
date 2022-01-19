@@ -15,11 +15,11 @@
 
 void BinaryOscillator6x::initialize() {
 
-	addIoData(gpioDevicePin);
+	addNodePin(gpioDevicePin);
 	
 	for (int i = 0; i < 6; i++) {
 		outputPins[i]->assignData(outputPinValues[i]);
-		addIoData(outputPins[i]);
+		addNodePin(outputPins[i]);
 	}
 
 	addAnimatableParameter(oscillatorParameterGroup);

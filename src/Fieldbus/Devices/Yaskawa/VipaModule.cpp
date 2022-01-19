@@ -62,6 +62,7 @@ void VIPA_022_1HD10::onConstruction(){
 void VIPA_022_1HD10::onSetIndex(int i){
 	for(int i = 0; i < 4; i++){
 		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Relais Output %i", moduleIndex, i);
+		sprintf((char*)inputPins[i]->getSaveString(), "Module%iRelaisOutput%i", moduleIndex, i);
 	}
 }
 void VIPA_022_1HD10::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -115,6 +116,7 @@ void VIPA_021_1BF00::onConstruction(){
 void VIPA_021_1BF00::onSetIndex(int i){
 	for(int i = 0; i < 8; i++){
 		sprintf((char*)outputPins[i]->getDisplayString(), "Module %i Digital Input %i", moduleIndex, i);
+		sprintf((char*)outputPins[i]->getSaveString(), "Module%iDigitalInput%i", moduleIndex, i);
 	}
 }
 void VIPA_021_1BF00::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -170,6 +172,7 @@ void VIPA_022_1BF00::onConstruction(){
 void VIPA_022_1BF00::onSetIndex(int i){
 	for(int i = 0; i < 8; i++){
 		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Digital Output %i", moduleIndex, i);
+		sprintf((char*)inputPins[i]->getSaveString(), "Module%iDigitalOutput%i", moduleIndex, i);
 	}
 }
 
@@ -226,7 +229,9 @@ void VIPA_050_1BS00::onSetParentBusCoupler(std::shared_ptr<VipaBusCoupler_053_1E
 
 void VIPA_050_1BS00::onSetIndex(int i){
 	sprintf((char*)encoderPin->getDisplayString(), "Module %i SSI Encoder", moduleIndex);
-	sprintf((char*)resetPin->getDisplayString(), "Module %i Encoder Reset", moduleIndex);
+	sprintf((char*)encoderPin->getSaveString(), "Module%iSSIEncoder", moduleIndex);
+	sprintf((char*)resetPin->getDisplayString(), "Module %i SSI Encoder", moduleIndex);
+	sprintf((char*)resetPin->getSaveString(), "Module%iEncoderReset", moduleIndex);
 }
 
 void VIPA_050_1BS00::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -548,6 +553,7 @@ void VIPA_032_1BD70::onConstruction(){
 void VIPA_032_1BD70::onSetIndex(int i){
 	for(int i = 0; i < 4; i++){
 		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Analog Output %i", moduleIndex, i);
+		sprintf((char*)inputPins[i]->getSaveString(), "Module%iAnalogOutput%i", moduleIndex, i);
 	}
 }
 

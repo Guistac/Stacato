@@ -13,7 +13,7 @@
 
 ParameterTrack::ParameterTrack(std::shared_ptr<AnimatableParameter>& param, std::shared_ptr<Manoeuvre> m) : parameter(param), parentManoeuvre(m) {
 	initialize();
-	if (parameter->dataType == ParameterDataType::Type::PARAMETER_GROUP) {
+	if (parameter->dataType == ParameterDataType::PARAMETER_GROUP) {
 		for (auto& childParameter : parameter->childParameters) {
 			std::shared_ptr<ParameterTrack> childParameterTrack = std::make_shared<ParameterTrack>(childParameter, m);
 			childParameterTracks.push_back(childParameterTrack);
@@ -49,19 +49,19 @@ ParameterTrack::ParameterTrack(const ParameterTrack& original) {
 
 int ParameterTrack::getCurveCount() {
 	switch (parameter->dataType) {
-		case ParameterDataType::Type::BOOLEAN_PARAMETER:
-		case ParameterDataType::Type::INTEGER_PARAMETER:
-		case ParameterDataType::Type::STATE_PARAMETER:
-		case ParameterDataType::Type::REAL_PARAMETER:
-		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
+		case ParameterDataType::BOOLEAN_PARAMETER:
+		case ParameterDataType::INTEGER_PARAMETER:
+		case ParameterDataType::STATE_PARAMETER:
+		case ParameterDataType::REAL_PARAMETER:
+		case ParameterDataType::KINEMATIC_POSITION_CURVE:
 			return 1;
-		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
-		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
+		case ParameterDataType::VECTOR_2D_PARAMETER:
+		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
 			return 2;
-		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
-		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::VECTOR_3D_PARAMETER:
+		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
 			return 3;
-		case ParameterDataType::Type::PARAMETER_GROUP:
+		case ParameterDataType::PARAMETER_GROUP:
 		default:
 			return 0;
 	}
@@ -81,36 +81,36 @@ void ParameterTrack::initialize() {
 	target.type = parameter->dataType;
 	origin.shortUnitString = parameter->shortUnitString;
 	target.shortUnitString = parameter->shortUnitString;
-	if (parameter->dataType == ParameterDataType::Type::STATE_PARAMETER) {
+	if (parameter->dataType == ParameterDataType::STATE_PARAMETER) {
 		origin.stateValues = parameter->stateParameterValues;
 		target.stateValues = parameter->stateParameterValues;
 	}
 
 	switch (parameter->dataType) {
-		case ParameterDataType::Type::BOOLEAN_PARAMETER:
+		case ParameterDataType::BOOLEAN_PARAMETER:
 			origin.boolValue = false;
 			target.boolValue = true;
 			break;
-		case ParameterDataType::Type::INTEGER_PARAMETER:
+		case ParameterDataType::INTEGER_PARAMETER:
 			origin.integerValue = 0;
 			target.integerValue = 1;
 			break;
-		case ParameterDataType::Type::STATE_PARAMETER:
+		case ParameterDataType::STATE_PARAMETER:
 			origin.stateValue = &origin.stateValues->front();
 			target.stateValue = &origin.stateValues->at(1);
 			break;
-		case ParameterDataType::Type::REAL_PARAMETER:
-		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
+		case ParameterDataType::REAL_PARAMETER:
+		case ParameterDataType::KINEMATIC_POSITION_CURVE:
 			origin.realValue = 0.0;
 			target.realValue = 1.0;
 			break;
-		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
-		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
+		case ParameterDataType::VECTOR_2D_PARAMETER:
+		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
 			origin.vector2value = glm::vec2(0.0);
 			target.vector2value = glm::vec2(1.0);
 			break;
-		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
-		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::VECTOR_3D_PARAMETER:
+		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
 			origin.vector3value = glm::vec3(0.0);
 			target.vector3value = glm::vec3(1.0);
 			break;
@@ -118,21 +118,21 @@ void ParameterTrack::initialize() {
 
 
 	switch (parameter->dataType) {
-		case ParameterDataType::Type::BOOLEAN_PARAMETER:
-		case ParameterDataType::Type::INTEGER_PARAMETER:
-		case ParameterDataType::Type::STATE_PARAMETER:
+		case ParameterDataType::BOOLEAN_PARAMETER:
+		case ParameterDataType::INTEGER_PARAMETER:
+		case ParameterDataType::STATE_PARAMETER:
 			interpolationType = Motion::InterpolationType::STEP;
 			sequenceType = SequenceType::Type::TIMED_MOVE;
 			break;
-		case ParameterDataType::Type::REAL_PARAMETER:
-		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
-		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
+		case ParameterDataType::REAL_PARAMETER:
+		case ParameterDataType::VECTOR_2D_PARAMETER:
+		case ParameterDataType::VECTOR_3D_PARAMETER:
 			interpolationType = Motion::InterpolationType::LINEAR;
 			sequenceType = SequenceType::Type::TIMED_MOVE;
 			break;
-		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
-		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
-		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::KINEMATIC_POSITION_CURVE:
+		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
 			interpolationType = Motion::InterpolationType::TRAPEZOIDAL;
 			sequenceType = SequenceType::Type::TIMED_MOVE;
 			break;
@@ -224,28 +224,28 @@ void ParameterTrack::refreshAfterChainedDependenciesRefresh() {
 	//set start & stop point position values of in and out points
 	//convert from non real parameter datatypes
 	switch (parameter->dataType) {
-		case ParameterDataType::Type::BOOLEAN_PARAMETER:
+		case ParameterDataType::BOOLEAN_PARAMETER:
 			startPoints.front()->position = origin.boolValue ? 1.0 : 0.0;
 			endPoints.front()->position = target.boolValue ? 1.0 : 0.0;
 			break;
-		case ParameterDataType::Type::INTEGER_PARAMETER:
+		case ParameterDataType::INTEGER_PARAMETER:
 			startPoints.front()->position = origin.integerValue;
 			endPoints.front()->position = target.integerValue;
 			break;
-		case ParameterDataType::Type::STATE_PARAMETER:
+		case ParameterDataType::STATE_PARAMETER:
 			startPoints.front()->position = origin.stateValue->integerEquivalent;
 			endPoints.front()->position = target.stateValue->integerEquivalent;
 			break;
-		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
-		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::VECTOR_3D_PARAMETER:
+		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
 			startPoints[2]->position = origin.vector3value.z;
 			endPoints[2]->position = origin.vector3value.z;
-		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
-		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
+		case ParameterDataType::VECTOR_2D_PARAMETER:
+		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
 			startPoints[1]->position = origin.vector2value.y;
 			endPoints[1]->position = origin.vector2value.y;
-		case ParameterDataType::Type::REAL_PARAMETER:
-		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
+		case ParameterDataType::REAL_PARAMETER:
+		case ParameterDataType::KINEMATIC_POSITION_CURVE:
 			startPoints[0]->position = origin.realValue;
 			endPoints[0]->position = target.realValue;
 			startPoints[0]->acceleration = rampIn;
@@ -263,7 +263,7 @@ void ParameterTrack::refreshAfterChainedDependenciesRefresh() {
 		endPoints[i]->velocity = 0.0;
 	}
 
-	if (parameter->dataType == ParameterDataType::Type::PARAMETER_GROUP) {
+	if (parameter->dataType == ParameterDataType::PARAMETER_GROUP) {
 		b_valid = true; //TODO; implement validation for group tracks in a proper manner
 	}
 
@@ -331,15 +331,15 @@ void ParameterTrack::refreshAfterCurveEdit() {
 	//copy the settings from the start and endpoints to the track settings
 
 	switch (parameter->dataType) {
-		case ParameterDataType::Type::BOOLEAN_PARAMETER:
+		case ParameterDataType::BOOLEAN_PARAMETER:
 			origin.boolValue = startPoints.front()->position > 0.5 ? true : false;
 			target.boolValue = endPoints.front()->position > 0.5 ? true : false;
 			break;
-		case ParameterDataType::Type::INTEGER_PARAMETER:
+		case ParameterDataType::INTEGER_PARAMETER:
 			origin.integerValue = std::round(startPoints.front()->position);
 			target.integerValue = std::round(endPoints.front()->position);
 			break;
-		case ParameterDataType::Type::STATE_PARAMETER: {
+		case ParameterDataType::STATE_PARAMETER: {
 			int originInteger = std::round(startPoints.front()->position);
 			clampValue(originInteger, 0, origin.stateValues->size() - 1)
 			origin.stateValue = &origin.stateValues->at(originInteger);
@@ -347,8 +347,8 @@ void ParameterTrack::refreshAfterCurveEdit() {
 			clampValue(targetInteger, 0, target.stateValues->size() - 1)
 			target.stateValue = &target.stateValues->at(targetInteger);
 			}break;
-		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
-		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::VECTOR_3D_PARAMETER:
+		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
 			origin.vector3value.x = startPoints[0]->position;
 			origin.vector3value.y = startPoints[1]->position;
 			origin.vector3value.z = startPoints[2]->position;
@@ -356,19 +356,19 @@ void ParameterTrack::refreshAfterCurveEdit() {
 			target.vector3value.y = endPoints[1]->position;
 			target.vector3value.z = endPoints[2]->position;
 			break;
-		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
-		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
+		case ParameterDataType::VECTOR_2D_PARAMETER:
+		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
 			origin.vector2value.x = startPoints[0]->position;
 			origin.vector2value.y = startPoints[1]->position;
 			target.vector2value.x = endPoints[0]->position;
 			target.vector2value.y = endPoints[1]->position;
 			break;
-		case ParameterDataType::Type::REAL_PARAMETER:
-		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
+		case ParameterDataType::REAL_PARAMETER:
+		case ParameterDataType::KINEMATIC_POSITION_CURVE:
 			origin.realValue = startPoints[0]->position;
 			target.realValue = endPoints[0]->position;
 			break;
-		case ParameterDataType::Type::PARAMETER_GROUP:
+		case ParameterDataType::PARAMETER_GROUP:
 			break;
 	}
 
@@ -551,13 +551,13 @@ AnimatableParameterValue& ParameterTrack::getTarget() {
 void ParameterTrack::getParameterValueAtPlaybackTime(AnimatableParameterValue& output) {
 	output.type = parameter->dataType;
 	switch (parameter->dataType) {
-		case ParameterDataType::Type::BOOLEAN_PARAMETER:
+		case ParameterDataType::BOOLEAN_PARAMETER:
 			output.boolValue = curves[0]->getPointAtTime(playbackPosition_seconds).position > 0.5;
 			break;
-		case ParameterDataType::Type::INTEGER_PARAMETER:
+		case ParameterDataType::INTEGER_PARAMETER:
 			output.integerValue = std::round(curves[0]->getPointAtTime(playbackPosition_seconds).position);
 			break;
-		case ParameterDataType::Type::STATE_PARAMETER:
+		case ParameterDataType::STATE_PARAMETER:
 			for (auto& stateValue : *parameter->stateParameterValues) {
 				if (std::round(curves[0]->getPointAtTime(playbackPosition_seconds).position) == stateValue.integerEquivalent) {
 					output.stateValue = &stateValue;
@@ -566,22 +566,22 @@ void ParameterTrack::getParameterValueAtPlaybackTime(AnimatableParameterValue& o
 			}
 			output.stateValue = &parameter->stateParameterValues->at(0);
 			break;
-		case ParameterDataType::Type::VECTOR_3D_PARAMETER:
-		case ParameterDataType::Type::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::VECTOR_3D_PARAMETER:
+		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
 			output.vector3value.x = curves[0]->getPointAtTime(playbackPosition_seconds).position;
 			output.vector3value.y = curves[1]->getPointAtTime(playbackPosition_seconds).position;
 			output.vector3value.z = curves[2]->getPointAtTime(playbackPosition_seconds).position;
 			break;
-		case ParameterDataType::Type::VECTOR_2D_PARAMETER:
-		case ParameterDataType::Type::KINEMATIC_2D_POSITION_CURVE:
+		case ParameterDataType::VECTOR_2D_PARAMETER:
+		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
 			output.vector2value.x = curves[0]->getPointAtTime(playbackPosition_seconds).position;
 			output.vector2value.y = curves[1]->getPointAtTime(playbackPosition_seconds).position;
 			break;
-		case ParameterDataType::Type::REAL_PARAMETER:
-		case ParameterDataType::Type::KINEMATIC_POSITION_CURVE:
+		case ParameterDataType::REAL_PARAMETER:
+		case ParameterDataType::KINEMATIC_POSITION_CURVE:
 			output.realValue = curves[0]->getPointAtTime(playbackPosition_seconds).position;
 			break;
-		case ParameterDataType::Type::PARAMETER_GROUP:
+		case ParameterDataType::PARAMETER_GROUP:
 			break;
 	}
 }

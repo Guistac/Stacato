@@ -159,7 +159,7 @@ void OscDevice::addArgument(std::shared_ptr<OSC::Message> msg){
 	std::shared_ptr<OSC::Argument> argument = std::make_shared<OSC::Argument>(msg);
 	msg->arguments.push_back(argument);
 	argument->setIndex(getMessageIndex(msg), msg->arguments.size());
-	addIoData(argument->pin);
+	addNodePin(argument->pin);
 	updatePins();
 }
 
@@ -504,7 +504,7 @@ bool OscDevice::load(tinyxml2::XMLElement* xml){
 			argument->messageIndex = outgoingMessages.size();
 			argument->argumentIndex = message->arguments.size();
 			message->arguments.push_back(argument);
-			addIoData(argument->pin);
+			addNodePin(argument->pin);
 			
 			argumentXML = argumentXML->NextSiblingElement("OSCArgument");
 		}
@@ -544,7 +544,7 @@ bool OscDevice::load(tinyxml2::XMLElement* xml){
 			argument->messageIndex = incomingMessages.size();
 			argument->argumentIndex = message->arguments.size();
 			message->arguments.push_back(argument);
-			addIoData(argument->pin);
+			addNodePin(argument->pin);
 			
 			argumentXML = argumentXML->NextSiblingElement("OSCArgument");
 		}

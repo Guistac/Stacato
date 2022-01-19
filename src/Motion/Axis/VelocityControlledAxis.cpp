@@ -5,11 +5,11 @@
 #include "Motion/SubDevice.h"
 
 void VelocityControlledAxis::initialize() {
-	addIoData(actuatorDeviceLink);
+	addNodePin(actuatorDeviceLink);
 	std::shared_ptr<VelocityControlledAxis> thisAxis = std::dynamic_pointer_cast<VelocityControlledAxis>(shared_from_this());
 	velocityControlledAxisLink->assignData(thisAxis);
-	addIoData(velocityControlledAxisLink);
-	addIoData(velocity);
+	addNodePin(velocityControlledAxisLink);
+	addNodePin(velocity);
 }
 
 void VelocityControlledAxis::process() {

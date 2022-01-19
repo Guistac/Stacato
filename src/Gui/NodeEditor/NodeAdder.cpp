@@ -157,7 +157,7 @@ void nodeAdder() {
 			
         }
         ImGui::PopFont();
-
+	
         ImGui::PushFont(Fonts::robotoBold15);
         if (ImGui::CollapsingHeader("Network IO")) {
             ImGui::PushFont(Fonts::robotoRegular15);

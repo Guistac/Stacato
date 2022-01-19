@@ -12,9 +12,9 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 
 void Oscillator3x::initialize() {
-	addIoData(linearAxis1Pin);
-	addIoData(linearAxis2Pin);
-	addIoData(linearAxis3Pin);
+	addNodePin(linearAxis1Pin);
+	addNodePin(linearAxis2Pin);
+	addNodePin(linearAxis3Pin);
 
 	addAnimatableParameter(oscillatorParameterGroup);
 	addAnimatableParameter(axis1PositionParameter);

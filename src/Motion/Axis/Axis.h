@@ -4,7 +4,7 @@
 
 #include "Motion/MotionTypes.h"
 
-#define DEFINE_AXIS_NODE(className, nodeName, saveName)	public:											\
+#define DEFINE_AXIS_NODE(className, nodeName, saveName)	\
 		DEFINE_NODE(className, nodeName, saveName, Node::Type::AXIS, "")\
 		virtual void process();\
 

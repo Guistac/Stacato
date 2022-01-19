@@ -150,8 +150,6 @@ inline bool isAngularPositionReferenceSignal(PositionReferenceSignal t){
 
 #define PositionReferenceSignalStrings \
 	{PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT, 			"Signal At Lower Limit", 			"LowSignal"},\
-	{PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT, 	"Signal At Lower and Upper Limit", 	"LowHighSignals"},\
-	{PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT, 			"Signal At Lower Limit", 			"LowSignal"},\
 	{PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT, 	"Low and High Limit Signals", 		"LowHighSignals"},\
 	{PositionReferenceSignal::SIGNAL_AT_ORIGIN, 				"Signal at Origin", 				"OriginSignal"},\
 	{PositionReferenceSignal::NO_SIGNAL, 						"No Reference Signal", 				"None"}\

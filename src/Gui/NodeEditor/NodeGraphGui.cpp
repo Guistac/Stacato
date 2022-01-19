@@ -335,7 +335,8 @@ void NodeGraph::editorGui() {
         for (int i = 0; i < selectedNodeCount; i++) {
             int selectedNodeId = selectedNodeIds[i].Get();
             //negative unique ids represent split node halves
-            if (selectedNodeId < 0) selectedNodeId = abs(selectedNodeId);
+            //if (selectedNodeId < 0) selectedNodeId = abs(selectedNodeId);
+			if (selectedNodeId >= 100000) selectedNodeId = selectedNodeId - 100000;
             //we don't add selected ids to the list twice
             //this can happen in case both parts of a split node are selected
             bool alreadyInSelectedIds = false;

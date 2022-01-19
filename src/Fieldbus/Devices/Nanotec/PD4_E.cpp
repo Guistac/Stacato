@@ -28,43 +28,43 @@ void PD4_E::initialize() {
 	gpioDevice->setParentDevice(std::dynamic_pointer_cast<Device>(shared_from_this()));
 	gpioDeviceLink->assignData(gpioDevice);
 
-	addIoData(servoActuatorDeviceLink);
+	addNodePin(servoActuatorDeviceLink);
 	
 	positionPin->assignData(positionPinValue);
-	addIoData(positionPin);
+	addNodePin(positionPin);
 	
 	velocityPin->assignData(velocityPinValue);
-	addIoData(velocityPin);
+	addNodePin(velocityPin);
 	
 	gpioDeviceLink->assignData(gpioDevice);
-	addIoData(gpioDeviceLink);
+	addNodePin(gpioDeviceLink);
 	
 	digitalIn1Pin->assignData(digitalIn1PinValue);
-	addIoData(digitalIn1Pin);
+	addNodePin(digitalIn1Pin);
 	
 	digitalIn2Pin->assignData(digitalIn2PinValue);
-	addIoData(digitalIn2Pin);
+	addNodePin(digitalIn2Pin);
 	
 	digitalIn3Pin->assignData(digitalIn3PinValue);
-	addIoData(digitalIn3Pin);
+	addNodePin(digitalIn3Pin);
 	
 	digitalIn4Pin->assignData(digitalIn4PinValue);
-	addIoData(digitalIn4Pin);
+	addNodePin(digitalIn4Pin);
 	
 	digitalIn5Pin->assignData(digitalIn5PinValue);
-	addIoData(digitalIn5Pin);
+	addNodePin(digitalIn5Pin);
 	
 	digitalIn6Pin->assignData(digitalIn6PinValue);
-	addIoData(digitalIn6Pin);
+	addNodePin(digitalIn6Pin);
 	
 	analogIn1Pin->assignData(analogIn1PinValue);
-	addIoData(analogIn1Pin);
+	addNodePin(analogIn1Pin);
 	
 	digitalOut1Pin->assignData(digitalOut1PinValue);
-	addIoData(digitalOut1Pin);
+	addNodePin(digitalOut1Pin);
 	
 	digitalOut2Pin->assignData(digitalOut2PinValue);
-	addIoData(digitalOut2Pin);
+	addNodePin(digitalOut2Pin);
 
 	servoMotor->positionUnit = PositionUnit::REVOLUTION;
 	double maxEncoderRevolutions = 1 << encoderMultiTurnResolutionBits;

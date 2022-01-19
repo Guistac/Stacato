@@ -5,7 +5,7 @@
 #include "NodeGraph.h"
 #include "NodePin.h"
 
-void Node::addIoData(std::shared_ptr<NodePin> NodePin) {
+void Node::addNodePin(std::shared_ptr<NodePin> NodePin) {
 
 	//don't add the nodepin if the node already has it
 	for (auto input : nodeInputPins) if (input == NodePin) return;

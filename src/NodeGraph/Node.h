@@ -14,7 +14,7 @@
 		newInstance->initialize();\
 		return newInstance;\
 	}\
-	virtual void initialize();
+	virtual void initialize();\
 
 class NodeGraph;
 namespace tinyxml2 { class XMLElement; }
@@ -45,7 +45,7 @@ public:
 	}
 
 	//pin handling
-	void addIoData(std::shared_ptr<NodePin> d);
+	void addNodePin(std::shared_ptr<NodePin> d);
 	void removeIoData(std::shared_ptr<NodePin> d);
 	std::vector<std::shared_ptr<NodePin>>& getInputPins() { return nodeInputPins; }
 	std::vector<std::shared_ptr<NodePin>>& getOutputPins() { return nodeOutputPins; }
@@ -60,7 +60,7 @@ public:
 	void restoreSavedPosition();
 	
 	//processing
-	virtual void process() = 0;
+	virtual void process(){}
 	bool wasProcessed() { return b_wasProcessed; }
 	bool areAllLinkedInputNodesProcessed();
 

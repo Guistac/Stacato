@@ -75,16 +75,16 @@ void Lexium32::initialize() {
 	digitalOut1->assignData(digitalOut1PinValue);
 	digitalOut2->assignData(digitalOut2PinValue);
 	
-    addIoData(digitalOut0);
-    addIoData(digitalOut1);
-    addIoData(digitalOut2);
+    addNodePin(digitalOut0);
+    addNodePin(digitalOut1);
+    addNodePin(digitalOut2);
 
     //node output data
-    addIoData(servoMotorLink);
-    addIoData(actualLoad);
-    addIoData(actualPosition);
-    addIoData(actualVelocity);
-    addIoData(gpioDeviceLink);
+    addNodePin(servoMotorLink);
+    addNodePin(actualLoad);
+    addNodePin(actualPosition);
+    addNodePin(actualVelocity);
+    addNodePin(gpioDeviceLink);
 	
 	digitalIn0->assignData(digitalIn0PinValue);
 	digitalIn1->assignData(digitalIn1PinValue);
@@ -93,12 +93,12 @@ void Lexium32::initialize() {
 	digitalIn4->assignData(digitalIn4PinValue);
 	digitalIn5->assignData(digitalIn5PinValue);
 	
-    addIoData(digitalIn0);
-    addIoData(digitalIn1);
-    addIoData(digitalIn2);
-    addIoData(digitalIn3);
-    addIoData(digitalIn4);
-    addIoData(digitalIn5);
+    addNodePin(digitalIn0);
+    addNodePin(digitalIn1);
+    addNodePin(digitalIn2);
+    addNodePin(digitalIn3);
+    addNodePin(digitalIn4);
+    addNodePin(digitalIn5);
 
     rxPdoAssignement.addNewModule(0x1603);
     rxPdoAssignement.addEntry(0x6040, 0x0, 16, "DCOMcontrol", &DCOMcontrol);

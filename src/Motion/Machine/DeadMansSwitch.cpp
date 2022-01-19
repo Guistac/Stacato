@@ -4,20 +4,20 @@
 
 void DeadMansSwitch::initialize(){
 	//gpioDevicePin->assignData()
-	addIoData(gpioDevicePin);
+	addNodePin(gpioDevicePin);
 	
 	switchPressedPin->assignData(switchPressedValue);
-	addIoData(switchPressedPin);
+	addNodePin(switchPressedPin);
 	
 	switchConnectedPin->assignData(switchConnectedValue);
-	addIoData(switchConnectedPin);
+	addNodePin(switchConnectedPin);
 	
 	switchLedPin->assignData(switchLedValue);
-	addIoData(switchLedPin);
+	addNodePin(switchLedPin);
 	
 	std::shared_ptr<DeadMansSwitch> thisDeadMansSwitch = std::dynamic_pointer_cast<DeadMansSwitch>(shared_from_this());
 	deadMansSwitchLink->assignData(thisDeadMansSwitch);
-	addIoData(deadMansSwitchLink);
+	addNodePin(deadMansSwitchLink);
 }
 
 void DeadMansSwitch::process(){}

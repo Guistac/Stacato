@@ -8,15 +8,14 @@ public:
 	DEFINE_NODE(ConstantNode, "Constant", "Constant", Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<NodePin> value = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "value", NodePin::Flags::ForceDataField);
-
-	virtual void process() {}
+	
+	virtual void process(){}
 	
 };
 
 void ConstantNode::initialize(){
-	addIoData(value);
+	addNodePin(value);
 }
-
 
 class AdditionNode : public Node {
 public:
@@ -30,30 +29,34 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> offsetPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
+
+	virtual void process();
 	
-	virtual void process() {
-		double sum = 0.0;
-		
-		if(input->hasMultipleConnections()) {
-			*inputPinValue = 0.0;
-			for (auto pin : input->getConnectedPins()) *inputPinValue += pin->read<double>();
-		}
-		else if (input->isConnected()) input->copyConnectedPinValue();
-		sum += *inputPinValue;
-		
-		sum += *offsetPinValue;
-		*outputPinValue = sum;
-	}
 };
 
 void AdditionNode::initialize(){
 	input->assignData(inputPinValue);
-	addIoData(input);
+	addNodePin(input);
 	offset->assignData(offsetPinValue);
-	addIoData(offset);
+	addNodePin(offset);
 	output->assignData(outputPinValue);
-	addIoData(output);
+	addNodePin(output);
 }
+
+void AdditionNode::process() {
+	double sum = 0.0;
+	
+	if(input->hasMultipleConnections()) {
+		*inputPinValue = 0.0;
+		for (auto pin : input->getConnectedPins()) *inputPinValue += pin->read<double>();
+	}
+	else if (input->isConnected()) input->copyConnectedPinValue();
+	sum += *inputPinValue;
+	
+	sum += *offsetPinValue;
+	*outputPinValue = sum;
+}
+
 
 class SubtractionNode : public Node {
 public:
@@ -70,37 +73,40 @@ public:
 	std::shared_ptr<double> offsetPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void process() {
-		double sum = 0.0;
-		
-		if(base->hasMultipleConnections()) {
-			*basePinValue = 0.0;
-			for(auto pin : base->getConnectedPins()) *basePinValue += pin->read<double>();
-		}
-		else if(base->isConnected()) base->copyConnectedPinValue();
-		sum += *basePinValue;
-		
-		if(sub->hasMultipleConnections()) {
-			*subPinValue = 0.0;
-			for(auto pin : sub->getConnectedPins()) *subPinValue += pin->read<double>();
-		}else if(sub->isConnected()) sub->copyConnectedPinValue();
-		sum -= *subPinValue;
-		
-		sum += *offsetPinValue;
-		
-		*outputPinValue = sum;
-	}
+	virtual void process();
+	
 };
 
 void SubtractionNode::initialize(){
 	base->assignData(basePinValue);
-	addIoData(base);
+	addNodePin(base);
 	sub->assignData(subPinValue);
-	addIoData(sub);
+	addNodePin(sub);
 	offset->assignData(offsetPinValue);
-	addIoData(offset);
+	addNodePin(offset);
 	output->assignData(outputPinValue);
-	addIoData(output);
+	addNodePin(output);
+}
+
+void SubtractionNode::process() {
+	double sum = 0.0;
+	
+	if(base->hasMultipleConnections()) {
+		*basePinValue = 0.0;
+		for(auto pin : base->getConnectedPins()) *basePinValue += pin->read<double>();
+	}
+	else if(base->isConnected()) base->copyConnectedPinValue();
+	sum += *basePinValue;
+	
+	if(sub->hasMultipleConnections()) {
+		*subPinValue = 0.0;
+		for(auto pin : sub->getConnectedPins()) *subPinValue += pin->read<double>();
+	}else if(sub->isConnected()) sub->copyConnectedPinValue();
+	sum -= *subPinValue;
+	
+	sum += *offsetPinValue;
+	
+	*outputPinValue = sum;
 }
 
 class MultiplicationNode : public Node {
@@ -116,29 +122,32 @@ public:
 	std::shared_ptr<double> multiplierPinValue = std::make_shared<double>(1.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void process() {
-		double out = 1.0;
-		
-		if(input->hasMultipleConnections()) {
-			*inputPinValue = 1.0;
-			for(auto pin : input->getConnectedPins()) *inputPinValue *= pin->read<double>();
-		}else if(input->isConnected()) input->copyConnectedPinValue();
-		out *= *inputPinValue;
-		
-		
-		out *= *multiplierPinValue;
-		
-		*outputPinValue = out;
-	}
+	virtual void process();
+	
 };
 
 void MultiplicationNode::initialize(){
 	input->assignData(inputPinValue);
-	addIoData(input);
+	addNodePin(input);
 	multiplier->assignData(multiplierPinValue);
-	addIoData(multiplier);
+	addNodePin(multiplier);
 	output->assignData(outputPinValue);
-	addIoData(output);
+	addNodePin(output);
+}
+
+void MultiplicationNode::process() {
+	double out = 1.0;
+	
+	if(input->hasMultipleConnections()) {
+		*inputPinValue = 1.0;
+		for(auto pin : input->getConnectedPins()) *inputPinValue *= pin->read<double>();
+	}else if(input->isConnected()) input->copyConnectedPinValue();
+	out *= *inputPinValue;
+	
+	
+	out *= *multiplierPinValue;
+	
+	*outputPinValue = out;
 }
 
 class DivisionNode : public Node {
@@ -156,37 +165,39 @@ public:
 	std::shared_ptr<double> multPinValue = std::make_shared<double>(1.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
+	virtual void process();
 	
-	virtual void process() {
-		double out = 1.0;
-		
-		if(base->hasMultipleConnections()){
-			*basePinValue = 0.0;
-			for(auto pin : base->getConnectedPins()) *basePinValue *= pin->read<double>();
-		}else if(base->isConnected()) base->copyConnectedPinValue();
-		out *= *basePinValue;
-		
-		if(div->hasMultipleConnections()){
-			*divPinValue = 0.0;
-			for(auto pin : div->getConnectedPins()) *divPinValue *= pin->read<double>();
-		}else if(div->isConnected()) div->copyConnectedPinValue();
-		out /= *divPinValue;
-		
-		out *= *multPinValue;
-		
-		*outputPinValue = out;
-	}
 };
 
 void DivisionNode::initialize(){
 	base->assignData(basePinValue);
-	addIoData(base);
+	addNodePin(base);
 	div->assignData(divPinValue);
-	addIoData(div);
+	addNodePin(div);
 	mult->assignData(multPinValue);
-	addIoData(mult);
+	addNodePin(mult);
 	output->assignData(outputPinValue);
-	addIoData(output);
+	addNodePin(output);
+}
+
+void DivisionNode::process() {
+	double out = 1.0;
+	
+	if(base->hasMultipleConnections()){
+		*basePinValue = 0.0;
+		for(auto pin : base->getConnectedPins()) *basePinValue *= pin->read<double>();
+	}else if(base->isConnected()) base->copyConnectedPinValue();
+	out *= *basePinValue;
+	
+	if(div->hasMultipleConnections()){
+		*divPinValue = 0.0;
+		for(auto pin : div->getConnectedPins()) *divPinValue *= pin->read<double>();
+	}else if(div->isConnected()) div->copyConnectedPinValue();
+	out /= *divPinValue;
+	
+	out *= *multPinValue;
+	
+	*outputPinValue = out;
 }
 
 class ExponentNode : public Node {
@@ -202,22 +213,25 @@ public:
 	std::shared_ptr<double> expPinValue = std::make_shared<double>(1.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void process() {
-		if(base->isConnected()) base->copyConnectedPinValue();
-		
-		if(exp->isConnected()) exp->copyConnectedPinValue();
-		
-		*outputPinValue = std::pow(*basePinValue, *expPinValue);
-	}
+	virtual void process();
+	
 };
 
 void ExponentNode::initialize(){
 	base->assignData(basePinValue);
-	addIoData(base);
+	addNodePin(base);
 	exp->assignData(expPinValue);
-	addIoData(exp);
+	addNodePin(exp);
 	output->assignData(outputPinValue);
-	addIoData(output);
+	addNodePin(output);
+}
+
+void ExponentNode::process() {
+	if(base->isConnected()) base->copyConnectedPinValue();
+	
+	if(exp->isConnected()) exp->copyConnectedPinValue();
+	
+	*outputPinValue = std::pow(*basePinValue, *expPinValue);
 }
 
 
@@ -232,18 +246,21 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void process() {
-		if(input->isConnected()) input->copyConnectedPinValue();
-		
-		*outputPinValue = std::abs(*inputPinValue);
-	}
+	virtual void process();
+	
 };
 
 void AbsoluteNode::initialize(){
 	input->assignData(inputPinValue);
-	addIoData(input);
+	addNodePin(input);
 	output->assignData(outputPinValue);
-	addIoData(output);
+	addNodePin(output);
+}
+
+void AbsoluteNode::process() {
+	if(input->isConnected()) input->copyConnectedPinValue();
+	
+	*outputPinValue = std::abs(*inputPinValue);
 }
 
 
@@ -262,18 +279,22 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 
-	virtual void process() {
-		if(in->isConnected()) in->copyConnectedPinValue();
-		*outputPinValue = std::sin(*inputPinValue);
-	}
+	virtual void process();
+	
 };
 
 void SinusNode::initialize(){
 	in->assignData(inputPinValue);
-	addIoData(in);
+	addNodePin(in);
 	out->assignData(outputPinValue);
-	addIoData(out);
+	addNodePin(out);
 }
+
+void SinusNode::process() {
+	if(in->isConnected()) in->copyConnectedPinValue();
+	*outputPinValue = std::sin(*inputPinValue);
+}
+
 
 class CosinusNode : public Node {
 public:
@@ -286,17 +307,20 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(1.0);
 	
-	virtual void process() {
-		if(in->isConnected()) in->copyConnectedPinValue();
-		*outputPinValue = std::cos(*inputPinValue);
-	}
+	virtual void process();
+	
 };
 
 void CosinusNode::initialize(){
 	in->assignData(inputPinValue);
-	addIoData(in);
+	addNodePin(in);
 	out->assignData(outputPinValue);
-	addIoData(out);
+	addNodePin(out);
+}
+
+void CosinusNode::process() {
+	if(in->isConnected()) in->copyConnectedPinValue();
+	*outputPinValue = std::cos(*inputPinValue);
 }
 
 class TangentNode : public Node {
@@ -310,17 +334,20 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void process() {
-		if(in->isConnected()) in->copyConnectedPinValue();
-		*outputPinValue = std::tan(*inputPinValue);
-	}
+	virtual void process();
+	
 };
 
 void TangentNode::initialize(){
 	in->assignData(inputPinValue);
-	addIoData(in);
+	addNodePin(in);
 	out->assignData(outputPinValue);
-	addIoData(out);
+	addNodePin(out);
+}
+
+void TangentNode::process() {
+	if(in->isConnected()) in->copyConnectedPinValue();
+	*outputPinValue = std::tan(*inputPinValue);
 }
 
 class CotangentNode : public Node {
@@ -334,17 +361,20 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(std::numeric_limits<double>::infinity());
 	
-	virtual void process() {
-		if(in->isConnected()) in->copyConnectedPinValue();
-		*outputPinValue = 1.0 / std::sin(*inputPinValue);
-	}
+	virtual void process();
+	
 };
 
 void CotangentNode::initialize(){
 	in->assignData(inputPinValue);
-	addIoData(in);
+	addNodePin(in);
 	out->assignData(outputPinValue);
-	addIoData(out);
+	addNodePin(out);
+}
+
+void CotangentNode::process() {
+	if(in->isConnected()) in->copyConnectedPinValue();
+	*outputPinValue = 1.0 / std::sin(*inputPinValue);
 }
 
 
@@ -369,18 +399,22 @@ public:
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(false);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(false);
 	
-	virtual void process() {
-		if(in->isConnected()) in->copyConnectedPinValue();
-		*outputPinValue = *inputPinValue;
-	}
+	virtual void process();
+	
 };
 
 void BoolNode::initialize(){
 	in->assignData(inputPinValue);
-	addIoData(in);
+	addNodePin(in);
 	out->assignData(outputPinValue);
-	addIoData(out);
+	addNodePin(out);
 }
+
+void BoolNode::process() {
+	if(in->isConnected()) in->copyConnectedPinValue();
+	*outputPinValue = *inputPinValue;
+}
+
 
 class NotNode : public Node{
 public:
@@ -393,18 +427,23 @@ public:
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(0.0);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
 
-	virtual void process() {
-		if(in->isConnected()) in->copyConnectedPinValue();
-		*outputPinValue = !*inputPinValue;
-	}
+	virtual void process();
+	
 };
 
 void NotNode::initialize(){
 	in->assignData(inputPinValue);
-	addIoData(in);
+	addNodePin(in);
 	out->assignData(outputPinValue);
-	addIoData(out);
+	addNodePin(out);
 }
+
+void NotNode::process() {
+	if(in->isConnected()) in->copyConnectedPinValue();
+	*outputPinValue = !*inputPinValue;
+}
+
+
 
 class AndNode : public Node {
 public:
@@ -417,26 +456,31 @@ public:
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(0.0);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
 	
-	virtual void process() {
-		if(in->hasMultipleConnections()){
-			*inputPinValue = false;
-			for(auto pin : in->getConnectedPins()) {
-				if(!pin->read<bool>()){
-					*outputPinValue = false;
-					return;
-				}
-			}
-			*outputPinValue = true;
-		}
-	}
+	virtual void process();
+	
 };
 
 void AndNode::initialize(){
 	in->assignData(inputPinValue);
-	addIoData(in);
+	addNodePin(in);
 	out->assignData(outputPinValue);
-	addIoData(out);
+	addNodePin(out);
 }
+
+void AndNode::process() {
+	if(in->hasMultipleConnections()){
+		*inputPinValue = false;
+		for(auto pin : in->getConnectedPins()) {
+			if(!pin->read<bool>()){
+				*outputPinValue = false;
+				return;
+			}
+		}
+		*outputPinValue = true;
+	}
+}
+
+
 
 class OrNode : public Node {
 public:
@@ -449,24 +493,27 @@ public:
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(0.0);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
 	
-	virtual void process() {
-		if(in->hasMultipleConnections()){
-			*inputPinValue = false;
-			for(auto pin : in->getConnectedPins()) {
-				if(pin->read<bool>()){
-					*outputPinValue = true;
-					return;
-				}
-			}
-			*outputPinValue = false;
-		}
-	}
+	virtual void process();
+	
 };
 
 void OrNode::initialize(){
 	in->assignData(inputPinValue);
-	addIoData(in);
+	addNodePin(in);
 	out->assignData(outputPinValue);
-	addIoData(out);
+	addNodePin(out);
+}
+
+void OrNode::process() {
+	if(in->hasMultipleConnections()){
+		*inputPinValue = false;
+		for(auto pin : in->getConnectedPins()) {
+			if(pin->read<bool>()){
+				*outputPinValue = true;
+				return;
+			}
+		}
+		*outputPinValue = false;
+	}
 }
 

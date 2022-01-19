@@ -658,12 +658,14 @@ void PositionControlledAxis::settingsGui() {
 
 		if (isActuatorDeviceConnected()) {
 			std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
-
+			std::shared_ptr<Device> actuatorParentDevice = actuator->parentDevice;
+			
 			ImGui::PushFont(Fonts::robotoBold15);
 			ImGui::Text("Device:");
 			ImGui::PopFont();
 			ImGui::SameLine();
-			ImGui::Text("%s on %s", actuator->getName(), actuator->parentDevice->getName());
+			if(actuatorParentDevice) ImGui::Text("%s on %s", actuator->getName(), actuator->parentDevice->getName());
+			else ImGui::Text("%s on Node %s", actuator->getName(), actuatorDeviceLink->getConnectedPin()->getNode()->getName());
 
 			ImGui::PushFont(Fonts::robotoBold15);
 			ImGui::Text("Position Unit:");
@@ -855,14 +857,8 @@ void PositionControlledAxis::settingsGui() {
 		
 		for (auto& type : Enumerator::getTypes<PositionReferenceSignal>()) {
 			
-			switch(positionUnitType){
-				case PositionUnitType::LINEAR:
-					if(!isLinearPositionReferenceSignal(type.enumerator)) continue;
-					break;
-				case PositionUnitType::ANGULAR:
-					if(!isAngularPositionReferenceSignal(type.enumerator)) continue;
-					break;
-			}
+			if(positionUnitType == PositionUnitType::LINEAR && !isLinearPositionReferenceSignal(type.enumerator)) continue;
+			else if(positionUnitType == PositionUnitType::ANGULAR && !isAngularPositionReferenceSignal(type.enumerator)) continue;
 			
 			bool selected = positionReferenceSignal == type.enumerator;
 			if (ImGui::Selectable(type.displayString, selected)) {

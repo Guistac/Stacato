@@ -13,29 +13,29 @@
 
 void PositionControlledAxis::initialize() {
 	//inputs
-	addIoData(actuatorDeviceLink);
-	addIoData(servoActuatorDeviceLink);
-	addIoData(positionFeedbackDeviceLink);
-	addIoData(referenceDeviceLink);
+	addNodePin(actuatorDeviceLink);
+	addNodePin(servoActuatorDeviceLink);
+	addNodePin(positionFeedbackDeviceLink);
+	addNodePin(referenceDeviceLink);
 	
 	lowLimitSignalPin->assignData(lowLimitSignalPinValue);
 	highLimitSignalPin->assignData(highLimitSignalPinValue);
 	referenceSignalPin->assignData(referenceSignalPinValue);
 	
-	addIoData(lowLimitSignalPin);
-	addIoData(highLimitSignalPin);
-	addIoData(referenceSignalPin);
+	addNodePin(lowLimitSignalPin);
+	addNodePin(highLimitSignalPin);
+	addNodePin(referenceSignalPin);
 	//outputs
 	//these pins are always present
 	std::shared_ptr<PositionControlledAxis> thisAxis = std::dynamic_pointer_cast<PositionControlledAxis>(shared_from_this());
 	positionControlledAxisPin->assignData(thisAxis);
-	addIoData(positionControlledAxisPin);
+	addNodePin(positionControlledAxisPin);
 	
 	position->assignData(positionPinValue);
-	addIoData(position);
+	addNodePin(position);
 	
 	velocity->assignData(velocityPinValue);
-	addIoData(velocity);
+	addNodePin(velocity);
 	setPositionControlType(positionControlType);
 	setPositionReferenceSignalType(positionReferenceSignal);
 	targetInterpolation = std::make_shared<Motion::Interpolation>();

@@ -7,7 +7,8 @@ public:
 	
 	DEFINE_NODE(GroupNode, "Group", "Group", Node::Type::CONTAINER , "Utility");
 
-	virtual void process() {}
+	virtual void process(){}
+	
 };
 
 void GroupNode::initialize(){}

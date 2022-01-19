@@ -88,7 +88,7 @@ void NodePin::pinGui() {
 
     if (isInput()) {
         if (!b_disablePin) {
-            NodeEditor::BeginPin(getUniqueID(), NodeEditor::PinKind::Input);
+			NodeEditor::BeginPin(getUniqueID(), NodeEditor::PinKind::Input);
             NodeEditor::PinPivotAlignment(ImVec2(0.0, 0.5));
         }
         ImGui::Dummy(glm::vec2(iconDummyWidth));
@@ -117,6 +117,7 @@ void NodePin::pinGui() {
         }
         //spacing.x
         if (!b_disablePin) {
+			assert(getUniqueID() > 0);
             NodeEditor::BeginPin(getUniqueID(), NodeEditor::PinKind::Output);
             NodeEditor::PinPivotAlignment(ImVec2(1.0, 0.5));
         }

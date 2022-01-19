@@ -13,21 +13,21 @@ std::vector<StateParameterValue> HoodedLiftStateMachine::stateParameterValues = 
 };
 
 void HoodedLiftStateMachine::initialize() {
-	addIoData(gpioDeviceLink);
+	addNodePin(gpioDeviceLink);
 
-	addIoData(hoodOpenSignalPin);
-	addIoData(hoodShutSignalPin);
-	addIoData(liftRaisedSignalPin);
-	addIoData(liftLoweredSignalPin);
-	addIoData(hoodMotorCircuitBreakerSignalPin);
-	addIoData(liftMotorCircuitBreakerSignalPin);
-	addIoData(emergencyStopClearSignalPin);
-	addIoData(localControlEnabledSignalPin);
+	addNodePin(hoodOpenSignalPin);
+	addNodePin(hoodShutSignalPin);
+	addNodePin(liftRaisedSignalPin);
+	addNodePin(liftLoweredSignalPin);
+	addNodePin(hoodMotorCircuitBreakerSignalPin);
+	addNodePin(liftMotorCircuitBreakerSignalPin);
+	addNodePin(emergencyStopClearSignalPin);
+	addNodePin(localControlEnabledSignalPin);
 
-	addIoData(openHoodCommandPin);
-	addIoData(shutHoodCommandPin);
-	addIoData(raiseLiftCommandPin);
-	addIoData(lowerLiftCommandPin);
+	addNodePin(openHoodCommandPin);
+	addNodePin(shutHoodCommandPin);
+	addNodePin(raiseLiftCommandPin);
+	addNodePin(lowerLiftCommandPin);
 
 	addAnimatableParameter(stateParameter);
 }

@@ -16,10 +16,13 @@
 #include "Motion/Machine/Machines/Animated/Oscillator3x.h"
 #include "Motion/Machine/Machines/Animated/BinaryOscillator6x.h"
 #include "Motion/Machine/Machines/Utility/PositionFeedbackMachine.h"
+#include "Motion/Machine/Machines/Special/LinearMecanumClaw.h"
 
 #include "Motion/Machine/DeadMansSwitch.h"
 
 #include "Networking/Osc/OscDevice.h"
+
+#include "Motion/Adapters/VoltageControlledActuator.h"
 
 namespace NodeFactory {
 
@@ -39,13 +42,14 @@ namespace NodeFactory {
 			new VelocityControlledAxis(),
 			new PositionControlledAxis()
 		};
-
+		
 		allMachineNodes = {
 			new PositionControlledSingleAxisMachine(),
 			new HoodedLiftStateMachine(),
 			new Oscillator3x(),
 			new BinaryOscillator6x(),
-			new PositionFeedbackMachine()
+			new PositionFeedbackMachine(),
+			new LinearMecanumClaw()
 		};
 
 		allNodes = {
@@ -70,7 +74,9 @@ namespace NodeFactory {
 			new BoolNode(),
 			new NotNode(),
 			new AndNode(),
-			new OrNode()
+			new OrNode(),
+			
+			new VoltageControlledActuator()
 		};
 		
 		allSafetyNodes = {
@@ -139,6 +145,8 @@ namespace NodeFactory {
 	std::vector<Node*>& getAllAxisTypes() {
 		return allAxisNodes;
 	}
+
+
 
 	std::shared_ptr<Node> getMachineBySaveName(const char* saveName) {
 		for (Node* machine : allMachineNodes) {

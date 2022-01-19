@@ -28,7 +28,7 @@ void VipaBusCoupler_053_1EC01::initialize() {
     gpioDevice->setParentDevice(thisDevice);
 	gpioDeviceLink->assignData(gpioDevice);
     //gpio device link pin
-    addIoData(gpioDeviceLink);
+    addNodePin(gpioDeviceLink);
 }
 
 
@@ -143,8 +143,8 @@ void VipaBusCoupler_053_1EC01::addModule(std::shared_ptr<VipaModule> module){
 	module->setIndex(modules.size());
 	modules.push_back(module);
 	selectedModule = module;
-	for(auto& inputPin : module->inputPins) addIoData(inputPin);
-	for(auto& outputPin : module->outputPins) addIoData(outputPin);
+	for(auto& inputPin : module->inputPins) addNodePin(inputPin);
+	for(auto& outputPin : module->outputPins) addNodePin(outputPin);
 	
 	module->addTxPdoMappingModule(txPdoAssignement);
 	module->addRxPdoMappingModule(rxPdoAssignement);

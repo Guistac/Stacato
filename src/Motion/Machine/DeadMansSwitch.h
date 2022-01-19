@@ -22,4 +22,5 @@ public:
 	std::shared_ptr<bool> switchLedValue = std::make_shared<bool>(false);
 	
 	virtual void process();
+	
 };

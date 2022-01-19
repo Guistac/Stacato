@@ -20,27 +20,9 @@ public:
 	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", NodePin::Flags::ForceDataField | NodePin::Flags::DisableDataField);
 
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
-	
-	virtual void process() {
-		if (input->isConnected()) {
-			input->copyConnectedPinValue();
-			if (!wasConnected) {
-				wasConnected = true;
-				data.clear();
-			}
-			glm::vec2 newPoint;
-			newPoint.x = Timing::getProgramTime_seconds();
-			newPoint.y = *inputPinValue;
-			data.addPoint(newPoint);
-		}
-		else {
-			if (wasConnected) {
-				data.clear();
-				wasConnected = false;
-			}
-		}
-	}
 
+	virtual void process();
+	
 	virtual void nodeSpecificGui() {
 		if (ImGui::BeginTabItem("Plot")) {
 			if (ImGui::InputInt("Buffer Size", &bufferSize, 0, 0)) data.setMaxSize(bufferSize);
@@ -77,6 +59,26 @@ public:
 };
 
 void PlotterNode::initialize(){
-	addIoData(input);
+	addNodePin(input);
 	data.setMaxSize(bufferSize);
+}
+
+void PlotterNode::process() {
+	if (input->isConnected()) {
+		input->copyConnectedPinValue();
+		if (!wasConnected) {
+			wasConnected = true;
+			data.clear();
+		}
+		glm::vec2 newPoint;
+		newPoint.x = Timing::getProgramTime_seconds();
+		newPoint.y = *inputPinValue;
+		data.addPoint(newPoint);
+	}
+	else {
+		if (wasConnected) {
+			data.clear();
+			wasConnected = false;
+		}
+	}
 }

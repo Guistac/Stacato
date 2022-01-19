@@ -14,13 +14,13 @@
 
 void PositionControlledSingleAxisMachine::initialize() {
 	//inputs
-	addIoData(positionControlledAxisPin);
+	addNodePin(positionControlledAxisPin);
 	
 	//outputs
 	positionPin->assignData(positionPinValue);
-	addIoData(positionPin);
+	addNodePin(positionPin);
 	velocityPin->assignData(velocityPinValue);
-	addIoData(velocityPin);
+	addNodePin(velocityPin);
 
 	//machine parameters
 	addAnimatableParameter(positionParameter);

@@ -191,7 +191,8 @@ void Node::nodeGui() {
 
         NodeEditor::EndNode();
 
-        int splitNodeID = -getUniqueID();
+        int splitNodeID = 100000 + getUniqueID();
+		//int splitNodeID = -getUniqueID();
 
         if (!b_wasSplit) {
             b_wasSplit = true;
@@ -203,7 +204,6 @@ void Node::nodeGui() {
         }
 
         //===== SPLIT OUTPUT NODE ======
-
 
         NodeEditor::BeginNode(splitNodeID);
 
@@ -249,7 +249,7 @@ void Node::nodeGui() {
         }
 
         NodeEditor::EndNode();
-
+		
     }
 
     if (nodeIsOffline) {

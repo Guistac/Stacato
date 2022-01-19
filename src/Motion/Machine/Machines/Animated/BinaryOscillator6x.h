@@ -26,10 +26,10 @@ class BinaryOscillator6x : public Machine {
 		std::make_shared<bool>(false)
 	};
 
-	std::shared_ptr<AnimatableParameter> minOffTimeParameter = std::make_shared<AnimatableParameter>("Min Off Time", ParameterDataType::Type::REAL_PARAMETER, "s");
-	std::shared_ptr<AnimatableParameter> maxOffTimeParameter = std::make_shared<AnimatableParameter>("Max Off Time", ParameterDataType::Type::REAL_PARAMETER, "s");
-	std::shared_ptr<AnimatableParameter> minOnTimeParameter = std::make_shared<AnimatableParameter>("Min On Time", ParameterDataType::Type::REAL_PARAMETER, "s");
-	std::shared_ptr<AnimatableParameter> maxOnTimeParameter = std::make_shared<AnimatableParameter>("Max On Time", ParameterDataType::Type::REAL_PARAMETER, "s");
+	std::shared_ptr<AnimatableParameter> minOffTimeParameter = std::make_shared<AnimatableParameter>("Min Off Time", ParameterDataType::REAL_PARAMETER, "s");
+	std::shared_ptr<AnimatableParameter> maxOffTimeParameter = std::make_shared<AnimatableParameter>("Max Off Time", ParameterDataType::REAL_PARAMETER, "s");
+	std::shared_ptr<AnimatableParameter> minOnTimeParameter = std::make_shared<AnimatableParameter>("Min On Time", ParameterDataType::REAL_PARAMETER, "s");
+	std::shared_ptr<AnimatableParameter> maxOnTimeParameter = std::make_shared<AnimatableParameter>("Max On Time", ParameterDataType::REAL_PARAMETER, "s");
 	std::shared_ptr<AnimatableParameter> oscillatorParameterGroup = std::make_shared<AnimatableParameter>("Oscillator", std::vector<std::shared_ptr<AnimatableParameter>>({
 		minOffTimeParameter,
 		maxOffTimeParameter,
