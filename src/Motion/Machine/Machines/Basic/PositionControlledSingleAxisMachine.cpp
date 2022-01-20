@@ -151,8 +151,8 @@ void PositionControlledSingleAxisMachine::process() {
 	}
 	
 	//Send motion values to axis profile
-	axis->profilePosition_axisUnits = machinePositionToAxisPosition(motionProfile.getPosition());
-	axis->profileVelocity_axisUnitsPerSecond = machineVelocityToAxisVelocity(motionProfile.getVelocity());
+	axis->motionProfile.setPosition(machinePositionToAxisPosition(motionProfile.getPosition()));
+	axis->motionProfile.setVelocity(machineVelocityToAxisVelocity(motionProfile.getVelocity()));
 	axis->sendActuatorCommands();
 }
 

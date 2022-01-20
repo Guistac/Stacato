@@ -2,6 +2,7 @@
 #include "LinearMecanumClaw.h"
 
 #include "Motion/Axis/PositionControlledAxis.h"
+#include "Motion/Axis/VelocityControlledAxis.h"
 #include "Motion/SubDevice.h"
 
 

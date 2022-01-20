@@ -444,16 +444,16 @@ void VIPA_050_1BS00::updateResetPinVisibility(){
 
 bool VIPA_050_1BS00::save(tinyxml2::XMLElement* xml){
 	xml->SetAttribute("Encoding", Enumerator::getSaveString(encodingFormat));
-	xml->SetAttribute("TransmissionRate", Enumerator::getSaveString(encodingFormat));
-	xml->SetAttribute("IdleTime", Enumerator::getSaveString(encodingFormat));
+	xml->SetAttribute("TransmissionRate", Enumerator::getSaveString(transmissionFrequency));
+	xml->SetAttribute("IdleTime", Enumerator::getSaveString(pausetime));
 	xml->SetAttribute("CenterRangeOnZero", b_centerRangeOnZero);
 	xml->SetAttribute("HasResetSignal", b_hasResetSignal);
 	if(b_hasResetSignal) xml->SetAttribute("ResetTime", resetTime_milliseconds);
 	xml->SetAttribute("TotalBitCount", encoderBitCount);
 	xml->SetAttribute("SingleTurnBitCount", singleTurnBitCount);
 	xml->SetAttribute("IgnoredBitCount", normalisationBitCount);
-	xml->SetAttribute("BitShiftDirection", Enumerator::getSaveString(encodingFormat));
-	xml->SetAttribute("ClockEdge", Enumerator::getSaveString(encodingFormat));
+	xml->SetAttribute("BitShiftDirection", Enumerator::getSaveString(bitshiftDirection));
+	xml->SetAttribute("ClockEdge", Enumerator::getSaveString(clockEdge));
 	xml->SetAttribute("Zero_revolutions", encoderDevice->positionOffset_positionUnits);
 	return true;
 }

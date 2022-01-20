@@ -51,7 +51,7 @@ public:
 	std::vector<std::shared_ptr<NodePin>>& getOutputPins() { return nodeOutputPins; }
 	bool hasInputs() { return !nodeInputPins.empty(); }
 	bool hasOutputs() { return !nodeOutputPins.empty(); }
-	virtual void nodifyPinUpdate(std::shared_ptr<NodePin> pin){}
+	virtual void updatePin(std::shared_ptr<NodePin> pin){}
 
 	//nodegraph
 	int getUniqueID() { return uniqueID; }

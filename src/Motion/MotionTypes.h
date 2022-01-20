@@ -186,14 +186,14 @@ enum class ControlMode{
 	VELOCITY_TARGET,
 	POSITION_TARGET,
 	FAST_STOP,
-	MACHINE_CONTROL
+	EXTERNAL
 };
 
 #define ControlModeTypes\
 	{ControlMode::VELOCITY_TARGET,	"Velocity Target"},\
 	{ControlMode::POSITION_TARGET,	"Position Target"},\
-	{ControlMode::FAST_STOP,			"Fast Stop"},\
-	{ControlMode::MACHINE_CONTROL,	"Machine Control"}\
+	{ControlMode::FAST_STOP,		"Fast Stop"},\
+	{ControlMode::EXTERNAL,			"External"}\
 
 DEFINE_ENUMERATOR(ControlMode, ControlModeTypes)
 

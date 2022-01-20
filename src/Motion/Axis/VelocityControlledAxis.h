@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Axis.h"
+#include "NodeGraph/Node.h"
 
 #include "Motion/MotionTypes.h"
 #include "Utilities/CircularBuffer.h"
 
 class Device;
 
-class VelocityControlledAxis : public Axis {
+class VelocityControlledAxis : public Node {
 public:
 
-	DEFINE_AXIS_NODE(VelocityControlledAxis, "Velocity Controlled Axis", "VelocityControlledAxis")
+	DEFINE_NODE(VelocityControlledAxis, "Velocity Controlled Axis", "VelocityControlledAxis", Node::Type::AXIS, "")
 
 	virtual MotionCommand getMotionCommandType() { return MotionCommand::VELOCITY; }
 
@@ -30,7 +30,7 @@ public:
 
 	//========= DEVICES ========
 
-	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output);
+	void getDevices(std::vector<std::shared_ptr<Device>>& output);
 	
 	bool isActuatorDeviceConnected() { return actuatorDeviceLink->isConnected(); }
 	std::shared_ptr<ActuatorDevice> getActuatorDevice() { return actuatorDeviceLink->getConnectedPins().front()->getSharedPointer<ActuatorDevice>(); }
@@ -40,14 +40,14 @@ public:
 	bool isEnabled() { return b_enabled; }
 	bool b_enabled = false;
 
-	virtual bool isReady();
-	virtual bool isMoving();
+	bool isReady();
+	bool isMoving();
 
-	virtual void enable();
-	virtual void disable();
+	void enable();
+	void disable();
 
-	virtual void onEnable();
-	virtual void onDisable();
+	void onEnable();
+	void onDisable();
 
 	//========= MOTION PROFILE =========
 
@@ -98,5 +98,7 @@ public:
 	virtual void settingsGui();
 	virtual void devicesGui();
 	virtual void metricsGui();
+	
+	virtual void process();
 
 };

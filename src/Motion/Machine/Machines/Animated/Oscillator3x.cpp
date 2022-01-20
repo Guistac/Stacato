@@ -91,7 +91,7 @@ void Oscillator3x::process() {
 		axis2NormalizedPosition = 0.0;
 		axis3NormalizedPosition = 0.0;
 		for (int i = 0; i < 3; i++) {
-			if (isAxisConnected(i)) getAxis(i)->controlMode = ControlMode::MACHINE_CONTROL;
+			if (isAxisConnected(i)) getAxis(i)->controlMode = ControlMode::EXTERNAL;
 		}
 	}
 	else if (b_stopOscillator && b_oscillatorActive) {
@@ -133,8 +133,8 @@ void Oscillator3x::process() {
 			double velocity_axisUnits = (position_axisUnits - axis->getProfilePosition_axisUnits()) / profileDeltaTime_seconds;
 
 			//send commands to axis
-			axis->profilePosition_axisUnits = position_axisUnits;
-			axis->profileVelocity_axisUnitsPerSecond = velocity_axisUnits;
+			axis->motionProfile.setPosition(position_axisUnits);
+			axis->motionProfile.setVelocity(velocity_axisUnits);
 			axis->sendActuatorCommands();
 		}
 

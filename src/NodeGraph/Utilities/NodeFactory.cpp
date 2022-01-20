@@ -22,7 +22,8 @@
 
 #include "Networking/Osc/OscDevice.h"
 
-#include "Motion/Adapters/VoltageControlledActuator.h"
+#include "Motion/Adapters/GpioActuator.h"
+#include "Motion/Adapters/GpioServoActuator.h"
 
 namespace NodeFactory {
 
@@ -76,7 +77,8 @@ namespace NodeFactory {
 			new AndNode(),
 			new OrNode(),
 			
-			new VoltageControlledActuator()
+			new GpioActuator(),
+			new GpioServoActuator()
 		};
 		
 		allSafetyNodes = {
