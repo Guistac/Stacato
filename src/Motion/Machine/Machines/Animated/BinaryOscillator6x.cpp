@@ -1,5 +1,5 @@
 #include <pch.h>
-
+/*
 #include "BinaryOscillator6x.h"
 
 #include <pch.h>
@@ -316,7 +316,7 @@ bool BinaryOscillator6x::getCurveLimitsAtTime(const std::shared_ptr<AnimatablePa
 }
 
 void BinaryOscillator6x::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {
-	/*
+	
 	if (parameter == frequencyParameter ||
 		parameter == minAmplitudeParameter ||
 		parameter == maxAmplitudeParameter ||
@@ -335,7 +335,7 @@ void BinaryOscillator6x::getTimedParameterCurveTo(const std::shared_ptr<Animatab
 	else if (parameter == axis3PositionParameter) {
 
 	}
-	*/
+	
 }
 
 void BinaryOscillator6x::onEnableHardware() {
@@ -386,3 +386,4 @@ bool BinaryOscillator6x::loadMachine(tinyxml2::XMLElement* xml) {
 	if(defaultOscillatorSettingsXML->QueryFloatAttribute("MaxOnTime", &maxOnTime_seconds) != XML_SUCCESS) return Logger::warn("Could not find max on time Attribute");
 	return true;
 }
+*/

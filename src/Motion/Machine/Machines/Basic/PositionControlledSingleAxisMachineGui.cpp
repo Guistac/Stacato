@@ -24,7 +24,7 @@ void PositionControlledSingleAxisMachine::controlsGui() {
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
 	glm::vec2 manualControlsSize = ImGui::GetContentRegionAvail();
-	manualControlsSize.y -= axis->getFeedbackGuiHeight();
+	//manualControlsSize.y -= axis->getFeedbackGuiHeight();
 	ImGui::BeginChild("##manualMachineControls", manualControlsSize);
 
 	float widgetWidth = ImGui::GetContentRegionAvail().x;
@@ -46,7 +46,7 @@ void PositionControlledSingleAxisMachine::controlsGui() {
 	ImGui::PopFont();
 
 	static char positionTargetString[128];
-	sprintf(positionTargetString, "%.3f %s", manualPositionTarget_machineUnits, Unit::getAbbreviatedString(axis->positionUnit));
+	sprintf(positionTargetString, "%.3f %s", manualPositionTarget_machineUnits, Unit::getAbbreviatedString(axis->getPositionUnit()));
 	ImGui::SetNextItemWidth(widgetWidth);
 	ImGui::InputDouble("##postar", &manualPositionTarget_machineUnits, 0.0, 0.0, positionTargetString);
 
@@ -91,7 +91,7 @@ void PositionControlledSingleAxisMachine::controlsGui() {
 
 	ImGui::Separator();
 
-	axis->feedbackGui();
+	//axis->feedbackGui();
 	
 	//position
 	//velocity
@@ -122,7 +122,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::Text("Position Unit");
 		ImGui::PopFont();
 		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%s", Unit::getDisplayString(axis->positionUnit));
+		ImGui::Text("%s", Unit::getDisplayString(axis->getPositionUnit()));
 
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
@@ -131,7 +131,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s", getLowPositionLimit(), Unit::getAbbreviatedString(axis->positionUnit));
+		ImGui::Text("%.3f %s", getLowPositionLimit(), Unit::getAbbreviatedString(axis->getPositionUnit()));
 
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
@@ -140,7 +140,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s", getHighPositionLimit(), Unit::getAbbreviatedString(axis->positionUnit));
+		ImGui::Text("%.3f %s", getHighPositionLimit(), Unit::getAbbreviatedString(axis->getPositionUnit()));
 
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
@@ -149,7 +149,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s/s", axis->getVelocityLimit_axisUnitsPerSecond(), Unit::getAbbreviatedString(axis->positionUnit));
+		ImGui::Text("%.3f %s/s", axis->getVelocityLimit_axisUnitsPerSecond(), Unit::getAbbreviatedString(axis->getPositionUnit()));
 
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
@@ -158,7 +158,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s/s\xC2\xB2", axis->getAccelerationLimit_axisUnitsPerSecondSquared(), Unit::getAbbreviatedString(axis->positionUnit));
+		ImGui::Text("%.3f %s/s\xC2\xB2", axis->getAccelerationLimit_axisUnitsPerSecondSquared(), Unit::getAbbreviatedString(axis->getPositionUnit()));
 
 		ImGui::EndTable();
 	}
@@ -176,7 +176,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s", motionProfile.getPosition(), Unit::getAbbreviatedString(axis->positionUnit));
+		ImGui::Text("%.3f %s", motionProfile.getPosition(), Unit::getAbbreviatedString(axis->getPositionUnit()));
 		
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
@@ -185,7 +185,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.20f %s/s", motionProfile.getVelocity(), Unit::getAbbreviatedString(axis->positionUnit));
+		ImGui::Text("%.20f %s/s", motionProfile.getVelocity(), Unit::getAbbreviatedString(axis->getPositionUnit()));
 		
 		ImGui::EndTable();
 	}
@@ -198,12 +198,12 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 	static char rapidAccelerationString[128];
 
 	ImGui::Text("Velocity for rapid movements :");
-	sprintf(rapidVelocityString, "%.3f %s/s", rapidVelocity_machineUnitsPerSecond, Unit::getAbbreviatedString(axis->positionUnit));
+	sprintf(rapidVelocityString, "%.3f %s/s", rapidVelocity_machineUnitsPerSecond, Unit::getAbbreviatedString(axis->getPositionUnit()));
 	ImGui::InputDouble("##velRapid", &rapidVelocity_machineUnitsPerSecond, 0.0, 0.0, rapidVelocityString);
 	rapidVelocity_machineUnitsPerSecond = std::min(rapidVelocity_machineUnitsPerSecond, axis->getVelocityLimit_axisUnitsPerSecond());
 
 	ImGui::Text("Acceleration for rapid movements :");
-	sprintf(rapidAccelerationString, "%.3f %s/s\xC2\xB2", rapidAcceleration_machineUnitsPerSecond, Unit::getAbbreviatedString(axis->positionUnit));
+	sprintf(rapidAccelerationString, "%.3f %s/s\xC2\xB2", rapidAcceleration_machineUnitsPerSecond, Unit::getAbbreviatedString(axis->getPositionUnit()));
 	ImGui::InputDouble("##accRapid", &rapidAcceleration_machineUnitsPerSecond, 0.0, 0.0, rapidAccelerationString);
 	rapidAcceleration_machineUnitsPerSecond = std::min(rapidAcceleration_machineUnitsPerSecond, axis->getAccelerationLimit_axisUnitsPerSecondSquared());
 	
@@ -215,7 +215,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 	
 	ImGui::Text("Machine Zero (Axis Units) :");
 	static char machineZeroString[128];
-	sprintf(machineZeroString, "%.3f %s", machineZero_axisUnits, Unit::getAbbreviatedString(axis->positionUnit));
+	sprintf(machineZeroString, "%.3f %s", machineZero_axisUnits, Unit::getAbbreviatedString(axis->getPositionUnit()));
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
 	ImGui::InputDouble("##axisUnitOffset", &machineZero_axisUnits, 0.0, 0.0, machineZeroString);
 	
@@ -325,7 +325,7 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 			positionProgress = getPositionNormalized();
 			velocityProgress = std::abs(getVelocityNormalized());
 			if (velocityProgress > 1.0) velocityProgress = 1.0;
-			positionUnitShortFormString = Unit::getAbbreviatedString(axis->positionUnit);
+			positionUnitShortFormString = Unit::getAbbreviatedString(axis->getPositionUnit());
 			motionProgress = targetInterpolation->getProgressAtTime(Environnement::getTime_seconds());
 			if(b_hasPositionTarget) positionTargetNormalized = (getManualPositionTarget() - minPosition) / (maxPosition - minPosition);
 			disableControls = !isEnabled();

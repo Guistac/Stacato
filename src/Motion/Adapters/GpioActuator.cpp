@@ -48,6 +48,8 @@ void GpioActuator::process(){
 	actuator->b_detected = true;
 	actuator->b_parked = false;
 	actuator->b_ready = gpioDevice->isReady() && *readySignal && !*emergencyStopSignal && !*brakeSignal;
+	actuator->b_emergencyStopActive = *emergencyStopSignal;
+	actuator->b_brakesActive = *brakeSignal;
 	
 	//actuator->velocity_positionUnitsPerSecond = feedbackUnitsToActuatorUnits(feedbackDevice->getVelocity());;
 	//actuator->b_moving = std::abs(actuator->velocity_positionUnitsPerSecond) > 0.0;
@@ -56,12 +58,63 @@ void GpioActuator::process(){
 	
 }
 
+void GpioActuator::controlLoop(){
+	//handle actuator enabling
+	if(actuator->b_setEnabled){
+		actuator->b_setEnabled = false;
+		if(actuator->b_ready) {
+			actuator->b_enabled = true;
+			onEnable();
+		}
+	}
+	
+	//get output velocity
+	double outputVelocity;
+	
+	if(actuator->isEnabled()){
+		*enableSignal = true;
+		switch(controlMode){
+			case ControlMode::FAST_STOP:
+				motionProfile.stop(profileTimeDelta_seconds, actuator->getAccelerationLimit());
+				break;
+			case ControlMode::EXTERNAL:
+				motionProfile.setVelocity(actuator->getVelocityCommand());
+				break;
+			case ControlMode::VELOCITY_TARGET:
+				motionProfile.matchVelocity(profileTimeDelta_seconds, manualVelocityTarget, manualAcceleration);
+				break;
+			default: break;
+		}
+		outputVelocity = motionProfile.getVelocity();
+	}else{
+		*enableSignal = false;
+		outputVelocity = 0.0;
+		motionProfile.setVelocity(0.0);
+		motionProfile.setAcceleration(0.0);
+	}
+	
+	//generate control signal output value and assign to output pin
+	*controlSignal = actuatorVelocityToControlSignal(outputVelocity);
+}
+
 void GpioActuator::updatePin(std::shared_ptr<NodePin> pin){
 	if(pin == actuatorPin){
-		//generate enable signal & control voltage outputs
+		controlLoop();
 	}
 }
 
+
+void GpioActuator::setVelocityTarget(double velocityTarget){
+	controlMode = ControlMode::VELOCITY_TARGET;
+	manualVelocityTarget = velocityTarget;
+}
+
+void GpioActuator::fastStop(){
+	controlMode = ControlMode::FAST_STOP;
+}
+
+void GpioActuator::onEnable(){}
+void GpioActuator::onDisable(){}
 
 bool GpioActuator::areAllPinsConnected(){
 	if(!isGpioDeviceConnected()) return false;
@@ -99,10 +152,19 @@ double GpioActuator::actuatorVelocityToControlSignal(double velocity){
 	return getControlSignalZero() + velocity * controlSignalUnitsPerActuatorVelocityUnit;
 }
 
-double GpioActuator::getControlSignalLimitVelocity(){
+double GpioActuator::getControlSignalLimitedVelocity(){
 	return std::abs(getControlSignalHighLimit() / controlSignalUnitsPerActuatorVelocityUnit);
 }
 
+
+void GpioActuator::sanitizeParameters(){
+	controlSignalRange = std::abs(controlSignalRange);
+	controlSignalUnitsPerActuatorVelocityUnit = std::abs(controlSignalUnitsPerActuatorVelocityUnit);
+	positionFeedbackUnitsPerActuatorUnit = std::abs(positionFeedbackUnitsPerActuatorUnit);
+	actuator->velocityLimit_positionUnitsPerSecond = std::min(std::abs(actuator->velocityLimit_positionUnitsPerSecond), getControlSignalLimitedVelocity());
+	actuator->accelerationLimit_positionUnitsPerSecondSquared = std::abs(actuator->accelerationLimit_positionUnitsPerSecondSquared);
+	manualAcceleration = std::min(std::abs(manualAcceleration), actuator->getAccelerationLimit());
+}
 
 
 bool GpioActuator::save(tinyxml2::XMLElement* xml){
@@ -121,6 +183,9 @@ bool GpioActuator::save(tinyxml2::XMLElement* xml){
 	XMLElement* conversionRatioXML = xml->InsertNewChildElement("ConversionRatio");
 	conversionRatioXML->SetAttribute("ControlSignalUnitsPerActuatorVelocityUnit", controlSignalUnitsPerActuatorVelocityUnit);
 		
+	XMLElement* manualControlsXML = xml->InsertNewChildElement("ManualControls");
+	manualControlsXML->SetAttribute("Acceleration", manualAcceleration);
+	
 	return true;
 }
 
@@ -136,17 +201,19 @@ bool GpioActuator::load(tinyxml2::XMLElement* xml){
 	if(actuatorXML->QueryDoubleAttribute("VelocityLimit", &actuator->velocityLimit_positionUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not find actuator velocity limit Attribute");
 	if(actuatorXML->QueryDoubleAttribute("AccelerationLimit", &actuator->accelerationLimit_positionUnitsPerSecondSquared) != XML_SUCCESS) return Logger::warn("Could not find acceleration limit Attribute");
 	
-	
 	XMLElement* controlSignalXML = xml->FirstChildElement("ControlSignal");
 	if(controlSignalXML == nullptr) return Logger::warn("Could not find control signal attribute");
 	if(controlSignalXML->QueryDoubleAttribute("Range", &controlSignalRange) != XML_SUCCESS) return Logger::warn("Could not find control signal range attribute");
 	if(controlSignalXML->QueryBoolAttribute("CenterOnZero", &b_controlSignalIsCenteredOnZero) != XML_SUCCESS) return Logger::warn("Could not find center on zero attribute");
 	if(controlSignalXML->QueryBoolAttribute("Invert", &b_invertControlSignal) != XML_SUCCESS) return Logger::warn("Could not find invert attribute");
 	
-	
 	XMLElement* conversionRatioXML = xml->FirstChildElement("ConversionRatio");
 	if(conversionRatioXML == nullptr) return Logger::warn("Could not find Conversion Ratio attribute");
 	if(conversionRatioXML->QueryDoubleAttribute("ControlSignalUnitsPerActuatorVelocityUnit", &controlSignalUnitsPerActuatorVelocityUnit) != XML_SUCCESS) return Logger::warn("Could not find signal unit conversion attribute");
+	
+	XMLElement* manualControlsXML = xml->FirstChildElement("ManualControls");
+	if(manualControlsXML == nullptr) return Logger::warn("Could not find Manual Controls attribute");
+	if(manualControlsXML->QueryDoubleAttribute("Acceleration", &manualAcceleration) != XML_SUCCESS) return Logger::warn("Could not find manual acceleration target");
 	
 	return true;
 }

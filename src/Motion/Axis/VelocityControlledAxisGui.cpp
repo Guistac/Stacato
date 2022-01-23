@@ -3,6 +3,7 @@
 #include "Motion/Axis/VelocityControlledAxis.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
@@ -40,6 +41,83 @@ void VelocityControlledAxis::nodeSpecificGui() {
 		ImGui::EndTabItem();
 	}
 }
+
+
+
+
+void VelocityControlledAxis::controlsGui() {
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Manual Controls");
+	ImGui::PopFont();
+	
+	bool axisControlledExternally = isAxisPinConnected();
+	
+	if(axisControlledExternally){
+		ImGui::TextWrapped("Axis is Controlled by Node '%s'."
+						   "\nManual controls are disabled.",
+						   velocityControlledAxisPin->getConnectedPin()->getNode()->getName());
+		BEGIN_DISABLE_IMGUI_ELEMENT
+	}
+		
+	float singleWidgetWidth = ImGui::GetContentRegionAvail().x;
+	glm::vec2 progressBarSize(singleWidgetWidth, ImGui::GetFrameHeight());
+	glm::vec2 largeDoubleButtonSize((singleWidgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, ImGui::GetTextLineHeight() * 2.0);
+	glm::vec2 largeSingleButtonSize(singleWidgetWidth, ImGui::GetTextLineHeight() * 2.0);
+	
+	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+	if(isEnabled()) {
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+		ImGui::Button("Enabled", largeDoubleButtonSize);
+	}else if(isReady()){
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+		ImGui::Button("Ready", largeDoubleButtonSize);
+	}else{
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+		ImGui::Button("Disabled", largeDoubleButtonSize);
+	}
+	ImGui::PopStyleColor();
+	ImGui::PopItemFlag();
+	
+	ImGui::SameLine();
+	if(isEnabled()){
+		if(ImGui::Button("Disable", largeDoubleButtonSize)) disable();
+	}else if(isReady()){
+		if(ImGui::Button("Enable", largeDoubleButtonSize)) enable();
+	}else{
+		BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::Button("Not Ready", largeDoubleButtonSize);
+		END_DISABLE_IMGUI_ELEMENT
+	}
+	
+	if(axisControlledExternally) END_DISABLE_IMGUI_ELEMENT
+		
+	
+	bool disableManualControls = axisControlledExternally || !isEnabled();
+	if(disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
+	
+	ImGui::Text("Manual Velocity:");
+	static char velocityCommandString[256];
+	sprintf(velocityCommandString, "%.3f %s/s", manualVelocityDisplay, Unit::getAbbreviatedString(getPositionUnit()));
+	ImGui::SetNextItemWidth(singleWidgetWidth);
+	ImGui::SliderFloat("##manVel", &manualVelocityDisplay, -getVelocityLimit(), getVelocityLimit(), velocityCommandString);
+	if (ImGui::IsItemActive()) setVelocity(manualVelocityDisplay);
+	else if (ImGui::IsItemDeactivatedAfterEdit()) {
+		manualVelocityDisplay = 0.0;
+		setVelocity(0.0);
+	}
+	
+	float velocityProgress = std::abs(motionProfile.getVelocity() / getVelocityLimit());
+	static char velocityString[256];
+	sprintf(velocityString, "%.3f %s/s", motionProfile.getVelocity(), Unit::getAbbreviatedString(getPositionUnit()));
+	ImGui::ProgressBar(velocityProgress, progressBarSize, velocityString);
+	
+	if(ImGui::Button("Fast Stop", largeSingleButtonSize)) fastStop();
+	
+	if(disableManualControls) END_DISABLE_IMGUI_ELEMENT
+}
+
+
+
 
 void VelocityControlledAxis::settingsGui() {
 	
@@ -106,8 +184,8 @@ void VelocityControlledAxis::settingsGui() {
 
 		ImGui::Text("%s %s per Machine %s :", actuator->getName(), Unit::getDisplayStringPlural(actuator->positionUnit), Unit::getDisplayString(positionUnit));
 		ImGui::InputDouble("##actuatorCoupling", &actuatorUnitsPerAxisUnits);
-
-		if (actuatorUnitsPerAxisUnits < 0.0) actuatorUnitsPerAxisUnits = 0.0;
+		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
+		
 	}
 	else {
 		ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
@@ -145,13 +223,14 @@ void VelocityControlledAxis::settingsGui() {
 	static char velLimitString[16];
 	sprintf(velLimitString, "%.3f %s/s", velocityLimit_axisUnitsPerSecond, Unit::getAbbreviatedString(positionUnit));
 	ImGui::InputDouble("##VelLimit", &velocityLimit_axisUnitsPerSecond, 0.0, 0.0, velLimitString);
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
+	
 	static char accLimitString[16];
 	sprintf(accLimitString, "%.3f %s/s\xc2\xb2", accelerationLimit_axisUnitsPerSecondSquared, Unit::getAbbreviatedString(positionUnit));
 	ImGui::Text("Acceleration Limit");
 	ImGui::InputDouble("##AccLimit", &accelerationLimit_axisUnitsPerSecondSquared, 0.0, 0.0, accLimitString);
-
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 }
 
 void VelocityControlledAxis::metricsGui() {}
 void VelocityControlledAxis::devicesGui() {}
-void VelocityControlledAxis::controlsGui() {}

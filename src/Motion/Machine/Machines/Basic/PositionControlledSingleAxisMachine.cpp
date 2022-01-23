@@ -12,6 +12,8 @@
 
 #include "Project/Environnement.h"
 
+#include "Fieldbus/EtherCatFieldbus.h"
+
 void PositionControlledSingleAxisMachine::initialize() {
 	//inputs
 	addNodePin(positionControlledAxisPin);
@@ -105,8 +107,8 @@ void PositionControlledSingleAxisMachine::process() {
 	if (!isEnabled()) return;
 	
 	//Update Timing
-	double profileTime_seconds = axis->profileTime_seconds;
-	double profileDeltaTime_seconds = axis->profileTimeDelta_seconds;
+	double profileTime_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
+	double profileDeltaTime_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 
 	//Update Motion Profile
 	switch(controlMode){
@@ -151,9 +153,8 @@ void PositionControlledSingleAxisMachine::process() {
 	}
 	
 	//Send motion values to axis profile
-	axis->motionProfile.setPosition(machinePositionToAxisPosition(motionProfile.getPosition()));
-	axis->motionProfile.setVelocity(machineVelocityToAxisVelocity(motionProfile.getVelocity()));
-	axis->sendActuatorCommands();
+	axis->setMotionCommand(machinePositionToAxisPosition(motionProfile.getPosition()),
+					 machineVelocityToAxisVelocity(motionProfile.getVelocity()));
 }
 
 void PositionControlledSingleAxisMachine::simulateProcess() {

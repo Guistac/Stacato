@@ -13,7 +13,6 @@ void VelocityControlledAxis::initialize() {
 	//outputs
 	std::shared_ptr<VelocityControlledAxis> thisAxis = std::dynamic_pointer_cast<VelocityControlledAxis>(shared_from_this());
 	velocityControlledAxisPin->assignData(thisAxis);
-	
 	addNodePin(velocityControlledAxisPin);
 	addNodePin(velocityPin);
 	addNodePin(loadPin);
@@ -69,7 +68,7 @@ void VelocityControlledAxis::onEnable() {}
 void VelocityControlledAxis::onDisable() {}
 
 void VelocityControlledAxis::sendActuatorCommands() {
-	getActuatorDevice()->setCommand(motionProfile.getVelocity());
+	getActuatorDevice()->setVelocityCommand(motionProfile.getVelocity());
 	//TODO: check if this actually works and updates the pins
 	actuatorPin->updateConnectedPins();
 }
@@ -77,6 +76,11 @@ void VelocityControlledAxis::sendActuatorCommands() {
 void VelocityControlledAxis::setVelocity(double velocity_axisUnitsPerSecond) {
 	controlMode = ControlMode::VELOCITY_TARGET;
 	manualVelocityTarget_axisUnitsPerSecond = velocity_axisUnitsPerSecond;
+}
+
+void VelocityControlledAxis::fastStop(){
+	controlMode = ControlMode::FAST_STOP;
+	manualVelocityTarget_axisUnitsPerSecond = 0.0;
 }
 
 void VelocityControlledAxis::setPositionUnitType(PositionUnitType type){
@@ -110,6 +114,13 @@ void VelocityControlledAxis::setPositionUnit(PositionUnit unit){
 	positionUnit = unit;
 }
 
+
+void VelocityControlledAxis::sanitizeParameters(){
+	actuatorUnitsPerAxisUnits = std::abs(actuatorUnitsPerAxisUnits);
+	velocityLimit_axisUnitsPerSecond = std::min(std::abs(velocityLimit_axisUnitsPerSecond), actuatorUnitsToAxisUnits(getActuatorDevice()->getVelocityLimit()));
+	accelerationLimit_axisUnitsPerSecondSquared = std::min(std::abs(accelerationLimit_axisUnitsPerSecondSquared), actuatorUnitsToAxisUnits(getActuatorDevice()->getAccelerationLimit()));
+	manualControlAcceleration_axisUnitsPerSecond = std::min(std::abs(manualControlAcceleration_axisUnitsPerSecond), accelerationLimit_axisUnitsPerSecondSquared);
+}
 
 
 bool VelocityControlledAxis::save(tinyxml2::XMLElement* xml) {

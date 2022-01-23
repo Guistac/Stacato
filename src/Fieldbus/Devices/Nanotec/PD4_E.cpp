@@ -295,7 +295,7 @@ void PD4_E::prepareOutputs() {
 		}break;
 		case ControlMode::Mode::EXTERNAL_CONTROL: {
 			double previousProfilePosition_revolutions = profilePosition_revolutions;
-			if (servoActuatorDeviceLink->isConnected()) profilePosition_revolutions = servoMotor->getCommand();
+			if (servoActuatorDeviceLink->isConnected()) profilePosition_revolutions = servoMotor->getPositionCommandRaw();
 			profileVelocity_revolutions = (profilePosition_revolutions - previousProfilePosition_revolutions) / profileTimeDelta_seconds;
 			}break;
 	}

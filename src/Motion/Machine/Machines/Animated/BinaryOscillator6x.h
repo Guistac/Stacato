@@ -1,5 +1,5 @@
 #pragma once
-
+/*
 #include "Motion/Machine/Machine.h"
 
 class BinaryOscillator6x : public Machine {
@@ -66,3 +66,4 @@ class BinaryOscillator6x : public Machine {
 	int getGpioDeviceCount();
 	std::shared_ptr<GpioDevice> getGpioDevice(int i);
 };
+*/

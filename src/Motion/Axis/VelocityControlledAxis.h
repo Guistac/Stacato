@@ -21,76 +21,77 @@ public:
 	
 	//outputs
 	std::shared_ptr<double> actualVelocity = std::make_shared<double>(0.0);
-	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(actualVelocity, NodePin::Direction::NODE_OUTPUT, "Velocity");
-	
 	std::shared_ptr<double> actualLoad = std::make_shared<double>(0.0);
-	std::shared_ptr<NodePin> loadPin = std::make_shared<NodePin>(actualLoad, NodePin::Direction::NODE_OUTPUT, "Load");
 	
 	std::shared_ptr<NodePin> velocityControlledAxisPin = std::make_shared<NodePin>(NodePin::DataType::VELOCITY_CONTROLLED_AXIS, NodePin::Direction::NODE_OUTPUT, "Velocity Controlled Axis");
+	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(actualVelocity, NodePin::Direction::NODE_OUTPUT, "Velocity");
+	std::shared_ptr<NodePin> loadPin = std::make_shared<NodePin>(actualLoad, NodePin::Direction::NODE_OUTPUT, "Load");
 	
 	//========= DEVICES ========
 	
+private:
 	bool isActuatorDeviceConnected() { return actuatorPin->isConnected(); }
 	std::shared_ptr<ActuatorDevice> getActuatorDevice() { return actuatorPin->getConnectedPin()->getSharedPointer<ActuatorDevice>(); }
+	
+	bool isAxisPinConnected(){ return velocityControlledAxisPin->isConnected(); }
 	
 	void getDevices(std::vector<std::shared_ptr<Device>>& output);
 	
 	//======== SETTINGS ========
 
+private:
 	PositionUnitType positionUnitType = PositionUnitType::ANGULAR;
 	PositionUnit positionUnit = PositionUnit::DEGREE;
-	
+	double actuatorUnitsPerAxisUnits = 0.0;
 	double velocityLimit_axisUnitsPerSecond = 0.0;
 	double accelerationLimit_axisUnitsPerSecondSquared = 0.0;
-	double actuatorUnitsPerAxisUnits = 0.0;
-	
 	double manualControlAcceleration_axisUnitsPerSecond = 0.0;
 
 	void setPositionUnitType(PositionUnitType type);
 	void setPositionUnit(PositionUnit unit);
-	
-	double getVelocityLimit_axisUnitsPerSecond() { return velocityLimit_axisUnitsPerSecond; }
-	double getAccelerationLimit_axisUnitsPerSecondSquared() { return accelerationLimit_axisUnitsPerSecondSquared; }
-	
 	double actuatorUnitsToAxisUnits(double actuatorValue){ return actuatorValue / actuatorUnitsPerAxisUnits; }
 	double axisUnitsToActuatorUnits(double axisUnits){ return axisUnits * actuatorUnitsPerAxisUnits; }
+	
+public:
+	void sanitizeParameters();
+	
+	PositionUnit getPositionUnit(){ return positionUnit; }
+	PositionUnitType getPositionUnitType() { return positionUnitType; }
+	
+	double getVelocityLimit() { return velocityLimit_axisUnitsPerSecond; }
+	double getAccelerationLimit() { return accelerationLimit_axisUnitsPerSecondSquared; }
 
 	//========= STATE ==========
 
 	bool isEnabled() { return b_enabled; }
-	bool b_enabled = false;
-
+	void enable();
+	void disable();
 	bool isReady();
 	bool isMoving();
 
-	void enable();
-	void disable();
-
+private:
+	bool b_enabled = false;
 	void onEnable();
 	void onDisable();
 
-	//========= MOTION PROFILE =========
+	//========== CONTROL =========
 
+private:
+	ControlMode controlMode = ControlMode::VELOCITY_TARGET;
+	Motion::Profile motionProfile;
 	double profileTime_seconds = 0.0;
 	double profileTimeDelta_seconds = 0.0;
 	
-	Motion::Profile motionProfile;
+	void setVelocity(double velocity_positionUnitsPerSecondSquare);
+	void fastStop();
+	float manualVelocityTarget_axisUnitsPerSecond = 0.0;
+
+public:
+	virtual void process();
+	void sendActuatorCommands();
 	
 	double getProfileVelocity_axisUnitsPerSecond() { return motionProfile.getVelocity(); }
 	double getProfileAcceleration_axisUnitsPerSecondSquared() { return motionProfile.getAcceleration(); }
-
-	double getActualVelocity_axisUnitsPerSecond() { return *actualVelocity; }
-	float getActualVelocityNormalized() { return *actualVelocity / velocityLimit_axisUnitsPerSecond; }
-
-	//========== CONTROL =========
-
-	ControlMode controlMode = ControlMode::VELOCITY_TARGET;
-	
-	void setVelocity(double velocity_positionUnitsPerSecondSquare);
-	float manualVelocityTarget_axisUnitsPerSecond = 0.0;
-
-	bool isAxisPinConnected() { return velocityControlledAxisPin->isConnected(); }
-	void sendActuatorCommands();
 
 	//======= GUI ========
 
@@ -99,8 +100,7 @@ public:
 	void settingsGui();
 	void devicesGui();
 	void metricsGui();
-	
-	virtual void process();
+	float manualVelocityDisplay = 0.0;
 	
 	virtual bool save(tinyxml2::XMLElement* xml);
 	virtual bool load(tinyxml2::XMLElement* xml);

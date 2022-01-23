@@ -56,8 +56,13 @@ void GpioServoActuator::process(){
 	servoActuator->b_moving = std::abs(servoActuator->velocity_positionUnitsPerSecond) > 0.0;
 	servoActuator->b_emergencyStopActive = *emergencyStopSignal;
 	servoActuator->load = 0.0; //load is not supported here
+	servoActuator->b_emergencyStopActive = *emergencyStopSignal;
+	servoActuator->b_brakesActive = *brakeSignal;
+	servoActuator->rangeMin_positionUnits = feedbackDevice->rangeMin_positionUnits;
+	servoActuator->rangeMax_positionUnits = feedbackDevice->rangeMax_positionUnits;
 	
-	if(servoActuator->getPosition() - servoActuator->getCommand() > maxFollowingError){
+	//TODO: position command raw or profile position ??
+	if(servoActuator->getPosition() - servoActuator->getPositionCommandRaw() > maxFollowingError){
 		servoActuator->b_enabled = false;
 		onDisable();
 	}
@@ -68,13 +73,89 @@ void GpioServoActuator::setVelocityTarget(double target){
 	manualVelocityTarget = target;
 }
 
-void GpioServoActuator::onDisable(){
-	
+void GpioServoActuator::fastStop(){
+	controlMode = ControlMode::FAST_STOP;
 }
 
-void GpioServoActuator::onEnable(){
-	
+void GpioServoActuator::moveToPositionInTime(double targetPosition, double targetTime){
+	targetPosition = std::min(targetPosition, servoActuator->getMaxPosition());
+	targetPosition = std::max(targetPosition, servoActuator->getMinPosition());
+	bool success = motionProfile.moveToPositionInTime(profileTime_seconds,
+													  targetPosition,
+													  targetTime,
+													  manualAcceleration,
+													  servoActuator->velocityLimit_positionUnitsPerSecond);
+	if(success) controlMode = ControlMode::POSITION_TARGET;
+	else setVelocityTarget(0.0);
 }
+
+void GpioServoActuator::movetoPositionWithVelocity(double targetPosition, double targetVelocity){
+	targetPosition = std::min(targetPosition, servoActuator->getMaxPosition());
+	targetPosition = std::max(targetPosition, servoActuator->getMinPosition());
+	bool success = motionProfile.moveToPositionWithVelocity(profileTime_seconds,
+															targetPosition,
+															targetVelocity,
+															manualAcceleration);
+	if(success) controlMode = ControlMode::POSITION_TARGET;
+	else setVelocityTarget(0.0);
+}
+
+void GpioServoActuator::controlLoop(){
+	//handle actuator enabling
+	if(servoActuator->b_setEnabled){
+		servoActuator->b_setEnabled = false;
+		if(servoActuator->b_ready) {
+			servoActuator->b_enabled = true;
+			onEnable();
+		}
+	}
+	
+	//get output velocity
+	double outputVelocity;
+	
+	if(servoActuator->isEnabled()){
+		*enableSignal = true;
+		
+		switch(controlMode){
+			case ControlMode::FAST_STOP:
+				motionProfile.stop(profileTimeDelta_seconds, servoActuator->getAccelerationLimit());
+				break;
+			case ControlMode::EXTERNAL:
+				motionProfile.setPosition(servoActuator->getPositionCommandRaw());
+				motionProfile.setVelocity(servoActuator->getVelocityCommand());
+				break;
+			case ControlMode::VELOCITY_TARGET:
+				motionProfile.matchVelocity(profileTimeDelta_seconds, manualVelocityTarget, manualAcceleration);
+				break;
+			case ControlMode::POSITION_TARGET:
+				motionProfile.updateInterpolation(profileTime_seconds);
+				if(motionProfile.isInterpolationFinished(profileTime_seconds)) setVelocityTarget(0.0);
+			default:
+				break;
+		}
+		
+		//calculate position error and apply gains to generate control signal
+		double realPosition = servoActuator->getPosition();
+		double positionError = motionProfile.getPosition() - realPosition;
+		//========= CONTROL LOOP ========
+		outputVelocity = positionError * proportionalGain + motionProfile.getVelocity() * derivativeGain;
+		
+	}else{
+		*enableSignal = false;
+		outputVelocity = 0.0;
+		motionProfile.setPosition(servoActuator->getPosition());
+		motionProfile.setVelocity(servoActuator->getVelocity());
+		motionProfile.setAcceleration(0.0);
+	}
+	
+	//generate control signal output value and assign to output pin
+	*controlSignal = actuatorVelocityToControlSignal(outputVelocity);
+}
+
+
+void GpioServoActuator::onDisable(){}
+
+void GpioServoActuator::onEnable(){}
 
 
 bool GpioServoActuator::areAllPinsConnected(){
@@ -93,55 +174,7 @@ bool GpioServoActuator::areAllPinsConnected(){
 
 void GpioServoActuator::updatePin(std::shared_ptr<NodePin> pin){
 	if(pin == servoActuatorPin){
-		
-		//handle actuator enabling
-		if(servoActuator->b_setEnabled){
-			servoActuator->b_setEnabled = false;
-			if(servoActuator->b_ready) {
-				servoActuator->b_enabled = true;
-				onEnable();
-			}
-		}
-		
-		//get output velocity
-		double outputVelocity;
-		
-		if(servoActuator->isEnabled()){
-			*enableSignal = true;
-			
-			switch(controlMode){
-				case ControlMode::EXTERNAL:{
-					//get profile position and velocity from actuator pin
-					double previousProfilePosition = motionProfile.getPosition();
-					double newProfilePosition = servoActuator->getCommand();
-					motionProfile.setPosition(newProfilePosition);
-					double calculatedProfileVelocity = (newProfilePosition - previousProfilePosition) / profileTimeDelta_seconds;
-					motionProfile.setVelocity(calculatedProfileVelocity);
-					}break;
-				case ControlMode::VELOCITY_TARGET:
-					//get profile position from manual velocity generator
-					motionProfile.matchVelocity(profileTimeDelta_seconds, manualVelocityTarget, manualAcceleration);
-					break;
-				default:
-					break;
-			}
-			
-			//calculate position error and apply gains to generate control signal
-			double realPosition = servoActuator->getPosition();
-			double positionError = motionProfile.getPosition() - realPosition;
-			//========= CONTROL LOOP ========
-			outputVelocity = positionError * proportionalGain + motionProfile.getVelocity() * derivativeGain;
-			
-		}else{
-			*enableSignal = false;
-			outputVelocity = 0.0;
-			motionProfile.setPosition(servoActuator->getPosition());
-			motionProfile.setVelocity(servoActuator->getVelocity());
-			motionProfile.setAcceleration(0.0);
-		}
-		
-		//generate control signal output value and assign to output pin
-		*controlSignal = actuatorVelocityToControlSignal(outputVelocity);
+		controlLoop();
 	}
 }
 
@@ -179,12 +212,17 @@ double GpioServoActuator::actuatorVelocityToControlSignal(double velocity){
 }
 
 double GpioServoActuator::getControlSignalLimitVelocity(){
-	return std::abs(getControlSignalHighLimit() / controlSignalUnitsPerActuatorVelocityUnit);
+	if(b_controlSignalIsCenteredOnZero) return std::abs(getControlSignalHighLimit() / controlSignalUnitsPerActuatorVelocityUnit);
+	return std::abs((getControlSignalHighLimit() - getControlSignalZero()) / controlSignalUnitsPerActuatorVelocityUnit);
 }
 
 double GpioServoActuator::feedbackUnitsToActuatorUnits(double feedbackValue){
 	return feedbackValue / positionFeedbackUnitsPerActuatorUnit;
 }
+
+
+
+
 
 
 
@@ -195,10 +233,8 @@ void GpioServoActuator::sanitizeParameters(){
 	servoActuator->velocityLimit_positionUnitsPerSecond = std::min(getControlSignalLimitVelocity(), servoActuator->velocityLimit_positionUnitsPerSecond);
 	servoActuator->accelerationLimit_positionUnitsPerSecondSquared = std::abs(servoActuator->accelerationLimit_positionUnitsPerSecondSquared);
 	maxFollowingError = std::abs(maxFollowingError);
+	manualAcceleration = std::min(std::abs(manualAcceleration), servoActuator->accelerationLimit_positionUnitsPerSecondSquared);
 }
-
-
-
 
 
 bool GpioServoActuator::save(tinyxml2::XMLElement* xml){
@@ -222,6 +258,9 @@ bool GpioServoActuator::save(tinyxml2::XMLElement* xml){
 	controllerXML->SetAttribute("ProportionalGain", proportionalGain);
 	controllerXML->SetAttribute("DerivativeGain", derivativeGain);
 	controllerXML->SetAttribute("MaxFollowingError", maxFollowingError);
+	
+	XMLElement* manualControlsXML = xml->InsertNewChildElement("ManualControls");
+	manualControlsXML->SetAttribute("Acceleration", manualAcceleration);
 	
 	return true;
 }
@@ -255,6 +294,10 @@ bool GpioServoActuator::load(tinyxml2::XMLElement* xml){
 	if(controllerXML->QueryDoubleAttribute("DerivativeGain", &derivativeGain) != XML_SUCCESS) return Logger::warn("Could not find derivative gain attribute");
 	if(controllerXML->QueryDoubleAttribute("MaxFollowingError", &maxFollowingError) != XML_SUCCESS) return Logger::warn("Could not find max following error attribute");
 	 
+	XMLElement* manualControlsXML = xml->FirstChildElement("ManualControls");
+	if(manualControlsXML == nullptr) return Logger::warn("Could not find Manual Controls attribute");
+	if(manualControlsXML->QueryDoubleAttribute("Acceleration", &manualAcceleration) != XML_SUCCESS) return Logger::warn("Could not find manual acceleration target");
+	
 	return true;
 }
 

@@ -29,8 +29,8 @@ void LinearMecanumClaw::settingsGui() {
 	ImGui::SameLine();
 	if(isLinearAxisConnected()){
 		auto linearAxis = getLinearAxis();
-		ImGui::Text("%s (Position Unit : %s)", linearAxis->getName(), Enumerator::getDisplayString(linearAxis->positionUnit));
-		if(linearAxis->positionUnitType != PositionUnitType::LINEAR){
+		ImGui::Text("%s (Position Unit : %s)", linearAxis->getName(), Enumerator::getDisplayString(linearAxis->getPositionUnit()));
+		if(linearAxis->getPositionUnitType() != PositionUnitType::LINEAR){
 			ImGui::TextColored(Colors::red, "Linear Axis does not have Linear Position Unit");
 			return;
 		}
@@ -43,7 +43,7 @@ void LinearMecanumClaw::settingsGui() {
 	ImGui::SameLine();
 	if(isClawAxisConnected()){
 		auto clawAxis = getClawAxis();
-		ImGui::Text("%s (Position Unit : %s)", clawAxis->getName(), Enumerator::getDisplayString(clawAxis->positionUnit));
+		ImGui::Text("%s (Position Unit : %s)", clawAxis->getName(), Enumerator::getDisplayString(clawAxis->getPositionUnit()));
 	}else {
 		ImGui::TextColored(Colors::red, "Not Connected");
 		return;
@@ -55,7 +55,10 @@ void LinearMecanumClaw::settingsGui() {
 		auto feedbackDevice = getClawFeedbackDevice();
 		if(feedbackDevice->parentDevice) ImGui::Text("%s on %s", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
 		else ImGui::Text("%s on Node %s", feedbackDevice->getName(), clawPositionFeedbackPin->getNode()->getName());
-	}else ImGui::TextColored(Colors::red, "Not Connected");
+	}else {
+		ImGui::TextColored(Colors::red, "Not Connected");
+		return;
+	}
 	
 	ImGui::Text("Claw Reference Device:");
 	ImGui::SameLine();
@@ -101,8 +104,14 @@ void LinearMecanumClaw::settingsGui() {
 	sprintf(maxClawAccelerationString, "%.1f %s/s2", clawAccelerationLimit, Unit::getAbbreviatedString(clawPositionUnit));
 	ImGui::InputDouble("##maxClawAcc", &clawAccelerationLimit, 0.0, 0.0, maxClawAccelerationString);
 	
-	PositionUnit linearAxisPositionUnit = getLinearAxis()->positionUnit;
+	PositionUnit linearAxisPositionUnit = getLinearAxis()->getPositionUnit();
 
+	ImGui::Separator();
+	
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Mecanum Settings");
+	ImGui::PopFont();
+	
 	ImGui::Text("Mecanum wheel distance drom claw pivot :");
 	static char mecanumWheelPivotDistanceString[256];
 	sprintf(mecanumWheelPivotDistanceString, "%.3f%s", mecanumWheelDistanceFromClawPivot, Unit::getAbbreviatedString(linearAxisPositionUnit));
@@ -118,6 +127,8 @@ void LinearMecanumClaw::settingsGui() {
 	sprintf(mecanumWheelCircumferenceString, "%.3f%s", mecanumWheelCircumference, Unit::getAbbreviatedString(linearAxisPositionUnit));
 	ImGui::InputDouble("##wheelCirc", &mecanumWheelCircumference, 0.0, 0.0, mecanumWheelCircumferenceString);
 	
+	ImGui::Separator();
+	
 	ImGui::PushFont(Fonts::robotoBold20);
 	ImGui::Text("Linear Axis Settings");
 	ImGui::PopFont();
@@ -126,13 +137,13 @@ void LinearMecanumClaw::settingsGui() {
 	
 	ImGui::Text("Velocity Limit");
 	static char velLimitString[16];
-	sprintf(velLimitString, "%.3f %s/s", linearAxis->getVelocityLimit_axisUnitsPerSecond(), Unit::getAbbreviatedString(linearAxis->positionUnit));
-	ImGui::InputDouble("##VelLimit", &linearAxis->velocityLimit_axisUnitsPerSecond, 0.0, 0.0, velLimitString);
+	sprintf(velLimitString, "%.3f %s/s", linearAxis->getVelocityLimit_axisUnitsPerSecond(), Unit::getAbbreviatedString(linearAxis->getPositionUnit()));
+	//ImGui::InputDouble("##VelLimit", &linearAxis->getVelocityLimit_axisUnitsPerSecond(), 0.0, 0.0, velLimitString);
 	
 	static char accLimitString[16];
-	sprintf(accLimitString, "%.3f %s/s\xc2\xb2", linearAxis->getAccelerationLimit_axisUnitsPerSecondSquared(), Unit::getAbbreviatedString(linearAxis->positionUnit));
+	sprintf(accLimitString, "%.3f %s/s\xc2\xb2", linearAxis->getAccelerationLimit_axisUnitsPerSecondSquared(), Unit::getAbbreviatedString(linearAxis->getPositionUnit()));
 	ImGui::Text("Acceleration Limit");
-	ImGui::InputDouble("##AccLimit", &linearAxis->accelerationLimit_axisUnitsPerSecondSquared, 0.0, 0.0, accLimitString);
+	//ImGui::InputDouble("##AccLimit", &linearAxis->getAccelerationLimit_axisUnitsPerSecondSquared(), 0.0, 0.0, accLimitString);
 	
 	
 	
@@ -182,7 +193,7 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 		
 		linearAxisPositionProgress = getLinearAxisPositionProgress();
 		linearAxisVelocityProgress = std::abs(getLinearAxisVelocityProgress());
-		linearAxisPositionUnitShortFormString = Unit::getAbbreviatedString(getLinearAxis()->positionUnit);
+		linearAxisPositionUnitShortFormString = Unit::getAbbreviatedString(getLinearAxis()->getPositionUnit());
 		
 		//motionProgress = targetInterpolation->getProgressAtTime(Environnement::getTime_seconds());
 		//if(b_hasPositionTarget) positionTargetNormalized = (getManualPositionTarget() - minPosition) / (maxPosition - minPosition);

@@ -55,9 +55,9 @@ public:
 	//disable power
 	void disable() { b_setDisabled = true; }
 	//set velocity command
-	virtual void setCommand(double velocityCommand) { command_deviceUnits = velocityCommand; }
+	virtual void setVelocityCommand(double velocityCommand) { velocityCommand_deviceUnitsPerSecond = velocityCommand; }
 	//get velocity command
-	virtual double getCommand() { return command_deviceUnits; }
+	virtual double getVelocityCommand() { return velocityCommand_deviceUnitsPerSecond; }
 	//don't allow powering the actuator
 	void park() { b_setDisabled = true; b_parked = true; }			
 	//allow powereing of the actuator
@@ -71,6 +71,8 @@ public:
 	bool isParked() { return b_parked; }
 	//is the device disabled by an external emergency stop signal
 	bool isEmergencyStopActive() { return b_emergencyStopActive; }
+	//are the brakes active
+	bool areBrakesActive(){ return b_brakesActive; }
 
 	//get the normalized load of the device
 	double getLoad() { return load; }								
@@ -82,6 +84,7 @@ public:
 	bool b_enabled = false;
 	bool b_parked = false;
 	bool b_emergencyStopActive = false;
+	bool b_brakesActive = false;
 	double velocityLimit_positionUnitsPerSecond = 0.0;
 	double accelerationLimit_positionUnitsPerSecondSquared = 0.0;
 	double load = 0.0;
@@ -89,7 +92,7 @@ public:
 	bool b_setEnabled = false;
 	bool b_setDisabled = false;
 	bool b_setQuickstop = false;
-	double command_deviceUnits = 0.0;
+	double velocityCommand_deviceUnitsPerSecond = 0.0;
 };
 
 
@@ -151,7 +154,16 @@ public:
 	virtual Subdevice::Type getSubdeviceType() { return Subdevice::Type::SERVO_ACTUATOR; }
 
 	//set command
-	virtual void setCommand(double positionCommand) { command_deviceUnits = positionCommand; }
+	virtual void setPositionCommand(double positionCommand, double velocityCommand) {
+		positionCommand_deviceUnits = positionCommand;
+		velocityCommand_deviceUnitsPerSecond = velocityCommand;
+	}
 	//get velocity command
-	virtual double getCommand() { return command_deviceUnits + positionOffset_positionUnits; }
+	virtual double getPositionCommandRaw() { return positionCommand_deviceUnits + positionOffset_positionUnits; }
+	
+	
+private:
+	double positionCommand_deviceUnits;
+	
+	virtual void setVelocityCommand(double velocityCommand){}
 };

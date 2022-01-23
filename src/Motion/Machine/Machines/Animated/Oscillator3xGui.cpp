@@ -1,5 +1,6 @@
 #include <pch.h>
 
+/*
 #include "Oscillator3x.h"
 
 #include <imgui.h>
@@ -397,3 +398,4 @@ void Oscillator3x::machineSpecificMiniatureGui() {
 
 	if(b_disableAllControls) END_DISABLE_IMGUI_ELEMENT
 }
+*/

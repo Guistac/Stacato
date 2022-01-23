@@ -1,5 +1,5 @@
 #include <pch.h>
-
+/*
 #include "BinaryOscillator6x.h"
 
 #include <imgui.h>
@@ -254,3 +254,4 @@ void BinaryOscillator6x::machineSpecificMiniatureGui() {
 	if(b_disableAllControls) END_DISABLE_IMGUI_ELEMENT
 
 }
+*/

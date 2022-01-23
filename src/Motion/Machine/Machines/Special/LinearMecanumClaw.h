@@ -69,6 +69,14 @@ public:
 	double clawAccelerationLimit = 0.0;
 	double clawPositionLimit = 0.0; //min claw position is zero, max position is measured by homing procedure
 	
+	double clawManualAcceleration = 0.0;
+	double linearAxisManualAcceleration = 0.0;
+	
+	double clawRapidAcceleration = 0.0;
+	double clawRapidVelocity = 0.0;
+	double linearAxisRapidAcceleration = 0.0;
+	double linearAxisRapidVelocity = 0.0;
+	
 	//=== Motion
 	
 	Motion::Profile linearAxisMotionProfile;

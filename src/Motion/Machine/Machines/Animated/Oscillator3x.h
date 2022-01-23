@@ -1,5 +1,5 @@
 #pragma once
-
+/*
 #include "Motion/Machine/Machine.h"
 
 class Oscillator3x : public Machine {
@@ -76,3 +76,4 @@ class Oscillator3x : public Machine {
 	std::shared_ptr<PositionControlledAxis> getAxis(int);
 	bool getAxes(std::vector<std::shared_ptr<PositionControlledAxis>>& output);
 };
+*/

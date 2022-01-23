@@ -13,8 +13,8 @@
 
 #include "Motion/Machine/Machines/Basic/PositionControlledSingleAxisMachine.h"
 #include "Motion/Machine/Machines/StateMachines/HoodedLiftStateMachine.h"
-#include "Motion/Machine/Machines/Animated/Oscillator3x.h"
-#include "Motion/Machine/Machines/Animated/BinaryOscillator6x.h"
+//#include "Motion/Machine/Machines/Animated/Oscillator3x.h"
+//#include "Motion/Machine/Machines/Animated/BinaryOscillator6x.h"
 #include "Motion/Machine/Machines/Utility/PositionFeedbackMachine.h"
 #include "Motion/Machine/Machines/Special/LinearMecanumClaw.h"
 
@@ -47,8 +47,8 @@ namespace NodeFactory {
 		allMachineNodes = {
 			new PositionControlledSingleAxisMachine(),
 			new HoodedLiftStateMachine(),
-			new Oscillator3x(),
-			new BinaryOscillator6x(),
+			//new Oscillator3x(),
+			//new BinaryOscillator6x(),
 			new PositionFeedbackMachine(),
 			new LinearMecanumClaw()
 		};

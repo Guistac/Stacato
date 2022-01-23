@@ -33,11 +33,16 @@ public:
 	std::shared_ptr<NodePin> brakePin = std::make_shared<NodePin>(brakeSignal, NodePin::Direction::NODE_INPUT, "Brake");
 	std::shared_ptr<NodePin> emergencyStopPin = std::make_shared<NodePin>(emergencyStopSignal, NodePin::Direction::NODE_INPUT, "Emergency Stop");
 	
+	//pin checking
 	bool isPositionFeedbackConnected(){ return positionFeedbackPin->isConnected(); }
 	std::shared_ptr<PositionFeedbackDevice> getPositionFeedbackDevice(){ return positionFeedbackPin->getConnectedPin()->getSharedPointer<PositionFeedbackDevice>(); }
 	
 	bool isGpioDeviceConnected(){ return gpioDevicePin->isConnected(); }
 	std::shared_ptr<GpioDevice> getGpioDevice(){ return gpioDevicePin->getConnectedPin()->getSharedPointer<GpioDevice>(); }
+	
+	bool isServoActuatorPinConnected(){ return servoActuatorPin->isConnected(); }
+	
+	bool areAllPinsConnected();
 	
 	//processing
 	virtual void process();
@@ -49,8 +54,14 @@ public:
 	virtual void nodeSpecificGui();
 	void controlGui();
 	void settingsGui();
+	float manualVelocityDisplay = 0.0;
+	float targetPositionDisplay = 0.0;
+	float targetVelocityDisplay = 0.0;
+	float targetTimeDisplay = 0.0;
 	
 private:
+	
+	//parameters
 	double controlSignalRange = 10.0;
 	bool b_controlSignalIsCenteredOnZero = true;
 	double controlSignalUnitsPerActuatorVelocityUnit = 1.0;
@@ -60,6 +71,8 @@ private:
 	double proportionalGain = 0.0;
 	double derivativeGain = 0.0;
 	double maxFollowingError = 0.0;
+	
+	void sanitizeParameters();
 	
 public:
 	double getControlSignalLowLimit();
@@ -77,16 +90,18 @@ private:
 	double profileTime_seconds = 0.0;
 	double profileTimeDelta_seconds = 0.0;
 	
-	void setVelocityTarget(double target);
 	double manualAcceleration = 0.0;
 	double manualVelocityTarget = 0.0;
+	void setVelocityTarget(double targetVelocity);
+	void fastStop();
+	void moveToPositionInTime(double targetPosition, double targetTime);
+	void movetoPositionWithVelocity(double targetPosition, double targetVelocity);
 	
-	bool areAllPinsConnected();
+	void controlLoop();
 	
 public:
-	void sanitizeParameters();
 	
-	
+
 	//saving & loading
 	virtual bool load(tinyxml2::XMLElement* xml);
 	virtual bool save(tinyxml2::XMLElement* xml);

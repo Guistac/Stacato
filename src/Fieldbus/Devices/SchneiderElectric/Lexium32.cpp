@@ -392,9 +392,8 @@ void Lexium32::prepareOutputs() {
 	}else{
 		//if the servo motor is enable and controlled externally
 		//update the motion profile using the profile position points send to the servo motor
-		double newProfilePosition_r = servoMotorDevice->getCommand();
-		profileVelocity_rps = (newProfilePosition_r - profilePosition_r) / deltaT_seconds;
-		profilePosition_r = servoMotorDevice->getCommand();
+		profilePosition_r = servoMotorDevice->getPositionCommandRaw();
+		profileVelocity_rps = servoMotorDevice->getVelocityCommand();
 	}
 	
     //handle commands from subdevices
@@ -462,7 +461,7 @@ void Lexium32::prepareOutputs() {
     DCOMopmode = getOperatingModeId(requestedOperatingMode);
 
 	//set profile position point
-	if(b_externalControl) PPp_target = (int32_t)(servoMotorDevice->getCommand() * positionUnitsPerRevolution);
+	if(b_externalControl) PPp_target = (int32_t)(servoMotorDevice->getPositionCommandRaw() * positionUnitsPerRevolution);
 	else PPp_target = (int32_t)(profilePosition_r * positionUnitsPerRevolution);
 		
 	//set digital output signals

@@ -29,36 +29,53 @@ public:
 	std::shared_ptr<NodePin> brakePin = std::make_shared<NodePin>(brakeSignal, NodePin::Direction::NODE_INPUT, "Brake");
 	std::shared_ptr<NodePin> emergencyStopPin = std::make_shared<NodePin>(emergencyStopSignal, NodePin::Direction::NODE_INPUT, "Emergency Stop");
 	
+	//connection checking
 	bool isGpioDeviceConnected(){ return gpioDevicePin->isConnected(); }
 	std::shared_ptr<GpioDevice> getGpioDevice(){ return gpioDevicePin->getConnectedPin()->getSharedPointer<GpioDevice>(); }
 	
+	bool isActuatorPinConnected(){ return actuatorPin->isConnected(); }
+	
 	bool areAllPinsConnected();
 	
+	//processing
 	virtual void process();
 	virtual void updatePin(std::shared_ptr<NodePin> pin);
-
+	
+	//control signal
 	double getControlSignalLowLimit();
 	double getControlSignalHighLimit();
 	double getControlSignalZero();
 	double controlSignalToActuatorVelocity(double signal);
 	double actuatorVelocityToControlSignal(double velocity);
-	double getControlSignalLimitVelocity();
+	double getControlSignalLimitedVelocity();
 	
+	//parameters
 	double controlSignalRange = 10.0;
 	bool b_controlSignalIsCenteredOnZero = true;
 	double controlSignalUnitsPerActuatorVelocityUnit = 1.0;
 	bool b_invertControlSignal = false;
 	double positionFeedbackUnitsPerActuatorUnit = 0.0;
+	double manualAcceleration;
+	void sanitizeParameters();
 	
-	double profileTime_seconds = 0.0;
-	double profileTimeDelta_seconds = 0.0;
+	//control
 	Motion::Profile motionProfile;
 	ControlMode controlMode = ControlMode::VELOCITY_TARGET;
+	double profileTime_seconds = 0.0;
+	double profileTimeDelta_seconds = 0.0;
+	void setVelocityTarget(double velocityTarget);
+	void fastStop();
+	double manualVelocityTarget = 0.0;
+	void controlLoop();
 	
+	void onEnable();
+	void onDisable();
+	
+	//gui stuff
 	virtual void nodeSpecificGui();
 	void controlGui();
 	void settingsGui();
-	
+	float manualVelocityDisplay = 0.0;
 	
 	//saving & loading
 	virtual bool load(tinyxml2::XMLElement* xml);
