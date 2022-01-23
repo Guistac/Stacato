@@ -145,9 +145,7 @@ void PositionControlledAxis::sendActuatorCommands() {
 			getServoActuatorDevice()->setCommand(motionProfile.getPosition() * actuatorUnitsPerAxisUnits);
 			//send pinupdate request for actuator adapters
 			//TODO: check if this works and actually updates the connected node pin
-			std::shared_ptr<NodePin> updatedPin = servoActuatorDeviceLink->getConnectedPin();
-			std::shared_ptr<Node> servoActuatorNode = servoActuatorDeviceLink->getConnectedPin()->getNode();
-			servoActuatorNode->updatePin(updatedPin);
+			servoActuatorDeviceLink->updateConnectedPins();
 			}break;
 		case PositionControlType::CLOSED_LOOP:
 			//TODO: implement this

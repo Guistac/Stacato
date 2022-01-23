@@ -9,13 +9,139 @@
 #include "Gui/Utilities/CustomWidgets.h"
 
 #include "Motion/Axis/PositionControlledAxis.h"
+#include "Motion/Axis/VelocityControlledAxis.h"
+#include "Motion/SubDevice.h"
+#include "NodeGraph/Device.h"
 
 void LinearMecanumClaw::controlsGui() {
 	//Machine Controls Gui
 }
 
 void LinearMecanumClaw::settingsGui() {
-	//Machine Settings Gui
+	
+	//===== DEVICES
+	
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Devices & Axis");
+	ImGui::PopFont();
+	
+	ImGui::Text("Linear Axis:");
+	ImGui::SameLine();
+	if(isLinearAxisConnected()){
+		auto linearAxis = getLinearAxis();
+		ImGui::Text("%s (Position Unit : %s)", linearAxis->getName(), Enumerator::getDisplayString(linearAxis->positionUnit));
+		if(linearAxis->positionUnitType != PositionUnitType::LINEAR){
+			ImGui::TextColored(Colors::red, "Linear Axis does not have Linear Position Unit");
+			return;
+		}
+	}else {
+		ImGui::TextColored(Colors::red, "Not Connected");
+		return;
+	}
+	
+	ImGui::Text("Mecanum Axis:");
+	ImGui::SameLine();
+	if(isClawAxisConnected()){
+		auto clawAxis = getClawAxis();
+		ImGui::Text("%s (Position Unit : %s)", clawAxis->getName(), Enumerator::getDisplayString(clawAxis->positionUnit));
+	}else {
+		ImGui::TextColored(Colors::red, "Not Connected");
+		return;
+	}
+	
+	ImGui::Text("Claw Feedback Device:");
+	ImGui::SameLine();
+	if(isClawFeedbackConnected()){
+		auto feedbackDevice = getClawFeedbackDevice();
+		if(feedbackDevice->parentDevice) ImGui::Text("%s on %s", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
+		else ImGui::Text("%s on Node %s", feedbackDevice->getName(), clawPositionFeedbackPin->getNode()->getName());
+	}else ImGui::TextColored(Colors::red, "Not Connected");
+	
+	ImGui::Text("Claw Reference Device:");
+	ImGui::SameLine();
+	if(isClawReferenceConnected()){
+		auto referenceDevice = getClawReferenceDevice();
+		if(referenceDevice->parentDevice) ImGui::Text("%s on %s", referenceDevice->getName(), referenceDevice->parentDevice->getName());
+		else ImGui::Text("%s on Node %s", referenceDevice->getName(), clawReferenceDevicePin->getNode()->getName());
+	}else ImGui::TextColored(Colors::red, "Not Connected");
+	
+	//===== CLAW SETTINGS
+	
+	ImGui::Separator();
+	
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Claw Settings");
+	ImGui::PopFont();
+	
+	ImGui::Text("Claw Position Unit");
+	if(ImGui::BeginCombo("##unit", Enumerator::getDisplayString(clawPositionUnit))){
+		for(auto& unit : Enumerator::getTypes<PositionUnit>()){
+			if(!isAngularPositionUnit(unit.enumerator)) continue;
+			if(ImGui::Selectable(Enumerator::getDisplayString(unit.enumerator), clawPositionUnit == unit.enumerator)){
+				clawPositionUnit = unit.enumerator;
+			}
+		}
+		ImGui::EndCombo();
+	}
+	
+	ImGui::Text("Feedback %s per Claw %s",
+				Enumerator::getDisplayString(getClawFeedbackDevice()->getPositionUnit()),
+				Enumerator::getDisplayString(clawPositionUnit));
+	ImGui::InputDouble("##conversionClaw", &clawFeedbackUnitsPerClawUnit);
+	
+	//TODO: compute claw velocity and acceleration limited by mecanum geometry
+	
+	ImGui::Text("Claw Velocity Limit:");
+	static char maxClawVelocityString[256];
+	sprintf(maxClawVelocityString, "%.1f %s/s", clawVelocityLimit, Unit::getAbbreviatedString(clawPositionUnit));
+	ImGui::InputDouble("##maxvelclaw", &clawVelocityLimit, 0.0, 0.0, maxClawVelocityString);
+	
+	ImGui::Text("Claw Acceleration Limit:");
+	static char maxClawAccelerationString[256];
+	sprintf(maxClawAccelerationString, "%.1f %s/s2", clawAccelerationLimit, Unit::getAbbreviatedString(clawPositionUnit));
+	ImGui::InputDouble("##maxClawAcc", &clawAccelerationLimit, 0.0, 0.0, maxClawAccelerationString);
+	
+	PositionUnit linearAxisPositionUnit = getLinearAxis()->positionUnit;
+
+	ImGui::Text("Mecanum wheel distance drom claw pivot :");
+	static char mecanumWheelPivotDistanceString[256];
+	sprintf(mecanumWheelPivotDistanceString, "%.3f%s", mecanumWheelDistanceFromClawPivot, Unit::getAbbreviatedString(linearAxisPositionUnit));
+	ImGui::InputDouble("##pivotDistance", &mecanumWheelDistanceFromClawPivot, 0.0, 0.0, mecanumWheelPivotDistanceString);
+	
+	ImGui::Text("Mecanum wheel pivot angle when claw is closed :");
+	static char mecanumWheelClawPivotAngleString[256];
+	sprintf(mecanumWheelClawPivotAngleString, "%.3f%s", mecanumWheelClawPivotRadiusAngleWhenClosed, Unit::getAbbreviatedString(clawPositionUnit));
+	ImGui::InputDouble("##pivotAngleClosed", &mecanumWheelClawPivotRadiusAngleWhenClosed, 0.0, 0.0, mecanumWheelClawPivotAngleString);
+	
+	ImGui::Text("Mecanum Wheel Circumference");
+	static char mecanumWheelCircumferenceString[256];
+	sprintf(mecanumWheelCircumferenceString, "%.3f%s", mecanumWheelCircumference, Unit::getAbbreviatedString(linearAxisPositionUnit));
+	ImGui::InputDouble("##wheelCirc", &mecanumWheelCircumference, 0.0, 0.0, mecanumWheelCircumferenceString);
+	
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Linear Axis Settings");
+	ImGui::PopFont();
+	
+	auto linearAxis = getLinearAxis();
+	
+	ImGui::Text("Velocity Limit");
+	static char velLimitString[16];
+	sprintf(velLimitString, "%.3f %s/s", linearAxis->getVelocityLimit_axisUnitsPerSecond(), Unit::getAbbreviatedString(linearAxis->positionUnit));
+	ImGui::InputDouble("##VelLimit", &linearAxis->velocityLimit_axisUnitsPerSecond, 0.0, 0.0, velLimitString);
+	
+	static char accLimitString[16];
+	sprintf(accLimitString, "%.3f %s/s\xc2\xb2", linearAxis->getAccelerationLimit_axisUnitsPerSecondSquared(), Unit::getAbbreviatedString(linearAxis->positionUnit));
+	ImGui::Text("Acceleration Limit");
+	ImGui::InputDouble("##AccLimit", &linearAxis->accelerationLimit_axisUnitsPerSecondSquared, 0.0, 0.0, accLimitString);
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }
 
 void LinearMecanumClaw::axisGui() {
@@ -200,6 +326,10 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	if (ImGui::Button("Move", doubleButtonSize)) moveLinearAxisToPosition(linearAxisManualVelocityTarget);
 	ImGui::SameLine();
 	if (ImGui::Button("Stop", doubleButtonSize)) moveLinearAxisToPosition(0.0);
+	
+	
+	
+	
 	
 	
 	

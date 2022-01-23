@@ -38,6 +38,12 @@ std::shared_ptr<NodePin> NodePin::getConnectedPin(){
 	if(isOutput()) return nodeLinks.front()->getOutputData();
 }
 
+void NodePin::updateConnectedPins(){
+	for(auto& pin : getConnectedPins()){
+		pin->getNode()->updatePin(pin);
+	}
+}
+
 bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> other){
 	switch(dataType){
 		case DataType::BOOLEAN:

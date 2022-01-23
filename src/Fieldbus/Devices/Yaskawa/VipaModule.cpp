@@ -230,8 +230,9 @@ void VIPA_050_1BS00::onSetParentBusCoupler(std::shared_ptr<VipaBusCoupler_053_1E
 void VIPA_050_1BS00::onSetIndex(int i){
 	sprintf((char*)encoderPin->getDisplayString(), "Module %i SSI Encoder", moduleIndex);
 	sprintf((char*)encoderPin->getSaveString(), "Module%iSSIEncoder", moduleIndex);
-	sprintf((char*)resetPin->getDisplayString(), "Module %i SSI Encoder", moduleIndex);
+	sprintf((char*)resetPin->getDisplayString(), "Module %i SSI Encoder Reset", moduleIndex);
 	sprintf((char*)resetPin->getSaveString(), "Module%iEncoderReset", moduleIndex);
+	sprintf(encoderDevice->name, "Module %i SSI Encoder", moduleIndex);
 }
 
 void VIPA_050_1BS00::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){

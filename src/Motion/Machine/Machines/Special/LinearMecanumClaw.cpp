@@ -5,6 +5,8 @@
 #include "Motion/Axis/VelocityControlledAxis.h"
 #include "Motion/SubDevice.h"
 
+#include <tinyxml2.h>
+
 
 //======= CONFIGURATION =========
 
@@ -206,14 +208,41 @@ void LinearMecanumClaw::getDevices(std::vector<std::shared_ptr<Device>>& output)
 
 bool LinearMecanumClaw::saveMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
-	//save machine parameters & data
-	//return true on success and false on failure
+	
+	XMLElement* mecanumWheelXML = xml->InsertNewChildElement("MecanumWheels");
+	mecanumWheelXML->SetAttribute("DistanceFromClawPivot", mecanumWheelDistanceFromClawPivot);
+	mecanumWheelXML->SetAttribute("PivotAngleWhenClosed", mecanumWheelClawPivotRadiusAngleWhenClosed);
+	mecanumWheelXML->SetAttribute("WheelCircumference", mecanumWheelCircumference);
+	
+	XMLElement* clawXML = xml->InsertNewChildElement("Claw");
+	clawXML->SetAttribute("PositionUnit", Enumerator::getSaveString(clawPositionUnit));
+	clawXML->SetAttribute("FeedbackUnitsPerClawUnit", clawFeedbackUnitsPerClawUnit);
+	clawXML->SetAttribute("VelocityLimit", clawVelocityLimit);
+	clawXML->SetAttribute("AccelerationLimit", clawAccelerationLimit);
+	clawXML->SetAttribute("OpenPositionLimit", clawPositionLimit);
+	
 	return true;
 }
 
 bool LinearMecanumClaw::loadMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
-	//load machine parameters & data
-	//return true on success and false on failure
+	
+	XMLElement* mecanumWheelXML = xml->FirstChildElement("MecanumWheels");
+	if(mecanumWheelXML == nullptr) return Logger::warn("Could not find mecanum wheel attribute");
+	if(mecanumWheelXML->QueryDoubleAttribute("DistanceFromClawPivot", &mecanumWheelDistanceFromClawPivot) != XML_SUCCESS) return Logger::warn("could not find pivot distance attribute");
+	if(mecanumWheelXML->QueryDoubleAttribute("PivotAngleWhenClosed", &mecanumWheelClawPivotRadiusAngleWhenClosed) != XML_SUCCESS) return Logger::warn("could not find anglewhenclosed attribute");
+	if(mecanumWheelXML->QueryDoubleAttribute("WheelCircumference", &mecanumWheelCircumference) != XML_SUCCESS) return Logger::warn("could not find wheel circumference attribute");
+	
+	XMLElement* clawXML = xml->FirstChildElement("Claw");
+	if(clawXML == nullptr) return Logger::warn("Could not find mecanum wheel attribute");
+	const char* clawUnitString;
+	if(clawXML->QueryStringAttribute("PositionUnit", &clawUnitString) != XML_SUCCESS) return Logger::warn("could not find claw position unit attribute");
+	if(!Enumerator::isValidSaveName<PositionUnit>(clawUnitString)) return Logger::warn("Could not identify claw position unit attrifbute");
+	clawPositionUnit = Enumerator::getEnumeratorFromSaveString<PositionUnit>(clawUnitString);
+	if(clawXML->QueryDoubleAttribute("FeedbackUnitsPerClawUnit", &clawFeedbackUnitsPerClawUnit) != XML_SUCCESS) return Logger::warn("could not find claw feedback ratio attribute");
+	if(clawXML->QueryDoubleAttribute("VelocityLimit", &clawVelocityLimit) != XML_SUCCESS) return Logger::warn("could not find claw velocity limit attribute");
+	if(clawXML->QueryDoubleAttribute("AccelerationLimit", &clawAccelerationLimit) != XML_SUCCESS) return Logger::warn("could not find claw acceleration limit attribute");
+	if(clawXML->QueryDoubleAttribute("OpenPositionLimit", &clawPositionLimit) != XML_SUCCESS) return Logger::warn("could not find claw open position limit attribute");
+	
 	return true;
 }

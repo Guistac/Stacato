@@ -107,6 +107,8 @@ public:
 	
 	inline void copyConnectedPinValue();
 	
+	void updateConnectedPins();
+	
 	//========================================================
 	
 	//strings

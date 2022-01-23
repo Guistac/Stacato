@@ -56,6 +56,19 @@ public:
 		if(!isClawReferenceConnected()) return false;
 	}
 	
+	//=== Parameters
+	
+	double mecanumWheelDistanceFromClawPivot = 0.0;
+	double mecanumWheelClawPivotRadiusAngleWhenClosed = 0.0;
+	double mecanumWheelCircumference = 0.0;
+	
+	const PositionUnitType clawPositionUnitType = PositionUnitType::ANGULAR;
+	PositionUnit clawPositionUnit = PositionUnit::DEGREE;
+	double clawFeedbackUnitsPerClawUnit = 0.0;
+	double clawVelocityLimit = 0.0;
+	double clawAccelerationLimit = 0.0;
+	double clawPositionLimit = 0.0; //min claw position is zero, max position is measured by homing procedure
+	
 	//=== Motion
 	
 	Motion::Profile linearAxisMotionProfile;
@@ -67,10 +80,6 @@ public:
 	void moveLinearAxisToPosition(float target){}
 	
 	Motion::Profile clawAxisMotionProfile;
-	double clawLowPositionLimit = 0.0;
-	double clawHighPositionLimit = 0.0;
-	double clawVelocityLimit = 0.0;
-	double clawAccelerationLimit = 0.0;
 	float getClawAxisPositionProgress(){}
 	float getClawAxisVelocityProgress(){}
 	double clawAxisManualVelocityTarget = 0.0;
