@@ -1,30 +1,8 @@
 <Environnement name="Default Environnement" notes="">
     <NodeGraph>
         <Nodes>
-            <Node NodeType="Processor" ClassName="GpioServoActuator" CustomName="Gpio Servo Actuator" UniqueID="9">
-                <NodeEditorPosition x="261" y="-437"/>
-                <NodeSpecificData>
-                    <ServoActuator PositionUnit="Revolutions" VelocityLimit="5" AccelerationLimit="5"/>
-                    <ControlSignal Range="10" CenterOnZero="false" Invert="false"/>
-                    <ConversionRatio ControlSignalUnitsPerActuatorVelocityUnit="5" PositionFeedbackUnitsPerActuatorPositionUnit="5"/>
-                    <Controller ProportionalGain="1" DerivativeGain="1" MaxFollowingError="5"/>
-                    <ManualControls Acceleration="3"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="GPIO Device" DisplayString="GPIO Device" DataType="GPIODeviceLink" UniqueID="10" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Ready" DisplayString="Ready" DataType="Boolean" UniqueID="11" Visible="true"/>
-                    <InputPin SaveString="Brake" DisplayString="Brake" DataType="Boolean" UniqueID="12" Visible="true"/>
-                    <InputPin SaveString="Emergency Stop" DisplayString="Emergency Stop" DataType="Boolean" UniqueID="13" Visible="true"/>
-                    <InputPin SaveString="Position Feedback" DisplayString="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="14" Visible="true" NoDataField="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Enable" DisplayString="Enable" DataType="Boolean" UniqueID="15" Visible="true"/>
-                    <OutputPin SaveString="Control Signal" DisplayString="Control Signal" DataType="Real" UniqueID="16" Visible="true"/>
-                    <OutputPin SaveString="Servo Actuator" DisplayString="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="17" Visible="true" NoDataField="true"/>
-                </OutputPins>
-            </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa Bus Coupler (053_1EC01)" UniqueID="18">
-                <InputNodeEditorPosition x="1128" y="-363"/>
+                <InputNodeEditorPosition x="1160" y="-246"/>
                 <OutputNodeEditorPosition x="2.1474836e+09" y="2.1474836e+09"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="0"/>
@@ -72,7 +50,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Position Controlled Axis" UniqueID="50">
-                <NodeEditorPosition x="564" y="-424"/>
+                <NodeEditorPosition x="596" y="-382"/>
                 <NodeSpecificData>
                     <Units UnitType="Angular" Unit="Degrees" PositionControl="Servo"/>
                     <UnitConversion FeedbackUnitsPerMachineUnit="0" ActuatorUnitsPerMachineUnit="0" FeedbackAndActuatorConversionIdentical="false"/>
@@ -96,28 +74,8 @@
                     <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="61" Visible="false"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Processor" ClassName="GpioActuator" CustomName="Gpio Actuator" UniqueID="63">
-                <NodeEditorPosition x="261" y="-159"/>
-                <NodeSpecificData>
-                    <Actuator PositionUnit="Revolutions" VelocityLimit="3" AccelerationLimit="3"/>
-                    <ControlSignal Range="3" CenterOnZero="true" Invert="false"/>
-                    <ConversionRatio ControlSignalUnitsPerActuatorVelocityUnit="1"/>
-                    <ManualControls Acceleration="3"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="GPIO Device" DisplayString="GPIO Device" DataType="GPIODeviceLink" UniqueID="64" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Ready" DisplayString="Ready" DataType="Boolean" UniqueID="65" Visible="true"/>
-                    <InputPin SaveString="Brake" DisplayString="Brake" DataType="Boolean" UniqueID="66" Visible="true"/>
-                    <InputPin SaveString="Emergency Stop" DisplayString="Emergency Stop" DataType="Boolean" UniqueID="67" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Enable" DisplayString="Enable" DataType="Boolean" UniqueID="68" Visible="true"/>
-                    <OutputPin SaveString="Control Signal" DisplayString="Control Signal" DataType="Real" UniqueID="69" Visible="true"/>
-                    <OutputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorDeviceLink" UniqueID="70" Visible="true" NoDataField="true"/>
-                </OutputPins>
-            </Node>
             <Node NodeType="Machine" ClassName="LinearMecanumClaw" CustomName="Linear Mecanum Claw" UniqueID="82">
-                <NodeEditorPosition x="840" y="-309"/>
+                <NodeEditorPosition x="870" y="-289"/>
                 <NodeSpecificData ShortName="M">
                     <MecanumWheels DistanceFromClawPivot="1" PivotAngleWhenClosed="1" WheelCircumference="1"/>
                     <Claw PositionUnit="Radians" FeedbackUnitsPerClawUnit="1" VelocityLimit="1" AccelerationLimit="1" OpenPositionLimit="0"/>
@@ -138,7 +96,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="VelocityControlledAxis" CustomName="Velocity Controlled Axis" UniqueID="97">
-                <NodeEditorPosition x="566" y="-113"/>
+                <NodeEditorPosition x="454" y="-96"/>
                 <NodeSpecificData>
                     <Axis UnitType="Linear" Unit="Centimeter"/>
                     <UnitConversion ActuatorUnitsPerAxisUnit="1"/>
@@ -153,33 +111,90 @@
                     <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="101" Visible="false"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Processor" ClassName="ActuatorToServoActuator" CustomName="Actuator To Servo Actuator" UniqueID="140">
+                <NodeEditorPosition x="310" y="-337"/>
+                <NodeSpecificData>
+                    <ServoActuator PositionUnit="Revolutions" VelocityLimit="0" AccelerationLimit="0"/>
+                    <ConversionRatio PositionFeedbackUnitsPerActuatorPositionUnit="0"/>
+                    <Controller ProportionalGain="0" DerivativeGain="0" MaxFollowingError="1"/>
+                    <ManualControls Acceleration="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorDeviceLink" UniqueID="141" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Position Feedback" DisplayString="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="142" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Servo Actuator" DisplayString="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="143" Visible="true" NoDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="GpioActuator" CustomName="Gpio Actuator" UniqueID="163">
+                <NodeEditorPosition x="24" y="-385"/>
+                <NodeSpecificData>
+                    <Actuator PositionUnit="Revolutions" VelocityLimit="0" AccelerationLimit="0"/>
+                    <ControlSignal Range="10" CenterOnZero="true" Invert="false"/>
+                    <ConversionRatio ControlSignalUnitsPerActuatorVelocityUnit="1"/>
+                    <ManualControls Acceleration="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="GPIO Device" DisplayString="GPIO Device" DataType="GPIODeviceLink" UniqueID="164" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Emergency Stop" DisplayString="Emergency Stop" DataType="Boolean" UniqueID="165" Visible="true"/>
+                    <InputPin SaveString="Brake" DisplayString="Brake" DataType="Boolean" UniqueID="166" Visible="true"/>
+                    <InputPin SaveString="Fault" DisplayString="Fault" DataType="Boolean" UniqueID="167" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Enable" DisplayString="Enable" DataType="Boolean" UniqueID="168" Visible="true"/>
+                    <OutputPin SaveString="Control Signal" DisplayString="Control Signal" DataType="Real" UniqueID="169" Visible="true"/>
+                    <OutputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorDeviceLink" UniqueID="170" Visible="true" NoDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="GpioActuator" CustomName="Gpio Actuator" UniqueID="175">
+                <NodeEditorPosition x="24" y="-145"/>
+                <NodeSpecificData>
+                    <Actuator PositionUnit="Revolutions" VelocityLimit="0" AccelerationLimit="0"/>
+                    <ControlSignal Range="10" CenterOnZero="true" Invert="false"/>
+                    <ConversionRatio ControlSignalUnitsPerActuatorVelocityUnit="1"/>
+                    <ManualControls Acceleration="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="GPIO Device" DisplayString="GPIO Device" DataType="GPIODeviceLink" UniqueID="176" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Emergency Stop" DisplayString="Emergency Stop" DataType="Boolean" UniqueID="177" Visible="true"/>
+                    <InputPin SaveString="Brake" DisplayString="Brake" DataType="Boolean" UniqueID="178" Visible="true"/>
+                    <InputPin SaveString="Fault" DisplayString="Fault" DataType="Boolean" UniqueID="179" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Enable" DisplayString="Enable" DataType="Boolean" UniqueID="180" Visible="true"/>
+                    <OutputPin SaveString="Control Signal" DisplayString="Control Signal" DataType="Real" UniqueID="181" Visible="true"/>
+                    <OutputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorDeviceLink" UniqueID="182" Visible="true" NoDataField="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
-            <Link UniqueID="102" StartPin="70" EndPin="98"/>
-            <Link UniqueID="103" StartPin="17" EndPin="52"/>
-            <Link UniqueID="106" StartPin="19" EndPin="64"/>
-            <Link UniqueID="107" StartPin="19" EndPin="10"/>
-            <Link UniqueID="110" StartPin="19" EndPin="86"/>
             <Link UniqueID="112" StartPin="99" EndPin="84"/>
-            <Link UniqueID="121" StartPin="117" EndPin="14"/>
-            <Link UniqueID="122" StartPin="119" EndPin="85"/>
             <Link UniqueID="123" StartPin="58" EndPin="83"/>
-            <Link UniqueID="124" StartPin="24" EndPin="55"/>
-            <Link UniqueID="125" StartPin="19" EndPin="54"/>
-            <Link UniqueID="126" StartPin="25" EndPin="87"/>
-            <Link UniqueID="127" StartPin="26" EndPin="88"/>
-            <Link UniqueID="128" StartPin="27" EndPin="13"/>
-            <Link UniqueID="129" StartPin="27" EndPin="67"/>
-            <Link UniqueID="130" StartPin="28" EndPin="12"/>
-            <Link UniqueID="131" StartPin="28" EndPin="66"/>
-            <Link UniqueID="132" StartPin="29" EndPin="11"/>
-            <Link UniqueID="133" StartPin="30" EndPin="65"/>
-            <Link UniqueID="134" StartPin="118" EndPin="34"/>
-            <Link UniqueID="135" StartPin="120" EndPin="35"/>
-            <Link UniqueID="136" StartPin="15" EndPin="32"/>
-            <Link UniqueID="137" StartPin="68" EndPin="33"/>
-            <Link UniqueID="138" StartPin="16" EndPin="40"/>
-            <Link UniqueID="139" StartPin="69" EndPin="41"/>
+            <Link UniqueID="154" StartPin="143" EndPin="52"/>
+            <Link UniqueID="161" StartPin="24" EndPin="55"/>
+            <Link UniqueID="162" StartPin="19" EndPin="54"/>
+            <Link UniqueID="171" StartPin="19" EndPin="164"/>
+            <Link UniqueID="172" StartPin="27" EndPin="165"/>
+            <Link UniqueID="173" StartPin="28" EndPin="166"/>
+            <Link UniqueID="174" StartPin="29" EndPin="167"/>
+            <Link UniqueID="183" StartPin="19" EndPin="176"/>
+            <Link UniqueID="184" StartPin="27" EndPin="177"/>
+            <Link UniqueID="185" StartPin="28" EndPin="178"/>
+            <Link UniqueID="186" StartPin="30" EndPin="179"/>
+            <Link UniqueID="187" StartPin="170" EndPin="141"/>
+            <Link UniqueID="188" StartPin="182" EndPin="98"/>
+            <Link UniqueID="189" StartPin="168" EndPin="32"/>
+            <Link UniqueID="190" StartPin="180" EndPin="33"/>
+            <Link UniqueID="191" StartPin="118" EndPin="34"/>
+            <Link UniqueID="192" StartPin="120" EndPin="35"/>
+            <Link UniqueID="193" StartPin="169" EndPin="40"/>
+            <Link UniqueID="194" StartPin="181" EndPin="41"/>
+            <Link UniqueID="195" StartPin="19" EndPin="86"/>
+            <Link UniqueID="196" StartPin="25" EndPin="87"/>
+            <Link UniqueID="197" StartPin="26" EndPin="88"/>
+            <Link UniqueID="198" StartPin="117" EndPin="142"/>
+            <Link UniqueID="199" StartPin="119" EndPin="85"/>
         </Links>
     </NodeGraph>
 </Environnement>

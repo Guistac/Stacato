@@ -23,7 +23,7 @@
 #include "Networking/Osc/OscDevice.h"
 
 #include "Motion/Adapters/GpioActuator.h"
-#include "Motion/Adapters/GpioServoActuator.h"
+#include "Motion/Adapters/ActuatorToServoActuator.h"
 
 namespace NodeFactory {
 
@@ -78,7 +78,7 @@ namespace NodeFactory {
 			new OrNode(),
 			
 			new GpioActuator(),
-			new GpioServoActuator()
+			new ActuatorToServoActuator()
 		};
 		
 		allSafetyNodes = {
