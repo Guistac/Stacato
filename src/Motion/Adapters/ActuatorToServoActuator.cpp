@@ -1,25 +1,20 @@
 #include <pch.h>
 
-#include "GpioServoActuator.h"
+#include "ActuatorToServoActuator.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
 #include <tinyxml2.h>
 
-void GpioServoActuator::initialize(){
+void ActuatorToServoActuator::initialize(){
 	//input pins
-	addNodePin(gpioDevicePin);
-	addNodePin(readyPin);
-	addNodePin(brakePin);
-	addNodePin(emergencyStopPin);
+	addNodePin(actuatorPin);
 	addNodePin(positionFeedbackPin);
 	//output pins
-	addNodePin(enablePin);
-	addNodePin(controlSignalPin);
 	addNodePin(servoActuatorPin);
 }
 
-void GpioServoActuator::process(){
+void ActuatorToServoActuator::process(){
 	
 	//update time no matter what
 	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
@@ -38,26 +33,21 @@ void GpioServoActuator::process(){
 	
 	//get device references
 	auto feedbackDevice = getPositionFeedbackDevice();
-	auto gpioDevice = getGpioDevice();
-	
-	//update input signals
-	readyPin->copyConnectedPinValue();
-	brakePin->copyConnectedPinValue();
-	emergencyStopPin->copyConnectedPinValue();
+	auto actuatorDevice = getActuatorDevice();
 	
 	//update servo actuator data
+	servoActuator->positionUnit = actuatorDevice->positionUnit;
 	servoActuator->b_online = true;
 	servoActuator->b_detected = true;
 	servoActuator->b_canHardReset = feedbackDevice->canHardReset();
 	servoActuator->b_parked = false;
-	servoActuator->b_ready = feedbackDevice->isReady() && gpioDevice->isReady() && *readySignal && !*emergencyStopSignal && !*brakeSignal;
+	servoActuator->b_ready = feedbackDevice->isReady() && actuatorDevice->isReady();
 	servoActuator->positionRaw_positionUnits = feedbackUnitsToActuatorUnits(feedbackDevice->positionRaw_positionUnits);
 	servoActuator->velocity_positionUnitsPerSecond = feedbackUnitsToActuatorUnits(feedbackDevice->getVelocity());;
 	servoActuator->b_moving = std::abs(servoActuator->velocity_positionUnitsPerSecond) > 0.0;
-	servoActuator->b_emergencyStopActive = *emergencyStopSignal;
+	servoActuator->b_emergencyStopActive = actuatorDevice->isEmergencyStopActive();
 	servoActuator->load = 0.0; //load is not supported here
-	servoActuator->b_emergencyStopActive = *emergencyStopSignal;
-	servoActuator->b_brakesActive = *brakeSignal;
+	servoActuator->b_brakesActive = actuatorDevice->areBrakesActive();
 	servoActuator->rangeMin_positionUnits = feedbackDevice->rangeMin_positionUnits;
 	servoActuator->rangeMax_positionUnits = feedbackDevice->rangeMax_positionUnits;
 	
@@ -68,16 +58,16 @@ void GpioServoActuator::process(){
 	}
 }
 
-void GpioServoActuator::setVelocityTarget(double target){
+void ActuatorToServoActuator::setVelocityTarget(double target){
 	controlMode = ControlMode::VELOCITY_TARGET;
 	manualVelocityTarget = target;
 }
 
-void GpioServoActuator::fastStop(){
+void ActuatorToServoActuator::fastStop(){
 	controlMode = ControlMode::FAST_STOP;
 }
 
-void GpioServoActuator::moveToPositionInTime(double targetPosition, double targetTime){
+void ActuatorToServoActuator::moveToPositionInTime(double targetPosition, double targetTime){
 	targetPosition = std::min(targetPosition, servoActuator->getMaxPosition());
 	targetPosition = std::max(targetPosition, servoActuator->getMinPosition());
 	bool success = motionProfile.moveToPositionInTime(profileTime_seconds,
@@ -89,7 +79,7 @@ void GpioServoActuator::moveToPositionInTime(double targetPosition, double targe
 	else setVelocityTarget(0.0);
 }
 
-void GpioServoActuator::movetoPositionWithVelocity(double targetPosition, double targetVelocity){
+void ActuatorToServoActuator::movetoPositionWithVelocity(double targetPosition, double targetVelocity){
 	targetPosition = std::min(targetPosition, servoActuator->getMaxPosition());
 	targetPosition = std::max(targetPosition, servoActuator->getMinPosition());
 	bool success = motionProfile.moveToPositionWithVelocity(profileTime_seconds,
@@ -100,7 +90,7 @@ void GpioServoActuator::movetoPositionWithVelocity(double targetPosition, double
 	else setVelocityTarget(0.0);
 }
 
-void GpioServoActuator::controlLoop(){
+void ActuatorToServoActuator::controlLoop(){
 	//handle actuator enabling
 	if(servoActuator->b_setEnabled){
 		servoActuator->b_setEnabled = false;
@@ -114,8 +104,6 @@ void GpioServoActuator::controlLoop(){
 	double outputVelocity;
 	
 	if(servoActuator->isEnabled()){
-		*enableSignal = true;
-		
 		switch(controlMode){
 			case ControlMode::FAST_STOP:
 				motionProfile.stop(profileTimeDelta_seconds, servoActuator->getAccelerationLimit());
@@ -141,84 +129,38 @@ void GpioServoActuator::controlLoop(){
 		outputVelocity = positionError * proportionalGain + motionProfile.getVelocity() * derivativeGain;
 		
 	}else{
-		*enableSignal = false;
 		outputVelocity = 0.0;
 		motionProfile.setPosition(servoActuator->getPosition());
 		motionProfile.setVelocity(servoActuator->getVelocity());
 		motionProfile.setAcceleration(0.0);
 	}
 	
-	//generate control signal output value and assign to output pin
-	*controlSignal = actuatorVelocityToControlSignal(outputVelocity);
+	auto actuatorDevice = getActuatorDevice();
+	actuatorDevice->setVelocityCommand(outputVelocity);
+	actuatorPin->updateConnectedPins();
 }
 
+void ActuatorToServoActuator::onDisable(){}
 
-void GpioServoActuator::onDisable(){}
-
-void GpioServoActuator::onEnable(){}
+void ActuatorToServoActuator::onEnable(){}
 
 
-bool GpioServoActuator::areAllPinsConnected(){
+bool ActuatorToServoActuator::areAllPinsConnected(){
 	//inputs
 	if(!isPositionFeedbackConnected()) return false;
-	if(!isGpioDeviceConnected()) return false;
-	if(!readyPin->isConnected()) return false;
-	if(!brakePin->isConnected()) return false;
-	if(!emergencyStopPin->isConnected()) return false;
+	if(!isActuatorConnected()) return false;
 	//outputs
-	if(!enablePin->isConnected()) return false;
-	if(!controlSignalPin->isConnected()) return false;
 	if(!servoActuatorPin->isConnected()) return false;
 }
 
 
-void GpioServoActuator::updatePin(std::shared_ptr<NodePin> pin){
+void ActuatorToServoActuator::updatePin(std::shared_ptr<NodePin> pin){
 	if(pin == servoActuatorPin){
 		controlLoop();
 	}
 }
 
 
-//the gpio servo actuator does the following:
-//read all node inputs to evaluate servo actuator state
-//specify an output voltage range mapped to a velocity range
-//specify velocity and acceleration limits
-//specify gain settings for the control loop
-//
-
-double GpioServoActuator::getControlSignalLowLimit(){
-	if(b_controlSignalIsCenteredOnZero) return -controlSignalRange;
-	else return 0.0;
-}
-
-double GpioServoActuator::getControlSignalHighLimit(){
-	if(b_controlSignalIsCenteredOnZero) return controlSignalRange;
-	else return controlSignalRange;
-}
-
-double GpioServoActuator::getControlSignalZero(){
-	if(b_controlSignalIsCenteredOnZero) return 0.0;
-	else return controlSignalRange / 2.0;
-}
-
-double GpioServoActuator::controlSignalToActuatorVelocity(double signal){
-	if(b_invertControlSignal) return (signal - getControlSignalZero()) / -controlSignalUnitsPerActuatorVelocityUnit;
-	return (signal - getControlSignalZero()) / controlSignalUnitsPerActuatorVelocityUnit;
-}
-
-double GpioServoActuator::actuatorVelocityToControlSignal(double velocity){
-	if(b_invertControlSignal) return getControlSignalZero() - velocity * controlSignalUnitsPerActuatorVelocityUnit;
-	return getControlSignalZero() + velocity * controlSignalUnitsPerActuatorVelocityUnit;
-}
-
-double GpioServoActuator::getControlSignalLimitVelocity(){
-	if(b_controlSignalIsCenteredOnZero) return std::abs(getControlSignalHighLimit() / controlSignalUnitsPerActuatorVelocityUnit);
-	return std::abs((getControlSignalHighLimit() - getControlSignalZero()) / controlSignalUnitsPerActuatorVelocityUnit);
-}
-
-double GpioServoActuator::feedbackUnitsToActuatorUnits(double feedbackValue){
-	return feedbackValue / positionFeedbackUnitsPerActuatorUnit;
-}
 
 
 
@@ -226,18 +168,17 @@ double GpioServoActuator::feedbackUnitsToActuatorUnits(double feedbackValue){
 
 
 
-void GpioServoActuator::sanitizeParameters(){
-	controlSignalRange = std::abs(controlSignalRange);
-	controlSignalUnitsPerActuatorVelocityUnit = std::abs(controlSignalUnitsPerActuatorVelocityUnit);
-	servoActuator->velocityLimit_positionUnitsPerSecond = std::abs(servoActuator->velocityLimit_positionUnitsPerSecond);
-	servoActuator->velocityLimit_positionUnitsPerSecond = std::min(getControlSignalLimitVelocity(), servoActuator->velocityLimit_positionUnitsPerSecond);
-	servoActuator->accelerationLimit_positionUnitsPerSecondSquared = std::abs(servoActuator->accelerationLimit_positionUnitsPerSecondSquared);
+
+void ActuatorToServoActuator::sanitizeParameters(){
+	auto actuatorDevice = getActuatorDevice();
+	servoActuator->velocityLimit_positionUnitsPerSecond = std::min(std::abs(servoActuator->velocityLimit_positionUnitsPerSecond), actuatorDevice->getVelocityLimit());
+	servoActuator->accelerationLimit_positionUnitsPerSecondSquared = std::min(std::abs(servoActuator->accelerationLimit_positionUnitsPerSecondSquared), actuatorDevice->getAccelerationLimit());
 	maxFollowingError = std::abs(maxFollowingError);
 	manualAcceleration = std::min(std::abs(manualAcceleration), servoActuator->accelerationLimit_positionUnitsPerSecondSquared);
 }
 
 
-bool GpioServoActuator::save(tinyxml2::XMLElement* xml){
+bool ActuatorToServoActuator::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	
 	XMLElement* actuatorXML = xml->InsertNewChildElement("ServoActuator");
@@ -245,13 +186,7 @@ bool GpioServoActuator::save(tinyxml2::XMLElement* xml){
 	actuatorXML->SetAttribute("VelocityLimit", servoActuator->getVelocityLimit());
 	actuatorXML->SetAttribute("AccelerationLimit", servoActuator->getAccelerationLimit());
 	
-	XMLElement* controlSignalXML = xml->InsertNewChildElement("ControlSignal");
-	controlSignalXML->SetAttribute("Range", controlSignalRange);
-	controlSignalXML->SetAttribute("CenterOnZero", b_controlSignalIsCenteredOnZero);
-	controlSignalXML->SetAttribute("Invert", b_invertControlSignal);
-	
 	XMLElement* conversionRatioXML = xml->InsertNewChildElement("ConversionRatio");
-	conversionRatioXML->SetAttribute("ControlSignalUnitsPerActuatorVelocityUnit", controlSignalUnitsPerActuatorVelocityUnit);
 	conversionRatioXML->SetAttribute("PositionFeedbackUnitsPerActuatorPositionUnit", positionFeedbackUnitsPerActuatorUnit);
 	
 	XMLElement* controllerXML = xml->InsertNewChildElement("Controller");
@@ -265,7 +200,7 @@ bool GpioServoActuator::save(tinyxml2::XMLElement* xml){
 	return true;
 }
 
-bool GpioServoActuator::load(tinyxml2::XMLElement* xml){
+bool ActuatorToServoActuator::load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	
 	XMLElement* actuatorXML = xml->FirstChildElement("ServoActuator");
@@ -277,15 +212,8 @@ bool GpioServoActuator::load(tinyxml2::XMLElement* xml){
 	if(actuatorXML->QueryDoubleAttribute("VelocityLimit", &servoActuator->velocityLimit_positionUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not find actuator velocity limit Attribute");
 	if(actuatorXML->QueryDoubleAttribute("AccelerationLimit", &servoActuator->accelerationLimit_positionUnitsPerSecondSquared) != XML_SUCCESS) return Logger::warn("Could not find acceleration limit Attribute");
 	
-	XMLElement* controlSignalXML = xml->FirstChildElement("ControlSignal");
-	if(controlSignalXML == nullptr) return Logger::warn("Could not find control signal attribute");
-	if(controlSignalXML->QueryDoubleAttribute("Range", &controlSignalRange) != XML_SUCCESS) return Logger::warn("Could not find control signal range attribute");
-	if(controlSignalXML->QueryBoolAttribute("CenterOnZero", &b_controlSignalIsCenteredOnZero) != XML_SUCCESS) return Logger::warn("Could not find center on zero attribute");
-	if(controlSignalXML->QueryBoolAttribute("Invert", &b_invertControlSignal) != XML_SUCCESS) return Logger::warn("Could not find invert attribute");
-	
 	XMLElement* conversionRatioXML = xml->FirstChildElement("ConversionRatio");
 	if(conversionRatioXML == nullptr) return Logger::warn("Could not find Conversion Ratio attribute");
-	if(conversionRatioXML->QueryDoubleAttribute("ControlSignalUnitsPerActuatorVelocityUnit", &controlSignalUnitsPerActuatorVelocityUnit) != XML_SUCCESS) return Logger::warn("Could not find signal unit conversion attribute");
 	if(conversionRatioXML->QueryDoubleAttribute("PositionFeedbackUnitsPerActuatorPositionUnit", &positionFeedbackUnitsPerActuatorUnit) != XML_SUCCESS) return Logger::warn("Could not find feedback unit conversion attribute");
 	
 	XMLElement* controllerXML = xml->FirstChildElement("Controller");

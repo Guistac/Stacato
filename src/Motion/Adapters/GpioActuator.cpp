@@ -9,9 +9,9 @@
 void GpioActuator::initialize(){
 	//input pins
 	addNodePin(gpioDevicePin);
-	addNodePin(readyPin);
-	addNodePin(brakePin);
 	addNodePin(emergencyStopPin);
+	addNodePin(brakePin);
+	addNodePin(faultPin);
 	//output pins
 	addNodePin(enablePin);
 	addNodePin(controlSignalPin);
@@ -39,7 +39,7 @@ void GpioActuator::process(){
 	auto gpioDevice = getGpioDevice();
 	
 	//update input signals
-	readyPin->copyConnectedPinValue();
+	faultPin->copyConnectedPinValue();
 	brakePin->copyConnectedPinValue();
 	emergencyStopPin->copyConnectedPinValue();
 	
@@ -47,7 +47,7 @@ void GpioActuator::process(){
 	actuator->b_online = true;
 	actuator->b_detected = true;
 	actuator->b_parked = false;
-	actuator->b_ready = gpioDevice->isReady() && *readySignal && !*emergencyStopSignal && !*brakeSignal;
+	actuator->b_ready = gpioDevice->isReady() && !*faultSignal && !*emergencyStopSignal && !*brakeSignal;
 	actuator->b_emergencyStopActive = *emergencyStopSignal;
 	actuator->b_brakesActive = *brakeSignal;
 	
@@ -118,7 +118,7 @@ void GpioActuator::onDisable(){}
 
 bool GpioActuator::areAllPinsConnected(){
 	if(!isGpioDeviceConnected()) return false;
-	if(!readyPin->isConnected()) return false;
+	if(!faultPin->isConnected()) return false;
 	if(!brakePin->isConnected()) return false;
 	if(!emergencyStopPin->isConnected()) return false;
 	if(!enablePin->isConnected()) return false;

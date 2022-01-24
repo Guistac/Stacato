@@ -20,12 +20,12 @@ public:
 	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(actuator, NodePin::Direction::NODE_OUTPUT, "Actuator");
 	
 	//input data
-	std::shared_ptr<bool> readySignal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> faultSignal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> brakeSignal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> emergencyStopSignal = std::make_shared<bool>(false);
 	
 	std::shared_ptr<NodePin> gpioDevicePin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_INPUT, "GPIO Device");
-	std::shared_ptr<NodePin> readyPin = std::make_shared<NodePin>(readySignal, NodePin::Direction::NODE_INPUT, "Ready");
+	std::shared_ptr<NodePin> faultPin = std::make_shared<NodePin>(faultSignal, NodePin::Direction::NODE_INPUT, "Fault");
 	std::shared_ptr<NodePin> brakePin = std::make_shared<NodePin>(brakeSignal, NodePin::Direction::NODE_INPUT, "Brake");
 	std::shared_ptr<NodePin> emergencyStopPin = std::make_shared<NodePin>(emergencyStopSignal, NodePin::Direction::NODE_INPUT, "Emergency Stop");
 	

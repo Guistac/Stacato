@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "GpioServoActuator.h"
+#include "ActuatorToServoActuator.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -10,7 +10,7 @@
 
 #include "NodeGraph/Device.h"
 
-void GpioServoActuator::nodeSpecificGui(){
+void ActuatorToServoActuator::nodeSpecificGui(){
 	if(ImGui::BeginTabItem("Controls")){
 		controlGui();
 		ImGui::EndTabItem();
@@ -21,7 +21,7 @@ void GpioServoActuator::nodeSpecificGui(){
 	}
 }
 
-void GpioServoActuator::controlGui(){
+void ActuatorToServoActuator::controlGui(){
 
 	ImGui::PushFont(Fonts::robotoBold20);
 	ImGui::Text("Manual Controls");
@@ -146,115 +146,76 @@ void GpioServoActuator::controlGui(){
 	if(disableManualControls) END_DISABLE_IMGUI_ELEMENT
 }
 
-void GpioServoActuator::settingsGui(){
+void ActuatorToServoActuator::settingsGui(){
 	
 	ImGui::PushFont(Fonts::robotoBold20);
 	ImGui::Text("Devices");
 	ImGui::PopFont();
+
+	std::shared_ptr<ActuatorDevice> actuatorDevice = getActuatorDevice();
+	std::shared_ptr<PositionFeedbackDevice> feedbackDevice = getPositionFeedbackDevice();
+	PositionUnit positionUnit;
 	
 	ImGui::PushFont(Fonts::robotoBold15);
-	ImGui::Text("Gpio Device: ");
+	ImGui::Text("Actuator Device:");
 	ImGui::PopFont();
 	ImGui::SameLine();
-	if(isGpioDeviceConnected()){
-		std::shared_ptr<GpioDevice> gpioDevice = getGpioDevice();
-		ImGui::Text("%s on %s", gpioDevice->getName(), gpioDevice->parentDevice->getName());
+	if(isActuatorConnected()){
+		positionUnit = getPositionUnit();
+		if(actuatorDevice->parentDevice) ImGui::Text("%s on %s", actuatorDevice->getName(), actuatorDevice->parentDevice->getName());
+		else ImGui::Text("%s on Node %s", actuatorDevice->getName(), actuatorPin->getConnectedPin()->getNode()->getName());
 	}else ImGui::TextColored(Colors::red, "Not Connected");
 	
 	ImGui::PushFont(Fonts::robotoBold15);
-	ImGui::Text("Position Feedback Device: ");
+	ImGui::Text("Position Feedback Device:");
 	ImGui::PopFont();
 	ImGui::SameLine();
 	if(isPositionFeedbackConnected()){
-		std::shared_ptr<PositionFeedbackDevice> feedbackDevice = getPositionFeedbackDevice();
-		ImGui::Text("%s on %s", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
+		if(feedbackDevice->parentDevice) ImGui::Text("%s on %s", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
+		else ImGui::Text("%s on Node %s", feedbackDevice->getName(), positionFeedbackPin->getConnectedPin()->getNode()->getName());
 	}else ImGui::TextColored(Colors::red, "Not Connected");
 	
 	ImGui::Separator();
 	
-	if(isPositionFeedbackConnected() && isGpioDeviceConnected()){
+	if(isPositionFeedbackConnected()){
 		
 		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Actuator Limits");
+		ImGui::Text("Servo Actuator");
 		ImGui::PopFont();
 		
-		ImGui::Text("Position Unit");
-		if(ImGui::BeginCombo("##actuatorUnit", Enumerator::getDisplayString(servoActuator->positionUnit))){
-			for(auto& type : Enumerator::getTypes<PositionUnit>()){
-				if(isLinearPositionUnit(type.enumerator)) continue;
-				if(ImGui::Selectable(type.displayString, type.enumerator == servoActuator->positionUnit)){
-					servoActuator->positionUnit = type.enumerator;
-				}
-			}
-			ImGui::EndCombo();
-		}
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		ImGui::Text("Actuator Position Unit: %s", Unit::getDisplayStringPlural(positionUnit));
+		ImGui::Text("Actuator Velocity Limit: %.3f %s/s", actuatorDevice->getVelocityLimit(), Unit::getAbbreviatedString(positionUnit));
+		ImGui::Text("Actuator Acceleration Limit: %.3f %s/s2", actuatorDevice->getAccelerationLimit(), Unit::getAbbreviatedString(positionUnit));
+		ImGui::PopStyleColor();
 		
 		ImGui::Text("Velocity Limit");
 		static char servoVelocityLimitString[256];
-		sprintf(servoVelocityLimitString, "%.3f %s/s", servoActuator->velocityLimit_positionUnitsPerSecond, Unit::getAbbreviatedString(servoActuator->positionUnit));
+		sprintf(servoVelocityLimitString, "%.3f %s/s", servoActuator->velocityLimit_positionUnitsPerSecond, Unit::getAbbreviatedString(positionUnit));
 		ImGui::InputDouble("##velocityLimit", &servoActuator->velocityLimit_positionUnitsPerSecond, 0.0, 0.0, servoVelocityLimitString);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		
 		ImGui::Text("Acceleration Limit");
 		static char servoAccelerationLimitString[256];
-		sprintf(servoAccelerationLimitString, "%.3f %s/s2", servoActuator->accelerationLimit_positionUnitsPerSecondSquared, Unit::getAbbreviatedString(servoActuator->positionUnit));
+		sprintf(servoAccelerationLimitString, "%.3f %s/s2", servoActuator->accelerationLimit_positionUnitsPerSecondSquared, Unit::getAbbreviatedString(positionUnit));
 		ImGui::InputDouble("##accelerationLimit", &servoActuator->accelerationLimit_positionUnitsPerSecondSquared, 0.0, 0.0, servoAccelerationLimitString);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		
 		ImGui::Text("Acceleration for Manual Controls");
 		static char manualAccelerationString[256];
-		sprintf(manualAccelerationString, "%.3f %s/s2", manualAcceleration, Unit::getAbbreviatedString(servoActuator->positionUnit));
+		sprintf(manualAccelerationString, "%.3f %s/s2", manualAcceleration, Unit::getAbbreviatedString(positionUnit));
 		ImGui::InputDouble("##manAcc", &manualAcceleration);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		
 		ImGui::Separator();
 		
 		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Control Signal");
-		ImGui::PopFont();
-		
-		auto feedbackDevice = getPositionFeedbackDevice();
-		PositionUnit feedbackUnit = feedbackDevice->getPositionUnit();
-		
-		ImGui::Text("Analog Signal Range");
-		ImGui::InputDouble("##outputVoltageRange", &controlSignalRange);
-		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-		
-		ImGui::Checkbox("Control Signal is Centered on Zero", &b_controlSignalIsCenteredOnZero);
-		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-		
-		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-		ImGui::Text("Control Signal ranges from %.1f to %.1f and is centered on %.1f",
-					getControlSignalLowLimit(),
-					getControlSignalHighLimit(),
-					getControlSignalZero());
-		ImGui::PopStyleColor();
-		
-		ImGui::Text("Control Signal Units Per Servo Actuator %s", Enumerator::getDisplayString(servoActuator->positionUnit));
-		ImGui::InputDouble("##UnitConversion", &controlSignalUnitsPerActuatorVelocityUnit);
-		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-		
-		ImGui::Checkbox("Invert Control Signal Range", &b_invertControlSignal);
-		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-		
-		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-		ImGui::Text("Control Signal Limits Velocity to %.1f %s/s",
-					getControlSignalLimitVelocity(),
-					Unit::getAbbreviatedString(servoActuator->positionUnit));
-		ImGui::Text("At 0.0 %s/s, Control Signal is %.1f",
-					Unit::getAbbreviatedString(servoActuator->positionUnit),
-					actuatorVelocityToControlSignal(0.0));
-		ImGui::Text("At %.1f Control Signal, Velocity is %.1f %s/s",
-					getControlSignalHighLimit(),
-					controlSignalToActuatorVelocity(getControlSignalHighLimit()),
-					Unit::getAbbreviatedString(servoActuator->positionUnit));
-		ImGui::PopStyleColor();
-		
-		ImGui::Separator();
-		
-		ImGui::PushFont(Fonts::robotoBold20);
 		ImGui::Text("Position Feedback Scaling");
 		ImGui::PopFont();
+		
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		ImGui::Text("Position Feedback Unit: %s", Unit::getDisplayStringPlural(feedbackDevice->getPositionUnit()));
+		ImGui::PopStyleColor();
 		
 		ImGui::Text("Feedback %s per Actuator %s", Unit::getDisplayStringPlural(feedbackDevice->getPositionUnit()), Unit::getDisplayString(servoActuator->getPositionUnit()));
 		ImGui::InputDouble("##FeedbackUnitsPerActuatorUnit", &positionFeedbackUnitsPerActuatorUnit);
