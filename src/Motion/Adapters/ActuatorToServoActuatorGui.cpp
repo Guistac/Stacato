@@ -5,6 +5,8 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
+#include <implot.h>
+
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
@@ -134,59 +136,127 @@ void ActuatorToServoActuator::controlGui(){
 	ImGui::Text("Velocity: ");
 	static char velocityString[256];
 	sprintf(velocityString, "%.3f %s/s", servoActuator->getVelocity(), Unit::getAbbreviatedString(servoActuator->getPositionUnit()));
-	float velocityProgress = std::abs(servoActuator->getVelocityLimit() / servoActuator->getVelocityLimit());
+	float velocityProgress = std::abs(servoActuator->getVelocity() / servoActuator->getVelocityLimit());
 	ImGui::ProgressBar(velocityProgress, progressBarSize, velocityString);
 	
 	ImGui::Text("Position: ");
 	static char positionString[256];
 	sprintf(positionString, "%.3f %s", servoActuator->getPosition(), Unit::getAbbreviatedString(servoActuator->getPositionUnit()));
-	float positionProgress = servoActuator->getPosition() - servoActuator->getMinPosition() / (servoActuator->getMaxPosition() - servoActuator->getMinPosition());
+	float positionProgress = servoActuator->getPositionInRange();
 	ImGui::ProgressBar(positionProgress, progressBarSize, positionString);
 	
+	ImGui::Text("Following Error: ");
+	static char followingErrorString[256];
+	sprintf(followingErrorString, "%.3f %s", positionError, Unit::getAbbreviatedString(servoActuator->getPositionUnit()));
+	float positionErrorProgress = std::abs(positionError / maxPositionFollowingError);
+	ImGui::ProgressBar(positionErrorProgress, progressBarSize, followingErrorString);
+	
+	static int offset = 4;
+	
+	glm::vec2* positionTargetBuffer;
+	size_t positionTargetPointCount = positionTargetHistory.getBuffer(&positionTargetBuffer);
+	
+	glm::vec2* positionBuffer;
+	size_t positionPointCount = positionHistory.getBuffer(&positionBuffer);
+	
+	glm::vec2* positionErrorBuffer;
+	size_t positionErrorPointCount = positionErrorHistory.getBuffer(&positionErrorBuffer);
+	
+	glm::vec2* velocityTargetBuffer;
+	size_t velocityTargetPointCount = velocityTargetHistory.getBuffer(&velocityTargetBuffer);
+	
+	glm::vec2* velocityBuffer;
+	size_t velocityPointCount = velocityHistory.getBuffer(&velocityBuffer);
+	
+	glm::vec2* velocityErrorBuffer;
+	size_t velocityErrorPointCount = velocityErrorHistory.getBuffer(&velocityErrorBuffer);
+	
+	//=========================== GRAPHS =============================
+	
+	glm::vec2 plotSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 10.0);
+	ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_NoChild | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoMousePos | ImPlotFlags_NoTitle;
+	
+	size_t pointCount = velocityErrorPointCount;
+	float startTime = 0.0;
+	float endTime = 0.0;
+	if(pointCount > offset){
+		startTime = positionTargetBuffer[offset].x;
+		endTime = positionTargetBuffer[pointCount - 1].x;
+	}
+		
+	ImPlot::SetNextPlotLimitsX(startTime, endTime, ImGuiCond_Always);
+	ImPlot::FitNextPlotAxes(false, true);
+	
+	ImGui::Text("Position Graph");
+	
+	if(ImPlot::BeginPlot("Position Graph", 0, 0, plotSize, plotFlags)){
+		if(pointCount > offset){
+			ImPlot::SetNextLineStyle(Colors::white, 2.0);
+			ImPlot::PlotLine("Position Target", &positionTargetBuffer[offset].x, &positionTargetBuffer[offset].y , pointCount - offset, 0, sizeof(glm::vec2));
+			
+			ImPlot::SetNextLineStyle(Colors::red, 2.0);
+			ImPlot::PlotLine("Position Actual", &positionBuffer[offset].x, &positionBuffer[offset].y , pointCount - offset, 0, sizeof(glm::vec2));
+		}
+		ImPlot::EndPlot();
+	}
+	
+	ImPlot::SetNextPlotLimitsX(startTime, endTime, ImGuiCond_Always);
+	ImPlot::FitNextPlotAxes(false, true);
+	ImPlot::SetNextPlotLimitsY(-servoActuator->getVelocityLimit() * 1.2, servoActuator->getVelocityLimit() * 1.2);
+	
+	ImGui::Text("Velocity Graph");
+	
+	if(ImPlot::BeginPlot("Velocity Graph", 0, 0, plotSize, plotFlags)){
+		if(pointCount > offset){
+			ImPlot::SetNextLineStyle(Colors::red, 2.0);
+			ImPlot::PlotLine("Velocity Actual", &velocityBuffer[offset].x, &velocityBuffer[offset].y , pointCount - offset, 0, sizeof(glm::vec2));
+			
+			ImPlot::SetNextLineStyle(Colors::white, 2.0);
+			ImPlot::PlotLine("Velocity Target", &velocityTargetBuffer[offset].x, &velocityTargetBuffer[offset].y , pointCount - offset, 0, sizeof(glm::vec2));
+		}
+		ImPlot::EndPlot();
+	}
+	
+	ImGui::Text("Error Graph");
+	
+	ImPlot::SetNextPlotLimitsX(startTime, endTime, ImGuiCond_Always);
+	ImPlot::SetNextPlotLimitsY(-maxPositionFollowingError * 1.2, maxPositionFollowingError * 1.2);
+	
+	if(ImPlot::BeginPlot("Error Graph", 0, 0, plotSize, plotFlags)){
+		if(pointCount > offset){
+			ImPlot::SetNextLineStyle(Colors::red, 1.0);
+			double maxError[2] = {maxPositionFollowingError, -maxPositionFollowingError};
+			ImPlot::PlotHLines("Following Error Threshold", &maxError[0], 2);
+			
+			ImPlot::SetNextLineStyle(Colors::yellow, 2.0);
+			ImPlot::PlotLine("Position Error", &positionErrorBuffer[offset].x, &positionErrorBuffer[offset].y, pointCount - offset, 0, sizeof(glm::vec2));
+		}
+		ImPlot::EndPlot();
+	}
+
 	if(disableManualControls) END_DISABLE_IMGUI_ELEMENT
 }
 
 void ActuatorToServoActuator::settingsGui(){
 	
 	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Devices");
+	ImGui::Text("Servo Actuator");
 	ImGui::PopFont();
 
-	std::shared_ptr<ActuatorDevice> actuatorDevice = getActuatorDevice();
-	std::shared_ptr<PositionFeedbackDevice> feedbackDevice = getPositionFeedbackDevice();
-	PositionUnit positionUnit;
-	
 	ImGui::PushFont(Fonts::robotoBold15);
 	ImGui::Text("Actuator Device:");
 	ImGui::PopFont();
 	ImGui::SameLine();
 	if(isActuatorConnected()){
-		positionUnit = getPositionUnit();
+		std::shared_ptr<ActuatorDevice> actuatorDevice = getActuatorDevice();
+		PositionUnit positionUnit = getPositionUnit();
 		if(actuatorDevice->parentDevice) ImGui::Text("%s on %s", actuatorDevice->getName(), actuatorDevice->parentDevice->getName());
 		else ImGui::Text("%s on Node %s", actuatorDevice->getName(), actuatorPin->getConnectedPin()->getNode()->getName());
-	}else ImGui::TextColored(Colors::red, "Not Connected");
-	
-	ImGui::PushFont(Fonts::robotoBold15);
-	ImGui::Text("Position Feedback Device:");
-	ImGui::PopFont();
-	ImGui::SameLine();
-	if(isPositionFeedbackConnected()){
-		if(feedbackDevice->parentDevice) ImGui::Text("%s on %s", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
-		else ImGui::Text("%s on Node %s", feedbackDevice->getName(), positionFeedbackPin->getConnectedPin()->getNode()->getName());
-	}else ImGui::TextColored(Colors::red, "Not Connected");
-	
-	ImGui::Separator();
-	
-	if(isPositionFeedbackConnected()){
-		
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Servo Actuator");
-		ImGui::PopFont();
 		
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-		ImGui::Text("Actuator Position Unit: %s", Unit::getDisplayStringPlural(positionUnit));
-		ImGui::Text("Actuator Velocity Limit: %.3f %s/s", actuatorDevice->getVelocityLimit(), Unit::getAbbreviatedString(positionUnit));
-		ImGui::Text("Actuator Acceleration Limit: %.3f %s/s2", actuatorDevice->getAccelerationLimit(), Unit::getAbbreviatedString(positionUnit));
+		ImGui::Text("Position Unit: %s", Unit::getDisplayStringPlural(positionUnit));
+		ImGui::Text("Velocity Limit: %.3f %s/s", actuatorDevice->getVelocityLimit(), Unit::getAbbreviatedString(positionUnit));
+		ImGui::Text("Acceleration Limit: %.3f %s/s2", actuatorDevice->getAccelerationLimit(), Unit::getAbbreviatedString(positionUnit));
 		ImGui::PopStyleColor();
 		
 		ImGui::Text("Velocity Limit");
@@ -206,42 +276,60 @@ void ActuatorToServoActuator::settingsGui(){
 		sprintf(manualAccelerationString, "%.3f %s/s2", manualAcceleration, Unit::getAbbreviatedString(positionUnit));
 		ImGui::InputDouble("##manAcc", &manualAcceleration);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-		
+	
 		ImGui::Separator();
 		
 		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Position Feedback Scaling");
+		ImGui::Text("Position Feedback");
 		ImGui::PopFont();
-		
-		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-		ImGui::Text("Position Feedback Unit: %s", Unit::getDisplayStringPlural(feedbackDevice->getPositionUnit()));
-		ImGui::PopStyleColor();
-		
-		ImGui::Text("Feedback %s per Actuator %s", Unit::getDisplayStringPlural(feedbackDevice->getPositionUnit()), Unit::getDisplayString(servoActuator->getPositionUnit()));
-		ImGui::InputDouble("##FeedbackUnitsPerActuatorUnit", &positionFeedbackUnitsPerActuatorUnit);
-		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-		
-		ImGui::Separator();
-		
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Position Controller");
+	
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("Position Feedback Device:");
 		ImGui::PopFont();
+		ImGui::SameLine();
+		if(isPositionFeedbackConnected()){
+			std::shared_ptr<PositionFeedbackDevice> feedbackDevice = getPositionFeedbackDevice();
+			if(feedbackDevice->parentDevice) ImGui::Text("%s on %s", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
+			else ImGui::Text("%s on Node %s", feedbackDevice->getName(), positionFeedbackPin->getConnectedPin()->getNode()->getName());
+			
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+			ImGui::Text("Position Unit: %s", Unit::getDisplayStringPlural(feedbackDevice->getPositionUnit()));
+			ImGui::PopStyleColor();
+			
+			ImGui::Text("Feedback %s per Actuator %s", Unit::getDisplayStringPlural(feedbackDevice->getPositionUnit()), Unit::getDisplayString(servoActuator->getPositionUnit()));
+			ImGui::InputDouble("##FeedbackUnitsPerActuatorUnit", &positionFeedbackUnitsPerActuatorUnit);
+			if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
+		}else {
+			ImGui::TextColored(Colors::red, "Not Connected");
+		}
 		
-		ImGui::Text("Proportional Gain");
-		ImGui::InputDouble("##propGain", &proportionalGain);
-		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-		
-		ImGui::Text("Derivative Gain");
-		ImGui::InputDouble("##derGain", &derivativeGain);
-		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-		
-		ImGui::Text("Max Following Error");
-		static char maxErrorString[256];
-		sprintf(maxErrorString, "%.3f %s", maxFollowingError, Unit::getDisplayStringPlural(servoActuator->positionUnit));
-		ImGui::InputDouble("##maxErr", &maxFollowingError, 0.0, 0.0, maxErrorString);
-		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-		
+	}else {
+		ImGui::TextColored(Colors::red, "Not Connected");
 	}
+
+	ImGui::Separator();
+	
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Position Controller");
+	ImGui::PopFont();
+	
+	ImGui::Text("Position Loop Proportional Gain");
+	ImGui::InputDouble("##pospropGain", &positionLoopProportionalGain);
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
+	
+	ImGui::Text("Velocity Loop Proportional Gain");
+	ImGui::InputDouble("##velpropGain", &velocityLoopProportionalGain);
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
+	
+	ImGui::Text("Velocity Loop Integral Gain");
+	ImGui::InputDouble("##velIntGain", &velocityLoopIntegralGain);
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
+	
+	ImGui::Text("Max Following Error");
+	static char maxErrorString[256];
+	sprintf(maxErrorString, "%.3f %s", maxPositionFollowingError, Unit::getDisplayStringPlural(servoActuator->positionUnit));
+	ImGui::InputDouble("##maxErr", &maxPositionFollowingError, 0.0, 0.0, maxErrorString);
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 }
 

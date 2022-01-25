@@ -182,7 +182,7 @@ void VelocityControlledAxis::settingsGui() {
 		ImGui::SameLine();
 		ImGui::Text("%s", Unit::getDisplayStringPlural(actuator->positionUnit));
 
-		ImGui::Text("%s %s per Machine %s :", actuator->getName(), Unit::getDisplayStringPlural(actuator->positionUnit), Unit::getDisplayString(positionUnit));
+		ImGui::Text("Actuator %s/s per Axis %s/s :", Unit::getAbbreviatedString(actuator->positionUnit), Unit::getAbbreviatedString(positionUnit));
 		ImGui::InputDouble("##actuatorCoupling", &actuatorUnitsPerAxisUnits);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		
@@ -211,7 +211,7 @@ void VelocityControlledAxis::settingsGui() {
 						   actuator->getAccelerationLimit(),
 						   actuatorUnitAbbreviated);
 		const char* axisUnitAbbreviated = Unit::getAbbreviatedString(positionUnit);
-		ImGui::TextWrapped("Machine is limited to %.3f %s/s and %.3f %s/s\xc2\xb2",
+		ImGui::TextWrapped("Axis is limited to %.3f %s/s and %.3f %s/s\xc2\xb2",
 						   actuatorUnitsToAxisUnits(actuator->getVelocityLimit()),
 						   axisUnitAbbreviated,
 						   actuatorUnitsToAxisUnits(actuator->getAccelerationLimit()),
@@ -221,14 +221,20 @@ void VelocityControlledAxis::settingsGui() {
 
 	ImGui::Text("Velocity Limit");
 	static char velLimitString[16];
-	sprintf(velLimitString, "%.3f %s/s", velocityLimit_axisUnitsPerSecond, Unit::getAbbreviatedString(positionUnit));
-	ImGui::InputDouble("##VelLimit", &velocityLimit_axisUnitsPerSecond, 0.0, 0.0, velLimitString);
+	sprintf(velLimitString, "%.3f %s/s", velocityLimit, Unit::getAbbreviatedString(positionUnit));
+	ImGui::InputDouble("##VelLimit", &velocityLimit, 0.0, 0.0, velLimitString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	static char accLimitString[16];
-	sprintf(accLimitString, "%.3f %s/s\xc2\xb2", accelerationLimit_axisUnitsPerSecondSquared, Unit::getAbbreviatedString(positionUnit));
+	sprintf(accLimitString, "%.3f %s/s\xc2\xb2", accelerationLimit, Unit::getAbbreviatedString(positionUnit));
 	ImGui::Text("Acceleration Limit");
-	ImGui::InputDouble("##AccLimit", &accelerationLimit_axisUnitsPerSecondSquared, 0.0, 0.0, accLimitString);
+	ImGui::InputDouble("##AccLimit", &accelerationLimit, 0.0, 0.0, accLimitString);
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
+	
+	static char manualAccelerationString[16];
+	sprintf(manualAccelerationString, "%.3f %s/s\xc2\xb2", manualAcceleration, Unit::getAbbreviatedString(positionUnit));
+	ImGui::Text("Manul Controls Acceleration");
+	ImGui::InputDouble("##ManAccLimit", &manualAcceleration, 0.0, 0.0, manualAccelerationString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 }
 

@@ -28,9 +28,6 @@ void ActuatorToServoActuator::process(){
 		return;
 	}
 	
-	//if the actuator pin is enabled, all manual controls are disabled
-	if(servoActuatorPin->isConnected()) controlMode = ControlMode::EXTERNAL;
-	
 	//get device references
 	auto feedbackDevice = getPositionFeedbackDevice();
 	auto actuatorDevice = getActuatorDevice();
@@ -48,15 +45,114 @@ void ActuatorToServoActuator::process(){
 	servoActuator->b_emergencyStopActive = actuatorDevice->isEmergencyStopActive();
 	servoActuator->load = 0.0; //load is not supported here
 	servoActuator->b_brakesActive = actuatorDevice->areBrakesActive();
-	servoActuator->rangeMin_positionUnits = feedbackDevice->rangeMin_positionUnits;
-	servoActuator->rangeMax_positionUnits = feedbackDevice->rangeMax_positionUnits;
+	servoActuator->rangeMin_positionUnits = feedbackUnitsToActuatorUnits(feedbackDevice->rangeMin_positionUnits);
+	servoActuator->rangeMax_positionUnits = feedbackUnitsToActuatorUnits(feedbackDevice->rangeMax_positionUnits);
 	
 	//TODO: position command raw or profile position ??
-	if(servoActuator->getPosition() - servoActuator->getPositionCommandRaw() > maxFollowingError){
+	realPosition = feedbackUnitsToActuatorUnits(feedbackDevice->getPosition());
+	realVelocity = feedbackUnitsToActuatorUnits(feedbackDevice->getVelocity());
+	double followingError = motionProfile.getPosition() - realPosition;
+	if(std::abs(followingError) > maxPositionFollowingError){
+		disable();
+	}
+	
+	//if the servi actuator pin is connected, all manual controls are disabled
+	//else the node does its own processing of the control loop
+	if(servoActuatorPin->isConnected()) controlMode = ControlMode::EXTERNAL;
+	else controlLoop();
+}
+
+void ActuatorToServoActuator::controlLoop(){
+	//handle actuator state change requests enabling
+	if(servoActuator->b_setEnabled){
+		servoActuator->b_setEnabled = false;
+		enable();
+	}
+	if(servoActuator->b_setDisabled){
+		servoActuator->b_setDisabled = false;
+		disable();
+	}
+	
+	if(servoActuator->isEnabled()){
+		switch(controlMode){
+			case ControlMode::FAST_STOP:
+				motionProfile.stop(profileTimeDelta_seconds, servoActuator->getAccelerationLimit());
+				break;
+			case ControlMode::EXTERNAL:
+				motionProfile.setPosition(servoActuator->getPositionCommandRaw());
+				motionProfile.setVelocity(servoActuator->getVelocityCommand());
+				break;
+			case ControlMode::VELOCITY_TARGET:
+				motionProfile.matchVelocity(profileTimeDelta_seconds, manualVelocityTarget, manualAcceleration);
+				break;
+			case ControlMode::POSITION_TARGET:
+				motionProfile.updateInterpolation(profileTime_seconds);
+				if(motionProfile.isInterpolationFinished(profileTime_seconds)) setVelocityTarget(0.0);
+			default:
+				break;
+		}
+		
+		//calculate position error and apply gains to generate control signal
+		targetPosition = motionProfile.getPosition();
+		targetVelocity = motionProfile.getVelocity();
+		positionError = targetPosition - realPosition;
+		velocityError = targetVelocity - realVelocity;
+		//========= CONTROL LOOP ========
+		//TODO: this needs some real work
+		
+		outputVelocity = positionError * positionLoopProportionalGain + targetVelocity * velocityLoopProportionalGain;
+		
+	}else{
+		outputVelocity = 0.0;
+		motionProfile.setPosition(servoActuator->getPosition());
+		motionProfile.setVelocity(servoActuator->getVelocity());
+		motionProfile.setAcceleration(0.0);
+	}
+	
+	//send velocity command to actuator
+	auto actuatorDevice = getActuatorDevice();
+	actuatorDevice->setVelocityCommand(outputVelocity);
+	actuatorPin->updateConnectedPins();
+	
+	positionTargetHistory.addPoint(glm::vec2(profileTime_seconds, 	targetPosition));
+	positionHistory.addPoint(glm::vec2(profileTime_seconds, 		realPosition));
+	velocityTargetHistory.addPoint(glm::vec2(profileTime_seconds, 	targetVelocity));
+	velocityHistory.addPoint(glm::vec2(profileTime_seconds, 		realVelocity));
+	positionErrorHistory.addPoint(glm::vec2(profileTime_seconds, 	positionError));
+	velocityErrorHistory.addPoint(glm::vec2(profileTime_seconds, 	velocityError));
+}
+
+void ActuatorToServoActuator::enable(){
+	if(servoActuator->isReady()) {
+		
+		std::thread actuatorEnabler([this](){
+			using namespace std::chrono;
+			auto actuator = getActuatorDevice();
+			actuator->enable();
+			system_clock::time_point start = system_clock::now();
+			while(system_clock::now() - start < milliseconds(100)){
+				if(actuator->isEnabled()){
+					servoActuator->b_enabled = true;
+					return;
+				}
+			}
+			servoActuator->b_enabled = false;
+			actuator->disable();
+		});
+		actuatorEnabler.detach();
+		
+		onEnable();
+	}
+}
+
+void ActuatorToServoActuator::disable(){
+	if(servoActuator->isEnabled()){
 		servoActuator->b_enabled = false;
 		onDisable();
 	}
 }
+
+
 
 void ActuatorToServoActuator::setVelocityTarget(double target){
 	controlMode = ControlMode::VELOCITY_TARGET;
@@ -90,56 +186,6 @@ void ActuatorToServoActuator::movetoPositionWithVelocity(double targetPosition, 
 	else setVelocityTarget(0.0);
 }
 
-void ActuatorToServoActuator::controlLoop(){
-	//handle actuator enabling
-	if(servoActuator->b_setEnabled){
-		servoActuator->b_setEnabled = false;
-		if(servoActuator->b_ready) {
-			servoActuator->b_enabled = true;
-			onEnable();
-		}
-	}
-	
-	//get output velocity
-	double outputVelocity;
-	
-	if(servoActuator->isEnabled()){
-		switch(controlMode){
-			case ControlMode::FAST_STOP:
-				motionProfile.stop(profileTimeDelta_seconds, servoActuator->getAccelerationLimit());
-				break;
-			case ControlMode::EXTERNAL:
-				motionProfile.setPosition(servoActuator->getPositionCommandRaw());
-				motionProfile.setVelocity(servoActuator->getVelocityCommand());
-				break;
-			case ControlMode::VELOCITY_TARGET:
-				motionProfile.matchVelocity(profileTimeDelta_seconds, manualVelocityTarget, manualAcceleration);
-				break;
-			case ControlMode::POSITION_TARGET:
-				motionProfile.updateInterpolation(profileTime_seconds);
-				if(motionProfile.isInterpolationFinished(profileTime_seconds)) setVelocityTarget(0.0);
-			default:
-				break;
-		}
-		
-		//calculate position error and apply gains to generate control signal
-		double realPosition = servoActuator->getPosition();
-		double positionError = motionProfile.getPosition() - realPosition;
-		//========= CONTROL LOOP ========
-		outputVelocity = positionError * proportionalGain + motionProfile.getVelocity() * derivativeGain;
-		
-	}else{
-		outputVelocity = 0.0;
-		motionProfile.setPosition(servoActuator->getPosition());
-		motionProfile.setVelocity(servoActuator->getVelocity());
-		motionProfile.setAcceleration(0.0);
-	}
-	
-	auto actuatorDevice = getActuatorDevice();
-	actuatorDevice->setVelocityCommand(outputVelocity);
-	actuatorPin->updateConnectedPins();
-}
-
 void ActuatorToServoActuator::onDisable(){}
 
 void ActuatorToServoActuator::onEnable(){}
@@ -149,11 +195,11 @@ bool ActuatorToServoActuator::areAllPinsConnected(){
 	//inputs
 	if(!isPositionFeedbackConnected()) return false;
 	if(!isActuatorConnected()) return false;
-	//outputs
-	if(!servoActuatorPin->isConnected()) return false;
+	return true;
 }
 
 
+//needs to be called by controlling node to exexute control loop
 void ActuatorToServoActuator::updatePin(std::shared_ptr<NodePin> pin){
 	if(pin == servoActuatorPin){
 		controlLoop();
@@ -170,11 +216,13 @@ void ActuatorToServoActuator::updatePin(std::shared_ptr<NodePin> pin){
 
 
 void ActuatorToServoActuator::sanitizeParameters(){
-	auto actuatorDevice = getActuatorDevice();
-	servoActuator->velocityLimit_positionUnitsPerSecond = std::min(std::abs(servoActuator->velocityLimit_positionUnitsPerSecond), actuatorDevice->getVelocityLimit());
-	servoActuator->accelerationLimit_positionUnitsPerSecondSquared = std::min(std::abs(servoActuator->accelerationLimit_positionUnitsPerSecondSquared), actuatorDevice->getAccelerationLimit());
-	maxFollowingError = std::abs(maxFollowingError);
-	manualAcceleration = std::min(std::abs(manualAcceleration), servoActuator->accelerationLimit_positionUnitsPerSecondSquared);
+	if(isActuatorConnected()){
+		auto actuatorDevice = getActuatorDevice();
+		servoActuator->velocityLimit_positionUnitsPerSecond = std::min(std::abs(servoActuator->velocityLimit_positionUnitsPerSecond), actuatorDevice->getVelocityLimit());
+		servoActuator->accelerationLimit_positionUnitsPerSecondSquared = std::min(std::abs(servoActuator->accelerationLimit_positionUnitsPerSecondSquared), actuatorDevice->getAccelerationLimit());
+		manualAcceleration = std::min(std::abs(manualAcceleration), servoActuator->accelerationLimit_positionUnitsPerSecondSquared);
+	}
+	maxPositionFollowingError = std::abs(maxPositionFollowingError);
 }
 
 
@@ -190,9 +238,10 @@ bool ActuatorToServoActuator::save(tinyxml2::XMLElement* xml){
 	conversionRatioXML->SetAttribute("PositionFeedbackUnitsPerActuatorPositionUnit", positionFeedbackUnitsPerActuatorUnit);
 	
 	XMLElement* controllerXML = xml->InsertNewChildElement("Controller");
-	controllerXML->SetAttribute("ProportionalGain", proportionalGain);
-	controllerXML->SetAttribute("DerivativeGain", derivativeGain);
-	controllerXML->SetAttribute("MaxFollowingError", maxFollowingError);
+	controllerXML->SetAttribute("PositionLoopProportionalGain", positionLoopProportionalGain);
+	controllerXML->SetAttribute("VelocityLoopProportionalGain", velocityLoopProportionalGain);
+	controllerXML->SetAttribute("VelocityLoopIntegralGain", velocityLoopIntegralGain);
+	controllerXML->SetAttribute("MaxPositionFollowingError", maxPositionFollowingError);
 	
 	XMLElement* manualControlsXML = xml->InsertNewChildElement("ManualControls");
 	manualControlsXML->SetAttribute("Acceleration", manualAcceleration);
@@ -218,9 +267,10 @@ bool ActuatorToServoActuator::load(tinyxml2::XMLElement* xml){
 	
 	XMLElement* controllerXML = xml->FirstChildElement("Controller");
 	if(controllerXML == nullptr) return Logger::warn("Could not find Controller attribute");
-	if(controllerXML->QueryDoubleAttribute("ProportionalGain", &proportionalGain) != XML_SUCCESS) return Logger::warn("Could not find proportional gain attribute");
-	if(controllerXML->QueryDoubleAttribute("DerivativeGain", &derivativeGain) != XML_SUCCESS) return Logger::warn("Could not find derivative gain attribute");
-	if(controllerXML->QueryDoubleAttribute("MaxFollowingError", &maxFollowingError) != XML_SUCCESS) return Logger::warn("Could not find max following error attribute");
+	if(controllerXML->QueryDoubleAttribute("PositionLoopProportionalGain", &positionLoopProportionalGain) != XML_SUCCESS) return Logger::warn("Could not find position loop proportional gain attribute");
+	if(controllerXML->QueryDoubleAttribute("VelocityLoopProportionalGain", &velocityLoopProportionalGain) != XML_SUCCESS) return Logger::warn("Could not find velocity loop proportional gain attribute");
+	if(controllerXML->QueryDoubleAttribute("VelocityLoopIntegralGain", &velocityLoopIntegralGain) != XML_SUCCESS) return Logger::warn("Could not find velocity loop integral gain attribute");
+	if(controllerXML->QueryDoubleAttribute("MaxPositionFollowingError", &maxPositionFollowingError) != XML_SUCCESS) return Logger::warn("Could not find max following error attribute");
 	 
 	XMLElement* manualControlsXML = xml->FirstChildElement("ManualControls");
 	if(manualControlsXML == nullptr) return Logger::warn("Could not find Manual Controls attribute");

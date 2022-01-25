@@ -39,7 +39,7 @@ void PositionControlledAxis::process() {
 	if(!areAllPinsConnected()) return;
 
 	//get devices
-	std::shared_ptr<ActuatorDevice> actuatorDevice = getActuatorDevice();
+	//std::shared_ptr<ActuatorDevice> actuatorDevice = getActuatorDevice();
 	std::shared_ptr<ServoActuatorDevice> servoActuatorDevice = getServoActuatorDevice();
 	std::shared_ptr<GpioDevice> referenceDevice = getReferenceDevice();
 	std::shared_ptr<PositionFeedbackDevice> feedbackDevice = getServoActuatorDevice();
@@ -53,7 +53,7 @@ void PositionControlledAxis::process() {
 
 	//handle device state transitions
 	if (b_enabled) {
-		if (actuatorDevice && !actuatorDevice->b_enabled) disable();
+		//if (actuatorDevice && !actuatorDevice->b_enabled) disable();
 		if (feedbackDevice && !feedbackDevice->b_ready) disable();
 		if (referenceDevice && !referenceDevice->b_ready) disable();
 		if (servoActuatorDevice && (!servoActuatorDevice->b_ready || !servoActuatorDevice->isEnabled())) {

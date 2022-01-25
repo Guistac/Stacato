@@ -10,8 +10,7 @@ void GpioActuator::initialize(){
 	//input pins
 	addNodePin(gpioDevicePin);
 	addNodePin(emergencyStopPin);
-	addNodePin(brakePin);
-	addNodePin(faultPin);
+	addNodePin(readyPin);
 	//output pins
 	addNodePin(enablePin);
 	addNodePin(controlSignalPin);
@@ -29,50 +28,46 @@ void GpioActuator::process(){
 		actuator->b_online = false;
 		actuator->b_detected = false;
 		actuator->b_ready = false;
+		actuator->b_enabled = false;
 		return;
 	}
-	
-	//if the actuator pin is enabled, all manual controls are disabled
-	if(actuatorPin->isConnected()) controlMode = ControlMode::EXTERNAL;
-	
-	//get device reference
-	auto gpioDevice = getGpioDevice();
-	
+		
 	//update input signals
-	faultPin->copyConnectedPinValue();
-	brakePin->copyConnectedPinValue();
+	readyPin->copyConnectedPinValue();
 	emergencyStopPin->copyConnectedPinValue();
 	
 	//update servo actuator data
 	actuator->b_online = true;
 	actuator->b_detected = true;
-	actuator->b_parked = false;
-	actuator->b_ready = gpioDevice->isReady() && !*faultSignal && !*emergencyStopSignal && !*brakeSignal;
+	actuator->b_ready = getGpioDevice()->isReady() && *readySignal && !*emergencyStopSignal;
 	actuator->b_emergencyStopActive = *emergencyStopSignal;
-	actuator->b_brakesActive = *brakeSignal;
+	actuator->load = 0.0; //not supported by gpio actuator
+	//actuator->b_brakesActive = //is this really useful?
+	//actuator->b_parked = //not yet supported
 	
-	//actuator->velocity_positionUnitsPerSecond = feedbackUnitsToActuatorUnits(feedbackDevice->getVelocity());;
-	//actuator->b_moving = std::abs(actuator->velocity_positionUnitsPerSecond) > 0.0;
-	actuator->b_emergencyStopActive = *emergencyStopSignal;
-	actuator->load = 0.0; //load is not supported here
+	//disable actuator conditions
+	if(!*readySignal && actuator->isEnabled()) disable();
+	if(*emergencyStopSignal && actuator->isEnabled()) disable();
 	
+	if(isActuatorPinConnected()) controlMode = ControlMode::EXTERNAL;
+	else controlLoop();
 }
 
 void GpioActuator::controlLoop(){
 	//handle actuator enabling
 	if(actuator->b_setEnabled){
 		actuator->b_setEnabled = false;
-		if(actuator->b_ready) {
-			actuator->b_enabled = true;
-			onEnable();
-		}
+		enable();
+	}
+	if(actuator->b_setDisabled){
+		actuator->b_setDisabled = false;
+		disable();
 	}
 	
 	//get output velocity
 	double outputVelocity;
 	
 	if(actuator->isEnabled()){
-		*enableSignal = true;
 		switch(controlMode){
 			case ControlMode::FAST_STOP:
 				motionProfile.stop(profileTimeDelta_seconds, actuator->getAccelerationLimit());
@@ -87,7 +82,6 @@ void GpioActuator::controlLoop(){
 		}
 		outputVelocity = motionProfile.getVelocity();
 	}else{
-		*enableSignal = false;
 		outputVelocity = 0.0;
 		motionProfile.setVelocity(0.0);
 		motionProfile.setAcceleration(0.0);
@@ -97,9 +91,26 @@ void GpioActuator::controlLoop(){
 	*controlSignal = actuatorVelocityToControlSignal(outputVelocity);
 }
 
+//needs to be called by controlling node to execute control loop
 void GpioActuator::updatePin(std::shared_ptr<NodePin> pin){
 	if(pin == actuatorPin){
 		controlLoop();
+	}
+}
+
+void GpioActuator::enable(){
+	if(actuator->b_ready) {
+		*enableSignal = true;
+		actuator->b_enabled = true;
+		onEnable();
+	}
+}
+
+void GpioActuator::disable(){
+	if(actuator->isEnabled()){
+		*enableSignal = false;
+		actuator->b_enabled = false;
+		onDisable();
 	}
 }
 
@@ -118,8 +129,7 @@ void GpioActuator::onDisable(){}
 
 bool GpioActuator::areAllPinsConnected(){
 	if(!isGpioDeviceConnected()) return false;
-	if(!faultPin->isConnected()) return false;
-	if(!brakePin->isConnected()) return false;
+	if(!readyPin->isConnected()) return false;
 	if(!emergencyStopPin->isConnected()) return false;
 	if(!enablePin->isConnected()) return false;
 	if(!controlSignalPin->isConnected()) return false;

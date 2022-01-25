@@ -15,6 +15,14 @@
 
 void LinearMecanumClaw::controlsGui() {
 	//Machine Controls Gui
+	
+	
+	
+	
+	
+	
+	
+	
 }
 
 void LinearMecanumClaw::settingsGui() {

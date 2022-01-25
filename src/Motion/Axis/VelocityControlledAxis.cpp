@@ -6,6 +6,8 @@
 
 #include <tinyxml2.h>
 
+#include "Fieldbus/EtherCatFieldbus.h"
+
 void VelocityControlledAxis::initialize() {
 	//inputs
 	addNodePin(actuatorPin);
@@ -19,10 +21,51 @@ void VelocityControlledAxis::initialize() {
 }
 
 void VelocityControlledAxis::process() {
-	if (!isAxisPinConnected()) {
-		//manual controls are available
-		sendActuatorCommands();
+	
+	//update profile time no matter what
+	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
+	profileTimeDelta_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
+	
+	//exit the process loop if no actuator is connected
+	if(!isActuatorDeviceConnected()) {
+		*actualLoad = 0.0;
+		*actualVelocity = 0.0;
+		return;
 	}
+	auto actuator = getActuatorDevice();
+	
+	//handle disabling of the axis if the actuator gets disabled
+	if(isEnabled() && !actuator->isEnabled()) disable();
+	
+	//get load
+	*actualLoad = actuator->getLoad();
+	
+	if (isAxisPinConnected()) return;
+	
+	switch(controlMode){
+		case ControlMode::VELOCITY_TARGET:
+			motionProfile.matchVelocity(profileTimeDelta_seconds, manualVelocityTarget, manualAcceleration);
+			break;
+		case ControlMode::FAST_STOP:
+			motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, accelerationLimit);
+			break;
+		default: break;
+	}
+
+	sendActuatorCommands();
+}
+
+//called by node connected to axis pin to send velocity to the axis
+void VelocityControlledAxis::setVelocityCommand(double velocity){
+	motionProfile.setVelocity(velocity);
+	sendActuatorCommands();
+}
+
+void VelocityControlledAxis::sendActuatorCommands() {
+	*actualVelocity = motionProfile.getVelocity();
+	double velocity_actuatorUnits = axisUnitsToActuatorUnits(motionProfile.getVelocity());
+	getActuatorDevice()->setVelocityCommand(velocity_actuatorUnits);
+	actuatorPin->updateConnectedPins();
 }
 
 void VelocityControlledAxis::getDevices(std::vector<std::shared_ptr<Device>>& output) {
@@ -46,15 +89,17 @@ void VelocityControlledAxis::enable() {
 		actuator->enable();
 		using namespace std::chrono;
 		system_clock::time_point enableTime = system_clock::now();
-		while (!actuator->isEnabled()) {
-			if (system_clock::now() - enableTime > milliseconds(100)) {
-				b_enabled = false;
-				Logger::warn("Could not enable axis");
+		while(system_clock::now() - enableTime < milliseconds(500)){
+			if(actuator->isEnabled()){
+				b_enabled = true;
+				Logger::info("Veloocity Controlled Axis '{}' Enabled", getName());
 				return;
 			}
 		}
-		b_enabled = true;
-		Logger::info("Axis Enabled");
+		
+		b_enabled = false;
+		actuator->disable();
+		Logger::info("Could not enable velocity controlled axis '{}'", getName());
 	});
 	axisEnabler.detach();
 }
@@ -67,20 +112,14 @@ void VelocityControlledAxis::disable() {
 void VelocityControlledAxis::onEnable() {}
 void VelocityControlledAxis::onDisable() {}
 
-void VelocityControlledAxis::sendActuatorCommands() {
-	getActuatorDevice()->setVelocityCommand(motionProfile.getVelocity());
-	//TODO: check if this actually works and updates the pins
-	actuatorPin->updateConnectedPins();
-}
-
-void VelocityControlledAxis::setVelocity(double velocity_axisUnitsPerSecond) {
+void VelocityControlledAxis::setVelocity(double velocity) {
 	controlMode = ControlMode::VELOCITY_TARGET;
-	manualVelocityTarget_axisUnitsPerSecond = velocity_axisUnitsPerSecond;
+	manualVelocityTarget = velocity;
 }
 
 void VelocityControlledAxis::fastStop(){
 	controlMode = ControlMode::FAST_STOP;
-	manualVelocityTarget_axisUnitsPerSecond = 0.0;
+	manualVelocityTarget = 0.0;
 }
 
 void VelocityControlledAxis::setPositionUnitType(PositionUnitType type){
@@ -117,9 +156,9 @@ void VelocityControlledAxis::setPositionUnit(PositionUnit unit){
 
 void VelocityControlledAxis::sanitizeParameters(){
 	actuatorUnitsPerAxisUnits = std::abs(actuatorUnitsPerAxisUnits);
-	velocityLimit_axisUnitsPerSecond = std::min(std::abs(velocityLimit_axisUnitsPerSecond), actuatorUnitsToAxisUnits(getActuatorDevice()->getVelocityLimit()));
-	accelerationLimit_axisUnitsPerSecondSquared = std::min(std::abs(accelerationLimit_axisUnitsPerSecondSquared), actuatorUnitsToAxisUnits(getActuatorDevice()->getAccelerationLimit()));
-	manualControlAcceleration_axisUnitsPerSecond = std::min(std::abs(manualControlAcceleration_axisUnitsPerSecond), accelerationLimit_axisUnitsPerSecondSquared);
+	velocityLimit = std::min(std::abs(velocityLimit), actuatorUnitsToAxisUnits(getActuatorDevice()->getVelocityLimit()));
+	accelerationLimit = std::min(std::abs(accelerationLimit), actuatorUnitsToAxisUnits(getActuatorDevice()->getAccelerationLimit()));
+	manualAcceleration = std::min(std::abs(manualAcceleration), accelerationLimit);
 }
 
 
@@ -133,9 +172,10 @@ bool VelocityControlledAxis::save(tinyxml2::XMLElement* xml) {
 	XMLElement* unitConversionXML = xml->InsertNewChildElement("UnitConversion");
 	unitConversionXML->SetAttribute("ActuatorUnitsPerAxisUnit", actuatorUnitsPerAxisUnits);
 
-	XMLElement* kinematicLimitsXML = xml->InsertNewChildElement("KinematicLimits");
-	kinematicLimitsXML->SetAttribute("VelocityLimit_axisUnitsPerSecond", velocityLimit_axisUnitsPerSecond);
-	kinematicLimitsXML->SetAttribute("AccelerationLimit_axisUnitsPerSecondSquared", accelerationLimit_axisUnitsPerSecondSquared);
+	XMLElement* kinematicLimitsXML = xml->InsertNewChildElement("Limits");
+	kinematicLimitsXML->SetAttribute("VelocityLimit", velocityLimit);
+	kinematicLimitsXML->SetAttribute("AccelerationLimit", accelerationLimit);
+	kinematicLimitsXML->SetAttribute("ManualAcceleration", manualAcceleration);
 
 	return true;
 }
@@ -160,10 +200,11 @@ bool VelocityControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if (!unitConversionXML) return Logger::warn("Could not load Unit Conversion");
 	if (unitConversionXML->QueryDoubleAttribute("ActuatorUnitsPerAxisUnit", &actuatorUnitsPerAxisUnits) != XML_SUCCESS) return Logger::warn("Could not load Actuator Units Per Axis Unit");
 
-	XMLElement* kinematicLimitsXML = xml->FirstChildElement("KinematicLimits");
+	XMLElement* kinematicLimitsXML = xml->FirstChildElement("Limits");
 	if (!kinematicLimitsXML) return Logger::warn("Could not load Axis Kinematic Kimits");
-	if (kinematicLimitsXML->QueryDoubleAttribute("VelocityLimit_axisUnitsPerSecond", &velocityLimit_axisUnitsPerSecond)) Logger::warn("Could not load velocity limit");
-	if (kinematicLimitsXML->QueryDoubleAttribute("AccelerationLimit_axisUnitsPerSecondSquared", &accelerationLimit_axisUnitsPerSecondSquared) != XML_SUCCESS) Logger::warn("Could not load acceleration limit");
+	if (kinematicLimitsXML->QueryDoubleAttribute("VelocityLimit", &velocityLimit)) Logger::warn("Could not load velocity limit");
+	if (kinematicLimitsXML->QueryDoubleAttribute("AccelerationLimit", &accelerationLimit) != XML_SUCCESS) Logger::warn("Could not load acceleration limit");
+	if (kinematicLimitsXML->QueryDoubleAttribute("ManualAcceleration", &manualAcceleration) != XML_SUCCESS) Logger::warn("Could not load manual acceleration");
 	
 	return true;
 }

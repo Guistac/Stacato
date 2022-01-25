@@ -166,7 +166,7 @@ void GpioActuator::settingsGui(){
 					getControlSignalZero());
 		ImGui::PopStyleColor();
 		
-		ImGui::Text("Control Signal Units Per Servo Actuator %s", Enumerator::getDisplayString(actuator->positionUnit));
+		ImGui::Text("Control Signal Units Per Servo Actuator %s/s", Enumerator::getDisplayString(actuator->positionUnit));
 		ImGui::InputDouble("##UnitConversion", &controlSignalUnitsPerActuatorVelocityUnit);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		

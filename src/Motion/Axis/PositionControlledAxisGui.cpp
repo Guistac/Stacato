@@ -141,7 +141,7 @@ void PositionControlledAxis::controlsGui() {
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(tripleWidgetWidth);
 	ImGui::InputDouble("##TargetTime", &interpolationTimeTarget, 0.0, 0.0, "%.3f s");
-	if (ImGui::Button("Fast Move", tripleButtonSize)) moveToPositionWithVelocity(interpolationTimeTarget, velocityLimit);
+	if (ImGui::Button("Fast Move", tripleButtonSize)) moveToPositionWithVelocity(interpolationPositionTarget, velocityLimit);
 	
 	ImGui::SameLine();
 	if (ImGui::Button("Velocity Move", tripleButtonSize)) moveToPositionWithVelocity(interpolationPositionTarget, interpolationVelocityTarget);

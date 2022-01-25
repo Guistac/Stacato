@@ -43,9 +43,9 @@ private:
 	PositionUnitType positionUnitType = PositionUnitType::ANGULAR;
 	PositionUnit positionUnit = PositionUnit::DEGREE;
 	double actuatorUnitsPerAxisUnits = 0.0;
-	double velocityLimit_axisUnitsPerSecond = 0.0;
-	double accelerationLimit_axisUnitsPerSecondSquared = 0.0;
-	double manualControlAcceleration_axisUnitsPerSecond = 0.0;
+	double velocityLimit = 0.0;
+	double accelerationLimit = 0.0;
+	double manualAcceleration = 0.0;
 
 	void setPositionUnitType(PositionUnitType type);
 	void setPositionUnit(PositionUnit unit);
@@ -58,8 +58,8 @@ public:
 	PositionUnit getPositionUnit(){ return positionUnit; }
 	PositionUnitType getPositionUnitType() { return positionUnitType; }
 	
-	double getVelocityLimit() { return velocityLimit_axisUnitsPerSecond; }
-	double getAccelerationLimit() { return accelerationLimit_axisUnitsPerSecondSquared; }
+	double getVelocityLimit() { return velocityLimit; }
+	double getAccelerationLimit() { return accelerationLimit; }
 
 	//========= STATE ==========
 
@@ -84,11 +84,14 @@ private:
 	
 	void setVelocity(double velocity_positionUnitsPerSecondSquare);
 	void fastStop();
-	float manualVelocityTarget_axisUnitsPerSecond = 0.0;
+	float manualVelocityTarget = 0.0;
 
+	void sendActuatorCommands();
+	
 public:
 	virtual void process();
-	void sendActuatorCommands();
+	
+	void setVelocityCommand(double velocity);
 	
 	double getProfileVelocity_axisUnitsPerSecond() { return motionProfile.getVelocity(); }
 	double getProfileAcceleration_axisUnitsPerSecondSquared() { return motionProfile.getAcceleration(); }

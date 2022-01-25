@@ -77,6 +77,9 @@ public:
 	double linearAxisRapidAcceleration = 0.0;
 	double linearAxisRapidVelocity = 0.0;
 	
+	double clawFeedbackUnitsToClawUnits(double clawFeedbackValue){ return clawFeedbackValue / clawFeedbackUnitsPerClawUnit; }
+	double clawUnitsToClawFeedbackUnits(double clawValue){ return clawValue * clawFeedbackUnitsPerClawUnit; }
+	
 	//=== Motion
 	
 	Motion::Profile linearAxisMotionProfile;

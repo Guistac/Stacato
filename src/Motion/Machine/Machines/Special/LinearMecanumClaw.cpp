@@ -49,24 +49,29 @@ void LinearMecanumClaw::enableHardware() {
 		getLinearAxis()->enable();
 		getClawAxis()->enable();
 		std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
-		while (!getLinearAxis()->isEnabled() || !getClawAxis()->isEnabled()) {
-			if (std::chrono::system_clock::now() - start > std::chrono::milliseconds(500)) {
-				Logger::warn("Could not enable Axis '{}', actuator did not enable on time", getName());
+		while(std::chrono::system_clock::now() - start < std::chrono::milliseconds(500)){
+			if(getLinearAxis()->isEnabled() && getClawAxis()->isEnabled()){
+				b_enabled = true;
+				onEnableHardware();
 				return;
 			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		}
-		b_enabled = true;
-		onEnableHardware();
+		getLinearAxis()->disable();
+		getClawAxis()->disable();
+		Logger::warn("Could not enable Machine '{}', actuators did not enable on time", getName());
+		b_enabled = false;
+		return;
 	});
 	deviceEnabler.detach();
 }
 
 void LinearMecanumClaw::disableHardware() {
-	getLinearAxis()->disable();
-	getClawAxis()->disable();
-	b_enabled = false;
-	onDisableHardware();
+	if(isEnabled()){
+		getLinearAxis()->disable();
+		getClawAxis()->disable();
+		b_enabled = false;
+		onDisableHardware();
+	}
 }
 
 void LinearMecanumClaw::onEnableHardware() {
@@ -86,12 +91,74 @@ void LinearMecanumClaw::onDisableSimulation() {
 }
 
 
+struct vec2d{
+	double x, y;
+};
 
 //======= PROCESSING =========
 
 void LinearMecanumClaw::process() {
 	//machine processing
 	//actuator command sending
+	
+	
+	if(!isEnabled()){
+		return;
+	}
+	
+	auto clawFeedbackDevice = getClawFeedbackDevice();
+	auto linearAxis = getLinearAxis();
+	
+	*clawPosition = clawFeedbackUnitsToClawUnits(clawFeedbackDevice->getPosition());
+	*clawVelocity = clawUnitsToClawFeedbackUnits(clawFeedbackDevice->getVelocity());
+	
+	*railPosition = linearAxis->getProfilePosition_axisUnits();
+	*railVelocity = linearAxis->getProfileVelocity_axisUnitsPerSecond();
+	
+	
+	
+	
+	
+	
+	//get the magnitude of the velocity vector at the mecanum wheel
+	double targetVelocity = clawAxisMotionProfile.getVelocity(); //degrees per second
+	double rotationRadius = mecanumWheelDistanceFromClawPivot;
+	double rotationCirclePerimeter = 2.0 * M_PI * rotationRadius;
+	double rotationVectorMagnitude = rotationCirclePerimeter * targetVelocity / 360.0;
+	
+	//get the current position of the mecanum wheel relative to the pivot point
+	double currentHeartAngle_degrees = *clawPosition;
+	double mecanumWheelPivotAngle_degrees = currentHeartAngle_degrees + mecanumWheelClawPivotRadiusAngleWhenClosed;
+	double mecanumWheelPivotAngle_radians = 2.0 * M_PI * mecanumWheelPivotAngle_degrees / 360.0;
+	
+	//get the position of the mecanum wheel relative to the heart pivot point
+	vec2d mecanumWheelPosition = {-std::sin(mecanumWheelPivotAngle_radians), -std::cos(mecanumWheelPivotAngle_radians)};
+	
+	//get the vector perpendicular to the pivot axis
+	vec2d mecanumWheelTargetVelocityVector = {-mecanumWheelPosition.y, mecanumWheelPosition.x}; //might need to invert this
+	
+	//normalize the perpendicular vector
+	double normalisationMagnitude = sqrt(std::pow(mecanumWheelTargetVelocityVector.x, 2.0) + std::pow(mecanumWheelTargetVelocityVector.y, 2.0));
+	mecanumWheelTargetVelocityVector.x /= normalisationMagnitude;
+	mecanumWheelTargetVelocityVector.y /= normalisationMagnitude;
+
+	//set the rotation vector magnitude to the rotation speed
+	mecanumWheelTargetVelocityVector.x *= rotationVectorMagnitude;
+	mecanumWheelTargetVelocityVector.y *= rotationVectorMagnitude;
+	
+	vec2d wheelFrictionVector = { -std::sin(mecanumWheelCircumference), std::sin(mecanumWheelCircumference) };
+	
+	double calculatedWheelVelocity = 0.0;
+	calculatedWheelVelocity += mecanumWheelTargetVelocityVector.x / wheelFrictionVector.x;
+	calculatedWheelVelocity += mecanumWheelTargetVelocityVector.y / wheelFrictionVector.y;
+	
+	double linearAxisVelocity = *railVelocity;
+	
+	calculatedWheelVelocity += linearAxisVelocity / wheelFrictionVector.y;
+	
+	
+	
+
 }
 
 void LinearMecanumClaw::simulateProcess() {

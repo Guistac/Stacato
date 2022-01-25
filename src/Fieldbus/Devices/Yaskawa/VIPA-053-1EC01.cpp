@@ -75,7 +75,8 @@ bool VipaBusCoupler_053_1EC01::startupConfiguration() {
 void VipaBusCoupler_053_1EC01::readInputs() {
 	txPdoAssignement.pullDataFrom(identity->inputs);
 	for(auto& module : modules) module->readInputs();
-	gpioDevice->b_ready = isStateOperational();
+	bool operationalState = isStateOperational();
+	gpioDevice->b_ready = operationalState;
 }
 
 

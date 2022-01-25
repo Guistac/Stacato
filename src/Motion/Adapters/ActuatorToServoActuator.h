@@ -6,6 +6,8 @@
 #include "Motion/Profile/Profile.h"
 #include "Motion/Curve/Curve.h"
 
+#include "Utilities/CircularBuffer.h"
+
 class ActuatorToServoActuator : public Node{
 public:
 	
@@ -51,9 +53,10 @@ private:
 	double positionFeedbackUnitsPerActuatorUnit = 0.0;
 	
 	//control parameters
-	double proportionalGain = 0.0;
-	double derivativeGain = 0.0;
-	double maxFollowingError = 0.0;
+	double velocityLoopProportionalGain = 0.0;
+	double velocityLoopIntegralGain = 0.0;
+	double positionLoopProportionalGain = 0.0;
+	double maxPositionFollowingError = 0.0;
 	
 	PositionUnit getPositionUnit(){ return getActuatorDevice()->getPositionUnit(); }
 	
@@ -79,6 +82,25 @@ private:
 	void movetoPositionWithVelocity(double targetPosition, double targetVelocity);
 	
 	void controlLoop();
+	
+	void enable();
+	void disable();
+	
+	const size_t historyLength = 2048;
+	CircularBuffer positionTargetHistory = CircularBuffer(historyLength);
+	CircularBuffer positionHistory = CircularBuffer(historyLength);
+	CircularBuffer velocityTargetHistory = CircularBuffer(historyLength);
+	CircularBuffer velocityHistory = CircularBuffer(historyLength);
+	CircularBuffer positionErrorHistory = CircularBuffer(historyLength);
+	CircularBuffer velocityErrorHistory = CircularBuffer(historyLength);
+	
+	double targetPosition = 0.0;
+	double targetVelocity = 0.0;
+	double realPosition = 0.0;
+	double realVelocity = 0.0;
+	double positionError = 0.0;
+	double velocityError = 0.0;
+	double outputVelocity;
 	
 public:
 	
