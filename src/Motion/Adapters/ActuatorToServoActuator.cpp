@@ -32,6 +32,16 @@ void ActuatorToServoActuator::process(){
 	auto feedbackDevice = getPositionFeedbackDevice();
 	auto actuatorDevice = getActuatorDevice();
 	
+	//handle actuator state change requests enabling
+	if(servoActuator->b_setEnabled){
+		servoActuator->b_setEnabled = false;
+		enable();
+	}
+	if(servoActuator->b_setDisabled){
+		servoActuator->b_setDisabled = false;
+		disable();
+	}
+	
 	//update servo actuator data
 	servoActuator->positionUnit = actuatorDevice->positionUnit;
 	servoActuator->b_online = true;
@@ -48,15 +58,14 @@ void ActuatorToServoActuator::process(){
 	servoActuator->rangeMin_positionUnits = feedbackUnitsToActuatorUnits(feedbackDevice->rangeMin_positionUnits);
 	servoActuator->rangeMax_positionUnits = feedbackUnitsToActuatorUnits(feedbackDevice->rangeMax_positionUnits);
 	
-	//TODO: position command raw or profile position ??
-	realPosition = feedbackUnitsToActuatorUnits(feedbackDevice->getPosition());
-	realVelocity = feedbackUnitsToActuatorUnits(feedbackDevice->getVelocity());
-	double followingError = motionProfile.getPosition() - realPosition;
-	if(std::abs(followingError) > maxPositionFollowingError){
-		disable();
+	if(!servoActuator->isEnabled()){
+		motionProfile.setPosition(feedbackUnitsToActuatorUnits(feedbackDevice->getPosition()));
+		motionProfile.setVelocity(feedbackUnitsToActuatorUnits(feedbackDevice->getVelocity()));
+		
+		return;
 	}
 	
-	//if the servi actuator pin is connected, all manual controls are disabled
+	//if the servo actuator pin is connected, all manual controls are disabled
 	//else the node does its own processing of the control loop
 	if(servoActuatorPin->isConnected()) controlMode = ControlMode::EXTERNAL;
 	else controlLoop();
@@ -74,6 +83,18 @@ void ActuatorToServoActuator::controlLoop(){
 	}
 	
 	if(servoActuator->isEnabled()){
+		auto feedbackDevice = getPositionFeedbackDevice();
+		//TODO: position command raw or profile position ??
+		realPosition = feedbackUnitsToActuatorUnits(feedbackDevice->getPosition());
+		realVelocity = feedbackUnitsToActuatorUnits(feedbackDevice->getVelocity());
+		double followingError = motionProfile.getPosition() - realPosition;
+		if(std::abs(followingError) > maxPositionFollowingError) {
+			disable();
+		}
+	}
+	
+	if(servoActuator->isEnabled()){
+		
 		switch(controlMode){
 			case ControlMode::FAST_STOP:
 				motionProfile.stop(profileTimeDelta_seconds, servoActuator->getAccelerationLimit());
@@ -130,14 +151,19 @@ void ActuatorToServoActuator::enable(){
 			auto actuator = getActuatorDevice();
 			actuator->enable();
 			system_clock::time_point start = system_clock::now();
-			while(system_clock::now() - start < milliseconds(100)){
+			while(system_clock::now() - start < milliseconds(500)){
 				if(actuator->isEnabled()){
 					servoActuator->b_enabled = true;
+					Logger::info("Enabled Actuator to Servo Actuator '{}'", getName());
+					onEnable();
 					return;
 				}
+				std::this_thread::sleep_for(milliseconds(10));
 			}
 			servoActuator->b_enabled = false;
+			onDisable();
 			actuator->disable();
+			Logger::warn("Could not enable Actuator to Servo Actuator '{}'", getName());
 		});
 		actuatorEnabler.detach();
 		
@@ -149,6 +175,7 @@ void ActuatorToServoActuator::disable(){
 	if(servoActuator->isEnabled()){
 		servoActuator->b_enabled = false;
 		onDisable();
+		Logger::error("DISABLING ACTUATOR");
 	}
 }
 
@@ -188,7 +215,9 @@ void ActuatorToServoActuator::movetoPositionWithVelocity(double targetPosition, 
 
 void ActuatorToServoActuator::onDisable(){}
 
-void ActuatorToServoActuator::onEnable(){}
+void ActuatorToServoActuator::onEnable(){
+	motionProfile.setPosition(feedbackUnitsToActuatorUnits(getPositionFeedbackDevice()->getPosition()));
+}
 
 
 bool ActuatorToServoActuator::areAllPinsConnected(){

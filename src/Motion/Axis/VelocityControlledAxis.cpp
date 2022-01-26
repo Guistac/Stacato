@@ -85,21 +85,24 @@ bool VelocityControlledAxis::isMoving() {
 void VelocityControlledAxis::enable() {
 	if (!isReady()) return;
 	std::thread axisEnabler([this]() {
-		std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
-		actuator->enable();
 		using namespace std::chrono;
 		system_clock::time_point enableTime = system_clock::now();
+		
+		std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
+		actuator->enable();
 		while(system_clock::now() - enableTime < milliseconds(500)){
 			if(actuator->isEnabled()){
 				b_enabled = true;
-				Logger::info("Veloocity Controlled Axis '{}' Enabled", getName());
+				onEnable();
+				Logger::info("Velocity Controlled Axis '{}' Enabled", getName());
 				return;
 			}
+			std::this_thread::sleep_for(milliseconds(10));
 		}
 		
 		b_enabled = false;
 		actuator->disable();
-		Logger::info("Could not enable velocity controlled axis '{}'", getName());
+		Logger::warn("Could not enable velocity controlled axis '{}'", getName());
 	});
 	axisEnabler.detach();
 }

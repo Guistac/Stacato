@@ -96,11 +96,15 @@ void PositionControlledAxis::process() {
 			case ControlMode::VELOCITY_TARGET:
 				motionProfile.matchVelocity(profileTimeDelta_seconds, manualVelocityTarget, manualAcceleration);
 				break;
+			case ControlMode::FAST_STOP:
+				motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, manualAcceleration);
+				break;
 			case ControlMode::POSITION_TARGET:
 				motionProfile.updateInterpolation(profileTime_seconds);
 				if(motionProfile.isInterpolationFinished(profileTime_seconds)) setVelocityTarget(0.0);
 				break;
-			default:
+			case ControlMode::EXTERNAL:
+				//do nothing here, the connected node handles updating the motion profile
 				break;
 		}
 	}
@@ -137,35 +141,38 @@ void PositionControlledAxis::sendActuatorCommands() {
 	updateMetrics();
 }
 
+void PositionControlledAxis::setMotionCommand(double position, double velocity){
+	motionProfile.setPosition(position);
+	motionProfile.setVelocity(velocity);
+	controlMode = ControlMode::EXTERNAL;
+	sendActuatorCommands();
+}
+
 //=================================== STATE CONTROL ============================================
 
 void PositionControlledAxis::enable() {
 	std::thread machineEnabler([this]() {
-		//enable actuator
-		if (needsActuatorDevice()) getServoActuatorDevice()->enable();
-		else if (needsServoActuatorDevice()) getServoActuatorDevice()->enable();
-		//wait for actuator to be enabled
-		std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
-		if (needsActuatorDevice()) {
-			while (!getActuatorDevice()->isEnabled()) {
-				if (std::chrono::system_clock::now() - start > std::chrono::milliseconds(500)) {
-					Logger::warn("Could not enable Axis '{}', actuator did not enable on time", getName());
-					return;
-				}
-				std::this_thread::sleep_for(std::chrono::milliseconds(20));
+		using namespace std::chrono;
+		system_clock::time_point start = system_clock::now();
+		
+		auto servoActuator = getServoActuatorDevice();
+		servoActuator->enable();
+		
+		while(system_clock::now() - start < milliseconds(500)){
+			
+			if(servoActuator->isEnabled()){
+				b_enabled = true;
+				onEnable();
+				Logger::info("Axis {} Enabled", getName());
+				return;
 			}
+			std::this_thread::sleep_for(milliseconds(10));
 		}
-		else if (needsServoActuatorDevice()) {
-			while (!getServoActuatorDevice()->isEnabled()) {
-				if (std::chrono::system_clock::now() - start > std::chrono::milliseconds(500)) { 
-					Logger::warn("Could not enable Axis '{}', servo actuator did not enable on time", getName()); 
-					return;
-				}
-				std::this_thread::sleep_for(std::chrono::milliseconds(20));
-			}
-		}
-		if (!isReady()) Logger::warn("Axis '{}' cannot be enabled", getName());
-		else onEnable();
+		
+		servoActuator->disable();
+		b_enabled = false;
+		Logger::warn("Could not enable Axis '{}', servo actuator did not enable on time", getName());
+
 	});
 	machineEnabler.detach();
 }
@@ -562,13 +569,6 @@ void PositionControlledAxis::moveToPositionInTime(double targetPosition, double 
 													  getVelocityLimit_axisUnitsPerSecond());
 	if(success) controlMode = ControlMode::POSITION_TARGET;
 	else setVelocityTarget(0.0);
-}
-
-void PositionControlledAxis::setMotionCommand(double position, double velocity){
-	motionProfile.setPosition(position);
-	motionProfile.setVelocity(velocity);
-	controlMode = ControlMode::EXTERNAL;
-	sendActuatorCommands();
 }
 
 

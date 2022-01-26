@@ -54,7 +54,7 @@
                 <NodeSpecificData>
                     <Axis UnitType="Angular" Unit="Revolutions"/>
                     <UnitConversion ActuatorUnitsPerAxisUnit="30"/>
-                    <Limits VelocityLimit="1" AccelerationLimit="0.5" ManualAcceleration="0.25"/>
+                    <Limits VelocityLimit="1.8" AccelerationLimit="0.59999999999999998" ManualAcceleration="0.25"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorDeviceLink" UniqueID="151" Visible="true" NoDataField="true"/>
@@ -68,7 +68,7 @@
             <Node NodeType="Processor" ClassName="ActuatorToServoActuator" CustomName="Servo Costière" UniqueID="156">
                 <NodeEditorPosition x="488" y="-497"/>
                 <NodeSpecificData>
-                    <ServoActuator PositionUnit="Revolutions" VelocityLimit="28" AccelerationLimit="14"/>
+                    <ServoActuator PositionUnit="Revolutions" VelocityLimit="55" AccelerationLimit="15"/>
                     <ConversionRatio PositionFeedbackUnitsPerActuatorPositionUnit="0.033333333333333298"/>
                     <Controller PositionLoopProportionalGain="0.20000000000000001" VelocityLoopProportionalGain="1" VelocityLoopIntegralGain="0" MaxPositionFollowingError="10"/>
                     <ManualControls Acceleration="10"/>
@@ -84,9 +84,9 @@
             <Node NodeType="Processor" ClassName="GpioActuator" CustomName="Moteur Mecanum" UniqueID="162">
                 <NodeEditorPosition x="200" y="-139"/>
                 <NodeSpecificData>
-                    <Actuator PositionUnit="Revolutions" VelocityLimit="30.000000000300002" AccelerationLimit="15"/>
+                    <Actuator PositionUnit="Revolutions" VelocityLimit="55" AccelerationLimit="20"/>
                     <ControlSignal Range="10" CenterOnZero="true" Invert="false"/>
-                    <ConversionRatio ControlSignalUnitsPerActuatorVelocityUnit="0.33333333332999998"/>
+                    <ConversionRatio ControlSignalUnitsPerActuatorVelocityUnit="0.166666666666"/>
                     <ManualControls Acceleration="5"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -123,9 +123,9 @@
             <Node NodeType="Processor" ClassName="GpioActuator" CustomName="Moteur Costière" UniqueID="184">
                 <NodeEditorPosition x="200" y="-440"/>
                 <NodeSpecificData>
-                    <Actuator PositionUnit="Revolutions" VelocityLimit="30.000000003" AccelerationLimit="15"/>
+                    <Actuator PositionUnit="Revolutions" VelocityLimit="55" AccelerationLimit="15"/>
                     <ControlSignal Range="10" CenterOnZero="true" Invert="false"/>
-                    <ConversionRatio ControlSignalUnitsPerActuatorVelocityUnit="0.33333333329999998"/>
+                    <ConversionRatio ControlSignalUnitsPerActuatorVelocityUnit="0.16666666666659999"/>
                     <ManualControls Acceleration="5"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -160,10 +160,11 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="LinearMecanumClaw" CustomName="Coeur" UniqueID="212">
-                <NodeEditorPosition x="904" y="-211"/>
+                <NodeEditorPosition x="920" y="-210"/>
                 <NodeSpecificData ShortName="&lt;3">
-                    <MecanumWheels DistanceFromClawPivot="5.7750000000000004" PivotAngleWhenClosed="11.25" WheelCircumference="0.20300000000000001"/>
-                    <Claw PositionUnit="Degrees" FeedbackUnitsPerClawUnit="0" VelocityLimit="0" AccelerationLimit="0" OpenPositionLimit="0"/>
+                    <MecanumWheels DistanceFromClawPivot="5.7750000000000004" PivotAngleWhenClosed="11.25" WheelCircumference="0.63773999999999997"/>
+                    <Claw PositionUnit="Degrees" FeedbackUnitsPerClawUnit="0.034722222222222002" VelocityLimit="6" ManualAcceleration="1" AccelerationLimit="1.5" OpenPositionLimit="85" PositionProportionalGain="0.14999999999999999" MaxFollowingError="1.23"/>
+                    <Linear ManualAcceleration="0.10000000000000001"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Linear Axis" DisplayString="Linear Axis" DataType="PositionControlledAxisLink" UniqueID="213" Visible="true" NoDataField="true"/>
@@ -184,10 +185,10 @@
                 <NodeEditorPosition x="708" y="-545"/>
                 <NodeSpecificData>
                     <Units UnitType="Linear" Unit="Meter" PositionControl="Servo"/>
-                    <UnitConversion FeedbackUnitsPerMachineUnit="93" ActuatorUnitsPerMachineUnit="93" FeedbackAndActuatorConversionIdentical="false"/>
-                    <KinematicLimits VelocityLimit="0.29999999999999999" AccelerationLimit="0.14999999999999999" ManualAcceleration="0.050000000000000003"/>
+                    <UnitConversion FeedbackUnitsPerMachineUnit="93.659667968750099" ActuatorUnitsPerMachineUnit="93.659667968750099" FeedbackAndActuatorConversionIdentical="false"/>
+                    <KinematicLimits VelocityLimit="0.55000000000000004" AccelerationLimit="0.14999999999999999" ManualAcceleration="0.10000000000000001"/>
                     <PositionReferenceSignals Type="LowSignal" HomingVelocity="0.10000000000000001" HomingDirection="Negative"/>
-                    <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="0" HighLimit="0" EnableHighLimit="false" HighLimitClearance="0" LimitToFeedbackWorkingRange="false"/>
+                    <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="0" HighLimit="7.4000000000000004" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="false"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorDeviceLink" UniqueID="229" Visible="false" NoDataField="true"/>
@@ -242,12 +243,12 @@
             <Link UniqueID="243" StartPin="159" EndPin="230"/>
             <Link UniqueID="247" StartPin="24" EndPin="245"/>
             <Link UniqueID="248" StartPin="246" EndPin="233"/>
-            <Link UniqueID="250" StartPin="152" EndPin="214"/>
             <Link UniqueID="251" StartPin="119" EndPin="215"/>
             <Link UniqueID="252" StartPin="19" EndPin="216"/>
             <Link UniqueID="253" StartPin="25" EndPin="217"/>
             <Link UniqueID="254" StartPin="26" EndPin="218"/>
-            <Link UniqueID="255" StartPin="236" EndPin="213"/>
+            <Link UniqueID="258" StartPin="152" EndPin="214"/>
+            <Link UniqueID="259" StartPin="236" EndPin="213"/>
         </Links>
     </NodeGraph>
 </Environnement>

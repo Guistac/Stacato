@@ -58,16 +58,18 @@ public:
 	
 	//=== Parameters
 	
-	double mecanumWheelDistanceFromClawPivot = 0.0;
-	double mecanumWheelClawPivotRadiusAngleWhenClosed = 0.0;
-	double mecanumWheelCircumference = 0.0;
-	
 	const PositionUnitType clawPositionUnitType = PositionUnitType::ANGULAR;
 	PositionUnit clawPositionUnit = PositionUnit::DEGREE;
 	double clawFeedbackUnitsPerClawUnit = 0.0;
 	double clawVelocityLimit = 0.0;
 	double clawAccelerationLimit = 0.0;
 	double clawPositionLimit = 0.0; //min claw position is zero, max position is measured by homing procedure
+	double clawPositionLoopProportionalGain = 0.0;
+	double clawMaxPositionFollowingError = 0.0;
+	
+	double mecanumWheelDistanceFromClawPivot = 0.0;
+	double mecanumWheelClawPivotRadiusAngleWhenClosed = 0.0;
+	double mecanumWheelCircumference = 0.0;
 	
 	double clawManualAcceleration = 0.0;
 	double linearAxisManualAcceleration = 0.0;
@@ -82,17 +84,80 @@ public:
 	
 	//=== Motion
 	
+	double profileTime_seconds;
+	double profileDeltaTime_seconds;
+	
 	Motion::Profile linearAxisMotionProfile;
-	float getLinearAxisPositionProgress(){}
-	float getLinearAxisVelocityProgress(){}
+	ControlMode linearControlMode = ControlMode::VELOCITY_TARGET;
 	float linearAxisManualVelocityTarget = 0.0;
-	float linearAxisManualPositionTarget = 0.0;
-	void setLinearAxisVelocityTarget(float target){}
-	void moveLinearAxisToPosition(float target){}
 	
 	Motion::Profile clawAxisMotionProfile;
-	float getClawAxisPositionProgress(){}
-	float getClawAxisVelocityProgress(){}
+	ControlMode clawControlMode = ControlMode::VELOCITY_TARGET;
 	double clawAxisManualVelocityTarget = 0.0;
 	
+	void setLinearVelocity(double velocity);
+	void moveLinearToTargetInTime(double positionTarget, double timeTarget);
+	void moveLinearToTargetWithVelocity(double positionTarget, double velocityTarget);
+	void fastStopLinear();
+	
+	void setClawVelocity(double velocity);
+	void moveClawToTargetInTime(double positionTarget, double timeTarget);
+	void moveClawToTargetWithVelocity(double positionTarget, double velocityTarget);
+	void fastStopClaw();
+	
+	void startHoming();
+	void stopHoming();
+	bool isHoming();
+	
+	
+	double getLinearAxisPosition();
+	double getLinearAxisVelocity();
+	double getClawAxisPosition();
+	double getClawAxisVelocity();
+	
+	float getLinearAxisPositionProgress();
+	float getLinearAxisVelocityProgress();
+	float getClawAxisPositionProgress();
+	float getClawAxisVelocityProgress();
+	
+	bool hasLinearAxisTargetMovement() { return !linearAxisMotionProfile.isInterpolationFinished(profileTime_seconds); }
+	bool hasClawAxisTargetMovement() { return !clawAxisMotionProfile.isInterpolationFinished(profileTime_seconds); }
+	double getLinearAxisRemainingTargetMovementTime() { return linearAxisMotionProfile.getRemainingInterpolationTime(profileTime_seconds); }
+	double getClawAxisReamainingTargetMovementTime() { return clawAxisMotionProfile.getRemainingInterpolationTime(profileTime_seconds); }
+	double getLinearAxisTargetMovementProgress() { return linearAxisMotionProfile.getInterpolationProgress(profileTime_seconds); }
+	double getClawAxisTargetMovementProgress() { return clawAxisMotionProfile.getInterpolationProgress(profileTime_seconds); }
+	
+	//=== Gui Stuff
+	float linearManualVelocityDisplay = 0.0;
+	float linearPositionTargetDisplay = 0.0;
+	float linearVelocityTargetDisplay = 0.0;
+	float linearTimeTargetDisplay = 0.0;
+	float clawManualVelocityDisplay = 0.0;
+	float clawPositionTargetDisplay = 0.0;
+	float clawVelocityTargetDisplay = 0.0;
+	float clawTimeTargetDisplay = 0.0;
+	
+	
+	enum class ClawHomingStep{
+		NOT_STARTED,
+		HOMING_LINEAR_AXIS,
+		SEARCHING_HEART_CLOSED_LIMIT
+	};
+	
+	
+	
+	
+	
 };
+
+
+
+//reenable after claw error overrun
+//movement time indicators for manual moves
+//miniature
+//plot for claw machine !!!
+//error correction disable treshold for claw axis
+//error correction disable theshold for linear axis
+//homing sequence for claw machine
+//sanitize claw parameters
+//encoder reset when homing

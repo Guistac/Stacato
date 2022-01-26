@@ -36,6 +36,16 @@ void GpioActuator::process(){
 	readyPin->copyConnectedPinValue();
 	emergencyStopPin->copyConnectedPinValue();
 	
+	//handle actuator enabling
+	if(actuator->b_setEnabled){
+		actuator->b_setEnabled = false;
+		enable();
+	}
+	if(actuator->b_setDisabled){
+		actuator->b_setDisabled = false;
+		disable();
+	}
+	
 	//update servo actuator data
 	actuator->b_online = true;
 	actuator->b_detected = true;
