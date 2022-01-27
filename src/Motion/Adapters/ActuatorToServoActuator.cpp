@@ -57,6 +57,9 @@ void ActuatorToServoActuator::process(){
 	servoActuator->b_brakesActive = actuatorDevice->areBrakesActive();
 	servoActuator->rangeMin_positionUnits = feedbackUnitsToActuatorUnits(feedbackDevice->rangeMin_positionUnits);
 	servoActuator->rangeMax_positionUnits = feedbackUnitsToActuatorUnits(feedbackDevice->rangeMax_positionUnits);
+	servoActuator->velocityLimit_positionUnitsPerSecond = actuatorDevice->velocityLimit_positionUnitsPerSecond;
+	servoActuator->minVelocity_positionUnitsPerSecond = actuatorDevice->minVelocity_positionUnitsPerSecond;
+	servoActuator->accelerationLimit_positionUnitsPerSecondSquared = actuatorDevice->accelerationLimit_positionUnitsPerSecondSquared;
 	
 	if(!servoActuator->isEnabled()){
 		motionProfile.setPosition(feedbackUnitsToActuatorUnits(feedbackDevice->getPosition()));
@@ -90,6 +93,7 @@ void ActuatorToServoActuator::controlLoop(){
 		double followingError = motionProfile.getPosition() - realPosition;
 		if(std::abs(followingError) > maxPositionFollowingError) {
 			disable();
+			Logger::critical("Servo Actuator '{}' disabled : max following error exceeded", getName());
 		}
 	}
 	
@@ -257,12 +261,7 @@ void ActuatorToServoActuator::sanitizeParameters(){
 
 bool ActuatorToServoActuator::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
-	
-	XMLElement* actuatorXML = xml->InsertNewChildElement("ServoActuator");
-	actuatorXML->SetAttribute("PositionUnit", Enumerator::getSaveString(servoActuator->getPositionUnit()));
-	actuatorXML->SetAttribute("VelocityLimit", servoActuator->getVelocityLimit());
-	actuatorXML->SetAttribute("AccelerationLimit", servoActuator->getAccelerationLimit());
-	
+	 
 	XMLElement* conversionRatioXML = xml->InsertNewChildElement("ConversionRatio");
 	conversionRatioXML->SetAttribute("PositionFeedbackUnitsPerActuatorPositionUnit", positionFeedbackUnitsPerActuatorUnit);
 	
@@ -280,15 +279,6 @@ bool ActuatorToServoActuator::save(tinyxml2::XMLElement* xml){
 
 bool ActuatorToServoActuator::load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
-	
-	XMLElement* actuatorXML = xml->FirstChildElement("ServoActuator");
-	if(actuatorXML == nullptr) return Logger::warn("Could not find Servo Actuator attribute");
-	const char* actuatorUnitString;
-	actuatorXML->QueryStringAttribute("PositionUnit", &actuatorUnitString);
-	if(!Enumerator::isValidSaveName<PositionUnit>(actuatorUnitString)) return Logger::warn("Could not identify servo actuator position unit");
-	servoActuator->positionUnit = Enumerator::getEnumeratorFromSaveString<PositionUnit>(actuatorUnitString);
-	if(actuatorXML->QueryDoubleAttribute("VelocityLimit", &servoActuator->velocityLimit_positionUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not find actuator velocity limit Attribute");
-	if(actuatorXML->QueryDoubleAttribute("AccelerationLimit", &servoActuator->accelerationLimit_positionUnitsPerSecondSquared) != XML_SUCCESS) return Logger::warn("Could not find acceleration limit Attribute");
 	
 	XMLElement* conversionRatioXML = xml->FirstChildElement("ConversionRatio");
 	if(conversionRatioXML == nullptr) return Logger::warn("Could not find Conversion Ratio attribute");

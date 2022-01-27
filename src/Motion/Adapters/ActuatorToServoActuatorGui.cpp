@@ -256,25 +256,14 @@ void ActuatorToServoActuator::settingsGui(){
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 		ImGui::Text("Position Unit: %s", Unit::getDisplayStringPlural(positionUnit));
 		ImGui::Text("Velocity Limit: %.3f %s/s", actuatorDevice->getVelocityLimit(), Unit::getAbbreviatedString(positionUnit));
+		ImGui::Text("Minimum Velocity: %.3f %s/s", actuatorDevice->getMinVelocity(), Unit::getAbbreviatedString(positionUnit));
 		ImGui::Text("Acceleration Limit: %.3f %s/s2", actuatorDevice->getAccelerationLimit(), Unit::getAbbreviatedString(positionUnit));
 		ImGui::PopStyleColor();
-		
-		ImGui::Text("Velocity Limit");
-		static char servoVelocityLimitString[256];
-		sprintf(servoVelocityLimitString, "%.3f %s/s", servoActuator->velocityLimit_positionUnitsPerSecond, Unit::getAbbreviatedString(positionUnit));
-		ImGui::InputDouble("##velocityLimit", &servoActuator->velocityLimit_positionUnitsPerSecond, 0.0, 0.0, servoVelocityLimitString);
-		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-		
-		ImGui::Text("Acceleration Limit");
-		static char servoAccelerationLimitString[256];
-		sprintf(servoAccelerationLimitString, "%.3f %s/s2", servoActuator->accelerationLimit_positionUnitsPerSecondSquared, Unit::getAbbreviatedString(positionUnit));
-		ImGui::InputDouble("##accelerationLimit", &servoActuator->accelerationLimit_positionUnitsPerSecondSquared, 0.0, 0.0, servoAccelerationLimitString);
-		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		
 		ImGui::Text("Acceleration for Manual Controls");
 		static char manualAccelerationString[256];
 		sprintf(manualAccelerationString, "%.3f %s/s2", manualAcceleration, Unit::getAbbreviatedString(positionUnit));
-		ImGui::InputDouble("##manAcc", &manualAcceleration);
+		ImGui::InputDouble("##manAcc", &manualAcceleration, 0.0, 0.0, manualAccelerationString);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 		ImGui::Separator();

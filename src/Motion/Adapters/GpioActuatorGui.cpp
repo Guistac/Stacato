@@ -133,6 +133,12 @@ void GpioActuator::settingsGui(){
 		ImGui::InputDouble("##velocityLimit", &actuator->velocityLimit_positionUnitsPerSecond, 0.0, 0.0, servoVelocityLimitString);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		
+		ImGui::Text("Minimum Velocity");
+		static char actuatorMinVelocityString[256];
+		sprintf(actuatorMinVelocityString, "%.3f %s/s", actuator->minVelocity_positionUnitsPerSecond, Unit::getAbbreviatedString(actuator->positionUnit));
+		ImGui::InputDouble("##minvel", &actuator->minVelocity_positionUnitsPerSecond, 0.0, 0.0, actuatorMinVelocityString);
+		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
+		
 		ImGui::Text("Acceleration Limit");
 		static char servoAccelerationLimitString[256];
 		sprintf(servoAccelerationLimitString, "%.3f %s/s2", actuator->accelerationLimit_positionUnitsPerSecondSquared, Unit::getAbbreviatedString(actuator->positionUnit));

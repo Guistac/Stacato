@@ -78,6 +78,8 @@ public:
 	double getLoad() { return load; }								
 	//get the velocity limit in device position units per second
 	double getVelocityLimit() { return velocityLimit_positionUnitsPerSecond; }
+	//get the minimum velocity allowed by the actuator in units per second
+	double getMinVelocity(){ return minVelocity_positionUnitsPerSecond; }
 	//get the acceleration limit in device position units per second squared
 	double getAccelerationLimit() { return accelerationLimit_positionUnitsPerSecondSquared; }
 
@@ -86,6 +88,7 @@ public:
 	bool b_emergencyStopActive = false;
 	bool b_brakesActive = false;
 	double velocityLimit_positionUnitsPerSecond = 0.0;
+	double minVelocity_positionUnitsPerSecond = 0.0;
 	double accelerationLimit_positionUnitsPerSecondSquared = 0.0;
 	double load = 0.0;
 

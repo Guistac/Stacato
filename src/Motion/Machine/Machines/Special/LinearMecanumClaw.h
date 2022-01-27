@@ -154,10 +154,13 @@ public:
 
 //reenable after claw error overrun
 //movement time indicators for manual moves
-//miniature
+//miniature gui
 //plot for claw machine !!!
 //error correction disable treshold for claw axis
 //error correction disable theshold for linear axis
+//kill claw velocity when sensor triggered
 //homing sequence for claw machine
 //sanitize claw parameters
-//encoder reset when homing
+//sanitize position axis parameters
+//encoder reset when homing axis
+//encoder reset when homing claw

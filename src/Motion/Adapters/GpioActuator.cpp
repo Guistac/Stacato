@@ -98,7 +98,9 @@ void GpioActuator::controlLoop(){
 	}
 	
 	//generate control signal output value and assign to output pin
-	*controlSignal = actuatorVelocityToControlSignal(outputVelocity);
+	//cut off velocity below minimum value
+	if(std::abs(motionProfile.getVelocity()) < actuator->getMinVelocity()) *controlSignal = actuatorVelocityToControlSignal(0.0);
+	else *controlSignal = actuatorVelocityToControlSignal(outputVelocity);
 }
 
 //needs to be called by controlling node to execute control loop
@@ -182,6 +184,7 @@ void GpioActuator::sanitizeParameters(){
 	controlSignalUnitsPerActuatorVelocityUnit = std::abs(controlSignalUnitsPerActuatorVelocityUnit);
 	positionFeedbackUnitsPerActuatorUnit = std::abs(positionFeedbackUnitsPerActuatorUnit);
 	actuator->velocityLimit_positionUnitsPerSecond = std::min(std::abs(actuator->velocityLimit_positionUnitsPerSecond), getControlSignalLimitedVelocity());
+	actuator->minVelocity_positionUnitsPerSecond = std::min(std::abs(actuator->minVelocity_positionUnitsPerSecond), actuator->velocityLimit_positionUnitsPerSecond);
 	actuator->accelerationLimit_positionUnitsPerSecondSquared = std::abs(actuator->accelerationLimit_positionUnitsPerSecondSquared);
 	manualAcceleration = std::min(std::abs(manualAcceleration), actuator->getAccelerationLimit());
 }
@@ -193,6 +196,7 @@ bool GpioActuator::save(tinyxml2::XMLElement* xml){
 	XMLElement* actuatorXML = xml->InsertNewChildElement("Actuator");
 	actuatorXML->SetAttribute("PositionUnit", Enumerator::getSaveString(actuator->getPositionUnit()));
 	actuatorXML->SetAttribute("VelocityLimit", actuator->getVelocityLimit());
+	actuatorXML->SetAttribute("MinVelocity", actuator->getMinVelocity());
 	actuatorXML->SetAttribute("AccelerationLimit", actuator->getAccelerationLimit());
 	
 	XMLElement* controlSignalXML = xml->InsertNewChildElement("ControlSignal");
@@ -219,6 +223,7 @@ bool GpioActuator::load(tinyxml2::XMLElement* xml){
 	if(!Enumerator::isValidSaveName<PositionUnit>(actuatorUnitString)) return Logger::warn("Could not identify servo actuator position unit");
 	actuator->positionUnit = Enumerator::getEnumeratorFromSaveString<PositionUnit>(actuatorUnitString);
 	if(actuatorXML->QueryDoubleAttribute("VelocityLimit", &actuator->velocityLimit_positionUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not find actuator velocity limit Attribute");
+	if(actuatorXML->QueryDoubleAttribute("MinVelocity", &actuator->minVelocity_positionUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not find actuator minimum velocity Attribute");
 	if(actuatorXML->QueryDoubleAttribute("AccelerationLimit", &actuator->accelerationLimit_positionUnitsPerSecondSquared) != XML_SUCCESS) return Logger::warn("Could not find acceleration limit Attribute");
 	
 	XMLElement* controlSignalXML = xml->FirstChildElement("ControlSignal");
