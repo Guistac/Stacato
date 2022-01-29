@@ -123,9 +123,11 @@ public:
 	bool hasLinearAxisTargetMovement() { return !linearAxisMotionProfile.isInterpolationFinished(profileTime_seconds); }
 	bool hasClawAxisTargetMovement() { return !clawAxisMotionProfile.isInterpolationFinished(profileTime_seconds); }
 	double getLinearAxisRemainingTargetMovementTime() { return linearAxisMotionProfile.getRemainingInterpolationTime(profileTime_seconds); }
-	double getClawAxisReamainingTargetMovementTime() { return clawAxisMotionProfile.getRemainingInterpolationTime(profileTime_seconds); }
+	double getClawAxisRemainingTargetMovementTime() { return clawAxisMotionProfile.getRemainingInterpolationTime(profileTime_seconds); }
 	double getLinearAxisTargetMovementProgress() { return linearAxisMotionProfile.getInterpolationProgress(profileTime_seconds); }
 	double getClawAxisTargetMovementProgress() { return clawAxisMotionProfile.getInterpolationProgress(profileTime_seconds); }
+	double getClawAxisFollowingError(){ return clawAxisMotionProfile.getPosition() - getClawAxisPosition(); }
+	double getClawAxisFollowingErrorProgress(){ return std::abs(getClawAxisFollowingError()) / clawMaxPositionFollowingError; }
 	
 	//=== Gui Stuff
 	float linearManualVelocityDisplay = 0.0;
