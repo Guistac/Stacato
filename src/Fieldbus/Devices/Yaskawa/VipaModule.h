@@ -97,7 +97,8 @@ class VIPA_022_1HD10 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_022_1HD10, "VIPA 022-1HD10", "DO4x Relais (1.8A)")
 	bool outputs[4] = {false, false, false, false};
-	uint8_t pdoSpacerBits = 0;
+	std::vector<std::shared_ptr<bool>> inputPinValues;
+	uint8_t pdoSpacerBits = 0; //TODO: is this used ?
 };
 
 
@@ -109,6 +110,7 @@ class VIPA_021_1BF00 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_021_1BF00, "VIPA 021-1BF00", "DI8x (DC24V)")
 	bool inputs[8] = {false, false, false, false, false, false, false, false};
+	std::vector<std::shared_ptr<bool>> outputPinValues;
 };
 
 //=================================================================
@@ -119,6 +121,7 @@ class VIPA_022_1BF00 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_022_1BF00, "VIPA 022-1BF00", "DO8x (DC24V0.5A)")
 	bool outputs[8] = {false, false, false, false, false, false, false, false};
+	std::vector<std::shared_ptr<bool>> inputPinValues;
 };
 
 //=================================================================
@@ -130,8 +133,11 @@ class VIPA_050_1BS00 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_050_1BS00, "VIPA 050-1BS00", "SSI RS422 (DC24V)")
 	
-	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodeData::Type::POSITIONFEEDBACK_DEVICELINK, DataDirection::NODE_OUTPUT, "SSI Encoder");
-	std::shared_ptr<NodePin> resetPin = std::make_shared<NodePin>(NodeData::Type::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "Reset Encoder");
+	//output pins
+	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodePin::DataType::POSITIONFEEDBACK, NodePin::Direction::NODE_OUTPUT, "SSI Encoder");
+	std::shared_ptr<NodePin> resetPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Reset Encoder");
+	
+	std::shared_ptr<bool> resetPinValue = std::make_shared<bool>(false);
 	
 	virtual void onConnection();
 	virtual void onDisconnection();
@@ -148,7 +154,7 @@ public:
 	//==== Subdevices ====
 	
 	void onSetParentBusCoupler(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler);
-	std::shared_ptr<PositionFeedbackDevice> encoderDevice = std::make_shared<PositionFeedbackDevice>("SSI Encoder", PositionUnit::Unit::REVOLUTION, PositionFeedback::Type::ABSOLUTE_FEEDBACK);
+	std::shared_ptr<PositionFeedbackDevice> encoderDevice = std::make_shared<PositionFeedbackDevice>("SSI Encoder", PositionUnit::REVOLUTION, PositionFeedbackType::ABSOLUTE);
 	void updateEncoderWorkingRange();
 	void updateResetPinVisibility();
 	bool b_isResetting = false;
@@ -156,45 +162,27 @@ public:
 	
 	//==== Data Type ====
 	
-	struct PauseTime{
-		enum class Microseconds{
-			_1_MICROSECONDS,
-			_2_MICROSECONDS,
-			_4_MICROSECONDS,
-			_8_MICROSECONDS,
-			_16_MICROSECONDS,
-			_32_MICROSECONDS,
-			_48_MICROSECONDS,
-			_64_MICROSECONDS
-		};
-		Microseconds microseconds;
-		uint16_t valueSetting;
-		const char saveName[64];
-		const char displayName[64];
+	enum class MeasurementPauseTime{
+		_1_MICROSECONDS,
+		_2_MICROSECONDS,
+		_4_MICROSECONDS,
+		_8_MICROSECONDS,
+		_16_MICROSECONDS,
+		_32_MICROSECONDS,
+		_48_MICROSECONDS,
+		_64_MICROSECONDS
 	};
-	static std::vector<PauseTime> pauseTimes;
-	static PauseTime* getPauseTime(const char* saveName);
-	static PauseTime* getPauseTime(PauseTime::Microseconds microseconds);
-	static PauseTime* getPauseTime(uint16_t valueSetting);
+	static uint16_t getMeasurementPauseTimeValue(MeasurementPauseTime time);
 	
-	struct TransmissionRate{
-		enum class Frequency{
-			_2_MEGAHERTZ,
-			_1p5_MEGAHERTZ,
-			_1_MEGAHERTZ,
-			_500_KILOHERTZ,
-			_250_KILOHERTZ,
-			_125_KILOHERTZ
-		};
-		Frequency frequency;
-		uint16_t valueSetting;
-		const char saveName[64];
-		const char displayName[64];
+	enum class TransmissionRate{
+		_2_MEGAHERTZ,
+		_1p5_MEGAHERTZ,
+		_1_MEGAHERTZ,
+		_500_KILOHERTZ,
+		_250_KILOHERTZ,
+		_125_KILOHERTZ
 	};
-	static std::vector<TransmissionRate> transmissionRates;
-	static TransmissionRate* getTransmissionRate(const char* saveName);
-	static TransmissionRate* getTransmissionRate(TransmissionRate::Frequency frequency);
-	static TransmissionRate* getTransmissionRate(uint16_t valueSetting);
+	static uint16_t getTransmissionRateValue(TransmissionRate rate);
 	
 	static int maxNormalisationBits;
 	static int minNormalisationBits;
@@ -206,60 +194,33 @@ public:
 	uint8_t encoderBitCountToCanValue(int bitCount);
 	int canValuetoEncoderBitCount(uint8_t canValue);
 	
-	struct BitShift{
-		enum class Direction{
-			LSB_FIRST,
-			MSB_FIRST
-		};
-		Direction direction;
-		bool bitValue;
-		const char saveName[64];
-		const char displayName[64];
+	enum class BitDirection{
+		LSB_FIRST,
+		MSB_FIRST
 	};
-	static std::vector<BitShift> bitShifts;
-	static BitShift* getBitShift(const char* saveName);
-	static BitShift* getBitShift(BitShift::Direction direction);
-	static BitShift* getBitShift(bool valueSetting);
+	static bool getBitDirectionValue(BitDirection dir);
 	
-	struct ClockEdge{
-		enum class Edge{
-			FALLING_EDGE,
-			RISING_EDGE
-		};
-		Edge edge;
-		bool bitValue;
-		const char saveName[64];
-		const char displayName[64];
+	enum class ClockEdge{
+		FALLING_EDGE,
+		RISING_EDGE
 	};
-	static std::vector<ClockEdge> clockEdges;
-	static ClockEdge* getClockEdge(const char* saveName);
-	static ClockEdge* getClockEdge(ClockEdge::Edge direction);
-	static ClockEdge* getClockEdge(bool valueSetting);
+	static bool getClockEdgeValue(ClockEdge edge);
 	
-	struct Encoding{
-		enum Format{
-			BINARY,
-			GRAY
-		};
-		Format format;
-		bool bitValue;
-		const char saveName[64];
-		const char displayName[64];
+	enum class Encoding{
+		BINARY,
+		GRAY
 	};
-	static std::vector<Encoding> encodings;
-	static Encoding* getEncoding(const char* saveName);
-	static Encoding* getEncoding(Encoding::Format format);
-	static Encoding* getEncoding(bool valueSetting);
+	static bool getEncodingValue(Encoding cod);
 	
 	//==== Settings Data ====
-	PauseTime::Microseconds pausetime = PauseTime::Microseconds::_32_MICROSECONDS;
-	TransmissionRate::Frequency transmissionFrequency = TransmissionRate::Frequency::_500_KILOHERTZ;
+	MeasurementPauseTime pausetime = MeasurementPauseTime::_32_MICROSECONDS;
+	TransmissionRate transmissionFrequency = TransmissionRate::_500_KILOHERTZ;
 	int normalisationBitCount = 0;
 	int encoderBitCount = 24;
 	int singleTurnBitCount = 12;
-	BitShift::Direction bitshiftDirection = BitShift::Direction::MSB_FIRST;
-	ClockEdge::Edge clockEdge = ClockEdge::Edge::RISING_EDGE;
-	Encoding::Format encodingFormat = Encoding::Format::BINARY;
+	BitDirection bitshiftDirection = BitDirection::MSB_FIRST;
+	ClockEdge clockEdge = ClockEdge::RISING_EDGE;
+	Encoding encodingFormat = Encoding::BINARY;
 	bool b_centerRangeOnZero = false;
 	bool b_hasResetSignal = false;
 	float resetTime_milliseconds = 1.0;
@@ -274,6 +235,97 @@ public:
 };
 
 
+#define VipaSSIPauseTimeTypeStrings \
+	{VIPA_050_1BS00::MeasurementPauseTime::_1_MICROSECONDS, "1", "1 µs"},\
+	{VIPA_050_1BS00::MeasurementPauseTime::_2_MICROSECONDS, "2", "2 µs"},\
+	{VIPA_050_1BS00::MeasurementPauseTime::_4_MICROSECONDS, "4", "4 µs"},\
+	{VIPA_050_1BS00::MeasurementPauseTime::_8_MICROSECONDS, "8", "8 µs"},\
+	{VIPA_050_1BS00::MeasurementPauseTime::_16_MICROSECONDS, "16", "16 µs"},\
+	{VIPA_050_1BS00::MeasurementPauseTime::_32_MICROSECONDS, "32", "32 µs"},\
+	{VIPA_050_1BS00::MeasurementPauseTime::_48_MICROSECONDS, "48", "48 µs"},\
+	{VIPA_050_1BS00::MeasurementPauseTime::_64_MICROSECONDS, "64", "64 µs"}\
+
+DEFINE_ENUMERATOR(VIPA_050_1BS00::MeasurementPauseTime, VipaSSIPauseTimeTypeStrings)
+
+inline uint16_t VIPA_050_1BS00::getMeasurementPauseTimeValue(MeasurementPauseTime time){
+	switch(time){
+		case MeasurementPauseTime::_1_MICROSECONDS: return 0x0030;
+		case MeasurementPauseTime::_2_MICROSECONDS: return 0x0060;
+		case MeasurementPauseTime::_4_MICROSECONDS: return 0x00C0;
+		case MeasurementPauseTime::_8_MICROSECONDS: return 0x0180;
+		case MeasurementPauseTime::_16_MICROSECONDS: return 0x0300;
+		case MeasurementPauseTime::_32_MICROSECONDS: return 0x0600;
+		case MeasurementPauseTime::_48_MICROSECONDS: return 0x0900;
+		case MeasurementPauseTime::_64_MICROSECONDS: return 0x0C00;
+	}
+}
+
+
+#define VipaSSITransmissionRateTypeStrings \
+	{VIPA_050_1BS00::TransmissionRate::_2_MEGAHERTZ,  "2Mhz", 	"2.0 Mhz"},\
+	{VIPA_050_1BS00::TransmissionRate::_1p5_MEGAHERTZ,  "1.5Mhz", 	"1.5 Mhz"},\
+	{VIPA_050_1BS00::TransmissionRate::_1_MEGAHERTZ,  "1Mhz", 	"1.0 Mhz"},\
+	{VIPA_050_1BS00::TransmissionRate::_500_KILOHERTZ,  "500Khz", 	"500.0 Khz"},\
+	{VIPA_050_1BS00::TransmissionRate::_250_KILOHERTZ,  "250Khz", 	"250.0 Khz"},\
+	{VIPA_050_1BS00::TransmissionRate::_125_KILOHERTZ,  "125Khz", 	"125.0 Khz"}\
+
+DEFINE_ENUMERATOR(VIPA_050_1BS00::TransmissionRate, VipaSSITransmissionRateTypeStrings)
+
+inline uint16_t VIPA_050_1BS00::getTransmissionRateValue(TransmissionRate rate){
+	switch(rate){
+		case TransmissionRate::_2_MEGAHERTZ: return 0x0018;
+		case TransmissionRate::_1p5_MEGAHERTZ: return 0x0020;
+		case TransmissionRate::_1_MEGAHERTZ: return 0x0030;
+		case TransmissionRate::_500_KILOHERTZ: return 0x0060;
+		case TransmissionRate::_250_KILOHERTZ: return 0x00C0;
+		case TransmissionRate::_125_KILOHERTZ: return 0x0180;
+	}
+}
+
+
+#define VipaSSIBitShiftTypeStrings \
+	{VIPA_050_1BS00::BitDirection::LSB_FIRST, "LSBFirst", "LSB First"},\
+	{VIPA_050_1BS00::BitDirection::MSB_FIRST,"MSBFirst", "MSB First (default)"}\
+
+DEFINE_ENUMERATOR(VIPA_050_1BS00::BitDirection, VipaSSIBitShiftTypeStrings)
+
+inline bool VIPA_050_1BS00::getBitDirectionValue(BitDirection dir){
+	switch(dir){
+		case BitDirection::LSB_FIRST: return false;
+		case BitDirection::MSB_FIRST: return true;
+	}
+}
+
+
+#define VipaSSIClockEdgeTypeStrings \
+	{VIPA_050_1BS00::ClockEdge::FALLING_EDGE, "FallingEdge", "Falling Edge"},\
+	{VIPA_050_1BS00::ClockEdge::RISING_EDGE, "RisingEdge", "Rising Edge (default)"},\
+
+DEFINE_ENUMERATOR(VIPA_050_1BS00::ClockEdge, VipaSSIClockEdgeTypeStrings)
+
+inline bool VIPA_050_1BS00::getClockEdgeValue(ClockEdge edge){
+	switch(edge){
+		case ClockEdge::FALLING_EDGE: return false;
+		case ClockEdge::RISING_EDGE: return false;
+	}
+}
+
+
+#define VipaSSIEncodingTypeStrings \
+	{VIPA_050_1BS00::Encoding::BINARY, "Binary", "Binary"},\
+	{VIPA_050_1BS00::Encoding::GRAY, "Gray", "Gray"}\
+
+DEFINE_ENUMERATOR(VIPA_050_1BS00::Encoding, VipaSSIEncodingTypeStrings)
+
+inline bool VIPA_050_1BS00::getEncodingValue(Encoding cod){
+	switch(cod){
+		case Encoding::BINARY: return false;
+		case Encoding::GRAY: return true;
+	}
+}
+
+
+
 //=================================================================
 //================= 032-1BD70 4x 12 Analog Output =================
 //=================================================================
@@ -285,27 +337,19 @@ public:
 	
 	int16_t outputs[4] = { 0, 0, 0, 0};
 	
-	struct VoltageRange{
-		enum class Range{
-			ZERO_TO_10V,
-			NEGATIVE_TO_POSITIVE_10V
-		};
-		Range range;
-		uint8_t valueSetting;
-		const char saveName[64];
-		const char displayName[64];
+	std::vector<std::shared_ptr<double>> inputPinValues;
+	
+	enum class VoltageRange{
+		ZERO_TO_10V,
+		NEGATIVE_TO_POSITIVE_10V
 	};
+	static uint8_t getVoltageRangeValue(VoltageRange range);
 	
-	static std::vector<VoltageRange> voltageRanges;
-	static VoltageRange* getVoltageRange(const char* saveName);
-	static VoltageRange* getVoltageRange(VoltageRange::Range range);
-	static VoltageRange* getVoltageRange(uint8_t valueSetting);
-	
-	VoltageRange::Range voltageRangeSettings[4] = {
-		VoltageRange::Range::NEGATIVE_TO_POSITIVE_10V,
-		VoltageRange::Range::NEGATIVE_TO_POSITIVE_10V,
-		VoltageRange::Range::NEGATIVE_TO_POSITIVE_10V,
-		VoltageRange::Range::NEGATIVE_TO_POSITIVE_10V
+	VoltageRange voltageRangeSettings[4] = {
+		VoltageRange::NEGATIVE_TO_POSITIVE_10V,
+		VoltageRange::NEGATIVE_TO_POSITIVE_10V,
+		VoltageRange::NEGATIVE_TO_POSITIVE_10V,
+		VoltageRange::NEGATIVE_TO_POSITIVE_10V
 	};
 	
 	bool shortCircuitDetectionSettings[4] = {false, false, false, false};
@@ -317,3 +361,16 @@ public:
 	virtual bool save(tinyxml2::XMLElement* xml);
 	virtual bool load(tinyxml2::XMLElement* xml);
 };
+
+#define VipaAnalogVoltageRangeTypeString \
+	{VIPA_032_1BD70::VoltageRange::ZERO_TO_10V, "ZeroToPositive10V", "0-10V"},\
+	{VIPA_032_1BD70::VoltageRange::NEGATIVE_TO_POSITIVE_10V, "NegativeToPositive10V", "\xc2\xb1 10V"}\
+
+DEFINE_ENUMERATOR(VIPA_032_1BD70::VoltageRange, VipaAnalogVoltageRangeTypeString)
+
+inline uint8_t VIPA_032_1BD70::getVoltageRangeValue(VoltageRange range){
+	switch(range){
+		case VoltageRange::ZERO_TO_10V: return 0x20;
+		case VoltageRange::NEGATIVE_TO_POSITIVE_10V: return 0x22;
+	}
+}

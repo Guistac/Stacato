@@ -5,9 +5,10 @@
 class GroupNode : public Node {
 public:																	
 	
-	DEFINE_CONTAINER_NODE(GroupNode, "Group", "Group", "Utility");
+	DEFINE_NODE(GroupNode, "Group", "Group", Node::Type::CONTAINER , "Utility");
 
-	virtual void process() {}
-	virtual void assignIoData() {}
-
+	virtual void process(){}
+	
 };
+
+void GroupNode::initialize(){}

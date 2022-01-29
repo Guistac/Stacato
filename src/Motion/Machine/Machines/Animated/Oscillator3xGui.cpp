@@ -1,5 +1,6 @@
 #include <pch.h>
 
+/*
 #include "Oscillator3x.h"
 
 #include <imgui.h>
@@ -63,7 +64,7 @@ void Oscillator3x::controlsGui() {
 				ImGui::SameLine();
 				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-				ImGui::Button(getHomingStep(axis->homingStep)->displayName);
+				ImGui::Button(Enumerator::getDisplayString(axis->homingStep));
 				ImGui::PopStyleColor();
 				ImGui::PopItemFlag();
 			}
@@ -397,3 +398,4 @@ void Oscillator3x::machineSpecificMiniatureGui() {
 
 	if(b_disableAllControls) END_DISABLE_IMGUI_ELEMENT
 }
+*/

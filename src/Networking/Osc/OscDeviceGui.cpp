@@ -309,7 +309,7 @@ void OscDevice::messageGui(std::shared_ptr<OSC::Message> msg){
 			
 			ImGui::TableSetColumnIndex(2);
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 12.0);
-			ImGui::InputText("##name", (char*)argument->pin->getDisplayName(), 256);
+			ImGui::InputText("##name", (char*)argument->pin->getDisplayString(), 256);
 			
 			ImGui::TableSetColumnIndex(3);
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);

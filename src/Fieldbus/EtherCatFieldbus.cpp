@@ -458,14 +458,14 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
                     //match the detected device name against the expected ethercat name of the environnement device
                     if (strcmp(environnementSlave->getEtherCatName(), identity.name) != 0) continue;
                     switch (environnementSlave->identificationType) {
-                    case EtherCatDeviceIdentification::Type::STATION_ALIAS:
+						case EtherCatDevice::IdentificationType::STATION_ALIAS:
                         if (environnementSlave->stationAlias == stationAlias) {
                             slave = environnementSlave;
                             Logger::info("      Matched Environnement Slave by Name & Station Alias");
                             break;
                         }
                         else continue;
-                    case EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID:
+						case EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID:
                         if (environnementSlave->explicitDeviceID == explicitDeviceID) {
                             slave = environnementSlave;
                             Logger::info("      Matched Environnement Slave by Name & Explicit Device ID");
@@ -482,11 +482,11 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
                     slave->explicitDeviceID = explicitDeviceID;
                     char name[128];
                     if (explicitDeviceIdSupported && explicitDeviceID != 0) {
-                        slave->identificationType = EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID;
+                        slave->identificationType = EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID;
                         sprintf(name, "%s (ID:%i)", slave->getSaveName(), slave->explicitDeviceID);
                     }
                     else {
-                        slave->identificationType = EtherCatDeviceIdentification::Type::STATION_ALIAS;
+                        slave->identificationType = EtherCatDevice::IdentificationType::STATION_ALIAS;
                         sprintf(name, "%s (Alias:%i)", slave->getSaveName(), slave->stationAlias);
                     }
                     slave->setName(name);

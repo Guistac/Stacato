@@ -1,19 +1,19 @@
 #pragma once
-
+/*
 #include "Motion/Machine/Machine.h"
 
 class Oscillator3x : public Machine {
 	
 	DEFINE_MACHINE_NODE(Oscillator3x, "Triple Oscillator", "TripleOscillator", "Oscillators")
 
-	std::shared_ptr<NodePin> linearAxis1Pin = std::make_shared<NodePin>(NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, DataDirection::NODE_INPUT, "Linear Axis 1");
-	std::shared_ptr<NodePin> linearAxis2Pin = std::make_shared<NodePin>(NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, DataDirection::NODE_INPUT, "Linear Axis 2");
-	std::shared_ptr<NodePin> linearAxis3Pin = std::make_shared<NodePin>(NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, DataDirection::NODE_INPUT, "Linear Axis 3");
+	std::shared_ptr<NodePin> linearAxis1Pin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS, NodePin::Direction::NODE_INPUT, "Linear Axis 1");
+	std::shared_ptr<NodePin> linearAxis2Pin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS, NodePin::Direction::NODE_INPUT, "Linear Axis 2");
+	std::shared_ptr<NodePin> linearAxis3Pin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS, NodePin::Direction::NODE_INPUT, "Linear Axis 3");
 
-	std::shared_ptr<AnimatableParameter> frequencyParameter = std::make_shared<AnimatableParameter>("Frequency", ParameterDataType::Type::REAL_PARAMETER, "Hz");
-	std::shared_ptr<AnimatableParameter> minAmplitudeParameter = std::make_shared<AnimatableParameter>("Min Amplitude", ParameterDataType::Type::REAL_PARAMETER, "mm");
-	std::shared_ptr<AnimatableParameter> maxAmplitudeParameter = std::make_shared<AnimatableParameter>("Max Amplitude", ParameterDataType::Type::REAL_PARAMETER, "mm");
-	std::shared_ptr<AnimatableParameter> phaseOffsetParameter = std::make_shared<AnimatableParameter>("Phase Offset", ParameterDataType::Type::REAL_PARAMETER, "\x25"); //'°' == \xC2\xB0
+	std::shared_ptr<AnimatableParameter> frequencyParameter = std::make_shared<AnimatableParameter>("Frequency", ParameterDataType::REAL_PARAMETER, "Hz");
+	std::shared_ptr<AnimatableParameter> minAmplitudeParameter = std::make_shared<AnimatableParameter>("Min Amplitude", ParameterDataType::REAL_PARAMETER, "mm");
+	std::shared_ptr<AnimatableParameter> maxAmplitudeParameter = std::make_shared<AnimatableParameter>("Max Amplitude", ParameterDataType::REAL_PARAMETER, "mm");
+	std::shared_ptr<AnimatableParameter> phaseOffsetParameter = std::make_shared<AnimatableParameter>("Phase Offset", ParameterDataType::REAL_PARAMETER, "\x25"); //'°' == \xC2\xB0
 	std::shared_ptr<AnimatableParameter> oscillatorParameterGroup = std::make_shared<AnimatableParameter>("Oscillator", std::vector<std::shared_ptr<AnimatableParameter>>({
 		frequencyParameter,
 		minAmplitudeParameter,
@@ -21,9 +21,9 @@ class Oscillator3x : public Machine {
 		phaseOffsetParameter
 	}));
 	
-	std::shared_ptr<AnimatableParameter> axis1PositionParameter = std::make_shared<AnimatableParameter>("Axis 1 Position", ParameterDataType::Type::KINEMATIC_POSITION_CURVE, "mm");
-	std::shared_ptr<AnimatableParameter> axis2PositionParameter = std::make_shared<AnimatableParameter>("Axis 2 Position", ParameterDataType::Type::KINEMATIC_POSITION_CURVE, "mm");
-	std::shared_ptr<AnimatableParameter> axis3PositionParameter = std::make_shared<AnimatableParameter>("Axis 3 Position", ParameterDataType::Type::KINEMATIC_POSITION_CURVE, "mm");
+	std::shared_ptr<AnimatableParameter> axis1PositionParameter = std::make_shared<AnimatableParameter>("Axis 1 Position", ParameterDataType::KINEMATIC_POSITION_CURVE, "mm");
+	std::shared_ptr<AnimatableParameter> axis2PositionParameter = std::make_shared<AnimatableParameter>("Axis 2 Position", ParameterDataType::KINEMATIC_POSITION_CURVE, "mm");
+	std::shared_ptr<AnimatableParameter> axis3PositionParameter = std::make_shared<AnimatableParameter>("Axis 3 Position", ParameterDataType::KINEMATIC_POSITION_CURVE, "mm");
 	
 
 	//=== Machine Limits ===
@@ -76,3 +76,4 @@ class Oscillator3x : public Machine {
 	std::shared_ptr<PositionControlledAxis> getAxis(int);
 	bool getAxes(std::vector<std::shared_ptr<PositionControlledAxis>>& output);
 };
+*/

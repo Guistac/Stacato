@@ -13,13 +13,17 @@
 
 #include "Motion/Machine/Machines/Basic/PositionControlledSingleAxisMachine.h"
 #include "Motion/Machine/Machines/StateMachines/HoodedLiftStateMachine.h"
-#include "Motion/Machine/Machines/Animated/Oscillator3x.h"
-#include "Motion/Machine/Machines/Animated/BinaryOscillator6x.h"
+//#include "Motion/Machine/Machines/Animated/Oscillator3x.h"
+//#include "Motion/Machine/Machines/Animated/BinaryOscillator6x.h"
 #include "Motion/Machine/Machines/Utility/PositionFeedbackMachine.h"
+#include "Motion/Machine/Machines/Special/LinearMecanumClaw.h"
 
 #include "Motion/Machine/DeadMansSwitch.h"
 
 #include "Networking/Osc/OscDevice.h"
+
+#include "Motion/Adapters/GpioActuator.h"
+#include "Motion/Adapters/ActuatorToServoActuator.h"
 
 namespace NodeFactory {
 
@@ -39,13 +43,14 @@ namespace NodeFactory {
 			new VelocityControlledAxis(),
 			new PositionControlledAxis()
 		};
-
+		
 		allMachineNodes = {
 			new PositionControlledSingleAxisMachine(),
 			new HoodedLiftStateMachine(),
-			new Oscillator3x(),
-			new BinaryOscillator6x(),
-			new PositionFeedbackMachine()
+			//new Oscillator3x(),
+			//new BinaryOscillator6x(),
+			new PositionFeedbackMachine(),
+			new LinearMecanumClaw()
 		};
 
 		allNodes = {
@@ -70,7 +75,10 @@ namespace NodeFactory {
 			new BoolNode(),
 			new NotNode(),
 			new AndNode(),
-			new OrNode()
+			new OrNode(),
+			
+			new GpioActuator(),
+			new ActuatorToServoActuator()
 		};
 		
 		allSafetyNodes = {
@@ -121,7 +129,7 @@ namespace NodeFactory {
 
 	std::shared_ptr<Node> getNodeBySaveName(const char* saveName) {
 		for (Node* device : allNodes) {
-			if (strcmp(saveName, device->getSaveName()) == 0) return device->getNewNodeInstance();
+			if (strcmp(saveName, device->getSaveName()) == 0) return device->getNewInstance();
 		}
 		return nullptr;
 	}
@@ -132,7 +140,7 @@ namespace NodeFactory {
 
 	std::shared_ptr<Node> getAxisBySaveName(const char* saveName) {
 		for (Node* axis : allAxisNodes) {
-			if (strcmp(saveName, axis->getSaveName()) == 0) return axis->getNewNodeInstance();
+			if (strcmp(saveName, axis->getSaveName()) == 0) return axis->getNewInstance();
 		}
 		return nullptr;
 	}
@@ -140,9 +148,11 @@ namespace NodeFactory {
 		return allAxisNodes;
 	}
 
+
+
 	std::shared_ptr<Node> getMachineBySaveName(const char* saveName) {
 		for (Node* machine : allMachineNodes) {
-			if (strcmp(saveName, machine->getSaveName()) == 0) return machine->getNewNodeInstance();
+			if (strcmp(saveName, machine->getSaveName()) == 0) return machine->getNewInstance();
 		}
 		return nullptr;
 	}
@@ -152,7 +162,7 @@ namespace NodeFactory {
 
 	std::shared_ptr<Node> getSafetyNodeBySaveName(const char* saveName){
 		for(Node* safetyNode : allSafetyNodes){
-			if(strcmp(saveName, safetyNode->getSaveName()) == 0) return safetyNode->getNewNodeInstance();
+			if(strcmp(saveName, safetyNode->getSaveName()) == 0) return safetyNode->getNewInstance();
 		}
 		return nullptr;
 	}
@@ -163,7 +173,7 @@ namespace NodeFactory {
 
 	std::shared_ptr<Node> getNetworkIoNodeBySaveName(const char* saveName){
 		for(Node* networkIoNode : allNetworkIoNodes){
-			if(strcmp(saveName, networkIoNode->getSaveName()) == 0) return networkIoNode->getNewNodeInstance();
+			if(strcmp(saveName, networkIoNode->getSaveName()) == 0) return networkIoNode->getNewInstance();
 		}
 		return nullptr;
 	}

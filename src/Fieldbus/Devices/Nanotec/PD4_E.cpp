@@ -21,28 +21,52 @@ void PD4_E::resetData() {
 	gpioDevice->b_ready = false;
 }
 
-void PD4_E::assignIoData() {
+void PD4_E::initialize() {
 	servoMotor->setParentDevice(std::dynamic_pointer_cast<Device>(shared_from_this()));
-	servoActuatorDeviceLink->set(servoMotor);
+	servoActuatorDeviceLink->assignData(servoMotor);
 
 	gpioDevice->setParentDevice(std::dynamic_pointer_cast<Device>(shared_from_this()));
-	gpioDeviceLink->set(gpioDevice);
+	gpioDeviceLink->assignData(gpioDevice);
 
-	addIoData(servoActuatorDeviceLink);
-	addIoData(positionPin);
-	addIoData(velocityPin);
-	addIoData(gpioDeviceLink);
-	addIoData(digitalIn1Pin);
-	addIoData(digitalIn2Pin);
-	addIoData(digitalIn3Pin);
-	addIoData(digitalIn4Pin);
-	addIoData(digitalIn5Pin);
-	addIoData(digitalIn6Pin);
-	addIoData(analogIn1Pin);
-	addIoData(digitalOut1Pin);
-	addIoData(digitalOut2Pin);
+	addNodePin(servoActuatorDeviceLink);
+	
+	positionPin->assignData(positionPinValue);
+	addNodePin(positionPin);
+	
+	velocityPin->assignData(velocityPinValue);
+	addNodePin(velocityPin);
+	
+	gpioDeviceLink->assignData(gpioDevice);
+	addNodePin(gpioDeviceLink);
+	
+	digitalIn1Pin->assignData(digitalIn1PinValue);
+	addNodePin(digitalIn1Pin);
+	
+	digitalIn2Pin->assignData(digitalIn2PinValue);
+	addNodePin(digitalIn2Pin);
+	
+	digitalIn3Pin->assignData(digitalIn3PinValue);
+	addNodePin(digitalIn3Pin);
+	
+	digitalIn4Pin->assignData(digitalIn4PinValue);
+	addNodePin(digitalIn4Pin);
+	
+	digitalIn5Pin->assignData(digitalIn5PinValue);
+	addNodePin(digitalIn5Pin);
+	
+	digitalIn6Pin->assignData(digitalIn6PinValue);
+	addNodePin(digitalIn6Pin);
+	
+	analogIn1Pin->assignData(analogIn1PinValue);
+	addNodePin(analogIn1Pin);
+	
+	digitalOut1Pin->assignData(digitalOut1PinValue);
+	addNodePin(digitalOut1Pin);
+	
+	digitalOut2Pin->assignData(digitalOut2PinValue);
+	addNodePin(digitalOut2Pin);
 
-	servoMotor->positionUnit = PositionUnit::Unit::REVOLUTION;
+	servoMotor->positionUnit = PositionUnit::REVOLUTION;
 	double maxEncoderRevolutions = 1 << encoderMultiTurnResolutionBits;
 	servoMotor->rangeMin_positionUnits = -maxEncoderRevolutions / 2.0;
 	servoMotor->rangeMax_positionUnits = maxEncoderRevolutions / 2.0;
@@ -190,8 +214,8 @@ void PD4_E::readInputs() {
 	actualFollowingError_revolutions = (double)actualError / (double)encoderIncrementsPerRevolution;
 	actualVelocity_revolutionsPerSecond = (double)actualVelocity / velocityUnitsPerRevolutionPerSecond;
 	actualCurrent_amperes = std::abs((double)actualCurrent / 1000.0);
-	positionPin->set(actualPosition_revolutions);
-	velocityPin->set(actualVelocity_revolutionsPerSecond);
+	*positionPinValue = actualPosition_revolutions;
+	*velocityPinValue = actualVelocity_revolutionsPerSecond;
 
 	digitalIn1 = (digitalInputs >> 16) & 0x1;
 	digitalIn2 = (digitalInputs >> 17) & 0x1;
@@ -199,13 +223,13 @@ void PD4_E::readInputs() {
 	digitalIn4 = (digitalInputs >> 19) & 0x1;
 	digitalIn5 = (digitalInputs >> 20) & 0x1;
 	digitalIn6 = (digitalInputs >> 21) & 0x1;
-
-	digitalIn1Pin->set(digitalIn1);
-	digitalIn2Pin->set(digitalIn2);
-	digitalIn3Pin->set(digitalIn3);
-	digitalIn4Pin->set(digitalIn4);
-	digitalIn5Pin->set(digitalIn5);
-	digitalIn6Pin->set(digitalIn6);
+	
+	*digitalIn1PinValue = digitalIn1;
+	*digitalIn2PinValue = digitalIn2;
+	*digitalIn3PinValue = digitalIn3;
+	*digitalIn4PinValue = digitalIn4;
+	*digitalIn5PinValue = digitalIn5;
+	*digitalIn6PinValue = digitalIn6;
 
 	if (negativeLimitSwitchOnDigitalIn1 && digitalIn1 && servoMotor->isEnabled() && actualVelocity_revolutionsPerSecond < 0.0) {
 		Logger::warn("Hit Negative Limit Switch");
@@ -271,17 +295,17 @@ void PD4_E::prepareOutputs() {
 		}break;
 		case ControlMode::Mode::EXTERNAL_CONTROL: {
 			double previousProfilePosition_revolutions = profilePosition_revolutions;
-			if (servoActuatorDeviceLink->isConnected()) profilePosition_revolutions = servoMotor->getCommand();
+			if (servoActuatorDeviceLink->isConnected()) profilePosition_revolutions = servoMotor->getPositionCommandRaw();
 			profileVelocity_revolutions = (profilePosition_revolutions - previousProfilePosition_revolutions) / profileTimeDelta_seconds;
 			}break;
 	}
 	int encoderIncrementsPerRevolution = 0x1 << encoderSingleTurnResolutionBits;
 	targetPosition = profilePosition_revolutions * encoderIncrementsPerRevolution;
 
-	if (digitalOut1Pin->isConnected()) digitalOut1Pin->set(digitalOut1Pin->getConnectedPins().front()->getBoolean());
-	if (digitalOut2Pin->isConnected()) digitalOut2Pin->set(digitalOut2Pin->getConnectedPins().front()->getBoolean());
-	digitalOut1 = digitalOut1Pin->getBoolean();
-	digitalOut2 = digitalOut2Pin->getBoolean();
+	if (digitalOut1Pin->isConnected()) *digitalOut1PinValue = digitalOut1Pin->getConnectedPin()->read<bool>();
+	if (digitalOut2Pin->isConnected()) *digitalOut2PinValue = digitalOut2Pin->getConnectedPin()->read<bool>();
+	digitalOut1 = *digitalOut1PinValue;
+	digitalOut2 = *digitalOut2PinValue;
 	digitalOutputs = 0;
 	if (digitalOut1) digitalOutputs |= 0x1 << 16;
 	if (digitalOut2) digitalOutputs |= 0x1 << 17;

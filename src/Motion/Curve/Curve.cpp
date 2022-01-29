@@ -12,13 +12,13 @@ namespace Motion {
 		CurvePoint output;
 		output.time = time;
 		switch (type) {
-			case InterpolationType::Type::STEP:
+			case InterpolationType::STEP:
 				if (time < inTime || time < outTime) output.position = inPoint->position;
 				else output.position = outPoint->position;
 				output.velocity = 0.0;
 				output.acceleration = 0.0;
 				break;
-			case InterpolationType::Type::LINEAR:
+			case InterpolationType::LINEAR:
 				if (time < inTime) {
 					output.position = inPoint->position;
 					output.velocity = 0.0;
@@ -33,10 +33,10 @@ namespace Motion {
 				}
 				output.acceleration = 0.0;
 				break;
-			case InterpolationType::Type::BEZIER:
+			case InterpolationType::BEZIER:
 				output.position = inPoint->position;
 				break;
-			case InterpolationType::Type::TRAPEZOIDAL: {
+			case InterpolationType::TRAPEZOIDAL: {
 				if (time < inTime) {
 					output.position = inPosition;
 					output.velocity = inVelocity;
@@ -100,21 +100,21 @@ namespace Motion {
 	void Interpolation::updateDisplayCurvePoints() {
 		displayPoints.clear();
 		switch (type) {
-			case InterpolationType::Type::STEP:
+			case InterpolationType::STEP:
 				displayPoints.reserve(3);
 				displayPoints.push_back(CurvePoint(inTime, inPosition, 0.0, 0.0));
 				displayPoints.push_back(CurvePoint(outTime, inPosition, 0.0, 0.0));
 				displayPoints.push_back(CurvePoint(outTime, outPosition, 0.0, 0.0));
 				break;
-			case InterpolationType::Type::LINEAR:
+			case InterpolationType::LINEAR:
 				displayPoints.reserve(2);
 				displayPoints.push_back(CurvePoint(inTime, inPosition, 0.0, 0.0));
 				displayPoints.push_back(CurvePoint(outTime, outPosition, 0.0, 0.0));
 				break;
-			case InterpolationType::Type::BEZIER:
+			case InterpolationType::BEZIER:
 				displayPoints.reserve(16);
 				break;
-			case InterpolationType::Type::TRAPEZOIDAL:
+			case InterpolationType::TRAPEZOIDAL:
 				displayPoints.reserve(32);
 				double rampInLength_seconds = rampInEndTime - inTime;
 				for (int i = 0; i < 16; i++) {
@@ -167,16 +167,16 @@ namespace Motion {
 			std::shared_ptr<Motion::ControlPoint>& outPoint = points[i + 1];
 			std::shared_ptr<Motion::Interpolation> interpolation = std::make_shared<Motion::Interpolation>();
 			switch (interpolationType) {
-				case InterpolationType::Type::STEP:
+				case InterpolationType::STEP:
 					Motion::StepInterpolation::getInterpolation(inPoint, outPoint, interpolation);
 					break;
-				case InterpolationType::Type::LINEAR:
+				case InterpolationType::LINEAR:
 					Motion::LinearInterpolation::getTimeConstrainedInterpolation(inPoint, outPoint, interpolation);
 					break;
-				case InterpolationType::Type::BEZIER:
+				case InterpolationType::BEZIER:
 					//not supported yet:
 					break;
-				case InterpolationType::Type::TRAPEZOIDAL:
+				case InterpolationType::TRAPEZOIDAL:
 					Motion::TrapezoidalInterpolation::getTimeConstrainedInterpolation(inPoint, outPoint, interpolation);
 					break;
 			}
@@ -233,59 +233,4 @@ namespace Motion {
 	}
 
 
-	std::vector<ValidationError> validationErrors = {
-		{ValidationError::Error::NO_VALIDATION_ERROR,								"No Validation Error"},
-		{ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE,				"Point Out of Range"},
-		{ValidationError::Error::CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED,				"Point Velocity Limit Exceeded"},
-		{ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED,	"Point Input Acceleration Limit Exceeded"},
-		{ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED,	"Point Output Acceleration Limit Exceeded"},
-		{ValidationError::Error::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO,			"Point Input Acceleration Is Zero"},
-		{ValidationError::Error::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO,			"Point Output Acceleration Is Zero"},
-		{ValidationError::Error::INTERPOLATION_UNDEFINED,							"Interpolation Undefined"},
-		{ValidationError::Error::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED,				"Interpolation Velocity Limit Exceeded"},
-		{ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE,				"Interpolation Position Out of Range"},
-		{ValidationError::Error::INTERPOLATION_INPUT_ACCELERATION_IS_ZERO,			"Interpolation Input Acceleration is Zero"},
-		{ValidationError::Error::INTERPOLATION_OUTPUT_ACCELERATION_IS_ZERO,			"Interpolation Output Acceleration Is Zero"}
-	};
-
-
-	ValidationError* getValidationError(ValidationError::Error e) {
-		for (auto& error : validationErrors) {
-			if (e == error.error) return &error;
-		}
-		return &validationErrors.front();
-	}
-
-
 };
-
-
-
-
-
-std::vector<InterpolationType> interpolationTypes = {
-	{InterpolationType::Type::STEP,			"Step", "Step"},
-	{InterpolationType::Type::LINEAR,		"Linear", "Linear"},
-	{InterpolationType::Type::TRAPEZOIDAL,	"Trapezoidal", "Trapezoidal"},
-	{InterpolationType::Type::BEZIER,		"Bezier", "Bezier"}
-};
-
-std::vector<InterpolationType>& getInterpolationTypes() {
-	return interpolationTypes;
-}
-
-InterpolationType* getInterpolationType(InterpolationType::Type t) {
-	for (auto& interpolation : interpolationTypes) {
-		if (t == interpolation.type) return &interpolation;
-	}
-	return nullptr;
-}
-
-InterpolationType* getInterpolationType(const char* saveName) {
-	for (auto& interpolation : interpolationTypes) {
-		if (strcmp(saveName, interpolation.saveName) == 0) return &interpolation;
-	}
-	return nullptr;
-}
-
-

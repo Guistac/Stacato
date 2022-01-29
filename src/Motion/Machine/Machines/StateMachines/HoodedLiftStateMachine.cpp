@@ -12,22 +12,22 @@ std::vector<StateParameterValue> HoodedLiftStateMachine::stateParameterValues = 
 	{2, "Raised", "Raised"}
 };
 
-void HoodedLiftStateMachine::assignIoData() {
-	addIoData(gpioDeviceLink);
+void HoodedLiftStateMachine::initialize() {
+	addNodePin(gpioDeviceLink);
 
-	addIoData(hoodOpenSignalPin);
-	addIoData(hoodShutSignalPin);
-	addIoData(liftRaisedSignalPin);
-	addIoData(liftLoweredSignalPin);
-	addIoData(hoodMotorCircuitBreakerSignalPin);
-	addIoData(liftMotorCircuitBreakerSignalPin);
-	addIoData(emergencyStopClearSignalPin);
-	addIoData(localControlEnabledSignalPin);
+	addNodePin(hoodOpenSignalPin);
+	addNodePin(hoodShutSignalPin);
+	addNodePin(liftRaisedSignalPin);
+	addNodePin(liftLoweredSignalPin);
+	addNodePin(hoodMotorCircuitBreakerSignalPin);
+	addNodePin(liftMotorCircuitBreakerSignalPin);
+	addNodePin(emergencyStopClearSignalPin);
+	addNodePin(localControlEnabledSignalPin);
 
-	addIoData(openHoodCommandPin);
-	addIoData(shutHoodCommandPin);
-	addIoData(raiseLiftCommandPin);
-	addIoData(lowerLiftCommandPin);
+	addNodePin(openHoodCommandPin);
+	addNodePin(shutHoodCommandPin);
+	addNodePin(raiseLiftCommandPin);
+	addNodePin(lowerLiftCommandPin);
 
 	addAnimatableParameter(stateParameter);
 }
@@ -165,25 +165,46 @@ bool HoodedLiftStateMachine::isGpioDeviceConnected() {
 }
 
 std::shared_ptr<GpioDevice> HoodedLiftStateMachine::getGpioDevice() {
-	return gpioDeviceLink->getConnectedPins().front()->getGpioDevice();
+	return gpioDeviceLink->getConnectedPins().front()->getSharedPointer<GpioDevice>();
 }
 
 void HoodedLiftStateMachine::updateGpioInSignals() {
-	hoodOpen = hoodOpenSignalPin->getConnectedPins().front()->getBoolean();
-	hoodShut = hoodShutSignalPin->getConnectedPins().front()->getBoolean();
-	liftRaised = liftRaisedSignalPin->getConnectedPins().front()->getBoolean();
-	liftLowered = liftLoweredSignalPin->getConnectedPins().front()->getBoolean();
-	hoodMotorCircuitBreakerTripped = hoodMotorCircuitBreakerSignalPin->getConnectedPins().front()->getBoolean();
-	liftMotorCircuitBreakerTripped = liftMotorCircuitBreakerSignalPin->getConnectedPins().front()->getBoolean();
-	emergencyStopClear = emergencyStopClearSignalPin->getConnectedPins().front()->getBoolean();
-	localControlEnabled = localControlEnabledSignalPin->getConnectedPins().front()->getBoolean();
+	if(hoodOpenSignalPin->isConnected()) hoodOpenSignalPin->copyConnectedPinValue();
+	hoodOpen = *hoodOpenSignalPinValue;
+	
+	if(hoodShutSignalPin->isConnected()) hoodShutSignalPin->copyConnectedPinValue();
+	hoodShut = *hoodShutSignalPinValue;
+	
+	if(liftRaisedSignalPin->isConnected()) liftRaisedSignalPin->copyConnectedPinValue();
+	liftRaised = *liftRaisedSignalPinValue;
+	
+	if(liftLoweredSignalPin->isConnected()) liftLoweredSignalPin->copyConnectedPinValue();
+	liftLowered = *liftLoweredSignalPinValue;
+	
+	if(hoodMotorCircuitBreakerSignalPin->isConnected()) hoodMotorCircuitBreakerSignalPin->copyConnectedPinValue();
+	hoodMotorCircuitBreakerTripped = *hoodMotorCircuitBreakerSignalPinValue;
+	
+	if(liftMotorCircuitBreakerSignalPin->isConnected()) liftMotorCircuitBreakerSignalPin->copyConnectedPinValue();
+	liftMotorCircuitBreakerTripped = *liftMotorCircuitBreakerSignalPinValue;
+	
+	if(emergencyStopClearSignalPin->isConnected()) emergencyStopClearSignalPin->copyConnectedPinValue();
+	emergencyStopClear = *emergencyStopClearSignalPinValue;
+	
+	if(localControlEnabledSignalPin->isConnected()) localControlEnabledSignalPin->copyConnectedPinValue();
+	localControlEnabled = *localControlEnabledSignalPinValue;
 }
 
 void HoodedLiftStateMachine::updateGpioOutSignals() {
+	/*
 	openHoodCommandPin->set(openLid);
 	shutHoodCommandPin->set(shutLid);
 	lowerLiftCommandPin->set(lowerPlatform);
 	raiseLiftCommandPin->set(raisePlatform);
+	 */
+	*openHoodCommandPinValue = openLid;
+	*shutHoodCommandPinValue = shutLid;
+	*lowerLiftCommandPinValue = lowerPlatform;
+	*raiseLiftCommandPinValue = raisePlatform;
 }
 
 bool HoodedLiftStateMachine::areGpioSignalsReady() {
@@ -279,11 +300,11 @@ bool HoodedLiftStateMachine::validateParameterTrack(const std::shared_ptr<Parame
 		curve->b_valid = true;
 		for (auto& point : curve->points) {
 			point->b_valid = true;
-			point->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			point->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 		}
 		for (auto& interpolation : curve->interpolations) {
 			interpolation->b_valid = true;
-			interpolation->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			interpolation->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 		}
 	}
 	return true;

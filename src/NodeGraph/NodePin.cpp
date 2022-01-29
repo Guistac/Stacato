@@ -10,196 +10,16 @@
 void NodePin::disconnectAllLinks() {
 	if (parentNode == nullptr || parentNode->parentNodeGraph == nullptr) return;
 	while (isConnected()) {
-		parentNode->parentNodeGraph->disconnect(NodeLinks.front());
+		parentNode->parentNodeGraph->disconnect(nodeLinks.front());
 	}
-}
-
-bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> otherData) {
-	switch (type) {
-	case NodeData::Type::BOOLEAN_VALUE:
-		switch (otherData->getType()) {
-			case NodeData::Type::BOOLEAN_VALUE:
-			case NodeData::Type::INTEGER_VALUE:
-			case NodeData::Type::REAL_VALUE: return true;
-			default: return false;
-		}
-	case NodeData::Type::INTEGER_VALUE:
-		switch (otherData->getType()) {
-			case NodeData::Type::BOOLEAN_VALUE:
-			case NodeData::Type::INTEGER_VALUE:
-			case NodeData::Type::REAL_VALUE: return true;
-			default: return false;
-		}
-	case NodeData::Type::REAL_VALUE:
-		switch (otherData->getType()) {
-			case NodeData::Type::BOOLEAN_VALUE:
-			case NodeData::Type::INTEGER_VALUE:
-			case NodeData::Type::REAL_VALUE: return true;
-			default: return false;
-		}
-	case NodeData::Type::ACTUATOR_DEVICELINK:
-		switch (otherData->getType()) {
-			case NodeData::Type::ACTUATOR_DEVICELINK: return true;
-			default: return false;
-		}
-	case NodeData::Type::POSITIONFEEDBACK_DEVICELINK:
-		switch (otherData->getType()) {
-			case NodeData::Type::POSITIONFEEDBACK_DEVICELINK: return true;
-			default: return false;
-		}
-	case NodeData::Type::GPIO_DEVICELINK:
-		switch (otherData->getType()) {
-			case NodeData::Type::GPIO_DEVICELINK: return true;
-			default: return false;
-		}
-	case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK:
-		switch (otherData->getType()) {
-			case NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK: return true;
-			default: return false;
-		}
-	case NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK:
-		switch (otherData->getType()) {
-			case NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK: return true;
-			default: return false;
-		}
-	case NodeData::Type::POSITION_CONTROLLED_AXIS_LINK:
-		switch (otherData->getType()) {
-			case NodeData::Type::POSITION_CONTROLLED_AXIS_LINK: return true;
-			default: return false;
-		}
-	case NodeData::Type::DEAD_MANS_SWITCH_LINK:
-		switch(otherData->getType()){
-			case NodeData::Type::DEAD_MANS_SWITCH_LINK: return true;
-			default: return false;
-		}
-	default:
-		return false;
-	}
-}
-
-//setting data (with data conversions)
-void NodePin::set(bool boolean) {
-	switch (type) {
-	case NodeData::Type::BOOLEAN_VALUE: booleanValue = boolean; break;
-	case NodeData::Type::INTEGER_VALUE: integerValue = boolean; break;
-	case NodeData::Type::REAL_VALUE: realValue = boolean; break;
-	default: break;
-	}
-}
-
-void NodePin::set(long long int integer) {
-	switch (type) {
-	case NodeData::Type::INTEGER_VALUE: integerValue = integer; break;
-	case NodeData::Type::BOOLEAN_VALUE: booleanValue = integer > 0; break;
-	case NodeData::Type::REAL_VALUE: realValue = integer; break;
-	default: break;
-	}
-}
-
-void NodePin::set(double real) {
-	switch (type) {
-	case NodeData::Type::REAL_VALUE: realValue = real; break;
-	case NodeData::Type::BOOLEAN_VALUE: booleanValue = real > 0.0; break;
-	case NodeData::Type::INTEGER_VALUE: integerValue = real; break;
-	default: break;
-	}
-}
-
-void NodePin::set(std::shared_ptr<ActuatorDevice> device) {
-	if (isActuatorDeviceLink()) actuatorDevice = device;
-}
-
-void NodePin::set(std::shared_ptr<PositionFeedbackDevice> device) {
-	if (isPositionFeedbackDeviceLink()) positionFeedbackDevice = device;
-}
-
-void NodePin::set(std::shared_ptr<GpioDevice> device) {
-	if (isGpioDeviceLink()) gpioDevice = device;
-}
-
-void NodePin::set(std::shared_ptr<ServoActuatorDevice> device) {
-	if (isServoActuatorDeviceLink()) servoActuatorDevice = device;
-}
-
-void NodePin::set(std::shared_ptr<VelocityControlledAxis> ax) {
-	if (isVelocityControlledAxisLink()) velocityControlledAxis = ax;
-}
-
-void NodePin::set(std::shared_ptr<PositionControlledAxis> ax) {
-	if (isPositionControlledAxisLink()) positionControlledAxis = ax;
-}
-
-void NodePin::set(std::shared_ptr<DeadMansSwitch> dms){
-	if(isDeadMansSwitchLink()) deadMansSwitch = dms;
-}
-
-//reading data (with data conversions)
-bool NodePin::getBoolean() {
-	switch (type) {
-		case NodeData::Type::BOOLEAN_VALUE: return booleanValue;
-		case NodeData::Type::INTEGER_VALUE: return integerValue > 0;
-		case NodeData::Type::REAL_VALUE: return realValue > 0;
-		default: return false;
-	}
-}
-long long int NodePin::getInteger() {
-	switch (type) {
-		case NodeData::Type::INTEGER_VALUE: return integerValue;
-		case NodeData::Type::BOOLEAN_VALUE: return (long long int)booleanValue;
-		case NodeData::Type::REAL_VALUE: return (long long int)realValue;
-		default: return 0;
-	}
-}
-double NodePin::getReal() {
-	switch (type) {
-		case NodeData::Type::REAL_VALUE: return realValue;
-		case NodeData::Type::BOOLEAN_VALUE: return (double)booleanValue;
-		case NodeData::Type::INTEGER_VALUE: return (double)integerValue;
-		default: return std::numeric_limits<double>::signaling_NaN();
-	}
-}
-
-std::shared_ptr<ActuatorDevice> NodePin::getActuatorDevice() {
-	if (isActuatorDeviceLink()) return actuatorDevice;
-	return nullptr;
-}
-
-std::shared_ptr<PositionFeedbackDevice> NodePin::getPositionFeedbackDevice() {
-	if (isPositionFeedbackDeviceLink()) return positionFeedbackDevice;
-	return nullptr;
-}
-
-std::shared_ptr<GpioDevice> NodePin::getGpioDevice() {
-	if (isGpioDeviceLink()) return gpioDevice;
-	return nullptr;
-}
-
-std::shared_ptr<ServoActuatorDevice> NodePin::getServoActuatorDevice() {
-	if (isServoActuatorDeviceLink()) return servoActuatorDevice;
-	return nullptr;
-}
-
-std::shared_ptr<VelocityControlledAxis> NodePin::getVelocityControlledAxis() {
-	if (isVelocityControlledAxisLink()) return velocityControlledAxis;
-	return nullptr;
-}
-
-std::shared_ptr<PositionControlledAxis> NodePin::getPositionControlledAxis() {
-	if (isPositionControlledAxisLink()) return positionControlledAxis;
-	return nullptr;
-}
-
-std::shared_ptr<DeadMansSwitch> NodePin::getDeadMansSwitch(){
-	if(isDeadMansSwitchLink()) return deadMansSwitch;
-	return nullptr;
 }
 
 const char* NodePin::getValueString() {
 	static char output[32];
-	switch (type) {
-		case NodeData::Type::BOOLEAN_VALUE: strcpy(output, booleanValue ? "True" : "False"); break;
-		case NodeData::Type::INTEGER_VALUE: sprintf(output, "%lli", integerValue); break;
-		case NodeData::Type::REAL_VALUE: sprintf(output, "%.5f", realValue); break;
+	switch (dataType) {
+		case DataType::BOOLEAN: sprintf(output, "%s", read<bool>() ? "true" : "false");
+		case DataType::INTEGER: sprintf(output, "%i", read<int>()); break;
+		case DataType::REAL: sprintf(output, "%.5f", read<double>()); break;
 		default: return "No Value";
 	}
 	return (const char*)output;
@@ -207,46 +27,46 @@ const char* NodePin::getValueString() {
 
 std::vector<std::shared_ptr<NodePin>> NodePin::getConnectedPins() {
 	std::vector<std::shared_ptr<NodePin>> output;
-	if (isInput()) {
-		for (auto& link : NodeLinks) {
-			output.push_back(link->getInputData());
-		}
-	}
-	else {
-		for (auto& link : NodeLinks) {
-			output.push_back(link->getOutputData());
-		}
-	}
+	if (isInput()) for (auto& link : nodeLinks) output.push_back(link->getInputData());
+	else for (auto& link : nodeLinks) output.push_back(link->getOutputData());
 	return output;
 }
 
-std::vector<std::shared_ptr<Node>> NodePin::getNodesLinkedAtOutputs() {
-	std::vector<std::shared_ptr<Node>> linkedNodes;
-	for (auto link : NodeLinks) {
-		linkedNodes.push_back(link->getOutputData()->getNode());
-	}
-	return linkedNodes;
+std::shared_ptr<NodePin> NodePin::getConnectedPin(){
+	if(nodeLinks.empty()) return nullptr;
+	if(isInput()) return nodeLinks.front()->getInputData();
+	if(isOutput()) return nodeLinks.front()->getOutputData();
 }
 
-std::vector<std::shared_ptr<Node>> NodePin::getNodesLinkedAtInputs() {
-	std::vector<std::shared_ptr<Node>> linkedNodes;
-	for (auto link : NodeLinks) {
-		linkedNodes.push_back(link->getInputData()->getNode());
+void NodePin::updateConnectedPins(){
+	for(auto& pin : getConnectedPins()){
+		pin->getNode()->updatePin(pin);
 	}
-	return linkedNodes;
+}
+
+bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> other){
+	switch(dataType){
+		case DataType::BOOLEAN:
+		case DataType::INTEGER:
+		case DataType::REAL:
+			switch(other->dataType){
+				case DataType::BOOLEAN:
+				case DataType::INTEGER:
+				case DataType::REAL:
+					return true;
+				default:
+					return false;
+			}
+		default:
+			return other->dataType == dataType;
+	}
 }
 
 bool NodePin::save(tinyxml2::XMLElement* xml) {
-	xml->SetAttribute("SaveName", getSaveName());
-	xml->SetAttribute("DisplayName", getDisplayName());
-	xml->SetAttribute("DataType", getNodeDataType(getType())->saveName);
+	xml->SetAttribute("SaveString", getSaveString());
+	xml->SetAttribute("DisplayString", getDisplayString());
+	xml->SetAttribute("DataType", Enumerator::getSaveString(dataType));
 	xml->SetAttribute("UniqueID", getUniqueID());
-	switch (getType()) {
-		case NodeData::BOOLEAN_VALUE: xml->SetAttribute(getNodeDataType(getType())->saveName, getBoolean()); break;
-		case NodeData::INTEGER_VALUE: xml->SetAttribute(getNodeDataType(getType())->saveName, getInteger()); break;
-		case NodeData::REAL_VALUE: xml->SetAttribute(getNodeDataType(getType())->saveName, getReal()); break;
-		default: break;
-	}
 	xml->SetAttribute("Visible", isVisible());
 	if (b_acceptsMultipleInputs) xml->SetAttribute("AcceptsMultipleInputs", true);
 	if (b_disablePin) xml->SetAttribute("DisablePin", true);
@@ -261,12 +81,12 @@ bool NodePin::load(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 
 	//here we load SaveName again, this should not be necessary since we already matched it or it was declared in the static object pin?
-	const char* saveNameString;
-	if (xml->QueryStringAttribute("SaveName", &saveNameString) != XML_SUCCESS) return Logger::warn("Could not load Pin SaveName");
-	strcpy(saveName, saveNameString);
-	const char* displayNameString;
-	if (xml->QueryStringAttribute("DisplayName", &displayNameString) != XML_SUCCESS) return Logger::warn("Could not load Pin DisplayName");
-	strcpy(displayName, displayNameString);
+	const char* savestr;
+	if (xml->QueryStringAttribute("SaveString", &savestr) != XML_SUCCESS) return Logger::warn("Could not load Pin SaveName");
+	strcpy(saveString, savestr);
+	const char* displaystr;
+	if (xml->QueryStringAttribute("DisplayString", &displaystr) != XML_SUCCESS) return Logger::warn("Could not load Pin DisplayName");
+	strcpy(displayString, displaystr);
 
 	int pinUniqueID;
 	if (xml->QueryIntAttribute("UniqueID", &pinUniqueID) != XML_SUCCESS) return Logger::warn("Could not load Pin ID");
@@ -275,27 +95,9 @@ bool NodePin::load(tinyxml2::XMLElement* xml) {
 	//here we load dataType again, this should not be necessary since we already matched it or an object declared the type on construction
 	const char* dataTypeString;
 	if (xml->QueryStringAttribute("DataType", &dataTypeString) != XML_SUCCESS) return Logger::warn("Could not load Pin Datatype");
-	if (getNodeDataType(dataTypeString) == nullptr) return Logger::warn("Could not read Pin DataType");
-	type = getNodeDataType(dataTypeString)->type;
+	if (!Enumerator::isValidSaveName<NodePin::DataType>(dataTypeString)) return Logger::warn("Could not read Pin DataType");
+	dataType = Enumerator::getEnumeratorFromSaveString<NodePin::DataType>(dataTypeString);
 
-	switch (type) {
-		case NodeData::BOOLEAN_VALUE: {
-			bool booleanData;
-			if (xml->QueryBoolAttribute(dataTypeString, &booleanData) != XML_SUCCESS) return Logger::warn("Could not find data of type {}", dataTypeString);
-			set(booleanData);
-		}break;
-		case NodeData::INTEGER_VALUE: {
-			long long int integerData;
-			if (xml->QueryInt64Attribute(dataTypeString, &integerData) != XML_SUCCESS) return Logger::warn("Could not find data of type {}", dataTypeString);
-			set(integerData);
-			}break;
-		case NodeData::REAL_VALUE: {
-			double realData;
-			if (xml->QueryDoubleAttribute(dataTypeString, &realData) != XML_SUCCESS) return Logger::warn("Could not find data of type {}", dataTypeString);
-			set(realData);
-			}break;
-		default: break;
-	}
 	if (xml->QueryBoolAttribute("Visible", &b_visible) != XML_SUCCESS) return Logger::warn("Could not load pin visibility");
 
 	//these are optionnally defined, so we don't do success checking
@@ -308,36 +110,6 @@ bool NodePin::load(tinyxml2::XMLElement* xml) {
 	return true;
 }
 
-bool NodePin::matches(const char* saveNameString, NodeData::Type type) {
-	return strcmp(saveName, saveNameString) == 0 && type == getType();
-}
-
-
-
-std::vector<NodeData> NodeDataTypes = {
-	{NodeData::Type::BOOLEAN_VALUE, "Boolean", "Boolean"},
-	{NodeData::Type::INTEGER_VALUE, "Integer", "Integer"},
-	{NodeData::Type::REAL_VALUE, "Real", "Real"},
-	{NodeData::Type::ACTUATOR_DEVICELINK, "Actuator", "ActuatorDeviceLink"},
-	{NodeData::Type::POSITIONFEEDBACK_DEVICELINK, "Position Feedback", "PositionFeedbackDeviceLink"},
-	{NodeData::Type::GPIO_DEVICELINK, "GPIO", "GPIODeviceLink"},
-	{NodeData::Type::SERVO_ACTUATOR_DEVICE_LINK, "Servo Actuator", "ServoActuatorDeviceLink"},
-	{NodeData::Type::VELOCITY_CONTROLLED_AXIS_LINK, "Velocity Controlled Axis", "VelocityControlledAxisLink"},
-	{NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, "Position Controlled Axis", "PositionControlledAxisLink"},
-	{NodeData::Type::DEAD_MANS_SWITCH_LINK, "Dead Man's Switch", "DeadMansSwitchLink"}
-};
-std::vector<NodeData>& getNodeDataTypes() {
-	return NodeDataTypes;
-}
-NodeData* getNodeDataType(NodeData::Type type) {
-	for (NodeData& dataType : NodeDataTypes) {
-		if (type == dataType.type) return &dataType;
-	}
-	return nullptr;
-}
-NodeData* getNodeDataType(const char* saveName) {
-	for (NodeData& dataType : NodeDataTypes) {
-		if (strcmp(saveName, dataType.saveName) == 0) return &dataType;
-	}
-	return nullptr;
+bool NodePin::matches(const char* savestr, NodePin::DataType type) {
+	return strcmp(saveString, savestr) == 0 && type == dataType;
 }

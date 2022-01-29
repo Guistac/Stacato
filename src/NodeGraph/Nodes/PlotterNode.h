@@ -10,40 +10,19 @@
 class PlotterNode : public Node {
 public:
 
-	DEFINE_PROCESSOR_NODE(PlotterNode, "Plotter", "Plotter", "Utility")
-
-	virtual void assignIoData() {
-		addIoData(input);
-		data.setMaxSize(bufferSize);
-	}
+	DEFINE_NODE(PlotterNode, "Plotter", "Plotter", Node::Type::PROCESSOR, "Utility")
 
 	int bufferSize = 512;
 	float displayLengthSeconds = 5.0;
 	ScrollingBuffer data;
 	bool wasConnected = false;
 
-	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_INPUT, "input", NodePinFlags_ForceDataField | NodePinFlags_DisableDataField);
+	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", NodePin::Flags::ForceDataField | NodePin::Flags::DisableDataField);
 
-	virtual void process() {
-		if (input->isConnected()) {
-			if (!wasConnected) {
-				wasConnected = true;
-				data.clear();
-			}
-			glm::vec2 newPoint;
-			newPoint.x = Timing::getProgramTime_seconds();
-			newPoint.y = input->getLinks().front()->getInputData()->getReal();
-			data.addPoint(newPoint);
-			input->set(newPoint.y);
-		}
-		else {
-			if (wasConnected) {
-				data.clear();
-				wasConnected = false;
-			}
-		}
-	}
+	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 
+	virtual void process();
+	
 	virtual void nodeSpecificGui() {
 		if (ImGui::BeginTabItem("Plot")) {
 			if (ImGui::InputInt("Buffer Size", &bufferSize, 0, 0)) data.setMaxSize(bufferSize);
@@ -78,3 +57,28 @@ public:
 		return true;
 	}
 };
+
+void PlotterNode::initialize(){
+	addNodePin(input);
+	data.setMaxSize(bufferSize);
+}
+
+void PlotterNode::process() {
+	if (input->isConnected()) {
+		input->copyConnectedPinValue();
+		if (!wasConnected) {
+			wasConnected = true;
+			data.clear();
+		}
+		glm::vec2 newPoint;
+		newPoint.x = Timing::getProgramTime_seconds();
+		newPoint.y = *inputPinValue;
+		data.addPoint(newPoint);
+	}
+	else {
+		if (wasConnected) {
+			data.clear();
+			wasConnected = false;
+		}
+	}
+}

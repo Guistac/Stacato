@@ -8,11 +8,15 @@ class PositionControlledSingleAxisMachine : public Machine{
 	
 	DEFINE_MACHINE_NODE(PositionControlledSingleAxisMachine, "Position Controlled Single Axis Machine", "PositionControlledSingleAxisMachine", "Basic")
 
-	std::shared_ptr<NodePin> positionControlledAxisPin = std::make_shared<NodePin>(NodeData::Type::POSITION_CONTROLLED_AXIS_LINK, DataDirection::NODE_INPUT, "Position Controlled Axis");
-	std::shared_ptr<NodePin> positionPin = std::make_shared<NodePin>(NodeData::Type::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position");
-	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(NodeData::Type::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity");
+	std::shared_ptr<NodePin> positionControlledAxisPin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS, NodePin::Direction::NODE_INPUT, "Position Controlled Axis");
+	
+	std::shared_ptr<double> positionPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<NodePin> positionPin = std::make_shared<NodePin>(positionPinValue, NodePin::Direction::NODE_OUTPUT, "Position");
+	
+	std::shared_ptr<double> velocityPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(velocityPinValue, NodePin::Direction::NODE_OUTPUT, "Velocity");
 
-	std::shared_ptr<AnimatableParameter> positionParameter = std::make_shared<AnimatableParameter>("Position", ParameterDataType::Type::KINEMATIC_POSITION_CURVE, "units");
+	std::shared_ptr<AnimatableParameter> positionParameter = std::make_shared<AnimatableParameter>("Position", ParameterDataType::KINEMATIC_POSITION_CURVE, "units");
 
 	bool isAxisConnected();
 	std::shared_ptr<PositionControlledAxis> getAxis();
@@ -48,17 +52,19 @@ class PositionControlledSingleAxisMachine : public Machine{
 	
 	//=========== SIMULATION ==========
 	
-	enum class SimulationControlMode{
+	enum class ControlMode{
 		VELOCITY_TARGET,
 		POSITION_TARGET,
-		FAST_STOP,
-		PLOT
+		PARAMETER_TRACK
 	};
 	
-	SimulationControlMode controlMode = SimulationControlMode::VELOCITY_TARGET;
-	Motion::Profile simulationMotionProfile;
-	std::shared_ptr<Motion::Interpolation> simulationTargetInterpolation = std::make_shared<Motion::Interpolation>();
+	ControlMode controlMode = ControlMode::VELOCITY_TARGET;
+	Motion::Profile motionProfile;
+	std::shared_ptr<Motion::Interpolation> targetInterpolation = std::make_shared<Motion::Interpolation>();
 	
 	bool hasManualPositionTarget();
 	double getManualPositionTarget();
+	
+	double getActualPosition();
+	double getActualVelocitu();
 };

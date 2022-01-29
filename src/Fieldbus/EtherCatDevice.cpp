@@ -7,6 +7,8 @@
 #include <imgui_internal.h>
 #include <tinyxml2.h>
 
+void EtherCatDevice::initialize(){}
+
 bool EtherCatDevice::isDetected() {
     return identity != nullptr && identity->state != EC_STATE_NONE;
 }
@@ -15,15 +17,20 @@ bool EtherCatDevice::isConnected() {
     return isDetected() && !isStateNone() && EtherCatFieldbus::isCyclicExchangeActive();;
 }
 
+void EtherCatDevice::readInputs(){}
+void EtherCatDevice::prepareOutputs(){}
+void EtherCatDevice::onConnection(){}
+void EtherCatDevice::onDisconnection(){}
+
 bool EtherCatDevice::save(tinyxml2::XMLElement* xml) {
     using namespace tinyxml2;
     XMLElement* identificationXML = xml->InsertNewChildElement("Identification");
-    identificationXML->SetAttribute("Type", getIdentificationType(identificationType)->saveName);
+    identificationXML->SetAttribute("Type", Enumerator::getSaveString(identificationType));
     switch (identificationType) {
-        case EtherCatDeviceIdentification::Type::STATION_ALIAS:
+		case EtherCatDevice::IdentificationType::STATION_ALIAS:
             identificationXML->SetAttribute("StationAlias", stationAlias);
             break;
-        case EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID:
+		case EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID:
             identificationXML->SetAttribute("ExplicitDeviceID", explicitDeviceID);
             break;
     }
@@ -38,15 +45,15 @@ bool EtherCatDevice::load(tinyxml2::XMLElement* xml) {
     if (!identificationXML) return Logger::warn("Could not load identification attribute");
     const char* identificationTypeString;
     if (identificationXML->QueryStringAttribute("Type", &identificationTypeString) != XML_SUCCESS) return Logger::warn("Could not load identification Type");
-    if (getIdentificationType(identificationTypeString) == nullptr) return Logger::warn("Could not read identification Type");
-    identificationType = getIdentificationType(identificationTypeString)->type;
+    if (!Enumerator::isValidSaveName<EtherCatDevice::IdentificationType>(identificationTypeString)) return Logger::warn("Could not read identification Type");
+	identificationType = Enumerator::getEnumeratorFromSaveString<EtherCatDevice::IdentificationType>(identificationTypeString);
     switch (identificationType) {
-        case EtherCatDeviceIdentification::Type::STATION_ALIAS:
+		case EtherCatDevice::IdentificationType::STATION_ALIAS:
             int alias;
             if (identificationXML->QueryIntAttribute("StationAlias", &alias) != XML_SUCCESS) return Logger::warn("Could not load Station Alias");
             stationAlias = alias;
             break;
-        case EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID:
+		case EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID:
             int id;
             if (identificationXML->QueryIntAttribute("ExplicitDeviceID", &id) != XML_SUCCESS) return Logger::warn("Could not load Explicit Device ID");
             explicitDeviceID = id;
@@ -174,66 +181,14 @@ bool EtherCatDevice::writeSDO_String(uint16_t index, uint8_t subindex, const cha
     return CanOpen::writeSDO_String(index, subindex, data, getSlaveIndex());
 }
 
-
-
-//====================== DATA TRANSFER STATE =================================
-
-std::vector<EtherCatDevice::DataTransferState> EtherCatDevice::dataTransferStates = {
-    {DataTransferState::State::NO_TRANSFER, ""},
-    {DataTransferState::State::TRANSFERRING, "Transferring..."},
-    {DataTransferState::State::SUCCEEDED, "Transfer Succeeded"},
-    {DataTransferState::State::SAVING, "Saving to Device Memory..."},
-    {DataTransferState::State::SAVED, "Saved to Device Memory"},
-    {DataTransferState::State::FAILED, "Transfer Failed"}
-};
-
-EtherCatDevice::DataTransferState* EtherCatDevice::getDataTransferState(DataTransferState::State s) {
-    for (DataTransferState& state : dataTransferStates) {
-        if (s == state.state) return &state;
-    }
-    return nullptr;
-}
-
-
 //================== AL Status Code Download =======================
 
 void EtherCatDevice::downloadALStatusCode(){
 	std::thread AlStatusDownloader([this](){
-		AlStatusCodeDownloadState = DataTransferState::State::TRANSFERRING;
+		AlStatusCodeDownloadState = DataTransferState::TRANSFERRING;
 		int wc = ec_FPRD(getAssignedAddress(), 0x134, 2, &downloadedALStatuscode, EC_TIMEOUTSAFE);
-		if(wc == 1) AlStatusCodeDownloadState = DataTransferState::State::SUCCEEDED;
-		else AlStatusCodeDownloadState = DataTransferState::State::FAILED;
+		if(wc == 1) AlStatusCodeDownloadState = DataTransferState::SUCCEEDED;
+		else AlStatusCodeDownloadState = DataTransferState::FAILED;
 	});
 	AlStatusDownloader.detach();
-}
-
-
-
-
-
-
-
-
-
-//=============== Identification Types ====================
-
-std::vector<EtherCatDeviceIdentification> identificationTypes = {
-	{EtherCatDeviceIdentification::Type::STATION_ALIAS, "Station Alias", "StationAlias"},
-	{EtherCatDeviceIdentification::Type::EXPLICIT_DEVICE_ID, "Explicit Device ID", "ExplicitDeviceID"}
-};
-
-std::vector<EtherCatDeviceIdentification>& getIdentificationTypes() {
-	return identificationTypes;
-}
-EtherCatDeviceIdentification* getIdentificationType(const char* saveName) {
-	for (EtherCatDeviceIdentification& identification : identificationTypes) {
-		if (strcmp(saveName, identification.saveName) == 0) return &identification;
-	}
-	return nullptr;
-}
-EtherCatDeviceIdentification* getIdentificationType(EtherCatDeviceIdentification::Type t) {
-	for (EtherCatDeviceIdentification& identification : identificationTypes) {
-		if (t == identification.type) return &identification;
-	}
-	return nullptr;
 }

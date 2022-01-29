@@ -39,11 +39,11 @@ void Manoeuvre::addTrack(std::shared_ptr<AnimatableParameter>& parameter) {
 		}
 	}
 	switch (type) {
-		case ManoeuvreType::Type::KEY_POSITION:
+		case Type::KEY_POSITION:
 				newTrack->setSequenceType(SequenceType::Type::CONSTANT);
 				break;
-			case ManoeuvreType::Type::TIMED_MOVEMENT:
-			case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
+			case Type::TIMED_MOVEMENT:
+			case Type::MOVEMENT_SEQUENCE:
 				newTrack->originIsPreviousTarget = true;
 				newTrack->setSequenceType(SequenceType::Type::TIMED_MOVE);
 	}
@@ -98,21 +98,21 @@ float Manoeuvre::getPlaybackProgress() {
 
 
 
-void Manoeuvre::setType(ManoeuvreType::Type t) {
+void Manoeuvre::setType(Manoeuvre::Type t) {
 	type = t;
 	switch (type) {
-		case ManoeuvreType::Type::KEY_POSITION:
+		case Manoeuvre::Type::KEY_POSITION:
 			for (auto& track : tracks) {
 				track->setSequenceType(SequenceType::Type::CONSTANT);
 			}
 			break;
-		case ManoeuvreType::Type::TIMED_MOVEMENT:
+		case Manoeuvre::Type::TIMED_MOVEMENT:
 			for (auto& track : tracks) {
 				track->originIsPreviousTarget = true;
 				track->setSequenceType(SequenceType::Type::TIMED_MOVE);
 			}
 			break;
-		case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
+		case Manoeuvre::Type::MOVEMENT_SEQUENCE:
 			for (auto& track : tracks) {
 				track->setSequenceType(SequenceType::Type::TIMED_MOVE);
 			}
@@ -145,35 +145,4 @@ void Manoeuvre::refresh() {
 	for (auto& track : tracks) {
 		if (!track->b_valid) { b_valid = false; break; }
 	}
-}
-
-
-
-
-
-
-
-
-
-
-std::vector<ManoeuvreType> manoeuvreTypes = {
-	{ManoeuvreType::Type::KEY_POSITION,		"Key Position",		"KeyPosition",		"KEY"},
-	{ManoeuvreType::Type::TIMED_MOVEMENT,	"Timed Movement",	"TimedMovement",	"TIM"},
-	{ManoeuvreType::Type::MOVEMENT_SEQUENCE,"Movement Sequence","MovementSequence", "SEQ"}
-};
-
-std::vector<ManoeuvreType>& getManoeuvreTypes() {
-	return manoeuvreTypes;
-}
-ManoeuvreType* getManoeuvreType(ManoeuvreType::Type t) {
-	for (auto& manoeuvreType : manoeuvreTypes) {
-		if (t == manoeuvreType.type) return &manoeuvreType;
-	}
-	return nullptr;
-}
-ManoeuvreType* getManoeuvreType(const char* saveName) {
-	for (auto& manoeuvreType : manoeuvreTypes) {
-		if (strcmp(manoeuvreType.saveName, saveName) == 0) return &manoeuvreType;
-	}
-	return nullptr;
 }

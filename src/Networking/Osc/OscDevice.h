@@ -41,6 +41,10 @@ namespace OSC{
 		std::shared_ptr<Message> parentMessage = nullptr;
 		std::shared_ptr<NodePin> pin;
 		
+		std::shared_ptr<bool> booleanValue = std::make_shared<bool>(false);
+		std::shared_ptr<int> integerValue = std::make_shared<int>(0);
+		std::shared_ptr<double> realValue = std::make_shared<double>(0.0);
+		
 		//used to update argument name
 		int messageIndex = -1;
 		int argumentIndex = -1;
@@ -105,6 +109,10 @@ class OscDevice : public NetworkDevice{
 	
 	std::shared_ptr<OSC::Message> selectedOutgoingMessage = nullptr;
 	std::shared_ptr<OSC::Message> selectedIncomingMessage = nullptr;
+	
+	virtual void nodeSpecificGui();\
+	virtual bool load(tinyxml2::XMLElement* xml);\
+	virtual bool save(tinyxml2::XMLElement* xml);\
 };
 
 

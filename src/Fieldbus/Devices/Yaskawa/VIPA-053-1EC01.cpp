@@ -21,17 +21,15 @@ void VipaBusCoupler_053_1EC01::onConnection() {
 	for(auto& module : modules) module->onConnection();
 }
 
-void VipaBusCoupler_053_1EC01::assignIoData() {
+void VipaBusCoupler_053_1EC01::initialize() {
     //by default, this node only has one pin
     //no modules are loaded by default
     std::shared_ptr<Device> thisDevice = std::dynamic_pointer_cast<Device>(shared_from_this());
     gpioDevice->setParentDevice(thisDevice);
-    gpioDeviceLink->set(gpioDevice);
+	gpioDeviceLink->assignData(gpioDevice);
     //gpio device link pin
-    addIoData(gpioDeviceLink);
+    addNodePin(gpioDeviceLink);
 }
-
-
 
 
 bool VipaBusCoupler_053_1EC01::startupConfiguration() {
@@ -77,7 +75,8 @@ bool VipaBusCoupler_053_1EC01::startupConfiguration() {
 void VipaBusCoupler_053_1EC01::readInputs() {
 	txPdoAssignement.pullDataFrom(identity->inputs);
 	for(auto& module : modules) module->readInputs();
-	gpioDevice->b_ready = isStateOperational();
+	bool operationalState = isStateOperational();
+	gpioDevice->b_ready = operationalState;
 }
 
 
@@ -98,17 +97,17 @@ void VipaBusCoupler_053_1EC01::prepareOutputs(){
 
 
 void VipaBusCoupler_053_1EC01::configureFromDeviceModules() {
-    configureFromDeviceModulesDownloadStatus = DataTransferState::State::TRANSFERRING;
+    configureFromDeviceModulesDownloadStatus = DataTransferState::TRANSFERRING;
     std::vector<std::shared_ptr<VipaModule>> downloadedModules;
     if (!downloadDeviceModules(downloadedModules)) {
-        configureFromDeviceModulesDownloadStatus = DataTransferState::State::FAILED;
+        configureFromDeviceModulesDownloadStatus = DataTransferState::FAILED;
         return;
     }
 	for(int i = modules.size() - 1; i >= 0; i--) removeModule(modules[i]);
 	txPdoAssignement.clear();
 	rxPdoAssignement.clear();
 	for(auto& module : downloadedModules) addModule(module);
-    configureFromDeviceModulesDownloadStatus = DataTransferState::State::SUCCEEDED;
+    configureFromDeviceModulesDownloadStatus = DataTransferState::SUCCEEDED;
 }
 
 
@@ -145,8 +144,8 @@ void VipaBusCoupler_053_1EC01::addModule(std::shared_ptr<VipaModule> module){
 	module->setIndex(modules.size());
 	modules.push_back(module);
 	selectedModule = module;
-	for(auto& inputPin : module->inputPins) addIoData(inputPin);
-	for(auto& outputPin : module->outputPins) addIoData(outputPin);
+	for(auto& inputPin : module->inputPins) addNodePin(inputPin);
+	for(auto& outputPin : module->outputPins) addNodePin(outputPin);
 	
 	module->addTxPdoMappingModule(txPdoAssignement);
 	module->addRxPdoMappingModule(rxPdoAssignement);
@@ -180,8 +179,8 @@ void VipaBusCoupler_053_1EC01::reorderModule(int oldIndex, int newIndex){
 	modules.insert(modules.begin() + newIndex, temp);
 	
 	//erase all input pins from the nodes pin vectors
-	std::vector<std::shared_ptr<NodePin>>& inputPins = getNodeInputData();
-	std::vector<std::shared_ptr<NodePin>>& outputPins = getNodeOutputData();
+	std::vector<std::shared_ptr<NodePin>>& inputPins = getInputPins();
+	std::vector<std::shared_ptr<NodePin>>& outputPins = getOutputPins();
 	inputPins.clear();
 	outputPins.clear();
 	

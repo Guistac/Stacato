@@ -4,26 +4,17 @@
 #include "NodePin.h"
 #include "NodeLink.h"
 
-#define DEFINE_PROCESSOR_NODE(className, nodeName, saveName, category)	public:\
-		virtual const char* getSaveName() { return saveName; }\
-		virtual const char* getNodeCategory() { return category; }\
-		className(){ setName(nodeName); }\
-		virtual Node::Type getType() { return Node::Type::PROCESSOR; }\
-		virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }\
-
-#define	DEFINE_CLOCK_NODE(className, nodeName, saveName, category)	public:\
-		virtual const char* getSaveName() { return saveName; }\
-		virtual const char* getNodeCategory() { return category; }\
-		className(){ setName(nodeName); }\
-		virtual Node::Type getType() { return Node::Type::CLOCK; }\
-		virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }\
-
-#define DEFINE_CONTAINER_NODE(className, nodeName, saveName, category)	public:\
-		virtual const char * getSaveName() { return saveName; }\
-		virtual const char* getNodeCategory() { return category; }\
-		className(){ setName(nodeName); }\
-		virtual Node::Type getType() { return Node::Type::CONTAINER; }\
-		virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }\
+#define DEFINE_NODE(className, nodeName, saveName, type, category) \
+	virtual const char* getSaveName() { return saveName; }\
+	virtual const char* getNodeCategory() { return category; }\
+	className(){ setName(nodeName); }\
+	virtual Node::Type getType() { return type; }\
+	virtual std::shared_ptr<Node> getNewInstance(){\
+		std::shared_ptr<Node> newInstance = std::make_shared<className>();\
+		newInstance->initialize();\
+		return newInstance;\
+	}\
+	virtual void initialize();\
 
 class NodeGraph;
 namespace tinyxml2 { class XMLElement; }
@@ -39,12 +30,13 @@ public:
 		MACHINE,
 		CONTAINER
 	};
-
+	
+	virtual std::shared_ptr<Node> getNewInstance() = 0;
+	virtual void initialize() = 0;
 	virtual Type getType() = 0;
+	
 	virtual const char* getSaveName() = 0;
 	virtual const char* getNodeCategory() = 0;
-	virtual std::shared_ptr<Node> getNewNodeInstance() = 0;
-
 	void setName(const char* n) { strcpy(name, n); }
 	const char* getName() { return name; }
 	char* getNameBuffer(int& bufferSize) {
@@ -52,39 +44,38 @@ public:
 		return name;
 	}
 
-	void addIoData(std::shared_ptr<NodePin> d);
+	//pin handling
+	void addNodePin(std::shared_ptr<NodePin> d);
 	void removeIoData(std::shared_ptr<NodePin> d);
-	std::vector<std::shared_ptr<NodePin>>& getNodeInputData() { return nodeInputData; }
-	std::vector<std::shared_ptr<NodePin>>& getNodeOutputData() { return nodeOutputData; }
-	bool hasInputs() { return !nodeInputData.empty(); }
-	bool hasOutputs() { return !nodeOutputData.empty(); }
-	virtual void assignIoData() = 0;
+	std::vector<std::shared_ptr<NodePin>>& getInputPins() { return nodeInputPins; }
+	std::vector<std::shared_ptr<NodePin>>& getOutputPins() { return nodeOutputPins; }
+	bool hasInputs() { return !nodeInputPins.empty(); }
+	bool hasOutputs() { return !nodeOutputPins.empty(); }
+	virtual void updatePin(std::shared_ptr<NodePin> pin){}
 
+	//nodegraph
 	int getUniqueID() { return uniqueID; }
 	bool isInNodeGraph() { return b_isInNodeGraph; }
-
-	virtual void process() = 0;
+	glm::vec2 getNodeGraphPosition();
+	void restoreSavedPosition();
+	
+	//processing
+	virtual void process(){}
 	bool wasProcessed() { return b_wasProcessed; }
 	bool areAllLinkedInputNodesProcessed();
 
-	//GUI STUFF
-
+	//gui
 	virtual void nodeGui();
 	virtual void propertiesGui(); //defined in nodegui.cpp
 	virtual void nodeSpecificGui() {}
-
-	glm::vec2 getNodeGraphPosition();
-	void restoreSavedPosition();
-
 	float getTitleWidth();
 	void titleGui();
 
-	//for split nodes
+	//splitting
 	bool isSplit() { return b_isSplit; }
 	void getSplitNodeGraphPosition(glm::vec2& inputNode, glm::vec2& outputNode);
 
-	//SAVING AND LOADING
-
+	//saving & loading
 	virtual bool load(tinyxml2::XMLElement* xml) { return true; }
 	virtual bool save(tinyxml2::XMLElement* xml) { return true; }
 
@@ -100,8 +91,8 @@ private:
 	bool b_isInNodeGraph = false;
 	int uniqueID = -1;
 
-	std::vector<std::shared_ptr<NodePin>> nodeInputData;
-	std::vector<std::shared_ptr<NodePin>> nodeOutputData;
+	std::vector<std::shared_ptr<NodePin>> nodeInputPins;
+	std::vector<std::shared_ptr<NodePin>> nodeOutputPins;
 
 	//processing flags
 	bool b_wasProcessed = false;
@@ -115,10 +106,14 @@ private:
 	glm::vec2 savedSplitPosition;
 };
 
-struct NodeType {
-	Node::Type type;
-	const char displayName[64];
-	const char saveName[64];
-};
-NodeType* getNodeType(Node::Type t);
-NodeType* getNodeType(const char* saveName);
+
+
+#define NodeTypeStrings \
+	{Node::Type::IODEVICE,	"IODevice",		"IODevice"},\
+	{Node::Type::PROCESSOR, "Processor",	"Processor"},\
+	{Node::Type::CLOCK,		"Clock",		"Clock"},\
+	{Node::Type::AXIS,		"Axis",			"Axis"},\
+	{Node::Type::MACHINE,	"Machine",		"Machine"},\
+	{Node::Type::CONTAINER, "Container",	"Container"}\
+
+DEFINE_ENUMERATOR(Node::Type, NodeTypeStrings)

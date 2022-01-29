@@ -6,8 +6,8 @@
 
 #include "Gui/NodeEditor/NodeEditorGui.h"
 
-#include "nodeGraph/Node.h"
-#include "nodeGraph/nodeGraph.h"
+#include "NodeGraph/Node.h"
+#include "NodeGraph/NodeGraph.h"
 
 namespace NodeEditor = ax::NodeEditor;
 
@@ -26,16 +26,19 @@ void NodePin::dataGui() {
     if(b_disableDataField) ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 
     ImGui::PushID(getUniqueID());
-    switch (getType()) {
-    case NodeData::BOOLEAN_VALUE:
-        ImGui::Checkbox("##", &booleanValue);
-        break;
-    case NodeData::INTEGER_VALUE:
-        ImGui::InputScalar("##", ImGuiDataType_S64, &integerValue);
-        break;
-    case NodeData::REAL_VALUE:
-        ImGui::InputDouble("##", &realValue, 0.0, 0.0, "%.3f");
-        break;
+	//TODO: this might cause issues if nothing is connected to the pin
+    switch (dataType) {
+		case DataType::BOOLEAN:
+			ImGui::Checkbox("##", getSharedPointer<bool>().get());
+			break;
+		case DataType::INTEGER:
+			ImGui::InputInt("##", getSharedPointer<int>().get());
+			break;
+		case DataType::REAL:
+			ImGui::InputDouble("##", getSharedPointer<double>().get(), 0.0, 0.0, "%.3f");
+			break;
+		default:
+			break;
     }
     ImGui::PopID();
     if (b_disableDataField) ImGui::PopItemFlag();
@@ -46,12 +49,12 @@ float NodePin::getGuiWidth() {
     static float iconDummyWidth = ImGui::GetTextLineHeight() * 0.75;                //width the pin icon actually occupies
     static float dataFieldWidth = ImGui::GetTextLineHeight() * 4.0;
     //get the pin title width
-    float pinTextWidth = ImGui::CalcTextSize(getDisplayName()).x;
+    float pinTextWidth = ImGui::CalcTextSize(getDisplayString()).x;
 
     //if the pin is connected, don't display its value, but add space for an icon
     if (!shouldDisplayDataGui())  return pinTextWidth + ImGui::GetStyle().ItemSpacing.x + iconDummyWidth;
     //if it is connected and the type is boolean, add the width and spacing for a checkbox and icon
-    else if (getType() == NodeData::BOOLEAN_VALUE)  return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + ImGui::GetFrameHeight();
+    else if (dataType == DataType::BOOLEAN)  return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + ImGui::GetFrameHeight();
     //if it is connected and is not a boolean, add the width and spacing for an input field and icon
     else                                            return pinTextWidth + 2 * ImGui::GetStyle().ItemSpacing.x + iconDummyWidth + dataFieldWidth;
 }
@@ -71,11 +74,11 @@ void NodePin::pinGui() {
     static float dataFieldWidth = ImGui::GetTextLineHeight() * 4.0;
 
     pinIcon icon;
-    switch (getType()) {
-    case NodeData::BOOLEAN_VALUE: icon = ROUNDED_SQUARED; break;
-    case NodeData::INTEGER_VALUE: icon = DIAMOND; break;
-    case NodeData::REAL_VALUE: icon = ARROW; break;
-    default: icon = CIRCLE_ARROW_OUT; break;
+    switch (dataType) {
+		case DataType::BOOLEAN: icon = ROUNDED_SQUARED; break;
+		case DataType::INTEGER: icon = DIAMOND; break;
+		case DataType::REAL: icon = ARROW; break;
+		default: icon = CIRCLE_ARROW_OUT; break;
     }
 
     glm::vec4 pinColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
@@ -85,7 +88,7 @@ void NodePin::pinGui() {
 
     if (isInput()) {
         if (!b_disablePin) {
-            NodeEditor::BeginPin(getUniqueID(), NodeEditor::PinKind::Input);
+			NodeEditor::BeginPin(getUniqueID(), NodeEditor::PinKind::Input);
             NodeEditor::PinPivotAlignment(ImVec2(0.0, 0.5));
         }
         ImGui::Dummy(glm::vec2(iconDummyWidth));
@@ -97,7 +100,7 @@ void NodePin::pinGui() {
             DrawPinIcon(ImGui::GetWindowDrawList(), min, max, icon, isConnected(), ImColor(pinColor), ImColor(0.0f, 0.0f, 0.0f, 1.0f));
         }
         ImGui::SameLine();
-        ImGui::Text(getDisplayName());
+        ImGui::Text("%s", getDisplayString());
         if (!b_disablePin) {
             NodeEditor::EndPin();
         }
@@ -114,10 +117,11 @@ void NodePin::pinGui() {
         }
         //spacing.x
         if (!b_disablePin) {
+			assert(getUniqueID() > 0);
             NodeEditor::BeginPin(getUniqueID(), NodeEditor::PinKind::Output);
             NodeEditor::PinPivotAlignment(ImVec2(1.0, 0.5));
         }
-        ImGui::Text(getDisplayName());
+        ImGui::Text("%s", getDisplayString());
         ImGui::SameLine();
         //spacing.x
         ImGui::Dummy(glm::vec2(iconDummyWidth));

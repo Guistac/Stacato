@@ -39,15 +39,15 @@ public:
 
 class PositionDevice: public Subdevice {
 public:
-	PositionDevice(const char* name, PositionUnit::Unit unit) : Subdevice(name), positionUnit(unit) {}
-	PositionUnit::Unit getPositionUnit() { return positionUnit; }
-	PositionUnit::Unit positionUnit;
+	PositionDevice(const char* name, PositionUnit unit) : Subdevice(name), positionUnit(unit) {}
+	PositionUnit getPositionUnit() { return positionUnit; }
+	PositionUnit positionUnit;
 };
 
 class ActuatorDevice : public virtual PositionDevice {
 public:
 
-	ActuatorDevice(const char* name, PositionUnit::Unit unit) : PositionDevice(name, unit) {}
+	ActuatorDevice(const char* name, PositionUnit unit) : PositionDevice(name, unit) {}
 	virtual Subdevice::Type getSubdeviceType() { return Subdevice::Type::ACTUATOR; }
 
 	//enable power
@@ -55,9 +55,9 @@ public:
 	//disable power
 	void disable() { b_setDisabled = true; }
 	//set velocity command
-	virtual void setCommand(double velocityCommand) { command_deviceUnits = velocityCommand; }
+	virtual void setVelocityCommand(double velocityCommand) { velocityCommand_deviceUnitsPerSecond = velocityCommand; }
 	//get velocity command
-	virtual double getCommand() { return command_deviceUnits; }
+	virtual double getVelocityCommand() { return velocityCommand_deviceUnitsPerSecond; }
 	//don't allow powering the actuator
 	void park() { b_setDisabled = true; b_parked = true; }			
 	//allow powereing of the actuator
@@ -71,25 +71,31 @@ public:
 	bool isParked() { return b_parked; }
 	//is the device disabled by an external emergency stop signal
 	bool isEmergencyStopActive() { return b_emergencyStopActive; }
+	//are the brakes active
+	bool areBrakesActive(){ return b_brakesActive; }
 
 	//get the normalized load of the device
 	double getLoad() { return load; }								
 	//get the velocity limit in device position units per second
 	double getVelocityLimit() { return velocityLimit_positionUnitsPerSecond; }
+	//get the minimum velocity allowed by the actuator in units per second
+	double getMinVelocity(){ return minVelocity_positionUnitsPerSecond; }
 	//get the acceleration limit in device position units per second squared
 	double getAccelerationLimit() { return accelerationLimit_positionUnitsPerSecondSquared; }
 
 	bool b_enabled = false;
 	bool b_parked = false;
 	bool b_emergencyStopActive = false;
+	bool b_brakesActive = false;
 	double velocityLimit_positionUnitsPerSecond = 0.0;
+	double minVelocity_positionUnitsPerSecond = 0.0;
 	double accelerationLimit_positionUnitsPerSecondSquared = 0.0;
 	double load = 0.0;
 
 	bool b_setEnabled = false;
 	bool b_setDisabled = false;
 	bool b_setQuickstop = false;
-	double command_deviceUnits = 0.0;
+	double velocityCommand_deviceUnitsPerSecond = 0.0;
 };
 
 
@@ -97,11 +103,11 @@ public:
 class PositionFeedbackDevice : public virtual PositionDevice {
 public:
 
-	PositionFeedbackDevice(const char* name, PositionUnit::Unit unit, PositionFeedback::Type type) : PositionDevice(name, unit), feedbackType(type) {}
+	PositionFeedbackDevice(const char* name, PositionUnit unit, PositionFeedbackType feedback) : PositionDevice(name, unit), feedbackType(feedback) {}
 	virtual Subdevice::Type getSubdeviceType() { return Subdevice::Type::POSITION_FEEDBACK; }
 
-	PositionFeedback::Type feedbackType;
-	PositionFeedback::Type getPositionFeedbackType() { return feedbackType; }
+	PositionFeedbackType feedbackType;
+	PositionFeedbackType getPositionFeedbackType() { return feedbackType; }
 
 	//set the current position of the encoder by adjusting the zero offset
 	void setPosition(double position) { positionOffset_positionUnits = positionRaw_positionUnits - position; }
@@ -147,11 +153,20 @@ public:
 class ServoActuatorDevice : public ActuatorDevice, public PositionFeedbackDevice {
 public:
 
-	ServoActuatorDevice(const char* name, PositionUnit::Unit unit, PositionFeedback::Type feedback) : PositionDevice(name, unit), ActuatorDevice(name, unit), PositionFeedbackDevice(name, unit, feedback) {}
+	ServoActuatorDevice(const char* name, PositionUnit unit, PositionFeedbackType feedback) : PositionDevice(name, unit), ActuatorDevice(name, unit), PositionFeedbackDevice(name, unit, feedback) {}
 	virtual Subdevice::Type getSubdeviceType() { return Subdevice::Type::SERVO_ACTUATOR; }
 
 	//set command
-	virtual void setCommand(double positionCommand) { command_deviceUnits = positionCommand; }
+	virtual void setPositionCommand(double positionCommand, double velocityCommand) {
+		positionCommand_deviceUnits = positionCommand;
+		velocityCommand_deviceUnitsPerSecond = velocityCommand;
+	}
 	//get velocity command
-	virtual double getCommand() { return command_deviceUnits + positionOffset_positionUnits; }
+	virtual double getPositionCommandRaw() { return positionCommand_deviceUnits + positionOffset_positionUnits; }
+	
+	
+private:
+	double positionCommand_deviceUnits;
+	
+	virtual void setVelocityCommand(double velocityCommand){}
 };

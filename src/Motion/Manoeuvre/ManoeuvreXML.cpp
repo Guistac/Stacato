@@ -14,7 +14,7 @@ bool Manoeuvre::save(tinyxml2::XMLElement* manoeuvreXML) {
 	using namespace tinyxml2;
 	manoeuvreXML->SetAttribute("Name", name);
 	manoeuvreXML->SetAttribute("Description", description);
-	manoeuvreXML->SetAttribute("Type", getManoeuvreType(type)->saveName);
+	manoeuvreXML->SetAttribute("Type", Enumerator::getSaveString(type));
 	for (auto& track : tracks) {
 		//tracks which have a group parent are listed in the manoeuvres track vector
 		//but they don't get saved in the main manoeuvre
@@ -36,8 +36,8 @@ bool Manoeuvre::load(tinyxml2::XMLElement* manoeuvreXML) {
 	strcpy(description, descriptionString);
 	const char* manoeuvreTypeString;
 	if (manoeuvreXML->QueryStringAttribute("Type", &manoeuvreTypeString) != XML_SUCCESS) return Logger::warn("Could not find Manoeuvre type");
-	if (getManoeuvreType(manoeuvreTypeString) == nullptr) return Logger::warn("Could not identify Manoeuvre type");
-	type = getManoeuvreType(manoeuvreTypeString)->type;
+	if (!Enumerator::isValidSaveName<Manoeuvre::Type>(manoeuvreTypeString)) return Logger::warn("Could not identify Manoeuvre type");
+	type = Enumerator::getEnumeratorFromSaveString<Manoeuvre::Type>(manoeuvreTypeString);
 
 	XMLElement* trackXML = manoeuvreXML->FirstChildElement("Track");
 	while (trackXML != nullptr) {
@@ -76,7 +76,7 @@ bool ParameterTrack::save(tinyxml2::XMLElement* trackXML) {
 	}
 
 	trackXML->SetAttribute("SequenceType", getSequenceType(sequenceType)->saveName);
-	trackXML->SetAttribute("Interpolation", getInterpolationType(interpolationType)->saveName);
+	trackXML->SetAttribute("Interpolation", Enumerator::getSaveString(interpolationType));
 
 	switch (sequenceType) {
 	case SequenceType::Type::ANIMATED_MOVE:
@@ -164,8 +164,8 @@ bool ParameterTrack::load(tinyxml2::XMLElement* trackXML) {
 
 	const char* interpolationTypeString;
 	if (trackXML->QueryStringAttribute("Interpolation", &interpolationTypeString) != XML_SUCCESS) return Logger::warn("Could not find interpolation type attribute");
-	if (getInterpolationType(interpolationTypeString) == nullptr) return Logger::warn("Could not read interpolation type");
-	setInterpolationType(getInterpolationType(interpolationTypeString)->type);
+	if (!Enumerator::isValidSaveName<Motion::InterpolationType>(interpolationTypeString)) return Logger::warn("Could not read interpolation type");
+	setInterpolationType(Enumerator::getEnumeratorFromSaveString<Motion::InterpolationType>(interpolationTypeString));
 
 	const char* sequenceTypeString;
 	trackXML->QueryStringAttribute("SequenceType", &sequenceTypeString);

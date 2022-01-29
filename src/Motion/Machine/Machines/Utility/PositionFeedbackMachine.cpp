@@ -11,7 +11,7 @@ bool PositionFeedbackMachine::isFeedbackConnected(){
 }
 
 std::shared_ptr<PositionFeedbackDevice> PositionFeedbackMachine::getFeedbackDevice(){
-	return positionFeedbackDevicePin->getConnectedPins().front()->getPositionFeedbackDevice();
+	return positionFeedbackDevicePin->getConnectedPins().front()->getSharedPointer<PositionFeedbackDevice>();
 }
 
 double PositionFeedbackMachine::feedbackPositionToMachinePosition(double feedbackPosition){
@@ -24,23 +24,59 @@ double PositionFeedbackMachine::feedbackVelocityToMachineVelocity(double feedbac
 	return (feedbackVelocity * machineUnitsPerFeedbackUnit);
 }
 
-void PositionFeedbackMachine::assignIoData(){
-	addIoData(positionFeedbackDevicePin);
-	addIoData(positionPin);
-	addIoData(velocityPin);
+
+void PositionFeedbackMachine::setMovementType(PositionUnitType t){
+	movementType = t;
+	switch(movementType){
+		case PositionUnitType::LINEAR:
+			if(!isLinearPositionUnit(positionUnit)){
+				for(auto& type : Unit::getTypes<PositionUnit>()){
+					if(isLinearPositionUnit(type.enumerator)) setPositionUnit(type.enumerator);
+					break;
+				}
+			}
+			break;
+		case PositionUnitType::ANGULAR:
+			if(!isAngularPositionUnit(positionUnit)){
+				for(auto& type : Unit::getTypes<PositionUnit>()){
+					if(isAngularPositionUnit(type.enumerator)) setPositionUnit(type.enumerator);
+					break;
+				}
+			}
+			break;
+	}
+}
+
+void PositionFeedbackMachine::setPositionUnit(PositionUnit u){
+	switch(movementType){
+		case PositionUnitType::ANGULAR:
+			if(!isAngularPositionUnit(u)) return;
+			break;
+		case PositionUnitType::LINEAR:
+			if(!isLinearPositionUnit(u)) return;
+			break;
+	}
+	positionUnit = u;
+}
+
+
+void PositionFeedbackMachine::initialize(){
+	positionPin->assignData(positionPinValue);
+	velocityPin->assignData(velocityPinValue);
+	addNodePin(positionFeedbackDevicePin);
+	addNodePin(positionPin);
+	addNodePin(velocityPin);
 }
 
 void PositionFeedbackMachine::process(){
 	if(isFeedbackConnected() && isEnabled()){
 		std::shared_ptr<PositionFeedbackDevice> feedback = getFeedbackDevice();
-		position = feedbackPositionToMachinePosition(feedback->getPosition());
-		velocity = feedbackVelocityToMachineVelocity(feedback->getVelocity());
+		*positionPinValue = feedbackPositionToMachinePosition(feedback->getPosition());
+		*velocityPinValue = feedbackVelocityToMachineVelocity(feedback->getVelocity());
 	}else{
-		position = 0.0;
-		velocity = 0.0;
+		*positionPinValue = 0.0;
+		*velocityPinValue = 0.0;
 	}
-	positionPin->set(position);
-	velocityPin->set(velocity);
 }
 
 bool PositionFeedbackMachine::isMoving(){
@@ -84,10 +120,8 @@ void PositionFeedbackMachine::onDisableSimulation(){
 }
 
 void PositionFeedbackMachine::simulateProcess(){
-	position = 0.0;
-	velocity = 0.0;
-	positionPin->set(position);
-	velocityPin->set(velocity);
+	*positionPinValue = 0.0;
+	*velocityPinValue = 0.0;
 }
 
 
@@ -101,8 +135,8 @@ void PositionFeedbackMachine::setScalingPosition(double realPosition_machineUnit
 bool PositionFeedbackMachine::saveMachine(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	XMLElement* unitsXML = xml->InsertNewChildElement("Units");
-	unitsXML->SetAttribute("Type", getPositionUnitType(movementType)->saveName);
-	unitsXML->SetAttribute("Unit", getPositionUnit(positionUnit)->saveName);
+	unitsXML->SetAttribute("Type", Enumerator::getSaveString(movementType));
+	unitsXML->SetAttribute("Unit", Unit::getSaveString(positionUnit));
 	XMLElement* conversionXML = xml->InsertNewChildElement("Conversion");
 	conversionXML->SetAttribute("UnitsPerFeedbackUnit", machineUnitsPerFeedbackUnit);
 	conversionXML->SetAttribute("InvertDirectionOfMotion", b_invertDirection);
@@ -118,14 +152,12 @@ bool PositionFeedbackMachine::loadMachine(tinyxml2::XMLElement* xml){
 	if(unitsXML == nullptr) return Logger::warn("Could not find units attribute");
 	const char* unitTypeString;
 	if(unitsXML->QueryStringAttribute("Type", &unitTypeString) != XML_SUCCESS) return Logger::warn("could not find unit type attribute");
-	PositionUnitType* positionUnitType = getPositionUnitType(unitTypeString);
-	if(positionUnitType == nullptr) return Logger::warn("Could not identify Position Unit Type");
-	movementType = positionUnitType->type;
+	if(!Enumerator::isValidSaveName<PositionUnitType>(unitTypeString)) return Logger::warn("Could not identify Position Unit Type");
+	movementType = Enumerator::getEnumeratorFromSaveString<PositionUnitType>(unitTypeString);
 	const char* positionUnitString;
 	if(unitsXML->QueryStringAttribute("Unit", &positionUnitString) != XML_SUCCESS) return Logger::warn("Could not find unit attribute");
-	PositionUnit* positionUnit_t = getPositionUnit(positionUnitString);
-	if(positionUnit_t == nullptr) return Logger::warn("Could not identify position unit");
-	positionUnit = positionUnit_t->unit;
+	if(!Unit::isValidSaveName<PositionUnit>(positionUnitString)) return Logger::warn("Could not identify position unit");
+	positionUnit = Unit::getEnumeratorFromSaveString<PositionUnit>(positionUnitString);
 	
 	XMLElement* conversionXML = xml->FirstChildElement("Conversion");
 	if(conversionXML == nullptr) return Logger::warn("Could not find conversio attribute");

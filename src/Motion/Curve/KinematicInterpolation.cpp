@@ -1,4 +1,4 @@
-﻿#include <pch.h>
+#include <pch.h>
 
 #include "Curve.h"
 
@@ -24,8 +24,8 @@ namespace Motion::TrapezoidalInterpolation {
 			output->inPoint = startPoint;
 			output->outPoint = endPoint;
 			output->b_valid = false;
-			if (ai == 0.0) output->validationError = ValidationError::Error::INTERPOLATION_INPUT_ACCELERATION_IS_ZERO;
-			else if (ao == 0.0) output->validationError = ValidationError::Error::INTERPOLATION_OUTPUT_ACCELERATION_IS_ZERO;
+			if (ai == 0.0) output->validationError = ValidationError::INTERPOLATION_INPUT_ACCELERATION_IS_ZERO;
+			else if (ao == 0.0) output->validationError = ValidationError::INTERPOLATION_OUTPUT_ACCELERATION_IS_ZERO;
 			return false;
 		}
 
@@ -121,7 +121,7 @@ namespace Motion::TrapezoidalInterpolation {
 			output->inPoint = startPoint;
 			output->outPoint = endPoint;
 			output->b_valid = false;
-			output->validationError = ValidationError::Error::INTERPOLATION_UNDEFINED;
+			output->validationError = ValidationError::INTERPOLATION_UNDEFINED;
 			return false;
 		}
 		
@@ -164,7 +164,7 @@ namespace Motion::TrapezoidalInterpolation {
 		endPoint->rampIn = solution.outAcceleration;
 		endPoint->velocityIn = solution.outVelocity;
 		endPoint->inInterpolation = output;
-		output->type = InterpolationType::Type::TRAPEZOIDAL;
+		output->type = InterpolationType::TRAPEZOIDAL;
 		return true;
 	}
 
@@ -377,7 +377,7 @@ namespace Motion::TrapezoidalInterpolation {
 			endPoint->rampIn = solution->outAcceleration;
 			endPoint->velocityIn = solution->outVelocity;
 			endPoint->inInterpolation = output;
-			output->type = InterpolationType::Type::TRAPEZOIDAL;
+			output->type = InterpolationType::TRAPEZOIDAL;
 			return true;
 		}
 		return false;
@@ -463,7 +463,7 @@ namespace Motion::TrapezoidalInterpolation {
 		endPoint->rampIn = solution.outAcceleration;
 		endPoint->velocityIn = solution.outVelocity;
 		endPoint->inInterpolation = output;
-		output->type = InterpolationType::Type::TRAPEZOIDAL;
+		output->type = InterpolationType::TRAPEZOIDAL;
 		return true;
 	}
 

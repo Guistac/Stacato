@@ -24,7 +24,7 @@ void PositionControlledSingleAxisMachine::controlsGui() {
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
 	glm::vec2 manualControlsSize = ImGui::GetContentRegionAvail();
-	manualControlsSize.y -= axis->getFeedbackGuiHeight();
+	//manualControlsSize.y -= axis->getFeedbackGuiHeight();
 	ImGui::BeginChild("##manualMachineControls", manualControlsSize);
 
 	float widgetWidth = ImGui::GetContentRegionAvail().x;
@@ -46,7 +46,7 @@ void PositionControlledSingleAxisMachine::controlsGui() {
 	ImGui::PopFont();
 
 	static char positionTargetString[128];
-	sprintf(positionTargetString, "%.3f %s", manualPositionTarget_machineUnits, getPositionUnit(axis->positionUnit)->shortForm);
+	sprintf(positionTargetString, "%.3f %s", manualPositionTarget_machineUnits, Unit::getAbbreviatedString(axis->getPositionUnit()));
 	ImGui::SetNextItemWidth(widgetWidth);
 	ImGui::InputDouble("##postar", &manualPositionTarget_machineUnits, 0.0, 0.0, positionTargetString);
 
@@ -77,7 +77,7 @@ void PositionControlledSingleAxisMachine::controlsGui() {
 		}
 
 		static char homingStateString[256];
-		sprintf(homingStateString, "Homing State: %s", getHomingStep(axis->homingStep)->displayName);
+		sprintf(homingStateString, "Homing State: %s", Enumerator::getDisplayString(getAxis()->homingStep));
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
 		ImGui::Button(homingStateString, glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 1.5));
@@ -91,7 +91,7 @@ void PositionControlledSingleAxisMachine::controlsGui() {
 
 	ImGui::Separator();
 
-	axis->feedbackGui();
+	//axis->feedbackGui();
 	
 	//position
 	//velocity
@@ -122,7 +122,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::Text("Position Unit");
 		ImGui::PopFont();
 		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%s", getPositionUnit(axis->positionUnit)->displayName);
+		ImGui::Text("%s", Unit::getDisplayString(axis->getPositionUnit()));
 
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
@@ -131,7 +131,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s", getLowPositionLimit(), getPositionUnit(axis->positionUnit)->shortForm);
+		ImGui::Text("%.3f %s", getLowPositionLimit(), Unit::getAbbreviatedString(axis->getPositionUnit()));
 
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
@@ -140,7 +140,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s", getHighPositionLimit(), getPositionUnit(axis->positionUnit)->shortForm);
+		ImGui::Text("%.3f %s", getHighPositionLimit(), Unit::getAbbreviatedString(axis->getPositionUnit()));
 
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
@@ -149,7 +149,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s/s", axis->getVelocityLimit_axisUnitsPerSecond(), getPositionUnit(axis->positionUnit)->shortForm);
+		ImGui::Text("%.3f %s/s", axis->getVelocityLimit_axisUnitsPerSecond(), Unit::getAbbreviatedString(axis->getPositionUnit()));
 
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
@@ -158,7 +158,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s/s\xC2\xB2", axis->getAccelerationLimit_axisUnitsPerSecondSquared(), getPositionUnit(axis->positionUnit)->shortForm);
+		ImGui::Text("%.3f %s/s\xC2\xB2", axis->getAccelerationLimit_axisUnitsPerSecondSquared(), Unit::getAbbreviatedString(axis->getPositionUnit()));
 
 		ImGui::EndTable();
 	}
@@ -172,44 +172,20 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
 		ImGui::PushFont(Fonts::robotoBold15);
-		ImGui::Text("Current Position: ");
+		ImGui::Text("Target Position: ");
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		if(isSimulating()) ImGui::Text("%.20f %s", simulationMotionProfile.getPosition(), getPositionUnit(axis->positionUnit)->shortForm);
-		else ImGui::Text("%.20f %s", axisPositionToMachinePosition(axis->getActualPosition_axisUnits()), getPositionUnit(axis->positionUnit)->shortForm);
-		
+		ImGui::Text("%.3f %s", motionProfile.getPosition(), Unit::getAbbreviatedString(axis->getPositionUnit()));
 		
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
 		ImGui::PushFont(Fonts::robotoBold15);
-		ImGui::Text("Current Velocity: ");
+		ImGui::Text("Target Velocity: ");
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		if(isSimulating()) ImGui::Text("%.20f %s/s", simulationMotionProfile.getVelocity(), getPositionUnit(axis->positionUnit)->shortForm);
-		else ImGui::Text("%.20f %s/s", axisVelocityToMachineVelocity(axis->getActualVelocity_axisUnitsPerSecond()), getPositionUnit(axis->positionUnit)->shortForm);
-		
-		ImGui::TableNextRow();
-		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::robotoBold15);
-		ImGui::Text("Profile Position: ");
-		ImGui::PopFont();
-		ImGui::SameLine();
-		ImGui::TableSetColumnIndex(1);
-		if(isSimulating()) ImGui::Text("%.20f %s", simulationMotionProfile.getPosition(), getPositionUnit(axis->positionUnit)->shortForm);
-		else ImGui::Text("%.20f %s", axisPositionToMachinePosition(axis->getProfilePosition_axisUnits()), getPositionUnit(axis->positionUnit)->shortForm);
-		
-		
-		ImGui::TableNextRow();
-		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::robotoBold15);
-		ImGui::Text("Profile Velocity: ");
-		ImGui::PopFont();
-		ImGui::SameLine();
-		ImGui::TableSetColumnIndex(1);
-		if(isSimulating()) ImGui::Text("%.20f %s/s", simulationMotionProfile.getVelocity(), getPositionUnit(axis->positionUnit)->shortForm);
-		else ImGui::Text("%.20f %s/s", axisVelocityToMachineVelocity(axis->getProfileVelocity_axisUnitsPerSecond()), getPositionUnit(axis->positionUnit)->shortForm);
+		ImGui::Text("%.20f %s/s", motionProfile.getVelocity(), Unit::getAbbreviatedString(axis->getPositionUnit()));
 		
 		ImGui::EndTable();
 	}
@@ -222,12 +198,12 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 	static char rapidAccelerationString[128];
 
 	ImGui::Text("Velocity for rapid movements :");
-	sprintf(rapidVelocityString, "%.3f %s/s", rapidVelocity_machineUnitsPerSecond, getPositionUnit(axis->positionUnit)->shortForm);
+	sprintf(rapidVelocityString, "%.3f %s/s", rapidVelocity_machineUnitsPerSecond, Unit::getAbbreviatedString(axis->getPositionUnit()));
 	ImGui::InputDouble("##velRapid", &rapidVelocity_machineUnitsPerSecond, 0.0, 0.0, rapidVelocityString);
 	rapidVelocity_machineUnitsPerSecond = std::min(rapidVelocity_machineUnitsPerSecond, axis->getVelocityLimit_axisUnitsPerSecond());
 
 	ImGui::Text("Acceleration for rapid movements :");
-	sprintf(rapidAccelerationString, "%.3f %s/s\xC2\xB2", rapidAcceleration_machineUnitsPerSecond, getPositionUnit(axis->positionUnit)->shortForm);
+	sprintf(rapidAccelerationString, "%.3f %s/s\xC2\xB2", rapidAcceleration_machineUnitsPerSecond, Unit::getAbbreviatedString(axis->getPositionUnit()));
 	ImGui::InputDouble("##accRapid", &rapidAcceleration_machineUnitsPerSecond, 0.0, 0.0, rapidAccelerationString);
 	rapidAcceleration_machineUnitsPerSecond = std::min(rapidAcceleration_machineUnitsPerSecond, axis->getAccelerationLimit_axisUnitsPerSecondSquared());
 	
@@ -239,7 +215,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 	
 	ImGui::Text("Machine Zero (Axis Units) :");
 	static char machineZeroString[128];
-	sprintf(machineZeroString, "%.3f %s", machineZero_axisUnits, getPositionUnit(axis->positionUnit)->shortForm);
+	sprintf(machineZeroString, "%.3f %s", machineZero_axisUnits, Unit::getAbbreviatedString(axis->getPositionUnit()));
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
 	ImGui::InputDouble("##axisUnitOffset", &machineZero_axisUnits, 0.0, 0.0, machineZeroString);
 	
@@ -249,43 +225,6 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 	}
 	
 	ImGui::Checkbox("Invert Axis Direction", &b_invertDirection);
-	
-	/*
-	double axisPosition = simulationMotionProfile.getPosition();
-	double axisVelocity = simulationMotionProfile.getVelocity();
-	double axisLowLimit = axis->getLowPositionLimit();
-	double axisHighLimit = axis->getHighPositionLimit();
-	const char* axisUnitStringPlural = getPositionUnit(axis->positionUnit)->displayNamePlural;
-	
-	ImGui::Text("Axis Position: %.3f %s", axisPosition, axisUnitStringPlural);
-	ImGui::Text("Axis Velocity: %.3f %s/s", axisVelocity, axisUnitStringPlural);
-	ImGui::Text("Axis Lower Position Limit: %.3f %s", axisLowLimit, axisUnitStringPlural);
-	ImGui::Text("Axis Upper Position Limit: %.3f %s", axisHighLimit, axisUnitStringPlural);
-	
-	double machinePosition = axisPositionToMachinePosition(axisPosition);
-	double machineVelocity = axisVelocityToMachineVelocity(axisVelocity);
-	double machineLowLimit = axisPositionToMachinePosition(axisLowLimit);
-	double machineHighLimit = axisPositionToMachinePosition(axisHighLimit);
-	
-	ImGui::Separator();
-	
-	ImGui::Text("Machine Position: %.3f %s", machinePosition, axisUnitStringPlural);
-	ImGui::Text("Machine Velocity: %.3f %s/s", machineVelocity, axisUnitStringPlural);
-	ImGui::Text("Machine Lower Position Limit: %.3f %s", machineLowLimit, axisUnitStringPlural);
-	ImGui::Text("Machine Upper Position Limit: %.3f %s", machineHighLimit, axisUnitStringPlural);
-	
-	double recurseAxisPosition = machinePositionToAxisPosition(machinePosition);
-	double recurseAxisVelocity = machineVelocityToAxisVelocity(machineVelocity);
-	double recurseAxisLowLimit = machinePositionToAxisPosition(machineLowLimit);
-	double recurseAxisHighLimit = machinePositionToAxisPosition(machineHighLimit);
-	
-	ImGui::Separator();
-	
-	ImGui::Text("Recursive Axis Position: %.3f %s", recurseAxisPosition, axisUnitStringPlural);
-	ImGui::Text("Recursive Axis Velocity: %.3f %s/s", recurseAxisVelocity, axisUnitStringPlural);
-	ImGui::Text("Recursive Axis Lower Position Limit: %.3f %s", recurseAxisLowLimit, axisUnitStringPlural);
-	ImGui::Text("Recursive Axis Upper Position Limit: %.3f %s", recurseAxisHighLimit, axisUnitStringPlural);
-	*/
 }
 
 void PositionControlledSingleAxisMachine::axisGui() {
@@ -383,35 +322,23 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 			
 			minPosition = getLowPositionLimit();
 			maxPosition = getHighPositionLimit();
-			if(b_hasPositionTarget){
-				positionTargetNormalized = (getManualPositionTarget() - minPosition) / (maxPosition - minPosition);
-			}
-			
-			if(!isSimulating()){
-				positionProgress = getPositionNormalized();
-				velocityProgress = std::abs(getVelocityNormalized());
-				double machinePosition = axisPositionToMachinePosition(axis->getActualPosition_axisUnits());
-				double machineVelocity = axisVelocityToMachineVelocity(axis->getActualVelocity_axisUnitsPerSecond());
-				if (velocityProgress > 1.0) velocityProgress = 1.0;
-				positionUnitShortFormString = getPositionUnitStringShort(axis->positionUnit);
-				motionProgress = axis->targetInterpolation->getProgressAtTime(axis->profileTime_seconds);
-				sprintf(velocityTargetString, "%.2f%s/s", manualVelocityTarget_machineUnitsPerSecond, positionUnitShortFormString);
-				sprintf(actualVelocityString, "%.2f%s/s", machineVelocity, positionUnitShortFormString);
-				sprintf(actualPositionString, "%.3f%s", machinePosition, positionUnitShortFormString);
-			}else{
-				
-				//SIMULATION TEST
-				positionProgress = getPositionNormalized();
-				velocityProgress = std::abs(getVelocityNormalized());
-				if (velocityProgress > 1.0) velocityProgress = 1.0;
-				positionUnitShortFormString = getPositionUnitStringShort(axis->positionUnit);
-				motionProgress = simulationTargetInterpolation->getProgressAtTime(Environnement::getTime_seconds());
-				sprintf(velocityTargetString, "%.2f%s/s", manualVelocityTarget_machineUnitsPerSecond, positionUnitShortFormString);
-				sprintf(actualVelocityString, "%.2f%s/s", simulationMotionProfile.getVelocity(), positionUnitShortFormString);
-				sprintf(actualPositionString, "%.3f%s", simulationMotionProfile.getPosition(), positionUnitShortFormString);
-				
-			}
+			positionProgress = getPositionNormalized();
+			velocityProgress = std::abs(getVelocityNormalized());
+			if (velocityProgress > 1.0) velocityProgress = 1.0;
+			positionUnitShortFormString = Unit::getAbbreviatedString(axis->getPositionUnit());
+			motionProgress = targetInterpolation->getProgressAtTime(Environnement::getTime_seconds());
+			if(b_hasPositionTarget) positionTargetNormalized = (getManualPositionTarget() - minPosition) / (maxPosition - minPosition);
 			disableControls = !isEnabled();
+			
+			if(isSimulating()){
+				sprintf(velocityTargetString, "%.2f%s/s", manualVelocityTarget_machineUnitsPerSecond, positionUnitShortFormString);
+				sprintf(actualVelocityString, "%.2f%s/s", motionProfile.getVelocity(), positionUnitShortFormString);
+				sprintf(actualPositionString, "%.3f%s", motionProfile.getPosition(), positionUnitShortFormString);
+			}else{
+				sprintf(velocityTargetString, "%.2f%s/s", manualVelocityTarget_machineUnitsPerSecond, positionUnitShortFormString);
+				sprintf(actualVelocityString, "%.2f%s/s", axisVelocityToMachineVelocity(axis->getActualVelocity_axisUnitsPerSecond()), positionUnitShortFormString);
+				sprintf(actualPositionString, "%.3f%s", axisPositionToMachinePosition(axis->getActualPosition_axisUnits()), positionUnitShortFormString);
+			}
 		}
 		else {
 			sprintf(velocityTargetString, "-");

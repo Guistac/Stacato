@@ -13,7 +13,7 @@ public:
 	
     //master GPIO Subdevice
     std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
-    std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodeData::Type::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
+    std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT, "GPIO");
 	
 	//modules and module management
 	std::vector<std::shared_ptr<VipaModule>> modules;
@@ -27,6 +27,6 @@ public:
 	//module configuration
     bool downloadDeviceModules(std::vector<std::shared_ptr<VipaModule>>& output);
     void configureFromDeviceModules();
-    DataTransferState::State configureFromDeviceModulesDownloadStatus = DataTransferState::State::NO_TRANSFER;
+    DataTransferState configureFromDeviceModulesDownloadStatus = DataTransferState::NO_TRANSFER;
 };
 

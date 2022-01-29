@@ -6,35 +6,32 @@ class Plot;
 
 namespace tinyxml2 { class XMLElement; }
 
-struct ManoeuvreType {
+
+class Manoeuvre : public std::enable_shared_from_this<Manoeuvre> {
+public:
+
 	enum class Type {
 		KEY_POSITION,
 		TIMED_MOVEMENT,
 		MOVEMENT_SEQUENCE
 	};
-	Type type;
-	const char displayName[64];
-	const char saveName[64];
-	const char shortName[16];
-};
-std::vector<ManoeuvreType>& getManoeuvreTypes();
-ManoeuvreType* getManoeuvreType(ManoeuvreType::Type t);
-ManoeuvreType* getManoeuvreType(const char* saveName);
-
-
-
-class Manoeuvre : public std::enable_shared_from_this<Manoeuvre> {
-public:
-
+	
 	Manoeuvre(std::shared_ptr<Plot> p) : parentPlot(p) {}
 	Manoeuvre(const Manoeuvre& original);
 
 	char name[64] = "";
 	char description[256] = "";
 	std::shared_ptr<Plot> parentPlot = nullptr;
+	const char* getShortTypeString(){
+		switch(type){
+			case Type::KEY_POSITION: return "KEY";
+			case Type::TIMED_MOVEMENT: return "TIM";
+			case Type::MOVEMENT_SEQUENCE: return "SEQ";
+		}
+	}
 
-	void setType(ManoeuvreType::Type t);
-	ManoeuvreType::Type type = ManoeuvreType::Type::KEY_POSITION;
+	void setType(Type t);
+	Type type = Type::KEY_POSITION;
 
 	std::vector<std::shared_ptr<ParameterTrack>> tracks;
 	void addTrack(std::shared_ptr<AnimatableParameter>& parameter);
@@ -67,3 +64,9 @@ public:
 
 };
 
+#define ManoeuvreTypeStrings \
+	{Manoeuvre::Type::KEY_POSITION,		"Key Position",		"KeyPosition"},\
+	{Manoeuvre::Type::TIMED_MOVEMENT,	"Timed Movement",	"TimedMovement"},\
+	{Manoeuvre::Type::MOVEMENT_SEQUENCE,"Movement Sequence","MovementSequence"}\
+
+DEFINE_ENUMERATOR(Manoeuvre::Type, ManoeuvreTypeStrings)

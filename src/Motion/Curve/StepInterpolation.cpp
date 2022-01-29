@@ -26,7 +26,7 @@ namespace Motion::StepInterpolation {
 		output->inPoint = startPoint;
 		output->outPoint = endPoint;
 
-		output->type = InterpolationType::Type::STEP;
+		output->type = InterpolationType::STEP;
 
 	}
 

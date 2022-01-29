@@ -29,7 +29,7 @@ void Manoeuvre::listGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 	float cueNameWidth = ImGui::CalcTextSize(manoeuvre->name).x;
 	ImGui::PopFont();
 	ImGui::PushFont(Fonts::robotoLight20);
-	const char* manoeuvreTypeShortName = getManoeuvreType(manoeuvre->type)->shortName;
+	const char* manoeuvreTypeShortName = manoeuvre->getShortTypeString();
 	float typeNameWidth = ImGui::CalcTextSize(manoeuvreTypeShortName).x;
 	ImGui::PopFont();
 
@@ -38,13 +38,13 @@ void Manoeuvre::listGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 	glm::vec2 max = min + glm::vec2(headerStripWidth, ImGui::GetWindowSize().y);
 	glm::vec4 headerStripColor;
 	switch (manoeuvre->type) {
-		case ManoeuvreType::Type::KEY_POSITION:
+		case Manoeuvre::Type::KEY_POSITION:
 			headerStripColor = Colors::darkYellow;
 			break;
-		case ManoeuvreType::Type::TIMED_MOVEMENT:
+		case Manoeuvre::Type::TIMED_MOVEMENT:
 			headerStripColor = Colors::darkGray;
 			break;
-		case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
+		case Manoeuvre::Type::MOVEMENT_SEQUENCE:
 			headerStripColor = Colors::darkRed;
 			break;
 	}
@@ -114,11 +114,11 @@ void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 	bool refreshAllTracks = false;
 
-	if (ImGui::BeginCombo("##manoeuvreTypeSelector", getManoeuvreType(manoeuvre->type)->displayName)) {
-		for (auto& manoeuvreType : getManoeuvreTypes()) {
-			if(manoeuvreType.type == ManoeuvreType::Type::TIMED_MOVEMENT) continue;
-			if (ImGui::Selectable(manoeuvreType.displayName, manoeuvre->type == manoeuvreType.type)) {
-				manoeuvre->setType(manoeuvreType.type);
+	if (ImGui::BeginCombo("##manoeuvreTypeSelector", Enumerator::getDisplayString(manoeuvre->type))) {
+		for (auto& type : Enumerator::getTypes<Manoeuvre::Type>()) {
+			if(type.enumerator == Manoeuvre::Type::TIMED_MOVEMENT) continue;
+			if (ImGui::Selectable(type.displayString, manoeuvre->type == type.enumerator)) {
+				manoeuvre->setType(type.enumerator);
 				refreshAllTracks = true;
 			}
 		}
@@ -169,7 +169,7 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
 
     int columnCount;
     switch (manoeuvre->type) {
-        case ManoeuvreType::Type::KEY_POSITION:
+        case Manoeuvre::Type::KEY_POSITION:
             columnCount = 6;
             break;
         default:
@@ -185,8 +185,8 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
         ImGui::TableSetupColumn("Manage");
         ImGui::TableSetupColumn("Machine");
         ImGui::TableSetupColumn("Parameter");
-        if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
-            if (manoeuvre->type == ManoeuvreType::Type::TIMED_MOVEMENT)
+        if (manoeuvre->type != Manoeuvre::Type::KEY_POSITION) {
+            if (manoeuvre->type == Manoeuvre::Type::TIMED_MOVEMENT)
                 ImGui::TableSetupColumn("Interpolation");
             else ImGui::TableSetupColumn("Movement");
             ImGui::TableSetupColumn("Origin");
@@ -251,6 +251,31 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
             if (!parameterTrack->hasParentParameterTrack()) {
                 ImGui::Text("%s", parameterTrack->parameter->machine->getName());
             }
+			
+			if(ImGui::IsItemHovered()){
+				ImGui::BeginTooltip();
+				
+				
+				if(!parameterTrack->b_valid) ImGui::Text("Parameter Track not Valid");
+				
+				for(auto& curve : parameterTrack->curves){
+					
+					if(!curve->b_valid) ImGui::Text("- Curve Not Valid");
+					
+					for(auto& controlPoint : curve->points){
+						if(!controlPoint->b_valid) ImGui::Text("-- Control Point Not Valid : %s", Enumerator::getDisplayString(controlPoint->validationError));
+					}
+					
+					for(auto& interpolation : curve->interpolations){
+						if(!interpolation->b_valid) ImGui::Text("-- Interpolation Not Valid : %s", Enumerator::getDisplayString(interpolation->validationError));
+					}
+					
+				}
+				
+				
+				
+				ImGui::EndTooltip();
+			}
 
             //====== Parameter Column ======
             ImGui::TableNextColumn();
@@ -264,7 +289,7 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
 
                 //====== Movement Column ======
 
-                if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
+                if (manoeuvre->type != Manoeuvre::Type::KEY_POSITION) {
                     ImGui::TableNextColumn();
 
                     //--- Interpolation Selector ---
@@ -272,7 +297,7 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
                     trackEdited |= parameterTrack->interpolationTypeSelectorGui();
 
                     //--- Sequence Type Selector ---
-                    if (manoeuvre->type == ManoeuvreType::Type::MOVEMENT_SEQUENCE) {
+                    if (manoeuvre->type == Manoeuvre::Type::MOVEMENT_SEQUENCE) {
                         ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
                         trackEdited |= parameterTrack->sequenceTypeSelectorGui();
                     }
@@ -282,7 +307,7 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
 
                 //====== Origin Column ======
 
-                if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
+                if (manoeuvre->type != Manoeuvre::Type::KEY_POSITION) {
                     ImGui::TableNextColumn();
 
                     if (parameterTrack->sequenceType != SequenceType::Type::CONSTANT) {
@@ -292,14 +317,14 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
                     else ImGui::Dummy(glm::vec2(originTargetInputFieldWidth, ImGui::GetFrameHeight()));
 
                     //--- Chain Previous ---
-                    bool disablePreviousChaining = manoeuvre->type == ManoeuvreType::Type::TIMED_MOVEMENT;
+                    bool disablePreviousChaining = manoeuvre->type == Manoeuvre::Type::TIMED_MOVEMENT;
                     if (disablePreviousChaining) ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
                     chainingDependenciesEdited |= parameterTrack->chainPreviousGui(originTargetInputFieldWidth);
                     if (disablePreviousChaining) ImGui::PopItemFlag();
                 }
 
 
-                if (manoeuvre->type == ManoeuvreType::Type::KEY_POSITION) {
+                if (manoeuvre->type == Manoeuvre::Type::KEY_POSITION) {
                     float keyPositionChainingGuiWidh = ImGui::GetTextLineHeight() * 6.0;
 
                     //--- Previous Chained
@@ -332,7 +357,7 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
 
                 //====== Timing Column ======
 
-                if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
+                if (manoeuvre->type != Manoeuvre::Type::KEY_POSITION) {
                     ImGui::TableNextColumn();
                     float timingcolumnWidth = ImGui::GetTextLineHeight() * 7.0;
 
@@ -340,7 +365,7 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
                     ImGui::SetNextItemWidth(timingcolumnWidth);
                     trackEdited |= parameterTrack->timeInputGui();
 
-                    if (manoeuvre->type != ManoeuvreType::Type::TIMED_MOVEMENT) {
+                    if (manoeuvre->type != Manoeuvre::Type::TIMED_MOVEMENT) {
                         //--- Time Offset Input ---
                         ImGui::SetNextItemWidth(timingcolumnWidth);
                         trackEdited |= parameterTrack->timeOffsetInputGui();
@@ -458,7 +483,7 @@ void Manoeuvre::curveEditorGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
         
         for (auto& parameterTrack : manoeuvre->tracks) parameterTrack->drawChainedCurves();
         
-        if (manoeuvre->type != ManoeuvreType::Type::KEY_POSITION) {
+        if (manoeuvre->type != Manoeuvre::Type::KEY_POSITION) {
             //draw manoeuvre bounds
             glm::vec2 plotBoundsMin(ImPlot::GetPlotLimits().X.Min, ImPlot::GetPlotLimits().Y.Max);
             glm::vec2 plotBoundsMax(ImPlot::GetPlotLimits().X.Max, ImPlot::GetPlotLimits().Y.Min);
@@ -536,7 +561,7 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 
 
 	switch (manoeuvre->type) {
-		case ManoeuvreType::Type::KEY_POSITION:
+		case Manoeuvre::Type::KEY_POSITION:
 
 
 
@@ -551,7 +576,7 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 				if (isAtKeyPosition) {
 					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-					if (ImGui::Button("At Key Position", singleButtonSize)) Playback::rapidToEnd(manoeuvre);
+					ImGui::Button("At Key Position", singleButtonSize);
 					ImGui::PopStyleColor();
 					ImGui::PopItemFlag();
 				}
@@ -563,7 +588,7 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 
 
 
-		case ManoeuvreType::Type::TIMED_MOVEMENT:
+		case Manoeuvre::Type::TIMED_MOVEMENT:
 
 
 
@@ -625,9 +650,9 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 
 
 
-		case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
+		case Manoeuvre::Type::MOVEMENT_SEQUENCE:
 
-
+			//=== RAPID BUTTONS ===
 			if (Playback::isInRapid(manoeuvre)) {
 				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
 				if (ImGui::Button("Cancel Rapid", singleButtonSize)) Playback::stopRapid(manoeuvre);
@@ -637,43 +662,44 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 			else {
 				bool disableRapidButtons = Playback::isPlaying(manoeuvre);
 				if(disableRapidButtons) BEGIN_DISABLE_IMGUI_ELEMENT
-					bool primedToStart = Playback::isPrimedToStart(manoeuvre);
+				
+				bool primedToStart = Playback::isPrimedToStart(manoeuvre);
 				if (primedToStart) {
 					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-				}
-				if (ImGui::Button("Rapid To Start", doubleButtonSize)) Playback::rapidToStart(manoeuvre);
-				if (primedToStart) {
+					ImGui::Button("At Start", doubleButtonSize);
 					ImGui::PopStyleColor();
 					ImGui::PopItemFlag();
-				}
+				}else if (ImGui::Button("Rapid To Start", doubleButtonSize)) Playback::rapidToStart(manoeuvre);
+				
 				ImGui::SameLine();
 				bool primedToEnd = Playback::isPrimedToEnd(manoeuvre);
 				if (primedToEnd) {
 					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-				}
-				if (ImGui::Button("Rapid To End", doubleButtonSize)) Playback::rapidToEnd(manoeuvre);
-				if (primedToEnd) {
+					ImGui::Button("At End", doubleButtonSize);
 					ImGui::PopStyleColor();
 					ImGui::PopItemFlag();
 				}
+				else if (ImGui::Button("Rapid To End", doubleButtonSize)) Playback::rapidToEnd(manoeuvre);
 				if(disableRapidButtons) END_DISABLE_IMGUI_ELEMENT
 			}
 
+			//=== PLAYBACK POSITION CONTROL ===
 			ImGui::SetNextItemWidth(singleButtonSize.x);
 			if (Playback::isPlaying(manoeuvre) && !Playback::isPaused(manoeuvre)) {
-				double playhead = manoeuvre->playbackPosition_seconds;
 				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-				ImGui::InputDouble("##playbackPosition", &playhead, 0.0, 0.0, "%.3f s");
+				ImGui::InputDouble("##playbackPosition", &manoeuvre->playbackPosition_seconds, 0.0, 0.0, "%.3f s");
 				ImGui::PopItemFlag();
 			}
 			else {
-				ImGui::InputDouble("##targetTime", &manoeuvre->playbackPosition_seconds, 0.0, 0.0, "%.1f seconds");
-				if (manoeuvre->playbackPosition_seconds < 0.0) manoeuvre->playbackPosition_seconds = 0.0;
-				else if (manoeuvre->playbackPosition_seconds > manoeuvre->getLength_seconds()) manoeuvre->playbackPosition_seconds = manoeuvre->getLength_seconds();
+				ImGui::InputDouble("##targetTime", &manoeuvre->playbackPosition_seconds, 0.0, 0.0, "Playback Position : %.1f seconds");
+				manoeuvre->playbackPosition_seconds = std::max(0.0, manoeuvre->playbackPosition_seconds);
+				manoeuvre->playbackPosition_seconds = std::min(manoeuvre->getLength_seconds(), manoeuvre->playbackPosition_seconds);
 			}
 			if(manoeuvre->getPlaybackProgress() != 0.0) playbackProgressOverlay();
+			
+			//=== PLAYBACK CONTROL BUTTON ===
 			if (Playback::isPlaying(manoeuvre)) {
 				ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkRed);
 				if (ImGui::Button("Stop", doubleButtonSize)) Playback::stopPlayback(manoeuvre);
@@ -710,21 +736,19 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 				}
 			}
 
-
-
 		break;
 	}
 }
 
 float Manoeuvre::getPlaybackControlGuiHeight(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 	switch (manoeuvre->type) {
-		case ManoeuvreType::Type::KEY_POSITION:
+		case Manoeuvre::Type::KEY_POSITION:
 			return ImGui::GetTextLineHeight() * 2.0 //single row of buttons
 				+ ImGui::GetStyle().ItemSpacing.y;	//spacing
-		case ManoeuvreType::Type::TIMED_MOVEMENT:
+		case Manoeuvre::Type::TIMED_MOVEMENT:
 			return ImGui::GetTextLineHeight() * 2.0 * 2.0	//single row of buttons
 				+ ImGui::GetStyle().ItemSpacing.y * 2.0;	//spacing
-		case ManoeuvreType::Type::MOVEMENT_SEQUENCE:
+		case Manoeuvre::Type::MOVEMENT_SEQUENCE:
 			return ImGui::GetTextLineHeight() * 2.0 * 2.0 //two rows of buttons
 				+ ImGui::GetFrameHeight()			//one row of widgets
 				+ImGui::GetStyle().ItemSpacing.y * 3.0;	//three spacings

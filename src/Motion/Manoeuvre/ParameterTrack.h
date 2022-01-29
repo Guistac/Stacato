@@ -52,8 +52,8 @@ public:
 	void getParameterValueAtPlaybackTime(AnimatableParameterValue& output);
 
 	SequenceType::Type sequenceType;
-	InterpolationType::Type interpolationType;
-	void setInterpolationType(InterpolationType::Type t);
+	Motion::InterpolationType interpolationType;
+	void setInterpolationType(Motion::InterpolationType t);
 	void setSequenceType(SequenceType::Type t);
 
 	std::vector<std::shared_ptr<Motion::Curve>> curves;

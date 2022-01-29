@@ -9,26 +9,40 @@ public:
     DEFINE_ETHERCAT_DEVICE(Lexium32, "LXM32M EtherCAT", "Lexium32M", "Lexium32M", "Schneider Electric", "Servo Drives")
 
     //subdevices
-    std::shared_ptr<ServoActuatorDevice> servoMotorDevice = std::make_shared<ServoActuatorDevice>("Servo", PositionUnit::Unit::REVOLUTION, PositionFeedback::Type::ABSOLUTE_FEEDBACK);
+    std::shared_ptr<ServoActuatorDevice> servoMotorDevice = std::make_shared<ServoActuatorDevice>("Servo", PositionUnit::REVOLUTION, PositionFeedbackType::ABSOLUTE);
     std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
 
     //node input data
-    std::shared_ptr<NodePin> digitalOut0 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ0");
-    std::shared_ptr<NodePin> digitalOut1 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ1");
-    std::shared_ptr<NodePin> digitalOut2 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_INPUT, "DQ2");
+    std::shared_ptr<NodePin> digitalOut0 = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ0");
+    std::shared_ptr<NodePin> digitalOut1 = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ1");
+    std::shared_ptr<NodePin> digitalOut2 = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ2");
+	
+	std::shared_ptr<bool> digitalOut0PinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalOut1PinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalOut2PinValue = std::make_shared<bool>(false);
 
     //node output data
-    std::shared_ptr<NodePin> servoMotorLink = std::make_shared<NodePin>(NodeData::SERVO_ACTUATOR_DEVICE_LINK, DataDirection::NODE_OUTPUT, "Servo Motor");
-    std::shared_ptr<NodePin> actualLoad = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Load", NodePinFlags_DisableDataField | NodePinFlags_HidePin);
-    std::shared_ptr<NodePin> actualPosition = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Position", NodePinFlags_DisableDataField | NodePinFlags_HidePin);
-    std::shared_ptr<NodePin> actualVelocity = std::make_shared<NodePin>(NodeData::REAL_VALUE, DataDirection::NODE_OUTPUT, "Velocity", NodePinFlags_DisableDataField | NodePinFlags_HidePin);
-    std::shared_ptr<NodePin> gpNodeLink = std::make_shared<NodePin>(NodeData::GPIO_DEVICELINK, DataDirection::NODE_OUTPUT, "GPIO");
-    std::shared_ptr<NodePin> digitalIn0 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI0", NodePinFlags_DisableDataField);
-    std::shared_ptr<NodePin> digitalIn1 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI1", NodePinFlags_DisableDataField);
-    std::shared_ptr<NodePin> digitalIn2 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI2", NodePinFlags_DisableDataField);
-    std::shared_ptr<NodePin> digitalIn3 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI3", NodePinFlags_DisableDataField);
-    std::shared_ptr<NodePin> digitalIn4 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI4", NodePinFlags_DisableDataField);
-    std::shared_ptr<NodePin> digitalIn5 = std::make_shared<NodePin>(NodeData::BOOLEAN_VALUE, DataDirection::NODE_OUTPUT, "DI5", NodePinFlags_DisableDataField);
+    std::shared_ptr<NodePin> servoMotorLink = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR, NodePin::Direction::NODE_OUTPUT, "Servo Motor");
+    std::shared_ptr<NodePin> actualLoad = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Load", NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
+    std::shared_ptr<NodePin> actualPosition = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Position", NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
+    std::shared_ptr<NodePin> actualVelocity = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Velocity", NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
+    std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT, "GPIO");
+    std::shared_ptr<NodePin> digitalIn0 = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "DI0", NodePin::Flags::DisableDataField);
+    std::shared_ptr<NodePin> digitalIn1 = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "DI1", NodePin::Flags::DisableDataField);
+    std::shared_ptr<NodePin> digitalIn2 = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "DI2", NodePin::Flags::DisableDataField);
+    std::shared_ptr<NodePin> digitalIn3 = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "DI3", NodePin::Flags::DisableDataField);
+    std::shared_ptr<NodePin> digitalIn4 = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "DI4", NodePin::Flags::DisableDataField);
+    std::shared_ptr<NodePin> digitalIn5 = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "DI5", NodePin::Flags::DisableDataField);
+	
+	std::shared_ptr<double> loadPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> positionPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> velocityPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<bool> digitalIn0PinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn1PinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn2PinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn3PinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn4PinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn5PinValue = std::make_shared<bool>(false);
 
 
 	void resetData();
@@ -64,34 +78,60 @@ public:
 
     //===== mode display and changing =====
 
-    struct OperatingMode {
-        enum class Mode {
-            TUNING,
-            MOTION_SEQUENCE,
-            ELECTRONIC_GEAR,
-            JOG,
-            PROFILE_POSITION,
-            PROFILE_VELOCITY,
-            PROFILE_TORQUE,
-            HOMING,
-            INTERPOLATED_POSITION,
-            CYCLIC_SYNCHRONOUS_POSITION,
-            CYCLIC_SYNCHRONOUS_VELOCITY,
-            CYCLIC_SYNCHRONOUS_TORQUE,
-            UNKNOWN
-        };
-        int id;
-        Mode mode;
-        const char displayName[64];
-    };
-    static std::vector<OperatingMode> operatingModes;
-    static std::vector<OperatingMode> availableOperatingModes;
-    static OperatingMode* getOperatingMode(OperatingMode::Mode operatingMode);
-    static OperatingMode* getOperatingMode(const char* displayName);
-    static OperatingMode* getOperatingMode(int id);
+	enum class OperatingMode{
+		TUNING,
+		MOTION_SEQUENCE,
+		ELECTRONIC_GEAR,
+		JOG,
+		PROFILE_POSITION,
+		PROFILE_VELOCITY,
+		PROFILE_TORQUE,
+		HOMING,
+		INTERPOLATED_POSITION,
+		CYCLIC_SYNCHRONOUS_POSITION,
+		CYCLIC_SYNCHRONOUS_VELOCITY,
+		CYCLIC_SYNCHRONOUS_TORQUE,
+		UNKNOWN
+	};
+	
+	static OperatingMode getOperatingMode(int ds402Identifier){
+		switch(ds402Identifier){
+			case -6: return OperatingMode::TUNING;
+			case -3: return OperatingMode::MOTION_SEQUENCE;
+			case -2: return OperatingMode::ELECTRONIC_GEAR;
+			case -1: return OperatingMode::JOG;
+			case 1:  return OperatingMode::PROFILE_POSITION;
+			case 3:  return OperatingMode::PROFILE_VELOCITY;
+			case 4:  return OperatingMode::PROFILE_TORQUE;
+			case 6:  return OperatingMode::HOMING;
+			case 7:  return OperatingMode::INTERPOLATED_POSITION;
+			case 8:  return OperatingMode::CYCLIC_SYNCHRONOUS_POSITION;
+			case 9:  return OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY;
+			case 10: return OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE;
+			default: return OperatingMode::UNKNOWN;
+		}
+	}
+	
+	static int getOperatingModeId(OperatingMode mode){
+		switch(mode){
+			case OperatingMode::TUNING: return -6;
+			case OperatingMode::MOTION_SEQUENCE: return -3;
+			case OperatingMode::ELECTRONIC_GEAR: return -2;
+			case OperatingMode::JOG: return -1;
+			case OperatingMode::PROFILE_POSITION: return 1;
+			case OperatingMode::PROFILE_VELOCITY: return 3;
+			case OperatingMode::PROFILE_TORQUE: return 4;
+			case OperatingMode::HOMING: return 6;
+			case OperatingMode::INTERPOLATED_POSITION: return 7;
+			case OperatingMode::CYCLIC_SYNCHRONOUS_POSITION: return 8;
+			case OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY: return 9;
+			case OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE: return 10;
+			default: return 33333;
+		}
+	}
 
-    OperatingMode::Mode actualOperatingMode = OperatingMode::Mode::UNKNOWN;
-    const OperatingMode::Mode requestedOperatingMode = OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION;
+    OperatingMode actualOperatingMode = OperatingMode::UNKNOWN;
+    const OperatingMode requestedOperatingMode = OperatingMode::CYCLIC_SYNCHRONOUS_POSITION;
 
     //===== EMERGENCY STOP =====
 
@@ -129,56 +169,48 @@ public:
 	double maxFollowingError_revolutions = 0.0;
 
     void uploadGeneralParameters();
-    DataTransferState::State generalParameterUploadState = DataTransferState::State::NO_TRANSFER;
+    DataTransferState generalParameterUploadState = DataTransferState::NO_TRANSFER;
     void downloadGeneralParameters();
-    DataTransferState::State generalParameterDownloadState = DataTransferState::State::NO_TRANSFER;
+    DataTransferState generalParameterDownloadState = DataTransferState::NO_TRANSFER;
 
     //======= QuickStop Settings =======
     
-    struct QuickStopReaction {
-        enum class Type {
-            TORQUE_RAMP,
-            DECELERATION_RAMP
-        };
-        Type type;
-        const char displayName[64];
-        const char saveName[64];
+    enum class QuickStopReaction {
+		TORQUE_RAMP,
+		DECELERATION_RAMP
     };
-    static std::vector<QuickStopReaction> quickStopReactions;
-    std::vector<QuickStopReaction>& getQuickStopReactions();
-    QuickStopReaction* getQuickStopReaction(const char* saveName);
-    QuickStopReaction* getQuickStopReaction(QuickStopReaction::Type t);
 
-    QuickStopReaction::Type quickstopReaction = QuickStopReaction::Type::TORQUE_RAMP;
+    QuickStopReaction quickstopReaction = QuickStopReaction::TORQUE_RAMP;
     double maxQuickstopCurrent_amps = 0.0;
     double quickStopDeceleration_revolutionsPerSecondSquared = 0.0;
 
     //===== GPIO settings ======
 
-    struct InputPin {
-        enum class Pin {
-            DI0,
-            DI1,
-            DI2,
-            DI3,
-            DI4,
-            DI5,
-            NONE
-        };
-        Pin pin;
-        uint8_t CoeSubindex;
-        const char displayName[64];
-        const char saveName[64];
+    enum class InputPin {
+		DI0,
+		DI1,
+		DI2,
+		DI3,
+		DI4,
+		DI5,
+		NONE
     };
-    static std::vector<InputPin> inputPins;
-    static std::vector<InputPin>& getInputPins();
-    static InputPin* getInputPin(const char* saveName);
-    static InputPin* getInputPin(InputPin::Pin pin);
-    static InputPin* getInputPin(uint8_t coeSubindex);
+	
+	uint8_t getInputPinSubindex(InputPin pin){
+		switch(pin){
+			case InputPin::DI0: return 0x1;
+			case InputPin::DI1: return 0x2;
+			case InputPin::DI2: return 0x3;
+			case InputPin::DI3: return 0x4;
+			case InputPin::DI4: return 0x5;
+			case InputPin::DI5: return 0x6;
+			default: return 0x0;
+		}
+	}
 
-    InputPin::Pin negativeLimitSwitchPin = InputPin::Pin::NONE;
+    InputPin negativeLimitSwitchPin = InputPin::NONE;
     bool b_negativeLimitSwitchNormallyClosed = false;
-    InputPin::Pin positiveLimitSwitchPin = InputPin::Pin::NONE;
+    InputPin positiveLimitSwitchPin = InputPin::NONE;
     bool b_positiveLimitSwitchNormallyClosed = false;
 
     bool b_invertDI0 = false;
@@ -189,93 +221,114 @@ public:
     bool b_invertDI5 = false;
 
     void uploadPinAssignements();
-    DataTransferState::State pinAssignementUploadState = DataTransferState::State::NO_TRANSFER;
+    DataTransferState pinAssignementUploadState = DataTransferState::NO_TRANSFER;
     void downloadPinAssignements();
-    DataTransferState::State pinAssignementDownloadState = DataTransferState::State::NO_TRANSFER;
+    DataTransferState pinAssignementDownloadState = DataTransferState::NO_TRANSFER;
 
     //===== Encoder Settings =====
 
-    struct EncoderAssignement {
-        enum class Type {
-            INTERNAL_ENCODER,
-            ENCODER_MODULE
-        };
-        Type type;
-        uint16_t CoeData;
-        const char displayName[64];
-        const char saveName[64];
+	
+    enum class EncoderAssignement {
+		INTERNAL_ENCODER,
+		ENCODER_MODULE
     };
-    static std::vector<EncoderAssignement> encoderAssignements;
-    static EncoderAssignement* getEncoderAssignement(const char* saveName);
-    static EncoderAssignement* getEncoderAssignement(EncoderAssignement::Type assignementType);
-    static EncoderAssignement* getEncoderAssignement(uint16_t CoeData);
+	uint16_t getEncoderAssignementValue(EncoderAssignement assignement){
+		switch(assignement){
+			case EncoderAssignement::INTERNAL_ENCODER: return 0;
+			case EncoderAssignement::ENCODER_MODULE: return 1;
+		}
+	}
+	EncoderAssignement getEncoderAssignement(uint16_t val){
+		switch(val){
+			case 0: return EncoderAssignement::INTERNAL_ENCODER;
+			case 1: return EncoderAssignement::ENCODER_MODULE;
+		}
+	}
 
-    struct EncoderModule {
-        enum class Type {
-            ANALOG_MODULE,
-            DIGITAL_MODULE,
-            RESOLVER_MODULE,
-            NONE
-        };
-        Type type;
-        uint16_t CoeData;
-        const char displayName[64];
-        const char saveName[64];
+	
+    enum class EncoderModule {
+		ANALOG_MODULE,
+		DIGITAL_MODULE,
+		RESOLVER_MODULE,
+		NONE
     };
-    static std::vector<EncoderModule> encoderModules;
-    static EncoderModule* getEncoderModule(const char* saveName);
-    static EncoderModule* getEncoderModule(EncoderModule::Type moduleType);
-    static EncoderModule* getEncoderModule(uint16_t CoeData);
+	uint16_t getEncoderModuleValue(EncoderModule module){
+		switch(module){
+			case Lexium32::EncoderModule::ANALOG_MODULE: return 769;
+			case Lexium32::EncoderModule::DIGITAL_MODULE: return 770;
+			case Lexium32::EncoderModule::RESOLVER_MODULE: return 771;
+			case Lexium32::EncoderModule::NONE: return 0;
+		}
+	}
+	EncoderModule getEncoderModule(uint16_t val){
+		switch(val){
+			case 769: return EncoderModule::ANALOG_MODULE;
+			case 770: return EncoderModule::DIGITAL_MODULE;
+			case 771: return EncoderModule::RESOLVER_MODULE;
+			case 0: return EncoderModule::NONE;
+			default: return EncoderModule::NONE;
+		}
+	}
+	
 
-    struct EncoderType {
-        enum class Type {
-            NONE,
-            SSI_ROTARY
-        };
-        Type type;
-        uint16_t CoeData;
-        const char displayName[64];
-        const char saveName[64];
-    };
-    static std::vector<EncoderType> encoderTypes;
-    static EncoderType* getEncoderType(const char* saveName);
-    static EncoderType* getEncoderType(EncoderType::Type moduleType);
-    static EncoderType* getEncoderType(uint16_t CoeData);
 
-    struct EncoderCoding {
-        enum class Type {
-            BINARY,
-            GRAY
-        };
-        Type type;
-        uint16_t CoeData;
-        const char displayName[64];
-        const char saveName[64];
+    enum class EncoderType {
+		NONE,
+		SSI_ROTARY
     };
-    static std::vector<EncoderCoding> encoderCodings;
-    static EncoderCoding* getEncoderCoding(const char* saveName);
-    static EncoderCoding* getEncoderCoding(EncoderCoding::Type encodingType);
-    static EncoderCoding* getEncoderCoding(uint16_t CoeData);
-    struct EncoderVoltage {
-        enum class Voltage {
-            V5,
-            V12
-        };
-        Voltage voltage;
-        uint16_t CoeData;
-        const char displayName[64];
-        const char saveName[64];
-    };
-    static std::vector<EncoderVoltage> encoderVoltages;
-    static EncoderVoltage* getEncoderVoltage(const char* saveName);
-    static EncoderVoltage* getEncoderVoltage(EncoderVoltage::Voltage v);
-    static EncoderVoltage* getEncoderVoltage(uint16_t CoeData);
+	uint16_t getEncoderTypeValue(EncoderType type){
+		switch(type){
+			case EncoderType::NONE: return 0;
+			case EncoderType::SSI_ROTARY: return 10;
+		}
+	}
+	EncoderType getEncoderType(uint16_t val){
+		switch(val){
+			case 0: return EncoderType::NONE;
+			case 10: return EncoderType::SSI_ROTARY;
+		}
+	}
+	
 
-    EncoderAssignement::Type encoderAssignement = EncoderAssignement::Type::INTERNAL_ENCODER;
-    EncoderModule::Type encoderModuleType = EncoderModule::Type::NONE;
-    EncoderType::Type encoderType = EncoderType::Type::NONE;
-    EncoderCoding::Type encoderCoding = EncoderCoding::Type::BINARY;
-    EncoderVoltage::Voltage encoderVoltage = EncoderVoltage::Voltage::V12;
+    enum class EncoderCoding {
+		BINARY,
+		GRAY
+    };
+	uint16_t getEncoderEncodingValue(EncoderCoding coding){
+		switch(coding){
+			case EncoderCoding::BINARY: return 0;
+			case EncoderCoding::GRAY: return 1;
+		}
+	}
+	EncoderCoding getEncoderCoding(uint16_t val){
+		switch(val){
+			case 0: return EncoderCoding::BINARY;
+			case 1: return EncoderCoding::GRAY;
+		}
+	}
+    
+	enum class EncoderVoltage {
+		V5,
+		V12
+    };
+	uint16_t getEncoderVoltageValue(EncoderVoltage voltage){
+		switch(voltage){
+			case EncoderVoltage::V5: return 5;
+			case EncoderVoltage::V12: return 12;
+		}
+	}
+	EncoderVoltage getEncoderVoltage(uint16_t id){
+		switch(id){
+			case 5: return EncoderVoltage::V5;
+			case 12: return EncoderVoltage::V12;
+		}
+	}
+
+    EncoderAssignement encoderAssignement = EncoderAssignement::INTERNAL_ENCODER;
+    EncoderModule encoderModuleType = EncoderModule::NONE;
+    EncoderType encoderType = EncoderType::NONE;
+    EncoderCoding encoderCoding = EncoderCoding::BINARY;
+    EncoderVoltage encoderVoltage = EncoderVoltage::V12;
 
     //internal encoder settings are constant
     const int encoder1_singleTurnResolutionBits = 17;
@@ -291,13 +344,13 @@ public:
 
     void detectEncoderModule();
     void uploadEncoderSettings();
-    DataTransferState::State encoderSettingsUploadState = DataTransferState::State::NO_TRANSFER;
+    DataTransferState encoderSettingsUploadState = DataTransferState::NO_TRANSFER;
     void downloadEncoderSettings();
-    DataTransferState::State encoderSettingsDownloadState = DataTransferState::State::NO_TRANSFER;
+    DataTransferState encoderSettingsDownloadState = DataTransferState::NO_TRANSFER;
 
     float manualAbsoluteEncoderPosition_revolutions = 0.0;
     void uploadManualAbsoluteEncoderPosition();
-    DataTransferState::State encoderAbsolutePositionUploadState = DataTransferState::State::NO_TRANSFER;
+    DataTransferState encoderAbsolutePositionUploadState = DataTransferState::NO_TRANSFER;
 
     void getEncoderWorkingRange(float& low, float& high);
 
@@ -316,17 +369,17 @@ public:
     float tuning_frictionTorque_amperes = 0.0;
     float tuning_constantLoadTorque_amperes = 0.0;
     float tuning_momentOfInertia_kilogramcentimeter2 = 0.0;
-    DataTransferState::State autoTuningSaveState = DataTransferState::State::NO_TRANSFER;
+    DataTransferState autoTuningSaveState = DataTransferState::NO_TRANSFER;
 
     //======== Other Settings =========
 
     bool saveToEEPROM();
 
     void factoryReset();
-    DataTransferState::State factoryResetTransferState = DataTransferState::State::NO_TRANSFER;
+    DataTransferState factoryResetTransferState = DataTransferState::NO_TRANSFER;
 
     void setStationAlias(uint16_t a);
-    DataTransferState::State stationAliasUploadState = DataTransferState::State::NO_TRANSFER;
+    DataTransferState stationAliasUploadState = DataTransferState::NO_TRANSFER;
 
     //===== Drive Status Flags ======
 
@@ -393,3 +446,61 @@ private:
     void tuningGui();
     void miscellaneousGui();
 };
+
+
+#define QuickstopRectionTypeString \
+	{Lexium32::QuickStopReaction::TORQUE_RAMP, "Torque Ramp", "TorqueRamp"},\
+	{Lexium32::QuickStopReaction::DECELERATION_RAMP, "Deceleration Ramp", "DecelerationRamp"}\
+
+DEFINE_ENUMERATOR(Lexium32::QuickStopReaction, QuickstopRectionTypeString)
+
+
+#define InputPinStrings \
+	{Lexium32::InputPin::DI0, "Digital Input 0", "DI0"},\
+	{Lexium32::InputPin::DI1, "Digital Input 1", "DI1"},\
+	{Lexium32::InputPin::DI2, "Digital Input 2", "DI2"},\
+	{Lexium32::InputPin::DI3, "Digital Input 3", "DI3"},\
+	{Lexium32::InputPin::DI4, "Digital Input 4", "DI4"},\
+	{Lexium32::InputPin::DI5, "Digital Input 5", "DI5"},\
+	{Lexium32::InputPin::NONE, "Unassigned", "Unassigned"}\
+
+DEFINE_ENUMERATOR(Lexium32::InputPin, InputPinStrings)
+
+
+#define EncoderAssignementTypeStrings \
+	{Lexium32::EncoderAssignement::INTERNAL_ENCODER, "Internal Motor Encoder", "Internal"},\
+	{Lexium32::EncoderAssignement::ENCODER_MODULE, "Encoder Module", "Module"}\
+
+DEFINE_ENUMERATOR(Lexium32::EncoderAssignement, EncoderAssignementTypeStrings)
+
+
+#define EncoderModuleTypeStrings \
+	{Lexium32::EncoderModule::ANALOG_MODULE, "Analog Encoder Module", "Analog"},\
+	{Lexium32::EncoderModule::DIGITAL_MODULE, "Digital Encoder Module", "Digital"},\
+	{Lexium32::EncoderModule::RESOLVER_MODULE, "Resolver Encoder Module", "Resolver"},\
+	{Lexium32::EncoderModule::NONE, "No Encoder Module", "None"}\
+
+DEFINE_ENUMERATOR(Lexium32::EncoderModule, EncoderModuleTypeStrings)
+
+
+#define EncoderTypeStrings \
+	{Lexium32::EncoderType::NONE, "None", "None"},\
+	{Lexium32::EncoderType::SSI_ROTARY, "SSI Absolute Rotary", "SSIRotary"}\
+
+DEFINE_ENUMERATOR(Lexium32::EncoderType, EncoderTypeStrings)
+
+
+#define EncoderCodingTypeStrings \
+	{Lexium32::EncoderCoding::BINARY, "Binary", "Binary"},\
+	{Lexium32::EncoderCoding::GRAY, "Gray", "Gray"}\
+
+DEFINE_ENUMERATOR(Lexium32::EncoderCoding, EncoderCodingTypeStrings)
+
+
+#define EncoderVoltageTypeStrings \
+	{Lexium32::EncoderVoltage::V5, "5V", "5V"},\
+	{Lexium32::EncoderVoltage::V12, "12V", "12V"}\
+
+DEFINE_ENUMERATOR(Lexium32::EncoderVoltage, EncoderVoltageTypeStrings)
+
+

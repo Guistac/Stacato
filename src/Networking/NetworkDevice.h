@@ -6,16 +6,7 @@
 	public:\
 	\
 	/*Node Specific*/\
-	virtual const char * getSaveName() { return saveName; }\
-	virtual const char* getNodeCategory() { return "none"; }\
-	className(){ setName(displayName); }\
-	virtual Node::Type getType() { return Node::Type::IODEVICE; }\
-	virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }\
-	virtual void assignIoData();\
-	virtual void nodeSpecificGui();\
-	virtual bool load(tinyxml2::XMLElement* xml);\
-	virtual bool save(tinyxml2::XMLElement* xml);\
-	\
+	DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, "none")\
 	/*Device Specific*/\
 	virtual Device::Type getDeviceType() { return Type::NETWORK_DEVICE; }\
 	virtual void readInputs();\

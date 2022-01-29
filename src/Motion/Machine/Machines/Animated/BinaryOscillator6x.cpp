@@ -1,10 +1,10 @@
 #include <pch.h>
-
+/*
 #include "BinaryOscillator6x.h"
 
 #include <pch.h>
 
-#include "Motion/Subdevice.h"
+#include "Motion/SubDevice.h"
 #include "Motion/AnimatableParameter.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
 
@@ -13,10 +13,14 @@
 
 #include <tinyxml2.h>
 
-void BinaryOscillator6x::assignIoData() {
+void BinaryOscillator6x::initialize() {
 
-	addIoData(gpioDevicePin);
-	for (auto& outputPin : outputPins) addIoData(outputPin);
+	addNodePin(gpioDevicePin);
+	
+	for (int i = 0; i < 6; i++) {
+		outputPins[i]->assignData(outputPinValues[i]);
+		addNodePin(outputPins[i]);
+	}
 
 	addAnimatableParameter(oscillatorParameterGroup);
 }
@@ -28,7 +32,7 @@ void BinaryOscillator6x::process() {
 	}
 
 	if (b_startOscillator && !b_oscillatorActive) {
-		Logger::warn("START OSC");
+		Logger::warn("START OSCILLATOR");
 		updateOscillatorParametersFromTracks();
 		b_startOscillator = false;
 		b_oscillatorActive = true;
@@ -76,7 +80,8 @@ void BinaryOscillator6x::process() {
 					nextStateChangeDelay_seconds[i] = Random::getRanged(minOffTime_seconds, maxOffTime_seconds);
 				}
 			}
-			outputPins[i]->set(outputSignals[i]);
+			
+			*outputPinValues[i] = outputSignals[i];
 		}
 	}
     
@@ -117,7 +122,7 @@ void BinaryOscillator6x::stopOscillatorParameterPlayback() {
 
 void BinaryOscillator6x::setOutput(int i, bool s) {
 	outputSignals[i] = s;
-	outputPins[i]->set(s);
+	*outputPinValues[i] = outputSignals[i];
 }
 
 void BinaryOscillator6x::manuallySetOutput(int i, bool s) {
@@ -184,7 +189,7 @@ int BinaryOscillator6x::getGpioDeviceCount() {
 }
 
 std::shared_ptr<GpioDevice> BinaryOscillator6x::getGpioDevice(int i) {
-	return gpioDevicePin->getConnectedPins().at(i)->getGpioDevice();
+	return gpioDevicePin->getConnectedPins().at(i)->getSharedPointer<GpioDevice>();
 }
 
 
@@ -268,11 +273,11 @@ bool BinaryOscillator6x::validateParameterTrack(const std::shared_ptr<ParameterT
 			for (auto& point : curve->points) {
 				if (point->position >= 1.0 && point->position <= maxTime_seconds) {
 					point->b_valid = true;
-					point->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+					point->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 				}
 				else {
 					point->b_valid = false;
-					point->validationError = Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+					point->validationError = Motion::ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
 					b_curveValid = false;
 				}
 			}
@@ -281,7 +286,7 @@ bool BinaryOscillator6x::validateParameterTrack(const std::shared_ptr<ParameterT
 				for (auto& point : interpolation->displayPoints) {
 					if (point.position < 1.0 && point.position > maxTime_seconds) {
 						interpolationValid = false;
-						interpolation->validationError = Motion::ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE;
+						interpolation->validationError = Motion::ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
 						b_curveValid = false;
 						break;
 					}
@@ -311,7 +316,7 @@ bool BinaryOscillator6x::getCurveLimitsAtTime(const std::shared_ptr<AnimatablePa
 }
 
 void BinaryOscillator6x::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {
-	/*
+	
 	if (parameter == frequencyParameter ||
 		parameter == minAmplitudeParameter ||
 		parameter == maxAmplitudeParameter ||
@@ -330,7 +335,7 @@ void BinaryOscillator6x::getTimedParameterCurveTo(const std::shared_ptr<Animatab
 	else if (parameter == axis3PositionParameter) {
 
 	}
-	*/
+	
 }
 
 void BinaryOscillator6x::onEnableHardware() {
@@ -381,3 +386,4 @@ bool BinaryOscillator6x::loadMachine(tinyxml2::XMLElement* xml) {
 	if(defaultOscillatorSettingsXML->QueryFloatAttribute("MaxOnTime", &maxOnTime_seconds) != XML_SUCCESS) return Logger::warn("Could not find max on time Attribute");
 	return true;
 }
+*/

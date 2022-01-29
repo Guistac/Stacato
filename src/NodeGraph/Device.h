@@ -2,26 +2,15 @@
 
 #include "Node.h"
 
-#define DEFINE_DEVICE_NODE(nodeName, className, deviceType, category)\
-	public:\
-	\
-	/*Node Specific*/\
-	virtual const char * getSaveName() { return nodeName; }\
-	virtual const char* getNodeCategory() { return category; }\
-	className(){ setName(nodeName); }\
-	virtual Node::Type getType() { return Node::Type::IODEVICE; }\
-	virtual std::shared_ptr<Node> getNewNodeInstance() { return std::make_shared<className>(); }\
-	virtual void assignIoData();\
-	virtual void nodeSpecificGui();\
-	\
-	/*Device Specific*/\
-	virtual void getDeviceType();\
-	virtual void readInputs();\
-	virtual void prepareOutputs();\
+#define DEFINE_DEVICE_NODE(className, displayName, saveName, deviceType, category)\
+	DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, category)\
+	virtual Device::Type getDeviceType() { return deviceType; }\
 	virtual bool isDetected();\
 	virtual bool isConnected();\
 	virtual void onConnection();\
 	virtual void onDisconnection();\
+	virtual void readInputs();\
+	virtual void prepareOutputs();\
 
 class Device : public Node {
 public:

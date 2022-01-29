@@ -16,21 +16,17 @@ void Machine::enable(){
 	if(Environnement::isSimulating() && isSimulationReady()){
 		onEnableSimulation();
 		b_enabled = true;
-		b_isSimulating = true;
 	}else {
 		enableHardware();
-		b_isSimulating = false;
 	}
 }
 
 void Machine::disable(){
 	if(Environnement::isSimulating()){
 		b_enabled = false;
-		b_isSimulating = false;
 		onDisableSimulation();
 	}else {
 		disableHardware();
-		b_isSimulating = false;
 	}
 }
 
@@ -39,7 +35,7 @@ bool Machine::isEnabled(){
 }
 
 bool Machine::isSimulating(){
-	return b_isSimulating;
+	return Environnement::isSimulating();
 }
 
 void Machine::addAnimatableParameter(std::shared_ptr<AnimatableParameter> parameter) {

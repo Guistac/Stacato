@@ -8,27 +8,32 @@ namespace tinyxml2 {
 	class XMLElement;
 }
 
-struct ParameterDataType {
-	enum class Type {
-		BOOLEAN_PARAMETER,
-		INTEGER_PARAMETER,
-		STATE_PARAMETER,
-		REAL_PARAMETER,
-		VECTOR_2D_PARAMETER,
-		VECTOR_3D_PARAMETER,
-		KINEMATIC_POSITION_CURVE,
-		KINEMATIC_2D_POSITION_CURVE,
-		KINEMATIC_3D_POSITION_CURVE,
-		PARAMETER_GROUP
-	};
-	Type type;
-	const char displayName[64];
-	const char saveName[64];
+enum class ParameterDataType {
+	BOOLEAN_PARAMETER,
+	INTEGER_PARAMETER,
+	STATE_PARAMETER,
+	REAL_PARAMETER,
+	VECTOR_2D_PARAMETER,
+	VECTOR_3D_PARAMETER,
+	KINEMATIC_POSITION_CURVE,
+	KINEMATIC_2D_POSITION_CURVE,
+	KINEMATIC_3D_POSITION_CURVE,
+	PARAMETER_GROUP
 };
 
-std::vector<ParameterDataType>& getParameterDataTypes();
-ParameterDataType* getParameterDataType(const char* saveName);
-ParameterDataType* getParameterDataType(ParameterDataType::Type t);
+#define ParameterDataTypeStrings \
+	{ParameterDataType::BOOLEAN_PARAMETER, "Boolean", "Boolean"},\
+	{ParameterDataType::INTEGER_PARAMETER, "Integer", "Integer"},\
+	{ParameterDataType::STATE_PARAMETER, "State", "State"},\
+	{ParameterDataType::REAL_PARAMETER, "Real", "Real"},\
+	{ParameterDataType::VECTOR_2D_PARAMETER, "2D Vector", "2DVector"},\
+	{ParameterDataType::VECTOR_3D_PARAMETER, "3D Vector", "3DVector"},\
+	{ParameterDataType::KINEMATIC_POSITION_CURVE, "Kinematic", "Kinematic"},\
+	{ParameterDataType::KINEMATIC_2D_POSITION_CURVE, "2D Kinematic", "2DKinematic"},\
+	{ParameterDataType::KINEMATIC_3D_POSITION_CURVE, "3D Kinematic", "3DKinematic"},\
+	{ParameterDataType::PARAMETER_GROUP, "Paramater Group", "ParameterGroup"}\
+
+DEFINE_ENUMERATOR(ParameterDataType, ParameterDataTypeStrings)
 
 
 //=== value structure for State Data Type ===
@@ -43,7 +48,7 @@ struct AnimatableParameterValue {
 public:
 
 	//=== Base Information ===
-	ParameterDataType::Type type;
+	ParameterDataType type;
 	const char* shortUnitString = nullptr;
 
 	//=== Value Data ===
@@ -74,7 +79,7 @@ class AnimatableParameter {
 public:
 
 	//Constructor for Base Parameter Types
-	AnimatableParameter(const char* nm, ParameterDataType::Type datat, const char* unitShortStr);
+	AnimatableParameter(const char* nm, ParameterDataType datat, const char* unitShortStr);
 
 	//Constructor for Parameter with State DataType
 	AnimatableParameter(const char* nm, std::vector<StateParameterValue>* stateValues);
@@ -83,12 +88,12 @@ public:
 	AnimatableParameter(const char* nm, std::vector<std::shared_ptr<AnimatableParameter>> children);
 
 	//=== Basic Parameter Information ===
-	ParameterDataType::Type dataType;
+	ParameterDataType dataType;
 	char name[128];
 	std::shared_ptr<Machine> machine;
 
 	//=== For Non-Group Parameters ===
-	std::vector<InterpolationType::Type> getCompatibleInterpolationTypes();
+	std::vector<Motion::InterpolationType> getCompatibleInterpolationTypes();
 	char shortUnitString[16];
 	
 	//=== For Parameters Controlled by ParameterTrack Animation ===

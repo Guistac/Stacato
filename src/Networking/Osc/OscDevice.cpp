@@ -11,7 +11,7 @@
 //Uselful for precise cross-platform thread sleep
 #include <osal.h>
 
-void OscDevice::assignIoData(){}
+void OscDevice::initialize(){}
 
 void OscDevice::connect(){
 	oscSocket = std::make_shared<OscSocket>(4096);
@@ -159,7 +159,7 @@ void OscDevice::addArgument(std::shared_ptr<OSC::Message> msg){
 	std::shared_ptr<OSC::Argument> argument = std::make_shared<OSC::Argument>(msg);
 	msg->arguments.push_back(argument);
 	argument->setIndex(getMessageIndex(msg), msg->arguments.size());
-	addIoData(argument->pin);
+	addNodePin(argument->pin);
 	updatePins();
 }
 
@@ -202,8 +202,8 @@ void OscDevice::updatePins(){
 	}
 	
 	//erase all input pins from the nodes pin vectors
-	std::vector<std::shared_ptr<NodePin>>& inputPins = getNodeInputData();
-	std::vector<std::shared_ptr<NodePin>>& outputPins = getNodeOutputData();
+	std::vector<std::shared_ptr<NodePin>>& inputPins = getInputPins();
+	std::vector<std::shared_ptr<NodePin>>& outputPins = getOutputPins();
 	inputPins.clear();
 	outputPins.clear();
 	//and add them back in the correct order
@@ -253,10 +253,10 @@ ArgumentType* getArgumentType(const char* saveName){
 Argument::Argument(std::shared_ptr<Message> msg) : parentMessage(msg){
 	switch(parentMessage->type){
 		case OSC::MessageType::OUTGOING_MESSAGE:
-			pin = std::make_shared<NodePin>(NodeData::Type::REAL_VALUE, DataDirection::NODE_INPUT, "dummyName");
+			pin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "dummyName");
 			break;
 		case OSC::MessageType::INCOMING_MESSAGE:
-			pin = std::make_shared<NodePin>(NodeData::Type::REAL_VALUE, DataDirection::NODE_OUTPUT, "dummyName");
+			pin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "dummyName");
 			break;
 	}
 	setType(type);
@@ -267,11 +267,13 @@ void Argument::setType(ArgumentType::Type t){
 	switch(type){
 		case ArgumentType::Type::FLOAT_DATA:
 		case ArgumentType::Type::DOUBLE_DATA:
+			pin->assignData(realValue);
+			break;
 		case ArgumentType::Type::INTEGER_DATA:
-			pin->setType(NodeData::Type::REAL_VALUE);
+			pin->assignData(integerValue);
 			break;
 		case ArgumentType::Type::BOOLEAN_DATA:
-			pin->setType(NodeData::Type::BOOLEAN_VALUE);
+			pin->assignData(booleanValue);
 			break;
 	}
 }
@@ -281,21 +283,21 @@ void Argument::setIndex(int mesIndex, int argIndex){
 	
 	switch(parentMessage->type){
 		case OSC::MessageType::OUTGOING_MESSAGE:
-			sprintf((char*)pin->getSaveName(), "OutgoingMessage%iArgument%i", messageIndex, argumentIndex);
+			sprintf((char*)pin->getSaveString(), "OutgoingMessage%iArgument%i", messageIndex, argumentIndex);
 			
 			//only update the display name if it is not the default one
 			sprintf(previousDefaultDisplayString, "Outgoing Message %i Argument %i", messageIndex, argumentIndex);
-			if(strcmp(pin->getDisplayName(), previousDefaultDisplayString) == 0 || strcmp(pin->getDisplayName(), "dummyName") == 0){
-			   sprintf((char*)pin->getDisplayName(), "Outgoing Message %i Argument %i", mesIndex, argIndex);
+			if(strcmp(pin->getDisplayString(), previousDefaultDisplayString) == 0 || strcmp(pin->getDisplayString(), "dummyName") == 0){
+			   sprintf((char*)pin->getDisplayString(), "Outgoing Message %i Argument %i", mesIndex, argIndex);
 			}
 			break;
 		case OSC::MessageType::INCOMING_MESSAGE:
-			sprintf((char*)pin->getSaveName(), "IncomingMessage%iArgument%i", messageIndex, argumentIndex);
+			sprintf((char*)pin->getSaveString(), "IncomingMessage%iArgument%i", messageIndex, argumentIndex);
 	
 			//only update the display name if it is not the default one
 			sprintf(previousDefaultDisplayString, "Incoming Message %i Argument %i", messageIndex, argumentIndex);
-			if(strcmp(pin->getDisplayName(), previousDefaultDisplayString) == 0 || strcmp(pin->getDisplayName(), "dummyName") == 0){
-				sprintf((char*)pin->getDisplayName(), "Incoming Message %i Argument %i", mesIndex, argIndex);
+			if(strcmp(pin->getDisplayString(), previousDefaultDisplayString) == 0 || strcmp(pin->getDisplayString(), "dummyName") == 0){
+				sprintf((char*)pin->getDisplayString(), "Incoming Message %i Argument %i", mesIndex, argIndex);
 			}
 			break;
 	}
@@ -359,22 +361,19 @@ void Message::startSendingRuntime(std::shared_ptr<OscSocket> socket){
 			std::shared_ptr<OscMessage> message = std::make_shared<OscMessage>(path);
 			for(auto& argument : arguments){
 				std::shared_ptr<NodePin> pin = argument->pin;
+				if(pin->isConnected()) pin->copyConnectedPinValue();
 				switch(argument->type){
 					case OSC::ArgumentType::Type::FLOAT_DATA:
-						if(pin->isConnected()) message->addFloat(pin->getConnectedPins().front()->getReal());
-						else message->addFloat(argument->pin->getReal());
+						message->addFloat(pin->read<double>());
 						break;
 					case OSC::ArgumentType::Type::DOUBLE_DATA:
-						if(pin->isConnected()) message->addDouble(pin->getConnectedPins().front()->getReal());
-						else message->addDouble(argument->pin->getReal());
+						message->addDouble(argument->pin->read<double>());
 						break;
 					case OSC::ArgumentType::Type::INTEGER_DATA:
-						if(pin->isConnected()) message->addInt32(pin->getConnectedPins().front()->getReal());
-						else message->addInt32(argument->pin->getReal());
+						message->addInt32(argument->pin->read<int>());
 						break;
 					case OSC::ArgumentType::Type::BOOLEAN_DATA:
-						if(pin->isConnected()) message->addBool(pin->getConnectedPins().front()->getBoolean());
-						else message->addBool(argument->pin->getBoolean());
+						message->addBool(argument->pin->read<bool>());
 						break;
 				}
 			}
@@ -434,7 +433,7 @@ bool OscDevice::save(tinyxml2::XMLElement* xml){
 		for(auto& argument : message->arguments){
 			XMLElement* argumentXML = messageXML->InsertNewChildElement("OSCArgument");
 			argumentXML->SetAttribute("DataType", OSC::getArgumentType(argument->type)->saveName);
-			argumentXML->SetAttribute("PinSaveName", argument->pin->getSaveName());
+			argumentXML->SetAttribute("PinSaveName", argument->pin->getSaveString());
 		}
 	}
 	
@@ -445,7 +444,7 @@ bool OscDevice::save(tinyxml2::XMLElement* xml){
 		for(auto& argument : message->arguments){
 			XMLElement* argumentXML = messageXML->InsertNewChildElement("OSCArgument");
 			argumentXML->SetAttribute("DataType", OSC::getArgumentType(argument->type)->saveName);
-			argumentXML->SetAttribute("PinSaveName", argument->pin->getSaveName());
+			argumentXML->SetAttribute("PinSaveName", argument->pin->getSaveString());
 		}
 	}
 	
@@ -500,12 +499,12 @@ bool OscDevice::load(tinyxml2::XMLElement* xml){
 			argument->setType(argumentType->type);
 			const char* pinSaveNameString;
 			if(argumentXML->QueryStringAttribute("PinSaveName", &pinSaveNameString) != XML_SUCCESS) return Logger::warn("could not find osc argument pin save name attribute");
-			strcpy((char*)argument->pin->getSaveName(), pinSaveNameString);
+			strcpy((char*)argument->pin->getSaveString(), pinSaveNameString);
 			
 			argument->messageIndex = outgoingMessages.size();
 			argument->argumentIndex = message->arguments.size();
 			message->arguments.push_back(argument);
-			addIoData(argument->pin);
+			addNodePin(argument->pin);
 			
 			argumentXML = argumentXML->NextSiblingElement("OSCArgument");
 		}
@@ -540,12 +539,12 @@ bool OscDevice::load(tinyxml2::XMLElement* xml){
 			argument->setType(argumentType->type);
 			const char* pinSaveNameString;
 			if(argumentXML->QueryStringAttribute("PinSaveName", &dataTypeString) != XML_SUCCESS) return Logger::warn("could not find osc argument pin save name attribute");
-			strcpy((char*)argument->pin->getSaveName(), pinSaveNameString);
+			strcpy((char*)argument->pin->getSaveString(), pinSaveNameString);
 			
 			argument->messageIndex = incomingMessages.size();
 			argument->argumentIndex = message->arguments.size();
 			message->arguments.push_back(argument);
-			addIoData(argument->pin);
+			addNodePin(argument->pin);
 			
 			argumentXML = argumentXML->NextSiblingElement("OSCArgument");
 		}

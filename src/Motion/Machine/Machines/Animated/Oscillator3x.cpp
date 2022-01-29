@@ -1,20 +1,20 @@
 #include <pch.h>
-
+/*
 #include "Oscillator3x.h"
 
 #include <pch.h>
 
-#include "Motion/Subdevice.h"
+#include "Motion/SubDevice.h"
 #include "Motion/AnimatableParameter.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
 
 #include "Motion/Axis/PositionControlledAxis.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 
-void Oscillator3x::assignIoData() {
-	addIoData(linearAxis1Pin);
-	addIoData(linearAxis2Pin);
-	addIoData(linearAxis3Pin);
+void Oscillator3x::initialize() {
+	addNodePin(linearAxis1Pin);
+	addNodePin(linearAxis2Pin);
+	addNodePin(linearAxis3Pin);
 
 	addAnimatableParameter(oscillatorParameterGroup);
 	addAnimatableParameter(axis1PositionParameter);
@@ -56,10 +56,10 @@ void Oscillator3x::process() {
 		for (int i = 0; i < 3; i++) {
 			if (isAxisConnected(i)) {
 				std::shared_ptr<PositionControlledAxis> axis = getAxis(i);
-				if (axis->homingStep != Homing::Step::FINISHED) {
+				if (axis->homingStep != HomingStep::FINISHED) {
 					homingFinished = false;
 				}
-				if (axis->homingError != Homing::Error::NONE) {
+				if (axis->homingError != HomingError::NONE) {
 					homingFinished = false;
 					b_stopHoming = true;
 				}
@@ -91,7 +91,7 @@ void Oscillator3x::process() {
 		axis2NormalizedPosition = 0.0;
 		axis3NormalizedPosition = 0.0;
 		for (int i = 0; i < 3; i++) {
-			if (isAxisConnected(i)) getAxis(i)->controlMode = ControlMode::Mode::MACHINE_CONTROL;
+			if (isAxisConnected(i)) getAxis(i)->controlMode = ControlMode::EXTERNAL;
 		}
 	}
 	else if (b_stopOscillator && b_oscillatorActive) {
@@ -133,8 +133,8 @@ void Oscillator3x::process() {
 			double velocity_axisUnits = (position_axisUnits - axis->getProfilePosition_axisUnits()) / profileDeltaTime_seconds;
 
 			//send commands to axis
-			axis->profilePosition_axisUnits = position_axisUnits;
-			axis->profileVelocity_axisUnitsPerSecond = velocity_axisUnits;
+			axis->motionProfile.setPosition(position_axisUnits);
+			axis->motionProfile.setVelocity(velocity_axisUnits);
 			axis->sendActuatorCommands();
 		}
 
@@ -355,9 +355,9 @@ bool Oscillator3x::isAxisConnected(int idx) {
 	else return false;
 }
 std::shared_ptr<PositionControlledAxis> Oscillator3x::getAxis(int idx) {
-	if (idx == 0) return linearAxis1Pin->getConnectedPins().front()->getPositionControlledAxis();
-	else if (idx == 1) return linearAxis2Pin->getConnectedPins().front()->getPositionControlledAxis();
-	else if (idx == 2) return linearAxis3Pin->getConnectedPins().front()->getPositionControlledAxis();
+	if (idx == 0) return linearAxis1Pin->getConnectedPin()->getSharedPointer<PositionControlledAxis>();
+	else if (idx == 1) return linearAxis2Pin->getConnectedPin()->getSharedPointer<PositionControlledAxis>();
+	else if (idx == 2) return linearAxis3Pin->getConnectedPin()->getSharedPointer<PositionControlledAxis>();
 	else return nullptr;
 }
 bool Oscillator3x::getAxes(std::vector<std::shared_ptr<PositionControlledAxis>>& output) {
@@ -573,21 +573,21 @@ bool Oscillator3x::validateParameterTrack(const std::shared_ptr<ParameterTrack> 
 			if (point->position < 0.0 || point->position > maxOscillationFrequency) { 
 				trackValid = false;
 				curve->b_valid = false;
-				point->validationError = Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+				point->validationError = Motion::ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
 			}
 			else {
 				point->b_valid = true;
-				point->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+				point->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 			}
 		}
 		for (auto& interpolation : curve->interpolations) {
 			interpolation->b_valid = true;
-			interpolation->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			interpolation->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 			for (auto& point : interpolation->displayPoints) {
 				if (point.position < 0.0 || point.position > maxOscillationFrequency) {
 					trackValid = false;
 					curve->b_valid = false;
-					interpolation->validationError = Motion::ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE;
+					interpolation->validationError = Motion::ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
 					break;
 				}
 			}
@@ -600,21 +600,21 @@ bool Oscillator3x::validateParameterTrack(const std::shared_ptr<ParameterTrack> 
 			if (point->position < 0.0 || point->position > 1.0) {
 				trackValid = false;
 				curve->b_valid = false;
-				point->validationError = Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+				point->validationError = Motion::ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
 			}
 			else {
 				point->b_valid = true;
-				point->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+				point->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 			}
 		}
 		for (auto& interpolation : curve->interpolations) {
 			interpolation->b_valid = true;
-			interpolation->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			interpolation->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 			for (auto& point : interpolation->displayPoints) {
 				if (point.position < 0.0 || point.position > 1.0) {
 					trackValid = false;
 					curve->b_valid = false;
-					interpolation->validationError = Motion::ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE;
+					interpolation->validationError = Motion::ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
 					break;
 				}
 			}
@@ -626,21 +626,21 @@ bool Oscillator3x::validateParameterTrack(const std::shared_ptr<ParameterTrack> 
 			if (point->position < 0.0 || point->position > 100.0) {
 				trackValid = false;
 				curve->b_valid = false;
-				point->validationError = Motion::ValidationError::Error::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+				point->validationError = Motion::ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
 			}
 			else {
 				point->b_valid = true;
-				point->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+				point->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 			}
 		}
 		for (auto& interpolation : curve->interpolations) {
 			interpolation->b_valid = true;
-			interpolation->validationError = Motion::ValidationError::Error::NO_VALIDATION_ERROR;
+			interpolation->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 			for (auto& point : interpolation->displayPoints) {
 				if (point.position < 0.0 || point.position > 100.0) {
 					trackValid = false;
 					curve->b_valid = false;
-					interpolation->validationError = Motion::ValidationError::Error::INTERPOLATION_POSITION_OUT_OF_RANGE;
+					interpolation->validationError = Motion::ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
 					break;
 				}
 			}
@@ -772,3 +772,4 @@ bool Oscillator3x::loadMachine(tinyxml2::XMLElement* xml) {
 
 	return true;
 }
+*/
