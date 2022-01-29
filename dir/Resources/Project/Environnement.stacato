@@ -50,7 +50,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="VelocityControlledAxis" CustomName="Axe Mecanum" UniqueID="150">
-                <NodeEditorPosition x="536" y="-38"/>
+                <NodeEditorPosition x="504" y="-38"/>
                 <NodeSpecificData>
                     <Axis UnitType="Angular" Unit="Revolutions"/>
                     <UnitConversion ActuatorUnitsPerAxisUnit="30"/>
@@ -66,7 +66,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="ActuatorToServoActuator" CustomName="Servo Costière" UniqueID="156">
-                <NodeEditorPosition x="481" y="-490"/>
+                <NodeEditorPosition x="472" y="-522"/>
                 <NodeSpecificData>
                     <ConversionRatio PositionFeedbackUnitsPerActuatorPositionUnit="0.033333333333333298"/>
                     <Controller PositionLoopProportionalGain="0.20000000000000001" VelocityLoopProportionalGain="1" VelocityLoopIntegralGain="0" MaxPositionFollowingError="10"/>
@@ -245,16 +245,16 @@
             <Link UniqueID="254" StartPin="26" EndPin="218"/>
             <Link UniqueID="258" StartPin="152" EndPin="214"/>
             <Link UniqueID="259" StartPin="236" EndPin="213"/>
-            <Link UniqueID="260" StartPin="168" EndPin="151"/>
-            <Link UniqueID="270" StartPin="190" EndPin="157"/>
             <Link UniqueID="271" StartPin="159" EndPin="230"/>
+            <Link UniqueID="272" StartPin="168" EndPin="151"/>
+            <Link UniqueID="273" StartPin="190" EndPin="157"/>
         </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en5" Name="en5"/>
+        <Primary Description="en4" Name="en4"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>

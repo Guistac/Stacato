@@ -36,25 +36,6 @@ void LinearMecanumClaw::controlsGui() {
 	ImGui::PushFont(Fonts::robotoBold20);
 	ImGui::Text("Linear Axis Controls");
 	ImGui::PopFont();
-
-	/*
-	float linearVelocityLimit = 0.0;
-	PositionUnit linearPositionUnit = PositionUnit::METER;
-	float linearVelocityProgress = 1.0;
-	float linearPositionProgress = 1.0;
-	float linearVelocity = 0.0;
-	float linearPosition = 0.0;
-	if(isLinearAxisConnected()){
-		auto linearAxis = getLinearAxis();
-		linearVelocityLimit = linearAxis->getVelocityLimit_axisUnitsPerSecond();
-		linearPositionUnit = linearAxis->getPositionUnit();
-		linearVelocityProgress = std::abs(linearAxisMotionProfile.getVelocity() / linearAxis->getVelocityLimit_axisUnitsPerSecond());
-		linearPositionProgress = linearAxis->getProfilePosition_axisUnits() - linearAxis->getLowPositionLimit() / (linearAxis->getHighPositionLimit() - linearAxis->getLowPositionLimit());
-		linearVelocity = linearAxis->getProfileVelocity_axisUnitsPerSecond();
-		linearPosition = linearAxis->getProfilePosition_axisUnits();
-		linearPositionProgress = linearAxis->getProfilePosition_axisUnits();
-	}
-	 */
 	
 	double linearVelocityLimit = 0.0;
 	PositionUnit linearPositionUnit = PositionUnit::METER;
@@ -102,29 +83,38 @@ void LinearMecanumClaw::controlsGui() {
 
 	ImGui::SameLine();
 	if (ImGui::Button("Fast Stop", doubleButtonSize)) fastStopLinear();
-
+	
 	
 	double linearVelocity = 0.0;
 	double linearVelocityProgress = 1.0;
 	static char linearVelocityString[256];
+	ImVec4 linearVelocityColor = Colors::blue;
 	double linearPosition = 0.0;
 	double linearPositionProgress = 1.0;
 	static char linearPositionString[256];
+	ImVec4 linearPositionColor = Colors::blue;
 	double linearMovementTimeProgress = 1.0;
 	static char linearMovementString[256];
-	if(isLinearAxisConnected()){
+	ImVec4 linearMovementColor = Colors::blue;
+	if(isLinearAxisConnected() && isEnabled()){
 		linearVelocity = getLinearAxisVelocity();
 		linearVelocityProgress = getLinearAxisVelocityProgress();
 		sprintf(linearVelocityString, "Linear Velocity : %.3f %s/s", linearVelocity, Unit::getAbbreviatedString(linearPositionUnit));
+		if(linearVelocity <= 1.0) linearVelocityColor = Colors::green;
+		else linearVelocityColor = Colors::red;
 		linearPosition = getLinearAxisPosition();
 		linearPositionProgress = getLinearAxisPositionProgress();
 		sprintf(linearPositionString, "Linear Position : %.3f %s", linearPosition, Unit::getAbbreviatedString(linearPositionUnit));
+		if(linearPositionProgress <= 1.0 && linearPositionProgress >= 0.0) linearPositionColor = Colors::green;
+		else linearPositionColor = Colors::red;
 		if(hasLinearAxisTargetMovement()){
 			linearMovementTimeProgress = getLinearAxisTargetMovementProgress();
 			sprintf(linearMovementString, "%.1f s", getLinearAxisRemainingTargetMovementTime());
+			linearMovementColor = Colors::green;
 		}else{
 			linearMovementTimeProgress = 1.0;
 			sprintf(linearMovementString, "No Target Movement");
+			linearMovementColor = Colors::blue;
 		}
 	}else{
 		sprintf(linearPositionString, "Machine Disabled");
@@ -132,12 +122,17 @@ void LinearMecanumClaw::controlsGui() {
 		sprintf(linearMovementString, "Machine Disabled");
 	}
 	
-
+	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, linearVelocityColor);
 	ImGui::ProgressBar(linearVelocityProgress, progressBarSize, linearVelocityString);
+	ImGui::PopStyleColor();
 	
+	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, linearPositionColor);
 	ImGui::ProgressBar(linearPositionProgress, progressBarSize, linearPositionString);
+	ImGui::PopStyleColor();
 	
+	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, linearMovementColor);
 	ImGui::ProgressBar(linearMovementTimeProgress, progressBarSize, linearMovementString);
+	ImGui::PopStyleColor();
 	
 	ImGui::PopID();
 	
@@ -145,30 +140,14 @@ void LinearMecanumClaw::controlsGui() {
 	
 	
 		
-	//================= VELOCITY CONTROLS ==================
+	//================= Claw Controls CONTROLS ==================
 		
-	ImGui::PushID("VelocityControls");
+	ImGui::PushID("ClawControls");
 		
 	ImGui::PushFont(Fonts::robotoBold20);
 	ImGui::Text("Claw Axis Controls");
 	ImGui::PopFont();
-	
-	float clawVelocityProgress = 1.0;
-	float clawPositionProgress = 1.0;
-	float clawVelocity = 0.0;
-	float clawPosition = 0.0;
-	if(isClawFeedbackConnected()){
-		clawVelocityProgress = std::abs(clawAxisMotionProfile.getVelocity() / clawVelocityLimit);
-		clawPositionProgress = clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getPosition()) / clawPositionLimit;
-		//clawPositionProgress = clawAxisMotionProfile.getPosition() / clawPositionLimit;
-		//clawVelocity = clawAxisMotionProfile.getVelocity();
-		//clawPosition = clawAxisMotionProfile.getPosition();
-		clawVelocity = clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getVelocity());
-		clawPosition = clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getPosition());
-		
-		ImGui::Text("Actual Claw Position : %.3f %s", clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getPosition()), Unit::getAbbreviatedString(clawPositionUnit));
-		ImGui::Text("Actual Claw Velocity : %.3f %s/s", clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getVelocity()), Unit::getAbbreviatedString(clawPositionUnit));
-	}
+
 
 	ImGui::Text("Manual Velocity:");
 	ImGui::SetNextItemWidth(singleWidgetWidth);
@@ -209,20 +188,48 @@ void LinearMecanumClaw::controlsGui() {
 	ImGui::SameLine();
 	if (ImGui::Button("Fast Stop", doubleButtonSize)) fastStopClaw();
 
+	double clawVelocity = 0.0;
+	double clawVelocityProgress = 1.0;
 	static char clawVelocityString[256];
-	sprintf(clawVelocityString, "Claw Velocity : %.3f %s/s", clawVelocity, Unit::getAbbreviatedString(clawPositionUnit));
+	double clawPosition = 0.0;
+	double clawPositionProgress = 1.0;
+	static char clawPositionString[256];
+	double clawFollowingError = 0.0;
+	double clawFollowingErrorProgress = 1.0;
+	static char clawFollowingErrorString[256];
+	double clawMovementTimeProgress = 1.0;
+	static char clawMovementString[256];
+	if(isClawFeedbackConnected() && isEnabled()){
+		clawVelocity = getClawAxisVelocity();
+		clawVelocityProgress = getClawAxisVelocityProgress();
+		sprintf(clawVelocityString, "%.3f %s/s", clawVelocity, Unit::getAbbreviatedString(clawPositionUnit));
+		clawPosition = getClawAxisPosition();
+		clawPositionProgress = getClawAxisPositionProgress();
+		sprintf(clawPositionString, "%.3f %s", clawPosition, Unit::getAbbreviatedString(clawPositionUnit));
+		clawFollowingError = getClawAxisFollowingError();
+		clawFollowingErrorProgress = getClawAxisFollowingErrorProgress();
+		sprintf(clawFollowingErrorString, "%.3f %s", clawFollowingError, Unit::getAbbreviatedString(clawPositionUnit));
+		if(hasClawAxisTargetMovement()){
+			clawMovementTimeProgress = getClawAxisTargetMovementProgress();
+			sprintf(clawMovementString, "%.1f s", getClawAxisRemainingTargetMovementTime());
+		}else{
+			clawMovementTimeProgress = 1.0;
+			sprintf(clawMovementString, "No Target Movement");
+		}
+	}else{
+		sprintf(clawVelocityString, "Machine Disabled");
+		sprintf(clawPositionString, "Machine Disabled");
+		sprintf(clawFollowingErrorString, "Machine Disabled");
+		sprintf(clawMovementString, "Machine Disabled");
+	}
+	
 	ImGui::ProgressBar(clawVelocityProgress, progressBarSize, clawVelocityString);
 	
-	static char clawPositionString[256];
-	sprintf(clawPositionString, "Claw Position : %.3f %s", clawPosition, Unit::getAbbreviatedString(clawPositionUnit));
 	ImGui::ProgressBar(clawPositionProgress, progressBarSize, clawPositionString);
 	
-	float followingError = clawAxisMotionProfile.getPosition() - clawPosition;
-	float errorProgress = std::abs(followingError) / clawMaxPositionFollowingError;
+	ImGui::ProgressBar(clawFollowingErrorProgress, progressBarSize, clawFollowingErrorString);
 	
-	static char positionErrorString[256];
-	sprintf(positionErrorString, "Claw Following Error : %.3f %s", followingError, Unit::getAbbreviatedString(clawPositionUnit));
-	ImGui::ProgressBar(errorProgress, progressBarSize, positionErrorString);
+	ImGui::ProgressBar(clawMovementTimeProgress, progressBarSize, clawMovementString);
 	
 	ImGui::PopID();
 
