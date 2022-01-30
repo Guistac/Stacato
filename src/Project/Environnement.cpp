@@ -344,4 +344,24 @@ void setNotes(const char* _notes){
 	sprintf(notes, "%s", _notes);
 }
 
+
+
+/*
+#ifdef STACATO_DEBUG
+bool b_editorHidden = false;
+#else
+bool b_editorHidden = true;
+#endif
+*/
+bool b_editorHidden = true;
+
+bool isEditorHidden(){ return b_editorHidden; }
+bool hideEditor() { b_editorHidden = true; }
+bool showEditor() { b_editorHidden = false; }
+bool checkEditorPassword(const char* password){
+	return strcmp(password, "StacatoCompact") == 0;
+}
+
+
+
 }

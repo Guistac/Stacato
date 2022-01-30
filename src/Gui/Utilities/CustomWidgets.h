@@ -1,6 +1,7 @@
 #pragma once
 
 struct ImVec2;
+struct ImVec4;
 
 void verticalProgressBar(float fraction, const ImVec2& size_arg);
 
@@ -26,4 +27,13 @@ namespace ListManagerWidget{
 		DELETE
 	};
 	Interaction draw(bool disableMoveUp, bool disableMoveDown, const char* ID = "", float buttonHeight = 0.0);
+};
+
+namespace BackgroundText{
+	void draw(const char* text);
+	void draw(const char* text, ImVec2 size);
+	void draw(const char* text, ImVec4 backgroundColor);
+	void draw(const char* text, ImVec2 size, ImVec4 backgroundColor);
+	void draw(const char* text, ImVec4 backgroundColor, ImVec4 textColor);
+	void draw(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec4 textColor);
 };

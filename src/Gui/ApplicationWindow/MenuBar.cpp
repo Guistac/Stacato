@@ -21,12 +21,15 @@ namespace ApplicationWindow {
 	bool imguiMetricsWindowOpen = false;
 	bool implotDemoWindowOpen = false;
 
+	void unlockEnvironnementEditorModal();
+
 	void drawMainMenuBar() {
 
 		bool openImguiDemoWindow = false;
 		bool openImguiMetricsWindow = false;
 		bool openImplotDemoWindow = false;
 		bool openAboutPopup = false;
+		bool b_openUnlockEditorModal = false;
 
 		ImGui::BeginMainMenuBar();
 		if (ImGui::BeginMenu("Stacato")) {
@@ -77,6 +80,16 @@ namespace ApplicationWindow {
 					}
 					ImGui::EndMenu();
 				}
+			
+			ImGui::Separator();
+			
+			if(Environnement::isEditorHidden()){
+				if(ImGui::MenuItem("Show Environnement Editor")) b_openUnlockEditorModal = true;
+			}
+			else {
+				if(ImGui::MenuItem("Hide Environnement Editor")) Environnement::hideEditor();
+			}
+			
 			ImGui::EndMenu();
 		}
 		if (ImGui::IsKeyDown(GLFW_KEY_LEFT_ALT) && ImGui::IsKeyDown(GLFW_KEY_LEFT_SUPER)) {
@@ -93,6 +106,9 @@ namespace ApplicationWindow {
 		if (openAboutPopup) ImGui::OpenPopup("About");
 		aboutModal();
 
+		if(b_openUnlockEditorModal) ImGui::OpenPopup("Unlock Environnement Editor");
+		unlockEnvironnementEditorModal();
+		
 		if (ApplicationWindow::isCloseRequested()) ImGui::OpenPopup("Quitting Application");
 		quitApplicationModal();
 
@@ -161,6 +177,48 @@ namespace ApplicationWindow {
 			ImGui::Separator();
 			if (ImGui::Button("Close") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE) || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) ImGui::CloseCurrentPopup();
 			ImGui::EndPopup();
+		}
+	}
+
+	void unlockEnvironnementEditorModal(){
+		glm::vec2 center = ImGui::GetMainViewport()->GetCenter();
+		bool quitApplication = false;
+		ImGuiWindowFlags popupFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;
+		ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+		if (ImGui::BeginPopupModal("Unlock Environnement Editor", nullptr, popupFlags)) {
+			ImGui::Text("Enter password to unlock the environnement editor.\n"
+						"Only proceed if you know what you're doing.");
+			
+			glm::vec4 inputFieldColor;
+			static double wrongInputTime_seconds = 0;
+			double timeSinceWrongInput = Timing::getProgramTime_seconds() - wrongInputTime_seconds;
+			if(timeSinceWrongInput < 0.5 && fmod(timeSinceWrongInput, 0.2) < 0.1) inputFieldColor = Colors::red;
+			else inputFieldColor = ImGui::GetStyle().Colors[ImGuiCol_FrameBg];
+			
+			static char passwordBuffer[256];
+			ImGui::PushStyleColor(ImGuiCol_FrameBg, inputFieldColor);
+			ImGui::InputText("##password", passwordBuffer, 256, ImGuiInputTextFlags_Password);
+			ImGui::PopStyleColor();
+			
+			if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)) {
+				sprintf(passwordBuffer, "");
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			
+			if (ImGui::Button("Enter") || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) {
+				if(Environnement::checkEditorPassword(passwordBuffer)){
+					Environnement::showEditor();
+					sprintf(passwordBuffer, "");
+					ImGui::CloseCurrentPopup();
+				}else{
+					wrongInputTime_seconds = Timing::getProgramTime_seconds();
+				}
+			}
+			ImGui::EndPopup();
+		}
+		if (quitApplication) {
+			ApplicationWindow::close();
 		}
 	}
 

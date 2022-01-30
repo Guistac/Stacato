@@ -43,9 +43,11 @@ namespace ApplicationWindow {
 	void drawMainWindow() {
 		ImGui::PushStyleColor(ImGuiCol_TabActive, glm::vec4(0.6, 0.4, 0.0, 1.0));
 		if (ImGui::BeginTabBar("MainTabBar")) {
-			if (ImGui::BeginTabItem("Environnement")) {
-				environnementGui();
-				ImGui::EndTabItem();
+			if(!Environnement::isEditorHidden()){
+				if (ImGui::BeginTabItem("Environnement")) {
+					environnementGui();
+					ImGui::EndTabItem();
+				}
 			}
 			if (ImGui::BeginTabItem("Machines")) {
                 ImGui::BeginChild("Machine");
@@ -57,9 +59,11 @@ namespace ApplicationWindow {
 				plotGui();
 				ImGui::EndTabItem();
 			}
-			if (ImGui::BeginTabItem("Stage View")) {
-				StageView::draw();
-				ImGui::EndTabItem();
+			if(!Environnement::isEditorHidden()){
+				if (ImGui::BeginTabItem("Stage View")) {
+					StageView::draw();
+					ImGui::EndTabItem();
+				}
 			}
 			ImGui::EndTabBar();
 		}

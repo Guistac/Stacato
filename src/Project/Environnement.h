@@ -62,4 +62,9 @@ namespace Environnement{
 	extern std::shared_ptr<NodeGraph> nodeGraph;
 	extern std::shared_ptr<Machine> selectedMachine;
 	extern std::shared_ptr<EtherCatDevice> selectedEtherCatDevice;
+
+	bool isEditorHidden();
+	bool hideEditor();
+	bool showEditor();
+	bool checkEditorPassword(const char* password);
 };

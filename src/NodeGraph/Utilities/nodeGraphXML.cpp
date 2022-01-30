@@ -11,6 +11,14 @@
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
 
 bool NodeGraph::save(tinyxml2::XMLElement* xml) {
+	
+	//this needs to be called to satisfy the node editor library
+	//if we never displayed the node editor, this means we enver submitted any nodes to the library
+	//and we can't retrieve information such as node positions from the library
+	//we submit all node once here before saving so the library is happy
+	//we can proceed as if the node editor had been displayed all along
+	editorGui();
+	
 	using namespace tinyxml2;
 	XMLElement* nodes = xml->InsertNewChildElement("Nodes");
 

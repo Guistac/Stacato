@@ -41,6 +41,8 @@ public:
 		double averageVelocity = (previousVelocity + velocity) / 2.0;
 		double deltaP = averageVelocity * deltaT_seconds;
 		position += deltaP;
+		
+		targetInterpolation->resetValues();
 	}
 	
 	
@@ -70,12 +72,16 @@ public:
 			velocity = velocityBackup;
 			acceleration = accelerationBackup;
 		}
+		
+		targetInterpolation->resetValues();
 	}
 	
 	
 	//come to a stop at a given deceleration value
 	void stop(double deltaT_seconds, double deceleration){
 		matchVelocity(deltaT_seconds, 0.0, deceleration);
+		
+		targetInterpolation->resetValues();
 	}
 	
 	
@@ -158,6 +164,10 @@ public:
 	
 	double getRemainingInterpolationTime(double time){
 		return std::max(targetInterpolation->outTime - time, 0.0);
+	}
+	
+	double getInterpolationTarget(){
+		return targetInterpolation->outPosition;
 	}
 	
 private:

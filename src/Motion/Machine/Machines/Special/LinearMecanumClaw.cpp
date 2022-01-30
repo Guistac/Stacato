@@ -349,37 +349,65 @@ void LinearMecanumClaw::moveClawToTargetWithVelocity(double positionTarget, doub
 
 //getters for data display
 double LinearMecanumClaw::getLinearAxisPosition(){
+	if(!isLinearAxisConnected()) return 0.0;
 	return getLinearAxis()->getActualPosition_axisUnits();
 }
 double LinearMecanumClaw::getLinearAxisVelocity(){
+	if(!isLinearAxisConnected()) return 0.0;
 	return getLinearAxis()->getActualVelocity_axisUnitsPerSecond();
 }
 double LinearMecanumClaw::getClawAxisPosition(){
+	if(!isClawFeedbackConnected()) return 0.0;
 	return clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getPosition());
 }
 double LinearMecanumClaw::getClawAxisVelocity(){
+	if(!isClawFeedbackConnected()) return 0.0;
 	return clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getVelocity());
 }
 
 float LinearMecanumClaw::getLinearAxisPositionProgress(){
+	if(!isLinearAxisConnected()) return 0.0;
 	auto linearAxis = getLinearAxis();
 	double lowLimit = linearAxis->getLowPositionLimit();
 	double highLimit = linearAxis->getHighPositionLimit();
 	return linearAxis->getActualPosition_axisUnits() - lowLimit / (highLimit - lowLimit);
 }
 float LinearMecanumClaw::getLinearAxisVelocityProgress(){
+	if(!isLinearAxisConnected()) return 0.0;
 	auto linearAxis = getLinearAxis();
 	return linearAxis->getActualVelocity_axisUnitsPerSecond() / linearAxis->getVelocityLimit_axisUnitsPerSecond();
 }
 float LinearMecanumClaw::getClawAxisPositionProgress(){
+	if(!isClawFeedbackConnected()) return 0.0;
 	return clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getPosition()) / clawPositionLimit;
 }
 float LinearMecanumClaw::getClawAxisVelocityProgress(){
+	if(!isClawFeedbackConnected()) return 0.0;
 	return clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getVelocity()) / clawVelocityLimit;
 }
 
 
+PositionUnit LinearMecanumClaw::getLinearAxisPositionUnit(){
+	if(isLinearAxisConnected()) return PositionUnit::METER;
+	return getLinearAxis()->getPositionUnit();
+}
+PositionUnit LinearMecanumClaw::getClawAxisPositionUnit(){
+	return clawPositionUnit;
+}
 
+
+double LinearMecanumClaw::getLinearAxisMovementTargetNormalized(){
+	auto linearAxis = getLinearAxis();
+	double lowLimit = linearAxis->getLowPositionLimit();
+	double highLimit = linearAxis->getHighPositionLimit();
+	return linearAxisMotionProfile.getInterpolationTarget() - lowLimit / (highLimit - lowLimit);
+}
+double LinearMecanumClaw::getClawAxisMovementTargetNormalized(){
+	auto clawAxis = getClawAxis();
+	double lowLimit = 0.0;
+	double highLimit = clawPositionLimit;
+	return clawAxisMotionProfile.getInterpolationTarget() - lowLimit / (highLimit - lowLimit);
+}
 
 
 

@@ -191,3 +191,36 @@ namespace ListManagerWidget{
 		else return Interaction::NONE;
 	}
 }
+
+namespace BackgroundText{
+
+	void draw(const char* text){
+		draw(text, ImVec2(0.0, 0.0));
+	}
+	void draw(const char* text, ImVec2 size){
+		glm::vec4 buttonColor = ImGui::GetStyle().Colors[ImGuiCol_Button];
+		glm::vec4 textColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
+		draw(text, size, buttonColor, textColor);
+	}
+	void draw(const char* text, ImVec4 backgroundColor){
+		draw(text, ImVec2(0.0, 0.0), backgroundColor);
+	}
+	void draw(const char* text, ImVec2 size, ImVec4 backgroundColor){
+		glm::vec4 textColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
+		draw(text, size, backgroundColor, textColor);
+	}
+	void draw(const char* text, ImVec4 backgroundColor, ImVec4 textColor){
+		draw(text, ImVec2(0.0, 0.0), backgroundColor, textColor);
+	}
+	void draw(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec4 textColor){
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0, 0.0));
+		ImGui::PushStyleColor(ImGuiCol_Button, backgroundColor);
+		ImGui::PushStyleColor(ImGuiCol_Text, textColor);
+		if(size.x == 0.0 && size.y == 0.0) ImGui::Button(text);
+		else ImGui::Button(text, size);
+		ImGui::PopStyleColor(2);
+		ImGui::PopStyleVar();
+		ImGui::PopItemFlag();
+	}
+}

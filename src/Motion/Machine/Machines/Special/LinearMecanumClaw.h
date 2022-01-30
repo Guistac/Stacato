@@ -84,8 +84,8 @@ public:
 	
 	//=== Motion
 	
-	double profileTime_seconds;
-	double profileDeltaTime_seconds;
+	double profileTime_seconds = -1.0;
+	double profileDeltaTime_seconds = -1.0;
 	
 	Motion::Profile linearAxisMotionProfile;
 	ControlMode linearControlMode = ControlMode::VELOCITY_TARGET;
@@ -107,8 +107,8 @@ public:
 	
 	void startHoming();
 	void stopHoming();
-	bool isHoming();
-	
+	bool isHoming(){ return b_isHoming; }
+	bool b_isHoming = false;
 	
 	double getLinearAxisPosition();
 	double getLinearAxisVelocity();
@@ -120,12 +120,17 @@ public:
 	float getClawAxisPositionProgress();
 	float getClawAxisVelocityProgress();
 	
+	PositionUnit getLinearAxisPositionUnit();
+	PositionUnit getClawAxisPositionUnit();
+	
 	bool hasLinearAxisTargetMovement() { return !linearAxisMotionProfile.isInterpolationFinished(profileTime_seconds); }
 	bool hasClawAxisTargetMovement() { return !clawAxisMotionProfile.isInterpolationFinished(profileTime_seconds); }
 	double getLinearAxisRemainingTargetMovementTime() { return linearAxisMotionProfile.getRemainingInterpolationTime(profileTime_seconds); }
 	double getClawAxisRemainingTargetMovementTime() { return clawAxisMotionProfile.getRemainingInterpolationTime(profileTime_seconds); }
 	double getLinearAxisTargetMovementProgress() { return linearAxisMotionProfile.getInterpolationProgress(profileTime_seconds); }
 	double getClawAxisTargetMovementProgress() { return clawAxisMotionProfile.getInterpolationProgress(profileTime_seconds); }
+	double getLinearAxisMovementTargetNormalized();
+	double getClawAxisMovementTargetNormalized();
 	double getClawAxisFollowingError(){ return clawAxisMotionProfile.getPosition() - getClawAxisPosition(); }
 	double getClawAxisFollowingErrorProgress(){ return std::abs(getClawAxisFollowingError()) / clawMaxPositionFollowingError; }
 	
