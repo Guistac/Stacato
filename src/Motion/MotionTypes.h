@@ -158,18 +158,6 @@ DEFINE_ENUMERATOR(PositionReferenceSignal, PositionReferenceSignalStrings)
 
 //================================================================================================================================
 
-enum class PositionControlType{
-	CLOSED_LOOP,
-	SERVO
-};
-
-#define PositionControlTypeStrings	{PositionControlType::CLOSED_LOOP, "Closed Loop", "ClosedLoop"},\
-									{PositionControlType::SERVO, "Servo", "Servo"}\
-
-DEFINE_ENUMERATOR(PositionControlType, PositionControlTypeStrings)
-
-//================================================================================================================================
-
 enum class MotionCommand {
 	POSITION,
 	VELOCITY

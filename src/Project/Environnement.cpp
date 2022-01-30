@@ -345,15 +345,11 @@ void setNotes(const char* _notes){
 }
 
 
-
-/*
 #ifdef STACATO_DEBUG
 bool b_editorHidden = false;
 #else
 bool b_editorHidden = true;
 #endif
-*/
-bool b_editorHidden = true;
 
 bool isEditorHidden(){ return b_editorHidden; }
 bool hideEditor() { b_editorHidden = true; }

@@ -41,7 +41,7 @@ void LinearMecanumClaw::controlsGui() {
 	PositionUnit linearPositionUnit = PositionUnit::METER;
 	if(isLinearAxisConnected()){
 		auto linearAxis = getLinearAxis();
-		linearVelocityLimit = linearAxis->getVelocityLimit_axisUnitsPerSecond();
+		linearVelocityLimit = linearAxis->getVelocityLimit();
 		linearPositionUnit = linearAxis->getPositionUnit();
 	}
 	
@@ -471,7 +471,9 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	BackgroundText::draw("Linear Axis", titleButtonSize, Colors::darkGray);
 	
 	//---Sliders
-	ImGui::VSliderFloat("##LinearManualVelocity", verticalSliderSize, &linearManualVelocityDisplay, -0, 0, "");
+	float linearVelocityLimit = 0.0;
+	if(isLinearAxisConnected()) linearVelocityLimit = getLinearAxis()->getVelocityLimit();
+	ImGui::VSliderFloat("##LinearManualVelocity", verticalSliderSize, &linearManualVelocityDisplay, -linearVelocityLimit, linearVelocityLimit, "");
 	if (ImGui::IsItemActive()) setLinearVelocity(linearManualVelocityDisplay);
 	else if (ImGui::IsItemDeactivatedAfterEdit()) setLinearVelocity(0.0);
 	
@@ -549,9 +551,12 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	BackgroundText::draw("Claw Axis", titleButtonSize, Colors::darkGray);
 	
 	//---Sliders
-	ImGui::VSliderFloat("##ClawManualVelocity", verticalSliderSize, &clawManualVelocityDisplay, -0, 0, "");
+	ImGui::VSliderFloat("##ClawManualVelocity", verticalSliderSize, &clawManualVelocityDisplay, -clawVelocityLimit, clawVelocityLimit, "");
 	if (ImGui::IsItemActive()) setClawVelocity(clawManualVelocityDisplay);
-	else if (ImGui::IsItemDeactivatedAfterEdit()) setClawVelocity(0.0);
+	else if (ImGui::IsItemDeactivatedAfterEdit()) {
+		setClawVelocity(0.0);
+		clawManualVelocityDisplay = 0.0;
+	}
 	
 	ImGui::SameLine();
 	verticalProgressBar(getClawAxisVelocityProgress(), verticalSliderSize);

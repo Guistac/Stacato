@@ -112,8 +112,8 @@ void LinearMecanumClaw::process() {
 	if(!isEnabled()) {
 		if(isLinearAxisConnected()){
 			auto linearAxis = getLinearAxis();
-			linearAxisMotionProfile.setPosition(linearAxis->getActualPosition_axisUnits());
-			linearAxisMotionProfile.setVelocity(linearAxis->getActualVelocity_axisUnitsPerSecond());
+			linearAxisMotionProfile.setPosition(linearAxis->getActualPosition());
+			linearAxisMotionProfile.setVelocity(linearAxis->getActualVelocity());
 		}
 		if(isClawFeedbackConnected()){
 			auto clawFeedbackDevice = getClawFeedbackDevice();
@@ -131,8 +131,8 @@ void LinearMecanumClaw::process() {
 	//update machine state
 	*clawPosition = clawFeedbackUnitsToClawUnits(clawFeedbackDevice->getPosition());
 	*clawVelocity = clawUnitsToClawFeedbackUnits(clawFeedbackDevice->getVelocity());
-	*railPosition = linearAxis->getProfilePosition_axisUnits();
-	*railVelocity = linearAxis->getProfileVelocity_axisUnitsPerSecond();
+	*railPosition = linearAxis->getProfilePosition();
+	*railVelocity = linearAxis->getProfileVelocity();
 	
 	//handle device state changes to disable machine
 	if(isEnabled()){
@@ -158,10 +158,10 @@ void LinearMecanumClaw::process() {
 																		  linearAxisManualAcceleration,
 																		  linearAxis->getLowPositionLimit(),
 																		  linearAxis->getHighPositionLimit(),
-																		  linearAxis->getAccelerationLimit_axisUnitsPerSecondSquared());
+																		  linearAxis->getAccelerationLimit());
 			break;
 		case ControlMode::FAST_STOP:
-			linearAxisMotionProfile.matchVelocity(profileDeltaTime_seconds, 0.0, linearAxis->getAccelerationLimit_axisUnitsPerSecondSquared());
+			linearAxisMotionProfile.matchVelocity(profileDeltaTime_seconds, 0.0, linearAxis->getAccelerationLimit());
 			break;
 		case ControlMode::POSITION_TARGET:
 			linearAxisMotionProfile.updateInterpolation(profileTime_seconds);
@@ -287,7 +287,7 @@ void LinearMecanumClaw::moveLinearToTargetInTime(double positionTarget, double t
 																positionTarget,
 																timeTarget,
 																linearAxisManualAcceleration,
-																linearAxis->getVelocityLimit_axisUnitsPerSecond());
+																linearAxis->getVelocityLimit());
 	if(success) linearControlMode = ControlMode::POSITION_TARGET;
 	else setLinearVelocity(0.0);
 }
@@ -350,11 +350,11 @@ void LinearMecanumClaw::moveClawToTargetWithVelocity(double positionTarget, doub
 //getters for data display
 double LinearMecanumClaw::getLinearAxisPosition(){
 	if(!isLinearAxisConnected()) return 0.0;
-	return getLinearAxis()->getActualPosition_axisUnits();
+	return getLinearAxis()->getActualPosition();
 }
 double LinearMecanumClaw::getLinearAxisVelocity(){
 	if(!isLinearAxisConnected()) return 0.0;
-	return getLinearAxis()->getActualVelocity_axisUnitsPerSecond();
+	return getLinearAxis()->getActualVelocity();
 }
 double LinearMecanumClaw::getClawAxisPosition(){
 	if(!isClawFeedbackConnected()) return 0.0;
@@ -370,12 +370,12 @@ float LinearMecanumClaw::getLinearAxisPositionProgress(){
 	auto linearAxis = getLinearAxis();
 	double lowLimit = linearAxis->getLowPositionLimit();
 	double highLimit = linearAxis->getHighPositionLimit();
-	return linearAxis->getActualPosition_axisUnits() - lowLimit / (highLimit - lowLimit);
+	return linearAxis->getActualPosition() - lowLimit / (highLimit - lowLimit);
 }
 float LinearMecanumClaw::getLinearAxisVelocityProgress(){
 	if(!isLinearAxisConnected()) return 0.0;
 	auto linearAxis = getLinearAxis();
-	return linearAxis->getActualVelocity_axisUnitsPerSecond() / linearAxis->getVelocityLimit_axisUnitsPerSecond();
+	return linearAxis->getActualVelocity() / linearAxis->getVelocityLimit();
 }
 float LinearMecanumClaw::getClawAxisPositionProgress(){
 	if(!isClawFeedbackConnected()) return 0.0;

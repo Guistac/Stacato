@@ -95,8 +95,8 @@ void PositionControlledSingleAxisMachine::process() {
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
 	//Get Realtime values from axis (for position and velocity pins only)
-	double actualPosition_machineUnits = axisPositionToMachinePosition(axis->getActualPosition_axisUnits());
-	double actualVelocity_machineUnits = axisVelocityToMachineVelocity(axis->getActualVelocity_axisUnitsPerSecond());
+	double actualPosition_machineUnits = axisPositionToMachinePosition(axis->getActualPosition());
+	double actualVelocity_machineUnits = axisVelocityToMachineVelocity(axis->getActualVelocity());
 	*positionPinValue = actualPosition_machineUnits;
 	*velocityPinValue = actualVelocity_machineUnits;
 
@@ -116,7 +116,7 @@ void PositionControlledSingleAxisMachine::process() {
 		case ControlMode::PARAMETER_TRACK:{
 			AnimatableParameterValue playbackPosition;
 			positionParameter->getActiveTrackParameterValue(playbackPosition);
-			double previousProfilePosition_machineUnits = axis->getProfilePosition_axisUnits();
+			double previousProfilePosition_machineUnits = axis->getProfilePosition();
 			double parameterTrackVelocity_machineUnits = machineVelocityToAxisVelocity((playbackPosition.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds);
 			motionProfile.setPosition(playbackPosition.realValue);
 			motionProfile.setVelocity(parameterTrackVelocity_machineUnits);
@@ -125,7 +125,7 @@ void PositionControlledSingleAxisMachine::process() {
 		case ControlMode::VELOCITY_TARGET:{
 			double lowLimit_machineUnits = getLowPositionLimit();
 			double highLimit_machineUnits = getHighPositionLimit();
-			double accelerationLimit = axis->getAccelerationLimit_axisUnitsPerSecondSquared();
+			double accelerationLimit = axis->getAccelerationLimit();
 			motionProfile.matchVelocityAndRespectPositionLimits(profileDeltaTime_seconds,
 																  manualVelocityTarget_machineUnitsPerSecond,
 																  rapidAcceleration_machineUnitsPerSecond,
@@ -184,7 +184,7 @@ void PositionControlledSingleAxisMachine::simulateProcess() {
 		case ControlMode::VELOCITY_TARGET:{
 			double lowLimit_machineUnits = getLowPositionLimit();
 			double highLimit_machineUnits = getHighPositionLimit();
-			double accelerationLimit = axis->getAccelerationLimit_axisUnitsPerSecondSquared();
+			double accelerationLimit = axis->getAccelerationLimit();
 			motionProfile.matchVelocityAndRespectPositionLimits(profileDeltaTime_seconds,
 																  manualVelocityTarget_machineUnitsPerSecond,
 																  rapidAcceleration_machineUnitsPerSecond,
@@ -324,8 +324,8 @@ bool PositionControlledSingleAxisMachine::validateParameterTrack(const std::shar
 	
 	double lowLimit_machineUnits = getLowPositionLimit();
 	double highLimit_machineUnits = getHighPositionLimit();
-	double velocityLimit_machineUnits = getAxis()->getVelocityLimit_axisUnitsPerSecond();
-	double accelerationLimit_machineUnits = getAxis()->getAccelerationLimit_axisUnitsPerSecondSquared();
+	double velocityLimit_machineUnits = getAxis()->getVelocityLimit();
+	double accelerationLimit_machineUnits = getAxis()->getAccelerationLimit();
 	
 	
 	//get a reference to the curve we need to validate
@@ -405,9 +405,9 @@ void PositionControlledSingleAxisMachine::getTimedParameterCurveTo(const std::sh
 
 		std::shared_ptr<Motion::ControlPoint> startPoint = std::make_shared<Motion::ControlPoint>();
 		//MACHINE ZERO TEST
-		startPoint->position =  axisPositionToMachinePosition(axis->getActualPosition_axisUnits());
-		startPoint->velocity = axisVelocityToMachineVelocity(axis->getActualVelocity_axisUnitsPerSecond());
-		startPoint->velocityOut = axisVelocityToMachineVelocity(axis->getActualVelocity_axisUnitsPerSecond());
+		startPoint->position =  axisPositionToMachinePosition(axis->getActualPosition());
+		startPoint->velocity = axisVelocityToMachineVelocity(axis->getActualVelocity());
+		startPoint->velocityOut = axisVelocityToMachineVelocity(axis->getActualVelocity());
 		//startPoint->position = axis->getActualPosition_axisUnits();
 		//startPoint->velocity = axis->getActualVelocity_axisUnitsPerSecond();
 		//startPoint->velocityOut = axis->getActualVelocity_axisUnitsPerSecond();
@@ -418,7 +418,7 @@ void PositionControlledSingleAxisMachine::getTimedParameterCurveTo(const std::sh
 		endPoint->position = machinePositionToAxisPosition(endPoint->position);
 		std::shared_ptr<Motion::Interpolation> timedInterpolation = std::make_shared<Motion::Interpolation>();
 
-		Motion::TrapezoidalInterpolation::getClosestTimeAndVelocityConstrainedInterpolation(startPoint, endPoint, axis->getVelocityLimit_axisUnitsPerSecond(), timedInterpolation);
+		Motion::TrapezoidalInterpolation::getClosestTimeAndVelocityConstrainedInterpolation(startPoint, endPoint, axis->getVelocityLimit(), timedInterpolation);
 	}
 	//movement from current position to the target position arriving at 0 velocity
 }
@@ -516,15 +516,15 @@ double PositionControlledSingleAxisMachine::getPositionNormalized(){
 	double highLimit = getHighPositionLimit();
 	double position;
 	if(isSimulating()) position = motionProfile.getPosition();
-	else position = axisPositionToMachinePosition(getAxis()->getActualPosition_normalized());
+	else position = axisPositionToMachinePosition(getAxis()->getActualPositionNormalized());
 	return (position - lowLimit) / (highLimit - lowLimit);
 }
 
 double PositionControlledSingleAxisMachine::getVelocityNormalized(){
-	double velocityLimit = getAxis()->getVelocityLimit_axisUnitsPerSecond();
+	double velocityLimit = getAxis()->getVelocityLimit();
 	double velocity;
 	if(isSimulating()) velocity = motionProfile.getVelocity();
-	else velocity = axisVelocityToMachineVelocity(getAxis()->getActualVelocity_axisUnitsPerSecond());
+	else velocity = axisVelocityToMachineVelocity(getAxis()->getActualVelocity());
 	return velocity / velocityLimit;
 }
 

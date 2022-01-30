@@ -329,7 +329,7 @@ void PositionControlledAxis::controlsGui() {
 	else {
 		minPosition = getLowPositionLimit();
 		maxPosition = getHighPositionLimit();
-		positionProgress = getActualPosition_normalized();
+		positionProgress = getActualPositionNormalized();
 		if (*actualPositionValue < minPosition || *actualPositionValue > maxPosition) {
 			if (*actualPositionValue < getLowPositionLimitWithoutClearance() || *actualPositionValue > getHighPositionLimitWithoutClearance()) {
 				sprintf(positionString, "Axis out of limits : %.2f %s", *actualPositionValue, Unit::getAbbreviatedString(positionUnit));
@@ -408,15 +408,7 @@ void PositionControlledAxis::controlsGui() {
 	double rangeMax = std::numeric_limits<double>::quiet_NaN();
 	PositionUnit feedbackPositionUnit;
 	static char rangeString[64];
-	if (needsPositionFeedbackDevice() && isPositionFeedbackDeviceConnected()) {
-		std::shared_ptr<PositionFeedbackDevice> feedbackDevice = getPositionFeedbackDevice();
-		rangeProgress = feedbackDevice->getPositionInRange();
-		rangeMin = feedbackDevice->getMinPosition();
-		rangeMax = feedbackDevice->getMaxPosition();
-		feedbackPositionUnit = feedbackDevice->positionUnit;
-		feedbackPosition = feedbackDevice->getPosition();
-	}
-	else if (needsServoActuatorDevice() && isServoActuatorDeviceConnected()) {
+	if (isServoActuatorDeviceConnected()) {
 		std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
 		rangeProgress = servo->getPositionInRange();
 		rangeMin = servo->getMinPosition();
@@ -477,7 +469,6 @@ void PositionControlledAxis::settingsGui() {
 
 	ImGui::Text("Position Unit :");
 	if (ImGui::BeginCombo("##AxisUnit", Unit::getDisplayString(positionUnit))) {
-		
 		for(auto& type : Unit::getTypes<PositionUnit>()){
 			switch(positionUnitType){
 				case PositionUnitType::LINEAR:
@@ -489,198 +480,61 @@ void PositionControlledAxis::settingsGui() {
 			}
 			if (ImGui::Selectable(type.displayString, positionUnit == type.enumerator)) setPositionUnit(type.enumerator);
 		}
-		
 		ImGui::EndCombo();
 	}
-
-	ImGui::Text("Motion Control Type :");
-	if (ImGui::BeginCombo("##MotionControlType", Enumerator::getDisplayString(positionControlType))) {
-		for (auto& type : Enumerator::getTypes<PositionControlType>()) {
-			if (ImGui::Selectable(type.displayString, positionControlType == type.enumerator)) {
-				setPositionControlType(type.enumerator);
-			}
-			if (ImGui::IsItemHovered()) {
-				ImGui::SetNextWindowSize(glm::vec2(ImGui::GetTextLineHeight() * 20.0, 0));
-				ImGui::BeginTooltip();
-				switch (type.enumerator) {
-					case PositionControlType::SERVO:
-						ImGui::TextWrapped("In this mode, closed loop control takes place in the servo drive itself."
-							"\nA Position command is sent to the drive and the drive reports its current position."
-							"\nCompatible only with Servo Actuators expecting Position Commands.");
-						break;
-					case PositionControlType::CLOSED_LOOP:
-						ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-						ImGui::TextWrapped("Closed Loop Controlled Machines are not yet Supported.");
-						ImGui::PopStyleColor();
-						ImGui::TextWrapped("In this control mode, position feedback is used to to update a PID controller which regulates axis position by sending velocity commands."
-							"\nCompatible only with Actuators expecting Velocity Commands.");
-						break;
-				}
-				ImGui::EndTooltip();
-			}
-		}
-		ImGui::EndCombo();
-	}
-
-
-	//---------------------- POSITION FEEDBACK ---------------------------
-
-	if (needsPositionFeedbackDevice()) {
-
-		ImGui::Separator();
-
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Position Feedback");
-		ImGui::PopFont();
-
-		if (isPositionFeedbackDeviceConnected()) {
-			std::shared_ptr<PositionFeedbackDevice> feedbackDevice = getPositionFeedbackDevice();
-			PositionFeedbackType feedbackType = feedbackDevice->getPositionFeedbackType();
-			const char* feedbackTypeString = Enumerator::getDisplayString(feedbackType);
-			
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("Device:");
-			ImGui::PopFont();
-			ImGui::SameLine();
-			ImGui::Text("%s on %s", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
-
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("Type:");
-			ImGui::PopFont();
-			ImGui::SameLine();
-			ImGui::Text("%s", Enumerator::getDisplayString(feedbackDevice->getPositionFeedbackType()));
-
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("Position Unit:");
-			ImGui::PopFont();
-			ImGui::SameLine();
-			ImGui::Text("%s", Unit::getDisplayStringPlural(feedbackDevice->positionUnit));
-
-			switch (feedbackType) {
-				case PositionFeedbackType::INCREMENTAL:
-					ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-					ImGui::TextWrapped("With incremental position feedback, the homing routine needs to be executed on each system power cycle");
-					ImGui::PopStyleColor();
-					break;
-				default: break;
-			}
-
-			if (feedbackAndActuatorConversionIdentical) BEGIN_DISABLE_IMGUI_ELEMENT
-			ImGui::Text("%s %s per Machine %s :", feedbackDevice->getName(), Unit::getDisplayStringPlural(feedbackDevice->positionUnit), Unit::getDisplayString(positionUnit));
-			ImGui::InputDouble("##feedbackCoupling", &feedbackUnitsPerAxisUnits);
-			if (feedbackUnitsPerAxisUnits < 0.0) feedbackUnitsPerAxisUnits = 0.0;
-			if (feedbackAndActuatorConversionIdentical) END_DISABLE_IMGUI_ELEMENT
-
-		}
-		else {
-			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-			ImGui::TextWrapped("No Feedback device connected.");
-			ImGui::PopStyleColor();
-		}
-	}
-
-	//---------------------- ACTUATOR -------------------------
-
-	if (needsActuatorDevice()) {
-
-		ImGui::Separator();
-
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Actuator");
-		ImGui::PopFont();
-
-		if (isActuatorDeviceConnected()) {
-			std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
-			std::shared_ptr<Device> actuatorParentDevice = actuator->parentDevice;
-			
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("Device:");
-			ImGui::PopFont();
-			ImGui::SameLine();
-			if(actuatorParentDevice) ImGui::Text("%s on %s", actuator->getName(), actuator->parentDevice->getName());
-			else ImGui::Text("%s on Node %s", actuator->getName(), actuatorPin->getConnectedPin()->getNode()->getName());
-
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("Position Unit:");
-			ImGui::PopFont();
-			ImGui::SameLine();
-			ImGui::Text("%s", Unit::getDisplayStringPlural(actuator->positionUnit));
-
-			ImGui::Text("%s %s per Machine %s :", actuator->getName(), Unit::getDisplayStringPlural(actuator->positionUnit), Unit::getDisplayString(positionUnit));
-			ImGui::InputDouble("##actuatorCoupling", &actuatorUnitsPerAxisUnits);
-
-			ImGui::Checkbox("##actFeedIdent", &feedbackAndActuatorConversionIdentical);
-			ImGui::SameLine();
-			ImGui::Text("Actuator and Feedback Coupling are identical");
-
-			if (actuatorUnitsPerAxisUnits < 0.0) actuatorUnitsPerAxisUnits = 0.0;
-			if (feedbackAndActuatorConversionIdentical) feedbackUnitsPerAxisUnits = actuatorUnitsPerAxisUnits;
-		}
-		else {
-			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-			ImGui::TextWrapped("No Actuator device connected.");
-			ImGui::PopStyleColor();
-		}
-	}
-
 
 	//------------------------ SERVO ACTUATOR -----------------------------
 
-	if (needsServoActuatorDevice()) {
+	ImGui::Separator();
 
-		ImGui::Separator();
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Servo Actuator");
+	ImGui::PopFont();
 
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Servo Actuator");
+	if (isServoActuatorDeviceConnected()) {
+
+		std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
+		PositionFeedbackType feedbackType = servo->getPositionFeedbackType();
+		const char* feedbackTypeString = Enumerator::getDisplayString(feedbackType);
+		std::shared_ptr<Device> servoActuatorParentDevice = servo->parentDevice;
+
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("Device:");
 		ImGui::PopFont();
+		ImGui::SameLine();
+		if(servoActuatorParentDevice) ImGui::Text("%s on %s", servo->getName(), servo->parentDevice->getName());
+		else ImGui::Text("%s on Node %s", servo->getName(), servoActuatorPin->getConnectedPin()->getNode()->getName());
 
-		if (isServoActuatorDeviceConnected()) {
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("Position Unit:");
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::Text("%s", Unit::getDisplayStringPlural(servo->positionUnit));
 
-			std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
-			PositionFeedbackType feedbackType = servo->getPositionFeedbackType();
-			const char* feedbackTypeString = Enumerator::getDisplayString(feedbackType);
-			std::shared_ptr<Device> servoActuatorParentDevice = servo->parentDevice;
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("Feedback Type:");
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::Text("%s", feedbackTypeString);
 
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("Device:");
-			ImGui::PopFont();
-			ImGui::SameLine();
-			if(servoActuatorParentDevice) ImGui::Text("%s on %s", servo->getName(), servo->parentDevice->getName());
-			else ImGui::Text("%s on Node %s", servo->getName(), servoActuatorPin->getConnectedPin()->getNode()->getName());
-
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("Position Unit:");
-			ImGui::PopFont();
-			ImGui::SameLine();
-			ImGui::Text("%s", Unit::getDisplayStringPlural(servo->positionUnit));
-
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("Feedback Type:");
-			ImGui::PopFont();
-			ImGui::SameLine();
-			ImGui::Text("%s", feedbackTypeString);
-
-			switch (servo->feedbackType) {
-				case PositionFeedbackType::INCREMENTAL:
-				ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-				ImGui::TextWrapped("With incremental position feedback, the homing routine needs to be executed on each system power cycle");
-				ImGui::PopStyleColor();
-				break;
-			default: break;
-			}
-
-			ImGui::Text("%s %s per Machine %s :", servo->getName(), Unit::getDisplayStringPlural(servo->positionUnit), Unit::getDisplayString(positionUnit));
-			ImGui::InputDouble("##servoActuatorCoupling", &actuatorUnitsPerAxisUnits);
-			if (actuatorUnitsPerAxisUnits < 0.0) actuatorUnitsPerAxisUnits = 0.0;
-			feedbackUnitsPerAxisUnits = actuatorUnitsPerAxisUnits;
-
-		}
-		else {
+		switch (servo->feedbackType) {
+			case PositionFeedbackType::INCREMENTAL:
 			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-			ImGui::TextWrapped("No Servo Actuator device connected.");
+			ImGui::TextWrapped("With incremental position feedback, the homing routine needs to be executed on each system power cycle");
 			ImGui::PopStyleColor();
+			break;
+		default: break;
 		}
 
+		ImGui::Text("%s %s per Machine %s :", servo->getName(), Unit::getDisplayStringPlural(servo->positionUnit), Unit::getDisplayString(positionUnit));
+		ImGui::InputDouble("##servoActuatorCoupling", &servoActuatorUnitsPerAxisUnits);
+		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
+
+	}
+	else {
+		ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
+		ImGui::TextWrapped("No Servo Actuator device connected.");
+		ImGui::PopStyleColor();
 	}
 
 	//-------------------------- KINEMATIC LIMITS ----------------------------
@@ -691,58 +545,42 @@ void PositionControlledAxis::settingsGui() {
 	ImGui::Text("Kinematic Limits");
 	ImGui::PopFont();
 
-	if ((needsActuatorDevice() && isActuatorDeviceConnected()) || (needsServoActuatorDevice() && isServoActuatorDeviceConnected())) {
-		double actuatorVelocityLimit_actuatorUnitsPerSecond;
-		double actuatorAccelerationLimit_actuatorUnitsPerSecondSquared;
-		double actuatorVelocityLimit_axisUnitsPerSecond;
-		double actuatorAccelerationLimit_axisUnitsPerSecondSquared;
-		PositionUnit actuatorUnit;
-		if (needsActuatorDevice() && isActuatorDeviceConnected()) {
-			std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
-			actuatorVelocityLimit_actuatorUnitsPerSecond = actuator->getVelocityLimit();
-			actuatorAccelerationLimit_actuatorUnitsPerSecondSquared = actuator->getAccelerationLimit();
-			actuatorUnit = actuator->positionUnit;
-		}
-		else if (needsServoActuatorDevice() && isServoActuatorDeviceConnected()) {
-			std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
-			actuatorVelocityLimit_actuatorUnitsPerSecond = servo->getVelocityLimit();
-			actuatorAccelerationLimit_actuatorUnitsPerSecondSquared = servo->getAccelerationLimit();
-			actuatorUnit = servo->positionUnit;
-		}
-		actuatorVelocityLimit_axisUnitsPerSecond = actuatorVelocityLimit_actuatorUnitsPerSecond / actuatorUnitsPerAxisUnits;
-		actuatorAccelerationLimit_axisUnitsPerSecondSquared = actuatorAccelerationLimit_actuatorUnitsPerSecondSquared / actuatorUnitsPerAxisUnits;
+	if (isServoActuatorDeviceConnected()) {
+		std::shared_ptr<ServoActuatorDevice> servoActuator = getServoActuatorDevice();
+		
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-		const char* actuatorUnitShortString = Unit::getAbbreviatedString(actuatorUnit);
 		ImGui::TextWrapped("Max actuator velocity is %.1f %s/s and max acceleration is %.1f %s/s\xc2\xb2",
-			actuatorVelocityLimit_actuatorUnitsPerSecond,
-			actuatorUnitShortString,
-			actuatorAccelerationLimit_actuatorUnitsPerSecondSquared,
-			actuatorUnitShortString);
+						   servoActuator->getVelocityLimit(),
+						   Unit::getAbbreviatedString(servoActuator->getPositionUnit()),
+						   servoActuator->getAccelerationLimit(),
+						   Unit::getAbbreviatedString(servoActuator->getPositionUnit()));
+		
 		const char* machineUnitShortString = Unit::getAbbreviatedString(positionUnit);
-		ImGui::TextWrapped("Machine is limited to %.3f %s/s and %.3f %s/s\xc2\xb2",
-			actuatorVelocityLimit_axisUnitsPerSecond,
-			machineUnitShortString,
-			actuatorAccelerationLimit_axisUnitsPerSecondSquared,
-			machineUnitShortString);
+		ImGui::TextWrapped("Actuator limits axis to %.3f %s/s and %.3f %s/s\xc2\xb2",
+						   servoActuatorUnitsToAxisUnits(servoActuator->getVelocityLimit()),
+						   Unit::getAbbreviatedString(positionUnit),
+						   servoActuatorUnitsToAxisUnits(servoActuator->getAccelerationLimit()),
+							Unit::getAbbreviatedString(positionUnit));
 		ImGui::PopStyleColor();
-		clampValue(velocityLimit, 0.0, actuatorVelocityLimit_axisUnitsPerSecond);
-		clampValue(accelerationLimit, 0.0, actuatorAccelerationLimit_axisUnitsPerSecondSquared);
 	}
 
 	ImGui::Text("Velocity Limit");
 	static char velLimitString[16];
 	sprintf(velLimitString, "%.3f %s/s", velocityLimit, Unit::getAbbreviatedString(positionUnit));
 	ImGui::InputDouble("##VelLimit", &velocityLimit, 0.0, 0.0, velLimitString);
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	static char accLimitString[16];
 	sprintf(accLimitString, "%.3f %s/s\xc2\xb2", accelerationLimit, Unit::getAbbreviatedString(positionUnit));
 	ImGui::Text("Acceleration Limit");
 	ImGui::InputDouble("##AccLimit", &accelerationLimit, 0.0, 0.0, accLimitString);
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 
 	ImGui::Text("Manual Acceleration");
 	static char manualAccelerationString[256];
 	sprintf(manualAccelerationString, "%.3f %s/s\xc2\xb2", manualAcceleration, Unit::getAbbreviatedString(positionUnit));
 	ImGui::InputDouble("##manacc", &manualAcceleration, 0.0, 0.0, manualAccelerationString);
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	double halfWidgetWidth = (ImGui::GetItemRectSize().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
 
@@ -835,13 +673,13 @@ void PositionControlledAxis::settingsGui() {
 		ImGui::PopStyleColor();
 
 		static char homVelString[16];
-		sprintf(homVelString, "%.3f %s/s", homingVelocity_axisUnitsPerSecond, Unit::getAbbreviatedString(positionUnit));
+		sprintf(homVelString, "%.3f %s/s", homingVelocity, Unit::getAbbreviatedString(positionUnit));
 
 		switch (positionReferenceSignal) {
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
 			ImGui::Text("Homing Velocity");
-			ImGui::InputDouble("##HomingVelocity", &homingVelocity_axisUnitsPerSecond, 0.0, 0.0, homVelString);
-			if (homingVelocity_axisUnitsPerSecond < 0) homingVelocity_axisUnitsPerSecond = abs(homingVelocity_axisUnitsPerSecond);
+			ImGui::InputDouble("##HomingVelocity", &homingVelocity, 0.0, 0.0, homVelString);
+			if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 			break;
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
 		case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
@@ -854,8 +692,8 @@ void PositionControlledAxis::settingsGui() {
 				ImGui::EndCombo();
 			}
 			ImGui::Text("Homing Velocity");
-			ImGui::InputDouble("##HomingVelocity", &homingVelocity_axisUnitsPerSecond, 0.0, 0.0, homVelString);
-			if (homingVelocity_axisUnitsPerSecond < 0) homingVelocity_axisUnitsPerSecond = abs(homingVelocity_axisUnitsPerSecond);
+			ImGui::InputDouble("##HomingVelocity", &homingVelocity, 0.0, 0.0, homVelString);
+			if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 			break;
 		case PositionReferenceSignal::NO_SIGNAL:
 			break;
@@ -874,24 +712,24 @@ void PositionControlledAxis::settingsGui() {
 
 	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 	switch (positionReferenceSignal) {
-	case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
-		ImGui::TextWrapped("Axis is limited between Lower Limit Signal (Origin) and an Upper Limit Parameter.");
-		break;
-	case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-		ImGui::TextWrapped("Axis is limited between Lower and Upper Limit Signals.");
-		break;
-	case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
-		ImGui::TextWrapped("Axis is limited between Lower and Upper Limit Parameters.");
-		break;
-	case PositionReferenceSignal::NO_SIGNAL:
-		ImGui::TextWrapped("Axis is limited between Lower and Upper Limit Parameters.");
-		break;
+		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
+			ImGui::TextWrapped("Axis is limited between Lower Limit Signal (Origin) and an Upper Limit Parameter.");
+			break;
+		case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+			ImGui::TextWrapped("Axis is limited between Lower and Upper Limit Signals.");
+			break;
+		case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
+			ImGui::TextWrapped("Axis is limited between Lower and Upper Limit Parameters.");
+			break;
+		case PositionReferenceSignal::NO_SIGNAL:
+			ImGui::TextWrapped("Axis is limited between Lower and Upper Limit Parameters.");
+			break;
 	}
 	ImGui::Text("Movement range is from %.3f %s to %.3f %s",
-		getLowPositionLimit(),
-		Unit::getDisplayStringPlural(positionUnit),
-		getHighPositionLimit(),
-		Unit::getDisplayStringPlural(positionUnit));
+				getLowPositionLimit(),
+				Unit::getDisplayStringPlural(positionUnit),
+				getHighPositionLimit(),
+				Unit::getDisplayStringPlural(positionUnit));
 	ImGui::PopStyleColor();
 
 	const char * machineUnitShortString = Unit::getAbbreviatedString(positionUnit);
@@ -905,6 +743,7 @@ void PositionControlledAxis::settingsGui() {
 		ImGui::SetNextItemWidth(halfWidgetWidth);
 		if(disableField) BEGIN_DISABLE_IMGUI_ELEMENT
 		ImGui::InputDouble("##MaxNegativeDeviation", &lowPositionLimit, 0.0, 0.0, negDevString);
+		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		if(disableField) END_DISABLE_IMGUI_ELEMENT
 		if (lowPositionLimit > 0.0) lowPositionLimit = 0.0;
 		ImGui::SameLine();
@@ -916,6 +755,7 @@ void PositionControlledAxis::settingsGui() {
 		ImGui::SetNextItemWidth(halfWidgetWidth);
 		if(disableField) BEGIN_DISABLE_IMGUI_ELEMENT
 		ImGui::InputDouble("##MaxDeviation", &highPositionLimit, 0.0, 0.0, posDevString);
+		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		if(disableField) END_DISABLE_IMGUI_ELEMENT
 		if (highPositionLimit < 0.0) highPositionLimit = 0.0;
 		ImGui::SameLine();
@@ -939,16 +779,19 @@ void PositionControlledAxis::settingsGui() {
 	}
 
 	ImGui::Checkbox("Also Limit to Position Feedback Working Range", &limitToFeedbackWorkingRange);
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	static char lowClearanceString[16];
 	sprintf(lowClearanceString, "%.3f %s", lowLimitClearance, Unit::getAbbreviatedString(positionUnit));
 	ImGui::Text("Low Limit Clearance");
 	ImGui::InputDouble("##lowlimitclearance", &lowLimitClearance, 0.0, 0.0, lowClearanceString);
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	static char highClearanceString[16];
 	sprintf(highClearanceString, "%.3f %s", highLimitClearance, Unit::getAbbreviatedString(positionUnit));
 	ImGui::Text("Low Limit Clearance");
 	ImGui::InputDouble("##highlimitclearance", &highLimitClearance, 0.0, 0.0, highClearanceString);
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 
 }
 
@@ -965,87 +808,31 @@ void PositionControlledAxis::devicesGui() {
 
 	glm::vec2 buttonSize(ImGui::GetTextLineHeight() * 6, ImGui::GetTextLineHeight() * 1.5);
 
-	if (needsPositionFeedbackDevice()) {
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Position Feedback: ");
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Servo Actuator:");
+	ImGui::PopFont();
+	if (isServoActuatorDeviceConnected()) {
+		std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("'%s' on device %s", servo->getName(), servo->parentDevice->getName());
 		ImGui::PopFont();
-		if (isPositionFeedbackDeviceConnected()) {
-			std::shared_ptr<PositionFeedbackDevice> feedbackDevice = getPositionFeedbackDevice();
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("'%s' on device %s", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
-			ImGui::PopFont();
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-			ImGui::PushStyleColor(ImGuiCol_Button, feedbackDevice->isOnline() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
-			ImGui::Button(feedbackDevice->isOnline() ? "Online" : "Offline", buttonSize);
-			ImGui::PopStyleColor();
-			ImGui::SameLine();
-			ImGui::PushStyleColor(ImGuiCol_Button, feedbackDevice->isReady() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
-			ImGui::Button(feedbackDevice->isReady() ? "Ready" : "Not Ready", buttonSize);
-			ImGui::PopStyleColor();
-			ImGui::PopItemFlag();
-		}
-		else {
-			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
-			ImGui::TextWrapped("No Position Feedback Device connected.");
-			ImGui::PopStyleColor();
-		}
-		ImGui::Separator();
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+		ImGui::PushStyleColor(ImGuiCol_Button, servo->isOnline() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
+		ImGui::Button(servo->isOnline() ? "Online" : "Offline", buttonSize);
+		ImGui::PopStyleColor();
+		ImGui::SameLine();
+		ImGui::PushStyleColor(ImGuiCol_Button, servo->isReady() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
+		ImGui::Button(servo->isReady() ? "Ready" : "Not Ready", buttonSize);
+		ImGui::PopStyleColor();
+		ImGui::SameLine();
+		ImGui::PushStyleColor(ImGuiCol_Button, servo->isEnabled() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
+		ImGui::Button(servo->isEnabled() ? "Enabled" : "Disabled", buttonSize);
+		ImGui::PopStyleColor();
+		ImGui::PopItemFlag();
+		if (servo->isEnabled()) { if (ImGui::Button("Disable", buttonSize)) servo->disable(); }
+		else if (ImGui::Button("Enable", buttonSize)) servo->enable();
 	}
-
-	if (needsActuatorDevice()) {
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Actuator:");
-		ImGui::PopFont();
-		if (isActuatorDeviceConnected()) {
-			std::shared_ptr<ActuatorDevice> actuatorDevice = getActuatorDevice();
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("'%s' on device %s", actuatorDevice->getName(), actuatorDevice->parentDevice->getName());
-			ImGui::PopFont();
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-			ImGui::PushStyleColor(ImGuiCol_Button, actuatorDevice->isOnline() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
-			ImGui::Button(actuatorDevice->isOnline() ? "Online" : "Offline", buttonSize);
-			ImGui::PopStyleColor();
-			ImGui::SameLine();
-			ImGui::PushStyleColor(ImGuiCol_Button, actuatorDevice->isReady() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
-			ImGui::Button(actuatorDevice->isReady() ? "Ready" : "Not Ready", buttonSize);
-			ImGui::PopStyleColor();
-			ImGui::SameLine();
-			ImGui::PushStyleColor(ImGuiCol_Button, actuatorDevice->isEnabled() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
-			ImGui::Button(actuatorDevice->isEnabled() ? "Enabled" : "Disabled", buttonSize);
-			ImGui::PopStyleColor();
-			ImGui::PopItemFlag();
-			if (actuatorDevice->isEnabled()) { if (ImGui::Button("Disable", buttonSize)) actuatorDevice->disable(); }
-			else if (ImGui::Button("Enable", buttonSize)) actuatorDevice->enable();
-		}
-		ImGui::Separator();
-	}
-	else if (needsServoActuatorDevice()) {
-		ImGui::PushFont(Fonts::robotoBold20);
-		ImGui::Text("Servo Actuator:");
-		ImGui::PopFont();
-		if (isServoActuatorDeviceConnected()) {
-			std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
-			ImGui::PushFont(Fonts::robotoBold15);
-			ImGui::Text("'%s' on device %s", servo->getName(), servo->parentDevice->getName());
-			ImGui::PopFont();
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-			ImGui::PushStyleColor(ImGuiCol_Button, servo->isOnline() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
-			ImGui::Button(servo->isOnline() ? "Online" : "Offline", buttonSize);
-			ImGui::PopStyleColor();
-			ImGui::SameLine();
-			ImGui::PushStyleColor(ImGuiCol_Button, servo->isReady() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
-			ImGui::Button(servo->isReady() ? "Ready" : "Not Ready", buttonSize);
-			ImGui::PopStyleColor();
-			ImGui::SameLine();
-			ImGui::PushStyleColor(ImGuiCol_Button, servo->isEnabled() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
-			ImGui::Button(servo->isEnabled() ? "Enabled" : "Disabled", buttonSize);
-			ImGui::PopStyleColor();
-			ImGui::PopItemFlag();
-			if (servo->isEnabled()) { if (ImGui::Button("Disable", buttonSize)) servo->disable(); }
-			else if (ImGui::Button("Enable", buttonSize)) servo->enable();
-		}
-		ImGui::Separator();
-	}
+	ImGui::Separator();
 
 	if (needsReferenceDevice()) {
 		ImGui::PushFont(Fonts::robotoBold20);

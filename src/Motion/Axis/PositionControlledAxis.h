@@ -16,9 +16,7 @@ public:
 	//============ PINS ==============
 private:
 	//Inputs
-	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR, NodePin::Direction::NODE_INPUT, "Actuator");
 	std::shared_ptr<NodePin> servoActuatorPin = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR, NodePin::Direction::NODE_INPUT, "Servo Actuator");
-	std::shared_ptr<NodePin> positionFeedbackPin = std::make_shared<NodePin>(NodePin::DataType::POSITIONFEEDBACK, NodePin::Direction::NODE_INPUT, "Position Feedback");
 	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_INPUT, "Reference Device");
 	
 	std::shared_ptr<bool> lowLimitSignal = std::make_shared<bool>(false);
@@ -46,22 +44,13 @@ private:
 	bool isAxisPinConnected(){ return axisPin->isConnected(); }
 	
 	bool areAllPinsConnected();
-	
-	bool needsPositionFeedbackDevice();
-	bool isPositionFeedbackDeviceConnected(){ return positionFeedbackPin->isConnected(); }
-	std::shared_ptr<PositionFeedbackDevice> getPositionFeedbackDevice(){ return positionFeedbackPin->getConnectedPin()->getSharedPointer<PositionFeedbackDevice>(); }
 
 	bool needsReferenceDevice();
 	bool isReferenceDeviceConnected(){ return gpioPin->isConnected(); }
 	std::shared_ptr<GpioDevice> getReferenceDevice() { return gpioPin->getConnectedPin()->getSharedPointer<GpioDevice>(); }
 
-	bool needsServoActuatorDevice();
 	bool isServoActuatorDeviceConnected(){ return servoActuatorPin->isConnected(); }
 	std::shared_ptr<ServoActuatorDevice> getServoActuatorDevice() { return servoActuatorPin->getConnectedPin()->getSharedPointer<ServoActuatorDevice>(); }
-
-	bool needsActuatorDevice();
-	bool isActuatorDeviceConnected() { return actuatorPin->isConnected(); }
-	std::shared_ptr<ActuatorDevice> getActuatorDevice() { return actuatorPin->getConnectedPin()->getSharedPointer<ActuatorDevice>(); }
 
 public:
 	void getDevices(std::vector<std::shared_ptr<Device>>& output);
@@ -70,25 +59,19 @@ public:
 public:
 	virtual void process();
 	
-	//==================== SETTINGS ====================
-
+	//==================== PARAMETERS ====================
 private:
 	//units
 	PositionUnitType positionUnitType = PositionUnitType::ANGULAR;
 	PositionUnit positionUnit = PositionUnit::DEGREE;
-	PositionControlType positionControlType = PositionControlType::SERVO;
-	
-	//Unit Conversions
-	double feedbackUnitsPerAxisUnits = 0.0;
-	double actuatorUnitsPerAxisUnits = 0.0;
-	bool feedbackAndActuatorConversionIdentical = false;
+	double servoActuatorUnitsPerAxisUnits = 0.0;
 
 	//Reference Signals and Homing
 	PositionReferenceSignal positionReferenceSignal = PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT;
 	HomingDirection homingDirection = HomingDirection::NEGATIVE;
-	double homingVelocity_axisUnitsPerSecond = 0.0;
+	double homingVelocity = 0.0;
 	
-	//ramp limits
+	//kinematic limits
 	double velocityLimit = 0.0;
 	double accelerationLimit = 0.0;
 	double manualAcceleration = 0.0;
@@ -102,29 +85,20 @@ private:
 	double highLimitClearance = 0.0;
 	bool b_enableHighLimit = true;
 	
-	//pid controlled settings
-	double proportionalGain = 0.0;
-	double integralGain = 0.0;
-	double derivativeGain = 0.0;
-	double maxPositionError_axisUnits = 0.0;
-	
 	void sanitizeParameters();
 	
 	void setPositionUnitType(PositionUnitType t);
 	void setPositionUnit(PositionUnit u);
-	void setPositionControlType(PositionControlType type);
 	void setPositionReferenceSignalType(PositionReferenceSignal type);
 	
-	double feedbackUnitsToAxisUnits(double feedbackValue) { return feedbackValue / feedbackUnitsPerAxisUnits; }
-	double axisUnitsToFeedbackUnits(double axisValue) { return axisValue * feedbackUnitsPerAxisUnits; }
-	double actuatorUnitsToAxisUnits(double actuatorValue) { return actuatorValue / actuatorUnitsPerAxisUnits; }
-	double axisUnitsToActuatorUnits(double axisValue) { return axisValue * actuatorUnitsPerAxisUnits; }
+	double servoActuatorUnitsToAxisUnits(double actuatorValue) { return actuatorValue / servoActuatorUnitsPerAxisUnits; }
+	double axisUnitsToServoActuatorUnits(double axisValue) { return axisValue * servoActuatorUnitsPerAxisUnits; }
 	
 public:
 	PositionUnit getPositionUnit(){ return positionUnit; }
 	PositionUnitType getPositionUnitType(){ return positionUnitType; }
-	double getVelocityLimit_axisUnitsPerSecond() { return velocityLimit; }
-	double getAccelerationLimit_axisUnitsPerSecondSquared() { return accelerationLimit; }
+	double getVelocityLimit() { return velocityLimit; }
+	double getAccelerationLimit() { return accelerationLimit; }
 	double getLowPositionLimit();
 	double getHighPositionLimit();
 	
@@ -142,44 +116,38 @@ private:
 	void onEnable();
 	void onDisable();
 	
-	//========= MOTION CONTROL =========
-
+	//========= MOTION
 private:
 	Motion::Profile motionProfile;
 	ControlMode controlMode = ControlMode::VELOCITY_TARGET;
-	
 	double profileTime_seconds = 0.0;
 	double profileTimeDelta_seconds = 0.0;
-	double positionError = 0.0;
 	
 	//Manual Controls
-	void setVelocityTarget(double velocity_axisUnits);
+	void setVelocityTarget(double velocity);
 	void fastStop();
-	void moveToPositionWithVelocity(double position_axisUnits, double velocity_axisUnits);
-	void moveToPositionInTime(double position_axisUnits, double movementTime_seconds);
+	void moveToPositionWithVelocity(double position, double velocity);
+	void moveToPositionInTime(double position, double movementTime);
 	float manualVelocityTarget = 0.0;
 	
 	//actuator update
 	void sendActuatorCommands();
 
+	//======= MOTION INTERFACE
 public:
-	
 	void setMotionCommand(double position, double velocity);
-		
-	double getProfileVelocity_axisUnitsPerSecond() { return motionProfile.getVelocity(); }
-	double getProfilePosition_axisUnits() { return motionProfile.getPosition(); }
-	
-	double getActualVelocity_axisUnitsPerSecond() { return *actualVelocityValue; }
-	double getActualPosition_axisUnits() { return *actualPositionValue; }
-
+	double getProfileVelocity() { return motionProfile.getVelocity(); }
+	double getProfilePosition() { return motionProfile.getPosition(); }
+	double getActualVelocity() { return *actualVelocityValue; }
+	double getActualPosition() { return *actualPositionValue; }
 	float getActualVelocityNormalized() { return *actualVelocityValue / velocityLimit; }
-	float getActualPosition_normalized() {
+	float getActualPositionNormalized() {
 		double low = getLowPositionLimit();
 		double high = getHighPositionLimit();
 		return (*actualPositionValue - low) / (high - low);
 	}
 	
-	//============== AXIS SETUP =============
+	//============== AXIS SETUP
 private:
 	void setCurrentPosition(double distanceFromAxisOrigin);
 	void setCurrentPositionAsNegativeLimit();
@@ -215,7 +183,7 @@ private:
 	double getHighPositionLimitWithoutClearance();
 	double getLowFeedbackPositionLimit();
 	double getHighFeedbackPositionLimit();
-	double getRange_axisUnits();
+	double getRange();
 
 	//============= METRICS ============
 
@@ -246,6 +214,4 @@ public:
 	double interpolationTimeTarget = 0.0;
 	double axisScalingPosition = 0.0;
 
-	
-	
 };

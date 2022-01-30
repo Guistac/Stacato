@@ -183,16 +183,14 @@
             <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Axe Costière" UniqueID="228">
                 <NodeEditorPosition x="708" y="-545"/>
                 <NodeSpecificData>
-                    <Units UnitType="Linear" Unit="Meter" PositionControl="Servo"/>
-                    <UnitConversion FeedbackUnitsPerMachineUnit="93.659667968750099" ActuatorUnitsPerMachineUnit="93.659667968750099" FeedbackAndActuatorConversionIdentical="false"/>
+                    <Units UnitType="Linear" Unit="Meter"/>
+                    <UnitConversion ActuatorUnitsPerMachineUnit="93.659667968750099"/>
                     <KinematicLimits VelocityLimit="0.29999999999999999" AccelerationLimit="0.10000000000000001" ManualAcceleration="0.10000000000000001"/>
                     <PositionReferenceSignals Type="LowSignal" HomingVelocity="0.10000000000000001" HomingDirection="Negative"/>
                     <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="0" HighLimit="7.4000000000000004" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="false"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorDeviceLink" UniqueID="229" Visible="false" NoDataField="true"/>
                     <InputPin SaveString="Servo Actuator" DisplayString="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="230" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Position Feedback" DisplayString="Position Feedback" DataType="PositionFeedbackDeviceLink" UniqueID="231" Visible="false" NoDataField="true"/>
                     <InputPin SaveString="Reference Device" DisplayString="Reference Device" DataType="GPIODeviceLink" UniqueID="232" Visible="true" NoDataField="true"/>
                     <InputPin SaveString="Low Limit Signal" DisplayString="Low Limit Signal" DataType="Boolean" UniqueID="233" Visible="true"/>
                     <InputPin SaveString="High Limit Signal" DisplayString="High Limit Signal" DataType="Boolean" UniqueID="234" Visible="false"/>

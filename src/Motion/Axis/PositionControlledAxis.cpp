@@ -13,9 +13,7 @@
 
 void PositionControlledAxis::initialize() {
 	//inputs
-	addNodePin(actuatorPin);
 	addNodePin(servoActuatorPin);
-	addNodePin(positionFeedbackPin);
 	addNodePin(gpioPin);
 	addNodePin(lowLimitSignalPin);
 	addNodePin(highLimitSignalPin);
@@ -29,7 +27,6 @@ void PositionControlledAxis::initialize() {
 	addNodePin(loadPin);
 	
 	//initialize parameters
-	setPositionControlType(positionControlType);
 	setPositionReferenceSignalType(positionReferenceSignal);
 }
 
@@ -42,44 +39,27 @@ void PositionControlledAxis::process() {
 	//std::shared_ptr<ActuatorDevice> actuatorDevice = getActuatorDevice();
 	std::shared_ptr<ServoActuatorDevice> servoActuatorDevice = getServoActuatorDevice();
 	std::shared_ptr<GpioDevice> referenceDevice = getReferenceDevice();
-	std::shared_ptr<PositionFeedbackDevice> feedbackDevice = getServoActuatorDevice();
 
 	//get reference signals
 	if (referenceDevice) {
 		updateReferenceSignals();
-		if(*lowLimitSignal && motionProfile.getVelocity() < 0.0) fastStop();
-		else if(*highLimitSignal && motionProfile.getVelocity() > 0.0) fastStop();
+		//TODO: are these conditions ok to kill the axis and disable actuators
+		if(*lowLimitSignal && motionProfile.getVelocity() < 0.0) disable();
+		else if(*highLimitSignal && motionProfile.getVelocity() > 0.0) disable();
 	}
 
 	//handle device state transitions
-	if (b_enabled) {
-		//if (actuatorDevice && !actuatorDevice->b_enabled) disable();
-		if (feedbackDevice && !feedbackDevice->b_ready) disable();
-		if (referenceDevice && !referenceDevice->b_ready) disable();
-		if (servoActuatorDevice && (!servoActuatorDevice->b_ready || !servoActuatorDevice->isEnabled())) {
+	if (isEnabled()) {
+		if (needsReferenceDevice() && !referenceDevice->isReady()) disable();
+		if (!servoActuatorDevice->isEnabled()) {
 			if (!isHoming()) disable();
 		}
 	}
 
 	//get actual realtime axis motion values
-	if (feedbackDevice) {
-		*actualPositionValue = feedbackUnitsToAxisUnits(feedbackDevice->getPosition());
-		*actualVelocityValue = feedbackUnitsToAxisUnits(feedbackDevice->getVelocity());
-	}
-	else if (servoActuatorDevice) {
-		*actualPositionValue = actuatorUnitsToAxisUnits(servoActuatorDevice->getPosition());
-		*actualVelocityValue = actuatorUnitsToAxisUnits(servoActuatorDevice->getVelocity());
-	}
-	
-	//get actual load value
-	switch (positionControlType) {
-		case PositionControlType::SERVO:
-			*actualLoadValue = getServoActuatorDevice()->getLoad();
-			break;
-		case PositionControlType::CLOSED_LOOP:
-			*actualLoadValue = getActuatorDevice()->getLoad();
-			break;
-	}
+	*actualPositionValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getPosition());
+	*actualVelocityValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getVelocity());
+	*actualLoadValue = getServoActuatorDevice()->getLoad();
 
 	//update timing
 	//TODO: Implement Universal Environnement Time
@@ -121,22 +101,8 @@ void PositionControlledAxis::process() {
 void PositionControlledAxis::sendActuatorCommands() {
 	//here we expect that the motion profile has new values
 	//we use those values to send commands to the actuators
-	//TODO: fix position error
-	//positionError_axisUnits = motionProfile.getPosition() - actualPosition_axisUnits / feedbackUnitsPerAxisUnits;
-	switch (positionControlType) {
-		case PositionControlType::SERVO:
-			//for servo mode, we just request a new position from the actuator
-			getServoActuatorDevice()->setPositionCommand(axisUnitsToActuatorUnits(motionProfile.getPosition()),
-														 axisUnitsToActuatorUnits(motionProfile.getVelocity()));
-			break;
-		case PositionControlType::CLOSED_LOOP:
-			//TODO: implement this
-			//for closed loop, implement pid control with adjustable gains
-			//getActuatorDevice()->setCommand(profileVelocity_axisUnitsPerSecond * actuatorUnitsPerAxisUnits);
-			getActuatorDevice()->setVelocityCommand(0.0);
-			break;
-	}
-	//TODO: check if this works and actually updates the connected node pin
+	getServoActuatorDevice()->setPositionCommand(axisUnitsToServoActuatorUnits(motionProfile.getPosition()),
+												 axisUnitsToServoActuatorUnits(motionProfile.getVelocity()));
 	servoActuatorPin->updateConnectedPins();
 	updateMetrics();
 }
@@ -187,8 +153,7 @@ void PositionControlledAxis::onEnable() {
 }
 
 void PositionControlledAxis::disable() {
-	if (needsActuatorDevice()) getActuatorDevice()->disable();
-	else if (needsServoActuatorDevice()) getServoActuatorDevice()->disable();
+	getServoActuatorDevice()->disable();
 	onDisable();
 }
 
@@ -203,9 +168,7 @@ void PositionControlledAxis::onDisable() {
 
 bool PositionControlledAxis::isReady() {
 	if(!areAllPinsConnected()) return false;
-	if(needsActuatorDevice() && !getActuatorDevice()->isReady()) return false;
-	if(needsServoActuatorDevice() && !getServoActuatorDevice()->isReady()) return false;
-	if(needsPositionFeedbackDevice() && !getPositionFeedbackDevice()->isReady()) return false;
+	if(!getServoActuatorDevice()->isReady()) return false;
 	if(needsReferenceDevice() && !getReferenceDevice()->isReady()) return false;
 	return true;
 }
@@ -213,10 +176,8 @@ bool PositionControlledAxis::isReady() {
 //========================== DEVICES =============================
 
 bool PositionControlledAxis::areAllPinsConnected(){
-	if(needsPositionFeedbackDevice() && !isPositionFeedbackDeviceConnected()) return false;
 	if(needsReferenceDevice() && !isReferenceDeviceConnected()) return false;
-	if(needsActuatorDevice() && !isActuatorDeviceConnected()) return false;
-	if(needsServoActuatorDevice() && !isServoActuatorDeviceConnected()) return false;
+	if(!isServoActuatorDeviceConnected()) return false;
 	switch (positionReferenceSignal) {
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
 			if (!lowLimitSignalPin->isConnected()) return false;
@@ -234,16 +195,6 @@ bool PositionControlledAxis::areAllPinsConnected(){
 	return true;
 }
 
-bool PositionControlledAxis::needsPositionFeedbackDevice() {
-	switch (positionControlType) {
-	case PositionControlType::CLOSED_LOOP:
-		return true;
-	case PositionControlType::SERVO:
-		return false;
-	default: return false;
-	}
-}
-
 bool PositionControlledAxis::needsReferenceDevice() {
 	switch (positionReferenceSignal) {
 	case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
@@ -255,28 +206,6 @@ bool PositionControlledAxis::needsReferenceDevice() {
 	default: return false;
 	}
 }
-
-bool PositionControlledAxis::needsActuatorDevice() {
-	switch (positionControlType) {
-	case PositionControlType::CLOSED_LOOP:
-		return true;
-	case PositionControlType::SERVO:
-		return false;
-	default: return false;
-	}
-}
-
-bool PositionControlledAxis::needsServoActuatorDevice() {
-	switch (positionControlType) {
-	case PositionControlType::CLOSED_LOOP:
-		return false;
-	case PositionControlType::SERVO:
-		return true;
-	default: return false;
-	}
-}
-
-
 
 //============================= DEVICE AND SIGNAL LINKS ================================
 
@@ -320,30 +249,12 @@ void PositionControlledAxis::setPositionUnitType(PositionUnitType type){
 			}
 			break;
 	}
+	sanitizeParameters();
 }
 
 void PositionControlledAxis::setPositionUnit(PositionUnit u){
 	positionUnit = u;
-}
-
-void PositionControlledAxis::setPositionControlType(PositionControlType type) {
-	switch (type) {
-		case PositionControlType::CLOSED_LOOP:
-			actuatorPin->setVisible(true);
-			positionFeedbackPin->setVisible(true);
-			servoActuatorPin->disconnectAllLinks();
-			servoActuatorPin->setVisible(false);
-			break;
-		case PositionControlType::SERVO:
-			actuatorPin->disconnectAllLinks();
-			actuatorPin->setVisible(false);
-			positionFeedbackPin->disconnectAllLinks();
-			positionFeedbackPin->setVisible(false);
-			servoActuatorPin->setVisible(true);
-			feedbackUnitsPerAxisUnits = actuatorUnitsPerAxisUnits;
-			break;
-	}
-	positionControlType = type;
+	sanitizeParameters();
 }
 
 void PositionControlledAxis::setPositionReferenceSignalType(PositionReferenceSignal type) {
@@ -388,6 +299,7 @@ void PositionControlledAxis::setPositionReferenceSignalType(PositionReferenceSig
 			break;
 	}
 	positionReferenceSignal = type;
+	sanitizeParameters();
 }
 
 
@@ -416,16 +328,7 @@ void PositionControlledAxis::updateReferenceSignals() {
 }
 
 bool PositionControlledAxis::isMoving() {
-	switch (positionControlType) {
-		case PositionControlType::SERVO:
-			return getServoActuatorDevice()->isMoving();
-			break;
-		case PositionControlType::CLOSED_LOOP:
-			return getPositionFeedbackDevice()->isMoving();
-			break;
-		default: 
-			return false;
-	}
+	return getServoActuatorDevice()->isMoving();
 }
 
 double PositionControlledAxis::getLowPositionLimit() {
@@ -439,100 +342,54 @@ double PositionControlledAxis::getHighPositionLimit() {
 double PositionControlledAxis::getLowPositionLimitWithoutClearance() {
 	double lowLimit = -std::numeric_limits<double>::infinity();
 	if (b_enableLowLimit) lowLimit = lowPositionLimit;
-	if (limitToFeedbackWorkingRange) {
-		double lowFeedbackLimit = getLowFeedbackPositionLimit();
-		if (lowLimit < lowFeedbackLimit) lowLimit = lowFeedbackLimit;
-	}
+	if (limitToFeedbackWorkingRange) lowLimit = std::max(lowLimit, getLowFeedbackPositionLimit());
 	return lowLimit;
 }
 
 double PositionControlledAxis::getHighPositionLimitWithoutClearance() {
 	double highLimit = std::numeric_limits<double>::infinity();
 	if (b_enableHighLimit) highLimit = highPositionLimit;
-	if (limitToFeedbackWorkingRange) {
-		double highFeedbackLimit = getHighFeedbackPositionLimit();
-		if (highLimit > highFeedbackLimit) highLimit = highFeedbackLimit;
-	}
+	if (limitToFeedbackWorkingRange) highLimit = std::min(highLimit, getHighFeedbackPositionLimit());
 	return highLimit;
 }
 
-double PositionControlledAxis::getRange_axisUnits() {
+double PositionControlledAxis::getRange() {
 	return getHighPositionLimit() - getLowPositionLimit();
 }
 
 double PositionControlledAxis::getLowFeedbackPositionLimit() {
-	switch (positionControlType) {
-		case PositionControlType::SERVO:
-			if (isServoActuatorDeviceConnected()) return getServoActuatorDevice()->getMinPosition() / feedbackUnitsPerAxisUnits;
-			else return -std::numeric_limits<double>::infinity();
-		case PositionControlType::CLOSED_LOOP:
-			if (isPositionFeedbackDeviceConnected()) return getPositionFeedbackDevice()->getMinPosition() / feedbackUnitsPerAxisUnits;
-			else return -std::numeric_limits<double>::infinity();
-		default: return 0.0;
-	}
+	if (isServoActuatorDeviceConnected()) return getServoActuatorDevice()->getMinPosition() / servoActuatorUnitsPerAxisUnits;
+	else return -std::numeric_limits<double>::infinity();
 }
 
 double PositionControlledAxis::getHighFeedbackPositionLimit() {
-	switch (positionControlType) {
-	case PositionControlType::SERVO:
-		if (isServoActuatorDeviceConnected()) return getServoActuatorDevice()->getMaxPosition() / feedbackUnitsPerAxisUnits;
-		else return std::numeric_limits<double>::infinity();
-	case PositionControlType::CLOSED_LOOP:
-		if (isPositionFeedbackDeviceConnected()) return getPositionFeedbackDevice()->getMaxPosition() / feedbackUnitsPerAxisUnits;
-		else return std::numeric_limits<double>::infinity();
-	default: return 0.0;
+	if (isServoActuatorDeviceConnected()) {
+		auto actuator = getServoActuatorDevice();
+		double maxServoPosition = actuator->getMaxPosition();
+		return maxServoPosition / servoActuatorUnitsPerAxisUnits;
 	}
+	else return std::numeric_limits<double>::infinity();
 }
 
 
 void PositionControlledAxis::setCurrentPosition(double distance) {
-	switch (positionControlType) {
-	case PositionControlType::SERVO:
-		getServoActuatorDevice()->setPosition(distance * feedbackUnitsPerAxisUnits);
-		break;
-	case PositionControlType::CLOSED_LOOP:
-		getPositionFeedbackDevice()->setPosition(distance * feedbackUnitsPerAxisUnits);
-		break;
-	}
+	getServoActuatorDevice()->setPosition(distance * servoActuatorUnitsPerAxisUnits);
 	motionProfile.setPosition(distance);
 }
 
 void PositionControlledAxis::setCurrentPositionAsNegativeLimit() {
-	switch (positionControlType) {
-	case PositionControlType::SERVO:
-		lowPositionLimit = getServoActuatorDevice()->getPosition() / feedbackUnitsPerAxisUnits;
-		break;
-	case PositionControlType::CLOSED_LOOP:
-		lowPositionLimit = getPositionFeedbackDevice()->getPosition() / feedbackUnitsPerAxisUnits;
-		break;
-	}
+	lowPositionLimit = getServoActuatorDevice()->getPosition() / servoActuatorUnitsPerAxisUnits;
 }
 
 void PositionControlledAxis::setCurrentPositionAsPositiveLimit() {
-	switch (positionControlType) {
-	case PositionControlType::SERVO:
-		highPositionLimit = getServoActuatorDevice()->getPosition() / feedbackUnitsPerAxisUnits;
-		break;
-	case PositionControlType::CLOSED_LOOP:
-		highPositionLimit = getPositionFeedbackDevice()->getPosition() / feedbackUnitsPerAxisUnits;
-		break;
-	}
+	highPositionLimit = getServoActuatorDevice()->getPosition() / servoActuatorUnitsPerAxisUnits;
 }
 
 void PositionControlledAxis::scaleFeedbackToMatchPosition(double position_axisUnits) {
-	double feedbackDevicePosition_feedbackUnits;
-	switch (positionControlType) {
-	case PositionControlType::SERVO:
-		feedbackDevicePosition_feedbackUnits = getServoActuatorDevice()->getPosition();
-		feedbackUnitsPerAxisUnits = feedbackDevicePosition_feedbackUnits / position_axisUnits;
-		actuatorUnitsPerAxisUnits = feedbackUnitsPerAxisUnits;
-		break;
-	case PositionControlType::CLOSED_LOOP:
-		feedbackDevicePosition_feedbackUnits = getPositionFeedbackDevice()->getPosition();
-		feedbackUnitsPerAxisUnits = feedbackDevicePosition_feedbackUnits / position_axisUnits;
-		break;
-	}
-	motionProfile.setPosition(feedbackDevicePosition_feedbackUnits / feedbackUnitsPerAxisUnits);
+	double feedbackDevicePosition_feedbackUnits = getServoActuatorDevice()->getPosition();
+	//this recalculates unit scaling based on the distance between on zero position
+	servoActuatorUnitsPerAxisUnits = feedbackDevicePosition_feedbackUnits / position_axisUnits;
+	motionProfile.setPosition(feedbackDevicePosition_feedbackUnits / servoActuatorUnitsPerAxisUnits);
 }
 
 //================================= MANUAL CONTROL ===================================
@@ -550,7 +407,7 @@ void PositionControlledAxis::fastStop(){
 void PositionControlledAxis::moveToPositionWithVelocity(double targetPosition, double targetVelocity) {
 	targetPosition = std::min(targetPosition, getHighPositionLimit());
 	targetPosition = std::max(targetPosition, getLowPositionLimit());
-	targetVelocity = std::min(std::abs(targetVelocity), getVelocityLimit_axisUnitsPerSecond());
+	targetVelocity = std::min(std::abs(targetVelocity), getVelocityLimit());
 	bool success = motionProfile.moveToPositionWithVelocity(profileTime_seconds,
 															targetPosition,
 															targetVelocity,
@@ -566,7 +423,7 @@ void PositionControlledAxis::moveToPositionInTime(double targetPosition, double 
 													  targetPosition,
 													  targetTime,
 													  manualAcceleration,
-													  getVelocityLimit_axisUnitsPerSecond());
+													  getVelocityLimit());
 	if(success) controlMode = ControlMode::POSITION_TARGET;
 	else setVelocityTarget(0.0);
 }
@@ -630,13 +487,13 @@ void PositionControlledAxis::homingControl() {
 					homingStep = HomingStep::SEARCHING_LOW_LIMIT_COARSE;
 					break;
 				case HomingStep::SEARCHING_LOW_LIMIT_COARSE:
-					setVelocityTarget(-homingVelocity_axisUnitsPerSecond);
+					setVelocityTarget(-homingVelocity);
 					if (/*!previousLowLimitSignal && */lowLimitSignal) homingStep = HomingStep::FOUND_LOW_LIMIT_COARSE;
 					break;
 				case HomingStep::FOUND_LOW_LIMIT_COARSE:
 					setVelocityTarget(0.0);
 					if (!isMoving()) {
-						if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
+						if (!getServoActuatorDevice()->isEnabled()) {
 							getServoActuatorDevice()->enable();
 							motionProfile.setPosition(*actualPositionValue);
 							motionProfile.setVelocity(0.0);
@@ -647,7 +504,7 @@ void PositionControlledAxis::homingControl() {
 					}
 					break;
 				case HomingStep::SEARCHING_LOW_LIMIT_FINE:
-					setVelocityTarget(homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(homingVelocity / 10.0);
 					if (previousLowLimitSignal && !lowLimitSignal) homingStep = HomingStep::FOUND_LOW_LIMIT_FINE;
 					break;
 				case HomingStep::FOUND_LOW_LIMIT_FINE:
@@ -671,7 +528,7 @@ void PositionControlledAxis::homingControl() {
 					homingStep = HomingStep::SEARCHING_LOW_LIMIT_COARSE;
 					break;
 				case HomingStep::SEARCHING_LOW_LIMIT_COARSE:
-					setVelocityTarget(-homingVelocity_axisUnitsPerSecond);
+					setVelocityTarget(-homingVelocity);
 					if (/*!previousHighLimitSignal && */highLimitSignal) {
 						homingError = HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL;
 						onHomingError();
@@ -681,7 +538,7 @@ void PositionControlledAxis::homingControl() {
 				case HomingStep::FOUND_LOW_LIMIT_COARSE:
 					setVelocityTarget(0.0);
 					if (!isMoving()) {
-						if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
+						if (!getServoActuatorDevice()->isEnabled()) {
 							getServoActuatorDevice()->enable();
 							motionProfile.setPosition(*actualPositionValue);
 							motionProfile.setVelocity(0.0);
@@ -691,7 +548,7 @@ void PositionControlledAxis::homingControl() {
 					}
 					break;
 				case HomingStep::SEARCHING_LOW_LIMIT_FINE:
-					setVelocityTarget(homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(homingVelocity / 10.0);
 					if (previousLowLimitSignal && !lowLimitSignal) homingStep = HomingStep::FOUND_LOW_LIMIT_FINE;
 					break;
 				case HomingStep::FOUND_LOW_LIMIT_FINE:
@@ -703,7 +560,7 @@ void PositionControlledAxis::homingControl() {
 					homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
 					break;
 				case HomingStep::SEARCHING_HIGH_LIMIT_COARSE:
-					setVelocityTarget(homingVelocity_axisUnitsPerSecond);
+					setVelocityTarget(homingVelocity);
 					if (/*!previousLowLimitSignal && */lowLimitSignal) {
 						homingError = HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL;
 						onHomingError();
@@ -713,7 +570,7 @@ void PositionControlledAxis::homingControl() {
 				case HomingStep::FOUND_HIGH_LIMIT_COARSE:
 					setVelocityTarget(0.0);
 					if (!isMoving()) {
-						if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
+						if (!getServoActuatorDevice()->isEnabled()) {
 							getServoActuatorDevice()->enable();
 							motionProfile.setPosition(*actualPositionValue);
 							motionProfile.setVelocity(0.0);
@@ -723,7 +580,7 @@ void PositionControlledAxis::homingControl() {
 					}
 					break;
 				case HomingStep::SEARCHING_HIGH_LIMIT_FINE:
-					setVelocityTarget(-homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(-homingVelocity / 10.0);
 					if (previousHighLimitSignal && !highLimitSignal) homingStep = HomingStep::FOUND_HIGH_LIMIT_FINE;
 					break;
 				case HomingStep::FOUND_HIGH_LIMIT_FINE:
@@ -748,7 +605,7 @@ void PositionControlledAxis::homingControl() {
 					homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
 					break;
 				case HomingStep::SEARCHING_HIGH_LIMIT_COARSE:
-					setVelocityTarget(homingVelocity_axisUnitsPerSecond);
+					setVelocityTarget(homingVelocity);
 					if (/*!previousLowLimitSignal && */lowLimitSignal) {
 						homingError = HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL;
 						onHomingError();
@@ -758,7 +615,7 @@ void PositionControlledAxis::homingControl() {
 				case HomingStep::FOUND_HIGH_LIMIT_COARSE:
 					setVelocityTarget(0.0);
 					if (!isMoving()) {
-						if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
+						if (!getServoActuatorDevice()->isEnabled()) {
 							getServoActuatorDevice()->enable();
 							motionProfile.setPosition(*actualPositionValue);
 							motionProfile.setVelocity(0.0);
@@ -768,7 +625,7 @@ void PositionControlledAxis::homingControl() {
 					}
 					break;
 				case HomingStep::SEARCHING_HIGH_LIMIT_FINE:
-					setVelocityTarget(-homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(-homingVelocity / 10.0);
 					if (previousHighLimitSignal && !highLimitSignal) homingStep = HomingStep::FOUND_HIGH_LIMIT_FINE;
 					break;
 				case HomingStep::FOUND_HIGH_LIMIT_FINE:
@@ -780,7 +637,7 @@ void PositionControlledAxis::homingControl() {
 					homingStep = HomingStep::SEARCHING_LOW_LIMIT_COARSE;
 					break;
 				case HomingStep::SEARCHING_LOW_LIMIT_COARSE:
-					setVelocityTarget(-homingVelocity_axisUnitsPerSecond);
+					setVelocityTarget(-homingVelocity);
 					if (/*!previousHighLimitSignal && */highLimitSignal) {
 						homingError = HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL;
 						onHomingError();
@@ -790,7 +647,7 @@ void PositionControlledAxis::homingControl() {
 				case HomingStep::FOUND_LOW_LIMIT_COARSE:
 					setVelocityTarget(0.0);
 					if (!isMoving()) {
-						if (needsServoActuatorDevice() && !getServoActuatorDevice()->isEnabled()) {
+						if (!getServoActuatorDevice()->isEnabled()) {
 							getServoActuatorDevice()->enable();
 							motionProfile.setPosition(*actualPositionValue);
 							motionProfile.setVelocity(0.0);
@@ -800,7 +657,7 @@ void PositionControlledAxis::homingControl() {
 					}
 					break;
 				case HomingStep::SEARCHING_LOW_LIMIT_FINE:
-					setVelocityTarget(homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(homingVelocity / 10.0);
 					if (previousLowLimitSignal && !lowLimitSignal) homingStep = HomingStep::FOUND_LOW_LIMIT_FINE;
 					break;
 				case HomingStep::FOUND_LOW_LIMIT_FINE:
@@ -828,7 +685,7 @@ void PositionControlledAxis::homingControl() {
 					homingStep = HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE;
 					break;
 				case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE:
-					setVelocityTarget(homingVelocity_axisUnitsPerSecond);
+					setVelocityTarget(homingVelocity);
 					if (/*!previousReferenceSignal && */referenceSignal) homingStep = HomingStep::FOUND_REFERENCE_FROM_BELOW_COARSE;
 					break;
 				case HomingStep::FOUND_REFERENCE_FROM_BELOW_COARSE:
@@ -836,7 +693,7 @@ void PositionControlledAxis::homingControl() {
 					if (!isMoving()) homingStep = HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE;
 					break;
 				case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE:
-					setVelocityTarget(-homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(-homingVelocity / 10.0);
 					if (previousReferenceSignal && !referenceSignal) homingStep = HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE;
 					break;
 				case HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE:
@@ -847,7 +704,7 @@ void PositionControlledAxis::homingControl() {
 					}
 					break;
 				case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
-					setVelocityTarget(homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(homingVelocity / 10.0);
 					if (previousReferenceSignal && !referenceSignal) homingStep = HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE;
 					break;
 				case HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE:
@@ -871,7 +728,7 @@ void PositionControlledAxis::homingControl() {
 					homingStep = HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE;
 					break;
 				case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE:
-					setVelocityTarget(-homingVelocity_axisUnitsPerSecond);
+					setVelocityTarget(-homingVelocity);
 					if (/*!previousReferenceSignal && */referenceSignal) homingStep = HomingStep::FOUND_REFERENCE_FROM_ABOVE_COARSE;
 					break;
 				case HomingStep::FOUND_REFERENCE_FROM_ABOVE_COARSE:
@@ -879,7 +736,7 @@ void PositionControlledAxis::homingControl() {
 					if (!isMoving()) homingStep = HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE;
 					break;
 				case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
-					setVelocityTarget(homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(homingVelocity / 10.0);
 					if (previousReferenceSignal && !referenceSignal) homingStep = HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE;
 					break;
 				case HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE:
@@ -890,7 +747,7 @@ void PositionControlledAxis::homingControl() {
 					}
 					break;
 				case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE:
-					setVelocityTarget(-homingVelocity_axisUnitsPerSecond / 10.0);
+					setVelocityTarget(-homingVelocity / 10.0);
 					if (previousReferenceSignal && !referenceSignal) homingStep = HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE;
 					break;
 				case HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE:
@@ -915,40 +772,27 @@ void PositionControlledAxis::homingControl() {
 
 
 void PositionControlledAxis::sanitizeParameters(){
-	
-	clampValue(interpolationVelocityTarget, 0.0, velocityLimit);
-	clampValue(interpolationPositionTarget, getLowPositionLimit(), getHighPositionLimit());
-	
-	/*
-	//Unit Conversions
-	double feedbackUnitsPerAxisUnits = 0.0;
-	double actuatorUnitsPerAxisUnits = 0.0;
-	bool feedbackAndActuatorConversionIdentical = false;
+	interpolationPositionTarget = std::min(interpolationPositionTarget, getHighPositionLimit());
+	interpolationPositionTarget = std::max(interpolationPositionTarget, getLowPositionLimit());
+	interpolationVelocityTarget = std::min(std::abs(interpolationVelocityTarget), getVelocityLimit());
+	interpolationTimeTarget = std::abs(interpolationTimeTarget);
 
-	//Reference Signals and Homing
-	PositionReferenceSignal positionReferenceSignal = PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT;
-	HomingDirection homingDirection = HomingDirection::NEGATIVE;
-	double homingVelocity_axisUnitsPerSecond = 0.0;
+	servoActuatorUnitsPerAxisUnits = std::abs(servoActuatorUnitsPerAxisUnits);
 	
-	//limits
-	double velocityLimit = 0.0;
-	double accelerationLimit = 0.0;
-	double manualAcceleration = 0.0;
-	double highPositionLimit = 0.0;
-	double lowPositionLimit = 0.0;
-	double limitClearance_axisUnits = 0.0;
-	bool limitToFeedbackWorkingRange = true;
-	bool enableNegativeLimit = true;
-	bool enablePositiveLimit = true;
+	homingVelocity = std::abs(homingVelocity);
 	
-	//pid controlled settings
-	double proportionalGain = 0.0;
-	double integralGain = 0.0;
-	double derivativeGain = 0.0;
-	double maxPositionError_axisUnits = 0.0;
-	*/
+	velocityLimit = std::abs(velocityLimit);
+	//TODO: if(isServoActuatorDeviceConnected()) velocityLimit = std::min(velocityLimit, servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getVelocityLimit()));
 	
+	accelerationLimit = std::abs(accelerationLimit);
+	//TODO: if(isServoActuatorDeviceConnected()) accelerationLimit = std::min(accelerationLimit, servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getAccelerationLimit()));
 	
+	manualAcceleration = std::min(std::abs(manualAcceleration), accelerationLimit);
+
+	lowPositionLimit = std::min(lowPositionLimit, highPositionLimit - highLimitClearance);
+	highPositionLimit = std::max(highPositionLimit, lowPositionLimit + lowLimitClearance);
+	lowLimitClearance = std::abs(lowLimitClearance);
+	highLimitClearance = std::abs(highLimitClearance);
 }
 
 //==================================== SAVING AND LOADING =========================================
@@ -961,12 +805,9 @@ bool PositionControlledAxis::save(tinyxml2::XMLElement* xml) {
 	XMLElement* unitsXML = xml->InsertNewChildElement("Units");
 	unitsXML->SetAttribute("UnitType", Enumerator::getSaveString(positionUnitType));
 	unitsXML->SetAttribute("Unit", Unit::getSaveString(positionUnit));
-	unitsXML->SetAttribute("PositionControl", Enumerator::getSaveString(positionControlType));
 
 	XMLElement* unitConversionXML = xml->InsertNewChildElement("UnitConversion");
-	unitConversionXML->SetAttribute("FeedbackUnitsPerMachineUnit", feedbackUnitsPerAxisUnits);
-	unitConversionXML->SetAttribute("ActuatorUnitsPerMachineUnit", actuatorUnitsPerAxisUnits);
-	unitConversionXML->SetAttribute("FeedbackAndActuatorConversionIdentical", feedbackAndActuatorConversionIdentical);
+	unitConversionXML->SetAttribute("ActuatorUnitsPerMachineUnit", servoActuatorUnitsPerAxisUnits);
 
 	XMLElement* kinematicLimitsXML = xml->InsertNewChildElement("KinematicLimits");
 	kinematicLimitsXML->SetAttribute("VelocityLimit", velocityLimit);
@@ -975,7 +816,7 @@ bool PositionControlledAxis::save(tinyxml2::XMLElement* xml) {
 
 	XMLElement* positionReferenceXML = xml->InsertNewChildElement("PositionReferenceSignals");
 	positionReferenceXML->SetAttribute("Type", Enumerator::getSaveString(positionReferenceSignal));
-	positionReferenceXML->SetAttribute("HomingVelocity", homingVelocity_axisUnitsPerSecond);
+	positionReferenceXML->SetAttribute("HomingVelocity", homingVelocity);
 	positionReferenceXML->SetAttribute("HomingDirection", Enumerator::getSaveString(homingDirection));
 
 	XMLElement* positionLimitsXML = xml->InsertNewChildElement("PositionLimits");
@@ -1005,16 +846,10 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if (unitsXML->QueryStringAttribute("Unit", &axisUnitString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit");
 	if (!Unit::isValidSaveName<PositionUnit>(axisUnitString)) return Logger::warn("Could not read Machine Unit");
 	positionUnit = Unit::getEnumeratorFromSaveString<PositionUnit>(axisUnitString);
-	const char* motionControlTypeString;
-	if (unitsXML->QueryStringAttribute("PositionControl", &motionControlTypeString) != XML_SUCCESS) return Logger::warn("Could not load Position Control Type");
-	if (!Enumerator::isValidSaveName<PositionControlType>(motionControlTypeString)) return Logger::warn("Could not read Position Control Type");
-	setPositionControlType(Enumerator::getEnumeratorFromSaveString<PositionControlType>(motionControlTypeString));
 
 	XMLElement* unitConversionXML = xml->FirstChildElement("UnitConversion");
 	if (!unitConversionXML) return Logger::warn("Could not load Unit Conversion");
-	if (unitConversionXML->QueryDoubleAttribute("FeedbackUnitsPerMachineUnit", &feedbackUnitsPerAxisUnits) != XML_SUCCESS) return Logger::warn("Could not load Feedback Units Per Machine Unit");
-	if (unitConversionXML->QueryDoubleAttribute("ActuatorUnitsPerMachineUnit", &actuatorUnitsPerAxisUnits) != XML_SUCCESS) return Logger::warn("Could not load Actuator Units Per Machine Unit");
-	if (unitConversionXML->QueryBoolAttribute("FeedbackAndActuatorConversionIdentical", &feedbackAndActuatorConversionIdentical) != XML_SUCCESS) return Logger::warn("Could not load FeedbackAndActuatorConversionIdentical");
+	if (unitConversionXML->QueryDoubleAttribute("ActuatorUnitsPerMachineUnit", &servoActuatorUnitsPerAxisUnits) != XML_SUCCESS) return Logger::warn("Could not load Actuator Units Per Machine Unit");
 	
 	XMLElement* kinematicLimitsXML = xml->FirstChildElement("KinematicLimits");
 	if (!kinematicLimitsXML) return Logger::warn("Could not load Machine Kinematic Kimits");
@@ -1038,7 +873,7 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if (positionReferenceXML->QueryStringAttribute("Type", &positionLimitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Position Reference Type");
 	if (!Enumerator::isValidSaveName<PositionReferenceSignal>(positionLimitTypeString)) return Logger::warn("Could not read Position Reference Type");
 	setPositionReferenceSignalType(Enumerator::getEnumeratorFromSaveString<PositionReferenceSignal>(positionLimitTypeString));
-	if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity", &homingVelocity_axisUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
+	if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity", &homingVelocity) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
 	const char* homingDirectionString;
 	if (positionReferenceXML->QueryStringAttribute("HomingDirection", &homingDirectionString)) return Logger::warn("Could not load homing direction");
 	if (!Enumerator::isValidSaveName<HomingDirection>(homingDirectionString)) return Logger::warn("Could not read homing direction");
@@ -1052,9 +887,7 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 
 
 void PositionControlledAxis::getDevices(std::vector<std::shared_ptr<Device>>& output) {
-	if (needsActuatorDevice() && isActuatorDeviceConnected()) output.push_back(getActuatorDevice()->parentDevice);
-	if (needsServoActuatorDevice() && isServoActuatorDeviceConnected()) output.push_back(getServoActuatorDevice()->parentDevice);
-	if (needsPositionFeedbackDevice() && isPositionFeedbackDeviceConnected()) output.push_back(getPositionFeedbackDevice()->parentDevice);
+	if (isServoActuatorDeviceConnected()) output.push_back(getServoActuatorDevice()->parentDevice);
 	if (needsReferenceDevice() && isReferenceDeviceConnected())output.push_back(getReferenceDevice()->parentDevice);
 }
 
@@ -1062,7 +895,6 @@ void PositionControlledAxis::getDevices(std::vector<std::shared_ptr<Device>>& ou
 void PositionControlledAxis::updateMetrics() {
 	positionHistory.addPoint(glm::vec2(profileTime_seconds, motionProfile.getPosition()));
 	actualPositionHistory.addPoint(glm::vec2(profileTime_seconds, *actualPositionValue));
-	positionErrorHistory.addPoint(glm::vec2(profileTime_seconds, positionError));
 	velocityHistory.addPoint(glm::vec2(profileTime_seconds, motionProfile.getVelocity()));
 	accelerationHistory.addPoint(glm::vec2(profileTime_seconds, motionProfile.getAcceleration()));
 	loadHistory.addPoint(glm::vec2(profileTime_seconds, *actualLoadValue));

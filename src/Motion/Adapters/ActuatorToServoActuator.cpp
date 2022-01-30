@@ -64,7 +64,6 @@ void ActuatorToServoActuator::process(){
 	if(!servoActuator->isEnabled()){
 		motionProfile.setPosition(feedbackUnitsToActuatorUnits(feedbackDevice->getPosition()));
 		motionProfile.setVelocity(feedbackUnitsToActuatorUnits(feedbackDevice->getVelocity()));
-		
 		return;
 	}
 	

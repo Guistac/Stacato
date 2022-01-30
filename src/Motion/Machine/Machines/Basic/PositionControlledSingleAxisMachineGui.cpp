@@ -35,7 +35,7 @@ void PositionControlledSingleAxisMachine::controlsGui() {
 
 	float manualVelocityTarget = manualVelocityTarget_machineUnitsPerSecond;
 	ImGui::SetNextItemWidth(widgetWidth);
-	ImGui::SliderFloat("##velTar", &manualVelocityTarget, -axis->getVelocityLimit_axisUnitsPerSecond(), axis->getVelocityLimit_axisUnitsPerSecond());
+	ImGui::SliderFloat("##velTar", &manualVelocityTarget, -axis->getVelocityLimit(), axis->getVelocityLimit());
 	if (ImGui::IsItemActive()) setVelocityTarget(manualVelocityTarget);
 	else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocityTarget(0.0);
 
@@ -149,7 +149,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s/s", axis->getVelocityLimit_axisUnitsPerSecond(), Unit::getAbbreviatedString(axis->getPositionUnit()));
+		ImGui::Text("%.3f %s/s", axis->getVelocityLimit(), Unit::getAbbreviatedString(axis->getPositionUnit()));
 
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
@@ -158,7 +158,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s/s\xC2\xB2", axis->getAccelerationLimit_axisUnitsPerSecondSquared(), Unit::getAbbreviatedString(axis->getPositionUnit()));
+		ImGui::Text("%.3f %s/s\xC2\xB2", axis->getAccelerationLimit(), Unit::getAbbreviatedString(axis->getPositionUnit()));
 
 		ImGui::EndTable();
 	}
@@ -200,12 +200,12 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 	ImGui::Text("Velocity for rapid movements :");
 	sprintf(rapidVelocityString, "%.3f %s/s", rapidVelocity_machineUnitsPerSecond, Unit::getAbbreviatedString(axis->getPositionUnit()));
 	ImGui::InputDouble("##velRapid", &rapidVelocity_machineUnitsPerSecond, 0.0, 0.0, rapidVelocityString);
-	rapidVelocity_machineUnitsPerSecond = std::min(rapidVelocity_machineUnitsPerSecond, axis->getVelocityLimit_axisUnitsPerSecond());
+	rapidVelocity_machineUnitsPerSecond = std::min(rapidVelocity_machineUnitsPerSecond, axis->getVelocityLimit());
 
 	ImGui::Text("Acceleration for rapid movements :");
 	sprintf(rapidAccelerationString, "%.3f %s/s\xC2\xB2", rapidAcceleration_machineUnitsPerSecond, Unit::getAbbreviatedString(axis->getPositionUnit()));
 	ImGui::InputDouble("##accRapid", &rapidAcceleration_machineUnitsPerSecond, 0.0, 0.0, rapidAccelerationString);
-	rapidAcceleration_machineUnitsPerSecond = std::min(rapidAcceleration_machineUnitsPerSecond, axis->getAccelerationLimit_axisUnitsPerSecondSquared());
+	rapidAcceleration_machineUnitsPerSecond = std::min(rapidAcceleration_machineUnitsPerSecond, axis->getAccelerationLimit());
 	
 	ImGui::Separator();
 	
@@ -318,7 +318,7 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 
 		if (isAxisConnected()) {
 			std::shared_ptr<PositionControlledAxis> axis = getAxis();
-			velocityLimit = axis->getVelocityLimit_axisUnitsPerSecond();
+			velocityLimit = axis->getVelocityLimit();
 			
 			minPosition = getLowPositionLimit();
 			maxPosition = getHighPositionLimit();
@@ -336,8 +336,8 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 				sprintf(actualPositionString, "%.3f%s", motionProfile.getPosition(), positionUnitShortFormString);
 			}else{
 				sprintf(velocityTargetString, "%.2f%s/s", manualVelocityTarget_machineUnitsPerSecond, positionUnitShortFormString);
-				sprintf(actualVelocityString, "%.2f%s/s", axisVelocityToMachineVelocity(axis->getActualVelocity_axisUnitsPerSecond()), positionUnitShortFormString);
-				sprintf(actualPositionString, "%.3f%s", axisPositionToMachinePosition(axis->getActualPosition_axisUnits()), positionUnitShortFormString);
+				sprintf(actualVelocityString, "%.2f%s/s", axisVelocityToMachineVelocity(axis->getActualVelocity()), positionUnitShortFormString);
+				sprintf(actualPositionString, "%.3f%s", axisPositionToMachinePosition(axis->getActualPosition()), positionUnitShortFormString);
 			}
 		}
 		else {
