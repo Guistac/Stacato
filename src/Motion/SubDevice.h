@@ -26,11 +26,11 @@ public:
 	std::shared_ptr<Device> parentDevice = nullptr;
 
 	//has the device been discovered / seen
-	bool isDetected();
+	bool isDetected(){ return b_detected; }
 	//is the device actively communicating
-	bool isOnline();
+	bool isOnline() { return b_online; }
 	//is the device ready to provide inputs and accept ouputs
-	bool isReady();
+	bool isReady() { return b_ready; }
 
 	bool b_detected = false;
 	bool b_online = false;
@@ -111,6 +111,8 @@ public:
 
 	//set the current position of the encoder by adjusting the zero offset
 	void setPosition(double position) { positionOffset_positionUnits = positionRaw_positionUnits - position; }
+	//reset the zero position offset of the encoder
+	void resetOffset() { positionOffset_positionUnits = 0.0; }
 	//is the position feedback inside its operational range
 	bool isInRange() { return positionRaw_positionUnits < rangeMax_positionUnits&& positionRaw_positionUnits > rangeMin_positionUnits; }
 	//get the normalized position in the operational range of the feedback device
@@ -127,7 +129,11 @@ public:
 	bool isMoving() { return b_moving; }
 	
 	bool canHardReset(){ return b_canHardReset; }
-	void hardReset(){ if(b_canHardReset) b_doHardReset = true; }
+	void hardReset(){ if(canHardReset()) b_doHardReset = true; }
+	bool isHardResetting() {
+		if(canHardReset()) return b_isHardResetting;
+		else return false;
+	}
 
 	double positionRaw_positionUnits = 0.0;
 	double positionOffset_positionUnits = 0.0;
@@ -138,6 +144,7 @@ public:
 	
 	bool b_doHardReset = false;
 	bool b_canHardReset = false;
+	bool b_isHardResetting = false;
 };
 
 
@@ -163,6 +170,11 @@ public:
 	}
 	//get velocity command
 	virtual double getPositionCommandRaw() { return positionCommand_deviceUnits + positionOffset_positionUnits; }
+	
+	double getFollowingError(){ return getPositionCommandRaw() - positionRaw_positionUnits; }
+	double getFollowingErrorNormalized(){ return getFollowingError() / maxfollowingError; }
+	
+	double maxfollowingError = 0.0;
 	
 	
 private:

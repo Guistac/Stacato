@@ -158,18 +158,6 @@ DEFINE_ENUMERATOR(PositionReferenceSignal, PositionReferenceSignalStrings)
 
 //================================================================================================================================
 
-enum class MotionCommand {
-	POSITION,
-	VELOCITY
-};
-
-#define MotionCommandStrings 	{MotionCommand::POSITION, "Position Command", "PositionCommand"},\
-								{MotionCommand::VELOCITY, "Velocity Command", "VelocityCommand"}\
-
-DEFINE_ENUMERATOR(MotionCommand, MotionCommandStrings)
-
-//================================================================================================================================
-
 enum class ControlMode{
 	VELOCITY_TARGET,
 	POSITION_TARGET,

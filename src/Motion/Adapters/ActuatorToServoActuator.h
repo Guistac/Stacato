@@ -56,7 +56,8 @@ private:
 	double velocityLoopProportionalGain = 0.0;
 	double velocityLoopIntegralGain = 0.0;
 	double positionLoopProportionalGain = 0.0;
-	double maxPositionFollowingError = 0.0;
+	//double maxPositionFollowingError = 0.0;
+	double errorCorrectionTreshold = 0.0;
 	
 	PositionUnit getPositionUnit(){ return getActuatorDevice()->getPositionUnit(); }
 	

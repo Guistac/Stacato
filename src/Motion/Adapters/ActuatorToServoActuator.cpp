@@ -51,7 +51,7 @@ void ActuatorToServoActuator::process(){
 	servoActuator->b_ready = feedbackDevice->isReady() && actuatorDevice->isReady();
 	servoActuator->positionRaw_positionUnits = feedbackUnitsToActuatorUnits(feedbackDevice->positionRaw_positionUnits);
 	servoActuator->velocity_positionUnitsPerSecond = feedbackUnitsToActuatorUnits(feedbackDevice->getVelocity());;
-	servoActuator->b_moving = std::abs(servoActuator->velocity_positionUnitsPerSecond) > 0.0;
+	servoActuator->b_moving = feedbackDevice->getVelocity() != 0.0;
 	servoActuator->b_emergencyStopActive = actuatorDevice->isEmergencyStopActive();
 	servoActuator->load = 0.0; //load is not supported here
 	servoActuator->b_brakesActive = actuatorDevice->areBrakesActive();
@@ -90,7 +90,7 @@ void ActuatorToServoActuator::controlLoop(){
 		realPosition = feedbackUnitsToActuatorUnits(feedbackDevice->getPosition());
 		realVelocity = feedbackUnitsToActuatorUnits(feedbackDevice->getVelocity());
 		double followingError = motionProfile.getPosition() - realPosition;
-		if(std::abs(followingError) > maxPositionFollowingError) {
+		if(std::abs(followingError) > servoActuator->maxfollowingError) {
 			disable();
 			Logger::critical("Servo Actuator '{}' disabled : max following error exceeded", getName());
 		}
@@ -124,7 +124,12 @@ void ActuatorToServoActuator::controlLoop(){
 		//========= CONTROL LOOP ========
 		//TODO: this needs some real work
 		
-		outputVelocity = positionError * positionLoopProportionalGain + targetVelocity * velocityLoopProportionalGain;
+		if(targetVelocity == 0.0 && std::abs(positionError) < errorCorrectionTreshold){
+			//don't do position correction if we are below a certain error threshold and the target velocity is zero
+			outputVelocity = 0.0;
+		}else{
+			outputVelocity = positionError * positionLoopProportionalGain + targetVelocity * velocityLoopProportionalGain;
+		}
 		
 	}else{
 		outputVelocity = 0.0;
@@ -254,7 +259,7 @@ void ActuatorToServoActuator::sanitizeParameters(){
 		servoActuator->accelerationLimit_positionUnitsPerSecondSquared = std::min(std::abs(servoActuator->accelerationLimit_positionUnitsPerSecondSquared), actuatorDevice->getAccelerationLimit());
 		manualAcceleration = std::min(std::abs(manualAcceleration), servoActuator->accelerationLimit_positionUnitsPerSecondSquared);
 	}
-	maxPositionFollowingError = std::abs(maxPositionFollowingError);
+	servoActuator->maxfollowingError = std::abs(servoActuator->maxfollowingError);
 }
 
 
@@ -268,7 +273,8 @@ bool ActuatorToServoActuator::save(tinyxml2::XMLElement* xml){
 	controllerXML->SetAttribute("PositionLoopProportionalGain", positionLoopProportionalGain);
 	controllerXML->SetAttribute("VelocityLoopProportionalGain", velocityLoopProportionalGain);
 	controllerXML->SetAttribute("VelocityLoopIntegralGain", velocityLoopIntegralGain);
-	controllerXML->SetAttribute("MaxPositionFollowingError", maxPositionFollowingError);
+	controllerXML->SetAttribute("MaxPositionFollowingError", servoActuator->maxfollowingError);
+	controllerXML->SetAttribute("ErrorCorrectionTreshold", errorCorrectionTreshold);
 	
 	XMLElement* manualControlsXML = xml->InsertNewChildElement("ManualControls");
 	manualControlsXML->SetAttribute("Acceleration", manualAcceleration);
@@ -288,8 +294,8 @@ bool ActuatorToServoActuator::load(tinyxml2::XMLElement* xml){
 	if(controllerXML->QueryDoubleAttribute("PositionLoopProportionalGain", &positionLoopProportionalGain) != XML_SUCCESS) return Logger::warn("Could not find position loop proportional gain attribute");
 	if(controllerXML->QueryDoubleAttribute("VelocityLoopProportionalGain", &velocityLoopProportionalGain) != XML_SUCCESS) return Logger::warn("Could not find velocity loop proportional gain attribute");
 	if(controllerXML->QueryDoubleAttribute("VelocityLoopIntegralGain", &velocityLoopIntegralGain) != XML_SUCCESS) return Logger::warn("Could not find velocity loop integral gain attribute");
-	if(controllerXML->QueryDoubleAttribute("MaxPositionFollowingError", &maxPositionFollowingError) != XML_SUCCESS) return Logger::warn("Could not find max following error attribute");
-	 
+	if(controllerXML->QueryDoubleAttribute("MaxPositionFollowingError", &servoActuator->maxfollowingError) != XML_SUCCESS) return Logger::warn("Could not find max following error attribute");
+	if(controllerXML->QueryDoubleAttribute("ErrorCorrectionTreshold", &errorCorrectionTreshold) != XML_SUCCESS) return Logger::warn("Could not find error correction threshold attribute");
 	XMLElement* manualControlsXML = xml->FirstChildElement("ManualControls");
 	if(manualControlsXML == nullptr) return Logger::warn("Could not find Manual Controls attribute");
 	if(manualControlsXML->QueryDoubleAttribute("Acceleration", &manualAcceleration) != XML_SUCCESS) return Logger::warn("Could not find manual acceleration target");

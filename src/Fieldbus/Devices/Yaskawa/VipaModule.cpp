@@ -290,9 +290,9 @@ void VIPA_050_1BS00::readInputs(){
 	encoderPosition_revolutions = (float)encoderValue / (float)incrementsPerRevolution;
 	if(b_centerRangeOnZero && encoderPosition_revolutions >= maxRevolutions / 2) encoderPosition_revolutions -= maxRevolutions;
 		
-	uint16_t readingDeltaT_microseconds = time_microseconds - previousReadingTime_microseconds;
+	double readingDeltaT_seconds = (double)(time_microseconds - previousReadingTime_microseconds) / 1000000.0;
 	double positionDelta_revolutions = encoderPosition_revolutions - previousEncoderPosition_revolutions;
-	encoderVelocity_revolutionsPerSecond = 1000000.0 * positionDelta_revolutions / (double)readingDeltaT_microseconds;
+	encoderVelocity_revolutionsPerSecond = positionDelta_revolutions / readingDeltaT_seconds;
 	
 	previousReadingTime_microseconds = time_microseconds;
 	previousEncoderPosition_revolutions = encoderPosition_revolutions;
@@ -306,15 +306,15 @@ void VIPA_050_1BS00::readInputs(){
 	
 	if(encoderDevice->b_doHardReset){
 		encoderDevice->b_doHardReset = false;
-		b_isResetting = true;
+		encoderDevice->b_isHardResetting = true;
 		*resetPinValue = true;
 		resetStartTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	}
 	
-	if(b_isResetting) {
+	if(encoderDevice->isHardResetting()) {
 		encoderDevice->velocity_positionUnitsPerSecond = 0.0;
 		if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() > resetStartTime_nanoseconds + resetTime_milliseconds * 1000000.0){
-			b_isResetting = false;
+			encoderDevice->b_isHardResetting = false;
 			*resetPinValue = false;
 		}
 	}

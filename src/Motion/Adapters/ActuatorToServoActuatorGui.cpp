@@ -147,8 +147,8 @@ void ActuatorToServoActuator::controlGui(){
 	
 	ImGui::Text("Following Error: ");
 	static char followingErrorString[256];
-	sprintf(followingErrorString, "%.3f %s", positionError, Unit::getAbbreviatedString(servoActuator->getPositionUnit()));
-	float positionErrorProgress = std::abs(positionError / maxPositionFollowingError);
+	sprintf(followingErrorString, "%.3f %s", servoActuator->getFollowingError(), Unit::getAbbreviatedString(servoActuator->getPositionUnit()));
+	float positionErrorProgress = std::abs(servoActuator->getFollowingError() / servoActuator->maxfollowingError);
 	ImGui::ProgressBar(positionErrorProgress, progressBarSize, followingErrorString);
 	
 	static int offset = 4;
@@ -220,12 +220,12 @@ void ActuatorToServoActuator::controlGui(){
 	ImGui::Text("Error Graph");
 	
 	ImPlot::SetNextPlotLimitsX(startTime, endTime, ImGuiCond_Always);
-	ImPlot::SetNextPlotLimitsY(-maxPositionFollowingError * 1.2, maxPositionFollowingError * 1.2);
+	ImPlot::SetNextPlotLimitsY(-servoActuator->maxfollowingError * 1.2, servoActuator->maxfollowingError * 1.2);
 	
 	if(ImPlot::BeginPlot("Error Graph", 0, 0, plotSize, plotFlags)){
 		if(pointCount > offset){
 			ImPlot::SetNextLineStyle(Colors::red, 1.0);
-			double maxError[2] = {maxPositionFollowingError, -maxPositionFollowingError};
+			double maxError[2] = {servoActuator->maxfollowingError, -servoActuator->maxfollowingError};
 			ImPlot::PlotHLines("Following Error Threshold", &maxError[0], 2);
 			
 			ImPlot::SetNextLineStyle(Colors::yellow, 2.0);
@@ -316,9 +316,14 @@ void ActuatorToServoActuator::settingsGui(){
 	
 	ImGui::Text("Max Following Error");
 	static char maxErrorString[256];
-	sprintf(maxErrorString, "%.3f %s", maxPositionFollowingError, Unit::getDisplayStringPlural(servoActuator->positionUnit));
-	ImGui::InputDouble("##maxErr", &maxPositionFollowingError, 0.0, 0.0, maxErrorString);
+	sprintf(maxErrorString, "%.3f %s", servoActuator->maxfollowingError, Unit::getDisplayStringPlural(servoActuator->getPositionUnit()));
+	ImGui::InputDouble("##maxErr", &servoActuator->maxfollowingError, 0.0, 0.0, maxErrorString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
+	ImGui::Text("Error Correction Threshold");
+	static char errorThresholdString[256];
+	sprintf(errorThresholdString, "%.3f %s", errorCorrectionTreshold, Unit::getDisplayStringPlural(servoActuator->getPositionUnit()));
+	ImGui::InputDouble("##errtresh", &errorCorrectionTreshold, 0.0, 0.0, errorThresholdString);
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 }
 

@@ -370,6 +370,27 @@ void PositionControlledAxis::controlsGui() {
 	ImGui::ProgressBar(velocityProgress, progressBarSize, velocityString);
 	ImGui::PopStyleColor();
 
+	float positionErrorProgress;
+	float maxfollowingError = 0.0;
+	static char positionErrorString[32];
+	if(!isEnabled()){
+		auto servoActuator = getServoActuatorDevice();
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+		positionErrorProgress = 1.0;
+		sprintf(positionErrorString, "Axis Disabled");
+	}else{
+		auto servoActuator = getServoActuatorDevice();
+		positionErrorProgress = std::abs(servoActuator->getFollowingErrorNormalized());
+		if(positionErrorProgress < 1.0) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
+		maxfollowingError = servoActuatorUnitsToAxisUnits(servoActuator->maxfollowingError);
+		double followingError = servoActuatorUnitsToAxisUnits(servoActuator->getFollowingError());
+		sprintf(positionErrorString, "%.3f %s", followingError, Unit::getAbbreviatedString(positionUnit));
+	}
+	
+	ImGui::Text("Current Following Error : (max %.3f%s)", maxfollowingError, Unit::getAbbreviatedString(positionUnit));
+	ImGui::ProgressBar(positionErrorProgress, progressBarSize, positionErrorString);
+	ImGui::PopStyleColor();
 	
 	//target movement progress
 	float targetProgress;
@@ -547,13 +568,17 @@ void PositionControlledAxis::settingsGui() {
 
 	if (isServoActuatorDeviceConnected()) {
 		std::shared_ptr<ServoActuatorDevice> servoActuator = getServoActuatorDevice();
+		PositionUnit servoActuatorPositionUnit = servoActuator->getPositionUnit();
 		
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 		ImGui::TextWrapped("Max actuator velocity is %.1f %s/s and max acceleration is %.1f %s/s\xc2\xb2",
 						   servoActuator->getVelocityLimit(),
-						   Unit::getAbbreviatedString(servoActuator->getPositionUnit()),
+						   Unit::getAbbreviatedString(servoActuatorPositionUnit),
 						   servoActuator->getAccelerationLimit(),
-						   Unit::getAbbreviatedString(servoActuator->getPositionUnit()));
+						   Unit::getAbbreviatedString(servoActuatorPositionUnit));
+		ImGui::TextWrapped("Min actuator velocity is %.3f %s/s",
+						   servoActuator->getMinVelocity(),
+						   Unit::getAbbreviatedString(servoActuatorPositionUnit));
 		
 		const char* machineUnitShortString = Unit::getAbbreviatedString(positionUnit);
 		ImGui::TextWrapped("Actuator limits axis to %.3f %s/s and %.3f %s/s\xc2\xb2",
@@ -561,6 +586,9 @@ void PositionControlledAxis::settingsGui() {
 						   Unit::getAbbreviatedString(positionUnit),
 						   servoActuatorUnitsToAxisUnits(servoActuator->getAccelerationLimit()),
 							Unit::getAbbreviatedString(positionUnit));
+		ImGui::TextWrapped("Min Axis velocity is %.3f %s/s",
+						   servoActuatorUnitsToAxisUnits(servoActuator->getMinVelocity()),
+						   Unit::getAbbreviatedString(positionUnit));
 		ImGui::PopStyleColor();
 	}
 
@@ -673,30 +701,37 @@ void PositionControlledAxis::settingsGui() {
 		ImGui::PopStyleColor();
 
 		static char homVelString[16];
-		sprintf(homVelString, "%.3f %s/s", homingVelocity, Unit::getAbbreviatedString(positionUnit));
+		sprintf(homVelString, "%.3f %s/s", homingVelocityCoarse, Unit::getAbbreviatedString(positionUnit));
 
+		switch(positionReferenceSignal){
+			case PositionReferenceSignal::NO_SIGNAL:
+				break;
+			default:
+				ImGui::Text("Homing Velocity (Coarse)");
+				ImGui::InputDouble("##gomvelcoar", &homingVelocityCoarse);
+				if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
+				
+				ImGui::Text("Homing Velocity (Fine)");
+				ImGui::InputDouble("##homvelfin", &homingVelocityFine);
+				if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
+				
+				break;
+		}
+		
 		switch (positionReferenceSignal) {
-		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
-			ImGui::Text("Homing Velocity");
-			ImGui::InputDouble("##HomingVelocity", &homingVelocity, 0.0, 0.0, homVelString);
-			if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-			break;
-		case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-		case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
-			ImGui::Text("Homing Direction");
-			if (ImGui::BeginCombo("##HomingDirection", Enumerator::getDisplayString(homingDirection))) {
-				for (auto& type : Enumerator::getTypes<HomingDirection>()) {
-					bool selected = homingDirection == type.enumerator;
-					if (ImGui::Selectable(type.displayString, selected)) homingDirection = type.enumerator;
+			case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+			case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
+				ImGui::Text("Homing Direction");
+				if (ImGui::BeginCombo("##HomingDirection", Enumerator::getDisplayString(homingDirection))) {
+					for (auto& type : Enumerator::getTypes<HomingDirection>()) {
+						bool selected = homingDirection == type.enumerator;
+						if (ImGui::Selectable(type.displayString, selected)) homingDirection = type.enumerator;
+					}
+					ImGui::EndCombo();
 				}
-				ImGui::EndCombo();
-			}
-			ImGui::Text("Homing Velocity");
-			ImGui::InputDouble("##HomingVelocity", &homingVelocity, 0.0, 0.0, homVelString);
-			if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-			break;
-		case PositionReferenceSignal::NO_SIGNAL:
-			break;
+				break;
+			default:
+				break;
 		}
 
 

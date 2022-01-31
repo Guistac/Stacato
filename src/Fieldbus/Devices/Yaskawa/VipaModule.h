@@ -157,7 +157,6 @@ public:
 	std::shared_ptr<PositionFeedbackDevice> encoderDevice = std::make_shared<PositionFeedbackDevice>("SSI Encoder", PositionUnit::REVOLUTION, PositionFeedbackType::ABSOLUTE);
 	void updateEncoderWorkingRange();
 	void updateResetPinVisibility();
-	bool b_isResetting = false;
 	uint64_t resetStartTime_nanoseconds = 0;
 	
 	//==== Data Type ====

@@ -80,11 +80,16 @@ void LinearMecanumClaw::disableHardware() {
 }
 
 void LinearMecanumClaw::onEnableHardware() {
-	//called when hardware was enabled
+	stopHoming();
+	integratedClawPositionError = 0.0;
+	//TODO: reset interpolations
+	//linearAxisMotionProfile.resetInterpolation();
+	//clawAxisMotionProfile.resetInterpolation();
 }
 
 void LinearMecanumClaw::onDisableHardware() {
 	//called when hardware was disabled
+	stopHoming();
 }
 
 void LinearMecanumClaw::onEnableSimulation() {
@@ -134,6 +139,10 @@ void LinearMecanumClaw::process() {
 	*railPosition = linearAxis->getProfilePosition();
 	*railVelocity = linearAxis->getProfileVelocity();
 	
+	//update claw limit signals
+	clawClosedPin->copyConnectedPinValue();
+	clawOpenPin->copyConnectedPinValue();
+	
 	//handle device state changes to disable machine
 	if(isEnabled()){
 		if(!linearAxis->isEnabled()) {
@@ -150,46 +159,62 @@ void LinearMecanumClaw::process() {
 		}
 	}
 	
-	//update motion profile of linear axis
-	switch(linearControlMode){
-		case ControlMode::VELOCITY_TARGET:
-			linearAxisMotionProfile.matchVelocityAndRespectPositionLimits(profileDeltaTime_seconds,
-																		  linearAxisManualVelocityTarget,
-																		  linearAxisManualAcceleration,
-																		  linearAxis->getLowPositionLimit(),
-																		  linearAxis->getHighPositionLimit(),
-																		  linearAxis->getAccelerationLimit());
-			break;
-		case ControlMode::FAST_STOP:
-			linearAxisMotionProfile.matchVelocity(profileDeltaTime_seconds, 0.0, linearAxis->getAccelerationLimit());
-			break;
-		case ControlMode::POSITION_TARGET:
-			linearAxisMotionProfile.updateInterpolation(profileTime_seconds);
-			break;
-		case ControlMode::EXTERNAL:
-			//get value from parameter track
-			break;
+	
+	//TODO: zero claw angle component when closed signal is high
+	
+	if(isHoming()) {
+		//control logic for homing routine
+		homingControl();
+		clawAxisMotionProfile.matchVelocity(profileDeltaTime_seconds,
+											clawAxisManualVelocityTarget,
+											clawManualAcceleration);
+	}else{
+		//control logic for manual moves
+		switch(linearControlMode){
+			case ControlMode::VELOCITY_TARGET:
+				linearAxisMotionProfile.matchVelocityAndRespectPositionLimits(profileDeltaTime_seconds,
+																			  linearAxisManualVelocityTarget,
+																			  linearAxisManualAcceleration,
+																			  linearAxis->getLowPositionLimit(),
+																			  linearAxis->getHighPositionLimit(),
+																			  linearAxis->getAccelerationLimit());
+				break;
+			case ControlMode::FAST_STOP:
+				linearAxisMotionProfile.matchVelocity(profileDeltaTime_seconds, 0.0, linearAxis->getAccelerationLimit());
+				break;
+			case ControlMode::POSITION_TARGET:
+				linearAxisMotionProfile.updateInterpolation(profileTime_seconds);
+				break;
+			case ControlMode::EXTERNAL:
+				//get value from parameter track
+				break;
+		}
+		
+		//update motion profile of claw axis
+		switch(clawControlMode){
+			case ControlMode::VELOCITY_TARGET:
+				clawAxisMotionProfile.matchVelocityAndRespectPositionLimits(profileDeltaTime_seconds,
+																			clawAxisManualVelocityTarget,
+																			clawManualAcceleration,
+																			0.0,
+																			clawPositionLimit,
+																			clawAccelerationLimit);
+				break;
+			case ControlMode::FAST_STOP:
+				clawAxisMotionProfile.matchVelocity(profileDeltaTime_seconds, 0.0, clawAccelerationLimit);
+				break;
+			case ControlMode::POSITION_TARGET:
+				clawAxisMotionProfile.updateInterpolation(profileTime_seconds);
+				break;
+			case ControlMode::EXTERNAL:
+				//get value from parameter track
+				break;
+		}
 	}
 	
-	//update motion profile of claw axis
-	switch(clawControlMode){
-		case ControlMode::VELOCITY_TARGET:
-			clawAxisMotionProfile.matchVelocityAndRespectPositionLimits(profileDeltaTime_seconds,
-																		clawAxisManualVelocityTarget,
-																		clawManualAcceleration,
-																		0.0,
-																		clawPositionLimit,
-																		clawAccelerationLimit);
-			break;
-		case ControlMode::FAST_STOP:
-			clawAxisMotionProfile.matchVelocity(profileDeltaTime_seconds, 0.0, clawAccelerationLimit);
-			break;
-		case ControlMode::POSITION_TARGET:
-			clawAxisMotionProfile.updateInterpolation(profileTime_seconds);
-			break;
-		case ControlMode::EXTERNAL:
-			//get value from parameter track
-			break;
+	//if the claw is definitely closed, don't allow negative motion of the claw profile
+	if(*clawClosedSignal && clawAxisMotionProfile.getVelocity() < 0.0){
+		clawAxisMotionProfile.setVelocity(0.0);
 	}
 	
 	//================= MECANUM CONTROL LOGIC ==================
@@ -235,15 +260,39 @@ void LinearMecanumClaw::process() {
 	calculatedWheelVelocity -= mecanumWheelTargetVelocityVector.y / wheelFrictionVector.y;
 	
 	//velocity needed to satisfy synchronisation with the linear axis
-	double linearAxisVelocity = *railVelocity;
-	calculatedWheelVelocity -= linearAxisVelocity / wheelFrictionVector.y;
+	calculatedWheelVelocity -= getLinearAxis()->getProfileVelocity() / wheelFrictionVector.y;
 	
 	//claw closed loop position correction
 	//here we measure the positional error of the claw axis and apply a weighted correction to eliminate the error
+	double clawTargetVelocity = clawAxisMotionProfile.getVelocity();
 	double clawTargetPosition = clawAxisMotionProfile.getPosition();
 	double clawPositionError = clawTargetPosition - *clawPosition;
-	calculatedWheelVelocity += clawPositionError * clawPositionLoopProportionalGain;
 	
+	
+	//only do closed loop correction if the closed limit signal is not triggered and we are above the error threshold
+	/*
+	 //TODO: force closing when these conditions are met, maybe drop the integral gain
+	if(clawTargetPosition == 0.0 && clawTargetVelocity == 0.0 && !*clawClosedSignal){
+	
+	 //force closing here at a constant velocity
+	 
+	}else */
+	
+	if(*clawClosedSignal || std::abs(clawPositionError) < clawPositionErrorThreshold){
+		//if we are completely closed, or below the error threshold
+		//we can safely reset reset the integrated error
+		//and not do any closed loop correction
+		integratedClawPositionError = 0.0;
+	}else{
+		//increment the integrated position error but avoid integrator windup by limiting it
+		integratedClawPositionError += clawPositionError * profileDeltaTime_seconds;
+		integratedClawPositionError = std::min(integratedClawPositionError, integratedClawPositionErrorLimit);
+		integratedClawPositionError = std::max(integratedClawPositionError, -integratedClawPositionErrorLimit);
+		//correct error by applying gain weighted corrections
+		calculatedWheelVelocity += clawPositionError * clawPositionLoopProportionalGain;
+		calculatedWheelVelocity += integratedClawPositionError * clawPositionLoopIntegralGain;
+	}
+		
 	//disable the machine if the position error of the heart axis was exceeded
 	if(std::abs(clawPositionError) > clawMaxPositionFollowingError) {
 		disable();
@@ -251,7 +300,8 @@ void LinearMecanumClaw::process() {
 	}
 	
 	//finally, send motion commands to the actuators
-	linearAxis->setMotionCommand(linearAxisMotionProfile.getPosition(), linearAxisMotionProfile.getVelocity());
+	//dont send commands to linear axis while it is homing
+	if(!linearAxis->isHoming()) linearAxis->setMotionCommand(linearAxisMotionProfile.getPosition(), linearAxisMotionProfile.getVelocity());
 	clawAxis->setVelocityCommand(calculatedWheelVelocity);
 }
 
@@ -265,10 +315,99 @@ bool LinearMecanumClaw::isMoving() {
 	return false;
 }
 
+void LinearMecanumClaw::startHoming(){
+	b_isHoming = true;
+	homingStep = ClawHomingStep::NOT_STARTED;
+}
+
+void LinearMecanumClaw::stopHoming(){
+	b_isHoming = false;
+	homingStep = ClawHomingStep::NOT_STARTED;
+	setLinearVelocity(0.0);
+	setClawVelocity(0.0);
+}
+
+void LinearMecanumClaw::onHomingSuccess(){
+	b_isHoming = false;
+	homingStep = ClawHomingStep::HOMING_FINISHED;
+	setLinearVelocity(0.0);
+	setClawVelocity(0.0);
+	Logger::info("Homing Succeeded !");
+}
+
+void LinearMecanumClaw::onHomingFailure(){
+	b_isHoming = false;
+	homingStep = ClawHomingStep::HOMING_FAILED;
+	setLinearVelocity(0.0);
+	setClawVelocity(0.0);
+	Logger::critical("Homing Failed !!!!");
+}
 
 
 
+void LinearMecanumClaw::homingControl(){
+	switch(homingStep){
+		case ClawHomingStep::NOT_STARTED:
+			setClawVelocity(-clawHomingVelocity);
+			homingStep = ClawHomingStep::SEARCHING_HEART_CLOSED_LIMIT;
+			break;
+		case ClawHomingStep::SEARCHING_HEART_CLOSED_LIMIT:
+			if(*clawClosedSignal){
+				setClawVelocity(0.0);
+				homingStep = ClawHomingStep::FOUND_HEART_CLOSED_LIMIT;
+			}
+			break;
+		case ClawHomingStep::FOUND_HEART_CLOSED_LIMIT:
+			if(clawAxisMotionProfile.getVelocity() == 0.0){
+				if(getClawFeedbackDevice()->canHardReset()){
+					getClawFeedbackDevice()->resetOffset();
+					getClawFeedbackDevice()->hardReset();
+					homingStep = ClawHomingStep::RESETTING_HEART_FEEDBACK;
+				}else{
+					getClawFeedbackDevice()->setPosition(0.0);
+				}
+			}
+			break;
+		case ClawHomingStep::RESETTING_HEART_FEEDBACK:
+			if(getClawFeedbackDevice()->canHardReset()){
+				if(!getClawFeedbackDevice()->isHardResetting()){
+					homingStep = ClawHomingStep::HOMING_LINEAR_AXIS;
+					clawAxisMotionProfile.setPosition(clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getPosition()));
+					clawAxisMotionProfile.setVelocity(0.0);
+					getLinearAxis()->startHoming();
+				}
+			}else{
+				homingStep = ClawHomingStep::HOMING_LINEAR_AXIS;
+				getLinearAxis()->startHoming();
+			}
+			break;
+		case ClawHomingStep::HOMING_LINEAR_AXIS:
+			if(getLinearAxis()->didHomingSucceed()){
+				homingStep = ClawHomingStep::HOMING_FINISHED;
+				auto linearAxis = getLinearAxis();
+				linearAxisMotionProfile.setPosition(linearAxis->getActualPosition());
+				linearAxisMotionProfile.setVelocity(linearAxis->getActualVelocity());
+			}else if(getLinearAxis()->didHomingFail()){
+				onHomingFailure();
+			}
+			break;
+		case ClawHomingStep::HOMING_FINISHED:
+			onHomingSuccess();
+			break;
+		default:
+			break;
+	}
+}
 
+const char* LinearMecanumClaw::getHomingStepString(){
+	if(!isHoming()) return Enumerator::getDisplayString(ClawHomingStep::NOT_STARTED);
+	switch(homingStep){
+		case ClawHomingStep::HOMING_LINEAR_AXIS:
+			return Enumerator::getDisplayString(getLinearAxis()->homingStep);
+		default:
+			return Enumerator::getDisplayString(homingStep);
+	}
+}
 
 
 //==================================== MANUAL CONTROLS ========================================
@@ -345,9 +484,8 @@ void LinearMecanumClaw::moveClawToTargetWithVelocity(double positionTarget, doub
 }
 
 
+//==================================== GETTERS FOR GUI DATA ========================================
 
-
-//getters for data display
 double LinearMecanumClaw::getLinearAxisPosition(){
 	if(!isLinearAxisConnected()) return 0.0;
 	return getLinearAxis()->getActualPosition();
@@ -367,15 +505,11 @@ double LinearMecanumClaw::getClawAxisVelocity(){
 
 float LinearMecanumClaw::getLinearAxisPositionProgress(){
 	if(!isLinearAxisConnected()) return 0.0;
-	auto linearAxis = getLinearAxis();
-	double lowLimit = linearAxis->getLowPositionLimit();
-	double highLimit = linearAxis->getHighPositionLimit();
-	return linearAxis->getActualPosition() - lowLimit / (highLimit - lowLimit);
+	return getLinearAxis()->getActualPositionNormalized();
 }
 float LinearMecanumClaw::getLinearAxisVelocityProgress(){
 	if(!isLinearAxisConnected()) return 0.0;
-	auto linearAxis = getLinearAxis();
-	return linearAxis->getActualVelocity() / linearAxis->getVelocityLimit();
+	return getLinearAxis()->getActualVelocityNormalized();
 }
 float LinearMecanumClaw::getClawAxisPositionProgress(){
 	if(!isClawFeedbackConnected()) return 0.0;
@@ -385,8 +519,6 @@ float LinearMecanumClaw::getClawAxisVelocityProgress(){
 	if(!isClawFeedbackConnected()) return 0.0;
 	return clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getVelocity()) / clawVelocityLimit;
 }
-
-
 PositionUnit LinearMecanumClaw::getLinearAxisPositionUnit(){
 	if(isLinearAxisConnected()) return PositionUnit::METER;
 	return getLinearAxis()->getPositionUnit();
@@ -394,8 +526,6 @@ PositionUnit LinearMecanumClaw::getLinearAxisPositionUnit(){
 PositionUnit LinearMecanumClaw::getClawAxisPositionUnit(){
 	return clawPositionUnit;
 }
-
-
 double LinearMecanumClaw::getLinearAxisMovementTargetNormalized(){
 	auto linearAxis = getLinearAxis();
 	double lowLimit = linearAxis->getLowPositionLimit();
@@ -410,6 +540,15 @@ double LinearMecanumClaw::getClawAxisMovementTargetNormalized(){
 }
 
 
+double LinearMecanumClaw::getLinearAxisFollowingError(){
+	if(!isLinearAxisConnected()) return 0.0;
+	return getLinearAxis()->getActualFollowingError();
+}
+
+float LinearMecanumClaw::getLinearAxisFollowingErrorProgress(){
+	if(!isLinearAxisConnected()) return 0.0;
+	return getLinearAxis()->getActualFollowingErrorNormalized();
+}
 
 
 
@@ -521,6 +660,35 @@ void LinearMecanumClaw::getDevices(std::vector<std::shared_ptr<Device>>& output)
 }
 
 
+
+
+void LinearMecanumClaw::sanitizeParameters(){
+	clawFeedbackUnitsPerClawUnit = std::abs(clawFeedbackUnitsPerClawUnit);
+	clawVelocityLimit = std::abs(clawVelocityLimit);
+	clawAccelerationLimit = std::abs(clawAccelerationLimit);
+	clawPositionLimit = std::abs(clawPositionLimit);
+	clawPositionLoopProportionalGain = std::abs(clawPositionLoopProportionalGain);
+	clawMaxPositionFollowingError = std::abs(clawMaxPositionFollowingError);
+	clawHomingVelocity = std::min(std::abs(clawHomingVelocity), clawVelocityLimit);
+	
+	mecanumWheelDistanceFromClawPivot = std::abs(mecanumWheelDistanceFromClawPivot);
+	mecanumWheelClawPivotRadiusAngleWhenClosed = std::abs(mecanumWheelClawPivotRadiusAngleWhenClosed);
+	mecanumWheelCircumference = std::abs(mecanumWheelCircumference);
+	
+	clawManualAcceleration = std::min(std::abs(clawManualAcceleration), clawAccelerationLimit);
+	linearAxisManualAcceleration = std::abs(linearAxisManualAcceleration);
+	if(isLinearAxisConnected()) linearAxisManualAcceleration = std::min(linearAxisManualAcceleration, getLinearAxis()->getAccelerationLimit());
+	
+	clawRapidVelocity = std::min(std::abs(clawRapidVelocity), clawRapidVelocity);
+	clawRapidAcceleration = std::min(std::abs(clawRapidAcceleration), clawAccelerationLimit);
+	
+	linearAxisRapidVelocity = std::abs(linearAxisRapidVelocity);
+	if(isLinearAxisConnected()) linearAxisRapidVelocity = std::min(linearAxisRapidVelocity, getLinearAxis()->getVelocityLimit());
+	linearAxisRapidAcceleration = std::abs(linearAxisRapidAcceleration);
+	if(isLinearAxisConnected()) linearAxisRapidAcceleration = std::min(linearAxisRapidVelocity, getLinearAxis()->getAccelerationLimit());
+}
+
+
 //======= SAVING & LOADING =========
 
 bool LinearMecanumClaw::saveMachine(tinyxml2::XMLElement* xml) {
@@ -538,11 +706,21 @@ bool LinearMecanumClaw::saveMachine(tinyxml2::XMLElement* xml) {
 	clawXML->SetAttribute("ManualAcceleration", clawManualAcceleration);
 	clawXML->SetAttribute("AccelerationLimit", clawAccelerationLimit);
 	clawXML->SetAttribute("OpenPositionLimit", clawPositionLimit);
+	clawXML->SetAttribute("HomingVelocity", clawHomingVelocity);
 	clawXML->SetAttribute("PositionProportionalGain", clawPositionLoopProportionalGain);
+	clawXML->SetAttribute("PositionIntegralGain", clawPositionLoopIntegralGain);
+	clawXML->SetAttribute("PositionErrorIntegralLimit", integratedClawPositionErrorLimit);
 	clawXML->SetAttribute("MaxFollowingError", clawMaxPositionFollowingError);
+	clawXML->SetAttribute("PositionErrorThreshold", clawPositionErrorThreshold);
 	
 	XMLElement* linearXML = xml->InsertNewChildElement("Linear");
 	linearXML->SetAttribute("ManualAcceleration", linearAxisManualAcceleration);
+	
+	XMLElement* rapidsXML = xml->InsertNewChildElement("Rapids");
+	rapidsXML->SetAttribute("LinearAxisVelocity", linearAxisRapidVelocity);
+	rapidsXML->SetAttribute("LinearAxisAcceleration", linearAxisRapidAcceleration);
+	rapidsXML->SetAttribute("ClawVelocity", clawRapidVelocity);
+	rapidsXML->SetAttribute("ClawAcceleration", clawRapidAcceleration);
 	
 	return true;
 }
@@ -567,12 +745,24 @@ bool LinearMecanumClaw::loadMachine(tinyxml2::XMLElement* xml) {
 	if(clawXML->QueryDoubleAttribute("AccelerationLimit", &clawAccelerationLimit) != XML_SUCCESS) return Logger::warn("could not find claw acceleration limit attribute");
 	if(clawXML->QueryDoubleAttribute("ManualAcceleration", &clawManualAcceleration) != XML_SUCCESS) return Logger::warn("Could not find manual claw acceleration attribute");
 	if(clawXML->QueryDoubleAttribute("OpenPositionLimit", &clawPositionLimit) != XML_SUCCESS) return Logger::warn("could not find claw open position limit attribute");
+	if(clawXML->QueryDoubleAttribute("HomingVelocity", &clawHomingVelocity) != XML_SUCCESS) return Logger::warn("Could not find claw homing velocity");
 	if(clawXML->QueryDoubleAttribute("PositionProportionalGain", &clawPositionLoopProportionalGain) != XML_SUCCESS) return Logger::warn("Could not find claw proportional gain");
+	if(clawXML->QueryDoubleAttribute("PositionIntegralGain", &clawPositionLoopIntegralGain) != XML_SUCCESS) return Logger::warn("Could not find claw integral gain");
+	if(clawXML->QueryDoubleAttribute("PositionErrorIntegralLimit", &integratedClawPositionErrorLimit) != XML_SUCCESS) return Logger::warn("Could not find claw integrated error limit");
 	if(clawXML->QueryDoubleAttribute("MaxFollowingError", &clawMaxPositionFollowingError) != XML_SUCCESS) return Logger::warn("Could not find claw max following error");
+	if(clawXML->QueryDoubleAttribute("PositionErrorThreshold", &clawPositionErrorThreshold) != XML_SUCCESS) return Logger::warn("Could not find claw position error treshold");
 	
 	XMLElement* linearXML = xml->FirstChildElement("Linear");
 	if(linearXML == nullptr) return Logger::warn("Could not find linear axis attribute");
 	if(linearXML->QueryDoubleAttribute("ManualAcceleration", &linearAxisManualAcceleration) != XML_SUCCESS) return Logger::warn("Could not find linear axis manual accceleration");
 	
+	XMLElement* rapidsXML = xml->FirstChildElement("Rapids");
+	if(rapidsXML == nullptr) return Logger::warn("Could not find rapids attribute");
+	if(rapidsXML->QueryDoubleAttribute("LinearAxisVelocity", &linearAxisRapidVelocity) != XML_SUCCESS) return Logger::warn("Could not find linear axis rapid velocity Attribute");
+	if(rapidsXML->QueryDoubleAttribute("LinearAxisAcceleration", &linearAxisRapidAcceleration) != XML_SUCCESS) return Logger::warn("Could not find linear axis rapid acceleration Attribute");
+	if(rapidsXML->QueryDoubleAttribute("ClawVelocity", &clawRapidVelocity) != XML_SUCCESS) return Logger::warn("Could not find claw axis rapid velocity Attribute");
+	if(rapidsXML->QueryDoubleAttribute("ClawAcceleration", &clawRapidAcceleration) != XML_SUCCESS) return Logger::warn("Could not find claw axis rapid acceleration Attribute");
+	
 	return true;
 }
+

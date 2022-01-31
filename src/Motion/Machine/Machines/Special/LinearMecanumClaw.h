@@ -65,7 +65,11 @@ public:
 	double clawAccelerationLimit = 0.0;
 	double clawPositionLimit = 0.0; //min claw position is zero, max position is measured by homing procedure
 	double clawPositionLoopProportionalGain = 0.0;
+	double clawPositionLoopIntegralGain = 0.0;
+	double integratedClawPositionErrorLimit = 5.0;
 	double clawMaxPositionFollowingError = 0.0;
+	double clawPositionErrorThreshold = 0.0;
+	double clawHomingVelocity = 0.0;
 	
 	double mecanumWheelDistanceFromClawPivot = 0.0;
 	double mecanumWheelClawPivotRadiusAngleWhenClosed = 0.0;
@@ -78,6 +82,8 @@ public:
 	double clawRapidVelocity = 0.0;
 	double linearAxisRapidAcceleration = 0.0;
 	double linearAxisRapidVelocity = 0.0;
+	
+	void sanitizeParameters();
 	
 	double clawFeedbackUnitsToClawUnits(double clawFeedbackValue){ return clawFeedbackValue / clawFeedbackUnitsPerClawUnit; }
 	double clawUnitsToClawFeedbackUnits(double clawValue){ return clawValue * clawFeedbackUnitsPerClawUnit; }
@@ -95,6 +101,8 @@ public:
 	ControlMode clawControlMode = ControlMode::VELOCITY_TARGET;
 	double clawAxisManualVelocityTarget = 0.0;
 	
+	double integratedClawPositionError = 0.0;
+	
 	void setLinearVelocity(double velocity);
 	void moveLinearToTargetInTime(double positionTarget, double timeTarget);
 	void moveLinearToTargetWithVelocity(double positionTarget, double velocityTarget);
@@ -105,18 +113,36 @@ public:
 	void moveClawToTargetWithVelocity(double positionTarget, double velocityTarget);
 	void fastStopClaw();
 	
+	enum class ClawHomingStep{
+		NOT_STARTED,
+		SEARCHING_HEART_CLOSED_LIMIT,
+		FOUND_HEART_CLOSED_LIMIT,
+		RESETTING_HEART_FEEDBACK,
+		HOMING_LINEAR_AXIS,
+		HOMING_FINISHED,
+		HOMING_FAILED
+	};
+	
 	void startHoming();
 	void stopHoming();
 	bool isHoming(){ return b_isHoming; }
 	bool b_isHoming = false;
+	ClawHomingStep homingStep = ClawHomingStep::NOT_STARTED;
+	const char* getHomingStepString();
+	void onHomingSuccess();
+	void onHomingFailure();
+	
+	void homingControl();
 	
 	double getLinearAxisPosition();
 	double getLinearAxisVelocity();
+	double getLinearAxisFollowingError();
 	double getClawAxisPosition();
 	double getClawAxisVelocity();
 	
 	float getLinearAxisPositionProgress();
 	float getLinearAxisVelocityProgress();
+	float getLinearAxisFollowingErrorProgress();
 	float getClawAxisPositionProgress();
 	float getClawAxisVelocityProgress();
 	
@@ -144,30 +170,26 @@ public:
 	float clawVelocityTargetDisplay = 0.0;
 	float clawTimeTargetDisplay = 0.0;
 	
-	
-	enum class ClawHomingStep{
-		NOT_STARTED,
-		HOMING_LINEAR_AXIS,
-		SEARCHING_HEART_CLOSED_LIMIT
-	};
-	
-	
-	
-	
-	
 };
 
 
+#define ClawHomingStepStrings \
+	{LinearMecanumClaw::ClawHomingStep::NOT_STARTED, 					"Homing Not Started"},\
+	{LinearMecanumClaw::ClawHomingStep::SEARCHING_HEART_CLOSED_LIMIT, 	"Searching Heart Closed Limit"},\
+	{LinearMecanumClaw::ClawHomingStep::FOUND_HEART_CLOSED_LIMIT, 		"Found Heart Closed Limit"},\
+	{LinearMecanumClaw::ClawHomingStep::RESETTING_HEART_FEEDBACK, 		"Resetting Hearth Position Feedback"},\
+	{LinearMecanumClaw::ClawHomingStep::HOMING_LINEAR_AXIS, 			"Homing Linear Axis"},\
+	{LinearMecanumClaw::ClawHomingStep::HOMING_FINISHED, 				"Finished Homing"},\
+	{LinearMecanumClaw::ClawHomingStep::HOMING_FAILED, 					"Homing Failed"}\
+
+DEFINE_ENUMERATOR(LinearMecanumClaw::ClawHomingStep, ClawHomingStepStrings)
+
 
 //reenable after claw error overrun
-//movement time indicators for manual moves
-//miniature gui
 //plot for claw machine !!!
 //error correction disable treshold for claw axis
 //error correction disable theshold for linear axis
 //kill claw velocity when sensor triggered
 //homing sequence for claw machine
 //sanitize claw parameters
-//sanitize position axis parameters
-//encoder reset when homing axis
 //encoder reset when homing claw

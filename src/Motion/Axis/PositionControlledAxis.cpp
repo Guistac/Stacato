@@ -36,24 +36,35 @@ void PositionControlledAxis::process() {
 	if(!areAllPinsConnected()) return;
 
 	//get devices
-	//std::shared_ptr<ActuatorDevice> actuatorDevice = getActuatorDevice();
 	std::shared_ptr<ServoActuatorDevice> servoActuatorDevice = getServoActuatorDevice();
 	std::shared_ptr<GpioDevice> referenceDevice = getReferenceDevice();
 
-	//get reference signals
-	if (referenceDevice) {
+	//update and react to reference signals
+	if (needsReferenceDevice()) {
 		updateReferenceSignals();
-		//TODO: are these conditions ok to kill the axis and disable actuators
-		if(*lowLimitSignal && motionProfile.getVelocity() < 0.0) disable();
-		else if(*highLimitSignal && motionProfile.getVelocity() > 0.0) disable();
+		if(isEnabled() && !isHoming()){
+			switch(positionReferenceSignal){
+				case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+					if(*highLimitSignal && motionProfile.getVelocity() > 0.0) {
+						Logger::critical("Axis {} Disabled : Hit Upper Limit Signal", getName());
+						disable();
+					}
+				case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
+					if(*lowLimitSignal && motionProfile.getVelocity() < 0.0) {
+						Logger::critical("Axis {} Disabled : Hit Lower Limit Signal", getName());
+						disable();
+					}
+					break;
+				default:
+					break;
+			}
+		}
 	}
 
 	//handle device state transitions
 	if (isEnabled()) {
 		if (needsReferenceDevice() && !referenceDevice->isReady()) disable();
-		if (!servoActuatorDevice->isEnabled()) {
-			if (!isHoming()) disable();
-		}
+		else if (!servoActuatorDevice->isEnabled()) disable();
 	}
 
 	//get actual realtime axis motion values
@@ -65,9 +76,6 @@ void PositionControlledAxis::process() {
 	//TODO: Implement Universal Environnement Time
 	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
 	profileTimeDelta_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
-
-	//here the machine updates the motion profile of the axis and sends the commands to the actuators
-	if (isAxisPinConnected()) return;
 	
 	//update profile generator
 	if (isEnabled()) {
@@ -84,7 +92,7 @@ void PositionControlledAxis::process() {
 				if(motionProfile.isInterpolationFinished(profileTime_seconds)) setVelocityTarget(0.0);
 				break;
 			case ControlMode::EXTERNAL:
-				//do nothing here, the connected node handles updating the motion profile
+				//here we don't do anything, the connected pin updates the axis
 				break;
 		}
 	}
@@ -94,8 +102,11 @@ void PositionControlledAxis::process() {
 		motionProfile.setVelocity(*actualVelocityValue);
 		motionProfile.setAcceleration(0.0);
 	}
-	//convert and send the motion profile values to the actuator
-	sendActuatorCommands();
+	
+	//if the machine is controlled externally (by the axis pin) we don't sent actuator commands here
+	//in this case the connected node is responsible for sending commands
+	if (controlMode != ControlMode::EXTERNAL) sendActuatorCommands();
+
 }
 
 void PositionControlledAxis::sendActuatorCommands() {
@@ -163,7 +174,7 @@ void PositionControlledAxis::onDisable() {
 	b_isHoming = false;
 	homingStep = HomingStep::NOT_STARTED;
 	homingError = HomingError::NONE;
-	Logger::info("Axis {} disabled", getName());
+	Logger::info("Axis was {} disabled", getName());
 }
 
 bool PositionControlledAxis::isReady() {
@@ -371,6 +382,14 @@ double PositionControlledAxis::getHighFeedbackPositionLimit() {
 	else return std::numeric_limits<double>::infinity();
 }
 
+double PositionControlledAxis::getActualFollowingError(){
+	return servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getFollowingError());
+}
+
+float PositionControlledAxis::getActualFollowingErrorNormalized(){
+	return getServoActuatorDevice()->getFollowingErrorNormalized();
+}
+
 
 void PositionControlledAxis::setCurrentPosition(double distance) {
 	getServoActuatorDevice()->setPosition(distance * servoActuatorUnitsPerAxisUnits);
@@ -487,33 +506,59 @@ void PositionControlledAxis::homingControl() {
 					homingStep = HomingStep::SEARCHING_LOW_LIMIT_COARSE;
 					break;
 				case HomingStep::SEARCHING_LOW_LIMIT_COARSE:
-					setVelocityTarget(-homingVelocity);
-					if (/*!previousLowLimitSignal && */lowLimitSignal) homingStep = HomingStep::FOUND_LOW_LIMIT_COARSE;
-					break;
-				case HomingStep::FOUND_LOW_LIMIT_COARSE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) {
-						if (!getServoActuatorDevice()->isEnabled()) {
-							getServoActuatorDevice()->enable();
-							motionProfile.setPosition(*actualPositionValue);
-							motionProfile.setVelocity(0.0);
-							motionProfile.setAcceleration(0.0);
-							//Logger::warn("Trying To Enable Axis");
-						}
-						else homingStep = HomingStep::SEARCHING_LOW_LIMIT_FINE;
+					setVelocityTarget(-homingVelocityCoarse);
+					//we don't check the signal rising edge but only the high condition
+					//this way it triggers if we are already at the limit signal when homing was started
+					if (*lowLimitSignal){
+						homingStep = HomingStep::FOUND_LOW_LIMIT_COARSE;
+						setVelocityTarget(0.0);
 					}
 					break;
+				case HomingStep::FOUND_LOW_LIMIT_COARSE:
+					if (!isMoving()) {
+						setVelocityTarget(homingVelocityFine);
+						homingStep = HomingStep::SEARCHING_LOW_LIMIT_FINE;
+					}
+					/*
+					//TODO: this is useful if the limits internaly disable the servo actuator
+					if (!getServoActuatorDevice()->isEnabled()) {
+						getServoActuatorDevice()->enable();
+						motionProfile.setPosition(*actualPositionValue);
+						motionProfile.setVelocity(0.0);
+						motionProfile.setAcceleration(0.0);
+						//Logger::warn("Trying To Enable Axis");
+					}
+					else homingStep = HomingStep::SEARCHING_LOW_LIMIT_FINE;
+					 */
+					break;
 				case HomingStep::SEARCHING_LOW_LIMIT_FINE:
-					setVelocityTarget(homingVelocity / 10.0);
-					if (previousLowLimitSignal && !lowLimitSignal) homingStep = HomingStep::FOUND_LOW_LIMIT_FINE;
+					//here we must check the falling edge
+					//since we may have overshot the range of the limit signal
+					if (previousLowLimitSignal && !*lowLimitSignal) {
+						homingStep = HomingStep::FOUND_LOW_LIMIT_FINE;
+						setVelocityTarget(0.0);
+					}
 					break;
 				case HomingStep::FOUND_LOW_LIMIT_FINE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+					if (!isMoving()) {
+						auto servoActuator = getServoActuatorDevice();
+						//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
+						if(servoActuator->canHardReset()) servoActuator->hardReset();
+						homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+					}
 					break;
 				case HomingStep::RESETTING_POSITION_FEEDBACK:
-					setCurrentPosition(0.0);
-					onHomingSuccess();
+					if(getServoActuatorDevice()->canHardReset()){
+						//if the servo actuator can hard reset its encoder, check if we are done resetting
+						if(!getServoActuatorDevice()->isHardResetting()) {
+							motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
+							onHomingSuccess();
+						}
+					}else{
+						//else we set a software offset in the encoder object
+						setCurrentPosition(0.0);
+						onHomingSuccess();
+					}
 					break;
 				default: break;
 				}
@@ -524,155 +569,189 @@ void PositionControlledAxis::homingControl() {
 			if (homingDirection == HomingDirection::NEGATIVE) {
 
 				switch (homingStep) {
-				case HomingStep::NOT_STARTED:
-					homingStep = HomingStep::SEARCHING_LOW_LIMIT_COARSE;
-					break;
-				case HomingStep::SEARCHING_LOW_LIMIT_COARSE:
-					setVelocityTarget(-homingVelocity);
-					if (/*!previousHighLimitSignal && */highLimitSignal) {
-						homingError = HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL;
-						onHomingError();
-					}
-					else if (!previousLowLimitSignal && lowLimitSignal) homingStep = HomingStep::FOUND_LOW_LIMIT_COARSE;
-					break;
-				case HomingStep::FOUND_LOW_LIMIT_COARSE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) {
-						if (!getServoActuatorDevice()->isEnabled()) {
-							getServoActuatorDevice()->enable();
-							motionProfile.setPosition(*actualPositionValue);
-							motionProfile.setVelocity(0.0);
-							motionProfile.setAcceleration(0.0);
+					case HomingStep::NOT_STARTED:
+						homingStep = HomingStep::SEARCHING_LOW_LIMIT_COARSE;
+						setVelocityTarget(-homingVelocityCoarse);
+						break;
+					case HomingStep::SEARCHING_LOW_LIMIT_COARSE:
+						//we don't check the signal rising edge but only the high condition
+						//this way it triggers if we are already at the limit signal when homing was started
+						if (*highLimitSignal) {
+							homingError = HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL;
+							onHomingError();
 						}
-						else homingStep = HomingStep::SEARCHING_LOW_LIMIT_FINE;
-					}
-					break;
-				case HomingStep::SEARCHING_LOW_LIMIT_FINE:
-					setVelocityTarget(homingVelocity / 10.0);
-					if (previousLowLimitSignal && !lowLimitSignal) homingStep = HomingStep::FOUND_LOW_LIMIT_FINE;
-					break;
-				case HomingStep::FOUND_LOW_LIMIT_FINE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
-					break;
-				case HomingStep::RESETTING_POSITION_FEEDBACK:
-					setCurrentPosition(0.0);
-					homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
-					break;
-				case HomingStep::SEARCHING_HIGH_LIMIT_COARSE:
-					setVelocityTarget(homingVelocity);
-					if (/*!previousLowLimitSignal && */lowLimitSignal) {
-						homingError = HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL;
-						onHomingError();
-					}
-					else if (!previousHighLimitSignal && highLimitSignal) homingStep = HomingStep::FOUND_HIGH_LIMIT_COARSE;
-					break;
-				case HomingStep::FOUND_HIGH_LIMIT_COARSE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) {
-						if (!getServoActuatorDevice()->isEnabled()) {
-							getServoActuatorDevice()->enable();
-							motionProfile.setPosition(*actualPositionValue);
-							motionProfile.setVelocity(0.0);
-							motionProfile.setAcceleration(0.0);
+						else if (*lowLimitSignal) {
+							homingStep = HomingStep::FOUND_LOW_LIMIT_COARSE;
+							setVelocityTarget(0.0);
 						}
-						else homingStep = HomingStep::SEARCHING_HIGH_LIMIT_FINE;
-					}
-					break;
-				case HomingStep::SEARCHING_HIGH_LIMIT_FINE:
-					setVelocityTarget(-homingVelocity / 10.0);
-					if (previousHighLimitSignal && !highLimitSignal) homingStep = HomingStep::FOUND_HIGH_LIMIT_FINE;
-					break;
-				case HomingStep::FOUND_HIGH_LIMIT_FINE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) homingStep = HomingStep::SETTING_HIGH_LIMIT;
-					break;
-				case HomingStep::SETTING_HIGH_LIMIT:
-					setCurrentPositionAsPositiveLimit();
-					homingStep = HomingStep::FINISHED;
-					onHomingSuccess();
-					break;
-					default: break;
+						break;
+					case HomingStep::FOUND_LOW_LIMIT_COARSE:
+						if (!isMoving()) {
+							homingStep = HomingStep::SEARCHING_LOW_LIMIT_FINE;
+							setVelocityTarget(homingVelocityFine);
+						}
+						break;
+					case HomingStep::SEARCHING_LOW_LIMIT_FINE:
+						//here we have to check the falling edge since we might have overshot the signal
+						if (previousLowLimitSignal && !*lowLimitSignal) {
+							homingStep = HomingStep::FOUND_LOW_LIMIT_FINE;
+							setVelocityTarget(0.0);
+						}
+						break;
+					case HomingStep::FOUND_LOW_LIMIT_FINE:
+						if (!isMoving()) {
+							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+							//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
+							if(getServoActuatorDevice()->canHardReset()) getServoActuatorDevice()->hardReset();
+						}
+						break;
+					case HomingStep::RESETTING_POSITION_FEEDBACK:
+						//if the servo actuator can hard reset its encoder, check if we are done resetting
+						if(getServoActuatorDevice()->canHardReset()){
+							if(!getServoActuatorDevice()->isHardResetting()) {
+								//reset the software offset of the encoder
+								getServoActuatorDevice()->resetOffset();
+								motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
+								homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
+								setVelocityTarget(homingVelocityCoarse);
+							}
+						}else{
+							//else we set a software offset in the encoder object
+							setCurrentPosition(0.0);
+							homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
+							setVelocityTarget(homingVelocityCoarse);
+						}
+						break;
+					case HomingStep::SEARCHING_HIGH_LIMIT_COARSE:
+						//don't check the rising edge
+						if (*lowLimitSignal) {
+							homingError = HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL;
+							onHomingError();
+						}
+						else if (*highLimitSignal){
+							setVelocityTarget(0.0);
+							homingStep = HomingStep::FOUND_HIGH_LIMIT_COARSE;
+						}
+						break;
+					case HomingStep::FOUND_HIGH_LIMIT_COARSE:
+						if (!isMoving()) {
+							setVelocityTarget(-homingVelocityFine);
+							homingStep = HomingStep::SEARCHING_HIGH_LIMIT_FINE;
+						}
+						break;
+					case HomingStep::SEARCHING_HIGH_LIMIT_FINE:
+						//check the falling edge since we might have overshot the sensor
+						if (previousHighLimitSignal && !*highLimitSignal) {
+							homingStep = HomingStep::FOUND_HIGH_LIMIT_FINE;
+							setVelocityTarget(0.0);
+						}
+						break;
+					case HomingStep::FOUND_HIGH_LIMIT_FINE:
+						if (!isMoving()) {
+							homingStep = HomingStep::SETTING_HIGH_LIMIT;
+						}
+						break;
+					case HomingStep::SETTING_HIGH_LIMIT:
+						setCurrentPositionAsPositiveLimit();
+						homingStep = HomingStep::FINISHED;
+						onHomingSuccess();
+						break;
+					default:
+						break;
 				}
-				break;
 
 			}
 			else if (homingDirection == HomingDirection::POSITIVE) {
 
-
 				switch (homingStep) {
-				case HomingStep::NOT_STARTED:
-					homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
-					break;
-				case HomingStep::SEARCHING_HIGH_LIMIT_COARSE:
-					setVelocityTarget(homingVelocity);
-					if (/*!previousLowLimitSignal && */lowLimitSignal) {
-						homingError = HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL;
-						onHomingError();
-					}
-					else if (!previousHighLimitSignal && highLimitSignal) homingStep = HomingStep::FOUND_HIGH_LIMIT_COARSE;
-					break;
-				case HomingStep::FOUND_HIGH_LIMIT_COARSE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) {
-						if (!getServoActuatorDevice()->isEnabled()) {
-							getServoActuatorDevice()->enable();
-							motionProfile.setPosition(*actualPositionValue);
-							motionProfile.setVelocity(0.0);
-							motionProfile.setAcceleration(0.0);
+					case HomingStep::NOT_STARTED:
+						homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
+						break;
+					case HomingStep::SEARCHING_HIGH_LIMIT_COARSE:
+						setVelocityTarget(homingVelocityCoarse);
+						if (*lowLimitSignal) {
+							homingError = HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL;
+							onHomingError();
 						}
-						else homingStep = HomingStep::SEARCHING_HIGH_LIMIT_FINE;
-					}
-					break;
-				case HomingStep::SEARCHING_HIGH_LIMIT_FINE:
-					setVelocityTarget(-homingVelocity / 10.0);
-					if (previousHighLimitSignal && !highLimitSignal) homingStep = HomingStep::FOUND_HIGH_LIMIT_FINE;
-					break;
-				case HomingStep::FOUND_HIGH_LIMIT_FINE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) homingStep = HomingStep::SETTING_HIGH_LIMIT;
-					break;
-				case HomingStep::SETTING_HIGH_LIMIT:
-					setCurrentPosition(0.0);
-					homingStep = HomingStep::SEARCHING_LOW_LIMIT_COARSE;
-					break;
-				case HomingStep::SEARCHING_LOW_LIMIT_COARSE:
-					setVelocityTarget(-homingVelocity);
-					if (/*!previousHighLimitSignal && */highLimitSignal) {
-						homingError = HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL;
-						onHomingError();
-					}
-					else if (!previousLowLimitSignal && lowLimitSignal) homingStep = HomingStep::FOUND_LOW_LIMIT_COARSE;
-					break;
-				case HomingStep::FOUND_LOW_LIMIT_COARSE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) {
-						if (!getServoActuatorDevice()->isEnabled()) {
-							getServoActuatorDevice()->enable();
-							motionProfile.setPosition(*actualPositionValue);
-							motionProfile.setVelocity(0.0);
-							motionProfile.setAcceleration(0.0);
+						//dont check the rising edge since we might already have triggered the sensor at homing start
+						else if (*highLimitSignal) {
+							homingStep = HomingStep::FOUND_HIGH_LIMIT_COARSE;
+							setVelocityTarget(0.0);
 						}
-						else homingStep = HomingStep::SEARCHING_LOW_LIMIT_FINE;
-					}
-					break;
-				case HomingStep::SEARCHING_LOW_LIMIT_FINE:
-					setVelocityTarget(homingVelocity / 10.0);
-					if (previousLowLimitSignal && !lowLimitSignal) homingStep = HomingStep::FOUND_LOW_LIMIT_FINE;
-					break;
-				case HomingStep::FOUND_LOW_LIMIT_FINE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
-					break;
-				case HomingStep::RESETTING_POSITION_FEEDBACK:
-					highPositionLimit = std::abs(*actualPositionValue);
-					setCurrentPosition(0.0);
-					homingStep = HomingStep::FINISHED;
-					onHomingSuccess();
-					break;
-					default: break;
+						break;
+					case HomingStep::FOUND_HIGH_LIMIT_COARSE:
+						if (!isMoving()) {
+							homingStep = HomingStep::SEARCHING_HIGH_LIMIT_FINE;
+							setVelocityTarget(-homingVelocityFine);
+						}
+						break;
+					case HomingStep::SEARCHING_HIGH_LIMIT_FINE:
+						//check the falling edge since we might have overshot the signal
+						if (previousHighLimitSignal && !*highLimitSignal) {
+							homingStep = HomingStep::FOUND_HIGH_LIMIT_FINE;
+							setVelocityTarget(0.0);
+						}
+						break;
+					case HomingStep::FOUND_HIGH_LIMIT_FINE:
+						if (!isMoving()) {
+							homingStep = HomingStep::SETTING_HIGH_LIMIT;
+						}
+						break;
+					case HomingStep::SETTING_HIGH_LIMIT:
+						setCurrentPosition(0.0); //set a zero reference now, we will use it later
+						homingStep = HomingStep::SEARCHING_LOW_LIMIT_COARSE;
+						setVelocityTarget(-homingVelocityCoarse);
+						break;
+					case HomingStep::SEARCHING_LOW_LIMIT_COARSE:
+						//don't check the rising edge
+						if (*highLimitSignal) {
+							homingError = HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL;
+							onHomingError();
+						}
+						else if (*lowLimitSignal) {
+							homingStep = HomingStep::FOUND_LOW_LIMIT_COARSE;
+							setVelocityTarget(0.0);
+						}
+						break;
+					case HomingStep::FOUND_LOW_LIMIT_COARSE:
+						if (!isMoving()) {
+							homingStep = HomingStep::SEARCHING_LOW_LIMIT_FINE;
+							setVelocityTarget(homingVelocityFine);
+						}
+						break;
+					case HomingStep::SEARCHING_LOW_LIMIT_FINE:
+						if (previousLowLimitSignal && !*lowLimitSignal){
+							homingStep = HomingStep::FOUND_LOW_LIMIT_FINE;
+							setVelocityTarget(0.0);
+						}
+						break;
+					case HomingStep::FOUND_LOW_LIMIT_FINE:
+						if (!isMoving()) {
+							highPositionLimit = std::abs(*actualPositionValue);
+							//if we can hard reset the servo actuator encoder here, do it
+							if(getServoActuatorDevice()->canHardReset()) {
+								getServoActuatorDevice()->hardReset();
+							}else{
+								setCurrentPosition(0.0);
+							}
+							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+						}
+						break;
+					case HomingStep::RESETTING_POSITION_FEEDBACK:
+						if(getServoActuatorDevice()->canHardReset()){
+							if(!getServoActuatorDevice()->isHardResetting()){
+								//reset the software offset of the encoder
+								getServoActuatorDevice()->resetOffset();
+								motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
+								onHomingSuccess();
+							}
+						}else{
+							onHomingSuccess();
+						}
+						break;
+					default:
+						break;
 				}
-				break;
 
 			}
 
@@ -681,84 +760,108 @@ void PositionControlledAxis::homingControl() {
 			if (homingDirection == HomingDirection::POSITIVE) {
 
 				switch (homingStep) {
-				case HomingStep::NOT_STARTED:
-					homingStep = HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE;
-					break;
-				case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE:
-					setVelocityTarget(homingVelocity);
-					if (/*!previousReferenceSignal && */referenceSignal) homingStep = HomingStep::FOUND_REFERENCE_FROM_BELOW_COARSE;
-					break;
-				case HomingStep::FOUND_REFERENCE_FROM_BELOW_COARSE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) homingStep = HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE;
-					break;
-				case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE:
-					setVelocityTarget(-homingVelocity / 10.0);
-					if (previousReferenceSignal && !referenceSignal) homingStep = HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE;
-					break;
-				case HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) {
-						setCurrentPosition(0.0);
-						homingStep = HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE;
-					}
-					break;
-				case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
-					setVelocityTarget(homingVelocity / 10.0);
-					if (previousReferenceSignal && !referenceSignal) homingStep = HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE;
-					break;
-				case HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) {
-						setCurrentPosition(*actualPositionValue / 2.0);
-						moveToPositionInTime(0.0, 0.0);
-						onHomingSuccess();
-					}
-					break;
-					default: break;
+					case HomingStep::NOT_STARTED:
+						homingStep = HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE;
+						setVelocityTarget(homingVelocityCoarse);
+						break;
+					case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE:
+						//Don't check rising edge since the signal may have been trigger already when homing was started
+						if (*referenceSignal) {
+							homingStep = HomingStep::FOUND_REFERENCE_FROM_BELOW_COARSE;
+							setVelocityTarget(0.0);
+						}
+						break;
+					case HomingStep::FOUND_REFERENCE_FROM_BELOW_COARSE:
+						if (!isMoving()) {
+							homingStep = HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE;
+							setVelocityTarget(-homingVelocityFine);
+						}
+						break;
+					case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE:
+						//check for falling edge since the signal may have been overshot
+						if (previousReferenceSignal && !*referenceSignal) {
+							homingStep = HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE;
+							setVelocityTarget(0.0);
+						}
+						break;
+					case HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE:
+						if (!isMoving()) {
+							setCurrentPosition(0.0);
+							homingStep = HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE;
+							setVelocityTarget(homingVelocityFine);
+						}
+						break;
+					case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
+						//check for falling edge since the signal might have been overshot
+						if (previousReferenceSignal && !*referenceSignal) {
+							homingStep = HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE;
+							setVelocityTarget(0.0);
+						}
+						break;
+					case HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE:
+						if (!isMoving()) {
+							//TODO: need to return to center and hard reset encoder if possible
+							setCurrentPosition(*actualPositionValue / 2.0);
+							moveToPositionInTime(0.0, 0.0);
+							onHomingSuccess();
+						}
+						break;
+					default:
+						break;
 				}
 
 			}
 			else if (homingDirection == HomingDirection::NEGATIVE) {
 
-
-
 				switch (homingStep) {
-				case HomingStep::NOT_STARTED:
-					homingStep = HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE;
-					break;
-				case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE:
-					setVelocityTarget(-homingVelocity);
-					if (/*!previousReferenceSignal && */referenceSignal) homingStep = HomingStep::FOUND_REFERENCE_FROM_ABOVE_COARSE;
-					break;
-				case HomingStep::FOUND_REFERENCE_FROM_ABOVE_COARSE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) homingStep = HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE;
-					break;
-				case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
-					setVelocityTarget(homingVelocity / 10.0);
-					if (previousReferenceSignal && !referenceSignal) homingStep = HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE;
-					break;
-				case HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) {
-						setCurrentPosition(0.0);
-						homingStep = HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE;
-					}
-					break;
-				case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE:
-					setVelocityTarget(-homingVelocity / 10.0);
-					if (previousReferenceSignal && !referenceSignal) homingStep = HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE;
-					break;
-				case HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE:
-					setVelocityTarget(0.0);
-					if (!isMoving()) {
-						setCurrentPosition(*actualPositionValue / 2.0);
-						moveToPositionInTime(0.0, 0.0);
-						onHomingSuccess();
-					}
-					break;
-					default: break;
+					case HomingStep::NOT_STARTED:
+						homingStep = HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE;
+						setVelocityTarget(-homingVelocityCoarse);
+						break;
+					case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE:
+						//dont check the rising edge since we might already have triggered the signal at homing start
+						if (*referenceSignal) {
+							homingStep = HomingStep::FOUND_REFERENCE_FROM_ABOVE_COARSE;
+							setVelocityTarget(0.0);
+						}
+						break;
+					case HomingStep::FOUND_REFERENCE_FROM_ABOVE_COARSE:
+						if (!isMoving()) {
+							homingStep = HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE;
+							setVelocityTarget(homingVelocityFine);
+						}
+						break;
+					case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
+						//check the falling edge since we might have overshot the signal
+						if (previousReferenceSignal && !*referenceSignal) {
+							homingStep = HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE;
+							setVelocityTarget(0.0);
+						}
+						break;
+					case HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE:
+						if (!isMoving()) {
+							setCurrentPosition(0.0);
+							homingStep = HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE;
+							setVelocityTarget(-homingVelocityFine);
+						}
+						break;
+					case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE:
+						//check the falling edge since we might have overshot the signal
+						if (previousReferenceSignal && !*referenceSignal) {
+							homingStep = HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE;
+							setVelocityTarget(0.0);
+						}
+						break;
+					case HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE:
+						if (!isMoving()) {
+							//TODO: need to return to center and hard reset encoder if possible
+							setCurrentPosition(*actualPositionValue / 2.0);
+							moveToPositionInTime(0.0, 0.0);
+							onHomingSuccess();
+						}
+						break;
+					default:
+						break;
 				}
 
 			}
@@ -779,7 +882,8 @@ void PositionControlledAxis::sanitizeParameters(){
 
 	servoActuatorUnitsPerAxisUnits = std::abs(servoActuatorUnitsPerAxisUnits);
 	
-	homingVelocity = std::abs(homingVelocity);
+	homingVelocityCoarse = std::abs(homingVelocityCoarse);
+	homingVelocityFine = std::min(std::abs(homingVelocityFine), homingVelocityCoarse);
 	
 	velocityLimit = std::abs(velocityLimit);
 	//TODO: if(isServoActuatorDeviceConnected()) velocityLimit = std::min(velocityLimit, servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getVelocityLimit()));
@@ -816,7 +920,8 @@ bool PositionControlledAxis::save(tinyxml2::XMLElement* xml) {
 
 	XMLElement* positionReferenceXML = xml->InsertNewChildElement("PositionReferenceSignals");
 	positionReferenceXML->SetAttribute("Type", Enumerator::getSaveString(positionReferenceSignal));
-	positionReferenceXML->SetAttribute("HomingVelocity", homingVelocity);
+	positionReferenceXML->SetAttribute("HomingVelocityCoarse", homingVelocityCoarse);
+	positionReferenceXML->SetAttribute("HomingVelocityFine", homingVelocityFine);
 	positionReferenceXML->SetAttribute("HomingDirection", Enumerator::getSaveString(homingDirection));
 
 	XMLElement* positionLimitsXML = xml->InsertNewChildElement("PositionLimits");
@@ -873,7 +978,8 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if (positionReferenceXML->QueryStringAttribute("Type", &positionLimitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Position Reference Type");
 	if (!Enumerator::isValidSaveName<PositionReferenceSignal>(positionLimitTypeString)) return Logger::warn("Could not read Position Reference Type");
 	setPositionReferenceSignalType(Enumerator::getEnumeratorFromSaveString<PositionReferenceSignal>(positionLimitTypeString));
-	if (positionReferenceXML->QueryDoubleAttribute("HomingVelocity", &homingVelocity) != XML_SUCCESS) return Logger::warn("Could not load homing velocity");
+	if (positionReferenceXML->QueryDoubleAttribute("HomingVelocityCoarse", &homingVelocityCoarse) != XML_SUCCESS) return Logger::warn("Could not load Coarse homing velocity");
+	if (positionReferenceXML->QueryDoubleAttribute("HomingVelocityFine", &homingVelocityFine) != XML_SUCCESS) return Logger::warn("Could not load Fine homing velocity");
 	const char* homingDirectionString;
 	if (positionReferenceXML->QueryStringAttribute("HomingDirection", &homingDirectionString)) return Logger::warn("Could not load homing direction");
 	if (!Enumerator::isValidSaveName<HomingDirection>(homingDirectionString)) return Logger::warn("Could not read homing direction");

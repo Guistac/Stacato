@@ -69,7 +69,8 @@ private:
 	//Reference Signals and Homing
 	PositionReferenceSignal positionReferenceSignal = PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT;
 	HomingDirection homingDirection = HomingDirection::NEGATIVE;
-	double homingVelocity = 0.0;
+	double homingVelocityCoarse = 0.0;
+	double homingVelocityFine = 0.0;
 	
 	//kinematic limits
 	double velocityLimit = 0.0;
@@ -140,6 +141,8 @@ public:
 	double getProfilePosition() { return motionProfile.getPosition(); }
 	double getActualVelocity() { return *actualVelocityValue; }
 	double getActualPosition() { return *actualPositionValue; }
+	double getActualFollowingError();
+	float getActualFollowingErrorNormalized();
 	float getActualVelocityNormalized() { return *actualVelocityValue / velocityLimit; }
 	float getActualPositionNormalized() {
 		double low = getLowPositionLimit();
