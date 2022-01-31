@@ -78,9 +78,7 @@ public:
 	double clawManualAcceleration = 0.0;
 	double linearAxisManualAcceleration = 0.0;
 	
-	double clawRapidAcceleration = 0.0;
 	double clawRapidVelocity = 0.0;
-	double linearAxisRapidAcceleration = 0.0;
 	double linearAxisRapidVelocity = 0.0;
 	
 	void sanitizeParameters();

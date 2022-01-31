@@ -164,7 +164,7 @@
                     <MecanumWheels DistanceFromClawPivot="5.7750000000000004" PivotAngleWhenClosed="11.25" WheelCircumference="0.63773999999999997"/>
                     <Claw PositionUnit="Degrees" FeedbackUnitsPerClawUnit="0.034722222222222002" VelocityLimit="2.5" ManualAcceleration="0.69999999999999996" AccelerationLimit="1" OpenPositionLimit="83" HomingVelocity="0.5" PositionProportionalGain="0.14999999999999999" PositionIntegralGain="0.050000000000000003" PositionErrorIntegralLimit="1" MaxFollowingError="1.5" PositionErrorThreshold="0.050000000000000003"/>
                     <Linear ManualAcceleration="0.050000000000000003"/>
-                    <Rapids LinearAxisVelocity="0" LinearAxisAcceleration="0" ClawVelocity="0" ClawAcceleration="0"/>
+                    <Rapids LinearAxisVelocity="0.20000000000000001" ClawVelocity="1.5"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Linear Axis" DisplayString="Linear Axis" DataType="PositionControlledAxisLink" UniqueID="213" Visible="true" NoDataField="true"/>
@@ -264,7 +264,7 @@
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en7" Name="en7"/>
+        <Primary Description="en4" Name="en4"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>

@@ -520,20 +520,10 @@ void LinearMecanumClaw::settingsGui() {
 	sprintf(displayString, "%.3f %s/s", linearAxisRapidVelocity, Unit::getAbbreviatedString(getLinearAxisPositionUnit()));
 	ImGui::InputDouble("##linearRapidVel", &linearAxisRapidVelocity, 0.0, 0.0, displayString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-	
-	ImGui::Text("Linear Axis Rapid Acceleration");
-	sprintf(displayString, "%.3f %s/s2", linearAxisRapidAcceleration, Unit::getAbbreviatedString(getLinearAxisPositionUnit()));
-	ImGui::InputDouble("##linearRapidAcc", &linearAxisRapidAcceleration, 0.0, 0.0, displayString);
-	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-	
+
 	ImGui::Text("Claw Axis Rapid Velocity");
 	sprintf(displayString, "%.3f %s/s", clawRapidVelocity, Unit::getAbbreviatedString(clawPositionUnit));
 	ImGui::InputDouble("##clawRapidVel", &clawRapidVelocity, 0.0, 0.0, displayString);
-	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-	
-	ImGui::Text("Claw Axis Rapid Acceleration");
-	sprintf(displayString, "%.3f %s/s2", clawRapidAcceleration, Unit::getAbbreviatedString(clawPositionUnit));
-	ImGui::InputDouble("##clawRapidAcc", &clawRapidAcceleration, 0.0, 0.0, displayString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 }
@@ -651,6 +641,12 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	static char targetPositionString[32];
 	sprintf(targetPositionString, "%.3f %s", linearPositionTargetDisplay, Unit::getAbbreviatedString(getLinearAxisPositionUnit()));
 	ImGui::InputFloat("##TargetPosition", &linearPositionTargetDisplay, 0.0, 0.0, targetPositionString);
+	if(isLinearAxisConnected()){
+		auto linearAxis = getLinearAxis();
+		linearPositionTargetDisplay = std::min((double)linearPositionTargetDisplay, linearAxis->getHighPositionLimit());
+		linearPositionTargetDisplay = std::max((double)linearPositionTargetDisplay, linearAxis->getLowPositionLimit());
+	}
+	
 	
 	if(hasLinearAxisTargetMovement()){
 		glm::vec2 targetmin = ImGui::GetItemRectMin();
@@ -665,11 +661,9 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 										ImGui::GetFrameHeight());
 	
 	if(hasLinearAxisTargetMovement()){
-		if(ImGui::Button("Stop##Linear", movementControlButtonSize))
-			setLinearVelocity(0.0);
+		if(ImGui::Button("Stop##Linear", movementControlButtonSize)) setLinearVelocity(0.0);
 	}else{
-		if(ImGui::Button("Go##Linear", movementControlButtonSize))
-			moveLinearToTargetInTime(linearPositionTargetDisplay, 0.0);
+		if(ImGui::Button("Go##Linear", movementControlButtonSize)) moveLinearToTargetInTime(linearPositionTargetDisplay, 0.0);
 	}
 	
 	ImGui::EndChild();
@@ -723,33 +717,30 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 
 	ImGui::PopFont();
 	
+	//---Target Position
 	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - ImGui::GetTextLineHeight() * 3.0);
 	sprintf(targetPositionString, "%.3f %s", clawPositionTargetDisplay, Unit::getAbbreviatedString(getClawAxisPositionUnit()));
 	ImGui::InputFloat("##TargetPosition", &clawPositionTargetDisplay, 0.0, 0.0, targetPositionString);
+	clawPositionTargetDisplay = std::min(std::abs(clawPositionTargetDisplay), (float)clawPositionLimit);
 	
 	if(hasClawAxisTargetMovement()){
 		glm::vec2 targetmin = ImGui::GetItemRectMin();
 		glm::vec2 targetmax = ImGui::GetItemRectMax();
 		glm::vec2 targetsize = ImGui::GetItemRectSize();
-		glm::vec2 progressBarMax(targetmin.x + targetsize.x * getLinearAxisTargetMovementProgress(), targetmax.y);
+		glm::vec2 progressBarMax(targetmin.x + targetsize.x * getClawAxisTargetMovementProgress(), targetmax.y);
 		ImGui::GetWindowDrawList()->AddRectFilled(targetmin, progressBarMax, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.2)), 5.0);
 	}
 	
 	ImGui::SameLine();
 	
 	if(hasClawAxisTargetMovement()){
-		if(ImGui::Button("Stop##Claw", movementControlButtonSize))
-			setClawVelocity(0.0);
+		if(ImGui::Button("Stop##Claw", movementControlButtonSize)) setClawVelocity(0.0);
 	}else{
-		if(ImGui::Button("Go##Claw", movementControlButtonSize))
-			moveClawToTargetInTime(linearPositionTargetDisplay, 0.0);
+		if(ImGui::Button("Go##Claw", movementControlButtonSize)) moveClawToTargetInTime(clawPositionTargetDisplay, 0.0);
 	}
 	
 	ImGui::EndChild();
 	
-
 	if(b_disableControls) END_DISABLE_IMGUI_ELEMENT
-	
-	
 }
 

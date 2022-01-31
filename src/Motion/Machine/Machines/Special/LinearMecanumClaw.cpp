@@ -5,9 +5,13 @@
 #include "Motion/Axis/VelocityControlledAxis.h"
 #include "Motion/SubDevice.h"
 
+#include "Motion/Manoeuvre/ParameterTrack.h"
+
 #include <tinyxml2.h>
 
 #include "Fieldbus/EtherCatFieldbus.h"
+
+#include "Project/Environnement.h"
 
 
 //======= CONFIGURATION =========
@@ -82,22 +86,24 @@ void LinearMecanumClaw::disableHardware() {
 void LinearMecanumClaw::onEnableHardware() {
 	stopHoming();
 	integratedClawPositionError = 0.0;
-	//TODO: reset interpolations
-	//linearAxisMotionProfile.resetInterpolation();
-	//clawAxisMotionProfile.resetInterpolation();
+	linearAxisMotionProfile.resetInterpolation();
+	clawAxisMotionProfile.resetInterpolation();
 }
 
 void LinearMecanumClaw::onDisableHardware() {
-	//called when hardware was disabled
 	stopHoming();
+	linearAxisMotionProfile.resetInterpolation();
+	clawAxisMotionProfile.resetInterpolation();
 }
 
 void LinearMecanumClaw::onEnableSimulation() {
-	//called when simulation is enabled
+	linearAxisMotionProfile.resetInterpolation();
+	clawAxisMotionProfile.resetInterpolation();
 }
 
 void LinearMecanumClaw::onDisableSimulation() {
-	//called when simulation is disabled
+	linearAxisMotionProfile.resetInterpolation();
+	clawAxisMotionProfile.resetInterpolation();
 }
 
 
@@ -186,7 +192,14 @@ void LinearMecanumClaw::process() {
 				linearAxisMotionProfile.updateInterpolation(profileTime_seconds);
 				break;
 			case ControlMode::EXTERNAL:
-				//get value from parameter track
+				if(linearAxisPositionParameter->hasParameterTrack()){
+					AnimatableParameterValue playbackValue;
+					linearAxisPositionParameter->getActiveTrackParameterValue(playbackValue);
+					double previousProfilePosition_machineUnits = linearAxisMotionProfile.getPosition();
+					double parameterTrackVelocity = (playbackValue.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
+					linearAxisMotionProfile.setVelocity(parameterTrackVelocity);
+					linearAxisMotionProfile.setPosition(playbackValue.realValue);
+				}
 				break;
 		}
 		
@@ -207,7 +220,14 @@ void LinearMecanumClaw::process() {
 				clawAxisMotionProfile.updateInterpolation(profileTime_seconds);
 				break;
 			case ControlMode::EXTERNAL:
-				//get value from parameter track
+				if(clawAxisPositionParameter->hasParameterTrack()){
+					AnimatableParameterValue playbackValue;
+					clawAxisPositionParameter->getActiveTrackParameterValue(playbackValue);
+					double previousProfilePosition_machineUnits = clawAxisMotionProfile.getPosition();
+					double parameterTrackVelocity = (playbackValue.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
+					clawAxisMotionProfile.setVelocity(parameterTrackVelocity);
+					clawAxisMotionProfile.setPosition(playbackValue.realValue);
+				}
 				break;
 		}
 	}
@@ -306,12 +326,90 @@ void LinearMecanumClaw::process() {
 }
 
 void LinearMecanumClaw::simulateProcess() {
-	//same as process();
-	//but used to simulate motion without hardware
+	
+	//always update profile time
+	profileTime_seconds = Environnement::getTime_seconds();
+	profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
+	
+	//if the machine is not enabled, update the motion profiles by copying sensor data
+	if(!isEnabled()) {
+		*clawPosition = 0.0;
+		*clawVelocity = 0.0;
+		*railPosition = 0.0;
+		*railVelocity = 0.0;
+		return;
+	}
+	
+	//get device references
+	auto linearAxis = getLinearAxis();
+	auto clawAxis = getClawAxis();
+	
+	//update machine state
+	*clawPosition = clawAxisMotionProfile.getPosition();
+	*clawVelocity = clawAxisMotionProfile.getVelocity();
+	*railPosition = linearAxisMotionProfile.getPosition();
+	*railVelocity = linearAxisMotionProfile.getVelocity();
+	
+	//control logic for manual moves
+	switch(linearControlMode){
+		case ControlMode::VELOCITY_TARGET:
+			linearAxisMotionProfile.matchVelocityAndRespectPositionLimits(profileDeltaTime_seconds,
+																		  linearAxisManualVelocityTarget,
+																		  linearAxisManualAcceleration,
+																		  linearAxis->getLowPositionLimit(),
+																		  linearAxis->getHighPositionLimit(),
+																		  linearAxis->getAccelerationLimit());
+			break;
+		case ControlMode::FAST_STOP:
+			linearAxisMotionProfile.matchVelocity(profileDeltaTime_seconds, 0.0, linearAxis->getAccelerationLimit());
+			break;
+		case ControlMode::POSITION_TARGET:
+			linearAxisMotionProfile.updateInterpolation(profileTime_seconds);
+			break;
+		case ControlMode::EXTERNAL:
+			if(linearAxisPositionParameter->hasParameterTrack()){
+				AnimatableParameterValue playbackValue;
+				linearAxisPositionParameter->getActiveTrackParameterValue(playbackValue);
+				double previousProfilePosition_machineUnits = linearAxisMotionProfile.getPosition();
+				double parameterTrackVelocity = (playbackValue.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
+				linearAxisMotionProfile.setVelocity(parameterTrackVelocity);
+				linearAxisMotionProfile.setPosition(playbackValue.realValue);
+			}
+			break;
+	}
+	
+	//update motion profile of claw axis
+	switch(clawControlMode){
+		case ControlMode::VELOCITY_TARGET:
+			clawAxisMotionProfile.matchVelocityAndRespectPositionLimits(profileDeltaTime_seconds,
+																		clawAxisManualVelocityTarget,
+																		clawManualAcceleration,
+																		0.0,
+																		clawPositionLimit,
+																		clawAccelerationLimit);
+			break;
+		case ControlMode::FAST_STOP:
+			clawAxisMotionProfile.matchVelocity(profileDeltaTime_seconds, 0.0, clawAccelerationLimit);
+			break;
+		case ControlMode::POSITION_TARGET:
+			clawAxisMotionProfile.updateInterpolation(profileTime_seconds);
+			break;
+		case ControlMode::EXTERNAL:
+			if(clawAxisPositionParameter->hasParameterTrack()){
+				AnimatableParameterValue playbackValue;
+				clawAxisPositionParameter->getActiveTrackParameterValue(playbackValue);
+				double previousProfilePosition_machineUnits = clawAxisMotionProfile.getPosition();
+				double parameterTrackVelocity = (playbackValue.realValue - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
+				clawAxisMotionProfile.setVelocity(parameterTrackVelocity);
+				clawAxisMotionProfile.setPosition(playbackValue.realValue);
+			}
+			break;
+	}
 }
 
 bool LinearMecanumClaw::isMoving() {
-	//true when machine is moving
+	if(linearAxisMotionProfile.getVelocity() != 0.0) return true;
+	if(clawAxisMotionProfile.getVelocity() != 0.0) return true;
 	return false;
 }
 
@@ -415,8 +513,14 @@ const char* LinearMecanumClaw::getHomingStepString(){
 void LinearMecanumClaw::setLinearVelocity(double velocity){
 	linearControlMode = ControlMode::VELOCITY_TARGET;
 	linearAxisManualVelocityTarget = velocity;
+	linearAxisMotionProfile.resetInterpolation();
 }
 
+void LinearMecanumClaw::fastStopLinear(){
+	linearAxisManualVelocityTarget = 0.0;
+	linearControlMode = ControlMode::FAST_STOP;
+	linearAxisMotionProfile.resetInterpolation();
+}
 
 void LinearMecanumClaw::moveLinearToTargetInTime(double positionTarget, double timeTarget){
 	auto linearAxis = getLinearAxis();
@@ -429,11 +533,6 @@ void LinearMecanumClaw::moveLinearToTargetInTime(double positionTarget, double t
 																linearAxis->getVelocityLimit());
 	if(success) linearControlMode = ControlMode::POSITION_TARGET;
 	else setLinearVelocity(0.0);
-}
-
-void LinearMecanumClaw::fastStopLinear(){
-	linearAxisManualVelocityTarget = 0.0;
-	linearControlMode = ControlMode::FAST_STOP;
 }
 
 void LinearMecanumClaw::moveLinearToTargetWithVelocity(double positionTarget, double velocityTarget){
@@ -452,11 +551,13 @@ void LinearMecanumClaw::moveLinearToTargetWithVelocity(double positionTarget, do
 void LinearMecanumClaw::setClawVelocity(double velocity){
 	clawControlMode = ControlMode::VELOCITY_TARGET;
 	clawAxisManualVelocityTarget = velocity;
+	clawAxisMotionProfile.resetInterpolation();
 }
 
 void LinearMecanumClaw::fastStopClaw(){
 	clawControlMode = ControlMode::FAST_STOP;
 	clawAxisManualVelocityTarget = 0.0;
+	clawAxisMotionProfile.resetInterpolation();
 }
 
 void LinearMecanumClaw::moveClawToTargetInTime(double positionTarget, double timeTarget){
@@ -488,36 +589,56 @@ void LinearMecanumClaw::moveClawToTargetWithVelocity(double positionTarget, doub
 
 double LinearMecanumClaw::getLinearAxisPosition(){
 	if(!isLinearAxisConnected()) return 0.0;
+	if(isSimulating()) return linearAxisMotionProfile.getPosition();
 	return getLinearAxis()->getActualPosition();
 }
 double LinearMecanumClaw::getLinearAxisVelocity(){
 	if(!isLinearAxisConnected()) return 0.0;
-	return getLinearAxis()->getActualVelocity();
+	if(isSimulating()) return linearAxisMotionProfile.getVelocity();
+	//return getLinearAxis()->getActualVelocity();
+	return linearAxisMotionProfile.getVelocity();
 }
 double LinearMecanumClaw::getClawAxisPosition(){
 	if(!isClawFeedbackConnected()) return 0.0;
+	if(isSimulating()) return clawAxisMotionProfile.getPosition();
 	return clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getPosition());
 }
 double LinearMecanumClaw::getClawAxisVelocity(){
 	if(!isClawFeedbackConnected()) return 0.0;
-	return clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getVelocity());
+	if(isSimulating()) return clawAxisMotionProfile.getVelocity();
+	//return clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getVelocity());
+	return clawAxisMotionProfile.getVelocity();
 }
 
 float LinearMecanumClaw::getLinearAxisPositionProgress(){
 	if(!isLinearAxisConnected()) return 0.0;
+	if(isSimulating()){
+		auto linearAxis = getLinearAxis();
+		double min = linearAxis->getLowPositionLimit();
+		double max = linearAxis->getHighPositionLimit();
+		double position = linearAxisMotionProfile.getPosition();
+		return (position - min) / (max - min);
+	}
 	return getLinearAxis()->getActualPositionNormalized();
 }
 float LinearMecanumClaw::getLinearAxisVelocityProgress(){
 	if(!isLinearAxisConnected()) return 0.0;
-	return getLinearAxis()->getActualVelocityNormalized();
+	auto linearAxis = getLinearAxis();
+	double max = linearAxis->getVelocityLimit();
+	if(isSimulating()) return std::abs(linearAxisMotionProfile.getVelocity()) / max;
+	return linearAxisMotionProfile.getVelocity() / max;
+	//return getLinearAxis()->getActualVelocityNormalized();
 }
 float LinearMecanumClaw::getClawAxisPositionProgress(){
 	if(!isClawFeedbackConnected()) return 0.0;
+	if(isSimulating()) return clawAxisMotionProfile.getPosition() / clawPositionLimit;
 	return clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getPosition()) / clawPositionLimit;
 }
 float LinearMecanumClaw::getClawAxisVelocityProgress(){
 	if(!isClawFeedbackConnected()) return 0.0;
-	return clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getVelocity()) / clawVelocityLimit;
+	if(isSimulating()) return std::abs(clawAxisMotionProfile.getVelocity()) / clawVelocityLimit;
+	//return clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getVelocity()) / clawVelocityLimit;
+	return std::abs(clawAxisMotionProfile.getVelocity()) / clawVelocityLimit;
 }
 PositionUnit LinearMecanumClaw::getLinearAxisPositionUnit(){
 	if(isLinearAxisConnected()) return PositionUnit::METER;
@@ -530,13 +651,12 @@ double LinearMecanumClaw::getLinearAxisMovementTargetNormalized(){
 	auto linearAxis = getLinearAxis();
 	double lowLimit = linearAxis->getLowPositionLimit();
 	double highLimit = linearAxis->getHighPositionLimit();
-	return linearAxisMotionProfile.getInterpolationTarget() - lowLimit / (highLimit - lowLimit);
+	return (linearAxisMotionProfile.getInterpolationTarget() - lowLimit) / (highLimit - lowLimit);
 }
 double LinearMecanumClaw::getClawAxisMovementTargetNormalized(){
-	auto clawAxis = getClawAxis();
 	double lowLimit = 0.0;
 	double highLimit = clawPositionLimit;
-	return clawAxisMotionProfile.getInterpolationTarget() - lowLimit / (highLimit - lowLimit);
+	return (clawAxisMotionProfile.getInterpolationTarget() - lowLimit) / (highLimit - lowLimit);
 }
 
 
@@ -567,46 +687,78 @@ float LinearMecanumClaw::getLinearAxisFollowingErrorProgress(){
 
 
 void LinearMecanumClaw::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
-	//check against all animatable parameters
-	//start moving parameter to requested value
+	if(parameter == linearAxisPositionParameter){
+		assert(value.type == ParameterDataType::KINEMATIC_POSITION_CURVE);
+		moveLinearToTargetWithVelocity(value.realValue, linearAxisRapidVelocity);
+	}else if(parameter == clawAxisPositionParameter){
+		assert(value.type == ParameterDataType::KINEMATIC_POSITION_CURVE);
+		moveClawToTargetWithVelocity(value.realValue, clawRapidVelocity);
+	}
 }
 
 float LinearMecanumClaw::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
-	//check against all animatable parameters
-	//report status of rapid movement of parameter
-	//0.0 = 0%
-	//1.0 = 100%
+	if(parameter == linearAxisPositionParameter){
+		return getLinearAxisTargetMovementProgress();
+	}else if(parameter == clawAxisPositionParameter){
+		return getClawAxisTargetMovementProgress();
+	}
 }
 
 void LinearMecanumClaw::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {
-	//check against all animatable parameters
-	//stop rapid movement of specified parameter
+	if(parameter == linearAxisPositionParameter){
+		setLinearVelocity(0.0);
+	}else if(parameter == clawAxisPositionParameter){
+		setClawVelocity(0.0);
+	}
 }
 
 
 bool LinearMecanumClaw::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
-	//check against all animatable parameters
-	//report if playback of the parameter is ready to start from the given value
+	if(parameter == linearAxisPositionParameter){
+		assert(value.type == ParameterDataType::KINEMATIC_POSITION_CURVE);
+		return value.realValue == linearAxisMotionProfile.getPosition();
+	}else if(parameter == clawAxisPositionParameter){
+		assert(value.type == ParameterDataType::KINEMATIC_POSITION_CURVE);
+		return value.realValue == clawAxisMotionProfile.getPosition();
+	}
 }
 
 void LinearMecanumClaw::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {
-	//check against all animatable parameters
-	//called when playback of that parameter starts
+	if(parameter == linearAxisPositionParameter){
+		linearControlMode = ControlMode::EXTERNAL;
+	}else if(parameter == clawAxisPositionParameter){
+		clawControlMode = ControlMode::EXTERNAL;
+	}
 }
 
 void LinearMecanumClaw::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) {
-	//check against all animatable parameters
-	//called when playback of that parameter is interrupted
+	if(parameter == linearAxisPositionParameter){
+		setLinearVelocity(0.0);
+	}else if(parameter == clawAxisPositionParameter){
+		setClawVelocity(0.0);
+	}
 }
 
 void LinearMecanumClaw::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) {
-	//check against all animatable parameters
-	//called when playback of that parameter end / finishes
+	//here we have to make sure that the last position of the manoeuvre stays in the motion profile on the next loop
+	//to make sure of this we manually set the profile velocity to 0.0, and the target velocity to 0.0 to make sure nothing moves after the manoeuvre is done playing
+	if(parameter == linearAxisPositionParameter){
+		setLinearVelocity(0.0);
+		linearAxisMotionProfile.setVelocity(0.0);
+	}else if(parameter == clawAxisPositionParameter){
+		setClawVelocity(0.0);
+		clawAxisMotionProfile.setVelocity(0.0);
+	}
 }
 
 void LinearMecanumClaw::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	//check against all animatable parameters
 	//write actual value of parameter to value argument
+	if(parameter == linearAxisPositionParameter){
+		value.realValue = linearAxisMotionProfile.getPosition();
+	}else if(parameter == clawAxisPositionParameter){
+		value.realValue = clawAxisMotionProfile.getPosition();
+	}
 }
 
 
@@ -631,6 +783,147 @@ bool LinearMecanumClaw::validateParameterTrack(const std::shared_ptr<ParameterTr
 	//in this case validity and validation errors needs to be left untouched
 	
 	//return overall validity
+	using namespace Motion;
+	bool b_curveValid = true;
+	
+	if(parameterTrack->parameter == linearAxisPositionParameter){
+		
+		assert(parameterTrack->curves.size() == 1);
+		if(!isLinearAxisConnected()) return false;
+
+		auto linearAxis = getLinearAxis();
+		double lowLimit_machineUnits = linearAxis->getLowPositionLimit();
+		double highLimit_machineUnits = linearAxis->getHighPositionLimit();
+		double velocityLimit_machineUnits = linearAxis->getVelocityLimit();
+		double accelerationLimit_machineUnits = linearAxis->getAccelerationLimit();
+		
+		//get a reference to the curve we need to validate
+		auto curve = parameterTrack->curves.front();
+
+		//validate all control points
+		for (auto& controlPoint : curve->points) {
+			//check all validation conditions and find validaiton error state
+			if (controlPoint->position < lowLimit_machineUnits || controlPoint->position > highLimit_machineUnits)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+			else if (std::abs(controlPoint->velocity) > velocityLimit_machineUnits)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED;
+			else if (std::abs(controlPoint->rampIn) > accelerationLimit_machineUnits)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED;
+			else if (std::abs(controlPoint->rampOut) > accelerationLimit_machineUnits)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED;
+			else if (controlPoint->rampIn == 0.0)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO;
+			else if (controlPoint->rampOut == 0.0)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO;
+			else controlPoint->validationError = ValidationError::NO_VALIDATION_ERROR; //All Checks Passed: No Validation Error !
+			//set valid flag for point, if invalid, set flag for whole curve
+			controlPoint->b_valid = controlPoint->validationError == ValidationError::NO_VALIDATION_ERROR;
+			if(!controlPoint->b_valid) b_curveValid = false;
+		}
+
+		//validate all interpolations of the curve
+		for (auto& interpolation : curve->interpolations) {
+			//if the interpolation is already marked invalid an validation error type was already set by the interpolation engine
+			//in this case we don't overwrite the validation error value
+			if (!interpolation->b_valid) {
+				b_curveValid = false;
+				continue;
+			}
+			//check if the velocity of the interpolation exceeds the limit
+			if (std::abs(interpolation->interpolationVelocity) > velocityLimit_machineUnits) {
+				interpolation->validationError = ValidationError::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED;
+				interpolation->b_valid = false;
+				b_curveValid = false;
+				continue;
+			}
+			//if all interpolation checks passed, we check all interpolation preview points for their range
+			for (auto& point : interpolation->displayPoints) {
+				if (point.position > highLimit_machineUnits || point.position < lowLimit_machineUnits) {
+					interpolation->validationError = ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
+					interpolation->b_valid = false;
+					b_curveValid = false;
+					break;
+				}
+			}
+		}
+		
+		//after performing all checks, we assign the curve validation flag
+		//the curve itself doesn't have a validation error value
+		curve->b_valid = b_curveValid;
+		
+		//we return the result of the validation
+		return b_curveValid;
+		
+	}else if(parameterTrack->parameter == clawAxisPositionParameter){
+		
+		assert(parameterTrack->curves.size() == 1);
+		if(!isClawAxisConnected()) return false;
+
+		auto clawAxis = getClawAxis();
+		double lowLimit_machineUnits = 0.0;
+		double highLimit_machineUnits = clawPositionLimit;
+		double velocityLimit_machineUnits = clawAxis->getVelocityLimit();
+		double accelerationLimit_machineUnits = clawAxis->getAccelerationLimit();
+		
+		//get a reference to the curve we need to validate
+		auto curve = parameterTrack->curves.front();
+
+		//validate all control points
+		for (auto& controlPoint : curve->points) {
+			//check all validation conditions and find validaiton error state
+			if (controlPoint->position < lowLimit_machineUnits || controlPoint->position > highLimit_machineUnits)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+			else if (std::abs(controlPoint->velocity) > velocityLimit_machineUnits)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED;
+			else if (std::abs(controlPoint->rampIn) > accelerationLimit_machineUnits)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED;
+			else if (std::abs(controlPoint->rampOut) > accelerationLimit_machineUnits)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED;
+			else if (controlPoint->rampIn == 0.0)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO;
+			else if (controlPoint->rampOut == 0.0)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO;
+			else controlPoint->validationError = ValidationError::NO_VALIDATION_ERROR; //All Checks Passed: No Validation Error !
+			//set valid flag for point, if invalid, set flag for whole curve
+			controlPoint->b_valid = controlPoint->validationError == ValidationError::NO_VALIDATION_ERROR;
+			if(!controlPoint->b_valid) b_curveValid = false;
+		}
+
+		//validate all interpolations of the curve
+		for (auto& interpolation : curve->interpolations) {
+			//if the interpolation is already marked invalid an validation error type was already set by the interpolation engine
+			//in this case we don't overwrite the validation error value
+			if (!interpolation->b_valid) {
+				b_curveValid = false;
+				continue;
+			}
+			//check if the velocity of the interpolation exceeds the limit
+			if (std::abs(interpolation->interpolationVelocity) > velocityLimit_machineUnits) {
+				interpolation->validationError = ValidationError::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED;
+				interpolation->b_valid = false;
+				b_curveValid = false;
+				continue;
+			}
+			//if all interpolation checks passed, we check all interpolation preview points for their range
+			for (auto& point : interpolation->displayPoints) {
+				if (point.position > highLimit_machineUnits || point.position < lowLimit_machineUnits) {
+					interpolation->validationError = ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
+					interpolation->b_valid = false;
+					b_curveValid = false;
+					break;
+				}
+			}
+		}
+		
+		//after performing all checks, we assign the curve validation flag
+		//the curve itself doesn't have a validation error value
+		curve->b_valid = b_curveValid;
+		
+		//we return the result of the validation
+		return b_curveValid;
+	}
+	
+	return false;
 }
 
 bool LinearMecanumClaw::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
@@ -640,6 +933,17 @@ bool LinearMecanumClaw::getCurveLimitsAtTime(const std::shared_ptr<AnimatablePar
 	
 	//return true if the arguments make sense and false if they don't
 	
+	if(parameter == linearAxisPositionParameter){
+		assert(parameterCurves.size() == 1);
+		auto linearAxis = getLinearAxis();
+		lowLimit = linearAxis->getLowPositionLimit();
+		highLimit = linearAxis->getHighPositionLimit();
+	}else if(parameter == clawAxisPositionParameter){
+		assert(parameterCurves.size() == 1);
+		lowLimit = 0.0;
+		highLimit = clawPositionLimit;
+	}
+	
 	return false;
 }
 
@@ -647,6 +951,11 @@ bool LinearMecanumClaw::getCurveLimitsAtTime(const std::shared_ptr<AnimatablePar
 void LinearMecanumClaw::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {
 	//check against all animatable parameters
 	//generate timed motion curves to the target points and write them to the outputcurves argument
+	if(parameter == linearAxisPositionParameter){
+		
+	}else if(parameter == clawAxisPositionParameter){
+		
+	}
 }
 
 
@@ -680,12 +989,9 @@ void LinearMecanumClaw::sanitizeParameters(){
 	if(isLinearAxisConnected()) linearAxisManualAcceleration = std::min(linearAxisManualAcceleration, getLinearAxis()->getAccelerationLimit());
 	
 	clawRapidVelocity = std::min(std::abs(clawRapidVelocity), clawRapidVelocity);
-	clawRapidAcceleration = std::min(std::abs(clawRapidAcceleration), clawAccelerationLimit);
 	
 	linearAxisRapidVelocity = std::abs(linearAxisRapidVelocity);
 	if(isLinearAxisConnected()) linearAxisRapidVelocity = std::min(linearAxisRapidVelocity, getLinearAxis()->getVelocityLimit());
-	linearAxisRapidAcceleration = std::abs(linearAxisRapidAcceleration);
-	if(isLinearAxisConnected()) linearAxisRapidAcceleration = std::min(linearAxisRapidVelocity, getLinearAxis()->getAccelerationLimit());
 }
 
 
@@ -718,9 +1024,7 @@ bool LinearMecanumClaw::saveMachine(tinyxml2::XMLElement* xml) {
 	
 	XMLElement* rapidsXML = xml->InsertNewChildElement("Rapids");
 	rapidsXML->SetAttribute("LinearAxisVelocity", linearAxisRapidVelocity);
-	rapidsXML->SetAttribute("LinearAxisAcceleration", linearAxisRapidAcceleration);
 	rapidsXML->SetAttribute("ClawVelocity", clawRapidVelocity);
-	rapidsXML->SetAttribute("ClawAcceleration", clawRapidAcceleration);
 	
 	return true;
 }
@@ -759,9 +1063,7 @@ bool LinearMecanumClaw::loadMachine(tinyxml2::XMLElement* xml) {
 	XMLElement* rapidsXML = xml->FirstChildElement("Rapids");
 	if(rapidsXML == nullptr) return Logger::warn("Could not find rapids attribute");
 	if(rapidsXML->QueryDoubleAttribute("LinearAxisVelocity", &linearAxisRapidVelocity) != XML_SUCCESS) return Logger::warn("Could not find linear axis rapid velocity Attribute");
-	if(rapidsXML->QueryDoubleAttribute("LinearAxisAcceleration", &linearAxisRapidAcceleration) != XML_SUCCESS) return Logger::warn("Could not find linear axis rapid acceleration Attribute");
 	if(rapidsXML->QueryDoubleAttribute("ClawVelocity", &clawRapidVelocity) != XML_SUCCESS) return Logger::warn("Could not find claw axis rapid velocity Attribute");
-	if(rapidsXML->QueryDoubleAttribute("ClawAcceleration", &clawRapidAcceleration) != XML_SUCCESS) return Logger::warn("Could not find claw axis rapid acceleration Attribute");
 	
 	return true;
 }
