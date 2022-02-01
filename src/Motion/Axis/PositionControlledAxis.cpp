@@ -631,13 +631,19 @@ void PositionControlledAxis::homingControl(){
 					if (!isMoving()) {
 						auto servoActuator = getServoActuatorDevice();
 						//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
-						if(servoActuator->canHardReset()) servoActuator->hardReset();
-						homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+						if(servoActuator->canHardReset()) {
+							servoActuator->hardReset();
+							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+						}else{
+							servoActuator->setPosition(0.0);
+							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+						}
 					}
 					break;
 				case HomingStep::RESETTING_POSITION_FEEDBACK:
 					if(getServoActuatorDevice()->canHardReset()){
 						//if the servo actuator can hard reset its encoder, check if we are done resetting
+						Logger::critical("Waiting For Reset");
 						if(!getServoActuatorDevice()->isHardResetting()) {
 							motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
 							onHomingSuccess();

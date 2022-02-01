@@ -86,7 +86,6 @@ void LinearMecanumClaw::disableHardware() {
 
 void LinearMecanumClaw::onEnableHardware() {
 	stopHoming();
-	integratedClawPositionError = 0.0;
 	linearAxisMotionProfile.resetInterpolation();
 	clawAxisMotionProfile.resetInterpolation();
 	setLinearVelocity(0.0);
@@ -293,29 +292,15 @@ void LinearMecanumClaw::process() {
 	double clawTargetPosition = clawAxisMotionProfile.getPosition();
 	double clawPositionError = clawTargetPosition - *clawPosition;
 	
-	
-	//only do closed loop correction if the closed limit signal is not triggered and we are above the error threshold
-	
-	 //TODO: force closing when these conditions are met, maybe drop the integral gain
+	//force closing of the heart when these conditions are met
 	if(clawTargetPosition == 0.0 && clawTargetVelocity == 0.0 && !*clawClosedSignal){
-		Logger::warn("Force Closing !");
 		calculatedWheelVelocity -= 0.05;
-	 //force closing here at a constant velocity
-	 
-	}else if(*clawClosedSignal || std::abs(clawPositionError) < clawPositionErrorThreshold){
-		//if we are completely closed, or below the error threshold
-		//we can safely reset reset the integrated error
-		//and not do any closed loop correction
-		integratedClawPositionError = 0.0;
-	}else{
-		//increment the integrated position error but avoid integrator windup by limiting it
-		integratedClawPositionError += clawPositionError * profileDeltaTime_seconds;
-		integratedClawPositionError = std::min(integratedClawPositionError, integratedClawPositionErrorLimit);
-		integratedClawPositionError = std::max(integratedClawPositionError, -integratedClawPositionErrorLimit);
-		//correct error by applying gain weighted corrections
+		//TODO: choose closing velocity
+	}else if(!*clawClosedSignal && std::abs(clawPositionError) > clawPositionErrorThreshold){
+		//correct error by applying proportional gain weighted corrections
 		calculatedWheelVelocity += clawPositionError * clawPositionLoopProportionalGain;
-		calculatedWheelVelocity += integratedClawPositionError * clawPositionLoopIntegralGain;
 	}
+
 		
 	//disable the machine if the position error of the heart axis was exceeded
 	if(std::abs(clawPositionError) > clawMaxPositionFollowingError) {
@@ -467,12 +452,14 @@ void LinearMecanumClaw::homingControl(){
 			break;
 		case ClawHomingStep::FOUND_HEART_CLOSED_LIMIT:
 			if(clawAxisMotionProfile.getVelocity() == 0.0){
-				if(getClawFeedbackDevice()->canHardReset()){
-					getClawFeedbackDevice()->resetOffset();
-					getClawFeedbackDevice()->hardReset();
+				auto clawFeedbackDevice = getClawFeedbackDevice();
+				if(clawFeedbackDevice->canHardReset()){
+					clawFeedbackDevice->resetOffset();
+					clawFeedbackDevice->hardReset();
 					homingStep = ClawHomingStep::RESETTING_HEART_FEEDBACK;
 				}else{
-					getClawFeedbackDevice()->setPosition(0.0);
+					clawFeedbackDevice->setPosition(0.0);
+					homingStep = ClawHomingStep::RESETTING_HEART_FEEDBACK;
 				}
 			}
 			break;
@@ -490,7 +477,6 @@ void LinearMecanumClaw::homingControl(){
 			}
 			break;
 		case ClawHomingStep::HOMING_LINEAR_AXIS:
-			Logger::warn("HOMING_LINEAR_AXIS");
 			if(getLinearAxis()->didHomingSucceed()){
 				homingStep = ClawHomingStep::HOMING_FINISHED;
 				auto linearAxis = getLinearAxis();
@@ -1048,8 +1034,6 @@ bool LinearMecanumClaw::saveMachine(tinyxml2::XMLElement* xml) {
 	clawXML->SetAttribute("OpenPositionLimit", clawPositionLimit);
 	clawXML->SetAttribute("HomingVelocity", clawHomingVelocity);
 	clawXML->SetAttribute("PositionProportionalGain", clawPositionLoopProportionalGain);
-	clawXML->SetAttribute("PositionIntegralGain", clawPositionLoopIntegralGain);
-	clawXML->SetAttribute("PositionErrorIntegralLimit", integratedClawPositionErrorLimit);
 	clawXML->SetAttribute("MaxFollowingError", clawMaxPositionFollowingError);
 	clawXML->SetAttribute("PositionErrorThreshold", clawPositionErrorThreshold);
 	
@@ -1085,8 +1069,6 @@ bool LinearMecanumClaw::loadMachine(tinyxml2::XMLElement* xml) {
 	if(clawXML->QueryDoubleAttribute("OpenPositionLimit", &clawPositionLimit) != XML_SUCCESS) return Logger::warn("could not find claw open position limit attribute");
 	if(clawXML->QueryDoubleAttribute("HomingVelocity", &clawHomingVelocity) != XML_SUCCESS) return Logger::warn("Could not find claw homing velocity");
 	if(clawXML->QueryDoubleAttribute("PositionProportionalGain", &clawPositionLoopProportionalGain) != XML_SUCCESS) return Logger::warn("Could not find claw proportional gain");
-	if(clawXML->QueryDoubleAttribute("PositionIntegralGain", &clawPositionLoopIntegralGain) != XML_SUCCESS) return Logger::warn("Could not find claw integral gain");
-	if(clawXML->QueryDoubleAttribute("PositionErrorIntegralLimit", &integratedClawPositionErrorLimit) != XML_SUCCESS) return Logger::warn("Could not find claw integrated error limit");
 	if(clawXML->QueryDoubleAttribute("MaxFollowingError", &clawMaxPositionFollowingError) != XML_SUCCESS) return Logger::warn("Could not find claw max following error");
 	if(clawXML->QueryDoubleAttribute("PositionErrorThreshold", &clawPositionErrorThreshold) != XML_SUCCESS) return Logger::warn("Could not find claw position error treshold");
 	

@@ -67,8 +67,6 @@ public:
 	double clawAccelerationLimit = 0.0;
 	double clawPositionLimit = 0.0; //min claw position is zero, max position is measured by homing procedure
 	double clawPositionLoopProportionalGain = 0.0;
-	double clawPositionLoopIntegralGain = 0.0;
-	double integratedClawPositionErrorLimit = 5.0;
 	double clawMaxPositionFollowingError = 0.0;
 	double clawPositionErrorThreshold = 0.0;
 	double clawHomingVelocity = 0.0;
@@ -100,8 +98,6 @@ public:
 	Motion::Profile clawAxisMotionProfile;
 	ControlMode clawControlMode = ControlMode::VELOCITY_TARGET;
 	double clawAxisManualVelocityTarget = 0.0;
-	
-	double integratedClawPositionError = 0.0;
 	
 	void setLinearVelocity(double velocity);
 	void moveLinearToTargetInTime(double positionTarget, double timeTarget);

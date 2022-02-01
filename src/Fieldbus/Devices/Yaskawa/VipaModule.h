@@ -158,6 +158,7 @@ public:
 	void updateEncoderWorkingRange();
 	void updateResetPinVisibility();
 	uint64_t resetStartTime_nanoseconds = 0;
+	double resetStartTime_seconds = 0.0;
 	
 	//==== Data Type ====
 	

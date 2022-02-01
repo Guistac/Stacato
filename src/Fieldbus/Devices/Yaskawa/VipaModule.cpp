@@ -304,20 +304,30 @@ void VIPA_050_1BS00::readInputs(){
 	encoderDevice->b_detected = true;
 	encoderDevice->b_ready = parentBusCoupler->isStateOperational();
 	
+
+	
 	if(encoderDevice->b_doHardReset){
+		if(strcmp(encoderDevice->getName(), "Module 3 SSI Encoder") == 0){
+			Logger::warn("REQUEST HARD RESET");
+		}
 		encoderDevice->b_doHardReset = false;
 		encoderDevice->b_isHardResetting = true;
 		*resetPinValue = true;
-		resetStartTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+		resetStartTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
+		Logger::warn("Do Hard Reset");
+		//resetStartTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	}
 	
 	if(encoderDevice->isHardResetting()) {
 		encoderDevice->velocity_positionUnitsPerSecond = 0.0;
-		if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() > resetStartTime_nanoseconds + resetTime_milliseconds * 1000000.0){
+		//if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() > resetStartTime_nanoseconds + resetTime_milliseconds * 1000000.0){
+		double time = EtherCatFieldbus::getCycleProgramTime_seconds();
+		if(time > resetStartTime_seconds + (double)resetTime_milliseconds / 1000.0){
 			encoderDevice->b_isHardResetting = false;
 			*resetPinValue = false;
 		}
 	}
+	
 }
 
 void VIPA_050_1BS00::writeOutputs(){ /*No Outputs*/ }

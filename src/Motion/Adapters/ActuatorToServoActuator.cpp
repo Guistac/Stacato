@@ -46,7 +46,6 @@ void ActuatorToServoActuator::process(){
 	servoActuator->positionUnit = actuatorDevice->positionUnit;
 	servoActuator->b_online = true;
 	servoActuator->b_detected = true;
-	servoActuator->b_canHardReset = feedbackDevice->canHardReset();
 	servoActuator->b_parked = false;
 	servoActuator->b_ready = feedbackDevice->isReady() && actuatorDevice->isReady();
 	servoActuator->positionRaw_positionUnits = feedbackUnitsToActuatorUnits(feedbackDevice->positionRaw_positionUnits);
@@ -60,6 +59,14 @@ void ActuatorToServoActuator::process(){
 	servoActuator->velocityLimit_positionUnitsPerSecond = actuatorDevice->velocityLimit_positionUnitsPerSecond;
 	servoActuator->minVelocity_positionUnitsPerSecond = actuatorDevice->minVelocity_positionUnitsPerSecond;
 	servoActuator->accelerationLimit_positionUnitsPerSecondSquared = actuatorDevice->accelerationLimit_positionUnitsPerSecondSquared;
+
+	//propagate the request backwards to the encoder
+	if(servoActuator->b_doHardReset){
+		servoActuator->b_doHardReset = false;
+		feedbackDevice->b_doHardReset = true;
+	}
+	servoActuator->b_canHardReset = feedbackDevice->canHardReset();
+	servoActuator->b_isHardResetting = feedbackDevice->b_isHardResetting;
 	
 	if(!servoActuator->isEnabled()){
 		motionProfile.setPosition(feedbackUnitsToActuatorUnits(feedbackDevice->getPosition()));

@@ -15,15 +15,15 @@
                             <Channel Range="± 10V" ShortCircuitDetection="false"/>
                             <Channel Range="± 10V" ShortCircuitDetection="false"/>
                         </Module>
-                        <Module Type="VIPA 050-1BS00" Encoding="Gray" TransmissionRate="500.0 Khz" IdleTime="32 µs" CenterRangeOnZero="true" HasResetSignal="true" ResetTime="1" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSB First (default)" ClockEdge="Rising Edge (default)" Zero_revolutions="0"/>
-                        <Module Type="VIPA 050-1BS00" Encoding="Gray" TransmissionRate="500.0 Khz" IdleTime="32 µs" CenterRangeOnZero="true" HasResetSignal="true" ResetTime="1" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSB First (default)" ClockEdge="Rising Edge (default)" Zero_revolutions="0"/>
+                        <Module Type="VIPA 050-1BS00" Encoding="Gray" TransmissionRate="500.0 Khz" IdleTime="32 µs" CenterRangeOnZero="true" HasResetSignal="true" ResetTime="2" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSB First (default)" ClockEdge="Rising Edge (default)" Zero_revolutions="0"/>
+                        <Module Type="VIPA 050-1BS00" Encoding="Gray" TransmissionRate="500.0 Khz" IdleTime="32 µs" CenterRangeOnZero="true" HasResetSignal="true" ResetTime="2" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSB First (default)" ClockEdge="Rising Edge (default)" Zero_revolutions="0"/>
                     </SLIOModules>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Module1DigitalOutput0" DisplayString="Enable costière" DataType="Boolean" UniqueID="32" Visible="true"/>
                     <InputPin SaveString="Module1DigitalOutput1" DisplayString="Enable coeur" DataType="Boolean" UniqueID="33" Visible="true"/>
-                    <InputPin SaveString="Module1DigitalOutput2" DisplayString="Reset Codeur Costière" DataType="Boolean" UniqueID="34" Visible="true"/>
-                    <InputPin SaveString="Module1DigitalOutput3" DisplayString="Reset Codeur Coeur" DataType="Boolean" UniqueID="35" Visible="true"/>
+                    <InputPin SaveString="Module1DigitalOutput2" DisplayString="Zero Codeur Costière" DataType="Boolean" UniqueID="34" Visible="true"/>
+                    <InputPin SaveString="Module1DigitalOutput3" DisplayString="Zero Codeur Coeur" DataType="Boolean" UniqueID="35" Visible="true"/>
                     <InputPin SaveString="Module1DigitalOutput4" DisplayString="- NC -" DataType="Boolean" UniqueID="36" Visible="false"/>
                     <InputPin SaveString="Module1DigitalOutput5" DisplayString="- NC -" DataType="Boolean" UniqueID="37" Visible="false"/>
                     <InputPin SaveString="Module1DigitalOutput6" DisplayString="- NC -" DataType="Boolean" UniqueID="38" Visible="false"/>
@@ -162,7 +162,7 @@
                 <NodeEditorPosition x="920" y="-210"/>
                 <NodeSpecificData ShortName="&lt;3">
                     <MecanumWheels DistanceFromClawPivot="5.7750000000000004" PivotAngleWhenClosed="11.25" WheelCircumference="0.63773999999999997"/>
-                    <Claw PositionUnit="Degrees" FeedbackUnitsPerClawUnit="0.034722222222222002" VelocityLimit="2.5" ManualAcceleration="1" AccelerationLimit="1.5" OpenPositionLimit="83" HomingVelocity="0.5" PositionProportionalGain="0.14999999999999999" PositionIntegralGain="0" PositionErrorIntegralLimit="1" MaxFollowingError="1.5" PositionErrorThreshold="0.050000000000000003"/>
+                    <Claw PositionUnit="Degrees" FeedbackUnitsPerClawUnit="0.034722222222222002" VelocityLimit="2.5" ManualAcceleration="1" AccelerationLimit="1.5" OpenPositionLimit="83" HomingVelocity="0.5" PositionProportionalGain="0.14999999999999999" MaxFollowingError="1.5" PositionErrorThreshold="0.050000000000000003"/>
                     <Linear ManualAcceleration="0.050000000000000003"/>
                     <Rapids LinearAxisVelocity="0.20000000000000001" ClawVelocity="1.5"/>
                 </NodeSpecificData>
@@ -226,8 +226,6 @@
             </Node>
         </Nodes>
         <Links>
-            <Link UniqueID="160" StartPin="120" EndPin="35"/>
-            <Link UniqueID="161" StartPin="118" EndPin="34"/>
             <Link UniqueID="169" StartPin="19" EndPin="163"/>
             <Link UniqueID="170" StartPin="27" EndPin="164"/>
             <Link UniqueID="180" StartPin="30" EndPin="178"/>
@@ -258,13 +256,15 @@
             <Link UniqueID="288" StartPin="286" EndPin="217"/>
             <Link UniqueID="291" StartPin="236" EndPin="213"/>
             <Link UniqueID="292" StartPin="152" EndPin="214"/>
+            <Link UniqueID="293" StartPin="118" EndPin="34"/>
+            <Link UniqueID="294" StartPin="120" EndPin="35"/>
         </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en4" Name="en4"/>
+        <Primary Description="en7" Name="en7"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>

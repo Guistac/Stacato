@@ -277,8 +277,6 @@ void LinearMecanumClaw::controlsGui() {
 	ImGui::ProgressBar(clawMovementTimeProgress, progressBarSize, clawMovementString);
 	ImGui::PopStyleColor();
 	
-	ImGui::Text("Integrated Error : %.3f %s", integratedClawPositionError, Unit::getAbbreviatedString(clawPositionUnit));
-	
 	glm::vec4 clawClosedSignalColor;
 	if(*clawClosedSignal) clawClosedSignalColor = Colors::green;
 	else clawClosedSignalColor = Colors::darkGray;
@@ -439,16 +437,6 @@ void LinearMecanumClaw::settingsGui() {
 	
 	ImGui::Text("Claw Position Loop Proportional Gain :");
 	ImGui::InputDouble("##clawGainProp", &clawPositionLoopProportionalGain, 0.0, 0.0, "%.3f");
-	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-	
-	ImGui::Text("Claw Position Loop Integral Gain :");
-	ImGui::InputDouble("##clawGainInt", &clawPositionLoopIntegralGain, 0.0, 0.0, "%.3f");
-	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-	
-	ImGui::Text("Claw Position Error Integral Limit :");
-	static char errorIntegralLimitString[256];
-	sprintf(errorIntegralLimitString, "%.3f%s", integratedClawPositionErrorLimit, Unit::getAbbreviatedString(clawPositionUnit));
-	ImGui::InputDouble("##clawIntErrLim", &integratedClawPositionErrorLimit, 0.0, 0.0, errorIntegralLimitString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	ImGui::Text("Claw Max Position Following Error :");
