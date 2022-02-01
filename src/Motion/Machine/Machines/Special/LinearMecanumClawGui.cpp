@@ -312,7 +312,7 @@ void LinearMecanumClaw::controlsGui() {
 			homingColor = Colors::green;
 			break;
 	}
-	BackgroundText::draw(getHomingStepString(), singleButtonSize, homingColor);
+	BackgroundText::draw(getHomingStateString(), singleButtonSize, homingColor);
 	
 	
 	
@@ -563,7 +563,7 @@ void LinearMecanumClaw::metricsGui() {
 }
 
 float LinearMecanumClaw::getMiniatureWidth() {
-	return ImGui::GetTextLineHeight() * 15.0;
+	return ImGui::GetTextLineHeight() * 18.0;
 }
 
 void LinearMecanumClaw::machineSpecificMiniatureGui() {
@@ -589,7 +589,7 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	verticalSliderSize = glm::vec2((ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x * 2.0) / 3.0,
 								   sliderHeight);
 	
-	BackgroundText::draw("Linear Axis", titleButtonSize, Colors::darkGray);
+	BackgroundText::draw("Translation", titleButtonSize, Colors::darkGray);
 	
 	//---Sliders
 	float linearVelocityLimit = 0.0;
@@ -676,7 +676,7 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	ImGui::SameLine();
 	ImGui::BeginChild("ClawAxisControls", axisChildSize);
 	
-	BackgroundText::draw("Claw Axis", titleButtonSize, Colors::darkGray);
+	BackgroundText::draw("Ouverture", titleButtonSize, Colors::darkGray);
 	
 	//---Sliders
 	ImGui::VSliderFloat("##ClawManualVelocity", verticalSliderSize, &clawManualVelocityDisplay, -clawVelocityLimit, clawVelocityLimit, "");

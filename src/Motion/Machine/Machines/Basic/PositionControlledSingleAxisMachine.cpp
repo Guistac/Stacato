@@ -215,8 +215,13 @@ void PositionControlledSingleAxisMachine::simulateProcess() {
 }
 
 
-
-
+bool PositionControlledSingleAxisMachine::isHoming(){ return false; }
+void PositionControlledSingleAxisMachine::startHoming(){}
+void PositionControlledSingleAxisMachine::stopHoming(){}
+bool PositionControlledSingleAxisMachine::didHomingSucceed(){}
+bool PositionControlledSingleAxisMachine::didHomingFail(){}
+float PositionControlledSingleAxisMachine::getHomingProgress(){ return 0.0; }
+const char* PositionControlledSingleAxisMachine::getHomingStateString(){ return "default state string (something went wrong)"; }
 
 
 bool PositionControlledSingleAxisMachine::isAxisConnected() {

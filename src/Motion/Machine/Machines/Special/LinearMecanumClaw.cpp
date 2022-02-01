@@ -16,6 +16,7 @@
 
 //======= CONFIGURATION =========
 
+
 void LinearMecanumClaw::initialize() {
 	addNodePin(linearAxisPin);
 	addNodePin(clawAxisPin);
@@ -88,6 +89,8 @@ void LinearMecanumClaw::onEnableHardware() {
 	integratedClawPositionError = 0.0;
 	linearAxisMotionProfile.resetInterpolation();
 	clawAxisMotionProfile.resetInterpolation();
+	setLinearVelocity(0.0);
+	setClawVelocity(0.0);
 }
 
 void LinearMecanumClaw::onDisableHardware() {
@@ -99,6 +102,8 @@ void LinearMecanumClaw::onDisableHardware() {
 void LinearMecanumClaw::onEnableSimulation() {
 	linearAxisMotionProfile.resetInterpolation();
 	clawAxisMotionProfile.resetInterpolation();
+	setLinearVelocity(0.0);
+	setClawVelocity(0.0);
 }
 
 void LinearMecanumClaw::onDisableSimulation() {
@@ -290,15 +295,14 @@ void LinearMecanumClaw::process() {
 	
 	
 	//only do closed loop correction if the closed limit signal is not triggered and we are above the error threshold
-	/*
+	
 	 //TODO: force closing when these conditions are met, maybe drop the integral gain
 	if(clawTargetPosition == 0.0 && clawTargetVelocity == 0.0 && !*clawClosedSignal){
-	
+		Logger::warn("Force Closing !");
+		calculatedWheelVelocity -= 0.05;
 	 //force closing here at a constant velocity
 	 
-	}else */
-	
-	if(*clawClosedSignal || std::abs(clawPositionError) < clawPositionErrorThreshold){
+	}else if(*clawClosedSignal || std::abs(clawPositionError) < clawPositionErrorThreshold){
 		//if we are completely closed, or below the error threshold
 		//we can safely reset reset the integrated error
 		//and not do any closed loop correction
@@ -415,11 +419,15 @@ bool LinearMecanumClaw::isMoving() {
 
 void LinearMecanumClaw::startHoming(){
 	b_isHoming = true;
+	b_homingFailed = false;
+	b_homingSucceeded = false;
 	homingStep = ClawHomingStep::NOT_STARTED;
 }
 
 void LinearMecanumClaw::stopHoming(){
 	b_isHoming = false;
+	b_homingFailed = true;
+	b_homingSucceeded = false;
 	homingStep = ClawHomingStep::NOT_STARTED;
 	setLinearVelocity(0.0);
 	setClawVelocity(0.0);
@@ -427,18 +435,20 @@ void LinearMecanumClaw::stopHoming(){
 
 void LinearMecanumClaw::onHomingSuccess(){
 	b_isHoming = false;
+	b_homingSucceeded = true;
+	b_homingFailed = false;
 	homingStep = ClawHomingStep::HOMING_FINISHED;
 	setLinearVelocity(0.0);
 	setClawVelocity(0.0);
-	Logger::info("Homing Succeeded !");
 }
 
 void LinearMecanumClaw::onHomingFailure(){
 	b_isHoming = false;
+	b_homingSucceeded = false;
+	b_homingFailed = true;
 	homingStep = ClawHomingStep::HOMING_FAILED;
 	setLinearVelocity(0.0);
 	setClawVelocity(0.0);
-	Logger::critical("Homing Failed !!!!");
 }
 
 
@@ -480,6 +490,7 @@ void LinearMecanumClaw::homingControl(){
 			}
 			break;
 		case ClawHomingStep::HOMING_LINEAR_AXIS:
+			Logger::warn("HOMING_LINEAR_AXIS");
 			if(getLinearAxis()->didHomingSucceed()){
 				homingStep = ClawHomingStep::HOMING_FINISHED;
 				auto linearAxis = getLinearAxis();
@@ -497,8 +508,31 @@ void LinearMecanumClaw::homingControl(){
 	}
 }
 
-const char* LinearMecanumClaw::getHomingStepString(){
-	if(!isHoming()) return Enumerator::getDisplayString(ClawHomingStep::NOT_STARTED);
+bool LinearMecanumClaw::isHoming(){
+	return b_isHoming;
+}
+
+float LinearMecanumClaw::getHomingProgress(){
+	switch(homingStep){
+		case ClawHomingStep::NOT_STARTED: return 0.0;
+		case ClawHomingStep::SEARCHING_HEART_CLOSED_LIMIT: return 0.1;
+		case ClawHomingStep::FOUND_HEART_CLOSED_LIMIT: return 0.3;
+		case ClawHomingStep::RESETTING_HEART_FEEDBACK: return 0.4;
+		case ClawHomingStep::HOMING_LINEAR_AXIS: return (0.4 + (getLinearAxis()->getHomingProgress() * 0.6));
+		case ClawHomingStep::HOMING_FINISHED: return 1.0;
+		case ClawHomingStep::HOMING_FAILED: return 0.0;
+	}
+}
+
+bool LinearMecanumClaw::didHomingSucceed(){
+	return b_homingSucceeded;
+}
+
+bool LinearMecanumClaw::didHomingFail(){
+	return b_homingFailed;
+}
+
+const char* LinearMecanumClaw::getHomingStateString(){
 	switch(homingStep){
 		case ClawHomingStep::HOMING_LINEAR_AXIS:
 			return Enumerator::getDisplayString(getLinearAxis()->homingStep);

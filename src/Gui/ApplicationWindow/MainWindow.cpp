@@ -55,16 +55,24 @@ namespace ApplicationWindow {
                 ImGui::EndChild();
 				ImGui::EndTabItem();
 			}
+			if(ImGui::BeginTabItem("Setup")){
+				ImGui::BeginChild("Setup");
+				setupGui();
+				ImGui::EndChild();
+				ImGui::EndTabItem();
+			}
 			if (ImGui::BeginTabItem("Plot")) {
 				plotGui();
 				ImGui::EndTabItem();
 			}
+			/*
 			if(!Environnement::isEditorHidden()){
 				if (ImGui::BeginTabItem("Stage View")) {
 					StageView::draw();
 					ImGui::EndTabItem();
 				}
 			}
+			*/
 			ImGui::EndTabBar();
 		}
 		ImGui::PopStyleColor();

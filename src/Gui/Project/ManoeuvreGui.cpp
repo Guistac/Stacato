@@ -591,7 +591,7 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 		case Manoeuvre::Type::TIMED_MOVEMENT:
 
 
-
+/*
 			if (Playback::isInRapid(manoeuvre)) {
 				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
 				if (ImGui::Button("Cancel Rapid", singleButtonSize)) Playback::stopRapid(manoeuvre);
@@ -647,7 +647,7 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 				ImGui::PopStyleColor();
 			}
 			break;
-
+*/
 
 
 		case Manoeuvre::Type::MOVEMENT_SEQUENCE:
@@ -685,6 +685,7 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 				if(disableRapidButtons) END_DISABLE_IMGUI_ELEMENT
 			}
 
+			/*
 			//=== PLAYBACK POSITION CONTROL ===
 			ImGui::SetNextItemWidth(singleButtonSize.x);
 			if (Playback::isPlaying(manoeuvre) && !Playback::isPaused(manoeuvre)) {
@@ -698,12 +699,15 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 				manoeuvre->playbackPosition_seconds = std::min(manoeuvre->getLength_seconds(), manoeuvre->playbackPosition_seconds);
 			}
 			if(manoeuvre->getPlaybackProgress() != 0.0) playbackProgressOverlay();
+			*/
 			
 			//=== PLAYBACK CONTROL BUTTON ===
 			if (Playback::isPlaying(manoeuvre)) {
 				ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkRed);
-				if (ImGui::Button("Stop", doubleButtonSize)) Playback::stopPlayback(manoeuvre);
+				//if (ImGui::Button("Stop", doubleButtonSize)) Playback::stopPlayback(manoeuvre);
+				if (ImGui::Button("Stop", singleButtonSize)) Playback::stopPlayback(manoeuvre);
 				ImGui::PopStyleColor();
+				/*
 				ImGui::SameLine();
 				if (Playback::isPaused(manoeuvre)) {
 					if (!Playback::isPrimedToPlaybackPosition(manoeuvre)) {
@@ -722,18 +726,27 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 					if (ImGui::Button("Pause", doubleButtonSize)) Playback::pausePlayback(manoeuvre);
 					ImGui::PopStyleColor();
 				}
+				*/
 			}
 			else {
+				/*
 				if (!Playback::isPrimedToPlaybackPosition(manoeuvre)) {
 					ImGui::PushStyleColor(ImGuiCol_Button, Colors::orange);
 					if (ImGui::Button("Rapid to Playback Position", singleButtonSize)) Playback::rapidToPlaybackPosition(manoeuvre);
 					ImGui::PopStyleColor();
 				}
-				else {
+				 */
+				bool disableStart = !Playback::isPrimedToStart(manoeuvre);
+				if(disableStart) {
+					BackgroundText::draw("Not At Sequence Start", singleButtonSize, Colors::gray);
+				}else {
 					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 					if (ImGui::Button("Start Playback", singleButtonSize)) Playback::startPlayback(manoeuvre);
 					ImGui::PopStyleColor();
 				}
+
+		
+
 			}
 
 		break;
@@ -749,9 +762,13 @@ float Manoeuvre::getPlaybackControlGuiHeight(const std::shared_ptr<Manoeuvre>& m
 			return ImGui::GetTextLineHeight() * 2.0 * 2.0	//single row of buttons
 				+ ImGui::GetStyle().ItemSpacing.y * 2.0;	//spacing
 		case Manoeuvre::Type::MOVEMENT_SEQUENCE:
+			/*
 			return ImGui::GetTextLineHeight() * 2.0 * 2.0 //two rows of buttons
 				+ ImGui::GetFrameHeight()			//one row of widgets
 				+ImGui::GetStyle().ItemSpacing.y * 3.0;	//three spacings
+			 */
+			return ImGui::GetTextLineHeight() * 2.0 * 2.0 //two rows of buttons
+				+ImGui::GetStyle().ItemSpacing.y * 2.0;	//two spacings
 		default: return 0.0;
 	}
 }

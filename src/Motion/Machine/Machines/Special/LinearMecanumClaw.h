@@ -7,6 +7,7 @@ class LinearMecanumClaw : public Machine {
 public:
 	
 	DEFINE_MACHINE_NODE(LinearMecanumClaw, "Linear Mecanum Claw", "LinearMecanumClaw", "Special")
+	DEFINE_HOMEABLE_MACHINE
 	
 	//=== Input Pins & Data
 	
@@ -54,6 +55,7 @@ public:
 		if(!isClawAxisConnected()) return false;
 		if(!isClawFeedbackConnected()) return false;
 		if(!isClawReferenceConnected()) return false;
+		return true;
 	}
 	
 	//=== Parameters
@@ -121,15 +123,12 @@ public:
 		HOMING_FAILED
 	};
 	
-	void startHoming();
-	void stopHoming();
-	bool isHoming(){ return b_isHoming; }
 	bool b_isHoming = false;
+	bool b_homingSucceeded = false;
+	bool b_homingFailed = false;
 	ClawHomingStep homingStep = ClawHomingStep::NOT_STARTED;
-	const char* getHomingStepString();
 	void onHomingSuccess();
 	void onHomingFailure();
-	
 	void homingControl();
 	
 	double getLinearAxisPosition();

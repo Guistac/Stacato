@@ -50,6 +50,15 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual void getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves);\
 	virtual bool getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit);\
 
+#define DEFINE_HOMEABLE_MACHINE \
+	virtual bool isHomeable(){ return true; }\
+	virtual bool isHoming();\
+	virtual void startHoming();\
+	virtual void stopHoming();\
+	virtual bool didHomingSucceed();\
+	virtual bool didHomingFail();\
+	virtual float getHomingProgress();\
+	virtual const char* getHomingStateString();\
 
 class Machine : public Node {
 public:
@@ -74,6 +83,15 @@ public:
 	virtual void onDisableSimulation() = 0;
 	virtual void onEnableHardware() = 0;
 	virtual void onDisableHardware() = 0;
+	
+	virtual bool isHomeable() { return false; }
+	virtual bool isHoming(){ return false; }
+	virtual void startHoming(){}
+	virtual void stopHoming(){}
+	virtual bool didHomingSucceed(){}
+	virtual bool didHomingFail(){}
+	virtual float getHomingProgress(){ return 0.0; }
+	virtual const char* getHomingStateString(){ return "default state string (something went wrong)"; }
 	
 	//===== PROCESSING =====
 	virtual void process() = 0;

@@ -28,23 +28,23 @@ void plotGui() {
 	std::shared_ptr<Manoeuvre> selectedManoeuvre = currentPlot->getSelectedManoeuvre();
 
 	float plotHeaderHeight = ImGui::GetTextLineHeight() * 2.5;
-	glm::vec2 plotEditSwitchButtonSize(ImGui::GetTextLineHeight() * 5.0, plotHeaderHeight);
+	//glm::vec2 plotEditSwitchButtonSize(ImGui::GetTextLineHeight() * 5.0, plotHeaderHeight);
 	
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
 	
+	
+	
 	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-	ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
-	ImGui::Button(currentPlot->name, glm::vec2(sideBarWidth - ImGui::GetStyle().ItemSpacing.x - plotEditSwitchButtonSize.x, plotHeaderHeight));
-	ImGui::PopStyleColor();
-	ImGui::PopItemFlag();
+	BackgroundText::draw("Conduite"/*currentPlot->name*/, glm::vec2(sideBarWidth, plotHeaderHeight), Colors::darkGray);
 	ImGui::PopFont();
 	
+	/*
 	ImGui::SameLine();
 	static ToggleSwitch editSwitch;
 	bool b_plotEditAllowed = Project::isPlotEditAllowed();
 	if(editSwitch.draw("##EditToggleSwitch", b_plotEditAllowed, "Editing", "Playback", plotEditSwitchButtonSize))
 		Project::setPlotEdit(!b_plotEditAllowed);
+	 */
 	
 	ImGui::PopStyleVar();
 

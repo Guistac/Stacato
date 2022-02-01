@@ -39,6 +39,7 @@ namespace ApplicationWindow {
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("File")) {
+			/*
 			if (ImGui::MenuItem("New Project")) Project::createNew();
 			if (ImGui::MenuItem("Open Project...")) {
 				FileDialog::FilePath path;
@@ -47,9 +48,11 @@ namespace ApplicationWindow {
 				}
 			}
 			ImGui::Separator();
+			 */
 			bool hasDefaultSavePath = !Project::hasDefaultSavePath();
 			if (hasDefaultSavePath) BEGIN_DISABLE_IMGUI_ELEMENT
 				if (ImGui::MenuItem("Save")) Project::save();
+			/*
 			if (hasDefaultSavePath) END_DISABLE_IMGUI_ELEMENT
 				if (ImGui::MenuItem("Save As...")) {
 					FileDialog::FilePath path;
@@ -57,6 +60,7 @@ namespace ApplicationWindow {
 						Project::saveAs(path.path);
 					}
 				}
+			 */
 			ImGui::Separator();
 			if (hasDefaultSavePath) BEGIN_DISABLE_IMGUI_ELEMENT
 				if (ImGui::MenuItem("Reload Saved")) Project::reload();
@@ -65,7 +69,7 @@ namespace ApplicationWindow {
 				ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Edit")) {
-
+			/*
 			BEGIN_DISABLE_IMGUI_ELEMENT
 				static char currentPlotString[256];
 			sprintf(currentPlotString, "Current Plot: %s", Project::currentPlot->name);
@@ -82,7 +86,7 @@ namespace ApplicationWindow {
 				}
 			
 			ImGui::Separator();
-			
+			*/
 			if(Environnement::isEditorHidden()){
 				if(ImGui::MenuItem("Show Environnement Editor")) b_openUnlockEditorModal = true;
 			}

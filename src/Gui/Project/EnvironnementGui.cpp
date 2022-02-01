@@ -33,11 +33,13 @@ void environnementGui() {
 			deviceManagerGui();
 			ImGui::EndTabItem();
 		}
+		/*
 		if (ImGui::BeginTabItem("Stage Editor")) {
 			stageEditorGui();
-//			ImGui::Text("3D Scene Graph / Geometry importer / Machine movement assignement");
+			ImGui::Text("3D Scene Graph / Geometry importer / Machine movement assignement");
 			ImGui::EndTabItem();
 		}
+		 */
 		if (ImGui::BeginTabItem("Fieldbus")) {
 			etherCatGui();
 			ImGui::EndTabItem();

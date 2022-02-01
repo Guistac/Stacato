@@ -25,7 +25,8 @@ namespace EtherCatFieldbus {
     bool init();
     bool init(std::shared_ptr<NetworkInterfaceCard>);
     bool init(std::shared_ptr<NetworkInterfaceCard>, std::shared_ptr<NetworkInterfaceCard>);
-	bool autoInit();
+	void autoInit();
+	bool isAutoInitRunning();
     extern std::shared_ptr<NetworkInterfaceCard> primaryNetworkInterfaceCard;
     extern std::shared_ptr<NetworkInterfaceCard> redundantNetworkInterfaceCard;
 

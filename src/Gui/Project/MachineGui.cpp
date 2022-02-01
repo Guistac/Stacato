@@ -149,9 +149,6 @@ void Machine::miniatureGui() {
 		}
 		ImGui::PopStyleColor();
 
-
-
-
 		ImGui::PopStyleVar();
 	}
 	ImGui::EndChild();

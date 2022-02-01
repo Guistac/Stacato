@@ -6,6 +6,7 @@ namespace Colors {
 	extern const glm::vec4 transparentWhite;
 	extern const glm::vec4 gray;
 	extern const glm::vec4 darkGray;
+	extern const glm::vec4 veryDarkGray;
 	extern const glm::vec4 almostBlack;
 	extern const glm::vec4 black;
 	extern const glm::vec4 blue;

@@ -162,7 +162,7 @@
                 <NodeEditorPosition x="920" y="-210"/>
                 <NodeSpecificData ShortName="&lt;3">
                     <MecanumWheels DistanceFromClawPivot="5.7750000000000004" PivotAngleWhenClosed="11.25" WheelCircumference="0.63773999999999997"/>
-                    <Claw PositionUnit="Degrees" FeedbackUnitsPerClawUnit="0.034722222222222002" VelocityLimit="2.5" ManualAcceleration="0.69999999999999996" AccelerationLimit="1" OpenPositionLimit="83" HomingVelocity="0.5" PositionProportionalGain="0.14999999999999999" PositionIntegralGain="0.050000000000000003" PositionErrorIntegralLimit="1" MaxFollowingError="1.5" PositionErrorThreshold="0.050000000000000003"/>
+                    <Claw PositionUnit="Degrees" FeedbackUnitsPerClawUnit="0.034722222222222002" VelocityLimit="2.5" ManualAcceleration="1" AccelerationLimit="1.5" OpenPositionLimit="83" HomingVelocity="0.5" PositionProportionalGain="0.14999999999999999" PositionIntegralGain="0" PositionErrorIntegralLimit="1" MaxFollowingError="1.5" PositionErrorThreshold="0.050000000000000003"/>
                     <Linear ManualAcceleration="0.050000000000000003"/>
                     <Rapids LinearAxisVelocity="0.20000000000000001" ClawVelocity="1.5"/>
                 </NodeSpecificData>
@@ -205,7 +205,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="Not" CustomName="Not" UniqueID="244">
-                <NodeEditorPosition x="-66" y="-464"/>
+                <NodeEditorPosition x="-72" y="-465"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="245" Visible="true"/>
@@ -254,10 +254,10 @@
             <Link UniqueID="272" StartPin="168" EndPin="151"/>
             <Link UniqueID="273" StartPin="190" EndPin="157"/>
             <Link UniqueID="278" StartPin="159" EndPin="230"/>
-            <Link UniqueID="282" StartPin="236" EndPin="213"/>
-            <Link UniqueID="283" StartPin="152" EndPin="214"/>
             <Link UniqueID="287" StartPin="25" EndPin="285"/>
             <Link UniqueID="288" StartPin="286" EndPin="217"/>
+            <Link UniqueID="291" StartPin="236" EndPin="213"/>
+            <Link UniqueID="292" StartPin="152" EndPin="214"/>
         </Links>
     </NodeGraph>
 </Environnement>

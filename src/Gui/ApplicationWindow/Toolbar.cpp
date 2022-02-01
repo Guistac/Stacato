@@ -60,27 +60,22 @@ namespace ApplicationWindow {
 
 		}
 			
+		if(!Environnement::isEditorHidden()){
+		
+			ImGui::SameLine();
+				
+			static ToggleSwitch simulationToggle;
+			bool b_simulation = Environnement::isSimulating();
 			
-		
-		
-		
-		
-		ImGui::SameLine();
-			
-		static ToggleSwitch simulationToggle;
-		bool b_simulation = Environnement::isSimulating();
-		
-		bool disableSimulationSwitch = Environnement::isRunning() || Environnement::isStarting();
-		if(disableSimulationSwitch) BEGIN_DISABLE_IMGUI_ELEMENT
-		if(simulationToggle.draw("SimulationSwitch", b_simulation, "Simulation", "Hardware", buttonSize)) {
-			b_simulation = !b_simulation;
-			Environnement::setSimulation(b_simulation);
+			bool disableSimulationSwitch = Environnement::isRunning() || Environnement::isStarting();
+			if(disableSimulationSwitch) BEGIN_DISABLE_IMGUI_ELEMENT
+			if(simulationToggle.draw("SimulationSwitch", b_simulation, "Simulation", "Hardware", buttonSize)) {
+				b_simulation = !b_simulation;
+				Environnement::setSimulation(b_simulation);
+			}
+			if(disableSimulationSwitch) END_DISABLE_IMGUI_ELEMENT
+				
 		}
-		if(disableSimulationSwitch) END_DISABLE_IMGUI_ELEMENT
-			
-			
-			
-			
 			
 		ImGui::SameLine();
 

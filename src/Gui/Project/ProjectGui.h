@@ -2,6 +2,7 @@
 
 void plotGui();
 void machineListGui();
+void setupGui();
 
 void environnementGui();
 void machineManagerGui();

@@ -164,6 +164,7 @@ public:
 	bool isHoming();
 	bool didHomingSucceed();
 	bool didHomingFail();
+	float getHomingProgress();
 	HomingStep homingStep = HomingStep::NOT_STARTED;
 	HomingError homingError = HomingError::NONE;
 	

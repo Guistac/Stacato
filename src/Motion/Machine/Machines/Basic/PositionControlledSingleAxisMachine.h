@@ -7,7 +7,8 @@
 class PositionControlledSingleAxisMachine : public Machine{
 	
 	DEFINE_MACHINE_NODE(PositionControlledSingleAxisMachine, "Position Controlled Single Axis Machine", "PositionControlledSingleAxisMachine", "Basic")
-
+	DEFINE_HOMEABLE_MACHINE
+	
 	std::shared_ptr<NodePin> positionControlledAxisPin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS, NodePin::Direction::NODE_INPUT, "Position Controlled Axis");
 	
 	std::shared_ptr<double> positionPinValue = std::make_shared<double>(0.0);

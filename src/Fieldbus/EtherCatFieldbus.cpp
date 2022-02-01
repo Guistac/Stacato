@@ -205,15 +205,26 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
         return true;
     }
 
-	bool autoInit(){
-		updateNetworkInterfaceCardList();
-		for(auto& nic : networkInterfaceCards){
-			if(!init(nic)) continue;
-			scanNetwork();
-			if(slaves.empty()) terminate();
-			else return true;
-		}
-		return false;
+	bool b_autoInit = false;
+
+	void autoInit(){
+		if(isAutoInitRunning()) return;
+		std::thread autoInitHandler([](){
+			b_autoInit = true;
+			updateNetworkInterfaceCardList();
+			for(auto& nic : networkInterfaceCards){
+				if(!init(nic)) continue;
+				scanNetwork();
+				if(slaves.empty()) terminate();
+				else break;
+			}
+			b_autoInit = false;
+		});
+		autoInitHandler.detach();
+	}
+
+	bool isAutoInitRunning(){
+		return b_autoInit;
 	}
 
     void setup() {
@@ -830,6 +841,9 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
         //cleanup threads and relaunc slave detection handler
         if (slaveStateHandler.joinable()) slaveStateHandler.join();
         startSlaveDetectionHandler();
+		
+		//TODO: this stops the environnement on fieldbus timeout
+		Environnement::stop();
     }
 
     //============== TRANSITION ALL SLAVES TO OPERATIONAL AFTER REFERENCE CLOCK AND MASTER CLOCKS ALIGNED ===================

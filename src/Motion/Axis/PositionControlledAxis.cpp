@@ -495,8 +495,107 @@ void PositionControlledAxis::onHomingError() {
 	disable();
 }
 
-void PositionControlledAxis::homingControl() {
+float PositionControlledAxis::getHomingProgress() {
 
+	Logger::critical("HOMING AXIS");
+	
+	switch (positionReferenceSignal) {
+
+		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
+
+			switch (homingStep) {
+				case HomingStep::NOT_STARTED: return 0.0;
+				case HomingStep::SEARCHING_LOW_LIMIT_COARSE: return 0.1;
+				case HomingStep::FOUND_LOW_LIMIT_COARSE: return 0.3;
+				case HomingStep::SEARCHING_LOW_LIMIT_FINE: return 0.5;
+				case HomingStep::FOUND_LOW_LIMIT_FINE: return 0.7;
+				case HomingStep::RESETTING_POSITION_FEEDBACK: return 0.9;
+				case HomingStep::FINISHED: return 1.0;
+				default: return 0.0;
+			}
+			break;
+
+		case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+
+			if (homingDirection == HomingDirection::NEGATIVE) {
+
+				switch (homingStep) {
+					case HomingStep::NOT_STARTED: return 0.0;
+					case HomingStep::SEARCHING_LOW_LIMIT_COARSE: return 0.1;
+					case HomingStep::FOUND_LOW_LIMIT_COARSE: return 0.2;
+					case HomingStep::SEARCHING_LOW_LIMIT_FINE: return 0.3;
+					case HomingStep::FOUND_LOW_LIMIT_FINE: return 0.4;
+					case HomingStep::RESETTING_POSITION_FEEDBACK: return 0.45;
+					case HomingStep::SEARCHING_HIGH_LIMIT_COARSE: return 0.5;
+					case HomingStep::FOUND_HIGH_LIMIT_COARSE: return 0.6;
+					case HomingStep::SEARCHING_HIGH_LIMIT_FINE: return 0.7;
+					case HomingStep::FOUND_HIGH_LIMIT_FINE: return 0.8;
+					case HomingStep::SETTING_HIGH_LIMIT: return 0.9;
+					case HomingStep::FINISHED: return 1.0;
+					default: return 0.0;
+				}
+
+			}
+			else if (homingDirection == HomingDirection::POSITIVE) {
+
+				switch (homingStep) {
+					case HomingStep::NOT_STARTED: return 0.0;
+					case HomingStep::SEARCHING_HIGH_LIMIT_COARSE: return 0.1;
+					case HomingStep::FOUND_HIGH_LIMIT_COARSE: return 0.2;
+					case HomingStep::SEARCHING_HIGH_LIMIT_FINE: return 0.3;
+					case HomingStep::FOUND_HIGH_LIMIT_FINE: return 0.4;
+					case HomingStep::SETTING_HIGH_LIMIT: return 0.45;
+					case HomingStep::SEARCHING_LOW_LIMIT_COARSE: return 0.5;
+					case HomingStep::FOUND_LOW_LIMIT_COARSE: return 0.6;
+					case HomingStep::SEARCHING_LOW_LIMIT_FINE: return 0.7;
+					case HomingStep::FOUND_LOW_LIMIT_FINE: return 0.8;
+					case HomingStep::RESETTING_POSITION_FEEDBACK: return 0.9;
+					case HomingStep::FINISHED: return 1.0;
+					default: return 0.0;
+				}
+
+			}
+
+		case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
+
+			if (homingDirection == HomingDirection::POSITIVE) {
+
+				switch (homingStep) {
+					case HomingStep::NOT_STARTED: return 0.0;
+					case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE: return 0.1;
+					case HomingStep::FOUND_REFERENCE_FROM_BELOW_COARSE: return 0.2;
+					case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE: return 0.4;
+					case HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE: return 0.5;
+					case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE: return 0.7;
+					case HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE: return 0.9;
+					case HomingStep::FINISHED: return 1.0;
+					default: return 0.0;
+				}
+
+			}
+			else if (homingDirection == HomingDirection::NEGATIVE) {
+
+				switch (homingStep) {
+					case HomingStep::NOT_STARTED: return 0.0;
+					case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE: return 0.1;
+					case HomingStep::FOUND_REFERENCE_FROM_ABOVE_COARSE: return 0.2;
+					case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE: return 0.4;
+					case HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE: return 0.5;
+					case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE: return 0.7;
+					case HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE: return 0.9;
+					case HomingStep::FINISHED: return 1.0;
+					default: return 0.0;
+				}
+
+			}
+			break;
+
+		default: break;
+	}
+}
+
+void PositionControlledAxis::homingControl(){
+	
 	switch (positionReferenceSignal) {
 
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
@@ -519,17 +618,6 @@ void PositionControlledAxis::homingControl() {
 						setVelocityTarget(homingVelocityFine);
 						homingStep = HomingStep::SEARCHING_LOW_LIMIT_FINE;
 					}
-					/*
-					//TODO: this is useful if the limits internaly disable the servo actuator
-					if (!getServoActuatorDevice()->isEnabled()) {
-						getServoActuatorDevice()->enable();
-						motionProfile.setPosition(*actualPositionValue);
-						motionProfile.setVelocity(0.0);
-						motionProfile.setAcceleration(0.0);
-						//Logger::warn("Trying To Enable Axis");
-					}
-					else homingStep = HomingStep::SEARCHING_LOW_LIMIT_FINE;
-					 */
 					break;
 				case HomingStep::SEARCHING_LOW_LIMIT_FINE:
 					//here we must check the falling edge
@@ -872,7 +960,6 @@ void PositionControlledAxis::homingControl() {
 			break;
 	}
 }
-
 
 void PositionControlledAxis::sanitizeParameters(){
 	interpolationPositionTarget = std::min(interpolationPositionTarget, getHighPositionLimit());
