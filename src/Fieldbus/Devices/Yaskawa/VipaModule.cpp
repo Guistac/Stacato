@@ -90,8 +90,59 @@ void VIPA_022_1HD10::readInputs(){
 void VIPA_022_1HD10::writeOutputs(){
 	for(int i = 0; i < 4; i++){
 		if(inputPins[i]->isConnected()) inputPins[i]->copyConnectedPinValue();
-		outputs[i] = inputPins[i]->read<bool>();
+		bool inputPinValue = inputPins[i]->read<bool>();
+		outputs[i] = invertOutputs[i] ? !inputPinValue : inputPinValue;
 	}
+}
+
+void VIPA_022_1HD10::moduleParameterGui(){
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+	ImGui::TextWrapped("All relais return to open when fieldbus is stopped.");
+	ImGui::PopStyleColor();
+	
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Signal Inversion");
+	ImGui::PopFont();
+	
+	for(int i = 0; i < 4; i++){
+		ImGui::PushID(i);
+		ImGui::Checkbox("##invert", &invertOutputs[i]);
+		ImGui::SameLine();
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("%s", inputPins[i]->getDisplayString());
+		ImGui::PopFont();
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
+		ImGui::SameLine();
+		ImGui::PopStyleVar();
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		if(invertOutputs[i]) ImGui::Text(" is inverted");
+		else ImGui::Text(" is not inverted");
+		ImGui::PopStyleColor();
+		ImGui::PopID();
+	}
+}
+
+bool VIPA_022_1HD10::save(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	XMLElement* inversionXML = xml->InsertNewChildElement("SignalInversion");
+	char attributeName[64];
+	for(int i = 0; i < 4; i++){
+		sprintf(attributeName, "InvertRelais%i", i);
+		inversionXML->SetAttribute(attributeName, invertOutputs[i]);
+	}
+	return true;
+}
+
+bool VIPA_022_1HD10::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	XMLElement* inversionXML = xml->FirstChildElement("SignalInversion");
+	if(inversionXML == nullptr) Logger::warn("could not find signal inversion attribute");
+	char attributeName[32];
+	for(int i = 0; i < 4; i++){
+		sprintf(attributeName, "InvertRelais%i", i);
+		if(inversionXML->QueryBoolAttribute(attributeName, &invertOutputs[i]) != XML_SUCCESS) Logger::warn("could not find relais %i inversion attribute", i);
+	}
+	return true;
 }
 
 //=================================================================
@@ -142,11 +193,56 @@ void VIPA_021_1BF00::readInputs(){
 	for(int i = 0; i < 8; i++){
 		bool value = inputs[i];
 		std::shared_ptr<NodePin> pin = outputPins[i];
-		*outputPinValues[i] = value;
+		*outputPinValues[i] = invertInputs[i] ? !value : value;
 	}
 }
 void VIPA_021_1BF00::writeOutputs(){
 	//no output writing for this SLIO module
+}
+
+void VIPA_021_1BF00::moduleParameterGui(){
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Signal Inversion");
+	ImGui::PopFont();
+	for(int i = 0; i < 8; i++){
+		ImGui::PushID(i);
+		ImGui::Checkbox("##invert", &invertInputs[i]);
+		ImGui::SameLine();
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("%s", outputPins[i]->getDisplayString());
+		ImGui::PopFont();
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
+		ImGui::SameLine();
+		ImGui::PopStyleVar();
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		if(invertInputs[i]) ImGui::Text(" is inverted");
+		else ImGui::Text(" is not inverted");
+		ImGui::PopStyleColor();
+		ImGui::PopID();
+	}
+}
+
+bool VIPA_021_1BF00::save(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	XMLElement* inversionXML = xml->InsertNewChildElement("SignalInversion");
+	char attributeName[64];
+	for(int i = 0; i < 8; i++){
+		sprintf(attributeName, "InvertInput%i", i);
+		inversionXML->SetAttribute(attributeName, invertInputs[i]);
+	}
+	return true;
+}
+
+bool VIPA_021_1BF00::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	XMLElement* inversionXML = xml->FirstChildElement("SignalInversion");
+	if(inversionXML == nullptr) Logger::warn("could not find signal inversion attribute");
+	char attributeName[32];
+	for(int i = 0; i < 8; i++){
+		sprintf(attributeName, "InvertInput%i", i);
+		if(inversionXML->QueryBoolAttribute(attributeName, &invertInputs[i]) != XML_SUCCESS) Logger::warn("could not find input %i inversion attribute", i);
+	}
+	return true;
 }
 
 //=================================================================
@@ -204,9 +300,60 @@ void VIPA_022_1BF00::readInputs(){
 void VIPA_022_1BF00::writeOutputs(){
 	for(int i = 0; i < 8; i++){
 		if(inputPins[i]->isConnected()) inputPins[i]->copyConnectedPinValue();
-		outputs[i] = *inputPinValues[i];
+		bool inputPinValue = *inputPinValues[i];
+		outputs[i] = invertOutputs[i] ? !inputPinValue : inputPinValue;
 	}
 }
+
+void VIPA_022_1BF00::moduleParameterGui(){
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+	ImGui::TextWrapped("All outputs return to low when fieldbus is stopped.");
+	ImGui::PopStyleColor();
+	
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Signal Inversion");
+	ImGui::PopFont();
+	for(int i = 0; i < 8; i++){
+		ImGui::PushID(i);
+		ImGui::Checkbox("##invert", &invertOutputs[i]);
+		ImGui::SameLine();
+		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::Text("%s", inputPins[i]->getDisplayString());
+		ImGui::PopFont();
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
+		ImGui::SameLine();
+		ImGui::PopStyleVar();
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		if(invertOutputs[i]) ImGui::Text(" is inverted");
+		else ImGui::Text(" is not inverted");
+		ImGui::PopStyleColor();
+		ImGui::PopID();
+	}
+}
+
+bool VIPA_022_1BF00::save(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	XMLElement* inversionXML = xml->InsertNewChildElement("SignalInversion");
+	char attributeName[64];
+	for(int i = 0; i < 8; i++){
+		sprintf(attributeName, "InvertOutput%i", i);
+		inversionXML->SetAttribute(attributeName, invertOutputs[i]);
+	}
+	return true;
+}
+
+bool VIPA_022_1BF00::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	XMLElement* inversionXML = xml->FirstChildElement("SignalInversion");
+	if(inversionXML == nullptr) Logger::warn("could not find signal inversion attribute");
+	char attributeName[32];
+	for(int i = 0; i < 8; i++){
+		sprintf(attributeName, "InvertOutput%i", i);
+		if(inversionXML->QueryBoolAttribute(attributeName, &invertOutputs[i]) != XML_SUCCESS) Logger::warn("could not find output %i inversion attribute", i);
+	}
+	return true;
+}
+
 //=================================================================
 //============== 050-1BS00 Single SSI Encoder Input ===============
 //=================================================================
@@ -626,19 +773,28 @@ void VIPA_032_1BD70::writeOutputs(){
 }
 
 void VIPA_032_1BD70::moduleParameterGui(){
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+	ImGui::Text("All analog outputs return to 0 Volts when fieldbus is stopped.");
+	ImGui::PopStyleColor();
+	
+	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::Text("Output Voltage Ranges");
+	ImGui::PopFont();
+	
 	for(int i = 0; i < 4; i++){
 		ImGui::PushID(i);
 		ImGui::PushFont(Fonts::robotoBold15);
 		ImGui::Text("Analog Channel %i", i);
 		ImGui::PopFont();
-		ImGui::Text("Voltage Range");
+		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 		if(ImGui::BeginCombo("##inputRangeSelector", Enumerator::getDisplayString(voltageRangeSettings[i]))){
 			for(auto& type : Enumerator::getTypes<VoltageRange>()){
 				if(ImGui::Selectable(type.displayString, voltageRangeSettings[i] == type.enumerator)) voltageRangeSettings[i] = type.enumerator;
 			}
 			ImGui::EndCombo();
 		}
-		ImGui::Checkbox("Enable Short Circuit Detection", &shortCircuitDetectionSettings[i]);
+		ImGui::SameLine();
+		ImGui::Checkbox("Short Circuit Detection", &shortCircuitDetectionSettings[i]);
 		ImGui::PopID();
 	}
 }

@@ -74,7 +74,6 @@ public:
 	
 	//gui stuff
 	void moduleGui();
-	void informationGui();
 	virtual void moduleParameterGui();
 	
 	//saving and loading
@@ -97,8 +96,13 @@ class VIPA_022_1HD10 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_022_1HD10, "VIPA 022-1HD10", "DO4x Relais (1.8A)")
 	bool outputs[4] = {false, false, false, false};
+	bool invertOutputs[4] = {false, false, false, false};
 	std::vector<std::shared_ptr<bool>> inputPinValues;
 	uint8_t pdoSpacerBits = 0; //TODO: is this used ?
+	
+	virtual void moduleParameterGui();
+	virtual bool save(tinyxml2::XMLElement* xml);
+	virtual bool load(tinyxml2::XMLElement* xml);
 };
 
 
@@ -110,7 +114,12 @@ class VIPA_021_1BF00 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_021_1BF00, "VIPA 021-1BF00", "DI8x (DC24V)")
 	bool inputs[8] = {false, false, false, false, false, false, false, false};
+	bool invertInputs[8] = {false, false, false, false, false, false, false};
 	std::vector<std::shared_ptr<bool>> outputPinValues;
+	
+	virtual void moduleParameterGui();
+	virtual bool save(tinyxml2::XMLElement* xml);
+	virtual bool load(tinyxml2::XMLElement* xml);
 };
 
 //=================================================================
@@ -121,7 +130,12 @@ class VIPA_022_1BF00 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_022_1BF00, "VIPA 022-1BF00", "DO8x (DC24V0.5A)")
 	bool outputs[8] = {false, false, false, false, false, false, false, false};
+	bool invertOutputs[8] = {false, false, false, false, false, false, false, false};
 	std::vector<std::shared_ptr<bool>> inputPinValues;
+	
+	virtual void moduleParameterGui();
+	virtual bool save(tinyxml2::XMLElement* xml);
+	virtual bool load(tinyxml2::XMLElement* xml);
 };
 
 //=================================================================
@@ -236,14 +250,14 @@ public:
 
 
 #define VipaSSIPauseTimeTypeStrings \
-	{VIPA_050_1BS00::MeasurementPauseTime::_1_MICROSECONDS, "1", "1 µs"},\
-	{VIPA_050_1BS00::MeasurementPauseTime::_2_MICROSECONDS, "2", "2 µs"},\
-	{VIPA_050_1BS00::MeasurementPauseTime::_4_MICROSECONDS, "4", "4 µs"},\
-	{VIPA_050_1BS00::MeasurementPauseTime::_8_MICROSECONDS, "8", "8 µs"},\
-	{VIPA_050_1BS00::MeasurementPauseTime::_16_MICROSECONDS, "16", "16 µs"},\
-	{VIPA_050_1BS00::MeasurementPauseTime::_32_MICROSECONDS, "32", "32 µs"},\
-	{VIPA_050_1BS00::MeasurementPauseTime::_48_MICROSECONDS, "48", "48 µs"},\
-	{VIPA_050_1BS00::MeasurementPauseTime::_64_MICROSECONDS, "64", "64 µs"}\
+	{VIPA_050_1BS00::MeasurementPauseTime::_1_MICROSECONDS, "1 µs", 	"1"},\
+	{VIPA_050_1BS00::MeasurementPauseTime::_2_MICROSECONDS, "2 µs", 	"2"},\
+	{VIPA_050_1BS00::MeasurementPauseTime::_4_MICROSECONDS, "4 µs", 	"4"},\
+	{VIPA_050_1BS00::MeasurementPauseTime::_8_MICROSECONDS, "8 µs", 	"8"},\
+	{VIPA_050_1BS00::MeasurementPauseTime::_16_MICROSECONDS, "16 µs", 	"16"},\
+	{VIPA_050_1BS00::MeasurementPauseTime::_32_MICROSECONDS, "32 µs", 	"32"},\
+	{VIPA_050_1BS00::MeasurementPauseTime::_48_MICROSECONDS, "48 µs", 	"48"},\
+	{VIPA_050_1BS00::MeasurementPauseTime::_64_MICROSECONDS, "64 µs", 	"64"}\
 
 DEFINE_ENUMERATOR(VIPA_050_1BS00::MeasurementPauseTime, VipaSSIPauseTimeTypeStrings)
 
@@ -262,12 +276,12 @@ inline uint16_t VIPA_050_1BS00::getMeasurementPauseTimeValue(MeasurementPauseTim
 
 
 #define VipaSSITransmissionRateTypeStrings \
-	{VIPA_050_1BS00::TransmissionRate::_2_MEGAHERTZ,  "2Mhz", 	"2.0 Mhz"},\
-	{VIPA_050_1BS00::TransmissionRate::_1p5_MEGAHERTZ,  "1.5Mhz", 	"1.5 Mhz"},\
-	{VIPA_050_1BS00::TransmissionRate::_1_MEGAHERTZ,  "1Mhz", 	"1.0 Mhz"},\
-	{VIPA_050_1BS00::TransmissionRate::_500_KILOHERTZ,  "500Khz", 	"500.0 Khz"},\
-	{VIPA_050_1BS00::TransmissionRate::_250_KILOHERTZ,  "250Khz", 	"250.0 Khz"},\
-	{VIPA_050_1BS00::TransmissionRate::_125_KILOHERTZ,  "125Khz", 	"125.0 Khz"}\
+	{VIPA_050_1BS00::TransmissionRate::_2_MEGAHERTZ,  	"2.0 Mhz", 		"2Mhz"},\
+	{VIPA_050_1BS00::TransmissionRate::_1p5_MEGAHERTZ,  "1.5 Mhz", 		"1.5Mhz"},\
+	{VIPA_050_1BS00::TransmissionRate::_1_MEGAHERTZ,  	"1.0 Mhz", 		"1.0Mhz"},\
+	{VIPA_050_1BS00::TransmissionRate::_500_KILOHERTZ,  "500.0 Khz",	"500Khz"},\
+	{VIPA_050_1BS00::TransmissionRate::_250_KILOHERTZ,  "250.0 Khz", 	"250Khz"},\
+	{VIPA_050_1BS00::TransmissionRate::_125_KILOHERTZ,  "125.0 Khz", 	"125Khz"}\
 
 DEFINE_ENUMERATOR(VIPA_050_1BS00::TransmissionRate, VipaSSITransmissionRateTypeStrings)
 
@@ -284,8 +298,8 @@ inline uint16_t VIPA_050_1BS00::getTransmissionRateValue(TransmissionRate rate){
 
 
 #define VipaSSIBitShiftTypeStrings \
-	{VIPA_050_1BS00::BitDirection::LSB_FIRST, "LSBFirst", "LSB First"},\
-	{VIPA_050_1BS00::BitDirection::MSB_FIRST,"MSBFirst", "MSB First (default)"}\
+	{VIPA_050_1BS00::BitDirection::LSB_FIRST, "LSB First", "LSBFirst"},\
+	{VIPA_050_1BS00::BitDirection::MSB_FIRST,"MSB First (default)", "MSBFirst"}\
 
 DEFINE_ENUMERATOR(VIPA_050_1BS00::BitDirection, VipaSSIBitShiftTypeStrings)
 
@@ -298,8 +312,8 @@ inline bool VIPA_050_1BS00::getBitDirectionValue(BitDirection dir){
 
 
 #define VipaSSIClockEdgeTypeStrings \
-	{VIPA_050_1BS00::ClockEdge::FALLING_EDGE, "FallingEdge", "Falling Edge"},\
-	{VIPA_050_1BS00::ClockEdge::RISING_EDGE, "RisingEdge", "Rising Edge (default)"},\
+	{VIPA_050_1BS00::ClockEdge::FALLING_EDGE, "Falling Edge", "FallingEdge"},\
+	{VIPA_050_1BS00::ClockEdge::RISING_EDGE, "Rising Edge (default)", "RisingEdge"},\
 
 DEFINE_ENUMERATOR(VIPA_050_1BS00::ClockEdge, VipaSSIClockEdgeTypeStrings)
 
@@ -363,8 +377,8 @@ public:
 };
 
 #define VipaAnalogVoltageRangeTypeString \
-	{VIPA_032_1BD70::VoltageRange::ZERO_TO_10V, "ZeroToPositive10V", "0-10V"},\
-	{VIPA_032_1BD70::VoltageRange::NEGATIVE_TO_POSITIVE_10V, "NegativeToPositive10V", "\xc2\xb1 10V"}\
+	{VIPA_032_1BD70::VoltageRange::ZERO_TO_10V, 				"0-10V", 			"ZeroToPositive10V"},\
+	{VIPA_032_1BD70::VoltageRange::NEGATIVE_TO_POSITIVE_10V, 	"\xc2\xb1 10V", 	"NegativeToPositive10V"}\
 
 DEFINE_ENUMERATOR(VIPA_032_1BD70::VoltageRange, VipaAnalogVoltageRangeTypeString)
 
