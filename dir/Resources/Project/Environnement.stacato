@@ -2,7 +2,7 @@
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa Coeur" UniqueID="18">
-                <InputNodeEditorPosition x="536" y="-285"/>
+                <InputNodeEditorPosition x="552" y="-283"/>
                 <OutputNodeEditorPosition x="2.1474836e+09" y="2.1474836e+09"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="0"/>
@@ -54,7 +54,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="VelocityControlledAxis" CustomName="Axe Mecanum" UniqueID="150">
-                <NodeEditorPosition x="504" y="-38"/>
+                <NodeEditorPosition x="566" y="-39"/>
                 <NodeSpecificData>
                     <Axis UnitType="Angular" Unit="Revolutions"/>
                     <UnitConversion ActuatorUnitsPerAxisUnit="30"/>
@@ -70,7 +70,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="ActuatorToServoActuator" CustomName="Servo Costière" UniqueID="156">
-                <NodeEditorPosition x="456" y="-545"/>
+                <NodeEditorPosition x="481" y="-545"/>
                 <NodeSpecificData>
                     <ConversionRatio PositionFeedbackUnitsPerActuatorPositionUnit="0.033333333333333298"/>
                     <Controller PositionLoopProportionalGain="0.20000000000000001" VelocityLoopProportionalGain="1" VelocityLoopIntegralGain="0" MaxPositionFollowingError="10" ErrorCorrectionTreshold="0"/>
@@ -104,7 +104,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="And" CustomName="And" UniqueID="174">
-                <NodeEditorPosition x="86" y="-80"/>
+                <NodeEditorPosition x="45" y="-145"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="175" Visible="true" AcceptsMultipleInputs="true"/>
@@ -133,7 +133,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="And" CustomName="And" UniqueID="196">
-                <NodeEditorPosition x="86" y="-384"/>
+                <NodeEditorPosition x="45" y="-257"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="197" Visible="true" AcceptsMultipleInputs="true"/>
@@ -166,7 +166,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Axe Costière" UniqueID="228">
-                <NodeEditorPosition x="708" y="-545"/>
+                <NodeEditorPosition x="696" y="-545"/>
                 <NodeSpecificData>
                     <Units UnitType="Linear" Unit="Meter"/>
                     <UnitConversion ActuatorUnitsPerMachineUnit="93.659667968750099"/>
@@ -223,8 +223,6 @@
 </Environnement>
 
 <FieldbusSettings>
-    <NetworkInterfaceCard>
-        <Primary Description="en4" Name="en4"/>
-    </NetworkInterfaceCard>
+    <NetworkInterfaceCard/>
     <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612"/>
 </FieldbusSettings>

@@ -784,7 +784,7 @@ void VIPA_032_1BD70::moduleParameterGui(){
 	for(int i = 0; i < 4; i++){
 		ImGui::PushID(i);
 		ImGui::PushFont(Fonts::robotoBold15);
-		ImGui::Text("Analog Channel %i", i);
+		ImGui::Text("%s", inputPins[i]->getDisplayString());
 		ImGui::PopFont();
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 		if(ImGui::BeginCombo("##inputRangeSelector", Enumerator::getDisplayString(voltageRangeSettings[i]))){

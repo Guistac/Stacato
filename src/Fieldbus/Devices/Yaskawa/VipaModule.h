@@ -95,10 +95,16 @@ namespace VipaModuleFactory{
 class VIPA_022_1HD10 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_022_1HD10, "VIPA 022-1HD10", "DO4x Relais (1.8A)")
+	
+	//pdo data
 	bool outputs[4] = {false, false, false, false};
-	bool invertOutputs[4] = {false, false, false, false};
+	uint8_t pdoSpacerBits = 0;
+	
+	//pin values
 	std::vector<std::shared_ptr<bool>> inputPinValues;
-	uint8_t pdoSpacerBits = 0; //TODO: is this used ?
+	
+	//parameters
+	bool invertOutputs[4] = {false, false, false, false};
 	
 	virtual void moduleParameterGui();
 	virtual bool save(tinyxml2::XMLElement* xml);
@@ -113,9 +119,15 @@ public:
 class VIPA_021_1BF00 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_021_1BF00, "VIPA 021-1BF00", "DI8x (DC24V)")
+	
+	//pdo data
 	bool inputs[8] = {false, false, false, false, false, false, false, false};
-	bool invertInputs[8] = {false, false, false, false, false, false, false};
+	
+	//pin values
 	std::vector<std::shared_ptr<bool>> outputPinValues;
+	
+	//parameters
+	bool invertInputs[8] = {false, false, false, false, false, false, false};
 	
 	virtual void moduleParameterGui();
 	virtual bool save(tinyxml2::XMLElement* xml);
@@ -129,9 +141,15 @@ public:
 class VIPA_022_1BF00 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_022_1BF00, "VIPA 022-1BF00", "DO8x (DC24V0.5A)")
+	
+	//pdo data
 	bool outputs[8] = {false, false, false, false, false, false, false, false};
-	bool invertOutputs[8] = {false, false, false, false, false, false, false, false};
+	
+	//pin values
 	std::vector<std::shared_ptr<bool>> inputPinValues;
+	
+	//parameters
+	bool invertOutputs[8] = {false, false, false, false, false, false, false, false};
 	
 	virtual void moduleParameterGui();
 	virtual bool save(tinyxml2::XMLElement* xml);
@@ -349,10 +367,13 @@ class VIPA_032_1BD70 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_032_1BD70, "VIPA 032-1BD70", "AO4x 12bit (±10V)")
 	
+	//pdo data
 	int16_t outputs[4] = { 0, 0, 0, 0};
 	
+	//pin values
 	std::vector<std::shared_ptr<double>> inputPinValues;
 	
+	//parameters
 	enum class VoltageRange{
 		ZERO_TO_10V,
 		NEGATIVE_TO_POSITIVE_10V
