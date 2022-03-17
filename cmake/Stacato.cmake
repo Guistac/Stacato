@@ -223,6 +223,11 @@ add_executable(${PROJECT_NAME} ${STACATO_EXECUTABLE_TYPE} ${STACATO_SOURCE_FILES
 
 
 
+
+
+
+
+
 # Precompiled Headers
 target_precompile_headers(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src/Core/pch.h)
 
@@ -231,6 +236,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${PROJECT_SOURCE_DIR}/src		
     ${PROJECT_SOURCE_DIR}/src/Core  # to include the precompiled header file
     ${PROJECT_BINARY_DIR}/src/Core  # to include the custom config.h file
+    ${PROJECT_BINARY_DIR}/deps/glm
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
@@ -238,12 +244,15 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 
 
-
 # Include Dependencies
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies.cmake)
 
 # Link Dependencies
-target_link_libraries(${PROJECT_NAME} STACATO_DEPENDENCIES)
+target_link_libraries(${PROJECT_NAME} ${STACATO_DEPENDENCIES})
+
+
+
+
 
 
 
