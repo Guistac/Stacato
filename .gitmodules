@@ -1,45 +1,45 @@
 
-[submodule "dependencies/asio"]
+[submodule "deps/asio"]
 	path = deps/asio
 	url = https://github.com/chriskohlhoff/asio.git
 	ignore = dirty
-[submodule "dependencies/glfw"]
+[submodule "deps/glfw"]
 	path = deps/glfw
 	url = https://github.com/glfw/glfw.git
 	ignore = dirty
-[submodule "dependencies/glm"]
+[submodule "deps/glm"]
 	path = deps/glm
 	url = https://github.com/g-truc/glm.git
 	ignore = dirty
-[submodule "dependencies/dearimgui"]
+[submodule "deps/dearimgui"]
 	path = deps/dearimgui
 	url = https://github.com/ocornut/imgui.git
 	ignore = dirty
-[submodule "dependencies/tinyxml2"]
+[submodule "deps/tinyxml2"]
 	path = deps/tinyxml2
 	url = https://github.com/leethomason/tinyxml2.git
 	ignore = dirty
-[submodule "dependencies/implot"]
+[submodule "deps/implot"]
 	path = deps/implot
 	url = https://github.com/Guistac/implot.git
 	ignore = dirty
-[submodule "dependencies/soem"]
+[submodule "deps/soem"]
 	path = deps/soem
 	url = https://github.com/Guistac/SOEM.git
 	ignore = dirty
-[submodule "dependencies/spdlog"]
+[submodule "deps/spdlog"]
 	path = deps/spdlog
 	url = https://github.com/gabime/spdlog.git
 	ignore = dirty
-[submodule "dependencies/imguinodeeditor"]
+[submodule "deps/imguinodeeditor"]
 	path = deps/imguinodeeditor
 	url = https://github.com/thedmd/imgui-node-editor.git
 	ignore = dirty
-[submodule "dependencies/nativefiledialog-extended"]
+[submodule "deps/nativefiledialog-extended"]
 	path = deps/nativefiledialog-extended
 	url = https://github.com/btzy/nativefiledialog-extended.git
 	ignore = dirty
-[submodule "dependencies/tinyosc"]
+[submodule "deps/tinyosc"]
 	path = deps/tinyosc
 	url = https://github.com/Guistac/tinyosc.git
 [submodule "deps/openframeworks"]
