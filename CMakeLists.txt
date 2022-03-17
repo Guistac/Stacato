@@ -3,7 +3,9 @@
 cmake_minimum_required(VERSION 3.20.0)
 
 #======= Workspace ========
-project(Stacato VERSION 0.2 DESCRIPTION "Stage Control Automation Toolbox" LANGUAGES CXX)
+##project(Stacato VERSION 0.2 DESCRIPTION "Stage Control Automation Toolbox" LANGUAGES CXX)
+project(Stacato)
+
 
 if(WIN32)
 	set(STACATO_OS_NAME "Windows")
@@ -37,7 +39,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	set(CMAKE_CXX_FLAGS_DEBUG "/ZI")
 	set(CMAKE_SHARED_LINKER_FLAGS "/SAFESEH:NO")
 	set(CMAKE_EXE_LINKER_FLAGS "/SAFESEH:NO")
-
+	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Compiler: Xcode / Apple Clang
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
 	set(CMAKE_XCODE_GENERATE_SCHEME TRUE)
@@ -47,6 +49,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
 else()
 	message("Compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
+
 
 set(STACATO_SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src)
 

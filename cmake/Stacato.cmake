@@ -204,22 +204,11 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Timing.h    
 )
 
-# use folders in ide
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-# match on disk file structure for source files in ide
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${STACATO_SOURCES_FILES})
-
-add_executable(Stacato MACOSX_BUNDLE ${STACATO_SOURCE_FILES})
-
-#[[
-if(APPLE)
-    list(APPEND STACATO_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/Core/Info.plist)
-endif()
+# match file structure for source files in ide
+source_group(TREE ${STACATO_SOURCE_DIRECTORY} FILES ${STACATO_SOURCE_FILES})
+# append generated configuration header
 list(APPEND STACATO_SOURCE_FILES ${PROJECT_BINARY_DIR}/src/Core/config.h)
-]]
 
-
-#[[
 # Stacato Executable
 if(WIN32)
     option(STACATO_WIN32_APPLICATION ON)
@@ -227,14 +216,12 @@ if(WIN32)
         set(STACATO_EXECUTABLE_TYPE WIN32)
     endif()
 elseif(APPLE)
+    list(APPEND STACATO_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/Core/Info.plist)
     set(STACATO_EXECUTABLE_TYPE MACOSX_BUNDLE)
 endif()
-
 add_executable(${PROJECT_NAME} ${STACATO_EXECUTABLE_TYPE} ${STACATO_SOURCE_FILES})
 
-]]
 
-#[[
 
 # Precompiled Headers
 target_precompile_headers(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src/Core/pch.h)
@@ -250,36 +237,18 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     _CRT_SECURE_NO_WARNINGS
 )
 
-#=========================
-#include dependencies here
-#=========================
 
-#link the project with librairies we just added
-target_link_libraries(${PROJECT_NAME} PRIVATE
-#=== Logging ===
-spdlog
 
-#=== Network ===
-soem
-asio
-tinyosc
+# Include Dependencies
+include(${CMAKE_CURRENT_LIST_DIR}/Dependencies.cmake)
 
-#=== Saving & Loading Files ====
-nfd
-tinyxml2
-
-##=== Windowing & Gui ===
-glfw
-dearimgui
-imguinodeeditor
-implot
-
-#=== Math ===
-glm
-)
+# Link Dependencies
+target_link_libraries(${PROJECT_NAME} STACATO_DEPENDENCIES)
 
 
 
+
+#[[
 
 if(WIN32)
     target_link_directories(${PROJECT_NAME} PRIVATE
