@@ -42,3 +42,12 @@
 [submodule "dependencies/tinyosc"]
 	path = deps/tinyosc
 	url = https://github.com/Guistac/tinyosc.git
+[submodule "deps/openframeworks"]
+	path = deps/openframeworks
+	url = https://github.com/openframeworks/openFrameworks.git
+[submodule "deps/imguicolortextedit"]
+	path = deps/imguicolortextedit
+	url = https://github.com/BalazsJako/ImGuiColorTextEdit.git
+[submodule "deps/openframeworksAddons/ofxLua"]
+	path = deps/openframeworksAddons/ofxLua
+	url = https://github.com/danomatika/ofxLua.git
