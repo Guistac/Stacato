@@ -27,7 +27,3 @@ target_include_directories(imguinodeeditor PUBLIC
     ${IMGUINODEEDITOR_DIRECTORY}/
 	${DEPENDENCIES_DIRECTORY}/dearimgui
 )
-
-target_link_libraries(imguinodeeditor PUBLIC
-    imgui
-)

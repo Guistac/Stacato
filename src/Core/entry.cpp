@@ -21,6 +21,7 @@ int main() {
 	//Logger is initialized after working directory is defined to have log file access
 	Logger::init();
 		
+	/*
 	Logger::info("Stacato Version {}.{} {} - "
 #ifdef STACATO_DEBUG
 				 "Debug Build",
@@ -28,7 +29,7 @@ int main() {
 				 "Release Build",
 #endif
 				 VERSION_MAJOR, VERSION_MINOR, STACATO_OS_NAME);
-	
+	*/
 	Logger::debug("Application Working Directory: {}", std::filesystem::current_path().string());
 	
 	//initialize node factory librairies

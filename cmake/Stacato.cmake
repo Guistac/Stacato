@@ -134,6 +134,17 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Basic/PositionControlledSingleAxisMachine.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Basic/PositionControlledSingleAxisMachineGui.cpp
 
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Animated/BinaryOscillator6x.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Animated/BinaryOscillator6x.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Animated/BinaryOscillator6xGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Animated/Oscillator3x.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Animated/Oscillator3x.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Animated/Oscillator3xGui.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Special/LinearMecanumClaw.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Special/LinearMecanumClaw.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Special/LinearMecanumClawGui.cpp
+
     ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/StateMachines/HoodedLiftStateMachine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/StateMachines/HoodedLiftStateMachine.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/StateMachines/HoodedLiftStateMachineGui.cpp

@@ -625,7 +625,7 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 
 	ImGui::PopFont();
 	
-	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - ImGui::GetTextLineHeight() * 3.0);
+	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - ImGui::GetTextLineHeight() * 3.0);
 	static char targetPositionString[32];
 	sprintf(targetPositionString, "%.3f %s", linearPositionTargetDisplay, Unit::getAbbreviatedString(getLinearAxisPositionUnit()));
 	ImGui::InputFloat("##TargetPosition", &linearPositionTargetDisplay, 0.0, 0.0, targetPositionString);
@@ -706,7 +706,7 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	ImGui::PopFont();
 	
 	//---Target Position
-	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - ImGui::GetTextLineHeight() * 3.0);
+	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - ImGui::GetTextLineHeight() * 3.0);
 	sprintf(targetPositionString, "%.3f %s", clawPositionTargetDisplay, Unit::getAbbreviatedString(getClawAxisPositionUnit()));
 	ImGui::InputFloat("##TargetPosition", &clawPositionTargetDisplay, 0.0, 0.0, targetPositionString);
 	clawPositionTargetDisplay = std::min(std::abs(clawPositionTargetDisplay), (float)clawPositionLimit);
