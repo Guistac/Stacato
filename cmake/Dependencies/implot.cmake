@@ -17,8 +17,7 @@ add_library(implot ${IMPLOT_SOURCE_FILES})
 
 target_include_directories(implot PUBLIC
     ${IMPLOT_DIRECTORY}/
+    ${DEPENDENCIES_DIRECTORY}/dearimgui
 )
 
-target_link_libraries(implot PUBLIC
-    imgui
-)
+#target_link_libraries(implot PUBLIC imgui)

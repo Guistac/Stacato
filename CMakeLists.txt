@@ -6,25 +6,18 @@ cmake_minimum_required(VERSION 3.20.0)
 ##project(Stacato VERSION 0.2 DESCRIPTION "Stage Control Automation Toolbox" LANGUAGES CXX)
 project(Stacato)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 if(WIN32)
 	set(STACATO_OS_NAME "Windows")
 	set(STACATO_WIN32 true)
-	set(CMAKE_CXX_STANDARD 17)
 elseif(APPLE)
 	set(STACATO_OS_NAME "MacOS")
 	set(STACATO_MACOS true)
-	set(CMAKE_CXX_STANDARD 17)
-	option(STACATO_BELOW_MACOS_1_14 OFF)
-	if(STACATO_BELOW_MACOS_1_14)
-		set(CMAKE_CXX_STANDARD 14)
-	endif()
 else()
 	set(STACATO_OS_NAME "Unspecified")
-	set(CMAKE_CXX_STANDARD 17)
 endif()
-
-set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DSTACATO_DEBUG")
 
