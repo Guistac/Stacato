@@ -38,3 +38,6 @@
 [submodule "deps/glfw"]
 	path = deps/glfw
 	url = https://github.com/Guistac/glfw.git
+[submodule "deps/openframeworks"]
+	path = deps/openframeworks
+	url = https://github.com/Guistac/openFrameworks.git

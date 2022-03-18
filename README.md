@@ -1,12 +1,10 @@
 # Stacato (Stage Control Automation Toolbox)
 
-### Building Instructions
+### Building Instructions (MacOS)
 
 ```
 git clone https://github.com/Guistac/Stacato.git --recursive
-cd deps/dearimgui
-git checkout docking
+sh Stacato/deps/openframeworks/scripts/osx/download_libs.sh
 ```
-Execute this script: `deps/openframeworks/scripts/<YOUR_PLATFORM>/download_libs.sh`
 
 Then build with cmake.
