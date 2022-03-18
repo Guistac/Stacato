@@ -29,9 +29,6 @@
 [submodule "deps/tinyosc"]
 	path = deps/tinyosc
 	url = https://github.com/Guistac/tinyosc.git
-[submodule "deps/openframeworks"]
-	path = deps/openframeworks
-	url = https://github.com/openframeworks/openFrameworks.git
 [submodule "deps/imguicolortextedit"]
 	path = deps/imguicolortextedit
 	url = https://github.com/BalazsJako/ImGuiColorTextEdit.git
