@@ -1,29 +1,5 @@
 #include <pch.h>
 
-#include "config.h"
-
-#include "ApplicationWindow.h"
-
-/*
-#ifdef STACATO_USE_MAGNUM_ENGINE
-	//we include magnums gl context first since it loads the opengl functions
-	#include <Magnum/Platform/GLContext.h>
-	//we include glfw after so it doesn't do any gl loading
-	#include <GLFW/glfw3.h>
-	//we declare the following so imgui doesn't try to do any importing of external gl loaders (config.h is just a dummy import)
-	#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM "config.h"
-	#include <backends/imgui_impl_opengl3.cpp>
-	#include <backends/imgui_impl_glfw.cpp>
-#else
-	//Use the GLAD Gl Loader and disable Magnum
-	#include <glad/glad.h>
-	#define IMGUI_IMPL_OPENGL_LOADER_GLAD
-	#include <backends/imgui_impl_opengl3.cpp>
-	#include <backends/imgui_impl_glfw.cpp>
-	#include <GLFW/glfw3.h>
-#endif
-*/
-
 #define OPENGL_VERSION_MAJOR 4
 #define OPENGL_VERSION_MINOR 1
 #define OPENGL_VERSION_STRING "#version 410 core"
@@ -34,13 +10,14 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-
-#include <implot.h>
+#include "config.h"
+#include "ApplicationWindow.h"
 #include "Gui/NodeEditor/NodeEditorGui.h"
 #include "Gui/Utilities/FileDialog.h"
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
+#include <implot.h>
 
 namespace ApplicationWindow {
 
@@ -115,18 +92,8 @@ void open(int w, int h) {
 	//activate the opengl context
 	glfwMakeContextCurrent(window);
 
-	//active V-Sync
+	//activate V-Sync
 	glfwSwapInterval(1);
-
-	/*
-#ifdef STACATO_USE_MAGNUM_ENGINE
-	//initialize gl context for magnum engine and load gl function
-	Magnum::Platform::GLContext magnumGlContext;
-#else
-	//load gl function
-	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-#endif
-	 */
 	
 	glewExperimental = GL_TRUE; //absolutely necessary to load the correct opengl functions for some reason
 	if(glewInit() != GLEW_OK) return false;
