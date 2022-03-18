@@ -268,7 +268,7 @@ target_link_libraries(${PROJECT_NAME} ${STACATO_DEPENDENCIES})
 
 
 
-#[[
+
 
 if(WIN32)
     target_link_directories(${PROJECT_NAME} PRIVATE
@@ -297,7 +297,7 @@ endif()
 
 if(APPLE)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory #TODO: should be copy_if_different
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${PROJECT_SOURCE_DIR}/dir/Resources"
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Resources
     )
@@ -307,4 +307,3 @@ if(APPLE)
     set_property(TARGET ${PROJECT_NAME} PROPERTY MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/src/Core/Info.plist")
 endif()
 
-]]
