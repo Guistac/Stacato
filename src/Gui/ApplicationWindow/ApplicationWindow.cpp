@@ -19,6 +19,8 @@
 
 #include <implot.h>
 
+#include <iostream>
+
 namespace ApplicationWindow {
 
 GLFWwindow* window;
@@ -69,6 +71,10 @@ void terminate() {
 
 void open(int w, int h) {
 	
+	const char* openedFilePath = glfwGetOpenedFilePath();
+	if(openedFilePath) Logger::critical("Programm start by opening file: {}", openedFilePath);
+	else Logger::critical("no opened file on startup");
+	
 #ifdef STACATO_MACOS
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -88,7 +94,11 @@ void open(int w, int h) {
 			render();
 			glfwSwapBuffers(window);
 	});
-
+	
+	glfwSetOpenFileCallback([](const char* filename){
+		Logger::critical("Opening File: {}", filename);
+	});
+	
 	//activate the opengl context
 	glfwMakeContextCurrent(window);
 

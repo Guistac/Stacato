@@ -12,7 +12,7 @@
 #ifdef STACATO_WIN32_APPLICATION
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
 #else
-int main() {
+int main(int argcount, const char ** args){
 #endif
 	
     //initializes application window and sets working directory
@@ -20,6 +20,8 @@ int main() {
     
 	//Logger is initialized after working directory is defined to have log file access
 	Logger::init();
+		
+	for(int i = 0; i < argcount; i++) Logger::info("entry arg {} : {}", i, args[i]);
 		
 	Logger::info("Stacato Version {}.{} {} - "
 #ifdef STACATO_DEBUG
