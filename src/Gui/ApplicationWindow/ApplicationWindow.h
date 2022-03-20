@@ -13,6 +13,9 @@ namespace ApplicationWindow {
 	bool isCloseRequested();
 	void close();
 
+	bool wasLaunchedByOpeningFile();
+	const char* getOpenedFilePath();
+
 	void render();
 	void onRender();
 

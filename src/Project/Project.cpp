@@ -7,27 +7,14 @@
 #include "Motion/Manoeuvre/Manoeuvre.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 
+#include "Gui/ApplicationWindow/ApplicationWindow.h"
+
 namespace Project {
 
 	std::vector<std::shared_ptr<Plot>> plots;
 	std::shared_ptr<Plot> currentPlot;
-	char projectDirectory[512] = "";
 
 	bool b_plotEditingAllowed = false;
-
-	bool hasDefaultSavePath() {
-		return strcmp(projectDirectory, "") != 0;
-	}
-
-	bool reload() {
-		if(hasDefaultSavePath()) return load(projectDirectory);
-		return false;
-	}
-
-	bool save() {
-		if(hasDefaultSavePath()) return saveAs(projectDirectory);
-		return false;
-	}
 
 	void createNew() {
 		Environnement::createNew();
@@ -36,7 +23,9 @@ namespace Project {
 		currentPlot = std::make_shared<Plot>();
 		strcpy(currentPlot->name, "Default Plot");
 		plots.push_back(currentPlot);
-		strcpy(projectDirectory, "");
+		saveFilePath[0] = 0;
+		b_hasFilePath = false;
+		ApplicationWindow::setWindowName("New Project");
 	}
 
 	bool isEditingAllowed() {

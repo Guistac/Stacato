@@ -6,20 +6,22 @@ namespace Project {
 
 	extern std::vector<std::shared_ptr<Plot>> plots;
 	extern std::shared_ptr<Plot> currentPlot;
-    extern char projectDirectory[];
+    
+	extern char saveFilePath[];
+	extern bool b_hasFilePath;
+	extern bool b_hasModifications;
 
-	bool hasDefaultSavePath();
+	void createNew();
 
+	void loadStartup();
 	bool load(const char* directory);
-	bool reload();
+	bool reloadSaved();
 
 	bool saveAs(const char* directory);
 	bool save();
-
-	void createNew();
+	
 	
 	bool isEditingAllowed();
-
 	void setPlotEdit(bool isAllowed);
 	bool isPlotEditAllowed();
 

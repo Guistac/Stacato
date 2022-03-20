@@ -27,6 +27,9 @@ GLFWwindow* window;
 bool b_closeRequested = false;
 bool b_shouldClose = false;
 
+bool b_launchedByOpenedFile = false;
+char openedFilePath[512];
+
 float scaleTuning = 1.0;
 
 char windowName[256] = "Stacato";
@@ -38,14 +41,15 @@ GLFWwindow* getGlfwWindow(){
 void init() {
 	
 #ifdef STACATO_WIN32
-#ifndef STACATO_DEBUG
+//#ifndef STACATO_DEBUG
 	//for release build, set working directory to "Resources" folder located next to executable
 	//the working directory for debug builds is located in the repositories dir/ folder
 	std::string defaultWorkingDirectory = std::filesystem::current_path().string();
 	std::filesystem::current_path(defaultWorkingDirectory + "/Resources");
-#endif
+//#endif
 #endif
 	
+	/*
 #ifdef STACATO_MACOS
 #ifdef STACATO_DEBUG
 	//prevent glfw from setting the working directory inside .app package resources folder
@@ -53,9 +57,15 @@ void init() {
 	glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, GLFW_FALSE);
 #endif
 #endif
+	 */
 	
 	glfwInit();
 	FileDialog::init();
+	
+	const char* path = glfwGetOpenedFilePath();
+	b_launchedByOpenedFile = path != nullptr;
+	if(b_launchedByOpenedFile) strcpy(openedFilePath, path);
+	
 }
 
 
@@ -70,10 +80,6 @@ void terminate() {
 
 
 void open(int w, int h) {
-	
-	const char* openedFilePath = glfwGetOpenedFilePath();
-	if(openedFilePath) Logger::critical("Programm start by opening file: {}", openedFilePath);
-	else Logger::critical("no opened file on startup");
 	
 #ifdef STACATO_MACOS
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -240,6 +246,16 @@ float getScaleTuning(){
 void setWindowName(const char* name){
 	if(window) glfwSetWindowTitle(window, name);
 	else sprintf(windowName, "%s", name);
+}
+
+
+
+bool wasLaunchedByOpeningFile(){
+	return b_launchedByOpenedFile;
+}
+
+const char* getOpenedFilePath(){
+	return openedFilePath;
 }
 
 

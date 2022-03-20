@@ -40,16 +40,13 @@ void initialize(){
 	if(isRunning()) stop();
 	EtherCatFieldbus::updateNetworkInterfaceCardList();
 	Network::init();
+	EtherCatFieldbus::init();
 }
 
 void terminate(){
 	if(isRunning()) stop();
 	EtherCatFieldbus::terminate();
 	Network::terminate();
-}
-
-void open(){
-	EtherCatFieldbus::init();
 }
 
 void close(){
@@ -345,12 +342,15 @@ void setNotes(const char* _notes){
 }
 
 
+/*
 #ifdef STACATO_DEBUG
 bool b_editorHidden = false;
 #else
 bool b_editorHidden = true;
 #endif
-
+*/
+bool b_editorHidden = false;
+ 
 bool isEditorHidden(){ return b_editorHidden; }
 bool hideEditor() { b_editorHidden = true; }
 bool showEditor() { b_editorHidden = false; }

@@ -12,7 +12,7 @@
 
 #include "Project/Environnement.h"
 #include "Project/Plot.h"
-#include "Gui/Utilities/Filedialog.h"
+#include "Gui/Utilities/FileDialog.h"
 #include "Project/Project.h"
 
 namespace ApplicationWindow {
@@ -39,34 +39,37 @@ namespace ApplicationWindow {
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("File")) {
-			/*
+			
 			if (ImGui::MenuItem("New Project")) Project::createNew();
 			if (ImGui::MenuItem("Open Project...")) {
 				FileDialog::FilePath path;
-				if (FileDialog::openFolder(path)) {
+				FileDialog::FileTypeFilter filter("Stacato Project File", "stacato");
+				if (FileDialog::load(path, filter)) {
 					Project::load(path.path);
 				}
 			}
+			
 			ImGui::Separator();
-			 */
-			bool hasDefaultSavePath = !Project::hasDefaultSavePath();
-			if (hasDefaultSavePath) BEGIN_DISABLE_IMGUI_ELEMENT
-				if (ImGui::MenuItem("Save")) Project::save();
-			/*
-			if (hasDefaultSavePath) END_DISABLE_IMGUI_ELEMENT
-				if (ImGui::MenuItem("Save As...")) {
-					FileDialog::FilePath path;
-					if (FileDialog::save(path, "ProjectFolder")) {
-						Project::saveAs(path.path);
-					}
+			 
+			ImGui::BeginDisabled(!Project::b_hasFilePath);
+			if (ImGui::MenuItem("Save")) Project::save();
+			ImGui::EndDisabled();
+			
+			if (ImGui::MenuItem("Save As...")) {
+				FileDialog::FilePath path;
+				FileDialog::FileTypeFilter filter("Stacato Project File", "stacato");
+				if (FileDialog::save(path, filter, "project")) {
+					Project::saveAs(path.path);
 				}
-			 */
+			}
+			 
 			ImGui::Separator();
-			if (hasDefaultSavePath) BEGIN_DISABLE_IMGUI_ELEMENT
-				if (ImGui::MenuItem("Reload Saved")) Project::reload();
-			if (hasDefaultSavePath) END_DISABLE_IMGUI_ELEMENT
+			
+			ImGui::BeginDisabled(!Project::b_hasFilePath);
+			if (ImGui::MenuItem("Reload Saved")) Project::reloadSaved();
+			ImGui::EndDisabled();
 
-				ImGui::EndMenu();
+			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Edit")) {
 			/*
