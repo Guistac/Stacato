@@ -220,6 +220,14 @@ source_group(TREE ${STACATO_SOURCE_DIRECTORY} FILES ${STACATO_SOURCE_FILES})
 # append generated configuration header
 list(APPEND STACATO_SOURCE_FILES ${PROJECT_BINARY_DIR}/src/Core/config.h)
 
+#[[
+    set(MACOSX_BUNDLE_ICON_FILE Stacato_AppIcon.icns)
+    set(Stacato_ICON ${CMAKE_CURRENT_SOURCE_DIR}/dir/Resources/Stacato_AppIcon.icns)
+    set_source_files_properties(${Stacato_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+    set(Stacato_FILE_ICON ${CMAKE_CURRENT_SOURCE_DIR}/dir/Resources/Stacato_FileIcon.icns)
+    set_source_files_properties(${Stacato_FILE_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+]]
+
 # Stacato Executable
 if(WIN32)
     option(STACATO_WIN32_APPLICATION ON)
@@ -229,9 +237,7 @@ if(WIN32)
 elseif(APPLE)
     set(STACATO_EXECUTABLE_TYPE MACOSX_BUNDLE)
 endif()
-add_executable(${PROJECT_NAME} ${STACATO_EXECUTABLE_TYPE} ${STACATO_SOURCE_FILES})
-
-
+add_executable(${PROJECT_NAME} ${STACATO_EXECUTABLE_TYPE} ${Stacato_ICON} ${Stacato_FILE_ICON} ${STACATO_SOURCE_FILES})
 
 
 
