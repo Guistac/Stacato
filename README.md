@@ -1,6 +1,6 @@
-# Stacato (Stage Control Automation Toolbox)
+<img width="407" alt="StacatoBanner" src="https://user-images.githubusercontent.com/42607186/159329357-e85d3a01-0044-4a98-aef5-efd307d0d704.png">
 
-### Building Instructions (MacOS)
+### Build Instructions (MacOS)
 
 ```
 git clone https://github.com/Guistac/Stacato.git --recursive
