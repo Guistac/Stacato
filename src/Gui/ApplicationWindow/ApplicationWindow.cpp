@@ -17,6 +17,8 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
+#include "Project/Project.h"
+
 #include <implot.h>
 
 namespace ApplicationWindow {
@@ -70,6 +72,7 @@ void init() {
 
 
 void terminate() {
+	Logger::terminate();
 	FileDialog::terminate();
 	glfwTerminate();
 }
@@ -91,7 +94,7 @@ void open(int w, int h) {
 
 	//set window callbacks that are not handled by imgui glfw backend
 	glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int w, int h) { update(); });
-	glfwSetOpenFileCallback([](const char* filename){ Logger::critical("Opening File: {}", filename); });
+	glfwSetOpenFileCallback([](const char* filePath){ onFileOpen(filePath); });
 	glfwSetZoomCallback(window, [](GLFWwindow* window, double zoom){ macOsTrackpadZoomDelta = zoom; });
 	glfwSetRotateCallback(window, [](GLFWwindow* window, double rotation){ macOsTrackpadRotateDelta = rotation; });
 	
@@ -178,7 +181,10 @@ void update(){
 
 
 //request the app to quit, will open popup
-void requestQuit() { b_closeRequested = true; }
+void requestQuit() {
+	if(Project::canCloseImmediately()) quit();
+	else b_closeRequested = true;
+}
 
 //cancel the quit request
 void cancelQuitRequest() { b_closeRequested = false; }
@@ -197,6 +203,7 @@ bool wasLaunchedByOpeningFile(){ return b_launchedByOpenedFile; }
 //get the opened file path
 const char* getOpenedFilePath(){ return openedFilePath; }
 
+void onFileOpen(const char* filePath){ Project::load(filePath); }
 
 //get trackpad gesture delta values
 double getMacOsTrackpadZoom(){ return macOsTrackpadZoomDelta; }

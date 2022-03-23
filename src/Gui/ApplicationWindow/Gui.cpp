@@ -58,12 +58,12 @@ namespace Gui {
 				ImGui::EndTabItem();
 			}
 			
-			//if(!Environnement::isEditorHidden()){
-			//	if (ImGui::BeginTabItem("Stage View")) {
-			//		StageView::draw();
-			//		ImGui::EndTabItem();
-			//	}
-			//}
+			if(!Environnement::isEditorHidden()){
+				if (ImGui::BeginTabItem("Stage View")) {
+					StageView::draw();
+					ImGui::EndTabItem();
+				}
+			}
 			
 			ImGui::EndTabBar();
 		}

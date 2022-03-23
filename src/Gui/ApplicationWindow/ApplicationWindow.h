@@ -17,6 +17,7 @@ namespace ApplicationWindow {
 
 	bool wasLaunchedByOpeningFile();
 	const char* getOpenedFilePath();
+	void onFileOpen(const char* filePath);
 
 	void setWindowName(const char*);
 

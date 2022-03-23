@@ -11,6 +11,8 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
+#include "Gui/Project/ProjectGui.h"
+
 namespace Gui{
 
 
@@ -27,13 +29,20 @@ void quitApplicationModal() {
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Quit without Saving")) quitApplication = true;
+		if (ImGui::Button("Quit without Saving")) {
+			quitApplication = true;
+			ImGui::CloseCurrentPopup();
+		}
 		ImGui::SameLine();
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.5, 0.0, 1.0));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2, 0.4, 0.1, 1.0));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3, 0.6, 0.2, 1.0));
 		if (ImGui::Button("Save and Quit") || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) {
-			quitApplication = Project::save();
+			quitApplication = Project::Gui::save();
+			if(!quitApplication) {
+				ApplicationWindow::cancelQuitRequest();
+				ImGui::CloseCurrentPopup();
+			}
 		}
 		ImGui::PopStyleColor(3);
 		ImGui::EndPopup();

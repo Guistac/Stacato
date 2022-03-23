@@ -29,9 +29,6 @@ int main(int argcount, const char ** args){
 	//stop hardware or simulation and terminate fieldbus
 	Environnement::terminate();
 
-	//shut down logger
-	Logger::terminate();
-
 	//terminate application
 	ApplicationWindow::terminate();
 }

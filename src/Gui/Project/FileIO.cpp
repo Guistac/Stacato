@@ -16,10 +16,19 @@ namespace Project::Gui{
 		if(FileDialog::load(path, filter)) Project::load(path.path);
 	}
 
-	void saveAs(){
+	bool save(){
+		if(hasFilePath()) return true;
+		return saveAs();
+	}
+
+	bool saveAs(){
 		FileDialog::FilePath path;
 		FileDialog::FileTypeFilter filter("Stacato Project File", "stacato");
-		if(FileDialog::save(path, filter, "project")) Project::saveAs(path.path);
+		if(FileDialog::save(path, filter, "project")) {
+			Project::saveAs(path.path);
+			return true;
+		}
+		return false;
 	}
 
 	void closePopup(){
@@ -45,9 +54,8 @@ namespace Project::Gui{
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2, 0.4, 0.1, 1.0));
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3, 0.6, 0.2, 1.0));
 			if (ImGui::Button("Save and Close") || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) {
-				if(hasFilePath()) Project::save();
-				else saveAs();
-				Project::confirmNewProjectRequest();
+				bool b_saved = Project::Gui::save();
+				if(b_saved) Project::confirmNewProjectRequest();
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::PopStyleColor(3);

@@ -293,16 +293,11 @@ namespace Environnement::NodeGraph{
 			linkXML = linkXML->NextSiblingElement("Link");
 		}
 
-		getNodes().swap(loadedNodes);
+		//adds all relevant nodes to the environnement (machines and devices)
+		for (auto node : loadedNodes) Environnement::addNode(node);
 		getPins().swap(loadedPins);
 		getLinks().swap(loadedLinks);
-		//uniqueID = largestUniqueID + 1; //set this so we can add more elements to the node graph after loading
-
-		//adds all relevant nodes to the environnement (machines and devices)
-		for (auto node : Environnement::NodeGraph::getNodes()) {
-			Environnement::addNode(node);
-		}
-
+		
 		Logger::trace("Largest unique ID is {}", largestUniqueID);
 		Logger::info("Successfully loaded Node Graph");
 

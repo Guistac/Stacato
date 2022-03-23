@@ -34,6 +34,8 @@ namespace Environnement::NodeGraph::Gui{
 		ax::NodeEditor::SetCurrentEditor(context);
 		ax::NodeEditor::Begin("Node Editor", ImVec2(0, ImGui::GetContentRegionAvail().y - ImGui::GetTextLineHeight() * 1.7));
 
+		
+		
 		//===== DRAW NODES =====
 
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2, ImGui::GetTextLineHeight() * 0.2));
@@ -41,6 +43,8 @@ namespace Environnement::NodeGraph::Gui{
 		for (auto node : Environnement::NodeGraph::getNodes()) node->nodeGui();
 		ImGui::PopStyleVar(2);
 
+		
+		
 		//===== DRAW LINKS =====
 
 		for (auto link : Environnement::NodeGraph::getLinks())
@@ -50,9 +54,12 @@ namespace Environnement::NodeGraph::Gui{
 				ImColor(1.0f, 1.0f, 1.0f),
 				1.0);
 
+		
+		
+		
 		if (Project::isEditingAllowed()) {
 
-			//===== Handle link creation action, returns true if editor want to create new link
+			//===== link creation, returns true if editor want to create new link
 
 			if (ax::NodeEditor::BeginCreate(ImVec4(1.0, 1.0, 1.0, 1.0), 1.0)) {
 				ax::NodeEditor::PinId pin1Id, pin2Id;
@@ -72,7 +79,10 @@ namespace Environnement::NodeGraph::Gui{
 			}
 			ax::NodeEditor::EndCreate();
 
-			//===== Handle link and node deletion action =====
+			
+			
+			
+			//===== link and node deletion action =====
 
 			if (ax::NodeEditor::BeginDelete()) {
 
@@ -95,7 +105,11 @@ namespace Environnement::NodeGraph::Gui{
 			}
 			ax::NodeEditor::EndDelete();
 
-			//===== Handle Context Menus =====
+			
+			
+			
+			
+			//===== Context Menus =====
 
 			ax::NodeEditor::Suspend();
 

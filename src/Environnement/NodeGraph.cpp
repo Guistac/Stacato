@@ -5,6 +5,8 @@
 #include "NodePin.h"
 #include "NodeLink.h"
 
+#include "Project/Project.h"
+
 namespace Environnement::NodeGraph{
 
 	std::vector<std::shared_ptr<Node>> nodes;
@@ -51,6 +53,7 @@ namespace Environnement::NodeGraph{
 			pins.push_back(data);
 		}
 		newNode->b_isInNodeGraph = true;
+		Project::setModified();
 	}
 
 	void removeNode(std::shared_ptr<Node> removedNode) {
@@ -72,6 +75,7 @@ namespace Environnement::NodeGraph{
 			}
 		}
 		removedNode->b_isInNodeGraph = false;
+		Project::setModified();
 	}
 
 
@@ -104,6 +108,7 @@ namespace Environnement::NodeGraph{
 		data1->nodeLinks.push_back(newIoLink);
 		data2->nodeLinks.push_back(newIoLink);
 		links.push_back(newIoLink);
+		Project::setModified();
 		return newIoLink;
 	}
 
@@ -129,6 +134,7 @@ namespace Environnement::NodeGraph{
 				break;
 			}
 		}
+		Project::setModified();
 	}
 
 	std::shared_ptr<Node> getNode(int Id) {
@@ -161,6 +167,7 @@ namespace Environnement::NodeGraph{
 		int uniqueID = 1;
 		bool b_showOutputValues = false;
 		bool b_justLoaded = false;
+		Project::setModified();
 	}
 
 }

@@ -42,6 +42,8 @@ namespace Environnement {
 	bool load(const char * filePath) {
 		using namespace tinyxml2;
 
+		Environnement::createNew();
+		
 		//====== DOCUMENT LOADING ======
 
 		Logger::info("Loading Save File {}", filePath);

@@ -21,6 +21,7 @@ namespace Project{
 	void confirmNewProjectRequest(){
 		if(!b_newProjectRequested) return;
 		Environnement::stop();
+		b_hasUnsavedModifications = false;
 		if(newProjectFilePath[0] == 0) createNew();
 		else load(newProjectFilePath);
 		cancelNewProjectRequest();
@@ -48,6 +49,7 @@ namespace Project{
 		saveFilePath[0] = 0;
 		b_hasFilePath = false;
 		ApplicationWindow::setWindowName("New Project");
+		b_hasUnsavedModifications = false;
 	}
 
 	void loadStartup(){

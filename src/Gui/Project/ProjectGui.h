@@ -4,7 +4,8 @@ namespace Project::Gui{
 
 	//FileIO
 	void load();
-	void saveAs();
+	bool save();
+	bool saveAs();
 	void closePopup();
 
 }
