@@ -8,31 +8,20 @@ namespace ApplicationWindow {
 	void terminate();
 	
 	void open(int w, int h);
-	void requestClose();
-	void cancelCloseRequest();
-	bool isCloseRequested();
-	void close();
+	void update();
+
+	void requestQuit();
+	void cancelQuitRequest();
+	bool isQuitRequested();
+	void quit();
 
 	bool wasLaunchedByOpeningFile();
 	const char* getOpenedFilePath();
 
-	void render();
-	void onRender();
-
-	void drawGui();
-	void drawMainWindow();
-	void drawMainMenuBar();
-	void drawToolbar(float height);
-
-	void quitApplicationModal();
-	void aboutModal();
-
-    float getScaleTuning();
-
 	void setWindowName(const char*);
 
-	GLFWwindow* getGlfwWindow();
-
+	double getMacOsTrackpadZoom();
+	double getMacOsTrackpadRotate();
 };
 
 

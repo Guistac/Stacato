@@ -6,6 +6,8 @@
 
 #include <tinyxml2.h>
 
+#include "Gui/NodeEditor/NodeEditorGui.h"
+
 namespace Environnement {
 
 	bool save(const char * filePath) {
@@ -78,7 +80,9 @@ namespace Environnement {
 
 	void createNew() {
 		nodeGraph = nullptr;
-
+		ImGuiNodeEditor::DestroyContext();
+		ImGuiNodeEditor::CreateContext();
+	
 		getEtherCatDevices().clear();
 		getMachines().clear();
 

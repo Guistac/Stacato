@@ -10,3 +10,11 @@ void deviceManagerGui();
 void EnvironnementNodeEditorGui();
 
 void stageEditorGui();
+
+namespace Project::Gui{
+
+	void load();
+	void saveAs();
+	void closePopup();
+
+}

@@ -9,6 +9,7 @@
 #include "Gui/Fieldbus/EtherCatGui.h"
 #include "Project/Environnement.h"
 
+#include "Gui.h"
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
@@ -18,11 +19,11 @@
 
 #include "Networking/NetworkDevice.h"
 
-namespace ApplicationWindow {
+namespace Gui {
 
 
 
-	void drawToolbar(float height) {
+	void toolbar(float height) {
 
 		glm::vec2 buttonSize(ImGui::GetTextLineHeight() * 4.0, ImGui::GetTextLineHeight() * 2.0);
 
