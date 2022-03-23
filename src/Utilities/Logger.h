@@ -6,88 +6,126 @@
 
 #include "Timing.h"
 
-class LogMessage {
-public:
-    LogMessage(std::string& msg, int l) : level(l){
-        message = "[" + std::to_string(Timing::getProgramTime_seconds()) + "s] " + std::move(msg);
-    }
-    inline const char* getMessage() { return message.c_str(); }
-    inline bool isTrace() { return level == 0; }
-    inline bool isDebug() { return level == 1; }
-    inline bool isInfo() { return level == 2; }
-    inline bool isWarn() { return level == 3; }
-    inline bool isError() { return level == 4; }
-    inline bool isCritical() { return level == 5; }
-    std::string message;
-    int level = -1;
-};
+namespace Logger{
 
-class Logger{
-public:
+	class Message {
+	public:
+		Message(std::string& msg, int l) : level(l){ message = "[" + std::to_string(Timing::getProgramTime_seconds()) + "s] " + std::move(msg); }
+		inline const char* getString() { return message.c_str(); }
+		inline bool isTrace() { return level == 0; }
+		inline bool isDebug() { return level == 1; }
+		inline bool isInfo() { return level == 2; }
+		inline bool isWarn() { return level == 3; }
+		inline bool isError() { return level == 4; }
+		inline bool isCritical() { return level == 5; }
+		std::string message;
+		int level = -1;
+	};
 
-	static void init();
-    static void terminate();
+	struct Context{
+		std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> console_sink;
+		std::shared_ptr<spdlog::sinks::daily_file_sink_mt> file_sink;
+		spdlog::logger* logger;
+	};
 
-    static std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> console_sink;
-    static std::shared_ptr<spdlog::sinks::daily_file_sink_mt> file_sink;
-    static spdlog::logger* logger;
+	inline Context& getContext(){
+		static Context loggerContext;
+		return loggerContext;
+	}
 
-    static std::vector<LogMessage> messages;
+	inline std::vector<Message>& getMessages(){
+		static std::vector<Message> messages = {};
+		return messages;
+	}
 
-    static int levelMessageCount[6];
+	inline void clearMessages(){
+		getMessages().clear();
+	}
 
-    template<typename... Args>
-    static bool trace(fmt::format_string<Args...> format, Args &&...args) {
-        logger->trace(format, std::forward<Args>(args)...);
-        std::string str = fmt::format(format, std::forward<Args>(args)...);
-        messages.push_back(LogMessage(str, 0));
-        levelMessageCount[0]++;
-        return true;
-    }
+	inline int* getLevelMessageCount(){
+		static int levelMessageCount[6] = {0, 0, 0, 0, 0, 0};
+		return levelMessageCount;
+	}
 
-    template<typename... Args>
-    static bool debug(fmt::format_string<Args...> format, Args &&...args) {
-        logger->debug(format, std::forward<Args>(args)...);
-        std::string str = fmt::format(format, std::forward<Args>(args)...);
-        messages.push_back(LogMessage(str, 1));
-        levelMessageCount[1]++;
-        return true;
-    }
+	inline void init(){
+		
+		Context& context = getContext();
+		
+		context.console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+		context.console_sink->set_pattern("[%T:%e]%^ [%l] %v %$");
+		context.console_sink->set_level(spdlog::level::trace);
 
-    template<typename... Args>
-    static bool info(fmt::format_string<Args...> format, Args &&...args) {
-        logger->info(format, std::forward<Args>(args)...);
-        std::string str = fmt::format(format, std::forward<Args>(args)...);
-        messages.push_back(LogMessage(str, 2));
-        levelMessageCount[2]++;
-        return true;
-    }
+		context.file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("logs/StacatoLog.log", 2, 30);
+		context.file_sink->set_pattern("[%T:%e] [%l] %v");
+		context.file_sink->set_level(spdlog::level::trace);
 
-    template<typename... Args>
-    static bool warn(fmt::format_string<Args...> format, Args &&...args) {
-        logger->warn(format, std::forward<Args>(args)...);
-        std::string str = fmt::format(format, std::forward<Args>(args)...);
-        messages.push_back(LogMessage(str, 3));
-        levelMessageCount[3]++;
-        return false;
-    }
+		context.logger = new spdlog::logger("StacatoLog", {context.console_sink, context.file_sink});
+		//context.logger = new spdlog::logger("ToosLogger", file_sink);
+		context.logger->set_level(spdlog::level::trace);
 
-    template<typename... Args>
-    static bool error(fmt::format_string<Args...> format, Args &&...args) {
-        logger->error(format, std::forward<Args>(args)...);
-        std::string str = fmt::format(format, std::forward<Args>(args)...);
-        messages.push_back(LogMessage(str, 4));
-        levelMessageCount[4]++;
-        return false;
-    }
+		//reserve space for a million log messages in memory
+		getMessages().reserve(1000000);
+	}
 
-    template<typename... Args>
-    static bool critical(fmt::format_string<Args...> format, Args &&...args) {
-        logger->critical(format, std::forward<Args>(args)...);
-        std::string str = fmt::format(format, std::forward<Args>(args)...);
-        messages.push_back(LogMessage(str, 5));
-        levelMessageCount[5]++;
-        return false;
-    }
-};
+	inline void terminate(){
+		Context& context = getContext();
+		context.logger->flush();
+		delete context.logger;
+	}
+
+	template<typename... Args>
+	inline bool trace(fmt::format_string<Args...> format, Args &&...args) {
+		getContext().logger->trace(format, std::forward<Args>(args)...);
+		std::string str = fmt::format(format, std::forward<Args>(args)...);
+		getMessages().push_back(Message(str, 0));
+		getLevelMessageCount()[0]++;
+		return true;
+	}
+
+	template<typename... Args>
+	inline bool debug(fmt::format_string<Args...> format, Args &&...args) {
+		getContext().logger->debug(format, std::forward<Args>(args)...);
+		std::string str = fmt::format(format, std::forward<Args>(args)...);
+		getMessages().push_back(Message(str, 1));
+		getLevelMessageCount()[1]++;
+		return true;
+	}
+
+	template<typename... Args>
+	inline bool info(fmt::format_string<Args...> format, Args &&...args) {
+		getContext().logger->info(format, std::forward<Args>(args)...);
+		std::string str = fmt::format(format, std::forward<Args>(args)...);
+		getMessages().push_back(Message(str, 2));
+		getLevelMessageCount()[2]++;
+		return true;
+	}
+
+	template<typename... Args>
+	inline bool warn(fmt::format_string<Args...> format, Args &&...args) {
+		getContext().logger->warn(format, std::forward<Args>(args)...);
+		std::string str = fmt::format(format, std::forward<Args>(args)...);
+		getMessages().push_back(Message(str, 3));
+		getLevelMessageCount()[3]++;
+		return false;
+	}
+
+	template<typename... Args>
+	inline bool error(fmt::format_string<Args...> format, Args &&...args) {
+		getContext().logger->error(format, std::forward<Args>(args)...);
+		std::string str = fmt::format(format, std::forward<Args>(args)...);
+		getMessages().push_back(Message(str, 4));
+		getLevelMessageCount()[4]++;
+		return false;
+	}
+
+	template<typename... Args>
+	inline bool critical(fmt::format_string<Args...> format, Args &&...args) {
+		getContext().logger->critical(format, std::forward<Args>(args)...);
+		std::string str = fmt::format(format, std::forward<Args>(args)...);
+		getMessages().push_back(Message(str, 5));
+		getLevelMessageCount()[5]++;
+		return false;
+	}
+
+}
 

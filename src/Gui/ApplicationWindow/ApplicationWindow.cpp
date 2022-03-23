@@ -17,6 +17,8 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
+#include "Utilities/Timing.h"
+
 #include <implot.h>
 
 namespace ApplicationWindow {
@@ -43,6 +45,8 @@ float scaleTuning = 0.7; //best scaling to match MacOS Gui
 
 void init() {
 	
+	Timing::start();
+	Random::initialize();
 	glfwInit();
 	FileDialog::init();
 	
