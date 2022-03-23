@@ -2,7 +2,7 @@
 
 ## Build Instructions (MacOS)
 
-Execute the following commands, then build the project with CMake.
+Execute the following commands, then generate project files with CMake.
 
 ```
 git clone https://github.com/Guistac/Stacato.git --recursive
