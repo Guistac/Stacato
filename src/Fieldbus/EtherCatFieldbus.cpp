@@ -1,8 +1,8 @@
 #include <pch.h>
 
 #include "EtherCatFieldbus.h"
+#include "Fieldbus/EtherCatDevice.h"
 
-#include "Utilities/EtherCatDeviceFactory.h"
 #include "Utilities/EtherCatError.h"
 #include "Environnement/Environnement.h"
 #include "Environnement/NodeGraph.h"

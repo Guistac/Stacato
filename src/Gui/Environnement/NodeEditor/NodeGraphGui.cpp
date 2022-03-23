@@ -13,32 +13,12 @@
 #include "Environnement/Environnement.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatDevice.h"
-#include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 #include "Nodes/NodeFactory.h"
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
 #include <imgui_node_editor.h>
-
-/*
-namespace NodeEditor = ax::NodeEditor;
-
-namespace ImGuiNodeEditor {
-	ax::NodeEditor::EditorContext* nodeEditorContext;
-
-	void CreateContext() {
-		nodeEditorContext = ax::NodeEditor::CreateEditor();
-	}
-
-	void DestroyContext() {
-		ax::NodeEditor::DestroyEditor(nodeEditorContext);
-	}
-}
-*/
-
-
-
 
 namespace Environnement::NodeGraph::Gui{
 

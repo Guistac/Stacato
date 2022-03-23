@@ -59,13 +59,16 @@ namespace Environnement::NodeGraph::Gui{
 						ImGui::TreePop();
 					}
 				}
+				
+				
+				//scan ethercat network
 				ImGui::Separator();
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));
 				ImGui::Text("Detected Devices");
 				ImGui::PopStyleColor();
 				static bool b_scanningNetwork = false;
-				bool disableScanButton = EtherCatFieldbus::isCyclicExchangeActive();
-				if (disableScanButton) BEGIN_DISABLE_IMGUI_ELEMENT
+				bool disableScanButton = !EtherCatFieldbus::hasNetworkInterface() || EtherCatFieldbus::isCyclicExchangeActive() || b_scanningNetwork;
+				ImGui::BeginDisabled(disableScanButton);
 				if (ImGui::Button("Scan Network")) {
 					std::thread etherCatNetworkScanner = std::thread([]() {
 						b_scanningNetwork = true;
@@ -74,11 +77,13 @@ namespace Environnement::NodeGraph::Gui{
 					});
 					etherCatNetworkScanner.detach();
 				}
-				if (disableScanButton) END_DISABLE_IMGUI_ELEMENT
+				ImGui::EndDisabled();
 				if (b_scanningNetwork) {
 					ImGui::SameLine();
 					ImGui::Text("Scanning...");
 				}
+				
+				
 				for (auto device : EtherCatFieldbus::slaves_unassigned) {
 					const char* deviceDisplayName = device->getName();
 					ImGui::Selectable(deviceDisplayName);
@@ -101,8 +106,6 @@ namespace Environnement::NodeGraph::Gui{
 					ImGui::TreePop();
 					ImGui::PopFont();
 				}
-
-
 
 				if (ImGui::TreeNode("Machines")) {
 					for (auto& category : NodeFactory::getMachinesByCategory()) {
@@ -156,7 +159,6 @@ namespace Environnement::NodeGraph::Gui{
 
 			ImGui::EndChild();
 		
-
 		ImGui::PopStyleVar();
 	}
 

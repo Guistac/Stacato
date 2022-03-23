@@ -1,10 +1,7 @@
 #include <pch.h>
 
 #include "config.h"
-
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
-#include "Fieldbus/EtherCatFieldbus.h"
-#include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 #include "Nodes/NodeFactory.h"
 #include "Project/Project.h"
 #include "Environnement/Environnement.h"
@@ -21,7 +18,6 @@ int main(int argcount, const char ** args){
 	//Logger is initialized after working directory is defined to have log file access
 	Logger::init();
 	Logger::critical("Stacato Version {}.{} {} ({})", VERSION_MAJOR, VERSION_MINOR, STACATO_OS_NAME, STACATO_BUILD_TYPE);
-	Logger::debug("Application Working Directory: {}", std::filesystem::current_path().string());
 	
 	//initialize node factory modules
 	NodeFactory::load();

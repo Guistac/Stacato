@@ -3,7 +3,6 @@
 #include "Environnement.h"
 
 #include "Nodes/NodeFactory.h"
-#include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 #include "Environnement/Environnement.h"
 #include "Environnement/NodeGraph.h"
 

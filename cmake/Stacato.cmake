@@ -13,8 +13,6 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatData.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatData.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatDeviceFactory.h
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatDeviceFactory.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatEepromTool.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatError.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatError.cpp
@@ -197,8 +195,12 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Environnement/Processing.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/nodeGraphXML.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Nodes/NodeFactory.cpp
     ${STACATO_SOURCE_DIRECTORY}/Nodes/NodeFactory.h
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/NodeFactory.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/EtherCatNodes.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/MotionNodes.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/NetworkNodes.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/ProcessorNodes.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Nodes/Processors/ClockNode.h
     ${STACATO_SOURCE_DIRECTORY}/Nodes/Processors/DisplayNode.h
