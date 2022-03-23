@@ -41,15 +41,36 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/MainWindow.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Gui.h
+    ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Gui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/MenuBar.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Toolbar.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Popups.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ImGuiCustomConfiguration.h
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Colors.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Colors.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Fonts.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Fonts.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/EnvironnementGui.h
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/EnvironnementGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/HomingGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachineGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachineListGui.cpp
+    
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeEditor/NodeAdder.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeEditor/NodeEditorGui.h
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeEditor/NodeGraphGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeEditor/NodeGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeEditor/PinGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeEditor/PinIcon.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/PlotGui.h
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/PlotGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/AnimatableParameterGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/ManoeuvreGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/ParameterTrackGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Fieldbus/DS402Gui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Fieldbus/EtherCatDataGui.cpp
@@ -61,22 +82,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Fieldbus/EtherCatSlaveGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Fieldbus/EtherCatStartModal.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Gui/NodeEditor/NodeAdder.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/NodeEditor/NodeEditorGui.h
-    ${STACATO_SOURCE_DIRECTORY}/Gui/NodeEditor/NodeGraphGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/NodeEditor/NodeGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/NodeEditor/PinGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/NodeEditor/PinIcon.cpp
-
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Project/AnimatableParameterGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Project/EnvironnementGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Project/HomingGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Project/MachineGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Project/MachineListGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Project/ManoeuvreGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Project/ParameterTrackGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Project/PlotGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Project/ProjectGui.h
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Project/FileIO.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/StageView/GlApplet.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/StageView/GlApplet.h
@@ -100,6 +107,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Motion/Playback.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Playback.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/SubDevice.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Profile.h
 
     ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuator.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuator.h
@@ -159,7 +167,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ParameterTrack.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ParameterTrack.h
 
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Profile/Profile.h
+    ${STACATO_SOURCE_DIRECTORY}/Plot/Plot.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Plot/Plot.h
+    ${STACATO_SOURCE_DIRECTORY}/Plot/PlotSaveFile.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Networking/Network.cpp
     ${STACATO_SOURCE_DIRECTORY}/Networking/Network.h
@@ -172,33 +182,31 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscSocket.cpp
     ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscSocket.h
 
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/Device.cpp
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/Device.h
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/Node.h
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/Node.cpp
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/NodeGraph.cpp
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/NodeGraph.h
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/NodeLink.h
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/NodePin.cpp
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/NodePin.h
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/Processing.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/EnvironnementSaveFile.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/Nodes/ClockNode.h
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/Nodes/DisplayNode.h
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/Nodes/GroupNode.h
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/Nodes/MathNodes.h
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/Nodes/PlotterNode.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Device.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Device.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Node.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Node.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeLink.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodePin.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodePin.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Processing.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/Utilities/NodeFactory.cpp
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/Utilities/NodeFactory.h
-    ${STACATO_SOURCE_DIRECTORY}/NodeGraph/Utilities/nodeGraphXML.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Nodes/ClockNode.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Nodes/DisplayNode.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Nodes/GroupNode.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Nodes/MathNodes.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Nodes/PlotterNode.h
 
-    ${STACATO_SOURCE_DIRECTORY}/Project/Environnement.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Project/Environnement.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/EnvironnmentSaveFile.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Project/Plot.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Project/Plot.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/PlotSaveFile.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeFactory.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeFactory.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/nodeGraphXML.cpp
+
     ${STACATO_SOURCE_DIRECTORY}/Project/Project.cpp
     ${STACATO_SOURCE_DIRECTORY}/Project/Project.h
     ${STACATO_SOURCE_DIRECTORY}/Project/ProjectSaveFile.cpp

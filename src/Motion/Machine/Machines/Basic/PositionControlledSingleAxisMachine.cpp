@@ -10,7 +10,7 @@
 
 #include <tinyxml2.h>
 
-#include "Project/Environnement.h"
+#include "Environnement/Environnement.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
 

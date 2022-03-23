@@ -5,7 +5,7 @@
 #include "Motion/AnimatableParameter.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
 
-#include "Project/Environnement.h"
+#include "Environnement/Environnement.h"
 
 bool Machine::isReady(){
 	if(Environnement::isSimulating()) return isSimulationReady() && Environnement::isRunning();

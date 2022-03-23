@@ -1,11 +1,10 @@
 #include <pch.h>
 
 #include "PositionControlledAxis.h"
-#include "NodeGraph/Device.h"
+#include "Environnement/Device.h"
 #include "Motion/MotionTypes.h"
 #include "Motion/Curve/Curve.h"
 #include "Fieldbus/EtherCatFieldbus.h"
-#include "NodeGraph/Device.h"
 
 #include "Motion/SubDevice.h"
 

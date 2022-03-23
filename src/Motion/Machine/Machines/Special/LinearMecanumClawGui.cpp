@@ -11,7 +11,7 @@
 #include "Motion/Axis/PositionControlledAxis.h"
 #include "Motion/Axis/VelocityControlledAxis.h"
 #include "Motion/SubDevice.h"
-#include "NodeGraph/Device.h"
+#include "Environnement/Device.h"
 
 void LinearMecanumClaw::controlsGui() {
 	//Machine Controls Gui

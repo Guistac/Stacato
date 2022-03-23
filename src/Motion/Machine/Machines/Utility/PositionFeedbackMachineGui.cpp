@@ -9,7 +9,7 @@
 #include "Gui/Utilities/CustomWidgets.h"
 
 #include "Motion/SubDevice.h"
-#include "NodeGraph/Device.h"
+#include "Environnement/Device.h"
 
 void PositionFeedbackMachine::controlsGui(){
 	

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Motion/Machine/Machine.h"
-#include "Motion/Profile/Profile.h"
+#include "Motion/Profile.h"
 
 class LinearMecanumClaw : public Machine {
 public:

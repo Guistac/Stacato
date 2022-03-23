@@ -5,9 +5,9 @@
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
-#include "NodeGraph/Utilities/NodeFactory.h"
+#include "Environnement/NodeFactory.h"
 #include "Project/Project.h"
-#include "Project/Environnement.h"
+#include "Environnement/Environnement.h"
 
 #ifdef STACATO_WIN32_APPLICATION
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {

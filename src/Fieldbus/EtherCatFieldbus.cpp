@@ -4,8 +4,8 @@
 
 #include "Utilities/EtherCatDeviceFactory.h"
 #include "Utilities/EtherCatError.h"
-#include "Project/Environnement.h"
-#include "NodeGraph/NodeGraph.h"
+#include "Environnement/Environnement.h"
+#include "Environnement/NodeGraph.h"
 #include "Motion/Playback.h"
 
 #include "Utilities/ProgressIndicator.h"
@@ -834,7 +834,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
             slave->identity->state = EC_STATE_NONE;
         }
         //evaluate all nodes one last time to propagate the disconnection of devices
-        Environnement::nodeGraph->evaluate(Device::Type::ETHERCAT_DEVICE);
+        Environnement::NodeGraph::evaluate(Device::Type::ETHERCAT_DEVICE);
 
         Logger::info("===== Cyclic Exchange Stopped !");
 

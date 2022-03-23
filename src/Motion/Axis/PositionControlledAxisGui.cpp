@@ -9,7 +9,7 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
-#include "NodeGraph/Device.h"
+#include "Environnement/Device.h"
 #include "Gui/Utilities/HelpMarker.h"
 
 #include "Motion/SubDevice.h"

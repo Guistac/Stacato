@@ -2,7 +2,7 @@
 
 #include <ethercat.h>
 
-#include "NodeGraph/Device.h"
+#include "Environnement/Device.h"
 
 #include "Utilities/EtherCatPDO.h"
 

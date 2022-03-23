@@ -2,8 +2,8 @@
 
 #include "Project.h"
 
-#include "Environnement.h"
-#include "Plot.h"
+#include "Environnement/Environnement.h"
+#include "Plot/Plot.h"
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
 
 namespace Project{

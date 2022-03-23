@@ -7,7 +7,7 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Gui/Fieldbus/EtherCatGui.h"
-#include "Project/Environnement.h"
+#include "Environnement/Environnement.h"
 
 #include "Gui.h"
 #include "Gui/Assets/Fonts.h"

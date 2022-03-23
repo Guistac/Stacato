@@ -1,9 +1,9 @@
-#include "NodeGraph/Node.h"
+#include "Environnement/Node.h"
 
-#include "NodeGraph/Node.h"
+#include "Environnement/Node.h"
 #include "Motion/MotionTypes.h"
 #include "Motion/SubDevice.h"
-#include "Motion/Profile/Profile.h"
+#include "Motion/Profile.h"
 #include "Motion/Curve/Curve.h"
 
 #include "Utilities/CircularBuffer.h"

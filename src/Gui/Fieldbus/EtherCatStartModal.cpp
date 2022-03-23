@@ -7,7 +7,7 @@
 #include "Gui/Assets/Colors.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
-#include "Project/Environnement.h"
+#include "Environnement/Environnement.h"
 #include "Utilities/ProgressIndicator.h"
 
 #include <GLFW/glfw3.h>

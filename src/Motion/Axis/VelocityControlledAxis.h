@@ -1,11 +1,11 @@
 #pragma once
 
-#include "NodeGraph/Node.h"
+#include "Environnement/Node.h"
 
 #include "Motion/MotionTypes.h"
 #include "Utilities/CircularBuffer.h"
 
-#include "Motion/Profile/Profile.h"
+#include "Motion/Profile.h"
 
 class Device;
 

@@ -11,9 +11,9 @@
 
 #include "Gui/Utilities/CustomWidgets.h"
 
-#include "NodeGraph/Device.h"
+#include "Environnement/Device.h"
 
-#include "Project/Environnement.h"
+#include "Environnement/Environnement.h"
 
 
 void PositionControlledSingleAxisMachine::controlsGui() {

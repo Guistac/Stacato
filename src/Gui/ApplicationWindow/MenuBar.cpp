@@ -13,8 +13,8 @@
 #include "Gui/Assets/Colors.h"
 #include "Gui/Project/ProjectGui.h"
 
-#include "Project/Environnement.h"
-#include "Project/Plot.h"
+#include "Environnement/Environnement.h"
+#include "Plot/Plot.h"
 #include "Project/Project.h"
 
 

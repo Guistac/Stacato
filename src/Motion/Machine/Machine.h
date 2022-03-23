@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NodeGraph/Node.h"
+#include "Environnement/Node.h"
 #include "Motion/AnimatableParameter.h"
 
 namespace Motion {

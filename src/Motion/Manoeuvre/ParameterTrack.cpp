@@ -6,9 +6,9 @@
 #include "Motion/Curve/Curve.h"
 #include "Motion/Machine/Machine.h"
 #include "Fieldbus/EtherCatFieldbus.h"
-#include "Project/Environnement.h"
+#include "Environnement/Environnement.h"
 #include "Motion/Manoeuvre/Manoeuvre.h"
-#include "Project/Plot.h"
+#include "Plot/Plot.h"
 
 
 ParameterTrack::ParameterTrack(std::shared_ptr<AnimatableParameter>& param, std::shared_ptr<Manoeuvre> m) : parameter(param), parentManoeuvre(m) {

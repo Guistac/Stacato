@@ -1,7 +1,7 @@
 #pragma once
 
-#include "NodeGraph/Node.h"
-#include "NodeGraph/NodePin.h"
+#include "Environnement/Node.h"
+#include "Environnement/NodePin.h"
 
 
 class DeadMansSwitch : public Node {

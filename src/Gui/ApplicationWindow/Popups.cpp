@@ -6,7 +6,7 @@
 
 #include "ApplicationWindow.h"
 #include "Project/Project.h"
-#include "Project/Environnement.h"
+#include "Environnement/Environnement.h"
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"

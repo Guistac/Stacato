@@ -13,7 +13,7 @@
 #include "config.h"
 #include "ApplicationWindow.h"
 #include "Gui.h"
-#include "Gui/NodeEditor/NodeEditorGui.h"
+#include "Gui/Environnement/NodeEditor/NodeEditorGui.h"
 #include "Gui/Utilities/FileDialog.h"
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"

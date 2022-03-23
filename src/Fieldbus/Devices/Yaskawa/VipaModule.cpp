@@ -2,7 +2,7 @@
 
 #include "VipaModule.h"
 
-#include "NodeGraph/NodePin.h"
+#include "Environnement/NodePin.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>

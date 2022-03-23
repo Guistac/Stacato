@@ -5,7 +5,7 @@
 
 #include "Motion/Machine/Machine.h"
 #include "Motion/AnimatableParameter.h"
-#include "Project/Environnement.h"
+#include "Environnement/Environnement.h"
 
 #include <tinyxml2.h>
 
