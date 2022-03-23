@@ -8,8 +8,7 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatDevice.h"
-#include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
-#include "Environnement/NodeFactory.h"
+#include "Nodes/NodeFactory.h"
 
 namespace Environnement::NodeGraph::Gui{
 
@@ -23,8 +22,20 @@ namespace Environnement::NodeGraph::Gui{
 			ImGui::PushFont(Fonts::robotoBold20);
 			ImGui::Text("Node Library");
 			ImGui::PopFont();
-
-
+		
+			auto listNodes = [](const std::vector<Node*>& nodes){
+				for (auto& node : nodes) {
+					const char* nodeDisplayName = node->getName();
+					ImGui::Selectable(nodeDisplayName);
+					const char* nodeSaveName = node->getSaveName();
+					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+						ImGui::SetDragDropPayload("Node", &nodeSaveName, sizeof(const char*));
+						ImGui::Text("%s", nodeDisplayName);
+						ImGui::EndDragDropSource();
+					}
+				}
+			};
+		
 			ImGui::PushFont(Fonts::robotoBold15);
 			if (ImGui::CollapsingHeader("EtherCAT Devices")) {
 
@@ -32,18 +43,9 @@ namespace Environnement::NodeGraph::Gui{
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));
 				ImGui::Text("By Manufacturer");
 				ImGui::PopStyleColor();
-				for (auto& manufacturer : EtherCatDeviceFactory::getDevicesByManufacturer()) {
+				for (auto& manufacturer : NodeFactory::getEtherCatDevicesByManufacturer()) {
 					if (ImGui::TreeNode(manufacturer.name)) {
-						for (auto& device : manufacturer.devices) {
-							const char* deviceDisplayName = device->getName();
-							ImGui::Selectable(deviceDisplayName);
-							const char* deviceSaveName = device->getSaveName();
-							if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-								ImGui::SetDragDropPayload("EtherCatDevice", &deviceSaveName, sizeof(const char*));
-								ImGui::Text("%s", deviceDisplayName);
-								ImGui::EndDragDropSource();
-							}
-						}
+						listNodes(manufacturer.nodes);
 						ImGui::TreePop();
 					}
 				}
@@ -51,18 +53,9 @@ namespace Environnement::NodeGraph::Gui{
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));
 				ImGui::Text("By Category");
 				ImGui::PopStyleColor();
-				for (auto& manufacturer : EtherCatDeviceFactory::getDevicesByCategory()) {
-					if (ImGui::TreeNode(manufacturer.name)) {
-						for (auto& device : manufacturer.devices) {
-							const char* deviceDisplayName = device->getName();
-							ImGui::Selectable(deviceDisplayName);
-							const char* deviceSaveName = device->getSaveName();
-							if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-								ImGui::SetDragDropPayload("EtherCatDevice", &deviceSaveName, sizeof(const char*));
-								ImGui::Text("%s", deviceDisplayName);
-								ImGui::EndDragDropSource();
-							}
-						}
+				for (auto& category : NodeFactory::getEtherCatDevicesByCategory()) {
+					if (ImGui::TreeNode(category.name)) {
+						listNodes(category.nodes);
 						ImGui::TreePop();
 					}
 				}
@@ -104,16 +97,7 @@ namespace Environnement::NodeGraph::Gui{
 				
 				if(ImGui::TreeNode("Axis")){
 					ImGui::PushFont(Fonts::robotoRegular15);
-					for (auto axis : NodeFactory::getAllAxisTypes()) {
-						const char* axisDisplayName = axis->getName();
-						ImGui::Selectable(axisDisplayName);
-						const char* axisSaveName = axis->getSaveName();
-						if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-							ImGui::SetDragDropPayload("Axis", &axisSaveName, sizeof(const char*));
-							ImGui::Text("%s",axisDisplayName);
-							ImGui::EndDragDropSource();
-						}
-					}
+					listNodes(NodeFactory::getAllAxisNodes());
 					ImGui::TreePop();
 					ImGui::PopFont();
 				}
@@ -124,16 +108,7 @@ namespace Environnement::NodeGraph::Gui{
 					for (auto& category : NodeFactory::getMachinesByCategory()) {
 						if (ImGui::TreeNode(category.name)) {
 							ImGui::PushFont(Fonts::robotoRegular15);
-							for (auto& machine : category.nodes) {
-								const char* machineDisplayName = machine->getName();
-								ImGui::Selectable(machineDisplayName);
-								const char* machineSaveName = machine->getSaveName();
-								if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-									ImGui::SetDragDropPayload("Machine", &machineSaveName, sizeof(const char*));
-									ImGui::Text("%s",machineDisplayName);
-									ImGui::EndDragDropSource();
-								}
-							}
+							listNodes(category.nodes);
 							ImGui::PopFont();
 							ImGui::TreePop();
 						}
@@ -142,18 +117,15 @@ namespace Environnement::NodeGraph::Gui{
 				}
 				
 				if (ImGui::TreeNode("Safety")) {
-						
 					ImGui::PushFont(Fonts::robotoRegular15);
-					for (auto& safetyNode : NodeFactory::getAllSafetyNodes()) {
-						const char* safetyNodeDisplayName = safetyNode->getName();
-						ImGui::Selectable(safetyNodeDisplayName);
-						const char* safetyNodeSaveName = safetyNode->getSaveName();
-						if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-							ImGui::SetDragDropPayload("SafetyNode", &safetyNodeSaveName, sizeof(const char*));
-							ImGui::Text("%s",safetyNodeDisplayName);
-							ImGui::EndDragDropSource();
-						}
-					}
+					listNodes(NodeFactory::getAllSafetyNodes());
+					ImGui::PopFont();
+					ImGui::TreePop();
+				}
+				
+				if (ImGui::TreeNode("Adapters")) {
+					ImGui::PushFont(Fonts::robotoRegular15);
+					listNodes(NodeFactory::getAllMotionAdapterNodes());
 					ImGui::PopFont();
 					ImGui::TreePop();
 				}
@@ -164,18 +136,7 @@ namespace Environnement::NodeGraph::Gui{
 			ImGui::PushFont(Fonts::robotoBold15);
 			if (ImGui::CollapsingHeader("Network IO")) {
 				ImGui::PushFont(Fonts::robotoRegular15);
-				
-				for (auto& networkIoNode : NodeFactory::getAllNetworkIoNodes()) {
-					const char* networkIoNodeDisplayName = networkIoNode->getName();
-					ImGui::Selectable(networkIoNodeDisplayName);
-					const char* networkIoNodeSaveName = networkIoNode->getSaveName();
-					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-						ImGui::SetDragDropPayload("NetworkIoNode", &networkIoNodeSaveName, sizeof(const char*));
-						ImGui::Text("%s",networkIoNodeDisplayName);
-						ImGui::EndDragDropSource();
-					}
-				}
-				
+				listNodes(NodeFactory::getAllNetworkNodes());
 				ImGui::PopFont();
 			}
 			ImGui::PopFont();
@@ -183,18 +144,9 @@ namespace Environnement::NodeGraph::Gui{
 			ImGui::PushFont(Fonts::robotoBold15);
 			if (ImGui::CollapsingHeader("Data Processors")) {
 				ImGui::PushFont(Fonts::robotoRegular15);
-				for (auto category : NodeFactory::getNodesByCategory()) {
+				for (auto category : NodeFactory::getProcessorNodesByCategory()) {
 					if (ImGui::TreeNode(category.name)) {
-						for (Node* node : category.nodes) {
-							const char* nodeDisplayName = node->getName();
-							const char* nodeSaveName = node->getSaveName();
-							ImGui::Selectable(nodeDisplayName);
-							if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-								ImGui::SetDragDropPayload("ProcessorNode", &nodeSaveName, sizeof(const char*));
-								ImGui::Text("%s", nodeDisplayName);
-								ImGui::EndDragDropSource();
-							}
-						}
+						listNodes(category.nodes);
 						ImGui::TreePop();
 					}
 				}
@@ -208,51 +160,23 @@ namespace Environnement::NodeGraph::Gui{
 		ImGui::PopStyleVar();
 	}
 
+
+
 	std::shared_ptr<Node> acceptDraggedNode() {
 		if (ImGui::BeginDragDropTarget()) {
 			const ImGuiPayload* payload;
 			glm::vec2 mousePosition = ImGui::GetMousePos();
-			payload = ImGui::AcceptDragDropPayload("EtherCatDevice");
+			payload = ImGui::AcceptDragDropPayload("Node");
 			if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
-				const char* deviceName = *(const char**)payload->Data;
-				std::shared_ptr<Node> newSlave = EtherCatDeviceFactory::getDeviceBySaveName(deviceName);
-				return newSlave;
+				const char* nodeSaveName = *(const char**)payload->Data;
+				std::shared_ptr<Node> newNode = NodeFactory::getNodeBySaveName(nodeSaveName);
+				return newNode;
 			}
 			payload = ImGui::AcceptDragDropPayload("DetectedEtherCatDevice");
 			if (payload != nullptr && payload->DataSize == sizeof(std::shared_ptr<EtherCatDevice>)) {
 				std::shared_ptr<EtherCatDevice> detectedSlave = *(std::shared_ptr<EtherCatDevice>*)payload->Data;
 				EtherCatFieldbus::removeFromUnassignedSlaves(detectedSlave);
 				return detectedSlave;
-			}
-			payload = ImGui::AcceptDragDropPayload("Axis");
-			if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
-				const char* axisSaveName = *(const char**)payload->Data;
-				std::shared_ptr<Node> newAxis = NodeFactory::getAxisBySaveName(axisSaveName);
-				return newAxis;
-			}
-			payload = ImGui::AcceptDragDropPayload("Machine");
-			if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
-				const char* machineSaveName = *(const char**)payload->Data;
-				std::shared_ptr<Node> newMachine = NodeFactory::getMachineBySaveName(machineSaveName);
-				return newMachine;
-			}
-			payload = ImGui::AcceptDragDropPayload("SafetyNode");
-			if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
-				const char* safetyNodeSaveName = *(const char**)payload->Data;
-				std::shared_ptr<Node> newSafetyNode = NodeFactory::getSafetyNodeBySaveName(safetyNodeSaveName);
-				return newSafetyNode;
-			}
-			payload = ImGui::AcceptDragDropPayload("NetworkIoNode");
-			if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
-				const char* networkIoNodeSaveName = *(const char**)payload->Data;
-				std::shared_ptr<Node> newNetworkIoNode = NodeFactory::getNetworkIoNodeBySaveName(networkIoNodeSaveName);
-				return newNetworkIoNode;
-			}
-			payload = ImGui::AcceptDragDropPayload("ProcessorNode");
-			if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
-				const char* nodeSaveName = *(const char**)payload->Data;
-				std::shared_ptr<Node> newNode = NodeFactory::getNodeBySaveName(nodeSaveName);
-				return newNode;
 			}
 			ImGui::EndDragDropTarget();
 		}
@@ -261,30 +185,33 @@ namespace Environnement::NodeGraph::Gui{
 
 
 
+
 	std::shared_ptr<Node> nodeAdderContextMenu() {
 
 		std::shared_ptr<Node> output = nullptr;
+		
+		auto listNodes = [&](const std::vector<Node*> nodes){
+			for (auto node : nodes) {
+				if (ImGui::MenuItem(node->getName())) output = node->getNewInstance();
+			}
+		};
 
 		ImGui::MenuItem("Node Editor Menu", nullptr, false, false);
 		ImGui::Separator();
 		ImGui::MenuItem("EtherCAT devices", nullptr, false, false);
 		if (ImGui::BeginMenu("By Manufaturer")) {
-			for (auto manufacturer : EtherCatDeviceFactory::getDevicesByManufacturer()) {
+			for (auto manufacturer : NodeFactory::getEtherCatDevicesByManufacturer()) {
 				if (ImGui::BeginMenu(manufacturer.name)) {
-					for (auto device : manufacturer.devices) {
-						if (ImGui::MenuItem(device->getName())) output = device->getNewInstance();
-					}
+					listNodes(manufacturer.nodes);
 					ImGui::EndMenu();
 				}
 			}
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("By Category")) {
-			for (auto manufacturer : EtherCatDeviceFactory::getDevicesByCategory()) {
-				if (ImGui::BeginMenu(manufacturer.name)) {
-					for (auto device : manufacturer.devices) {
-						if (ImGui::MenuItem(device->getName())) output = device->getNewInstance();
-					}
+			for (auto category : NodeFactory::getEtherCatDevicesByCategory()) {
+				if (ImGui::BeginMenu(category.name)) {
+					listNodes(category.nodes);
 					ImGui::EndMenu();
 				}
 			}
@@ -309,30 +236,20 @@ namespace Environnement::NodeGraph::Gui{
 
 		if (ImGui::BeginMenu("Motion")) {
 			if (ImGui::BeginMenu("Axis")) {
-				for (auto axis : NodeFactory::getAllAxisTypes()) {
-					if (ImGui::MenuItem(axis->getName())) output = axis->getNewInstance();
-				}
+				listNodes(NodeFactory::getAllAxisNodes());
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Machines")) {
 				for (auto& category : NodeFactory::getMachinesByCategory()) {
 					if (ImGui::BeginMenu(category.name)) {
-					
-						for (auto& machine : category.nodes) {
-							
-							if (ImGui::MenuItem(machine->getName())) output = machine->getNewInstance();
-						
-						}
-
+						listNodes(category.nodes);
 						ImGui::EndMenu();
 					}
 				}
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Safety")) {
-				for (auto safetyNode : NodeFactory::getAllSafetyNodes()) {
-					if (ImGui::MenuItem(safetyNode->getName())) output = safetyNode->getNewInstance();
-				}
+				listNodes(NodeFactory::getAllSafetyNodes());
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenu();
@@ -341,20 +258,16 @@ namespace Environnement::NodeGraph::Gui{
 		ImGui::Separator();
 
 		if (ImGui::BeginMenu("Network")) {
-			for (auto networkIoNode : NodeFactory::getAllNetworkIoNodes()) {
-				if (ImGui::MenuItem(networkIoNode->getName())) output = networkIoNode->getNewInstance();
-			}
+			listNodes(NodeFactory::getAllNetworkNodes());
 			ImGui::EndMenu();
 		}
 
 		ImGui::Separator();
 
 		ImGui::MenuItem("Processing Nodes", nullptr, false, false);
-		for (auto category : NodeFactory::getNodesByCategory()) {
+		for (auto category : NodeFactory::getProcessorNodesByCategory()) {
 			if (ImGui::BeginMenu(category.name)) {
-				for (auto device : category.nodes) {
-					if (ImGui::MenuItem(device->getName())) output = device->getNewInstance();
-				}
+				listNodes(category.nodes);
 				ImGui::EndMenu();
 			}
 		}

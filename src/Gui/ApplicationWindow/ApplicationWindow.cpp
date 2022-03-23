@@ -13,7 +13,6 @@
 #include "config.h"
 #include "ApplicationWindow.h"
 #include "Gui.h"
-#include "Gui/Environnement/NodeEditor/NodeEditorGui.h"
 #include "Gui/Utilities/FileDialog.h"
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
@@ -103,7 +102,6 @@ void open(int w, int h) {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImPlot::CreateContext();
-	ImGuiNodeEditor::CreateContext();
 	
 	//configure imgui
 	ImGuiIO& io = ImGui::GetIO();
@@ -132,7 +130,6 @@ void open(int w, int h) {
 	//Gui Shutdown
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
-	ImGuiNodeEditor::DestroyContext();
 	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
 }

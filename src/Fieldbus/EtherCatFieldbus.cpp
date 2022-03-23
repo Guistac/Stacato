@@ -10,6 +10,8 @@
 
 #include "Utilities/ProgressIndicator.h"
 
+#include "Nodes/NodeFactory.h"
+
 #include "config.h"
 
 namespace EtherCatFieldbus {
@@ -488,7 +490,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
                 if (slave == nullptr) {
                     Logger::info("      Slave did not match any Environnement Slave");
-                    slave = EtherCatDeviceFactory::getDeviceByEtherCatName(identity.name);
+                    slave = NodeFactory::getDeviceByEtherCatName(identity.name);
                     slave->stationAlias = stationAlias;
                     slave->explicitDeviceID = explicitDeviceID;
                     char name[128];

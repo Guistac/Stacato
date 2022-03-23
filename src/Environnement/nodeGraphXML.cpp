@@ -2,7 +2,7 @@
 
 #include "Environnement.h"
 
-#include "NodeFactory.h"
+#include "Nodes/NodeFactory.h"
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
 #include "Environnement/Environnement.h"
 #include "Environnement/NodeGraph.h"
@@ -126,41 +126,13 @@ namespace Environnement::NodeGraph{
 			Logger::trace("Loading node '{}' of type '{}'", nodeCustomName, nodeSaveNameString);
 			std::shared_ptr<Node> loadedNode = nullptr;
 			bool isSplit = false;
-			switch (nodeType) {
-				case Node::Type::IODEVICE:{
-						const char* deviceTypeString;
-						if (nodeXML->QueryStringAttribute("DeviceType", &deviceTypeString) != XML_SUCCESS) return Logger::warn("Could not load Node Device Type");
-						if (getDeviceType(deviceTypeString) == nullptr) return Logger::warn("Could not read Device Type");
-						Device::Type deviceType = getDeviceType(deviceTypeString)->type;
-						switch (deviceType) {
-							case Device::Type::ETHERCAT_DEVICE:
-								loadedNode = EtherCatDeviceFactory::getDeviceBySaveName(nodeSaveNameString);
-								break;
-							case Device::Type::NETWORK_DEVICE:
-								loadedNode = NodeFactory::getNetworkIoNodeBySaveName(nodeSaveNameString);
-								break;
-							case Device::Type::USB_DEVICE:
-								return Logger::warn("Loading of usb devices is unsupported");
-						}
-						if (nodeXML->QueryBoolAttribute("Split", &isSplit) != XML_SUCCESS) return Logger::warn("Could not load split status");
-					}break;
-				case Node::Type::PROCESSOR:
-					loadedNode = NodeFactory::getNodeBySaveName(nodeSaveNameString);
-					if(loadedNode == nullptr) loadedNode = NodeFactory::getSafetyNodeBySaveName(nodeSaveNameString);
-					break;
-				case Node::Type::CLOCK:
-					loadedNode = NodeFactory::getNodeBySaveName(nodeSaveNameString);
-					break;
-				case Node::Type::CONTAINER:
-					loadedNode = NodeFactory::getNodeBySaveName(nodeSaveNameString);
-					break;
-				case Node::Type::AXIS:
-					loadedNode = NodeFactory::getAxisBySaveName(nodeSaveNameString);
-					break;
-				case Node::Type::MACHINE:
-					loadedNode = NodeFactory::getMachineBySaveName(nodeSaveNameString);
-					break;
+			
+			if(nodeType == Node::Type::IODEVICE){
+				const char* deviceTypeString;
+				if (nodeXML->QueryBoolAttribute("Split", &isSplit) != XML_SUCCESS) return Logger::warn("Could not load split status");
 			}
+			
+			loadedNode = NodeFactory::getNodeBySaveName(nodeSaveNameString);
 			if (loadedNode == nullptr) return Logger::warn("Coult not load Node Class");
 			
 			//Get Node position in node editor

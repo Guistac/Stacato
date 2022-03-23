@@ -2,6 +2,7 @@
 
 #include "Fieldbus/EtherCatDevice.h"
 
+/*
 namespace EtherCatDeviceFactory {
 
 	struct EtherCatDeviceGroup {
@@ -18,3 +19,4 @@ namespace EtherCatDeviceFactory {
 	const std::vector<EtherCatDeviceGroup>& getDevicesByCategory();
 
 }
+*/

@@ -14,11 +14,14 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatDevice.h"
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
-#include "Environnement/NodeFactory.h"
+#include "Nodes/NodeFactory.h"
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
+#include <imgui_node_editor.h>
+
+/*
 namespace NodeEditor = ax::NodeEditor;
 
 namespace ImGuiNodeEditor {
@@ -32,16 +35,19 @@ namespace ImGuiNodeEditor {
 		ax::NodeEditor::DestroyEditor(nodeEditorContext);
 	}
 }
+*/
 
 
 
 
 namespace Environnement::NodeGraph::Gui{
 
+	ax::NodeEditor::EditorContext* context = ax::NodeEditor::CreateEditor();
+
 	void editor() {
 		
-		NodeEditor::SetCurrentEditor(ImGuiNodeEditor::nodeEditorContext);
-		NodeEditor::Begin("Node Editor", ImVec2(0, ImGui::GetContentRegionAvail().y - ImGui::GetTextLineHeight() * 1.7));
+		ax::NodeEditor::SetCurrentEditor(context);
+		ax::NodeEditor::Begin("Node Editor", ImVec2(0, ImGui::GetContentRegionAvail().y - ImGui::GetTextLineHeight() * 1.7));
 
 		//===== DRAW NODES =====
 
@@ -53,7 +59,7 @@ namespace Environnement::NodeGraph::Gui{
 		//===== DRAW LINKS =====
 
 		for (auto link : Environnement::NodeGraph::getLinks())
-			NodeEditor::Link(link->getUniqueID(),
+			ax::NodeEditor::Link(link->getUniqueID(),
 				link->getInputData()->getUniqueID(),
 				link->getOutputData()->getUniqueID(),
 				ImColor(1.0f, 1.0f, 1.0f),
@@ -63,60 +69,60 @@ namespace Environnement::NodeGraph::Gui{
 
 			//===== Handle link creation action, returns true if editor want to create new link
 
-			if (NodeEditor::BeginCreate(ImVec4(1.0, 1.0, 1.0, 1.0), 1.0)) {
-				NodeEditor::PinId pin1Id, pin2Id;
-				if (NodeEditor::QueryNewLink(&pin1Id, &pin2Id)) {
+			if (ax::NodeEditor::BeginCreate(ImVec4(1.0, 1.0, 1.0, 1.0), 1.0)) {
+				ax::NodeEditor::PinId pin1Id, pin2Id;
+				if (ax::NodeEditor::QueryNewLink(&pin1Id, &pin2Id)) {
 					if (pin1Id && pin2Id) {
 						std::shared_ptr<NodePin> pin1 = getPin(pin1Id.Get());
 						std::shared_ptr<NodePin> pin2 = getPin(pin2Id.Get());
 						if (pin1 && pin2 && isConnectionValid(pin1, pin2)) {
-							if (NodeEditor::AcceptNewItem(ImColor(1.0f, 1.0f, 1.0f), 3.0)) {
+							if (ax::NodeEditor::AcceptNewItem(ImColor(1.0f, 1.0f, 1.0f), 3.0)) {
 								std::shared_ptr<NodeLink> link = connect(pin1, pin2);
-								NodeEditor::Link(link->getUniqueID(), pin1Id, pin2Id);
+								ax::NodeEditor::Link(link->getUniqueID(), pin1Id, pin2Id);
 							}
 						}
-						else NodeEditor::RejectNewItem(ImColor(1.0f, 0.0f, 0.0f), 3.0);
+						else ax::NodeEditor::RejectNewItem(ImColor(1.0f, 0.0f, 0.0f), 3.0);
 					}
 				}
 			}
-			NodeEditor::EndCreate();
+			ax::NodeEditor::EndCreate();
 
 			//===== Handle link and node deletion action =====
 
-			if (NodeEditor::BeginDelete()) {
+			if (ax::NodeEditor::BeginDelete()) {
 
-				NodeEditor::LinkId deletedLinkId;
-				while (NodeEditor::QueryDeletedLink(&deletedLinkId)) {
-					if (NodeEditor::AcceptDeletedItem()) {
+				ax::NodeEditor::LinkId deletedLinkId;
+				while (ax::NodeEditor::QueryDeletedLink(&deletedLinkId)) {
+					if (ax::NodeEditor::AcceptDeletedItem()) {
 						std::shared_ptr<NodeLink> deletedLink = getLink(deletedLinkId.Get());
 						if (deletedLink) disconnect(deletedLink);
 					}
 				}
 
-				NodeEditor::NodeId deletedNodeId;
-				while (NodeEditor::QueryDeletedNode(&deletedNodeId)) {
+				ax::NodeEditor::NodeId deletedNodeId;
+				while (ax::NodeEditor::QueryDeletedNode(&deletedNodeId)) {
 					std::shared_ptr<Node> deletedNode = getNode(deletedNodeId.Get());
-					if (deletedNode && NodeEditor::AcceptDeletedItem()) {
+					if (deletedNode && ax::NodeEditor::AcceptDeletedItem()) {
 						Environnement::NodeGraph::removeNode(deletedNode); //TODO: why are we removing twice ?
 						Environnement::removeNode(deletedNode);
 					}
-					else NodeEditor::RejectDeletedItem();
+					else ax::NodeEditor::RejectDeletedItem();
 				}
 			}
-			NodeEditor::EndDelete();
+			ax::NodeEditor::EndDelete();
 
 			//===== Handle Context Menus =====
 
-			NodeEditor::Suspend();
+			ax::NodeEditor::Suspend();
 
-			static NodeEditor::NodeId contextNodeId = 0;
-			static NodeEditor::LinkId contextLinkId = 0;
-			static NodeEditor::PinId  contextPinId = 0;
+			static ax::NodeEditor::NodeId contextNodeId = 0;
+			static ax::NodeEditor::LinkId contextLinkId = 0;
+			static ax::NodeEditor::PinId  contextPinId = 0;
 
-			if (NodeEditor::ShowNodeContextMenu(&contextNodeId))		ImGui::OpenPopup("Node Context Menu");
-			if (NodeEditor::ShowPinContextMenu(&contextPinId))		ImGui::OpenPopup("Pin Context Menu");
-			if (NodeEditor::ShowLinkContextMenu(&contextLinkId))	ImGui::OpenPopup("Link Context Menu");
-			if (NodeEditor::ShowBackgroundContextMenu())           ImGui::OpenPopup("Background Context Menu");
+			if (ax::NodeEditor::ShowNodeContextMenu(&contextNodeId))		ImGui::OpenPopup("Node Context Menu");
+			if (ax::NodeEditor::ShowPinContextMenu(&contextPinId))		ImGui::OpenPopup("Pin Context Menu");
+			if (ax::NodeEditor::ShowLinkContextMenu(&contextLinkId))	ImGui::OpenPopup("Link Context Menu");
+			if (ax::NodeEditor::ShowBackgroundContextMenu())           ImGui::OpenPopup("Background Context Menu");
 
 
 			if (ImGui::BeginPopup("Node Context Menu")) {
@@ -148,7 +154,7 @@ namespace Environnement::NodeGraph::Gui{
 					ImGui::MenuItem("Split Inputs and Outputs", nullptr, &node->b_isSplit, true);
 				}
 				if (ImGui::MenuItem("Delete")) {
-					NodeEditor::DeleteNode(node->getUniqueID());
+					ax::NodeEditor::DeleteNode(node->getUniqueID());
 				}
 				ImGui::EndPopup();
 			}
@@ -201,22 +207,22 @@ namespace Environnement::NodeGraph::Gui{
 				if (newNode) {
 					Environnement::NodeGraph::addNode(newNode); //TODO: why are we adding the node twice ?
 					Environnement::addNode(newNode);
-					NodeEditor::SetNodePosition(newNode->getUniqueID(), NodeEditor::ScreenToCanvas(mouseRightClickPosition));
-					NodeEditor::SelectNode(newNode->getUniqueID());
+					ax::NodeEditor::SetNodePosition(newNode->getUniqueID(), ax::NodeEditor::ScreenToCanvas(mouseRightClickPosition));
+					ax::NodeEditor::SelectNode(newNode->getUniqueID());
 					ImGui::CloseCurrentPopup();
 				}
 				ImGui::EndPopup();
 			}
 
-			NodeEditor::Resume();
+			ax::NodeEditor::Resume();
 
 		}
 
 
 		//===== Update list of selected nodes =====
 
-		static NodeEditor::NodeId selectedNodeIds[1024];
-		int selectedNodeCount = NodeEditor::GetSelectedNodes(selectedNodeIds, 1024);
+		static ax::NodeEditor::NodeId selectedNodeIds[1024];
+		int selectedNodeCount = ax::NodeEditor::GetSelectedNodes(selectedNodeIds, 1024);
 		getSelectedNodes().clear();
 		if (selectedNodeCount > 0) {
 			std::vector<int> selectedIds;
@@ -241,8 +247,8 @@ namespace Environnement::NodeGraph::Gui{
 		
 		//===== Update list of selected links =====
 		
-		static NodeEditor::LinkId selectedLinkIds[1024];
-		int selectedLinkCount = NodeEditor::GetSelectedLinks(selectedLinkIds, 1024);
+		static ax::NodeEditor::LinkId selectedLinkIds[1024];
+		int selectedLinkCount = ax::NodeEditor::GetSelectedLinks(selectedLinkIds, 1024);
 		std::vector<std::shared_ptr<NodeLink>>& selectedLinks = getSelectedLinks();
 		selectedLinks.clear();
 		if(selectedLinkCount > 0){
@@ -253,7 +259,7 @@ namespace Environnement::NodeGraph::Gui{
 			}
 		}
 
-		NodeEditor::End();
+		ax::NodeEditor::End();
 
 		/*
 		static std::vector<std::shared_ptr<Node>> copiedNodes;
@@ -284,7 +290,7 @@ namespace Environnement::NodeGraph::Gui{
 			//node editor is hovered and no other item is active (such as text input fields)
 			if (!ImGui::IsAnyItemActive() && ImGui::IsItemHovered()) {
 				if(!selectedNodes.empty()){
-					for (auto& node : selectedNodes) NodeEditor::DeleteNode(node->getUniqueID());
+					for (auto& node : selectedNodes) ax::NodeEditor::DeleteNode(node->getUniqueID());
 				}
 				if(!selectedLinks.empty()){
 					for(auto& link : selectedLinks) disconnect(link);
@@ -304,12 +310,12 @@ namespace Environnement::NodeGraph::Gui{
 	}
 
 	void centerView() {
-		NodeEditor::NavigateToContent();
+		ax::NodeEditor::NavigateToContent();
 	}
 
 	void showFlow() {
 		for (auto link : getLinks()) {
-			NodeEditor::Flow(link->getUniqueID());
+			ax::NodeEditor::Flow(link->getUniqueID());
 		}
 	}
 

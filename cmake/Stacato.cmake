@@ -185,27 +185,26 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/EnvironnementSaveFile.cpp
-
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Device.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Device.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/Node.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/Node.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeLink.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodePin.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodePin.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Device.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Device.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/Processing.cpp
-
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Nodes/ClockNode.h
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Nodes/DisplayNode.h
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Nodes/GroupNode.h
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Nodes/MathNodes.h
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Nodes/PlotterNode.h
-
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeFactory.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeFactory.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/nodeGraphXML.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/NodeFactory.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/NodeFactory.h
+
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/Processors/ClockNode.h
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/Processors/DisplayNode.h
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/Processors/GroupNode.h
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/Processors/MathNodes.h
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/Processors/PlotterNode.h
 
     ${STACATO_SOURCE_DIRECTORY}/Project/Project.cpp
     ${STACATO_SOURCE_DIRECTORY}/Project/Project.h

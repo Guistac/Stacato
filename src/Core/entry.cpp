@@ -5,7 +5,7 @@
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/Utilities/EtherCatDeviceFactory.h"
-#include "Environnement/NodeFactory.h"
+#include "Nodes/NodeFactory.h"
 #include "Project/Project.h"
 #include "Environnement/Environnement.h"
 
@@ -23,9 +23,8 @@ int main(int argcount, const char ** args){
 	Logger::critical("Stacato Version {}.{} {} ({})", VERSION_MAJOR, VERSION_MINOR, STACATO_OS_NAME, STACATO_BUILD_TYPE);
 	Logger::debug("Application Working Directory: {}", std::filesystem::current_path().string());
 	
-	//initialize node factory librairies
-	EtherCatDeviceFactory::loadDevices();
-	NodeFactory::loadNodes();
+	//initialize node factory modules
+	NodeFactory::load();
 	
 	//load environnement and plots, configure ethercat network interfaces
 	Project::loadStartup();
