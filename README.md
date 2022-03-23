@@ -6,5 +6,7 @@ Execute the following commands, then build the project with CMake.
 
 ```
 git clone https://github.com/Guistac/Stacato.git --recursive
-sh Stacato/deps/openframeworks/scripts/osx/download_libs.sh
+cd Stacato
+git checkout 0.2
+sh deps/openframeworks/scripts/osx/download_libs.sh
 ```
