@@ -340,8 +340,6 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
     //============ Check Explicit ID compatibility and Read explicit ID of slave ============
 
-	//TODO: this could use some cleanup
-
     bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID) {
 		
         int maxTries = 8;
@@ -844,7 +842,6 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
         if (slaveStateHandler.joinable()) slaveStateHandler.join();
         startSlaveDetectionHandler();
 		
-		//TODO: this stops the environnement on fieldbus timeout
 		Environnement::stop();
     }
 
@@ -979,6 +976,3 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
 
 }
-
-
-//TODO: ALStatusCode reading and displaying on device error

@@ -22,7 +22,7 @@
 #include "Gui/Utilities/Log.h"
 
 #include "Environnement/NodeGraph.h"
-#include "Gui/Environnement/NodeEditor/NodeEditorGui.h"
+#include "Gui/Environnement/NodeGraph/NodeGraphGui.h"
 
 #include "Project/Project.h"
 

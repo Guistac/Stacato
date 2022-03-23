@@ -1,6 +1,5 @@
 #include <pch.h>
 
-#include "config.h"
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
 #include "Nodes/NodeFactory.h"
 #include "Project/Project.h"
@@ -14,10 +13,6 @@ int main(int argcount, const char ** args){
 	
     //initializes application window and sets working directory
 	ApplicationWindow::init();
-    
-	//Logger is initialized after working directory is defined to have log file access
-	Logger::init();
-	Logger::critical("Stacato Version {}.{} {} ({})", VERSION_MAJOR, VERSION_MINOR, STACATO_OS_NAME, STACATO_BUILD_TYPE);
 	
 	//initialize node factory modules
 	NodeFactory::load();

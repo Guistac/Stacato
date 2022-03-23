@@ -77,7 +77,6 @@ bool NodePin::save(tinyxml2::XMLElement* xml) {
 }
 
 bool NodePin::load(tinyxml2::XMLElement* xml) {
-	//TODO: differentiate between pins that were added by default and pins that were added after node creation
 	using namespace tinyxml2;
 
 	//here we load SaveName again, this should not be necessary since we already matched it or it was declared in the static object pin?

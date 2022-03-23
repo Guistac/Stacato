@@ -152,4 +152,15 @@ namespace Environnement::NodeGraph{
 		return nullptr;
 	}
 
+	void reset(){
+		nodes.clear();
+		pins.clear();
+		links.clear();
+		selectedNodes.clear();
+		selectedLinks.clear();
+		int uniqueID = 1;
+		bool b_showOutputValues = false;
+		bool b_justLoaded = false;
+	}
+
 }

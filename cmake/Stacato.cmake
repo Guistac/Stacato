@@ -57,12 +57,12 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachineGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachineListGui.cpp
     
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeEditor/NodeAdder.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeEditor/NodeEditorGui.h
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeEditor/NodeGraphGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeEditor/NodeGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeEditor/PinGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeEditor/PinIcon.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeAdder.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeGraphGui.h
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeGraphGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/PinGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/PinIcon.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/PlotGui.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/PlotGui.cpp

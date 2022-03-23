@@ -59,6 +59,7 @@ public:
 };
 
 void PlotterNode::initialize(){
+	input->assignData(inputPinValue);
 	addNodePin(input);
 	data.setMaxSize(bufferSize);
 }

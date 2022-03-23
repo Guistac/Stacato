@@ -17,8 +17,6 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
-#include "Utilities/Timing.h"
-
 #include <implot.h>
 
 namespace ApplicationWindow {
@@ -61,6 +59,10 @@ void init() {
 	std::string defaultWorkingDirectory = std::filesystem::current_path().string();
 	std::filesystem::current_path(defaultWorkingDirectory + "/Resources");
 #endif
+	
+	//Logger is initialized after working directory is defined to have log file access
+	Logger::init();
+	Logger::critical("Stacato Version {}.{} {} ({})", VERSION_MAJOR, VERSION_MINOR, STACATO_OS_NAME, STACATO_BUILD_TYPE);
 	
 }
 

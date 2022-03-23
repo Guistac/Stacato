@@ -6,10 +6,10 @@
 #include "Environnement/Environnement.h"
 #include "Environnement/NodeGraph.h"
 
-#include <tinyxml2.h>
-
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
-#include "Gui/Environnement/NodeEditor/NodeEditorGui.h"
+#include "Gui/Environnement/NodeGraph/NodeGraphGui.h"
+
+#include <tinyxml2.h>
 
 namespace Environnement::NodeGraph{
 

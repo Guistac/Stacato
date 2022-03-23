@@ -18,9 +18,9 @@ namespace NodeFactory{
 			new ClockNode(),
 
 			new DisplayNode(),
-			//new PlotterNode(), //TODO: Plotter node crashes on adding
+			new PlotterNode(),
 			new GroupNode(),
-			//new ConstantNode(), //TODO: Constant crashes on adding
+			new ConstantNode(),
 
 			new AdditionNode(),
 			new SubtractionNode(),

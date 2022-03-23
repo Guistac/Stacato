@@ -16,9 +16,6 @@ namespace Environnement::NodeGraph::Gui{
 	void centerView();
 	bool& getShowOutputValues();
 
-}
+	void reset();
 
-namespace ImGuiNodeEditor {
-	void CreateContext();
-	void DestroyContext();
 }

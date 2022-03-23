@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "NodeEditorGui.h"
+#include "NodeGraphGui.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>

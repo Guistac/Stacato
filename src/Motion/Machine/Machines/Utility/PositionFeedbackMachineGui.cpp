@@ -92,7 +92,6 @@ void PositionFeedbackMachine::settingsGui(){
 
 	float widgetWidth = ImGui::GetItemRectSize().x;
 
-	//TODO: this causes a linker error
 	ImGui::PushFont(Fonts::robotoBold15);
 	ImGui::Text("Position Unit :");
 	ImGui::PopFont();

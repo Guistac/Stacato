@@ -7,14 +7,16 @@ public:
 
 	DEFINE_NODE(ConstantNode, "Constant", "Constant", Node::Type::PROCESSOR, "Math")
 
-	std::shared_ptr<NodePin> value = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "value", NodePin::Flags::ForceDataField);
+	std::shared_ptr<double> constantValue = std::make_shared<double>(0.0);
+	std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "value", NodePin::Flags::ForceDataField);
 	
 	virtual void process(){}
 	
 };
 
 void ConstantNode::initialize(){
-	addNodePin(value);
+	pin->assignData(constantValue);
+	addNodePin(pin);
 }
 
 class AdditionNode : public Node {

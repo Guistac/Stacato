@@ -1,7 +1,7 @@
 #include <pch.h>
 
 
-#include "NodeEditorGui.h"
+#include "NodeGraphGui.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -23,6 +23,11 @@
 namespace Environnement::NodeGraph::Gui{
 
 	ax::NodeEditor::EditorContext* context = ax::NodeEditor::CreateEditor();
+
+	void reset(){
+		ax::NodeEditor::DestroyEditor(context);
+		context = ax::NodeEditor::CreateEditor();
+	}
 
 	void editor() {
 		
@@ -83,7 +88,6 @@ namespace Environnement::NodeGraph::Gui{
 				while (ax::NodeEditor::QueryDeletedNode(&deletedNodeId)) {
 					std::shared_ptr<Node> deletedNode = getNode(deletedNodeId.Get());
 					if (deletedNode && ax::NodeEditor::AcceptDeletedItem()) {
-						Environnement::NodeGraph::removeNode(deletedNode); //TODO: why are we removing twice ?
 						Environnement::removeNode(deletedNode);
 					}
 					else ax::NodeEditor::RejectDeletedItem();
@@ -185,7 +189,6 @@ namespace Environnement::NodeGraph::Gui{
 			if (ImGui::BeginPopup("Background Context Menu")) {
 				std::shared_ptr<Node> newNode = nodeAdderContextMenu();
 				if (newNode) {
-					Environnement::NodeGraph::addNode(newNode); //TODO: why are we adding the node twice ?
 					Environnement::addNode(newNode);
 					ax::NodeEditor::SetNodePosition(newNode->getUniqueID(), ax::NodeEditor::ScreenToCanvas(mouseRightClickPosition));
 					ax::NodeEditor::SelectNode(newNode->getUniqueID());

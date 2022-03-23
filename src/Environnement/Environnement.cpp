@@ -2,13 +2,13 @@
 
 #include "Environnement.h"
 
-
 #include "Environnement/NodeGraph.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatDevice.h"
 #include "Motion/Machine/Machine.h"
 
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
+#include "Gui/Environnement/NodeGraph/NodeGraphGui.h"
 
 #include "Motion/Playback.h"
 
@@ -276,6 +276,7 @@ namespace Environnement {
 			default:
 				break;
 		}
+		NodeGraph::addNode(node);
 	}
 
 	void removeNode(std::shared_ptr<Node> node){
@@ -317,6 +318,7 @@ namespace Environnement {
 			default:
 				break;
 		}
+		NodeGraph::removeNode(node);
 	}
 
 	char name[256] = "Default Environnement";
@@ -356,23 +358,11 @@ namespace Environnement {
 		return strcmp(password, "StacatoCompact") == 0;
 	}
 
-
-
-
 	void createNew() {
-		//TODO: reset nodegraph
-		/*
-		nodeGraph = nullptr;
-		ImGuiNodeEditor::DestroyContext();
-		ImGuiNodeEditor::CreateContext();
-*/
-		 
+		NodeGraph::reset();
+		NodeGraph::Gui::reset();
 		getEtherCatDevices().clear();
 		getMachines().clear();
-
-		//nodeGraph = std::make_shared<NodeGraph>();
 	}
-
-
 
 }

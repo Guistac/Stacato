@@ -4,12 +4,10 @@
 #include <imgui_node_editor.h>
 #include <imgui_internal.h>
 
-#include "NodeEditorGui.h"
+#include "NodeGraphGui.h"
 
 #include "Environnement/Node.h"
 #include "Environnement/NodeGraph.h"
-
-namespace NodeEditor = ax::NodeEditor;
 
 bool NodePin::shouldDisplayDataGui() {
     if (b_noDataField) return false;
@@ -26,7 +24,6 @@ void NodePin::dataGui() {
     if(b_disableDataField) ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 
     ImGui::PushID(getUniqueID());
-	//TODO: this might cause issues if nothing is connected to the pin
     switch (dataType) {
 		case DataType::BOOLEAN:
 			ImGui::Checkbox("##", getSharedPointer<bool>().get());
@@ -88,8 +85,8 @@ void NodePin::pinGui() {
 
     if (isInput()) {
         if (!b_disablePin) {
-			NodeEditor::BeginPin(getUniqueID(), NodeEditor::PinKind::Input);
-            NodeEditor::PinPivotAlignment(ImVec2(0.0, 0.5));
+			ax::NodeEditor::BeginPin(getUniqueID(), ax::NodeEditor::PinKind::Input);
+			ax::NodeEditor::PinPivotAlignment(ImVec2(0.0, 0.5));
         }
         ImGui::Dummy(glm::vec2(iconDummyWidth));
         //spacing.x
@@ -108,7 +105,7 @@ void NodePin::pinGui() {
         ImGui::SameLine();
         ImGui::Text("%s", getDisplayString());
         if (!b_disablePin) {
-            NodeEditor::EndPin();
+			ax::NodeEditor::EndPin();
         }
         //spacing.x
         if (shouldDisplayDataGui()) {
@@ -124,8 +121,8 @@ void NodePin::pinGui() {
         //spacing.x
         if (!b_disablePin) {
 			assert(getUniqueID() > 0);
-            NodeEditor::BeginPin(getUniqueID(), NodeEditor::PinKind::Output);
-            NodeEditor::PinPivotAlignment(ImVec2(1.0, 0.5));
+			ax::NodeEditor::BeginPin(getUniqueID(), ax::NodeEditor::PinKind::Output);
+			ax::NodeEditor::PinPivotAlignment(ImVec2(1.0, 0.5));
         }
         ImGui::Text("%s", getDisplayString());
         ImGui::SameLine();
@@ -142,7 +139,7 @@ void NodePin::pinGui() {
 													   isConnected(),
 													   ImColor(pinColor),
 													   ImColor(0.0f, 0.0f, 0.0f, 1.0f));
-            NodeEditor::EndPin();
+			ax::NodeEditor::EndPin();
         }
     }
 }

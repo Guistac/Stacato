@@ -3,10 +3,9 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "NodeGraph.h"
+#include "Gui/Environnement/NodeGraph/NodeGraphGui.h"
 
 #include <tinyxml2.h>
-
-#include "Gui/Environnement/NodeEditor/NodeEditorGui.h"
 
 namespace Environnement {
 

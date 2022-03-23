@@ -47,6 +47,8 @@ namespace Environnement::NodeGraph{
 	
 	bool& getShouldShowOutputValues();
 	bool& getWasJustLoaded();
+
+	void reset();
 	
 }
 

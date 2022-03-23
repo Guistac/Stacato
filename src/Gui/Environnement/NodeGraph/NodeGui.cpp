@@ -3,7 +3,7 @@
 #include "Environnement/Node.h"
 #include "Environnement/NodeGraph.h"
 
-#include "NodeEditorGui.h"
+#include "NodeGraphGui.h"
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
