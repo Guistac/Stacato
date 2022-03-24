@@ -3,9 +3,7 @@
 #include "Motion/AnimatableParameter.h"
 
 #include <imgui.h>
-#include <imgui_internal.h>
-
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 bool AnimatableParameterValue::inputFieldGui(float width) {
 	static char inputFieldString[128];

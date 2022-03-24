@@ -2,8 +2,7 @@
 #include "Environnement.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
-#include "NodeGraph.h"
-#include "Gui/Environnement/NodeGraph/NodeGraphGui.h"
+#include "NodeGraph/NodeGraph.h"
 
 #include <tinyxml2.h>
 

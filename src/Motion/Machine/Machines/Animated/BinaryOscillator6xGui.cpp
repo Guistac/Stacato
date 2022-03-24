@@ -17,7 +17,7 @@
 #include "Gui/Assets/Fonts.h"
 
 #include "Motion/SubDevice.h"
-#include "NodeGraph/Device.h"
+#include "NodeGraph/DeviceNode.h"
 
 void BinaryOscillator6x::controlsGui() {
 

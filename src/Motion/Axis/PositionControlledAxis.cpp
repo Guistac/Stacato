@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "PositionControlledAxis.h"
-#include "Environnement/Device.h"
+#include "Environnement/DeviceNode.h"
 #include "Motion/MotionTypes.h"
 #include "Motion/Curve/Curve.h"
 #include "Fieldbus/EtherCatFieldbus.h"

@@ -1,14 +1,12 @@
 #include <pch.h>
 
-#include "Environnement/Node.h"
-#include "Environnement/NodeGraph.h"
-
 #include "NodeGraphGui.h"
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <imgui_node_editor.h>
 
+#include "Environnement/NodeGraph/NodeGraph.h"
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 

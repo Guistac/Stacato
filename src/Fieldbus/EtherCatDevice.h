@@ -2,7 +2,7 @@
 
 #include <ethercat.h>
 
-#include "Environnement/Device.h"
+#include "Environnement/DeviceNode.h"
 
 #include "Utilities/EtherCatPDO.h"
 

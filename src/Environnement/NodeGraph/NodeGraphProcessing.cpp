@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "NodeGraph.h"
-#include "Device.h"
+#include "Environnement/DeviceNode.h"
 
 namespace Environnement::NodeGraph{
 

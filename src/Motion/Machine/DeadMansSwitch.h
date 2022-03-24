@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Environnement/Node.h"
-#include "Environnement/NodePin.h"
-
 
 class DeadMansSwitch : public Node {
 public:

@@ -1,8 +1,8 @@
 #pragma once
 
 //we include NodePin.h so classes can be derived by including the Node.h file
-#include "NodePin.h"
-#include "NodeLink.h"
+#include "NodeGraph/NodePin.h"
+#include "NodeGraph/NodeLink.h"
 
 #define DEFINE_NODE(className, nodeName, saveName, type, category) \
 	virtual const char* getSaveName() { return saveName; }\

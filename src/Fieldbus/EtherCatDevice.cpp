@@ -4,7 +4,6 @@
 #include "EtherCatFieldbus.h"
 
 #include <imgui.h>
-#include <imgui_internal.h>
 #include <tinyxml2.h>
 
 void EtherCatDevice::initialize(){}

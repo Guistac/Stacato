@@ -2,7 +2,6 @@
 #include "LinearMecanumClaw.h"
 
 #include <imgui.h>
-#include <imgui_internal.h>
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
@@ -11,7 +10,7 @@
 #include "Motion/Axis/PositionControlledAxis.h"
 #include "Motion/Axis/VelocityControlledAxis.h"
 #include "Motion/SubDevice.h"
-#include "Environnement/Device.h"
+#include "Environnement/DeviceNode.h"
 
 void LinearMecanumClaw::controlsGui() {
 	//Machine Controls Gui

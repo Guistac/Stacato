@@ -2,16 +2,12 @@
 
 #include "VipaModule.h"
 
-#include "Environnement/NodePin.h"
-
 #include <imgui.h>
-#include <imgui_internal.h>
-#include "Gui/Assets/Fonts.h"
-#include "Gui/Assets/Colors.h"
-
 #include <tinyxml2.h>
 
 #include "Fieldbus/EtherCatFieldbus.h"
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
 
 namespace VipaModuleFactory{
 

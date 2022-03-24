@@ -1,13 +1,11 @@
 #include <pch.h>
 
-#include <imgui.h>
-#include <imgui_node_editor.h>
-#include <imgui_internal.h>
-
 #include "NodeGraphGui.h"
 
-#include "Environnement/Node.h"
-#include "Environnement/NodeGraph.h"
+#include <imgui.h>
+#include <imgui_node_editor.h>
+
+#include "Environnement/NodeGraph/NodeGraph.h"
 
 bool NodePin::shouldDisplayDataGui() {
     if (b_noDataField) return false;
@@ -21,7 +19,7 @@ void NodePin::dataGui() {
     static float dataFieldWidth = ImGui::GetTextLineHeight() * 4.0;
     ImGui::SetNextItemWidth(dataFieldWidth);
 
-    if(b_disableDataField) ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+	ImGui::BeginDisabled(b_disableDataField);
 
     ImGui::PushID(getUniqueID());
     switch (dataType) {
@@ -38,7 +36,7 @@ void NodePin::dataGui() {
 			break;
     }
     ImGui::PopID();
-    if (b_disableDataField) ImGui::PopItemFlag();
+	ImGui::EndDisabled();
 }
 
 float NodePin::getGuiWidth() {

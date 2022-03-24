@@ -9,7 +9,7 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
-#include "Environnement/Device.h"
+#include "Environnement/DeviceNode.h"
 
 void GpioActuator::nodeSpecificGui(){
 	if(ImGui::BeginTabItem("Controls")){

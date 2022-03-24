@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "Device.h"
+#include "DeviceNode.h"
 
 std::vector<DeviceType> deviceTypes = {
 	{Device::Type::ETHERCAT_DEVICE, "EtherCatDevice", "EtherCAT Device"},

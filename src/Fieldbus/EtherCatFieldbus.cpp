@@ -1,17 +1,14 @@
 #include <pch.h>
 
 #include "EtherCatFieldbus.h"
-#include "Fieldbus/EtherCatDevice.h"
 
+#include "Fieldbus/EtherCatDevice.h"
 #include "Utilities/EtherCatError.h"
 #include "Environnement/Environnement.h"
-#include "Environnement/NodeGraph.h"
+#include "Environnement/NodeGraph/NodeGraph.h"
 #include "Motion/Playback.h"
-
 #include "Utilities/ProgressIndicator.h"
-
 #include "Nodes/NodeFactory.h"
-
 #include "config.h"
 
 namespace EtherCatFieldbus {

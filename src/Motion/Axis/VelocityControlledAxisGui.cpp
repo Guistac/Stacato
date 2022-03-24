@@ -9,7 +9,7 @@
 #include "Gui/Assets/Colors.h"
 
 #include "Motion/SubDevice.h"
-#include "Environnement/Device.h"
+#include "Environnement/DeviceNode.h"
 
 void VelocityControlledAxis::nodeSpecificGui() {
 	if (ImGui::BeginTabItem("Controls")) {

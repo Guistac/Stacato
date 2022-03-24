@@ -1,13 +1,9 @@
 #include <pch.h>
 
-//#include "ProjectGui.h"
-
 #include <imgui.h>
-#include <imgui_internal.h>
 
 #include "Gui/Utilities/DraggableList.h"
 #include "Gui/Utilities/CustomWidgets.h"
-
 
 #include "Project/Project.h"
 #include "Plot/Plot.h"

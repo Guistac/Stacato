@@ -1,12 +1,8 @@
 #include <pch.h>
 
-#include "Environnement.h"
-
 #include "Nodes/NodeFactory.h"
 #include "Environnement/Environnement.h"
-#include "Environnement/NodeGraph.h"
-
-#include "Gui/ApplicationWindow/ApplicationWindow.h"
+#include "Environnement/NodeGraph/NodeGraph.h"
 #include "Gui/Environnement/NodeGraph/NodeGraphGui.h"
 
 #include <tinyxml2.h>

@@ -3,7 +3,6 @@
 #include "VipaModule.h"
 
 #include <imgui.h>
-#include <imgui_internal.h>
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"

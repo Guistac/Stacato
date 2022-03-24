@@ -9,7 +9,7 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
-#include "Environnement/Device.h"
+#include "Environnement/DeviceNode.h"
 #include "Gui/Utilities/HelpMarker.h"
 
 #include "Motion/SubDevice.h"
@@ -374,7 +374,6 @@ void PositionControlledAxis::controlsGui() {
 	float maxfollowingError = 0.0;
 	static char positionErrorString[32];
 	if(!isEnabled()){
-		auto servoActuator = getServoActuatorDevice();
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		positionErrorProgress = 1.0;
 		sprintf(positionErrorString, "Axis Disabled");

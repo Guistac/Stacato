@@ -3,7 +3,6 @@
 #include "VIPA-053-1EC01.h"
 
 #include <imgui.h>
-#include <imgui_internal.h>
 #include <implot.h>
 
 #include "Gui/Assets/Fonts.h"

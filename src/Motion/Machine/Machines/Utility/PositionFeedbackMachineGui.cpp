@@ -2,14 +2,13 @@
 #include "PositionFeedbackMachine.h"
 
 #include <imgui.h>
-#include <imgui_internal.h>
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 #include "Gui/Utilities/CustomWidgets.h"
 
 #include "Motion/SubDevice.h"
-#include "Environnement/Device.h"
+#include "Environnement/DeviceNode.h"
 
 void PositionFeedbackMachine::controlsGui(){
 	

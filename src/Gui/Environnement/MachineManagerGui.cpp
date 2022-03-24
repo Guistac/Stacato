@@ -1,5 +1,14 @@
 #include <pch.h>
 
+#include <imgui.h>
+
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
+#include "Gui/Utilities/DraggableList.h"
+
+#include "Environnement/Environnement.h"
+#include "Motion/Machine/Machine.h"
+
 namespace Environnement::Gui{
 
 	void machineManager(){

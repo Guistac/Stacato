@@ -3,7 +3,6 @@
 #include "ApplicationWindow.h"
 
 #include <imgui.h>
-#include <imgui_internal.h>
 #include <implot.h>
 #include <GLFW/glfw3.h>
 

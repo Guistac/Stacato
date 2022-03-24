@@ -5,37 +5,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Core/entry.cpp
     ${STACATO_SOURCE_DIRECTORY}/Core/pch.cpp
     ${STACATO_SOURCE_DIRECTORY}/Core/pch.h
-    
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatFieldbus.h
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatFieldbus.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatDevice.h
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatDevice.cpp
-
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatData.h
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatData.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatEepromTool.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatError.h
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatError.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatMetrics.h
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatPDO.h
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/FieldbusXML.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DS402.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DS402.h
-
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.h
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32Gui.cpp
-
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VIPA-053-1EC01.h
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VIPA-053-1EC01.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VIPA-053-1EC01Gui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VipaModule.h
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VipaModule.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VipaModuleGui.cpp
-
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Nanotec/PD4_E.h
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Nanotec/PD4_E.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Nanotec/PD4_EGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.cpp
@@ -53,10 +22,15 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/EnvironnementGui.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/EnvironnementGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/EnvironnementEditorGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachineManagerGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/DeviceManagerGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/HomingGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachineGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachineListGui.cpp
     
+    ##maybe put this elsewhere
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachineGui.cpp
+
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeAdder.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeGraphGui.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeGraphGui.cpp
@@ -107,20 +81,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Motion/SubDevice.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Profile.h
 
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuator.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuator.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuatorGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuator.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuator.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuatorGui.cpp
-
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/PositionControlledAxis.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/PositionControlledAxis.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/PositionControlledAxisGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/VelocityControlledAxis.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/VelocityControlledAxis.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/VelocityControlledAxisGui.cpp
-
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/Curve.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/Curve.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/KinematicInterpolation.cpp
@@ -135,6 +95,91 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Template/MachineTemplate.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Template/MachineTemplate.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Template/MachineTemplateGui.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/Manoeuvre.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/Manoeuvre.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ManoeuvreXML.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ParameterTrack.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ParameterTrack.h
+
+    ${STACATO_SOURCE_DIRECTORY}/Plot/Plot.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Plot/Plot.h
+    ${STACATO_SOURCE_DIRECTORY}/Plot/PlotSaveFile.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Networking/Network.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Networking/Network.h
+    ${STACATO_SOURCE_DIRECTORY}/Networking/NetworkDevice.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Networking/NetworkDevice.h
+
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/EnvironnementSaveFile.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Node.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Node.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/DeviceNode.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/DeviceNode.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeLink.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodePin.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodePin.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraphProcessing.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraphSaveFile.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/NodeFactory.h
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/NodeFactory.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/EtherCatNodes.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/MotionNodes.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/NetworkNodes.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Nodes/ProcessorNodes.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Project/Project.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Project/Project.h
+    ${STACATO_SOURCE_DIRECTORY}/Project/ProjectSaveFile.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Utilities/CircularBuffer.h
+    ${STACATO_SOURCE_DIRECTORY}/Utilities/Enumerator.h
+    ${STACATO_SOURCE_DIRECTORY}/Utilities/Logger.h
+    ${STACATO_SOURCE_DIRECTORY}/Utilities/ProgressIndicator.h
+    ${STACATO_SOURCE_DIRECTORY}/Utilities/Random.h
+    ${STACATO_SOURCE_DIRECTORY}/Utilities/ScrollingBuffer.h
+    ${STACATO_SOURCE_DIRECTORY}/Utilities/Timing.h
+
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatFieldbus.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatFieldbus.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatDevice.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatDevice.cpp
+
+    #===================== ETHERCAT DEVICE DRIVERS ======================
+
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatData.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatData.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatEepromTool.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatError.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatError.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatMetrics.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/EtherCatPDO.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/FieldbusXML.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DS402.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DS402.h
+
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32Gui.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VIPA-053-1EC01.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VIPA-053-1EC01.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VIPA-053-1EC01Gui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VipaModule.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VipaModule.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VipaModuleGui.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Nanotec/PD4_E.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Nanotec/PD4_E.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Nanotec/PD4_EGui.cpp
+
+    #========================== MACHINE TYPES ===========================
 
     ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Basic/PositionControlledSingleAxisMachine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Basic/PositionControlledSingleAxisMachine.h
@@ -159,48 +204,25 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Utility/PositionFeedbackMachine.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Utility/PositionFeedbackMachineGui.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/Manoeuvre.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/Manoeuvre.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ManoeuvreXML.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ParameterTrack.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ParameterTrack.h
+    #========================= AXIS TYPES =========================
 
-    ${STACATO_SOURCE_DIRECTORY}/Plot/Plot.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Plot/Plot.h
-    ${STACATO_SOURCE_DIRECTORY}/Plot/PlotSaveFile.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/PositionControlledAxis.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/PositionControlledAxis.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/PositionControlledAxisGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/VelocityControlledAxis.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/VelocityControlledAxis.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/VelocityControlledAxisGui.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Networking/Network.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Networking/Network.h
-    ${STACATO_SOURCE_DIRECTORY}/Networking/NetworkDevice.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Networking/NetworkDevice.h
+    #========================== MOTION ADAPTERS =======================
 
-    ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscDevice.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscDevice.h
-    ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscDeviceGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscSocket.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscSocket.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuator.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuator.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuatorGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuator.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuator.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuatorGui.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.h
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/EnvironnementSaveFile.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph.h
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Node.h
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Node.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeLink.h
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodePin.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodePin.h
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Device.h
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Device.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Processing.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/nodeGraphXML.cpp
-
-    ${STACATO_SOURCE_DIRECTORY}/Nodes/NodeFactory.h
-    ${STACATO_SOURCE_DIRECTORY}/Nodes/NodeFactory.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Nodes/EtherCatNodes.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Nodes/MotionNodes.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Nodes/NetworkNodes.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Nodes/ProcessorNodes.cpp
+    #========================== PROCESSOR NODES ========================
 
     ${STACATO_SOURCE_DIRECTORY}/Nodes/Processors/ClockNode.h
     ${STACATO_SOURCE_DIRECTORY}/Nodes/Processors/DisplayNode.h
@@ -208,17 +230,13 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Nodes/Processors/MathNodes.h
     ${STACATO_SOURCE_DIRECTORY}/Nodes/Processors/PlotterNode.h
 
-    ${STACATO_SOURCE_DIRECTORY}/Project/Project.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Project/Project.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/ProjectSaveFile.cpp
+    #========================== NETWORKING NODES =========================
 
-    ${STACATO_SOURCE_DIRECTORY}/Utilities/CircularBuffer.h
-    ${STACATO_SOURCE_DIRECTORY}/Utilities/Enumerator.h
-    ${STACATO_SOURCE_DIRECTORY}/Utilities/Logger.h
-    ${STACATO_SOURCE_DIRECTORY}/Utilities/ProgressIndicator.h
-    ${STACATO_SOURCE_DIRECTORY}/Utilities/Random.h
-    ${STACATO_SOURCE_DIRECTORY}/Utilities/ScrollingBuffer.h
-    ${STACATO_SOURCE_DIRECTORY}/Utilities/Timing.h    
+    ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscDevice.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscDevice.h
+    ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscDeviceGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscSocket.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscSocket.h
 )
 
 # match file structure for source files in ide

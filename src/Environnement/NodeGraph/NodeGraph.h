@@ -1,16 +1,10 @@
 #pragma once
 
-#include "Node.h"
+#include "Environnement/DeviceNode.h"
 #include "NodePin.h"
 #include "NodeLink.h"
-#include "Device.h"
-
-class Node;
-class NodePin;
-class NodeLink;
 
 namespace tinyxml2 { class XMLElement; }
-
 
 namespace Environnement::NodeGraph{
 

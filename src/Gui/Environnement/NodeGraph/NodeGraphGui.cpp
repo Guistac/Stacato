@@ -1,24 +1,18 @@
 #include <pch.h>
 
-
 #include "NodeGraphGui.h"
 
 #include <imgui.h>
-#include <imgui_internal.h>
 #include <imgui_node_editor.h>
 #include <GLFW/glfw3.h>
 
-#include "Environnement/NodeGraph.h"
+#include "Environnement/NodeGraph/NodeGraph.h"
 #include "Project/Project.h"
 #include "Environnement/Environnement.h"
-#include "Fieldbus/EtherCatFieldbus.h"
-#include "Fieldbus/EtherCatDevice.h"
 #include "Nodes/NodeFactory.h"
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
-
-#include <imgui_node_editor.h>
 
 namespace Environnement::NodeGraph::Gui{
 

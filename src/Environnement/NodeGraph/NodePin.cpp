@@ -3,7 +3,7 @@
 #include "NodeGraph.h"
 #include "NodePin.h"
 #include "NodeLink.h"
-#include "Node.h"
+#include "Environnement/Node.h"
 
 #include <tinyxml2.h>
 

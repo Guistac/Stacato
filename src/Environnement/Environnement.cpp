@@ -2,7 +2,7 @@
 
 #include "Environnement.h"
 
-#include "Environnement/NodeGraph.h"
+#include "Environnement/NodeGraph/NodeGraph.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatDevice.h"
 #include "Motion/Machine/Machine.h"

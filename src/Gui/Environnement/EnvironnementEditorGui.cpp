@@ -1,5 +1,16 @@
 #include <pch.h>
 
+#include <imgui.h>
+#include <imgui_node_editor.h>
+
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
+#include "Gui/Environnement/NodeGraph/NodeGraphGui.h"
+
+#include "Environnement/Environnement.h"
+#include "Environnement/NodeGraph/NodeGraph.h"
+#include "Project/Project.h"
+
 namespace Environnement::Gui{
 
 	void editor() {

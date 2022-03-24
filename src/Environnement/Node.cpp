@@ -2,8 +2,8 @@
 
 #include "Node.h"
 
-#include "NodeGraph.h"
-#include "NodePin.h"
+#include "NodeGraph/NodeGraph.h"
+#include "NodeGraph/NodePin.h"
 
 void Node::addNodePin(std::shared_ptr<NodePin> NodePin) {
 
