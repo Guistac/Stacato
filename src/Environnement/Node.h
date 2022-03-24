@@ -16,7 +16,6 @@
 	}\
 	virtual void initialize();\
 
-class NodeGraph;
 namespace tinyxml2 { class XMLElement; }
 
 class Node : public std::enable_shared_from_this<Node>{
@@ -85,7 +84,6 @@ public:
 
 	char name[128];
 
-	NodeGraph* parentNodeGraph = nullptr;
 	bool b_isInNodeGraph = false;
 	int uniqueID = -1;
 

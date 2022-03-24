@@ -15,7 +15,7 @@ void Node::addNodePin(std::shared_ptr<NodePin> NodePin) {
 	else if (NodePin->isOutput()) nodeOutputPins.push_back(NodePin);
 
 	//if a pins gets added after if the node is already on the editor, this handles everything
-	if (parentNodeGraph) {
+	if (b_isInNodeGraph) {
 		NodePin->uniqueID = Environnement::NodeGraph::getNewUniqueID();
 		Environnement::NodeGraph::getPins().push_back(NodePin);
 		NodePin->parentNode = shared_from_this();
@@ -40,7 +40,7 @@ void Node::removeIoData(std::shared_ptr<NodePin> removedIoData) {
 		}
 	}
 	removedIoData->disconnectAllLinks();
-	if (parentNodeGraph) {
+	if (b_isInNodeGraph) {
 		std::vector<std::shared_ptr<NodePin>>& NodePinList = Environnement::NodeGraph::getPins();
 		for (int i = (int)NodePinList.size() - 1; i >= 0; i--) {
 			if (NodePinList[i] == removedIoData) {

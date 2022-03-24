@@ -23,9 +23,9 @@ void VipaBusCoupler_053_1EC01::deviceSpecificGui() {
 		ImGui::PopFont();
 		
 		ImGui::SameLine();
-		if(ImGui::Button("Auto Detect Modules")){
-			configureFromDeviceModules();
-		}
+		ImGui::BeginDisabled(!isDetected());
+		if(ImGui::Button("Auto Detect Modules")) configureFromDeviceModules();
+		ImGui::EndDisabled();
 		
 		ImGui::SameLine();
 		ImGui::Text("%s", Enumerator::getDisplayString(configureFromDeviceModulesDownloadStatus));

@@ -8,7 +8,7 @@
 #include <tinyxml2.h>
 
 void NodePin::disconnectAllLinks() {
-	if (parentNode == nullptr || parentNode->parentNodeGraph == nullptr) return;
+	if (parentNode == nullptr || !parentNode->b_isInNodeGraph) return;
 	while (isConnected()) {
 		Environnement::NodeGraph::disconnect(nodeLinks.front());
 	}
