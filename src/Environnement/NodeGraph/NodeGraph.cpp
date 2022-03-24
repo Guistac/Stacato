@@ -163,7 +163,6 @@ namespace Environnement::NodeGraph{
 		int uniqueID = 1;
 		bool b_showOutputValues = false;
 		bool b_justLoaded = false;
-		Project::setModified();
 	}
 
 }

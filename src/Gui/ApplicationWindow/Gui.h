@@ -6,8 +6,7 @@ namespace Gui{
 	void menuBar();
 	void toolbar(float height);
 
-	void quitApplicationModal();
-	void aboutModal();
-	void unlockEnvironnementEditorModal(); //this needs to go to another translation unit
+	void quitApplicationPopup();
+	void aboutPopup();
 
 }

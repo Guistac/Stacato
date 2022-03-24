@@ -17,7 +17,7 @@ namespace Project::Gui{
 	}
 
 	bool save(){
-		if(hasFilePath()) return true;
+		if(hasFilePath()) return Project::save();
 		return saveAs();
 	}
 

@@ -48,6 +48,7 @@ namespace Project{
 		plots.push_back(currentPlot);
 		saveFilePath[0] = 0;
 		b_hasFilePath = false;
+		ApplicationWindow::hideUnsavedModifications();
 		ApplicationWindow::setWindowName("New Project");
 		b_hasUnsavedModifications = false;
 	}
@@ -138,7 +139,7 @@ namespace Project{
 		b_hasFilePath = true;
 		b_hasUnsavedModifications = false;
 		
-		
+		ApplicationWindow::hideUnsavedModifications();
 		ApplicationWindow::setWindowName(filePath.filename().replace_extension("").string().c_str());
 		
 		Logger::info("Loaded File {}", filePath.filename().string());
@@ -151,7 +152,11 @@ namespace Project{
 
 
 	bool save() {
-		if(b_hasFilePath) return saveAs(saveFilePath);
+		if(b_hasFilePath) {
+			bool b_saved = saveAs(saveFilePath);
+			if(b_saved) ApplicationWindow::hideUnsavedModifications();
+			return b_saved;
+		}
 		return false;
 	}
 
@@ -184,6 +189,7 @@ namespace Project{
 		b_hasFilePath = true;
 		b_hasUnsavedModifications = false;
 		
+		ApplicationWindow::hideUnsavedModifications();
 		ApplicationWindow::setWindowName(filePath.filename().replace_extension("").string().c_str());
 		
 		return true;
@@ -193,6 +199,7 @@ namespace Project{
 
 	void setModified(){
 		b_hasUnsavedModifications = true;
+		ApplicationWindow::showUnsavedModifications();
 	}
 
 	bool hasUnsavedModifications(){

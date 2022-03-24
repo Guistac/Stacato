@@ -20,6 +20,8 @@ namespace ApplicationWindow {
 	void onFileOpen(const char* filePath);
 
 	void setWindowName(const char*);
+	void showUnsavedModifications();
+	void hideUnsavedModifications();
 
 	double getMacOsTrackpadZoom();
 	double getMacOsTrackpadRotate();

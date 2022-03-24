@@ -62,8 +62,10 @@ namespace Environnement{
 	extern std::shared_ptr<Machine> selectedMachine;
 	extern std::shared_ptr<EtherCatDevice> selectedEtherCatDevice;
 
-	bool isEditorHidden();
-	bool hideEditor();
-	bool showEditor();
+	bool isEditorLocked();
+	bool isEditorUnlockRequested();
+	void lockEditor();
+	void requestEditorUnlock();
+	void confirmEditorUnlock();
 	bool checkEditorPassword(const char* password);
 };

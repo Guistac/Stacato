@@ -16,5 +16,6 @@ namespace Environnement::Gui{
 	void nodeEditor();
 	void stageEditor();
 	void log();
+	void unlockEditorPopup();
 
 }

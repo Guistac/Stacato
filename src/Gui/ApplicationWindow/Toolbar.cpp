@@ -60,7 +60,7 @@ namespace Gui {
 
 		}
 			
-		if(!Environnement::isEditorHidden()){
+		if(!Environnement::isEditorLocked()){
 		
 			ImGui::SameLine();
 				

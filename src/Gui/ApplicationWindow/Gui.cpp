@@ -34,7 +34,7 @@ namespace Gui {
 		
 		ImGui::PushStyleColor(ImGuiCol_TabActive, glm::vec4(0.6, 0.4, 0.0, 1.0));
 		if (ImGui::BeginTabBar("MainTabBar")) {
-			if(!Environnement::isEditorHidden()){
+			if(!Environnement::isEditorLocked()){
 				if (ImGui::BeginTabItem("Environnement")) {
 					Environnement::Gui::gui();
 					ImGui::EndTabItem();
@@ -57,7 +57,7 @@ namespace Gui {
 				ImGui::EndTabItem();
 			}
 			
-			if(!Environnement::isEditorHidden()){
+			if(!Environnement::isEditorLocked()){
 				if (ImGui::BeginTabItem("Stage View")) {
 					StageView::draw();
 					ImGui::EndTabItem();

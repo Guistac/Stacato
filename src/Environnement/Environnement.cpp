@@ -349,11 +349,32 @@ namespace Environnement {
 	bool b_editorHidden = true;
 	#endif
 	*/
-	bool b_editorHidden = false;
-	 
-	bool isEditorHidden(){ return b_editorHidden; }
-	bool hideEditor() { b_editorHidden = true; }
-	bool showEditor() { b_editorHidden = false; }
+
+	bool b_editorLocked = false;
+	bool b_requestingEditorUnlock = false;
+
+	bool isEditorLocked(){
+		return b_editorLocked;
+	}
+
+	bool isEditorUnlockRequested(){
+		return b_requestingEditorUnlock;
+	}
+
+	void lockEditor(){
+		b_editorLocked = true;
+		b_requestingEditorUnlock = false;
+	}
+
+	void requestEditorUnlock(){
+		b_requestingEditorUnlock = true;
+	}
+
+	void confirmEditorUnlock(){
+		b_requestingEditorUnlock = false;
+		b_editorLocked = false;
+	}
+
 	bool checkEditorPassword(const char* password){
 		return strcmp(password, "StacatoCompact") == 0;
 	}
