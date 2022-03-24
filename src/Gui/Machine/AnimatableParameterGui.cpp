@@ -29,12 +29,12 @@ bool AnimatableParameterValue::inputFieldGui(float width) {
 			}
 			break;
 		case ParameterDataType::REAL_PARAMETER:
-		case ParameterDataType::KINEMATIC_POSITION_CURVE:
+		case ParameterDataType::POSITION:
 			sprintf(inputFieldString, "%.3f %s", realValue, shortUnitString);
 			valueChanged = ImGui::InputDouble("##parameter", &realValue, 0.0, 0.0, inputFieldString);
 			break;
 		case ParameterDataType::VECTOR_2D_PARAMETER:
-		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+		case ParameterDataType::POSITION_2D:
 			sprintf(inputFieldString, "x: %.3f %s", vector2value.x, shortUnitString);
 			valueChanged |= ImGui::InputFloat("##X", &vector2value.x, 0.0, 0.0, inputFieldString);
 			ImGui::SetNextItemWidth(width);
@@ -42,7 +42,7 @@ bool AnimatableParameterValue::inputFieldGui(float width) {
 			valueChanged |= ImGui::InputFloat("##Y", &vector2value.y, 0.0, 0.0, inputFieldString);
 			break;
 		case ParameterDataType::VECTOR_3D_PARAMETER:
-		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::POSITION_3D:
 			sprintf(inputFieldString, "x: %.3f %s", vector3value.x, shortUnitString);
 			valueChanged |= ImGui::InputFloat("##X", &vector3value.x, 0.0, 0.0, inputFieldString);
 			ImGui::SetNextItemWidth(width);
@@ -66,18 +66,18 @@ bool AnimatableParameterValue::inputFieldGui(float width) {
 		ImGui::BeginTooltip();
 		switch (type) {
 			case ParameterDataType::REAL_PARAMETER:
-			case ParameterDataType::KINEMATIC_POSITION_CURVE:
+			case ParameterDataType::POSITION:
 				ImGui::Text("Type : Double");
 				ImGui::Text("Value : %.20f", realValue);
 				break;
 			case ParameterDataType::VECTOR_2D_PARAMETER:
-			case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+			case ParameterDataType::POSITION_2D:
 				ImGui::Text("Type : 2D Double");
 				ImGui::Text("Value X : %.20f", vector2value.x);
 				ImGui::Text("Value Y : %.20f", vector2value.y);
 				break;
 			case ParameterDataType::VECTOR_3D_PARAMETER:
-			case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+			case ParameterDataType::POSITION_3D:
 				ImGui::Text("Type : 3D Double");
 				ImGui::Text("Value X : %.20f", vector3value.x);
 				ImGui::Text("Value Y : %.20f", vector3value.y);

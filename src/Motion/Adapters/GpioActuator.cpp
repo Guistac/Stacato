@@ -220,8 +220,8 @@ bool GpioActuator::load(tinyxml2::XMLElement* xml){
 	if(actuatorXML == nullptr) return Logger::warn("Could not find Servo Actuator attribute");
 	const char* actuatorUnitString;
 	actuatorXML->QueryStringAttribute("PositionUnit", &actuatorUnitString);
-	if(!Enumerator::isValidSaveName<PositionUnit>(actuatorUnitString)) return Logger::warn("Could not identify servo actuator position unit");
-	actuator->positionUnit = Enumerator::getEnumeratorFromSaveString<PositionUnit>(actuatorUnitString);
+	if(!Enumerator::isValidSaveName<Unit::Distance>(actuatorUnitString)) return Logger::warn("Could not identify servo actuator position unit");
+	actuator->positionUnit = Enumerator::getEnumeratorFromSaveString<Unit::Distance>(actuatorUnitString);
 	if(actuatorXML->QueryDoubleAttribute("VelocityLimit", &actuator->velocityLimit_positionUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not find actuator velocity limit Attribute");
 	if(actuatorXML->QueryDoubleAttribute("MinVelocity", &actuator->minVelocity_positionUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not find actuator minimum velocity Attribute");
 	if(actuatorXML->QueryDoubleAttribute("AccelerationLimit", &actuator->accelerationLimit_positionUnitsPerSecondSquared) != XML_SUCCESS) return Logger::warn("Could not find acceleration limit Attribute");

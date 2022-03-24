@@ -66,7 +66,7 @@ void PD4_E::initialize() {
 	digitalOut2Pin->assignData(digitalOut2PinValue);
 	addNodePin(digitalOut2Pin);
 
-	servoMotor->positionUnit = PositionUnit::REVOLUTION;
+	servoMotor->positionUnit = Unit::Distance::REVOLUTION;
 	double maxEncoderRevolutions = 1 << encoderMultiTurnResolutionBits;
 	servoMotor->rangeMin_positionUnits = -maxEncoderRevolutions / 2.0;
 	servoMotor->rangeMax_positionUnits = maxEncoderRevolutions / 2.0;

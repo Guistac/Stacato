@@ -118,8 +118,8 @@ void GpioActuator::settingsGui(){
 		
 		ImGui::Text("Position Unit");
 		if(ImGui::BeginCombo("##actuatorUnit", Enumerator::getDisplayString(actuator->positionUnit))){
-			for(auto& type : Enumerator::getTypes<PositionUnit>()){
-				if(isLinearPositionUnit(type.enumerator)) continue;
+			for(auto& type : Enumerator::getTypes<Unit::Distance>()){
+				if(Unit::isLinearDistance(type.enumerator)) continue;
 				if(ImGui::Selectable(type.displayString, type.enumerator == actuator->positionUnit)){
 					actuator->positionUnit = type.enumerator;
 				}

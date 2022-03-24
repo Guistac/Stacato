@@ -21,9 +21,9 @@ class Oscillator3x : public Machine {
 		phaseOffsetParameter
 	}));
 	
-	std::shared_ptr<AnimatableParameter> axis1PositionParameter = std::make_shared<AnimatableParameter>("Axis 1 Position", ParameterDataType::KINEMATIC_POSITION_CURVE, "mm");
-	std::shared_ptr<AnimatableParameter> axis2PositionParameter = std::make_shared<AnimatableParameter>("Axis 2 Position", ParameterDataType::KINEMATIC_POSITION_CURVE, "mm");
-	std::shared_ptr<AnimatableParameter> axis3PositionParameter = std::make_shared<AnimatableParameter>("Axis 3 Position", ParameterDataType::KINEMATIC_POSITION_CURVE, "mm");
+	std::shared_ptr<AnimatableParameter> axis1PositionParameter = std::make_shared<AnimatableParameter>("Axis 1 Position", ParameterDataType::POSITION, "mm");
+	std::shared_ptr<AnimatableParameter> axis2PositionParameter = std::make_shared<AnimatableParameter>("Axis 2 Position", ParameterDataType::POSITION, "mm");
+	std::shared_ptr<AnimatableParameter> axis3PositionParameter = std::make_shared<AnimatableParameter>("Axis 3 Position", ParameterDataType::POSITION, "mm");
 	
 
 	//=== Machine Limits ===

@@ -42,9 +42,9 @@ std::vector<Motion::InterpolationType> AnimatableParameter::getCompatibleInterpo
 			output.push_back(Motion::InterpolationType::TRAPEZOIDAL);
 			output.push_back(Motion::InterpolationType::BEZIER);
 			break;
-		case ParameterDataType::KINEMATIC_POSITION_CURVE:
-		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
-		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::POSITION:
+		case ParameterDataType::POSITION_2D:
+		case ParameterDataType::POSITION_3D:
 			output.push_back(Motion::InterpolationType::TRAPEZOIDAL);
 			break;
 		case ParameterDataType::PARAMETER_GROUP:
@@ -82,16 +82,16 @@ void AnimatableParameterValue::reset() {
 		stateValue = &stateValues->at(0);
 		break;
 	case ParameterDataType::REAL_PARAMETER:
-	case ParameterDataType::KINEMATIC_POSITION_CURVE:
+	case ParameterDataType::POSITION:
 		realValue = 0.0;
 		break;
 	case ParameterDataType::VECTOR_2D_PARAMETER:
-	case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+	case ParameterDataType::POSITION_2D:
 		vector2value.x = 0.0;
 		vector2value.y = 0.0;
 		break;
 	case ParameterDataType::VECTOR_3D_PARAMETER:
-	case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+	case ParameterDataType::POSITION_3D:
 		vector3value.x = 0.0;
 		vector3value.y = 0.0;
 		vector3value.z = 0.0;
@@ -108,13 +108,13 @@ bool AnimatableParameterValue::equals(AnimatableParameterValue& other) {
 	case ParameterDataType::STATE_PARAMETER:
 		return stateValue == other.stateValue;
 	case ParameterDataType::REAL_PARAMETER:
-	case ParameterDataType::KINEMATIC_POSITION_CURVE:
+	case ParameterDataType::POSITION:
 		return realValue == other.realValue;
 	case ParameterDataType::VECTOR_2D_PARAMETER:
-	case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+	case ParameterDataType::POSITION_2D:
 		return vector2value == other.vector2value;
 	case ParameterDataType::VECTOR_3D_PARAMETER:
-	case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+	case ParameterDataType::POSITION_3D:
 		return vector3value == other.vector3value;
 	default:
 		return false;
@@ -134,16 +134,16 @@ bool AnimatableParameterValue::save(tinyxml2::XMLElement* parameterValueXML) {
 		parameterValueXML->SetAttribute("State", stateValue->saveName);
 		break;
 	case ParameterDataType::REAL_PARAMETER:
-	case ParameterDataType::KINEMATIC_POSITION_CURVE:
+	case ParameterDataType::POSITION:
 		parameterValueXML->SetAttribute("Real", realValue);
 		break;
 	case ParameterDataType::VECTOR_2D_PARAMETER:
-	case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+	case ParameterDataType::POSITION_2D:
 		parameterValueXML->SetAttribute("X", vector2value.x);
 		parameterValueXML->SetAttribute("Y", vector2value.y);
 		break;
 	case ParameterDataType::VECTOR_3D_PARAMETER:
-	case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+	case ParameterDataType::POSITION_3D:
 		parameterValueXML->SetAttribute("X", vector3value.x);
 		parameterValueXML->SetAttribute("Y", vector3value.y);
 		parameterValueXML->SetAttribute("Z", vector3value.z);
@@ -183,16 +183,16 @@ bool AnimatableParameterValue::load(tinyxml2::XMLElement* parameterValueXML) {
 			
 		}break;
 		case ParameterDataType::REAL_PARAMETER:
-		case ParameterDataType::KINEMATIC_POSITION_CURVE:
+		case ParameterDataType::POSITION:
 			if (parameterValueXML->QueryDoubleAttribute("Real", &realValue) != XML_SUCCESS) return Logger::warn("Could not read real value");
 			break;
 		case ParameterDataType::VECTOR_2D_PARAMETER:
-		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+		case ParameterDataType::POSITION_2D:
 			if (parameterValueXML->QueryFloatAttribute("X", &vector2value.x) != XML_SUCCESS) return Logger::warn("Could not read vector2.x value");
 			if (parameterValueXML->QueryFloatAttribute("Y", &vector2value.y) != XML_SUCCESS) return Logger::warn("Could not read vector2.y value");
 			break;
 		case ParameterDataType::VECTOR_3D_PARAMETER:
-		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::POSITION_3D:
 			if (parameterValueXML->QueryFloatAttribute("X", &vector3value.x) != XML_SUCCESS) return Logger::warn("Could not read vector3.x value");
 			if (parameterValueXML->QueryFloatAttribute("Y", &vector3value.y) != XML_SUCCESS) return Logger::warn("Could not read vector3.y value");
 			if (parameterValueXML->QueryFloatAttribute("Z", &vector3value.z) != XML_SUCCESS) return Logger::warn("Could not read vector3.z value");

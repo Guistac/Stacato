@@ -81,7 +81,7 @@ void PositionFeedbackMachine::settingsGui(){
 	ImGui::Text("Movement Type :");
 	ImGui::PopFont();
 	if (ImGui::BeginCombo("##UnitType", Enumerator::getDisplayString(movementType))) {
-		for (auto& unitType : Enumerator::getTypes<PositionUnitType>()) {
+		for (auto& unitType : Enumerator::getTypes<Unit::DistanceType>()) {
 			if (ImGui::Selectable(unitType.displayString, movementType == unitType.enumerator)) {
 				setMovementType(unitType.enumerator);
 			}
@@ -96,13 +96,13 @@ void PositionFeedbackMachine::settingsGui(){
 	ImGui::PopFont();
 	
 	if (ImGui::BeginCombo("##AxisUnit", Unit::getDisplayString(positionUnit))) {
-		for (auto& unit : Unit::getTypes<PositionUnit>()) {
+		for (auto& unit : Unit::getUnits<Unit::Distance>()) {
 			switch(movementType){
-				case PositionUnitType::LINEAR:
-					if(!isLinearPositionUnit(unit.enumerator)) continue;
+				case Unit::DistanceType::LINEAR:
+					if(!Unit::isLinearDistance(unit.enumerator)) continue;
 					break;
-				case PositionUnitType::ANGULAR:
-					if(!isAngularPositionUnit(unit.enumerator)) continue;
+				case Unit::DistanceType::ANGULAR:
+					if(!Unit::isAngularDistance(unit.enumerator)) continue;
 					break;
 			}
 			if (ImGui::Selectable(unit.displayString, positionUnit == unit.enumerator)) setPositionUnit(unit.enumerator);

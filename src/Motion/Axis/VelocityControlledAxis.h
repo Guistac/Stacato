@@ -4,7 +4,6 @@
 
 #include "Motion/MotionTypes.h"
 #include "Utilities/CircularBuffer.h"
-
 #include "Motion/Profile.h"
 
 class Device;
@@ -40,23 +39,23 @@ private:
 	//======== SETTINGS ========
 
 private:
-	PositionUnitType positionUnitType = PositionUnitType::ANGULAR;
-	PositionUnit positionUnit = PositionUnit::DEGREE;
+	Unit::DistanceType positionUnitType = Unit::DistanceType::ANGULAR;
+	Unit::Distance positionUnit = Unit::Distance::DEGREE;
 	double actuatorUnitsPerAxisUnits = 0.0;
 	double velocityLimit = 0.0;
 	double accelerationLimit = 0.0;
 	double manualAcceleration = 0.0;
 
-	void setPositionUnitType(PositionUnitType type);
-	void setPositionUnit(PositionUnit unit);
+	void setPositionUnitType(Unit::DistanceType type);
+	void setPositionUnit(Unit::Distance unit);
 	double actuatorUnitsToAxisUnits(double actuatorValue){ return actuatorValue / actuatorUnitsPerAxisUnits; }
 	double axisUnitsToActuatorUnits(double axisUnits){ return axisUnits * actuatorUnitsPerAxisUnits; }
 	
 public:
 	void sanitizeParameters();
 	
-	PositionUnit getPositionUnit(){ return positionUnit; }
-	PositionUnitType getPositionUnitType() { return positionUnitType; }
+	Unit::Distance getPositionUnit(){ return positionUnit; }
+	Unit::DistanceType getPositionUnitType() { return positionUnitType; }
 	
 	double getVelocityLimit() { return velocityLimit; }
 	double getAccelerationLimit() { return accelerationLimit; }

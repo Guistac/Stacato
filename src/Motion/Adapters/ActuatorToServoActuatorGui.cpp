@@ -249,7 +249,7 @@ void ActuatorToServoActuator::settingsGui(){
 	ImGui::SameLine();
 	if(isActuatorConnected()){
 		std::shared_ptr<ActuatorDevice> actuatorDevice = getActuatorDevice();
-		PositionUnit positionUnit = getPositionUnit();
+		Unit::Distance positionUnit = getPositionUnit();
 		if(actuatorDevice->parentDevice) ImGui::Text("%s on %s", actuatorDevice->getName(), actuatorDevice->parentDevice->getName());
 		else ImGui::Text("%s on Node %s", actuatorDevice->getName(), actuatorPin->getConnectedPin()->getNode()->getName());
 		

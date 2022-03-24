@@ -219,13 +219,13 @@ bool PositionControlledAxis::needsReferenceDevice() {
 
 //============================= DEVICE AND SIGNAL LINKS ================================
 
-void PositionControlledAxis::setPositionUnitType(PositionUnitType type){
+void PositionControlledAxis::setPositionUnitType(Unit::DistanceType type){
 	positionUnitType = type;
 	switch(type){
-		case PositionUnitType::ANGULAR:
-			if(!isAngularPositionUnit(positionUnit)) {
-				for(auto& type : Unit::getTypes<PositionUnit>()){
-					if(isAngularPositionUnit(type.enumerator)){
+		case Unit::DistanceType::ANGULAR:
+			if(!Unit::isAngularDistance(positionUnit)) {
+				for(auto& type : Unit::getUnits<Unit::Distance>()){
+					if(Unit::isAngularDistance(type.enumerator)){
 						setPositionUnit(type.enumerator);
 						break;
 					}
@@ -240,10 +240,10 @@ void PositionControlledAxis::setPositionUnitType(PositionUnitType type){
 				}
 			}
 			break;
-		case PositionUnitType::LINEAR:
-			if(!isLinearPositionUnit(positionUnit)){
-				for(auto& type : Unit::getTypes<PositionUnit>()){
-					if(isLinearPositionUnit(type.enumerator)){
+		case Unit::DistanceType::LINEAR:
+			if(!Unit::isLinearDistance(positionUnit)){
+				for(auto& type : Unit::getUnits<Unit::Distance>()){
+					if(Unit::isLinearDistance(type.enumerator)){
 						setPositionUnit(type.enumerator);
 						break;
 					}
@@ -262,7 +262,7 @@ void PositionControlledAxis::setPositionUnitType(PositionUnitType type){
 	sanitizeParameters();
 }
 
-void PositionControlledAxis::setPositionUnit(PositionUnit u){
+void PositionControlledAxis::setPositionUnit(Unit::Distance u){
 	positionUnit = u;
 	sanitizeParameters();
 }
@@ -1037,12 +1037,12 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if (!unitsXML) return Logger::warn("Could not load Units Attributes");
 	const char* axisUnitTypeString;
 	if (unitsXML->QueryStringAttribute("UnitType", &axisUnitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit Type");
-	if (!Enumerator::isValidSaveName<PositionUnitType>(axisUnitTypeString)) return Logger::warn("Could not read Machine Unit Type");
-	positionUnitType = Enumerator::getEnumeratorFromSaveString<PositionUnitType>(axisUnitTypeString);
+	if (!Enumerator::isValidSaveName<Unit::DistanceType>(axisUnitTypeString)) return Logger::warn("Could not read Machine Unit Type");
+	positionUnitType = Enumerator::getEnumeratorFromSaveString<Unit::DistanceType>(axisUnitTypeString);
 	const char* axisUnitString;
 	if (unitsXML->QueryStringAttribute("Unit", &axisUnitString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit");
-	if (!Unit::isValidSaveName<PositionUnit>(axisUnitString)) return Logger::warn("Could not read Machine Unit");
-	positionUnit = Unit::getEnumeratorFromSaveString<PositionUnit>(axisUnitString);
+	if (!Unit::isValidSaveName<Unit::Distance>(axisUnitString)) return Logger::warn("Could not read Machine Unit");
+	positionUnit = Unit::getEnumeratorFromSaveString<Unit::Distance>(axisUnitString);
 
 	XMLElement* unitConversionXML = xml->FirstChildElement("UnitConversion");
 	if (!unitConversionXML) return Logger::warn("Could not load Unit Conversion");
@@ -1076,7 +1076,7 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if (positionReferenceXML->QueryStringAttribute("HomingDirection", &homingDirectionString)) return Logger::warn("Could not load homing direction");
 	if (!Enumerator::isValidSaveName<HomingDirection>(homingDirectionString)) return Logger::warn("Could not read homing direction");
 	homingDirection = Enumerator::getEnumeratorFromSaveString<HomingDirection>(homingDirectionString);
-
+	
 	return true;
 }
 

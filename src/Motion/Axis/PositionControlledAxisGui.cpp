@@ -426,7 +426,7 @@ void PositionControlledAxis::controlsGui() {
 	double feedbackPosition = 0.0;
 	double rangeMin = std::numeric_limits<double>::quiet_NaN();
 	double rangeMax = std::numeric_limits<double>::quiet_NaN();
-	PositionUnit feedbackPositionUnit;
+	Unit::Distance feedbackPositionUnit;
 	static char rangeString[64];
 	if (isServoActuatorDeviceConnected()) {
 		std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
@@ -479,7 +479,7 @@ void PositionControlledAxis::settingsGui() {
 
 	ImGui::Text("Movement Type :");
 	if (ImGui::BeginCombo("##AxisUnitType", Enumerator::getDisplayString(positionUnitType))) {
-		for (auto& type : Enumerator::getTypes<PositionUnitType>()) {
+		for (auto& type : Enumerator::getTypes<Unit::DistanceType>()) {
 			if (ImGui::Selectable(type.displayString, positionUnitType == type.enumerator)) {
 				setPositionUnitType(type.enumerator);
 			}
@@ -489,13 +489,13 @@ void PositionControlledAxis::settingsGui() {
 
 	ImGui::Text("Position Unit :");
 	if (ImGui::BeginCombo("##AxisUnit", Unit::getDisplayString(positionUnit))) {
-		for(auto& type : Unit::getTypes<PositionUnit>()){
+		for(auto& type : Unit::getUnits<Unit::Distance>()){
 			switch(positionUnitType){
-				case PositionUnitType::LINEAR:
-					if(!isLinearPositionUnit(type.enumerator)) continue;
+				case Unit::DistanceType::LINEAR:
+					if(!Unit::isLinearDistance(type.enumerator)) continue;
 					break;
-				case PositionUnitType::ANGULAR:
-					if(!isAngularPositionUnit(type.enumerator)) continue;
+				case Unit::DistanceType::ANGULAR:
+					if(!Unit::isAngularDistance(type.enumerator)) continue;
 					break;
 			}
 			if (ImGui::Selectable(type.displayString, positionUnit == type.enumerator)) setPositionUnit(type.enumerator);
@@ -567,7 +567,7 @@ void PositionControlledAxis::settingsGui() {
 
 	if (isServoActuatorDeviceConnected()) {
 		std::shared_ptr<ServoActuatorDevice> servoActuator = getServoActuatorDevice();
-		PositionUnit servoActuatorPositionUnit = servoActuator->getPositionUnit();
+		Unit::Distance servoActuatorPositionUnit = servoActuator->getPositionUnit();
 		
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 		ImGui::TextWrapped("Max actuator velocity is %.1f %s/s and max acceleration is %.1f %s/s\xc2\xb2",
@@ -648,8 +648,8 @@ void PositionControlledAxis::settingsGui() {
 		
 		for (auto& type : Enumerator::getTypes<PositionReferenceSignal>()) {
 			
-			if(positionUnitType == PositionUnitType::LINEAR && !isLinearPositionReferenceSignal(type.enumerator)) continue;
-			else if(positionUnitType == PositionUnitType::ANGULAR && !isAngularPositionReferenceSignal(type.enumerator)) continue;
+			if(positionUnitType == Unit::DistanceType::LINEAR && !isLinearPositionReferenceSignal(type.enumerator)) continue;
+			else if(positionUnitType == Unit::DistanceType::ANGULAR && !isAngularPositionReferenceSignal(type.enumerator)) continue;
 			
 			bool selected = positionReferenceSignal == type.enumerator;
 			if (ImGui::Selectable(type.displayString, selected)) {

@@ -37,7 +37,7 @@ void LinearMecanumClaw::controlsGui() {
 	ImGui::PopFont();
 	
 	double linearVelocityLimit = 0.0;
-	PositionUnit linearPositionUnit = PositionUnit::METER;
+	Unit::Distance linearPositionUnit = Unit::Distance::METER;
 	if(isLinearAxisConnected()){
 		auto linearAxis = getLinearAxis();
 		linearVelocityLimit = linearAxis->getVelocityLimit();
@@ -328,7 +328,7 @@ void LinearMecanumClaw::settingsGui() {
 	if(isLinearAxisConnected()){
 		auto linearAxis = getLinearAxis();
 		ImGui::Text("%s (Position Unit : %s)", linearAxis->getName(), Enumerator::getDisplayString(linearAxis->getPositionUnit()));
-		if(linearAxis->getPositionUnitType() != PositionUnitType::LINEAR){
+		if(linearAxis->getPositionUnitType() != Unit::DistanceType::LINEAR){
 			ImGui::TextColored(Colors::red, "Linear Axis does not have Linear Position Unit");
 			return;
 		}
@@ -376,8 +376,8 @@ void LinearMecanumClaw::settingsGui() {
 	
 	ImGui::Text("Claw Position Unit");
 	if(ImGui::BeginCombo("##unit", Enumerator::getDisplayString(clawPositionUnit))){
-		for(auto& unit : Enumerator::getTypes<PositionUnit>()){
-			if(!isAngularPositionUnit(unit.enumerator)) continue;
+		for(auto& unit : Enumerator::getTypes<Unit::Distance>()){
+			if(!Unit::isAngularDistance(unit.enumerator)) continue;
 			if(ImGui::Selectable(Enumerator::getDisplayString(unit.enumerator), clawPositionUnit == unit.enumerator)){
 				clawPositionUnit = unit.enumerator;
 			}
@@ -445,7 +445,7 @@ void LinearMecanumClaw::settingsGui() {
 	ImGui::InputDouble("##clawErrThresh", &clawPositionErrorThreshold, 0.0, 0.0, clawPositionErrorTresholdString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
-	PositionUnit linearAxisPositionUnit = getLinearAxis()->getPositionUnit();
+	Unit::Distance linearAxisPositionUnit = getLinearAxis()->getPositionUnit();
 
 	ImGui::Separator();
 	

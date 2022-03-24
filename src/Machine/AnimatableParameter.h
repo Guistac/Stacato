@@ -4,9 +4,7 @@
 
 class Machine;
 class ParameterTrack;
-namespace tinyxml2 {
-	class XMLElement;
-}
+namespace tinyxml2 { class XMLElement; }
 
 enum class ParameterDataType {
 	BOOLEAN_PARAMETER,
@@ -15,23 +13,23 @@ enum class ParameterDataType {
 	REAL_PARAMETER,
 	VECTOR_2D_PARAMETER,
 	VECTOR_3D_PARAMETER,
-	KINEMATIC_POSITION_CURVE,
-	KINEMATIC_2D_POSITION_CURVE,
-	KINEMATIC_3D_POSITION_CURVE,
+	POSITION,
+	POSITION_2D,
+	POSITION_3D,
 	PARAMETER_GROUP
 };
 
 #define ParameterDataTypeStrings \
-	{ParameterDataType::BOOLEAN_PARAMETER, "Boolean", "Boolean"},\
-	{ParameterDataType::INTEGER_PARAMETER, "Integer", "Integer"},\
-	{ParameterDataType::STATE_PARAMETER, "State", "State"},\
-	{ParameterDataType::REAL_PARAMETER, "Real", "Real"},\
-	{ParameterDataType::VECTOR_2D_PARAMETER, "2D Vector", "2DVector"},\
-	{ParameterDataType::VECTOR_3D_PARAMETER, "3D Vector", "3DVector"},\
-	{ParameterDataType::KINEMATIC_POSITION_CURVE, "Kinematic", "Kinematic"},\
-	{ParameterDataType::KINEMATIC_2D_POSITION_CURVE, "2D Kinematic", "2DKinematic"},\
-	{ParameterDataType::KINEMATIC_3D_POSITION_CURVE, "3D Kinematic", "3DKinematic"},\
-	{ParameterDataType::PARAMETER_GROUP, "Paramater Group", "ParameterGroup"}\
+	{ParameterDataType::BOOLEAN_PARAMETER, 		"Boolean", 			"Boolean"},\
+	{ParameterDataType::INTEGER_PARAMETER, 		"Integer", 			"Integer"},\
+	{ParameterDataType::STATE_PARAMETER, 		"State", 			"State"},\
+	{ParameterDataType::REAL_PARAMETER, 		"Real", 			"Real"},\
+	{ParameterDataType::VECTOR_2D_PARAMETER, 	"2D Vector", 		"2DVector"},\
+	{ParameterDataType::VECTOR_3D_PARAMETER, 	"3D Vector", 		"3DVector"},\
+	{ParameterDataType::POSITION, 				"Position", 		"Position"},\
+	{ParameterDataType::POSITION_2D, 			"2D Position", 		"3DPosition"},\
+	{ParameterDataType::POSITION_3D, 			"3D Position", 		"3DPosition"},\
+	{ParameterDataType::PARAMETER_GROUP, 		"Paramater Group", 	"ParameterGroup"}\
 
 DEFINE_ENUMERATOR(ParameterDataType, ParameterDataTypeStrings)
 
@@ -86,6 +84,8 @@ public:
 
 	//Constructor for Parameter Group
 	AnimatableParameter(const char* nm, std::vector<std::shared_ptr<AnimatableParameter>> children);
+	
+	//AnimatableParameter(const char* nm, ParameterDataType datat, Unit::Type* unitTypePointer);
 
 	//=== Basic Parameter Information ===
 	ParameterDataType dataType;

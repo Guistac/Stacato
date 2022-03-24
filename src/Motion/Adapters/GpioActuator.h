@@ -13,7 +13,7 @@ public:
 	//output data
 	std::shared_ptr<bool> enableSignal = std::make_shared<bool>(false);
 	std::shared_ptr<double> controlSignal = std::make_shared<double>(0.0);
-	std::shared_ptr<ActuatorDevice> actuator = std::make_shared<ActuatorDevice>("Actuator", PositionUnit::REVOLUTION);
+	std::shared_ptr<ActuatorDevice> actuator = std::make_shared<ActuatorDevice>("Actuator", Unit::Distance::REVOLUTION);
 	
 	std::shared_ptr<NodePin> enablePin = std::make_shared<NodePin>(enableSignal, NodePin::Direction::NODE_OUTPUT, "Enable");
 	std::shared_ptr<NodePin> controlSignalPin = std::make_shared<NodePin>(controlSignal, NodePin::Direction::NODE_OUTPUT, "Control Signal");

@@ -129,7 +129,7 @@ void VelocityControlledAxis::settingsGui() {
 
 	ImGui::Text("Movement Type :");
 	if (ImGui::BeginCombo("##AxisUnitType", Enumerator::getDisplayString(positionUnitType))) {
-		for (auto& type : Enumerator::getTypes<PositionUnitType>()) {
+		for (auto& type : Enumerator::getTypes<Unit::DistanceType>()) {
 			if (ImGui::Selectable(type.displayString, positionUnitType == type.enumerator)) {
 				setPositionUnitType(type.enumerator);
 			}
@@ -142,13 +142,13 @@ void VelocityControlledAxis::settingsGui() {
 	ImGui::Text("Position Unit :");
 	if (ImGui::BeginCombo("##AxisUnit", Unit::getDisplayString(positionUnit))) {
 		
-		for(auto& type : Unit::getTypes<PositionUnit>()){
+		for(auto& type : Unit::getUnits<Unit::Distance>()){
 			switch(positionUnitType){
-				case PositionUnitType::LINEAR:
-					if(!isLinearPositionUnit(type.enumerator)) continue;
+				case Unit::DistanceType::LINEAR:
+					if(!Unit::isLinearDistance(type.enumerator)) continue;
 					break;
-				case PositionUnitType::ANGULAR:
-					if(!isAngularPositionUnit(type.enumerator)) continue;
+				case Unit::DistanceType::ANGULAR:
+					if(!Unit::isAngularDistance(type.enumerator)) continue;
 					break;
 			}
 			if (ImGui::Selectable(type.displayString, positionUnit == type.enumerator)) setPositionUnit(type.enumerator);

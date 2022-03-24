@@ -35,8 +35,8 @@ public:
 	
 	//=== Animatable Machine Parameters
 	
-	std::shared_ptr<AnimatableParameter> linearAxisPositionParameter = std::make_shared<AnimatableParameter>("Position Costière", ParameterDataType::KINEMATIC_POSITION_CURVE, "m");
-	std::shared_ptr<AnimatableParameter> clawAxisPositionParameter = std::make_shared<AnimatableParameter>("Angle Coeur", ParameterDataType::KINEMATIC_POSITION_CURVE, "deg");
+	std::shared_ptr<AnimatableParameter> linearAxisPositionParameter = std::make_shared<AnimatableParameter>("Position Costière", ParameterDataType::POSITION, "m");
+	std::shared_ptr<AnimatableParameter> clawAxisPositionParameter = std::make_shared<AnimatableParameter>("Angle Coeur", ParameterDataType::POSITION, "deg");
 	
 	//=== Device Checking & Gettings
 	
@@ -60,8 +60,8 @@ public:
 	
 	//=== Parameters
 	
-	const PositionUnitType clawPositionUnitType = PositionUnitType::ANGULAR;
-	PositionUnit clawPositionUnit = PositionUnit::DEGREE;
+	const Unit::DistanceType clawUnitDistanceType = Unit::DistanceType::ANGULAR;
+	Unit::Distance clawPositionUnit = Unit::Distance::DEGREE;
 	double clawFeedbackUnitsPerClawUnit = 0.0;
 	double clawVelocityLimit = 0.0;
 	double clawAccelerationLimit = 0.0;
@@ -139,8 +139,8 @@ public:
 	float getClawAxisPositionProgress();
 	float getClawAxisVelocityProgress();
 	
-	PositionUnit getLinearAxisPositionUnit();
-	PositionUnit getClawAxisPositionUnit();
+	Unit::Distance getLinearAxisPositionUnit();
+	Unit::Distance getClawAxisPositionUnit();
 	
 	bool hasLinearAxisTargetMovement() { return !linearAxisMotionProfile.isInterpolationFinished(profileTime_seconds); }
 	bool hasClawAxisTargetMovement() { return !clawAxisMotionProfile.isInterpolationFinished(profileTime_seconds); }

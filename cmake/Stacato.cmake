@@ -138,6 +138,7 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Utilities/CircularBuffer.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Enumerator.h
+    ${STACATO_SOURCE_DIRECTORY}/Utilities/Units.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Logger.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/ProgressIndicator.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Random.h

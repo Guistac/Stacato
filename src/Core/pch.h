@@ -25,6 +25,7 @@
 #include "Utilities/Timing.h"
 #include "Utilities/Random.h"
 #include "Utilities/Enumerator.h"
+#include "Utilities/Units.h"
 
 //ImGui Custom Configuration
 #define IMGUI_USER_CONFIG "Gui/ApplicationWindow/ImGuiCustomConfiguration.h"

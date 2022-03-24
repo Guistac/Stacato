@@ -62,8 +62,8 @@ public:
 	//==================== PARAMETERS ====================
 private:
 	//units
-	PositionUnitType positionUnitType = PositionUnitType::ANGULAR;
-	PositionUnit positionUnit = PositionUnit::DEGREE;
+	Unit::DistanceType positionUnitType = Unit::DistanceType::ANGULAR;
+	Unit::Distance positionUnit = Unit::Distance::DEGREE;
 	double servoActuatorUnitsPerAxisUnits = 0.0;
 
 	//Reference Signals and Homing
@@ -88,16 +88,16 @@ private:
 	
 	void sanitizeParameters();
 	
-	void setPositionUnitType(PositionUnitType t);
-	void setPositionUnit(PositionUnit u);
+	void setPositionUnitType(Unit::DistanceType t);
+	void setPositionUnit(Unit::Distance u);
 	void setPositionReferenceSignalType(PositionReferenceSignal type);
 	
 	double servoActuatorUnitsToAxisUnits(double actuatorValue) { return actuatorValue / servoActuatorUnitsPerAxisUnits; }
 	double axisUnitsToServoActuatorUnits(double axisValue) { return axisValue * servoActuatorUnitsPerAxisUnits; }
 	
 public:
-	PositionUnit getPositionUnit(){ return positionUnit; }
-	PositionUnitType getPositionUnitType(){ return positionUnitType; }
+	Unit::Distance getPositionUnit(){ return positionUnit; }
+	Unit::DistanceType getPositionUnitType(){ return positionUnitType; }
 	double getVelocityLimit() { return velocityLimit; }
 	double getAccelerationLimit() { return accelerationLimit; }
 	double getLowPositionLimit();

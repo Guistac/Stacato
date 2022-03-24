@@ -25,21 +25,21 @@ double PositionFeedbackMachine::feedbackVelocityToMachineVelocity(double feedbac
 }
 
 
-void PositionFeedbackMachine::setMovementType(PositionUnitType t){
+void PositionFeedbackMachine::setMovementType(Unit::DistanceType t){
 	movementType = t;
 	switch(movementType){
-		case PositionUnitType::LINEAR:
-			if(!isLinearPositionUnit(positionUnit)){
-				for(auto& type : Unit::getTypes<PositionUnit>()){
-					if(isLinearPositionUnit(type.enumerator)) setPositionUnit(type.enumerator);
+		case Unit::DistanceType::LINEAR:
+			if(!Unit::isLinearDistance(positionUnit)){
+				for(auto& type : Unit::getUnits<Unit::Distance>()){
+					if(Unit::isLinearDistance(type.enumerator)) setPositionUnit(type.enumerator);
 					break;
 				}
 			}
 			break;
-		case PositionUnitType::ANGULAR:
-			if(!isAngularPositionUnit(positionUnit)){
-				for(auto& type : Unit::getTypes<PositionUnit>()){
-					if(isAngularPositionUnit(type.enumerator)) setPositionUnit(type.enumerator);
+		case Unit::DistanceType::ANGULAR:
+			if(!Unit::isAngularDistance(positionUnit)){
+				for(auto& type : Unit::getUnits<Unit::Distance>()){
+					if(Unit::isAngularDistance(type.enumerator)) setPositionUnit(type.enumerator);
 					break;
 				}
 			}
@@ -47,13 +47,13 @@ void PositionFeedbackMachine::setMovementType(PositionUnitType t){
 	}
 }
 
-void PositionFeedbackMachine::setPositionUnit(PositionUnit u){
+void PositionFeedbackMachine::setPositionUnit(Unit::Distance u){
 	switch(movementType){
-		case PositionUnitType::ANGULAR:
-			if(!isAngularPositionUnit(u)) return;
+		case Unit::DistanceType::ANGULAR:
+			if(!Unit::isAngularDistance(u)) return;
 			break;
-		case PositionUnitType::LINEAR:
-			if(!isLinearPositionUnit(u)) return;
+		case Unit::DistanceType::LINEAR:
+			if(!Unit::isLinearDistance(u)) return;
 			break;
 	}
 	positionUnit = u;
@@ -152,12 +152,12 @@ bool PositionFeedbackMachine::loadMachine(tinyxml2::XMLElement* xml){
 	if(unitsXML == nullptr) return Logger::warn("Could not find units attribute");
 	const char* unitTypeString;
 	if(unitsXML->QueryStringAttribute("Type", &unitTypeString) != XML_SUCCESS) return Logger::warn("could not find unit type attribute");
-	if(!Enumerator::isValidSaveName<PositionUnitType>(unitTypeString)) return Logger::warn("Could not identify Position Unit Type");
-	movementType = Enumerator::getEnumeratorFromSaveString<PositionUnitType>(unitTypeString);
+	if(!Enumerator::isValidSaveName<Unit::DistanceType>(unitTypeString)) return Logger::warn("Could not identify Position Unit Type");
+	movementType = Enumerator::getEnumeratorFromSaveString<Unit::DistanceType>(unitTypeString);
 	const char* positionUnitString;
 	if(unitsXML->QueryStringAttribute("Unit", &positionUnitString) != XML_SUCCESS) return Logger::warn("Could not find unit attribute");
-	if(!Unit::isValidSaveName<PositionUnit>(positionUnitString)) return Logger::warn("Could not identify position unit");
-	positionUnit = Unit::getEnumeratorFromSaveString<PositionUnit>(positionUnitString);
+	if(!Unit::isValidSaveName<Unit::Distance>(positionUnitString)) return Logger::warn("Could not identify position unit");
+	positionUnit = Unit::getEnumeratorFromSaveString<Unit::Distance>(positionUnitString);
 	
 	XMLElement* conversionXML = xml->FirstChildElement("Conversion");
 	if(conversionXML == nullptr) return Logger::warn("Could not find conversio attribute");

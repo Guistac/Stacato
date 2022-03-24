@@ -660,11 +660,11 @@ float LinearMecanumClaw::getClawAxisVelocityProgress(){
 	//return clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getVelocity()) / clawVelocityLimit;
 	return std::abs(clawAxisMotionProfile.getVelocity()) / clawVelocityLimit;
 }
-PositionUnit LinearMecanumClaw::getLinearAxisPositionUnit(){
-	if(isLinearAxisConnected()) return PositionUnit::METER;
+Unit::Distance LinearMecanumClaw::getLinearAxisPositionUnit(){
+	if(isLinearAxisConnected()) return Unit::Distance::METER;
 	return getLinearAxis()->getPositionUnit();
 }
-PositionUnit LinearMecanumClaw::getClawAxisPositionUnit(){
+Unit::Distance LinearMecanumClaw::getClawAxisPositionUnit(){
 	return clawPositionUnit;
 }
 double LinearMecanumClaw::getLinearAxisMovementTargetNormalized(){
@@ -708,10 +708,10 @@ float LinearMecanumClaw::getLinearAxisFollowingErrorProgress(){
 
 void LinearMecanumClaw::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if(parameter == linearAxisPositionParameter){
-		assert(value.type == ParameterDataType::KINEMATIC_POSITION_CURVE);
+		assert(value.type == ParameterDataType::POSITION);
 		moveLinearToTargetWithVelocity(value.realValue, linearAxisRapidVelocity);
 	}else if(parameter == clawAxisPositionParameter){
-		assert(value.type == ParameterDataType::KINEMATIC_POSITION_CURVE);
+		assert(value.type == ParameterDataType::POSITION);
 		moveClawToTargetWithVelocity(value.realValue, clawRapidVelocity);
 	}
 }
@@ -735,10 +735,10 @@ void LinearMecanumClaw::cancelParameterRapid(std::shared_ptr<AnimatableParameter
 
 bool LinearMecanumClaw::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if(parameter == linearAxisPositionParameter){
-		assert(value.type == ParameterDataType::KINEMATIC_POSITION_CURVE);
+		assert(value.type == ParameterDataType::POSITION);
 		return value.realValue == linearAxisMotionProfile.getPosition();
 	}else if(parameter == clawAxisPositionParameter){
-		assert(value.type == ParameterDataType::KINEMATIC_POSITION_CURVE);
+		assert(value.type == ParameterDataType::POSITION);
 		return value.realValue == clawAxisMotionProfile.getPosition();
 	}
 }
@@ -1060,8 +1060,8 @@ bool LinearMecanumClaw::loadMachine(tinyxml2::XMLElement* xml) {
 	if(clawXML == nullptr) return Logger::warn("Could not find mecanum wheel attribute");
 	const char* clawUnitString;
 	if(clawXML->QueryStringAttribute("PositionUnit", &clawUnitString) != XML_SUCCESS) return Logger::warn("could not find claw position unit attribute");
-	if(!Enumerator::isValidSaveName<PositionUnit>(clawUnitString)) return Logger::warn("Could not identify claw position unit attrifbute");
-	clawPositionUnit = Enumerator::getEnumeratorFromSaveString<PositionUnit>(clawUnitString);
+	if(!Enumerator::isValidSaveName<Unit::Distance>(clawUnitString)) return Logger::warn("Could not identify claw position unit attrifbute");
+	clawPositionUnit = Enumerator::getEnumeratorFromSaveString<Unit::Distance>(clawUnitString);
 	if(clawXML->QueryDoubleAttribute("FeedbackUnitsPerClawUnit", &clawFeedbackUnitsPerClawUnit) != XML_SUCCESS) return Logger::warn("could not find claw feedback ratio attribute");
 	if(clawXML->QueryDoubleAttribute("VelocityLimit", &clawVelocityLimit) != XML_SUCCESS) return Logger::warn("could not find claw velocity limit attribute");
 	if(clawXML->QueryDoubleAttribute("AccelerationLimit", &clawAccelerationLimit) != XML_SUCCESS) return Logger::warn("could not find claw acceleration limit attribute");

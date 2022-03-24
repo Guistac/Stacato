@@ -208,9 +208,9 @@ void HoodedLiftStateMachine::machineSpecificMiniatureGui() {
 		
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
-		ImGui::Button("", commandButtonSize);
+		ImGui::Button("##emptyButton", commandButtonSize);
 		ImGui::Button("Not ready", commandButtonSize);
-		ImGui::Button("", commandButtonSize);
+		ImGui::Button("##emptyButton", commandButtonSize);
 		ImGui::PopStyleColor();
 		ImGui::PopItemFlag();
 		

@@ -53,13 +53,13 @@ int ParameterTrack::getCurveCount() {
 		case ParameterDataType::INTEGER_PARAMETER:
 		case ParameterDataType::STATE_PARAMETER:
 		case ParameterDataType::REAL_PARAMETER:
-		case ParameterDataType::KINEMATIC_POSITION_CURVE:
+		case ParameterDataType::POSITION:
 			return 1;
 		case ParameterDataType::VECTOR_2D_PARAMETER:
-		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+		case ParameterDataType::POSITION_2D:
 			return 2;
 		case ParameterDataType::VECTOR_3D_PARAMETER:
-		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::POSITION_3D:
 			return 3;
 		case ParameterDataType::PARAMETER_GROUP:
 		default:
@@ -100,17 +100,17 @@ void ParameterTrack::initialize() {
 			target.stateValue = &origin.stateValues->at(1);
 			break;
 		case ParameterDataType::REAL_PARAMETER:
-		case ParameterDataType::KINEMATIC_POSITION_CURVE:
+		case ParameterDataType::POSITION:
 			origin.realValue = 0.0;
 			target.realValue = 1.0;
 			break;
 		case ParameterDataType::VECTOR_2D_PARAMETER:
-		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+		case ParameterDataType::POSITION_2D:
 			origin.vector2value = glm::vec2(0.0);
 			target.vector2value = glm::vec2(1.0);
 			break;
 		case ParameterDataType::VECTOR_3D_PARAMETER:
-		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::POSITION_3D:
 			origin.vector3value = glm::vec3(0.0);
 			target.vector3value = glm::vec3(1.0);
 			break;
@@ -130,9 +130,9 @@ void ParameterTrack::initialize() {
 			interpolationType = Motion::InterpolationType::LINEAR;
 			sequenceType = SequenceType::Type::TIMED_MOVE;
 			break;
-		case ParameterDataType::KINEMATIC_POSITION_CURVE:
-		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
-		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::POSITION:
+		case ParameterDataType::POSITION_2D:
+		case ParameterDataType::POSITION_3D:
 			interpolationType = Motion::InterpolationType::TRAPEZOIDAL;
 			sequenceType = SequenceType::Type::TIMED_MOVE;
 			break;
@@ -237,15 +237,15 @@ void ParameterTrack::refreshAfterChainedDependenciesRefresh() {
 			endPoints.front()->position = target.stateValue->integerEquivalent;
 			break;
 		case ParameterDataType::VECTOR_3D_PARAMETER:
-		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::POSITION_3D:
 			startPoints[2]->position = origin.vector3value.z;
 			endPoints[2]->position = origin.vector3value.z;
 		case ParameterDataType::VECTOR_2D_PARAMETER:
-		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+		case ParameterDataType::POSITION_2D:
 			startPoints[1]->position = origin.vector2value.y;
 			endPoints[1]->position = origin.vector2value.y;
 		case ParameterDataType::REAL_PARAMETER:
-		case ParameterDataType::KINEMATIC_POSITION_CURVE:
+		case ParameterDataType::POSITION:
 			startPoints[0]->position = origin.realValue;
 			endPoints[0]->position = target.realValue;
 			startPoints[0]->acceleration = rampIn;
@@ -348,7 +348,7 @@ void ParameterTrack::refreshAfterCurveEdit() {
 			target.stateValue = &target.stateValues->at(targetInteger);
 			}break;
 		case ParameterDataType::VECTOR_3D_PARAMETER:
-		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::POSITION_3D:
 			origin.vector3value.x = startPoints[0]->position;
 			origin.vector3value.y = startPoints[1]->position;
 			origin.vector3value.z = startPoints[2]->position;
@@ -357,14 +357,14 @@ void ParameterTrack::refreshAfterCurveEdit() {
 			target.vector3value.z = endPoints[2]->position;
 			break;
 		case ParameterDataType::VECTOR_2D_PARAMETER:
-		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+		case ParameterDataType::POSITION_2D:
 			origin.vector2value.x = startPoints[0]->position;
 			origin.vector2value.y = startPoints[1]->position;
 			target.vector2value.x = endPoints[0]->position;
 			target.vector2value.y = endPoints[1]->position;
 			break;
 		case ParameterDataType::REAL_PARAMETER:
-		case ParameterDataType::KINEMATIC_POSITION_CURVE:
+		case ParameterDataType::POSITION:
 			origin.realValue = startPoints[0]->position;
 			target.realValue = endPoints[0]->position;
 			break;
@@ -567,18 +567,18 @@ void ParameterTrack::getParameterValueAtPlaybackTime(AnimatableParameterValue& o
 			output.stateValue = &parameter->stateParameterValues->at(0);
 			break;
 		case ParameterDataType::VECTOR_3D_PARAMETER:
-		case ParameterDataType::KINEMATIC_3D_POSITION_CURVE:
+		case ParameterDataType::POSITION_3D:
 			output.vector3value.x = curves[0]->getPointAtTime(playbackPosition_seconds).position;
 			output.vector3value.y = curves[1]->getPointAtTime(playbackPosition_seconds).position;
 			output.vector3value.z = curves[2]->getPointAtTime(playbackPosition_seconds).position;
 			break;
 		case ParameterDataType::VECTOR_2D_PARAMETER:
-		case ParameterDataType::KINEMATIC_2D_POSITION_CURVE:
+		case ParameterDataType::POSITION_2D:
 			output.vector2value.x = curves[0]->getPointAtTime(playbackPosition_seconds).position;
 			output.vector2value.y = curves[1]->getPointAtTime(playbackPosition_seconds).position;
 			break;
 		case ParameterDataType::REAL_PARAMETER:
-		case ParameterDataType::KINEMATIC_POSITION_CURVE:
+		case ParameterDataType::POSITION:
 			output.realValue = curves[0]->getPointAtTime(playbackPosition_seconds).position;
 			break;
 		case ParameterDataType::PARAMETER_GROUP:
