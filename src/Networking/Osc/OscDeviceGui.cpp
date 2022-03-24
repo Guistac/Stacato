@@ -164,7 +164,7 @@ void OscDevice::incomingMessagesGui(){
 	ImGui::TextWrapped("Incoming OSC Messages are not supported yet.");
 	ImGui::PopStyleColor();
 	
-	BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled();
 	
 	ImGui::Text("Incoming Messages");
 	
@@ -221,7 +221,7 @@ void OscDevice::incomingMessagesGui(){
 	else if(movedUpMessage) moveMessageUp(movedUpMessage);
 	else if(movedDownMessage) moveMessageDown(movedDownMessage);
 	
-	END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	
 	ImGui::Separator();
 	

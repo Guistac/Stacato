@@ -71,14 +71,14 @@ void Machine::stateControlGui() {
 	ImGui::PopItemFlag();
 
 	ImGui::SameLine();
-	if (!readyToEnable) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(!readyToEnable);
 	if (isEnabled()) {
 		if (ImGui::Button("Disable Machine", buttonSize)) disable();
 	}
 	else {
 		if (ImGui::Button("Enable Machine", buttonSize)) enable();
 	}
-	if (!readyToEnable) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 }
 
 void Machine::generalSettingsGui() {

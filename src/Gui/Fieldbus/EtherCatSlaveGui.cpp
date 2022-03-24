@@ -51,7 +51,7 @@ void EtherCatDevice::nodeSpecificGui() {
                 if (ImGui::BeginTabItem("Data Exchange")) {
                     if (ImGui::BeginChild("DataExchange")) {
                         bool disableDataExchange = !isDetected();
-                        if(disableDataExchange) BEGIN_DISABLE_IMGUI_ELEMENT
+						ImGui::BeginDisabled(disableDataExchange);
                         sendReceiveEtherCatRegisterGui();
                         ImGui::Separator();
                         ImGui::Spacing();
@@ -62,7 +62,7 @@ void EtherCatDevice::nodeSpecificGui() {
                         ImGui::Separator();
                         ImGui::Spacing();
                         sendReceiveEeprom();
-                        if (disableDataExchange) END_DISABLE_IMGUI_ELEMENT
+						ImGui::EndDisabled();
                         ImGui::EndChild();
                     }
                     ImGui::EndTabItem();
@@ -146,43 +146,42 @@ void EtherCatDevice::identificationGui() {
 
     switch (identificationType) {
 		case EtherCatDevice::IdentificationType::STATION_ALIAS: {
-        ImGui::Text("Station Alias:");
-        ImGui::SameLine();
-        if (beginHelpMarker("(help)")) {
-            ImGui::TextWrapped("The Station Alias, or Second EtherCAT Address is a value manually set on the device either through a user interface or by using the alias setting tool below."
-                "\nAddresses must be unique and range from 0 to 65535.");
-            endHelpMarker();
-        }
-        ImGui::InputScalar("##stationAlias", ImGuiDataType_U16, &stationAlias);
-        ImGui::Separator();
-        bool disableAliasTool = !isDetected();
-        if (disableAliasTool) BEGIN_DISABLE_IMGUI_ELEMENT
-            ImGui::Text("Upload New Station Alias to Device");
-        ImGui::SameLine();
-        if (beginHelpMarker("(help)")) {
-            ImGui::TextWrapped("Assigns a new station alias to the device."
-                "\nThe new Alias is loaded by the device after it has been restarted.");
-            endHelpMarker();
-        }
-        ImGui::InputScalar("##aliasassign", ImGuiDataType_U16, &stationAliasToolValue);
-        if (ImGui::Button("Upload Station Alias")) {
-            setStationAlias(stationAliasToolValue);
-        }
-        ImGui::SameLine();
-        ImGui::Text("%s", Enumerator::getDisplayString(stationAliasAssignState));
-        if (disableAliasTool) END_DISABLE_IMGUI_ELEMENT
-        }break;
+			ImGui::Text("Station Alias:");
+			ImGui::SameLine();
+			if (beginHelpMarker("(help)")) {
+				ImGui::TextWrapped("The Station Alias, or Second EtherCAT Address is a value manually set on the device either through a user interface or by using the alias setting tool below."
+					"\nAddresses must be unique and range from 0 to 65535.");
+				endHelpMarker();
+			}
+			ImGui::InputScalar("##stationAlias", ImGuiDataType_U16, &stationAlias);
+			ImGui::Separator();
+			bool disableAliasTool = !isDetected();
+			ImGui::BeginDisabled(disableAliasTool);
+			ImGui::Text("Upload New Station Alias to Device");
+			ImGui::SameLine();
+			if (beginHelpMarker("(help)")) {
+				ImGui::TextWrapped("Assigns a new station alias to the device."
+					"\nThe new Alias is loaded by the device after it has been restarted.");
+				endHelpMarker();
+			}
+			ImGui::InputScalar("##aliasassign", ImGuiDataType_U16, &stationAliasToolValue);
+			if (ImGui::Button("Upload Station Alias")) {
+				setStationAlias(stationAliasToolValue);
+			}
+			ImGui::SameLine();
+			ImGui::Text("%s", Enumerator::getDisplayString(stationAliasAssignState));
+			ImGui::EndDisabled();
+			}break;
 		case EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID:
-        ImGui::Text("Explicit Device ID:");
-        ImGui::SameLine();
-        if (beginHelpMarker("(help)")) {
-            ImGui::TextWrapped("The Explicit Device ID is an address that is manually set on the device, typically by adjusting dip switches or another input method available on the device."
-                "\nIDs must be unique and range from 0 to 65535.");
-            endHelpMarker();
-        }
-        ImGui::InputScalar("##explicitDeviceID", ImGuiDataType_U16, &explicitDeviceID);
-
-        break;
+			ImGui::Text("Explicit Device ID:");
+			ImGui::SameLine();
+			if (beginHelpMarker("(help)")) {
+				ImGui::TextWrapped("The Explicit Device ID is an address that is manually set on the device, typically by adjusting dip switches or another input method available on the device."
+					"\nIDs must be unique and range from 0 to 65535.");
+				endHelpMarker();
+			}
+			ImGui::InputScalar("##explicitDeviceID", ImGuiDataType_U16, &explicitDeviceID);
+			break;
     }
 
 }
@@ -214,7 +213,7 @@ void EtherCatDevice::genericInfoGui() {
     ImGui::Separator();
 
     bool hasNoIdentity = identity == nullptr;
-    if (hasNoIdentity) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(hasNoIdentity);
 
     ImGui::Text("Input Bytes: %i (%i bits)", identity->Ibytes, identity->Ibits);
     ImGui::Text("Output Bytes: %i (%i bits)", identity->Obytes, identity->Obits);
@@ -310,7 +309,7 @@ void EtherCatDevice::genericInfoGui() {
     ImGui::Text("Group: %i", identity->group);
     ImGui::Text("Is Lost: %i", identity->islost);
 
-    if (hasNoIdentity) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 }
 
 void EtherCatDevice::pdoDataGui() {
@@ -392,7 +391,7 @@ void EtherCatDevice::sendReceiveCanOpenGui() {
 
     if (disableCoeSendReceive) ImGui::TextWrapped("Sending and Received CanOpen Data is disabled because the device doesn't support CanOpen over EtherCAT");
 
-    if (disableCoeSendReceive) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableCoeSendReceive);
 
     ImGui::PushID("DataUpload");
     ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
@@ -484,7 +483,7 @@ void EtherCatDevice::sendReceiveCanOpenGui() {
         ImGui::Text(downloadCoeData.b_isTransfering ? "Downloading..." : (downloadCoeData.b_transferSuccessfull ? "Download Successfull" : "Download Failed"));
     }
 
-    if (disableCoeSendReceive) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 
     ImGui::PopID();
     

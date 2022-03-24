@@ -18,19 +18,19 @@ bool ParameterTrack::interpolationTypeSelectorGui() {
 	bool valueChanged = false;
 	auto compatibleInterpolations = parameter->getCompatibleInterpolationTypes();
 	bool disableCombo = compatibleInterpolations.size() < 2;
-	if(disableCombo) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableCombo);
 	if (ImGui::BeginCombo("##InterpolationSelector", Enumerator::getDisplayString(interpolationType))) {
 		for (auto& it : compatibleInterpolations) {
-			if(it == Motion::InterpolationType::BEZIER) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(it == Motion::InterpolationType::BEZIER);
 			if (ImGui::Selectable(Enumerator::getDisplayString(it), it == interpolationType)) {
 				setInterpolationType(it);
 				valueChanged = true;
 			}
-			if(it == Motion::InterpolationType::BEZIER) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 		}
 		ImGui::EndCombo();
 	}
-	if (disableCombo) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	return valueChanged;
 }
 
@@ -39,12 +39,12 @@ bool ParameterTrack::sequenceTypeSelectorGui() {
 	if (ImGui::BeginCombo("##SequenceTypeSelector", getSequenceType(sequenceType)->displayName)) {
 		for (auto& st : getSequenceTypes()) {
 			if (st.type == SequenceType::Type::CONSTANT) continue;
-			if(st.type == SequenceType::Type::ANIMATED_MOVE) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(st.type == SequenceType::Type::ANIMATED_MOVE);
 			if (ImGui::Selectable(st.displayName, st.type == sequenceType)) {
 				setSequenceType(st.type);
 				valueChanged = true;
 			}
-			if(st.type == SequenceType::Type::ANIMATED_MOVE) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 		}
 		ImGui::EndCombo();
 	}
@@ -187,7 +187,7 @@ bool ParameterTrack::originInputGui(float width) {
 	}
 	bool valueChanged = false;
 	bool disableField = originIsPreviousTarget;
-	if (disableField) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableField);
 	if (originValidationError) {
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
 		ImGui::PushFont(Fonts::robotoBold15);
@@ -204,7 +204,7 @@ bool ParameterTrack::originInputGui(float width) {
 		valueChanged = true;
 	}
 	ImGui::PopID();
-	if (disableField) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	return valueChanged;
 }
 
@@ -218,7 +218,7 @@ bool ParameterTrack::targetInputGui(float width) {
 	}
 	bool valueChanged = false;
 	bool disableField = targetIsNextOrigin;
-	if (disableField) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableField);
 	if (targetValidationError) {
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
 		ImGui::PushFont(Fonts::robotoBold15);
@@ -236,7 +236,7 @@ bool ParameterTrack::targetInputGui(float width) {
 	}
 	ImGui::PopID();
 
-	if (disableField) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	return valueChanged;
 }
 
@@ -392,11 +392,11 @@ bool ParameterTrack::rampInputGui(float width) {
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
 		ImGui::PushFont(Fonts::robotoBold15);
 	}
-	if (rampsAreEqual) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(rampsAreEqual);
 	ImGui::SetNextItemWidth(width);
 	sprintf(rampInputString, "Out: %.3f %s/s\xC2\xB2", rampOut, origin.shortUnitString);
 	valueChanged |= ImGui::InputDouble("##rampOut", &rampOut, 0.0, 0.0, rampInputString);
-	if (rampsAreEqual) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	if (outRampValidationError) {
 		ImGui::PopStyleColor();
 		ImGui::PopFont();

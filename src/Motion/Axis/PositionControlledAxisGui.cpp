@@ -70,8 +70,8 @@ void PositionControlledAxis::controlsGui() {
 		ImGui::TextWrapped("Axis is Controlled by Node '%s'."
 						   "\nManual controls are disabled.",
 						   axisPin->getConnectedPin()->getNode()->getName());
-		BEGIN_DISABLE_IMGUI_ELEMENT
 	}
+	ImGui::BeginDisabled(axisIsControlledExternally);
 	
 	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 	if (isEnabled()) {
@@ -98,10 +98,10 @@ void PositionControlledAxis::controlsGui() {
 	}else{
 		ImGui::Button("Axis Not Ready", largeDoubleButtonSize);
 	}
-	if (axisIsControlledExternally) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	
 	bool b_disableControls = axisIsControlledExternally || !isEnabled();
-	if(b_disableControls) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(b_disableControls);
 		
 	//------------------- VELOCITY CONTROLS ------------------------
 
@@ -241,36 +241,36 @@ void PositionControlledAxis::controlsGui() {
 	bool b_disableCaptureButtons = !isEnabled() || isMoving();
 	bool disableCaptureLowerLimit = *actualPositionValue > 0.0;
 	bool disableCaptureHigherLimit = *actualPositionValue < 0.0;
-	if (b_disableCaptureButtons) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(b_disableCaptureButtons);
 	switch (positionReferenceSignal) {
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
-			if (disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableCaptureHigherLimit);
 			if (ImGui::Button("Capture Positive Limit", singleButtonSize)) setCurrentPositionAsPositiveLimit();
-			if (disableCaptureHigherLimit) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 			break;
 		case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
-			if (disableCaptureLowerLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableCaptureLowerLimit);
 			if (ImGui::Button("Capture Negative Limit", doubleButtonSize)) setCurrentPositionAsNegativeLimit();
-			if (disableCaptureLowerLimit) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 			ImGui::SameLine();
-			if (disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableCaptureHigherLimit);
 			if (ImGui::Button("Capture Positive Limit", doubleButtonSize)) setCurrentPositionAsPositiveLimit();
-			if (disableCaptureHigherLimit) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 			break;
 		case PositionReferenceSignal::NO_SIGNAL:
-			if (disableCaptureLowerLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableCaptureLowerLimit);
 			if (ImGui::Button("Capture Negative Limit", tripleButtonSize)) setCurrentPositionAsNegativeLimit();
-			if (disableCaptureLowerLimit) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 			ImGui::SameLine();
 			if (ImGui::Button("Capture Origin", tripleButtonSize)) setCurrentPosition(0.0);
 			ImGui::SameLine();
-			if (disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableCaptureHigherLimit);
 			if (ImGui::Button("Capture Positive Limit", tripleButtonSize)) setCurrentPositionAsPositiveLimit();
-			if (disableCaptureHigherLimit) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 			break;
 		default: break;
 	}
-	if (b_disableCaptureButtons) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 
 	//-------------------------- POSITION FEEDBACK SCALING ---------------------------
 		
@@ -302,9 +302,9 @@ void PositionControlledAxis::controlsGui() {
 		|| (axisScalingPosition < 0.0 && *actualPositionValue > 0.0)
 		|| axisScalingPosition == 0.0
 		|| isMoving();
-	if (disableSetScaling) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableSetScaling);
 	if (ImGui::Button("Set Scaling", ImGui::GetItemRectSize())) scaleFeedbackToMatchPosition(axisScalingPosition);
-	if (disableSetScaling) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	
 		
 		
@@ -460,7 +460,7 @@ void PositionControlledAxis::controlsGui() {
 	ImGui::ProgressBar(rangeProgress, progressBarSize, rangeString);
 	ImGui::PopStyleColor();
 	
-	if(b_disableControls) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 }
 
 
@@ -776,10 +776,10 @@ void PositionControlledAxis::settingsGui() {
 	auto lowLimitSetting = [&](bool disableField){
 		ImGui::Text("Max Negative Distance From Origin");
 		ImGui::SetNextItemWidth(halfWidgetWidth);
-		if(disableField) BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disableField);
 		ImGui::InputDouble("##MaxNegativeDeviation", &lowPositionLimit, 0.0, 0.0, negDevString);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-		if(disableField) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 		if (lowPositionLimit > 0.0) lowPositionLimit = 0.0;
 		ImGui::SameLine();
 		ImGui::Checkbox("Enable Lower Axis Limit", &b_enableLowLimit);
@@ -788,10 +788,10 @@ void PositionControlledAxis::settingsGui() {
 	auto highLimitSetting = [&](bool disableField){
 		ImGui::Text("Max Positive Distance From Origin");
 		ImGui::SetNextItemWidth(halfWidgetWidth);
-		if(disableField) BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disableField);
 		ImGui::InputDouble("##MaxDeviation", &highPositionLimit, 0.0, 0.0, posDevString);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-		if(disableField) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 		if (highPositionLimit < 0.0) highPositionLimit = 0.0;
 		ImGui::SameLine();
 		ImGui::Checkbox("Enable Upper Axis Limit", &b_enableHighLimit);

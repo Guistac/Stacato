@@ -47,7 +47,7 @@ void etherCatParameters(bool resetNicLists) {
 			ImGui::TableNextRow();
 			ImGui::TableNextColumn();
 			
-			if(disableNicButtons) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableNicButtons);
 			
 			ImGui::SetNextItemWidth(widgetWidth);
 			const char* primaryLabel = EtherCatFieldbus::primaryNetworkInterfaceCard == nullptr ? "None" : EtherCatFieldbus::primaryNetworkInterfaceCard->description;
@@ -70,7 +70,7 @@ void etherCatParameters(bool resetNicLists) {
 			ImGui::TableNextColumn();
 			
 			bool disableSecondaryNicSelection = EtherCatFieldbus::primaryNetworkInterfaceCard == nullptr;
-			if(disableSecondaryNicSelection) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableSecondaryNicSelection);
 			
 			ImGui::SetNextItemWidth(widgetWidth);
 			const char* secondaryLabel = EtherCatFieldbus::redundantNetworkInterfaceCard == nullptr ? "None" : EtherCatFieldbus::redundantNetworkInterfaceCard->description;
@@ -81,20 +81,19 @@ void etherCatParameters(bool resetNicLists) {
 				}
 				for (auto& nic : EtherCatFieldbus::networkInterfaceCards) {
 					bool disableSelection = nic == EtherCatFieldbus::primaryNetworkInterfaceCard;
-					if (disableSelection) BEGIN_DISABLE_IMGUI_ELEMENT
+					ImGui::BeginDisabled(disableSelection);
 					if (ImGui::Selectable(nic->description, EtherCatFieldbus::redundantNetworkInterfaceCard == nic)) {
 						selectedSecondaryNic = nic;
 						b_nicSelected = true;
 					}
-					if (disableSelection) END_DISABLE_IMGUI_ELEMENT
+					ImGui::EndDisabled();
 
 				}
 				ImGui::EndCombo();
 			}
 			 
-			if(disableSecondaryNicSelection) END_DISABLE_IMGUI_ELEMENT
-			
-			if(disableNicButtons) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
+			ImGui::EndDisabled();
 			
 			ImGui::EndTable();
 		}
@@ -123,11 +122,11 @@ void etherCatParameters(bool resetNicLists) {
 		ImGui::PopItemFlag();
 		ImGui::PopStyleColor();
 		ImGui::SameLine();
-		if(disableNicButtons) BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disableNicButtons);
 		if (ImGui::Button("Refresh Device List")) EtherCatFieldbus::updateNetworkInterfaceCardList();
 		ImGui::SameLine();
 		if(ImGui::Button("Auto Setup")) EtherCatFieldbus::autoInit();
-		if(disableNicButtons) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 		
 		static char deviceCountString[128];
 		sprintf(deviceCountString, "%i Device%s Detected", (int)EtherCatFieldbus::slaves.size(), EtherCatFieldbus::slaves.size() == 1 ? "" : "s");
@@ -154,9 +153,9 @@ void etherCatParameters(bool resetNicLists) {
 		ImGui::SameLine();
 		
 		bool disableScanButton = EtherCatFieldbus::isRunning();
-		if(disableScanButton) BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disableScanButton);
 		if(ImGui::Button("Scan for Devices")) EtherCatFieldbus::scanNetwork();
-		if(disableScanButton) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 		
 		ImGui::Separator();
 

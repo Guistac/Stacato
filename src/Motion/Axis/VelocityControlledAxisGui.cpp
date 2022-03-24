@@ -56,8 +56,8 @@ void VelocityControlledAxis::controlsGui() {
 		ImGui::TextWrapped("Axis is Controlled by Node '%s'."
 						   "\nManual controls are disabled.",
 						   velocityControlledAxisPin->getConnectedPin()->getNode()->getName());
-		BEGIN_DISABLE_IMGUI_ELEMENT
 	}
+	ImGui::BeginDisabled(axisControlledExternally);
 		
 	float singleWidgetWidth = ImGui::GetContentRegionAvail().x;
 	glm::vec2 progressBarSize(singleWidgetWidth, ImGui::GetFrameHeight());
@@ -84,16 +84,16 @@ void VelocityControlledAxis::controlsGui() {
 	}else if(isReady()){
 		if(ImGui::Button("Enable", largeDoubleButtonSize)) enable();
 	}else{
-		BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled();
 		ImGui::Button("Not Ready", largeDoubleButtonSize);
-		END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 	}
 	
-	if(axisControlledExternally) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 		
 	
 	bool disableManualControls = axisControlledExternally || !isEnabled();
-	if(disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableManualControls);
 	
 	ImGui::Text("Manual Velocity:");
 	static char velocityCommandString[256];
@@ -113,7 +113,7 @@ void VelocityControlledAxis::controlsGui() {
 	
 	if(ImGui::Button("Fast Stop", largeSingleButtonSize)) fastStop();
 	
-	if(disableManualControls) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 }
 
 

@@ -124,22 +124,22 @@ void PD4_E::statusGui() {
 
 
     bool disableCommandButton = !isConnected();
-    if (disableCommandButton) BEGIN_DISABLE_IMGUI_ELEMENT
-        if (servoMotor->isEnabled()) {
-            if (ImGui::Button("Disable Operation", commandButtonSize)) {
-                servoMotor->disable();
-            }
-        }
-        else {
-            if (ImGui::Button("Enable Operation", commandButtonSize)) {
-                servoMotor->enable();
-            }
-        }
+	ImGui::BeginDisabled(disableCommandButton);
+	if (servoMotor->isEnabled()) {
+		if (ImGui::Button("Disable Operation", commandButtonSize)) {
+			servoMotor->disable();
+		}
+	}
+	else {
+		if (ImGui::Button("Enable Operation", commandButtonSize)) {
+			servoMotor->enable();
+		}
+	}
     ImGui::SameLine();
     if (ImGui::Button("Quick Stop", commandButtonSize)) {
         servoMotor->quickstop();
     }
-    if (disableCommandButton) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 }
 
 

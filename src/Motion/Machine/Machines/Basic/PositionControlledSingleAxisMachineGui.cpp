@@ -348,11 +348,11 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		}
 
-		if(disableControls) BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disableControls);
 
 		float manualVelocityTarget = manualVelocityTarget_machineUnitsPerSecond;
 		ImGui::VSliderFloat("##ManualVelocity", verticalSliderSize, &manualVelocityTarget, -velocityLimit, velocityLimit, "");
-		clampValue(manualVelocityTarget, -velocityLimit, velocityLimit);
+		std::clamp(manualVelocityTarget, -velocityLimit, velocityLimit);
 		if (ImGui::IsItemActive()) setVelocityTarget(manualVelocityTarget);
 		else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocityTarget(0.0);
 		ImGui::SameLine();
@@ -418,6 +418,6 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 			ImGui::PopStyleColor();
 		}
 
-		if(disableControls) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 
 }

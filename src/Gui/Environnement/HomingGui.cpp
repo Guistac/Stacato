@@ -38,7 +38,7 @@ namespace Environnement::Gui{
 			ImGui::PopFont();
 			
 			bool disableHomingButton = !machine->isEnabled();
-			if(disableHomingButton) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableHomingButton);
 			if(machine->isHoming()){
 				ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
 				if(ImGui::Button("Stop Homing", homingControlButtonSize)) machine->stopHoming();
@@ -46,7 +46,7 @@ namespace Environnement::Gui{
 			}else{
 				if(ImGui::Button("Start Homing", homingControlButtonSize)) machine->startHoming();
 			}
-			if(disableHomingButton) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 			
 			glm::vec4 progressIndicatorColor = Colors::darkGray;
 			if(machine->isHoming()) progressIndicatorColor = Colors::orange;
@@ -100,13 +100,13 @@ namespace Environnement::Gui{
 		
 		glm::vec2 initButtonSize(ImGui::GetTextLineHeight() * 5.0, ImGui::GetFrameHeight());
 		bool disableSetupButton = EtherCatFieldbus::isRunning() | EtherCatFieldbus::isAutoInitRunning();
-		if(disableSetupButton) BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disableSetupButton);
 		if(EtherCatFieldbus::isAutoInitRunning()) {
 			ImGui::Button("Initializing...", initButtonSize);
 		} else {
 			if(ImGui::Button("Auto Setup", initButtonSize)) EtherCatFieldbus::autoInit();
 		}
-		if(disableSetupButton) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 		
 		ImGui::SameLine();
 		

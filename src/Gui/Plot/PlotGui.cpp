@@ -100,11 +100,11 @@ namespace PlotGui{
 		if (ImGui::Button("Create", managerButtonSize)) currentPlot->addManoeuvre();
 		ImGui::SameLine();
 		bool disablSelectionBasedButtons = selectedManoeuvre == nullptr;
-		if (disablSelectionBasedButtons) BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disablSelectionBasedButtons);
 		if (ImGui::Button("Duplicate", managerButtonSize)) currentPlot->duplicateSelectedManoeuvre();
 		ImGui::SameLine();
 		if (ImGui::Button("Delete", managerButtonSize)) currentPlot->deleteSelectedManoeuvre();
-		if (disablSelectionBasedButtons) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 
 		static const char* playbackControlsString = "Playback Controls";
 		ImGui::PushFont(Fonts::robotoBold15);

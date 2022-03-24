@@ -163,12 +163,12 @@ void Lexium32::statusGui() {
     else {
 		bool b_externalControl = servoMotorLink->isConnected();
         bool disableCommandButton = !isConnected() || b_externalControl;
-        if (disableCommandButton) BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disableCommandButton);
         if (servoMotorDevice->isEnabled()) { if (ImGui::Button("Disable Operation", commandButtonSize)) servoMotorDevice->disable(); }
         else { if (ImGui::Button("Enable Operation", commandButtonSize)) servoMotorDevice->enable(); }
         ImGui::SameLine();
         if (ImGui::Button("Quick Stop", commandButtonSize)) quickStop();
-        if (disableCommandButton) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
     }
 }
 
@@ -189,7 +189,7 @@ void Lexium32::controlsGui() {
 	ImGui::PopFont();
 	
 	bool disableControls = !servoMotorDevice->isEnabled();
-	if (disableControls) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableControls);
 	
 	bool b_externalControl = servoMotorLink->isConnected();
 		
@@ -223,13 +223,13 @@ void Lexium32::controlsGui() {
 
     //------------------------- FEEDBACK ------------------------
 	
-	if (disableControls) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	
 	ImGui::PushFont(Fonts::robotoBold20);
 	ImGui::Text("Feedback");
 	ImGui::PopFont();
 
-	if (disableControls) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableControls);
 	
     float velocityFraction;
     static char actualVelocityString[32];
@@ -273,7 +273,7 @@ void Lexium32::controlsGui() {
 
     double tripleWidgetWidth = (widgetWidth - 2.0 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
 
-	if(b_externalControl) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(b_externalControl);
 	
     ImGui::Text("Soft Setting of Encoder Position (Current Offset: %.2f)", servoMotorDevice->positionOffset_positionUnits);
     ImGui::SetNextItemWidth(tripleWidgetWidth);
@@ -321,10 +321,8 @@ void Lexium32::controlsGui() {
 	ImGui::ProgressBar(followingErrorProgress, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), followingErrorString);
 	ImGui::PopStyleColor();
 	
-	
-	if(b_externalControl) END_DISABLE_IMGUI_ELEMENT
-
-    if (disableControls) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
+	ImGui::EndDisabled();
 }
 
 
@@ -372,22 +370,22 @@ void Lexium32::generalSettingsGui() {
     }
 
     bool disableTransferButton = !isDetected();
-    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableTransferButton);
     if (ImGui::Button("Download Settings From Drive")) {
         std::thread generalParameterDownloader([this]() { downloadGeneralParameters(); });
         generalParameterDownloader.detach();
     }
-    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
     ImGui::SameLine();
     ImGui::Text("%s", Enumerator::getDisplayString(generalParameterDownloadState));
 
-    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
-        if (ImGui::Button("Upload Settings To Drive")) {
-            std::thread generalParameterUploader([this]() { uploadGeneralParameters(); });
-            generalParameterUploader.detach();
-        }
-    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
-        ImGui::SameLine();
+	ImGui::BeginDisabled(disableTransferButton);
+	if (ImGui::Button("Upload Settings To Drive")) {
+		std::thread generalParameterUploader([this]() { uploadGeneralParameters(); });
+		generalParameterUploader.detach();
+	}
+	ImGui::EndDisabled();
+	ImGui::SameLine();
     ImGui::Text("%s", Enumerator::getDisplayString(generalParameterUploadState));
 
 	if (maxMotorVelocity_rps == 0.0) {
@@ -484,21 +482,21 @@ void Lexium32::gpioGui() {
     }
 
     bool disableTransferButton = !isDetected();
-    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableTransferButton);
     if (ImGui::Button("Download Settings from Drive")) {
         std::thread pinAssigmentDownloader([this]() { downloadPinAssignements(); });
         pinAssigmentDownloader.detach();
     }
-    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
     ImGui::SameLine();
     ImGui::Text("%s", Enumerator::getDisplayString(pinAssignementDownloadState));
-    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableTransferButton);
         if (ImGui::Button("Upload Settings To Drive")) {
             std::thread pinAssigmentUploader([this]() { uploadPinAssignements(); });
             pinAssigmentUploader.detach();
         }
-    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
-        ImGui::SameLine();
+	ImGui::EndDisabled();
+	ImGui::SameLine();
     ImGui::Text("%s", Enumerator::getDisplayString(pinAssignementUploadState));
 
 
@@ -579,22 +577,22 @@ void Lexium32::encoderGui() {
     }
    
     bool disableTransferButton = !isDetected();
-    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableTransferButton);
     if (ImGui::Button("Download Settings From Drive")) {
         std::thread encoderSettingsDownloader([this]() { downloadEncoderSettings(); });
         encoderSettingsDownloader.detach();
     }
-    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
     ImGui::SameLine();
     ImGui::Text("%s", Enumerator::getDisplayString(encoderSettingsDownloadState));
-    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
-        if (ImGui::Button("Upload Settings To Drive")) {
-            std::thread encoderSettingsUploader([this]() {
-                uploadEncoderSettings();
-                });
-            encoderSettingsUploader.detach();
-        }
-    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableTransferButton);
+	if (ImGui::Button("Upload Settings To Drive")) {
+		std::thread encoderSettingsUploader([this]() {
+			uploadEncoderSettings();
+			});
+		encoderSettingsUploader.detach();
+	}
+	ImGui::EndDisabled();
     ImGui::SameLine();
     ImGui::Text("%s", Enumerator::getDisplayString(encoderSettingsUploadState));
 
@@ -615,13 +613,13 @@ void Lexium32::encoderGui() {
     }
     else if (encoderAssignement == EncoderAssignement::ENCODER_MODULE) {
        
-        if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disableTransferButton);
         ImGui::SameLine();
         if (ImGui::Button("Detect Module")) {
             std::thread encoderModuleDetector([this]() { detectEncoderModule(); });
             encoderModuleDetector.detach();
         }
-        if(disableTransferButton) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 
         switch (encoderModuleType) {
         case EncoderModule::DIGITAL_MODULE:
@@ -736,13 +734,13 @@ void Lexium32::encoderGui() {
     ImGui::PopFont();
     ImGui::InputFloat("##manualabsolute", &manualAbsoluteEncoderPosition_revolutions, 0.0, 0.0, "%.3f motor revolutions");
 
-    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableTransferButton);
     ImGui::Spacing();
     if (ImGui::Button("Upload New Absolute Position")) {
         std::thread absolutePositionAssigner([this]() { uploadManualAbsoluteEncoderPosition(); });
         absolutePositionAssigner.detach();
     }
-    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
     ImGui::SameLine();
     ImGui::Text("%s", Enumerator::getDisplayString(encoderAbsolutePositionUploadState));
 }
@@ -792,9 +790,9 @@ void Lexium32::tuningGui() {
     }
     else {
         bool disableButton = isConnected() || !isDetected();
-        if (disableButton) BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disableButton);
         if (ImGui::Button("Start Auto Tuning")) startAutoTuning();
-        if (disableButton) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
     }
 }
 
@@ -808,12 +806,12 @@ void Lexium32::miscellaneousGui() {
     static uint16_t newStationAlias = 0;
     ImGui::InputScalar("##alias", ImGuiDataType_U16, &newStationAlias);
     bool disableTransferButton = !isDetected();
-    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableTransferButton);
     if (ImGui::Button("Set Station Alias")) {
         std::thread stationAliasSettingHandler([this]() {setStationAlias(newStationAlias);});
         stationAliasSettingHandler.detach();
     }
-    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
     ImGui::SameLine();
     ImGui::Text("%s", Enumerator::getDisplayString(stationAliasUploadState));
 
@@ -822,12 +820,12 @@ void Lexium32::miscellaneousGui() {
     ImGui::Text("Factory Reset");
     ImGui::PopFont();
     ImGui::TextWrapped("Resets all internal drive settings to the original factory configuration.");
-    if (disableTransferButton) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableTransferButton);
     if (ImGui::Button("Reset Lexium32 to Factory Settings")) {
         std::thread factoryResetHandler([this]() {factoryReset();});
         factoryResetHandler.detach();
     }
-    if (disableTransferButton) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
     ImGui::SameLine();
     ImGui::Text("%s", Enumerator::getDisplayString(factoryResetTransferState));
     

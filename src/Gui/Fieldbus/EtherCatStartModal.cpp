@@ -38,12 +38,12 @@ void etherCatStartModal() {
 	
 		
 		bool disableCancelButton = EtherCatFieldbus::isCyclicExchangeStarting();
-		if (disableCancelButton) BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disableCancelButton);
 		if (ImGui::Button("Cancel")) {
 			EtherCatFieldbus::stop();
 			ImGui::CloseCurrentPopup();
 		}
-		if (disableCancelButton) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 		
 		if(progress.failed()){
 			ImGui::SameLine();

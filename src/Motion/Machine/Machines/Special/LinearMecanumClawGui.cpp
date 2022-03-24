@@ -26,7 +26,7 @@ void LinearMecanumClaw::controlsGui() {
 	glm::vec2 progressBarSize(singleWidgetWidth, ImGui::GetFrameHeight());
 	
 	bool disableManualControls = !isEnabled();
-	if(disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableManualControls);
 		
 		
 	//================= LINEAR CONTROLS ==================
@@ -312,12 +312,7 @@ void LinearMecanumClaw::controlsGui() {
 	}
 	BackgroundText::draw(getHomingStateString(), singleButtonSize, homingColor);
 	
-	
-	
-	
-	
-	
-	if(disableManualControls) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	
 }
 
@@ -565,7 +560,7 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	glm::vec2 verticalSliderSize;
 	
 	bool b_disableControls = !isEnabled();
-	if(b_disableControls) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(b_disableControls);
 	
 	//============= LINEAR AXIS MINIATURE
 	
@@ -729,6 +724,6 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	
 	ImGui::EndChild();
 	
-	if(b_disableControls) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 }
 

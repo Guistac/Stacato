@@ -579,9 +579,9 @@ void VIPA_050_1BS00::moduleParameterGui(){
 	ImGui::ProgressBar(velocityProgress, progressBarSize, encoderVelocityString);
 	
 	bool disableResetButton = !b_hasResetSignal;
-	if(disableResetButton) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableResetButton);
 	if(ImGui::Button("Reset Encoder")) encoderDevice->hardReset();
-	if(disableResetButton) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 }
 
 void VIPA_050_1BS00::updateEncoderWorkingRange(){

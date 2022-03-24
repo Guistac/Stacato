@@ -60,14 +60,14 @@ void VipaBusCoupler_053_1EC01::deviceSpecificGui() {
 				if (buttonCross("##remove")) deletedModule = module;
 				ImGui::SameLine();
 				bool disableButton = i == 0;
-				if(disableButton) BEGIN_DISABLE_IMGUI_ELEMENT
+				ImGui::BeginDisabled(disableButton);
 				if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpModule = module;
-				if(disableButton) END_DISABLE_IMGUI_ELEMENT
+				ImGui::EndDisabled();
 				ImGui::SameLine();
 				disableButton = i == modules.size() - 1;
-				if(disableButton) BEGIN_DISABLE_IMGUI_ELEMENT
+				ImGui::BeginDisabled(disableButton);
 				if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownModule = module;
-				if(disableButton) END_DISABLE_IMGUI_ELEMENT
+				ImGui::EndDisabled();
 				ImGui::PopStyleVar();
 				
 				ImGui::TableSetColumnIndex(1);

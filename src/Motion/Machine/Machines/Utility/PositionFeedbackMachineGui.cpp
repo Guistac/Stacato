@@ -256,9 +256,9 @@ void PositionFeedbackMachine::machineSpecificMiniatureGui(){
 	
 	ImGui::Separator();
 	
-	if(disableResetButton) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableResetButton);
 	if(ImGui::Button("Hard Reset", widgetSize)) getFeedbackDevice()->hardReset();
-	if(disableResetButton) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	
 	
 }

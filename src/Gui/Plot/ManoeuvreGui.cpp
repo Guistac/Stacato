@@ -220,7 +220,7 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
 
             ImGui::TableNextRow(ImGuiTableRowFlags_None);
                 
-            if (manoeuvreIsPlaying) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(manoeuvreIsPlaying);
 
             //====== Track Management Column ======
             ImGui::TableSetColumnIndex(0);
@@ -230,15 +230,15 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
                 if (buttonCross("##remove")) removedTrack = parameterTrack;
                 ImGui::SameLine();
                 bool disableMoveUp = parameterTrack == manoeuvre->tracks.front();
-                if (disableMoveUp) BEGIN_DISABLE_IMGUI_ELEMENT
-                    if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpTrack = parameterTrack;
-                if (disableMoveUp) END_DISABLE_IMGUI_ELEMENT
-                    ImGui::SameLine();
+				ImGui::BeginDisabled(disableMoveUp);
+				if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpTrack = parameterTrack;
+				ImGui::EndDisabled();
+				ImGui::SameLine();
                 bool disableMoveDown = parameterTrack == manoeuvre->tracks.back();
-                if (disableMoveDown) BEGIN_DISABLE_IMGUI_ELEMENT
-                    if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownTrack = parameterTrack;
-                if (disableMoveDown) END_DISABLE_IMGUI_ELEMENT
-                    ImGui::PopStyleVar();
+				ImGui::BeginDisabled(disableMoveDown);
+				if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownTrack = parameterTrack;
+				ImGui::EndDisabled();
+				ImGui::PopStyleVar();
             }
 
             ImGui::PushStyleColor(ImGuiCol_Text, Colors::white);
@@ -377,9 +377,9 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
                 }
             }
 
-            if (manoeuvreIsPlaying) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 
-                ImGui::PopID();
+			ImGui::PopID();
             ImGui::PopID();
 
             if (chainingDependenciesEdited) manoeuvre->parentPlot->refreshChainingDependencies();
@@ -413,10 +413,10 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
         glm::vec2 addTrackButtonSize(ImGui::GetFrameHeight() * 3.0 + ImGui::GetStyle().ItemSpacing.x * 2.0, ImGui::GetFrameHeight());
         if (ImGui::Button("Add Track", addTrackButtonSize)) ImGui::OpenPopup("ManoeuvreTrackAdder");
         if (ImGui::BeginPopup("ManoeuvreTrackAdder")) {
-			BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled();
 			ImGui::MenuItem("Add Parameter Track");
 			ImGui::MenuItem("Machine List :");
-			END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 			ImGui::Separator();
             for (auto& machine : Environnement::getMachines()) {
 				if(machine->animatableParameters.empty()) continue;
@@ -661,7 +661,7 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 			}
 			else {
 				bool disableRapidButtons = Playback::isPlaying(manoeuvre);
-				if(disableRapidButtons) BEGIN_DISABLE_IMGUI_ELEMENT
+				ImGui::BeginDisabled(disableRapidButtons);
 				
 				bool primedToStart = Playback::isPrimedToStart(manoeuvre);
 				if (primedToStart) {
@@ -682,7 +682,7 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 					ImGui::PopItemFlag();
 				}
 				else if (ImGui::Button("Rapid To End", doubleButtonSize)) Playback::rapidToEnd(manoeuvre);
-				if(disableRapidButtons) END_DISABLE_IMGUI_ELEMENT
+				ImGui::EndDisabled();
 			}
 
 			/*

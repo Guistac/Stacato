@@ -138,7 +138,7 @@ void HoodedLiftStateMachine::machineSpecificMiniatureGui() {
 	if(isReady()){
 		
 		bool disableManualCommandButtons = !isEnabled();
-		if(disableManualCommandButtons)BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disableManualCommandButtons);
 
 		switch (actualState) {
 			case MachineState::State::LIFT_LOWERED_HOOD_SHUT:
@@ -202,7 +202,7 @@ void HoodedLiftStateMachine::machineSpecificMiniatureGui() {
 				break;
 		}
 
-		if(disableManualCommandButtons) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 
 	}else{
 		

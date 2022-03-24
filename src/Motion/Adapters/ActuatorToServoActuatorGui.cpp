@@ -37,8 +37,8 @@ void ActuatorToServoActuator::controlGui(){
 		ImGui::TextWrapped("Servo Actuator is Controlled by Node '%s'."
 						   "\nManual controls are disabled.",
 						   servoActuatorPin->getConnectedPin()->getNode()->getName());
-		BEGIN_DISABLE_IMGUI_ELEMENT
 	}
+	ImGui::BeginDisabled(actuatorControlledExternally);
 		
 	float singleWidgetWidth = ImGui::GetContentRegionAvail().x;
 	float tripleWidgetWidth = (singleWidgetWidth - ImGui::GetStyle().ItemSpacing.x * 2) / 3.0;
@@ -67,16 +67,16 @@ void ActuatorToServoActuator::controlGui(){
 	}else if(servoActuator->isReady()){
 		if(ImGui::Button("Enable", largeDoubleButtonSize)) servoActuator->enable();
 	}else{
-		BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled();
 		ImGui::Button("Not Ready", largeDoubleButtonSize);
-		END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 	}
 	
-	if(actuatorControlledExternally) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	
 		
 	bool disableManualControls = actuatorControlledExternally || !servoActuator->isEnabled();
-	if(disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableManualControls);
 
 	ImGui::Text("Manual Velocity:");
 	ImGui::SetNextItemWidth(singleWidgetWidth);
@@ -234,7 +234,7 @@ void ActuatorToServoActuator::controlGui(){
 		ImPlot::EndPlot();
 	}
 
-	if(disableManualControls) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 }
 
 void ActuatorToServoActuator::settingsGui(){

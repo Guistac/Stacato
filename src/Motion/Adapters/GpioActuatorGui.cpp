@@ -34,8 +34,8 @@ void GpioActuator::controlGui(){
 		ImGui::TextWrapped("Actuator is Controlled by Node '%s'."
 						   "\nManual controls are disabled.",
 						   actuatorPin->getConnectedPin()->getNode()->getName());
-		BEGIN_DISABLE_IMGUI_ELEMENT
 	}
+	ImGui::BeginDisabled(actuatorControlledExternally);
 		
 	float singleWidgetWidth = ImGui::GetContentRegionAvail().x;
 	glm::vec2 progressBarSize(singleWidgetWidth, ImGui::GetFrameHeight());
@@ -62,15 +62,15 @@ void GpioActuator::controlGui(){
 	}else if(actuator->isReady()){
 		if(ImGui::Button("Enable", largeDoubleButtonSize)) actuator->enable();
 	}else{
-		BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled();
 		ImGui::Button("Not Ready", largeDoubleButtonSize);
-		END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 	}
 	
-	if(actuatorControlledExternally) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	
 	bool disableManualControls = actuatorControlledExternally || !actuator->isEnabled();
-	if(disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableManualControls);
 	
 	ImGui::Text("Manual Velocity:");
 	static char velocityCommandString[256];
@@ -90,7 +90,7 @@ void GpioActuator::controlGui(){
 	
 	if(ImGui::Button("Fast Stop", largeSingleButtonSize)) fastStop();
 	
-	if(disableManualControls) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 }
 
 void GpioActuator::settingsGui(){
