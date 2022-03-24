@@ -1,0 +1,121 @@
+#include <pch.h>
+
+namespace Environnement::Gui{
+
+	void editor() {
+
+		   //========= NODE INSPECTOR AND ADDER PANEL =========
+
+		   static float sideBarWidth = ImGui::GetTextLineHeight() * 28.0;
+		   static float minSideBarWidth = ImGui::GetTextLineHeight() * 5.0;
+
+		   glm::vec2 sideBarSize(sideBarWidth, ImGui::GetContentRegionAvail().y);
+		   if (ImGui::BeginChild("SideBar", sideBarSize)) {
+			   
+			   std::vector<std::shared_ptr<Node>> selectedNodes = NodeGraph::getSelectedNodes();
+			   //if there are no selected nodes, display the Environnement Name Editor and Node adder list
+			   if (selectedNodes.empty()) {
+				   
+				   ImGui::PushFont(Fonts::robotoBold20);
+				   ImGui::Text("Environnement Editor");
+				   ImGui::PopFont();
+				   
+				   
+				   ImGui::PushFont(Fonts::robotoBold15);
+				   if(ImGui::CollapsingHeader("Project")){
+					   ImGui::PushFont(Fonts::robotoRegular15);
+					   ImGui::Text("Project Name :");
+					   ImGui::InputText("##EnvName", (char*)Environnement::getName(), 256);
+					   if(ImGui::IsItemDeactivatedAfterEdit()) Environnement::updateName();
+					   
+					   ImGui::Text("Notes :");
+					   ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					   ImGui::InputTextMultiline("##notes", (char*)Environnement::getNotes(), 65536);
+					   ImGui::PopFont();
+				   }
+				   ImGui::PopFont();
+				   
+				   ImGui::Separator();
+				   
+				   NodeGraph::Gui::nodeAdder();
+				   
+			   }
+			   else if (selectedNodes.size() == 1) {
+				   std::shared_ptr<Node> selectedNode = selectedNodes.front();
+				   ImGui::PushFont(Fonts::robotoBold20);
+				   ImGui::Text("%s", selectedNode->getName());
+				   ImGui::PopFont();
+				   ImGui::Separator();
+				   if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {
+					   selectedNode->propertiesGui();
+					   ImGui::EndChild();
+				   }
+			   }
+			   else {
+				   ImGui::PushFont(Fonts::robotoBold20);
+				   ImGui::Text("Multiple Nodes Selected");
+				   ImGui::PopFont();
+				   if (ImGui::BeginTabBar("NodeEditorSidePanel")) {
+					   for (auto node : selectedNodes) {
+						   //we don't display the custom name in the tab
+						   //so we don't switch tabs while renaming the custom name of the node
+						   //we have to use pushID and PopID to avoid problems when selecting multiple nodes of the same type
+						   //this way we can have multiple tabs with the same name
+						   ImGui::PushID(node->getUniqueID());
+						   if (ImGui::BeginTabItem(node->getSaveName())) {
+							   if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {
+								   node->propertiesGui();
+								   ImGui::EndChild();
+							   }
+							   ImGui::EndTabItem();
+						   }
+						   ImGui::PopID();
+					   }
+					   ImGui::EndTabBar();
+				   }
+			   }
+
+			   ImGui::EndChild();
+		   }
+
+		   //========= VERTICAL MOVABLE SEPARATOR ==========
+
+		   ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+		   ImGui::SameLine();
+		   ImGui::InvisibleButton("VerticalSplitter", glm::vec2(ImGui::GetTextLineHeight() / 3.0, ImGui::GetContentRegionAvail().y));
+		   if (ImGui::IsItemActive()) sideBarWidth += ImGui::GetIO().MouseDelta.x;
+		   if (ImGui::IsItemHovered()) ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+		   if (sideBarWidth < minSideBarWidth) sideBarWidth = minSideBarWidth;
+		   ImGui::SameLine();
+		   ImGui::PopStyleVar();
+
+		   //========== NODE EDITOR BLOCK ============
+
+		   ImGui::BeginGroup();
+
+		   //Draw the entire node editor
+		   Environnement::NodeGraph::Gui::editor();
+
+		   if (Project::isEditingAllowed()) {
+			   std::shared_ptr<Node> newDraggedNode = NodeGraph::Gui::acceptDraggedNode();
+			   if (newDraggedNode) {
+				   Environnement::NodeGraph::addNode(newDraggedNode);
+				   Environnement::addNode(newDraggedNode);
+				   ax::NodeEditor::SetNodePosition(newDraggedNode->getUniqueID(), ax::NodeEditor::ScreenToCanvas(ImGui::GetMousePos()));
+			   }
+		   }
+
+		   if (ImGui::Button("Center View")) Environnement::NodeGraph::Gui::centerView();
+		   ImGui::SameLine();
+		   if (ImGui::Button("Show Flow")) Environnement::NodeGraph::Gui::showFlow();
+		   ImGui::SameLine();
+		   ImGui::Checkbox("Show Output Values", &Environnement::NodeGraph::Gui::getShowOutputValues());
+		   ImGui::SameLine();
+
+		   if (!Project::isEditingAllowed()) ImGui::TextColored(Colors::gray, "Editing is disabled while the environnement is running");
+
+		   ImGui::EndGroup();
+
+	   }
+
+}
