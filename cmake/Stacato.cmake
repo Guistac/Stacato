@@ -28,8 +28,11 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/HomingGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachineListGui.cpp
     
-    ##maybe put this elsewhere
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachineGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Machine/MachineGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Machine/AnimatableParameterGui.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Motion/ManoeuvreGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Motion/ParameterTrackGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeAdder.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeGraphGui.h
@@ -40,9 +43,6 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/PlotGui.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/PlotGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/AnimatableParameterGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/ManoeuvreGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/ParameterTrackGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Fieldbus/DS402Gui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Fieldbus/EtherCatDataGui.cpp
