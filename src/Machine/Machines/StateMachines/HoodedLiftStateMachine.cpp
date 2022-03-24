@@ -2,7 +2,7 @@
 
 #include "HoodedLiftStateMachine.h"
 #include "Motion/SubDevice.h"
-#include "Motion/AnimatableParameter.h"
+#include "Machine/AnimatableParameter.h"
 
 #include "Motion/Manoeuvre/ParameterTrack.h"
 

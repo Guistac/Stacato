@@ -73,8 +73,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/HelpMarker.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/Log.h
 
-    ${STACATO_SOURCE_DIRECTORY}/Motion/AnimatableParameter.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/AnimatableParameter.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/MotionTypes.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Playback.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Playback.h
@@ -87,14 +85,14 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/LinearInterpolation.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/StepInterpolation.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machine.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machine.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/DeadMansSwitch.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/DeadMansSwitch.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/AnimatableParameter.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/AnimatableParameter.h
 
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Template/MachineTemplate.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Template/MachineTemplate.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Template/MachineTemplateGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Template/MachineTemplate.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Template/MachineTemplate.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Template/MachineTemplateGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/Manoeuvre.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/Manoeuvre.h
@@ -181,28 +179,31 @@ set(STACATO_SOURCE_FILES
 
     #========================== MACHINE TYPES ===========================
 
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Basic/PositionControlledSingleAxisMachine.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Basic/PositionControlledSingleAxisMachine.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Basic/PositionControlledSingleAxisMachineGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Safety/DeadMansSwitch.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Safety/DeadMansSwitch.h
 
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Animated/BinaryOscillator6x.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Animated/BinaryOscillator6x.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Animated/BinaryOscillator6xGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Animated/Oscillator3x.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Animated/Oscillator3x.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Animated/Oscillator3xGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledSingleAxisMachine.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledSingleAxisMachine.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledSingleAxisMachineGui.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Special/LinearMecanumClaw.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Special/LinearMecanumClaw.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Special/LinearMecanumClawGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/BinaryOscillator6x.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/BinaryOscillator6x.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/BinaryOscillator6xGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/Oscillator3x.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/Oscillator3x.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/Oscillator3xGui.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/StateMachines/HoodedLiftStateMachine.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/StateMachines/HoodedLiftStateMachine.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/StateMachines/HoodedLiftStateMachineGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/LinearMecanumClaw.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/LinearMecanumClaw.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/LinearMecanumClawGui.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Utility/PositionFeedbackMachine.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Utility/PositionFeedbackMachine.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Machine/Machines/Utility/PositionFeedbackMachineGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/HoodedLiftStateMachine.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/HoodedLiftStateMachine.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/HoodedLiftStateMachineGui.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Utility/PositionFeedbackMachine.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Utility/PositionFeedbackMachine.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Utility/PositionFeedbackMachineGui.cpp
 
     #========================= AXIS TYPES =========================
 

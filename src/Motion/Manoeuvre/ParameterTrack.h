@@ -3,7 +3,7 @@
 class CurvePoint;
 class Manoeuvre;
 
-#include "Motion/AnimatableParameter.h"
+#include "Machine/AnimatableParameter.h"
 
 #include <tinyxml2.h>
 

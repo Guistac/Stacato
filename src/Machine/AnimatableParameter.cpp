@@ -2,7 +2,7 @@
 
 #include "AnimatableParameter.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
-#include "Curve/Curve.h"
+#include "Motion/Curve/Curve.h"
 #include "Machine/Machine.h"
 #include <tinyxml2.h>
 

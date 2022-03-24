@@ -1,6 +1,5 @@
-#include "Motion/Machine/Machine.h"
-
-#include "Motion/AnimatableParameter.h"
+#include "Machine/Machine.h"
+#include "Machine/AnimatableParameter.h"
 
 class HoodedLiftStateMachine : public Machine {
 public:

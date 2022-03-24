@@ -3,7 +3,7 @@
 #include "PositionControlledSingleAxisMachine.h"
 
 #include "Motion/Axis/PositionControlledAxis.h"
-#include "Motion/AnimatableParameter.h"
+#include "Machine/AnimatableParameter.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
 
 #include "Motion/Manoeuvre/Manoeuvre.h"

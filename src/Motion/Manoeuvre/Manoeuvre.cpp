@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "Manoeuvre.h"
-#include "Motion/AnimatableParameter.h"
+#include "Machine/AnimatableParameter.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 

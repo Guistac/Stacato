@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Curve/Curve.h"
+#include "Motion/Curve/Curve.h"
 
 class Machine;
 class ParameterTrack;

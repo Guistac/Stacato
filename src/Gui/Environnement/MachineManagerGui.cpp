@@ -7,7 +7,7 @@
 #include "Gui/Utilities/DraggableList.h"
 
 #include "Environnement/Environnement.h"
-#include "Motion/Machine/Machine.h"
+#include "Machine/Machine.h"
 
 namespace Environnement::Gui{
 

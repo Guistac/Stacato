@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "Motion/AnimatableParameter.h"
+#include "Machine/AnimatableParameter.h"
 
 #include <imgui.h>
 #include <GLFW/glfw3.h>

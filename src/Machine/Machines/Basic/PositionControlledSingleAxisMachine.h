@@ -1,4 +1,4 @@
-#include "Motion/Machine/Machine.h"
+#include "Machine/Machine.h"
 
 #include "Motion/Curve/Curve.h"
 #include "Motion/MotionTypes.h"

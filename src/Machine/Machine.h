@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Environnement/Node.h"
-#include "Motion/AnimatableParameter.h"
+#include "Machine/AnimatableParameter.h"
 
 namespace Motion {
 	struct ControlPoint;

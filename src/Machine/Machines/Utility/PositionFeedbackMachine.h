@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Motion/Machine/Machine.h"
+#include "Machine/Machine.h"
 
 class PositionFeedbackMachine : public Machine {
 	

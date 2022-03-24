@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Motion/Machine/Machine.h"
+#include "Machine/Machine.h"
 #include "Motion/Profile.h"
 
 class LinearMecanumClaw : public Machine {

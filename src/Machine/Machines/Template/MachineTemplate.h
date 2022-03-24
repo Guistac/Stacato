@@ -1,4 +1,4 @@
-#include "Motion/Machine/Machine.h"
+#include "Machine/Machine.h"
 
 class MachineTemplate : public Machine{
 	

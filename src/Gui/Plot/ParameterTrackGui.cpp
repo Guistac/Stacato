@@ -10,8 +10,8 @@
 #include "Gui/Assets/Colors.h"
 
 #include "Motion/Curve/Curve.h"
-#include "Motion/AnimatableParameter.h"
-#include "Motion/Machine/Machine.h"
+#include "Machine/AnimatableParameter.h"
+#include "Machine/Machine.h"
 #include "Motion/Manoeuvre/Manoeuvre.h"
 
 bool ParameterTrack::interpolationTypeSelectorGui() {

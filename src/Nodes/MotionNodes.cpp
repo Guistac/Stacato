@@ -4,14 +4,14 @@
 
 #include "Motion/Axis/VelocityControlledAxis.h"
 #include "Motion/Axis/PositionControlledAxis.h"
-#include "Motion/Machine/Machines/Basic/PositionControlledSingleAxisMachine.h"
-#include "Motion/Machine/Machines/StateMachines/HoodedLiftStateMachine.h"
+#include "Machine/Machines/Basic/PositionControlledSingleAxisMachine.h"
+#include "Machine/Machines/StateMachines/HoodedLiftStateMachine.h"
 //#include "Motion/Machine/Machines/Animated/Oscillator3x.h"
 //#include "Motion/Machine/Machines/Animated/BinaryOscillator6x.h"
-#include "Motion/Machine/Machines/Utility/PositionFeedbackMachine.h"
-#include "Motion/Machine/Machines/Special/LinearMecanumClaw.h"
+#include "Machine/Machines/Utility/PositionFeedbackMachine.h"
+#include "Machine/Machines/Special/LinearMecanumClaw.h"
 
-#include "Motion/Machine/DeadMansSwitch.h"
+#include "Machine/Machines/Safety/DeadMansSwitch.h"
 
 #include "Motion/Adapters/GpioActuator.h"
 #include "Motion/Adapters/ActuatorToServoActuator.h"

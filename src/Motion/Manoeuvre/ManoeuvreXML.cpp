@@ -3,8 +3,8 @@
 #include "Manoeuvre.h"
 #include "ParameterTrack.h"
 
-#include "Motion/Machine/Machine.h"
-#include "Motion/AnimatableParameter.h"
+#include "Machine/Machine.h"
+#include "Machine/AnimatableParameter.h"
 #include "Environnement/Environnement.h"
 
 #include <tinyxml2.h>

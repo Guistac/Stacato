@@ -3,7 +3,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include "Motion/Machine/Machine.h"
+#include "Machine/Machine.h"
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"

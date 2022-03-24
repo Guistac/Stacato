@@ -12,8 +12,8 @@
 #include "Gui/Utilities/CustomWidgets.h"
 
 #include "Environnement/Environnement.h"
-#include "Motion/Machine/Machine.h"
-#include "Motion/AnimatableParameter.h"
+#include "Machine/Machine.h"
+#include "Machine/AnimatableParameter.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
 #include "Motion/Curve/Curve.h"
 #include "Plot/Plot.h"

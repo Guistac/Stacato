@@ -2,9 +2,9 @@
 
 #include "ParameterTrack.h"
 
-#include "Motion/AnimatableParameter.h"
+#include "Machine/Machine.h"
+#include "Machine/AnimatableParameter.h"
 #include "Motion/Curve/Curve.h"
-#include "Motion/Machine/Machine.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Environnement/Environnement.h"
 #include "Motion/Manoeuvre/Manoeuvre.h"

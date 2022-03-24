@@ -2,7 +2,7 @@
 
 #include "Machine.h"
 
-#include "Motion/AnimatableParameter.h"
+#include "Machine/AnimatableParameter.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
 
 #include "Environnement/Environnement.h"
