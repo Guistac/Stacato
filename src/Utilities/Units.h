@@ -23,56 +23,6 @@ namespace Unit{
 		UNKNOWN
 	};
 
-	enum class Distance{
-		DEGREE,
-		RADIAN,
-		REVOLUTION,
-		METER,
-		CENTIMETER,
-		MILLIMETER
-	};
-
-	enum class Time{
-		NANOSECOND,
-		MICROSECOND,
-		MILLISECOND,
-		SECOND,
-		MINUTE,
-		HOUR,
-		DAY,
-		WEEK
-	};
-
-	enum class Frequency{
-		HERTZ,
-		KILOHERTZ,
-		MEGAHERTZ,
-		GIGAHERTZ
-	};
-
-	enum class Voltage{
-		MILLIVOLT,
-		VOLT,
-		KILOVOLT
-	};
-
-	enum class Current{
-		AMPERE,
-		MILLIAMPERE
-	};
-
-	enum class Temperature{
-		KELVIN,
-		CELSIUS,
-		FARENHEIT
-	};
-
-	enum class Mass{
-		GRAM,
-		KILOGRAM,
-		TON
-	};
-
 	template<typename U>
 	struct TypeStruct{
 		U enumerator;
@@ -255,6 +205,16 @@ DEFINE_ENUMERATOR(Unit::Type, UnitTypeStrings)
 
 //===== DISTANCE UNITS ===========================================================================================================================
 
+namespace Unit{
+	enum class Distance{
+		DEGREE,
+		RADIAN,
+		REVOLUTION,
+		METER,
+		CENTIMETER,
+		MILLIMETER
+	};
+}
 
 static std::vector<Unit::TypeStruct<Unit::Distance>> getDistanceUnitTypeStructs(){
 	static std::vector<Unit::TypeStruct<Unit::Distance>> typeStructs = {
@@ -374,6 +334,18 @@ DEFINE_ENUMERATOR(Unit::DistanceType, DistanceUnitTypeStrings)
 
 //====== TIME UNITS ==========================================================================================================================
 
+namespace Unit{
+	enum class Time{
+		NANOSECOND,
+		MICROSECOND,
+		MILLISECOND,
+		SECOND,
+		MINUTE,
+		HOUR,
+		DAY,
+		WEEK
+	};
+}
 
 static std::vector<Unit::TypeStruct<Unit::Time>> getTimeUnitTypeStructs(){
 	static std::vector<Unit::TypeStruct<Unit::Time>> typeStructs = {
@@ -474,6 +446,14 @@ DEFINE_UNIT(Unit::Time, getTimeUnitTypeStructs())
 
 //======== FREQUENCY UNITS ========================================================================================================================
 
+namespace Unit{
+	enum class Frequency{
+		HERTZ,
+		KILOHERTZ,
+		MEGAHERTZ,
+		GIGAHERTZ
+	};
+}
 
 static std::vector<Unit::TypeStruct<Unit::Frequency>> getFrequencyUnitTypeStructs(){
 	static std::vector<Unit::TypeStruct<Unit::Frequency>> typeStructs = {
@@ -530,6 +510,14 @@ DEFINE_UNIT(Unit::Frequency, getFrequencyUnitTypeStructs())
 
 //======== VOLTAGE UNITS ========================================================================================================================
 
+namespace Unit{
+	enum class Voltage{
+		MILLIVOLT,
+		VOLT,
+		KILOVOLT
+	};
+}
+
 static std::vector<Unit::TypeStruct<Unit::Voltage>> getVoltageUnitTypeStructs(){
 	static std::vector<Unit::TypeStruct<Unit::Voltage>> typeStructs = {
 		{
@@ -573,6 +561,13 @@ DEFINE_UNIT(Unit::Voltage, getVoltageUnitTypeStructs())
 
 //======== CURRENT UNITS ========================================================================================================================
 
+namespace Unit{
+	enum class Current{
+		AMPERE,
+		MILLIAMPERE
+	};
+}
+
 static std::vector<Unit::TypeStruct<Unit::Current>> getCurrentUnitTypeStructs(){
 	static std::vector<Unit::TypeStruct<Unit::Current>> typeStructs = {
 		{
@@ -605,6 +600,14 @@ DEFINE_UNIT(Unit::Current, getCurrentUnitTypeStructs())
 
 
 //======== TEMPERATURE UNITS ========================================================================================================================
+
+namespace Unit{
+	enum class Temperature{
+		KELVIN,
+		CELSIUS,
+		FARENHEIT
+	};
+}
 
 static std::vector<Unit::TypeStruct<Unit::Temperature>> getTemperatureUnitTypeStructs(){
 	static std::vector<Unit::TypeStruct<Unit::Temperature>> typeStructs = {
@@ -648,6 +651,14 @@ static std::vector<Unit::TypeStruct<Unit::Temperature>> getTemperatureUnitTypeSt
 DEFINE_UNIT(Unit::Temperature, getTemperatureUnitTypeStructs())
 
 //======== MASS UNITS ========================================================================================================================
+
+namespace Unit{
+	enum class Mass{
+		   GRAM,
+		   KILOGRAM,
+		   TON
+	};
+}
 
 static std::vector<Unit::TypeStruct<Unit::Mass>> getMassUnitTypeStructs(){
 	static std::vector<Unit::TypeStruct<Unit::Mass>> typeStructs = {

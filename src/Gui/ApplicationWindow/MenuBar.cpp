@@ -18,6 +18,8 @@
 #include "Plot/Plot.h"
 #include "Project/Project.h"
 
+#include "UnitT.h"
+
 
 namespace Gui {
 

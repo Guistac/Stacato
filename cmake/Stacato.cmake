@@ -6,6 +6,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Core/pch.cpp
     ${STACATO_SOURCE_DIRECTORY}/Core/pch.h
 
+    ${STACATO_SOURCE_DIRECTORY}/UnitT.cpp
+    ${STACATO_SOURCE_DIRECTORY}/UnitT.h
+
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Gui.h
