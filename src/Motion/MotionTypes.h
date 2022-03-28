@@ -1,5 +1,16 @@
 #pragma once
 
+enum class MovementType{
+	LINEAR,
+	ROTARY
+};
+
+#define MovementTypeStrings {MovementType::LINEAR, "Linear Movement", "Linear"},\
+							{MovementType::ROTARY, "Rotary Movement", "Rotary"}\
+
+DEFINE_ENUMERATOR(MovementType, MovementTypeStrings)
+
+//================================================================================================================================
 
 enum class PositionFeedbackType{
 	ABSOLUTE,

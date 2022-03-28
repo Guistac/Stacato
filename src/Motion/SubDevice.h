@@ -39,15 +39,15 @@ public:
 
 class PositionDevice: public Subdevice {
 public:
-	PositionDevice(const char* name, Unit::Distance unit) : Subdevice(name), positionUnit(unit) {}
-	Unit::Distance getPositionUnit() { return positionUnit; }
-	Unit::Distance positionUnit;
+	PositionDevice(const char* name, Unit unit) : Subdevice(name), positionUnit(unit) {}
+	Unit getPositionUnit() { return positionUnit; }
+	Unit positionUnit;
 };
 
 class ActuatorDevice : public virtual PositionDevice {
 public:
 
-	ActuatorDevice(const char* name, Unit::Distance unit) : PositionDevice(name, unit) {}
+	ActuatorDevice(const char* name, Unit unit) : PositionDevice(name, unit) {}
 	virtual Subdevice::Type getSubdeviceType() { return Subdevice::Type::ACTUATOR; }
 
 	//enable power
@@ -103,7 +103,7 @@ public:
 class PositionFeedbackDevice : public virtual PositionDevice {
 public:
 
-	PositionFeedbackDevice(const char* name, Unit::Distance unit, PositionFeedbackType feedback) : PositionDevice(name, unit), feedbackType(feedback) {}
+	PositionFeedbackDevice(const char* name, Unit unit, PositionFeedbackType feedback) : PositionDevice(name, unit), feedbackType(feedback) {}
 	virtual Subdevice::Type getSubdeviceType() { return Subdevice::Type::POSITION_FEEDBACK; }
 
 	PositionFeedbackType feedbackType;
@@ -160,7 +160,7 @@ public:
 class ServoActuatorDevice : public ActuatorDevice, public PositionFeedbackDevice {
 public:
 
-	ServoActuatorDevice(const char* name, Unit::Distance unit, PositionFeedbackType feedback) : PositionDevice(name, unit), ActuatorDevice(name, unit), PositionFeedbackDevice(name, unit, feedback) {}
+	ServoActuatorDevice(const char* name, Unit unit, PositionFeedbackType feedback) : PositionDevice(name, unit), ActuatorDevice(name, unit), PositionFeedbackDevice(name, unit, feedback) {}
 	virtual Subdevice::Type getSubdeviceType() { return Subdevice::Type::SERVO_ACTUATOR; }
 
 	//set command

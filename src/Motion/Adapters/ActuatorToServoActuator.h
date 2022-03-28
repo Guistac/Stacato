@@ -14,7 +14,7 @@ public:
 	DEFINE_NODE(ActuatorToServoActuator, "Actuator To Servo Actuator", "ActuatorToServoActuator", Node::Type::PROCESSOR, "Adapters")
 	
 	//output data
-	std::shared_ptr<ServoActuatorDevice> servoActuator = std::make_shared<ServoActuatorDevice>("Servo Actuator", Unit::Distance::REVOLUTION, PositionFeedbackType::ABSOLUTE);
+	std::shared_ptr<ServoActuatorDevice> servoActuator = std::make_shared<ServoActuatorDevice>("Servo Actuator", Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE);
 	std::shared_ptr<NodePin> servoActuatorPin = std::make_shared<NodePin>(servoActuator, NodePin::Direction::NODE_OUTPUT, "Servo Actuator");
 	
 	//input data
@@ -59,7 +59,7 @@ private:
 	//double maxPositionFollowingError = 0.0;
 	double errorCorrectionTreshold = 0.0;
 	
-	Unit::Distance getPositionUnit(){ return getActuatorDevice()->getPositionUnit(); }
+	Unit getPositionUnit(){ return getActuatorDevice()->getPositionUnit(); }
 	
 	void sanitizeParameters();
 	

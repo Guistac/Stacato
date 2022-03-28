@@ -25,37 +25,23 @@ double PositionFeedbackMachine::feedbackVelocityToMachineVelocity(double feedbac
 }
 
 
-void PositionFeedbackMachine::setMovementType(Unit::DistanceType t){
+void PositionFeedbackMachine::setMovementType(MovementType t){
 	movementType = t;
 	switch(movementType){
-		case Unit::DistanceType::LINEAR:
-			if(!Unit::isLinearDistance(positionUnit)){
-				for(auto& type : Unit::getUnits<Unit::Distance>()){
-					if(Unit::isLinearDistance(type.enumerator)) setPositionUnit(type.enumerator);
-					break;
-				}
+		case MovementType::LINEAR:
+			if(positionUnit->unitType != Units::Type::LINEAR_DISTANCE){
+				setPositionUnit(Units::LinearDistance::get().front());
 			}
 			break;
-		case Unit::DistanceType::ANGULAR:
-			if(!Unit::isAngularDistance(positionUnit)){
-				for(auto& type : Unit::getUnits<Unit::Distance>()){
-					if(Unit::isAngularDistance(type.enumerator)) setPositionUnit(type.enumerator);
-					break;
-				}
+		case MovementType::ROTARY:
+			if(positionUnit->unitType != Units::Type::ANGULAR_DISTANCE){
+				setPositionUnit(Units::AngularDistance::get().front());
 			}
 			break;
 	}
 }
 
-void PositionFeedbackMachine::setPositionUnit(Unit::Distance u){
-	switch(movementType){
-		case Unit::DistanceType::ANGULAR:
-			if(!Unit::isAngularDistance(u)) return;
-			break;
-		case Unit::DistanceType::LINEAR:
-			if(!Unit::isLinearDistance(u)) return;
-			break;
-	}
+void PositionFeedbackMachine::setPositionUnit(Unit u){
 	positionUnit = u;
 }
 
@@ -136,7 +122,7 @@ bool PositionFeedbackMachine::saveMachine(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	XMLElement* unitsXML = xml->InsertNewChildElement("Units");
 	unitsXML->SetAttribute("Type", Enumerator::getSaveString(movementType));
-	unitsXML->SetAttribute("Unit", Unit::getSaveString(positionUnit));
+	unitsXML->SetAttribute("Unit", positionUnit->saveString);
 	XMLElement* conversionXML = xml->InsertNewChildElement("Conversion");
 	conversionXML->SetAttribute("UnitsPerFeedbackUnit", machineUnitsPerFeedbackUnit);
 	conversionXML->SetAttribute("InvertDirectionOfMotion", b_invertDirection);
@@ -152,12 +138,19 @@ bool PositionFeedbackMachine::loadMachine(tinyxml2::XMLElement* xml){
 	if(unitsXML == nullptr) return Logger::warn("Could not find units attribute");
 	const char* unitTypeString;
 	if(unitsXML->QueryStringAttribute("Type", &unitTypeString) != XML_SUCCESS) return Logger::warn("could not find unit type attribute");
-	if(!Enumerator::isValidSaveName<Unit::DistanceType>(unitTypeString)) return Logger::warn("Could not identify Position Unit Type");
-	movementType = Enumerator::getEnumeratorFromSaveString<Unit::DistanceType>(unitTypeString);
+	if(!Enumerator::isValidSaveName<MovementType>(unitTypeString)) return Logger::warn("Could not identify Position Unit Type");
+	movementType = Enumerator::getEnumeratorFromSaveString<MovementType>(unitTypeString);
 	const char* positionUnitString;
 	if(unitsXML->QueryStringAttribute("Unit", &positionUnitString) != XML_SUCCESS) return Logger::warn("Could not find unit attribute");
-	if(!Unit::isValidSaveName<Unit::Distance>(positionUnitString)) return Logger::warn("Could not identify position unit");
-	positionUnit = Unit::getEnumeratorFromSaveString<Unit::Distance>(positionUnitString);
+	switch(movementType){
+		case MovementType::ROTARY:
+			if(!Units::AngularDistance::isValidSaveString(positionUnitString)) return false;
+			break;
+		case MovementType::LINEAR:
+			if(!Units::LinearDistance::isValidSaveString(positionUnitString)) return false;
+			break;
+	}
+	positionUnit = Units::fromSaveString(positionUnitString);
 	
 	XMLElement* conversionXML = xml->FirstChildElement("Conversion");
 	if(conversionXML == nullptr) return Logger::warn("Could not find conversio attribute");

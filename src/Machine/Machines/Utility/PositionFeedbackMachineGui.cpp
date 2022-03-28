@@ -29,7 +29,7 @@ void PositionFeedbackMachine::controlsGui(){
 	ImGui::Text("Current Position :");
 	ImGui::PopFont();
 	ImGui::SameLine();
-	const char * shortPositionUnitString = Unit::getAbbreviatedString(positionUnit);
+	const char * shortPositionUnitString = positionUnit->abbreviated;
 	ImGui::Text("%.3f %s (in range from %.1f %s to %.1f %s)",
 				position,
 				shortPositionUnitString,
@@ -75,13 +75,13 @@ void PositionFeedbackMachine::settingsGui(){
 	ImGui::Text("Device Unit :");
 	ImGui::PopFont();
 	ImGui::SameLine();
-	ImGui::Text("%s", Unit::getDisplayString(feedbackDevice->getPositionUnit()));
+	ImGui::Text("%s", feedbackDevice->getPositionUnit()->singular);
 	
 	ImGui::PushFont(Fonts::robotoBold15);
 	ImGui::Text("Movement Type :");
 	ImGui::PopFont();
 	if (ImGui::BeginCombo("##UnitType", Enumerator::getDisplayString(movementType))) {
-		for (auto& unitType : Enumerator::getTypes<Unit::DistanceType>()) {
+		for (auto& unitType : Enumerator::getTypes<MovementType>()) {
 			if (ImGui::Selectable(unitType.displayString, movementType == unitType.enumerator)) {
 				setMovementType(unitType.enumerator);
 			}
@@ -95,23 +95,24 @@ void PositionFeedbackMachine::settingsGui(){
 	ImGui::Text("Position Unit :");
 	ImGui::PopFont();
 	
-	if (ImGui::BeginCombo("##AxisUnit", Unit::getDisplayString(positionUnit))) {
-		for (auto& unit : Unit::getUnits<Unit::Distance>()) {
-			switch(movementType){
-				case Unit::DistanceType::LINEAR:
-					if(!Unit::isLinearDistance(unit.enumerator)) continue;
-					break;
-				case Unit::DistanceType::ANGULAR:
-					if(!Unit::isAngularDistance(unit.enumerator)) continue;
-					break;
-			}
-			if (ImGui::Selectable(unit.displayString, positionUnit == unit.enumerator)) setPositionUnit(unit.enumerator);
+	if (ImGui::BeginCombo("##AxisUnit", positionUnit->singular)) {
+		
+		switch(movementType){
+			case MovementType::ROTARY:
+				for(Unit unit : Units::AngularDistance::get()){
+					if (ImGui::Selectable(unit->singular, positionUnit == unit)) setPositionUnit(unit);
+				}
+				break;
+			case MovementType::LINEAR:
+				for(Unit unit : Units::LinearDistance::get()){
+					if (ImGui::Selectable(unit->singular, positionUnit == unit)) setPositionUnit(unit);
+				}
 		}
 		ImGui::EndCombo();
 	}
 	
 	ImGui::PushFont(Fonts::robotoBold15);
-	ImGui::Text("%s per Feedback %s :", Unit::getDisplayStringPlural(positionUnit), Unit::getDisplayString(feedbackDevice->getPositionUnit()));
+	ImGui::Text("%s per Feedback %s :", positionUnit->plural, feedbackDevice->getPositionUnit()->singular);
 	ImGui::PopFont();
 	ImGui::InputDouble("##conversionRatio", &machineUnitsPerFeedbackUnit);
 	
@@ -121,7 +122,7 @@ void PositionFeedbackMachine::settingsGui(){
 	ImGui::Text("Position at Feedback Zero");
 	ImGui::PopFont();
 	static char offsetString[256];
-	sprintf(offsetString, "%.3f %s", machineUnitOffset, Unit::getAbbreviatedString(positionUnit));
+	sprintf(offsetString, "%.3f %s", machineUnitOffset, positionUnit->abbreviated);
 	ImGui::InputDouble("##posatZero", &machineUnitOffset, 0.0, 0.0, offsetString);
 	
 	widgetWidth = ImGui::GetContentRegionAvail().x;
@@ -130,7 +131,7 @@ void PositionFeedbackMachine::settingsGui(){
 	ImGui::Text("Feedback Position :");
 	ImGui::PopFont();
 	ImGui::SameLine();
-	const char* feedbackDeviceUnitShortString = Unit::getAbbreviatedString(feedbackDevice->getPositionUnit());
+	const char* feedbackDeviceUnitShortString = feedbackDevice->getPositionUnit()->abbreviated;
 	ImGui::Text("%.3f %s (in range from %.1f %s to %.1f %s)",
 				feedbackDevice->getPosition(),
 				feedbackDeviceUnitShortString,
@@ -143,7 +144,7 @@ void PositionFeedbackMachine::settingsGui(){
 	ImGui::Text("Machine Position :");
 	ImGui::PopFont();
 	ImGui::SameLine();
-	const char * positionUnitShortString = Unit::getAbbreviatedString(positionUnit);
+	const char * positionUnitShortString = positionUnit->abbreviated;
 	ImGui::Text("%.3f %s (in range from %.1f %s to %.1f %s)",
 				position,
 				positionUnitShortString,
@@ -221,7 +222,7 @@ void PositionFeedbackMachine::machineSpecificMiniatureGui(){
 	if(isEnabled()){
 		feedbackDevice = getFeedbackDevice();
 		progressNormalized = feedbackDevice->getPositionInRange();
-		const char* positionUnitShortString = Unit::getAbbreviatedString(positionUnit);
+		const char* positionUnitShortString = positionUnit->abbreviated;
 		sprintf(positionString, "%.3f %s", position, positionUnitShortString);
 		sprintf(velocityString, "%.3f %s/s", velocity, positionUnitShortString);
 		sprintf(positionProgressString, "%.3f%%", progressNormalized * 100.0);

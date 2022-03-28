@@ -37,7 +37,7 @@ void LinearMecanumClaw::controlsGui() {
 	ImGui::PopFont();
 	
 	double linearVelocityLimit = 0.0;
-	Unit::Distance linearPositionUnit = Unit::Distance::METER;
+	Unit linearPositionUnit = Units::LinearDistance::Meter;
 	if(isLinearAxisConnected()){
 		auto linearAxis = getLinearAxis();
 		linearVelocityLimit = linearAxis->getVelocityLimit();
@@ -57,13 +57,13 @@ void LinearMecanumClaw::controlsGui() {
 
 	ImGui::SetNextItemWidth(tripleWidgetWidth);
 	static char linearTargetPositionString[32];
-	sprintf(linearTargetPositionString, "%.3f %s", linearPositionTargetDisplay, Unit::getAbbreviatedString(linearPositionUnit));
+	sprintf(linearTargetPositionString, "%.3f %s", linearPositionTargetDisplay, linearPositionUnit->abbreviated);
 	ImGui::InputFloat("##TargetPosition", &linearPositionTargetDisplay, 0.0, 0.0, linearTargetPositionString);
 
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(tripleWidgetWidth);
 	static char linearTargetVelocityString[32];
-	sprintf(linearTargetVelocityString, "%.3f %s/s", linearVelocityTargetDisplay, Unit::getAbbreviatedString(linearPositionUnit));
+	sprintf(linearTargetVelocityString, "%.3f %s/s", linearVelocityTargetDisplay, linearPositionUnit->abbreviated);
 	ImGui::InputFloat("##TargetVelocity", &linearVelocityTargetDisplay, 0.0, 0.0, linearTargetVelocityString);
 
 	ImGui::SameLine();
@@ -102,17 +102,17 @@ void LinearMecanumClaw::controlsGui() {
 	
 	if(isLinearAxisConnected() && isEnabled()){
 		linearVelocityProgress = getLinearAxisVelocityProgress();
-		sprintf(linearVelocityString, "Linear Velocity : %.3f %s/s", getLinearAxisVelocity(), Unit::getAbbreviatedString(linearPositionUnit));
+		sprintf(linearVelocityString, "Linear Velocity : %.3f %s/s", getLinearAxisVelocity(), linearPositionUnit->abbreviated);
 		if(linearVelocityProgress <= 1.0) linearVelocityColor = Colors::green;
 		else linearVelocityColor = Colors::red;
 		
 		linearPositionProgress = getLinearAxisPositionProgress();
-		sprintf(linearPositionString, "Linear Position : %.3f %s", getLinearAxisPosition(), Unit::getAbbreviatedString(linearPositionUnit));
+		sprintf(linearPositionString, "Linear Position : %.3f %s", getLinearAxisPosition(), linearPositionUnit->abbreviated);
 		if(linearPositionProgress <= 1.0 && linearPositionProgress >= 0.0) linearPositionColor = Colors::green;
 		else linearPositionColor = Colors::red;
 		
 		linearFollowingErrorProgress = getLinearAxisFollowingErrorProgress();
-		sprintf(linearFollowingErrorString, "Linear Following Error : %.3f %s", getLinearAxisFollowingError(), Unit::getAbbreviatedString(linearPositionUnit));
+		sprintf(linearFollowingErrorString, "Linear Following Error : %.3f %s", getLinearAxisFollowingError(), linearPositionUnit->abbreviated);
 		if(linearFollowingErrorProgress <= 1.0) linearFollowingErrorColor = Colors::green;
 		else linearFollowingErrorColor = Colors::red;
 		
@@ -174,13 +174,13 @@ void LinearMecanumClaw::controlsGui() {
 
 	ImGui::SetNextItemWidth(tripleWidgetWidth);
 	static char clawTargetPositionString[32];
-	sprintf(clawTargetPositionString, "%.3f %s", clawPositionTargetDisplay, Unit::getAbbreviatedString(clawPositionUnit));
+	sprintf(clawTargetPositionString, "%.3f %s", clawPositionTargetDisplay, clawPositionUnit->abbreviated);
 	ImGui::InputFloat("##TargetPosition", &clawPositionTargetDisplay, 0.0, 0.0, clawTargetPositionString);
 
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(tripleWidgetWidth);
 	static char clawTargetVelocityString[32];
-	sprintf(clawTargetVelocityString, "%.3f %s/s", clawTimeTargetDisplay, Unit::getAbbreviatedString(clawPositionUnit));
+	sprintf(clawTargetVelocityString, "%.3f %s/s", clawTimeTargetDisplay, clawPositionUnit->abbreviated);
 	ImGui::InputFloat("##TargetVelocity", &clawTimeTargetDisplay, 0.0, 0.0, clawTargetVelocityString);
 
 	ImGui::SameLine();
@@ -219,19 +219,19 @@ void LinearMecanumClaw::controlsGui() {
 	
 	if(isClawFeedbackConnected() && isEnabled()){
 		clawVelocityProgress = getClawAxisVelocityProgress();
-		sprintf(clawVelocityString, "Claw Velocity : %.3f %s/s", getClawAxisVelocity(), Unit::getAbbreviatedString(clawPositionUnit));
+		sprintf(clawVelocityString, "Claw Velocity : %.3f %s/s", getClawAxisVelocity(), clawPositionUnit->abbreviated);
 		if(clawVelocityProgress <= 1.0) clawVelocityColor = Colors::green;
 		else clawVelocityColor = Colors::red;
 		
 		clawPositionProgress = getClawAxisPositionProgress();
-		sprintf(clawPositionString, "Claw Position : %.3f %s", getClawAxisPosition(), Unit::getAbbreviatedString(clawPositionUnit));
+		sprintf(clawPositionString, "Claw Position : %.3f %s", getClawAxisPosition(), clawPositionUnit->abbreviated);
 		if(clawPositionProgress <= 1.0 && clawPositionProgress >= 0.0) clawPositionColor = Colors::green;
 		else clawPositionColor = Colors::red;
 		
 		clawFollowingErrorProgress = getClawAxisFollowingErrorProgress();
 		clawErrorTresholdProgress = std::abs(clawPositionErrorThreshold) / clawMaxPositionFollowingError;
 		
-		sprintf(clawFollowingErrorString, "Claw Position Error : %.3f %s", getClawAxisFollowingError(), Unit::getAbbreviatedString(clawPositionUnit));
+		sprintf(clawFollowingErrorString, "Claw Position Error : %.3f %s", getClawAxisFollowingError(), clawPositionUnit->abbreviated);
 		if(clawFollowingErrorProgress < clawErrorTresholdProgress) clawFollowingErrorColor = Colors::green;
 		else if(clawFollowingErrorProgress <= clawMaxPositionFollowingError) clawFollowingErrorColor = Colors::yellow;
 		else clawFollowingErrorColor = Colors::red;
@@ -327,8 +327,8 @@ void LinearMecanumClaw::settingsGui() {
 	ImGui::SameLine();
 	if(isLinearAxisConnected()){
 		auto linearAxis = getLinearAxis();
-		ImGui::Text("%s (Position Unit : %s)", linearAxis->getName(), Enumerator::getDisplayString(linearAxis->getPositionUnit()));
-		if(linearAxis->getPositionUnitType() != Unit::DistanceType::LINEAR){
+		ImGui::Text("%s (Position Unit : %s)", linearAxis->getName(), linearAxis->getPositionUnit()->singular);
+		if(linearAxis->getMovementType() != MovementType::LINEAR){
 			ImGui::TextColored(Colors::red, "Linear Axis does not have Linear Position Unit");
 			return;
 		}
@@ -341,7 +341,7 @@ void LinearMecanumClaw::settingsGui() {
 	ImGui::SameLine();
 	if(isClawAxisConnected()){
 		auto clawAxis = getClawAxis();
-		ImGui::Text("%s (Position Unit : %s)", clawAxis->getName(), Enumerator::getDisplayString(clawAxis->getPositionUnit()));
+		ImGui::Text("%s (Position Unit : %s)", clawAxis->getName(), clawAxis->getPositionUnit()->singular);
 	}else {
 		ImGui::TextColored(Colors::red, "Not Connected");
 		return;
@@ -375,19 +375,18 @@ void LinearMecanumClaw::settingsGui() {
 	ImGui::PopFont();
 	
 	ImGui::Text("Claw Position Unit");
-	if(ImGui::BeginCombo("##unit", Enumerator::getDisplayString(clawPositionUnit))){
-		for(auto& unit : Enumerator::getTypes<Unit::Distance>()){
-			if(!Unit::isAngularDistance(unit.enumerator)) continue;
-			if(ImGui::Selectable(Enumerator::getDisplayString(unit.enumerator), clawPositionUnit == unit.enumerator)){
-				clawPositionUnit = unit.enumerator;
+	if(ImGui::BeginCombo("##unit", clawPositionUnit->singular)){
+		for(auto& unit : Units::AngularDistance::get()){
+			if(ImGui::Selectable(unit->singular, clawPositionUnit == unit)){
+				clawPositionUnit = unit;
 			}
 		}
 		ImGui::EndCombo();
 	}
 	
 	ImGui::Text("Feedback %s per Claw %s",
-				Enumerator::getDisplayString(getClawFeedbackDevice()->getPositionUnit()),
-				Enumerator::getDisplayString(clawPositionUnit));
+				getClawFeedbackDevice()->getPositionUnit()->singular,
+				clawPositionUnit->singular);
 	ImGui::InputDouble("##conversionClaw", &clawFeedbackUnitsPerClawUnit);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
@@ -395,31 +394,31 @@ void LinearMecanumClaw::settingsGui() {
 	
 	ImGui::Text("Claw Upper Position Limit:");
 	static char maxClawPositionString[256];
-	sprintf(maxClawPositionString, "%.1f %s", clawPositionLimit, Unit::getAbbreviatedString(clawPositionUnit));
+	sprintf(maxClawPositionString, "%.1f %s", clawPositionLimit, clawPositionUnit->abbreviated);
 	ImGui::InputDouble("##maxposclaw", &clawPositionLimit, 0.0, 0.0, maxClawPositionString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	ImGui::Text("Claw Velocity Limit:");
 	static char maxClawVelocityString[256];
-	sprintf(maxClawVelocityString, "%.1f %s/s", clawVelocityLimit, Unit::getAbbreviatedString(clawPositionUnit));
+	sprintf(maxClawVelocityString, "%.1f %s/s", clawVelocityLimit, clawPositionUnit->abbreviated);
 	ImGui::InputDouble("##maxvelclaw", &clawVelocityLimit, 0.0, 0.0, maxClawVelocityString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	ImGui::Text("Claw Acceleration Limit:");
 	static char maxClawAccelerationString[256];
-	sprintf(maxClawAccelerationString, "%.1f %s/s2", clawAccelerationLimit, Unit::getAbbreviatedString(clawPositionUnit));
+	sprintf(maxClawAccelerationString, "%.1f %s/s2", clawAccelerationLimit, clawPositionUnit->abbreviated);
 	ImGui::InputDouble("##maxClawAcc", &clawAccelerationLimit, 0.0, 0.0, maxClawAccelerationString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	ImGui::Text("Claw Manual Acceleration :");
 	static char manualClawAccString[256];
-	sprintf(manualClawAccString, "%.1f %s/s2", clawManualAcceleration, Unit::getAbbreviatedString(clawPositionUnit));
+	sprintf(manualClawAccString, "%.1f %s/s2", clawManualAcceleration, clawPositionUnit->abbreviated);
 	ImGui::InputDouble("##manClawAcc", &clawManualAcceleration, 0.0, 0.0, manualClawAccString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	ImGui::Text("Claw Homing Velocity");
 	static char clawHomingVelocityString[256];
-	sprintf(clawHomingVelocityString, "%.3f %s/s", clawHomingVelocity, Unit::getAbbreviatedString(clawPositionUnit));
+	sprintf(clawHomingVelocityString, "%.3f %s/s", clawHomingVelocity, clawPositionUnit->abbreviated);
 	ImGui::InputDouble("##clawhomvel", &clawHomingVelocity, 0.0, 0.0, clawHomingVelocityString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
@@ -435,17 +434,17 @@ void LinearMecanumClaw::settingsGui() {
 	
 	ImGui::Text("Claw Max Position Following Error :");
 	static char clawFollowingErrorLimitString[256];
-	sprintf(clawFollowingErrorLimitString, "%.3f %s", clawMaxPositionFollowingError, Unit::getAbbreviatedString(clawPositionUnit));
+	sprintf(clawFollowingErrorLimitString, "%.3f %s", clawMaxPositionFollowingError, clawPositionUnit->abbreviated);
 	ImGui::InputDouble("##maxfoler", &clawMaxPositionFollowingError, 0.0, 0.0, clawFollowingErrorLimitString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	ImGui::Text("Claw Position Error Treshold :");
 	static char clawPositionErrorTresholdString[256];
-	sprintf(clawPositionErrorTresholdString, "%.3f %s", clawPositionErrorThreshold, Unit::getAbbreviatedString(clawPositionUnit));
+	sprintf(clawPositionErrorTresholdString, "%.3f %s", clawPositionErrorThreshold, clawPositionUnit->abbreviated);
 	ImGui::InputDouble("##clawErrThresh", &clawPositionErrorThreshold, 0.0, 0.0, clawPositionErrorTresholdString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
-	Unit::Distance linearAxisPositionUnit = getLinearAxis()->getPositionUnit();
+	Unit linearAxisPositionUnit = getLinearAxis()->getPositionUnit();
 
 	ImGui::Separator();
 	
@@ -455,19 +454,19 @@ void LinearMecanumClaw::settingsGui() {
 	
 	ImGui::Text("Mecanum wheel distance drom claw pivot :");
 	static char mecanumWheelPivotDistanceString[256];
-	sprintf(mecanumWheelPivotDistanceString, "%.3f%s", mecanumWheelDistanceFromClawPivot, Unit::getAbbreviatedString(linearAxisPositionUnit));
+	sprintf(mecanumWheelPivotDistanceString, "%.3f%s", mecanumWheelDistanceFromClawPivot, linearAxisPositionUnit->abbreviated);
 	ImGui::InputDouble("##pivotDistance", &mecanumWheelDistanceFromClawPivot, 0.0, 0.0, mecanumWheelPivotDistanceString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	ImGui::Text("Mecanum wheel pivot angle when claw is closed :");
 	static char mecanumWheelClawPivotAngleString[256];
-	sprintf(mecanumWheelClawPivotAngleString, "%.3f%s", mecanumWheelClawPivotRadiusAngleWhenClosed, Unit::getAbbreviatedString(clawPositionUnit));
+	sprintf(mecanumWheelClawPivotAngleString, "%.3f%s", mecanumWheelClawPivotRadiusAngleWhenClosed, clawPositionUnit->abbreviated);
 	ImGui::InputDouble("##pivotAngleClosed", &mecanumWheelClawPivotRadiusAngleWhenClosed, 0.0, 0.0, mecanumWheelClawPivotAngleString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	ImGui::Text("Mecanum Wheel Circumference");
 	static char mecanumWheelCircumferenceString[256];
-	sprintf(mecanumWheelCircumferenceString, "%.3f%s", mecanumWheelCircumference, Unit::getAbbreviatedString(linearAxisPositionUnit));
+	sprintf(mecanumWheelCircumferenceString, "%.3f%s", mecanumWheelCircumference, linearAxisPositionUnit->abbreviated);
 	ImGui::InputDouble("##wheelCirc", &mecanumWheelCircumference, 0.0, 0.0, mecanumWheelCircumferenceString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
@@ -480,12 +479,12 @@ void LinearMecanumClaw::settingsGui() {
 	auto linearAxis = getLinearAxis();
 	
 	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-	ImGui::Text("Linear axis velocity limit is %.3f%s/s", linearAxis->getVelocityLimit(), Unit::getAbbreviatedString(linearAxis->getPositionUnit()));
-	ImGui::Text("Linear axis acceration limit is %.3f%s/s2", linearAxis->getAccelerationLimit(), Unit::getAbbreviatedString(linearAxis->getPositionUnit()));
+	ImGui::Text("Linear axis velocity limit is %.3f%s/s", linearAxis->getVelocityLimit(), linearAxis->getPositionUnit()->abbreviated);
+	ImGui::Text("Linear axis acceration limit is %.3f%s/s2", linearAxis->getAccelerationLimit(), linearAxis->getPositionUnit()->abbreviated);
 	ImGui::PopStyleColor();
 	
 	static char linearManAccString[16];
-	sprintf(linearManAccString, "%.3f %s/s\xc2\xb2", linearAxisManualAcceleration, Unit::getAbbreviatedString(linearAxis->getPositionUnit()));
+	sprintf(linearManAccString, "%.3f %s/s\xc2\xb2", linearAxisManualAcceleration, linearAxis->getPositionUnit()->abbreviated);
 	ImGui::Text("Manual Acceleration");
 	ImGui::InputDouble("##ManLinAcc", &linearAxisManualAcceleration, 0.0, 0.0, linearManAccString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
@@ -499,12 +498,12 @@ void LinearMecanumClaw::settingsGui() {
 	static char displayString[256];
 	
 	ImGui::Text("Linear Axis Rapid Velocity");
-	sprintf(displayString, "%.3f %s/s", linearAxisRapidVelocity, Unit::getAbbreviatedString(getLinearAxisPositionUnit()));
+	sprintf(displayString, "%.3f %s/s", linearAxisRapidVelocity, getLinearAxisPositionUnit()->abbreviated);
 	ImGui::InputDouble("##linearRapidVel", &linearAxisRapidVelocity, 0.0, 0.0, displayString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 
 	ImGui::Text("Claw Axis Rapid Velocity");
-	sprintf(displayString, "%.3f %s/s", clawRapidVelocity, Unit::getAbbreviatedString(clawPositionUnit));
+	sprintf(displayString, "%.3f %s/s", clawRapidVelocity, clawPositionUnit->abbreviated);
 	ImGui::InputDouble("##clawRapidVel", &clawRapidVelocity, 0.0, 0.0, displayString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
@@ -604,24 +603,24 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	ImGui::PushFont(Fonts::robotoRegular12);
 	
 	static char manualVelocityString[64];
-	sprintf(manualVelocityString, "%.3f%s/s", linearManualVelocityDisplay, Unit::getAbbreviatedString(getLinearAxisPositionUnit()));
+	sprintf(manualVelocityString, "%.3f%s/s", linearManualVelocityDisplay, getLinearAxisPositionUnit()->abbreviated);
 	BackgroundText::draw(manualVelocityString, feedbackButtonSize, Colors::darkGray);
 	
 	ImGui::SameLine();
 	static char velocityString[64];
-	sprintf(velocityString, "%.3f%s/s", getLinearAxisVelocity(), Unit::getAbbreviatedString(getLinearAxisPositionUnit()));
+	sprintf(velocityString, "%.3f%s/s", getLinearAxisVelocity(), getLinearAxisPositionUnit()->abbreviated);
 	BackgroundText::draw(velocityString, feedbackButtonSize, Colors::darkGray);
 	
 	ImGui::SameLine();
 	static char positionString[64];
-	sprintf(positionString, "%.3f%s", getLinearAxisPosition(), Unit::getAbbreviatedString(getLinearAxisPositionUnit()));
+	sprintf(positionString, "%.3f%s", getLinearAxisPosition(), getLinearAxisPositionUnit()->abbreviated);
 	BackgroundText::draw(positionString, feedbackButtonSize, Colors::darkGray);
 
 	ImGui::PopFont();
 	
 	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - ImGui::GetTextLineHeight() * 3.0);
 	static char targetPositionString[32];
-	sprintf(targetPositionString, "%.3f %s", linearPositionTargetDisplay, Unit::getAbbreviatedString(getLinearAxisPositionUnit()));
+	sprintf(targetPositionString, "%.3f %s", linearPositionTargetDisplay, getLinearAxisPositionUnit()->abbreviated);
 	ImGui::InputFloat("##TargetPosition", &linearPositionTargetDisplay, 0.0, 0.0, targetPositionString);
 	if(isLinearAxisConnected()){
 		auto linearAxis = getLinearAxis();
@@ -686,22 +685,22 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	//---Indicators
 	ImGui::PushFont(Fonts::robotoRegular12);
 	
-	sprintf(manualVelocityString, "%.3f%s/s", clawManualVelocityDisplay, Unit::getAbbreviatedString(getClawAxisPositionUnit()));
+	sprintf(manualVelocityString, "%.3f%s/s", clawManualVelocityDisplay, getClawAxisPositionUnit()->abbreviated);
 	BackgroundText::draw(manualVelocityString, feedbackButtonSize, Colors::darkGray);
 	
 	ImGui::SameLine();
-	sprintf(velocityString, "%.3f%s/s", getClawAxisVelocity(), Unit::getAbbreviatedString(getClawAxisPositionUnit()));
+	sprintf(velocityString, "%.3f%s/s", getClawAxisVelocity(), getClawAxisPositionUnit()->abbreviated);
 	BackgroundText::draw(velocityString, feedbackButtonSize, Colors::darkGray);
 	
 	ImGui::SameLine();
-	sprintf(positionString, "%.3f%s", getClawAxisPosition(), Unit::getAbbreviatedString(getClawAxisPositionUnit()));
+	sprintf(positionString, "%.3f%s", getClawAxisPosition(), getClawAxisPositionUnit()->abbreviated);
 	BackgroundText::draw(positionString, feedbackButtonSize, Colors::darkGray);
 
 	ImGui::PopFont();
 	
 	//---Target Position
 	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - ImGui::GetTextLineHeight() * 3.0);
-	sprintf(targetPositionString, "%.3f %s", clawPositionTargetDisplay, Unit::getAbbreviatedString(getClawAxisPositionUnit()));
+	sprintf(targetPositionString, "%.3f %s", clawPositionTargetDisplay, getClawAxisPositionUnit()->abbreviated);
 	ImGui::InputFloat("##TargetPosition", &clawPositionTargetDisplay, 0.0, 0.0, targetPositionString);
 	clawPositionTargetDisplay = std::min(std::abs(clawPositionTargetDisplay), (float)clawPositionLimit);
 	

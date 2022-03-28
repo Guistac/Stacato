@@ -21,8 +21,6 @@
 
 #include <implot.h>
 
-#include "UnitT.h"
-
 namespace ApplicationWindow {
 
 GLFWwindow* window;

@@ -6,9 +6,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Core/pch.cpp
     ${STACATO_SOURCE_DIRECTORY}/Core/pch.h
 
-    ${STACATO_SOURCE_DIRECTORY}/UnitT.cpp
-    ${STACATO_SOURCE_DIRECTORY}/UnitT.h
-
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Gui.h
@@ -141,12 +138,13 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Utilities/CircularBuffer.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Enumerator.h
-    ${STACATO_SOURCE_DIRECTORY}/Utilities/Units.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Logger.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/ProgressIndicator.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Random.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/ScrollingBuffer.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Timing.h
+    ${STACATO_SOURCE_DIRECTORY}/Utilities/Units.h
+    ${STACATO_SOURCE_DIRECTORY}/Utilities/Units.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatFieldbus.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatFieldbus.cpp

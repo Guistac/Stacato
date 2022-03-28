@@ -97,7 +97,7 @@ void VelocityControlledAxis::controlsGui() {
 	
 	ImGui::Text("Manual Velocity:");
 	static char velocityCommandString[256];
-	sprintf(velocityCommandString, "%.3f %s/s", manualVelocityDisplay, Unit::getAbbreviatedString(getPositionUnit()));
+	sprintf(velocityCommandString, "%.3f %s/s", manualVelocityDisplay, positionUnit->abbreviated);
 	ImGui::SetNextItemWidth(singleWidgetWidth);
 	ImGui::SliderFloat("##manVel", &manualVelocityDisplay, -getVelocityLimit(), getVelocityLimit(), velocityCommandString);
 	if (ImGui::IsItemActive()) setVelocity(manualVelocityDisplay);
@@ -108,7 +108,7 @@ void VelocityControlledAxis::controlsGui() {
 	
 	float velocityProgress = std::abs(motionProfile.getVelocity() / getVelocityLimit());
 	static char velocityString[256];
-	sprintf(velocityString, "%.3f %s/s", motionProfile.getVelocity(), Unit::getAbbreviatedString(getPositionUnit()));
+	sprintf(velocityString, "%.3f %s/s", motionProfile.getVelocity(), positionUnit->abbreviated);
 	ImGui::ProgressBar(velocityProgress, progressBarSize, velocityString);
 	
 	if(ImGui::Button("Fast Stop", largeSingleButtonSize)) fastStop();
@@ -128,10 +128,10 @@ void VelocityControlledAxis::settingsGui() {
 	ImGui::PopFont();
 
 	ImGui::Text("Movement Type :");
-	if (ImGui::BeginCombo("##AxisUnitType", Enumerator::getDisplayString(positionUnitType))) {
-		for (auto& type : Enumerator::getTypes<Unit::DistanceType>()) {
-			if (ImGui::Selectable(type.displayString, positionUnitType == type.enumerator)) {
-				setPositionUnitType(type.enumerator);
+	if (ImGui::BeginCombo("##AxisUnitType", Enumerator::getDisplayString(movementType))) {
+		for (auto& type : Enumerator::getTypes<MovementType>()) {
+			if (ImGui::Selectable(type.displayString, movementType == type.enumerator)) {
+				setMovementType(type.enumerator);
 			}
 		}
 		ImGui::EndCombo();
@@ -140,20 +140,19 @@ void VelocityControlledAxis::settingsGui() {
 	float widgetWidth = ImGui::GetItemRectSize().x;
 
 	ImGui::Text("Position Unit :");
-	if (ImGui::BeginCombo("##AxisUnit", Unit::getDisplayString(positionUnit))) {
-		
-		for(auto& type : Unit::getUnits<Unit::Distance>()){
-			switch(positionUnitType){
-				case Unit::DistanceType::LINEAR:
-					if(!Unit::isLinearDistance(type.enumerator)) continue;
-					break;
-				case Unit::DistanceType::ANGULAR:
-					if(!Unit::isAngularDistance(type.enumerator)) continue;
-					break;
-			}
-			if (ImGui::Selectable(type.displayString, positionUnit == type.enumerator)) setPositionUnit(type.enumerator);
+	if (ImGui::BeginCombo("##AxisUnit", positionUnit->singular)) {
+		switch(movementType){
+			case MovementType::LINEAR:
+				for(Unit linearUnit : Units::LinearDistance::get()){
+					if (ImGui::Selectable(linearUnit->singular, positionUnit == linearUnit)) setPositionUnit(linearUnit);
+				}
+				break;
+			case MovementType::ROTARY:
+				for(Unit angularUnit : Units::AngularDistance::get()){
+					if (ImGui::Selectable(angularUnit->singular, positionUnit == angularUnit)) setPositionUnit(angularUnit);
+				}
+				break;
 		}
-		
 		ImGui::EndCombo();
 	}
 
@@ -180,9 +179,9 @@ void VelocityControlledAxis::settingsGui() {
 		ImGui::Text("Position Unit:");
 		ImGui::PopFont();
 		ImGui::SameLine();
-		ImGui::Text("%s", Unit::getDisplayStringPlural(actuator->positionUnit));
+		ImGui::Text("%s", actuator->positionUnit->plural);
 
-		ImGui::Text("Actuator %s/s per Axis %s/s :", Unit::getAbbreviatedString(actuator->positionUnit), Unit::getAbbreviatedString(positionUnit));
+		ImGui::Text("Actuator %s/s per Axis %s/s :", actuator->positionUnit->abbreviated, positionUnit->abbreviated);
 		ImGui::InputDouble("##actuatorCoupling", &actuatorUnitsPerAxisUnits);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		
@@ -204,13 +203,13 @@ void VelocityControlledAxis::settingsGui() {
 	if (isActuatorDeviceConnected()) {
 		std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-		const char* actuatorUnitAbbreviated = Unit::getAbbreviatedString(actuator->getPositionUnit());
+		const char* actuatorUnitAbbreviated = actuator->getPositionUnit()->abbreviated;
 		ImGui::TextWrapped("Max actuator velocity is %.1f %s/s and max acceleration is %.1f %s/s\xc2\xb2",
 						   actuator->getVelocityLimit(),
 						   actuatorUnitAbbreviated,
 						   actuator->getAccelerationLimit(),
 						   actuatorUnitAbbreviated);
-		const char* axisUnitAbbreviated = Unit::getAbbreviatedString(positionUnit);
+		const char* axisUnitAbbreviated = positionUnit->abbreviated;
 		ImGui::TextWrapped("Axis is limited to %.3f %s/s and %.3f %s/s\xc2\xb2",
 						   actuatorUnitsToAxisUnits(actuator->getVelocityLimit()),
 						   axisUnitAbbreviated,
@@ -221,18 +220,18 @@ void VelocityControlledAxis::settingsGui() {
 
 	ImGui::Text("Velocity Limit");
 	static char velLimitString[16];
-	sprintf(velLimitString, "%.3f %s/s", velocityLimit, Unit::getAbbreviatedString(positionUnit));
+	sprintf(velLimitString, "%.3f %s/s", velocityLimit, positionUnit->abbreviated);
 	ImGui::InputDouble("##VelLimit", &velocityLimit, 0.0, 0.0, velLimitString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	static char accLimitString[16];
-	sprintf(accLimitString, "%.3f %s/s\xc2\xb2", accelerationLimit, Unit::getAbbreviatedString(positionUnit));
+	sprintf(accLimitString, "%.3f %s/s\xc2\xb2", accelerationLimit, positionUnit->abbreviated);
 	ImGui::Text("Acceleration Limit");
 	ImGui::InputDouble("##AccLimit", &accelerationLimit, 0.0, 0.0, accLimitString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	static char manualAccelerationString[16];
-	sprintf(manualAccelerationString, "%.3f %s/s\xc2\xb2", manualAcceleration, Unit::getAbbreviatedString(positionUnit));
+	sprintf(manualAccelerationString, "%.3f %s/s\xc2\xb2", manualAcceleration, positionUnit->abbreviated);
 	ImGui::Text("Manul Controls Acceleration");
 	ImGui::InputDouble("##ManAccLimit", &manualAcceleration, 0.0, 0.0, manualAccelerationString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();

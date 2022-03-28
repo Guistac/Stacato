@@ -219,17 +219,12 @@ bool PositionControlledAxis::needsReferenceDevice() {
 
 //============================= DEVICE AND SIGNAL LINKS ================================
 
-void PositionControlledAxis::setPositionUnitType(Unit::DistanceType type){
-	positionUnitType = type;
+void PositionControlledAxis::setMovementType(MovementType type){
+	movementType = type;
 	switch(type){
-		case Unit::DistanceType::ANGULAR:
-			if(!Unit::isAngularDistance(positionUnit)) {
-				for(auto& type : Unit::getUnits<Unit::Distance>()){
-					if(Unit::isAngularDistance(type.enumerator)){
-						setPositionUnit(type.enumerator);
-						break;
-					}
-				}
+		case MovementType::ROTARY:
+			if(positionUnit->unitType != Units::Type::ANGULAR_DISTANCE) {
+				setPositionUnit(Units::AngularDistance::get().front());
 			}
 			if(!isAngularPositionReferenceSignal(positionReferenceSignal)){
 				for(auto& type : Enumerator::getTypes<PositionReferenceSignal>()){
@@ -240,14 +235,9 @@ void PositionControlledAxis::setPositionUnitType(Unit::DistanceType type){
 				}
 			}
 			break;
-		case Unit::DistanceType::LINEAR:
-			if(!Unit::isLinearDistance(positionUnit)){
-				for(auto& type : Unit::getUnits<Unit::Distance>()){
-					if(Unit::isLinearDistance(type.enumerator)){
-						setPositionUnit(type.enumerator);
-						break;
-					}
-				}
+		case MovementType::LINEAR:
+			if(positionUnit->unitType != Units::Type::LINEAR_DISTANCE) {
+				setPositionUnit(Units::LinearDistance::get().front());
 			}
 			if(!isLinearPositionReferenceSignal(positionReferenceSignal)){
 				for(auto& type : Enumerator::getTypes<PositionReferenceSignal>()){
@@ -262,7 +252,7 @@ void PositionControlledAxis::setPositionUnitType(Unit::DistanceType type){
 	sanitizeParameters();
 }
 
-void PositionControlledAxis::setPositionUnit(Unit::Distance u){
+void PositionControlledAxis::setPositionUnit(Unit u){
 	positionUnit = u;
 	sanitizeParameters();
 }
@@ -999,8 +989,8 @@ bool PositionControlledAxis::save(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 
 	XMLElement* unitsXML = xml->InsertNewChildElement("Units");
-	unitsXML->SetAttribute("UnitType", Enumerator::getSaveString(positionUnitType));
-	unitsXML->SetAttribute("Unit", Unit::getSaveString(positionUnit));
+	unitsXML->SetAttribute("UnitType", Enumerator::getSaveString(movementType));
+	unitsXML->SetAttribute("Unit", positionUnit->saveString);
 
 	XMLElement* unitConversionXML = xml->InsertNewChildElement("UnitConversion");
 	unitConversionXML->SetAttribute("ActuatorUnitsPerMachineUnit", servoActuatorUnitsPerAxisUnits);
@@ -1037,12 +1027,19 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if (!unitsXML) return Logger::warn("Could not load Units Attributes");
 	const char* axisUnitTypeString;
 	if (unitsXML->QueryStringAttribute("UnitType", &axisUnitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit Type");
-	if (!Enumerator::isValidSaveName<Unit::DistanceType>(axisUnitTypeString)) return Logger::warn("Could not read Machine Unit Type");
-	positionUnitType = Enumerator::getEnumeratorFromSaveString<Unit::DistanceType>(axisUnitTypeString);
+	if (!Enumerator::isValidSaveName<MovementType>(axisUnitTypeString)) return Logger::warn("Could not read Machine Unit Type");
+	movementType = Enumerator::getEnumeratorFromSaveString<MovementType>(axisUnitTypeString);
 	const char* axisUnitString;
 	if (unitsXML->QueryStringAttribute("Unit", &axisUnitString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit");
-	if (!Unit::isValidSaveName<Unit::Distance>(axisUnitString)) return Logger::warn("Could not read Machine Unit");
-	positionUnit = Unit::getEnumeratorFromSaveString<Unit::Distance>(axisUnitString);
+	switch(movementType){
+		case MovementType::ROTARY:
+			if(!Units::AngularDistance::isValidSaveString(axisUnitString)) return Logger::warn("Could not read Machine Unit");
+			break;
+		case MovementType::LINEAR:
+			if(!Units::LinearDistance::isValidSaveString(axisUnitString)) return Logger::warn("Could not read Machine Unit");
+			break;
+	}
+	positionUnit = Units::fromSaveString(axisUnitString);
 
 	XMLElement* unitConversionXML = xml->FirstChildElement("UnitConversion");
 	if (!unitConversionXML) return Logger::warn("Could not load Unit Conversion");

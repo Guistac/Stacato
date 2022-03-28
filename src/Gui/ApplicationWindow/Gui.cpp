@@ -13,8 +13,6 @@
 #include "Gui/Environnement/EnvironnementGui.h"
 #include "Gui/Plot/PlotGui.h"
 
-#include "UnitT.h"
-
 namespace Gui {
 
 	void draw() {

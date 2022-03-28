@@ -13,8 +13,8 @@ class PositionFeedbackMachine : public Machine {
 	std::shared_ptr<double> positionPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> velocityPinValue = std::make_shared<double>(0.0);
 	
-	Unit::DistanceType movementType = Unit::DistanceType::LINEAR;
-	Unit::Distance positionUnit = Unit::Distance::METER;
+	MovementType movementType = MovementType::LINEAR;
+	Unit positionUnit = Units::LinearDistance::Meter;
 	double machineUnitsPerFeedbackUnit = 1.0;
 	double machineUnitOffset = 0.0;
 	bool b_invertDirection = false;
@@ -30,6 +30,6 @@ class PositionFeedbackMachine : public Machine {
 	double feedbackPositionToMachinePosition(double feedbackPosition);
 	double feedbackVelocityToMachineVelocity(double feedbackVelocity);
 	
-	void setMovementType(Unit::DistanceType t);
-	void setPositionUnit(Unit::Distance u);
+	void setMovementType(MovementType t);
+	void setPositionUnit(Unit u);
 };

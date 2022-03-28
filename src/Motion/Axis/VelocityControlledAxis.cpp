@@ -125,34 +125,24 @@ void VelocityControlledAxis::fastStop(){
 	manualVelocityTarget = 0.0;
 }
 
-void VelocityControlledAxis::setPositionUnitType(Unit::DistanceType type){
-	positionUnitType = type;
+void VelocityControlledAxis::setMovementType(MovementType type){
+	movementType = type;
 	switch(type){
-		case Unit::DistanceType::ANGULAR:
-			if(!Unit::isAngularDistance(positionUnit)) {
-				for(auto& type : Unit::getUnits<Unit::Distance>()){
-					if(Unit::isAngularDistance(type.enumerator)){
-						setPositionUnit(type.enumerator);
-						break;
-					}
-				}
+		case MovementType::ROTARY:
+			if(positionUnit->unitType != Units::Type::ANGULAR_DISTANCE){
+				setPositionUnit(Units::AngularDistance::get().front());
 			}
 			break;
-		case Unit::DistanceType::LINEAR:
-			if(!Unit::isLinearDistance(positionUnit)){
-				for(auto& type : Unit::getUnits<Unit::Distance>()){
-					if(Unit::isLinearDistance(type.enumerator)){
-						setPositionUnit(type.enumerator);
-						break;
-					}
-				}
+		case MovementType::LINEAR:
+			if(positionUnit->unitType != Units::Type::LINEAR_DISTANCE){
+				setPositionUnit(Units::LinearDistance::get().front());
 			}
 			break;
 	}
 }
 
 
-void VelocityControlledAxis::setPositionUnit(Unit::Distance unit){
+void VelocityControlledAxis::setPositionUnit(Unit unit){
 	positionUnit = unit;
 }
 
@@ -169,8 +159,8 @@ bool VelocityControlledAxis::save(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 
 	XMLElement* axisXML = xml->InsertNewChildElement("Axis");
-	axisXML->SetAttribute("UnitType", Enumerator::getSaveString(positionUnitType));
-	axisXML->SetAttribute("Unit", Unit::getSaveString(positionUnit));
+	axisXML->SetAttribute("UnitType", Enumerator::getSaveString(movementType));
+	axisXML->SetAttribute("Unit", positionUnit->saveString);
 	
 	XMLElement* unitConversionXML = xml->InsertNewChildElement("UnitConversion");
 	unitConversionXML->SetAttribute("ActuatorUnitsPerAxisUnit", actuatorUnitsPerAxisUnits);
@@ -192,12 +182,19 @@ bool VelocityControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if (!axisXML) return Logger::warn("Could not load Machine Attributes");
 	const char* axisUnitTypeString;
 	if (axisXML->QueryStringAttribute("UnitType", &axisUnitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Axis Unit Type");
-	if (!Enumerator::isValidSaveName<Unit::DistanceType>(axisUnitTypeString)) return Logger::warn("Could not read Machine Unit Type");
-	positionUnitType = Enumerator::getEnumeratorFromSaveString<Unit::DistanceType>(axisUnitTypeString);
+	if (!Enumerator::isValidSaveName<MovementType>(axisUnitTypeString)) return Logger::warn("Could not read Machine Unit Type");
+	movementType = Enumerator::getEnumeratorFromSaveString<MovementType>(axisUnitTypeString);
 	const char* axisUnitString;
 	if (axisXML->QueryStringAttribute("Unit", &axisUnitString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit");
-	if (!Unit::isValidSaveName<Unit::Distance>(axisUnitString)) return Logger::warn("Could not read Machine Unit");
-	positionUnit = Unit::getEnumeratorFromSaveString<Unit::Distance>(axisUnitString);
+	switch(movementType){
+		case MovementType::ROTARY:
+			if(!Units::AngularDistance::isValidSaveString(axisUnitString)) return Logger::warn("Could not read Machine Unit");
+			break;
+		case MovementType::LINEAR:
+			if(!Units::LinearDistance::isValidSaveString(axisUnitString)) return Logger::warn("Could not read Machine Unit");
+			break;
+	}
+	positionUnit = Units::fromSaveString(axisUnitString);
 
 	XMLElement* unitConversionXML = xml->FirstChildElement("UnitConversion");
 	if (!unitConversionXML) return Logger::warn("Could not load Unit Conversion");

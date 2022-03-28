@@ -660,11 +660,11 @@ float LinearMecanumClaw::getClawAxisVelocityProgress(){
 	//return clawFeedbackUnitsToClawUnits(getClawFeedbackDevice()->getVelocity()) / clawVelocityLimit;
 	return std::abs(clawAxisMotionProfile.getVelocity()) / clawVelocityLimit;
 }
-Unit::Distance LinearMecanumClaw::getLinearAxisPositionUnit(){
-	if(isLinearAxisConnected()) return Unit::Distance::METER;
+Unit LinearMecanumClaw::getLinearAxisPositionUnit(){
+	if(isLinearAxisConnected()) return Units::LinearDistance::Meter;
 	return getLinearAxis()->getPositionUnit();
 }
-Unit::Distance LinearMecanumClaw::getClawAxisPositionUnit(){
+Unit LinearMecanumClaw::getClawAxisPositionUnit(){
 	return clawPositionUnit;
 }
 double LinearMecanumClaw::getLinearAxisMovementTargetNormalized(){
@@ -1026,7 +1026,7 @@ bool LinearMecanumClaw::saveMachine(tinyxml2::XMLElement* xml) {
 	mecanumWheelXML->SetAttribute("WheelCircumference", mecanumWheelCircumference);
 	
 	XMLElement* clawXML = xml->InsertNewChildElement("Claw");
-	clawXML->SetAttribute("PositionUnit", Enumerator::getSaveString(clawPositionUnit));
+	clawXML->SetAttribute("PositionUnit", clawPositionUnit->saveString);
 	clawXML->SetAttribute("FeedbackUnitsPerClawUnit", clawFeedbackUnitsPerClawUnit);
 	clawXML->SetAttribute("VelocityLimit", clawVelocityLimit);
 	clawXML->SetAttribute("ManualAcceleration", clawManualAcceleration);
@@ -1060,8 +1060,8 @@ bool LinearMecanumClaw::loadMachine(tinyxml2::XMLElement* xml) {
 	if(clawXML == nullptr) return Logger::warn("Could not find mecanum wheel attribute");
 	const char* clawUnitString;
 	if(clawXML->QueryStringAttribute("PositionUnit", &clawUnitString) != XML_SUCCESS) return Logger::warn("could not find claw position unit attribute");
-	if(!Enumerator::isValidSaveName<Unit::Distance>(clawUnitString)) return Logger::warn("Could not identify claw position unit attrifbute");
-	clawPositionUnit = Enumerator::getEnumeratorFromSaveString<Unit::Distance>(clawUnitString);
+	if(!Units::AngularDistance::isValidSaveString(clawUnitString)) return Logger::warn("Could not identify claw position unit attrifbute");
+	clawPositionUnit = Units::fromSaveString(clawUnitString);
 	if(clawXML->QueryDoubleAttribute("FeedbackUnitsPerClawUnit", &clawFeedbackUnitsPerClawUnit) != XML_SUCCESS) return Logger::warn("could not find claw feedback ratio attribute");
 	if(clawXML->QueryDoubleAttribute("VelocityLimit", &clawVelocityLimit) != XML_SUCCESS) return Logger::warn("could not find claw velocity limit attribute");
 	if(clawXML->QueryDoubleAttribute("AccelerationLimit", &clawAccelerationLimit) != XML_SUCCESS) return Logger::warn("could not find claw acceleration limit attribute");

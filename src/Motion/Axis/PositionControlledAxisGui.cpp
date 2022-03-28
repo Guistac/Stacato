@@ -110,7 +110,7 @@ void PositionControlledAxis::controlsGui() {
 	ImGui::PopFont();
 
 	static char velocityTargetString[32];
-	sprintf(velocityTargetString, "%.3f %s/s", manualVelocityTargetDisplay, Unit::getAbbreviatedString(positionUnit));
+	sprintf(velocityTargetString, "%.3f %s/s", manualVelocityTargetDisplay, positionUnit->abbreviated);
 	ImGui::SetNextItemWidth(singleWidgetWidth);
 	if (ImGui::SliderFloat("##Velocity", &manualVelocityTargetDisplay, -velocityLimit, velocityLimit, velocityTargetString));
 	if (ImGui::IsItemActive()) setVelocityTarget(manualVelocityTargetDisplay);
@@ -128,13 +128,13 @@ void PositionControlledAxis::controlsGui() {
 	ImGui::PopFont();
 
 	static char targetPositionString[32];
-	sprintf(targetPositionString, "%.3f %s", interpolationPositionTarget, Unit::getAbbreviatedString(positionUnit));
+	sprintf(targetPositionString, "%.3f %s", interpolationPositionTarget, positionUnit->abbreviated);
 	ImGui::SetNextItemWidth(tripleWidgetWidth);
 	ImGui::InputDouble("##TargetPosition", &interpolationPositionTarget, 0.0, 0.0, targetPositionString);
 	
 	ImGui::SameLine();
 	static char targetVelocityString[32];
-	sprintf(targetVelocityString, "%.3f %s/s", interpolationVelocityTarget, Unit::getAbbreviatedString(positionUnit));
+	sprintf(targetVelocityString, "%.3f %s/s", interpolationVelocityTarget, positionUnit->abbreviated);
 	ImGui::SetNextItemWidth(tripleWidgetWidth);
 	ImGui::InputDouble("##TargetVelocity", &interpolationVelocityTarget, 0.0, 0.0, targetVelocityString);
 	
@@ -293,7 +293,7 @@ void PositionControlledAxis::controlsGui() {
 
 	ImGui::TextWrapped("Current Axis Position Relative to the origin");
 	static char scalingString[64];
-	sprintf(scalingString, "%.4f %s", axisScalingPosition, Unit::getAbbreviatedString(positionUnit));
+	sprintf(scalingString, "%.4f %s", axisScalingPosition, positionUnit->abbreviated);
 	ImGui::SetNextItemWidth(doubleButtonSize.x);
 	ImGui::InputDouble("##posScal", &axisScalingPosition, 0.0, 0.0, scalingString);
 	
@@ -332,20 +332,20 @@ void PositionControlledAxis::controlsGui() {
 		positionProgress = getActualPositionNormalized();
 		if (*actualPositionValue < minPosition || *actualPositionValue > maxPosition) {
 			if (*actualPositionValue < getLowPositionLimitWithoutClearance() || *actualPositionValue > getHighPositionLimitWithoutClearance()) {
-				sprintf(positionString, "Axis out of limits : %.2f %s", *actualPositionValue, Unit::getAbbreviatedString(positionUnit));
+				sprintf(positionString, "Axis out of limits : %.2f %s", *actualPositionValue, positionUnit->abbreviated);
 				ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
 			}
 			else {
-				sprintf(positionString, "%.2f %s", *actualPositionValue, Unit::getAbbreviatedString(positionUnit));
+				sprintf(positionString, "%.2f %s", *actualPositionValue, positionUnit->abbreviated);
 				ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::orange);
 			}
 		}
 		else {
-			sprintf(positionString, "%.2f %s", *actualPositionValue, Unit::getAbbreviatedString(positionUnit));
+			sprintf(positionString, "%.2f %s", *actualPositionValue, positionUnit->abbreviated);
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 		}
 	}
-	const char* shortPositionUnitString = Unit::getAbbreviatedString(positionUnit);
+	const char* shortPositionUnitString = positionUnit->abbreviated;
 	ImGui::Text("Current Position : (in range from %.2f %s to %.2f %s)", minPosition, shortPositionUnitString, maxPosition, shortPositionUnitString);
 	ImGui::ProgressBar(positionProgress, progressBarSize, positionString);
 	ImGui::PopStyleColor();
@@ -361,12 +361,12 @@ void PositionControlledAxis::controlsGui() {
 	}
 	else {
 		velocityProgress = std::abs(*actualVelocityValue) / velocityLimit;
-		sprintf(velocityString, "%.2f %s/s", *actualVelocityValue, Unit::getAbbreviatedString(positionUnit));
+		sprintf(velocityString, "%.2f %s/s", *actualVelocityValue, positionUnit->abbreviated);
 		if (std::abs(*actualVelocityValue) > std::abs(velocityLimit))
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
 		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 	}
-	ImGui::Text("Current Velocity : (max %.2f%s/s)", velocityLimit, Unit::getAbbreviatedString(positionUnit));
+	ImGui::Text("Current Velocity : (max %.2f%s/s)", velocityLimit, positionUnit->abbreviated);
 	ImGui::ProgressBar(velocityProgress, progressBarSize, velocityString);
 	ImGui::PopStyleColor();
 
@@ -384,10 +384,10 @@ void PositionControlledAxis::controlsGui() {
 		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
 		maxfollowingError = servoActuatorUnitsToAxisUnits(servoActuator->maxfollowingError);
 		double followingError = servoActuatorUnitsToAxisUnits(servoActuator->getFollowingError());
-		sprintf(positionErrorString, "%.3f %s", followingError, Unit::getAbbreviatedString(positionUnit));
+		sprintf(positionErrorString, "%.3f %s", followingError, positionUnit->abbreviated);
 	}
 	
-	ImGui::Text("Current Following Error : (max %.3f%s)", maxfollowingError, Unit::getAbbreviatedString(positionUnit));
+	ImGui::Text("Current Following Error : (max %.3f%s)", maxfollowingError, positionUnit->abbreviated);
 	ImGui::ProgressBar(positionErrorProgress, progressBarSize, positionErrorString);
 	ImGui::PopStyleColor();
 	
@@ -426,7 +426,7 @@ void PositionControlledAxis::controlsGui() {
 	double feedbackPosition = 0.0;
 	double rangeMin = std::numeric_limits<double>::quiet_NaN();
 	double rangeMax = std::numeric_limits<double>::quiet_NaN();
-	Unit::Distance feedbackPositionUnit;
+	Unit feedbackPositionUnit;
 	static char rangeString[64];
 	if (isServoActuatorDeviceConnected()) {
 		std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
@@ -443,19 +443,19 @@ void PositionControlledAxis::controlsGui() {
 	}
 	else if (rangeProgress < 1.0 && rangeProgress > 0.0) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-		sprintf(rangeString, "%.2f%s", feedbackPosition, Unit::getAbbreviatedString(feedbackPositionUnit));
+		sprintf(rangeString, "%.2f%s", feedbackPosition, feedbackPositionUnit->abbreviated);
 	}
 	else {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
 		double distanceOutsideRange = rangeProgress > 1.0 ? feedbackPosition - rangeMax : feedbackPosition - rangeMin;
-		sprintf(rangeString, "Encoder Outside Working Range by %.2f%s", distanceOutsideRange, Unit::getAbbreviatedString(feedbackPositionUnit));
+		sprintf(rangeString, "Encoder Outside Working Range by %.2f%s", distanceOutsideRange, feedbackPositionUnit->abbreviated);
 		rangeProgress = 1.0;
 	}
 	ImGui::Text("Feedback Position in Working Range : (%.2f%s to %.2f%s)",
 				rangeMin,
-				Unit::getAbbreviatedString(feedbackPositionUnit),
+				feedbackPositionUnit->abbreviated,
 				rangeMax,
-				Unit::getAbbreviatedString(feedbackPositionUnit));
+				feedbackPositionUnit->abbreviated);
 	ImGui::ProgressBar(rangeProgress, progressBarSize, rangeString);
 	ImGui::PopStyleColor();
 	
@@ -478,28 +478,31 @@ void PositionControlledAxis::settingsGui() {
 	ImGui::PopFont();
 
 	ImGui::Text("Movement Type :");
-	if (ImGui::BeginCombo("##AxisUnitType", Enumerator::getDisplayString(positionUnitType))) {
-		for (auto& type : Enumerator::getTypes<Unit::DistanceType>()) {
-			if (ImGui::Selectable(type.displayString, positionUnitType == type.enumerator)) {
-				setPositionUnitType(type.enumerator);
+	if (ImGui::BeginCombo("##AxisUnitType", Enumerator::getDisplayString(movementType))) {
+		for (auto& type : Enumerator::getTypes<MovementType>()) {
+			if (ImGui::Selectable(type.displayString, movementType == type.enumerator)) {
+				setMovementType(type.enumerator);
 			}
 		}
 		ImGui::EndCombo();
 	}
 
 	ImGui::Text("Position Unit :");
-	if (ImGui::BeginCombo("##AxisUnit", Unit::getDisplayString(positionUnit))) {
-		for(auto& type : Unit::getUnits<Unit::Distance>()){
-			switch(positionUnitType){
-				case Unit::DistanceType::LINEAR:
-					if(!Unit::isLinearDistance(type.enumerator)) continue;
-					break;
-				case Unit::DistanceType::ANGULAR:
-					if(!Unit::isAngularDistance(type.enumerator)) continue;
-					break;
-			}
-			if (ImGui::Selectable(type.displayString, positionUnit == type.enumerator)) setPositionUnit(type.enumerator);
+	if (ImGui::BeginCombo("##AxisUnit", positionUnit->singular)) {
+		
+		switch(movementType){
+			case MovementType::ROTARY:
+				for(auto& unit : Units::AngularDistance::get()){
+					if (ImGui::Selectable(unit->singular, positionUnit == unit)) setPositionUnit(unit);
+				}
+				break;
+			case MovementType::LINEAR:
+				for(auto& unit : Units::LinearDistance::get()){
+					if (ImGui::Selectable(unit->singular, positionUnit == unit)) setPositionUnit(unit);
+				}
+				break;
 		}
+		
 		ImGui::EndCombo();
 	}
 
@@ -529,7 +532,7 @@ void PositionControlledAxis::settingsGui() {
 		ImGui::Text("Position Unit:");
 		ImGui::PopFont();
 		ImGui::SameLine();
-		ImGui::Text("%s", Unit::getDisplayStringPlural(servo->positionUnit));
+		ImGui::Text("%s", servo->positionUnit->singular);
 
 		ImGui::PushFont(Fonts::robotoBold15);
 		ImGui::Text("Feedback Type:");
@@ -546,7 +549,7 @@ void PositionControlledAxis::settingsGui() {
 		default: break;
 		}
 
-		ImGui::Text("%s %s per Machine %s :", servo->getName(), Unit::getDisplayStringPlural(servo->positionUnit), Unit::getDisplayString(positionUnit));
+		ImGui::Text("%s %s per Machine %s :", servo->getName(), servo->positionUnit->plural, positionUnit->singular);
 		ImGui::InputDouble("##servoActuatorCoupling", &servoActuatorUnitsPerAxisUnits);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 
@@ -567,45 +570,45 @@ void PositionControlledAxis::settingsGui() {
 
 	if (isServoActuatorDeviceConnected()) {
 		std::shared_ptr<ServoActuatorDevice> servoActuator = getServoActuatorDevice();
-		Unit::Distance servoActuatorPositionUnit = servoActuator->getPositionUnit();
+		Unit servoActuatorPositionUnit = servoActuator->getPositionUnit();
 		
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 		ImGui::TextWrapped("Max actuator velocity is %.1f %s/s and max acceleration is %.1f %s/s\xc2\xb2",
 						   servoActuator->getVelocityLimit(),
-						   Unit::getAbbreviatedString(servoActuatorPositionUnit),
+						   servoActuatorPositionUnit->abbreviated,
 						   servoActuator->getAccelerationLimit(),
-						   Unit::getAbbreviatedString(servoActuatorPositionUnit));
+						   servoActuatorPositionUnit->abbreviated);
 		ImGui::TextWrapped("Min actuator velocity is %.3f %s/s",
 						   servoActuator->getMinVelocity(),
-						   Unit::getAbbreviatedString(servoActuatorPositionUnit));
+						   servoActuatorPositionUnit->abbreviated);
 		
-		const char* machineUnitShortString = Unit::getAbbreviatedString(positionUnit);
+		const char* machineUnitShortString = positionUnit->abbreviated;
 		ImGui::TextWrapped("Actuator limits axis to %.3f %s/s and %.3f %s/s\xc2\xb2",
 						   servoActuatorUnitsToAxisUnits(servoActuator->getVelocityLimit()),
-						   Unit::getAbbreviatedString(positionUnit),
+						   positionUnit->abbreviated,
 						   servoActuatorUnitsToAxisUnits(servoActuator->getAccelerationLimit()),
-							Unit::getAbbreviatedString(positionUnit));
+							positionUnit->abbreviated);
 		ImGui::TextWrapped("Min Axis velocity is %.3f %s/s",
 						   servoActuatorUnitsToAxisUnits(servoActuator->getMinVelocity()),
-						   Unit::getAbbreviatedString(positionUnit));
+						   positionUnit->abbreviated);
 		ImGui::PopStyleColor();
 	}
 
 	ImGui::Text("Velocity Limit");
 	static char velLimitString[16];
-	sprintf(velLimitString, "%.3f %s/s", velocityLimit, Unit::getAbbreviatedString(positionUnit));
+	sprintf(velLimitString, "%.3f %s/s", velocityLimit, positionUnit->abbreviated);
 	ImGui::InputDouble("##VelLimit", &velocityLimit, 0.0, 0.0, velLimitString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	static char accLimitString[16];
-	sprintf(accLimitString, "%.3f %s/s\xc2\xb2", accelerationLimit, Unit::getAbbreviatedString(positionUnit));
+	sprintf(accLimitString, "%.3f %s/s\xc2\xb2", accelerationLimit, positionUnit->abbreviated);
 	ImGui::Text("Acceleration Limit");
 	ImGui::InputDouble("##AccLimit", &accelerationLimit, 0.0, 0.0, accLimitString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 
 	ImGui::Text("Manual Acceleration");
 	static char manualAccelerationString[256];
-	sprintf(manualAccelerationString, "%.3f %s/s\xc2\xb2", manualAcceleration, Unit::getAbbreviatedString(positionUnit));
+	sprintf(manualAccelerationString, "%.3f %s/s\xc2\xb2", manualAcceleration, positionUnit->abbreviated);
 	ImGui::InputDouble("##manacc", &manualAcceleration, 0.0, 0.0, manualAccelerationString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
@@ -648,8 +651,8 @@ void PositionControlledAxis::settingsGui() {
 		
 		for (auto& type : Enumerator::getTypes<PositionReferenceSignal>()) {
 			
-			if(positionUnitType == Unit::DistanceType::LINEAR && !isLinearPositionReferenceSignal(type.enumerator)) continue;
-			else if(positionUnitType == Unit::DistanceType::ANGULAR && !isAngularPositionReferenceSignal(type.enumerator)) continue;
+			if(movementType == MovementType::LINEAR && !isLinearPositionReferenceSignal(type.enumerator)) continue;
+			else if(movementType == MovementType::ROTARY && !isAngularPositionReferenceSignal(type.enumerator)) continue;
 			
 			bool selected = positionReferenceSignal == type.enumerator;
 			if (ImGui::Selectable(type.displayString, selected)) {
@@ -700,7 +703,7 @@ void PositionControlledAxis::settingsGui() {
 		ImGui::PopStyleColor();
 
 		static char homVelString[16];
-		sprintf(homVelString, "%.3f %s/s", homingVelocityCoarse, Unit::getAbbreviatedString(positionUnit));
+		sprintf(homVelString, "%.3f %s/s", homingVelocityCoarse, positionUnit->abbreviated);
 
 		switch(positionReferenceSignal){
 			case PositionReferenceSignal::NO_SIGNAL:
@@ -761,12 +764,12 @@ void PositionControlledAxis::settingsGui() {
 	}
 	ImGui::Text("Movement range is from %.3f %s to %.3f %s",
 				getLowPositionLimit(),
-				Unit::getDisplayStringPlural(positionUnit),
+				positionUnit->plural,
 				getHighPositionLimit(),
-				Unit::getDisplayStringPlural(positionUnit));
+				positionUnit->plural);
 	ImGui::PopStyleColor();
 
-	const char * machineUnitShortString = Unit::getAbbreviatedString(positionUnit);
+	const char * machineUnitShortString = positionUnit->abbreviated;
 	static char negDevString[16];
 	sprintf(negDevString, "%.3f %s", lowPositionLimit, machineUnitShortString);
 	static char posDevString[16];
@@ -816,13 +819,13 @@ void PositionControlledAxis::settingsGui() {
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	static char lowClearanceString[16];
-	sprintf(lowClearanceString, "%.3f %s", lowLimitClearance, Unit::getAbbreviatedString(positionUnit));
+	sprintf(lowClearanceString, "%.3f %s", lowLimitClearance, positionUnit->abbreviated);
 	ImGui::Text("Low Limit Clearance");
 	ImGui::InputDouble("##lowlimitclearance", &lowLimitClearance, 0.0, 0.0, lowClearanceString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	static char highClearanceString[16];
-	sprintf(highClearanceString, "%.3f %s", highLimitClearance, Unit::getAbbreviatedString(positionUnit));
+	sprintf(highClearanceString, "%.3f %s", highLimitClearance, positionUnit->abbreviated);
 	ImGui::Text("Low Limit Clearance");
 	ImGui::InputDouble("##highlimitclearance", &highLimitClearance, 0.0, 0.0, highClearanceString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();

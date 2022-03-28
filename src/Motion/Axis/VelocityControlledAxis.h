@@ -39,23 +39,23 @@ private:
 	//======== SETTINGS ========
 
 private:
-	Unit::DistanceType positionUnitType = Unit::DistanceType::ANGULAR;
-	Unit::Distance positionUnit = Unit::Distance::DEGREE;
+	MovementType movementType = MovementType::ROTARY;
+	Unit positionUnit = Units::AngularDistance::Degree;
 	double actuatorUnitsPerAxisUnits = 0.0;
 	double velocityLimit = 0.0;
 	double accelerationLimit = 0.0;
 	double manualAcceleration = 0.0;
 
-	void setPositionUnitType(Unit::DistanceType type);
-	void setPositionUnit(Unit::Distance unit);
+	void setMovementType(MovementType type);
+	void setPositionUnit(Unit unit);
 	double actuatorUnitsToAxisUnits(double actuatorValue){ return actuatorValue / actuatorUnitsPerAxisUnits; }
 	double axisUnitsToActuatorUnits(double axisUnits){ return axisUnits * actuatorUnitsPerAxisUnits; }
 	
 public:
 	void sanitizeParameters();
 	
-	Unit::Distance getPositionUnit(){ return positionUnit; }
-	Unit::DistanceType getPositionUnitType() { return positionUnitType; }
+	Unit getPositionUnit(){ return positionUnit; }
+	MovementType getMovementType() { return movementType; }
 	
 	double getVelocityLimit() { return velocityLimit; }
 	double getAccelerationLimit() { return accelerationLimit; }

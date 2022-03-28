@@ -5,8 +5,6 @@
 #include "Project/Project.h"
 #include "Environnement/Environnement.h"
 
-#include "UnitT.h"
-
 #ifdef STACATO_WIN32_APPLICATION
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
 #else
@@ -33,9 +31,17 @@ int main(int argcount, const char ** args){
 
 	//terminate application
 	ApplicationWindow::terminate();
-	
-	
 }
+	
+	namespace Testing{
+		
+		void fn1(){}
+		
+		namespace{
+			void fn2(){}
+		}
+		
+	}
 	
 	
 	

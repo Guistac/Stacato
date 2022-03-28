@@ -60,8 +60,8 @@ public:
 	
 	//=== Parameters
 	
-	const Unit::DistanceType clawUnitDistanceType = Unit::DistanceType::ANGULAR;
-	Unit::Distance clawPositionUnit = Unit::Distance::DEGREE;
+	const MovementType clawUnitDistanceType = MovementType::ROTARY;
+	Unit clawPositionUnit = Units::AngularDistance::Degree;
 	double clawFeedbackUnitsPerClawUnit = 0.0;
 	double clawVelocityLimit = 0.0;
 	double clawAccelerationLimit = 0.0;
@@ -139,8 +139,8 @@ public:
 	float getClawAxisPositionProgress();
 	float getClawAxisVelocityProgress();
 	
-	Unit::Distance getLinearAxisPositionUnit();
-	Unit::Distance getClawAxisPositionUnit();
+	Unit getLinearAxisPositionUnit();
+	Unit getClawAxisPositionUnit();
 	
 	bool hasLinearAxisTargetMovement() { return !linearAxisMotionProfile.isInterpolationFinished(profileTime_seconds); }
 	bool hasClawAxisTargetMovement() { return !clawAxisMotionProfile.isInterpolationFinished(profileTime_seconds); }
