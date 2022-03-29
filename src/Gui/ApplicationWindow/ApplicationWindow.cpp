@@ -219,16 +219,18 @@ void setWindowName(const char* name){
 
 void showUnsavedModifications(){
 	if(!b_windowNameShowUnsavedModifications){
-		static char windowNameUnsaved[333];
-		sprintf(windowNameUnsaved, "%s (Unsaved Changes)", windowName);
-		glfwSetWindowTitle(window, windowNameUnsaved);
+		if(window){
+			static char windowNameUnsaved[333];
+			sprintf(windowNameUnsaved, "%s (Unsaved Changes)", windowName);
+			glfwSetWindowTitle(window, windowNameUnsaved);
+		}
 		b_windowNameShowUnsavedModifications = true;
 	}
 }
 
 void hideUnsavedModifications(){
 	if(b_windowNameShowUnsavedModifications){
-		glfwSetWindowTitle(window, windowName);
+		if(window) glfwSetWindowTitle(window, windowName);
 		b_windowNameShowUnsavedModifications = false;
 	}
 }
