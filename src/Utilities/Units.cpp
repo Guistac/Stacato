@@ -2,12 +2,12 @@
 
 #define UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type) \
 	const std::vector<const UnitStructure* const>& get(){\
-		for(const UnitTypeStructure& type : allUnits){\
+		for(const UnitTypeStructure& type : getAllUnits()){\
 			if(type.unitType == Type) return type.units;\
 		}\
 	}\
 	bool isValidSaveString(const char* saveString){\
-		for(auto& unitType : allUnits){\
+		for(auto& unitType : getAllUnits()){\
 			if(unitType.unitType != Type) continue;\
 			for(auto& unit : unitType.units){\
 				if(strcmp(saveString, unit->saveString) == 0) return true;\
@@ -23,77 +23,7 @@ namespace Units{
 		const std::vector<const UnitStructure* const> units;
 	};
 
-	std::vector<UnitTypeStructure> allUnits = {
-		UnitTypeStructure{
-			.unitType = Units::Type::LINEAR_DISTANCE,
-			.units = {
-				LinearDistance::Millimeter,
-				LinearDistance::Centimeter,
-				LinearDistance::Meter
-			}
-		},
-		UnitTypeStructure{
-			.unitType = Units::Type::ANGULAR_DISTANCE,
-			.units = {
-				AngularDistance::Degree,
-				AngularDistance::Radian,
-				AngularDistance::Revolution
-			}
-		},
-		UnitTypeStructure{
-			.unitType = Units::Type::TIME,
-			.units = {
-				Time::Nanosecond,
-				Time::Microsecond,
-				Time::Millisecond,
-				Time::Second,
-				Time::Minute,
-				Time::Hour,
-				Time::Day,
-				Time::Week
-			}
-		},
-		UnitTypeStructure{
-			.unitType = Units::Type::FREQUENCY,
-			.units = {
-				Frequency::Hertz,
-				Frequency::Kilohertz,
-				Frequency::Megahertz,
-				Frequency::Gigahertz
-			}
-		},
-		UnitTypeStructure{
-			.unitType = Units::Type::VOLTAGE,
-			.units = {
-				Voltage::Millivolt,
-				Voltage::Volt,
-				Voltage::Kilovolt
-			}
-		},
-		UnitTypeStructure{
-			.unitType = Units::Type::CURRENT,
-			.units = {
-				Current::Milliampere,
-				Current::Ampere
-			}
-		},
-		UnitTypeStructure{
-			.unitType = Units::Type::TEMPERATURE,
-			.units = {
-				Temperature::Kelvin,
-				Temperature::Celsius,
-				Temperature::Fahrenheit
-			}
-		},
-		UnitTypeStructure{
-			.unitType = Units::Type::MASS,
-			.units = {
-				Mass::Gram,
-				Mass::Kilogram,
-				Mass::Ton
-			}
-		}
-	};
+	std::vector<UnitTypeStructure>& getAllUnits();
 
 	namespace LinearDistance{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::LINEAR_DISTANCE);
@@ -388,8 +318,90 @@ namespace Units{
 		};
 	}
 
+
+
+	std::vector<UnitTypeStructure>& getAllUnits(){
+		static std::vector<UnitTypeStructure> allUnits = {
+			UnitTypeStructure{
+				.unitType = Units::Type::LINEAR_DISTANCE,
+				.units = {
+					LinearDistance::Millimeter,
+					LinearDistance::Centimeter,
+					LinearDistance::Meter
+				}
+			},
+			UnitTypeStructure{
+				.unitType = Units::Type::ANGULAR_DISTANCE,
+				.units = {
+					AngularDistance::Degree,
+					AngularDistance::Radian,
+					AngularDistance::Revolution
+				}
+			},
+			UnitTypeStructure{
+				.unitType = Units::Type::TIME,
+				.units = {
+					Time::Nanosecond,
+					Time::Microsecond,
+					Time::Millisecond,
+					Time::Second,
+					Time::Minute,
+					Time::Hour,
+					Time::Day,
+					Time::Week
+				}
+			},
+			UnitTypeStructure{
+				.unitType = Units::Type::FREQUENCY,
+				.units = {
+					Frequency::Hertz,
+					Frequency::Kilohertz,
+					Frequency::Megahertz,
+					Frequency::Gigahertz
+				}
+			},
+			UnitTypeStructure{
+				.unitType = Units::Type::VOLTAGE,
+				.units = {
+					Voltage::Millivolt,
+					Voltage::Volt,
+					Voltage::Kilovolt
+				}
+			},
+			UnitTypeStructure{
+				.unitType = Units::Type::CURRENT,
+				.units = {
+					Current::Milliampere,
+					Current::Ampere
+				}
+			},
+			UnitTypeStructure{
+				.unitType = Units::Type::TEMPERATURE,
+				.units = {
+					Temperature::Kelvin,
+					Temperature::Celsius,
+					Temperature::Fahrenheit
+				}
+			},
+			UnitTypeStructure{
+				.unitType = Units::Type::MASS,
+				.units = {
+					Mass::Gram,
+					Mass::Kilogram,
+					Mass::Ton
+				}
+			}
+		};
+		return allUnits;
+	}
+
+
+
+
+
+
 	bool isValidSaveString(const char* saveString){
-		for(auto& unitType : allUnits){
+		for(auto& unitType : getAllUnits()){
 			for(auto& unit : unitType.units){
 				if(strcmp(saveString, unit->saveString) == 0) return true;
 			}
@@ -398,7 +410,7 @@ namespace Units{
 	}
 
 	const UnitStructure* const fromSaveString(const char* saveString){
-		for(auto& unitType : allUnits){
+		for(auto& unitType : getAllUnits()){
 			for(auto& unit : unitType.units){
 				if(strcmp(saveString, unit->saveString) == 0) return unit;
 			}
