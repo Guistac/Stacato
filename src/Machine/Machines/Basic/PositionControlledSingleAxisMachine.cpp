@@ -17,7 +17,7 @@
 void PositionControlledSingleAxisMachine::initialize() {
 	//inputs
 	addNodePin(positionControlledAxisPin);
-	
+		
 	//outputs
 	positionPin->assignData(positionPinValue);
 	addNodePin(positionPin);
@@ -26,6 +26,10 @@ void PositionControlledSingleAxisMachine::initialize() {
 
 	//machine parameters
 	addAnimatableParameter(positionParameter);
+}
+
+void PositionControlledSingleAxisMachine::onPinUpdate(std::shared_ptr<NodePin> pin){
+	if(pin == positionControlledAxisPin) positionParameter->unit = getAxis()->getPositionUnit();
 }
 
 void PositionControlledSingleAxisMachine::onPinConnection(std::shared_ptr<NodePin> pin){

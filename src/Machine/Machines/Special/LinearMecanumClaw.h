@@ -58,10 +58,17 @@ public:
 		return true;
 	}
 	
+	virtual void onPinConnection(std::shared_ptr<NodePin> pin);
+	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin);
+	virtual void onPinUpdate(std::shared_ptr<NodePin> pin);
+	
 	//=== Parameters
 	
 	const MovementType clawUnitDistanceType = MovementType::ROTARY;
 	Unit clawPositionUnit = Units::AngularDistance::Degree;
+	
+	void setClawPositionUnit(Unit unit);
+	
 	double clawFeedbackUnitsPerClawUnit = 0.0;
 	double clawVelocityLimit = 0.0;
 	double clawAccelerationLimit = 0.0;

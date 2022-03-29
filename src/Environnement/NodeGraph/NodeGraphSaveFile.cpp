@@ -94,9 +94,6 @@ namespace Environnement::NodeGraph{
 		XMLElement* nodesXML = xml->FirstChildElement("Nodes");
 		if (!nodesXML) return Logger::warn("Could not load Nodes element from savefile");
 
-		std::vector<std::shared_ptr<Node>> loadedNodes;
-		std::vector<std::shared_ptr<NodePin>> loadedPins;
-		std::vector<std::shared_ptr<NodeLink>> loadedLinks;
 		int largestUniqueID = 0;
 
 		XMLElement* nodeXML = nodesXML->FirstChildElement("Node");
@@ -174,15 +171,17 @@ namespace Environnement::NodeGraph{
 			loadedNode->uniqueID = nodeUniqueID;
 			loadedNode->b_isSplit = isSplit;
 			loadedNode->b_wasSplit = isSplit;
-			loadedNodes.push_back(loadedNode);
+			Environnement::addNode(loadedNode);
+			
+			
 			loadedNode->b_isInNodeGraph = true;
 			for (std::shared_ptr<NodePin> data : loadedNode->nodeInputPins) {
 				data->parentNode = loadedNode;
-				loadedPins.push_back(data);
+				getPins().push_back(data);
 			}
 			for (std::shared_ptr<NodePin> data : loadedNode->nodeOutputPins) {
 				data->parentNode = loadedNode;
-				loadedPins.push_back(data);
+				getPins().push_back(data);
 			}
 
 			//load pin data
@@ -260,15 +259,16 @@ namespace Environnement::NodeGraph{
 			if (linkUniqueID > largestUniqueID) largestUniqueID = linkUniqueID;
 
 			std::shared_ptr<NodePin> startPin;
-			for (auto pin : loadedPins) {
+			for (auto pin : getPins()) {
 				if (pin->getUniqueID() == startPinID) {
 					startPin = pin;
 					break;
 				}
 			}
 			if (!startPin) return Logger::warn("Could not find matching node pin ID for start pin");
+			
 			std::shared_ptr<NodePin> endPin;
-			for (auto pin : loadedPins) {
+			for (auto pin : getPins()) {
 				if (pin->getUniqueID() == endPinID) {
 					endPin = pin;
 					break;
@@ -283,16 +283,14 @@ namespace Environnement::NodeGraph{
 			newIoLink->outputData = endPin->isInput() ? endPin : startPin;
 			startPin->nodeLinks.push_back(newIoLink);
 			endPin->nodeLinks.push_back(newIoLink);
-			loadedLinks.push_back(newIoLink);
-
+			
+			getLinks().push_back(newIoLink);
+			startPin->parentNode->onPinConnection(startPin);
+			endPin->parentNode->onPinConnection(endPin);
+ 
 			Logger::trace("Loaded Node Link with ID: {}  StartPin: {}  EndPin: {}", linkUniqueID, startPinID, endPinID);
 			linkXML = linkXML->NextSiblingElement("Link");
 		}
-
-		//adds all relevant nodes to the environnement (machines and devices)
-		for (auto node : loadedNodes) Environnement::addNode(node);
-		getPins().swap(loadedPins);
-		getLinks().swap(loadedLinks);
 		
 		Logger::trace("Largest unique ID is {}", largestUniqueID);
 		Logger::info("Successfully loaded Node Graph");

@@ -32,6 +32,25 @@ void LinearMecanumClaw::initialize() {
 	
 	addAnimatableParameter(linearAxisPositionParameter);
 	addAnimatableParameter(clawAxisPositionParameter);
+	clawAxisPositionParameter->unit = clawPositionUnit;
+}
+
+void LinearMecanumClaw::onPinConnection(std::shared_ptr<NodePin> pin){
+	if(pin == linearAxisPin) linearAxisPositionParameter->unit = getLinearAxis()->getPositionUnit();
+}
+
+void LinearMecanumClaw::onPinDisconnection(std::shared_ptr<NodePin> pin){
+	if(pin == linearAxisPin) linearAxisPositionParameter->unit = Units::None::None;
+}
+
+void LinearMecanumClaw::onPinUpdate(std::shared_ptr<NodePin> pin){
+	if(pin == linearAxisPin) linearAxisPositionParameter->unit = getLinearAxis()->getPositionUnit();
+}
+
+
+void LinearMecanumClaw::setClawPositionUnit(Unit unit){
+	clawPositionUnit = unit;
+	clawAxisPositionParameter->unit = unit;
 }
 
 //======= STATE CHANGES =========
@@ -1057,7 +1076,8 @@ bool LinearMecanumClaw::loadMachine(tinyxml2::XMLElement* xml) {
 	const char* clawUnitString;
 	if(clawXML->QueryStringAttribute("PositionUnit", &clawUnitString) != XML_SUCCESS) return Logger::warn("could not find claw position unit attribute");
 	if(!Units::AngularDistance::isValidSaveString(clawUnitString)) return Logger::warn("Could not identify claw position unit attrifbute");
-	clawPositionUnit = Units::fromSaveString(clawUnitString);
+	setClawPositionUnit(Units::fromSaveString(clawUnitString));
+	
 	if(clawXML->QueryDoubleAttribute("FeedbackUnitsPerClawUnit", &clawFeedbackUnitsPerClawUnit) != XML_SUCCESS) return Logger::warn("could not find claw feedback ratio attribute");
 	if(clawXML->QueryDoubleAttribute("VelocityLimit", &clawVelocityLimit) != XML_SUCCESS) return Logger::warn("could not find claw velocity limit attribute");
 	if(clawXML->QueryDoubleAttribute("AccelerationLimit", &clawAccelerationLimit) != XML_SUCCESS) return Logger::warn("could not find claw acceleration limit attribute");

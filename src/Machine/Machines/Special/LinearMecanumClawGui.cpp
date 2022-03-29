@@ -378,7 +378,7 @@ void LinearMecanumClaw::settingsGui() {
 	if(ImGui::BeginCombo("##unit", clawPositionUnit->singular)){
 		for(auto& unit : Units::AngularDistance::get()){
 			if(ImGui::Selectable(unit->singular, clawPositionUnit == unit)){
-				clawPositionUnit = unit;
+				setClawPositionUnit(unit);
 			}
 		}
 		ImGui::EndCombo();

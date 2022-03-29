@@ -250,11 +250,13 @@ void PositionControlledAxis::setMovementType(MovementType type){
 			break;
 	}
 	sanitizeParameters();
+	axisPin->updateConnectedPins();
 }
 
 void PositionControlledAxis::setPositionUnit(Unit u){
 	positionUnit = u;
 	sanitizeParameters();
+	axisPin->updateConnectedPins();
 }
 
 void PositionControlledAxis::setPositionReferenceSignalType(PositionReferenceSignal type) {
@@ -300,6 +302,7 @@ void PositionControlledAxis::setPositionReferenceSignalType(PositionReferenceSig
 	}
 	positionReferenceSignal = type;
 	sanitizeParameters();
+	axisPin->updateConnectedPins();
 }
 
 
@@ -1028,7 +1031,7 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	const char* axisUnitTypeString;
 	if (unitsXML->QueryStringAttribute("UnitType", &axisUnitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit Type");
 	if (!Enumerator::isValidSaveName<MovementType>(axisUnitTypeString)) return Logger::warn("Could not read Machine Unit Type");
-	movementType = Enumerator::getEnumeratorFromSaveString<MovementType>(axisUnitTypeString);
+	setMovementType(Enumerator::getEnumeratorFromSaveString<MovementType>(axisUnitTypeString));
 	const char* axisUnitString;
 	if (unitsXML->QueryStringAttribute("Unit", &axisUnitString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit");
 	switch(movementType){
@@ -1039,7 +1042,7 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 			if(!Units::LinearDistance::isValidSaveString(axisUnitString)) return Logger::warn("Could not read Machine Unit");
 			break;
 	}
-	positionUnit = Units::fromSaveString(axisUnitString);
+	setPositionUnit(Units::fromSaveString(axisUnitString));
 
 	XMLElement* unitConversionXML = xml->FirstChildElement("UnitConversion");
 	if (!unitConversionXML) return Logger::warn("Could not load Unit Conversion");

@@ -426,7 +426,7 @@ void PositionControlledAxis::controlsGui() {
 	double feedbackPosition = 0.0;
 	double rangeMin = std::numeric_limits<double>::quiet_NaN();
 	double rangeMax = std::numeric_limits<double>::quiet_NaN();
-	Unit feedbackPositionUnit;
+	Unit feedbackPositionUnit = Units::None::None;
 	static char rangeString[64];
 	if (isServoActuatorDeviceConnected()) {
 		std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
