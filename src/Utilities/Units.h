@@ -35,6 +35,11 @@ typedef const Units::UnitStructure* Unit;
 
 namespace Units{
 
+	namespace None{
+	UNIT_TYPE_FUNCTIONS(Type::NONE);
+		extern const UnitStructure* const None;
+	}
+
 	namespace LinearDistance{
 	UNIT_TYPE_FUNCTIONS(Type::LINEAR_DISTANCE);
 		extern const UnitStructure* const Millimeter;

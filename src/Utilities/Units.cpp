@@ -25,6 +25,19 @@ namespace Units{
 
 	std::vector<UnitTypeStructure>& getAllUnits();
 
+	namespace None{
+	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::NONE);
+		extern const UnitStructure* const None = new UnitStructure{
+			.unitType = Units::Type::NONE,
+			.singular = "",
+			.plural = "",
+			.abbreviated = "",
+			.saveString = "NoUnit",
+			.baseMultiplier = 0.0,
+			.baseOffset = 0.0
+		};
+	}
+
 	namespace LinearDistance{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::LINEAR_DISTANCE);
 		const UnitStructure* const Millimeter = new UnitStructure{
@@ -322,6 +335,12 @@ namespace Units{
 
 	std::vector<UnitTypeStructure>& getAllUnits(){
 		static std::vector<UnitTypeStructure> allUnits = {
+			UnitTypeStructure{
+				.unitType = Units::Type::NONE,
+				.units = {
+					None::None
+				}
+			},
 			UnitTypeStructure{
 				.unitType = Units::Type::LINEAR_DISTANCE,
 				.units = {
