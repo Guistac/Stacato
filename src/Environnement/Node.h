@@ -50,7 +50,10 @@ public:
 	std::vector<std::shared_ptr<NodePin>>& getOutputPins() { return nodeOutputPins; }
 	bool hasInputs() { return !nodeInputPins.empty(); }
 	bool hasOutputs() { return !nodeOutputPins.empty(); }
-	virtual void updatePin(std::shared_ptr<NodePin> pin){}
+	void updatePin(std::shared_ptr<NodePin> pin){ onPinUpdate(pin); }
+	virtual void onPinUpdate(std::shared_ptr<NodePin> pin){}
+	virtual void onPinConnection(std::shared_ptr<NodePin> pin){}
+	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin){}
 
 	//nodegraph
 	int getUniqueID() { return uniqueID; }

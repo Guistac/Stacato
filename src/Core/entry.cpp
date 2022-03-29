@@ -33,15 +33,3 @@ int main(int argcount, const char ** args){
 	ApplicationWindow::terminate();
 }
 	
-	namespace Testing{
-		
-		void fn1(){}
-		
-		namespace{
-			void fn2(){}
-		}
-		
-	}
-	
-	
-	

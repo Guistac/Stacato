@@ -103,6 +103,8 @@ namespace Environnement::NodeGraph{
 		newIoLink->outputData = data2->isInput() ? data2 : data1;
 		data1->nodeLinks.push_back(newIoLink);
 		data2->nodeLinks.push_back(newIoLink);
+		newIoLink->inputData->parentNode->onPinConnection(newIoLink->inputData);
+		newIoLink->outputData->parentNode->onPinConnection(newIoLink->outputData);
 		links.push_back(newIoLink);
 		Project::setModified();
 		return newIoLink;
@@ -111,6 +113,9 @@ namespace Environnement::NodeGraph{
 	void disconnect(std::shared_ptr<NodeLink> removedIoLink) {
 		std::vector<std::shared_ptr<NodeLink>>& inputDataLinks = removedIoLink->inputData->nodeLinks;
 		std::vector<std::shared_ptr<NodeLink>>& outputDataLinks = removedIoLink->outputData->nodeLinks;
+		
+		removedIoLink->inputData->parentNode->onPinDisconnection(removedIoLink->inputData);
+		removedIoLink->outputData->parentNode->onPinDisconnection(removedIoLink->outputData);
 
 		for (int i = 0; i < inputDataLinks.size(); i++) {
 			if (inputDataLinks[i] == removedIoLink) {

@@ -37,7 +37,7 @@ public:
 	
 	//processing
 	virtual void process();
-	virtual void updatePin(std::shared_ptr<NodePin> pin);
+	virtual void onPinUpdate(std::shared_ptr<NodePin> pin);
 	
 	//control signal
 	double getControlSignalLowLimit();

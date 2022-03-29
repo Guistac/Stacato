@@ -244,7 +244,7 @@ bool ActuatorToServoActuator::areAllPinsConnected(){
 
 
 //needs to be called by controlling node to exexute control loop
-void ActuatorToServoActuator::updatePin(std::shared_ptr<NodePin> pin){
+void ActuatorToServoActuator::onPinUpdate(std::shared_ptr<NodePin> pin){
 	if(pin == servoActuatorPin){
 		controlLoop();
 	}

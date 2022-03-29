@@ -104,7 +104,7 @@ void GpioActuator::controlLoop(){
 }
 
 //needs to be called by controlling node to execute control loop
-void GpioActuator::updatePin(std::shared_ptr<NodePin> pin){
+void GpioActuator::onPinUpdate(std::shared_ptr<NodePin> pin){
 	if(pin == actuatorPin){
 		controlLoop();
 	}

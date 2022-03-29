@@ -86,7 +86,7 @@ public:
 	void refreshNextChainedCurvePoints();
 	std::vector<std::vector<Motion::CurvePoint>> nextChainedCurvePoints;
 	std::vector<std::vector<Motion::CurvePoint>> previousChainedCurvePoints;
-
+	
 	AnimatableParameterValue origin;
 	AnimatableParameterValue target;
 	AnimatableParameterValue& getOrigin();

@@ -69,6 +69,9 @@ int ParameterTrack::getCurveCount() {
 
 void ParameterTrack::initialize() {
 
+	origin.parameter = parameter;
+	target.parameter = parameter;
+	
 	for (int i = 0; i < getCurveCount(); i++) {
 		curves.push_back(std::make_shared<Motion::Curve>());
 		startPoints.push_back(std::make_shared<Motion::ControlPoint>());
@@ -77,42 +80,35 @@ void ParameterTrack::initialize() {
 	nextChainedCurvePoints.resize(getCurveCount());
 	previousChainedCurvePoints.resize(getCurveCount());
 
-	origin.type = parameter->dataType;
-	target.type = parameter->dataType;
-	origin.shortUnitString = parameter->shortUnitString;
-	target.shortUnitString = parameter->shortUnitString;
-	if (parameter->dataType == ParameterDataType::STATE_PARAMETER) {
-		origin.stateValues = parameter->stateParameterValues;
-		target.stateValues = parameter->stateParameterValues;
-	}
-
 	switch (parameter->dataType) {
 		case ParameterDataType::BOOLEAN_PARAMETER:
-			origin.boolValue = false;
-			target.boolValue = true;
+			origin.boolean = false;
+			target.boolean = true;
 			break;
 		case ParameterDataType::INTEGER_PARAMETER:
-			origin.integerValue = 0;
-			target.integerValue = 1;
+			origin.integer = 0;
+			target.integer = 1;
 			break;
 		case ParameterDataType::STATE_PARAMETER:
-			origin.stateValue = &origin.stateValues->front();
-			target.stateValue = &origin.stateValues->at(1);
+			origin.state = &parameter->getStateValues().front();
+			target.state = &parameter->getStateValues().front();
 			break;
 		case ParameterDataType::REAL_PARAMETER:
 		case ParameterDataType::POSITION:
-			origin.realValue = 0.0;
-			target.realValue = 1.0;
+			origin.real = 0.0;
+			target.real = 1.0;
 			break;
 		case ParameterDataType::VECTOR_2D_PARAMETER:
 		case ParameterDataType::POSITION_2D:
-			origin.vector2value = glm::vec2(0.0);
-			target.vector2value = glm::vec2(1.0);
+			origin.vector2 = glm::vec2(0.0);
+			target.vector2 = glm::vec2(1.0);
 			break;
 		case ParameterDataType::VECTOR_3D_PARAMETER:
 		case ParameterDataType::POSITION_3D:
-			origin.vector3value = glm::vec3(0.0);
-			target.vector3value = glm::vec3(1.0);
+			origin.vector3 = glm::vec3(0.0);
+			target.vector3 = glm::vec3(1.0);
+			break;
+		case ParameterDataType::PARAMETER_GROUP:
 			break;
 	}
 
@@ -225,35 +221,37 @@ void ParameterTrack::refreshAfterChainedDependenciesRefresh() {
 	//convert from non real parameter datatypes
 	switch (parameter->dataType) {
 		case ParameterDataType::BOOLEAN_PARAMETER:
-			startPoints.front()->position = origin.boolValue ? 1.0 : 0.0;
-			endPoints.front()->position = target.boolValue ? 1.0 : 0.0;
+			startPoints.front()->position = origin.boolean ? 1.0 : 0.0;
+			endPoints.front()->position = target.boolean ? 1.0 : 0.0;
 			break;
 		case ParameterDataType::INTEGER_PARAMETER:
-			startPoints.front()->position = origin.integerValue;
-			endPoints.front()->position = target.integerValue;
+			startPoints.front()->position = origin.integer;
+			endPoints.front()->position = target.integer;
 			break;
 		case ParameterDataType::STATE_PARAMETER:
-			startPoints.front()->position = origin.stateValue->integerEquivalent;
-			endPoints.front()->position = target.stateValue->integerEquivalent;
+			startPoints.front()->position = origin.state->integerEquivalent;
+			endPoints.front()->position = target.state->integerEquivalent;
 			break;
 		case ParameterDataType::VECTOR_3D_PARAMETER:
 		case ParameterDataType::POSITION_3D:
-			startPoints[2]->position = origin.vector3value.z;
-			endPoints[2]->position = origin.vector3value.z;
+			startPoints[2]->position = origin.vector3.z;
+			endPoints[2]->position = origin.vector3.z;
 		case ParameterDataType::VECTOR_2D_PARAMETER:
 		case ParameterDataType::POSITION_2D:
-			startPoints[1]->position = origin.vector2value.y;
-			endPoints[1]->position = origin.vector2value.y;
+			startPoints[1]->position = origin.vector2.y;
+			endPoints[1]->position = origin.vector2.y;
 		case ParameterDataType::REAL_PARAMETER:
 		case ParameterDataType::POSITION:
-			startPoints[0]->position = origin.realValue;
-			endPoints[0]->position = target.realValue;
+			startPoints[0]->position = origin.real;
+			endPoints[0]->position = target.real;
 			startPoints[0]->acceleration = rampIn;
 			startPoints[0]->rampIn = rampIn;
 			startPoints[0]->rampOut = rampIn;
 			endPoints[0]->acceleration = rampOut;
 			endPoints[0]->rampIn = rampOut;
 			endPoints[0]->rampOut = rampOut;
+			break;
+		case ParameterDataType::PARAMETER_GROUP:
 			break;
 	}
 
@@ -332,41 +330,41 @@ void ParameterTrack::refreshAfterCurveEdit() {
 
 	switch (parameter->dataType) {
 		case ParameterDataType::BOOLEAN_PARAMETER:
-			origin.boolValue = startPoints.front()->position > 0.5 ? true : false;
-			target.boolValue = endPoints.front()->position > 0.5 ? true : false;
+			origin.boolean = startPoints.front()->position > 0.5 ? true : false;
+			target.boolean = endPoints.front()->position > 0.5 ? true : false;
 			break;
 		case ParameterDataType::INTEGER_PARAMETER:
-			origin.integerValue = std::round(startPoints.front()->position);
-			target.integerValue = std::round(endPoints.front()->position);
+			origin.integer = std::round(startPoints.front()->position);
+			target.integer = std::round(endPoints.front()->position);
 			break;
 		case ParameterDataType::STATE_PARAMETER: {
 			int originInteger = std::round(startPoints.front()->position);
-			std::clamp(originInteger, 0, (int)origin.stateValues->size() - 1);
-			origin.stateValue = &origin.stateValues->at(originInteger);
+			std::clamp(originInteger, 0, (int)parameter->getStateValues().size() - 1);
+			origin.state = &parameter->getStateValues().at(originInteger);
 			int targetInteger = std::round(endPoints.front()->position);
-			std::clamp(targetInteger, 0, (int)target.stateValues->size() - 1);
-			target.stateValue = &target.stateValues->at(targetInteger);
+			std::clamp(targetInteger, 0, (int)parameter->getStateValues().size() - 1);
+			target.state = &parameter->getStateValues().at(targetInteger);
 			}break;
 		case ParameterDataType::VECTOR_3D_PARAMETER:
 		case ParameterDataType::POSITION_3D:
-			origin.vector3value.x = startPoints[0]->position;
-			origin.vector3value.y = startPoints[1]->position;
-			origin.vector3value.z = startPoints[2]->position;
-			target.vector3value.x = endPoints[0]->position;
-			target.vector3value.y = endPoints[1]->position;
-			target.vector3value.z = endPoints[2]->position;
+			origin.vector3.x = startPoints[0]->position;
+			origin.vector3.y = startPoints[1]->position;
+			origin.vector3.z = startPoints[2]->position;
+			target.vector3.x = endPoints[0]->position;
+			target.vector3.y = endPoints[1]->position;
+			target.vector3.z = endPoints[2]->position;
 			break;
 		case ParameterDataType::VECTOR_2D_PARAMETER:
 		case ParameterDataType::POSITION_2D:
-			origin.vector2value.x = startPoints[0]->position;
-			origin.vector2value.y = startPoints[1]->position;
-			target.vector2value.x = endPoints[0]->position;
-			target.vector2value.y = endPoints[1]->position;
+			origin.vector2.x = startPoints[0]->position;
+			origin.vector2.y = startPoints[1]->position;
+			target.vector2.x = endPoints[0]->position;
+			target.vector2.y = endPoints[1]->position;
 			break;
 		case ParameterDataType::REAL_PARAMETER:
 		case ParameterDataType::POSITION:
-			origin.realValue = startPoints[0]->position;
-			target.realValue = endPoints[0]->position;
+			origin.real = startPoints[0]->position;
+			target.real = endPoints[0]->position;
 			break;
 		case ParameterDataType::PARAMETER_GROUP:
 			break;
@@ -549,37 +547,37 @@ AnimatableParameterValue& ParameterTrack::getTarget() {
 }
 
 void ParameterTrack::getParameterValueAtPlaybackTime(AnimatableParameterValue& output) {
-	output.type = parameter->dataType;
+	output.parameter = parameter;
 	switch (parameter->dataType) {
 		case ParameterDataType::BOOLEAN_PARAMETER:
-			output.boolValue = curves[0]->getPointAtTime(playbackPosition_seconds).position > 0.5;
+			output.boolean = curves[0]->getPointAtTime(playbackPosition_seconds).position > 0.5;
 			break;
 		case ParameterDataType::INTEGER_PARAMETER:
-			output.integerValue = std::round(curves[0]->getPointAtTime(playbackPosition_seconds).position);
+			output.integer = std::round(curves[0]->getPointAtTime(playbackPosition_seconds).position);
 			break;
 		case ParameterDataType::STATE_PARAMETER:
 			for (auto& stateValue : *parameter->stateParameterValues) {
 				if (std::round(curves[0]->getPointAtTime(playbackPosition_seconds).position) == stateValue.integerEquivalent) {
-					output.stateValue = &stateValue;
+					output.state = &stateValue;
 					return;
 				}
 			}
-			output.stateValue = &parameter->stateParameterValues->at(0);
+			output.state = &parameter->stateParameterValues->at(0);
 			break;
 		case ParameterDataType::VECTOR_3D_PARAMETER:
 		case ParameterDataType::POSITION_3D:
-			output.vector3value.x = curves[0]->getPointAtTime(playbackPosition_seconds).position;
-			output.vector3value.y = curves[1]->getPointAtTime(playbackPosition_seconds).position;
-			output.vector3value.z = curves[2]->getPointAtTime(playbackPosition_seconds).position;
+			output.vector3.x = curves[0]->getPointAtTime(playbackPosition_seconds).position;
+			output.vector3.y = curves[1]->getPointAtTime(playbackPosition_seconds).position;
+			output.vector3.z = curves[2]->getPointAtTime(playbackPosition_seconds).position;
 			break;
 		case ParameterDataType::VECTOR_2D_PARAMETER:
 		case ParameterDataType::POSITION_2D:
-			output.vector2value.x = curves[0]->getPointAtTime(playbackPosition_seconds).position;
-			output.vector2value.y = curves[1]->getPointAtTime(playbackPosition_seconds).position;
+			output.vector2.x = curves[0]->getPointAtTime(playbackPosition_seconds).position;
+			output.vector2.y = curves[1]->getPointAtTime(playbackPosition_seconds).position;
 			break;
 		case ParameterDataType::REAL_PARAMETER:
 		case ParameterDataType::POSITION:
-			output.realValue = curves[0]->getPointAtTime(playbackPosition_seconds).position;
+			output.real = curves[0]->getPointAtTime(playbackPosition_seconds).position;
 			break;
 		case ParameterDataType::PARAMETER_GROUP:
 			break;

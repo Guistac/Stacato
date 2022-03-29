@@ -7,22 +7,34 @@
 #include <tinyxml2.h>
 
 //Constructor for Base Parameter Types
-AnimatableParameter::AnimatableParameter(const char* nm, ParameterDataType datat, const char* unitShortStr) : dataType(datat) {
+
+AnimatableParameter::AnimatableParameter(const char* nm){
 	strcpy(name, nm);
-	strcpy(shortUnitString, unitShortStr);
+	dataType = ParameterDataType::BOOLEAN_PARAMETER;
+	unit = Units::None::None;
+}
+
+AnimatableParameter::AnimatableParameter(const char* nm, ParameterDataType datat){
+	strcpy(name, nm);
+	dataType = datat;
+	unit = Units::None::None;
+}
+
+AnimatableParameter::AnimatableParameter(const char* nm, ParameterDataType datat, Unit u) {
+	dataType = datat;
+	unit = u;
+	strcpy(name, nm);
 }
 
 //Constructor for Parameter with State DataType
 AnimatableParameter::AnimatableParameter(const char* nm, std::vector<StateParameterValue>* stateValues) : stateParameterValues(stateValues) {
 	strcpy(name, nm);
-	strcpy(shortUnitString, "state");
 	dataType = ParameterDataType::STATE_PARAMETER;
 }
 
 //Constructor for Parameter Group
 AnimatableParameter::AnimatableParameter(const char* nm, std::vector<std::shared_ptr<AnimatableParameter>> children) : childParameters(children) {
 	strcpy(name, nm);
-	strcpy(shortUnitString, "");
 	dataType = ParameterDataType::PARAMETER_GROUP;
 }
 
@@ -53,8 +65,6 @@ std::vector<Motion::InterpolationType> AnimatableParameter::getCompatibleInterpo
 	return output;
 }
 
-
-
 void AnimatableParameter::getActiveTrackParameterValue(AnimatableParameterValue& output) {
 	return actualParameterTrack->getParameterValueAtPlaybackTime(output);
 }
@@ -71,84 +81,77 @@ void AnimatableParameter::getActiveTrackParameterValue(AnimatableParameterValue&
 
 
 void AnimatableParameterValue::reset() {
-	switch (type) {
-	case ParameterDataType::BOOLEAN_PARAMETER:
-		boolValue = false;
-		break;
-	case ParameterDataType::INTEGER_PARAMETER:
-		integerValue = 0;
-		break;
-	case ParameterDataType::STATE_PARAMETER:
-		stateValue = &stateValues->at(0);
-		break;
-	case ParameterDataType::REAL_PARAMETER:
-	case ParameterDataType::POSITION:
-		realValue = 0.0;
-		break;
-	case ParameterDataType::VECTOR_2D_PARAMETER:
-	case ParameterDataType::POSITION_2D:
-		vector2value.x = 0.0;
-		vector2value.y = 0.0;
-		break;
-	case ParameterDataType::VECTOR_3D_PARAMETER:
-	case ParameterDataType::POSITION_3D:
-		vector3value.x = 0.0;
-		vector3value.y = 0.0;
-		vector3value.z = 0.0;
-		break;
+	switch (parameter->dataType) {
+		case ParameterDataType::BOOLEAN_PARAMETER:
+			boolean = false;
+			break;
+		case ParameterDataType::INTEGER_PARAMETER:
+			integer = 0;
+			break;
+		case ParameterDataType::STATE_PARAMETER:
+			state = &parameter->getStateValues().at(0);
+			break;
+		case ParameterDataType::REAL_PARAMETER:
+		case ParameterDataType::POSITION:
+			real = 0.0;
+			break;
+		case ParameterDataType::VECTOR_2D_PARAMETER:
+		case ParameterDataType::POSITION_2D:
+			vector2 = glm::vec2(0.0, 0.0);
+			break;
+		case ParameterDataType::VECTOR_3D_PARAMETER:
+		case ParameterDataType::POSITION_3D:
+			vector2 = glm::vec3(0.0, 0.0, 0.0);
+			break;
+		case ParameterDataType::PARAMETER_GROUP:
+			break;
 	}
 }
 
 bool AnimatableParameterValue::equals(AnimatableParameterValue& other) {
-	switch (type) {
-	case ParameterDataType::BOOLEAN_PARAMETER:
-		return boolValue == other.boolValue;
-	case ParameterDataType::INTEGER_PARAMETER:
-		return integerValue == other.integerValue;
-	case ParameterDataType::STATE_PARAMETER:
-		return stateValue == other.stateValue;
-	case ParameterDataType::REAL_PARAMETER:
-	case ParameterDataType::POSITION:
-		return realValue == other.realValue;
-	case ParameterDataType::VECTOR_2D_PARAMETER:
-	case ParameterDataType::POSITION_2D:
-		return vector2value == other.vector2value;
-	case ParameterDataType::VECTOR_3D_PARAMETER:
-	case ParameterDataType::POSITION_3D:
-		return vector3value == other.vector3value;
-	default:
-		return false;
+	if(parameter->dataType != other.parameter->dataType) return false;
+	switch (parameter->dataType) {
+		case ParameterDataType::BOOLEAN_PARAMETER: 		return boolean == other.boolean;
+		case ParameterDataType::INTEGER_PARAMETER: 		return integer == other.integer;
+		case ParameterDataType::STATE_PARAMETER: 		return state == other.state;
+		case ParameterDataType::REAL_PARAMETER:
+		case ParameterDataType::POSITION:				return real == other.real;
+		case ParameterDataType::VECTOR_2D_PARAMETER:
+		case ParameterDataType::POSITION_2D:			return vector2 == other.vector2;
+		case ParameterDataType::VECTOR_3D_PARAMETER:
+		case ParameterDataType::POSITION_3D:			return vector3 == other.vector3;
+		default:										return false;
 	}
 }
 
 bool AnimatableParameterValue::save(tinyxml2::XMLElement* parameterValueXML) {
-	parameterValueXML->SetAttribute("Type", Enumerator::getSaveString(type));
-	switch (type) {
-	case ParameterDataType::BOOLEAN_PARAMETER:
-		parameterValueXML->SetAttribute("Boolean", boolValue);
-		break;
-	case ParameterDataType::INTEGER_PARAMETER:
-		parameterValueXML->SetAttribute("Integer", integerValue);
-		break;
-	case ParameterDataType::STATE_PARAMETER:
-		parameterValueXML->SetAttribute("State", stateValue->saveName);
-		break;
-	case ParameterDataType::REAL_PARAMETER:
-	case ParameterDataType::POSITION:
-		parameterValueXML->SetAttribute("Real", realValue);
-		break;
-	case ParameterDataType::VECTOR_2D_PARAMETER:
-	case ParameterDataType::POSITION_2D:
-		parameterValueXML->SetAttribute("X", vector2value.x);
-		parameterValueXML->SetAttribute("Y", vector2value.y);
-		break;
-	case ParameterDataType::VECTOR_3D_PARAMETER:
-	case ParameterDataType::POSITION_3D:
-		parameterValueXML->SetAttribute("X", vector3value.x);
-		parameterValueXML->SetAttribute("Y", vector3value.y);
-		parameterValueXML->SetAttribute("Z", vector3value.z);
-		break;
-		case ParameterDataType::PARAMETER_GROUP: break;
+	parameterValueXML->SetAttribute("Type", Enumerator::getSaveString(parameter->dataType));
+	switch (parameter->dataType) {
+		case ParameterDataType::BOOLEAN_PARAMETER:
+			parameterValueXML->SetAttribute("Boolean", boolean);
+			break;
+		case ParameterDataType::INTEGER_PARAMETER:
+			parameterValueXML->SetAttribute("Integer", integer);
+			break;
+		case ParameterDataType::STATE_PARAMETER:
+			parameterValueXML->SetAttribute("State", state->saveName);
+			break;
+		case ParameterDataType::REAL_PARAMETER:
+		case ParameterDataType::POSITION:
+			parameterValueXML->SetAttribute("Real", real);
+			break;
+		case ParameterDataType::VECTOR_2D_PARAMETER:
+		case ParameterDataType::POSITION_2D:
+			parameterValueXML->SetAttribute("X", vector2.x);
+			parameterValueXML->SetAttribute("Y", vector2.y);
+			break;
+		case ParameterDataType::VECTOR_3D_PARAMETER:
+		case ParameterDataType::POSITION_3D:
+			parameterValueXML->SetAttribute("X", vector3.x);
+			parameterValueXML->SetAttribute("Y", vector3.y);
+			parameterValueXML->SetAttribute("Z", vector3.z);
+			break;
+			case ParameterDataType::PARAMETER_GROUP: break;
 	}
 	return true;
 }
@@ -160,42 +163,38 @@ bool AnimatableParameterValue::load(tinyxml2::XMLElement* parameterValueXML) {
 	const char* typeString;
 	if (parameterValueXML->QueryStringAttribute("Type", &typeString) != XML_SUCCESS) return Logger::warn("Could not find parameter data type");
 	if (!Enumerator::isValidSaveName<ParameterDataType>(typeString)) return Logger::warn("Could not read parameter data type");
-	type = Enumerator::getEnumeratorFromSaveString<ParameterDataType>(typeString);
+	ParameterDataType type = Enumerator::getEnumeratorFromSaveString<ParameterDataType>(typeString);
 	switch (type) {
 		case ParameterDataType::BOOLEAN_PARAMETER:
-			if (parameterValueXML->QueryBoolAttribute("Boolean", &boolValue) != XML_SUCCESS) return Logger::warn("Could not read bool value");
+			if (parameterValueXML->QueryBoolAttribute("Boolean", &boolean) != XML_SUCCESS) return Logger::warn("Could not read bool value");
 			break;
 		case ParameterDataType::INTEGER_PARAMETER:
-			if (parameterValueXML->QueryIntAttribute("Integer", &integerValue) != XML_SUCCESS) return Logger::warn("Could not read int value");
+			if (parameterValueXML->QueryIntAttribute("Integer", &integer) != XML_SUCCESS) return Logger::warn("Could not read int value");
 			break;
 		case ParameterDataType::STATE_PARAMETER: {
 			const char* stateValueString;
 			if (parameterValueXML->QueryStringAttribute("State", &stateValueString) != XML_SUCCESS) return Logger::warn("Could not read state value");
-			
-			for(auto& sv : *stateValues){
+			for(auto& sv : parameter->getStateValues()){
 				if(strcmp(sv.saveName, stateValueString) == 0){
-					stateValue = &sv;
+					state = &sv;
 					break;
 				}
 			}
-			
-			//decode state type
-			
 		}break;
 		case ParameterDataType::REAL_PARAMETER:
 		case ParameterDataType::POSITION:
-			if (parameterValueXML->QueryDoubleAttribute("Real", &realValue) != XML_SUCCESS) return Logger::warn("Could not read real value");
+			if (parameterValueXML->QueryDoubleAttribute("Real", &real) != XML_SUCCESS) return Logger::warn("Could not read real value");
 			break;
 		case ParameterDataType::VECTOR_2D_PARAMETER:
 		case ParameterDataType::POSITION_2D:
-			if (parameterValueXML->QueryFloatAttribute("X", &vector2value.x) != XML_SUCCESS) return Logger::warn("Could not read vector2.x value");
-			if (parameterValueXML->QueryFloatAttribute("Y", &vector2value.y) != XML_SUCCESS) return Logger::warn("Could not read vector2.y value");
+			if (parameterValueXML->QueryFloatAttribute("X", &vector2.x) != XML_SUCCESS) return Logger::warn("Could not read vector2.x value");
+			if (parameterValueXML->QueryFloatAttribute("Y", &vector2.y) != XML_SUCCESS) return Logger::warn("Could not read vector2.y value");
 			break;
 		case ParameterDataType::VECTOR_3D_PARAMETER:
 		case ParameterDataType::POSITION_3D:
-			if (parameterValueXML->QueryFloatAttribute("X", &vector3value.x) != XML_SUCCESS) return Logger::warn("Could not read vector3.x value");
-			if (parameterValueXML->QueryFloatAttribute("Y", &vector3value.y) != XML_SUCCESS) return Logger::warn("Could not read vector3.y value");
-			if (parameterValueXML->QueryFloatAttribute("Z", &vector3value.z) != XML_SUCCESS) return Logger::warn("Could not read vector3.z value");
+			if (parameterValueXML->QueryFloatAttribute("X", &vector3.x) != XML_SUCCESS) return Logger::warn("Could not read vector3.x value");
+			if (parameterValueXML->QueryFloatAttribute("Y", &vector3.y) != XML_SUCCESS) return Logger::warn("Could not read vector3.y value");
+			if (parameterValueXML->QueryFloatAttribute("Z", &vector3.z) != XML_SUCCESS) return Logger::warn("Could not read vector3.z value");
 			break;
 		case ParameterDataType::PARAMETER_GROUP:
 			break;

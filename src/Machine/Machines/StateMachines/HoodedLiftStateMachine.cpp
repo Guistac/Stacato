@@ -76,7 +76,7 @@ void HoodedLiftStateMachine::process() {
 		if (stateParameter->hasParameterTrack()) {
 			AnimatableParameterValue value;
 			stateParameter->getActiveTrackParameterValue(value);
-			switch (value.stateValue->integerEquivalent) {
+			switch (value.state->integerEquivalent) {
 				case 0:
 					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
 					break;
@@ -233,22 +233,20 @@ bool HoodedLiftStateMachine::isMoving() {
 }
 
 void HoodedLiftStateMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
-	if (parameter->dataType == value.type) {
-		if (parameter == stateParameter) {
-			parameterMovementStartState = actualState;
-			switch (value.stateValue->integerEquivalent) {
-				case 0:
-					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
-					break;
-				case 1:
-					requestedState = MachineState::State::LIFT_LOWERED_HOOD_OPEN;
-					break;
-				case 2:
-					requestedState = MachineState::State::LIFT_RAISED_HOOD_OPEN;
-					break;
-			}
-			parameterMovementTargetState = requestedState;
+	if (parameter == stateParameter && value.parameter == parameter) {
+		parameterMovementStartState = actualState;
+		switch (value.state->integerEquivalent) {
+			case 0:
+				requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
+				break;
+			case 1:
+				requestedState = MachineState::State::LIFT_LOWERED_HOOD_OPEN;
+				break;
+			case 2:
+				requestedState = MachineState::State::LIFT_RAISED_HOOD_OPEN;
+				break;
 		}
+		parameterMovementTargetState = requestedState;
 	}
 }
 
@@ -266,10 +264,8 @@ float HoodedLiftStateMachine::getParameterRapidProgress(std::shared_ptr<Animatab
 }
 
 bool HoodedLiftStateMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
-	if (parameter->dataType == value.type) {
-		if (parameter == stateParameter) {
-			if ((float)value.stateValue->integerEquivalent == getState(actualState)->floatEquivalent) return true;
-		}
+	if (parameter == stateParameter && value.parameter == parameter) {
+		if ((float)value.state->integerEquivalent == getState(actualState)->floatEquivalent) return true;
 	}
 	return false;
 }
@@ -336,7 +332,7 @@ void HoodedLiftStateMachine::simulateProcess() {
 		if (stateParameter->hasParameterTrack()) {
 			AnimatableParameterValue value;
 			stateParameter->getActiveTrackParameterValue(value);
-			switch (value.stateValue->integerEquivalent) {
+			switch (value.state->integerEquivalent) {
 				case 0:
 					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
 					break;

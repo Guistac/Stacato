@@ -353,7 +353,7 @@ bool ParameterTrack::rampInputGui(float width) {
 		ImGui::PushFont(Fonts::robotoBold15);
 	}
 	ImGui::SetNextItemWidth(width);
-	sprintf(rampInputString, "In: %.3f %s/s\xC2\xB2", rampIn, origin.shortUnitString);
+	sprintf(rampInputString, "In: %.3f %s/s\xC2\xB2", rampIn, parameter->unit->abbreviated);
 	valueChanged |= ImGui::InputDouble("##rampIn", &rampIn, 0.0, 0.0, rampInputString);
 	if (inRampValidationError) {
 		ImGui::PopStyleColor();
@@ -394,7 +394,7 @@ bool ParameterTrack::rampInputGui(float width) {
 	}
 	ImGui::BeginDisabled(rampsAreEqual);
 	ImGui::SetNextItemWidth(width);
-	sprintf(rampInputString, "Out: %.3f %s/s\xC2\xB2", rampOut, origin.shortUnitString);
+	sprintf(rampInputString, "Out: %.3f %s/s\xC2\xB2", rampOut, parameter->unit->abbreviated);
 	valueChanged |= ImGui::InputDouble("##rampOut", &rampOut, 0.0, 0.0, rampInputString);
 	ImGui::EndDisabled();
 	if (outRampValidationError) {

@@ -35,8 +35,8 @@ public:
 	
 	//=== Animatable Machine Parameters
 	
-	std::shared_ptr<AnimatableParameter> linearAxisPositionParameter = std::make_shared<AnimatableParameter>("Position Costière", ParameterDataType::POSITION, "m");
-	std::shared_ptr<AnimatableParameter> clawAxisPositionParameter = std::make_shared<AnimatableParameter>("Angle Coeur", ParameterDataType::POSITION, "deg");
+	std::shared_ptr<AnimatableParameter> linearAxisPositionParameter = std::make_shared<AnimatableParameter>("Position Costière", ParameterDataType::POSITION);
+	std::shared_ptr<AnimatableParameter> clawAxisPositionParameter = std::make_shared<AnimatableParameter>("Angle Coeur", ParameterDataType::POSITION);
 	
 	//=== Device Checking & Gettings
 	

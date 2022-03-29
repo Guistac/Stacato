@@ -4,6 +4,7 @@
 
 class Machine;
 class ParameterTrack;
+class AnimatableParameter;
 namespace tinyxml2 { class XMLElement; }
 
 enum class ParameterDataType {
@@ -34,6 +35,8 @@ enum class ParameterDataType {
 DEFINE_ENUMERATOR(ParameterDataType, ParameterDataTypeStrings)
 
 
+
+
 //=== value structure for State Data Type ===
 struct StateParameterValue {
 	int integerEquivalent;
@@ -42,23 +45,22 @@ struct StateParameterValue {
 };
 
 
+
 struct AnimatableParameterValue {
 public:
-
+	
 	//=== Base Information ===
-	ParameterDataType type;
-	const char* shortUnitString = nullptr;
+	std::shared_ptr<AnimatableParameter> parameter;
 
 	//=== Value Data ===
-	bool boolValue = false;
-	int integerValue = false;
-	StateParameterValue* stateValue = nullptr;
-	double realValue = false;
-	glm::vec2 vector2value = glm::vec2(0);
-	glm::vec3 vector3value = glm::vec3(0);
-	
-	//=== State values for parameters with state data type ===
-	std::vector<StateParameterValue>* stateValues = nullptr;
+	union {
+		bool boolean;
+		int integer;
+		double real;
+		glm::vec2 vector2;
+		glm::vec3 vector3;
+		StateParameterValue* state;
+	};
 
 	//=== Reset and Comparison ===
 	void reset();
@@ -77,7 +79,9 @@ class AnimatableParameter {
 public:
 
 	//Constructor for Base Parameter Types
-	AnimatableParameter(const char* nm, ParameterDataType datat, const char* unitShortStr);
+	AnimatableParameter(const char* nm);
+	AnimatableParameter(const char* nm, ParameterDataType datat);
+	AnimatableParameter(const char* nm, ParameterDataType datat, Unit unit);
 
 	//Constructor for Parameter with State DataType
 	AnimatableParameter(const char* nm, std::vector<StateParameterValue>* stateValues);
@@ -85,8 +89,6 @@ public:
 	//Constructor for Parameter Group
 	AnimatableParameter(const char* nm, std::vector<std::shared_ptr<AnimatableParameter>> children);
 	
-	//AnimatableParameter(const char* nm, ParameterDataType datat, Unit::Type* unitTypePointer);
-
 	//=== Basic Parameter Information ===
 	ParameterDataType dataType;
 	char name[128];
@@ -94,31 +96,21 @@ public:
 
 	//=== For Non-Group Parameters ===
 	std::vector<Motion::InterpolationType> getCompatibleInterpolationTypes();
-	char shortUnitString[16];
-	
-	//=== For Parameters Controlled by ParameterTrack Animation ===
-	std::shared_ptr<ParameterTrack> actualParameterTrack = nullptr;
-	bool hasParameterTrack() {
-		return actualParameterTrack != nullptr;
-	}
-	void getActiveTrackParameterValue(AnimatableParameterValue& output);
+	Unit unit;
 
 	//=== For Parameters with State Type ===
 	std::vector<StateParameterValue>* stateParameterValues = nullptr;
-	std::vector<StateParameterValue>& getStateValues() {
-		return *stateParameterValues;
-	}
+	std::vector<StateParameterValue>& getStateValues() { return *stateParameterValues; }
 
 	//=== For Group Parameters or Parameters in a group ===
 	std::vector<std::shared_ptr<AnimatableParameter>> childParameters;
 	std::shared_ptr<AnimatableParameter> parentParameter = nullptr;
-	bool hasParentGroup() {
-		return parentParameter != nullptr;
-	}
-	bool hasChildParameters() {
-		return !childParameters.empty();
-	}
-	std::shared_ptr<AnimatableParameter> getParentGroup() {
-		return parentParameter;
-	}
+	bool hasParentGroup() { return parentParameter != nullptr; }
+	bool hasChildParameters() { return !childParameters.empty(); }
+	std::shared_ptr<AnimatableParameter> getParentGroup() { return parentParameter; }
+	
+	//=== For Parameters Controlled by ParameterTrack Animation ===
+	std::shared_ptr<ParameterTrack> actualParameterTrack = nullptr;
+	bool hasParameterTrack() { return actualParameterTrack != nullptr; }
+	void getActiveTrackParameterValue(AnimatableParameterValue& output);
 };
