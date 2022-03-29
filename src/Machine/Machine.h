@@ -84,7 +84,7 @@ public:
 	virtual void onEnableHardware() = 0;
 	virtual void onDisableHardware() = 0;
 	
-	virtual bool isHomeable() { return false; }
+	virtual bool isHomeable(){ return false; }
 	virtual bool isHoming(){ return false; }
 	virtual void startHoming(){}
 	virtual void stopHoming(){}
