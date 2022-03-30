@@ -27,7 +27,6 @@ namespace Environnement::Gui{
 			}
 			if (ImGui::BeginTabItem("Stage Editor")) {
 				stageEditor();
-				ImGui::Text("3D Scene Graph / Geometry importer / Machine movement assignement");
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Fieldbus")) {

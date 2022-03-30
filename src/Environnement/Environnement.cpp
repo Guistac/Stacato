@@ -15,6 +15,8 @@
 #include "Networking/Network.h"
 #include "Networking/NetworkDevice.h"
 
+#include "Scripting/Script.h"
+
 namespace Environnement {
 
 	bool b_isStarting = false;
@@ -384,6 +386,10 @@ namespace Environnement {
 		NodeGraph::Gui::reset();
 		getEtherCatDevices().clear();
 		getMachines().clear();
+		
+		stageVisualizerScript = std::make_shared<Script>();
 	}
+
+	std::shared_ptr<Script> stageVisualizerScript;
 
 }

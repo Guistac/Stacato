@@ -9,6 +9,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Rendering/ofRenderer.h
     ${STACATO_SOURCE_DIRECTORY}/Rendering/ofRenderer.cpp
 
+    ${STACATO_SOURCE_DIRECTORY}/Scripting/Script.h
+    ${STACATO_SOURCE_DIRECTORY}/Scripting/Script.cpp
+
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Gui.h
@@ -28,6 +31,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/EnvironnementGui.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/EnvironnementGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/EnvironnementEditorGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/StageEditorGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachineManagerGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/DeviceManagerGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/HomingGui.cpp
