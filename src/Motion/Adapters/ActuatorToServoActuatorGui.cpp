@@ -25,7 +25,7 @@ void ActuatorToServoActuator::nodeSpecificGui(){
 
 void ActuatorToServoActuator::controlGui(){
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Controls");
 	ImGui::PopFont();
 	
@@ -128,7 +128,7 @@ void ActuatorToServoActuator::controlGui(){
 	
 	ImGui::Separator();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Feedback");
 	ImGui::PopFont();
 	
@@ -239,11 +239,11 @@ void ActuatorToServoActuator::controlGui(){
 
 void ActuatorToServoActuator::settingsGui(){
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Servo Actuator");
 	ImGui::PopFont();
 
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Actuator Device:");
 	ImGui::PopFont();
 	ImGui::SameLine();
@@ -268,11 +268,11 @@ void ActuatorToServoActuator::settingsGui(){
 	
 		ImGui::Separator();
 		
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("Position Feedback");
 		ImGui::PopFont();
 	
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Position Feedback Device:");
 		ImGui::PopFont();
 		ImGui::SameLine();
@@ -298,7 +298,7 @@ void ActuatorToServoActuator::settingsGui(){
 
 	ImGui::Separator();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Position Controller");
 	ImGui::PopFont();
 	

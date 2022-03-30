@@ -29,7 +29,7 @@ void PositionControlledSingleAxisMachine::controlsGui() {
 
 	float widgetWidth = ImGui::GetContentRegionAvail().x;
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Velocity Control");
 	ImGui::PopFont();
 
@@ -41,7 +41,7 @@ void PositionControlledSingleAxisMachine::controlsGui() {
 
 	ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Position Control");
 	ImGui::PopFont();
 
@@ -64,7 +64,7 @@ void PositionControlledSingleAxisMachine::controlsGui() {
 
 	if (axis->isHomeable()) {
 
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("Homing Controls");
 		ImGui::PopFont();
 
@@ -110,7 +110,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 	}
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Machine Limits :");
 	ImGui::PopFont();
 
@@ -118,7 +118,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Position Unit");
 		ImGui::PopFont();
 		ImGui::TableSetColumnIndex(1);
@@ -126,7 +126,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Lower Position Limit: ");
 		ImGui::PopFont();
 		ImGui::SameLine();
@@ -135,7 +135,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Upper Position Limit: ");
 		ImGui::PopFont();
 		ImGui::SameLine();
@@ -144,7 +144,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Velocity Limit: ");
 		ImGui::PopFont();
 		ImGui::SameLine();
@@ -153,7 +153,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Acceleration Limit: ");
 		ImGui::PopFont();
 		ImGui::SameLine();
@@ -163,7 +163,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::EndTable();
 	}
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Current State :");
 	ImGui::PopFont();
 		
@@ -171,7 +171,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Target Position: ");
 		ImGui::PopFont();
 		ImGui::SameLine();
@@ -180,7 +180,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Target Velocity: ");
 		ImGui::PopFont();
 		ImGui::SameLine();
@@ -190,7 +190,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 		ImGui::EndTable();
 	}
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Rapids");
 	ImGui::PopFont();
 
@@ -209,7 +209,7 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 	
 	ImGui::Separator();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Machine Zero");
 	ImGui::PopFont();
 	
@@ -234,7 +234,7 @@ void PositionControlledSingleAxisMachine::axisGui() {
 	}
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("%s", axis->getName());
 	ImGui::PopFont();
 
@@ -260,7 +260,7 @@ void PositionControlledSingleAxisMachine::deviceGui() {
 	getDevices(devices);
 
 	auto deviceTabBar = [](std::shared_ptr<Device> device) {
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("%s", device->getName());
 		ImGui::PopFont();
 		if (ImGui::BeginTabBar(device->getName())) {
@@ -370,7 +370,7 @@ void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
 		}
 		
 
-		ImGui::PushFont(Fonts::robotoRegular12);
+		ImGui::PushFont(Fonts::sansRegular12);
 		glm::vec2 feedbackButtonSize(verticalSliderSize.x, ImGui::GetTextLineHeight());
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);

@@ -13,14 +13,14 @@
 namespace NodeEditor = ax::NodeEditor;
 
 float Node::getTitleWidth() {
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     float width = ImGui::CalcTextSize(getName()).x;
     ImGui::PopFont();
     return width;
 }
 
 void Node::titleGui() {
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("%s", getName());
     ImGui::PopFont();
 }

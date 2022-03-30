@@ -59,7 +59,7 @@ void PositionControlledAxis::controlsGui() {
 	glm::vec2 largeDoubleButtonSize(doubleWidgetWidth, ImGui::GetTextLineHeight() * 2.0);
 	glm::vec2 progressBarSize(singleWidgetWidth, ImGui::GetFrameHeight());
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Controls");
 	ImGui::PopFont();
 	
@@ -105,7 +105,7 @@ void PositionControlledAxis::controlsGui() {
 		
 	//------------------- VELOCITY CONTROLS ------------------------
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Velocity Control");
 	ImGui::PopFont();
 
@@ -123,7 +123,7 @@ void PositionControlledAxis::controlsGui() {
 
 	//------------------------- POSITION CONTROLS --------------------------
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Position Control");
 	ImGui::PopFont();
 
@@ -160,7 +160,7 @@ void PositionControlledAxis::controlsGui() {
 
 	ImGui::Separator();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Origin and Limit Setting");
 	ImGui::PopFont();
 
@@ -168,7 +168,7 @@ void PositionControlledAxis::controlsGui() {
 	if (beginHelpMarker("(help)")) {
 		switch (positionReferenceSignal) {
 			case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
-				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::PushFont(Fonts::sansBold15);
 				ImGui::Text("Signal At Lower Limit");
 				ImGui::PopFont();
 				ImGui::TextWrapped("The Homing Sequence will move the axis in the negative direction until the negative limit signal is triggered."
@@ -176,7 +176,7 @@ void PositionControlledAxis::controlsGui() {
 					"\nThe Positive Limit is set by manually moving the axis to the desired position and capturing it as the limit.");
 				break;
 			case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::PushFont(Fonts::sansBold15);
 				ImGui::Text("Signal At Lower and Upper Limit");
 				ImGui::PopFont();
 				ImGui::TextWrapped("The Homing Sequence will first move the axis in the %s direction, then in the %s direction until each limit signal is triggered."
@@ -186,7 +186,7 @@ void PositionControlledAxis::controlsGui() {
 					homingDirection == HomingDirection::NEGATIVE ? "Positive" : "Negative");
 				break;
 			case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
-				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::PushFont(Fonts::sansBold15);
 				ImGui::Text("Signal At Origin");
 				ImGui::PopFont();
 				ImGui::TextWrapped("The Homing Sequence will move the axis in the %s direction until the reference signal is triggered."
@@ -195,7 +195,7 @@ void PositionControlledAxis::controlsGui() {
 					homingDirection == HomingDirection::NEGATIVE ? "Negative" : "Positive");
 				break;
 			case PositionReferenceSignal::NO_SIGNAL:
-				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::PushFont(Fonts::sansBold15);
 				ImGui::Text("No Position Reference Signal");
 				ImGui::PopFont();
 				ImGui::TextWrapped("No Homing Sequence is available."
@@ -276,7 +276,7 @@ void PositionControlledAxis::controlsGui() {
 		
 	ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Position Feedback Scaling");
 	ImGui::PopFont();
 
@@ -311,7 +311,7 @@ void PositionControlledAxis::controlsGui() {
 		
 	//-------------------------------- FEEDBACK --------------------------------
 		
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Feedback");
 	ImGui::PopFont();
 
@@ -473,7 +473,7 @@ void PositionControlledAxis::settingsGui() {
 	
 	//------------------ GENERAL MACHINE SETTINGS -------------------------
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Axis Settings");
 	ImGui::PopFont();
 
@@ -510,7 +510,7 @@ void PositionControlledAxis::settingsGui() {
 
 	ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Servo Actuator");
 	ImGui::PopFont();
 
@@ -521,20 +521,20 @@ void PositionControlledAxis::settingsGui() {
 		const char* feedbackTypeString = Enumerator::getDisplayString(feedbackType);
 		std::shared_ptr<Device> servoActuatorParentDevice = servo->parentDevice;
 
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Device:");
 		ImGui::PopFont();
 		ImGui::SameLine();
 		if(servoActuatorParentDevice) ImGui::Text("%s on %s", servo->getName(), servo->parentDevice->getName());
 		else ImGui::Text("%s on Node %s", servo->getName(), servoActuatorPin->getConnectedPin()->getNode()->getName());
 
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Position Unit:");
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::Text("%s", servo->positionUnit->singular);
 
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Feedback Type:");
 		ImGui::PopFont();
 		ImGui::SameLine();
@@ -564,7 +564,7 @@ void PositionControlledAxis::settingsGui() {
 
 	ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Kinematic Limits");
 	ImGui::PopFont();
 
@@ -618,7 +618,7 @@ void PositionControlledAxis::settingsGui() {
 
 	//----------------- REFERENCE SIGNALS, ORIGN AND HOMING -----------------
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Reference Signals & Homing");
 	ImGui::PopFont();
 
@@ -678,7 +678,7 @@ void PositionControlledAxis::settingsGui() {
 		}
 		else {
 			std::shared_ptr<GpioDevice> gpioDevice = getReferenceDevice();
-			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Reference Device:");
 			ImGui::PopFont();
 			ImGui::SameLine();
@@ -743,7 +743,7 @@ void PositionControlledAxis::settingsGui() {
 
 	//----------------- POSITION LIMITS -----------------
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Position Limits");
 	ImGui::PopFont();
 
@@ -845,12 +845,12 @@ void PositionControlledAxis::devicesGui() {
 
 	glm::vec2 buttonSize(ImGui::GetTextLineHeight() * 6, ImGui::GetTextLineHeight() * 1.5);
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Servo Actuator:");
 	ImGui::PopFont();
 	if (isServoActuatorDeviceConnected()) {
 		std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("'%s' on device %s", servo->getName(), servo->parentDevice->getName());
 		ImGui::PopFont();
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
@@ -872,12 +872,12 @@ void PositionControlledAxis::devicesGui() {
 	ImGui::Separator();
 
 	if (needsReferenceDevice()) {
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("Position Reference: ");
 		ImGui::PopFont();
 		if (isReferenceDeviceConnected()) {
 			std::shared_ptr<GpioDevice> gpioDevice = getReferenceDevice();
-			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("'%s' on device %s", gpioDevice->getName(), gpioDevice->parentDevice->getName());
 			ImGui::PopFont();
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);

@@ -25,7 +25,7 @@ void BinaryOscillator6x::controlsGui() {
 
 	if(b_disableAllControls) BEGIN_DISABLE_IMGUI_ELEMENT
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Device Status");
 	ImGui::PopFont();
 
@@ -56,7 +56,7 @@ void BinaryOscillator6x::controlsGui() {
 
 	ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Control");
 	ImGui::PopFont();
 
@@ -92,7 +92,7 @@ void BinaryOscillator6x::controlsGui() {
 
 	ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Oscillator Control");
 	ImGui::PopFont();
 
@@ -159,7 +159,7 @@ void BinaryOscillator6x::deviceGui() {
 
 			if (ImGui::BeginTabItem(device->getName())) {
 				
-				ImGui::PushFont(Fonts::robotoBold20);
+				ImGui::PushFont(Fonts::sansBold20);
 				ImGui::Text(device->getName());
 				ImGui::PopFont();
 

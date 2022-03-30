@@ -14,7 +14,7 @@
 
 void HoodedLiftStateMachine::controlsGui() {
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Flip Controls");
 	ImGui::PopFont();
 
@@ -24,7 +24,7 @@ void HoodedLiftStateMachine::controlsGui() {
 	
 	ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Limit Switch Signals");
 	ImGui::PopFont();
 
@@ -67,13 +67,13 @@ void HoodedLiftStateMachine::controlsGui() {
 		ImGui::PopStyleColor();
 	}
 
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Actual State:");
 	ImGui::PopFont();
 	ImGui::SameLine();
 	ImGui::Text("%s", getState(actualState)->displayName);
 	ImGui::SameLine();
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Requested State:");
 	ImGui::PopFont();
 	ImGui::SameLine();
@@ -81,7 +81,7 @@ void HoodedLiftStateMachine::controlsGui() {
 
 	ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Status Signals");
 	ImGui::PopFont();
 

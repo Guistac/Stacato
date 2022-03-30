@@ -25,10 +25,10 @@ void Manoeuvre::listGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 	ImGui::BeginGroup();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	float cueNameWidth = ImGui::CalcTextSize(manoeuvre->name).x;
 	ImGui::PopFont();
-	ImGui::PushFont(Fonts::robotoLight20);
+	ImGui::PushFont(Fonts::sansLight20);
 	const char* manoeuvreTypeShortName = manoeuvre->getShortTypeString();
 	float typeNameWidth = ImGui::CalcTextSize(manoeuvreTypeShortName).x;
 	ImGui::PopFont();
@@ -55,13 +55,13 @@ void Manoeuvre::listGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 		ImGui::PushStyleColor(ImGuiCol_Text, blink ? Colors::red : Colors::yellow);
 	}
 	else ImGui::PushStyleColor(ImGuiCol_Text, Colors::white);
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::SameLine(ImGui::GetStyle().ItemSpacing.x / 2.0);
 	ImGui::Text("%s", manoeuvre->name);
 	ImGui::PopFont();
 	ImGui::PopStyleColor();
 
-	ImGui::PushFont(Fonts::robotoLight20);
+	ImGui::PushFont(Fonts::sansLight20);
 	ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 1.0, 1.0, 0.3));
 	ImGui::NewLine();
 	ImGui::SameLine(ImGui::GetStyle().ItemSpacing.x / 2.0);
@@ -102,13 +102,13 @@ void Manoeuvre::listGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
-	ImGui::PushFont(Fonts::robotoBold42);
+	ImGui::PushFont(Fonts::sansBold42);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 3.0);
 	ImGui::InputText("##cueName", manoeuvre->name, 64);
 	ImGui::PopFont();
 	ImGui::SameLine();
 	glm::vec2 descriptionFieldSize(ImGui::GetContentRegionAvail().x, ImGui::GetItemRectSize().y);
-	ImGui::PushFont(Fonts::robotoRegular20);
+	ImGui::PushFont(Fonts::sansRegular20);
 	ImGui::InputTextMultiline("##cueDescription", manoeuvre->description, 256, descriptionFieldSize, ImGuiInputTextFlags_CtrlEnterForNewLine);
 	ImGui::PopFont();
 
@@ -242,7 +242,7 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
             }
 
             ImGui::PushStyleColor(ImGuiCol_Text, Colors::white);
-            ImGui::PushFont(Fonts::robotoBold15);
+            ImGui::PushFont(Fonts::sansBold15);
             bool parameterValid = parameterTrack->b_valid;
             if (!parameterValid) ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
 

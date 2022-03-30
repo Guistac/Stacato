@@ -27,14 +27,14 @@ namespace Environnement::Gui{
 			   //if there are no selected nodes, display the Environnement Name Editor and Node adder list
 			   if (selectedNodes.empty()) {
 				   
-				   ImGui::PushFont(Fonts::robotoBold20);
+				   ImGui::PushFont(Fonts::sansBold20);
 				   ImGui::Text("Environnement Editor");
 				   ImGui::PopFont();
 				   
 				   
-				   ImGui::PushFont(Fonts::robotoBold15);
+				   ImGui::PushFont(Fonts::sansBold15);
 				   if(ImGui::CollapsingHeader("Project")){
-					   ImGui::PushFont(Fonts::robotoRegular15);
+					   ImGui::PushFont(Fonts::sansRegular15);
 					   ImGui::Text("Project Name :");
 					   ImGui::InputText("##EnvName", (char*)Environnement::getName(), 256);
 					   if(ImGui::IsItemDeactivatedAfterEdit()) Environnement::updateName();
@@ -53,7 +53,7 @@ namespace Environnement::Gui{
 			   }
 			   else if (selectedNodes.size() == 1) {
 				   std::shared_ptr<Node> selectedNode = selectedNodes.front();
-				   ImGui::PushFont(Fonts::robotoBold20);
+				   ImGui::PushFont(Fonts::sansBold20);
 				   ImGui::Text("%s", selectedNode->getName());
 				   ImGui::PopFont();
 				   ImGui::Separator();
@@ -63,7 +63,7 @@ namespace Environnement::Gui{
 				   }
 			   }
 			   else {
-				   ImGui::PushFont(Fonts::robotoBold20);
+				   ImGui::PushFont(Fonts::sansBold20);
 				   ImGui::Text("Multiple Nodes Selected");
 				   ImGui::PopFont();
 				   if (ImGui::BeginTabBar("NodeEditorSidePanel")) {

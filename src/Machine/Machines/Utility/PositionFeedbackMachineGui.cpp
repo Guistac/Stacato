@@ -12,7 +12,7 @@
 
 void PositionFeedbackMachine::controlsGui(){
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Position Feedback");
 	ImGui::PopFont();
 	
@@ -25,7 +25,7 @@ void PositionFeedbackMachine::controlsGui(){
 	
 	float widgetWidth = ImGui::GetContentRegionAvail().x;
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Current Position :");
 	ImGui::PopFont();
 	ImGui::SameLine();
@@ -38,7 +38,7 @@ void PositionFeedbackMachine::controlsGui(){
 				feedbackPositionToMachinePosition(feedbackDevice->getMaxPosition()),
 				shortPositionUnitString);
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Current Velocity :");
 	ImGui::PopFont();
 	ImGui::SameLine();
@@ -56,11 +56,11 @@ void PositionFeedbackMachine::controlsGui(){
 
 
 void PositionFeedbackMachine::settingsGui(){
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Feedback Settings");
 	ImGui::PopFont();
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Device :");
 	ImGui::PopFont();
 	ImGui::SameLine();
@@ -71,13 +71,13 @@ void PositionFeedbackMachine::settingsGui(){
 	
 	auto feedbackDevice = getFeedbackDevice();
 	ImGui::Text("%s on %s", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Device Unit :");
 	ImGui::PopFont();
 	ImGui::SameLine();
 	ImGui::Text("%s", feedbackDevice->getPositionUnit()->singular);
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Movement Type :");
 	ImGui::PopFont();
 	if (ImGui::BeginCombo("##UnitType", Enumerator::getDisplayString(movementType))) {
@@ -91,7 +91,7 @@ void PositionFeedbackMachine::settingsGui(){
 
 	float widgetWidth = ImGui::GetItemRectSize().x;
 
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Position Unit :");
 	ImGui::PopFont();
 	
@@ -111,14 +111,14 @@ void PositionFeedbackMachine::settingsGui(){
 		ImGui::EndCombo();
 	}
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("%s per Feedback %s :", positionUnit->plural, feedbackDevice->getPositionUnit()->singular);
 	ImGui::PopFont();
 	ImGui::InputDouble("##conversionRatio", &machineUnitsPerFeedbackUnit);
 	
 	ImGui::Checkbox("Invert Direction of Motion", &b_invertDirection);
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Position at Feedback Zero");
 	ImGui::PopFont();
 	static char offsetString[256];
@@ -127,7 +127,7 @@ void PositionFeedbackMachine::settingsGui(){
 	
 	widgetWidth = ImGui::GetContentRegionAvail().x;
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Feedback Position :");
 	ImGui::PopFont();
 	ImGui::SameLine();
@@ -140,7 +140,7 @@ void PositionFeedbackMachine::settingsGui(){
 				feedbackDevice->getMaxPosition(),
 				feedbackDeviceUnitShortString);
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Machine Position :");
 	ImGui::PopFont();
 	ImGui::SameLine();
@@ -152,7 +152,7 @@ void PositionFeedbackMachine::settingsGui(){
 				positionUnitShortString,
 				feedbackPositionToMachinePosition(feedbackDevice->getMaxPosition()),
 				positionUnitShortString);
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Machine Velocity :");
 	ImGui::PopFont();
 	ImGui::SameLine();
@@ -164,7 +164,7 @@ void PositionFeedbackMachine::settingsGui(){
 	
 	ImGui::Separator();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Zero & Scaling");
 	ImGui::PopFont();
 	
@@ -236,19 +236,19 @@ void PositionFeedbackMachine::machineSpecificMiniatureGui(){
 	}
 	
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Position :");
 	ImGui::PopFont();
 	ImGui::SameLine();
 	ImGui::Text("%s", positionString);
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Velocity :");
 	ImGui::PopFont();
 	ImGui::SameLine();
 	ImGui::Text("%s", velocityString);
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Working Range :");
 	ImGui::PopFont();
 	ImGui::ProgressBar(progressNormalized, widgetSize, positionProgressString);

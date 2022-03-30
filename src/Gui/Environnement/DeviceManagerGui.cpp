@@ -23,7 +23,7 @@ namespace Environnement::Gui{
 		   
 		   ImGui::BeginGroup();
 		   
-		   ImGui::PushFont(Fonts::robotoBold20);
+		   ImGui::PushFont(Fonts::sansBold20);
 		   ImGui::Text("EtherCat Device Manager");
 		   ImGui::PopFont();
 		   
@@ -32,7 +32,7 @@ namespace Environnement::Gui{
 				   std::shared_ptr<EtherCatDevice> etherCatDevice = etherCatDevices[i];
 				   if (etherCatDeviceList.beginItem(glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing()))) {
 					   
-					   ImGui::PushFont(Fonts::robotoBold15);
+					   ImGui::PushFont(Fonts::sansBold15);
 					   static char numberString[16];
 					   if(!etherCatDevice->isDetected()) sprintf(numberString, "#-");
 					   else sprintf(numberString, "#%i", etherCatDevice->getSlaveIndex());
@@ -92,7 +92,7 @@ namespace Environnement::Gui{
 		   ImGui::BeginChild("##selectedDevice", ImGui::GetContentRegionAvail());
 			   
 		   if(Environnement::selectedEtherCatDevice){
-			   ImGui::PushFont(Fonts::robotoBold20);
+			   ImGui::PushFont(Fonts::sansBold20);
 			   ImGui::Text("%s", Environnement::selectedEtherCatDevice->getName());
 			   ImGui::PopFont();
 			   if(ImGui::BeginTabBar("selectedDeviceTabBar")){
@@ -100,7 +100,7 @@ namespace Environnement::Gui{
 				   ImGui::EndTabBar();
 			   }
 		   }else{
-			   ImGui::PushFont(Fonts::robotoBold20);
+			   ImGui::PushFont(Fonts::sansBold20);
 			   ImGui::Text("No Device Selected.");
 			   ImGui::PopFont();
 		   }

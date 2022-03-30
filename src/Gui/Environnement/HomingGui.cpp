@@ -31,7 +31,7 @@ namespace Environnement::Gui{
 		
 			ImGui::BeginChild(machine->getName(), machineHomingBoxSize, true);
 			
-			ImGui::PushFont(Fonts::robotoBold20);
+			ImGui::PushFont(Fonts::sansBold20);
 			ImGui::Text("%s", machine->getName());
 			ImGui::PopFont();
 			
@@ -92,7 +92,7 @@ namespace Environnement::Gui{
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0);
 		ImGui::BeginChild("NetworkSetup", environnementBoxSize, true);
 		
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("Network");
 		ImGui::PopFont();
 		
@@ -139,7 +139,7 @@ namespace Environnement::Gui{
 		
 		if(ImGui::IsItemHovered()){
 			ImGui::BeginTooltip();
-			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Detected Devices:");
 			ImGui::PopFont();
 			for(auto& device : EtherCatFieldbus::slaves){

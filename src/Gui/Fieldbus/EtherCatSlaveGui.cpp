@@ -105,7 +105,7 @@ void EtherCatDevice::generalGui() {
     ImGui::PopItemFlag();
 
     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::PushStyleColor(ImGuiCol_Button, isConnected() ? Colors::green : (isDetected() ? Colors::yellow : Colors::red));
     ImGui::Button(isConnected() ? "Online" : (isDetected() ? "Detected" : "Offline"), statusDisplaySize);
     ImGui::PopStyleColor();
@@ -123,7 +123,7 @@ void EtherCatDevice::generalGui() {
 
 void EtherCatDevice::identificationGui() {
 
-    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::PushFont(Fonts::sansBold20);
     ImGui::Text("Device Identification");
     ImGui::PopFont();
 
@@ -383,7 +383,7 @@ void EtherCatDevice::sendReceiveCanOpenGui() {
 
     ImGui::PushID("Coe");
 
-    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::PushFont(Fonts::sansBold20);
     ImGui::Text("CanOpen data");
     ImGui::PopFont();
 
@@ -497,7 +497,7 @@ void EtherCatDevice::sendReceiveEtherCatRegisterGui() {
 
     ImGui::PushID("ESC");
 
-    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::PushFont(Fonts::sansBold20);
     ImGui::Text("EtherCAT register data");
     ImGui::PopFont();
 
@@ -587,7 +587,7 @@ void EtherCatDevice::sendReceiveEtherCatRegisterGui() {
 
 	ImGui::Separator();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("AL Status Code");
 	ImGui::PopFont();
 	
@@ -603,7 +603,7 @@ void EtherCatDevice::sendReceiveEtherCatRegisterGui() {
 	bool errorCode = downloadedALStatuscode != 0x0;
 	if(errorCode){
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 	}
 	ImGui::TextWrapped("%X : %s", downloadedALStatuscode, statusCodeString);
 	if(errorCode){
@@ -620,7 +620,7 @@ void EtherCatDevice::sendReceiveSiiGui() {
 
     ImGui::PushID("SII");
 
-    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::PushFont(Fonts::sansBold20);
     ImGui::Text("Slave Information Interface Data");
     ImGui::PopFont();
 
@@ -703,7 +703,7 @@ void EtherCatDevice::sendReceiveSiiGui() {
 
 void EtherCatDevice::sendReceiveEeprom() {
 
-    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::PushFont(Fonts::sansBold20);
     ImGui::Text("Device EEPROM");
     ImGui::PopFont();
 

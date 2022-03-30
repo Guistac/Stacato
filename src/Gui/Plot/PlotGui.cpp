@@ -32,7 +32,7 @@ namespace PlotGui{
 		
 		
 		
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		BackgroundText::draw("Conduite"/*currentPlot->name*/, glm::vec2(sideBarWidth, plotHeaderHeight), Colors::darkGray);
 		ImGui::PopFont();
 		
@@ -87,7 +87,7 @@ namespace PlotGui{
 		//================== MANOEUVER MANAGER BUTTONS ========================
 
 		static const char* manoeuvreManagerString = "Manoeuvre Manager";
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::NewLine();
 		ImGui::SameLine((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(manoeuvreManagerString).x) / 2.0);
 		ImGui::Text("%s", manoeuvreManagerString);
@@ -103,7 +103,7 @@ namespace PlotGui{
 		ImGui::EndDisabled();
 
 		static const char* playbackControlsString = "Playback Controls";
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::NewLine();
 		ImGui::SameLine((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(playbackControlsString).x) / 2.0);
 		ImGui::Text("%s", playbackControlsString);
@@ -146,7 +146,7 @@ namespace PlotGui{
 		if (ImGui::BeginChild("##CueProperties", ImGui::GetContentRegionAvail(), false)) {
 		
 			if (currentPlot->selectedManoeuvre == nullptr) {
-				ImGui::PushFont(Fonts::robotoRegular20);
+				ImGui::PushFont(Fonts::sansRegular20);
 				ImGui::Text("%s", noManoeuvreSelectedString);
 				ImGui::PopFont();
 			}

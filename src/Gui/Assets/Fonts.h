@@ -4,21 +4,23 @@ struct ImFont;
 
 namespace Fonts {
 
-	extern ImFont* robotoRegular12;
-	extern ImFont* robotoBold12;
-	extern ImFont* robotoLight12;
+	extern ImFont* sansRegular12;
+	extern ImFont* sansBold12;
+	extern ImFont* sansLight12;
 	
-	extern ImFont* robotoRegular15;
-	extern ImFont* robotoBold15;
-	extern ImFont* robotoLight15;
+	extern ImFont* sansRegular15;
+	extern ImFont* sansBold15;
+	extern ImFont* sansLight15;
 	
-	extern ImFont* robotoRegular20;
-	extern ImFont* robotoBold20;
-	extern ImFont* robotoLight20;
+	extern ImFont* sansRegular20;
+	extern ImFont* sansBold20;
+	extern ImFont* sansLight20;
 	
-	extern ImFont* robotoRegular42;
-	extern ImFont* robotoBold42;
-	extern ImFont* robotoLight42;
+	extern ImFont* sansRegular42;
+	extern ImFont* sansBold42;
+	extern ImFont* sansLight42;
+
+	extern ImFont* mono15;
 
 	void load(float scale);
 };

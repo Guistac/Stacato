@@ -17,7 +17,7 @@
 void VipaBusCoupler_053_1EC01::deviceSpecificGui() {
     if (ImGui::BeginTabItem("VIPA")) {
         
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("SLIO Modules");
 		ImGui::PopFont();
 		

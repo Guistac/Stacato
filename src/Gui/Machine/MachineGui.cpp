@@ -102,7 +102,7 @@ void Machine::miniatureGui() {
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, -ImGui::GetTextLineHeight() * 0.2));
 
 		float availableWidth = ImGui::GetContentRegionAvail().x;
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		float bigNameWidth = ImGui::CalcTextSize(getShortName()).x;
 		ImGui::SameLine((availableWidth - bigNameWidth) * 0.5 + ImGui::GetStyle().WindowPadding.x);
 		ImGui::Text("%s", getShortName());
@@ -113,7 +113,7 @@ void Machine::miniatureGui() {
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.3));
 
 		ImGui::NewLine();
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		float smallNameWidth = ImGui::CalcTextSize(getName()).x;
 		ImGui::SameLine((availableWidth - smallNameWidth) * 0.5 + ImGui::GetStyle().WindowPadding.x);
 		ImGui::Text("%s", getName());

@@ -46,7 +46,7 @@ void VelocityControlledAxis::nodeSpecificGui() {
 
 
 void VelocityControlledAxis::controlsGui() {
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Controls");
 	ImGui::PopFont();
 	
@@ -123,7 +123,7 @@ void VelocityControlledAxis::settingsGui() {
 	
 	//------------------ GENERAL MACHINE SETTINGS -------------------------
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Axis Settings");
 	ImGui::PopFont();
 
@@ -160,7 +160,7 @@ void VelocityControlledAxis::settingsGui() {
 
 	ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Actuator");
 	ImGui::PopFont();
 
@@ -168,14 +168,14 @@ void VelocityControlledAxis::settingsGui() {
 		std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
 		std::shared_ptr<Device> actuatorParentDevice = actuator->parentDevice;
 		
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Device:");
 		ImGui::PopFont();
 		ImGui::SameLine();
 		if(actuatorParentDevice) ImGui::Text("%s on %s", actuator->getName(), actuator->parentDevice->getName());
 		else ImGui::Text("%s on Node %s", actuator->getName(), actuatorPin->getConnectedPin()->getNode()->getName());
 
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Position Unit:");
 		ImGui::PopFont();
 		ImGui::SameLine();
@@ -196,7 +196,7 @@ void VelocityControlledAxis::settingsGui() {
 
 	ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Kinematic Limits");
 	ImGui::PopFont();
 

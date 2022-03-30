@@ -32,7 +32,7 @@ void LinearMecanumClaw::controlsGui() {
 		
 	ImGui::PushID("LinearControls");
 		
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Linear Axis Controls");
 	ImGui::PopFont();
 	
@@ -156,7 +156,7 @@ void LinearMecanumClaw::controlsGui() {
 		
 	ImGui::PushID("ClawControls");
 		
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Claw Axis Controls");
 	ImGui::PopFont();
 
@@ -283,7 +283,7 @@ void LinearMecanumClaw::controlsGui() {
 	
 	ImGui::PopID();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Machine Homing");
 	ImGui::PopFont();
 	
@@ -319,7 +319,7 @@ void LinearMecanumClaw::settingsGui() {
 	
 	//===== DEVICES
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Devices & Axis");
 	ImGui::PopFont();
 	
@@ -370,7 +370,7 @@ void LinearMecanumClaw::settingsGui() {
 	
 	ImGui::Separator();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Claw Settings");
 	ImGui::PopFont();
 	
@@ -424,7 +424,7 @@ void LinearMecanumClaw::settingsGui() {
 	
 	ImGui::Separator();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Claw Position Controller");
 	ImGui::PopFont();
 	
@@ -448,7 +448,7 @@ void LinearMecanumClaw::settingsGui() {
 
 	ImGui::Separator();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Mecanum Settings");
 	ImGui::PopFont();
 	
@@ -472,7 +472,7 @@ void LinearMecanumClaw::settingsGui() {
 	
 	ImGui::Separator();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Linear Axis Settings");
 	ImGui::PopFont();
 	
@@ -491,7 +491,7 @@ void LinearMecanumClaw::settingsGui() {
 	
 	ImGui::Separator();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Rapids");
 	ImGui::PopFont();
 	
@@ -600,7 +600,7 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	//---Indicators
 	glm::vec2 feedbackButtonSize(verticalSliderSize.x, ImGui::GetTextLineHeight());
 	
-	ImGui::PushFont(Fonts::robotoRegular12);
+	ImGui::PushFont(Fonts::sansRegular12);
 	
 	static char manualVelocityString[64];
 	sprintf(manualVelocityString, "%.3f%s/s", linearManualVelocityDisplay, getLinearAxisPositionUnit()->abbreviated);
@@ -683,7 +683,7 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	}
 	
 	//---Indicators
-	ImGui::PushFont(Fonts::robotoRegular12);
+	ImGui::PushFont(Fonts::sansRegular12);
 	
 	sprintf(manualVelocityString, "%.3f%s/s", clawManualVelocityDisplay, getClawAxisPositionUnit()->abbreviated);
 	BackgroundText::draw(manualVelocityString, feedbackButtonSize, Colors::darkGray);

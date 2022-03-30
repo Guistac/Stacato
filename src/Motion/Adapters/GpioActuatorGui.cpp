@@ -24,7 +24,7 @@ void GpioActuator::nodeSpecificGui(){
 
 void GpioActuator::controlGui(){
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Controls");
 	ImGui::PopFont();
 	
@@ -95,11 +95,11 @@ void GpioActuator::controlGui(){
 
 void GpioActuator::settingsGui(){
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Devices");
 	ImGui::PopFont();
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Gpio Device: ");
 	ImGui::PopFont();
 	ImGui::SameLine();
@@ -112,7 +112,7 @@ void GpioActuator::settingsGui(){
 	
 	if(isGpioDeviceConnected()){
 		
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("Actuator Limits");
 		ImGui::PopFont();
 		
@@ -153,7 +153,7 @@ void GpioActuator::settingsGui(){
 		
 		ImGui::Separator();
 		
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("Control Signal");
 		ImGui::PopFont();
 		

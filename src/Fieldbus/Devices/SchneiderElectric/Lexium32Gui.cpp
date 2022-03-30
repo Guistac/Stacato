@@ -104,7 +104,7 @@ void Lexium32::statusGui() {
     ImGui::PopItemFlag();
 
     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::PushStyleColor(ImGuiCol_Button, isConnected() ? Colors::green : (isDetected() ? Colors::yellow : Colors::red));
 
     ImGui::Button(isConnected() ? "Online" : (isDetected() ? "Detected" : "Offline"), statusDisplaySize);
@@ -152,7 +152,7 @@ void Lexium32::statusGui() {
         if (millis % 1000 < 500) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
         else ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkRed);
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-        ImGui::PushFont(Fonts::robotoBold15);
+        ImGui::PushFont(Fonts::sansBold15);
         ImGui::Button("E-STOP", commandButtonSize);
         ImGui::SameLine();
         ImGui::Button("E-STOP", commandButtonSize);
@@ -184,7 +184,7 @@ void Lexium32::statusGui() {
 
 void Lexium32::controlsGui() {
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Device Control");
 	ImGui::PopFont();
 	
@@ -225,7 +225,7 @@ void Lexium32::controlsGui() {
 	
 	ImGui::EndDisabled();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Feedback");
 	ImGui::PopFont();
 
@@ -338,7 +338,7 @@ void Lexium32::controlsGui() {
 
 void Lexium32::generalSettingsGui() {
 
-    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::PushFont(Fonts::sansBold20);
     ImGui::Text("Profile Generator Limits");
     ImGui::PopFont();
 
@@ -359,7 +359,7 @@ void Lexium32::generalSettingsGui() {
 
     ImGui::Separator();
 
-    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::PushFont(Fonts::sansBold20);
     ImGui::Text("General Settings");
     ImGui::PopFont();
 
@@ -468,7 +468,7 @@ void Lexium32::generalSettingsGui() {
 
 void Lexium32::gpioGui() {
 
-    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::PushFont(Fonts::sansBold20);
     ImGui::Text("Limit Signals");
     ImGui::PopFont();
 
@@ -530,7 +530,7 @@ void Lexium32::gpioGui() {
 
     ImGui::Separator();
 
-    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::PushFont(Fonts::sansBold20);
     ImGui::Text("Signal Inversion");
     ImGui::PopFont();
 
@@ -564,7 +564,7 @@ void Lexium32::gpioGui() {
 
 void Lexium32::encoderGui() {
 
-    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::PushFont(Fonts::sansBold20);
     ImGui::Text("Encoder Settings");
     ImGui::PopFont();
 
@@ -710,7 +710,7 @@ void Lexium32::encoderGui() {
     ImGui::Separator();
 
 
-    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::PushFont(Fonts::sansBold20);
     ImGui::Text("Manual Absolute Position setting");
     ImGui::PopFont();
 
@@ -722,7 +722,7 @@ void Lexium32::encoderGui() {
         endHelpMarker();
     }
 
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     switch(encoderAssignement) {
         case EncoderAssignement::INTERNAL_ENCODER:
             ImGui::Text("Assign hard absolute position of Internal Encoder");
@@ -748,7 +748,7 @@ void Lexium32::encoderGui() {
 
 void Lexium32::tuningGui() {
 
-    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::PushFont(Fonts::sansBold20);
     ImGui::Text("Automatic Drive Controller Tuning");
     ImGui::PopFont();
 
@@ -771,7 +771,7 @@ void Lexium32::tuningGui() {
             if (ImGui::Button("Restart Auto Tuning")) startAutoTuning();
         }
         if (b_autoTuningSucceeded) {
-            ImGui::PushFont(Fonts::robotoBold15);
+            ImGui::PushFont(Fonts::sansBold15);
             ImGui::Text("Auto Tuning Succeeded");
             ImGui::PopFont();
             ImGui::SameLine();
@@ -780,7 +780,7 @@ void Lexium32::tuningGui() {
 
         if(b_autoTuningSucceeded){
             ImGui::Separator();
-            ImGui::PushFont(Fonts::robotoBold15);
+            ImGui::PushFont(Fonts::sansBold15);
             ImGui::Text("Tuning Results:");
             ImGui::PopFont();
             ImGui::Text("Friction Torque: %.2f Amperes", tuning_frictionTorque_amperes);
@@ -799,7 +799,7 @@ void Lexium32::tuningGui() {
 
 void Lexium32::miscellaneousGui() {
     
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Station Alias Assignement");
     ImGui::PopFont();
     ImGui::TextWrapped("Assigns a new station alias to the drive. The alias becomes active after the drive has been restarted.");
@@ -816,7 +816,7 @@ void Lexium32::miscellaneousGui() {
     ImGui::Text("%s", Enumerator::getDisplayString(stationAliasUploadState));
 
     ImGui::Separator();
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Factory Reset");
     ImGui::PopFont();
     ImGui::TextWrapped("Resets all internal drive settings to the original factory configuration.");
@@ -831,7 +831,7 @@ void Lexium32::miscellaneousGui() {
     
     ImGui::Separator();
 
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Miscellaneous Device Status Flags");
     ImGui::PopFont();
 

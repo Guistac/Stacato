@@ -9,11 +9,11 @@
 
 
 void VipaModule::moduleGui(){
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("%s", getDisplayName());
 	ImGui::PopFont();
 	ImGui::SameLine();
-	ImGui::PushFont(Fonts::robotoRegular20);
+	ImGui::PushFont(Fonts::sansRegular20);
 	ImGui::Text("%s", getSaveName());
 	ImGui::PopFont();
 	moduleParameterGui();

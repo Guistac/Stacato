@@ -18,7 +18,7 @@ namespace Environnement::NodeGraph::Gui{
 
 		ImGui::BeginChild("##NodeList", ImGui::GetContentRegionAvail());
 
-			ImGui::PushFont(Fonts::robotoBold20);
+			ImGui::PushFont(Fonts::sansBold20);
 			ImGui::Text("Node Library");
 			ImGui::PopFont();
 		
@@ -35,10 +35,10 @@ namespace Environnement::NodeGraph::Gui{
 				}
 			};
 		
-			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::PushFont(Fonts::sansBold15);
 			if (ImGui::CollapsingHeader("EtherCAT Devices")) {
 
-				ImGui::PushFont(Fonts::robotoRegular15);
+				ImGui::PushFont(Fonts::sansRegular15);
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));
 				ImGui::Text("By Manufacturer");
 				ImGui::PopStyleColor();
@@ -96,11 +96,11 @@ namespace Environnement::NodeGraph::Gui{
 			}
 			ImGui::PopFont();
 
-			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::PushFont(Fonts::sansBold15);
 			if (ImGui::CollapsingHeader("Motion")) {
 				
 				if(ImGui::TreeNode("Axis")){
-					ImGui::PushFont(Fonts::robotoRegular15);
+					ImGui::PushFont(Fonts::sansRegular15);
 					listNodes(NodeFactory::getAllAxisNodes());
 					ImGui::TreePop();
 					ImGui::PopFont();
@@ -109,7 +109,7 @@ namespace Environnement::NodeGraph::Gui{
 				if (ImGui::TreeNode("Machines")) {
 					for (auto& category : NodeFactory::getMachinesByCategory()) {
 						if (ImGui::TreeNode(category.name)) {
-							ImGui::PushFont(Fonts::robotoRegular15);
+							ImGui::PushFont(Fonts::sansRegular15);
 							listNodes(category.nodes);
 							ImGui::PopFont();
 							ImGui::TreePop();
@@ -119,14 +119,14 @@ namespace Environnement::NodeGraph::Gui{
 				}
 				
 				if (ImGui::TreeNode("Safety")) {
-					ImGui::PushFont(Fonts::robotoRegular15);
+					ImGui::PushFont(Fonts::sansRegular15);
 					listNodes(NodeFactory::getAllSafetyNodes());
 					ImGui::PopFont();
 					ImGui::TreePop();
 				}
 				
 				if (ImGui::TreeNode("Adapters")) {
-					ImGui::PushFont(Fonts::robotoRegular15);
+					ImGui::PushFont(Fonts::sansRegular15);
 					listNodes(NodeFactory::getAllMotionAdapterNodes());
 					ImGui::PopFont();
 					ImGui::TreePop();
@@ -135,17 +135,17 @@ namespace Environnement::NodeGraph::Gui{
 			}
 			ImGui::PopFont();
 		
-			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::PushFont(Fonts::sansBold15);
 			if (ImGui::CollapsingHeader("Network IO")) {
-				ImGui::PushFont(Fonts::robotoRegular15);
+				ImGui::PushFont(Fonts::sansRegular15);
 				listNodes(NodeFactory::getAllNetworkNodes());
 				ImGui::PopFont();
 			}
 			ImGui::PopFont();
 
-			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::PushFont(Fonts::sansBold15);
 			if (ImGui::CollapsingHeader("Data Processors")) {
-				ImGui::PushFont(Fonts::robotoRegular15);
+				ImGui::PushFont(Fonts::sansRegular15);
 				for (auto category : NodeFactory::getProcessorNodesByCategory()) {
 					if (ImGui::TreeNode(category.name)) {
 						listNodes(category.nodes);

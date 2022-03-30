@@ -78,10 +78,10 @@ namespace Gui{
 	   ImVec2 center = ImGui::GetMainViewport()->GetCenter();
 	   ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 	   if (ImGui::BeginPopupModal("About", nullptr, popupFlags)) {
-		   ImGui::PushFont(Fonts::robotoBold42);
+		   ImGui::PushFont(Fonts::sansBold42);
 			   ImGui::Text("Stacato");
 			   ImGui::PopFont();
-			   ImGui::PushFont(Fonts::robotoBold20);
+			   ImGui::PushFont(Fonts::sansBold20);
 			   ImGui::Text("Stage Control Automation Toolbox");
 			   ImGui::PopFont();
 			   ImGui::Text("Leo Becker - L'Atelier Artefact - 2021");

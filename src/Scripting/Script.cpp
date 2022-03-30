@@ -4,7 +4,7 @@
 #include <imgui.h>
 #include <TextEditor.h>
 
-
+#include "Gui/Assets/Fonts.h"
 
 Script::Script(){
 	textEditor = new TextEditor();
@@ -63,7 +63,9 @@ void Script::editor(ImVec2 size_arg){
 					  ImVec2(f_width, f_editorHeight),
 					  false,
 					  ImGuiWindowFlags_HorizontalScrollbar);
+	ImGui::PushFont(Fonts::mono15);
 	textEditor->Render("TextEditor");
+	ImGui::PopFont();
 	ImGui::EndChild();
 	
 	

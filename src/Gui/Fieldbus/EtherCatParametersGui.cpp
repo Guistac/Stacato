@@ -17,7 +17,7 @@ void etherCatParameters(bool resetNicLists) {
 
 		float widgetWidth = ImGui::GetTextLineHeight() * 20.0;
 		
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("EtherCAT Network Hardware");
 		ImGui::PopFont();
 		
@@ -141,7 +141,7 @@ void etherCatParameters(bool resetNicLists) {
 		
 		if(ImGui::IsItemHovered()){
 			ImGui::BeginTooltip();
-			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Detected Devices:");
 			ImGui::PopFont();
 			for(auto& device : EtherCatFieldbus::slaves){
@@ -159,7 +159,7 @@ void etherCatParameters(bool resetNicLists) {
 		
 		ImGui::Separator();
 
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("EtherCAT Timing");
 		ImGui::PopFont();
 		

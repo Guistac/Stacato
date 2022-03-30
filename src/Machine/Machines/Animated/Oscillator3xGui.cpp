@@ -22,7 +22,7 @@ void Oscillator3x::controlsGui() {
 	std::vector<std::shared_ptr<PositionControlledAxis>> axes;
 	getAxes(axes);
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Velocity Control");
 	ImGui::PopFont();
 
@@ -83,7 +83,7 @@ void Oscillator3x::controlsGui() {
 
 	ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Oscillator Control");
 	ImGui::PopFont();
 
@@ -134,7 +134,7 @@ void Oscillator3x::controlsGui() {
 
 	ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Homing");
 	ImGui::PopFont();
 
@@ -165,7 +165,7 @@ void Oscillator3x::controlsGui() {
 
 
 void Oscillator3x::settingsGui() {
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Oscillator Settings");
 	ImGui::PopFont();
 	
@@ -210,7 +210,7 @@ void Oscillator3x::settingsGui() {
 	ImGui::Text("Max Acceleration: %.5f", maxAcceleration_normalized);
 	if (ImGui::Button("Update Machine Limits")) updateMachineLimits();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Rapids");
 	ImGui::PopFont();
 
@@ -231,7 +231,7 @@ void Oscillator3x::axisGui() {
 	std::vector<std::shared_ptr<PositionControlledAxis>> axes;
 	getAxes(axes);
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Axes");
 	ImGui::PopFont();
 
@@ -271,7 +271,7 @@ void Oscillator3x::deviceGui() {
 	std::vector<std::shared_ptr<PositionControlledAxis>> axes;
 	getAxes(axes);
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Metrics");
 	ImGui::PopFont();
 
@@ -295,7 +295,7 @@ void Oscillator3x::metricsGui() {
 	std::vector<std::shared_ptr<PositionControlledAxis>> axes;
 	getAxes(axes);
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Metrics");
 	ImGui::PopFont();
 
@@ -333,7 +333,7 @@ void Oscillator3x::machineSpecificMiniatureGui() {
 			ImGui::BeginChild(axis->getName(), axisChildSize);
 
 
-			ImGui::PushFont(Fonts::robotoBold12);
+			ImGui::PushFont(Fonts::sansBold12);
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(0));
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
@@ -356,7 +356,7 @@ void Oscillator3x::machineSpecificMiniatureGui() {
 			static char positionString[32];
 			if (isnan(axisPositionNormalized)) axisPositionNormalized = 0.0;
 			sprintf(positionString, "%.2f", axisPositionNormalized);
-			ImGui::PushFont(Fonts::robotoRegular12);
+			ImGui::PushFont(Fonts::sansRegular12);
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(0));
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
@@ -365,7 +365,7 @@ void Oscillator3x::machineSpecificMiniatureGui() {
 			ImGui::PopItemFlag();
 			ImGui::PopFont();
 
-			ImGui::PushFont(Fonts::robotoLight12);
+			ImGui::PushFont(Fonts::sansLight12);
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 			glm::vec2 statusButtonSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.0);
 			if (axis->isEnabled()) {

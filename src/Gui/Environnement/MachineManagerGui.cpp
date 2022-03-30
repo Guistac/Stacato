@@ -21,7 +21,7 @@ namespace Environnement::Gui{
 		
 		ImGui::BeginGroup();
 		
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("Machine Manager");
 		ImGui::PopFont();
 		
@@ -31,7 +31,7 @@ namespace Environnement::Gui{
 				std::shared_ptr<Machine> machine = machines[i];
 				if (machineList.beginItem(glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing()), machine == Environnement::selectedMachine)) {
 
-					ImGui::PushFont(Fonts::robotoBold15);
+					ImGui::PushFont(Fonts::sansBold15);
 					float shortNameWidth = ImGui::CalcTextSize(machine->shortName).x;
 					ImGui::PopFont();
 					
@@ -46,7 +46,7 @@ namespace Environnement::Gui{
 					
 					ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(headerStripColor), 10.0, ImDrawFlags_RoundCornersLeft);
 
-					ImGui::PushFont(Fonts::robotoBold15);
+					ImGui::PushFont(Fonts::sansBold15);
 					ImGui::SameLine(ImGui::GetStyle().ItemSpacing.x / 2.0);
 					ImGui::Text("%s", machine->shortName);
 					ImGui::PopFont();
@@ -95,7 +95,7 @@ namespace Environnement::Gui{
 		ImGui::BeginChild("##selectedmachine", ImGui::GetContentRegionAvail());
 			
 		if(Environnement::selectedMachine){
-			ImGui::PushFont(Fonts::robotoBold20);
+			ImGui::PushFont(Fonts::sansBold20);
 			ImGui::Text("%s", Environnement::selectedMachine->getName());
 			ImGui::PopFont();
 			if(ImGui::BeginTabBar("selectedMachineTabBar")){
@@ -103,7 +103,7 @@ namespace Environnement::Gui{
 				ImGui::EndTabBar();
 			}
 		}else{
-			ImGui::PushFont(Fonts::robotoBold20);
+			ImGui::PushFont(Fonts::sansBold20);
 			ImGui::Text("No Machine Selected.");
 			ImGui::PopFont();
 		}
