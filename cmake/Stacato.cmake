@@ -6,6 +6,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Core/pch.cpp
     ${STACATO_SOURCE_DIRECTORY}/Core/pch.h
 
+    ${STACATO_SOURCE_DIRECTORY}/Rendering/ofRenderer.h
+    ${STACATO_SOURCE_DIRECTORY}/Rendering/ofRenderer.cpp
+
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Gui.h
@@ -19,6 +22,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Colors.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Fonts.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Fonts.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Images.h
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Images.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/EnvironnementGui.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/EnvironnementGui.cpp

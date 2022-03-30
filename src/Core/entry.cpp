@@ -32,4 +32,3 @@ int main(int argcount, const char ** args){
 	//terminate application
 	ApplicationWindow::terminate();
 }
-	

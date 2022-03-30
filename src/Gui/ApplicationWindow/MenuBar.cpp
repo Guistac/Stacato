@@ -28,15 +28,9 @@ namespace Gui {
 
 	void menuBar() {
 
-		bool openImguiDemoWindow = false;
-		bool openImguiMetricsWindow = false;
-		bool openImplotDemoWindow = false;
-		bool openAboutPopup = false;
-		bool b_openUnlockEditorModal = false;
-
-		ImGui::BeginMainMenuBar();
+		ImGui::BeginMenuBar();
 		if (ImGui::BeginMenu("Stacato")) {
-			if (ImGui::MenuItem("About")) openAboutPopup = true;
+			if (ImGui::MenuItem("About")) Gui::openAboutPopup();
 			ImGui::Separator();
 			if (ImGui::MenuItem("Quit", "Cmd Q")) ApplicationWindow::requestQuit();
 			ImGui::EndMenu();
@@ -63,45 +57,30 @@ namespace Gui {
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Edit")) {
-			/*
-			BEGIN_DISABLE_IMGUI_ELEMENT
-				static char currentPlotString[256];
-			sprintf(currentPlotString, "Current Plot: %s", Project::currentPlot->name);
-			ImGui::MenuItem(currentPlotString);
-			END_DISABLE_IMGUI_ELEMENT
-
-				if (ImGui::BeginMenu("Plots")) {
-					for (auto plot : Project::plots) {
-						if (ImGui::MenuItem(plot->name, nullptr, plot == Project::currentPlot)) {
-							Project::currentPlot = plot;
-						}
-					}
-					ImGui::EndMenu();
-				}
-			
-			ImGui::Separator();
-			*/
-			if(Environnement::isEditorLocked()){
-				if(ImGui::MenuItem("Show Environnement Editor", "Cmd Shift U")) Environnement::requestEditorUnlock();
-			}
-			else {
-				if(ImGui::MenuItem("Hide Environnement Editor", "Cmd Shift U")) Environnement::lockEditor();
-			}
-			
+			if(Environnement::isEditorLocked()) {if(ImGui::MenuItem("Show Environnement Editor", "Cmd Shift U")) Environnement::requestEditorUnlock();}
+			else if(ImGui::MenuItem("Hide Environnement Editor", "Cmd Shift U")) Environnement::lockEditor();
 			ImGui::EndMenu();
 		}
+		if(ImGui::BeginMenu("View")){
+			if(ImGui::MenuItem("Reset Layout")) Gui::resetDefaultLayout();
+			ImGui::EndMenu();
+		}
+		
+		
 		if (ImGui::IsKeyDown(GLFW_KEY_LEFT_ALT) && ImGui::IsKeyDown(GLFW_KEY_LEFT_SUPER)) {
 			if (ImGui::BeginMenu("Utilities")) {
-				if (ImGui::MenuItem("ImGui Demo Window", nullptr, &imguiDemoWindowOpen))		openImguiDemoWindow = true;
-				if (ImGui::MenuItem("ImGui Metrics Window", nullptr, &imguiMetricsWindowOpen))	openImguiMetricsWindow = true;
-				if (ImGui::MenuItem("ImPlot Demo Window", nullptr, &implotDemoWindowOpen))		openImplotDemoWindow = true;
+				if (ImGui::MenuItem("ImGui Demo Window", nullptr, &imguiDemoWindowOpen))		imguiDemoWindowOpen = true;
+				if (ImGui::MenuItem("ImGui Metrics Window", nullptr, &imguiMetricsWindowOpen))	imguiMetricsWindowOpen = true;
+				if (ImGui::MenuItem("ImPlot Demo Window", nullptr, &implotDemoWindowOpen))		implotDemoWindowOpen = true;
 				ImGui::EndMenu();
 			}
 		}
-		ImGui::EndMainMenuBar();
+		ImGui::EndMenuBar();
 		
+		
+		
+		//Keyboard ShortCuts
 		if(ImGui::IsKeyDown(GLFW_KEY_LEFT_SUPER) || ImGui::IsKeyDown(GLFW_KEY_RIGHT_SUPER)){
-			
 			if(ImGui::IsKeyDown(GLFW_KEY_LEFT_SHIFT) || ImGui::IsKeyDown(GLFW_KEY_RIGHT_SHIFT)){
 				if(ImGui::IsKeyPressed(GLFW_KEY_S)) Project::Gui::saveAs();
 				else if(ImGui::IsKeyPressed(GLFW_KEY_R)) Project::reloadSaved();
@@ -118,37 +97,9 @@ namespace Gui {
 		}
 
 		
-		
-		//display popup windows
-		if (openAboutPopup) ImGui::OpenPopup("About");
-		Gui::aboutPopup();
-		
-		if (ApplicationWindow::isQuitRequested()) ImGui::OpenPopup("Quitting Application");
-		Gui::quitApplicationPopup();
-
-		if(Project::isNewProjectRequested()) ImGui::OpenPopup("Closing Current Project");
-		Project::Gui::closePopup();
-		
-		if(Environnement::isEditorUnlockRequested()) ImGui::OpenPopup("Unlock Environnement Editor");
-		Environnement::Gui::unlockEditorPopup();
-		
 		//utility windows
-		if (openImguiDemoWindow) {
-			ImGui::SetNextWindowFocus();
-			imguiDemoWindowOpen = true;
-		}
 		if (imguiDemoWindowOpen) ImGui::ShowDemoWindow(&imguiDemoWindowOpen);
-
-		if (openImguiMetricsWindow) {
-			ImGui::SetNextWindowFocus();
-			imguiMetricsWindowOpen = true;
-		}
 		if (imguiMetricsWindowOpen) ImGui::ShowMetricsWindow(&imguiMetricsWindowOpen);
-
-		if (openImplotDemoWindow) {
-			ImGui::SetNextWindowFocus();
-			implotDemoWindowOpen = true;
-		}
 		if (implotDemoWindowOpen) ImPlot::ShowDemoWindow(&implotDemoWindowOpen);
 
 	}

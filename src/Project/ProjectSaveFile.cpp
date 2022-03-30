@@ -97,7 +97,8 @@ namespace Project{
 		bool b_loadedEnvironnementFile = false;
 		for (const auto& entry : std::filesystem::directory_iterator(projectFolderPath)) {
 			if(entry.path().filename() == "Environnement.stacatoEnvironnement"){
-				b_loadedEnvironnementFile = Environnement::load(entry.path().generic_u8string().c_str());
+				const char* entryPath = entry.path().string().c_str();
+				b_loadedEnvironnementFile = Environnement::load(entryPath);
 				break;
 			}
 		}
@@ -124,7 +125,8 @@ namespace Project{
 		for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::path(plotsFolderPath))) {
 			if (entry.path().extension() == ".stacatoPlot") {
 				std::shared_ptr<Plot> plot = std::make_shared<Plot>();
-				if (plot->load(entry.path().u8string().c_str())) {
+				const char* plotFilePath = entry.path().string().c_str();
+				if (plot->load(plotFilePath)) {
 					plots.push_back(plot);
 				}
 			}

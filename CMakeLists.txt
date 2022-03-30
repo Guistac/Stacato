@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.20.0)
 project(Stacato VERSION 0.2 DESCRIPTION "Stage Control Automation Toolbox" LANGUAGES CXX)
 
 #we are using C++17
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 if(WIN32)

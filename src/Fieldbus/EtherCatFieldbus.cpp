@@ -966,7 +966,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 		for(auto& slave : slaves){
 			uint16_t AlStatusCode = 0x0;
 			int wc = ec_FPRD(slave->getAssignedAddress(), 0x134, 2, &AlStatusCode, EC_TIMEOUTSAFE);
-			if(wc != 1) Logger::error("{} : Could not read AL Status Code}");
+			if(wc != 1) Logger::error("{} : Could not read AL Status Code", AlStatusCode);
 			else if(AlStatusCode != 0x0) Logger::error("{} : AL Status Code 0x{:X} ({})", slave->getName(), AlStatusCode, ec_ALstatuscode2string(AlStatusCode));
 		}
 	}
