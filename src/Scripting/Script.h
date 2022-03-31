@@ -14,25 +14,27 @@ public:
 	
 	void editor(ImVec2 size_arg);
 	
-	void load();
-	void save();
+	bool load(const char* filePath);
+	void save(const char* filePath);
+	void reloadSaved();
 	
+	bool compile();
 	void run();
 	bool isRunning();
 	void stop();
 	
 	void callFunction(const char* functionName);
 	
+	typedef void(*LoadLibrariesCallback)(lua_State* L);
+	LoadLibrariesCallback loadLibrairies = nullptr;
+	void setLoadLibrairiesCallback(LoadLibrariesCallback cb){ loadLibrairies = cb; }
 	
 private:
 	
 	TextEditor* textEditor;
-	ofxLua lua;
+	lua_State* L = NULL;
 	
 	std::string scriptFilePath;
-	std::string script;
-	
-	lua_State* L = NULL;
 	
 	float f_consoleHeight;
 	
