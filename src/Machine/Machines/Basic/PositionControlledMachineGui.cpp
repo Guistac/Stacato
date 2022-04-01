@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "PositionControlledSingleAxisMachine.h"
+#include "PositionControlledMachine.h"
 #include "Motion/Axis/PositionControlledAxis.h"
 
 #include <imgui.h>
@@ -15,17 +15,36 @@
 
 #include "Environnement/Environnement.h"
 
+static bool b_invalidValue = false;
+static void pushInvalidValue(bool doit){
+	if(doit){
+		b_invalidValue = true;
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+		ImGui::PushFont(Fonts::sansBold15);
+	}
+}
 
-void PositionControlledSingleAxisMachine::controlsGui() {
+static void popInvalidValue(){
+	if(b_invalidValue){
+		b_invalidValue = false;
+		ImGui::PopStyleColor();
+		ImGui::PopFont();
+	}
+}
+
+void PositionControlledMachine::controlsGui() {
+	
+	ImGui::BeginChild("##manualMachineControls", ImGui::GetContentRegionAvail());
+	
 	if(!isAxisConnected()) {
 		ImGui::Text("No Axis Connected");
+		ImGui::EndChild();
 		return;
 	}
+	
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-
-	glm::vec2 manualControlsSize = ImGui::GetContentRegionAvail();
-	//manualControlsSize.y -= axis->getFeedbackGuiHeight();
-	ImGui::BeginChild("##manualMachineControls", manualControlsSize);
+	
+	ImGui::BeginDisabled(!isEnabled());
 
 	float widgetWidth = ImGui::GetContentRegionAvail().x;
 	
@@ -87,23 +106,133 @@ void PositionControlledSingleAxisMachine::controlsGui() {
 
 	}
 
+	ImGui::EndDisabled();
+	 
+	
+	
+	
+	//-------------------------------- FEEDBACK --------------------------------
+		
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Feedback");
+	ImGui::PopFont();
+
+	glm::vec2 progressBarSize = ImGui::GetContentRegionAvail();
+	progressBarSize.y = ImGui::GetFrameHeight();
+	
+	//actual position in range
+	double minPosition = 0.0;
+	double maxPosition = 0.0;
+	double positionProgress = 0.0;
+	static char positionString[32];
+	if (!isEnabled()) {
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+		positionProgress = 1.0;
+		sprintf(positionString, "Axis Disabled");
+	}
+	else {
+		minPosition = getLowPositionLimit();
+		maxPosition = getHighPositionLimit();
+		positionProgress = getPositionNormalized();
+		double positionValue;
+		if(isSimulating()) positionValue = motionProfile.getPosition();
+		else positionValue = axisPositionToMachinePosition(axis->getActualPosition());
+		if (positionProgress < 0.0 || positionProgress > 1.0) {
+			sprintf(positionString, "Axis out of limits : %.2f %s", positionValue, axis->getPositionUnit()->abbreviated);
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
+		}
+		else {
+			sprintf(positionString, "%.2f %s", positionValue, axis->getPositionUnit()->abbreviated);
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+		}
+	}
+	const char* shortPositionUnitString = axis->getPositionUnit()->abbreviated;
+	ImGui::Text("Current Position : (in range from %.2f %s to %.2f %s)", minPosition, shortPositionUnitString, maxPosition, shortPositionUnitString);
+	ImGui::ProgressBar(positionProgress, progressBarSize, positionString);
+	ImGui::PopStyleColor();
+
+
+	//actual velocity
+	float velocityProgress;
+	static char velocityString[32];
+	if (!isEnabled()) {
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+		velocityProgress = 1.0;
+		sprintf(velocityString, "Axis Disabled");
+	}
+	else {
+		velocityProgress = std::abs(getVelocityNormalized());
+		double actualVelocity;
+		if(isSimulating()) actualVelocity = motionProfile.getVelocity();
+		else actualVelocity = axisVelocityToMachineVelocity(axis->getActualVelocity());
+		sprintf(velocityString, "%.2f %s/s", actualVelocity, axis->getPositionUnit()->abbreviated);
+		if (velocityProgress > 1.0)
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
+		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+	}
+	ImGui::Text("Current Velocity : (max %.2f%s/s)", axis->getVelocityLimit(), axis->getPositionUnit()->abbreviated);
+	ImGui::ProgressBar(velocityProgress, progressBarSize, velocityString);
+	ImGui::PopStyleColor();
+
+	float positionErrorProgress;
+	float maxfollowingError = 0.0;
+	static char positionErrorString[32];
+	if(!isEnabled()){
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+		positionErrorProgress = 1.0;
+		sprintf(positionErrorString, "Axis Disabled");
+	}else{
+		if(isSimulating()){
+			positionErrorProgress = 1.0;
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+			sprintf(positionErrorString, "Simulating");
+		}else{
+			positionErrorProgress = std::abs(axis->getActualFollowingErrorNormalized());
+			if(positionErrorProgress < 1.0) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+			else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
+			maxfollowingError = axis->getFollowingErrorLimit();
+			double followingError = axis->getActualFollowingError();
+			sprintf(positionErrorString, "%.3f %s", followingError, axis->getPositionUnit()->abbreviated);
+		}
+	}
+
+	if(isSimulating()) ImGui::Text("Position Following Error:");
+	else ImGui::Text("Position Following Error : (max %.3f%s)", maxfollowingError, axis->getPositionUnit()->abbreviated);
+	ImGui::ProgressBar(positionErrorProgress, progressBarSize, positionErrorString);
+	ImGui::PopStyleColor();
+
+	//target movement progress
+	float targetProgress;
+	double movementSecondsLeft = 0.0;
+	static char movementProgressChar[32];
+	if (!isEnabled()) {
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+		sprintf(movementProgressChar, "Axis Disabled");
+		targetProgress = 1.0;
+	}
+	else{
+		targetProgress = targetInterpolation->getProgressAtTime(Environnement::getTime_seconds());
+		if(targetProgress > 0.0 && targetProgress < 1.0){
+			movementSecondsLeft = targetInterpolation->outTime - Environnement::getTime_seconds();
+			sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
+		}else{
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+			sprintf(movementProgressChar, "No Target Movement");
+			targetProgress = 1.0;
+		}
+	}
+	ImGui::Text("Movement Time Remaining :");
+	ImGui::ProgressBar(targetProgress, progressBarSize, movementProgressChar);
+	ImGui::PopStyleColor();
+	
 	ImGui::EndChild();
-
-	ImGui::Separator();
-
-	//axis->feedbackGui();
-	
-	//position
-	//velocity
-	//movement time
-	//working range
-
-	
-	
+	 
 }
 
 
-void PositionControlledSingleAxisMachine::settingsGui() {
+void PositionControlledMachine::settingsGui() {
+	
 	if (!isAxisConnected()) {
 		ImGui::Text("No Axis Connected");
 		return;
@@ -114,81 +243,48 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 	ImGui::Text("Machine Limits :");
 	ImGui::PopFont();
 
-	if(ImGui::BeginTable("##machineInfo", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit)){
-		
-		ImGui::TableNextRow();
-		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("Position Unit");
-		ImGui::PopFont();
-		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%s", axis->getPositionUnit()->singular);
-
-		ImGui::TableNextRow();
-		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("Lower Position Limit: ");
-		ImGui::PopFont();
-		ImGui::SameLine();
-		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s", getLowPositionLimit(), axis->getPositionUnit()->abbreviated);
-
-		ImGui::TableNextRow();
-		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("Upper Position Limit: ");
-		ImGui::PopFont();
-		ImGui::SameLine();
-		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s", getHighPositionLimit(), axis->getPositionUnit()->abbreviated);
-
-		ImGui::TableNextRow();
-		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("Velocity Limit: ");
-		ImGui::PopFont();
-		ImGui::SameLine();
-		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s/s", axis->getVelocityLimit(), axis->getPositionUnit()->abbreviated);
-
-		ImGui::TableNextRow();
-		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("Acceleration Limit: ");
-		ImGui::PopFont();
-		ImGui::SameLine();
-		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s/s\xC2\xB2", axis->getAccelerationLimit(), axis->getPositionUnit()->abbreviated);
-
-		ImGui::EndTable();
-	}
-	
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Current State :");
+	ImGui::Text("Position Unit:");
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("%s", axis->getPositionUnit()->singular);
 	ImGui::PopFont();
-		
-	if(ImGui::BeginTable("##currentMachineState", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit)){
-		
-		ImGui::TableNextRow();
-		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("Target Position: ");
-		ImGui::PopFont();
-		ImGui::SameLine();
-		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.3f %s", motionProfile.getPosition(), axis->getPositionUnit()->abbreviated);
-		
-		ImGui::TableNextRow();
-		ImGui::TableSetColumnIndex(0);
-		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("Target Velocity: ");
-		ImGui::PopFont();
-		ImGui::SameLine();
-		ImGui::TableSetColumnIndex(1);
-		ImGui::Text("%.20f %s/s", motionProfile.getVelocity(), axis->getPositionUnit()->abbreviated);
-		
-		ImGui::EndTable();
-	}
+	
+	bool b_positionRangeIsZero = getHighPositionLimit() - getLowPositionLimit() == 0.0;
+	
+	ImGui::Text("Low Position Limit:");
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansBold15);
+	pushInvalidValue(b_positionRangeIsZero);
+	ImGui::Text("%.3f%s", getLowPositionLimit(), axis->getPositionUnit()->abbreviated);
+	popInvalidValue();
+	ImGui::PopFont();
+	
+	ImGui::Text("High Position Limit:");
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansBold15);
+	pushInvalidValue(b_positionRangeIsZero);
+	ImGui::Text("%.3f%s", getHighPositionLimit(), axis->getPositionUnit()->abbreviated);
+	popInvalidValue();
+	ImGui::PopFont();
+	
+	ImGui::Text("Velocity Limit:");
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansBold15);
+	pushInvalidValue(axis->getVelocityLimit() <= 0.0);
+	ImGui::Text("%.3f%s/s", axis->getVelocityLimit(), axis->getPositionUnit()->abbreviated);
+	popInvalidValue();
+	ImGui::PopFont();
+	
+	ImGui::Text("Acceleration Limit:");
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansBold15);
+	pushInvalidValue(axis->getAccelerationLimit() <= 0.0);
+	ImGui::Text("%.3f%s\xC2\xB2", axis->getAccelerationLimit(), axis->getPositionUnit()->abbreviated);
+	popInvalidValue();
+	ImGui::PopFont();
+	
+	ImGui::Separator();
+	
 
 	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Rapids");
@@ -199,12 +295,16 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 
 	ImGui::Text("Velocity for rapid movements :");
 	sprintf(rapidVelocityString, "%.3f %s/s", rapidVelocity_machineUnitsPerSecond, axis->getPositionUnit()->abbreviated);
+	pushInvalidValue(rapidVelocity_machineUnitsPerSecond == 0.0);
 	ImGui::InputDouble("##velRapid", &rapidVelocity_machineUnitsPerSecond, 0.0, 0.0, rapidVelocityString);
+	popInvalidValue();
 	rapidVelocity_machineUnitsPerSecond = std::min(rapidVelocity_machineUnitsPerSecond, axis->getVelocityLimit());
 
 	ImGui::Text("Acceleration for rapid movements :");
 	sprintf(rapidAccelerationString, "%.3f %s/s\xC2\xB2", rapidAcceleration_machineUnitsPerSecond, axis->getPositionUnit()->abbreviated);
+	pushInvalidValue(rapidAcceleration_machineUnitsPerSecond == 0.0);
 	ImGui::InputDouble("##accRapid", &rapidAcceleration_machineUnitsPerSecond, 0.0, 0.0, rapidAccelerationString);
+	popInvalidValue();
 	rapidAcceleration_machineUnitsPerSecond = std::min(rapidAcceleration_machineUnitsPerSecond, axis->getAccelerationLimit());
 	
 	ImGui::Separator();
@@ -225,9 +325,10 @@ void PositionControlledSingleAxisMachine::settingsGui() {
 	}
 	
 	ImGui::Checkbox("Invert Axis Direction", &b_invertDirection);
+
 }
 
-void PositionControlledSingleAxisMachine::axisGui() {
+void PositionControlledMachine::axisGui() {
 	if (!isAxisConnected()) {
 		ImGui::Text("No Axis Connected");
 		return;
@@ -255,7 +356,7 @@ void PositionControlledSingleAxisMachine::axisGui() {
 	}
 }
 
-void PositionControlledSingleAxisMachine::deviceGui() {
+void PositionControlledMachine::deviceGui() {
 	std::vector<std::shared_ptr<Device>> devices;
 	getDevices(devices);
 
@@ -283,7 +384,7 @@ void PositionControlledSingleAxisMachine::deviceGui() {
 	}
 }
 
-void PositionControlledSingleAxisMachine::metricsGui() {
+void PositionControlledMachine::metricsGui() {
 	if (!isAxisConnected()) {
 		ImGui::Text("No Axis Connected");
 		return;
@@ -292,11 +393,11 @@ void PositionControlledSingleAxisMachine::metricsGui() {
 	axis->metricsGui();
 }
 
-float PositionControlledSingleAxisMachine::getMiniatureWidth() {
+float PositionControlledMachine::getMiniatureWidth() {
 	return ImGui::GetTextLineHeight() * 8.0;
 }
 
-void PositionControlledSingleAxisMachine::machineSpecificMiniatureGui() {
+void PositionControlledMachine::machineSpecificMiniatureGui() {
 		float bottomControlsHeight = ImGui::GetTextLineHeight() * 4.4;
 		float sliderHeight = ImGui::GetContentRegionAvail().y - bottomControlsHeight;
 		float tripleWidgetWidth = (ImGui::GetContentRegionAvail().x - 2.0 * ImGui::GetStyle().ItemSpacing.x) / 3.0;

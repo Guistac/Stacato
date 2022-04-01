@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "PositionControlledSingleAxisMachine.h"
+#include "PositionControlledMachine.h"
 
 #include "Motion/Axis/PositionControlledAxis.h"
 #include "Machine/AnimatableParameter.h"
@@ -14,7 +14,7 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
-void PositionControlledSingleAxisMachine::initialize() {
+void PositionControlledMachine::initialize() {
 	//inputs
 	addNodePin(positionControlledAxisPin);
 		
@@ -28,31 +28,31 @@ void PositionControlledSingleAxisMachine::initialize() {
 	addAnimatableParameter(positionParameter);
 }
 
-void PositionControlledSingleAxisMachine::onPinUpdate(std::shared_ptr<NodePin> pin){
+void PositionControlledMachine::onPinUpdate(std::shared_ptr<NodePin> pin){
 	if(pin == positionControlledAxisPin) positionParameter->unit = getAxis()->getPositionUnit();
 }
 
-void PositionControlledSingleAxisMachine::onPinConnection(std::shared_ptr<NodePin> pin){
+void PositionControlledMachine::onPinConnection(std::shared_ptr<NodePin> pin){
 	if(pin == positionControlledAxisPin) positionParameter->unit = getAxis()->getPositionUnit();
 }
 
-void PositionControlledSingleAxisMachine::onPinDisconnection(std::shared_ptr<NodePin> pin){
+void PositionControlledMachine::onPinDisconnection(std::shared_ptr<NodePin> pin){
 	if(pin == positionControlledAxisPin) positionParameter->unit = Units::None::None;
 }
 
-bool PositionControlledSingleAxisMachine::isHardwareReady() {
+bool PositionControlledMachine::isHardwareReady() {
 	if (!isAxisConnected()) return false;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 	if (!axis->isReady()) return false;
 	return true;
 }
 
-bool PositionControlledSingleAxisMachine::isMoving() {
+bool PositionControlledMachine::isMoving() {
 	if (isAxisConnected()) return getAxis()->isMoving();
 	return false;
 }
 
-void PositionControlledSingleAxisMachine::enableHardware() {
+void PositionControlledMachine::enableHardware() {
 	if (isReady()) {
 		std::thread machineEnabler([this]() {
 			using namespace std::chrono;
@@ -72,37 +72,37 @@ void PositionControlledSingleAxisMachine::enableHardware() {
 	}
 }
 
-void PositionControlledSingleAxisMachine::disableHardware() {
+void PositionControlledMachine::disableHardware() {
 	b_enabled = false;
 	if (isAxisConnected()) getAxis()->disable();
 	onDisableHardware();
 }
 
-void PositionControlledSingleAxisMachine::onEnableHardware() {
+void PositionControlledMachine::onEnableHardware() {
 	Logger::info("Enabled Machine {}", getName());
 }
 
-void PositionControlledSingleAxisMachine::onDisableHardware() {
+void PositionControlledMachine::onDisableHardware() {
 	Logger::info("Disabled Machine {}", getName());
 }
 
-bool PositionControlledSingleAxisMachine::isSimulationReady(){
+bool PositionControlledMachine::isSimulationReady(){
 	return isAxisConnected();
 }
 
-void PositionControlledSingleAxisMachine::onEnableSimulation() {
+void PositionControlledMachine::onEnableSimulation() {
 	targetInterpolation->resetValues();
 	motionProfile.setVelocity(0.0);
 	motionProfile.setAcceleration(0.0);
 	setVelocityTarget(0.0);
 }
 
-void PositionControlledSingleAxisMachine::onDisableSimulation() {
+void PositionControlledMachine::onDisableSimulation() {
 	motionProfile.setVelocity(0.0);
 	motionProfile.setAcceleration(0.0);
 }
 
-void PositionControlledSingleAxisMachine::process() {
+void PositionControlledMachine::process() {
 	if (!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
@@ -116,12 +116,24 @@ void PositionControlledSingleAxisMachine::process() {
 	if (isEnabled() && !axis->isEnabled()) disable();
 	
 	//Abort the process if the axis is not enabled
-	if (!isEnabled()) return;
+	if (!isEnabled()) {
+		//we still need to copy the current axis motion values to the machines motion profile
+		//so they they are correct when we start the machine
+		motionProfile.setPosition(actualPosition_machineUnits);
+		motionProfile.setVelocity(actualVelocity_machineUnits);
+		motionProfile.setAcceleration(0.0);
+		return;
+	}
 	
 	//Update Timing
-	double profileTime_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
-	double profileDeltaTime_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
-
+	if(isSimulating()){
+		profileTime_seconds = Environnement::getTime_seconds();
+		profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
+	}else{
+		profileTime_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
+		profileDeltaTime_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
+	}
+		
 	//Update Motion Profile
 	switch(controlMode){
 			
@@ -132,19 +144,16 @@ void PositionControlledSingleAxisMachine::process() {
 			double parameterTrackVelocity_machineUnits = machineVelocityToAxisVelocity((playbackPosition.real - previousProfilePosition_machineUnits) / profileDeltaTime_seconds);
 			motionProfile.setPosition(playbackPosition.real);
 			motionProfile.setVelocity(parameterTrackVelocity_machineUnits);
-		}break;
+			}break;
 			
 		case ControlMode::VELOCITY_TARGET:{
-			double lowLimit_machineUnits = getLowPositionLimit();
-			double highLimit_machineUnits = getHighPositionLimit();
-			double accelerationLimit = axis->getAccelerationLimit();
 			motionProfile.matchVelocityAndRespectPositionLimits(profileDeltaTime_seconds,
-																  manualVelocityTarget_machineUnitsPerSecond,
-																  rapidAcceleration_machineUnitsPerSecond,
-																  lowLimit_machineUnits,
-																  highLimit_machineUnits,
-																  accelerationLimit);
-		}break;
+																manualVelocityTarget_machineUnitsPerSecond,
+																rapidAcceleration_machineUnitsPerSecond,
+																getLowPositionLimit(),
+																getHighPositionLimit(),
+																axis->getAccelerationLimit());
+			}break;
 			
 		case ControlMode::POSITION_TARGET:{
 			if (targetInterpolation->isTimeInside(profileTime_seconds)) {
@@ -169,7 +178,7 @@ void PositionControlledSingleAxisMachine::process() {
 					 machineVelocityToAxisVelocity(motionProfile.getVelocity()));
 }
 
-void PositionControlledSingleAxisMachine::simulateProcess() {
+void PositionControlledMachine::simulateProcess() {
 	if (!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
@@ -227,20 +236,20 @@ void PositionControlledSingleAxisMachine::simulateProcess() {
 }
 
 
-bool PositionControlledSingleAxisMachine::isHoming(){ return false; }
-void PositionControlledSingleAxisMachine::startHoming(){}
-void PositionControlledSingleAxisMachine::stopHoming(){}
-bool PositionControlledSingleAxisMachine::didHomingSucceed(){}
-bool PositionControlledSingleAxisMachine::didHomingFail(){}
-float PositionControlledSingleAxisMachine::getHomingProgress(){ return 0.0; }
-const char* PositionControlledSingleAxisMachine::getHomingStateString(){ return "default state string (something went wrong)"; }
+bool PositionControlledMachine::isHoming(){ return false; }
+void PositionControlledMachine::startHoming(){}
+void PositionControlledMachine::stopHoming(){}
+bool PositionControlledMachine::didHomingSucceed(){}
+bool PositionControlledMachine::didHomingFail(){}
+float PositionControlledMachine::getHomingProgress(){ return 0.0; }
+const char* PositionControlledMachine::getHomingStateString(){ return "Work in progress."; }
 
 
-bool PositionControlledSingleAxisMachine::isAxisConnected() {
+bool PositionControlledMachine::isAxisConnected() {
 	return positionControlledAxisPin->isConnected();
 }
 
-std::shared_ptr<PositionControlledAxis> PositionControlledSingleAxisMachine::getAxis() {
+std::shared_ptr<PositionControlledAxis> PositionControlledMachine::getAxis() {
 	return positionControlledAxisPin->getConnectedPins().front()->getSharedPointer<PositionControlledAxis>();
 }
 
@@ -248,13 +257,13 @@ std::shared_ptr<PositionControlledAxis> PositionControlledSingleAxisMachine::get
 
 //===================== MANUAL CONTROLS =========================
 
-void PositionControlledSingleAxisMachine::setVelocityTarget(double velocityTarget_machineUnitsPerSecond) {
+void PositionControlledMachine::setVelocityTarget(double velocityTarget_machineUnitsPerSecond) {
 	manualVelocityTarget_machineUnitsPerSecond = velocityTarget_machineUnitsPerSecond;
 	if(controlMode == ControlMode::POSITION_TARGET) targetInterpolation->resetValues();
 	controlMode = ControlMode::VELOCITY_TARGET;
 }
 
-void PositionControlledSingleAxisMachine::moveToPosition(double target_machineUnits) {
+void PositionControlledMachine::moveToPosition(double target_machineUnits) {
 	
 	double lowLimit_machineUnits = getLowPositionLimit();
 	double highLimit_machineUnits = getHighPositionLimit();
@@ -277,46 +286,46 @@ void PositionControlledSingleAxisMachine::moveToPosition(double target_machineUn
 
 
 
-void PositionControlledSingleAxisMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+void PositionControlledMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if (parameter == positionParameter && parameter == value.parameter) {
 		moveToPosition(value.real);
 	}
 }
 
-float PositionControlledSingleAxisMachine::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
+float PositionControlledMachine::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
 		return targetInterpolation->getProgressAtTime(Environnement::getTime_seconds());
 	}
 	return 0.0;
 }
 
-void PositionControlledSingleAxisMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {
+void PositionControlledMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
 		setVelocityTarget(0.0);
 	}
 }
 
-bool PositionControlledSingleAxisMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+bool PositionControlledMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if (parameter == positionParameter && parameter == value.parameter) {
 		return motionProfile.getPosition() == value.real && motionProfile.getVelocity() == 0.0;
 	}
 	return false;
 }
 
-void PositionControlledSingleAxisMachine::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {
+void PositionControlledMachine::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
 		controlMode = ControlMode::PARAMETER_TRACK;
 	}
 }
 
-void PositionControlledSingleAxisMachine::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) {
+void PositionControlledMachine::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) {
 	//here we just set the velocity target to 0 regardless of where we are at in the manoeuvre
 	if (parameter == positionParameter) {
 		setVelocityTarget(0.0);
 	}
 }
 
-void PositionControlledSingleAxisMachine::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) {
+void PositionControlledMachine::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) {
 	//here we have to make sure that the last position of the manoeuvre stays in the motion profile on the next loop
 	//to make sure of this we manually set the profile velocity to 0.0, and the target velocity to 0.0 to make sure nothing moves after the manoeuvre is done playing
 	if (parameter == positionParameter) {
@@ -325,14 +334,14 @@ void PositionControlledSingleAxisMachine::onParameterPlaybackEnd(std::shared_ptr
 	}
 }
 
-void PositionControlledSingleAxisMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+void PositionControlledMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
 	if (parameter == positionParameter) {
 		value.real = motionProfile.getPosition();
 	}
 }
 
 
-bool PositionControlledSingleAxisMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
+bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
 	if (parameterTrack->parameter != positionParameter && parameterTrack->curves.size() != 1) return false;
 	else if (!isAxisConnected()) return false;
 	using namespace Motion;
@@ -403,7 +412,7 @@ bool PositionControlledSingleAxisMachine::validateParameterTrack(const std::shar
 	return b_curveValid;
 }
 
-bool PositionControlledSingleAxisMachine::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
+bool PositionControlledMachine::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
 	if (parameter == positionParameter && parameterCurves.size() == 1) {
 		lowLimit = getLowPositionLimit();
 		highLimit = getHighPositionLimit();
@@ -413,7 +422,7 @@ bool PositionControlledSingleAxisMachine::getCurveLimitsAtTime(const std::shared
 }
 
 
-void PositionControlledSingleAxisMachine::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {
+void PositionControlledMachine::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {
 	if (parameter == positionParameter && outputCurves.size() == 1 && targetPoints.size() == 1) {
 	
 		//TODO: this is a completely broken mess...
@@ -448,13 +457,13 @@ void PositionControlledSingleAxisMachine::getTimedParameterCurveTo(const std::sh
 
 
 
-void PositionControlledSingleAxisMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
+void PositionControlledMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
 	if (isAxisConnected()) getAxis()->getDevices(output);
 }
 
 
 
-bool PositionControlledSingleAxisMachine::saveMachine(tinyxml2::XMLElement* xml) {
+bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 
 	XMLElement* rapidsXML = xml->InsertNewChildElement("Rapids");
@@ -469,7 +478,7 @@ bool PositionControlledSingleAxisMachine::saveMachine(tinyxml2::XMLElement* xml)
 }
 
 
-bool PositionControlledSingleAxisMachine::loadMachine(tinyxml2::XMLElement* xml) {
+bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 
 	XMLElement* rapidsXML = xml->FirstChildElement("Rapids");
@@ -488,47 +497,47 @@ bool PositionControlledSingleAxisMachine::loadMachine(tinyxml2::XMLElement* xml)
 
 
 
-void PositionControlledSingleAxisMachine::captureMachineZero(){
+void PositionControlledMachine::captureMachineZero(){
 	machineZero_axisUnits = motionProfile.getPosition();
 }
 
 
 
 
-double PositionControlledSingleAxisMachine::axisPositionToMachinePosition(double axisPosition){
+double PositionControlledMachine::axisPositionToMachinePosition(double axisPosition){
 	if(b_invertDirection) return -1.0f * (axisPosition - machineZero_axisUnits);
 	return axisPosition - machineZero_axisUnits;
 }
 
-double PositionControlledSingleAxisMachine::axisVelocityToMachineVelocity(double axisVelocity){
+double PositionControlledMachine::axisVelocityToMachineVelocity(double axisVelocity){
 	if(b_invertDirection) return axisVelocity * -1.0;
 	return axisVelocity;
 }
 
-double PositionControlledSingleAxisMachine::machinePositionToAxisPosition(double machinePosition){
+double PositionControlledMachine::machinePositionToAxisPosition(double machinePosition){
 	if(b_invertDirection) return (-1.0f * machinePosition) + machineZero_axisUnits;
 	return machinePosition + machineZero_axisUnits;
 }
 
-double PositionControlledSingleAxisMachine::machineVelocityToAxisVelocity(double machineVelocity){
+double PositionControlledMachine::machineVelocityToAxisVelocity(double machineVelocity){
 	if(b_invertDirection) return machineVelocity * -1.0;
 	return machineVelocity;
 }
 
 
-double PositionControlledSingleAxisMachine::getLowPositionLimit(){
+double PositionControlledMachine::getLowPositionLimit(){
 	//if the machine motion is inverted relative to the axis motion, we also need to invert the limits
 	if(b_invertDirection) return axisPositionToMachinePosition(getAxis()->getHighPositionLimit());
 	return axisPositionToMachinePosition(getAxis()->getLowPositionLimit());
 }
 
-double PositionControlledSingleAxisMachine::getHighPositionLimit(){
+double PositionControlledMachine::getHighPositionLimit(){
 	//if the machine motion is inverted relative to the axis motion, we also need to invert the limits
 	if(b_invertDirection) return axisPositionToMachinePosition(getAxis()->getLowPositionLimit());
 	return axisPositionToMachinePosition(getAxis()->getHighPositionLimit());
 }
 
-double PositionControlledSingleAxisMachine::getPositionNormalized(){
+double PositionControlledMachine::getPositionNormalized(){
 	double lowLimit = getLowPositionLimit();
 	double highLimit = getHighPositionLimit();
 	double position;
@@ -537,7 +546,7 @@ double PositionControlledSingleAxisMachine::getPositionNormalized(){
 	return (position - lowLimit) / (highLimit - lowLimit);
 }
 
-double PositionControlledSingleAxisMachine::getVelocityNormalized(){
+double PositionControlledMachine::getVelocityNormalized(){
 	double velocityLimit = getAxis()->getVelocityLimit();
 	double velocity;
 	if(isSimulating()) velocity = motionProfile.getVelocity();
@@ -546,10 +555,10 @@ double PositionControlledSingleAxisMachine::getVelocityNormalized(){
 }
 
 
-bool PositionControlledSingleAxisMachine::hasManualPositionTarget(){
+bool PositionControlledMachine::hasManualPositionTarget(){
 	return controlMode == ControlMode::POSITION_TARGET;
 }
 
-double PositionControlledSingleAxisMachine::getManualPositionTarget(){
+double PositionControlledMachine::getManualPositionTarget(){
 	return targetInterpolation->outPosition;
 }

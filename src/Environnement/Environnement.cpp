@@ -386,10 +386,6 @@ namespace Environnement {
 		NodeGraph::Gui::reset();
 		getEtherCatDevices().clear();
 		getMachines().clear();
-		
-		stageVisualizerScript = std::make_shared<Script>();
 	}
-
-	std::shared_ptr<Script> stageVisualizerScript;
 
 }

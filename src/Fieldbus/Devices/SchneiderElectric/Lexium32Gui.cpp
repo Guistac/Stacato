@@ -311,7 +311,7 @@ void Lexium32::controlsGui() {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 	}else{
 		sprintf(followingErrorString, "%.2f revs", actualFollowingError_r);
-		followingErrorProgress = std::abs(actualFollowingError_r / maxFollowingError_revolutions);
+		followingErrorProgress = std::abs(actualFollowingError_r / servoMotorDevice->maxfollowingError);
 		followingErrorProgress = std::min(followingErrorProgress, 1.0f);
 		followingErrorProgress = std::max(followingErrorProgress, 0.0f);
 		if(followingErrorProgress > 0.95) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
@@ -401,7 +401,7 @@ void Lexium32::generalSettingsGui() {
     ImGui::Text("Invert Direction of Movement");
 
 	ImGui::Text("Max Position Following Error");
-	if (ImGui::InputDouble("##MaxError", &maxFollowingError_revolutions, 0.0, 0.0, "%.3f revolutions")) generalParameterUploadState = DataTransferState::NO_TRANSFER;
+	if (ImGui::InputDouble("##MaxError", &servoMotorDevice->maxfollowingError, 0.0, 0.0, "%.3f revolutions")) generalParameterUploadState = DataTransferState::NO_TRANSFER;
 	
     ImGui::Text("Max Current");
     if (ImGui::InputDouble("##maxI", &maxCurrent_amps, 0.0, 0.0, "%.1f Amperes")) generalParameterUploadState = DataTransferState::NO_TRANSFER;

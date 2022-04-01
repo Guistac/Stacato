@@ -22,6 +22,7 @@
 #include "Rendering/ofRenderer.h"
 #include "Project/Project.h"
 
+#include "Environnement/StageVisualizer.h"
 
 namespace ApplicationWindow {
 
@@ -133,10 +134,14 @@ namespace ApplicationWindow {
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(OPENGL_VERSION_STRING);
 		ofRenderer::init(OPENGL_VERSION_MAJOR, OPENGL_VERSION_MINOR);
-
+		
+		Environnement::StageVisualizer::start();
+		
 		//============ UPDATE LOOP ============
 		while (!b_shouldClose) update();
 
+		Environnement::StageVisualizer::stop();
+		
 		//Gui Shutdown
 		ofRenderer::terminate();
 		ImGui_ImplOpenGL3_Shutdown();

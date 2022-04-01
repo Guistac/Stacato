@@ -23,6 +23,7 @@ public:
 	bool isRunning();
 	void stop();
 	
+	bool checkHasFunction(const char* functionName);
 	void callFunction(const char* functionName);
 	
 	typedef void(*LoadLibrariesCallback)(lua_State* L);
@@ -36,7 +37,7 @@ private:
 	
 	std::string scriptFilePath;
 	
-	float f_consoleHeight;
+	float f_consoleHeight = 150.0;
 	
 	enum class ScriptFlag{
 		INFO,

@@ -70,6 +70,4 @@ namespace Environnement{
 	void requestEditorUnlock();
 	void confirmEditorUnlock();
 	bool checkEditorPassword(const char* password);
-
-	extern std::shared_ptr<Script> stageVisualizerScript;
 };

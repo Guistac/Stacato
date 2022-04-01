@@ -4,6 +4,8 @@
 #include "Environnement/Environnement.h"
 #include "Scripting/Script.h"
 
+#include "Environnement/StageVisualizer.h"
+
 namespace Environnement::Gui{
 
 	void stageEditor(){
@@ -11,7 +13,11 @@ namespace Environnement::Gui{
 		ImVec2 half = ImGui::GetContentRegionAvail();
 		half.x /= 2.0;
 		
-		Environnement::stageVisualizerScript->editor(half);
+		StageVisualizer::editor(half);
+		
+		ImGui::SameLine();
+		StageVisualizer::canvas(ImGui::GetContentRegionAvail());
+		
 	}
 
 }

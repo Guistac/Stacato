@@ -6,7 +6,7 @@
 
 namespace Environnement::NodeGraph::Gui{
 
-	void editor();
+	void editor(glm::vec2 size_arg);
 	std::shared_ptr<Node> nodeAdderContextMenu();
 	std::shared_ptr<Node> acceptDraggedNode();
 	void nodeAdder();
@@ -14,7 +14,6 @@ namespace Environnement::NodeGraph::Gui{
 
 	void showFlow();
 	void centerView();
-	bool& getShowOutputValues();
 
 	void reset();
 

@@ -81,7 +81,17 @@ void PositionControlledAxis::process() {
 		if (b_isHoming) homingControl();
 		switch (controlMode) {
 			case ControlMode::VELOCITY_TARGET:
-				motionProfile.matchVelocity(profileTimeDelta_seconds, manualVelocityTarget, manualAcceleration);
+				//don't respect position limits when homing
+				if(b_isHoming) motionProfile.matchVelocity(profileTimeDelta_seconds,
+														   manualVelocityTarget,
+														   manualAcceleration);
+				//but respect them when moving manually
+				else motionProfile.matchVelocityAndRespectPositionLimits(profileTimeDelta_seconds,
+																	manualVelocityTarget,
+																	manualAcceleration,
+																	getLowPositionLimit(),
+																	getHighPositionLimit(),
+																	getAccelerationLimit());
 				break;
 			case ControlMode::FAST_STOP:
 				motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, manualAcceleration);
@@ -331,7 +341,11 @@ void PositionControlledAxis::updateReferenceSignals() {
 }
 
 bool PositionControlledAxis::isMoving() {
-	return getServoActuatorDevice()->isMoving();
+	
+	return motionProfile.getVelocity() != 0.0;
+	
+	//TODO: this needs a threshold setting
+	//return getServoActuatorDevice()->isMoving();
 }
 
 double PositionControlledAxis::getLowPositionLimit() {
@@ -382,6 +396,9 @@ float PositionControlledAxis::getActualFollowingErrorNormalized(){
 	return getServoActuatorDevice()->getFollowingErrorNormalized();
 }
 
+double PositionControlledAxis::getFollowingErrorLimit(){
+	return servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->maxfollowingError);
+}
 
 void PositionControlledAxis::setCurrentPosition(double distance) {
 	getServoActuatorDevice()->setPosition(distance * servoActuatorUnitsPerAxisUnits);
@@ -397,10 +414,10 @@ void PositionControlledAxis::setCurrentPositionAsPositiveLimit() {
 }
 
 void PositionControlledAxis::scaleFeedbackToMatchPosition(double position_axisUnits) {
-	double feedbackDevicePosition_feedbackUnits = getServoActuatorDevice()->getPosition();
-	//this recalculates unit scaling based on the distance between on zero position
-	servoActuatorUnitsPerAxisUnits = feedbackDevicePosition_feedbackUnits / position_axisUnits;
-	motionProfile.setPosition(feedbackDevicePosition_feedbackUnits / servoActuatorUnitsPerAxisUnits);
+	double servoActuatorPosition_actuatorUnits = getServoActuatorDevice()->getPosition();
+	//this recalculates unit scaling based on the distance from zero position
+	servoActuatorUnitsPerAxisUnits = servoActuatorPosition_actuatorUnits / position_axisUnits;
+	motionProfile.setPosition(position_axisUnits);
 }
 
 //================================= MANUAL CONTROL ===================================
@@ -971,10 +988,10 @@ void PositionControlledAxis::sanitizeParameters(){
 	homingVelocityFine = std::min(std::abs(homingVelocityFine), homingVelocityCoarse);
 	
 	velocityLimit = std::abs(velocityLimit);
-	//TODO: if(isServoActuatorDeviceConnected()) velocityLimit = std::min(velocityLimit, servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getVelocityLimit()));
+	if(isServoActuatorDeviceConnected()) velocityLimit = std::min(velocityLimit, servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getVelocityLimit()));
 	
 	accelerationLimit = std::abs(accelerationLimit);
-	//TODO: if(isServoActuatorDeviceConnected()) accelerationLimit = std::min(accelerationLimit, servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getAccelerationLimit()));
+	if(isServoActuatorDeviceConnected()) accelerationLimit = std::min(accelerationLimit, servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getAccelerationLimit()));
 	
 	manualAcceleration = std::min(std::abs(manualAcceleration), accelerationLimit);
 

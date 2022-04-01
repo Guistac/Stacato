@@ -39,7 +39,7 @@ namespace Environnement::NodeGraph{
 
 	int getNewUniqueID();
 	
-	bool& getShouldShowOutputValues();
+	bool& getShowOutputValues();
 	bool& getWasJustLoaded();
 
 	void reset();

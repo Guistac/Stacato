@@ -4,9 +4,9 @@
 #include "Motion/MotionTypes.h"
 #include "Motion/Profile.h"
 
-class PositionControlledSingleAxisMachine : public Machine{
+class PositionControlledMachine : public Machine{
 	
-	DEFINE_MACHINE_NODE(PositionControlledSingleAxisMachine, "Position Controlled Single Axis Machine", "PositionControlledSingleAxisMachine", "Basic")
+	DEFINE_MACHINE_NODE(PositionControlledMachine, "Position Controlled Machine", "PositionControlledMachine", "Basic")
 	DEFINE_HOMEABLE_MACHINE
 	
 	std::shared_ptr<NodePin> positionControlledAxisPin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS, NodePin::Direction::NODE_INPUT, "Position Controlled Axis");
@@ -65,6 +65,8 @@ class PositionControlledSingleAxisMachine : public Machine{
 	
 	ControlMode controlMode = ControlMode::VELOCITY_TARGET;
 	Motion::Profile motionProfile;
+	double profileTime_seconds;
+	double profileDeltaTime_seconds;
 	std::shared_ptr<Motion::Interpolation> targetInterpolation = std::make_shared<Motion::Interpolation>();
 	
 	bool hasManualPositionTarget();

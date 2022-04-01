@@ -16,7 +16,11 @@ namespace Environnement::NodeGraph{
 		//and we can't retrieve information such as node positions from the library
 		//we submit all node once here before saving so the library is happy
 		//we can proceed as if the node editor had been displayed all along
-		Environnement::NodeGraph::Gui::editor();
+		//if the node editor was display once this is useless but we submit the draw call anyways since it is offscreen
+		ImGui::SetNextWindowPos(ImVec2(10000, 10000));
+		ImGui::Begin("OffscreenNodeEditorFor1Frame", nullptr, ImGuiWindowFlags_NoFocusOnAppearing);
+		Environnement::NodeGraph::Gui::editor(glm::vec2(0,0));
+		ImGui::End();
 		
 		using namespace tinyxml2;
 		XMLElement* nodes = xml->InsertNewChildElement("Nodes");

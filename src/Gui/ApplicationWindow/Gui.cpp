@@ -83,7 +83,7 @@ namespace Gui {
 		ImGui::Begin("Stage View");
 		StageView::draw();
 		ImGui::End();
-
+		 
 		ImGui::Begin("Plot");
 		PlotGui::editor();
 		ImGui::End();

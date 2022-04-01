@@ -11,6 +11,8 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Scripting/Script.h
     ${STACATO_SOURCE_DIRECTORY}/Scripting/Script.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Scripting/EnvironnementLibrary.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Scripting/EnvironnementLibrary.h
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.cpp
@@ -127,6 +129,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Environnement/Node.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/DeviceNode.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/DeviceNode.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/StageVisualizer.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/StageVisualizer.h
 
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.cpp
@@ -195,9 +199,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Safety/DeadMansSwitch.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Safety/DeadMansSwitch.h
 
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledSingleAxisMachine.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledSingleAxisMachine.h
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledSingleAxisMachineGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachineGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/BinaryOscillator6x.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/BinaryOscillator6x.h

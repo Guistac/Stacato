@@ -162,7 +162,6 @@ namespace Environnement::NodeGraph::Gui{
 	}
 
 
-
 	std::shared_ptr<Node> acceptDraggedNode() {
 		if (ImGui::BeginDragDropTarget()) {
 			const ImGuiPayload* payload;

@@ -4,7 +4,7 @@
 
 #include "Motion/Axis/VelocityControlledAxis.h"
 #include "Motion/Axis/PositionControlledAxis.h"
-#include "Machine/Machines/Basic/PositionControlledSingleAxisMachine.h"
+#include "Machine/Machines/Basic/PositionControlledMachine.h"
 #include "Machine/Machines/StateMachines/HoodedLiftStateMachine.h"
 //#include "Motion/Machine/Machines/Animated/Oscillator3x.h"
 //#include "Motion/Machine/Machines/Animated/BinaryOscillator6x.h"
@@ -32,7 +32,7 @@ namespace NodeFactory{
 		};
 		
 		allMachineNodes = {
-			new PositionControlledSingleAxisMachine(),
+			new PositionControlledMachine(),
 			new HoodedLiftStateMachine(),
 			//new Oscillator3x(),
 			//new BinaryOscillator6x(),

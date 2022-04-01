@@ -9,12 +9,14 @@
 
 #include "Environnement/Environnement.h"
 
+#include "Environnement/NodeGraph/NodeGraph.h"
+
 namespace Environnement::Gui{
 
 	void gui() {
 		if (ImGui::BeginTabBar("##EnvironnementTabBar")) {
 			if (ImGui::BeginTabItem("Editor")) {
-				editor();
+				Environnement::Gui::editor();
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Machine Manager")) {

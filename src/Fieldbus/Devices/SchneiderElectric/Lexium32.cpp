@@ -594,7 +594,7 @@ void Lexium32::uploadGeneralParameters() {
 
 	{
 		EtherCatCoeData MON_p_dif_load_usr(0x3006, 0x3E, EtherCatData::Type::INT32_T);
-		MON_p_dif_load_usr.setS32(maxFollowingError_revolutions * positionUnitsPerRevolution);
+		MON_p_dif_load_usr.setS32(servoMotorDevice->maxfollowingError * positionUnitsPerRevolution);
 		if(!MON_p_dif_load_usr.write(getSlaveIndex())) goto transferfailed;
 	}
 	
@@ -653,7 +653,7 @@ void Lexium32::downloadGeneralParameters() {
 	{
 		EtherCatCoeData MON_p_dif_load_usr(0x3006, 0x3E, EtherCatData::Type::INT32_T);
 		if(!MON_p_dif_load_usr.read(getSlaveIndex())) goto transferfailed;
-		maxFollowingError_revolutions = (float)MON_p_dif_load_usr.getS32() / positionUnitsPerRevolution;
+		servoMotorDevice->maxfollowingError = (float)MON_p_dif_load_usr.getS32() / positionUnitsPerRevolution;
 	}
 	
     {
@@ -1207,7 +1207,7 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
     invertDirectionOfMovementXML->SetAttribute("Invert", b_invertDirectionOfMotorMovement);
 	
 	XMLElement* maxFollowingErrorXML = xml->InsertNewChildElement("MaxFollowingError");
-	maxFollowingErrorXML->SetAttribute("revolutions", maxFollowingError_revolutions);
+	maxFollowingErrorXML->SetAttribute("revolutions", servoMotorDevice->maxfollowingError);
 
     XMLElement* currentLimitXML = xml->InsertNewChildElement("CurrentLimit");
     currentLimitXML->SetAttribute("amps", maxCurrent_amps);
@@ -1294,7 +1294,7 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
 
 	XMLElement* maxFollowingErrorXML = xml->FirstChildElement("MaxFollowingError");
 	if(maxFollowingErrorXML == nullptr) return Logger::warn("Could not find max following error attribute");
-	if(maxFollowingErrorXML->QueryAttribute("revolutions", &maxFollowingError_revolutions) != XML_SUCCESS) return Logger::warn("Could not read max following error attribute");
+	if(maxFollowingErrorXML->QueryAttribute("revolutions", &servoMotorDevice->maxfollowingError) != XML_SUCCESS) return Logger::warn("Could not read max following error attribute");
 	 
     XMLElement* currentLimitsXML = xml->FirstChildElement("CurrentLimit");
     if (currentLimitsXML == nullptr) return Logger::warn("Could not find current limits attribute");

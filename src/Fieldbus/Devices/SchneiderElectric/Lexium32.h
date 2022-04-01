@@ -165,8 +165,6 @@ public:
     double maxCurrent_amps = 0.0;
     
     float maxMotorVelocity_rps = 0.0;
-	
-	double maxFollowingError_revolutions = 0.0;
 
     void uploadGeneralParameters();
     DataTransferState generalParameterUploadState = DataTransferState::NO_TRANSFER;

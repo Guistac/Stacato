@@ -23,12 +23,10 @@ namespace Environnement::NodeGraph::Gui{
 		context = ax::NodeEditor::CreateEditor();
 	}
 
-	void editor() {
+	void editor(glm::vec2 size_arg) {
 		
 		ax::NodeEditor::SetCurrentEditor(context);
-		ax::NodeEditor::Begin("Node Editor", ImVec2(0, ImGui::GetContentRegionAvail().y - ImGui::GetTextLineHeight() * 1.7));
-
-		
+		ax::NodeEditor::Begin("Node Editor", size_arg);
 		
 		//===== DRAW NODES =====
 
@@ -252,6 +250,14 @@ namespace Environnement::NodeGraph::Gui{
 
 		ax::NodeEditor::End();
 
+		//====== Accept new dragged nodes ======
+		if (Project::isEditingAllowed()) {
+			if (std::shared_ptr<Node> newDraggedNode = NodeGraph::Gui::acceptDraggedNode()) {
+				Environnement::addNode(newDraggedNode);
+				ax::NodeEditor::SetNodePosition(newDraggedNode->getUniqueID(), ax::NodeEditor::ScreenToCanvas(ImGui::GetMousePos()));
+			}
+		}
+		
 		/*
 		static std::vector<std::shared_ptr<Node>> copiedNodes;
 
@@ -309,9 +315,5 @@ namespace Environnement::NodeGraph::Gui{
 			ax::NodeEditor::Flow(link->getUniqueID());
 		}
 	}
-
-	bool b_showOutputValues;
-	bool& getShowOutputValues(){ return b_showOutputValues; }
-
 
 }

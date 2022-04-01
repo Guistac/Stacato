@@ -5,6 +5,7 @@
 #include "Environnement/Environnement.h"
 #include "Plot/Plot.h"
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
+#include "Environnement/StageVisualizer.h"
 
 namespace Project{
 
@@ -97,8 +98,8 @@ namespace Project{
 		bool b_loadedEnvironnementFile = false;
 		for (const auto& entry : std::filesystem::directory_iterator(projectFolderPath)) {
 			if(entry.path().filename() == "Environnement.stacatoEnvironnement"){
-				const char* entryPath = entry.path().string().c_str();
-				b_loadedEnvironnementFile = Environnement::load(entryPath);
+				std::string entryPath = entry.path().string();
+				b_loadedEnvironnementFile = Environnement::load(entryPath.c_str());
 				break;
 			}
 		}
@@ -113,6 +114,9 @@ namespace Project{
 			Logger::warn("Could not find Stage Folder in project {}", filePath.filename().string());
 			return false;
 		}
+		
+		std::string stageVisualizeScriptPath = stageFolderPath + "Script.lua";
+		Environnement::StageVisualizer::loadScript(stageVisualizeScriptPath.c_str());
 
 		//look for the plot folder
 		std::string plotsFolderPath = projectFolderPath + "Plots/";
@@ -125,8 +129,8 @@ namespace Project{
 		for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::path(plotsFolderPath))) {
 			if (entry.path().extension() == ".stacatoPlot") {
 				std::shared_ptr<Plot> plot = std::make_shared<Plot>();
-				const char* plotFilePath = entry.path().string().c_str();
-				if (plot->load(plotFilePath)) {
+				std::string plotFilePath = entry.path().string();
+				if (plot->load(plotFilePath.c_str())) {
 					plots.push_back(plot);
 				}
 			}
@@ -155,7 +159,7 @@ namespace Project{
 
 	bool save() {
 		if(b_hasFilePath) {
-			bool b_saved = saveAs(saveFilePath);
+			bool b_saved = Project::saveAs(saveFilePath);
 			if(b_saved) ApplicationWindow::hideUnsavedModifications();
 			return b_saved;
 		}
@@ -178,6 +182,9 @@ namespace Project{
 		std::string stageFolder = projectFolderPath + "Stage/";
 		if(!std::filesystem::exists(std::filesystem::path(stageFolder))) std::filesystem::create_directory(std::filesystem::path(stageFolder));
 
+		std::string stageVisualizeScriptPath = stageFolder + "Script.lua";
+		Environnement::StageVisualizer::saveScript(stageVisualizeScriptPath.c_str());
+		
 		std::string plotsFolder = projectFolderPath + "Plots/";
 		if (!std::filesystem::exists(std::filesystem::path(plotsFolder))) std::filesystem::create_directory(std::filesystem::path(plotsFolder));
 
@@ -186,7 +193,7 @@ namespace Project{
 			std::string plotFilePath = plotsFolder + plot->name + "_" + std::to_string(i) + ".stacatoPlot";
 			plot->save(plotFilePath.c_str());
 		}
-		
+	
 		strcpy(saveFilePath, dir);
 		b_hasFilePath = true;
 		b_hasUnsavedModifications = false;

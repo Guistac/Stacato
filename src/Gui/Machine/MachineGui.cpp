@@ -97,7 +97,8 @@ void Machine::miniatureGui() {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
 	ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImGui::GetTextLineHeight() * 0.2);
 	ImGui::PushStyleColor(ImGuiCol_ChildBg, Colors::almostBlack);
-	if (ImGui::BeginChild(getName(), miniatureSize, true)) {
+	ImGui::PushID(getName());
+	if (ImGui::BeginChild("Miniature", miniatureSize, true)) {
 
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, -ImGui::GetTextLineHeight() * 0.2));
 
@@ -123,7 +124,7 @@ void Machine::miniatureGui() {
 		glm::vec2 miniatureContentSize = ImGui::GetContentRegionAvail();
 		miniatureContentSize.y -= bottomSectionHeight;
 
-		if (ImGui::BeginChild(getName(), miniatureContentSize, false)) {
+		if (ImGui::BeginChild("MiniatureContent", miniatureContentSize, false)) {
 			machineSpecificMiniatureGui();
 		}
 		ImGui::EndChild();
@@ -152,6 +153,7 @@ void Machine::miniatureGui() {
 		ImGui::PopStyleVar();
 	}
 	ImGui::EndChild();
+	ImGui::PopID();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleVar(2);
 

@@ -27,7 +27,7 @@ namespace Environnement::NodeGraph{
 
 
 	bool b_showOutputValues = false;
-	bool& getShouldShowOutputValues(){ return b_showOutputValues; }
+	bool& getShowOutputValues(){ return b_showOutputValues; }
 
 	bool b_justLoaded = false;
 	bool& getWasJustLoaded(){ return b_justLoaded; }

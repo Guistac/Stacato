@@ -143,6 +143,7 @@ public:
 	double getActualPosition() { return *actualPositionValue; }
 	double getActualFollowingError();
 	float getActualFollowingErrorNormalized();
+	double getFollowingErrorLimit();
 	float getActualVelocityNormalized() { return *actualVelocityValue / velocityLimit; }
 	float getActualPositionNormalized() {
 		double low = getLowPositionLimit();

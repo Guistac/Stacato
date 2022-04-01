@@ -25,16 +25,16 @@ namespace ofRenderer{
 		glm::vec2 renderSize{1280, 720};
 	};
 
-	ofDummyWindow* dummyWindow;
+	std::shared_ptr<ofDummyWindow> dummyWindow;
 	std::shared_ptr<ofGLProgrammableRenderer> mainRenderer;
 
 	void init(int openGlVersionMajor, int openglVersionMinor){
 		//basic initialisation
 		ofInit();
 		//create a dummy window to hold the main renderer
-		dummyWindow = new ofDummyWindow();
+		dummyWindow = std::make_shared<ofDummyWindow>();
 		//create the main renderer and link it with the window we created
-		mainRenderer = std::make_shared<ofGLProgrammableRenderer>(dummyWindow);
+		mainRenderer = std::make_shared<ofGLProgrammableRenderer>(dummyWindow.get());
 		//setup the renderer using the specified OpenGl Version
 		mainRenderer->setup(openGlVersionMajor, openglVersionMinor);
 		//give the main renderer reference to the dummy window

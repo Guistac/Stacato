@@ -26,12 +26,6 @@ void Script::editor(ImVec2 size_arg){
 	ImGui::BeginChild("ScriptEditor", size_arg, true);
 	ImGui::PopStyleVar();
 	
-	if(ImGui::Button("Compile")) compile();
-	ImGui::SameLine();
-	if(ImGui::Button("Run")) run();
-	ImGui::SameLine();
-	if(ImGui::Button("Stop")) stop();
-	
 	float f_separatorHeight = ImGui::GetTextLineHeight() / 2.0;
 	float f_editorHeight = ImGui::GetContentRegionAvail().y - f_separatorHeight - f_consoleHeight;
 	float f_width = ImGui::GetContentRegionAvail().x;
@@ -168,6 +162,7 @@ bool Script::compile(){
 
 void Script::run() {
 	if(!compile()) return;
+	addConsoleMessage("Starting Script...", ScriptFlag::INFO);
 	if(lua_pcall(L, 0, LUA_MULTRET, 0) != LUA_OK) {
 		const char* luaErrorString = lua_tostring(L, -1);
 		std::string errorMessage = "Runtime error :\n" + std::string(luaErrorString);
@@ -190,6 +185,19 @@ void Script::stop(){
 	}
 }
 
+
+bool Script::checkHasFunction(const char* functionName){
+	if(!isRunning()) return false;
+	lua_getglobal(L, functionName);
+	if(lua_type(L, -1) != LUA_TFUNCTION) {
+		lua_pop(L, 1);
+		std::string errorMessage = "Script does not have function " + std::string(functionName) + "()";
+		addConsoleMessage(errorMessage.c_str(), ScriptFlag::RUNTIME_ERROR);
+		stop();
+		return false;
+	}
+	return true;
+}
 
 void Script::callFunction(const char* functionName){
 	if(!isRunning()) return;
