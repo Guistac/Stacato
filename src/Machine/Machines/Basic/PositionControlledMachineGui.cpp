@@ -211,9 +211,9 @@ void PositionControlledMachine::controlsGui() {
 		targetProgress = 1.0;
 	}
 	else{
-		targetProgress = targetInterpolation->getProgressAtTime(Environnement::getTime_seconds());
+		targetProgress = motionProfile.getInterpolationProgress(Environnement::getTime_seconds());
 		if(targetProgress > 0.0 && targetProgress < 1.0){
-			movementSecondsLeft = targetInterpolation->outTime - Environnement::getTime_seconds();
+			movementSecondsLeft = motionProfile.getRemainingInterpolationTime(Environnement::getTime_seconds());
 			sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
 		}else{
@@ -427,7 +427,7 @@ void PositionControlledMachine::machineSpecificMiniatureGui() {
 			velocityProgress = std::abs(getVelocityNormalized());
 			if (velocityProgress > 1.0) velocityProgress = 1.0;
 			positionUnitShortFormString = axis->getPositionUnit()->abbreviated;
-			motionProgress = targetInterpolation->getProgressAtTime(Environnement::getTime_seconds());
+			motionProgress = motionProfile.getInterpolationProgress(Environnement::getTime_seconds());
 			if(b_hasPositionTarget) positionTargetNormalized = (getManualPositionTarget() - minPosition) / (maxPosition - minPosition);
 			disableControls = !isEnabled();
 			

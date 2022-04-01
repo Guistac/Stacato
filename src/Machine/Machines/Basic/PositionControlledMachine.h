@@ -67,7 +67,6 @@ class PositionControlledMachine : public Machine{
 	Motion::Profile motionProfile;
 	double profileTime_seconds;
 	double profileDeltaTime_seconds;
-	std::shared_ptr<Motion::Interpolation> targetInterpolation = std::make_shared<Motion::Interpolation>();
 	
 	bool hasManualPositionTarget();
 	double getManualPositionTarget();

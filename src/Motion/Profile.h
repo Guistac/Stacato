@@ -153,7 +153,7 @@ public:
 	}
 	
 	bool isInterpolationFinished(double time){
-		return targetInterpolation->getProgressAtTime(time) >= 1.0 || targetInterpolation->getProgressAtTime(time) <= 0.0;
+		return targetInterpolation->getProgressAtTime(time) >= 1.0;
 	}
 	
 	double getRemainingInterpolationTime(double time){

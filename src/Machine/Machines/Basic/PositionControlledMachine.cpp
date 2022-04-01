@@ -91,7 +91,7 @@ bool PositionControlledMachine::isSimulationReady(){
 }
 
 void PositionControlledMachine::onEnableSimulation() {
-	targetInterpolation->resetValues();
+	motionProfile.resetInterpolation();
 	motionProfile.setVelocity(0.0);
 	motionProfile.setAcceleration(0.0);
 	setVelocityTarget(0.0);
@@ -125,14 +125,8 @@ void PositionControlledMachine::process() {
 		return;
 	}
 	
-	//Update Timing
-	if(isSimulating()){
-		profileTime_seconds = Environnement::getTime_seconds();
-		profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
-	}else{
-		profileTime_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
-		profileDeltaTime_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
-	}
+	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
+	profileDeltaTime_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 		
 	//Update Motion Profile
 	switch(controlMode){
@@ -156,20 +150,8 @@ void PositionControlledMachine::process() {
 			}break;
 			
 		case ControlMode::POSITION_TARGET:{
-			if (targetInterpolation->isTimeInside(profileTime_seconds)) {
-				Motion::CurvePoint curvePoint = targetInterpolation->getPointAtTime(profileTime_seconds);
-				motionProfile.setPosition(curvePoint.position);
-				motionProfile.setVelocity(curvePoint.velocity);
-				motionProfile.setAcceleration(curvePoint.acceleration);
-			}
-			else if(targetInterpolation->getProgressAtTime(profileTime_seconds) >= 1.0){
-				motionProfile.setPosition(targetInterpolation->outPosition);
-				motionProfile.setVelocity(0.0);
-				motionProfile.setAcceleration(0.0);
-				setVelocityTarget(0.0);
-			}else{
-				setVelocityTarget(0.0);
-			}
+			motionProfile.updateInterpolation(profileTime_seconds);
+			if(motionProfile.isInterpolationFinished(profileTime_seconds)) setVelocityTarget(0.0);
 		}break;
 	}
 	
@@ -215,20 +197,8 @@ void PositionControlledMachine::simulateProcess() {
 		}break;
 			
 		case ControlMode::POSITION_TARGET:{
-			if (targetInterpolation->isTimeInside(profileTime_seconds)) {
-				Motion::CurvePoint curvePoint = targetInterpolation->getPointAtTime(profileTime_seconds);
-				motionProfile.setPosition(curvePoint.position);
-				motionProfile.setVelocity(curvePoint.velocity);
-				motionProfile.setAcceleration(curvePoint.acceleration);
-			}
-			else if(targetInterpolation->getProgressAtTime(profileTime_seconds) >= 1.0){
-				motionProfile.setPosition(targetInterpolation->outPosition);
-				motionProfile.setVelocity(0.0);
-				motionProfile.setAcceleration(0.0);
-				setVelocityTarget(0.0);
-			}else{
-				setVelocityTarget(0.0);
-			}
+			motionProfile.updateInterpolation(profileTime_seconds);
+			if(motionProfile.isInterpolationFinished(profileTime_seconds)) setVelocityTarget(0.0);
 		}break;
 			
 	}
@@ -259,7 +229,7 @@ std::shared_ptr<PositionControlledAxis> PositionControlledMachine::getAxis() {
 
 void PositionControlledMachine::setVelocityTarget(double velocityTarget_machineUnitsPerSecond) {
 	manualVelocityTarget_machineUnitsPerSecond = velocityTarget_machineUnitsPerSecond;
-	if(controlMode == ControlMode::POSITION_TARGET) targetInterpolation->resetValues();
+	if(controlMode == ControlMode::POSITION_TARGET) motionProfile.resetInterpolation();
 	controlMode = ControlMode::VELOCITY_TARGET;
 }
 
@@ -270,14 +240,19 @@ void PositionControlledMachine::moveToPosition(double target_machineUnits) {
 	target_machineUnits = std::min(target_machineUnits, highLimit_machineUnits);
 	target_machineUnits = std::max(target_machineUnits, lowLimit_machineUnits);
 	
-	double startTime = Environnement::getTime_seconds();
-	double profilePosition = motionProfile.getPosition();
-	double profileVelocity = motionProfile.getVelocity();
+	double startTime;
+	if(isSimulating()) startTime = Environnement::getTime_seconds();
+	else startTime = EtherCatFieldbus::getCycleProgramTime_seconds();
 	
-	auto startPoint = std::make_shared<Motion::ControlPoint>(startTime, profilePosition, rapidAcceleration_machineUnitsPerSecond, profileVelocity);
-	auto endPoint = std::make_shared<Motion::ControlPoint>(0.0, target_machineUnits, rapidAcceleration_machineUnitsPerSecond, 0.0);
-	if (Motion::TrapezoidalInterpolation::getFastestVelocityConstrainedInterpolation(startPoint, endPoint, rapidVelocity_machineUnitsPerSecond, targetInterpolation))
-		controlMode = ControlMode::POSITION_TARGET;
+	bool success = motionProfile.moveToPositionWithVelocity(startTime,
+															target_machineUnits,
+															rapidVelocity_machineUnitsPerSecond,
+															rapidAcceleration_machineUnitsPerSecond);
+	
+	double target = motionProfile.getInterpolationTarget();
+	double left = motionProfile.getRemainingInterpolationTime(startTime);
+	
+	if(success) controlMode = ControlMode::POSITION_TARGET;
 	else setVelocityTarget(0.0);
 }
 
@@ -294,7 +269,7 @@ void PositionControlledMachine::rapidParameterToValue(std::shared_ptr<Animatable
 
 float PositionControlledMachine::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
-		return targetInterpolation->getProgressAtTime(Environnement::getTime_seconds());
+		return motionProfile.getInterpolationProgress(Environnement::getTime_seconds());
 	}
 	return 0.0;
 }
@@ -542,7 +517,7 @@ double PositionControlledMachine::getPositionNormalized(){
 	double highLimit = getHighPositionLimit();
 	double position;
 	if(isSimulating()) position = motionProfile.getPosition();
-	else position = axisPositionToMachinePosition(getAxis()->getActualPositionNormalized());
+	else position = axisPositionToMachinePosition(getAxis()->getActualPosition());
 	return (position - lowLimit) / (highLimit - lowLimit);
 }
 
@@ -560,5 +535,5 @@ bool PositionControlledMachine::hasManualPositionTarget(){
 }
 
 double PositionControlledMachine::getManualPositionTarget(){
-	return targetInterpolation->outPosition;
+	return motionProfile.getInterpolationTarget();
 }
