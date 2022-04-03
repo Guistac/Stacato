@@ -14,11 +14,11 @@ void etherCatSlaves() {
 	ImGui::BeginGroup();
 
 	bool disableScanButton = EtherCatFieldbus::isCyclicExchangeActive() || EtherCatFieldbus::isCyclicExchangeStarting();
-	if (disableScanButton) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableScanButton);
 	if (ImGui::Button("Scan Network")) EtherCatFieldbus::scanNetwork();
-	if (disableScanButton) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	ImGui::SameLine();
-	ImGui::Text("%i Devices Found", EtherCatFieldbus::slaves.size());
+	ImGui::Text("%i Devices Found", (int)EtherCatFieldbus::slaves.size());
 
 	static int selectedSlaveIndex = -1;
 
@@ -43,7 +43,7 @@ void etherCatSlaves() {
 		if (slave->getSlaveIndex() == selectedSlaveIndex) { selectedSlave = slave; break; }
 
 	ImGui::BeginGroup();
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	if (selectedSlave) ImGui::Text("%s (Node #%i) ", selectedSlave->getSaveName(), selectedSlave->getSlaveIndex());
 	else ImGui::Text("No Device Selected");
 	ImGui::PopFont();

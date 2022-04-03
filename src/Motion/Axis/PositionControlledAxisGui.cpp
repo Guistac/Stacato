@@ -9,7 +9,7 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
-#include "NodeGraph/Device.h"
+#include "Environnement/DeviceNode.h"
 #include "Gui/Utilities/HelpMarker.h"
 
 #include "Motion/SubDevice.h"
@@ -17,6 +17,24 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 
 #include "Motion/Curve/Curve.h"
+
+static bool b_axisValueInvalid = false;
+
+void pushInvalidValue(bool doit){
+	if(doit){
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+		ImGui::PushFont(Fonts::sansBold15);
+		b_axisValueInvalid = true;
+	}
+}
+
+void popInvalidValue(){
+	if(b_axisValueInvalid){
+		ImGui::PopStyleColor();
+		ImGui::PopFont();
+		b_axisValueInvalid = false;
+	}
+}
 
 void PositionControlledAxis::nodeSpecificGui() {
 	if (ImGui::BeginTabItem("Control")) {
@@ -59,19 +77,19 @@ void PositionControlledAxis::controlsGui() {
 	glm::vec2 largeDoubleButtonSize(doubleWidgetWidth, ImGui::GetTextLineHeight() * 2.0);
 	glm::vec2 progressBarSize(singleWidgetWidth, ImGui::GetFrameHeight());
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Controls");
 	ImGui::PopFont();
 	
 	//------------------- STATE CONTROLS ------------------------
 	
-	bool axisIsControlledExternally = isAxisPinConnected();
-	if (axisIsControlledExternally) {
+	if (isAxisPinConnected()) {
 		ImGui::TextWrapped("Axis is Controlled by Node '%s'."
 						   "\nManual controls are disabled.",
 						   axisPin->getConnectedPin()->getNode()->getName());
-		BEGIN_DISABLE_IMGUI_ELEMENT
 	}
+	
+	ImGui::BeginDisabled(isAxisPinConnected() || !isReady());
 	
 	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 	if (isEnabled()) {
@@ -92,25 +110,27 @@ void PositionControlledAxis::controlsGui() {
 	ImGui::SameLine();
 	if (isEnabled()) {
 		if (ImGui::Button("Disable Axis", largeDoubleButtonSize)) disable();
-	}
-	else if (isReady()){
+	}else if (isReady()){
 		if (ImGui::Button("Enable Axis", largeDoubleButtonSize)) enable();
 	}else{
 		ImGui::Button("Axis Not Ready", largeDoubleButtonSize);
 	}
-	if (axisIsControlledExternally) END_DISABLE_IMGUI_ELEMENT
 	
-	bool b_disableControls = axisIsControlledExternally || !isEnabled();
-	if(b_disableControls) BEGIN_DISABLE_IMGUI_ELEMENT
-		
+	ImGui::EndDisabled(); //if axis is controlled externally or not ready
+	
+	bool b_disableControls = isAxisPinConnected() || !isEnabled();
+	ImGui::BeginDisabled(b_disableControls);
+	
+	ImGui::BeginDisabled(isHoming());
+	
 	//------------------- VELOCITY CONTROLS ------------------------
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Velocity Control");
 	ImGui::PopFont();
 
 	static char velocityTargetString[32];
-	sprintf(velocityTargetString, "%.3f %s/s", manualVelocityTargetDisplay, Unit::getAbbreviatedString(positionUnit));
+	sprintf(velocityTargetString, "%.3f %s/s", manualVelocityTargetDisplay, positionUnit->abbreviated);
 	ImGui::SetNextItemWidth(singleWidgetWidth);
 	if (ImGui::SliderFloat("##Velocity", &manualVelocityTargetDisplay, -velocityLimit, velocityLimit, velocityTargetString));
 	if (ImGui::IsItemActive()) setVelocityTarget(manualVelocityTargetDisplay);
@@ -123,18 +143,18 @@ void PositionControlledAxis::controlsGui() {
 
 	//------------------------- POSITION CONTROLS --------------------------
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Position Control");
 	ImGui::PopFont();
 
 	static char targetPositionString[32];
-	sprintf(targetPositionString, "%.3f %s", interpolationPositionTarget, Unit::getAbbreviatedString(positionUnit));
+	sprintf(targetPositionString, "%.3f %s", interpolationPositionTarget, positionUnit->abbreviated);
 	ImGui::SetNextItemWidth(tripleWidgetWidth);
 	ImGui::InputDouble("##TargetPosition", &interpolationPositionTarget, 0.0, 0.0, targetPositionString);
 	
 	ImGui::SameLine();
 	static char targetVelocityString[32];
-	sprintf(targetVelocityString, "%.3f %s/s", interpolationVelocityTarget, Unit::getAbbreviatedString(positionUnit));
+	sprintf(targetVelocityString, "%.3f %s/s", interpolationVelocityTarget, positionUnit->abbreviated);
 	ImGui::SetNextItemWidth(tripleWidgetWidth);
 	ImGui::InputDouble("##TargetVelocity", &interpolationVelocityTarget, 0.0, 0.0, targetVelocityString);
 	
@@ -160,7 +180,7 @@ void PositionControlledAxis::controlsGui() {
 
 	ImGui::Separator();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Origin and Limit Setting");
 	ImGui::PopFont();
 
@@ -168,7 +188,7 @@ void PositionControlledAxis::controlsGui() {
 	if (beginHelpMarker("(help)")) {
 		switch (positionReferenceSignal) {
 			case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
-				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::PushFont(Fonts::sansBold15);
 				ImGui::Text("Signal At Lower Limit");
 				ImGui::PopFont();
 				ImGui::TextWrapped("The Homing Sequence will move the axis in the negative direction until the negative limit signal is triggered."
@@ -176,7 +196,7 @@ void PositionControlledAxis::controlsGui() {
 					"\nThe Positive Limit is set by manually moving the axis to the desired position and capturing it as the limit.");
 				break;
 			case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::PushFont(Fonts::sansBold15);
 				ImGui::Text("Signal At Lower and Upper Limit");
 				ImGui::PopFont();
 				ImGui::TextWrapped("The Homing Sequence will first move the axis in the %s direction, then in the %s direction until each limit signal is triggered."
@@ -186,7 +206,7 @@ void PositionControlledAxis::controlsGui() {
 					homingDirection == HomingDirection::NEGATIVE ? "Positive" : "Negative");
 				break;
 			case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
-				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::PushFont(Fonts::sansBold15);
 				ImGui::Text("Signal At Origin");
 				ImGui::PopFont();
 				ImGui::TextWrapped("The Homing Sequence will move the axis in the %s direction until the reference signal is triggered."
@@ -195,7 +215,7 @@ void PositionControlledAxis::controlsGui() {
 					homingDirection == HomingDirection::NEGATIVE ? "Negative" : "Positive");
 				break;
 			case PositionReferenceSignal::NO_SIGNAL:
-				ImGui::PushFont(Fonts::robotoBold15);
+				ImGui::PushFont(Fonts::sansBold15);
 				ImGui::Text("No Position Reference Signal");
 				ImGui::PopFont();
 				ImGui::TextWrapped("No Homing Sequence is available."
@@ -204,6 +224,8 @@ void PositionControlledAxis::controlsGui() {
 		}
 		endHelpMarker();
 	}
+	
+	ImGui::EndDisabled(); //disables controls when homing
 
 	static char homingStatusString[128];
 	switch (positionReferenceSignal) {
@@ -238,51 +260,51 @@ void PositionControlledAxis::controlsGui() {
 		default: break;
 	}
 
-	bool b_disableCaptureButtons = !isEnabled() || isMoving();
+	bool b_disableCaptureButtons = !isEnabled() || isMoving() || isHoming();
 	bool disableCaptureLowerLimit = *actualPositionValue > 0.0;
 	bool disableCaptureHigherLimit = *actualPositionValue < 0.0;
-	if (b_disableCaptureButtons) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(b_disableCaptureButtons);
 	switch (positionReferenceSignal) {
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
-			if (disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableCaptureHigherLimit);
 			if (ImGui::Button("Capture Positive Limit", singleButtonSize)) setCurrentPositionAsPositiveLimit();
-			if (disableCaptureHigherLimit) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 			break;
 		case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
-			if (disableCaptureLowerLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableCaptureLowerLimit);
 			if (ImGui::Button("Capture Negative Limit", doubleButtonSize)) setCurrentPositionAsNegativeLimit();
-			if (disableCaptureLowerLimit) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 			ImGui::SameLine();
-			if (disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableCaptureHigherLimit);
 			if (ImGui::Button("Capture Positive Limit", doubleButtonSize)) setCurrentPositionAsPositiveLimit();
-			if (disableCaptureHigherLimit) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 			break;
 		case PositionReferenceSignal::NO_SIGNAL:
-			if (disableCaptureLowerLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableCaptureLowerLimit);
 			if (ImGui::Button("Capture Negative Limit", tripleButtonSize)) setCurrentPositionAsNegativeLimit();
-			if (disableCaptureLowerLimit) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 			ImGui::SameLine();
 			if (ImGui::Button("Capture Origin", tripleButtonSize)) setCurrentPosition(0.0);
 			ImGui::SameLine();
-			if (disableCaptureHigherLimit) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableCaptureHigherLimit);
 			if (ImGui::Button("Capture Positive Limit", tripleButtonSize)) setCurrentPositionAsPositiveLimit();
-			if (disableCaptureHigherLimit) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 			break;
 		default: break;
 	}
-	if (b_disableCaptureButtons) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled(); //disable capture buttons
 
 	//-------------------------- POSITION FEEDBACK SCALING ---------------------------
 		
 	ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
-	ImGui::Text("Position Feedback Scaling");
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Position Scaling");
 	ImGui::PopFont();
 
 	ImGui::SameLine();
 	if (beginHelpMarker("(help)")) {
-		ImGui::TextWrapped("This utility allows the setting of feedback to axis unit conversion ratio."
+		ImGui::TextWrapped("This utility allows automatic setting of the servo unit to axis unit conversion ratio."
 			"\nMove the axis to its origin (0.0) and physically mark down the position of the axis."
 			"\nMove the axis to another position and measure the distance to the initial mark."
 			"\nEnter the measured distance into the utility and click the \"Set Scaling\" Button."
@@ -293,7 +315,7 @@ void PositionControlledAxis::controlsGui() {
 
 	ImGui::TextWrapped("Current Axis Position Relative to the origin");
 	static char scalingString[64];
-	sprintf(scalingString, "%.4f %s", axisScalingPosition, Unit::getAbbreviatedString(positionUnit));
+	sprintf(scalingString, "%.4f %s", axisScalingPosition, positionUnit->abbreviated);
 	ImGui::SetNextItemWidth(doubleButtonSize.x);
 	ImGui::InputDouble("##posScal", &axisScalingPosition, 0.0, 0.0, scalingString);
 	
@@ -302,16 +324,18 @@ void PositionControlledAxis::controlsGui() {
 		|| (axisScalingPosition < 0.0 && *actualPositionValue > 0.0)
 		|| axisScalingPosition == 0.0
 		|| isMoving();
-	if (disableSetScaling) BEGIN_DISABLE_IMGUI_ELEMENT
-	if (ImGui::Button("Set Scaling", ImGui::GetItemRectSize())) scaleFeedbackToMatchPosition(axisScalingPosition);
-	if (disableSetScaling) END_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableSetScaling);
+	if (ImGui::Button("Set Scaling", ImGui::GetItemRectSize())) {
+		scaleFeedbackToMatchPosition(axisScalingPosition);
+	}
+	ImGui::EndDisabled(); //disable set scaling
 	
-		
+	ImGui::Separator();
 		
 		
 	//-------------------------------- FEEDBACK --------------------------------
 		
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Feedback");
 	ImGui::PopFont();
 
@@ -332,20 +356,20 @@ void PositionControlledAxis::controlsGui() {
 		positionProgress = getActualPositionNormalized();
 		if (*actualPositionValue < minPosition || *actualPositionValue > maxPosition) {
 			if (*actualPositionValue < getLowPositionLimitWithoutClearance() || *actualPositionValue > getHighPositionLimitWithoutClearance()) {
-				sprintf(positionString, "Axis out of limits : %.2f %s", *actualPositionValue, Unit::getAbbreviatedString(positionUnit));
+				sprintf(positionString, "Axis out of limits : %.2f %s", *actualPositionValue, positionUnit->abbreviated);
 				ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
 			}
 			else {
-				sprintf(positionString, "%.2f %s", *actualPositionValue, Unit::getAbbreviatedString(positionUnit));
+				sprintf(positionString, "%.2f %s", *actualPositionValue, positionUnit->abbreviated);
 				ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::orange);
 			}
 		}
 		else {
-			sprintf(positionString, "%.2f %s", *actualPositionValue, Unit::getAbbreviatedString(positionUnit));
+			sprintf(positionString, "%.2f %s", *actualPositionValue, positionUnit->abbreviated);
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 		}
 	}
-	const char* shortPositionUnitString = Unit::getAbbreviatedString(positionUnit);
+	const char* shortPositionUnitString = positionUnit->abbreviated;
 	ImGui::Text("Current Position : (in range from %.2f %s to %.2f %s)", minPosition, shortPositionUnitString, maxPosition, shortPositionUnitString);
 	ImGui::ProgressBar(positionProgress, progressBarSize, positionString);
 	ImGui::PopStyleColor();
@@ -361,12 +385,12 @@ void PositionControlledAxis::controlsGui() {
 	}
 	else {
 		velocityProgress = std::abs(*actualVelocityValue) / velocityLimit;
-		sprintf(velocityString, "%.2f %s/s", *actualVelocityValue, Unit::getAbbreviatedString(positionUnit));
+		sprintf(velocityString, "%.2f %s/s", *actualVelocityValue, positionUnit->abbreviated);
 		if (std::abs(*actualVelocityValue) > std::abs(velocityLimit))
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
 		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 	}
-	ImGui::Text("Current Velocity : (max %.2f%s/s)", velocityLimit, Unit::getAbbreviatedString(positionUnit));
+	ImGui::Text("Current Velocity : (max %.2f%s/s)", velocityLimit, positionUnit->abbreviated);
 	ImGui::ProgressBar(velocityProgress, progressBarSize, velocityString);
 	ImGui::PopStyleColor();
 
@@ -374,7 +398,6 @@ void PositionControlledAxis::controlsGui() {
 	float maxfollowingError = 0.0;
 	static char positionErrorString[32];
 	if(!isEnabled()){
-		auto servoActuator = getServoActuatorDevice();
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		positionErrorProgress = 1.0;
 		sprintf(positionErrorString, "Axis Disabled");
@@ -385,10 +408,10 @@ void PositionControlledAxis::controlsGui() {
 		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
 		maxfollowingError = servoActuatorUnitsToAxisUnits(servoActuator->maxfollowingError);
 		double followingError = servoActuatorUnitsToAxisUnits(servoActuator->getFollowingError());
-		sprintf(positionErrorString, "%.3f %s", followingError, Unit::getAbbreviatedString(positionUnit));
+		sprintf(positionErrorString, "%.3f %s", followingError, positionUnit->abbreviated);
 	}
 	
-	ImGui::Text("Current Following Error : (max %.3f%s)", maxfollowingError, Unit::getAbbreviatedString(positionUnit));
+	ImGui::Text("Current Following Error : (max %.3f%s)", maxfollowingError, positionUnit->abbreviated);
 	ImGui::ProgressBar(positionErrorProgress, progressBarSize, positionErrorString);
 	ImGui::PopStyleColor();
 	
@@ -427,7 +450,7 @@ void PositionControlledAxis::controlsGui() {
 	double feedbackPosition = 0.0;
 	double rangeMin = std::numeric_limits<double>::quiet_NaN();
 	double rangeMax = std::numeric_limits<double>::quiet_NaN();
-	PositionUnit feedbackPositionUnit;
+	Unit feedbackPositionUnit = Units::None::None;
 	static char rangeString[64];
 	if (isServoActuatorDeviceConnected()) {
 		std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
@@ -444,23 +467,23 @@ void PositionControlledAxis::controlsGui() {
 	}
 	else if (rangeProgress < 1.0 && rangeProgress > 0.0) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-		sprintf(rangeString, "%.2f%s", feedbackPosition, Unit::getAbbreviatedString(feedbackPositionUnit));
+		sprintf(rangeString, "%.2f%s", feedbackPosition, feedbackPositionUnit->abbreviated);
 	}
 	else {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
 		double distanceOutsideRange = rangeProgress > 1.0 ? feedbackPosition - rangeMax : feedbackPosition - rangeMin;
-		sprintf(rangeString, "Encoder Outside Working Range by %.2f%s", distanceOutsideRange, Unit::getAbbreviatedString(feedbackPositionUnit));
+		sprintf(rangeString, "Encoder Outside Working Range by %.2f%s", distanceOutsideRange, feedbackPositionUnit->abbreviated);
 		rangeProgress = 1.0;
 	}
 	ImGui::Text("Feedback Position in Working Range : (%.2f%s to %.2f%s)",
 				rangeMin,
-				Unit::getAbbreviatedString(feedbackPositionUnit),
+				feedbackPositionUnit->abbreviated,
 				rangeMax,
-				Unit::getAbbreviatedString(feedbackPositionUnit));
+				feedbackPositionUnit->abbreviated);
 	ImGui::ProgressBar(rangeProgress, progressBarSize, rangeString);
 	ImGui::PopStyleColor();
 	
-	if(b_disableControls) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled(); //master controls disable
 }
 
 
@@ -474,33 +497,36 @@ void PositionControlledAxis::settingsGui() {
 	
 	//------------------ GENERAL MACHINE SETTINGS -------------------------
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Axis Settings");
 	ImGui::PopFont();
 
 	ImGui::Text("Movement Type :");
-	if (ImGui::BeginCombo("##AxisUnitType", Enumerator::getDisplayString(positionUnitType))) {
-		for (auto& type : Enumerator::getTypes<PositionUnitType>()) {
-			if (ImGui::Selectable(type.displayString, positionUnitType == type.enumerator)) {
-				setPositionUnitType(type.enumerator);
+	if (ImGui::BeginCombo("##AxisUnitType", Enumerator::getDisplayString(movementType))) {
+		for (auto& type : Enumerator::getTypes<MovementType>()) {
+			if (ImGui::Selectable(type.displayString, movementType == type.enumerator)) {
+				setMovementType(type.enumerator);
 			}
 		}
 		ImGui::EndCombo();
 	}
 
 	ImGui::Text("Position Unit :");
-	if (ImGui::BeginCombo("##AxisUnit", Unit::getDisplayString(positionUnit))) {
-		for(auto& type : Unit::getTypes<PositionUnit>()){
-			switch(positionUnitType){
-				case PositionUnitType::LINEAR:
-					if(!isLinearPositionUnit(type.enumerator)) continue;
-					break;
-				case PositionUnitType::ANGULAR:
-					if(!isAngularPositionUnit(type.enumerator)) continue;
-					break;
-			}
-			if (ImGui::Selectable(type.displayString, positionUnit == type.enumerator)) setPositionUnit(type.enumerator);
+	if (ImGui::BeginCombo("##AxisUnit", positionUnit->singular)) {
+		
+		switch(movementType){
+			case MovementType::ROTARY:
+				for(auto& unit : Units::AngularDistance::get()){
+					if (ImGui::Selectable(unit->singular, positionUnit == unit)) setPositionUnit(unit);
+				}
+				break;
+			case MovementType::LINEAR:
+				for(auto& unit : Units::LinearDistance::get()){
+					if (ImGui::Selectable(unit->singular, positionUnit == unit)) setPositionUnit(unit);
+				}
+				break;
 		}
+		
 		ImGui::EndCombo();
 	}
 
@@ -508,7 +534,7 @@ void PositionControlledAxis::settingsGui() {
 
 	ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Servo Actuator");
 	ImGui::PopFont();
 
@@ -519,20 +545,20 @@ void PositionControlledAxis::settingsGui() {
 		const char* feedbackTypeString = Enumerator::getDisplayString(feedbackType);
 		std::shared_ptr<Device> servoActuatorParentDevice = servo->parentDevice;
 
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Device:");
 		ImGui::PopFont();
 		ImGui::SameLine();
 		if(servoActuatorParentDevice) ImGui::Text("%s on %s", servo->getName(), servo->parentDevice->getName());
 		else ImGui::Text("%s on Node %s", servo->getName(), servoActuatorPin->getConnectedPin()->getNode()->getName());
 
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Position Unit:");
 		ImGui::PopFont();
 		ImGui::SameLine();
-		ImGui::Text("%s", Unit::getDisplayStringPlural(servo->positionUnit));
+		ImGui::Text("%s", servo->positionUnit->singular);
 
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Feedback Type:");
 		ImGui::PopFont();
 		ImGui::SameLine();
@@ -547,8 +573,10 @@ void PositionControlledAxis::settingsGui() {
 		default: break;
 		}
 
-		ImGui::Text("%s %s per Machine %s :", servo->getName(), Unit::getDisplayStringPlural(servo->positionUnit), Unit::getDisplayString(positionUnit));
+		ImGui::Text("%s %s per Machine %s :", servo->getName(), servo->positionUnit->plural, positionUnit->singular);
+		pushInvalidValue(servoActuatorUnitsPerAxisUnits == 0.0);
 		ImGui::InputDouble("##servoActuatorCoupling", &servoActuatorUnitsPerAxisUnits);
+		popInvalidValue();
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 
 	}
@@ -562,52 +590,58 @@ void PositionControlledAxis::settingsGui() {
 
 	ImGui::Separator();
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Kinematic Limits");
 	ImGui::PopFont();
 
 	if (isServoActuatorDeviceConnected()) {
 		std::shared_ptr<ServoActuatorDevice> servoActuator = getServoActuatorDevice();
-		PositionUnit servoActuatorPositionUnit = servoActuator->getPositionUnit();
+		Unit servoActuatorPositionUnit = servoActuator->getPositionUnit();
 		
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 		ImGui::TextWrapped("Max actuator velocity is %.1f %s/s and max acceleration is %.1f %s/s\xc2\xb2",
 						   servoActuator->getVelocityLimit(),
-						   Unit::getAbbreviatedString(servoActuatorPositionUnit),
+						   servoActuatorPositionUnit->abbreviated,
 						   servoActuator->getAccelerationLimit(),
-						   Unit::getAbbreviatedString(servoActuatorPositionUnit));
+						   servoActuatorPositionUnit->abbreviated);
 		ImGui::TextWrapped("Min actuator velocity is %.3f %s/s",
 						   servoActuator->getMinVelocity(),
-						   Unit::getAbbreviatedString(servoActuatorPositionUnit));
+						   servoActuatorPositionUnit->abbreviated);
 		
-		const char* machineUnitShortString = Unit::getAbbreviatedString(positionUnit);
+		const char* machineUnitShortString = positionUnit->abbreviated;
 		ImGui::TextWrapped("Actuator limits axis to %.3f %s/s and %.3f %s/s\xc2\xb2",
 						   servoActuatorUnitsToAxisUnits(servoActuator->getVelocityLimit()),
-						   Unit::getAbbreviatedString(positionUnit),
+						   positionUnit->abbreviated,
 						   servoActuatorUnitsToAxisUnits(servoActuator->getAccelerationLimit()),
-							Unit::getAbbreviatedString(positionUnit));
+							positionUnit->abbreviated);
 		ImGui::TextWrapped("Min Axis velocity is %.3f %s/s",
 						   servoActuatorUnitsToAxisUnits(servoActuator->getMinVelocity()),
-						   Unit::getAbbreviatedString(positionUnit));
+						   positionUnit->abbreviated);
 		ImGui::PopStyleColor();
 	}
 
 	ImGui::Text("Velocity Limit");
 	static char velLimitString[16];
-	sprintf(velLimitString, "%.3f %s/s", velocityLimit, Unit::getAbbreviatedString(positionUnit));
+	sprintf(velLimitString, "%.3f %s/s", velocityLimit, positionUnit->abbreviated);
+	pushInvalidValue(velocityLimit <= 0.0);
 	ImGui::InputDouble("##VelLimit", &velocityLimit, 0.0, 0.0, velLimitString);
+	popInvalidValue();
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	static char accLimitString[16];
-	sprintf(accLimitString, "%.3f %s/s\xc2\xb2", accelerationLimit, Unit::getAbbreviatedString(positionUnit));
+	sprintf(accLimitString, "%.3f %s/s\xc2\xb2", accelerationLimit, positionUnit->abbreviated);
 	ImGui::Text("Acceleration Limit");
+	pushInvalidValue(accelerationLimit <= 0.0);
 	ImGui::InputDouble("##AccLimit", &accelerationLimit, 0.0, 0.0, accLimitString);
+	popInvalidValue();
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 
-	ImGui::Text("Manual Acceleration");
+	ImGui::Text("Acceleration for manual controls");
 	static char manualAccelerationString[256];
-	sprintf(manualAccelerationString, "%.3f %s/s\xc2\xb2", manualAcceleration, Unit::getAbbreviatedString(positionUnit));
+	sprintf(manualAccelerationString, "%.3f %s/s\xc2\xb2", manualAcceleration, positionUnit->abbreviated);
+	pushInvalidValue(manualAcceleration <= 0.0);
 	ImGui::InputDouble("##manacc", &manualAcceleration, 0.0, 0.0, manualAccelerationString);
+	popInvalidValue();
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	double halfWidgetWidth = (ImGui::GetItemRectSize().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
@@ -616,7 +650,7 @@ void PositionControlledAxis::settingsGui() {
 
 	//----------------- REFERENCE SIGNALS, ORIGN AND HOMING -----------------
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Reference Signals & Homing");
 	ImGui::PopFont();
 
@@ -649,8 +683,8 @@ void PositionControlledAxis::settingsGui() {
 		
 		for (auto& type : Enumerator::getTypes<PositionReferenceSignal>()) {
 			
-			if(positionUnitType == PositionUnitType::LINEAR && !isLinearPositionReferenceSignal(type.enumerator)) continue;
-			else if(positionUnitType == PositionUnitType::ANGULAR && !isAngularPositionReferenceSignal(type.enumerator)) continue;
+			if(movementType == MovementType::LINEAR && !isLinearPositionReferenceSignal(type.enumerator)) continue;
+			else if(movementType == MovementType::ROTARY && !isAngularPositionReferenceSignal(type.enumerator)) continue;
 			
 			bool selected = positionReferenceSignal == type.enumerator;
 			if (ImGui::Selectable(type.displayString, selected)) {
@@ -676,7 +710,7 @@ void PositionControlledAxis::settingsGui() {
 		}
 		else {
 			std::shared_ptr<GpioDevice> gpioDevice = getReferenceDevice();
-			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Reference Device:");
 			ImGui::PopFont();
 			ImGui::SameLine();
@@ -700,22 +734,26 @@ void PositionControlledAxis::settingsGui() {
 		}
 		ImGui::PopStyleColor();
 
-		static char homVelString[16];
-		sprintf(homVelString, "%.3f %s/s", homingVelocityCoarse, Unit::getAbbreviatedString(positionUnit));
 
 		switch(positionReferenceSignal){
 			case PositionReferenceSignal::NO_SIGNAL:
 				break;
-			default:
+			default:{
+				static char homVelString[16];
+				sprintf(homVelString, "%.3f %s/s", homingVelocityCoarse, positionUnit->abbreviated);
 				ImGui::Text("Homing Velocity (Coarse)");
-				ImGui::InputDouble("##gomvelcoar", &homingVelocityCoarse);
+				pushInvalidValue(homingVelocityCoarse <= 0.0);
+				ImGui::InputDouble("##homvelcoar", &homingVelocityCoarse, 0.0, 0.0, homVelString);
+				popInvalidValue();
 				if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-				
+				sprintf(homVelString, "%.3f %s/s", homingVelocityFine, positionUnit->abbreviated);
 				ImGui::Text("Homing Velocity (Fine)");
-				ImGui::InputDouble("##homvelfin", &homingVelocityFine);
+				pushInvalidValue(homingVelocityFine <= 0.0);
+				ImGui::InputDouble("##homvelfin", &homingVelocityFine, 0.0, 0.0, homVelString);
+				popInvalidValue();
 				if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 				
-				break;
+				}break;
 		}
 		
 		switch (positionReferenceSignal) {
@@ -741,7 +779,7 @@ void PositionControlledAxis::settingsGui() {
 
 	//----------------- POSITION LIMITS -----------------
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Position Limits");
 	ImGui::PopFont();
 
@@ -760,41 +798,54 @@ void PositionControlledAxis::settingsGui() {
 			ImGui::TextWrapped("Axis is limited between Lower and Upper Limit Parameters.");
 			break;
 	}
+	
+	bool b_workingRangeIsZero = getHighPositionLimit() - getLowPositionLimit() == 0.0;
+	
+	pushInvalidValue(b_workingRangeIsZero);
 	ImGui::Text("Movement range is from %.3f %s to %.3f %s",
 				getLowPositionLimit(),
-				Unit::getDisplayStringPlural(positionUnit),
+				positionUnit->plural,
 				getHighPositionLimit(),
-				Unit::getDisplayStringPlural(positionUnit));
+				positionUnit->plural);
+	popInvalidValue();
 	ImGui::PopStyleColor();
 
-	const char * machineUnitShortString = Unit::getAbbreviatedString(positionUnit);
+	const char * machineUnitShortString = positionUnit->abbreviated;
 	static char negDevString[16];
 	sprintf(negDevString, "%.3f %s", lowPositionLimit, machineUnitShortString);
 	static char posDevString[16];
 	sprintf(posDevString, "%.3f %s", highPositionLimit, machineUnitShortString);
-
+	
 	auto lowLimitSetting = [&](bool disableField){
 		ImGui::Text("Max Negative Distance From Origin");
 		ImGui::SetNextItemWidth(halfWidgetWidth);
-		if(disableField) BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disableField);
+		pushInvalidValue(b_workingRangeIsZero);
 		ImGui::InputDouble("##MaxNegativeDeviation", &lowPositionLimit, 0.0, 0.0, negDevString);
+		popInvalidValue();
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-		if(disableField) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 		if (lowPositionLimit > 0.0) lowPositionLimit = 0.0;
 		ImGui::SameLine();
+		pushInvalidValue(b_workingRangeIsZero);
 		ImGui::Checkbox("Enable Lower Axis Limit", &b_enableLowLimit);
+		popInvalidValue();
 	};
 	
 	auto highLimitSetting = [&](bool disableField){
 		ImGui::Text("Max Positive Distance From Origin");
 		ImGui::SetNextItemWidth(halfWidgetWidth);
-		if(disableField) BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disableField);
+		pushInvalidValue(b_workingRangeIsZero);
 		ImGui::InputDouble("##MaxDeviation", &highPositionLimit, 0.0, 0.0, posDevString);
+		popInvalidValue();
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-		if(disableField) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 		if (highPositionLimit < 0.0) highPositionLimit = 0.0;
 		ImGui::SameLine();
+		pushInvalidValue(b_workingRangeIsZero);
 		ImGui::Checkbox("Enable Upper Axis Limit", &b_enableHighLimit);
+		popInvalidValue();
 	};
 	
 	switch (positionReferenceSignal) {
@@ -817,15 +868,19 @@ void PositionControlledAxis::settingsGui() {
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	static char lowClearanceString[16];
-	sprintf(lowClearanceString, "%.3f %s", lowLimitClearance, Unit::getAbbreviatedString(positionUnit));
+	sprintf(lowClearanceString, "%.3f %s", lowLimitClearance, positionUnit->abbreviated);
 	ImGui::Text("Low Limit Clearance");
+	pushInvalidValue(b_workingRangeIsZero);
 	ImGui::InputDouble("##lowlimitclearance", &lowLimitClearance, 0.0, 0.0, lowClearanceString);
+	popInvalidValue();
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	static char highClearanceString[16];
-	sprintf(highClearanceString, "%.3f %s", highLimitClearance, Unit::getAbbreviatedString(positionUnit));
-	ImGui::Text("Low Limit Clearance");
+	sprintf(highClearanceString, "%.3f %s", highLimitClearance, positionUnit->abbreviated);
+	ImGui::Text("High Limit Clearance");
+	pushInvalidValue(b_workingRangeIsZero);
 	ImGui::InputDouble("##highlimitclearance", &highLimitClearance, 0.0, 0.0, highClearanceString);
+	popInvalidValue();
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 
 }
@@ -843,13 +898,14 @@ void PositionControlledAxis::devicesGui() {
 
 	glm::vec2 buttonSize(ImGui::GetTextLineHeight() * 6, ImGui::GetTextLineHeight() * 1.5);
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Servo Actuator:");
 	ImGui::PopFont();
 	if (isServoActuatorDeviceConnected()) {
 		std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
-		ImGui::PushFont(Fonts::robotoBold15);
-		ImGui::Text("'%s' on device %s", servo->getName(), servo->parentDevice->getName());
+		ImGui::PushFont(Fonts::sansBold15);
+		if(servo->parentDevice) ImGui::Text("'%s' on device %s", servo->getName(), servo->parentDevice->getName());
+		else ImGui::Text("'%s' on node %s", servo->getName(), servoActuatorPin->getConnectedPin()->parentNode->getName());
 		ImGui::PopFont();
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleColor(ImGuiCol_Button, servo->isOnline() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
@@ -870,12 +926,12 @@ void PositionControlledAxis::devicesGui() {
 	ImGui::Separator();
 
 	if (needsReferenceDevice()) {
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("Position Reference: ");
 		ImGui::PopFont();
 		if (isReferenceDeviceConnected()) {
 			std::shared_ptr<GpioDevice> gpioDevice = getReferenceDevice();
-			ImGui::PushFont(Fonts::robotoBold15);
+			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("'%s' on device %s", gpioDevice->getName(), gpioDevice->parentDevice->getName());
 			ImGui::PopFont();
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);

@@ -104,7 +104,7 @@ void GpioActuator::controlLoop(){
 }
 
 //needs to be called by controlling node to execute control loop
-void GpioActuator::updatePin(std::shared_ptr<NodePin> pin){
+void GpioActuator::onPinUpdate(std::shared_ptr<NodePin> pin){
 	if(pin == actuatorPin){
 		controlLoop();
 	}
@@ -194,7 +194,7 @@ bool GpioActuator::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	
 	XMLElement* actuatorXML = xml->InsertNewChildElement("Actuator");
-	actuatorXML->SetAttribute("PositionUnit", Enumerator::getSaveString(actuator->getPositionUnit()));
+	actuatorXML->SetAttribute("PositionUnit", actuator->getPositionUnit()->saveString);
 	actuatorXML->SetAttribute("VelocityLimit", actuator->getVelocityLimit());
 	actuatorXML->SetAttribute("MinVelocity", actuator->getMinVelocity());
 	actuatorXML->SetAttribute("AccelerationLimit", actuator->getAccelerationLimit());
@@ -220,8 +220,8 @@ bool GpioActuator::load(tinyxml2::XMLElement* xml){
 	if(actuatorXML == nullptr) return Logger::warn("Could not find Servo Actuator attribute");
 	const char* actuatorUnitString;
 	actuatorXML->QueryStringAttribute("PositionUnit", &actuatorUnitString);
-	if(!Enumerator::isValidSaveName<PositionUnit>(actuatorUnitString)) return Logger::warn("Could not identify servo actuator position unit");
-	actuator->positionUnit = Enumerator::getEnumeratorFromSaveString<PositionUnit>(actuatorUnitString);
+	if(!Units::isValidSaveString(actuatorUnitString)) return Logger::warn("Could not identify servo actuator position unit");
+	actuator->positionUnit = Units::fromSaveString(actuatorUnitString);
 	if(actuatorXML->QueryDoubleAttribute("VelocityLimit", &actuator->velocityLimit_positionUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not find actuator velocity limit Attribute");
 	if(actuatorXML->QueryDoubleAttribute("MinVelocity", &actuator->minVelocity_positionUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not find actuator minimum velocity Attribute");
 	if(actuatorXML->QueryDoubleAttribute("AccelerationLimit", &actuator->accelerationLimit_positionUnitsPerSecondSquared) != XML_SUCCESS) return Logger::warn("Could not find acceleration limit Attribute");

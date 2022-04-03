@@ -1,9 +1,9 @@
 #pragma once
 
-#include "NodeGraph/Node.h"
+#include "Environnement/Node.h"
 #include "Motion/MotionTypes.h"
 #include "Utilities/CircularBuffer.h"
-#include "Motion/Profile/Profile.h"
+#include "Motion/Profile.h"
 
 class Device;
 namespace Motion { class Interpolation; }
@@ -62,8 +62,8 @@ public:
 	//==================== PARAMETERS ====================
 private:
 	//units
-	PositionUnitType positionUnitType = PositionUnitType::ANGULAR;
-	PositionUnit positionUnit = PositionUnit::DEGREE;
+	MovementType movementType = MovementType::ROTARY;
+	Unit positionUnit = Units::AngularDistance::Degree;
 	double servoActuatorUnitsPerAxisUnits = 0.0;
 
 	//Reference Signals and Homing
@@ -88,16 +88,16 @@ private:
 	
 	void sanitizeParameters();
 	
-	void setPositionUnitType(PositionUnitType t);
-	void setPositionUnit(PositionUnit u);
+	void setMovementType(MovementType t);
+	void setPositionUnit(Unit u);
 	void setPositionReferenceSignalType(PositionReferenceSignal type);
 	
 	double servoActuatorUnitsToAxisUnits(double actuatorValue) { return actuatorValue / servoActuatorUnitsPerAxisUnits; }
 	double axisUnitsToServoActuatorUnits(double axisValue) { return axisValue * servoActuatorUnitsPerAxisUnits; }
 	
 public:
-	PositionUnit getPositionUnit(){ return positionUnit; }
-	PositionUnitType getPositionUnitType(){ return positionUnitType; }
+	Unit getPositionUnit(){ return positionUnit; }
+	MovementType getMovementType(){ return movementType; }
 	double getVelocityLimit() { return velocityLimit; }
 	double getAccelerationLimit() { return accelerationLimit; }
 	double getLowPositionLimit();
@@ -143,6 +143,7 @@ public:
 	double getActualPosition() { return *actualPositionValue; }
 	double getActualFollowingError();
 	float getActualFollowingErrorNormalized();
+	double getFollowingErrorLimit();
 	float getActualVelocityNormalized() { return *actualVelocityValue / velocityLimit; }
 	float getActualPositionNormalized() {
 		double low = getLowPositionLimit();

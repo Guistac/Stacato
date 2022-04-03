@@ -10,7 +10,7 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
-#include "NodeGraph/Device.h"
+#include "Environnement/DeviceNode.h"
 
 void ActuatorToServoActuator::nodeSpecificGui(){
 	if(ImGui::BeginTabItem("Controls")){
@@ -25,7 +25,7 @@ void ActuatorToServoActuator::nodeSpecificGui(){
 
 void ActuatorToServoActuator::controlGui(){
 
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Controls");
 	ImGui::PopFont();
 	
@@ -37,8 +37,8 @@ void ActuatorToServoActuator::controlGui(){
 		ImGui::TextWrapped("Servo Actuator is Controlled by Node '%s'."
 						   "\nManual controls are disabled.",
 						   servoActuatorPin->getConnectedPin()->getNode()->getName());
-		BEGIN_DISABLE_IMGUI_ELEMENT
 	}
+	ImGui::BeginDisabled(actuatorControlledExternally);
 		
 	float singleWidgetWidth = ImGui::GetContentRegionAvail().x;
 	float tripleWidgetWidth = (singleWidgetWidth - ImGui::GetStyle().ItemSpacing.x * 2) / 3.0;
@@ -67,16 +67,16 @@ void ActuatorToServoActuator::controlGui(){
 	}else if(servoActuator->isReady()){
 		if(ImGui::Button("Enable", largeDoubleButtonSize)) servoActuator->enable();
 	}else{
-		BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled();
 		ImGui::Button("Not Ready", largeDoubleButtonSize);
-		END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 	}
 	
-	if(actuatorControlledExternally) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	
 		
 	bool disableManualControls = actuatorControlledExternally || !servoActuator->isEnabled();
-	if(disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableManualControls);
 
 	ImGui::Text("Manual Velocity:");
 	ImGui::SetNextItemWidth(singleWidgetWidth);
@@ -93,13 +93,13 @@ void ActuatorToServoActuator::controlGui(){
 	
 	ImGui::SetNextItemWidth(tripleWidgetWidth);
 	static char targetPositionString[32];
-	sprintf(targetPositionString, "%.3f %s", targetPositionDisplay, Unit::getAbbreviatedString(servoActuator->getPositionUnit()));
+	sprintf(targetPositionString, "%.3f %s", targetPositionDisplay, servoActuator->getPositionUnit()->abbreviated);
 	ImGui::InputFloat("##TargetPosition", &targetPositionDisplay, 0.0, 0.0, targetPositionString);
 	
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(tripleWidgetWidth);
 	static char targetVelocityString[32];
-	sprintf(targetVelocityString, "%.3f %s/s", targetVelocityDisplay, Unit::getAbbreviatedString(servoActuator->getPositionUnit()));
+	sprintf(targetVelocityString, "%.3f %s/s", targetVelocityDisplay, servoActuator->getPositionUnit()->abbreviated);
 	ImGui::InputFloat("##TargetVelocity", &targetVelocityDisplay, 0.0, 0.0, targetVelocityString);
 	
 	ImGui::SameLine();
@@ -128,26 +128,26 @@ void ActuatorToServoActuator::controlGui(){
 	
 	ImGui::Separator();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Feedback");
 	ImGui::PopFont();
 	
 	
 	ImGui::Text("Velocity: ");
 	static char velocityString[256];
-	sprintf(velocityString, "%.3f %s/s", servoActuator->getVelocity(), Unit::getAbbreviatedString(servoActuator->getPositionUnit()));
+	sprintf(velocityString, "%.3f %s/s", servoActuator->getVelocity(), servoActuator->getPositionUnit()->abbreviated);
 	float velocityProgress = std::abs(servoActuator->getVelocity() / servoActuator->getVelocityLimit());
 	ImGui::ProgressBar(velocityProgress, progressBarSize, velocityString);
 	
 	ImGui::Text("Position: ");
 	static char positionString[256];
-	sprintf(positionString, "%.3f %s", servoActuator->getPosition(), Unit::getAbbreviatedString(servoActuator->getPositionUnit()));
+	sprintf(positionString, "%.3f %s", servoActuator->getPosition(), servoActuator->getPositionUnit()->abbreviated);
 	float positionProgress = servoActuator->getPositionInRange();
 	ImGui::ProgressBar(positionProgress, progressBarSize, positionString);
 	
 	ImGui::Text("Following Error: ");
 	static char followingErrorString[256];
-	sprintf(followingErrorString, "%.3f %s", servoActuator->getFollowingError(), Unit::getAbbreviatedString(servoActuator->getPositionUnit()));
+	sprintf(followingErrorString, "%.3f %s", servoActuator->getFollowingError(), servoActuator->getPositionUnit()->abbreviated);
 	float positionErrorProgress = std::abs(servoActuator->getFollowingError() / servoActuator->maxfollowingError);
 	ImGui::ProgressBar(positionErrorProgress, progressBarSize, followingErrorString);
 	
@@ -234,45 +234,45 @@ void ActuatorToServoActuator::controlGui(){
 		ImPlot::EndPlot();
 	}
 
-	if(disableManualControls) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 }
 
 void ActuatorToServoActuator::settingsGui(){
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Servo Actuator");
 	ImGui::PopFont();
 
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Actuator Device:");
 	ImGui::PopFont();
 	ImGui::SameLine();
 	if(isActuatorConnected()){
 		std::shared_ptr<ActuatorDevice> actuatorDevice = getActuatorDevice();
-		PositionUnit positionUnit = getPositionUnit();
+		Unit positionUnit = getPositionUnit();
 		if(actuatorDevice->parentDevice) ImGui::Text("%s on %s", actuatorDevice->getName(), actuatorDevice->parentDevice->getName());
 		else ImGui::Text("%s on Node %s", actuatorDevice->getName(), actuatorPin->getConnectedPin()->getNode()->getName());
 		
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-		ImGui::Text("Position Unit: %s", Unit::getDisplayStringPlural(positionUnit));
-		ImGui::Text("Velocity Limit: %.3f %s/s", actuatorDevice->getVelocityLimit(), Unit::getAbbreviatedString(positionUnit));
-		ImGui::Text("Minimum Velocity: %.3f %s/s", actuatorDevice->getMinVelocity(), Unit::getAbbreviatedString(positionUnit));
-		ImGui::Text("Acceleration Limit: %.3f %s/s2", actuatorDevice->getAccelerationLimit(), Unit::getAbbreviatedString(positionUnit));
+		ImGui::Text("Position Unit: %s", positionUnit->plural);
+		ImGui::Text("Velocity Limit: %.3f %s/s", actuatorDevice->getVelocityLimit(), positionUnit->abbreviated);
+		ImGui::Text("Minimum Velocity: %.3f %s/s", actuatorDevice->getMinVelocity(), positionUnit->abbreviated);
+		ImGui::Text("Acceleration Limit: %.3f %s/s2", actuatorDevice->getAccelerationLimit(), positionUnit->abbreviated);
 		ImGui::PopStyleColor();
 		
 		ImGui::Text("Acceleration for Manual Controls");
 		static char manualAccelerationString[256];
-		sprintf(manualAccelerationString, "%.3f %s/s2", manualAcceleration, Unit::getAbbreviatedString(positionUnit));
+		sprintf(manualAccelerationString, "%.3f %s/s2", manualAcceleration, positionUnit->abbreviated);
 		ImGui::InputDouble("##manAcc", &manualAcceleration, 0.0, 0.0, manualAccelerationString);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 		ImGui::Separator();
 		
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("Position Feedback");
 		ImGui::PopFont();
 	
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Position Feedback Device:");
 		ImGui::PopFont();
 		ImGui::SameLine();
@@ -282,10 +282,10 @@ void ActuatorToServoActuator::settingsGui(){
 			else ImGui::Text("%s on Node %s", feedbackDevice->getName(), positionFeedbackPin->getConnectedPin()->getNode()->getName());
 			
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-			ImGui::Text("Position Unit: %s", Unit::getDisplayStringPlural(feedbackDevice->getPositionUnit()));
+			ImGui::Text("Position Unit: %s", feedbackDevice->getPositionUnit()->plural);
 			ImGui::PopStyleColor();
 			
-			ImGui::Text("Feedback %s per Actuator %s", Unit::getDisplayStringPlural(feedbackDevice->getPositionUnit()), Unit::getDisplayString(servoActuator->getPositionUnit()));
+			ImGui::Text("Feedback %s per Actuator %s", feedbackDevice->getPositionUnit()->plural, servoActuator->getPositionUnit()->singular);
 			ImGui::InputDouble("##FeedbackUnitsPerActuatorUnit", &positionFeedbackUnitsPerActuatorUnit);
 			if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		}else {
@@ -298,7 +298,7 @@ void ActuatorToServoActuator::settingsGui(){
 
 	ImGui::Separator();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Position Controller");
 	ImGui::PopFont();
 	
@@ -316,13 +316,13 @@ void ActuatorToServoActuator::settingsGui(){
 	
 	ImGui::Text("Max Following Error");
 	static char maxErrorString[256];
-	sprintf(maxErrorString, "%.3f %s", servoActuator->maxfollowingError, Unit::getDisplayStringPlural(servoActuator->getPositionUnit()));
+	sprintf(maxErrorString, "%.3f %s", servoActuator->maxfollowingError, servoActuator->getPositionUnit()->plural);
 	ImGui::InputDouble("##maxErr", &servoActuator->maxfollowingError, 0.0, 0.0, maxErrorString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
 	ImGui::Text("Error Correction Threshold");
 	static char errorThresholdString[256];
-	sprintf(errorThresholdString, "%.3f %s", errorCorrectionTreshold, Unit::getDisplayStringPlural(servoActuator->getPositionUnit()));
+	sprintf(errorThresholdString, "%.3f %s", errorCorrectionTreshold, servoActuator->getPositionUnit()->plural);
 	ImGui::InputDouble("##errtresh", &errorCorrectionTreshold, 0.0, 0.0, errorThresholdString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 }

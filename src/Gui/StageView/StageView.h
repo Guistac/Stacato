@@ -2,5 +2,4 @@
 
 namespace StageView {
 	void draw();
-	void terminate();
 }

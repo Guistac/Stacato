@@ -3,7 +3,6 @@
 #include "VIPA-053-1EC01.h"
 
 #include <imgui.h>
-#include <imgui_internal.h>
 #include <implot.h>
 
 #include "Gui/Assets/Fonts.h"
@@ -18,14 +17,14 @@
 void VipaBusCoupler_053_1EC01::deviceSpecificGui() {
     if (ImGui::BeginTabItem("VIPA")) {
         
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("SLIO Modules");
 		ImGui::PopFont();
 		
 		ImGui::SameLine();
-		if(ImGui::Button("Auto Detect Modules")){
-			configureFromDeviceModules();
-		}
+		ImGui::BeginDisabled(!isDetected());
+		if(ImGui::Button("Auto Detect Modules")) configureFromDeviceModules();
+		ImGui::EndDisabled();
 		
 		ImGui::SameLine();
 		ImGui::Text("%s", Enumerator::getDisplayString(configureFromDeviceModulesDownloadStatus));
@@ -60,14 +59,14 @@ void VipaBusCoupler_053_1EC01::deviceSpecificGui() {
 				if (buttonCross("##remove")) deletedModule = module;
 				ImGui::SameLine();
 				bool disableButton = i == 0;
-				if(disableButton) BEGIN_DISABLE_IMGUI_ELEMENT
+				ImGui::BeginDisabled(disableButton);
 				if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpModule = module;
-				if(disableButton) END_DISABLE_IMGUI_ELEMENT
+				ImGui::EndDisabled();
 				ImGui::SameLine();
 				disableButton = i == modules.size() - 1;
-				if(disableButton) BEGIN_DISABLE_IMGUI_ELEMENT
+				ImGui::BeginDisabled(disableButton);
 				if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownModule = module;
-				if(disableButton) END_DISABLE_IMGUI_ELEMENT
+				ImGui::EndDisabled();
 				ImGui::PopStyleVar();
 				
 				ImGui::TableSetColumnIndex(1);

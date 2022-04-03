@@ -3,8 +3,8 @@
 #include "Playback.h"
 #include "Motion/Manoeuvre/Manoeuvre.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
-#include "Motion/Machine/Machine.h"
-#include "Project/Environnement.h"
+#include "Machine/Machine.h"
+#include "Environnement/Environnement.h"
 
 namespace Playback {
 

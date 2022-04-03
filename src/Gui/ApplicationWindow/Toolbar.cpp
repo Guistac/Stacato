@@ -7,8 +7,9 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Gui/Fieldbus/EtherCatGui.h"
-#include "Project/Environnement.h"
+#include "Environnement/Environnement.h"
 
+#include "Gui.h"
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
@@ -18,11 +19,11 @@
 
 #include "Networking/NetworkDevice.h"
 
-namespace ApplicationWindow {
+namespace Gui {
 
 
 
-	void drawToolbar(float height) {
+	void toolbar(float height) {
 
 		glm::vec2 buttonSize(ImGui::GetTextLineHeight() * 4.0, ImGui::GetTextLineHeight() * 2.0);
 
@@ -32,35 +33,34 @@ namespace ApplicationWindow {
 		if(ImGui::IsKeyDown(GLFW_KEY_LEFT_ALT) || ImGui::IsKeyDown(GLFW_KEY_RIGHT_ALT)){
 			
 			bool disableScan = EtherCatFieldbus::isCyclicExchangeActive() || Environnement::isSimulating() || !EtherCatFieldbus::isNetworkInitialized();
-			if (disableScan) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableScan);
 			if (ImGui::Button("Scan", buttonSize)) EtherCatFieldbus::scanNetwork();
-			if (disableScan) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 				
 		}else{
 			
 			bool disableStartButton = !Environnement::isReady() || Environnement::isStarting();
-			if (disableStartButton) BEGIN_DISABLE_IMGUI_ELEMENT
-		
-				if(Environnement::isStarting()){
-					BEGIN_DISABLE_IMGUI_ELEMENT
-					ImGui::Button("Starting", buttonSize);
-					END_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableStartButton);
+			if(Environnement::isStarting()){
+				ImGui::BeginDisabled();
+				ImGui::Button("Starting", buttonSize);
+				ImGui::EndDisabled();
+			}
+			else if(!Environnement::isRunning()){
+				if(ImGui::Button("Start", buttonSize)){
+					if(!Environnement::isSimulating()) ImGui::OpenPopup("Starting Environnement");
+					Environnement::start();
 				}
-				else if(!Environnement::isRunning()){
-					if(ImGui::Button("Start", buttonSize)){
-						if(!Environnement::isSimulating()) ImGui::OpenPopup("Starting Environnement");
-						Environnement::start();
-					}
-				}else{
-					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-					if(ImGui::Button("Stop", buttonSize)) Environnement::stop();
-					ImGui::PopStyleColor();
-				}
-			if (disableStartButton) END_DISABLE_IMGUI_ELEMENT
+			}else{
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+				if(ImGui::Button("Stop", buttonSize)) Environnement::stop();
+				ImGui::PopStyleColor();
+			}
+			ImGui::EndDisabled();
 
 		}
 			
-		if(!Environnement::isEditorHidden()){
+		if(!Environnement::isEditorLocked()){
 		
 			ImGui::SameLine();
 				
@@ -68,12 +68,12 @@ namespace ApplicationWindow {
 			bool b_simulation = Environnement::isSimulating();
 			
 			bool disableSimulationSwitch = Environnement::isRunning() || Environnement::isStarting();
-			if(disableSimulationSwitch) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableSimulationSwitch);
 			if(simulationToggle.draw("SimulationSwitch", b_simulation, "Simulation", "Hardware", buttonSize)) {
 				b_simulation = !b_simulation;
 				Environnement::setSimulation(b_simulation);
 			}
-			if(disableSimulationSwitch) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 				
 		}
 			
@@ -81,13 +81,13 @@ namespace ApplicationWindow {
 
 		bool disableMachineToggleButtons = !Environnement::isRunning();
 
-		if (disableMachineToggleButtons) BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disableMachineToggleButtons);
 		
 		if (Environnement::areAllMachinesEnabled()) {
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-			BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled();
 			ImGui::Button("Enable All", buttonSize);
-			END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 		}
 		else {
 			if (Environnement::areNoMachinesEnabled()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
@@ -99,14 +99,14 @@ namespace ApplicationWindow {
 		ImGui::SameLine();
 		
 		if(Environnement::areNoMachinesEnabled()){
-			BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled();
 			ImGui::Button("Disable All", buttonSize);
-			END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 		}else{
 			if(ImGui::Button("Disable All", buttonSize)) Environnement::disableAllMachines();
 		}
 		
-		if (disableMachineToggleButtons) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 
 		
 		ImGui::SameLine();

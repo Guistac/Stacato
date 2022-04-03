@@ -9,7 +9,7 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
-#include "NodeGraph/Device.h"
+#include "Environnement/DeviceNode.h"
 
 void GpioActuator::nodeSpecificGui(){
 	if(ImGui::BeginTabItem("Controls")){
@@ -24,7 +24,7 @@ void GpioActuator::nodeSpecificGui(){
 
 void GpioActuator::controlGui(){
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Controls");
 	ImGui::PopFont();
 	
@@ -34,8 +34,8 @@ void GpioActuator::controlGui(){
 		ImGui::TextWrapped("Actuator is Controlled by Node '%s'."
 						   "\nManual controls are disabled.",
 						   actuatorPin->getConnectedPin()->getNode()->getName());
-		BEGIN_DISABLE_IMGUI_ELEMENT
 	}
+	ImGui::BeginDisabled(actuatorControlledExternally);
 		
 	float singleWidgetWidth = ImGui::GetContentRegionAvail().x;
 	glm::vec2 progressBarSize(singleWidgetWidth, ImGui::GetFrameHeight());
@@ -62,19 +62,19 @@ void GpioActuator::controlGui(){
 	}else if(actuator->isReady()){
 		if(ImGui::Button("Enable", largeDoubleButtonSize)) actuator->enable();
 	}else{
-		BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled();
 		ImGui::Button("Not Ready", largeDoubleButtonSize);
-		END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 	}
 	
-	if(actuatorControlledExternally) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	
 	bool disableManualControls = actuatorControlledExternally || !actuator->isEnabled();
-	if(disableManualControls) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableManualControls);
 	
 	ImGui::Text("Manual Velocity:");
 	static char velocityCommandString[256];
-	sprintf(velocityCommandString, "%.3f %s/s", manualVelocityDisplay, Unit::getAbbreviatedString(actuator->getPositionUnit()));
+	sprintf(velocityCommandString, "%.3f %s/s", manualVelocityDisplay, actuator->getPositionUnit()->abbreviated);
 	ImGui::SetNextItemWidth(singleWidgetWidth);
 	ImGui::SliderFloat("##manVel", &manualVelocityDisplay, -actuator->getVelocityLimit(), actuator->getVelocityLimit(), velocityCommandString);
 	if (ImGui::IsItemActive()) setVelocityTarget(manualVelocityDisplay);
@@ -85,21 +85,21 @@ void GpioActuator::controlGui(){
 	
 	float velocityProgress = std::abs(motionProfile.getVelocity() / actuator->getVelocityLimit());
 	static char velocityString[256];
-	sprintf(velocityString, "%.3f %s/s", motionProfile.getVelocity(), Unit::getAbbreviatedString(actuator->getPositionUnit()));
+	sprintf(velocityString, "%.3f %s/s", motionProfile.getVelocity(), actuator->getPositionUnit()->abbreviated);
 	ImGui::ProgressBar(velocityProgress, progressBarSize, velocityString);
 	
 	if(ImGui::Button("Fast Stop", largeSingleButtonSize)) fastStop();
 	
-	if(disableManualControls) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 }
 
 void GpioActuator::settingsGui(){
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Devices");
 	ImGui::PopFont();
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Gpio Device: ");
 	ImGui::PopFont();
 	ImGui::SameLine();
@@ -112,16 +112,15 @@ void GpioActuator::settingsGui(){
 	
 	if(isGpioDeviceConnected()){
 		
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("Actuator Limits");
 		ImGui::PopFont();
 		
 		ImGui::Text("Position Unit");
-		if(ImGui::BeginCombo("##actuatorUnit", Enumerator::getDisplayString(actuator->positionUnit))){
-			for(auto& type : Enumerator::getTypes<PositionUnit>()){
-				if(isLinearPositionUnit(type.enumerator)) continue;
-				if(ImGui::Selectable(type.displayString, type.enumerator == actuator->positionUnit)){
-					actuator->positionUnit = type.enumerator;
+		if(ImGui::BeginCombo("##actuatorUnit", actuator->positionUnit->singular)){
+			for(auto& unit : Units::AngularDistance::get()){
+				if(ImGui::Selectable(unit->singular, unit == actuator->positionUnit)){
+					actuator->positionUnit = unit;
 				}
 			}
 			ImGui::EndCombo();
@@ -129,32 +128,32 @@ void GpioActuator::settingsGui(){
 		
 		ImGui::Text("Velocity Limit");
 		static char servoVelocityLimitString[256];
-		sprintf(servoVelocityLimitString, "%.3f %s/s", actuator->velocityLimit_positionUnitsPerSecond, Unit::getAbbreviatedString(actuator->positionUnit));
+		sprintf(servoVelocityLimitString, "%.3f %s/s", actuator->velocityLimit_positionUnitsPerSecond, actuator->positionUnit->abbreviated);
 		ImGui::InputDouble("##velocityLimit", &actuator->velocityLimit_positionUnitsPerSecond, 0.0, 0.0, servoVelocityLimitString);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		
 		ImGui::Text("Minimum Velocity");
 		static char actuatorMinVelocityString[256];
-		sprintf(actuatorMinVelocityString, "%.3f %s/s", actuator->minVelocity_positionUnitsPerSecond, Unit::getAbbreviatedString(actuator->positionUnit));
+		sprintf(actuatorMinVelocityString, "%.3f %s/s", actuator->minVelocity_positionUnitsPerSecond, actuator->positionUnit->abbreviated);
 		ImGui::InputDouble("##minvel", &actuator->minVelocity_positionUnitsPerSecond, 0.0, 0.0, actuatorMinVelocityString);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		
 		ImGui::Text("Acceleration Limit");
 		static char servoAccelerationLimitString[256];
-		sprintf(servoAccelerationLimitString, "%.3f %s/s2", actuator->accelerationLimit_positionUnitsPerSecondSquared, Unit::getAbbreviatedString(actuator->positionUnit));
+		sprintf(servoAccelerationLimitString, "%.3f %s/s2", actuator->accelerationLimit_positionUnitsPerSecondSquared, actuator->positionUnit->abbreviated);
 		ImGui::InputDouble("##accelerationLimit", &actuator->accelerationLimit_positionUnitsPerSecondSquared, 0.0, 0.0, servoAccelerationLimitString);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		
 		ImGui::Text("Acceleration for Manual Controls");
 		static char manualAccelerationString[256];
-		sprintf(manualAccelerationString, "%.3f %s/s2", manualAcceleration, Unit::getAbbreviatedString(actuator->positionUnit));
+		sprintf(manualAccelerationString, "%.3f %s/s2", manualAcceleration, actuator->positionUnit->abbreviated);
 		ImGui::InputDouble("##manAcc", &manualAcceleration, 0.0, 0.0, manualAccelerationString);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		
 		ImGui::Separator();
 		
-		ImGui::PushFont(Fonts::robotoBold20);
+		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("Control Signal");
 		ImGui::PopFont();
 		
@@ -172,7 +171,7 @@ void GpioActuator::settingsGui(){
 					getControlSignalZero());
 		ImGui::PopStyleColor();
 		
-		ImGui::Text("Control Signal Units Per Servo Actuator %s/s", Enumerator::getDisplayString(actuator->positionUnit));
+		ImGui::Text("Control Signal Units Per Servo Actuator %s/s", actuator->positionUnit->singular);
 		ImGui::InputDouble("##UnitConversion", &controlSignalUnitsPerActuatorVelocityUnit);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		
@@ -182,15 +181,15 @@ void GpioActuator::settingsGui(){
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 		ImGui::Text("Control Signal Limits Velocity to %.1f %s/s",
 					getControlSignalLimitedVelocity(),
-					Unit::getAbbreviatedString(actuator->positionUnit));
+					actuator->positionUnit->abbreviated);
 		ImGui::Text("At %.1f Control Signal, Velocity is %.1f %s/s",
 					getControlSignalZero(),
 					controlSignalToActuatorVelocity(getControlSignalZero()),
-					Unit::getAbbreviatedString(actuator->positionUnit));
+					actuator->positionUnit->abbreviated);
 		ImGui::Text("At %.1f Control Signal, Velocity is %.1f %s/s",
 					getControlSignalHighLimit(),
 					controlSignalToActuatorVelocity(getControlSignalHighLimit()),
-					Unit::getAbbreviatedString(actuator->positionUnit));
+					actuator->positionUnit->abbreviated);
 		ImGui::PopStyleColor();
 		
 		ImGui::Separator();

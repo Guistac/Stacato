@@ -2,14 +2,13 @@
 
 #include "EtherCatFieldbus.h"
 
-#include "Utilities/EtherCatDeviceFactory.h"
+#include "Fieldbus/EtherCatDevice.h"
 #include "Utilities/EtherCatError.h"
-#include "Project/Environnement.h"
-#include "NodeGraph/NodeGraph.h"
+#include "Environnement/Environnement.h"
+#include "Environnement/NodeGraph/NodeGraph.h"
 #include "Motion/Playback.h"
-
 #include "Utilities/ProgressIndicator.h"
-
+#include "Nodes/NodeFactory.h"
 #include "config.h"
 
 namespace EtherCatFieldbus {
@@ -338,8 +337,6 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
     //============ Check Explicit ID compatibility and Read explicit ID of slave ============
 
-	//TODO: this could use some cleanup
-
     bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID) {
 		
         int maxTries = 8;
@@ -488,7 +485,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
                 if (slave == nullptr) {
                     Logger::info("      Slave did not match any Environnement Slave");
-                    slave = EtherCatDeviceFactory::getDeviceByEtherCatName(identity.name);
+                    slave = NodeFactory::getDeviceByEtherCatName(identity.name);
                     slave->stationAlias = stationAlias;
                     slave->explicitDeviceID = explicitDeviceID;
                     char name[128];
@@ -834,7 +831,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
             slave->identity->state = EC_STATE_NONE;
         }
         //evaluate all nodes one last time to propagate the disconnection of devices
-        Environnement::nodeGraph->evaluate(Device::Type::ETHERCAT_DEVICE);
+        Environnement::NodeGraph::evaluate(Device::Type::ETHERCAT_DEVICE);
 
         Logger::info("===== Cyclic Exchange Stopped !");
 
@@ -842,7 +839,6 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
         if (slaveStateHandler.joinable()) slaveStateHandler.join();
         startSlaveDetectionHandler();
 		
-		//TODO: this stops the environnement on fieldbus timeout
 		Environnement::stop();
     }
 
@@ -970,13 +966,10 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 		for(auto& slave : slaves){
 			uint16_t AlStatusCode = 0x0;
 			int wc = ec_FPRD(slave->getAssignedAddress(), 0x134, 2, &AlStatusCode, EC_TIMEOUTSAFE);
-			if(wc != 1) Logger::error("{} : Could not read AL Status Code}");
+			if(wc != 1) Logger::error("{} : Could not read AL Status Code", AlStatusCode);
 			else if(AlStatusCode != 0x0) Logger::error("{} : AL Status Code 0x{:X} ({})", slave->getName(), AlStatusCode, ec_ALstatuscode2string(AlStatusCode));
 		}
 	}
 
 
 }
-
-
-//TODO: ALStatusCode reading and displaying on device error

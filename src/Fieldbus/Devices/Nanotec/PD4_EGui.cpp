@@ -78,7 +78,7 @@ void PD4_E::statusGui() {
     ImGui::PopItemFlag();
 
     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::PushStyleColor(ImGuiCol_Button, isConnected() ? Colors::green : (isDetected() ? Colors::yellow : Colors::red));
 
     ImGui::Button(isConnected() ? "Online" : (isDetected() ? "Detected" : "Offline"), statusDisplaySize);
@@ -124,22 +124,22 @@ void PD4_E::statusGui() {
 
 
     bool disableCommandButton = !isConnected();
-    if (disableCommandButton) BEGIN_DISABLE_IMGUI_ELEMENT
-        if (servoMotor->isEnabled()) {
-            if (ImGui::Button("Disable Operation", commandButtonSize)) {
-                servoMotor->disable();
-            }
-        }
-        else {
-            if (ImGui::Button("Enable Operation", commandButtonSize)) {
-                servoMotor->enable();
-            }
-        }
+	ImGui::BeginDisabled(disableCommandButton);
+	if (servoMotor->isEnabled()) {
+		if (ImGui::Button("Disable Operation", commandButtonSize)) {
+			servoMotor->disable();
+		}
+	}
+	else {
+		if (ImGui::Button("Enable Operation", commandButtonSize)) {
+			servoMotor->enable();
+		}
+	}
     ImGui::SameLine();
     if (ImGui::Button("Quick Stop", commandButtonSize)) {
         servoMotor->quickstop();
     }
-    if (disableCommandButton) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 }
 
 
@@ -204,7 +204,7 @@ void PD4_E::controlGui() {
 
 void PD4_E::limitsGui() {
 
-    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::PushFont(Fonts::sansBold20);
     ImGui::Text("General Motion Limits");
     ImGui::PopFont();
 
@@ -212,33 +212,33 @@ void PD4_E::limitsGui() {
     ImGui::Text("Max Motor Velicocity is %.3f rev/s", maxVelocity_revolutionsPerSecond);
     ImGui::PopStyleColor();
     
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Velocity Limit");
     ImGui::PopFont();
     ImGui::InputDouble("##velocityLimit", &servoMotor->velocityLimit_positionUnitsPerSecond, 0.0, 0.0, "%.3f rev/s");
     if (servoMotor->velocityLimit_positionUnitsPerSecond > maxVelocity_revolutionsPerSecond) servoMotor->velocityLimit_positionUnitsPerSecond = maxVelocity_revolutionsPerSecond;
     else if (servoMotor->velocityLimit_positionUnitsPerSecond < 0.0) servoMotor->velocityLimit_positionUnitsPerSecond = 0.0;
     
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Acceleration Limit");
     ImGui::PopFont();
     ImGui::InputDouble("##accelerationLimit", &servoMotor->accelerationLimit_positionUnitsPerSecondSquared, 0.0, 0.0, "%.3f rev/s\xc2\xb2");
     if (servoMotor->accelerationLimit_positionUnitsPerSecondSquared < 0.0) servoMotor->accelerationLimit_positionUnitsPerSecondSquared = 0.0;
     
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Default Manual Acceleration");
     ImGui::PopFont();
     ImGui::InputDouble("##defmanacc", &defaultManualAcceleration_revolutionsPerSecondSquared, 0.0, 0.0, "%.3f rev/s\xc2\xb2");
     if (defaultManualAcceleration_revolutionsPerSecondSquared > servoMotor->accelerationLimit_positionUnitsPerSecondSquared) defaultManualAcceleration_revolutionsPerSecondSquared = servoMotor->accelerationLimit_positionUnitsPerSecondSquared;
     else if (defaultManualAcceleration_revolutionsPerSecondSquared < 0.0) defaultManualAcceleration_revolutionsPerSecondSquared = 0.0;
 
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Max Following Error");
     ImGui::PopFont();
     ImGui::InputDouble("##maxfollowerror", &maxFollowingError_revolutions, 0.0, 0.0, "%.3f revolutions");
     if (maxFollowingError_revolutions < 0.0) maxFollowingError_revolutions = 0.0;
 
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Position Controller Proportional Gain");
     ImGui::PopFont();
     ImGui::InputDouble("##kp", &positionControllerProportionalGain);
@@ -253,7 +253,7 @@ void PD4_E::limitsGui() {
 
 void PD4_E::gpioGui() {
     
-    ImGui::PushFont(Fonts::robotoBold20);
+    ImGui::PushFont(Fonts::sansBold20);
     ImGui::Text("Digital Input Settings");
     ImGui::PopFont();
 
@@ -261,7 +261,7 @@ void PD4_E::gpioGui() {
     ImGui::Text("All Pins use 5V logic by default.");
     ImGui::PopStyleColor();
 
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Digital Input 1");
     ImGui::PopFont();
     ImGui::Checkbox("##negativeLimit", &negativeLimitSwitchOnDigitalIn1);
@@ -271,7 +271,7 @@ void PD4_E::gpioGui() {
     ImGui::SameLine();
     ImGui::Text("Invert");
 
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Digital Input 2");
     ImGui::PopFont();
     ImGui::Checkbox("##positiveLimit", &positiveLimitSwitchOnDigitalIn2);
@@ -281,28 +281,28 @@ void PD4_E::gpioGui() {
     ImGui::SameLine();
     ImGui::Text("Invert");
 
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Digital Input 3");
     ImGui::PopFont();
     ImGui::Checkbox("##D3Invert", &invertDigitalInput3);
     ImGui::SameLine();
     ImGui::Text("Invert");
     
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Digital Input 4");
     ImGui::PopFont();
     ImGui::Checkbox("##D4Invert", &invertDigitalInput4);
     ImGui::SameLine();
     ImGui::Text("Invert");
 
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Digital Input 5");
     ImGui::PopFont();
     ImGui::Checkbox("##D5Invert", &invertDigitalInput5);
     ImGui::SameLine();
     ImGui::Text("Invert");
 
-    ImGui::PushFont(Fonts::robotoBold15);
+    ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Digital Input 6");
     ImGui::PopFont();
     ImGui::Checkbox("##D6Invert", &invertDigitalInput6);

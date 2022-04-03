@@ -1,11 +1,10 @@
 #include <pch.h>
 
 #include "PositionControlledAxis.h"
-#include "NodeGraph/Device.h"
+#include "Environnement/DeviceNode.h"
 #include "Motion/MotionTypes.h"
 #include "Motion/Curve/Curve.h"
 #include "Fieldbus/EtherCatFieldbus.h"
-#include "NodeGraph/Device.h"
 
 #include "Motion/SubDevice.h"
 
@@ -82,7 +81,17 @@ void PositionControlledAxis::process() {
 		if (b_isHoming) homingControl();
 		switch (controlMode) {
 			case ControlMode::VELOCITY_TARGET:
-				motionProfile.matchVelocity(profileTimeDelta_seconds, manualVelocityTarget, manualAcceleration);
+				//don't respect position limits when homing
+				if(b_isHoming) motionProfile.matchVelocity(profileTimeDelta_seconds,
+														   manualVelocityTarget,
+														   manualAcceleration);
+				//but respect them when moving manually
+				else motionProfile.matchVelocityAndRespectPositionLimits(profileTimeDelta_seconds,
+																	manualVelocityTarget,
+																	manualAcceleration,
+																	getLowPositionLimit(),
+																	getHighPositionLimit(),
+																	getAccelerationLimit());
 				break;
 			case ControlMode::FAST_STOP:
 				motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, manualAcceleration);
@@ -220,17 +229,12 @@ bool PositionControlledAxis::needsReferenceDevice() {
 
 //============================= DEVICE AND SIGNAL LINKS ================================
 
-void PositionControlledAxis::setPositionUnitType(PositionUnitType type){
-	positionUnitType = type;
+void PositionControlledAxis::setMovementType(MovementType type){
+	movementType = type;
 	switch(type){
-		case PositionUnitType::ANGULAR:
-			if(!isAngularPositionUnit(positionUnit)) {
-				for(auto& type : Unit::getTypes<PositionUnit>()){
-					if(isAngularPositionUnit(type.enumerator)){
-						setPositionUnit(type.enumerator);
-						break;
-					}
-				}
+		case MovementType::ROTARY:
+			if(positionUnit->unitType != Units::Type::ANGULAR_DISTANCE) {
+				setPositionUnit(Units::AngularDistance::get().front());
 			}
 			if(!isAngularPositionReferenceSignal(positionReferenceSignal)){
 				for(auto& type : Enumerator::getTypes<PositionReferenceSignal>()){
@@ -241,14 +245,9 @@ void PositionControlledAxis::setPositionUnitType(PositionUnitType type){
 				}
 			}
 			break;
-		case PositionUnitType::LINEAR:
-			if(!isLinearPositionUnit(positionUnit)){
-				for(auto& type : Unit::getTypes<PositionUnit>()){
-					if(isLinearPositionUnit(type.enumerator)){
-						setPositionUnit(type.enumerator);
-						break;
-					}
-				}
+		case MovementType::LINEAR:
+			if(positionUnit->unitType != Units::Type::LINEAR_DISTANCE) {
+				setPositionUnit(Units::LinearDistance::get().front());
 			}
 			if(!isLinearPositionReferenceSignal(positionReferenceSignal)){
 				for(auto& type : Enumerator::getTypes<PositionReferenceSignal>()){
@@ -261,11 +260,13 @@ void PositionControlledAxis::setPositionUnitType(PositionUnitType type){
 			break;
 	}
 	sanitizeParameters();
+	axisPin->updateConnectedPins();
 }
 
-void PositionControlledAxis::setPositionUnit(PositionUnit u){
+void PositionControlledAxis::setPositionUnit(Unit u){
 	positionUnit = u;
 	sanitizeParameters();
+	axisPin->updateConnectedPins();
 }
 
 void PositionControlledAxis::setPositionReferenceSignalType(PositionReferenceSignal type) {
@@ -311,6 +312,7 @@ void PositionControlledAxis::setPositionReferenceSignalType(PositionReferenceSig
 	}
 	positionReferenceSignal = type;
 	sanitizeParameters();
+	axisPin->updateConnectedPins();
 }
 
 
@@ -339,7 +341,11 @@ void PositionControlledAxis::updateReferenceSignals() {
 }
 
 bool PositionControlledAxis::isMoving() {
-	return getServoActuatorDevice()->isMoving();
+	
+	return motionProfile.getVelocity() != 0.0;
+	
+	//TODO: this needs a threshold setting
+	//return getServoActuatorDevice()->isMoving();
 }
 
 double PositionControlledAxis::getLowPositionLimit() {
@@ -390,6 +396,9 @@ float PositionControlledAxis::getActualFollowingErrorNormalized(){
 	return getServoActuatorDevice()->getFollowingErrorNormalized();
 }
 
+double PositionControlledAxis::getFollowingErrorLimit(){
+	return servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->maxfollowingError);
+}
 
 void PositionControlledAxis::setCurrentPosition(double distance) {
 	getServoActuatorDevice()->setPosition(distance * servoActuatorUnitsPerAxisUnits);
@@ -405,10 +414,10 @@ void PositionControlledAxis::setCurrentPositionAsPositiveLimit() {
 }
 
 void PositionControlledAxis::scaleFeedbackToMatchPosition(double position_axisUnits) {
-	double feedbackDevicePosition_feedbackUnits = getServoActuatorDevice()->getPosition();
-	//this recalculates unit scaling based on the distance between on zero position
-	servoActuatorUnitsPerAxisUnits = feedbackDevicePosition_feedbackUnits / position_axisUnits;
-	motionProfile.setPosition(feedbackDevicePosition_feedbackUnits / servoActuatorUnitsPerAxisUnits);
+	double servoActuatorPosition_actuatorUnits = getServoActuatorDevice()->getPosition();
+	//this recalculates unit scaling based on the distance from zero position
+	servoActuatorUnitsPerAxisUnits = servoActuatorPosition_actuatorUnits / position_axisUnits;
+	motionProfile.setPosition(position_axisUnits);
 }
 
 //================================= MANUAL CONTROL ===================================
@@ -979,10 +988,10 @@ void PositionControlledAxis::sanitizeParameters(){
 	homingVelocityFine = std::min(std::abs(homingVelocityFine), homingVelocityCoarse);
 	
 	velocityLimit = std::abs(velocityLimit);
-	//TODO: if(isServoActuatorDeviceConnected()) velocityLimit = std::min(velocityLimit, servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getVelocityLimit()));
+	if(isServoActuatorDeviceConnected()) velocityLimit = std::min(velocityLimit, servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getVelocityLimit()));
 	
 	accelerationLimit = std::abs(accelerationLimit);
-	//TODO: if(isServoActuatorDeviceConnected()) accelerationLimit = std::min(accelerationLimit, servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getAccelerationLimit()));
+	if(isServoActuatorDeviceConnected()) accelerationLimit = std::min(accelerationLimit, servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getAccelerationLimit()));
 	
 	manualAcceleration = std::min(std::abs(manualAcceleration), accelerationLimit);
 
@@ -1000,8 +1009,8 @@ bool PositionControlledAxis::save(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 
 	XMLElement* unitsXML = xml->InsertNewChildElement("Units");
-	unitsXML->SetAttribute("UnitType", Enumerator::getSaveString(positionUnitType));
-	unitsXML->SetAttribute("Unit", Unit::getSaveString(positionUnit));
+	unitsXML->SetAttribute("UnitType", Enumerator::getSaveString(movementType));
+	unitsXML->SetAttribute("Unit", positionUnit->saveString);
 
 	XMLElement* unitConversionXML = xml->InsertNewChildElement("UnitConversion");
 	unitConversionXML->SetAttribute("ActuatorUnitsPerMachineUnit", servoActuatorUnitsPerAxisUnits);
@@ -1038,12 +1047,19 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if (!unitsXML) return Logger::warn("Could not load Units Attributes");
 	const char* axisUnitTypeString;
 	if (unitsXML->QueryStringAttribute("UnitType", &axisUnitTypeString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit Type");
-	if (!Enumerator::isValidSaveName<PositionUnitType>(axisUnitTypeString)) return Logger::warn("Could not read Machine Unit Type");
-	positionUnitType = Enumerator::getEnumeratorFromSaveString<PositionUnitType>(axisUnitTypeString);
+	if (!Enumerator::isValidSaveName<MovementType>(axisUnitTypeString)) return Logger::warn("Could not read Machine Unit Type");
+	setMovementType(Enumerator::getEnumeratorFromSaveString<MovementType>(axisUnitTypeString));
 	const char* axisUnitString;
 	if (unitsXML->QueryStringAttribute("Unit", &axisUnitString) != XML_SUCCESS) return Logger::warn("Could not load Machine Unit");
-	if (!Unit::isValidSaveName<PositionUnit>(axisUnitString)) return Logger::warn("Could not read Machine Unit");
-	positionUnit = Unit::getEnumeratorFromSaveString<PositionUnit>(axisUnitString);
+	switch(movementType){
+		case MovementType::ROTARY:
+			if(!Units::AngularDistance::isValidSaveString(axisUnitString)) return Logger::warn("Could not read Machine Unit");
+			break;
+		case MovementType::LINEAR:
+			if(!Units::LinearDistance::isValidSaveString(axisUnitString)) return Logger::warn("Could not read Machine Unit");
+			break;
+	}
+	setPositionUnit(Units::fromSaveString(axisUnitString));
 
 	XMLElement* unitConversionXML = xml->FirstChildElement("UnitConversion");
 	if (!unitConversionXML) return Logger::warn("Could not load Unit Conversion");
@@ -1077,7 +1093,7 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if (positionReferenceXML->QueryStringAttribute("HomingDirection", &homingDirectionString)) return Logger::warn("Could not load homing direction");
 	if (!Enumerator::isValidSaveName<HomingDirection>(homingDirectionString)) return Logger::warn("Could not read homing direction");
 	homingDirection = Enumerator::getEnumeratorFromSaveString<HomingDirection>(homingDirectionString);
-
+	
 	return true;
 }
 

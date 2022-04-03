@@ -3,7 +3,7 @@
 class CurvePoint;
 class Manoeuvre;
 
-#include "Motion/AnimatableParameter.h"
+#include "Machine/AnimatableParameter.h"
 
 #include <tinyxml2.h>
 
@@ -86,7 +86,7 @@ public:
 	void refreshNextChainedCurvePoints();
 	std::vector<std::vector<Motion::CurvePoint>> nextChainedCurvePoints;
 	std::vector<std::vector<Motion::CurvePoint>> previousChainedCurvePoints;
-
+	
 	AnimatableParameterValue origin;
 	AnimatableParameterValue target;
 	AnimatableParameterValue& getOrigin();

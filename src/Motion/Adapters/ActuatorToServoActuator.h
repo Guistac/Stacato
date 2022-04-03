@@ -1,9 +1,9 @@
-#include "NodeGraph/Node.h"
+#include "Environnement/Node.h"
 
-#include "NodeGraph/Node.h"
+#include "Environnement/Node.h"
 #include "Motion/MotionTypes.h"
 #include "Motion/SubDevice.h"
-#include "Motion/Profile/Profile.h"
+#include "Motion/Profile.h"
 #include "Motion/Curve/Curve.h"
 
 #include "Utilities/CircularBuffer.h"
@@ -14,7 +14,7 @@ public:
 	DEFINE_NODE(ActuatorToServoActuator, "Actuator To Servo Actuator", "ActuatorToServoActuator", Node::Type::PROCESSOR, "Adapters")
 	
 	//output data
-	std::shared_ptr<ServoActuatorDevice> servoActuator = std::make_shared<ServoActuatorDevice>("Servo Actuator", PositionUnit::REVOLUTION, PositionFeedbackType::ABSOLUTE);
+	std::shared_ptr<ServoActuatorDevice> servoActuator = std::make_shared<ServoActuatorDevice>("Servo Actuator", Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE);
 	std::shared_ptr<NodePin> servoActuatorPin = std::make_shared<NodePin>(servoActuator, NodePin::Direction::NODE_OUTPUT, "Servo Actuator");
 	
 	//input data
@@ -34,7 +34,7 @@ public:
 	
 	//processing
 	virtual void process();
-	virtual void updatePin(std::shared_ptr<NodePin> pin);
+	virtual void onPinUpdate(std::shared_ptr<NodePin> pin);
 	void onDisable();
 	void onEnable();
 	
@@ -59,7 +59,7 @@ private:
 	//double maxPositionFollowingError = 0.0;
 	double errorCorrectionTreshold = 0.0;
 	
-	PositionUnit getPositionUnit(){ return getActuatorDevice()->getPositionUnit(); }
+	Unit getPositionUnit(){ return getActuatorDevice()->getPositionUnit(); }
 	
 	void sanitizeParameters();
 	

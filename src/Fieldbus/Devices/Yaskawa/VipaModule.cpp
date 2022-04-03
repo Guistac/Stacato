@@ -2,16 +2,12 @@
 
 #include "VipaModule.h"
 
-#include "NodeGraph/NodePin.h"
-
 #include <imgui.h>
-#include <imgui_internal.h>
-#include "Gui/Assets/Fonts.h"
-#include "Gui/Assets/Colors.h"
-
 #include <tinyxml2.h>
 
 #include "Fieldbus/EtherCatFieldbus.h"
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
 
 namespace VipaModuleFactory{
 
@@ -100,7 +96,7 @@ void VIPA_022_1HD10::moduleParameterGui(){
 	ImGui::TextWrapped("All relais return to open when fieldbus is stopped.");
 	ImGui::PopStyleColor();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Signal Inversion");
 	ImGui::PopFont();
 	
@@ -108,7 +104,7 @@ void VIPA_022_1HD10::moduleParameterGui(){
 		ImGui::PushID(i);
 		ImGui::Checkbox("##invert", &invertOutputs[i]);
 		ImGui::SameLine();
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("%s", inputPins[i]->getDisplayString());
 		ImGui::PopFont();
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
@@ -201,14 +197,14 @@ void VIPA_021_1BF00::writeOutputs(){
 }
 
 void VIPA_021_1BF00::moduleParameterGui(){
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Signal Inversion");
 	ImGui::PopFont();
 	for(int i = 0; i < 8; i++){
 		ImGui::PushID(i);
 		ImGui::Checkbox("##invert", &invertInputs[i]);
 		ImGui::SameLine();
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("%s", outputPins[i]->getDisplayString());
 		ImGui::PopFont();
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
@@ -310,14 +306,14 @@ void VIPA_022_1BF00::moduleParameterGui(){
 	ImGui::TextWrapped("All outputs return to low when fieldbus is stopped.");
 	ImGui::PopStyleColor();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Signal Inversion");
 	ImGui::PopFont();
 	for(int i = 0; i < 8; i++){
 		ImGui::PushID(i);
 		ImGui::Checkbox("##invert", &invertOutputs[i]);
 		ImGui::SameLine();
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("%s", inputPins[i]->getDisplayString());
 		ImGui::PopFont();
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
@@ -579,9 +575,9 @@ void VIPA_050_1BS00::moduleParameterGui(){
 	ImGui::ProgressBar(velocityProgress, progressBarSize, encoderVelocityString);
 	
 	bool disableResetButton = !b_hasResetSignal;
-	if(disableResetButton) BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled(disableResetButton);
 	if(ImGui::Button("Reset Encoder")) encoderDevice->hardReset();
-	if(disableResetButton) END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 }
 
 void VIPA_050_1BS00::updateEncoderWorkingRange(){
@@ -777,13 +773,13 @@ void VIPA_032_1BD70::moduleParameterGui(){
 	ImGui::Text("All analog outputs return to 0 Volts when fieldbus is stopped.");
 	ImGui::PopStyleColor();
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Output Voltage Ranges");
 	ImGui::PopFont();
 	
 	for(int i = 0; i < 4; i++){
 		ImGui::PushID(i);
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("%s", inputPins[i]->getDisplayString());
 		ImGui::PopFont();
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);

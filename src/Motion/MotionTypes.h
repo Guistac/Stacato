@@ -1,115 +1,14 @@
 #pragma once
 
-//================================================================================================================================
-
-enum class PositionUnitType{
+enum class MovementType{
 	LINEAR,
-	ANGULAR
+	ROTARY
 };
 
-#define PositionUnitTypeStrings \
-	{PositionUnitType::LINEAR, "Linear", "Linear"},\
-	{PositionUnitType::ANGULAR, "Angular", "Angular"}\
+#define MovementTypeStrings {MovementType::LINEAR, "Linear Movement", "Linear"},\
+							{MovementType::ROTARY, "Rotary Movement", "Rotary"}\
 
-DEFINE_ENUMERATOR(PositionUnitType, PositionUnitTypeStrings)
-
-//================================================================================================================================
-
-enum class PositionUnit{
-	DEGREE,
-	RADIAN,
-	REVOLUTION,
-	METER,
-	CENTIMETER,
-	MILLIMETER
-};
-
-static std::vector<Unit::Type<PositionUnit>> getPositionUnitTypes(){
-	static std::vector<Unit::Type<PositionUnit>> types = {
-		{PositionUnit::METER,
-			.displayString = "Meter",
-			.displayStringPlural = "Meters",
-			.abbreviatedString = "m",
-			.saveString = "Meter",
-			.b_isBaseUnit = true,
-			.baseUnitMultiple = 0.0,
-			.baseUnitOffset = 0.0
-		},
-		{PositionUnit::CENTIMETER,
-			.displayString = "Centimeter",
-			.displayStringPlural = "Centimeters",
-			.abbreviatedString = "cm",
-			.saveString = "Centimeter",
-			.b_isBaseUnit = false,
-			.baseUnitMultiple = 0.01,
-			.baseUnitOffset = 0.0
-		},
-		{PositionUnit::MILLIMETER,
-			.displayString = "Millimeter",
-			.displayStringPlural = "Millimeters",
-			.abbreviatedString = "mm",
-			.saveString = "Millimeter",
-			.b_isBaseUnit = false,
-			.baseUnitMultiple = 0.001,
-			.baseUnitOffset = 0.0
-		},
-		{PositionUnit::DEGREE,
-			.displayString = "Degree",
-			.displayStringPlural = "Degrees",
-			.abbreviatedString = "\xC2\xB0",
-			.saveString = "Degrees",
-			.b_isBaseUnit = true,
-			.baseUnitMultiple = 0.0,
-			.baseUnitOffset = 0.0},
-		{PositionUnit::RADIAN,
-			.displayString = "Radian",
-			.displayStringPlural = "Radians",
-			.abbreviatedString = "rad",
-			.saveString = "Radians",
-			.b_isBaseUnit = false,
-			.baseUnitMultiple = 0.0174533,
-			.baseUnitOffset = 0.0
-		},
-		{PositionUnit::REVOLUTION,
-			.displayString = "Revolution",
-			.displayStringPlural = "Revolutions",
-			.abbreviatedString = "rev",
-			.saveString = "Revolutions",
-			.b_isBaseUnit = false,
-			.baseUnitMultiple = 360.0,
-			.baseUnitOffset = 0.0
-		}
-	};
-	return types;
-}
-
-DEFINE_UNIT(PositionUnit, getPositionUnitTypes())
-
-inline bool isLinearPositionUnit(PositionUnit t){
-	switch(t){
-		case PositionUnit::DEGREE:
-		case PositionUnit::RADIAN:
-		case PositionUnit::REVOLUTION:
-			return false;
-		case PositionUnit::METER:
-		case PositionUnit::CENTIMETER:
-		case PositionUnit::MILLIMETER:
-			return true;
-	}
-}
-
-inline bool isAngularPositionUnit(PositionUnit t){
-	switch(t){
-		case PositionUnit::DEGREE:
-		case PositionUnit::RADIAN:
-		case PositionUnit::REVOLUTION:
-			return true;
-		case PositionUnit::METER:
-		case PositionUnit::CENTIMETER:
-		case PositionUnit::MILLIMETER:
-			return false;
-	}
-}
+DEFINE_ENUMERATOR(MovementType, MovementTypeStrings)
 
 //================================================================================================================================
 
@@ -122,6 +21,7 @@ enum class PositionFeedbackType{
 										{PositionFeedbackType::INCREMENTAL, "Incremental Feedback", "Incremental"}\
 
 DEFINE_ENUMERATOR(PositionFeedbackType, PositionFeedbackTypeStrings)
+
 
 //================================================================================================================================
 

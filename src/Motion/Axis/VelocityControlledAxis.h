@@ -1,11 +1,10 @@
 #pragma once
 
-#include "NodeGraph/Node.h"
+#include "Environnement/Node.h"
 
 #include "Motion/MotionTypes.h"
 #include "Utilities/CircularBuffer.h"
-
-#include "Motion/Profile/Profile.h"
+#include "Motion/Profile.h"
 
 class Device;
 
@@ -40,23 +39,23 @@ private:
 	//======== SETTINGS ========
 
 private:
-	PositionUnitType positionUnitType = PositionUnitType::ANGULAR;
-	PositionUnit positionUnit = PositionUnit::DEGREE;
+	MovementType movementType = MovementType::ROTARY;
+	Unit positionUnit = Units::AngularDistance::Degree;
 	double actuatorUnitsPerAxisUnits = 0.0;
 	double velocityLimit = 0.0;
 	double accelerationLimit = 0.0;
 	double manualAcceleration = 0.0;
 
-	void setPositionUnitType(PositionUnitType type);
-	void setPositionUnit(PositionUnit unit);
+	void setMovementType(MovementType type);
+	void setPositionUnit(Unit unit);
 	double actuatorUnitsToAxisUnits(double actuatorValue){ return actuatorValue / actuatorUnitsPerAxisUnits; }
 	double axisUnitsToActuatorUnits(double axisUnits){ return axisUnits * actuatorUnitsPerAxisUnits; }
 	
 public:
 	void sanitizeParameters();
 	
-	PositionUnit getPositionUnit(){ return positionUnit; }
-	PositionUnitType getPositionUnitType() { return positionUnitType; }
+	Unit getPositionUnit(){ return positionUnit; }
+	MovementType getMovementType() { return movementType; }
 	
 	double getVelocityLimit() { return velocityLimit; }
 	double getAccelerationLimit() { return accelerationLimit; }

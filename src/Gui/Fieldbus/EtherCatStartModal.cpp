@@ -1,13 +1,12 @@
 #include <pch.h>
 
 #include <imgui.h>
-#include <imgui_internal.h>
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
-#include "Project/Environnement.h"
+#include "Environnement/Environnement.h"
 #include "Utilities/ProgressIndicator.h"
 
 #include <GLFW/glfw3.h>
@@ -38,12 +37,12 @@ void etherCatStartModal() {
 	
 		
 		bool disableCancelButton = EtherCatFieldbus::isCyclicExchangeStarting();
-		if (disableCancelButton) BEGIN_DISABLE_IMGUI_ELEMENT
+		ImGui::BeginDisabled(disableCancelButton);
 		if (ImGui::Button("Cancel")) {
 			EtherCatFieldbus::stop();
 			ImGui::CloseCurrentPopup();
 		}
-		if (disableCancelButton) END_DISABLE_IMGUI_ELEMENT
+		ImGui::EndDisabled();
 		
 		if(progress.failed()){
 			ImGui::SameLine();

@@ -3,7 +3,6 @@
 #include "EtherCatGui.h"
 
 #include <imgui.h>
-#include <imgui_internal.h>
 
 void etherCatGui() {
 

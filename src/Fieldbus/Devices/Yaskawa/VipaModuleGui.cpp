@@ -3,18 +3,17 @@
 #include "VipaModule.h"
 
 #include <imgui.h>
-#include <imgui_internal.h>
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
 
 void VipaModule::moduleGui(){
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("%s", getDisplayName());
 	ImGui::PopFont();
 	ImGui::SameLine();
-	ImGui::PushFont(Fonts::robotoRegular20);
+	ImGui::PushFont(Fonts::sansRegular20);
 	ImGui::Text("%s", getSaveName());
 	ImGui::PopFont();
 	moduleParameterGui();

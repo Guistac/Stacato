@@ -1,11 +1,11 @@
 #include <pch.h>
 
 #include "Manoeuvre.h"
-#include "Motion/AnimatableParameter.h"
+#include "Machine/AnimatableParameter.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 
-#include "Project/Plot.h"
+#include "Plot/Plot.h"
 
 #include <tinyxml2.h>
 

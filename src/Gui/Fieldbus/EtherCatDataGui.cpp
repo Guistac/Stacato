@@ -152,11 +152,11 @@ void EtherCatBaseData::dataFormatSelectorGui() {
 	if (ImGui::BeginCombo("##DataRepresentation", getDataFormat(dataFormat)->displayName)) {
 		for (DataFormat& format : getDataFormats()) {
 			bool disableEntry = (dataType == EtherCatData::Type::STRING && format.type != DataFormat::STRING) || (dataType != EtherCatData::Type::STRING && format.type == DataFormat::STRING);
-			if (disableEntry) BEGIN_DISABLE_IMGUI_ELEMENT
+			ImGui::BeginDisabled(disableEntry);
 			if (ImGui::Selectable(format.displayName, dataFormat == format.type)) {
 				dataFormat = format.type;
 			}
-			if (disableEntry) END_DISABLE_IMGUI_ELEMENT
+			ImGui::EndDisabled();
 		}
 		ImGui::EndCombo();
 	}

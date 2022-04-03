@@ -1,7 +1,6 @@
 #include <pch.h>
 
 #include <imgui.h>
-#include <imgui_internal.h>
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
@@ -29,19 +28,19 @@ void OscDevice::nodeSpecificGui(){
 
 
 void OscDevice::networkGui(){
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("UDP Socket Settings");
 	ImGui::PopFont();
 	
 	ImGui::SameLine();
 	if(beginHelpMarker("(help)")){
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Remote Address:");
 		ImGui::PopFont();
 		
 		ImGui::TextWrapped("The IPv4 address and port to which outgoing messages are sent.");
 		
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Local Address:");
 		ImGui::PopFont();
 		
@@ -55,7 +54,7 @@ void OscDevice::networkGui(){
 		endHelpMarker();
 	}
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Remote IP");
 	ImGui::PopFont();
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0, ImGui::GetStyle().ItemSpacing.y));
@@ -67,19 +66,19 @@ void OscDevice::networkGui(){
 		ImGui::PopID();
 		if(i == 3) continue;
 		ImGui::SameLine();
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text(".");
 		ImGui::PopFont();
 	}
 	ImGui::PopStyleVar();
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Remote Port");
 	ImGui::PopFont();
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
 	ImGui::InputScalar("##RemotePort", ImGuiDataType_U16, &remotePort);
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Listening Port");
 	ImGui::PopFont();
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
@@ -164,7 +163,7 @@ void OscDevice::incomingMessagesGui(){
 	ImGui::TextWrapped("Incoming OSC Messages are not supported yet.");
 	ImGui::PopStyleColor();
 	
-	BEGIN_DISABLE_IMGUI_ELEMENT
+	ImGui::BeginDisabled();
 	
 	ImGui::Text("Incoming Messages");
 	
@@ -221,7 +220,7 @@ void OscDevice::incomingMessagesGui(){
 	else if(movedUpMessage) moveMessageUp(movedUpMessage);
 	else if(movedDownMessage) moveMessageDown(movedDownMessage);
 	
-	END_DISABLE_IMGUI_ELEMENT
+	ImGui::EndDisabled();
 	
 	ImGui::Separator();
 	
@@ -239,7 +238,7 @@ void OscDevice::incomingMessagesGui(){
 
 void OscDevice::messageGui(std::shared_ptr<OSC::Message> msg){
 	
-	ImGui::PushFont(Fonts::robotoBold20);
+	ImGui::PushFont(Fonts::sansBold20);
 	switch(msg->type){
 		case OSC::MessageType::OUTGOING_MESSAGE:
 			ImGui::Text("Outgoing Message :");
@@ -250,13 +249,13 @@ void OscDevice::messageGui(std::shared_ptr<OSC::Message> msg){
 	}
 	ImGui::PopFont();
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("OSC Path :");
 	ImGui::PopFont();
 	ImGui::InputText("##Path", msg->path, 256);
 	
 	if(msg->type == OSC::MessageType::OUTGOING_MESSAGE){
-		ImGui::PushFont(Fonts::robotoBold15);
+		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Sending Frequency :");
 		ImGui::PopFont();
 		ImGui::InputDouble("##freq", &msg->outputFrequency_Hertz, 0.0, 0.0, "%.1f Hz");
@@ -268,7 +267,7 @@ void OscDevice::messageGui(std::shared_ptr<OSC::Message> msg){
 	std::shared_ptr<OSC::Argument> movedUpArgument = nullptr;
 	std::shared_ptr<OSC::Argument> movedDownArgument = nullptr;
 	
-	ImGui::PushFont(Fonts::robotoBold15);
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("OSC Arguments :");
 	ImGui::PopFont();
 	

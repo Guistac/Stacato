@@ -1,53 +1,43 @@
 
-[submodule "dependencies/asio"]
-	path = dependencies/asio
+[submodule "deps/asio"]
+	path = deps/asio
 	url = https://github.com/chriskohlhoff/asio.git
-	ignore = dirty
-[submodule "dependencies/glfw"]
-	path = dependencies/glfw
-	url = https://github.com/glfw/glfw.git
-	ignore = dirty
-[submodule "dependencies/glm"]
-	path = dependencies/glm
+[submodule "deps/glm"]
+	path = deps/glm
 	url = https://github.com/g-truc/glm.git
-	ignore = dirty
-[submodule "dependencies/dearimgui"]
-	path = dependencies/dearimgui
+[submodule "deps/dearimgui"]
+	path = deps/dearimgui
 	url = https://github.com/ocornut/imgui.git
-	ignore = dirty
-[submodule "dependencies/tinyxml2"]
-	path = dependencies/tinyxml2
+[submodule "deps/tinyxml2"]
+	path = deps/tinyxml2
 	url = https://github.com/leethomason/tinyxml2.git
-	ignore = dirty
-[submodule "dependencies/implot"]
-	path = dependencies/implot
+[submodule "deps/implot"]
+	path = deps/implot
 	url = https://github.com/Guistac/implot.git
-	ignore = dirty
-[submodule "dependencies/soem"]
-	path = dependencies/soem
+[submodule "deps/soem"]
+	path = deps/soem
 	url = https://github.com/Guistac/SOEM.git
-	ignore = dirty
-[submodule "dependencies/spdlog"]
-	path = dependencies/spdlog
+[submodule "deps/spdlog"]
+	path = deps/spdlog
 	url = https://github.com/gabime/spdlog.git
-	ignore = dirty
-[submodule "dependencies/imguinodeeditor"]
-	path = dependencies/imguinodeeditor
-	url = https://github.com/thedmd/imgui-node-editor.git
-	ignore = dirty
-[submodule "dependencies/nativefiledialog-extended"]
-	path = dependencies/nativefiledialog-extended
+[submodule "deps/imguinodeeditor"]
+	path = deps/imguinodeeditor
+	url = https://github.com/Guistac/imgui-node-editor.git
+[submodule "deps/nativefiledialog-extended"]
+	path = deps/nativefiledialog-extended
 	url = https://github.com/btzy/nativefiledialog-extended.git
-	ignore = dirty
-[submodule "dependencies/corrade"]
-	path = dependencies/corrade
-	url = https://github.com/mosra/corrade.git
-[submodule "dependencies/magnum"]
-	path = dependencies/magnum
-	url = https://github.com/mosra/magnum.git
-[submodule "src/Networking/dependencies/tinyosc"]
-	path = src/Networking/dependencies/tinyosc
+[submodule "deps/tinyosc"]
+	path = deps/tinyosc
 	url = https://github.com/Guistac/tinyosc.git
-[submodule "dependencies/tinyosc"]
-	path = dependencies/tinyosc
-	url = https://github.com/Guistac/tinyosc.git
+[submodule "deps/imguicolortextedit"]
+	path = deps/imguicolortextedit
+	url = https://github.com/BalazsJako/ImGuiColorTextEdit.git
+[submodule "deps/openframeworksAddons/ofxLua"]
+	path = deps/openframeworksAddons/ofxLua
+	url = https://github.com/Guistac/ofxLua.git
+[submodule "deps/glfw"]
+	path = deps/glfw
+	url = https://github.com/Guistac/glfw.git
+[submodule "deps/openframeworks"]
+	path = deps/openframeworks
+	url = https://github.com/Guistac/openFrameworks.git

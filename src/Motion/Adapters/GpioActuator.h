@@ -1,9 +1,9 @@
 #pragma once
 
-#include "NodeGraph/Node.h"
+#include "Environnement/Node.h"
 #include "Motion/MotionTypes.h"
 #include "Motion/SubDevice.h"
-#include "Motion/Profile/Profile.h"
+#include "Motion/Profile.h"
 
 class GpioActuator : public Node{
 public:
@@ -13,7 +13,7 @@ public:
 	//output data
 	std::shared_ptr<bool> enableSignal = std::make_shared<bool>(false);
 	std::shared_ptr<double> controlSignal = std::make_shared<double>(0.0);
-	std::shared_ptr<ActuatorDevice> actuator = std::make_shared<ActuatorDevice>("Actuator", PositionUnit::REVOLUTION);
+	std::shared_ptr<ActuatorDevice> actuator = std::make_shared<ActuatorDevice>("Actuator", Units::AngularDistance::Revolution);
 	
 	std::shared_ptr<NodePin> enablePin = std::make_shared<NodePin>(enableSignal, NodePin::Direction::NODE_OUTPUT, "Enable");
 	std::shared_ptr<NodePin> controlSignalPin = std::make_shared<NodePin>(controlSignal, NodePin::Direction::NODE_OUTPUT, "Control Signal");
@@ -37,7 +37,7 @@ public:
 	
 	//processing
 	virtual void process();
-	virtual void updatePin(std::shared_ptr<NodePin> pin);
+	virtual void onPinUpdate(std::shared_ptr<NodePin> pin);
 	
 	//control signal
 	double getControlSignalLowLimit();

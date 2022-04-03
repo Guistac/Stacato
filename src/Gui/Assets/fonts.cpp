@@ -5,21 +5,23 @@
 
 namespace Fonts {
 
-	ImFont* robotoRegular12;
-	ImFont* robotoBold12;
-	ImFont* robotoLight12;
+	ImFont* sansRegular12;
+	ImFont* sansBold12;
+	ImFont* sansLight12;
 
-	ImFont* robotoRegular15;
-	ImFont* robotoBold15;
-	ImFont* robotoLight15;
+	ImFont* sansRegular15;
+	ImFont* sansBold15;
+	ImFont* sansLight15;
 
-	ImFont* robotoRegular20;
-	ImFont* robotoBold20;
-	ImFont* robotoLight20;
+	ImFont* sansRegular20;
+	ImFont* sansBold20;
+	ImFont* sansLight20;
 
-	ImFont* robotoRegular42;
-	ImFont* robotoBold42;
-	ImFont* robotoLight42;
+	ImFont* sansRegular42;
+	ImFont* sansBold42;
+	ImFont* sansLight42;
+
+	ImFont* mono14;
 
 	void load(float scale) {
 		ImGuiIO& io = ImGui::GetIO();
@@ -28,21 +30,23 @@ namespace Fonts {
 		conf.OversampleH = 4;
 		conf.OversampleV = 4;
 		
-		robotoRegular15 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Regular.ttf", 15.0 * scale, &conf);
-		robotoBold15 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Bold.ttf", 15.0f * scale, &conf);
-		robotoLight15 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Light.ttf", 15.0f * scale, &conf);
-
-		robotoRegular12 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Regular.ttf", 12.0f * scale, &conf);
-		robotoBold12 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Bold.ttf", 12.0f * scale, &conf);
-		robotoLight12 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Light.ttf", 12.0f * scale, &conf);
-
-		robotoRegular20 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Regular.ttf", 20.0f * scale, &conf);
-		robotoBold20 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Bold.ttf", 20.0f * scale, &conf);
-		robotoLight20 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Light.ttf", 20.0f * scale, &conf);
+		sansRegular15 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Regular.ttf", 15.0 * scale, &conf);
+		sansBold15 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Bold.ttf", 15.0f * scale, &conf);
+		sansLight15 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Light.ttf", 15.0f * scale, &conf);
 		
-		robotoRegular42 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Regular.ttf", 42.0f * scale, &conf);
-		robotoBold42 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Bold.ttf", 42.0f * scale, &conf);
-		robotoLight42 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Light.ttf", 42.0f * scale, &conf);
+		mono14 = io.Fonts->AddFontFromFileTTF("fonts/FiraCode-Retina.ttf", 14.0f * scale, &conf);
+		
+		sansRegular12 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Regular.ttf", 12.0f * scale, &conf);
+		sansBold12 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Bold.ttf", 12.0f * scale, &conf);
+		sansLight12 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Light.ttf", 12.0f * scale, &conf);
+
+		sansRegular20 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Regular.ttf", 20.0f * scale, &conf);
+		sansBold20 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Bold.ttf", 20.0f * scale, &conf);
+		sansLight20 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Light.ttf", 20.0f * scale, &conf);
+		
+		sansRegular42 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Regular.ttf", 42.0f * scale, &conf);
+		sansBold42 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Bold.ttf", 42.0f * scale, &conf);
+		sansLight42 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Light.ttf", 42.0f * scale, &conf);
 		
 	}
 

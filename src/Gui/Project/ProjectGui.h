@@ -1,12 +1,11 @@
 #pragma once
 
-void plotGui();
-void machineListGui();
-void setupGui();
+namespace Project::Gui{
 
-void environnementGui();
-void machineManagerGui();
-void deviceManagerGui();
-void EnvironnementNodeEditorGui();
+	//FileIO
+	void load();
+	bool save();
+	bool saveAs();
+	void closePopup();
 
-void stageEditorGui();
+}

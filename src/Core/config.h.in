@@ -8,3 +8,9 @@
 #cmakedefine STACATO_BELOW_MACOS_1_14
 
 #cmakedefine STACATO_OS_NAME "@STACATO_OS_NAME@"
+
+#ifdef STACATO_DEBUG
+	#define STACATO_BUILD_TYPE "Debug Build"
+#else
+	#define STACATO_BUILD_TYPE "Release Build"
+#endif
