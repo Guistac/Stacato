@@ -20,7 +20,7 @@ namespace Fonts {
 	extern ImFont* sansBold42;
 	extern ImFont* sansLight42;
 
-	extern ImFont* mono15;
+	extern ImFont* mono14;
 
 	void load(float scale);
 };

@@ -904,7 +904,8 @@ void PositionControlledAxis::devicesGui() {
 	if (isServoActuatorDeviceConnected()) {
 		std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
 		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("'%s' on device %s", servo->getName(), servo->parentDevice->getName());
+		if(servo->parentDevice) ImGui::Text("'%s' on device %s", servo->getName(), servo->parentDevice->getName());
+		else ImGui::Text("'%s' on node %s", servo->getName(), servoActuatorPin->getConnectedPin()->parentNode->getName());
 		ImGui::PopFont();
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleColor(ImGuiCol_Button, servo->isOnline() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));

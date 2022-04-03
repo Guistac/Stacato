@@ -26,7 +26,7 @@ namespace Environnement::Gui{
 		ImGui::BeginChild("NetworkSetup", environnementBoxSize, true);
 		
 		ImGui::PushFont(Fonts::sansBold20);
-		ImGui::Text("Network");
+		ImGui::Text("EtherCAT Network");
 		ImGui::PopFont();
 		
 		glm::vec2 initButtonSize(ImGui::GetTextLineHeight() * 5.0, ImGui::GetFrameHeight());

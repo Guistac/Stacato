@@ -6,26 +6,19 @@
 
 #include "Gui/Assets/Fonts.h"
 
-Script::Script(){
-	textEditor = new TextEditor();
-	textEditor->SetImGuiChildIgnored(true);
-	textEditor->SetHandleKeyboardInputs(true);
-	auto language = TextEditor::LanguageDefinition::Lua();
-	textEditor->SetLanguageDefinition(language);
-	textEditor->SetPalette(TextEditor::GetDarkPalette());
-}
+#include "LoggingLibrary.h"
 
-Script::~Script(){
-	delete textEditor;
+Script::Script(){
+	textEditor.SetImGuiChildIgnored(true);
+	textEditor.SetHandleKeyboardInputs(true);
+	auto language = TextEditor::LanguageDefinition::Lua();
+	textEditor.SetLanguageDefinition(language);
+	textEditor.SetPalette(TextEditor::GetDarkPalette());
 }
 
 
 void Script::editor(ImVec2 size_arg){
-	
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
-	ImGui::BeginChild("ScriptEditor", size_arg, true);
-	ImGui::PopStyleVar();
-	
+		
 	float f_separatorHeight = ImGui::GetTextLineHeight() / 2.0;
 	float f_editorHeight = ImGui::GetContentRegionAvail().y - f_separatorHeight - f_consoleHeight;
 	float f_width = ImGui::GetContentRegionAvail().x;
@@ -34,13 +27,10 @@ void Script::editor(ImVec2 size_arg){
 					  ImVec2(f_width, f_editorHeight),
 					  false,
 					  ImGuiWindowFlags_HorizontalScrollbar);
-	ImGui::PushFont(Fonts::mono15);
-	textEditor->Render("TextEditor");
+	ImGui::PushFont(Fonts::mono14);
+	textEditor.Render("TextEditor");
 	ImGui::PopFont();
 	ImGui::EndChild();
-	
-	
-	
 	
 	
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
@@ -56,7 +46,9 @@ void Script::editor(ImVec2 size_arg){
 	
 	ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 	ImGui::BeginChild("##console", ImGui::GetContentRegionAvail(), false);
+	ImGui::PopStyleColor();
 	
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0,0));
 	for(auto& message : consoleMessages){
 		switch(message.type){
 			case ScriptFlag::INFO:
@@ -72,9 +64,7 @@ void Script::editor(ImVec2 size_arg){
 		ImGui::TextWrapped("%s", message.string);
 		ImGui::PopStyleColor();
 	}
-	
-	ImGui::EndChild();
-	ImGui::PopStyleColor();
+	ImGui::PopStyleVar();
 	
 	ImGui::EndChild();
 }
@@ -104,13 +94,18 @@ bool Script::load(const char* filePath){
 	std::ifstream inputFileStream(scriptFilePath);
 	std::stringstream buffer;
 	buffer << inputFileStream.rdbuf();
-	textEditor->SetText(buffer.str());
+	textEditor.SetText(buffer.str());
 	return true;
+}
+
+void Script::load(std::string& script){
+	scriptFilePath = "";
+	textEditor.SetText(script);
 }
 
 void Script::save(const char* filePath){
 	std::ofstream outputFileStream(filePath);
-	outputFileStream << textEditor->GetText();
+	outputFileStream << textEditor.GetText();
 	outputFileStream.close();
 }
 
@@ -119,7 +114,7 @@ void Script::reloadSaved(){
 	std::ifstream inputFileStream(scriptFilePath);
 	std::stringstream buffer;
 	buffer << inputFileStream.rdbuf();
-	textEditor->SetText(buffer.str());
+	textEditor.SetText(buffer.str());
 }
 
 
@@ -130,6 +125,7 @@ bool Script::compile(){
 	L = luaL_newstate();
 	if(L == nullptr) return;
 	luaL_openlibs(L);
+	Scripting::LoggingLibrary::openLib(L);
 	if(loadLibrairies) loadLibrairies(L);
 	lua_settop(L, 0); //clear stack since opening libs leaves tables on the stack
 	
@@ -138,7 +134,7 @@ bool Script::compile(){
 	clearEditorErrors();
 	
 	//compile script string
-	std::string script = textEditor->GetText();
+	std::string script = textEditor.GetText();
 	int ret = luaL_loadstring(L, script.c_str());
 	switch(ret) {
 		case LUA_OK:
@@ -178,10 +174,9 @@ bool Script::isRunning(){
 
 void Script::stop(){
 	if(L != nullptr) {
-		addConsoleMessage("Exiting Script...", ScriptFlag::INFO);
 		lua_close(L);
 		L = nullptr;
-		addConsoleMessage("Script Closed.", ScriptFlag::INFO);
+		addConsoleMessage("Script Stopped", ScriptFlag::INFO);
 	}
 }
 
@@ -189,22 +184,16 @@ void Script::stop(){
 bool Script::checkHasFunction(const char* functionName){
 	if(!isRunning()) return false;
 	lua_getglobal(L, functionName);
-	if(lua_type(L, -1) != LUA_TFUNCTION) {
-		lua_pop(L, 1);
-		std::string errorMessage = "Script does not have function " + std::string(functionName) + "()";
-		addConsoleMessage(errorMessage.c_str(), ScriptFlag::RUNTIME_ERROR);
-		stop();
-		return false;
-	}
-	return true;
+	bool b_hasFunction = lua_type(L, -1) == LUA_TFUNCTION;
+	lua_pop(L, 1);
+	return b_hasFunction;
 }
 
 void Script::callFunction(const char* functionName){
 	if(!isRunning()) return;
 	lua_getglobal(L, functionName);
 	if(lua_type(L, -1) != LUA_TFUNCTION) {
-		lua_pop(L, 1);
-		std::string errorMessage = "Script does not have function " + std::string(functionName) + "()";
+		std::string errorMessage = "Script does not contain " + std::string(functionName) + "() function";
 		addConsoleMessage(errorMessage.c_str(), ScriptFlag::RUNTIME_ERROR);
 		stop();
 		return;
@@ -264,10 +253,10 @@ void Script::handleScriptError(const char* errorString, ScriptFlag t){
 	int lineNumber = strtol(lineString, nullptr, 10);
 	
 	std::map<int, std::string> errorMarkers = {{lineNumber, std::string(errorString + lineStringEndIndex + 2)}};
-	textEditor->SetErrorMarkers(errorMarkers);
+	textEditor.SetErrorMarkers(errorMarkers);
 }
 
 void Script::clearEditorErrors(){
 	std::map<int, std::string> errorMarkers;
-	textEditor->SetErrorMarkers(errorMarkers);
+	textEditor.SetErrorMarkers(errorMarkers);
 }

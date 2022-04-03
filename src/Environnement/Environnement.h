@@ -61,9 +61,6 @@ namespace Environnement{
 	void addNode(std::shared_ptr<Node> node);
 	void removeNode(std::shared_ptr<Node> node);
 
-	extern std::shared_ptr<Machine> selectedMachine;
-	extern std::shared_ptr<EtherCatDevice> selectedEtherCatDevice;
-
 	bool isEditorLocked();
 	bool isEditorUnlockRequested();
 	void lockEditor();

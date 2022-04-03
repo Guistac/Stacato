@@ -2,13 +2,12 @@
 
 #include <imgui.h>
 
+#include "Environnement/StageVisualizer.h"
+
 namespace StageView {
 
 	void draw() {
-
-		glm::vec2 canvasSize = ImGui::GetContentRegionAvail();
-		ImGui::InvisibleButton("##MagnumCanvas", canvasSize);
-
+		Environnement::StageVisualizer::canvas(ImGui::GetContentRegionAvail(), 1.0, 5.0);
 	}
 
 }

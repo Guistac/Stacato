@@ -15,7 +15,7 @@
 #include "Networking/Network.h"
 #include "Networking/NetworkDevice.h"
 
-#include "Scripting/Script.h"
+#include "StageVisualizer.h"
 
 namespace Environnement {
 
@@ -386,6 +386,7 @@ namespace Environnement {
 		NodeGraph::Gui::reset();
 		getEtherCatDevices().clear();
 		getMachines().clear();
+		StageVisualizer::reset();
 	}
 
 }

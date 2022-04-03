@@ -19,6 +19,11 @@ namespace Environnement::Gui{
 				Environnement::Gui::editor();
 				ImGui::EndTabItem();
 			}
+			if(ImGui::BeginTabItem("Node Manager")){
+				nodeManager();
+				ImGui::EndTabItem();
+			}
+			/*
 			if (ImGui::BeginTabItem("Machine Manager")) {
 				machineManager();
 				ImGui::EndTabItem();
@@ -27,6 +32,7 @@ namespace Environnement::Gui{
 				deviceManager();
 				ImGui::EndTabItem();
 			}
+			 */
 			if (ImGui::BeginTabItem("Stage Editor")) {
 				stageEditor();
 				ImGui::EndTabItem();

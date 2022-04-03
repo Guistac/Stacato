@@ -11,6 +11,8 @@
 #include "Environnement/Environnement.h"
 #include "Gui/StageView/StageView.h"
 
+#include "Gui/Plot/Sequencer.h"
+
 #include "Gui/Environnement/EnvironnementGui.h"
 #include "Gui/Plot/PlotGui.h"
 
@@ -56,42 +58,44 @@ namespace Gui {
 		if(shouldResetDefaultLayout()){
 			ImGui::DockBuilderRemoveNodeDockedWindows(dockspaceID);
 			ImGui::DockBuilderRemoveNodeChildNodes(dockspaceID);
-			ImGui::DockBuilderDockWindow("Environnement Editor", dockspaceID);
-			ImGui::DockBuilderDockWindow("Stage View", dockspaceID);
-			ImGui::DockBuilderDockWindow("Machine", dockspaceID);
+			ImGui::DockBuilderDockWindow("Environnement", dockspaceID);
+			ImGui::DockBuilderDockWindow("Stage", dockspaceID);
+			ImGui::DockBuilderDockWindow("Machines", dockspaceID);
 			ImGui::DockBuilderDockWindow("Setup", dockspaceID);
-			ImGui::DockBuilderDockWindow("Plot", dockspaceID);
+			ImGui::DockBuilderDockWindow("Manoeuvres", dockspaceID);
+			ImGui::DockBuilderDockWindow("Sequencer", dockspaceID);
 			ImGui::DockBuilderFinish(dockspaceID);
 		}
 		
 		//=== Submit Application Windows as movable dock nodes ===
 		
 		if(!Environnement::isEditorLocked()){
-			ImGui::Begin("Environnement Editor");
+			ImGui::Begin("Environnement");
 			Environnement::Gui::gui();
 			ImGui::End();
 		}
 
-		ImGui::Begin("Setup");
-		Environnement::Gui::homingAndSetup();
+		if(ImGui::Begin("Setup")) Environnement::Gui::homingAndSetup();
 		ImGui::End();
 		
-		ImGui::Begin("Machine");
-		Environnement::Gui::machineList();
-		ImGui::End();
-		
-		ImGui::Begin("Stage View");
-		StageView::draw();
+		if(ImGui::Begin("Machines")) Environnement::Gui::machineList();
 		ImGui::End();
 		 
-		ImGui::Begin("Plot");
-		PlotGui::editor();
+		if(ImGui::Begin("Manoeuvres")) PlotGui::editor();
+		ImGui::End();
+		
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0,0));
+		if(ImGui::Begin("Sequencer")) Sequencer::Gui::editor();
+		ImGui::End();
+		ImGui::PopStyleVar();
+		
+		if(ImGui::Begin("Stage")) StageView::draw();
 		ImGui::End();
 		
 		//=== Finish Resetting Default Layout ===
 		
 		if(shouldResetDefaultLayout()){
-			ImGui::SetWindowFocus("Environnement Editor");
+			ImGui::SetWindowFocus("Environnement");
 			finishResetDefaultLayout();
 		}
 		

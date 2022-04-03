@@ -13,6 +13,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Scripting/Script.cpp
     ${STACATO_SOURCE_DIRECTORY}/Scripting/EnvironnementLibrary.cpp
     ${STACATO_SOURCE_DIRECTORY}/Scripting/EnvironnementLibrary.h
+    ${STACATO_SOURCE_DIRECTORY}/Scripting/LoggingLibrary.h
+    ${STACATO_SOURCE_DIRECTORY}/Scripting/LoggingLibrary.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.cpp
@@ -34,10 +36,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/EnvironnementGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/EnvironnementEditorGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/StageEditorGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachineManagerGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/DeviceManagerGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeManagerGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/HomingGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachineListGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachinesGui.cpp
     
     ${STACATO_SOURCE_DIRECTORY}/Gui/Machine/MachineGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Machine/AnimatableParameterGui.cpp
@@ -54,6 +55,10 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/PlotGui.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/PlotGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/Sequencer.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/Sequencer.h
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/SequencerLibrary.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/SequencerLibrary.h
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Fieldbus/DS402Gui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Fieldbus/EtherCatDataGui.cpp
@@ -68,12 +73,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Project/ProjectGui.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Project/FileIO.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Gui/StageView/GlApplet.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/StageView/GlApplet.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/StageView/StageView.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/StageView/StageView.h
-    ${STACATO_SOURCE_DIRECTORY}/Gui/StageView/StageViewApplet.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/StageView/StageViewApplet.h
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/CustomWidgets.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/CustomWidgets.cpp

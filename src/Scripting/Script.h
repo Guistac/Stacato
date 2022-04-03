@@ -2,19 +2,18 @@
 
 #include <ofxLua.h>
 #include <imgui.h>
+#include <TextEditor.h>
 
-
-class TextEditor;
 
 class Script{
 public:
 	
 	Script();
-	~Script();
 	
 	void editor(ImVec2 size_arg);
 	
 	bool load(const char* filePath);
+	void load(std::string& script);
 	void save(const char* filePath);
 	void reloadSaved();
 	
@@ -32,7 +31,7 @@ public:
 	
 private:
 	
-	TextEditor* textEditor;
+	TextEditor textEditor;
 	lua_State* L = NULL;
 	
 	std::string scriptFilePath;

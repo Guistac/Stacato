@@ -316,4 +316,18 @@ namespace Environnement::NodeGraph::Gui{
 		}
 	}
 
+	void selectNode(std::shared_ptr<Node> selectedNode){
+		ax::NodeEditor::ClearSelection();
+		ax::NodeEditor::SelectNode(selectedNode->getUniqueID());
+		getSelectedNodes().clear();
+		getSelectedNodes().push_back(selectedNode);
+	}
+
+	bool isNodeSelected(std::shared_ptr<Node> node){
+		for(auto& selectedNode : getSelectedNodes()){
+			if(node == selectedNode) return true;
+		}
+		return false;
+	}
+
 }

@@ -17,4 +17,7 @@ namespace Environnement::NodeGraph::Gui{
 
 	void reset();
 
+	void selectNode(std::shared_ptr<Node> selectedNode);
+	bool isNodeSelected(std::shared_ptr<Node> node);
+
 }

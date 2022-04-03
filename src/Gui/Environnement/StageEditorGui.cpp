@@ -12,11 +12,10 @@ namespace Environnement::Gui{
 		
 		ImVec2 half = ImGui::GetContentRegionAvail();
 		half.x /= 2.0;
-		
 		StageVisualizer::editor(half);
 		
 		ImGui::SameLine();
-		StageVisualizer::canvas(ImGui::GetContentRegionAvail());
+		StageVisualizer::canvas(ImGui::GetContentRegionAvail(), 5.0);
 		
 	}
 
