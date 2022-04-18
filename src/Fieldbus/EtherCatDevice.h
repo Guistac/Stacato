@@ -30,6 +30,7 @@
 
 #define DEFINE_ETHERCAT_DEVICE(className, EtherCatName, displayName, saveName, manufacturerName, category) public:\
 	DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, category)\
+	/*Device Specific*/\
 	virtual Device::Type getDeviceType() { return Device::Type::ETHERCAT_DEVICE; }\
 	virtual void onConnection();\
 	virtual void onDisconnection();\

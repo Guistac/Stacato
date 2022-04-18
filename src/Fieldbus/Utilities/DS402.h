@@ -2,54 +2,41 @@
 
 namespace DS402 {
 
-	struct PowerState {
-		enum class State {
-			NOT_READY_TO_SWITCH_ON,
-			SWITCH_ON_DISABLED,
-			READY_TO_SWITCH_ON,
-			SWITCHED_ON,
-			OPERATION_ENABLED,
-			QUICKSTOP_ACTIVE,
-			FAULT_REACTION_ACTIVE,
-			FAULT,
-			UNKNOWN
-		};
-		State state;
-		const char displayName[64];
+	enum class PowerState{
+		NOT_READY_TO_SWITCH_ON,
+		SWITCH_ON_DISABLED,
+		READY_TO_SWITCH_ON,
+		SWITCHED_ON,
+		OPERATION_ENABLED,
+		QUICKSTOP_ACTIVE,
+		FAULT_REACTION_ACTIVE,
+		FAULT,
+		UNKNOWN
 	};
-	std::vector<PowerState>& getPowerStates();
-	PowerState* getPowerState(PowerState::State s);
 
-	struct OperatingMode {
-		enum class Mode {
-			NONE,
-			PROFILE_POSITION,
-			VELOCITY,
-			PROFILE_VELOCITY,
-			PROFILE_TORQUE,
-			HOMING,
-			INTERPOLATED_POSITION,
-			CYCLIC_SYNCHRONOUS_POSITION,
-			CYCLIC_SYNCHRONOUS_VELOCITY,
-			CYCLIC_SYNCHRONOUS_TORQUE,
-			CYCLIC_SYNCHRONOUS_TORQUE_WITH_COMMUTATION_ANGLE,
-			UNKNOWN
-		};
-		Mode mode;
-		int8_t value;
-		const char displayName[64];
+	enum class OperatingMode {
+		NONE,
+		PROFILE_POSITION,
+		VELOCITY,
+		PROFILE_VELOCITY,
+		PROFILE_TORQUE,
+		HOMING,
+		INTERPOLATED_POSITION,
+		CYCLIC_SYNCHRONOUS_POSITION,
+		CYCLIC_SYNCHRONOUS_VELOCITY,
+		CYCLIC_SYNCHRONOUS_TORQUE,
+		CYCLIC_SYNCHRONOUS_TORQUE_WITH_COMMUTATION_ANGLE,
+		UNKNOWN
 	};
 	
-	std::vector<OperatingMode>& getOperatingModes();
-	OperatingMode* getOperatingMode(OperatingMode::Mode);
-	OperatingMode* getOperatingMode(int8_t);
-
+	OperatingMode getOperatingModeInteger(int8_t modeNumber);
+	int8_t getOperatingModeFromInteger(OperatingMode mode);
 
 	struct Status {
 		uint16_t statusWord = 0x0;
-		int8_t operatingModeDisplay = 0x0;
-		PowerState::State getPowerState();
-		OperatingMode::Mode getOperatingMode();
+		int8_t operatingMode = 0x0;
+		PowerState getPowerState();
+		OperatingMode getOperatingMode();
 		bool hasFault();
 		bool hasWarning();
 		bool isRemoteControlled();
@@ -64,7 +51,7 @@ namespace DS402 {
 
 	struct Control {
 		uint16_t controlWord = 0x0;
-		int8_t operatingModeControl = 0x0;
+		int8_t operatingMode = 0x0;
 
 		uint8_t powerStateControlBits = 0x0;
 		bool faultResetBit = false;
@@ -79,8 +66,8 @@ namespace DS402 {
 		bool b14 = false;
 		bool b15 = false;
 
-		void setOperatingMode(OperatingMode::Mode m);
-		void setPowerState(PowerState::State requestedState, PowerState::State currentState);
+		void setOperatingMode(OperatingMode m);
+		void setPowerState(PowerState requestedState, PowerState currentState);
 		void performFaultReset();
 		void performHalt();
 		void clearHalt();
@@ -117,3 +104,30 @@ namespace DS402 {
 
 }
 
+
+#define PowerStateStrings \
+	{DS402::PowerState::NOT_READY_TO_SWITCH_ON, "Not ready to switch on"},\
+	{DS402::PowerState::SWITCH_ON_DISABLED, 	"Switch on disabled"},\
+	{DS402::PowerState::READY_TO_SWITCH_ON, 	"Ready to switch on"},\
+	{DS402::PowerState::SWITCHED_ON, 			"Switched on"},\
+	{DS402::PowerState::OPERATION_ENABLED, 		"Operation Enabled"},\
+	{DS402::PowerState::QUICKSTOP_ACTIVE, 		"Quickstop Active"},\
+	{DS402::PowerState::FAULT_REACTION_ACTIVE, 	"Fault reaction active"},\
+	{DS402::PowerState::FAULT, 					"Fault"},\
+	{DS402::PowerState::UNKNOWN, 				"Unknown power state"}\
+
+DEFINE_ENUMERATOR(DS402::PowerState, PowerStateStrings)
+
+#define OperatingModeStrings \
+	{DS402::OperatingMode::NONE, 												"No operating mode"},\
+	{DS402::OperatingMode::PROFILE_POSITION, 									"Profile Position"},\
+	{DS402::OperatingMode::VELOCITY, 											"Velocity"},\
+	{DS402::OperatingMode::PROFILE_VELOCITY, 									"Profile Velocity"},\
+	{DS402::OperatingMode::PROFILE_TORQUE, 										"Profile Torque"},\
+	{DS402::OperatingMode::HOMING, 												"Homing"},\
+	{DS402::OperatingMode::INTERPOLATED_POSITION, 								"Interpolated position"},\
+	{DS402::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION, 						"Cyclic synchronous position"},\
+	{DS402::OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY, 						"Cyclic synchronous velocity"},\
+	{DS402::OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE, 							"Cyclic synchronous torque"},\
+	{DS402::OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE_WITH_COMMUTATION_ANGLE, 	"Cyclic synchronous torque with communcation angle"},\
+	{DS402::OperatingMode::UNKNOW, 												"Unknown operating mode"}\

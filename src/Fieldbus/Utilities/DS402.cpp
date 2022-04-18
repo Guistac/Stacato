@@ -2,64 +2,44 @@
 #include "DS402.h"
 
 namespace DS402 {
-
-	std::vector<PowerState> powerStates = {
-		{PowerState::State::NOT_READY_TO_SWITCH_ON,	"Not Ready To Switch On"},
-		{PowerState::State::SWITCH_ON_DISABLED,		"Switch On Disabled"},
-		{PowerState::State::READY_TO_SWITCH_ON,		"Ready To Switch On"},
-		{PowerState::State::SWITCHED_ON,			"Switched On"},
-		{PowerState::State::OPERATION_ENABLED,		"Operation Enabled"},
-		{PowerState::State::QUICKSTOP_ACTIVE,		"Quickstop Active"},
-		{PowerState::State::FAULT_REACTION_ACTIVE,	"Fault Reaction Active"},
-		{PowerState::State::FAULT,					"Fault"},
-		{PowerState::State::UNKNOWN,				"Unknown Power State"}
-	};
-
-	std::vector<PowerState>& getPowerStates() {
-		return powerStates;
-	}
-
-	PowerState* getPowerState(PowerState::State s) {
-		for (auto& state : powerStates) {
-			if (s == state.state) return &state;
+		
+	int8_t getOperatingModeInteger(OperatingMode mode) {
+		switch(mode){
+			case OperatingMode::NONE:												return 0;
+			case OperatingMode::PROFILE_POSITION:									return 1;
+			case OperatingMode::VELOCITY:											return 2;
+			case OperatingMode::PROFILE_VELOCITY:									return 3;
+			case OperatingMode::PROFILE_TORQUE:										return 4;
+			case OperatingMode::HOMING:												return 6;
+			case OperatingMode::INTERPOLATED_POSITION:								return 7;
+			case OperatingMode::CYCLIC_SYNCHRONOUS_POSITION:						return 8;
+			case OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY:						return 9;
+			case OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE:							return 10;
+			case OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE_WITH_COMMUTATION_ANGLE: 	return 11;
+			case OperatingMode::UNKNOWN:											return 127;
 		}
-		return &powerStates.back();
 	}
-	
-	std::vector<OperatingMode> operatingModes = {
-		{OperatingMode::Mode::NONE,												0, "None"},
-		{OperatingMode::Mode::PROFILE_POSITION,									1, "Profile Position"},
-		{OperatingMode::Mode::VELOCITY,											2, "Velocity"},
-		{OperatingMode::Mode::PROFILE_VELOCITY,									3, "Profile Velocity"},
-		{OperatingMode::Mode::PROFILE_TORQUE,									4, "Profile Torque"},
-		{OperatingMode::Mode::HOMING,											6, "Homing"},
-		{OperatingMode::Mode::INTERPOLATED_POSITION,							7, "Interpolated Position"},
-		{OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION,						8, "Cyclic Synchronous Position"},
-		{OperatingMode::Mode::CYCLIC_SYNCHRONOUS_VELOCITY,						9, "Cyclic Synchronous Velocity"},
-		{OperatingMode::Mode::CYCLIC_SYNCHRONOUS_TORQUE,						10, "Cyclic Synchronous Torque"},
-		{OperatingMode::Mode::CYCLIC_SYNCHRONOUS_TORQUE_WITH_COMMUTATION_ANGLE, 11, "Cyclic Synchronous Torque with Communcation Angle"},
-		{OperatingMode::Mode::UNKNOWN,											127, "Unknown"}
-	};
 
-	std::vector<OperatingMode>& getOperatingModes() {
-		return operatingModes;
-	}
-	OperatingMode* getOperatingMode(OperatingMode::Mode m) {
-		for (auto& mode : operatingModes) {
-			if (mode.mode == m) return &mode;
+	OperatingMode getOperatingModefromInteger(int8_t i) {
+		switch(i){
+			case 0: return OperatingMode::NONE;
+			case 1: return OperatingMode::PROFILE_POSITION;
+			case 2: return OperatingMode::VELOCITY;
+			case 3: return OperatingMode::PROFILE_VELOCITY;
+			case 4: return OperatingMode::PROFILE_TORQUE;
+			case 6: return OperatingMode::HOMING;
+			case 7: return OperatingMode::INTERPOLATED_POSITION;
+			case 8: return OperatingMode::CYCLIC_SYNCHRONOUS_POSITION;
+			case 9: return OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY;
+			case 10: return OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE;
+			case 11: return OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE_WITH_COMMUTATION_ANGLE;
+			default: return OperatingMode::UNKNOWN;
 		}
-		return &operatingModes.back();
-	}
-	OperatingMode* getOperatingMode(int8_t i) {
-		for (auto& mode : operatingModes) {
-			if (mode.value == i) return &mode;
-		}
-		return &operatingModes.back();
 	}
 
 
 
-	PowerState::State Status::getPowerState() {
+	PowerState Status::getPowerState() {
 		bool readyToSwitchOn =	(statusWord >> 0) & 0x1;
 		bool switchedOn =		(statusWord >> 1) & 0x1;
 		bool operationEnabled = (statusWord >> 2) & 0x1;
@@ -68,21 +48,23 @@ namespace DS402 {
 		bool quickstop =		(statusWord >> 5) & 0x1;
 		bool switchOnDisabled = (statusWord >> 6) & 0x1;
 		if (readyToSwitchOn) {
-			if (fault) return PowerState::State::FAULT_REACTION_ACTIVE;
-			else if (!quickstop) return PowerState::State::QUICKSTOP_ACTIVE;
-			else if (operationEnabled) return PowerState::State::OPERATION_ENABLED;
-			else if (switchedOn) return PowerState::State::SWITCHED_ON;
-			else return PowerState::State::READY_TO_SWITCH_ON;
+			if (fault) return PowerState::FAULT_REACTION_ACTIVE;
+			else if (!quickstop) return PowerState::QUICKSTOP_ACTIVE;
+			else if (operationEnabled) return PowerState::OPERATION_ENABLED;
+			else if (switchedOn) return PowerState::SWITCHED_ON;
+			else return PowerState::READY_TO_SWITCH_ON;
 		}
 		else {
-			if (fault) return PowerState::State::FAULT;
-			else if (switchOnDisabled) return PowerState::State::SWITCH_ON_DISABLED;
-			else return PowerState::State::NOT_READY_TO_SWITCH_ON;
+			if (fault) return PowerState::FAULT;
+			else if (switchOnDisabled) return PowerState::SWITCH_ON_DISABLED;
+			else return PowerState::NOT_READY_TO_SWITCH_ON;
 		}
 	}
-	OperatingMode::Mode Status::getOperatingMode() {
-		return DS402::getOperatingMode(operatingModeDisplay)->mode;
+
+	OperatingMode Status::getOperatingMode() {
+		return getOperatingModeInteger(operatingMode);
 	}
+
 	bool Status::hasFault() { return (statusWord >> 3) & 0x1; }
 	bool Status::hasWarning() { return (statusWord >> 7) & 0x1; }
 	bool Status::isRemoteControlled() { return (statusWord >> 9) & 0x1; }
@@ -97,49 +79,55 @@ namespace DS402 {
 
 
 
-	void Control::setOperatingMode(OperatingMode::Mode m) {
-		operatingModeControl = getOperatingMode(m)->value;
+	void Control::setOperatingMode(OperatingMode m) {
+		operatingMode = getOperatingModeInteger(m);
 	}
-	void Control::setPowerState(PowerState::State requestedState, PowerState::State currentState) {
+
+	void Control::setPowerState(PowerState requestedState, PowerState currentState) {
 		switch (requestedState) {
-			case PowerState::State::READY_TO_SWITCH_ON: {
+			case PowerState::READY_TO_SWITCH_ON:
 				switch (currentState) {
-					case PowerState::State::OPERATION_ENABLED:
-					case PowerState::State::SWITCHED_ON:
-					case PowerState::State::SWITCH_ON_DISABLED:
+					case PowerState::OPERATION_ENABLED:
+					case PowerState::SWITCHED_ON:
+					case PowerState::SWITCH_ON_DISABLED:
 						powerStateControlBits = 0b0110;
 						break;
-					case PowerState::State::QUICKSTOP_ACTIVE:
+					case PowerState::QUICKSTOP_ACTIVE:
 						powerStateControlBits = 0b0000;
 						break;
-					}
-				}break;
-			case PowerState::State::OPERATION_ENABLED: {
+					default:
+						break;
+				}
+				break;
+			case PowerState::OPERATION_ENABLED:
 				switch (currentState) {
-					case PowerState::State::SWITCHED_ON:
-					case PowerState::State::QUICKSTOP_ACTIVE:
+					case PowerState::SWITCHED_ON:
+					case PowerState::QUICKSTOP_ACTIVE:
 						powerStateControlBits = 0b1111;
 						break;
-					case PowerState::State::READY_TO_SWITCH_ON:
+					case PowerState::READY_TO_SWITCH_ON:
 						powerStateControlBits = 0b0111;
 						break;
-					case PowerState::State::SWITCH_ON_DISABLED:
+					case PowerState::SWITCH_ON_DISABLED:
 						powerStateControlBits = 0b0110;
 						break;
-					}
-				}break;
-			case PowerState::State::QUICKSTOP_ACTIVE: {
+					default:
+						break;
+				}
+				break;
+			case PowerState::QUICKSTOP_ACTIVE:
 				switch (currentState) {
-					case PowerState::State::OPERATION_ENABLED:
-					case PowerState::State::QUICKSTOP_ACTIVE:
+					case PowerState::OPERATION_ENABLED:
+					case PowerState::QUICKSTOP_ACTIVE:
 						powerStateControlBits = 0b1011;
 						break;
 					default:
 						powerStateControlBits = 0b0000;
 						break;
 				}
-				}break;
-			}
+				break;
+			default: break;
+		}
 	}
 	void Control::performFaultReset() { faultResetBit = true; }
 	void Control::performHalt() { haltBit = true; }

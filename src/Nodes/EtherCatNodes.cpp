@@ -3,6 +3,7 @@
 #include "NodeFactory.h"
 
 #include "Fieldbus/Devices/SchneiderElectric/Lexium32.h"
+#include "Fieldbus/Devices/SchneiderElectric/ATV320.h"
 #include "Fieldbus/Devices/Yaskawa/VIPA-053-1EC01.h"
 #include "Fieldbus/Devices/Nanotec/PD4_E.h"
 
@@ -16,6 +17,7 @@ namespace NodeFactory{
 		
 		allEtherCatDevices = {
 			new Lexium32(),
+			new ATV320(),
 			new VipaBusCoupler_053_1EC01(),
 			new PD4_E()
 		};

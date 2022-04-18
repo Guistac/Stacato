@@ -15,7 +15,7 @@ void PD4_E::resetData() {
 	servoMotor->b_moving = false;
 	servoMotor->b_online = false;
 	servoMotor->b_ready = false;
-	requestedPowerState = DS402::PowerState::State::READY_TO_SWITCH_ON;
+	requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
 	gpioDevice->b_detected = false;
 	gpioDevice->b_online = false;
 	gpioDevice->b_ready = false;
@@ -73,14 +73,14 @@ void PD4_E::initialize() {
 
 	rxPdoAssignement.addNewModule(0x1600);
 	rxPdoAssignement.addEntry(DS402::controlWordIndex,			0x0, 16, "DS402 Control Word", &ds402control.controlWord);
-	rxPdoAssignement.addEntry(DS402::operatingModeControlIndex, 0x0, 8, "Operating Mode Control", &ds402control.operatingModeControl);
+	rxPdoAssignement.addEntry(DS402::operatingModeControlIndex, 0x0, 8, "Operating Mode Control", &ds402control.operatingMode);
 	rxPdoAssignement.addEntry(DS402::targetPositionIndex,		0x0, 32, "Target Position", &targetPosition);
 	rxPdoAssignement.addEntry(DS402::targetVelocityIndex,		0x0, 32, "Target Velocity", &targetVelocity);
 	rxPdoAssignement.addEntry(0x60FE, 0x1, 32, "Digital Outputs", &digitalOutputs);
 
 	txPdoAssignement.addNewModule(0x1A00);
 	txPdoAssignement.addEntry(DS402::statusWordIndex,			0x0, 16, "DS402 Status Word", &ds402status.statusWord);
-	txPdoAssignement.addEntry(DS402::operatingModeDisplayIndex, 0x0, 8,	"Operating Mode Display", &ds402status.operatingModeDisplay);
+	txPdoAssignement.addEntry(DS402::operatingModeDisplayIndex, 0x0, 8,	"Operating Mode Display", &ds402status.operatingMode);
 	txPdoAssignement.addEntry(DS402::actualPositionIndex,		0x0, 32, "Actual Position", &actualPosition);
 	txPdoAssignement.addEntry(DS402::actualVelocityIndex,		0x0, 32, "Actual Velocity", &actualVelocity);
 	txPdoAssignement.addEntry(0x2039, 0x2, 32, "Actual Current", &actualCurrent);
@@ -169,9 +169,9 @@ bool PD4_E::startupConfiguration() {
 void PD4_E::readInputs() {
 	txPdoAssignement.pullDataFrom(identity->inputs);
 
-	DS402::PowerState::State previousPowerState = actualPowerState;
+	DS402::PowerState previousPowerState = actualPowerState;
 
-	if ((b_startAutoSetup || b_autoSetupActive) && ds402status.operatingModeDisplay == -2) {
+	if ((b_startAutoSetup || b_autoSetupActive) && ds402status.operatingMode == -2) {
 		if (!b_autoSetupActive) {
 			b_autoSetupActive = true;
 			b_startAutoSetup = false;
@@ -186,7 +186,7 @@ void PD4_E::readInputs() {
 	actualPowerState = ds402status.getPowerState();
 
 	if (actualPowerState != previousPowerState) {
-		Logger::warn("Power state changed to {}", DS402::getPowerState(actualPowerState)->displayName);
+		Logger::warn("Power state changed to {}", Enumerator::getDisplayString(actualPowerState));
 	}
 
 	//mandatory DS402 bits
@@ -204,7 +204,7 @@ void PD4_E::readInputs() {
 
 	if (servoMotor->isEnabled()) {
 		if (followingError) servoMotor->disable();
-		if (actualPowerState != DS402::PowerState::State::OPERATION_ENABLED) servoMotor->disable();
+		if (actualPowerState != DS402::PowerState::OPERATION_ENABLED) servoMotor->disable();
 	}
 
 	int encoderIncrementsPerRevolution = 0x1 << encoderSingleTurnResolutionBits;
@@ -249,10 +249,10 @@ void PD4_E::readInputs() {
 	servoMotor->b_parked = false;
 	servoMotor->b_moving = servoMotor->getVelocity() > 0.001;
 	switch (actualPowerState) {
-	case DS402::PowerState::State::OPERATION_ENABLED:
-	case DS402::PowerState::State::QUICKSTOP_ACTIVE:
-	case DS402::PowerState::State::READY_TO_SWITCH_ON:
-	case DS402::PowerState::State::SWITCHED_ON:
+	case DS402::PowerState::OPERATION_ENABLED:
+	case DS402::PowerState::QUICKSTOP_ACTIVE:
+	case DS402::PowerState::READY_TO_SWITCH_ON:
+	case DS402::PowerState::SWITCHED_ON:
 		servoMotor->b_ready = true;
 		break;
 	default:
@@ -261,7 +261,7 @@ void PD4_E::readInputs() {
 	}
 	if (actualControlMode != ControlMode::Mode::EXTERNAL_CONTROL) servoMotor->b_ready = false;
 	switch (actualPowerState) {
-	case DS402::PowerState::State::OPERATION_ENABLED:
+	case DS402::PowerState::OPERATION_ENABLED:
 		servoMotor->b_enabled = true;
 		break;
 	default:
@@ -314,17 +314,17 @@ void PD4_E::prepareOutputs() {
 		servoMotor->b_setEnabled = false;
 		profilePosition_revolutions = actualPosition_revolutions;
 		profileVelocity_revolutions = actualVelocity_revolutionsPerSecond;
-		requestedPowerState = DS402::PowerState::State::OPERATION_ENABLED;
+		requestedPowerState = DS402::PowerState::OPERATION_ENABLED;
 	}
 
 	if (servoMotor->b_setDisabled) {
 		servoMotor->b_setDisabled = false;
-		requestedPowerState = DS402::PowerState::State::READY_TO_SWITCH_ON;
+		requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
 	}
 
 	if (servoMotor->b_setQuickstop) {
 		servoMotor->b_setQuickstop = false;
-		requestedPowerState = DS402::PowerState::State::QUICKSTOP_ACTIVE;
+		requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
 	}
 
 	if (ds402status.hasFault()) {
@@ -332,7 +332,7 @@ void PD4_E::prepareOutputs() {
 	}
 	ds402control.setPowerState(requestedPowerState, actualPowerState);
 	if (b_startAutoSetup || b_autoSetupActive) {
-		ds402control.operatingModeControl = -2;
+		ds402control.operatingMode = -2;
 		servoMotor->enable();
 		if (servoMotor->isEnabled()) {
 			ds402control.setOperatingModeSpecificByte4(true);

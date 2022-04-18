@@ -61,11 +61,11 @@ class PD4_E : public EtherCatDevice {
 	
 	//TODO: add drive controller settings
 
-	DS402::PowerState::State requestedPowerState = DS402::PowerState::State::READY_TO_SWITCH_ON;
-	DS402::PowerState::State actualPowerState = DS402::PowerState::State::UNKNOWN;
+	DS402::PowerState requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
+	DS402::PowerState actualPowerState = DS402::PowerState::UNKNOWN;
 
-	DS402::OperatingMode::Mode requestedOperatingMode = DS402::OperatingMode::Mode::CYCLIC_SYNCHRONOUS_POSITION;
-	DS402::OperatingMode::Mode actualOperatingMode = DS402::OperatingMode::Mode::NONE;
+	DS402::OperatingMode requestedOperatingMode = DS402::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION;
+	DS402::OperatingMode actualOperatingMode = DS402::OperatingMode::NONE;
 
 	bool b_directionOfMotionIsInverted = false;
 	bool b_startAutoSetup = false;

@@ -8,7 +8,8 @@
 
 #include "LoggingLibrary.h"
 
-Script::Script(){
+Script::Script(const char* n){
+	name = n;
 	textEditor.SetImGuiChildIgnored(true);
 	textEditor.SetHandleKeyboardInputs(true);
 	auto language = TextEditor::LanguageDefinition::Lua();
@@ -54,11 +55,14 @@ void Script::editor(ImVec2 size_arg){
 			case ScriptFlag::INFO:
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 1.0, 0.5, 1.0));
 				break;
+			case ScriptFlag::WARNING:
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0, 1.0f, 0.0, 1.0));
+				break;
 			case ScriptFlag::COMPILER_ERROR:
-				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0, 0.5, 0.5, 1.0));
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0, 0.4, 0.0, 1.0));
 				break;
 			case ScriptFlag::RUNTIME_ERROR:
-				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0, 1.0, 0.5, 1.0));
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0, 0.0, 0.0, 1.0));
 				break;
 		}
 		ImGui::TextWrapped("%s", message.string);
@@ -118,14 +122,14 @@ void Script::reloadSaved(){
 }
 
 
-bool Script::compile(){
+bool Script::compile(bool hideSuccessMessage){
 	if(isRunning()) stop();
 	
 	//initialize lua state and load librairies
 	L = luaL_newstate();
 	if(L == nullptr) return;
 	luaL_openlibs(L);
-	Scripting::LoggingLibrary::openLib(L);
+	Scripting::LogLibrary::openLib(L, this);
 	if(loadLibrairies) loadLibrairies(L);
 	lua_settop(L, 0); //clear stack since opening libs leaves tables on the stack
 	
@@ -138,7 +142,7 @@ bool Script::compile(){
 	int ret = luaL_loadstring(L, script.c_str());
 	switch(ret) {
 		case LUA_OK:
-			addConsoleMessage("Script compiled successfully !", ScriptFlag::INFO);
+			if(!hideSuccessMessage) addConsoleMessage("Script compiled successfully !", ScriptFlag::INFO);
 			return true;
 		case LUA_ERRSYNTAX: {
 			const char* luaErrorString = lua_tostring(L, -1);
@@ -156,8 +160,8 @@ bool Script::compile(){
 	}
 }
 
-void Script::run() {
-	if(!compile()) return;
+void Script::compileAndRun() {
+	if(!compile(true)) return;
 	addConsoleMessage("Starting Script...", ScriptFlag::INFO);
 	if(lua_pcall(L, 0, LUA_MULTRET, 0) != LUA_OK) {
 		const char* luaErrorString = lua_tostring(L, -1);
@@ -212,6 +216,13 @@ void Script::callFunction(const char* functionName){
 
 
 
+void Script::logInfo(const char* message){
+	addConsoleMessage(message, ScriptFlag::INFO);
+}
+
+void Script::logWarning(const char* message){
+	addConsoleMessage(message, ScriptFlag::WARNING);
+}
 
 
 void Script::addConsoleMessage(const char* string, ScriptFlag t){

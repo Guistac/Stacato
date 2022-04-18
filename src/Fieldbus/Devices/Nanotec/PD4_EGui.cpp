@@ -98,18 +98,18 @@ void PD4_E::statusGui() {
 
         glm::vec4 statusButtonColor;
         switch (actualPowerState) {
-			case DS402::PowerState::State::NOT_READY_TO_SWITCH_ON:
-			case DS402::PowerState::State::SWITCH_ON_DISABLED: statusButtonColor = Colors::red; break;
-			case DS402::PowerState::State::READY_TO_SWITCH_ON: statusButtonColor = Colors::orange; break;
-			case DS402::PowerState::State::SWITCHED_ON: statusButtonColor = Colors::yellow; break;
-			case DS402::PowerState::State::OPERATION_ENABLED: statusButtonColor = Colors::green; break;
-			case DS402::PowerState::State::QUICKSTOP_ACTIVE:
-			case DS402::PowerState::State::FAULT_REACTION_ACTIVE:
-			case DS402::PowerState::State::FAULT: statusButtonColor = Colors::red; break;
-			case DS402::PowerState::State::UNKNOWN: break;
+			case DS402::PowerState::NOT_READY_TO_SWITCH_ON:
+			case DS402::PowerState::SWITCH_ON_DISABLED: statusButtonColor = Colors::red; break;
+			case DS402::PowerState::READY_TO_SWITCH_ON: statusButtonColor = Colors::orange; break;
+			case DS402::PowerState::SWITCHED_ON: statusButtonColor = Colors::yellow; break;
+			case DS402::PowerState::OPERATION_ENABLED: statusButtonColor = Colors::green; break;
+			case DS402::PowerState::QUICKSTOP_ACTIVE:
+			case DS402::PowerState::FAULT_REACTION_ACTIVE:
+			case DS402::PowerState::FAULT: statusButtonColor = Colors::red; break;
+			case DS402::PowerState::UNKNOWN: break;
         }
         ImGui::PushStyleColor(ImGuiCol_Button, statusButtonColor);
-        ImGui::Button(DS402::getPowerState(actualPowerState)->displayName, statusDisplaySize);
+        ImGui::Button(Enumerator::getDisplayString(actualPowerState), statusDisplaySize);
     }
     else {
         ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);

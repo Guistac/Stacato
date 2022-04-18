@@ -15,7 +15,7 @@ namespace Environnement::Gui{
 		StageVisualizer::editor(half);
 		
 		ImGui::SameLine();
-		StageVisualizer::canvas(ImGui::GetContentRegionAvail(), 5.0);
+		StageVisualizer::canvas(ImGui::GetContentRegionAvail(), 1.0, 5.0);
 		
 	}
 

@@ -8,7 +8,8 @@
 class Script{
 public:
 	
-	Script();
+	Script(const char* name);
+	std::string name;
 	
 	void editor(ImVec2 size_arg);
 	
@@ -17,8 +18,8 @@ public:
 	void save(const char* filePath);
 	void reloadSaved();
 	
-	bool compile();
-	void run();
+	bool compile(bool hideSuccessMessage = false);
+	void compileAndRun();
 	bool isRunning();
 	void stop();
 	
@@ -28,6 +29,10 @@ public:
 	typedef void(*LoadLibrariesCallback)(lua_State* L);
 	LoadLibrariesCallback loadLibrairies = nullptr;
 	void setLoadLibrairiesCallback(LoadLibrariesCallback cb){ loadLibrairies = cb; }
+	
+	void logInfo(const char* message);
+	void logWarning(const char* message);
+	void clearConsole();
 	
 private:
 	
@@ -40,6 +45,7 @@ private:
 	
 	enum class ScriptFlag{
 		INFO,
+		WARNING,
 		COMPILER_ERROR,
 		RUNTIME_ERROR
 	};
@@ -50,7 +56,6 @@ private:
 	};
 	std::vector<ConsoleMessage> consoleMessages;
 	void addConsoleMessage(const char* string, ScriptFlag t);
-	void clearConsole();
 	
 	struct EditorError{
 		ScriptFlag type;

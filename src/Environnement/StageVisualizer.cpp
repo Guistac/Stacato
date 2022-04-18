@@ -6,6 +6,8 @@
 #include "ofBindings.h"
 #include <ofMain.h>
 
+#include "Scripting/CanvasLibrary.h"
+
 // declare the wrapped modules
 extern "C" {
 	int luaopen_of(lua_State* L);
@@ -14,7 +16,7 @@ extern "C" {
 
 namespace Environnement::StageVisualizer{
 
-	Script script;
+	Script script("Stage Visualizer Script");
 	ofFbo framebuffer;
 
 	void compile(){
@@ -28,8 +30,9 @@ namespace Environnement::StageVisualizer{
 		script.setLoadLibrairiesCallback([](lua_State* L){
 			luaopen_of(L);
 			luaopen_glm(L);
+			Scripting::CanvasLibrary::openLib(L);
 		});
-		script.run();
+		script.compileAndRun();
 		if(script.checkHasFunction("setup")) script.callFunction("setup");
 	}
 
@@ -149,20 +152,39 @@ namespace Environnement::StageVisualizer{
 			"---------------------------------------\n\n\n"
 			"--Initialize and Load stuff here :\n\n"
 			"function setup()\n"
+			"	Logger:info(\"Starting Stage Visualizer Script at\", of.getElapsedTimef(), \"seconds.\")\n"
 			"	of.setCircleResolution(128)\n"
 			"end\n\n\n"
 			"--Display and Animate stuff here :\n\n"
 			"function update()\n"
 			"	time = of.getElapsedTimef()\n"
 			"	brightness = (math.sin(time) + 1.0) * 64\n"
-			"	diameter = (math.sin(time) + 1.0) * 100\n\n"
-			"	of.background(brightness)\n\n"
-			"	of.drawCircle(200, 200, diameter)\n"
+			"	diameter = (math.sin(time) + 1.0) * 100\n"
+			"\n"
+			"	of.background(brightness)\n"
+			"\n"
+			"	size = glm.vec2(Canvas.getSize())\n"
+			"	middle = glm.vec2(size) / 2.0\n"
+			"	of.drawCircle(middle, diameter)\n"
+			"\n"
 			"	of.drawBitmapStringHighlight(\"Default Stage Visualizer Script\", 20, 30)\n"
+			"\n"
+			"	mouse = glm.vec2(Canvas.getMousePosition())\n"
+			"	if Canvas.isPressed() then of.setColor(255, 0, 0, 255)\n"
+			"	else of.setColor(0, 0, 255, 255) end\n"
+			"	of.drawCircle(mouse, 10)\n"
+			"\n"
+			"	lStart = glm.vec2(100, 100)\n"
+			"	lEnd = glm.vec2(size.x - lStart.x, size.y - lStart.y)\n"
+			"	of.setColor(255, 0, 0, 255)\n"
+			"	of.drawLine(lStart, lEnd)\n"
+			"	lerp = (math.sin(of.getElapsedTimef() * 0.456) + 1.0) / 2.0\n"
+			"	rPos = glm.vec2(of.lerp(lStart.x, lEnd.x, lerp), of.lerp(lStart.y, lEnd.y, lerp))\n"
+			"	of.drawCircle(rPos, 50)\n"
 			"end\n\n\n"
 			"--Unload and Clean Up stuff here :\n\n"
 			"function exit()\n"
-			"	print(\"Exiting stage visualizer script.\")\n"
+			"	Logger:info(\"Exiting Stage Visualizer Script at\", of.getElapsedTimef(), \"seconds.\")\n"
 			"end\n";
 		script.load(defaultScript);
 	}
