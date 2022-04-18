@@ -29,8 +29,8 @@ namespace DS402 {
 		UNKNOWN
 	};
 	
-	OperatingMode getOperatingModeInteger(int8_t modeNumber);
-	int8_t getOperatingModeFromInteger(OperatingMode mode);
+	OperatingMode getOperatingModeFromInteger(int8_t modeNumber);
+	int8_t getOperatingModeInteger(OperatingMode mode);
 
 	struct Status {
 		uint16_t statusWord = 0x0;
