@@ -20,7 +20,7 @@ namespace DS402 {
 		}
 	}
 
-	OperatingMode getOperatingModefromInteger(int8_t i) {
+	OperatingMode getOperatingModeFromInteger(int8_t i) {
 		switch(i){
 			case 0: return OperatingMode::NONE;
 			case 1: return OperatingMode::PROFILE_POSITION;
@@ -62,7 +62,7 @@ namespace DS402 {
 	}
 
 	OperatingMode Status::getOperatingMode() {
-		return getOperatingModeInteger(operatingMode);
+		return getOperatingModeFromInteger(operatingMode);
 	}
 
 	bool Status::hasFault() { return (statusWord >> 3) & 0x1; }

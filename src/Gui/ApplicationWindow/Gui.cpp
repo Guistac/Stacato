@@ -18,6 +18,8 @@
 
 #include "Gui/Assets/Images.h"
 
+#include "Gui/Test.h"
+
 namespace Gui {
 
 	void draw() {		
@@ -64,6 +66,7 @@ namespace Gui {
 			ImGui::DockBuilderDockWindow("Setup", dockspaceID);
 			ImGui::DockBuilderDockWindow("Manoeuvres", dockspaceID);
 			ImGui::DockBuilderDockWindow("Sequencer", dockspaceID);
+			ImGui::DockBuilderDockWindow("cCurvesTest", dockspaceID);
 			ImGui::DockBuilderFinish(dockspaceID);
 		}
 		
@@ -84,6 +87,9 @@ namespace Gui {
 		if(ImGui::Begin("Manoeuvres")) PlotGui::editor();
 		ImGui::End();
 		
+		if(ImGui::Begin("cCurvesTest")) cCurvesTest();
+		ImGui::End();
+		
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0,0));
 		if(ImGui::Begin("Sequencer")) Sequencer::Gui::editor();
 		ImGui::End();
@@ -95,7 +101,8 @@ namespace Gui {
 		//=== Finish Resetting Default Layout ===
 		
 		if(shouldResetDefaultLayout()){
-			ImGui::SetWindowFocus("Environnement");
+			//ImGui::SetWindowFocus("Environnement");
+			ImGui::SetWindowFocus("cCurvesTest");
 			finishResetDefaultLayout();
 		}
 		
