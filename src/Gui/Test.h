@@ -11,8 +11,8 @@ namespace MotionTest{
 		double acceleration;
 	};
 
-	struct Interpolation{
-		
+	class Interpolation{
+	public:
 		enum class Phase{
 			NOT_STARTED,
 			RAMP_IN,
@@ -42,8 +42,11 @@ namespace MotionTest{
 		bool containsTime(double time);
 		Phase getPhaseAtTime(double time);
 		void getPointAtTime(double time, Point& output);
-		void getPointAtPhaseTime(double time, Phase phase, Point& output);
+		double getNextIncrementTime(double previousPulseTime, double incrementsPerUnit);
 		
+	private:
+		Phase getNextPhase(Phase phase);
+		void getPointAtPhaseTime(double time, Phase phase, Point& output);
 		enum class Solution{
 			NONE,
 			SINGLE,
@@ -51,10 +54,6 @@ namespace MotionTest{
 		};
 		Solution getTimeAtPosition(Phase phase, double position, double& time_a, double& time_b);
 		
-		Phase getNextPhase(Phase phase);
-		
-		bool isTimeInsidePhase(double time, Phase phase);
-		double getNextPulseTime(double previousPulseTime, double pulsesPerUnit);
 	};
 
 	bool getTimedOrSlowerInterpolation(const Point& start, const Point& end, double maxVelocity, Interpolation& output);

@@ -19,6 +19,8 @@ void cCurvesTest(){
 	static double maxVelocity = 1;
 	static bool b_timeConstraint = false;
 	
+	static int pulsesPerUnit = 50;
+	
 	MotionTest::Interpolation solution;
 	MotionTest::Point start = {
 		.position = startPosition,
@@ -82,6 +84,8 @@ void cCurvesTest(){
 		ImGui::SetNextItemWidth(inputFieldWidth);
 		ImGui::InputDouble("Target Velocity", &targetVelocity, 0.1, 1.0);
 	}
+	
+	ImGui::InputInt("Pulses Per Unit", &pulsesPerUnit);
 	
 	ImGui::EndChild();
 	
@@ -177,15 +181,18 @@ void cCurvesTest(){
 		 */
 		
 		double pulseTime = solution.startTime;
+		pulsations.push_back(glm::vec2(solution.startTime, 1.0));
 		while(pulseTime < solution.endTime){
 			double previousPulseTime = pulseTime;
-			pulseTime = solution.getNextPulseTime(pulseTime, 50.0);
+			pulseTime = solution.getNextIncrementTime(pulseTime, pulsesPerUnit);
 			double fallingEdgeTime = previousPulseTime + (pulseTime - previousPulseTime) / 2.0;
+			if(pulseTime == DBL_MAX) break;
 			pulsations.push_back(glm::vec2(fallingEdgeTime, 1.0));
 			pulsations.push_back(glm::vec2(fallingEdgeTime, 0.0));
 			pulsations.push_back(glm::vec2(pulseTime, 0.0));
 			pulsations.push_back(glm::vec2(pulseTime, 1.0));
 		}
+		pulsations.push_back(glm::vec2(solution.endTime, 1.0));
 	}
 	
 	
@@ -506,10 +513,6 @@ namespace MotionTest{
 
 
 
-
-
-
-
 	bool getFastestVelocityConstrainedInterpolation(const Point& start, const Point& end, double velocity, Interpolation& output){
 
 		Interpolation solutions[16];
@@ -566,6 +569,13 @@ namespace MotionTest{
 		return false;
 	}
 
+
+
+
+
+
+
+
 	Interpolation::Phase Interpolation::getPhaseAtTime(double time){
 		if(time <= startTime) return Phase::NOT_STARTED;
 		else if(time <= coastStartTime) return Phase::RAMP_IN;
@@ -615,17 +625,18 @@ namespace MotionTest{
 
 	
 
-	double Interpolation::getNextPulseTime(double previousPulseTime, double pulsesPerUnit){
+	double Interpolation::getNextIncrementTime(double previousPulseTime, double incrementsPerUnit){
 		
 		Phase phase = getPhaseAtTime(previousPulseTime);
 		Point previousPoint;
 		getPointAtPhaseTime(previousPulseTime, phase, previousPoint);
-		int previousPulseIndex_r = round(previousPoint.position * (double)pulsesPerUnit);
 		
-		double previousPulsePosition_Units = previousPulseIndex_r / pulsesPerUnit;
-		double pulseIncrement_Units = 1.0 / pulsesPerUnit;
-		double nextPulsePosition_a = previousPulsePosition_Units + pulseIncrement_Units;
-		double nextPulsePosition_b = previousPulsePosition_Units - pulseIncrement_Units;
+		double previousPulseIndex_r = round(previousPoint.position * incrementsPerUnit);
+		
+		double previousIncrementPosition_Units = previousPulseIndex_r / incrementsPerUnit;
+		double incrementPositionDelta_Units = 1.0 / incrementsPerUnit;
+		double nextPulsePosition_a = previousIncrementPosition_Units + incrementPositionDelta_Units * 0.500001;
+		double nextPulsePosition_b = previousIncrementPosition_Units - incrementPositionDelta_Units * 0.500001;
 		
 		double time_aa, time_ab, time_ba, time_bb;
 		Solution solution_a = getTimeAtPosition(phase, nextPulsePosition_a, time_aa, time_ab);
@@ -672,10 +683,7 @@ namespace MotionTest{
 
 
 
-	Interpolation::Solution Interpolation::getTimeAtPosition(Phase phase,
-															 double position,
-															 double& time_a,
-															 double& time_b){
+	Interpolation::Solution Interpolation::getTimeAtPosition(Phase phase, double position, double& time_a, double& time_b){
 		double rootTerm;
 		switch(phase){
 				

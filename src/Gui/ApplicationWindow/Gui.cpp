@@ -19,6 +19,7 @@
 #include "Gui/Assets/Images.h"
 
 #include "Gui/Test.h"
+#include "Gui/CommandZ.h"
 
 namespace Gui {
 
@@ -67,6 +68,7 @@ namespace Gui {
 			ImGui::DockBuilderDockWindow("Manoeuvres", dockspaceID);
 			ImGui::DockBuilderDockWindow("Sequencer", dockspaceID);
 			ImGui::DockBuilderDockWindow("cCurvesTest", dockspaceID);
+			ImGui::DockBuilderDockWindow("CommandZ", dockspaceID);
 			ImGui::DockBuilderFinish(dockspaceID);
 		}
 		
@@ -90,6 +92,9 @@ namespace Gui {
 		if(ImGui::Begin("cCurvesTest")) cCurvesTest();
 		ImGui::End();
 		
+		if(ImGui::Begin("CommandZ")) testUndoHistory();
+		ImGui::End();
+		
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0,0));
 		if(ImGui::Begin("Sequencer")) Sequencer::Gui::editor();
 		ImGui::End();
@@ -102,7 +107,8 @@ namespace Gui {
 		
 		if(shouldResetDefaultLayout()){
 			//ImGui::SetWindowFocus("Environnement");
-			ImGui::SetWindowFocus("cCurvesTest");
+			//ImGui::SetWindowFocus("cCurvesTest");
+			ImGui::SetWindowFocus("CommandZ");
 			finishResetDefaultLayout();
 		}
 		
