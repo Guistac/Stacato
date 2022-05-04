@@ -18,7 +18,9 @@
 #include <math.h>
 
 //Core Math
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
+#include <glm/ext.hpp>
 
 //Core Utilities
 #include "Utilities/Logger.h"

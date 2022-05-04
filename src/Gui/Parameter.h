@@ -1,17 +1,23 @@
 #pragma once
 
+namespace tinyxml2{ struct XMLElement; }
+
 class Parameter{
 public:
 	
 	bool b_changed;
 	std::string name;
+	//std::string saveString;
 	
-	Parameter(std::string name_){
+	Parameter(std::string name_/*, std::string saveString_ = ""*/){
 		b_changed = false;
 		name = name_;
+		//saveString = saveString_;
 	}
 	
 	virtual void gui() = 0;
+	//virtual void save(tinyxml2::XMLElement* xml) = 0;
+	//virtual void load(tinyxml2::XMLElement* xml) = 0;
 	
 	bool changed(){
 		if(b_changed){
@@ -53,9 +59,7 @@ public:
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
 			std::shared_ptr<NumberParameter<T>> thisParameter = this->shared_from_this();
-			std::shared_ptr<EditCommand> action = std::make_shared<EditCommand>(thisParameter);
-			action->execute();
-			CommandHistory::push(action);
+			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
 			//=================================
 		}
 	}
@@ -84,6 +88,7 @@ public:
 	};
 	
 };
+
 
 template<>
 inline void NumberParameter<float>::inputField(){
@@ -135,6 +140,106 @@ inline void NumberParameter<int64_t>::inputField(){
 	ImGui::InputScalar(name.c_str(), ImGuiDataType_S64, &displayValue, &stepSmall, &stepLarge, format);
 }
 
+//===============================================================================
+//=================================== VECTORS ===================================
+//===============================================================================
+
+template<typename T>
+class VectorParameter : public Parameter, public std::enable_shared_from_this<VectorParameter<T>>{
+public:
+	
+	T displayValue;
+	T value;
+	const char* format = nullptr;
+	
+	VectorParameter(T value_, std::string name_, const char* format_ = nullptr) : Parameter(name_) {
+		displayValue = value_;
+		value = value_;
+		format = format_;
+	}
+	
+	void inputField();
+	
+	virtual void gui(){
+		inputField();
+		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
+			//=========Command Invoker=========
+			auto thisParameter = this->shared_from_this();
+			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
+			//=================================
+		}
+	}
+	
+	class EditCommand : public Command{
+	public:
+		std::shared_ptr<VectorParameter<T>> parameter;
+		T newValue;
+		T previousValue;
+		EditCommand(std::shared_ptr<VectorParameter<T>> parameter_){
+			parameter = parameter_;
+			newValue = parameter->displayValue;
+			previousValue = parameter->value;
+			name = "Changed \'" + std::string(parameter->name) + "\' from " + glm::to_string(previousValue) + " to " + glm::to_string(newValue);
+		}
+		virtual void execute(){
+			parameter->value = newValue;
+			parameter->displayValue = newValue;
+			parameter->b_changed = true;
+		}
+		virtual void undo(){
+			parameter->value = previousValue;
+			parameter->displayValue = previousValue;
+			parameter->b_changed = true;
+		}
+	};
+	
+};
+
+template<>
+inline void VectorParameter<glm::vec2>::inputField(){
+	ImGui::InputFloat2(name.c_str(), &displayValue.x, format);
+}
+
+template<>
+inline void VectorParameter<glm::vec3>::inputField(){
+	ImGui::InputFloat3(name.c_str(), &displayValue.x, format);
+}
+
+template<>
+inline void VectorParameter<glm::vec4>::inputField(){
+	ImGui::InputFloat4(name.c_str(), &displayValue.x, format);
+}
+
+
+template<>
+inline void VectorParameter<glm::dvec2>::inputField(){
+	ImGui::InputScalarN(name.c_str(), ImGuiDataType_Double, &displayValue.x, 2);
+}
+
+template<>
+inline void VectorParameter<glm::dvec3>::inputField(){
+	ImGui::InputScalarN(name.c_str(), ImGuiDataType_Double, &displayValue.x, 3);
+}
+
+template<>
+inline void VectorParameter<glm::dvec4>::inputField(){
+	ImGui::InputScalarN(name.c_str(), ImGuiDataType_Double, &displayValue.x, 4);
+}
+
+template<>
+inline void VectorParameter<glm::ivec2>::inputField(){
+	ImGui::InputInt2(name.c_str(), &displayValue.x);
+}
+
+template<>
+inline void VectorParameter<glm::ivec3>::inputField(){
+	ImGui::InputInt3(name.c_str(), &displayValue.x);
+}
+
+template<>
+inline void VectorParameter<glm::ivec4>::inputField(){
+	ImGui::InputInt4(name.c_str(), &displayValue.x);
+}
 
 
 //===============================================================================
@@ -157,9 +262,7 @@ public:
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
 			std::shared_ptr<BooleanParameter> thisParameter = shared_from_this();
-			std::shared_ptr<InvertCommand> action = std::make_shared<InvertCommand>(thisParameter);
-			action->execute();
-			CommandHistory::push(action);
+			CommandHistory::pushAndExecute(std::make_shared<InvertCommand>(thisParameter));
 			//=================================
 		}
 	}
@@ -206,9 +309,7 @@ public:
 		if(ImGui::IsItemDeactivatedAfterEdit() && strcmp(displayValue, value.c_str()) != 0){
 			//=========Command Invoker=========
 			std::shared_ptr<StringParameter> thisParameter = shared_from_this();
-			std::shared_ptr<EditCommand> action = std::make_shared<EditCommand>(thisParameter);
-			action->execute();
-			CommandHistory::push(action);
+			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
 			//=================================
 		}
 	}
@@ -262,9 +363,7 @@ public:
 					displayValue = type.enumerator;
 					//=========Command Invoker=========
 					std::shared_ptr<EnumeratorParameter<T>> thisParameter = this->shared_from_this();
-					std::shared_ptr<EditCommand> action = std::make_shared<EditCommand>(thisParameter);
-					action->execute();
-					CommandHistory::push(action);
+					CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
 					//=================================
 				}
 			}

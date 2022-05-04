@@ -37,19 +37,19 @@ public:
 	
 	T& beginElement(int index, bool removeButton = false, bool reorderButtons = false){
 		ImGui::PushID(index);
-		
-		if(ImGui::Button("X")) removedIndex = index;
-		ImGui::SameLine();
-		
-		ImGui::BeginDisabled(index == 0);
-		if(ImGui::Button("Up")) movedUpIndex = index;
-		ImGui::EndDisabled();
-		ImGui::SameLine();
-		
-		ImGui::BeginDisabled(index == elements.size() - 1);
-		if(ImGui::Button("Down")) movedDownIndex = index;
-		ImGui::EndDisabled();
-		
+		if(removeButton){
+			if(ImGui::Button("X")) removedIndex = index;
+			if(reorderButtons) ImGui::SameLine();
+		}
+		if(reorderButtons){
+			ImGui::BeginDisabled(index == 0);
+			if(ImGui::Button("Up")) movedUpIndex = index;
+			ImGui::EndDisabled();
+			ImGui::SameLine();
+			ImGui::BeginDisabled(index == elements.size() - 1);
+			if(ImGui::Button("Down")) movedDownIndex = index;
+			ImGui::EndDisabled();
+		}
 		return elements[index];
 	}
 	
@@ -61,27 +61,21 @@ public:
 		int idx = index;
 		if(index < 0 || index >= elements.size()) idx = elements.size();
 		auto thisList = this->shared_from_this();
-		auto command = std::make_shared<AddElementCommand>(element, thisList, idx);
-		command->execute();
-		CommandHistory::push(command);
+		CommandHistory::pushAndExecute(std::make_shared<AddElementCommand>(element, thisList, idx));
 	}
 	
 	void removeElement(int index){
 		if(index < 0 || index >= elements.size()) return;
 		T element = elements[index];
 		auto thisList = this->shared_from_this();
-		auto command = std::make_shared<RemoveElementCommand>(element, thisList, index);
-		command->execute();
-		CommandHistory::push(command);
+		CommandHistory::pushAndExecute(std::make_shared<RemoveElementCommand>(element, thisList, index));
 	}
 	
 	void moveElement(int oldIndex, int newIndex){
 		if(oldIndex < 0 || oldIndex >= elements.size()) return;
 		if(newIndex < 0 || newIndex >= elements.size()) return;
 		auto thisList = this->shared_from_this();
-		auto command = std::make_shared<MoveElementCommand>(thisList, oldIndex, newIndex);
-		command->execute();
-		CommandHistory::push(command);
+		CommandHistory::pushAndExecute(std::make_shared<MoveElementCommand>(thisList, oldIndex, newIndex));
 	}
 	
 	

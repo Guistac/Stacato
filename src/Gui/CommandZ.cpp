@@ -23,37 +23,52 @@ enum class NumberEnum{
 
 DEFINE_ENUMERATOR(NumberEnum, NumberEnumStrings)
 
-void testUndoHistory(){
+std::vector<std::shared_ptr<Parameter>> parameters{
+	std::make_shared<NumberParameter<double>>(1.0, "parameter 0", 0.1, 1.0, "%.3f u"),
+	std::make_shared<NumberParameter<double>>(2.0, "parameter 1", 0.1, 1.0, "%.3f u"),
+	std::make_shared<NumberParameter<double>>(3.0, "parameter 2", 0.1, 1.0, "%.3f u"),
+	std::make_shared<NumberParameter<double>>(4.0, "parameter 3", 0.1, 1.0, "%.3f u"),
+	std::make_shared<NumberParameter<double>>(5.0, "parameter 4", 0.1, 1.0, "%.3f u"),
 
-	static std::vector<std::shared_ptr<Parameter>> params{
-		std::make_shared<NumberParameter<double>>(1.0, "parameter 0", 0.1, 1.0, "%.3f u"),
-		std::make_shared<NumberParameter<double>>(2.0, "parameter 1", 0.1, 1.0, "%.3f u"),
-		std::make_shared<NumberParameter<double>>(3.0, "parameter 2", 0.1, 1.0, "%.3f u"),
-		std::make_shared<NumberParameter<double>>(4.0, "parameter 3", 0.1, 1.0, "%.3f u"),
-		std::make_shared<NumberParameter<double>>(5.0, "parameter 4", 0.1, 1.0, "%.3f u"),
+	std::make_shared<NumberParameter<int>>(1, "integer 0", 1, 10, "%i i"),
+	std::make_shared<NumberParameter<int>>(2, "integer 1", 1, 10, "%i i"),
+	std::make_shared<NumberParameter<int>>(3, "integer 2", 1, 10, "%i i"),
+	std::make_shared<NumberParameter<int>>(4, "integer 3", 1, 10, "%i i"),
 	
-		std::make_shared<NumberParameter<int>>(1, "integer 0", 1, 10, "%i i"),
-		std::make_shared<NumberParameter<int>>(2, "integer 1", 1, 10, "%i i"),
-		std::make_shared<NumberParameter<int>>(3, "integer 2", 1, 10, "%i i"),
-		std::make_shared<NumberParameter<int>>(4, "integer 3", 1, 10, "%i i"),
-		
-		std::make_shared<BooleanParameter>(true, "boolean 0"),
-		std::make_shared<BooleanParameter>(true, "boolean 1"),
-		std::make_shared<BooleanParameter>(true, "boolean 2"),
-		std::make_shared<BooleanParameter>(true, "boolean 3"),
-		
-		std::make_shared<StringParameter>("String One", 	"string 0", 256),
-		std::make_shared<StringParameter>("String Two", 	"string 1", 256),
-		std::make_shared<StringParameter>("String Three", 	"string 2", 256),
-		std::make_shared<StringParameter>("String Four", 	"string 3", 256),
-		
-		std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::ONE, "Enum Parameter 1"),
-		std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::TWO, "Enum Parameter 2"),
-		std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::THREE, "Enum Parameter 3"),
-		std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::FOUR, "Enum Parameter 4")
-	};
+	std::make_shared<BooleanParameter>(true, "boolean 0"),
+	std::make_shared<BooleanParameter>(true, "boolean 1"),
+	std::make_shared<BooleanParameter>(true, "boolean 2"),
+	std::make_shared<BooleanParameter>(true, "boolean 3"),
 	
-	static auto parameterList = std::make_shared<List<std::shared_ptr<Parameter>>>(params);
+	std::make_shared<StringParameter>("String One", 	"string 0", 256),
+	std::make_shared<StringParameter>("String Two", 	"string 1", 256),
+	std::make_shared<StringParameter>("String Three", 	"string 2", 256),
+	std::make_shared<StringParameter>("String Four", 	"string 3", 256),
+	
+	std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::ONE, "Enum Parameter 1"),
+	std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::TWO, "Enum Parameter 2"),
+	std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::THREE, "Enum Parameter 3"),
+	std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::FOUR, "Enum Parameter 4"),
+	
+	std::make_shared<VectorParameter<glm::vec2>>(glm::vec2(1.2, 3.4), 			"Vec2 Parameter 1"),
+	std::make_shared<VectorParameter<glm::vec3>>(glm::vec3(5.6, 7.8, 9.0), 		"Vec3 Parameter 2"),
+	std::make_shared<VectorParameter<glm::vec4>>(glm::vec4(0.0, 1.0, 2.0, 3.0), "Vec4 Parameter 3"),
+	
+	std::make_shared<VectorParameter<glm::vec2>>(glm::dvec2(1.2, 3.4), 				"dVec2 Parameter 1"),
+	std::make_shared<VectorParameter<glm::vec3>>(glm::dvec3(5.6, 7.8, 9.0), 		"dVec3 Parameter 2"),
+	std::make_shared<VectorParameter<glm::vec4>>(glm::dvec4(0.0, 1.0, 2.0, 3.0), 	"dVec4 Parameter 3"),
+	
+	std::make_shared<VectorParameter<glm::vec2>>(glm::ivec2(1, 3), 			"iVec2 Parameter 1"),
+	std::make_shared<VectorParameter<glm::vec3>>(glm::ivec3(5, 7, 9), 		"iVec3 Parameter 2"),
+	std::make_shared<VectorParameter<glm::vec4>>(glm::ivec4(0, 1, 2, 3), 	"iVec4 Parameter 3")
+};
+
+auto parameterList = std::make_shared<List<std::shared_ptr<Parameter>>>(parameters);
+
+
+
+
+void testUndoHistory(){
 
 	ImVec2 sizeHalf = ImGui::GetContentRegionAvail();
 	sizeHalf.x /= 2.0;
@@ -97,6 +112,14 @@ void testUndoHistory(){
 		if(ImGui::MenuItem("Enumerator")){
 			std::string name = "Enumerator Parameter " + std::to_string(parameterList->size());
 			parameterList->addElement(std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::ONE, name));
+		}
+		ImGui::Separator();
+		if(ImGui::MenuItem("Multi Parameter")){
+			
+			
+			
+			
+			
 		}
 		ImGui::EndPopup();
 	}

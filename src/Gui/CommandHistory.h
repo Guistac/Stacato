@@ -19,7 +19,8 @@ namespace CommandHistory{
 		return undoableCommandCount;
 	}
 
-	inline void push(std::shared_ptr<Command> command){
+	inline void pushAndExecute(std::shared_ptr<Command> command){
+		command->execute();
 		if(getUndoableCommandCount() < get().size()) get().erase(get().begin() + getUndoableCommandCount(), get().end());
 		get().push_back(command);
 		getUndoableCommandCount()++;
