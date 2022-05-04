@@ -1,23 +1,25 @@
 #pragma once
 
-namespace tinyxml2{ struct XMLElement; }
+#include <tinyxml2.h>
+#include <imgui.h>
+#include "CommandHistory.h"
 
 class Parameter{
 public:
 	
 	bool b_changed;
 	std::string name;
-	//std::string saveString;
+	std::string saveString;
 	
-	Parameter(std::string name_/*, std::string saveString_ = ""*/){
+	Parameter(std::string name_, std::string saveString_ = ""){
 		b_changed = false;
 		name = name_;
-		//saveString = saveString_;
+		saveString = saveString_;
 	}
 	
 	virtual void gui() = 0;
-	//virtual void save(tinyxml2::XMLElement* xml) = 0;
-	//virtual void load(tinyxml2::XMLElement* xml) = 0;
+	virtual bool save(tinyxml2::XMLElement* xml) = 0;
+	virtual bool load(tinyxml2::XMLElement* xml) = 0;
 	
 	bool changed(){
 		if(b_changed){
@@ -44,12 +46,21 @@ public:
 	T stepLarge;
 	const char* format = nullptr;
 	
-	NumberParameter(T value_, std::string name_, T stepSmall_ = 0, T stepLarge_ = 0, const char* format_ = nullptr) : Parameter(name_) {
+	NumberParameter(T value_, std::string name_, std::string saveString_ = "", T stepSmall_ = 0, T stepLarge_ = 0, const char* format_ = nullptr) : Parameter(name_, saveString_) {
 		displayValue = value_;
 		value = value_;
 		format = format_;
 		stepSmall = stepSmall_;
 		stepLarge = stepLarge_;
+	}
+	
+	void setStepSize(T stepSmall_, T stepLarge_){
+		stepSmall = stepSmall_;
+		stepLarge = stepLarge_;
+	}
+	
+	void setFormat(const char* format_){
+		format = format_;
 	}
 	
 	void inputField();
@@ -63,6 +74,21 @@ public:
 			//=================================
 		}
 	}
+	
+	virtual bool save(tinyxml2::XMLElement* xml){
+		xml->SetAttribute(saveString.c_str(), value);
+		 return true;
+	 }
+	
+	virtual bool load(tinyxml2::XMLElement* xml){
+		using namespace tinyxml2;
+		 double number;
+		 XMLError result = xml->QueryDoubleAttribute(saveString.c_str(), &number);
+		 if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", name);
+		 value = number;
+		 displayValue = number;
+		 return true;
+	 }
 	
 	class EditCommand : public Command{
 	public:
@@ -88,7 +114,6 @@ public:
 	};
 	
 };
-
 
 template<>
 inline void NumberParameter<float>::inputField(){
@@ -140,6 +165,9 @@ inline void NumberParameter<int64_t>::inputField(){
 	ImGui::InputScalar(name.c_str(), ImGuiDataType_S64, &displayValue, &stepSmall, &stepLarge, format);
 }
 
+
+
+
 //===============================================================================
 //=================================== VECTORS ===================================
 //===============================================================================
@@ -152,9 +180,13 @@ public:
 	T value;
 	const char* format = nullptr;
 	
-	VectorParameter(T value_, std::string name_, const char* format_ = nullptr) : Parameter(name_) {
+	VectorParameter(T value_, std::string name_, std::string saveString_, const char* format_ = nullptr) : Parameter(name_, saveString_) {
 		displayValue = value_;
 		value = value_;
+		format = format_;
+	}
+	
+	void setFormat(const char* format_){
 		format = format_;
 	}
 	
@@ -169,6 +201,9 @@ public:
 			//=================================
 		}
 	}
+	
+	virtual bool save(tinyxml2::XMLElement* xml);
+	virtual bool load(tinyxml2::XMLElement* xml);
 	
 	class EditCommand : public Command{
 	public:
@@ -201,49 +236,94 @@ inline void VectorParameter<glm::vec2>::inputField(){
 }
 
 template<>
+inline bool VectorParameter<glm::vec2>::save(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	XMLElement* element = xml->InsertNewChildElement(saveString.c_str());
+	element->SetAttribute("x", value.x);
+	element->SetAttribute("y", value.y);
+	return true;
+}
+
+template<>
+inline bool VectorParameter<glm::vec2>::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	XMLElement* element = xml->FirstChildElement(saveString.c_str());
+	if(XML_SUCCESS != element->QueryAttribute("x", &value.x) ||
+	   XML_SUCCESS != element->QueryAttribute("y", &value.y)){
+		return Logger::warn("Could not load parameter {}", name);
+	}
+	displayValue = value;
+	return true;
+}
+
+
+
+
+template<>
 inline void VectorParameter<glm::vec3>::inputField(){
 	ImGui::InputFloat3(name.c_str(), &displayValue.x, format);
 }
+
+template<>
+inline bool VectorParameter<glm::vec3>::save(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	XMLElement* element = xml->InsertNewChildElement(saveString.c_str());
+	element->SetAttribute("x", value.x);
+	element->SetAttribute("y", value.y);
+	element->SetAttribute("z", value.z);
+	return true;
+}
+
+template<>
+inline bool VectorParameter<glm::vec3>::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	XMLElement* element = xml->FirstChildElement(saveString.c_str());
+	if(XML_SUCCESS != element->QueryAttribute("x", &value.x) ||
+	   XML_SUCCESS != element->QueryAttribute("y", &value.y) ||
+	   XML_SUCCESS != element->QueryAttribute("z", &value.z)){
+		return Logger::warn("Could not load parameter {}", name);
+	}
+	displayValue = value;
+	return true;
+}
+
+
 
 template<>
 inline void VectorParameter<glm::vec4>::inputField(){
 	ImGui::InputFloat4(name.c_str(), &displayValue.x, format);
 }
 
-
 template<>
-inline void VectorParameter<glm::dvec2>::inputField(){
-	ImGui::InputScalarN(name.c_str(), ImGuiDataType_Double, &displayValue.x, 2);
+inline bool VectorParameter<glm::vec4>::save(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	XMLElement* element = xml->InsertNewChildElement(saveString.c_str());
+	element->SetAttribute("x", value.x);
+	element->SetAttribute("y", value.y);
+	element->SetAttribute("z", value.z);
+	element->SetAttribute("w", value.w);
+	return true;
 }
 
 template<>
-inline void VectorParameter<glm::dvec3>::inputField(){
-	ImGui::InputScalarN(name.c_str(), ImGuiDataType_Double, &displayValue.x, 3);
+inline bool VectorParameter<glm::vec4>::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	XMLElement* element = xml->FirstChildElement(saveString.c_str());
+	if(XML_SUCCESS != element->QueryAttribute("x", &value.x) ||
+	   XML_SUCCESS != element->QueryAttribute("y", &value.y) ||
+	   XML_SUCCESS != element->QueryAttribute("z", &value.z) ||
+	   XML_SUCCESS != element->QueryAttribute("w", &value.w)){
+		return Logger::warn("Could not load parameter {}", name);
+	}
+	displayValue = value;
+	return true;
 }
 
-template<>
-inline void VectorParameter<glm::dvec4>::inputField(){
-	ImGui::InputScalarN(name.c_str(), ImGuiDataType_Double, &displayValue.x, 4);
-}
 
-template<>
-inline void VectorParameter<glm::ivec2>::inputField(){
-	ImGui::InputInt2(name.c_str(), &displayValue.x);
-}
-
-template<>
-inline void VectorParameter<glm::ivec3>::inputField(){
-	ImGui::InputInt3(name.c_str(), &displayValue.x);
-}
-
-template<>
-inline void VectorParameter<glm::ivec4>::inputField(){
-	ImGui::InputInt4(name.c_str(), &displayValue.x);
-}
 
 
 //===============================================================================
-//=================================== BOOLEAN ===================================
+//=================================== BOOLEANS ==================================
 //===============================================================================
 
 class BooleanParameter : public Parameter, public std::enable_shared_from_this<BooleanParameter>{
@@ -252,7 +332,7 @@ public:
 	bool displayValue;
 	bool value;
 	
-	BooleanParameter(bool value_, std::string name_) : Parameter(name_) {
+	BooleanParameter(bool value_, std::string name_, std::string saveString_) : Parameter(name_, saveString_) {
 		displayValue = value_;
 		value = value_;
 	}
@@ -265,6 +345,19 @@ public:
 			CommandHistory::pushAndExecute(std::make_shared<InvertCommand>(thisParameter));
 			//=================================
 		}
+	}
+	
+	virtual bool save(tinyxml2::XMLElement* xml){
+		xml->SetAttribute(saveString.c_str(), value);
+		return true;
+	}
+	
+	virtual bool load(tinyxml2::XMLElement* xml){
+		using namespace tinyxml2;
+		XMLError result = xml->QueryBoolAttribute(saveString.c_str(), &value);
+		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", name);
+		displayValue = value;
+		return true;
 	}
 	
 	class InvertCommand : public Command{
@@ -290,6 +383,12 @@ public:
 };
 
 
+
+
+//===============================================================================
+//=================================== STRINGS ===================================
+//===============================================================================
+
 class StringParameter : public Parameter, public std::enable_shared_from_this<StringParameter>{
 public:
 	
@@ -297,7 +396,7 @@ public:
 	std::string value;
 	size_t bufferSize;
 	
-	StringParameter(std::string value_, std::string name_, size_t bufferSize_) : Parameter(name_){
+	StringParameter(std::string value_, std::string name_, std::string saveString_, size_t bufferSize_) : Parameter(name_, saveString_){
 		value = value_;
 		bufferSize = bufferSize_;
 		displayValue = new char[bufferSize];
@@ -312,6 +411,19 @@ public:
 			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
 			//=================================
 		}
+	}
+	
+	virtual bool save(tinyxml2::XMLElement* xml){
+		xml->SetAttribute(saveString.c_str(), value.c_str());
+		return true;
+	}
+	
+	virtual bool load(tinyxml2::XMLElement* xml){
+		using namespace tinyxml2;
+		XMLError result = xml->QueryStringAttribute(saveString.c_str(), (const char**)&displayValue);
+		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", name);
+		strcpy(displayValue, value.c_str());
+		return true;
 	}
 	
 	class EditCommand : public Command{
@@ -342,7 +454,7 @@ public:
 
 
 //===============================================================================
-//================================= ENUMERATOR ==================================
+//================================= ENUMERATORS =================================
 //===============================================================================
 
 template <typename T>
@@ -351,7 +463,7 @@ public:
 	T value;
 	T displayValue;
 	
-	EnumeratorParameter(T value_, std::string name) : Parameter(name){
+	EnumeratorParameter(T value_, std::string name, std::string saveString_) : Parameter(name, saveString_){
 		value = value_;
 		displayValue = value_;
 	}
@@ -369,6 +481,21 @@ public:
 			}
 			ImGui::EndCombo();
 		}
+	}
+	
+	virtual bool save(tinyxml2::XMLElement* xml){
+		xml->SetAttribute(saveString.c_str(), Enumerator::getSaveString(value));
+	}
+	
+	virtual bool load(tinyxml2::XMLElement* xml){
+		using namespace tinyxml2;
+		const char * enumeratorSaveString;
+		XMLError result = xml->QueryStringAttribute(saveString.c_str(), &enumeratorSaveString);
+		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", name);
+		if(!Enumerator::isValidSaveName<T>(enumeratorSaveString)) return Logger::warn("Could not load parameter {} : Invalid Enumerator Save String \'{}\'", name, enumeratorSaveString);
+		value = Enumerator::getEnumeratorFromSaveString<T>(enumeratorSaveString);
+		displayValue = value;
+		return true;
 	}
 	
 	class EditCommand : public Command{
