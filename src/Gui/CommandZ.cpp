@@ -2,32 +2,125 @@
 
 #include <imgui.h>
 
+#include "CommandHistory.h"
+#include "Parameter.h"
+#include "List.h"
+
+enum class NumberEnum{
+	ONE,
+	TWO,
+	THREE,
+	FOUR,
+	FIVE
+};
+
+#define NumberEnumStrings \
+{NumberEnum::ONE, 	.saveString = "ONE", 	.displayString = "One"},\
+{NumberEnum::TWO, 	.saveString = "TWO", 	.displayString = "Two"},\
+{NumberEnum::THREE, .saveString = "THREE", 	.displayString = "Three"},\
+{NumberEnum::FOUR, 	.saveString = "FOUR", 	.displayString = "Four"},\
+{NumberEnum::FIVE, 	.saveString = "FIVE", 	.displayString = "Five"}\
+
+DEFINE_ENUMERATOR(NumberEnum, NumberEnumStrings)
+
 void testUndoHistory(){
+
+	static std::vector<std::shared_ptr<Parameter>> params{
+		std::make_shared<NumberParameter<double>>(1.0, "parameter 0", 0.1, 1.0, "%.3f u"),
+		std::make_shared<NumberParameter<double>>(2.0, "parameter 1", 0.1, 1.0, "%.3f u"),
+		std::make_shared<NumberParameter<double>>(3.0, "parameter 2", 0.1, 1.0, "%.3f u"),
+		std::make_shared<NumberParameter<double>>(4.0, "parameter 3", 0.1, 1.0, "%.3f u"),
+		std::make_shared<NumberParameter<double>>(5.0, "parameter 4", 0.1, 1.0, "%.3f u"),
 	
-	static std::vector<std::shared_ptr<Parameter<double>>> parameters = {
-		std::make_shared<Parameter<double>>(1.0, "parameter 0"),
-		std::make_shared<Parameter<double>>(2.0, "parameter 1"),
-		std::make_shared<Parameter<double>>(3.0, "parameter 2"),
-		std::make_shared<Parameter<double>>(4.0, "parameter 3"),
-		std::make_shared<Parameter<double>>(5.0, "parameter 4")
+		std::make_shared<NumberParameter<int>>(1, "integer 0", 1, 10, "%i i"),
+		std::make_shared<NumberParameter<int>>(2, "integer 1", 1, 10, "%i i"),
+		std::make_shared<NumberParameter<int>>(3, "integer 2", 1, 10, "%i i"),
+		std::make_shared<NumberParameter<int>>(4, "integer 3", 1, 10, "%i i"),
+		
+		std::make_shared<BooleanParameter>(true, "boolean 0"),
+		std::make_shared<BooleanParameter>(true, "boolean 1"),
+		std::make_shared<BooleanParameter>(true, "boolean 2"),
+		std::make_shared<BooleanParameter>(true, "boolean 3"),
+		
+		std::make_shared<StringParameter>("String One", 	"string 0", 256),
+		std::make_shared<StringParameter>("String Two", 	"string 1", 256),
+		std::make_shared<StringParameter>("String Three", 	"string 2", 256),
+		std::make_shared<StringParameter>("String Four", 	"string 3", 256),
+		
+		std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::ONE, "Enum Parameter 1"),
+		std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::TWO, "Enum Parameter 2"),
+		std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::THREE, "Enum Parameter 3"),
+		std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::FOUR, "Enum Parameter 4")
 	};
 	
-	static std::vector<std::shared_ptr<Parameter<int>>> intParams = {
-		std::make_shared<Parameter<int>>(1, "integer 0"),
-		std::make_shared<Parameter<int>>(2, "integer 1"),
-		std::make_shared<Parameter<int>>(3, "integer 2"),
-		std::make_shared<Parameter<int>>(4, "integer 3")
-	};
+	static auto parameterList = std::make_shared<List<std::shared_ptr<Parameter>>>(params);
+
+	ImVec2 sizeHalf = ImGui::GetContentRegionAvail();
+	sizeHalf.x /= 2.0;
+	ImGui::BeginChild("ParameterList", sizeHalf);
 	
-	static std::vector<std::shared_ptr<Parameter<bool>>> boolParams = {
-		std::make_shared<Parameter<bool>>(true, "boolean 0"),
-		std::make_shared<Parameter<bool>>(true, "boolean 1"),
-		std::make_shared<Parameter<bool>>(true, "boolean 2"),
-		std::make_shared<Parameter<bool>>(true, "boolean 3")
-	};
+	ImGui::Text("Parameter List :");
+	if (ImGui::Button("Add Parameter")) ImGui::OpenPopup("AddParameterPopup");
+	if (ImGui::BeginPopup("AddParameterPopup")) {
+		if(ImGui::MenuItem("Double")){
+			std::string name = "Double Parameter " + std::to_string(parameterList->size());
+			parameterList->addElement(std::make_shared<NumberParameter<double>>(0.0, name, 0.1, 1.0));
+		}
+		if(ImGui::MenuItem("Float")){
+			std::string name = "Float Parameter " + std::to_string(parameterList->size());
+			parameterList->addElement(std::make_shared<NumberParameter<float>>(0.0f, name, 0.1, 1.0));
+		}
+		ImGui::Separator();
+		if(ImGui::MenuItem("Integer")){
+			std::string name = "Integer Parameter " + std::to_string(parameterList->size());
+			parameterList->addElement(std::make_shared<NumberParameter<int>>(0, name, 1, 10));
+		}
+		if(ImGui::MenuItem("uint8_t")){
+			std::string name = "uint8_t Parameter " + std::to_string(parameterList->size());
+			parameterList->addElement(std::make_shared<NumberParameter<uint8_t>>(0, name, 1, 10));
+		}
+		if(ImGui::MenuItem("int8_t")){
+			std::string name = "int8_t Parameter " + std::to_string(parameterList->size());
+			parameterList->addElement(std::make_shared<NumberParameter<int8_t>>(0, name, 1, 10));
+		}
+		ImGui::Separator();
+		if(ImGui::MenuItem("Boolean")){
+			std::string name = "Boolean Parameter " + std::to_string(parameterList->size());
+			parameterList->addElement(std::make_shared<BooleanParameter>(false, name));
+		}
+		ImGui::Separator();
+		if(ImGui::MenuItem("String")){
+			std::string name = "String Parameter " + std::to_string(parameterList->size());
+			parameterList->addElement(std::make_shared<StringParameter>("", name, 256));
+		}
+		ImGui::Separator();
+		if(ImGui::MenuItem("Enumerator")){
+			std::string name = "Enumerator Parameter " + std::to_string(parameterList->size());
+			parameterList->addElement(std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::ONE, name));
+		}
+		ImGui::EndPopup();
+	}
 	
-	static const char* lastModifiedParameterName = "";
+	ImGui::Separator();
 	
+	if(parameterList->beginList()){
+		for(int i = 0; i < parameterList->size(); i++){
+			auto& parameter = parameterList->beginElement(i, true, true);
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(200.0f);
+			parameter->gui();
+			parameterList->endElement();
+		}
+		
+		parameterList->endList();
+	}
+	
+	ImGui::EndChild();
+	
+	//----------------------------------------------------------------
+	
+	ImGui::SameLine();
+	ImGui::BeginChild("History", ImGui::GetContentRegionAvail());
 	ImGui::BeginDisabled(!CommandHistory::canUndo());
 	if(ImGui::Button("Undo")) CommandHistory::undo();
 	ImGui::EndDisabled();
@@ -36,58 +129,10 @@ void testUndoHistory(){
 	if(ImGui::Button("Redo")) CommandHistory::redo();
 	ImGui::EndDisabled();
 	
-	
-	int deletedParameterIndex = -1;
-	
-	for(int i = 0; i < parameters.size(); i++){
-		auto& parameter = parameters[i];
-		ImGui::PushID(i);
-		if(ImGui::Button("X")) deletedParameterIndex = i;
-		ImGui::SameLine();
-		parameter->gui(100);
-		if(parameter->changed()) lastModifiedParameterName = parameter->name.c_str();
-		ImGui::PopID();
-	}
-	
-	for(int i = 0; i < intParams.size(); i++){
-		auto& parameter = intParams[i];
-		ImGui::PushID(i);
-		parameter->gui(100);
-		if(parameter->changed()) lastModifiedParameterName = parameter->name.c_str();
-		ImGui::PopID();
-	}
-	
-	for(int i = 0; i < boolParams.size(); i++){
-		auto& parameter = boolParams[i];
-		ImGui::PushID(i);
-		parameter->gui(100);
-		if(parameter->changed()) lastModifiedParameterName = parameter->name.c_str();
-		ImGui::PopID();
-	}
-	
-	
-	if(deletedParameterIndex >= 0){
-		auto& deletedParameter = parameters[deletedParameterIndex];
-		auto command = std::make_shared<RemoveParameterFromListCommand<double>>(deletedParameter, &parameters, deletedParameterIndex);
-		command->execute();
-		CommandHistory::push(command);
-	}
-	
-	
-	if(ImGui::Button("+")){
-		std::string name = "parameter " + std::to_string(parameters.size());
-		auto newParameter = std::make_shared<Parameter<double>>(0.0, name);
-		auto command = std::make_shared<AddParameterToListCommand<double>>(newParameter, &parameters, parameters.size());
-		command->execute();
-		CommandHistory::push(command);
-	}
-	
-	if(ImGui::BeginListBox("History")){
-		
+	if(ImGui::BeginListBox("##History", ImGui::GetContentRegionAvail())){
 		int topIndex = CommandHistory::getUndoableCommandCount();
 		std::vector<std::shared_ptr<Command>>& history = CommandHistory::get();
 		bool b_disabled = false;
-		
 		for(int i = 0; i < history.size(); i++){
 			if(i == topIndex){
 				ImGui::BeginDisabled();
@@ -100,7 +145,10 @@ void testUndoHistory(){
 		ImGui::EndListBox();
 	}
 	
-	ImGui::Text("Last Changed: %s", lastModifiedParameterName);
+	ImGui::EndChild();
 	
 }
  
+
+
+
