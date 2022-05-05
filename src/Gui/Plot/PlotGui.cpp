@@ -12,7 +12,7 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
-#include "Motion/Playback.h"
+#include "Motion/Playback/Playback.h"
 
 namespace PlotGui{
 

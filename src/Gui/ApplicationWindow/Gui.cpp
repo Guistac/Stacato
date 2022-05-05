@@ -18,8 +18,8 @@
 
 #include "Gui/Assets/Images.h"
 
-#include "Gui/Test.h"
-#include "Gui/CommandZ.h"
+#include "Tests/C_Curves.h"
+#include "Tests/CommandZ.h"
 
 namespace Gui {
 
@@ -89,11 +89,13 @@ namespace Gui {
 		if(ImGui::Begin("Manoeuvres")) PlotGui::editor();
 		ImGui::End();
 		
+		/*
 		if(ImGui::Begin("cCurvesTest")) cCurvesTest();
 		ImGui::End();
 		
 		if(ImGui::Begin("CommandZ")) testUndoHistory();
 		ImGui::End();
+		 */
 		
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0,0));
 		if(ImGui::Begin("Sequencer")) Sequencer::Gui::editor();
@@ -107,8 +109,9 @@ namespace Gui {
 		
 		if(shouldResetDefaultLayout()){
 			//ImGui::SetWindowFocus("Environnement");
+			ImGui::SetWindowFocus("Sequencer");
 			//ImGui::SetWindowFocus("cCurvesTest");
-			ImGui::SetWindowFocus("CommandZ");
+			//ImGui::SetWindowFocus("CommandZ");
 			finishResetDefaultLayout();
 		}
 		

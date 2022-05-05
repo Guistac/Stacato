@@ -1,4 +1,4 @@
-#include "Test.h"
+#include "C_Curves.h"
 
 #include <imgui.h>
 #include <implot.h>

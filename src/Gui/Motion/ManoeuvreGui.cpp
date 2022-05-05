@@ -18,7 +18,7 @@
 #include "Motion/Curve/Curve.h"
 #include "Plot/Plot.h"
 
-#include "Motion/Playback.h"
+#include "Motion/Playback/Playback.h"
 
 
 void Manoeuvre::listGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {

@@ -2,7 +2,7 @@
 
 #include "Motion/Curve/Curve.h"
 #include "Motion/MotionTypes.h"
-#include "Motion/Profile.h"
+#include "Motion/Curve/Profile.h"
 
 class PositionControlledMachine : public Machine{
 	

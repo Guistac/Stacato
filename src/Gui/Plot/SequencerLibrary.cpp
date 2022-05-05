@@ -54,6 +54,10 @@ Context* createContext(){
 bool hasContext(){ return context != nullptr; }
 void setContext(Context* ctx){ context = ctx; }
 
+Context* getContext(){
+	return context;
+}
+
 void setTrackColor(ImVec4 color){
 	context->style.trackColor = color;
 }

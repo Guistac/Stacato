@@ -15,6 +15,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Scripting/EnvironnementLibrary.h
     ${STACATO_SOURCE_DIRECTORY}/Scripting/LoggingLibrary.h
     ${STACATO_SOURCE_DIRECTORY}/Scripting/LoggingLibrary.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Scripting/CanvasLibrary.h
+    ${STACATO_SOURCE_DIRECTORY}/Scripting/CanvasLibrary.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.cpp
@@ -86,16 +88,25 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/Log.h
 
     ${STACATO_SOURCE_DIRECTORY}/Motion/MotionTypes.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Playback.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Playback.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/SubDevice.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Profile.h
 
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/Profile.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/Curve.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/Curve.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/KinematicInterpolation.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/LinearInterpolation.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/StepInterpolation.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/Manoeuvre.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/Manoeuvre.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ManoeuvreXML.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ParameterTrack.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ParameterTrack.h
+
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Playback/Playback.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Playback/Playback.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Playback/Transport.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Playback/Transport.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.h
@@ -107,12 +118,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Template/MachineTemplate.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Template/MachineTemplate.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Template/MachineTemplateGui.cpp
-
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/Manoeuvre.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/Manoeuvre.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ManoeuvreXML.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ParameterTrack.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ParameterTrack.h
 
     ${STACATO_SOURCE_DIRECTORY}/Plot/Plot.cpp
     ${STACATO_SOURCE_DIRECTORY}/Plot/Plot.h
@@ -152,6 +157,10 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Project/Project.h
     ${STACATO_SOURCE_DIRECTORY}/Project/ProjectSaveFile.cpp
 
+    ${STACATO_SOURCE_DIRECTORY}/Project/Editor/CommandHistory.h
+    ${STACATO_SOURCE_DIRECTORY}/Project/Editor/Parameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Project/Editor/List.h
+
     ${STACATO_SOURCE_DIRECTORY}/Utilities/CircularBuffer.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Enumerator.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Logger.h
@@ -166,6 +175,11 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatFieldbus.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatDevice.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatDevice.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Tests/C_Curves.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Tests/C_Curves.h
+    ${STACATO_SOURCE_DIRECTORY}/Tests/CommandZ.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Tests/CommandZ.h
 
     #===================== ETHERCAT DEVICE DRIVERS ======================
 
@@ -183,6 +197,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32Gui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/ATV320.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/ATV320.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/ATV320Gui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VIPA-053-1EC01.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VIPA-053-1EC01.cpp

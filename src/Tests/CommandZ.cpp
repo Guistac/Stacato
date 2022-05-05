@@ -2,9 +2,9 @@
 
 #include <imgui.h>
 
-#include "CommandHistory.h"
-#include "Parameter.h"
-#include "List.h"
+#include "Project/Editor/CommandHistory.h"
+#include "Project/Editor/Parameter.h"
+#include "Project/Editor/List.h"
 
 enum class NumberEnum{
 	ONE,

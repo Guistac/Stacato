@@ -3,7 +3,7 @@
 #include "Environnement/Node.h"
 #include "Motion/MotionTypes.h"
 #include "Utilities/CircularBuffer.h"
-#include "Motion/Profile.h"
+#include "Motion/Curve/Profile.h"
 
 class Device;
 namespace Motion { class Interpolation; }

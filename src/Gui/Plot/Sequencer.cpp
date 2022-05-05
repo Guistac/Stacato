@@ -5,239 +5,272 @@
 
 #include "SequencerLibrary.h"
 
+#include "Motion/Playback/Transport.h"
+
+#include "Gui/Assets/Fonts.h"
+
 namespace Sequencer::Gui{
+
+
+enum class MediaType{
+	AUDIO = 1,
+	VIDEO = 2,
+	MOTION = 3,
+	MEDIA_COUNT = 4
+};
+
+struct Track{
+	int id;
+	char name[128];
+	MediaType type;
+};
+
+std::vector<Track> tracks = {
+	{1,		"Audio1", 	MediaType::AUDIO },
+	{2,		"Audio2", 	MediaType::AUDIO },
+	{3,		"Audio3", 	MediaType::AUDIO },
+	{4,		"Audio4", 	MediaType::AUDIO },
+	{5,		"Video1", 	MediaType::VIDEO },
+	{6,		"Video2", 	MediaType::VIDEO },
+	{7,		"Video3", 	MediaType::VIDEO },
+	{8,		"Motion1", 	MediaType::MOTION },
+	{9,		"Motion2", 	MediaType::MOTION },
+	{10,	"Motion3", 	MediaType::MOTION }
+};
+
+int multiTrackIds[4] = {
+	11,
+	12,
+	13,
+	14
+};
+const char* multiTrackNames[4] = {
+	"Translation",
+	"Rotation",
+	"Oscillation 1",
+	"Oscillation 2"
+};
+MediaType multiTrackTypes[4] = {
+	MediaType::MOTION,
+	MediaType::MOTION,
+	MediaType::VIDEO,
+	MediaType::VIDEO
+};
+
+struct Region{
+	int id;
+	int trackId;
+	char name[128];
+	long long int startTime;
+	long long int length;
+	MediaType type;
+	int linkMasterID;
+};
+
+std::vector<Region> regions = {
+	{1, 	1, 	"AudioRegion1", 	1000000, 	10000000, 	MediaType::AUDIO, 	1},
+	{2, 	2, 	"AudioRegion2", 	2000000, 	2000000, 	MediaType::AUDIO, 	1},
+	{3, 	3, 	"AudioRegion3", 	5000000, 	3200000, 	MediaType::AUDIO, 	3},
+	{4, 	4, 	"AudioRegion4", 	4000000, 	53400000, 	MediaType::AUDIO, 	-1},
+	{5, 	5, 	"VideoRegion1", 	3000000, 	6900000, 	MediaType::VIDEO, 	1},
+	{6, 	6, 	"VideoRegion2", 	10000000, 	1200000, 	MediaType::VIDEO, 	6},
+	{7, 	7, 	"VideoRegion3", 	8800000, 	3400000, 	MediaType::VIDEO, 	6},
+	{8, 	8, 	"MotionRegion1", 	7700000, 	6000000, 	MediaType::MOTION, 	3},
+	{9, 	9, 	"MotionRegion2", 	8800000, 	3400000, 	MediaType::MOTION, 	3},
+	{10, 	10, "MotionRegion3", 	7700000, 	6000000, 	MediaType::MOTION, 	-1}
+};
+
+Sequencer::RegionTrackCompatFun mediaCompatibilityFunction = [](int t1, int t2) -> bool {
+	MediaType media1 = (MediaType)t1;
+	MediaType media2 = (MediaType)t2;
+	if(media1 >= MediaType::MEDIA_COUNT || media2 >= MediaType::MEDIA_COUNT) return false;
+	if((media1 == MediaType::AUDIO && media2 == MediaType::MOTION) ||
+	   (media2 == MediaType::AUDIO && media1 == MediaType::MOTION)) return true;
+	return media1 == media2;
+};
+
+
+struct Event{
+	int id;
+	int trackId;
+	char name[128];
+	long long int time;
+	MediaType type;
+	int linkMasterID;
+};
+
+std::vector<Event> events = {
+	{100, 1, "Event1", 0, 		MediaType::AUDIO, 	101},
+	{101, 4, "Event2", 1000000, MediaType::VIDEO, 	101},
+	{102, 8, "Event3", 2000000, MediaType::MOTION, 	3},
+	{103, 9, "Event4", 3000000, MediaType::MOTION, 	-1}
+};
+
+
+const char* options [10] = {
+	"one",
+	"two",
+	"three",
+	"four",
+	"five",
+	"six",
+	"seven",
+	"eight",
+	"nine",
+	"ten"
+};
+
+int selectedOption = 3;
+
+
+
+
+
+
+void editor(){
 	
+	if(!Sequencer::hasContext()) {
+		Sequencer::Context* context = Sequencer::createContext();
+		context->regionCompatibilityFunction = mediaCompatibilityFunction;
+	}
+	
+	
+	
+	transport();
+	
+	
+	if(Sequencer::begin("Sequencer")){
 		
-	enum class MediaType{
-		AUDIO = 1,
-		VIDEO = 2,
-		MOTION = 3,
-		MEDIA_COUNT = 4
-	};
-
-	struct Track{
-		int id;
-		char name[128];
-		MediaType type;
-	};
-
-	std::vector<Track> tracks = {
-		{1,		"Audio1", 	MediaType::AUDIO },
-		{2,		"Audio2", 	MediaType::AUDIO },
-		{3,		"Audio3", 	MediaType::AUDIO },
-		{4,		"Audio4", 	MediaType::AUDIO },
-		{5,		"Video1", 	MediaType::VIDEO },
-		{6,		"Video2", 	MediaType::VIDEO },
-		{7,		"Video3", 	MediaType::VIDEO },
-		{8,		"Motion1", 	MediaType::MOTION },
-		{9,		"Motion2", 	MediaType::MOTION },
-		{10,	"Motion3", 	MediaType::MOTION }
-	};
-
-	int multiTrackIds[4] = {
-		11,
-		12,
-		13,
-		14
-	};
-	const char* multiTrackNames[4] = {
-		"Translation",
-		"Rotation",
-		"Oscillation 1",
-		"Oscillation 2"
-	};
-	MediaType multiTrackTypes[4] = {
-		MediaType::MOTION,
-		MediaType::MOTION,
-		MediaType::VIDEO,
-		MediaType::VIDEO
-	};
-
-	struct Region{
-		int id;
-		int trackId;
-		char name[128];
-		long long int startTime;
-		long long int length;
-		MediaType type;
-		int linkMasterID;
-	};
-
-	std::vector<Region> regions = {
-		{1, 	1, 	"AudioRegion1", 	1000000, 	10000000, 	MediaType::AUDIO, 	1},
-		{2, 	2, 	"AudioRegion2", 	2000000, 	2000000, 	MediaType::AUDIO, 	1},
-		{3, 	3, 	"AudioRegion3", 	5000000, 	3200000, 	MediaType::AUDIO, 	3},
-		{4, 	4, 	"AudioRegion4", 	4000000, 	53400000, 	MediaType::AUDIO, 	-1},
-		{5, 	5, 	"VideoRegion1", 	3000000, 	6900000, 	MediaType::VIDEO, 	1},
-		{6, 	6, 	"VideoRegion2", 	10000000, 	1200000, 	MediaType::VIDEO, 	6},
-		{7, 	7, 	"VideoRegion3", 	8800000, 	3400000, 	MediaType::VIDEO, 	6},
-		{8, 	8, 	"MotionRegion1", 	7700000, 	6000000, 	MediaType::MOTION, 	3},
-		{9, 	9, 	"MotionRegion2", 	8800000, 	3400000, 	MediaType::MOTION, 	3},
-		{10, 	10, "MotionRegion3", 	7700000, 	6000000, 	MediaType::MOTION, 	-1}
-	};
-
-	Sequencer::RegionTrackCompatFun mediaCompatibilityFunction = [](int t1, int t2) -> bool {
-		MediaType media1 = (MediaType)t1;
-		MediaType media2 = (MediaType)t2;
-		if(media1 >= MediaType::MEDIA_COUNT || media2 >= MediaType::MEDIA_COUNT) return false;
-		if((media1 == MediaType::AUDIO && media2 == MediaType::MOTION) ||
-		   (media2 == MediaType::AUDIO && media1 == MediaType::MOTION)) return true;
-		return media1 == media2;
-	};
-
-
-	struct Event{
-		int id;
-		int trackId;
-		char name[128];
-		long long int time;
-		MediaType type;
-		int linkMasterID;
-	};
-
-	std::vector<Event> events = {
-		{100, 1, "Event1", 0, 		MediaType::AUDIO, 	101},
-		{101, 4, "Event2", 1000000, MediaType::VIDEO, 	101},
-		{102, 8, "Event3", 2000000, MediaType::MOTION, 	3},
-		{103, 9, "Event4", 3000000, MediaType::MOTION, 	-1}
-	};
-
-
-	const char* options [10] = {
-		"one",
-		"two",
-		"three",
-		"four",
-		"five",
-		"six",
-		"seven",
-		"eight",
-		"nine",
-		"ten"
-	};
-
-	int selectedOption = 3;
-
-
-
-	void editor(){
-		
-		if(!Sequencer::hasContext()) {
-			Sequencer::Context* context = Sequencer::createContext();
-			context->regionCompatibilityFunction = mediaCompatibilityFunction;
+		int counter = 0;
+		for(auto& track : tracks){
+			
+			if(counter == 0) Sequencer::beginTrackGroup("A/V");
+			if(counter == 0) Sequencer::beginTrackGroup("Audio");
+			if(counter == 4) Sequencer::beginTrackGroup("Video");
+			
+			switch(track.type){
+				case MediaType::AUDIO: Sequencer::setTrackColor({0.3f, 0.4f, 0.1f, 1.0f}); break;
+				case MediaType::VIDEO: Sequencer::setTrackColor({0.1f, 0.3f, 0.4f, 1.0f}); break;
+				case MediaType::MOTION: Sequencer::setTrackColor({0.4f, 0.3f, 0.1f, 1.0f}); break;
+				default: break;
+			}
+			
+			if(Sequencer::beginTrack(track.id, track.name, (int)track.type)){
+				
+				ImVec2 userspaceSize = Sequencer::getTrackHeaderUserSpaceSize();
+				ImVec2 userspacePos = Sequencer::getTrackHeaderUserSpacePos();
+				ImGui::SetCursorPos(userspacePos + ImVec2(10, (userspaceSize.y - ImGui::GetFrameHeight()) / 2.0));
+				
+				if(strcmp(track.name, "Audio3") == 0){
+					ImGui::SetItemAllowOverlap();
+					ImGui::SetNextItemWidth(userspaceSize.x - 20.0);
+					if(ImGui::BeginCombo("##type", options[selectedOption])){
+						for(int i = 0; i < 10; i++){
+							if(ImGui::Selectable(options[i], i == selectedOption)){
+								selectedOption = i;
+							}
+						}
+						ImGui::EndCombo();
+					}
+				}else{
+					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.2f, 0.6f, 1.0f));
+					ImGui::SetItemAllowOverlap();
+					if(ImGui::Button("Mute")) std::cout << "mute " << track.name << std::endl;
+					ImGui::PopStyleColor();
+					ImGui::SameLine();
+					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.6f, 0.6f, 0.2f, 1.0f));
+					ImGui::SetItemAllowOverlap();
+					if(ImGui::Button("Solo")) std::cout << "solo " << track.name << std::endl;
+					ImGui::PopStyleColor();
+					ImGui::SameLine();
+					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.6f, 0.2f, 0.2f, 1.0f));
+					ImGui::SetItemAllowOverlap();
+					if(ImGui::Button("Lock")) std::cout << "lock " << track.name << std::endl;
+					ImGui::PopStyleColor();
+				}
+				
+				Sequencer::endTrack();
+			}
+			
+			if(counter == 6) Sequencer::endTrackGroup();
+			if(counter == 6) Sequencer::endTrackGroup();
+			if(counter == 9) Sequencer::endTrackGroup();
+			
+			counter++;
 		}
-		 if(Sequencer::begin("Sequencer")){
-			 
-			 int counter = 0;
-			 for(auto& track : tracks){
-				 
-				 if(counter == 0) Sequencer::beginTrackGroup("A/V");
-				 if(counter == 0) Sequencer::beginTrackGroup("Audio");
-				 if(counter == 4) Sequencer::beginTrackGroup("Video");
-				 
-				 switch(track.type){
-					 case MediaType::AUDIO: Sequencer::setTrackColor({0.3f, 0.4f, 0.1f, 1.0f}); break;
-					 case MediaType::VIDEO: Sequencer::setTrackColor({0.1f, 0.3f, 0.4f, 1.0f}); break;
-					 case MediaType::MOTION: Sequencer::setTrackColor({0.4f, 0.3f, 0.1f, 1.0f}); break;
-					 default: break;
-				 }
-				 
-				 if(Sequencer::beginTrack(track.id, track.name, (int)track.type)){
-					 
-					 ImVec2 userspaceSize = Sequencer::getTrackHeaderUserSpaceSize();
-					 ImVec2 userspacePos = Sequencer::getTrackHeaderUserSpacePos();
-					 ImGui::SetCursorPos(userspacePos + ImVec2(10, (userspaceSize.y - ImGui::GetFrameHeight()) / 2.0));
-					 
-					 if(strcmp(track.name, "Audio3") == 0){
-						 ImGui::SetItemAllowOverlap();
-						 ImGui::SetNextItemWidth(userspaceSize.x - 20.0);
-						 if(ImGui::BeginCombo("##type", options[selectedOption])){
-							 for(int i = 0; i < 10; i++){
-								 if(ImGui::Selectable(options[i], i == selectedOption)){
-									 selectedOption = i;
-								 }
-							 }
-							 ImGui::EndCombo();
-						 }
-					 }else{
-						 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.2f, 0.6f, 1.0f));
-						 ImGui::SetItemAllowOverlap();
-						 if(ImGui::Button("Mute")) std::cout << "mute " << track.name << std::endl;
-						 ImGui::PopStyleColor();
-						 ImGui::SameLine();
-						 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.6f, 0.6f, 0.2f, 1.0f));
-						 ImGui::SetItemAllowOverlap();
-						 if(ImGui::Button("Solo")) std::cout << "solo " << track.name << std::endl;
-						 ImGui::PopStyleColor();
-						 ImGui::SameLine();
-						 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.6f, 0.2f, 0.2f, 1.0f));
-						 ImGui::SetItemAllowOverlap();
-						 if(ImGui::Button("Lock")) std::cout << "lock " << track.name << std::endl;
-						 ImGui::PopStyleColor();
-					 }
-					 
-					 Sequencer::endTrack();
-				 }
-				 
-				 if(counter == 6) Sequencer::endTrackGroup();
-				 if(counter == 6) Sequencer::endTrackGroup();
-				 if(counter == 9) Sequencer::endTrackGroup();
-				 
-				 counter++;
-			 }
-			 
-			 if(Sequencer::beginMultiTrack("MultiTrack", multiTrackIds, multiTrackNames, 4, (int*)multiTrackTypes)){
-				 Sequencer::endMultiTrack();
-			 }
-			 
-			 
-			 for(auto& region : regions){
-				 
-				 switch(region.type){
-					 case MediaType::AUDIO: Sequencer::setRegionColor({0.2f, 0.7f, 0.3f, 1.0f}); break;
-					 case MediaType::VIDEO: Sequencer::setRegionColor({0.7f, 0.2f, 0.3f, 1.0f}); break;
-					 case MediaType::MOTION: Sequencer::setRegionColor({0.1f, 0.3f, 0.6f, 1.0f}); break;
-					 default: break;
-				 }
-				 
-				 if(Sequencer::beginRegion(region.id, region.trackId, region.name, region.startTime, region.length, (int)region.type, region.linkMasterID)){
-					 Sequencer::endRegion();
-				 }
-			 }
-			 
-			 Sequencer::setRegionColor({.6f, .6f, .0f, 1.f});
-			 for(auto& event : events){
-				 switch(event.type){
-					 case MediaType::AUDIO: Sequencer::setRegionColor({0.2f, 0.7f, 0.3f, 1.0f}); break;
-					 case MediaType::VIDEO: Sequencer::setRegionColor({0.7f, 0.2f, 0.3f, 1.0f}); break;
-					 case MediaType::MOTION: Sequencer::setRegionColor({0.1f, 0.3f, 0.6f, 1.0f}); break;
-					 default: break;
-				 }
-				 Sequencer::event(event.id, event.trackId, event.name, event.time, (int)event.type, event.linkMasterID);
-			 }
-			  
-			 
-			 Sequencer::end();
-			 
-		 }
 		
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-	void transport(){
+		if(Sequencer::beginMultiTrack("MultiTrack", multiTrackIds, multiTrackNames, 4, (int*)multiTrackTypes)){
+			Sequencer::endMultiTrack();
+		}
 		
+		for(auto& region : regions){
+			
+			switch(region.type){
+				case MediaType::AUDIO: Sequencer::setRegionColor({0.2f, 0.7f, 0.3f, 1.0f}); break;
+				case MediaType::VIDEO: Sequencer::setRegionColor({0.7f, 0.2f, 0.3f, 1.0f}); break;
+				case MediaType::MOTION: Sequencer::setRegionColor({0.1f, 0.3f, 0.6f, 1.0f}); break;
+				default: break;
+			}
+			
+			if(Sequencer::beginRegion(region.id, region.trackId, region.name, region.startTime, region.length, (int)region.type, region.linkMasterID)){
+				Sequencer::endRegion();
+			}
+		}
+		
+		Sequencer::setRegionColor({.6f, .6f, .0f, 1.f});
+		for(auto& event : events){
+			switch(event.type){
+				case MediaType::AUDIO: Sequencer::setRegionColor({0.2f, 0.7f, 0.3f, 1.0f}); break;
+				case MediaType::VIDEO: Sequencer::setRegionColor({0.7f, 0.2f, 0.3f, 1.0f}); break;
+				case MediaType::MOTION: Sequencer::setRegionColor({0.1f, 0.3f, 0.6f, 1.0f}); break;
+				default: break;
+			}
+			Sequencer::event(event.id, event.trackId, event.name, event.time, (int)event.type, event.linkMasterID);
+		}
+		Sequencer::end();
 	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+void transport(){
+	auto context = Sequencer::getContext();
+	
+	
+	glm::vec2 size = ImGui::GetContentRegionAvail();
+	size.y = ImGui::GetTextLineHeight() * 4.0;
+	ImGui::BeginChild("TransportBar", size);
+	
+	std::string playbackTimeString = Transport::microsecondsToTimecodeString(context->playbackTime);
+	static char buffer[256];
+	sprintf(buffer, "%s", playbackTimeString.c_str());
+	
+	ImGui::PushFont(Fonts::sansBold42);
+	ImGui::InputText("##TC", buffer, 256, ImGuiInputTextFlags_AutoSelectAll);
+	ImGui::PopFont();
+	if(ImGui::IsItemDeactivatedAfterEdit()){
+		context->playbackTime = Transport::timecodeStringToMicroseconds(buffer);
+	}
+	
+	ImGui::EndChild();
+	
+	
+}
+
+
+
+
 
 };
 
