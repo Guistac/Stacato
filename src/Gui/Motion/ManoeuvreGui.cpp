@@ -738,7 +738,7 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 				 */
 				bool disableStart = !Playback::isPrimedToStart(manoeuvre);
 				if(disableStart) {
-					BackgroundText::draw("Not At Sequence Start", singleButtonSize, Colors::gray);
+					backgroundText("Not At Sequence Start", singleButtonSize, Colors::gray);
 				}else {
 					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 					if (ImGui::Button("Start Playback", singleButtonSize)) Playback::startPlayback(manoeuvre);

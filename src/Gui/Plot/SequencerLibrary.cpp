@@ -1401,8 +1401,8 @@ std::vector<TickSpacing> microsecondTickSpacings = {
 void setTimeMicrosecondsZeroCentered(){
 	context->tickSpacings = &microsecondTickSpacings;
 	context->tickStringFunction = microsecondZeroCenteredString;
-	context->maxTime = 60480000000000;	//100 weeks in microseconds
-	context->minTime = -60480000000000;	//-100 weeks in microseconds
+	context->maxTime = 86400000000;		//100 weeks in microseconds
+	context->minTime = -86400000000;	//-100 weeks in microseconds
 }
 
 

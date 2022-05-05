@@ -33,7 +33,7 @@ namespace PlotGui{
 		
 		
 		ImGui::PushFont(Fonts::sansBold20);
-		BackgroundText::draw("Conduite"/*currentPlot->name*/, glm::vec2(sideBarWidth, plotHeaderHeight), Colors::darkGray);
+		backgroundText("Conduite"/*currentPlot->name*/, glm::vec2(sideBarWidth, plotHeaderHeight), Colors::darkGray);
 		ImGui::PopFont();
 		
 		/*

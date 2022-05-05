@@ -7,6 +7,14 @@ void verticalProgressBar(float fraction, const ImVec2& size_arg);
 
 bool buttonCross(const char* id, float size = 0);
 
+bool buttonPlay(const char* id, float size = 0);
+
+bool buttonPause(const char* id, float size = 0);
+
+bool buttonArrowLeft(const char* id, float size = 0);
+
+bool buttonArrowRight(const char* id, float size = 0);
+
 class ToggleSwitch{
 public:
 	
@@ -28,11 +36,10 @@ namespace ListManagerWidget{
 	Interaction draw(bool disableMoveUp, bool disableMoveDown, const char* ID = "", float buttonHeight = 0.0);
 };
 
-namespace BackgroundText{
-	void draw(const char* text);
-	void draw(const char* text, ImVec2 size);
-	void draw(const char* text, ImVec4 backgroundColor);
-	void draw(const char* text, ImVec2 size, ImVec4 backgroundColor);
-	void draw(const char* text, ImVec4 backgroundColor, ImVec4 textColor);
-	void draw(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec4 textColor);
-};
+
+void backgroundText(const char* text);
+void backgroundText(const char* text, ImVec2 size);
+void backgroundText(const char* text, ImVec4 backgroundColor);
+void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor);
+void backgroundText(const char* text, ImVec4 backgroundColor, ImVec4 textColor);
+void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec4 textColor);

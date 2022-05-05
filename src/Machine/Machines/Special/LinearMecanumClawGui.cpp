@@ -279,7 +279,7 @@ void LinearMecanumClaw::controlsGui() {
 	glm::vec4 clawClosedSignalColor;
 	if(*clawClosedSignal) clawClosedSignalColor = Colors::green;
 	else clawClosedSignalColor = Colors::darkGray;
-	BackgroundText::draw("Claw Closed Signal", singleButtonSize, clawClosedSignalColor);
+	backgroundText("Claw Closed Signal", singleButtonSize, clawClosedSignalColor);
 	
 	ImGui::PopID();
 	
@@ -309,7 +309,7 @@ void LinearMecanumClaw::controlsGui() {
 			homingColor = Colors::green;
 			break;
 	}
-	BackgroundText::draw(getHomingStateString(), singleButtonSize, homingColor);
+	backgroundText(getHomingStateString(), singleButtonSize, homingColor);
 	
 	ImGui::EndDisabled();
 	
@@ -570,7 +570,7 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	verticalSliderSize = glm::vec2((ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x * 2.0) / 3.0,
 								   sliderHeight);
 	
-	BackgroundText::draw("Translation", titleButtonSize, Colors::darkGray);
+	backgroundText("Translation", titleButtonSize, Colors::darkGray);
 	
 	//---Sliders
 	float linearVelocityLimit = 0.0;
@@ -604,17 +604,17 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	
 	static char manualVelocityString[64];
 	sprintf(manualVelocityString, "%.3f%s/s", linearManualVelocityDisplay, getLinearAxisPositionUnit()->abbreviated);
-	BackgroundText::draw(manualVelocityString, feedbackButtonSize, Colors::darkGray);
+	backgroundText(manualVelocityString, feedbackButtonSize, Colors::darkGray);
 	
 	ImGui::SameLine();
 	static char velocityString[64];
 	sprintf(velocityString, "%.3f%s/s", getLinearAxisVelocity(), getLinearAxisPositionUnit()->abbreviated);
-	BackgroundText::draw(velocityString, feedbackButtonSize, Colors::darkGray);
+	backgroundText(velocityString, feedbackButtonSize, Colors::darkGray);
 	
 	ImGui::SameLine();
 	static char positionString[64];
 	sprintf(positionString, "%.3f%s", getLinearAxisPosition(), getLinearAxisPositionUnit()->abbreviated);
-	BackgroundText::draw(positionString, feedbackButtonSize, Colors::darkGray);
+	backgroundText(positionString, feedbackButtonSize, Colors::darkGray);
 
 	ImGui::PopFont();
 	
@@ -657,7 +657,7 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	ImGui::SameLine();
 	ImGui::BeginChild("ClawAxisControls", axisChildSize);
 	
-	BackgroundText::draw("Ouverture", titleButtonSize, Colors::darkGray);
+	backgroundText("Ouverture", titleButtonSize, Colors::darkGray);
 	
 	//---Sliders
 	ImGui::VSliderFloat("##ClawManualVelocity", verticalSliderSize, &clawManualVelocityDisplay, -clawVelocityLimit, clawVelocityLimit, "");
@@ -686,15 +686,15 @@ void LinearMecanumClaw::machineSpecificMiniatureGui() {
 	ImGui::PushFont(Fonts::sansRegular12);
 	
 	sprintf(manualVelocityString, "%.3f%s/s", clawManualVelocityDisplay, getClawAxisPositionUnit()->abbreviated);
-	BackgroundText::draw(manualVelocityString, feedbackButtonSize, Colors::darkGray);
+	backgroundText(manualVelocityString, feedbackButtonSize, Colors::darkGray);
 	
 	ImGui::SameLine();
 	sprintf(velocityString, "%.3f%s/s", getClawAxisVelocity(), getClawAxisPositionUnit()->abbreviated);
-	BackgroundText::draw(velocityString, feedbackButtonSize, Colors::darkGray);
+	backgroundText(velocityString, feedbackButtonSize, Colors::darkGray);
 	
 	ImGui::SameLine();
 	sprintf(positionString, "%.3f%s", getClawAxisPosition(), getClawAxisPositionUnit()->abbreviated);
-	BackgroundText::draw(positionString, feedbackButtonSize, Colors::darkGray);
+	backgroundText(positionString, feedbackButtonSize, Colors::darkGray);
 
 	ImGui::PopFont();
 	

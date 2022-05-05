@@ -125,7 +125,7 @@ namespace Environnement::Gui{
 			
 			glm::vec2 homingProgressIndicatorSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
 			
-			BackgroundText::draw(machine->getHomingStateString(),
+			backgroundText(machine->getHomingStateString(),
 								 homingProgressIndicatorSize,
 								 Colors::darkGray);
 			

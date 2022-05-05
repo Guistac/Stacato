@@ -17,6 +17,10 @@ namespace Fonts {
 	ImFont* sansBold20;
 	ImFont* sansLight20;
 
+	ImFont* sansRegular26;
+	ImFont* sansBold26;
+	ImFont* sansLight26;
+
 	ImFont* sansRegular42;
 	ImFont* sansBold42;
 	ImFont* sansLight42;
@@ -43,6 +47,10 @@ namespace Fonts {
 		sansRegular20 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Regular.ttf", 20.0f * scale, &conf);
 		sansBold20 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Bold.ttf", 20.0f * scale, &conf);
 		sansLight20 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Light.ttf", 20.0f * scale, &conf);
+		
+		sansRegular26 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Regular.ttf", 26.0f * scale, &conf);
+		sansBold26 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Bold.ttf", 26.0f * scale, &conf);
+		sansLight26 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Light.ttf", 26.0f * scale, &conf);
 		
 		sansRegular42 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Regular.ttf", 42.0f * scale, &conf);
 		sansBold42 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Bold.ttf", 42.0f * scale, &conf);

@@ -40,18 +40,101 @@ bool buttonCross(const char* id, float size) {
     glm::vec2 center;
     float cross_extent;
     bool ret;
-    if (size == 0) {
-        ret = ImGui::Button(id, glm::vec2(ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0));
-    }
-    else {
-        ret = ImGui::Button(id, glm::vec2(size));
-    }
+    if (size == 0) ret = ImGui::Button(id, glm::vec2(ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0));
+    else ret = ImGui::Button(id, glm::vec2(size));
     center = ImGui::GetItemRectMin();
     center += glm::vec2(ImGui::GetItemRectSize().x * 0.5);
     cross_extent = ImGui::GetTextLineHeight() * 0.5f * 0.7071f - 1.0f;
     ImGui::GetWindowDrawList()->AddLine(center + glm::vec2(+cross_extent, +cross_extent), center + glm::vec2(-cross_extent, -cross_extent), ImColor(glm::vec4(1.0, 1.0, 1.0, 1.0)), ImGui::GetTextLineHeight() * 0.15);
     ImGui::GetWindowDrawList()->AddLine(center + glm::vec2(+cross_extent, -cross_extent), center + glm::vec2(-cross_extent, +cross_extent), ImColor(glm::vec4(1.0, 1.0, 1.0, 1.0)), ImGui::GetTextLineHeight() * 0.15);
     return ret;
+}
+
+bool buttonPlay(const char* id, float size){
+	bool ret;
+	if (size == 0) ret = ImGui::Button(id, glm::vec2(ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0));
+	else ret = ImGui::Button(id, glm::vec2(size));
+	
+	float padding = size * 0.25;
+	ImVec2 min = ImGui::GetItemRectMin();
+	ImVec2 points[3] = {
+		ImVec2(min.x + padding, min.y + padding),
+		ImVec2(min.x + padding, min.y + size - padding),
+		ImVec2(min.x + size - padding, min.y + size / 2.0)
+	};
+	ImGui::GetWindowDrawList()->AddConvexPolyFilled(points, 3, ImColor(1.0f, 1.0f, 1.0f, 1.0f));
+	return ret;
+}
+
+bool buttonPause(const char* id, float size){
+	bool ret;
+	if (size == 0) ret = ImGui::Button(id, glm::vec2(ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0));
+	else ret = ImGui::Button(id, glm::vec2(size));
+	
+	float padding = size * 0.25;
+	float barWidth = size * 0.15;
+	float spaceWidth = size * 0.15;
+	float totalWidth = spaceWidth + barWidth * 2.0;
+	ImVec2 min = ImGui::GetItemRectMin();
+	ImVec2 max = ImGui::GetItemRectMax();
+	float x1 = min.x + (size - totalWidth) / 2.0;
+	float x2 = x1 + barWidth + spaceWidth;
+	
+	ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(x1, min.y + padding), ImVec2(x1 + barWidth, max.y - padding), ImColor(1.0f, 1.0f, 1.0f, 1.0f));
+	ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(x2, min.y + padding), ImVec2(x2 + barWidth, max.y - padding), ImColor(1.0f, 1.0f, 1.0f, 1.0f));
+	return ret;
+}
+
+bool buttonArrowLeft(const char* id, float size){
+	bool ret;
+	if (size == 0) ret = ImGui::Button(id, glm::vec2(ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0));
+	else ret = ImGui::Button(id, glm::vec2(size));
+	
+	float padding = size * 0.15;
+	float triangleSize = size * 0.4;
+	float barHeight = size * 0.15;
+	
+	ImVec2 min = ImGui::GetItemRectMin();
+	ImVec2 max = ImGui::GetItemRectMax();
+	
+	ImVec2 points[3] = {
+		ImVec2(min.x + padding, 				min.y + (size / 2.0)),
+		ImVec2(min.x + padding + triangleSize, 	min.y + (size / 2.0) - (triangleSize / 2.0)),
+		ImVec2(min.x + padding + triangleSize, 	min.y + (size / 2.0) + (triangleSize / 2.0))
+	};
+	
+	ImGui::GetWindowDrawList()->AddConvexPolyFilled(points, 3, ImColor(1.0f, 1.0f, 1.0f, 1.0f));
+	
+	ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(min.x + padding + triangleSize - 1, min.y + (size - barHeight) / 2.0),
+											  ImVec2(max.x - padding, max.y - (size - barHeight) / 2.0),
+											  ImColor(1.0f, 1.0f, 1.0f, 1.0f));
+	return ret;
+}
+
+bool buttonArrowRight(const char* id, float size){
+	bool ret;
+	if (size == 0) ret = ImGui::Button(id, glm::vec2(ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0));
+	else ret = ImGui::Button(id, glm::vec2(size));
+	
+	float padding = size * 0.15;
+	float triangleSize = size * 0.4;
+	float barHeight = size * 0.15;
+	
+	ImVec2 min = ImGui::GetItemRectMin();
+	ImVec2 max = ImGui::GetItemRectMax();
+	
+	ImVec2 points[3] = {
+		ImVec2(max.x - padding, 				max.y - (size / 2.0)),
+		ImVec2(max.x - padding - triangleSize, 	max.y - (size / 2.0) - (triangleSize / 2.0)),
+		ImVec2(max.x - padding - triangleSize, 	max.y - (size / 2.0) + (triangleSize / 2.0))
+	};
+	
+	ImGui::GetWindowDrawList()->AddConvexPolyFilled(points, 3, ImColor(1.0f, 1.0f, 1.0f, 1.0f));
+	
+	ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(min.x + padding, min.y + (size - barHeight) / 2.0),
+											  ImVec2(max.x - padding - triangleSize + 1, max.y - (size - barHeight) / 2.0),
+											  ImColor(1.0f, 1.0f, 1.0f, 1.0f));
+	return ret;
 }
 
 ToggleSwitch::ToggleSwitch(){
@@ -192,35 +275,39 @@ namespace ListManagerWidget{
 	}
 }
 
-namespace BackgroundText{
 
-	void draw(const char* text){
-		draw(text, ImVec2(0.0, 0.0));
-	}
-	void draw(const char* text, ImVec2 size){
-		glm::vec4 buttonColor = ImGui::GetStyle().Colors[ImGuiCol_Button];
-		glm::vec4 textColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
-		draw(text, size, buttonColor, textColor);
-	}
-	void draw(const char* text, ImVec4 backgroundColor){
-		draw(text, ImVec2(0.0, 0.0), backgroundColor);
-	}
-	void draw(const char* text, ImVec2 size, ImVec4 backgroundColor){
-		glm::vec4 textColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
-		draw(text, size, backgroundColor, textColor);
-	}
-	void draw(const char* text, ImVec4 backgroundColor, ImVec4 textColor){
-		draw(text, ImVec2(0.0, 0.0), backgroundColor, textColor);
-	}
-	void draw(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec4 textColor){
-		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0, 0.0));
-		ImGui::PushStyleColor(ImGuiCol_Button, backgroundColor);
-		ImGui::PushStyleColor(ImGuiCol_Text, textColor);
-		if(size.x == 0.0 && size.y == 0.0) ImGui::Button(text);
-		else ImGui::Button(text, size);
-		ImGui::PopStyleColor(2);
-		ImGui::PopStyleVar();
-		ImGui::PopItemFlag();
-	}
+
+
+
+
+
+void backgroundText(const char* text){
+	backgroundText(text, ImVec2(0.0, 0.0));
 }
+void backgroundText(const char* text, ImVec2 size){
+	glm::vec4 buttonColor = ImGui::GetStyle().Colors[ImGuiCol_Button];
+	glm::vec4 textColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
+	backgroundText(text, size, buttonColor, textColor);
+}
+void backgroundText(const char* text, ImVec4 backgroundColor){
+	backgroundText(text, ImVec2(0.0, 0.0), backgroundColor);
+}
+void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor){
+	glm::vec4 textColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
+	backgroundText(text, size, backgroundColor, textColor);
+}
+void backgroundText(const char* text, ImVec4 backgroundColor, ImVec4 textColor){
+	backgroundText(text, ImVec2(0.0, 0.0), backgroundColor, textColor);
+}
+void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec4 textColor){
+	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0, 0.0));
+	ImGui::PushStyleColor(ImGuiCol_Button, backgroundColor);
+	ImGui::PushStyleColor(ImGuiCol_Text, textColor);
+	if(size.x == 0.0 && size.y == 0.0) ImGui::Button(text);
+	else ImGui::Button(text, size);
+	ImGui::PopStyleColor(2);
+	ImGui::PopStyleVar();
+	ImGui::PopItemFlag();
+}
+

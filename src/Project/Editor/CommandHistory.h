@@ -26,22 +26,34 @@ namespace CommandHistory{
 		getUndoableCommandCount()++;
 	}
 
-	inline void undo(){
-		getUndoableCommandCount()--;
-		get()[getUndoableCommandCount()]->undo();
-	}
-
-	inline void redo(){
-		get()[getUndoableCommandCount()]->execute();
-		getUndoableCommandCount()++;
-	}
-
 	inline bool canUndo(){
 		return getUndoableCommandCount() > 0;
 	}
 
 	inline bool canRedo(){
 		return getUndoableCommandCount() < get().size();
+	}
+
+	inline void undo(){
+		if(!canUndo()) return;
+		getUndoableCommandCount()--;
+		get()[getUndoableCommandCount()]->undo();
+	}
+
+	inline void redo(){
+		if(!canRedo()) return;
+		get()[getUndoableCommandCount()]->execute();
+		getUndoableCommandCount()++;
+	}
+
+	inline std::shared_ptr<Command> getUndoableCommand(){
+		if(canUndo()) return get()[getUndoableCommandCount() - 1];
+		return nullptr;
+	}
+
+	inline std::shared_ptr<Command> getRedoableCommand(){
+		if(canRedo()) return get()[getUndoableCommandCount()];
+		return nullptr;
 	}
 
 };

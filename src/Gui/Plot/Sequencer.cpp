@@ -3,11 +3,15 @@
 
 #include <iostream>
 
+#include <imgui_internal.h>
+
 #include "SequencerLibrary.h"
 
-#include "Motion/Playback/Transport.h"
+#include "Motion/Playback/Playback.h"
 
 #include "Gui/Assets/Fonts.h"
+
+#include "Gui/Utilities/CustomWidgets.h"
 
 namespace Sequencer::Gui{
 
@@ -134,11 +138,6 @@ void editor(){
 		context->regionCompatibilityFunction = mediaCompatibilityFunction;
 	}
 	
-	
-	
-	transport();
-	
-	
 	if(Sequencer::begin("Sequencer")){
 		
 		int counter = 0;
@@ -244,29 +243,44 @@ void editor(){
 
 
 
-void transport(){
-	auto context = Sequencer::getContext();
-	
-	
-	glm::vec2 size = ImGui::GetContentRegionAvail();
-	size.y = ImGui::GetTextLineHeight() * 4.0;
-	ImGui::BeginChild("TransportBar", size);
-	
-	std::string playbackTimeString = Transport::microsecondsToTimecodeString(context->playbackTime);
-	static char buffer[256];
-	sprintf(buffer, "%s", playbackTimeString.c_str());
-	
-	ImGui::PushFont(Fonts::sansBold42);
-	ImGui::InputText("##TC", buffer, 256, ImGuiInputTextFlags_AutoSelectAll);
-	ImGui::PopFont();
-	if(ImGui::IsItemDeactivatedAfterEdit()){
-		context->playbackTime = Transport::timecodeStringToMicroseconds(buffer);
+	void transportControls(float height){
+		auto context = Sequencer::getContext();
+		
+		glm::vec2 size = ImGui::GetContentRegionAvail();
+		size.y = ImGui::GetTextLineHeight() * 4.0;
+		
+		std::string playbackTimeString = Playback::Transport::microsecondsToTimecodeString(context->playbackTime);
+		static char buffer[12];
+		sprintf(buffer, "%s", playbackTimeString.c_str());
+		
+		float cursorHeight = ImGui::GetCursorPosY();
+		ImGui::PushFont(Fonts::sansBold26);
+		float verticalPadding = ImGui::GetStyle().FramePadding.y;
+		ImGui::GetStyle().FramePadding.y = 0.0;
+		float offset = (height - ImGui::GetFrameHeight()) / 2.0;
+		glm::vec2 textSize = ImGui::CalcTextSize("-00:00:00.0");
+		ImGui::SetNextItemWidth(textSize.x + ImGui::GetStyle().FramePadding.x * 2.0);
+		ImGui::SetCursorPos(ImGui::GetCursorPos() + glm::vec2(0, offset));
+		ImGui::InputText("##TC", buffer, 12, ImGuiInputTextFlags_AutoSelectAll);
+		ImGui::GetStyle().FramePadding.y = verticalPadding;
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::SetCursorPosY(cursorHeight);
+		
+		//triggers after manually editing the timecode string
+		if(ImGui::IsItemDeactivatedAfterEdit()){
+			context->playbackTime = Playback::Transport::timecodeStringToMicroseconds(buffer);
+		}
+		
+		if(buttonArrowLeft("##left", height)){}
+		ImGui::SameLine();
+		if(buttonArrowRight("##right", height)){}
+		ImGui::SameLine();
+		if(buttonPause("##Pause", height)){}
+		ImGui::SameLine();
+		if(buttonPlay("##Play", height)){}
+		
 	}
-	
-	ImGui::EndChild();
-	
-	
-}
 
 
 

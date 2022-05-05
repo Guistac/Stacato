@@ -31,7 +31,7 @@ namespace Gui {
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5.0);
 		
 		//=== Define Bottom Toolbar and main window height
-		float toolbarHeight = ImGui::GetTextLineHeight() * 3.2;
+		float toolbarHeight = ImGui::GetTextLineHeight() * 3.5;
 		glm::vec2 mainWindowPosition = ImGui::GetMainViewport()->WorkPos;
 		glm::vec2 mainWindowSize = ImGui::GetMainViewport()->WorkSize;
 		mainWindowSize.y -= toolbarHeight;
@@ -89,13 +89,12 @@ namespace Gui {
 		if(ImGui::Begin("Manoeuvres")) PlotGui::editor();
 		ImGui::End();
 		
-		/*
+		
 		if(ImGui::Begin("cCurvesTest")) cCurvesTest();
 		ImGui::End();
 		
 		if(ImGui::Begin("CommandZ")) testUndoHistory();
 		ImGui::End();
-		 */
 		
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0,0));
 		if(ImGui::Begin("Sequencer")) Sequencer::Gui::editor();
@@ -119,13 +118,17 @@ namespace Gui {
 		//=== Draw Bottom Toolbar ===
 		ImGui::SetNextWindowPos(mainWindowPosition + glm::vec2(0, mainWindowSize.y));
 		ImGui::SetNextWindowSize(glm::vec2(mainWindowSize.x, toolbarHeight));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.25));
 		ImGui::Begin("##Toolbar", nullptr,
 					 ImGuiWindowFlags_NoTitleBar |
 					 ImGuiWindowFlags_NoResize |
 					 ImGuiWindowFlags_NoCollapse |
-					 ImGuiWindowFlags_NoDocking);
+					 ImGuiWindowFlags_NoDocking |
+					 ImGuiWindowFlags_NoScrollWithMouse |
+					 ImGuiWindowFlags_NoScrollbar);
 		toolbar(toolbarHeight);
 		ImGui::End();
+		ImGui::PopStyleVar();
 		
 		//=== Draw Popups (if any are open) ===
 		popups();

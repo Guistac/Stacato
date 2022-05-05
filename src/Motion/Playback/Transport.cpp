@@ -1,9 +1,7 @@
 #include <pch.h>
-#include "Transport.h"
+#include "Playback.h"
 
-#include <format>
-
-namespace Transport{
+namespace Playback::Transport{
 
 	long long int weekInMicroseconds = 604'800'000'000;
 	long long int dayInMicroseconds = 86'400'000'000;
@@ -33,6 +31,7 @@ namespace Transport{
 		double seconds = double(microseconds) / 1000000.0;
 		
 		if(b_negative) start += sprintf(buffer + start, "-");
+		else start += sprintf(buffer + start, " ");
 		start += sprintf(buffer + start, "%.2i:", hours);
 		start += sprintf(buffer + start, "%.2i:", minutes);
 		start += sprintf(buffer + start, "%04.1f", seconds);
