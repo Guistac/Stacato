@@ -54,7 +54,7 @@ namespace Gui {
 		}
 		else if(!Environnement::isRunning()){
 			if(ImGui::Button("Start", buttonSize)){
-				if(!Environnement::isSimulating()) ImGui::OpenPopup("Starting Environnement");
+				if(!Environnement::isSimulating()) openEtherCatStartModal();
 				Environnement::start();
 			}
 		}else{
@@ -188,15 +188,7 @@ namespace Gui {
 		ImGui::EndGroup();
 		
 		
-
-		
-		
 		ImGui::PopStyleVar();
-		
-		
-		
-		etherCatStartModal();
-		
 	}
 
 }

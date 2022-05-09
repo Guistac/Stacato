@@ -21,6 +21,8 @@
 
 #include "KeyboardShortcut.h"
 
+#include "Layout.h"
+
 namespace Gui {
 
 	bool imguiDemoWindowOpen = false;
@@ -82,9 +84,29 @@ namespace Gui {
 			ImGui::EndMenu();
 		}
 		if(ImGui::BeginMenu("View")){
-			if(ImGui::MenuItem("Reset Layout")) Gui::resetDefaultLayout();
+			if(ImGui::MenuItem("Save New Layout")) LayoutManager::addCurrent();
+			if(ImGui::MenuItem("Reset Factory Layout")) Gui::resetDefaultLayout();
+			
+			if(!LayoutManager::layouts().empty()) ImGui::Separator();
+			
+			std::shared_ptr<Layout> removedLayout = nullptr;
+			for(auto& layout : LayoutManager::layouts()){
+				if(ImGui::BeginMenu(layout->name)){
+					if(ImGui::MenuItem("Make Active", nullptr, layout->isActive())) layout->makeActive();
+					if(ImGui::MenuItem("Make Default", nullptr, layout->isDefault())) layout->makeDefault();
+					if(layout->isActive()) if(ImGui::MenuItem("Overwrite")) layout->overwriteCurrent();
+					if(ImGui::MenuItem("Rename")) LayoutManager::edit(layout);
+					if(ImGui::MenuItem("Remove")) removedLayout = layout;
+					ImGui::EndMenu();
+				}
+			}
+			if(removedLayout) LayoutManager::remove(removedLayout);
+			
+			
 			ImGui::EndMenu();
 		}
+		
+		LayoutManager::editor();
 		
 		
 		if (ImGui::IsKeyDown(GLFW_KEY_LEFT_ALT) && ImGui::IsKeyDown(GLFW_KEY_LEFT_SUPER)) {
@@ -96,8 +118,6 @@ namespace Gui {
 			}
 		}
 		ImGui::EndMenuBar();
-		
-		
 		
 		static KeyboardShortcut quitShortcut(GLFW_KEY_A, KeyboardShortcut::Modifier::SUPER);
 		if(quitShortcut.isTriggered()) ApplicationWindow::requestQuit();

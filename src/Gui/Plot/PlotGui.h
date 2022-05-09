@@ -2,6 +2,8 @@
 
 namespace PlotGui{
 
-	void editor();
+	void manoeuvreList();
+
+	void manoeuvreEditor();
 
 }

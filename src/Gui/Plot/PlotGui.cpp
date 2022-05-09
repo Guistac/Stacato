@@ -16,7 +16,7 @@
 
 namespace PlotGui{
 
-	void editor() {
+	void manoeuvreList() {
 
 		static float minSideBarWidth = ImGui::GetTextLineHeight() * 18.0;
 		static float sideBarWidth = ImGui::GetTextLineHeight() * 18.0;
@@ -128,6 +128,7 @@ namespace PlotGui{
 
 		ImGui::EndChild();
 
+		/*
 		static float splitterWidth = ImGui::GetTextLineHeight() * 0.5;
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 		ImGui::SameLine();
@@ -142,25 +143,25 @@ namespace PlotGui{
 		ImGui::GetWindowDrawList()->AddLine(glm::vec2(middle, min.y), glm::vec2(middle, max.y), ImColor(Colors::darkGray), ImGui::GetTextLineHeight() * 0.1);
 		ImGui::SameLine();
 		ImGui::PopStyleVar();
+		 */
 
-		if (ImGui::BeginChild("##CueProperties", ImGui::GetContentRegionAvail(), false)) {
-		
-			if (currentPlot->selectedManoeuvre == nullptr) {
-				ImGui::PushFont(Fonts::sansRegular20);
-				ImGui::Text("%s", noManoeuvreSelectedString);
-				ImGui::PopFont();
-			}
-			else {
-				std::shared_ptr<Manoeuvre> selectedManoeuvre = currentPlot->selectedManoeuvre;
-				Manoeuvre::editGui(selectedManoeuvre);
-			}
-		}
-		ImGui::EndChild();
-
+		//TODO:
 		//we need to change selection after drawing the previously selected manoeuvre
 		//else data might get wrongly copied
 		if (clickedManoeuvre) currentPlot->selectManoeuvre(clickedManoeuvre);
 
 	}
+
+void manoeuvreEditor(){
+	if (Project::currentPlot->selectedManoeuvre == nullptr) {
+		ImGui::PushFont(Fonts::sansRegular20);
+		ImGui::Text("%s", "No Manoeuvre Selected");
+		ImGui::PopFont();
+	}
+	else {
+		std::shared_ptr<Manoeuvre> selectedManoeuvre = Project::currentPlot->selectedManoeuvre;
+		Manoeuvre::editGui(selectedManoeuvre);
+	}
+}
 
 }

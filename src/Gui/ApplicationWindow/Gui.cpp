@@ -65,7 +65,8 @@ namespace Gui {
 			ImGui::DockBuilderDockWindow("Stage", dockspaceID);
 			ImGui::DockBuilderDockWindow("Machines", dockspaceID);
 			ImGui::DockBuilderDockWindow("Setup", dockspaceID);
-			ImGui::DockBuilderDockWindow("Manoeuvres", dockspaceID);
+			ImGui::DockBuilderDockWindow("Plot List", dockspaceID);
+			ImGui::DockBuilderDockWindow("Manoeuvre Editor", dockspaceID);
 			ImGui::DockBuilderDockWindow("Sequencer", dockspaceID);
 			ImGui::DockBuilderDockWindow("cCurvesTest", dockspaceID);
 			ImGui::DockBuilderDockWindow("CommandZ", dockspaceID);
@@ -86,9 +87,11 @@ namespace Gui {
 		if(ImGui::Begin("Machines")) Environnement::Gui::machineList();
 		ImGui::End();
 		 
-		if(ImGui::Begin("Manoeuvres")) PlotGui::editor();
+		if(ImGui::Begin("Plot List")) PlotGui::manoeuvreList();
 		ImGui::End();
 		
+		if(ImGui::Begin("Manoeuvre Editor")) PlotGui::manoeuvreEditor();
+		ImGui::End();
 		
 		if(ImGui::Begin("cCurvesTest")) cCurvesTest();
 		ImGui::End();

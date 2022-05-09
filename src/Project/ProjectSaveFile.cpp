@@ -6,6 +6,7 @@
 #include "Plot/Plot.h"
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
 #include "Environnement/StageVisualizer.h"
+#include "Gui/ApplicationWindow/Layout.h"
 
 namespace Project{
 
@@ -52,6 +53,7 @@ namespace Project{
 		ApplicationWindow::hideUnsavedModifications();
 		ApplicationWindow::setWindowName("New Project");
 		b_hasUnsavedModifications = false;
+		LayoutManager::clearAll();
 	}
 
 	void loadStartup(){
@@ -105,6 +107,20 @@ namespace Project{
 		}
 		if(!b_loadedEnvironnementFile) {
 			Logger::warn("Could not load environnement file in project {}", filePath.filename().string());
+			return false;
+		}
+		
+		//look for the Layout file
+		bool b_loadedLayoutFile = false;
+		for (const auto& entry : std::filesystem::directory_iterator(projectFolderPath)) {
+			if(entry.path().filename() == "Layouts.stacatoLayout"){
+				std::string entryPath = entry.path().string();
+				b_loadedLayoutFile = LayoutManager::load(entryPath.c_str());
+				break;
+			}
+		}
+		if(!b_loadedEnvironnementFile) {
+			Logger::warn("Could not load layout file in project {}", filePath.filename().string());
 			return false;
 		}
 		
@@ -178,6 +194,9 @@ namespace Project{
 
 		std::string environnementFilePath = projectFolderPath + "Environnement.stacatoEnvironnement";
 		if (!Environnement::save(environnementFilePath.c_str())) return false;
+		
+		std::string layoutFilePath = projectFolderPath + "Layouts.stacatoLayout";
+		if(!LayoutManager::save(layoutFilePath.c_str())) return false;
 
 		std::string stageFolder = projectFolderPath + "Stage/";
 		if(!std::filesystem::exists(std::filesystem::path(stageFolder))) std::filesystem::create_directory(std::filesystem::path(stageFolder));
