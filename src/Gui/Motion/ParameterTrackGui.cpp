@@ -14,6 +14,345 @@
 #include "Machine/Machine.h"
 #include "Motion/Manoeuvre/Manoeuvre.h"
 
+#include "Gui/Utilities/CustomWidgets.h"
+
+void ParameterTrack::baseTrackSheetRowGui(){
+	bool b_invalid = getType() != ParameterTrackType::GROUP && !castToMovementTrack(shared_from_this())->isValid();
+	if(b_invalid) ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+
+	//[1] "Machine"
+	ImGui::TableSetColumnIndex(1);
+	if (!hasParentGroup()) ImGui::Text("%s", parameter->getMachine()->getName());
+	
+	if(b_invalid && ImGui::IsItemHovered()){
+		ImGui::BeginTooltip();
+		ImGui::Text("Parameter Track not Valid");
+		ImGui::Text("TODO: show reasons");
+		/*
+		for(auto& curve : parameterTrack->curves){
+			if(!curve->b_valid) ImGui::Text("- Curve Not Valid");
+			for(auto& controlPoint : curve->points){
+				if(!controlPoint->b_valid) ImGui::Text("-- Control Point Not Valid : %s", Enumerator::getDisplayString(controlPoint->validationError));
+			}
+			for(auto& interpolation : curve->interpolations){
+				if(!interpolation->b_valid) ImGui::Text("-- Interpolation Not Valid : %s", Enumerator::getDisplayString(interpolation->validationError));
+			}
+		}
+		 */
+		ImGui::EndTooltip();
+	}
+
+	//[2] "Parameter"
+	ImGui::TableSetColumnIndex(2);
+	ImGui::Text("%s", parameter->getName());
+
+	if (b_invalid) ImGui::PopStyleColor();
+}
+
+void ParameterTrackGroup::trackSheetRowGui(){
+	baseTrackSheetRowGui();
+}
+
+void KeyParameterTrack::trackSheetRowGui(){
+	float widgetWidth = ImGui::GetTextLineHeight() * 5.0;
+	baseTrackSheetRowGui();
+	//[3] "Target"			//position or other
+	ImGui::TableSetColumnIndex(3);
+	ImGui::SetNextItemWidth(widgetWidth);
+	target->gui();
+}
+
+void TargetParameterTrack::trackSheetRowGui(){
+	
+	float widgetWidth = ImGui::GetTextLineHeight() * 5.0;
+	
+	baseTrackSheetRowGui();
+	
+	//[3] "Type"			//time vs velocity
+	ImGui::TableSetColumnIndex(3);
+	ImGui::SetNextItemWidth(widgetWidth);
+	constraintType->gui();
+	
+	//[4] "Interpolation"	//kinematic, linear, step, bezier
+	ImGui::TableSetColumnIndex(4);
+
+	//[5] "Target"			//position or other
+	ImGui::TableSetColumnIndex(5);
+	ImGui::SetNextItemWidth(widgetWidth);
+	target->gui();
+
+	//[6] "Constraint"		//time or velocity
+	ImGui::TableSetColumnIndex(6);
+	ImGui::SetNextItemWidth(widgetWidth);
+	constraint->gui();
+	
+	//[7] "Ramps"			//for kinematic or bezier
+	ImGui::TableSetColumnIndex(7);
+	ImGui::SetNextItemWidth(widgetWidth);
+	inAcceleration->gui();
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(widgetWidth);
+	outAcceleration->gui();
+	
+}
+
+void SequenceParameterTrack::trackSheetRowGui(){
+	float widgetWidth = ImGui::GetTextLineHeight() * 5.0;
+	baseTrackSheetRowGui();
+	
+	//[3] "Start"
+	ImGui::TableSetColumnIndex(3);
+	ImGui::SetNextItemWidth(widgetWidth);
+	start->gui();
+	
+	//[4] "End"
+	ImGui::TableSetColumnIndex(4);
+	ImGui::SetNextItemWidth(widgetWidth);
+	target->gui();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+//============ BEGIN ROW LAMBDA =============
+
+static auto parameterTrackRowGui = [&](std::shared_ptr<ParameterTrack>& parameterTrack) {
+
+	bool trackEdited = false;
+	bool chainingDependenciesEdited = false;
+
+	ImGui::PushID(parameterTrack->parameter->name);
+	ImGui::PushID(parameterTrack->parameter->machine->getName());
+
+	ImGui::TableNextRow(ImGuiTableRowFlags_None);
+		
+	ImGui::BeginDisabled(manoeuvreIsPlaying);
+
+	//====== Track Management Column ======
+	ImGui::TableSetColumnIndex(0);
+
+	if (!parameterTrack->hasParentParameterTrack()) {
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.1));
+		if (buttonCross("##remove")) removedTrack = parameterTrack;
+		ImGui::SameLine();
+		bool disableMoveUp = parameterTrack == manoeuvre->tracks.front();
+		ImGui::BeginDisabled(disableMoveUp);
+		if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpTrack = parameterTrack;
+		ImGui::EndDisabled();
+		ImGui::SameLine();
+		bool disableMoveDown = parameterTrack == manoeuvre->tracks.back();
+		ImGui::BeginDisabled(disableMoveDown);
+		if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownTrack = parameterTrack;
+		ImGui::EndDisabled();
+		ImGui::PopStyleVar();
+	}
+
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::white);
+	ImGui::PushFont(Fonts::sansBold15);
+	bool parameterValid = parameterTrack->b_valid;
+	if (!parameterValid) ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+
+	//====== Machine Column ======
+	ImGui::TableNextColumn();
+	if (!parameterTrack->hasParentParameterTrack()) {
+		ImGui::Text("%s", parameterTrack->parameter->machine->getName());
+	}
+	
+	if(ImGui::IsItemHovered()){
+		ImGui::BeginTooltip();
+		
+		
+		if(!parameterTrack->b_valid) ImGui::Text("Parameter Track not Valid");
+		
+		for(auto& curve : parameterTrack->curves){
+			
+			if(!curve->b_valid) ImGui::Text("- Curve Not Valid");
+			
+			for(auto& controlPoint : curve->points){
+				if(!controlPoint->b_valid) ImGui::Text("-- Control Point Not Valid : %s", Enumerator::getDisplayString(controlPoint->validationError));
+			}
+			
+			for(auto& interpolation : curve->interpolations){
+				if(!interpolation->b_valid) ImGui::Text("-- Interpolation Not Valid : %s", Enumerator::getDisplayString(interpolation->validationError));
+			}
+			
+		}
+		
+		
+		
+		ImGui::EndTooltip();
+	}
+
+	//====== Parameter Column ======
+	ImGui::TableNextColumn();
+	ImGui::Text("%s", parameterTrack->parameter->name);
+
+	if (!parameterValid) ImGui::PopStyleColor();
+	ImGui::PopStyleColor();
+	ImGui::PopFont();
+
+	if (!parameterTrack->hasChildParameterTracks()) {
+
+		//====== Movement Column ======
+
+		if (manoeuvre->type != Manoeuvre::Type::KEY_POSITION) {
+			ImGui::TableNextColumn();
+
+			//--- Interpolation Selector ---
+			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
+			trackEdited |= parameterTrack->interpolationTypeSelectorGui();
+
+			//--- Sequence Type Selector ---
+			if (manoeuvre->type == Manoeuvre::Type::MOVEMENT_SEQUENCE) {
+				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
+				trackEdited |= parameterTrack->sequenceTypeSelectorGui();
+			}
+		}
+
+		float originTargetInputFieldWidth = ImGui::GetTextLineHeight() * 8.0;
+
+		//====== Origin Column ======
+
+		if (manoeuvre->type != Manoeuvre::Type::KEY_POSITION) {
+			ImGui::TableNextColumn();
+
+			if (parameterTrack->sequenceType != SequenceType::Type::CONSTANT) {
+				//--- Origin Input ---
+				trackEdited |= parameterTrack->originInputGui(originTargetInputFieldWidth);
+			}
+			else ImGui::Dummy(glm::vec2(originTargetInputFieldWidth, ImGui::GetFrameHeight()));
+
+			//--- Chain Previous ---
+			bool disablePreviousChaining = manoeuvre->type == Manoeuvre::Type::TIMED_MOVEMENT;
+			if (disablePreviousChaining) ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+			chainingDependenciesEdited |= parameterTrack->chainPreviousGui(originTargetInputFieldWidth);
+			if (disablePreviousChaining) ImGui::PopItemFlag();
+		}
+
+
+		if (manoeuvre->type == Manoeuvre::Type::KEY_POSITION) {
+			float keyPositionChainingGuiWidh = ImGui::GetTextLineHeight() * 6.0;
+
+			//--- Previous Chained
+			ImGui::TableNextColumn();
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+			chainingDependenciesEdited |= parameterTrack->chainPreviousGui(keyPositionChainingGuiWidh);
+			ImGui::PopItemFlag();
+
+			//--- Target Input ----
+			ImGui::TableNextColumn();
+			trackEdited |= parameterTrack->targetInputGui(originTargetInputFieldWidth);
+
+			//--- Next Chained ---
+			ImGui::TableNextColumn();
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+			chainingDependenciesEdited |= parameterTrack->chainNextGui(keyPositionChainingGuiWidh);
+			ImGui::PopItemFlag();
+
+		}
+		else {
+
+			//====== Target Column ======
+			ImGui::TableNextColumn();
+			//--- Target Input ---
+			trackEdited |= parameterTrack->targetInputGui(originTargetInputFieldWidth);
+			//--- Chain Next ---
+			chainingDependenciesEdited |= parameterTrack->chainNextGui(originTargetInputFieldWidth);
+		}
+
+
+		//====== Timing Column ======
+
+		if (manoeuvre->type != Manoeuvre::Type::KEY_POSITION) {
+			ImGui::TableNextColumn();
+			float timingcolumnWidth = ImGui::GetTextLineHeight() * 7.0;
+
+			//--- Movement Time Input ---
+			ImGui::SetNextItemWidth(timingcolumnWidth);
+			trackEdited |= parameterTrack->timeInputGui();
+
+			if (manoeuvre->type != Manoeuvre::Type::TIMED_MOVEMENT) {
+				//--- Time Offset Input ---
+				ImGui::SetNextItemWidth(timingcolumnWidth);
+				trackEdited |= parameterTrack->timeOffsetInputGui();
+			}
+
+			//====== Ramps Column ======
+			ImGui::TableNextColumn();
+			trackEdited |= parameterTrack->rampInputGui(ImGui::GetTextLineHeight() * 7.0);
+		}
+	}
+
+	ImGui::EndDisabled();
+
+	ImGui::PopID();
+	ImGui::PopID();
+
+	if (chainingDependenciesEdited) manoeuvre->parentPlot->refreshChainingDependencies();
+	else if (trackEdited) parameterTrack->refreshAfterParameterEdit();
+};
+
+//============== END ROW LAMBDA =============
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 bool ParameterTrack::interpolationTypeSelectorGui() {
 	bool valueChanged = false;
 	auto compatibleInterpolations = parameter->getCompatibleInterpolationTypes();
@@ -559,3 +898,5 @@ bool ParameterTrack::drawControlPoints() {
 	}
 	return edited;
 }
+
+*/

@@ -6,7 +6,7 @@
 
 #include "Motion/Manoeuvre/ParameterTrack.h"
 
-std::vector<StateParameterValue> HoodedLiftStateMachine::stateParameterValues = {
+std::vector<AnimatableParameterState> HoodedLiftStateMachine::stateParameterValues = {
 	{0, "Shut", "Shut"},
 	{1, "Open", "Open"},
 	{2, "Raised", "Raised"}
@@ -29,7 +29,7 @@ void HoodedLiftStateMachine::initialize() {
 	addNodePin(raiseLiftCommandPin);
 	addNodePin(lowerLiftCommandPin);
 
-	addAnimatableParameter(stateParameter);
+	addParameter(stateParameter);
 }
 
 void HoodedLiftStateMachine::process() {
@@ -74,8 +74,7 @@ void HoodedLiftStateMachine::process() {
 	if (b_enabled) {
 
 		if (stateParameter->hasParameterTrack()) {
-			AnimatableParameterValue value;
-			stateParameter->getActiveTrackParameterValue(value);
+			AnimatableParameterValue value = stateParameter->getActiveTrackParameterValue();
 			switch (value.state->integerEquivalent) {
 				case 0:
 					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
@@ -233,7 +232,7 @@ bool HoodedLiftStateMachine::isMoving() {
 }
 
 void HoodedLiftStateMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
-	if (parameter == stateParameter && value.parameter == parameter) {
+	if (parameter == stateParameter) {
 		parameterMovementStartState = actualState;
 		switch (value.state->integerEquivalent) {
 			case 0:
@@ -264,7 +263,7 @@ float HoodedLiftStateMachine::getParameterRapidProgress(std::shared_ptr<Animatab
 }
 
 bool HoodedLiftStateMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
-	if (parameter == stateParameter && value.parameter == parameter) {
+	if (parameter == stateParameter) {
 		if ((float)value.state->integerEquivalent == getState(actualState)->floatEquivalent) return true;
 	}
 	return false;
@@ -291,6 +290,7 @@ void HoodedLiftStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& ou
 
 
 bool HoodedLiftStateMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
+	/*
 	parameterTrack->b_valid = true;
 	for (auto& curve : parameterTrack->curves) {
 		curve->b_valid = true;
@@ -303,6 +303,7 @@ bool HoodedLiftStateMachine::validateParameterTrack(const std::shared_ptr<Parame
 			interpolation->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 		}
 	}
+	 */
 	return true;
 }
 
@@ -330,8 +331,7 @@ void HoodedLiftStateMachine::simulateProcess() {
 	//update outputs signals
 	if (isEnabled()) {
 		if (stateParameter->hasParameterTrack()) {
-			AnimatableParameterValue value;
-			stateParameter->getActiveTrackParameterValue(value);
+			AnimatableParameterValue value = stateParameter->getActiveTrackParameterValue();
 			switch (value.state->integerEquivalent) {
 				case 0:
 					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;

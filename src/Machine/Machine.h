@@ -98,8 +98,8 @@ public:
 	virtual void simulateProcess() = 0;
 
 	//===== PARAMETERS =====
-	void addAnimatableParameter(std::shared_ptr<AnimatableParameter> parameter);
-	std::vector<std::shared_ptr<AnimatableParameter>> animatableParameters;
+	void addParameter(std::shared_ptr<MachineParameter> parameter);
+	std::vector<std::shared_ptr<MachineParameter>> parameters;
 
 	//===== RAPIDS =====
 	virtual void rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;

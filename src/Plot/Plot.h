@@ -9,25 +9,32 @@ public:
 
 	Plot() {}
 
-	char name[256] = "";
-	std::time_t saveTime;
-
-	std::vector<std::shared_ptr<Manoeuvre>> manoeuvres;
-	std::shared_ptr<Manoeuvre> selectedManoeuvre = nullptr;
-
-	bool save(const char* path);
-	bool load(const char* path);
-
+	const char* getName(){ return name; }
+	void setName(const char* name_){ strcpy(name, name_); }
+	
+	std::vector<std::shared_ptr<Manoeuvre>>& getManoeuvres(){ return manoeuvres; }
+	
 	void selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre);
 	std::shared_ptr<Manoeuvre> getSelectedManoeuvre();
+	
 	void addManoeuvre();
 	void deleteSelectedManoeuvre();
 	void duplicateSelectedManoeuvre();
 	void reorderManoeuvre(std::shared_ptr<Manoeuvre> m, int oldIndex, int newIndex);
 
 	void refreshPlotAfterMachineLimitChanged(std::shared_ptr<Machine> m);
-	void refreshChainingDependencies();
 	void refreshAll();
+	
+	bool save(const char* path);
+	bool load(const char* path);
+	
+private:
 
+	std::vector<std::shared_ptr<Manoeuvre>> manoeuvres;
+	std::shared_ptr<Manoeuvre> selectedManoeuvre = nullptr;
+
+	char name[256] = "";
+	std::time_t saveTime;
+	
 };
 

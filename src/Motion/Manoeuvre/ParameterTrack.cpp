@@ -10,6 +10,7 @@
 #include "Motion/Manoeuvre/Manoeuvre.h"
 #include "Plot/Plot.h"
 
+/*
 
 ParameterTrack::ParameterTrack(std::shared_ptr<AnimatableParameter>& param, std::shared_ptr<Manoeuvre> m) : parameter(param), parentManoeuvre(m) {
 	initialize();
@@ -618,3 +619,4 @@ SequenceType* getSequenceType(const char* saveName) {
 	}
 	return nullptr;
 }
+*/

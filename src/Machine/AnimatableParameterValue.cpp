@@ -4,6 +4,8 @@
 
 #include <tinyxml2.h>
 
+
+/*
 void AnimatableParameterValue::reset() {
 	switch (parameter->dataType) {
 		case ParameterDataType::BOOLEAN_PARAMETER:
@@ -120,3 +122,4 @@ bool AnimatableParameterValue::load(tinyxml2::XMLElement* parameterValueXML) {
 	}
 	return true;
 }
+*/

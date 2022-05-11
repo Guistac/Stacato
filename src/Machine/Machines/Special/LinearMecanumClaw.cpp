@@ -30,27 +30,27 @@ void LinearMecanumClaw::initialize() {
 	addNodePin(clawPositionPin);
 	addNodePin(clawVelocityPin);
 	
-	addAnimatableParameter(linearAxisPositionParameter);
-	addAnimatableParameter(clawAxisPositionParameter);
-	clawAxisPositionParameter->unit = clawPositionUnit;
+	addParameter(linearAxisPositionParameter);
+	addParameter(clawAxisPositionParameter);
+	clawAxisPositionParameter->setUnit(clawPositionUnit);
 }
 
 void LinearMecanumClaw::onPinConnection(std::shared_ptr<NodePin> pin){
-	if(pin == linearAxisPin) linearAxisPositionParameter->unit = getLinearAxis()->getPositionUnit();
+	if(pin == linearAxisPin) linearAxisPositionParameter->setUnit(getLinearAxis()->getPositionUnit());
 }
 
 void LinearMecanumClaw::onPinDisconnection(std::shared_ptr<NodePin> pin){
-	if(pin == linearAxisPin) linearAxisPositionParameter->unit = Units::None::None;
+	if(pin == linearAxisPin) linearAxisPositionParameter->setUnit(Units::None::None);
 }
 
 void LinearMecanumClaw::onPinUpdate(std::shared_ptr<NodePin> pin){
-	if(pin == linearAxisPin) linearAxisPositionParameter->unit = getLinearAxis()->getPositionUnit();
+	if(pin == linearAxisPin) linearAxisPositionParameter->setUnit(getLinearAxis()->getPositionUnit());
 }
 
 
 void LinearMecanumClaw::setClawPositionUnit(Unit unit){
 	clawPositionUnit = unit;
-	clawAxisPositionParameter->unit = unit;
+	clawAxisPositionParameter->setUnit(unit);
 }
 
 //======= STATE CHANGES =========
@@ -216,8 +216,7 @@ void LinearMecanumClaw::process() {
 				break;
 			case ControlMode::EXTERNAL:
 				if(linearAxisPositionParameter->hasParameterTrack()){
-					AnimatableParameterValue playbackValue;
-					linearAxisPositionParameter->getActiveTrackParameterValue(playbackValue);
+					AnimatableParameterValue playbackValue = linearAxisPositionParameter->getActiveTrackParameterValue();
 					double previousProfilePosition_machineUnits = linearAxisMotionProfile.getPosition();
 					double parameterTrackVelocity = (playbackValue.real - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
 					linearAxisMotionProfile.setVelocity(parameterTrackVelocity);
@@ -244,8 +243,7 @@ void LinearMecanumClaw::process() {
 				break;
 			case ControlMode::EXTERNAL:
 				if(clawAxisPositionParameter->hasParameterTrack()){
-					AnimatableParameterValue playbackValue;
-					clawAxisPositionParameter->getActiveTrackParameterValue(playbackValue);
+					AnimatableParameterValue playbackValue = clawAxisPositionParameter->getActiveTrackParameterValue();
 					double previousProfilePosition_machineUnits = clawAxisMotionProfile.getPosition();
 					double parameterTrackVelocity = (playbackValue.real - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
 					clawAxisMotionProfile.setVelocity(parameterTrackVelocity);
@@ -376,8 +374,7 @@ void LinearMecanumClaw::simulateProcess() {
 			break;
 		case ControlMode::EXTERNAL:
 			if(linearAxisPositionParameter->hasParameterTrack()){
-				AnimatableParameterValue playbackValue;
-				linearAxisPositionParameter->getActiveTrackParameterValue(playbackValue);
+				AnimatableParameterValue playbackValue = linearAxisPositionParameter->getActiveTrackParameterValue();
 				double previousProfilePosition_machineUnits = linearAxisMotionProfile.getPosition();
 				double parameterTrackVelocity = (playbackValue.real - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
 				linearAxisMotionProfile.setVelocity(parameterTrackVelocity);
@@ -404,8 +401,7 @@ void LinearMecanumClaw::simulateProcess() {
 			break;
 		case ControlMode::EXTERNAL:
 			if(clawAxisPositionParameter->hasParameterTrack()){
-				AnimatableParameterValue playbackValue;
-				clawAxisPositionParameter->getActiveTrackParameterValue(playbackValue);
+				AnimatableParameterValue playbackValue = clawAxisPositionParameter->getActiveTrackParameterValue();
 				double previousProfilePosition_machineUnits = clawAxisMotionProfile.getPosition();
 				double parameterTrackVelocity = (playbackValue.real - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
 				clawAxisMotionProfile.setVelocity(parameterTrackVelocity);
@@ -818,6 +814,8 @@ bool LinearMecanumClaw::validateParameterTrack(const std::shared_ptr<ParameterTr
 	//in this case validity and validation errors needs to be left untouched
 	
 	//return overall validity
+	
+	/*
 	using namespace Motion;
 	bool b_curveValid = true;
 	
@@ -957,6 +955,7 @@ bool LinearMecanumClaw::validateParameterTrack(const std::shared_ptr<ParameterTr
 		//we return the result of the validation
 		return b_curveValid;
 	}
+	 */
 	
 	return false;
 }

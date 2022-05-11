@@ -7,78 +7,220 @@ class Machine;
 class ParameterTrack;
 namespace tinyxml2 { class XMLElement; }
 
-enum class ParameterDataType {
-	BOOLEAN_PARAMETER,
-	INTEGER_PARAMETER,
-	STATE_PARAMETER,
-	REAL_PARAMETER,
-	VECTOR_2D_PARAMETER,
-	VECTOR_3D_PARAMETER,
-	POSITION,
-	POSITION_2D,
-	POSITION_3D,
-	PARAMETER_GROUP
+
+
+
+class ParameterGroup;
+
+class MachineParameter : public std::enable_shared_from_this<MachineParameter>{
+public:
+	MachineParameter(const char* name_){ strcpy(name, name_); }
+	
+	virtual MachineParameterType getType() = 0;
+	bool hasParentGroup() { return parentParameterGroup != nullptr; }
+	void setParentGroup(std::shared_ptr<ParameterGroup> parent){ parentParameterGroup = parent; }
+	
+	const char* getName(){ return name; }
+	void setMachine(std::shared_ptr<Machine> machine_){ machine = machine_; }
+	std::shared_ptr<Machine> getMachine(){ return machine; }
+	
+	static std::shared_ptr<ParameterGroup> castToGroup(std::shared_ptr<MachineParameter> input){
+		return std::dynamic_pointer_cast<ParameterGroup>(input);
+	}
+	
+	static std::shared_ptr<AnimatableParameter> castToAnimatable(std::shared_ptr<MachineParameter> input){
+		return std::dynamic_pointer_cast<AnimatableParameter>(input);
+	}
+
+private:
+	char name[256];
+	std::shared_ptr<Machine> machine;
+	std::shared_ptr<ParameterGroup> parentParameterGroup = nullptr;
 };
 
-#define ParameterDataTypeStrings \
-	{ParameterDataType::BOOLEAN_PARAMETER, 		"Boolean", 			"Boolean"},\
-	{ParameterDataType::INTEGER_PARAMETER, 		"Integer", 			"Integer"},\
-	{ParameterDataType::STATE_PARAMETER, 		"State", 			"State"},\
-	{ParameterDataType::REAL_PARAMETER, 		"Real", 			"Real"},\
-	{ParameterDataType::VECTOR_2D_PARAMETER, 	"2D Vector", 		"2DVector"},\
-	{ParameterDataType::VECTOR_3D_PARAMETER, 	"3D Vector", 		"3DVector"},\
-	{ParameterDataType::POSITION, 				"Position", 		"Position"},\
-	{ParameterDataType::POSITION_2D, 			"2D Position", 		"3DPosition"},\
-	{ParameterDataType::POSITION_3D, 			"3D Position", 		"3DPosition"},\
-	{ParameterDataType::PARAMETER_GROUP, 		"Paramater Group", 	"ParameterGroup"}\
 
-DEFINE_ENUMERATOR(ParameterDataType, ParameterDataTypeStrings)
+class ParameterGroup : public MachineParameter{
+public:
+	
+	ParameterGroup(const char* name, std::vector<std::shared_ptr<MachineParameter>> children) : MachineParameter(name), childParameters(children){
+		for(auto& childParameter : childParameters){
+			auto thisGroup = std::dynamic_pointer_cast<ParameterGroup>(shared_from_this());
+			childParameter->setParentGroup(thisGroup);
+		}
+	}
+	
+	virtual MachineParameterType getType(){ return MachineParameterType::PARAMETER_GROUP; }
+	
+	std::vector<std::shared_ptr<MachineParameter>>& getChildren(){ return childParameters; }
+
+private:
+	std::vector<std::shared_ptr<MachineParameter>> childParameters;
+};
 
 
-//=== value structure for State Data Type ===
-struct StateParameterValue {
+
+class AnimatableParameter : public MachineParameter{
+public:
+	
+	AnimatableParameter(const char* name) : MachineParameter(name) {}
+	
+	virtual std::vector<Motion::InterpolationType>& getCompatibleInterpolationTypes() = 0;
+
+	bool hasParameterTrack() { return actualParameterTrack != nullptr; }
+	AnimatableParameterValue getActiveTrackParameterValue(){
+		//TODO: IMPORTANT !!!
+		//return actualParameterTrack->getParameterValueAtPlaybackTime();
+		return {};
+	}
+	
+private:
+	std::shared_ptr<ParameterTrack> actualParameterTrack = nullptr;
+};
+
+
+
+class AnimatableNumericalParameter : public AnimatableParameter{
+public:
+	
+	AnimatableNumericalParameter(const char* name, MachineParameterType type_, Unit unit_) : AnimatableParameter(name), unit(unit_), type(type_){
+		assert(type != MachineParameterType::PARAMETER_GROUP);
+		assert(type != MachineParameterType::BOOLEAN_PARAMETER);
+		assert(type != MachineParameterType::STATE_PARAMETER);
+	}
+	
+	virtual MachineParameterType getType(){ return type; }
+	virtual std::vector<Motion::InterpolationType>& getCompatibleInterpolationTypes(){
+		static std::vector<Motion::InterpolationType> stepOnly = {
+			Motion::InterpolationType::STEP
+		};
+		
+		static std::vector<Motion::InterpolationType> allInterpolationTypes = {
+			Motion::InterpolationType::STEP,
+			Motion::InterpolationType::LINEAR,
+			Motion::InterpolationType::TRAPEZOIDAL,
+			Motion::InterpolationType::BEZIER
+		};
+		
+		static std::vector<Motion::InterpolationType> onlyKinematic = {
+			Motion::InterpolationType::TRAPEZOIDAL
+		};
+		
+		static std::vector<Motion::InterpolationType> none = {};
+		
+		switch (type) {
+			case MachineParameterType::BOOLEAN_PARAMETER:
+			case MachineParameterType::INTEGER_PARAMETER:
+			case MachineParameterType::STATE_PARAMETER:
+				return stepOnly;
+			case MachineParameterType::REAL_PARAMETER:
+			case MachineParameterType::VECTOR_2D_PARAMETER:
+			case MachineParameterType::VECTOR_3D_PARAMETER:
+				return allInterpolationTypes;
+			case MachineParameterType::POSITION:
+			case MachineParameterType::POSITION_2D:
+			case MachineParameterType::POSITION_3D:
+				return onlyKinematic;
+			case MachineParameterType::PARAMETER_GROUP:
+				return none;
+		}
+	}
+	
+	Unit getUnit(){ return unit; }
+	void setUnit(Unit u){ unit = u; }
+	
+private:
+	
+	Unit unit;
+	MachineParameterType type;
+	
+};
+
+
+struct AnimatableParameterState{
 	int integerEquivalent;
 	const char displayName[64];
 	const char saveName[64];
 };
 
-
-class AnimatableParameter {
+class AnimatableStateParameter : public AnimatableParameter{
 public:
-
-	//Constructor for Base Parameter Types
-	AnimatableParameter(const char* nm);
-	AnimatableParameter(const char* nm, ParameterDataType datat);
-	AnimatableParameter(const char* nm, ParameterDataType datat, Unit unit);
-
-	//Constructor for Parameter with State DataType
-	AnimatableParameter(const char* nm, std::vector<StateParameterValue>* stateValues);
-
-	//Constructor for Parameter Group
-	AnimatableParameter(const char* nm, std::vector<std::shared_ptr<AnimatableParameter>> children);
 	
-	//=== Basic Parameter Information ===
-	ParameterDataType dataType;
-	char name[128];
-	std::shared_ptr<Machine> machine;
-
-	//=== For Non-Group Parameters ===
-	std::vector<Motion::InterpolationType> getCompatibleInterpolationTypes();
-	Unit unit;
-
-	//=== For Parameters with State Type ===
-	std::vector<StateParameterValue>* stateParameterValues = nullptr;
-	std::vector<StateParameterValue>& getStateValues() { return *stateParameterValues; }
-
-	//=== For Group Parameters or Parameters in a group ===
-	std::vector<std::shared_ptr<AnimatableParameter>> childParameters;
-	std::shared_ptr<AnimatableParameter> parentParameter = nullptr;
-	bool hasParentGroup() { return parentParameter != nullptr; }
-	bool hasChildParameters() { return !childParameters.empty(); }
-	std::shared_ptr<AnimatableParameter> getParentGroup() { return parentParameter; }
+	AnimatableStateParameter(const char* name, std::vector<AnimatableParameterState>* stateValues) : AnimatableParameter(name), states(stateValues){};
 	
-	//=== For Parameters Controlled by ParameterTrack Animation ===
-	std::shared_ptr<ParameterTrack> actualParameterTrack = nullptr;
-	bool hasParameterTrack() { return actualParameterTrack != nullptr; }
-	void getActiveTrackParameterValue(AnimatableParameterValue& output);
+	virtual MachineParameterType getType(){ return MachineParameterType::STATE_PARAMETER; }
+	virtual std::vector<Motion::InterpolationType>& getCompatibleInterpolationTypes(){
+		static std::vector<Motion::InterpolationType> compatibleInterpolations = { Motion::InterpolationType::STEP };
+		return compatibleInterpolations;
+	}
+	
+	std::vector<AnimatableParameterState>& getStates() { return *states; }
+	
+private:
+	std::vector<AnimatableParameterState>* states;
 };
+
+
+
+class AnimatableBooleanParameter : public AnimatableParameter{
+public:
+	
+	AnimatableBooleanParameter(const char* name) : AnimatableParameter(name){}
+	
+	virtual MachineParameterType getType(){ return MachineParameterType::BOOLEAN_PARAMETER; }
+	virtual std::vector<Motion::InterpolationType>& getCompatibleInterpolationTypes(){
+		static std::vector<Motion::InterpolationType> compatibleInterpolations = { Motion::InterpolationType::STEP };
+		return compatibleInterpolations;
+	}
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

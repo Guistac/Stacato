@@ -10,10 +10,19 @@ public:
 	bool b_changed;
 	std::string name;
 	std::string saveString;
+	std::string imguiID;
 	
 	Parameter(std::string name_, std::string saveString_ = ""){
 		b_changed = false;
+		setName(name_);
+		setSaveString(saveString_);
+	}
+	
+	void setName(std::string name_){
 		name = name_;
+		imguiID = "##" + name; //this avoid rendering the parameter name in imgui input field
+	}
+	void setSaveString(std::string saveString_){
 		saveString = saveString_;
 	}
 	
@@ -26,6 +35,15 @@ public:
 			b_changed = false;
 			return true;
 		}else return false;
+	}
+	
+	typedef void (*EditCallback)(void*);
+	EditCallback editCallback = nullptr;
+	void* editCallbackPayload = nullptr;
+	
+	void setEditCallback(EditCallback cb, void* cbPayload){
+		editCallback = cb;
+		editCallbackPayload = cbPayload;
 	}
 	
 };
@@ -105,11 +123,13 @@ public:
 			parameter->value = newValue;
 			parameter->displayValue = newValue;
 			parameter->b_changed = true;
+			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
 		}
 		virtual void undo(){
 			parameter->value = previousValue;
 			parameter->displayValue = previousValue;
 			parameter->b_changed = true;
+			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
 		}
 	};
 	
@@ -117,52 +137,52 @@ public:
 
 template<>
 inline void NumberParameter<float>::inputField(){
-	ImGui::InputFloat(name.c_str(), &displayValue, stepSmall, stepLarge, format);
+	ImGui::InputFloat(imguiID.c_str(), &displayValue, stepSmall, stepLarge, format);
 }
 
 template<>
 inline void NumberParameter<double>::inputField(){
-	ImGui::InputDouble(name.c_str(), &displayValue, stepSmall, stepLarge, format);
+	ImGui::InputDouble(imguiID.c_str(), &displayValue, stepSmall, stepLarge, format);
 }
 
 template<>
 inline void NumberParameter<uint8_t>::inputField(){
-	ImGui::InputScalar(name.c_str(), ImGuiDataType_U8, &displayValue, &stepSmall, &stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U8, &displayValue, &stepSmall, &stepLarge, format);
 }
 
 template<>
 inline void NumberParameter<int8_t>::inputField(){
-	ImGui::InputScalar(name.c_str(), ImGuiDataType_S8, &displayValue, &stepSmall, &stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S8, &displayValue, &stepSmall, &stepLarge, format);
 }
 
 template<>
 inline void NumberParameter<uint16_t>::inputField(){
-	ImGui::InputScalar(name.c_str(), ImGuiDataType_U16, &displayValue, &stepSmall, &stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U16, &displayValue, &stepSmall, &stepLarge, format);
 }
 
 template<>
 inline void NumberParameter<int16_t>::inputField(){
-	ImGui::InputScalar(name.c_str(), ImGuiDataType_S16, &displayValue, &stepSmall, &stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S16, &displayValue, &stepSmall, &stepLarge, format);
 }
 
 template<>
 inline void NumberParameter<uint32_t>::inputField(){
-	ImGui::InputScalar(name.c_str(), ImGuiDataType_U32, &displayValue, &stepSmall, &stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U32, &displayValue, &stepSmall, &stepLarge, format);
 }
 
 template<>
 inline void NumberParameter<int32_t>::inputField(){
-	ImGui::InputScalar(name.c_str(), ImGuiDataType_S32, &displayValue, &stepSmall, &stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S32, &displayValue, &stepSmall, &stepLarge, format);
 }
 
 template<>
 inline void NumberParameter<uint64_t>::inputField(){
-	ImGui::InputScalar(name.c_str(), ImGuiDataType_U64, &displayValue, &stepSmall, &stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U64, &displayValue, &stepSmall, &stepLarge, format);
 }
 
 template<>
 inline void NumberParameter<int64_t>::inputField(){
-	ImGui::InputScalar(name.c_str(), ImGuiDataType_S64, &displayValue, &stepSmall, &stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S64, &displayValue, &stepSmall, &stepLarge, format);
 }
 
 
@@ -220,11 +240,13 @@ public:
 			parameter->value = newValue;
 			parameter->displayValue = newValue;
 			parameter->b_changed = true;
+			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
 		}
 		virtual void undo(){
 			parameter->value = previousValue;
 			parameter->displayValue = previousValue;
 			parameter->b_changed = true;
+			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
 		}
 	};
 	
@@ -232,7 +254,7 @@ public:
 
 template<>
 inline void VectorParameter<glm::vec2>::inputField(){
-	ImGui::InputFloat2(name.c_str(), &displayValue.x, format);
+	ImGui::InputFloat2(imguiID.c_str(), &displayValue.x, format);
 }
 
 template<>
@@ -261,7 +283,7 @@ inline bool VectorParameter<glm::vec2>::load(tinyxml2::XMLElement* xml){
 
 template<>
 inline void VectorParameter<glm::vec3>::inputField(){
-	ImGui::InputFloat3(name.c_str(), &displayValue.x, format);
+	ImGui::InputFloat3(imguiID.c_str(), &displayValue.x, format);
 }
 
 template<>
@@ -291,7 +313,7 @@ inline bool VectorParameter<glm::vec3>::load(tinyxml2::XMLElement* xml){
 
 template<>
 inline void VectorParameter<glm::vec4>::inputField(){
-	ImGui::InputFloat4(name.c_str(), &displayValue.x, format);
+	ImGui::InputFloat4(imguiID.c_str(), &displayValue.x, format);
 }
 
 template<>
@@ -338,7 +360,7 @@ public:
 	}
 	
 	virtual void gui(){
-		ImGui::Checkbox(name.c_str(), &displayValue);
+		ImGui::Checkbox(imguiID.c_str(), &displayValue);
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
 			std::shared_ptr<BooleanParameter> thisParameter = shared_from_this();
@@ -374,9 +396,11 @@ public:
 		}
 		virtual void execute(){
 			invert();
+			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
 		}
 		virtual void undo(){
 			invert();
+			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
 		}
 	};
 	
@@ -403,8 +427,13 @@ public:
 		strcpy(displayValue, value_.c_str());
 	}
 	
+	void overwrite(const char* value_){
+		strcpy(displayValue, value_);
+		value = value_;
+	}
+	
 	virtual void gui(){
-		ImGui::InputText(name.c_str(), displayValue, bufferSize);
+		ImGui::InputText(imguiID.c_str(), displayValue, bufferSize);
 		if(ImGui::IsItemDeactivatedAfterEdit() && strcmp(displayValue, value.c_str()) != 0){
 			//=========Command Invoker=========
 			std::shared_ptr<StringParameter> thisParameter = shared_from_this();
@@ -441,11 +470,13 @@ public:
 			parameter->value = newValue;
 			strcpy(parameter->displayValue, newValue.c_str());
 			parameter->b_changed = true;
+			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
 		}
 		virtual void undo(){
 			parameter->value = previousValue;
 			strcpy(parameter->displayValue, previousValue.c_str());
 			parameter->b_changed = true;
+			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
 		}
 	};
 	
@@ -469,7 +500,7 @@ public:
 	}
 	
 	virtual void gui(){
-		if(ImGui::BeginCombo(name.c_str(), Enumerator::getDisplayString(displayValue))){
+		if(ImGui::BeginCombo(imguiID.c_str(), Enumerator::getDisplayString(displayValue))){
 			for(auto& type : Enumerator::getTypes<T>()){
 				if(ImGui::Selectable(type.displayString, type.enumerator == displayValue)){
 					displayValue = type.enumerator;
@@ -515,12 +546,204 @@ public:
 			parameter->value = newValue;
 			parameter->displayValue = newValue;
 			parameter->b_changed = true;
+			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
 		}
 		virtual void undo(){
 			parameter->value = oldValue;
 			parameter->displayValue = oldValue;
 			parameter->b_changed = true;
+			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
 		}
 	};
 	
 };
+
+
+
+
+/*
+
+
+
+
+class EnumStruct_Base{
+public:
+	char displayString[64];
+	char saveString[64];
+};
+
+class Enum_Base{
+public:
+	
+	virtual std::vector<EnumStruct_Base>& getTypes() = 0;
+	
+	EnumStruct_Base& getStructureFromSaveString(const char* saveString){
+		
+	}
+	
+};
+
+
+
+
+template<typename T>
+class EnumStruct_Derived : public EnumStruct_Base{
+public:
+	T enumerator;
+};
+
+
+template<typename T>
+class Enum_Derived : public Enum_Base{
+public:
+	
+	virtual std::vector<EnumStruct_Base>& getTypes(){
+		static std::vector<EnumStruct_Base> baseTypes;
+		return baseTypes;
+	}
+	
+	void init(std::vector<EnumStruct_Derived<T>> derivedTypes){
+		for(auto& derivedType : derivedTypes){
+			getTypes().push_back(derivedType);
+		}
+	}
+	
+	
+	
+	
+	
+};
+
+
+
+//#define DEFINE_NEW_ENUM(TypeName, TypeStructures)\
+//template class Enum_Derived::<TypeName>\
+
+enum class Numbers{
+	ONE,
+	TWO,
+	THREE
+};
+
+template class EnumStruct_Derived<Numbers>;
+template class Enum_Derived<Numbers>;
+
+void initTest(){
+	Enum_Derived<Numbers> test;
+
+	test.init({
+		{.enumerator = Numbers::ONE, .displayString = "one", .saveString = "two"}
+	});
+}
+
+*/
+
+
+
+
+
+
+
+
+
+#include "Machine/AnimatableParameterValue.h"
+#include "Motion/Curve/Curve.h"
+#include "Motion/MotionTypes.h"
+
+class Machine;
+class ParameterTrack;
+namespace tinyxml2 { class XMLElement; }
+
+
+
+class ParameterGroup_B;
+template<typename T>
+class AnimatableParameter_B;
+
+class MachineParameter_B : public std::enable_shared_from_this<MachineParameter_B>{
+public:
+	MachineParameter_B(const char* name_){ strcpy(name, name_); }
+	
+	virtual bool isParentGroup() = 0;
+	bool hasParentGroup() { return parentParameterGroup != nullptr; }
+	void setParentGroup(std::shared_ptr<ParameterGroup_B> parent){ parentParameterGroup = parent; }
+	
+	const char* getName(){ return name; }
+	void setMachine(std::shared_ptr<Machine> machine_){ machine = machine_; }
+	std::shared_ptr<Machine> getMachine(){ return machine; }
+	
+	static std::shared_ptr<ParameterGroup_B> castToGroup(std::shared_ptr<MachineParameter_B> input){
+		return std::dynamic_pointer_cast<ParameterGroup_B>(input);
+	}
+	
+	template<typename T>
+	static std::shared_ptr<AnimatableParameter_B<T>> castToAnimatable(std::shared_ptr<MachineParameter_B> input){
+		return std::dynamic_pointer_cast<AnimatableParameter_B<T>>(input);
+	}
+
+private:
+	char name[256];
+	std::shared_ptr<Machine> machine;
+	std::shared_ptr<ParameterGroup_B> parentParameterGroup = nullptr;
+};
+
+
+class ParameterGroup_B : public MachineParameter_B{
+public:
+	
+	ParameterGroup_B(const char* name, std::vector<std::shared_ptr<MachineParameter_B>> children) : MachineParameter_B(name), childParameters(children){
+		for(auto& childParameter : childParameters){
+			auto thisGroup = std::dynamic_pointer_cast<ParameterGroup_B>(shared_from_this());
+			childParameter->setParentGroup(thisGroup);
+		}
+	}
+	
+	virtual bool isParentGroup(){ return true; }
+	
+	std::vector<std::shared_ptr<MachineParameter_B>>& getChildren(){ return childParameters; }
+
+private:
+	std::vector<std::shared_ptr<MachineParameter_B>> childParameters;
+};
+
+
+template<typename T>
+class AnimatableParameter_B : public MachineParameter_B{
+public:
+	
+	AnimatableParameter_B(const char* name) : MachineParameter_B(name) {}
+	
+	virtual std::vector<Motion::InterpolationType>& getCompatibleInterpolationTypes(){
+		static std::vector<Motion::InterpolationType> test;
+		return test;
+	}
+
+	virtual bool isParentGroup(){ return false; }
+	
+	bool hasParameterTrack() { return actualParameterTrack != nullptr; }
+	T getActiveTrackParameterValue(){
+		//TODO: IMPORTANT !!!
+		//return actualParameterTrack->getParameterValueAtPlaybackTime();
+		return {};
+	}
+	
+private:
+	std::shared_ptr<ParameterTrack> actualParameterTrack = nullptr;
+};
+
+
+static void test(){
+	std::shared_ptr<AnimatableParameter_B<bool>> test = std::make_shared<AnimatableParameter_B<bool>>("test");
+	std::shared_ptr<MachineParameter_B> base;
+	base = test;
+	
+	MachineParameter_B::castToAnimatable<bool>(base);
+	
+	
+}
+
+
+
+
+
+

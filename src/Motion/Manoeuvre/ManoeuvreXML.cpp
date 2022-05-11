@@ -11,6 +11,7 @@
 
 
 bool Manoeuvre::save(tinyxml2::XMLElement* manoeuvreXML) {
+	/*
 	using namespace tinyxml2;
 	manoeuvreXML->SetAttribute("Name", name);
 	manoeuvreXML->SetAttribute("Description", description);
@@ -23,10 +24,12 @@ bool Manoeuvre::save(tinyxml2::XMLElement* manoeuvreXML) {
 		XMLElement* trackXML = manoeuvreXML->InsertNewChildElement("Track");
 		track->save(trackXML);
 	}
+	 */
 	return true;
 }
 
 bool Manoeuvre::load(tinyxml2::XMLElement* manoeuvreXML) {
+	/*
 	using namespace tinyxml2;
 	const char* nameString;
 	if (manoeuvreXML->QueryStringAttribute("Name", &nameString) != XML_SUCCESS) return Logger::warn("Could not find Manoeuvre Name Attribute");
@@ -52,12 +55,13 @@ bool Manoeuvre::load(tinyxml2::XMLElement* manoeuvreXML) {
 		}
 		trackXML = trackXML->NextSiblingElement("Track");
 	}
-
+*/
 	return true;
 }
 
 
 bool ParameterTrack::save(tinyxml2::XMLElement* trackXML) {
+	/*
 	using namespace tinyxml2;
 	
 	trackXML->SetAttribute("Machine", parameter->machine->getName());
@@ -113,9 +117,11 @@ bool ParameterTrack::save(tinyxml2::XMLElement* trackXML) {
 		break;
 	}
 	return true;
+	 */
 }
 
 bool ParameterTrack::load(tinyxml2::XMLElement* trackXML) {
+	/*
 	using namespace tinyxml2;
 
 	const char* machineNameString;
@@ -215,5 +221,6 @@ bool ParameterTrack::load(tinyxml2::XMLElement* trackXML) {
 		break;
 	}
 
+	 */
 	return true;
 }

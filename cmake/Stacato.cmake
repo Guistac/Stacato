@@ -81,6 +81,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/CustomWidgets.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/CustomWidgets.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/DraggableList.h
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/DraggableListNew.h
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/DraggableListNew.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/FileDialog.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/FileDialog.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/HelpMarker.cpp
@@ -105,7 +107,6 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Motion/Playback/Playback.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Playback/Playback.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Playback/Transport.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Playback/Transport.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.cpp

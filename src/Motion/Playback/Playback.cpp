@@ -12,6 +12,7 @@ namespace Playback {
 	std::vector<std::shared_ptr<Manoeuvre>> playingManoeuvres;
 
 	void rapidToStart(const std::shared_ptr<Manoeuvre>& manoeuvre) {
+		/*
 		if (!isPlaying(manoeuvre)) {
 			manoeuvre->playbackPosition_seconds = 0.0;
 			for (auto& track : manoeuvre->tracks) {
@@ -20,9 +21,11 @@ namespace Playback {
 			}
 			rapidManoeuvres.push_back(manoeuvre);
 		}
+		 */
 	}
 
 	void rapidToEnd(const std::shared_ptr<Manoeuvre>& manoeuvre) {
+		/*
 		if (!isPlaying(manoeuvre)) {
 			manoeuvre->playbackPosition_seconds = 0.0;
 			for (auto& track : manoeuvre->tracks) {
@@ -31,9 +34,11 @@ namespace Playback {
 			}
 			rapidManoeuvres.push_back(manoeuvre);
 		}
+		 */
 	}
 
 	void rapidToPlaybackPosition(const std::shared_ptr<Manoeuvre>& manoeuvre) {
+		/*
 		if (!isPlaying(manoeuvre) || isPaused(manoeuvre)) {
 			for (auto& track : manoeuvre->tracks) {
 				track->playbackPosition_seconds = manoeuvre->playbackPosition_seconds;
@@ -41,9 +46,11 @@ namespace Playback {
 			}
 			rapidManoeuvres.push_back(manoeuvre);
 		}
+		 */
 	}
 	
 	void stopRapid(const std::shared_ptr<Manoeuvre>& manoeuvre) {
+		/*
 		if (isInRapid(manoeuvre)) {
 			for (auto& track : manoeuvre->tracks) track->cancelRapid();
 			for (int i = 0; i < rapidManoeuvres.size(); i++) {
@@ -53,48 +60,60 @@ namespace Playback {
 				}
 			}
 		}
+		 */
 	}
 	
 	bool isInRapid(const std::shared_ptr<Manoeuvre>& manoeuvre) {
+		/*
 		for (auto& m : rapidManoeuvres) {
 			if (m == manoeuvre) return true;
 		}
+		 */
 		return false;
 	}
 
 	float getRapidProgress(const std::shared_ptr<Manoeuvre>& manoeuvre) {
+		/*
 		float lowestPrimingProgress = 1.0;
 		for (auto& track : manoeuvre->tracks) {
 			float progress = track->getRapidProgress();
 			if (progress < lowestPrimingProgress) lowestPrimingProgress = progress;
 		}
 		return lowestPrimingProgress;
+		 */
+		return 0.0;
 	}
 
 
 
 
 	bool isPrimedToStart(const std::shared_ptr<Manoeuvre>& manoeuvre) {
+		/*
 		if (manoeuvre->tracks.empty()) return false;
 		for (auto& track : manoeuvre->tracks) {
 			if (!track->isPrimedToStart()) return false;
 		}
+		 */
 		return true;
 	}
 
 	bool isPrimedToEnd(const std::shared_ptr<Manoeuvre>& manoeuvre) {
+		/*
 		if (manoeuvre->tracks.empty()) return false;
 		for (auto& track : manoeuvre->tracks) {
 			if (!track->isPrimedToEnd()) return false;
 		}
+		 */
 		return true;
 	}
 
 	bool isPrimedToPlaybackPosition(const std::shared_ptr<Manoeuvre>& manoeuvre) {
+		/*
 		if (manoeuvre->tracks.empty()) return false;
 		for (auto& track : manoeuvre->tracks) {
 			if (!track->isPrimedToPlaybackPosition()) return false;
 		}
+		 */
 		return true;
 	}
 
@@ -104,6 +123,7 @@ namespace Playback {
 
 
 	void startPlayback(const std::shared_ptr<Manoeuvre>& manoeuvre) {
+		/*
 		if (!isPlaying(manoeuvre)) {
 			double time = Environnement::getTime_seconds();
 			manoeuvre->playbackStartTime_seconds = time - manoeuvre->playbackPosition_seconds;
@@ -124,9 +144,11 @@ namespace Playback {
 			}
 			playingManoeuvres.push_back(manoeuvre);
 		}
+		 */
 	}
 
 	void pausePlayback(const std::shared_ptr<Manoeuvre>& manoeuvre) {
+		/*
 		if (!manoeuvre->b_isPaused) {
 			manoeuvre->b_isPaused = true;
 			for (auto& track : manoeuvre->tracks) {
@@ -134,9 +156,11 @@ namespace Playback {
 				track->parameter->machine->interruptParameterPlayback(track->parameter);
 			}
 		}
+		 */
 	}
 
 	void resumePlayback(const std::shared_ptr<Manoeuvre>& manoeuvre) {
+		/*
 		if (manoeuvre->b_isPaused) {
 			manoeuvre->b_isPaused = false;
 			switch (manoeuvre->type) {
@@ -160,9 +184,11 @@ namespace Playback {
 					break;
 			}
 		}
+		 */
 	}
 	
 	void stopPlayback(const std::shared_ptr<Manoeuvre>& manoeuvre) {
+		/*
 		if (isPlaying(manoeuvre)) {
 			for (auto& track : manoeuvre->tracks) {
 				track->parameter->machine->interruptParameterPlayback(track->parameter);
@@ -179,6 +205,7 @@ namespace Playback {
 				}
 			}
 		}
+		 */
 	}
 
 	bool isPlaying(const std::shared_ptr<Manoeuvre>& manoeuvre) {
@@ -190,21 +217,24 @@ namespace Playback {
 
 	bool isPaused(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 		for (auto& m : playingManoeuvres) {
-			if (m->b_isPaused && m == manoeuvre) return true;
+			if (m->isPaused() && m == manoeuvre) return true;
 		}
 		return false;
 	}
 
 	void stopAllManoeuvres() {
+		/*
 		for (auto& manoeuvre : playingManoeuvres) {
 			for (auto& track : manoeuvre->tracks) {
 				track->parameter->machine->interruptParameterPlayback(track->parameter);
 			}
 		}
 		playingManoeuvres.clear();
+		*/
 	}
 
 	void incrementPlaybackPosition() {
+		/*
 		//update the playback position of playing manoeuvres and tracks
 		double time = Environnement::getTime_seconds();
 		for (auto& playingManoeuvre : playingManoeuvres) {
@@ -219,9 +249,11 @@ namespace Playback {
 				}
 			}
 		}
+		 */
 	}
 
 	void updateActiveManoeuvreState() {
+		/*
 		//check if manoeuvre rapids are finished
 		for (int i = rapidManoeuvres.size() - 1; i >= 0; i--) {
 			if (getRapidProgress(rapidManoeuvres[i]) >= 1.0) {
@@ -242,6 +274,7 @@ namespace Playback {
 				playingManoeuvres.erase(playingManoeuvres.begin() + i);
 			}
 		}
+		 */
 	}
 
 }

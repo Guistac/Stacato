@@ -7,117 +7,287 @@ class Manoeuvre;
 
 #include <tinyxml2.h>
 
-struct SequenceType {
-	enum class Type {
-		CONSTANT,
-		TIMED_MOVE,
-		ANIMATED_MOVE
-	};
-	Type type;
-	const char displayName[64];
-	const char saveName[64];
-};
+#include "Project/Editor/Parameter.h"
 
-std::vector<SequenceType>& getSequenceTypes();
-SequenceType* getSequenceType(SequenceType::Type t);
-SequenceType* getSequenceType(const char* saveName);
 
-class ParameterTrack : public std::enable_shared_from_this<ParameterTrack> {
+static std::shared_ptr<Parameter> getParameterFromAnimatableParameter(std::shared_ptr<AnimatableParameter> machineParameter){
+	switch(machineParameter->getType()){
+		case MachineParameterType::BOOLEAN_PARAMETER: 	return std::make_shared<BooleanParameter>(false, "DefaultName", "DefaultSaveString");
+		case MachineParameterType::INTEGER_PARAMETER: 	return std::make_shared<NumberParameter<int>>(0, "DefaultName", "DefaultSaveString");
+		case MachineParameterType::STATE_PARAMETER:		return nullptr;
+			
+		case MachineParameterType::POSITION:
+		case MachineParameterType::REAL_PARAMETER:		return std::make_shared<NumberParameter<double>>(0.0, "DefaultName", "DefaultSaveString");
+			
+		case MachineParameterType::POSITION_2D:
+		case MachineParameterType::VECTOR_2D_PARAMETER:	return std::make_shared<VectorParameter<glm::vec2>>(glm::vec2(0.0), "DefaultName", "DefaultSaveString");
+			
+		case MachineParameterType::POSITION_3D:
+		case MachineParameterType::VECTOR_3D_PARAMETER:	return std::make_shared<VectorParameter<glm::vec3>>(glm::vec3(0.0), "DefaultName", "DefaultSaveString");
+			
+		case MachineParameterType::PARAMETER_GROUP:		return nullptr;
+	}
+}
+
+
+
+
+
+
+
+
+
+class ParameterTrackGroup;
+class MovementParameterTrack;
+
+//---------------------------
+//	Base parameter track
+//---------------------------
+
+class ParameterTrack : public std::enable_shared_from_this<ParameterTrack>{
 public:
-
-	ParameterTrack(std::shared_ptr<Manoeuvre> m) : parentManoeuvre(m) {}
-	ParameterTrack(const ParameterTrack& original);
-	ParameterTrack(std::shared_ptr<AnimatableParameter>& param, std::shared_ptr<Manoeuvre> m);
-
-	void initialize();
-
-	std::shared_ptr<Manoeuvre> parentManoeuvre = nullptr;
-	std::shared_ptr<AnimatableParameter> parameter;
-
-	bool b_priming = false;
-	void rapidToStart();
-	void rapidToEnd();
-	void rapidToPlaybackPosition();
-	void cancelRapid();
-	float getRapidProgress();
-
-	bool b_valid = false;
-
-	//AnimatableParameterValue primingTarget;
-	bool isPrimedToStart(); //is axis at the same location as the playback position
-	bool isPrimedToEnd(); //is axis at the same location as the playback position
-	bool isPrimedToPlaybackPosition();
-
-	double playbackPosition_seconds;
-	void getParameterValueAtPlaybackTime(AnimatableParameterValue& output);
-
-	SequenceType::Type sequenceType;
-	Motion::InterpolationType interpolationType;
-	void setInterpolationType(Motion::InterpolationType t);
-	void setSequenceType(SequenceType::Type t);
-
-	std::vector<std::shared_ptr<Motion::Curve>> curves;
-	void refreshAfterParameterEdit();
-	void refreshAfterChainedDependenciesRefresh();
-	void refreshAfterCurveEdit();
-	int getCurveCount();
-	double getLength_seconds();
-
-	//points for simple movement sequences (not manual animated moves)
-	std::vector<std::shared_ptr<Motion::ControlPoint>> startPoints;
-	std::vector<std::shared_ptr<Motion::ControlPoint>> endPoints;
-
-	//parameters for timed sequences
-	bool originIsPreviousTarget = false;
-	bool targetIsNextOrigin = false;
-	std::shared_ptr<ParameterTrack> previousChainedMasterTrack = nullptr;
-	std::shared_ptr<ParameterTrack> nextChainedMasterTrack = nullptr;
-	std::shared_ptr<ParameterTrack> previousChainedSlaveTrack = nullptr;
-	std::shared_ptr<ParameterTrack> nextChainedSlaveTrack = nullptr;
-	bool isNextChainingMasterMissing();
-	bool isPreviousChainingMasterMissing();
-	bool isPreviousCrossChained();
-	bool isNextCrossChained();
-
-	void captureCurrentValueToOrigin();
-	void captureCurrentValueToTarget();
 	
-	void refreshPreviousChainedCurvePoints();
-	void refreshNextChainedCurvePoints();
-	std::vector<std::vector<Motion::CurvePoint>> nextChainedCurvePoints;
-	std::vector<std::vector<Motion::CurvePoint>> previousChainedCurvePoints;
+	ParameterTrack(std::shared_ptr<MachineParameter> parameter_) : parameter(parameter_){}
 	
-	AnimatableParameterValue origin;
-	AnimatableParameterValue target;
-	AnimatableParameterValue& getOrigin();
-	AnimatableParameterValue& getTarget();
-
-	double movementTime = 1.0;
-	double timeOffset = 0.0;
-	double rampIn = 0.1;
-	double rampOut = 0.1;
-	bool rampsAreEqual = true;
-
-	std::shared_ptr<ParameterTrack> parentParameterTrack = nullptr;
-	std::vector<std::shared_ptr<ParameterTrack>> childParameterTracks;
-	bool hasChildParameterTracks() { return !childParameterTracks.empty(); }
-	bool hasParentParameterTrack() { return parentParameterTrack != nullptr; }
-
-	//gui stuff
-	bool sequenceTypeSelectorGui();
-	bool interpolationTypeSelectorGui();
-	bool chainPreviousGui(float width);
-	bool chainNextGui(float width);
-	bool originInputGui(float width);
-	bool targetInputGui(float width);
-	bool timeInputGui();
-	bool timeOffsetInputGui();
-	bool rampInputGui(float width);
-
-	void drawCurves(double startTime, double endTime);
-	bool drawControlPoints();
-	void drawChainedCurves();
-
-	bool save(tinyxml2::XMLElement* trackXML);
-	bool load(tinyxml2::XMLElement* trackXML);
+	std::shared_ptr<MachineParameter> getParameter(){ return parameter; }
+	
+	virtual ParameterTrackType getType() = 0;
+	virtual bool save(tinyxml2::XMLElement* trackXML) = 0;
+	virtual bool load(tinyxml2::XMLElement* trackXML) = 0;
+	
+	bool hasParentGroup(){ return parent != nullptr; }
+	
+	void baseTrackSheetRowGui();
+	virtual void trackSheetRowGui() = 0;
+	
+	static std::shared_ptr<ParameterTrackGroup> castToGroup(std::shared_ptr<ParameterTrack> input){
+		return std::dynamic_pointer_cast<ParameterTrackGroup>(input);
+	}
+	
+	static std::shared_ptr<MovementParameterTrack> castToMovementTrack(std::shared_ptr<ParameterTrack> input){
+		return std::dynamic_pointer_cast<MovementParameterTrack>(input);
+	}
+	
+	static std::shared_ptr<ParameterTrack> create(std::shared_ptr<MachineParameter> parameter, ManoeuvreType manoeuvreType);
+	
+private:
+	
+	std::shared_ptr<ParameterTrackGroup> parent;
+	std::shared_ptr<Manoeuvre> parentManoeuvre;
+	std::shared_ptr<MachineParameter> parameter;
 };
+
+
+
+
+
+
+
+
+//---------------------------
+//	parameter group track
+//---------------------------
+
+class ParameterTrackGroup : public ParameterTrack{
+public:
+	
+	ParameterTrackGroup(std::shared_ptr<ParameterGroup> parameterGroup, ManoeuvreType manoeuvreType) : ParameterTrack(parameterGroup){
+		for(auto& childParameter : parameterGroup->getChildren()){
+			auto childParameterTrack = ParameterTrack::create(childParameter, manoeuvreType);
+			children.push_back(childParameterTrack);
+		}
+	}
+	
+	std::vector<std::shared_ptr<ParameterTrack>>& getChildren(){ return children; }
+	
+	virtual ParameterTrackType getType(){ return ParameterTrackType::GROUP; }
+	
+	virtual void trackSheetRowGui();
+	
+	virtual bool save(tinyxml2::XMLElement* trackXML){}
+	virtual bool load(tinyxml2::XMLElement* trackXML){}
+	
+private:
+	std::vector<std::shared_ptr<ParameterTrack>> children;
+};
+
+
+
+
+
+
+
+
+//---------------------------
+//	for all tracks that can generate movement (not groups)
+//---------------------------
+
+class MovementParameterTrack : public ParameterTrack{
+public:
+	
+	MovementParameterTrack(std::shared_ptr<MachineParameter> parameter) : ParameterTrack(parameter){}
+	
+	void rapidToEnd();
+	void cancelRapid();
+	
+	float getRapidProgress();
+	bool isPrimedToEnd(); //is parameter at the same position as the target
+	
+	void captureCurrentValueAsTarget();
+	
+	bool isValid(){ return b_valid; }
+	
+	std::shared_ptr<Parameter> target;
+	
+private:
+	bool b_valid = false;
+	bool b_priming = false;
+};
+
+
+class KeyParameterTrack : public MovementParameterTrack{
+public:
+	
+	KeyParameterTrack(std::shared_ptr<MachineParameter> parameter) : MovementParameterTrack(parameter){
+		auto animatableParameter = MachineParameter::castToAnimatable(parameter);
+		target = getParameterFromAnimatableParameter(animatableParameter);
+		target->setName("Target");
+		target->setSaveString("Target");
+	}
+	
+	virtual ParameterTrackType getType(){ return ParameterTrackType::KEY; }
+	
+	virtual void trackSheetRowGui();
+	
+	virtual bool save(tinyxml2::XMLElement* trackXML){}
+	virtual bool load(tinyxml2::XMLElement* trackXML){}
+	
+};
+
+
+
+
+
+
+
+
+
+
+//---------------------------
+//	for all tracks that can play a movement sequence (not keys, not groups)
+//---------------------------
+
+class AnimatedParameterTrack : public MovementParameterTrack{
+public:
+	
+	AnimatedParameterTrack(std::shared_ptr<MachineParameter> parameter) : MovementParameterTrack(parameter){}
+	
+	AnimatableParameterValue getParameterValueAtPlaybackTime();
+	void setInterpolationType(Motion::InterpolationType t);
+	virtual ParameterTrackType getType() = 0;
+	
+private:
+	double playbackPosition_seconds;
+	Motion::InterpolationType interpolationType;
+	std::vector<std::shared_ptr<Motion::Curve>> curves;
+};
+
+
+class TargetParameterTrack : public AnimatedParameterTrack{
+public:
+	
+	enum class Constraint{
+		VELOCITY,
+		TIME
+	};
+	
+	TargetParameterTrack(std::shared_ptr<MachineParameter> parameter) : AnimatedParameterTrack(parameter){
+		auto animatableParameter = MachineParameter::castToAnimatable(parameter);
+		target = getParameterFromAnimatableParameter(animatableParameter);
+		type = ParameterTrackType::FIXED_TIME;
+	}
+	
+	virtual ParameterTrackType getType(){ return type; }
+	
+	void setTimeConstraintType(){ type = ParameterTrackType::FIXED_TIME; }
+	void setVelocityConstraintType(){ type = ParameterTrackType::FIXED_VELOCITY; }
+	
+	virtual void trackSheetRowGui();
+		
+	virtual bool save(tinyxml2::XMLElement* trackXML){}
+	virtual bool load(tinyxml2::XMLElement* trackXML){}
+	
+private:
+	ParameterTrackType type;
+	std::shared_ptr<Parameter> constraint = std::make_shared<NumberParameter<double>>(0.0, "Constraint", "Constraint");
+	std::shared_ptr<Parameter> inAcceleration = std::make_shared<NumberParameter<double>>(0.0, "Start Acceleration", "StartAcceleration");
+	std::shared_ptr<Parameter> outAcceleration = std::make_shared<NumberParameter<double>>(0.0, "End Acceleration", "EndAcceleration");
+	std::shared_ptr<Parameter> timeOffset = std::make_shared<NumberParameter<double>>(0.0, "Time Offset", "TimeOffset");
+	std::shared_ptr<Parameter> constraintType = std::make_shared<EnumeratorParameter<Constraint>>(Constraint::TIME, "Constraint Type", "ConstraintType");
+	bool b_accelerationsEqual;
+};
+
+#define TargetConstraintStrings \
+{TargetParameterTrack::Constraint::VELOCITY, 	.displayString = "Velocity", .saveString = "Velocity"},\
+{TargetParameterTrack::Constraint::TIME, 		.displayString = "Time", 	.saveString = "Time"},\
+
+DEFINE_ENUMERATOR(TargetParameterTrack::Constraint, TargetConstraintStrings)
+
+
+
+class SequenceParameterTrack : public AnimatedParameterTrack{
+public:
+	
+	SequenceParameterTrack(std::shared_ptr<MachineParameter> parameter) : AnimatedParameterTrack(parameter){
+		auto animatableParameter = MachineParameter::castToAnimatable(parameter);
+		target = getParameterFromAnimatableParameter(animatableParameter);
+		target->setName("End");
+		target->setSaveString("End");
+		start = getParameterFromAnimatableParameter(animatableParameter);
+		start->setName("Start");
+		start->setSaveString("Start");
+	}
+	
+	virtual ParameterTrackType getType(){ return ParameterTrackType::ANIMATED_SEQUENCE; }
+	
+	virtual void trackSheetRowGui();
+	
+	double getLength_seconds();
+	
+	void rapidToStart();
+	void rapidToPlaybackPosition();
+	
+	bool isPrimedToStart(); //is axis at the same location as the playback position
+	bool isPrimedToPlaybackPosition();
+	
+	virtual bool save(tinyxml2::XMLElement* trackXML){}
+	virtual bool load(tinyxml2::XMLElement* trackXML){}
+	
+	std::shared_ptr<Parameter> start;
+	
+private:
+	
+	
+		
+};
+
+
+
+
+inline std::shared_ptr<ParameterTrack> ParameterTrack::create(std::shared_ptr<MachineParameter> parameter, ManoeuvreType manoeuvreType){
+	
+	if(parameter->getType() == MachineParameterType::PARAMETER_GROUP){
+		auto parameterGroup = MachineParameter::castToGroup(parameter);
+		return std::make_shared<ParameterTrackGroup>(parameterGroup, manoeuvreType);
+	}
+	 else{
+		switch(manoeuvreType){
+			case ManoeuvreType::KEY:
+				return std::make_shared<KeyParameterTrack>(parameter);
+			case ManoeuvreType::TARGET:
+				return std::make_shared<TargetParameterTrack>(parameter);
+			case ManoeuvreType::SEQUENCE:
+				return std::make_shared<SequenceParameterTrack>(parameter);
+		}
+	}
+}

@@ -161,3 +161,66 @@ enum class HomingError{
 	{HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL,	"Error: Hit Wrong Limit Signal"}\
 
 DEFINE_ENUMERATOR(HomingError, HomingErrorStrings)
+
+
+
+
+enum class MachineParameterType {
+	BOOLEAN_PARAMETER,
+	INTEGER_PARAMETER,
+	STATE_PARAMETER,
+	REAL_PARAMETER,
+	VECTOR_2D_PARAMETER,
+	VECTOR_3D_PARAMETER,
+	POSITION,
+	POSITION_2D,
+	POSITION_3D,
+	PARAMETER_GROUP
+};
+
+#define ParameterDataTypeStrings \
+	{MachineParameterType::BOOLEAN_PARAMETER, 	"Boolean", 			"Boolean"},\
+	{MachineParameterType::INTEGER_PARAMETER, 	"Integer", 			"Integer"},\
+	{MachineParameterType::STATE_PARAMETER, 	"State", 			"State"},\
+	{MachineParameterType::REAL_PARAMETER, 		"Real", 			"Real"},\
+	{MachineParameterType::VECTOR_2D_PARAMETER, "2D Vector", 		"2DVector"},\
+	{MachineParameterType::VECTOR_3D_PARAMETER, "3D Vector", 		"3DVector"},\
+	{MachineParameterType::POSITION, 			"Position", 		"Position"},\
+	{MachineParameterType::POSITION_2D, 		"2D Position", 		"3DPosition"},\
+	{MachineParameterType::POSITION_3D, 		"3D Position", 		"3DPosition"},\
+	{MachineParameterType::PARAMETER_GROUP, 	"Paramater Group", 	"ParameterGroup"}\
+
+DEFINE_ENUMERATOR(MachineParameterType, ParameterDataTypeStrings)
+
+
+
+
+
+
+enum class ManoeuvreType{
+	KEY,
+	TARGET,
+	SEQUENCE
+};
+
+#define ManoeuvreTypeStrings \
+	{ManoeuvreType::KEY,		"Key",				"Key"},\
+	{ManoeuvreType::TARGET,		"Target",			"Target"},\
+	{ManoeuvreType::SEQUENCE,	"Sequence",			"Sequence"}\
+
+DEFINE_ENUMERATOR(ManoeuvreType, ManoeuvreTypeStrings)
+
+
+
+
+
+
+
+
+enum class ParameterTrackType{
+	KEY,
+	FIXED_VELOCITY,
+	FIXED_TIME,
+	ANIMATED_SEQUENCE,
+	GROUP
+};

@@ -61,12 +61,17 @@ namespace Gui {
 		if(shouldResetDefaultLayout()){
 			ImGui::DockBuilderRemoveNodeDockedWindows(dockspaceID);
 			ImGui::DockBuilderRemoveNodeChildNodes(dockspaceID);
+			
+			ImGuiID leftID;
+			ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.15, &leftID, &dockspaceID);
+			
 			ImGui::DockBuilderDockWindow("Environnement", dockspaceID);
 			ImGui::DockBuilderDockWindow("Stage", dockspaceID);
 			ImGui::DockBuilderDockWindow("Machines", dockspaceID);
 			ImGui::DockBuilderDockWindow("Setup", dockspaceID);
-			ImGui::DockBuilderDockWindow("Plot List", dockspaceID);
-			ImGui::DockBuilderDockWindow("Manoeuvre Editor", dockspaceID);
+			ImGui::DockBuilderDockWindow("Plot List", leftID);
+			ImGui::DockBuilderDockWindow("Track Sheet Editor", dockspaceID);
+			ImGui::DockBuilderDockWindow("Curve Editor", dockspaceID);
 			ImGui::DockBuilderDockWindow("Sequencer", dockspaceID);
 			ImGui::DockBuilderDockWindow("cCurvesTest", dockspaceID);
 			ImGui::DockBuilderDockWindow("CommandZ", dockspaceID);
@@ -90,28 +95,32 @@ namespace Gui {
 		if(ImGui::Begin("Plot List")) PlotGui::manoeuvreList();
 		ImGui::End();
 		
-		if(ImGui::Begin("Manoeuvre Editor")) PlotGui::manoeuvreEditor();
+		if(ImGui::Begin("Track Sheet Editor")) PlotGui::trackSheetEditor();
 		ImGui::End();
 		
-		if(ImGui::Begin("cCurvesTest")) cCurvesTest();
+		if(ImGui::Begin("Curve Editor")) PlotGui::curveEditor();
 		ImGui::End();
 		
-		if(ImGui::Begin("CommandZ")) testUndoHistory();
-		ImGui::End();
+		//if(ImGui::Begin("cCurvesTest")) cCurvesTest();
+		//ImGui::End();
 		
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0,0));
-		if(ImGui::Begin("Sequencer")) Sequencer::Gui::editor();
-		ImGui::End();
-		ImGui::PopStyleVar();
+		//if(ImGui::Begin("CommandZ")) testUndoHistory();
+		//ImGui::End();
 		
-		if(ImGui::Begin("Stage")) StageView::draw();
-		ImGui::End();
+		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0,0));
+		//if(ImGui::Begin("Sequencer")) Sequencer::Gui::editor();
+		//ImGui::End();
+		//ImGui::PopStyleVar();
+		
+		//if(ImGui::Begin("Stage")) StageView::draw();
+		//ImGui::End();
 		
 		//=== Finish Resetting Default Layout ===
 		
 		if(shouldResetDefaultLayout()){
 			//ImGui::SetWindowFocus("Environnement");
-			ImGui::SetWindowFocus("Sequencer");
+			//ImGui::SetWindowFocus("Sequencer");
+			ImGui::SetWindowFocus("Track Sheet Editor");
 			//ImGui::SetWindowFocus("cCurvesTest");
 			//ImGui::SetWindowFocus("CommandZ");
 			finishResetDefaultLayout();

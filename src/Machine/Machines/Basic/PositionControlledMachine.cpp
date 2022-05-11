@@ -25,19 +25,19 @@ void PositionControlledMachine::initialize() {
 	addNodePin(velocityPin);
 
 	//machine parameters
-	addAnimatableParameter(positionParameter);
+	addParameter(positionParameter);
 }
 
 void PositionControlledMachine::onPinUpdate(std::shared_ptr<NodePin> pin){
-	if(pin == positionControlledAxisPin) positionParameter->unit = getAxis()->getPositionUnit();
+	if(pin == positionControlledAxisPin) positionParameter->setUnit(getAxis()->getPositionUnit());
 }
 
 void PositionControlledMachine::onPinConnection(std::shared_ptr<NodePin> pin){
-	if(pin == positionControlledAxisPin) positionParameter->unit = getAxis()->getPositionUnit();
+	if(pin == positionControlledAxisPin) positionParameter->setUnit(getAxis()->getPositionUnit());
 }
 
 void PositionControlledMachine::onPinDisconnection(std::shared_ptr<NodePin> pin){
-	if(pin == positionControlledAxisPin) positionParameter->unit = Units::None::None;
+	if(pin == positionControlledAxisPin) positionParameter->setUnit(Units::None::None);
 }
 
 bool PositionControlledMachine::isHardwareReady() {
@@ -132,8 +132,7 @@ void PositionControlledMachine::process() {
 	switch(controlMode){
 			
 		case ControlMode::PARAMETER_TRACK:{
-			AnimatableParameterValue playbackPosition;
-			positionParameter->getActiveTrackParameterValue(playbackPosition);
+			AnimatableParameterValue playbackPosition = positionParameter->getActiveTrackParameterValue();
 			double previousProfilePosition_machineUnits = axis->getProfilePosition();
 			double parameterTrackVelocity_machineUnits = machineVelocityToAxisVelocity((playbackPosition.real - previousProfilePosition_machineUnits) / profileDeltaTime_seconds);
 			motionProfile.setPosition(playbackPosition.real);
@@ -176,8 +175,7 @@ void PositionControlledMachine::simulateProcess() {
 	switch(controlMode){
 			
 		case ControlMode::PARAMETER_TRACK:{
-			AnimatableParameterValue playbackPosition;
-			positionParameter->getActiveTrackParameterValue(playbackPosition);
+			AnimatableParameterValue playbackPosition = positionParameter->getActiveTrackParameterValue();
 			double previousProfilePosition_machineUnits = motionProfile.getPosition();
 			double parameterTrackVelocity = (playbackPosition.real - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
 			motionProfile.setPosition(playbackPosition.real);
@@ -262,7 +260,7 @@ void PositionControlledMachine::moveToPosition(double target_machineUnits) {
 
 
 void PositionControlledMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
-	if (parameter == positionParameter && parameter == value.parameter) {
+	if (parameter == positionParameter) {
 		moveToPosition(value.real);
 	}
 }
@@ -281,7 +279,7 @@ void PositionControlledMachine::cancelParameterRapid(std::shared_ptr<AnimatableP
 }
 
 bool PositionControlledMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
-	if (parameter == positionParameter && parameter == value.parameter) {
+	if (parameter == positionParameter) {
 		return motionProfile.getPosition() == value.real && motionProfile.getVelocity() == 0.0;
 	}
 	return false;
@@ -317,6 +315,7 @@ void PositionControlledMachine::getActualParameterValue(std::shared_ptr<Animatab
 
 
 bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
+	/*
 	if (parameterTrack->parameter != positionParameter && parameterTrack->curves.size() != 1) return false;
 	else if (!isAxisConnected()) return false;
 	using namespace Motion;
@@ -385,6 +384,8 @@ bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<Par
 	
 	//we return the result of the validation
 	return b_curveValid;
+	 */
+	return false;
 }
 
 bool PositionControlledMachine::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
@@ -401,6 +402,8 @@ void PositionControlledMachine::getTimedParameterCurveTo(const std::shared_ptr<A
 	if (parameter == positionParameter && outputCurves.size() == 1 && targetPoints.size() == 1) {
 	
 		//TODO: this is a completely broken mess...
+		
+		/*
 		
 		std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
@@ -420,6 +423,7 @@ void PositionControlledMachine::getTimedParameterCurveTo(const std::shared_ptr<A
 		std::shared_ptr<Motion::Interpolation> timedInterpolation = std::make_shared<Motion::Interpolation>();
 
 		Motion::TrapezoidalInterpolation::getClosestTimeAndVelocityConstrainedInterpolation(startPoint, endPoint, axis->getVelocityLimit(), timedInterpolation);
+		 */
 	}
 	//movement from current position to the target position arriving at 0 velocity
 }

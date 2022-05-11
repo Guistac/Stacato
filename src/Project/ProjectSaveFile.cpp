@@ -46,7 +46,7 @@ namespace Project{
 		plots.clear();
 		currentPlot = nullptr;
 		currentPlot = std::make_shared<Plot>();
-		strcpy(currentPlot->name, "Default Plot");
+		currentPlot->setName("Default Plot");
 		plots.push_back(currentPlot);
 		saveFilePath[0] = 0;
 		b_hasFilePath = false;
@@ -153,7 +153,7 @@ namespace Project{
 		}
 		if (plots.empty()) {
 			plots.push_back(std::make_shared<Plot>());
-			strcpy(plots.back()->name, "Default Plot");
+			plots.back()->setName("Default Plot");
 		}
 		currentPlot = plots.back();
 
@@ -209,7 +209,7 @@ namespace Project{
 
 		for (int i = 0; i < plots.size(); i++) {
 			std::shared_ptr<Plot> plot = plots[i];
-			std::string plotFilePath = plotsFolder + plot->name + "_" + std::to_string(i) + ".stacatoPlot";
+			std::string plotFilePath = plotsFolder + plot->getName() + "_" + std::to_string(i) + ".stacatoPlot";
 			plot->save(plotFilePath.c_str());
 		}
 	

@@ -4,6 +4,8 @@ namespace PlotGui{
 
 	void manoeuvreList();
 
-	void manoeuvreEditor();
+	void trackSheetEditor();
+	void curveEditor();
+	void spatialEditor();
 
 }

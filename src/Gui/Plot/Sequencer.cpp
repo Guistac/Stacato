@@ -244,6 +244,7 @@ void editor(){
 
 
 	void transportControls(float height){
+		/*
 		auto context = Sequencer::getContext();
 		
 		glm::vec2 size = ImGui::GetContentRegionAvail();
@@ -279,7 +280,7 @@ void editor(){
 		if(buttonPause("##Pause", height)){}
 		ImGui::SameLine();
 		if(buttonPlay("##Play", height)){}
-		
+		*/
 	}
 
 

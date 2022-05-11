@@ -20,60 +20,54 @@
 
 #include "Motion/Playback/Playback.h"
 
+#include "Gui/Utilities/CustomWidgets.h"
 
-void Manoeuvre::listGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
-
-	ImGui::BeginGroup();
-
-	ImGui::PushFont(Fonts::sansBold20);
-	float cueNameWidth = ImGui::CalcTextSize(manoeuvre->name).x;
-	ImGui::PopFont();
-	ImGui::PushFont(Fonts::sansLight20);
-	const char* manoeuvreTypeShortName = manoeuvre->getShortTypeString();
-	float typeNameWidth = ImGui::CalcTextSize(manoeuvreTypeShortName).x;
-	ImGui::PopFont();
-
-	float headerStripWidth = std::max(cueNameWidth, typeNameWidth) + ImGui::GetStyle().ItemSpacing.x;
+void Manoeuvre::listGui(){
+	//inside draggable list element (BeginChild)
+	
+	//show manoeuvre validness
+	if(!b_valid){
+		glm::vec2 min = ImGui::GetWindowPos();
+		glm::vec2 max = min + glm::vec2(ImGui::GetWindowSize());
+		bool blink = (int)Timing::getProgramTime_milliseconds() % 1000 > 500;
+		glm::vec4 color = blink ? Colors::red : Colors::yellow;
+		color.w = 0.5;
+		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(color), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
+	}
+	
+	//show header type strip
+	float headerStripWidth = 50.0;
 	glm::vec2 min = ImGui::GetWindowPos();
 	glm::vec2 max = min + glm::vec2(headerStripWidth, ImGui::GetWindowSize().y);
 	glm::vec4 headerStripColor;
-	switch (manoeuvre->type) {
-		case Manoeuvre::Type::KEY_POSITION:
+	switch (type->value) {
+		case ManoeuvreType::KEY:
 			headerStripColor = Colors::darkYellow;
 			break;
-		case Manoeuvre::Type::TIMED_MOVEMENT:
+		case ManoeuvreType::TARGET:
 			headerStripColor = Colors::darkGray;
 			break;
-		case Manoeuvre::Type::MOVEMENT_SEQUENCE:
+		case ManoeuvreType::SEQUENCE:
 			headerStripColor = Colors::darkRed;
 			break;
 	}
-	ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(headerStripColor), 10.0, ImDrawFlags_RoundCornersLeft);
-
-	if (!manoeuvre->b_valid) {
-		bool blink = (int)Timing::getProgramTime_milliseconds() % 1000 > 500;
-		ImGui::PushStyleColor(ImGuiCol_Text, blink ? Colors::red : Colors::yellow);
-	}
-	else ImGui::PushStyleColor(ImGuiCol_Text, Colors::white);
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::SameLine(ImGui::GetStyle().ItemSpacing.x / 2.0);
-	ImGui::Text("%s", manoeuvre->name);
+	ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(headerStripColor), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersLeft);
+	
+	
+	//show name and description
+	ImGui::SetCursorPosX(headerStripWidth + ImGui::GetStyle().FramePadding.x);
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("%s", getName());
 	ImGui::PopFont();
-	ImGui::PopStyleColor();
-
-	ImGui::PushFont(Fonts::sansLight20);
-	ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 1.0, 1.0, 0.3));
-	ImGui::NewLine();
-	ImGui::SameLine(ImGui::GetStyle().ItemSpacing.x / 2.0);
-	ImGui::Text("%s", manoeuvreTypeShortName);
-	ImGui::PopStyleColor();
+	
+	ImGui::SetCursorPosX(headerStripWidth + ImGui::GetStyle().FramePadding.x);
+	
+	ImGui::PushFont(Fonts::sansLight15);
+	ImGui::Text("%s", getDescription());
 	ImGui::PopFont();
-
-	ImGui::EndGroup();
-
-	ImGui::SameLine();
-	ImGui::Text("%s", manoeuvre->description);
-
+	
+	/*
 	if (Playback::isInRapid(manoeuvre)) {
 		glm::vec2 windowPos = ImGui::GetWindowPos();
 		glm::vec2 maxsize = ImGui::GetWindowSize();
@@ -85,359 +79,161 @@ void Manoeuvre::listGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
 		}
 	}
-	if (Playback::isPrimedToStart(manoeuvre)) {
-		ImGui::Text("Primed");
-	}
+
 	if (Playback::isPlaying(manoeuvre)) {
-		ImGui::SameLine();
-		ImGui::Text("Playing");
 		glm::vec2 min = ImGui::GetWindowPos();
 		glm::vec2 windowSize = ImGui::GetWindowSize();
 		float progress = manoeuvre->getPlaybackProgress();
 		glm::vec2 max(min.x + windowSize.x * progress, min.y + windowSize.y);
 		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.4)), 5.0);
 	}
-}
-
-
-void Manoeuvre::editGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
-
-	ImGui::PushFont(Fonts::sansBold42);
-	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 3.0);
-	ImGui::InputText("##cueName", manoeuvre->name, 64);
-	ImGui::PopFont();
-	ImGui::SameLine();
-	glm::vec2 descriptionFieldSize(ImGui::GetContentRegionAvail().x, ImGui::GetItemRectSize().y);
-	ImGui::PushFont(Fonts::sansRegular20);
-	ImGui::InputTextMultiline("##cueDescription", manoeuvre->description, 256, descriptionFieldSize, ImGuiInputTextFlags_CtrlEnterForNewLine);
-	ImGui::PopFont();
-
-	bool refreshAllTracks = false;
-
-	if (ImGui::BeginCombo("##manoeuvreTypeSelector", Enumerator::getDisplayString(manoeuvre->type))) {
-		for (auto& type : Enumerator::getTypes<Manoeuvre::Type>()) {
-			if(type.enumerator == Manoeuvre::Type::TIMED_MOVEMENT) continue;
-			if (ImGui::Selectable(type.displayString, manoeuvre->type == type.enumerator)) {
-				manoeuvre->setType(type.enumerator);
-				refreshAllTracks = true;
-			}
-		}
-		ImGui::EndCombo();
-	}
-
-	if (refreshAllTracks) {
-		for (auto& track : manoeuvre->tracks) {
-			track->refreshAfterParameterEdit();
-		}
-	}
-
-    if(ImGui::BeginTabBar("##ManoeuvreEditorTabBar")){
-        if(ImGui::BeginTabItem("Track Sheet")){
-            ImGui::BeginChild("TrackSheet");
-            trackSheetGui(manoeuvre);
-            ImGui::EndChild();
-            ImGui::EndTabItem();
-        }
-        if(ImGui::BeginTabItem("Curve Editor")){
-            ImGui::BeginChild("CurveEditor");
-            curveEditorGui(manoeuvre);
-            ImGui::EndChild();
-            ImGui::EndTabItem();
-        }
-		/*
-        if(ImGui::BeginTabItem("Space Editor")){
-            ImGui::BeginChild("SpaceEditor");
-            spatialEditorGui(manoeuvre);
-            ImGui::EndChild();
-            ImGui::EndTabItem();
-        }
-		*/
-        ImGui::EndTabBar();
-    }
-}
-
-
-void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
-    
-    bool manoeuvreIsPlaying = Playback::isPlaying(manoeuvre);
-
-    std::shared_ptr<ParameterTrack> removedTrack = nullptr;
-    std::shared_ptr<ParameterTrack> movedUpTrack = nullptr;
-    std::shared_ptr<ParameterTrack> movedDownTrack = nullptr;
-
-    ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoHostExtendY;
-
-    int columnCount;
-    switch (manoeuvre->type) {
-        case Manoeuvre::Type::KEY_POSITION:
-            columnCount = 6;
-            break;
-        default:
-            columnCount = 8;
-            break;
-    }
-
-    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
+	 */
 	
-    if (ImGui::BeginTable("##parameters", columnCount, tableFlags)) {
-
-        ImGui::TableSetupColumn("Manage");
-        ImGui::TableSetupColumn("Machine");
-        ImGui::TableSetupColumn("Parameter");
-        if (manoeuvre->type != Manoeuvre::Type::KEY_POSITION) {
-            if (manoeuvre->type == Manoeuvre::Type::TIMED_MOVEMENT)
-                ImGui::TableSetupColumn("Interpolation");
-            else ImGui::TableSetupColumn("Movement");
-            ImGui::TableSetupColumn("Origin");
-            ImGui::TableSetupColumn("Target");
-            ImGui::TableSetupColumn("Timing");
-            ImGui::TableSetupColumn("Ramps");
-        }
-        else {
-            ImGui::TableSetupColumn("Previous");
-            ImGui::TableSetupColumn("Target");
-            ImGui::TableSetupColumn("Next");
-        }
-
-        ImGui::TableHeadersRow();
+}
 
 
+void Manoeuvre::trackSheetGui(){
+	
+	//General Manoeuvre Settings
+	name->gui();
+	description->gui();
+	type->gui();
+	if(type->changed()){
+		setType(type->value);
+	}
+	ImGui::Separator();
+	
+	
+	std::shared_ptr<ParameterTrack> removedTrack = nullptr;
+	std::shared_ptr<ParameterTrack> movedUpTrack = nullptr;
+	std::shared_ptr<ParameterTrack> movedDownTrack = nullptr;
 
-
-
-
-
-        //============ BEGIN ROW LAMBDA =============
-
-        static auto parameterTrackRowGui = [&](std::shared_ptr<ParameterTrack>& parameterTrack) {
-
-            bool trackEdited = false;
-            bool chainingDependenciesEdited = false;
-
-            ImGui::PushID(parameterTrack->parameter->name);
-            ImGui::PushID(parameterTrack->parameter->machine->getName());
-
-            ImGui::TableNextRow(ImGuiTableRowFlags_None);
-                
-			ImGui::BeginDisabled(manoeuvreIsPlaying);
-
-            //====== Track Management Column ======
-            ImGui::TableSetColumnIndex(0);
-
-            if (!parameterTrack->hasParentParameterTrack()) {
-                ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.1));
-                if (buttonCross("##remove")) removedTrack = parameterTrack;
-                ImGui::SameLine();
-                bool disableMoveUp = parameterTrack == manoeuvre->tracks.front();
-				ImGui::BeginDisabled(disableMoveUp);
-				if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpTrack = parameterTrack;
-				ImGui::EndDisabled();
-				ImGui::SameLine();
-                bool disableMoveDown = parameterTrack == manoeuvre->tracks.back();
-				ImGui::BeginDisabled(disableMoveDown);
-				if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownTrack = parameterTrack;
-				ImGui::EndDisabled();
-				ImGui::PopStyleVar();
-            }
-
-            ImGui::PushStyleColor(ImGuiCol_Text, Colors::white);
-            ImGui::PushFont(Fonts::sansBold15);
-            bool parameterValid = parameterTrack->b_valid;
-            if (!parameterValid) ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
-
-            //====== Machine Column ======
-            ImGui::TableNextColumn();
-            if (!parameterTrack->hasParentParameterTrack()) {
-                ImGui::Text("%s", parameterTrack->parameter->machine->getName());
-            }
+	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoHostExtendY;
+	
+	bool b_tableBegun;
+	
+	switch(getType()){
+		case ManoeuvreType::KEY:
+			b_tableBegun = ImGui::BeginTable("##TrackParameters", 4, tableFlags);
+			ImGui::TableSetupColumn("Manage");
+			ImGui::TableSetupColumn("Machine");
+			ImGui::TableSetupColumn("Parameter");
+			ImGui::TableSetupColumn("Target");
+			break;
+		case ManoeuvreType::TARGET:
+			b_tableBegun = ImGui::BeginTable("##TrackParameters", 8, tableFlags);
+			ImGui::TableSetupColumn("Manage");
+			ImGui::TableSetupColumn("Machine");
+			ImGui::TableSetupColumn("Parameter");
+			ImGui::TableSetupColumn("Type");			//time vs velocity
+			ImGui::TableSetupColumn("Interpolation");	//kinematic, linear, step, bezier
+			ImGui::TableSetupColumn("Target");			//position or other
+			ImGui::TableSetupColumn("Constraint");		//time or velocity
+			ImGui::TableSetupColumn("Ramps");			//for kinematic or bezier
+			break;
+		case ManoeuvreType::SEQUENCE:
+			b_tableBegun = ImGui::BeginTable("##TrackParameters", 5, tableFlags);
+			ImGui::TableSetupColumn("Manage");
+			ImGui::TableSetupColumn("Machine");
+			ImGui::TableSetupColumn("Parameter");
+			ImGui::TableSetupColumn("Start");		//sequencer start
+			ImGui::TableSetupColumn("End");			//sequencer end
+			break;
+	}
+	
+	if(b_tableBegun){
+		ImGui::TableHeadersRow();
+		
+		for (int i = 0; i < tracks.size(); i++) {
 			
-			if(ImGui::IsItemHovered()){
-				ImGui::BeginTooltip();
-				
-				
-				if(!parameterTrack->b_valid) ImGui::Text("Parameter Track not Valid");
-				
-				for(auto& curve : parameterTrack->curves){
-					
-					if(!curve->b_valid) ImGui::Text("- Curve Not Valid");
-					
-					for(auto& controlPoint : curve->points){
-						if(!controlPoint->b_valid) ImGui::Text("-- Control Point Not Valid : %s", Enumerator::getDisplayString(controlPoint->validationError));
-					}
-					
-					for(auto& interpolation : curve->interpolations){
-						if(!interpolation->b_valid) ImGui::Text("-- Interpolation Not Valid : %s", Enumerator::getDisplayString(interpolation->validationError));
-					}
-					
+			auto& parameterTrack = tracks[i];
+			
+			//child parameter tracks are listed in the manoeuvres track vector
+			//but they are drawn by the parent parameter group, so we skip them here
+			//and draw them after the parameter group
+			if (parameterTrack->hasParentGroup()) continue;
+			
+			ImGui::TableNextRow();
+			ImGui::PushID(i);
+			
+			ImGui::TableSetColumnIndex(0);
+			
+			ListManagerWidget::Interaction interaction = ListManagerWidget::draw(parameterTrack == tracks.front(), parameterTrack == tracks.back());
+			switch(interaction){
+				case ListManagerWidget::Interaction::NONE: break;
+				case ListManagerWidget::Interaction::MOVE_UP: movedUpTrack = parameterTrack; break;
+				case ListManagerWidget::Interaction::MOVE_DOWN: movedDownTrack = parameterTrack; break;
+				case ListManagerWidget::Interaction::DELETE: removedTrack = parameterTrack; break;
+			}
+			
+			parameterTrack->trackSheetRowGui();
+			
+			ImGui::PopID();
+			
+			
+			//draw the groups child parameter tracks
+			if(parameterTrack->getType() == ParameterTrackType::GROUP){
+				auto groupTrack = ParameterTrack::castToGroup(parameterTrack);
+				for (auto& childParameterTrack : groupTrack->getChildren()) {
+					//TODO:
+					//parameterTrack->trackSheetRowGui();
 				}
 				
-				
-				
-				ImGui::EndTooltip();
 			}
-
-            //====== Parameter Column ======
-            ImGui::TableNextColumn();
-            ImGui::Text("%s", parameterTrack->parameter->name);
-
-            if (!parameterValid) ImGui::PopStyleColor();
-            ImGui::PopStyleColor();
-            ImGui::PopFont();
-
-            if (!parameterTrack->hasChildParameterTracks()) {
-
-                //====== Movement Column ======
-
-                if (manoeuvre->type != Manoeuvre::Type::KEY_POSITION) {
-                    ImGui::TableNextColumn();
-
-                    //--- Interpolation Selector ---
-                    ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
-                    trackEdited |= parameterTrack->interpolationTypeSelectorGui();
-
-                    //--- Sequence Type Selector ---
-                    if (manoeuvre->type == Manoeuvre::Type::MOVEMENT_SEQUENCE) {
-                        ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
-                        trackEdited |= parameterTrack->sequenceTypeSelectorGui();
-                    }
-                }
-
-                float originTargetInputFieldWidth = ImGui::GetTextLineHeight() * 8.0;
-
-                //====== Origin Column ======
-
-                if (manoeuvre->type != Manoeuvre::Type::KEY_POSITION) {
-                    ImGui::TableNextColumn();
-
-                    if (parameterTrack->sequenceType != SequenceType::Type::CONSTANT) {
-                        //--- Origin Input ---
-                        trackEdited |= parameterTrack->originInputGui(originTargetInputFieldWidth);
-                    }
-                    else ImGui::Dummy(glm::vec2(originTargetInputFieldWidth, ImGui::GetFrameHeight()));
-
-                    //--- Chain Previous ---
-                    bool disablePreviousChaining = manoeuvre->type == Manoeuvre::Type::TIMED_MOVEMENT;
-                    if (disablePreviousChaining) ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                    chainingDependenciesEdited |= parameterTrack->chainPreviousGui(originTargetInputFieldWidth);
-                    if (disablePreviousChaining) ImGui::PopItemFlag();
-                }
-
-
-                if (manoeuvre->type == Manoeuvre::Type::KEY_POSITION) {
-                    float keyPositionChainingGuiWidh = ImGui::GetTextLineHeight() * 6.0;
-
-                    //--- Previous Chained
-                    ImGui::TableNextColumn();
-                    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                    chainingDependenciesEdited |= parameterTrack->chainPreviousGui(keyPositionChainingGuiWidh);
-                    ImGui::PopItemFlag();
-
-                    //--- Target Input ----
-                    ImGui::TableNextColumn();
-                    trackEdited |= parameterTrack->targetInputGui(originTargetInputFieldWidth);
-
-                    //--- Next Chained ---
-                    ImGui::TableNextColumn();
-                    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                    chainingDependenciesEdited |= parameterTrack->chainNextGui(keyPositionChainingGuiWidh);
-                    ImGui::PopItemFlag();
-
-                }
-                else {
-
-                    //====== Target Column ======
-                    ImGui::TableNextColumn();
-                    //--- Target Input ---
-                    trackEdited |= parameterTrack->targetInputGui(originTargetInputFieldWidth);
-                    //--- Chain Next ---
-                    chainingDependenciesEdited |= parameterTrack->chainNextGui(originTargetInputFieldWidth);
-                }
-
-
-                //====== Timing Column ======
-
-                if (manoeuvre->type != Manoeuvre::Type::KEY_POSITION) {
-                    ImGui::TableNextColumn();
-                    float timingcolumnWidth = ImGui::GetTextLineHeight() * 7.0;
-
-                    //--- Movement Time Input ---
-                    ImGui::SetNextItemWidth(timingcolumnWidth);
-                    trackEdited |= parameterTrack->timeInputGui();
-
-                    if (manoeuvre->type != Manoeuvre::Type::TIMED_MOVEMENT) {
-                        //--- Time Offset Input ---
-                        ImGui::SetNextItemWidth(timingcolumnWidth);
-                        trackEdited |= parameterTrack->timeOffsetInputGui();
-                    }
-
-                    //====== Ramps Column ======
-                    ImGui::TableNextColumn();
-                    trackEdited |= parameterTrack->rampInputGui(ImGui::GetTextLineHeight() * 7.0);
-                }
-            }
-
-			ImGui::EndDisabled();
-
-			ImGui::PopID();
-            ImGui::PopID();
-
-            if (chainingDependenciesEdited) manoeuvre->parentPlot->refreshChainingDependencies();
-            else if (trackEdited) parameterTrack->refreshAfterParameterEdit();
-        };
-
-        //============== END ROW LAMBDA =============
-
-
-
-
-
-
-        for (auto& parameterTrack : manoeuvre->tracks) {
-            //child parameter tracks are listed in the manoeuvres track vector
-            //but they are drawn by the parent parameter group, so we skip them here
-            //and draw them after the parameter group
-            if (parameterTrack->hasParentParameterTrack()) continue;
-            parameterTrackRowGui(parameterTrack);
-            //draw the groups child parameter tracks
-            if (parameterTrack->hasChildParameterTracks()) {
-                for (auto& childParameterTrack : parameterTrack->childParameterTracks) {
-                    parameterTrackRowGui(childParameterTrack);
-                }
-            }
-        }
-
-        ImGui::TableNextRow();
-
-        ImGui::TableSetColumnIndex(0);
-        glm::vec2 addTrackButtonSize(ImGui::GetFrameHeight() * 3.0 + ImGui::GetStyle().ItemSpacing.x * 2.0, ImGui::GetFrameHeight());
-        if (ImGui::Button("Add Track", addTrackButtonSize)) ImGui::OpenPopup("ManoeuvreTrackAdder");
-        if (ImGui::BeginPopup("ManoeuvreTrackAdder")) {
+		}
+		
+		ImGui::TableNextRow();
+		
+		ImGui::TableSetColumnIndex(0);
+		glm::vec2 addTrackButtonSize(ImGui::GetFrameHeight() * 3.0 + ImGui::GetStyle().ItemSpacing.x * 2.0, ImGui::GetFrameHeight());
+		if (ImGui::Button("Add Track", addTrackButtonSize)) ImGui::OpenPopup("ManoeuvreTrackAdder");
+		if (ImGui::BeginPopup("ManoeuvreTrackAdder")) {
 			ImGui::BeginDisabled();
 			ImGui::MenuItem("Add Parameter Track");
 			ImGui::MenuItem("Machine List :");
 			ImGui::EndDisabled();
 			ImGui::Separator();
-            for (auto& machine : Environnement::getMachines()) {
-				if(machine->animatableParameters.empty()) continue;
-                if (ImGui::BeginMenu(machine->getName())) {
-                    for (auto& parameter : machine->animatableParameters) {
-                        if (parameter->hasParentGroup()) continue;
-                        bool isSelected = manoeuvre->hasTrack(parameter);
-                        if (ImGui::MenuItem(parameter->name, nullptr, isSelected)) {
-                            if (!isSelected) manoeuvre->addTrack(parameter);
-                            else manoeuvre->removeTrack(parameter);
-                        }
-                    }
-                    ImGui::EndMenu();
-                }
-            }
-            ImGui::EndPopup();
-        }
-        if(manoeuvre->tracks.empty()){
-            ImGui::TableNextColumn();
-            ImGui::Text("No Tracks");
-        }
+			for (auto& machine : Environnement::getMachines()) {
+				if(machine->parameters.empty()) continue;
+				if (ImGui::BeginMenu(machine->getName())) {
+					for (auto& parameter : machine->parameters) {
+						if (parameter->hasParentGroup()) continue;
+						bool isSelected = hasTrack(parameter);
+						if (ImGui::MenuItem(parameter->getName(), nullptr, isSelected)) {
+							if (!isSelected) addTrack(parameter);
+							else removeTrack(parameter);
+						}
+					}
+					ImGui::EndMenu();
+				}
+			}
+			ImGui::EndPopup();
+		}
+		if(tracks.empty()){
+			ImGui::TableNextColumn();
+			ImGui::Text("No Tracks");
+		}
+		
+		ImGui::EndTable();
+	}
+	
+	
+}
+
+void Manoeuvre::curveEditorGui(){}
+
+void Manoeuvre::spatialEditorGui(){}
+
+
+/*
+void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
+ 
+
+
+
+
+
+
 
         ImGui::EndTable();
         
@@ -475,7 +271,20 @@ void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
         }
     }
 }
+ */
 
+
+
+
+
+
+
+
+
+
+
+
+/*
 void Manoeuvre::curveEditorGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
     if (ImGui::Button("Center On Curves")) ImPlot::FitNextPlotAxes();
     ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoChild;
@@ -530,14 +339,18 @@ void Manoeuvre::curveEditorGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
         ImPlot::EndPlot();
     }
 }
+ */
 
+/*
 void Manoeuvre::spatialEditorGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
-    ImGui::Text("2D or 3D view of trajectory editor with timeline");
+    //ImGui::Text("2D or 3D view of trajectory editor with timeline");
 }
+ */
 
 
 
 
+/*
 void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 
 	static auto fastMoveProgressOverlay = [&]() {
@@ -591,7 +404,6 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 		case Manoeuvre::Type::TIMED_MOVEMENT:
 
 
-/*
 			if (Playback::isInRapid(manoeuvre)) {
 				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
 				if (ImGui::Button("Cancel Rapid", singleButtonSize)) Playback::stopRapid(manoeuvre);
@@ -647,7 +459,7 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 				ImGui::PopStyleColor();
 			}
 			break;
-*/
+
 
 
 		case Manoeuvre::Type::MOVEMENT_SEQUENCE:
@@ -685,7 +497,6 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 				ImGui::EndDisabled();
 			}
 
-			/*
 			//=== PLAYBACK POSITION CONTROL ===
 			ImGui::SetNextItemWidth(singleButtonSize.x);
 			if (Playback::isPlaying(manoeuvre) && !Playback::isPaused(manoeuvre)) {
@@ -699,7 +510,6 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 				manoeuvre->playbackPosition_seconds = std::min(manoeuvre->getLength_seconds(), manoeuvre->playbackPosition_seconds);
 			}
 			if(manoeuvre->getPlaybackProgress() != 0.0) playbackProgressOverlay();
-			*/
 			
 			//=== PLAYBACK CONTROL BUTTON ===
 			if (Playback::isPlaying(manoeuvre)) {
@@ -726,16 +536,13 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 					if (ImGui::Button("Pause", doubleButtonSize)) Playback::pausePlayback(manoeuvre);
 					ImGui::PopStyleColor();
 				}
-				*/
 			}
 			else {
-				/*
 				if (!Playback::isPrimedToPlaybackPosition(manoeuvre)) {
 					ImGui::PushStyleColor(ImGuiCol_Button, Colors::orange);
 					if (ImGui::Button("Rapid to Playback Position", singleButtonSize)) Playback::rapidToPlaybackPosition(manoeuvre);
 					ImGui::PopStyleColor();
 				}
-				 */
 				bool disableStart = !Playback::isPrimedToStart(manoeuvre);
 				if(disableStart) {
 					backgroundText("Not At Sequence Start", singleButtonSize, Colors::gray);
@@ -752,7 +559,10 @@ void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) 
 		break;
 	}
 }
+ */
 
+
+/*
 float Manoeuvre::getPlaybackControlGuiHeight(const std::shared_ptr<Manoeuvre>& manoeuvre) {
 	switch (manoeuvre->type) {
 		case Manoeuvre::Type::KEY_POSITION:
@@ -762,13 +572,12 @@ float Manoeuvre::getPlaybackControlGuiHeight(const std::shared_ptr<Manoeuvre>& m
 			return ImGui::GetTextLineHeight() * 2.0 * 2.0	//single row of buttons
 				+ ImGui::GetStyle().ItemSpacing.y * 2.0;	//spacing
 		case Manoeuvre::Type::MOVEMENT_SEQUENCE:
-			/*
 			return ImGui::GetTextLineHeight() * 2.0 * 2.0 //two rows of buttons
 				+ ImGui::GetFrameHeight()			//one row of widgets
 				+ImGui::GetStyle().ItemSpacing.y * 3.0;	//three spacings
-			 */
 			return ImGui::GetTextLineHeight() * 2.0 * 2.0 //two rows of buttons
 				+ImGui::GetStyle().ItemSpacing.y * 2.0;	//two spacings
 		default: return 0.0;
 	}
 }
+*/

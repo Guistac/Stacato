@@ -5,6 +5,8 @@
 #include <imgui.h>
 #include <GLFW/glfw3.h>
 
+/*
+
 bool AnimatableParameterValue::inputFieldGui(float width) {
 	static char inputFieldString[128];
 	bool valueChanged = false;
@@ -90,3 +92,5 @@ bool AnimatableParameterValue::inputFieldGui(float width) {
 	
 	return valueChanged;
 }
+
+*/

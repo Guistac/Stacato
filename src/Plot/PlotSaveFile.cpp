@@ -39,10 +39,12 @@ bool Plot::load(const char* path) {
 
 	XMLElement* manoeuvreXML = plotXML->FirstChildElement("Manoeuvre");
 	while (manoeuvreXML != nullptr) {
+		/*
 		std::shared_ptr<Manoeuvre> manoeuvre = std::make_shared<Manoeuvre>(thisPlot);
 		if (!manoeuvre->load(manoeuvreXML)) return Logger::warn("Could not load Manoeuvre");
 		manoeuvres.push_back(manoeuvre);
 		manoeuvreXML = manoeuvreXML->NextSiblingElement("Manoeuvre");
+		 */
 	}
 	refreshAll();
 
