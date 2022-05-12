@@ -158,7 +158,7 @@ void Manoeuvre::trackSheetGui(){
 			
 			ImGui::TableSetColumnIndex(0);
 			
-			ListManagerWidget::Interaction interaction = ListManagerWidget::draw(parameterTrack == tracks.front(), parameterTrack == tracks.back());
+			ListManagerWidget::Interaction interaction = ListManagerWidget::draw(parameterTrack == tracks.front(), parameterTrack == tracks.back(), "", ImGui::GetFrameHeight());
 			switch(interaction){
 				case ListManagerWidget::Interaction::NONE: break;
 				case ListManagerWidget::Interaction::MOVE_UP: movedUpTrack = parameterTrack; break;

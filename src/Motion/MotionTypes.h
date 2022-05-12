@@ -166,29 +166,35 @@ DEFINE_ENUMERATOR(HomingError, HomingErrorStrings)
 
 
 enum class MachineParameterType {
-	BOOLEAN_PARAMETER,
-	INTEGER_PARAMETER,
-	STATE_PARAMETER,
-	REAL_PARAMETER,
-	VECTOR_2D_PARAMETER,
-	VECTOR_3D_PARAMETER,
+	BOOLEAN,
+	INTEGER,
+	REAL,
+	STATE,
+	VECTOR_2D,
+	VECTOR_3D,
 	POSITION,
 	POSITION_2D,
 	POSITION_3D,
-	PARAMETER_GROUP
+	VELOCITY,
+	VELOCITY_2D,
+	VELOCITY_3D,
+	GROUP
 };
 
 #define ParameterDataTypeStrings \
-	{MachineParameterType::BOOLEAN_PARAMETER, 	"Boolean", 			"Boolean"},\
-	{MachineParameterType::INTEGER_PARAMETER, 	"Integer", 			"Integer"},\
-	{MachineParameterType::STATE_PARAMETER, 	"State", 			"State"},\
-	{MachineParameterType::REAL_PARAMETER, 		"Real", 			"Real"},\
-	{MachineParameterType::VECTOR_2D_PARAMETER, "2D Vector", 		"2DVector"},\
-	{MachineParameterType::VECTOR_3D_PARAMETER, "3D Vector", 		"3DVector"},\
-	{MachineParameterType::POSITION, 			"Position", 		"Position"},\
-	{MachineParameterType::POSITION_2D, 		"2D Position", 		"3DPosition"},\
-	{MachineParameterType::POSITION_3D, 		"3D Position", 		"3DPosition"},\
-	{MachineParameterType::PARAMETER_GROUP, 	"Paramater Group", 	"ParameterGroup"}\
+	{MachineParameterType::BOOLEAN, 	"Boolean", 			"Boolean"},\
+	{MachineParameterType::INTEGER, 	"Integer", 			"Integer"},\
+	{MachineParameterType::REAL, 		"Real", 			"Real"},\
+	{MachineParameterType::STATE, 		"State", 			"State"},\
+	{MachineParameterType::VECTOR_2D, 	"2D Vector", 		"2DVector"},\
+	{MachineParameterType::VECTOR_3D, 	"3D Vector", 		"3DVector"},\
+	{MachineParameterType::POSITION, 	"Position", 		"Position"},\
+	{MachineParameterType::POSITION_2D, "2D Position", 		"2DPosition"},\
+	{MachineParameterType::POSITION_3D, "3D Position", 		"3DPosition"},\
+	{MachineParameterType::VELOCITY, 	"Velocity", 		"Velocity"},\
+	{MachineParameterType::VELOCITY_2D, "2D Velocity", 		"2DVelocity"},\
+	{MachineParameterType::VELOCITY_3D, "3D Velocity", 		"3DVelocity"},\
+	{MachineParameterType::GROUP, 		"Paramater Group", 	"ParameterGroup"}\
 
 DEFINE_ENUMERATOR(MachineParameterType, ParameterDataTypeStrings)
 
@@ -209,18 +215,3 @@ enum class ManoeuvreType{
 	{ManoeuvreType::SEQUENCE,	"Sequence",			"Sequence"}\
 
 DEFINE_ENUMERATOR(ManoeuvreType, ManoeuvreTypeStrings)
-
-
-
-
-
-
-
-
-enum class ParameterTrackType{
-	KEY,
-	FIXED_VELOCITY,
-	FIXED_TIME,
-	ANIMATED_SEQUENCE,
-	GROUP
-};

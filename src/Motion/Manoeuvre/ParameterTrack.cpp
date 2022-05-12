@@ -10,6 +10,28 @@
 #include "Motion/Manoeuvre/Manoeuvre.h"
 #include "Plot/Plot.h"
 
+
+std::shared_ptr<ParameterTrack> ParameterTrack::create(std::shared_ptr<MachineParameter> parameter, ManoeuvreType manoeuvreType){
+	
+	if(parameter->getType() == MachineParameterType::GROUP){
+		auto parameterGroup = MachineParameter::castToGroup(parameter);
+		return std::make_shared<ParameterTrackGroup>(parameterGroup, manoeuvreType);
+	}
+	 else{
+		switch(manoeuvreType){
+			case ManoeuvreType::KEY:
+				return std::make_shared<KeyParameterTrack>(parameter);
+			case ManoeuvreType::TARGET:
+				return std::make_shared<TargetParameterTrack>(parameter);
+			case ManoeuvreType::SEQUENCE:
+				return std::make_shared<SequenceParameterTrack>(parameter);
+		}
+	}
+}
+
+
+
+
 /*
 
 ParameterTrack::ParameterTrack(std::shared_ptr<AnimatableParameter>& param, std::shared_ptr<Manoeuvre> m) : parameter(param), parentManoeuvre(m) {

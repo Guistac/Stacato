@@ -75,7 +75,7 @@ bool MachineTemplate::isMoving() {
 //======= PLOT INTERFACE =========
 
 
-void MachineTemplate::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+void MachineTemplate::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
 	//check against all animatable parameters
 	//start moving parameter to requested value
 }
@@ -93,7 +93,7 @@ void MachineTemplate::cancelParameterRapid(std::shared_ptr<AnimatableParameter> 
 }
 
 
-bool MachineTemplate::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+bool MachineTemplate::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
 	//check against all animatable parameters
 	//report if playback of the parameter is ready to start from the given value
 }
@@ -113,7 +113,7 @@ void MachineTemplate::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter
 	//called when playback of that parameter end / finishes
 }
 
-void MachineTemplate::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+std::shared_ptr<AnimatableParameterValue> MachineTemplate::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter) {
 	//check against all animatable parameters
 	//write actual value of parameter to value argument
 }

@@ -216,11 +216,9 @@ void LinearMecanumClaw::process() {
 				break;
 			case ControlMode::EXTERNAL:
 				if(linearAxisPositionParameter->hasParameterTrack()){
-					AnimatableParameterValue playbackValue = linearAxisPositionParameter->getActiveTrackParameterValue();
-					double previousProfilePosition_machineUnits = linearAxisMotionProfile.getPosition();
-					double parameterTrackVelocity = (playbackValue.real - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
-					linearAxisMotionProfile.setVelocity(parameterTrackVelocity);
-					linearAxisMotionProfile.setPosition(playbackValue.real);
+					auto value = linearAxisPositionParameter->getActiveTrackParameterValue()->toPosition();
+					linearAxisMotionProfile.setVelocity(value->velocity);
+					linearAxisMotionProfile.setPosition(value->position);
 				}
 				break;
 		}
@@ -243,11 +241,9 @@ void LinearMecanumClaw::process() {
 				break;
 			case ControlMode::EXTERNAL:
 				if(clawAxisPositionParameter->hasParameterTrack()){
-					AnimatableParameterValue playbackValue = clawAxisPositionParameter->getActiveTrackParameterValue();
-					double previousProfilePosition_machineUnits = clawAxisMotionProfile.getPosition();
-					double parameterTrackVelocity = (playbackValue.real - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
-					clawAxisMotionProfile.setVelocity(parameterTrackVelocity);
-					clawAxisMotionProfile.setPosition(playbackValue.real);
+					auto value = clawAxisPositionParameter->getActiveTrackParameterValue()->toPosition();
+					clawAxisMotionProfile.setVelocity(value->velocity);
+					clawAxisMotionProfile.setPosition(value->position);
 				}
 				break;
 		}
@@ -374,11 +370,9 @@ void LinearMecanumClaw::simulateProcess() {
 			break;
 		case ControlMode::EXTERNAL:
 			if(linearAxisPositionParameter->hasParameterTrack()){
-				AnimatableParameterValue playbackValue = linearAxisPositionParameter->getActiveTrackParameterValue();
-				double previousProfilePosition_machineUnits = linearAxisMotionProfile.getPosition();
-				double parameterTrackVelocity = (playbackValue.real - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
-				linearAxisMotionProfile.setVelocity(parameterTrackVelocity);
-				linearAxisMotionProfile.setPosition(playbackValue.real);
+				auto value = linearAxisPositionParameter->getActiveTrackParameterValue()->toPosition();
+				linearAxisMotionProfile.setVelocity(value->velocity);
+				linearAxisMotionProfile.setPosition(value->position);
 			}
 			break;
 	}
@@ -401,11 +395,9 @@ void LinearMecanumClaw::simulateProcess() {
 			break;
 		case ControlMode::EXTERNAL:
 			if(clawAxisPositionParameter->hasParameterTrack()){
-				AnimatableParameterValue playbackValue = clawAxisPositionParameter->getActiveTrackParameterValue();
-				double previousProfilePosition_machineUnits = clawAxisMotionProfile.getPosition();
-				double parameterTrackVelocity = (playbackValue.real - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
-				clawAxisMotionProfile.setVelocity(parameterTrackVelocity);
-				clawAxisMotionProfile.setPosition(playbackValue.real);
+				auto value = clawAxisPositionParameter->getActiveTrackParameterValue()->toPosition();
+				clawAxisMotionProfile.setVelocity(value->velocity);
+				clawAxisMotionProfile.setPosition(value->position);
 			}
 			break;
 	}
@@ -721,11 +713,11 @@ float LinearMecanumClaw::getLinearAxisFollowingErrorProgress(){
 //======= PLOT INTERFACE =========
 
 
-void LinearMecanumClaw::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+void LinearMecanumClaw::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
 	if(parameter == linearAxisPositionParameter){
-		moveLinearToTargetWithVelocity(value.real, linearAxisRapidVelocity);
+		moveLinearToTargetWithVelocity(value->toPosition()->position, linearAxisRapidVelocity);
 	}else if(parameter == clawAxisPositionParameter){
-		moveClawToTargetWithVelocity(value.real, clawRapidVelocity);
+		moveClawToTargetWithVelocity(value->toPosition()->position, clawRapidVelocity);
 	}
 }
 
@@ -746,11 +738,11 @@ void LinearMecanumClaw::cancelParameterRapid(std::shared_ptr<AnimatableParameter
 }
 
 
-bool LinearMecanumClaw::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+bool LinearMecanumClaw::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
 	if(parameter == linearAxisPositionParameter){
-		return value.real == linearAxisMotionProfile.getPosition();
+		return value->toPosition()->position == linearAxisMotionProfile.getPosition() && linearAxisMotionProfile.getVelocity() == 0.0;
 	}else if(parameter == clawAxisPositionParameter){
-		return value.real == clawAxisMotionProfile.getPosition();
+		return value->toPosition()->position == clawAxisMotionProfile.getPosition() && clawAxisMotionProfile.getVelocity() == 0.0;
 	}
 }
 
@@ -782,14 +774,23 @@ void LinearMecanumClaw::onParameterPlaybackEnd(std::shared_ptr<AnimatableParamet
 	}
 }
 
-void LinearMecanumClaw::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+std::shared_ptr<AnimatableParameterValue> LinearMecanumClaw::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter) {
 	//check against all animatable parameters
 	//write actual value of parameter to value argument
 	if(parameter == linearAxisPositionParameter){
-		value.real = linearAxisMotionProfile.getPosition();
+		auto output = AnimatableParameterValue::makePosition();
+		output->position = linearAxisMotionProfile.getPosition();
+		output->velocity = linearAxisMotionProfile.getVelocity();
+		output->acceleration = linearAxisMotionProfile.getAcceleration();
+		return output;
 	}else if(parameter == clawAxisPositionParameter){
-		value.real = clawAxisMotionProfile.getPosition();
+		auto output = AnimatableParameterValue::makePosition();
+		output->position = clawAxisMotionProfile.getPosition();
+		output->velocity = clawAxisMotionProfile.getVelocity();
+		output->acceleration = clawAxisMotionProfile.getAcceleration();
+		return output;
 	}
+	return nullptr;
 }
 
 

@@ -17,14 +17,13 @@
 #include "Gui/Utilities/CustomWidgets.h"
 
 void ParameterTrack::baseTrackSheetRowGui(){
-	bool b_invalid = getType() != ParameterTrackType::GROUP && !castToMovementTrack(shared_from_this())->isValid();
-	if(b_invalid) ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+	if(!b_valid) ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
 
 	//[1] "Machine"
 	ImGui::TableSetColumnIndex(1);
 	if (!hasParentGroup()) ImGui::Text("%s", parameter->getMachine()->getName());
 	
-	if(b_invalid && ImGui::IsItemHovered()){
+	if(!b_valid && ImGui::IsItemHovered()){
 		ImGui::BeginTooltip();
 		ImGui::Text("Parameter Track not Valid");
 		ImGui::Text("TODO: show reasons");
@@ -46,7 +45,7 @@ void ParameterTrack::baseTrackSheetRowGui(){
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text("%s", parameter->getName());
 
-	if (b_invalid) ImGui::PopStyleColor();
+	if (!b_valid) ImGui::PopStyleColor();
 }
 
 void ParameterTrackGroup::trackSheetRowGui(){

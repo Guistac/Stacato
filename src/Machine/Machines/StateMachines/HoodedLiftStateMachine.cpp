@@ -74,8 +74,8 @@ void HoodedLiftStateMachine::process() {
 	if (b_enabled) {
 
 		if (stateParameter->hasParameterTrack()) {
-			AnimatableParameterValue value = stateParameter->getActiveTrackParameterValue();
-			switch (value.state->integerEquivalent) {
+			auto state = stateParameter->getActiveTrackParameterValue()->toState();
+			switch (state->value->integerEquivalent) {
 				case 0:
 					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
 					break;
@@ -231,10 +231,10 @@ bool HoodedLiftStateMachine::isMoving() {
 	return actualState == MachineState::State::LIFT_LOWERED_HOOD_MOVING || actualState == MachineState::State::LIFT_MOVING_HOOD_OPEN;
 }
 
-void HoodedLiftStateMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+void HoodedLiftStateMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
 	if (parameter == stateParameter) {
-		parameterMovementStartState = actualState;
-		switch (value.state->integerEquivalent) {
+		auto state = value->toState()->value;
+		switch (state->integerEquivalent) {
 			case 0:
 				requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
 				break;
@@ -262,9 +262,11 @@ float HoodedLiftStateMachine::getParameterRapidProgress(std::shared_ptr<Animatab
 	return 0.0;
 }
 
-bool HoodedLiftStateMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+bool HoodedLiftStateMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
 	if (parameter == stateParameter) {
-		if ((float)value.state->integerEquivalent == getState(actualState)->floatEquivalent) return true;
+		auto state = value->toState()->value;
+		//TODO: this is broken
+		if (state->integerEquivalent == getState(actualState)->floatEquivalent) return true;
 	}
 	return false;
 }
@@ -275,7 +277,7 @@ void HoodedLiftStateMachine::onParameterPlaybackInterrupt(std::shared_ptr<Animat
 
 void HoodedLiftStateMachine::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) {}
 
-void HoodedLiftStateMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {}
+std::shared_ptr<AnimatableParameterValue> HoodedLiftStateMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter) {}
 
 
 
@@ -331,8 +333,8 @@ void HoodedLiftStateMachine::simulateProcess() {
 	//update outputs signals
 	if (isEnabled()) {
 		if (stateParameter->hasParameterTrack()) {
-			AnimatableParameterValue value = stateParameter->getActiveTrackParameterValue();
-			switch (value.state->integerEquivalent) {
+			auto state = stateParameter->getActiveTrackParameterValue()->toState()->value;
+			switch (state->integerEquivalent) {
 				case 0:
 					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
 					break;

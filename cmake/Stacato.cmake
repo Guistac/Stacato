@@ -113,7 +113,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/AnimatableParameter.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/AnimatableParameter.h
-    ${STACATO_SOURCE_DIRECTORY}/Machine/AnimatableParameterValue.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/AnimatableParameterValue.h
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Template/MachineTemplate.cpp

@@ -561,189 +561,87 @@ public:
 
 
 
-/*
-
-
-
-
-class EnumStruct_Base{
-public:
-	char displayString[64];
-	char saveString[64];
-};
-
-class Enum_Base{
-public:
-	
-	virtual std::vector<EnumStruct_Base>& getTypes() = 0;
-	
-	EnumStruct_Base& getStructureFromSaveString(const char* saveString){
-		
-	}
-	
-};
-
-
-
-
-template<typename T>
-class EnumStruct_Derived : public EnumStruct_Base{
-public:
-	T enumerator;
-};
-
-
-template<typename T>
-class Enum_Derived : public Enum_Base{
-public:
-	
-	virtual std::vector<EnumStruct_Base>& getTypes(){
-		static std::vector<EnumStruct_Base> baseTypes;
-		return baseTypes;
-	}
-	
-	void init(std::vector<EnumStruct_Derived<T>> derivedTypes){
-		for(auto& derivedType : derivedTypes){
-			getTypes().push_back(derivedType);
-		}
-	}
-	
-	
-	
-	
-	
-};
-
-
-
-//#define DEFINE_NEW_ENUM(TypeName, TypeStructures)\
-//template class Enum_Derived::<TypeName>\
-
-enum class Numbers{
-	ONE,
-	TWO,
-	THREE
-};
-
-template class EnumStruct_Derived<Numbers>;
-template class Enum_Derived<Numbers>;
-
-void initTest(){
-	Enum_Derived<Numbers> test;
-
-	test.init({
-		{.enumerator = Numbers::ONE, .displayString = "one", .saveString = "two"}
-	});
-}
-
-*/
-
-
-
-
-
-
-
-
+//===================================================================================
+//=================================== STATE PARAMETER ===============================
+//===================================================================================
 
 #include "Machine/AnimatableParameterValue.h"
-#include "Motion/Curve/Curve.h"
-#include "Motion/MotionTypes.h"
 
-class Machine;
-class ParameterTrack;
-namespace tinyxml2 { class XMLElement; }
-
-
-
-class ParameterGroup_B;
-template<typename T>
-class AnimatableParameter_B;
-
-class MachineParameter_B : public std::enable_shared_from_this<MachineParameter_B>{
-public:
-	MachineParameter_B(const char* name_){ strcpy(name, name_); }
-	
-	virtual bool isParentGroup() = 0;
-	bool hasParentGroup() { return parentParameterGroup != nullptr; }
-	void setParentGroup(std::shared_ptr<ParameterGroup_B> parent){ parentParameterGroup = parent; }
-	
-	const char* getName(){ return name; }
-	void setMachine(std::shared_ptr<Machine> machine_){ machine = machine_; }
-	std::shared_ptr<Machine> getMachine(){ return machine; }
-	
-	static std::shared_ptr<ParameterGroup_B> castToGroup(std::shared_ptr<MachineParameter_B> input){
-		return std::dynamic_pointer_cast<ParameterGroup_B>(input);
-	}
-	
-	template<typename T>
-	static std::shared_ptr<AnimatableParameter_B<T>> castToAnimatable(std::shared_ptr<MachineParameter_B> input){
-		return std::dynamic_pointer_cast<AnimatableParameter_B<T>>(input);
-	}
-
-private:
-	char name[256];
-	std::shared_ptr<Machine> machine;
-	std::shared_ptr<ParameterGroup_B> parentParameterGroup = nullptr;
-};
-
-
-class ParameterGroup_B : public MachineParameter_B{
+class StateParameter : public Parameter, public std::enable_shared_from_this<StateParameter>{
 public:
 	
-	ParameterGroup_B(const char* name, std::vector<std::shared_ptr<MachineParameter_B>> children) : MachineParameter_B(name), childParameters(children){
-		for(auto& childParameter : childParameters){
-			auto thisGroup = std::dynamic_pointer_cast<ParameterGroup_B>(shared_from_this());
-			childParameter->setParentGroup(thisGroup);
+	AnimatableParameterState* value;
+	AnimatableParameterState* displayValue;
+	std::vector<AnimatableParameterState>* values;
+	
+	StateParameter(AnimatableParameterState* value_, std::vector<AnimatableParameterState>* values_, std::string name, std::string saveString_) : Parameter(name, saveString_){
+		value = value_;
+		displayValue = value_;
+		values = values_;
+	}
+	
+	virtual void gui(){
+		if(ImGui::BeginCombo(imguiID.c_str(), displayValue->displayName)){
+			for(auto& entry : *values){
+				if(ImGui::Selectable(entry.displayName, &entry == displayValue)){
+					displayValue = &entry;
+					//=========Command Invoker=========
+					std::shared_ptr<StateParameter> thisParameter = this->shared_from_this();
+					CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
+					//=================================
+				}
+			}
+			ImGui::EndCombo();
 		}
 	}
 	
-	virtual bool isParentGroup(){ return true; }
-	
-	std::vector<std::shared_ptr<MachineParameter_B>>& getChildren(){ return childParameters; }
-
-private:
-	std::vector<std::shared_ptr<MachineParameter_B>> childParameters;
-};
-
-
-template<typename T>
-class AnimatableParameter_B : public MachineParameter_B{
-public:
-	
-	AnimatableParameter_B(const char* name) : MachineParameter_B(name) {}
-	
-	virtual std::vector<Motion::InterpolationType>& getCompatibleInterpolationTypes(){
-		static std::vector<Motion::InterpolationType> test;
-		return test;
-	}
-
-	virtual bool isParentGroup(){ return false; }
-	
-	bool hasParameterTrack() { return actualParameterTrack != nullptr; }
-	T getActiveTrackParameterValue(){
-		//TODO: IMPORTANT !!!
-		//return actualParameterTrack->getParameterValueAtPlaybackTime();
-		return {};
+	virtual bool save(tinyxml2::XMLElement* xml){
+		xml->SetAttribute(saveString.c_str(), value->saveName);
 	}
 	
-private:
-	std::shared_ptr<ParameterTrack> actualParameterTrack = nullptr;
+	virtual bool load(tinyxml2::XMLElement* xml){
+		using namespace tinyxml2;
+		const char * stateSaveString;
+		XMLError result = xml->QueryStringAttribute(saveString.c_str(), &stateSaveString);
+		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", name);
+		
+		for(auto& entry : *values){
+			if(strcmp(entry.saveName, stateSaveString) == 0){
+				value = &entry;
+				displayValue = value;
+				return true;
+			}
+		}
+		
+		return Logger::warn("Could not load parameter {} : could not identity state string : {}", name, stateSaveString);
+	}
+	
+	class EditCommand : public Command{
+	public:
+		std::shared_ptr<StateParameter> parameter;
+		AnimatableParameterState* oldValue;
+		AnimatableParameterState* newValue;
+		
+		EditCommand(std::shared_ptr<StateParameter> parameter_){
+			parameter = parameter_;
+			oldValue = parameter->value;
+			newValue = parameter->displayValue;
+			name = "Edited \'" + std::string(parameter->name)
+			+ "\' from \'" + std::string(oldValue->displayName)
+			+ "\' to \'" + std::string(newValue->displayName) + "\'";
+		}
+		virtual void execute(){
+			parameter->value = newValue;
+			parameter->displayValue = newValue;
+			parameter->b_changed = true;
+			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
+		}
+		virtual void undo(){
+			parameter->value = oldValue;
+			parameter->displayValue = oldValue;
+			parameter->b_changed = true;
+			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
+		}
+	};
+	
 };
-
-
-static void test(){
-	std::shared_ptr<AnimatableParameter_B<bool>> test = std::make_shared<AnimatableParameter_B<bool>>("test");
-	std::shared_ptr<MachineParameter_B> base;
-	base = test;
-	
-	MachineParameter_B::castToAnimatable<bool>(base);
-	
-	
-}
-
-
-
-
-
-

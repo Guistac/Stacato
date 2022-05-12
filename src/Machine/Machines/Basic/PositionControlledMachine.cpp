@@ -132,11 +132,9 @@ void PositionControlledMachine::process() {
 	switch(controlMode){
 			
 		case ControlMode::PARAMETER_TRACK:{
-			AnimatableParameterValue playbackPosition = positionParameter->getActiveTrackParameterValue();
-			double previousProfilePosition_machineUnits = axis->getProfilePosition();
-			double parameterTrackVelocity_machineUnits = machineVelocityToAxisVelocity((playbackPosition.real - previousProfilePosition_machineUnits) / profileDeltaTime_seconds);
-			motionProfile.setPosition(playbackPosition.real);
-			motionProfile.setVelocity(parameterTrackVelocity_machineUnits);
+			auto value = positionParameter->getActiveTrackParameterValue()->toPosition();
+			motionProfile.setPosition(value->position);
+			motionProfile.setVelocity(value->velocity);
 			}break;
 			
 		case ControlMode::VELOCITY_TARGET:{
@@ -175,11 +173,9 @@ void PositionControlledMachine::simulateProcess() {
 	switch(controlMode){
 			
 		case ControlMode::PARAMETER_TRACK:{
-			AnimatableParameterValue playbackPosition = positionParameter->getActiveTrackParameterValue();
-			double previousProfilePosition_machineUnits = motionProfile.getPosition();
-			double parameterTrackVelocity = (playbackPosition.real - previousProfilePosition_machineUnits) / profileDeltaTime_seconds;
-			motionProfile.setPosition(playbackPosition.real);
-			motionProfile.setVelocity(parameterTrackVelocity);
+			auto value = positionParameter->getActiveTrackParameterValue()->toPosition();
+			motionProfile.setPosition(value->position);
+			motionProfile.setVelocity(value->velocity);
 		}break;
 			
 		case ControlMode::VELOCITY_TARGET:{
@@ -259,9 +255,9 @@ void PositionControlledMachine::moveToPosition(double target_machineUnits) {
 
 
 
-void PositionControlledMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+void PositionControlledMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
 	if (parameter == positionParameter) {
-		moveToPosition(value.real);
+		moveToPosition(value->toPosition()->position);
 	}
 }
 
@@ -278,9 +274,9 @@ void PositionControlledMachine::cancelParameterRapid(std::shared_ptr<AnimatableP
 	}
 }
 
-bool PositionControlledMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+bool PositionControlledMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
 	if (parameter == positionParameter) {
-		return motionProfile.getPosition() == value.real && motionProfile.getVelocity() == 0.0;
+		return motionProfile.getPosition() == value->toPosition()->position && motionProfile.getVelocity() == 0.0;
 	}
 	return false;
 }
@@ -307,10 +303,15 @@ void PositionControlledMachine::onParameterPlaybackEnd(std::shared_ptr<Animatabl
 	}
 }
 
-void PositionControlledMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+std::shared_ptr<AnimatableParameterValue> PositionControlledMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
-		value.real = motionProfile.getPosition();
+		auto output = AnimatableParameterValue::makePosition();
+		output->position = motionProfile.getPosition();
+		output->velocity = motionProfile.getVelocity();
+		output->acceleration = motionProfile.getAcceleration();
+		return output;
 	}
+	return nullptr;
 }
 
 

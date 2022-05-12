@@ -8,9 +8,9 @@ class ParameterTrack;
 namespace tinyxml2 { class XMLElement; }
 
 
-
-
+class AnimatableParameter;
 class ParameterGroup;
+class AnimatableStateParameter;
 
 class MachineParameter : public std::enable_shared_from_this<MachineParameter>{
 public:
@@ -31,30 +31,15 @@ public:
 	static std::shared_ptr<AnimatableParameter> castToAnimatable(std::shared_ptr<MachineParameter> input){
 		return std::dynamic_pointer_cast<AnimatableParameter>(input);
 	}
+	
+	static std::shared_ptr<AnimatableStateParameter> toState(std::shared_ptr<MachineParameter> input){
+		return std::dynamic_pointer_cast<AnimatableStateParameter>(input);
+	}
 
 private:
 	char name[256];
 	std::shared_ptr<Machine> machine;
 	std::shared_ptr<ParameterGroup> parentParameterGroup = nullptr;
-};
-
-
-class ParameterGroup : public MachineParameter{
-public:
-	
-	ParameterGroup(const char* name, std::vector<std::shared_ptr<MachineParameter>> children) : MachineParameter(name), childParameters(children){
-		for(auto& childParameter : childParameters){
-			auto thisGroup = std::dynamic_pointer_cast<ParameterGroup>(shared_from_this());
-			childParameter->setParentGroup(thisGroup);
-		}
-	}
-	
-	virtual MachineParameterType getType(){ return MachineParameterType::PARAMETER_GROUP; }
-	
-	std::vector<std::shared_ptr<MachineParameter>>& getChildren(){ return childParameters; }
-
-private:
-	std::vector<std::shared_ptr<MachineParameter>> childParameters;
 };
 
 
@@ -67,10 +52,9 @@ public:
 	virtual std::vector<Motion::InterpolationType>& getCompatibleInterpolationTypes() = 0;
 
 	bool hasParameterTrack() { return actualParameterTrack != nullptr; }
-	AnimatableParameterValue getActiveTrackParameterValue(){
-		//TODO: IMPORTANT !!!
+	std::shared_ptr<AnimatableParameterValue> getActiveTrackParameterValue(){
 		//return actualParameterTrack->getParameterValueAtPlaybackTime();
-		return {};
+		return nullptr;
 	}
 	
 private:
@@ -79,75 +63,43 @@ private:
 
 
 
+
+//———————————————————————————————————————————————
+//				NUMERICAL PARAMETER
+//———————————————————————————————————————————————
+
 class AnimatableNumericalParameter : public AnimatableParameter{
 public:
 	
 	AnimatableNumericalParameter(const char* name, MachineParameterType type_, Unit unit_) : AnimatableParameter(name), unit(unit_), type(type_){
-		assert(type != MachineParameterType::PARAMETER_GROUP);
-		assert(type != MachineParameterType::BOOLEAN_PARAMETER);
-		assert(type != MachineParameterType::STATE_PARAMETER);
+		assert(type != MachineParameterType::GROUP);
+		assert(type != MachineParameterType::BOOLEAN);
+		assert(type != MachineParameterType::STATE);
 	}
 	
 	virtual MachineParameterType getType(){ return type; }
-	virtual std::vector<Motion::InterpolationType>& getCompatibleInterpolationTypes(){
-		static std::vector<Motion::InterpolationType> stepOnly = {
-			Motion::InterpolationType::STEP
-		};
-		
-		static std::vector<Motion::InterpolationType> allInterpolationTypes = {
-			Motion::InterpolationType::STEP,
-			Motion::InterpolationType::LINEAR,
-			Motion::InterpolationType::TRAPEZOIDAL,
-			Motion::InterpolationType::BEZIER
-		};
-		
-		static std::vector<Motion::InterpolationType> onlyKinematic = {
-			Motion::InterpolationType::TRAPEZOIDAL
-		};
-		
-		static std::vector<Motion::InterpolationType> none = {};
-		
-		switch (type) {
-			case MachineParameterType::BOOLEAN_PARAMETER:
-			case MachineParameterType::INTEGER_PARAMETER:
-			case MachineParameterType::STATE_PARAMETER:
-				return stepOnly;
-			case MachineParameterType::REAL_PARAMETER:
-			case MachineParameterType::VECTOR_2D_PARAMETER:
-			case MachineParameterType::VECTOR_3D_PARAMETER:
-				return allInterpolationTypes;
-			case MachineParameterType::POSITION:
-			case MachineParameterType::POSITION_2D:
-			case MachineParameterType::POSITION_3D:
-				return onlyKinematic;
-			case MachineParameterType::PARAMETER_GROUP:
-				return none;
-		}
-	}
+	virtual std::vector<Motion::InterpolationType>& getCompatibleInterpolationTypes();
 	
 	Unit getUnit(){ return unit; }
 	void setUnit(Unit u){ unit = u; }
 	
 private:
-	
 	Unit unit;
 	MachineParameterType type;
-	
 };
 
 
-struct AnimatableParameterState{
-	int integerEquivalent;
-	const char displayName[64];
-	const char saveName[64];
-};
+
+//———————————————————————————————————————————————
+//				STATE PARAMETER
+//———————————————————————————————————————————————
 
 class AnimatableStateParameter : public AnimatableParameter{
 public:
 	
 	AnimatableStateParameter(const char* name, std::vector<AnimatableParameterState>* stateValues) : AnimatableParameter(name), states(stateValues){};
 	
-	virtual MachineParameterType getType(){ return MachineParameterType::STATE_PARAMETER; }
+	virtual MachineParameterType getType(){ return MachineParameterType::STATE; }
 	virtual std::vector<Motion::InterpolationType>& getCompatibleInterpolationTypes(){
 		static std::vector<Motion::InterpolationType> compatibleInterpolations = { Motion::InterpolationType::STEP };
 		return compatibleInterpolations;
@@ -161,16 +113,44 @@ private:
 
 
 
+//———————————————————————————————————————————————
+//				BOOLEAN PARAMETER
+//———————————————————————————————————————————————
+
 class AnimatableBooleanParameter : public AnimatableParameter{
 public:
 	
 	AnimatableBooleanParameter(const char* name) : AnimatableParameter(name){}
 	
-	virtual MachineParameterType getType(){ return MachineParameterType::BOOLEAN_PARAMETER; }
+	virtual MachineParameterType getType(){ return MachineParameterType::BOOLEAN; }
 	virtual std::vector<Motion::InterpolationType>& getCompatibleInterpolationTypes(){
 		static std::vector<Motion::InterpolationType> compatibleInterpolations = { Motion::InterpolationType::STEP };
 		return compatibleInterpolations;
 	}
+};
+
+
+
+//———————————————————————————————————————————————
+//				PARAMETER GROUP
+//———————————————————————————————————————————————
+
+class ParameterGroup : public MachineParameter{
+public:
+	
+	ParameterGroup(const char* name, std::vector<std::shared_ptr<MachineParameter>> children) : MachineParameter(name), childParameters(children){
+		for(auto& childParameter : childParameters){
+			auto thisGroup = std::dynamic_pointer_cast<ParameterGroup>(shared_from_this());
+			childParameter->setParentGroup(thisGroup);
+		}
+	}
+	
+	virtual MachineParameterType getType(){ return MachineParameterType::GROUP; }
+	
+	std::vector<std::shared_ptr<MachineParameter>>& getChildren(){ return childParameters; }
+
+private:
+	std::vector<std::shared_ptr<MachineParameter>> childParameters;
 };
 
 
