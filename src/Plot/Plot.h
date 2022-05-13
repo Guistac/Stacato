@@ -17,6 +17,10 @@ public:
 	void selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre);
 	std::shared_ptr<Manoeuvre> getSelectedManoeuvre();
 	
+	int getManoeuvreIndex(std::shared_ptr<Manoeuvre> manoeuvre);
+	void selectNextManoeuvre();
+	void selectPreviousManoeuvre();
+	
 	void addManoeuvre();
 	void deleteSelectedManoeuvre();
 	void duplicateSelectedManoeuvre();

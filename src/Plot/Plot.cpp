@@ -64,6 +64,34 @@ void Plot::reorderManoeuvre(std::shared_ptr<Manoeuvre> m, int oldIndex, int newI
 	manoeuvres.insert(manoeuvres.begin() + newIndex, tmp);
 }
 
+int Plot::getManoeuvreIndex(std::shared_ptr<Manoeuvre> manoeuvre){
+	for(int i = 0; i < getManoeuvres().size(); i++){
+		if(manoeuvre == getManoeuvres()[i]) return i;
+	}
+	return -1;
+}
+
+void Plot::selectNextManoeuvre(){
+	auto selectedManoeuvre = getSelectedManoeuvre();
+	if(selectedManoeuvre){
+		int nextManoeuvreIndex = getManoeuvreIndex(selectedManoeuvre) + 1;
+		if(nextManoeuvreIndex >= getManoeuvres().size()) nextManoeuvreIndex = 0;
+		selectManoeuvre(getManoeuvres()[nextManoeuvreIndex]);
+	}else if(getManoeuvres().empty()) return;
+	else selectManoeuvre(getManoeuvres().front());
+}
+
+void Plot::selectPreviousManoeuvre(){
+	auto selectedManoeuvre = getSelectedManoeuvre();
+	if(selectedManoeuvre){
+		int previousManoeuvreIndex = getManoeuvreIndex(selectedManoeuvre) - 1;
+		if(previousManoeuvreIndex <= -1) previousManoeuvreIndex = getManoeuvres().size() - 1;
+		selectManoeuvre(getManoeuvres()[previousManoeuvreIndex]);
+	}else if(getManoeuvres().empty()) return;
+	else selectManoeuvre(getManoeuvres().back());
+}
+
+
 
 
 void Plot::refreshPlotAfterMachineLimitChanged(std::shared_ptr<Machine> m) {

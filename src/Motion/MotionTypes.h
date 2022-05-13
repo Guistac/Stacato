@@ -162,8 +162,7 @@ enum class HomingError{
 
 DEFINE_ENUMERATOR(HomingError, HomingErrorStrings)
 
-
-
+//================================================================================================================================
 
 enum class MachineParameterType {
 	BOOLEAN,
@@ -198,10 +197,7 @@ enum class MachineParameterType {
 
 DEFINE_ENUMERATOR(MachineParameterType, ParameterDataTypeStrings)
 
-
-
-
-
+//================================================================================================================================
 
 enum class ManoeuvreType{
 	KEY,
@@ -215,3 +211,5 @@ enum class ManoeuvreType{
 	{ManoeuvreType::SEQUENCE,	"Sequence",			"Sequence"}\
 
 DEFINE_ENUMERATOR(ManoeuvreType, ManoeuvreTypeStrings)
+
+//================================================================================================================================

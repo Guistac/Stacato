@@ -173,6 +173,7 @@ public:
 	
 };
 
+//rapid to end
 
 
 
@@ -215,6 +216,11 @@ private:
 DEFINE_ENUMERATOR(TargetParameterTrack::Constraint, TargetConstraintStrings)
 
 
+//rapid to end
+//start
+//pause
+//resume
+
 
 
 
@@ -250,3 +256,10 @@ public:
 	
 	std::shared_ptr<Parameter> start;
 };
+
+//rapid to start
+//rapid to end
+//rapid to playback position
+//start
+//pause
+//resume

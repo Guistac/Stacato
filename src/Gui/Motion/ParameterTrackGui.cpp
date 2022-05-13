@@ -48,13 +48,10 @@ void ParameterTrack::baseTrackSheetRowGui(){
 	if (!b_valid) ImGui::PopStyleColor();
 }
 
-void ParameterTrackGroup::trackSheetRowGui(){
-	baseTrackSheetRowGui();
-}
+void ParameterTrackGroup::trackSheetRowGui(){}
 
 void KeyParameterTrack::trackSheetRowGui(){
 	float widgetWidth = ImGui::GetTextLineHeight() * 5.0;
-	baseTrackSheetRowGui();
 	//[3] "Target"			//position or other
 	ImGui::TableSetColumnIndex(3);
 	ImGui::SetNextItemWidth(widgetWidth);
@@ -64,8 +61,6 @@ void KeyParameterTrack::trackSheetRowGui(){
 void TargetParameterTrack::trackSheetRowGui(){
 	
 	float widgetWidth = ImGui::GetTextLineHeight() * 5.0;
-	
-	baseTrackSheetRowGui();
 	
 	//[3] "Type"			//time vs velocity
 	ImGui::TableSetColumnIndex(3);
@@ -97,7 +92,6 @@ void TargetParameterTrack::trackSheetRowGui(){
 
 void SequenceParameterTrack::trackSheetRowGui(){
 	float widgetWidth = ImGui::GetTextLineHeight() * 5.0;
-	baseTrackSheetRowGui();
 	
 	//[3] "Start"
 	ImGui::TableSetColumnIndex(3);

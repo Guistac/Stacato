@@ -37,9 +37,11 @@ public:
 	void setDescription(const char* descr){ description->overwrite(descr); }
 	
 	void addTrack(std::shared_ptr<MachineParameter>& parameter);
-	void removeTrack(std::shared_ptr<MachineParameter>& parameter);
 	bool hasTrack(std::shared_ptr<MachineParameter>& parameter);
 	std::vector<std::shared_ptr<ParameterTrack>>& getTracks(){ return tracks; }
+	void removeTrack(std::shared_ptr<MachineParameter>& parameter);
+	void removeTrack(int removedIndex);
+	void moveTrack(int oldIndex, int newIndex);
 	
 	double getLength_seconds();
 	float getPlaybackProgress();
@@ -51,9 +53,8 @@ public:
 	bool isPaused(){ return b_paused; }
 	void setPaused(bool paused){ b_paused = paused; }
 	
-	
-	
 	void listGui();
+	void miniatureGui(glm::vec2 size_arg);
 	
 	bool save(tinyxml2::XMLElement* manoeuvreXML);
 	bool load(tinyxml2::XMLElement* manoeuvreXML);

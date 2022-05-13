@@ -244,43 +244,23 @@ void editor(){
 
 
 	void transportControls(float height){
-		/*
 		auto context = Sequencer::getContext();
 		
-		glm::vec2 size = ImGui::GetContentRegionAvail();
-		size.y = ImGui::GetTextLineHeight() * 4.0;
-		
-		std::string playbackTimeString = Playback::Transport::microsecondsToTimecodeString(context->playbackTime);
-		static char buffer[12];
-		sprintf(buffer, "%s", playbackTimeString.c_str());
-		
-		float cursorHeight = ImGui::GetCursorPosY();
 		ImGui::PushFont(Fonts::sansBold26);
-		float verticalPadding = ImGui::GetStyle().FramePadding.y;
-		ImGui::GetStyle().FramePadding.y = 0.0;
-		float offset = (height - ImGui::GetFrameHeight()) / 2.0;
-		glm::vec2 textSize = ImGui::CalcTextSize("-00:00:00.0");
-		ImGui::SetNextItemWidth(textSize.x + ImGui::GetStyle().FramePadding.x * 2.0);
-		ImGui::SetCursorPos(ImGui::GetCursorPos() + glm::vec2(0, offset));
-		ImGui::InputText("##TC", buffer, 12, ImGuiInputTextFlags_AutoSelectAll);
-		ImGui::GetStyle().FramePadding.y = verticalPadding;
+		timeEntryWidgetMicroseconds("##SequencerTime", height, context->playbackTime);
 		ImGui::PopFont();
-		ImGui::SameLine();
-		ImGui::SetCursorPosY(cursorHeight);
 		
-		//triggers after manually editing the timecode string
-		if(ImGui::IsItemDeactivatedAfterEdit()){
-			context->playbackTime = Playback::Transport::timecodeStringToMicroseconds(buffer);
+		ImGui::SameLine();
+		switch(NextPreviousButtons::draw("NextPrevious", height)){
+			case NextPreviousButtons::Interaction::NONE: break;
+			case NextPreviousButtons::Interaction::PREVIOUS: break;
+			case NextPreviousButtons::Interaction::NEXT: break;
 		}
 		
-		if(buttonArrowLeft("##left", height)){}
-		ImGui::SameLine();
-		if(buttonArrowRight("##right", height)){}
 		ImGui::SameLine();
 		if(buttonPause("##Pause", height)){}
 		ImGui::SameLine();
 		if(buttonPlay("##Play", height)){}
-		*/
 	}
 
 

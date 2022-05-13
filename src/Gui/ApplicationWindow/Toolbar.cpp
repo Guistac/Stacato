@@ -21,6 +21,9 @@
 
 #include "Gui/Plot/Sequencer.h"
 
+#include "Plot/Plot.h"
+#include "Gui/Plot/PlotGui.h"
+
 namespace Gui {
 
 
@@ -186,6 +189,25 @@ namespace Gui {
 		ImGui::PopFont();
 		
 		ImGui::EndGroup();
+		
+		spacer();
+		
+		//================= Manoeuvre Playback Control =====================
+		
+		ImGui::BeginGroup();
+		
+		ImGui::BeginGroup();
+		PlotGui::selectedManoeuvrePlaybackControl(buttonSize.y);
+		ImGui::EndGroup();
+		
+		ImGui::PushFont(Fonts::sansRegular12);
+		backgroundText("Manoeuvre Playback", glm::vec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
+		ImGui::PopFont();
+		
+		ImGui::EndGroup();
+		
+		//====================================================================
+	
 		
 		
 		ImGui::PopStyleVar();

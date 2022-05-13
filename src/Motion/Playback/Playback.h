@@ -29,6 +29,8 @@ namespace Playback {
 	namespace Transport{
 		std::string microsecondsToTimecodeString(long long int microseconds);
 		long long int timecodeStringToMicroseconds(const char* buffer);
+		std::string secondsToTimecodeString(double seconds);
+		double timecodeStringToSeconds(const char* buffer);
 	};
 
 }

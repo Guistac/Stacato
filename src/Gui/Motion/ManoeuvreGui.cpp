@@ -91,6 +91,16 @@ void Manoeuvre::listGui(){
 	
 }
 
+void Manoeuvre::miniatureGui(glm::vec2 size_arg){
+	
+	glm::vec4 backgroundColor = Colors::darkGreen;
+	if(!b_valid){
+		bool blink = (int)Timing::getProgramTime_milliseconds() % 1000 > 500;
+		backgroundColor = blink ? Colors::red : Colors::yellow;
+	}
+	backgroundText(getName(), size_arg, backgroundColor);
+}
+
 
 void Manoeuvre::trackSheetGui(){
 	
@@ -104,9 +114,9 @@ void Manoeuvre::trackSheetGui(){
 	ImGui::Separator();
 	
 	
-	std::shared_ptr<ParameterTrack> removedTrack = nullptr;
-	std::shared_ptr<ParameterTrack> movedUpTrack = nullptr;
-	std::shared_ptr<ParameterTrack> movedDownTrack = nullptr;
+	int removedTrackIndex = -1;
+	int movedUpTrackIndex = -1;
+	int movedDownTrackIndex = -1;
 
 	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoHostExtendY;
 	
@@ -145,7 +155,7 @@ void Manoeuvre::trackSheetGui(){
 		ImGui::TableHeadersRow();
 		
 		for (int i = 0; i < tracks.size(); i++) {
-			
+			ImGui::PushID(i);
 			auto& parameterTrack = tracks[i];
 			
 			//child parameter tracks are listed in the manoeuvres track vector
@@ -154,38 +164,38 @@ void Manoeuvre::trackSheetGui(){
 			if (parameterTrack->hasParentGroup()) continue;
 			
 			ImGui::TableNextRow();
-			ImGui::PushID(i);
-			
 			ImGui::TableSetColumnIndex(0);
 			
 			ListManagerWidget::Interaction interaction = ListManagerWidget::draw(parameterTrack == tracks.front(), parameterTrack == tracks.back(), "", ImGui::GetFrameHeight());
 			switch(interaction){
 				case ListManagerWidget::Interaction::NONE: break;
-				case ListManagerWidget::Interaction::MOVE_UP: movedUpTrack = parameterTrack; break;
-				case ListManagerWidget::Interaction::MOVE_DOWN: movedDownTrack = parameterTrack; break;
-				case ListManagerWidget::Interaction::DELETE: removedTrack = parameterTrack; break;
+				case ListManagerWidget::Interaction::MOVE_UP: movedUpTrackIndex = i; break;
+				case ListManagerWidget::Interaction::MOVE_DOWN: movedDownTrackIndex = i; break;
+				case ListManagerWidget::Interaction::DELETE: removedTrackIndex = i; break;
 			}
 			
+			parameterTrack->baseTrackSheetRowGui();
 			parameterTrack->trackSheetRowGui();
 			
-			ImGui::PopID();
-			
-			
 			//draw the groups child parameter tracks
-			if(parameterTrack->getType() == ParameterTrackType::GROUP){
+			if(parameterTrack->isGroup()){
 				auto groupTrack = ParameterTrack::castToGroup(parameterTrack);
-				for (auto& childParameterTrack : groupTrack->getChildren()) {
-					//TODO:
-					//parameterTrack->trackSheetRowGui();
+				std::vector<std::shared_ptr<ParameterTrack>>& childTracks = groupTrack->getChildren();
+				for(int j = 0; j < groupTrack->getChildren().size(); j++){
+					ImGui::PushID(j);
+					childTracks[j]->baseTrackSheetRowGui();
+					childTracks[j]->trackSheetRowGui();
+					ImGui::PopID();
 				}
-				
 			}
+			
+			ImGui::PopID();
 		}
 		
 		ImGui::TableNextRow();
 		
 		ImGui::TableSetColumnIndex(0);
-		glm::vec2 addTrackButtonSize(ImGui::GetFrameHeight() * 3.0 + ImGui::GetStyle().ItemSpacing.x * 2.0, ImGui::GetFrameHeight());
+		glm::vec2 addTrackButtonSize(ImGui::GetFrameHeight() * 3.0, ImGui::GetFrameHeight());
 		if (ImGui::Button("Add Track", addTrackButtonSize)) ImGui::OpenPopup("ManoeuvreTrackAdder");
 		if (ImGui::BeginPopup("ManoeuvreTrackAdder")) {
 			ImGui::BeginDisabled();
@@ -217,61 +227,14 @@ void Manoeuvre::trackSheetGui(){
 		ImGui::EndTable();
 	}
 	
-	
+	if(removedTrackIndex > -1) removeTrack(removedTrackIndex);
+	if(movedUpTrackIndex > -1) moveTrack(movedUpTrackIndex, movedUpTrackIndex - 1);
+	if(movedDownTrackIndex > -1) moveTrack(movedDownTrackIndex, movedDownTrackIndex + 1);
 }
 
 void Manoeuvre::curveEditorGui(){}
 
 void Manoeuvre::spatialEditorGui(){}
-
-
-/*
-void Manoeuvre::trackSheetGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
- 
-
-
-
-
-
-
-
-        ImGui::EndTable();
-        
-    }
-
-    ImGui::PopStyleVar(2); //cell padding & item spacing in editing table
-
-    if (removedTrack) manoeuvre->removeTrack(removedTrack->parameter);
-    else if (movedUpTrack) {
-        int oldIndex;
-        for (int i = 0; i < manoeuvre->tracks.size(); i++) {
-            if (manoeuvre->tracks[i] == movedUpTrack) {
-                oldIndex = i;
-                break;
-            }
-        }
-        int newIndex = oldIndex - 1;
-        if (newIndex >= 0) {
-            manoeuvre->tracks.erase(manoeuvre->tracks.begin() + oldIndex);
-            manoeuvre->tracks.insert(manoeuvre->tracks.begin() + newIndex, movedUpTrack);
-        }
-    }
-    else if (movedDownTrack) {
-        int oldIndex;
-        for (int i = 0; i < manoeuvre->tracks.size(); i++) {
-            if (manoeuvre->tracks[i] == movedDownTrack) {
-                oldIndex = i;
-                break;
-            }
-        }
-        int newIndex = oldIndex + 1;
-        if (newIndex < manoeuvre->tracks.size()) {
-            manoeuvre->tracks.erase(manoeuvre->tracks.begin() + oldIndex);
-            manoeuvre->tracks.insert(manoeuvre->tracks.begin() + newIndex, movedDownTrack);
-        }
-    }
-}
- */
 
 
 

@@ -31,7 +31,7 @@ namespace Gui {
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5.0);
 		
 		//=== Define Bottom Toolbar and main window height
-		float toolbarHeight = ImGui::GetTextLineHeight() * 3.5;
+		float toolbarHeight = ImGui::GetTextLineHeight() * 4.0;
 		glm::vec2 mainWindowPosition = ImGui::GetMainViewport()->WorkPos;
 		glm::vec2 mainWindowSize = ImGui::GetMainViewport()->WorkSize;
 		mainWindowSize.y -= toolbarHeight;
@@ -107,10 +107,10 @@ namespace Gui {
 		//if(ImGui::Begin("CommandZ")) testUndoHistory();
 		//ImGui::End();
 		
-		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0,0));
-		//if(ImGui::Begin("Sequencer")) Sequencer::Gui::editor();
-		//ImGui::End();
-		//ImGui::PopStyleVar();
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0,0));
+		if(ImGui::Begin("Sequencer")) Sequencer::Gui::editor();
+		ImGui::End();
+		ImGui::PopStyleVar();
 		
 		//if(ImGui::Begin("Stage")) StageView::draw();
 		//ImGui::End();

@@ -30,8 +30,7 @@ namespace Playback::Transport{
 		
 		double seconds = double(microseconds) / 1000000.0;
 		
-		if(b_negative) start += sprintf(buffer + start, "-");
-		else start += sprintf(buffer + start, " ");
+		start += sprintf(buffer + start, b_negative ? "-" : "+");
 		start += sprintf(buffer + start, "%.2i:", hours);
 		start += sprintf(buffer + start, "%.2i:", minutes);
 		start += sprintf(buffer + start, "%04.1f", seconds);
@@ -132,6 +131,14 @@ namespace Playback::Transport{
 		microseconds += s * secondInMicroseconds;
 		
 		return microseconds;
+	}
+
+	std::string secondsToTimecodeString(double seconds){
+		return microsecondsToTimecodeString(seconds * 1000000);
+	}
+
+	double timecodeStringToSeconds(const char* buffer){
+		return timecodeStringToMicroseconds(buffer) / 1000000.0;
 	}
 
 

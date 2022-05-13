@@ -8,4 +8,6 @@ namespace PlotGui{
 	void curveEditor();
 	void spatialEditor();
 
+	void selectedManoeuvrePlaybackControl(float height);
+
 }
