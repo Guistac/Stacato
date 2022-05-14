@@ -130,10 +130,11 @@ namespace LayoutManager{
 	inline bool save(const char* filePath){
 		using namespace tinyxml2;
 		XMLDocument layoutDocument;
+		XMLElement* layoutsXML = layoutDocument.NewElement("Layouts");
+		layoutDocument.InsertEndChild(layoutsXML);
 		
 		for(auto& layout : layouts()){
-			XMLElement* layoutXML = layoutDocument.NewElement("Layout");
-			layoutDocument.InsertEndChild(layoutXML);
+			XMLElement* layoutXML = layoutsXML->InsertNewChildElement("Layout");
 			if(!layout->save(layoutXML)) return false;
 		}
 		
@@ -146,7 +147,10 @@ namespace LayoutManager{
 		XMLError loadResult = layoutDocument.LoadFile(filePath);
 		if (loadResult != XML_SUCCESS) return Logger::warn("Could not Open Layout SaveFile (tinyxml2 error: {})", XMLDocument::ErrorIDToName(loadResult));
 		
-		tinyxml2::XMLElement* layoutXML = layoutDocument.FirstChildElement("Layout");
+		XMLElement* layoutsXML = layoutDocument.FirstChildElement("Layouts");
+		if(layoutsXML == nullptr) return Logger::warn("Could not find Layouts Attribute");
+		
+		XMLElement* layoutXML = layoutsXML->FirstChildElement("Layout");
 		while(layoutXML){
 			auto newLayout = std::make_shared<Layout>();
 			if(!newLayout->load(layoutXML)) return Logger::warn("Could not load layout");

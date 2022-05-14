@@ -45,6 +45,7 @@ bool Plot::load(const char* path) {
 		manoeuvres.push_back(manoeuvre);
 		manoeuvreXML = manoeuvreXML->NextSiblingElement("Manoeuvre");
 		 */
+		break;
 	}
 	refreshAll();
 

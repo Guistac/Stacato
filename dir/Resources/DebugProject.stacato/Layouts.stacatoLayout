@@ -1,0 +1,105 @@
+<Layouts>
+    <Layout Name="Test Layout" IsDefault="true">
+[Window][Debug##Default]
+Pos=60,60
+Size=400,400
+Collapsed=0
+
+[Window][##Toolbar]
+Pos=0,916
+Size=2056,84
+Collapsed=0
+
+[Window][Main Window]
+Pos=0,29
+Size=2056,1160
+Collapsed=0
+
+[Window][Quitting Application]
+Pos=794,434
+Size=468,132
+Collapsed=0
+
+[Window][Environnement]
+Pos=1181,32
+Size=875,505
+Collapsed=0
+DockId=0x00000006,0
+
+[Window][Stage]
+Collapsed=0
+DockId=0x00000006
+
+[Window][Machines]
+Pos=1181,32
+Size=875,505
+Collapsed=0
+DockId=0x00000006,2
+
+[Window][Setup]
+Pos=1181,32
+Size=875,505
+Collapsed=0
+DockId=0x00000006,1
+
+[Window][Plot List]
+Pos=0,32
+Size=308,881
+Collapsed=0
+DockId=0x00000001,0
+
+[Window][Track Sheet Editor]
+Pos=310,32
+Size=869,505
+Collapsed=0
+DockId=0x00000005,0
+
+[Window][Curve Editor]
+Pos=1181,32
+Size=875,505
+Collapsed=0
+DockId=0x00000006,3
+
+[Window][Sequencer]
+Pos=310,539
+Size=1746,374
+Collapsed=0
+DockId=0x00000004,0
+
+[Window][cCurvesTest]
+Collapsed=0
+DockId=0x00000006
+
+[Window][CommandZ]
+Pos=1181,32
+Size=875,505
+Collapsed=0
+DockId=0x00000006,4
+
+[Window][MainWindow]
+Pos=0,0
+Size=2056,916
+Collapsed=0
+
+[Window][OffscreenNodeEditorFor1Frame]
+ViewportPos=10000,10000
+ViewportId=0x34E92D39
+Size=44,55
+Collapsed=0
+
+[Window][Edit Layout]
+Pos=849,443
+Size=358,114
+Collapsed=0
+
+[Docking][Data]
+DockSpace       ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 Split=X
+  DockNode      ID=0x00000001 Parent=0x0B88F6CB SizeRef=308,881 Selected=0xDCA3AA75
+  DockNode      ID=0x00000002 Parent=0x0B88F6CB SizeRef=1746,881 Split=Y Selected=0x20B12C37
+    DockNode    ID=0x00000003 Parent=0x00000002 SizeRef=1746,505 Split=X Selected=0xC3CCF5DC
+      DockNode  ID=0x00000005 Parent=0x00000003 SizeRef=869,505 Selected=0x47C7A3F3
+      DockNode  ID=0x00000006 Parent=0x00000003 SizeRef=875,505 CentralNode=1 Selected=0xC3CCF5DC
+    DockNode    ID=0x00000004 Parent=0x00000002 SizeRef=1746,374 Selected=0x3E6B10D2
+
+</Layout>
+</Layouts>
