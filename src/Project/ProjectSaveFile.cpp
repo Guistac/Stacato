@@ -8,6 +8,8 @@
 #include "Environnement/StageVisualizer.h"
 #include "Gui/ApplicationWindow/Layout.h"
 
+#include "config.h"
+
 namespace Project{
 
 	char saveFilePath[512];
@@ -57,6 +59,13 @@ namespace Project{
 	}
 
 	void loadStartup(){
+		
+#ifdef STACATO_DEBUG
+		//for debug builds, always try to load the debug project in the debug directory
+		const char* debugFilePath = "DebugProject.stacato";
+		if(load(debugFilePath)) return;
+#endif
+		
 		//check if something the app was launched by double clicking a save file
 		//else check if the last loaded project exists
 		//else just create an empty project

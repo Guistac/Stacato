@@ -20,7 +20,7 @@ public:
 	
 	void setName(std::string name_){
 		name = name_;
-		imguiID = "##" + name; //this avoid rendering the parameter name in imgui input field
+		imguiID = "##" + name; //this avoids rendering the parameter name in imgui input field
 	}
 	void setSaveString(std::string saveString_){
 		saveString = saveString_;
@@ -37,14 +37,29 @@ public:
 		}else return false;
 	}
 	
-	typedef void (*EditCallback)(void*);
-	EditCallback editCallback = nullptr;
-	void* editCallbackPayload = nullptr;
-	
-	void setEditCallback(EditCallback cb, void* cbPayload){
-		editCallback = cb;
-		editCallbackPayload = cbPayload;
+	typedef void (*Callback)(Parameter* thisParameter, void* userData);
+	Callback editCallback = nullptr;
+	void* editCallbackUserData = nullptr;
+	void setEditCallback(Callback callback, void* userData){
+		editCallback = callback;
+		editCallbackUserData = userData;
 	}
+	
+	/*
+	Callback undoCallback = nullptr;
+	Callback redoCallback = nullptr;
+	void* undoCallbackUserData = nullptr;
+	void* redoCallbackUserData = nullptr;
+	
+	void setUndoCallback(Callback callback, void* userData){
+		undoCallback = callback;
+		undoCallbackUserData = userData;
+	}
+	void setRedoCallback(Callback callback, void* userData){
+		redoCallback = callback;
+		redoCallbackUserData = userData;
+	}
+	*/
 	
 };
 
@@ -54,34 +69,62 @@ public:
 //=================================== NUMBERS ===================================
 //===============================================================================
 
+#include <iostream>
+
 template<typename T>
 class NumberParameter : public Parameter, public std::enable_shared_from_this<NumberParameter<T>>{
 public:
 	
 	T displayValue;
 	T value;
+	
 	T stepSmall;
 	T stepLarge;
-	const char* format = nullptr;
+	T* stepSmallPtr;
+	T* stepLargePtr;
 	
-	NumberParameter(T value_, std::string name_, std::string saveString_ = "", T stepSmall_ = 0, T stepLarge_ = 0, const char* format_ = nullptr) : Parameter(name_, saveString_) {
+	Unit unit;
+	std::string format;
+	bool b_hasFormat;
+	
+	NumberParameter(T value_, std::string name_, std::string saveString_ = "", Unit unit_ = Units::None::None, T stepSmall_ = 0, T stepLarge_ = 0, std::string format_ = "") : Parameter(name_, saveString_) {
 		displayValue = value_;
 		value = value_;
-		format = format_;
-		stepSmall = stepSmall_;
-		stepLarge = stepLarge_;
+		unit = unit_;
+		setFormat(format_);
+		setStepSize(stepSmall_, stepLarge_);
 	}
 	
 	void setStepSize(T stepSmall_, T stepLarge_){
 		stepSmall = stepSmall_;
+		if(stepSmall == 0) stepSmallPtr = nullptr;
+		else stepSmallPtr = &stepSmall;
 		stepLarge = stepLarge_;
+		if(stepLarge == 0) stepLargePtr = nullptr;
+		else stepLargePtr = &stepLarge;
 	}
 	
-	void setFormat(const char* format_){
+	void setFormat(std::string format_){
 		format = format_;
+		b_hasFormat = format != "";
 	}
 	
 	void inputField();
+	
+	const char* getFormated(const char* defaultFormat){
+		static char formatString[128];
+		strcpy(formatString, b_hasFormat ? format.c_str() : defaultFormat);
+		if(unit != Units::None::None) sprintf(formatString + strlen(formatString), " %s", unit->abbreviated);
+		return formatString;
+	}
+	
+	const char* getFormatedReal(){
+		return getFormated("%.3f");
+	}
+
+	const char* getFormatedInteger(){
+		return getFormated("%i");
+	}
 	
 	virtual void gui(){
 		inputField();
@@ -123,13 +166,19 @@ public:
 			parameter->value = newValue;
 			parameter->displayValue = newValue;
 			parameter->b_changed = true;
-			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
+			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
 		virtual void undo(){
 			parameter->value = previousValue;
 			parameter->displayValue = previousValue;
 			parameter->b_changed = true;
-			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
+			//if(parameter->undoCallback) parameter->undoCallback(parameter.get(), parameter->undoCallbackUserData);
+		}
+		virtual void redo(){
+			parameter->value = newValue;
+			parameter->displayValue = newValue;
+			parameter->b_changed = true;
+			//if(parameter->redoCallback) parameter->redoCallback(parameter.get(), parameter->redoCallbackUserData);
 		}
 	};
 	
@@ -137,52 +186,53 @@ public:
 
 template<>
 inline void NumberParameter<float>::inputField(){
-	ImGui::InputFloat(imguiID.c_str(), &displayValue, stepSmall, stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_Float, &displayValue, stepSmallPtr, stepLargePtr, getFormatedReal());
 }
 
 template<>
 inline void NumberParameter<double>::inputField(){
-	ImGui::InputDouble(imguiID.c_str(), &displayValue, stepSmall, stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_Double, &displayValue, stepSmallPtr, stepLargePtr, getFormatedReal());
 }
 
 template<>
 inline void NumberParameter<uint8_t>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U8, &displayValue, &stepSmall, &stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U8, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<int8_t>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S8, &displayValue, &stepSmall, &stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S8, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<uint16_t>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U16, &displayValue, &stepSmall, &stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U16, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<int16_t>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S16, &displayValue, &stepSmall, &stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S16, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<uint32_t>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U32, &displayValue, &stepSmall, &stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U32, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<int32_t>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S32, &displayValue, &stepSmall, &stepLarge, format);
+	const char* format = getFormatedInteger();
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S32, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<uint64_t>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U64, &displayValue, &stepSmall, &stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U64, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<int64_t>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S64, &displayValue, &stepSmall, &stepLarge, format);
+	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S64, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 
@@ -240,13 +290,19 @@ public:
 			parameter->value = newValue;
 			parameter->displayValue = newValue;
 			parameter->b_changed = true;
-			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
+			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
 		virtual void undo(){
 			parameter->value = previousValue;
 			parameter->displayValue = previousValue;
 			parameter->b_changed = true;
-			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
+			//if(parameter->undoCallback) parameter->undoCallback(parameter.get(), parameter->undoCallbackUserData);
+		}
+		virtual void redo(){
+			parameter->value = newValue;
+			parameter->displayValue = newValue;
+			parameter->b_changed = true;
+			//if(parameter->redoCallback) parameter->redoCallback(parameter.get(), parameter->redoCallbackUserData);
 		}
 	};
 	
@@ -396,11 +452,15 @@ public:
 		}
 		virtual void execute(){
 			invert();
-			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
+			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
 		virtual void undo(){
 			invert();
-			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
+			//if(parameter->undoCallback) parameter->undoCallback(parameter.get(), parameter->undoCallbackUserData);
+		}
+		virtual void redo(){
+			invert();
+			//if(parameter->redoCallback) parameter->redoCallback(parameter.get(), parameter->redoCallbackUserData);
 		}
 	};
 	
@@ -470,13 +530,19 @@ public:
 			parameter->value = newValue;
 			strcpy(parameter->displayValue, newValue.c_str());
 			parameter->b_changed = true;
-			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
+			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
 		virtual void undo(){
 			parameter->value = previousValue;
 			strcpy(parameter->displayValue, previousValue.c_str());
 			parameter->b_changed = true;
-			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
+			//if(parameter->undoCallback) parameter->undoCallback(parameter.get(), parameter->undoCallbackUserData);
+		}
+		virtual void redo(){
+			parameter->value = newValue;
+			strcpy(parameter->displayValue, newValue.c_str());
+			parameter->b_changed = true;
+			//if(parameter->redoCallback) parameter->redoCallback(parameter.get(), parameter->redoCallbackUserData);
 		}
 	};
 	
@@ -546,13 +612,19 @@ public:
 			parameter->value = newValue;
 			parameter->displayValue = newValue;
 			parameter->b_changed = true;
-			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
+			//if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
 		virtual void undo(){
 			parameter->value = oldValue;
 			parameter->displayValue = oldValue;
 			parameter->b_changed = true;
-			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
+			//if(parameter->undoCallback) parameter->undoCallback(parameter.get(), parameter->undoCallbackUserData);
+		}
+		virtual void redo(){
+			parameter->value = newValue;
+			parameter->displayValue = newValue;
+			parameter->b_changed = true;
+			//if(parameter->redoCallback) parameter->redoCallback(parameter.get(), parameter->redoCallbackUserData);
 		}
 	};
 	
@@ -634,13 +706,19 @@ public:
 			parameter->value = newValue;
 			parameter->displayValue = newValue;
 			parameter->b_changed = true;
-			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
+			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
 		virtual void undo(){
 			parameter->value = oldValue;
 			parameter->displayValue = oldValue;
 			parameter->b_changed = true;
-			if(parameter->editCallback) parameter->editCallback(parameter->editCallbackPayload);
+			//if(parameter->undoCallback) parameter->undoCallback(parameter.get(), parameter->undoCallbackUserData);
+		}
+		virtual void redo(){
+			parameter->value = newValue;
+			parameter->displayValue = newValue;
+			parameter->b_changed = true;
+			//if(parameter->redoCallback) parameter->redoCallback(parameter.get(), parameter->redoCallbackUserData);
 		}
 	};
 	

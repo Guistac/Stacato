@@ -104,8 +104,8 @@ namespace Gui {
 		//if(ImGui::Begin("cCurvesTest")) cCurvesTest();
 		//ImGui::End();
 		
-		//if(ImGui::Begin("CommandZ")) testUndoHistory();
-		//ImGui::End();
+		if(ImGui::Begin("CommandZ")) testUndoHistory();
+		ImGui::End();
 		
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0,0));
 		if(ImGui::Begin("Sequencer")) Sequencer::Gui::editor();
@@ -120,9 +120,9 @@ namespace Gui {
 		if(shouldResetDefaultLayout()){
 			//ImGui::SetWindowFocus("Environnement");
 			//ImGui::SetWindowFocus("Sequencer");
-			ImGui::SetWindowFocus("Track Sheet Editor");
+			//ImGui::SetWindowFocus("Track Sheet Editor");
 			//ImGui::SetWindowFocus("cCurvesTest");
-			//ImGui::SetWindowFocus("CommandZ");
+			ImGui::SetWindowFocus("CommandZ");
 			finishResetDefaultLayout();
 		}
 		

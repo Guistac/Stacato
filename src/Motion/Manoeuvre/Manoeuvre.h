@@ -22,7 +22,7 @@ public:
 	}
 	
 	void init(){
-		type->setEditCallback([](void* payload){
+		type->setEditCallback([](Parameter* parameter, void* payload){
 			Manoeuvre* manoeuvre = (Manoeuvre*)payload;			
 		}, (void*)this);
 	}

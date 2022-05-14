@@ -23,44 +23,115 @@ enum class NumberEnum{
 
 DEFINE_ENUMERATOR(NumberEnum, NumberEnumStrings)
 
-std::vector<std::shared_ptr<Parameter>> parameters{
-	std::make_shared<NumberParameter<double>>(1.0, "parameter 0", "DoubleParam0", 0.1, 1.0, "%.3f u"),
-	std::make_shared<NumberParameter<double>>(2.0, "parameter 1", "DoubleParam1", 0.1, 1.0, "%.3f u"),
-	std::make_shared<NumberParameter<double>>(3.0, "parameter 2", "DoubleParam2", 0.1, 1.0, "%.3f u"),
-	std::make_shared<NumberParameter<double>>(4.0, "parameter 3", "DoubleParam3", 0.1, 1.0, "%.3f u"),
-	std::make_shared<NumberParameter<double>>(5.0, "parameter 4", "DoubleParam4", 0.1, 1.0, "%.3f u"),
 
-	std::make_shared<NumberParameter<int>>(1, "integer 0", "IntParam1", 1, 10, "%i i"),
-	std::make_shared<NumberParameter<int>>(2, "integer 1", "IntParam2", 1, 10, "%i i"),
-	std::make_shared<NumberParameter<int>>(3, "integer 2", "IntParam3", 1, 10, "%i i"),
-	std::make_shared<NumberParameter<int>>(4, "integer 3", "IntParam4", 1, 10, "%i i"),
+struct Thing{
+	int randomNumber;
+};
+std::vector<std::shared_ptr<Thing>> things;
+
+class AddThingCommand : public Command{
+public:
 	
-	std::make_shared<BooleanParameter>(true, "boolean 0", "BoolParam0"),
-	std::make_shared<BooleanParameter>(true, "boolean 1", "BoolParam1"),
-	std::make_shared<BooleanParameter>(true, "boolean 2", "BoolParam2"),
-	std::make_shared<BooleanParameter>(true, "boolean 3", "BoolParam3"),
+	std::vector<std::shared_ptr<Thing>>* thingList;
+	std::vector<std::shared_ptr<Thing>> addedThings;
+
+	AddThingCommand(std::vector<std::shared_ptr<Thing>>* thingList_, std::vector<std::shared_ptr<Thing>> addedThings_){
+		thingList = thingList_;
+		addedThings = addedThings_;
+		name = "Added " + std::to_string(addedThings.size()) + " Things";
+	}
 	
-	std::make_shared<StringParameter>("String One", 	"string 0", "StringParam0", 256),
-	std::make_shared<StringParameter>("String Two", 	"string 1", "StringParam1", 256),
-	std::make_shared<StringParameter>("String Three", 	"string 2", "StringParam2", 256),
-	std::make_shared<StringParameter>("String Four", 	"string 3", "StringParam3", 256),
+	virtual void execute(){
+		thingList->insert(thingList->end(), addedThings.begin(), addedThings.end());
+	}
 	
-	std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::ONE, 		"Enum Parameter 1", "EnumParam0"),
-	std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::TWO, 		"Enum Parameter 2", "EnumParam1"),
-	std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::THREE, 	"Enum Parameter 3", "EnumParam2"),
-	std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::FOUR, 	"Enum Parameter 4", "EnumParam3"),
-	
-	std::make_shared<VectorParameter<glm::vec2>>(glm::vec2(1.2, 3.4), 			"Vec2 Parameter 1", "Vec2Param0"),
-	std::make_shared<VectorParameter<glm::vec3>>(glm::vec3(5.6, 7.8, 9.0), 		"Vec3 Parameter 2", "Vec2Param1"),
-	std::make_shared<VectorParameter<glm::vec4>>(glm::vec4(0.0, 1.0, 2.0, 3.0), "Vec4 Parameter 3", "Vec2Param2")
+	virtual void undo(){
+		for(int i = 0; i < addedThings.size(); i++){
+			std::shared_ptr<Thing> deletedThing = addedThings[i];
+			for(int j = 0; j < thingList->size(); j++){
+				if(thingList->at(j) == deletedThing){
+					thingList->erase(thingList->begin() + j);
+					break;
+				}
+			}
+		}
+	}
 };
 
-auto parameterList = std::make_shared<List<std::shared_ptr<Parameter>>>(parameters);
 
 
 
 
 void testUndoHistory(){
+	
+	static std::shared_ptr<List<std::shared_ptr<Parameter>>> parameterList;
+	
+	static bool b_init = false;
+	if(!b_init){
+		b_init = true;
+		
+		std::vector<std::shared_ptr<Parameter>> parameters{
+			std::make_shared<NumberParameter<int>>(1, "integer 0", "IntParam1", Units::None::None, 1, 10, "%i added things"),
+			std::make_shared<NumberParameter<int>>(2, "integer 1", "IntParam2", Units::None::None),
+			std::make_shared<NumberParameter<int>>(3, "integer 2", "IntParam3", Units::None::None, 1, 10),
+			std::make_shared<NumberParameter<int>>(4, "integer 3", "IntParam4", Units::Temperature::Kelvin, 1, 10),
+				
+			std::make_shared<NumberParameter<double>>(1.0, "parameter 0", "DoubleParam0", Units::Time::Week, 0.1, 1.0),
+			std::make_shared<NumberParameter<double>>(2.0, "parameter 1", "DoubleParam1", Units::None::None, 0.1, 1.0, "%.3f lel"),
+			std::make_shared<NumberParameter<double>>(3.0, "parameter 2", "DoubleParam2", Units::None::None, 0.1, 1.0, "%.9f"),
+			std::make_shared<NumberParameter<double>>(4.0, "parameter 3", "DoubleParam3", Units::Mass::Kilogram, 0.1, 1.0, "Mass: %.3f"),
+			std::make_shared<NumberParameter<double>>(5.0, "parameter 4", "DoubleParam4", Units::None::None, 0.1, 1.0, "%.3f"),
+		 
+			std::make_shared<BooleanParameter>(true, "boolean 0", "BoolParam0"),
+			std::make_shared<BooleanParameter>(true, "boolean 1", "BoolParam1"),
+			std::make_shared<BooleanParameter>(true, "boolean 2", "BoolParam2"),
+			std::make_shared<BooleanParameter>(true, "boolean 3", "BoolParam3"),
+			
+			std::make_shared<StringParameter>("String One", 	"string 0", "StringParam0", 256),
+			std::make_shared<StringParameter>("String Two", 	"string 1", "StringParam1", 256),
+			std::make_shared<StringParameter>("String Three", 	"string 2", "StringParam2", 256),
+			std::make_shared<StringParameter>("String Four", 	"string 3", "StringParam3", 256),
+			
+			std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::ONE, 		"Enum Parameter 1", "EnumParam0"),
+			std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::TWO, 		"Enum Parameter 2", "EnumParam1"),
+			std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::THREE, 	"Enum Parameter 3", "EnumParam2"),
+			std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::FOUR, 	"Enum Parameter 4", "EnumParam3"),
+			
+			std::make_shared<VectorParameter<glm::vec2>>(glm::vec2(1.2, 3.4), 			"Vec2 Parameter 1", "Vec2Param0"),
+			std::make_shared<VectorParameter<glm::vec3>>(glm::vec3(5.6, 7.8, 9.0), 		"Vec3 Parameter 2", "Vec2Param1"),
+			std::make_shared<VectorParameter<glm::vec4>>(glm::vec4(0.0, 1.0, 2.0, 3.0), "Vec4 Parameter 3", "Vec2Param2")
+		};
+		parameterList = std::make_shared<List<std::shared_ptr<Parameter>>>(parameters);
+		
+		
+		parameters.front()->setEditCallback([](Parameter* parameter, void* userData){
+			NumberParameter<int>& param = *(NumberParameter<int>*)parameter;
+			int num = param.value;
+			
+			std::vector<std::shared_ptr<Thing>> addedThings;
+			for(int i = 0; i < num; i++){
+				auto newThing = std::make_shared<Thing>();
+				newThing->randomNumber = num * 10000 + Random::getNormalized() * 1000;
+				addedThings.push_back(newThing);
+			}
+			std::vector<std::shared_ptr<Thing>>* list = (std::vector<std::shared_ptr<Thing>>*)userData;
+			auto addThingCommand = std::make_shared<AddThingCommand>(list, addedThings);
+			CommandHistory::pushAndExecute(addThingCommand);
+			
+			if(num == 2){
+				std::vector<std::shared_ptr<Thing>> moreThings;
+				for(int i = 0; i < 3; i++){
+					auto newThing = std::make_shared<Thing>();
+					newThing->randomNumber = 333 * 10000 + Random::getNormalized() * 1000;
+					moreThings.push_back(newThing);
+				}
+				std::vector<std::shared_ptr<Thing>>* list = (std::vector<std::shared_ptr<Thing>>*)userData;
+				auto addThingCommand = std::make_shared<AddThingCommand>(list, moreThings);
+				CommandHistory::pushAndExecute(addThingCommand);
+			}
+		}, &things);
+		
+	}
 
 	ImVec2 sizeHalf = ImGui::GetContentRegionAvail();
 	sizeHalf.x /= 2.0;
@@ -71,24 +142,24 @@ void testUndoHistory(){
 	if (ImGui::BeginPopup("AddParameterPopup")) {
 		if(ImGui::MenuItem("Double")){
 			std::string name = "Double Parameter " + std::to_string(parameterList->size());
-			parameterList->addElement(std::make_shared<NumberParameter<double>>(0.0, name, name, 0.1, 1.0));
+			parameterList->addElement(std::make_shared<NumberParameter<double>>(0.0, name, name));
 		}
 		if(ImGui::MenuItem("Float")){
 			std::string name = "Float Parameter " + std::to_string(parameterList->size());
-			parameterList->addElement(std::make_shared<NumberParameter<float>>(0.0f, name, name, 0.1, 1.0));
+			parameterList->addElement(std::make_shared<NumberParameter<float>>(0.0f, name, name));
 		}
 		ImGui::Separator();
 		if(ImGui::MenuItem("Integer")){
 			std::string name = "Integer Parameter " + std::to_string(parameterList->size());
-			parameterList->addElement(std::make_shared<NumberParameter<int>>(0, name, name, 1, 10));
+			parameterList->addElement(std::make_shared<NumberParameter<int>>(0, name, name));
 		}
 		if(ImGui::MenuItem("uint8_t")){
 			std::string name = "uint8_t Parameter " + std::to_string(parameterList->size());
-			parameterList->addElement(std::make_shared<NumberParameter<uint8_t>>(0, name, name, 1, 10));
+			parameterList->addElement(std::make_shared<NumberParameter<uint8_t>>(0, name, name));
 		}
 		if(ImGui::MenuItem("int8_t")){
 			std::string name = "int8_t Parameter " + std::to_string(parameterList->size());
-			parameterList->addElement(std::make_shared<NumberParameter<int8_t>>(0, name, name, 1, 10));
+			parameterList->addElement(std::make_shared<NumberParameter<int8_t>>(0, name, name));
 		}
 		ImGui::Separator();
 		if(ImGui::MenuItem("Boolean")){
@@ -136,7 +207,16 @@ void testUndoHistory(){
 	if(ImGui::Button("Redo")) CommandHistory::redo();
 	ImGui::EndDisabled();
 	
-	ImGui::SameLine();
+	if(ImGui::BeginListBox("##Things")){
+		
+		for(auto& thing : things){
+			static char name[64];
+			sprintf(name, "Thing: %i", thing->randomNumber);
+			ImGui::Selectable(name);
+		}
+		
+		ImGui::EndListBox();
+	}
 	
 	if(ImGui::BeginListBox("##History", ImGui::GetContentRegionAvail())){
 		int topIndex = CommandHistory::getUndoableCommandCount();
@@ -144,12 +224,25 @@ void testUndoHistory(){
 		bool b_disabled = false;
 		for(int i = 0; i < history.size(); i++){
 			if(i == topIndex){
-				ImGui::BeginDisabled();
+				ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(.5f, .5f, .5f, 1.f));
 				b_disabled = true;
 			}
-			ImGui::Selectable(history[i]->name.c_str());
+			
+			auto& command = history[i];
+			
+			if(command->sideEffects.empty()) ImGui::Selectable(command->name.c_str());
+			else{
+				if(ImGui::TreeNode(command->name.c_str())){
+					
+					for(auto& sideEffect : command->sideEffects){
+						ImGui::Selectable(sideEffect->name.c_str());
+					}
+					
+					ImGui::TreePop();
+				}
+			}
 		}
-		if(b_disabled) ImGui::EndDisabled();
+		if(b_disabled) ImGui::PopStyleColor();
 		
 		ImGui::EndListBox();
 	}
@@ -157,6 +250,8 @@ void testUndoHistory(){
 	ImGui::EndChild();
 	
 }
+
+
  
 
 
