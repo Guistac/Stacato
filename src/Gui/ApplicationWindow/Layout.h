@@ -33,6 +33,9 @@ public:
 	void makeDefault();
 	bool isDefault();
 	
+	void edit();
+	void remove();
+	
 	void overwriteCurrent(){
 		layoutString = ImGui::SaveIniSettingsToMemory();
 	}
@@ -50,138 +53,29 @@ public:
 
 namespace LayoutManager{
 	
-	inline std::vector<std::shared_ptr<Layout>>& layouts(){
-		static std::vector<std::shared_ptr<Layout>> layouts;
-		return layouts;
-	}
+	std::vector<std::shared_ptr<Layout>>& getLayouts();
+	std::shared_ptr<Layout> getCurrentLayout();
+	std::shared_ptr<Layout> getDefaultLayout();
+	std::shared_ptr<Layout> getEditedLayout();
+	bool isEditRequested();
 
-	inline std::shared_ptr<Layout>& current(){
-		static std::shared_ptr<Layout> currentLayout = nullptr;
-		return currentLayout;
-	}
+	void endEdit();
 
-	inline std::shared_ptr<Layout>& defaultLayout(){
-		static std::shared_ptr<Layout> defaultLayoutPtr = nullptr;
-		return defaultLayoutPtr;
-	}
+	void editor();
 
-	inline std::shared_ptr<Layout>& edited(){
-		static std::shared_ptr<Layout> editedLayout;
-		return editedLayout;
-	}
+	void addCurrent();
 
-	inline bool& editRequested(){
-		static bool b_requested = false;
-		return b_requested;
-	}
+	bool save(const char* filePath);
 
-	inline void edit(std::shared_ptr<Layout> editedLayout){
-		edited() = editedLayout;
-		editRequested() = true;
-	}
+	bool load(const char* filePath);
 
-	inline void endEdit(){
-		edited() = nullptr;
-	}
+	void clearAll();
 
-	inline void editor(){
-		if(editRequested()) {
-			ImGui::OpenPopup("Edit Layout");
-			editRequested() = false;
-		}
-		ImGuiWindowFlags popupFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;
-		ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-		ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		if (ImGui::BeginPopupModal("Edit Layout", nullptr, popupFlags)) {
-			edited()->nameEditField();
-			if (ImGui::Button("Close") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE) || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) {
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::EndPopup();
-		}
-	}
-
-	inline void setCurrent(std::shared_ptr<Layout> layout){
-		current() = layout;
-		ImGui::LoadIniSettingsFromMemory(layout->layoutString.c_str());
-	}
-
-	inline void makeDefault(std::shared_ptr<Layout> layout){
-		defaultLayout() = layout;
-	}
-
-	inline void addCurrent(){
-		auto newLayout = std::make_shared<Layout>();
-		newLayout->layoutString = ImGui::SaveIniSettingsToMemory();
-		sprintf(newLayout->name, "Layout %i", int(layouts().size()));
-		layouts().push_back(newLayout);
-		setCurrent(newLayout);
-	}
-
-	inline void remove(std::shared_ptr<Layout> removedLayout){
-		for(int i = layouts().size() - 1; i >= 0; i--){
-			if(layouts()[i] == removedLayout){
-				layouts().erase(layouts().begin() + i);
-				break;
-			}
-		}
-	}
-
-	inline bool save(const char* filePath){
-		using namespace tinyxml2;
-		XMLDocument layoutDocument;
-		XMLElement* layoutsXML = layoutDocument.NewElement("Layouts");
-		layoutDocument.InsertEndChild(layoutsXML);
-		
-		for(auto& layout : layouts()){
-			XMLElement* layoutXML = layoutsXML->InsertNewChildElement("Layout");
-			if(!layout->save(layoutXML)) return false;
-		}
-		
-		return XML_SUCCESS == layoutDocument.SaveFile(filePath);
-	}
-
-	inline bool load(const char* filePath){
-		using namespace tinyxml2;
-		XMLDocument layoutDocument;
-		XMLError loadResult = layoutDocument.LoadFile(filePath);
-		if (loadResult != XML_SUCCESS) return Logger::warn("Could not Open Layout SaveFile (tinyxml2 error: {})", XMLDocument::ErrorIDToName(loadResult));
-		
-		XMLElement* layoutsXML = layoutDocument.FirstChildElement("Layouts");
-		if(layoutsXML == nullptr) return Logger::warn("Could not find Layouts Attribute");
-		
-		XMLElement* layoutXML = layoutsXML->FirstChildElement("Layout");
-		while(layoutXML){
-			auto newLayout = std::make_shared<Layout>();
-			if(!newLayout->load(layoutXML)) return Logger::warn("Could not load layout");
-			layouts().push_back(newLayout);
-			layoutXML = layoutXML->NextSiblingElement("Layout");
-		}
-		return true;
-	}
-
-	inline void clearAll(){
-		layouts().clear();
-		current() = nullptr;
-		edited() = nullptr;
-		defaultLayout() = nullptr;
-	}
+	void edit(std::shared_ptr<Layout> editedLayout);
+	void makeActive(std::shared_ptr<Layout> layout);
+	void makeDefault(std::shared_ptr<Layout> layout);
+	void setDefault();
+	void remove(std::shared_ptr<Layout> removedLayout);
 
 };
-
-inline void Layout::makeActive(){
-	LayoutManager::setCurrent(shared_from_this());
-}
-
-inline bool Layout::isActive(){
-	return LayoutManager::current().get() == this;
-}
-
-inline void Layout::makeDefault(){
-	LayoutManager::makeDefault(shared_from_this());
-}
-
-inline bool Layout::isDefault(){
-	return LayoutManager::defaultLayout().get() == this;
-}
 

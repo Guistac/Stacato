@@ -209,6 +209,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 	void autoInit(){
 		if(isAutoInitRunning()) return;
 		std::thread autoInitHandler([](){
+			pthread_setname_np("EtherCAT Auto Init Handler Thread");
 			b_autoInit = true;
 			updateNetworkInterfaceCardList();
 			for(auto& nic : networkInterfaceCards){
@@ -277,6 +278,8 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 			Logger::info("===== Starting Fieldbus Configuration");
 			std::thread etherCatProcessStarter([]() {
 				
+				pthread_setname_np("EtherCAT Process Starter Thread");
+				
                 //join the cyclic echange thread if it was terminated previously
                 if (etherCatRuntime.joinable()) etherCatRuntime.join();
 
@@ -321,6 +324,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
     void startErrorWatcher() {
         b_errorWatcherRunning = true;
         errorWatcher = std::thread([]() {
+			pthread_setname_np("EtherCAT Error Watcher Thread");
             Logger::debug("===== Started EtherCAT Error Watchdog");
             while (b_errorWatcherRunning) {
                 while (EtherCatError::hasError()) EtherCatError::logError();
@@ -535,6 +539,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
         if (b_detectionHandlerRunning) return;
         b_detectionHandlerRunning = true;
         slaveDetectionHandler = std::thread([]() {
+			pthread_setname_np("EtherCAT Detection Handler Thread");
             Logger::debug("Started EtherCAT Detection Handler");
             while (b_detectionHandlerRunning) {
                 ec_readstate();
@@ -644,7 +649,10 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
         metrics.init(processInterval_milliseconds);
 
-        etherCatRuntime = std::thread([]() { cyclicExchange(); });
+        etherCatRuntime = std::thread([]() {
+			pthread_setname_np("EtherCAT Cyclic Exchange Thread");
+			cyclicExchange();
+		});
     }
 
 
@@ -772,7 +780,10 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 				//detect clock stabilisation and request operational state
                 b_clockStable = true;
 				startupProgress.setProgress(0.95, "Requesting Operational State");
-                std::thread opStateHandler([]() { transitionToOperationalState(); });
+                std::thread opStateHandler([]() {
+					pthread_setname_np("EtherCAT Operational State Transition Handler");
+					transitionToOperationalState();
+				});
                 opStateHandler.detach();
 			}else if(!b_clockStable){
 				//while the clocks are stabilizing, update the startup progress bar
@@ -859,7 +870,10 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
             //statecheck on slave zero doesn't assign the state of each individual slave, only global slave 0
             ec_readstate();
 			//start slave state handler thread
-            slaveStateHandler = std::thread([]() { handleStateTransitions(); });
+            slaveStateHandler = std::thread([]() {
+				pthread_setname_np("EtherCAT State Transition Handler Thread");
+				handleStateTransitions();
+			});
         }
         else {
 			startupProgress.setFailure("Not all slaves reached Operational State. Check the Log for more detailed errors.");

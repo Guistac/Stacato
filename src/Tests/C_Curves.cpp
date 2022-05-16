@@ -19,6 +19,7 @@ void cCurvesTest(){
 	static double maxVelocity = 1;
 	static bool b_timeConstraint = false;
 	
+	static bool b_showPulses = false;
 	static int pulsesPerUnit = 50;
 	
 	MotionTest::Interpolation solution;
@@ -34,6 +35,19 @@ void cCurvesTest(){
 		.time = endTime,
 		.acceleration = endAcceleration
 	};
+	
+	static int pointsPerSecond = 100;
+	
+	static bool b_catchUp = true;
+	static double catchUpTime = 0.0;
+	static double catchUpPosition = -0.1;
+	static double catchupVelocity = 0.0;
+	static double maxCatchupVelocity = 2.0;
+	static double maxCatchupAcceleration = 2.0;
+	
+	//——————————————————————————————
+	//		 Settings Panels
+	//——————————————————————————————
 	
 	ImGui::BeginChild("test", ImVec2(350, 410), true);
 	float inputFieldWidth = 150.0;
@@ -85,9 +99,47 @@ void cCurvesTest(){
 		ImGui::InputDouble("Target Velocity", &targetVelocity, 0.1, 1.0);
 	}
 	
+	ImGui::EndChild();
+	
+	ImGui::SameLine();
+	
+	ImGui::BeginChild("options", ImVec2(350, 410), true);
+	
+	ImGui::SetNextItemWidth(inputFieldWidth);
+	ImGui::InputInt("Points Per Second", &pointsPerSecond);
+	
+	ImGui::Separator();
+	
+	ImGui::Checkbox("Show Pulses", &b_showPulses);
+	ImGui::SetNextItemWidth(inputFieldWidth);
 	ImGui::InputInt("Pulses Per Unit", &pulsesPerUnit);
 	
+	ImGui::Separator();
+	
+	ImGui::Checkbox("Show Catchup", &b_catchUp);
+	ImGui::SetNextItemWidth(inputFieldWidth);
+	ImGui::InputDouble("Start Time", &catchUpTime, 0.1, 1.0);
+	ImGui::SetNextItemWidth(inputFieldWidth);
+	ImGui::InputDouble("Start Position", &catchUpPosition, 0.1, 1.0);
+	ImGui::SetNextItemWidth(inputFieldWidth);
+	ImGui::InputDouble("Start Velocity", &catchupVelocity, 0.1, 1.0);
+	ImGui::SetNextItemWidth(inputFieldWidth);
+	ImGui::InputDouble("Max Velocity", &maxCatchupVelocity, 0.1, 1.0);
+	ImGui::SetNextItemWidth(inputFieldWidth);
+	ImGui::InputDouble("Max Acceleration", &maxCatchupAcceleration, 0.1, 1.0);
+	
 	ImGui::EndChild();
+	
+	
+	//——————————————————————————————
+	//		 	Processing
+	//——————————————————————————————
+	
+	
+	if(pointsPerSecond < 1) pointsPerSecond = 1;
+	
+	if(maxCatchupVelocity < 0.1) maxCatchupVelocity = 0.1;
+	if(maxCatchupAcceleration < 0.1) maxCatchupAcceleration = 0.1;
 	
 	if(targetVelocity < 0.0) targetVelocity = 0.0;
 	if(startAcceleration < 0.0) startAcceleration = 0.0;
@@ -98,6 +150,9 @@ void cCurvesTest(){
 	else b_solutionFound = MotionTest::getFastestVelocityConstrainedInterpolation(start, end, targetVelocity, solution);
 	
 	
+	//——————————————————————————————
+	//		 	Info Panel
+	//——————————————————————————————
 	
 	ImGui::SameLine();
 	
@@ -116,6 +171,12 @@ void cCurvesTest(){
 	
 	ImGui::EndChild();
 
+	
+	
+	//——————————————————————————————
+	//	  Graphs Point Generation
+	//——————————————————————————————
+	
 	std::vector<double> time;
 	std::vector<double> position;
 	std::vector<double> velocity;
@@ -125,8 +186,11 @@ void cCurvesTest(){
 	std::vector<glm::vec2> pulsations;
 	pulsations.reserve(100000);
 	
+	std::vector<glm::vec2> catchup;
+	catchup.reserve(10000);
+	
 	if(b_solutionFound){
-		int pointsPerSecond = 100;
+		
 		int expectedPointCount = (solution.endTime - solution.startTime) * pointsPerSecond;
 		if(expectedPointCount > 1000000) expectedPointCount = 1000000;
 		time.reserve(expectedPointCount * 2);
@@ -154,46 +218,58 @@ void cCurvesTest(){
 		acceleration.push_back(point.acceleration);
 		pointCount++;
 		
-		/*
-		int pulsationsPerUnit = 50;
-		double pulseUnit = 1.0 / pulsationsPerUnit;
-		double half = pulseUnit / 2.0;
-		double tt = solution.startTime;
-		double inc = 0.001;
-		MotionTest::Point p;
-		
-		while(tt < solution.endTime){
-			
-			glm::vec2 pulsePoint;
-			pulsePoint.x = tt;
-			
-			solution.getPointAtTime(tt, p);
-			
-			double remainder = fmod(p.position, pulseUnit);
-			if(abs(remainder) < half) pulsePoint.y = 1.0;
-			else pulsePoint.y = 0.0;
-			
-			pulsations.push_back(pulsePoint);
-			
-			
-			tt += inc;
+
+		if(b_showPulses){
+			double pulseTime = solution.startTime;
+			pulsations.push_back(glm::vec2(solution.startTime, 1.0));
+			while(pulseTime < solution.endTime){
+				double previousPulseTime = pulseTime;
+				pulseTime = solution.getNextIncrementTime(pulseTime, pulsesPerUnit);
+				double fallingEdgeTime = previousPulseTime + (pulseTime - previousPulseTime) / 2.0;
+				if(pulseTime == DBL_MAX) break;
+				pulsations.push_back(glm::vec2(fallingEdgeTime, 1.0));
+				pulsations.push_back(glm::vec2(fallingEdgeTime, 0.0));
+				pulsations.push_back(glm::vec2(pulseTime, 0.0));
+				pulsations.push_back(glm::vec2(pulseTime, 1.0));
+			}
+			pulsations.push_back(glm::vec2(solution.endTime, 1.0));
 		}
-		 */
 		
-		double pulseTime = solution.startTime;
-		pulsations.push_back(glm::vec2(solution.startTime, 1.0));
-		while(pulseTime < solution.endTime){
-			double previousPulseTime = pulseTime;
-			pulseTime = solution.getNextIncrementTime(pulseTime, pulsesPerUnit);
-			double fallingEdgeTime = previousPulseTime + (pulseTime - previousPulseTime) / 2.0;
-			if(pulseTime == DBL_MAX) break;
-			pulsations.push_back(glm::vec2(fallingEdgeTime, 1.0));
-			pulsations.push_back(glm::vec2(fallingEdgeTime, 0.0));
-			pulsations.push_back(glm::vec2(pulseTime, 0.0));
-			pulsations.push_back(glm::vec2(pulseTime, 1.0));
+		if(b_catchUp){
+			
+			double deltaT = 1.0 / pointsPerSecond;
+			double t = catchUpTime;
+			double p = catchUpPosition;
+			double v = catchupVelocity;
+			
+			catchup.push_back(glm::vec2(t, p));
+			
+			while(true){
+				t += deltaT;
+				
+				MotionTest::Point current = {
+					.position = p,
+					.velocity = v
+				};
+				
+				MotionTest::Point target;
+				solution.getPointAtTime(t, target);
+				
+				MotionTest::Point output = MotionTest::matchPosition(current, target, deltaT, maxCatchupVelocity, maxCatchupAcceleration);
+				p = output.position;
+				v = output.velocity;
+				catchup.push_back(glm::vec2(t, output.position));
+				
+				if(output.position == target.position) break;
+				if(t > 100.0) break;
+			}
+			
 		}
-		pulsations.push_back(glm::vec2(solution.endTime, 1.0));
 	}
+	
+	//——————————————————————————————
+	//	  		Graphs Display
+	//——————————————————————————————
 	
 	
 	if(ImPlot::BeginPlot("##Test", nullptr, nullptr, ImGui::GetContentRegionAvail())){
@@ -205,9 +281,16 @@ void cCurvesTest(){
 			ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 4.0);
 			ImPlot::PlotLine("Position", time.data(), position.data(), pointCount);
 			
-			ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 1.0);
-			ImPlot::PlotLine("Pulsations", &pulsations.front().x, &pulsations.front().y, pulsations.size(), 0, sizeof(glm::vec2));
+			if(b_showPulses){
+				ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 1.0);
+				ImPlot::PlotLine("Pulsations", &pulsations.front().x, &pulsations.front().y, pulsations.size(), 0, sizeof(glm::vec2));
+			}
 			
+			if(b_catchUp){
+				ImPlot::SetNextLineStyle(ImVec4(.0f, 1.f, .0f, 1.f), 1.0);
+				ImPlot::PlotLine("Pulsations", &catchup.front().x, &catchup.front().y, catchup.size(), 0, sizeof(glm::vec2));
+				ImPlot::DragPoint("CatchUpStart", &catchUpTime, &catchUpPosition);
+			}
 			
 			
 			if(b_timeConstraint){
@@ -248,7 +331,9 @@ void cCurvesTest(){
 
 
 
-
+//——————————————————————————————
+//	   Processing Algorithms
+//——————————————————————————————
 
 
 
@@ -589,8 +674,8 @@ namespace MotionTest{
 		switch(phase){
 			case Phase::NOT_STARTED:
 				output.position = startPosition;
-				output.velocity = startVelocity;
-				output.acceleration = startAcceleration;
+				output.velocity = 0.0;
+				output.acceleration = 0.0;
 				break;
 			case Phase::RAMP_IN:
 				deltaT = time - startTime;
@@ -612,8 +697,8 @@ namespace MotionTest{
 				break;
 			case Phase::FINISHED:
 				output.position = endPosition;
-				output.velocity = endVelocity;
-				output.acceleration = endAcceleration;
+				output.velocity = 0.0;
+				output.acceleration = 0.0;
 				break;
 		}
 		output.time = time;
@@ -758,6 +843,120 @@ namespace MotionTest{
 		}
 	}
 
+
+
+
+	struct CurveEquation{
+		
+		CurveEquation(double po_, double vo_, double ac_){
+			po = po_;
+			vo = vo_;
+			ac = ac_;
+		}
+		
+		double po;
+		double vo;
+		double ac;
+		
+		bool intersects(CurveEquation& other){
+			return square(vo - other.vo) - 2.0 * (ac - other.ac) * (po - other.po) >= 0.0;
+		}
+		
+		bool getIntersectionTime(CurveEquation& other, double& time1, double& time2){
+			double root = square(vo - other.vo) - 2.0 * (ac - other.ac) * (po - other.po);
+			if(root < 0) return false;
+			time1 = (other.vo - vo + sqrt(root)) / (ac - other.ac);
+			time2 = (other.vo - vo - sqrt(root)) / (ac - other.ac);
+			return true;
+		}
+		
+		CurveEquation getEquationAtNewT0(double t0){
+			double positionAtT0 = po + vo * t0 + ac * square(t0) / 2.0;
+			double velocityAtT0 = vo + t0 * ac;
+			return CurveEquation(positionAtT0, velocityAtT0, ac);
+		}
+		
+		double getAccelerationToMatchCurveTangentially(CurveEquation& other){
+			return (square(vo - other.vo) + 2.0 * other.ac * (po - other.po)) / (2.0 * (other.po - po));
+		}
+	};
+
+
+
+	Point matchPosition(Point previous, Point target, double deltaT, double maxVelocity, double acceleration){
+		
+		double pError = target.position - previous.position;
+		double catchUpDeceleration = pError > 0.0 ? -std::abs(acceleration) : std::abs(acceleration);
+		
+		CurveEquation previousCurve(previous.position, previous.velocity, catchUpDeceleration);
+		CurveEquation targetCurve(target.position, target.velocity, target.acceleration);
+		CurveEquation targetCurveAtPreviousTime = targetCurve.getEquationAtNewT0(-deltaT);
+		bool b_previousIntersects = previousCurve.intersects(targetCurveAtPreviousTime);
+		
+		//if the previous curve does not intersect the target curve, we can keep accelerating to the target
+		//else we need to decelerate
+		double currentAcceleration;
+		if(b_previousIntersects) currentAcceleration = catchUpDeceleration;
+		else currentAcceleration = -catchUpDeceleration;
+		
+		//calculate the current motion point
+		double deltaV = deltaT * currentAcceleration;
+		double currentVelocity = previous.velocity + deltaV;
+		if(currentVelocity < -std::abs(maxVelocity)) currentVelocity = -std::abs(maxVelocity);
+		else if(currentVelocity > std::abs(maxVelocity)) currentVelocity = std::abs(maxVelocity);
+		double deltaP = deltaT * (previous.velocity + currentVelocity) / 2.0;
+		double currentPosition = previous.position + deltaP;
+		
+		//if the previous point could not decelerate to avoid intersecting the target,
+		//we can't plan a correct trajectory and should just start decelerating to match the target
+		if(b_previousIntersects){
+			return Point{
+				.position = currentPosition,
+				.velocity = currentVelocity,
+				.acceleration = currentAcceleration,
+				.time = 0.0
+			};
+		}
+		
+		CurveEquation currentCurve(currentPosition, currentVelocity, catchUpDeceleration);
+		
+		
+		double time1, time2;
+		bool b_currentIntersects = currentCurve.intersects(targetCurve);
+		
+		//if after accelerating towards the target we still don't intersect it
+		//just keep moving towards it
+		if(!b_currentIntersects){
+			return Point{
+				.position = currentPosition,
+				.velocity = currentVelocity,
+				.acceleration = currentAcceleration,
+				.time = 0.0
+			};
+		}
+		
+		//if the current curve intersects the target and the previous did not
+		//this means we can start decelerating to match the target curve
+		//we need to find an acceleration value which will join the curve tangentially
+		
+		catchUpDeceleration = currentCurve.getAccelerationToMatchCurveTangentially(targetCurveAtPreviousTime);
+		deltaV = deltaT * catchUpDeceleration;
+		currentVelocity = previous.velocity + deltaV;
+		if(currentVelocity < -std::abs(maxVelocity)) currentVelocity = -std::abs(maxVelocity);
+		else if(currentVelocity > std::abs(maxVelocity)) currentVelocity = std::abs(maxVelocity);
+		deltaP = deltaT * (previous.velocity + currentVelocity) / 2.0;
+		currentPosition = previous.position + deltaP;
+		
+		
+		
+		return Point{
+			.position = currentPosition,
+			.velocity = currentVelocity,
+			.acceleration = catchUpDeceleration,
+			.time = 0.0
+		};
+
+	}
 
 
 

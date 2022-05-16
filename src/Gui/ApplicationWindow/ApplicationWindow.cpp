@@ -48,6 +48,9 @@ namespace ApplicationWindow {
 
 
 	void init() {
+		
+		pthread_setname_np("Gui Thread");
+		
 		Timing::start();
 		Random::initialize();
 		

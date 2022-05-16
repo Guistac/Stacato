@@ -21,6 +21,8 @@
 #include "Tests/C_Curves.h"
 #include "Tests/CommandZ.h"
 
+#include "Layout.h"
+
 namespace Gui {
 
 	void draw() {		
@@ -101,8 +103,8 @@ namespace Gui {
 		if(ImGui::Begin("Curve Editor")) PlotGui::curveEditor();
 		ImGui::End();
 		
-		//if(ImGui::Begin("cCurvesTest")) cCurvesTest();
-		//ImGui::End();
+		if(ImGui::Begin("cCurvesTest")) cCurvesTest();
+		ImGui::End();
 		
 		if(ImGui::Begin("CommandZ")) testUndoHistory();
 		ImGui::End();
@@ -112,8 +114,8 @@ namespace Gui {
 		ImGui::End();
 		ImGui::PopStyleVar();
 		
-		//if(ImGui::Begin("Stage")) StageView::draw();
-		//ImGui::End();
+		if(ImGui::Begin("Stage")) StageView::draw();
+		ImGui::End();
 		
 		//=== Finish Resetting Default Layout ===
 		
@@ -124,6 +126,8 @@ namespace Gui {
 			//ImGui::SetWindowFocus("cCurvesTest");
 			ImGui::SetWindowFocus("CommandZ");
 			finishResetDefaultLayout();
+			
+			LayoutManager::setDefault();
 		}
 		
 		

@@ -87,20 +87,27 @@ namespace Gui {
 			if(ImGui::MenuItem("Save New Layout")) LayoutManager::addCurrent();
 			if(ImGui::MenuItem("Reset Factory Layout")) Gui::resetDefaultLayout();
 			
-			if(!LayoutManager::layouts().empty()) ImGui::Separator();
+			if(!LayoutManager::getLayouts().empty()) ImGui::Separator();
 			
 			std::shared_ptr<Layout> removedLayout = nullptr;
-			for(auto& layout : LayoutManager::layouts()){
+			for(auto& layout : LayoutManager::getLayouts()){
 				if(ImGui::BeginMenu(layout->name)){
+					
+					ImGui::BeginDisabled(layout->isActive());
 					if(ImGui::MenuItem("Make Active", nullptr, layout->isActive())) layout->makeActive();
+					ImGui::EndDisabled();
+					
+					ImGui::BeginDisabled(layout->isDefault());
 					if(ImGui::MenuItem("Make Default", nullptr, layout->isDefault())) layout->makeDefault();
+					ImGui::EndDisabled();
+					
 					if(layout->isActive()) if(ImGui::MenuItem("Overwrite")) layout->overwriteCurrent();
-					if(ImGui::MenuItem("Rename")) LayoutManager::edit(layout);
+					if(ImGui::MenuItem("Rename")) layout->edit();
 					if(ImGui::MenuItem("Remove")) removedLayout = layout;
 					ImGui::EndMenu();
 				}
 			}
-			if(removedLayout) LayoutManager::remove(removedLayout);
+			if(removedLayout) removedLayout->remove();
 			
 			
 			ImGui::EndMenu();

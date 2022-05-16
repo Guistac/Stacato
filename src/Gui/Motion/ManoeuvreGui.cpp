@@ -108,9 +108,6 @@ void Manoeuvre::trackSheetGui(){
 	name->gui();
 	description->gui();
 	type->gui();
-	if(type->changed()){
-		setType(type->value);
-	}
 	ImGui::Separator();
 	
 	

@@ -7,20 +7,18 @@
 class Parameter{
 public:
 	
-	bool b_changed;
 	std::string name;
 	std::string saveString;
-	std::string imguiID;
+	std::string imGuiID;
 	
 	Parameter(std::string name_, std::string saveString_ = ""){
-		b_changed = false;
 		setName(name_);
 		setSaveString(saveString_);
 	}
 	
 	void setName(std::string name_){
 		name = name_;
-		imguiID = "##" + name; //this avoids rendering the parameter name in imgui input field
+		imGuiID = "##" + name; //this avoids rendering the parameter name in imgui input field
 	}
 	void setSaveString(std::string saveString_){
 		saveString = saveString_;
@@ -30,13 +28,6 @@ public:
 	virtual bool save(tinyxml2::XMLElement* xml) = 0;
 	virtual bool load(tinyxml2::XMLElement* xml) = 0;
 	
-	bool changed(){
-		if(b_changed){
-			b_changed = false;
-			return true;
-		}else return false;
-	}
-	
 	typedef void (*Callback)(Parameter* thisParameter, void* userData);
 	Callback editCallback = nullptr;
 	void* editCallbackUserData = nullptr;
@@ -44,22 +35,6 @@ public:
 		editCallback = callback;
 		editCallbackUserData = userData;
 	}
-	
-	/*
-	Callback undoCallback = nullptr;
-	Callback redoCallback = nullptr;
-	void* undoCallbackUserData = nullptr;
-	void* redoCallbackUserData = nullptr;
-	
-	void setUndoCallback(Callback callback, void* userData){
-		undoCallback = callback;
-		undoCallbackUserData = userData;
-	}
-	void setRedoCallback(Callback callback, void* userData){
-		redoCallback = callback;
-		redoCallbackUserData = userData;
-	}
-	*/
 	
 };
 
@@ -162,77 +137,73 @@ public:
 			previousValue = parameter->value;
 			name = "Changed \'" + std::string(parameter->name) + "\' from " + std::to_string(previousValue) + " to " + std::to_string(newValue);
 		}
-		virtual void execute(){
+		void setNewValue(){
 			parameter->value = newValue;
 			parameter->displayValue = newValue;
-			parameter->b_changed = true;
-			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
-		virtual void undo(){
+		void setOldValue(){
 			parameter->value = previousValue;
 			parameter->displayValue = previousValue;
-			parameter->b_changed = true;
-			//if(parameter->undoCallback) parameter->undoCallback(parameter.get(), parameter->undoCallbackUserData);
 		}
-		virtual void redo(){
-			parameter->value = newValue;
-			parameter->displayValue = newValue;
-			parameter->b_changed = true;
-			//if(parameter->redoCallback) parameter->redoCallback(parameter.get(), parameter->redoCallbackUserData);
+		virtual void execute(){
+			setNewValue();
+			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
+		virtual void undo(){ setOldValue(); }
+		virtual void redo(){ setNewValue(); }
 	};
 	
 };
 
 template<>
 inline void NumberParameter<float>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_Float, &displayValue, stepSmallPtr, stepLargePtr, getFormatedReal());
+	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_Float, &displayValue, stepSmallPtr, stepLargePtr, getFormatedReal());
 }
 
 template<>
 inline void NumberParameter<double>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_Double, &displayValue, stepSmallPtr, stepLargePtr, getFormatedReal());
+	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_Double, &displayValue, stepSmallPtr, stepLargePtr, getFormatedReal());
 }
 
 template<>
 inline void NumberParameter<uint8_t>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U8, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_U8, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<int8_t>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S8, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_S8, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<uint16_t>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U16, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_U16, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<int16_t>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S16, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_S16, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<uint32_t>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U32, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_U32, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<int32_t>::inputField(){
 	const char* format = getFormatedInteger();
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S32, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_S32, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<uint64_t>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_U64, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_U64, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<int64_t>::inputField(){
-	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S64, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_S64, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 
@@ -286,31 +257,27 @@ public:
 			previousValue = parameter->value;
 			name = "Changed \'" + std::string(parameter->name) + "\' from " + glm::to_string(previousValue) + " to " + glm::to_string(newValue);
 		}
-		virtual void execute(){
+		void setNewValue(){
 			parameter->value = newValue;
 			parameter->displayValue = newValue;
-			parameter->b_changed = true;
-			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
-		virtual void undo(){
+		void setOldValue(){
 			parameter->value = previousValue;
 			parameter->displayValue = previousValue;
-			parameter->b_changed = true;
-			//if(parameter->undoCallback) parameter->undoCallback(parameter.get(), parameter->undoCallbackUserData);
 		}
-		virtual void redo(){
-			parameter->value = newValue;
-			parameter->displayValue = newValue;
-			parameter->b_changed = true;
-			//if(parameter->redoCallback) parameter->redoCallback(parameter.get(), parameter->redoCallbackUserData);
+		virtual void execute(){
+			setNewValue();
+			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
+		virtual void undo(){ setOldValue(); }
+		virtual void redo(){ setNewValue(); }
 	};
 	
 };
 
 template<>
 inline void VectorParameter<glm::vec2>::inputField(){
-	ImGui::InputFloat2(imguiID.c_str(), &displayValue.x, format);
+	ImGui::InputFloat2(imGuiID.c_str(), &displayValue.x, format);
 }
 
 template<>
@@ -339,7 +306,7 @@ inline bool VectorParameter<glm::vec2>::load(tinyxml2::XMLElement* xml){
 
 template<>
 inline void VectorParameter<glm::vec3>::inputField(){
-	ImGui::InputFloat3(imguiID.c_str(), &displayValue.x, format);
+	ImGui::InputFloat3(imGuiID.c_str(), &displayValue.x, format);
 }
 
 template<>
@@ -369,7 +336,7 @@ inline bool VectorParameter<glm::vec3>::load(tinyxml2::XMLElement* xml){
 
 template<>
 inline void VectorParameter<glm::vec4>::inputField(){
-	ImGui::InputFloat4(imguiID.c_str(), &displayValue.x, format);
+	ImGui::InputFloat4(imGuiID.c_str(), &displayValue.x, format);
 }
 
 template<>
@@ -416,7 +383,7 @@ public:
 	}
 	
 	virtual void gui(){
-		ImGui::Checkbox(imguiID.c_str(), &displayValue);
+		ImGui::Checkbox(imGuiID.c_str(), &displayValue);
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
 			std::shared_ptr<BooleanParameter> thisParameter = shared_from_this();
@@ -448,20 +415,13 @@ public:
 		void invert(){
 			parameter->value = !parameter->value;
 			parameter->displayValue = parameter->value;
-			parameter->b_changed = true;
 		}
 		virtual void execute(){
 			invert();
 			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
-		virtual void undo(){
-			invert();
-			//if(parameter->undoCallback) parameter->undoCallback(parameter.get(), parameter->undoCallbackUserData);
-		}
-		virtual void redo(){
-			invert();
-			//if(parameter->redoCallback) parameter->redoCallback(parameter.get(), parameter->redoCallbackUserData);
-		}
+		virtual void undo(){ invert(); }
+		virtual void redo(){ invert(); }
 	};
 	
 };
@@ -493,7 +453,7 @@ public:
 	}
 	
 	virtual void gui(){
-		ImGui::InputText(imguiID.c_str(), displayValue, bufferSize);
+		ImGui::InputText(imGuiID.c_str(), displayValue, bufferSize);
 		if(ImGui::IsItemDeactivatedAfterEdit() && strcmp(displayValue, value.c_str()) != 0){
 			//=========Command Invoker=========
 			std::shared_ptr<StringParameter> thisParameter = shared_from_this();
@@ -526,24 +486,20 @@ public:
 			previousValue = parameter->value;
 			name = "Changed \'" + std::string(parameter->name) + "\' from \'" + previousValue + "\' to \'" + newValue + "\'";
 		}
-		virtual void execute(){
+		void setNewValue(){
 			parameter->value = newValue;
 			strcpy(parameter->displayValue, newValue.c_str());
-			parameter->b_changed = true;
-			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
-		virtual void undo(){
+		void setOldValue(){
 			parameter->value = previousValue;
 			strcpy(parameter->displayValue, previousValue.c_str());
-			parameter->b_changed = true;
-			//if(parameter->undoCallback) parameter->undoCallback(parameter.get(), parameter->undoCallbackUserData);
 		}
-		virtual void redo(){
-			parameter->value = newValue;
-			strcpy(parameter->displayValue, newValue.c_str());
-			parameter->b_changed = true;
-			//if(parameter->redoCallback) parameter->redoCallback(parameter.get(), parameter->redoCallbackUserData);
+		virtual void execute(){
+			setNewValue();
+			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
+		virtual void undo(){ setOldValue(); }
+		virtual void redo(){ setNewValue(); }
 	};
 	
 };
@@ -566,7 +522,7 @@ public:
 	}
 	
 	virtual void gui(){
-		if(ImGui::BeginCombo(imguiID.c_str(), Enumerator::getDisplayString(displayValue))){
+		if(ImGui::BeginCombo(imGuiID.c_str(), Enumerator::getDisplayString(displayValue))){
 			for(auto& type : Enumerator::getTypes<T>()){
 				if(ImGui::Selectable(type.displayString, type.enumerator == displayValue)){
 					displayValue = type.enumerator;
@@ -608,24 +564,20 @@ public:
 			+ "\' from \'" + std::string(Enumerator::getDisplayString(oldValue))
 			+ "\' to \'" + std::string(Enumerator::getDisplayString(newValue)) + "\'";
 		}
-		virtual void execute(){
+		void setNewValue(){
 			parameter->value = newValue;
 			parameter->displayValue = newValue;
-			parameter->b_changed = true;
-			//if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
-		virtual void undo(){
+		void setOldValue(){
 			parameter->value = oldValue;
 			parameter->displayValue = oldValue;
-			parameter->b_changed = true;
-			//if(parameter->undoCallback) parameter->undoCallback(parameter.get(), parameter->undoCallbackUserData);
 		}
-		virtual void redo(){
-			parameter->value = newValue;
-			parameter->displayValue = newValue;
-			parameter->b_changed = true;
-			//if(parameter->redoCallback) parameter->redoCallback(parameter.get(), parameter->redoCallbackUserData);
+		virtual void execute(){
+			setNewValue();
+			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
+		virtual void undo(){ setOldValue(); }
+		virtual void redo(){ setNewValue(); }
 	};
 	
 };
@@ -653,7 +605,7 @@ public:
 	}
 	
 	virtual void gui(){
-		if(ImGui::BeginCombo(imguiID.c_str(), displayValue->displayName)){
+		if(ImGui::BeginCombo(imGuiID.c_str(), displayValue->displayName)){
 			for(auto& entry : *values){
 				if(ImGui::Selectable(entry.displayName, &entry == displayValue)){
 					displayValue = &entry;
@@ -702,24 +654,20 @@ public:
 			+ "\' from \'" + std::string(oldValue->displayName)
 			+ "\' to \'" + std::string(newValue->displayName) + "\'";
 		}
-		virtual void execute(){
+		void setNewValue(){
 			parameter->value = newValue;
 			parameter->displayValue = newValue;
-			parameter->b_changed = true;
-			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
-		virtual void undo(){
+		void setOldValue(){
 			parameter->value = oldValue;
 			parameter->displayValue = oldValue;
-			parameter->b_changed = true;
-			//if(parameter->undoCallback) parameter->undoCallback(parameter.get(), parameter->undoCallbackUserData);
 		}
-		virtual void redo(){
-			parameter->value = newValue;
-			parameter->displayValue = newValue;
-			parameter->b_changed = true;
-			//if(parameter->redoCallback) parameter->redoCallback(parameter.get(), parameter->redoCallbackUserData);
+		virtual void execute(){
+			setNewValue();
+			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
 		}
+		virtual void undo(){ setOldValue(); }
+		virtual void redo(){ setNewValue(); }
 	};
 	
 };

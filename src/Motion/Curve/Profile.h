@@ -43,7 +43,6 @@ public:
 		position += deltaP;
 	}
 	
-	
 	//Match a fixed target velocity using linear velocity interpolation but don't go over specified position limits, brake using a specified max acceleration if necessary
 	void matchVelocityAndRespectPositionLimits(double deltaT_seconds, double targetVelocity, double fixedAcceleration, double lowPositionLimit, double highPositionLimit, double maxAcceleration){
 		//check braking position at max deceleration to see if a fast stop is needed
@@ -73,6 +72,12 @@ public:
 	}
 	
 	
+	//Match a moving target position
+	bool matchPosition(double deltaT_seconds, double targetPosition, double targetVelocity, double targetAcceleration, double fixedAcceleration, double maxVelocity){
+		//TODO: implement this
+	}
+	
+	
 	//come to a stop at a given deceleration value
 	void stop(double deltaT_seconds, double deceleration){
 		matchVelocity(deltaT_seconds, 0.0, deceleration);
@@ -94,18 +99,6 @@ public:
 		//do the future projection here
 		//effectively as if we started braking on the next cycle instead of the current one
 		return brakingPosition_positionUnits + velocity * deltaT_seconds;
-	}
-
-	
-	//Match a fixed target position
-	void matchFixedPosition(double deltaT_seconds, double targetPosition, double fixedAcceleration, double maxVelocity){
-		//TODO: implement this
-	}
-	
-	
-	//Match a moving target position
-	void matchMovingPosition(double deltaT_seconds, double targetPosition, double targetVelocity, double targetAcceleration, double fixedAcceleration, double maxVelocity){
-		//TODO: implement this
 	}
 	
 	
