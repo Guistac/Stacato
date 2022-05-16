@@ -189,6 +189,10 @@ void cCurvesTest(){
 	std::vector<glm::vec2> catchup;
 	catchup.reserve(10000);
 	
+	double catchupTime = 0.0;
+	double catchupPosition = 0.0;
+	bool b_caughtUp = false;
+	
 	if(b_solutionFound){
 		
 		int expectedPointCount = (solution.endTime - solution.startTime) * pointsPerSecond;
@@ -260,8 +264,13 @@ void cCurvesTest(){
 				v = output.velocity;
 				catchup.push_back(glm::vec2(t, output.position));
 				
-				if(output.position == target.position) break;
-				if(t > 100.0) break;
+				if(output.position == target.position && output.velocity == target.velocity && output.acceleration == target.acceleration) {
+					catchupTime = t;
+					catchupPosition = output.position;
+					b_caughtUp = true;
+					break;
+				}
+				if(t > 10.0) break;
 			}
 			
 		}
@@ -290,6 +299,9 @@ void cCurvesTest(){
 				ImPlot::SetNextLineStyle(ImVec4(.0f, 1.f, .0f, 1.f), 1.0);
 				ImPlot::PlotLine("Pulsations", &catchup.front().x, &catchup.front().y, catchup.size(), 0, sizeof(glm::vec2));
 				ImPlot::DragPoint("CatchUpStart", &catchUpTime, &catchUpPosition);
+				if(b_caughtUp){
+					ImPlot::PlotScatter("CatchupPosition", &catchupTime, &catchupPosition, 1);
+				}
 			}
 			
 			
@@ -858,8 +870,14 @@ namespace MotionTest{
 		double vo;
 		double ac;
 		
-		bool intersects(CurveEquation& other){
-			return square(vo - other.vo) - 2.0 * (ac - other.ac) * (po - other.po) >= 0.0;
+		bool intersectsAfter0(CurveEquation& other){
+			double root = square(vo - other.vo) - 2.0 * (ac - other.ac) * (po - other.po);
+			if(root < 0.0) return false;
+			double time1 = (other.vo - vo + sqrt(root)) / (ac - other.ac);
+			if(time1 >= 0.0) return true;
+			double time2 = (other.vo - vo - sqrt(root)) / (ac - other.ac);
+			if(time2 >= 0.0) return true;
+			return false;
 		}
 		
 		bool getIntersectionTime(CurveEquation& other, double& time1, double& time2){
@@ -877,7 +895,8 @@ namespace MotionTest{
 		}
 		
 		double getAccelerationToMatchCurveTangentially(CurveEquation& other){
-			return (square(vo - other.vo) + 2.0 * other.ac * (po - other.po)) / (2.0 * (other.po - po));
+			//return (square(vo - other.vo) + 2.0 * other.ac * (po - other.po)) / (2.0 * (other.po - po));
+			return square(vo - other.vo) / (2.0 * (po - other.po)) + other.ac;
 		}
 	};
 
@@ -886,18 +905,46 @@ namespace MotionTest{
 	Point matchPosition(Point previous, Point target, double deltaT, double maxVelocity, double acceleration){
 		
 		double pError = target.position - previous.position;
-		double catchUpDeceleration = pError > 0.0 ? -std::abs(acceleration) : std::abs(acceleration);
+		double vError = target.velocity - previous.velocity;
 		
-		CurveEquation previousCurve(previous.position, previous.velocity, catchUpDeceleration);
-		CurveEquation targetCurve(target.position, target.velocity, target.acceleration);
-		CurveEquation targetCurveAtPreviousTime = targetCurve.getEquationAtNewT0(-deltaT);
-		bool b_previousIntersects = previousCurve.intersects(targetCurveAtPreviousTime);
+		
+		double maxDeltaV = std::abs(deltaT * acceleration);
+		if(std::abs(vError) < maxDeltaV){
+			
+			double vMax = previous.velocity + maxDeltaV;
+			double vMin = previous.velocity - maxDeltaV;
+			
+			double pMax = previous.position + deltaT * (previous.velocity + vMax) / 2.0;
+			double pMin = previous.position + deltaT * (previous.velocity + vMin) / 2.0;
+			
+			if(target.position > pMin && target.position < pMax){
+			
+			
+			return Point{
+				.position = target.position,
+				.velocity = target.velocity,
+				.acceleration = target.acceleration
+			};
+			
+			}
+			
+			
+			
+		}
+		
+		
+		double positionMatchingDeceleration = pError > 0.0 ? -std::abs(acceleration) : std::abs(acceleration);
+		
+		CurveEquation previousCurve(previous.position, previous.velocity, positionMatchingDeceleration); 	//t0 is -deltaT
+		CurveEquation targetCurve(target.position, target.velocity, target.acceleration);				 	//t0 is 0.0
+		CurveEquation targetCurveAtPreviousTime = targetCurve.getEquationAtNewT0(-deltaT);					//t0 is -deltaT
+		bool b_previousIntersects = previousCurve.intersectsAfter0(targetCurveAtPreviousTime);
 		
 		//if the previous curve does not intersect the target curve, we can keep accelerating to the target
 		//else we need to decelerate
 		double currentAcceleration;
-		if(b_previousIntersects) currentAcceleration = catchUpDeceleration;
-		else currentAcceleration = -catchUpDeceleration;
+		if(!b_previousIntersects) currentAcceleration = -positionMatchingDeceleration;
+		else currentAcceleration = positionMatchingDeceleration;
 		
 		//calculate the current motion point
 		double deltaV = deltaT * currentAcceleration;
@@ -918,11 +965,8 @@ namespace MotionTest{
 			};
 		}
 		
-		CurveEquation currentCurve(currentPosition, currentVelocity, catchUpDeceleration);
-		
-		
-		double time1, time2;
-		bool b_currentIntersects = currentCurve.intersects(targetCurve);
+		CurveEquation currentCurve(currentPosition, currentVelocity, positionMatchingDeceleration);
+		bool b_currentIntersects = currentCurve.intersectsAfter0(targetCurve);
 		
 		//if after accelerating towards the target we still don't intersect it
 		//just keep moving towards it
@@ -930,7 +974,7 @@ namespace MotionTest{
 			return Point{
 				.position = currentPosition,
 				.velocity = currentVelocity,
-				.acceleration = currentAcceleration,
+				.acceleration = -positionMatchingDeceleration,
 				.time = 0.0
 			};
 		}
@@ -939,8 +983,8 @@ namespace MotionTest{
 		//this means we can start decelerating to match the target curve
 		//we need to find an acceleration value which will join the curve tangentially
 		
-		catchUpDeceleration = currentCurve.getAccelerationToMatchCurveTangentially(targetCurveAtPreviousTime);
-		deltaV = deltaT * catchUpDeceleration;
+		double positionAndVelocityMatchingAcceleration = previousCurve.getAccelerationToMatchCurveTangentially(targetCurveAtPreviousTime);
+		deltaV = deltaT * positionAndVelocityMatchingAcceleration;
 		currentVelocity = previous.velocity + deltaV;
 		if(currentVelocity < -std::abs(maxVelocity)) currentVelocity = -std::abs(maxVelocity);
 		else if(currentVelocity > std::abs(maxVelocity)) currentVelocity = std::abs(maxVelocity);
@@ -952,7 +996,7 @@ namespace MotionTest{
 		return Point{
 			.position = currentPosition,
 			.velocity = currentVelocity,
-			.acceleration = catchUpDeceleration,
+			.acceleration = positionAndVelocityMatchingAcceleration,
 			.time = 0.0
 		};
 
