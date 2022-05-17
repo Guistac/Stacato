@@ -72,10 +72,163 @@ public:
 	}
 	
 	
-	//Match a moving target position
-	bool matchPosition(double deltaT_seconds, double targetPosition, double targetVelocity, double targetAcceleration, double fixedAcceleration, double maxVelocity){
-		//TODO: implement this
+#define square(x) (x) * (x)
+	
+	
+	struct CurveEquation{
+		
+		CurveEquation(double po_, double vo_, double ac_){
+			po = po_;
+			vo = vo_;
+			ac = ac_;
+		}
+		
+		double po;
+		double vo;
+		double ac;
+		
+		bool intersectsAfter0(CurveEquation& other){
+			double root = square(vo - other.vo) - 2.0 * (ac - other.ac) * (po - other.po);
+			if(root < 0.0) return false;
+			double time1 = (other.vo - vo + sqrt(root)) / (ac - other.ac);
+			if(time1 >= 0.0) return true;
+			double time2 = (other.vo - vo - sqrt(root)) / (ac - other.ac);
+			if(time2 >= 0.0) return true;
+			return false;
+		}
+		
+		bool getIntersectionTime(CurveEquation& other, double& time1, double& time2){
+			double root = square(vo - other.vo) - 2.0 * (ac - other.ac) * (po - other.po);
+			if(root < 0) return false;
+			time1 = (other.vo - vo + sqrt(root)) / (ac - other.ac);
+			time2 = (other.vo - vo - sqrt(root)) / (ac - other.ac);
+			return true;
+		}
+		
+		CurveEquation getEquationAtNewT0(double t0){
+			double positionAtT0 = po + vo * t0 + ac * square(t0) / 2.0;
+			double velocityAtT0 = vo + t0 * ac;
+			return CurveEquation(positionAtT0, velocityAtT0, ac);
+		}
+		
+		double getAccelerationToMatchCurveTangentially(CurveEquation& other){
+			return square(vo - other.vo) / (2.0 * (po - other.po)) + other.ac;
+		}
+	};
+	
+	
+	
+	//Match a moving or stopped target position
+	bool matchPosition(double deltaT, double targetPosition, double targetVelocity, double targetAcceleration, double fixedAcceleration, double maxVelocity){
+		
+		//we have two target curve approach strategies:
+		//-try to match the target position and velocity simultaneously
+		//-try to match the target position, velocity and acceleration simultaneously
+		
+		//the first strategy works best when the target acceleration is smaller than the catchup acceleration
+		//in case the target acceleration is higher, we can never reach the target, and the algorithm will produce inefficient paths for acceleration segments
+		//here we should use the other algorithm and ignore the targets acceleration
+		
+		//the second algorithm produces less optimal results since it can't predict the change in velocity of the target curve,
+		//but it produces better results in case the targets acceleration is higher than the max catchup acceleration
+		
+		//both algorithms work the same, they only differ in their use of the target acceleration value
+		//for the velocity/position only algorithm, the target acceleration value is 0.0
+		
+		//first we get the position error at the previous point (-deltaT)
+		//since we try to match the curve as fast as possible, we always need to slow down to match the target tangentially
+		//we use the sign of this error to get the sign of our catchup acceleration value
+		
+		if(std::abs(fixedAcceleration) <= std::abs(targetAcceleration)) targetAcceleration = 0.0;
+		
+		CurveEquation targetCurve(targetPosition, targetVelocity, targetAcceleration); 		//t0 is 0.0
+		CurveEquation targetCurveAtPreviousTime = targetCurve.getEquationAtNewT0(-deltaT);	//t0 is -deltaT
+		
+		double pError = targetCurveAtPreviousTime.po - this->position;
+		double vError = targetVelocity - this->velocity;
+		
+		double maxDeltaV = std::abs(deltaT * fixedAcceleration);
+		if(std::abs(vError) < maxDeltaV){
+			double vMax = this->velocity + maxDeltaV;
+			double vMin = this->velocity - maxDeltaV;
+			double pMax = this->position + deltaT * (this->velocity + vMax) / 2.0;
+			double pMin = this->position + deltaT * (this->velocity + vMin) / 2.0;
+			if(targetPosition > pMin && targetPosition < pMax){
+				this->position = targetPosition;
+				this->velocity = targetVelocity;
+				this->acceleration = targetAcceleration;
+				return true;
+			}
+		}
+		
+		
+		double positionMatchingDeceleration = pError > 0.0 ? -std::abs(fixedAcceleration) : std::abs(fixedAcceleration);
+		CurveEquation previousCurve(this->position, this->velocity, positionMatchingDeceleration); 	//t0 is -deltaT
+		bool b_previousIntersects = previousCurve.intersectsAfter0(targetCurveAtPreviousTime);
+		
+		//if the previous curve does not intersect the target curve, we can keep accelerating to the target
+		//else we need to decelerate
+		double currentAcceleration;
+		if(!b_previousIntersects) currentAcceleration = -positionMatchingDeceleration;
+		else currentAcceleration = positionMatchingDeceleration;
+		
+		//calculate the current motion point
+		double deltaV = deltaT * currentAcceleration;
+		double currentVelocity = this->velocity + deltaV;
+		currentVelocity = std::min(currentVelocity, std::abs(maxVelocity));
+		currentVelocity = std::max(currentVelocity, -std::abs(maxVelocity));
+		double deltaP = deltaT * (this->velocity + currentVelocity) / 2.0;
+		double currentPosition = this->position + deltaP;
+		
+		//if the previous point could not decelerate to avoid intersecting the target,
+		//we can't plan a correct trajectory and should just start decelerating to match the target
+		if(b_previousIntersects){
+			this->position = currentPosition;
+			this->velocity = currentVelocity;
+			this->acceleration = currentAcceleration;
+			return false;
+		}
+		
+		CurveEquation currentCurve(currentPosition, currentVelocity, positionMatchingDeceleration);
+		bool b_currentIntersects = currentCurve.intersectsAfter0(targetCurve);
+		
+		//if after accelerating towards the target we still don't intersect it
+		//just keep moving towards it
+		if(!b_currentIntersects){
+			this->position = currentPosition;
+			this->velocity = currentVelocity;
+			this->acceleration = -positionMatchingDeceleration;
+			return false;
+		}
+		
+		//if the current curve intersects the target and the previous did not
+		//this means we can start decelerating to match the target curve
+		//we need to find an acceleration value which will join the curve tangentially
+		
+		double positionAndVelocityMatchingAcceleration = previousCurve.getAccelerationToMatchCurveTangentially(targetCurveAtPreviousTime);
+		deltaV = deltaT * positionAndVelocityMatchingAcceleration;
+		currentVelocity = this->velocity + deltaV;
+		currentVelocity = std::min(currentVelocity, std::abs(maxVelocity));
+		currentVelocity = std::max(currentVelocity, -std::abs(maxVelocity));
+		deltaP = deltaT * (this->velocity + currentVelocity) / 2.0;
+		currentPosition = this->position + deltaP;
+		
+		this->position = currentPosition;
+		this->velocity = currentVelocity;
+		this->acceleration = positionAndVelocityMatchingAcceleration;
+		return false;
+		
 	}
+	
+	bool matchPositionWhileRespectingPositionLimits(/*TODO: args*/){
+		//TODO: implement braking for limits
+	}
+	
+	
+	
+	
+	
+	
 	
 	
 	//come to a stop at a given deceleration value

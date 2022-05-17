@@ -935,7 +935,6 @@ namespace MotionTest{
 		}
 		
 		double getAccelerationToMatchCurveTangentially(CurveEquation& other){
-			//return (square(vo - other.vo) + 2.0 * other.ac * (po - other.po)) / (2.0 * (other.po - po));
 			return square(vo - other.vo) / (2.0 * (po - other.po)) + other.ac;
 		}
 	};
