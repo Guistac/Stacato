@@ -41,6 +41,7 @@ void cCurvesTest(){
 	static int pointsPerSecond = 100;
 	
 	static bool b_catchUp = true;
+	static bool b_constrainCatchupStartToCurve = false;
 	static double catchUpTime = 0.0;
 	static double catchUpPosition = -0.1;
 	static double catchupVelocity = 0.0;
@@ -120,6 +121,7 @@ void cCurvesTest(){
 	
 	ImGui::Checkbox("Show Catchup", &b_catchUp);
 	ImGui::Checkbox("Acceleration Strategy", &b_accelerationStrategy);
+	ImGui::Checkbox("Constrain Catchup Start to Curve", &b_constrainCatchupStartToCurve);
 	ImGui::SetNextItemWidth(inputFieldWidth);
 	ImGui::InputDouble("Start Time", &catchUpTime, 0.1, 1.0);
 	ImGui::SetNextItemWidth(inputFieldWidth);
@@ -152,6 +154,11 @@ void cCurvesTest(){
 	if(b_timeConstraint) b_solutionFound = MotionTest::getTimedOrSlowerInterpolation(start, end, maxVelocity, solution);
 	else b_solutionFound = MotionTest::getFastestVelocityConstrainedInterpolation(start, end, targetVelocity, solution);
 	
+	if(b_constrainCatchupStartToCurve){
+		MotionTest::Point p;
+		solution.getPointAtTime(catchUpTime, p);
+		catchUpPosition = p.position;
+	}
 	
 	//——————————————————————————————
 	//		 	Info Panel

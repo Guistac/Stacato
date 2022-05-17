@@ -1,6 +1,9 @@
 <Layouts>
     <Layout Name="Test Layout">
 
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -107,7 +110,10 @@ DockSpace       ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 Split=X
     DockNode    ID=0x00000004 Parent=0x00000002 SizeRef=1746,374 Selected=0x3E6B10D2
 
 </Layout>
-    <Layout Name="CurveTests" IsDefault="true">
+    <Layout Name="CurveTests">
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -206,6 +212,108 @@ Collapsed=0
 
 [Docking][Data]
 DockSpace ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 CentralNode=1 Selected=0x1F11F965
+
+</Layout>
+    <Layout Name="CommandZ Tests" IsDefault="true">
+
+[Window][Debug##Default]
+Pos=60,60
+Size=400,400
+Collapsed=0
+
+[Window][##Toolbar]
+Pos=0,916
+Size=2056,84
+Collapsed=0
+
+[Window][Main Window]
+Pos=0,29
+Size=2056,1160
+Collapsed=0
+
+[Window][Quitting Application]
+Pos=794,434
+Size=468,132
+Collapsed=0
+
+[Window][Environnement]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,0
+
+[Window][Stage]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,5
+
+[Window][Machines]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,2
+
+[Window][Setup]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,1
+
+[Window][Plot List]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,8
+
+[Window][Track Sheet Editor]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,9
+
+[Window][Curve Editor]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,3
+
+[Window][Sequencer]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,6
+
+[Window][cCurvesTest]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,4
+
+[Window][CommandZ]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,7
+
+[Window][MainWindow]
+Pos=0,0
+Size=2056,916
+Collapsed=0
+
+[Window][OffscreenNodeEditorFor1Frame]
+ViewportPos=10000,10000
+ViewportId=0x34E92D39
+Size=44,55
+Collapsed=0
+
+[Window][Edit Layout]
+Pos=849,443
+Size=358,114
+Collapsed=0
+
+[Docking][Data]
+DockSpace ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 CentralNode=1 Selected=0xF8BDFD5D
 
 </Layout>
 </Layouts>

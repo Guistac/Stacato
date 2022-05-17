@@ -3,15 +3,19 @@
 class Command{
 public:
 	
+	Command(std::string name_) : name(name_){}
+	
+	const char* getName(){ return name.c_str(); }
 	
 	virtual void execute() = 0;
-	virtual void redo(){
-		//TODO: implement extra redo method for commands that require it (for example for commands with side effects)
-		execute();
-	}
 	virtual void undo() = 0;
-	std::string name;
+	virtual void redo(){ execute(); }
 	
+	std::vector<std::shared_ptr<Command>>& getSideEffects(){ return sideEffects; }
+	void addSideEffect(std::shared_ptr<Command> sideEffect){ sideEffects.push_back(sideEffect); }
+	
+private:
+	std::string name;
 	std::vector<std::shared_ptr<Command>> sideEffects;
 };
 

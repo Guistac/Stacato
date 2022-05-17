@@ -91,11 +91,11 @@ private:
 		std::shared_ptr<List> list;
 		int index;
 		
-		AddElementCommand(T element_, std::shared_ptr<List> list_, int index_){
+		AddElementCommand(T element_, std::shared_ptr<List> list_, int index_) :
+		Command("Added Element at index " + std::to_string(index)){
 			element = element_;
 			list = list_;
 			index = index_;
-			name = "Added Element at index " + std::to_string(index);
 		}
 		
 		virtual void execute(){
@@ -114,11 +114,11 @@ private:
 		std::shared_ptr<List> list;
 		int index;
 		
-		RemoveElementCommand(T element_, std::shared_ptr<List> list_, int index_){
+		RemoveElementCommand(T element_, std::shared_ptr<List> list_, int index_) :
+		Command("Added Element at index " + std::to_string(index)){
 			element = element_;
 			list = list_;
 			index = index_;
-			name = "Removed Element at index " + std::to_string(index);
 		}
 		
 		virtual void execute(){
@@ -136,11 +136,11 @@ private:
 		int oldIndex;
 		int newIndex;
 		
-		MoveElementCommand(std::shared_ptr<List> list_, int oldIndex_, int newIndex_){
+		MoveElementCommand(std::shared_ptr<List> list_, int oldIndex_, int newIndex_) :
+		Command("Moved Element at index " + std::to_string(oldIndex) + " to index " + std::to_string(newIndex)){
 			list = list_;
 			oldIndex = oldIndex_;
 			newIndex = newIndex_;
-			name = "Moved Element at index " + std::to_string(oldIndex) + " to index " + std::to_string(newIndex);
 		}
 		
 		virtual void execute(){

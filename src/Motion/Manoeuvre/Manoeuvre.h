@@ -22,9 +22,9 @@ public:
 	}
 	
 	void init(){
-		type->setEditCallback([](Parameter* parameter, void* payload){
-			Manoeuvre* manoeuvre = (Manoeuvre*)payload;			
-		}, (void*)this);
+		type->setEditCallback([this](std::shared_ptr<Parameter> parameter){
+			Logger::warn("edited type of maneoeuvre {}", this->getName());
+		});
 	}
 	
 	ManoeuvreType getType(){ return type->value; }

@@ -35,10 +35,10 @@ public:
 	std::vector<std::shared_ptr<Thing>>* thingList;
 	std::vector<std::shared_ptr<Thing>> addedThings;
 
-	AddThingCommand(std::vector<std::shared_ptr<Thing>>* thingList_, std::vector<std::shared_ptr<Thing>> addedThings_){
+	AddThingCommand(std::vector<std::shared_ptr<Thing>>* thingList_, std::vector<std::shared_ptr<Thing>> addedThings_) :
+	Command("Added " + std::to_string(addedThings.size()) + " Things"){
 		thingList = thingList_;
 		addedThings = addedThings_;
-		name = "Added " + std::to_string(addedThings.size()) + " Things";
 	}
 	
 	virtual void execute(){
@@ -103,10 +103,9 @@ void testUndoHistory(){
 		};
 		parameterList = std::make_shared<List<std::shared_ptr<Parameter>>>(parameters);
 		
-		
-		parameters.front()->setEditCallback([](Parameter* parameter, void* userData){
-			NumberParameter<int>& param = *(NumberParameter<int>*)parameter;
-			int num = param.value;
+		parameters.front()->setEditCallback([](std::shared_ptr<Parameter> parameter){
+			auto param = std::dynamic_pointer_cast<NumberParameter<int>>(parameter);
+			int num = param->value;
 			
 			std::vector<std::shared_ptr<Thing>> addedThings;
 			for(int i = 0; i < num; i++){
@@ -114,7 +113,7 @@ void testUndoHistory(){
 				newThing->randomNumber = num * 10000 + Random::getNormalized() * 1000;
 				addedThings.push_back(newThing);
 			}
-			std::vector<std::shared_ptr<Thing>>* list = (std::vector<std::shared_ptr<Thing>>*)userData;
+			std::vector<std::shared_ptr<Thing>>* list = &things;
 			auto addThingCommand = std::make_shared<AddThingCommand>(list, addedThings);
 			CommandHistory::pushAndExecute(addThingCommand);
 			
@@ -125,12 +124,11 @@ void testUndoHistory(){
 					newThing->randomNumber = 333 * 10000 + Random::getNormalized() * 1000;
 					moreThings.push_back(newThing);
 				}
-				std::vector<std::shared_ptr<Thing>>* list = (std::vector<std::shared_ptr<Thing>>*)userData;
+				std::vector<std::shared_ptr<Thing>>* list = &things;
 				auto addThingCommand = std::make_shared<AddThingCommand>(list, moreThings);
 				CommandHistory::pushAndExecute(addThingCommand);
 			}
-		}, &things);
-		
+		});
 	}
 
 	ImVec2 sizeHalf = ImGui::GetContentRegionAvail();
@@ -230,12 +228,12 @@ void testUndoHistory(){
 			
 			auto& command = history[i];
 			
-			if(command->sideEffects.empty()) ImGui::Selectable(command->name.c_str());
+			if(command->getSideEffects().empty()) ImGui::Selectable(command->getName());
 			else{
-				if(ImGui::TreeNode(command->name.c_str())){
+				if(ImGui::TreeNode(command->getName())){
 					
-					for(auto& sideEffect : command->sideEffects){
-						ImGui::Selectable(sideEffect->name.c_str());
+					for(auto& sideEffect : command->getSideEffects()){
+						ImGui::Selectable(sideEffect->getName());
 					}
 					
 					ImGui::TreePop();

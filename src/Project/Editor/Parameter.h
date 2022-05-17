@@ -4,12 +4,8 @@
 #include <imgui.h>
 #include "CommandHistory.h"
 
-class Parameter{
+class Parameter : public std::enable_shared_from_this<Parameter>{
 public:
-	
-	std::string name;
-	std::string saveString;
-	std::string imGuiID;
 	
 	Parameter(std::string name_, std::string saveString_ = ""){
 		setName(name_);
@@ -24,17 +20,27 @@ public:
 		saveString = saveString_;
 	}
 	
+	const char* getName(){ return name.c_str(); }
+	const char* getImGuiID(){ return imGuiID.c_str(); }
+	const char* getSaveString(){ return saveString.c_str(); }
+	
+	void setEditCallback(std::function<void(std::shared_ptr<Parameter>)> cb){
+		editCallback = cb;
+	}
+	
+	void onEdit(){
+		if(editCallback) editCallback(shared_from_this());
+	}
+	
 	virtual void gui() = 0;
 	virtual bool save(tinyxml2::XMLElement* xml) = 0;
 	virtual bool load(tinyxml2::XMLElement* xml) = 0;
 	
-	typedef void (*Callback)(Parameter* thisParameter, void* userData);
-	Callback editCallback = nullptr;
-	void* editCallbackUserData = nullptr;
-	void setEditCallback(Callback callback, void* userData){
-		editCallback = callback;
-		editCallbackUserData = userData;
-	}
+private:
+	std::function<void(std::shared_ptr<Parameter>)> editCallback;
+	std::string name;
+	std::string saveString;
+	std::string imGuiID;
 	
 };
 
@@ -47,7 +53,7 @@ public:
 #include <iostream>
 
 template<typename T>
-class NumberParameter : public Parameter, public std::enable_shared_from_this<NumberParameter<T>>{
+class NumberParameter : public Parameter{
 public:
 	
 	T displayValue;
@@ -105,22 +111,22 @@ public:
 		inputField();
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
-			std::shared_ptr<NumberParameter<T>> thisParameter = this->shared_from_this();
+			std::shared_ptr<NumberParameter<T>> thisParameter = std::dynamic_pointer_cast<NumberParameter<T>>(shared_from_this());
 			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
 			//=================================
 		}
 	}
 	
 	virtual bool save(tinyxml2::XMLElement* xml){
-		xml->SetAttribute(saveString.c_str(), value);
+		xml->SetAttribute(getSaveString(), value);
 		 return true;
 	 }
 	
 	virtual bool load(tinyxml2::XMLElement* xml){
 		using namespace tinyxml2;
 		 double number;
-		 XMLError result = xml->QueryDoubleAttribute(saveString.c_str(), &number);
-		 if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", name);
+		 XMLError result = xml->QueryDoubleAttribute(getSaveString(), &number);
+		 if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", getName());
 		 value = number;
 		 displayValue = number;
 		 return true;
@@ -131,11 +137,11 @@ public:
 		std::shared_ptr<NumberParameter<T>> parameter;
 		T newValue;
 		T previousValue;
-		EditCommand(std::shared_ptr<NumberParameter<T>> parameter_){
+		EditCommand(std::shared_ptr<NumberParameter<T>> parameter_) :
+		Command("Changed \'" + std::string(parameter->getName()) + "\' from " + std::to_string(previousValue) + " to " + std::to_string(newValue)){
 			parameter = parameter_;
 			newValue = parameter->displayValue;
 			previousValue = parameter->value;
-			name = "Changed \'" + std::string(parameter->name) + "\' from " + std::to_string(previousValue) + " to " + std::to_string(newValue);
 		}
 		void setNewValue(){
 			parameter->value = newValue;
@@ -147,7 +153,7 @@ public:
 		}
 		virtual void execute(){
 			setNewValue();
-			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
+			parameter->onEdit();
 		}
 		virtual void undo(){ setOldValue(); }
 		virtual void redo(){ setNewValue(); }
@@ -157,53 +163,53 @@ public:
 
 template<>
 inline void NumberParameter<float>::inputField(){
-	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_Float, &displayValue, stepSmallPtr, stepLargePtr, getFormatedReal());
+	ImGui::InputScalar(getImGuiID(), ImGuiDataType_Float, &displayValue, stepSmallPtr, stepLargePtr, getFormatedReal());
 }
 
 template<>
 inline void NumberParameter<double>::inputField(){
-	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_Double, &displayValue, stepSmallPtr, stepLargePtr, getFormatedReal());
+	ImGui::InputScalar(getImGuiID(), ImGuiDataType_Double, &displayValue, stepSmallPtr, stepLargePtr, getFormatedReal());
 }
 
 template<>
 inline void NumberParameter<uint8_t>::inputField(){
-	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_U8, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(getImGuiID(), ImGuiDataType_U8, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<int8_t>::inputField(){
-	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_S8, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(getImGuiID(), ImGuiDataType_S8, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<uint16_t>::inputField(){
-	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_U16, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(getImGuiID(), ImGuiDataType_U16, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<int16_t>::inputField(){
-	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_S16, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(getImGuiID(), ImGuiDataType_S16, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<uint32_t>::inputField(){
-	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_U32, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(getImGuiID(), ImGuiDataType_U32, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<int32_t>::inputField(){
 	const char* format = getFormatedInteger();
-	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_S32, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(getImGuiID(), ImGuiDataType_S32, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<uint64_t>::inputField(){
-	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_U64, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(getImGuiID(), ImGuiDataType_U64, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 template<>
 inline void NumberParameter<int64_t>::inputField(){
-	ImGui::InputScalar(imGuiID.c_str(), ImGuiDataType_S64, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
+	ImGui::InputScalar(getImGuiID(), ImGuiDataType_S64, &displayValue, stepSmallPtr, stepLargePtr, getFormatedInteger());
 }
 
 
@@ -214,7 +220,7 @@ inline void NumberParameter<int64_t>::inputField(){
 //===============================================================================
 
 template<typename T>
-class VectorParameter : public Parameter, public std::enable_shared_from_this<VectorParameter<T>>{
+class VectorParameter : public Parameter{
 public:
 	
 	T displayValue;
@@ -237,7 +243,7 @@ public:
 		inputField();
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
-			auto thisParameter = this->shared_from_this();
+			auto thisParameter = std::dynamic_pointer_cast<VectorParameter<T>>(shared_from_this());
 			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
 			//=================================
 		}
@@ -251,11 +257,11 @@ public:
 		std::shared_ptr<VectorParameter<T>> parameter;
 		T newValue;
 		T previousValue;
-		EditCommand(std::shared_ptr<VectorParameter<T>> parameter_){
+		EditCommand(std::shared_ptr<VectorParameter<T>> parameter_) :
+		Command("Changed \'" + std::string(parameter->getName()) + "\' from " + glm::to_string(previousValue) + " to " + glm::to_string(newValue)){
 			parameter = parameter_;
 			newValue = parameter->displayValue;
 			previousValue = parameter->value;
-			name = "Changed \'" + std::string(parameter->name) + "\' from " + glm::to_string(previousValue) + " to " + glm::to_string(newValue);
 		}
 		void setNewValue(){
 			parameter->value = newValue;
@@ -267,7 +273,7 @@ public:
 		}
 		virtual void execute(){
 			setNewValue();
-			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
+			parameter->onEdit();
 		}
 		virtual void undo(){ setOldValue(); }
 		virtual void redo(){ setNewValue(); }
@@ -277,13 +283,13 @@ public:
 
 template<>
 inline void VectorParameter<glm::vec2>::inputField(){
-	ImGui::InputFloat2(imGuiID.c_str(), &displayValue.x, format);
+	ImGui::InputFloat2(getImGuiID(), &displayValue.x, format);
 }
 
 template<>
 inline bool VectorParameter<glm::vec2>::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
-	XMLElement* element = xml->InsertNewChildElement(saveString.c_str());
+	XMLElement* element = xml->InsertNewChildElement(getSaveString());
 	element->SetAttribute("x", value.x);
 	element->SetAttribute("y", value.y);
 	return true;
@@ -292,10 +298,10 @@ inline bool VectorParameter<glm::vec2>::save(tinyxml2::XMLElement* xml){
 template<>
 inline bool VectorParameter<glm::vec2>::load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
-	XMLElement* element = xml->FirstChildElement(saveString.c_str());
+	XMLElement* element = xml->FirstChildElement(getSaveString());
 	if(XML_SUCCESS != element->QueryAttribute("x", &value.x) ||
 	   XML_SUCCESS != element->QueryAttribute("y", &value.y)){
-		return Logger::warn("Could not load parameter {}", name);
+		return Logger::warn("Could not load parameter {}", getName());
 	}
 	displayValue = value;
 	return true;
@@ -306,13 +312,13 @@ inline bool VectorParameter<glm::vec2>::load(tinyxml2::XMLElement* xml){
 
 template<>
 inline void VectorParameter<glm::vec3>::inputField(){
-	ImGui::InputFloat3(imGuiID.c_str(), &displayValue.x, format);
+	ImGui::InputFloat3(getImGuiID(), &displayValue.x, format);
 }
 
 template<>
 inline bool VectorParameter<glm::vec3>::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
-	XMLElement* element = xml->InsertNewChildElement(saveString.c_str());
+	XMLElement* element = xml->InsertNewChildElement(getSaveString());
 	element->SetAttribute("x", value.x);
 	element->SetAttribute("y", value.y);
 	element->SetAttribute("z", value.z);
@@ -322,11 +328,11 @@ inline bool VectorParameter<glm::vec3>::save(tinyxml2::XMLElement* xml){
 template<>
 inline bool VectorParameter<glm::vec3>::load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
-	XMLElement* element = xml->FirstChildElement(saveString.c_str());
+	XMLElement* element = xml->FirstChildElement(getSaveString());
 	if(XML_SUCCESS != element->QueryAttribute("x", &value.x) ||
 	   XML_SUCCESS != element->QueryAttribute("y", &value.y) ||
 	   XML_SUCCESS != element->QueryAttribute("z", &value.z)){
-		return Logger::warn("Could not load parameter {}", name);
+		return Logger::warn("Could not load parameter {}", getName());
 	}
 	displayValue = value;
 	return true;
@@ -336,13 +342,13 @@ inline bool VectorParameter<glm::vec3>::load(tinyxml2::XMLElement* xml){
 
 template<>
 inline void VectorParameter<glm::vec4>::inputField(){
-	ImGui::InputFloat4(imGuiID.c_str(), &displayValue.x, format);
+	ImGui::InputFloat4(getImGuiID(), &displayValue.x, format);
 }
 
 template<>
 inline bool VectorParameter<glm::vec4>::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
-	XMLElement* element = xml->InsertNewChildElement(saveString.c_str());
+	XMLElement* element = xml->InsertNewChildElement(getSaveString());
 	element->SetAttribute("x", value.x);
 	element->SetAttribute("y", value.y);
 	element->SetAttribute("z", value.z);
@@ -353,12 +359,12 @@ inline bool VectorParameter<glm::vec4>::save(tinyxml2::XMLElement* xml){
 template<>
 inline bool VectorParameter<glm::vec4>::load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
-	XMLElement* element = xml->FirstChildElement(saveString.c_str());
+	XMLElement* element = xml->FirstChildElement(getSaveString());
 	if(XML_SUCCESS != element->QueryAttribute("x", &value.x) ||
 	   XML_SUCCESS != element->QueryAttribute("y", &value.y) ||
 	   XML_SUCCESS != element->QueryAttribute("z", &value.z) ||
 	   XML_SUCCESS != element->QueryAttribute("w", &value.w)){
-		return Logger::warn("Could not load parameter {}", name);
+		return Logger::warn("Could not load parameter {}", getName());
 	}
 	displayValue = value;
 	return true;
@@ -371,7 +377,7 @@ inline bool VectorParameter<glm::vec4>::load(tinyxml2::XMLElement* xml){
 //=================================== BOOLEANS ==================================
 //===============================================================================
 
-class BooleanParameter : public Parameter, public std::enable_shared_from_this<BooleanParameter>{
+class BooleanParameter : public Parameter{
 public:
 	
 	bool displayValue;
@@ -383,24 +389,24 @@ public:
 	}
 	
 	virtual void gui(){
-		ImGui::Checkbox(imGuiID.c_str(), &displayValue);
+		ImGui::Checkbox(getImGuiID(), &displayValue);
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
-			std::shared_ptr<BooleanParameter> thisParameter = shared_from_this();
+			auto thisParameter = std::dynamic_pointer_cast<BooleanParameter>(shared_from_this());
 			CommandHistory::pushAndExecute(std::make_shared<InvertCommand>(thisParameter));
 			//=================================
 		}
 	}
 	
 	virtual bool save(tinyxml2::XMLElement* xml){
-		xml->SetAttribute(saveString.c_str(), value);
+		xml->SetAttribute(getSaveString(), value);
 		return true;
 	}
 	
 	virtual bool load(tinyxml2::XMLElement* xml){
 		using namespace tinyxml2;
-		XMLError result = xml->QueryBoolAttribute(saveString.c_str(), &value);
-		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", name);
+		XMLError result = xml->QueryBoolAttribute(getSaveString(), &value);
+		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", getName());
 		displayValue = value;
 		return true;
 	}
@@ -408,9 +414,9 @@ public:
 	class InvertCommand : public Command{
 	public:
 		std::shared_ptr<BooleanParameter> parameter;
-		InvertCommand(std::shared_ptr<BooleanParameter> parameter_){
+		InvertCommand(std::shared_ptr<BooleanParameter> parameter_) :
+		Command("Inverted \'" + std::string(parameter->getName()) + "\'"){
 			parameter = parameter_;
-			name = "Inverted \'" + std::string(parameter->name) + "\'";
 		}
 		void invert(){
 			parameter->value = !parameter->value;
@@ -418,7 +424,7 @@ public:
 		}
 		virtual void execute(){
 			invert();
-			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
+			parameter->onEdit();
 		}
 		virtual void undo(){ invert(); }
 		virtual void redo(){ invert(); }
@@ -433,7 +439,7 @@ public:
 //=================================== STRINGS ===================================
 //===============================================================================
 
-class StringParameter : public Parameter, public std::enable_shared_from_this<StringParameter>{
+class StringParameter : public Parameter{
 public:
 	
 	char* displayValue;
@@ -453,24 +459,24 @@ public:
 	}
 	
 	virtual void gui(){
-		ImGui::InputText(imGuiID.c_str(), displayValue, bufferSize);
+		ImGui::InputText(getImGuiID(), displayValue, bufferSize);
 		if(ImGui::IsItemDeactivatedAfterEdit() && strcmp(displayValue, value.c_str()) != 0){
 			//=========Command Invoker=========
-			std::shared_ptr<StringParameter> thisParameter = shared_from_this();
+			std::shared_ptr<StringParameter> thisParameter = std::dynamic_pointer_cast<StringParameter>(shared_from_this());
 			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
 			//=================================
 		}
 	}
 	
 	virtual bool save(tinyxml2::XMLElement* xml){
-		xml->SetAttribute(saveString.c_str(), value.c_str());
+		xml->SetAttribute(getSaveString(), value.c_str());
 		return true;
 	}
 	
 	virtual bool load(tinyxml2::XMLElement* xml){
 		using namespace tinyxml2;
-		XMLError result = xml->QueryStringAttribute(saveString.c_str(), (const char**)&displayValue);
-		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", name);
+		XMLError result = xml->QueryStringAttribute(getSaveString(), (const char**)&displayValue);
+		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", getName());
 		strcpy(displayValue, value.c_str());
 		return true;
 	}
@@ -480,11 +486,11 @@ public:
 		std::shared_ptr<StringParameter> parameter;
 		std::string newValue;
 		std::string previousValue;
-		EditCommand(std::shared_ptr<StringParameter> parameter_){
+		EditCommand(std::shared_ptr<StringParameter> parameter_) :
+		Command("Changed \'" + std::string(parameter->getName()) + "\' from \'" + previousValue + "\' to \'" + newValue + "\'"){
 			parameter = parameter_;
 			newValue = parameter->displayValue;
 			previousValue = parameter->value;
-			name = "Changed \'" + std::string(parameter->name) + "\' from \'" + previousValue + "\' to \'" + newValue + "\'";
 		}
 		void setNewValue(){
 			parameter->value = newValue;
@@ -496,7 +502,7 @@ public:
 		}
 		virtual void execute(){
 			setNewValue();
-			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
+			parameter->onEdit();
 		}
 		virtual void undo(){ setOldValue(); }
 		virtual void redo(){ setNewValue(); }
@@ -511,7 +517,7 @@ public:
 //===============================================================================
 
 template <typename T>
-class EnumeratorParameter : public Parameter, public std::enable_shared_from_this<EnumeratorParameter<T>>{
+class EnumeratorParameter : public Parameter{
 public:
 	T value;
 	T displayValue;
@@ -522,12 +528,12 @@ public:
 	}
 	
 	virtual void gui(){
-		if(ImGui::BeginCombo(imGuiID.c_str(), Enumerator::getDisplayString(displayValue))){
+		if(ImGui::BeginCombo(getImGuiID(), Enumerator::getDisplayString(displayValue))){
 			for(auto& type : Enumerator::getTypes<T>()){
 				if(ImGui::Selectable(type.displayString, type.enumerator == displayValue)){
 					displayValue = type.enumerator;
 					//=========Command Invoker=========
-					std::shared_ptr<EnumeratorParameter<T>> thisParameter = this->shared_from_this();
+					std::shared_ptr<EnumeratorParameter<T>> thisParameter = std::dynamic_pointer_cast<EnumeratorParameter<T>>(shared_from_this());
 					CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
 					//=================================
 				}
@@ -537,15 +543,15 @@ public:
 	}
 	
 	virtual bool save(tinyxml2::XMLElement* xml){
-		xml->SetAttribute(saveString.c_str(), Enumerator::getSaveString(value));
+		xml->SetAttribute(getSaveString(), Enumerator::getSaveString(value));
 	}
 	
 	virtual bool load(tinyxml2::XMLElement* xml){
 		using namespace tinyxml2;
 		const char * enumeratorSaveString;
-		XMLError result = xml->QueryStringAttribute(saveString.c_str(), &enumeratorSaveString);
-		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", name);
-		if(!Enumerator::isValidSaveName<T>(enumeratorSaveString)) return Logger::warn("Could not load parameter {} : Invalid Enumerator Save String \'{}\'", name, enumeratorSaveString);
+		XMLError result = xml->QueryStringAttribute(getSaveString(), &enumeratorSaveString);
+		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", getName());
+		if(!Enumerator::isValidSaveName<T>(enumeratorSaveString)) return Logger::warn("Could not load parameter {} : Invalid Enumerator Save String \'{}\'", getName(), enumeratorSaveString);
 		value = Enumerator::getEnumeratorFromSaveString<T>(enumeratorSaveString);
 		displayValue = value;
 		return true;
@@ -556,13 +562,11 @@ public:
 		std::shared_ptr<EnumeratorParameter<T>> parameter;
 		T oldValue;
 		T newValue;
-		EditCommand(std::shared_ptr<EnumeratorParameter<T>> parameter_){
+		EditCommand(std::shared_ptr<EnumeratorParameter<T>> parameter_) :
+		Command("Edited \'" + std::string(parameter->getName()) + "\' from \'" + std::string(Enumerator::getDisplayString(oldValue)) + "\' to \'" + std::string(Enumerator::getDisplayString(newValue)) + "\'"){
 			parameter = parameter_;
 			oldValue = parameter->value;
 			newValue = parameter->displayValue;
-			name = "Edited \'" + std::string(parameter->name)
-			+ "\' from \'" + std::string(Enumerator::getDisplayString(oldValue))
-			+ "\' to \'" + std::string(Enumerator::getDisplayString(newValue)) + "\'";
 		}
 		void setNewValue(){
 			parameter->value = newValue;
@@ -574,7 +578,7 @@ public:
 		}
 		virtual void execute(){
 			setNewValue();
-			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
+			parameter->onEdit();
 		}
 		virtual void undo(){ setOldValue(); }
 		virtual void redo(){ setNewValue(); }
@@ -591,7 +595,7 @@ public:
 
 #include "Machine/AnimatableParameterValue.h"
 
-class StateParameter : public Parameter, public std::enable_shared_from_this<StateParameter>{
+class StateParameter : public Parameter{
 public:
 	
 	AnimatableParameterState* value;
@@ -605,12 +609,12 @@ public:
 	}
 	
 	virtual void gui(){
-		if(ImGui::BeginCombo(imGuiID.c_str(), displayValue->displayName)){
+		if(ImGui::BeginCombo(getImGuiID(), displayValue->displayName)){
 			for(auto& entry : *values){
 				if(ImGui::Selectable(entry.displayName, &entry == displayValue)){
 					displayValue = &entry;
 					//=========Command Invoker=========
-					std::shared_ptr<StateParameter> thisParameter = this->shared_from_this();
+					std::shared_ptr<StateParameter> thisParameter = std::dynamic_pointer_cast<StateParameter>(shared_from_this());
 					CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
 					//=================================
 				}
@@ -620,14 +624,14 @@ public:
 	}
 	
 	virtual bool save(tinyxml2::XMLElement* xml){
-		xml->SetAttribute(saveString.c_str(), value->saveName);
+		xml->SetAttribute(getSaveString(), value->saveName);
 	}
 	
 	virtual bool load(tinyxml2::XMLElement* xml){
 		using namespace tinyxml2;
 		const char * stateSaveString;
-		XMLError result = xml->QueryStringAttribute(saveString.c_str(), &stateSaveString);
-		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", name);
+		XMLError result = xml->QueryStringAttribute(getSaveString(), &stateSaveString);
+		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", getName());
 		
 		for(auto& entry : *values){
 			if(strcmp(entry.saveName, stateSaveString) == 0){
@@ -637,7 +641,7 @@ public:
 			}
 		}
 		
-		return Logger::warn("Could not load parameter {} : could not identity state string : {}", name, stateSaveString);
+		return Logger::warn("Could not load parameter {} : could not identity state string : {}", getName(), stateSaveString);
 	}
 	
 	class EditCommand : public Command{
@@ -646,13 +650,13 @@ public:
 		AnimatableParameterState* oldValue;
 		AnimatableParameterState* newValue;
 		
-		EditCommand(std::shared_ptr<StateParameter> parameter_){
+		EditCommand(std::shared_ptr<StateParameter> parameter_) :
+		Command("Edited \'" + std::string(parameter->getName())
+				+ "\' from \'" + std::string(oldValue->displayName)
+			 + "\' to \'" + std::string(newValue->displayName) + "\'"){
 			parameter = parameter_;
 			oldValue = parameter->value;
 			newValue = parameter->displayValue;
-			name = "Edited \'" + std::string(parameter->name)
-			+ "\' from \'" + std::string(oldValue->displayName)
-			+ "\' to \'" + std::string(newValue->displayName) + "\'";
 		}
 		void setNewValue(){
 			parameter->value = newValue;
@@ -664,7 +668,7 @@ public:
 		}
 		virtual void execute(){
 			setNewValue();
-			if(parameter->editCallback) parameter->editCallback(parameter.get(), parameter->editCallbackUserData);
+			parameter->onEdit();
 		}
 		virtual void undo(){ setOldValue(); }
 		virtual void redo(){ setNewValue(); }

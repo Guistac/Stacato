@@ -27,7 +27,7 @@ namespace CommandHistory{
 			currentCommand = nullptr;
 		}
 		else{
-			currentCommand->sideEffects.push_back(command);
+			currentCommand->addSideEffect(command);
 			command->execute();
 		}
 		Project::setModified();
@@ -45,7 +45,7 @@ namespace CommandHistory{
 		if(!canUndo()) return;
 		undoableCommandCount--;
 		std::shared_ptr<Command> undoneCommand = history[undoableCommandCount];
-		std::vector<std::shared_ptr<Command>>& sideEffects = undoneCommand->sideEffects;
+		auto& sideEffects = undoneCommand->getSideEffects();
 		for(int i = sideEffects.size() - 1; i >= 0; i--) sideEffects[i]->undo();
 		undoneCommand->undo();
 		Project::setModified();
@@ -56,7 +56,7 @@ namespace CommandHistory{
 		std::shared_ptr<Command> redoneCommand = history[undoableCommandCount];
 		currentCommand = redoneCommand;
 		redoneCommand->redo();
-		std::vector<std::shared_ptr<Command>>& sideEffects = redoneCommand->sideEffects;
+		auto& sideEffects = redoneCommand->getSideEffects();
 		for(int i = 0; i < sideEffects.size(); i++) sideEffects[i]->redo();
 		currentCommand = nullptr;
 		undoableCommandCount++;
