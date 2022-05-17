@@ -14,6 +14,7 @@ namespace MotionTest{
 
 	class Interpolation{
 	public:
+		
 		enum class Phase{
 			NOT_STARTED,
 			RAMP_IN,
@@ -42,7 +43,7 @@ namespace MotionTest{
 
 		bool containsTime(double time);
 		Phase getPhaseAtTime(double time);
-		void getPointAtTime(double time, Point& output);
+		void getPointAtTime(double time, Point& point);
 		double getNextIncrementTime(double previousPulseTime, double incrementsPerUnit);
 		
 	private:
@@ -57,12 +58,11 @@ namespace MotionTest{
 		
 	};
 
+
+Point matchPosition(Point previous, Point target, double deltaT, double maxVelocity, double acceleration);
+
+
 	bool getTimedOrSlowerInterpolation(const Point& start, const Point& end, double maxVelocity, Interpolation& output);
 	bool getFastestVelocityConstrainedInterpolation(const Point& start, const Point& end, double velocity, Interpolation& output);
-
-
-	Point matchPosition(Point previous, Point target, double deltaT, double velocity, double acceleration);
-
-	Point matchPositionAndRespectPositionLimits(Point previous, Point target, double deltaT, double velocity, double acceleration, double lowerLimit, double upperLimit);
 
 };

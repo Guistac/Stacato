@@ -2,29 +2,30 @@
 
 #include "AnimatableParameter.h"
 
-std::vector<Motion::InterpolationType>& AnimatableNumericalParameter::getCompatibleInterpolationTypes(){
-	static std::vector<Motion::InterpolationType> stepOnly = {
-		Motion::InterpolationType::STEP
+std::vector<Motion::Interpolation::Type>& AnimatableNumericalParameter::getCompatibleInterpolationTypes(){
+	static std::vector<Motion::Interpolation::Type> stepOnly = {
+		Motion::Interpolation::Type::STEP
 	};
 	
-	static std::vector<Motion::InterpolationType> allInterpolationTypes = {
-		Motion::InterpolationType::STEP,
-		Motion::InterpolationType::LINEAR,
-		Motion::InterpolationType::TRAPEZOIDAL,
-		Motion::InterpolationType::BEZIER
+	static std::vector<Motion::Interpolation::Type> allInterpolationTypes = {
+		Motion::Interpolation::Type::STEP,
+		Motion::Interpolation::Type::LINEAR,
+		Motion::Interpolation::Type::TRAPEZOIDAL,
+		//Motion::Interpolation::Type::BEZIER
 	};
 	
-	static std::vector<Motion::InterpolationType> forPosition = {
-		Motion::InterpolationType::TRAPEZOIDAL
+	static std::vector<Motion::Interpolation::Type> forPosition = {
+		Motion::Interpolation::Type::TRAPEZOIDAL,
+		//Motion::Interpolation::Type::BEZIER
 	};
 	
-	static std::vector<Motion::InterpolationType> forVelocity = {
-		Motion::InterpolationType::LINEAR,
-		Motion::InterpolationType::TRAPEZOIDAL,
-		Motion::InterpolationType::BEZIER
+	static std::vector<Motion::Interpolation::Type> forVelocity = {
+		Motion::Interpolation::Type::LINEAR,
+		Motion::Interpolation::Type::TRAPEZOIDAL,
+		//Motion::Interpolation::Type::BEZIER
 	};
 	
-	static std::vector<Motion::InterpolationType> none = {};
+	static std::vector<Motion::Interpolation::Type> none = {};
 	
 	switch (type) {
 		case MachineParameterType::BOOLEAN:

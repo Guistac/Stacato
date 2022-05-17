@@ -49,7 +49,7 @@ public:
 	
 	AnimatableParameter(const char* name) : MachineParameter(name) {}
 	
-	virtual std::vector<Motion::InterpolationType>& getCompatibleInterpolationTypes() = 0;
+	virtual std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes() = 0;
 
 	bool hasParameterTrack() { return actualParameterTrack != nullptr; }
 	std::shared_ptr<AnimatableParameterValue> getActiveTrackParameterValue(){
@@ -78,7 +78,7 @@ public:
 	}
 	
 	virtual MachineParameterType getType(){ return type; }
-	virtual std::vector<Motion::InterpolationType>& getCompatibleInterpolationTypes();
+	virtual std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes();
 	
 	Unit getUnit(){ return unit; }
 	void setUnit(Unit u){ unit = u; }
@@ -100,8 +100,8 @@ public:
 	AnimatableStateParameter(const char* name, std::vector<AnimatableParameterState>* stateValues) : AnimatableParameter(name), states(stateValues){};
 	
 	virtual MachineParameterType getType(){ return MachineParameterType::STATE; }
-	virtual std::vector<Motion::InterpolationType>& getCompatibleInterpolationTypes(){
-		static std::vector<Motion::InterpolationType> compatibleInterpolations = { Motion::InterpolationType::STEP };
+	virtual std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes(){
+		static std::vector<Motion::Interpolation::Type> compatibleInterpolations = { Motion::Interpolation::Type::STEP };
 		return compatibleInterpolations;
 	}
 	
@@ -123,8 +123,8 @@ public:
 	AnimatableBooleanParameter(const char* name) : AnimatableParameter(name){}
 	
 	virtual MachineParameterType getType(){ return MachineParameterType::BOOLEAN; }
-	virtual std::vector<Motion::InterpolationType>& getCompatibleInterpolationTypes(){
-		static std::vector<Motion::InterpolationType> compatibleInterpolations = { Motion::InterpolationType::STEP };
+	virtual std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes(){
+		static std::vector<Motion::Interpolation::Type> compatibleInterpolations = { Motion::Interpolation::Type::STEP };
 		return compatibleInterpolations;
 	}
 };

@@ -876,6 +876,28 @@ namespace MotionTest{
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	struct CurveEquation{
 		
 		CurveEquation(double po_, double vo_, double ac_){

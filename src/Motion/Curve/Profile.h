@@ -105,37 +105,41 @@ public:
 	//========== Motion Interpolation ==========
 	
 	bool moveToPositionInTime(double startTime, double targetPosition, double targetTime, double targetAcceleration, double velocityLimit){
-		auto startPoint = std::make_shared<Motion::ControlPoint>(startTime,
-																 position,
-																 targetAcceleration,
-																 velocity);
-		auto endPoint = std::make_shared<Motion::ControlPoint>(startTime + targetTime,
-															   targetPosition,
-															   targetAcceleration,
-															   0.0);
-		return Motion::TrapezoidalInterpolation::getClosestTimeAndVelocityConstrainedInterpolation(startPoint,
-																								   endPoint,
-																								   velocityLimit,
-																								   targetInterpolation);
+		auto startPoint = std::make_shared<Motion::ControlPoint>();
+		startPoint->time = startTime;
+		startPoint->position = position;
+		startPoint->velocity = velocity;
+		startPoint->outAcceleration = targetAcceleration;
+		
+		auto endPoint = std::make_shared<Motion::ControlPoint>();
+		endPoint->time = startTime + targetTime;
+		endPoint->position = targetPosition;
+		endPoint->velocity = 0.0;
+		endPoint->inAcceleration = targetAcceleration;
+		
+		targetInterpolation = Motion::TrapezoidalInterpolation::getTimeConstrainedOrSlower(startPoint, endPoint, velocityLimit);
+		return targetInterpolation != nullptr;
 	}
 	
 	bool moveToPositionWithVelocity(double startTime, double targetPosition, double targetVelocity, double targetAcceleration){
-		auto startPoint = std::make_shared<Motion::ControlPoint>(startTime,
-																 position,
-																 targetAcceleration,
-																 velocity);
-		auto endPoint = std::make_shared<Motion::ControlPoint>(0.0,
-															   targetPosition,
-															   targetAcceleration,
-															   0.0);
-		return Motion::TrapezoidalInterpolation::getFastestVelocityConstrainedInterpolation(startPoint,
-																							endPoint,
-																							targetVelocity,
-																							targetInterpolation);
+		auto startPoint = std::make_shared<Motion::ControlPoint>();
+		startPoint->time = startTime;
+		startPoint->position = position;
+		startPoint->velocity = velocity;
+		startPoint->outAcceleration = targetAcceleration;
+		
+		auto endPoint = std::make_shared<Motion::ControlPoint>();
+		endPoint->time = 0.0;
+		endPoint->position = targetPosition;
+		endPoint->velocity = 0.0;
+		endPoint->inAcceleration = targetAcceleration;
+		
+		targetInterpolation = Motion::TrapezoidalInterpolation::getVelocityConstrained(startPoint, endPoint, targetVelocity);
+		return targetInterpolation != nullptr;
 	}
 	
 	void updateInterpolation(double time){
-		Motion::CurvePoint point = targetInterpolation->getPointAtTime(time);
+		Motion::Point point = targetInterpolation->getPointAtTime(time);
 		position = point.position;
 		velocity = point.velocity;
 		acceleration = point.acceleration;
@@ -150,15 +154,15 @@ public:
 	}
 	
 	double getRemainingInterpolationTime(double time){
-		return std::max(targetInterpolation->outTime - time, 0.0);
+		return std::max(targetInterpolation->endTime - time, 0.0);
 	}
 	
 	double getInterpolationTarget(){
-		return targetInterpolation->outPosition;
+		return targetInterpolation->endPosition;
 	}
 	
 	void resetInterpolation(){
-		targetInterpolation->resetValues();
+		targetInterpolation = nullptr;
 	}
 	
 private:
@@ -167,7 +171,7 @@ private:
 	double velocity = 0.0;
 	double acceleration = 0.0;
 	
-	std::shared_ptr<Motion::Interpolation> targetInterpolation = std::make_shared<Motion::Interpolation>();
+	std::shared_ptr<Motion::TrapezoidalInterpolation> targetInterpolation;
 	
 };
 

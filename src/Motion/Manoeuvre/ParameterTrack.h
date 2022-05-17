@@ -106,11 +106,11 @@ public:
 	AnimatedParameterTrack(std::shared_ptr<MachineParameter> parameter) : MovementParameterTrack(parameter){}
 	
 	AnimatableParameterValue getParameterValueAtPlaybackTime();
-	void setInterpolationType(Motion::InterpolationType t);
+	void setInterpolationType(Motion::Interpolation::Type t);
 	
 private:
 	double playbackPosition_seconds;
-	Motion::InterpolationType interpolationType;
+	Motion::Interpolation::Type interpolationType;
 	std::vector<std::shared_ptr<Motion::Curve>> curves;
 };
 
