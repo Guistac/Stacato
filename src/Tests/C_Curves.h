@@ -61,6 +61,8 @@ namespace MotionTest{
 	bool getFastestVelocityConstrainedInterpolation(const Point& start, const Point& end, double velocity, Interpolation& output);
 
 
-	Point matchPosition(Point current, Point target, double deltaT, double velocity, double acceleration);
+	Point matchPosition(Point previous, Point target, double deltaT, double velocity, double acceleration);
+
+	Point matchPositionAndRespectPositionLimits(Point previous, Point target, double deltaT, double velocity, double acceleration, double lowerLimit, double upperLimit);
 
 };

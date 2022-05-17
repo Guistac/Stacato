@@ -3,7 +3,7 @@
 #include <imgui.h>
 #include <implot.h>
 
-bool b_accelerationStrategy = false;
+bool b_accelerationStrategy = true;
 
 void cCurvesTest(){
 	
@@ -292,7 +292,7 @@ void cCurvesTest(){
 					b_caughtUp = true;
 					break;
 				}
-				if(t > 10.0) break;
+				if(t > 100.0) break;
 			}
 			
 		}
@@ -403,17 +403,15 @@ namespace MotionTest{
 		bool b_foundValidSolution = false;
 
 		for(uint8_t i = 0; i < 8; i++){
-			//try every comibation of signs for acceleration values and square root content
-			bool ai_sign = i & 0x1;
-			bool ao_sign = i & 0x2;
-			bool rootTermSign = i & 0x4;
 
 			Interpolation& solution = solutions[i];
-
+			
+			//try every comibation of signs for acceleration values and square root content
 			double ai = start.acceleration;
 			double ao = end.acceleration;
-			if(ai_sign) ai *= -1.0;
-			if(ao_sign) ao *= -1.0;
+			if(i & 0x1) ai *= -1.0;
+			if(i & 0x2) ao *= -1.0;
+			bool rootTermSign = i & 0x4;
 
 			//============ QUADRATIC FUNCTION FOR CONSTANT VELOCITY VALUE ============
 
@@ -501,14 +499,11 @@ namespace MotionTest{
 	bool getVelocityConstrainedInterpolations(const Point& start, const Point& end, double velocity, Interpolation output[16]) {
 
 		if (start.acceleration == 0.0 || end.acceleration == 0.0 || velocity == 0.0) return false;
-
 		const double pi = start.position;
 		const double ti = start.time;
 		const double vi = start.velocity;
-		
 		const double po = end.position;
 		const double vo = end.velocity;
-		
 		const double dp = end.position - start.position;
 
 		//get solutions with coast phase
@@ -519,7 +514,6 @@ namespace MotionTest{
 			double ai = start.acceleration;
 			double ao = end.acceleration;
 			double vt = velocity;
-
 			if(i & 0x1) ai *= -1.0;
 			if(i & 0x2) ao *= -1.0;
 			if(i & 0x4) vt *= -1.0;
@@ -571,7 +565,6 @@ namespace MotionTest{
 
 			double ai = start.acceleration;
 			double ao = end.acceleration;
-
 			if(i & 0x1) ai *= -1.0;
 			if(i & 0x2) ao *= -1.0;
 			bool b_squareRootSign = i & 0x4;
@@ -930,17 +923,31 @@ namespace MotionTest{
 	Point matchPosition(Point previous, Point target, double deltaT, double maxVelocity, double acceleration){
 		
 
-		//TODO: add option for respecting position limits
-		//TODO: we need to get the intersection velocity in case it is project far into the future
-		//in case the max acceleration is less than the target acceleration, don't use the acceleration strategy ??
-				
-		CurveEquation targetCurve(target.position, target.velocity, b_accelerationStrategy ? target.acceleration : 0.0); //t0 is 0.0
-		CurveEquation targetCurveAtPreviousTime = targetCurve.getEquationAtNewT0(-deltaT);								 //t0 is -deltaT
+		//we have two target curve approach strategies:
+		//-try to match the target position and velocity simultaneously
+		//-try to match the target position, velocity and acceleration simultaneously
+		
+		//the first strategy works best when the target acceleration is smaller than the catchup acceleration
+		//in case the target acceleration is higher, we can never reach the target, and the algorithm will produce inefficient paths for acceleration segments
+		//here we should use the other algorithm and ignore the targets acceleration
+		
+		//the second algorithm produces less optimal results since it can't predict the change in velocity of the target curve,
+		//but it produces better results in case the targets acceleration is higher than the max catchup acceleration
+		
+		//both algorithms work the same, they only differ in their use of the target acceleration value
+		//for the velocity/position only algorithm, the target acceleration value is 0.0
+		
+		//first we get the position error at the previous point (-deltaT)
+		//since we try to match the curve as fast as possible, we always need to slow down to match the target tangentially
+		//we use the sign of this error to get the sign of our catchup acceleration value
+		
+		double targetAcceleration = 0.0;
+		if(b_accelerationStrategy && std::abs(acceleration) > std::abs(target.acceleration)) targetAcceleration = target.acceleration;
+		
+		CurveEquation targetCurve(target.position, target.velocity, targetAcceleration); 	//t0 is 0.0
+		CurveEquation targetCurveAtPreviousTime = targetCurve.getEquationAtNewT0(-deltaT);	//t0 is -deltaT
 		
 		double pError = targetCurveAtPreviousTime.po - previous.position;
-		
-		
-		//double pError = target.position - previous.position;
 		double vError = target.velocity - previous.velocity;
 		
 		double maxDeltaV = std::abs(deltaT * acceleration);
@@ -1027,6 +1034,13 @@ namespace MotionTest{
 			.time = 0.0,
 			.phase = 3
 		};
+	}
+
+
+
+	Point matchPositionAndRespectPositionLimits(Point previous, Point target, double deltaT, double velocity, double acceleration, double lowerLimit, double upperLimit){
+		Point output = matchPosition(previous, target, deltaT, velocity, acceleration);
+		//cap output value to never overshoot lower or upper limit with the given acceleration value
 	}
 
 }

@@ -4,6 +4,7 @@
 
 
 
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -110,7 +111,8 @@ DockSpace       ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 Split=X
     DockNode    ID=0x00000004 Parent=0x00000002 SizeRef=1746,374 Selected=0x3E6B10D2
 
 </Layout>
-    <Layout Name="CurveTests">
+    <Layout Name="CurveTests" IsDefault="true">
+
 
 
 
@@ -214,7 +216,8 @@ Collapsed=0
 DockSpace ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 CentralNode=1 Selected=0x1F11F965
 
 </Layout>
-    <Layout Name="CommandZ Tests" IsDefault="true">
+    <Layout Name="CommandZ Tests">
+
 
 [Window][Debug##Default]
 Pos=60,60
