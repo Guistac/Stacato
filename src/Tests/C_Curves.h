@@ -9,6 +9,7 @@ namespace MotionTest{
 		double velocity;
 		double time;
 		double acceleration;
+		int phase;
 	};
 
 	class Interpolation{
@@ -61,6 +62,5 @@ namespace MotionTest{
 
 
 	Point matchPosition(Point current, Point target, double deltaT, double velocity, double acceleration);
-
 
 };

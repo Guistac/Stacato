@@ -3,6 +3,8 @@
 #include <imgui.h>
 #include <implot.h>
 
+bool b_accelerationStrategy = false;
+
 void cCurvesTest(){
 	
 	static double startTime = 0;
@@ -117,6 +119,7 @@ void cCurvesTest(){
 	ImGui::Separator();
 	
 	ImGui::Checkbox("Show Catchup", &b_catchUp);
+	ImGui::Checkbox("Acceleration Strategy", &b_accelerationStrategy);
 	ImGui::SetNextItemWidth(inputFieldWidth);
 	ImGui::InputDouble("Start Time", &catchUpTime, 0.1, 1.0);
 	ImGui::SetNextItemWidth(inputFieldWidth);
@@ -186,8 +189,11 @@ void cCurvesTest(){
 	std::vector<glm::vec2> pulsations;
 	pulsations.reserve(100000);
 	
-	std::vector<glm::vec2> catchup;
-	catchup.reserve(10000);
+	std::vector<double> catchupPositionPoints;
+	std::vector<double> catchupVelocityPoints;
+	std::vector<double> catchupAccelerationPoints;
+	std::vector<double> catchupTimePoints;
+	std::vector<double> catchupPhasePoints;
 	
 	double catchupTime = 0.0;
 	double catchupPosition = 0.0;
@@ -246,7 +252,11 @@ void cCurvesTest(){
 			double p = catchUpPosition;
 			double v = catchupVelocity;
 			
-			catchup.push_back(glm::vec2(t, p));
+			catchupTimePoints.push_back(t);
+			catchupPositionPoints.push_back(p);
+			catchupVelocityPoints.push_back(v);
+			catchupAccelerationPoints.push_back(0.0);
+			catchupPhasePoints.push_back(0);
 			
 			while(true){
 				t += deltaT;
@@ -262,7 +272,12 @@ void cCurvesTest(){
 				MotionTest::Point output = MotionTest::matchPosition(current, target, deltaT, maxCatchupVelocity, maxCatchupAcceleration);
 				p = output.position;
 				v = output.velocity;
-				catchup.push_back(glm::vec2(t, output.position));
+				
+				catchupTimePoints.push_back(t);
+				catchupPositionPoints.push_back(p);
+				catchupVelocityPoints.push_back(v);
+				catchupAccelerationPoints.push_back(output.acceleration);
+				catchupPhasePoints.push_back(output.phase);
 				
 				if(output.position == target.position && output.velocity == target.velocity && output.acceleration == target.acceleration) {
 					catchupTime = t;
@@ -297,8 +312,11 @@ void cCurvesTest(){
 			
 			if(b_catchUp){
 				ImPlot::SetNextLineStyle(ImVec4(.0f, 1.f, .0f, 1.f), 1.0);
-				ImPlot::PlotLine("Pulsations", &catchup.front().x, &catchup.front().y, catchup.size(), 0, sizeof(glm::vec2));
-				ImPlot::DragPoint("CatchUpStart", &catchUpTime, &catchUpPosition);
+				ImPlot::PlotLine("CatchupPosition", &catchupTimePoints.front(), &catchupPositionPoints.front(), catchupPositionPoints.size(), 0, sizeof(double));
+				ImPlot::PlotLine("CatchupVelocity", &catchupTimePoints.front(), &catchupVelocityPoints.front(), catchupVelocityPoints.size(), 0, sizeof(double));
+				ImPlot::PlotLine("CatchupAcceleration", &catchupTimePoints.front(), &catchupAccelerationPoints.front(), catchupAccelerationPoints.size(), 0, sizeof(double));
+				ImPlot::PlotLine("CatchupPhase", &catchupTimePoints.front(), &catchupPhasePoints.front(), catchupPhasePoints.size(), 0, sizeof(double));
+				ImPlot::DragPoint("##CatchUpStart", &catchUpTime, &catchUpPosition);
 				if(b_caughtUp){
 					ImPlot::PlotScatter("CatchupPosition", &catchupTime, &catchupPosition, 1);
 				}
@@ -904,40 +922,40 @@ namespace MotionTest{
 
 	Point matchPosition(Point previous, Point target, double deltaT, double maxVelocity, double acceleration){
 		
-		double pError = target.position - previous.position;
-		double vError = target.velocity - previous.velocity;
+
+		//TODO: add option for respecting position limits
+		//TODO: we need to get the intersection velocity in case it is project far into the future
+		//in case the max acceleration is less than the target acceleration, don't use the acceleration strategy ??
+				
+		CurveEquation targetCurve(target.position, target.velocity, b_accelerationStrategy ? target.acceleration : 0.0); //t0 is 0.0
+		CurveEquation targetCurveAtPreviousTime = targetCurve.getEquationAtNewT0(-deltaT);								 //t0 is -deltaT
 		
+		double pError = targetCurveAtPreviousTime.po - previous.position;
+		
+		
+		//double pError = target.position - previous.position;
+		double vError = target.velocity - previous.velocity;
 		
 		double maxDeltaV = std::abs(deltaT * acceleration);
 		if(std::abs(vError) < maxDeltaV){
-			
 			double vMax = previous.velocity + maxDeltaV;
 			double vMin = previous.velocity - maxDeltaV;
-			
 			double pMax = previous.position + deltaT * (previous.velocity + vMax) / 2.0;
 			double pMin = previous.position + deltaT * (previous.velocity + vMin) / 2.0;
-			
 			if(target.position > pMin && target.position < pMax){
-			
-			
-			return Point{
-				.position = target.position,
-				.velocity = target.velocity,
-				.acceleration = target.acceleration
-			};
-			
+				return Point{
+					.position = target.position,
+					.velocity = target.velocity,
+					.acceleration = target.acceleration,
+					.phase = 0
+				};
 			}
-			
-			
-			
 		}
 		
 		
 		double positionMatchingDeceleration = pError > 0.0 ? -std::abs(acceleration) : std::abs(acceleration);
 		
 		CurveEquation previousCurve(previous.position, previous.velocity, positionMatchingDeceleration); 	//t0 is -deltaT
-		CurveEquation targetCurve(target.position, target.velocity, target.acceleration);				 	//t0 is 0.0
-		CurveEquation targetCurveAtPreviousTime = targetCurve.getEquationAtNewT0(-deltaT);					//t0 is -deltaT
 		bool b_previousIntersects = previousCurve.intersectsAfter0(targetCurveAtPreviousTime);
 		
 		//if the previous curve does not intersect the target curve, we can keep accelerating to the target
@@ -961,7 +979,8 @@ namespace MotionTest{
 				.position = currentPosition,
 				.velocity = currentVelocity,
 				.acceleration = currentAcceleration,
-				.time = 0.0
+				.time = 0.0,
+				.phase = 1
 			};
 		}
 		
@@ -975,7 +994,8 @@ namespace MotionTest{
 				.position = currentPosition,
 				.velocity = currentVelocity,
 				.acceleration = -positionMatchingDeceleration,
-				.time = 0.0
+				.time = 0.0,
+				.phase = 2
 			};
 		}
 		
@@ -997,12 +1017,10 @@ namespace MotionTest{
 			.position = currentPosition,
 			.velocity = currentVelocity,
 			.acceleration = positionAndVelocityMatchingAcceleration,
-			.time = 0.0
+			.time = 0.0,
+			.phase = 3
 		};
-
 	}
-
-
 
 }
 
