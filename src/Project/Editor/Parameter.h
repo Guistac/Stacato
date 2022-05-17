@@ -3,6 +3,7 @@
 #include <tinyxml2.h>
 #include <imgui.h>
 #include "CommandHistory.h"
+#include "Machine/AnimatableParameterValue.h"
 
 class Parameter : public std::enable_shared_from_this<Parameter>{
 public:
@@ -16,21 +17,14 @@ public:
 		name = name_;
 		imGuiID = "##" + name; //this avoids rendering the parameter name in imgui input field
 	}
-	void setSaveString(std::string saveString_){
-		saveString = saveString_;
-	}
+	void setSaveString(std::string saveString_){ saveString = saveString_; }
 	
 	const char* getName(){ return name.c_str(); }
 	const char* getImGuiID(){ return imGuiID.c_str(); }
 	const char* getSaveString(){ return saveString.c_str(); }
 	
-	void setEditCallback(std::function<void(std::shared_ptr<Parameter>)> cb){
-		editCallback = cb;
-	}
-	
-	void onEdit(){
-		if(editCallback) editCallback(shared_from_this());
-	}
+	void setEditCallback(std::function<void(std::shared_ptr<Parameter>)> cb){ editCallback = cb; }
+	void onEdit(){ if(editCallback) editCallback(shared_from_this()); }
 	
 	virtual void gui() = 0;
 	virtual bool save(tinyxml2::XMLElement* xml) = 0;
@@ -41,7 +35,6 @@ private:
 	std::string name;
 	std::string saveString;
 	std::string imGuiID;
-	
 };
 
 
@@ -50,7 +43,6 @@ private:
 //=================================== NUMBERS ===================================
 //===============================================================================
 
-#include <iostream>
 
 template<typename T>
 class NumberParameter : public Parameter{
@@ -112,7 +104,8 @@ public:
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
 			std::shared_ptr<NumberParameter<T>> thisParameter = std::dynamic_pointer_cast<NumberParameter<T>>(shared_from_this());
-			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
+			std::string commandName = "Changed \'" + std::string(getName()) + "\' from " + std::to_string(value) + " to " + std::to_string(displayValue);
+			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
 			//=================================
 		}
 	}
@@ -137,8 +130,7 @@ public:
 		std::shared_ptr<NumberParameter<T>> parameter;
 		T newValue;
 		T previousValue;
-		EditCommand(std::shared_ptr<NumberParameter<T>> parameter_) :
-		Command("Changed \'" + std::string(parameter->getName()) + "\' from " + std::to_string(previousValue) + " to " + std::to_string(newValue)){
+		EditCommand(std::shared_ptr<NumberParameter<T>> parameter_, std::string& commandName) : Command(commandName){
 			parameter = parameter_;
 			newValue = parameter->displayValue;
 			previousValue = parameter->value;
@@ -151,10 +143,7 @@ public:
 			parameter->value = previousValue;
 			parameter->displayValue = previousValue;
 		}
-		virtual void execute(){
-			setNewValue();
-			parameter->onEdit();
-		}
+		virtual void execute(){ setNewValue(); parameter->onEdit(); }
 		virtual void undo(){ setOldValue(); }
 		virtual void redo(){ setNewValue(); }
 	};
@@ -244,7 +233,8 @@ public:
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
 			auto thisParameter = std::dynamic_pointer_cast<VectorParameter<T>>(shared_from_this());
-			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
+			std::string commandName = "Changed \'" + std::string(getName()) + "\' from " + glm::to_string(value) + " to " + glm::to_string(displayValue);
+			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
 			//=================================
 		}
 	}
@@ -257,8 +247,7 @@ public:
 		std::shared_ptr<VectorParameter<T>> parameter;
 		T newValue;
 		T previousValue;
-		EditCommand(std::shared_ptr<VectorParameter<T>> parameter_) :
-		Command("Changed \'" + std::string(parameter->getName()) + "\' from " + glm::to_string(previousValue) + " to " + glm::to_string(newValue)){
+		EditCommand(std::shared_ptr<VectorParameter<T>> parameter_, std::string& commandName) : Command(commandName){
 			parameter = parameter_;
 			newValue = parameter->displayValue;
 			previousValue = parameter->value;
@@ -393,7 +382,8 @@ public:
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
 			auto thisParameter = std::dynamic_pointer_cast<BooleanParameter>(shared_from_this());
-			CommandHistory::pushAndExecute(std::make_shared<InvertCommand>(thisParameter));
+			std::string commandName = "Inverted \'" + std::string(getName()) + "\'";
+			CommandHistory::pushAndExecute(std::make_shared<InvertCommand>(thisParameter, commandName));
 			//=================================
 		}
 	}
@@ -414,18 +404,14 @@ public:
 	class InvertCommand : public Command{
 	public:
 		std::shared_ptr<BooleanParameter> parameter;
-		InvertCommand(std::shared_ptr<BooleanParameter> parameter_) :
-		Command("Inverted \'" + std::string(parameter->getName()) + "\'"){
+		InvertCommand(std::shared_ptr<BooleanParameter> parameter_, std::string& commandName) : Command(commandName){
 			parameter = parameter_;
 		}
 		void invert(){
 			parameter->value = !parameter->value;
 			parameter->displayValue = parameter->value;
 		}
-		virtual void execute(){
-			invert();
-			parameter->onEdit();
-		}
+		virtual void execute(){ invert(); parameter->onEdit(); }
 		virtual void undo(){ invert(); }
 		virtual void redo(){ invert(); }
 	};
@@ -463,7 +449,8 @@ public:
 		if(ImGui::IsItemDeactivatedAfterEdit() && strcmp(displayValue, value.c_str()) != 0){
 			//=========Command Invoker=========
 			std::shared_ptr<StringParameter> thisParameter = std::dynamic_pointer_cast<StringParameter>(shared_from_this());
-			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
+			std::string commandName = "Changed \'" + std::string(getName()) + "\' from \'" + value + "\' to \'" + displayValue + "\'";
+			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
 			//=================================
 		}
 	}
@@ -486,8 +473,7 @@ public:
 		std::shared_ptr<StringParameter> parameter;
 		std::string newValue;
 		std::string previousValue;
-		EditCommand(std::shared_ptr<StringParameter> parameter_) :
-		Command("Changed \'" + std::string(parameter->getName()) + "\' from \'" + previousValue + "\' to \'" + newValue + "\'"){
+		EditCommand(std::shared_ptr<StringParameter> parameter_, std::string& commandName) : Command(commandName){
 			parameter = parameter_;
 			newValue = parameter->displayValue;
 			previousValue = parameter->value;
@@ -500,10 +486,7 @@ public:
 			parameter->value = previousValue;
 			strcpy(parameter->displayValue, previousValue.c_str());
 		}
-		virtual void execute(){
-			setNewValue();
-			parameter->onEdit();
-		}
+		virtual void execute(){ setNewValue(); parameter->onEdit(); }
 		virtual void undo(){ setOldValue(); }
 		virtual void redo(){ setNewValue(); }
 	};
@@ -534,7 +517,8 @@ public:
 					displayValue = type.enumerator;
 					//=========Command Invoker=========
 					std::shared_ptr<EnumeratorParameter<T>> thisParameter = std::dynamic_pointer_cast<EnumeratorParameter<T>>(shared_from_this());
-					CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
+					std::string commandName = "Edited \'" + std::string(getName()) + "\' from \'" + Enumerator::getDisplayString(value) + "\' to \'" + Enumerator::getDisplayString(displayValue) + "\'";
+					CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
 					//=================================
 				}
 			}
@@ -562,8 +546,7 @@ public:
 		std::shared_ptr<EnumeratorParameter<T>> parameter;
 		T oldValue;
 		T newValue;
-		EditCommand(std::shared_ptr<EnumeratorParameter<T>> parameter_) :
-		Command("Edited \'" + std::string(parameter->getName()) + "\' from \'" + std::string(Enumerator::getDisplayString(oldValue)) + "\' to \'" + std::string(Enumerator::getDisplayString(newValue)) + "\'"){
+		EditCommand(std::shared_ptr<EnumeratorParameter<T>> parameter_, std::string& commandName) : Command(commandName){
 			parameter = parameter_;
 			oldValue = parameter->value;
 			newValue = parameter->displayValue;
@@ -576,10 +559,7 @@ public:
 			parameter->value = oldValue;
 			parameter->displayValue = oldValue;
 		}
-		virtual void execute(){
-			setNewValue();
-			parameter->onEdit();
-		}
+		virtual void execute(){ setNewValue(); parameter->onEdit(); }
 		virtual void undo(){ setOldValue(); }
 		virtual void redo(){ setNewValue(); }
 	};
@@ -592,8 +572,6 @@ public:
 //===================================================================================
 //=================================== STATE PARAMETER ===============================
 //===================================================================================
-
-#include "Machine/AnimatableParameterValue.h"
 
 class StateParameter : public Parameter{
 public:
@@ -615,7 +593,8 @@ public:
 					displayValue = &entry;
 					//=========Command Invoker=========
 					std::shared_ptr<StateParameter> thisParameter = std::dynamic_pointer_cast<StateParameter>(shared_from_this());
-					CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter));
+					std::string commandName = "Edited \'" + std::string(getName()) + "\' from \'" + value->displayName + "\' to \'" + displayValue->displayName + "\'";
+					CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
 					//=================================
 				}
 			}
@@ -650,10 +629,7 @@ public:
 		AnimatableParameterState* oldValue;
 		AnimatableParameterState* newValue;
 		
-		EditCommand(std::shared_ptr<StateParameter> parameter_) :
-		Command("Edited \'" + std::string(parameter->getName())
-				+ "\' from \'" + std::string(oldValue->displayName)
-			 + "\' to \'" + std::string(newValue->displayName) + "\'"){
+		EditCommand(std::shared_ptr<StateParameter> parameter_, std::string& commandName) : Command(commandName){
 			parameter = parameter_;
 			oldValue = parameter->value;
 			newValue = parameter->displayValue;
@@ -666,10 +642,7 @@ public:
 			parameter->value = oldValue;
 			parameter->displayValue = oldValue;
 		}
-		virtual void execute(){
-			setNewValue();
-			parameter->onEdit();
-		}
+		virtual void execute(){ setNewValue(); parameter->onEdit(); }
 		virtual void undo(){ setOldValue(); }
 		virtual void redo(){ setNewValue(); }
 	};
