@@ -121,7 +121,7 @@ namespace Motion {
 	private:
 		Phase getPhaseAtTime(double time);
 		static Phase getNextPhase(Phase phase);
-		void getPointAtPhaseTime(double time, Phase phase, Point& output);
+		Point getPointAtPhaseTime(double time, Phase phase);
 		enum class Solution{
 			NONE,
 			SINGLE,

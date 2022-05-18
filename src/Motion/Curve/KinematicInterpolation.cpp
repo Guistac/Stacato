@@ -377,9 +377,6 @@ TrapezoidalInterpolation::Phase TrapezoidalInterpolation::getNextPhase(Phase pha
 	}
 }
 
-void TrapezoidalInterpolation::getPointAtPhaseTime(double time, Phase phase, Point& output){}
-
-
 TrapezoidalInterpolation::Solution TrapezoidalInterpolation::getTimeAtPosition(Phase phase, double position, double& time_a, double& time_b){
 	double rootTerm;
 	switch(phase){
@@ -455,10 +452,10 @@ TrapezoidalInterpolation::Solution TrapezoidalInterpolation::getTimeAtPosition(P
 	}
 }
 
-Point TrapezoidalInterpolation::getPointAtTime(double time){
+Point TrapezoidalInterpolation::getPointAtPhaseTime(double time, Phase phase){
 	double deltaT;
 	Point output{.time = time};
-	switch(getPhaseAtTime(time)){
+	switch(phase){
 		case Phase::NOT_STARTED:
 			output.position = startPosition;
 			output.velocity = 0.0;
@@ -491,10 +488,13 @@ Point TrapezoidalInterpolation::getPointAtTime(double time){
 	return output;
 }
 
+Point TrapezoidalInterpolation::getPointAtTime(double time){
+	return getPointAtPhaseTime(time, getPhaseAtTime(time));
+}
+
 double TrapezoidalInterpolation::getNextIncrementTime(double previousPulseTime, double incrementsPerUnit){
 	Phase phase = getPhaseAtTime(previousPulseTime);
-	Point previousPoint;
-	getPointAtPhaseTime(previousPulseTime, phase, previousPoint);
+	Point previousPoint = getPointAtPhaseTime(previousPulseTime, phase);
 	
 	double previousPulseIndex_r = round(previousPoint.position * incrementsPerUnit);
 	

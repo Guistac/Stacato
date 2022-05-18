@@ -3,7 +3,8 @@
 #include <imgui.h>
 #include <implot.h>
 
-bool b_accelerationStrategy = true;
+#include "Motion/Curve/Curve.h"
+#include "Motion/Curve/Profile.h"
 
 void cCurvesTest(){
 	
@@ -23,20 +24,6 @@ void cCurvesTest(){
 	
 	static bool b_showPulses = false;
 	static int pulsesPerUnit = 50;
-	
-	MotionTest::Interpolation solution;
-	MotionTest::Point start = {
-		.position = startPosition,
-		.velocity = startVelocity,
-		.time = startTime,
-		.acceleration = startAcceleration
-	};
-	MotionTest::Point end = {
-		.position = endPosition,
-		.velocity = endVelocity,
-		.time = endTime,
-		.acceleration = endAcceleration
-	};
 	
 	static int pointsPerSecond = 100;
 	
@@ -120,7 +107,6 @@ void cCurvesTest(){
 	ImGui::Separator();
 	
 	ImGui::Checkbox("Show Catchup", &b_catchUp);
-	ImGui::Checkbox("Acceleration Strategy", &b_accelerationStrategy);
 	ImGui::Checkbox("Constrain Catchup Start to Curve", &b_constrainCatchupStartToCurve);
 	ImGui::SetNextItemWidth(inputFieldWidth);
 	ImGui::InputDouble("Start Time", &catchUpTime, 0.1, 1.0);
@@ -142,23 +128,31 @@ void cCurvesTest(){
 	
 	
 	if(pointsPerSecond < 1) pointsPerSecond = 1;
-	
 	if(maxCatchupVelocity < 0.1) maxCatchupVelocity = 0.1;
 	if(maxCatchupAcceleration < 0.1) maxCatchupAcceleration = 0.1;
-	
 	if(targetVelocity < 0.0) targetVelocity = 0.0;
 	if(startAcceleration < 0.0) startAcceleration = 0.0;
 	if(endAcceleration < 0.0) endAcceleration = 0.0;
 	
-	bool b_solutionFound;
-	if(b_timeConstraint) b_solutionFound = MotionTest::getTimedOrSlowerInterpolation(start, end, maxVelocity, solution);
-	else b_solutionFound = MotionTest::getFastestVelocityConstrainedInterpolation(start, end, targetVelocity, solution);
 	
-	if(b_constrainCatchupStartToCurve){
-		MotionTest::Point p;
-		solution.getPointAtTime(catchUpTime, p);
-		catchUpPosition = p.position;
-	}
+	auto startPoint = std::make_shared<Motion::ControlPoint>();
+	startPoint->position = startPosition;
+	startPoint->velocity = startVelocity;
+	startPoint->outAcceleration = startAcceleration;
+	startPoint->time = startTime;
+	
+	auto endPoint = std::make_shared<Motion::ControlPoint>();
+	endPoint->position = endPosition;
+	endPoint->velocity = endVelocity;
+	endPoint->inAcceleration = endAcceleration;
+	endPoint->time = endTime;
+	
+	std::shared_ptr<Motion::TrapezoidalInterpolation> interpolation;
+	if(b_timeConstraint) interpolation = Motion::TrapezoidalInterpolation::getTimeConstrainedOrSlower(startPoint, endPoint, maxVelocity);
+	else interpolation = Motion::TrapezoidalInterpolation::getVelocityConstrained(startPoint, endPoint, targetVelocity);
+	bool b_solutionFound = interpolation != nullptr;
+	
+	if(b_constrainCatchupStartToCurve) catchUpPosition = interpolation->getPointAtTime(catchUpTime).position;
 	
 	//——————————————————————————————
 	//		 	Info Panel
@@ -170,13 +164,13 @@ void cCurvesTest(){
 	
 	if(!b_solutionFound) ImGui::Text("No Solution Found");
 	ImGui::BeginDisabled(!b_solutionFound);
-	ImGui::Text("Movement Time: %.6fs", solution.endTime - solution.startTime);
-	ImGui::Text("Movement Coast Velocity: %.6f u/s", solution.coastVelocity);
+	ImGui::Text("Movement Time: %.6fs", interpolation->endTime - interpolation->startTime);
+	ImGui::Text("Movement Coast Velocity: %.6f u/s", interpolation->coastVelocity);
 	ImGui::Separator();
-	ImGui::Text("End Position: %.6f", solution.endPosition);
-	ImGui::Text("End Time: %.6f", solution.endTime);
-	ImGui::Text("End Velocity: %.6f", solution.endVelocity);
-	ImGui::Text("End Acceleration: %.6f", solution.endAcceleration);
+	ImGui::Text("End Position: %.6f", interpolation->endPosition);
+	ImGui::Text("End Time: %.6f", interpolation->endTime);
+	ImGui::Text("End Velocity: %.6f", interpolation->endVelocity);
+	ImGui::Text("End Acceleration: %.6f", interpolation->endAcceleration);
 	ImGui::EndDisabled();
 	
 	ImGui::EndChild();
@@ -208,40 +202,39 @@ void cCurvesTest(){
 	
 	if(b_solutionFound){
 		
-		int expectedPointCount = (solution.endTime - solution.startTime) * pointsPerSecond;
+		int expectedPointCount = (interpolation->endTime - interpolation->startTime) * pointsPerSecond;
 		if(expectedPointCount > 1000000) expectedPointCount = 1000000;
 		time.reserve(expectedPointCount * 2);
 		position.reserve(expectedPointCount * 2);
 		velocity.reserve(expectedPointCount * 2);
 		acceleration.reserve(expectedPointCount * 2);
-		MotionTest::Point point;
 		
-		double t = solution.startTime;
-		while(t < solution.endTime){
-			solution.getPointAtTime(t, point);
+		double t = interpolation->startTime;
+		while(t < interpolation->endTime){
+			Motion::Point p = interpolation->getPointAtTime(t);
 			time.push_back(t);
-			position.push_back(point.position);
-			velocity.push_back(point.velocity);
-			acceleration.push_back(point.acceleration);
+			position.push_back(p.position);
+			velocity.push_back(p.velocity);
+			acceleration.push_back(p.acceleration);
 			t += (1.0 / pointsPerSecond);
 			pointCount++;
 			if(pointCount > expectedPointCount) break;
 		}
-		t = solution.endTime;
-		solution.getPointAtTime(t, point);
+		t = interpolation->endTime;
+		Motion::Point p = interpolation->getPointAtTime(t);
 		time.push_back(t);
-		position.push_back(point.position);
-		velocity.push_back(point.velocity);
-		acceleration.push_back(point.acceleration);
+		position.push_back(p.position);
+		velocity.push_back(p.velocity);
+		acceleration.push_back(p.acceleration);
 		pointCount++;
 		
 
 		if(b_showPulses){
-			double pulseTime = solution.startTime;
-			pulsations.push_back(glm::vec2(solution.startTime, 1.0));
-			while(pulseTime < solution.endTime){
+			double pulseTime = interpolation->startTime;
+			pulsations.push_back(glm::vec2(interpolation->startTime, 1.0));
+			while(pulseTime < interpolation->endTime){
 				double previousPulseTime = pulseTime;
-				pulseTime = solution.getNextIncrementTime(pulseTime, pulsesPerUnit);
+				pulseTime = interpolation->getNextIncrementTime(pulseTime, pulsesPerUnit);
 				double fallingEdgeTime = previousPulseTime + (pulseTime - previousPulseTime) / 2.0;
 				if(pulseTime == DBL_MAX) break;
 				pulsations.push_back(glm::vec2(fallingEdgeTime, 1.0));
@@ -249,50 +242,43 @@ void cCurvesTest(){
 				pulsations.push_back(glm::vec2(pulseTime, 0.0));
 				pulsations.push_back(glm::vec2(pulseTime, 1.0));
 			}
-			pulsations.push_back(glm::vec2(solution.endTime, 1.0));
+			pulsations.push_back(glm::vec2(interpolation->endTime, 1.0));
 		}
 		
 		if(b_catchUp){
 			
 			double deltaT = 1.0 / pointsPerSecond;
 			double t = catchUpTime;
-			double p = catchUpPosition;
-			double v = catchupVelocity;
+			
+			Motion::Profile profile;
+			profile.setPosition(catchUpPosition);
+			profile.setVelocity(catchupVelocity);
+			profile.setAcceleration(0.0);
 			
 			catchupTimePoints.push_back(t);
-			catchupPositionPoints.push_back(p);
-			catchupVelocityPoints.push_back(v);
+			catchupPositionPoints.push_back(catchupPosition);
+			catchupVelocityPoints.push_back(catchupVelocity);
 			catchupAccelerationPoints.push_back(0.0);
-			catchupPhasePoints.push_back(0);
+			//catchupPhasePoints.push_back(0);
 			
 			while(true){
 				t += deltaT;
 				
-				MotionTest::Point current = {
-					.position = p,
-					.velocity = v
-				};
-				
-				MotionTest::Point target;
-				solution.getPointAtTime(t, target);
-				
-				MotionTest::Point output = MotionTest::matchPosition(current, target, deltaT, maxCatchupVelocity, maxCatchupAcceleration);
-				p = output.position;
-				v = output.velocity;
+				Motion::Point target = interpolation->getPointAtTime(t);
+				b_caughtUp = profile.matchPosition(deltaT, target.position, target.velocity, target.acceleration, maxCatchupAcceleration, maxCatchupVelocity);
 				
 				catchupTimePoints.push_back(t);
-				catchupPositionPoints.push_back(p);
-				catchupVelocityPoints.push_back(v);
-				catchupAccelerationPoints.push_back(output.acceleration);
-				catchupPhasePoints.push_back(output.phase);
+				catchupPositionPoints.push_back(profile.getPosition());
+				catchupVelocityPoints.push_back(profile.getVelocity());
+				catchupAccelerationPoints.push_back(profile.getAcceleration());
+				//catchupPhasePoints.push_back(output.phase);
 				
-				if(output.position == target.position && output.velocity == target.velocity && output.acceleration == target.acceleration) {
+				if(b_caughtUp){
 					catchupTime = t;
-					catchupPosition = output.position;
-					b_caughtUp = true;
+					catchupPosition = profile.getPosition();
 					break;
 				}
-				if(t > 100.0) break;
+				else if(t > 100.0) break;
 			}
 			
 		}
@@ -353,719 +339,3 @@ void cCurvesTest(){
 	}
 	
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//——————————————————————————————
-//	   Processing Algorithms
-//——————————————————————————————
-
-
-
-
-
-
-#define square(x) (x) * (x)
-
-namespace MotionTest{
-
-	//get a profile matching the exact distance and time between the given motion points
-	//returns success or failure of profile creation if mathematically impossible due to the given constraints
-	bool getTimeConstrainedInterpolation(const Point& start, const Point& end, Interpolation& output){
-
-		//if one of these is zero, no profile can be generated
-		if (start.acceleration == 0.0 || end.acceleration == 0.0) return false;
-
-		const double pi = start.position;
-		const double ti = start.time;
-		const double vi = start.velocity;
-
-		const double po = end.position;
-		const double to = end.time;
-		const double vo = end.velocity;
-
-		const double dt = end.time - start.time;
-		const double dp = end.position - start.position;
-
-		Interpolation solutions[8];
-		bool b_foundValidSolution = false;
-
-		for(uint8_t i = 0; i < 8; i++){
-
-			Interpolation& solution = solutions[i];
-			
-			//try every comibation of signs for acceleration values and square root content
-			double ai = start.acceleration;
-			double ao = end.acceleration;
-			if(i & 0x1) ai *= -1.0;
-			if(i & 0x2) ao *= -1.0;
-			bool rootTermSign = i & 0x4;
-
-			//============ QUADRATIC FUNCTION FOR CONSTANT VELOCITY VALUE ============
-
-			//Quadratic equation constants for ax² + bx + c = 0
-			double a = ai - ao;
-			double b = 2.0 * (ao * vi - ai * vo + ai * ao * dt);
-			double c = ai * square(vo) - ao * square(vi) - 2.0 * ai * ao * dp;
-			double r = square(b) - 4.0 * a * c; //quadratic root term
-
-			//if the content of the square root is negative, this solution in not valid
-			if(r < 0.0 && a != 0.0){
-				solution.b_valid = false;
-				continue;
-			}
-
-			double vt; //coast velocity is unknown
-
-			//if the a term is zero, the problems turns into a simple linear function
-			if (a == 0.0) vt = -c / b;
-			else {
-				//quadratic solutions
-				double vt_plus = (-b + sqrt(r)) / (2.0 * a);
-				double vt_minus = (-b - sqrt(r)) / (2.0 * a);
-				vt = rootTermSign ? vt_plus : vt_minus;
-			}
-
-			//=========================================================================
-
-			double dti = (vt - vi) / ai;
-			double dto = (vo - vt) / ao;
-			double dtt = dt - dti - dto;
-
-			//reject solutions with negative time delta
-			if (dtt < 0.0 || dti < 0.0 || dto < 0.0){
-				solution.b_valid = false;
-				continue;
-			}
-
-			double dpi = vi * dti + ai * square(dti) / 2.0;
-			double dpo = vt * dto + ao * square(dto) / 2.0;
-
-			b_foundValidSolution = true;
-			solution.b_valid = true;
-			solution.startTime = start.time;	        //time of curve start
-			solution.startPosition = start.position;    //position of curve start
-			solution.startVelocity = start.velocity;    //velocity at curve start
-			solution.startAcceleration = ai;	        //acceleration of curve
-			solution.coastStartPosition = pi + dpi;     //position of curve after acceleration phase
-			solution.coastStartTime = ti + dti;         //time of acceleration end
-			solution.coastVelocity = vt;			    //velocity of constant velocity phase
-			solution.coastEndPosition = po - dpo;       //position of deceleration start
-			solution.coastEndTime = to - dto;		    //time of deceleration start
-			solution.endAcceleration = ao;	            //deceleration of curve
-			solution.endTime = to;			            //time of curve end
-			solution.endPosition = end.position;	    //position of curve end
-			solution.endVelocity = end.velocity;		    //velocity of curve end
-
-		}
-
-		//return false if no solution exists for the specified parameters
-		if (!b_foundValidSolution) return false;
-		
-		//if there is one or more solutions, get the fastest solutions that is slower than the target time
-		//this should not happen, but we need to pick a solution in case there is more than one
-		Interpolation* solution = nullptr;
-		double fastestTime = INFINITY;
-		for(int i = 0; i < 8; i++){
-			if(solutions[i].b_valid && solutions[i].endTime < fastestTime){
-				solution = &solutions[i];
-				fastestTime = solutions[i].endTime;
-			}
-		}
-		output = *solution;
-		return true;
-	}
-
-
-
-
-
-
-
-	//get all interpolations with a given velocity
-	//end point time is not known here
-	bool getVelocityConstrainedInterpolations(const Point& start, const Point& end, double velocity, Interpolation output[16]) {
-
-		if (start.acceleration == 0.0 || end.acceleration == 0.0 || velocity == 0.0) return false;
-		const double pi = start.position;
-		const double ti = start.time;
-		const double vi = start.velocity;
-		const double po = end.position;
-		const double vo = end.velocity;
-		const double dp = end.position - start.position;
-
-		//get solutions with coast phase
-		for(uint8_t i = 0; i < 8; i++){
-
-			Interpolation& solution = output[i];
-
-			double ai = start.acceleration;
-			double ao = end.acceleration;
-			double vt = velocity;
-			if(i & 0x1) ai *= -1.0;
-			if(i & 0x2) ao *= -1.0;
-			if(i & 0x4) vt *= -1.0;
-
-			//====================== FUNCTION FOR VELOCITY BASED SOLVE =========================
-
-			double dti = (vt - vi) / ai;
-			double dto = (vo - vt) / ao;
-			
-			if (dto < 0.0 || dti < 0.0) {
-				solution.b_valid = false;
-				continue;
-			}
-			
-			double dpi = vi * dti + ai * square(dti) / 2.0;
-			double dpo = vt * dto + ao * square(dto) / 2.0;
-			double dpt = dp - dpi - dpo;
-			
-			double dtt = dpt / vt;
-			double dt = dti + dtt + dto;
-			
-			if(dt < 0.0 || dtt < 0.0){
-				solution.b_valid = false;
-				continue;
-			}
-
-			//==================================================================================
-
-			solution.b_valid = true;
-			solution.startTime = start.time;			//time of curve start
-			solution.startPosition = start.position;	//position of curve start
-			solution.startVelocity = start.velocity;	//velocity at curve start
-			solution.startAcceleration = ai;			//acceleration of curve
-			solution.coastStartPosition = pi + dpi;		//position of curve after acceleration phase
-			solution.coastStartTime = ti + dti;	        //time of acceleration end
-			solution.coastVelocity = vt;			    //velocity of constant velocity phase
-			solution.coastEndPosition = po - dpo;       //position of deceleration start
-			solution.coastEndTime = ti + dti + dtt;     //time of deceleration start
-			solution.endAcceleration = ao;			    //deceleration of curve
-			solution.endTime = ti + dt;					//time of curve end
-			solution.endPosition = end.position;		//position of curve end
-			solution.endVelocity = end.velocity;		//velocity of curve end
-		}
-
-		//get solutions without coast phase
-		for(uint8_t i = 0; i < 8; i++){
-
-			Interpolation& solution = output[i+8];
-
-			double ai = start.acceleration;
-			double ao = end.acceleration;
-			if(i & 0x1) ai *= -1.0;
-			if(i & 0x2) ao *= -1.0;
-			bool b_squareRootSign = i & 0x4;
-
-			//==================== FUNCTION FOR SOLVING WITHOUT COAST PHASE ======================
-
-			if(ai == ao){
-				solution.b_valid = false;
-				continue;
-			}
-
-			double dpi = (square(vo) - square(vi) - 2.0 * ao * dp) / (2.0 * (ai - ao));
-			double r = square(vi) + 2.0 * ai * dpi;
-
-			if(r < 0){
-				solution.b_valid = false;
-				continue;
-			}
-
-			double vt = sqrt(r);
-			if(b_squareRootSign) vt *= -1.0;
-
-			if (abs(vt) > velocity) {
-				solution.b_valid = false;
-				continue;
-			}
-
-			//====================================================================================
-
-			double dti = (vt - vi) / ai;
-			double dto = (vo - vt) / ao;
-
-
-			if (dti < 0.0 || dto < 0.0) {
-				solution.b_valid = false;
-				continue;
-			}
-
-			solution.b_valid = true;
-			solution.startTime = start.time;			//time of curve start
-			solution.startPosition = start.position;	//position of curve start
-			solution.startVelocity = start.velocity;	//velocity at curve start
-			solution.startAcceleration = ai;	        //acceleration of curve
-
-			solution.coastStartPosition = pi + dpi;		//position of curve after acceleration phase
-			solution.coastEndPosition = pi + dpi;       //position of deceleration start
-			solution.coastStartTime = ti + dti;		    //time of acceleration end
-			solution.coastEndTime = ti + dti;		    //time of deceleration start
-			solution.coastVelocity = vt;			    //velocity of constant velocity phase
-
-			solution.endAcceleration = ao;	            //deceleration of curve
-			solution.endTime = ti + dti + dto;	        //time of curve end
-			solution.endPosition = end.position;		//position of curve end
-			solution.endVelocity = end.velocity;		//velocity of curve end
-
-		}
-
-		for(int i = 0; i < 16; i++) if(output[i].b_valid) return true;
-		return false;
-	}
-
-
-
-	bool getFastestVelocityConstrainedInterpolation(const Point& start, const Point& end, double velocity, Interpolation& output){
-
-		Interpolation solutions[16];
-		if(!getVelocityConstrainedInterpolations(start, end, velocity, solutions)) return false;
-
-		Interpolation* fastestSolution = nullptr;
-		double fastestTime = INFINITY;
-		for(int i = 0; i < 16; i++){
-			Interpolation& solution = solutions[i];
-			if(solution.b_valid && solution.endTime < fastestTime){
-				fastestTime = solution.endTime;
-				fastestSolution = &solution;
-			}
-		}
-
-		output = *fastestSolution;
-		return true;
-	}
-
-
-
-
-	bool getTimedOrSlowerInterpolation(const Point& start, const Point& end, double maxVelocity, Interpolation& output){
-		
-		//first we try finding a solution that matches the requested time exactly and respects the max velocity
-		bool b_timeConstrainedSolutionFound = getTimeConstrainedInterpolation(start, end, output);
-		bool b_timeConstrainedSolutionVelocityIsBelowMaxVelocity = abs(output.coastVelocity) <= maxVelocity;
-		if(b_timeConstrainedSolutionFound && b_timeConstrainedSolutionVelocityIsBelowMaxVelocity) return true;
-
-		//if that solution does not exists we get all profiles that use the max velocity
-		//if no solution is found here, there is no solution)
-		Interpolation solutions[16];
-		if (!getVelocityConstrainedInterpolations(start, end, maxVelocity, solutions)) return false;
-
-		//we then pick the solution hat is closest to the requested time but still slower
-		
-		//TODO: it can happen that there are no solutions slower than the requested time, in this case select the slowest one
-		double fastestTime = INFINITY;
-		Interpolation* fastestSolution = nullptr;
-		double minEndTime = end.time;
-		for(int i = 0; i < 16; i++){
-			Interpolation& solution = solutions[i];
-			if(solution.b_valid && solution.endTime >= minEndTime && solution.endTime < fastestTime){
-				fastestTime = solution.endTime;
-				fastestSolution = &solution;
-			}
-		}
-
-		if(fastestSolution){
-			output = *fastestSolution;
-			return true;
-		}
-
-		return false;
-	}
-
-
-
-
-
-
-
-
-	Interpolation::Phase Interpolation::getPhaseAtTime(double time){
-		if(time <= startTime) return Phase::NOT_STARTED;
-		else if(time <= coastStartTime) return Phase::RAMP_IN;
-		else if(time <= coastEndTime) return Phase::COAST;
-		else if(time <= endTime) return Phase::RAMP_OUT;
-		else return Phase::FINISHED;
-	}
-
-	void Interpolation::getPointAtPhaseTime(double time, Phase phase, Point& output){
-		double deltaT;
-		switch(phase){
-			case Phase::NOT_STARTED:
-				output.position = startPosition;
-				output.velocity = 0.0;
-				output.acceleration = 0.0;
-				break;
-			case Phase::RAMP_IN:
-				deltaT = time - startTime;
-				output.position = startPosition + startVelocity * deltaT + startAcceleration * square(deltaT) / 2.0;
-				output.velocity = startVelocity + startAcceleration * deltaT;
-				output.acceleration = startAcceleration;
-				break;
-			case Phase::COAST:
-				deltaT = time - coastStartTime;
-				output.position = coastStartPosition + deltaT * coastVelocity;
-				output.velocity = coastVelocity;
-				output.acceleration = 0.0;
-				break;
-			case Phase::RAMP_OUT:
-				deltaT = time - coastEndTime;
-				output.position = coastEndPosition + coastVelocity * deltaT + endAcceleration * square(deltaT) / 2.0;
-				output.velocity = coastVelocity + endAcceleration * deltaT;
-				output.acceleration = endAcceleration;
-				break;
-			case Phase::FINISHED:
-				output.position = endPosition;
-				output.velocity = 0.0;
-				output.acceleration = 0.0;
-				break;
-		}
-		output.time = time;
-	}
-
-	void Interpolation::getPointAtTime(double time, Point& output){
-		getPointAtPhaseTime(time, getPhaseAtTime(time), output);
-	}
-
-	
-
-	double Interpolation::getNextIncrementTime(double previousPulseTime, double incrementsPerUnit){
-		
-		Phase phase = getPhaseAtTime(previousPulseTime);
-		Point previousPoint;
-		getPointAtPhaseTime(previousPulseTime, phase, previousPoint);
-		
-		double previousPulseIndex_r = round(previousPoint.position * incrementsPerUnit);
-		
-		double previousIncrementPosition_Units = previousPulseIndex_r / incrementsPerUnit;
-		double incrementPositionDelta_Units = 1.0 / incrementsPerUnit;
-		double nextPulsePosition_a = previousIncrementPosition_Units + incrementPositionDelta_Units * 0.500001;
-		double nextPulsePosition_b = previousIncrementPosition_Units - incrementPositionDelta_Units * 0.500001;
-		
-		double time_aa, time_ab, time_ba, time_bb;
-		Solution solution_a = getTimeAtPosition(phase, nextPulsePosition_a, time_aa, time_ab);
-		Solution solution_b = getTimeAtPosition(phase, nextPulsePosition_b, time_ba, time_bb);
-		
-		while(phase != Phase::FINISHED){
-		
-			double nextPulseTime = DBL_MAX;
-			
-			if(solution_a == Solution::SINGLE && time_aa < nextPulseTime && time_aa > previousPulseTime) nextPulseTime = time_aa;
-			else if(solution_a == Solution::DOUBLE){
-				if(time_aa < nextPulseTime && time_aa > previousPulseTime) nextPulseTime = time_aa;
-				if(time_ab < nextPulseTime && time_ab > previousPulseTime) nextPulseTime = time_ab;
-			}
-			
-			if(solution_b == Solution::SINGLE && time_ba < nextPulseTime && time_ba > previousPulseTime) nextPulseTime = time_ba;
-			else if(solution_b == Solution::DOUBLE){
-				if(time_ba < nextPulseTime && time_ba > previousPulseTime) nextPulseTime = time_ba;
-				if(time_bb < nextPulseTime && time_bb > previousPulseTime) nextPulseTime = time_bb;
-			}
-			
-			if(nextPulseTime < DBL_MAX) return nextPulseTime;
-			
-			phase = getNextPhase(phase);
-			solution_a = getTimeAtPosition(phase, nextPulsePosition_a, time_aa, time_ab);
-			solution_b = getTimeAtPosition(phase, nextPulsePosition_b, time_ba, time_bb);
-			
-		}
-		
-		return DBL_MAX;
-		
-	}
-
-
-	Interpolation::Phase Interpolation::getNextPhase(Phase phase){
-		switch(phase){
-			case Phase::NOT_STARTED: return Phase::RAMP_IN;
-			case Phase::RAMP_IN: return Phase::COAST;
-			case Phase::COAST: return Phase::RAMP_OUT;
-			case Phase::RAMP_OUT: return Phase::FINISHED;
-			case Phase::FINISHED: return Phase::FINISHED;
-		}
-	}
-
-
-
-	Interpolation::Solution Interpolation::getTimeAtPosition(Phase phase, double position, double& time_a, double& time_b){
-		double rootTerm;
-		switch(phase){
-				
-			case Phase::NOT_STARTED:
-				
-				if(position == startPosition) return Solution::SINGLE;
-				return Solution::NONE;
-		
-			case Phase::RAMP_IN:
-								
-				rootTerm = square(startVelocity) - 2.0 * startAcceleration * startPosition + 2.0 * startAcceleration * position;
-				
-				if(rootTerm < 0.0) return Solution::NONE;
-				else if(rootTerm == 0.0) {
-					time_a = -startVelocity / startAcceleration;
-					if(getPhaseAtTime(time_a) == phase) return Solution::SINGLE;
-					else return Solution::NONE;
-				}
-				else{
-					time_a = startTime + (-startVelocity + sqrt(rootTerm)) / startAcceleration;
-					time_b = startTime + (-startVelocity - sqrt(rootTerm)) / startAcceleration;
-					bool time_a_ok = getPhaseAtTime(time_a) == phase;
-					bool time_b_ok = getPhaseAtTime(time_b) == phase;
-					if(time_a_ok && time_b_ok) return Solution::DOUBLE;
-					else if(time_a_ok && !time_b_ok) {
-						time_b = time_a;
-						return Solution::SINGLE;
-					}
-					else if(time_b_ok && !time_a_ok){
-						time_a = time_b;
-						return Solution::SINGLE;
-					}else return Solution::NONE;
-				}
-
-			case Phase::COAST:
-				
-				time_a = coastStartTime + (position - coastStartPosition) / coastVelocity;
-				if(getPhaseAtTime(time_a) == phase) return Solution::SINGLE;
-				else return Solution::NONE;
-				
-			case Phase::RAMP_OUT:
-								
-				rootTerm = square(coastVelocity) - 2.0 * endAcceleration * coastEndPosition + 2.0 * endAcceleration * position;
-				
-				if(rootTerm < 0.0) return Solution::NONE;
-				else if(rootTerm == 0.0) {
-					time_a = -coastVelocity / endAcceleration;
-					if(getPhaseAtTime(time_a) == phase) return Solution::SINGLE;
-					else return Solution::NONE;
-				}
-				else{
-					time_a = coastEndTime + (-coastVelocity + sqrt(rootTerm)) / endAcceleration;
-					time_b = coastEndTime + (-coastVelocity - sqrt(rootTerm)) / endAcceleration;
-					bool time_a_ok = getPhaseAtTime(time_a) == phase;
-					bool time_b_ok = getPhaseAtTime(time_b) == phase;
-					if(time_a_ok && time_b_ok) return Solution::DOUBLE;
-					else if(time_a_ok && !time_b_ok) {
-						time_b = time_a;
-						return Solution::SINGLE;
-					}
-					else if(time_b_ok && !time_a_ok){
-						time_a = time_b;
-						return Solution::SINGLE;
-					}else return Solution::NONE;
-				}
-				
-			case Phase::FINISHED:
-				
-				if(position == endPosition) return Solution::SINGLE;
-				return Solution::NONE;
-				
-		}
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	struct CurveEquation{
-		
-		CurveEquation(double po_, double vo_, double ac_){
-			po = po_;
-			vo = vo_;
-			ac = ac_;
-		}
-		
-		double po;
-		double vo;
-		double ac;
-		
-		bool intersectsAfter0(CurveEquation& other){
-			double root = square(vo - other.vo) - 2.0 * (ac - other.ac) * (po - other.po);
-			if(root < 0.0) return false;
-			double time1 = (other.vo - vo + sqrt(root)) / (ac - other.ac);
-			if(time1 >= 0.0) return true;
-			double time2 = (other.vo - vo - sqrt(root)) / (ac - other.ac);
-			if(time2 >= 0.0) return true;
-			return false;
-		}
-		
-		bool getIntersectionTime(CurveEquation& other, double& time1, double& time2){
-			double root = square(vo - other.vo) - 2.0 * (ac - other.ac) * (po - other.po);
-			if(root < 0) return false;
-			time1 = (other.vo - vo + sqrt(root)) / (ac - other.ac);
-			time2 = (other.vo - vo - sqrt(root)) / (ac - other.ac);
-			return true;
-		}
-		
-		CurveEquation getEquationAtNewT0(double t0){
-			double positionAtT0 = po + vo * t0 + ac * square(t0) / 2.0;
-			double velocityAtT0 = vo + t0 * ac;
-			return CurveEquation(positionAtT0, velocityAtT0, ac);
-		}
-		
-		double getAccelerationToMatchCurveTangentially(CurveEquation& other){
-			return square(vo - other.vo) / (2.0 * (po - other.po)) + other.ac;
-		}
-	};
-
-
-
-	Point matchPosition(Point previous, Point target, double deltaT, double maxVelocity, double acceleration){
-		
-
-		//we have two target curve approach strategies:
-		//-try to match the target position and velocity simultaneously
-		//-try to match the target position, velocity and acceleration simultaneously
-		
-		//the first strategy works best when the target acceleration is smaller than the catchup acceleration
-		//in case the target acceleration is higher, we can never reach the target, and the algorithm will produce inefficient paths for acceleration segments
-		//here we should use the other algorithm and ignore the targets acceleration
-		
-		//the second algorithm produces less optimal results since it can't predict the change in velocity of the target curve,
-		//but it produces better results in case the targets acceleration is higher than the max catchup acceleration
-		
-		//both algorithms work the same, they only differ in their use of the target acceleration value
-		//for the velocity/position only algorithm, the target acceleration value is 0.0
-		
-		//first we get the position error at the previous point (-deltaT)
-		//since we try to match the curve as fast as possible, we always need to slow down to match the target tangentially
-		//we use the sign of this error to get the sign of our catchup acceleration value
-		
-		double targetAcceleration = 0.0;
-		if(b_accelerationStrategy && std::abs(acceleration) > std::abs(target.acceleration)) targetAcceleration = target.acceleration;
-		
-		CurveEquation targetCurve(target.position, target.velocity, targetAcceleration); 	//t0 is 0.0
-		CurveEquation targetCurveAtPreviousTime = targetCurve.getEquationAtNewT0(-deltaT);	//t0 is -deltaT
-		
-		double pError = targetCurveAtPreviousTime.po - previous.position;
-		double vError = target.velocity - previous.velocity;
-		
-		double maxDeltaV = std::abs(deltaT * acceleration);
-		if(std::abs(vError) < maxDeltaV){
-			double vMax = previous.velocity + maxDeltaV;
-			double vMin = previous.velocity - maxDeltaV;
-			double pMax = previous.position + deltaT * (previous.velocity + vMax) / 2.0;
-			double pMin = previous.position + deltaT * (previous.velocity + vMin) / 2.0;
-			if(target.position > pMin && target.position < pMax){
-				return Point{
-					.position = target.position,
-					.velocity = target.velocity,
-					.acceleration = target.acceleration,
-					.phase = 0
-				};
-			}
-		}
-		
-		
-		double positionMatchingDeceleration = pError > 0.0 ? -std::abs(acceleration) : std::abs(acceleration);
-		
-		CurveEquation previousCurve(previous.position, previous.velocity, positionMatchingDeceleration); 	//t0 is -deltaT
-		bool b_previousIntersects = previousCurve.intersectsAfter0(targetCurveAtPreviousTime);
-		
-		//if the previous curve does not intersect the target curve, we can keep accelerating to the target
-		//else we need to decelerate
-		double currentAcceleration;
-		if(!b_previousIntersects) currentAcceleration = -positionMatchingDeceleration;
-		else currentAcceleration = positionMatchingDeceleration;
-		
-		//calculate the current motion point
-		double deltaV = deltaT * currentAcceleration;
-		double currentVelocity = previous.velocity + deltaV;
-		if(currentVelocity < -std::abs(maxVelocity)) currentVelocity = -std::abs(maxVelocity);
-		else if(currentVelocity > std::abs(maxVelocity)) currentVelocity = std::abs(maxVelocity);
-		double deltaP = deltaT * (previous.velocity + currentVelocity) / 2.0;
-		double currentPosition = previous.position + deltaP;
-		
-		//if the previous point could not decelerate to avoid intersecting the target,
-		//we can't plan a correct trajectory and should just start decelerating to match the target
-		if(b_previousIntersects){
-			return Point{
-				.position = currentPosition,
-				.velocity = currentVelocity,
-				.acceleration = currentAcceleration,
-				.time = 0.0,
-				.phase = 1
-			};
-		}
-		
-		CurveEquation currentCurve(currentPosition, currentVelocity, positionMatchingDeceleration);
-		bool b_currentIntersects = currentCurve.intersectsAfter0(targetCurve);
-		
-		//if after accelerating towards the target we still don't intersect it
-		//just keep moving towards it
-		if(!b_currentIntersects){
-			return Point{
-				.position = currentPosition,
-				.velocity = currentVelocity,
-				.acceleration = -positionMatchingDeceleration,
-				.time = 0.0,
-				.phase = 2
-			};
-		}
-		
-		//if the current curve intersects the target and the previous did not
-		//this means we can start decelerating to match the target curve
-		//we need to find an acceleration value which will join the curve tangentially
-		
-		double positionAndVelocityMatchingAcceleration = previousCurve.getAccelerationToMatchCurveTangentially(targetCurveAtPreviousTime);
-		deltaV = deltaT * positionAndVelocityMatchingAcceleration;
-		currentVelocity = previous.velocity + deltaV;
-		if(currentVelocity < -std::abs(maxVelocity)) currentVelocity = -std::abs(maxVelocity);
-		else if(currentVelocity > std::abs(maxVelocity)) currentVelocity = std::abs(maxVelocity);
-		deltaP = deltaT * (previous.velocity + currentVelocity) / 2.0;
-		currentPosition = previous.position + deltaP;
-		
-		
-		
-		return Point{
-			.position = currentPosition,
-			.velocity = currentVelocity,
-			.acceleration = positionAndVelocityMatchingAcceleration,
-			.time = 0.0,
-			.phase = 3
-		};
-	}
-
-
-
-	Point matchPositionAndRespectPositionLimits(Point previous, Point target, double deltaT, double velocity, double acceleration, double lowerLimit, double upperLimit){
-		Point output = matchPosition(previous, target, deltaT, velocity, acceleration);
-		//cap output value to never overshoot lower or upper limit with the given acceleration value
-	}
-
-}
-
-
-
-
