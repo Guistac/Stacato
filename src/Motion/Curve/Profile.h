@@ -77,32 +77,18 @@ public:
 	
 	struct CurveEquation{
 		
-		CurveEquation(double po_, double vo_, double ac_){
-			po = po_;
-			vo = vo_;
-			ac = ac_;
-		}
+		CurveEquation(double po_, double vo_, double ac_) : po(po_), vo(vo_), ac(ac_){}
 		
-		double po;
-		double vo;
-		double ac;
+		double po, vo, ac;
 		
 		bool intersectsAfter0(CurveEquation& other){
 			double root = square(vo - other.vo) - 2.0 * (ac - other.ac) * (po - other.po);
 			if(root < 0.0) return false;
-			double time1 = (other.vo - vo + sqrt(root)) / (ac - other.ac);
-			if(time1 >= 0.0) return true;
-			double time2 = (other.vo - vo - sqrt(root)) / (ac - other.ac);
-			if(time2 >= 0.0) return true;
+			double intersectionTime1 = (other.vo - vo + sqrt(root)) / (ac - other.ac);
+			if(intersectionTime1 >= 0.0) return true;
+			double intersectionTime2 = (other.vo - vo - sqrt(root)) / (ac - other.ac);
+			if(intersectionTime2 >= 0.0) return true;
 			return false;
-		}
-		
-		bool getIntersectionTime(CurveEquation& other, double& time1, double& time2){
-			double root = square(vo - other.vo) - 2.0 * (ac - other.ac) * (po - other.po);
-			if(root < 0) return false;
-			time1 = (other.vo - vo + sqrt(root)) / (ac - other.ac);
-			time2 = (other.vo - vo - sqrt(root)) / (ac - other.ac);
-			return true;
 		}
 		
 		CurveEquation getEquationAtNewT0(double t0){
@@ -220,8 +206,40 @@ public:
 		
 	}
 	
-	bool matchPositionWhileRespectingPositionLimits(/*TODO: args*/){
-		//TODO: implement braking for limits
+	bool matchPositionAndRespectPositionLimits(double deltaT,
+													double targetPosition,
+													double targetVelocity,
+													double targetAcceleration,
+													double fixedAcceleration,
+													double maxVelocity,
+													double lowerPositionLimit,
+													double upperPositionLimit){
+		
+		//check braking position at max deceleration to see if a fast stop is needed
+		double brakingPosition = getBrakingPosition(deltaT, fixedAcceleration);
+		if((velocity < 0.0 && brakingPosition <= lowerPositionLimit) || (velocity > 0.0 && brakingPosition >= upperPositionLimit)){
+			//if yes, stop at full deceleration and don't update the profile any more
+			stop(deltaT, fixedAcceleration);
+			return false;
+		}
+		
+		//if the current braking position is not over limit
+		//we might still exceed limit with the normal profile routine
+		//take a backup in case we need to revert to those values
+		double positionBackup = position;
+		double velocityBackup = velocity;
+		double accelerationBackup = acceleration;
+		
+		matchPosition(deltaT, targetPosition, targetVelocity, targetAcceleration, fixedAcceleration, maxVelocity);
+		
+		//if we would exceed limits, just stop the profile and ignore target velocity
+		if((position <= lowerPositionLimit && velocity < 0.0) || (position >= upperPositionLimit && velocity > 0.0)){
+			position = positionBackup;
+			velocity = velocityBackup;
+			acceleration = accelerationBackup;
+		}
+		
+		return targetPosition == position && targetVelocity == velocity;
 	}
 	
 	

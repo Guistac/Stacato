@@ -35,11 +35,15 @@ void cCurvesTest(){
 	static double maxCatchupVelocity = 2.0;
 	static double maxCatchupAcceleration = 2.0;
 	
+	static double upperPositionLimit = 10.0;
+	static double lowerPositionLimit = -10.0;
+	static bool b_enablePositionLimits = false;
+	
 	//——————————————————————————————
 	//		 Settings Panels
 	//——————————————————————————————
 	
-	ImGui::BeginChild("test", ImVec2(350, 410), true);
+	ImGui::BeginChild("test", ImVec2(350, 430), true);
 	float inputFieldWidth = 150.0;
 	
 	ImGui::SetNextItemWidth(inputFieldWidth * 2);
@@ -89,22 +93,20 @@ void cCurvesTest(){
 		ImGui::InputDouble("Target Velocity", &targetVelocity, 0.1, 1.0);
 	}
 	
-	ImGui::EndChild();
-	
-	ImGui::SameLine();
-	
-	ImGui::BeginChild("options", ImVec2(350, 410), true);
+	ImGui::Separator();
 	
 	ImGui::SetNextItemWidth(inputFieldWidth);
 	ImGui::InputInt("Points Per Second", &pointsPerSecond);
 	
-	ImGui::Separator();
+	ImGui::EndChild();
 	
+	ImGui::SameLine();
+	
+	ImGui::BeginChild("options", ImVec2(350, 430), true);
+		
 	ImGui::Checkbox("Show Pulses", &b_showPulses);
 	ImGui::SetNextItemWidth(inputFieldWidth);
 	ImGui::InputInt("Pulses Per Unit", &pulsesPerUnit);
-	
-	ImGui::Separator();
 	
 	ImGui::Checkbox("Show Catchup", &b_catchUp);
 	ImGui::Checkbox("Constrain Catchup Start to Curve", &b_constrainCatchupStartToCurve);
@@ -119,6 +121,12 @@ void cCurvesTest(){
 	ImGui::SetNextItemWidth(inputFieldWidth);
 	ImGui::InputDouble("Max Acceleration", &maxCatchupAcceleration, 0.1, 1.0);
 	
+	ImGui::Checkbox("Enable Position Limits", &b_enablePositionLimits);
+	ImGui::SetNextItemWidth(inputFieldWidth);
+	ImGui::InputDouble("Min Position", &lowerPositionLimit, 0.1, 1.0);
+	ImGui::SetNextItemWidth(inputFieldWidth);
+	ImGui::InputDouble("Max Position", &upperPositionLimit, 0.1, 1.0);
+	
 	ImGui::EndChild();
 	
 	
@@ -126,6 +134,15 @@ void cCurvesTest(){
 	//		 	Processing
 	//——————————————————————————————
 	
+	
+	if(b_enablePositionLimits){
+		startPosition = std::min(startPosition, upperPositionLimit);
+		startPosition = std::max(startPosition, lowerPositionLimit);
+		endPosition = std::min(endPosition, upperPositionLimit);
+		endPosition = std::max(endPosition, lowerPositionLimit);
+		catchUpPosition = std::min(catchUpPosition, upperPositionLimit);
+		catchUpPosition = std::max(catchUpPosition, lowerPositionLimit);
+	}
 	
 	if(pointsPerSecond < 1) pointsPerSecond = 1;
 	if(maxCatchupVelocity < 0.1) maxCatchupVelocity = 0.1;
@@ -263,9 +280,21 @@ void cCurvesTest(){
 			
 			while(true){
 				t += deltaT;
-				
 				Motion::Point target = interpolation->getPointAtTime(t);
-				b_caughtUp = profile.matchPosition(deltaT, target.position, target.velocity, target.acceleration, maxCatchupAcceleration, maxCatchupVelocity);
+				if(b_enablePositionLimits) b_caughtUp = profile.matchPositionAndRespectPositionLimits(deltaT,
+																									  target.position,
+																									  target.velocity,
+																									  target.acceleration,
+																									  maxCatchupAcceleration,
+																									  maxCatchupVelocity,
+																									  lowerPositionLimit,
+																									  upperPositionLimit);
+				else b_caughtUp = profile.matchPosition(deltaT,
+														target.position,
+														target.velocity,
+														target.acceleration,
+														maxCatchupAcceleration,
+														maxCatchupVelocity);
 				
 				catchupTimePoints.push_back(t);
 				catchupPositionPoints.push_back(profile.getPosition());
