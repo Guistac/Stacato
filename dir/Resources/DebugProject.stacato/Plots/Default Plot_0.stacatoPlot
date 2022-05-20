@@ -1,1 +1,5 @@
-<Plot Name="Default Plot"/>
+<Plot Name="Default Plot">
+    <Manoeuvre Name="M-0LALALA" Description="Default DescriptionLALALA" Type="Target">
+        <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" Type="Target" DefaultSaveString="1" ConstraintType="Velocity" Constraint="2" StartAcceleration="3" EndAcceleration="4" TimeOffset="0"/>
+    </Manoeuvre>
+</Plot>

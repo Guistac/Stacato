@@ -462,9 +462,11 @@ public:
 	
 	virtual bool load(tinyxml2::XMLElement* xml){
 		using namespace tinyxml2;
-		XMLError result = xml->QueryStringAttribute(getSaveString(), (const char**)&displayValue);
+		const char* loadedString;
+		XMLError result = xml->QueryStringAttribute(getSaveString(), &loadedString);
 		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", getName());
-		strcpy(displayValue, value.c_str());
+		strcpy(displayValue, loadedString);
+		value = loadedString;
 		return true;
 	}
 	

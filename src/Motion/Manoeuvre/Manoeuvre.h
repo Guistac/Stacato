@@ -57,7 +57,7 @@ public:
 	void miniatureGui(glm::vec2 size_arg);
 	
 	bool save(tinyxml2::XMLElement* manoeuvreXML);
-	bool load(tinyxml2::XMLElement* manoeuvreXML);
+	static std::shared_ptr<Manoeuvre> load(tinyxml2::XMLElement* manoeuvreXML);
 	
 private:
 	

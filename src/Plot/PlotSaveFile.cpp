@@ -35,17 +35,12 @@ bool Plot::load(const char* path) {
 	if (plotXML->QueryStringAttribute("Name", &nameString) != XML_SUCCESS) return Logger::warn("Could not find plot name attribute");
 	strcpy(name, nameString);
 
-	std::shared_ptr<Plot> thisPlot = shared_from_this();
-
 	XMLElement* manoeuvreXML = plotXML->FirstChildElement("Manoeuvre");
 	while (manoeuvreXML != nullptr) {
-		/*
-		std::shared_ptr<Manoeuvre> manoeuvre = std::make_shared<Manoeuvre>(thisPlot);
-		if (!manoeuvre->load(manoeuvreXML)) return Logger::warn("Could not load Manoeuvre");
+		auto manoeuvre = Manoeuvre::load(manoeuvreXML);
+		if(manoeuvre == nullptr) return false;
 		manoeuvres.push_back(manoeuvre);
 		manoeuvreXML = manoeuvreXML->NextSiblingElement("Manoeuvre");
-		 */
-		break;
 	}
 	refreshAll();
 
