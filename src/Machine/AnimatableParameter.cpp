@@ -2,6 +2,28 @@
 
 #include "AnimatableParameter.h"
 
+int AnimatableParameter::getCurveCount(){
+	switch(getType()){
+		case MachineParameterType::BOOLEAN:
+		case MachineParameterType::INTEGER:
+		case MachineParameterType::STATE:
+		case MachineParameterType::REAL:
+		case MachineParameterType::POSITION:
+		case MachineParameterType::VELOCITY:
+			return 1;
+		case MachineParameterType::VECTOR_2D:
+		case MachineParameterType::POSITION_2D:
+		case MachineParameterType::VELOCITY_2D:
+			return 2;
+		case MachineParameterType::VECTOR_3D:
+		case MachineParameterType::POSITION_3D:
+		case MachineParameterType::VELOCITY_3D:
+			return 3;
+		case MachineParameterType::GROUP:
+			return 0;
+	}
+}
+
 std::vector<Motion::Interpolation::Type>& AnimatableNumericalParameter::getCompatibleInterpolationTypes(){
 	static std::vector<Motion::Interpolation::Type> stepOnly = {
 		Motion::Interpolation::Type::STEP

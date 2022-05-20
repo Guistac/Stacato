@@ -132,9 +132,9 @@ std::shared_ptr<ParameterTrack> ParameterTrack::loadType(tinyxml2::XMLElement* x
 	std::shared_ptr<ParameterTrack> parameterTrack = nullptr;
 	switch(trackType){
 		case Type::GROUP: parameterTrack = ParameterTrackGroup::load(xml, MachineParameter::castToGroup(parameter)); break;
-		case Type::KEY: parameterTrack = KeyParameterTrack::load(xml, parameter); break;
-		case Type::TARGET: parameterTrack = TargetParameterTrack::load(xml, parameter); break;
-		case Type::SEQUENCE: parameterTrack = SequenceParameterTrack::load(xml, parameter); break;
+		case Type::KEY: parameterTrack = KeyParameterTrack::load(xml, MachineParameter::castToAnimatable(parameter)); break;
+		case Type::TARGET: parameterTrack = TargetParameterTrack::load(xml, MachineParameter::castToAnimatable(parameter)); break;
+		case Type::SEQUENCE: parameterTrack = SequenceParameterTrack::load(xml, MachineParameter::castToAnimatable(parameter)); break;
 	}
 	if(parameterTrack == nullptr){
 		Logger::warn("Could not load parameter track");
@@ -241,7 +241,7 @@ bool KeyParameterTrack::onSave(tinyxml2::XMLElement* xml){
 	return true;
 }
 
-std::shared_ptr<KeyParameterTrack> KeyParameterTrack::load(tinyxml2::XMLElement* xml, std::shared_ptr<MachineParameter> parameter){
+std::shared_ptr<KeyParameterTrack> KeyParameterTrack::load(tinyxml2::XMLElement* xml, std::shared_ptr<AnimatableParameter> parameter){
 	auto keyParameterTrack = std::make_shared<KeyParameterTrack>(parameter);
 	if(!keyParameterTrack->target->load(xml)){
 		Logger::warn("Could not load Target parameter of Parameter track {}", parameter->getName());
@@ -272,7 +272,7 @@ bool TargetParameterTrack::onSave(tinyxml2::XMLElement* xml){
 	return true;
 }
 
-std::shared_ptr<TargetParameterTrack> TargetParameterTrack::load(tinyxml2::XMLElement* xml, std::shared_ptr<MachineParameter> parameter){
+std::shared_ptr<TargetParameterTrack> TargetParameterTrack::load(tinyxml2::XMLElement* xml, std::shared_ptr<AnimatableParameter> parameter){
 	auto targetParameterTrack = std::make_shared<TargetParameterTrack>(parameter);
 	if(!targetParameterTrack->target->load(xml)){
 		Logger::warn("could not load attribute target of parameter track {}", parameter->getName());
@@ -316,7 +316,7 @@ bool SequenceParameterTrack::onSave(tinyxml2::XMLElement* xml){
 	return true;
 }
 
-std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::load(tinyxml2::XMLElement* xml, std::shared_ptr<MachineParameter> parameter){
+std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::load(tinyxml2::XMLElement* xml, std::shared_ptr<AnimatableParameter> parameter){
 	auto sequenceParameterTrack = std::make_shared<SequenceParameterTrack>(parameter);
 	if(!sequenceParameterTrack->start->load(xml)){
 		Logger::warn("could not load attribute Start of parameter track {}", parameter->getName());

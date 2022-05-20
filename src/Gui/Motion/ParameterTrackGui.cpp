@@ -16,6 +16,12 @@
 
 #include "Gui/Utilities/CustomWidgets.h"
 
+void AnimatedParameterTrack::interpolationTypeGui(){
+	auto& compatibleTypes = getAnimatableParameter()->getCompatibleInterpolationTypes();
+	interpolationType->combo(compatibleTypes.data(), compatibleTypes.size());
+}
+
+
 void ParameterTrack::baseTrackSheetRowGui(){
 	if(!b_valid) ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
 
@@ -69,6 +75,8 @@ void TargetParameterTrack::trackSheetRowGui(){
 	
 	//[4] "Interpolation"	//kinematic, linear, step, bezier
 	ImGui::TableSetColumnIndex(4);
+	ImGui::SetNextItemWidth(widgetWidth);
+	interpolationTypeGui();
 
 	//[5] "Target"			//position or other
 	ImGui::TableSetColumnIndex(5);

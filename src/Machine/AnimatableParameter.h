@@ -57,6 +57,8 @@ public:
 		return nullptr;
 	}
 	
+	int getCurveCount();
+	
 private:
 	std::shared_ptr<ParameterTrack> actualParameterTrack = nullptr;
 };

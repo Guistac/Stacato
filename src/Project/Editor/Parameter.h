@@ -238,7 +238,7 @@ public:
 	
 	void inputField();
 	
-	virtual void gui(){
+	virtual void gui() override {
 		inputField();
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
@@ -249,8 +249,8 @@ public:
 		}
 	}
 	
-	virtual bool save(tinyxml2::XMLElement* xml);
-	virtual bool load(tinyxml2::XMLElement* xml);
+	virtual bool save(tinyxml2::XMLElement* xml) override;
+	virtual bool load(tinyxml2::XMLElement* xml) override;
 	
 	virtual std::shared_ptr<Parameter> makeCopy() override {
 		return std::make_shared<VectorParameter>(value, getName(), getSaveString(), format);
@@ -396,7 +396,7 @@ public:
 		value = value_;
 	}
 	
-	virtual void gui(){
+	virtual void gui() override {
 		ImGui::Checkbox(getImGuiID(), &displayValue);
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
@@ -407,12 +407,12 @@ public:
 		}
 	}
 	
-	virtual bool save(tinyxml2::XMLElement* xml){
+	virtual bool save(tinyxml2::XMLElement* xml) override {
 		xml->SetAttribute(getSaveString(), value);
 		return true;
 	}
 	
-	virtual bool load(tinyxml2::XMLElement* xml){
+	virtual bool load(tinyxml2::XMLElement* xml) override {
 		using namespace tinyxml2;
 		XMLError result = xml->QueryBoolAttribute(getSaveString(), &value);
 		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", getName());
@@ -472,7 +472,7 @@ public:
 		value = value_;
 	}
 	
-	virtual void gui(){
+	virtual void gui() override {
 		ImGui::InputText(getImGuiID(), displayValue, bufferSize);
 		if(ImGui::IsItemDeactivatedAfterEdit() && strcmp(displayValue, value.c_str()) != 0){
 			//=========Command Invoker=========
@@ -483,12 +483,12 @@ public:
 		}
 	}
 	
-	virtual bool save(tinyxml2::XMLElement* xml){
+	virtual bool save(tinyxml2::XMLElement* xml) override {
 		xml->SetAttribute(getSaveString(), value.c_str());
 		return true;
 	}
 	
-	virtual bool load(tinyxml2::XMLElement* xml){
+	virtual bool load(tinyxml2::XMLElement* xml) override {
 		using namespace tinyxml2;
 		const char* loadedString;
 		XMLError result = xml->QueryStringAttribute(getSaveString(), &loadedString);
@@ -549,27 +549,33 @@ public:
 		displayValue = value_;
 	}
 	
-	virtual void gui(){
+	virtual void gui() override {
+		combo();
+	}
+	
+	virtual void combo(T* availableValues = nullptr, size_t availableValueCount = 0){
 		if(ImGui::BeginCombo(getImGuiID(), Enumerator::getDisplayString(displayValue))){
-			for(auto& type : Enumerator::getTypes<T>()){
-				if(ImGui::Selectable(type.displayString, type.enumerator == displayValue)){
-					displayValue = type.enumerator;
-					//=========Command Invoker=========
-					std::shared_ptr<EnumeratorParameter<T>> thisParameter = std::dynamic_pointer_cast<EnumeratorParameter<T>>(shared_from_this());
-					std::string commandName = "Changed " + std::string(getName()) + " from \'" + Enumerator::getDisplayString(value) + "\' to \'" + Enumerator::getDisplayString(displayValue) + "\'";
-					CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
-					//=================================
+			
+			if(availableValues != nullptr && availableValueCount > 0){
+				for(int i = 0; i < availableValueCount; i++){
+					T type = availableValues[i];
+					if(ImGui::Selectable(Enumerator::getDisplayString(type), type == displayValue)) onChange(type);
+				}
+			}else{
+				for(auto& type : Enumerator::getTypes<T>()){
+					if(ImGui::Selectable(type.displayString, type.enumerator == displayValue)) onChange(type.enumerator);
 				}
 			}
+			
 			ImGui::EndCombo();
 		}
 	}
 	
-	virtual bool save(tinyxml2::XMLElement* xml){
+	virtual bool save(tinyxml2::XMLElement* xml) override {
 		xml->SetAttribute(getSaveString(), Enumerator::getSaveString(value));
 	}
 	
-	virtual bool load(tinyxml2::XMLElement* xml){
+	virtual bool load(tinyxml2::XMLElement* xml) override {
 		using namespace tinyxml2;
 		const char * enumeratorSaveString;
 		XMLError result = xml->QueryStringAttribute(getSaveString(), &enumeratorSaveString);
@@ -612,6 +618,17 @@ public:
 		virtual void redo(){ setNewValue(); }
 	};
 	
+	private:
+	
+	void onChange(T newValue){
+		displayValue = newValue;
+		//=========Command Invoker=========
+		std::shared_ptr<EnumeratorParameter<T>> thisParameter = std::dynamic_pointer_cast<EnumeratorParameter<T>>(shared_from_this());
+		std::string commandName = "Changed " + std::string(getName()) + " from \'" + Enumerator::getDisplayString(value) + "\' to \'" + Enumerator::getDisplayString(displayValue) + "\'";
+		CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
+		//=================================
+	}
+	
 };
 
 
@@ -634,7 +651,7 @@ public:
 		values = values_;
 	}
 	
-	virtual void gui(){
+	virtual void gui() override {
 		if(ImGui::BeginCombo(getImGuiID(), displayValue->displayName)){
 			for(auto& entry : *values){
 				if(ImGui::Selectable(entry.displayName, &entry == displayValue)){
@@ -650,11 +667,11 @@ public:
 		}
 	}
 	
-	virtual bool save(tinyxml2::XMLElement* xml){
+	virtual bool save(tinyxml2::XMLElement* xml) override {
 		xml->SetAttribute(getSaveString(), value->saveName);
 	}
 	
-	virtual bool load(tinyxml2::XMLElement* xml){
+	virtual bool load(tinyxml2::XMLElement* xml) override {
 		using namespace tinyxml2;
 		const char * stateSaveString;
 		XMLError result = xml->QueryStringAttribute(getSaveString(), &stateSaveString);
