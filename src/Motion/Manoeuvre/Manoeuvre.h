@@ -10,25 +10,16 @@ class Plot;
 namespace tinyxml2 { class XMLElement; }
 
 
-
-class Manoeuvre {
+class Manoeuvre : public std::enable_shared_from_this<Manoeuvre>{
 public:
 	
-	Manoeuvre(){
-		init();
-	}
-	Manoeuvre(const Manoeuvre &other){
-		init();
-	}
+	Manoeuvre(){ init(); }
 	
-	void init(){
-		type->setEditCallback([this](std::shared_ptr<Parameter> parameter){
-			Logger::warn("edited type of maneoeuvre {}", this->getName());
-		});
-	}
+	std::shared_ptr<Manoeuvre> copy();
+	
+	void init();
 	
 	ManoeuvreType getType(){ return type->value; }
-	void setType(ManoeuvreType type_);
 	
 	const char* getName(){ return name->value.c_str(); }
 	void setName(const char* name_){ name->overwrite(name_); }
@@ -39,8 +30,7 @@ public:
 	void addTrack(std::shared_ptr<MachineParameter>& parameter);
 	bool hasTrack(std::shared_ptr<MachineParameter>& parameter);
 	std::vector<std::shared_ptr<ParameterTrack>>& getTracks(){ return tracks; }
-	void removeTrack(std::shared_ptr<MachineParameter>& parameter);
-	void removeTrack(int removedIndex);
+	void removeTrack(std::shared_ptr<MachineParameter> parameter);
 	void moveTrack(int oldIndex, int newIndex);
 	
 	double getLength_seconds();
@@ -59,22 +49,22 @@ public:
 	bool save(tinyxml2::XMLElement* manoeuvreXML);
 	static std::shared_ptr<Manoeuvre> load(tinyxml2::XMLElement* manoeuvreXML);
 	
+	std::shared_ptr<StringParameter> name = std::make_shared<StringParameter>("Default Name",
+																			  "Manoeuvre Name",
+																			  "Name",
+																			  256);
+	std::shared_ptr<StringParameter> description = std::make_shared<StringParameter>("Default Description",
+																					 "Manoeuvre Description",
+																					 "Description",
+																					 512);
+	std::shared_ptr<EnumeratorParameter<ManoeuvreType>> type = std::make_shared<EnumeratorParameter<ManoeuvreType>>(ManoeuvreType::KEY,
+																													"Manoeuvre Type",
+																													"Type");
+	
 private:
 	
 	bool b_valid = false;
 	std::vector<std::shared_ptr<ParameterTrack>> tracks;
-	
-	std::shared_ptr<StringParameter> name = std::make_shared<StringParameter>("Default Name",
-																			  "##Name",
-																			  "Name",
-																			  256);
-	std::shared_ptr<StringParameter> description = std::make_shared<StringParameter>("Default Description",
-																					 "##Description",
-																					 "Description",
-																					 512);
-	std::shared_ptr<EnumeratorParameter<ManoeuvreType>> type = std::make_shared<EnumeratorParameter<ManoeuvreType>>(ManoeuvreType::KEY,
-																													"##Type",
-																													"Type");
 	
 	double playbackStartTime_seconds = 0.0;
 	double playbackPosition_seconds = 0.0;

@@ -319,11 +319,11 @@ bool SequenceParameterTrack::onSave(tinyxml2::XMLElement* xml){
 std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::load(tinyxml2::XMLElement* xml, std::shared_ptr<MachineParameter> parameter){
 	auto sequenceParameterTrack = std::make_shared<SequenceParameterTrack>(parameter);
 	if(!sequenceParameterTrack->start->load(xml)){
-		Logger::warn("could not load attribute  of parameter track {}", parameter->getName());
+		Logger::warn("could not load attribute Start of parameter track {}", parameter->getName());
 		return nullptr;
 	}
 	if(!sequenceParameterTrack->target->load(xml)){
-		Logger::warn("could not load attribute  of parameter track {}", parameter->getName());
+		Logger::warn("could not load attribute End of parameter track {}", parameter->getName());
 		return nullptr;
 	}
 	return sequenceParameterTrack;

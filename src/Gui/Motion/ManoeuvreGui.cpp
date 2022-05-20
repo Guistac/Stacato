@@ -224,7 +224,7 @@ void Manoeuvre::trackSheetGui(){
 		ImGui::EndTable();
 	}
 	
-	if(removedTrackIndex > -1) removeTrack(removedTrackIndex);
+	if(removedTrackIndex > -1) removeTrack(getTracks()[removedTrackIndex]->getParameter());
 	if(movedUpTrackIndex > -1) moveTrack(movedUpTrackIndex, movedUpTrackIndex - 1);
 	if(movedDownTrackIndex > -1) moveTrack(movedDownTrackIndex, movedDownTrackIndex + 1);
 }

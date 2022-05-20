@@ -4,7 +4,7 @@ class Manoeuvre;
 class ParameterTrack;
 class Machine;
 
-class Plot {
+class Plot : public std::enable_shared_from_this<Plot>{
 public:
 
 	Plot() {}
@@ -24,7 +24,7 @@ public:
 	void addManoeuvre();
 	void deleteSelectedManoeuvre();
 	void duplicateSelectedManoeuvre();
-	void reorderManoeuvre(std::shared_ptr<Manoeuvre> m, int oldIndex, int newIndex);
+	void reorderManoeuvre(std::shared_ptr<Manoeuvre> m, int newIndex);
 
 	void refreshPlotAfterMachineLimitChanged(std::shared_ptr<Machine> m);
 	void refreshAll();

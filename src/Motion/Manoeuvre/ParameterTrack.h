@@ -79,6 +79,8 @@ public:
 	
 	static std::shared_ptr<ParameterTrack> create(std::shared_ptr<MachineParameter> parameter, ManoeuvreType manoeuvreType);
 	
+	static std::shared_ptr<ParameterTrack> copy(const std::shared_ptr<ParameterTrack> original);
+	
 private:
 	bool b_valid = false;
 	std::shared_ptr<ParameterTrackGroup> parent;
@@ -122,14 +124,20 @@ private:
 class AnimatedParameterTrack : public MovementParameterTrack{
 public:
 	
-	AnimatedParameterTrack(std::shared_ptr<MachineParameter> parameter) : MovementParameterTrack(parameter){}
+	AnimatedParameterTrack(std::shared_ptr<MachineParameter> parameter) : MovementParameterTrack(parameter){
+		auto animatableParameter = MachineParameter::castToAnimatable(parameter);
+		Motion::Interpolation::Type defaultInterpolation = animatableParameter->getCompatibleInterpolationTypes().front();
+		interpolationType = std::make_shared<EnumeratorParameter<Motion::Interpolation::Type>>(defaultInterpolation, "Interpolation", "Interpolation");
+	}
 	
 	AnimatableParameterValue getParameterValueAtPlaybackTime();
 	void setInterpolationType(Motion::Interpolation::Type t);
 	
 private:
 	double playbackPosition_seconds;
-	Motion::Interpolation::Type interpolationType;
+	
+	std::shared_ptr<Parameter> interpolationType;
+	
 	std::vector<std::shared_ptr<Motion::Curve>> curves;
 };
 
@@ -149,6 +157,7 @@ public:
 	
 	virtual Type getType() override { return ParameterTrack::Type::GROUP; }
 	
+	//called when creating a parameter track group in the track sheet editor
 	ParameterTrackGroup(std::shared_ptr<ParameterGroup> parameterGroup, ManoeuvreType manoeuvreType) : ParameterTrack(parameterGroup){
 		for(auto& childParameter : parameterGroup->getChildren()){
 			auto childParameterTrack = ParameterTrack::create(childParameter, manoeuvreType);
@@ -156,6 +165,7 @@ public:
 		}
 	}
 	
+	//called when loading a parameter track group or duplicating one
 	ParameterTrackGroup(std::shared_ptr<ParameterGroup> parameterGroup) : ParameterTrack(parameterGroup){}
 	
 	std::vector<std::shared_ptr<ParameterTrack>>& getChildren(){ return children; }
@@ -166,6 +176,8 @@ public:
 	
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
 	static std::shared_ptr<ParameterTrackGroup> load(tinyxml2::XMLElement* xml, std::shared_ptr<ParameterGroup> parameter);
+	
+	static std::shared_ptr<ParameterTrackGroup> copy(std::shared_ptr<ParameterTrackGroup> original);
 	
 private:
 	std::vector<std::shared_ptr<ParameterTrack>> children;
@@ -191,10 +203,14 @@ public:
 		target->setSaveString("Target");
 	}
 	
+	KeyParameterTrack(const KeyParameterTrack& original);
+	
 	virtual void trackSheetRowGui() override;
 	
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
 	static std::shared_ptr<KeyParameterTrack> load(tinyxml2::XMLElement* xml, std::shared_ptr<MachineParameter> parameter);
+	
+	static std::shared_ptr<KeyParameterTrack> copy(std::shared_ptr<KeyParameterTrack> original);
 	
 };
 
@@ -220,12 +236,18 @@ public:
 	TargetParameterTrack(std::shared_ptr<MachineParameter> parameter) : AnimatedParameterTrack(parameter){
 		auto animatableParameter = MachineParameter::castToAnimatable(parameter);
 		target = getParameterFromAnimatableParameter(animatableParameter);
+		target->setSaveString("Target");
+		target->setName("Target");
 	}
+	
+	TargetParameterTrack(const TargetParameterTrack& original);
 	
 	virtual void trackSheetRowGui() override;
 		
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
 	static std::shared_ptr<TargetParameterTrack> load(tinyxml2::XMLElement* xml, std::shared_ptr<MachineParameter> parameter);
+	
+	static std::shared_ptr<TargetParameterTrack> copy(std::shared_ptr<TargetParameterTrack> original);
 	
 private:
 	std::shared_ptr<Parameter> constraint = std::make_shared<NumberParameter<double>>(0.0, "Constraint", "Constraint");
@@ -270,6 +292,8 @@ public:
 		start->setSaveString("Start");
 	}
 	
+	SequenceParameterTrack(const SequenceParameterTrack& other);
+	
 	virtual void trackSheetRowGui() override;
 	
 	double getLength_seconds();
@@ -282,6 +306,8 @@ public:
 	
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
 	static std::shared_ptr<SequenceParameterTrack> load(tinyxml2::XMLElement* xml, std::shared_ptr<MachineParameter> parameter);
+	
+	static std::shared_ptr<SequenceParameterTrack> copy(std::shared_ptr<SequenceParameterTrack> original);
 	
 	std::shared_ptr<Parameter> start;
 };

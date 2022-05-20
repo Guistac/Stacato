@@ -10,6 +10,8 @@
 #include "Motion/Manoeuvre/Manoeuvre.h"
 #include "Plot/Plot.h"
 
+#include "Project/Editor/Parameter.h"
+
 
 std::shared_ptr<ParameterTrack> ParameterTrack::create(std::shared_ptr<MachineParameter> parameter, ManoeuvreType manoeuvreType){
 	
@@ -27,48 +29,56 @@ std::shared_ptr<ParameterTrack> ParameterTrack::create(std::shared_ptr<MachinePa
 				return std::make_shared<SequenceParameterTrack>(parameter);
 		}
 	}
+	
 }
 
+std::shared_ptr<ParameterTrack> ParameterTrack::copy(const std::shared_ptr<ParameterTrack> original){
+	switch(original->getType()){
+		case Type::GROUP: return ParameterTrackGroup::copy(std::dynamic_pointer_cast<ParameterTrackGroup>(original));
+		case Type::KEY:	return KeyParameterTrack::copy(std::dynamic_pointer_cast<KeyParameterTrack>(original));
+		case Type::TARGET: return TargetParameterTrack::copy(std::dynamic_pointer_cast<TargetParameterTrack>(original));
+		case Type::SEQUENCE: return SequenceParameterTrack::copy(std::dynamic_pointer_cast<SequenceParameterTrack>(original));
+	}
+}
+
+std::shared_ptr<ParameterTrackGroup> ParameterTrackGroup::copy(const std::shared_ptr<ParameterTrackGroup> original){
+	auto parameterGroup = MachineParameter::castToGroup(original->getParameter());
+	auto groupCopy = std::make_shared<ParameterTrackGroup>(parameterGroup);
+	for(auto childParameterTrack : original->getChildren()){
+		auto childCopy = ParameterTrack::copy(childParameterTrack);
+		childCopy->setParent(groupCopy);
+		groupCopy->children.push_back(childCopy);
+	}
+	return groupCopy;
+}
+
+std::shared_ptr<KeyParameterTrack> KeyParameterTrack::copy(const std::shared_ptr<KeyParameterTrack> original){
+	auto copy = std::make_shared<KeyParameterTrack>(original->getParameter());
+	copy->target = original->target->makeCopy();
+	return copy;
+}
+
+std::shared_ptr<TargetParameterTrack> TargetParameterTrack::copy(const std::shared_ptr<TargetParameterTrack> original){
+	auto copy = std::make_shared<TargetParameterTrack>(original->getParameter());
+	copy->target = original->target->makeCopy();
+	copy->constraint = original->constraint->makeCopy();
+	copy->inAcceleration = original->inAcceleration->makeCopy();
+	copy->outAcceleration = original->outAcceleration->makeCopy();
+	copy->timeOffset = original->timeOffset->makeCopy();
+	copy->constraintType = original->constraintType->makeCopy();
+	return copy;
+}
+
+std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::copy(const std::shared_ptr<SequenceParameterTrack> original){
+	auto copy = std::make_shared<SequenceParameterTrack>(original->getParameter());
+	copy->target = original->target->makeCopy();
+	copy->start = original->start->makeCopy();
+	return copy;
+}
 
 
 
 /*
-
-ParameterTrack::ParameterTrack(std::shared_ptr<AnimatableParameter>& param, std::shared_ptr<Manoeuvre> m) : parameter(param), parentManoeuvre(m) {
-	initialize();
-	if (parameter->dataType == ParameterDataType::PARAMETER_GROUP) {
-		for (auto& childParameter : parameter->childParameters) {
-			std::shared_ptr<ParameterTrack> childParameterTrack = std::make_shared<ParameterTrack>(childParameter, m);
-			childParameterTracks.push_back(childParameterTrack);
-		}
-	}
-}
-
-//COPY CONSTRUCTOR
-ParameterTrack::ParameterTrack(const ParameterTrack& original) {
-	parameter = original.parameter;
-	initialize();
-	for (int i = 0; i < original.startPoints.size(); i++) {
-		curves[i] = std::make_shared<Motion::Curve>(*original.curves[i]);
-		startPoints[i] = std::make_shared<Motion::ControlPoint>(*original.startPoints[i]);
-		endPoints[i] = std::make_shared<Motion::ControlPoint>(*original.endPoints[i]);
-	}
-	sequenceType = original.sequenceType;
-	interpolationType = original.interpolationType;
-	originIsPreviousTarget = original.originIsPreviousTarget;
-	origin = original.origin;
-	target = original.target;
-	movementTime = original.movementTime;
-	timeOffset = original.timeOffset;
-	rampIn = original.rampIn;
-	rampOut = original.rampOut;
-	rampsAreEqual = original.rampsAreEqual;
-	childParameterTracks.clear();
-	for (auto& childParameterTrack : original.childParameterTracks) {
-		std::shared_ptr<ParameterTrack> childParameterTrackCopy = std::make_shared<ParameterTrack>(*childParameterTrack);
-		childParameterTracks.push_back(childParameterTrackCopy);
-	}
-}
 
 int ParameterTrack::getCurveCount() {
 	switch (parameter->dataType) {

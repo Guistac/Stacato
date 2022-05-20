@@ -13,56 +13,221 @@ std::shared_ptr<Manoeuvre> Plot::getSelectedManoeuvre() {
 	return selectedManoeuvre;
 }
 
-void Plot::addManoeuvre() {
-	std::shared_ptr<Manoeuvre> newManoeuvre = std::make_shared<Manoeuvre>();
-	static char newManoeuvreName[64];
-	sprintf(newManoeuvreName, "M-%i", (int)manoeuvres.size());
-	newManoeuvre->setName(newManoeuvreName);
-	if (selectedManoeuvre == nullptr) manoeuvres.push_back(newManoeuvre);
-	else {
-		for (int i = 0; i < manoeuvres.size(); i++) {
-			if (manoeuvres[i] == selectedManoeuvre) {
-				manoeuvres.insert(manoeuvres.begin() + i + 1, newManoeuvre);
-				break;
-			}
-		}
-	}
-}
 
-void Plot::deleteSelectedManoeuvre() {
-	if (selectedManoeuvre != nullptr) {
-		for (int i = 0; i < manoeuvres.size(); i++) {
-			if (manoeuvres[i] == selectedManoeuvre) {
+//————————————————————————————————
+//			Add Manoeuvre
+//————————————————————————————————
+
+class AddManoeuvreCommand : public Command{
+public:
+	
+	std::shared_ptr<Plot> plot;
+	std::shared_ptr<Manoeuvre> addedManoeuvre;
+	int addedIndex;
+	ManoeuvreType type;
+	
+	AddManoeuvreCommand(std::string& name, std::shared_ptr<Plot> plot_, ManoeuvreType type_) : Command(name){
+		plot = plot_;
+		type = type_;
+	}
+	
+	virtual void execute(){
+		addedManoeuvre = std::make_shared<Manoeuvre>();
+		addedManoeuvre->type->overwrite(type);
+		addedManoeuvre->description->overwrite("");
+		std::string manoeuvreName = "M-" + std::to_string(plot->getManoeuvres().size());
+		addedManoeuvre->name->overwrite(manoeuvreName);
+		
+		if(plot->getSelectedManoeuvre()){
+			auto selected = plot->getSelectedManoeuvre();
+			auto& manoeuvres = plot->getManoeuvres();
+			for (int i = 0; i < manoeuvres.size(); i++) {
+				if (manoeuvres[i] == selected) {
+					addedIndex = i + 1;
+					manoeuvres.insert(manoeuvres.begin() + i + 1, addedManoeuvre);
+					break;
+				}
+			}
+		}else {
+			addedIndex = plot->getManoeuvres().size();
+			plot->getManoeuvres().push_back(addedManoeuvre);
+		}
+		plot->selectManoeuvre(addedManoeuvre);
+	}
+	
+	virtual void undo(){
+		auto& manoeuvres = plot->getManoeuvres();
+		for(int i = 0; i < manoeuvres.size(); i++){
+			if(manoeuvres[i] == addedManoeuvre){
 				manoeuvres.erase(manoeuvres.begin() + i);
 				break;
 			}
 		}
 	}
-	selectedManoeuvre = nullptr;
+	virtual void redo(){
+		auto& manoeuvres = plot->getManoeuvres();
+		manoeuvres.insert(manoeuvres.begin() + addedIndex, addedManoeuvre);
+		plot->selectManoeuvre(addedManoeuvre);
+	}
+};
+
+void Plot::addManoeuvre() {
+	std::string name = "Add Manoeuvre";
+	auto thisPlot = shared_from_this();
+	auto command = std::make_shared<AddManoeuvreCommand>(name, thisPlot, ManoeuvreType::KEY);
+	CommandHistory::pushAndExecute(command);
 }
 
-void Plot::duplicateSelectedManoeuvre() {
-	if (selectedManoeuvre != nullptr) {
-		std::shared_ptr<Manoeuvre> copiedManoeuvre = std::make_shared<Manoeuvre>(*selectedManoeuvre);
+
+
+
+//————————————————————————————————
+//			Delete Manoeuvre
+//————————————————————————————————
+
+
+class DeleteManoeuvreCommand : public Command{
+public:
+	
+	std::shared_ptr<Plot> plot;
+	std::shared_ptr<Manoeuvre> deletedManoeuvre;
+	int deletedIndex;
+	
+	DeleteManoeuvreCommand(std::string name, std::shared_ptr<Plot> plot_, std::shared_ptr<Manoeuvre> deleted_) : Command(name){
+		plot = plot_;
+		deletedManoeuvre = deleted_;
+	}
+	
+	virtual void execute(){
+		auto& manoeuvres = plot->getManoeuvres();
 		for (int i = 0; i < manoeuvres.size(); i++) {
-			if (manoeuvres[i] == selectedManoeuvre) {
-				manoeuvres.insert(manoeuvres.begin() + i + 1, copiedManoeuvre);
+			if (manoeuvres[i] == deletedManoeuvre) {
+				deletedIndex = i;
+				manoeuvres.erase(manoeuvres.begin() + i);
 				break;
 			}
 		}
-		/*
-		for (auto& track : copiedManoeuvre->tracks) {
-			track->parentManoeuvre = copiedManoeuvre;
-		}
-		 */
+		plot->selectManoeuvre(nullptr);
+	}
+	virtual void undo(){
+		auto& manoeuvres = plot->getManoeuvres();
+		manoeuvres.insert(manoeuvres.begin() + deletedIndex, deletedManoeuvre);
+		plot->selectManoeuvre(deletedManoeuvre);
+	}
+};
+
+void Plot::deleteSelectedManoeuvre() {
+	if (getSelectedManoeuvre() != nullptr) {
+		std::string name = "Delete Manoeuvre " + std::string(selectedManoeuvre->getName());
+		auto command = std::make_shared<DeleteManoeuvreCommand>(name, shared_from_this(), getSelectedManoeuvre());
+		CommandHistory::pushAndExecute(command);
 	}
 }
 
-void Plot::reorderManoeuvre(std::shared_ptr<Manoeuvre> m, int oldIndex, int newIndex) {
-	std::shared_ptr<Manoeuvre> tmp = m;
-	manoeuvres.erase(manoeuvres.begin() + oldIndex);
-	manoeuvres.insert(manoeuvres.begin() + newIndex, tmp);
+
+
+
+//————————————————————————————————
+//		Duplicate Manoeuvre
+//————————————————————————————————
+
+class DuplicateManoeuvreCommand : public Command{
+public:
+	
+	std::shared_ptr<Plot> plot;
+	std::shared_ptr<Manoeuvre> original;
+	std::shared_ptr<Manoeuvre> copy;
+	int insertIndex;
+	
+	DuplicateManoeuvreCommand(std::string& name, std::shared_ptr<Manoeuvre> original_, std::shared_ptr<Plot> plot_) : Command(name){
+		original = original_;
+		plot = plot_;
+	}
+	
+	virtual void execute(){
+		copy = original->copy();
+		auto& manoeuvres = plot->getManoeuvres();
+		for (int i = 0; i < manoeuvres.size(); i++) {
+			if (manoeuvres[i] == original) {
+				manoeuvres.insert(manoeuvres.begin() + i + 1, copy);
+				insertIndex = i + 1;
+				break;
+			}
+		}
+	}
+	virtual void undo(){
+		auto& manoeuvres = plot->getManoeuvres();
+		for (int i = 0; i < manoeuvres.size(); i++) {
+			if (manoeuvres[i] == copy) {
+				manoeuvres.erase(manoeuvres.begin() + i);
+				break;
+			}
+		}
+	}
+	virtual void redo(){
+		auto& manoeuvres = plot->getManoeuvres();
+		manoeuvres.insert(manoeuvres.begin() + insertIndex, copy);
+	}
+};
+
+
+void Plot::duplicateSelectedManoeuvre() {
+	if (getSelectedManoeuvre() != nullptr) {
+		std::string name = "Duplicate Manoeuvre " + std::string(getSelectedManoeuvre()->getName());
+		auto command = std::make_shared<DuplicateManoeuvreCommand>(name, getSelectedManoeuvre(), shared_from_this());
+		CommandHistory::pushAndExecute(command);
+	}
 }
+
+
+
+
+//————————————————————————————————
+//			Move Manoeuvre
+//————————————————————————————————
+
+class ReorderManoeuvreCommand : public Command{
+public:
+	
+	std::shared_ptr<Plot> plot;
+	int oldIndex;
+	int newIndex;
+	
+	ReorderManoeuvreCommand(std::string& name, int oldIndex_, int newIndex_, std::shared_ptr<Plot> plot_) : Command(name){
+		plot = plot_;
+		oldIndex = oldIndex_;
+		newIndex = newIndex_;
+	}
+	
+	virtual void execute(){
+		auto& manoeuvres = plot->getManoeuvres();
+		auto temp = manoeuvres[oldIndex];
+		manoeuvres.erase(manoeuvres.begin() + oldIndex);
+		manoeuvres.insert(manoeuvres.begin() + newIndex, temp);
+	}
+	
+	virtual void undo(){
+		auto& manoeuvres = plot->getManoeuvres();
+		auto temp = manoeuvres[newIndex];
+		manoeuvres.erase(manoeuvres.begin() + newIndex);
+		manoeuvres.insert(manoeuvres.begin() + oldIndex, temp);
+	}
+	
+};
+
+void Plot::reorderManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre, int newIndex) {
+	std::string name = "Move Manoeuvre " + std::string(manoeuvre->getName());
+	int oldIndex = getManoeuvreIndex(manoeuvre);
+	auto command = std::make_shared<ReorderManoeuvreCommand>(name, oldIndex, newIndex, shared_from_this());
+	CommandHistory::pushAndExecute(command);
+}
+
+
+
+
+
+
+
 
 int Plot::getManoeuvreIndex(std::shared_ptr<Manoeuvre> manoeuvre){
 	for(int i = 0; i < getManoeuvres().size(); i++){

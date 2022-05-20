@@ -29,6 +29,7 @@ public:
 	virtual void gui() = 0;
 	virtual bool save(tinyxml2::XMLElement* xml) = 0;
 	virtual bool load(tinyxml2::XMLElement* xml) = 0;
+	virtual std::shared_ptr<Parameter> makeCopy() = 0;
 	
 private:
 	std::function<void(std::shared_ptr<Parameter>)> editCallback;
@@ -99,23 +100,23 @@ public:
 		return getFormated("%i");
 	}
 	
-	virtual void gui(){
+	virtual void gui() override {
 		inputField();
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
 			std::shared_ptr<NumberParameter<T>> thisParameter = std::dynamic_pointer_cast<NumberParameter<T>>(shared_from_this());
-			std::string commandName = "Changed \'" + std::string(getName()) + "\' from " + std::to_string(value) + " to " + std::to_string(displayValue);
+			std::string commandName = "Changed " + std::string(getName()) + " from " + std::to_string(value) + " to " + std::to_string(displayValue);
 			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
 			//=================================
 		}
 	}
 	
-	virtual bool save(tinyxml2::XMLElement* xml){
+	virtual bool save(tinyxml2::XMLElement* xml) override {
 		xml->SetAttribute(getSaveString(), value);
 		 return true;
 	 }
 	
-	virtual bool load(tinyxml2::XMLElement* xml){
+	virtual bool load(tinyxml2::XMLElement* xml) override {
 		using namespace tinyxml2;
 		 double number;
 		 XMLError result = xml->QueryDoubleAttribute(getSaveString(), &number);
@@ -124,6 +125,15 @@ public:
 		 displayValue = number;
 		 return true;
 	 }
+	
+	virtual std::shared_ptr<Parameter> makeCopy() override {
+		return std::make_shared<NumberParameter<T>>(value, getName(), getSaveString(), unit, stepSmall, stepLarge, format);
+	}
+	
+	void overwrite(T newValue){
+		displayValue = newValue;
+		value = newValue;
+	}
 	
 	class EditCommand : public Command{
 	public:
@@ -233,7 +243,7 @@ public:
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
 			auto thisParameter = std::dynamic_pointer_cast<VectorParameter<T>>(shared_from_this());
-			std::string commandName = "Changed \'" + std::string(getName()) + "\' from " + glm::to_string(value) + " to " + glm::to_string(displayValue);
+			std::string commandName = "Changed " + std::string(getName()) + " from " + glm::to_string(value) + " to " + glm::to_string(displayValue);
 			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
 			//=================================
 		}
@@ -241,6 +251,15 @@ public:
 	
 	virtual bool save(tinyxml2::XMLElement* xml);
 	virtual bool load(tinyxml2::XMLElement* xml);
+	
+	virtual std::shared_ptr<Parameter> makeCopy() override {
+		return std::make_shared<VectorParameter>(value, getName(), getSaveString(), format);
+	}
+	
+	void overwrite(T newValue){
+		displayValue = newValue;
+		value = newValue;
+	}
 	
 	class EditCommand : public Command{
 	public:
@@ -382,7 +401,7 @@ public:
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
 			auto thisParameter = std::dynamic_pointer_cast<BooleanParameter>(shared_from_this());
-			std::string commandName = "Inverted \'" + std::string(getName()) + "\'";
+			std::string commandName = "Inverted " + std::string(getName());
 			CommandHistory::pushAndExecute(std::make_shared<InvertCommand>(thisParameter, commandName));
 			//=================================
 		}
@@ -399,6 +418,15 @@ public:
 		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", getName());
 		displayValue = value;
 		return true;
+	}
+	
+	virtual std::shared_ptr<Parameter> makeCopy() override {
+		return std::make_shared<BooleanParameter>(value, getName(), getSaveString());
+	}
+	
+	void overwrite(bool newValue){
+		displayValue = newValue;
+		value = newValue;
 	}
 	
 	class InvertCommand : public Command{
@@ -449,7 +477,7 @@ public:
 		if(ImGui::IsItemDeactivatedAfterEdit() && strcmp(displayValue, value.c_str()) != 0){
 			//=========Command Invoker=========
 			std::shared_ptr<StringParameter> thisParameter = std::dynamic_pointer_cast<StringParameter>(shared_from_this());
-			std::string commandName = "Changed \'" + std::string(getName()) + "\' from \'" + value + "\' to \'" + displayValue + "\'";
+			std::string commandName = "Changed " + std::string(getName()) + " from \'" + value + "\' to \'" + displayValue + "\'";
 			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
 			//=================================
 		}
@@ -468,6 +496,15 @@ public:
 		strcpy(displayValue, loadedString);
 		value = loadedString;
 		return true;
+	}
+	
+	virtual std::shared_ptr<Parameter> makeCopy() override {
+		return std::make_shared<StringParameter>(value, getName(), getSaveString(), bufferSize);
+	}
+	
+	void overwrite(std::string newValue){
+		strcpy(displayValue, newValue.c_str());
+		value = newValue;
 	}
 	
 	class EditCommand : public Command{
@@ -519,7 +556,7 @@ public:
 					displayValue = type.enumerator;
 					//=========Command Invoker=========
 					std::shared_ptr<EnumeratorParameter<T>> thisParameter = std::dynamic_pointer_cast<EnumeratorParameter<T>>(shared_from_this());
-					std::string commandName = "Edited \'" + std::string(getName()) + "\' from \'" + Enumerator::getDisplayString(value) + "\' to \'" + Enumerator::getDisplayString(displayValue) + "\'";
+					std::string commandName = "Changed " + std::string(getName()) + " from \'" + Enumerator::getDisplayString(value) + "\' to \'" + Enumerator::getDisplayString(displayValue) + "\'";
 					CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
 					//=================================
 				}
@@ -541,6 +578,15 @@ public:
 		value = Enumerator::getEnumeratorFromSaveString<T>(enumeratorSaveString);
 		displayValue = value;
 		return true;
+	}
+	
+	virtual std::shared_ptr<Parameter> makeCopy() override {
+		return std::make_shared<EnumeratorParameter<T>>(value, getName(), getSaveString());
+	}
+	
+	void overwrite(T newValue){
+		displayValue = newValue;
+		value = newValue;
 	}
 	
 	class EditCommand : public Command{
@@ -595,7 +641,7 @@ public:
 					displayValue = &entry;
 					//=========Command Invoker=========
 					std::shared_ptr<StateParameter> thisParameter = std::dynamic_pointer_cast<StateParameter>(shared_from_this());
-					std::string commandName = "Edited \'" + std::string(getName()) + "\' from \'" + value->displayName + "\' to \'" + displayValue->displayName + "\'";
+					std::string commandName = "Changed " + std::string(getName()) + " from \'" + value->displayName + "\' to \'" + displayValue->displayName + "\'";
 					CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
 					//=================================
 				}
@@ -623,6 +669,15 @@ public:
 		}
 		
 		return Logger::warn("Could not load parameter {} : could not identity state string : {}", getName(), stateSaveString);
+	}
+	
+	virtual std::shared_ptr<Parameter> makeCopy() override {
+		return std::make_shared<StateParameter>(value, values, getName(), getSaveString());
+	}
+	
+	void overwrite(AnimatableParameterState* newValue){
+		displayValue = newValue;
+		value = newValue;
 	}
 	
 	class EditCommand : public Command{

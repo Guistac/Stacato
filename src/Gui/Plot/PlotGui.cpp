@@ -57,7 +57,7 @@ namespace PlotGui{
 		if (manoeuvreList.wasReordered()) {
 			int oldIndex, newIndex;
 			manoeuvreList.getReorderedItemIndex(oldIndex, newIndex);
-			currentPlot->reorderManoeuvre(manoeuvres[oldIndex], oldIndex, newIndex);
+			currentPlot->reorderManoeuvre(manoeuvres[oldIndex], newIndex);
 		}
 
 		//================== MANOEUVER MANAGER BUTTONS ========================

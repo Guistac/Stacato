@@ -1,5 +1,7 @@
 <Plot Name="Default Plot">
-    <Manoeuvre Name="M-0LALALA" Description="Default DescriptionLALALA" Type="Target">
-        <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" Type="Target" DefaultSaveString="1" ConstraintType="Velocity" Constraint="2" StartAcceleration="3" EndAcceleration="4" TimeOffset="0"/>
+    <Manoeuvre Name="M-0" Description="Default Description" Type="Key">
+        <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" Type="Key" Target="0"/>
     </Manoeuvre>
+    <Manoeuvre Name="M-1" Description="Default Description" Type="Target"/>
+    <Manoeuvre Name="M-2" Description="Default Description" Type="Sequence"/>
 </Plot>
