@@ -8,26 +8,6 @@
 
 #include "Plot/Plot.h"
 
-
-
-std::shared_ptr<Manoeuvre> Manoeuvre::copy(){
-	auto copy = std::make_shared<Manoeuvre>();
-	
-	std::string copyName = std::string(getName()) + " (copy)";
-	copy->name->overwrite(copyName);
-	copy->description->overwrite(getDescription());
-	copy->type->overwrite(getType());
-	
-	for(auto track : getTracks()){
-		auto trackCopy = ParameterTrack::copy(track);
-		copy->tracks.push_back(trackCopy);
-	}
-	
-	return copy;
-}
-
-
-
 class SetManoeuvreTypeCommand : public Command{
 public:
 	
@@ -58,14 +38,29 @@ public:
 
 };
 
-
-void Manoeuvre::init(){
+Manoeuvre::Manoeuvre(){
 	type->setEditCallback([this](std::shared_ptr<Parameter> parameter){
 		auto typeParameter = std::dynamic_pointer_cast<EnumeratorParameter<ManoeuvreType>>(parameter);
 		std::string commandName = "Set Manoeuvre type to " + std::string(Enumerator::getDisplayString(this->getType()));
 		auto setManoeuvreTypeCommand = std::make_shared<SetManoeuvreTypeCommand>(commandName, this, typeParameter->value);
 		CommandHistory::pushAndExecute(setManoeuvreTypeCommand);
 	});
+}
+
+std::shared_ptr<Manoeuvre> Manoeuvre::copy(){
+	auto copy = std::make_shared<Manoeuvre>();
+	
+	std::string copyName = std::string(getName()) + " (copy)";
+	copy->name->overwrite(copyName);
+	copy->description->overwrite(getDescription());
+	copy->type->overwrite(getType());
+	
+	for(auto track : getTracks()){
+		auto trackCopy = ParameterTrack::copy(track);
+		copy->tracks.push_back(trackCopy);
+	}
+	
+	return copy;
 }
 
 

@@ -5,12 +5,34 @@ class ParameterTrack;
 class Machine;
 
 class Plot : public std::enable_shared_from_this<Plot>{
+
+	//—————————————————————————————————————
+	//			Saving & Loading
+	//—————————————————————————————————————
+
 public:
+	
+	static std::shared_ptr<Plot> load(std::string& filePath);
+	bool save(std::string& filePath);
 
-	Plot() {}
-
-	const char* getName(){ return name; }
-	void setName(const char* name_){ strcpy(name, name_); }
+	//—————————————————————————————————————
+	//		   General Properties
+	//—————————————————————————————————————
+	
+public:
+	
+	const char* getName(){ return name.c_str(); }
+	void setName(std::string name_){ name = name_; }
+	
+private:
+	
+	std::string name;
+	
+	//—————————————————————————————————————
+	//			Manoeuvre List
+	//—————————————————————————————————————
+	
+public:
 	
 	std::vector<std::shared_ptr<Manoeuvre>>& getManoeuvres(){ return manoeuvres; }
 	
@@ -29,15 +51,17 @@ public:
 	void refreshPlotAfterMachineLimitChanged(std::shared_ptr<Machine> m);
 	void refreshAll();
 	
-	bool save(const char* path);
-	bool load(const char* path);
-	
 private:
-
+	
 	std::vector<std::shared_ptr<Manoeuvre>> manoeuvres;
 	std::shared_ptr<Manoeuvre> selectedManoeuvre = nullptr;
-
-	char name[256] = "";
+	
+	//—————————————————————————————————————
+	//				Others..
+	//—————————————————————————————————————
+	
+private:
+	
 	std::time_t saveTime;
 	
 };

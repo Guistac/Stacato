@@ -153,11 +153,10 @@ namespace Project{
 		//load plot files
 		for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::path(plotsFolderPath))) {
 			if (entry.path().extension() == ".stacatoPlot") {
-				std::shared_ptr<Plot> plot = std::make_shared<Plot>();
 				std::string plotFilePath = entry.path().string();
-				if (plot->load(plotFilePath.c_str())) {
-					plots.push_back(plot);
-				}
+				auto plot = Plot::load(plotFilePath);
+				if(plot == nullptr) Logger::warn("Could not load plot file {}", plotFilePath);
+				else plots.push_back(plot);
 			}
 		}
 		if (plots.empty()) {
@@ -219,7 +218,7 @@ namespace Project{
 		for (int i = 0; i < plots.size(); i++) {
 			std::shared_ptr<Plot> plot = plots[i];
 			std::string plotFilePath = plotsFolder + plot->getName() + "_" + std::to_string(i) + ".stacatoPlot";
-			plot->save(plotFilePath.c_str());
+			plot->save(plotFilePath);
 		}
 	
 		strcpy(saveFilePath, dir);

@@ -85,13 +85,6 @@ std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::copy(){
 }
 
 
-void AnimatedParameterTrack::initialize(){
-	Motion::Interpolation::Type defaultInterpolation = getAnimatableParameter()->getCompatibleInterpolationTypes().front();
-	interpolationType = std::make_shared<EnumeratorParameter<Motion::Interpolation::Type>>(defaultInterpolation, "Interpolation", "Interpolation");
-	curves.resize(animatableParameter->getCurveCount());
-}
-
-
 
 
 /*

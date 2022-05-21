@@ -87,3 +87,24 @@ void AnimatableNumericalParameter::setUnit(Unit u){
 		if(track->isAnimated()) track->castToAnimated()->setUnit(unit);
 	}
 }
+
+std::shared_ptr<Parameter> AnimatableParameter::getEditableParameter(){
+	switch(getType()){
+		case MachineParameterType::BOOLEAN: 	return std::make_shared<BooleanParameter>(false, "DefaultName", "DefaultSaveString");
+		case MachineParameterType::INTEGER: 	return NumberParameter<int>::make(0, "DefaultName");
+		case MachineParameterType::STATE:		return std::make_shared<StateParameter>(&castToState()->getStates().front(),
+																						&castToState()->getStates(),
+																						"DefaultName",
+																						"DefaultSaveString");
+		case MachineParameterType::POSITION:
+		case MachineParameterType::VELOCITY:
+		case MachineParameterType::REAL:		return NumberParameter<double>::make(0.0, "DefaultName");
+		case MachineParameterType::POSITION_2D:
+		case MachineParameterType::VELOCITY_2D:
+		case MachineParameterType::VECTOR_2D:	return std::make_shared<VectorParameter<glm::vec2>>(glm::vec2(0.0), "DefaultName", "DefaultSaveString");
+		case MachineParameterType::POSITION_3D:
+		case MachineParameterType::VELOCITY_3D:
+		case MachineParameterType::VECTOR_3D:	return std::make_shared<VectorParameter<glm::vec3>>(glm::vec3(0.0), "DefaultName", "DefaultSaveString");
+		case MachineParameterType::GROUP:		return nullptr;
+	}
+}

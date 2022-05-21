@@ -215,8 +215,8 @@ void LinearMecanumClaw::process() {
 				linearAxisMotionProfile.updateInterpolation(profileTime_seconds);
 				break;
 			case ControlMode::EXTERNAL:
-				if(linearAxisPositionParameter->hasParameterTrack()){
-					auto value = linearAxisPositionParameter->getActiveTrackParameterValue()->toPosition();
+				if(linearAxisPositionParameter->hasActiveParameterTrack()){
+					auto value = linearAxisPositionParameter->getActiveParameterTrackValue()->toPosition();
 					linearAxisMotionProfile.setVelocity(value->velocity);
 					linearAxisMotionProfile.setPosition(value->position);
 				}
@@ -240,8 +240,8 @@ void LinearMecanumClaw::process() {
 				clawAxisMotionProfile.updateInterpolation(profileTime_seconds);
 				break;
 			case ControlMode::EXTERNAL:
-				if(clawAxisPositionParameter->hasParameterTrack()){
-					auto value = clawAxisPositionParameter->getActiveTrackParameterValue()->toPosition();
+				if(clawAxisPositionParameter->hasActiveParameterTrack()){
+					auto value = clawAxisPositionParameter->getActiveParameterTrackValue()->toPosition();
 					clawAxisMotionProfile.setVelocity(value->velocity);
 					clawAxisMotionProfile.setPosition(value->position);
 				}
@@ -369,8 +369,8 @@ void LinearMecanumClaw::simulateProcess() {
 			linearAxisMotionProfile.updateInterpolation(profileTime_seconds);
 			break;
 		case ControlMode::EXTERNAL:
-			if(linearAxisPositionParameter->hasParameterTrack()){
-				auto value = linearAxisPositionParameter->getActiveTrackParameterValue()->toPosition();
+			if(linearAxisPositionParameter->hasActiveParameterTrack()){
+				auto value = linearAxisPositionParameter->getActiveParameterTrackValue()->toPosition();
 				linearAxisMotionProfile.setVelocity(value->velocity);
 				linearAxisMotionProfile.setPosition(value->position);
 			}
@@ -394,8 +394,8 @@ void LinearMecanumClaw::simulateProcess() {
 			clawAxisMotionProfile.updateInterpolation(profileTime_seconds);
 			break;
 		case ControlMode::EXTERNAL:
-			if(clawAxisPositionParameter->hasParameterTrack()){
-				auto value = clawAxisPositionParameter->getActiveTrackParameterValue()->toPosition();
+			if(clawAxisPositionParameter->hasActiveParameterTrack()){
+				auto value = clawAxisPositionParameter->getActiveParameterTrackValue()->toPosition();
 				clawAxisMotionProfile.setVelocity(value->velocity);
 				clawAxisMotionProfile.setPosition(value->position);
 			}

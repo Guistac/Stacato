@@ -33,10 +33,10 @@ public:
 	
 	virtual void execute(){
 		addedManoeuvre = std::make_shared<Manoeuvre>();
-		addedManoeuvre->type->overwrite(type);
-		addedManoeuvre->description->overwrite("");
+		addedManoeuvre->overwriteType(type);
+		addedManoeuvre->setDescription("");
 		std::string manoeuvreName = "M-" + std::to_string(plot->getManoeuvres().size());
-		addedManoeuvre->name->overwrite(manoeuvreName);
+		addedManoeuvre->setName(manoeuvreName);
 		
 		if(plot->getSelectedManoeuvre()){
 			auto selected = plot->getSelectedManoeuvre();

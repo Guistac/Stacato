@@ -7,24 +7,55 @@
 class Machine;
 class ParameterTrack;
 namespace tinyxml2 { class XMLElement; }
-
-
 class AnimatableParameter;
 class ParameterGroup;
 class AnimatableStateParameter;
 class AnimatableNumericalParameter;
 
+
+
+
+
 class MachineParameter : public std::enable_shared_from_this<MachineParameter>{
 public:
-	MachineParameter(const char* name_){ strcpy(name, name_); }
 	
-	virtual MachineParameterType getType() = 0;
+	MachineParameter(std::string name_) : name(name_){}
+	
+	//————————————————————————————————————
+	//  	   General Properties
+	//————————————————————————————————————
+	
+public:
+	
+	const char* getName(){ return name.c_str(); }
+	
+	void setMachine(std::shared_ptr<Machine> machine_){ machine = machine_; }
+	std::shared_ptr<Machine> getMachine(){ return machine; }
+	
 	bool hasParentGroup() { return parentParameterGroup != nullptr; }
 	void setParentGroup(std::shared_ptr<ParameterGroup> parent){ parentParameterGroup = parent; }
 	
-	const char* getName(){ return name; }
-	void setMachine(std::shared_ptr<Machine> machine_){ machine = machine_; }
-	std::shared_ptr<Machine> getMachine(){ return machine; }
+private:
+	
+	std::string name;
+	std::shared_ptr<Machine> machine;
+	std::shared_ptr<ParameterGroup> parentParameterGroup = nullptr;
+	
+	//————————————————————————————————————
+	//  		 Track Creation
+	//————————————————————————————————————
+	
+public:
+	
+	std::shared_ptr<ParameterTrack> createTrack(ManoeuvreType manoeuvreType);
+	
+	//————————————————————————————————————
+	//  SubClass Identification & Casting
+	//————————————————————————————————————
+	
+public:
+	
+	virtual MachineParameterType getType() = 0;
 	
 	virtual bool isGroup(){ return false; }
 	std::shared_ptr<ParameterGroup> castToGroup(){ return std::dynamic_pointer_cast<ParameterGroup>(shared_from_this()); }
@@ -39,6 +70,12 @@ public:
 	virtual bool isState(){ return false; }
 	std::shared_ptr<AnimatableStateParameter> castToState(){ return std::dynamic_pointer_cast<AnimatableStateParameter>(shared_from_this()); }
 	
+	//————————————————————————————————————
+	//	  Parameter Track Subscriptions
+	//————————————————————————————————————
+	
+public:
+	
 	void subscribeTrack(std::shared_ptr<ParameterTrack> track){ tracks.push_back(track); }
 	void unsubscribeTrack(std::shared_ptr<ParameterTrack> track){
 		for(int i = 0; i < tracks.size(); i++){
@@ -48,17 +85,15 @@ public:
 			}
 		}
 	}
-	
-	std::shared_ptr<ParameterTrack> createTrack(ManoeuvreType manoeuvreType);
 	std::vector<std::shared_ptr<ParameterTrack>>& getTracks(){ return tracks; }
 
 private:
-	char name[256];
-	std::shared_ptr<Machine> machine;
-	std::shared_ptr<ParameterGroup> parentParameterGroup = nullptr;
 	
 	std::vector<std::shared_ptr<ParameterTrack>> tracks;
+	
 };
+
+
 
 
 
@@ -66,21 +101,23 @@ class AnimatableParameter : public MachineParameter{
 public:
 	
 	AnimatableParameter(const char* name) : MachineParameter(name) {}
-	
 	virtual bool isAnimatable() override { return true; }
 	
 	virtual std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes() = 0;
 
-	bool hasParameterTrack() { return actualParameterTrack != nullptr; }
-	std::shared_ptr<AnimatableParameterValue> getActiveTrackParameterValue(){
+	bool hasActiveParameterTrack() { return activeParameterTrack != nullptr; }
+	
+	std::shared_ptr<AnimatableParameterValue> getActiveParameterTrackValue(){
 		//return actualParameterTrack->getParameterValueAtPlaybackTime();
 		return nullptr;
 	}
 	
 	int getCurveCount();
 	
+	std::shared_ptr<Parameter> getEditableParameter();
+	
 private:
-	std::shared_ptr<ParameterTrack> actualParameterTrack = nullptr;
+	std::shared_ptr<ParameterTrack> activeParameterTrack = nullptr;
 };
 
 
@@ -126,7 +163,6 @@ public:
 private:
 	Unit unit;
 	MachineParameterType type;
-	std::string format;
 };
 
 

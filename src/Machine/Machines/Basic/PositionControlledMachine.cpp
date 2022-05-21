@@ -132,7 +132,7 @@ void PositionControlledMachine::process() {
 	switch(controlMode){
 			
 		case ControlMode::PARAMETER_TRACK:{
-			auto value = positionParameter->getActiveTrackParameterValue()->toPosition();
+			auto value = positionParameter->getActiveParameterTrackValue()->toPosition();
 			motionProfile.setPosition(value->position);
 			motionProfile.setVelocity(value->velocity);
 			}break;
@@ -173,7 +173,7 @@ void PositionControlledMachine::simulateProcess() {
 	switch(controlMode){
 			
 		case ControlMode::PARAMETER_TRACK:{
-			auto value = positionParameter->getActiveTrackParameterValue()->toPosition();
+			auto value = positionParameter->getActiveParameterTrackValue()->toPosition();
 			motionProfile.setPosition(value->position);
 			motionProfile.setVelocity(value->velocity);
 		}break;

@@ -88,8 +88,8 @@ void HoodedLiftStateMachine::process() {
 	//update outputs signals
 	if (b_enabled) {
 
-		if (stateParameter->hasParameterTrack()) {
-			auto state = stateParameter->getActiveTrackParameterValue()->toState();
+		if (stateParameter->hasActiveParameterTrack()) {
+			auto state = stateParameter->getActiveParameterTrackValue()->toState();
 			switch (state->value->integerEquivalent) {
 				case 0:
 					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
@@ -347,8 +347,8 @@ void HoodedLiftStateMachine::simulateProcess() {
 
 	//update outputs signals
 	if (isEnabled()) {
-		if (stateParameter->hasParameterTrack()) {
-			auto state = stateParameter->getActiveTrackParameterValue()->toState()->value;
+		if (stateParameter->hasActiveParameterTrack()) {
+			auto state = stateParameter->getActiveParameterTrackValue()->toState()->value;
 			switch (state->integerEquivalent) {
 				case 0:
 					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
