@@ -103,19 +103,46 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 
 
 void Manoeuvre::trackSheetGui(){
+
+	ImVec2 cursorPos = ImGui::GetCursorPos();
 	
-	//General Manoeuvre Settings
-	name->gui();
-	description->gui();
+	ImGui::BeginGroup();
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Manoeuvre Type");
+	ImGui::PopFont();
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 8.0);
 	type->gui();
-	ImGui::Separator();
+	ImGui::EndGroup();
 	
+	cursorPos.x += ImGui::GetItemRectSize().x + ImGui::GetStyle().ItemSpacing.x;
+	ImGui::SetCursorPos(cursorPos);
+	
+	ImGui::BeginGroup();
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Name");
+	ImGui::PopFont();
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 15.0);
+	name->gui();
+	ImGui::EndGroup();
+	
+	cursorPos.x += ImGui::GetItemRectSize().x + ImGui::GetStyle().ItemSpacing.x;
+	ImGui::SetCursorPos(cursorPos);
+	
+	ImGui::BeginGroup();
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Description");
+	ImGui::PopFont();
+	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+	description->gui();
+	ImGui::EndGroup();
+		 
+	ImGui::Separator();
 	
 	int removedTrackIndex = -1;
 	int movedUpTrackIndex = -1;
 	int movedDownTrackIndex = -1;
 
-	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoHostExtendY;
+	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit;
 	
 	bool b_tableBegun;
 	
@@ -128,23 +155,26 @@ void Manoeuvre::trackSheetGui(){
 			ImGui::TableSetupColumn("Target");
 			break;
 		case ManoeuvreType::TARGET:
-			b_tableBegun = ImGui::BeginTable("##TrackParameters", 8, tableFlags);
+			b_tableBegun = ImGui::BeginTable("##TrackParameters", 9, tableFlags);
 			ImGui::TableSetupColumn("Manage");
 			ImGui::TableSetupColumn("Machine");
 			ImGui::TableSetupColumn("Parameter");
-			ImGui::TableSetupColumn("Type");			//time vs velocity
 			ImGui::TableSetupColumn("Interpolation");	//kinematic, linear, step, bezier
 			ImGui::TableSetupColumn("Target");			//position or other
+			ImGui::TableSetupColumn("Using");			//time vs velocity
 			ImGui::TableSetupColumn("Constraint");		//time or velocity
+			ImGui::TableSetupColumn("Time Offset");		//seconds
 			ImGui::TableSetupColumn("Ramps");			//for kinematic or bezier
 			break;
 		case ManoeuvreType::SEQUENCE:
-			b_tableBegun = ImGui::BeginTable("##TrackParameters", 5, tableFlags);
+			b_tableBegun = ImGui::BeginTable("##TrackParameters", 7, tableFlags);
 			ImGui::TableSetupColumn("Manage");
 			ImGui::TableSetupColumn("Machine");
 			ImGui::TableSetupColumn("Parameter");
 			ImGui::TableSetupColumn("Start");		//sequencer start
 			ImGui::TableSetupColumn("End");			//sequencer end
+			ImGui::TableSetupColumn("Duration");
+			ImGui::TableSetupColumn("Time Offset");
 			break;
 	}
 	
@@ -176,7 +206,7 @@ void Manoeuvre::trackSheetGui(){
 			
 			//draw the groups child parameter tracks
 			if(parameterTrack->isGroup()){
-				auto groupTrack = ParameterTrack::castToGroup(parameterTrack);
+				auto groupTrack = parameterTrack->castToGroup();
 				std::vector<std::shared_ptr<ParameterTrack>>& childTracks = groupTrack->getChildren();
 				for(int j = 0; j < groupTrack->getChildren().size(); j++){
 					ImGui::PushID(j);

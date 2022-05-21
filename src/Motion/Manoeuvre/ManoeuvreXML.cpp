@@ -112,7 +112,10 @@ std::shared_ptr<ParameterTrack> ParameterTrack::load(tinyxml2::XMLElement* xml){
 	}
 	
 	//once we have the parameter object, we can create and load the parameter track object:
-	return loadType(xml, parameter);
+	auto loadedTrack = loadType(xml, parameter);
+	loadedTrack->subscribeToMachineParameter();
+	
+	return loadedTrack;
 }
 
 std::shared_ptr<ParameterTrack> ParameterTrack::loadType(tinyxml2::XMLElement* xml, std::shared_ptr<MachineParameter> parameter){
@@ -131,10 +134,10 @@ std::shared_ptr<ParameterTrack> ParameterTrack::loadType(tinyxml2::XMLElement* x
 	
 	std::shared_ptr<ParameterTrack> parameterTrack = nullptr;
 	switch(trackType){
-		case Type::GROUP: parameterTrack = ParameterTrackGroup::load(xml, MachineParameter::castToGroup(parameter)); break;
-		case Type::KEY: parameterTrack = KeyParameterTrack::load(xml, MachineParameter::castToAnimatable(parameter)); break;
-		case Type::TARGET: parameterTrack = TargetParameterTrack::load(xml, MachineParameter::castToAnimatable(parameter)); break;
-		case Type::SEQUENCE: parameterTrack = SequenceParameterTrack::load(xml, MachineParameter::castToAnimatable(parameter)); break;
+		case Type::GROUP: parameterTrack = ParameterTrackGroup::load(xml, parameter->castToGroup()); break;
+		case Type::KEY: parameterTrack = KeyParameterTrack::load(xml, parameter->castToAnimatable()); break;
+		case Type::TARGET: parameterTrack = TargetParameterTrack::load(xml, parameter->castToAnimatable()); break;
+		case Type::SEQUENCE: parameterTrack = SequenceParameterTrack::load(xml, parameter->castToAnimatable()); break;
 	}
 	if(parameterTrack == nullptr){
 		Logger::warn("Could not load parameter track");
@@ -265,7 +268,8 @@ bool TargetParameterTrack::onSave(tinyxml2::XMLElement* xml){
 	//save type, constraint, target, ramps
 	target->save(xml);
 	constraintType->save(xml);
-	constraint->save(xml);
+	timeConstraint->save(xml);
+	velocityConstraint->save(xml);
 	inAcceleration->save(xml);
 	outAcceleration->save(xml);
 	timeOffset->save(xml);
@@ -282,8 +286,12 @@ std::shared_ptr<TargetParameterTrack> TargetParameterTrack::load(tinyxml2::XMLEl
 		Logger::warn("could not load attribute constraint Type of parameter track {}", parameter->getName());
 		return nullptr;
 	}
-	if(!targetParameterTrack->constraint->load(xml)){
-		Logger::warn("could not load attribute constraint of parameter track {}", parameter->getName());
+	if(!targetParameterTrack->timeConstraint->load(xml)){
+		Logger::warn("could not load attribute time constraint of parameter track {}", parameter->getName());
+		return nullptr;
+	}
+	if(!targetParameterTrack->velocityConstraint->load(xml)){
+		Logger::warn("could not load attribute velocity constraint of parameter track {}", parameter->getName());
 		return nullptr;
 	}
 	if(!targetParameterTrack->inAcceleration->load(xml)){

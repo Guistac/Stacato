@@ -2,6 +2,15 @@
 
 #include "AnimatableParameter.h"
 
+#include "Motion/Manoeuvre/ParameterTrack.h"
+
+std::shared_ptr<ParameterTrack> MachineParameter::createTrack(ManoeuvreType manoeuvreType){
+	auto track = ParameterTrack::create(shared_from_this(), manoeuvreType);
+	//subscribe track to parameter changes
+	track->subscribeToMachineParameter();
+	return track;
+}
+
 int AnimatableParameter::getCurveCount(){
 	switch(getType()){
 		case MachineParameterType::BOOLEAN:
@@ -68,5 +77,13 @@ std::vector<Motion::Interpolation::Type>& AnimatableNumericalParameter::getCompa
 			return forVelocity;
 		case MachineParameterType::GROUP:
 			return none;
+	}
+}
+
+
+void AnimatableNumericalParameter::setUnit(Unit u){
+	unit = u;
+	for(auto track : getTracks()){
+		if(track->isAnimated()) track->castToAnimated()->setUnit(unit);
 	}
 }

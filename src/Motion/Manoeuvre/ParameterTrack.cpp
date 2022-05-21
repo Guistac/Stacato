@@ -14,13 +14,9 @@
 
 
 std::shared_ptr<ParameterTrack> ParameterTrack::create(std::shared_ptr<MachineParameter> parameter, ManoeuvreType manoeuvreType){
-	
-	if(parameter->getType() == MachineParameterType::GROUP){
-		auto parameterGroup = MachineParameter::castToGroup(parameter);
-		return std::make_shared<ParameterTrackGroup>(parameterGroup, manoeuvreType);
-	}
-	 else{
-		 auto animatableParameter = MachineParameter::castToAnimatable(parameter);
+	if(parameter->isGroup()) return std::make_shared<ParameterTrackGroup>(parameter->castToGroup(), manoeuvreType);
+	else{
+		auto animatableParameter = parameter->castToAnimatable();
 		switch(manoeuvreType){
 			case ManoeuvreType::KEY:
 				return std::make_shared<KeyParameterTrack>(animatableParameter);
@@ -30,22 +26,32 @@ std::shared_ptr<ParameterTrack> ParameterTrack::create(std::shared_ptr<MachinePa
 				return std::make_shared<SequenceParameterTrack>(animatableParameter);
 		}
 	}
-	
 }
+
+void ParameterTrack::subscribeToMachineParameter(){
+	getParameter()->subscribeTrack(shared_from_this());
+}
+
+void ParameterTrack::unsubscribeFromMachineParameter(){
+	getParameter()->unsubscribeTrack(shared_from_this());
+}
+
 
 std::shared_ptr<ParameterTrack> ParameterTrack::copy(const std::shared_ptr<ParameterTrack> original){
+	std::shared_ptr<ParameterTrack> copy;
 	switch(original->getType()){
-		case Type::GROUP: return ParameterTrackGroup::copy(std::dynamic_pointer_cast<ParameterTrackGroup>(original));
-		case Type::KEY:	return KeyParameterTrack::copy(std::dynamic_pointer_cast<KeyParameterTrack>(original));
-		case Type::TARGET: return TargetParameterTrack::copy(std::dynamic_pointer_cast<TargetParameterTrack>(original));
-		case Type::SEQUENCE: return SequenceParameterTrack::copy(std::dynamic_pointer_cast<SequenceParameterTrack>(original));
+		case Type::GROUP: copy =  original->castToGroup()->copy();
+		case Type::KEY:	copy = original->castToKey()->copy();
+		case Type::TARGET: copy = original->castToTarget()->copy();
+		case Type::SEQUENCE: copy = original->castToSequence()->copy();
 	}
+	//subscribe track to parameter changes
+	copy->subscribeToMachineParameter();
 }
 
-std::shared_ptr<ParameterTrackGroup> ParameterTrackGroup::copy(const std::shared_ptr<ParameterTrackGroup> original){
-	auto parameterGroup = MachineParameter::castToGroup(original->getParameter());
-	auto groupCopy = std::make_shared<ParameterTrackGroup>(parameterGroup);
-	for(auto childParameterTrack : original->getChildren()){
+std::shared_ptr<ParameterTrackGroup> ParameterTrackGroup::copy(){
+	auto groupCopy = std::make_shared<ParameterTrackGroup>(getParameter()->castToGroup());
+	for(auto childParameterTrack : getChildren()){
 		auto childCopy = ParameterTrack::copy(childParameterTrack);
 		childCopy->setParent(groupCopy);
 		groupCopy->children.push_back(childCopy);
@@ -53,27 +59,28 @@ std::shared_ptr<ParameterTrackGroup> ParameterTrackGroup::copy(const std::shared
 	return groupCopy;
 }
 
-std::shared_ptr<KeyParameterTrack> KeyParameterTrack::copy(const std::shared_ptr<KeyParameterTrack> original){
-	auto copy = std::make_shared<KeyParameterTrack>(original->getAnimatableParameter());
-	copy->target = original->target->makeCopy();
+std::shared_ptr<KeyParameterTrack> KeyParameterTrack::copy(){
+	auto copy = std::make_shared<KeyParameterTrack>(getAnimatableParameter());
+	copy->target = target->makeBaseCopy();
 	return copy;
 }
 
-std::shared_ptr<TargetParameterTrack> TargetParameterTrack::copy(const std::shared_ptr<TargetParameterTrack> original){
-	auto copy = std::make_shared<TargetParameterTrack>(original->getAnimatableParameter());
-	copy->target = original->target->makeCopy();
-	copy->constraint = original->constraint->makeCopy();
-	copy->inAcceleration = original->inAcceleration->makeCopy();
-	copy->outAcceleration = original->outAcceleration->makeCopy();
-	copy->timeOffset = original->timeOffset->makeCopy();
-	copy->constraintType = original->constraintType->makeCopy();
+std::shared_ptr<TargetParameterTrack> TargetParameterTrack::copy(){
+	auto copy = std::make_shared<TargetParameterTrack>(getAnimatableParameter());
+	copy->target = target->makeBaseCopy();
+	copy->timeConstraint = timeConstraint->makeCopy();
+	copy->velocityConstraint = velocityConstraint->makeCopy();
+	copy->inAcceleration = inAcceleration->makeCopy();
+	copy->outAcceleration = outAcceleration->makeCopy();
+	copy->timeOffset = timeOffset->makeCopy();
+	copy->constraintType = constraintType->makeCopy();
 	return copy;
 }
 
-std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::copy(const std::shared_ptr<SequenceParameterTrack> original){
-	auto copy = std::make_shared<SequenceParameterTrack>(original->getAnimatableParameter());
-	copy->target = original->target->makeCopy();
-	copy->start = original->start->makeCopy();
+std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::copy(){
+	auto copy = std::make_shared<SequenceParameterTrack>(getAnimatableParameter());
+	copy->target = target->makeBaseCopy();
+	copy->start = start->makeBaseCopy();
 	return copy;
 }
 

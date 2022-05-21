@@ -61,6 +61,9 @@ public:
 																													"Manoeuvre Type",
 																													"Type");
 	
+	void subscribeAllTracksToMachineParameter();
+	void unsubscribeAllTracksFromMachineParameter();
+	
 private:
 	
 	bool b_valid = false;

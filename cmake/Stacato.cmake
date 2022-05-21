@@ -109,7 +109,7 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Motion/Playback/Playback.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Playback/Playback.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Playback/Transport.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Playback/TimeStringConversion.h
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.h

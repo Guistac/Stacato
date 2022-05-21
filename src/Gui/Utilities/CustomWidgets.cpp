@@ -702,23 +702,28 @@ void backgroundText(const char* text, ImVec4 backgroundColor, ImVec4 textColor){
 	backgroundText(text, ImVec2(0.0, 0.0), backgroundColor, textColor);
 }
 void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec4 textColor){
-	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+	ImVec2 padding = ImGui::GetStyle().FramePadding;
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0, 0.0));
 	ImGui::PushStyleColor(ImGuiCol_Button, backgroundColor);
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, backgroundColor);
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, backgroundColor);
 	ImGui::PushStyleColor(ImGuiCol_Text, textColor);
-	if(size.x == 0.0 && size.y == 0.0) ImGui::Button(text);
-	else ImGui::Button(text, size);
-	ImGui::PopStyleColor(2);
+	if(size.x == 0.0 && size.y == 0.0) {
+		size = ImGui::CalcTextSize(text);
+		size.x += padding.x * 2.0;
+		size.y += padding.y * 2.0;
+	}
+	ImGui::Button(text, size);
+	ImGui::PopStyleColor(4);
 	ImGui::PopStyleVar();
-	ImGui::PopItemFlag();
 }
 
 
-#include "Motion/Playback/Playback.h"
+#include "Motion/Playback/TimeStringConversion.h"
 
 bool timeEntryWidgetSeconds(const char* ID, float height, double& time_seconds){
 	static char textBuffer[64];
-	strcpy(textBuffer, Playback::Transport::secondsToTimecodeString(time_seconds).c_str());
+	strcpy(textBuffer, TimeStringConversion::secondsToTimecodeString(time_seconds).c_str());
 	bool ret = false;
 	
 	float paddingY = (height - ImGui::GetTextLineHeight()) / 2.0;
@@ -727,7 +732,7 @@ bool timeEntryWidgetSeconds(const char* ID, float height, double& time_seconds){
 	ImGui::SetNextItemWidth(ImGui::CalcTextSize("+00:00:00.0").x + ImGui::GetStyle().FramePadding.x * 2.0);
 	ImGui::InputText(ID, textBuffer, 64, ImGuiInputTextFlags_AutoSelectAll);
 	if(ImGui::IsItemDeactivatedAfterEdit()){
-		time_seconds = Playback::Transport::timecodeStringToSeconds(textBuffer);
+		time_seconds = TimeStringConversion::timecodeStringToSeconds(textBuffer);
 		ret = true;
 	}
 	ImGui::PopStyleVar();
@@ -736,7 +741,7 @@ bool timeEntryWidgetSeconds(const char* ID, float height, double& time_seconds){
 
 bool timeEntryWidgetMicroseconds(const char* ID, float height, long long int time_microseconds){
 	static char textBuffer[64];
-	strcpy(textBuffer, Playback::Transport::microsecondsToTimecodeString(time_microseconds).c_str());
+	strcpy(textBuffer, TimeStringConversion::microsecondsToTimecodeString(time_microseconds).c_str());
 	bool ret = false;
 	
 	float paddingY = (height - ImGui::GetTextLineHeight()) / 2.0;
@@ -746,7 +751,7 @@ bool timeEntryWidgetMicroseconds(const char* ID, float height, long long int tim
 	ImGui::InputText(ID, textBuffer, 64, ImGuiInputTextFlags_AutoSelectAll);
 	
 	if(ImGui::IsItemDeactivatedAfterEdit()){
-		time_microseconds = Playback::Transport::timecodeStringToMicroseconds(textBuffer);
+		time_microseconds = TimeStringConversion::timecodeStringToMicroseconds(textBuffer);
 		ret = true;
 	}
 	ImGui::PopStyleVar();

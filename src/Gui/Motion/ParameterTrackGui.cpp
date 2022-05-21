@@ -27,7 +27,7 @@ void ParameterTrack::baseTrackSheetRowGui(){
 
 	//[1] "Machine"
 	ImGui::TableSetColumnIndex(1);
-	if (!hasParentGroup()) ImGui::Text("%s", parameter->getMachine()->getName());
+	if (!hasParentGroup()) backgroundText(parameter->getMachine()->getName(), b_valid ? Colors::darkGray : Colors::red, b_valid ? Colors::white : Colors::black);
 	
 	if(!b_valid && ImGui::IsItemHovered()){
 		ImGui::BeginTooltip();
@@ -49,7 +49,7 @@ void ParameterTrack::baseTrackSheetRowGui(){
 
 	//[2] "Parameter"
 	ImGui::TableSetColumnIndex(2);
-	ImGui::Text("%s", parameter->getName());
+	backgroundText(parameter->getName(), b_valid ? Colors::darkGray : Colors::red, b_valid ? Colors::white : Colors::black);
 
 	if (!b_valid) ImGui::PopStyleColor();
 }
@@ -68,28 +68,35 @@ void TargetParameterTrack::trackSheetRowGui(){
 	
 	float widgetWidth = ImGui::GetTextLineHeight() * 5.0;
 	
-	//[3] "Type"			//time vs velocity
-	ImGui::TableSetColumnIndex(3);
-	ImGui::SetNextItemWidth(widgetWidth);
-	constraintType->gui();
 	
-	//[4] "Interpolation"	//kinematic, linear, step, bezier
+	//[3] "Interpolation"	//kinematic, linear, step, bezier
+	ImGui::TableSetColumnIndex(3);
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 10.0);
+	interpolationTypeGui();
+	 
+	//[4] "Target"			//position or other
 	ImGui::TableSetColumnIndex(4);
 	ImGui::SetNextItemWidth(widgetWidth);
-	interpolationTypeGui();
-
-	//[5] "Target"			//position or other
+	target->gui();
+	
+	//[5] "Using"			//time vs velocity
 	ImGui::TableSetColumnIndex(5);
 	ImGui::SetNextItemWidth(widgetWidth);
-	target->gui();
+	constraintType->gui();
 
 	//[6] "Constraint"		//time or velocity
 	ImGui::TableSetColumnIndex(6);
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 7.0);
+	if(getConstraintType() == Constraint::TIME) timeConstraint->gui();
+	else if(getConstraintType() == Constraint::VELOCITY) velocityConstraint->gui();
+	
+	//[7] "Time Offset" 	//seconds
+	ImGui::TableSetColumnIndex(7);
 	ImGui::SetNextItemWidth(widgetWidth);
-	constraint->gui();
+	timeOffset->gui();
 	
 	//[7] "Ramps"			//for kinematic or bezier
-	ImGui::TableSetColumnIndex(7);
+	ImGui::TableSetColumnIndex(8);
 	ImGui::SetNextItemWidth(widgetWidth);
 	inAcceleration->gui();
 	ImGui::SameLine();
@@ -110,6 +117,16 @@ void SequenceParameterTrack::trackSheetRowGui(){
 	ImGui::TableSetColumnIndex(4);
 	ImGui::SetNextItemWidth(widgetWidth);
 	target->gui();
+	
+	//[5] "Start"
+	ImGui::TableSetColumnIndex(5);
+	ImGui::SetNextItemWidth(widgetWidth);
+	duration->gui();
+	
+	//[6] "End"
+	ImGui::TableSetColumnIndex(6);
+	ImGui::SetNextItemWidth(widgetWidth);
+	timeOffset->gui();
 }
 
 

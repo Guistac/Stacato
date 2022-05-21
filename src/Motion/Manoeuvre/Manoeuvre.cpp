@@ -83,7 +83,7 @@ public:
 	}
 	
 	virtual void execute(){
-		addedTrack = ParameterTrack::create(machineParameter, manoeuvre->getType());
+		addedTrack = machineParameter->createTrack(manoeuvre->getType());
 		manoeuvre->getTracks().push_back(addedTrack);
 	}
 	
@@ -95,10 +95,12 @@ public:
 				break;
 			}
 		}
+		addedTrack->unsubscribeFromMachineParameter();
 	}
 	
 	virtual void redo(){
 		manoeuvre->getTracks().push_back(addedTrack);
+		addedTrack->subscribeToMachineParameter();
 	}
 	
 };
@@ -137,11 +139,13 @@ public:
 				break;
 			}
 		}
+		removedTrack->unsubscribeFromMachineParameter();
 	}
 	
 	virtual void undo(){
 		auto& tracks = manoeuvre->getTracks();
 		tracks.insert(tracks.begin() + removeIndex, removedTrack);
+		removedTrack->subscribeToMachineParameter();
 	}
 	
 };
@@ -203,7 +207,12 @@ void Manoeuvre::moveTrack(int oldIndex, int newIndex){
 
 
 
-
+void Manoeuvre::subscribeAllTracksToMachineParameter(){
+	for(auto track : tracks) track->subscribeToMachineParameter();
+}
+void Manoeuvre::unsubscribeAllTracksFromMachineParameter(){
+	for(auto track : tracks) track->unsubscribeFromMachineParameter();
+}
 
 
 

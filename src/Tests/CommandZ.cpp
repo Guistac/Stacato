@@ -71,11 +71,15 @@ void testUndoHistory(){
 		b_init = true;
 		
 		std::vector<std::shared_ptr<Parameter>> parameters{
-			std::make_shared<NumberParameter<int>>(1, "integer 0", "IntParam1", Units::None::None, 1, 10, "%i added things"),
-			std::make_shared<NumberParameter<int>>(2, "integer 1", "IntParam2", Units::None::None),
-			std::make_shared<NumberParameter<int>>(3, "integer 2", "IntParam3", Units::None::None, 1, 10),
-			std::make_shared<NumberParameter<int>>(4, "integer 3", "IntParam4", Units::Temperature::Kelvin, 1, 10),
+			NumberParameter<int>::make(1, "test")
+			//std::make_shared<NumberParameter<int>>(1, "integer 0", "IntParam1", 1, 10, "%i added things"),
+			/*
+			std::make_shared<NumberParameter<int>>(2, "integer 1", "IntParam2"),
+			std::make_shared<NumberParameter<int>>(3, "integer 2", "IntParam3", 1, 10),
+			std::make_shared<NumberParameter<int>>(4, "integer 3", "IntParam4", 1, 10),
 				
+			//NumberParameter<int>::make(1, "integer 0", "IntParam1", 1, 10, "", )
+			
 			std::make_shared<NumberParameter<double>>(1.0, "parameter 0", "DoubleParam0", Units::Time::Week, 0.1, 1.0),
 			std::make_shared<NumberParameter<double>>(2.0, "parameter 1", "DoubleParam1", Units::None::None, 0.1, 1.0, "%.3f lel"),
 			std::make_shared<NumberParameter<double>>(3.0, "parameter 2", "DoubleParam2", Units::None::None, 0.1, 1.0, "%.9f"),
@@ -100,6 +104,7 @@ void testUndoHistory(){
 			std::make_shared<VectorParameter<glm::vec2>>(glm::vec2(1.2, 3.4), 			"Vec2 Parameter 1", "Vec2Param0"),
 			std::make_shared<VectorParameter<glm::vec3>>(glm::vec3(5.6, 7.8, 9.0), 		"Vec3 Parameter 2", "Vec2Param1"),
 			std::make_shared<VectorParameter<glm::vec4>>(glm::vec4(0.0, 1.0, 2.0, 3.0), "Vec4 Parameter 3", "Vec2Param2")
+			 */
 		};
 		parameterList = std::make_shared<List<std::shared_ptr<Parameter>>>(parameters);
 		
@@ -140,24 +145,24 @@ void testUndoHistory(){
 	if (ImGui::BeginPopup("AddParameterPopup")) {
 		if(ImGui::MenuItem("Double")){
 			std::string name = "Double Parameter " + std::to_string(parameterList->size());
-			parameterList->addElement(std::make_shared<NumberParameter<double>>(0.0, name, name));
+			parameterList->addElement(NumberParameter<double>::make(0.0, name, name));
 		}
 		if(ImGui::MenuItem("Float")){
 			std::string name = "Float Parameter " + std::to_string(parameterList->size());
-			parameterList->addElement(std::make_shared<NumberParameter<float>>(0.0f, name, name));
+			parameterList->addElement(NumberParameter<float>::make(0.0f, name, name));
 		}
 		ImGui::Separator();
 		if(ImGui::MenuItem("Integer")){
 			std::string name = "Integer Parameter " + std::to_string(parameterList->size());
-			parameterList->addElement(std::make_shared<NumberParameter<int>>(0, name, name));
+			parameterList->addElement(NumberParameter<int>::make(0, name, name));
 		}
 		if(ImGui::MenuItem("uint8_t")){
 			std::string name = "uint8_t Parameter " + std::to_string(parameterList->size());
-			parameterList->addElement(std::make_shared<NumberParameter<uint8_t>>(0, name, name));
+			parameterList->addElement(NumberParameter<uint8_t>::make(0, name, name));
 		}
 		if(ImGui::MenuItem("int8_t")){
 			std::string name = "int8_t Parameter " + std::to_string(parameterList->size());
-			parameterList->addElement(std::make_shared<NumberParameter<int8_t>>(0, name, name));
+			parameterList->addElement(NumberParameter<int8_t>::make(0, name, name));
 		}
 		ImGui::Separator();
 		if(ImGui::MenuItem("Boolean")){

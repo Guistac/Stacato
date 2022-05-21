@@ -1,15 +1,15 @@
 #include <pch.h>
 #include "Playback.h"
 
-namespace Playback::Transport{
+namespace TimeStringConversion{
 
-	long long int weekInMicroseconds = 604'800'000'000;
-	long long int dayInMicroseconds = 86'400'000'000;
-	long long int hourInMicroseconds = 3'600'000'000;
-	long long int minuteInMicroseconds = 60'000'000;
-	long long int secondInMicroseconds = 1'000'000;
+	static long long int weekInMicroseconds = 604'800'000'000;
+	static long long int dayInMicroseconds = 86'400'000'000;
+	static long long int hourInMicroseconds = 3'600'000'000;
+	static long long int minuteInMicroseconds = 60'000'000;
+	static long long int secondInMicroseconds = 1'000'000;
 
-	std::string microsecondsToTimecodeString(long long int microseconds){
+	inline std::string microsecondsToTimecodeString(long long int microseconds){
 		static char buffer[256];
 		int start = 0;
 		
@@ -40,7 +40,7 @@ namespace Playback::Transport{
 
 
 
-	long long int timecodeStringToMicroseconds(const char* buffer){
+	inline long long int timecodeStringToMicroseconds(const char* buffer){
 		
 		std::vector<std::deque<char>> timeChars(3);
 
@@ -133,11 +133,11 @@ namespace Playback::Transport{
 		return microseconds;
 	}
 
-	std::string secondsToTimecodeString(double seconds){
+	inline std::string secondsToTimecodeString(double seconds){
 		return microsecondsToTimecodeString(seconds * 1000000);
 	}
 
-	double timecodeStringToSeconds(const char* buffer){
+	inline double timecodeStringToSeconds(const char* buffer){
 		return timecodeStringToMicroseconds(buffer) / 1000000.0;
 	}
 

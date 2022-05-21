@@ -210,7 +210,7 @@ DEFINE_ENUMERATOR(Motion::ValidationError, CurveValidationErrorTypeStrings)
 #define InterpolationTypeStrings \
 	{Motion::Interpolation::Type::STEP,			"Step", "Step"},\
 	{Motion::Interpolation::Type::LINEAR,		"Linear", "Linear"},\
-	{Motion::Interpolation::Type::TRAPEZOIDAL,	"Trapezoidal", "Trapezoidal"},\
+	{Motion::Interpolation::Type::TRAPEZOIDAL,	"Constant Acceleration", "Trapezoidal"},\
 	{Motion::Interpolation::Type::BEZIER,		"Bezier", "Bezier"}\
 
 DEFINE_ENUMERATOR(Motion::Interpolation::Type, InterpolationTypeStrings)

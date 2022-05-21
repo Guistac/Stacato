@@ -317,7 +317,8 @@ public:
 	}
 	
 	double getInterpolationProgress(double time){
-		return targetInterpolation->getProgressAtTime(time);
+		if(targetInterpolation) return targetInterpolation->getProgressAtTime(time);
+		return 1.0;
 	}
 	
 	bool isInterpolationFinished(double time){

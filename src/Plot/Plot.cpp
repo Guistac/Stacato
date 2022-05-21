@@ -53,6 +53,7 @@ public:
 			plot->getManoeuvres().push_back(addedManoeuvre);
 		}
 		plot->selectManoeuvre(addedManoeuvre);
+		addedManoeuvre->subscribeAllTracksToMachineParameter();
 	}
 	
 	virtual void undo(){
@@ -63,11 +64,13 @@ public:
 				break;
 			}
 		}
+		addedManoeuvre->unsubscribeAllTracksFromMachineParameter();
 	}
 	virtual void redo(){
 		auto& manoeuvres = plot->getManoeuvres();
 		manoeuvres.insert(manoeuvres.begin() + addedIndex, addedManoeuvre);
 		plot->selectManoeuvre(addedManoeuvre);
+		addedManoeuvre->subscribeAllTracksToMachineParameter();
 	}
 };
 
@@ -107,12 +110,13 @@ public:
 				break;
 			}
 		}
-		plot->selectManoeuvre(nullptr);
+		deletedManoeuvre->unsubscribeAllTracksFromMachineParameter();
 	}
 	virtual void undo(){
 		auto& manoeuvres = plot->getManoeuvres();
 		manoeuvres.insert(manoeuvres.begin() + deletedIndex, deletedManoeuvre);
 		plot->selectManoeuvre(deletedManoeuvre);
+		deletedManoeuvre->subscribeAllTracksToMachineParameter();
 	}
 };
 

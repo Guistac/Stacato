@@ -41,8 +41,8 @@ bool Machine::isSimulating(){
 void Machine::addParameter(std::shared_ptr<MachineParameter> parameter) {
 	auto thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
 	parameter->setMachine(thisMachine);
-	if(parameter->getType() == MachineParameterType::GROUP){
-		auto parameterGroup = MachineParameter::castToGroup(parameter);
+	if(parameter->isGroup()){
+		auto parameterGroup = parameter->castToGroup();
 		for(auto& childParameter : parameterGroup->getChildren()){
 			childParameter->setMachine(thisMachine);
 		}
