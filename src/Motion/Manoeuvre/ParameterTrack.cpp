@@ -65,25 +65,31 @@ std::shared_ptr<ParameterTrackGroup> ParameterTrackGroup::copy(){
 
 std::shared_ptr<KeyParameterTrack> KeyParameterTrack::copy(){
 	auto copy = std::make_shared<KeyParameterTrack>(getAnimatableParameter());
+	getAnimatableParameter()->copyParameterValue(target, copy->target);
 	return copy;
 }
 
 std::shared_ptr<TargetParameterTrack> TargetParameterTrack::copy(){
 	auto copy = std::make_shared<TargetParameterTrack>(getAnimatableParameter());
-	copy->target = target->makeBaseCopy();
-	copy->timeConstraint = timeConstraint->makeCopy();
-	copy->velocityConstraint = velocityConstraint->makeCopy();
-	copy->inAcceleration = inAcceleration->makeCopy();
-	copy->outAcceleration = outAcceleration->makeCopy();
-	copy->timeOffset = timeOffset->makeCopy();
-	copy->constraintType = constraintType->makeCopy();
+	getAnimatableParameter()->copyParameterValue(target, copy->target);
+	copy->interpolationType->overwrite(interpolationType->value);
+	copy->timeConstraint->overwrite(timeConstraint->value);
+	copy->velocityConstraint->overwrite(velocityConstraint->value);
+	copy->inAcceleration->overwrite(inAcceleration->value);
+	copy->outAcceleration->overwrite(outAcceleration->value);
+	copy->timeOffset->overwrite(timeOffset->value);
+	copy->constraintType->overwrite(constraintType->value);
 	return copy;
 }
 
 std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::copy(){
 	auto copy = std::make_shared<SequenceParameterTrack>(getAnimatableParameter());
-	copy->target = target->makeBaseCopy();
-	copy->start = start->makeBaseCopy();
+	getAnimatableParameter()->copyParameterValue(target, copy->target);
+	getAnimatableParameter()->copyParameterValue(start, copy->start);
+	copy->interpolationType->overwrite(interpolationType->value);
+	copy->duration->overwrite(duration->value);
+	copy->timeOffset->overwrite(timeOffset->value);
+	//TODO: copy curves
 	return copy;
 }
 
@@ -96,6 +102,44 @@ void ParameterTrack::validate(){
 
 
 
+class CaptureCurrentMachineParameterValueCommand : public Command{
+public:
+	
+	std::shared_ptr<Parameter> parameter;
+	std::shared_ptr<AnimatableParameter> animatableParameter;
+	std::shared_ptr<AnimatableParameterValue> previousValue;
+	std::shared_ptr<AnimatableParameterValue> capturedValue;
+	
+	CaptureCurrentMachineParameterValueCommand(std::string& name, std::shared_ptr<Parameter> parameter_, std::shared_ptr<AnimatableParameter> animatableParameter_)
+	: Command(name) {
+		parameter = parameter_;
+		animatableParameter = animatableParameter_;
+	};
+	
+	virtual void execute(){
+		capturedValue = animatableParameter->getActualMachineValue();
+		previousValue = animatableParameter->getParameterValue(parameter);
+		animatableParameter->setParameterValue(parameter, capturedValue);
+	}
+	virtual void undo(){
+		animatableParameter->setParameterValue(parameter, previousValue);
+	}
+	virtual void redo(){
+		animatableParameter->setParameterValue(parameter, capturedValue);
+	}
+};
+
+void AnimatedParameterTrack::captureCurrentValueAsTarget(){
+	std::string name = "Capture " + std::string(getParameter()->getName()) + " Target";
+	auto command = std::make_shared<CaptureCurrentMachineParameterValueCommand>(name, target, getAnimatableParameter());
+	CommandHistory::pushAndExecute(command);
+}
+
+void SequenceParameterTrack::captureCurrentValueAsStart(){
+	std::string name = "Capture " + std::string(getParameter()->getName()) + " Start";
+	auto command = std::make_shared<CaptureCurrentMachineParameterValueCommand>(name, start, getAnimatableParameter());
+	CommandHistory::pushAndExecute(command);
+}
 
 
 

@@ -28,9 +28,7 @@ public:
 public:
 
 	static std::shared_ptr<ParameterTrack> create(std::shared_ptr<MachineParameter> parameter, ManoeuvreType manoeuvreType);
-	//static std::shared_ptr<ParameterTrack> create(std::shared_ptr<MachineParameter> parameter);
 	static std::shared_ptr<ParameterTrack> copy(const std::shared_ptr<ParameterTrack> original);
-	//static std::shared_ptr<ParameterTrack> copy(const std::shared_ptr<ParameterTrack> original, std::shared_ptr<Manoeuvre> newManoeuvre);
 	
 	static std::shared_ptr<ParameterTrack> load(tinyxml2::XMLElement* trackXML);
 	bool save(tinyxml2::XMLElement* trackXML);
@@ -114,9 +112,6 @@ public:
 	
 	AnimatedParameterTrack(std::shared_ptr<AnimatableParameter> parameter) : ParameterTrack(parameter){
 		animatableParameter = parameter;
-		Motion::Interpolation::Type defaultInterpolation = getAnimatableParameter()->getCompatibleInterpolationTypes().front();
-		interpolationType = std::make_shared<EnumeratorParameter<Motion::Interpolation::Type>>(defaultInterpolation, "Interpolation", "Interpolation");
-		interpolationType->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
 		curves.resize(animatableParameter->getCurveCount());
 	}
 	
@@ -134,13 +129,12 @@ public:
 	std::vector<Motion::Curve>& getCurves(){ return curves; }
 	
 	virtual void setUnit(Unit unit) = 0;
-	void setInterpolationType(Motion::Interpolation::Type t);
+	
 	void captureCurrentValueAsTarget();
 	
 	void refreshAfterCurveEdit(){}
 	
 	std::shared_ptr<Parameter> target;
-	std::shared_ptr<EnumeratorParameter<Motion::Interpolation::Type>> interpolationType;
 	
 private:
 	
@@ -170,10 +164,6 @@ private:
 	//———————————————————————————————————————————
 	//	  		    User Interface
 	//———————————————————————————————————————————
-	
-public:
-	
-	void interpolationTypeGui();
 	
 };
 
@@ -210,9 +200,7 @@ public:
 			Unit unit = parameter->castToNumerical()->getUnit();
 			setUnit(unit);
 		}
-		target->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){
-			this->validate();
-		});
+		target->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ this->validate(); });
 	}
 	
 	virtual ManoeuvreType getType() override { return ManoeuvreType::KEY; }
@@ -271,6 +259,9 @@ public:
 		target = parameter->getEditableParameter();
 		target->setSaveString("Target");
 		target->setName("Target");
+		velocityConstraint->denyNegatives();
+		inAcceleration->denyNegatives();
+		outAcceleration->denyNegatives();
 		if(parameter->isNumerical()){
 			velocityConstraint->setPrefix("Velocity: ");
 			velocityConstraint->setSuffix("/s");
@@ -288,16 +279,20 @@ public:
 			inAcceleration->setDisabled(true);
 			outAcceleration->setDisabled(true);
 		}
-		target->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
-		velocityConstraint->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
-		velocityConstraint->denyNegatives();
-		inAcceleration->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
-		inAcceleration->denyNegatives();
-		outAcceleration->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
-		outAcceleration->denyNegatives();
-		constraintType->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
-		timeConstraint->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
+		
+		Motion::Interpolation::Type defaultInterpolation = getAnimatableParameter()->getCompatibleInterpolationTypes().front();
+		interpolationType = std::make_shared<EnumeratorParameter<Motion::Interpolation::Type>>(defaultInterpolation, "Interpolation Type", "interpolationType");
+		
+		auto editCallback = [this](std::shared_ptr<Parameter> thisParameter){ validate(); };
+		target->setEditCallback(editCallback);
+		interpolationType->setEditCallback(editCallback);
+		velocityConstraint->setEditCallback(editCallback);
+		inAcceleration->setEditCallback(editCallback);
+		outAcceleration->setEditCallback(editCallback);
+		constraintType->setEditCallback(editCallback);
+		timeConstraint->setEditCallback(editCallback);
 	}
+	
 	
 	virtual ManoeuvreType getType() override { return ManoeuvreType::TARGET; }
 	
@@ -327,12 +322,13 @@ public:
 		}
 	}
 		
+	std::shared_ptr<EnumeratorParameter<Motion::Interpolation::Type>> interpolationType;
 	std::shared_ptr<TimeParameter> timeOffset = std::make_shared<TimeParameter>(0.0, "Time Offset", "TimeOffset");
 	std::shared_ptr<EnumeratorParameter<Constraint>> constraintType = std::make_shared<EnumeratorParameter<Constraint>>(Constraint::TIME, "Constraint Type", "ConstraintType");
 	std::shared_ptr<TimeParameter> timeConstraint = std::make_shared<TimeParameter>(0.0, "Movement Time", "Time");
-	std::shared_ptr<BaseNumberParameter> velocityConstraint = NumberParameter<double>::make(0.0, "Movement Velocity", "Velocity");
-	std::shared_ptr<BaseNumberParameter> inAcceleration = NumberParameter<double>::make(0.0, "Start Acceleration", "StartAcceleration");
-	std::shared_ptr<BaseNumberParameter> outAcceleration = NumberParameter<double>::make(0.0, "End Acceleration", "EndAcceleration");
+	std::shared_ptr<NumberParameter<double>> velocityConstraint = NumberParameter<double>::make(0.0, "Movement Velocity", "Velocity");
+	std::shared_ptr<NumberParameter<double>> inAcceleration = NumberParameter<double>::make(0.0, "Start Acceleration", "StartAcceleration");
+	std::shared_ptr<NumberParameter<double>> outAcceleration = NumberParameter<double>::make(0.0, "End Acceleration", "EndAcceleration");
 	bool b_accelerationsEqual;
 	
 	//———————————————————————————————————————————
@@ -390,10 +386,15 @@ public:
 			Unit unit = parameter->castToNumerical()->getUnit();
 			setUnit(unit);
 		}
-		target->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
-		start->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
-		duration->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
-		timeOffset->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
+		Motion::Interpolation::Type defaultInterpolation = getAnimatableParameter()->getCompatibleInterpolationTypes().front();
+		interpolationType = std::make_shared<EnumeratorParameter<Motion::Interpolation::Type>>(defaultInterpolation, "Interpolation Type", "interpolationType");
+		
+		auto editCallback = [this](std::shared_ptr<Parameter> thisParameter){ validate(); };
+		interpolationType->setEditCallback(editCallback);
+		target->setEditCallback(editCallback);
+		start->setEditCallback(editCallback);
+		duration->setEditCallback(editCallback);
+		timeOffset->setEditCallback(editCallback);
 	}
 	
 	virtual ManoeuvreType getType() override { return ManoeuvreType::SEQUENCE; }
@@ -417,8 +418,11 @@ public:
 	
 	std::shared_ptr<Parameter> start;
 	
+	void captureCurrentValueAsStart();
+	
 private:
 	
+	std::shared_ptr<EnumeratorParameter<Motion::Interpolation::Type>> interpolationType;
 	std::shared_ptr<TimeParameter> duration = std::make_shared<TimeParameter>(0, "Duration", "Duration");
 	std::shared_ptr<TimeParameter> timeOffset = std::make_shared<TimeParameter>(0, "Time Offset", "Offset");
 	

@@ -16,11 +16,6 @@
 
 #include "Gui/Utilities/CustomWidgets.h"
 
-void AnimatedParameterTrack::interpolationTypeGui(){
-	auto& compatibleTypes = getAnimatableParameter()->getCompatibleInterpolationTypes();
-	interpolationType->combo(compatibleTypes.data(), compatibleTypes.size());
-}
-
 
 void ParameterTrack::baseTrackSheetRowGui(){
 
@@ -93,13 +88,16 @@ void TargetParameterTrack::trackSheetRowGui(){
 	//[3] "Interpolation"	//kinematic, linear, step, bezier
 	ImGui::TableSetColumnIndex(3);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 10.0);
-	interpolationTypeGui();
+	auto& compatibleTypes = getAnimatableParameter()->getCompatibleInterpolationTypes();
+	interpolationType->combo(compatibleTypes.data(), compatibleTypes.size());
 	 
 	//[4] "Target"			//position or other
 	ImGui::TableSetColumnIndex(4);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	target->gui();
 	if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
+	ImGui::SameLine();
+	if(ImGui::Button("Capture")) captureCurrentValueAsTarget();
 	
 	//[5] "Using"			//time vs velocity
 	ImGui::TableSetColumnIndex(5);
@@ -141,12 +139,16 @@ void SequenceParameterTrack::trackSheetRowGui(){
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	start->gui();
 	if(!start->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
+	ImGui::SameLine();
+	if(ImGui::Button("Capture##Start")) captureCurrentValueAsStart();
 	
 	//[4] "End"
 	ImGui::TableSetColumnIndex(4);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	target->gui();
 	if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
+	ImGui::SameLine();
+	if(ImGui::Button("Capture##Target")) captureCurrentValueAsTarget();
 	
 	//[5] "Duration"
 	ImGui::TableSetColumnIndex(5);

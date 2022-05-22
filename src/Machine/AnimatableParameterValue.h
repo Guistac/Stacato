@@ -8,26 +8,6 @@ struct AnimatableParameterState{
 	const char saveName[64];
 };
 
-/*
-struct AnimatableParameterValue {
-	union {
-		MotionPoint motion;
-		MotionPoint2D motion2D;
-		MotionPoint3D motion3D;
-		bool boolean;
-		int integer;
-		double real;
-		glm::dvec2 vector2;
-		glm::dvec3 vector3;
-		AnimatableParameterState* state;
-	};
-};
-*/
-
-
-
-
-
 struct BooleanParameterValue;
 struct IntegerParameterValue;
 struct RealParameterValue;

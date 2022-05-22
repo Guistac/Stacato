@@ -160,7 +160,10 @@ void Manoeuvre::trackSheetGui(){
 	int movedUpTrackIndex = -1;
 	int movedDownTrackIndex = -1;
 
-	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit;
+	
+	ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.15));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.15));
+	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX;
 	
 	bool b_tableBegun;
 	
@@ -271,6 +274,8 @@ void Manoeuvre::trackSheetGui(){
 		
 		ImGui::EndTable();
 	}
+	
+	ImGui::PopStyleVar(2);
 	
 	if(removedTrackIndex > -1) removeTrack(getTracks()[removedTrackIndex]->getParameter());
 	if(movedUpTrackIndex > -1) moveTrack(movedUpTrackIndex, movedUpTrackIndex - 1);

@@ -112,9 +112,15 @@ public:
 		return nullptr;
 	}
 	
+	std::shared_ptr<AnimatableParameterValue> getActualMachineValue();
+	
 	int getCurveCount();
 	
 	std::shared_ptr<Parameter> getEditableParameter();
+	
+	void setParameterValue(std::shared_ptr<Parameter> parameter, std::shared_ptr<AnimatableParameterValue> value);
+	void copyParameterValue(std::shared_ptr<Parameter> from, std::shared_ptr<Parameter> to);
+	std::shared_ptr<AnimatableParameterValue> getParameterValue(std::shared_ptr<Parameter> parameter);
 	
 private:
 	std::shared_ptr<ParameterTrack> activeParameterTrack = nullptr;

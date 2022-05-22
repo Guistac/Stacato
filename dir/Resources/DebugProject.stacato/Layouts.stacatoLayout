@@ -36,6 +36,7 @@
 
 
 
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -143,6 +144,7 @@ DockSpace       ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 Split=X
 
 </Layout>
     <Layout Name="CurveTests">
+
 
 
 
@@ -312,6 +314,7 @@ DockSpace ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 CentralNode=1 
 
 
 
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -413,6 +416,7 @@ DockSpace ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 CentralNode=1 
 
 </Layout>
     <Layout Name="Plot Editor">
+
 
 
 
@@ -582,6 +586,7 @@ DockSpace   ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 Split=X Sele
 
 
 
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -689,6 +694,7 @@ DockSpace       ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 Split=X
 
 </Layout>
     <Layout Name="CurveTests">
+
 
 
 
@@ -858,6 +864,7 @@ DockSpace ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 CentralNode=1 
 
 
 
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -959,6 +966,7 @@ DockSpace ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 CentralNode=1 
 
 </Layout>
     <Layout Name="Plot Editor" IsDefault="true">
+
 
 
 
