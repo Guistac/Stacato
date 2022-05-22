@@ -4,6 +4,8 @@
 #include <imgui.h>
 #include "CommandHistory.h"
 #include "Machine/AnimatableParameterValue.h"
+#include "Gui/Assets/Colors.h"
+#include "Gui/Assets/Fonts.h"
 
 class BaseNumberParameter;
 
@@ -24,6 +26,9 @@ public:
 	void setDisabled(bool disabled){ b_disabled = disabled; }
 	bool isDisabled(){ return b_disabled; }
 	
+	void setValid(bool valid){ b_valid = valid; }
+	bool isValid(){ return b_valid; }
+	
 	const char* getName(){ return name.c_str(); }
 	const char* getImGuiID(){ return imGuiID.c_str(); }
 	const char* getSaveString(){ return saveString.c_str(); }
@@ -31,7 +36,19 @@ public:
 	void setEditCallback(std::function<void(std::shared_ptr<Parameter>)> cb){ editCallback = cb; }
 	void onEdit(){ if(editCallback) editCallback(shared_from_this()); }
 	
-	virtual void gui() = 0;
+	void gui(){
+		bool drawInvalid = !b_valid;
+		if(drawInvalid) {
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+			ImGui::PushFont(Fonts::sansBold15);
+		}
+		onGui();
+		if(drawInvalid) {
+			ImGui::PopStyleColor();
+			ImGui::PopFont();
+		}
+	}
+	virtual void onGui() = 0;
 	virtual bool save(tinyxml2::XMLElement* xml) = 0;
 	virtual bool load(tinyxml2::XMLElement* xml) = 0;
 	virtual std::shared_ptr<Parameter> makeBaseCopy() = 0;
@@ -45,6 +62,7 @@ private:
 	std::string saveString;
 	std::string imGuiID;
 	bool b_disabled = false;
+	bool b_valid = true;
 };
 
 
@@ -61,6 +79,10 @@ public:
 	
 	virtual void setStepSize(double small, double large) = 0;
 	
+	void setAllowNegatives(bool allowNegatives){ b_allowNegatives = allowNegatives; }
+	void allowNegatives(){ b_allowNegatives = true; }
+	void denyNegatives(){ b_allowNegatives = false; }
+	
 	void setPrefix(std::string p) { prefix = p; updateFormatString(); }
 	void setFormat(std::string f) { format = f; updateFormatString();  }
 	void setUnit(Unit u){ unit = u; updateFormatString(); }
@@ -68,13 +90,19 @@ public:
 	void updateFormatString(){ formatString = prefix + format + std::string(unit->abbreviated) + suffix; }
 	const char* getFormatString(){ return formatString.c_str(); }
 	
+	virtual bool validateRange(double rangeMin, double rangeMax, bool withMin = true, bool withMax = true) = 0;
+	
 	virtual std::shared_ptr<BaseNumberParameter> makeCopy() = 0;
+	
+	virtual double getReal() = 0;
+	virtual int getInteger() = 0;
 	
 	std::string prefix;
 	std::string format;
 	Unit unit;
 	std::string suffix;
 	std::string formatString;
+	bool b_allowNegatives = true;
 };
 
 template<typename T>
@@ -94,6 +122,7 @@ public:
 					std::string saveString_ = "",
 					std::string format_ = "",
 					Unit unit_ = Units::None::None,
+					bool allowNegatives = true,
 					T stepSmall_ = 0,
 					T stepLarge_ = 0,
 					std::string prefix_ = "",
@@ -108,23 +137,37 @@ public:
 		suffix = suffix_;
 		updateFormatString();
 		setStepSize(stepSmall_, stepLarge_);
+		setAllowNegatives(allowNegatives);
 	}
 	
+	virtual double getReal() override { return value; }
+	virtual int getInteger() override { return value; }
+	
+	virtual bool validateRange(double rangeMin, double rangeMax, bool withMin, bool withMax) override {
+		bool valid = true;
+		if(withMin && value < rangeMin) valid = false;
+		else if(!withMin && value <= rangeMin) valid = false;
+		else if(withMax && value > rangeMax) valid = false;
+		else if(!withMax && value >= rangeMax) valid = false;
+		setValid(valid);
+		return valid;
+	};
 	
 	static std::shared_ptr<NumberParameter<T>> make(T value_,
 													std::string name_,
 													std::string saveString_ = "",
 													std::string format_ = "",
 													Unit unit_ = Units::None::None,
+													bool allowNegatives = true,
 													T stepSmall_ = 0,
 													T stepLarge_ = 0,
 													std::string prefix_ = "",
 													std::string suffix_ = ""){
-		return std::make_shared<NumberParameter<T>>(value_, name_, saveString_, format_, unit_, stepSmall_, stepLarge_, prefix_, suffix_);
+		return std::make_shared<NumberParameter<T>>(value_, name_, saveString_, format_, unit_, allowNegatives, stepSmall_, stepLarge_, prefix_, suffix_);
 	}
 	
 	virtual std::shared_ptr<BaseNumberParameter> makeCopy() override{
-		return make(value, getName(), getSaveString(), format, unit, stepSmall, stepLarge, prefix, suffix);
+		return make(value, getName(), getSaveString(), format, unit, b_allowNegatives, stepSmall, stepLarge, prefix, suffix);
 	};
 	
 	virtual std::shared_ptr<Parameter> makeBaseCopy() override { return makeCopy(); };
@@ -138,11 +181,15 @@ public:
 		else stepLargePtr = &stepLarge;
 	}
 	
-	virtual void gui() override {
+	virtual void onGui() override {
 		ImGui::BeginDisabled(isDisabled());
 		ImGui::InputScalar(getImGuiID(), getImGuiDataType(), &displayValue, stepSmallPtr, stepLargePtr, getFormatString());
 		ImGui::EndDisabled();
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
+			if(!b_allowNegatives && displayValue < 0) {
+				displayValue = 0;
+				if(value == displayValue) return;
+			}
 			//=========Command Invoker=========
 			std::shared_ptr<NumberParameter<T>> thisParameter = std::dynamic_pointer_cast<NumberParameter<T>>(shared_from_this());
 			std::string commandName = "Changed " + std::string(getName()) + " from " + std::to_string(value) + " to " + std::to_string(displayValue);
@@ -250,7 +297,7 @@ public:
 	
 	void inputField();
 	
-	virtual void gui() override {
+	virtual void onGui() override {
 		inputField();
 		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
 			//=========Command Invoker=========
@@ -416,7 +463,7 @@ public:
 		value = value_;
 	}
 	
-	virtual void gui() override {
+	virtual void onGui() override {
 		ImGui::BeginDisabled(isDisabled());
 		ImGui::Checkbox(getImGuiID(), &displayValue);
 		ImGui::EndDisabled();
@@ -496,7 +543,7 @@ public:
 		value = value_;
 	}
 	
-	virtual void gui() override {
+	virtual void onGui() override {
 		ImGui::BeginDisabled(isDisabled());
 		ImGui::InputText(getImGuiID(), displayValue, bufferSize);
 		ImGui::EndDisabled();
@@ -577,7 +624,7 @@ public:
 		displayValue = value_;
 	}
 	
-	virtual void gui() override {
+	virtual void onGui() override {
 		ImGui::BeginDisabled(isDisabled());
 		combo();
 		ImGui::EndDisabled();
@@ -686,7 +733,7 @@ public:
 		values = values_;
 	}
 	
-	virtual void gui() override {
+	virtual void onGui() override {
 		ImGui::BeginDisabled(isDisabled());
 		if(ImGui::BeginCombo(getImGuiID(), displayValue->displayName)){
 			for(auto& entry : *values){
@@ -779,7 +826,7 @@ public:
 		overwrite(value_);
 	}
 	
-	virtual void gui() override {
+	virtual void onGui() override {
 		ImGui::BeginDisabled(isDisabled());
 		ImGui::InputText(getImGuiID(), displayBuffer, 32, ImGuiInputTextFlags_AutoSelectAll);
 		if(ImGui::IsItemDeactivatedAfterEdit()){

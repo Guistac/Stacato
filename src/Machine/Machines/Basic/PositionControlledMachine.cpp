@@ -316,10 +316,12 @@ std::shared_ptr<AnimatableParameterValue> PositionControlledMachine::getActualPa
 
 
 bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
-	/*
-	if (parameterTrack->parameter != positionParameter && parameterTrack->curves.size() != 1) return false;
-	else if (!isAxisConnected()) return false;
 	using namespace Motion;
+	
+	if (parameterTrack->getParameter() != positionParameter) return false;
+	else if (!isAxisConnected()) return false;
+	
+	bool b_trackValid = true;
 	
 	bool b_curveValid = true;
 	
@@ -328,65 +330,118 @@ bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<Par
 	double velocityLimit_machineUnits = getAxis()->getVelocityLimit();
 	double accelerationLimit_machineUnits = getAxis()->getAccelerationLimit();
 	
+	ParameterTrack::Type trackType = parameterTrack->getType();
 	
-	//get a reference to the curve we need to validate
-	auto curve = parameterTrack->curves.front();
-
-	//validate all control points
-	for (auto& controlPoint : curve->points) {
-		//check all validation conditions and find validaiton error state
-		if (controlPoint->position < lowLimit_machineUnits || controlPoint->position > highLimit_machineUnits)
-			controlPoint->validationError = ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
-		else if (std::abs(controlPoint->velocity) > velocityLimit_machineUnits)
-			controlPoint->validationError = ValidationError::CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED;
-		else if (std::abs(controlPoint->rampIn) > accelerationLimit_machineUnits)
-			controlPoint->validationError = ValidationError::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED;
-		else if (std::abs(controlPoint->rampOut) > accelerationLimit_machineUnits)
-			controlPoint->validationError = ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED;
-		else if (controlPoint->rampIn == 0.0)
-			controlPoint->validationError = ValidationError::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO;
-		else if (controlPoint->rampOut == 0.0)
-			controlPoint->validationError = ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO;
-		else controlPoint->validationError = ValidationError::NO_VALIDATION_ERROR; //All Checks Passed: No Validation Error !
-		//set valid flag for point, if invalid, set flag for whole curve
-		controlPoint->b_valid = controlPoint->validationError == ValidationError::NO_VALIDATION_ERROR;
-		if(!controlPoint->b_valid) b_curveValid = false;
+	//target validation
+	auto animatedTrack = parameterTrack->castToAnimated();
+	auto targetParameter = std::dynamic_pointer_cast<BaseNumberParameter>(animatedTrack->target);
+	if(!targetParameter->validateRange(lowLimit_machineUnits, highLimit_machineUnits)) {
+		animatedTrack->appendValidationErrorString("Target is out of range.");
+		b_trackValid = false;
 	}
-
-	//validate all interpolations of the curve
-	for (auto& interpolation : curve->interpolations) {
-		//if the interpolation is already marked invalid an validation error type was already set by the interpolation engine
-		//in this case we don't overwrite the validation error value
-		if (!interpolation->b_valid) {
-			b_curveValid = false;
-			continue;
-		}
-		//check if the velocity of the interpolation exceeds the limit
-		if (std::abs(interpolation->interpolationVelocity) > velocityLimit_machineUnits) {
-			interpolation->validationError = ValidationError::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED;
-			interpolation->b_valid = false;
-			b_curveValid = false;
-			continue;
-		}
-		//if all interpolation checks passed, we check all interpolation preview points for their range
-		for (auto& point : interpolation->displayPoints) {
-			if (point.position > highLimit_machineUnits || point.position < lowLimit_machineUnits) {
-				interpolation->validationError = ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
-				interpolation->b_valid = false;
-				b_curveValid = false;
-				break;
+	
+	if(parameterTrack->getType() == ParameterTrack::Type::TARGET){
+		
+		//velocity validation
+		auto targetTrack = parameterTrack->castToTarget();
+		if(targetTrack->getConstraintType() == TargetParameterTrack::Constraint::VELOCITY){
+			if(!targetTrack->velocityConstraint->validateRange(0.0, std::abs(velocityLimit_machineUnits), false, true)){
+				if(targetTrack->inAcceleration->getReal() == 0.0) animatedTrack->appendValidationErrorString("Velocity is Zero");
+				else animatedTrack->appendValidationErrorString("Velocity is out of range.");
+				b_trackValid = false;
 			}
 		}
+		
+		//validate acceleration
+		if(!targetTrack->inAcceleration->validateRange(0.0, std::abs(accelerationLimit_machineUnits), false, true)) {
+			if(targetTrack->inAcceleration->getReal() == 0.0) animatedTrack->appendValidationErrorString("In-Acceleration is Zero");
+			else animatedTrack->appendValidationErrorString("In-Acceleration is out of range.");
+			b_trackValid = false;
+		}
+		if(!targetTrack->outAcceleration->validateRange(0.0, std::abs(accelerationLimit_machineUnits), false, true)){
+			if(targetTrack->outAcceleration->getReal() == 0.0) animatedTrack->appendValidationErrorString("Out-Acceleration is Zero");
+			else animatedTrack->appendValidationErrorString("Out-Acceleration is out of range.");
+			b_trackValid = false;
+		}
+		
+	}else if(parameterTrack->getType() == ParameterTrack::Type::SEQUENCE){
+		
+		auto sequenceTrack = parameterTrack->castToSequence();
+		auto startParameter = std::dynamic_pointer_cast<BaseNumberParameter>(sequenceTrack->start);
+		if(!startParameter->validateRange(lowLimit_machineUnits, highLimit_machineUnits, true, true)) b_trackValid = false;
+		
+		if(animatedTrack->getCurves().size() != 1) {
+			Logger::warn("Parameter Track has wrong curve count. Has {}, expected 1", animatedTrack->getCurves().size());
+			animatedTrack->appendValidationErrorString("Critical: ParameterTrack has wrong curve count.");
+			return false;
+		}
+		
+		auto& curve = animatedTrack->getCurves().front();
+		
+		//validate all control points
+		for (auto& controlPoint : curve.getPoints()) {
+			//check all validation conditions and find validaiton error state
+			if (controlPoint->position < lowLimit_machineUnits || controlPoint->position > highLimit_machineUnits)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
+			else if (std::abs(controlPoint->velocity) > velocityLimit_machineUnits)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED;
+			else if (std::abs(controlPoint->inAcceleration) > accelerationLimit_machineUnits)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED;
+			else if (std::abs(controlPoint->outAcceleration) > accelerationLimit_machineUnits)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED;
+			else if (controlPoint->inAcceleration == 0.0)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO;
+			else if (controlPoint->outAcceleration == 0.0)
+				controlPoint->validationError = ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO;
+			else controlPoint->validationError = ValidationError::NONE; //All Checks Passed: No Validation Error !
+			//set valid flag for point, if invalid, set flag for whole curve
+			controlPoint->b_valid = controlPoint->validationError == ValidationError::NONE;
+			if(!controlPoint->b_valid) b_curveValid = false;
+		}
+
+		//validate all interpolations of the curve
+		for (auto& interpolation : curve.getInterpolations()) {
+			
+			if(interpolation->getType() != Motion::Interpolation::Type::TRAPEZOIDAL){
+				Logger::warn("Sequence Track Curve Interpolation is wrong type. Is {}, expected Trapezoidal", Enumerator::getDisplayString(interpolation->getType()));
+				animatedTrack->appendValidationErrorString("Critical: ParameterTrack Interpolation has wrong type.");
+				return false;
+			}
+			auto kinematicInterpolation = interpolation->castToTrapezoidal();
+			
+			//if the interpolation is already marked invalid an validation error type was already set by the interpolation engine
+			//in this case we don't overwrite the validation error value
+			if (!interpolation->b_valid) {
+				b_curveValid = false;
+				continue;
+			}
+			//check if the velocity of the interpolation exceeds the limit
+			if (std::abs(kinematicInterpolation->coastVelocity) > velocityLimit_machineUnits) {
+				interpolation->validationError = ValidationError::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED;
+				interpolation->b_valid = false;
+				b_curveValid = false;
+				continue;
+			}
+			//if all interpolation checks passed, we check all interpolation preview points for their range
+			for (auto& point : interpolation->displayPoints) {
+				if (point.position > highLimit_machineUnits || point.position < lowLimit_machineUnits) {
+					interpolation->validationError = ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
+					interpolation->b_valid = false;
+					b_curveValid = false;
+					break;
+				}
+			}
+		}
+		
+		//after performing all checks, we assign the curve validation flag
+		//the curve itself doesn't have a validation error value
+		curve.b_valid = b_curveValid;
+		if(!b_curveValid) animatedTrack->appendValidationErrorString("Curve could not be validated.\nCheck the Curve editor for details.");
+		
 	}
 	
-	//after performing all checks, we assign the curve validation flag
-	//the curve itself doesn't have a validation error value
-	curve->b_valid = b_curveValid;
-	
 	//we return the result of the validation
-	return b_curveValid;
-	 */
-	return false;
+	return b_trackValid;
 }
 
 bool PositionControlledMachine::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {

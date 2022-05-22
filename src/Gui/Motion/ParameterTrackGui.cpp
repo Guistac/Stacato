@@ -31,8 +31,9 @@ void ParameterTrack::baseTrackSheetRowGui(){
 	
 	if(!b_valid && ImGui::IsItemHovered()){
 		ImGui::BeginTooltip();
-		ImGui::Text("Parameter Track not Valid");
-		ImGui::Text("TODO: show reasons");
+		ImGui::Text("ParameterTrack could not be validated");
+		if(!validationErrorString.empty()) ImGui::Text("%s", validationErrorString.c_str());
+		
 		/*
 		for(auto& curve : parameterTrack->curves){
 			if(!curve->b_valid) ImGui::Text("- Curve Not Valid");

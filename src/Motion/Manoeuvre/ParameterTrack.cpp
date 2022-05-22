@@ -85,6 +85,15 @@ std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::copy(){
 }
 
 
+void ParameterTrack::validate(){
+	validationErrorString = "";
+	b_valid = getParameter()->getMachine()->validateParameterTrack(shared_from_this());
+}
+
+
+
+
+
 
 
 /*

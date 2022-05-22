@@ -45,12 +45,19 @@ public:
 	
 	bool hasParentGroup(){ return parent != nullptr; }
 	void setParent(std::shared_ptr<ParameterTrackGroup> parent_){ parent = parent_; }
+	std::shared_ptr<ParameterTrackGroup> getParent(){ return parent; }
 	
 	bool isValid(){ return b_valid; }
-	void setVald(bool valid){ b_valid = valid; }
+	void setValid(bool valid){ b_valid = valid; }
 	
 	void subscribeToMachineParameter();
 	void unsubscribeFromMachineParameter();
+	
+	void validate();
+	void appendValidationErrorString(std::string errorString){
+		if(!validationErrorString.empty()) validationErrorString += "\n",
+		validationErrorString += errorString;
+	}
 
 private:
 	
@@ -58,6 +65,7 @@ private:
 	std::shared_ptr<Manoeuvre> parentManoeuvre;
 	std::shared_ptr<MachineParameter> parameter;
 	bool b_valid = false;
+	std::string validationErrorString = "";
 	
 	//———————————————————————————————————————————
 	//	   SubClass Identification & Casting
@@ -119,6 +127,7 @@ public:
 		animatableParameter = parameter;
 		Motion::Interpolation::Type defaultInterpolation = getAnimatableParameter()->getCompatibleInterpolationTypes().front();
 		interpolationType = std::make_shared<EnumeratorParameter<Motion::Interpolation::Type>>(defaultInterpolation, "Interpolation", "Interpolation");
+		interpolationType->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
 		curves.resize(animatableParameter->getCurveCount());
 	}
 	
@@ -136,9 +145,8 @@ public:
 	virtual void setUnit(Unit unit) = 0;
 	void setInterpolationType(Motion::Interpolation::Type t);
 	void captureCurrentValueAsTarget();
-
-	void refreshAfterParameterEdit();
-	void refreshAfterCurveEdit();
+	
+	void refreshAfterCurveEdit(){}
 	
 	std::shared_ptr<Parameter> target;
 	std::shared_ptr<EnumeratorParameter<Motion::Interpolation::Type>> interpolationType;
@@ -184,6 +192,13 @@ public:
 
 
 
+
+
+
+
+
+
+
 //--------------------------------------------
 //				KEY PARAMETER TRACK
 //--------------------------------------------
@@ -204,6 +219,7 @@ public:
 			Unit unit = parameter->castToNumerical()->getUnit();
 			setUnit(unit);
 		}
+		target->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
 	}
 	
 	virtual Type getType() override { return ParameterTrack::Type::KEY; }
@@ -222,7 +238,6 @@ public:
 		}
 	}
 	
-	
 	//———————————————————————————————————————————
 	//	  		    User Interface
 	//———————————————————————————————————————————
@@ -232,6 +247,11 @@ public:
 };
 
 //rapid to end
+
+
+
+
+
 
 
 
@@ -275,6 +295,15 @@ public:
 			inAcceleration->setDisabled(true);
 			outAcceleration->setDisabled(true);
 		}
+		target->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
+		velocityConstraint->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
+		velocityConstraint->denyNegatives();
+		inAcceleration->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
+		inAcceleration->denyNegatives();
+		outAcceleration->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
+		outAcceleration->denyNegatives();
+		constraintType->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
+		timeConstraint->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
 	}
 	
 	virtual Type getType() override { return ParameterTrack::Type::TARGET; }
@@ -304,9 +333,7 @@ public:
 			outAcceleration->setUnit(unit);
 		}
 	}
-	
-private:
-	
+		
 	std::shared_ptr<TimeParameter> timeOffset = std::make_shared<TimeParameter>(0.0, "Time Offset", "TimeOffset");
 	std::shared_ptr<EnumeratorParameter<Constraint>> constraintType = std::make_shared<EnumeratorParameter<Constraint>>(Constraint::TIME, "Constraint Type", "ConstraintType");
 	std::shared_ptr<TimeParameter> timeConstraint = std::make_shared<TimeParameter>(0.0, "Movement Time", "Time");
@@ -337,6 +364,15 @@ DEFINE_ENUMERATOR(TargetParameterTrack::Constraint, TargetConstraintStrings)
 
 
 
+
+
+
+
+
+
+
+
+
 //--------------------------------------------
 //			SEQUENCE PARAMETER TRACK
 //--------------------------------------------
@@ -361,6 +397,10 @@ public:
 			Unit unit = parameter->castToNumerical()->getUnit();
 			setUnit(unit);
 		}
+		target->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
+		start->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
+		duration->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
+		timeOffset->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
 	}
 	
 	virtual Type getType() override { return ParameterTrack::Type::SEQUENCE; }
@@ -382,9 +422,10 @@ public:
 		}
 	}
 	
+	std::shared_ptr<Parameter> start;
+	
 private:
 	
-	std::shared_ptr<Parameter> start;
 	std::shared_ptr<TimeParameter> duration = std::make_shared<TimeParameter>(0, "Duration", "Duration");
 	std::shared_ptr<TimeParameter> timeOffset = std::make_shared<TimeParameter>(0, "Time Offset", "Offset");
 	
@@ -417,6 +458,13 @@ public:
 //start
 //pause
 //resume
+
+
+
+
+
+
+
 
 
 

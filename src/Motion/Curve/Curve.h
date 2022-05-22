@@ -34,14 +34,18 @@ namespace Motion {
 		double inAcceleration;
 		double outAcceleration;
 		double time;
-		bool b_vaid;
+		bool b_valid;
 		ValidationError validationError;
 		
 		std::shared_ptr<Interpolation> inInterpolation;
 		std::shared_ptr<Interpolation> outInterpolation;
 	};
 
-	class Interpolation{
+	class TrapezoidalInterpolation;
+	class LinearInterpolation;
+	class StepInterpolation;
+
+	class Interpolation : public std::enable_shared_from_this<Interpolation>{
 	public:
 		
 		enum class Type {
@@ -50,7 +54,11 @@ namespace Motion {
 			TRAPEZOIDAL,
 			BEZIER
 		};
+		
 		virtual Type getType() = 0;
+		std::shared_ptr<TrapezoidalInterpolation> castToTrapezoidal(){ return std::dynamic_pointer_cast<TrapezoidalInterpolation>(shared_from_this()); }
+		std::shared_ptr<LinearInterpolation> castToLinear(){ return std::dynamic_pointer_cast<LinearInterpolation>(shared_from_this()); }
+		std::shared_ptr<StepInterpolation> castToStep() { return std::dynamic_pointer_cast<StepInterpolation>(shared_from_this()); }
 	
 		double startPosition;
 		double startTime;
@@ -171,6 +179,8 @@ namespace Motion {
 		void addPoint(std::shared_ptr<ControlPoint> point);
 		void removePoint(std::shared_ptr<ControlPoint> point);
 		void refresh();
+		
+		std::vector<std::shared_ptr<Interpolation>>& getInterpolations(){ return interpolations; }
 		
 		void updateDisplayCurvePoints();
 		
