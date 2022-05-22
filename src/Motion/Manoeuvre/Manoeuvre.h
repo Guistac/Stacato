@@ -59,6 +59,8 @@ public:
 	void subscribeAllTracksToMachineParameter();
 	void unsubscribeAllTracksFromMachineParameter();
 	
+	void updateValidation();
+	
 private:
 	
 	std::vector<std::shared_ptr<ParameterTrack>> tracks;
@@ -81,8 +83,10 @@ public:
 	
 	bool canRapidToStart();
 	bool isAtStart();
+	
 	bool canRapidToEnd();
 	bool isAtEnd();
+	
 	bool canRapidToPlaybackPosition();
 	bool isAtPlaybackPosition();
 	bool canStartPlayback();
@@ -90,6 +94,9 @@ public:
 	bool isPlaying();
 	bool isPaused(){ return false; }
 	bool isStopped();
+	
+	//Playback Button States:
+	
 
 private:
 	

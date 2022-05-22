@@ -4,7 +4,7 @@
         <ParameterTrack Machine="Test Machine B" MachineUniqueID="5" Parameter="Position" Type="Key" Target="0"/>
         <ParameterTrack Machine="Machine D" MachineUniqueID="13" Parameter="State" Type="Key" Target="Shut"/>
     </Manoeuvre>
-    <Manoeuvre Name="M-1" Description="helloooooo" Type="Target">
+    <Manoeuvre Name="M-1 |" Description="helloooooo alkejflakejflakej ùaeùaeùl ù  eeeee ùùlmfùlmelmù  eee lùmlflùe leù mflù lme |" Type="Target">
         <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" Type="Target" Target="1" ConstraintType="Velocity" Time="754" Velocity="10" StartAcceleration="5" EndAcceleration="4" TimeOffset="0"/>
         <ParameterTrack Machine="Machine D" MachineUniqueID="13" Parameter="State" Type="Target" Target="Open" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0" TimeOffset="0"/>
     </Manoeuvre>

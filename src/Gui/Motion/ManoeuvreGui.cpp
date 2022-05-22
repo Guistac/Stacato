@@ -54,17 +54,35 @@ void Manoeuvre::listGui(){
 	ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(headerStripColor), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersLeft);
 	
 	
+	const char* manoeuvreTypeString;
+	switch(getType()){
+		case ManoeuvreType::KEY: manoeuvreTypeString = "KEY"; break;
+		case ManoeuvreType::TARGET: manoeuvreTypeString = "TAR"; break;
+		case ManoeuvreType::SEQUENCE: manoeuvreTypeString = "SEQ"; break;
+	}
+	ImGui::PushFont(Fonts::sansRegular20);
+	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.0f, 0.f, 0.f, .9f));
+	glm::vec2 textSize = ImGui::CalcTextSize(manoeuvreTypeString);
+	ImGui::SetCursorPosX((headerStripWidth - textSize.x) / 2.0);
+	ImGui::SetCursorPosY(ImGui::GetStyle().FramePadding.y);
+	ImGui::Text("%s", manoeuvreTypeString);
+	ImGui::PopFont();
+	ImGui::PopStyleColor();
+	
+	
 	//show name and description
 	ImGui::SetCursorPosX(headerStripWidth + ImGui::GetStyle().FramePadding.x);
+	ImGui::SetCursorPosY(ImGui::GetStyle().FramePadding.y);
 	
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("%s", getName());
 	ImGui::PopFont();
 	
+	ImGui::SetCursorPosY(ImGui::GetTextLineHeightWithSpacing());
 	ImGui::SetCursorPosX(headerStripWidth + ImGui::GetStyle().FramePadding.x);
 	
 	ImGui::PushFont(Fonts::sansLight15);
-	ImGui::Text("%s", getDescription());
+	ImGui::TextWrapped("%s", getDescription());
 	ImGui::PopFont();
 	
 	/*

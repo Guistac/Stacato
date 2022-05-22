@@ -210,6 +210,16 @@ void Manoeuvre::unsubscribeAllTracksFromMachineParameter(){
 }
 
 
+void Manoeuvre::updateValidation(){
+	for(auto& track : tracks){
+		if(!track->isValid()) {
+			b_valid = false;
+			break;
+		}
+	}
+	b_valid = true;
+}
+
 
 bool Manoeuvre::hasTrack(std::shared_ptr<MachineParameter>& parameter) {
 	for (auto& track : tracks) {
