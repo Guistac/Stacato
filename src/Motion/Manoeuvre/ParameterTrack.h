@@ -55,7 +55,7 @@ public:
 	
 	void validate();
 	void appendValidationErrorString(std::string errorString){
-		if(!validationErrorString.empty()) validationErrorString += "\n",
+		if(!validationErrorString.empty()) validationErrorString += "\n";
 		validationErrorString += errorString;
 	}
 
@@ -100,6 +100,7 @@ public:
 	
 	void baseTrackSheetRowGui();
 	virtual void trackSheetRowGui() = 0;
+	void validationErrorPopup();
 };
 
 

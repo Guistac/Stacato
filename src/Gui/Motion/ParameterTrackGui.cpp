@@ -23,52 +23,61 @@ void AnimatedParameterTrack::interpolationTypeGui(){
 
 
 void ParameterTrack::baseTrackSheetRowGui(){
-	if(!b_valid) ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
 
+	bool b_showValidationErrorPopup = false;
+	
 	//[1] "Machine"
 	ImGui::TableSetColumnIndex(1);
 	if (!hasParentGroup()) backgroundText(parameter->getMachine()->getName(), b_valid ? Colors::darkGray : Colors::red, b_valid ? Colors::white : Colors::black);
+	if(ImGui::IsItemHovered() && !b_valid) validationErrorPopup();
 	
-	if(!b_valid && ImGui::IsItemHovered()){
-		ImGui::BeginTooltip();
-		ImGui::Text("ParameterTrack could not be validated");
-		if(!validationErrorString.empty()) ImGui::Text("%s", validationErrorString.c_str());
-		
-		/*
-		for(auto& curve : parameterTrack->curves){
-			if(!curve->b_valid) ImGui::Text("- Curve Not Valid");
-			for(auto& controlPoint : curve->points){
-				if(!controlPoint->b_valid) ImGui::Text("-- Control Point Not Valid : %s", Enumerator::getDisplayString(controlPoint->validationError));
-			}
-			for(auto& interpolation : curve->interpolations){
-				if(!interpolation->b_valid) ImGui::Text("-- Interpolation Not Valid : %s", Enumerator::getDisplayString(interpolation->validationError));
-			}
-		}
-		 */
-		ImGui::EndTooltip();
-	}
-
 	//[2] "Parameter"
 	ImGui::TableSetColumnIndex(2);
 	backgroundText(parameter->getName(), b_valid ? Colors::darkGray : Colors::red, b_valid ? Colors::white : Colors::black);
+	if(ImGui::IsItemHovered() && !b_valid) validationErrorPopup();
+}
 
-	if (!b_valid) ImGui::PopStyleColor();
+void ParameterTrack::validationErrorPopup(){
+	if(b_valid) return;
+	
+	ImGui::BeginTooltip();
+	ImGui::Text("Track is not valid.");
+	
+	ImGui::Separator();
+	
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+	if(!validationErrorString.empty()) ImGui::Text("%s", validationErrorString.c_str());
+	ImGui::PopStyleColor();
+	
+	if(isAnimated()){
+		auto animatedTrack = castToAnimated();
+		for(auto& curve : animatedTrack->getCurves()){
+			if(!curve.b_valid) ImGui::Text("- Curve Not Valid");
+			for(auto& controlPoint : curve.getPoints()){
+				if(!controlPoint->b_valid) ImGui::Text("-- Control Point Not Valid : %s", Enumerator::getDisplayString(controlPoint->validationError));
+			}
+			for(auto& interpolation : curve.getInterpolations()){
+				if(!interpolation->b_valid) ImGui::Text("-- Interpolation Not Valid : %s", Enumerator::getDisplayString(interpolation->validationError));
+			}
+		}
+	}
+
+	ImGui::EndTooltip();
 }
 
 void ParameterTrackGroup::trackSheetRowGui(){}
 
 void KeyParameterTrack::trackSheetRowGui(){
-	float widgetWidth = ImGui::GetTextLineHeight() * 5.0;
+	
 	//[3] "Target"			//position or other
 	ImGui::TableSetColumnIndex(3);
-	ImGui::SetNextItemWidth(widgetWidth);
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	target->gui();
+	if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
+	
 }
 
 void TargetParameterTrack::trackSheetRowGui(){
-	
-	float widgetWidth = ImGui::GetTextLineHeight() * 5.0;
-	
 	
 	//[3] "Interpolation"	//kinematic, linear, step, bezier
 	ImGui::TableSetColumnIndex(3);
@@ -77,56 +86,65 @@ void TargetParameterTrack::trackSheetRowGui(){
 	 
 	//[4] "Target"			//position or other
 	ImGui::TableSetColumnIndex(4);
-	ImGui::SetNextItemWidth(widgetWidth);
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	target->gui();
+	if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 	
 	//[5] "Using"			//time vs velocity
 	ImGui::TableSetColumnIndex(5);
-	ImGui::SetNextItemWidth(widgetWidth);
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	constraintType->gui();
 
 	//[6] "Constraint"		//time or velocity
 	ImGui::TableSetColumnIndex(6);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 7.0);
-	if(getConstraintType() == Constraint::TIME) timeConstraint->gui();
-	else if(getConstraintType() == Constraint::VELOCITY) velocityConstraint->gui();
+	if(getConstraintType() == Constraint::TIME) {
+		timeConstraint->gui();
+	}
+	else if(getConstraintType() == Constraint::VELOCITY) {
+		velocityConstraint->gui();
+		if(!velocityConstraint->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
+	}
 	
 	//[7] "Time Offset" 	//seconds
 	ImGui::TableSetColumnIndex(7);
-	ImGui::SetNextItemWidth(widgetWidth);
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	timeOffset->gui();
 	
 	//[7] "Ramps"			//for kinematic or bezier
 	ImGui::TableSetColumnIndex(8);
-	ImGui::SetNextItemWidth(widgetWidth);
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	inAcceleration->gui();
+	if(!inAcceleration->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 	ImGui::SameLine();
-	ImGui::SetNextItemWidth(widgetWidth);
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	outAcceleration->gui();
+	if(!outAcceleration->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 	
 }
 
 void SequenceParameterTrack::trackSheetRowGui(){
-	float widgetWidth = ImGui::GetTextLineHeight() * 5.0;
 	
 	//[3] "Start"
 	ImGui::TableSetColumnIndex(3);
-	ImGui::SetNextItemWidth(widgetWidth);
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	start->gui();
+	if(!start->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 	
 	//[4] "End"
 	ImGui::TableSetColumnIndex(4);
-	ImGui::SetNextItemWidth(widgetWidth);
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	target->gui();
+	if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 	
-	//[5] "Start"
+	//[5] "Duration"
 	ImGui::TableSetColumnIndex(5);
-	ImGui::SetNextItemWidth(widgetWidth);
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	duration->gui();
 	
-	//[6] "End"
+	//[6] "Time Offset"
 	ImGui::TableSetColumnIndex(6);
-	ImGui::SetNextItemWidth(widgetWidth);
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	timeOffset->gui();
 }
 

@@ -1,6 +1,6 @@
 <Plot Name="Default Plot">
     <Manoeuvre Name="M-0" Description="" Type="Key">
-        <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" Type="Key" Target="10"/>
+        <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" Type="Key" Target="0.10000000000000001"/>
         <ParameterTrack Machine="Test Machine B" MachineUniqueID="5" Parameter="Position" Type="Key" Target="0"/>
         <ParameterTrack Machine="Machine D" MachineUniqueID="13" Parameter="State" Type="Key" Target="Shut"/>
     </Manoeuvre>
