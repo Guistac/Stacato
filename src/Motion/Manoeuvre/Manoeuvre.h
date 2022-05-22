@@ -60,6 +60,7 @@ public:
 	void unsubscribeAllTracksFromMachineParameter();
 	
 	void updateValidation();
+	void validateAllParameterTracks();
 	
 private:
 	

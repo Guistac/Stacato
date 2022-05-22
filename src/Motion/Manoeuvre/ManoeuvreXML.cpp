@@ -41,10 +41,13 @@ std::shared_ptr<Manoeuvre> Manoeuvre::load(tinyxml2::XMLElement* xml){
 	XMLElement* trackXML = xml->FirstChildElement("ParameterTrack");
 	while (trackXML != nullptr) {
 		auto newTrack = ParameterTrack::load(trackXML);
+		newTrack->setManoeuvre(manoeuvre);
 		if(newTrack == nullptr) return nullptr;
 		manoeuvre->tracks.push_back(newTrack);
 		trackXML = trackXML->NextSiblingElement("ParameterTrack");
 	}
+	
+	manoeuvre->validateAllParameterTracks();
 	
 	return manoeuvre;
 }
@@ -56,7 +59,11 @@ bool ParameterTrack::save(tinyxml2::XMLElement* xml){
 	xml->SetAttribute("Machine", parameter->getMachine()->getName());
 	xml->SetAttribute("MachineUniqueID", parameter->getMachine()->getUniqueID());
 	xml->SetAttribute("Parameter", parameter->getName());
-	xml->SetAttribute("Type", Enumerator::getSaveString(getType()));
+	xml->SetAttribute("IsGroup", isGroup());
+	if(!isGroup()) {
+		auto animated = castToAnimated();
+		xml->SetAttribute("Type", Enumerator::getSaveString(animated->getType()));
+	}
 	return onSave(xml);
 }
 
@@ -121,23 +128,32 @@ std::shared_ptr<ParameterTrack> ParameterTrack::load(tinyxml2::XMLElement* xml){
 std::shared_ptr<ParameterTrack> ParameterTrack::loadType(tinyxml2::XMLElement* xml, std::shared_ptr<MachineParameter> parameter){
 	using namespace tinyxml2;
 	
-	Type trackType;
-	const char* typeSaveString;
-	if(xml->QueryStringAttribute("Type", &typeSaveString) != XML_SUCCESS){
-		Logger::warn("could not load type save string");
-		return nullptr;
-	}
-	if(!Enumerator::getEnumeratorFromSaveString(typeSaveString, trackType)){
-		Logger::warn("could not identify track type save string");
-		return nullptr;
+
+	bool isGroup = false;
+	ManoeuvreType manoeuvreType;
+	
+	xml->QueryBoolAttribute("IsGroup", &isGroup);
+	
+	if(!isGroup){
+		const char* typeSaveString;
+		if(xml->QueryStringAttribute("Type", &typeSaveString) != XML_SUCCESS){
+			Logger::warn("could not load type save string");
+			return nullptr;
+		}
+		if(!Enumerator::getEnumeratorFromSaveString(typeSaveString, manoeuvreType)){
+			Logger::warn("could not identify track type save string");
+			return nullptr;
+		}
 	}
 	
 	std::shared_ptr<ParameterTrack> parameterTrack = nullptr;
-	switch(trackType){
-		case Type::GROUP: parameterTrack = ParameterTrackGroup::load(xml, parameter->castToGroup()); break;
-		case Type::KEY: parameterTrack = KeyParameterTrack::load(xml, parameter->castToAnimatable()); break;
-		case Type::TARGET: parameterTrack = TargetParameterTrack::load(xml, parameter->castToAnimatable()); break;
-		case Type::SEQUENCE: parameterTrack = SequenceParameterTrack::load(xml, parameter->castToAnimatable()); break;
+	if(isGroup) ParameterTrackGroup::load(xml, parameter->castToGroup());
+	else{
+		switch(manoeuvreType){
+			case ManoeuvreType::KEY: parameterTrack = KeyParameterTrack::load(xml, parameter->castToAnimatable()); break;
+			case ManoeuvreType::TARGET: parameterTrack = TargetParameterTrack::load(xml, parameter->castToAnimatable()); break;
+			case ManoeuvreType::SEQUENCE: parameterTrack = SequenceParameterTrack::load(xml, parameter->castToAnimatable()); break;
+		}
 	}
 	if(parameterTrack == nullptr){
 		Logger::warn("Could not load parameter track");
@@ -176,8 +192,10 @@ std::shared_ptr<ParameterTrackGroup> ParameterTrackGroup::load(tinyxml2::XMLElem
 		//for each child parameter, we need to find the parameter object
 		//we parse the children of the parameter group and match the child parameter by name
 		
+		ManoeuvreType trackType;
+		bool isGroup;
+						
 		const char* parameterName;
-		Type trackType;
 		
 		if(xml->QueryStringAttribute("Parameter", &parameterName) != XML_SUCCESS){
 			Logger::warn("Could not load child parameter name");

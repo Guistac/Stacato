@@ -213,9 +213,16 @@ public:
 		 return true;
 	 }
 	
+	T getValue(){ return value; }
+	
 	void overwrite(T newValue){
 		displayValue = newValue;
 		value = newValue;
+	}
+	
+	template<typename O>
+	void copyValue(std::shared_ptr<NumberParameter<O>> otherNumberParameter){
+		value = otherNumberParameter->getValue();
 	}
 	
 private:

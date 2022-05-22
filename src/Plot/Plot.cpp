@@ -150,6 +150,7 @@ public:
 	
 	virtual void execute(){
 		copy = original->copy();
+		copy->validateAllParameterTracks();
 		auto& manoeuvres = plot->getManoeuvres();
 		for (int i = 0; i < manoeuvres.size(); i++) {
 			if (manoeuvres[i] == original) {

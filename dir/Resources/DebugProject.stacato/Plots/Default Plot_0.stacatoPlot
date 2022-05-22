@@ -1,18 +1,15 @@
 <Plot Name="Default Plot">
-    <Manoeuvre Name="M-0" Description="" Type="Key">
-        <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" Type="Key" Target="0.10000000000000001"/>
-        <ParameterTrack Machine="Test Machine B" MachineUniqueID="5" Parameter="Position" Type="Key" Target="0"/>
-        <ParameterTrack Machine="Machine D" MachineUniqueID="13" Parameter="State" Type="Key" Target="Shut"/>
+    <Manoeuvre Name="Key Manoeuvre 1" Description="Simply used for rapids. Later also for referencing by other manoeuvres." Type="Key">
+        <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsGroup="false" Type="Key" Target="0.10000000000000001"/>
+        <ParameterTrack Machine="Machine D" MachineUniqueID="13" Parameter="State" IsGroup="false" Type="Key" Target="Shut"/>
     </Manoeuvre>
-    <Manoeuvre Name="M-1 |" Description="helloooooo alkejflakejflakej ùaeùaeùl ù  eeeee ùùlmfùlmelmù  eee lùmlflùe leù mflù lme |" Type="Target">
-        <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" Type="Target" Target="1" ConstraintType="Velocity" Time="754" Velocity="10" StartAcceleration="5" EndAcceleration="4" TimeOffset="0"/>
-        <ParameterTrack Machine="Machine D" MachineUniqueID="13" Parameter="State" Type="Target" Target="Open" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0" TimeOffset="0"/>
+    <Manoeuvre Name="Velocity Target Movement" Description="The machine needs to generate the tracks curves on playback start." Type="Target">
+        <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsGroup="false" Type="Target" Target="1" ConstraintType="Velocity" Time="754" Velocity="2" StartAcceleration="1" EndAcceleration="4" TimeOffset="0"/>
+        <ParameterTrack Machine="Machine D" MachineUniqueID="13" Parameter="State" IsGroup="false" Type="Target" Target="Open" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0" TimeOffset="0"/>
     </Manoeuvre>
-    <Manoeuvre Name="M-2" Description="" Type="Sequence">
-        <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" Type="Sequence" Start="1" End="0"/>
-        <ParameterTrack Machine="Test Machine B" MachineUniqueID="5" Parameter="Position" Type="Sequence" Start="0" End="0"/>
-        <ParameterTrack Machine="Test Machine C" MachineUniqueID="9" Parameter="Position" Type="Sequence" Start="0" End="0"/>
-        <ParameterTrack Machine="Machine D" MachineUniqueID="13" Parameter="State" Type="Sequence" Start="Shut" End="Shut"/>
-        <ParameterTrack Machine="Machine E" MachineUniqueID="27" Parameter="State" Type="Sequence" Start="Shut" End="Shut"/>
+    <Manoeuvre Name="Sequenced Manoeuvre" Description="Animated manoeuvre with start and finish. Later also a complex sequence of manually animated points." Type="Sequence">
+        <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsGroup="false" Type="Sequence" Start="1" End="0"/>
+        <ParameterTrack Machine="Machine D" MachineUniqueID="13" Parameter="State" IsGroup="false" Type="Sequence" Start="Shut" End="Shut"/>
+        <ParameterTrack Machine="Machine E" MachineUniqueID="27" Parameter="State" IsGroup="false" Type="Sequence" Start="Shut" End="Shut"/>
     </Manoeuvre>
 </Plot>

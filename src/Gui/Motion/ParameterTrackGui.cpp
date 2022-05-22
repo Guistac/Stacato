@@ -28,12 +28,21 @@ void ParameterTrack::baseTrackSheetRowGui(){
 	
 	//[1] "Machine"
 	ImGui::TableSetColumnIndex(1);
-	if (!hasParentGroup()) backgroundText(parameter->getMachine()->getName(), b_valid ? Colors::darkGray : Colors::red, b_valid ? Colors::white : Colors::black);
-	if(ImGui::IsItemHovered() && !b_valid) validationErrorPopup();
+	
+	auto machine = parameter->getMachine();
+	glm::vec4 machineColor;
+	glm::vec4 machineTextColor = Colors::white;
+	if(machine->isEnabled()) machineColor = Colors::green;
+	else if(machine->isReady()) machineColor = Colors::yellow;
+	else {
+		machineColor = Colors::red;
+		machineTextColor = Colors::black;
+	}
+	if (!hasParentGroup()) backgroundText(parameter->getMachine()->getName(), machineColor, machineTextColor);
 	
 	//[2] "Parameter"
 	ImGui::TableSetColumnIndex(2);
-	backgroundText(parameter->getName(), b_valid ? Colors::darkGray : Colors::red, b_valid ? Colors::white : Colors::black);
+	backgroundText(parameter->getName(), b_valid ? Colors::darkGreen : Colors::red, b_valid ? Colors::white : Colors::white);
 	if(ImGui::IsItemHovered() && !b_valid) validationErrorPopup();
 }
 
@@ -51,13 +60,15 @@ void ParameterTrack::validationErrorPopup(){
 	
 	if(isAnimated()){
 		auto animatedTrack = castToAnimated();
-		for(auto& curve : animatedTrack->getCurves()){
-			if(!curve.b_valid) ImGui::Text("- Curve Not Valid");
-			for(auto& controlPoint : curve.getPoints()){
-				if(!controlPoint->b_valid) ImGui::Text("-- Control Point Not Valid : %s", Enumerator::getDisplayString(controlPoint->validationError));
-			}
-			for(auto& interpolation : curve.getInterpolations()){
-				if(!interpolation->b_valid) ImGui::Text("-- Interpolation Not Valid : %s", Enumerator::getDisplayString(interpolation->validationError));
+		if(animatedTrack->getType() == ManoeuvreType::SEQUENCE){
+			for(auto& curve : animatedTrack->getCurves()){
+				if(!curve.b_valid) ImGui::Text("- Curve Not Valid");
+				for(auto& controlPoint : curve.getPoints()){
+					if(!controlPoint->b_valid) ImGui::Text("-- Control Point Not Valid : %s", Enumerator::getDisplayString(controlPoint->validationError));
+				}
+				for(auto& interpolation : curve.getInterpolations()){
+					if(!interpolation->b_valid) ImGui::Text("-- Interpolation Not Valid : %s", Enumerator::getDisplayString(interpolation->validationError));
+				}
 			}
 		}
 	}

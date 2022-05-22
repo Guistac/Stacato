@@ -11,12 +11,12 @@
 class SetManoeuvreTypeCommand : public Command{
 public:
 	
-	Manoeuvre* manoeuvre;
+	std::shared_ptr<Manoeuvre> manoeuvre;
 	ManoeuvreType newType;
 	std::vector<std::shared_ptr<ParameterTrack>> oldTracks;
 	std::vector<std::shared_ptr<ParameterTrack>> newTracks;
 	
-	SetManoeuvreTypeCommand(std::string& name, Manoeuvre* manoeuvre_, ManoeuvreType newType_) : Command(name){
+	SetManoeuvreTypeCommand(std::string& name, std::shared_ptr<Manoeuvre> manoeuvre_, ManoeuvreType newType_) : Command(name){
 		manoeuvre = manoeuvre_;
 		newType = newType_;
 		oldTracks = manoeuvre->getTracks();
@@ -26,14 +26,18 @@ public:
 		for(int i = 0; i < manoeuvre->getTracks().size(); i++){
 			std::shared_ptr<ParameterTrack>& track = manoeuvre->getTracks()[i];
 			track = ParameterTrack::create(track->getParameter(), newType);
+			track->setManoeuvre(manoeuvre);
 		}
 		newTracks = manoeuvre->getTracks();
+		manoeuvre->updateValidation();
 	}
 	virtual void undo(){
 		manoeuvre->getTracks() = oldTracks;
+		manoeuvre->updateValidation();
 	}
 	virtual void redo(){
 		manoeuvre->getTracks() = newTracks;
+		manoeuvre->updateValidation();
 	}
 
 };
@@ -42,7 +46,7 @@ Manoeuvre::Manoeuvre(){
 	type->setEditCallback([this](std::shared_ptr<Parameter> parameter){
 		auto typeParameter = std::dynamic_pointer_cast<EnumeratorParameter<ManoeuvreType>>(parameter);
 		std::string commandName = "Set Manoeuvre type to " + std::string(Enumerator::getDisplayString(this->getType()));
-		auto setManoeuvreTypeCommand = std::make_shared<SetManoeuvreTypeCommand>(commandName, this, typeParameter->value);
+		auto setManoeuvreTypeCommand = std::make_shared<SetManoeuvreTypeCommand>(commandName, shared_from_this(), typeParameter->value);
 		CommandHistory::pushAndExecute(setManoeuvreTypeCommand);
 	});
 }
@@ -57,6 +61,7 @@ std::shared_ptr<Manoeuvre> Manoeuvre::copy(){
 	
 	for(auto track : getTracks()){
 		auto trackCopy = ParameterTrack::copy(track);
+		trackCopy->setManoeuvre(copy);
 		copy->tracks.push_back(trackCopy);
 	}
 	
@@ -80,6 +85,8 @@ public:
 	virtual void execute(){
 		addedTrack = machineParameter->createTrack(manoeuvre->getType());
 		manoeuvre->getTracks().push_back(addedTrack);
+		addedTrack->setManoeuvre(manoeuvre);
+		addedTrack->validate();
 	}
 	
 	virtual void undo(){
@@ -91,11 +98,13 @@ public:
 			}
 		}
 		addedTrack->unsubscribeFromMachineParameter();
+		manoeuvre->updateValidation();
 	}
 	
 	virtual void redo(){
 		manoeuvre->getTracks().push_back(addedTrack);
 		addedTrack->subscribeToMachineParameter();
+		manoeuvre->updateValidation();
 	}
 	
 };
@@ -135,12 +144,14 @@ public:
 			}
 		}
 		removedTrack->unsubscribeFromMachineParameter();
+		manoeuvre->updateValidation();
 	}
 	
 	virtual void undo(){
 		auto& tracks = manoeuvre->getTracks();
 		tracks.insert(tracks.begin() + removeIndex, removedTrack);
 		removedTrack->subscribeToMachineParameter();
+		manoeuvre->updateValidation();
 	}
 	
 };
@@ -210,11 +221,15 @@ void Manoeuvre::unsubscribeAllTracksFromMachineParameter(){
 }
 
 
+void Manoeuvre::validateAllParameterTracks(){
+	for(auto& track : tracks) track->validate();
+}
+
 void Manoeuvre::updateValidation(){
 	for(auto& track : tracks){
 		if(!track->isValid()) {
 			b_valid = false;
-			break;
+			return;
 		}
 	}
 	b_valid = true;

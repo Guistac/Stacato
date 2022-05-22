@@ -318,8 +318,14 @@ std::shared_ptr<AnimatableParameterValue> PositionControlledMachine::getActualPa
 bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
 	using namespace Motion;
 	
-	if (parameterTrack->getParameter() != positionParameter) return false;
-	else if (!isAxisConnected()) return false;
+	if (parameterTrack->getParameter() != positionParameter) {
+		parameterTrack->appendValidationErrorString("Unknown Parameter");
+		return false;
+	}
+	else if (!isAxisConnected()) {
+		parameterTrack->appendValidationErrorString("No Axis Connected To Machine");
+		return false;
+	}
 	
 	bool b_trackValid = true;
 	
@@ -330,24 +336,24 @@ bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<Par
 	double velocityLimit_machineUnits = getAxis()->getVelocityLimit();
 	double accelerationLimit_machineUnits = getAxis()->getAccelerationLimit();
 	
-	ParameterTrack::Type trackType = parameterTrack->getType();
+	auto animatedTrack = parameterTrack->castToAnimated();
+	ManoeuvreType manoeuvreType = animatedTrack->getType();
 	
 	//target validation
-	auto animatedTrack = parameterTrack->castToAnimated();
 	auto targetParameter = std::dynamic_pointer_cast<BaseNumberParameter>(animatedTrack->target);
 	if(!targetParameter->validateRange(lowLimit_machineUnits, highLimit_machineUnits)) {
-		animatedTrack->appendValidationErrorString("Target is out of range.");
+		animatedTrack->appendValidationErrorString("Target is out of range. (" + std::to_string(lowLimit_machineUnits) + " - " + std::to_string(highLimit_machineUnits) + ")");
 		b_trackValid = false;
 	}
 	
-	if(parameterTrack->getType() == ParameterTrack::Type::TARGET){
+	if(manoeuvreType == ManoeuvreType::TARGET){
 		
 		//velocity validation
 		auto targetTrack = parameterTrack->castToTarget();
 		if(targetTrack->getConstraintType() == TargetParameterTrack::Constraint::VELOCITY){
 			if(!targetTrack->velocityConstraint->validateRange(0.0, std::abs(velocityLimit_machineUnits), false, true)){
-				if(targetTrack->inAcceleration->getReal() == 0.0) animatedTrack->appendValidationErrorString("Velocity is Zero");
-				else animatedTrack->appendValidationErrorString("Velocity is out of range.");
+				if(targetTrack->velocityConstraint->getReal() == 0.0) animatedTrack->appendValidationErrorString("Velocity is Zero");
+				else animatedTrack->appendValidationErrorString("Velocity is out of range. (max: " + std::to_string(std::abs(velocityLimit_machineUnits)) + ")");
 				b_trackValid = false;
 			}
 		}
@@ -355,20 +361,23 @@ bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<Par
 		//validate acceleration
 		if(!targetTrack->inAcceleration->validateRange(0.0, std::abs(accelerationLimit_machineUnits), false, true)) {
 			if(targetTrack->inAcceleration->getReal() == 0.0) animatedTrack->appendValidationErrorString("In-Acceleration is Zero");
-			else animatedTrack->appendValidationErrorString("In-Acceleration is out of range.");
+			else animatedTrack->appendValidationErrorString("In-Acceleration is out of range. (max: " + std::to_string(std::abs(accelerationLimit_machineUnits)) + ")");
 			b_trackValid = false;
 		}
 		if(!targetTrack->outAcceleration->validateRange(0.0, std::abs(accelerationLimit_machineUnits), false, true)){
 			if(targetTrack->outAcceleration->getReal() == 0.0) animatedTrack->appendValidationErrorString("Out-Acceleration is Zero");
-			else animatedTrack->appendValidationErrorString("Out-Acceleration is out of range.");
+			else animatedTrack->appendValidationErrorString("Out-Acceleration is out of range. (max: " + std::to_string(std::abs(accelerationLimit_machineUnits)) + ")");
 			b_trackValid = false;
 		}
 		
-	}else if(parameterTrack->getType() == ParameterTrack::Type::SEQUENCE){
+	}else if(manoeuvreType == ManoeuvreType::SEQUENCE){
 		
 		auto sequenceTrack = parameterTrack->castToSequence();
 		auto startParameter = std::dynamic_pointer_cast<BaseNumberParameter>(sequenceTrack->start);
-		if(!startParameter->validateRange(lowLimit_machineUnits, highLimit_machineUnits, true, true)) b_trackValid = false;
+		if(!startParameter->validateRange(lowLimit_machineUnits, highLimit_machineUnits, true, true)) {
+			animatedTrack->appendValidationErrorString("Start is out of range. (" + std::to_string(lowLimit_machineUnits) + " - " + std::to_string(highLimit_machineUnits) + ")");
+			b_trackValid = false;
+		}
 		
 		if(animatedTrack->getCurves().size() != 1) {
 			Logger::warn("Parameter Track has wrong curve count. Has {}, expected 1", animatedTrack->getCurves().size());

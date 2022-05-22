@@ -39,14 +39,18 @@ void ParameterTrack::unsubscribeFromMachineParameter(){
 
 std::shared_ptr<ParameterTrack> ParameterTrack::copy(const std::shared_ptr<ParameterTrack> original){
 	std::shared_ptr<ParameterTrack> copy;
-	switch(original->getType()){
-		case Type::GROUP: copy =  original->castToGroup()->copy();
-		case Type::KEY:	copy = original->castToKey()->copy();
-		case Type::TARGET: copy = original->castToTarget()->copy();
-		case Type::SEQUENCE: copy = original->castToSequence()->copy();
+	if(original->isGroup()) copy = original->castToGroup()->copy();
+	else{
+		auto animatedOriginal = original->castToAnimated();
+		switch(animatedOriginal->getType()){
+			case ManoeuvreType::KEY:	copy = original->castToKey()->copy(); break;
+			case ManoeuvreType::TARGET: copy = original->castToTarget()->copy(); break;
+			case ManoeuvreType::SEQUENCE: copy = original->castToSequence()->copy(); break;
+		}
 	}
 	//subscribe track to parameter changes
 	copy->subscribeToMachineParameter();
+	return copy;
 }
 
 std::shared_ptr<ParameterTrackGroup> ParameterTrackGroup::copy(){
@@ -61,7 +65,6 @@ std::shared_ptr<ParameterTrackGroup> ParameterTrackGroup::copy(){
 
 std::shared_ptr<KeyParameterTrack> KeyParameterTrack::copy(){
 	auto copy = std::make_shared<KeyParameterTrack>(getAnimatableParameter());
-	copy->target = target->makeBaseCopy();
 	return copy;
 }
 

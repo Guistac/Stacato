@@ -27,8 +27,8 @@ public:
 
 public:
 
-	//static std::shared_ptr<ParameterTrack> create(std::shared_ptr<MachineParameter> parameter, std::shared_ptr<Manoeuvre> manoeuvre);
-	static std::shared_ptr<ParameterTrack> create(std::shared_ptr<MachineParameter> parameter);
+	static std::shared_ptr<ParameterTrack> create(std::shared_ptr<MachineParameter> parameter, ManoeuvreType manoeuvreType);
+	//static std::shared_ptr<ParameterTrack> create(std::shared_ptr<MachineParameter> parameter);
 	static std::shared_ptr<ParameterTrack> copy(const std::shared_ptr<ParameterTrack> original);
 	//static std::shared_ptr<ParameterTrack> copy(const std::shared_ptr<ParameterTrack> original, std::shared_ptr<Manoeuvre> newManoeuvre);
 	
@@ -42,10 +42,11 @@ public:
 	//———————————————————————————————————————————
 	
 public:
-
+	
 	ParameterTrack(std::shared_ptr<MachineParameter> parameter_) : parameter(parameter_){}
 	std::shared_ptr<MachineParameter> getParameter(){ return parameter; }
 	
+	void setManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre_){ manoeuvre = manoeuvre_; }
 	bool hasManoeuvre(){ return manoeuvre != nullptr; }
 	std::shared_ptr<Manoeuvre> getManoeuvre(){ return manoeuvre; }
 	
@@ -79,15 +80,6 @@ private:
 	
 public:
 	
-	enum class Type{
-		GROUP,
-		KEY,
-		TARGET,
-		SEQUENCE
-	};
-	
-	virtual Type getType() = 0;
-	
 	virtual bool isGroup(){ return false; }
 	std::shared_ptr<ParameterTrackGroup> castToGroup(){ return std::dynamic_pointer_cast<ParameterTrackGroup>(shared_from_this()); }
 	
@@ -110,16 +102,6 @@ public:
 };
 
 
-#define ParameterTrackTypeStrings \
-{ParameterTrack::Type::GROUP, 		.displayString = "Group", 		.saveString = "Group"},\
-{ParameterTrack::Type::KEY, 		.displayString = "Key", 		.saveString = "Key"},\
-{ParameterTrack::Type::TARGET, 		.displayString = "Target", 		.saveString = "Target"},\
-{ParameterTrack::Type::SEQUENCE, 	.displayString = "Sequence", 	.saveString = "Sequence"},\
-
-DEFINE_ENUMERATOR(ParameterTrack::Type, ParameterTrackTypeStrings)
-
-
-
 //Interface for all tracks that can generate movement (not groups)
 class AnimatedParameterTrack : public ParameterTrack{
 public:
@@ -139,6 +121,8 @@ public:
 	}
 	
 	virtual bool isAnimated(){ return true; }
+	
+	virtual ManoeuvreType getType() = 0;
 	
 	//———————————————————————————————————————————
 	//	  		  General Properties
@@ -226,10 +210,12 @@ public:
 			Unit unit = parameter->castToNumerical()->getUnit();
 			setUnit(unit);
 		}
-		target->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
+		target->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){
+			this->validate();
+		});
 	}
 	
-	virtual Type getType() override { return ParameterTrack::Type::KEY; }
+	virtual ManoeuvreType getType() override { return ManoeuvreType::KEY; }
 	
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
 	static std::shared_ptr<KeyParameterTrack> load(tinyxml2::XMLElement* xml, std::shared_ptr<AnimatableParameter> parameter);
@@ -313,7 +299,7 @@ public:
 		timeConstraint->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
 	}
 	
-	virtual Type getType() override { return ParameterTrack::Type::TARGET; }
+	virtual ManoeuvreType getType() override { return ManoeuvreType::TARGET; }
 	
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
 	static std::shared_ptr<TargetParameterTrack> load(tinyxml2::XMLElement* xml, std::shared_ptr<AnimatableParameter> parameter);
@@ -410,7 +396,7 @@ public:
 		timeOffset->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ validate(); });
 	}
 	
-	virtual Type getType() override { return ParameterTrack::Type::SEQUENCE; }
+	virtual ManoeuvreType getType() override { return ManoeuvreType::SEQUENCE; }
 	
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
 	static std::shared_ptr<SequenceParameterTrack> load(tinyxml2::XMLElement* xml, std::shared_ptr<AnimatableParameter> parameter);
@@ -486,7 +472,6 @@ public:
 class ParameterTrackGroup : public ParameterTrack{
 public:
 	
-	virtual Type getType() override { return ParameterTrack::Type::GROUP; }
 	virtual bool isGroup() override { return true; }
 	
 	//called when creating a parameter track group in the track sheet editor
