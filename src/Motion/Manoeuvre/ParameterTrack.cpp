@@ -144,150 +144,82 @@ void SequenceParameterTrack::captureCurrentValueAsStart(){
 
 
 
-/*
-
-//================================== EDITING ==================================
 
 
-void ParameterTrack::refreshAfterCurveEdit() {
-	//copy the settings from the start and endpoints to the track settings
-
-	switch (parameter->dataType) {
-		case ParameterDataType::BOOLEAN_PARAMETER:
-			origin.boolean = startPoints.front()->position > 0.5 ? true : false;
-			target.boolean = endPoints.front()->position > 0.5 ? true : false;
-			break;
-		case ParameterDataType::INTEGER_PARAMETER:
-			origin.integer = std::round(startPoints.front()->position);
-			target.integer = std::round(endPoints.front()->position);
-			break;
-		case ParameterDataType::STATE_PARAMETER: {
-			int originInteger = std::round(startPoints.front()->position);
-			std::clamp(originInteger, 0, (int)parameter->getStateValues().size() - 1);
-			origin.state = &parameter->getStateValues().at(originInteger);
-			int targetInteger = std::round(endPoints.front()->position);
-			std::clamp(targetInteger, 0, (int)parameter->getStateValues().size() - 1);
-			target.state = &parameter->getStateValues().at(targetInteger);
-			}break;
-		case ParameterDataType::VECTOR_3D_PARAMETER:
-		case ParameterDataType::POSITION_3D:
-			origin.vector3.x = startPoints[0]->position;
-			origin.vector3.y = startPoints[1]->position;
-			origin.vector3.z = startPoints[2]->position;
-			target.vector3.x = endPoints[0]->position;
-			target.vector3.y = endPoints[1]->position;
-			target.vector3.z = endPoints[2]->position;
-			break;
-		case ParameterDataType::VECTOR_2D_PARAMETER:
-		case ParameterDataType::POSITION_2D:
-			origin.vector2.x = startPoints[0]->position;
-			origin.vector2.y = startPoints[1]->position;
-			target.vector2.x = endPoints[0]->position;
-			target.vector2.y = endPoints[1]->position;
-			break;
-		case ParameterDataType::REAL_PARAMETER:
-		case ParameterDataType::POSITION:
-			origin.real = startPoints[0]->position;
-			target.real = endPoints[0]->position;
-			break;
-		case ParameterDataType::PARAMETER_GROUP:
-			break;
-	}
-
-	bool offsetChanged = false;
-	//detect if the startpoint was moved (offset time changed)
-	for (int i = 0; i < getCurveCount(); i++) {
-		if (startPoints[i]->time != timeOffset) {
-			timeOffset = startPoints[i]->time;
-			if (timeOffset < 0) timeOffset = 0;
-			offsetChanged = true;
-			break;
-		}
-	}
-
-	switch (interpolationType) {
-		case Motion::InterpolationType::STEP:
-			timeOffset = 0.0;
-			break;
-		default:
-			break;
-	}
-
-	if (!offsetChanged) {
-		//detect if the endpoint was moved (movement time constraint changed)
-		for (int i = 0; i < getCurveCount(); i++) {
-			double thisCurveTimeConstraint = endPoints[i]->time - startPoints[i]->time;
-			if (thisCurveTimeConstraint != movementTime) {
-				movementTime = thisCurveTimeConstraint;
-				if (movementTime < 0) movementTime = 0;
-				break;
-			}
-		}
-	}
-
-	refreshAfterParameterEdit();
+std::shared_ptr<AnimatableParameterValue> AnimatedParameterTrack::getParameterValueAtPlaybackTime(){
+	return getAnimatableParameter()->getParameterValueAtCurveTime(castToAnimated(), playbackPosition_seconds);
 }
 
 
-//========================================== PLAYBACK ====================================================
+bool ParameterTrack::isMachineEnabled(){ return parameter->getMachine()->isEnabled(); }
 
 
 
-void ParameterTrack::rapidToStart() {
-	if (parameter->machine->isEnabled()) {
-		parameter->machine->rapidParameterToValue(parameter, origin);
-	}
+
+bool AnimatedParameterTrack::isAtTarget(){
+	auto animatable = getAnimatableParameter();
+	return animatable->isParameterValueEqual(animatable->getParameterValue(target), animatable->getActualMachineValue());
 }
 
-void ParameterTrack::rapidToEnd() {
-	if (parameter->machine->isEnabled()) {
-		parameter->machine->rapidParameterToValue(parameter, target);
-	}
+bool AnimatedParameterTrack::isInRapid(){ return false; }
+
+float AnimatedParameterTrack::getRapidProgress(){
+	auto animatable = getAnimatableParameter();
+	return animatable->getMachine()->getParameterRapidProgress(animatable);
 }
 
-void ParameterTrack::rapidToPlaybackPosition() {
-	if (parameter->machine->isEnabled()) {
-		AnimatableParameterValue parameterValueAtPlaybackPosition;
-		getParameterValueAtPlaybackTime(parameterValueAtPlaybackPosition);
-		parameter->machine->rapidParameterToValue(parameter, parameterValueAtPlaybackPosition);
-	}
+void AnimatedParameterTrack::rapidToTarget(){
+	auto animatable = getAnimatableParameter();
+	animatable->getMachine()->rapidParameterToValue(animatable, animatable->getParameterValue(target));
 }
 
-void ParameterTrack::cancelRapid() {
-	parameter->machine->cancelParameterRapid(parameter);
-}
-
-
-float ParameterTrack::getRapidProgress() {
-	return parameter->machine->getParameterRapidProgress(parameter);
-}
-
-
-bool ParameterTrack::isPrimedToStart() {
-	return parameter->machine->isParameterReadyToStartPlaybackFromValue(parameter, origin);
-}
-
-bool ParameterTrack::isPrimedToEnd() {
-	return parameter->machine->isParameterReadyToStartPlaybackFromValue(parameter, target);
-}
-
-bool ParameterTrack::isPrimedToPlaybackPosition() {
-	AnimatableParameterValue parameterValueAtPlaybackPosition;
-	getParameterValueAtPlaybackTime(parameterValueAtPlaybackPosition);
-	return parameter->machine->isParameterReadyToStartPlaybackFromValue(parameter, parameterValueAtPlaybackPosition);
-}
-
-
-double ParameterTrack::getLength_seconds() {
-	double longestCurve = 0.0;
-	for (auto& curve : curves) {
-		double time;
-		if (curve->points.size() <= 1) time = 0;
-		else if (curve->getEnd()->time > longestCurve) longestCurve = curve->getEnd()->time;
-	}
-	return longestCurve;
+void AnimatedParameterTrack::stop(){
+	auto animatable = getAnimatableParameter();
+	animatable->getMachine()->cancelParameterRapid(animatable);
+	//Stop Rapids
+	//Stop Playback & clear active parameter track from animatable
 }
 
 
 
-*/
+
+
+
+
+
+
+
+bool TargetParameterTrack::isAtPlaybackPosition(){
+	auto animatable = getAnimatableParameter();
+	return animatable->isParameterValueEqual(getParameterValueAtPlaybackTime(), animatable->getActualMachineValue());
+}
+
+bool TargetParameterTrack::isReadyToStartPlayback(){
+	auto animatable = getAnimatableParameter();
+	animatable->getMachine()->isParameterReadyToStartPlaybackFromValue(animatable, getParameterValueAtPlaybackTime());
+}
+
+
+
+bool SequenceParameterTrack::isAtStart(){
+	auto animatable = getAnimatableParameter();
+	return animatable->isParameterValueEqual(animatable->getParameterValue(start), animatable->getActualMachineValue());
+}
+
+void SequenceParameterTrack::rapidToStart(){
+	auto animatable = getAnimatableParameter();
+	animatable->getMachine()->rapidParameterToValue(animatable, animatable->getParameterValue(start));
+}
+
+bool SequenceParameterTrack::isAtPlaybackPosition(){
+	return false;
+	/*
+	auto animatable = getAnimatableParameter();
+	return animatable->isParameterValueEqual(getParameterValueAtPlaybackTime(), animatable->getActualMachineValue());
+	 */
+}
+
+bool SequenceParameterTrack::isReadyToStartPlayback(){
+	auto animatable = getAnimatableParameter();
+	animatable->getMachine()->isParameterReadyToStartPlaybackFromValue(animatable, getParameterValueAtPlaybackTime());
+}

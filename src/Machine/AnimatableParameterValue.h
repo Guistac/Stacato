@@ -105,21 +105,18 @@ struct Position3DParameterValue : public AnimatableParameterValue{
 
 struct VelocityParameterValue : public AnimatableParameterValue{
 	virtual MachineParameterType getType(){ return MachineParameterType::VELOCITY; }
-	double position;
 	double velocity;
 	double acceleration;
 };
 
 struct Velocity2DParameterValue : public AnimatableParameterValue{
 	virtual MachineParameterType getType(){ return MachineParameterType::VELOCITY_2D; }
-	glm::dvec2 position;
 	glm::dvec2 velocity;
 	glm::dvec2 acceleration;
 };
 
 struct Velocity3DParameterValue : public AnimatableParameterValue{
 	virtual MachineParameterType getType(){ return MachineParameterType::VELOCITY_3D; }
-	glm::dvec3 position;
 	glm::dvec3 velocity;
 	glm::dvec3 acceleration;
 };

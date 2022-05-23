@@ -251,11 +251,10 @@ void editor(){
 		ImGui::PopFont();
 		
 		ImGui::SameLine();
-		switch(NextPreviousButtons::draw("NextPrevious", height)){
-			case NextPreviousButtons::Interaction::NONE: break;
-			case NextPreviousButtons::Interaction::PREVIOUS: break;
-			case NextPreviousButtons::Interaction::NEXT: break;
-		}
+		
+		if(previousButton("PreviousManoeuvre", height, true, ImDrawFlags_RoundCornersLeft)) {}
+		ImGui::SameLine();
+		if(nextButton("NextManoeuvre", height, true, ImDrawFlags_RoundCornersRight)) {}
 		
 		ImGui::SameLine();
 		if(buttonPause("##Pause", height)){}

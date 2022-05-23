@@ -158,14 +158,14 @@ namespace Environnement {
 		
 		//increments the playback position of all active manoeuvres
 		//if a manoeuvre finishes playback, this sets its playback position to the exact end of the manoeuvre
-		Playback::incrementPlaybackPosition();
+		PlaybackManager::incrementPlaybackPosition();
 		
 		//update all nodes connected to ethercat slave nodes
 		Environnement::NodeGraph::evaluate(Device::Type::ETHERCAT_DEVICE);
 		
 		//ends playback of finished manoeuvres and rapids
 		//triggers the onParameterPlaybackEnd() method of machines
-		Playback::updateActiveManoeuvreState();
+		PlaybackManager::updateActiveManoeuvreState();
 		
 		//prepare all slaves output data if operational
 		for (auto slave : EtherCatFieldbus::slaves) if (slave->isStateOperational()) slave->prepareOutputs();
@@ -185,11 +185,11 @@ namespace Environnement {
 		simulationTime_seconds = currentSimulationTime_seconds;
 		simulationTime_nanoseconds = currentSimulationTime_nanoseconds;
 		
-		Playback::incrementPlaybackPosition();
+		PlaybackManager::incrementPlaybackPosition();
 		
 		for(auto& machine : getMachines()) machine->simulateProcess();
 		
-		Playback::updateActiveManoeuvreState();
+		PlaybackManager::updateActiveManoeuvreState();
 	}
 
 

@@ -225,3 +225,145 @@ std::shared_ptr<AnimatableParameterValue> AnimatableParameter::getParameterValue
 		case MachineParameterType::GROUP:		return nullptr;
 	}
 }
+
+
+bool AnimatableParameter::isParameterValueEqual(std::shared_ptr<AnimatableParameterValue> value1, std::shared_ptr<AnimatableParameterValue> value2){
+	switch(getType()){
+		case MachineParameterType::BOOLEAN: 	return value1->toBoolean()->value 		== value2->toBoolean()->value;
+		case MachineParameterType::INTEGER: 	return value1->toInteger()->value 		== value2->toInteger()->value;
+		case MachineParameterType::STATE: 		return value1->toState()->value 		== value2->toState()->value;
+		case MachineParameterType::POSITION:	return value1->toPosition()->position 	== value2->toPosition()->position;
+		case MachineParameterType::VELOCITY:	return value1->toVelocity()->velocity 	== value2->toVelocity()->velocity;
+		case MachineParameterType::REAL:		return value1->toReal()->value 			== value2->toReal()->value;
+		case MachineParameterType::POSITION_2D:	return value1->to2dPosition()->position == value2->to2dPosition()->position;
+		case MachineParameterType::VELOCITY_2D:	return value1->to2dVelocity()->velocity == value2->to2dVelocity()->velocity;
+		case MachineParameterType::VECTOR_2D:	return value1->to2dVector()->value 		== value2->to2dVector()->value;
+		case MachineParameterType::POSITION_3D:	return value1->to3dPosition()->position == value2->to3dPosition()->position;
+		case MachineParameterType::VELOCITY_3D:	return value1->to3dVelocity()->velocity == value2->to3dVelocity()->velocity;
+		case MachineParameterType::VECTOR_3D:	return value1->to3dVector()->value 		== value2->to3dVector()->value;
+		case MachineParameterType::GROUP:		return false;
+	}
+}
+
+std::shared_ptr<AnimatableParameterValue> AnimatableParameter::getParameterValueAtCurveTime(std::shared_ptr<AnimatedParameterTrack> parameterTrack, double time_seconds){
+	switch(getType()){
+			
+		case MachineParameterType::BOOLEAN: {
+			auto output = AnimatableParameterValue::makeBoolean();
+			output->value = parameterTrack->getCurves().front().getPointAtTime(time_seconds).position >= 1.0;
+			return output;
+		}
+		case MachineParameterType::INTEGER:{
+			auto output = AnimatableParameterValue::makeInteger();
+			output->value = std::round(parameterTrack->getCurves().front().getPointAtTime(time_seconds).position);
+			return output;
+		}
+		case MachineParameterType::STATE:{
+			auto output = AnimatableParameterValue::makeState();
+			output->values = &castToState()->getStates();
+			int integer = std::round(parameterTrack->getCurves().front().getPointAtTime(time_seconds).position);
+			for(int i = 0; i < output->values->size(); i++){
+				if(output->values->at(i).integerEquivalent == i){
+					output->value = &output->values->at(i);
+					break;
+				}
+			}
+			return output;
+		}
+		case MachineParameterType::POSITION:{
+			auto output = AnimatableParameterValue::makePosition();
+			Motion::Point point = parameterTrack->getCurves().front().getPointAtTime(time_seconds);
+			output->position = point.position;
+			output->velocity = point.velocity;
+			output->acceleration = point.acceleration;
+			return output;
+		}
+		case MachineParameterType::VELOCITY:{
+			auto output = AnimatableParameterValue::makeVelocity();
+			Motion::Point point = parameterTrack->getCurves().front().getPointAtTime(time_seconds);
+			output->velocity = point.position;
+			output->acceleration = point.velocity;
+			return output;
+		}
+		case MachineParameterType::REAL:{
+			auto output = AnimatableParameterValue::makeReal();
+			output->value = parameterTrack->getCurves().front().getPointAtTime(time_seconds).position;
+			return output;
+		}
+		case MachineParameterType::POSITION_2D:{
+			auto output = AnimatableParameterValue::make2dPosition();
+			Motion::Point pointX = parameterTrack->getCurves().at(0).getPointAtTime(time_seconds);
+			Motion::Point pointY = parameterTrack->getCurves().at(1).getPointAtTime(time_seconds);
+			output->position.x = pointX.position;
+			output->position.y = pointY.position;
+			output->velocity.x = pointX.velocity;
+			output->velocity.y = pointY.velocity;
+			output->acceleration.x = pointX.acceleration;
+			output->acceleration.y = pointY.acceleration;
+			return output;
+		}
+		case MachineParameterType::VELOCITY_2D:{
+			auto output = AnimatableParameterValue::make2dVelocity();
+			Motion::Point pointX = parameterTrack->getCurves().at(0).getPointAtTime(time_seconds);
+			Motion::Point pointY = parameterTrack->getCurves().at(1).getPointAtTime(time_seconds);
+			output->velocity.x = pointX.position;
+			output->velocity.y = pointY.position;
+			output->acceleration.x = pointX.velocity;
+			output->acceleration.y = pointY.velocity;
+			return output;
+		}
+		case MachineParameterType::VECTOR_2D:{
+			auto output = AnimatableParameterValue::make2dVector();
+			Motion::Point pointX = parameterTrack->getCurves().at(0).getPointAtTime(time_seconds);
+			Motion::Point pointY = parameterTrack->getCurves().at(1).getPointAtTime(time_seconds);
+			output->value.x = pointX.position;
+			output->value.y = pointY.position;
+			return output;
+		}
+		case MachineParameterType::POSITION_3D:{
+			auto output = AnimatableParameterValue::make3dPosition();
+			Motion::Point pointX = parameterTrack->getCurves().at(0).getPointAtTime(time_seconds);
+			Motion::Point pointY = parameterTrack->getCurves().at(1).getPointAtTime(time_seconds);
+			Motion::Point pointZ = parameterTrack->getCurves().at(2).getPointAtTime(time_seconds);
+			output->position.x = pointX.position;
+			output->position.y = pointY.position;
+			output->position.z = pointZ.position;
+			output->velocity.x = pointX.velocity;
+			output->velocity.y = pointY.velocity;
+			output->velocity.z = pointZ.velocity;
+			output->acceleration.x = pointX.acceleration;
+			output->acceleration.y = pointY.acceleration;
+			output->acceleration.z = pointZ.acceleration;
+			return output;
+		}
+		case MachineParameterType::VELOCITY_3D:{
+			auto output = AnimatableParameterValue::make3dVelocity();
+			Motion::Point pointX = parameterTrack->getCurves().at(0).getPointAtTime(time_seconds);
+			Motion::Point pointY = parameterTrack->getCurves().at(1).getPointAtTime(time_seconds);
+			Motion::Point pointZ = parameterTrack->getCurves().at(2).getPointAtTime(time_seconds);
+			output->velocity.x = pointX.position;
+			output->velocity.y = pointY.position;
+			output->velocity.z = pointZ.position;
+			output->acceleration.x = pointX.velocity;
+			output->acceleration.y = pointY.velocity;
+			output->acceleration.z = pointZ.velocity;
+			return output;
+		}
+		case MachineParameterType::VECTOR_3D:{
+			auto output = AnimatableParameterValue::make3dVector();
+			Motion::Point pointX = parameterTrack->getCurves().at(0).getPointAtTime(time_seconds);
+			Motion::Point pointY = parameterTrack->getCurves().at(1).getPointAtTime(time_seconds);
+			Motion::Point pointZ = parameterTrack->getCurves().at(2).getPointAtTime(time_seconds);
+			output->value.x = pointX.position;
+			output->value.y = pointY.position;
+			output->value.z = pointZ.position;
+			return output;
+		}
+		case MachineParameterType::GROUP:{
+			return nullptr;
+		}
+			
+			
+			
+	}
+}

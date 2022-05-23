@@ -88,6 +88,29 @@ public:
 	std::shared_ptr<TargetParameterTrack> castToTarget(){ return std::dynamic_pointer_cast<TargetParameterTrack>(shared_from_this()); }
 	std::shared_ptr<SequenceParameterTrack> castToSequence(){ return std::dynamic_pointer_cast<SequenceParameterTrack>(shared_from_this()); }
 	
+	
+	//———————————————————————————————————————————
+	//	   				Playback
+	//———————————————————————————————————————————
+	
+	bool isMachineEnabled();
+	virtual bool isAtStart(){ return false; }
+	virtual bool isAtTarget(){ return false; }
+	virtual bool isAtPlaybackPosition(){ return false; }
+	virtual bool isReadyToStartPlayback(){ return false; }
+	virtual bool isInRapid(){ return false; }
+	virtual float getRapidProgress(){ return 0.0; }
+	
+	virtual void rapidToStart(){}
+	virtual void rapidToTarget(){}
+	virtual void rapidToPlaybackPosition(){}
+	virtual void startPlayback(){}
+	virtual void pausePlayback(){}
+	virtual void setPlaybackPosition(double seconds){}
+	virtual void stop(){}
+	
+	virtual void incrementPlaybackPositionTo(double seconds){}
+	
 	//———————————————————————————————————————————
 	//	   			User Interface
 	//———————————————————————————————————————————
@@ -98,6 +121,10 @@ public:
 	virtual void trackSheetRowGui() = 0;
 	void validationErrorPopup();
 };
+
+
+
+
 
 
 //Interface for all tracks that can generate movement (not groups)
@@ -115,7 +142,7 @@ public:
 		curves.resize(animatableParameter->getCurveCount());
 	}
 	
-	virtual bool isAnimated(){ return true; }
+	virtual bool isAnimated() override { return true; }
 	
 	virtual ManoeuvreType getType() = 0;
 	
@@ -136,6 +163,14 @@ public:
 	
 	std::shared_ptr<Parameter> target;
 	
+	
+	virtual bool isAtTarget() override;
+	virtual bool isInRapid() override;
+	virtual float getRapidProgress() override;
+	
+	virtual void rapidToTarget() override;
+	virtual void stop() override;
+	
 private:
 	
 	std::shared_ptr<AnimatableParameter> animatableParameter;
@@ -146,20 +181,12 @@ private:
 	//	  		       Playback
 	//———————————————————————————————————————————
 	
+	double playbackPosition_seconds;
+	
 public:
 	
-	void rapidToEnd();
-	void cancelRapid();
-	
-	float getRapidProgress();
-	bool isPrimedToEnd(); //is parameter at the same position as the target
-	
-	AnimatableParameterValue getParameterValueAtPlaybackTime();
-	
-private:
-	
-	bool b_priming = false;
-	double playbackPosition_seconds;
+	//curve to animatable parameter conversion
+	std::shared_ptr<AnimatableParameterValue> getParameterValueAtPlaybackTime();
 	
 	//———————————————————————————————————————————
 	//	  		    User Interface
@@ -321,6 +348,11 @@ public:
 			outAcceleration->setUnit(unit);
 		}
 	}
+	
+	
+	virtual bool isAtPlaybackPosition() override;
+	virtual bool isReadyToStartPlayback() override;
+
 		
 	std::shared_ptr<EnumeratorParameter<Motion::Interpolation::Type>> interpolationType;
 	std::shared_ptr<TimeParameter> timeOffset = std::make_shared<TimeParameter>(0.0, "Time Offset", "TimeOffset");
@@ -420,6 +452,12 @@ public:
 	
 	void captureCurrentValueAsStart();
 	
+	virtual bool isAtStart() override;
+	virtual void rapidToStart() override;
+	
+	virtual bool isAtPlaybackPosition() override;
+	virtual bool isReadyToStartPlayback() override;
+	
 private:
 	
 	std::shared_ptr<EnumeratorParameter<Motion::Interpolation::Type>> interpolationType;
@@ -431,14 +469,6 @@ private:
 	//———————————————————————————————————————————
 	
 public:
-	
-	double getLength_seconds();
-	
-	void rapidToStart();
-	void rapidToPlaybackPosition();
-	
-	bool isPrimedToStart(); //is axis at the same location as the playback position
-	bool isPrimedToPlaybackPosition();
 	
 	//———————————————————————————————————————————
 	//	  		     User Interface

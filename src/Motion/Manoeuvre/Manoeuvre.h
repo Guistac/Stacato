@@ -6,6 +6,7 @@
 class ParameterTrack;
 class MachineParameter;
 class Plot;
+class ManoeuvreList;
 namespace tinyxml2 { class XMLElement; }
 
 
@@ -36,13 +37,22 @@ public:
 	
 	const char* getDescription(){ return description->value.c_str(); }
 	void setDescription(const char* descr){ description->overwrite(descr); }
+	
+	void setManoeuvreList(std::shared_ptr<ManoeuvreList> manoeuvreList_){ manoeuvreList = manoeuvreList_; }
+	bool isInManoeuvreList(){ return manoeuvreList != nullptr; }
+	std::shared_ptr<ManoeuvreList> getManoeuvreList(){ return manoeuvreList; }
+	
+	void select();
+	void deselect();
+	bool isSelected();
 
 private:
 	
 	std::shared_ptr<StringParameter> name = std::make_shared<StringParameter>("Default Name","Manoeuvre Name","Name",256);
 	std::shared_ptr<StringParameter> description = std::make_shared<StringParameter>("Default Description","Manoeuvre Description","Description",512);
 	std::shared_ptr<EnumeratorParameter<ManoeuvreType>> type = std::make_shared<EnumeratorParameter<ManoeuvreType>>(ManoeuvreType::KEY,"Manoeuvre Type","Type");
-
+	std::shared_ptr<ManoeuvreList> manoeuvreList = nullptr;
+	
 	//———————————————————————————————
 	//		  Parameter Tracks
 	//———————————————————————————————
@@ -73,37 +83,51 @@ private:
 	
 public:
 	
-	double getLength_seconds();
-	float getPlaybackProgress();
-	
-	void setPaused(bool paused){ b_paused = paused; }
-	
-	void trackSheetGui();
-	void curveEditorGui();
-	void spatialEditorGui();
+	bool areAllMachinesEnabled();
+	bool areNoMachinesEnabled();
 	
 	bool canRapidToStart();
 	bool isAtStart();
-	
-	bool canRapidToEnd();
-	bool isAtEnd();
+
+	bool canRapidToTarget();
+	bool isAtTarget();
 	
 	bool canRapidToPlaybackPosition();
 	bool isAtPlaybackPosition();
+	bool canSetPlaybackPosition();
+
 	bool canStartPlayback();
-	bool canStopPlayback();
-	bool isPlaying();
-	bool isPaused(){ return false; }
-	bool isStopped();
+	bool canPausePlayback();
+	bool isPlaybackPaused();
+
+	float getRapidProgress();
+	bool isRapidFinished();
+	float getPlaybackProgress();
+	bool isPlaybackFinished();
 	
-	//Playback Button States:
+	void rapidToStart();
+	void rapidToTarget();
+	void rapidToPlaybackPosition();
+	void startPlayback();
+	void pausePlayback();
+	void setPlaybackPosition(double seconds);
+	void stop();
 	
+	bool b_playing = false;
+	bool b_paused = false;
+	bool b_inRapid = false;
+	
+	bool isPlaying(){ return b_playing; }
+	bool isInRapid(){ return b_inRapid; }
+	bool isPaused(){ return b_paused; }
+	bool isFinished() { return !(b_playing || b_inRapid || b_paused); } //if any of these is true, the manoeuvre is not finished
+	
+	void incrementPlaybackPosition(long long deltaT_microseconds);
+	void updatePlaybackStatus();
+	long long playbackStartTime_microseconds = 0;
+	double playbackPosition_seconds = 0.0;
 
 private:
-	
-	double playbackStartTime_seconds = 0.0;
-	double playbackPosition_seconds = 0.0;
-	bool b_paused = false;
 	
 	//———————————————————————————————
 	//		   User Interface
@@ -113,4 +137,8 @@ public:
 	
 	void listGui();
 	void miniatureGui(glm::vec2 size_arg);
+	
+	void trackSheetGui();
+	void curveEditorGui();
+	void spatialEditorGui();
 };

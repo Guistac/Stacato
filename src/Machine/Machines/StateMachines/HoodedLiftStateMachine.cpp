@@ -7,9 +7,11 @@
 #include "Motion/Manoeuvre/ParameterTrack.h"
 
 std::vector<AnimatableParameterState> HoodedLiftStateMachine::stateParameterValues = {
+	{-1, "Stopped", "Stopped"},
 	{0, "Shut", "Shut"},
 	{1, "Open", "Open"},
-	{2, "Raised", "Raised"}
+	{2, "Raised", "Raised"},
+	{3, "Unknown", "Unknown"}
 };
 
 void HoodedLiftStateMachine::initialize() {
@@ -292,7 +294,20 @@ void HoodedLiftStateMachine::onParameterPlaybackInterrupt(std::shared_ptr<Animat
 
 void HoodedLiftStateMachine::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) {}
 
-std::shared_ptr<AnimatableParameterValue> HoodedLiftStateMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter) {}
+std::shared_ptr<AnimatableParameterValue> HoodedLiftStateMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter) {
+	auto output = AnimatableParameterValue::makeState();
+	output->value = &stateParameterValues.front();
+	switch(actualState){
+		case HoodedLiftStateMachine::MachineState::State::UNKNOWN:
+		case HoodedLiftStateMachine::MachineState::State::UNEXPECTED_STATE: output->value = &stateParameterValues.front(); break;
+		case HoodedLiftStateMachine::MachineState::State::LIFT_LOWERED_HOOD_SHUT: output->value = &stateParameterValues[1]; break;
+		case HoodedLiftStateMachine::MachineState::State::LIFT_LOWERED_HOOD_MOVING: output->value = &stateParameterValues.front(); break;
+		case HoodedLiftStateMachine::MachineState::State::LIFT_LOWERED_HOOD_OPEN: output->value = &stateParameterValues[2]; break;
+		case HoodedLiftStateMachine::MachineState::State::LIFT_MOVING_HOOD_OPEN: output->value = &stateParameterValues.front(); break;
+		case HoodedLiftStateMachine::MachineState::State::LIFT_RAISED_HOOD_OPEN: output->value = &stateParameterValues[2]; break;
+	}
+	return output;
+}
 
 
 

@@ -5,6 +5,12 @@
 #include <tinyxml2.h>
 
 #include "Motion/Manoeuvre/Manoeuvre.h"
+#include "Plot/ManoeuvreList.h"
+
+
+
+
+
 
 bool Plot::save(std::string& filePath) {
 	using namespace tinyxml2;
@@ -14,18 +20,18 @@ bool Plot::save(std::string& filePath) {
 	document.InsertEndChild(plotXML);
 	plotXML->SetAttribute("Name", getName());
 
-	for (auto& manoeuvre : manoeuvres) {
-		XMLElement* manoeuvreXML = plotXML->InsertNewChildElement("Manoeuvre");
-		if (!manoeuvre->save(manoeuvreXML)) return false;
-	}
+	XMLElement* manoeuvreListXML = plotXML->InsertNewChildElement("ManoeuvreList");
+	manoeuvreList->save(manoeuvreListXML);
 
 	return document.SaveFile(filePath.c_str()) == XML_SUCCESS;
+	
+	return false;
 }
 
 std::shared_ptr<Plot> Plot::load(std::string& filePath) {
 	using namespace tinyxml2;
 	
-	auto plot = std::make_shared<Plot>();
+	auto plot = Plot::create();
 
 	XMLDocument document;
 	if (document.LoadFile(filePath.c_str()) != XML_SUCCESS) {
@@ -45,15 +51,49 @@ std::shared_ptr<Plot> Plot::load(std::string& filePath) {
 		return nullptr;
 	}
 	plot->setName(nameString);
+	
+	XMLElement* manoeuvreListXML = plotXML->FirstChildElement("ManoeuvreList");
+	if(manoeuvreListXML == nullptr){
+		Logger::warn("Could not find ManoeuvreList attribute");
+		return nullptr;
+	}
+	plot->manoeuvreList->load(manoeuvreListXML);
+	 
+	return plot;
+}
 
-	XMLElement* manoeuvreXML = plotXML->FirstChildElement("Manoeuvre");
+
+
+
+
+
+
+
+
+
+
+
+bool ManoeuvreList::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	
+	XMLElement* manoeuvreXML = xml->FirstChildElement("Manoeuvre");
 	while (manoeuvreXML != nullptr) {
 		auto manoeuvre = Manoeuvre::load(manoeuvreXML);
-		if(manoeuvre == nullptr) return nullptr;
-		plot->manoeuvres.push_back(manoeuvre);
+		if(manoeuvre == nullptr) return false;
+		manoeuvre->setManoeuvreList(shared_from_this());
+		manoeuvres.push_back(manoeuvre);
 		manoeuvreXML = manoeuvreXML->NextSiblingElement("Manoeuvre");
 	}
-	plot->refreshAll();
+	//manoeuvreList->refreshAll();
+	return true;
+}
 
-	return plot;
+bool ManoeuvreList::save(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	
+	for (auto& manoeuvre : manoeuvres) {
+		XMLElement* manoeuvreXML = xml->InsertNewChildElement("Manoeuvre");
+		if (!manoeuvre->save(manoeuvreXML)) return false;
+	}
+	return true;
 }

@@ -2,7 +2,6 @@
 
 #include "CustomWidgets.h"
 
-#include <imgui.h>
 #include <imgui_internal.h>
 
 void verticalProgressBar(float fraction, const ImVec2& size_arg){
@@ -317,10 +316,10 @@ bool buttonArrowLeftStop(const char* id, float size){
 }
 
 bool buttonArrowDownStop(const char* id, float size){
-	bool ret;
+	bool ret = false;
 	if (size == 0) size = ImGui::GetFrameHeight();
 	
-	ImGui::InvisibleButton(id, ImVec2(size, size));
+	if(ImGui::InvisibleButton(id, ImVec2(size, size))) ret = true;
 	
 	float padding = size * 0.15;
 	float triangleSize = size * 0.4;
@@ -565,117 +564,126 @@ namespace UpDownButtons{
 	}
 };
 
-namespace NextPreviousButtons{
-	Interaction draw(const char* ID, float size, bool withStops, bool disablePrevious, bool disableNext){
-		
-		ImGui::PushID(ID);
-		
-		if(size <= 0.0) size = ImGui::GetFrameHeight();
-		Interaction output = Interaction::NONE;
-		
-		float padding = size * 0.15;
-		float triangleSize = size * 0.4;
-		float barHeight = size * 0.15;
-		float vertBarWidth = size * 0.05;
-		
-		ImVec2 min;
-		ImVec2 max;
-		
-		ImColor buttonColor;
-		ImColor pictogramColor;
-		float rounding = ImGui::GetStyle().FrameRounding;
-		
-		ImGui::BeginDisabled(disablePrevious);
-		if(ImGui::InvisibleButton("Previous", ImVec2(size, size))) output = Interaction::PREVIOUS;
-		min = ImGui::GetItemRectMin();
-		max = ImGui::GetItemRectMax();
-		ImVec2 windowPos = ImGui::GetWindowPos();
-		
-		buttonColor = ImGui::GetColorU32( ImGui::IsItemActive() ? ImGuiCol_ButtonActive : ImGui::IsItemHovered() ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
-		if(ImGui::GetItemFlags() && ImGuiItemFlags_Disabled) pictogramColor = ImColor(0.5f, 0.5f, 0.5f, 1.0f);
-		else pictogramColor = ImGui::GetColorU32(ImGuiCol_Text);
-			
-		ImGui::GetWindowDrawList()->AddRectFilled(min, max, buttonColor, rounding, ImDrawFlags_RoundCornersLeft);
-		
-		if(withStops){
-			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(min.x + padding, min.y + padding),
-													  ImVec2(min.x + padding + vertBarWidth, max.y - padding),
-													  pictogramColor);
-			
-			ImVec2 points[3] = {
-				ImVec2(min.x + padding + vertBarWidth, 					min.y + (size / 2.0)),
-				ImVec2(min.x + padding + vertBarWidth + triangleSize, 	min.y + (size / 2.0) - (triangleSize / 2.0)),
-				ImVec2(min.x + padding + vertBarWidth + triangleSize, 	min.y + (size / 2.0) + (triangleSize / 2.0))
-			};
-			
-			ImGui::GetWindowDrawList()->AddConvexPolyFilled(points, 3, pictogramColor);
-			
-			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(min.x + vertBarWidth + padding + triangleSize - 1, 	min.y + (size - barHeight) / 2.0),
-													  ImVec2(max.x - padding,										max.y - (size - barHeight) / 2.0),
-													  pictogramColor);
-		}else{
-			ImVec2 pointsPrevious[3] = {
-				ImVec2(min.x + padding, 				min.y + (size / 2.0)),
-				ImVec2(min.x + padding + triangleSize, 	min.y + (size / 2.0) - (triangleSize / 2.0)),
-				ImVec2(min.x + padding + triangleSize, 	min.y + (size / 2.0) + (triangleSize / 2.0))
-			};
-			
-			ImGui::GetWindowDrawList()->AddConvexPolyFilled(pointsPrevious, 3, ImColor(1.0f, 1.0f, 1.0f, 1.0f));
-			
-			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(min.x + padding + triangleSize - 1, min.y + (size - barHeight) / 2.0),
-													  ImVec2(max.x - padding, max.y - (size - barHeight) / 2.0),
-													  ImColor(1.0f, 1.0f, 1.0f, 1.0f));
-		}
-		ImGui::EndDisabled();
 
-		ImGui::SetCursorPosY(min.y - windowPos.y);
-		ImGui::SetCursorPosX(max.x + 1.0 - windowPos.x);
+bool nextButton(const char* ID, float size, bool withStop, ImDrawFlags drawFlags){
+	if(size <= 0.0) size = ImGui::GetFrameHeight();
+	
+	float padding = size * 0.15;
+	float triangleSize = size * 0.4;
+	float barHeight = size * 0.15;
+	float vertBarWidth = size * 0.05;
+	
+	ImVec2 min;
+	ImVec2 max;
+	
+	ImColor buttonColor;
+	ImColor pictogramColor;
+	float rounding = ImGui::GetStyle().FrameRounding;
+	
+	bool output = ImGui::InvisibleButton(ID, ImVec2(size, size));
+	min = ImGui::GetItemRectMin();
+	max = ImGui::GetItemRectMax();
+	
+	buttonColor = ImGui::GetColorU32( ImGui::IsItemActive() ? ImGuiCol_ButtonActive : ImGui::IsItemHovered() ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+	if(ImGui::GetItemFlags() && ImGuiItemFlags_Disabled) pictogramColor = ImColor(0.5f, 0.5f, 0.5f, 1.0f);
+	else pictogramColor = ImGui::GetColorU32(ImGuiCol_Text);
 		
-		ImGui::BeginDisabled(disableNext);
-		if(ImGui::InvisibleButton("Next", ImVec2(size, size))) output = Interaction::NEXT;
-		min = ImGui::GetItemRectMin();
-		max = ImGui::GetItemRectMax();
+	ImGui::GetWindowDrawList()->AddRectFilled(min, max, buttonColor, rounding, drawFlags);
+	
+	if(withStop){
+		ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(max.x - padding - vertBarWidth, 	min.y + padding),
+												  ImVec2(max.x - padding, 					max.y - padding),
+												  pictogramColor);
 		
-		buttonColor = ImGui::GetColorU32( ImGui::IsItemActive() ? ImGuiCol_ButtonActive : ImGui::IsItemHovered() ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
-		if(ImGui::GetItemFlags() && ImGuiItemFlags_Disabled) pictogramColor = ImColor(0.5f, 0.5f, 0.5f, 1.0f);
-		else pictogramColor = ImGui::GetColorU32(ImGuiCol_Text);
-			
-		ImGui::GetWindowDrawList()->AddRectFilled(min, max, buttonColor, rounding, ImDrawFlags_RoundCornersRight);
+		ImVec2 points[3] = {
+			ImVec2(max.x - padding - vertBarWidth, 					max.y - (size / 2.0)),
+			ImVec2(max.x - padding - triangleSize - vertBarWidth, 	max.y - (size / 2.0) - (triangleSize / 2.0)),
+			ImVec2(max.x - padding - triangleSize - vertBarWidth, 	max.y - (size / 2.0) + (triangleSize / 2.0))
+		};
 		
-		if(withStops){
-			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(max.x - padding - vertBarWidth, 	min.y + padding),
-													  ImVec2(max.x - padding, 					max.y - padding),
-													  pictogramColor);
-			
-			ImVec2 points[3] = {
-				ImVec2(max.x - padding - vertBarWidth, 					max.y - (size / 2.0)),
-				ImVec2(max.x - padding - triangleSize - vertBarWidth, 	max.y - (size / 2.0) - (triangleSize / 2.0)),
-				ImVec2(max.x - padding - triangleSize - vertBarWidth, 	max.y - (size / 2.0) + (triangleSize / 2.0))
-			};
-			
-			ImGui::GetWindowDrawList()->AddConvexPolyFilled(points, 3, pictogramColor);
-			
-			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(min.x + padding, 									min.y + (size - barHeight) / 2.0),
-													  ImVec2(max.x - padding - triangleSize - vertBarWidth + 1, max.y - (size - barHeight) / 2.0),
-													  pictogramColor);
-		}else{
-			ImVec2 pointsNext[3] = {
-				ImVec2(max.x - padding, 				max.y - (size / 2.0)),
-				ImVec2(max.x - padding - triangleSize, 	max.y - (size / 2.0) - (triangleSize / 2.0)),
-				ImVec2(max.x - padding - triangleSize, 	max.y - (size / 2.0) + (triangleSize / 2.0))
-			};
-				
-			ImGui::GetWindowDrawList()->AddConvexPolyFilled(pointsNext, 3, ImColor(1.0f, 1.0f, 1.0f, 1.0f));
-			
-			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(min.x + padding, min.y + (size - barHeight) / 2.0),
-													  ImVec2(max.x - padding - triangleSize + 1, max.y - (size - barHeight) / 2.0),
-													  ImColor(1.0f, 1.0f, 1.0f, 1.0f));
-		}
-		ImGui::EndDisabled();
+		ImGui::GetWindowDrawList()->AddConvexPolyFilled(points, 3, pictogramColor);
 		
-		ImGui::PopID();
+		ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(min.x + padding, 									min.y + (size - barHeight) / 2.0),
+												  ImVec2(max.x - padding - triangleSize - vertBarWidth + 1, max.y - (size - barHeight) / 2.0),
+												  pictogramColor);
+	}else{
+		ImVec2 pointsNext[3] = {
+			ImVec2(max.x - padding, 				max.y - (size / 2.0)),
+			ImVec2(max.x - padding - triangleSize, 	max.y - (size / 2.0) - (triangleSize / 2.0)),
+			ImVec2(max.x - padding - triangleSize, 	max.y - (size / 2.0) + (triangleSize / 2.0))
+		};
+			
+		ImGui::GetWindowDrawList()->AddConvexPolyFilled(pointsNext, 3, ImColor(1.0f, 1.0f, 1.0f, 1.0f));
+		
+		ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(min.x + padding, min.y + (size - barHeight) / 2.0),
+												  ImVec2(max.x - padding - triangleSize + 1, max.y - (size - barHeight) / 2.0),
+												  ImColor(1.0f, 1.0f, 1.0f, 1.0f));
 	}
-};
+		
+	return output;
+}
+
+bool previousButton(const char* ID, float size, bool withStop, ImDrawFlags drawFlags){
+	if(size <= 0.0) size = ImGui::GetFrameHeight();
+	
+	float padding = size * 0.15;
+	float triangleSize = size * 0.4;
+	float barHeight = size * 0.15;
+	float vertBarWidth = size * 0.05;
+	
+	ImVec2 min;
+	ImVec2 max;
+	
+	ImColor buttonColor;
+	ImColor pictogramColor;
+	float rounding = ImGui::GetStyle().FrameRounding;
+	
+	
+	bool output = ImGui::InvisibleButton(ID, ImVec2(size, size));
+	min = ImGui::GetItemRectMin();
+	max = ImGui::GetItemRectMax();
+	ImVec2 windowPos = ImGui::GetWindowPos();
+	
+	buttonColor = ImGui::GetColorU32( ImGui::IsItemActive() ? ImGuiCol_ButtonActive : ImGui::IsItemHovered() ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+	if(ImGui::GetItemFlags() && ImGuiItemFlags_Disabled) pictogramColor = ImColor(0.5f, 0.5f, 0.5f, 1.0f);
+	else pictogramColor = ImGui::GetColorU32(ImGuiCol_Text);
+		
+	ImGui::GetWindowDrawList()->AddRectFilled(min, max, buttonColor, rounding, drawFlags);
+	
+	if(withStop){
+		ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(min.x + padding, min.y + padding),
+												  ImVec2(min.x + padding + vertBarWidth, max.y - padding),
+												  pictogramColor);
+		
+		ImVec2 points[3] = {
+			ImVec2(min.x + padding + vertBarWidth, 					min.y + (size / 2.0)),
+			ImVec2(min.x + padding + vertBarWidth + triangleSize, 	min.y + (size / 2.0) - (triangleSize / 2.0)),
+			ImVec2(min.x + padding + vertBarWidth + triangleSize, 	min.y + (size / 2.0) + (triangleSize / 2.0))
+		};
+		
+		ImGui::GetWindowDrawList()->AddConvexPolyFilled(points, 3, pictogramColor);
+		
+		ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(min.x + vertBarWidth + padding + triangleSize - 1, 	min.y + (size - barHeight) / 2.0),
+												  ImVec2(max.x - padding,										max.y - (size - barHeight) / 2.0),
+												  pictogramColor);
+	}else{
+		ImVec2 pointsPrevious[3] = {
+			ImVec2(min.x + padding, 				min.y + (size / 2.0)),
+			ImVec2(min.x + padding + triangleSize, 	min.y + (size / 2.0) - (triangleSize / 2.0)),
+			ImVec2(min.x + padding + triangleSize, 	min.y + (size / 2.0) + (triangleSize / 2.0))
+		};
+		
+		ImGui::GetWindowDrawList()->AddConvexPolyFilled(pointsPrevious, 3, ImColor(1.0f, 1.0f, 1.0f, 1.0f));
+		
+		ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(min.x + padding + triangleSize - 1, min.y + (size - barHeight) / 2.0),
+												  ImVec2(max.x - padding, max.y - (size - barHeight) / 2.0),
+												  ImColor(1.0f, 1.0f, 1.0f, 1.0f));
+	}
+	
+	return output;
+}
+
+
 
 
 

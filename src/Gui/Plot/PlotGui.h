@@ -7,7 +7,4 @@ namespace PlotGui{
 	void trackSheetEditor();
 	void curveEditor();
 	void spatialEditor();
-
-	void selectedManoeuvrePlaybackControl(float height);
-
 }

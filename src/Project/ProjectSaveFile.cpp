@@ -47,7 +47,7 @@ namespace Project{
 		Environnement::createNew();
 		plots.clear();
 		currentPlot = nullptr;
-		currentPlot = std::make_shared<Plot>();
+		currentPlot = Plot::create();
 		currentPlot->setName("Default Plot");
 		plots.push_back(currentPlot);
 		saveFilePath[0] = 0;

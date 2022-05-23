@@ -4,7 +4,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Test Machine A" UniqueID="1">
                 <NodeEditorPosition x="-248" y="-449"/>
                 <NodeSpecificData ShortName="Test A">
-                    <Rapids Velocity_machineUnitsPerSecond="0" Acceleration_machineUnitsPerSecondSquared="0"/>
+                    <Rapids Velocity_machineUnitsPerSecond="1" Acceleration_machineUnitsPerSecondSquared="1"/>
                     <MachineZero MachineZero_AxisUnits="0" InvertAxisDirection="false"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -91,7 +91,7 @@
                     <Units UnitType="Rotary" Unit="Degree"/>
                     <UnitConversion ActuatorUnitsPerMachineUnit="0"/>
                     <KinematicLimits VelocityLimit="10" AccelerationLimit="5" ManualAcceleration="5"/>
-                    <PositionReferenceSignals Type="LowHighSignals" HomingVelocityCoarse="0" HomingVelocityFine="0" HomingDirection="Negative"/>
+                    <PositionReferenceSignals Type="LowHighSignals" HomingVelocityCoarse="1" HomingVelocityFine="0.10000000000000001" HomingDirection="Negative"/>
                     <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="0" HighLimit="1" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="true"/>
                 </NodeSpecificData>
                 <InputPins>

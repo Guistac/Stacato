@@ -5,6 +5,7 @@
 #include "Machine/AnimatableParameter.h"
 #include "Motion/Manoeuvre/ParameterTrack.h"
 #include "Fieldbus/EtherCatFieldbus.h"
+#include "Plot/ManoeuvreList.h"
 
 #include "Plot/Plot.h"
 
@@ -58,6 +59,7 @@ std::shared_ptr<Manoeuvre> Manoeuvre::copy(){
 	copy->name->overwrite(copyName);
 	copy->description->overwrite(getDescription());
 	copy->type->overwrite(getType());
+	copy->manoeuvreList = manoeuvreList;
 	
 	for(auto track : getTracks()){
 		auto trackCopy = ParameterTrack::copy(track);
@@ -67,6 +69,9 @@ std::shared_ptr<Manoeuvre> Manoeuvre::copy(){
 	
 	return copy;
 }
+
+
+
 
 
 
@@ -120,6 +125,9 @@ void Manoeuvre::addTrack(std::shared_ptr<MachineParameter>& parameter) {
 
 
 
+
+
+
 class RemoveParameterTrackCommand : public Command{
 public:
 	
@@ -156,7 +164,6 @@ public:
 	
 };
 
-
 void Manoeuvre::removeTrack(std::shared_ptr<MachineParameter> parameter) {
 	if(hasTrack(parameter)){
 		std::string name = "Remove Track " + std::string(parameter->getMachine()->getName()) + " : " + std::string(parameter->getName());
@@ -164,6 +171,9 @@ void Manoeuvre::removeTrack(std::shared_ptr<MachineParameter> parameter) {
 		CommandHistory::pushAndExecute(command);
 	}
 }
+
+
+
 
 
 
@@ -194,8 +204,6 @@ public:
 	}
 	
 };
-
-
 
 void Manoeuvre::moveTrack(int oldIndex, int newIndex){
 	if(oldIndex < 0) return;
@@ -244,32 +252,210 @@ bool Manoeuvre::hasTrack(std::shared_ptr<MachineParameter>& parameter) {
 }
 
 
-float Manoeuvre::getPlaybackProgress() {
-	/*
-	float timeInManoeuvre = playbackPosition_seconds;
-	float manoeuvreLength = getLength_seconds();
-	float progress = timeInManoeuvre / manoeuvreLength;
-	if (progress < 0.0) return 0.0;
-	else if (progress > 1.0) return 1.0;
-	return progress;
-	 */
-	return 0.0;
+
+
+
+bool Manoeuvre::isSelected(){
+	if(!isInManoeuvreList()) return false;
+	return manoeuvreList->getPlot()->getSelectedManoeuvre() == shared_from_this();
+}
+
+void Manoeuvre::select(){
+	if(isInManoeuvreList()) manoeuvreList->getPlot()->selectManoeuvre(shared_from_this());
+}
+
+void Manoeuvre::deselect(){
+	if(!isSelected()) return;
+	if(isInManoeuvreList()) manoeuvreList->getPlot()->selectManoeuvre(nullptr);
 }
 
 
 
 
 
-double Manoeuvre::getLength_seconds() {
-	/*
-	double longestTrack = 0.0;
-	for (auto& track : tracks) {
-		double trackTime = track->getLength_seconds();
-		if (trackTime > longestTrack) {
-			longestTrack = trackTime;
-		}
+
+
+
+
+
+//OK
+bool Manoeuvre::areAllMachinesEnabled(){
+	for(auto& track : tracks){
+		if(!track->isMachineEnabled()) return false;
 	}
-	return longestTrack;
-	 */
-	return 0.0;
+	return true;
 }
+
+//OK
+bool Manoeuvre::areNoMachinesEnabled(){
+	for(auto& track : tracks){
+		if(track->isMachineEnabled()) return false;
+	}
+	return true;
+}
+
+//OK
+bool Manoeuvre::canRapidToStart(){
+	switch(getType()){
+		case ManoeuvreType::KEY:
+		case ManoeuvreType::TARGET: return false;
+		case ManoeuvreType::SEQUENCE: return !areNoMachinesEnabled();
+	}
+}
+
+//OK
+bool Manoeuvre::isAtStart(){
+	for(auto& track : tracks){
+		if(!track->isAtStart()) return false;
+	}
+	return true;
+}
+
+//OK
+bool Manoeuvre::canRapidToTarget(){
+	switch(getType()){
+		case ManoeuvreType::KEY:
+		case ManoeuvreType::TARGET:
+		case ManoeuvreType::SEQUENCE: return !areNoMachinesEnabled();
+	}
+}
+
+//OK
+bool Manoeuvre::isAtTarget(){
+	for(auto& track : tracks){
+		if(!track->isAtTarget()) return false;
+	}
+	return true;
+}
+
+
+bool Manoeuvre::canRapidToPlaybackPosition(){
+	switch(getType()){
+		case ManoeuvreType::KEY:
+		case ManoeuvreType::TARGET: return false; //does the target alredy have curves? do we have a movement time??
+		case ManoeuvreType::SEQUENCE: return !areNoMachinesEnabled();
+	}
+}
+
+//OK but needs work on parameter track side
+bool Manoeuvre::isAtPlaybackPosition(){
+	for(auto& track : tracks){
+		if(!track->isAtPlaybackPosition()) return false;
+	}
+	return true;
+}
+
+bool Manoeuvre::canSetPlaybackPosition(){
+	switch(getType()){
+		case ManoeuvreType::KEY: return false;
+		case ManoeuvreType::TARGET: return false; //check if we are paused and have curves generated
+		case ManoeuvreType::SEQUENCE: return false; //check if we are stopped or paused
+	}
+}
+
+bool Manoeuvre::canStartPlayback(){
+	switch(getType()){
+		case ManoeuvreType::KEY: return false;
+		case ManoeuvreType::TARGET:
+		case ManoeuvreType::SEQUENCE: return !areNoMachinesEnabled();
+	}
+}
+
+bool Manoeuvre::canPausePlayback(){
+	switch(getType()){
+		case ManoeuvreType::KEY: return false;
+		case ManoeuvreType::TARGET:
+		case ManoeuvreType::SEQUENCE: return isPlaying();
+	}
+}
+
+//commands
+
+
+
+#include "Motion/Playback/Playback.h"
+
+//OK
+void Manoeuvre::rapidToStart(){
+	if(!canRapidToStart()) return;
+	b_inRapid = true;
+	b_playing = false;
+	b_paused = false;
+	for(auto& track : tracks) track->rapidToStart();
+	PlaybackManager::push(shared_from_this());
+}
+
+//OK
+void Manoeuvre::rapidToTarget(){
+	if(!canRapidToTarget()) return;
+	b_inRapid = true;
+	b_playing = false;
+	b_paused = false;
+	for(auto& track : tracks) track->rapidToTarget();
+	PlaybackManager::push(shared_from_this());
+}
+
+
+void Manoeuvre::rapidToPlaybackPosition(){
+	if(!canRapidToPlaybackPosition()) return;
+	b_inRapid = true;
+	b_playing = false;
+	b_paused = false;
+	for(auto& track : tracks) track->rapidToPlaybackPosition();
+	PlaybackManager::push(shared_from_this());
+}
+
+
+void Manoeuvre::startPlayback(){
+	if(!canStartPlayback()) return;
+	b_inRapid = false;
+	b_playing = true;
+	b_paused = false;
+	for(auto& track : tracks) track->startPlayback();
+	PlaybackManager::push(shared_from_this());
+}
+
+void Manoeuvre::pausePlayback(){
+	if(!canPausePlayback()) return;
+	b_inRapid = false;
+	b_playing = false;
+	b_paused = true;
+	for(auto& track : tracks) track->stop();
+}
+
+void Manoeuvre::setPlaybackPosition(double seconds){
+	if(!canSetPlaybackPosition()) return;
+	playbackPosition_seconds = seconds;
+	for(auto& track : tracks) track->setPlaybackPosition(seconds);
+}
+
+void Manoeuvre::stop(){
+	b_inRapid = false;
+	b_playing = false;
+	b_paused = false;
+	for(auto& track : tracks) track->stop();
+	PlaybackManager::pop(shared_from_this());
+}
+
+
+float Manoeuvre::getRapidProgress(){ return 1.0; }
+bool Manoeuvre::isRapidFinished(){ return true; }
+float Manoeuvre::getPlaybackProgress(){ return 1.0; }
+bool Manoeuvre::isPlaybackFinished(){ return true; }
+
+void Manoeuvre::incrementPlaybackPosition(long long deltaT_microseconds){
+	playbackPosition_seconds += deltaT_microseconds / 1000000.0;
+	for(auto& track : tracks) track->incrementPlaybackPositionTo(playbackPosition_seconds);
+}
+
+void Manoeuvre::updatePlaybackStatus(){
+	if(isPlaying() && isPlaybackFinished()) b_playing = false;
+	else if(isInRapid() && isRapidFinished()) b_inRapid = false;
+}
+
+
+
+
+
+
+

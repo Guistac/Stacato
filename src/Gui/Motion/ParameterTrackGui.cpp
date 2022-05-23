@@ -80,6 +80,8 @@ void KeyParameterTrack::trackSheetRowGui(){
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	target->gui();
 	if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
+	ImGui::SameLine();
+	if(ImGui::Button("Capture")) captureCurrentValueAsTarget();
 	
 }
 

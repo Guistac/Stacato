@@ -1,7 +1,7 @@
 #pragma once
 
-struct ImVec2;
-struct ImVec4;
+#include <imgui.h>
+#include <imgui_internal.h>
 
 void verticalProgressBar(float fraction, const ImVec2& size_arg);
 
@@ -53,15 +53,8 @@ namespace UpDownButtons{
 	Interaction draw(const char* ID = "", float butonSize = 0.0, bool disableUp = false, bool disableDown = false);
 };
 
-namespace NextPreviousButtons{
-	enum class Interaction{
-		NONE,
-		NEXT,
-		PREVIOUS
-	};
-	Interaction draw(const char* ID = "", float buttonSize = 0.0, bool withStops = false, bool disablePrevious = false, bool disableNext = false);
-};
-
+bool nextButton(const char* ID = "", float buttonSize = 0.0, bool withStop = false, ImDrawFlags drawFlags = ImDrawFlags_None);
+bool previousButton(const char* ID = "", float buttonSize = 0.0, bool withStop = false, ImDrawFlags drawFlags = ImDrawFlags_None);
 
 //—————————————————————————————————————
 //			Background Text

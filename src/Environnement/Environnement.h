@@ -46,7 +46,7 @@ namespace Environnement{
 
 	//environnement timing
 	double getTime_seconds();
-	long long int getTime_nanosecond();
+	long long int getTime_nanoseconds();
 	double getDeltaTime_seconds();
 	long long int getDeltaTime_nanoseconds();
 
