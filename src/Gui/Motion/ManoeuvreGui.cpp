@@ -85,38 +85,74 @@ void Manoeuvre::listGui(){
 	ImGui::TextWrapped("%s", getDescription());
 	ImGui::PopFont();
 	
-	/*
-	if (Playback::isInRapid(manoeuvre)) {
+	if(isInRapid()){
 		glm::vec2 windowPos = ImGui::GetWindowPos();
 		glm::vec2 maxsize = ImGui::GetWindowSize();
-		int trackCount = manoeuvre->tracks.size();
+		int trackCount = tracks.size();
 		float trackHeight = maxsize.y / (float)trackCount;
 		for (int i = 0; i < trackCount; i++) {
 			glm::vec2 min(windowPos.x, windowPos.y + trackHeight * i);
-			glm::vec2 max(min.x + maxsize.x * manoeuvre->tracks[i]->getRapidProgress(), min.y + trackHeight);
+			glm::vec2 max(min.x + maxsize.x * tracks[i]->getRapidProgress(), min.y + trackHeight);
 			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
 		}
-	}
-
-	if (Playback::isPlaying(manoeuvre)) {
+	}else if(isPlaying() || isPaused()){
 		glm::vec2 min = ImGui::GetWindowPos();
 		glm::vec2 windowSize = ImGui::GetWindowSize();
-		float progress = manoeuvre->getPlaybackProgress();
+		float progress = getPlaybackProgress();
 		glm::vec2 max(min.x + windowSize.x * progress, min.y + windowSize.y);
 		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.4)), 5.0);
 	}
-	 */
 	
 }
 
 void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 	
-	glm::vec4 backgroundColor = Colors::darkGreen;
+	glm::vec4 backgroundColor;
 	if(!b_valid){
 		bool blink = (int)Timing::getProgramTime_milliseconds() % 1000 > 500;
-		backgroundColor = blink ? Colors::red : Colors::yellow;
+		backgroundColor = blink ? Colors::yellow : Colors::red;
 	}
+	else if(areNoMachinesEnabled()) backgroundColor = Colors::red;
+	else if(areAllMachinesEnabled()) backgroundColor = Colors::green;
+	else backgroundColor = Colors::yellow;
 	backgroundText(getName(), size_arg, backgroundColor);
+	
+	if(ImGui::IsItemHovered()){
+		ImGui::BeginTooltip();
+		if(!b_valid) {
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+			ImGui::Text("Manoeuvre has Validation Errors");
+			ImGui::PopStyleColor();
+		}
+		else ImGui::Text("Manoeuvre is Valid");
+		if(!areAllMachinesEnabled()){
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+			for(auto& track : tracks){
+				auto machine = track->getParameter()->getMachine();
+				if(!machine->isEnabled()) ImGui::Text("%s is not enabled.", machine->getName());
+			}
+			ImGui::PopStyleColor();
+		}else ImGui::Text("All Machines are Enabled");
+		ImGui::EndTooltip();
+	}
+	
+	if(isInRapid()){
+		glm::vec2 pos = ImGui::GetItemRectMin();
+		glm::vec2 size = ImGui::GetItemRectSize();
+		int trackCount = tracks.size();
+		float trackHeight = size.y / (float)trackCount;
+		for (int i = 0; i < trackCount; i++) {
+			glm::vec2 min(pos.x, pos.y + trackHeight * i);
+			glm::vec2 max(pos.x + size.x * tracks[i]->getRapidProgress(), pos.y + trackHeight);
+			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
+		}
+	}else if(isPlaying() || isPaused()){
+		glm::vec2 min = ImGui::GetItemRectMin();
+		glm::vec2 size = ImGui::GetItemRectSize();
+		float progress = getPlaybackProgress();
+		glm::vec2 max(min.x + size.x * progress, min.y + size.y);
+		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.4)), 5.0);
+	}
 }
 
 
@@ -163,7 +199,7 @@ void Manoeuvre::trackSheetGui(){
 	
 	ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.15));
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.15));
-	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX;
+	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit;// | ImGuiTableFlags_ScrollX;
 	
 	bool b_tableBegun;
 	

@@ -33,7 +33,7 @@ void manoeuvrePlaybackControls(float height){
 	
 	//Selected Manoeuvre Miniature Display
 	ImGui::SameLine();
-	glm::vec2 manoeuvreDisplaySize(ImGui::GetTextLineHeight() * 5.0, height);
+	glm::vec2 manoeuvreDisplaySize(ImGui::GetTextLineHeight() * 8.0, height);
 	bool b_noSelection = selectedManoeuvre == nullptr;
 	if(b_noSelection) {
 		ImGui::PushFont(Fonts::sansRegular15);
@@ -41,20 +41,6 @@ void manoeuvrePlaybackControls(float height){
 		ImGui::PopFont();
 	}
 	else selectedManoeuvre->miniatureGui(manoeuvreDisplaySize);
-	
-	ImGui::SameLine();
-	if(b_noSelection) backgroundText("No Selection", manoeuvreDisplaySize, Colors::darkGray);
-	else if(selectedManoeuvre->areAllMachinesEnabled()) backgroundText("All Enabled", manoeuvreDisplaySize, Colors::green);
-	else if(selectedManoeuvre->areNoMachinesEnabled()) backgroundText("None Enabled", manoeuvreDisplaySize, Colors::red);
-	else backgroundText("Not All Enabled", manoeuvreDisplaySize, Colors::yellow);
-	if(!b_noSelection && !selectedManoeuvre->areAllMachinesEnabled() && ImGui::IsItemHovered()){
-		ImGui::BeginTooltip();
-		for(auto& track : selectedManoeuvre->getTracks()){
-			auto machine = track->getParameter()->getMachine();
-			if(!machine->isEnabled()) ImGui::Text("%s is not enabled.", machine->getName());
-		}
-		ImGui::EndTooltip();
-	}
 	
 	//Rapid to Start / Rapid to End
 	ImGui::SameLine();

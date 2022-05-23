@@ -50,7 +50,9 @@ namespace PlaybackManager {
 		std::vector<std::shared_ptr<Manoeuvre>> finishedManoeuvres;
 		for(auto& manoeuvre : activeManoeuvres){
 			manoeuvre->updatePlaybackStatus();
-			if(manoeuvre->isFinished()) finishedManoeuvres.push_back(manoeuvre);
+			if(manoeuvre->isFinished()) {
+				finishedManoeuvres.push_back(manoeuvre);
+			}
 		}
 		for(auto& manoeuvre : finishedManoeuvres) pop(manoeuvre);
 	}

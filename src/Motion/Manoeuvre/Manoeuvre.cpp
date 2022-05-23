@@ -438,12 +438,27 @@ void Manoeuvre::stop(){
 }
 
 
-float Manoeuvre::getRapidProgress(){ return 1.0; }
-bool Manoeuvre::isRapidFinished(){ return true; }
-float Manoeuvre::getPlaybackProgress(){ return 1.0; }
-bool Manoeuvre::isPlaybackFinished(){ return true; }
+//OK
+float Manoeuvre::getRapidProgress(){
+	float smallestProgress = 1.0;
+	for(auto& track : tracks){
+		float progress = track->getRapidProgress();
+		smallestProgress = std::min(smallestProgress, progress);
+	}
+	return smallestProgress;
+}
+
+//OK
+bool Manoeuvre::isRapidFinished(){
+	return getRapidProgress() >= 1.0;
+}
+
+
+float Manoeuvre::getPlaybackProgress(){ return 0.0; }
+bool Manoeuvre::isPlaybackFinished(){ return false; }
 
 void Manoeuvre::incrementPlaybackPosition(long long deltaT_microseconds){
+	if(isPaused()) return;
 	playbackPosition_seconds += deltaT_microseconds / 1000000.0;
 	for(auto& track : tracks) track->incrementPlaybackPositionTo(playbackPosition_seconds);
 }
