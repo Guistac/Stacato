@@ -328,31 +328,38 @@ bool Manoeuvre::isAtTarget(){
 	return true;
 }
 
-
+//OK
 bool Manoeuvre::canRapidToPlaybackPosition(){
 	switch(getType()){
 		case ManoeuvreType::KEY:
-		case ManoeuvreType::TARGET: return false; //does the target alredy have curves? do we have a movement time??
+		case ManoeuvreType::TARGET: return false;
 		case ManoeuvreType::SEQUENCE: return !areNoMachinesEnabled();
 	}
 }
 
 //OK but needs work on parameter track side
 bool Manoeuvre::isAtPlaybackPosition(){
-	for(auto& track : tracks){
-		if(!track->isAtPlaybackPosition()) return false;
+	switch(getType()){
+		case ManoeuvreType::KEY:
+		case ManoeuvreType::TARGET: return false;
+		case ManoeuvreType::SEQUENCE:
+			for(auto& track : tracks){
+				if(!track->isAtPlaybackPosition()) return false;
+			}
+			return true;
 	}
-	return true;
 }
 
+//OK
 bool Manoeuvre::canSetPlaybackPosition(){
 	switch(getType()){
 		case ManoeuvreType::KEY: return false;
-		case ManoeuvreType::TARGET: return false; //check if we are paused and have curves generated
-		case ManoeuvreType::SEQUENCE: return false; //check if we are stopped or paused
+		case ManoeuvreType::TARGET: return false;
+		case ManoeuvreType::SEQUENCE: return isFinished();
 	}
 }
 
+//OK
 bool Manoeuvre::canStartPlayback(){
 	switch(getType()){
 		case ManoeuvreType::KEY: return false;
@@ -361,12 +368,18 @@ bool Manoeuvre::canStartPlayback(){
 	}
 }
 
+//OK
 bool Manoeuvre::canPausePlayback(){
 	switch(getType()){
 		case ManoeuvreType::KEY: return false;
 		case ManoeuvreType::TARGET:
 		case ManoeuvreType::SEQUENCE: return isPlaying();
 	}
+}
+
+//OK
+bool Manoeuvre::canStop(){
+	return !isFinished();
 }
 
 //commands
@@ -408,6 +421,7 @@ void Manoeuvre::rapidToPlaybackPosition(){
 
 void Manoeuvre::startPlayback(){
 	if(!canStartPlayback()) return;
+	playbackStartTime_microseconds = PlaybackManager::getTime_microseconds();
 	b_inRapid = false;
 	b_playing = true;
 	b_paused = false;
@@ -429,7 +443,9 @@ void Manoeuvre::setPlaybackPosition(double seconds){
 	for(auto& track : tracks) track->setPlaybackPosition(seconds);
 }
 
+//OK needs for for actual playback
 void Manoeuvre::stop(){
+	if(isFinished()) return;
 	b_inRapid = false;
 	b_playing = false;
 	b_paused = false;
@@ -452,6 +468,21 @@ float Manoeuvre::getRapidProgress(){
 bool Manoeuvre::isRapidFinished(){
 	return getRapidProgress() >= 1.0;
 }
+
+
+double Manoeuvre::getPlaybackPosition(){
+	return playbackPosition_seconds;
+}
+
+double Manoeuvre::getRemainingPlaybackTime(){
+	return playbackPosition_seconds - duration_seconds;
+}
+
+double Manoeuvre::getDuration(){
+	return duration_seconds;
+}
+
+
 
 
 float Manoeuvre::getPlaybackProgress(){ return 0.0; }

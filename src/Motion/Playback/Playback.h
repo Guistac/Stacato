@@ -12,6 +12,8 @@ namespace PlaybackManager {
 	bool isAnyManoeuvreActive();
 	void stopAllManoeuvres();
 
+	long long getTime_microseconds();
+
 	//playback handling
 	void incrementPlaybackPosition();
 	void updateActiveManoeuvreState();

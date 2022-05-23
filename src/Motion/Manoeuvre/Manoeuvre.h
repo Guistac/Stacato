@@ -100,10 +100,16 @@ public:
 	bool canPausePlayback();
 	bool isPlaybackPaused();
 
+	bool canStop();
+	
 	float getRapidProgress();
 	bool isRapidFinished();
 	float getPlaybackProgress();
 	bool isPlaybackFinished();
+	
+	double getPlaybackPosition();
+	double getRemainingPlaybackTime();
+	double getDuration();
 	
 	void rapidToStart();
 	void rapidToTarget();
@@ -113,21 +119,23 @@ public:
 	void setPlaybackPosition(double seconds);
 	void stop();
 	
-	bool b_playing = false;
-	bool b_paused = false;
-	bool b_inRapid = false;
-	
 	bool isPlaying(){ return b_playing; }
 	bool isInRapid(){ return b_inRapid; }
 	bool isPaused(){ return b_paused; }
 	bool isFinished() { return !(b_playing || b_inRapid || b_paused); } //if any of these is true, the manoeuvre is not finished
 	
-	void incrementPlaybackPosition(long long deltaT_microseconds);
+	void incrementPlaybackPosition(long long time_microseconds);
 	void updatePlaybackStatus();
-	long long playbackStartTime_microseconds = 0;
-	double playbackPosition_seconds = 0.0;
 
 private:
+	
+	bool b_playing = false;
+	bool b_paused = false;
+	bool b_inRapid = false;
+	
+	long long playbackStartTime_microseconds = 0;
+	double playbackPosition_seconds = 0.0;
+	double duration_seconds = 0.0;
 	
 	//———————————————————————————————
 	//		   User Interface

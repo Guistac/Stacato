@@ -35,14 +35,17 @@ namespace PlaybackManager {
 	}
 
 	void stopAllManoeuvres() {
-		for (auto& manoeuvre : activeManoeuvres) manoeuvre->stop();
-		activeManoeuvres.clear();
+		for(int i = activeManoeuvres.size() - 1; i >= 0; i--) activeManoeuvres[i]->stop();
+	}
+
+	long long getTime_microseconds(){
+		return Environnement::getTime_nanoseconds() / 1000;
 	}
 
 	void incrementPlaybackPosition() {
 		long long time_micros = Environnement::getTime_nanoseconds() / 1000;
 		for (auto& manoeuvre : activeManoeuvres) {
-			if (manoeuvre->b_playing) manoeuvre->incrementPlaybackPosition(time_micros);
+			if (manoeuvre->isPlaying()) manoeuvre->incrementPlaybackPosition(time_micros);
 		}
 	}
 

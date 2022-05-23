@@ -52,8 +52,8 @@ void Machine::addParameter(std::shared_ptr<MachineParameter> parameter) {
 
 void Machine::startParameterPlayback(std::shared_ptr<ParameterTrack> track) {
 	/*
-	for (auto& p : animatableParameters) {
-		if (track->parameter == p) {
+	for (auto& parameter : parameters) {
+		if (track->getParameter() == parameter) {
 			track->parameter->actualParameterTrack = track;
 			onParameterPlaybackStart(track->parameter);
 		}

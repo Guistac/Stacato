@@ -93,6 +93,39 @@ namespace Gui {
 		spacer();
 		
 		
+		//========== Status Displays ==========
+		
+		ImGui::BeginGroup();
+		ImGui::BeginGroup();
+		
+		glm::vec4 etherCatStatusColor;
+		if(EtherCatFieldbus::isRunning()) etherCatStatusColor = Colors::green;
+		else if(EtherCatFieldbus::isStarting()) etherCatStatusColor = Colors::yellow;
+		else if(!EtherCatFieldbus::hasNetworkInterface()) etherCatStatusColor = Colors::red;
+		else if(EtherCatFieldbus::slaves.empty()) etherCatStatusColor = Colors::orange;
+		else etherCatStatusColor = Colors::blue;
+		
+		backgroundText("EtherCAT", buttonSize, etherCatStatusColor);
+		
+		for(auto& networkDevice : Environnement::getNetworkDevices()){
+			ImGui::SameLine();
+			glm::vec4 networkDeviceStatusColor;
+			if(networkDevice->isConnected()) networkDeviceStatusColor = Colors::green;
+			else if(networkDevice->isDetected()) networkDeviceStatusColor = Colors::blue;
+			else networkDeviceStatusColor = Colors::red;
+			backgroundText(networkDevice->getName(), buttonSize, networkDeviceStatusColor);
+		}
+		
+		ImGui::EndGroup();
+		
+		ImGui::PushFont(Fonts::sansRegular12);
+		backgroundText("Status", glm::vec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
+		ImGui::PopFont();
+		
+		ImGui::EndGroup();
+		
+		spacer();
+		
 		
 		
 		
@@ -173,39 +206,10 @@ namespace Gui {
 		ImGui::PopFont();
 		
 		ImGui::EndGroup();
+	
 		
-		spacer();
 		
-		//========== Status Displays ==========
 		
-		ImGui::BeginGroup();
-		ImGui::BeginGroup();
-		
-		glm::vec4 etherCatStatusColor;
-		if(EtherCatFieldbus::isRunning()) etherCatStatusColor = Colors::green;
-		else if(EtherCatFieldbus::isStarting()) etherCatStatusColor = Colors::yellow;
-		else if(!EtherCatFieldbus::hasNetworkInterface()) etherCatStatusColor = Colors::red;
-		else if(EtherCatFieldbus::slaves.empty()) etherCatStatusColor = Colors::orange;
-		else etherCatStatusColor = Colors::blue;
-		
-		backgroundText("EtherCAT", buttonSize, etherCatStatusColor);
-		
-		for(auto& networkDevice : Environnement::getNetworkDevices()){
-			ImGui::SameLine();
-			glm::vec4 networkDeviceStatusColor;
-			if(networkDevice->isConnected()) networkDeviceStatusColor = Colors::green;
-			else if(networkDevice->isDetected()) networkDeviceStatusColor = Colors::blue;
-			else networkDeviceStatusColor = Colors::red;
-			backgroundText(networkDevice->getName(), buttonSize, networkDeviceStatusColor);
-		}
-		
-		ImGui::EndGroup();
-		
-		ImGui::PushFont(Fonts::sansRegular12);
-		backgroundText("Status", glm::vec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
-		ImGui::PopFont();
-		
-		ImGui::EndGroup();
 		
 		
 		ImGui::PopStyleVar();

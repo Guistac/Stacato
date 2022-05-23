@@ -176,11 +176,13 @@ void AnimatedParameterTrack::rapidToTarget(){
 void AnimatedParameterTrack::stop(){
 	auto animatable = getAnimatableParameter();
 	animatable->getMachine()->cancelParameterRapid(animatable);
-	//Stop Rapids
 	//Stop Playback & clear active parameter track from animatable
 }
 
-
+void ParameterTrack::startPlayback(){
+	auto parameter = getParameter();
+	parameter->getMachine()->startParameterPlayback(shared_from_this());
+}
 
 
 

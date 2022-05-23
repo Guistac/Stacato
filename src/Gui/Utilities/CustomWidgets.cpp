@@ -117,10 +117,9 @@ bool buttonPause(const char* id, float size){
 }
 
 bool buttonStop(const char* id, float size){
-	bool ret;
 	if (size == 0) size = ImGui::GetFrameHeight();
 	
-	ret = ImGui::InvisibleButton(id, ImVec2(size, size));
+	bool output = ImGui::InvisibleButton(id, ImVec2(size, size));
 	ImVec2 min = ImGui::GetItemRectMin();
 	ImVec2 max = ImGui::GetItemRectMax();
 	
@@ -137,7 +136,7 @@ bool buttonStop(const char* id, float size){
 	float totalWidth = spaceWidth + barWidth * 2.0;
 	
 	ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(min.x + padding, min.y + padding), ImVec2(max.x - padding, max.y - padding), pictogramColor);
-	return ret;
+	return output;
 }
 
 bool buttonSTOP(const char* id, float size){

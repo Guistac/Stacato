@@ -62,15 +62,29 @@ void manoeuvrePlaybackControls(float height){
 	
 	//Playback Position Display / Control
 	ImGui::SameLine();
-	static double time_seconds_p = 12345.0;
-	static double time_seconds_n = -2345.0;
 	ImGui::BeginGroup();
 	ImGui::PushFont(Fonts::sansBold12);
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(2));
-	ImGui::BeginDisabled();
-	timeEntryWidgetSeconds("##timeFromStart", (height / 2.0) - 1, time_seconds_p);
-	timeEntryWidgetSeconds("##timeToEnd", (height / 2.0) - 1, time_seconds_n);
-	ImGui::EndDisabled();
+	bool disablePlaybackTimeSetting = b_noSelection || !selectedManoeuvre->canSetPlaybackPosition();
+	if(disablePlaybackTimeSetting) {
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, Colors::darkGray);
+	}
+	static double playbackPosition = 0.0;
+	static double remaningPlaybackTime = 0.0;
+	if(b_noSelection){
+		playbackPosition = 0.0;
+		remaningPlaybackTime = 0.0;
+	}else{
+		playbackPosition = selectedManoeuvre->getPlaybackPosition();
+		remaningPlaybackTime = selectedManoeuvre->getRemainingPlaybackTime();
+	}
+	if(timeEntryWidgetSeconds("##timeFromStart", (height / 2.0) - 1, playbackPosition)) selectedManoeuvre->setPlaybackPosition(playbackPosition);
+	if(timeEntryWidgetSeconds("##timeToEnd", (height / 2.0) - 1, remaningPlaybackTime)) selectedManoeuvre->setPlaybackPosition(selectedManoeuvre->getDuration() - remaningPlaybackTime);
+	if(disablePlaybackTimeSetting) {
+		ImGui::PopItemFlag();
+		ImGui::PopStyleColor();
+	}
 	ImGui::PopStyleVar();
 	ImGui::PopFont();
 	ImGui::EndGroup();
@@ -98,14 +112,14 @@ void manoeuvrePlaybackControls(float height){
 	
 	//Stop
 	ImGui::SameLine();
-	ImGui::BeginDisabled(b_noSelection || !selectedManoeuvre->isPlaying());
-	if(buttonStop("Stop", height) && !b_noSelection) selectedManoeuvre->stop();
+	ImGui::BeginDisabled(b_noSelection || !selectedManoeuvre->canStop());
+	if(buttonStop("StopManoeuvre", height)) selectedManoeuvre->stop();
 	ImGui::EndDisabled();
 	
 	//Stop All
 	ImGui::SameLine();
 	ImGui::BeginDisabled(!PlaybackManager::isAnyManoeuvreActive());
-	buttonSTOP("StopAll", height);
+	if(buttonSTOP("StopAll", height)) PlaybackManager::stopAllManoeuvres();
 	ImGui::EndDisabled();
 
 }

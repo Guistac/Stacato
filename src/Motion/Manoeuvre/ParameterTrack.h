@@ -104,7 +104,7 @@ public:
 	virtual void rapidToStart(){}
 	virtual void rapidToTarget(){}
 	virtual void rapidToPlaybackPosition(){}
-	virtual void startPlayback(){}
+	virtual void startPlayback();
 	virtual void pausePlayback(){}
 	virtual void setPlaybackPosition(double seconds){}
 	virtual void stop(){}
