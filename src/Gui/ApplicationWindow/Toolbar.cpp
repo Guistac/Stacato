@@ -107,6 +107,18 @@ namespace Gui {
 		
 		backgroundText("EtherCAT", buttonSize, etherCatStatusColor);
 		
+		if(ImGui::IsItemHovered()){
+			ImGui::BeginTooltip();
+			if(EtherCatFieldbus::isRunning()) ImGui::Text("EtherCAT Fieldbus is running.\n"
+														  "All devices are operational");
+			else if(EtherCatFieldbus::isStarting()) ImGui::Text("EtherCAT Fieldbus is starting...");
+			else if(!EtherCatFieldbus::hasNetworkInterface()) ImGui::Text("EtherCAT Fieldbus has no configured network interface.");
+			else if(EtherCatFieldbus::slaves.empty()) ImGui::Text("EtherCAT Fieldbus is configured.\n"
+																  "No devices are detected on the network.");
+			else ImGui::Text("EtherCAT Fieldbus is configured but not running");
+			ImGui::EndTooltip();
+		}
+		
 		for(auto& networkDevice : Environnement::getNetworkDevices()){
 			ImGui::SameLine();
 			glm::vec4 networkDeviceStatusColor;
@@ -119,7 +131,7 @@ namespace Gui {
 		ImGui::EndGroup();
 		
 		ImGui::PushFont(Fonts::sansRegular12);
-		backgroundText("Status", glm::vec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
+		backgroundText("Network", glm::vec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
 		ImGui::PopFont();
 		
 		ImGui::EndGroup();

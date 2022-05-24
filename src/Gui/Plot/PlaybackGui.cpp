@@ -91,8 +91,8 @@ void manoeuvrePlaybackControls(float height){
 	
 	//Rapid to playback position
 	ImGui::SameLine();
-	ImGui::BeginDisabled(b_noSelection || !selectedManoeuvre->canRapidToPlaybackPosition());
 	bool atPlayback = !b_noSelection && selectedManoeuvre->isAtPlaybackPosition();
+	ImGui::BeginDisabled(b_noSelection || atPlayback || !selectedManoeuvre->canRapidToPlaybackPosition());
 	if(atPlayback) ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 	if(buttonArrowDownStop("rapidToPlaybackPosition", height)) selectedManoeuvre->rapidToPlaybackPosition();
 	if(atPlayback) ImGui::PopStyleColor();

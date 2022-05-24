@@ -98,17 +98,17 @@ bool MachineTemplate::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<A
 	//report if playback of the parameter is ready to start from the given value
 }
 
-void MachineTemplate::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {
+void MachineTemplate::onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter) {
 	//check against all animatable parameters
 	//called when playback of that parameter starts
 }
 
-void MachineTemplate::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) {
+void MachineTemplate::onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter) {
 	//check against all animatable parameters
 	//called when playback of that parameter is interrupted
 }
 
-void MachineTemplate::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) {
+void MachineTemplate::onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter) {
 	//check against all animatable parameters
 	//called when playback of that parameter end / finishes
 }

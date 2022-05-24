@@ -87,10 +87,13 @@ public:
 	}
 	std::vector<std::shared_ptr<ParameterTrack>>& getTracks(){ return tracks; }
 
+	bool hasActiveParameterTrack() { return activeParameterTrack != nullptr; }
+	
+	std::shared_ptr<ParameterTrack> activeParameterTrack = nullptr;
+	
 private:
 	
 	std::vector<std::shared_ptr<ParameterTrack>> tracks;
-	
 };
 
 
@@ -104,13 +107,8 @@ public:
 	virtual bool isAnimatable() override { return true; }
 	
 	virtual std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes() = 0;
-
-	bool hasActiveParameterTrack() { return activeParameterTrack != nullptr; }
 	
-	std::shared_ptr<AnimatableParameterValue> getActiveParameterTrackValue(){
-		//return actualParameterTrack->getParameterValueAtPlaybackTime();
-		return nullptr;
-	}
+	std::shared_ptr<AnimatableParameterValue> getActiveParameterTrackValue();
 	
 	std::shared_ptr<AnimatableParameterValue> getActualMachineValue();
 	
@@ -126,7 +124,7 @@ public:
 	std::vector<double> getCurvePositionsFromParameterValue(std::shared_ptr<AnimatableParameterValue> value);
 	
 private:
-	std::shared_ptr<ParameterTrack> activeParameterTrack = nullptr;
+	
 };
 
 

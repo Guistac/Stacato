@@ -50,6 +50,7 @@ namespace PlaybackManager {
 	}
 
 	void updateActiveManoeuvreState() {
+		//needs to call onPlaybackEnd in machines
 		std::vector<std::shared_ptr<Manoeuvre>> finishedManoeuvres;
 		for(auto& manoeuvre : activeManoeuvres){
 			manoeuvre->updatePlaybackStatus();

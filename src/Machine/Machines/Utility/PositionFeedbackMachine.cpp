@@ -173,9 +173,9 @@ float PositionFeedbackMachine::getParameterRapidProgress(std::shared_ptr<Animata
 bool PositionFeedbackMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value){
 	return false;
 }
-void PositionFeedbackMachine::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter){}
-void PositionFeedbackMachine::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter){}
-void PositionFeedbackMachine::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter){}
+void PositionFeedbackMachine::onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter){}
+void PositionFeedbackMachine::onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter){}
+void PositionFeedbackMachine::onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter){}
 std::shared_ptr<AnimatableParameterValue> PositionFeedbackMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter){}
 bool PositionFeedbackMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack){
 	return false;

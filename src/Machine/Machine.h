@@ -42,9 +42,9 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual void cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter); \
 	virtual float getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter); \
 	virtual bool isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value);\
-	virtual void onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter);\
-	virtual void onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter);\
-	virtual void onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter);\
+	virtual void onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter);\
+	virtual void onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter);\
+	virtual void onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter);\
 	virtual std::shared_ptr<AnimatableParameterValue> getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter);\
 	virtual bool validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack);\
 	virtual void getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves);\
@@ -109,11 +109,11 @@ public:
 
 	//===== PLAYBACK CONTROL ======
 	void startParameterPlayback(std::shared_ptr<ParameterTrack> track);
-	void interruptParameterPlayback(std::shared_ptr<AnimatableParameter> parameter);
-	void endParameterPlayback(std::shared_ptr<AnimatableParameter> parameter);
-	virtual void onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) = 0;
-	virtual void onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) = 0;
-	virtual void onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) = 0;
+	void interruptParameterPlayback(std::shared_ptr<MachineParameter> parameter);
+	void endParameterPlayback(std::shared_ptr<MachineParameter> parameter);
+	virtual void onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter) = 0;
+	virtual void onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter) = 0;
+	virtual void onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter) = 0;
 
 	//====== PARAMETER VALUE =======
 	virtual std::shared_ptr<AnimatableParameterValue> getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter) = 0;

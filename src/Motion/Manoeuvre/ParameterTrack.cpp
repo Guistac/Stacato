@@ -145,6 +145,13 @@ void SequenceParameterTrack::captureCurrentValueAsStart(){
 
 
 
+void PlayableParameterTrack::updatePlaybackStatus(){
+	if(playbackPosition_seconds >= duration_seconds){
+		auto parameter = getParameter();
+		parameter->getMachine()->onParameterPlaybackEnd(parameter);
+		//TODO: don't call this if the playback is already finished
+	}
+}
 
 std::shared_ptr<AnimatableParameterValue> PlayableParameterTrack::getParameterValueAtPlaybackTime(){
 	return getAnimatableParameter()->getParameterValueAtCurveTime(castToPlayable(), playbackPosition_seconds);
@@ -176,7 +183,9 @@ void AnimatedParameterTrack::rapidToTarget(){
 void AnimatedParameterTrack::stop(){
 	auto animatable = getAnimatableParameter();
 	animatable->getMachine()->cancelParameterRapid(animatable);
-	//Stop Playback & clear active parameter track from animatable
+	
+	animatable->getMachine()->onParameterPlaybackInterrupt(animatable);
+	
 }
 
 void ParameterTrack::startPlayback(){
@@ -213,17 +222,20 @@ void SequenceParameterTrack::rapidToStart(){
 	animatable->getMachine()->rapidParameterToValue(animatable, animatable->getParameterValue(start));
 }
 
+void SequenceParameterTrack::rapidToPlaybackPosition(){
+	auto animatable = getAnimatableParameter();
+	auto valueAtPlaybackTime = getParameterValueAtPlaybackTime();
+	animatable->getMachine()->rapidParameterToValue(animatable, valueAtPlaybackTime);
+}
+
 bool SequenceParameterTrack::isAtPlaybackPosition(){
-	return false;
-	/*
 	auto animatable = getAnimatableParameter();
 	return animatable->isParameterValueEqual(getParameterValueAtPlaybackTime(), animatable->getActualMachineValue());
-	 */
 }
 
 bool SequenceParameterTrack::isReadyToStartPlayback(){
 	auto animatable = getAnimatableParameter();
-	animatable->getMachine()->isParameterReadyToStartPlaybackFromValue(animatable, getParameterValueAtPlaybackTime());
+	return animatable->getMachine()->isParameterReadyToStartPlaybackFromValue(animatable, getParameterValueAtPlaybackTime());
 }
 
 

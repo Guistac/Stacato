@@ -388,3 +388,8 @@ std::vector<double> AnimatableParameter::getCurvePositionsFromParameterValue(std
 		case MachineParameterType::GROUP:		return {};
 	}
 }
+
+std::shared_ptr<AnimatableParameterValue> AnimatableParameter::getActiveParameterTrackValue(){
+	auto playableTrack = activeParameterTrack->castToPlayable();
+	return playableTrack->getParameterValueAtPlaybackTime();
+}

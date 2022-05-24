@@ -356,7 +356,7 @@ bool Manoeuvre::canSetPlaybackPosition(){
 	switch(getType()){
 		case ManoeuvreType::KEY: return false;
 		case ManoeuvreType::TARGET: return false;
-		case ManoeuvreType::SEQUENCE: return isFinished();
+		case ManoeuvreType::SEQUENCE: return isFinished() || isPaused();
 	}
 }
 
@@ -364,8 +364,12 @@ bool Manoeuvre::canSetPlaybackPosition(){
 bool Manoeuvre::canStartPlayback(){
 	switch(getType()){
 		case ManoeuvreType::KEY: return false;
-		case ManoeuvreType::TARGET:
-		case ManoeuvreType::SEQUENCE: return !areNoMachinesEnabled();
+		case ManoeuvreType::TARGET: return !areNoMachinesEnabled();
+		case ManoeuvreType::SEQUENCE:
+			for(auto& track : tracks){
+				if(!track->isReadyToStartPlayback()) return false;
+			}
+			return true;
 	}
 }
 
@@ -397,6 +401,8 @@ void Manoeuvre::rapidToStart(){
 	b_paused = false;
 	for(auto& track : tracks) track->rapidToStart();
 	PlaybackManager::push(shared_from_this());
+	playbackPosition_seconds = 0.0;
+	for(auto& track : tracks) track->setPlaybackPosition(0.0);
 }
 
 //OK
@@ -407,6 +413,8 @@ void Manoeuvre::rapidToTarget(){
 	b_paused = false;
 	for(auto& track : tracks) track->rapidToTarget();
 	PlaybackManager::push(shared_from_this());
+	playbackPosition_seconds = duration_seconds;
+	for(auto& track : tracks) track->setPlaybackPosition(duration_seconds);
 }
 
 
@@ -422,7 +430,8 @@ void Manoeuvre::rapidToPlaybackPosition(){
 
 void Manoeuvre::startPlayback(){
 	if(!canStartPlayback()) return;
-	playbackStartTime_microseconds = PlaybackManager::getTime_microseconds();
+	//the offset is to account for starting playback when the playback position is not zero
+	playbackStartTime_microseconds = PlaybackManager::getTime_microseconds() - playbackPosition_seconds * 1000000;
 	b_inRapid = false;
 	b_playing = true;
 	b_paused = false;
@@ -452,6 +461,8 @@ void Manoeuvre::stop(){
 	b_paused = false;
 	for(auto& track : tracks) track->stop();
 	PlaybackManager::pop(shared_from_this());
+	playbackPosition_seconds = 0.0;
+	for(auto& track : tracks) track->setPlaybackPosition(0.0);
 }
 
 
@@ -498,17 +509,24 @@ double Manoeuvre::getDuration(){
 
 
 
-float Manoeuvre::getPlaybackProgress(){ return 0.0; }
-bool Manoeuvre::isPlaybackFinished(){ return false; }
+float Manoeuvre::getPlaybackProgress(){ return playbackPosition_seconds / duration_seconds; }
+bool Manoeuvre::isPlaybackFinished(){ return playbackPosition_seconds >= duration_seconds;  }
 
-void Manoeuvre::incrementPlaybackPosition(long long deltaT_microseconds){
+void Manoeuvre::incrementPlaybackPosition(long long playbackTime_microseconds){
 	if(isPaused()) return;
-	playbackPosition_seconds += deltaT_microseconds / 1000000.0;
-	for(auto& track : tracks) track->incrementPlaybackPositionTo(playbackPosition_seconds);
+	playbackPosition_seconds = (playbackTime_microseconds - playbackStartTime_microseconds) / 1000000.0;
+	for(auto& track : tracks) track->setPlaybackPosition(playbackPosition_seconds);
 }
 
 void Manoeuvre::updatePlaybackStatus(){
-	if(isPlaying() && isPlaybackFinished()) b_playing = false;
+	for(auto& track : tracks) track->updatePlaybackStatus();
+	
+	if(isPlaying() && isPlaybackFinished()) {
+		//needs to call onPlaybackEnd in machines
+		b_playing = false;
+		playbackPosition_seconds = 0.0;
+		for(auto& track : tracks) track->setPlaybackPosition(0.0);
+	}
 	else if(isInRapid() && isRapidFinished()) b_inRapid = false;
 }
 

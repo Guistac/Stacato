@@ -114,7 +114,7 @@ public:
 	virtual void setPlaybackPosition(double seconds){}
 	virtual void stop(){}
 	
-	virtual void incrementPlaybackPositionTo(double seconds){}
+	virtual void updatePlaybackStatus(){}
 	
 	//———————————————————————————————————————————
 	//	   			User Interface
@@ -220,8 +220,12 @@ public:
 	std::shared_ptr<NumberParameter<double>> outAcceleration = NumberParameter<double>::make(0.0, "End Acceleration", "EndAcceleration");
 	bool b_accelerationsEqual;
 	
-	virtual double getDuration() override { return duration_seconds; }
+	virtual double getDuration() override { return duration_seconds; }
 	double duration_seconds;
+	
+	virtual void setPlaybackPosition(double seconds) override { playbackPosition_seconds = seconds; }
+	
+	virtual void updatePlaybackStatus() override;
 	
 private:
 	
@@ -486,6 +490,8 @@ public:
 			start->castToNumber()->setUnit(unit);
 		}
 	}
+	
+	virtual void rapidToPlaybackPosition() override;
 	
 	std::shared_ptr<Parameter> start;
 	

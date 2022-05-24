@@ -288,11 +288,11 @@ bool HoodedLiftStateMachine::isParameterReadyToStartPlaybackFromValue(std::share
 	return false;
 }
 
-void HoodedLiftStateMachine::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {}
+void HoodedLiftStateMachine::onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter) {}
 
-void HoodedLiftStateMachine::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) {}
+void HoodedLiftStateMachine::onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter) {}
 
-void HoodedLiftStateMachine::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) {}
+void HoodedLiftStateMachine::onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter) {}
 
 std::shared_ptr<AnimatableParameterValue> HoodedLiftStateMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter) {
 	auto output = AnimatableParameterValue::makeState();

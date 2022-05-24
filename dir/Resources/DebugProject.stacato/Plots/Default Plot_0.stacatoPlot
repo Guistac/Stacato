@@ -7,11 +7,11 @@
             <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsGroup="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0.5" EndAcceleration="0.5" TimeOffset="0"/>
         </Manoeuvre>
         <Manoeuvre Name="Sequence Manoeuvre" Description="" Type="Sequence">
-            <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsGroup="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1" Duration="3" TimeOffset="2" StartAcceleration="0.5" EndAcceleration="0.5">
+            <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsGroup="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1" Duration="3" TimeOffset="0" StartAcceleration="0.5" EndAcceleration="0.5">
                 <Curves>
                     <Curve>
-                        <ControlPoint Position="0" Time="2" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
-                        <ControlPoint Position="1" Time="5" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                        <ControlPoint Position="0" Time="0" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                        <ControlPoint Position="1" Time="3" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
                     </Curve>
                 </Curves>
             </ParameterTrack>

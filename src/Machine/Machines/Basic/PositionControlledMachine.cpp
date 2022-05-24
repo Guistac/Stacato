@@ -281,20 +281,20 @@ bool PositionControlledMachine::isParameterReadyToStartPlaybackFromValue(std::sh
 	return false;
 }
 
-void PositionControlledMachine::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {
+void PositionControlledMachine::onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter) {
 	if (parameter == positionParameter) {
 		controlMode = ControlMode::PARAMETER_TRACK;
 	}
 }
 
-void PositionControlledMachine::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) {
+void PositionControlledMachine::onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter) {
 	//here we just set the velocity target to 0 regardless of where we are at in the manoeuvre
 	if (parameter == positionParameter) {
 		setVelocityTarget(0.0);
 	}
 }
 
-void PositionControlledMachine::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) {
+void PositionControlledMachine::onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter) {
 	//here we have to make sure that the last position of the manoeuvre stays in the motion profile on the next loop
 	//to make sure of this we manually set the profile velocity to 0.0, and the target velocity to 0.0 to make sure nothing moves after the manoeuvre is done playing
 	if (parameter == positionParameter) {

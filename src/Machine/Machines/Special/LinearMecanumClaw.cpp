@@ -746,7 +746,7 @@ bool LinearMecanumClaw::isParameterReadyToStartPlaybackFromValue(std::shared_ptr
 	}
 }
 
-void LinearMecanumClaw::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {
+void LinearMecanumClaw::onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter) {
 	if(parameter == linearAxisPositionParameter){
 		linearControlMode = ControlMode::EXTERNAL;
 	}else if(parameter == clawAxisPositionParameter){
@@ -754,7 +754,7 @@ void LinearMecanumClaw::onParameterPlaybackStart(std::shared_ptr<AnimatableParam
 	}
 }
 
-void LinearMecanumClaw::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) {
+void LinearMecanumClaw::onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter) {
 	if(parameter == linearAxisPositionParameter){
 		setLinearVelocity(0.0);
 	}else if(parameter == clawAxisPositionParameter){
@@ -762,7 +762,7 @@ void LinearMecanumClaw::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableP
 	}
 }
 
-void LinearMecanumClaw::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) {
+void LinearMecanumClaw::onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter) {
 	//here we have to make sure that the last position of the manoeuvre stays in the motion profile on the next loop
 	//to make sure of this we manually set the profile velocity to 0.0, and the target velocity to 0.0 to make sure nothing moves after the manoeuvre is done playing
 	if(parameter == linearAxisPositionParameter){
