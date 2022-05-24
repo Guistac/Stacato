@@ -60,26 +60,22 @@ void Machine::startParameterPlayback(std::shared_ptr<ParameterTrack> track) {
 	}
 }
 
-void Machine::interruptParameterPlayback(std::shared_ptr<MachineParameter> parameter) {
-	/*
-	for (auto& p : animatableParameters) {
-		if (parameter == p) {
-			parameter->actualParameterTrack = nullptr;
+void Machine::interruptParameterPlayback(std::shared_ptr<MachineParameter> playingParameter) {
+	for (auto& parameter : parameters) {
+		if (playingParameter == parameter) {
+			parameter->activeParameterTrack = nullptr;
 			onParameterPlaybackInterrupt(parameter);
 		}
 	}
-	 */
 }
 
-void Machine::endParameterPlayback(std::shared_ptr<MachineParameter> parameter){
-	/*
-	for (auto& p : animatableParameters) {
-		if (parameter == p) {
-			parameter->actualParameterTrack = nullptr;
+void Machine::endParameterPlayback(std::shared_ptr<MachineParameter> playingParameter){
+	for (auto& parameter : parameters) {
+		if (playingParameter == parameter) {
+			parameter->activeParameterTrack = nullptr;
 			onParameterPlaybackEnd(parameter);
 		}
 	}
-	 */
 }
 
 bool Machine::save(tinyxml2::XMLElement* xml){

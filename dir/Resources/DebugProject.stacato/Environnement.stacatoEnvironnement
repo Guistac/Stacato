@@ -4,7 +4,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Test Machine A" UniqueID="1">
                 <NodeEditorPosition x="-86" y="-218"/>
                 <NodeSpecificData ShortName="Test A">
-                    <Rapids Velocity_machineUnitsPerSecond="1" Acceleration_machineUnitsPerSecondSquared="1"/>
+                    <Rapids Velocity_machineUnitsPerSecond="5" Acceleration_machineUnitsPerSecondSquared="5"/>
                     <MachineZero MachineZero_AxisUnits="0" InvertAxisDirection="false"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -22,7 +22,7 @@
                     <UnitConversion ActuatorUnitsPerMachineUnit="0"/>
                     <KinematicLimits VelocityLimit="10" AccelerationLimit="5" ManualAcceleration="5"/>
                     <PositionReferenceSignals Type="LowHighSignals" HomingVelocityCoarse="1" HomingVelocityFine="0.10000000000000001" HomingDirection="Negative"/>
-                    <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="0" HighLimit="1" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="true"/>
+                    <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="0" HighLimit="10" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="true"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Servo Actuator" DisplayString="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="42" Visible="true" NoDataField="true"/>

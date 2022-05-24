@@ -174,8 +174,16 @@ void PositionControlledMachine::simulateProcess() {
 			
 		case ControlMode::PARAMETER_TRACK:{
 			auto value = positionParameter->getActiveParameterTrackValue()->toPosition();
-			motionProfile.setPosition(value->position);
-			motionProfile.setVelocity(value->velocity);
+			//motionProfile.setPosition(value->position);
+			//motionProfile.setVelocity(value->velocity);
+			motionProfile.matchPositionAndRespectPositionLimits(profileDeltaTime_seconds,
+																value->position,
+																value->velocity,
+																value->acceleration,
+																rapidAcceleration_machineUnitsPerSecond,
+																rapidVelocity_machineUnitsPerSecond,
+																getLowPositionLimit(),
+																getHighPositionLimit());
 		}break;
 			
 		case ControlMode::VELOCITY_TARGET:{
@@ -263,7 +271,8 @@ void PositionControlledMachine::rapidParameterToValue(std::shared_ptr<Animatable
 
 float PositionControlledMachine::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
 	if (parameter == positionParameter) {
-		return motionProfile.getInterpolationProgress(Environnement::getTime_seconds());
+		float progress = motionProfile.getInterpolationProgress(Environnement::getTime_seconds());
+		return progress;
 	}
 	return 0.0;
 }

@@ -148,8 +148,7 @@ void SequenceParameterTrack::captureCurrentValueAsStart(){
 void PlayableParameterTrack::updatePlaybackStatus(){
 	if(playbackPosition_seconds >= duration_seconds){
 		auto parameter = getParameter();
-		parameter->getMachine()->onParameterPlaybackEnd(parameter);
-		//TODO: don't call this if the playback is already finished
+		if(parameter->hasActiveParameterTrack()) parameter->getMachine()->endParameterPlayback(parameter);
 	}
 }
 
@@ -172,20 +171,20 @@ bool AnimatedParameterTrack::isInRapid(){ return false; }
 
 float AnimatedParameterTrack::getRapidProgress(){
 	auto animatable = getAnimatableParameter();
-	return animatable->getMachine()->getParameterRapidProgress(animatable);
+	float prog = animatable->getMachine()->getParameterRapidProgress(animatable);
+	return prog;
 }
 
 void AnimatedParameterTrack::rapidToTarget(){
 	auto animatable = getAnimatableParameter();
-	animatable->getMachine()->rapidParameterToValue(animatable, animatable->getParameterValue(target));
+	auto targetValue = animatable->getParameterValue(target);
+	animatable->getMachine()->rapidParameterToValue(animatable, targetValue);
 }
 
 void AnimatedParameterTrack::stop(){
 	auto animatable = getAnimatableParameter();
-	animatable->getMachine()->cancelParameterRapid(animatable);
-	
-	animatable->getMachine()->onParameterPlaybackInterrupt(animatable);
-	
+	if(animatable->hasActiveParameterTrack()) animatable->getMachine()->interruptParameterPlayback(animatable);
+	else animatable->getMachine()->cancelParameterRapid(animatable);
 }
 
 void ParameterTrack::startPlayback(){

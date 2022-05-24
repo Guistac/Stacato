@@ -59,6 +59,8 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/PlotGui.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/PlotGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/PlaybackGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/PlaybackGui.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/Sequencer.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/Sequencer.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/SequencerLibrary.cpp
@@ -123,6 +125,8 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Plot/Plot.cpp
     ${STACATO_SOURCE_DIRECTORY}/Plot/Plot.h
+    ${STACATO_SOURCE_DIRECTORY}/Plot/ManoeuvreList.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Plot/ManoeuvreList.h
     ${STACATO_SOURCE_DIRECTORY}/Plot/PlotSaveFile.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Networking/Network.cpp

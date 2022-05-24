@@ -366,6 +366,7 @@ bool Manoeuvre::canStartPlayback(){
 		case ManoeuvreType::KEY: return false;
 		case ManoeuvreType::TARGET: return !areNoMachinesEnabled();
 		case ManoeuvreType::SEQUENCE:
+			if(areNoMachinesEnabled()) return false;
 			for(auto& track : tracks){
 				if(!track->isReadyToStartPlayback()) return false;
 			}
@@ -527,7 +528,9 @@ void Manoeuvre::updatePlaybackStatus(){
 		playbackPosition_seconds = 0.0;
 		for(auto& track : tracks) track->setPlaybackPosition(0.0);
 	}
-	else if(isInRapid() && isRapidFinished()) b_inRapid = false;
+	else if(isInRapid() && isRapidFinished()) {
+		b_inRapid = false;
+	}
 }
 
 
