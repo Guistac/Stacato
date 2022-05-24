@@ -225,7 +225,7 @@ void ManoeuvreList::selectNextManoeuvre(){
 		int nextManoeuvreIndex = getManoeuvreIndex(selectedManoeuvre) + 1;
 		if(nextManoeuvreIndex >= getManoeuvres().size()) nextManoeuvreIndex = 0; //
 		getPlot()->selectManoeuvre(manoeuvres[nextManoeuvreIndex]);
-	}
+	}else if(!getManoeuvres().empty()) getPlot()->selectManoeuvre(getManoeuvres().back());
 }
 
 void ManoeuvreList::selectPreviousManoeuvre(){
@@ -234,24 +234,6 @@ void ManoeuvreList::selectPreviousManoeuvre(){
 		int previousManoeuvreIndex = getManoeuvreIndex(selectedManoeuvre) - 1;
 		if(previousManoeuvreIndex <= -1) previousManoeuvreIndex = getManoeuvres().size() - 1;
 		getPlot()->selectManoeuvre(manoeuvres[previousManoeuvreIndex]);
-	}
+	}else if(!getManoeuvres().empty()) getPlot()->selectManoeuvre(getManoeuvres().front());
 }
 
-
-/*
-
-void ManoeuvreList::refreshPlotAfterMachineLimitChanged(std::shared_ptr<Machine> m) {
-	//find all manoeuvres that have a parametertrack for the edited machine and revalidate the curves
-}
-
-
-void ManoeuvreList::refreshAll() {
-	refreshChainingDependencies();
-	for (auto& manoeuvre : manoeuvres) {
-		for (auto& track : manoeuvre->tracks) {
-			track->refreshAfterChainedDependenciesRefresh();
-		}
-	}
-}
- 
- */
