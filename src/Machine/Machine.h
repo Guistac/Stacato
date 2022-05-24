@@ -10,6 +10,7 @@ namespace Motion {
 }
 
 class ParameterTrack;
+class TargetParameterTrack;
 class Device;
 
 namespace tinyxml2{ struct XMLElement; }
@@ -47,7 +48,7 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual void onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter);\
 	virtual std::shared_ptr<AnimatableParameterValue> getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter);\
 	virtual bool validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack);\
-	virtual void getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves);\
+	virtual bool generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack);\
 	virtual bool getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit);\
 
 #define DEFINE_HOMEABLE_MACHINE \
@@ -123,7 +124,7 @@ public:
 	virtual bool getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) = 0;
 	
 	//======= TIMED MOVEMENT ======
-	virtual void getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) = 0;
+	virtual bool generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack) = 0;
 
 	//===== ATTACHED DEVICES =====
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output) = 0;

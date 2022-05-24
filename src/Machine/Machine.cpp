@@ -54,6 +54,8 @@ void Machine::startParameterPlayback(std::shared_ptr<ParameterTrack> track) {
 	auto trackParameter = track->getParameter();
 	for (auto& parameter : parameters) {
 		if (trackParameter == parameter) {
+			//stop playback of this parameter if it is already playing
+			if(parameter->hasActiveParameterTrack()) parameter->stopParameterPlayback();
 			parameter->activeParameterTrack = track;
 			onParameterPlaybackStart(parameter);
 		}

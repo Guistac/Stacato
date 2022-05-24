@@ -207,17 +207,17 @@ public:
 	}
 	
 	bool matchPositionAndRespectPositionLimits(double deltaT,
-													double targetPosition,
-													double targetVelocity,
-													double targetAcceleration,
-													double fixedAcceleration,
-													double maxVelocity,
-													double lowerPositionLimit,
-													double upperPositionLimit){
+											   double targetPosition,
+											   double targetVelocity,
+											   double targetAcceleration,
+											   double fixedAcceleration,
+											   double maxVelocity,
+											   double lowerPositionLimit,
+											   double upperPositionLimit){
 		
 		//check braking position at max deceleration to see if a fast stop is needed
 		double brakingPosition = getBrakingPosition(deltaT * 2.0, fixedAcceleration);
-		if((velocity < 0.0 && brakingPosition <= lowerPositionLimit) || (velocity > 0.0 && brakingPosition >= upperPositionLimit)){
+		if((velocity < 0.0 && brakingPosition < lowerPositionLimit) || (velocity > 0.0 && brakingPosition > upperPositionLimit)){
 			//if yes, stop at full deceleration and don't update the profile any more
 			stop(deltaT, fixedAcceleration);
 			return false;

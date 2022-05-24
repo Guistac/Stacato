@@ -89,7 +89,10 @@ std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::copy(){
 	copy->interpolationType->overwrite(interpolationType->value);
 	copy->duration->overwrite(duration->value);
 	copy->timeOffset->overwrite(timeOffset->value);
-	//TODO: copy curves
+	copy->inAcceleration->overwrite(inAcceleration->value);
+	copy->outAcceleration->overwrite(outAcceleration->value);
+	//TODO: copy intermediate control points of all curves
+	copy->updateAfterParameterEdit();
 	return copy;
 }
 
@@ -177,6 +180,7 @@ float AnimatedParameterTrack::getRapidProgress(){
 
 void AnimatedParameterTrack::rapidToTarget(){
 	auto animatable = getAnimatableParameter();
+	animatable->stopParameterPlayback();
 	auto targetValue = animatable->getParameterValue(target);
 	animatable->getMachine()->rapidParameterToValue(animatable, targetValue);
 }
@@ -193,7 +197,15 @@ void ParameterTrack::startPlayback(){
 }
 
 
+void ParameterTrack::onStopPlayback(){
+	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
+	setPlaybackPosition(0.0);
+}
 
+
+bool ParameterTrack::isPlaying(){
+	return getParameter()->activeParameterTrack == shared_from_this();
+}
 
 
 
@@ -205,8 +217,17 @@ bool TargetParameterTrack::isAtPlaybackPosition(){
 }
 
 bool TargetParameterTrack::isReadyToStartPlayback(){
-	auto animatable = getAnimatableParameter();
-	animatable->getMachine()->isParameterReadyToStartPlaybackFromValue(animatable, getParameterValueAtPlaybackTime());
+	return getParameter()->getMachine()->isEnabled();
+}
+
+void TargetParameterTrack::startPlayback(){
+	//TODO:
+	//generate a curve that starts at the current machine value and goes to the target
+	//respect the interpolation type
+	//respect the time offset
+	//respect the velocity or time constraint
+	bool success = getParameter()->getMachine()->generateTargetParameterTrackCurves(shared_from_this()->castToTarget());
+	//then play these curves
 }
 
 
@@ -218,11 +239,13 @@ bool SequenceParameterTrack::isAtStart(){
 
 void SequenceParameterTrack::rapidToStart(){
 	auto animatable = getAnimatableParameter();
+	animatable->stopParameterPlayback();
 	animatable->getMachine()->rapidParameterToValue(animatable, animatable->getParameterValue(start));
 }
 
 void SequenceParameterTrack::rapidToPlaybackPosition(){
 	auto animatable = getAnimatableParameter();
+	animatable->stopParameterPlayback();
 	auto valueAtPlaybackTime = getParameterValueAtPlaybackTime();
 	animatable->getMachine()->rapidParameterToValue(animatable, valueAtPlaybackTime);
 }
@@ -279,4 +302,44 @@ void SequenceParameterTrack::updateAfterCurveEdit(){
 	auto& curves = getCurves();
 	for(auto& curve : curves) curve.refresh();
 	validate();
+}
+
+void SequenceParameterTrack::initializeCurves(){
+	auto animatable = getAnimatableParameter();
+	int curveCount = animatable->getCurveCount();
+	auto& curves = getCurves();
+	
+	auto startValue = animatable->getParameterValue(start);
+	auto targetValue = animatable->getParameterValue(target);
+	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromParameterValue(startValue);
+	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromParameterValue(targetValue);
+	
+	for(int i = 0; i < curveCount; i++){
+		auto& curve = curves[i];
+		auto& points = curve.getPoints();
+		curve.interpolationType = interpolationType->value;
+		
+		auto startPoint = std::make_shared<Motion::ControlPoint>();
+		auto targetPoint = std::make_shared<Motion::ControlPoint>();
+		
+		startPoint->position = curveStartPositions[i];
+		startPoint->velocity = 0.0;
+		startPoint->inAcceleration = inAcceleration->value;
+		startPoint->outAcceleration = inAcceleration->value;
+		startPoint->time = timeOffset->value;
+		
+		targetPoint->position = curveEndPositions[i];
+		targetPoint->velocity = 0.0;
+		targetPoint->inAcceleration = outAcceleration->value;
+		targetPoint->outAcceleration = outAcceleration->value;
+		targetPoint->time = timeOffset->value + duration->value;
+		
+		points.push_back(startPoint);
+		points.push_back(targetPoint);
+		
+		curve.refresh();
+	}
+	
+	duration_seconds = timeOffset->value + duration->value;
+	
 }

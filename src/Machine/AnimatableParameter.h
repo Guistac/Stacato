@@ -91,6 +91,8 @@ public:
 	
 	std::shared_ptr<ParameterTrack> activeParameterTrack = nullptr;
 	
+	void stopParameterPlayback();
+	
 private:
 	
 	std::vector<std::shared_ptr<ParameterTrack>> tracks;

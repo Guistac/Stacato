@@ -414,6 +414,7 @@ std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::load(tinyxml2::X
 	for(int i = 0; i < curveCount; i++){
 		auto& curve = curves[i];
 		auto& points = curve.getPoints();
+		points.clear();
 		curve.interpolationType = track->interpolationType->value;
 		
 		auto startPoint = std::make_shared<Motion::ControlPoint>();

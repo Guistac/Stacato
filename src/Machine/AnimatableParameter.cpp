@@ -393,3 +393,11 @@ std::shared_ptr<AnimatableParameterValue> AnimatableParameter::getActiveParamete
 	auto playableTrack = activeParameterTrack->castToPlayable();
 	return playableTrack->getParameterValueAtPlaybackTime();
 }
+
+void MachineParameter::stopParameterPlayback(){
+	if(hasActiveParameterTrack()){
+		auto track = activeParameterTrack;
+		activeParameterTrack = nullptr;
+		track->onStopPlayback();
+	}
+}

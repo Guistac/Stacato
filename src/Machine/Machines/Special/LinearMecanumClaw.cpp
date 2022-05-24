@@ -983,14 +983,12 @@ bool LinearMecanumClaw::getCurveLimitsAtTime(const std::shared_ptr<AnimatablePar
 }
 
 
-void LinearMecanumClaw::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {
+
+
+bool LinearMecanumClaw::generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack){
 	//check against all animatable parameters
 	//generate timed motion curves to the target points and write them to the outputcurves argument
-	if(parameter == linearAxisPositionParameter){
-		
-	}else if(parameter == clawAxisPositionParameter){
-		
-	}
+	return false;
 }
 
 

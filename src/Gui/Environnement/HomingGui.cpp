@@ -107,7 +107,7 @@ namespace Environnement::Gui{
 			bool disableHomingButton = !machine->isEnabled();
 			ImGui::BeginDisabled(disableHomingButton);
 			if(machine->isHoming()){
-				ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 				if(ImGui::Button("Stop Homing", homingControlButtonSize)) machine->stopHoming();
 				ImGui::PopStyleColor();
 			}else{

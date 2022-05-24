@@ -165,7 +165,15 @@ void Manoeuvre::trackSheetGui(){
 	ImGui::Text("Manoeuvre Type");
 	ImGui::PopFont();
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 8.0);
-	type->gui();
+	
+	static ManoeuvreType availableManoeuvreTypes[2] = {
+		ManoeuvreType::KEY,
+		ManoeuvreType::SEQUENCE
+	};
+	
+	type->combo(availableManoeuvreTypes, 2);
+	
+	//type->gui();
 	ImGui::EndGroup();
 	
 	cursorPos.x += ImGui::GetItemRectSize().x + ImGui::GetStyle().ItemSpacing.x;

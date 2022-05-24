@@ -28,6 +28,7 @@ public:
 			std::shared_ptr<ParameterTrack>& track = manoeuvre->getTracks()[i];
 			track = ParameterTrack::create(track->getParameter(), newType);
 			track->setManoeuvre(manoeuvre);
+			track->validate();
 		}
 		newTracks = manoeuvre->getTracks();
 		manoeuvre->updateTrackSummary();
@@ -539,3 +540,18 @@ void Manoeuvre::updatePlaybackStatus(){
 
 
 
+void Manoeuvre::onTrackPlaybackStop(){
+	bool anyTracksStillPlaying = false;
+	for(auto& track : tracks){
+		if(track->isPlaying()) {
+			anyTracksStillPlaying = true;
+			break;
+		}
+	}
+	if(!anyTracksStillPlaying){
+		b_playing = false;
+		playbackPosition_seconds = 0.0;
+		for(auto& track : tracks) track->setPlaybackPosition(0.0);
+		PlaybackManager::pop(shared_from_this());
+	}
+}

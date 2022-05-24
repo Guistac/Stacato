@@ -345,8 +345,9 @@ bool HoodedLiftStateMachine::getCurveLimitsAtTime(const std::shared_ptr<Animatab
 	return true;
 }
 
-void HoodedLiftStateMachine::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {}
-
+bool HoodedLiftStateMachine::generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack){
+	return false;
+}
 
 void HoodedLiftStateMachine::onEnableHardware() {
 	actualState = MachineState::State::UNKNOWN;

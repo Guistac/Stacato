@@ -83,6 +83,7 @@ void PositionControlledMachine::onEnableHardware() {
 }
 
 void PositionControlledMachine::onDisableHardware() {
+	positionParameter->stopParameterPlayback();
 	Logger::info("Disabled Machine {}", getName());
 }
 
@@ -98,6 +99,7 @@ void PositionControlledMachine::onEnableSimulation() {
 }
 
 void PositionControlledMachine::onDisableSimulation() {
+	positionParameter->stopParameterPlayback();
 	motionProfile.setVelocity(0.0);
 	motionProfile.setAcceleration(0.0);
 }
@@ -132,9 +134,17 @@ void PositionControlledMachine::process() {
 	switch(controlMode){
 			
 		case ControlMode::PARAMETER_TRACK:{
+			
 			auto value = positionParameter->getActiveParameterTrackValue()->toPosition();
-			motionProfile.setPosition(value->position);
-			motionProfile.setVelocity(value->velocity);
+			
+			motionProfile.matchPositionAndRespectPositionLimits(profileDeltaTime_seconds,
+																value->position,
+																value->velocity,
+																value->acceleration,
+																rapidAcceleration_machineUnitsPerSecond,
+																rapidVelocity_machineUnitsPerSecond,
+																getLowPositionLimit(),
+																getHighPositionLimit());
 			}break;
 			
 		case ControlMode::VELOCITY_TARGET:{
@@ -174,8 +184,6 @@ void PositionControlledMachine::simulateProcess() {
 			
 		case ControlMode::PARAMETER_TRACK:{
 			auto value = positionParameter->getActiveParameterTrackValue()->toPosition();
-			//motionProfile.setPosition(value->position);
-			//motionProfile.setVelocity(value->velocity);
 			motionProfile.matchPositionAndRespectPositionLimits(profileDeltaTime_seconds,
 																value->position,
 																value->velocity,
@@ -184,8 +192,7 @@ void PositionControlledMachine::simulateProcess() {
 																rapidVelocity_machineUnitsPerSecond,
 																getLowPositionLimit(),
 																getHighPositionLimit());
-		}break;
-			
+			}break;
 		case ControlMode::VELOCITY_TARGET:{
 			double lowLimit_machineUnits = getLowPositionLimit();
 			double highLimit_machineUnits = getHighPositionLimit();
@@ -208,13 +215,28 @@ void PositionControlledMachine::simulateProcess() {
 }
 
 
-bool PositionControlledMachine::isHoming(){ return false; }
-void PositionControlledMachine::startHoming(){}
-void PositionControlledMachine::stopHoming(){}
-bool PositionControlledMachine::didHomingSucceed(){}
-bool PositionControlledMachine::didHomingFail(){}
-float PositionControlledMachine::getHomingProgress(){ return 0.0; }
-const char* PositionControlledMachine::getHomingStateString(){ return "Work in progress."; }
+bool PositionControlledMachine::isHoming(){
+	return getAxis()->isHoming();
+}
+void PositionControlledMachine::startHoming(){
+	positionParameter->stopParameterPlayback();
+	getAxis()->startHoming();
+}
+void PositionControlledMachine::stopHoming(){
+	getAxis()->cancelHoming();
+}
+bool PositionControlledMachine::didHomingSucceed(){
+	return getAxis()->didHomingSucceed();
+}
+bool PositionControlledMachine::didHomingFail(){
+	return getAxis()->didHomingFail();
+}
+float PositionControlledMachine::getHomingProgress(){
+	return getAxis()->getHomingProgress();
+}
+const char* PositionControlledMachine::getHomingStateString(){
+	return Enumerator::getDisplayString(getAxis()->getHomingStep());
+}
 
 
 bool PositionControlledMachine::isAxisConnected() {
@@ -230,12 +252,15 @@ std::shared_ptr<PositionControlledAxis> PositionControlledMachine::getAxis() {
 //===================== MANUAL CONTROLS =========================
 
 void PositionControlledMachine::setVelocityTarget(double velocityTarget_machineUnitsPerSecond) {
+	positionParameter->stopParameterPlayback();
+	
 	manualVelocityTarget_machineUnitsPerSecond = velocityTarget_machineUnitsPerSecond;
 	if(controlMode == ControlMode::POSITION_TARGET) motionProfile.resetInterpolation();
 	controlMode = ControlMode::VELOCITY_TARGET;
 }
 
 void PositionControlledMachine::moveToPosition(double target_machineUnits) {
+	positionParameter->stopParameterPlayback();
 	
 	double lowLimit_machineUnits = getLowPositionLimit();
 	double highLimit_machineUnits = getHighPositionLimit();
@@ -264,6 +289,8 @@ void PositionControlledMachine::moveToPosition(double target_machineUnits) {
 
 
 void PositionControlledMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
+	positionParameter->stopParameterPlayback();
+	
 	if (parameter == positionParameter) {
 		moveToPosition(value->toPosition()->position);
 	}
@@ -478,34 +505,64 @@ bool PositionControlledMachine::getCurveLimitsAtTime(const std::shared_ptr<Anima
 }
 
 
-void PositionControlledMachine::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {
-	if (parameter == positionParameter && outputCurves.size() == 1 && targetPoints.size() == 1) {
+bool PositionControlledMachine::generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> track){
+	if(track->getParameter() != positionParameter) return false;
 	
-		//TODO: this is a completely broken mess...
-		
-		/*
-		
-		std::shared_ptr<PositionControlledAxis> axis = getAxis();
-
-		std::shared_ptr<Motion::ControlPoint> startPoint = std::make_shared<Motion::ControlPoint>();
-		//MACHINE ZERO TEST
-		startPoint->position =  axisPositionToMachinePosition(axis->getActualPosition());
-		startPoint->velocity = axisVelocityToMachineVelocity(axis->getActualVelocity());
-		startPoint->velocityOut = axisVelocityToMachineVelocity(axis->getActualVelocity());
-		//startPoint->position = axis->getActualPosition_axisUnits();
-		//startPoint->velocity = axis->getActualVelocity_axisUnitsPerSecond();
-		//startPoint->velocityOut = axis->getActualVelocity_axisUnitsPerSecond();
-		startPoint->rampOut = rampIn;
-
-		std::shared_ptr<Motion::ControlPoint> endPoint = targetPoints.front();
-		//MACHINE ZERO TEST
-		endPoint->position = machinePositionToAxisPosition(endPoint->position);
-		std::shared_ptr<Motion::Interpolation> timedInterpolation = std::make_shared<Motion::Interpolation>();
-
-		Motion::TrapezoidalInterpolation::getClosestTimeAndVelocityConstrainedInterpolation(startPoint, endPoint, axis->getVelocityLimit(), timedInterpolation);
-		 */
+	//TODO: unfinished !
+	 
+	auto& curves = track->getCurves(); //1 curve, 1D-Position
+	auto target = positionParameter->getParameterValue(track->target)->toPosition();
+	double inAcceleration = track->inAcceleration->value;
+	double outAcceleration = track->outAcceleration->value;
+	double timeOffset_seconds = track->timeOffset->value;
+	
+	motionProfile.getBrakingPosition(0, 0);
+	
+	auto startPoint = std::make_shared<Motion::ControlPoint>();
+	startPoint->position = motionProfile.getPosition();
+	startPoint->velocity = motionProfile.getVelocity();
+	startPoint->time = 0.0;
+	
+	std::shared_ptr<Motion::ControlPoint> intermediatePointA = nullptr;
+	std::shared_ptr<Motion::ControlPoint> intermediatePointB = nullptr;
+	
+	//check if we will overshoot the offset time given the current velocity
+	//if we can't stop before the offset if over, we might aswell just go to the target immediately
+	//provided we don't arrive sooner than the given time constraint
+	double stopTime = std::abs(motionProfile.getVelocity() / rapidAcceleration_machineUnitsPerSecond);
+	if(stopTime < timeOffset_seconds){
+		double brakingPosition = motionProfile.getBrakingPosition(0.0, rapidAcceleration_machineUnitsPerSecond);
+		startPoint->outAcceleration = rapidAcceleration_machineUnitsPerSecond;
+		intermediatePointA = std::make_shared<Motion::ControlPoint>();
+		intermediatePointA->position = brakingPosition;
+		intermediatePointA->velocity = 0.0;
+		intermediatePointA->inAcceleration = rapidAcceleration_machineUnitsPerSecond;
+		intermediatePointA->outAcceleration = rapidAcceleration_machineUnitsPerSecond;
+		intermediatePointA->time = stopTime;
+		intermediatePointB = std::make_shared<Motion::ControlPoint>();
+		intermediatePointB->position = brakingPosition;
+		intermediatePointB->velocity = 0.0;
+		intermediatePointB->inAcceleration = rapidAcceleration_machineUnitsPerSecond;
+		intermediatePointB->outAcceleration = inAcceleration;
+		intermediatePointB->time = timeOffset_seconds;
+	}else{
+		startPoint->outAcceleration = inAcceleration;
 	}
-	//movement from current position to the target position arriving at 0 velocity
+	
+	auto targetPoint = std::make_shared<Motion::ControlPoint>();
+	targetPoint->position = target->position;
+	targetPoint->velocity = 0.0;
+	targetPoint->inAcceleration = outAcceleration;
+	
+	TargetParameterTrack::Constraint constraintType = track->getConstraintType();
+
+	if(constraintType == TargetParameterTrack::Constraint::TIME){
+		
+	}else if(constraintType == TargetParameterTrack::Constraint::VELOCITY){
+		
+	}
+	
+	
 }
 
 

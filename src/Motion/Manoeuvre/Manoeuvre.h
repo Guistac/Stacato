@@ -45,7 +45,7 @@ public:
 	void select();
 	void deselect();
 	bool isSelected();
-
+	
 private:
 	
 	std::shared_ptr<StringParameter> name = std::make_shared<StringParameter>("Default Name","Manoeuvre Name","Name",256);
@@ -126,6 +126,9 @@ public:
 	
 	void incrementPlaybackPosition(long long time_microseconds);
 	void updatePlaybackStatus();
+	
+	//called by parameter when a track is stopped
+	void onTrackPlaybackStop();
 
 private:
 	

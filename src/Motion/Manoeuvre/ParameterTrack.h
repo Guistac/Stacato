@@ -116,6 +116,10 @@ public:
 	
 	virtual void updatePlaybackStatus(){}
 	
+	//called by parameter to interrupt manoeuvre
+	void onStopPlayback();
+	bool isPlaying();
+	
 	//———————————————————————————————————————————
 	//	   			User Interface
 	//———————————————————————————————————————————
@@ -394,6 +398,7 @@ public:
 	
 	virtual bool isAtPlaybackPosition() override;
 	virtual bool isReadyToStartPlayback() override;
+	virtual void startPlayback() override;
 
 	std::shared_ptr<EnumeratorParameter<Constraint>> constraintType = std::make_shared<EnumeratorParameter<Constraint>>(Constraint::TIME, "Constraint Type", "ConstraintType");
 	std::shared_ptr<TimeParameter> timeConstraint = std::make_shared<TimeParameter>(0.0, "Movement Time", "Time");
@@ -452,9 +457,19 @@ public:
 		start = parameter->getEditableParameter();
 		start->setName("Start");
 		start->setSaveString("Start");
+		inAcceleration->denyNegatives();
+		outAcceleration->denyNegatives();
 		if(parameter->isNumerical()){
+			inAcceleration->setPrefix("In: ");
+			inAcceleration->setSuffix("/s\xC2\xB2");
+			outAcceleration->setPrefix("Out: ");
+			outAcceleration->setSuffix("/s\xC2\xB2");
 			Unit unit = parameter->castToNumerical()->getUnit();
 			setUnit(unit);
+		}
+		if(!parameter->isReal()){
+			inAcceleration->setDisabled(true);
+			outAcceleration->setDisabled(true);
 		}
 		Motion::Interpolation::Type defaultInterpolation = getAnimatableParameter()->getCompatibleInterpolationTypes().front();
 		interpolationType = std::make_shared<EnumeratorParameter<Motion::Interpolation::Type>>(defaultInterpolation, "Interpolation Type", "interpolationType");
@@ -467,7 +482,10 @@ public:
 		timeOffset->setEditCallback(editCallback);
 		inAcceleration->setEditCallback(editCallback);
 		outAcceleration->setEditCallback(editCallback);
+		initializeCurves();
 	}
+	
+	void initializeCurves();
 	
 	virtual ManoeuvreType getType() override { return ManoeuvreType::SEQUENCE; }
 	

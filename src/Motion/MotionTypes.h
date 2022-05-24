@@ -33,6 +33,7 @@ enum class PositionReferenceSignal{
 };
 
 inline bool isLinearPositionReferenceSignal(PositionReferenceSignal t){
+	/*
 	switch(t){
 		case PositionReferenceSignal::NO_SIGNAL:
 		case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
@@ -40,6 +41,8 @@ inline bool isLinearPositionReferenceSignal(PositionReferenceSignal t){
 		default:
 			return true;
 	}
+	 */
+	return true;
 }
 
 inline bool isAngularPositionReferenceSignal(PositionReferenceSignal t){

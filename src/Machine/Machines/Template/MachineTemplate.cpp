@@ -152,10 +152,11 @@ bool MachineTemplate::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParam
 	return false;
 }
 
-
-void MachineTemplate::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {
+bool MachineTemplate::generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack){
 	//check against all animatable parameters
-	//generate timed motion curves to the target points and write them to the outputcurves argument
+	//generate timed motion curves to the target points and write them to the parameter track curves
+	//return if success
+	return false;
 }
 
 

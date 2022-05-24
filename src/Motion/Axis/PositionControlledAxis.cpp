@@ -493,6 +493,10 @@ bool PositionControlledAxis::didHomingFail() {
 	return homingError != HomingError::NONE;
 }
 
+HomingStep PositionControlledAxis::getHomingStep(){
+	return homingStep;
+}
+
 void PositionControlledAxis::onHomingSuccess() {
 	b_isHoming = false;
 	homingStep = HomingStep::FINISHED;
@@ -505,8 +509,6 @@ void PositionControlledAxis::onHomingError() {
 }
 
 float PositionControlledAxis::getHomingProgress() {
-
-	Logger::critical("HOMING AXIS");
 	
 	switch (positionReferenceSignal) {
 

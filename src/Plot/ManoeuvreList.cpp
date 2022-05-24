@@ -37,6 +37,7 @@ public:
 		if(selectedManoeuvre) insertionIndex = manoeuvreList->getManoeuvreIndex(selectedManoeuvre) + 1;
 		manoeuvres.insert(manoeuvres.begin() + insertionIndex, addedManoeuvre);
 		addedManoeuvre->subscribeAllTracksToMachineParameter();
+		addedManoeuvre->updateTrackSummary();
 		addedManoeuvre->select();
 	}
 	
@@ -141,6 +142,7 @@ public:
 		auto& manoeuvres = manoeuvreList->getManoeuvres();
 		insertIndex = manoeuvreList->getManoeuvreIndex(original) + 1;
 		manoeuvres.insert(manoeuvres.begin() + insertIndex, copy);
+		copy->updateTrackSummary();
 		copy->select();
 	}
 	virtual void undo(){
