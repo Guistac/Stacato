@@ -95,7 +95,7 @@ private:
 
 
 
-class AnimatedParameterTrack;
+class PlayableParameterTrack;
 
 class AnimatableParameter : public MachineParameter{
 public:
@@ -122,7 +122,8 @@ public:
 	void copyParameterValue(std::shared_ptr<Parameter> from, std::shared_ptr<Parameter> to);
 	std::shared_ptr<AnimatableParameterValue> getParameterValue(std::shared_ptr<Parameter> parameter);
 	bool isParameterValueEqual(std::shared_ptr<AnimatableParameterValue> value1, std::shared_ptr<AnimatableParameterValue> value2);
-	std::shared_ptr<AnimatableParameterValue> getParameterValueAtCurveTime(std::shared_ptr<AnimatedParameterTrack> parameterTrack, double time_seconds);
+	std::shared_ptr<AnimatableParameterValue> getParameterValueAtCurveTime(std::shared_ptr<PlayableParameterTrack> playableParameterTrack, double time_seconds);
+	std::vector<double> getCurvePositionsFromParameterValue(std::shared_ptr<AnimatableParameterValue> value);
 	
 private:
 	std::shared_ptr<ParameterTrack> activeParameterTrack = nullptr;

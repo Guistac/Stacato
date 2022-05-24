@@ -97,7 +97,7 @@ std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::copy(){
 void ParameterTrack::validate(){
 	validationErrorString = "";
 	b_valid = getParameter()->getMachine()->validateParameterTrack(shared_from_this());
-	if(hasManoeuvre()) manoeuvre->updateValidation();
+	if(hasManoeuvre()) manoeuvre->updateTrackSummary();
 }
 
 
@@ -146,8 +146,8 @@ void SequenceParameterTrack::captureCurrentValueAsStart(){
 
 
 
-std::shared_ptr<AnimatableParameterValue> AnimatedParameterTrack::getParameterValueAtPlaybackTime(){
-	return getAnimatableParameter()->getParameterValueAtCurveTime(castToAnimated(), playbackPosition_seconds);
+std::shared_ptr<AnimatableParameterValue> PlayableParameterTrack::getParameterValueAtPlaybackTime(){
+	return getAnimatableParameter()->getParameterValueAtCurveTime(castToPlayable(), playbackPosition_seconds);
 }
 
 
@@ -224,4 +224,48 @@ bool SequenceParameterTrack::isAtPlaybackPosition(){
 bool SequenceParameterTrack::isReadyToStartPlayback(){
 	auto animatable = getAnimatableParameter();
 	animatable->getMachine()->isParameterReadyToStartPlaybackFromValue(animatable, getParameterValueAtPlaybackTime());
+}
+
+
+void SequenceParameterTrack::updateAfterParameterEdit(){
+	int curveCount = getAnimatableParameter()->getCurveCount();
+	auto& curves = getCurves();
+	
+	auto animatable = getAnimatableParameter();
+	auto startValue = animatable->getParameterValue(start);
+	auto targetValue = animatable->getParameterValue(target);
+	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromParameterValue(startValue);
+	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromParameterValue(targetValue);
+	
+	for(int i = 0; i < curveCount; i++){
+		auto& curve = curves[i];
+		auto& points = curve.getPoints();
+		
+		std::shared_ptr<Motion::ControlPoint> startPoint = points.front();
+		std::shared_ptr<Motion::ControlPoint> targetPoint = points.back();
+				
+		startPoint->position = curveStartPositions[i];
+		startPoint->velocity = 0.0;
+		startPoint->inAcceleration = inAcceleration->value;
+		startPoint->outAcceleration = inAcceleration->value;
+		startPoint->time = timeOffset->value;
+		
+		targetPoint->position = curveEndPositions[i];
+		targetPoint->velocity = 0.0;
+		targetPoint->inAcceleration = outAcceleration->value;
+		targetPoint->outAcceleration = outAcceleration->value;
+		targetPoint->time = timeOffset->value + duration->value;
+		
+		curve.refresh();
+	}
+	
+	duration_seconds = timeOffset->value + duration->value;
+	
+	validate();
+}
+
+void SequenceParameterTrack::updateAfterCurveEdit(){
+	auto& curves = getCurves();
+	for(auto& curve : curves) curve.refresh();
+	validate();
 }

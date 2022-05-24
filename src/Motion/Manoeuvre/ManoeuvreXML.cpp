@@ -41,8 +41,8 @@ std::shared_ptr<Manoeuvre> Manoeuvre::load(tinyxml2::XMLElement* xml){
 	XMLElement* trackXML = xml->FirstChildElement("ParameterTrack");
 	while (trackXML != nullptr) {
 		auto newTrack = ParameterTrack::load(trackXML);
-		newTrack->setManoeuvre(manoeuvre);
 		if(newTrack == nullptr) return nullptr;
+		newTrack->setManoeuvre(manoeuvre);
 		manoeuvre->tracks.push_back(newTrack);
 		trackXML = trackXML->NextSiblingElement("ParameterTrack");
 	}
@@ -120,6 +120,10 @@ std::shared_ptr<ParameterTrack> ParameterTrack::load(tinyxml2::XMLElement* xml){
 	
 	//once we have the parameter object, we can create and load the parameter track object:
 	auto loadedTrack = loadType(xml, parameter);
+	if(loadedTrack == nullptr) {
+		Logger::warn("Failed to load parameter track {} of machine {}", parameterName, machine->getName());
+		return nullptr;
+	}
 	loadedTrack->subscribeToMachineParameter();
 	
 	return loadedTrack;
@@ -337,20 +341,106 @@ std::shared_ptr<TargetParameterTrack> TargetParameterTrack::load(tinyxml2::XMLEl
 
 
 bool SequenceParameterTrack::onSave(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	
+	interpolationType->save(xml);
 	start->save(xml);
 	target->save(xml);
+	duration->save(xml);
+	timeOffset->save(xml);
+	inAcceleration->save(xml);
+	outAcceleration->save(xml);
+	
+	XMLElement* curvesXML = xml->InsertNewChildElement("Curves");
+	for(auto& curve : getCurves()){
+		XMLElement* curveXML = curvesXML->InsertNewChildElement("Curve");
+		for(auto& controlPoint : curve.getPoints()){
+			XMLElement* controlPointXML = curveXML->InsertNewChildElement("ControlPoint");
+			controlPointXML->SetAttribute("Position", controlPoint->position);
+			controlPointXML->SetAttribute("Time", controlPoint->time);
+			controlPointXML->SetAttribute("Velocity", controlPoint->velocity);
+			controlPointXML->SetAttribute("InAcceleration", controlPoint->inAcceleration);
+			controlPointXML->SetAttribute("OutAcceleration", controlPoint->outAcceleration);
+		}
+	}
+	
 	return true;
 }
 
 std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::load(tinyxml2::XMLElement* xml, std::shared_ptr<AnimatableParameter> parameter){
-	auto sequenceParameterTrack = std::make_shared<SequenceParameterTrack>(parameter);
-	if(!sequenceParameterTrack->start->load(xml)){
+	auto track = std::make_shared<SequenceParameterTrack>(parameter);
+	if(!track->interpolationType->load(xml)){
+		Logger::warn("could not load attribute Interpolation Type of parameter track {}", parameter->getName());
+	}
+	if(!track->start->load(xml)){
 		Logger::warn("could not load attribute Start of parameter track {}", parameter->getName());
 		return nullptr;
 	}
-	if(!sequenceParameterTrack->target->load(xml)){
+	if(!track->target->load(xml)){
 		Logger::warn("could not load attribute End of parameter track {}", parameter->getName());
 		return nullptr;
 	}
-	return sequenceParameterTrack;
+	if(!track->duration->load(xml)){
+		Logger::warn("could not load attribute Duration of parameter track {}", parameter->getName());
+		return nullptr;
+	}
+	if(!track->timeOffset->load(xml)){
+		Logger::warn("could not load attribute Time Offset of parameter track {}", parameter->getName());
+		return nullptr;
+	}
+	if(!track->inAcceleration->load(xml)){
+		Logger::warn("could not load attribute inAcceleration of parameter track {}", parameter->getName());
+		return nullptr;
+	}
+	if(!track->outAcceleration->load(xml)){
+		Logger::warn("could not load attribute outAcceleration of parameter track {}", parameter->getName());
+		return nullptr;
+	}
+
+	
+	//load curve points
+	//generate curves
+	
+	
+	int curveCount = parameter->getCurveCount();
+	auto& curves = track->getCurves();
+	auto animatable = track->getAnimatableParameter();
+	
+	auto startValue = animatable->getParameterValue(track->start);
+	auto targetValue = animatable->getParameterValue(track->target);
+	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromParameterValue(startValue);
+	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromParameterValue(targetValue);
+	
+	for(int i = 0; i < curveCount; i++){
+		auto& curve = curves[i];
+		auto& points = curve.getPoints();
+		curve.interpolationType = track->interpolationType->value;
+		
+		auto startPoint = std::make_shared<Motion::ControlPoint>();
+		auto targetPoint = std::make_shared<Motion::ControlPoint>();
+		
+		startPoint->position = curveStartPositions[i];
+		startPoint->velocity = 0.0;
+		startPoint->inAcceleration = track->inAcceleration->value;
+		startPoint->outAcceleration = track->inAcceleration->value;
+		startPoint->time = track->timeOffset->value;
+		
+		targetPoint->position = curveEndPositions[i];
+		targetPoint->velocity = 0.0;
+		targetPoint->inAcceleration = track->outAcceleration->value;
+		targetPoint->outAcceleration = track->outAcceleration->value;
+		targetPoint->time = track->timeOffset->value + track->duration->value;
+		
+		points.push_back(startPoint);
+		
+		//push intermediary points here
+		
+		points.push_back(targetPoint);
+		
+		curve.refresh();
+	}
+	
+	track->duration_seconds = track->timeOffset->value + track->duration->value;
+	
+	return track;
 }

@@ -1,23 +1,20 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="Key Position" Description="Simply used for rapids. Later also for referencing by other manoeuvres." Type="Key">
-            <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsGroup="false" Type="Key" Target="0.10000000000000001"/>
-            <ParameterTrack Machine="Machine D" MachineUniqueID="13" Parameter="State" IsGroup="false" Type="Key" Target="Shut"/>
-        </Manoeuvre>
-        <Manoeuvre Name="Velocity Target Movement" Description="The machine needs to generate the tracks curves on playback start." Type="Target">
-            <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsGroup="false" Type="Target" Target="0.5" ConstraintType="Velocity" Time="754" Velocity="2" StartAcceleration="1" EndAcceleration="4" TimeOffset="0"/>
-        </Manoeuvre>
-        <Manoeuvre Name="Sequenced Manoeuvre" Description="Animated manoeuvre with start and finish. Later also a complex sequence of manually animated points." Type="Sequence">
-            <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsGroup="false" Type="Sequence" Start="1" End="0"/>
-        </Manoeuvre>
-        <Manoeuvre Name="Machine-A 0°" Description="" Type="Key">
+        <Manoeuvre Name="Key Manoeuvre" Description="" Type="Key">
             <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsGroup="false" Type="Key" Target="0"/>
         </Manoeuvre>
-        <Manoeuvre Name="Machine-A 0.5°" Description="" Type="Key">
-            <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsGroup="false" Type="Key" Target="0.5"/>
+        <Manoeuvre Name="Target Maneouvre" Description="" Type="Target">
+            <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsGroup="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0.5" EndAcceleration="0.5" TimeOffset="0"/>
         </Manoeuvre>
-        <Manoeuvre Name="Machine-A 1°" Description="" Type="Key">
-            <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsGroup="false" Type="Key" Target="1"/>
+        <Manoeuvre Name="Sequence Manoeuvre" Description="" Type="Sequence">
+            <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsGroup="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1" Duration="3" TimeOffset="2" StartAcceleration="0.5" EndAcceleration="0.5">
+                <Curves>
+                    <Curve>
+                        <ControlPoint Position="0" Time="2" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                        <ControlPoint Position="1" Time="5" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                    </Curve>
+                </Curves>
+            </ParameterTrack>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

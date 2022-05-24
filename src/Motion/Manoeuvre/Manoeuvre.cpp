@@ -30,15 +30,15 @@ public:
 			track->setManoeuvre(manoeuvre);
 		}
 		newTracks = manoeuvre->getTracks();
-		manoeuvre->updateValidation();
+		manoeuvre->updateTrackSummary();
 	}
 	virtual void undo(){
 		manoeuvre->getTracks() = oldTracks;
-		manoeuvre->updateValidation();
+		manoeuvre->updateTrackSummary();
 	}
 	virtual void redo(){
 		manoeuvre->getTracks() = newTracks;
-		manoeuvre->updateValidation();
+		manoeuvre->updateTrackSummary();
 	}
 
 };
@@ -103,13 +103,13 @@ public:
 			}
 		}
 		addedTrack->unsubscribeFromMachineParameter();
-		manoeuvre->updateValidation();
+		manoeuvre->updateTrackSummary();
 	}
 	
 	virtual void redo(){
 		manoeuvre->getTracks().push_back(addedTrack);
 		addedTrack->subscribeToMachineParameter();
-		manoeuvre->updateValidation();
+		manoeuvre->updateTrackSummary();
 	}
 	
 };
@@ -152,14 +152,14 @@ public:
 			}
 		}
 		removedTrack->unsubscribeFromMachineParameter();
-		manoeuvre->updateValidation();
+		manoeuvre->updateTrackSummary();
 	}
 	
 	virtual void undo(){
 		auto& tracks = manoeuvre->getTracks();
 		tracks.insert(tracks.begin() + removeIndex, removedTrack);
 		removedTrack->subscribeToMachineParameter();
-		manoeuvre->updateValidation();
+		manoeuvre->updateTrackSummary();
 	}
 	
 };
@@ -233,14 +233,15 @@ void Manoeuvre::validateAllParameterTracks(){
 	for(auto& track : tracks) track->validate();
 }
 
-void Manoeuvre::updateValidation(){
+void Manoeuvre::updateTrackSummary(){
+	double longestTrackDuration_seconds = 0.0;
+	bool allTracksValid = true;
 	for(auto& track : tracks){
-		if(!track->isValid()) {
-			b_valid = false;
-			return;
-		}
+		if(!track->isValid()) allTracksValid = false;
+		longestTrackDuration_seconds = std::max(longestTrackDuration_seconds, track->getDuration());
 	}
-	b_valid = true;
+	b_valid = allTracksValid;
+	duration_seconds = longestTrackDuration_seconds;
 }
 
 
@@ -471,15 +472,27 @@ bool Manoeuvre::isRapidFinished(){
 
 
 double Manoeuvre::getPlaybackPosition(){
-	return playbackPosition_seconds;
+	switch(getType()){
+		case ManoeuvreType::KEY: return 0.0;
+		case ManoeuvreType::TARGET:
+		case ManoeuvreType::SEQUENCE: return playbackPosition_seconds;
+	}
 }
 
 double Manoeuvre::getRemainingPlaybackTime(){
-	return playbackPosition_seconds - duration_seconds;
+	switch(getType()){
+		case ManoeuvreType::KEY: return 0.0;
+		case ManoeuvreType::TARGET:
+		case ManoeuvreType::SEQUENCE: return playbackPosition_seconds - duration_seconds;
+	}
 }
 
 double Manoeuvre::getDuration(){
-	return duration_seconds;
+	switch(getType()){
+		case ManoeuvreType::KEY: return 0.0;
+		case ManoeuvreType::TARGET:
+		case ManoeuvreType::SEQUENCE: return duration_seconds;
+	}
 }
 
 

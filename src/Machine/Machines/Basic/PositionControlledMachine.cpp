@@ -357,20 +357,25 @@ bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<Par
 				b_trackValid = false;
 			}
 		}
-		
+	}
+	
+	if(parameterTrack->isPlayable()){
+	
+		auto playableTrack = parameterTrack->castToPlayable();
 		//validate acceleration
-		if(!targetTrack->inAcceleration->validateRange(0.0, std::abs(accelerationLimit_machineUnits), false, true)) {
-			if(targetTrack->inAcceleration->getReal() == 0.0) animatedTrack->appendValidationErrorString("In-Acceleration is Zero");
+		if(!playableTrack->inAcceleration->validateRange(0.0, std::abs(accelerationLimit_machineUnits), false, true)) {
+			if(playableTrack->inAcceleration->getReal() == 0.0) animatedTrack->appendValidationErrorString("In-Acceleration is Zero");
 			else animatedTrack->appendValidationErrorString("In-Acceleration is out of range. (max: " + std::to_string(std::abs(accelerationLimit_machineUnits)) + ")");
 			b_trackValid = false;
 		}
-		if(!targetTrack->outAcceleration->validateRange(0.0, std::abs(accelerationLimit_machineUnits), false, true)){
-			if(targetTrack->outAcceleration->getReal() == 0.0) animatedTrack->appendValidationErrorString("Out-Acceleration is Zero");
+		if(!playableTrack->outAcceleration->validateRange(0.0, std::abs(accelerationLimit_machineUnits), false, true)){
+			if(playableTrack->outAcceleration->getReal() == 0.0) animatedTrack->appendValidationErrorString("Out-Acceleration is Zero");
 			else animatedTrack->appendValidationErrorString("Out-Acceleration is out of range. (max: " + std::to_string(std::abs(accelerationLimit_machineUnits)) + ")");
 			b_trackValid = false;
 		}
+	}
 		
-	}else if(manoeuvreType == ManoeuvreType::SEQUENCE){
+	if(manoeuvreType == ManoeuvreType::SEQUENCE){
 		
 		auto sequenceTrack = parameterTrack->castToSequence();
 		auto startParameter = std::dynamic_pointer_cast<BaseNumberParameter>(sequenceTrack->start);
@@ -379,13 +384,14 @@ bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<Par
 			b_trackValid = false;
 		}
 		
-		if(animatedTrack->getCurves().size() != 1) {
-			Logger::warn("Parameter Track has wrong curve count. Has {}, expected 1", animatedTrack->getCurves().size());
+		
+		if(sequenceTrack->getCurves().size() != 1) {
+			Logger::warn("Parameter Track has wrong curve count. Has {}, expected 1", sequenceTrack->getCurves().size());
 			animatedTrack->appendValidationErrorString("Critical: ParameterTrack has wrong curve count.");
 			return false;
 		}
 		
-		auto& curve = animatedTrack->getCurves().front();
+		auto& curve = sequenceTrack->getCurves().front();
 		
 		//validate all control points
 		for (auto& controlPoint : curve.getPoints()) {

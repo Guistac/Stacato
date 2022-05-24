@@ -245,7 +245,7 @@ bool AnimatableParameter::isParameterValueEqual(std::shared_ptr<AnimatableParame
 	}
 }
 
-std::shared_ptr<AnimatableParameterValue> AnimatableParameter::getParameterValueAtCurveTime(std::shared_ptr<AnimatedParameterTrack> parameterTrack, double time_seconds){
+std::shared_ptr<AnimatableParameterValue> AnimatableParameter::getParameterValueAtCurveTime(std::shared_ptr<PlayableParameterTrack> parameterTrack, double time_seconds){
 	switch(getType()){
 			
 		case MachineParameterType::BOOLEAN: {
@@ -365,5 +365,26 @@ std::shared_ptr<AnimatableParameterValue> AnimatableParameter::getParameterValue
 			
 			
 			
+	}
+}
+
+
+
+
+std::vector<double> AnimatableParameter::getCurvePositionsFromParameterValue(std::shared_ptr<AnimatableParameterValue> value){
+	switch(getType()){
+		case MachineParameterType::BOOLEAN:		return {value->toBoolean()->value ? 1.0 : 0.0};
+		case MachineParameterType::INTEGER: 	return {(double)value->toInteger()->value};
+		case MachineParameterType::STATE: 		return {(double)value->toState()->value->integerEquivalent};
+		case MachineParameterType::POSITION:	return {value->toPosition()->position};
+		case MachineParameterType::VELOCITY:	return {value->toVelocity()->velocity};
+		case MachineParameterType::REAL:		return {value->toReal()->value};
+		case MachineParameterType::POSITION_2D:	{ glm::dvec2& pos = value->to2dPosition()->position; return {pos.x, pos.y}; }
+		case MachineParameterType::VELOCITY_2D:	{ glm::dvec2& vel = value->to2dVelocity()->velocity; return {vel.x, vel.y}; }
+		case MachineParameterType::VECTOR_2D:	{ glm::dvec2& vec = value->to2dVector()->value; return {vec.x, vec.y}; }
+		case MachineParameterType::POSITION_3D:	{ glm::dvec3& pos = value->to3dPosition()->position; return {pos.x, pos.y, pos.z}; }
+		case MachineParameterType::VELOCITY_3D:	{ glm::dvec3& vel = value->to3dVelocity()->velocity; return {vel.x, vel.y, vel.z}; }
+		case MachineParameterType::VECTOR_3D:	{ glm::dvec3& vec = value->to3dVector()->value; return {vec.x, vec.y, vec.z}; }
+		case MachineParameterType::GROUP:		return {};
 	}
 }

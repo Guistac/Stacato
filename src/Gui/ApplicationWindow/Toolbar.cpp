@@ -174,7 +174,7 @@ namespace Gui {
 		
 		
 		
-		
+		/*
 		//================= Sequencer Transport Control =====================
 		
 		ImGui::BeginGroup();
@@ -191,6 +191,7 @@ namespace Gui {
 		ImGui::EndGroup();
 		
 		spacer();
+		 */
 		
 		
 		//================= Manoeuvre Playback Control =====================

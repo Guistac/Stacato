@@ -69,7 +69,7 @@ public:
 	void subscribeAllTracksToMachineParameter();
 	void unsubscribeAllTracksFromMachineParameter();
 	
-	void updateValidation();
+	void updateTrackSummary();
 	void validateAllParameterTracks();
 	
 private:

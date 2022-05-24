@@ -199,7 +199,7 @@ void Manoeuvre::trackSheetGui(){
 	
 	ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.15));
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.15));
-	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit;// | ImGuiTableFlags_ScrollX;
+	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX;
 	
 	bool b_tableBegun;
 	
@@ -224,14 +224,16 @@ void Manoeuvre::trackSheetGui(){
 			ImGui::TableSetupColumn("Ramps");			//for kinematic or bezier
 			break;
 		case ManoeuvreType::SEQUENCE:
-			b_tableBegun = ImGui::BeginTable("##TrackParameters", 7, tableFlags);
+			b_tableBegun = ImGui::BeginTable("##TrackParameters", 9, tableFlags);
 			ImGui::TableSetupColumn("Manage");
 			ImGui::TableSetupColumn("Machine");
 			ImGui::TableSetupColumn("Parameter");
+			ImGui::TableSetupColumn("Interpolation");
 			ImGui::TableSetupColumn("Start");		//sequencer start
 			ImGui::TableSetupColumn("End");			//sequencer end
 			ImGui::TableSetupColumn("Duration");
 			ImGui::TableSetupColumn("Time Offset");
+			ImGui::TableSetupColumn("Ramps");
 			break;
 	}
 	
@@ -318,6 +320,7 @@ void Manoeuvre::trackSheetGui(){
 	if(movedDownTrackIndex > -1) moveTrack(movedDownTrackIndex, movedDownTrackIndex + 1);
 	
 	
+	/*
 	//TODO: Temporary !!!!
 	if(ImGui::BeginListBox("Active Manoeuvres")){
 		for(auto manoeuvre : PlaybackManager::getActiveManoeuvres()){
@@ -325,11 +328,60 @@ void Manoeuvre::trackSheetGui(){
 		}
 		ImGui::EndListBox();
 	}
+	 */
 	
 	
 }
 
-void Manoeuvre::curveEditorGui(){}
+void Manoeuvre::curveEditorGui(){
+	if (ImGui::Button("Center On Curves")) ImPlot::FitNextPlotAxes();
+	ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoChild;
+	if (ImPlot::BeginPlot("##SequenceCurveDisplay", 0, 0, ImGui::GetContentRegionAvail(), plotFlags)) {
+		
+		
+		if (getType() != ManoeuvreType::KEY) {
+			//draw manoeuvre bounds
+			glm::vec2 plotBoundsMin(ImPlot::GetPlotLimits().X.Min, ImPlot::GetPlotLimits().Y.Max);
+			glm::vec2 plotBoundsMax(ImPlot::GetPlotLimits().X.Max, ImPlot::GetPlotLimits().Y.Min);
+			double startTime = 0.0;
+			double endTime = getDuration();
+			std::vector<glm::vec2> limits;
+			limits.push_back(glm::vec2(plotBoundsMin.x, plotBoundsMin.y));
+			limits.push_back(glm::vec2(startTime, plotBoundsMin.y));
+			limits.push_back(glm::vec2(startTime, plotBoundsMax.y));
+			limits.push_back(glm::vec2(endTime, plotBoundsMax.y));
+			limits.push_back(glm::vec2(endTime, plotBoundsMin.y));
+			limits.push_back(glm::vec2(plotBoundsMax.x, plotBoundsMin.y));
+			if (endTime > 0.0) {
+				ImPlot::SetNextFillStyle(Colors::black, 0.5);
+				ImPlot::PlotShaded("##shaded", &limits.front().x, &limits.front().y, limits.size(), -INFINITY, 0, sizeof(glm::vec2));
+				ImPlot::PlotVLines("##Limits1", &startTime, 1);
+				ImPlot::PlotVLines("##Limits2", &endTime, 1);
+			}
+		}
+		
+		for (auto& parameterTrack : getTracks()) parameterTrack->drawCurves();
+		for (auto& parameterTrack : getTracks()) {
+			ImGui::PushID(parameterTrack->getParameter()->getMachine()->getName());
+			ImGui::PushID(parameterTrack->getParameter()->getName());
+			parameterTrack->drawCurveControls();
+			ImGui::PopID();
+			ImGui::PopID();
+		}
+		
+		if(getType() != ManoeuvreType::KEY){
+			double playbackTime = getPlaybackPosition();
+			ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
+			ImPlot::PlotVLines("Playhead", &playbackTime, 1);
+		}
+		
+
+		ImPlot::EndPlot();
+	}
+}
+
+
+
 
 void Manoeuvre::spatialEditorGui(){}
 
@@ -343,301 +395,3 @@ void Manoeuvre::spatialEditorGui(){}
 
 
 
-
-/*
-void Manoeuvre::curveEditorGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
-    if (ImGui::Button("Center On Curves")) ImPlot::FitNextPlotAxes();
-    ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoChild;
-    if (ImPlot::BeginPlot("##SequenceCurveDisplay", 0, 0, ImGui::GetContentRegionAvail(), plotFlags)) {
-        
-        for (auto& parameterTrack : manoeuvre->tracks) parameterTrack->drawChainedCurves();
-        
-        if (manoeuvre->type != Manoeuvre::Type::KEY_POSITION) {
-            //draw manoeuvre bounds
-            glm::vec2 plotBoundsMin(ImPlot::GetPlotLimits().X.Min, ImPlot::GetPlotLimits().Y.Max);
-            glm::vec2 plotBoundsMax(ImPlot::GetPlotLimits().X.Max, ImPlot::GetPlotLimits().Y.Min);
-            double startTime = 0.0;
-            double endTime = manoeuvre->getLength_seconds();
-            std::vector<glm::vec2> limits;
-            limits.push_back(glm::vec2(plotBoundsMin.x, plotBoundsMin.y));
-            limits.push_back(glm::vec2(startTime, plotBoundsMin.y));
-            limits.push_back(glm::vec2(startTime, plotBoundsMax.y));
-            limits.push_back(glm::vec2(endTime, plotBoundsMax.y));
-            limits.push_back(glm::vec2(endTime, plotBoundsMin.y));
-            limits.push_back(glm::vec2(plotBoundsMax.x, plotBoundsMin.y));
-            if (endTime > 0.0) {
-                ImPlot::SetNextFillStyle(Colors::black, 0.5);
-                ImPlot::PlotShaded("##shaded", &limits.front().x, &limits.front().y, limits.size(), -INFINITY, 0, sizeof(glm::vec2));
-                ImPlot::PlotVLines("##Limits1", &startTime, 1);
-                ImPlot::PlotVLines("##Limits2", &endTime, 1);
-            }
-            for (auto& parameterTrack : manoeuvre->tracks) parameterTrack->drawCurves(startTime, endTime);
-            for (auto& parameterTrack : manoeuvre->tracks) {
-                ImGui::PushID(parameterTrack->parameter->machine->getName());
-                ImGui::PushID(parameterTrack->parameter->name);
-                bool controlPointEdited = parameterTrack->drawControlPoints();
-                ImGui::PopID();
-                ImGui::PopID();
-            }
-            double playbackTime = manoeuvre->playbackPosition_seconds;
-            ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
-            ImPlot::PlotVLines("Playhead", &playbackTime, 1);
-        }
-        else {
-            double zero = 0.0;
-            ImPlot::SetNextLineStyle(Colors::white, 2.0);
-            ImPlot::PlotVLines("##ZeroTime", &zero, 1);
-            for (auto& parameterTrack : manoeuvre->tracks) {
-                ImGui::PushID(parameterTrack->parameter->machine->getName());
-                ImGui::PushID(parameterTrack->parameter->name);
-                bool controlPointEdited = parameterTrack->drawControlPoints();
-                ImGui::PopID();
-                ImGui::PopID();
-            }
-        }
-
-        ImPlot::EndPlot();
-    }
-}
- */
-
-/*
-void Manoeuvre::spatialEditorGui(const std::shared_ptr<Manoeuvre>& manoeuvre){
-    //ImGui::Text("2D or 3D view of trajectory editor with timeline");
-}
- */
-
-
-
-
-/*
-void Manoeuvre::playbackControlGui(const std::shared_ptr<Manoeuvre>& manoeuvre) {
-
-	static auto fastMoveProgressOverlay = [&]() {
-		glm::vec2 min = ImGui::GetItemRectMin();
-		glm::vec2 size = ImGui::GetItemRectSize();
-		glm::vec2 max(min.x + size.x * Playback::getRapidProgress(manoeuvre), min.y + size.y);
-		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.2)), 5.0);
-	};
-	static auto playbackProgressOverlay = [&]() {
-		glm::vec2 min = ImGui::GetItemRectMin();
-		glm::vec2 size = ImGui::GetItemRectSize();
-		glm::vec2 max(min.x + size.x * manoeuvre->getPlaybackProgress(), min.y + size.y);
-		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.4)), 5.0);
-	};
-
-	float buttonHeight = ImGui::GetTextLineHeight() * 2.0;
-	float availableWidth = ImGui::GetContentRegionAvail().x;
-	glm::vec2 singleButtonSize(availableWidth, buttonHeight);
-	glm::vec2 doubleButtonSize((availableWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, buttonHeight);
-	glm::vec2 tripleButtonSize((availableWidth - ImGui::GetStyle().ItemSpacing.x * 2.0) / 3.0, buttonHeight);
-
-
-	switch (manoeuvre->type) {
-		case Manoeuvre::Type::KEY_POSITION:
-
-
-
-			if (Playback::isInRapid(manoeuvre)) {
-				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-				if (ImGui::Button("Cancel Rapid", singleButtonSize)) Playback::stopRapid(manoeuvre);
-				ImGui::PopStyleColor();
-				fastMoveProgressOverlay();
-			}
-			else {
-				bool isAtKeyPosition = Playback::isPrimedToEnd(manoeuvre);
-				if (isAtKeyPosition) {
-					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-					ImGui::Button("At Key Position", singleButtonSize);
-					ImGui::PopStyleColor();
-					ImGui::PopItemFlag();
-				}
-				else {
-					if (ImGui::Button("Rapid To Key Position", singleButtonSize)) Playback::rapidToEnd(manoeuvre);
-				}
-			}
-			break;
-
-
-
-		case Manoeuvre::Type::TIMED_MOVEMENT:
-
-
-			if (Playback::isInRapid(manoeuvre)) {
-				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-				if (ImGui::Button("Cancel Rapid", singleButtonSize)) Playback::stopRapid(manoeuvre);
-				ImGui::PopStyleColor();
-				fastMoveProgressOverlay();
-			}
-			else {
-				bool disableRapidButtons = Playback::isPlaying(manoeuvre);
-				if (disableRapidButtons) BEGIN_DISABLE_IMGUI_ELEMENT
-				bool primedToStart = Playback::isPrimedToStart(manoeuvre);
-				if (primedToStart) {
-					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-				}
-				if (ImGui::Button("Rapid To Start", doubleButtonSize)) Playback::rapidToStart(manoeuvre);
-				if (primedToStart) {
-					ImGui::PopStyleColor();
-					ImGui::PopItemFlag();
-				}
-				ImGui::SameLine();
-				bool primedToEnd = Playback::isPrimedToEnd(manoeuvre);
-				if (primedToEnd) {
-					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-				}
-				if (ImGui::Button("Rapid To End", doubleButtonSize)) Playback::rapidToEnd(manoeuvre);
-				if (primedToEnd) {
-					ImGui::PopStyleColor();
-					ImGui::PopItemFlag();
-				}
-				if (disableRapidButtons) END_DISABLE_IMGUI_ELEMENT
-			}
-			if (Playback::isPlaying(manoeuvre)) {
-				ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkRed);
-				if (ImGui::Button("Stop", doubleButtonSize)) Playback::stopPlayback(manoeuvre);
-				ImGui::PopStyleColor();
-				ImGui::SameLine();
-				if (Playback::isPaused(manoeuvre)) {
-					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-					if (ImGui::Button("Resume", doubleButtonSize)) Playback::resumePlayback(manoeuvre);
-					ImGui::PopStyleColor();
-				}
-				else {
-					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-					if (ImGui::Button("Pause", doubleButtonSize)) Playback::pausePlayback(manoeuvre);
-					ImGui::PopStyleColor();
-				}
-				playbackProgressOverlay();
-			}
-			else {
-				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-				if (ImGui::Button("Timed Move", singleButtonSize)) Playback::startPlayback(manoeuvre);
-				ImGui::PopStyleColor();
-			}
-			break;
-
-
-
-		case Manoeuvre::Type::MOVEMENT_SEQUENCE:
-
-			//=== RAPID BUTTONS ===
-			if (Playback::isInRapid(manoeuvre)) {
-				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-				if (ImGui::Button("Cancel Rapid", singleButtonSize)) Playback::stopRapid(manoeuvre);
-				ImGui::PopStyleColor();
-				fastMoveProgressOverlay();
-			}
-			else {
-				bool disableRapidButtons = Playback::isPlaying(manoeuvre);
-				ImGui::BeginDisabled(disableRapidButtons);
-				
-				bool primedToStart = Playback::isPrimedToStart(manoeuvre);
-				if (primedToStart) {
-					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-					ImGui::Button("At Start", doubleButtonSize);
-					ImGui::PopStyleColor();
-					ImGui::PopItemFlag();
-				}else if (ImGui::Button("Rapid To Start", doubleButtonSize)) Playback::rapidToStart(manoeuvre);
-				
-				ImGui::SameLine();
-				bool primedToEnd = Playback::isPrimedToEnd(manoeuvre);
-				if (primedToEnd) {
-					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-					ImGui::Button("At End", doubleButtonSize);
-					ImGui::PopStyleColor();
-					ImGui::PopItemFlag();
-				}
-				else if (ImGui::Button("Rapid To End", doubleButtonSize)) Playback::rapidToEnd(manoeuvre);
-				ImGui::EndDisabled();
-			}
-
-			//=== PLAYBACK POSITION CONTROL ===
-			ImGui::SetNextItemWidth(singleButtonSize.x);
-			if (Playback::isPlaying(manoeuvre) && !Playback::isPaused(manoeuvre)) {
-				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-				ImGui::InputDouble("##playbackPosition", &manoeuvre->playbackPosition_seconds, 0.0, 0.0, "%.3f s");
-				ImGui::PopItemFlag();
-			}
-			else {
-				ImGui::InputDouble("##targetTime", &manoeuvre->playbackPosition_seconds, 0.0, 0.0, "Playback Position : %.1f seconds");
-				manoeuvre->playbackPosition_seconds = std::max(0.0, manoeuvre->playbackPosition_seconds);
-				manoeuvre->playbackPosition_seconds = std::min(manoeuvre->getLength_seconds(), manoeuvre->playbackPosition_seconds);
-			}
-			if(manoeuvre->getPlaybackProgress() != 0.0) playbackProgressOverlay();
-			
-			//=== PLAYBACK CONTROL BUTTON ===
-			if (Playback::isPlaying(manoeuvre)) {
-				ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkRed);
-				//if (ImGui::Button("Stop", doubleButtonSize)) Playback::stopPlayback(manoeuvre);
-				if (ImGui::Button("Stop", singleButtonSize)) Playback::stopPlayback(manoeuvre);
-				ImGui::PopStyleColor();
-				/*
-				ImGui::SameLine();
-				if (Playback::isPaused(manoeuvre)) {
-					if (!Playback::isPrimedToPlaybackPosition(manoeuvre)) {
-						ImGui::PushStyleColor(ImGuiCol_Button, Colors::orange);
-						if (ImGui::Button("Rapid To Time", doubleButtonSize)) Playback::rapidToPlaybackPosition(manoeuvre);
-						ImGui::PopStyleColor();
-					}
-					else {
-						ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-						if (ImGui::Button("Resume", doubleButtonSize)) Playback::resumePlayback(manoeuvre);
-						ImGui::PopStyleColor();
-					}
-				}
-				else {
-					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-					if (ImGui::Button("Pause", doubleButtonSize)) Playback::pausePlayback(manoeuvre);
-					ImGui::PopStyleColor();
-				}
-			}
-			else {
-				if (!Playback::isPrimedToPlaybackPosition(manoeuvre)) {
-					ImGui::PushStyleColor(ImGuiCol_Button, Colors::orange);
-					if (ImGui::Button("Rapid to Playback Position", singleButtonSize)) Playback::rapidToPlaybackPosition(manoeuvre);
-					ImGui::PopStyleColor();
-				}
-				bool disableStart = !Playback::isPrimedToStart(manoeuvre);
-				if(disableStart) {
-					backgroundText("Not At Sequence Start", singleButtonSize, Colors::gray);
-				}else {
-					ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-					if (ImGui::Button("Start Playback", singleButtonSize)) Playback::startPlayback(manoeuvre);
-					ImGui::PopStyleColor();
-				}
-
-		
-
-			}
-
-		break;
-	}
-}
- */
-
-
-/*
-float Manoeuvre::getPlaybackControlGuiHeight(const std::shared_ptr<Manoeuvre>& manoeuvre) {
-	switch (manoeuvre->type) {
-		case Manoeuvre::Type::KEY_POSITION:
-			return ImGui::GetTextLineHeight() * 2.0 //single row of buttons
-				+ ImGui::GetStyle().ItemSpacing.y;	//spacing
-		case Manoeuvre::Type::TIMED_MOVEMENT:
-			return ImGui::GetTextLineHeight() * 2.0 * 2.0	//single row of buttons
-				+ ImGui::GetStyle().ItemSpacing.y * 2.0;	//spacing
-		case Manoeuvre::Type::MOVEMENT_SEQUENCE:
-			return ImGui::GetTextLineHeight() * 2.0 * 2.0 //two rows of buttons
-				+ ImGui::GetFrameHeight()			//one row of widgets
-				+ImGui::GetStyle().ItemSpacing.y * 3.0;	//three spacings
-			return ImGui::GetTextLineHeight() * 2.0 * 2.0 //two rows of buttons
-				+ImGui::GetStyle().ItemSpacing.y * 2.0;	//two spacings
-		default: return 0.0;
-	}
-}
-*/

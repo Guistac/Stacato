@@ -68,15 +68,15 @@ namespace Gui {
 			ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.15, &leftID, &dockspaceID);
 			
 			ImGui::DockBuilderDockWindow("Environnement", dockspaceID);
-			ImGui::DockBuilderDockWindow("Stage", dockspaceID);
+			//ImGui::DockBuilderDockWindow("Stage", dockspaceID);
 			ImGui::DockBuilderDockWindow("Machines", dockspaceID);
 			ImGui::DockBuilderDockWindow("Setup", dockspaceID);
-			ImGui::DockBuilderDockWindow("Plot List", leftID);
-			ImGui::DockBuilderDockWindow("Track Sheet Editor", dockspaceID);
-			ImGui::DockBuilderDockWindow("Curve Editor", dockspaceID);
-			ImGui::DockBuilderDockWindow("Sequencer", dockspaceID);
-			ImGui::DockBuilderDockWindow("cCurvesTest", dockspaceID);
-			ImGui::DockBuilderDockWindow("CommandZ", dockspaceID);
+			ImGui::DockBuilderDockWindow("Manoeuvre List", leftID);
+			ImGui::DockBuilderDockWindow("Manoeuvre Sheet", dockspaceID);
+			ImGui::DockBuilderDockWindow("Manoeuvre Curves", dockspaceID);
+			//ImGui::DockBuilderDockWindow("Sequencer", dockspaceID);
+			//ImGui::DockBuilderDockWindow("cCurvesTest", dockspaceID);
+			//ImGui::DockBuilderDockWindow("CommandZ", dockspaceID);
 			ImGui::DockBuilderFinish(dockspaceID);
 		}
 		
@@ -94,13 +94,13 @@ namespace Gui {
 		if(ImGui::Begin("Machines")) Environnement::Gui::machineList();
 		ImGui::End();
 		 
-		if(ImGui::Begin("Plot List")) PlotGui::manoeuvreList();
+		if(ImGui::Begin("Manoeuvre List")) PlotGui::manoeuvreList();
 		ImGui::End();
 		
-		if(ImGui::Begin("Track Sheet Editor")) PlotGui::trackSheetEditor();
+		if(ImGui::Begin("Manoeuvre Sheet")) PlotGui::trackSheetEditor();
 		ImGui::End();
 		
-		if(ImGui::Begin("Curve Editor")) PlotGui::curveEditor();
+		if(ImGui::Begin("Manoeuvre Curves")) PlotGui::curveEditor();
 		ImGui::End();
 		
 		/*
@@ -111,14 +111,18 @@ namespace Gui {
 		ImGui::End();
 		*/
 		 
+		/*
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0,0));
 		if(ImGui::Begin("Sequencer")) Sequencer::Gui::editor();
 		ImGui::End();
 		ImGui::PopStyleVar();
-		
+		*/
+		 
+		/*
 		if(ImGui::Begin("Stage")) StageView::draw();
 		ImGui::End();
-		
+		*/
+		 
 		//=== Finish Resetting Default Layout ===
 		
 		if(shouldResetDefaultLayout()){

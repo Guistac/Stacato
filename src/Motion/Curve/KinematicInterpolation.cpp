@@ -177,7 +177,7 @@ std::shared_ptr<TrapezoidalInterpolation> TrapezoidalInterpolation::getTimeConst
 																					   std::shared_ptr<ControlPoint>& endPoint){
 	
 	//if one of these is zero, no profile can be generated
-	if (startPoint->outAcceleration == 0.0 || endPoint->inAcceleration == 0.0) return nullptr;
+	if (startPoint->outAcceleration == 0.0 || endPoint->inAcceleration == 0.0) return invalidInterpolation(startPoint, endPoint);
 
 	const double pi = startPoint->position;
 	const double ti = startPoint->time;

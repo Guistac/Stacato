@@ -37,6 +37,10 @@ namespace Motion {
 		bool b_valid;
 		ValidationError validationError;
 		
+		Point toPoint(){
+			return Point{.time = time, .position = position, .acceleration = outAcceleration, .velocity = velocity};
+		}
+		
 		std::shared_ptr<Interpolation> inInterpolation;
 		std::shared_ptr<Interpolation> outInterpolation;
 	};

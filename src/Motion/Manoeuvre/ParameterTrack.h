@@ -13,6 +13,7 @@ class Manoeuvre;
 
 class ParameterTrackGroup;
 class AnimatedParameterTrack;
+class PlayableParameterTrack;
 class KeyParameterTrack;
 class TargetParameterTrack;
 class SequenceParameterTrack;
@@ -84,6 +85,9 @@ public:
 	virtual bool isAnimated(){ return false; }
 	std::shared_ptr<AnimatedParameterTrack> castToAnimated(){ return std::dynamic_pointer_cast<AnimatedParameterTrack>(shared_from_this()); }
 	
+	virtual bool isPlayable(){ return false; }
+	std::shared_ptr<PlayableParameterTrack> castToPlayable(){ return std::dynamic_pointer_cast<PlayableParameterTrack>(shared_from_this()); }
+	
 	std::shared_ptr<KeyParameterTrack> castToKey(){ return std::dynamic_pointer_cast<KeyParameterTrack>(shared_from_this()); }
 	std::shared_ptr<TargetParameterTrack> castToTarget(){ return std::dynamic_pointer_cast<TargetParameterTrack>(shared_from_this()); }
 	std::shared_ptr<SequenceParameterTrack> castToSequence(){ return std::dynamic_pointer_cast<SequenceParameterTrack>(shared_from_this()); }
@@ -100,6 +104,7 @@ public:
 	virtual bool isReadyToStartPlayback(){ return false; }
 	virtual bool isInRapid(){ return false; }
 	virtual float getRapidProgress(){ return 0.0; }
+	virtual double getDuration(){ return 0.0; }
 	
 	virtual void rapidToStart(){}
 	virtual void rapidToTarget(){}
@@ -120,6 +125,9 @@ public:
 	void baseTrackSheetRowGui();
 	virtual void trackSheetRowGui() = 0;
 	void validationErrorPopup();
+	
+	virtual void drawCurves() = 0;
+	virtual void drawCurveControls() = 0;
 };
 
 
@@ -139,7 +147,6 @@ public:
 	
 	AnimatedParameterTrack(std::shared_ptr<AnimatableParameter> parameter) : ParameterTrack(parameter){
 		animatableParameter = parameter;
-		curves.resize(animatableParameter->getCurveCount());
 	}
 	
 	virtual bool isAnimated() override { return true; }
@@ -153,16 +160,12 @@ public:
 public:
 	
 	std::shared_ptr<AnimatableParameter> getAnimatableParameter(){ return animatableParameter; }
-	std::vector<Motion::Curve>& getCurves(){ return curves; }
 	
 	virtual void setUnit(Unit unit) = 0;
 	
 	void captureCurrentValueAsTarget();
 	
-	void refreshAfterCurveEdit(){}
-	
 	std::shared_ptr<Parameter> target;
-	
 	
 	virtual bool isAtTarget() override;
 	virtual bool isInRapid() override;
@@ -175,18 +178,11 @@ private:
 	
 	std::shared_ptr<AnimatableParameter> animatableParameter;
 	
-	std::vector<Motion::Curve> curves;
-	
 	//———————————————————————————————————————————
 	//	  		       Playback
 	//———————————————————————————————————————————
 	
-	double playbackPosition_seconds;
-	
 public:
-	
-	//curve to animatable parameter conversion
-	std::shared_ptr<AnimatableParameterValue> getParameterValueAtPlaybackTime();
 	
 	//———————————————————————————————————————————
 	//	  		    User Interface
@@ -194,6 +190,46 @@ public:
 	
 };
 
+
+
+
+
+
+
+
+
+
+
+class PlayableParameterTrack : public AnimatedParameterTrack{
+public:
+	
+	PlayableParameterTrack(std::shared_ptr<AnimatableParameter> parameter) : AnimatedParameterTrack(parameter){
+		curves.resize(getAnimatableParameter()->getCurveCount());
+	}
+	
+	virtual bool isPlayable() override { return true; }
+	
+	std::vector<Motion::Curve>& getCurves(){ return curves; }
+	
+	//curve to animatable parameter conversion
+	std::shared_ptr<AnimatableParameterValue> getParameterValueAtPlaybackTime();
+	
+	std::shared_ptr<EnumeratorParameter<Motion::Interpolation::Type>> interpolationType;
+	std::shared_ptr<TimeParameter> timeOffset = std::make_shared<TimeParameter>(0.0, "Time Offset", "TimeOffset");
+	std::shared_ptr<NumberParameter<double>> inAcceleration = NumberParameter<double>::make(0.0, "Start Acceleration", "StartAcceleration");
+	std::shared_ptr<NumberParameter<double>> outAcceleration = NumberParameter<double>::make(0.0, "End Acceleration", "EndAcceleration");
+	bool b_accelerationsEqual;
+	
+	virtual double getDuration() override { return duration_seconds; }
+	double duration_seconds;
+	
+private:
+	
+	double playbackPosition_seconds;
+	
+	std::vector<Motion::Curve> curves;
+	
+};
 
 
 
@@ -251,6 +287,8 @@ public:
 	//———————————————————————————————————————————
 	
 	virtual void trackSheetRowGui() override;
+	virtual void drawCurves() override {}
+	virtual void drawCurveControls() override;
 	
 };
 
@@ -274,7 +312,7 @@ public:
 //			TARGET PARAMETER TRACK
 //--------------------------------------------
 
-class TargetParameterTrack : public AnimatedParameterTrack{
+class TargetParameterTrack : public PlayableParameterTrack{
 	
 	//——————————————————————————————————————————————————————
 	// Construction, Saving Loading and Type Identification
@@ -282,7 +320,7 @@ class TargetParameterTrack : public AnimatedParameterTrack{
 	
 public:
 	
-	TargetParameterTrack(std::shared_ptr<AnimatableParameter> parameter) : AnimatedParameterTrack(parameter){
+	TargetParameterTrack(std::shared_ptr<AnimatableParameter> parameter) : PlayableParameterTrack(parameter){
 		target = parameter->getEditableParameter();
 		target->setSaveString("Target");
 		target->setName("Target");
@@ -353,21 +391,17 @@ public:
 	virtual bool isAtPlaybackPosition() override;
 	virtual bool isReadyToStartPlayback() override;
 
-		
-	std::shared_ptr<EnumeratorParameter<Motion::Interpolation::Type>> interpolationType;
-	std::shared_ptr<TimeParameter> timeOffset = std::make_shared<TimeParameter>(0.0, "Time Offset", "TimeOffset");
 	std::shared_ptr<EnumeratorParameter<Constraint>> constraintType = std::make_shared<EnumeratorParameter<Constraint>>(Constraint::TIME, "Constraint Type", "ConstraintType");
 	std::shared_ptr<TimeParameter> timeConstraint = std::make_shared<TimeParameter>(0.0, "Movement Time", "Time");
 	std::shared_ptr<NumberParameter<double>> velocityConstraint = NumberParameter<double>::make(0.0, "Movement Velocity", "Velocity");
-	std::shared_ptr<NumberParameter<double>> inAcceleration = NumberParameter<double>::make(0.0, "Start Acceleration", "StartAcceleration");
-	std::shared_ptr<NumberParameter<double>> outAcceleration = NumberParameter<double>::make(0.0, "End Acceleration", "EndAcceleration");
-	bool b_accelerationsEqual;
 	
 	//———————————————————————————————————————————
 	//	  		    User Interface
 	//———————————————————————————————————————————
 	
 	virtual void trackSheetRowGui() override;
+	virtual void drawCurves() override;
+	virtual void drawCurveControls() override;
 };
 
 #define TargetConstraintStrings \
@@ -398,7 +432,7 @@ DEFINE_ENUMERATOR(TargetParameterTrack::Constraint, TargetConstraintStrings)
 //			SEQUENCE PARAMETER TRACK
 //--------------------------------------------
 
-class SequenceParameterTrack : public AnimatedParameterTrack{
+class SequenceParameterTrack : public PlayableParameterTrack{
 public:
 	
 	//——————————————————————————————————————————————————————
@@ -407,7 +441,7 @@ public:
 	
 public:
 	
-	SequenceParameterTrack(std::shared_ptr<AnimatableParameter> parameter) : AnimatedParameterTrack(parameter){
+	SequenceParameterTrack(std::shared_ptr<AnimatableParameter> parameter) : PlayableParameterTrack(parameter){
 		target = parameter->getEditableParameter();
 		target->setName("End");
 		target->setSaveString("End");
@@ -421,12 +455,14 @@ public:
 		Motion::Interpolation::Type defaultInterpolation = getAnimatableParameter()->getCompatibleInterpolationTypes().front();
 		interpolationType = std::make_shared<EnumeratorParameter<Motion::Interpolation::Type>>(defaultInterpolation, "Interpolation Type", "interpolationType");
 		
-		auto editCallback = [this](std::shared_ptr<Parameter> thisParameter){ validate(); };
+		auto editCallback = [this](std::shared_ptr<Parameter> thisParameter){ updateAfterParameterEdit(); };
 		interpolationType->setEditCallback(editCallback);
 		target->setEditCallback(editCallback);
 		start->setEditCallback(editCallback);
 		duration->setEditCallback(editCallback);
 		timeOffset->setEditCallback(editCallback);
+		inAcceleration->setEditCallback(editCallback);
+		outAcceleration->setEditCallback(editCallback);
 	}
 	
 	virtual ManoeuvreType getType() override { return ManoeuvreType::SEQUENCE; }
@@ -440,6 +476,9 @@ public:
 	//———————————————————————————————————————————
 	
 public:
+	
+	void updateAfterParameterEdit();
+	void updateAfterCurveEdit();
 	
 	virtual void setUnit(Unit unit) override {
 		if(getParameter()->isNumerical()){
@@ -460,9 +499,7 @@ public:
 	
 private:
 	
-	std::shared_ptr<EnumeratorParameter<Motion::Interpolation::Type>> interpolationType;
 	std::shared_ptr<TimeParameter> duration = std::make_shared<TimeParameter>(0, "Duration", "Duration");
-	std::shared_ptr<TimeParameter> timeOffset = std::make_shared<TimeParameter>(0, "Time Offset", "Offset");
 	
 	//———————————————————————————————————————————
 	//	  		        Playback
@@ -477,6 +514,8 @@ public:
 public:
 	
 	virtual void trackSheetRowGui() override;
+	virtual void drawCurves() override;
+	virtual void drawCurveControls() override;
 };
 
 //rapid to start
@@ -526,6 +565,13 @@ public:
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
 	static std::shared_ptr<ParameterTrackGroup> load(tinyxml2::XMLElement* xml, std::shared_ptr<ParameterGroup> parameter);
 	std::shared_ptr<ParameterTrackGroup> copy();
+	
+	virtual void drawCurves() override{
+		for(auto& childTrack : children) childTrack->drawCurves();
+	}
+	virtual void drawCurveControls() override {
+		for(auto& childTrack : children) childTrack->drawCurveControls();
+	}
 	
 private:
 	std::vector<std::shared_ptr<ParameterTrack>> children;
