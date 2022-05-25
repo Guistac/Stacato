@@ -24,9 +24,9 @@ class PositionControlledMachine : public Machine{
 	bool isAxisConnected();
 	std::shared_ptr<PositionControlledAxis> getAxis();
 	
-	virtual void onPinUpdate(std::shared_ptr<NodePin> pin);
-	virtual void onPinConnection(std::shared_ptr<NodePin> pin);
-	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin);
+	virtual void onPinUpdate(std::shared_ptr<NodePin> pin) override;
+	virtual void onPinConnection(std::shared_ptr<NodePin> pin) override;
+	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin) override;
 
 	//======= MANUAL CONTROLS =========
 

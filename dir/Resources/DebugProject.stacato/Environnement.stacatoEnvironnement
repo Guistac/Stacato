@@ -3,8 +3,8 @@
         <Nodes>
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Test Machine A" UniqueID="1">
                 <NodeEditorPosition x="-86" y="-218"/>
-                <NodeSpecificData ShortName="Test A">
-                    <Rapids Velocity_machineUnitsPerSecond="5" Acceleration_machineUnitsPerSecondSquared="5"/>
+                <NodeSpecificData ShortName="A">
+                    <Rapids Velocity_machineUnitsPerSecond="5" Acceleration_machineUnitsPerSecondSquared="0.40000000000000002"/>
                     <MachineZero MachineZero_AxisUnits="0" InvertAxisDirection="false"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -18,17 +18,17 @@
             <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Position Controlled Axis" UniqueID="5">
                 <NodeEditorPosition x="-363" y="-261"/>
                 <NodeSpecificData>
-                    <Units UnitType="Rotary" Unit="Degree"/>
+                    <Units UnitType="Linear" Unit="Meter"/>
                     <UnitConversion ActuatorUnitsPerMachineUnit="0"/>
-                    <KinematicLimits VelocityLimit="10" AccelerationLimit="5" ManualAcceleration="5"/>
-                    <PositionReferenceSignals Type="LowHighSignals" HomingVelocityCoarse="1" HomingVelocityFine="0.10000000000000001" HomingDirection="Negative"/>
+                    <KinematicLimits VelocityLimit="10" AccelerationLimit="0.40000000000000002" ManualAcceleration="0.40000000000000002"/>
+                    <PositionReferenceSignals Type="None" HomingVelocityCoarse="1" HomingVelocityFine="0.10000000000000001" HomingDirection="Negative"/>
                     <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="0" HighLimit="10" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="true"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Servo Actuator" DisplayString="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="42" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Reference Device" DisplayString="Reference Device" DataType="GPIODeviceLink" UniqueID="43" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Low Limit Signal" DisplayString="Low Limit Signal" DataType="Boolean" UniqueID="44" Visible="true"/>
-                    <InputPin SaveString="High Limit Signal" DisplayString="High Limit Signal" DataType="Boolean" UniqueID="45" Visible="true"/>
+                    <InputPin SaveString="Reference Device" DisplayString="Reference Device" DataType="GPIODeviceLink" UniqueID="43" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="Low Limit Signal" DisplayString="Low Limit Signal" DataType="Boolean" UniqueID="44" Visible="false"/>
+                    <InputPin SaveString="High Limit Signal" DisplayString="High Limit Signal" DataType="Boolean" UniqueID="45" Visible="false"/>
                     <InputPin SaveString="Reference Signal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="46" Visible="false"/>
                 </InputPins>
                 <OutputPins>
@@ -38,9 +38,47 @@
                     <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="50" Visible="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Position Controlled Axis" UniqueID="15">
+                <NodeEditorPosition x="-360" y="-65"/>
+                <NodeSpecificData>
+                    <Units UnitType="Linear" Unit="Meter"/>
+                    <UnitConversion ActuatorUnitsPerMachineUnit="0"/>
+                    <KinematicLimits VelocityLimit="5" AccelerationLimit="0.40000000000000002" ManualAcceleration="0.40000000000000002"/>
+                    <PositionReferenceSignals Type="None" HomingVelocityCoarse="0" HomingVelocityFine="0" HomingDirection="Negative"/>
+                    <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="0" HighLimit="10" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="true"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Servo Actuator" DisplayString="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="16" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Reference Device" DisplayString="Reference Device" DataType="GPIODeviceLink" UniqueID="17" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="Low Limit Signal" DisplayString="Low Limit Signal" DataType="Boolean" UniqueID="18" Visible="false"/>
+                    <InputPin SaveString="High Limit Signal" DisplayString="High Limit Signal" DataType="Boolean" UniqueID="19" Visible="false"/>
+                    <InputPin SaveString="Reference Signal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="20" Visible="false"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="21" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="22" Visible="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="23" Visible="true"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="24" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Test Machine B" UniqueID="25">
+                <NodeEditorPosition x="-104" y="-28"/>
+                <NodeSpecificData ShortName="B">
+                    <Rapids Velocity_machineUnitsPerSecond="5" Acceleration_machineUnitsPerSecondSquared="0.40000000000000002"/>
+                    <MachineZero MachineZero_AxisUnits="0" InvertAxisDirection="false"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="26" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="27" Visible="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="28" Visible="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="51" StartPin="47" EndPin="2"/>
+            <Link UniqueID="29" StartPin="21" EndPin="26"/>
         </Links>
     </NodeGraph>
 </Environnement>

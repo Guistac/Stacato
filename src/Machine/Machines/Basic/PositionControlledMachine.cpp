@@ -83,6 +83,7 @@ void PositionControlledMachine::onEnableHardware() {
 }
 
 void PositionControlledMachine::onDisableHardware() {
+	setVelocityTarget(0.0);
 	positionParameter->stopParameterPlayback();
 	Logger::info("Disabled Machine {}", getName());
 }
@@ -100,6 +101,7 @@ void PositionControlledMachine::onEnableSimulation() {
 
 void PositionControlledMachine::onDisableSimulation() {
 	positionParameter->stopParameterPlayback();
+	setVelocityTarget(0.0);
 	motionProfile.setVelocity(0.0);
 	motionProfile.setAcceleration(0.0);
 }
@@ -117,10 +119,10 @@ void PositionControlledMachine::process() {
 	//Handle Axis state changes
 	if (isEnabled() && !axis->isEnabled()) disable();
 	
-	//Abort the process if the axis is not enabled
-	if (!isEnabled()) {
+	//Abort the process if the axis is not enabled or is homing (in which case the axis has full control of motion)
+	if (!isEnabled() || isHoming()) {
 		//we still need to copy the current axis motion values to the machines motion profile
-		//so they they are correct when we start the machine
+		//so they they are correct when we start the machine or gain back control after homing is finished
 		motionProfile.setPosition(actualPosition_machineUnits);
 		motionProfile.setVelocity(actualVelocity_machineUnits);
 		motionProfile.setAcceleration(0.0);

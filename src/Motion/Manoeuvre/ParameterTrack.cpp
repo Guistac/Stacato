@@ -185,21 +185,24 @@ void AnimatedParameterTrack::rapidToTarget(){
 	animatable->getMachine()->rapidParameterToValue(animatable, targetValue);
 }
 
-void AnimatedParameterTrack::stop(){
-	auto animatable = getAnimatableParameter();
-	if(animatable->hasActiveParameterTrack()) animatable->getMachine()->interruptParameterPlayback(animatable);
-	else animatable->getMachine()->cancelParameterRapid(animatable);
-}
-
 void ParameterTrack::startPlayback(){
+	if(!isReadyToStartPlayback()) return;
 	auto parameter = getParameter();
 	parameter->getMachine()->startParameterPlayback(shared_from_this());
 }
 
-
-void ParameterTrack::onStopPlayback(){
-	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
+void AnimatedParameterTrack::stop(){
+	auto animatable = getAnimatableParameter();
+	if(animatable->hasActiveParameterTrack()) animatable->getMachine()->endParameterPlayback(animatable);
+	else animatable->getMachine()->cancelParameterRapid(animatable);
 	setPlaybackPosition(0.0);
+	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
+}
+
+void AnimatedParameterTrack::interrupt(){
+	auto animatable = getAnimatableParameter();
+	animatable->getMachine()->interruptParameterPlayback(animatable);
+	animatable->getMachine()->cancelParameterRapid(animatable);
 }
 
 
@@ -257,6 +260,7 @@ bool SequenceParameterTrack::isAtPlaybackPosition(){
 
 bool SequenceParameterTrack::isReadyToStartPlayback(){
 	auto animatable = getAnimatableParameter();
+	if(!animatable->getMachine()->isEnabled()) return;
 	return animatable->getMachine()->isParameterReadyToStartPlaybackFromValue(animatable, getParameterValueAtPlaybackTime());
 }
 

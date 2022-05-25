@@ -158,6 +158,8 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 
 void Manoeuvre::trackSheetGui(){
 	
+	ImGui::BeginDisabled(isPlaying() || isPaused());
+	
 	ImVec2 cursorPos = ImGui::GetCursorPos();
 	
 	ImGui::BeginGroup();
@@ -323,6 +325,8 @@ void Manoeuvre::trackSheetGui(){
 	
 	ImGui::PopStyleVar(2);
 	
+	ImGui::EndDisabled();
+	
 	if(removedTrackIndex > -1) removeTrack(getTracks()[removedTrackIndex]->getParameter());
 	if(movedUpTrackIndex > -1) moveTrack(movedUpTrackIndex, movedUpTrackIndex - 1);
 	if(movedDownTrackIndex > -1) moveTrack(movedDownTrackIndex, movedDownTrackIndex + 1);
@@ -373,6 +377,7 @@ void Manoeuvre::curveEditorGui(){
 
 		ImPlot::EndPlot();
 	}
+	
 }
 
 

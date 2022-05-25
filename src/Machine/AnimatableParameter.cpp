@@ -398,6 +398,6 @@ void MachineParameter::stopParameterPlayback(){
 	if(hasActiveParameterTrack()){
 		auto track = activeParameterTrack;
 		activeParameterTrack = nullptr;
-		track->onStopPlayback();
+		track->stop();
 	}
 }

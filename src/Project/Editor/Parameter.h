@@ -855,6 +855,7 @@ public:
 		XMLError result = xml->QueryDoubleAttribute(getSaveString(), &value);
 		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", getName());
 		overwrite(value);
+		return true;
 	}
 	
 	std::shared_ptr<TimeParameter> makeCopy() {

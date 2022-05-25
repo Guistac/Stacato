@@ -345,8 +345,9 @@ bool Manoeuvre::isAtPlaybackPosition(){
 		case ManoeuvreType::KEY:
 		case ManoeuvreType::TARGET: return false;
 		case ManoeuvreType::SEQUENCE:
+			if(areNoMachinesEnabled()) return false;
 			for(auto& track : tracks){
-				if(!track->isAtPlaybackPosition()) return false;
+				if(track->isMachineEnabled() && !track->isAtPlaybackPosition()) return false;
 			}
 			return true;
 	}
@@ -369,7 +370,7 @@ bool Manoeuvre::canStartPlayback(){
 		case ManoeuvreType::SEQUENCE:
 			if(areNoMachinesEnabled()) return false;
 			for(auto& track : tracks){
-				if(!track->isReadyToStartPlayback()) return false;
+				if(track->isMachineEnabled() && !track->isReadyToStartPlayback()) return false;
 			}
 			return true;
 	}
@@ -446,7 +447,7 @@ void Manoeuvre::pausePlayback(){
 	b_inRapid = false;
 	b_playing = false;
 	b_paused = true;
-	for(auto& track : tracks) track->stop();
+	for(auto& track : tracks) track->interrupt();
 }
 
 void Manoeuvre::setPlaybackPosition(double seconds){

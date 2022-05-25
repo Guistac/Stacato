@@ -112,12 +112,13 @@ public:
 	virtual void startPlayback();
 	virtual void pausePlayback(){}
 	virtual void setPlaybackPosition(double seconds){}
+	
 	virtual void stop(){}
+	virtual void interrupt(){}
 	
 	virtual void updatePlaybackStatus(){}
 	
 	//called by parameter to interrupt manoeuvre
-	void onStopPlayback();
 	bool isPlaying();
 	
 	//———————————————————————————————————————————
@@ -177,6 +178,7 @@ public:
 	
 	virtual void rapidToTarget() override;
 	virtual void stop() override;
+	virtual void interrupt() override;
 	
 private:
 	
