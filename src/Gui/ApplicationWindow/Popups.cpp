@@ -14,6 +14,10 @@
 #include "Gui/Project/ProjectGui.h"
 #include "Gui/Environnement/EnvironnementGui.h"
 
+#include "Layout.h"
+
+#include "Gui/Fieldbus/EtherCatGui.h"
+
 namespace Gui{
 
 	void popups(){
@@ -28,6 +32,11 @@ namespace Gui{
 		
 		if(Environnement::isEditorUnlockRequested()) ImGui::OpenPopup("Unlock Environnement Editor");
 		Environnement::Gui::unlockEditorPopup();
+		
+		LayoutManager::editor();
+		
+		etherCatStartModal();
+		
 	}
 
 	void quitApplicationPopup() {
@@ -79,12 +88,12 @@ namespace Gui{
 	   ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 	   if (ImGui::BeginPopupModal("About", nullptr, popupFlags)) {
 		   ImGui::PushFont(Fonts::sansBold42);
-			   ImGui::Text("Stacato");
-			   ImGui::PopFont();
-			   ImGui::PushFont(Fonts::sansBold20);
-			   ImGui::Text("Stage Control Automation Toolbox");
-			   ImGui::PopFont();
-			   ImGui::Text("Leo Becker - L'Atelier Artefact - 2021");
+		   ImGui::Text("Stacato");
+		   ImGui::PopFont();
+		   ImGui::PushFont(Fonts::sansBold20);
+		   ImGui::Text("Stage Control Automation Toolbox");
+		   ImGui::PopFont();
+		   ImGui::Text("Leo Becker - L'Atelier Artefact - 2021");
 		   ImGui::Separator();
 		   if (ImGui::Button("Close") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE) || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) {
 			   b_aboutPopupOpenRequested = false;

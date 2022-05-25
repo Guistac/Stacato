@@ -71,11 +71,31 @@ bool MachineTemplate::isMoving() {
 
 
 
+//========== HOMING ==========
+
+bool MachineTemplate::canStartHoming(){ return false; }
+
+bool MachineTemplate::isHoming(){ return false; }
+
+void MachineTemplate::startHoming(){}
+
+void MachineTemplate::stopHoming(){}
+
+bool MachineTemplate::didHomingSucceed(){ return false; }
+
+bool MachineTemplate::didHomingFail(){ return false; }
+
+float MachineTemplate::getHomingProgress(){ return 0.0; }
+
+const char* MachineTemplate::getHomingStateString(){ return "Homing Step String"; }
+
+
+
 
 //======= PLOT INTERFACE =========
 
 
-void MachineTemplate::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+void MachineTemplate::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
 	//check against all animatable parameters
 	//start moving parameter to requested value
 }
@@ -93,27 +113,27 @@ void MachineTemplate::cancelParameterRapid(std::shared_ptr<AnimatableParameter> 
 }
 
 
-bool MachineTemplate::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+bool MachineTemplate::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
 	//check against all animatable parameters
 	//report if playback of the parameter is ready to start from the given value
 }
 
-void MachineTemplate::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) {
+void MachineTemplate::onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter) {
 	//check against all animatable parameters
 	//called when playback of that parameter starts
 }
 
-void MachineTemplate::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) {
+void MachineTemplate::onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter) {
 	//check against all animatable parameters
 	//called when playback of that parameter is interrupted
 }
 
-void MachineTemplate::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) {
+void MachineTemplate::onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter) {
 	//check against all animatable parameters
 	//called when playback of that parameter end / finishes
 }
 
-void MachineTemplate::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) {
+std::shared_ptr<AnimatableParameterValue> MachineTemplate::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter) {
 	//check against all animatable parameters
 	//write actual value of parameter to value argument
 }
@@ -152,10 +172,11 @@ bool MachineTemplate::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParam
 	return false;
 }
 
-
-void MachineTemplate::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) {
+bool MachineTemplate::generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack){
 	//check against all animatable parameters
-	//generate timed motion curves to the target points and write them to the outputcurves argument
+	//generate timed motion curves to the target points and write them to the parameter track curves
+	//return if success
+	return false;
 }
 
 

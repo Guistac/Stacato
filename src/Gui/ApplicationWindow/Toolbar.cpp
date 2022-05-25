@@ -19,69 +19,135 @@
 
 #include "Networking/NetworkDevice.h"
 
+#include "Gui/Plot/Sequencer.h"
+
+#include "Plot/Plot.h"
+#include "Gui/Plot/PlotGui.h"
+
+#include "Gui/Plot/PlaybackGui.h"
+
 namespace Gui {
 
 
 
 	void toolbar(float height) {
 
-		glm::vec2 buttonSize(ImGui::GetTextLineHeight() * 4.0, ImGui::GetTextLineHeight() * 2.0);
-
+		float labelHeight = ImGui::GetTextLineHeight();
+		float buttonHeight = height - ImGui::GetStyle().ItemSpacing.y - labelHeight - ImGui::GetStyle().WindowPadding.y * 2.0;
+		glm::vec2 buttonSize(ImGui::GetTextLineHeight() * 4.0, buttonHeight);
+		glm::vec2 windowPos = ImGui::GetWindowPos();
 		
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.25));
 		
-		
-		if(ImGui::IsKeyDown(GLFW_KEY_LEFT_ALT) || ImGui::IsKeyDown(GLFW_KEY_RIGHT_ALT)){
-			
-			bool disableScan = EtherCatFieldbus::isCyclicExchangeActive() || Environnement::isSimulating() || !EtherCatFieldbus::isNetworkInitialized();
-			ImGui::BeginDisabled(disableScan);
-			if (ImGui::Button("Scan", buttonSize)) EtherCatFieldbus::scanNetwork();
-			ImGui::EndDisabled();
-				
-		}else{
-			
-			bool disableStartButton = !Environnement::isReady() || Environnement::isStarting();
-			ImGui::BeginDisabled(disableStartButton);
-			if(Environnement::isStarting()){
-				ImGui::BeginDisabled();
-				ImGui::Button("Starting", buttonSize);
-				ImGui::EndDisabled();
-			}
-			else if(!Environnement::isRunning()){
-				if(ImGui::Button("Start", buttonSize)){
-					if(!Environnement::isSimulating()) ImGui::OpenPopup("Starting Environnement");
-					Environnement::start();
-				}
-			}else{
-				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-				if(ImGui::Button("Stop", buttonSize)) Environnement::stop();
-				ImGui::PopStyleColor();
-			}
-			ImGui::EndDisabled();
-
-		}
-			
-		if(!Environnement::isEditorLocked()){
-		
+		auto spacer = [](){
 			ImGui::SameLine();
-				
-			static ToggleSwitch simulationToggle;
-			bool b_simulation = Environnement::isSimulating();
-			
-			bool disableSimulationSwitch = Environnement::isRunning() || Environnement::isStarting();
-			ImGui::BeginDisabled(disableSimulationSwitch);
-			if(simulationToggle.draw("SimulationSwitch", b_simulation, "Simulation", "Hardware", buttonSize)) {
-				b_simulation = !b_simulation;
-				Environnement::setSimulation(b_simulation);
-			}
+			ImGui::Dummy(ImVec2(ImGui::GetStyle().ItemSpacing.x, ImGui::GetWindowSize().y));
+			ImGui::SameLine();
+		};
+		
+		
+		//================= Environnement Control =====================
+		
+		ImGui::BeginGroup();
+		ImGui::BeginGroup();
+		
+		ImGui::BeginDisabled(!Environnement::isReady() || Environnement::isStarting());
+		if(Environnement::isStarting()){
+			ImGui::BeginDisabled();
+			ImGui::Button("Starting", buttonSize);
 			ImGui::EndDisabled();
-				
 		}
-			
+		else if(!Environnement::isRunning()){
+			if(ImGui::Button("Start", buttonSize)){
+				if(!Environnement::isSimulating()) openEtherCatStartModal();
+				Environnement::start();
+			}
+		}else{
+			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+			if(ImGui::Button("Stop", buttonSize)) Environnement::stop();
+			ImGui::PopStyleColor();
+		}
+		ImGui::EndDisabled();
+
 		ImGui::SameLine();
+			
+		static ToggleSwitch simulationToggle;
+		bool b_simulation = Environnement::isSimulating();
+		
+		bool disableSimulationSwitch = Environnement::isRunning() || Environnement::isStarting();
+		ImGui::BeginDisabled(disableSimulationSwitch);
+		if(simulationToggle.draw("SimulationSwitch", b_simulation, "Simulation", "Hardware", buttonSize)) {
+			b_simulation = !b_simulation;
+			Environnement::setSimulation(b_simulation);
+		}
+		ImGui::EndDisabled();
+		
+		ImGui::EndGroup();
+		
+		ImGui::PushFont(Fonts::sansRegular12);
+		backgroundText("Environnement", glm::vec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
+		ImGui::PopFont();
+		ImGui::EndGroup();
+		
+		
+		spacer();
+		
+		
+		//========== Status Displays ==========
+		
+		ImGui::BeginGroup();
+		ImGui::BeginGroup();
+		
+		glm::vec4 etherCatStatusColor;
+		if(EtherCatFieldbus::isRunning()) etherCatStatusColor = Colors::green;
+		else if(EtherCatFieldbus::isStarting()) etherCatStatusColor = Colors::yellow;
+		else if(!EtherCatFieldbus::hasNetworkInterface()) etherCatStatusColor = Colors::red;
+		else if(EtherCatFieldbus::slaves.empty()) etherCatStatusColor = Colors::orange;
+		else etherCatStatusColor = Colors::blue;
+		
+		backgroundText("EtherCAT", buttonSize, etherCatStatusColor);
+		
+		if(ImGui::IsItemHovered()){
+			ImGui::BeginTooltip();
+			if(EtherCatFieldbus::isRunning()) ImGui::Text("EtherCAT Fieldbus is running.\n"
+														  "All devices are operational");
+			else if(EtherCatFieldbus::isStarting()) ImGui::Text("EtherCAT Fieldbus is starting...");
+			else if(!EtherCatFieldbus::hasNetworkInterface()) ImGui::Text("EtherCAT Fieldbus has no configured network interface.");
+			else if(EtherCatFieldbus::slaves.empty()) ImGui::Text("EtherCAT Fieldbus is configured.\n"
+																  "No devices are detected on the network.");
+			else ImGui::Text("EtherCAT Fieldbus is configured but not running");
+			ImGui::EndTooltip();
+		}
+		
+		for(auto& networkDevice : Environnement::getNetworkDevices()){
+			ImGui::SameLine();
+			glm::vec4 networkDeviceStatusColor;
+			if(networkDevice->isConnected()) networkDeviceStatusColor = Colors::green;
+			else if(networkDevice->isDetected()) networkDeviceStatusColor = Colors::blue;
+			else networkDeviceStatusColor = Colors::red;
+			backgroundText(networkDevice->getName(), buttonSize, networkDeviceStatusColor);
+		}
+		
+		ImGui::EndGroup();
+		
+		ImGui::PushFont(Fonts::sansRegular12);
+		backgroundText("Network", glm::vec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
+		ImGui::PopFont();
+		
+		ImGui::EndGroup();
+		
+		spacer();
+		
+		
+		
+		
+		
+		//================= Machine State Control =====================
 
-		bool disableMachineToggleButtons = !Environnement::isRunning();
-
-		ImGui::BeginDisabled(disableMachineToggleButtons);
+		ImGui::BeginGroup();
+		ImGui::BeginGroup();
+		
+		ImGui::BeginDisabled(!Environnement::isRunning());
 		
 		if (Environnement::areAllMachinesEnabled()) {
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
@@ -108,48 +174,58 @@ namespace Gui {
 		
 		ImGui::EndDisabled();
 
+		ImGui::EndGroup();
 		
-		ImGui::SameLine();
-		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		glm::vec2 separatorStart(ImGui::GetCursorPos().x, ImGui::GetWindowPos().y);
-		glm::vec2 separatorEnd(separatorStart.x, separatorStart.y + height);
-		drawList->AddLine(separatorStart, separatorEnd, ImColor(Colors::gray));
+		ImGui::PushFont(Fonts::sansRegular12);
+		backgroundText("Machines", glm::vec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
+		ImGui::PopFont();
 		
-		ImGui::Dummy(glm::vec2(0));
+		ImGui::EndGroup();
+		
+		spacer();
 		
 		
-			
-		//========== Status Displays ==========
-			
-		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		
-		glm::vec4 etherCatStatusColor;
-		if(EtherCatFieldbus::isRunning()) etherCatStatusColor = Colors::green;
-		else if(EtherCatFieldbus::isStarting()) etherCatStatusColor = Colors::yellow;
-		else if(!EtherCatFieldbus::hasNetworkInterface()) etherCatStatusColor = Colors::red;
-		else if(EtherCatFieldbus::slaves.empty()) etherCatStatusColor = Colors::orange;
-		else etherCatStatusColor = Colors::blue;
-		ImGui::SameLine();
-		ImGui::PushStyleColor(ImGuiCol_Button, etherCatStatusColor);
-		ImGui::Button("EtherCAT", buttonSize);
-		ImGui::PopStyleColor();
+		/*
+		//================= Sequencer Transport Control =====================
 		
-		for(auto& networkDevice : Environnement::getNetworkDevices()){
-			ImGui::SameLine();
-			glm::vec4 networkDeviceStatusColor;
-			if(networkDevice->isConnected()) networkDeviceStatusColor = Colors::green;
-			else if(networkDevice->isDetected()) networkDeviceStatusColor = Colors::blue;
-			else networkDeviceStatusColor = Colors::red;
-			ImGui::PushStyleColor(ImGuiCol_Button, networkDeviceStatusColor);
-			ImGui::Button(networkDevice->getName(), buttonSize);
-			ImGui::PopStyleColor();
-		}
+		ImGui::BeginGroup();
+		ImGui::BeginGroup();
 		
-		ImGui::PopItemFlag();
+		Sequencer::Gui::transportControls(buttonSize.y);
+		
+		ImGui::EndGroup();
+		
+		ImGui::PushFont(Fonts::sansRegular12);
+		backgroundText("Sequencer", glm::vec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
+		ImGui::PopFont();
+		
+		ImGui::EndGroup();
+		
+		spacer();
+		 */
+		
+		
+		//================= Manoeuvre Playback Control =====================
+		
+		ImGui::BeginGroup();
+		
+		ImGui::BeginGroup();
+		Playback::Gui::manoeuvrePlaybackControls(buttonSize.y);
+		ImGui::EndGroup();
+		
+		ImGui::PushFont(Fonts::sansRegular12);
+		backgroundText("Manoeuvre Playback", glm::vec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
+		ImGui::PopFont();
+		
+		ImGui::EndGroup();
 	
 		
-		etherCatStartModal();
 		
+		
+		
+		
+		ImGui::PopStyleVar();
 	}
 
 }

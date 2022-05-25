@@ -6,6 +6,9 @@
 #include "Plot/Plot.h"
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
 #include "Environnement/StageVisualizer.h"
+#include "Gui/ApplicationWindow/Layout.h"
+
+#include "config.h"
 
 namespace Project{
 
@@ -44,17 +47,25 @@ namespace Project{
 		Environnement::createNew();
 		plots.clear();
 		currentPlot = nullptr;
-		currentPlot = std::make_shared<Plot>();
-		strcpy(currentPlot->name, "Default Plot");
+		currentPlot = Plot::create();
+		currentPlot->setName("Default Plot");
 		plots.push_back(currentPlot);
 		saveFilePath[0] = 0;
 		b_hasFilePath = false;
 		ApplicationWindow::hideUnsavedModifications();
 		ApplicationWindow::setWindowName("New Project");
 		b_hasUnsavedModifications = false;
+		LayoutManager::clearAll();
 	}
 
 	void loadStartup(){
+		
+#ifdef STACATO_DEBUG
+		//for debug builds, always try to load the debug project in the debug directory
+		const char* debugFilePath = "DebugProject.stacato";
+		if(load(debugFilePath)) return;
+#endif
+		
 		//check if something the app was launched by double clicking a save file
 		//else check if the last loaded project exists
 		//else just create an empty project
@@ -108,6 +119,20 @@ namespace Project{
 			return false;
 		}
 		
+		//look for the Layout file
+		bool b_loadedLayoutFile = false;
+		for (const auto& entry : std::filesystem::directory_iterator(projectFolderPath)) {
+			if(entry.path().filename() == "Layouts.stacatoLayout"){
+				std::string entryPath = entry.path().string();
+				b_loadedLayoutFile = LayoutManager::load(entryPath.c_str());
+				break;
+			}
+		}
+		if(!b_loadedEnvironnementFile) {
+			Logger::warn("Could not load layout file in project {}", filePath.filename().string());
+			return false;
+		}
+		
 		//look for the stage folder
 		std::string stageFolderPath = projectFolderPath + "Stage/";
 		if (!std::filesystem::exists(std::filesystem::path(stageFolderPath))) {
@@ -128,16 +153,15 @@ namespace Project{
 		//load plot files
 		for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::path(plotsFolderPath))) {
 			if (entry.path().extension() == ".stacatoPlot") {
-				std::shared_ptr<Plot> plot = std::make_shared<Plot>();
 				std::string plotFilePath = entry.path().string();
-				if (plot->load(plotFilePath.c_str())) {
-					plots.push_back(plot);
-				}
+				auto plot = Plot::load(plotFilePath);
+				if(plot == nullptr) Logger::warn("Could not load plot file {}", plotFilePath);
+				else plots.push_back(plot);
 			}
 		}
 		if (plots.empty()) {
 			plots.push_back(std::make_shared<Plot>());
-			strcpy(plots.back()->name, "Default Plot");
+			plots.back()->setName("Default Plot");
 		}
 		currentPlot = plots.back();
 
@@ -178,6 +202,9 @@ namespace Project{
 
 		std::string environnementFilePath = projectFolderPath + "Environnement.stacatoEnvironnement";
 		if (!Environnement::save(environnementFilePath.c_str())) return false;
+		
+		std::string layoutFilePath = projectFolderPath + "Layouts.stacatoLayout";
+		if(!LayoutManager::save(layoutFilePath.c_str())) return false;
 
 		std::string stageFolder = projectFolderPath + "Stage/";
 		if(!std::filesystem::exists(std::filesystem::path(stageFolder))) std::filesystem::create_directory(std::filesystem::path(stageFolder));
@@ -190,8 +217,8 @@ namespace Project{
 
 		for (int i = 0; i < plots.size(); i++) {
 			std::shared_ptr<Plot> plot = plots[i];
-			std::string plotFilePath = plotsFolder + plot->name + "_" + std::to_string(i) + ".stacatoPlot";
-			plot->save(plotFilePath.c_str());
+			std::string plotFilePath = plotsFolder + plot->getName() + "_" + std::to_string(i) + ".stacatoPlot";
+			plot->save(plotFilePath);
 		}
 	
 		strcpy(saveFilePath, dir);

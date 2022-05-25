@@ -5,46 +5,95 @@
 #include <tinyxml2.h>
 
 #include "Motion/Manoeuvre/Manoeuvre.h"
+#include "Plot/ManoeuvreList.h"
 
-bool Plot::save(const char* path) {
+
+
+
+
+
+bool Plot::save(std::string& filePath) {
 	using namespace tinyxml2;
 
 	XMLDocument document;
 	XMLElement* plotXML = document.NewElement("Plot");
 	document.InsertEndChild(plotXML);
-	plotXML->SetAttribute("Name", name);
+	plotXML->SetAttribute("Name", getName());
 
-	for (auto& manoeuvre : manoeuvres) {
-		XMLElement* manoeuvreXML = plotXML->InsertNewChildElement("Manoeuvre");
-		if (!manoeuvre->save(manoeuvreXML)) return false;
-	}
+	XMLElement* manoeuvreListXML = plotXML->InsertNewChildElement("ManoeuvreList");
+	manoeuvreList->save(manoeuvreListXML);
 
-	return document.SaveFile(path) == XML_SUCCESS;
+	return document.SaveFile(filePath.c_str()) == XML_SUCCESS;
+	
+	return false;
 }
 
-bool Plot::load(const char* path) {
+std::shared_ptr<Plot> Plot::load(std::string& filePath) {
 	using namespace tinyxml2;
+	
+	auto plot = Plot::create();
 
 	XMLDocument document;
-	if (document.LoadFile(path) != XML_SUCCESS) return Logger::warn("Could not Open Plot SaveFile");
+	if (document.LoadFile(filePath.c_str()) != XML_SUCCESS) {
+		Logger::warn("Could not Open Plot SaveFile");
+		return nullptr;
+	}
 
 	XMLElement* plotXML = document.FirstChildElement("Plot");
-	if (plotXML == nullptr) return Logger::warn("Could not find plot attribute");
+	if (plotXML == nullptr) {
+		Logger::warn("Could not find plot attribute");
+		return nullptr;
+	}
 
 	const char* nameString;
-	if (plotXML->QueryStringAttribute("Name", &nameString) != XML_SUCCESS) return Logger::warn("Could not find plot name attribute");
-	strcpy(name, nameString);
+	if (plotXML->QueryStringAttribute("Name", &nameString) != XML_SUCCESS) {
+		Logger::warn("Could not find plot name attribute");
+		return nullptr;
+	}
+	plot->setName(nameString);
+	
+	XMLElement* manoeuvreListXML = plotXML->FirstChildElement("ManoeuvreList");
+	if(manoeuvreListXML == nullptr){
+		Logger::warn("Could not find ManoeuvreList attribute");
+		return nullptr;
+	}
+	plot->manoeuvreList->load(manoeuvreListXML);
+	 
+	return plot;
+}
 
-	std::shared_ptr<Plot> thisPlot = shared_from_this();
 
-	XMLElement* manoeuvreXML = plotXML->FirstChildElement("Manoeuvre");
+
+
+
+
+
+
+
+
+
+
+bool ManoeuvreList::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	
+	XMLElement* manoeuvreXML = xml->FirstChildElement("Manoeuvre");
 	while (manoeuvreXML != nullptr) {
-		std::shared_ptr<Manoeuvre> manoeuvre = std::make_shared<Manoeuvre>(thisPlot);
-		if (!manoeuvre->load(manoeuvreXML)) return Logger::warn("Could not load Manoeuvre");
+		auto manoeuvre = Manoeuvre::load(manoeuvreXML);
+		if(manoeuvre == nullptr) return false;
+		manoeuvre->setManoeuvreList(shared_from_this());
 		manoeuvres.push_back(manoeuvre);
 		manoeuvreXML = manoeuvreXML->NextSiblingElement("Manoeuvre");
 	}
-	refreshAll();
+	//manoeuvreList->refreshAll();
+	return true;
+}
 
+bool ManoeuvreList::save(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	
+	for (auto& manoeuvre : manoeuvres) {
+		XMLElement* manoeuvreXML = xml->InsertNewChildElement("Manoeuvre");
+		if (!manoeuvre->save(manoeuvreXML)) return false;
+	}
 	return true;
 }

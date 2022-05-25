@@ -33,6 +33,7 @@ enum class PositionReferenceSignal{
 };
 
 inline bool isLinearPositionReferenceSignal(PositionReferenceSignal t){
+	/*
 	switch(t){
 		case PositionReferenceSignal::NO_SIGNAL:
 		case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
@@ -40,6 +41,8 @@ inline bool isLinearPositionReferenceSignal(PositionReferenceSignal t){
 		default:
 			return true;
 	}
+	 */
+	return true;
 }
 
 inline bool isAngularPositionReferenceSignal(PositionReferenceSignal t){
@@ -152,12 +155,66 @@ DEFINE_ENUMERATOR(HomingStep, HomingStepStrings)
 enum class HomingError{
 	NONE,
 	HOMING_CANCELED,
-	TRIGGERED_WRONG_LIMIT_SIGNAL
+	TRIGGERED_WRONG_LIMIT_SIGNAL,
+	HOMING_NOT_SUPORTED
 };
 
 #define HomingErrorStrings \
 	{HomingError::NONE,							"No Error"},\
 	{HomingError::HOMING_CANCELED,				"Homing Canceled"},\
-	{HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL,	"Error: Hit Wrong Limit Signal"}\
+	{HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL,	"Error: Hit Wrong Limit Signal"},\
+	{HomingError::HOMING_NOT_SUPORTED, 			"Error: Homing is not supported"}\
 
 DEFINE_ENUMERATOR(HomingError, HomingErrorStrings)
+
+//================================================================================================================================
+
+enum class MachineParameterType {
+	BOOLEAN,
+	INTEGER,
+	REAL,
+	STATE,
+	VECTOR_2D,
+	VECTOR_3D,
+	POSITION,
+	POSITION_2D,
+	POSITION_3D,
+	VELOCITY,
+	VELOCITY_2D,
+	VELOCITY_3D,
+	GROUP
+};
+
+#define ParameterDataTypeStrings \
+	{MachineParameterType::BOOLEAN, 	"Boolean", 			"Boolean"},\
+	{MachineParameterType::INTEGER, 	"Integer", 			"Integer"},\
+	{MachineParameterType::REAL, 		"Real", 			"Real"},\
+	{MachineParameterType::STATE, 		"State", 			"State"},\
+	{MachineParameterType::VECTOR_2D, 	"2D Vector", 		"2DVector"},\
+	{MachineParameterType::VECTOR_3D, 	"3D Vector", 		"3DVector"},\
+	{MachineParameterType::POSITION, 	"Position", 		"Position"},\
+	{MachineParameterType::POSITION_2D, "2D Position", 		"2DPosition"},\
+	{MachineParameterType::POSITION_3D, "3D Position", 		"3DPosition"},\
+	{MachineParameterType::VELOCITY, 	"Velocity", 		"Velocity"},\
+	{MachineParameterType::VELOCITY_2D, "2D Velocity", 		"2DVelocity"},\
+	{MachineParameterType::VELOCITY_3D, "3D Velocity", 		"3DVelocity"},\
+	{MachineParameterType::GROUP, 		"Parameter Group", 	"ParameterGroup"}\
+
+DEFINE_ENUMERATOR(MachineParameterType, ParameterDataTypeStrings)
+
+//================================================================================================================================
+
+enum class ManoeuvreType{
+	KEY,
+	TARGET,
+	SEQUENCE
+};
+
+#define ManoeuvreTypeStrings \
+	{ManoeuvreType::KEY,		"Key",				"Key"},\
+	{ManoeuvreType::TARGET,		"Target",			"Target"},\
+	{ManoeuvreType::SEQUENCE,	"Sequence",			"Sequence"}\
+
+DEFINE_ENUMERATOR(ManoeuvreType, ManoeuvreTypeStrings)
+
+//================================================================================================================================

@@ -18,6 +18,11 @@
 
 #include "Gui/Assets/Images.h"
 
+#include "Tests/C_Curves.h"
+#include "Tests/CommandZ.h"
+
+#include "Layout.h"
+
 namespace Gui {
 
 	void draw() {		
@@ -28,7 +33,7 @@ namespace Gui {
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5.0);
 		
 		//=== Define Bottom Toolbar and main window height
-		float toolbarHeight = ImGui::GetTextLineHeight() * 3.2;
+		float toolbarHeight = ImGui::GetTextLineHeight() * 4.0;
 		glm::vec2 mainWindowPosition = ImGui::GetMainViewport()->WorkPos;
 		glm::vec2 mainWindowSize = ImGui::GetMainViewport()->WorkSize;
 		mainWindowSize.y -= toolbarHeight;
@@ -58,12 +63,20 @@ namespace Gui {
 		if(shouldResetDefaultLayout()){
 			ImGui::DockBuilderRemoveNodeDockedWindows(dockspaceID);
 			ImGui::DockBuilderRemoveNodeChildNodes(dockspaceID);
+			
+			//ImGuiID leftID;
+			//ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.15, &leftID, &dockspaceID);
+			
 			ImGui::DockBuilderDockWindow("Environnement", dockspaceID);
-			ImGui::DockBuilderDockWindow("Stage", dockspaceID);
+			//ImGui::DockBuilderDockWindow("Stage", dockspaceID);
 			ImGui::DockBuilderDockWindow("Machines", dockspaceID);
 			ImGui::DockBuilderDockWindow("Setup", dockspaceID);
-			ImGui::DockBuilderDockWindow("Manoeuvres", dockspaceID);
-			ImGui::DockBuilderDockWindow("Sequencer", dockspaceID);
+			ImGui::DockBuilderDockWindow("Manoeuvre List", dockspaceID);
+			ImGui::DockBuilderDockWindow("Manoeuvre Sheet", dockspaceID);
+			ImGui::DockBuilderDockWindow("Manoeuvre Curves", dockspaceID);
+			//ImGui::DockBuilderDockWindow("Sequencer", dockspaceID);
+			//ImGui::DockBuilderDockWindow("cCurvesTest", dockspaceID);
+			//ImGui::DockBuilderDockWindow("CommandZ", dockspaceID);
 			ImGui::DockBuilderFinish(dockspaceID);
 		}
 		
@@ -81,35 +94,63 @@ namespace Gui {
 		if(ImGui::Begin("Machines")) Environnement::Gui::machineList();
 		ImGui::End();
 		 
-		if(ImGui::Begin("Manoeuvres")) PlotGui::editor();
+		if(ImGui::Begin("Manoeuvre List")) PlotGui::manoeuvreList();
 		ImGui::End();
 		
+		if(ImGui::Begin("Manoeuvre Sheet")) PlotGui::trackSheetEditor();
+		ImGui::End();
+		
+		if(ImGui::Begin("Manoeuvre Curves")) PlotGui::curveEditor();
+		ImGui::End();
+		
+		/*
+		if(ImGui::Begin("cCurvesTest")) cCurvesTest();
+		ImGui::End();
+		
+		if(ImGui::Begin("CommandZ")) testUndoHistory();
+		ImGui::End();
+		*/
+		 
+		/*
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0,0));
 		if(ImGui::Begin("Sequencer")) Sequencer::Gui::editor();
 		ImGui::End();
 		ImGui::PopStyleVar();
-		
+		*/
+		 
+		/*
 		if(ImGui::Begin("Stage")) StageView::draw();
 		ImGui::End();
-		
+		*/
+		 
 		//=== Finish Resetting Default Layout ===
 		
 		if(shouldResetDefaultLayout()){
 			ImGui::SetWindowFocus("Environnement");
+			//ImGui::SetWindowFocus("Sequencer");
+			//ImGui::SetWindowFocus("Track Sheet Editor");
+			//ImGui::SetWindowFocus("cCurvesTest");
+			//ImGui::SetWindowFocus("CommandZ");
 			finishResetDefaultLayout();
+			
+			LayoutManager::setDefault();
 		}
 		
 		
 		//=== Draw Bottom Toolbar ===
 		ImGui::SetNextWindowPos(mainWindowPosition + glm::vec2(0, mainWindowSize.y));
 		ImGui::SetNextWindowSize(glm::vec2(mainWindowSize.x, toolbarHeight));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.25));
 		ImGui::Begin("##Toolbar", nullptr,
 					 ImGuiWindowFlags_NoTitleBar |
 					 ImGuiWindowFlags_NoResize |
 					 ImGuiWindowFlags_NoCollapse |
-					 ImGuiWindowFlags_NoDocking);
+					 ImGuiWindowFlags_NoDocking |
+					 ImGuiWindowFlags_NoScrollWithMouse |
+					 ImGuiWindowFlags_NoScrollbar);
 		toolbar(toolbarHeight);
 		ImGui::End();
+		ImGui::PopStyleVar();
 		
 		//=== Draw Popups (if any are open) ===
 		popups();

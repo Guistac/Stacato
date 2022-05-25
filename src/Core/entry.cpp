@@ -5,6 +5,8 @@
 #include "Project/Project.h"
 #include "Environnement/Environnement.h"
 
+void test();
+
 #ifdef STACATO_WIN32_APPLICATION
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
 #else
@@ -24,7 +26,7 @@ int main(int argcount, const char ** args){
 	Environnement::initialize();
 	
 	//application gui runtime, function returns when application is quit
-	ApplicationWindow::open(3500,2000);
+	ApplicationWindow::open(3500,1000);
 
 	//stop hardware or simulation and terminate fieldbus
 	Environnement::terminate();

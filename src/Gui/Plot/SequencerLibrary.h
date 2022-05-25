@@ -113,6 +113,7 @@ namespace Sequencer{
 	Context* createContext();
 	void setContext(Context* ctx);
 	bool hasContext();
+	Context* getContext();
 
 	void setRegionColor(ImVec4 color);
 	void setTrackColor(ImVec4 color);

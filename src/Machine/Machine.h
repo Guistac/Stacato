@@ -10,6 +10,7 @@ namespace Motion {
 }
 
 class ParameterTrack;
+class TargetParameterTrack;
 class Device;
 
 namespace tinyxml2{ struct XMLElement; }
@@ -38,27 +39,28 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual bool saveMachine(tinyxml2::XMLElement* xml);\
 	virtual bool loadMachine(tinyxml2::XMLElement* xml);\
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output);\
-	virtual void rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
+	virtual void rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value);\
 	virtual void cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter); \
 	virtual float getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter); \
-	virtual bool isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
-	virtual void onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter);\
-	virtual void onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter);\
-	virtual void onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter);\
-	virtual void getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value);\
+	virtual bool isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value);\
+	virtual void onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter);\
+	virtual void onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter);\
+	virtual void onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter);\
+	virtual std::shared_ptr<AnimatableParameterValue> getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter);\
 	virtual bool validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack);\
-	virtual void getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves);\
+	virtual bool generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack);\
 	virtual bool getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit);\
 
 #define DEFINE_HOMEABLE_MACHINE \
-	virtual bool isHomeable(){ return true; }\
-	virtual bool isHoming();\
-	virtual void startHoming();\
-	virtual void stopHoming();\
-	virtual bool didHomingSucceed();\
-	virtual bool didHomingFail();\
-	virtual float getHomingProgress();\
-	virtual const char* getHomingStateString();\
+	virtual bool isHomeable() override { return true; }\
+	virtual bool canStartHoming() override;\
+	virtual bool isHoming() override;\
+	virtual void startHoming() override;\
+	virtual void stopHoming() override;\
+	virtual bool didHomingSucceed() override;\
+	virtual bool didHomingFail() override;\
+	virtual float getHomingProgress() override;\
+	virtual const char* getHomingStateString() override;\
 
 class Machine : public Node {
 public:
@@ -85,6 +87,7 @@ public:
 	virtual void onDisableHardware() = 0;
 	
 	virtual bool isHomeable(){ return false; }
+	virtual bool canStartHoming(){ return false; }
 	virtual bool isHoming(){ return false; }
 	virtual void startHoming(){}
 	virtual void stopHoming(){}
@@ -98,32 +101,32 @@ public:
 	virtual void simulateProcess() = 0;
 
 	//===== PARAMETERS =====
-	void addAnimatableParameter(std::shared_ptr<AnimatableParameter> parameter);
-	std::vector<std::shared_ptr<AnimatableParameter>> animatableParameters;
+	void addParameter(std::shared_ptr<MachineParameter> parameter);
+	std::vector<std::shared_ptr<MachineParameter>> parameters;
 
 	//===== RAPIDS =====
-	virtual void rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
+	virtual void rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) = 0;
 	virtual void cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) = 0;
 	virtual float getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) = 0;
-	virtual bool isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
+	virtual bool isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) = 0;
 
 	//===== PLAYBACK CONTROL ======
 	void startParameterPlayback(std::shared_ptr<ParameterTrack> track);
-	void interruptParameterPlayback(std::shared_ptr<AnimatableParameter> parameter);
-	void endParameterPlayback(std::shared_ptr<AnimatableParameter> parameter);
-	virtual void onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter) = 0;
-	virtual void onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter) = 0;
-	virtual void onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter) = 0;
+	void interruptParameterPlayback(std::shared_ptr<MachineParameter> parameter);
+	void endParameterPlayback(std::shared_ptr<MachineParameter> parameter);
+	virtual void onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter) = 0;
+	virtual void onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter) = 0;
+	virtual void onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter) = 0;
 
 	//====== PARAMETER VALUE =======
-	virtual void getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value) = 0;
+	virtual std::shared_ptr<AnimatableParameterValue> getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter) = 0;
 
 	//======= PARAMETER TRACK VALIDATION ======
 	virtual bool validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) = 0;
 	virtual bool getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) = 0;
 	
 	//======= TIMED MOVEMENT ======
-	virtual void getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves) = 0;
+	virtual bool generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack) = 0;
 
 	//===== ATTACHED DEVICES =====
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output) = 0;

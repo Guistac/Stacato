@@ -1,0 +1,53 @@
+<Environnement name="Default Environnement" notes="">
+    <NodeGraph>
+        <Nodes>
+            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Test Machine A" UniqueID="1">
+                <NodeEditorPosition x="-86" y="-218"/>
+                <NodeSpecificData ShortName="Test A">
+                    <Rapids Velocity_machineUnitsPerSecond="5" Acceleration_machineUnitsPerSecondSquared="5"/>
+                    <MachineZero MachineZero_AxisUnits="0" InvertAxisDirection="false"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="2" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="3" Visible="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="4" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Position Controlled Axis" UniqueID="5">
+                <NodeEditorPosition x="-363" y="-261"/>
+                <NodeSpecificData>
+                    <Units UnitType="Rotary" Unit="Degree"/>
+                    <UnitConversion ActuatorUnitsPerMachineUnit="0"/>
+                    <KinematicLimits VelocityLimit="10" AccelerationLimit="5" ManualAcceleration="5"/>
+                    <PositionReferenceSignals Type="LowHighSignals" HomingVelocityCoarse="1" HomingVelocityFine="0.10000000000000001" HomingDirection="Negative"/>
+                    <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="0" HighLimit="10" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="true"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Servo Actuator" DisplayString="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="42" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Reference Device" DisplayString="Reference Device" DataType="GPIODeviceLink" UniqueID="43" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Low Limit Signal" DisplayString="Low Limit Signal" DataType="Boolean" UniqueID="44" Visible="true"/>
+                    <InputPin SaveString="High Limit Signal" DisplayString="High Limit Signal" DataType="Boolean" UniqueID="45" Visible="true"/>
+                    <InputPin SaveString="Reference Signal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="46" Visible="false"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="47" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="48" Visible="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="49" Visible="true"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="50" Visible="true"/>
+                </OutputPins>
+            </Node>
+        </Nodes>
+        <Links>
+            <Link UniqueID="51" StartPin="47" EndPin="2"/>
+        </Links>
+    </NodeGraph>
+</Environnement>
+
+<FieldbusSettings>
+    <NetworkInterfaceCard>
+        <Primary Description="en4" Name="en4"/>
+    </NetworkInterfaceCard>
+    <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000000000001"/>
+</FieldbusSettings>

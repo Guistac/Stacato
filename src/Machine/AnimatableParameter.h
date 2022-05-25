@@ -2,83 +2,243 @@
 
 #include "AnimatableParameterValue.h"
 #include "Motion/Curve/Curve.h"
+#include "Project/Editor/Parameter.h"
 
 class Machine;
 class ParameterTrack;
 namespace tinyxml2 { class XMLElement; }
-
-enum class ParameterDataType {
-	BOOLEAN_PARAMETER,
-	INTEGER_PARAMETER,
-	STATE_PARAMETER,
-	REAL_PARAMETER,
-	VECTOR_2D_PARAMETER,
-	VECTOR_3D_PARAMETER,
-	POSITION,
-	POSITION_2D,
-	POSITION_3D,
-	PARAMETER_GROUP
-};
-
-#define ParameterDataTypeStrings \
-	{ParameterDataType::BOOLEAN_PARAMETER, 		"Boolean", 			"Boolean"},\
-	{ParameterDataType::INTEGER_PARAMETER, 		"Integer", 			"Integer"},\
-	{ParameterDataType::STATE_PARAMETER, 		"State", 			"State"},\
-	{ParameterDataType::REAL_PARAMETER, 		"Real", 			"Real"},\
-	{ParameterDataType::VECTOR_2D_PARAMETER, 	"2D Vector", 		"2DVector"},\
-	{ParameterDataType::VECTOR_3D_PARAMETER, 	"3D Vector", 		"3DVector"},\
-	{ParameterDataType::POSITION, 				"Position", 		"Position"},\
-	{ParameterDataType::POSITION_2D, 			"2D Position", 		"3DPosition"},\
-	{ParameterDataType::POSITION_3D, 			"3D Position", 		"3DPosition"},\
-	{ParameterDataType::PARAMETER_GROUP, 		"Paramater Group", 	"ParameterGroup"}\
-
-DEFINE_ENUMERATOR(ParameterDataType, ParameterDataTypeStrings)
+class AnimatableParameter;
+class ParameterGroup;
+class AnimatableStateParameter;
+class AnimatableNumericalParameter;
 
 
-//=== value structure for State Data Type ===
-struct StateParameterValue {
-	int integerEquivalent;
-	const char displayName[64];
-	const char saveName[64];
-};
 
 
-class AnimatableParameter {
+
+class MachineParameter : public std::enable_shared_from_this<MachineParameter>{
 public:
-
-	//Constructor for Base Parameter Types
-	AnimatableParameter(const char* nm);
-	AnimatableParameter(const char* nm, ParameterDataType datat);
-	AnimatableParameter(const char* nm, ParameterDataType datat, Unit unit);
-
-	//Constructor for Parameter with State DataType
-	AnimatableParameter(const char* nm, std::vector<StateParameterValue>* stateValues);
-
-	//Constructor for Parameter Group
-	AnimatableParameter(const char* nm, std::vector<std::shared_ptr<AnimatableParameter>> children);
 	
-	//=== Basic Parameter Information ===
-	ParameterDataType dataType;
-	char name[128];
+	MachineParameter(std::string name_) : name(name_){}
+	
+	//————————————————————————————————————
+	//  	   General Properties
+	//————————————————————————————————————
+	
+public:
+	
+	const char* getName(){ return name.c_str(); }
+	
+	void setMachine(std::shared_ptr<Machine> machine_){ machine = machine_; }
+	std::shared_ptr<Machine> getMachine(){ return machine; }
+	
+	bool hasParentGroup() { return parentParameterGroup != nullptr; }
+	void setParentGroup(std::shared_ptr<ParameterGroup> parent){ parentParameterGroup = parent; }
+	
+private:
+	
+	std::string name;
 	std::shared_ptr<Machine> machine;
-
-	//=== For Non-Group Parameters ===
-	std::vector<Motion::InterpolationType> getCompatibleInterpolationTypes();
-	Unit unit;
-
-	//=== For Parameters with State Type ===
-	std::vector<StateParameterValue>* stateParameterValues = nullptr;
-	std::vector<StateParameterValue>& getStateValues() { return *stateParameterValues; }
-
-	//=== For Group Parameters or Parameters in a group ===
-	std::vector<std::shared_ptr<AnimatableParameter>> childParameters;
-	std::shared_ptr<AnimatableParameter> parentParameter = nullptr;
-	bool hasParentGroup() { return parentParameter != nullptr; }
-	bool hasChildParameters() { return !childParameters.empty(); }
-	std::shared_ptr<AnimatableParameter> getParentGroup() { return parentParameter; }
+	std::shared_ptr<ParameterGroup> parentParameterGroup = nullptr;
 	
-	//=== For Parameters Controlled by ParameterTrack Animation ===
-	std::shared_ptr<ParameterTrack> actualParameterTrack = nullptr;
-	bool hasParameterTrack() { return actualParameterTrack != nullptr; }
-	void getActiveTrackParameterValue(AnimatableParameterValue& output);
+	//————————————————————————————————————
+	//  		 Track Creation
+	//————————————————————————————————————
+	
+public:
+	
+	std::shared_ptr<ParameterTrack> createTrack(ManoeuvreType manoeuvreType);
+	
+	//————————————————————————————————————
+	//  SubClass Identification & Casting
+	//————————————————————————————————————
+	
+public:
+	
+	virtual MachineParameterType getType() = 0;
+	
+	virtual bool isGroup(){ return false; }
+	std::shared_ptr<ParameterGroup> castToGroup(){ return std::dynamic_pointer_cast<ParameterGroup>(shared_from_this()); }
+	
+	virtual bool isAnimatable(){ return false; }
+	std::shared_ptr<AnimatableParameter> castToAnimatable(){ return std::dynamic_pointer_cast<AnimatableParameter>(shared_from_this()); }
+	
+	virtual bool isNumerical(){ return false; }
+	virtual bool isReal(){ return false; }
+	std::shared_ptr<AnimatableNumericalParameter> castToNumerical(){ return std::dynamic_pointer_cast<AnimatableNumericalParameter>(shared_from_this()); }
+	
+	virtual bool isState(){ return false; }
+	std::shared_ptr<AnimatableStateParameter> castToState(){ return std::dynamic_pointer_cast<AnimatableStateParameter>(shared_from_this()); }
+	
+	//————————————————————————————————————
+	//	  Parameter Track Subscriptions
+	//————————————————————————————————————
+	
+public:
+	
+	void subscribeTrack(std::shared_ptr<ParameterTrack> track){ tracks.push_back(track); }
+	void unsubscribeTrack(std::shared_ptr<ParameterTrack> track){
+		for(int i = 0; i < tracks.size(); i++){
+			if(tracks[i] == track) {
+				tracks.erase(tracks.begin() + i);
+				break;
+			}
+		}
+	}
+	std::vector<std::shared_ptr<ParameterTrack>>& getTracks(){ return tracks; }
+
+	bool hasActiveParameterTrack() { return activeParameterTrack != nullptr; }
+	
+	std::shared_ptr<ParameterTrack> activeParameterTrack = nullptr;
+	
+	void stopParameterPlayback();
+	
+private:
+	
+	std::vector<std::shared_ptr<ParameterTrack>> tracks;
+};
+
+
+
+class PlayableParameterTrack;
+
+class AnimatableParameter : public MachineParameter{
+public:
+	
+	AnimatableParameter(const char* name) : MachineParameter(name) {}
+	virtual bool isAnimatable() override { return true; }
+	
+	virtual std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes() = 0;
+	
+	std::shared_ptr<AnimatableParameterValue> getActiveParameterTrackValue();
+	
+	std::shared_ptr<AnimatableParameterValue> getActualMachineValue();
+	
+	int getCurveCount();
+	
+	std::shared_ptr<Parameter> getEditableParameter();
+	
+	void setParameterValue(std::shared_ptr<Parameter> parameter, std::shared_ptr<AnimatableParameterValue> value);
+	void copyParameterValue(std::shared_ptr<Parameter> from, std::shared_ptr<Parameter> to);
+	std::shared_ptr<AnimatableParameterValue> getParameterValue(std::shared_ptr<Parameter> parameter);
+	bool isParameterValueEqual(std::shared_ptr<AnimatableParameterValue> value1, std::shared_ptr<AnimatableParameterValue> value2);
+	std::shared_ptr<AnimatableParameterValue> getParameterValueAtCurveTime(std::shared_ptr<PlayableParameterTrack> playableParameterTrack, double time_seconds);
+	std::vector<double> getCurvePositionsFromParameterValue(std::shared_ptr<AnimatableParameterValue> value);
+	
+private:
+	
+};
+
+
+
+
+//———————————————————————————————————————————————
+//				NUMERICAL PARAMETER
+//———————————————————————————————————————————————
+
+class AnimatableNumericalParameter : public AnimatableParameter{
+public:
+	
+	AnimatableNumericalParameter(const char* name, MachineParameterType type_, Unit unit_) : AnimatableParameter(name), type(type_){
+		assert(type != MachineParameterType::GROUP);
+		assert(type != MachineParameterType::BOOLEAN);
+		assert(type != MachineParameterType::STATE);
+		setUnit(unit_);
+	}
+	
+	virtual bool isNumerical() override { return true; }
+	virtual bool isReal() override {
+		switch(type){
+			case MachineParameterType::BOOLEAN:
+			case MachineParameterType::INTEGER:
+			case MachineParameterType::STATE:
+			case MachineParameterType::GROUP:
+				return false;
+			default:
+				return true;
+		}
+	}
+	
+	virtual MachineParameterType getType() override { return type; }
+	virtual std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes() override;
+	
+	Unit getUnit(){ return unit; }
+	void setUnit(Unit u);
+	
+	//std::shared_ptr<NumberParameter<int>> floatingPointDisplayPrecision = NumberParameter<int>::make(1, "Floating Point Display Precision", "Precision");
+	//void setPrecision(int precision){ format = "%." + std::to_string(precision) + "f"; }
+	//const char* getFormat(){ return format.c_str(); }
+	
+private:
+	Unit unit;
+	MachineParameterType type;
+};
+
+
+
+//———————————————————————————————————————————————
+//				STATE PARAMETER
+//———————————————————————————————————————————————
+
+class AnimatableStateParameter : public AnimatableParameter{
+public:
+	
+	AnimatableStateParameter(const char* name, std::vector<AnimatableParameterState>* stateValues) : AnimatableParameter(name), states(stateValues){};
+	
+	virtual bool isState() override { return true; }
+	
+	virtual MachineParameterType getType() override { return MachineParameterType::STATE; }
+	virtual std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes() override {
+		static std::vector<Motion::Interpolation::Type> compatibleInterpolations = { Motion::Interpolation::Type::STEP };
+		return compatibleInterpolations;
+	}
+	
+	std::vector<AnimatableParameterState>& getStates() { return *states; }
+	
+private:
+	std::vector<AnimatableParameterState>* states;
+};
+
+
+
+//———————————————————————————————————————————————
+//				BOOLEAN PARAMETER
+//———————————————————————————————————————————————
+
+class AnimatableBooleanParameter : public AnimatableParameter{
+public:
+	
+	AnimatableBooleanParameter(const char* name) : AnimatableParameter(name){}
+	
+	virtual MachineParameterType getType(){ return MachineParameterType::BOOLEAN; }
+	virtual std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes(){
+		static std::vector<Motion::Interpolation::Type> compatibleInterpolations = { Motion::Interpolation::Type::STEP };
+		return compatibleInterpolations;
+	}
+};
+
+
+
+//———————————————————————————————————————————————
+//				PARAMETER GROUP
+//———————————————————————————————————————————————
+
+class ParameterGroup : public MachineParameter{
+public:
+	
+	ParameterGroup(const char* name, std::vector<std::shared_ptr<MachineParameter>> children) : MachineParameter(name), childParameters(children){
+		for(auto& childParameter : childParameters){
+			auto thisGroup = std::dynamic_pointer_cast<ParameterGroup>(shared_from_this());
+			childParameter->setParentGroup(thisGroup);
+		}
+	}
+	
+	virtual bool isGroup() override { return true; }
+	
+	virtual MachineParameterType getType() override { return MachineParameterType::GROUP; }
+	
+	std::vector<std::shared_ptr<MachineParameter>>& getChildren(){ return childParameters; }
+
+private:
+	std::vector<std::shared_ptr<MachineParameter>> childParameters;
 };

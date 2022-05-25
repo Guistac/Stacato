@@ -104,10 +104,10 @@ namespace Environnement::Gui{
 			ImGui::Text("%s", machine->getName());
 			ImGui::PopFont();
 			
-			bool disableHomingButton = !machine->isEnabled();
+			bool disableHomingButton = !machine->canStartHoming();
 			ImGui::BeginDisabled(disableHomingButton);
 			if(machine->isHoming()){
-				ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 				if(ImGui::Button("Stop Homing", homingControlButtonSize)) machine->stopHoming();
 				ImGui::PopStyleColor();
 			}else{
@@ -125,7 +125,7 @@ namespace Environnement::Gui{
 			
 			glm::vec2 homingProgressIndicatorSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
 			
-			BackgroundText::draw(machine->getHomingStateString(),
+			backgroundText(machine->getHomingStateString(),
 								 homingProgressIndicatorSize,
 								 Colors::darkGray);
 			

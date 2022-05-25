@@ -1,33 +1,47 @@
 #pragma once
 
+class ManoeuvreList;
 class Manoeuvre;
-class ParameterTrack;
-class Machine;
 
-class Plot : public std::enable_shared_from_this<Plot> {
+class Plot : public std::enable_shared_from_this<Plot>{
+
+	//—————————————————————————————————————
+	//			Saving & Loading
+	//—————————————————————————————————————
+
 public:
+	
+	
+	static std::shared_ptr<Plot> create();
+	static std::shared_ptr<Plot> load(std::string& filePath);
+	bool save(std::string& filePath);
 
-	Plot() {}
-
-	char name[256] = "";
+	//—————————————————————————————————————
+	//		   General Properties
+	//—————————————————————————————————————
+	
+public:
+	
+	const char* getName(){ return name.c_str(); }
+	void setName(std::string name_){ name = name_; }
+	
+	std::shared_ptr<ManoeuvreList> getManoeuvreList(){ return manoeuvreList; }
+	std::shared_ptr<Manoeuvre> getSelectedManoeuvre(){ return selectedManoeuvre; }
+	void selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre){ selectedManoeuvre = manoeuvre; }
+	
+private:
+	
+	std::string name;
+	std::shared_ptr<ManoeuvreList> manoeuvreList;
+	std::shared_ptr<Manoeuvre> selectedManoeuvre;
+	
+	//—————————————————————————————————————
+	//				Others..
+	//—————————————————————————————————————
+	
+private:
+	
 	std::time_t saveTime;
-
-	std::vector<std::shared_ptr<Manoeuvre>> manoeuvres;
-	std::shared_ptr<Manoeuvre> selectedManoeuvre = nullptr;
-
-	bool save(const char* path);
-	bool load(const char* path);
-
-	void selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre);
-	std::shared_ptr<Manoeuvre> getSelectedManoeuvre();
-	void addManoeuvre();
-	void deleteSelectedManoeuvre();
-	void duplicateSelectedManoeuvre();
-	void reorderManoeuvre(std::shared_ptr<Manoeuvre> m, int oldIndex, int newIndex);
-
-	void refreshPlotAfterMachineLimitChanged(std::shared_ptr<Machine> m);
-	void refreshChainingDependencies();
-	void refreshAll();
-
+	
 };
 

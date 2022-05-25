@@ -54,6 +54,10 @@ Context* createContext(){
 bool hasContext(){ return context != nullptr; }
 void setContext(Context* ctx){ context = ctx; }
 
+Context* getContext(){
+	return context;
+}
+
 void setTrackColor(ImVec4 color){
 	context->style.trackColor = color;
 }
@@ -1397,8 +1401,8 @@ std::vector<TickSpacing> microsecondTickSpacings = {
 void setTimeMicrosecondsZeroCentered(){
 	context->tickSpacings = &microsecondTickSpacings;
 	context->tickStringFunction = microsecondZeroCenteredString;
-	context->maxTime = 60480000000000;	//100 weeks in microseconds
-	context->minTime = -60480000000000;	//-100 weeks in microseconds
+	context->maxTime = 86400000000;		//100 weeks in microseconds
+	context->minTime = -86400000000;	//-100 weeks in microseconds
 }
 
 

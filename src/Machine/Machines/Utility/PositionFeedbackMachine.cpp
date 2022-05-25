@@ -165,22 +165,22 @@ void PositionFeedbackMachine::getDevices(std::vector<std::shared_ptr<Device>>& o
 	if(isFeedbackConnected()) output.push_back(getFeedbackDevice()->parentDevice);
 }
 
-void PositionFeedbackMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value){}
+void PositionFeedbackMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value){}
 void PositionFeedbackMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter){}
 float PositionFeedbackMachine::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter){
 	return 0.0;
 }
-bool PositionFeedbackMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value){
+bool PositionFeedbackMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value){
 	return false;
 }
-void PositionFeedbackMachine::onParameterPlaybackStart(std::shared_ptr<AnimatableParameter> parameter){}
-void PositionFeedbackMachine::onParameterPlaybackInterrupt(std::shared_ptr<AnimatableParameter> parameter){}
-void PositionFeedbackMachine::onParameterPlaybackEnd(std::shared_ptr<AnimatableParameter> parameter){}
-void PositionFeedbackMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter, AnimatableParameterValue& value){}
+void PositionFeedbackMachine::onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter){}
+void PositionFeedbackMachine::onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter){}
+void PositionFeedbackMachine::onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter){}
+std::shared_ptr<AnimatableParameterValue> PositionFeedbackMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter){}
 bool PositionFeedbackMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack){
 	return false;
 }
-void PositionFeedbackMachine::getTimedParameterCurveTo(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::ControlPoint>> targetPoints, double time, double rampIn, const std::vector<std::shared_ptr<Motion::Curve>>& outputCurves){}
+bool PositionFeedbackMachine::generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack){ return false; }
 bool PositionFeedbackMachine::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit){
 	return false;
 }

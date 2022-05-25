@@ -49,27 +49,42 @@ namespace ApplicationWindow {
 
 	void init() {
 		
+		pthread_setname_np("Gui Thread");
+		
 		Timing::start();
 		Random::initialize();
-		glfwInit();
+		
+	#ifdef STACATO_MACOS
+	#ifdef STACATO_DEBUG
+		//for debug builds, don't change the working directory
+		//resources and debug project are loaded and saved to the repository's dir/ folder
+		glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, false);
+	#else
+		//for release builds, change the working directory to the resources folder inside the .app bundle
+		glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, true);
+	#endif
+	#endif
+		
+		glfwInit(); //this also sets the working directory on macos builds
 		FileDialog::init();
 		
 	#ifdef STACATO_MACOS
+		//if the app was launched by opening a file path, remember the file details for later user
 		const char* path = glfwGetOpenedFilePath();
 		b_launchedByOpenedFile = path != nullptr;
 		if(b_launchedByOpenedFile) strcpy(openedFilePath, path);
 	#endif
 		
 	#ifdef STACATO_WIN32
-		//for windows builds, set working directory to "Resources" folder located next to executable
+	#ifdef STACATO_RELEASE
+		//for windows release builds, set working directory to "Resources" folder located next to executable
 		std::string defaultWorkingDirectory = std::filesystem::current_path().string();
 		std::filesystem::current_path(defaultWorkingDirectory + "/Resources");
 	#endif
+	#endif
 		
-		//Logger is initialized after working directory is defined to have log file access
-		Logger::init();
+		Logger::init(); //Logger is initialized after working directory is defined to have log file access
 		Logger::critical("Stacato Version {}.{} {} ({})", VERSION_MAJOR, VERSION_MINOR, STACATO_OS_NAME, STACATO_BUILD_TYPE);
-		
 	}
 
 

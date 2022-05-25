@@ -185,18 +185,18 @@ void HoodedLiftStateMachine::machineSpecificMiniatureGui() {
 			case MachineState::State::UNKNOWN:
 				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 				ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkYellow);
-				ImGui::Button("", commandButtonSize);
+				ImGui::Button("##", commandButtonSize);
 				ImGui::Button("Unknown State", commandButtonSize);
-				ImGui::Button("", commandButtonSize);
+				ImGui::Button("##", commandButtonSize);
 				ImGui::PopStyleColor();
 				ImGui::PopItemFlag();
 				break;
 			case MachineState::State::UNEXPECTED_STATE:
 				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 				ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
-				ImGui::Button("", commandButtonSize);
+				ImGui::Button("##", commandButtonSize);
 				ImGui::Button("Error", commandButtonSize);
-				ImGui::Button("", commandButtonSize);
+				ImGui::Button("##", commandButtonSize);
 				ImGui::PopStyleColor();
 				ImGui::PopItemFlag();
 				break;

@@ -11,7 +11,19 @@
 
 #include <GLFW/glfw3.h>
 
+bool b_openEtherCatStartModal = false;
+
+void openEtherCatStartModal(){
+	b_openEtherCatStartModal = true;
+}
+
 void etherCatStartModal() {
+	
+	if(b_openEtherCatStartModal) {
+		ImGui::OpenPopup("Starting Environnement");
+		b_openEtherCatStartModal = false;
+	}
+	
 	ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5, 0.5));
 	ImGui::SetNextWindowSize(ImVec2(ImGui::GetTextLineHeight() * 30.0, 0), ImGuiCond_Always);
 	if (ImGui::BeginPopupModal("Starting Environnement")) {

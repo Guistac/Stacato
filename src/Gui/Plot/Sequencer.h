@@ -3,6 +3,6 @@
 namespace Sequencer::Gui{
 	
 	void editor();
-	void transport();
+	void transportControls(float height);
 
 };

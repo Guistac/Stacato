@@ -81,6 +81,15 @@ namespace Enumerator{
 		return getTypeStructureFromSaveString<E>(saveString)->enumerator;
 	}
 
+	template<typename E>
+	bool getEnumeratorFromSaveString(const char* saveString, E& output){
+		if(isValidSaveName<E>(saveString)){
+			output = getEnumeratorFromSaveString<E>(saveString);
+			return true;
+		}
+		return false;
+	}
+
 };
 	
 

@@ -2,7 +2,7 @@
 
 #include "Motion/Curve/Curve.h"
 #include "Motion/MotionTypes.h"
-#include "Motion/Profile.h"
+#include "Motion/Curve/Profile.h"
 
 class PositionControlledMachine : public Machine{
 	
@@ -16,9 +16,11 @@ class PositionControlledMachine : public Machine{
 	
 	std::shared_ptr<double> velocityPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(velocityPinValue, NodePin::Direction::NODE_OUTPUT, "Velocity");
-
-	std::shared_ptr<AnimatableParameter> positionParameter = std::make_shared<AnimatableParameter>("Position", ParameterDataType::POSITION);
-
+	
+	std::shared_ptr<AnimatableNumericalParameter> positionParameter = std::make_shared<AnimatableNumericalParameter>("Position",
+																													 MachineParameterType::POSITION,
+																													 Units::None::None);
+	
 	bool isAxisConnected();
 	std::shared_ptr<PositionControlledAxis> getAxis();
 	

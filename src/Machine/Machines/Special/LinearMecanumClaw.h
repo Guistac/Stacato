@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Machine/Machine.h"
-#include "Motion/Profile.h"
+#include "Motion/Curve/Profile.h"
 
 class LinearMecanumClaw : public Machine {
 public:
@@ -35,8 +35,12 @@ public:
 	
 	//=== Animatable Machine Parameters
 	
-	std::shared_ptr<AnimatableParameter> linearAxisPositionParameter = std::make_shared<AnimatableParameter>("Position Costière", ParameterDataType::POSITION);
-	std::shared_ptr<AnimatableParameter> clawAxisPositionParameter = std::make_shared<AnimatableParameter>("Angle Coeur", ParameterDataType::POSITION);
+	std::shared_ptr<AnimatableNumericalParameter> linearAxisPositionParameter = std::make_shared<AnimatableNumericalParameter>("Position Costière",
+																															   MachineParameterType::POSITION,
+																															   Units::None::None);
+	std::shared_ptr<AnimatableNumericalParameter> clawAxisPositionParameter = std::make_shared<AnimatableNumericalParameter>("Angle Coeur",
+																															 MachineParameterType::POSITION,
+																															 Units::None::None);
 	
 	//=== Device Checking & Gettings
 	

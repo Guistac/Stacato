@@ -70,6 +70,7 @@ namespace Environnement::NodeGraph::Gui{
 				ImGui::BeginDisabled(disableScanButton);
 				if (ImGui::Button("Scan Network")) {
 					std::thread etherCatNetworkScanner = std::thread([]() {
+						pthread_setname_np("EtherCAT Network Scanner Thread");
 						b_scanningNetwork = true;
 						EtherCatFieldbus::scanNetwork();
 						b_scanningNetwork = false;
