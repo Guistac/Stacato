@@ -501,6 +501,11 @@ void LinearMecanumClaw::homingControl(){
 	}
 }
 
+
+bool LinearMecanumClaw::canStartHoming(){
+	return isEnabled() && !Environnement::isSimulating();
+}
+
 bool LinearMecanumClaw::isHoming(){
 	return b_isHoming;
 }

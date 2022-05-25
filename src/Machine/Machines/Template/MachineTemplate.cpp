@@ -71,6 +71,26 @@ bool MachineTemplate::isMoving() {
 
 
 
+//========== HOMING ==========
+
+bool MachineTemplate::canStartHoming(){ return false; }
+
+bool MachineTemplate::isHoming(){ return false; }
+
+void MachineTemplate::startHoming(){}
+
+void MachineTemplate::stopHoming(){}
+
+bool MachineTemplate::didHomingSucceed(){ return false; }
+
+bool MachineTemplate::didHomingFail(){ return false; }
+
+float MachineTemplate::getHomingProgress(){ return 0.0; }
+
+const char* MachineTemplate::getHomingStateString(){ return "Homing Step String"; }
+
+
+
 
 //======= PLOT INTERFACE =========
 

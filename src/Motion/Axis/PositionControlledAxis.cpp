@@ -500,12 +500,14 @@ HomingStep PositionControlledAxis::getHomingStep(){
 void PositionControlledAxis::onHomingSuccess() {
 	b_isHoming = false;
 	homingStep = HomingStep::FINISHED;
+	Logger::info("Homing Axis {} SUCCEEDED !", getName());
 }
 
 void PositionControlledAxis::onHomingError() {
 	b_isHoming = false;
 	homingStep = HomingStep::NOT_STARTED;
 	disable();
+	Logger::info("Homing Axis {} FAILED : {}", getName(), Enumerator::getDisplayString(homingError));
 }
 
 float PositionControlledAxis::getHomingProgress() {
@@ -614,6 +616,7 @@ void PositionControlledAxis::homingControl(){
 			switch (homingStep) {
 				case HomingStep::NOT_STARTED:
 					homingStep = HomingStep::SEARCHING_LOW_LIMIT_COARSE;
+					Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 					break;
 				case HomingStep::SEARCHING_LOW_LIMIT_COARSE:
 					setVelocityTarget(-homingVelocityCoarse);
@@ -622,12 +625,14 @@ void PositionControlledAxis::homingControl(){
 					if (*lowLimitSignal){
 						homingStep = HomingStep::FOUND_LOW_LIMIT_COARSE;
 						setVelocityTarget(0.0);
+						Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 					}
 					break;
 				case HomingStep::FOUND_LOW_LIMIT_COARSE:
 					if (!isMoving()) {
 						setVelocityTarget(homingVelocityFine);
 						homingStep = HomingStep::SEARCHING_LOW_LIMIT_FINE;
+						Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 					}
 					break;
 				case HomingStep::SEARCHING_LOW_LIMIT_FINE:
@@ -636,6 +641,7 @@ void PositionControlledAxis::homingControl(){
 					if (previousLowLimitSignal && !*lowLimitSignal) {
 						homingStep = HomingStep::FOUND_LOW_LIMIT_FINE;
 						setVelocityTarget(0.0);
+						Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 					}
 					break;
 				case HomingStep::FOUND_LOW_LIMIT_FINE:
@@ -645,16 +651,18 @@ void PositionControlledAxis::homingControl(){
 						if(servoActuator->canHardReset()) {
 							servoActuator->hardReset();
 							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+							Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
 						}else{
 							servoActuator->setPosition(0.0);
 							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 					}
 					break;
 				case HomingStep::RESETTING_POSITION_FEEDBACK:
 					if(getServoActuatorDevice()->canHardReset()){
 						//if the servo actuator can hard reset its encoder, check if we are done resetting
-						Logger::critical("Waiting For Reset");
 						if(!getServoActuatorDevice()->isHardResetting()) {
 							motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
 							onHomingSuccess();
@@ -677,6 +685,7 @@ void PositionControlledAxis::homingControl(){
 					case HomingStep::NOT_STARTED:
 						homingStep = HomingStep::SEARCHING_LOW_LIMIT_COARSE;
 						setVelocityTarget(-homingVelocityCoarse);
+						Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						break;
 					case HomingStep::SEARCHING_LOW_LIMIT_COARSE:
 						//we don't check the signal rising edge but only the high condition
@@ -688,12 +697,14 @@ void PositionControlledAxis::homingControl(){
 						else if (*lowLimitSignal) {
 							homingStep = HomingStep::FOUND_LOW_LIMIT_COARSE;
 							setVelocityTarget(0.0);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::FOUND_LOW_LIMIT_COARSE:
 						if (!isMoving()) {
 							homingStep = HomingStep::SEARCHING_LOW_LIMIT_FINE;
 							setVelocityTarget(homingVelocityFine);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::SEARCHING_LOW_LIMIT_FINE:
@@ -701,13 +712,18 @@ void PositionControlledAxis::homingControl(){
 						if (previousLowLimitSignal && !*lowLimitSignal) {
 							homingStep = HomingStep::FOUND_LOW_LIMIT_FINE;
 							setVelocityTarget(0.0);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::FOUND_LOW_LIMIT_FINE:
 						if (!isMoving()) {
 							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
 							//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
-							if(getServoActuatorDevice()->canHardReset()) getServoActuatorDevice()->hardReset();
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+							if(getServoActuatorDevice()->canHardReset()) {
+								getServoActuatorDevice()->hardReset();
+								Logger::info("Homing Axis {} : Hard Reset Position Feedback", getName());
+							}
 						}
 						break;
 					case HomingStep::RESETTING_POSITION_FEEDBACK:
@@ -719,12 +735,14 @@ void PositionControlledAxis::homingControl(){
 								motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
 								homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
 								setVelocityTarget(homingVelocityCoarse);
+								Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 							}
 						}else{
 							//else we set a software offset in the encoder object
 							setCurrentPosition(0.0);
 							homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
 							setVelocityTarget(homingVelocityCoarse);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::SEARCHING_HIGH_LIMIT_COARSE:
@@ -736,12 +754,14 @@ void PositionControlledAxis::homingControl(){
 						else if (*highLimitSignal){
 							setVelocityTarget(0.0);
 							homingStep = HomingStep::FOUND_HIGH_LIMIT_COARSE;
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::FOUND_HIGH_LIMIT_COARSE:
 						if (!isMoving()) {
 							setVelocityTarget(-homingVelocityFine);
 							homingStep = HomingStep::SEARCHING_HIGH_LIMIT_FINE;
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::SEARCHING_HIGH_LIMIT_FINE:
@@ -749,11 +769,13 @@ void PositionControlledAxis::homingControl(){
 						if (previousHighLimitSignal && !*highLimitSignal) {
 							homingStep = HomingStep::FOUND_HIGH_LIMIT_FINE;
 							setVelocityTarget(0.0);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::FOUND_HIGH_LIMIT_FINE:
 						if (!isMoving()) {
 							homingStep = HomingStep::SETTING_HIGH_LIMIT;
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::SETTING_HIGH_LIMIT:
@@ -771,6 +793,7 @@ void PositionControlledAxis::homingControl(){
 				switch (homingStep) {
 					case HomingStep::NOT_STARTED:
 						homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
+						Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						break;
 					case HomingStep::SEARCHING_HIGH_LIMIT_COARSE:
 						setVelocityTarget(homingVelocityCoarse);
@@ -782,12 +805,14 @@ void PositionControlledAxis::homingControl(){
 						else if (*highLimitSignal) {
 							homingStep = HomingStep::FOUND_HIGH_LIMIT_COARSE;
 							setVelocityTarget(0.0);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::FOUND_HIGH_LIMIT_COARSE:
 						if (!isMoving()) {
 							homingStep = HomingStep::SEARCHING_HIGH_LIMIT_FINE;
 							setVelocityTarget(-homingVelocityFine);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::SEARCHING_HIGH_LIMIT_FINE:
@@ -795,17 +820,20 @@ void PositionControlledAxis::homingControl(){
 						if (previousHighLimitSignal && !*highLimitSignal) {
 							homingStep = HomingStep::FOUND_HIGH_LIMIT_FINE;
 							setVelocityTarget(0.0);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::FOUND_HIGH_LIMIT_FINE:
 						if (!isMoving()) {
 							homingStep = HomingStep::SETTING_HIGH_LIMIT;
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::SETTING_HIGH_LIMIT:
 						setCurrentPosition(0.0); //set a zero reference now, we will use it later
 						homingStep = HomingStep::SEARCHING_LOW_LIMIT_COARSE;
 						setVelocityTarget(-homingVelocityCoarse);
+						Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						break;
 					case HomingStep::SEARCHING_LOW_LIMIT_COARSE:
 						//don't check the rising edge
@@ -816,18 +844,21 @@ void PositionControlledAxis::homingControl(){
 						else if (*lowLimitSignal) {
 							homingStep = HomingStep::FOUND_LOW_LIMIT_COARSE;
 							setVelocityTarget(0.0);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::FOUND_LOW_LIMIT_COARSE:
 						if (!isMoving()) {
 							homingStep = HomingStep::SEARCHING_LOW_LIMIT_FINE;
 							setVelocityTarget(homingVelocityFine);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::SEARCHING_LOW_LIMIT_FINE:
 						if (previousLowLimitSignal && !*lowLimitSignal){
 							homingStep = HomingStep::FOUND_LOW_LIMIT_FINE;
 							setVelocityTarget(0.0);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::FOUND_LOW_LIMIT_FINE:
@@ -836,10 +867,12 @@ void PositionControlledAxis::homingControl(){
 							//if we can hard reset the servo actuator encoder here, do it
 							if(getServoActuatorDevice()->canHardReset()) {
 								getServoActuatorDevice()->hardReset();
+								Logger::info("Homing Axis {} : Hard Reset Position Feedback", getName());
 							}else{
 								setCurrentPosition(0.0);
 							}
 							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::RESETTING_POSITION_FEEDBACK:
@@ -868,18 +901,21 @@ void PositionControlledAxis::homingControl(){
 					case HomingStep::NOT_STARTED:
 						homingStep = HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE;
 						setVelocityTarget(homingVelocityCoarse);
+						Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						break;
 					case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE:
-						//Don't check rising edge since the signal may have been trigger already when homing was started
+						//Don't check rising edge since the signal may have been triggered already when homing was started
 						if (*referenceSignal) {
 							homingStep = HomingStep::FOUND_REFERENCE_FROM_BELOW_COARSE;
 							setVelocityTarget(0.0);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::FOUND_REFERENCE_FROM_BELOW_COARSE:
 						if (!isMoving()) {
 							homingStep = HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE;
 							setVelocityTarget(-homingVelocityFine);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE:
@@ -887,6 +923,7 @@ void PositionControlledAxis::homingControl(){
 						if (previousReferenceSignal && !*referenceSignal) {
 							homingStep = HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE;
 							setVelocityTarget(0.0);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE:
@@ -894,6 +931,7 @@ void PositionControlledAxis::homingControl(){
 							setCurrentPosition(0.0);
 							homingStep = HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE;
 							setVelocityTarget(homingVelocityFine);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
@@ -901,13 +939,13 @@ void PositionControlledAxis::homingControl(){
 						if (previousReferenceSignal && !*referenceSignal) {
 							homingStep = HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE;
 							setVelocityTarget(0.0);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE:
 						if (!isMoving()) {
 							//TODO: need to return to center and hard reset encoder if possible
 							setCurrentPosition(*actualPositionValue / 2.0);
-							moveToPositionInTime(0.0, 0.0);
 							onHomingSuccess();
 						}
 						break;
@@ -922,18 +960,21 @@ void PositionControlledAxis::homingControl(){
 					case HomingStep::NOT_STARTED:
 						homingStep = HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE;
 						setVelocityTarget(-homingVelocityCoarse);
+						Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						break;
 					case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE:
 						//dont check the rising edge since we might already have triggered the signal at homing start
 						if (*referenceSignal) {
 							homingStep = HomingStep::FOUND_REFERENCE_FROM_ABOVE_COARSE;
 							setVelocityTarget(0.0);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::FOUND_REFERENCE_FROM_ABOVE_COARSE:
 						if (!isMoving()) {
 							homingStep = HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE;
 							setVelocityTarget(homingVelocityFine);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
@@ -941,6 +982,7 @@ void PositionControlledAxis::homingControl(){
 						if (previousReferenceSignal && !*referenceSignal) {
 							homingStep = HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE;
 							setVelocityTarget(0.0);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE:
@@ -948,6 +990,7 @@ void PositionControlledAxis::homingControl(){
 							setCurrentPosition(0.0);
 							homingStep = HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE;
 							setVelocityTarget(-homingVelocityFine);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE:
@@ -955,13 +998,13 @@ void PositionControlledAxis::homingControl(){
 						if (previousReferenceSignal && !*referenceSignal) {
 							homingStep = HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE;
 							setVelocityTarget(0.0);
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE:
 						if (!isMoving()) {
 							//TODO: need to return to center and hard reset encoder if possible
 							setCurrentPosition(*actualPositionValue / 2.0);
-							moveToPositionInTime(0.0, 0.0);
 							onHomingSuccess();
 						}
 						break;
@@ -973,6 +1016,7 @@ void PositionControlledAxis::homingControl(){
 			break;
 
 		default:
+			homingError = HomingError::HOMING_NOT_SUPORTED;
 			onHomingError(); //homing should not be started for modes that don't support homing
 			break;
 	}

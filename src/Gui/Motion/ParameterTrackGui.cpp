@@ -303,9 +303,10 @@ void SequenceParameterTrack::drawCurveControls(){
 			//don't draw the first control point of a step interpolation sequence, since we can't edit it anyway
 			if(i == 0 && interpolationType->value == Motion::Interpolation::Type::STEP) continue;
 
+			ImGui::BeginDisabled();
 			if (controlPoint->b_valid) controlPointEdited = ImPlot::DragPoint("", &controlPoint->time, &controlPoint->position, true, Colors::white, controlPointMedium);
 			else controlPointEdited = ImPlot::DragPoint("", &controlPoint->time, &controlPoint->position, true, Colors::red, controlPointLarge);
-			
+			ImGui::EndDisabled();
 
 			if (!controlPoint->b_valid) {
 				ImPlot::Annotate(controlPoint->time, controlPoint->position, glm::vec2(30, -30), glm::vec4(0.5, 0.0, 0.0, 0.5), "%s", Enumerator::getDisplayString(controlPoint->validationError));
@@ -335,6 +336,7 @@ void SequenceParameterTrack::drawCurveControls(){
 					ImPlot::SetNextFillStyle(Colors::black, 0.4);
 					ImPlot::PlotShaded("##limitHighShaded", &highLimitPoints[0].x, &highLimitPoints[0].y, 2, INFINITY, 0, sizeof(glm::vec2));
 					ImPlot::SetNextLineStyle(Colors::black);
+			 
 					ImPlot::PlotHLines("##positionLimits", &lowLimit, 1, 0, sizeof(double));
 					ImPlot::SetNextLineStyle(Colors::black);
 					ImPlot::PlotHLines("##positionLimits", &highLimit, 1, 0, sizeof(double));

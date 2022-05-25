@@ -157,7 +157,7 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 
 
 void Manoeuvre::trackSheetGui(){
-
+	
 	ImVec2 cursorPos = ImGui::GetCursorPos();
 	
 	ImGui::BeginGroup();
@@ -326,19 +326,6 @@ void Manoeuvre::trackSheetGui(){
 	if(removedTrackIndex > -1) removeTrack(getTracks()[removedTrackIndex]->getParameter());
 	if(movedUpTrackIndex > -1) moveTrack(movedUpTrackIndex, movedUpTrackIndex - 1);
 	if(movedDownTrackIndex > -1) moveTrack(movedDownTrackIndex, movedDownTrackIndex + 1);
-	
-	
-	/*
-	//TODO: Temporary !!!!
-	if(ImGui::BeginListBox("Active Manoeuvres")){
-		for(auto manoeuvre : PlaybackManager::getActiveManoeuvres()){
-			ImGui::Selectable(manoeuvre->getName());
-		}
-		ImGui::EndListBox();
-	}
-	 */
-	
-	
 }
 
 void Manoeuvre::curveEditorGui(){

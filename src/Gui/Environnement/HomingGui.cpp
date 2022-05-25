@@ -104,7 +104,7 @@ namespace Environnement::Gui{
 			ImGui::Text("%s", machine->getName());
 			ImGui::PopFont();
 			
-			bool disableHomingButton = !machine->isEnabled();
+			bool disableHomingButton = !machine->canStartHoming();
 			ImGui::BeginDisabled(disableHomingButton);
 			if(machine->isHoming()){
 				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);

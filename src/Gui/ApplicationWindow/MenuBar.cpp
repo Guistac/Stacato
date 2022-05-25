@@ -84,8 +84,8 @@ namespace Gui {
 			ImGui::EndMenu();
 		}
 		if(ImGui::BeginMenu("View")){
-			if(ImGui::MenuItem("Save New Layout")) LayoutManager::addCurrent();
-			if(ImGui::MenuItem("Reset Factory Layout")) Gui::resetDefaultLayout();
+			if(ImGui::MenuItem("Save new layout")) LayoutManager::addCurrent();
+			if(ImGui::MenuItem("Reset to default layout")) Gui::resetDefaultLayout();
 			
 			if(!LayoutManager::getLayouts().empty()) ImGui::Separator();
 			

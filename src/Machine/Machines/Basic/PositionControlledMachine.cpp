@@ -214,9 +214,12 @@ void PositionControlledMachine::simulateProcess() {
 	
 }
 
+bool PositionControlledMachine::canStartHoming(){
+	return isEnabled() && !Environnement::isSimulating();
+}
 
 bool PositionControlledMachine::isHoming(){
-	return getAxis()->isHoming();
+	return isAxisConnected() && getAxis()->isHoming();
 }
 void PositionControlledMachine::startHoming(){
 	positionParameter->stopParameterPlayback();
@@ -226,15 +229,16 @@ void PositionControlledMachine::stopHoming(){
 	getAxis()->cancelHoming();
 }
 bool PositionControlledMachine::didHomingSucceed(){
-	return getAxis()->didHomingSucceed();
+	return isAxisConnected() && getAxis()->didHomingSucceed();
 }
 bool PositionControlledMachine::didHomingFail(){
-	return getAxis()->didHomingFail();
+	return isAxisConnected() && getAxis()->didHomingFail();
 }
 float PositionControlledMachine::getHomingProgress(){
 	return getAxis()->getHomingProgress();
 }
 const char* PositionControlledMachine::getHomingStateString(){
+	if(!isAxisConnected()) return "No axis is connected to machine";
 	return Enumerator::getDisplayString(getAxis()->getHomingStep());
 }
 

@@ -52,14 +52,15 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual bool getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit);\
 
 #define DEFINE_HOMEABLE_MACHINE \
-	virtual bool isHomeable(){ return true; }\
-	virtual bool isHoming();\
-	virtual void startHoming();\
-	virtual void stopHoming();\
-	virtual bool didHomingSucceed();\
-	virtual bool didHomingFail();\
-	virtual float getHomingProgress();\
-	virtual const char* getHomingStateString();\
+	virtual bool isHomeable() override { return true; }\
+	virtual bool canStartHoming() override;\
+	virtual bool isHoming() override;\
+	virtual void startHoming() override;\
+	virtual void stopHoming() override;\
+	virtual bool didHomingSucceed() override;\
+	virtual bool didHomingFail() override;\
+	virtual float getHomingProgress() override;\
+	virtual const char* getHomingStateString() override;\
 
 class Machine : public Node {
 public:
@@ -86,6 +87,7 @@ public:
 	virtual void onDisableHardware() = 0;
 	
 	virtual bool isHomeable(){ return false; }
+	virtual bool canStartHoming(){ return false; }
 	virtual bool isHoming(){ return false; }
 	virtual void startHoming(){}
 	virtual void stopHoming(){}

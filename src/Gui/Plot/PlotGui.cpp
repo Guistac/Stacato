@@ -82,7 +82,7 @@ bool noSelectionDisplay(){
 		ImGui::PopFont();
 		return true;
 	}
-	
+	return false;
 }
 
 void trackSheetEditor(){

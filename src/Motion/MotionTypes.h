@@ -155,13 +155,15 @@ DEFINE_ENUMERATOR(HomingStep, HomingStepStrings)
 enum class HomingError{
 	NONE,
 	HOMING_CANCELED,
-	TRIGGERED_WRONG_LIMIT_SIGNAL
+	TRIGGERED_WRONG_LIMIT_SIGNAL,
+	HOMING_NOT_SUPORTED
 };
 
 #define HomingErrorStrings \
 	{HomingError::NONE,							"No Error"},\
 	{HomingError::HOMING_CANCELED,				"Homing Canceled"},\
-	{HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL,	"Error: Hit Wrong Limit Signal"}\
+	{HomingError::TRIGGERED_WRONG_LIMIT_SIGNAL,	"Error: Hit Wrong Limit Signal"},\
+	{HomingError::HOMING_NOT_SUPORTED, 			"Error: Homing is not supported"}\
 
 DEFINE_ENUMERATOR(HomingError, HomingErrorStrings)
 
@@ -196,7 +198,7 @@ enum class MachineParameterType {
 	{MachineParameterType::VELOCITY, 	"Velocity", 		"Velocity"},\
 	{MachineParameterType::VELOCITY_2D, "2D Velocity", 		"2DVelocity"},\
 	{MachineParameterType::VELOCITY_3D, "3D Velocity", 		"3DVelocity"},\
-	{MachineParameterType::GROUP, 		"Paramater Group", 	"ParameterGroup"}\
+	{MachineParameterType::GROUP, 		"Parameter Group", 	"ParameterGroup"}\
 
 DEFINE_ENUMERATOR(MachineParameterType, ParameterDataTypeStrings)
 

@@ -64,14 +64,14 @@ namespace Gui {
 			ImGui::DockBuilderRemoveNodeDockedWindows(dockspaceID);
 			ImGui::DockBuilderRemoveNodeChildNodes(dockspaceID);
 			
-			ImGuiID leftID;
-			ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.15, &leftID, &dockspaceID);
+			//ImGuiID leftID;
+			//ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.15, &leftID, &dockspaceID);
 			
 			ImGui::DockBuilderDockWindow("Environnement", dockspaceID);
 			//ImGui::DockBuilderDockWindow("Stage", dockspaceID);
 			ImGui::DockBuilderDockWindow("Machines", dockspaceID);
 			ImGui::DockBuilderDockWindow("Setup", dockspaceID);
-			ImGui::DockBuilderDockWindow("Manoeuvre List", leftID);
+			ImGui::DockBuilderDockWindow("Manoeuvre List", dockspaceID);
 			ImGui::DockBuilderDockWindow("Manoeuvre Sheet", dockspaceID);
 			ImGui::DockBuilderDockWindow("Manoeuvre Curves", dockspaceID);
 			//ImGui::DockBuilderDockWindow("Sequencer", dockspaceID);

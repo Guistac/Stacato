@@ -3,4 +3,5 @@
 class MachineTemplate : public Machine{
 	
 	DEFINE_MACHINE_NODE(MachineTemplate, "Machine Template", "MachineTemplate", "Category")
+	DEFINE_HOMEABLE_MACHINE
 };
