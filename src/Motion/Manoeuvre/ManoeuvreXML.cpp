@@ -18,13 +18,13 @@ bool Manoeuvre::save(tinyxml2::XMLElement* manoeuvreXML) {
 	description->save(manoeuvreXML);
 	type->save(manoeuvreXML);
 	
-	for (auto& track : tracks) {
+	for (auto& animation : animations) {
 		//tracks which have a group parent are listed in the manoeuvres track vector
 		//but they don't get saved in the main manoeuvre
 		//instead they are saved by their parent parameter track
-		if (track->hasParentGroup()) continue;
-		XMLElement* trackXML = manoeuvreXML->InsertNewChildElement("ParameterTrack");
-		track->save(trackXML);
+		if (animation->hasParentComposite()) continue;
+		XMLElement* animationXML = manoeuvreXML->InsertNewChildElement("Animation");
+		animation->save(animationXML);
 	}
 	 
 	return true;
@@ -38,13 +38,13 @@ std::shared_ptr<Manoeuvre> Manoeuvre::load(tinyxml2::XMLElement* xml){
 	manoeuvre->description->load(xml);
 	manoeuvre->type->load(xml);
 	
-	XMLElement* trackXML = xml->FirstChildElement("ParameterTrack");
-	while (trackXML != nullptr) {
-		auto newTrack = ParameterTrack::load(trackXML);
-		if(newTrack == nullptr) return nullptr;
-		newTrack->setManoeuvre(manoeuvre);
-		manoeuvre->tracks.push_back(newTrack);
-		trackXML = trackXML->NextSiblingElement("ParameterTrack");
+	XMLElement* animationXML = xml->FirstChildElement("Animation");
+	while (animationXML != nullptr) {
+		auto newAnimation = Animation::load(animationXML);
+		if(newAnimation == nullptr) return nullptr;
+		newAnimation->setManoeuvre(manoeuvre);
+		manoeuvre->animations.push_back(newAnimation);
+		animationXML = animationXML->NextSiblingElement("Animation");
 	}
 	
 	manoeuvre->validateAllParameterTracks();
@@ -55,25 +55,22 @@ std::shared_ptr<Manoeuvre> Manoeuvre::load(tinyxml2::XMLElement* xml){
 
 
 
-bool ParameterTrack::save(tinyxml2::XMLElement* xml){
-	xml->SetAttribute("Machine", parameter->getMachine()->getName());
-	xml->SetAttribute("MachineUniqueID", parameter->getMachine()->getUniqueID());
-	xml->SetAttribute("Parameter", parameter->getName());
-	xml->SetAttribute("IsGroup", isGroup());
-	if(!isGroup()) {
-		auto animated = castToAnimated();
-		xml->SetAttribute("Type", Enumerator::getSaveString(animated->getType()));
-	}
+bool Animation::save(tinyxml2::XMLElement* xml){
+	xml->SetAttribute("Machine", animatable->getMachine()->getName());
+	xml->SetAttribute("MachineUniqueID", animatable->getMachine()->getUniqueID());
+	xml->SetAttribute("Parameter", animatable->getName());
+	xml->SetAttribute("IsComposite", isComposite());
+	if(!isComposite()) xml->SetAttribute("Type", Enumerator::getSaveString(getType()));
 	return onSave(xml);
 }
 
 
-std::shared_ptr<ParameterTrack> ParameterTrack::load(tinyxml2::XMLElement* xml){
+std::shared_ptr<Animation> Animation::load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	
 	const char* machineName;
 	int machineUniqueID;
-	const char* parameterName;
+	const char* animatableName;
 	
 	//we need to find the exact parameter object linked with the parameter track
 	//to do this we match the machine name, machine unique id and then parse the machines parameters and match the parameter name
@@ -88,7 +85,7 @@ std::shared_ptr<ParameterTrack> ParameterTrack::load(tinyxml2::XMLElement* xml){
 		return nullptr;
 	}
 	
-	if(xml->QueryStringAttribute("Parameter", &parameterName) != XML_SUCCESS){
+	if(xml->QueryStringAttribute("Parameter", &animatableName) != XML_SUCCESS){
 		Logger::warn("Could not load parameter name");
 		return nullptr;
 	}
@@ -106,22 +103,22 @@ std::shared_ptr<ParameterTrack> ParameterTrack::load(tinyxml2::XMLElement* xml){
 		return nullptr;
 	}
 
-	std::shared_ptr<MachineParameter> parameter = nullptr;
-	for (auto& p : machine->parameters) {
-		if (strcmp(parameterName, p->getName()) == 0) {
-			parameter = p;
+	std::shared_ptr<Animatable> animatable = nullptr;
+	for (auto& a : machine->animatables) {
+		if (strcmp(animatableName, a->getName()) == 0) {
+			animatable = a;
 			break;
 		}
 	}
-	if (parameter == nullptr) {
-		Logger::warn("Could not find parameter named {} in machine {}", parameterName, machine->getName());
+	if (animatable == nullptr) {
+		Logger::warn("Could not find animatable named {} in machine {}", animatableName, machine->getName());
 		return nullptr;
 	}
 	
 	//once we have the parameter object, we can create and load the parameter track object:
-	auto loadedTrack = loadType(xml, parameter);
+	auto loadedTrack = loadType(xml, animatable);
 	if(loadedTrack == nullptr) {
-		Logger::warn("Failed to load parameter track {} of machine {}", parameterName, machine->getName());
+		Logger::warn("Failed to load parameter track {} of machine {}", animatableName, machine->getName());
 		return nullptr;
 	}
 	loadedTrack->subscribeToMachineParameter();
@@ -129,10 +126,11 @@ std::shared_ptr<ParameterTrack> ParameterTrack::load(tinyxml2::XMLElement* xml){
 	return loadedTrack;
 }
 
-std::shared_ptr<ParameterTrack> ParameterTrack::loadType(tinyxml2::XMLElement* xml, std::shared_ptr<MachineParameter> parameter){
+
+
+std::shared_ptr<Animation> Animation::loadType(tinyxml2::XMLElement* xml, std::shared_ptr<Animatable> animatable){
 	using namespace tinyxml2;
 	
-
 	bool isGroup = false;
 	ManoeuvreType manoeuvreType;
 	
@@ -150,20 +148,20 @@ std::shared_ptr<ParameterTrack> ParameterTrack::loadType(tinyxml2::XMLElement* x
 		}
 	}
 	
-	std::shared_ptr<ParameterTrack> parameterTrack = nullptr;
-	if(isGroup) ParameterTrackGroup::load(xml, parameter->castToGroup());
+	std::shared_ptr<Animation> animation = nullptr;
+	if(isGroup) AnimationComposite::load(xml, animatable->toComposite());
 	else{
 		switch(manoeuvreType){
-			case ManoeuvreType::KEY: parameterTrack = KeyParameterTrack::load(xml, parameter->castToAnimatable()); break;
-			case ManoeuvreType::TARGET: parameterTrack = TargetParameterTrack::load(xml, parameter->castToAnimatable()); break;
-			case ManoeuvreType::SEQUENCE: parameterTrack = SequenceParameterTrack::load(xml, parameter->castToAnimatable()); break;
+			case ManoeuvreType::KEY: animation = AnimationKey::load(xml, animatable); break;
+			case ManoeuvreType::TARGET: animation = TargetAnimation::load(xml, animatable); break;
+			case ManoeuvreType::SEQUENCE: animation = SequenceAnimation::load(xml, animatable); break;
 		}
 	}
-	if(parameterTrack == nullptr){
+	if(animation == nullptr){
 		Logger::warn("Could not load parameter track");
 		return nullptr;
 	}
-	return parameterTrack;
+	return animation;
 }
 
 
@@ -176,7 +174,7 @@ std::shared_ptr<ParameterTrack> ParameterTrack::loadType(tinyxml2::XMLElement* x
 
 
 
-bool ParameterTrackGroup::onSave(tinyxml2::XMLElement* xml){
+bool AnimationComposite::onSave(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	for(auto childTrack : children){
 		XMLElement* childTrackXML = xml->InsertNewChildElement("ParameterTrack");
@@ -185,10 +183,10 @@ bool ParameterTrackGroup::onSave(tinyxml2::XMLElement* xml){
 	return true;
 }
 
-std::shared_ptr<ParameterTrackGroup> ParameterTrackGroup::load(tinyxml2::XMLElement* xml, std::shared_ptr<ParameterGroup> parameterGroup){
+std::shared_ptr<AnimationComposite> AnimationComposite::load(tinyxml2::XMLElement* xml, std::shared_ptr<AnimatableComposite> animatableComposite){
 	using namespace tinyxml2;
 	
-	auto parameterTrackGroup = std::make_shared<ParameterTrackGroup>(parameterGroup);
+	auto animationComposite = std::make_shared<AnimationComposite>(animatableComposite);
 	
 	XMLElement* childTrackXML = xml->FirstChildElement("ParameterTrack");
 	while(childTrackXML){
@@ -199,35 +197,35 @@ std::shared_ptr<ParameterTrackGroup> ParameterTrackGroup::load(tinyxml2::XMLElem
 		ManoeuvreType trackType;
 		bool isGroup;
 						
-		const char* parameterName;
+		const char* animatableName;
 		
-		if(xml->QueryStringAttribute("Parameter", &parameterName) != XML_SUCCESS){
-			Logger::warn("Could not load child parameter name");
+		if(xml->QueryStringAttribute("Animatable", &animatableName) != XML_SUCCESS){
+			Logger::warn("Could not load child animatable name");
 			return nullptr;
 		}
 		
-		std::shared_ptr<MachineParameter> parameter = nullptr;
-		for(auto childParameter : parameterGroup->getChildren()){
-			if(strcmp(childParameter->getName(), parameterName) == 0){
-				parameter = childParameter;
+		std::shared_ptr<Animatable> animatable = nullptr;
+		for(auto childAnimatable : animatableComposite->getChildren()){
+			if(strcmp(childAnimatable->getName(), animatableName) == 0){
+				animatable = childAnimatable;
 				break;
 			}
 		}
-		if(parameter == nullptr){
-			Logger::warn("could not find child parameter {} of parameter group {}", parameterName, parameterGroup->getName());
+		if(animatable == nullptr){
+			Logger::warn("could not find child animatable {} of animatable composite {}", animatableName, animatableComposite->getName());
 			return nullptr;
 		}
 		
 		//once we have the parameter name, we can create and load the child parameter track object:
-		std::shared_ptr<ParameterTrack> childParameterTrack = ParameterTrack::loadType(xml, parameter);
-		if(childParameterTrack == nullptr){
-			Logger::warn("could not load child parameter track {}", parameter->getName());
+		std::shared_ptr<Animation> childAnimation = Animation::loadType(xml, animatable);
+		if(childAnimation == nullptr){
+			Logger::warn("could not load child animation {}", animatable->getName());
 			return nullptr;
 		}
 		
 		//set the grouping dependencies
-		childParameterTrack->setParent(parameterTrackGroup);
-		parameterTrackGroup->children.push_back(childParameterTrack);
+		childAnimation->setParentComposite(animationComposite);
+		animationComposite->children.push_back(childAnimation);
 		
 		//get the next child parameter
 		childTrackXML = xml->NextSiblingElement("ParameterTrack");
@@ -235,21 +233,21 @@ std::shared_ptr<ParameterTrackGroup> ParameterTrackGroup::load(tinyxml2::XMLElem
 	
 	
 	//here we check if all child parameters of the parameter group have an associated parameter track
-	for(auto childParameter : parameterGroup->getChildren()){
-		bool b_hasTrack = false;
-		for(auto childTrack : parameterTrackGroup->getChildren()){
-			if(childTrack->getParameter() == childParameter){
-				b_hasTrack = true;
+	for(auto childAnimatable : animatableComposite->getChildren()){
+		bool b_hasAnimation = false;
+		for(auto childAnimation : animationComposite->getChildren()){
+			if(childAnimation->getAnimatable() == childAnimatable){
+				b_hasAnimation = true;
 				break;
 			}
 		}
-		if(!b_hasTrack) {
-			Logger::warn("Parameter Track Group \'{}\' did not load child parameter track \'{}\'", parameterGroup->getType(), childParameter->getName());
+		if(!b_hasAnimation) {
+			Logger::warn("Animation Composite \'{}\' did not load child animation \'{}\'", animatableComposite->getType(), childAnimatable->getName());
 			return nullptr;
 		}
 	}
 	
-	return parameterTrackGroup;
+	return animationComposite;
 }
 
 
@@ -261,18 +259,18 @@ std::shared_ptr<ParameterTrackGroup> ParameterTrackGroup::load(tinyxml2::XMLElem
 
 
 
-bool KeyParameterTrack::onSave(tinyxml2::XMLElement* xml){
+bool AnimationKey::onSave(tinyxml2::XMLElement* xml){
 	target->save(xml);
 	return true;
 }
 
-std::shared_ptr<KeyParameterTrack> KeyParameterTrack::load(tinyxml2::XMLElement* xml, std::shared_ptr<AnimatableParameter> parameter){
-	auto keyParameterTrack = std::make_shared<KeyParameterTrack>(parameter);
-	if(!keyParameterTrack->target->load(xml)){
-		Logger::warn("Could not load Target parameter of Parameter track {}", parameter->getName());
+std::shared_ptr<AnimationKey> AnimationKey::load(tinyxml2::XMLElement* xml, std::shared_ptr<Animatable> animatable){
+	auto animationKey = std::make_shared<AnimationKey>(animatable);
+	if(!animationKey->target->load(xml)){
+		Logger::warn("Could not load Target parameter of Parameter track {}", animatable->getName());
 		return nullptr;
 	}
-	return keyParameterTrack;
+	return animationKey;
 }
 
 
@@ -286,7 +284,7 @@ std::shared_ptr<KeyParameterTrack> KeyParameterTrack::load(tinyxml2::XMLElement*
 
 
 
-bool TargetParameterTrack::onSave(tinyxml2::XMLElement* xml){
+bool TargetAnimation::onSave(tinyxml2::XMLElement* xml){
 	//save type, constraint, target, ramps
 	target->save(xml);
 	constraintType->save(xml);
@@ -298,37 +296,37 @@ bool TargetParameterTrack::onSave(tinyxml2::XMLElement* xml){
 	return true;
 }
 
-std::shared_ptr<TargetParameterTrack> TargetParameterTrack::load(tinyxml2::XMLElement* xml, std::shared_ptr<AnimatableParameter> parameter){
-	auto targetParameterTrack = std::make_shared<TargetParameterTrack>(parameter);
-	if(!targetParameterTrack->target->load(xml)){
-		Logger::warn("could not load attribute target of parameter track {}", parameter->getName());
+std::shared_ptr<TargetAnimation> TargetAnimation::load(tinyxml2::XMLElement* xml, std::shared_ptr<Animatable> animatable){
+	auto targetAnimation = std::make_shared<TargetAnimation>(animatable);
+	if(!targetAnimation->target->load(xml)){
+		Logger::warn("could not load attribute target of animation {}", animatable->getName());
 		return nullptr;
 	}
-	if(!targetParameterTrack->constraintType->load(xml)){
-		Logger::warn("could not load attribute constraint Type of parameter track {}", parameter->getName());
+	if(!targetAnimation->constraintType->load(xml)){
+		Logger::warn("could not load attribute constraint Type of animation {}", animatable->getName());
 		return nullptr;
 	}
-	if(!targetParameterTrack->timeConstraint->load(xml)){
-		Logger::warn("could not load attribute time constraint of parameter track {}", parameter->getName());
+	if(!targetAnimation->timeConstraint->load(xml)){
+		Logger::warn("could not load attribute time constraint of animation {}", animatable->getName());
 		return nullptr;
 	}
-	if(!targetParameterTrack->velocityConstraint->load(xml)){
-		Logger::warn("could not load attribute velocity constraint of parameter track {}", parameter->getName());
+	if(!targetAnimation->velocityConstraint->load(xml)){
+		Logger::warn("could not load attribute velocity constraint of animation {}", animatable->getName());
 		return nullptr;
 	}
-	if(!targetParameterTrack->inAcceleration->load(xml)){
-		Logger::warn("could not load attribute inAcceleration of parameter track {}", parameter->getName());
+	if(!targetAnimation->inAcceleration->load(xml)){
+		Logger::warn("could not load attribute inAcceleration of animation {}", animatable->getName());
 		return nullptr;
 	}
-	if(!targetParameterTrack->outAcceleration->load(xml)){
-		Logger::warn("could not load attribute outAcceleration of parameter track {}", parameter->getName());
+	if(!targetAnimation->outAcceleration->load(xml)){
+		Logger::warn("could not load attribute outAcceleration of animation {}", animatable->getName());
 		return nullptr;
 	}
-	if(!targetParameterTrack->timeOffset->load(xml)){
-		Logger::warn("could not load attribute timeOffset of parameter track {}", parameter->getName());
+	if(!targetAnimation->timeOffset->load(xml)){
+		Logger::warn("could not load attribute timeOffset of animation {}", animatable->getName());
 		return nullptr;
 	}
-	return targetParameterTrack;
+	return targetAnimation;
 }
 
 
@@ -340,7 +338,7 @@ std::shared_ptr<TargetParameterTrack> TargetParameterTrack::load(tinyxml2::XMLEl
 
 
 
-bool SequenceParameterTrack::onSave(tinyxml2::XMLElement* xml){
+bool SequenceAnimation::onSave(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	
 	interpolationType->save(xml);
@@ -367,33 +365,33 @@ bool SequenceParameterTrack::onSave(tinyxml2::XMLElement* xml){
 	return true;
 }
 
-std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::load(tinyxml2::XMLElement* xml, std::shared_ptr<AnimatableParameter> parameter){
-	auto track = std::make_shared<SequenceParameterTrack>(parameter);
-	if(!track->interpolationType->load(xml)){
-		Logger::warn("could not load attribute Interpolation Type of parameter track {}", parameter->getName());
+std::shared_ptr<SequenceAnimation> SequenceAnimation::load(tinyxml2::XMLElement* xml, std::shared_ptr<Animatable> animatable){
+	auto sequenceAnimation = std::make_shared<SequenceAnimation>(animatable);
+	if(!sequenceAnimation->interpolationType->load(xml)){
+		Logger::warn("could not load attribute Interpolation Type of Animation {}", animatable->getName());
 	}
-	if(!track->start->load(xml)){
-		Logger::warn("could not load attribute Start of parameter track {}", parameter->getName());
+	if(!sequenceAnimation->start->load(xml)){
+		Logger::warn("could not load attribute Start of Animation {}", animatable->getName());
 		return nullptr;
 	}
-	if(!track->target->load(xml)){
-		Logger::warn("could not load attribute End of parameter track {}", parameter->getName());
+	if(!sequenceAnimation->target->load(xml)){
+		Logger::warn("could not load attribute End of Animation {}", animatable->getName());
 		return nullptr;
 	}
-	if(!track->duration->load(xml)){
-		Logger::warn("could not load attribute Duration of parameter track {}", parameter->getName());
+	if(!sequenceAnimation->duration->load(xml)){
+		Logger::warn("could not load attribute Duration of Animation {}", animatable->getName());
 		return nullptr;
 	}
-	if(!track->timeOffset->load(xml)){
-		Logger::warn("could not load attribute Time Offset of parameter track {}", parameter->getName());
+	if(!sequenceAnimation->timeOffset->load(xml)){
+		Logger::warn("could not load attribute Time Offset of Animation {}", animatable->getName());
 		return nullptr;
 	}
-	if(!track->inAcceleration->load(xml)){
-		Logger::warn("could not load attribute inAcceleration of parameter track {}", parameter->getName());
+	if(!sequenceAnimation->inAcceleration->load(xml)){
+		Logger::warn("could not load attribute inAcceleration of Animation {}", animatable->getName());
 		return nullptr;
 	}
-	if(!track->outAcceleration->load(xml)){
-		Logger::warn("could not load attribute outAcceleration of parameter track {}", parameter->getName());
+	if(!sequenceAnimation->outAcceleration->load(xml)){
+		Logger::warn("could not load attribute outAcceleration of Animation {}", animatable->getName());
 		return nullptr;
 	}
 

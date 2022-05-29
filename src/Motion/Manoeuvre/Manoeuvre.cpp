@@ -14,31 +14,31 @@ public:
 	
 	std::shared_ptr<Manoeuvre> manoeuvre;
 	ManoeuvreType newType;
-	std::vector<std::shared_ptr<ParameterTrack>> oldTracks;
-	std::vector<std::shared_ptr<ParameterTrack>> newTracks;
+	std::vector<std::shared_ptr<Animation>> oldTracks;
+	std::vector<std::shared_ptr<Animation>> newTracks;
 	
 	SetManoeuvreTypeCommand(std::string& name, std::shared_ptr<Manoeuvre> manoeuvre_, ManoeuvreType newType_) : Command(name){
 		manoeuvre = manoeuvre_;
 		newType = newType_;
-		oldTracks = manoeuvre->getTracks();
+		oldTracks = manoeuvre->getAnimations();
 	}
 	
 	virtual void execute(){
-		for(int i = 0; i < manoeuvre->getTracks().size(); i++){
-			std::shared_ptr<ParameterTrack>& track = manoeuvre->getTracks()[i];
-			track = ParameterTrack::create(track->getParameter(), newType);
-			track->setManoeuvre(manoeuvre);
-			track->validate();
+		for(int i = 0; i < manoeuvre->getAnimations().size(); i++){
+			std::shared_ptr<Animation>& animation = manoeuvre->getAnimations()[i];
+			animation = Animation::create(animation->getAnimatable(), newType);
+			animation->setManoeuvre(manoeuvre);
+			animation->validate();
 		}
-		newTracks = manoeuvre->getTracks();
+		newTracks = manoeuvre->getAnimations();
 		manoeuvre->updateTrackSummary();
 	}
 	virtual void undo(){
-		manoeuvre->getTracks() = oldTracks;
+		manoeuvre->getAnimations() = oldTracks;
 		manoeuvre->updateTrackSummary();
 	}
 	virtual void redo(){
-		manoeuvre->getTracks() = newTracks;
+		manoeuvre->getAnimations() = newTracks;
 		manoeuvre->updateTrackSummary();
 	}
 
@@ -62,10 +62,10 @@ std::shared_ptr<Manoeuvre> Manoeuvre::copy(){
 	copy->type->overwrite(getType());
 	copy->manoeuvreList = manoeuvreList;
 	
-	for(auto track : getTracks()){
-		auto trackCopy = ParameterTrack::copy(track);
-		trackCopy->setManoeuvre(copy);
-		copy->tracks.push_back(trackCopy);
+	for(auto animation : getAnimations()){
+		auto animationCopy = Animation::copy(animation);
+		animationCopy->setManoeuvre(copy);
+		copy->animations.push_back(animationCopy);
 	}
 	
 	return copy;
@@ -76,48 +76,48 @@ std::shared_ptr<Manoeuvre> Manoeuvre::copy(){
 
 
 
-class AddParameterTrackCommand : public Command{
+class AddAnimationCommand : public Command{
 public:
 	
-	std::shared_ptr<MachineParameter> machineParameter;
-	std::shared_ptr<ParameterTrack> addedTrack;
+	std::shared_ptr<Animatable> animatable;
+	std::shared_ptr<Animation> addedAnimation;
 	std::shared_ptr<Manoeuvre> manoeuvre;
 	
-	AddParameterTrackCommand(std::string& name, std::shared_ptr<MachineParameter> machineParameter_, std::shared_ptr<Manoeuvre> manoeuvre_) : Command(name){
-		machineParameter = machineParameter_;
+	AddAnimationCommand(std::string& name, std::shared_ptr<Animatable> animatable_, std::shared_ptr<Manoeuvre> manoeuvre_) : Command(name){
+		animatable = animatable_;
 		manoeuvre = manoeuvre_;
 	}
 	
 	virtual void execute(){
-		addedTrack = machineParameter->createTrack(manoeuvre->getType());
-		manoeuvre->getTracks().push_back(addedTrack);
-		addedTrack->setManoeuvre(manoeuvre);
-		addedTrack->validate();
+		addedAnimation = animatable->makeAnimation(manoeuvre->getType());
+		manoeuvre->getAnimations().push_back(addedAnimation);
+		addedAnimation->setManoeuvre(manoeuvre);
+		addedAnimation->validate();
 	}
 	
 	virtual void undo(){
-		auto& tracks = manoeuvre->getTracks();
-		for(int i = 0; i < tracks.size(); i++){
-			if(tracks[i] == addedTrack){
-				tracks.erase(tracks.begin() + i);
+		auto& animations = manoeuvre->getAnimations();
+		for(int i = 0; i < animations.size(); i++){
+			if(animations[i] == addedAnimation){
+				animations.erase(animations.begin() + i);
 				break;
 			}
 		}
-		addedTrack->unsubscribeFromMachineParameter();
+		addedAnimation->unsubscribeFromMachineParameter();
 		manoeuvre->updateTrackSummary();
 	}
 	
 	virtual void redo(){
-		manoeuvre->getTracks().push_back(addedTrack);
-		addedTrack->subscribeToMachineParameter();
+		manoeuvre->getAnimations().push_back(addedAnimation);
+		addedAnimation->subscribeToMachineParameter();
 		manoeuvre->updateTrackSummary();
 	}
 	
 };
 
-void Manoeuvre::addTrack(std::shared_ptr<MachineParameter>& parameter) {
-	std::string name = "Add Track " + std::string(parameter->getMachine()->getName()) + " : " + std::string(parameter->getName());
-	auto command = std::make_shared<AddParameterTrackCommand>(name, parameter, shared_from_this());
+void Manoeuvre::addAnimation(std::shared_ptr<Animatable> animatable) {
+	std::string name = "Add Animation " + std::string(animatable->getMachine()->getName()) + " : " + std::string(animatable->getName());
+	auto command = std::make_shared<AddAnimationCommand>(name, animatable, shared_from_this());
 	CommandHistory::pushAndExecute(command);
 }
 
@@ -129,46 +129,46 @@ void Manoeuvre::addTrack(std::shared_ptr<MachineParameter>& parameter) {
 
 
 
-class RemoveParameterTrackCommand : public Command{
+class RemoveAnimationCommand : public Command{
 public:
 	
-	std::shared_ptr<MachineParameter> removedParameter;
-	std::shared_ptr<ParameterTrack> removedTrack;
+	std::shared_ptr<Animatable> removedAnimatable;
+	std::shared_ptr<Animation> removedAnimation;
 	std::shared_ptr<Manoeuvre> manoeuvre;
 	int removeIndex;
 	
-	RemoveParameterTrackCommand(std::string& name, std::shared_ptr<MachineParameter> removedParameter_, std::shared_ptr<Manoeuvre> manoeuvre_) : Command(name){
-		removedParameter = removedParameter_;
+	RemoveAnimationCommand(std::string& name, std::shared_ptr<Animatable> removedParameter_, std::shared_ptr<Manoeuvre> manoeuvre_) : Command(name){
+		removedAnimatable = removedParameter_;
 		manoeuvre = manoeuvre_;
 	}
 	
 	virtual void execute(){
-		auto& tracks = manoeuvre->getTracks();
-		for (int i = 0; i < tracks.size(); i++) {
-			if (tracks[i]->getParameter() == removedParameter) {
-				removedTrack = tracks[i];
-				tracks.erase(tracks.begin() + i);
+		auto& animations = manoeuvre->getAnimations();
+		for (int i = 0; i < animations.size(); i++) {
+			if (animations[i]->getAnimatable() == removedAnimatable) {
+				removedAnimation = animations[i];
+				animations.erase(animations.begin() + i);
 				removeIndex = i;
 				break;
 			}
 		}
-		removedTrack->unsubscribeFromMachineParameter();
+		removedAnimation->unsubscribeFromMachineParameter();
 		manoeuvre->updateTrackSummary();
 	}
 	
 	virtual void undo(){
-		auto& tracks = manoeuvre->getTracks();
-		tracks.insert(tracks.begin() + removeIndex, removedTrack);
-		removedTrack->subscribeToMachineParameter();
+		auto& animations = manoeuvre->getAnimations();
+		animations.insert(animations.begin() + removeIndex, removedAnimation);
+		removedAnimation->subscribeToMachineParameter();
 		manoeuvre->updateTrackSummary();
 	}
 	
 };
 
-void Manoeuvre::removeTrack(std::shared_ptr<MachineParameter> parameter) {
-	if(hasTrack(parameter)){
-		std::string name = "Remove Track " + std::string(parameter->getMachine()->getName()) + " : " + std::string(parameter->getName());
-		auto command = std::make_shared<RemoveParameterTrackCommand>(name, parameter, shared_from_this());
+void Manoeuvre::removeAnimation(std::shared_ptr<Animatable> animatable) {
+	if(hasAnimation(animatable)){
+		std::string name = "Remove Animation " + std::string(animatable->getMachine()->getName()) + " : " + std::string(animatable->getName());
+		auto command = std::make_shared<RemoveAnimationCommand>(name, animatable, shared_from_this());
 		CommandHistory::pushAndExecute(command);
 	}
 }
@@ -178,42 +178,42 @@ void Manoeuvre::removeTrack(std::shared_ptr<MachineParameter> parameter) {
 
 
 
-class MoveParameterTrackCommand : public Command{
+class MoveAnimationCommand : public Command{
 public:
 	
 	int newIndex, oldIndex;
 	std::shared_ptr<Manoeuvre> manoeuvre;
 	
-	MoveParameterTrackCommand(std::string& name, int oldIndex_, int newIndex_, std::shared_ptr<Manoeuvre> manoeuvre_) : Command(name){
+	MoveAnimationCommand(std::string& name, int oldIndex_, int newIndex_, std::shared_ptr<Manoeuvre> manoeuvre_) : Command(name){
 		manoeuvre = manoeuvre_;
 		oldIndex = oldIndex_;
 		newIndex = newIndex_;
 	}
 	
 	virtual void execute(){
-		auto& tracks = manoeuvre->getTracks();
-		auto temp = tracks[oldIndex];
-		tracks.erase(tracks.begin() + oldIndex);
-		tracks.insert(tracks.begin() + newIndex, temp);
+		auto& animations = manoeuvre->getAnimations();
+		auto temp = animations[oldIndex];
+		animations.erase(animations.begin() + oldIndex);
+		animations.insert(animations.begin() + newIndex, temp);
 	}
 	
 	virtual void undo(){
-		auto& tracks = manoeuvre->getTracks();
-		auto temp = tracks[newIndex];
-		tracks.erase(tracks.begin() + newIndex);
-		tracks.insert(tracks.begin() + oldIndex, temp);
+		auto& animations = manoeuvre->getAnimations();
+		auto temp = animations[newIndex];
+		animations.erase(animations.begin() + newIndex);
+		animations.insert(animations.begin() + oldIndex, temp);
 	}
 	
 };
 
-void Manoeuvre::moveTrack(int oldIndex, int newIndex){
+void Manoeuvre::moveAnimation(int oldIndex, int newIndex){
 	if(oldIndex < 0) return;
-	if(oldIndex >= tracks.size()) return;
+	if(oldIndex >= animations.size()) return;
 	if(newIndex < 0) return;
-	if(newIndex >= tracks.size()) return;
+	if(newIndex >= animations.size()) return;
 	if(oldIndex == newIndex) return;
-	std::string name = "Move Track " + std::string(tracks[oldIndex]->getParameter()->getName());
-	auto command = std::make_shared<MoveParameterTrackCommand>(name, oldIndex, newIndex, shared_from_this());
+	std::string name = "Move Animation " + std::string(animations[oldIndex]->getAnimatable()->getName());
+	auto command = std::make_shared<MoveAnimationCommand>(name, oldIndex, newIndex, shared_from_this());
 	CommandHistory::pushAndExecute(command);
 }
 
@@ -223,32 +223,32 @@ void Manoeuvre::moveTrack(int oldIndex, int newIndex){
 
 
 void Manoeuvre::subscribeAllTracksToMachineParameter(){
-	for(auto track : tracks) track->subscribeToMachineParameter();
+	for(auto animation : animations) animation->subscribeToMachineParameter();
 }
 void Manoeuvre::unsubscribeAllTracksFromMachineParameter(){
-	for(auto track : tracks) track->unsubscribeFromMachineParameter();
+	for(auto animation : animations) animation->unsubscribeFromMachineParameter();
 }
 
 
 void Manoeuvre::validateAllParameterTracks(){
-	for(auto& track : tracks) track->validate();
+	for(auto& animation : animations) animation->validate();
 }
 
 void Manoeuvre::updateTrackSummary(){
-	double longestTrackDuration_seconds = 0.0;
-	bool allTracksValid = true;
-	for(auto& track : tracks){
-		if(!track->isValid()) allTracksValid = false;
-		longestTrackDuration_seconds = std::max(longestTrackDuration_seconds, track->getDuration());
+	double longestAnimationDuration_seconds = 0.0;
+	bool allAnimationsValid = true;
+	for(auto& animation : animations){
+		if(!animation->isValid()) allAnimationsValid = false;
+		longestAnimationDuration_seconds = std::max(longestAnimationDuration_seconds, animation->getDuration());
 	}
-	b_valid = allTracksValid;
-	duration_seconds = longestTrackDuration_seconds;
+	b_valid = allAnimationsValid;
+	duration_seconds = longestAnimationDuration_seconds;
 }
 
 
-bool Manoeuvre::hasTrack(std::shared_ptr<MachineParameter>& parameter) {
-	for (auto& track : tracks) {
-		if (track->getParameter() == parameter) return true;
+bool Manoeuvre::hasAnimation(std::shared_ptr<Animatable> animatable) {
+	for (auto& animation : animations) {
+		if (animation->getAnimatable() == animatable) return true;
 	}
 	return false;
 }
@@ -282,16 +282,16 @@ void Manoeuvre::deselect(){
 
 //OK
 bool Manoeuvre::areAllMachinesEnabled(){
-	for(auto& track : tracks){
-		if(!track->isMachineEnabled()) return false;
+	for(auto& animation : animations){
+		if(!animation->isMachineEnabled()) return false;
 	}
 	return true;
 }
 
 //OK
 bool Manoeuvre::areNoMachinesEnabled(){
-	for(auto& track : tracks){
-		if(track->isMachineEnabled()) return false;
+	for(auto& animation : animations){
+		if(animation->isMachineEnabled()) return false;
 	}
 	return true;
 }
@@ -307,8 +307,8 @@ bool Manoeuvre::canRapidToStart(){
 
 //OK
 bool Manoeuvre::isAtStart(){
-	for(auto& track : tracks){
-		if(!track->isAtStart()) return false;
+	for(auto& animation : animations){
+		if(!animation->isAtStart()) return false;
 	}
 	return true;
 }
@@ -324,8 +324,8 @@ bool Manoeuvre::canRapidToTarget(){
 
 //OK
 bool Manoeuvre::isAtTarget(){
-	for(auto& track : tracks){
-		if(!track->isAtTarget()) return false;
+	for(auto& animation : animations){
+		if(!animation->isAtTarget()) return false;
 	}
 	return true;
 }
@@ -346,8 +346,8 @@ bool Manoeuvre::isAtPlaybackPosition(){
 		case ManoeuvreType::TARGET: return false;
 		case ManoeuvreType::SEQUENCE:
 			if(areNoMachinesEnabled()) return false;
-			for(auto& track : tracks){
-				if(track->isMachineEnabled() && !track->isAtPlaybackPosition()) return false;
+			for(auto& animation : animations){
+				if(animation->isMachineEnabled() && !animation->isAtPlaybackPosition()) return false;
 			}
 			return true;
 	}
@@ -369,8 +369,8 @@ bool Manoeuvre::canStartPlayback(){
 		case ManoeuvreType::TARGET: return !areNoMachinesEnabled();
 		case ManoeuvreType::SEQUENCE:
 			if(areNoMachinesEnabled()) return false;
-			for(auto& track : tracks){
-				if(track->isMachineEnabled() && !track->isReadyToStartPlayback()) return false;
+			for(auto& animation : animations){
+				if(animation->isMachineEnabled() && !animation->isReadyToStartPlayback()) return false;
 			}
 			return true;
 	}
@@ -402,10 +402,10 @@ void Manoeuvre::rapidToStart(){
 	b_inRapid = true;
 	b_playing = false;
 	b_paused = false;
-	for(auto& track : tracks) track->rapidToStart();
+	for(auto& animation : animations) animation->rapidToStart();
 	PlaybackManager::push(shared_from_this());
 	playbackPosition_seconds = 0.0;
-	for(auto& track : tracks) track->setPlaybackPosition(0.0);
+	for(auto& animation : animations) animation->setPlaybackPosition(0.0);
 }
 
 //OK
@@ -414,10 +414,10 @@ void Manoeuvre::rapidToTarget(){
 	b_inRapid = true;
 	b_playing = false;
 	b_paused = false;
-	for(auto& track : tracks) track->rapidToTarget();
+	for(auto& animation : animations) animation->rapidToTarget();
 	PlaybackManager::push(shared_from_this());
 	playbackPosition_seconds = duration_seconds;
-	for(auto& track : tracks) track->setPlaybackPosition(duration_seconds);
+	for(auto& animation : animations) animation->setPlaybackPosition(duration_seconds);
 }
 
 
@@ -426,7 +426,7 @@ void Manoeuvre::rapidToPlaybackPosition(){
 	b_inRapid = true;
 	b_playing = false;
 	b_paused = false;
-	for(auto& track : tracks) track->rapidToPlaybackPosition();
+	for(auto& animation : animations) animation->rapidToPlaybackPosition();
 	PlaybackManager::push(shared_from_this());
 }
 
@@ -438,7 +438,7 @@ void Manoeuvre::startPlayback(){
 	b_inRapid = false;
 	b_playing = true;
 	b_paused = false;
-	for(auto& track : tracks) track->startPlayback();
+	for(auto& animation : animations) animation->startPlayback();
 	PlaybackManager::push(shared_from_this());
 }
 
@@ -447,13 +447,13 @@ void Manoeuvre::pausePlayback(){
 	b_inRapid = false;
 	b_playing = false;
 	b_paused = true;
-	for(auto& track : tracks) track->interrupt();
+	for(auto& animation : animations) animation->interrupt();
 }
 
 void Manoeuvre::setPlaybackPosition(double seconds){
 	if(!canSetPlaybackPosition()) return;
 	playbackPosition_seconds = seconds;
-	for(auto& track : tracks) track->setPlaybackPosition(seconds);
+	for(auto& animation : animations) animation->setPlaybackPosition(seconds);
 }
 
 //OK needs for for actual playback
@@ -462,18 +462,18 @@ void Manoeuvre::stop(){
 	b_inRapid = false;
 	b_playing = false;
 	b_paused = false;
-	for(auto& track : tracks) track->stop();
+	for(auto& animation : animations) animation->stop();
 	PlaybackManager::pop(shared_from_this());
 	playbackPosition_seconds = 0.0;
-	for(auto& track : tracks) track->setPlaybackPosition(0.0);
+	for(auto& animation : animations) animation->setPlaybackPosition(0.0);
 }
 
 
 //OK
 float Manoeuvre::getRapidProgress(){
 	float smallestProgress = 1.0;
-	for(auto& track : tracks){
-		float progress = track->getRapidProgress();
+	for(auto& animation : animations){
+		float progress = animation->getRapidProgress();
 		smallestProgress = std::min(smallestProgress, progress);
 	}
 	return smallestProgress;
@@ -518,17 +518,17 @@ bool Manoeuvre::isPlaybackFinished(){ return playbackPosition_seconds >= duratio
 void Manoeuvre::incrementPlaybackPosition(long long playbackTime_microseconds){
 	if(isPaused()) return;
 	playbackPosition_seconds = (playbackTime_microseconds - playbackStartTime_microseconds) / 1000000.0;
-	for(auto& track : tracks) track->setPlaybackPosition(playbackPosition_seconds);
+	for(auto& animation : animations) animation->setPlaybackPosition(playbackPosition_seconds);
 }
 
 void Manoeuvre::updatePlaybackStatus(){
-	for(auto& track : tracks) track->updatePlaybackStatus();
+	for(auto& animation : animations) animation->updatePlaybackStatus();
 	
 	if(isPlaying() && isPlaybackFinished()) {
 		//needs to call onPlaybackEnd in machines
 		b_playing = false;
 		playbackPosition_seconds = 0.0;
-		for(auto& track : tracks) track->setPlaybackPosition(0.0);
+		for(auto& animation : animations) animation->setPlaybackPosition(0.0);
 	}
 	else if(isInRapid() && isRapidFinished()) {
 		b_inRapid = false;
@@ -543,8 +543,8 @@ void Manoeuvre::updatePlaybackStatus(){
 
 void Manoeuvre::onTrackPlaybackStop(){
 	bool anyTracksStillPlaying = false;
-	for(auto& track : tracks){
-		if(track->isPlaying()) {
+	for(auto& animation : animations){
+		if(animation->isPlaying()) {
 			anyTracksStillPlaying = true;
 			break;
 		}
@@ -552,7 +552,7 @@ void Manoeuvre::onTrackPlaybackStop(){
 	if(!anyTracksStillPlaying){
 		b_playing = false;
 		playbackPosition_seconds = 0.0;
-		for(auto& track : tracks) track->setPlaybackPosition(0.0);
+		for(auto& animation : animations) animation->setPlaybackPosition(0.0);
 		PlaybackManager::pop(shared_from_this());
 	}
 }

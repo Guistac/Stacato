@@ -1,5 +1,6 @@
 #include "Machine/Machine.h"
 #include "Machine/AnimatableParameter.h"
+#include "Machine/AnimatableParameterValue.h"
 
 class HoodedLiftStateMachine : public Machine {
 public:
@@ -36,8 +37,8 @@ public:
 	std::shared_ptr<bool> raiseLiftCommandPinValue = std::make_shared<bool>(false);
 	std::shared_ptr<bool> lowerLiftCommandPinValue = std::make_shared<bool>(false);
 	
-	std::shared_ptr<AnimatableStateParameter> stateParameter = std::make_shared<AnimatableStateParameter>("State", &stateParameterValues);
-	static std::vector<AnimatableParameterState> stateParameterValues;
+	std::shared_ptr<Animatable> stateParameter = std::make_shared<AnimatableState>("State", &stateParameterValues);
+	static std::vector<StateAnimationValue::Value> stateParameterValues;
 
 	bool hoodShut = false;
 	bool hoodOpen = false;

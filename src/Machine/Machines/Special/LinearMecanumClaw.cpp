@@ -30,8 +30,8 @@ void LinearMecanumClaw::initialize() {
 	addNodePin(clawPositionPin);
 	addNodePin(clawVelocityPin);
 	
-	addParameter(linearAxisPositionParameter);
-	addParameter(clawAxisPositionParameter);
+	addAnimatable(linearAxisPositionParameter);
+	addAnimatable(clawAxisPositionParameter);
 	clawAxisPositionParameter->setUnit(clawPositionUnit);
 }
 
@@ -215,8 +215,8 @@ void LinearMecanumClaw::process() {
 				linearAxisMotionProfile.updateInterpolation(profileTime_seconds);
 				break;
 			case ControlMode::EXTERNAL:
-				if(linearAxisPositionParameter->hasActiveParameterTrack()){
-					auto value = linearAxisPositionParameter->getActiveParameterTrackValue()->toPosition();
+				if(linearAxisPositionParameter->hasAnimation()){
+					auto value = linearAxisPositionParameter->getAnimationValue()->toPosition();
 					linearAxisMotionProfile.setVelocity(value->velocity);
 					linearAxisMotionProfile.setPosition(value->position);
 				}
@@ -240,8 +240,8 @@ void LinearMecanumClaw::process() {
 				clawAxisMotionProfile.updateInterpolation(profileTime_seconds);
 				break;
 			case ControlMode::EXTERNAL:
-				if(clawAxisPositionParameter->hasActiveParameterTrack()){
-					auto value = clawAxisPositionParameter->getActiveParameterTrackValue()->toPosition();
+				if(clawAxisPositionParameter->hasAnimation()){
+					auto value = clawAxisPositionParameter->getAnimationValue()->toPosition();
 					clawAxisMotionProfile.setVelocity(value->velocity);
 					clawAxisMotionProfile.setPosition(value->position);
 				}
@@ -369,8 +369,8 @@ void LinearMecanumClaw::simulateProcess() {
 			linearAxisMotionProfile.updateInterpolation(profileTime_seconds);
 			break;
 		case ControlMode::EXTERNAL:
-			if(linearAxisPositionParameter->hasActiveParameterTrack()){
-				auto value = linearAxisPositionParameter->getActiveParameterTrackValue()->toPosition();
+			if(linearAxisPositionParameter->hasAnimation()){
+				auto value = linearAxisPositionParameter->getAnimationValue()->toPosition();
 				linearAxisMotionProfile.setVelocity(value->velocity);
 				linearAxisMotionProfile.setPosition(value->position);
 			}
@@ -394,8 +394,8 @@ void LinearMecanumClaw::simulateProcess() {
 			clawAxisMotionProfile.updateInterpolation(profileTime_seconds);
 			break;
 		case ControlMode::EXTERNAL:
-			if(clawAxisPositionParameter->hasActiveParameterTrack()){
-				auto value = clawAxisPositionParameter->getActiveParameterTrackValue()->toPosition();
+			if(clawAxisPositionParameter->hasAnimation()){
+				auto value = clawAxisPositionParameter->getAnimationValue()->toPosition();
 				clawAxisMotionProfile.setVelocity(value->velocity);
 				clawAxisMotionProfile.setPosition(value->position);
 			}

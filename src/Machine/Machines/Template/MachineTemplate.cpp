@@ -95,51 +95,51 @@ const char* MachineTemplate::getHomingStateString(){ return "Homing Step String"
 //======= PLOT INTERFACE =========
 
 
-void MachineTemplate::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
+void MachineTemplate::rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
 	//check against all animatable parameters
 	//start moving parameter to requested value
 }
 
-float MachineTemplate::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
+float MachineTemplate::getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable) {
 	//check against all animatable parameters
 	//report status of rapid movement of parameter
 	//0.0 = 0%
 	//1.0 = 100%
 }
 
-void MachineTemplate::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {
+void MachineTemplate::cancelAnimatableRapid(std::shared_ptr<Animatable> animatable) {
 	//check against all animatable parameters
 	//stop rapid movement of specified parameter
 }
 
 
-bool MachineTemplate::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
+bool MachineTemplate::isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
 	//check against all animatable parameters
 	//report if playback of the parameter is ready to start from the given value
 }
 
-void MachineTemplate::onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter) {
+void MachineTemplate::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable) {
 	//check against all animatable parameters
 	//called when playback of that parameter starts
 }
 
-void MachineTemplate::onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter) {
+void MachineTemplate::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable) {
 	//check against all animatable parameters
 	//called when playback of that parameter is interrupted
 }
 
-void MachineTemplate::onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter) {
+void MachineTemplate::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable) {
 	//check against all animatable parameters
 	//called when playback of that parameter end / finishes
 }
 
-std::shared_ptr<AnimatableParameterValue> MachineTemplate::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter) {
+std::shared_ptr<AnimationValue> MachineTemplate::getActualAnimatableValue(std::shared_ptr<Animatable> animatable) {
 	//check against all animatable parameters
 	//write actual value of parameter to value argument
 }
 
 
-bool MachineTemplate::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
+bool MachineTemplate::validateAnimation(const std::shared_ptr<Animation> animation) {
 	//check the parameter of the given track against all animatable parameters
 	//check all curves of the parameters track
 	//check all control points of each curve
@@ -162,17 +162,8 @@ bool MachineTemplate::validateParameterTrack(const std::shared_ptr<ParameterTrac
 	//return overall validity
 }
 
-bool MachineTemplate::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
-	//check against all animatable parameters
-	//return the lower and upper position limits for the specified curve, in the set of parameter curves at the given time
-	//write values to lowLimit & highLimit arguments
-	
-	//return true if the arguments make sense and false if they don't
-	
-	return false;
-}
 
-bool MachineTemplate::generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack){
+bool MachineTemplate::generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation){
 	//check against all animatable parameters
 	//generate timed motion curves to the target points and write them to the parameter track curves
 	//return if success

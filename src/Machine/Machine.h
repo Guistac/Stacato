@@ -9,8 +9,8 @@ namespace Motion {
 	class Curve;
 }
 
-class ParameterTrack;
-class TargetParameterTrack;
+class Animation;
+class TargetAnimation;
 class Device;
 
 namespace tinyxml2{ struct XMLElement; }
@@ -47,8 +47,8 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual void onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable);\
 	virtual void onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable);\
 	virtual std::shared_ptr<AnimationValue> getActualAnimatableValue(std::shared_ptr<Animatable> animatable);\
-	virtual bool validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack);\
-	virtual bool generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack);\
+	virtual bool validateAnimation(const std::shared_ptr<Animation> animation);\
+	virtual bool generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation);\
 
 #define DEFINE_HOMEABLE_MACHINE \
 	virtual bool isHomeable() override { return true; }\
@@ -101,7 +101,7 @@ public:
 
 	//===== PARAMETERS =====
 	void addAnimatable(std::shared_ptr<Animatable> parameter);
-	std::vector<std::shared_ptr<Animatable>> parameters;
+	std::vector<std::shared_ptr<Animatable>> animatables;
 
 	//===== RAPIDS =====
 	virtual void rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) = 0;
@@ -121,10 +121,10 @@ public:
 	virtual std::shared_ptr<AnimationValue> getActualAnimatableValue(std::shared_ptr<Animatable> animatable) = 0;
 
 	//======= PARAMETER TRACK VALIDATION ======
-	virtual bool validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) = 0;
+	virtual bool validateAnimation(const std::shared_ptr<Animation> animation) = 0;
 	
 	//======= TIMED MOVEMENT ======
-	virtual bool generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack) = 0;
+	virtual bool generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation) = 0;
 
 	//===== ATTACHED DEVICES =====
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output) = 0;

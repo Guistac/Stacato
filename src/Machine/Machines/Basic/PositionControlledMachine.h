@@ -17,9 +17,7 @@ class PositionControlledMachine : public Machine{
 	std::shared_ptr<double> velocityPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(velocityPinValue, NodePin::Direction::NODE_OUTPUT, "Velocity");
 	
-	std::shared_ptr<AnimatableNumericalParameter> positionParameter = std::make_shared<AnimatableNumericalParameter>("Position",
-																													 MachineParameterType::POSITION,
-																													 Units::None::None);
+	std::shared_ptr<AnimatableNumber> positionParameter = std::make_shared<AnimatableNumber>("Position", AnimatableType::POSITION, Units::None::None);
 	
 	bool isAxisConnected();
 	std::shared_ptr<PositionControlledAxis> getAxis();

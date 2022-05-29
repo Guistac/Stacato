@@ -17,14 +17,14 @@
 #include "Gui/Utilities/CustomWidgets.h"
 
 
-void ParameterTrack::baseTrackSheetRowGui(){
+void Animation::baseTrackSheetRowGui(){
 
 	bool b_showValidationErrorPopup = false;
 	
 	//[1] "Machine"
 	ImGui::TableSetColumnIndex(1);
 	
-	auto machine = parameter->getMachine();
+	auto machine = animatable->getMachine();
 	glm::vec4 machineColor;
 	glm::vec4 machineTextColor = Colors::white;
 	if(machine->isEnabled()) machineColor = Colors::green;
@@ -33,15 +33,15 @@ void ParameterTrack::baseTrackSheetRowGui(){
 		machineColor = Colors::red;
 		machineTextColor = Colors::black;
 	}
-	if (!hasParentGroup()) backgroundText(parameter->getMachine()->getName(), machineColor, machineTextColor);
+	if (!hasParentComposite()) backgroundText(animatable->getMachine()->getName(), machineColor, machineTextColor);
 	
 	//[2] "Parameter"
 	ImGui::TableSetColumnIndex(2);
-	backgroundText(parameter->getName(), b_valid ? Colors::darkGreen : Colors::red, b_valid ? Colors::white : Colors::white);
+	backgroundText(animatable->getName(), b_valid ? Colors::darkGreen : Colors::red, b_valid ? Colors::white : Colors::white);
 	if(ImGui::IsItemHovered() && !b_valid) validationErrorPopup();
 }
 
-void ParameterTrack::validationErrorPopup(){
+void Animation::validationErrorPopup(){
 	if(b_valid) return;
 	
 	ImGui::BeginTooltip();
@@ -56,9 +56,7 @@ void ParameterTrack::validationErrorPopup(){
 	ImGui::EndTooltip();
 }
 
-void ParameterTrackGroup::trackSheetRowGui(){}
-
-void KeyParameterTrack::trackSheetRowGui(){
+void AnimationKey::trackSheetRowGui(){
 	
 	//[3] "Target"			//position or other
 	ImGui::TableSetColumnIndex(3);
@@ -70,12 +68,12 @@ void KeyParameterTrack::trackSheetRowGui(){
 	
 }
 
-void TargetParameterTrack::trackSheetRowGui(){
+void TargetAnimation::trackSheetRowGui(){
 	
 	//[3] "Interpolation"	//kinematic, linear, step, bezier
 	ImGui::TableSetColumnIndex(3);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 10.0);
-	auto& compatibleTypes = getAnimatableParameter()->getCompatibleInterpolationTypes();
+	auto& compatibleTypes = getAnimatable()->getCompatibleInterpolationTypes();
 	interpolationType->combo(compatibleTypes.data(), compatibleTypes.size());
 	 
 	//[4] "Target"			//position or other
@@ -83,8 +81,8 @@ void TargetParameterTrack::trackSheetRowGui(){
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	target->gui();
 	if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
-	ImGui::SameLine();
-	if(ImGui::Button("Capture")) captureCurrentValueAsTarget();
+	//ImGui::SameLine();
+	//if(ImGui::Button("Capture")) captureCurrentValueAsTarget();
 	
 	//[5] "Using"			//time vs velocity
 	ImGui::TableSetColumnIndex(5);
@@ -119,12 +117,12 @@ void TargetParameterTrack::trackSheetRowGui(){
 	
 }
 
-void SequenceParameterTrack::trackSheetRowGui(){
+void SequenceAnimation::trackSheetRowGui(){
 	
 	//[3] "Interpolation"	//kinematic, linear, step, bezier
 	ImGui::TableSetColumnIndex(3);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 10.0);
-	auto& compatibleTypes = getAnimatableParameter()->getCompatibleInterpolationTypes();
+	auto& compatibleTypes = getAnimatable()->getCompatibleInterpolationTypes();
 	interpolationType->combo(compatibleTypes.data(), compatibleTypes.size());
 	
 	//[4] "Start"
@@ -140,8 +138,8 @@ void SequenceParameterTrack::trackSheetRowGui(){
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	target->gui();
 	if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
-	ImGui::SameLine();
-	if(ImGui::Button("Capture##Target")) captureCurrentValueAsTarget();
+	//ImGui::SameLine();
+	//if(ImGui::Button("Capture##Target")) captureCurrentValueAsTarget();
 	
 	//[6] "Duration"
 	ImGui::TableSetColumnIndex(6);
@@ -179,23 +177,23 @@ void SequenceParameterTrack::trackSheetRowGui(){
 
 
 
-void KeyParameterTrack::drawCurveControls(){
+void AnimationKey::drawCurveControls(){
 	bool edited = false;
 	
-	auto animatable = getAnimatableParameter();
+	auto animatable = getAnimatable();
 	int curveCount = animatable->getCurveCount();
-	auto targetValue = animatable->getParameterValue(target);
-	auto targetValues = getAnimatableParameter()->getCurvePositionsFromParameterValue(targetValue);
+	auto targetValue = animatable->parameterValueToAnimationValue(target);
+	auto targetValues = animatable->getCurvePositionsFromAnimationValue(targetValue);
 	
 	for (int i = 0; i < curveCount; i++) {
 		
 		//TODO: TEMPORARY CURVE NAME ASSIGNEMENT
 		const char* curveName;
-		if(curveCount == 1) curveName = getParameter()->getName();
+		if(curveCount == 1) curveName = animatable->getName();
 		else {
-			if(i == 0) curveName = std::string(std::string(getParameter()->getName()) + ".x").c_str();
-			else if(i == 1) curveName = std::string(std::string(getParameter()->getName()) + ".y").c_str();
-			else curveName = std::string(std::string(getParameter()->getName()) + ".z").c_str();
+			if(i == 0) curveName = std::string(std::string(animatable->getName()) + ".x").c_str();
+			else if(i == 1) curveName = std::string(std::string(animatable->getName()) + ".y").c_str();
+			else curveName = std::string(std::string(animatable->getName()) + ".z").c_str();
 		}
 				
 		if(ImPlot::DragLineY(curveName, &targetValues[i], true, Colors::gray, 4.0)) edited = true;
@@ -210,16 +208,16 @@ void KeyParameterTrack::drawCurveControls(){
 
 
 
-void TargetParameterTrack::drawCurves(){
+void TargetAnimation::drawCurves(){
 	//only display when parameter track is playing
 }
-void TargetParameterTrack::drawCurveControls(){
+void TargetAnimation::drawCurveControls(){
 	//display horizontal lines for targets
 }
 
 
 
-void SequenceParameterTrack::drawCurves(){
+void SequenceAnimation::drawCurves(){
 	double startTime, endTime;
 	
 	auto& curves = getCurves();
@@ -232,11 +230,11 @@ void SequenceParameterTrack::drawCurves(){
 		
 		//TODO: TEMPORARY CURVE NAME ASSIGNEMENT
 		const char* curveName;
-		if(curveCount == 1) curveName = getParameter()->getName();
+		if(curveCount == 1) curveName = getAnimatable()->getName();
 		else {
-			if(i == 0) curveName = std::string(std::string(getParameter()->getName()) + ".x").c_str();
-			else if(i == 1) curveName = std::string(std::string(getParameter()->getName()) + ".y").c_str();
-			else curveName = std::string(std::string(getParameter()->getName()) + ".z").c_str();
+			if(i == 0) curveName = std::string(std::string(getAnimatable()->getName()) + ".x").c_str();
+			else if(i == 1) curveName = std::string(std::string(getAnimatable()->getName()) + ".y").c_str();
+			else curveName = std::string(std::string(getAnimatable()->getName()) + ".z").c_str();
 		}
 		
 		auto startPoint = curve.getStart();
@@ -281,7 +279,7 @@ void SequenceParameterTrack::drawCurves(){
 	}
 }
 
-void SequenceParameterTrack::drawCurveControls(){
+void SequenceAnimation::drawCurveControls(){
 	bool edited = false;
 	
 	static float controlPointLarge = ImGui::GetTextLineHeight() * 0.5;

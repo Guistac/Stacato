@@ -88,11 +88,11 @@ void Manoeuvre::listGui(){
 	if(isInRapid()){
 		glm::vec2 windowPos = ImGui::GetWindowPos();
 		glm::vec2 maxsize = ImGui::GetWindowSize();
-		int trackCount = tracks.size();
+		int trackCount = animations.size();
 		float trackHeight = maxsize.y / (float)trackCount;
 		for (int i = 0; i < trackCount; i++) {
 			glm::vec2 min(windowPos.x, windowPos.y + trackHeight * i);
-			glm::vec2 max(min.x + maxsize.x * tracks[i]->getRapidProgress(), min.y + trackHeight);
+			glm::vec2 max(min.x + maxsize.x * animations[i]->getRapidProgress(), min.y + trackHeight);
 			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
 		}
 	}else if(isPlaying() || isPaused()){
@@ -127,8 +127,8 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 		else ImGui::Text("Manoeuvre is Valid");
 		if(!areAllMachinesEnabled()){
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
-			for(auto& track : tracks){
-				auto machine = track->getParameter()->getMachine();
+			for(auto& animation : animations){
+				auto machine = animation->getAnimatable()->getMachine();
 				if(!machine->isEnabled()) ImGui::Text("%s is not enabled.", machine->getName());
 			}
 			ImGui::PopStyleColor();
@@ -139,11 +139,11 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 	if(isInRapid()){
 		glm::vec2 pos = ImGui::GetItemRectMin();
 		glm::vec2 size = ImGui::GetItemRectSize();
-		int trackCount = tracks.size();
+		int trackCount = animations.size();
 		float trackHeight = size.y / (float)trackCount;
 		for (int i = 0; i < trackCount; i++) {
 			glm::vec2 min(pos.x, pos.y + trackHeight * i);
-			glm::vec2 max(pos.x + size.x * tracks[i]->getRapidProgress(), pos.y + trackHeight);
+			glm::vec2 max(pos.x + size.x * animations[i]->getRapidProgress(), pos.y + trackHeight);
 			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
 		}
 	}else if(isPlaying() || isPaused()){
@@ -250,19 +250,19 @@ void Manoeuvre::trackSheetGui(){
 	if(b_tableBegun){
 		ImGui::TableHeadersRow();
 		
-		for (int i = 0; i < tracks.size(); i++) {
+		for (int i = 0; i < animations.size(); i++) {
 			ImGui::PushID(i);
-			auto& parameterTrack = tracks[i];
+			auto& animation = animations[i];
 			
 			//child parameter tracks are listed in the manoeuvres track vector
 			//but they are drawn by the parent parameter group, so we skip them here
 			//and draw them after the parameter group
-			if (parameterTrack->hasParentGroup()) continue;
+			if (animation->hasParentComposite()) continue;
 			
 			ImGui::TableNextRow();
 			ImGui::TableSetColumnIndex(0);
 			
-			ListManagerWidget::Interaction interaction = ListManagerWidget::draw(parameterTrack == tracks.front(), parameterTrack == tracks.back(), "", ImGui::GetFrameHeight());
+			ListManagerWidget::Interaction interaction = ListManagerWidget::draw(animation == animations.front(), animation == animations.back(), "", ImGui::GetFrameHeight());
 			switch(interaction){
 				case ListManagerWidget::Interaction::NONE: break;
 				case ListManagerWidget::Interaction::MOVE_UP: movedUpTrackIndex = i; break;
@@ -270,17 +270,18 @@ void Manoeuvre::trackSheetGui(){
 				case ListManagerWidget::Interaction::DELETE: removedTrackIndex = i; break;
 			}
 			
-			parameterTrack->baseTrackSheetRowGui();
-			parameterTrack->trackSheetRowGui();
+			animation->baseTrackSheetRowGui();
+			animation->trackSheetRowGui();
 			
 			//draw the groups child parameter tracks
-			if(parameterTrack->isGroup()){
-				auto groupTrack = parameterTrack->castToGroup();
-				std::vector<std::shared_ptr<ParameterTrack>>& childTracks = groupTrack->getChildren();
-				for(int j = 0; j < groupTrack->getChildren().size(); j++){
+			if(animation->isComposite()){
+				auto composite = animation->toComposite();
+				std::vector<std::shared_ptr<Animation>>& childAnimations = composite->getChildren();
+				for(int j = 0; j < childAnimations.size(); j++){
+					ImGui::TableNextRow();
 					ImGui::PushID(j);
-					childTracks[j]->baseTrackSheetRowGui();
-					childTracks[j]->trackSheetRowGui();
+					childAnimations[j]->baseTrackSheetRowGui();
+					childAnimations[j]->trackSheetRowGui();
 					ImGui::PopID();
 				}
 			}
@@ -300,14 +301,14 @@ void Manoeuvre::trackSheetGui(){
 			ImGui::EndDisabled();
 			ImGui::Separator();
 			for (auto& machine : Environnement::getMachines()) {
-				if(machine->parameters.empty()) continue;
+				if(machine->animatables.empty()) continue;
 				if (ImGui::BeginMenu(machine->getName())) {
-					for (auto& parameter : machine->parameters) {
-						if (parameter->hasParentGroup()) continue;
-						bool isSelected = hasTrack(parameter);
-						if (ImGui::MenuItem(parameter->getName(), nullptr, isSelected)) {
-							if (!isSelected) addTrack(parameter);
-							else removeTrack(parameter);
+					for (auto& animatable : machine->animatables) {
+						if (animatable->hasParentComposite()) continue;
+						bool isSelected = hasAnimation(animatable);
+						if (ImGui::MenuItem(animatable->getName(), nullptr, isSelected)) {
+							if (!isSelected) addAnimation(animatable);
+							else removeAnimation(animatable);
 						}
 					}
 					ImGui::EndMenu();
@@ -315,7 +316,7 @@ void Manoeuvre::trackSheetGui(){
 			}
 			ImGui::EndPopup();
 		}
-		if(tracks.empty()){
+		if(animations.empty()){
 			ImGui::TableNextColumn();
 			ImGui::Text("No Tracks");
 		}
@@ -327,9 +328,9 @@ void Manoeuvre::trackSheetGui(){
 	
 	ImGui::EndDisabled();
 	
-	if(removedTrackIndex > -1) removeTrack(getTracks()[removedTrackIndex]->getParameter());
-	if(movedUpTrackIndex > -1) moveTrack(movedUpTrackIndex, movedUpTrackIndex - 1);
-	if(movedDownTrackIndex > -1) moveTrack(movedDownTrackIndex, movedDownTrackIndex + 1);
+	if(removedTrackIndex > -1) removeAnimation(getAnimations()[removedTrackIndex]->getAnimatable());
+	if(movedUpTrackIndex > -1) moveAnimation(movedUpTrackIndex, movedUpTrackIndex - 1);
+	if(movedDownTrackIndex > -1) moveAnimation(movedDownTrackIndex, movedDownTrackIndex + 1);
 }
 
 void Manoeuvre::curveEditorGui(){
@@ -359,11 +360,11 @@ void Manoeuvre::curveEditorGui(){
 			}
 		}
 		
-		for (auto& parameterTrack : getTracks()) parameterTrack->drawCurves();
-		for (auto& parameterTrack : getTracks()) {
-			ImGui::PushID(parameterTrack->getParameter()->getMachine()->getName());
-			ImGui::PushID(parameterTrack->getParameter()->getName());
-			parameterTrack->drawCurveControls();
+		for (auto& animation : getAnimations()) animation->drawCurves();
+		for (auto& animation : getAnimations()) {
+			ImGui::PushID(animation->getAnimatable()->getMachine()->getName());
+			ImGui::PushID(animation->getAnimatable()->getName());
+			animation->drawCurveControls();
 			ImGui::PopID();
 			ImGui::PopID();
 		}

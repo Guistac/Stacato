@@ -13,39 +13,35 @@
 #include "Project/Editor/Parameter.h"
 
 
-std::shared_ptr<ParameterTrack> ParameterTrack::create(std::shared_ptr<MachineParameter> parameter, ManoeuvreType manoeuvreType){
-	if(parameter->isGroup()) return std::make_shared<ParameterTrackGroup>(parameter->castToGroup(), manoeuvreType);
-	else{
-		auto animatableParameter = parameter->castToAnimatable();
-		switch(manoeuvreType){
-			case ManoeuvreType::KEY:
-				return std::make_shared<KeyParameterTrack>(animatableParameter);
-			case ManoeuvreType::TARGET:
-				return std::make_shared<TargetParameterTrack>(animatableParameter);
-			case ManoeuvreType::SEQUENCE:
-				return std::make_shared<SequenceParameterTrack>(animatableParameter);
-		}
+std::shared_ptr<Animation> Animation::create(std::shared_ptr<Animatable> animatable, ManoeuvreType manoeuvreType){
+	if(animatable->isComposite()) return std::make_shared<AnimationComposite>(animatable->toComposite(), manoeuvreType);
+	switch(manoeuvreType){
+		case ManoeuvreType::KEY:
+			return std::make_shared<AnimationKey>(animatable);
+		case ManoeuvreType::TARGET:
+			return std::make_shared<TargetAnimation>(animatable);
+		case ManoeuvreType::SEQUENCE:
+			return std::make_shared<SequenceAnimation>(animatable);
 	}
 }
 
-void ParameterTrack::subscribeToMachineParameter(){
-	getParameter()->subscribeTrack(shared_from_this());
+void Animation::subscribeToMachineParameter(){
+	animatable->subscribeAnimation(shared_from_this());
 }
 
-void ParameterTrack::unsubscribeFromMachineParameter(){
-	getParameter()->unsubscribeTrack(shared_from_this());
+void Animation::unsubscribeFromMachineParameter(){
+	animatable->unsubscribeTrack(shared_from_this());
 }
 
 
-std::shared_ptr<ParameterTrack> ParameterTrack::copy(const std::shared_ptr<ParameterTrack> original){
-	std::shared_ptr<ParameterTrack> copy;
-	if(original->isGroup()) copy = original->castToGroup()->copy();
+std::shared_ptr<Animation> Animation::copy(const std::shared_ptr<Animation> original){
+	std::shared_ptr<Animation> copy;
+	if(original->isComposite()) copy = original->toComposite()->copy();
 	else{
-		auto animatedOriginal = original->castToAnimated();
-		switch(animatedOriginal->getType()){
-			case ManoeuvreType::KEY:	copy = original->castToKey()->copy(); break;
-			case ManoeuvreType::TARGET: copy = original->castToTarget()->copy(); break;
-			case ManoeuvreType::SEQUENCE: copy = original->castToSequence()->copy(); break;
+		switch(original->getType()){
+			case ManoeuvreType::KEY:	copy = original->toKey()->copy(); break;
+			case ManoeuvreType::TARGET: copy = original->toTarget()->copy(); break;
+			case ManoeuvreType::SEQUENCE: copy = original->toSequence()->copy(); break;
 		}
 	}
 	//subscribe track to parameter changes
@@ -53,25 +49,25 @@ std::shared_ptr<ParameterTrack> ParameterTrack::copy(const std::shared_ptr<Param
 	return copy;
 }
 
-std::shared_ptr<ParameterTrackGroup> ParameterTrackGroup::copy(){
-	auto groupCopy = std::make_shared<ParameterTrackGroup>(getParameter()->castToGroup());
+std::shared_ptr<AnimationComposite> AnimationComposite::copy(){
+	auto compositeCopy = std::make_shared<AnimationComposite>(getAnimatable()->toComposite());
 	for(auto childParameterTrack : getChildren()){
-		auto childCopy = ParameterTrack::copy(childParameterTrack);
-		childCopy->setParent(groupCopy);
-		groupCopy->children.push_back(childCopy);
+		auto childCopy = Animation::copy(childParameterTrack);
+		childCopy->setParentComposite(compositeCopy);
+		compositeCopy->children.push_back(childCopy);
 	}
-	return groupCopy;
+	return compositeCopy;
 }
 
-std::shared_ptr<KeyParameterTrack> KeyParameterTrack::copy(){
-	auto copy = std::make_shared<KeyParameterTrack>(getAnimatableParameter());
-	getAnimatableParameter()->copyParameterValue(target, copy->target);
+std::shared_ptr<AnimationKey> AnimationKey::copy(){
+	auto copy = std::make_shared<AnimationKey>(getAnimatable());
+	getAnimatable()->copyParameterValue(target, copy->target);
 	return copy;
 }
 
-std::shared_ptr<TargetParameterTrack> TargetParameterTrack::copy(){
-	auto copy = std::make_shared<TargetParameterTrack>(getAnimatableParameter());
-	getAnimatableParameter()->copyParameterValue(target, copy->target);
+std::shared_ptr<TargetAnimation> TargetAnimation::copy(){
+	auto copy = std::make_shared<TargetAnimation>(getAnimatable());
+	getAnimatable()->copyParameterValue(target, copy->target);
 	copy->interpolationType->overwrite(interpolationType->value);
 	copy->timeConstraint->overwrite(timeConstraint->value);
 	copy->velocityConstraint->overwrite(velocityConstraint->value);
@@ -82,10 +78,10 @@ std::shared_ptr<TargetParameterTrack> TargetParameterTrack::copy(){
 	return copy;
 }
 
-std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::copy(){
-	auto copy = std::make_shared<SequenceParameterTrack>(getAnimatableParameter());
-	getAnimatableParameter()->copyParameterValue(target, copy->target);
-	getAnimatableParameter()->copyParameterValue(start, copy->start);
+std::shared_ptr<SequenceAnimation> SequenceAnimation::copy(){
+	auto copy = std::make_shared<SequenceAnimation>(getAnimatable());
+	getAnimatable()->copyParameterValue(target, copy->target);
+	getAnimatable()->copyParameterValue(start, copy->start);
 	copy->interpolationType->overwrite(interpolationType->value);
 	copy->duration->overwrite(duration->value);
 	copy->timeOffset->overwrite(timeOffset->value);
@@ -97,38 +93,39 @@ std::shared_ptr<SequenceParameterTrack> SequenceParameterTrack::copy(){
 }
 
 
-void ParameterTrack::validate(){
+void Animation::validate(){
 	validationErrorString = "";
-	b_valid = getParameter()->getMachine()->validateParameterTrack(shared_from_this());
+	b_valid = getAnimatable()->getMachine()->validateAnimation(shared_from_this());
 	if(hasManoeuvre()) manoeuvre->updateTrackSummary();
 }
 
 
 
-class CaptureCurrentMachineParameterValueCommand : public Command{
+/*
+class CaptureAnimatableValueCommand : public Command{
 public:
 	
 	std::shared_ptr<Parameter> parameter;
-	std::shared_ptr<AnimatableParameter> animatableParameter;
-	std::shared_ptr<AnimatableParameterValue> previousValue;
-	std::shared_ptr<AnimatableParameterValue> capturedValue;
+	std::shared_ptr<Animatable> animatable;
+	std::shared_ptr<AnimationValue> previousValue;
+	std::shared_ptr<AnimationValue> capturedValue;
 	
-	CaptureCurrentMachineParameterValueCommand(std::string& name, std::shared_ptr<Parameter> parameter_, std::shared_ptr<AnimatableParameter> animatableParameter_)
+	CaptureAnimatableValueCommand(std::string& name, std::shared_ptr<Parameter> parameter_, std::shared_ptr<Animatable> animatable_)
 	: Command(name) {
 		parameter = parameter_;
-		animatableParameter = animatableParameter_;
+		animatable = animatable_;
 	};
 	
 	virtual void execute(){
-		capturedValue = animatableParameter->getActualMachineValue();
-		previousValue = animatableParameter->getParameterValue(parameter);
-		animatableParameter->setParameterValue(parameter, capturedValue);
+		capturedValue = animatable->getCurrentValue();
+		previousValue = animatable->parameterValueToAnimationValue(parameter);
+		animatable->setParameterValueFromAnimationValue(parameter, capturedValue);
 	}
 	virtual void undo(){
-		animatableParameter->setParameterValue(parameter, previousValue);
+		animatable->setParameterValueFromAnimationValue(parameter, previousValue);
 	}
 	virtual void redo(){
-		animatableParameter->setParameterValue(parameter, capturedValue);
+		animatable->setParameterValueFromAnimationValue(parameter, capturedValue);
 	}
 };
 
@@ -143,129 +140,148 @@ void SequenceParameterTrack::captureCurrentValueAsStart(){
 	auto command = std::make_shared<CaptureCurrentMachineParameterValueCommand>(name, start, getAnimatableParameter());
 	CommandHistory::pushAndExecute(command);
 }
+ */
 
 
 
 
 
-void PlayableParameterTrack::updatePlaybackStatus(){
+void Animation::updatePlaybackStatus(){
 	if(playbackPosition_seconds >= duration_seconds){
-		auto parameter = getParameter();
-		if(parameter->hasActiveParameterTrack()) parameter->getMachine()->endParameterPlayback(parameter);
+		auto animatable = getAnimatable();
+		if(animatable->hasAnimation()) animatable->getMachine()->endAnimationPlayback(animatable);
 	}
 }
 
-std::shared_ptr<AnimatableParameterValue> PlayableParameterTrack::getParameterValueAtPlaybackTime(){
-	return getAnimatableParameter()->getParameterValueAtCurveTime(castToPlayable(), playbackPosition_seconds);
+std::shared_ptr<AnimationValue> Animation::getValueAtPlaybackTime(){
+	return getAnimatable()->getValueAtAnimationTime(shared_from_this(), playbackPosition_seconds);
 }
 
 
-bool ParameterTrack::isMachineEnabled(){ return parameter->getMachine()->isEnabled(); }
+bool Animation::isMachineEnabled(){ return animatable->getMachine()->isEnabled(); }
 
 
 
 
-bool AnimatedParameterTrack::isAtTarget(){
-	auto animatable = getAnimatableParameter();
-	return animatable->isParameterValueEqual(animatable->getParameterValue(target), animatable->getActualMachineValue());
+bool Animation::isAtTarget(){
+	//auto animatable = getAnimatableParameter();
+	//return animatable->isParameterValueEqual(animatable->getParameterValue(target), animatable->getActualMachineValue());
 }
 
-bool AnimatedParameterTrack::isInRapid(){ return false; }
+bool Animation::isInRapid(){ return false; }
 
-float AnimatedParameterTrack::getRapidProgress(){
-	auto animatable = getAnimatableParameter();
-	float prog = animatable->getMachine()->getParameterRapidProgress(animatable);
+float Animation::getRapidProgress(){
+	auto animatable = getAnimatable();
+	float prog = animatable->getMachine()->getAnimatableRapidProgress(animatable);
 	return prog;
 }
 
-void AnimatedParameterTrack::rapidToTarget(){
-	auto animatable = getAnimatableParameter();
+void Animation::rapidToTarget(){
+	/*
+	auto animatable = getAnimatable();
 	animatable->stopParameterPlayback();
 	auto targetValue = animatable->getParameterValue(target);
 	animatable->getMachine()->rapidParameterToValue(animatable, targetValue);
+	 */
 }
 
-void ParameterTrack::startPlayback(){
+void Animation::startPlayback(){
 	if(!isReadyToStartPlayback()) return;
-	auto parameter = getParameter();
-	parameter->getMachine()->startParameterPlayback(shared_from_this());
+	auto animatable = getAnimatable();
+	animatable->getMachine()->startAnimationPlayback(shared_from_this());
 }
 
-void AnimatedParameterTrack::stop(){
-	auto animatable = getAnimatableParameter();
-	if(animatable->hasActiveParameterTrack()) animatable->getMachine()->endParameterPlayback(animatable);
-	else animatable->getMachine()->cancelParameterRapid(animatable);
+void Animation::stop(){
+	auto animatable = getAnimatable();
+	if(animatable->hasAnimation()) animatable->getMachine()->endAnimationPlayback(animatable);
+	else animatable->getMachine()->cancelAnimatableRapid(animatable);
 	setPlaybackPosition(0.0);
 	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
 }
 
-void AnimatedParameterTrack::interrupt(){
-	auto animatable = getAnimatableParameter();
-	animatable->getMachine()->interruptParameterPlayback(animatable);
-	animatable->getMachine()->cancelParameterRapid(animatable);
+void Animation::interrupt(){
+	auto animatable = getAnimatable();
+	animatable->getMachine()->interruptAnimationPlayback(animatable);
+	animatable->getMachine()->cancelAnimatableRapid(animatable);
 }
 
 
-bool ParameterTrack::isPlaying(){
-	return getParameter()->activeParameterTrack == shared_from_this();
+bool Animation::isPlaying(){
+	return getAnimatable()->getAnimation() == shared_from_this();
 }
 
 
 
 
 
-bool TargetParameterTrack::isAtPlaybackPosition(){
-	auto animatable = getAnimatableParameter();
-	return animatable->isParameterValueEqual(getParameterValueAtPlaybackTime(), animatable->getActualMachineValue());
+
+
+
+
+
+
+
+
+
+
+bool TargetAnimation::isAtPlaybackPosition(){
+	auto animatable = getAnimatable();
+	return animatable->isParameterValueEqual(getValueAtPlaybackTime(), animatable->getActualValue());
 }
 
-bool TargetParameterTrack::isReadyToStartPlayback(){
-	return getParameter()->getMachine()->isEnabled();
+bool TargetAnimation::isReadyToStartPlayback(){
+	return getAnimatable()->getMachine()->isEnabled();
 }
 
-void TargetParameterTrack::startPlayback(){
+void TargetAnimation::startPlayback(){
 	//TODO:
 	//generate a curve that starts at the current machine value and goes to the target
 	//respect the interpolation type
 	//respect the time offset
 	//respect the velocity or time constraint
-	bool success = getParameter()->getMachine()->generateTargetParameterTrackCurves(shared_from_this()->castToTarget());
+	//bool success = getParameter()->getMachine()->generateTargetParameterTrackCurves(shared_from_this()->castToTarget());
 	//then play these curves
 }
 
 
 
-bool SequenceParameterTrack::isAtStart(){
+
+
+
+
+
+
+bool SequenceAnimation::isAtStart(){
 	auto animatable = getAnimatableParameter();
 	return animatable->isParameterValueEqual(animatable->getParameterValue(start), animatable->getActualMachineValue());
 }
 
-void SequenceParameterTrack::rapidToStart(){
+void SequenceAnimation::rapidToStart(){
 	auto animatable = getAnimatableParameter();
 	animatable->stopParameterPlayback();
 	animatable->getMachine()->rapidParameterToValue(animatable, animatable->getParameterValue(start));
 }
 
-void SequenceParameterTrack::rapidToPlaybackPosition(){
+void SequenceAnimation::rapidToPlaybackPosition(){
 	auto animatable = getAnimatableParameter();
 	animatable->stopParameterPlayback();
 	auto valueAtPlaybackTime = getParameterValueAtPlaybackTime();
 	animatable->getMachine()->rapidParameterToValue(animatable, valueAtPlaybackTime);
 }
 
-bool SequenceParameterTrack::isAtPlaybackPosition(){
+bool SequenceAnimation::isAtPlaybackPosition(){
 	auto animatable = getAnimatableParameter();
 	return animatable->isParameterValueEqual(getParameterValueAtPlaybackTime(), animatable->getActualMachineValue());
 }
 
-bool SequenceParameterTrack::isReadyToStartPlayback(){
+bool SequenceAnimation::isReadyToStartPlayback(){
 	auto animatable = getAnimatableParameter();
 	if(!animatable->getMachine()->isEnabled()) return;
 	return animatable->getMachine()->isParameterReadyToStartPlaybackFromValue(animatable, getParameterValueAtPlaybackTime());
 }
 
 
-void SequenceParameterTrack::updateAfterParameterEdit(){
+void SequenceAnimation::updateAfterParameterEdit(){
 	int curveCount = getAnimatableParameter()->getCurveCount();
 	auto& curves = getCurves();
 	
@@ -302,13 +318,13 @@ void SequenceParameterTrack::updateAfterParameterEdit(){
 	validate();
 }
 
-void SequenceParameterTrack::updateAfterCurveEdit(){
+void SequenceAnimation::updateAfterCurveEdit(){
 	auto& curves = getCurves();
 	for(auto& curve : curves) curve.refresh();
 	validate();
 }
 
-void SequenceParameterTrack::initializeCurves(){
+void SequenceAnimation::initializeCurves(){
 	auto animatable = getAnimatableParameter();
 	int curveCount = animatable->getCurveCount();
 	auto& curves = getCurves();

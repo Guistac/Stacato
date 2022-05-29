@@ -38,44 +38,44 @@ bool Machine::isSimulating(){
 	return Environnement::isSimulating();
 }
 
-void Machine::addParameter(std::shared_ptr<MachineParameter> parameter) {
+void Machine::addAnimatable(std::shared_ptr<Animatable> animatable) {
 	auto thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
-	parameter->setMachine(thisMachine);
-	if(parameter->isGroup()){
-		auto parameterGroup = parameter->castToGroup();
-		for(auto& childParameter : parameterGroup->getChildren()){
-			childParameter->setMachine(thisMachine);
+	animatable->setMachine(thisMachine);
+	if(animatable->isComposite()){
+		auto animatableComposite = animatable->toComposite();
+		for(auto& childAnimatable : animatableComposite->getChildren()){
+			childAnimatable->setMachine(thisMachine);
 		}
 	}
-	parameters.push_back(parameter);
+	animatables.push_back(animatable);
 }
 
-void Machine::startParameterPlayback(std::shared_ptr<ParameterTrack> track) {
-	auto trackParameter = track->getParameter();
-	for (auto& parameter : parameters) {
-		if (trackParameter == parameter) {
+void Machine::startAnimationPlayback(std::shared_ptr<Animation> animation) {
+	auto animationAnimatable = animation->getAnimatable();
+	for (auto& animatable : animatables) {
+		if (animationAnimatable == animatable) {
 			//stop playback of this parameter if it is already playing
-			if(parameter->hasActiveParameterTrack()) parameter->stopParameterPlayback();
-			parameter->activeParameterTrack = track;
-			onParameterPlaybackStart(parameter);
+			if(animatable->hasAnimation()) animatable->stopAnimationPlayback();
+			animatable->setAnimation(animation);
+			onAnimationPlaybackStart(animatable);
 		}
 	}
 }
 
-void Machine::interruptParameterPlayback(std::shared_ptr<MachineParameter> playingParameter) {
-	for (auto& parameter : parameters) {
-		if (playingParameter == parameter) {
-			parameter->activeParameterTrack = nullptr;
-			onParameterPlaybackInterrupt(parameter);
+void Machine::interruptAnimationPlayback(std::shared_ptr<Animatable> playingAnimatable) {
+	for (auto& animatable : animatables) {
+		if (playingAnimatable == animatable) {
+			animatable->setAnimation(nullptr);
+			onAnimationPlaybackInterrupt(animatable);
 		}
 	}
 }
 
-void Machine::endParameterPlayback(std::shared_ptr<MachineParameter> playingParameter){
-	for (auto& parameter : parameters) {
-		if (playingParameter == parameter) {
-			parameter->activeParameterTrack = nullptr;
-			onParameterPlaybackEnd(parameter);
+void Machine::endAnimationPlayback(std::shared_ptr<Animatable> playingAnimatable){
+	for (auto& animatable : animatables) {
+		if (playingAnimatable == animatable) {
+			animatable->setAnimation(nullptr);
+			onAnimationPlaybackEnd(animatable);
 		}
 	}
 }

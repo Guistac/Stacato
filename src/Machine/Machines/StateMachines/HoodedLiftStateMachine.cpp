@@ -6,7 +6,7 @@
 
 #include "Motion/Manoeuvre/ParameterTrack.h"
 
-std::vector<AnimatableParameterState> HoodedLiftStateMachine::stateParameterValues = {
+std::vector<StateAnimationValue::Value> HoodedLiftStateMachine::stateParameterValues = {
 	{-1, "Stopped", "Stopped"},
 	{0, "Shut", "Shut"},
 	{1, "Open", "Open"},
@@ -46,7 +46,7 @@ void HoodedLiftStateMachine::initialize() {
 	addNodePin(raiseLiftCommandPin);
 	addNodePin(lowerLiftCommandPin);
 
-	addParameter(stateParameter);
+	addAnimatable(stateParameter);
 }
 
 void HoodedLiftStateMachine::process() {
@@ -90,8 +90,8 @@ void HoodedLiftStateMachine::process() {
 	//update outputs signals
 	if (b_enabled) {
 
-		if (stateParameter->hasActiveParameterTrack()) {
-			auto state = stateParameter->getActiveParameterTrackValue()->toState();
+		if (stateParameter->hasAnimation()) {
+			auto state = stateParameter->getAnimationValue()->toState();
 			switch (state->value->integerEquivalent) {
 				case 0:
 					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
@@ -248,8 +248,8 @@ bool HoodedLiftStateMachine::isMoving() {
 	return actualState == MachineState::State::LIFT_LOWERED_HOOD_MOVING || actualState == MachineState::State::LIFT_MOVING_HOOD_OPEN;
 }
 
-void HoodedLiftStateMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
-	if (parameter == stateParameter) {
+void HoodedLiftStateMachine::rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
+	if (animatable == stateParameter) {
 		auto state = value->toState()->value;
 		switch (state->integerEquivalent) {
 			case 0:
@@ -266,8 +266,8 @@ void HoodedLiftStateMachine::rapidParameterToValue(std::shared_ptr<AnimatablePar
 	}
 }
 
-float HoodedLiftStateMachine::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
-	if (parameter == stateParameter) {
+float HoodedLiftStateMachine::getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable) {
+	if (animatable == stateParameter) {
 		float actual = getState(actualState)->floatEquivalent;
 		float start = getState(parameterMovementStartState)->floatEquivalent;
 		float target = getState(parameterMovementTargetState)->floatEquivalent;
@@ -279,8 +279,8 @@ float HoodedLiftStateMachine::getParameterRapidProgress(std::shared_ptr<Animatab
 	return 0.0;
 }
 
-bool HoodedLiftStateMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
-	if (parameter == stateParameter) {
+bool HoodedLiftStateMachine::isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
+	if (animatable == stateParameter) {
 		auto state = value->toState()->value;
 		//TODO: this is broken
 		if (state->integerEquivalent == getState(actualState)->floatEquivalent) return true;
@@ -288,14 +288,14 @@ bool HoodedLiftStateMachine::isParameterReadyToStartPlaybackFromValue(std::share
 	return false;
 }
 
-void HoodedLiftStateMachine::onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter) {}
+void HoodedLiftStateMachine::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable) {}
 
-void HoodedLiftStateMachine::onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter) {}
+void HoodedLiftStateMachine::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable) {}
 
-void HoodedLiftStateMachine::onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter) {}
+void HoodedLiftStateMachine::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable) {}
 
-std::shared_ptr<AnimatableParameterValue> HoodedLiftStateMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter) {
-	auto output = AnimatableParameterValue::makeState();
+std::shared_ptr<AnimationValue> HoodedLiftStateMachine::getActualAnimatableValue(std::shared_ptr<Animatable> animatable) {
+	auto output = AnimationValue::makeState();
 	output->value = &stateParameterValues.front();
 	switch(actualState){
 		case HoodedLiftStateMachine::MachineState::State::UNKNOWN:
@@ -311,7 +311,7 @@ std::shared_ptr<AnimatableParameterValue> HoodedLiftStateMachine::getActualParam
 
 
 
-void HoodedLiftStateMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {
+void HoodedLiftStateMachine::cancelAnimatableRapid(std::shared_ptr<Animatable> animatable) {
 	
 }
 
@@ -321,7 +321,7 @@ void HoodedLiftStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& ou
 
 
 
-bool HoodedLiftStateMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
+bool HoodedLiftStateMachine::validateAnimation(const std::shared_ptr<Animation> animation) {
 	/*
 	parameterTrack->b_valid = true;
 	for (auto& curve : parameterTrack->curves) {
@@ -339,13 +339,7 @@ bool HoodedLiftStateMachine::validateParameterTrack(const std::shared_ptr<Parame
 	return true;
 }
 
-bool HoodedLiftStateMachine::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
-	lowLimit = 0.0;
-	highLimit = 2.0;
-	return true;
-}
-
-bool HoodedLiftStateMachine::generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack){
+bool HoodedLiftStateMachine::generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation){
 	return false;
 }
 
@@ -363,8 +357,8 @@ void HoodedLiftStateMachine::simulateProcess() {
 
 	//update outputs signals
 	if (isEnabled()) {
-		if (stateParameter->hasActiveParameterTrack()) {
-			auto state = stateParameter->getActiveParameterTrackValue()->toState()->value;
+		if (stateParameter->hasAnimation()) {
+			auto state = stateParameter->getAnimationValue()->toState()->value;
 			switch (state->integerEquivalent) {
 				case 0:
 					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;

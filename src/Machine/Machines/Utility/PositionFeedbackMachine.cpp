@@ -165,22 +165,13 @@ void PositionFeedbackMachine::getDevices(std::vector<std::shared_ptr<Device>>& o
 	if(isFeedbackConnected()) output.push_back(getFeedbackDevice()->parentDevice);
 }
 
-void PositionFeedbackMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value){}
-void PositionFeedbackMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter){}
-float PositionFeedbackMachine::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter){
-	return 0.0;
-}
-bool PositionFeedbackMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value){
-	return false;
-}
-void PositionFeedbackMachine::onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter){}
-void PositionFeedbackMachine::onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter){}
-void PositionFeedbackMachine::onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter){}
-std::shared_ptr<AnimatableParameterValue> PositionFeedbackMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter){}
-bool PositionFeedbackMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack){
-	return false;
-}
-bool PositionFeedbackMachine::generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack){ return false; }
-bool PositionFeedbackMachine::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit){
-	return false;
-}
+void PositionFeedbackMachine::rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value){}
+void PositionFeedbackMachine::cancelAnimatableRapid(std::shared_ptr<Animatable> animatable){}
+float PositionFeedbackMachine::getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable){ return 0.0; }
+bool PositionFeedbackMachine::isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> Animatable, std::shared_ptr<AnimationValue> value){ return false; }
+void PositionFeedbackMachine::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable){}
+void PositionFeedbackMachine::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable){}
+void PositionFeedbackMachine::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable){}
+std::shared_ptr<AnimationValue> PositionFeedbackMachine::getActualAnimatableValue(std::shared_ptr<Animatable> animatable){}
+bool PositionFeedbackMachine::validateAnimation(const std::shared_ptr<Animation> animation){ return false; }
+bool PositionFeedbackMachine::generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation){ return false; }

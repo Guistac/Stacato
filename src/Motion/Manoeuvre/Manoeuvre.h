@@ -3,10 +3,10 @@
 #include "Project/Editor/Parameter.h"
 #include "Motion/MotionTypes.h"
 
-class ParameterTrack;
-class MachineParameter;
-class Plot;
+class Animation;
+class Animatable;
 class ManoeuvreList;
+class Plot;
 namespace tinyxml2 { class XMLElement; }
 
 
@@ -58,13 +58,13 @@ private:
 	//———————————————————————————————
 	
 public:
+		
+	bool hasAnimation(std::shared_ptr<Animatable> animatable);
+	void addAnimation(std::shared_ptr<Animatable> animatable);
+	void removeAnimation(std::shared_ptr<Animatable> animatable);
+	void moveAnimation(int oldIndex, int newIndex);
 	
-	bool hasTrack(std::shared_ptr<MachineParameter>& parameter);
-	std::vector<std::shared_ptr<ParameterTrack>>& getTracks(){ return tracks; }
-	
-	void addTrack(std::shared_ptr<MachineParameter>& parameter);
-	void removeTrack(std::shared_ptr<MachineParameter> parameter);
-	void moveTrack(int oldIndex, int newIndex);
+	std::vector<std::shared_ptr<Animation>>& getAnimations(){ return animations; }
 	
 	void subscribeAllTracksToMachineParameter();
 	void unsubscribeAllTracksFromMachineParameter();
@@ -74,7 +74,7 @@ public:
 	
 private:
 	
-	std::vector<std::shared_ptr<ParameterTrack>> tracks;
+	std::vector<std::shared_ptr<Animation>> animations;
 	bool b_valid = false;
 	
 	//———————————————————————————————

@@ -25,7 +25,7 @@ void PositionControlledMachine::initialize() {
 	addNodePin(velocityPin);
 
 	//machine parameters
-	addParameter(positionParameter);
+	addAnimatable(positionParameter);
 }
 
 void PositionControlledMachine::onPinUpdate(std::shared_ptr<NodePin> pin){
@@ -84,7 +84,7 @@ void PositionControlledMachine::onEnableHardware() {
 
 void PositionControlledMachine::onDisableHardware() {
 	setVelocityTarget(0.0);
-	positionParameter->stopParameterPlayback();
+	positionParameter->stopAnimationPlayback();
 	Logger::info("Disabled Machine {}", getName());
 }
 
@@ -100,7 +100,7 @@ void PositionControlledMachine::onEnableSimulation() {
 }
 
 void PositionControlledMachine::onDisableSimulation() {
-	positionParameter->stopParameterPlayback();
+	positionParameter->stopAnimationPlayback();
 	setVelocityTarget(0.0);
 	motionProfile.setVelocity(0.0);
 	motionProfile.setAcceleration(0.0);
@@ -136,8 +136,7 @@ void PositionControlledMachine::process() {
 	switch(controlMode){
 			
 		case ControlMode::PARAMETER_TRACK:{
-			
-			auto value = positionParameter->getActiveParameterTrackValue()->toPosition();
+			auto value = positionParameter->getAnimationValue()->toPosition();
 			
 			motionProfile.matchPositionAndRespectPositionLimits(profileDeltaTime_seconds,
 																value->position,
@@ -185,7 +184,7 @@ void PositionControlledMachine::simulateProcess() {
 	switch(controlMode){
 			
 		case ControlMode::PARAMETER_TRACK:{
-			auto value = positionParameter->getActiveParameterTrackValue()->toPosition();
+			auto value = positionParameter->getAnimationValue()->toPosition();
 			motionProfile.matchPositionAndRespectPositionLimits(profileDeltaTime_seconds,
 																value->position,
 																value->velocity,
@@ -224,7 +223,7 @@ bool PositionControlledMachine::isHoming(){
 	return isAxisConnected() && getAxis()->isHoming();
 }
 void PositionControlledMachine::startHoming(){
-	positionParameter->stopParameterPlayback();
+	positionParameter->stopAnimationPlayback();
 	getAxis()->startHoming();
 }
 void PositionControlledMachine::stopHoming(){
@@ -258,7 +257,7 @@ std::shared_ptr<PositionControlledAxis> PositionControlledMachine::getAxis() {
 //===================== MANUAL CONTROLS =========================
 
 void PositionControlledMachine::setVelocityTarget(double velocityTarget_machineUnitsPerSecond) {
-	positionParameter->stopParameterPlayback();
+	positionParameter->stopAnimationPlayback();
 	
 	manualVelocityTarget_machineUnitsPerSecond = velocityTarget_machineUnitsPerSecond;
 	if(controlMode == ControlMode::POSITION_TARGET) motionProfile.resetInterpolation();
@@ -266,7 +265,7 @@ void PositionControlledMachine::setVelocityTarget(double velocityTarget_machineU
 }
 
 void PositionControlledMachine::moveToPosition(double target_machineUnits) {
-	positionParameter->stopParameterPlayback();
+	positionParameter->stopAnimationPlayback();
 	
 	double lowLimit_machineUnits = getLowPositionLimit();
 	double highLimit_machineUnits = getHighPositionLimit();
@@ -294,60 +293,59 @@ void PositionControlledMachine::moveToPosition(double target_machineUnits) {
 
 
 
-void PositionControlledMachine::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
-	positionParameter->stopParameterPlayback();
-	
-	if (parameter == positionParameter) {
+void PositionControlledMachine::rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
+	if (animatable == positionParameter) {
+		positionParameter->stopAnimationPlayback();
 		moveToPosition(value->toPosition()->position);
 	}
 }
 
-float PositionControlledMachine::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
-	if (parameter == positionParameter) {
+float PositionControlledMachine::getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable) {
+	if (animatable == positionParameter) {
 		float progress = motionProfile.getInterpolationProgress(Environnement::getTime_seconds());
 		return progress;
 	}
 	return 0.0;
 }
 
-void PositionControlledMachine::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {
-	if (parameter == positionParameter) {
+void PositionControlledMachine::cancelAnimatableRapid(std::shared_ptr<Animatable> animatable) {
+	if (animatable == positionParameter) {
 		setVelocityTarget(0.0);
 	}
 }
 
-bool PositionControlledMachine::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
-	if (parameter == positionParameter) {
+bool PositionControlledMachine::isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
+	if (animatable == positionParameter) {
 		return motionProfile.getPosition() == value->toPosition()->position && motionProfile.getVelocity() == 0.0;
 	}
 	return false;
 }
 
-void PositionControlledMachine::onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter) {
-	if (parameter == positionParameter) {
+void PositionControlledMachine::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable) {
+	if (animatable == positionParameter) {
 		controlMode = ControlMode::PARAMETER_TRACK;
 	}
 }
 
-void PositionControlledMachine::onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter) {
+void PositionControlledMachine::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable) {
 	//here we just set the velocity target to 0 regardless of where we are at in the manoeuvre
-	if (parameter == positionParameter) {
+	if (animatable == positionParameter) {
 		setVelocityTarget(0.0);
 	}
 }
 
-void PositionControlledMachine::onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter) {
+void PositionControlledMachine::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable) {
 	//here we have to make sure that the last position of the manoeuvre stays in the motion profile on the next loop
 	//to make sure of this we manually set the profile velocity to 0.0, and the target velocity to 0.0 to make sure nothing moves after the manoeuvre is done playing
-	if (parameter == positionParameter) {
+	if (animatable == positionParameter) {
 		motionProfile.setVelocity(0.0);
 		setVelocityTarget(0.0);
 	}
 }
 
-std::shared_ptr<AnimatableParameterValue> PositionControlledMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter) {
-	if (parameter == positionParameter) {
-		auto output = AnimatableParameterValue::makePosition();
+std::shared_ptr<AnimationValue> PositionControlledMachine::getActualAnimatableValue(std::shared_ptr<Animatable> animatable) {
+	if (animatable == positionParameter) {
+		auto output = AnimationValue::makePosition();
 		output->position = motionProfile.getPosition();
 		output->velocity = motionProfile.getVelocity();
 		output->acceleration = motionProfile.getAcceleration();
@@ -357,15 +355,15 @@ std::shared_ptr<AnimatableParameterValue> PositionControlledMachine::getActualPa
 }
 
 
-bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
+bool PositionControlledMachine::validateAnimation(const std::shared_ptr<Animation> animation) {
 	using namespace Motion;
 	
-	if (parameterTrack->getParameter() != positionParameter) {
-		parameterTrack->appendValidationErrorString("Unknown Parameter");
+	if (animation->getAnimatable() != positionParameter) {
+		animation->appendValidationErrorString("Unknown Parameter");
 		return false;
 	}
 	else if (!isAxisConnected()) {
-		parameterTrack->appendValidationErrorString("No Axis Connected To Machine");
+		animation->appendValidationErrorString("No Axis Connected To Machine");
 		return false;
 	}
 	
@@ -378,6 +376,7 @@ bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<Par
 	double velocityLimit_machineUnits = getAxis()->getVelocityLimit();
 	double accelerationLimit_machineUnits = getAxis()->getAccelerationLimit();
 	
+	/*
 	auto animatedTrack = parameterTrack->castToAnimated();
 	ManoeuvreType manoeuvreType = animatedTrack->getType();
 	
@@ -496,22 +495,15 @@ bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<Par
 		if(!b_curveValid) animatedTrack->appendValidationErrorString("Curve could not be validated.\nCheck the Curve editor for details.");
 		
 	}
+	*/
+	
 	
 	//we return the result of the validation
 	return b_trackValid;
 }
 
-bool PositionControlledMachine::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
-	if (parameter == positionParameter && parameterCurves.size() == 1) {
-		lowLimit = getLowPositionLimit();
-		highLimit = getHighPositionLimit();
-		return true;
-	}
-	return false;
-}
-
-
-bool PositionControlledMachine::generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> track){
+bool PositionControlledMachine::generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation){
+	/*
 	if(track->getParameter() != positionParameter) return false;
 	
 	//TODO: unfinished !
@@ -568,7 +560,7 @@ bool PositionControlledMachine::generateTargetParameterTrackCurves(std::shared_p
 		
 	}
 	
-	
+	*/
 }
 
 

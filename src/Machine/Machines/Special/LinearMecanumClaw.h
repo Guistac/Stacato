@@ -35,12 +35,8 @@ public:
 	
 	//=== Animatable Machine Parameters
 	
-	std::shared_ptr<AnimatableNumericalParameter> linearAxisPositionParameter = std::make_shared<AnimatableNumericalParameter>("Position Costière",
-																															   MachineParameterType::POSITION,
-																															   Units::None::None);
-	std::shared_ptr<AnimatableNumericalParameter> clawAxisPositionParameter = std::make_shared<AnimatableNumericalParameter>("Angle Coeur",
-																															 MachineParameterType::POSITION,
-																															 Units::None::None);
+	std::shared_ptr<AnimatableNumber> linearAxisPositionParameter = std::make_shared<AnimatableNumber>("Position Costière", AnimatableType::POSITION, Units::None::None);
+	std::shared_ptr<AnimatableNumber> clawAxisPositionParameter = std::make_shared<AnimatableNumber>("Angle Coeur", AnimatableType::POSITION, Units::None::None);
 	
 	//=== Device Checking & Gettings
 	

@@ -10,6 +10,7 @@ namespace tinyxml2 { class XMLElement; }
 
 class Animation;
 class AnimatableComposite;
+class AnimatableNumber;
 
 class Animatable : public std::enable_shared_from_this<Animatable>{
 public:
@@ -26,17 +27,16 @@ public:
 	void setParentComposite(std::shared_ptr<AnimatableComposite> composite_){ parentComposite = composite_; }
 	
 	virtual bool isComposite(){ return false; }
+	virtual bool isNumber(){ return false; }
 	virtual AnimatableType getType() = 0;
 	
 	std::shared_ptr<AnimatableComposite> toComposite(){ return std::dynamic_pointer_cast<AnimatableComposite>(shared_from_this()); }
+	std::shared_ptr<AnimatableNumber> toNumber(){ return std::dynamic_pointer_cast<AnimatableNumber>(shared_from_this()); }
 	
 	//———————————— ANIMATIONS ————————————
 	
 	std::shared_ptr<Animation> makeAnimation(ManoeuvreType manoeuvreType);
-	virtual std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes(){
-		static std::vector<Motion::Interpolation::Type> none;
-		return none;
-	}
+	std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes();
 	
 	std::vector<std::shared_ptr<Animation>>& getAnimations(){ return animations; }
 	void subscribeAnimation(std::shared_ptr<Animation> animation){ animations.push_back(animation); }
@@ -51,11 +51,14 @@ public:
 	
 	bool hasAnimation(){ return currentAnimation != nullptr; }
 	std::shared_ptr<Animation> getAnimation(){ return currentAnimation; }
+	void setAnimation(std::shared_ptr<Animation> animation){ currentAnimation = animation; }
+	
+	void stopAnimationPlayback();
 	
 	//———————————— ANIMATION VALUES ————————————
 	
 	std::shared_ptr<AnimationValue> getAnimationValue();
-	std::shared_ptr<AnimationValue> getCurrentValue();
+	std::shared_ptr<AnimationValue> getActualValue();
 	
 	int getCurveCount();
 	std::shared_ptr<Parameter> makeParameter();
@@ -88,7 +91,7 @@ private:
 
 
 //———————————————————————————————————————————————
-//				NUMERICAL PARAMETER
+//				ANIMATABLE NUMBER
 //———————————————————————————————————————————————
 
 class AnimatableNumber : public Animatable{
@@ -101,8 +104,15 @@ public:
 		setUnit(unit_);
 	}
 
+	virtual bool isNumber() override { return true; }
 	virtual AnimatableType getType() override { return type; }
-	virtual std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes() override;
+	
+	bool isReal(){
+		switch(type){
+			case AnimatableType::INTEGER: return false;
+			default: return true;
+		}
+	}
 	
 	Unit getUnit(){ return unit; }
 	void setUnit(Unit u);
@@ -119,7 +129,7 @@ private:
 
 
 //———————————————————————————————————————————————
-//				STATE PARAMETER
+//				ANIMATABLE STATE
 //———————————————————————————————————————————————
 
 class AnimatableState : public Animatable{
@@ -128,11 +138,6 @@ public:
 	AnimatableState(const char* name, std::vector<StateAnimationValue::Value>* stateValues) : Animatable(name), states(stateValues){};
 	
 	virtual AnimatableType getType() override { return AnimatableType::STATE; }
-	
-	virtual std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes() override {
-		static std::vector<Motion::Interpolation::Type> compatibleInterpolations = { Motion::Interpolation::Type::STEP };
-		return compatibleInterpolations;
-	}
 	
 	std::vector<StateAnimationValue::Value>& getStates() { return *states; }
 	
@@ -143,7 +148,7 @@ private:
 
 
 //———————————————————————————————————————————————
-//				BOOLEAN PARAMETER
+//				ANIMATABLE BOOLEAN
 //———————————————————————————————————————————————
 
 class AnimatableBoolean : public Animatable{
@@ -152,17 +157,12 @@ public:
 	AnimatableBoolean(const char* name) : Animatable(name){}
 	
 	virtual AnimatableType getType() override { return AnimatableType::BOOLEAN; }
-	
-	virtual std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes() override {
-		static std::vector<Motion::Interpolation::Type> compatibleInterpolations = { Motion::Interpolation::Type::STEP };
-		return compatibleInterpolations;
-	}
 };
 
 
 
 //———————————————————————————————————————————————
-//				PARAMETER GROUP
+//				ANIMATABLE COMPOSITE
 //———————————————————————————————————————————————
 
 class AnimatableComposite : public Animatable{
