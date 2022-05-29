@@ -169,7 +169,7 @@ DEFINE_ENUMERATOR(HomingError, HomingErrorStrings)
 
 //================================================================================================================================
 
-enum class MachineParameterType {
+enum class AnimatableType {
 	BOOLEAN,
 	INTEGER,
 	REAL,
@@ -182,25 +182,25 @@ enum class MachineParameterType {
 	VELOCITY,
 	VELOCITY_2D,
 	VELOCITY_3D,
-	GROUP
+	COMPOSITE
 };
 
-#define ParameterDataTypeStrings \
-	{MachineParameterType::BOOLEAN, 	"Boolean", 			"Boolean"},\
-	{MachineParameterType::INTEGER, 	"Integer", 			"Integer"},\
-	{MachineParameterType::REAL, 		"Real", 			"Real"},\
-	{MachineParameterType::STATE, 		"State", 			"State"},\
-	{MachineParameterType::VECTOR_2D, 	"2D Vector", 		"2DVector"},\
-	{MachineParameterType::VECTOR_3D, 	"3D Vector", 		"3DVector"},\
-	{MachineParameterType::POSITION, 	"Position", 		"Position"},\
-	{MachineParameterType::POSITION_2D, "2D Position", 		"2DPosition"},\
-	{MachineParameterType::POSITION_3D, "3D Position", 		"3DPosition"},\
-	{MachineParameterType::VELOCITY, 	"Velocity", 		"Velocity"},\
-	{MachineParameterType::VELOCITY_2D, "2D Velocity", 		"2DVelocity"},\
-	{MachineParameterType::VELOCITY_3D, "3D Velocity", 		"3DVelocity"},\
-	{MachineParameterType::GROUP, 		"Parameter Group", 	"ParameterGroup"}\
+#define AnimatableTypeStrings \
+	{AnimatableType::BOOLEAN, 		"Boolean", 				"Boolean"},\
+	{AnimatableType::INTEGER, 		"Integer", 				"Integer"},\
+	{AnimatableType::REAL, 			"Real", 				"Real"},\
+	{AnimatableType::STATE, 		"State", 				"State"},\
+	{AnimatableType::VECTOR_2D, 	"2D Vector", 			"2DVector"},\
+	{AnimatableType::VECTOR_3D, 	"3D Vector", 			"3DVector"},\
+	{AnimatableType::POSITION, 		"Position", 			"Position"},\
+	{AnimatableType::POSITION_2D, 	"2D Position", 			"2DPosition"},\
+	{AnimatableType::POSITION_3D, 	"3D Position", 			"3DPosition"},\
+	{AnimatableType::VELOCITY, 		"Velocity", 			"Velocity"},\
+	{AnimatableType::VELOCITY_2D, 	"2D Velocity", 			"2DVelocity"},\
+	{AnimatableType::VELOCITY_3D, 	"3D Velocity", 			"3DVelocity"},\
+	{AnimatableType::COMPOSITE, 	"Composite Parameter", 	"Composite"}\
 
-DEFINE_ENUMERATOR(MachineParameterType, ParameterDataTypeStrings)
+DEFINE_ENUMERATOR(AnimatableType, AnimatableTypeStrings)
 
 //================================================================================================================================
 
