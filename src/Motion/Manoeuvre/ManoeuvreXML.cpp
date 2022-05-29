@@ -366,7 +366,9 @@ bool SequenceAnimation::onSave(tinyxml2::XMLElement* xml){
 }
 
 std::shared_ptr<SequenceAnimation> SequenceAnimation::load(tinyxml2::XMLElement* xml, std::shared_ptr<Animatable> animatable){
+	
 	auto sequenceAnimation = std::make_shared<SequenceAnimation>(animatable);
+	
 	if(!sequenceAnimation->interpolationType->load(xml)){
 		Logger::warn("could not load attribute Interpolation Type of Animation {}", animatable->getName());
 	}
@@ -400,35 +402,34 @@ std::shared_ptr<SequenceAnimation> SequenceAnimation::load(tinyxml2::XMLElement*
 	//generate curves
 	
 	
-	int curveCount = parameter->getCurveCount();
-	auto& curves = track->getCurves();
-	auto animatable = track->getAnimatableParameter();
-	
-	auto startValue = animatable->getParameterValue(track->start);
-	auto targetValue = animatable->getParameterValue(track->target);
-	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromParameterValue(startValue);
-	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromParameterValue(targetValue);
+	int curveCount = animatable->getCurveCount();
+	auto& curves = sequenceAnimation->getCurves();
+		
+	auto startValue = animatable->parameterValueToAnimationValue(sequenceAnimation->start);
+	auto targetValue = animatable->parameterValueToAnimationValue(sequenceAnimation->target);
+	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromAnimationValue(startValue);
+	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromAnimationValue(targetValue);
 	
 	for(int i = 0; i < curveCount; i++){
 		auto& curve = curves[i];
 		auto& points = curve.getPoints();
 		points.clear();
-		curve.interpolationType = track->interpolationType->value;
+		curve.interpolationType = sequenceAnimation->interpolationType->value;
 		
 		auto startPoint = std::make_shared<Motion::ControlPoint>();
 		auto targetPoint = std::make_shared<Motion::ControlPoint>();
 		
 		startPoint->position = curveStartPositions[i];
 		startPoint->velocity = 0.0;
-		startPoint->inAcceleration = track->inAcceleration->value;
-		startPoint->outAcceleration = track->inAcceleration->value;
-		startPoint->time = track->timeOffset->value;
+		startPoint->inAcceleration = sequenceAnimation->inAcceleration->value;
+		startPoint->outAcceleration = sequenceAnimation->inAcceleration->value;
+		startPoint->time = sequenceAnimation->timeOffset->value;
 		
 		targetPoint->position = curveEndPositions[i];
 		targetPoint->velocity = 0.0;
-		targetPoint->inAcceleration = track->outAcceleration->value;
-		targetPoint->outAcceleration = track->outAcceleration->value;
-		targetPoint->time = track->timeOffset->value + track->duration->value;
+		targetPoint->inAcceleration = sequenceAnimation->outAcceleration->value;
+		targetPoint->outAcceleration = sequenceAnimation->outAcceleration->value;
+		targetPoint->time = sequenceAnimation->timeOffset->value + sequenceAnimation->duration->value;
 		
 		points.push_back(startPoint);
 		
@@ -439,7 +440,7 @@ std::shared_ptr<SequenceAnimation> SequenceAnimation::load(tinyxml2::XMLElement*
 		curve.refresh();
 	}
 	
-	track->duration_seconds = track->timeOffset->value + track->duration->value;
-	
-	return track;
+	sequenceAnimation->setDuration(sequenceAnimation->timeOffset->value + sequenceAnimation->duration->value);
+
+	return sequenceAnimation;
 }

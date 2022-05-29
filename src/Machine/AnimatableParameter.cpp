@@ -141,91 +141,81 @@ void Animatable::copyParameterValue(std::shared_ptr<Parameter> from, std::shared
 		case AnimatableType::POSITION_3D:
 		case AnimatableType::VELOCITY_3D:
 		case AnimatableType::VECTOR_3D:	std::dynamic_pointer_cast<VectorParameter<glm::vec3>>(to)->overwrite(std::dynamic_pointer_cast<VectorParameter<glm::vec3>>(from)->value); break;
-		case AnimatableType::GROUP:		return nullptr;
+		case AnimatableType::COMPOSITE:		return nullptr;
 	}
 }
 
-std::shared_ptr<AnimatableParameterValue> Animatable::getParameterValue(std::shared_ptr<Parameter> parameter){
-	std::shared_ptr<AnimatableParameterValue> output;
+std::shared_ptr<AnimationValue> Animatable::parameterValueToAnimationValue(std::shared_ptr<Parameter> parameter){
+	
+	std::shared_ptr<AnimationValue> output;
+	
 	switch(getType()){
-		case AnimatableType::BOOLEAN:
-		{
-			auto output = AnimatableParameterValue::makeBoolean();
+		case AnimatableType::BOOLEAN:{
+			auto output = AnimationValue::makeBoolean();
 			output->value = std::dynamic_pointer_cast<BooleanParameter>(parameter)->value;
 			return output;
 		}
-		case AnimatableType::INTEGER:
-		{
-			auto output = AnimatableParameterValue::makeInteger();
+		case AnimatableType::INTEGER:{
+			auto output = AnimationValue::makeInteger();
 			output->value = std::dynamic_pointer_cast<NumberParameter<int>>(parameter)->value;
 			return output;
 		}
-		case AnimatableType::STATE:
-		{
-			auto output = AnimatableParameterValue::makeState();
+		case AnimatableType::STATE:{
+			auto output = AnimationValue::makeState();
 			output->value = std::dynamic_pointer_cast<StateParameter>(parameter)->value;
 			return output;
 		}
-		case AnimatableType::POSITION:
-		{
-			auto output = AnimatableParameterValue::makePosition();
+		case AnimatableType::POSITION:{
+			auto output = AnimationValue::makePosition();
 			output->position = std::dynamic_pointer_cast<NumberParameter<double>>(parameter)->value;
 			return output;
 		}
-		case AnimatableType::VELOCITY:
-		{
-			auto output = AnimatableParameterValue::makeVelocity();
+		case AnimatableType::VELOCITY:{
+			auto output = AnimationValue::makeVelocity();
 			output->velocity = std::dynamic_pointer_cast<NumberParameter<double>>(parameter)->value;
 			return output;
 		}
-		case AnimatableType::REAL:
-		{
-			auto output = AnimatableParameterValue::makeReal();
+		case AnimatableType::REAL:{
+			auto output = AnimationValue::makeReal();
 			output->value = std::dynamic_pointer_cast<NumberParameter<double>>(parameter)->value;
 			return output;
 		}
-		case AnimatableType::POSITION_2D:
-		{
-			auto output = AnimatableParameterValue::make2dPosition();
+		case AnimatableType::POSITION_2D:{
+			auto output = AnimationValue::make2dPosition();
 			output->position = std::dynamic_pointer_cast<VectorParameter<glm::vec2>>(parameter)->value;
 			return output;
 		}
-		case AnimatableType::VELOCITY_2D:
-		{
-			auto output = AnimatableParameterValue::make2dVelocity();
+		case AnimatableType::VELOCITY_2D:{
+			auto output = AnimationValue::make2dVelocity();
 			output->velocity = std::dynamic_pointer_cast<VectorParameter<glm::vec2>>(parameter)->value;
 			return output;
 		}
-		case AnimatableType::VECTOR_2D:
-		{
-			auto output = AnimatableParameterValue::make2dVector();
+		case AnimatableType::VECTOR_2D:{
+			auto output = AnimationValue::make2dVector();
 			output->value = std::dynamic_pointer_cast<VectorParameter<glm::vec2>>(parameter)->value;
 			return output;
 		}
-		case AnimatableType::POSITION_3D:
-		{
-			auto output = AnimatableParameterValue::make3dPosition();
+		case AnimatableType::POSITION_3D:{
+			auto output = AnimationValue::make3dPosition();
 			output->position = std::dynamic_pointer_cast<VectorParameter<glm::vec3>>(parameter)->value;
 			return output;
 		}
-		case AnimatableType::VELOCITY_3D:
-		{
-			auto output = AnimatableParameterValue::make3dVelocity();
+		case AnimatableType::VELOCITY_3D:{
+			auto output = AnimationValue::make3dVelocity();
 			output->velocity = std::dynamic_pointer_cast<VectorParameter<glm::vec3>>(parameter)->value;
 			return output;
 		}
-		case AnimatableType::VECTOR_3D:
-		{
-			auto output = AnimatableParameterValue::make3dVector();
+		case AnimatableType::VECTOR_3D:{
+			auto output = AnimationValue::make3dVector();
 			output->value = std::dynamic_pointer_cast<VectorParameter<glm::vec3>>(parameter)->value;
 			return output;
 		}
-		case AnimatableType::GROUP:		return nullptr;
+		case AnimatableType::COMPOSITE:		return nullptr;
 	}
 }
 
 
-bool Animatable::isParameterValueEqual(std::shared_ptr<AnimatableParameterValue> value1, std::shared_ptr<AnimatableParameterValue> value2){
+bool Animatable::isParameterValueEqual(std::shared_ptr<AnimationValue> value1, std::shared_ptr<AnimationValue> value2){
 	switch(getType()){
 		case AnimatableType::BOOLEAN: 	return value1->toBoolean()->value 		== value2->toBoolean()->value;
 		case AnimatableType::INTEGER: 	return value1->toInteger()->value 		== value2->toInteger()->value;
@@ -239,27 +229,27 @@ bool Animatable::isParameterValueEqual(std::shared_ptr<AnimatableParameterValue>
 		case AnimatableType::POSITION_3D:	return value1->to3dPosition()->position == value2->to3dPosition()->position;
 		case AnimatableType::VELOCITY_3D:	return value1->to3dVelocity()->velocity == value2->to3dVelocity()->velocity;
 		case AnimatableType::VECTOR_3D:	return value1->to3dVector()->value 		== value2->to3dVector()->value;
-		case AnimatableType::GROUP:		return false;
+		case AnimatableType::COMPOSITE:		return false;
 	}
 }
 
-std::shared_ptr<AnimatableParameterValue> Animatable::getParameterValueAtCurveTime(std::shared_ptr<PlayableParameterTrack> parameterTrack, double time_seconds){
+std::shared_ptr<AnimationValue> Animatable::getValueAtAnimationTime(std::shared_ptr<Animation> animation, double time_seconds){
 	switch(getType()){
 			
 		case AnimatableType::BOOLEAN: {
-			auto output = AnimatableParameterValue::makeBoolean();
-			output->value = parameterTrack->getCurves().front().getPointAtTime(time_seconds).position >= 1.0;
+			auto output = AnimationValue::makeBoolean();
+			output->value = animation->getCurves().front().getPointAtTime(time_seconds).position >= 1.0;
 			return output;
 		}
 		case AnimatableType::INTEGER:{
-			auto output = AnimatableParameterValue::makeInteger();
-			output->value = std::round(parameterTrack->getCurves().front().getPointAtTime(time_seconds).position);
+			auto output = AnimationValue::makeInteger();
+			output->value = std::round(animation->getCurves().front().getPointAtTime(time_seconds).position);
 			return output;
 		}
 		case AnimatableType::STATE:{
-			auto output = AnimatableParameterValue::makeState();
-			output->values = &castToState()->getStates();
-			int integer = std::round(parameterTrack->getCurves().front().getPointAtTime(time_seconds).position);
+			auto output = AnimationValue::makeState();
+			output->values = &toState()->getStates();
+			int integer = std::round(animation->getCurves().front().getPointAtTime(time_seconds).position);
 			for(int i = 0; i < output->values->size(); i++){
 				if(output->values->at(i).integerEquivalent == i){
 					output->value = &output->values->at(i);
@@ -269,29 +259,29 @@ std::shared_ptr<AnimatableParameterValue> Animatable::getParameterValueAtCurveTi
 			return output;
 		}
 		case AnimatableType::POSITION:{
-			auto output = AnimatableParameterValue::makePosition();
-			Motion::Point point = parameterTrack->getCurves().front().getPointAtTime(time_seconds);
+			auto output = AnimationValue::makePosition();
+			Motion::Point point = animation->getCurves().front().getPointAtTime(time_seconds);
 			output->position = point.position;
 			output->velocity = point.velocity;
 			output->acceleration = point.acceleration;
 			return output;
 		}
 		case AnimatableType::VELOCITY:{
-			auto output = AnimatableParameterValue::makeVelocity();
-			Motion::Point point = parameterTrack->getCurves().front().getPointAtTime(time_seconds);
+			auto output = AnimationValue::makeVelocity();
+			Motion::Point point = animation->getCurves().front().getPointAtTime(time_seconds);
 			output->velocity = point.position;
 			output->acceleration = point.velocity;
 			return output;
 		}
 		case AnimatableType::REAL:{
-			auto output = AnimatableParameterValue::makeReal();
-			output->value = parameterTrack->getCurves().front().getPointAtTime(time_seconds).position;
+			auto output = AnimationValue::makeReal();
+			output->value = animation->getCurves().front().getPointAtTime(time_seconds).position;
 			return output;
 		}
 		case AnimatableType::POSITION_2D:{
-			auto output = AnimatableParameterValue::make2dPosition();
-			Motion::Point pointX = parameterTrack->getCurves().at(0).getPointAtTime(time_seconds);
-			Motion::Point pointY = parameterTrack->getCurves().at(1).getPointAtTime(time_seconds);
+			auto output = AnimationValue::make2dPosition();
+			Motion::Point pointX = animation->getCurves().at(0).getPointAtTime(time_seconds);
+			Motion::Point pointY = animation->getCurves().at(1).getPointAtTime(time_seconds);
 			output->position.x = pointX.position;
 			output->position.y = pointY.position;
 			output->velocity.x = pointX.velocity;
@@ -301,9 +291,9 @@ std::shared_ptr<AnimatableParameterValue> Animatable::getParameterValueAtCurveTi
 			return output;
 		}
 		case AnimatableType::VELOCITY_2D:{
-			auto output = AnimatableParameterValue::make2dVelocity();
-			Motion::Point pointX = parameterTrack->getCurves().at(0).getPointAtTime(time_seconds);
-			Motion::Point pointY = parameterTrack->getCurves().at(1).getPointAtTime(time_seconds);
+			auto output = AnimationValue::make2dVelocity();
+			Motion::Point pointX = animation->getCurves().at(0).getPointAtTime(time_seconds);
+			Motion::Point pointY = animation->getCurves().at(1).getPointAtTime(time_seconds);
 			output->velocity.x = pointX.position;
 			output->velocity.y = pointY.position;
 			output->acceleration.x = pointX.velocity;
@@ -311,18 +301,18 @@ std::shared_ptr<AnimatableParameterValue> Animatable::getParameterValueAtCurveTi
 			return output;
 		}
 		case AnimatableType::VECTOR_2D:{
-			auto output = AnimatableParameterValue::make2dVector();
-			Motion::Point pointX = parameterTrack->getCurves().at(0).getPointAtTime(time_seconds);
-			Motion::Point pointY = parameterTrack->getCurves().at(1).getPointAtTime(time_seconds);
+			auto output = AnimationValue::make2dVector();
+			Motion::Point pointX = animation->getCurves().at(0).getPointAtTime(time_seconds);
+			Motion::Point pointY = animation->getCurves().at(1).getPointAtTime(time_seconds);
 			output->value.x = pointX.position;
 			output->value.y = pointY.position;
 			return output;
 		}
 		case AnimatableType::POSITION_3D:{
-			auto output = AnimatableParameterValue::make3dPosition();
-			Motion::Point pointX = parameterTrack->getCurves().at(0).getPointAtTime(time_seconds);
-			Motion::Point pointY = parameterTrack->getCurves().at(1).getPointAtTime(time_seconds);
-			Motion::Point pointZ = parameterTrack->getCurves().at(2).getPointAtTime(time_seconds);
+			auto output = AnimationValue::make3dPosition();
+			Motion::Point pointX = animation->getCurves().at(0).getPointAtTime(time_seconds);
+			Motion::Point pointY = animation->getCurves().at(1).getPointAtTime(time_seconds);
+			Motion::Point pointZ = animation->getCurves().at(2).getPointAtTime(time_seconds);
 			output->position.x = pointX.position;
 			output->position.y = pointY.position;
 			output->position.z = pointZ.position;
@@ -335,10 +325,10 @@ std::shared_ptr<AnimatableParameterValue> Animatable::getParameterValueAtCurveTi
 			return output;
 		}
 		case AnimatableType::VELOCITY_3D:{
-			auto output = AnimatableParameterValue::make3dVelocity();
-			Motion::Point pointX = parameterTrack->getCurves().at(0).getPointAtTime(time_seconds);
-			Motion::Point pointY = parameterTrack->getCurves().at(1).getPointAtTime(time_seconds);
-			Motion::Point pointZ = parameterTrack->getCurves().at(2).getPointAtTime(time_seconds);
+			auto output = AnimationValue::make3dVelocity();
+			Motion::Point pointX = animation->getCurves().at(0).getPointAtTime(time_seconds);
+			Motion::Point pointY = animation->getCurves().at(1).getPointAtTime(time_seconds);
+			Motion::Point pointZ = animation->getCurves().at(2).getPointAtTime(time_seconds);
 			output->velocity.x = pointX.position;
 			output->velocity.y = pointY.position;
 			output->velocity.z = pointZ.position;
@@ -348,28 +338,23 @@ std::shared_ptr<AnimatableParameterValue> Animatable::getParameterValueAtCurveTi
 			return output;
 		}
 		case AnimatableType::VECTOR_3D:{
-			auto output = AnimatableParameterValue::make3dVector();
-			Motion::Point pointX = parameterTrack->getCurves().at(0).getPointAtTime(time_seconds);
-			Motion::Point pointY = parameterTrack->getCurves().at(1).getPointAtTime(time_seconds);
-			Motion::Point pointZ = parameterTrack->getCurves().at(2).getPointAtTime(time_seconds);
+			auto output = AnimationValue::make3dVector();
+			Motion::Point pointX = animation->getCurves().at(0).getPointAtTime(time_seconds);
+			Motion::Point pointY = animation->getCurves().at(1).getPointAtTime(time_seconds);
+			Motion::Point pointZ = animation->getCurves().at(2).getPointAtTime(time_seconds);
 			output->value.x = pointX.position;
 			output->value.y = pointY.position;
 			output->value.z = pointZ.position;
 			return output;
 		}
-		case AnimatableType::GROUP:{
-			return nullptr;
-		}
-			
-			
-			
+		case AnimatableType::COMPOSITE: return nullptr;
 	}
 }
 
 
 
 
-std::vector<double> Animatable::getCurvePositionsFromParameterValue(std::shared_ptr<AnimatableParameterValue> value){
+std::vector<double> Animatable::getCurvePositionsFromAnimationValue(std::shared_ptr<AnimationValue> value){
 	switch(getType()){
 		case AnimatableType::BOOLEAN:		return {value->toBoolean()->value ? 1.0 : 0.0};
 		case AnimatableType::INTEGER: 	return {(double)value->toInteger()->value};
@@ -383,19 +368,18 @@ std::vector<double> Animatable::getCurvePositionsFromParameterValue(std::shared_
 		case AnimatableType::POSITION_3D:	{ glm::dvec3& pos = value->to3dPosition()->position; return {pos.x, pos.y, pos.z}; }
 		case AnimatableType::VELOCITY_3D:	{ glm::dvec3& vel = value->to3dVelocity()->velocity; return {vel.x, vel.y, vel.z}; }
 		case AnimatableType::VECTOR_3D:	{ glm::dvec3& vec = value->to3dVector()->value; return {vec.x, vec.y, vec.z}; }
-		case AnimatableType::GROUP:		return {};
+		case AnimatableType::COMPOSITE:		return {};
 	}
 }
 
-std::shared_ptr<AnimatableParameterValue> Animatable::getActiveParameterTrackValue(){
-	auto playableTrack = activeParameterTrack->castToPlayable();
-	return playableTrack->getParameterValueAtPlaybackTime();
+std::shared_ptr<AnimationValue> Animatable::getAnimationValue(){
+	return currentAnimation->getValueAtPlaybackTime();
 }
 
-void Animatable::stopParameterPlayback(){
-	if(hasActiveParameterTrack()){
-		auto track = activeParameterTrack;
-		activeParameterTrack = nullptr;
-		track->stop();
+void Animatable::stopAnimationPlayback(){
+	if(hasAnimation()){
+		auto animation = currentAnimation;
+		currentAnimation = nullptr;
+		animation->stop();
 	}
 }

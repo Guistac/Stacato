@@ -66,7 +66,8 @@ public:
 		validationErrorString += errorString;
 	}
 	
-	virtual void setUnit(Unit unit) = 0;
+	virtual void setUnit(Unit unit){}
+	void setDuration(double seconds){ duration_seconds = seconds; }
 
 private:
 	
@@ -95,20 +96,20 @@ public:
 	//———————————————————————————————————————————
 	
 	bool isMachineEnabled();
-	virtual bool isAtStart();
+	virtual bool isAtStart(){}
 	virtual bool isAtTarget();
-	virtual bool isAtPlaybackPosition();
-	virtual bool isReadyToStartPlayback();
+	virtual bool isAtPlaybackPosition(){ return false; }
+	virtual bool isReadyToStartPlayback(){ return false; }
 	virtual bool isInRapid();
 	virtual float getRapidProgress();
-	virtual double getDuration();
+	virtual double getDuration(){ return duration_seconds; }
 	
-	virtual void rapidToStart();
+	virtual void rapidToStart(){}
 	virtual void rapidToTarget();
-	virtual void rapidToPlaybackPosition();
+	virtual void rapidToPlaybackPosition(){}
 	virtual void startPlayback();
-	virtual void pausePlayback();
-	virtual void setPlaybackPosition(double seconds);
+	virtual void pausePlayback(){}
+	virtual void setPlaybackPosition(double seconds){ playbackPosition_seconds = seconds; }
 	
 	virtual void stop();
 	virtual void interrupt();
@@ -233,7 +234,7 @@ public:
 	virtual void drawCurves() override {}
 	virtual void drawCurveControls() override;
 	
-	void captureCurrentValueAsTarget();
+	void captureCurrentValueAsTarget(){}
 	std::shared_ptr<Parameter> target;
 	
 };
@@ -459,7 +460,8 @@ public:
 	
 	virtual void rapidToPlaybackPosition() override;
 	
-	void captureCurrentValueAsStart();
+	void captureCurrentValueAsStart(){}
+	void captureCurrentValueAsTarget(){}
 	
 	virtual bool isAtStart() override;
 	virtual void rapidToStart() override;
@@ -492,9 +494,6 @@ public:
 	virtual void trackSheetRowGui() override;
 	virtual void drawCurves() override;
 	virtual void drawCurveControls() override;
-	
-	//void captureCurrentValueAsTarget();
-	//bool b_accelerationsEqual;
 };
 
 //rapid to start
@@ -536,10 +535,11 @@ public:
 	AnimationComposite(std::shared_ptr<AnimatableComposite> animatableComposite) : Animation(animatableComposite){}
 	
 	virtual bool isComposite() override { return true; }
+	virtual ManoeuvreType getType() override { return ManoeuvreType::KEY;} //this should never be used }
 	
 	std::vector<std::shared_ptr<Animation>>& getChildren(){ return children; }
 	
-	virtual void trackSheetRowGui() override;
+	virtual void trackSheetRowGui() override {}
 	
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
 	static std::shared_ptr<AnimationComposite> load(tinyxml2::XMLElement* xml, std::shared_ptr<AnimatableComposite> animatableComposite);

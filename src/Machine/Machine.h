@@ -47,7 +47,7 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual void onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable);\
 	virtual void onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable);\
 	virtual std::shared_ptr<AnimationValue> getActualAnimatableValue(std::shared_ptr<Animatable> animatable);\
-	virtual bool validateAnimation(const std::shared_ptr<Animation> animation);\
+	virtual bool validateAnimation(std::shared_ptr<Animation> animation);\
 	virtual bool generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation);\
 
 #define DEFINE_HOMEABLE_MACHINE \
@@ -121,7 +121,7 @@ public:
 	virtual std::shared_ptr<AnimationValue> getActualAnimatableValue(std::shared_ptr<Animatable> animatable) = 0;
 
 	//======= PARAMETER TRACK VALIDATION ======
-	virtual bool validateAnimation(const std::shared_ptr<Animation> animation) = 0;
+	virtual bool validateAnimation(std::shared_ptr<Animation> animation) = 0;
 	
 	//======= TIMED MOVEMENT ======
 	virtual bool generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation) = 0;

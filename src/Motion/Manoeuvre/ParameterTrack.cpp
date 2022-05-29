@@ -252,44 +252,44 @@ void TargetAnimation::startPlayback(){
 
 
 bool SequenceAnimation::isAtStart(){
-	auto animatable = getAnimatableParameter();
-	return animatable->isParameterValueEqual(animatable->getParameterValue(start), animatable->getActualMachineValue());
+	auto animatable = getAnimatable();
+	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(start), animatable->getActualValue());
 }
 
 void SequenceAnimation::rapidToStart(){
-	auto animatable = getAnimatableParameter();
-	animatable->stopParameterPlayback();
-	animatable->getMachine()->rapidParameterToValue(animatable, animatable->getParameterValue(start));
+	auto animatable = getAnimatable();
+	animatable->stopAnimationPlayback();
+	animatable->getMachine()->rapidAnimatableToValue(animatable, animatable->parameterValueToAnimationValue(start));
 }
 
 void SequenceAnimation::rapidToPlaybackPosition(){
-	auto animatable = getAnimatableParameter();
-	animatable->stopParameterPlayback();
-	auto valueAtPlaybackTime = getParameterValueAtPlaybackTime();
-	animatable->getMachine()->rapidParameterToValue(animatable, valueAtPlaybackTime);
+	auto animatable = getAnimatable();
+	animatable->stopAnimationPlayback();
+	auto valueAtPlaybackTime = getValueAtPlaybackTime();
+	animatable->getMachine()->rapidAnimatableToValue(animatable, valueAtPlaybackTime);
 }
 
 bool SequenceAnimation::isAtPlaybackPosition(){
-	auto animatable = getAnimatableParameter();
-	return animatable->isParameterValueEqual(getParameterValueAtPlaybackTime(), animatable->getActualMachineValue());
+	auto animatable = getAnimatable();
+	return animatable->isParameterValueEqual(getValueAtPlaybackTime(), animatable->getActualValue());
 }
 
 bool SequenceAnimation::isReadyToStartPlayback(){
-	auto animatable = getAnimatableParameter();
-	if(!animatable->getMachine()->isEnabled()) return;
-	return animatable->getMachine()->isParameterReadyToStartPlaybackFromValue(animatable, getParameterValueAtPlaybackTime());
+	auto animatable = getAnimatable();
+	if(!animatable->getMachine()->isEnabled()) return false;
+	return animatable->getMachine()->isAnimatableReadyToStartPlaybackFromValue(animatable, getValueAtPlaybackTime());
 }
 
 
 void SequenceAnimation::updateAfterParameterEdit(){
-	int curveCount = getAnimatableParameter()->getCurveCount();
+	int curveCount = getAnimatable()->getCurveCount();
 	auto& curves = getCurves();
 	
-	auto animatable = getAnimatableParameter();
-	auto startValue = animatable->getParameterValue(start);
-	auto targetValue = animatable->getParameterValue(target);
-	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromParameterValue(startValue);
-	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromParameterValue(targetValue);
+	auto animatable = getAnimatable();
+	auto startValue = animatable->parameterValueToAnimationValue(start);
+	auto targetValue = animatable->parameterValueToAnimationValue(target);
+	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromAnimationValue(startValue);
+	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromAnimationValue(targetValue);
 	
 	for(int i = 0; i < curveCount; i++){
 		auto& curve = curves[i];
@@ -313,7 +313,7 @@ void SequenceAnimation::updateAfterParameterEdit(){
 		curve.refresh();
 	}
 	
-	duration_seconds = timeOffset->value + duration->value;
+	setDuration(timeOffset->value + duration->value);
 	
 	validate();
 }
@@ -325,14 +325,14 @@ void SequenceAnimation::updateAfterCurveEdit(){
 }
 
 void SequenceAnimation::initializeCurves(){
-	auto animatable = getAnimatableParameter();
+	auto animatable = getAnimatable();
 	int curveCount = animatable->getCurveCount();
 	auto& curves = getCurves();
 	
-	auto startValue = animatable->getParameterValue(start);
-	auto targetValue = animatable->getParameterValue(target);
-	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromParameterValue(startValue);
-	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromParameterValue(targetValue);
+	auto startValue = animatable->parameterValueToAnimationValue(start);
+	auto targetValue = animatable->parameterValueToAnimationValue(target);
+	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromAnimationValue(startValue);
+	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromAnimationValue(targetValue);
 	
 	for(int i = 0; i < curveCount; i++){
 		auto& curve = curves[i];
@@ -360,6 +360,6 @@ void SequenceAnimation::initializeCurves(){
 		curve.refresh();
 	}
 	
-	duration_seconds = timeOffset->value + duration->value;
+	setDuration(timeOffset->value + duration->value);
 	
 }

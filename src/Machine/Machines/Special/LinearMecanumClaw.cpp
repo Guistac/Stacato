@@ -718,78 +718,78 @@ float LinearMecanumClaw::getLinearAxisFollowingErrorProgress(){
 //======= PLOT INTERFACE =========
 
 
-void LinearMecanumClaw::rapidParameterToValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
-	if(parameter == linearAxisPositionParameter){
+void LinearMecanumClaw::rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
+	if(animatable == linearAxisPositionParameter){
 		moveLinearToTargetWithVelocity(value->toPosition()->position, linearAxisRapidVelocity);
-	}else if(parameter == clawAxisPositionParameter){
+	}else if(animatable == clawAxisPositionParameter){
 		moveClawToTargetWithVelocity(value->toPosition()->position, clawRapidVelocity);
 	}
 }
 
-float LinearMecanumClaw::getParameterRapidProgress(std::shared_ptr<AnimatableParameter> parameter) {
-	if(parameter == linearAxisPositionParameter){
+float LinearMecanumClaw::getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable) {
+	if(animatable == linearAxisPositionParameter){
 		return getLinearAxisTargetMovementProgress();
-	}else if(parameter == clawAxisPositionParameter){
+	}else if(animatable == clawAxisPositionParameter){
 		return getClawAxisTargetMovementProgress();
 	}
 }
 
-void LinearMecanumClaw::cancelParameterRapid(std::shared_ptr<AnimatableParameter> parameter) {
-	if(parameter == linearAxisPositionParameter){
+void LinearMecanumClaw::cancelAnimatableRapid(std::shared_ptr<Animatable> animatable) {
+	if(animatable == linearAxisPositionParameter){
 		setLinearVelocity(0.0);
-	}else if(parameter == clawAxisPositionParameter){
+	}else if(animatable == clawAxisPositionParameter){
 		setClawVelocity(0.0);
 	}
 }
 
 
-bool LinearMecanumClaw::isParameterReadyToStartPlaybackFromValue(std::shared_ptr<AnimatableParameter> parameter, std::shared_ptr<AnimatableParameterValue> value) {
-	if(parameter == linearAxisPositionParameter){
+bool LinearMecanumClaw::isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
+	if(animatable == linearAxisPositionParameter){
 		return value->toPosition()->position == linearAxisMotionProfile.getPosition() && linearAxisMotionProfile.getVelocity() == 0.0;
-	}else if(parameter == clawAxisPositionParameter){
+	}else if(animatable == clawAxisPositionParameter){
 		return value->toPosition()->position == clawAxisMotionProfile.getPosition() && clawAxisMotionProfile.getVelocity() == 0.0;
 	}
 }
 
-void LinearMecanumClaw::onParameterPlaybackStart(std::shared_ptr<MachineParameter> parameter) {
-	if(parameter == linearAxisPositionParameter){
+void LinearMecanumClaw::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable) {
+	if(animatable == linearAxisPositionParameter){
 		linearControlMode = ControlMode::EXTERNAL;
-	}else if(parameter == clawAxisPositionParameter){
+	}else if(animatable == clawAxisPositionParameter){
 		clawControlMode = ControlMode::EXTERNAL;
 	}
 }
 
-void LinearMecanumClaw::onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter) {
-	if(parameter == linearAxisPositionParameter){
+void LinearMecanumClaw::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable) {
+	if(animatable == linearAxisPositionParameter){
 		setLinearVelocity(0.0);
-	}else if(parameter == clawAxisPositionParameter){
+	}else if(animatable == clawAxisPositionParameter){
 		setClawVelocity(0.0);
 	}
 }
 
-void LinearMecanumClaw::onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter) {
+void LinearMecanumClaw::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable) {
 	//here we have to make sure that the last position of the manoeuvre stays in the motion profile on the next loop
 	//to make sure of this we manually set the profile velocity to 0.0, and the target velocity to 0.0 to make sure nothing moves after the manoeuvre is done playing
-	if(parameter == linearAxisPositionParameter){
+	if(animatable == linearAxisPositionParameter){
 		setLinearVelocity(0.0);
 		linearAxisMotionProfile.setVelocity(0.0);
-	}else if(parameter == clawAxisPositionParameter){
+	}else if(animatable == clawAxisPositionParameter){
 		setClawVelocity(0.0);
 		clawAxisMotionProfile.setVelocity(0.0);
 	}
 }
 
-std::shared_ptr<AnimatableParameterValue> LinearMecanumClaw::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter) {
+std::shared_ptr<AnimationValue> LinearMecanumClaw::getActualAnimatableValue(std::shared_ptr<Animatable> animatable) {
 	//check against all animatable parameters
 	//write actual value of parameter to value argument
-	if(parameter == linearAxisPositionParameter){
-		auto output = AnimatableParameterValue::makePosition();
+	if(animatable == linearAxisPositionParameter){
+		auto output = AnimationValue::makePosition();
 		output->position = linearAxisMotionProfile.getPosition();
 		output->velocity = linearAxisMotionProfile.getVelocity();
 		output->acceleration = linearAxisMotionProfile.getAcceleration();
 		return output;
-	}else if(parameter == clawAxisPositionParameter){
-		auto output = AnimatableParameterValue::makePosition();
+	}else if(animatable == clawAxisPositionParameter){
+		auto output = AnimationValue::makePosition();
 		output->position = clawAxisMotionProfile.getPosition();
 		output->velocity = clawAxisMotionProfile.getVelocity();
 		output->acceleration = clawAxisMotionProfile.getAcceleration();
@@ -799,7 +799,7 @@ std::shared_ptr<AnimatableParameterValue> LinearMecanumClaw::getActualParameterV
 }
 
 
-bool LinearMecanumClaw::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
+bool LinearMecanumClaw::validateAnimation(std::shared_ptr<Animation> animation) {
 	//check the parameter of the given track against all animatable parameters
 	//check all curves of the parameters track
 	//check all control points of each curve
@@ -966,31 +966,8 @@ bool LinearMecanumClaw::validateParameterTrack(const std::shared_ptr<ParameterTr
 	return false;
 }
 
-bool LinearMecanumClaw::getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) {
-	//check against all animatable parameters
-	//return the lower and upper position limits for the specified curve, in the set of parameter curves at the given time
-	//write values to lowLimit & highLimit arguments
-	
-	//return true if the arguments make sense and false if they don't
-	
-	if(parameter == linearAxisPositionParameter){
-		assert(parameterCurves.size() == 1);
-		auto linearAxis = getLinearAxis();
-		lowLimit = linearAxis->getLowPositionLimit();
-		highLimit = linearAxis->getHighPositionLimit();
-	}else if(parameter == clawAxisPositionParameter){
-		assert(parameterCurves.size() == 1);
-		lowLimit = 0.0;
-		highLimit = clawPositionLimit;
-	}
-	
-	return false;
-}
 
-
-
-
-bool LinearMecanumClaw::generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack){
+bool LinearMecanumClaw::generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation){
 	//check against all animatable parameters
 	//generate timed motion curves to the target points and write them to the outputcurves argument
 	return false;

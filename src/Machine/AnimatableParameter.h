@@ -11,6 +11,7 @@ namespace tinyxml2 { class XMLElement; }
 class Animation;
 class AnimatableComposite;
 class AnimatableNumber;
+class AnimatableState;
 
 class Animatable : public std::enable_shared_from_this<Animatable>{
 public:
@@ -32,6 +33,7 @@ public:
 	
 	std::shared_ptr<AnimatableComposite> toComposite(){ return std::dynamic_pointer_cast<AnimatableComposite>(shared_from_this()); }
 	std::shared_ptr<AnimatableNumber> toNumber(){ return std::dynamic_pointer_cast<AnimatableNumber>(shared_from_this()); }
+	std::shared_ptr<AnimatableState> toState(){ return std::dynamic_pointer_cast<AnimatableState>(shared_from_this()); }
 	
 	//———————————— ANIMATIONS ————————————
 	
