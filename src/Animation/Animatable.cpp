@@ -1,8 +1,8 @@
 #include <pch.h>
 
-#include "AnimatableParameter.h"
+#include "AnimationValue.h"
 #include "Machine/Machine.h"
-#include "Motion/Manoeuvre/ParameterTrack.h"
+#include "Animation/Animation.h"
 
 std::shared_ptr<Animation> Animatable::makeAnimation(ManoeuvreType manoeuvreType){
 	auto track = Animation::create(shared_from_this(), manoeuvreType);

@@ -2,8 +2,8 @@
 
 #include "Manoeuvre.h"
 #include "Machine/Machine.h"
-#include "Machine/AnimatableParameter.h"
-#include "Motion/Manoeuvre/ParameterTrack.h"
+#include "Animation/Animatable.h"
+#include "Animation/Animation.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Plot/ManoeuvreList.h"
 
@@ -394,7 +394,7 @@ bool Manoeuvre::canStop(){
 
 
 
-#include "Motion/Playback/Playback.h"
+#include "Animation/Playback/Playback.h"
 
 //OK
 void Manoeuvre::rapidToStart(){

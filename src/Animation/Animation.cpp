@@ -1,13 +1,13 @@
 #include <pch.h>
 
-#include "ParameterTrack.h"
+#include "Animation.h"
 
 #include "Machine/Machine.h"
-#include "Machine/AnimatableParameter.h"
+#include "Animation/Animatable.h"
 #include "Motion/Curve/Curve.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Environnement/Environnement.h"
-#include "Motion/Manoeuvre/Manoeuvre.h"
+#include "Animation/Manoeuvre.h"
 #include "Plot/Plot.h"
 
 #include "Project/Editor/Parameter.h"

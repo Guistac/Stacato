@@ -4,8 +4,8 @@
 
 #include "Project/Project.h"
 #include "Plot/Plot.h"
-#include "Motion/Manoeuvre/Manoeuvre.h"
-#include "Motion/Manoeuvre/ParameterTrack.h"
+#include "Animation/Manoeuvre.h"
+#include "Animation/Animation.h"
 #include "Machine/Machine.h"
 #include "Environnement/Environnement.h"
 

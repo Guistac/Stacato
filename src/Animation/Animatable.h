@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AnimatableParameterValue.h"
+#include "AnimationValue.h"
 #include "Motion/Curve/Curve.h"
 #include "Project/Editor/Parameter.h"
 

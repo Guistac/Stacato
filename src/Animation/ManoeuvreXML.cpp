@@ -1,10 +1,10 @@
 #include <pch.h>
 
 #include "Manoeuvre.h"
-#include "ParameterTrack.h"
+#include "Animation.h"
 
 #include "Machine/Machine.h"
-#include "Machine/AnimatableParameter.h"
+#include "Animation/Animatable.h"
 #include "Environnement/Environnement.h"
 
 #include <tinyxml2.h>
