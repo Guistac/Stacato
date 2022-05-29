@@ -19,7 +19,9 @@ class TargetParameterTrack;
 class SequenceParameterTrack;
 class Manoeuvre;
 
-class ParameterTrack : public std::enable_shared_from_this<ParameterTrack>{
+class AnimationComposite;
+
+class Animation : public std::enable_shared_from_this<Animation>{
 public:
 	
 	//———————————————————————————————————————————
@@ -28,13 +30,13 @@ public:
 
 public:
 
-	static std::shared_ptr<ParameterTrack> create(std::shared_ptr<MachineParameter> parameter, ManoeuvreType manoeuvreType);
-	static std::shared_ptr<ParameterTrack> copy(const std::shared_ptr<ParameterTrack> original);
+	static std::shared_ptr<Animation> create(std::shared_ptr<Animatable> animatable, ManoeuvreType manoeuvreType);
+	static std::shared_ptr<Animation> copy(std::shared_ptr<Animation> original);
+	static std::shared_ptr<Animation> load(tinyxml2::XMLElement* trackXML);
+	static std::shared_ptr<Animation> loadType(tinyxml2::XMLElement* trackXML, std::shared_ptr<Animatable> animatable);
 	
-	static std::shared_ptr<ParameterTrack> load(tinyxml2::XMLElement* trackXML);
 	bool save(tinyxml2::XMLElement* trackXML);
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) = 0;
-	static std::shared_ptr<ParameterTrack> loadType(tinyxml2::XMLElement* trackXML, std::shared_ptr<MachineParameter> parameter);
 	
 	//———————————————————————————————————————————
 	//				General Properties
@@ -42,15 +44,15 @@ public:
 	
 public:
 	
-	ParameterTrack(std::shared_ptr<MachineParameter> parameter_) : parameter(parameter_){}
-	std::shared_ptr<MachineParameter> getParameter(){ return parameter; }
+	Animation(std::shared_ptr<Animatable> animatable_) { animatable = animatable_; }
+	std::shared_ptr<Animatable> getAnimatable(){ return animatable; }
 	
 	void setManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre_){ manoeuvre = manoeuvre_; }
 	bool hasManoeuvre(){ return manoeuvre != nullptr; }
 	std::shared_ptr<Manoeuvre> getManoeuvre(){ return manoeuvre; }
 	
-	bool hasParentGroup(){ return parent != nullptr; }
-	void setParent(std::shared_ptr<ParameterTrackGroup> parent_){ parent = parent_; }
+	bool hasParentComposite(){ return parentComposite != nullptr; }
+	void setParent(std::shared_ptr<AnimationComposite> parent_){ parent = parent_; }
 	std::shared_ptr<ParameterTrackGroup> getParent(){ return parent; }
 	
 	bool isValid(){ return b_valid; }
@@ -69,7 +71,7 @@ private:
 	
 	std::shared_ptr<ParameterTrackGroup> parent;
 	std::shared_ptr<Manoeuvre> manoeuvre;
-	std::shared_ptr<MachineParameter> parameter;
+	std::shared_ptr<Animatable> animatable;
 	bool b_valid = false;
 	std::string validationErrorString = "";
 	
@@ -204,8 +206,6 @@ public:
 
 
 
-
-
 class PlayableParameterTrack : public AnimatedParameterTrack{
 public:
 	
@@ -240,6 +240,12 @@ private:
 	std::vector<Motion::Curve> curves;
 	
 };
+
+
+
+
+
+
 
 
 
