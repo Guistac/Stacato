@@ -343,16 +343,11 @@ namespace Environnement {
 		sprintf(notes, "%s", _notes);
 	}
 
-
-	/*
-	#ifdef STACATO_DEBUG
-	bool b_editorHidden = false;
-	#else
-	bool b_editorHidden = true;
-	#endif
-	*/
-
+#ifdef STACATO_DEBUG
 	bool b_editorLocked = false;
+#else
+	bool b_editorLocked = true;
+#endif
 	bool b_requestingEditorUnlock = false;
 
 	bool isEditorLocked(){
