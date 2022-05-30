@@ -356,6 +356,28 @@ std::shared_ptr<AnimatableParameterValue> PositionControlledMachine::getActualPa
 	return nullptr;
 }
 
+void PositionControlledMachine::fillParameterTrackDefaults(std::shared_ptr<ParameterTrack> parameterTrack){
+	auto animatedTrack = parameterTrack->castToAnimated();
+	switch(animatedTrack->getType()){
+		case ManoeuvreType::KEY:{
+			auto keyTrack = animatedTrack->castToKey();
+			auto currentValue = getActualParameterValue(positionParameter);
+			positionParameter->setParameterValue(keyTrack->target, currentValue);
+		}break;
+		case ManoeuvreType::TARGET: break;
+		case ManoeuvreType::SEQUENCE:{
+			auto sequenceTrack = animatedTrack->castToSequence();
+			auto currentValue = getActualParameterValue(positionParameter);
+			positionParameter->setParameterValue(sequenceTrack->start, currentValue);
+			positionParameter->setParameterValue(sequenceTrack->target, currentValue);
+			sequenceTrack->timeOffset->overwrite(0.0);
+			sequenceTrack->duration->overwrite(0.0);
+			sequenceTrack->inAcceleration->overwrite(rapidAcceleration_machineUnitsPerSecond);
+			sequenceTrack->outAcceleration->overwrite(rapidAcceleration_machineUnitsPerSecond);
+		} break;
+	}
+}
+
 
 bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
 	using namespace Motion;

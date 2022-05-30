@@ -177,6 +177,11 @@ void PositionFeedbackMachine::onParameterPlaybackStart(std::shared_ptr<MachinePa
 void PositionFeedbackMachine::onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter){}
 void PositionFeedbackMachine::onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter){}
 std::shared_ptr<AnimatableParameterValue> PositionFeedbackMachine::getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter){}
+
+void PositionFeedbackMachine::fillParameterTrackDefaults(std::shared_ptr<ParameterTrack> parameterTrack){
+	
+}
+
 bool PositionFeedbackMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack){
 	return false;
 }

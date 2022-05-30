@@ -47,6 +47,7 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual void onParameterPlaybackInterrupt(std::shared_ptr<MachineParameter> parameter);\
 	virtual void onParameterPlaybackEnd(std::shared_ptr<MachineParameter> parameter);\
 	virtual std::shared_ptr<AnimatableParameterValue> getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter);\
+	virtual void fillParameterTrackDefaults(std::shared_ptr<ParameterTrack> parameterTrack);\
 	virtual bool validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack);\
 	virtual bool generateTargetParameterTrackCurves(std::shared_ptr<TargetParameterTrack> parameterTrack);\
 	virtual bool getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit);\
@@ -122,6 +123,7 @@ public:
 	virtual std::shared_ptr<AnimatableParameterValue> getActualParameterValue(std::shared_ptr<AnimatableParameter> parameter) = 0;
 
 	//======= PARAMETER TRACK VALIDATION ======
+	virtual void fillParameterTrackDefaults(std::shared_ptr<ParameterTrack> parameterTrack) = 0;
 	virtual bool validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) = 0;
 	virtual bool getCurveLimitsAtTime(const std::shared_ptr<AnimatableParameter> parameter, const std::vector<std::shared_ptr<Motion::Curve>>& parameterCurves, double time, const std::shared_ptr<Motion::Curve> queriedCurve, double& lowLimit, double& highLimit) = 0;
 	

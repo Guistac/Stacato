@@ -522,9 +522,7 @@ public:
 	
 	virtual bool isAtPlaybackPosition() override;
 	virtual bool isReadyToStartPlayback() override;
-	
-private:
-	
+		
 	std::shared_ptr<TimeParameter> duration = std::make_shared<TimeParameter>(0, "Duration", "Duration");
 	
 	//———————————————————————————————————————————

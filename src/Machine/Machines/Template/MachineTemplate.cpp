@@ -138,6 +138,8 @@ std::shared_ptr<AnimatableParameterValue> MachineTemplate::getActualParameterVal
 	//write actual value of parameter to value argument
 }
 
+void MachineTemplate::fillParameterTrackDefaults(std::shared_ptr<ParameterTrack> parameterTrack){}
+
 
 bool MachineTemplate::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
 	//check the parameter of the given track against all animatable parameters

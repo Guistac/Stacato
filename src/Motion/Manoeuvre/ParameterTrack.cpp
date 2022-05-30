@@ -14,18 +14,24 @@
 
 
 std::shared_ptr<ParameterTrack> ParameterTrack::create(std::shared_ptr<MachineParameter> parameter, ManoeuvreType manoeuvreType){
-	if(parameter->isGroup()) return std::make_shared<ParameterTrackGroup>(parameter->castToGroup(), manoeuvreType);
+	std::shared_ptr<ParameterTrack> track;
+	if(parameter->isGroup()) track = std::make_shared<ParameterTrackGroup>(parameter->castToGroup(), manoeuvreType);
 	else{
 		auto animatableParameter = parameter->castToAnimatable();
 		switch(manoeuvreType){
 			case ManoeuvreType::KEY:
-				return std::make_shared<KeyParameterTrack>(animatableParameter);
+				track = std::make_shared<KeyParameterTrack>(animatableParameter);
+				break;
 			case ManoeuvreType::TARGET:
-				return std::make_shared<TargetParameterTrack>(animatableParameter);
+				track = std::make_shared<TargetParameterTrack>(animatableParameter);
+				break;
 			case ManoeuvreType::SEQUENCE:
-				return std::make_shared<SequenceParameterTrack>(animatableParameter);
+				track = std::make_shared<SequenceParameterTrack>(animatableParameter);
+				break;
 		}
 	}
+	parameter->getMachine()->fillParameterTrackDefaults(track);
+	return track;
 }
 
 void ParameterTrack::subscribeToMachineParameter(){
@@ -275,6 +281,8 @@ void SequenceParameterTrack::updateAfterParameterEdit(){
 	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromParameterValue(startValue);
 	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromParameterValue(targetValue);
 	
+	bool b_allCurvesValid = true;
+	
 	for(int i = 0; i < curveCount; i++){
 		auto& curve = curves[i];
 		auto& points = curve.getPoints();
@@ -295,7 +303,10 @@ void SequenceParameterTrack::updateAfterParameterEdit(){
 		targetPoint->time = timeOffset->value + duration->value;
 		
 		curve.refresh();
+		if(!curve.b_valid) b_allCurvesValid = false;
 	}
+	
+	duration->setValid(b_allCurvesValid);
 	
 	duration_seconds = timeOffset->value + duration->value;
 	
@@ -345,5 +356,4 @@ void SequenceParameterTrack::initializeCurves(){
 	}
 	
 	duration_seconds = timeOffset->value + duration->value;
-	
 }

@@ -798,6 +798,9 @@ std::shared_ptr<AnimatableParameterValue> LinearMecanumClaw::getActualParameterV
 	return nullptr;
 }
 
+void LinearMecanumClaw::fillParameterTrackDefaults(std::shared_ptr<ParameterTrack> parameterTrack){
+	
+}
 
 bool LinearMecanumClaw::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
 	//check the parameter of the given track against all animatable parameters

@@ -320,6 +320,9 @@ void HoodedLiftStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& ou
 }
 
 
+void HoodedLiftStateMachine::fillParameterTrackDefaults(std::shared_ptr<ParameterTrack> parameterTrack){
+	
+}
 
 bool HoodedLiftStateMachine::validateParameterTrack(const std::shared_ptr<ParameterTrack> parameterTrack) {
 	/*
