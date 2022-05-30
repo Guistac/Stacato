@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "Motion/Manoeuvre/Manoeuvre.h"
+#include "Animation/Manoeuvre.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -13,12 +13,12 @@
 
 #include "Environnement/Environnement.h"
 #include "Machine/Machine.h"
-#include "Machine/AnimatableParameter.h"
-#include "Motion/Manoeuvre/ParameterTrack.h"
+#include "Animation/Animatable.h"
+#include "Animation/Animation.h"
 #include "Motion/Curve/Curve.h"
 #include "Plot/Plot.h"
 
-#include "Motion/Playback/Playback.h"
+#include "Animation/Playback/Playback.h"
 
 #include "Gui/Utilities/CustomWidgets.h"
 
@@ -156,7 +156,7 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 }
 
 
-void Manoeuvre::trackSheetGui(){
+void Manoeuvre::sheetEditor(){
 	
 	ImGui::BeginDisabled(isPlaying() || isPaused());
 	
@@ -333,7 +333,7 @@ void Manoeuvre::trackSheetGui(){
 	if(movedDownTrackIndex > -1) moveAnimation(movedDownTrackIndex, movedDownTrackIndex + 1);
 }
 
-void Manoeuvre::curveEditorGui(){
+void Manoeuvre::curveEditor(){
 	if (ImGui::Button("Center On Curves")) ImPlot::FitNextPlotAxes();
 	ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoChild;
 	if (ImPlot::BeginPlot("##SequenceCurveDisplay", 0, 0, ImGui::GetContentRegionAvail(), plotFlags)) {
@@ -384,7 +384,7 @@ void Manoeuvre::curveEditorGui(){
 
 
 
-void Manoeuvre::spatialEditorGui(){}
+void Manoeuvre::spatialEditor(){}
 
 
 

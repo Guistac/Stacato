@@ -4,8 +4,8 @@
 #include "Machine/Machine.h"
 #include "Animation/Animatable.h"
 #include "Animation/Animation.h"
-#include "Fieldbus/EtherCatFieldbus.h"
 #include "Plot/ManoeuvreList.h"
+#include "Animation/Playback/Playback.h"
 
 #include "Plot/Plot.h"
 
@@ -44,30 +44,32 @@ public:
 
 };
 
-Manoeuvre::Manoeuvre(){
-	type->setEditCallback([this](std::shared_ptr<Parameter> parameter){
+
+
+std::shared_ptr<Manoeuvre> Manoeuvre::make(ManoeuvreType type){
+	auto manoeuvre = std::make_shared<Manoeuvre>();
+	manoeuvre->type->overwrite(type);
+	manoeuvre->type->setEditCallback([manoeuvre](std::shared_ptr<Parameter> parameter){
 		auto typeParameter = std::dynamic_pointer_cast<EnumeratorParameter<ManoeuvreType>>(parameter);
-		std::string commandName = "Set Manoeuvre type to " + std::string(Enumerator::getDisplayString(this->getType()));
-		auto setManoeuvreTypeCommand = std::make_shared<SetManoeuvreTypeCommand>(commandName, shared_from_this(), typeParameter->value);
+		std::string commandName = "Set Manoeuvre type to " + std::string(Enumerator::getDisplayString(manoeuvre->getType()));
+		auto setManoeuvreTypeCommand = std::make_shared<SetManoeuvreTypeCommand>(commandName, manoeuvre, typeParameter->value);
 		CommandHistory::pushAndExecute(setManoeuvreTypeCommand);
 	});
+	return manoeuvre;
 }
 
 std::shared_ptr<Manoeuvre> Manoeuvre::copy(){
-	auto copy = std::make_shared<Manoeuvre>();
-	
+	auto copy = make();
 	std::string copyName = std::string(getName()) + " (copy)";
 	copy->name->overwrite(copyName);
 	copy->description->overwrite(getDescription());
 	copy->type->overwrite(getType());
 	copy->manoeuvreList = manoeuvreList;
-	
 	for(auto animation : getAnimations()){
-		auto animationCopy = Animation::copy(animation);
+		auto animationCopy = animation->copy();
 		animationCopy->setManoeuvre(copy);
 		copy->animations.push_back(animationCopy);
 	}
-	
 	return copy;
 }
 
@@ -218,6 +220,16 @@ void Manoeuvre::moveAnimation(int oldIndex, int newIndex){
 }
 
 
+bool Manoeuvre::hasAnimation(std::shared_ptr<Animatable> animatable) {
+	for (auto& animation : animations) {
+		if (animation->getAnimatable() == animatable) return true;
+	}
+	return false;
+}
+
+
+
+
 
 
 
@@ -246,12 +258,6 @@ void Manoeuvre::updateTrackSummary(){
 }
 
 
-bool Manoeuvre::hasAnimation(std::shared_ptr<Animatable> animatable) {
-	for (auto& animation : animations) {
-		if (animation->getAnimatable() == animatable) return true;
-	}
-	return false;
-}
 
 
 
@@ -296,7 +302,11 @@ bool Manoeuvre::areNoMachinesEnabled(){
 	return true;
 }
 
-//OK
+
+
+
+
+
 bool Manoeuvre::canRapidToStart(){
 	switch(getType()){
 		case ManoeuvreType::KEY:
@@ -305,7 +315,6 @@ bool Manoeuvre::canRapidToStart(){
 	}
 }
 
-//OK
 bool Manoeuvre::isAtStart(){
 	for(auto& animation : animations){
 		if(!animation->isAtStart()) return false;
@@ -313,7 +322,23 @@ bool Manoeuvre::isAtStart(){
 	return true;
 }
 
-//OK
+void Manoeuvre::rapidToStart(){
+	if(!canRapidToStart()) return;
+	b_inRapid = true;
+	b_playing = false;
+	b_paused = false;
+	for(auto& animation : animations) animation->rapidToStart();
+	PlaybackManager::push(shared_from_this());
+	playbackPosition_seconds = 0.0;
+	for(auto& animation : animations) animation->setPlaybackPosition(0.0);
+}
+
+
+
+
+
+
+
 bool Manoeuvre::canRapidToTarget(){
 	switch(getType()){
 		case ManoeuvreType::KEY:
@@ -322,7 +347,6 @@ bool Manoeuvre::canRapidToTarget(){
 	}
 }
 
-//OK
 bool Manoeuvre::isAtTarget(){
 	for(auto& animation : animations){
 		if(!animation->isAtTarget()) return false;
@@ -330,7 +354,22 @@ bool Manoeuvre::isAtTarget(){
 	return true;
 }
 
-//OK
+void Manoeuvre::rapidToTarget(){
+	if(!canRapidToTarget()) return;
+	b_inRapid = true;
+	b_playing = false;
+	b_paused = false;
+	for(auto& animation : animations) animation->rapidToTarget();
+	PlaybackManager::push(shared_from_this());
+	playbackPosition_seconds = duration_seconds;
+	for(auto& animation : animations) animation->setPlaybackPosition(duration_seconds);
+}
+
+
+
+
+
+
 bool Manoeuvre::canRapidToPlaybackPosition(){
 	switch(getType()){
 		case ManoeuvreType::KEY:
@@ -339,7 +378,6 @@ bool Manoeuvre::canRapidToPlaybackPosition(){
 	}
 }
 
-//OK but needs work on parameter track side
 bool Manoeuvre::isAtPlaybackPosition(){
 	switch(getType()){
 		case ManoeuvreType::KEY:
@@ -353,16 +391,39 @@ bool Manoeuvre::isAtPlaybackPosition(){
 	}
 }
 
-//OK
-bool Manoeuvre::canSetPlaybackPosition(){
-	switch(getType()){
-		case ManoeuvreType::KEY: return false;
-		case ManoeuvreType::TARGET: return false;
-		case ManoeuvreType::SEQUENCE: return isFinished() || isPaused();
-	}
+void Manoeuvre::rapidToPlaybackPosition(){
+	if(!canRapidToPlaybackPosition()) return;
+	b_inRapid = true;
+	b_playing = false;
+	b_paused = false;
+	for(auto& animation : animations) animation->rapidToPlaybackPosition();
+	PlaybackManager::push(shared_from_this());
 }
 
-//OK
+
+
+
+
+float Manoeuvre::getRapidProgress(){
+	float smallestProgress = 1.0;
+	for(auto& animation : animations){
+		float progress = animation->getRapidProgress();
+		smallestProgress = std::min(smallestProgress, progress);
+	}
+	return smallestProgress;
+}
+
+bool Manoeuvre::isRapidFinished(){
+	return getRapidProgress() >= 1.0;
+}
+
+
+
+
+
+
+
+
 bool Manoeuvre::canStartPlayback(){
 	switch(getType()){
 		case ManoeuvreType::KEY: return false;
@@ -376,7 +437,6 @@ bool Manoeuvre::canStartPlayback(){
 	}
 }
 
-//OK
 bool Manoeuvre::canPausePlayback(){
 	switch(getType()){
 		case ManoeuvreType::KEY: return false;
@@ -384,52 +444,6 @@ bool Manoeuvre::canPausePlayback(){
 		case ManoeuvreType::SEQUENCE: return isPlaying();
 	}
 }
-
-//OK
-bool Manoeuvre::canStop(){
-	return !isFinished();
-}
-
-//commands
-
-
-
-#include "Animation/Playback/Playback.h"
-
-//OK
-void Manoeuvre::rapidToStart(){
-	if(!canRapidToStart()) return;
-	b_inRapid = true;
-	b_playing = false;
-	b_paused = false;
-	for(auto& animation : animations) animation->rapidToStart();
-	PlaybackManager::push(shared_from_this());
-	playbackPosition_seconds = 0.0;
-	for(auto& animation : animations) animation->setPlaybackPosition(0.0);
-}
-
-//OK
-void Manoeuvre::rapidToTarget(){
-	if(!canRapidToTarget()) return;
-	b_inRapid = true;
-	b_playing = false;
-	b_paused = false;
-	for(auto& animation : animations) animation->rapidToTarget();
-	PlaybackManager::push(shared_from_this());
-	playbackPosition_seconds = duration_seconds;
-	for(auto& animation : animations) animation->setPlaybackPosition(duration_seconds);
-}
-
-
-void Manoeuvre::rapidToPlaybackPosition(){
-	if(!canRapidToPlaybackPosition()) return;
-	b_inRapid = true;
-	b_playing = false;
-	b_paused = false;
-	for(auto& animation : animations) animation->rapidToPlaybackPosition();
-	PlaybackManager::push(shared_from_this());
-}
-
 
 void Manoeuvre::startPlayback(){
 	if(!canStartPlayback()) return;
@@ -450,13 +464,34 @@ void Manoeuvre::pausePlayback(){
 	for(auto& animation : animations) animation->interrupt();
 }
 
+
+
+
+
+
+bool Manoeuvre::canSetPlaybackPosition(){
+	switch(getType()){
+		case ManoeuvreType::KEY: return false;
+		case ManoeuvreType::TARGET: return false;
+		case ManoeuvreType::SEQUENCE: return isFinished() || isPaused();
+	}
+}
+
 void Manoeuvre::setPlaybackPosition(double seconds){
 	if(!canSetPlaybackPosition()) return;
 	playbackPosition_seconds = seconds;
 	for(auto& animation : animations) animation->setPlaybackPosition(seconds);
 }
 
-//OK needs for for actual playback
+
+
+
+
+
+
+
+
+
 void Manoeuvre::stop(){
 	if(isFinished()) return;
 	b_inRapid = false;
@@ -469,21 +504,28 @@ void Manoeuvre::stop(){
 }
 
 
-//OK
-float Manoeuvre::getRapidProgress(){
-	float smallestProgress = 1.0;
-	for(auto& animation : animations){
-		float progress = animation->getRapidProgress();
-		smallestProgress = std::min(smallestProgress, progress);
+
+
+
+
+
+
+
+bool Manoeuvre::hasDuration(){
+	switch(getType()){
+		case ManoeuvreType::KEY: return false;
+		case ManoeuvreType::TARGET:	return isPlaying();
+		case ManoeuvreType::SEQUENCE: return true;
 	}
-	return smallestProgress;
 }
 
-//OK
-bool Manoeuvre::isRapidFinished(){
-	return getRapidProgress() >= 1.0;
+double Manoeuvre::getDuration(){
+	switch(getType()){
+		case ManoeuvreType::KEY: return 0.0;
+		case ManoeuvreType::TARGET:
+		case ManoeuvreType::SEQUENCE: return duration_seconds;
+	}
 }
-
 
 double Manoeuvre::getPlaybackPosition(){
 	switch(getType()){
@@ -501,19 +543,11 @@ double Manoeuvre::getRemainingPlaybackTime(){
 	}
 }
 
-double Manoeuvre::getDuration(){
-	switch(getType()){
-		case ManoeuvreType::KEY: return 0.0;
-		case ManoeuvreType::TARGET:
-		case ManoeuvreType::SEQUENCE: return duration_seconds;
-	}
-}
 
 
 
 
-float Manoeuvre::getPlaybackProgress(){ return playbackPosition_seconds / duration_seconds; }
-bool Manoeuvre::isPlaybackFinished(){ return playbackPosition_seconds >= duration_seconds;  }
+
 
 void Manoeuvre::incrementPlaybackPosition(long long playbackTime_microseconds){
 	if(isPaused()) return;
@@ -534,12 +568,6 @@ void Manoeuvre::updatePlaybackStatus(){
 		b_inRapid = false;
 	}
 }
-
-
-
-
-
-
 
 void Manoeuvre::onTrackPlaybackStop(){
 	bool anyTracksStillPlaying = false;

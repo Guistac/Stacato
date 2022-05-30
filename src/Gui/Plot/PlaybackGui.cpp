@@ -6,15 +6,15 @@
 #include "Project/Project.h"
 #include "Plot/Plot.h"
 #include "Plot/ManoeuvreList.h"
-#include "Motion/Manoeuvre/Manoeuvre.h"
+#include "Animation/Manoeuvre.h"
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 #include "Gui/Utilities/CustomWidgets.h"
 
-#include "Motion/Playback/Playback.h"
+#include "Animation/Playback/Playback.h"
 
-#include "Motion/Manoeuvre/ParameterTrack.h"
+#include "Animation/Animation.h"
 #include "Machine/Machine.h"
 
 namespace Playback::Gui{

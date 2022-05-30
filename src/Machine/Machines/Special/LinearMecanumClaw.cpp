@@ -5,7 +5,7 @@
 #include "Motion/Axis/VelocityControlledAxis.h"
 #include "Motion/SubDevice.h"
 
-#include "Motion/Manoeuvre/ParameterTrack.h"
+#include "Animation/Animation.h"
 
 #include <tinyxml2.h>
 

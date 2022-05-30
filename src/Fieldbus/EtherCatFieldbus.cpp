@@ -6,7 +6,7 @@
 #include "Utilities/EtherCatError.h"
 #include "Environnement/Environnement.h"
 #include "Environnement/NodeGraph/NodeGraph.h"
-#include "Motion/Playback/Playback.h"
+#include "Animation/Playback/Playback.h"
 #include "Utilities/ProgressIndicator.h"
 #include "Nodes/NodeFactory.h"
 #include "config.h"

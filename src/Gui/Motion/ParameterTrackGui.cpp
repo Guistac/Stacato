@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "Motion/Manoeuvre/ParameterTrack.h"
+#include "Animation/Animation.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -10,9 +10,9 @@
 #include "Gui/Assets/Colors.h"
 
 #include "Motion/Curve/Curve.h"
-#include "Machine/AnimatableParameter.h"
+#include "Animation/Animatable.h"
 #include "Machine/Machine.h"
-#include "Motion/Manoeuvre/Manoeuvre.h"
+#include "Animation/Manoeuvre.h"
 
 #include "Gui/Utilities/CustomWidgets.h"
 

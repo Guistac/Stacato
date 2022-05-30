@@ -10,7 +10,7 @@
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
 #include "Gui/Environnement/NodeGraph/NodeGraphGui.h"
 
-#include "Motion/Playback/Playback.h"
+#include "Animation/Playback/Playback.h"
 
 #include "Networking/Network.h"
 #include "Networking/NetworkDevice.h"

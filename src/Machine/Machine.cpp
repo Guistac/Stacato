@@ -2,8 +2,8 @@
 
 #include "Machine.h"
 
-#include "Machine/AnimatableParameter.h"
-#include "Motion/Manoeuvre/ParameterTrack.h"
+#include "Animation/Animatable.h"
+#include "Animation/Animation.h"
 
 #include "Environnement/Environnement.h"
 

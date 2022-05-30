@@ -103,21 +103,21 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/LinearInterpolation.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/StepInterpolation.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/Manoeuvre.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/Manoeuvre.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ManoeuvreXML.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ParameterTrack.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Manoeuvre/ParameterTrack.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatable.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatable.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/AnimationValue.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animation.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animation.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Manoeuvre.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Manoeuvre.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/ManoeuvreXML.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Playback/Playback.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Playback/Playback.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Playback/TimeStringConversion.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/Playback.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/Playback.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/TimeStringConversion.h
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.h
-    ${STACATO_SOURCE_DIRECTORY}/Machine/AnimatableParameter.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Machine/AnimatableParameter.h
-    ${STACATO_SOURCE_DIRECTORY}/Machine/AnimatableParameterValue.h
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Template/MachineTemplate.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Template/MachineTemplate.h

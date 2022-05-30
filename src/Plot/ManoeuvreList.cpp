@@ -3,8 +3,8 @@
 
 #include "Project/Editor/CommandHistory.h"
 #include "Plot/Plot.h"
-#include "Motion/Manoeuvre/Manoeuvre.h"
-#include "Motion/Manoeuvre/ParameterTrack.h"
+#include "Animation/Manoeuvre.h"
+#include "Animation/Animation.h"
 
 //————————————————————————————————
 //			Add Manoeuvre
@@ -24,7 +24,7 @@ public:
 	}
 	
 	virtual void execute(){
-		addedManoeuvre = std::make_shared<Manoeuvre>();
+		addedManoeuvre = Manoeuvre::make(ManoeuvreType::KEY);
 		addedManoeuvre->overwriteType(type);
 		addedManoeuvre->setDescription("");
 		std::string manoeuvreName = "M-" + std::to_string(manoeuvreList->getManoeuvres().size());

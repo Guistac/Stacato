@@ -3,10 +3,10 @@
 #include "PositionControlledMachine.h"
 
 #include "Motion/Axis/PositionControlledAxis.h"
-#include "Machine/AnimatableParameter.h"
-#include "Motion/Manoeuvre/ParameterTrack.h"
+#include "Animation/Animatable.h"
+#include "Animation/Animation.h"
 
-#include "Motion/Manoeuvre/Manoeuvre.h"
+#include "Animation/Manoeuvre.h"
 
 #include <tinyxml2.h>
 

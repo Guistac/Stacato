@@ -7,12 +7,12 @@
 
 #include "Project/Project.h"
 #include "Plot/Plot.h"
-#include "Motion/Manoeuvre/Manoeuvre.h"
+#include "Animation/Manoeuvre.h"
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
-#include "Motion/Playback/Playback.h"
+#include "Animation/Playback/Playback.h"
 
 #include "Plot/ManoeuvreList.h"
 
@@ -87,17 +87,17 @@ bool noSelectionDisplay(){
 
 void trackSheetEditor(){
 	if(noSelectionDisplay()) return;
-	Project::currentPlot->getSelectedManoeuvre()->trackSheetGui();
+	Project::currentPlot->getSelectedManoeuvre()->sheetEditor();
 }
 
 void curveEditor(){
 	if(noSelectionDisplay()) return;
-	Project::currentPlot->getSelectedManoeuvre()->curveEditorGui();
+	Project::currentPlot->getSelectedManoeuvre()->curveEditor();
 }
 
 void spatialEditor(){
 	if(noSelectionDisplay()) return;
-	Project::currentPlot->getSelectedManoeuvre()->spatialEditorGui();
+	Project::currentPlot->getSelectedManoeuvre()->spatialEditor();
 }
 
 }

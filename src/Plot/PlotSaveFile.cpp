@@ -4,7 +4,7 @@
 
 #include <tinyxml2.h>
 
-#include "Motion/Manoeuvre/Manoeuvre.h"
+#include "Animation/Manoeuvre.h"
 #include "Plot/ManoeuvreList.h"
 
 

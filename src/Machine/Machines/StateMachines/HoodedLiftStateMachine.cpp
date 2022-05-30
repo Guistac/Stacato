@@ -2,9 +2,9 @@
 
 #include "HoodedLiftStateMachine.h"
 #include "Motion/SubDevice.h"
-#include "Machine/AnimatableParameter.h"
+#include "Animation/Animatable.h"
 
-#include "Motion/Manoeuvre/ParameterTrack.h"
+#include "Animation/Animation.h"
 
 std::vector<StateAnimationValue::Value> HoodedLiftStateMachine::stateParameterValues = {
 	{-1, "Stopped", "Stopped"},

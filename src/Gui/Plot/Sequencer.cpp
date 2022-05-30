@@ -7,7 +7,7 @@
 
 #include "SequencerLibrary.h"
 
-#include "Motion/Playback/Playback.h"
+#include "Animation/Playback/Playback.h"
 
 #include "Gui/Assets/Fonts.h"
 

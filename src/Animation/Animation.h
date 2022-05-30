@@ -1,14 +1,9 @@
 #pragma once
 
-class CurvePoint;
-class Manoeuvre;
-
-#include "Animation/Animatable.h"
-
 #include <tinyxml2.h>
 
+#include "Animation/Animatable.h"
 #include "Project/Editor/Parameter.h"
-
 #include "Motion/Curve/Curve.h"
 
 class AnimationComposite;
@@ -20,46 +15,46 @@ class Manoeuvre;
 class Animation : public std::enable_shared_from_this<Animation>{
 public:
 	
-	//———————————————————————————————————————————
-	//		Construction, Saving & Loading
-	//———————————————————————————————————————————
+	//———————— Construction, Saving & Loading —————————
 
 public:
 	
 	static std::shared_ptr<Animation> create(std::shared_ptr<Animatable> animatable, ManoeuvreType manoeuvreType);
-	static std::shared_ptr<Animation> copy(std::shared_ptr<Animation> original);
 	static std::shared_ptr<Animation> load(tinyxml2::XMLElement* trackXML);
-	static std::shared_ptr<Animation> loadType(tinyxml2::XMLElement* trackXML, std::shared_ptr<Animatable> animatable);
+	static std::shared_ptr<Animation> load(tinyxml2::XMLElement* trackXML, std::shared_ptr<Animatable> animatable);
+	std::shared_ptr<Animation> copy();
 	
 	bool save(tinyxml2::XMLElement* trackXML);
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) = 0;
-	
-	//———————————————————————————————————————————
-	//				General Properties
-	//———————————————————————————————————————————
-	
-public:
+
+protected:
 	
 	Animation(std::shared_ptr<Animatable> animatable_) {
 		animatable = animatable_;
 		curves.resize(animatable->getCurveCount());
 	}
+	
+	//————————————————— General Properties ——————————————————
+	
+public:
+
 	std::shared_ptr<Animatable> getAnimatable(){ return animatable; }
 	
-	void setManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre_){ manoeuvre = manoeuvre_; }
 	bool hasManoeuvre(){ return manoeuvre != nullptr; }
+	void setManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre_){ manoeuvre = manoeuvre_; }
 	std::shared_ptr<Manoeuvre> getManoeuvre(){ return manoeuvre; }
 	
 	bool hasParentComposite(){ return parentComposite != nullptr; }
 	void setParentComposite(std::shared_ptr<AnimationComposite> parentComposite_){ parentComposite = parentComposite_; }
 	std::shared_ptr<AnimationComposite> getParentComposite(){ return parentComposite; }
 	
-	bool isValid(){ return b_valid; }
-	void setValid(bool valid){ b_valid = valid; }
-	
 	void subscribeToMachineParameter();
 	void unsubscribeFromMachineParameter();
 	
+	std::vector<Motion::Curve>& getCurves(){ return curves; }
+	
+	bool isValid(){ return b_valid; }
+	void setValid(bool valid){ b_valid = valid; }
 	void validate();
 	void appendValidationErrorString(std::string errorString){
 		if(!validationErrorString.empty()) validationErrorString += "\n";
@@ -71,59 +66,62 @@ public:
 
 private:
 	
-	virtual ManoeuvreType getType() = 0;
 	std::shared_ptr<AnimationComposite> parentComposite;
 	std::shared_ptr<Manoeuvre> manoeuvre;
 	std::shared_ptr<Animatable> animatable;
+	std::vector<Motion::Curve> curves;
 	bool b_valid = false;
 	std::string validationErrorString = "";
 	
-	//———————————————————————————————————————————
-	//	   SubClass Identification & Casting
-	//———————————————————————————————————————————
+	//———————————— Sub Class Identification & Casting ————————————————
 	
 public:
 	
 	virtual bool isComposite(){ return false; }
 	std::shared_ptr<AnimationComposite> toComposite(){ return std::dynamic_pointer_cast<AnimationComposite>(shared_from_this()); }
+	virtual ManoeuvreType getType() = 0;
 	std::shared_ptr<AnimationKey> toKey(){ return std::dynamic_pointer_cast<AnimationKey>(shared_from_this()); }
 	std::shared_ptr<TargetAnimation> toTarget(){ return std::dynamic_pointer_cast<TargetAnimation>(shared_from_this()); }
 	std::shared_ptr<SequenceAnimation> toSequence(){ return std::dynamic_pointer_cast<SequenceAnimation>(shared_from_this()); }
 	
 	
-	//———————————————————————————————————————————
-	//	   				Playback
-	//———————————————————————————————————————————
+	//————————————————————— Playback ——————————————————————
+	
+public:
 	
 	bool isMachineEnabled();
-	virtual bool isAtStart(){}
-	virtual bool isAtTarget();
+	
+	virtual bool isAtStart(){ return false; }
+	virtual void rapidToStart(){ return; }
+	
+	virtual bool isAtTarget(){ return false; }
+	virtual void rapidToTarget(){ return; }
+	
 	virtual bool isAtPlaybackPosition(){ return false; }
-	virtual bool isReadyToStartPlayback(){ return false; }
+	virtual void rapidToPlaybackPosition(){ return; }
+	
 	virtual bool isInRapid();
 	virtual float getRapidProgress();
-	virtual double getDuration(){ return duration_seconds; }
 	
-	virtual void rapidToStart(){}
-	virtual void rapidToTarget();
-	virtual void rapidToPlaybackPosition(){}
+	virtual bool isReadyToStartPlayback(){ return false; }
+	virtual bool isPlaying();
 	virtual void startPlayback();
-	virtual void pausePlayback(){}
-	virtual void setPlaybackPosition(double seconds){ playbackPosition_seconds = seconds; }
+	virtual void stopPlayback();
+	virtual void interruptPlayback();
 	
-	virtual void stop();
-	virtual void interrupt();
+	void updatePlaybackStatus();
 	
-	virtual void updatePlaybackStatus();
+	void setPlaybackPosition(double seconds){ playbackPosition_seconds = seconds; }
+	double getPlaybackPosition(){ return playbackPosition_seconds; }
+	double getDuration(){ return duration_seconds; }
 	std::shared_ptr<AnimationValue> getValueAtPlaybackTime();
-	std::vector<Motion::Curve>& getCurves(){ return curves; }
 	
-	//called by parameter to interrupt manoeuvre
-	bool isPlaying();
+private:
 	
-	//———————————————————————————————————————————
-	//	   			User Interface
-	//———————————————————————————————————————————
+	double playbackPosition_seconds;
+	double duration_seconds;
+	
+	//—————————————————— User Interface ———————————————————
 	
 public:
 	
@@ -133,12 +131,6 @@ public:
 	
 	virtual void drawCurves() = 0;
 	virtual void drawCurveControls() = 0;
-	
-	
-private:
-	double playbackPosition_seconds;
-	double duration_seconds;
-	std::vector<Motion::Curve> curves;
 	
 };
 
@@ -157,48 +149,13 @@ private:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //--------------------------------------------
-//				KEY PARAMETER TRACK
+//				ANIMATION KEY
 //--------------------------------------------
 
 class AnimationKey : public Animation{
 	
-	//——————————————————————————————————————————————————————
-	// Construction, Saving Loading and Type Identification
-	//——————————————————————————————————————————————————————
+	//———————— Construction, Saving Loading and Type Identification —————————
 
 public:
 	
@@ -216,9 +173,11 @@ public:
 	static std::shared_ptr<AnimationKey> load(tinyxml2::XMLElement* xml, std::shared_ptr<Animatable> animatable);
 	std::shared_ptr<AnimationKey> copy();
 	
-	//———————————————————————————————————————————
-	//	  		  General Properties
-	//———————————————————————————————————————————
+	//————————————————— General Properties ——————————————————
+	
+public:
+	
+	void captureCurrentValueAsTarget(){}
 	
 	virtual void setUnit(Unit unit) override {
 		if(getAnimatable()->isNumber()){
@@ -226,20 +185,24 @@ public:
 		}
 	}
 	
-	//———————————————————————————————————————————
-	//	  		    User Interface
-	//———————————————————————————————————————————
+private:
+	
+	std::shared_ptr<Parameter> target;
+	
+	//————————————————————— Playback ——————————————————————
+	
+public:
+	
+	virtual bool isAtTarget() override;
+	virtual void rapidToTarget() override;
+
+	//—————————————————— User Interface ———————————————————
 	
 	virtual void trackSheetRowGui() override;
 	virtual void drawCurves() override {}
 	virtual void drawCurveControls() override;
 	
-	void captureCurrentValueAsTarget(){}
-	std::shared_ptr<Parameter> target;
-	
 };
-
-//rapid to end
 
 
 
@@ -256,14 +219,12 @@ public:
 
 
 //--------------------------------------------
-//			TARGET PARAMETER TRACK
+//				TARGET ANIMATION
 //--------------------------------------------
 
 class TargetAnimation : public Animation{
 	
-	//——————————————————————————————————————————————————————
-	// Construction, Saving Loading and Type Identification
-	//——————————————————————————————————————————————————————
+	//———————— Construction, Saving Loading and Type Identification —————————
 	
 public:
 	
@@ -312,9 +273,7 @@ public:
 	static std::shared_ptr<TargetAnimation> load(tinyxml2::XMLElement* xml, std::shared_ptr<Animatable> animatable);
 	std::shared_ptr<TargetAnimation> copy();
 	
-	//———————————————————————————————————————————
-	//	  		  General Properties
-	//———————————————————————————————————————————
+	//————————————————— General Properties ——————————————————
 	
 public:
 	
@@ -334,10 +293,7 @@ public:
 		}
 	}
 	
-	
-	virtual bool isAtPlaybackPosition() override;
-	virtual bool isReadyToStartPlayback() override;
-	virtual void startPlayback() override;
+private:
 
 	std::shared_ptr<Parameter> target;
 	std::shared_ptr<EnumeratorParameter<Constraint>> constraintType = std::make_shared<EnumeratorParameter<Constraint>>(Constraint::TIME, "Constraint Type", "ConstraintType");
@@ -348,9 +304,17 @@ public:
 	std::shared_ptr<NumberParameter<double>> inAcceleration = NumberParameter<double>::make(0.0, "Start Acceleration", "StartAcceleration");
 	std::shared_ptr<NumberParameter<double>> outAcceleration = NumberParameter<double>::make(0.0, "End Acceleration", "EndAcceleration");
 	
-	//———————————————————————————————————————————
-	//	  		    User Interface
-	//———————————————————————————————————————————
+	//————————————————————— Playback ——————————————————————
+	
+public:
+	
+	virtual bool isAtTarget() override;
+	virtual void rapidToTarget() override;
+	
+	virtual bool isReadyToStartPlayback() override;
+	virtual void startPlayback() override;
+	
+	//—————————————————— User Interface ———————————————————
 	
 	virtual void trackSheetRowGui() override;
 	virtual void drawCurves() override;
@@ -365,12 +329,6 @@ public:
 {TargetAnimation::Constraint::TIME, 		.displayString = "Time", 	.saveString = "Time"},\
 
 DEFINE_ENUMERATOR(TargetAnimation::Constraint, TargetConstraintStrings)
-
-
-//rapid to end
-//start
-//pause
-//resume
 
 
 
@@ -391,9 +349,7 @@ DEFINE_ENUMERATOR(TargetAnimation::Constraint, TargetConstraintStrings)
 class SequenceAnimation : public Animation{
 public:
 	
-	//——————————————————————————————————————————————————————
-	// Construction, Saving Loading and Type Identification
-	//——————————————————————————————————————————————————————
+	//————————— Construction, Saving Loading and Type Identification ——————————
 	
 public:
 	
@@ -442,9 +398,7 @@ public:
 	static std::shared_ptr<SequenceAnimation> load(tinyxml2::XMLElement* xml, std::shared_ptr<Animatable> animatable);
 	std::shared_ptr<SequenceAnimation> copy();
 	
-	//———————————————————————————————————————————
-	//	  		  General Properties
-	//———————————————————————————————————————————
+	//————————————————— General Properties ——————————————————
 	
 public:
 	
@@ -458,6 +412,21 @@ public:
 		}
 	}
 	
+private:
+	
+	std::shared_ptr<Parameter> start;
+	std::shared_ptr<Parameter> target;
+	std::shared_ptr<TimeParameter> duration = std::make_shared<TimeParameter>(0, "Duration", "Duration");
+	std::shared_ptr<EnumeratorParameter<Motion::Interpolation::Type>> interpolationType;
+	std::shared_ptr<TimeParameter> timeOffset = std::make_shared<TimeParameter>(0.0, "Time Offset", "TimeOffset");
+	std::shared_ptr<NumberParameter<double>> inAcceleration = NumberParameter<double>::make(0.0, "Start Acceleration", "StartAcceleration");
+	std::shared_ptr<NumberParameter<double>> outAcceleration = NumberParameter<double>::make(0.0, "End Acceleration", "EndAcceleration");
+	
+	
+	//————————————————————— Playback —————————————————————
+	
+public:
+	
 	virtual void rapidToPlaybackPosition() override;
 	
 	void captureCurrentValueAsStart(){}
@@ -469,25 +438,7 @@ public:
 	virtual bool isAtPlaybackPosition() override;
 	virtual bool isReadyToStartPlayback() override;
 	
-private:
-	
-	std::shared_ptr<Parameter> start;
-	std::shared_ptr<Parameter> target;
-	std::shared_ptr<TimeParameter> duration = std::make_shared<TimeParameter>(0, "Duration", "Duration");
-	std::shared_ptr<EnumeratorParameter<Motion::Interpolation::Type>> interpolationType;
-	std::shared_ptr<TimeParameter> timeOffset = std::make_shared<TimeParameter>(0.0, "Time Offset", "TimeOffset");
-	std::shared_ptr<NumberParameter<double>> inAcceleration = NumberParameter<double>::make(0.0, "Start Acceleration", "StartAcceleration");
-	std::shared_ptr<NumberParameter<double>> outAcceleration = NumberParameter<double>::make(0.0, "End Acceleration", "EndAcceleration");
-	
-	//———————————————————————————————————————————
-	//	  		        Playback
-	//———————————————————————————————————————————
-	
-public:
-	
-	//———————————————————————————————————————————
-	//	  		     User Interface
-	//———————————————————————————————————————————
+	//—————————————————— User Interface ———————————————————
 	
 public:
 	
@@ -495,13 +446,6 @@ public:
 	virtual void drawCurves() override;
 	virtual void drawCurveControls() override;
 };
-
-//rapid to start
-//rapid to end
-//rapid to playback position
-//start
-//pause
-//resume
 
 
 

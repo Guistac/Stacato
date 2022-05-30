@@ -726,7 +726,7 @@ void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec
 }
 
 
-#include "Motion/Playback/TimeStringConversion.h"
+#include "Animation/Playback/TimeStringConversion.h"
 
 bool timeEntryWidgetSeconds(const char* ID, float height, double& time_seconds){
 	static char textBuffer[64];

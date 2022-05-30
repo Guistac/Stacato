@@ -3,7 +3,7 @@
 #include <tinyxml2.h>
 #include <imgui.h>
 #include "CommandHistory.h"
-#include "Machine/AnimatableParameterValue.h"
+#include "Animation/AnimationValue.h"
 #include "Gui/Assets/Colors.h"
 #include "Gui/Assets/Fonts.h"
 
@@ -817,7 +817,7 @@ public:
 };
 
 
-#include "Motion/Playback/TimeStringConversion.h"
+#include "Animation/Playback/TimeStringConversion.h"
 
 //===================================================================================
 //=================================== TIME PARAMETER ================================
