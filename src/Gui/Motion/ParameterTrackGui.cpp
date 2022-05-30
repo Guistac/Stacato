@@ -147,6 +147,7 @@ void SequenceParameterTrack::trackSheetRowGui(){
 	ImGui::TableSetColumnIndex(6);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	duration->gui();
+	if(!duration->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 	
 	//[7] "Time Offset"
 	ImGui::TableSetColumnIndex(7);

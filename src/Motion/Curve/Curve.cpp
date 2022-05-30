@@ -78,6 +78,14 @@ namespace Motion {
 				  controlPoints.end(),
 				  [](std::shared_ptr<Motion::ControlPoint>& a, std::shared_ptr<Motion::ControlPoint>& b) -> bool { return a->time < b->time; });
 
+		bool b_allPointsValid = true;
+		
+		for(auto& controlPoint : controlPoints){
+			if(!controlPoint->b_valid) b_allPointsValid = false;
+		}
+		
+		bool b_allInterpolationsValid = true;
+		
 		//build and append interpolations between all control points
 		for (int i = 0; i < controlPoints.size() - 1; i++) {
 			std::shared_ptr<Motion::ControlPoint>& inPoint = controlPoints[i];
@@ -98,10 +106,13 @@ namespace Motion {
 					break;
 			}
 			interpolations.push_back(interpolation);
+			if(!interpolation->b_valid) b_allInterpolationsValid = false;
 		}
 		
 		//update point previsualisation data
 		updateDisplayCurvePoints();
+		
+		b_valid = b_allPointsValid && b_allInterpolationsValid;
 	}
 
 };

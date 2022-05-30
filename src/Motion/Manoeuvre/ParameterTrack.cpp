@@ -303,10 +303,13 @@ void SequenceParameterTrack::updateAfterParameterEdit(){
 		targetPoint->time = timeOffset->value + duration->value;
 		
 		curve.refresh();
-		if(!curve.b_valid) b_allCurvesValid = false;
+		if(!curve.b_valid) {
+			b_allCurvesValid = false;
+		}
 	}
 	
 	duration->setValid(b_allCurvesValid);
+	if(!b_allCurvesValid) setValid(false);
 	
 	duration_seconds = timeOffset->value + duration->value;
 	

@@ -515,6 +515,7 @@ bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<Par
 		//after performing all checks, we assign the curve validation flag
 		//the curve itself doesn't have a validation error value
 		curve.b_valid = b_curveValid;
+		if(!b_curveValid) b_trackValid = false;
 		if(!b_curveValid) animatedTrack->appendValidationErrorString("Curve could not be validated.\nCheck the Curve editor for details.");
 		
 	}

@@ -31,5 +31,15 @@
                 </Curves>
             </ParameterTrack>
         </Manoeuvre>
+        <Manoeuvre Name="M-3" Description="" Type="Sequence">
+            <ParameterTrack Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsGroup="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="10" Duration="10" TimeOffset="0" StartAcceleration="0.40000000000000002" EndAcceleration="0.40000000000000002">
+                <Curves>
+                    <Curve>
+                        <ControlPoint Position="0" Time="0" Velocity="0" InAcceleration="0.40000000000000002" OutAcceleration="0.40000000000000002"/>
+                        <ControlPoint Position="10" Time="10" Velocity="0" InAcceleration="0.40000000000000002" OutAcceleration="0.40000000000000002"/>
+                    </Curve>
+                </Curves>
+            </ParameterTrack>
+        </Manoeuvre>
     </ManoeuvreList>
 </Plot>
