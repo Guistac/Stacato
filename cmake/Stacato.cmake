@@ -108,6 +108,10 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/AnimationValue.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animation.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animation.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/AnimationKey.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/AnimationComposite.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/TargetAnimation.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/SequenceAnimation.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Manoeuvre.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Manoeuvre.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/ManoeuvreXML.cpp

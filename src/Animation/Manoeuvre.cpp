@@ -461,7 +461,7 @@ void Manoeuvre::pausePlayback(){
 	b_inRapid = false;
 	b_playing = false;
 	b_paused = true;
-	for(auto& animation : animations) animation->interrupt();
+	for(auto& animation : animations) animation->interruptPlayback();
 }
 
 
@@ -497,7 +497,7 @@ void Manoeuvre::stop(){
 	b_inRapid = false;
 	b_playing = false;
 	b_paused = false;
-	for(auto& animation : animations) animation->stop();
+	for(auto& animation : animations) animation->stopPlayback();
 	PlaybackManager::pop(shared_from_this());
 	playbackPosition_seconds = 0.0;
 	for(auto& animation : animations) animation->setPlaybackPosition(0.0);

@@ -43,9 +43,9 @@ bool TargetAnimation::isAtTarget(){
 
 void TargetAnimation::rapidToTarget(){
 	auto animatable = getAnimatable();
-	animatable->stopParameterPlayback();
-	auto targetValue = animatable->getParameterValue(target);
-	animatable->getMachine()->rapidParameterToValue(animatable, targetValue);
+	animatable->stopAnimationPlayback();
+	auto targetValue = animatable->parameterValueToAnimationValue(target);
+	animatable->getMachine()->rapidAnimatableToValue(animatable, targetValue);
 }
 
 /*
