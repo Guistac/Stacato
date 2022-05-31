@@ -455,6 +455,8 @@ bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<Par
 			return false;
 		}
 		
+		bool b_velocityExceeded = false;
+		
 		auto& curve = sequenceTrack->getCurves().front();
 		
 		//validate all control points
@@ -498,6 +500,7 @@ bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<Par
 			if (std::abs(kinematicInterpolation->coastVelocity) > velocityLimit_machineUnits) {
 				interpolation->validationError = ValidationError::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED;
 				interpolation->b_valid = false;
+				b_velocityExceeded = true;
 				b_curveValid = false;
 				continue;
 			}
@@ -517,6 +520,11 @@ bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<Par
 		curve.b_valid = b_curveValid;
 		if(!b_curveValid) b_trackValid = false;
 		if(!b_curveValid) animatedTrack->appendValidationErrorString("Curve could not be validated.\nCheck the Curve editor for details.");
+		
+		if(b_velocityExceeded){
+			sequenceTrack->duration->setValid("false");
+			sequenceTrack->appendValidationErrorString("Max Velocity Exceeded");
+		}
 		
 	}
 	
