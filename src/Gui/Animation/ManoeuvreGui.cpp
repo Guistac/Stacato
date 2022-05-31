@@ -8,6 +8,7 @@
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
+#include "Gui/Assets/Images.h"
 
 #include "Gui/Utilities/CustomWidgets.h"
 
@@ -68,6 +69,19 @@ void Manoeuvre::listGui(){
 	ImGui::Text("%s", manoeuvreTypeString);
 	ImGui::PopFont();
 	ImGui::PopStyleColor();
+	
+	
+	float posY = ImGui::GetCursorPosY();
+	ImGui::SetCursorPosY(posY - 15.0);
+	
+	switch(getType()){
+		case ManoeuvreType::KEY:
+			ImGui::Image(Images::KeyIcon.getID(), ImVec2(headerStripWidth, headerStripWidth)); break;
+		case ManoeuvreType::TARGET:
+			ImGui::Image(Images::TargetIcon.getID(), ImVec2(headerStripWidth, headerStripWidth)); break;
+		case ManoeuvreType::SEQUENCE:
+			ImGui::Image(Images::SequenceIcon.getID(), ImVec2(headerStripWidth, headerStripWidth)); break;
+	}
 	
 	
 	//show name and description

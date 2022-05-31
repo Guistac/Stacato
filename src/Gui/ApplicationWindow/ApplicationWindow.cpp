@@ -141,6 +141,7 @@ namespace ApplicationWindow {
 		float scale = xScale * scaleTuning;
 		Logger::debug("Display Scale: {}  Scale Tuning: x{}  Gui Scale: {}", xScale, scaleTuning, scale);
 		Fonts::load(scale);
+		Images::load();
 		
 		ImGui::GetStyle().ScaleAllSizes(scale);
 		ImGui::StyleColorsDark();

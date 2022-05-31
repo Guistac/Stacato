@@ -41,3 +41,6 @@
 [submodule "deps/openframeworks"]
 	path = deps/openframeworks
 	url = https://github.com/Guistac/openFrameworks.git
+[submodule "deps/stb"]
+	path = deps/stb
+	url = https://github.com/nothings/stb.git

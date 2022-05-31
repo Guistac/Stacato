@@ -12,6 +12,7 @@
 #include "Gui.h"
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
+#include "Gui/Assets/Images.h"
 
 #include "Gui/Utilities/CustomWidgets.h"
 
@@ -221,7 +222,11 @@ namespace Gui {
 		ImGui::EndGroup();
 	
 		
+		ImGui::SameLine();
 		
+		
+		//ImGui::ImageButton(Images::KeyIcon.getID(), ImVec2(50,50));
+		//ImGui::Image(Images::KeyIcon.getID(), Images::KeyIcon.getSize());
 		
 		
 		

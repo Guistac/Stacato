@@ -47,8 +47,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Machine/MachineGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Machine/AnimatableParameterGui.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Motion/ManoeuvreGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Motion/ParameterTrackGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Animation/ManoeuvreGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Animation/AnimationGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeAdder.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeGraphGui.h
