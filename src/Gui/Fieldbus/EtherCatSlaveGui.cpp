@@ -611,6 +611,96 @@ void EtherCatDevice::sendReceiveEtherCatRegisterGui() {
 		ImGui::PopFont();
 	}
 	
+	ImGui::Separator();
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Transmission Errors");
+	ImGui::PopFont();
+	
+	if(ImGui::Button("Download Error Counts")) downloadTransmissionErrors();
+	if(transmissionErrorDownloadState != DataTransferState::NO_TRANSFER){
+		ImGui::SameLine();
+		ImGui::Text("%s", Enumerator::getDisplayString(transmissionErrorDownloadState));
+	}
+	
+	if(ImGui::Button("Reset Error Counts")) resetTransmissionErrors();
+	if(resetTransmissionErrorsState != DataTransferState::NO_TRANSFER){
+		ImGui::SameLine();
+		ImGui::Text("%s", Enumerator::getDisplayString(resetTransmissionErrorsState));
+	}
+	
+	ImGuiTableFlags errorTableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
+	if(ImGui::BeginTable("##Transmission Errors", 5, errorTableFlags)){
+		ImGui::TableSetupColumn("Error Count");
+		ImGui::TableSetupColumn("Port A (in)");
+		ImGui::TableSetupColumn("Port B (out)");
+		ImGui::TableSetupColumn("Port C");
+		ImGui::TableSetupColumn("Port D");
+		ImGui::TableHeadersRow();
+		
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Frame RX Errors");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::Text("%i", transmissionErrors.A_Frame);
+		ImGui::TableSetColumnIndex(2);
+		ImGui::Text("%i", transmissionErrors.B_Frame);
+		ImGui::TableSetColumnIndex(3);
+		ImGui::Text("%i", transmissionErrors.C_Frame);
+		ImGui::TableSetColumnIndex(4);
+		ImGui::Text("%i", transmissionErrors.D_Frame);
+		
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Physical RX Errors");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::Text("%i", transmissionErrors.A_Physical);
+		ImGui::TableSetColumnIndex(2);
+		ImGui::Text("%i", transmissionErrors.B_Physical);
+		ImGui::TableSetColumnIndex(3);
+		ImGui::Text("%i", transmissionErrors.C_Physical);
+		ImGui::TableSetColumnIndex(4);
+		ImGui::Text("%i", transmissionErrors.D_Physical);
+		
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Forwarded RX Errors");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::Text("%i", transmissionErrors.A_Forwarded);
+		ImGui::TableSetColumnIndex(2);
+		ImGui::Text("%i", transmissionErrors.B_Forwarded);
+		ImGui::TableSetColumnIndex(3);
+		ImGui::Text("%i", transmissionErrors.C_Forwarded);
+		ImGui::TableSetColumnIndex(4);
+		ImGui::Text("%i", transmissionErrors.D_Forwarded);
+		
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Lost Links");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::Text("%i", transmissionErrors.A_LostLinks);
+		ImGui::TableSetColumnIndex(2);
+		ImGui::Text("%i", transmissionErrors.B_LostLinks);
+		ImGui::TableSetColumnIndex(3);
+		ImGui::Text("%i", transmissionErrors.C_LostLinks);
+		ImGui::TableSetColumnIndex(4);
+		ImGui::Text("%i", transmissionErrors.D_LostLinks);
+		
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("PU Errors");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::Text("%i", transmissionErrors.processingUnit);
+		
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("PDI Errors");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::Text("%i", transmissionErrors.processDataInterface);
+		
+		ImGui::EndTable();
+	}
+	
 }
 
 

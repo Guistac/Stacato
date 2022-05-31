@@ -191,3 +191,82 @@ void EtherCatDevice::downloadALStatusCode(){
 	});
 	AlStatusDownloader.detach();
 }
+
+
+void EtherCatDevice::downloadTransmissionErrors(){
+	std::thread transmissionErrorDownloader([this](){
+		transmissionErrorDownloadState = DataTransferState::TRANSFERRING;
+		
+		ec_FPRD(getAssignedAddress(), 0x0300, 1, &transmissionErrors.A_Frame, EC_TIMEOUTSAFE);
+		ec_FPRD(getAssignedAddress(), 0x0302, 1, &transmissionErrors.B_Frame, EC_TIMEOUTSAFE);
+		ec_FPRD(getAssignedAddress(), 0x0304, 1, &transmissionErrors.C_Frame, EC_TIMEOUTSAFE);
+		ec_FPRD(getAssignedAddress(), 0x0306, 1, &transmissionErrors.D_Frame, EC_TIMEOUTSAFE);
+		
+		ec_FPRD(getAssignedAddress(), 0x0301, 1, &transmissionErrors.A_Physical, EC_TIMEOUTSAFE);
+		ec_FPRD(getAssignedAddress(), 0x0303, 1, &transmissionErrors.B_Physical, EC_TIMEOUTSAFE);
+		ec_FPRD(getAssignedAddress(), 0x0305, 1, &transmissionErrors.C_Physical, EC_TIMEOUTSAFE);
+		ec_FPRD(getAssignedAddress(), 0x0307, 1, &transmissionErrors.D_Physical, EC_TIMEOUTSAFE);
+		
+		ec_FPRD(getAssignedAddress(), 0x0308, 1, &transmissionErrors.A_Forwarded, EC_TIMEOUTSAFE);
+		ec_FPRD(getAssignedAddress(), 0x0309, 1, &transmissionErrors.B_Forwarded, EC_TIMEOUTSAFE);
+		ec_FPRD(getAssignedAddress(), 0x030A, 1, &transmissionErrors.C_Forwarded, EC_TIMEOUTSAFE);
+		ec_FPRD(getAssignedAddress(), 0x030B, 1, &transmissionErrors.D_Forwarded, EC_TIMEOUTSAFE);
+		
+		ec_FPRD(getAssignedAddress(), 0x030C, 1, &transmissionErrors.processingUnit, EC_TIMEOUTSAFE);
+		
+		ec_FPRD(getAssignedAddress(), 0x030D, 1, &transmissionErrors.processDataInterface, EC_TIMEOUTSAFE);
+		
+		ec_FPRD(getAssignedAddress(), 0x0310, 1, &transmissionErrors.A_LostLinks, EC_TIMEOUTSAFE);
+		ec_FPRD(getAssignedAddress(), 0x0311, 2, &transmissionErrors.B_LostLinks, EC_TIMEOUTSAFE);
+		ec_FPRD(getAssignedAddress(), 0x0312, 3, &transmissionErrors.C_LostLinks, EC_TIMEOUTSAFE);
+		ec_FPRD(getAssignedAddress(), 0x0313, 4, &transmissionErrors.D_LostLinks, EC_TIMEOUTSAFE);
+		
+		transmissionErrorDownloadState = DataTransferState::SUCCEEDED;
+	});
+	transmissionErrorDownloader.detach();
+}
+
+
+void EtherCatDevice::resetTransmissionErrors(){
+	std::thread transmissionErrorResetter([this](){
+		resetTransmissionErrorsState = DataTransferState::TRANSFERRING;
+		
+		uint16_t resetRxErrors = 0;
+		ec_FPWR(getAssignedAddress(), 0x0300, 2, &resetRxErrors, EC_TIMEOUTSAFE);
+		
+		uint8_t resetFwErrors = 0;
+		ec_FPWR(getAssignedAddress(), 0x0308, 1, &resetFwErrors, EC_TIMEOUTSAFE);
+		
+		uint8_t resetProcessingUnitErrors = 0;
+		ec_FPWR(getAssignedAddress(), 0x030C, 1, &resetProcessingUnitErrors, EC_TIMEOUTSAFE);
+		
+		uint8_t resetPdiErrors = 0;
+		ec_FPWR(getAssignedAddress(), 0x030D, 1, &resetPdiErrors, EC_TIMEOUTSAFE);
+		
+		uint8_t resetLostLinks = 0;
+		ec_FPWR(getAssignedAddress(), 0x0310, 1, &resetLostLinks, EC_TIMEOUTSAFE);
+		
+		transmissionErrors.A_Frame = 0;
+		transmissionErrors.A_Physical = 0;
+		transmissionErrors.A_Forwarded = 0;
+		transmissionErrors.A_LostLinks = 0;
+		transmissionErrors.B_Frame = 0;
+		transmissionErrors.B_Physical = 0;
+		transmissionErrors.B_Forwarded = 0;
+		transmissionErrors.B_LostLinks = 0;
+		transmissionErrors.C_Frame = 0;
+		transmissionErrors.C_Physical = 0;
+		transmissionErrors.C_Forwarded = 0;
+		transmissionErrors.C_LostLinks = 0;
+		transmissionErrors.D_Frame = 0;
+		transmissionErrors.D_Physical = 0;
+		transmissionErrors.D_Forwarded = 0;
+		transmissionErrors.D_LostLinks = 0;
+		transmissionErrors.processingUnit = 0;
+		transmissionErrors.processDataInterface = 0;
+		
+		resetTransmissionErrorsState = DataTransferState::SUCCEEDED;
+	});
+	transmissionErrorResetter.detach();
+}
+

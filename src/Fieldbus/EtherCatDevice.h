@@ -179,6 +179,37 @@ public:
 	void downloadALStatusCode();
 	DataTransferState AlStatusCodeDownloadState = DataTransferState::NO_TRANSFER;
 	
+	struct TransmissionErrors{
+		uint8_t A_Frame = 0;
+		uint8_t A_Physical = 0;
+		uint8_t A_Forwarded = 0;
+		uint8_t A_LostLinks = 0;
+		
+		uint8_t B_Frame = 0;
+		uint8_t B_Physical = 0;
+		uint8_t B_Forwarded = 0;
+		uint8_t B_LostLinks = 0;
+		
+		uint8_t C_Frame = 0;
+		uint8_t C_Physical = 0;
+		uint8_t C_Forwarded = 0;
+		uint8_t C_LostLinks = 0;
+		
+		uint8_t D_Frame = 0;
+		uint8_t D_Physical = 0;
+		uint8_t D_Forwarded = 0;
+		uint8_t D_LostLinks = 0;
+		
+		uint8_t processingUnit = 0;
+		uint8_t processDataInterface = 0;
+	}transmissionErrors;
+	
+	void downloadTransmissionErrors();
+	DataTransferState transmissionErrorDownloadState = DataTransferState::NO_TRANSFER;
+	
+	void resetTransmissionErrors();
+	DataTransferState resetTransmissionErrorsState = DataTransferState::NO_TRANSFER;
+	
     bool downloadEEPROM(char* fileName);
     DataTransferState eepromDownloadState = DataTransferState::NO_TRANSFER;
     char eepromSaveFilePath[512];
