@@ -9,6 +9,53 @@
 
 #include "Plot/Plot.h"
 
+#include <tinyxml2.h>
+
+
+bool Manoeuvre::save(tinyxml2::XMLElement* manoeuvreXML) {
+	
+	using namespace tinyxml2;
+	
+	name->save(manoeuvreXML);
+	description->save(manoeuvreXML);
+	type->save(manoeuvreXML);
+	
+	for (auto& animation : animations) {
+		//tracks which have a group parent are listed in the manoeuvres track vector
+		//but they don't get saved in the main manoeuvre
+		//instead they are saved by their parent parameter track
+		if (animation->hasParentComposite()) continue;
+		XMLElement* animationXML = manoeuvreXML->InsertNewChildElement("Animation");
+		animation->save(animationXML);
+	}
+	 
+	return true;
+}
+
+std::shared_ptr<Manoeuvre> Manoeuvre::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	
+	auto manoeuvre = Manoeuvre::make(ManoeuvreType::KEY);
+	
+	manoeuvre->name->load(xml);
+	manoeuvre->description->load(xml);
+	manoeuvre->type->load(xml);
+	
+	XMLElement* animationXML = xml->FirstChildElement("Animation");
+	while (animationXML != nullptr) {
+		auto newAnimation = Animation::load(animationXML);
+		if(newAnimation == nullptr) return nullptr;
+		newAnimation->setManoeuvre(manoeuvre);
+		manoeuvre->animations.push_back(newAnimation);
+		animationXML = animationXML->NextSiblingElement("Animation");
+	}
+	
+	manoeuvre->validateAllParameterTracks();
+	
+	return manoeuvre;
+}
+
+
 class SetManoeuvreTypeCommand : public Command{
 public:
 	

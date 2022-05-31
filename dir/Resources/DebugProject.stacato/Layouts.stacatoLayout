@@ -4,6 +4,9 @@
 
 
 
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -197,6 +200,196 @@ DockSpace       ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 Split=X 
       DockNode  ID=0x00000005 Parent=0x00000003 SizeRef=1253,502 CentralNode=1 Selected=0xE3A58869
       DockNode  ID=0x00000006 Parent=0x00000003 SizeRef=1253,377 Selected=0x13859D62
     DockNode    ID=0x00000004 Parent=0x00000002 SizeRef=218,881 Selected=0xC3CCF5DC
+
+</Layout>
+    <Layout Name="Environnement Editor">
+[Window][Debug##Default]
+Pos=60,60
+Size=400,400
+Collapsed=0
+
+[Window][##Toolbar]
+Pos=0,916
+Size=2056,84
+Collapsed=0
+
+[Window][Main Window]
+Pos=0,29
+Size=2056,1160
+Collapsed=0
+
+[Window][Quitting Application]
+Pos=794,434
+Size=468,132
+Collapsed=0
+
+[Window][Environnement]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,0
+
+[Window][Stage]
+Pos=419,32
+Size=1637,881
+Collapsed=0
+
+[Window][Machines]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,4
+
+[Window][Setup]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,1
+
+[Window][Plot List]
+Pos=0,32
+Size=417,881
+Collapsed=0
+
+[Window][Track Sheet Editor]
+Pos=419,32
+Size=1637,881
+Collapsed=0
+
+[Window][Curve Editor]
+Pos=419,32
+Size=1637,881
+Collapsed=0
+
+[Window][Sequencer]
+Pos=419,32
+Size=1637,881
+Collapsed=0
+
+[Window][cCurvesTest]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+
+[Window][CommandZ]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+
+[Window][MainWindow]
+Pos=0,0
+Size=2056,916
+Collapsed=0
+
+[Window][OffscreenNodeEditorFor1Frame]
+ViewportPos=10000,10000
+ViewportId=0x34E92D39
+Size=44,55
+Collapsed=0
+
+[Window][Edit Layout]
+Pos=849,443
+Size=358,114
+Collapsed=0
+
+[Window][Closing Current Project]
+Pos=794,434
+Size=468,132
+Collapsed=0
+
+[Window][ImPlot Demo]
+ViewportPos=50,50
+ViewportId=0x6C351E99
+Size=600,750
+Collapsed=0
+
+[Window][Dear ImGui Demo]
+ViewportPos=1236,210
+ViewportId=0xE927CF2F
+Size=896,1129
+Collapsed=0
+
+[Window][Dear ImGui Metrics/Debugger]
+Pos=60,60
+Size=364,441
+Collapsed=0
+
+[Window][Dear ImGui Stack Tool]
+Pos=60,60
+Size=393,168
+Collapsed=0
+
+[Window][Manoeuvre List]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,3
+
+[Window][Manoeuvre Sheet]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,2
+
+[Window][Manoeuvre Curves]
+Pos=0,32
+Size=2056,881
+Collapsed=0
+DockId=0x0B88F6CB,5
+
+[Window][Starting Environnement]
+Pos=713,430
+Size=630,140
+Collapsed=0
+
+[Table][0xDA36A7E0,6]
+RefScale=21
+Column 0  Width=49 Sort=0^
+Column 1  Width=113
+Column 2  Width=92
+Column 3  Width=81
+Column 4  Weight=1.0000
+Column 5  Width=-1
+
+[Table][0x9B8E7538,3]
+Column 0  Weight=1.0000
+Column 1  Weight=1.0000
+Column 2  Weight=1.0000
+
+[Table][0xA43C3885,3]
+RefScale=21
+Column 0  Width=52
+Column 1  Width=52
+Column 2  Width=52
+
+[Table][0xC9935533,3]
+Column 0  Weight=1.0000
+Column 1  Weight=1.0000
+Column 2  Weight=1.0000
+
+[Table][0x64418101,3]
+RefScale=21
+Column 0  Width=63
+Column 1  Width=63
+Column 2  Width=63
+
+[Table][0x47600645,3]
+RefScale=21
+Column 0  Width=64
+Column 1  Width=64
+Column 2  Weight=1.0000
+
+[Table][0xDE6957FF,6]
+RefScale=21
+Column 0  Width=64
+Column 1  Width=64
+Column 2  Width=-1
+Column 3  Weight=1.0000
+Column 4  Weight=1.0000
+Column 5  Weight=-1.0000
+
+[Docking][Data]
+DockSpace ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 CentralNode=1 Selected=0x20B12C37
 
 </Layout>
 </Layouts>

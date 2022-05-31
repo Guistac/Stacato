@@ -193,8 +193,8 @@ private:
 	
 public:
 	
-	virtual bool isAtTarget() override;
-	virtual void rapidToTarget() override;
+	virtual bool isAtPlaybackPosition() override;
+	virtual void rapidToPlaybackPosition() override;
 
 	//—————————————————— User Interface ———————————————————
 	

@@ -114,7 +114,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/SequenceAnimation.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Manoeuvre.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Manoeuvre.h
-    ${STACATO_SOURCE_DIRECTORY}/Animation/ManoeuvreXML.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/Playback.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/Playback.cpp

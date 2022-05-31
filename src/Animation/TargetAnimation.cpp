@@ -14,83 +14,6 @@ std::shared_ptr<TargetAnimation> TargetAnimation::copy(){
 	return copy;
 }
 
-
-
-bool TargetAnimation::isReadyToStartPlayback(){
-	return isMachineEnabled();
-}
-
-
-
-
-void TargetAnimation::startPlayback(){
-	//TODO:
-	//generate a curve that starts at the current machine value and goes to the target
-	//respect the interpolation type
-	//respect the time offset
-	//respect the velocity or time constraint
-	//bool success = getParameter()->getMachine()->generateTargetParameterTrackCurves(shared_from_this()->castToTarget());
-	//then play these curves
-}
-
-
-bool TargetAnimation::isAtTarget(){
-	auto animatable = getAnimatable();
-	auto actualValue = animatable->getActualValue();
-	auto targetValue = animatable->parameterValueToAnimationValue(target);
-	return animatable->isParameterValueEqual(actualValue, targetValue);
-}
-
-void TargetAnimation::rapidToTarget(){
-	auto animatable = getAnimatable();
-	animatable->stopAnimationPlayback();
-	auto targetValue = animatable->parameterValueToAnimationValue(target);
-	animatable->getMachine()->rapidAnimatableToValue(animatable, targetValue);
-}
-
-/*
-class CaptureAnimatableValueCommand : public Command{
-public:
-	
-	std::shared_ptr<Parameter> parameter;
-	std::shared_ptr<Animatable> animatable;
-	std::shared_ptr<AnimationValue> previousValue;
-	std::shared_ptr<AnimationValue> capturedValue;
-	
-	CaptureAnimatableValueCommand(std::string& name, std::shared_ptr<Parameter> parameter_, std::shared_ptr<Animatable> animatable_)
-	: Command(name) {
-		parameter = parameter_;
-		animatable = animatable_;
-	};
-	
-	virtual void execute(){
-		capturedValue = animatable->getCurrentValue();
-		previousValue = animatable->parameterValueToAnimationValue(parameter);
-		animatable->setParameterValueFromAnimationValue(parameter, capturedValue);
-	}
-	virtual void undo(){
-		animatable->setParameterValueFromAnimationValue(parameter, previousValue);
-	}
-	virtual void redo(){
-		animatable->setParameterValueFromAnimationValue(parameter, capturedValue);
-	}
-};
-
-void AnimatedParameterTrack::captureCurrentValueAsTarget(){
-	std::string name = "Capture " + std::string(getParameter()->getName()) + " Target";
-	auto command = std::make_shared<CaptureCurrentMachineParameterValueCommand>(name, target, getAnimatableParameter());
-	CommandHistory::pushAndExecute(command);
-}
-
-void SequenceParameterTrack::captureCurrentValueAsStart(){
-	std::string name = "Capture " + std::string(getParameter()->getName()) + " Start";
-	auto command = std::make_shared<CaptureCurrentMachineParameterValueCommand>(name, start, getAnimatableParameter());
-	CommandHistory::pushAndExecute(command);
-}
- */
-
-
-
 bool TargetAnimation::onSave(tinyxml2::XMLElement* xml){
 	//save type, constraint, target, ramps
 	target->save(xml);
@@ -135,3 +58,85 @@ std::shared_ptr<TargetAnimation> TargetAnimation::load(tinyxml2::XMLElement* xml
 	}
 	return targetAnimation;
 }
+
+
+
+
+
+
+bool TargetAnimation::isAtTarget(){
+	auto animatable = getAnimatable();
+	auto actualValue = animatable->getActualValue();
+	auto targetValue = animatable->parameterValueToAnimationValue(target);
+	return animatable->isParameterValueEqual(actualValue, targetValue);
+}
+
+void TargetAnimation::rapidToTarget(){
+	auto animatable = getAnimatable();
+	animatable->stopAnimationPlayback();
+	auto targetValue = animatable->parameterValueToAnimationValue(target);
+	animatable->getMachine()->rapidAnimatableToValue(animatable, targetValue);
+}
+
+
+bool TargetAnimation::isReadyToStartPlayback(){
+	return isMachineEnabled();
+}
+
+void TargetAnimation::startPlayback(){
+	//TODO:
+	//generate a curve that starts at the current machine value and goes to the target
+	//respect the interpolation type
+	//respect the time offset
+	//respect the velocity or time constraint
+	//bool success = getParameter()->getMachine()->generateTargetParameterTrackCurves(shared_from_this()->castToTarget());
+	//then play these curves
+}
+
+
+
+
+
+
+
+
+/*
+class CaptureAnimatableValueCommand : public Command{
+public:
+	
+	std::shared_ptr<Parameter> parameter;
+	std::shared_ptr<Animatable> animatable;
+	std::shared_ptr<AnimationValue> previousValue;
+	std::shared_ptr<AnimationValue> capturedValue;
+	
+	CaptureAnimatableValueCommand(std::string& name, std::shared_ptr<Parameter> parameter_, std::shared_ptr<Animatable> animatable_)
+	: Command(name) {
+		parameter = parameter_;
+		animatable = animatable_;
+	};
+	
+	virtual void execute(){
+		capturedValue = animatable->getCurrentValue();
+		previousValue = animatable->parameterValueToAnimationValue(parameter);
+		animatable->setParameterValueFromAnimationValue(parameter, capturedValue);
+	}
+	virtual void undo(){
+		animatable->setParameterValueFromAnimationValue(parameter, previousValue);
+	}
+	virtual void redo(){
+		animatable->setParameterValueFromAnimationValue(parameter, capturedValue);
+	}
+};
+
+void AnimatedParameterTrack::captureCurrentValueAsTarget(){
+	std::string name = "Capture " + std::string(getParameter()->getName()) + " Target";
+	auto command = std::make_shared<CaptureCurrentMachineParameterValueCommand>(name, target, getAnimatableParameter());
+	CommandHistory::pushAndExecute(command);
+}
+
+void SequenceParameterTrack::captureCurrentValueAsStart(){
+	std::string name = "Capture " + std::string(getParameter()->getName()) + " Start";
+	auto command = std::make_shared<CaptureCurrentMachineParameterValueCommand>(name, start, getAnimatableParameter());
+	CommandHistory::pushAndExecute(command);
+}
+ */

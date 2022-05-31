@@ -106,6 +106,8 @@ void SequenceAnimation::initializeCurves(){
 		
 		auto startPoint = std::make_shared<Motion::ControlPoint>();
 		auto targetPoint = std::make_shared<Motion::ControlPoint>();
+		startPoint->b_valid = true;
+		targetPoint->b_valid = true;
 		
 		startPoint->position = curveStartPositions[i];
 		startPoint->velocity = 0.0;
