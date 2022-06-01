@@ -1,19 +1,13 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="M-3" Description="" Type="Key">
-            <Animation Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsComposite="false" Type="Key" Target="0"/>
+        <Manoeuvre Name="Key Position" Description="A Fixed position without movement constraints" Type="Key">
+            <Animation Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsComposite="false" Type="Key" Target="0.40000000000000002"/>
+            <Animation Machine="Test Machine B" MachineUniqueID="25" Parameter="Position" IsComposite="false" Type="Key" Target="0.80000000000000004"/>
         </Manoeuvre>
-        <Manoeuvre Name="M-1" Description="" Type="Sequence">
-            <Animation Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1" Duration="10" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
-                <Curves>
-                    <Curve>
-                        <ControlPoint Position="0" Time="0" Velocity="0" InAcceleration="0.29999999999999999" OutAcceleration="0.29999999999999999"/>
-                        <ControlPoint Position="1" Time="10" Velocity="0" InAcceleration="0.29999999999999999" OutAcceleration="0.29999999999999999"/>
-                    </Curve>
-                </Curves>
-            </Animation>
+        <Manoeuvre Name="Target Movement" Description="A Timed or fixed velocity move to a target position" Type="Target">
+            <Animation Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0" TimeOffset="0"/>
         </Manoeuvre>
-        <Manoeuvre Name="M-2" Description="" Type="Sequence">
+        <Manoeuvre Name="Sequenced Movement" Description="A scripted movement with start and end points" Type="Sequence">
             <Animation Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1" Duration="10" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
                 <Curves>
                     <Curve>

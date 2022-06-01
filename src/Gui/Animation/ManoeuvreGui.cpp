@@ -71,16 +71,22 @@ void Manoeuvre::listGui(){
 	ImGui::PopStyleColor();
 	
 	
+	glm::vec2 imageSize(headerStripWidth * 0.7);
+	glm::vec4 imageTint(1.f, 1.f, 1.f,.9f);
+	glm::vec2 imageUV1(.0f, .0f);
+	glm::vec2 imageUV2(1.f, 1.f);
 	float posY = ImGui::GetCursorPosY();
-	ImGui::SetCursorPosY(posY - 15.0);
+	ImGui::SetCursorPosY(posY - ImGui::GetStyle().ItemSpacing.y);
+	ImGui::SetCursorPosX((headerStripWidth - imageSize.x) / 2.0);
+	
 	
 	switch(getType()){
 		case ManoeuvreType::KEY:
-			ImGui::Image(Images::KeyIcon.getID(), ImVec2(headerStripWidth, headerStripWidth)); break;
+			ImGui::Image(Images::KeyIcon.getID(), imageSize, imageUV1, imageUV2, imageTint); break;
 		case ManoeuvreType::TARGET:
-			ImGui::Image(Images::TargetIcon.getID(), ImVec2(headerStripWidth, headerStripWidth)); break;
+			ImGui::Image(Images::TargetIcon.getID(), imageSize, imageUV1, imageUV2, imageTint); break;
 		case ManoeuvreType::SEQUENCE:
-			ImGui::Image(Images::SequenceIcon.getID(), ImVec2(headerStripWidth, headerStripWidth)); break;
+			ImGui::Image(Images::SequenceIcon.getID(), imageSize, imageUV1, imageUV2, imageTint); break;
 	}
 	
 	
@@ -182,13 +188,15 @@ void Manoeuvre::sheetEditor(){
 	ImGui::PopFont();
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 8.0);
 	
+	/*
 	static ManoeuvreType availableManoeuvreTypes[2] = {
 		ManoeuvreType::KEY,
 		ManoeuvreType::SEQUENCE
 	};
-	
 	type->combo(availableManoeuvreTypes, 2);
-	
+	*/
+	type->gui();
+	 
 	//type->gui();
 	ImGui::EndGroup();
 	

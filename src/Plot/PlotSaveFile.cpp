@@ -58,6 +58,10 @@ std::shared_ptr<Plot> Plot::load(std::string& filePath) {
 		return nullptr;
 	}
 	plot->manoeuvreList->load(manoeuvreListXML);
+	
+	if(!plot->manoeuvreList->getManoeuvres().empty()){
+		plot->selectManoeuvre(plot->manoeuvreList->getManoeuvres().front());
+	}
 	 
 	return plot;
 }
