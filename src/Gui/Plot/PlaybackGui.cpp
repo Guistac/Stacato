@@ -65,7 +65,8 @@ void manoeuvrePlaybackControls(float height){
 	ImGui::BeginGroup();
 	ImGui::PushFont(Fonts::sansBold12);
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(2));
-	bool disablePlaybackTimeSetting = b_noSelection || !selectedManoeuvre->canSetPlaybackPosition();
+	//bool disablePlaybackTimeSetting = b_noSelection || !selectedManoeuvre->canSetPlaybackPosition();
+	bool disablePlaybackTimeSetting = true;
 	if(disablePlaybackTimeSetting) {
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, Colors::darkGray);
@@ -92,7 +93,8 @@ void manoeuvrePlaybackControls(float height){
 	//Rapid to playback position
 	ImGui::SameLine();
 	bool atPlayback = !b_noSelection && selectedManoeuvre->isAtPlaybackPosition();
-	ImGui::BeginDisabled(b_noSelection || atPlayback || !selectedManoeuvre->canRapidToPlaybackPosition() || selectedManoeuvre->isPlaying());
+	//ImGui::BeginDisabled(b_noSelection || atPlayback || !selectedManoeuvre->canRapidToPlaybackPosition() || selectedManoeuvre->isPlaying());
+	ImGui::BeginDisabled();
 	if(atPlayback) ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 	if(buttonArrowDownStop("rapidToPlaybackPosition", height)) selectedManoeuvre->rapidToPlaybackPosition();
 	if(atPlayback) ImGui::PopStyleColor();
@@ -105,7 +107,8 @@ void manoeuvrePlaybackControls(float height){
 		if(buttonPlay("PlayManoeuvre", height)) selectedManoeuvre->startPlayback();
 		ImGui::EndDisabled();
 	}else{
-		ImGui::BeginDisabled(!selectedManoeuvre->canPausePlayback());
+		//ImGui::BeginDisabled(!selectedManoeuvre->canPausePlayback());
+		ImGui::BeginDisabled();
 		if(buttonPause("PauseManoeuvre", height)) selectedManoeuvre->pausePlayback();
 		ImGui::EndDisabled();
 	}

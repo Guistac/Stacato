@@ -33,8 +33,10 @@ namespace Environnement::NodeGraph{
 	bool& getWasJustLoaded(){ return b_justLoaded; }
 
 	void addNode(std::shared_ptr<Node> newNode) {
-		newNode->uniqueID = uniqueID;
-		uniqueID++;
+		if(newNode->uniqueID == -1){
+			newNode->uniqueID = uniqueID;
+			uniqueID++;
+		}
 		nodes.push_back(newNode);
 		for (std::shared_ptr<NodePin> data : newNode->nodeInputPins) {
 			data->uniqueID = uniqueID;

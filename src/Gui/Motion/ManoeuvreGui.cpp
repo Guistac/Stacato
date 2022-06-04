@@ -143,7 +143,7 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 		float trackHeight = size.y / (float)trackCount;
 		for (int i = 0; i < trackCount; i++) {
 			glm::vec2 min(pos.x, pos.y + trackHeight * i);
-			glm::vec2 max(pos.x + size.x * tracks[i]->getRapidProgress(), pos.y + trackHeight);
+			glm::vec2 max(pos.x + size.x * tracks[i]->getRapidProgress(), min.y + trackHeight);
 			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
 		}
 	}else if(isPlaying() || isPaused()){

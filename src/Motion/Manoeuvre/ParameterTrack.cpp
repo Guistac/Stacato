@@ -199,7 +199,7 @@ void ParameterTrack::startPlayback(){
 
 void AnimatedParameterTrack::stop(){
 	auto animatable = getAnimatableParameter();
-	if(animatable->hasActiveParameterTrack()) animatable->getMachine()->endParameterPlayback(animatable);
+	if(animatable->hasActiveParameterTrack()) animatable->getMachine()->interruptParameterPlayback(animatable);
 	else animatable->getMachine()->cancelParameterRapid(animatable);
 	setPlaybackPosition(0.0);
 	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();

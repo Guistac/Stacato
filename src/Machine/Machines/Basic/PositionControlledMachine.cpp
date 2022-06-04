@@ -138,7 +138,10 @@ void PositionControlledMachine::process() {
 		case ControlMode::PARAMETER_TRACK:{
 			
 			auto value = positionParameter->getActiveParameterTrackValue()->toPosition();
-			
+			motionProfile.setPosition(value->position);
+			motionProfile.setVelocity(value->velocity);
+			motionProfile.setAcceleration(value->acceleration);
+			/*
 			motionProfile.matchPositionAndRespectPositionLimits(profileDeltaTime_seconds,
 																value->position,
 																value->velocity,
@@ -147,6 +150,7 @@ void PositionControlledMachine::process() {
 																rapidVelocity_machineUnitsPerSecond,
 																getLowPositionLimit(),
 																getHighPositionLimit());
+			 */
 			}break;
 			
 		case ControlMode::VELOCITY_TARGET:{
@@ -186,6 +190,10 @@ void PositionControlledMachine::simulateProcess() {
 			
 		case ControlMode::PARAMETER_TRACK:{
 			auto value = positionParameter->getActiveParameterTrackValue()->toPosition();
+			motionProfile.setPosition(value->position);
+			motionProfile.setVelocity(value->velocity);
+			motionProfile.setAcceleration(value->acceleration);
+			/*
 			motionProfile.matchPositionAndRespectPositionLimits(profileDeltaTime_seconds,
 																value->position,
 																value->velocity,
@@ -194,6 +202,7 @@ void PositionControlledMachine::simulateProcess() {
 																rapidVelocity_machineUnitsPerSecond,
 																getLowPositionLimit(),
 																getHighPositionLimit());
+			 */
 			}break;
 		case ControlMode::VELOCITY_TARGET:{
 			double lowLimit_machineUnits = getLowPositionLimit();
@@ -522,7 +531,7 @@ bool PositionControlledMachine::validateParameterTrack(const std::shared_ptr<Par
 		if(!b_curveValid) animatedTrack->appendValidationErrorString("Curve could not be validated.\nCheck the Curve editor for details.");
 		
 		if(b_velocityExceeded){
-			sequenceTrack->duration->setValid("false");
+			sequenceTrack->duration->setValid(false);
 			sequenceTrack->appendValidationErrorString("Max Velocity Exceeded");
 		}
 		
