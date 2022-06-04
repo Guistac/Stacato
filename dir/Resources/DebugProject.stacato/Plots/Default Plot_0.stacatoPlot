@@ -1,9 +1,5 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="Key Position" Description="A Fixed position without movement constraints" Type="Key">
-            <Animation Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsComposite="false" Type="Key" Target="0.40000000000000002"/>
-            <Animation Machine="Test Machine B" MachineUniqueID="25" Parameter="Position" IsComposite="false" Type="Key" Target="0.80000000000000004"/>
-        </Manoeuvre>
         <Manoeuvre Name="Target Movement" Description="A Timed or fixed velocity move to a target position" Type="Target">
             <Animation Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0" TimeOffset="0"/>
         </Manoeuvre>
@@ -16,6 +12,10 @@
                     </Curve>
                 </Curves>
             </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="Key Position" Description="A Fixed position without movement constraints" Type="Key">
+            <Animation Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsComposite="false" Type="Key" Target="0.40000000000000002"/>
+            <Animation Machine="Test Machine B" MachineUniqueID="25" Parameter="Position" IsComposite="false" Type="Key" Target="0.80000000000000004"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

@@ -1,23 +1,12 @@
 <Layouts>
     <Layout Name="Curve Tests" IsDefault="true">
-
-
-
-
-
-
-
-
-
-
-
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
 Collapsed=0
 
 [Window][##Toolbar]
-Pos=0,916
+Pos=0,996
 Size=2056,84
 Collapsed=0
 
@@ -33,7 +22,7 @@ Collapsed=0
 
 [Window][Environnement]
 Pos=371,32
-Size=1465,502
+Size=1465,582
 Collapsed=0
 DockId=0x00000005,0
 
@@ -44,13 +33,13 @@ Collapsed=0
 
 [Window][Machines]
 Pos=1838,32
-Size=218,881
+Size=218,961
 Collapsed=0
 DockId=0x00000004,0
 
 [Window][Setup]
 Pos=371,32
-Size=1465,502
+Size=1465,582
 Collapsed=0
 DockId=0x00000005,1
 
@@ -86,7 +75,7 @@ Collapsed=0
 
 [Window][MainWindow]
 Pos=0,0
-Size=2056,916
+Size=2056,996
 Collapsed=0
 
 [Window][OffscreenNodeEditorFor1Frame]
@@ -129,18 +118,18 @@ Collapsed=0
 
 [Window][Manoeuvre List]
 Pos=0,32
-Size=369,881
+Size=369,961
 Collapsed=0
 DockId=0x00000001,0
 
 [Window][Manoeuvre Sheet]
 Pos=371,32
-Size=1465,502
+Size=1465,582
 Collapsed=0
 DockId=0x00000005,2
 
 [Window][Manoeuvre Curves]
-Pos=371,536
+Pos=371,616
 Size=1465,377
 Collapsed=0
 DockId=0x00000006,0
@@ -148,6 +137,21 @@ DockId=0x00000006,0
 [Window][Starting Environnement]
 Pos=713,430
 Size=630,140
+Collapsed=0
+
+[Window][DragList]
+Pos=432,304
+Size=555,664
+Collapsed=0
+
+[Window][Dear ImGui Style Editor]
+Pos=729,30
+Size=467,949
+Collapsed=0
+
+[Window][Dragged Item]
+Pos=95,250
+Size=583,50
 Collapsed=0
 
 [Table][0xDA36A7E0,6]
@@ -197,7 +201,7 @@ Column 4  Weight=1.0000
 Column 5  Weight=-1.0000
 
 [Docking][Data]
-DockSpace       ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 Split=X Selected=0x20B12C37
+DockSpace       ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,149 Size=2056,961 Split=X Selected=0x20B12C37
   DockNode      ID=0x00000001 Parent=0x0B88F6CB SizeRef=369,881 Selected=0xEBD2820B
   DockNode      ID=0x00000002 Parent=0x0B88F6CB SizeRef=1685,881 Split=X Selected=0xE3A58869
     DockNode    ID=0x00000003 Parent=0x00000002 SizeRef=1465,881 Split=Y Selected=0xE3A58869
@@ -207,6 +211,9 @@ DockSpace       ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 Split=X 
 
 </Layout>
     <Layout Name="Environnement Editor">
+
+
+
 
 
 

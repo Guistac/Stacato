@@ -20,8 +20,12 @@
 
 #include "Tests/C_Curves.h"
 #include "Tests/CommandZ.h"
+#include "Gui/Utilities/DraggableListNew.h"
+
 
 #include "Layout.h"
+
+
 
 namespace Gui {
 
@@ -101,6 +105,9 @@ namespace Gui {
 		ImGui::End();
 		
 		if(ImGui::Begin("Manoeuvre Curves")) PlotGui::curveEditor();
+		ImGui::End();
+		
+		if(ImGui::Begin("DragList")) dragListTest();
 		ImGui::End();
 		
 		/*
