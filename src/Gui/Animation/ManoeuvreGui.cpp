@@ -24,22 +24,28 @@
 #include "Gui/Utilities/CustomWidgets.h"
 
 void Manoeuvre::listGui(){
-	//inside draggable list element (BeginChild)
+	//inside draggable list element
+	
+	glm::vec2 min = ImGui::GetItemRectMin();
+	glm::vec2 max = ImGui::GetItemRectMax();
+	glm::vec2 size = ImGui::GetItemRectSize();
+	glm::vec2 minCursor = ImGui::GetCursorPos();
+	bool b_hovered = ImGui::IsItemHovered();
+	if(ImGui::IsItemActivated()) Logger::warn("{} activated", getName());
 	
 	//show manoeuvre validness
 	if(!b_valid){
-		glm::vec2 min = ImGui::GetWindowPos();
-		glm::vec2 max = min + glm::vec2(ImGui::GetWindowSize());
 		bool blink = (int)Timing::getProgramTime_milliseconds() % 1000 > 500;
 		glm::vec4 color = blink ? Colors::red : Colors::yellow;
 		color.w = 0.5;
 		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(color), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
+	}else{
+		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(Colors::veryDarkGray), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 	}
 	
 	//show header type strip
 	float headerStripWidth = 50.0;
-	glm::vec2 min = ImGui::GetWindowPos();
-	glm::vec2 max = min + glm::vec2(headerStripWidth, ImGui::GetWindowSize().y);
+	glm::vec2 maxHeaderStrip = min + glm::vec2(headerStripWidth, ImGui::GetItemRectSize().y);
 	glm::vec4 headerStripColor;
 	switch (type->value) {
 		case ManoeuvreType::KEY:
@@ -52,7 +58,7 @@ void Manoeuvre::listGui(){
 			headerStripColor = Colors::darkRed;
 			break;
 	}
-	ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(headerStripColor), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersLeft);
+	ImGui::GetWindowDrawList()->AddRectFilled(min, maxHeaderStrip, ImColor(headerStripColor), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersLeft);
 	
 	
 	const char* manoeuvreTypeString;
@@ -64,8 +70,8 @@ void Manoeuvre::listGui(){
 	ImGui::PushFont(Fonts::sansRegular20);
 	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.0f, 0.f, 0.f, .9f));
 	glm::vec2 textSize = ImGui::CalcTextSize(manoeuvreTypeString);
-	ImGui::SetCursorPosX((headerStripWidth - textSize.x) / 2.0);
-	ImGui::SetCursorPosY(ImGui::GetStyle().FramePadding.y);
+	ImGui::SetCursorPosX(minCursor.x + (headerStripWidth - textSize.x) / 2.0);
+	ImGui::SetCursorPosY(minCursor.y + ImGui::GetStyle().FramePadding.y);
 	ImGui::Text("%s", manoeuvreTypeString);
 	ImGui::PopFont();
 	ImGui::PopStyleColor();
@@ -91,36 +97,47 @@ void Manoeuvre::listGui(){
 	
 	
 	//show name and description
-	ImGui::SetCursorPosX(headerStripWidth + ImGui::GetStyle().FramePadding.x);
-	ImGui::SetCursorPosY(ImGui::GetStyle().FramePadding.y);
+	ImGui::SetCursorPosX(minCursor.x + headerStripWidth + ImGui::GetStyle().FramePadding.x);
+	ImGui::SetCursorPosY(minCursor.y + ImGui::GetStyle().FramePadding.y);
 	
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("%s", getName());
 	ImGui::PopFont();
 	
-	ImGui::SetCursorPosY(ImGui::GetTextLineHeightWithSpacing());
-	ImGui::SetCursorPosX(headerStripWidth + ImGui::GetStyle().FramePadding.x);
+	ImGui::SetCursorPosY(minCursor.y + ImGui::GetTextLineHeightWithSpacing());
+	ImGui::SetCursorPosX(minCursor.x + headerStripWidth + ImGui::GetStyle().FramePadding.x);
 	
 	ImGui::PushFont(Fonts::sansLight15);
 	ImGui::TextWrapped("%s", getDescription());
 	ImGui::PopFont();
 	
 	if(isInRapid()){
-		glm::vec2 windowPos = ImGui::GetWindowPos();
-		glm::vec2 maxsize = ImGui::GetWindowSize();
 		int trackCount = animations.size();
-		float trackHeight = maxsize.y / (float)trackCount;
+		float trackHeight = size.y / (float)trackCount;
 		for (int i = 0; i < trackCount; i++) {
-			glm::vec2 min(windowPos.x, windowPos.y + trackHeight * i);
-			glm::vec2 max(min.x + maxsize.x * animations[i]->getRapidProgress(), min.y + trackHeight);
-			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
+			glm::vec2 minBar(min.x, min.y + trackHeight * i);
+			glm::vec2 maxBar(min.x + size.x * animations[i]->getRapidProgress(), min.y + trackHeight);
+			ImGui::GetWindowDrawList()->AddRectFilled(min, maxBar, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
 		}
 	}else if(isPlaying() || isPaused()){
-		glm::vec2 min = ImGui::GetWindowPos();
-		glm::vec2 windowSize = ImGui::GetWindowSize();
 		float progress = getPlaybackProgress();
-		glm::vec2 max(min.x + windowSize.x * progress, min.y + windowSize.y);
-		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.4)), 5.0);
+		glm::vec2 maxBar(min.x + size.x * progress, min.y + size.y);
+		ImGui::GetWindowDrawList()->AddRectFilled(min, maxBar, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.4)), 5.0);
+	}
+	
+	if(b_hovered && !ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
+		glm::vec4 color;
+		if(ImGui::IsMouseDown(ImGuiMouseButton_Left)) color = glm::vec4(0.f, 0.f, 0.f, .3f);
+		else color = glm::vec4(1.f, 1.f, 1.f, .1f);
+		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(color), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
+	}
+	
+	if(isSelected()){
+		float thickness = ImGui::GetTextLineHeight() * 0.1;
+		float rounding = ImGui::GetStyle().FrameRounding - thickness / 2.0;
+		glm::vec2 minSelection = min + glm::vec2(thickness / 2.0);
+		glm::vec2 maxSelection = max - glm::vec2(thickness / 2.0);
+		ImGui::GetWindowDrawList()->AddRect(minSelection, maxSelection, ImColor(Colors::white), rounding, ImDrawFlags_RoundCornersAll, thickness);
 	}
 	
 }
@@ -136,6 +153,24 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 	else if(areAllMachinesEnabled()) backgroundColor = Colors::green;
 	else backgroundColor = Colors::yellow;
 	backgroundText(getName(), size_arg, backgroundColor);
+	
+	if(isInRapid()){
+		glm::vec2 pos = ImGui::GetItemRectMin();
+		glm::vec2 size = ImGui::GetItemRectSize();
+		int trackCount = animations.size();
+		float trackHeight = size.y / (float)trackCount;
+		for (int i = 0; i < trackCount; i++) {
+			glm::vec2 min(pos.x, pos.y + trackHeight * i);
+			glm::vec2 max(pos.x + size.x * animations[i]->getRapidProgress(), pos.y + trackHeight);
+			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
+		}
+	}else if(isPlaying() || isPaused()){
+		glm::vec2 min = ImGui::GetItemRectMin();
+		glm::vec2 size = ImGui::GetItemRectSize();
+		float progress = getPlaybackProgress();
+		glm::vec2 max(min.x + size.x * progress, min.y + size.y);
+		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.4)), 5.0);
+	}
 	
 	if(ImGui::IsItemHovered()){
 		ImGui::BeginTooltip();
@@ -154,24 +189,6 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 			ImGui::PopStyleColor();
 		}else ImGui::Text("All Machines are Enabled");
 		ImGui::EndTooltip();
-	}
-	
-	if(isInRapid()){
-		glm::vec2 pos = ImGui::GetItemRectMin();
-		glm::vec2 size = ImGui::GetItemRectSize();
-		int trackCount = animations.size();
-		float trackHeight = size.y / (float)trackCount;
-		for (int i = 0; i < trackCount; i++) {
-			glm::vec2 min(pos.x, pos.y + trackHeight * i);
-			glm::vec2 max(pos.x + size.x * animations[i]->getRapidProgress(), pos.y + trackHeight);
-			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
-		}
-	}else if(isPlaying() || isPaused()){
-		glm::vec2 min = ImGui::GetItemRectMin();
-		glm::vec2 size = ImGui::GetItemRectSize();
-		float progress = getPlaybackProgress();
-		glm::vec2 max(min.x + size.x * progress, min.y + size.y);
-		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.4)), 5.0);
 	}
 }
 

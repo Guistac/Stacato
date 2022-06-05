@@ -1,0 +1,277 @@
+#pragma once
+
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <GLFW/glfw3.h>
+
+namespace ReorderableList{
+
+	struct State{
+		//immediate state
+		int currentItemIndex = -1;
+		int draggedItemIndex = -1;
+
+		ImVec2 currentItemSize;
+		ImVec2 currentItemCursorPos;
+		
+		ImVec2 draggedItemAbsolutePosition;
+		ImVec2 draggedItemCenterAbsolutePosition;
+
+		struct ListItem{
+			ImVec2 absolutePosition;
+			ImVec2 size;
+			int index;
+			bool b_isAboveDraggedItem;
+		};
+		std::vector<ListItem> items;
+
+		//retained state
+		int pressedItemIndex = -1;
+		ImVec2 pressedItemPressRelativePosition;
+		ImVec2 draggedItemSize;
+
+		//settings
+		float scrollSensitivity = 0.1;
+
+		//output data
+		int dragSourceIndex = -1;
+		int dragDestinationIndex = -1;
+	};
+
+	inline State& getState(){
+		static State state;
+		return state;
+	}
+
+	void end(bool b_wasOpen = true);
+
+	inline bool begin(const char* ID, ImVec2 size_arg = ImVec2(0,0)){
+				
+		//get auto size if none specified
+		if(size_arg.x <= 0.0 || size_arg.y <= 0.0) size_arg = ImGui::GetContentRegionAvail();
+				 
+		//begin list child window, early out if possible
+		if(!ImGui::BeginChild(ID, size_arg, false)){
+			end(false);
+			return false;
+		}
+		
+		//reset list state
+		State& state = getState();
+		state.items.clear();
+		state.currentItemIndex = -1;
+		state.dragSourceIndex = -1;
+		state.dragDestinationIndex = -1;
+		
+		//if item is dragged
+		if(state.pressedItemIndex >= 0 && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
+			
+			//store index of dragged item in immediate state
+			state.draggedItemIndex = state.pressedItemIndex;
+			
+			//set and limit position of dragged item, get its center position for drop target finding
+			state.draggedItemAbsolutePosition.x = ImGui::GetWindowPos().x + ImGui::GetCursorPosX();
+			state.draggedItemAbsolutePosition.y = ImGui::GetMousePos().y - state.pressedItemPressRelativePosition.y;
+			
+			state.draggedItemCenterAbsolutePosition.x = state.draggedItemAbsolutePosition.x + state.draggedItemSize.x / 2.0;
+			state.draggedItemCenterAbsolutePosition.y = state.draggedItemAbsolutePosition.y + state.draggedItemSize.y / 2.0;
+			
+			state.draggedItemAbsolutePosition.y = std::min(state.draggedItemAbsolutePosition.y, ImGui::GetWindowPos().y + ImGui::GetWindowHeight() - state.draggedItemSize.y);
+			state.draggedItemAbsolutePosition.y = std::max(state.draggedItemAbsolutePosition.y, ImGui::GetWindowPos().y - ImGui::GetStyle().ItemSpacing.y);
+			
+			state.draggedItemCenterAbsolutePosition.y = std::min(state.draggedItemCenterAbsolutePosition.y, ImGui::GetWindowPos().y + size_arg.y);
+			state.draggedItemCenterAbsolutePosition.y = std::max(state.draggedItemCenterAbsolutePosition.y, ImGui::GetWindowPos().y);
+						
+			//allow cancelling of drag action by escape key
+			if(ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)){
+				state.pressedItemIndex = -1;
+				state.draggedItemIndex = -1;
+			}
+		}
+		
+		return true;
+	}
+
+
+	inline void end(bool b_wasOpen){
+		
+		//early out of list
+		if(!b_wasOpen){
+			ImGui::EndChild();
+			return;
+		}
+		
+		State& state = getState();
+						
+		//if an item is dragged
+		if(state.draggedItemIndex >= 0){
+			
+			//get drop index
+			for(State::ListItem& item : state.items){
+				if(item.b_isAboveDraggedItem) {
+					state.dragDestinationIndex = item.index;
+					break;
+				}
+			}
+			if(state.dragDestinationIndex == -1) state.dragDestinationIndex = state.items.back().index + 1;
+			if(state.dragDestinationIndex > state.draggedItemIndex) state.dragDestinationIndex--;
+			
+			//draw drop target
+			if(state.dragDestinationIndex != state.draggedItemIndex){
+				float dropGraphicPositionY;
+				if(state.dragDestinationIndex >= state.items.size()) dropGraphicPositionY = state.items.back().absolutePosition.y + state.items.back().size.y;
+				else dropGraphicPositionY = state.items[state.dragDestinationIndex].absolutePosition.y - ImGui::GetStyle().ItemSpacing.y;
+				ImVec2 min(ImGui::GetWindowPos().x, dropGraphicPositionY);
+				ImVec2 max(min.x + ImGui::GetContentRegionAvail().x, dropGraphicPositionY + ImGui::GetStyle().ItemSpacing.y);
+				float drawMin = ImGui::GetWindowPos().y - ImGui::GetStyle().ItemSpacing.y;
+				float drawMax = drawMin + ImGui::GetWindowHeight() + ImGui::GetStyle().ItemSpacing.y;
+				min.y = std::max(min.y, drawMin);
+				min.y = std::min(min.y, drawMax);
+				max.y = std::max(max.y, drawMin);
+				max.y = std::min(max.y, drawMax);
+				ImGui::GetForegroundDrawList()->AddRectFilled(min, max, ImColor(1.0f, 1.0f, 1.0f, .5f));
+			}
+			
+			//scroll the list while dragging
+			if(state.draggedItemAbsolutePosition.y <= ImGui::GetWindowPos().y){
+				float dragDistanceFromBounds = ImGui::GetMousePos().y - state.pressedItemPressRelativePosition.y - ImGui::GetWindowPos().y;
+				ImGui::SetScrollY(ImGui::GetScrollY() + dragDistanceFromBounds * state.scrollSensitivity);
+			}else if(state.draggedItemAbsolutePosition.y >= ImGui::GetWindowPos().y + ImGui::GetWindowHeight() - state.draggedItemSize.y){
+				float dragDistanceFromBounds = ImGui::GetMousePos().y - state.pressedItemPressRelativePosition.y + state.draggedItemSize.y - ImGui::GetWindowPos().y - ImGui::GetWindowHeight();
+				ImGui::SetScrollY(1.0 + ImGui::GetScrollY() + dragDistanceFromBounds * state.scrollSensitivity);
+			}
+		}
+		
+		//clear drag & press state
+		if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
+			//if we were dragging, set the drag source index for user query
+			if(state.draggedItemIndex >= 0) state.dragSourceIndex = state.draggedItemIndex;
+			state.draggedItemIndex = -1;
+			state.pressedItemIndex = -1;
+		}
+		
+		ImGui::EndChild();
+		
+	}
+
+
+
+	
+	void endItem(bool b_wasOpen = true);
+
+	inline bool beginItem(float height){
+		assert(height > 0.0);
+		
+		State& state = getState();
+		
+		//store current item info in immediate state
+		state.currentItemIndex++;
+		state.currentItemCursorPos = ImGui::GetCursorPos();
+		state.currentItemSize = ImVec2(ImGui::GetContentRegionAvail().x, height);
+		
+		//push the items unique index as an extra imgui ID for safety
+		ImGui::PushID(state.currentItemIndex);
+		
+		//if the item is dragged
+		if(state.currentItemIndex == state.draggedItemIndex){
+			
+			//start a floating window following the mouse
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
+			ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 0);
+			ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(.0f, .0f, .0f, .0f));
+			ImGui::SetNextWindowPos(state.draggedItemAbsolutePosition, ImGuiCond_Always);
+			ImGui::SetNextWindowSize(state.currentItemSize);
+			static ImGuiWindowFlags tooltipFlags = ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar;
+			ImGui::Begin("DraggedItem", nullptr, tooltipFlags);
+			ImGui::InvisibleButton("DraggedItem", state.currentItemSize);
+			ImGui::SetCursorPos(ImVec2(0,0));
+			return true;
+			
+		}
+		
+		//if the item is not dragged
+		else {
+			
+			//main gui interaction catcher
+			ImGui::InvisibleButton("Item", state.currentItemSize);
+			
+			//if an item is being dragged
+			if(state.draggedItemIndex >= 0){
+				//store all items in a list for later computing of the drop target
+				state.items.push_back(State::ListItem{
+					.absolutePosition = ImGui::GetItemRectMin(),
+					.size = state.currentItemSize,
+					.index = state.currentItemIndex
+				});
+				//remember the current item position relative to the dragged item position
+				ImVec2 currentItemCenterAbsolutePosition(ImGui::GetItemRectMin().x + state.currentItemSize.x / 2.0, ImGui::GetItemRectMin().y + state.currentItemSize.y / 2.0);
+				state.items.back().b_isAboveDraggedItem = state.draggedItemCenterAbsolutePosition.y < currentItemCenterAbsolutePosition.y;
+			}
+			
+			//if the item is fullt clipped, early out of drawing its content
+			if(ImGui::IsClippedEx(ImRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()), ImGui::GetItemID())){
+				endItem(false);
+				return false;
+			}
+			
+			//if the item is pressed, store its information in the retained state
+			if(ImGui::IsItemClicked()){
+				state.pressedItemIndex = state.currentItemIndex;
+				ImVec2 mouse = ImGui::GetMousePos();
+				ImVec2 item = ImGui::GetItemRectMin();
+				state.pressedItemPressRelativePosition.x = mouse.x - item.x;
+				state.pressedItemPressRelativePosition.y = mouse.y - item.y;
+				state.draggedItemSize = state.currentItemSize;
+			}
+			
+			//prepare for user submitted widgets and draw calls
+			ImGui::PushClipRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), true);
+			ImGui::SetCursorPos(state.currentItemCursorPos);
+			
+			return true;
+		}
+		
+	}
+
+
+	inline void endItem(bool b_wasOpen){
+		
+		State& state = getState();
+		
+		//if we did not early out of the item
+		if(b_wasOpen){
+			if(state.currentItemIndex == state.draggedItemIndex){
+				//if the item was dragged, terminate the floating window
+				ImGui::End();
+				ImGui::PopStyleVar(2);
+				ImGui::PopStyleColor();
+			}else{
+				//else just terminate the item clipping rectangle
+				ImGui::PopClipRect();
+			}
+		}
+		
+		//always pop the index ID
+		ImGui::PopID();
+			
+		//set cursor position to draw next item in list
+		ImGui::SetCursorPosX(0.0);
+		ImGui::SetCursorPosY(state.currentItemCursorPos.y + state.currentItemSize.y + ImGui::GetStyle().ItemSpacing.y);
+	}
+
+
+
+	//query reordering action
+	inline bool wasReordered(int& fromIndex, int& toIndex){
+		State& state = getState();
+		if(state.dragSourceIndex == -1 || state.dragDestinationIndex == -1 || state.dragSourceIndex == state.dragDestinationIndex) return false;
+		fromIndex = state.dragSourceIndex;
+		toIndex = state.dragDestinationIndex;
+		return true;
+	}
+
+	inline bool wasItemSelected(){
+		return ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left);
+	}
+
+};

@@ -4,7 +4,7 @@
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
-#include "Gui/Utilities/DraggableList.h"
+#include "Gui/Utilities/ReorderableList.h"
 
 #include "Environnement/Environnement.h"
 #include "Machine/Machine.h"
@@ -26,16 +26,18 @@ void nodeManager(){
 		
 		if(ImGui::BeginTabItem("Machines")){
 			
-			static DraggableList machineList;
+			
 			std::shared_ptr<Machine> clickedMachine = nullptr;
 
 			std::vector<std::shared_ptr<Machine>>& machines = Environnement::getMachines();
-			if (machineList.beginList("##MachineList", glm::vec2(listWidth, ImGui::GetContentRegionAvail().y), 4.0)) {
+			if (ReorderableList::begin("MachineList", glm::vec2(listWidth, ImGui::GetContentRegionAvail().y))) {
 				for (int i = 0; i < machines.size(); i++) {
 					std::shared_ptr<Machine> machine = machines[i];
-					if (machineList.beginItem(glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing()),
-											  Environnement::NodeGraph::Gui::isNodeSelected(machine))) {
-
+					
+					if(ReorderableList::beginItem(ImGui::GetTextLineHeightWithSpacing())){
+						
+						if(ImGui::IsItemClicked()) clickedMachine = machine;
+						
 						ImGui::PushFont(Fonts::sansBold15);
 						float shortNameWidth = ImGui::CalcTextSize(machine->shortName).x;
 						ImGui::PopFont();
@@ -58,17 +60,17 @@ void nodeManager(){
 
 						ImGui::SameLine();
 						ImGui::Text("%s", machine->getName());
-						if (machineList.endItem()) clickedMachine = machine;
+						
+						ReorderableList::endItem();
 					}
 				}
-				machineList.endList();
+				ReorderableList::end();
 			}
-			if (machineList.wasReordered()) {
-				int oldIndex, newIndex;
-				machineList.getReorderedItemIndex(oldIndex, newIndex);
-				std::shared_ptr<Machine> tmp = machines[oldIndex];
-				machines.erase(machines.begin() + oldIndex);
-				machines.insert(machines.begin() + newIndex, tmp);
+			int fromIndex, toIndex;
+			if (ReorderableList::wasReordered(fromIndex, toIndex)) {
+				std::shared_ptr<Machine> tmp = machines[fromIndex];
+				machines.erase(machines.begin() + fromIndex);
+				machines.insert(machines.begin() + toIndex, tmp);
 			}
 			if(clickedMachine) Environnement::NodeGraph::Gui::selectNode(clickedMachine);
 			
@@ -79,15 +81,16 @@ void nodeManager(){
 		
 		if(ImGui::BeginTabItem("EtherCAT Devices")){
 			
-			static DraggableList etherCatDeviceList;
+			
 			std::vector<std::shared_ptr<EtherCatDevice>>& etherCatDevices = Environnement::getEtherCatDevices();
 			std::shared_ptr<EtherCatDevice> clickedDevice = nullptr;
 			
-			if (etherCatDeviceList.beginList("##EtherCatDeviceList", glm::vec2(listWidth, ImGui::GetContentRegionAvail().y), 4.0)) {
+			if (ReorderableList::begin("EtherCatDeviceList", glm::vec2(listWidth, ImGui::GetContentRegionAvail().y))) {
 				for (int i = 0; i < etherCatDevices.size(); i++) {
 					std::shared_ptr<EtherCatDevice> etherCatDevice = etherCatDevices[i];
-					if (etherCatDeviceList.beginItem(glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing()),
-													 Environnement::NodeGraph::Gui::isNodeSelected(etherCatDevice))) {
+					if (ReorderableList::beginItem(ImGui::GetTextLineHeightWithSpacing())){
+						
+						if(ImGui::IsItemClicked()) clickedDevice = etherCatDevice;
 						
 						ImGui::PushFont(Fonts::sansBold15);
 						static char numberString[16];
@@ -117,10 +120,10 @@ void nodeManager(){
 						ImGui::Text("%s", etherCatDevice->getName());
 						
 						
-						if(etherCatDeviceList.endItem()) clickedDevice = etherCatDevice;
+						ReorderableList::endItem();
 					}
 				}
-				etherCatDeviceList.endList();
+				ReorderableList::end();
 			}
 			if(clickedDevice) Environnement::NodeGraph::Gui::selectNode(clickedDevice);
 			
@@ -129,15 +132,16 @@ void nodeManager(){
 		
 		if(ImGui::BeginTabItem("Network Devices")){
 			
-			static DraggableList networkDeviceList;
+			
 			std::vector<std::shared_ptr<NetworkDevice>>& networkDevices = Environnement::getNetworkDevices();
 			std::shared_ptr<Node> clickedDevice = nullptr;
 			
-			if (networkDeviceList.beginList("##NetworkDeviceList", glm::vec2(listWidth, ImGui::GetContentRegionAvail().y), 4.0)) {
+			if (ReorderableList::begin("NetworkDeviceList", glm::vec2(listWidth, ImGui::GetContentRegionAvail().y))) {
 				for (int i = 0; i < networkDevices.size(); i++) {
 					std::shared_ptr<NetworkDevice> networkDevice = networkDevices[i];
-					if (networkDeviceList.beginItem(glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing()),
-													 Environnement::NodeGraph::Gui::isNodeSelected(networkDevice))) {
+					if (ReorderableList::beginItem(ImGui::GetTextLineHeightWithSpacing())) {
+						
+						if(ImGui::IsItemClicked()) clickedDevice = networkDevice;
 						
 						ImGui::PushFont(Fonts::sansBold15);
 						
@@ -157,10 +161,10 @@ void nodeManager(){
 						ImGui::Text("%s", networkDevice->getName());
 						
 						
-						if(networkDeviceList.endItem()) clickedDevice = networkDevice;
+						ReorderableList::endItem();
 					}
 				}
-				networkDeviceList.endList();
+				ReorderableList::end();
 			}
 			if(clickedDevice) Environnement::NodeGraph::Gui::selectNode(clickedDevice);
 			

@@ -20,10 +20,79 @@
 
 #include "Tests/C_Curves.h"
 #include "Tests/CommandZ.h"
-#include "Gui/Utilities/DraggableListNew.h"
+#include "Gui/Utilities/ReorderableList.h"
 
 
 #include "Layout.h"
+
+
+
+struct TestItem{
+	std::string name;
+	float height;
+	ImVec4 color;
+};
+
+void dragListTest(){
+	static std::vector<TestItem> items = {
+		{.name = "Zero", 	.height = 30.0, .color = ImVec4(0.2f, 0.2f, 0.2f, 1.f)},
+		{.name = "One", 	.height = 30.0, .color = ImVec4(0.0f, 0.0f, 0.7f, 1.f)},
+		{.name = "Two", 	.height = 40.0, .color = ImVec4(0.0f, 0.7f, 0.0f, 1.f)},
+		{.name = "Three", 	.height = 50.0, .color = ImVec4(0.0f, 0.7f, 0.7f, 1.f)},
+		{.name = "Four", 	.height = 35.0, .color = ImVec4(0.7f, 0.0f, 0.0f, 1.f)},
+		{.name = "Five", 	.height = 45.0, .color = ImVec4(0.7f, 0.0f, 0.7f, 1.f)},
+		{.name = "Six", 	.height = 55.0, .color = ImVec4(0.7f, 0.7f, 0.0f, 1.f)},
+		{.name = "Seven", 	.height = 20.0, .color = ImVec4(0.2f, 0.2f, 0.2f, .5f)},
+		{.name = "Eight", 	.height = 60.0, .color = ImVec4(0.0f, 0.0f, 0.7f, .5f)},
+		{.name = "Nine", 	.height = 99.0, .color = ImVec4(0.0f, 0.7f, 0.0f, .5f)},
+		{.name = "Ten", 	.height = 35.0, .color = ImVec4(0.0f, 0.7f, 0.7f, .5f)},
+		{.name = "0", 	.height = 30.0, .color = ImVec4(0.2f, 0.2f, 0.2f, 1.f)},
+		{.name = "1", 	.height = 30.0, .color = ImVec4(0.0f, 0.0f, 0.7f, 1.f)},
+		{.name = "2", 	.height = 40.0, .color = ImVec4(0.0f, 0.7f, 0.0f, 1.f)},
+		{.name = "3", 	.height = 50.0, .color = ImVec4(0.0f, 0.7f, 0.7f, 1.f)},
+		{.name = "4", 	.height = 35.0, .color = ImVec4(0.7f, 0.0f, 0.0f, 1.f)},
+		{.name = "5", 	.height = 45.0, .color = ImVec4(0.7f, 0.0f, 0.7f, 1.f)},
+		{.name = "6", 	.height = 55.0, .color = ImVec4(0.7f, 0.7f, 0.0f, 1.f)},
+		{.name = "7", 	.height = 20.0, .color = ImVec4(0.2f, 0.2f, 0.2f, .5f)},
+		{.name = "8", 	.height = 60.0, .color = ImVec4(0.0f, 0.0f, 0.7f, .5f)},
+		{.name = "9", 	.height = 99.0, .color = ImVec4(0.0f, 0.7f, 0.0f, .5f)},
+		{.name = "10", 	.height = 35.0, .color = ImVec4(0.0f, 0.7f, 0.7f, .5f)}
+	};
+	
+	if(ReorderableList::begin("ListTest")){
+		
+		for(auto& item : items){
+			if(ReorderableList::beginItem(40.0)){
+				
+				ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetItemRectMin(),
+														  ImGui::GetItemRectMax(),
+														  ImColor(item.color),
+														  5.0,
+														  ImDrawFlags_RoundCornersAll);
+				
+				ImGui::Text("%s", item.name.c_str());
+				ReorderableList::endItem();
+			}
+		}
+		
+		ReorderableList::end();
+	}
+	
+	int fromIndex, toIndex;
+	if(ReorderableList::wasReordered(fromIndex, toIndex)){
+		Logger::warn("moved item {} to {}", fromIndex, toIndex);
+		
+		TestItem temp = items[fromIndex];
+		items.erase(items.begin() + fromIndex);
+		items.insert(items.begin() + toIndex, temp);
+		
+	}
+	
+	
+	
+	
+	
+}
 
 
 

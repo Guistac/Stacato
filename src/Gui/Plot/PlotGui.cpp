@@ -2,7 +2,7 @@
 
 #include <imgui.h>
 
-#include "Gui/Utilities/DraggableList.h"
+#include "Gui/Utilities/ReorderableList.h"
 #include "Gui/Utilities/CustomWidgets.h"
 
 #include "Project/Project.h"
@@ -16,7 +16,7 @@
 
 #include "Plot/ManoeuvreList.h"
 
-#include "Gui/Utilities/DraggableListNew.h"
+#include "Gui/Utilities/ReorderableList.h"
 
 namespace PlotGui{
 
@@ -29,13 +29,14 @@ namespace PlotGui{
 		
 		//================= MANOEUVRE LIST =======================
 
-		static DraggableList listGui;
+		
 		std::shared_ptr<Plot> plot = Project::currentPlot;
 		std::shared_ptr<ManoeuvreList> manoeuvreList = plot->getManoeuvreList();
 		std::vector<std::shared_ptr<Manoeuvre>>& manoeuvres = manoeuvreList->getManoeuvres();
 		std::shared_ptr<Manoeuvre> clickedManoeuvre = nullptr;
 		
-		if (listGui.beginList("##CueList", manoeuvreListSize, ImGui::GetTextLineHeight() * 0.3)) {
+		if(ReorderableList::begin("CueList", manoeuvreListSize)){
+		
 			float previousVerticalWindowPadding = ImGui::GetStyle().WindowPadding.y;
 			//0 horizontal padding is to display the header background strip up to the edge of the cue window
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0, ImGui::GetTextLineHeight() * 0.2));
@@ -43,23 +44,23 @@ namespace PlotGui{
 			ImGuiWindowFlags cueWindowFlags = ImGuiWindowFlags_NoScrollbar;
 
 			for (auto& manoeuvre : manoeuvres) {
-				if (listGui.beginItem(cueSize, manoeuvre->isSelected(), cueWindowFlags)){
+				if(ReorderableList::beginItem(cueSize.y)){
+					if(ReorderableList::wasItemSelected()) clickedManoeuvre = manoeuvre;
 					manoeuvre->listGui();
-					listGui.endItem();
+					ReorderableList::endItem();
 				}
-				if (ImGui::IsItemClicked()) clickedManoeuvre = manoeuvre;
 			}
 			ImGui::PopStyleVar();
-
-			listGui.endList();
+			
+			ReorderableList::end();
 		}
+		
 		
 		//list interaction
 		if (clickedManoeuvre) plot->selectManoeuvre(clickedManoeuvre);
-		if (listGui.wasReordered()) {
-			int oldIndex, newIndex;
-			listGui.getReorderedItemIndex(oldIndex, newIndex);
-			manoeuvreList->moveManoeuvre(manoeuvres[oldIndex], newIndex);
+		int fromIndex, toIndex;
+		if (ReorderableList::wasReordered(fromIndex, toIndex)) {
+			manoeuvreList->moveManoeuvre(manoeuvres[fromIndex], toIndex);
 		}
 
 		//================== MANOEUVER MANAGER BUTTONS ========================
