@@ -270,7 +270,8 @@ namespace ReorderableList{
 				min.y = std::min(min.y, drawMax);
 				max.y = std::max(max.y, drawMin);
 				max.y = std::min(max.y, drawMax);
-				ImGui::GetForegroundDrawList()->AddRectFilled(min, max, ImColor(1.0f, 1.0f, 1.0f, .5f));
+				float rounding = std::abs(max.y - min.y);
+				ImGui::GetForegroundDrawList()->AddRectFilled(min, max, ImColor(1.0f, 1.0f, 1.0f, .5f), rounding, ImDrawFlags_RoundCornersAll);
 			}
 			
 			//scroll the list while dragging
