@@ -24,6 +24,7 @@
 #include "Gui/Utilities/CustomWidgets.h"
 
 void Manoeuvre::listGui(){
+
 	//inside draggable list element
 	
 	glm::vec2 min = ImGui::GetItemRectMin();
@@ -31,7 +32,6 @@ void Manoeuvre::listGui(){
 	glm::vec2 size = ImGui::GetItemRectSize();
 	glm::vec2 minCursor = ImGui::GetCursorPos();
 	bool b_hovered = ImGui::IsItemHovered();
-	if(ImGui::IsItemActivated()) Logger::warn("{} activated", getName());
 	
 	//show manoeuvre validness
 	if(!b_valid){
@@ -137,7 +137,7 @@ void Manoeuvre::listGui(){
 		float rounding = ImGui::GetStyle().FrameRounding - thickness / 2.0;
 		glm::vec2 minSelection = min + glm::vec2(thickness / 2.0);
 		glm::vec2 maxSelection = max - glm::vec2(thickness / 2.0);
-		ImGui::GetWindowDrawList()->AddRect(minSelection, maxSelection, ImColor(Colors::white), rounding, ImDrawFlags_RoundCornersAll, thickness);
+		ImGui::GetWindowDrawList()->AddRect(minSelection, maxSelection, ImColor(1.0f, 1.0f, 1.0f, 0.3f), rounding, ImDrawFlags_RoundCornersAll, thickness);
 	}
 	
 }

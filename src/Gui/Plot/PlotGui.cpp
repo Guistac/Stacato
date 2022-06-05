@@ -45,7 +45,7 @@ namespace PlotGui{
 
 			for (auto& manoeuvre : manoeuvres) {
 				if(ReorderableList::beginItem(cueSize.y)){
-					if(ReorderableList::wasItemSelected()) clickedManoeuvre = manoeuvre;
+					if(ReorderableList::isItemSelected()) clickedManoeuvre = manoeuvre;
 					manoeuvre->listGui();
 					ReorderableList::endItem();
 				}
@@ -54,6 +54,7 @@ namespace PlotGui{
 			
 			ReorderableList::end();
 		}
+		 
 		
 		
 		//list interaction

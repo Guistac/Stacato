@@ -10,7 +10,7 @@ namespace Logger{
 
 	class Message {
 	public:
-		Message(std::string& msg, int l) : level(l){ message = "[" + std::to_string(Timing::getProgramTime_seconds()) + "s] " + std::move(msg); }
+		Message(std::string& msg, int l) : level(l){ message = "[" + Timing::getTimeString() + "] " + std::move(msg);}
 		inline const char* getString() { return message.c_str(); }
 		inline bool isTrace() { return level == 0; }
 		inline bool isDebug() { return level == 1; }
@@ -60,7 +60,6 @@ namespace Logger{
 		context.file_sink->set_level(spdlog::level::trace);
 
 		context.logger = new spdlog::logger("StacatoLog", {context.console_sink, context.file_sink});
-		//context.logger = new spdlog::logger("ToosLogger", file_sink);
 		context.logger->set_level(spdlog::level::trace);
 
 		//reserve space for a million log messages in memory

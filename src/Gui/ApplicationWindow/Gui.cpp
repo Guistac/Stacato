@@ -176,9 +176,6 @@ namespace Gui {
 		if(ImGui::Begin("Manoeuvre Curves")) PlotGui::curveEditor();
 		ImGui::End();
 		
-		if(ImGui::Begin("DragList")) dragListTest();
-		ImGui::End();
-		
 		/*
 		if(ImGui::Begin("cCurvesTest")) cCurvesTest();
 		ImGui::End();

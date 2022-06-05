@@ -369,11 +369,25 @@ endif()
 
 
 if(APPLE)
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${PROJECT_SOURCE_DIR}/dir/Resources"
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Resources
-    )
+
+    set(resourceDirectory ${PROJECT_SOURCE_DIR}/dir/Resources)
+    set(applicationResourceDirectory $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Resources)
+
+    set(removeWorkingDirectoryLogsCommand ${CMAKE_COMMAND} -E remove_directory ${resourceDirectory}/logs)
+    set(addWorkingDirectoryLogDirectoryCommand ${CMAKE_COMMAND} -E make_directory ${resourceDirectory}/logs)
+    set(removeReleaseExecutableResources ${CMAKE_COMMAND} -E remove_directory ${applicationResourceDirectory})
+
+    set(copyResourcesToExecutableCommand ${CMAKE_COMMAND} -E copy_directory ${resourceDirectory} ${applicationResourceDirectory})  
+
+    add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${removeWorkingDirectoryLogsCommand}
+        COMMAND ${addWorkingDirectoryLogDirectoryCommand}
+        COMMAND "$<$<CONFIG:Release>:${removeReleaseExecutableResources}>"
+        COMMAND "$<$<CONFIG:Release>:${copyResourcesToExecutableCommand}>"
+        COMMAND_EXPAND_LISTS
+    )    
+
     target_compile_definitions(${PROJECT_NAME} PRIVATE MACOS)
     set_property(TARGET ${PROJECT_NAME} PROPERTY XCODE_SCHEME_WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/dir/Resources")
     set_property(GLOBAL PROPERTY XCODE_SCHEME_EXECUTABLE ${PROJECT_NAME})

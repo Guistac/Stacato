@@ -26,4 +26,20 @@ namespace Timing {
 
 	inline double getSystemTime_seconds() { return (double)getSystemTime_nanoseconds() / 1000000000.0; }
 
+	inline std::string getDateAndTimeString(){
+		auto t = std::time(nullptr);
+		auto tm = *std::localtime(&t);
+		std::ostringstream oss;
+		oss << std::put_time(&tm, "%a %d %b %Y %H:%M:%S");
+		return oss.str();
+	}
+
+	inline std::string getTimeString(){
+		auto t = std::time(nullptr);
+		auto tm = *std::localtime(&t);
+		std::ostringstream oss;
+		oss << std::put_time(&tm, "%H:%M:%S");
+		return oss.str();
+	}
+
 };
