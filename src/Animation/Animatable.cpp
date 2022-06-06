@@ -380,6 +380,6 @@ void Animatable::stopAnimationPlayback(){
 	if(hasAnimation()){
 		auto animation = currentAnimation;
 		currentAnimation = nullptr;
-		animation->stopPlayback();
+		animation->stop();
 	}
 }

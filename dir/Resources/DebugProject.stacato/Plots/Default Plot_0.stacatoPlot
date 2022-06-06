@@ -1,7 +1,7 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
         <Manoeuvre Name="Target Movement" Description="A Timed or fixed velocity move to a target position" Type="Target">
-            <Animation Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0" TimeOffset="0"/>
+            <Animation Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsComposite="false" Type="Target" Target="2" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
         </Manoeuvre>
         <Manoeuvre Name="Sequenced Movement" Description="A scripted movement with start and end points" Type="Sequence">
             <Animation Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1" Duration="10" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">

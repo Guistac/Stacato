@@ -74,6 +74,7 @@ namespace Motion {
 
 		bool containsTime(double time);
 		float getProgressAtTime(double time);
+		double getDuration(){ return endTime - startTime; }
 		
 		virtual Point getPointAtTime(double time) = 0;
 		virtual double getNextIncrementTime(double previousPulseTime, double incrementsPerUnit) = 0;

@@ -320,6 +320,9 @@ void HoodedLiftStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& ou
 }
 
 
+void HoodedLiftStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){
+	
+}
 
 bool HoodedLiftStateMachine::validateAnimation(const std::shared_ptr<Animation> animation) {
 	/*

@@ -139,6 +139,10 @@ std::shared_ptr<AnimationValue> MachineTemplate::getActualAnimatableValue(std::s
 }
 
 
+void MachineTemplate::fillAnimationDefaults(std::shared_ptr<Animation> animation){
+	
+}
+
 bool MachineTemplate::validateAnimation(const std::shared_ptr<Animation> animation) {
 	//check the parameter of the given track against all animatable parameters
 	//check all curves of the parameters track

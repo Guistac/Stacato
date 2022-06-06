@@ -173,5 +173,6 @@ void PositionFeedbackMachine::onAnimationPlaybackStart(std::shared_ptr<Animatabl
 void PositionFeedbackMachine::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable){}
 void PositionFeedbackMachine::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable){}
 std::shared_ptr<AnimationValue> PositionFeedbackMachine::getActualAnimatableValue(std::shared_ptr<Animatable> animatable){}
+void PositionFeedbackMachine::fillAnimationDefaults(std::shared_ptr<Animation> aniamtion){}
 bool PositionFeedbackMachine::validateAnimation(const std::shared_ptr<Animation> animation){ return false; }
 bool PositionFeedbackMachine::generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation){ return false; }

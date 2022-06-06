@@ -1,5 +1,45 @@
 #include "Animation.h"
 #include "Machine/Machine.h"
+#include "Animation/Manoeuvre.h"
+
+TargetAnimation::TargetAnimation(std::shared_ptr<Animatable> animatable) : Animation(animatable){
+	target = animatable->makeParameter();
+	target->setSaveString("Target");
+	target->setName("Target");
+	velocityConstraint->denyNegatives();
+	inAcceleration->denyNegatives();
+	outAcceleration->denyNegatives();
+	if(animatable->isNumber()){
+		velocityConstraint->setPrefix("Velocity: ");
+		velocityConstraint->setSuffix("/s");
+		inAcceleration->setPrefix("In: ");
+		inAcceleration->setSuffix("/s\xC2\xB2");
+		outAcceleration->setPrefix("Out: ");
+		outAcceleration->setSuffix("/s\xC2\xB2");
+		Unit unit = animatable->toNumber()->getUnit();
+		setUnit(unit);
+	}
+	if(!animatable->isNumber() || !animatable->toNumber()->isReal()){
+		constraintType->setDisabled(true);
+		timeConstraint->setDisabled(true);
+		velocityConstraint->setDisabled(true);
+		inAcceleration->setDisabled(true);
+		outAcceleration->setDisabled(true);
+	}
+	
+	Motion::Interpolation::Type defaultInterpolation = animatable->getCompatibleInterpolationTypes().front();
+	interpolationType = std::make_shared<EnumeratorParameter<Motion::Interpolation::Type>>(defaultInterpolation, "Interpolation Type", "interpolationType");
+	
+	auto editCallback = [this](std::shared_ptr<Parameter> thisParameter){ validate(); };
+	target->setEditCallback(editCallback);
+	interpolationType->setEditCallback(editCallback);
+	velocityConstraint->setEditCallback(editCallback);
+	inAcceleration->setEditCallback(editCallback);
+	outAcceleration->setEditCallback(editCallback);
+	constraintType->setEditCallback(editCallback);
+	timeConstraint->setEditCallback(editCallback);
+}
+
 
 std::shared_ptr<TargetAnimation> TargetAnimation::copy(){
 	auto copy = std::make_shared<TargetAnimation>(getAnimatable());
@@ -9,7 +49,6 @@ std::shared_ptr<TargetAnimation> TargetAnimation::copy(){
 	copy->velocityConstraint->overwrite(velocityConstraint->value);
 	copy->inAcceleration->overwrite(inAcceleration->value);
 	copy->outAcceleration->overwrite(outAcceleration->value);
-	copy->timeOffset->overwrite(timeOffset->value);
 	copy->constraintType->overwrite(constraintType->value);
 	return copy;
 }
@@ -22,7 +61,6 @@ bool TargetAnimation::onSave(tinyxml2::XMLElement* xml){
 	velocityConstraint->save(xml);
 	inAcceleration->save(xml);
 	outAcceleration->save(xml);
-	timeOffset->save(xml);
 	return true;
 }
 
@@ -52,14 +90,18 @@ std::shared_ptr<TargetAnimation> TargetAnimation::load(tinyxml2::XMLElement* xml
 		Logger::warn("could not load attribute outAcceleration of animation {}", animatable->getName());
 		return nullptr;
 	}
-	if(!targetAnimation->timeOffset->load(xml)){
-		Logger::warn("could not load attribute timeOffset of animation {}", animatable->getName());
-		return nullptr;
-	}
 	return targetAnimation;
 }
 
 
+void TargetAnimation::setUnit(Unit unit){
+	if(getAnimatable()->isNumber()){
+		target->toNumber()->setUnit(unit);
+		velocityConstraint->setUnit(unit);
+		inAcceleration->setUnit(unit);
+		outAcceleration->setUnit(unit);
+	}
+}
 
 
 
@@ -84,15 +126,32 @@ bool TargetAnimation::isReadyToStartPlayback(){
 }
 
 void TargetAnimation::startPlayback(){
-	//TODO:
-	//generate a curve that starts at the current machine value and goes to the target
-	//respect the interpolation type
-	//respect the time offset
-	//respect the velocity or time constraint
-	//bool success = getParameter()->getMachine()->generateTargetParameterTrackCurves(shared_from_this()->castToTarget());
-	//then play these curves
+	if(!isReadyToStartPlayback()) return;
+	auto machine = getMachine();
+	if(!machine->generateTargetAnimation(shared_from_this()->toTarget())) return;
+	machine->startAnimationPlayback(shared_from_this());
 }
 
+void TargetAnimation::endPlayback(){
+	if(isPlaying()) getMachine()->endAnimationPlayback(getAnimatable());
+	setPlaybackPosition(0.0);
+	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
+	for(auto& curve : getCurves()){
+		curve.getPoints().clear();
+		curve.getInterpolations().clear();
+	}
+}
+
+void TargetAnimation::stop(){
+	if(isPlaying()) getMachine()->interruptAnimationPlayback(getAnimatable());
+	else getMachine()->cancelAnimatableRapid(getAnimatable());
+	setPlaybackPosition(0.0);
+	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
+	for(auto& curve : getCurves()){
+		curve.getPoints().clear();
+		curve.getInterpolations().clear();
+	}
+}
 
 
 

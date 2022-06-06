@@ -354,6 +354,30 @@ std::shared_ptr<AnimationValue> PositionControlledMachine::getActualAnimatableVa
 	return nullptr;
 }
 
+void PositionControlledMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){
+	if(animation->getAnimatable() != positionParameter) return;
+	switch(animation->getType()){
+		case ManoeuvreType::KEY:
+			animation->toKey()->captureTarget();
+			break;
+		case ManoeuvreType::TARGET:
+			animation->toTarget()->captureTarget();
+			animation->toTarget()->inAcceleration->overwrite(rapidAcceleration_machineUnitsPerSecond);
+			animation->toTarget()->outAcceleration->overwrite(rapidAcceleration_machineUnitsPerSecond);
+			animation->toTarget()->velocityConstraint->overwrite(rapidVelocity_machineUnitsPerSecond);
+			animation->toTarget()->timeConstraint->overwrite(0.0);
+			animation->toTarget()->constraintType->overwrite(TargetAnimation::Constraint::TIME);
+			break;
+		case ManoeuvreType::SEQUENCE:
+			animation->toSequence()->captureStart();
+			animation->toSequence()->captureTarget();
+			animation->toSequence()->duration->overwrite(0.0);
+			animation->toSequence()->inAcceleration->overwrite(rapidAcceleration_machineUnitsPerSecond);
+			animation->toSequence()->outAcceleration->overwrite(rapidAcceleration_machineUnitsPerSecond);
+			break;
+	}
+}
+
 
 bool PositionControlledMachine::validateAnimation(const std::shared_ptr<Animation> animation) {
 	using namespace Motion;
@@ -369,70 +393,70 @@ bool PositionControlledMachine::validateAnimation(const std::shared_ptr<Animatio
 	
 	bool b_trackValid = true;
 	
-	bool b_curveValid = true;
-	
 	double lowLimit_machineUnits = getLowPositionLimit();
 	double highLimit_machineUnits = getHighPositionLimit();
 	double velocityLimit_machineUnits = getAxis()->getVelocityLimit();
 	double accelerationLimit_machineUnits = getAxis()->getAccelerationLimit();
 	
-	/*
-	auto animatedTrack = parameterTrack->castToAnimated();
-	ManoeuvreType manoeuvreType = animatedTrack->getType();
-	
-	//target validation
-	auto targetParameter = std::dynamic_pointer_cast<BaseNumberParameter>(animatedTrack->target);
-	if(!targetParameter->validateRange(lowLimit_machineUnits, highLimit_machineUnits)) {
-		animatedTrack->appendValidationErrorString("Target is out of range. (" + std::to_string(lowLimit_machineUnits) + " - " + std::to_string(highLimit_machineUnits) + ")");
-		b_trackValid = false;
-	}
-	
-	if(manoeuvreType == ManoeuvreType::TARGET){
-		
-		//velocity validation
-		auto targetTrack = parameterTrack->castToTarget();
-		if(targetTrack->getConstraintType() == TargetParameterTrack::Constraint::VELOCITY){
-			if(!targetTrack->velocityConstraint->validateRange(0.0, std::abs(velocityLimit_machineUnits), false, true)){
-				if(targetTrack->velocityConstraint->getReal() == 0.0) animatedTrack->appendValidationErrorString("Velocity is Zero");
-				else animatedTrack->appendValidationErrorString("Velocity is out of range. (max: " + std::to_string(std::abs(velocityLimit_machineUnits)) + ")");
-				b_trackValid = false;
-			}
-		}
-	}
-	
-	if(parameterTrack->isPlayable()){
-	
-		auto playableTrack = parameterTrack->castToPlayable();
-		//validate acceleration
-		if(!playableTrack->inAcceleration->validateRange(0.0, std::abs(accelerationLimit_machineUnits), false, true)) {
-			if(playableTrack->inAcceleration->getReal() == 0.0) animatedTrack->appendValidationErrorString("In-Acceleration is Zero");
-			else animatedTrack->appendValidationErrorString("In-Acceleration is out of range. (max: " + std::to_string(std::abs(accelerationLimit_machineUnits)) + ")");
+	auto validatePosition = [&](std::shared_ptr<BaseNumberParameter> positionParameter){
+		if(!positionParameter->validateRange(lowLimit_machineUnits, highLimit_machineUnits)){
+			std::string error = std::string(positionParameter->getName()) + " is out of range. (" + std::to_string(lowLimit_machineUnits) + " - " + std::to_string(highLimit_machineUnits) + ")";
+			animation->appendValidationErrorString(error);
 			b_trackValid = false;
 		}
-		if(!playableTrack->outAcceleration->validateRange(0.0, std::abs(accelerationLimit_machineUnits), false, true)){
-			if(playableTrack->outAcceleration->getReal() == 0.0) animatedTrack->appendValidationErrorString("Out-Acceleration is Zero");
-			else animatedTrack->appendValidationErrorString("Out-Acceleration is out of range. (max: " + std::to_string(std::abs(accelerationLimit_machineUnits)) + ")");
+	};
+	
+	auto validateVelocity = [&](std::shared_ptr<NumberParameter<double>> velocityParameter){
+		if(!velocityParameter->validateRange(0.0, std::abs(velocityLimit_machineUnits), false, true)){
+			std::string error = std::string(velocityParameter->getName()) + " ";
+			if(velocityParameter->getReal() == 0.0) error += "is Zero";
+			else error += "is out of range. (max: " + std::to_string(std::abs(velocityLimit_machineUnits)) + ")";
+			animation->appendValidationErrorString(error);
 			b_trackValid = false;
 		}
-	}
-		
-	if(manoeuvreType == ManoeuvreType::SEQUENCE){
-		
-		auto sequenceTrack = parameterTrack->castToSequence();
-		auto startParameter = std::dynamic_pointer_cast<BaseNumberParameter>(sequenceTrack->start);
-		if(!startParameter->validateRange(lowLimit_machineUnits, highLimit_machineUnits, true, true)) {
-			animatedTrack->appendValidationErrorString("Start is out of range. (" + std::to_string(lowLimit_machineUnits) + " - " + std::to_string(highLimit_machineUnits) + ")");
+	};
+	
+	auto validateAcceleration = [&](std::shared_ptr<NumberParameter<double>> accelerationParameter){
+		if(!accelerationParameter->validateRange(0.0, std::abs(accelerationLimit_machineUnits), false, true)){
+			std::string error = std::string(accelerationParameter->getName()) + " ";
+			if(accelerationParameter->getReal() == 0.0) error += "is Zero";
+			else error += "is out of range. (max: " + std::to_string(std::abs(accelerationLimit_machineUnits)) + ")";
+			animation->appendValidationErrorString(error);
 			b_trackValid = false;
 		}
+	};
+	
+	
+	if(animation->getType() == ManoeuvreType::KEY){
+		auto key = animation->toKey();
+		validatePosition(key->target->toNumber());
 		
+	}else if(animation->getType() == ManoeuvreType::TARGET){
+		auto target = animation->toTarget();
+		validatePosition(target->target->toNumber());
+		if(target->getConstraintType() == TargetAnimation::Constraint::VELOCITY) validateVelocity(target->velocityConstraint);
+		else target->velocityConstraint->setValid(true);
+		target->timeConstraint->setValid(true);
+		validateAcceleration(target->inAcceleration);
+		validateAcceleration(target->outAcceleration);
 		
-		if(sequenceTrack->getCurves().size() != 1) {
-			Logger::warn("Parameter Track has wrong curve count. Has {}, expected 1", sequenceTrack->getCurves().size());
-			animatedTrack->appendValidationErrorString("Critical: ParameterTrack has wrong curve count.");
+	}else if(animation->getType() == ManoeuvreType::SEQUENCE){
+		auto sequence = animation->toSequence();
+		validatePosition(sequence->start->toNumber());
+		validatePosition(sequence->target->toNumber());
+		validateAcceleration(sequence->inAcceleration);
+		validateAcceleration(sequence->outAcceleration);
+		sequence->duration->setValid(true);
+		
+		auto& curves = sequence->getCurves();
+		if(curves.size() != 1) {
+			Logger::warn("Parameter Track has wrong curve count. Has {}, expected 1", curves.size());
+			animation->appendValidationErrorString("Critical: ParameterTrack has wrong curve count.");
 			return false;
 		}
 		
-		auto& curve = sequenceTrack->getCurves().front();
+		auto& curve = curves.front();
+		bool b_curveValid = true;
 		
 		//validate all control points
 		for (auto& controlPoint : curve.getPoints()) {
@@ -451,30 +475,43 @@ bool PositionControlledMachine::validateAnimation(const std::shared_ptr<Animatio
 				controlPoint->validationError = ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO;
 			else controlPoint->validationError = ValidationError::NONE; //All Checks Passed: No Validation Error !
 			//set valid flag for point, if invalid, set flag for whole curve
-			controlPoint->b_valid = controlPoint->validationError == ValidationError::NONE;
-			if(!controlPoint->b_valid) b_curveValid = false;
+			if(controlPoint->validationError == Motion::ValidationError::NONE) controlPoint->b_valid = true;
+			else {
+				controlPoint->b_valid = false;
+				b_curveValid = false;
+			}
 		}
 
 		//validate all interpolations of the curve
 		for (auto& interpolation : curve.getInterpolations()) {
 			
 			if(interpolation->getType() != Motion::Interpolation::Type::TRAPEZOIDAL){
-				Logger::warn("Sequence Track Curve Interpolation is wrong type. Is {}, expected Trapezoidal", Enumerator::getDisplayString(interpolation->getType()));
-				animatedTrack->appendValidationErrorString("Critical: ParameterTrack Interpolation has wrong type.");
+				Logger::critical("Sequence Track Curve Interpolation is wrong type. Is {}, expected Trapezoidal", Enumerator::getDisplayString(interpolation->getType()));
+				animation->appendValidationErrorString("Critical: ParameterTrack Interpolation has wrong type.");
 				return false;
 			}
-			auto kinematicInterpolation = interpolation->castToTrapezoidal();
 			
 			//if the interpolation is already marked invalid an validation error type was already set by the interpolation engine
 			//in this case we don't overwrite the validation error value
 			if (!interpolation->b_valid) {
 				b_curveValid = false;
+				if(sequence->isSimple() && interpolation->validationError == Motion::ValidationError::INTERPOLATION_UNDEFINED){
+					sequence->duration->setValid(false);
+					animation->appendValidationErrorString("Requested movement duration is too short");
+				}
 				continue;
 			}
+			
+			auto trapezoidalInteroplation = interpolation->castToTrapezoidal();
+			
 			//check if the velocity of the interpolation exceeds the limit
-			if (std::abs(kinematicInterpolation->coastVelocity) > velocityLimit_machineUnits) {
+			if (std::abs(trapezoidalInteroplation->coastVelocity) > velocityLimit_machineUnits) {
 				interpolation->validationError = ValidationError::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED;
 				interpolation->b_valid = false;
+				if(sequence->isSimple()) {
+					sequence->duration->setValid(false);
+					animation->appendValidationErrorString("Requested movement duration is too short");
+				}
 				b_curveValid = false;
 				continue;
 			}
@@ -483,6 +520,7 @@ bool PositionControlledMachine::validateAnimation(const std::shared_ptr<Animatio
 				if (point.position > highLimit_machineUnits || point.position < lowLimit_machineUnits) {
 					interpolation->validationError = ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
 					interpolation->b_valid = false;
+					animation->appendValidationErrorString("Interpolation is out of range: check the curve editor for details.");
 					b_curveValid = false;
 					break;
 				}
@@ -492,75 +530,70 @@ bool PositionControlledMachine::validateAnimation(const std::shared_ptr<Animatio
 		//after performing all checks, we assign the curve validation flag
 		//the curve itself doesn't have a validation error value
 		curve.b_valid = b_curveValid;
-		if(!b_curveValid) animatedTrack->appendValidationErrorString("Curve could not be validated.\nCheck the Curve editor for details.");
-		
+		if(!b_curveValid){
+			animation->appendValidationErrorString("Curve could not be validated : check the Curve editor for details.");
+			b_trackValid = false;
+		}
 	}
-	*/
-	
 	
 	//we return the result of the validation
 	return b_trackValid;
 }
 
-bool PositionControlledMachine::generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation){
-	/*
-	if(track->getParameter() != positionParameter) return false;
+bool PositionControlledMachine::generateTargetAnimation(std::shared_ptr<TargetAnimation> animation){
 	
-	//TODO: unfinished !
-	 
-	auto& curves = track->getCurves(); //1 curve, 1D-Position
-	auto target = positionParameter->getParameterValue(track->target)->toPosition();
-	double inAcceleration = track->inAcceleration->value;
-	double outAcceleration = track->outAcceleration->value;
-	double timeOffset_seconds = track->timeOffset->value;
+	if(animation->getAnimatable() != positionParameter) return false;
 	
-	motionProfile.getBrakingPosition(0, 0);
+	auto target = positionParameter->parameterValueToAnimationValue(animation->target)->toPosition();
+	double inAcceleration = animation->inAcceleration->value;
+	double outAcceleration = animation->outAcceleration->value;
+	TargetAnimation::Constraint constraint = animation->getConstraintType();
+	
+	if(motionProfile.getPosition() == target->position && motionProfile.getVelocity() == 0.0) return false;
 	
 	auto startPoint = std::make_shared<Motion::ControlPoint>();
+	startPoint->time = 0.0;
 	startPoint->position = motionProfile.getPosition();
 	startPoint->velocity = motionProfile.getVelocity();
-	startPoint->time = 0.0;
+	startPoint->outAcceleration = inAcceleration;
+	startPoint->b_valid = true;
 	
-	std::shared_ptr<Motion::ControlPoint> intermediatePointA = nullptr;
-	std::shared_ptr<Motion::ControlPoint> intermediatePointB = nullptr;
+	auto endPoint = std::make_shared<Motion::ControlPoint>();
+	endPoint->position = target->position;
+	endPoint->velocity = 0.0;
+	endPoint->inAcceleration = outAcceleration;
+	endPoint->b_valid = true;
 	
-	//check if we will overshoot the offset time given the current velocity
-	//if we can't stop before the offset if over, we might aswell just go to the target immediately
-	//provided we don't arrive sooner than the given time constraint
-	double stopTime = std::abs(motionProfile.getVelocity() / rapidAcceleration_machineUnitsPerSecond);
-	if(stopTime < timeOffset_seconds){
-		double brakingPosition = motionProfile.getBrakingPosition(0.0, rapidAcceleration_machineUnitsPerSecond);
-		startPoint->outAcceleration = rapidAcceleration_machineUnitsPerSecond;
-		intermediatePointA = std::make_shared<Motion::ControlPoint>();
-		intermediatePointA->position = brakingPosition;
-		intermediatePointA->velocity = 0.0;
-		intermediatePointA->inAcceleration = rapidAcceleration_machineUnitsPerSecond;
-		intermediatePointA->outAcceleration = rapidAcceleration_machineUnitsPerSecond;
-		intermediatePointA->time = stopTime;
-		intermediatePointB = std::make_shared<Motion::ControlPoint>();
-		intermediatePointB->position = brakingPosition;
-		intermediatePointB->velocity = 0.0;
-		intermediatePointB->inAcceleration = rapidAcceleration_machineUnitsPerSecond;
-		intermediatePointB->outAcceleration = inAcceleration;
-		intermediatePointB->time = timeOffset_seconds;
-	}else{
-		startPoint->outAcceleration = inAcceleration;
+	std::shared_ptr<Motion::TrapezoidalInterpolation> interpolation;
+	
+	if(constraint == TargetAnimation::Constraint::TIME){
+		endPoint->time = animation->timeConstraint->value;
+		interpolation = Motion::TrapezoidalInterpolation::getTimeConstrainedOrSlower(startPoint, endPoint, getAxis()->getVelocityLimit());
+	}else if(constraint == TargetAnimation::Constraint::VELOCITY){
+		double velocityConstraint = animation->velocityConstraint->value;
+		interpolation = Motion::TrapezoidalInterpolation::getVelocityConstrained(startPoint, endPoint, velocityConstraint);
 	}
 	
-	auto targetPoint = std::make_shared<Motion::ControlPoint>();
-	targetPoint->position = target->position;
-	targetPoint->velocity = 0.0;
-	targetPoint->inAcceleration = outAcceleration;
+	if(!interpolation->b_valid) return false;
 	
-	TargetParameterTrack::Constraint constraintType = track->getConstraintType();
-
-	if(constraintType == TargetParameterTrack::Constraint::TIME){
-		
-	}else if(constraintType == TargetParameterTrack::Constraint::VELOCITY){
-		
-	}
+	auto& curve = animation->getCurves().front();
+	auto& points = curve.getPoints();
+	auto& interpolations = curve.getInterpolations();
 	
-	*/
+	points.clear();
+	points.push_back(startPoint);
+	points.push_back(endPoint);
+	
+	interpolations.clear();
+	interpolation->updateDisplayCurvePoints();
+	interpolations.push_back(interpolation);
+	
+	curve.b_valid = true;
+	animation->setDuration(interpolation->getDuration());
+	animation->setPlaybackPosition(0.0);
+	
+	return true;
+	
 }
 
 

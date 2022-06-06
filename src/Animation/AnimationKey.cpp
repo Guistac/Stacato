@@ -2,6 +2,14 @@
 
 #include "Machine/Machine.h"
 
+AnimationKey::AnimationKey(std::shared_ptr<Animatable> animatable) : Animation(animatable){
+	target = animatable->makeParameter();
+	target->setName("Target");
+	target->setSaveString("Target");
+	if(animatable->isNumber()) setUnit(animatable->toNumber()->getUnit());
+	target->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ this->validate(); });
+}
+
 std::shared_ptr<AnimationKey> AnimationKey::copy(){
 	auto copy = std::make_shared<AnimationKey>(getAnimatable());
 	getAnimatable()->copyParameterValue(target, copy->target);
@@ -20,6 +28,12 @@ std::shared_ptr<AnimationKey> AnimationKey::load(tinyxml2::XMLElement* xml, std:
 		return nullptr;
 	}
 	return animationKey;
+}
+
+void AnimationKey::setUnit(Unit unit) {
+	if(getAnimatable()->isNumber()){
+		target->toNumber()->setUnit(unit);
+	}
 }
 
 bool AnimationKey::isAtPlaybackPosition(){

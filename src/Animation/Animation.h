@@ -39,6 +39,7 @@ protected:
 public:
 
 	std::shared_ptr<Animatable> getAnimatable(){ return animatable; }
+	std::shared_ptr<Machine> getMachine(){ return animatable->getMachine(); }
 	
 	bool hasManoeuvre(){ return manoeuvre != nullptr; }
 	void setManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre_){ manoeuvre = manoeuvre_; }
@@ -51,19 +52,20 @@ public:
 	void subscribeToMachineParameter();
 	void unsubscribeFromMachineParameter();
 	
-	std::vector<Motion::Curve>& getCurves(){ return curves; }
+	void fillDefaults();
 	
+	void validate();
 	bool isValid(){ return b_valid; }
 	void setValid(bool valid){ b_valid = valid; }
-	void validate();
 	void appendValidationErrorString(std::string errorString){
 		if(!validationErrorString.empty()) validationErrorString += "\n";
 		validationErrorString += errorString;
 	}
 	
 	virtual void setUnit(Unit unit){}
-	void setDuration(double seconds){ duration_seconds = seconds; }
 
+	std::vector<Motion::Curve>& getCurves(){ return curves; }
+	
 private:
 	
 	std::shared_ptr<AnimationComposite> parentComposite;
@@ -105,12 +107,15 @@ public:
 	
 	virtual bool isReadyToStartPlayback(){ return false; }
 	virtual bool isPlaying();
+	
 	virtual void startPlayback();
-	virtual void stopPlayback();
 	virtual void interruptPlayback();
+	virtual void endPlayback();
+	virtual void stop();
 	
 	void updatePlaybackStatus();
 	
+	void setDuration(double seconds){ duration_seconds = seconds; }
 	void setPlaybackPosition(double seconds){ playbackPosition_seconds = seconds; }
 	double getPlaybackPosition(){ return playbackPosition_seconds; }
 	double getDuration(){ return duration_seconds; }
@@ -129,7 +134,7 @@ public:
 	virtual void trackSheetRowGui() = 0;
 	void validationErrorPopup();
 	
-	virtual void drawCurves() = 0;
+	virtual void drawCurves();
 	virtual void drawCurveControls() = 0;
 	
 };
@@ -159,13 +164,7 @@ class AnimationKey : public Animation{
 
 public:
 	
-	AnimationKey(std::shared_ptr<Animatable> animatable) : Animation(animatable){
-		target = animatable->makeParameter();
-		target->setName("Target");
-		target->setSaveString("Target");
-		if(animatable->isNumber()) setUnit(animatable->toNumber()->getUnit());
-		target->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ this->validate(); });
-	}
+	AnimationKey(std::shared_ptr<Animatable> animatable);
 	
 	virtual ManoeuvreType getType() override { return ManoeuvreType::KEY; }
 	
@@ -176,17 +175,10 @@ public:
 	//————————————————— General Properties ——————————————————
 	
 public:
+		
+	virtual void setUnit(Unit unit) override;
 	
-	void captureCurrentValueAsTarget(){}
-	
-	virtual void setUnit(Unit unit) override {
-		if(getAnimatable()->isNumber()){
-			target->castToNumber()->setUnit(unit);
-		}
-	}
-	
-private:
-	
+	void captureTarget(){}
 	std::shared_ptr<Parameter> target;
 	
 	//————————————————————— Playback ——————————————————————
@@ -228,45 +220,7 @@ class TargetAnimation : public Animation{
 	
 public:
 	
-	TargetAnimation(std::shared_ptr<Animatable> animatable) : Animation(animatable){
-		target = animatable->makeParameter();
-		target->setSaveString("Target");
-		target->setName("Target");
-		velocityConstraint->denyNegatives();
-		inAcceleration->denyNegatives();
-		outAcceleration->denyNegatives();
-		if(animatable->isNumber()){
-			velocityConstraint->setPrefix("Velocity: ");
-			velocityConstraint->setSuffix("/s");
-			inAcceleration->setPrefix("In: ");
-			inAcceleration->setSuffix("/s\xC2\xB2");
-			outAcceleration->setPrefix("Out: ");
-			outAcceleration->setSuffix("/s\xC2\xB2");
-			Unit unit = animatable->toNumber()->getUnit();
-			setUnit(unit);
-		}
-		if(!animatable->isNumber() || !animatable->toNumber()->isReal()){
-			constraintType->setDisabled(true);
-			timeConstraint->setDisabled(true);
-			velocityConstraint->setDisabled(true);
-			inAcceleration->setDisabled(true);
-			outAcceleration->setDisabled(true);
-		}
-		
-		Motion::Interpolation::Type defaultInterpolation = animatable->getCompatibleInterpolationTypes().front();
-		interpolationType = std::make_shared<EnumeratorParameter<Motion::Interpolation::Type>>(defaultInterpolation, "Interpolation Type", "interpolationType");
-		
-		auto editCallback = [this](std::shared_ptr<Parameter> thisParameter){ validate(); };
-		target->setEditCallback(editCallback);
-		interpolationType->setEditCallback(editCallback);
-		velocityConstraint->setEditCallback(editCallback);
-		inAcceleration->setEditCallback(editCallback);
-		outAcceleration->setEditCallback(editCallback);
-		constraintType->setEditCallback(editCallback);
-		timeConstraint->setEditCallback(editCallback);
-	}
-	
-	
+	TargetAnimation(std::shared_ptr<Animatable> animatable);
 	virtual ManoeuvreType getType() override { return ManoeuvreType::TARGET; }
 	
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
@@ -281,26 +235,16 @@ public:
 		VELOCITY,
 		TIME
 	};
-	
 	Constraint getConstraintType(){ return constraintType->value; }
 	
-	virtual void setUnit(Unit unit) override {
-		if(getAnimatable()->isNumber()){
-			target->castToNumber()->setUnit(unit);
-			velocityConstraint->setUnit(unit);
-			inAcceleration->setUnit(unit);
-			outAcceleration->setUnit(unit);
-		}
-	}
+	virtual void setUnit(Unit unit) override;
 	
-private:
-
+	void captureTarget(){}
 	std::shared_ptr<Parameter> target;
 	std::shared_ptr<EnumeratorParameter<Constraint>> constraintType = std::make_shared<EnumeratorParameter<Constraint>>(Constraint::TIME, "Constraint Type", "ConstraintType");
 	std::shared_ptr<TimeParameter> timeConstraint = std::make_shared<TimeParameter>(0.0, "Movement Time", "Time");
 	std::shared_ptr<NumberParameter<double>> velocityConstraint = NumberParameter<double>::make(0.0, "Movement Velocity", "Velocity");
 	std::shared_ptr<EnumeratorParameter<Motion::Interpolation::Type>> interpolationType;
-	std::shared_ptr<TimeParameter> timeOffset = std::make_shared<TimeParameter>(0.0, "Time Offset", "TimeOffset");
 	std::shared_ptr<NumberParameter<double>> inAcceleration = NumberParameter<double>::make(0.0, "Start Acceleration", "StartAcceleration");
 	std::shared_ptr<NumberParameter<double>> outAcceleration = NumberParameter<double>::make(0.0, "End Acceleration", "EndAcceleration");
 	
@@ -313,15 +257,13 @@ public:
 	
 	virtual bool isReadyToStartPlayback() override;
 	virtual void startPlayback() override;
+	virtual void endPlayback() override;
+	virtual void stop() override;
 	
 	//—————————————————— User Interface ———————————————————
 	
 	virtual void trackSheetRowGui() override;
-	virtual void drawCurves() override;
 	virtual void drawCurveControls() override;
-	
-	//void captureCurrentValueAsTarget();
-	//bool b_accelerationsEqual;
 };
 
 #define TargetConstraintStrings \
@@ -353,45 +295,7 @@ public:
 	
 public:
 	
-	SequenceAnimation(std::shared_ptr<Animatable> animatable) : Animation(animatable){
-		target = animatable->makeParameter();
-		target->setName("End");
-		target->setSaveString("End");
-		start = animatable->makeParameter();
-		start->setName("Start");
-		start->setSaveString("Start");
-		inAcceleration->denyNegatives();
-		outAcceleration->denyNegatives();
-		if(animatable->isNumber()){
-			inAcceleration->setPrefix("In: ");
-			inAcceleration->setSuffix("/s\xC2\xB2");
-			outAcceleration->setPrefix("Out: ");
-			outAcceleration->setSuffix("/s\xC2\xB2");
-			Unit unit = animatable->toNumber()->getUnit();
-			setUnit(unit);
-		}
-		
-		if(!animatable->isNumber() || !animatable->toNumber()->isReal()){
-			inAcceleration->setDisabled(true);
-			outAcceleration->setDisabled(true);
-		}
-		
-		Motion::Interpolation::Type defaultInterpolation = animatable->getCompatibleInterpolationTypes().front();
-		interpolationType = std::make_shared<EnumeratorParameter<Motion::Interpolation::Type>>(defaultInterpolation, "Interpolation Type", "interpolationType");
-		
-		auto editCallback = [this](std::shared_ptr<Parameter> thisParameter){ updateAfterParameterEdit(); };
-		interpolationType->setEditCallback(editCallback);
-		target->setEditCallback(editCallback);
-		start->setEditCallback(editCallback);
-		duration->setEditCallback(editCallback);
-		timeOffset->setEditCallback(editCallback);
-		inAcceleration->setEditCallback(editCallback);
-		outAcceleration->setEditCallback(editCallback);
-		initializeCurves();
-	}
-	
-	void initializeCurves();
-	
+	SequenceAnimation(std::shared_ptr<Animatable> animatable);
 	virtual ManoeuvreType getType() override { return ManoeuvreType::SEQUENCE; }
 	
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
@@ -402,18 +306,17 @@ public:
 	
 public:
 	
+	virtual void setUnit(Unit unit) override;
+	
+	void initializeCurves();
 	void updateAfterParameterEdit();
 	void updateAfterCurveEdit();
 	
-	virtual void setUnit(Unit unit) override {
-		if(getAnimatable()->isNumber()){
-			target->castToNumber()->setUnit(unit);
-			start->castToNumber()->setUnit(unit);
-		}
-	}
+	bool isSimple();
+	bool isComplex();
 	
-private:
-	
+	void captureStart();
+	void captureTarget();
 	std::shared_ptr<Parameter> start;
 	std::shared_ptr<Parameter> target;
 	std::shared_ptr<TimeParameter> duration = std::make_shared<TimeParameter>(0, "Duration", "Duration");
@@ -426,16 +329,15 @@ private:
 	//————————————————————— Playback —————————————————————
 	
 public:
-	
-	virtual void rapidToPlaybackPosition() override;
-	
-	void captureCurrentValueAsStart(){}
-	void captureCurrentValueAsTarget(){}
-	
+		
 	virtual bool isAtStart() override;
 	virtual void rapidToStart() override;
 	
+	virtual bool isAtTarget() override;
+	virtual void rapidToTarget() override;
+	
 	virtual bool isAtPlaybackPosition() override;
+	virtual void rapidToPlaybackPosition() override;
 	virtual bool isReadyToStartPlayback() override;
 	
 	//—————————————————— User Interface ———————————————————
@@ -443,7 +345,6 @@ public:
 public:
 	
 	virtual void trackSheetRowGui() override;
-	virtual void drawCurves() override;
 	virtual void drawCurveControls() override;
 };
 

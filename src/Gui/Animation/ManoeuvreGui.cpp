@@ -261,7 +261,7 @@ void Manoeuvre::sheetEditor(){
 			ImGui::TableSetupColumn("Target");
 			break;
 		case ManoeuvreType::TARGET:
-			b_tableBegun = ImGui::BeginTable("##TrackParameters", 9, tableFlags);
+			b_tableBegun = ImGui::BeginTable("##TrackParameters", 8, tableFlags);
 			ImGui::TableSetupColumn("Manage");
 			ImGui::TableSetupColumn("Machine");
 			ImGui::TableSetupColumn("Parameter");
@@ -269,7 +269,6 @@ void Manoeuvre::sheetEditor(){
 			ImGui::TableSetupColumn("Target");			//position or other
 			ImGui::TableSetupColumn("Using");			//time vs velocity
 			ImGui::TableSetupColumn("Constraint");		//time or velocity
-			ImGui::TableSetupColumn("Time Offset");		//seconds
 			ImGui::TableSetupColumn("Ramps");			//for kinematic or bezier
 			break;
 		case ManoeuvreType::SEQUENCE:

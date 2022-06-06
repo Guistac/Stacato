@@ -64,7 +64,7 @@ void AnimationKey::trackSheetRowGui(){
 	target->gui();
 	if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 	ImGui::SameLine();
-	if(ImGui::Button("Capture")) captureCurrentValueAsTarget();
+	if(ImGui::Button("Capture")) captureTarget();
 	
 }
 
@@ -81,8 +81,8 @@ void TargetAnimation::trackSheetRowGui(){
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	target->gui();
 	if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
-	//ImGui::SameLine();
-	//if(ImGui::Button("Capture")) captureCurrentValueAsTarget();
+	ImGui::SameLine();
+	if(ImGui::Button("Capture")) captureTarget();
 	
 	//[5] "Using"			//time vs velocity
 	ImGui::TableSetColumnIndex(5);
@@ -100,13 +100,8 @@ void TargetAnimation::trackSheetRowGui(){
 		if(!velocityConstraint->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 	}
 	
-	//[7] "Time Offset" 	//seconds
-	ImGui::TableSetColumnIndex(7);
-	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
-	timeOffset->gui();
-	
 	//[7] "Ramps"			//for kinematic or bezier
-	ImGui::TableSetColumnIndex(8);
+	ImGui::TableSetColumnIndex(7);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	inAcceleration->gui();
 	if(!inAcceleration->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
@@ -131,15 +126,15 @@ void SequenceAnimation::trackSheetRowGui(){
 	start->gui();
 	if(!start->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 	ImGui::SameLine();
-	if(ImGui::Button("Capture##Start")) captureCurrentValueAsStart();
+	if(ImGui::Button("Capture##Start")) captureStart();
 	
 	//[5] "End"
 	ImGui::TableSetColumnIndex(5);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	target->gui();
 	if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
-	//ImGui::SameLine();
-	//if(ImGui::Button("Capture##Target")) captureCurrentValueAsTarget();
+	ImGui::SameLine();
+	if(ImGui::Button("Capture##Target")) captureTarget();
 	
 	//[6] "Duration"
 	ImGui::TableSetColumnIndex(6);
@@ -208,16 +203,14 @@ void AnimationKey::drawCurveControls(){
 
 
 
-void TargetAnimation::drawCurves(){
-	//only display when parameter track is playing
-}
+
 void TargetAnimation::drawCurveControls(){
-	//display horizontal lines for targets
+	
 }
 
 
 
-void SequenceAnimation::drawCurves(){
+void Animation::drawCurves(){
 	double startTime, endTime;
 	
 	auto& curves = getCurves();

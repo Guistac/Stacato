@@ -54,7 +54,7 @@ public:
 	virtual std::shared_ptr<Parameter> makeBaseCopy() = 0;
 	
 	virtual bool isNumber(){ return false; }
-	std::shared_ptr<BaseNumberParameter> castToNumber(){ return std::dynamic_pointer_cast<BaseNumberParameter>(shared_from_this()); }
+	std::shared_ptr<BaseNumberParameter> toNumber(){ return std::dynamic_pointer_cast<BaseNumberParameter>(shared_from_this()); }
 	
 private:
 	std::function<void(std::shared_ptr<Parameter>)> editCallback;

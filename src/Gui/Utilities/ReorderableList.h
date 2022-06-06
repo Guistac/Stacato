@@ -137,7 +137,11 @@ namespace ReorderableList{
 			
 			//draw black background where then item was
 			ImGui::InvisibleButton("Placeholder", state.currentItemSize);
-			ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImColor(.0f, .0f, .0f, .3f), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
+			ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetItemRectMin(),
+													  ImGui::GetItemRectMax(),
+													  ImColor(.0f, .0f, .0f, .3f),
+													  ImGui::GetStyle().FrameRounding,
+													  ImDrawFlags_RoundCornersAll);
 			
 			//draw shadow around dragged item
 			float shadowSize = ImGui::GetStyle().ItemSpacing.y;
@@ -145,7 +149,10 @@ namespace ReorderableList{
 							 state.draggedItemAbsolutePosition.y - shadowSize / 2.0);
 			ImVec2 shadowMax(state.draggedItemAbsolutePosition.x - 1.0 + state.currentItemSize.x + shadowSize / 2.0,
 							 state.draggedItemAbsolutePosition.y - 1.0 + state.currentItemSize.y + shadowSize / 2.0);
-			ImGui::GetForegroundDrawList()->AddRect(shadowMin, shadowMax, ImColor(.0f, .0f, .0f, .7f), shadowSize, ImDrawFlags_RoundCornersAll, shadowSize);
+			ImGui::GetForegroundDrawList()->AddRect(shadowMin, shadowMax, ImColor(.0f, .0f, .0f, .5f), shadowSize, ImDrawFlags_RoundCornersAll, shadowSize);
+			
+			ImDrawList* drawList = ImGui::GetWindowDrawList();
+			
 			
 			//start a floating window following the mouse
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
@@ -155,6 +162,7 @@ namespace ReorderableList{
 			ImGui::SetNextWindowSize(state.currentItemSize);
 			static ImGuiWindowFlags tooltipFlags = ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar;
 			ImGui::Begin("DraggedItem", nullptr, tooltipFlags);
+			drawList = ImGui::GetWindowDrawList();
 			ImGui::InvisibleButton("DraggedItem", state.currentItemSize);
 			ImGui::SetCursorPos(ImVec2(0,0));
 			return true;

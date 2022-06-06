@@ -150,7 +150,9 @@ std::shared_ptr<Animation> Animation::load(tinyxml2::XMLElement* xml, std::share
 
 
 
-
+void Animation::fillDefaults(){
+	animatable->getMachine()->fillAnimationDefaults(shared_from_this());
+}
 
 
 void Animation::subscribeToMachineParameter(){
@@ -163,25 +165,15 @@ void Animation::unsubscribeFromMachineParameter(){
 
 void Animation::validate(){
 	validationErrorString = "";
-	b_valid = getAnimatable()->getMachine()->validateAnimation(shared_from_this());
+	b_valid = getMachine()->validateAnimation(shared_from_this());
 	if(hasManoeuvre()) manoeuvre->updateTrackSummary();
 }
 
-
-void Animation::updatePlaybackStatus(){
-	if(playbackPosition_seconds >= duration_seconds){
-		auto animatable = getAnimatable();
-		if(animatable->hasAnimation()) animatable->getMachine()->endAnimationPlayback(animatable);
-	}
-}
-
-
-std::shared_ptr<AnimationValue> Animation::getValueAtPlaybackTime(){
-	return animatable->getValueAtAnimationTime(shared_from_this(), playbackPosition_seconds);
-}
-
-
 bool Animation::isMachineEnabled(){ return animatable->getMachine()->isEnabled(); }
+
+
+
+
 
 
 bool Animation::isInRapid(){
@@ -192,24 +184,39 @@ float Animation::getRapidProgress(){
 	return animatable->getMachine()->getAnimatableRapidProgress(animatable);
 }
 
-
 bool Animation::isPlaying(){
 	return getAnimatable()->getAnimation() == shared_from_this();
 }
 
+std::shared_ptr<AnimationValue> Animation::getValueAtPlaybackTime(){
+	return animatable->getValueAtAnimationTime(shared_from_this(), playbackPosition_seconds);
+}
+
 void Animation::startPlayback(){
 	if(!isReadyToStartPlayback()) return;
-	animatable->getMachine()->startAnimationPlayback(shared_from_this());
+	getMachine()->startAnimationPlayback(shared_from_this());
 }
 
 void Animation::interruptPlayback(){
-	if(isPlaying()) animatable->getMachine()->interruptAnimationPlayback(animatable);
-	animatable->getMachine()->cancelAnimatableRapid(animatable);
+	if(!isPlaying()) return;
+	getMachine()->interruptAnimationPlayback(animatable);
 }
 
-void Animation::stopPlayback(){
-	if(isPlaying()) animatable->getMachine()->endAnimationPlayback(animatable);
-	animatable->getMachine()->cancelAnimatableRapid(animatable);
+void Animation::endPlayback(){
+	if(isPlaying()) getMachine()->endAnimationPlayback(animatable);
 	setPlaybackPosition(0.0);
 	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
+}
+
+void Animation::stop(){
+	if(isPlaying()) getMachine()->interruptAnimationPlayback(animatable);
+	else getMachine()->cancelAnimatableRapid(animatable);
+	setPlaybackPosition(0.0);
+	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
+}
+
+void Animation::updatePlaybackStatus(){
+	if(playbackPosition_seconds >= duration_seconds){
+		endPlayback();
+	}
 }

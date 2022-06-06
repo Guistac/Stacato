@@ -6,10 +6,7 @@
 #include "Motion/Axis/PositionControlledAxis.h"
 #include "Machine/Machines/Basic/PositionControlledMachine.h"
 #include "Machine/Machines/StateMachines/HoodedLiftStateMachine.h"
-//#include "Motion/Machine/Machines/Animated/Oscillator3x.h"
-//#include "Motion/Machine/Machines/Animated/BinaryOscillator6x.h"
 #include "Machine/Machines/Utility/PositionFeedbackMachine.h"
-#include "Machine/Machines/Special/LinearMecanumClaw.h"
 
 #include "Machine/Machines/Safety/DeadMansSwitch.h"
 
@@ -34,10 +31,7 @@ namespace NodeFactory{
 		allMachineNodes = {
 			new PositionControlledMachine(),
 			new HoodedLiftStateMachine(),
-			//new Oscillator3x(),
-			//new BinaryOscillator6x(),
-			new PositionFeedbackMachine(),
-			new LinearMecanumClaw()
+			new PositionFeedbackMachine()
 		};
 		
 		allSafetyNodes = {

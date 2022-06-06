@@ -1,6 +1,44 @@
 #include "Animation.h"
 #include "Machine/Machine.h"
 
+SequenceAnimation::SequenceAnimation(std::shared_ptr<Animatable> animatable) : Animation(animatable){
+	target = animatable->makeParameter();
+	target->setName("End");
+	target->setSaveString("End");
+	start = animatable->makeParameter();
+	start->setName("Start");
+	start->setSaveString("Start");
+	inAcceleration->denyNegatives();
+	outAcceleration->denyNegatives();
+	if(animatable->isNumber()){
+		inAcceleration->setPrefix("In: ");
+		inAcceleration->setSuffix("/s\xC2\xB2");
+		outAcceleration->setPrefix("Out: ");
+		outAcceleration->setSuffix("/s\xC2\xB2");
+		Unit unit = animatable->toNumber()->getUnit();
+		setUnit(unit);
+	}
+	
+	if(!animatable->isNumber() || !animatable->toNumber()->isReal()){
+		inAcceleration->setDisabled(true);
+		outAcceleration->setDisabled(true);
+	}
+	
+	Motion::Interpolation::Type defaultInterpolation = animatable->getCompatibleInterpolationTypes().front();
+	interpolationType = std::make_shared<EnumeratorParameter<Motion::Interpolation::Type>>(defaultInterpolation, "Interpolation Type", "interpolationType");
+	
+	auto editCallback = [this](std::shared_ptr<Parameter> thisParameter){ updateAfterParameterEdit(); };
+	interpolationType->setEditCallback(editCallback);
+	target->setEditCallback(editCallback);
+	start->setEditCallback(editCallback);
+	duration->setEditCallback(editCallback);
+	timeOffset->setEditCallback(editCallback);
+	inAcceleration->setEditCallback(editCallback);
+	outAcceleration->setEditCallback(editCallback);
+	initializeCurves();
+}
+
+
 std::shared_ptr<SequenceAnimation> SequenceAnimation::copy(){
 	auto copy = std::make_shared<SequenceAnimation>(getAnimatable());
 	getAnimatable()->copyParameterValue(target, copy->target);
@@ -14,124 +52,6 @@ std::shared_ptr<SequenceAnimation> SequenceAnimation::copy(){
 	copy->updateAfterParameterEdit();
 	return copy;
 }
-
-
-bool SequenceAnimation::isAtStart(){
-	auto animatable = getAnimatable();
-	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(start), animatable->getActualValue());
-}
-
-void SequenceAnimation::rapidToStart(){
-	auto animatable = getAnimatable();
-	animatable->stopAnimationPlayback();
-	animatable->getMachine()->rapidAnimatableToValue(animatable, animatable->parameterValueToAnimationValue(start));
-}
-
-void SequenceAnimation::rapidToPlaybackPosition(){
-	auto animatable = getAnimatable();
-	animatable->stopAnimationPlayback();
-	auto valueAtPlaybackTime = getValueAtPlaybackTime();
-	animatable->getMachine()->rapidAnimatableToValue(animatable, valueAtPlaybackTime);
-}
-
-bool SequenceAnimation::isAtPlaybackPosition(){
-	auto animatable = getAnimatable();
-	return animatable->isParameterValueEqual(getValueAtPlaybackTime(), animatable->getActualValue());
-}
-
-bool SequenceAnimation::isReadyToStartPlayback(){
-	auto animatable = getAnimatable();
-	if(!animatable->getMachine()->isEnabled()) return false;
-	return animatable->getMachine()->isAnimatableReadyToStartPlaybackFromValue(animatable, getValueAtPlaybackTime());
-}
-
-
-void SequenceAnimation::updateAfterParameterEdit(){
-	int curveCount = getAnimatable()->getCurveCount();
-	auto& curves = getCurves();
-	
-	auto animatable = getAnimatable();
-	auto startValue = animatable->parameterValueToAnimationValue(start);
-	auto targetValue = animatable->parameterValueToAnimationValue(target);
-	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromAnimationValue(startValue);
-	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromAnimationValue(targetValue);
-	
-	for(int i = 0; i < curveCount; i++){
-		auto& curve = curves[i];
-		auto& points = curve.getPoints();
-		
-		std::shared_ptr<Motion::ControlPoint> startPoint = points.front();
-		std::shared_ptr<Motion::ControlPoint> targetPoint = points.back();
-				
-		startPoint->position = curveStartPositions[i];
-		startPoint->velocity = 0.0;
-		startPoint->inAcceleration = inAcceleration->value;
-		startPoint->outAcceleration = inAcceleration->value;
-		startPoint->time = timeOffset->value;
-		
-		targetPoint->position = curveEndPositions[i];
-		targetPoint->velocity = 0.0;
-		targetPoint->inAcceleration = outAcceleration->value;
-		targetPoint->outAcceleration = outAcceleration->value;
-		targetPoint->time = timeOffset->value + duration->value;
-		
-		curve.refresh();
-	}
-	
-	setDuration(timeOffset->value + duration->value);
-	
-	validate();
-}
-
-void SequenceAnimation::updateAfterCurveEdit(){
-	auto& curves = getCurves();
-	for(auto& curve : curves) curve.refresh();
-	validate();
-}
-
-void SequenceAnimation::initializeCurves(){
-	auto animatable = getAnimatable();
-	int curveCount = animatable->getCurveCount();
-	auto& curves = getCurves();
-	
-	auto startValue = animatable->parameterValueToAnimationValue(start);
-	auto targetValue = animatable->parameterValueToAnimationValue(target);
-	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromAnimationValue(startValue);
-	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromAnimationValue(targetValue);
-	
-	for(int i = 0; i < curveCount; i++){
-		auto& curve = curves[i];
-		auto& points = curve.getPoints();
-		curve.interpolationType = interpolationType->value;
-		
-		auto startPoint = std::make_shared<Motion::ControlPoint>();
-		auto targetPoint = std::make_shared<Motion::ControlPoint>();
-		startPoint->b_valid = true;
-		targetPoint->b_valid = true;
-		
-		startPoint->position = curveStartPositions[i];
-		startPoint->velocity = 0.0;
-		startPoint->inAcceleration = inAcceleration->value;
-		startPoint->outAcceleration = inAcceleration->value;
-		startPoint->time = timeOffset->value;
-		
-		targetPoint->position = curveEndPositions[i];
-		targetPoint->velocity = 0.0;
-		targetPoint->inAcceleration = outAcceleration->value;
-		targetPoint->outAcceleration = outAcceleration->value;
-		targetPoint->time = timeOffset->value + duration->value;
-		
-		points.push_back(startPoint);
-		points.push_back(targetPoint);
-		
-		curve.refresh();
-	}
-	
-	setDuration(timeOffset->value + duration->value);
-	
-}
-
-
 
 bool SequenceAnimation::onSave(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
@@ -238,4 +158,166 @@ std::shared_ptr<SequenceAnimation> SequenceAnimation::load(tinyxml2::XMLElement*
 	sequenceAnimation->setDuration(sequenceAnimation->timeOffset->value + sequenceAnimation->duration->value);
 
 	return sequenceAnimation;
+}
+
+
+void SequenceAnimation::setUnit(Unit unit){
+	if(getAnimatable()->isNumber()){
+		target->toNumber()->setUnit(unit);
+		start->toNumber()->setUnit(unit);
+	}
+}
+
+bool SequenceAnimation::isSimple(){
+	return getCurves().front().getPoints().size() == 2;
+}
+
+bool SequenceAnimation::isComplex(){
+	return getCurves().front().getPoints().size() > 2;
+}
+
+
+void SequenceAnimation::captureStart(){
+	auto animatable = getAnimatable();
+	animatable->setParameterValueFromAnimationValue(start, animatable->getActualValue());
+}
+
+void SequenceAnimation::captureTarget(){
+	auto animatable = getAnimatable();
+	animatable->setParameterValueFromAnimationValue(target, animatable->getActualValue());
+}
+
+
+
+
+
+
+bool SequenceAnimation::isAtStart(){
+	auto animatable = getAnimatable();
+	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(start), animatable->getActualValue());
+}
+
+void SequenceAnimation::rapidToStart(){
+	auto animatable = getAnimatable();
+	animatable->stopAnimationPlayback();
+	animatable->getMachine()->rapidAnimatableToValue(animatable, animatable->parameterValueToAnimationValue(start));
+}
+
+bool SequenceAnimation::isAtTarget(){
+	auto animatable = getAnimatable();
+	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(target), animatable->getActualValue());
+}
+
+void SequenceAnimation::rapidToTarget(){
+	auto animatable = getAnimatable();
+	animatable->stopAnimationPlayback();
+	getMachine()->rapidAnimatableToValue(animatable, animatable->parameterValueToAnimationValue(target));
+}
+
+bool SequenceAnimation::isAtPlaybackPosition(){
+	auto animatable = getAnimatable();
+	return animatable->isParameterValueEqual(getValueAtPlaybackTime(), animatable->getActualValue());
+}
+
+void SequenceAnimation::rapidToPlaybackPosition(){
+	auto animatable = getAnimatable();
+	animatable->stopAnimationPlayback();
+	auto valueAtPlaybackTime = getValueAtPlaybackTime();
+	animatable->getMachine()->rapidAnimatableToValue(animatable, valueAtPlaybackTime);
+}
+
+bool SequenceAnimation::isReadyToStartPlayback(){
+	auto animatable = getAnimatable();
+	if(!animatable->getMachine()->isEnabled()) return false;
+	return animatable->getMachine()->isAnimatableReadyToStartPlaybackFromValue(animatable, getValueAtPlaybackTime());
+}
+
+
+
+
+
+
+void SequenceAnimation::updateAfterParameterEdit(){
+	int curveCount = getAnimatable()->getCurveCount();
+	auto& curves = getCurves();
+	
+	auto animatable = getAnimatable();
+	auto startValue = animatable->parameterValueToAnimationValue(start);
+	auto targetValue = animatable->parameterValueToAnimationValue(target);
+	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromAnimationValue(startValue);
+	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromAnimationValue(targetValue);
+	
+	for(int i = 0; i < curveCount; i++){
+		auto& curve = curves[i];
+		auto& points = curve.getPoints();
+		
+		std::shared_ptr<Motion::ControlPoint> startPoint = points.front();
+		std::shared_ptr<Motion::ControlPoint> targetPoint = points.back();
+				
+		startPoint->position = curveStartPositions[i];
+		startPoint->velocity = 0.0;
+		startPoint->inAcceleration = inAcceleration->value;
+		startPoint->outAcceleration = inAcceleration->value;
+		startPoint->time = timeOffset->value;
+		
+		targetPoint->position = curveEndPositions[i];
+		targetPoint->velocity = 0.0;
+		targetPoint->inAcceleration = outAcceleration->value;
+		targetPoint->outAcceleration = outAcceleration->value;
+		targetPoint->time = timeOffset->value + duration->value;
+		
+		curve.refresh();
+	}
+	
+	setDuration(timeOffset->value + duration->value);
+	
+	validate();
+}
+
+void SequenceAnimation::updateAfterCurveEdit(){
+	auto& curves = getCurves();
+	for(auto& curve : curves) curve.refresh();
+	validate();
+}
+
+void SequenceAnimation::initializeCurves(){
+	auto animatable = getAnimatable();
+	int curveCount = animatable->getCurveCount();
+	auto& curves = getCurves();
+	
+	auto startValue = animatable->parameterValueToAnimationValue(start);
+	auto targetValue = animatable->parameterValueToAnimationValue(target);
+	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromAnimationValue(startValue);
+	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromAnimationValue(targetValue);
+	
+	for(int i = 0; i < curveCount; i++){
+		auto& curve = curves[i];
+		auto& points = curve.getPoints();
+		curve.interpolationType = interpolationType->value;
+		
+		auto startPoint = std::make_shared<Motion::ControlPoint>();
+		auto targetPoint = std::make_shared<Motion::ControlPoint>();
+		startPoint->b_valid = true;
+		targetPoint->b_valid = true;
+		
+		startPoint->position = curveStartPositions[i];
+		startPoint->velocity = 0.0;
+		startPoint->inAcceleration = inAcceleration->value;
+		startPoint->outAcceleration = inAcceleration->value;
+		startPoint->time = timeOffset->value;
+		
+		targetPoint->position = curveEndPositions[i];
+		targetPoint->velocity = 0.0;
+		targetPoint->inAcceleration = outAcceleration->value;
+		targetPoint->outAcceleration = outAcceleration->value;
+		targetPoint->time = timeOffset->value + duration->value;
+		
+		points.push_back(startPoint);
+		points.push_back(targetPoint);
+		
+		curve.refresh();
+	}
+	
+	setDuration(timeOffset->value + duration->value);
+	
 }

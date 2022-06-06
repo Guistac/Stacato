@@ -141,6 +141,7 @@ public:
 		addedAnimation = animatable->makeAnimation(manoeuvre->getType());
 		manoeuvre->getAnimations().push_back(addedAnimation);
 		addedAnimation->setManoeuvre(manoeuvre);
+		addedAnimation->fillDefaults();
 		addedAnimation->validate();
 	}
 	
@@ -500,6 +501,13 @@ void Manoeuvre::startPlayback(){
 	b_playing = true;
 	b_paused = false;
 	for(auto& animation : animations) animation->startPlayback();
+	if(getType() == ManoeuvreType::TARGET){
+		double largestTime = 0.0;
+		for(auto& animation : animations){
+			if(animation->getDuration() > largestTime) largestTime = animation->getDuration();
+		}
+		duration_seconds = largestTime;
+	}
 	PlaybackManager::push(shared_from_this());
 }
 
@@ -544,7 +552,7 @@ void Manoeuvre::stop(){
 	b_inRapid = false;
 	b_playing = false;
 	b_paused = false;
-	for(auto& animation : animations) animation->stopPlayback();
+	for(auto& animation : animations) animation->stop();
 	PlaybackManager::pop(shared_from_this());
 	playbackPosition_seconds = 0.0;
 	for(auto& animation : animations) animation->setPlaybackPosition(0.0);
