@@ -177,6 +177,21 @@ bool SequenceAnimation::isComplex(){
 }
 
 
+void SequenceAnimation::getCurvePositionRange(double& min, double& max){
+	double mi = DBL_MAX;
+	double ma = DBL_MIN;
+	for(auto& curve : getCurves()){
+		for(auto& controlPoint : curve.getPoints()){
+			mi = std::min(mi, controlPoint->position);
+			ma = std::max(ma, controlPoint->position);
+		}
+	}
+	min = mi;
+	max = ma;
+}
+
+
+
 void SequenceAnimation::captureStart(){
 	auto animatable = getAnimatable();
 	animatable->setParameterValueFromAnimationValue(start, animatable->getActualValue());

@@ -16,6 +16,52 @@
 
 #include "Gui/Utilities/CustomWidgets.h"
 
+bool Animation::beginTrackSheetTable(ManoeuvreType type, ImGuiTableFlags tableFlags){
+	switch(type){
+		case ManoeuvreType::KEY:
+			return AnimationKey::beginTrackSheetTable(tableFlags);
+		case ManoeuvreType::TARGET:
+			return TargetAnimation::beginTrackSheetTable(tableFlags);
+		case ManoeuvreType::SEQUENCE:
+			return SequenceAnimation::beginTrackSheetTable(tableFlags);
+	}
+}
+
+bool AnimationKey::beginTrackSheetTable(ImGuiTableFlags tableFlags){
+	bool b_tableBegun = ImGui::BeginTable("##TrackParameters", 4, tableFlags);
+	ImGui::TableSetupColumn("Manage");
+	ImGui::TableSetupColumn("Machine");
+	ImGui::TableSetupColumn("Parameter");
+	ImGui::TableSetupColumn("Target");
+	return b_tableBegun;
+}
+
+bool TargetAnimation::beginTrackSheetTable(ImGuiTableFlags tableFlags){
+	bool b_tableBegun = ImGui::BeginTable("##TrackParameters", 8, tableFlags);
+	ImGui::TableSetupColumn("Manage");
+	ImGui::TableSetupColumn("Machine");
+	ImGui::TableSetupColumn("Parameter");
+	ImGui::TableSetupColumn("Interpolation");	//kinematic, linear, step, bezier
+	ImGui::TableSetupColumn("Target");			//position or other
+	ImGui::TableSetupColumn("Using");			//time vs velocity
+	ImGui::TableSetupColumn("Constraint");		//time or velocity
+	ImGui::TableSetupColumn("Ramps");			//for kinematic or bezier
+	return b_tableBegun;
+}
+
+bool SequenceAnimation::beginTrackSheetTable(ImGuiTableFlags tableFlags){
+	bool b_tableBegun = ImGui::BeginTable("##TrackParameters", 9, tableFlags);
+	ImGui::TableSetupColumn("Manage");
+	ImGui::TableSetupColumn("Machine");
+	ImGui::TableSetupColumn("Parameter");
+	ImGui::TableSetupColumn("Interpolation");
+	ImGui::TableSetupColumn("Start");		//sequencer start
+	ImGui::TableSetupColumn("End");			//sequencer end
+	ImGui::TableSetupColumn("Duration");
+	ImGui::TableSetupColumn("Time Offset");
+	ImGui::TableSetupColumn("Ramps");
+	return b_tableBegun;
+}
 
 void Animation::baseTrackSheetRowGui(){
 
@@ -39,21 +85,6 @@ void Animation::baseTrackSheetRowGui(){
 	ImGui::TableSetColumnIndex(2);
 	backgroundText(animatable->getName(), b_valid ? Colors::darkGreen : Colors::red, b_valid ? Colors::white : Colors::white);
 	if(ImGui::IsItemHovered() && !b_valid) validationErrorPopup();
-}
-
-void Animation::validationErrorPopup(){
-	if(b_valid) return;
-	
-	ImGui::BeginTooltip();
-	ImGui::Text("Track is not valid.");
-	
-	ImGui::Separator();
-	
-	ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
-	if(!validationErrorString.empty()) ImGui::Text("%s", validationErrorString.c_str());
-	ImGui::PopStyleColor();
-	
-	ImGui::EndTooltip();
 }
 
 void AnimationKey::trackSheetRowGui(){
@@ -157,8 +188,20 @@ void SequenceAnimation::trackSheetRowGui(){
 	if(!outAcceleration->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 }
 
-
-
+void Animation::validationErrorPopup(){
+	if(b_valid) return;
+	
+	ImGui::BeginTooltip();
+	ImGui::Text("Track is not valid.");
+	
+	ImGui::Separator();
+	
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+	if(!validationErrorString.empty()) ImGui::Text("%s", validationErrorString.c_str());
+	ImGui::PopStyleColor();
+	
+	ImGui::EndTooltip();
+}
 
 
 

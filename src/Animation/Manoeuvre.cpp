@@ -306,6 +306,23 @@ void Manoeuvre::updateTrackSummary(){
 }
 
 
+void Manoeuvre::getCurveRange(double& minX, double& maxX, double& minY, double& maxY){
+	double maX = DBL_MIN;
+	double miY = DBL_MAX;
+	double maY = DBL_MIN;
+	for(auto& animation : animations){
+		maX = std::max(maX, animation->getDuration());
+		double animMinY, animMaxY;
+		animation->getCurvePositionRange(animMinY, animMaxY);
+		miY = std::min(miY, animMinY);
+		maY = std::max(maY, animMaxY);
+	}
+	minX = 0;
+	maxX = maX;
+	minY = miY;
+	maxY = maY;
+}
+
 
 
 

@@ -124,6 +124,8 @@ public:
 	double getPlaybackPosition();
 	double getRemainingPlaybackTime();
 	
+	void getCurveRange(double& minX, double& maxX, double& minY, double& maxY);
+	
 	bool areAllMachinesEnabled();
 	bool areNoMachinesEnabled();
 	

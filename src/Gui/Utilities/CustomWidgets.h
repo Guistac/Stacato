@@ -73,3 +73,7 @@ void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec
 
 bool timeEntryWidgetSeconds(const char* ID, float height, double& time_seconds);
 bool timeEntryWidgetMicroseconds(const char* ID, float height, long long int time_microseconds);
+
+
+void scrollingTextWithBackground(const char* ID, const char* text, ImVec2 size, ImVec4 backgroundColor, bool lock = false, float pausetime = 2.0, float velocity = 2.0);
+void scrollingText(const char* ID, const char* text, float width, bool lock = false, float pauseTime = 2.0, float velocity = 2.0);

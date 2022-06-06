@@ -4,6 +4,16 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -215,6 +225,16 @@ DockSpace       ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,149 Size=2056,961 Split=X 
 
 </Layout>
     <Layout Name="Environnement Editor">
+
+
+
+
+
+
+
+
+
+
 
 
 

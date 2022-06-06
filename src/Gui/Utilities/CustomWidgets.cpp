@@ -764,3 +764,82 @@ bool timeEntryWidgetMicroseconds(const char* ID, float height, long long int tim
 	ImGui::PopStyleVar();
 	return ret;
 }
+
+void scrollingTextBase(const char* ID, const char* text, ImVec2 size, bool lock, float pauseDuration, float velocity){
+	
+	glm::vec2 min = ImGui::GetItemRectMin();
+	glm::vec2 max = ImGui::GetItemRectMax();
+	
+	ImGui::PushID("ScrollingText");
+	ImGuiID textLengthID = ImGui::GetID(ID);
+	ImGuiID startTimeID = textLengthID + 1;
+	ImGui::PopID();
+	ImGuiStorage* storage = ImGui::GetStateStorage();
+	
+	int previousTextLength = storage->GetInt(textLengthID, -1);
+	int currentTextLength = strlen(text);
+	bool restart = false;
+	if(previousTextLength != currentTextLength){
+		storage->SetInt(textLengthID, currentTextLength);
+		restart = true;
+	}
+	
+	float startTime;
+	if(lock || restart){
+		startTime = Timing::getProgramTime_seconds();
+		storage->SetFloat(startTimeID, startTime);
+	}else{
+		startTime = storage->GetFloat(startTimeID, -1.0);
+	}
+	
+	ImVec2 textSize = ImGui::CalcTextSize(text);
+	
+	ImGui::PushClipRect(min, max, true);
+	
+	if(textSize.x < size.x){
+		ImVec2 textPosition(min.x + (size.x - textSize.x) / 2.0, min.y + (size.y - textSize.y) / 2.0);
+		ImGui::GetWindowDrawList()->AddText(textPosition, ImGui::GetColorU32(ImGuiCol_Text), text);
+	}else{
+		
+		float spacing = ImGui::GetTextLineHeight();
+		float scrollDistance = textSize.x + spacing;
+		float scrollVelocity = ImGui::GetTextLineHeight() * velocity;
+		float scrollDuration = (scrollDistance / scrollVelocity);
+		float totalDuration = scrollDuration + pauseDuration;
+		float time = Timing::getProgramTime_seconds() - startTime - pauseDuration;
+		float scrollNormalized = fmod(time, totalDuration) / scrollDuration;
+		if(scrollNormalized < 0.0 || scrollNormalized > 1.0) scrollNormalized = 0.0;
+		float scrollOffset = scrollNormalized * scrollDistance;
+		
+		auto textColor = ImGui::GetColorU32(ImGuiCol_Text);
+		glm::vec2 textPosition(min.x + ImGui::GetStyle().FramePadding.x, min.y + (size.y - textSize.y) / 2.0);
+		textPosition.x -= scrollOffset;
+		textPosition.x = std::round(textPosition.x);
+		ImGui::GetWindowDrawList()->AddText(textPosition, textColor, text);
+		glm::vec2 overlapTextPosition(textPosition.x + scrollDistance, textPosition.y);
+		ImGui::GetWindowDrawList()->AddText(overlapTextPosition, textColor, text);
+	}
+	
+	ImGui::PopClipRect();
+	
+	
+}
+
+void scrollingTextWithBackground(const char* ID, const char* text, ImVec2 size, ImVec4 backgroundColor, bool lock, float pauseDuration, float velocity){
+	ImGui::InvisibleButton(text, size);
+	glm::vec2 min = ImGui::GetItemRectMin();
+	glm::vec2 max = ImGui::GetItemRectMax();
+	ImGui::GetWindowDrawList()->AddRectFilled(min, max,
+											  ImColor(backgroundColor),
+											  ImGui::GetStyle().FrameRounding,
+											  ImDrawFlags_RoundCornersAll);
+	scrollingTextBase(ID, text, size, lock, pauseDuration, velocity);
+}
+
+void scrollingText(const char* ID, const char* text, float width, bool lock, float pauseDuration, float velocity){
+	ImVec2 size(width, ImGui::GetTextLineHeight());
+	ImGui::InvisibleButton(text, size);
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
+	scrollingTextBase(ID, text, size, lock, pauseDuration, velocity);
+	ImGui::PopStyleVar();
+}

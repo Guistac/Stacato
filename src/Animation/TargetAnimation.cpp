@@ -94,6 +94,21 @@ std::shared_ptr<TargetAnimation> TargetAnimation::load(tinyxml2::XMLElement* xml
 }
 
 
+bool TargetAnimation::areCurvesGenerated(){
+	for(auto& curve : getCurves()){
+		if(curve.getPoints().empty() || curve.getInterpolations().empty()) return false;
+	}
+	return true;
+}
+
+void TargetAnimation::clearCurves(){
+	for(auto& curve : getCurves()){
+		curve.getPoints().clear();
+		curve.getInterpolations().clear();
+	}
+}
+
+
 void TargetAnimation::setUnit(Unit unit){
 	if(getAnimatable()->isNumber()){
 		target->toNumber()->setUnit(unit);
@@ -104,6 +119,28 @@ void TargetAnimation::setUnit(Unit unit){
 }
 
 
+void TargetAnimation::getCurvePositionRange(double& min, double& max){
+	double mi = DBL_MAX;
+	double ma = DBL_MIN;
+	if(areCurvesGenerated()){
+		for(auto& curve : getCurves()){
+			for(auto& controlPoint : curve.getPoints()){
+				mi = std::min(mi, controlPoint->position);
+				ma = std::max(ma, controlPoint->position);
+			}
+		}
+	}else{
+		auto animatable = getAnimatable();
+		auto targetValue = animatable->parameterValueToAnimationValue(target);
+		auto curvePositions = animatable->getCurvePositionsFromAnimationValue(targetValue);
+		for(double value : curvePositions){
+			mi = std::min(mi, value);
+			ma = std::max(ma, value);
+		}
+	}
+	min = mi;
+	max = ma;
+}
 
 
 bool TargetAnimation::isAtTarget(){
@@ -136,10 +173,7 @@ void TargetAnimation::endPlayback(){
 	if(isPlaying()) getMachine()->endAnimationPlayback(getAnimatable());
 	setPlaybackPosition(0.0);
 	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
-	for(auto& curve : getCurves()){
-		curve.getPoints().clear();
-		curve.getInterpolations().clear();
-	}
+	clearCurves();
 }
 
 void TargetAnimation::stop(){
@@ -147,10 +181,7 @@ void TargetAnimation::stop(){
 	else getMachine()->cancelAnimatableRapid(getAnimatable());
 	setPlaybackPosition(0.0);
 	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
-	for(auto& curve : getCurves()){
-		curve.getPoints().clear();
-		curve.getInterpolations().clear();
-	}
+	clearCurves();
 }
 
 

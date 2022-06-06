@@ -23,50 +23,52 @@
 
 #include "Gui/Utilities/CustomWidgets.h"
 
-void Manoeuvre::listGui(){
 
-	//inside draggable list element
+
+//inside draggable list element: InvisibleButton/ClipRectangle
+void Manoeuvre::listGui(){
 	
+	//get drawing coordinates
 	glm::vec2 min = ImGui::GetItemRectMin();
 	glm::vec2 max = ImGui::GetItemRectMax();
 	glm::vec2 size = ImGui::GetItemRectSize();
 	glm::vec2 minCursor = ImGui::GetCursorPos();
 	bool b_hovered = ImGui::IsItemHovered();
+	bool b_selected = isSelected();
 	
-	//show manoeuvre validness
+	//draw background and show validness
+	ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(Colors::veryDarkGray), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 	if(!b_valid){
 		bool blink = (int)Timing::getProgramTime_milliseconds() % 1000 > 500;
 		glm::vec4 color = blink ? Colors::red : Colors::yellow;
 		color.w = 0.5;
 		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(color), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
-	}else{
-		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(Colors::veryDarkGray), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 	}
 	
-	//show header type strip
-	float headerStripWidth = 50.0;
+	//show header strip with icon
+	float headerStripWidth = ImGui::GetTextLineHeight() * 2.3;
 	glm::vec2 maxHeaderStrip = min + glm::vec2(headerStripWidth, ImGui::GetItemRectSize().y);
 	glm::vec4 headerStripColor;
+	const char* manoeuvreTypeString;
+	Image* icon;
 	switch (type->value) {
 		case ManoeuvreType::KEY:
 			headerStripColor = Colors::darkYellow;
+			manoeuvreTypeString = "KEY";
+			icon = &Images::KeyIcon;
 			break;
 		case ManoeuvreType::TARGET:
 			headerStripColor = Colors::darkGray;
+			manoeuvreTypeString = "TAR";
+			icon = &Images::TargetIcon;
 			break;
 		case ManoeuvreType::SEQUENCE:
 			headerStripColor = Colors::darkRed;
+			manoeuvreTypeString = "SEQ";
+			icon = &Images::SequenceIcon;
 			break;
 	}
 	ImGui::GetWindowDrawList()->AddRectFilled(min, maxHeaderStrip, ImColor(headerStripColor), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersLeft);
-	
-	
-	const char* manoeuvreTypeString;
-	switch(getType()){
-		case ManoeuvreType::KEY: manoeuvreTypeString = "KEY"; break;
-		case ManoeuvreType::TARGET: manoeuvreTypeString = "TAR"; break;
-		case ManoeuvreType::SEQUENCE: manoeuvreTypeString = "SEQ"; break;
-	}
 	ImGui::PushFont(Fonts::sansRegular20);
 	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.0f, 0.f, 0.f, .9f));
 	glm::vec2 textSize = ImGui::CalcTextSize(manoeuvreTypeString);
@@ -75,8 +77,6 @@ void Manoeuvre::listGui(){
 	ImGui::Text("%s", manoeuvreTypeString);
 	ImGui::PopFont();
 	ImGui::PopStyleColor();
-	
-	
 	glm::vec2 imageSize(headerStripWidth * 0.7);
 	glm::vec4 imageTint(1.f, 1.f, 1.f,.9f);
 	glm::vec2 imageUV1(.0f, .0f);
@@ -84,40 +84,30 @@ void Manoeuvre::listGui(){
 	float posY = ImGui::GetCursorPosY();
 	ImGui::SetCursorPosY(posY - ImGui::GetStyle().ItemSpacing.y);
 	ImGui::SetCursorPosX((headerStripWidth - imageSize.x) / 2.0);
-	
-	
-	switch(getType()){
-		case ManoeuvreType::KEY:
-			ImGui::Image(Images::KeyIcon.getID(), imageSize, imageUV1, imageUV2, imageTint); break;
-		case ManoeuvreType::TARGET:
-			ImGui::Image(Images::TargetIcon.getID(), imageSize, imageUV1, imageUV2, imageTint); break;
-		case ManoeuvreType::SEQUENCE:
-			ImGui::Image(Images::SequenceIcon.getID(), imageSize, imageUV1, imageUV2, imageTint); break;
-	}
-	
+	ImGui::Image(icon->getID(), imageSize, imageUV1, imageUV2, imageTint);
 	
 	//show name and description
 	ImGui::SetCursorPosX(minCursor.x + headerStripWidth + ImGui::GetStyle().FramePadding.x);
 	ImGui::SetCursorPosY(minCursor.y + ImGui::GetStyle().FramePadding.y);
-	
 	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("%s", getName());
+	float headerTextWidth = ImGui::GetContentRegionAvail().x;
+	if(ImGui::CalcTextSize(getName()).x > headerTextWidth) scrollingText("ScrollingName", getName(), headerTextWidth, !b_hovered && !b_selected, 0.5);
+	else ImGui::Text("%s", getName());
 	ImGui::PopFont();
-	
 	ImGui::SetCursorPosY(minCursor.y + ImGui::GetTextLineHeightWithSpacing());
 	ImGui::SetCursorPosX(minCursor.x + headerStripWidth + ImGui::GetStyle().FramePadding.x);
-	
 	ImGui::PushFont(Fonts::sansLight15);
 	ImGui::TextWrapped("%s", getDescription());
 	ImGui::PopFont();
 	
+	//show playback or rapid state
 	if(isInRapid()){
 		int trackCount = animations.size();
 		float trackHeight = size.y / (float)trackCount;
 		for (int i = 0; i < trackCount; i++) {
 			glm::vec2 minBar(min.x, min.y + trackHeight * i);
-			glm::vec2 maxBar(min.x + size.x * animations[i]->getRapidProgress(), min.y + trackHeight);
-			ImGui::GetWindowDrawList()->AddRectFilled(min, maxBar, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
+			glm::vec2 maxBar(minBar.x + size.x * animations[i]->getRapidProgress(), minBar.y + trackHeight);
+			ImGui::GetWindowDrawList()->AddRectFilled(minBar, maxBar, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
 		}
 	}else if(isPlaying() || isPaused()){
 		float progress = getPlaybackProgress();
@@ -125,14 +115,14 @@ void Manoeuvre::listGui(){
 		ImGui::GetWindowDrawList()->AddRectFilled(min, maxBar, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.4)), 5.0);
 	}
 	
+	//mouse interaction and selection display
 	if(b_hovered && !ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
 		glm::vec4 color;
 		if(ImGui::IsMouseDown(ImGuiMouseButton_Left)) color = glm::vec4(0.f, 0.f, 0.f, .3f);
 		else color = glm::vec4(1.f, 1.f, 1.f, .1f);
 		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(color), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 	}
-	
-	if(isSelected()){
+	if(b_selected){
 		float thickness = ImGui::GetTextLineHeight() * 0.1;
 		float rounding = ImGui::GetStyle().FrameRounding - thickness / 2.0;
 		glm::vec2 minSelection = min + glm::vec2(thickness / 2.0);
@@ -140,6 +130,13 @@ void Manoeuvre::listGui(){
 		ImGui::GetWindowDrawList()->AddRect(minSelection, maxSelection, ImColor(1.0f, 1.0f, 1.0f, 0.3f), rounding, ImDrawFlags_RoundCornersAll, thickness);
 	}
 	
+}
+
+float smoothstep(float edge0, float edge1, float x) {
+	// Scale, bias and saturate x to 0..1 range
+	x = std::clamp((x - edge0) / (edge1 - edge0), 0.0f, 1.0f);
+	// Evaluate polynomial
+	return x * x * (3 - 2 * x);
 }
 
 void Manoeuvre::miniatureGui(glm::vec2 size_arg){
@@ -152,7 +149,11 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 	else if(areNoMachinesEnabled()) backgroundColor = Colors::red;
 	else if(areAllMachinesEnabled()) backgroundColor = Colors::green;
 	else backgroundColor = Colors::yellow;
-	backgroundText(getName(), size_arg, backgroundColor);
+	
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	scrollingTextWithBackground("ManoeuvreName", getName(), size_arg, backgroundColor);
+	ImGui::PopFont();
 	
 	if(isInRapid()){
 		glm::vec2 pos = ImGui::GetItemRectMin();
@@ -204,17 +205,8 @@ void Manoeuvre::sheetEditor(){
 	ImGui::Text("Manoeuvre Type");
 	ImGui::PopFont();
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 8.0);
-	
-	/*
-	static ManoeuvreType availableManoeuvreTypes[2] = {
-		ManoeuvreType::KEY,
-		ManoeuvreType::SEQUENCE
-	};
-	type->combo(availableManoeuvreTypes, 2);
-	*/
 	type->gui();
 	 
-	//type->gui();
 	ImGui::EndGroup();
 	
 	cursorPos.x += ImGui::GetItemRectSize().x + ImGui::GetStyle().ItemSpacing.x;
@@ -250,42 +242,7 @@ void Manoeuvre::sheetEditor(){
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.15));
 	ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX;
 	
-	bool b_tableBegun;
-	
-	switch(getType()){
-		case ManoeuvreType::KEY:
-			b_tableBegun = ImGui::BeginTable("##TrackParameters", 4, tableFlags);
-			ImGui::TableSetupColumn("Manage");
-			ImGui::TableSetupColumn("Machine");
-			ImGui::TableSetupColumn("Parameter");
-			ImGui::TableSetupColumn("Target");
-			break;
-		case ManoeuvreType::TARGET:
-			b_tableBegun = ImGui::BeginTable("##TrackParameters", 8, tableFlags);
-			ImGui::TableSetupColumn("Manage");
-			ImGui::TableSetupColumn("Machine");
-			ImGui::TableSetupColumn("Parameter");
-			ImGui::TableSetupColumn("Interpolation");	//kinematic, linear, step, bezier
-			ImGui::TableSetupColumn("Target");			//position or other
-			ImGui::TableSetupColumn("Using");			//time vs velocity
-			ImGui::TableSetupColumn("Constraint");		//time or velocity
-			ImGui::TableSetupColumn("Ramps");			//for kinematic or bezier
-			break;
-		case ManoeuvreType::SEQUENCE:
-			b_tableBegun = ImGui::BeginTable("##TrackParameters", 9, tableFlags);
-			ImGui::TableSetupColumn("Manage");
-			ImGui::TableSetupColumn("Machine");
-			ImGui::TableSetupColumn("Parameter");
-			ImGui::TableSetupColumn("Interpolation");
-			ImGui::TableSetupColumn("Start");		//sequencer start
-			ImGui::TableSetupColumn("End");			//sequencer end
-			ImGui::TableSetupColumn("Duration");
-			ImGui::TableSetupColumn("Time Offset");
-			ImGui::TableSetupColumn("Ramps");
-			break;
-	}
-	
-	if(b_tableBegun){
+	if(Animation::beginTrackSheetTable(getType(), tableFlags)){
 		ImGui::TableHeadersRow();
 		
 		for (int i = 0; i < animations.size(); i++) {
@@ -372,10 +329,23 @@ void Manoeuvre::sheetEditor(){
 }
 
 void Manoeuvre::curveEditor(){
-	if (ImGui::Button("Center On Curves")) ImPlot::FitNextPlotAxes();
+			
+	if (ImGui::Button("Center On Curves")) {
+		double minX, maxX, minY, maxY;
+		getCurveRange(minX, maxX, minY, maxY);
+		double rangeX = maxX - minX;
+		double rangeY = maxY - minY;
+		double extraRange = 0.05;
+		minX -= rangeX * extraRange;
+		maxX += rangeX * extraRange;
+		minY -= rangeY * extraRange;
+		maxY += rangeY * extraRange;
+		ImPlot::SetNextPlotLimits(minX, maxX, minY, maxY, ImGuiCond_Always);
+	}
+	
 	ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoChild;
+	
 	if (ImPlot::BeginPlot("##SequenceCurveDisplay", 0, 0, ImGui::GetContentRegionAvail(), plotFlags)) {
-		
 		
 		if (getType() != ManoeuvreType::KEY) {
 			//draw manoeuvre bounds

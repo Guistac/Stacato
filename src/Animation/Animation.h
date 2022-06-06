@@ -119,6 +119,7 @@ public:
 	void setPlaybackPosition(double seconds){ playbackPosition_seconds = seconds; }
 	double getPlaybackPosition(){ return playbackPosition_seconds; }
 	double getDuration(){ return duration_seconds; }
+	virtual void getCurvePositionRange(double& min, double& max){}
 	std::shared_ptr<AnimationValue> getValueAtPlaybackTime();
 	
 private:
@@ -136,6 +137,7 @@ public:
 	
 	virtual void drawCurves();
 	virtual void drawCurveControls() = 0;
+	static bool beginTrackSheetTable(ManoeuvreType type, ImGuiTableFlags tableFlags);
 	
 };
 
@@ -181,6 +183,8 @@ public:
 	void captureTarget(){}
 	std::shared_ptr<Parameter> target;
 	
+	virtual void getCurvePositionRange(double& min, double& max) override;
+	
 	//————————————————————— Playback ——————————————————————
 	
 public:
@@ -193,7 +197,7 @@ public:
 	virtual void trackSheetRowGui() override;
 	virtual void drawCurves() override {}
 	virtual void drawCurveControls() override;
-	
+	static bool beginTrackSheetTable(ImGuiTableFlags tableFlags);
 };
 
 
@@ -239,6 +243,11 @@ public:
 	
 	virtual void setUnit(Unit unit) override;
 	
+	virtual void getCurvePositionRange(double& min, double& max) override;
+	
+	bool areCurvesGenerated();
+	void clearCurves();
+	
 	void captureTarget(){}
 	std::shared_ptr<Parameter> target;
 	std::shared_ptr<EnumeratorParameter<Constraint>> constraintType = std::make_shared<EnumeratorParameter<Constraint>>(Constraint::TIME, "Constraint Type", "ConstraintType");
@@ -264,6 +273,7 @@ public:
 	
 	virtual void trackSheetRowGui() override;
 	virtual void drawCurveControls() override;
+	static bool beginTrackSheetTable(ImGuiTableFlags tableFlags);
 };
 
 #define TargetConstraintStrings \
@@ -315,6 +325,8 @@ public:
 	bool isSimple();
 	bool isComplex();
 	
+	virtual void getCurvePositionRange(double& min, double& max) override;
+	
 	void captureStart();
 	void captureTarget();
 	std::shared_ptr<Parameter> start;
@@ -346,6 +358,7 @@ public:
 	
 	virtual void trackSheetRowGui() override;
 	virtual void drawCurveControls() override;
+	static bool beginTrackSheetTable(ImGuiTableFlags tableFlags);
 };
 
 

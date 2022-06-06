@@ -36,6 +36,20 @@ void AnimationKey::setUnit(Unit unit) {
 	}
 }
 
+void AnimationKey::getCurvePositionRange(double& min, double& max){
+	double mi = DBL_MAX;
+	double ma = DBL_MIN;
+	auto animatable = getAnimatable();
+	auto targetValue = animatable->parameterValueToAnimationValue(target);
+	auto curvePositions = animatable->getCurvePositionsFromAnimationValue(targetValue);
+	for(double value : curvePositions){
+		mi = std::min(mi, value);
+		ma = std::max(ma, value);
+	}
+	min = mi;
+	max = ma;
+}
+
 bool AnimationKey::isAtPlaybackPosition(){
 	auto animatable = getAnimatable();
 	auto actualValue = animatable->getActualValue();
