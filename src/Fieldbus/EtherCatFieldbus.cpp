@@ -284,7 +284,7 @@ namespace EtherCatFieldbus {
 								
                 stopSlaveDetectionHandler();
 							
-				if(!hasNetworkInterface() || !hasDetectedDevices()) {
+				if(!hasDetectedDevices() || !hasNetworkInterface()) {
 					updateNetworkInterfaceCardList();
 					startupProgress.setProgress(0.01, "Scanning Network Interfaces");
 					for(auto& nic : networkInterfaceCards){
@@ -294,11 +294,11 @@ namespace EtherCatFieldbus {
 						if(slaves.empty()) terminate();
 						else break;
 					}
-				}
-				if(!hasNetworkInterface()){
-					b_starting = false;
-					startupProgress.setFailure("No EtherCAT devices found on any network interface.");
-					return;
+					if(!hasNetworkInterface()){
+						b_starting = false;
+						startupProgress.setFailure("No EtherCAT devices found on any network interface.");
+						return;
+					}
 				}
 				
                 if (!discoverDevices(true)) {
