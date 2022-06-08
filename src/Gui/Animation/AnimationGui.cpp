@@ -28,39 +28,45 @@ bool Animation::beginTrackSheetTable(ManoeuvreType type, ImGuiTableFlags tableFl
 }
 
 bool AnimationKey::beginTrackSheetTable(ImGuiTableFlags tableFlags){
-	bool b_tableBegun = ImGui::BeginTable("##TrackParameters", 4, tableFlags);
-	ImGui::TableSetupColumn("Manage");
-	ImGui::TableSetupColumn("Machine");
-	ImGui::TableSetupColumn("Parameter");
-	ImGui::TableSetupColumn("Target");
-	return b_tableBegun;
+	if(ImGui::BeginTable("##TrackParameters", 4, tableFlags)){
+		ImGui::TableSetupColumn("Manage");
+		ImGui::TableSetupColumn("Machine");
+		ImGui::TableSetupColumn("Parameter");
+		ImGui::TableSetupColumn("Target");
+		return true;
+	}
+	return false;
 }
 
 bool TargetAnimation::beginTrackSheetTable(ImGuiTableFlags tableFlags){
-	bool b_tableBegun = ImGui::BeginTable("##TrackParameters", 8, tableFlags);
-	ImGui::TableSetupColumn("Manage");
-	ImGui::TableSetupColumn("Machine");
-	ImGui::TableSetupColumn("Parameter");
-	ImGui::TableSetupColumn("Interpolation");	//kinematic, linear, step, bezier
-	ImGui::TableSetupColumn("Target");			//position or other
-	ImGui::TableSetupColumn("Using");			//time vs velocity
-	ImGui::TableSetupColumn("Constraint");		//time or velocity
-	ImGui::TableSetupColumn("Ramps");			//for kinematic or bezier
-	return b_tableBegun;
+	if(ImGui::BeginTable("##TrackParameters", 8, tableFlags)){
+		ImGui::TableSetupColumn("Manage");
+		ImGui::TableSetupColumn("Machine");
+		ImGui::TableSetupColumn("Parameter");
+		ImGui::TableSetupColumn("Interpolation");	//kinematic, linear, step, bezier
+		ImGui::TableSetupColumn("Target");			//position or other
+		ImGui::TableSetupColumn("Using");			//time vs velocity
+		ImGui::TableSetupColumn("Constraint");		//time or velocity
+		ImGui::TableSetupColumn("Ramps");			//for kinematic or bezier
+		return true;
+	}
+	return false;
 }
 
 bool SequenceAnimation::beginTrackSheetTable(ImGuiTableFlags tableFlags){
-	bool b_tableBegun = ImGui::BeginTable("##TrackParameters", 9, tableFlags);
-	ImGui::TableSetupColumn("Manage");
-	ImGui::TableSetupColumn("Machine");
-	ImGui::TableSetupColumn("Parameter");
-	ImGui::TableSetupColumn("Interpolation");
-	ImGui::TableSetupColumn("Start");		//sequencer start
-	ImGui::TableSetupColumn("End");			//sequencer end
-	ImGui::TableSetupColumn("Duration");
-	ImGui::TableSetupColumn("Time Offset");
-	ImGui::TableSetupColumn("Ramps");
-	return b_tableBegun;
+	if(ImGui::BeginTable("##TrackParameters", 9, tableFlags)){
+		ImGui::TableSetupColumn("Manage");
+		ImGui::TableSetupColumn("Machine");
+		ImGui::TableSetupColumn("Parameter");
+		ImGui::TableSetupColumn("Interpolation");
+		ImGui::TableSetupColumn("Start");		//sequencer start
+		ImGui::TableSetupColumn("End");			//sequencer end
+		ImGui::TableSetupColumn("Duration");
+		ImGui::TableSetupColumn("Time Offset");
+		ImGui::TableSetupColumn("Ramps");
+		return true;
+	}
+	return false;
 }
 
 void Animation::baseTrackSheetRowGui(){

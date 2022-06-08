@@ -1,19 +1,5 @@
 <Layouts>
     <Layout Name="Curve Tests" IsDefault="true">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -168,6 +154,16 @@ Pos=95,250
 Size=583,50
 Collapsed=0
 
+[Window][TestWindow]
+Pos=208,93
+Size=364,256
+Collapsed=0
+
+[Window][ScaleTest]
+Pos=60,60
+Size=520,534
+Collapsed=0
+
 [Table][0xDA36A7E0,6]
 RefScale=21
 Column 0  Width=49 Sort=0^
@@ -225,6 +221,8 @@ DockSpace       ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,149 Size=2056,961 Split=X 
 
 </Layout>
     <Layout Name="Environnement Editor">
+
+
 
 
 

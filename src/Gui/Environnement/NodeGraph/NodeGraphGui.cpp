@@ -4,6 +4,7 @@
 
 #include <imgui.h>
 #include <imgui_node_editor.h>
+#include <imgui_node_editor_internal.h>
 #include <GLFW/glfw3.h>
 
 #include "Environnement/NodeGraph/NodeGraph.h"
@@ -27,6 +28,8 @@ namespace Environnement::NodeGraph::Gui{
 		
 		ax::NodeEditor::SetCurrentEditor(context);
 		ax::NodeEditor::Begin("Node Editor", size_arg);
+		
+		//ImGuiEx::Canvas::SetView(ImVec2(0,0), std::sin(Timing::getProgramTime_seconds()));
 		
 		//===== DRAW NODES =====
 
