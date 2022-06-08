@@ -287,10 +287,12 @@ namespace Gui {
 		ImGui::End();
 		*/
 		 
+		/*
 		ImGui::Begin("ScaleTest");
 		scaleTest();
 		ImGui::End();
-		
+		*/
+		 
 		//=== Finish Resetting Default Layout ===
 		
 		if(shouldResetDefaultLayout()){

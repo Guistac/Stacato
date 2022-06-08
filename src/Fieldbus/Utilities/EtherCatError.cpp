@@ -14,7 +14,7 @@ namespace EtherCatError {
 		ec_errort error;
 		ec_poperror(&error);
 		std::shared_ptr<EtherCatDevice> errorSlave = nullptr;
-		if (error.Slave <= EtherCatFieldbus::slaves.size() && error.Slave > 0) errorSlave = EtherCatFieldbus::slaves[error.Slave - 1];
+		if (error.Slave <= EtherCatFieldbus::getDevices().size() && error.Slave > 0) errorSlave = EtherCatFieldbus::getDevices()[error.Slave - 1];
 		const char* slaveName;
 		if (errorSlave != nullptr) slaveName = errorSlave->getName();
 		else slaveName = "";
@@ -29,7 +29,7 @@ namespace EtherCatError {
 					case 1: errorString = "Unexpected Frame Returned"; break;
 					case 3: errorString = "Data Container too small for type"; break;
 					case 10: errorString = "SM larger than EC_MAXSM"; break;
-					default: "Unknown Abort Code"; break;
+					default: errorString = "Unknown Abort Code"; break;
 				}
 				Logger::warn("PACKET Error: Slave '{}' 0x{:X}:{:X} AbortCode: {:X} {}", slaveName, error.Index, error.SubIdx, error.AbortCode, errorString); break;
 			case EC_ERR_TYPE_SDOINFO_ERROR:
@@ -41,7 +41,7 @@ namespace EtherCatError {
 				switch (error.AbortCode) {
 					case 1: errorString = "Unexpected Frame Returned"; break;
 					case 4: errorString = "No Response"; break;
-					default: "Unknown Abort Code"; break;
+					default: errorString = "Unknown Abort Code"; break;
 				}
 				errorString = ec_soeerror2string(error.ErrorCode);
                 Logger::warn("SOE Error: Slave '{}' AbortCode: {:X} Error: {}", slaveName, error.AbortCode, errorString); break;

@@ -1,33 +1,3 @@
 <Plot Name="Default Plot">
-    <ManoeuvreList>
-        <Manoeuvre Name="Target Movement" Description="A Timed or fixed velocity move to a target position" Type="Target">
-            <Animation Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsComposite="false" Type="Target" Target="2" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
-            <Animation Machine="Test Machine B" MachineUniqueID="25" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Velocity" Time="0" Velocity="0.33300000000000002" StartAcceleration="0.40000000000000002" EndAcceleration="0.40000000000000002"/>
-        </Manoeuvre>
-        <Manoeuvre Name="Key Position" Description="A Fixed position without movement constraints" Type="Key">
-            <Animation Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsComposite="false" Type="Key" Target="0.40000000000000002"/>
-            <Animation Machine="Test Machine B" MachineUniqueID="25" Parameter="Position" IsComposite="false" Type="Key" Target="0.80000000000000004"/>
-        </Manoeuvre>
-        <Manoeuvre Name="Sequenced Movement" Description="A scripted movement with start and end points" Type="Sequence">
-            <Animation Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1" Duration="10" TimeOffset="0" StartAcceleration="0.10000000000000001" EndAcceleration="0.29999999999999999">
-                <Curves>
-                    <Curve>
-                        <ControlPoint Position="0" Time="0" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
-                        <ControlPoint Position="1" Time="10" Velocity="0" InAcceleration="0.29999999999999999" OutAcceleration="0.29999999999999999"/>
-                    </Curve>
-                </Curves>
-            </Animation>
-            <Animation Machine="Test Machine B" MachineUniqueID="25" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="2" End="6" Duration="19" TimeOffset="0" StartAcceleration="0.40000000000000002" EndAcceleration="0.10000000000000001">
-                <Curves>
-                    <Curve>
-                        <ControlPoint Position="2" Time="0" Velocity="0" InAcceleration="0.40000000000000002" OutAcceleration="0.40000000000000002"/>
-                        <ControlPoint Position="6" Time="19" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
-                    </Curve>
-                </Curves>
-            </Animation>
-        </Manoeuvre>
-        <Manoeuvre Name="Manoeuvre with a really long name. Even Longer Now." Description="The description is rather short though..." Type="Key">
-            <Animation Machine="Test Machine A" MachineUniqueID="1" Parameter="Position" IsComposite="false" Type="Key" Target="1.234"/>
-        </Manoeuvre>
-    </ManoeuvreList>
+    <ManoeuvreList/>
 </Plot>

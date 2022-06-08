@@ -66,7 +66,7 @@ namespace Environnement::NodeGraph::Gui{
 				ImGui::Text("Detected Devices");
 				ImGui::PopStyleColor();
 				static bool b_scanningNetwork = false;
-				bool disableScanButton = !EtherCatFieldbus::hasNetworkInterface() || EtherCatFieldbus::isCyclicExchangeActive() || b_scanningNetwork;
+				bool disableScanButton = !EtherCatFieldbus::canScan();
 				ImGui::BeginDisabled(disableScanButton);
 				if (ImGui::Button("Scan Network")) {
 					std::thread etherCatNetworkScanner = std::thread([]() {
@@ -84,7 +84,7 @@ namespace Environnement::NodeGraph::Gui{
 				}
 				
 				
-				for (auto device : EtherCatFieldbus::slaves_unassigned) {
+				for (auto device : EtherCatFieldbus::getUnassignedDevices()) {
 					const char* deviceDisplayName = device->getName();
 					ImGui::Selectable(deviceDisplayName);
 					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
@@ -176,7 +176,7 @@ namespace Environnement::NodeGraph::Gui{
 			payload = ImGui::AcceptDragDropPayload("DetectedEtherCatDevice");
 			if (payload != nullptr && payload->DataSize == sizeof(std::shared_ptr<EtherCatDevice>)) {
 				std::shared_ptr<EtherCatDevice> detectedSlave = *(std::shared_ptr<EtherCatDevice>*)payload->Data;
-				EtherCatFieldbus::removeFromUnassignedSlaves(detectedSlave);
+				EtherCatFieldbus::removeUnassignedDevice(detectedSlave);
 				return detectedSlave;
 			}
 			ImGui::EndDragDropTarget();
@@ -220,13 +220,13 @@ namespace Environnement::NodeGraph::Gui{
 		}
 
 		std::shared_ptr<EtherCatDevice> selectedDetectedSlave = nullptr;
-		if (!EtherCatFieldbus::slaves_unassigned.empty()) {
+		if (!EtherCatFieldbus::getUnassignedDevices().empty()) {
 			if (ImGui::BeginMenu("Detected Slaves")) {
-				for (auto detectedSlave : EtherCatFieldbus::slaves_unassigned) {
+				for (auto detectedSlave : EtherCatFieldbus::getUnassignedDevices()) {
 					if (ImGui::MenuItem(detectedSlave->getName())) {
 						output = detectedSlave;
 						selectedDetectedSlave = detectedSlave;
-						EtherCatFieldbus::removeFromUnassignedSlaves(selectedDetectedSlave);
+						EtherCatFieldbus::removeUnassignedDevice(selectedDetectedSlave);
 					}
 				}
 				ImGui::EndMenu();

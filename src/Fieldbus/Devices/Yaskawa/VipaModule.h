@@ -59,12 +59,8 @@ public:
 	int outputByteCount = 0;
 	int outputBitCount = 0;
 	
-	virtual void onConnection(){
-		Logger::warn("Vipa Module {} Connected !", getDisplayName());
-	}
-	virtual void onDisconnection(){
-		Logger::warn("Vipa Module {} Disconnected !", getDisplayName());
-	}
+	virtual void onConnection(){}
+	virtual void onDisconnection(){}
 	
 	virtual void addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement) = 0;
 	virtual void addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignement) = 0;

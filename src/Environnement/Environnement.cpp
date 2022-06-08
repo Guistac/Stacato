@@ -67,7 +67,7 @@ namespace Environnement {
 
 	bool isReady(){
 		if(b_isSimulating) return true;
-		else return EtherCatFieldbus::isNetworkInitialized();
+		else return EtherCatFieldbus::canStart();
 	}
 
 	bool isStarting(){
@@ -154,7 +154,7 @@ namespace Environnement {
 
 	void updateEtherCatHardware(){
 		//interpret all slaves input data if operational
-		for (auto slave : EtherCatFieldbus::slaves) if (slave->isStateOperational()) slave->readInputs();
+		for (auto slave : EtherCatFieldbus::getDevices()) if (slave->isStateOperational()) slave->readInputs();
 		
 		//increments the playback position of all active manoeuvres
 		//if a manoeuvre finishes playback, this sets its playback position to the exact end of the manoeuvre
@@ -168,7 +168,7 @@ namespace Environnement {
 		PlaybackManager::updateActiveManoeuvreState();
 		
 		//prepare all slaves output data if operational
-		for (auto slave : EtherCatFieldbus::slaves) if (slave->isStateOperational()) slave->prepareOutputs();
+		for (auto slave : EtherCatFieldbus::getDevices()) if (slave->isStateOperational()) slave->prepareOutputs();
 	}
 
 	void updateSimulation(){

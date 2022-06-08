@@ -103,19 +103,17 @@ namespace Gui {
 		if(EtherCatFieldbus::isRunning()) etherCatStatusColor = Colors::green;
 		else if(EtherCatFieldbus::isStarting()) etherCatStatusColor = Colors::yellow;
 		else if(!EtherCatFieldbus::hasNetworkInterface()) etherCatStatusColor = Colors::red;
-		else if(EtherCatFieldbus::slaves.empty()) etherCatStatusColor = Colors::orange;
+		else if(!EtherCatFieldbus::hasDetectedDevices()) etherCatStatusColor = Colors::orange;
 		else etherCatStatusColor = Colors::blue;
 		
 		backgroundText("EtherCAT", buttonSize, etherCatStatusColor);
 		
 		if(ImGui::IsItemHovered()){
 			ImGui::BeginTooltip();
-			if(EtherCatFieldbus::isRunning()) ImGui::Text("EtherCAT Fieldbus is running.\n"
-														  "All devices are operational");
+			if(EtherCatFieldbus::isRunning()) ImGui::Text("EtherCAT Fieldbus is running.\nAll devices are operational");
 			else if(EtherCatFieldbus::isStarting()) ImGui::Text("EtherCAT Fieldbus is starting...");
 			else if(!EtherCatFieldbus::hasNetworkInterface()) ImGui::Text("EtherCAT Fieldbus has no configured network interface.");
-			else if(EtherCatFieldbus::slaves.empty()) ImGui::Text("EtherCAT Fieldbus is configured.\n"
-																  "No devices are detected on the network.");
+			else if(!EtherCatFieldbus::hasDetectedDevices()) ImGui::Text("EtherCAT Fieldbus is configured.\nNo devices are detected on the network.");
 			else ImGui::Text("EtherCAT Fieldbus is configured but not running");
 			ImGui::EndTooltip();
 		}

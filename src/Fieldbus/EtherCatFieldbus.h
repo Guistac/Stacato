@@ -15,63 +15,63 @@ struct ProgressIndicator;
 
 namespace EtherCatFieldbus {
 
-    //Get Network Interface Cards
-    void updateNetworkInterfaceCardList();
-    extern std::vector<std::shared_ptr<NetworkInterfaceCard>> networkInterfaceCards;
-
 	bool hasNetworkPermissions();
 
-    //Initialize EtherCAT using one or two Network Interface Cards
+    //Get Network Interface Cards
+    void updateNetworkInterfaceCardList();
+	std::vector<std::shared_ptr<NetworkInterfaceCard>>& getNetworksInterfaceCards();
+	std::shared_ptr<NetworkInterfaceCard> getActiveNetworkInterfaceCard();
+	std::shared_ptr<NetworkInterfaceCard> getActiveRedundantNetworkInterfaceCard();
+
+    //initialize and terminate
     bool init();
     bool init(std::shared_ptr<NetworkInterfaceCard>);
     bool init(std::shared_ptr<NetworkInterfaceCard>, std::shared_ptr<NetworkInterfaceCard>);
+	void terminate();
+
+    //scan network for devices
+    void scanNetwork();
+	bool hasDetectedDevices();
+	std::vector<std::shared_ptr<EtherCatDevice>>& getDevices();             //all slaves discovered on the network
+	std::vector<std::shared_ptr<EtherCatDevice>>& getUnassignedDevices();	//discovered slaves that are not in the environnement nodegraph
+	void removeUnassignedDevice(std::shared_ptr<EtherCatDevice> removedDevice);
+
+	//scan all network interfaces for devices
 	void autoInit();
 	bool isAutoInitRunning();
-    extern std::shared_ptr<NetworkInterfaceCard> primaryNetworkInterfaceCard;
-    extern std::shared_ptr<NetworkInterfaceCard> redundantNetworkInterfaceCard;
 
-    //Terminate EtherCAT, releasing the network hardware
-    void terminate();
-
-    //Discover Slave Devices
-    void scanNetwork();
-    extern std::vector<std::shared_ptr<EtherCatDevice>> slaves;              //all slaves discovered on the network
-    extern std::vector<std::shared_ptr<EtherCatDevice>> slaves_unassigned;   //discovered slaves that are not in the nodegraph
-    void removeFromUnassignedSlaves(std::shared_ptr<EtherCatDevice> removedDevice);
-
-    //Cyclic Echange Timing Settings
-    extern double processInterval_milliseconds;
-    extern double processDataTimeout_milliseconds;
-    extern double clockStableThreshold_milliseconds;
-    extern double fieldbusTimeout_milliseconds;
-
-    //Start Cyclic Exchange
+    //Cyclic Exchange Control
     void start();
-	extern ProgressIndicator startupProgress;
-
-    //Metrics to monitor the Cyclic Exchange
-    extern EtherCatMetrics metrics;
-
-    bool isNetworkInitialized();                //Is EtherCAT Initialized with a network interface card
-	bool isNetworkRedundant();					//Is EtherCAT Open with two network interface cards
-    bool isCyclicExchangeStarting();            //Is the Cyclic Exchange in Startup
-    bool isCyclicExchangeActive();              //Is the Cyclic Exchange Running
-    bool isCyclicExchangeStartSuccessfull();    //Is the Cyclic Exchange Successfully Started
-
+	void stop();
+	
+	//Network State
 	bool hasNetworkInterface();
+	bool hasRedundantInterface();
+	bool hasDetectedDevices();
 	bool isStarting();
 	bool isRunning();
+	bool canScan();
+	bool canStart();
+	bool canStop();
 
-    //Stop Cyclic Exchange
-    void stop();
+	extern ProgressIndicator startupProgress;
+
+	EtherCatMetrics& getMetrics();
+
+	//cyclic exchange timing
+	double getCycleProgramTime_seconds();
+	long long getCycleProgramTime_nanoseconds();
+	double getCycleTimeDelta_seconds();
+	long long getCycleTimeDelta_nanoseconds();
+
+	//Cyclic Echange Timing Settings
+	extern double processInterval_milliseconds;
+	extern double processDataTimeout_milliseconds;
+	extern double clockStableThreshold_milliseconds;
+	extern double fieldbusTimeout_milliseconds;
 
     //Save and load EtherCAT settings
     bool save(tinyxml2::XMLElement* xml);
     bool load(tinyxml2::XMLElement* xml);
-
-    double getCycleProgramTime_seconds();
-    long long int getCycleProgramTime_nanoseconds();
-	double getCycleTimeDelta_seconds();
-	long long int getCycleTimeDelta_nanoseconds();
 };
 

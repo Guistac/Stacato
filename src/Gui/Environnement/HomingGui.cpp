@@ -42,9 +42,16 @@ namespace Environnement::Gui{
 		ImGui::SameLine();
 		
 		static char networkStatusString[256];
-		if (EtherCatFieldbus::isNetworkInitialized()) {
-			if (!EtherCatFieldbus::isNetworkRedundant()) sprintf(networkStatusString, "Network is Open on Interface '%s'", EtherCatFieldbus::primaryNetworkInterfaceCard->description);
-			else sprintf(networkStatusString,"Network is Open on Interface '%s' with redundancy on '%s'", EtherCatFieldbus::primaryNetworkInterfaceCard->description, EtherCatFieldbus::redundantNetworkInterfaceCard->description);
+		if (EtherCatFieldbus::hasNetworkInterface()) {
+			if (!EtherCatFieldbus::hasRedundantInterface())
+				sprintf(networkStatusString,
+						"Network is Open on Interface '%s'",
+						EtherCatFieldbus::getActiveNetworkInterfaceCard()->description);
+			else
+				sprintf(networkStatusString,
+						"Network is Open on Interface '%s' with redundancy on '%s'",
+						EtherCatFieldbus::getActiveNetworkInterfaceCard()->description,
+						EtherCatFieldbus::getActiveRedundantNetworkInterfaceCard()->description);
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 		}
 		else {
@@ -60,9 +67,9 @@ namespace Environnement::Gui{
 		ImGui::SameLine();
 		
 		static char deviceCountString[128];
-		sprintf(deviceCountString, "%i Device%s Detected", (int)EtherCatFieldbus::slaves.size(), EtherCatFieldbus::slaves.size() == 1 ? "" : "s");
+		sprintf(deviceCountString, "%i Device%s Detected", (int)EtherCatFieldbus::getDevices().size(), EtherCatFieldbus::getDevices().size() == 1 ? "" : "s");
 		glm::vec4 deviceCountButtonColor;
-		if(EtherCatFieldbus::slaves.empty()) deviceCountButtonColor = Colors::blue;
+		if(EtherCatFieldbus::getDevices().empty()) deviceCountButtonColor = Colors::blue;
 		else deviceCountButtonColor = Colors::green;
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleColor(ImGuiCol_Button, deviceCountButtonColor);
@@ -75,7 +82,7 @@ namespace Environnement::Gui{
 			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Detected Devices:");
 			ImGui::PopFont();
-			for(auto& device : EtherCatFieldbus::slaves){
+			for(auto& device : EtherCatFieldbus::getDevices()){
 				ImGui::Text("%s", device->getName());
 			}
 			ImGui::EndTooltip();

@@ -13,22 +13,22 @@ void etherCatSlaves() {
 
 	ImGui::BeginGroup();
 
-	bool disableScanButton = EtherCatFieldbus::isCyclicExchangeActive() || EtherCatFieldbus::isCyclicExchangeStarting();
+	bool disableScanButton = !EtherCatFieldbus::canScan();
 	ImGui::BeginDisabled(disableScanButton);
 	if (ImGui::Button("Scan Network")) EtherCatFieldbus::scanNetwork();
 	ImGui::EndDisabled();
 	ImGui::SameLine();
-	ImGui::Text("%i Devices Found", (int)EtherCatFieldbus::slaves.size());
+	ImGui::Text("%i Devices Found", (int)EtherCatFieldbus::getDevices().size());
 
 	static int selectedSlaveIndex = -1;
 
 	ImVec2 listWidth(ImGui::GetTextLineHeight() * 14, ImGui::GetContentRegionAvail().y);
 	if (ImGui::BeginListBox("##DiscoveredEtherCATSlaves", listWidth)) {
-		for (auto slave : EtherCatFieldbus::slaves) {
+		for (auto slave : EtherCatFieldbus::getDevices()) {
 			bool selected = selectedSlaveIndex == slave->getSlaveIndex();
 			if (ImGui::Selectable(slave->getName(), &selected)) selectedSlaveIndex = slave->getSlaveIndex();
 		}
-		if (EtherCatFieldbus::slaves.empty()) {
+		if (EtherCatFieldbus::getDevices().empty()) {
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 			ImGui::Selectable("No Devices Detected...");
 			ImGui::PopItemFlag();
@@ -39,7 +39,7 @@ void etherCatSlaves() {
 	ImGui::SameLine();
 
     std::shared_ptr<EtherCatDevice> selectedSlave = nullptr;
-	for (auto slave : EtherCatFieldbus::slaves) 
+	for (auto slave : EtherCatFieldbus::getDevices()) 
 		if (slave->getSlaveIndex() == selectedSlaveIndex) { selectedSlave = slave; break; }
 
 	ImGui::BeginGroup();

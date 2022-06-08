@@ -13,7 +13,7 @@ bool EtherCatDevice::isDetected() {
 }
 
 bool EtherCatDevice::isConnected() {
-    return isDetected() && !isStateNone() && EtherCatFieldbus::isCyclicExchangeActive();;
+    return isDetected() && !isStateNone() && EtherCatFieldbus::isRunning();
 }
 
 void EtherCatDevice::readInputs(){}

@@ -11,20 +11,23 @@ namespace EtherCatFieldbus {
 
 		XMLElement* networkInterfaceCardXML = xml->InsertNewChildElement("NetworkInterfaceCard");
 		
-		if(EtherCatFieldbus::isNetworkInitialized()){
+		if(EtherCatFieldbus::hasNetworkInterface()){
 			XMLElement* primaryNicXML = networkInterfaceCardXML->InsertNewChildElement("Primary");
-			primaryNicXML->SetAttribute("Description", primaryNetworkInterfaceCard->description);
-			primaryNicXML->SetAttribute("Name", primaryNetworkInterfaceCard->name);
-			if (EtherCatFieldbus::isNetworkRedundant()) {
+			auto mainNic = getActiveNetworkInterfaceCard();
+			primaryNicXML->SetAttribute("Description", mainNic->description);
+			primaryNicXML->SetAttribute("Name", mainNic->name);
+			if (EtherCatFieldbus::hasRedundantInterface()) {
 				XMLElement* redundantNicXML = networkInterfaceCardXML->InsertNewChildElement("Redundant");
-				redundantNicXML->SetAttribute("Description", redundantNetworkInterfaceCard->description);
-				redundantNicXML->SetAttribute("Name", redundantNetworkInterfaceCard->name);
+				auto redundantNic = getActiveRedundantNetworkInterfaceCard();
+				redundantNicXML->SetAttribute("Description", redundantNic->description);
+				redundantNicXML->SetAttribute("Name", redundantNic->name);
 			}
 		}
 		XMLElement* timingXML = xml->InsertNewChildElement("Timing");
 		timingXML->SetAttribute("ProcessIntervalMilliseconds", processInterval_milliseconds);
 		timingXML->SetAttribute("ProcessDataTimeoutMilliseconds", processDataTimeout_milliseconds);
 		timingXML->SetAttribute("ClockStableThresholdMilliseconds", clockStableThreshold_milliseconds);
+		timingXML->SetAttribute("FieldbusTimeoutDelayMilliseconds", fieldbusTimeout_milliseconds);
 
 		return true;
 	}
@@ -46,9 +49,10 @@ namespace EtherCatFieldbus {
 			if (primaryNicXML->QueryStringAttribute("Description", &nicDescription) != XML_SUCCESS) return Logger::warn("Could not read primary NIC description");
 			if (primaryNicXML->QueryStringAttribute("Name", &nicName) != XML_SUCCESS) return Logger::warn("Could not read primary NIC name");
 			
+			/*
 			//try to find the saved nic in the list of available nics and set it
 			EtherCatFieldbus::primaryNetworkInterfaceCard = nullptr;
-			for(auto& nic : EtherCatFieldbus::networkInterfaceCards){
+			for(auto& nic : EtherCatFieldbus::getNetworksInterfaceCards()){
 				if(strcmp(nic->name, nicDescription) == 0 && strcmp(nic->description, nicDescription) == 0){
 					EtherCatFieldbus::primaryNetworkInterfaceCard = nic;
 					break;
@@ -67,7 +71,7 @@ namespace EtherCatFieldbus {
 				if (redundantNicXML->QueryStringAttribute("Name", &redundantNicName) != XML_SUCCESS) return Logger::warn("Could not read redundant NIC name");
 				
 				//try to find the saved nic in the list of available nics and set it
-				for(auto& nic : EtherCatFieldbus::networkInterfaceCards){
+				for(auto& nic : EtherCatFieldbus::getNetworksInterfaceCards()){
 					if(strcmp(nic->name, redundantNicDescription) == 0 && strcmp(nic->description, redundantNicName) == 0){
 						EtherCatFieldbus::redundantNetworkInterfaceCard = nic;
 						break;
@@ -77,12 +81,14 @@ namespace EtherCatFieldbus {
 				if(EtherCatFieldbus::redundantNetworkInterfaceCard == nullptr)
 					Logger::warn("Could not find redundant network interface card '{}'", redundantNicDescription);
 			}
+			 */
 		}
 
 		XMLElement* timingXML = xml->FirstChildElement("Timing");
 		if (timingXML->QueryDoubleAttribute("ProcessIntervalMilliseconds", &processInterval_milliseconds) != XML_SUCCESS) return Logger::warn("Could not load process interval value");
 		if (timingXML->QueryDoubleAttribute("ProcessDataTimeoutMilliseconds", &processDataTimeout_milliseconds) != XML_SUCCESS) return Logger::warn("Could not load process data timeout value");
 		if (timingXML->QueryDoubleAttribute("ClockStableThresholdMilliseconds", &clockStableThreshold_milliseconds) != XML_SUCCESS) return Logger::warn("Coult not load clock stable threshold value");
+		if(timingXML->QueryDoubleAttribute("FieldbusTimeoutDelayMilliseconds", &fieldbusTimeout_milliseconds) != XML_SUCCESS) return Logger::warn("Coult not load fieldbus timeout delay value");
 		
 		Logger::info("Successfully Loaded Fieldbus Parameters");
 

@@ -29,8 +29,8 @@ void etherCatParameters(bool resetNicLists) {
 			endHelpMarker();
 		}
 
-		std::shared_ptr<NetworkInterfaceCard> selectedPrimaryNic = EtherCatFieldbus::primaryNetworkInterfaceCard;
-		std::shared_ptr<NetworkInterfaceCard> selectedSecondaryNic = EtherCatFieldbus::redundantNetworkInterfaceCard;
+		std::shared_ptr<NetworkInterfaceCard> selectedPrimaryNic = EtherCatFieldbus::getActiveNetworkInterfaceCard();
+		std::shared_ptr<NetworkInterfaceCard> selectedSecondaryNic = EtherCatFieldbus::getActiveRedundantNetworkInterfaceCard();
 		bool b_nicSelected = false;
 		
 		bool disableNicButtons = EtherCatFieldbus::isRunning();
@@ -50,15 +50,15 @@ void etherCatParameters(bool resetNicLists) {
 			ImGui::BeginDisabled(disableNicButtons);
 			
 			ImGui::SetNextItemWidth(widgetWidth);
-			const char* primaryLabel = EtherCatFieldbus::primaryNetworkInterfaceCard == nullptr ? "None" : EtherCatFieldbus::primaryNetworkInterfaceCard->description;
+			const char* primaryLabel = selectedPrimaryNic == nullptr ? "None" : selectedPrimaryNic->description;
 			if (ImGui::BeginCombo("##NetworkInterfaceCard", primaryLabel)) {
-				if (ImGui::Selectable("None", EtherCatFieldbus::primaryNetworkInterfaceCard == nullptr)) {
+				if (ImGui::Selectable("None", selectedPrimaryNic == nullptr)) {
 					selectedPrimaryNic = nullptr;
 					selectedSecondaryNic = nullptr;
 					b_nicSelected = true;
 				}
-				for (auto& nic : EtherCatFieldbus::networkInterfaceCards) {
-					bool selected = nic == EtherCatFieldbus::primaryNetworkInterfaceCard;
+				for (auto& nic : EtherCatFieldbus::getNetworksInterfaceCards()) {
+					bool selected = nic == selectedPrimaryNic;
 					if (ImGui::Selectable(nic->description, selected)) {
 						selectedPrimaryNic = nic;
 						b_nicSelected = true;
@@ -69,20 +69,20 @@ void etherCatParameters(bool resetNicLists) {
 			
 			ImGui::TableNextColumn();
 			
-			bool disableSecondaryNicSelection = EtherCatFieldbus::primaryNetworkInterfaceCard == nullptr;
+			bool disableSecondaryNicSelection = selectedPrimaryNic == nullptr;
 			ImGui::BeginDisabled(disableSecondaryNicSelection);
 			
 			ImGui::SetNextItemWidth(widgetWidth);
-			const char* secondaryLabel = EtherCatFieldbus::redundantNetworkInterfaceCard == nullptr ? "None" : EtherCatFieldbus::redundantNetworkInterfaceCard->description;
+			const char* secondaryLabel = selectedSecondaryNic == nullptr ? "None" : selectedSecondaryNic->description;
 			if (ImGui::BeginCombo("##RedundantNetworkInterfaceCard", secondaryLabel)) {
-				if (ImGui::Selectable("None", EtherCatFieldbus::redundantNetworkInterfaceCard == nullptr)) {
+				if (ImGui::Selectable("None", selectedSecondaryNic == nullptr)) {
 					selectedSecondaryNic = nullptr;
 					b_nicSelected = true;
 				}
-				for (auto& nic : EtherCatFieldbus::networkInterfaceCards) {
-					bool disableSelection = nic == EtherCatFieldbus::primaryNetworkInterfaceCard;
+				for (auto& nic : EtherCatFieldbus::getNetworksInterfaceCards()) {
+					bool disableSelection = nic == selectedPrimaryNic;
 					ImGui::BeginDisabled(disableSelection);
-					if (ImGui::Selectable(nic->description, EtherCatFieldbus::redundantNetworkInterfaceCard == nic)) {
+					if (ImGui::Selectable(nic->description, selectedSecondaryNic == nic)) {
 						selectedSecondaryNic = nic;
 						b_nicSelected = true;
 					}
@@ -107,9 +107,15 @@ void etherCatParameters(bool resetNicLists) {
 		
 		
 		static char networkStatusString[256];
-		if (EtherCatFieldbus::isNetworkInitialized()) {
-			if (!EtherCatFieldbus::isNetworkRedundant()) sprintf(networkStatusString, "Network is Open on Interface '%s'", EtherCatFieldbus::primaryNetworkInterfaceCard->description);
-			else sprintf(networkStatusString,"Network is Open on Interface '%s' with redundancy on '%s'", EtherCatFieldbus::primaryNetworkInterfaceCard->description, EtherCatFieldbus::redundantNetworkInterfaceCard->description);
+		if (EtherCatFieldbus::hasNetworkInterface()) {
+			if (!EtherCatFieldbus::hasRedundantInterface())
+				sprintf(networkStatusString,
+						"Network is Open on Interface '%s'",
+						EtherCatFieldbus::getActiveNetworkInterfaceCard()->description);
+			else sprintf(networkStatusString,
+						 "Network is Open on Interface '%s' with redundancy on '%s'",
+						 EtherCatFieldbus::getActiveNetworkInterfaceCard()->description,
+						 EtherCatFieldbus::getActiveRedundantNetworkInterfaceCard()->description);
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 		}
 		else {
@@ -129,9 +135,9 @@ void etherCatParameters(bool resetNicLists) {
 		ImGui::EndDisabled();
 		
 		static char deviceCountString[128];
-		sprintf(deviceCountString, "%i Device%s Detected", (int)EtherCatFieldbus::slaves.size(), EtherCatFieldbus::slaves.size() == 1 ? "" : "s");
+		sprintf(deviceCountString, "%i Device%s Detected", (int)EtherCatFieldbus::getDevices().size(), EtherCatFieldbus::getDevices().size() == 1 ? "" : "s");
 		glm::vec4 deviceCountButtonColor;
-		if(EtherCatFieldbus::slaves.empty()) deviceCountButtonColor = Colors::blue;
+		if(!EtherCatFieldbus::hasDetectedDevices()) deviceCountButtonColor = Colors::blue;
 		else deviceCountButtonColor = Colors::green;
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleColor(ImGuiCol_Button, deviceCountButtonColor);
@@ -144,7 +150,7 @@ void etherCatParameters(bool resetNicLists) {
 			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Detected Devices:");
 			ImGui::PopFont();
-			for(auto& device : EtherCatFieldbus::slaves){
+			for(auto& device : EtherCatFieldbus::getDevices()){
 				ImGui::Text("%s", device->getName());
 			}
 			ImGui::EndTooltip();
@@ -178,6 +184,7 @@ void etherCatParameters(bool resetNicLists) {
 		float processFrequency_Hertz = 1000.0 / processInterval_milliseconds;
 		float processDataTimeoutDelay_milliseconds = EtherCatFieldbus::processDataTimeout_milliseconds;
 		float stableClockThreshold_milliseconds = EtherCatFieldbus::clockStableThreshold_milliseconds;
+		float fieldbusTimeoutDelay_milliseconds = EtherCatFieldbus::fieldbusTimeout_milliseconds;
 
 		if(ImGui::BeginTable("##TimingTable", 2, tableFlags)){
 			
@@ -206,15 +213,22 @@ void etherCatParameters(bool resetNicLists) {
 		ImGui::Text("Clock Stabilisation Threshold");
 		ImGui::SetNextItemWidth(widgetWidth);
 		ImGui::InputFloat("##Clock Stabilisation Threshold", &stableClockThreshold_milliseconds, 0.01f, 0.1f, "%.2fms");
+		
+		ImGui::Text("Fieldbus Timeout Delay");
+		ImGui::SetNextItemWidth(widgetWidth);
+		ImGui::InputFloat("##FieldbusTimeoutDelay", &fieldbusTimeoutDelay_milliseconds, 0.01f, 0.1f, "%.2fms");
 
 		if (frequencyEdited) EtherCatFieldbus::processInterval_milliseconds = 1000.0 / processFrequency_Hertz;
 		else EtherCatFieldbus::processInterval_milliseconds = processInterval_milliseconds;
 
 		if (processDataTimeoutDelay_milliseconds > EtherCatFieldbus::processInterval_milliseconds)
 			processDataTimeoutDelay_milliseconds = EtherCatFieldbus::processInterval_milliseconds;
-
+		
+		if(fieldbusTimeoutDelay_milliseconds < EtherCatFieldbus::processInterval_milliseconds * 2.0) fieldbusTimeoutDelay_milliseconds = EtherCatFieldbus::processInterval_milliseconds * 2.0;
+		
 		EtherCatFieldbus::processDataTimeout_milliseconds = processDataTimeoutDelay_milliseconds;
 		EtherCatFieldbus::clockStableThreshold_milliseconds = stableClockThreshold_milliseconds;
+		EtherCatFieldbus::fieldbusTimeout_milliseconds = fieldbusTimeoutDelay_milliseconds;
 		
 		
 		ImGui::EndChild();

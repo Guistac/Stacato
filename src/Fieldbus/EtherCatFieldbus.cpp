@@ -14,59 +14,63 @@
 namespace EtherCatFieldbus {
 
     std::vector<std::shared_ptr<NetworkInterfaceCard>> networkInterfaceCards;
+	std::vector<std::shared_ptr<NetworkInterfaceCard>>& getNetworksInterfaceCards(){ return networkInterfaceCards; }
+
 	std::shared_ptr<NetworkInterfaceCard> primaryNetworkInterfaceCard;
 	std::shared_ptr<NetworkInterfaceCard> redundantNetworkInterfaceCard;
+	std::shared_ptr<NetworkInterfaceCard> getActiveNetworkInterfaceCard(){ return primaryNetworkInterfaceCard; }
+	std::shared_ptr<NetworkInterfaceCard> getActiveRedundantNetworkInterfaceCard(){ return redundantNetworkInterfaceCard; }
+	
+    std::vector<std::shared_ptr<EtherCatDevice>> slaves;			//slaves discovered on the network
+    std::vector<std::shared_ptr<EtherCatDevice>> slaves_unassigned; //slaves discovered on the network but not added to the environnement editor
+	std::vector<std::shared_ptr<EtherCatDevice>>& getDevices(){ return slaves; }
+	std::vector<std::shared_ptr<EtherCatDevice>>& getUnassignedDevices(){ return slaves; }
 
-    std::vector<std::shared_ptr<EtherCatDevice>> slaves;
-    std::vector<std::shared_ptr<EtherCatDevice>> slaves_unassigned;
+	//contiguous storage for cyclic exchange data
     uint8_t ioMap[4096];
     int ioMapSize = 0;
 
-    bool b_networkOpen = false;             //high when one or more network interface cards are opened
-    bool b_processStarting = false;         //high during initial fieldbus setup, before starting cyclic exchange (prevents concurrent restarting)   
-    bool b_processRunning = false;          //high while the cyclic exchange is running (also controls its shutdown)
-    bool b_clockStable = false;             //high when clock drift is under the threshold value
-    bool b_allOperational = false;          //high when all states reached operational state after clock stabilisation, indicates successful fiedlbus configuration
 
-bool b_starting = false;
-bool b_running = false;
+	bool b_detectionThreadRunning = false;
+	std::thread slaveDetectionThread;
 
-    bool isNetworkInitialized() { return b_networkOpen; }
-	bool isNetworkRedundant(){ return isNetworkInitialized() && primaryNetworkInterfaceCard && redundantNetworkInterfaceCard; }
-    bool isCyclicExchangeStarting() { return b_processStarting; }
-    bool isCyclicExchangeActive() { return b_processRunning; }
-    bool isCyclicExchangeStartSuccessfull() { return b_processRunning && b_clockStable && b_allOperational; }
+	bool b_cyclicExchangeRunning = false;
+	std::thread cyclicExchangeThread;	//cyclic exchange thread (needs a full cpu core to avoid scheduler issues and achieve realtime performance)
+	std::thread slaveStateHandler; 		//thread to periodically check the state of all slaves and recover them if necessary
 
-bool hasNetworkInterface(){ return isNetworkInitialized(); }
-bool isStarting(){ return b_starting; }
-bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
+	bool b_errorWatcherRunning = false;
+	std::thread errorWatcherThread;       //thread to read errors encountered by SOEM
+
+
+    bool b_networkOpen = false; //Network is initialized on one or two networks interface cards
+	bool b_starting = false;	//while cyclic exchange is starting
+	bool b_running = false;		//network is running
+
+	bool hasNetworkInterface() { return b_networkOpen; }
+	bool hasRedundantInterface() { return b_networkOpen && primaryNetworkInterfaceCard && redundantNetworkInterfaceCard; }
+	bool hasDetectedDevices(){ return !slaves.empty(); }
+	bool isStarting(){ return b_starting; }
+	bool isRunning(){ return b_running; }
+	bool canScan(){ return b_networkOpen && !b_cyclicExchangeRunning; }
+	bool canStart(){ return true; } //should indicate if network permissions are set !
+	bool canStop(){ return !b_starting || (b_starting && b_cyclicExchangeRunning); }
 
 	ProgressIndicator startupProgress;
-
     EtherCatMetrics metrics;
+	EtherCatMetrics& getMetrics(){ return metrics; }
 
     double processInterval_milliseconds = 3.0;
     double processDataTimeout_milliseconds = 1.5;
     double clockStableThreshold_milliseconds = 0.1;
     double fieldbusTimeout_milliseconds = 100.0;
 
-    bool b_detectionHandlerRunning = false;
-    std::thread slaveDetectionHandler;
-    std::thread etherCatRuntime;    //thread to read errors encountered by SOEM
-    std::thread slaveStateHandler;  //thread to periodically check the state of all slaves and recover them if necessary
-    bool b_errorWatcherRunning = false;
-    std::thread errorWatcher;       //cyclic exchange thread (needs a full cpu core to axchieve precise timing)
-
 	double currentCycleProgramTime_seconds = 0.0;
-	double getCycleProgramTime_seconds() { return currentCycleProgramTime_seconds; }
-
 	long long int currentCycleProgramTime_nanoseconds = 0;
-	long long int getCycleProgramTime_nanoseconds() { return currentCycleProgramTime_nanoseconds; }
-
 	double currentCycleDeltaT_seconds = 0.0;
-	double getCycleTimeDelta_seconds() { return currentCycleDeltaT_seconds; }
-
 	long long int currentCycleDeltaT_nanoseconds = 0;
+	double getCycleProgramTime_seconds() { return currentCycleProgramTime_seconds; }
+	long long int getCycleProgramTime_nanoseconds() { return currentCycleProgramTime_nanoseconds; }
+	double getCycleTimeDelta_seconds() { return currentCycleDeltaT_seconds; }
 	long long int getCycleTimeDelta_nanoseconds() { return currentCycleDeltaT_nanoseconds; }
 
     //====== non public functions ======
@@ -76,7 +80,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
     //SOEM extension to read Explicit Device ID
     bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID);
 
-    bool discoverDevices();
+	bool discoverDevices(bool logStartup);
     bool configureSlaves();
     void startCyclicExchange();
     void cyclicExchange();
@@ -114,6 +118,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
     //============ LIST NETWORK INTERFACE CARDS ===============
 
     void updateNetworkInterfaceCardList() {
+		if(isRunning()) return;
         Logger::info("===== Refreshing Network Interface Card List");
 		
 		std::vector<std::shared_ptr<NetworkInterfaceCard>> oldNics = networkInterfaceCards;
@@ -151,8 +156,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
             }
         }
         Logger::info("===== Found {} Network Interface Card{}", networkInterfaceCards.size(), networkInterfaceCards.size() == 1 ? "" : "s");
-        for (auto& nic : networkInterfaceCards)
-            Logger::debug("    = {} (ID: {})", nic->description, nic->name);
+        for (auto& nic : networkInterfaceCards) Logger::debug("    = {} (ID: {})", nic->description, nic->name);
     }
 
     //============== INTIALIZE FIELDBUS WITH AND OPEN NETWORK INTERFACE CARD ==============
@@ -175,8 +179,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
         primaryNetworkInterfaceCard = nic;
 		redundantNetworkInterfaceCard = nullptr;
         Logger::debug("===== Initializing EtherCAT Fieldbus on Network Interface Card '{}'", primaryNetworkInterfaceCard->description);
-        int nicInitResult = ec_init(primaryNetworkInterfaceCard->name);
-        if (nicInitResult < 0) {
+        if (ec_init(primaryNetworkInterfaceCard->name) < 0) {
             Logger::error("===== Failed to initialize network interface card ...");
             b_networkOpen = false;
             return false;
@@ -191,15 +194,18 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
         if (b_networkOpen) terminate();
 		primaryNetworkInterfaceCard = nic;
         redundantNetworkInterfaceCard = redNic;
-        Logger::debug("===== Initializing EtherCAT Fieldbus on Network Interface Card '{}' with redundancy on '{}'", primaryNetworkInterfaceCard->description, redundantNetworkInterfaceCard->description);
-        int nicInitResult = ec_init_redundant(primaryNetworkInterfaceCard->name, redundantNetworkInterfaceCard->name);
-        if (nicInitResult < 0) {
+        Logger::debug("===== Initializing EtherCAT Fieldbus on Network Interface Card '{}' with redundancy on '{}'",
+					  primaryNetworkInterfaceCard->description,
+					  redundantNetworkInterfaceCard->description);
+        if (ec_init_redundant(primaryNetworkInterfaceCard->name, redundantNetworkInterfaceCard->name) < 0) {
             Logger::error("===== Failed to initialize network interface cards ...");
             b_networkOpen = false;
             return false;
         }
         b_networkOpen = true;
-        Logger::info("===== Initialized network interface cards '{}' & '{}'", primaryNetworkInterfaceCard->description, redundantNetworkInterfaceCard->description);
+        Logger::info("===== Initialized network interface cards '{}' & '{}'",
+					 primaryNetworkInterfaceCard->description,
+					 redundantNetworkInterfaceCard->description);
         setup();
         return true;
     }
@@ -214,7 +220,6 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 			updateNetworkInterfaceCardList();
 			for(auto& nic : networkInterfaceCards){
 				if(!init(nic)) continue;
-				scanNetwork();
 				if(slaves.empty()) terminate();
 				else break;
 			}
@@ -237,8 +242,8 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
     void terminate() {
         stop();
-        if (etherCatRuntime.joinable()) etherCatRuntime.join();
-		if(isNetworkInitialized()){
+        if (cyclicExchangeThread.joinable()) cyclicExchangeThread.join();
+		if(b_networkOpen){
 			stopErrorWatcher();
 			stopSlaveDetectionHandler();
 			Logger::debug("===== Closing EtherCAT Network Interface Card");
@@ -261,32 +266,42 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 			return;
 		}
 		
-        discoverDevices();
+        discoverDevices(false);
         startSlaveDetectionHandler();
     }
 
     //================= START CYCLIC EXCHANGE =================
 
     void start() {
-        if (!b_processStarting) {
-
-			b_processStarting = true;
+        if (!b_starting) {
 			b_starting = true;
-			
-			startupProgress.setStart("Starting Fieldbus Configuration");
-			
-			Logger::info("===== Starting Fieldbus Configuration");
-			std::thread etherCatProcessStarter([]() {
-				
-				pthread_setname_np("EtherCAT Process Starter Thread");
-				
-                //join the cyclic echange thread if it was terminated previously
-                if (etherCatRuntime.joinable()) etherCatRuntime.join();
 
+			startupProgress.setStart("Starting Fieldbus Configuration");
+			Logger::info("===== Starting Fieldbus Configuration");
+						
+			std::thread etherCatProcessStarter([]() {
+				pthread_setname_np("EtherCAT Process Starter Thread");
+								
                 stopSlaveDetectionHandler();
+							
+				if(!hasNetworkInterface() || !hasDetectedDevices()) {
+					updateNetworkInterfaceCardList();
+					startupProgress.setProgress(0.01, "Scanning Network Interfaces");
+					for(auto& nic : networkInterfaceCards){
+						std::string nicScanString = "Scanning Network Interface " + std::string(nic->description);
+						startupProgress.setProgress(0.02, nicScanString.c_str());
+						if(!init(nic)) continue;
+						if(slaves.empty()) terminate();
+						else break;
+					}
+				}
+				if(!hasNetworkInterface()){
+					b_starting = false;
+					startupProgress.setFailure("No EtherCAT devices found on any network interface.");
+					return;
+				}
 				
-                if (!discoverDevices()) {
-                    b_processStarting = false;
+                if (!discoverDevices(true)) {
 					b_starting = false;
 					logDeviceStates();
 					logAlStatusCodes();
@@ -294,7 +309,6 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
                 }
 
                 if (!configureSlaves()) {
-                    b_processStarting = false;
 					b_starting = false;
 					logDeviceStates();
 					logAlStatusCodes();
@@ -302,7 +316,6 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
                 }
 
                 startCyclicExchange();
-                b_processStarting = false;
 			});
             etherCatProcessStarter.detach();
         }
@@ -311,9 +324,9 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
     //================= STOP CYCLIC EXCHANGE ===================
 
     void stop() {
-        if (b_processRunning) {
+        if (b_cyclicExchangeRunning) {
             Logger::debug("===== Stopping Cyclic Exchange...");
-            b_processRunning = false;
+			b_cyclicExchangeRunning = false;
 			b_starting = false;
         }
     }
@@ -323,7 +336,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
     void startErrorWatcher() {
         b_errorWatcherRunning = true;
-        errorWatcher = std::thread([]() {
+		errorWatcherThread = std::thread([]() {
 			pthread_setname_np("EtherCAT Error Watcher Thread");
             Logger::debug("===== Started EtherCAT Error Watchdog");
             while (b_errorWatcherRunning) {
@@ -336,7 +349,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
     void stopErrorWatcher() {
         b_errorWatcherRunning = false;
-        if (errorWatcher.joinable()) errorWatcher.join();
+        if (errorWatcherThread.joinable()) errorWatcherThread.join();
     }
 
     //============ Check Explicit ID compatibility and Read explicit ID of slave ============
@@ -424,9 +437,9 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
     //=================== DISCOVER ETHERCAT DEVICES ON THE NETWORK =====================
 
-    bool discoverDevices() {
+    bool discoverDevices(bool logStartup) {
 
-		startupProgress.setProgress(0.01, "Scanning Network");
+		if(logStartup) startupProgress.setProgress(0.01, "Scanning Network");
 		
         //when rescanning the network, all previous slaves are now considered to be offline before being detected again
         //for a slave to appear as offline, we set its identity object (ec_slavet) to nullptr
@@ -443,13 +456,12 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
             //wait and check if all slaves have reached Pre Operational State like requested by ec_config_init()
             if (ec_statecheck(0, EC_STATE_PRE_OP, EC_TIMEOUTSTATE) != EC_STATE_PRE_OP) {
-				startupProgress.setFailure("Not all slaves reached Pre-Operational State. Check the Log for more detailed errors.");
+				if(logStartup) startupProgress.setFailure("Not all slaves reached Pre-Operational State. Check the Log for more detailed errors.");
                 Logger::error("Not All Slaves Reached Pre-Operational State...");
 				return false;
             }
 
-			startupProgress.setProgress(0.05, "Identifying Devices");
-			
+			if(logStartup) startupProgress.setProgress(0.05, "Identifying Devices");
             Logger::info("===== Found and Configured {} EtherCAT Slave{}", ec_slavecount, ((ec_slavecount == 1) ? ": " : "s: "));
 
             for (int i = 1; i <= ec_slavecount; i++) {
@@ -519,12 +531,12 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
             return true;
         }
 
-		startupProgress.setFailure("No EtherCAT slaves found");
+		if(logStartup) startupProgress.setFailure("No EtherCAT slaves found");
         Logger::warn("===== No EtherCAT Slaves found...");
         return false;
     }
 
-    void removeFromUnassignedSlaves(std::shared_ptr<EtherCatDevice> removedDevice) {
+    void removeUnassignedDevice(std::shared_ptr<EtherCatDevice> removedDevice) {
         for (int i = 0; i < slaves_unassigned.size(); i++) {
             if (slaves_unassigned[i] == removedDevice) {
                 slaves_unassigned.erase(slaves_unassigned.begin() + i);
@@ -536,12 +548,12 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
     //================ Slave Pinging Utility during no cyclic exchange ====================
 
     void startSlaveDetectionHandler() {
-        if (b_detectionHandlerRunning) return;
-        b_detectionHandlerRunning = true;
-        slaveDetectionHandler = std::thread([]() {
+        if (b_detectionThreadRunning) return;
+		b_detectionThreadRunning = true;
+		slaveDetectionThread = std::thread([]() {
 			pthread_setname_np("EtherCAT Detection Handler Thread");
             Logger::debug("Started EtherCAT Detection Handler");
-            while (b_detectionHandlerRunning) {
+            while (b_detectionThreadRunning) {
                 ec_readstate();
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
@@ -550,8 +562,8 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
     }
 
     void stopSlaveDetectionHandler() {
-        b_detectionHandlerRunning = false;
-        if (slaveDetectionHandler.joinable()) slaveDetectionHandler.join();
+		b_detectionThreadRunning = false;
+        if (slaveDetectionThread.joinable()) slaveDetectionThread.join();
     }
 
     //=========== Map Slave memory, Configure Distributed Clocks, Do Per slave configuration, Transition to Safe Operational ===============
@@ -639,24 +651,23 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
     void startCyclicExchange() {
         //don't allow the thread to start if it is already running
-        if (b_processRunning) return;
+        if (b_cyclicExchangeRunning) return;
 
 		startupProgress.setProgress(0.6, "Starting Cyclic Exchange");
         Logger::debug("===== Starting Cyclic Process Data Exchange");
 
-        b_processRunning = true;
-        b_clockStable = false;
-
         metrics.init(processInterval_milliseconds);
 
-        etherCatRuntime = std::thread([]() {
+		//join the cyclic echange thread if it was terminated previously
+		if (cyclicExchangeThread.joinable()) cyclicExchangeThread.join();
+		
+		b_cyclicExchangeRunning = true;
+		cyclicExchangeThread = std::thread([]() {
 			pthread_setname_np("EtherCAT Cyclic Exchange Thread");
 			cyclicExchange();
 		});
     }
 
-
-    //======================== CYCLIC DATA EXCHANGE =========================
 
     void cyclicExchange() {
         using namespace std::chrono;
@@ -686,8 +697,9 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
         int64_t systemTimeErrorSmoothed_nanoseconds = 0;
         int64_t systemTimeSmoothed_nanoseconds = cycleStartTime_nanoseconds;
+		bool b_clockStable = false;
 
-        while (b_processRunning) {
+        while (b_cyclicExchangeRunning) {
 
             //======================= THREAD TIMING =========================
 
@@ -716,7 +728,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
             //===================== ENVIRONNEMENT UPDATE =======================
 
-			if (b_allOperational) Environnement::updateEtherCatHardware();
+			if (b_running) Environnement::updateEtherCatHardware();
 
             //=========== HANDLE MASTER AND REFERENCE CLOCK DRIFT ============
 
@@ -778,7 +790,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
             if (!b_clockStable && averageDCTimeDelta_nanoseconds < clockStableThreshold_nanoseconds) {
 				//detect clock stabilisation and request operational state
-                b_clockStable = true;
+				b_clockStable = true;
 				startupProgress.setProgress(0.95, "Requesting Operational State");
                 std::thread opStateHandler([]() {
 					pthread_setname_np("EtherCAT Operational State Transition Handler");
@@ -822,8 +834,8 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
             //======================== RUNTIME LOOP END =========================
         }
-        b_processRunning = false;
-        b_allOperational = false;
+		b_cyclicExchangeRunning = false; //set this in case we broke out of the main loop
+        b_running = false;
 
         //send one last frame to all slaves to disable them
         //this way motors don't suddenly jerk to a stop when stopping the fieldbus in the middle of a movement
@@ -846,7 +858,7 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
 
         Logger::info("===== Cyclic Exchange Stopped !");
 
-        //cleanup threads and relaunc slave detection handler
+        //cleanup threads and relaunch slave detection handler
         if (slaveStateHandler.joinable()) slaveStateHandler.join();
         startSlaveDetectionHandler();
 		
@@ -863,17 +875,13 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
         //wait for all slaves to reach OP state
         if (EC_STATE_OPERATIONAL == ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE)) {
 			startupProgress.setCompletion("Successfully Started EtherCAT Fieldbus");
-            b_allOperational = true;
+            b_running = true;
             Logger::info("===== All slaves are operational");
             Logger::info("===== Successfully started EtherCAT Fieldbus");
             //addition read state is required to set the individual state of each slave
             //statecheck on slave zero doesn't assign the state of each individual slave, only global slave 0
             ec_readstate();
-			//start slave state handler thread
-            slaveStateHandler = std::thread([]() {
-				pthread_setname_np("EtherCAT State Transition Handler Thread");
-				handleStateTransitions();
-			});
+			handleStateTransitions();
         }
         else {
 			startupProgress.setFailure("Not all slaves reached Operational State. Check the Log for more detailed errors.");
@@ -893,79 +901,82 @@ bool isRunning(){ return isCyclicExchangeStartSuccessfull(); }
     //============== STATE HANDLING AND SLAVE RECOVERY =================
 
     void handleStateTransitions() {
-        Logger::debug("Started Slave State Handler Thread");
-        while (b_processRunning) {
+		slaveStateHandler = std::thread([]() {
+			pthread_setname_np("EtherCAT State Transition Handler Thread");
+			Logger::debug("Started Slave State Handler Thread");
+			while (b_cyclicExchangeRunning) {
 
-            //save each slaves previous state
-            for (auto slave : slaves) slave->previousState = slave->identity->state;
+				//save each slaves previous state
+				for (auto slave : slaves) slave->previousState = slave->identity->state;
 
-            //read the current state of each slave
-            ec_readstate();
+				//read the current state of each slave
+				ec_readstate();
 
-            //detect state changes by comparing the previous state with the current state
-            for (auto slave : slaves) {
-                if (slave->identity->state != slave->previousState) {
-                    if (slave->isStateNone()) {
-                        slave->pushEvent("Device Disconnected", true);
-                        slave->onDisconnection();
-                        Logger::error("Slave '{}' Disconnected...", slave->getName());
-                    }
-                    else if (slave->previousState == EC_STATE_NONE) {
-                        char eventString[64];
-                        sprintf(eventString, "Device Reconnected with state %s", slave->getEtherCatStateChar());
-                        slave->pushEvent(eventString, false);
-                        slave->onConnection();
-                        Logger::info("Slave '{}' reconnected with state {}", slave->getName(), slave->getEtherCatStateChar());
-                    }
-                    else {
-                        char eventString[64];
-                        sprintf(eventString, "EtherCAT state changed to %s", slave->getEtherCatStateChar());
-                        slave->pushEvent(eventString, false);
-                        Logger::info("Slave '{}' state changed to {}", slave->getName(), slave->getEtherCatStateChar());
-                    }
-                }
-            }
+				//detect state changes by comparing the previous state with the current state
+				for (auto slave : slaves) {
+					if (slave->identity->state != slave->previousState) {
+						if (slave->isStateNone()) {
+							slave->pushEvent("Device Disconnected", true);
+							slave->onDisconnection();
+							Logger::error("Slave '{}' Disconnected...", slave->getName());
+						}
+						else if (slave->previousState == EC_STATE_NONE) {
+							char eventString[64];
+							sprintf(eventString, "Device Reconnected with state %s", slave->getEtherCatStateChar());
+							slave->pushEvent(eventString, false);
+							slave->onConnection();
+							Logger::info("Slave '{}' reconnected with state {}", slave->getName(), slave->getEtherCatStateChar());
+						}
+						else {
+							char eventString[64];
+							sprintf(eventString, "EtherCAT state changed to %s", slave->getEtherCatStateChar());
+							slave->pushEvent(eventString, false);
+							Logger::info("Slave '{}' state changed to {}", slave->getName(), slave->getEtherCatStateChar());
+						}
+					}
+				}
 
-            //try to recover slaves that are not online or in operational state
-            for (auto slave : slaves) {
-                if (slave->isStateNone()) {
-                    //recover is useful to detect a slave that has a power cycle and lost its configured address
-                    //recover uses incremental addressing to detect if an offline slave pops up at the same place in the network
-                    //if a slave responds at that address, the function verify it matches the previous slave at that address
-                    //it then reattributes an configured address to the slave
-                    //the function returns 1 if the slave was successfully recovered with its previous configured address
-                    if (1 == ec_recover_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
-                        slave->pushEvent("Device Reconnected after power cycle", false);
-                        slave->onConnection();
-                        Logger::info("Recovered slave '{}' !", slave->getName());
-                    }
-                }
-                else if (slave->isStateSafeOperational() && !slave->hasStateError()) {
-                    //set the slave back to operational after reconfiguration
-                    slave->identity->state = EC_STATE_OPERATIONAL;
-                    ec_writestate(slave->getSlaveIndex());
-                    if (EC_STATE_OPERATIONAL == ec_statecheck(slave->getSlaveIndex(), EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE)) {
-                        slave->pushEvent("Device back in operational state", false);
-                        Logger::info("Slave '{}' is back in Operational State!", slave->getName());
-                    }
-                }
-                else if (!slave->isStateOperational() || slave->hasStateError()) {
-                    //reconfigure looks for a slave that still has the same configured address
-                    //if no slave is found at the configured address, the function does nothing
-                    //this mean the function cannot directly be used to reconfigure a slave that had a power cycle and lost its configured address
-                    //reconfigure takes the slave back to init and reconfigures it all the way through safeoperational
-                    //we then need to set it back to operational
-                    //the ec_reconfig_slave function returns the status of the slave
-                    if (EC_STATE_SAFE_OP == ec_reconfig_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
-                        slave->pushEvent("Device Reconfigured", false);
-                        Logger::info("Slave '{}' Successfully Reconfigured", slave->getName());
-                    }
-                }
-            }
+				//try to recover slaves that are not online or in operational state
+				for (auto slave : slaves) {
+					if (slave->isStateNone()) {
+						//recover is useful to detect a slave that has a power cycle and lost its configured address
+						//recover uses incremental addressing to detect if an offline slave pops up at the same place in the network
+						//if a slave responds at that address, the function verify it matches the previous slave at that address
+						//it then reattributes an configured address to the slave
+						//the function returns 1 if the slave was successfully recovered with its previous configured address
+						if (1 == ec_recover_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
+							slave->pushEvent("Device Reconnected after power cycle", false);
+							slave->onConnection();
+							Logger::info("Recovered slave '{}' !", slave->getName());
+						}
+					}
+					else if (slave->isStateSafeOperational() && !slave->hasStateError()) {
+						//set the slave back to operational after reconfiguration
+						slave->identity->state = EC_STATE_OPERATIONAL;
+						ec_writestate(slave->getSlaveIndex());
+						if (EC_STATE_OPERATIONAL == ec_statecheck(slave->getSlaveIndex(), EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE)) {
+							slave->pushEvent("Device back in operational state", false);
+							Logger::info("Slave '{}' is back in Operational State!", slave->getName());
+						}
+					}
+					else if (!slave->isStateOperational() || slave->hasStateError()) {
+						//reconfigure looks for a slave that still has the same configured address
+						//if no slave is found at the configured address, the function does nothing
+						//this mean the function cannot directly be used to reconfigure a slave that had a power cycle and lost its configured address
+						//reconfigure takes the slave back to init and reconfigures it all the way through safeoperational
+						//we then need to set it back to operational
+						//the ec_reconfig_slave function returns the status of the slave
+						if (EC_STATE_SAFE_OP == ec_reconfig_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
+							slave->pushEvent("Device Reconfigured", false);
+							Logger::info("Slave '{}' Successfully Reconfigured", slave->getName());
+						}
+					}
+				}
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
-        Logger::debug("Exited Slave State Handler Thread");
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
+			Logger::debug("Exited Slave State Handler Thread");
+		});
     }
 
 	//========= DEVICE STATE LOGGING ========

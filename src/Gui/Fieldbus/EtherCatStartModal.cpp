@@ -48,7 +48,7 @@ void etherCatStartModal() {
 		}
 	
 		
-		bool disableCancelButton = EtherCatFieldbus::isCyclicExchangeStarting();
+		bool disableCancelButton = !EtherCatFieldbus::canStop();
 		ImGui::BeginDisabled(disableCancelButton);
 		if (ImGui::Button("Cancel")) {
 			EtherCatFieldbus::stop();
