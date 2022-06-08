@@ -26,6 +26,9 @@ void PositionControlledMachine::initialize() {
 
 	//machine parameters
 	addAnimatable(positionParameter);
+	
+	auto thisMachine = std::dynamic_pointer_cast<PositionControlledMachine>(shared_from_this());
+	widget = std::make_shared<Widget>(thisMachine);
 }
 
 void PositionControlledMachine::onPinUpdate(std::shared_ptr<NodePin> pin){

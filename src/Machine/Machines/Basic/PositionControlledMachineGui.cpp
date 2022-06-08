@@ -522,3 +522,8 @@ void PositionControlledMachine::machineSpecificMiniatureGui() {
 		ImGui::EndDisabled();
 
 }
+
+
+void PositionControlledMachine::Widget::gui(){
+	machine->miniatureGui();
+}

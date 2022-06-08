@@ -23,16 +23,6 @@ namespace Environnement::Gui{
 				nodeManager();
 				ImGui::EndTabItem();
 			}
-			/*
-			if (ImGui::BeginTabItem("Machine Manager")) {
-				machineManager();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Device Manager")) {
-				deviceManager();
-				ImGui::EndTabItem();
-			}
-			 */
 			if (ImGui::BeginTabItem("Stage Editor")) {
 				stageEditor();
 				ImGui::EndTabItem();

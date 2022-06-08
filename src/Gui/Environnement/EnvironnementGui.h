@@ -5,8 +5,10 @@ namespace Environnement::Gui{
 	//Performance
 	void plot();
 	void machineList();
+	void dashboard();
 	void homingAndSetup();
 	void stageVisualizer();
+
 
 	//Editing & Managing
 	void gui();

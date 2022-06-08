@@ -189,7 +189,7 @@ void Node::nodeGui() {
 
         NodeEditor::EndNode();
 
-        int splitNodeID = 100000 + getUniqueID();
+        int splitNodeID = INT_MAX - getUniqueID();
 		//int splitNodeID = -getUniqueID();
 
         if (!b_wasSplit) {

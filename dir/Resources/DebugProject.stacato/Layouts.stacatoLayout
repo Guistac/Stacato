@@ -8,6 +8,7 @@
 
 
 
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -230,45 +231,13 @@ DockSpace       ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,149 Size=2056,961 Split=X 
 
 </Layout>
     <Layout Name="Environnement Editor" IsDefault="true">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
 Collapsed=0
 
 [Window][##Toolbar]
-Pos=0,916
+Pos=0,996
 Size=2056,84
 Collapsed=0
 
@@ -284,7 +253,7 @@ Collapsed=0
 
 [Window][Environnement]
 Pos=0,32
-Size=2056,881
+Size=2056,961
 Collapsed=0
 DockId=0x0B88F6CB,0
 
@@ -295,13 +264,13 @@ Collapsed=0
 
 [Window][Machines]
 Pos=0,32
-Size=2056,881
+Size=2056,961
 Collapsed=0
 DockId=0x0B88F6CB,4
 
 [Window][Setup]
 Pos=0,32
-Size=2056,881
+Size=2056,961
 Collapsed=0
 DockId=0x0B88F6CB,1
 
@@ -337,7 +306,7 @@ Collapsed=0
 
 [Window][MainWindow]
 Pos=0,0
-Size=2056,916
+Size=2056,996
 Collapsed=0
 
 [Window][OffscreenNodeEditorFor1Frame]
@@ -380,25 +349,50 @@ Collapsed=0
 
 [Window][Manoeuvre List]
 Pos=0,32
-Size=2056,881
+Size=2056,961
 Collapsed=0
 DockId=0x0B88F6CB,3
 
 [Window][Manoeuvre Sheet]
 Pos=0,32
-Size=2056,881
+Size=2056,961
 Collapsed=0
 DockId=0x0B88F6CB,2
 
 [Window][Manoeuvre Curves]
 Pos=0,32
-Size=2056,881
+Size=2056,961
 Collapsed=0
 DockId=0x0B88F6CB,5
 
 [Window][Starting Environnement]
 Pos=713,430
 Size=630,140
+Collapsed=0
+
+[Window][DragList]
+Pos=432,304
+Size=555,664
+Collapsed=0
+
+[Window][Dear ImGui Style Editor]
+Pos=729,30
+Size=467,949
+Collapsed=0
+
+[Window][Dragged Item]
+Pos=95,250
+Size=583,50
+Collapsed=0
+
+[Window][TestWindow]
+Pos=208,93
+Size=364,256
+Collapsed=0
+
+[Window][ScaleTest]
+Pos=371,32
+Size=1465,582
 Collapsed=0
 
 [Table][0xDA36A7E0,6]
@@ -448,7 +442,7 @@ Column 4  Weight=1.0000
 Column 5  Weight=-1.0000
 
 [Docking][Data]
-DockSpace ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,169 Size=2056,881 CentralNode=1 Selected=0x20B12C37
+DockSpace ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,149 Size=2056,961 CentralNode=1 Selected=0xC3CCF5DC
 
 </Layout>
 </Layouts>

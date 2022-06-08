@@ -4,6 +4,8 @@
 #include "Motion/MotionTypes.h"
 #include "Motion/Curve/Profile.h"
 
+#include "Gui/Environnement/Dashboard.h"
+
 class PositionControlledMachine : public Machine{
 	
 	DEFINE_MACHINE_NODE(PositionControlledMachine, "Position Controlled Machine", "PositionControlledMachine", "Basic")
@@ -73,4 +75,13 @@ class PositionControlledMachine : public Machine{
 	
 	double getActualPosition();
 	double getActualVelocitu();
+	
+	
+	class Widget : public Dashboard::Widget{
+	public:
+		Widget(std::shared_ptr<PositionControlledMachine> machine_) : machine(machine_){}
+		std::shared_ptr<PositionControlledMachine> machine;
+		virtual void gui() override;
+	};
+	std::shared_ptr<Widget> widget;
 };

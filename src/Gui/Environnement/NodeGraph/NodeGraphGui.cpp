@@ -29,8 +29,6 @@ namespace Environnement::NodeGraph::Gui{
 		ax::NodeEditor::SetCurrentEditor(context);
 		ax::NodeEditor::Begin("Node Editor", size_arg);
 		
-		//ImGuiEx::Canvas::SetView(ImVec2(0,0), std::sin(Timing::getProgramTime_seconds()));
-		
 		//===== DRAW NODES =====
 
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2, ImGui::GetTextLineHeight() * 0.2));
@@ -119,7 +117,9 @@ namespace Environnement::NodeGraph::Gui{
 
 
 			if (ImGui::BeginPopup("Node Context Menu")) {
-				std::shared_ptr<Node> node = getNode(contextNodeId.Get());
+				int nodeID = contextNodeId.Get();
+				if(nodeID > INT_MAX / 2) nodeID = INT_MAX - nodeID;
+				std::shared_ptr<Node> node = getNode(nodeID);
 				ImGui::Text("Node : %s", node->getName());
 				ImGui::SameLine();
 				ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
@@ -222,7 +222,7 @@ namespace Environnement::NodeGraph::Gui{
 				int selectedNodeId = selectedNodeIds[i].Get();
 				//negative unique ids represent split node halves
 				//if (selectedNodeId < 0) selectedNodeId = abs(selectedNodeId);
-				if (selectedNodeId >= 100000) selectedNodeId = selectedNodeId - 100000;
+				if (selectedNodeId >= INT_MAX / 2) selectedNodeId = INT_MAX - selectedNodeId;
 				//we don't add selected ids to the list twice
 				//this can happen in case both parts of a split node are selected
 				bool alreadyInSelectedIds = false;
