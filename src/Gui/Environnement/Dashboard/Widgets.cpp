@@ -21,7 +21,7 @@ std::shared_ptr<WidgetInstance> WidgetInstance::make(std::shared_ptr<Widget> wid
 
 bool WidgetInstance::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
-	xml->SetAttribute("UniqueID", widget->uniqueID);
+	xml->SetAttribute("UniqueID", uniqueID);
 	xml->SetAttribute("PositionX", position.x);
 	xml->SetAttribute("PositionY", position.y);
 	xml->SetAttribute("SizeX", size.x);

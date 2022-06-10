@@ -1,7 +1,11 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.8598726" OffsetX="-47.601013" OffsetY="-270">
-        <Widget UniqueID="1" PositionX="304" PositionY="270" SizeX="200" SizeY="400"/>
-        <Widget UniqueID="0" PositionX="566" PositionY="341" SizeX="200" SizeY="400"/>
+    <Dashboard Scale="1" OffsetX="0" OffsetY="0"/>
+    <Dashboard Scale="1" OffsetX="0" OffsetY="0"/>
+    <Dashboard Scale="0.57068855" OffsetX="959.06348" OffsetY="-399.96268">
+        <Widget UniqueID="1" PositionX="101.34126" PositionY="622.06744" SizeX="200" SizeY="400"/>
+        <Widget UniqueID="3" PositionX="-141.6595" PositionY="622.50085" SizeX="200" SizeY="400"/>
+        <Widget UniqueID="2" PositionX="348.79413" PositionY="633.98523" SizeX="200" SizeY="400"/>
+        <Widget UniqueID="0" PositionX="598.47968" PositionY="625.52283" SizeX="200" SizeY="400"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
