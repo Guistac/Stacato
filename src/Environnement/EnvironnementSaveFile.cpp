@@ -3,6 +3,7 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "NodeGraph/NodeGraph.h"
+#include "Gui/Environnement/Dashboard/Dashboard.h"
 
 #include <tinyxml2.h>
 
@@ -20,6 +21,9 @@ namespace Environnement {
 		environnementXML->SetAttribute("name", Environnement::getName());
 		environnementXML->SetAttribute("notes", Environnement::getNotes());
 
+		//========= DASHBOARD =========
+		DashboardManager::save(environnementXML);
+		
 		//====== NODE GRAPH SAVING ======
 
 		XMLElement* nodeGraphXML = environnementXML->InsertNewChildElement("NodeGraph");
@@ -62,6 +66,12 @@ namespace Environnement {
 		if(environnementXML->QueryStringAttribute("notes", &environnementNotes) != XML_SUCCESS) return Logger::warn("Could not load Environnement notes");
 		Environnement::setNotes(environnementNotes);
 
+		//========= DASHBOARD =========
+		if(!DashboardManager::load(environnementXML)){
+			Logger::warn("Error Loading Dashboards");
+			return false;
+		}
+		
 		//====== NODE GRAPH LOADING ======
 
 		XMLElement* nodeGraphXML = environnementXML->FirstChildElement("NodeGraph");

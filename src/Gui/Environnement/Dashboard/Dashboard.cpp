@@ -56,6 +56,11 @@ void Dashboard::moveWidget(std::shared_ptr<WidgetInstance> widget, glm::vec2 new
 
 void Dashboard::resizeWidget(std::shared_ptr<WidgetInstance> widget, glm::vec2 newSize){}
 
+
+
+
+
+
 void Dashboard::addAvailableWidget(std::shared_ptr<Widget> widget){
 	availableWidgets.push_back(widget);
 }
@@ -69,7 +74,7 @@ void Dashboard::removeAvailableWidget(std::shared_ptr<Widget> widget){
 	}
 	for(int i = 0; i < widgets.size(); i++){
 		if(widgets[i]->widget->uniqueID == widget->uniqueID){
-			removeWidget(widgets[i]);
+			widgets.erase(widgets.begin() + i);
 		}
 	}
 }
@@ -123,6 +128,9 @@ void Dashboard::canvas(){
 	}
 	
 	//set style scaling
+	//we cannot use ImGui::GetStyle().ScaleAllSizes(float scale_factor)
+	//because it rounds values to integers
+	//instead we buffer the main style structure and generate a new one
 	ImGuiStyle defaultStyleCopy = ImGui::GetStyle();
 	ImGuiStyle& dashboardStyle = ImGui::GetStyle();
 	dashboardStyle.WindowPadding = dashboardStyle.WindowPadding * scale;
@@ -206,7 +214,7 @@ void Dashboard::canvas(){
 					
 					if(ImGui::IsKeyDown(GLFW_KEY_LEFT_SUPER) || ImGui::IsKeyDown(GLFW_KEY_RIGHT_SUPER)){
 						ImGui::BeginTooltip();
-						ImGui::Text("UID: %i", widget->widget->uniqueID);
+						ImGui::Text("UID: %i", widget->uniqueID);
 						ImGui::EndTooltip();
 					}
 				}
@@ -301,8 +309,9 @@ void Dashboard::gui(){
 		
 		canvas();
 		
+		ImGui::PushStyleColor(ImGuiCol_DragDropTarget, ImVec4(.0f, .0f, .0f, .0f));
 		if(ImGui::BeginDragDropTarget()){
-			
+		
 			glm::vec2 min = ImGui::GetItemRectMin();
 			glm::vec2 max = ImGui::GetItemRectMax();
 			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(1.f, 1.f, 1.f, .1f));
@@ -317,6 +326,7 @@ void Dashboard::gui(){
 			}
 			ImGui::EndDragDropTarget();
 		}
+		ImGui::PopStyleColor();
 		
 	}
 	ImGui::EndChild();
@@ -361,16 +371,40 @@ bool Dashboard::save(tinyxml2::XMLElement* xml){
 	xml->SetAttribute("OffsetY", offset.y);
 	for(auto& widget : widgets){
 		XMLElement* widgetXML = xml->InsertNewChildElement("Widget");
-		widgetXML->SetAttribute("UniqueID", widget->widget->uniqueID);
-		widgetXML->SetAttribute("PositionX", widget->position.x);
-		widgetXML->SetAttribute("PositionY", widget->position.y);
-		widgetXML->SetAttribute("SizeX", widget->size.x);
-		widgetXML->SetAttribute("SizeY", widget->size.y);
+		widget->save(widgetXML);
 	}
+	return true;
 }
 
-bool Dashboard::load(tinyxml2::XMLElement* xml){
+std::shared_ptr<Dashboard> Dashboard::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
 	
+	auto dashboard = std::make_shared<Dashboard>();
+	if(xml->QueryFloatAttribute("Scale", &dashboard->scale) != XML_SUCCESS) {
+		Logger::warn("Could not find Dashboard Scale Attribute");
+		return nullptr;
+	}
+	if(xml->QueryFloatAttribute("OffsetX", &dashboard->offset.x) != XML_SUCCESS) {
+		Logger::warn("Could not find Dashboard Scale Attribute");
+		return nullptr;
+	}
+	if(xml->QueryFloatAttribute("OffsetY", &dashboard->offset.y) != XML_SUCCESS) {
+		Logger::warn("Could not find Dashboard Scale Attribute");
+		return nullptr;
+	}
+	
+	XMLElement* widgetInstanceXML = xml->FirstChildElement("Widget");
+	while(widgetInstanceXML){
+		auto widget = WidgetInstance::load(widgetInstanceXML);
+		if(widget == nullptr) {
+			Logger::warn("Error Loading Widget");
+			return nullptr;
+		}
+		dashboard->widgets.push_back(widget);
+		widgetInstanceXML = widgetInstanceXML->NextSiblingElement("Widget");
+	}
+	
+	return dashboard;
 }
 
 
@@ -401,6 +435,31 @@ std::vector<std::shared_ptr<Dashboard>> dashboards = {
 };
 std::vector<std::shared_ptr<Dashboard>>& getDashboards(){ return dashboards; }
 
+bool save(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	for(auto& dashboard : dashboards){
+		XMLElement* dashboardXML = xml->InsertNewChildElement("Dashboard");
+		dashboard->save(dashboardXML);
+	}
+	return true;
+}
+bool load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+
+	XMLElement* dashboardXML = xml->FirstChildElement("Dashboard");
+	while(dashboardXML){
+		auto dashboard = Dashboard::load(dashboardXML);
+		if(dashboard == nullptr){
+			Logger::warn("Error Loading Dashboard");
+			return false;
+		}
+		dashboards.push_back(dashboard);
+		dashboardXML = dashboardXML->NextSiblingElement("Dashboard");
+	}
+	return true;
+}
+
+
 };
 
 
@@ -410,7 +469,7 @@ std::vector<std::shared_ptr<Dashboard>>& getDashboards(){ return dashboards; }
 namespace Environnement::Gui{
 void dashboards(){
 	
-	auto dashboard = DashboardManager::getDashboards().front();
+	auto dashboard = DashboardManager::getDashboards().back();
 	dashboard->gui();
 	
 }

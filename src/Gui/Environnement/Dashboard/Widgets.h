@@ -1,5 +1,6 @@
 #pragma once
 
+namespace tinyxml2{ struct XMLElement; }
 
 class Widget : public std::enable_shared_from_this<Widget>{
 public:
@@ -27,18 +28,24 @@ public:
 	glm::vec2 position;
 	glm::vec2 size;
 	std::shared_ptr<Widget> widget;
+	int uniqueID = -1;
 	
-	static std::shared_ptr<WidgetInstance> make(std::shared_ptr<Widget> widget){
-		auto instance = std::make_shared<WidgetInstance>(widget);
-		instance->size = widget->getDefaultSize();
-		return instance;
+	static std::shared_ptr<WidgetInstance> make(std::shared_ptr<Widget> widget);
+	
+	void gui(){
+		if(widget) widget->gui();
+	}
+	bool isResizeable(){
+		if(widget) return widget->isResizeable();
+		return false;
+	}
+	glm::vec2 getDefaultSize(){
+		if(widget) return widget->getDefaultSize();
+		return size;
 	}
 	
-	WidgetInstance(std::shared_ptr<Widget> widget_) : widget(widget_){}
-	
-	void gui(){ widget->gui(); }
-	bool isResizeable(){ return widget->isResizeable(); }
-	glm::vec2 getDefaultSize(){ return widget->getDefaultSize(); }
+	bool save(tinyxml2::XMLElement* xml);
+	static std::shared_ptr<WidgetInstance> load(tinyxml2::XMLElement* xml);
 	
 };
 
@@ -46,6 +53,7 @@ public:
 namespace WidgetManager{
 
 	int getNewUniqueID();
+	void registerUniqueID(int uniqueID);
 	
 	std::vector<std::shared_ptr<Widget>>& getDictionnary();
 	void addToDictionnary(std::shared_ptr<Widget> widget);

@@ -33,7 +33,6 @@ public:
 	std::shared_ptr<WidgetInstance> selectedWidget = nullptr;
 	std::shared_ptr<WidgetInstance> draggedWidget = nullptr;
 	
-	
 	float scale = 1.0;
 	float minScale = 0.1;
 	float maxScale = 10.0;
@@ -55,7 +54,7 @@ public:
 	void pan(glm::vec2 mouseDelta);
 	
 	bool save(tinyxml2::XMLElement* xml);
-	bool load(tinyxml2::XMLElement* xml);
+	static std::shared_ptr<Dashboard> load(tinyxml2::XMLElement* xml);
 };
 
 
@@ -63,6 +62,9 @@ public:
 namespace DashboardManager{
 	
 	std::vector<std::shared_ptr<Dashboard>>& getDashboards();
+
+	bool save(tinyxml2::XMLElement* xml);
+	bool load(tinyxml2::XMLElement* xml);
 
 };
 

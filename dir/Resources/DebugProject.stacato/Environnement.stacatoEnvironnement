@@ -1,4 +1,8 @@
 <Environnement name="Default Environnement" notes="">
+    <Dashboard Scale="1.8598726" OffsetX="-47.601013" OffsetY="-270">
+        <Widget UniqueID="1" PositionX="304" PositionY="270" SizeX="200" SizeY="400"/>
+        <Widget UniqueID="0" PositionX="566" PositionY="341" SizeX="200" SizeY="400"/>
+    </Dashboard>
     <NodeGraph>
         <Nodes>
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Position Controlled Machine" UniqueID="32">
