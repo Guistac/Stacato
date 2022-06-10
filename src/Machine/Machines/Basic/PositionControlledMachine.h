@@ -4,7 +4,7 @@
 #include "Motion/MotionTypes.h"
 #include "Motion/Curve/Profile.h"
 
-#include "Gui/Environnement/Dashboard.h"
+#include "Gui/Environnement/Dashboard/Widgets.h"
 
 class PositionControlledMachine : public Machine{
 	
@@ -27,6 +27,8 @@ class PositionControlledMachine : public Machine{
 	virtual void onPinUpdate(std::shared_ptr<NodePin> pin) override;
 	virtual void onPinConnection(std::shared_ptr<NodePin> pin) override;
 	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin) override;
+	virtual void onAddToNodeGraph() override;
+	virtual void onRemoveFromNodeGraph() override;
 
 	//======= MANUAL CONTROLS =========
 
@@ -77,11 +79,12 @@ class PositionControlledMachine : public Machine{
 	double getActualVelocitu();
 	
 	
-	class Widget : public Dashboard::Widget{
+	class ControlWidget : public Widget{
 	public:
-		Widget(std::shared_ptr<PositionControlledMachine> machine_) : machine(machine_){}
+		ControlWidget(std::shared_ptr<PositionControlledMachine> machine_, std::string name) : Widget(name, "Machines"), machine(machine_){}
 		std::shared_ptr<PositionControlledMachine> machine;
 		virtual void gui() override;
+		virtual glm::vec2 getDefaultSize() override;
 	};
 	std::shared_ptr<Widget> widget;
 };

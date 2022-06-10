@@ -95,7 +95,7 @@ namespace Gui {
 		
 		if(ImGui::Begin("Machines"))
 			//Environnement::Gui::machineList();
-			Environnement::Gui::dashboard();
+			Environnement::Gui::dashboards();
 		ImGui::End();
 		 
 		if(ImGui::Begin("Manoeuvre List")) PlotGui::manoeuvreList();

@@ -28,7 +28,7 @@ void PositionControlledMachine::initialize() {
 	addAnimatable(positionParameter);
 	
 	auto thisMachine = std::dynamic_pointer_cast<PositionControlledMachine>(shared_from_this());
-	widget = std::make_shared<Widget>(thisMachine);
+	widget = std::make_shared<ControlWidget>(thisMachine, getName());
 }
 
 void PositionControlledMachine::onPinUpdate(std::shared_ptr<NodePin> pin){
@@ -41,6 +41,14 @@ void PositionControlledMachine::onPinConnection(std::shared_ptr<NodePin> pin){
 
 void PositionControlledMachine::onPinDisconnection(std::shared_ptr<NodePin> pin){
 	if(pin == positionControlledAxisPin) positionParameter->setUnit(Units::None::None);
+}
+
+void PositionControlledMachine::onAddToNodeGraph(){
+	widget->addToDictionnary();
+}
+
+void PositionControlledMachine::onRemoveFromNodeGraph(){
+	widget->removeFromDictionnary();
 }
 
 bool PositionControlledMachine::isHardwareReady() {

@@ -54,6 +54,8 @@ public:
 	virtual void onPinUpdate(std::shared_ptr<NodePin> pin){}
 	virtual void onPinConnection(std::shared_ptr<NodePin> pin){}
 	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin){}
+	virtual void onAddToNodeGraph(){}
+	virtual void onRemoveFromNodeGraph(){}
 
 	//nodegraph
 	int getUniqueID() { return uniqueID; }

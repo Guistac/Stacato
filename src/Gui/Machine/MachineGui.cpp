@@ -93,12 +93,12 @@ void Machine::generalSettingsGui() {
 
 void Machine::miniatureGui() {
 
-	glm::vec2 miniatureSize(getMiniatureWidth(), ImGui::GetTextLineHeight() * 20.0);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
-	ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImGui::GetTextLineHeight() * 0.2);
-	ImGui::PushStyleColor(ImGuiCol_ChildBg, Colors::almostBlack);
-	ImGui::PushID(getName());
-	if (ImGui::BeginChild("Miniature", miniatureSize, true)) {
+	//glm::vec2 miniatureSize(getMiniatureWidth(), ImGui::GetTextLineHeight() * 20.0);
+	//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
+	//ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImGui::GetTextLineHeight() * 0.2);
+	//ImGui::PushStyleColor(ImGuiCol_ChildBg, Colors::almostBlack);
+	//ImGui::PushID(getName());
+	//if (ImGui::BeginChild("Miniature", miniatureSize, true)) {
 
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, -ImGui::GetTextLineHeight() * 0.2));
 
@@ -124,10 +124,10 @@ void Machine::miniatureGui() {
 		glm::vec2 miniatureContentSize = ImGui::GetContentRegionAvail();
 		miniatureContentSize.y -= bottomSectionHeight;
 
-		if (ImGui::BeginChild("MiniatureContent", miniatureContentSize, false)) {
-			machineSpecificMiniatureGui();
-		}
-		ImGui::EndChild();
+		//if (ImGui::BeginChild("MiniatureContent", miniatureContentSize, false)) {
+			//machineSpecificMiniatureGui();
+		//}
+		//ImGui::EndChild();
 
 		glm::vec2 singleButtonSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.5);
 		if (isEnabled()) {
@@ -151,10 +151,10 @@ void Machine::miniatureGui() {
 		ImGui::PopStyleColor();
 
 		ImGui::PopStyleVar();
-	}
-	ImGui::EndChild();
-	ImGui::PopID();
-	ImGui::PopStyleColor();
-	ImGui::PopStyleVar(2);
+	//}
+	//ImGui::EndChild();
+	//ImGui::PopID();
+	//ImGui::PopStyleColor();
+	//ImGui::PopStyleVar(2);
 
 }

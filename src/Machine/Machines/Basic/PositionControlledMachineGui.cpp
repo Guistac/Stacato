@@ -524,6 +524,13 @@ void PositionControlledMachine::machineSpecificMiniatureGui() {
 }
 
 
-void PositionControlledMachine::Widget::gui(){
-	machine->miniatureGui();
+glm::vec2 PositionControlledMachine::ControlWidget::getDefaultSize(){
+	float lineHeight = ImGui::GetTextLineHeight();
+	//return {lineHeight * 10.0, lineHeight * 20.0};
+	return {200, 400};
+}
+
+void PositionControlledMachine::ControlWidget::gui(){
+	machine->machineSpecificMiniatureGui();
+	//machine->miniatureGui();
 }

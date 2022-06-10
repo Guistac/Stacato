@@ -43,8 +43,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeManagerGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/HomingGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachinesGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/Dashboard.h
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/Dashboard.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/Dashboard/Dashboard.h
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/Dashboard/Dashboard.cpp
     
     ${STACATO_SOURCE_DIRECTORY}/Gui/Machine/MachineGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Machine/AnimatableParameterGui.cpp
