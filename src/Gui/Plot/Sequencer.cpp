@@ -13,9 +13,12 @@
 
 #include "Gui/Utilities/CustomWidgets.h"
 
+#include "Plot/Sequencer.h"
+
 namespace Sequencer::Gui{
 
 
+/*
 enum class MediaType{
 	AUDIO = 1,
 	VIDEO = 2,
@@ -232,10 +235,25 @@ void editor(){
 }
 
 
+*/
 
 
 
-
+void editor(){
+	
+	ImGui::Text("Sequencer Goes Here");
+	/*
+	auto sequence = Sequencer::getSequence();
+	Sequencer::setContext(&sequence->guiContext);
+	
+	if(Sequencer::begin("Sequencer")){
+		
+		
+		Sequencer::end();
+	}
+	 */
+	
+}
 
 
 

@@ -91,11 +91,6 @@ void Dashboard::removeAvailableWidget(std::shared_ptr<Widget> widget){
 	}
 }
 
-
-glm::vec2 Dashboard::screenToCanvas(glm::vec2 screen){ return ((screen - dashboardPosition) / scale) - offset; };
-glm::vec2 Dashboard::canvasToScreen(glm::vec2 canvas){ return ((canvas + offset) * scale) + dashboardPosition; };
-glm::vec2 Dashboard::canvasToCursor(glm::vec2 canvas){ return (canvas + offset) * scale; };
-
 void Dashboard::zoom(glm::vec2 screenZoomPosition, float delta){
 	glm::vec2 canvasZoomPosition = screenToCanvas(screenZoomPosition);
 	scale *= 1.0 + delta;
@@ -287,6 +282,40 @@ void Dashboard::widgetAdder(){
 	}
 }
 
+void Dashboard::fitView(){
+	auto& widgets = getWidgets();
+	if(widgets.empty()) return;
+	//get content coordinates
+	glm::vec2 contentMin(FLT_MAX);
+	glm::vec2 contentMax(FLT_MIN);
+	for(auto& widget : widgets){
+		glm::vec2 widgetMin = widget->position;
+		glm::vec2 widgetMax = widget->position + widget->size;
+		contentMin.x = std::min(contentMin.x, widgetMin.x);
+		contentMin.y = std::min(contentMin.y, widgetMin.y);
+		contentMax.x = std::max(contentMax.x, widgetMax.x);
+		contentMax.y = std::max(contentMax.y, widgetMax.y);
+	}
+	glm::vec2 contentSize(contentMax.x - contentMin.x, contentMax.y - contentMin.y);
+	//adjust scale to fit content
+	glm::vec2 scalingRatio = dashboardSize / contentSize;
+	scale = std::min(scalingRatio.x, scalingRatio.y);
+	
+	//adjust offset to fit content
+	glm::vec2 viewSize = dashboardSize / scale;
+	if(dashboardSize.x / dashboardSize.y > contentSize.x / contentSize.y){
+		//Y is limiting
+		offset.y = -contentMin.y;
+		offset.x = -contentMin.x + (viewSize.x - contentSize.x) / 2.0;
+	}else{
+		//X is limiting
+		offset.x = -contentMin.x;
+		offset.y = -contentMin.y + (viewSize.y - contentSize.y) / 2.0;
+	}
+}
+
+
+
 void Dashboard::gui(){
 	
 	static float adderWidth = ImGui::GetTextLineHeight() * 15.0;
@@ -330,6 +359,14 @@ void Dashboard::gui(){
 			ImGui::PushFont(Fonts::sansBold15);
 			backgroundText("Available Widgets", ImVec2(availableWidth, ImGui::GetFrameHeight()), Colors::darkGray);
 			ImGui::PopFont();
+			
+			if(availableWidgets.empty()) {
+				ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+				ImGui::PushFont(Fonts::sansLight15);
+				ImGui::Text("No Widgets Available.");
+				ImGui::PopFont();
+				ImGui::PopStyleColor();
+			}
 			
 			for(auto& widget : availableWidgets){
 				ImGui::Selectable(widget->name.c_str());
@@ -386,37 +423,6 @@ void Dashboard::gui(){
 		ImGui::End();
 	}
 	
-}
-
-void Dashboard::fitView(){
-	if(getWidgets().empty()) return;
-	//get content coordinates
-	glm::vec2 contentMin(FLT_MAX);
-	glm::vec2 contentMax(FLT_MIN);
-	for(auto& widget : getWidgets()){
-		glm::vec2 widgetMin = widget->position;
-		glm::vec2 widgetMax = widget->position + widget->size;
-		contentMin.x = std::min(contentMin.x, widgetMin.x);
-		contentMin.y = std::min(contentMin.y, widgetMin.y);
-		contentMax.x = std::max(contentMax.x, widgetMax.x);
-		contentMax.y = std::max(contentMax.y, widgetMax.y);
-	}
-	glm::vec2 contentSize(contentMax.x - contentMin.x, contentMax.y - contentMin.y);
-	//adjust scale to fit content
-	glm::vec2 scalingRatio = dashboardSize / contentSize;
-	scale = std::min(scalingRatio.x, scalingRatio.y);
-	
-	//adjust offset to fit content
-	glm::vec2 viewSize = dashboardSize / scale;
-	if(dashboardSize.x / dashboardSize.y > contentSize.x / contentSize.y){
-		//Y is limiting
-		offset.y = -contentMin.y;
-		offset.x = -contentMin.x + (viewSize.x - contentSize.x) / 2.0;
-	}else{
-		//X is limiting
-		offset.x = -contentMin.x;
-		offset.y = -contentMin.y + (viewSize.y - contentSize.y) / 2.0;
-	}
 }
 
 

@@ -34,6 +34,12 @@
 
 
 
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -256,31 +262,6 @@ DockSpace       ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,149 Size=2056,961 Split=X 
 
 </Layout>
     <Layout Name="Environnement Editor" IsDefault="true">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -340,9 +321,10 @@ Size=1637,881
 Collapsed=0
 
 [Window][Sequencer]
-Pos=419,32
-Size=1637,881
+Pos=0,32
+Size=2056,961
 Collapsed=0
+DockId=0x0B88F6CB,6
 
 [Window][cCurvesTest]
 Pos=0,32
@@ -445,6 +427,16 @@ Pos=371,32
 Size=1465,582
 Collapsed=0
 
+[Window][DashboardControls]
+Pos=325,61
+Size=449,51
+Collapsed=0
+
+[Window][Dashboard]
+Pos=656,175
+Size=981,582
+Collapsed=0
+
 [Table][0xDA36A7E0,6]
 RefScale=21
 Column 0  Width=49 Sort=0^
@@ -492,7 +484,7 @@ Column 4  Weight=1.0000
 Column 5  Weight=-1.0000
 
 [Docking][Data]
-DockSpace ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,149 Size=2056,961 CentralNode=1 Selected=0xC3CCF5DC
+DockSpace ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,149 Size=2056,961 CentralNode=1 Selected=0x3E6B10D2
 
 </Layout>
 </Layouts>

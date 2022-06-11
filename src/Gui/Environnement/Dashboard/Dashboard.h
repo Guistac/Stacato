@@ -51,9 +51,16 @@ public:
 	glm::vec2 dashboardMax;
 	
 	void moveWidgetToTop(std::shared_ptr<WidgetInstance> widget);
-	glm::vec2 screenToCanvas(glm::vec2 screen);
-	glm::vec2 canvasToScreen(glm::vec2 canvas);
-	glm::vec2 canvasToCursor(glm::vec2 canvas);
+	glm::vec2 screenToCanvas(glm::vec2 screen){ return ((screen - dashboardPosition) / scale) - offset; };
+	glm::vec2 canvasToScreen(glm::vec2 canvas){ return ((canvas + offset) * scale) + dashboardPosition; };
+	glm::vec2 canvasToCursor(glm::vec2 canvas){ return (canvas + offset) * scale; };
+	
+	
+
+
+
+	
+	
 	void zoom(glm::vec2 screenZoomPosition, float delta);
 	void pan(glm::vec2 mouseDelta);
 	

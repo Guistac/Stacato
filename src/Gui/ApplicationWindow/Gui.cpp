@@ -93,9 +93,11 @@ namespace Gui {
 		if(ImGui::Begin("Setup")) Environnement::Gui::homingAndSetup();
 		ImGui::End();
 		
-		if(ImGui::Begin("Machines"))
-			//Environnement::Gui::machineList();
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
+		if(ImGui::Begin("Machines")) {
+			ImGui::PopStyleVar();
 			Environnement::Gui::dashboards();
+		}else ImGui::PopStyleVar();
 		ImGui::End();
 		 
 		if(ImGui::Begin("Manoeuvre List")) PlotGui::manoeuvreList();
@@ -115,12 +117,10 @@ namespace Gui {
 		ImGui::End();
 		*/
 		 
-		/*
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0,0));
 		if(ImGui::Begin("Sequencer")) Sequencer::Gui::editor();
 		ImGui::End();
 		ImGui::PopStyleVar();
-		*/
 		
 		
 		 

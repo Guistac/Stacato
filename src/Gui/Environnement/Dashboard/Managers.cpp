@@ -19,6 +19,7 @@ std::shared_ptr<Dashboard> getDashboard(){ return dashboard; }
 bool save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	XMLElement* dashboardXML = xml->InsertNewChildElement("Dashboard");
+	getDashboard()->save(dashboardXML);
 	/*
 	for(auto& dashboard : dashboards){
 		XMLElement* dashboardXML = xml->InsertNewChildElement("Dashboard");
@@ -31,11 +32,10 @@ bool load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 
 	XMLElement* dashboardXML = xml->FirstChildElement("Dashboard");
-	dashboard = Dashboard::load(dashboardXML);
-	if(dashboard == nullptr){
+	auto loadedDashboard = Dashboard::load(dashboardXML);
+	if(loadedDashboard == nullptr){
 		Logger::warn("Error Loading Dashboard");
-		return false;
-	}
+	}else dashboard = loadedDashboard;
 	
 	/*
 	XMLElement* dashboardXML = xml->FirstChildElement("Dashboard");
