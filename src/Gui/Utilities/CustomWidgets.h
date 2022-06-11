@@ -79,4 +79,4 @@ void scrollingTextWithBackground(const char* ID, const char* text, ImVec2 size, 
 void scrollingText(const char* ID, const char* text, float width, bool lock = false, float pauseTime = 2.0, float velocity = 2.0);
 
 
-float verticalSeparator(float width);
+float verticalSeparator(float width, bool drawLine = true);

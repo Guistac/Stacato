@@ -4,7 +4,7 @@
 #include "Motion/MotionTypes.h"
 #include "Motion/Curve/Profile.h"
 
-#include "Gui/Environnement/Dashboard/Widgets.h"
+#include "Gui/Environnement/Dashboard/Widget.h"
 
 class PositionControlledMachine : public Machine{
 	
@@ -86,5 +86,5 @@ class PositionControlledMachine : public Machine{
 		virtual void gui() override;
 		virtual glm::vec2 getDefaultSize() override;
 	};
-	std::shared_ptr<Widget> widget;
+	std::shared_ptr<ControlWidget> controlWidget;
 };

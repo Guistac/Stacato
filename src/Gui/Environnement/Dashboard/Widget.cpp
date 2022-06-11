@@ -1,11 +1,21 @@
 #include <pch.h>
 
-#include "Widgets.h"
+#include "Widget.h"
 #include "Dashboard.h"
+#include "Managers.h"
 
 #include <tinyxml2.h>
+#include <imgui.h>
 
-void Widget::gui(){}
+void Widget::gui(){
+	/*
+	glm::vec2 nameSize = ImGui::CalcTextSize(name.c_str());
+	glm::vec2 availableSize = ImGui::GetContentRegionAvail();
+	glm::vec2 windowPosition = ImGui::GetWindowPos();
+	glm::vec2 position = (availableSize - nameSize) / 2.0;
+	ImGui::
+	 */
+}
 
 void Widget::addToDictionnary(){ WidgetManager::addToDictionnary(shared_from_this()); }
 
@@ -53,51 +63,4 @@ std::shared_ptr<WidgetInstance> WidgetInstance::load(tinyxml2::XMLElement* xml){
 		return nullptr;
 	}
 	return widgetInstance;
-}
-
-
-
-namespace WidgetManager{
-
-	int uniqueIdCounter = 0;
-
-	int getNewUniqueID(){
-		uniqueIdCounter++;
-		return uniqueIdCounter;
-	}
-	void registerUniqueID(int registeredID){
-		if(registeredID > uniqueIdCounter) uniqueIdCounter = registeredID;
-	}
-
-	std::vector<std::shared_ptr<Widget>> dictionnary;
-	std::vector<std::shared_ptr<Widget>>& getDictionnary(){ return dictionnary; }
-
-	void addToDictionnary(std::shared_ptr<Widget> widget){
-		if(widget->uniqueID == -1) widget->uniqueID = getNewUniqueID();
-		dictionnary.push_back(widget);
-		for(auto& dashboard : DashboardManager::getDashboards()){
-			dashboard->addAvailableWidget(widget);
-		}
-	}
-	void removeFromDictionnary(std::shared_ptr<Widget> widget){
-		for(int i = 0; i < dictionnary.size(); i++){
-			if(dictionnary[i] == widget){
-				dictionnary.erase(dictionnary.begin() + i);
-				break;
-			}
-		}
-		for(auto& dashboard : DashboardManager::getDashboards()){
-			dashboard->removeAvailableWidget(widget);
-		}
-	}
-
-	std::shared_ptr<Widget> getWidgetByUniqueID(int uniqueID){
-		for(auto& widget : dictionnary){
-			if(widget->uniqueID == uniqueID) return widget;
-		}
-		return nullptr;
-	}
-
-
-
 }

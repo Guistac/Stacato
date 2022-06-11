@@ -845,7 +845,7 @@ void scrollingText(const char* ID, const char* text, float width, bool lock, flo
 }
 
 
-float verticalSeparator(float width){
+float verticalSeparator(float width, bool drawLine){
 	float output;
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
 	ImGui::SameLine();
@@ -855,11 +855,13 @@ float verticalSeparator(float width){
 		output = ImGui::GetIO().MouseDelta.x;
 	}
 	if(ImGui::IsItemActive() || ImGui::IsItemHovered()) ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-	ImVec2 buttonMin = ImGui::GetItemRectMin();
-	ImVec2 buttonMax = ImGui::GetItemRectMax();
-	ImVec2 buttonSize = ImGui::GetItemRectSize();
-	float middleX = buttonMin.x + buttonSize.x / 2.0;
-	ImGui::GetWindowDrawList()->AddLine(ImVec2(middleX, buttonMin.y), ImVec2(middleX, buttonMax.y), ImGui::GetColorU32(ImGuiCol_Separator));
+	if(drawLine){
+		ImVec2 buttonMin = ImGui::GetItemRectMin();
+		ImVec2 buttonMax = ImGui::GetItemRectMax();
+		ImVec2 buttonSize = ImGui::GetItemRectSize();
+		float middleX = buttonMin.x + buttonSize.x / 2.0;
+		ImGui::GetWindowDrawList()->AddLine(ImVec2(middleX, buttonMin.y), ImVec2(middleX, buttonMax.y), ImGui::GetColorU32(ImGuiCol_Separator));
+	}
 	ImGui::SameLine();
 	ImGui::PopStyleVar();
 	return output;

@@ -28,7 +28,7 @@ void PositionControlledMachine::initialize() {
 	addAnimatable(positionParameter);
 	
 	auto thisMachine = std::dynamic_pointer_cast<PositionControlledMachine>(shared_from_this());
-	widget = std::make_shared<ControlWidget>(thisMachine, getName());
+	controlWidget = std::make_shared<ControlWidget>(thisMachine, getName());
 }
 
 void PositionControlledMachine::onPinUpdate(std::shared_ptr<NodePin> pin){
@@ -44,11 +44,11 @@ void PositionControlledMachine::onPinDisconnection(std::shared_ptr<NodePin> pin)
 }
 
 void PositionControlledMachine::onAddToNodeGraph(){
-	widget->addToDictionnary();
+	controlWidget->addToDictionnary();
 }
 
 void PositionControlledMachine::onRemoveFromNodeGraph(){
-	widget->removeFromDictionnary();
+	controlWidget->removeFromDictionnary();
 }
 
 bool PositionControlledMachine::isHardwareReady() {
@@ -632,6 +632,9 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	machineZeroXML->SetAttribute("MachineZero_AxisUnits", machineZero_axisUnits);
 	machineZeroXML->SetAttribute("InvertAxisDirection", b_invertDirection);
 	
+	XMLElement* widgetXML = xml->InsertNewChildElement("ControWidget");
+	widgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
+	
 	return true;
 }
 
@@ -649,6 +652,10 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	if(machineZeroXML->QueryDoubleAttribute("MachineZero_AxisUnits", &machineZero_axisUnits) != XML_SUCCESS) return Logger::warn("Could not find machine zero value attribute");
 	if(machineZeroXML->QueryBoolAttribute("InvertAxisDirection", &b_invertDirection) != XML_SUCCESS) return Logger::warn("Could not find invert axis direction attribute");
 	
+	XMLElement* widgetXML = xml->FirstChildElement("ControWidget");
+	if(widgetXML == nullptr) return Logger::warn("Could not find Control Widget Attribute");
+	if(widgetXML->QueryIntAttribute("UniqueID", &controlWidget->uniqueID) != XML_SUCCESS) return Logger::warn("Could not find machine control widget uid attribute");
+	 
 	return true;
 }
 

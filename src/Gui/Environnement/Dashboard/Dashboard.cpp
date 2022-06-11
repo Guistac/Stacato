@@ -1,7 +1,8 @@
 #include <pch.h>
 
 #include "Dashboard.h"
-#include "Widgets.h"
+#include "Widget.h"
+#include "Managers.h"
 
 #include "Gui/Environnement/EnvironnementGui.h"
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
@@ -32,7 +33,7 @@ void Dashboard::addWidget(std::shared_ptr<Widget> widget, glm::vec2 position){
 }
 
 void Dashboard::removeWidget(std::shared_ptr<WidgetInstance> widget){
-	availableWidgets.push_back(widget->widget);
+	if(widget->widget) availableWidgets.push_back(widget->widget);
 	for(int i = 0; i < widgets.size(); i++){
 		if(widgets[i] == widget){
 			widgets.erase(widgets.begin() + i);
@@ -63,6 +64,17 @@ void Dashboard::resizeWidget(std::shared_ptr<WidgetInstance> widget, glm::vec2 n
 
 void Dashboard::addAvailableWidget(std::shared_ptr<Widget> widget){
 	availableWidgets.push_back(widget);
+	for(auto& widgetInstance : widgets){
+		if(widgetInstance->widget == nullptr && widgetInstance->uniqueID == widget->uniqueID){
+			widgetInstance->widget = widget;
+			for(int i = 0; i < availableWidgets.size(); i++){
+				if(availableWidgets[i] == widget){
+					availableWidgets.erase(availableWidgets.begin() + i);
+					break;
+				}
+			}
+		}
+	}
 }
 
 void Dashboard::removeAvailableWidget(std::shared_ptr<Widget> widget){
@@ -73,7 +85,7 @@ void Dashboard::removeAvailableWidget(std::shared_ptr<Widget> widget){
 		}
 	}
 	for(int i = 0; i < widgets.size(); i++){
-		if(widgets[i]->widget->uniqueID == widget->uniqueID){
+		if(widgets[i]->uniqueID == widget->uniqueID){
 			widgets.erase(widgets.begin() + i);
 		}
 	}
@@ -97,14 +109,17 @@ void Dashboard::pan(glm::vec2 mouseDelta){ offset += mouseDelta / scale; };
 
 void Dashboard::canvas(){
 	
-	glm::vec2 size = ImGui::GetContentRegionAvail();
+	//get dashboard size and auto fit view if necessary
+	glm::vec2 newSize = ImGui::GetContentRegionAvail();
+	bool b_dashboardSizeChanged = dashboardSize != newSize;
+	dashboardSize = newSize;
+	if(b_dashboardSizeChanged && b_autoFit) fitView();
 	
 	//begin dashboard window and set main coordinates
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
-	ImGui::BeginChild("dashboard", size, true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+	ImGui::BeginChild("dashboard", dashboardSize, true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 	ImGui::PopStyleVar();
 	dashboardPosition = ImGui::GetWindowPos();
-	dashboardSize = ImGui::GetWindowSize();
 	dashboardMax = dashboardPosition + dashboardSize;
 	
 	//main interaction catcher
@@ -114,7 +129,7 @@ void Dashboard::canvas(){
 	ImDrawList* drawing = ImGui::GetWindowDrawList();
 	
 	//panning & zooming
-	if(!b_lockView){
+	if(!b_autoFit){
 		if(ImRect(dashboardPosition, dashboardMax).Contains(ImGui::GetMousePos())){
 			double zoomDelta = ApplicationWindow::getMacOsTrackpadZoom();
 			if(zoomDelta != 0.0) zoom(ImGui::GetMousePos(), zoomDelta);
@@ -278,44 +293,36 @@ void Dashboard::gui(){
 	static float minAdderWidth = ImGui::GetTextLineHeight() * 5.0;
 	static float maxAdderWidth = ImGui::GetTextLineHeight() * 20.0;
 	
-	ImGui::PushStyleColor(ImGuiCol_ChildBg, Colors::darkGray);
-	if(ImGui::BeginChild("WidgetDicionnary", ImVec2(adderWidth, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_AlwaysUseWindowPadding)){
-		ImGui::Text("Available Widgets");
-		ImGui::Separator();
-		for(auto& widget : availableWidgets){
-			ImGui::Selectable(widget->name.c_str());
-			if(ImGui::BeginDragDropSource()){
-				ImGui::SetDragDropPayload("Widget", &widget->uniqueID, sizeof(int));
-				ImGui::Text("%s", widget->name.c_str());
-				ImGui::EndDragDropSource();
+	if(!b_lockWidgets){
+		ImGui::PushStyleColor(ImGuiCol_ChildBg, Colors::darkGray);
+		if(ImGui::BeginChild("WidgetDicionnary", ImVec2(adderWidth, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_AlwaysUseWindowPadding)){
+			ImGui::Text("Available Widgets");
+			ImGui::Separator();
+			for(auto& widget : availableWidgets){
+				ImGui::Selectable(widget->name.c_str());
+				if(ImGui::BeginDragDropSource()){
+					ImGui::SetDragDropPayload("Widget", &widget->uniqueID, sizeof(int));
+					ImGui::Text("%s", widget->name.c_str());
+					ImGui::EndDragDropSource();
+				}
 			}
 		}
+		ImGui::EndChild();
+		ImGui::PopStyleColor();
+		
+		adderWidth += verticalSeparator(ImGui::GetTextLineHeight() * 0.5, false);
+		adderWidth = std::clamp(adderWidth, minAdderWidth, maxAdderWidth);
 	}
-	ImGui::EndChild();
-	ImGui::PopStyleColor();
+		
+	glm::vec2 canvasPosition = ImGui::GetCursorPos();
+	canvas();
 	
-	adderWidth += verticalSeparator(ImGui::GetTextLineHeight() * 0.5);
-	adderWidth = std::clamp(adderWidth, minAdderWidth, maxAdderWidth);
-	
-	if(ImGui::BeginChild("Dashboard")){
-		
-		if(ImGui::Button("Fit View")) fitView();
-		ImGui::SameLine();
-		ImGui::Checkbox("Show Grid", &b_drawGrid);
-		ImGui::SameLine();
-		ImGui::Checkbox("Lock View", &b_lockView);
-		ImGui::SameLine();
-		ImGui::Checkbox("Lock Widgets", &b_lockWidgets);
-		
-		canvas();
-		
+	if(!b_lockWidgets){
 		ImGui::PushStyleColor(ImGuiCol_DragDropTarget, ImVec4(.0f, .0f, .0f, .0f));
 		if(ImGui::BeginDragDropTarget()){
-		
 			glm::vec2 min = ImGui::GetItemRectMin();
 			glm::vec2 max = ImGui::GetItemRectMax();
 			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(1.f, 1.f, 1.f, .1f));
-			
 			const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Widget");
 			if (payload != nullptr && payload->DataSize == sizeof(int)) {
 				int widgetID = *(int*)payload->Data;
@@ -327,9 +334,23 @@ void Dashboard::gui(){
 			ImGui::EndDragDropTarget();
 		}
 		ImGui::PopStyleColor();
-		
 	}
-	ImGui::EndChild();
+	
+	glm::vec2 min = ImGui::GetItemRectMin();
+	glm::vec2 maxx = min + glm::vec2(ImGui::GetItemRectMax().x, ImGui::GetFrameHeight() + 2.0 * ImGui::GetStyle().WindowPadding.y);
+	if(!b_lockWidgets || (ImRect(min, maxx).Contains(ImGui::GetMousePos()) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left))){
+		ImGui::SetNextWindowPos(min);
+		ImGui::Begin("DashboardControls", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBackground );
+		if(ImGui::Button("Fit View")) fitView();
+		ImGui::SameLine();
+		if(ImGui::Checkbox("Auto Fit", &b_autoFit)) fitView();
+		ImGui::SameLine();
+		ImGui::Checkbox("Lock Widgets", &b_lockWidgets);
+		ImGui::SameLine();
+		ImGui::Checkbox("Show Grid", &b_drawGrid);
+		ImGui::End();
+	}
+		
 }
 
 void Dashboard::fitView(){
@@ -369,6 +390,11 @@ bool Dashboard::save(tinyxml2::XMLElement* xml){
 	xml->SetAttribute("Scale", scale);
 	xml->SetAttribute("OffsetX", offset.x);
 	xml->SetAttribute("OffsetY", offset.y);
+	
+	xml->SetAttribute("AutoFit", b_autoFit);
+	xml->SetAttribute("DrawGrid", b_drawGrid);
+	xml->SetAttribute("LockWidgets", b_lockWidgets);
+	
 	for(auto& widget : widgets){
 		XMLElement* widgetXML = xml->InsertNewChildElement("Widget");
 		widget->save(widgetXML);
@@ -390,6 +416,19 @@ std::shared_ptr<Dashboard> Dashboard::load(tinyxml2::XMLElement* xml){
 	}
 	if(xml->QueryFloatAttribute("OffsetY", &dashboard->offset.y) != XML_SUCCESS) {
 		Logger::warn("Could not find Dashboard Scale Attribute");
+		return nullptr;
+	}
+	
+	if(xml->QueryBoolAttribute("AutoFit", &dashboard->b_autoFit) != XML_SUCCESS) {
+		Logger::warn("Could not find Dashboard Auto Fit Attribute");
+		return nullptr;
+	}
+	if(xml->QueryBoolAttribute("DrawGrid", &dashboard->b_drawGrid) != XML_SUCCESS) {
+		Logger::warn("Could not find Dashboard Draw Grid Attribute");
+		return nullptr;
+	}
+	if(xml->QueryBoolAttribute("LockWidgets", &dashboard->b_lockWidgets) != XML_SUCCESS) {
+		Logger::warn("Could not find Dashboard Lock Widgets Attribute");
 		return nullptr;
 	}
 	
@@ -427,40 +466,6 @@ std::shared_ptr<Dashboard> Dashboard::load(tinyxml2::XMLElement* xml){
 
 
 
-
-namespace DashboardManager{
-
-std::vector<std::shared_ptr<Dashboard>> dashboards = {
-	std::make_shared<Dashboard>()
-};
-std::vector<std::shared_ptr<Dashboard>>& getDashboards(){ return dashboards; }
-
-bool save(tinyxml2::XMLElement* xml){
-	using namespace tinyxml2;
-	for(auto& dashboard : dashboards){
-		XMLElement* dashboardXML = xml->InsertNewChildElement("Dashboard");
-		dashboard->save(dashboardXML);
-	}
-	return true;
-}
-bool load(tinyxml2::XMLElement* xml){
-	using namespace tinyxml2;
-
-	XMLElement* dashboardXML = xml->FirstChildElement("Dashboard");
-	while(dashboardXML){
-		auto dashboard = Dashboard::load(dashboardXML);
-		if(dashboard == nullptr){
-			Logger::warn("Error Loading Dashboard");
-			return false;
-		}
-		dashboards.push_back(dashboard);
-		dashboardXML = dashboardXML->NextSiblingElement("Dashboard");
-	}
-	return true;
-}
-
-
-};
 
 
 

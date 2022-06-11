@@ -3,7 +3,7 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "NodeGraph/NodeGraph.h"
-#include "Gui/Environnement/Dashboard/Dashboard.h"
+#include "Gui/Environnement/Dashboard/Managers.h"
 
 #include <tinyxml2.h>
 

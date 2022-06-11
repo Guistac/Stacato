@@ -37,8 +37,8 @@ public:
 	float minScale = 0.1;
 	float maxScale = 10.0;
 	
+	bool b_autoFit = false;
 	bool b_drawGrid = true;
-	bool b_lockView = false;
 	bool b_lockWidgets = false;
 	
 	glm::vec2 offset;
@@ -55,16 +55,5 @@ public:
 	
 	bool save(tinyxml2::XMLElement* xml);
 	static std::shared_ptr<Dashboard> load(tinyxml2::XMLElement* xml);
-};
-
-
-
-namespace DashboardManager{
-	
-	std::vector<std::shared_ptr<Dashboard>>& getDashboards();
-
-	bool save(tinyxml2::XMLElement* xml);
-	bool load(tinyxml2::XMLElement* xml);
-
 };
 
