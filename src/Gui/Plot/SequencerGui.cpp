@@ -1,5 +1,5 @@
 #include <pch.h>
-#include "Sequencer.h"
+#include "SequencerGui.h"
 
 #include <iostream>
 
@@ -15,7 +15,7 @@
 
 #include "Plot/Sequencer.h"
 
-namespace Sequencer::Gui{
+
 
 
 /*
@@ -237,22 +237,60 @@ void editor(){
 
 */
 
+#include "Environnement/Environnement.h"
+#include "Machine/Machine.h"
 
+namespace Sequencer::Gui{
 
 void editor(){
 	
-	ImGui::Text("Sequencer Goes Here");
-	/*
 	auto sequence = Sequencer::getSequence();
-	Sequencer::setContext(&sequence->guiContext);
+	SequencerLibrary::setContext(sequence->guiContext);
 	
-	if(Sequencer::begin("Sequencer")){
+	if(SequencerLibrary::begin("Sequencer")){
+		
+		glm::vec2 sequencerMin(0,0);
+		glm::vec2 crossSize(sequence->guiContext->style.trackHeaderWidth, sequence->guiContext->style.timelineHeight);
+		float padding = ImGui::GetTextLineHeight() * 0.1;
+		glm::vec2 buttonPos(padding);
+		float crossWidgetHeight = crossSize.y - 2.0 * padding;
+		glm::vec2 addButtonSize(ImGui::CalcTextSize("Add Track").x + ImGui::GetStyle().FramePadding.x * 2.0, crossWidgetHeight);
+		ImGui::SetCursorPos(sequencerMin + padding);
+		if(ImGui::Button("Add Track", addButtonSize)) ImGui::OpenPopup("SequencerTrackAdder");
+		if (ImGui::BeginPopup("SequencerTrackAdder")) {
+			ImGui::BeginDisabled();
+			ImGui::MenuItem("Add Track");
+			ImGui::MenuItem("Machine List :");
+			ImGui::EndDisabled();
+			ImGui::Separator();
+			for (auto& machine : Environnement::getMachines()) {
+				if(machine->animatables.empty()) continue;
+				if (ImGui::BeginMenu(machine->getName())) {
+					for (auto& animatable : machine->animatables) {
+						if (animatable->hasParentComposite()) continue;
+						bool isSelected = sequence->hasTrack(animatable);
+						if (ImGui::MenuItem(animatable->getName(), nullptr, isSelected)) {
+							if (!isSelected) sequence->addTrack(animatable);
+						}
+					}
+					ImGui::EndMenu();
+				}
+			}
+			ImGui::EndPopup();
+		}
 		
 		
-		Sequencer::end();
+		auto& tracks = sequence->getTracks();
+		for(int i = 0; i < tracks.size(); i++){
+			if(SequencerLibrary::beginTrack(i, tracks[i]->animatable->getName())){
+				
+				SequencerLibrary::endTrack();
+			}
+		}
+		
+		
+		SequencerLibrary::end();
 	}
-	 */
-	
 }
 
 
@@ -262,7 +300,7 @@ void editor(){
 
 
 	void transportControls(float height){
-		auto context = Sequencer::getContext();
+		auto context = SequencerLibrary::getContext();
 		
 		ImGui::PushFont(Fonts::sansBold26);
 		timeEntryWidgetMicroseconds("##SequencerTime", height, context->playbackTime);

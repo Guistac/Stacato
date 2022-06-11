@@ -40,6 +40,7 @@
 
 
 
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -324,7 +325,7 @@ Collapsed=0
 Pos=0,32
 Size=2056,961
 Collapsed=0
-DockId=0x0B88F6CB,6
+DockId=0x0B88F6CB,5
 
 [Window][cCurvesTest]
 Pos=0,32
@@ -395,7 +396,7 @@ DockId=0x0B88F6CB,2
 Pos=0,32
 Size=2056,961
 Collapsed=0
-DockId=0x0B88F6CB,5
+DockId=0x0B88F6CB,4
 
 [Window][Starting Environnement]
 Pos=713,430
@@ -428,14 +429,15 @@ Size=1465,582
 Collapsed=0
 
 [Window][DashboardControls]
-Pos=325,61
+Pos=0,61
 Size=449,51
 Collapsed=0
 
 [Window][Dashboard]
-Pos=656,175
-Size=981,582
+Pos=0,32
+Size=2056,961
 Collapsed=0
+DockId=0x0B88F6CB,6
 
 [Table][0xDA36A7E0,6]
 RefScale=21

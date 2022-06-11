@@ -6,7 +6,7 @@
 
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
 
-namespace Sequencer{
+namespace SequencerLibrary{
 
 Context* context = nullptr;
 Style* style = nullptr;
@@ -143,6 +143,8 @@ bool begin(const char* ID, ImVec2 size_arg){
 	canvas->AddRectFilled(timelinePos, timelinePos + timelineSize, ImColor(style->timelineBackgroundColor));
 	canvas->AddRectFilled(editorPos, editorEndPos, ImColor(style->editorBackgroundColor));
 	
+	
+	/*
 	//cross time
 	char timeString[128];
 	context->tickStringFunction(timeString, context->playbackTime, 1000);
@@ -154,7 +156,8 @@ bool begin(const char* ID, ImVec2 size_arg){
 	ImGui::InputText("##currenttime", timeString, 128);
 	if(style->crossTimeStringFont) ImGui::PopFont();
 	ImGui::PopStyleColor();
-	
+	*/
+	 
 	//get tick spacing for current zoom level
 	long long int maxTickSpacingDuration = screenDistanceToDuration(style->maxScreenSpaceBetweenTicks);
 	std::vector<TickSpacing>& tickSpacings = *context->tickSpacings;
@@ -212,7 +215,7 @@ bool begin(const char* ID, ImVec2 size_arg){
 	ImGui::PopClipRect();
 	
 	//push track header and editor clip rectangle (popped by end())
-	ImGui::PushClipRect(trackHeaderPos, editorEndPos, false);
+	//ImGui::PushClipRect(trackHeaderPos, editorEndPos, false);
 	
 	//track header scrolling
 	ImGui::SetCursorPos(ImVec2(0, style->timelineHeight));
@@ -282,7 +285,7 @@ void end(bool b_wasOpen){
 																ImColor(style->emptySpaceOverlayColor));
 	
 	//pop track header and editor clip rectangle
-	ImGui::PopClipRect();
+	//ImGui::PopClipRect();
 	
 	//push timeline & editor clipping rectangle
 	ImGui::PushClipRect(timelinePos, editorEndPos, false);

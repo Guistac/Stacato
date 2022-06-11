@@ -3,7 +3,7 @@
 #include <imgui.h>
 #include <vector>
 
-namespace Sequencer{
+namespace SequencerLibrary{
 	
 	typedef bool (*RegionTrackCompatFun)(int, int);
 	typedef void (*TickStringFunction)(char*, long long int, long long int);

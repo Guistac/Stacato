@@ -20,7 +20,7 @@
 
 #include "Networking/NetworkDevice.h"
 
-#include "Gui/Plot/Sequencer.h"
+#include "Gui/Plot/SequencerGui.h"
 
 #include "Plot/Plot.h"
 #include "Gui/Plot/PlotGui.h"

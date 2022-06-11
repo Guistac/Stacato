@@ -11,7 +11,7 @@
 #include "Environnement/Environnement.h"
 #include "Gui/StageView/StageView.h"
 
-#include "Gui/Plot/Sequencer.h"
+#include "Gui/Plot/SequencerGui.h"
 
 #include "Gui/Environnement/EnvironnementGui.h"
 #include "Gui/Plot/PlotGui.h"
@@ -71,7 +71,7 @@ namespace Gui {
 			
 			ImGui::DockBuilderDockWindow("Environnement", dockspaceID);
 			//ImGui::DockBuilderDockWindow("Stage", dockspaceID);
-			ImGui::DockBuilderDockWindow("Machines", dockspaceID);
+			ImGui::DockBuilderDockWindow("Dashboard", dockspaceID);
 			ImGui::DockBuilderDockWindow("Setup", dockspaceID);
 			ImGui::DockBuilderDockWindow("Manoeuvre List", dockspaceID);
 			ImGui::DockBuilderDockWindow("Manoeuvre Sheet", dockspaceID);
@@ -94,7 +94,7 @@ namespace Gui {
 		ImGui::End();
 		
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
-		if(ImGui::Begin("Machines")) {
+		if(ImGui::Begin("Dashboard")) {
 			ImGui::PopStyleVar();
 			Environnement::Gui::dashboards();
 		}else ImGui::PopStyleVar();
@@ -108,6 +108,13 @@ namespace Gui {
 		
 		if(ImGui::Begin("Manoeuvre Curves")) PlotGui::curveEditor();
 		ImGui::End();
+		 
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0,0));
+		if(ImGui::Begin("Sequencer")) {
+			ImGui::PopStyleVar();
+			Sequencer::Gui::editor();
+		}else ImGui::PopStyleVar();
+		ImGui::End();
 		
 		/*
 		if(ImGui::Begin("cCurvesTest")) cCurvesTest();
@@ -117,13 +124,6 @@ namespace Gui {
 		ImGui::End();
 		*/
 		 
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0,0));
-		if(ImGui::Begin("Sequencer")) Sequencer::Gui::editor();
-		ImGui::End();
-		ImGui::PopStyleVar();
-		
-		
-		 
 		/*
 		if(ImGui::Begin("Stage")) StageView::draw();
 		ImGui::End();
@@ -132,13 +132,7 @@ namespace Gui {
 		//=== Finish Resetting Default Layout ===
 		
 		if(shouldResetDefaultLayout()){
-			ImGui::SetWindowFocus("Environnement");
-			//ImGui::SetWindowFocus("Sequencer");
-			//ImGui::SetWindowFocus("Track Sheet Editor");
-			//ImGui::SetWindowFocus("cCurvesTest");
-			//ImGui::SetWindowFocus("CommandZ");
 			finishResetDefaultLayout();
-			
 			LayoutManager::setDefault();
 		}
 		
