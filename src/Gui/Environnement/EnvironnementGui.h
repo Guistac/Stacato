@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Gui/ApplicationWindow/Window.h"
+
 namespace Environnement::Gui{
 
 	//Performance
@@ -20,5 +22,20 @@ namespace Environnement::Gui{
 	void stageEditor();
 	void log();
 	void unlockEditorPopup();
+
+
+	class EnvironnementEditorWindow : public Window{
+	public:
+		EnvironnementEditorWindow() : Window("Environnement", true){}
+		virtual void drawContent() override { gui(); };
+		static std::shared_ptr<EnvironnementEditorWindow> get();
+	};
+
+	class SetupWindow : public Window{
+	public:
+		SetupWindow() : Window("Setup", true){}
+		virtual void drawContent() override{ homingAndSetup(); };
+		static std::shared_ptr<SetupWindow> get();
+	};
 
 }

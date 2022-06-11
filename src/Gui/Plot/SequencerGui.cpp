@@ -242,6 +242,9 @@ void editor(){
 
 namespace Sequencer::Gui{
 
+std::shared_ptr<SequencerWindow> sequencerWindow = std::make_shared<SequencerWindow>();
+std::shared_ptr<SequencerWindow> SequencerWindow::get(){ return sequencerWindow; }
+
 void editor(){
 	
 	auto sequence = Sequencer::getSequence();

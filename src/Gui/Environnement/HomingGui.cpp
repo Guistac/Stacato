@@ -13,7 +13,12 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/EtherCatDevice.h"
 
+#include "EnvironnementGui.h"
+
 namespace Environnement::Gui{
+
+std::shared_ptr<SetupWindow> setupWindow = std::make_shared<SetupWindow>();
+std::shared_ptr<SetupWindow> SetupWindow::get(){ return setupWindow; }
 
 	void homingAndSetup(){
 		

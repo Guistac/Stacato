@@ -109,6 +109,18 @@ namespace Gui {
 			}
 			if(removedLayout) removedLayout->remove();
 			
+			ImGui::EndMenu();
+		}
+		if(ImGui::BeginMenu("Window")){
+			
+			ImGui::Text("Windows :");
+			for(auto& window : getWindowDictionnary()){
+				if(ImGui::MenuItem(window->name.c_str(), nullptr, &window->b_open)){
+					if(window->b_open) window->open();
+					else window->close();
+				}
+			}
+			
 			
 			ImGui::EndMenu();
 		}

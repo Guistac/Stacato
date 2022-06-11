@@ -154,6 +154,7 @@ namespace ApplicationWindow {
 		Environnement::StageVisualizer::start();
 		
 		//============ UPDATE LOOP ============
+		Gui::initialize();
 		while (!b_shouldClose) update();
 
 		Environnement::StageVisualizer::stop();

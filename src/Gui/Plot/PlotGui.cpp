@@ -18,7 +18,23 @@
 
 #include "Gui/Utilities/ReorderableList.h"
 
+#include "PlotGui.h"
+
 namespace PlotGui{
+
+
+std::shared_ptr<ManoeuvreListWindow> manoeuvreListWindow = std::make_shared<ManoeuvreListWindow>();
+std::shared_ptr<ManoeuvreListWindow> ManoeuvreListWindow::get(){ return manoeuvreListWindow; }
+
+std::shared_ptr<TrackSheetEditorWindow> trackSheetEditorWindow = std::make_shared<TrackSheetEditorWindow>();
+std::shared_ptr<TrackSheetEditorWindow> TrackSheetEditorWindow::get(){ return trackSheetEditorWindow; }
+
+std::shared_ptr<CurveEditorWindow> curveEditorWindow = std::make_shared<CurveEditorWindow>();
+std::shared_ptr<CurveEditorWindow> CurveEditorWindow::get(){ return curveEditorWindow; }
+
+std::shared_ptr<SpatialEditorWindow> spatialEditorWindow = std::make_shared<SpatialEditorWindow>();
+std::shared_ptr<SpatialEditorWindow> SpatialEditorWindow::get(){ return spatialEditorWindow; }
+
 
 	void manoeuvreList() {
 

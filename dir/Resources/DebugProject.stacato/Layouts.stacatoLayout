@@ -41,6 +41,8 @@
 
 
 
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -312,20 +314,22 @@ Size=417,881
 Collapsed=0
 
 [Window][Track Sheet Editor]
-Pos=419,32
-Size=1637,881
+Pos=0,32
+Size=2056,961
 Collapsed=0
+DockId=0x0B88F6CB,4
 
 [Window][Curve Editor]
-Pos=419,32
-Size=1637,881
+Pos=0,32
+Size=2056,961
 Collapsed=0
+DockId=0x0B88F6CB,5
 
 [Window][Sequencer]
 Pos=0,32
 Size=2056,961
 Collapsed=0
-DockId=0x0B88F6CB,5
+DockId=0x0B88F6CB,3
 
 [Window][cCurvesTest]
 Pos=0,32
@@ -384,7 +388,7 @@ Collapsed=0
 Pos=0,32
 Size=2056,961
 Collapsed=0
-DockId=0x0B88F6CB,3
+DockId=0x0B88F6CB,2
 
 [Window][Manoeuvre Sheet]
 Pos=0,32
@@ -439,6 +443,12 @@ Size=2056,961
 Collapsed=0
 DockId=0x0B88F6CB,6
 
+[Window][Spatial Editor]
+Pos=0,32
+Size=2056,961
+Collapsed=0
+DockId=0x0B88F6CB,6
+
 [Table][0xDA36A7E0,6]
 RefScale=21
 Column 0  Width=49 Sort=0^
@@ -486,7 +496,7 @@ Column 4  Weight=1.0000
 Column 5  Weight=-1.0000
 
 [Docking][Data]
-DockSpace ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,149 Size=2056,961 CentralNode=1 Selected=0x3E6B10D2
+DockSpace ID=0x0B88F6CB Window=0xEA71A0E1 Pos=0,149 Size=2056,961 CentralNode=1 Selected=0x20B12C37
 
 </Layout>
 </Layouts>
