@@ -4,6 +4,8 @@ class Widget;
 class WidgetInstance;
 namespace tinyxml2{ struct XMLElement; }
 
+#include "Project/Editor/Parameter.h"
+
 class Dashboard{
 public:
 	
@@ -33,13 +35,15 @@ public:
 	std::shared_ptr<WidgetInstance> selectedWidget = nullptr;
 	std::shared_ptr<WidgetInstance> draggedWidget = nullptr;
 	
+	std::shared_ptr<StringParameter> name = std::make_shared<StringParameter>("Dashboard", "name", "name", 256);
+	
 	float scale = 1.0;
 	float minScale = 0.1;
 	float maxScale = 10.0;
 	
 	bool b_autoFit = false;
 	bool b_drawGrid = true;
-	bool b_lockWidgets = false;
+	bool b_lockEdit = false;
 	
 	glm::vec2 offset;
 	glm::vec2 dashboardPosition;

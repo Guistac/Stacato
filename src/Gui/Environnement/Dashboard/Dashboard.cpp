@@ -218,7 +218,7 @@ void Dashboard::canvas(){
 				widgetHovered = true;
 				if(!ImGui::IsAnyItemHovered()){
 					
-					if(!b_lockWidgets){
+					if(!b_lockEdit){
 						ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
 						if(ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 							clickedWidget = widget;
@@ -255,7 +255,7 @@ void Dashboard::canvas(){
 	
 	if(clickedWidget) moveWidgetToTop(clickedWidget);
 	if(deletedWidget) removeWidget(deletedWidget);
-	if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !widgetHovered) deselectWidget();
+	if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !widgetHovered && ImGui::IsWindowHovered()) deselectWidget();
 	
 	//widget interactino / dragging
 	if(draggedWidget && ImGui::IsMouseDown(ImGuiMouseButton_Left)){
@@ -289,15 +289,48 @@ void Dashboard::widgetAdder(){
 
 void Dashboard::gui(){
 	
-	static float adderWidth = ImGui::GetTextLineHeight() * 10.0;
-	static float minAdderWidth = ImGui::GetTextLineHeight() * 5.0;
-	static float maxAdderWidth = ImGui::GetTextLineHeight() * 20.0;
+	static float adderWidth = ImGui::GetTextLineHeight() * 15.0;
+	static float minAdderWidth = ImGui::GetTextLineHeight() * 10.0;
+	static float maxAdderWidth = ImGui::GetTextLineHeight() * 25.0;
 	
-	if(!b_lockWidgets){
-		ImGui::PushStyleColor(ImGuiCol_ChildBg, Colors::darkGray);
-		if(ImGui::BeginChild("WidgetDicionnary", ImVec2(adderWidth, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_AlwaysUseWindowPadding)){
-			ImGui::Text("Available Widgets");
+	if(!b_lockEdit){
+		
+		ImGui::PushStyleColor(ImGuiCol_ChildBg, Colors::almostBlack);
+		if(ImGui::BeginChild("EditorSideBar", ImVec2(adderWidth, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_AlwaysUseWindowPadding)){
+			float availableWidth = ImGui::GetContentRegionAvail().x;
+
+			ImGui::PushFont(Fonts::sansBold15);
+			backgroundText("Dashboard Properties", ImVec2(availableWidth, ImGui::GetFrameHeight()), Colors::darkGray);
+			ImGui::PopFont();
+			
+			ImGui::Text("Name :");
+			ImGui::SetNextItemWidth(availableWidth);
+			name->gui();
+			
+			
+			
+			if(getSelectedWidget()){
+				ImGui::Separator();
+				
+				ImGui::PushFont(Fonts::sansBold15);
+				backgroundText(getSelectedWidget()->widget->name.c_str(), ImVec2(availableWidth, ImGui::GetFrameHeight()), Colors::darkGray);
+				ImGui::PopFont();
+				
+				ImGui::Text("Position :");
+				ImGui::SetNextItemWidth(availableWidth);
+				getSelectedWidget()->positionParameter->gui();
+				
+				ImGui::Text("Size :");
+				ImGui::SetNextItemWidth(availableWidth);
+				getSelectedWidget()->sizeParameter->gui();
+			}
+			
 			ImGui::Separator();
+			
+			ImGui::PushFont(Fonts::sansBold15);
+			backgroundText("Available Widgets", ImVec2(availableWidth, ImGui::GetFrameHeight()), Colors::darkGray);
+			ImGui::PopFont();
+			
 			for(auto& widget : availableWidgets){
 				ImGui::Selectable(widget->name.c_str());
 				if(ImGui::BeginDragDropSource()){
@@ -306,6 +339,8 @@ void Dashboard::gui(){
 					ImGui::EndDragDropSource();
 				}
 			}
+			
+			
 		}
 		ImGui::EndChild();
 		ImGui::PopStyleColor();
@@ -317,7 +352,7 @@ void Dashboard::gui(){
 	glm::vec2 canvasPosition = ImGui::GetCursorPos();
 	canvas();
 	
-	if(!b_lockWidgets){
+	if(!b_lockEdit){
 		ImGui::PushStyleColor(ImGuiCol_DragDropTarget, ImVec4(.0f, .0f, .0f, .0f));
 		if(ImGui::BeginDragDropTarget()){
 			glm::vec2 min = ImGui::GetItemRectMin();
@@ -338,19 +373,19 @@ void Dashboard::gui(){
 	
 	glm::vec2 min = ImGui::GetItemRectMin();
 	glm::vec2 maxx = min + glm::vec2(ImGui::GetItemRectMax().x, ImGui::GetFrameHeight() + 2.0 * ImGui::GetStyle().WindowPadding.y);
-	if(!b_lockWidgets || (ImRect(min, maxx).Contains(ImGui::GetMousePos()) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left))){
+	if(!b_lockEdit || (ImRect(min, maxx).Contains(ImGui::GetMousePos()) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left))){
 		ImGui::SetNextWindowPos(min);
 		ImGui::Begin("DashboardControls", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBackground );
 		if(ImGui::Button("Fit View")) fitView();
 		ImGui::SameLine();
 		if(ImGui::Checkbox("Auto Fit", &b_autoFit)) fitView();
 		ImGui::SameLine();
-		ImGui::Checkbox("Lock Widgets", &b_lockWidgets);
+		ImGui::Checkbox("Lock", &b_lockEdit);
 		ImGui::SameLine();
 		ImGui::Checkbox("Show Grid", &b_drawGrid);
 		ImGui::End();
 	}
-		
+	
 }
 
 void Dashboard::fitView(){
@@ -384,6 +419,13 @@ void Dashboard::fitView(){
 	}
 }
 
+
+
+
+
+
+
+
 bool Dashboard::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	
@@ -393,7 +435,7 @@ bool Dashboard::save(tinyxml2::XMLElement* xml){
 	
 	xml->SetAttribute("AutoFit", b_autoFit);
 	xml->SetAttribute("DrawGrid", b_drawGrid);
-	xml->SetAttribute("LockWidgets", b_lockWidgets);
+	xml->SetAttribute("LockEdit", b_lockEdit);
 	
 	for(auto& widget : widgets){
 		XMLElement* widgetXML = xml->InsertNewChildElement("Widget");
@@ -418,7 +460,6 @@ std::shared_ptr<Dashboard> Dashboard::load(tinyxml2::XMLElement* xml){
 		Logger::warn("Could not find Dashboard Scale Attribute");
 		return nullptr;
 	}
-	
 	if(xml->QueryBoolAttribute("AutoFit", &dashboard->b_autoFit) != XML_SUCCESS) {
 		Logger::warn("Could not find Dashboard Auto Fit Attribute");
 		return nullptr;
@@ -427,7 +468,7 @@ std::shared_ptr<Dashboard> Dashboard::load(tinyxml2::XMLElement* xml){
 		Logger::warn("Could not find Dashboard Draw Grid Attribute");
 		return nullptr;
 	}
-	if(xml->QueryBoolAttribute("LockWidgets", &dashboard->b_lockWidgets) != XML_SUCCESS) {
+	if(xml->QueryBoolAttribute("LockEdit", &dashboard->b_lockEdit) != XML_SUCCESS) {
 		Logger::warn("Could not find Dashboard Lock Widgets Attribute");
 		return nullptr;
 	}
@@ -473,9 +514,6 @@ std::shared_ptr<Dashboard> Dashboard::load(tinyxml2::XMLElement* xml){
 
 namespace Environnement::Gui{
 void dashboards(){
-	
-	auto dashboard = DashboardManager::getDashboards().back();
-	dashboard->gui();
-	
+	DashboardManager::getDashboard()->gui();
 }
 };

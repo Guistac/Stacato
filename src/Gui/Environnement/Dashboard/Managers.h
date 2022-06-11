@@ -6,7 +6,8 @@ class Widget;
 
 namespace DashboardManager{
 	
-	std::vector<std::shared_ptr<Dashboard>>& getDashboards();
+	//std::vector<std::shared_ptr<Dashboard>>& getDashboards();
+	std::shared_ptr<Dashboard> getDashboard();
 
 	bool save(tinyxml2::XMLElement* xml);
 	bool load(tinyxml2::XMLElement* xml);

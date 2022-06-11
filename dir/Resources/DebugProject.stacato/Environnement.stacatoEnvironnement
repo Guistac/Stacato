@@ -1,23 +1,5 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockWidgets="false"/>
-    <Dashboard Scale="1.124356" OffsetX="874.97833" OffsetY="-715.37097" AutoFit="false" DrawGrid="true" LockWidgets="true">
+    <Dashboard Scale="1.124356" OffsetX="874.97833" OffsetY="-715.37097" AutoFit="false" DrawGrid="true" LockEdit="false">
         <Widget UniqueID="1" PositionX="-70.663345" PositionY="715.37097" SizeX="200" SizeY="400"/>
         <Widget UniqueID="2" PositionX="-70.257828" PositionY="1124.7231" SizeX="200" SizeY="400"/>
     </Dashboard>

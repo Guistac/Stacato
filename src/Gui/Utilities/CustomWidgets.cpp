@@ -866,3 +866,11 @@ float verticalSeparator(float width, bool drawLine){
 	ImGui::PopStyleVar();
 	return output;
 }
+
+void centeredText(const char* string, ImVec2 size){
+	ImGui::Dummy(size);
+	ImVec2 min = ImGui::GetItemRectMin();
+	ImVec2 textSize = ImGui::CalcTextSize(string);
+	ImVec2 position(min.x + (size.x - textSize.x) / 2.0, min.y + (size.y - textSize.y) / 2.0);
+	ImGui::GetWindowDrawList()->AddText(position, ImGui::GetColorU32(ImGuiCol_Text), string);
+}

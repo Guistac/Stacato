@@ -8,22 +8,36 @@
 
 namespace DashboardManager{
 
-std::vector<std::shared_ptr<Dashboard>> dashboards = {
-	std::make_shared<Dashboard>()
-};
+/*
+std::vector<std::shared_ptr<Dashboard>> dashboards = { std::make_shared<Dashboard>() };
 std::vector<std::shared_ptr<Dashboard>>& getDashboards(){ return dashboards; }
+*/
+
+std::shared_ptr<Dashboard> dashboard = std::make_shared<Dashboard>();
+std::shared_ptr<Dashboard> getDashboard(){ return dashboard; }
 
 bool save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
+	XMLElement* dashboardXML = xml->InsertNewChildElement("Dashboard");
+	/*
 	for(auto& dashboard : dashboards){
 		XMLElement* dashboardXML = xml->InsertNewChildElement("Dashboard");
 		dashboard->save(dashboardXML);
 	}
+	*/
 	return true;
 }
 bool load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 
+	XMLElement* dashboardXML = xml->FirstChildElement("Dashboard");
+	dashboard = Dashboard::load(dashboardXML);
+	if(dashboard == nullptr){
+		Logger::warn("Error Loading Dashboard");
+		return false;
+	}
+	
+	/*
 	XMLElement* dashboardXML = xml->FirstChildElement("Dashboard");
 	while(dashboardXML){
 		auto dashboard = Dashboard::load(dashboardXML);
@@ -34,6 +48,8 @@ bool load(tinyxml2::XMLElement* xml){
 		dashboards.push_back(dashboard);
 		dashboardXML = dashboardXML->NextSiblingElement("Dashboard");
 	}
+	*/
+	
 	return true;
 }
 
@@ -61,9 +77,8 @@ namespace WidgetManager{
 	void addToDictionnary(std::shared_ptr<Widget> widget){
 		if(widget->uniqueID == -1) widget->uniqueID = getNewUniqueID();
 		dictionnary.push_back(widget);
-		for(auto& dashboard : DashboardManager::getDashboards()){
-			dashboard->addAvailableWidget(widget);
-		}
+		DashboardManager::getDashboard()->addAvailableWidget(widget);
+		//for(auto& dashboard : DashboardManager::getDashboards()) dashboard->addAvailableWidget(widget);
 	}
 	void removeFromDictionnary(std::shared_ptr<Widget> widget){
 		for(int i = 0; i < dictionnary.size(); i++){
@@ -72,9 +87,8 @@ namespace WidgetManager{
 				break;
 			}
 		}
-		for(auto& dashboard : DashboardManager::getDashboards()){
-			dashboard->removeAvailableWidget(widget);
-		}
+		DashboardManager::getDashboard()->removeAvailableWidget(widget);
+		//for(auto& dashboard : DashboardManager::getDashboards()) dashboard->removeAvailableWidget(widget);
 	}
 
 	std::shared_ptr<Widget> getWidgetByUniqueID(int uniqueID){
