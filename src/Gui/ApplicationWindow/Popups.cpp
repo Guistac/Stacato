@@ -57,9 +57,28 @@ namespace Gui{
 		ImGui::PushFont(Fonts::sansBold42);
 		ImGui::Text("Stacato");
 		ImGui::PopFont();
-		ImGui::PushFont(Fonts::sansBold20);
-		ImGui::Text("Stage Control Automation Toolbox");
-		ImGui::PopFont();
+		
+		ImFont* bold = Fonts::sansBold20;
+		ImFont* thin = Fonts::sansLight20;
+		auto textFont = [](const char* text, ImFont* font, bool sameline = true){
+			ImGui::PushFont(font);
+			ImGui::Text("%s", text);
+			ImGui::PopFont();
+			if(sameline) ImGui::SameLine();
+		};
+		
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
+		textFont("Sta", bold);
+		textFont("ge ", thin);
+		textFont("C", bold);
+		textFont("ontrol ", thin);
+		textFont("A", bold);
+		textFont("utomation ", thin);
+		textFont("To", bold);
+		textFont("olbox", thin, false);
+		ImGui::PopStyleVar();
+		
+		
 		ImGui::Text("Leo Becker - L'Atelier Artefact - 2021");
 		ImGui::EndGroup();
 	}
