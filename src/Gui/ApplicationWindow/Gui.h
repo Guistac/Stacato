@@ -27,20 +27,15 @@ namespace Gui{
 	void resetToFactoryLayout();
 
 
-	void popups();
-	
 
 
 
 	class QuitApplicationPopup : public Popup{
 	public:
 		QuitApplicationPopup() : Popup("Quit Application", true, true){}
-		bool b_quitApplication;
 		virtual void drawContent() override;
-		virtual void onClose() override;
-		virtual void onOpen() override { b_quitApplication = false; };
 		static std::shared_ptr<QuitApplicationPopup> get(){
-			static std::shared_ptr<QuitApplicationPopup> popup = std::make_shared<QuitApplicationPopup>();
+			static auto popup = std::make_shared<QuitApplicationPopup>();
 			return popup;
 		}
 	};

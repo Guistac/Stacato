@@ -173,7 +173,7 @@ void PositionControlledAxis::onEnable() {
 }
 
 void PositionControlledAxis::disable() {
-	getServoActuatorDevice()->disable();
+	if(isServoActuatorDeviceConnected()) getServoActuatorDevice()->disable();
 	onDisable();
 }
 

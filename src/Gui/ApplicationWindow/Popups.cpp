@@ -20,35 +20,25 @@
 
 namespace Gui{
 
-
-
 	void QuitApplicationPopup::drawContent(){
 		ImGui::Text("Do you really want to exit the application ?");
 		ImGui::Text("Proceeding will stop motion and discard any unsaved changes");
-		if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)) {
-			b_quitApplication = false;
-			close();
-		}
+		if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)) close();
 		ImGui::SameLine();
 		if (ImGui::Button("Quit without Saving")) {
-			b_quitApplication = true;
 			close();
+			ApplicationWindow::quit();
 		}
 		ImGui::SameLine();
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.5, 0.0, 1.0));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2, 0.4, 0.1, 1.0));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3, 0.6, 0.2, 1.0));
 		if (ImGui::Button("Save and Quit") || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) {
-			b_quitApplication = Project::Gui::save();
+			if(Project::Gui::save()) ApplicationWindow::quit();
 			close();
 		}
 		ImGui::PopStyleColor(3);
 	}
-
-	void QuitApplicationPopup::onClose(){ if(b_quitApplication) ApplicationWindow::quit(); }
-
-
-
 
 	void AboutPopup::drawContent(){
 		ImGui::PushFont(Fonts::sansBold42);
@@ -61,21 +51,5 @@ namespace Gui{
 		ImGui::Separator();
 		if (ImGui::Button("Close") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE) || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) close();
 	}
-
-
-
-
-
-	void popups(){
-		if(Project::isNewProjectRequested()) ImGui::OpenPopup("Closing Current Project");
-		Project::Gui::closePopup();
-		if(Environnement::isEditorUnlockRequested()) ImGui::OpenPopup("Unlock Environnement Editor");
-		Environnement::Gui::unlockEditorPopup();
-		LayoutManager::editor();
-		etherCatStartModal();
-	}
-
-
 	
-
 }

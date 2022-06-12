@@ -22,13 +22,13 @@
             <Animation Machine="Position Controlled Machine" MachineUniqueID="10" Parameter="Position" IsComposite="false" Type="Key" Target="0"/>
             <Animation Machine="Position Controlled Machine" MachineUniqueID="23" Parameter="Position" IsComposite="false" Type="Key" Target="0"/>
         </Manoeuvre>
-        <Manoeuvre Name="Target Animation" Description="To target with fixed Velocity" Type="Target">
-            <Animation Machine="Position Controlled Machine" MachineUniqueID="10" Parameter="Position" IsComposite="false" Type="Target" Target="30" ConstraintType="Velocity" Time="2" Velocity="0.29999999999999999" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="Position Controlled Machine" MachineUniqueID="23" Parameter="Position" IsComposite="false" Type="Target" Target="30" ConstraintType="Velocity" Time="0" Velocity="0.29999999999999999" StartAcceleration="3" EndAcceleration="3"/>
-        </Manoeuvre>
         <Manoeuvre Name="Target Animation" Description="To target with fixed Time" Type="Target">
             <Animation Machine="Position Controlled Machine" MachineUniqueID="10" Parameter="Position" IsComposite="false" Type="Target" Target="10" ConstraintType="Time" Time="20" Velocity="0.29999999999999999" StartAcceleration="1" EndAcceleration="1"/>
             <Animation Machine="Position Controlled Machine" MachineUniqueID="23" Parameter="Position" IsComposite="false" Type="Target" Target="10" ConstraintType="Time" Time="20" Velocity="0.29999999999999999" StartAcceleration="3" EndAcceleration="3"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Target Animation" Description="To target with fixed Velocity" Type="Target">
+            <Animation Machine="Position Controlled Machine" MachineUniqueID="10" Parameter="Position" IsComposite="false" Type="Target" Target="30" ConstraintType="Velocity" Time="2" Velocity="0.29999999999999999" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="Position Controlled Machine" MachineUniqueID="23" Parameter="Position" IsComposite="false" Type="Target" Target="30" ConstraintType="Velocity" Time="0" Velocity="0.29999999999999999" StartAcceleration="3" EndAcceleration="3"/>
         </Manoeuvre>
         <Manoeuvre Name="Key End" Description="All Machines at upper limit" Type="Key">
             <Animation Machine="Position Controlled Machine" MachineUniqueID="10" Parameter="Position" IsComposite="false" Type="Key" Target="100"/>

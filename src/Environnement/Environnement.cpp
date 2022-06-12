@@ -348,33 +348,11 @@ namespace Environnement {
 #else
 	bool b_editorLocked = true;
 #endif
-	bool b_requestingEditorUnlock = false;
 
-	bool isEditorLocked(){
-		return b_editorLocked;
-	}
-
-	bool isEditorUnlockRequested(){
-		return b_requestingEditorUnlock;
-	}
-
-	void lockEditor(){
-		b_editorLocked = true;
-		b_requestingEditorUnlock = false;
-	}
-
-	void requestEditorUnlock(){
-		b_requestingEditorUnlock = true;
-	}
-
-	void confirmEditorUnlock(){
-		b_requestingEditorUnlock = false;
-		b_editorLocked = false;
-	}
-
-	bool checkEditorPassword(const char* password){
-		return strcmp(password, "StacatoCompact") == 0;
-	}
+	bool isEditorLocked(){ return b_editorLocked; }
+	void lockEditor(){ b_editorLocked = true; }
+	void unlockEditor(){ b_editorLocked = false; }
+	bool checkEditorPassword(const char* password){ return strcmp(password, "StacatoCompact") == 0; }
 
 	void createNew() {
 		NodeGraph::reset();

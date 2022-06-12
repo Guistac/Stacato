@@ -60,7 +60,7 @@ namespace Gui {
 		}
 		else if(!Environnement::isRunning()){
 			if(ImGui::Button("Start", buttonSize)){
-				if(!Environnement::isSimulating()) openEtherCatStartModal();
+				if(!Environnement::isSimulating()) EtherCatStartPopup::get()->open();
 				Environnement::start();
 			}
 		}else{

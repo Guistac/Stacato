@@ -4,6 +4,8 @@
 #include <imgui.h>
 #include <GLFW/glfw3.h>
 
+#include "Gui/ApplicationWindow/Window.h"
+
 class Layout : public std::enable_shared_from_this<Layout>{
 public:
 	
@@ -39,16 +41,10 @@ namespace LayoutManager{
 	std::shared_ptr<Layout> getCurrentLayout();
 	std::shared_ptr<Layout> getDefaultLayout();
 	std::shared_ptr<Layout> getEditedLayout();
-	bool isEditRequested();
-
-	void endEdit();
-
-	void editor();
 
 	void addCurrent();
 
 	bool save(const char* filePath);
-
 	bool load(const char* filePath);
 
 	void clearAll();
@@ -58,6 +54,16 @@ namespace LayoutManager{
 	void makeDefault(std::shared_ptr<Layout> layout);
 	void setDefault();
 	void remove(std::shared_ptr<Layout> removedLayout);
+
+	class LayoutEditorPopup : public Popup{
+	public:
+		LayoutEditorPopup() : Popup("Edit Layout", true, true){}
+		virtual void drawContent() override;
+		static std::shared_ptr<LayoutEditorPopup> get(){
+			static auto popup = std::make_shared<LayoutEditorPopup>();
+			return popup;
+		}
+	};
 
 };
 

@@ -27,6 +27,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Popups.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Layout.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Layout.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Window.h
+    ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Window.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ImGuiCustomConfiguration.h
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Colors.h

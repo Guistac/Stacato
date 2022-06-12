@@ -81,6 +81,51 @@
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="26" Visible="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="false" CustomName="VipaBusCoupler-053-1EC01 (ID:33)" UniqueID="25">
+                <NodeEditorPosition x="-248" y="522"/>
+                <NodeSpecificData>
+                    <Identification Type="ExplicitDeviceID" ExplicitDeviceID="33"/>
+                    <SLIOModules>
+                        <Module Type="VIPA 022-1BF00">
+                            <SignalInversion InvertOutput0="false" InvertOutput1="false" InvertOutput2="false" InvertOutput3="false" InvertOutput4="false" InvertOutput5="false" InvertOutput6="false" InvertOutput7="false"/>
+                        </Module>
+                        <Module Type="VIPA 021-1BF00">
+                            <SignalInversion InvertInput0="false" InvertInput1="false" InvertInput2="false" InvertInput3="false" InvertInput4="false" InvertInput5="false" InvertInput6="false" InvertInput7="false"/>
+                        </Module>
+                        <Module Type="VIPA 022-1HD10">
+                            <SignalInversion InvertRelais0="false" InvertRelais1="false" InvertRelais2="false" InvertRelais3="false"/>
+                        </Module>
+                        <Module Type="VIPA 050-1BS00" Encoding="Binary" TransmissionRate="500Khz" IdleTime="32" CenterRangeOnZero="false" HasResetSignal="false" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" Zero_revolutions="0"/>
+                    </SLIOModules>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Module0DigitalOutput0" DisplayString="Module 0 Digital Output 0" DataType="Boolean" UniqueID="28" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput1" DisplayString="Module 0 Digital Output 1" DataType="Boolean" UniqueID="29" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput2" DisplayString="Module 0 Digital Output 2" DataType="Boolean" UniqueID="30" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput3" DisplayString="Module 0 Digital Output 3" DataType="Boolean" UniqueID="31" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput4" DisplayString="Module 0 Digital Output 4" DataType="Boolean" UniqueID="32" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput5" DisplayString="Module 0 Digital Output 5" DataType="Boolean" UniqueID="33" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput6" DisplayString="Module 0 Digital Output 6" DataType="Boolean" UniqueID="34" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput7" DisplayString="Module 0 Digital Output 7" DataType="Boolean" UniqueID="35" Visible="true"/>
+                    <InputPin SaveString="Module2RelaisOutput0" DisplayString="Module 2 Relais Output 0" DataType="Boolean" UniqueID="44" Visible="true"/>
+                    <InputPin SaveString="Module2RelaisOutput1" DisplayString="Module 2 Relais Output 1" DataType="Boolean" UniqueID="45" Visible="true"/>
+                    <InputPin SaveString="Module2RelaisOutput2" DisplayString="Module 2 Relais Output 2" DataType="Boolean" UniqueID="46" Visible="true"/>
+                    <InputPin SaveString="Module2RelaisOutput3" DisplayString="Module 2 Relais Output 3" DataType="Boolean" UniqueID="47" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GPIODeviceLink" UniqueID="26" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Module1DigitalInput0" DisplayString="Module 1 Digital Input 0" DataType="Boolean" UniqueID="36" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput1" DisplayString="Module 1 Digital Input 1" DataType="Boolean" UniqueID="37" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput2" DisplayString="Module 1 Digital Input 2" DataType="Boolean" UniqueID="38" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput3" DisplayString="Module 1 Digital Input 3" DataType="Boolean" UniqueID="39" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput4" DisplayString="Module 1 Digital Input 4" DataType="Boolean" UniqueID="40" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput5" DisplayString="Module 1 Digital Input 5" DataType="Boolean" UniqueID="41" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput6" DisplayString="Module 1 Digital Input 6" DataType="Boolean" UniqueID="42" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput7" DisplayString="Module 1 Digital Input 7" DataType="Boolean" UniqueID="43" Visible="true"/>
+                    <OutputPin SaveString="Module3SSIEncoder" DisplayString="Module 3 SSI Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="48" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Module3EncoderReset" DisplayString="Module 3 SSI Encoder Reset" DataType="Boolean" UniqueID="49" Visible="false"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="14" StartPin="56" EndPin="11"/>

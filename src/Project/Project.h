@@ -20,9 +20,8 @@ namespace Project {
 	bool hasUnsavedModifications();
 
 	bool canCloseImmediately();
-	bool isNewProjectRequested();
+	
 	void confirmNewProjectRequest();
-	void cancelNewProjectRequest();
 	
 	bool isEditingAllowed();
 	void setPlotEdit(bool isAllowed);

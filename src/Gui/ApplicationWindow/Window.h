@@ -39,5 +39,6 @@ public:
 	virtual void drawContent() = 0;
 	virtual void onOpen(){}
 	virtual void onClose(){}
+	virtual glm::vec2 getSize(){ return glm::vec2(.0f,.0f); }
 	
 };

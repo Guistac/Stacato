@@ -62,9 +62,7 @@ namespace Environnement{
 	void removeNode(std::shared_ptr<Node> node);
 
 	bool isEditorLocked();
-	bool isEditorUnlockRequested();
 	void lockEditor();
-	void requestEditorUnlock();
-	void confirmEditorUnlock();
+	void unlockEditor();
 	bool checkEditorPassword(const char* password);
 };

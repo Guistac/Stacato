@@ -10,6 +10,8 @@
 
 #include "config.h"
 
+#include "Gui/Project/ProjectGui.h"
+
 namespace Project{
 
 	char saveFilePath[512];
@@ -17,30 +19,20 @@ namespace Project{
 
 	bool b_hasUnsavedModifications;
 
-	bool b_newProjectRequested = false;
 	char newProjectFilePath[512];
 
-	bool isNewProjectRequested(){ return b_newProjectRequested; }
-
 	void confirmNewProjectRequest(){
-		if(!b_newProjectRequested) return;
 		Environnement::stop();
 		b_hasUnsavedModifications = false;
 		if(newProjectFilePath[0] == 0) createNew();
 		else load(newProjectFilePath);
-		cancelNewProjectRequest();
-	}
-
-	void cancelNewProjectRequest(){
-		b_newProjectRequested = false;
-		newProjectFilePath[0] = 0;
 	}
 
 	void createNew() {
 		if(!canCloseImmediately()){
 			newProjectFilePath[0] = 0;
-			b_newProjectRequested = true;
-			Logger::info("Trying to creat new project while current one has modifications or is running");
+			Project::Gui::CloseProjectPopup::get()->open();
+			Logger::info("Trying to create new project while current one has modifications or is running");
 			return false;
 		}
 		Logger::info("Creating new project");
@@ -95,7 +87,7 @@ namespace Project{
 		
 		if(!canCloseImmediately()){
 			strcpy(newProjectFilePath, dir);
-			b_newProjectRequested = true;
+			Project::Gui::CloseProjectPopup::get()->open();
 			Logger::info("Trying to load project while current one has modifications or is running");
 			return false;
 		}

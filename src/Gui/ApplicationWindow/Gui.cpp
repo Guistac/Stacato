@@ -127,7 +127,10 @@ void initialize(){
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.Colors[ImGuiCol_TabActive] = ImVec4(.6f, .4f, 0.f, 1.f);
 	style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.f, 0.f, 0.f, 1.f);
-	style.FrameRounding = 5.0;
+	float rounding = ImGui::GetTextLineHeight() * 0.25;
+	style.FrameRounding = rounding;
+	style.PopupRounding = rounding;
+	style.WindowRounding = rounding;
 	
 	dockspaceID = ImGui::GetID("MainDockspace");
 	if(LayoutManager::getDefaultLayout()) LayoutManager::getDefaultLayout()->makeActive();
@@ -178,8 +181,7 @@ void draw(){
 									ImGuiWindowFlags_NoCollapse |
 									ImGuiWindowFlags_NoDocking |
 									ImGuiWindowFlags_NoScrollWithMouse |
-									ImGuiWindowFlags_NoScrollbar |
-									ImGuiWindowFlags_NoSavedSettings;
+									ImGuiWindowFlags_NoScrollbar;
 	ImGui::Begin("Toolbar", nullptr, toolbarFlags);
 	toolbar(toolbarHeight);
 	ImGui::End();

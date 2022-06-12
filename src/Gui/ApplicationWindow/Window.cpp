@@ -30,6 +30,9 @@ void Popup::close(){ Gui::closePopup(shared_from_this()); }
 void Popup::draw(){
 	if(b_open && !ImGui::IsPopupOpen(name.c_str())) ImGui::OpenPopup(name.c_str());
 	
+	glm::vec2 size = getSize();
+	if(size != glm::vec2(.0f, .0f)) ImGui::SetNextWindowSize(size);
+	
 	if(b_modal){
 		glm::vec2 center = ImGui::GetMainViewport()->GetCenter();
 		ImGuiWindowFlags popupFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;

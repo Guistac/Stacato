@@ -79,7 +79,9 @@ namespace Gui {
 			
 			ImGui::Separator();
 			
-			if(Environnement::isEditorLocked()) {if(ImGui::MenuItem("Show Environnement Editor", "Cmd Shift U")) Environnement::requestEditorUnlock();}
+			if(Environnement::isEditorLocked()) {
+				if(ImGui::MenuItem("Show Environnement Editor", "Cmd Shift U")) Environnement::Gui::UnlockEditorPopup::get()->open();
+			}
 			else if(ImGui::MenuItem("Hide Environnement Editor", "Cmd Shift U")) Environnement::lockEditor();
 			ImGui::EndMenu();
 		}
@@ -125,8 +127,6 @@ namespace Gui {
 			ImGui::EndMenu();
 		}
 		
-		LayoutManager::editor();
-		
 		
 		if (ImGui::IsKeyDown(GLFW_KEY_LEFT_ALT) && ImGui::IsKeyDown(GLFW_KEY_LEFT_SUPER)) {
 			if (ImGui::BeginMenu("Utilities")) {
@@ -164,7 +164,7 @@ namespace Gui {
 		
 		static KeyboardShortcut unlockEditorShortcut(GLFW_KEY_U, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
 		if(unlockEditorShortcut.isTriggered()){
-			if(Environnement::isEditorLocked()) Environnement::requestEditorUnlock();
+			if(Environnement::isEditorLocked()) Environnement::Gui::UnlockEditorPopup::get()->open();
 			else Environnement::lockEditor();
 		}
 		

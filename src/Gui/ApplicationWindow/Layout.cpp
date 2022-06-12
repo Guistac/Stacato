@@ -95,9 +95,7 @@ bool Layout::isDefault(){
 	return LayoutManager::getDefaultLayout() == shared_from_this();
 }
 
-void Layout::edit(){
-	LayoutManager::edit(shared_from_this());
-}
+void Layout::edit(){ LayoutManager::edit(shared_from_this()); }
 
 void Layout::remove(){
 	LayoutManager::remove(shared_from_this());
@@ -113,38 +111,15 @@ namespace LayoutManager{
 	std::shared_ptr<Layout> currentLayout = nullptr;
 	std::shared_ptr<Layout> defaultLayout = nullptr;
 	std::shared_ptr<Layout> editedLayout = nullptr;
-	bool b_editRequested = false;
 
 	std::vector<std::shared_ptr<Layout>>& getLayouts(){ return layouts; }
 	std::shared_ptr<Layout> getCurrentLayout(){ return currentLayout; }
 	std::shared_ptr<Layout> getDefaultLayout(){ return defaultLayout; }
 	std::shared_ptr<Layout> getEditedLayout(){ return editedLayout; }
-	bool isEditRequested(){ return b_editRequested; }
 
 	void edit(std::shared_ptr<Layout> editedLayout_){
 		editedLayout = editedLayout_;
-		b_editRequested = true;
-	}
-
-	void endEdit(){
-		editedLayout = nullptr;
-	}
-
-	void editor(){
-		if(b_editRequested) {
-			ImGui::OpenPopup("Edit Layout");
-			b_editRequested = false;
-		}
-		ImGuiWindowFlags popupFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;
-		ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-		ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		if (ImGui::BeginPopupModal("Edit Layout", nullptr, popupFlags)) {
-			editedLayout->nameEditField();
-			if (ImGui::Button("Close") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE) || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) {
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::EndPopup();
-		}
+		LayoutEditorPopup::get()->open();
 	}
 
 	void makeActive(std::shared_ptr<Layout> layout){
@@ -167,13 +142,9 @@ namespace LayoutManager{
 		ImGui::LoadIniSettingsFromMemory(layout->layoutString.c_str());
 	}
 
-	void makeDefault(std::shared_ptr<Layout> layout){
-		defaultLayout = layout;
-	}
+	void makeDefault(std::shared_ptr<Layout> layout){ defaultLayout = layout; }
 
-	void setDefault(){
-		if(defaultLayout) makeActive(defaultLayout);
-	}
+	void setDefault(){ if(defaultLayout) makeActive(defaultLayout); }
 
 	void addCurrent(){
 		auto newLayout = std::make_shared<Layout>();
@@ -235,6 +206,12 @@ namespace LayoutManager{
 		currentLayout = nullptr;
 		editedLayout = nullptr;
 		defaultLayout = nullptr;
+	}
+
+	void LayoutEditorPopup::drawContent(){
+		ImGui::Text("Layout Name :");
+		editedLayout->nameEditField();
+		if (ImGui::Button("Close") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE) || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) close();
 	}
 
 
