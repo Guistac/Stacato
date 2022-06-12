@@ -16,8 +16,6 @@ namespace Environnement::Gui{
 	void gui();
 	void editor();
 	void nodeManager();
-	//void machineManager();
-	//void deviceManager();
 	void nodeEditor();
 	void stageEditor();
 	void log();

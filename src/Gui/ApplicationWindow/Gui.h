@@ -8,14 +8,16 @@ namespace Gui{
 	void draw();
 
 	std::vector<std::shared_ptr<Window>>& getWindowDictionnary();
+	bool isInDictionnary(std::shared_ptr<Window> window);
 	void addWindowToDictionnary(std::shared_ptr<Window> window);
 	void removeWindowFromDictionnary(std::shared_ptr<Window> window);
 
 	std::vector<std::shared_ptr<Window>>& getOpenWindows();
 	void openWindow(std::shared_ptr<Window> window);
-
-	void closeWindows();
+	void closeWindow(std::shared_ptr<Window> window);
 	void closeAllWindows();
+
+	void focusWindow(std::shared_ptr<Window> window);
 
 	std::vector<std::shared_ptr<Popup>>& getOpenPopups();
 	void openPopup(std::shared_ptr<Popup> popup);
@@ -24,10 +26,7 @@ namespace Gui{
 	void menuBar();
 	void toolbar(float height);
 
-	void resetToFactoryLayout();
-
-
-
+	void setDefaultLayout();
 
 
 	class QuitApplicationPopup : public Popup{

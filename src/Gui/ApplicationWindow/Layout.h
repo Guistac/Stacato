@@ -42,13 +42,12 @@ namespace LayoutManager{
 	std::shared_ptr<Layout> getDefaultLayout();
 	std::shared_ptr<Layout> getEditedLayout();
 
-	void addCurrent();
-
 	bool save(const char* filePath);
 	bool load(const char* filePath);
 
 	void clearAll();
 
+	void capture();
 	void edit(std::shared_ptr<Layout> editedLayout);
 	void makeActive(std::shared_ptr<Layout> layout);
 	void makeDefault(std::shared_ptr<Layout> layout);

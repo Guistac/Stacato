@@ -17,6 +17,8 @@
 
 #include "StageVisualizer.h"
 
+#include "Gui/Environnement/EnvironnementGui.h"
+
 namespace Environnement {
 
 	bool b_isStarting = false;
@@ -343,15 +345,19 @@ namespace Environnement {
 		sprintf(notes, "%s", _notes);
 	}
 
-#ifdef STACATO_DEBUG
-	bool b_editorLocked = false;
-#else
-	bool b_editorLocked = true;
-#endif
+	bool b_editorLocked;
 
 	bool isEditorLocked(){ return b_editorLocked; }
-	void lockEditor(){ b_editorLocked = true; }
-	void unlockEditor(){ b_editorLocked = false; }
+	void lockEditor(){
+		b_editorLocked = true;
+		Environnement::Gui::EnvironnementEditorWindow::get()->removeFromDictionnary();
+	}
+	void unlockEditor(){
+		b_editorLocked = false;
+		auto editorWindow = Environnement::Gui::EnvironnementEditorWindow::get();
+		editorWindow->addToDictionnary();
+		editorWindow->open();
+	}
 	bool checkEditorPassword(const char* password){ return strcmp(password, "StacatoCompact") == 0; }
 
 	void createNew() {

@@ -104,7 +104,6 @@ void Layout::remove(){
 
 
 
-
 namespace LayoutManager{
 
 	std::vector<std::shared_ptr<Layout>> layouts;
@@ -140,7 +139,7 @@ namespace LayoutManager{
 
 	void setDefault(){ if(defaultLayout) makeActive(defaultLayout); }
 
-	void addCurrent(){
+	void capture(){
 		auto newLayout = std::make_shared<Layout>();
 		sprintf(newLayout->name, "Layout %i", int(layouts.size()));
 		newLayout->overwrite();

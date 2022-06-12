@@ -12,15 +12,8 @@
 #include "Gui/StageView/StageView.h"
 
 #include "Gui/Plot/SequencerGui.h"
-
 #include "Gui/Environnement/EnvironnementGui.h"
 #include "Gui/Plot/PlotGui.h"
-
-#include "Gui/Assets/Images.h"
-
-#include "Tests/C_Curves.h"
-#include "Tests/CommandZ.h"
-#include "Gui/Utilities/ReorderableList.h"
 #include "Gui/Environnement/Dashboard/Managers.h"
 
 
@@ -30,7 +23,16 @@ namespace Gui {
 
 std::vector<std::shared_ptr<Window>> windowDictionnary;
 std::vector<std::shared_ptr<Window>>& getWindowDictionnary(){ return windowDictionnary; }
-void addWindowToDictionnary(std::shared_ptr<Window> window){ windowDictionnary.push_back(window); }
+bool isInDictionnary(std::shared_ptr<Window> window){
+	for(auto& dictionnaryWindow : windowDictionnary){
+		if(dictionnaryWindow == window) return true;
+	}
+	return false;
+}
+void addWindowToDictionnary(std::shared_ptr<Window> window){
+	if(isInDictionnary(window)) return;
+	windowDictionnary.push_back(window);
+}
 void removeWindowFromDictionnary(std::shared_ptr<Window> window){
 	window->close();
 	for(int i = 0; i < windowDictionnary.size(); i++){
@@ -50,15 +52,8 @@ void openWindow(std::shared_ptr<Window> window){
 	openWindows.push_back(window);
 }
 
-void closeWindows(){
-	for(int i = openWindows.size() - 1; i >= 0; i--){
-		if(!openWindows[i]->isOpen()){
-			openWindows[i]->b_open = false;
-			openWindows[i]->onClose();
-			openWindows.erase(openWindows.begin() + i);
-		}
-	}
-}
+std::vector<std::shared_ptr<Window>> windowsToClose;
+void closeWindow(std::shared_ptr<Window> window){ windowsToClose.push_back(window); }
 
 void closeAllWindows(){
 	for(auto& window : openWindows) {
@@ -68,6 +63,27 @@ void closeAllWindows(){
 	openWindows.clear();
 }
 
+std::vector<std::shared_ptr<Window>> windowsToFocus;
+void focusWindow(std::shared_ptr<Window> window){ windowsToFocus.push_back(window); }
+
+
+void closeWindows(){
+	for(auto& windowToClose : windowsToClose){
+		windowToClose->b_open = false;
+		windowToClose->onClose();
+		for(int i = 0; i < openWindows.size(); i++){
+			if(openWindows[i] == windowToClose){
+				openWindows.erase(openWindows.begin() + i);
+			}
+		}
+	}
+}
+
+void focusWindows(){
+	if(windowsToFocus.empty()) return;
+	for(auto& window : windowsToFocus) ImGui::FocusWindow(window->imguiWindow);
+	windowsToFocus.clear();
+}
 
 std::vector<std::shared_ptr<Popup>> popupList;
 std::vector<std::shared_ptr<Popup>>& getPopups(){ return popupList; }
@@ -86,7 +102,6 @@ void closePopup(std::shared_ptr<Popup> popup){
 }
 
 
-bool b_initialized = false;
 ImGuiID dockspaceID;
 
 void initialize(){
@@ -95,9 +110,14 @@ void initialize(){
 	PlotGui::ManoeuvreListWindow::get()->addToDictionnary();
 	PlotGui::TrackSheetEditorWindow::get()->addToDictionnary();
 	PlotGui::CurveEditorWindow::get()->addToDictionnary();
-	PlotGui::SpatialEditorWindow::get()->addToDictionnary();
 	Sequencer::Gui::SequencerWindow::get()->addToDictionnary();
 	DashboardWindow::get()->addToDictionnary();
+	
+#ifdef STACATO_DEBUG
+	Environnement::unlockEditor();
+#else
+	Environnement::lockEditor();
+#endif
 	
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.Colors[ImGuiCol_TabActive] = ImVec4(.6f, .4f, 0.f, 1.f);
@@ -108,17 +128,18 @@ void initialize(){
 	style.WindowRounding = rounding;
 	
 	dockspaceID = ImGui::GetID("MainDockspace");
-	resetToFactoryLayout();
-	auto defaultLayout = LayoutManager::getDefaultLayout();
-	if(defaultLayout) defaultLayout->makeActive();
-	
-	b_initialized = true;
+	setDefaultLayout();
+	if(auto defaultLayout = LayoutManager::getDefaultLayout()) defaultLayout->makeActive();
 };
 
 void draw(){
-	
+		
 	//one time initialization on start
-	if(!b_initialized) initialize();
+	static bool b_initialized = false;
+	if(!b_initialized) {
+		initialize();
+		b_initialized = true;
+	}
 	
 	//get coordinates for main window and toolbar
 	glm::vec2 mainWindowPosition = ImGui::GetMainViewport()->WorkPos;
@@ -148,6 +169,7 @@ void draw(){
 	//draw all windows
 	for(auto& window : openWindows) window->draw();
 	closeWindows();
+	focusWindows();
 	
 	//draw toolbar
 	ImGui::SetNextWindowPos(mainWindowPosition + glm::vec2(0, mainWindowSize.y));
@@ -168,12 +190,19 @@ void draw(){
 	for(auto& popup : popupList) popup->draw();
 }
 
-void resetToFactoryLayout(){
-	for(auto& window : getWindowDictionnary()) window->open();
+void setDefaultLayout(){
+	closeAllWindows();
+	for(auto& window : windowDictionnary) window->open();
 	ImGui::DockBuilderRemoveNodeDockedWindows(dockspaceID);
 	ImGui::DockBuilderRemoveNodeChildNodes(dockspaceID);
-	for(auto& window : windowDictionnary) ImGui::DockBuilderDockWindow(window->name.c_str(), dockspaceID);
+	for(auto& window : openWindows) ImGui::DockBuilderDockWindow(window->name.c_str(), dockspaceID);
 	ImGui::DockBuilderFinish(dockspaceID);
+	
+#ifdef STACATO_DEBUG
+	Environnement::Gui::EnvironnementEditorWindow::get()->focus();
+#else
+	DashboardWindow::get()->focus();
+#endif
 }
 
 }

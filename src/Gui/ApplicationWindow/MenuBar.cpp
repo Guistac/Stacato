@@ -25,12 +25,6 @@
 
 namespace Gui {
 
-	bool imguiDemoWindowOpen = false;
-	bool imguiMetricsWindowOpen = false;
-	bool implotDemoWindowOpen = false;
-
-
-
 	void menuBar() {
 
 		ImGui::BeginMenuBar();
@@ -86,15 +80,18 @@ namespace Gui {
 			ImGui::EndMenu();
 		}
 		if(ImGui::BeginMenu("View")){
-			if(ImGui::MenuItem("Save new layout")) LayoutManager::addCurrent();
-			if(ImGui::MenuItem("Reset to factory layout")) Gui::resetToFactoryLayout();
-						
-			if(auto activeLayout = LayoutManager::getCurrentLayout()){
-				if(ImGui::MenuItem("Reset to current")) activeLayout->makeActive();
-			}
+			if(ImGui::MenuItem("New layout")) LayoutManager::capture();
+			
+			ImGui::Separator();
+			
+			if(ImGui::MenuItem("Set factory layout")) Gui::setDefaultLayout();
 			
 			if(auto defaultLayout = LayoutManager::getDefaultLayout()){
-				if(ImGui::MenuItem("Reset to default")) defaultLayout->makeActive();
+				if(ImGui::MenuItem("Set default layout")) defaultLayout->makeActive();
+			}
+			
+			if(auto activeLayout = LayoutManager::getCurrentLayout()){
+				if(ImGui::MenuItem("Reset current layout")) activeLayout->makeActive();
 			}
 			
 			if(!LayoutManager::getLayouts().empty()) ImGui::Separator();
@@ -136,6 +133,9 @@ namespace Gui {
 			ImGui::EndMenu();
 		}
 		
+		static bool imguiDemoWindowOpen = false;
+		static bool imguiMetricsWindowOpen = false;
+		static bool implotDemoWindowOpen = false;
 		
 		if (ImGui::IsKeyDown(GLFW_KEY_LEFT_ALT) && ImGui::IsKeyDown(GLFW_KEY_LEFT_SUPER)) {
 			if (ImGui::BeginMenu("Utilities")) {

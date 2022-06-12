@@ -6,27 +6,35 @@ static std::shared_ptr<ClassName> get(){ \
 	return singleton; \
 }\
 
+struct ImGuiWindow;
+
 class Window : public std::enable_shared_from_this<Window>{
 public:
 	
 	Window(std::string name_, bool padding = true) : name(name_), b_padding(padding){}
 	
 	std::string name;
-	bool b_open;
+	bool b_open = false;
 	bool b_padding;
+	
+	ImGuiWindow* imguiWindow = nullptr;
 	
 	void addToDictionnary();
 	void removeFromDictionnary();
 	
 	void open();
-	void close(){ b_open = false; }
+	void close();
 	bool isOpen(){ return b_open; }
+	
+	void focus();
+	bool isFocused();
 	
 	void draw();
 	
 	virtual void drawContent() = 0;
 	virtual void onOpen(){}
 	virtual void onClose(){}
+	//virtual void onFocus(){}
 	
 };
 
@@ -49,4 +57,12 @@ public:
 	virtual void onClose(){}
 	virtual glm::vec2 getSize(){ return glm::vec2(.0f,.0f); }
 	
+};
+
+
+namespace WindowManager{
+
+	
+
+
 };

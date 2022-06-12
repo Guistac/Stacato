@@ -846,7 +846,7 @@ void scrollingText(const char* ID, const char* text, float width, bool lock, flo
 
 
 float verticalSeparator(float width, bool drawLine){
-	float output;
+	float output = 0.0;
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
 	ImGui::SameLine();
 	ImGui::InvisibleButton("##Divider", ImVec2(width, ImGui::GetContentRegionAvail().y));

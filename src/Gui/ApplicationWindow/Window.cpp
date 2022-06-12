@@ -13,9 +13,14 @@ void Window::open(){
 	Gui::openWindow(shared_from_this());
 }
 
+void Window::close(){ Gui::closeWindow(shared_from_this()); }
+
+void Window::focus(){ Gui::focusWindow(shared_from_this()); }
+
 void Window::draw(){
 	if(!b_padding) ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f,0.0f));
 	if(ImGui::Begin(name.c_str(), &b_open)){
+		imguiWindow = ImGui::GetCurrentContext()->CurrentWindow;
 		if(!b_padding) ImGui::PopStyleVar();
 		drawContent();
 	}else if(!b_padding) ImGui::PopStyleVar();
@@ -52,5 +57,13 @@ void Popup::draw(){
 			ImGui::EndPopup();
 		}
 	}
+}
+
+
+bool Window::isFocused(){
+	ImGuiWindow* focusedWindow = ImGui::GetCurrentContext()->NavWindow;
+	if(focusedWindow == imguiWindow) return true;
+	else if(ImGui::IsWindowChildOf(focusedWindow, imguiWindow, false, false)) return true;
+	return false;
 }
 
