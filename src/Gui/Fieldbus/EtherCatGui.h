@@ -9,15 +9,8 @@ void etherCatParameters(bool resetList);
 
 class EtherCatStartPopup : public Popup{
 public:
-	
 	EtherCatStartPopup() : Popup("Starting Environnement", true, false){}
-	
 	virtual void drawContent() override;
 	virtual glm::vec2 getSize() override;
-	
-	static std::shared_ptr<EtherCatStartPopup> get(){
-		static auto popup = std::make_shared<EtherCatStartPopup>();
-		return popup;
-	}
-	
+	SINGLETON_GET_METHOD(EtherCatStartPopup);
 };

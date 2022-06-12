@@ -15,28 +15,28 @@ namespace PlotGui{
 	public:
 		ManoeuvreListWindow() : Window("Manoeuvre List", true){}
 		virtual void drawContent() override { manoeuvreList(); };
-		static std::shared_ptr<ManoeuvreListWindow> get();
+		SINGLETON_GET_METHOD(ManoeuvreListWindow)
 	};
 
 	class TrackSheetEditorWindow : public Window{
 	public:
 		TrackSheetEditorWindow() : Window("Track Sheet Editor", true){}
 		virtual void drawContent() override { trackSheetEditor(); };
-		static std::shared_ptr<TrackSheetEditorWindow> get();
+		SINGLETON_GET_METHOD(TrackSheetEditorWindow)
 	};
 
 	class CurveEditorWindow : public Window{
 	public:
 		CurveEditorWindow() : Window("Curve Editor", true){}
 		virtual void drawContent() override { curveEditor(); };
-		static std::shared_ptr<CurveEditorWindow> get();
+		SINGLETON_GET_METHOD(CurveEditorWindow)
 	};
 
 	class SpatialEditorWindow : public Window{
 	public:
 		SpatialEditorWindow() : Window("Spatial Editor", true){}
 		virtual void drawContent() override { spatialEditor(); };
-		static std::shared_ptr<SpatialEditorWindow> get();
+		SINGLETON_GET_METHOD(SpatialEditorWindow)
 	};
 
 }

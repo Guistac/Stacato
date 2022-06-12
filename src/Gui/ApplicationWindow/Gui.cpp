@@ -49,19 +49,19 @@ void openWindow(std::shared_ptr<Window> window){
 	window->onOpen();
 	openWindows.push_back(window);
 }
-void closeWindow(std::shared_ptr<Window> window){
-	for(int i = 0; i < openWindows.size(); i++){
-		if(openWindows[i] == window){
+
+void closeWindows(){
+	for(int i = openWindows.size() - 1; i >= 0; i--){
+		if(!openWindows[i]->isOpen()){
 			openWindows[i]->b_open = false;
 			openWindows[i]->onClose();
 			openWindows.erase(openWindows.begin() + i);
-			break;
 		}
 	}
 }
 
 void closeAllWindows(){
-	for(auto& window : openWindows){
+	for(auto& window : openWindows) {
 		window->b_open = false;
 		window->onClose();
 	}
@@ -72,14 +72,12 @@ void closeAllWindows(){
 std::vector<std::shared_ptr<Popup>> popupList;
 std::vector<std::shared_ptr<Popup>>& getPopups(){ return popupList; }
 void openPopup(std::shared_ptr<Popup> popup){
-	popup->b_open = true;
 	popup->onOpen();
 	popupList.push_back(popup);
 }
 void closePopup(std::shared_ptr<Popup> popup){
 	for(int i = 0; i < popupList.size(); i++){
 		if(popupList[i] == popup){
-			popupList[i]->b_open = false;
 			popupList[i]->onClose();
 			popupList.erase(popupList.begin() + i);
 			break;
@@ -92,37 +90,14 @@ bool b_initialized = false;
 ImGuiID dockspaceID;
 
 void initialize(){
-	auto environnementEditorWindow = Environnement::Gui::EnvironnementEditorWindow::get();
-	environnementEditorWindow->addToDictionnary();
-	environnementEditorWindow->open();
-	
-	auto setupWindow = Environnement::Gui::SetupWindow::get();
-	setupWindow->addToDictionnary();
-	setupWindow->open();
-	
-	auto manoeuvreListWindow = PlotGui::ManoeuvreListWindow::get();
-	manoeuvreListWindow->addToDictionnary();
-	manoeuvreListWindow->open();
-	
-	auto trackSheetEditorWindow = PlotGui::TrackSheetEditorWindow::get();
-	trackSheetEditorWindow->addToDictionnary();
-	trackSheetEditorWindow->open();
-	
-	auto curveEditorWindow = PlotGui::CurveEditorWindow::get();
-	curveEditorWindow->addToDictionnary();
-	curveEditorWindow->open();
-	
-	auto SpatialEditorWindow = PlotGui::SpatialEditorWindow::get();
-	SpatialEditorWindow->addToDictionnary();
-	SpatialEditorWindow->open();
-	
-	auto sequencerWindow = Sequencer::Gui::SequencerWindow::get();
-	sequencerWindow->addToDictionnary();
-	sequencerWindow->open();
-	
-	auto dashboardWindow = DashboardWindow::get();
-	dashboardWindow->addToDictionnary();
-	dashboardWindow->open();
+	Environnement::Gui::EnvironnementEditorWindow::get()->addToDictionnary();
+	Environnement::Gui::SetupWindow::get()->addToDictionnary();
+	PlotGui::ManoeuvreListWindow::get()->addToDictionnary();
+	PlotGui::TrackSheetEditorWindow::get()->addToDictionnary();
+	PlotGui::CurveEditorWindow::get()->addToDictionnary();
+	PlotGui::SpatialEditorWindow::get()->addToDictionnary();
+	Sequencer::Gui::SequencerWindow::get()->addToDictionnary();
+	DashboardWindow::get()->addToDictionnary();
 	
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.Colors[ImGuiCol_TabActive] = ImVec4(.6f, .4f, 0.f, 1.f);
@@ -133,8 +108,9 @@ void initialize(){
 	style.WindowRounding = rounding;
 	
 	dockspaceID = ImGui::GetID("MainDockspace");
-	if(LayoutManager::getDefaultLayout()) LayoutManager::getDefaultLayout()->makeActive();
-	else resetToFactoryLayout();
+	resetToFactoryLayout();
+	auto defaultLayout = LayoutManager::getDefaultLayout();
+	if(defaultLayout) defaultLayout->makeActive();
 	
 	b_initialized = true;
 };
@@ -171,6 +147,7 @@ void draw(){
 	
 	//draw all windows
 	for(auto& window : openWindows) window->draw();
+	closeWindows();
 	
 	//draw toolbar
 	ImGui::SetNextWindowPos(mainWindowPosition + glm::vec2(0, mainWindowSize.y));
@@ -192,6 +169,7 @@ void draw(){
 }
 
 void resetToFactoryLayout(){
+	for(auto& window : getWindowDictionnary()) window->open();
 	ImGui::DockBuilderRemoveNodeDockedWindows(dockspaceID);
 	ImGui::DockBuilderRemoveNodeChildNodes(dockspaceID);
 	for(auto& window : windowDictionnary) ImGui::DockBuilderDockWindow(window->name.c_str(), dockspaceID);

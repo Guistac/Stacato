@@ -13,9 +13,6 @@
 
 namespace Environnement::Gui{
 
-	std::shared_ptr<EnvironnementEditorWindow> editorWindow = std::make_shared<EnvironnementEditorWindow>();
-	std::shared_ptr<EnvironnementEditorWindow> EnvironnementEditorWindow::get(){ return editorWindow; }
-
 	void gui() {
 		if (ImGui::BeginTabBar("##EnvironnementTabBar")) {
 			if (ImGui::BeginTabItem("Editor")) {

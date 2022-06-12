@@ -8,11 +8,12 @@
 void Window::addToDictionnary(){ Gui::addWindowToDictionnary(shared_from_this()); }
 void Window::removeFromDictionnary(){ Gui::removeWindowFromDictionnary(shared_from_this()); }
 
-void Window::open(){ Gui::openWindow(shared_from_this()); }
-void Window::close(){ Gui::closeWindow(shared_from_this()); }
+void Window::open(){
+	if(isOpen()) return;
+	Gui::openWindow(shared_from_this());
+}
 
 void Window::draw(){
-	if(!b_open) return;
 	if(!b_padding) ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f,0.0f));
 	if(ImGui::Begin(name.c_str(), &b_open)){
 		if(!b_padding) ImGui::PopStyleVar();
@@ -28,7 +29,7 @@ void Popup::open(){ Gui::openPopup(shared_from_this()); }
 void Popup::close(){ Gui::closePopup(shared_from_this()); }
 
 void Popup::draw(){
-	if(b_open && !ImGui::IsPopupOpen(name.c_str())) ImGui::OpenPopup(name.c_str());
+	if(!ImGui::IsPopupOpen(name.c_str())) ImGui::OpenPopup(name.c_str());
 	
 	glm::vec2 size = getSize();
 	if(size != glm::vec2(.0f, .0f)) ImGui::SetNextWindowSize(size);

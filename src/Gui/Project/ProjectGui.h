@@ -13,10 +13,7 @@ namespace Project::Gui{
 	public:
 		CloseProjectPopup() : Popup("Close Project", true, true){}
 		virtual void drawContent() override;
-		static std::shared_ptr<CloseProjectPopup> get(){
-			static auto popup = std::make_shared<CloseProjectPopup>();
-			return popup;
-		}
+		SINGLETON_GET_METHOD(CloseProjectPopup);
 	};
 	
 

@@ -124,21 +124,15 @@ namespace LayoutManager{
 
 	void makeActive(std::shared_ptr<Layout> layout){
 		currentLayout = layout;
-
-		
 		Gui::closeAllWindows();
-		for(auto& window : Gui::getWindowDictionnary()){
-			bool windowShouldBeOpen = false;
-			for(auto& openWindowName : layout->openWindowIds){
+		for(auto& openWindowName : layout->openWindowIds){
+			for(auto& window : Gui::getWindowDictionnary()){
 				if(openWindowName == window->name){
-					windowShouldBeOpen = true;
+					window->open();
 					break;
 				}
 			}
-			if(windowShouldBeOpen) window->open();
-			else window->close();
 		}
-		
 		ImGui::LoadIniSettingsFromMemory(layout->layoutString.c_str());
 	}
 

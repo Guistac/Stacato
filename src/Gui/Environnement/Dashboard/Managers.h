@@ -20,7 +20,7 @@ class DashboardWindow : public Window{
 public:
 	DashboardWindow() : Window("Dashboard", false){}
 	virtual void drawContent() override;
-	static std::shared_ptr<DashboardWindow> get();
+	SINGLETON_GET_METHOD(DashboardWindow);
 };
 
 namespace WidgetManager{

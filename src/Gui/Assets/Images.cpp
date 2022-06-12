@@ -2,6 +2,8 @@
 
 #include "Images.h"
 
+#include <GL/glew.h>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -37,12 +39,13 @@ namespace Images{
 	Image KeyIcon;
 	Image TargetIcon;
 	Image SequenceIcon;
+	Image StacatoIcon;
 
 	void load(){
-		bool success = false;
-		success = LoadTextureFromFile("icons/KeyIcon.png", KeyIcon);
-		success = LoadTextureFromFile("icons/TimeIcon.png", TargetIcon);
-		success = LoadTextureFromFile("icons/SequenceIcon.png", SequenceIcon);
+		LoadTextureFromFile("icons/KeyIcon.png", KeyIcon);
+		LoadTextureFromFile("icons/TimeIcon.png", TargetIcon);
+		LoadTextureFromFile("icons/SequenceIcon.png", SequenceIcon);
+		LoadTextureFromFile("icons/StacatoIcon.png", StacatoIcon);
 	}
 
 	

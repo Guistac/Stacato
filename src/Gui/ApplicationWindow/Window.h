@@ -1,19 +1,27 @@
 #pragma once
 
+#define SINGLETON_GET_METHOD(ClassName) \
+static std::shared_ptr<ClassName> get(){ \
+	static std::shared_ptr<ClassName> singleton = std::make_shared<ClassName>(); \
+	return singleton; \
+}\
+
 class Window : public std::enable_shared_from_this<Window>{
 public:
 	
 	Window(std::string name_, bool padding = true) : name(name_), b_padding(padding){}
 	
 	std::string name;
-	bool b_open = false;
+	bool b_open;
 	bool b_padding;
 	
 	void addToDictionnary();
 	void removeFromDictionnary();
 	
 	void open();
-	void close();
+	void close(){ b_open = false; }
+	bool isOpen(){ return b_open; }
+	
 	void draw();
 	
 	virtual void drawContent() = 0;
@@ -28,8 +36,8 @@ public:
 	Popup(std::string name_, bool modal, bool canClose) : name(name_), b_modal(modal), b_canClose(canClose) {}
 	
 	std::string name;
-	bool b_modal;
 	bool b_open;
+	bool b_modal;
 	bool b_canClose;
 		
 	void open();

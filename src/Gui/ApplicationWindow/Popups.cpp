@@ -18,6 +18,8 @@
 
 #include "Gui/Fieldbus/EtherCatGui.h"
 
+#include "Gui/Assets/Images.h"
+
 namespace Gui{
 
 	void QuitApplicationPopup::drawContent(){
@@ -41,6 +43,17 @@ namespace Gui{
 	}
 
 	void AboutPopup::drawContent(){
+				
+		float iconSize = ImGui::GetTextLineHeight() * 7.0;
+		float textSize = Fonts::sansBold42->FontSize + Fonts::sansBold20->FontSize + ImGui::GetTextLineHeight() + 2.0 * ImGui::GetStyle().ItemSpacing.y;
+		
+		glm::vec2 cursorPos = ImGui::GetCursorPos();
+		ImGui::Image(Images::StacatoIcon.getID(), glm::vec2(iconSize));
+		ImGui::SameLine();
+		
+		ImGui::BeginGroup();
+		ImGui::SetCursorPosY(cursorPos.y + iconSize - textSize);
+		
 		ImGui::PushFont(Fonts::sansBold42);
 		ImGui::Text("Stacato");
 		ImGui::PopFont();
@@ -48,8 +61,7 @@ namespace Gui{
 		ImGui::Text("Stage Control Automation Toolbox");
 		ImGui::PopFont();
 		ImGui::Text("Leo Becker - L'Atelier Artefact - 2021");
-		ImGui::Separator();
-		if (ImGui::Button("Close") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE) || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) close();
+		ImGui::EndGroup();
 	}
 	
 }

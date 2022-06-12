@@ -1,7 +1,8 @@
 #pragma once
 
-#include <GL/glew.h>
 #include <imgui.h>
+
+typedef uint32_t GLuint;
 
 struct Image{
 	int width;
@@ -18,5 +19,6 @@ namespace Images{
 	extern Image KeyIcon;
 	extern Image TargetIcon;
 	extern Image SequenceIcon;
+	extern Image StacatoIcon;
 
 }

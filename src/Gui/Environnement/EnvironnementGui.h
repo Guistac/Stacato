@@ -27,24 +27,21 @@ namespace Environnement::Gui{
 	public:
 		EnvironnementEditorWindow() : Window("Environnement", true){}
 		virtual void drawContent() override { gui(); };
-		static std::shared_ptr<EnvironnementEditorWindow> get();
+		SINGLETON_GET_METHOD(EnvironnementEditorWindow);
 	};
 
 	class SetupWindow : public Window{
 	public:
 		SetupWindow() : Window("Setup", true){}
 		virtual void drawContent() override{ homingAndSetup(); };
-		static std::shared_ptr<SetupWindow> get();
+		SINGLETON_GET_METHOD(SetupWindow);
 	};
 
 	class UnlockEditorPopup : public Popup{
 	public:
 		UnlockEditorPopup() : Popup("Unlock Environnement Editor", true, true){}
 		virtual void drawContent() override;
-		static std::shared_ptr<UnlockEditorPopup> get(){
-			static auto popup = std::make_shared<UnlockEditorPopup>();
-			return popup;
-		}
+		SINGLETON_GET_METHOD(UnlockEditorPopup);
 	};
 
 }

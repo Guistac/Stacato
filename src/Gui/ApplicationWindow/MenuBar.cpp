@@ -88,6 +88,14 @@ namespace Gui {
 		if(ImGui::BeginMenu("View")){
 			if(ImGui::MenuItem("Save new layout")) LayoutManager::addCurrent();
 			if(ImGui::MenuItem("Reset to factory layout")) Gui::resetToFactoryLayout();
+						
+			if(auto activeLayout = LayoutManager::getCurrentLayout()){
+				if(ImGui::MenuItem("Reset to current")) activeLayout->makeActive();
+			}
+			
+			if(auto defaultLayout = LayoutManager::getDefaultLayout()){
+				if(ImGui::MenuItem("Reset to default")) defaultLayout->makeActive();
+			}
 			
 			if(!LayoutManager::getLayouts().empty()) ImGui::Separator();
 			
@@ -114,15 +122,16 @@ namespace Gui {
 			ImGui::EndMenu();
 		}
 		if(ImGui::BeginMenu("Window")){
-			
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 			ImGui::Text("Windows :");
+			ImGui::PopStyleColor();
 			for(auto& window : getWindowDictionnary()){
-				if(ImGui::MenuItem(window->name.c_str(), nullptr, &window->b_open)){
-					if(window->b_open) window->open();
+				bool b_open = window->isOpen();
+				if(ImGui::MenuItem(window->name.c_str(), nullptr, &b_open)){
+					if(b_open) window->open();
 					else window->close();
 				}
 			}
-			
 			
 			ImGui::EndMenu();
 		}

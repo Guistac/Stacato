@@ -59,10 +59,7 @@ namespace LayoutManager{
 	public:
 		LayoutEditorPopup() : Popup("Edit Layout", true, true){}
 		virtual void drawContent() override;
-		static std::shared_ptr<LayoutEditorPopup> get(){
-			static auto popup = std::make_shared<LayoutEditorPopup>();
-			return popup;
-		}
+		SINGLETON_GET_METHOD(LayoutEditorPopup);
 	};
 
 };

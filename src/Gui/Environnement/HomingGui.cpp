@@ -17,9 +17,6 @@
 
 namespace Environnement::Gui{
 
-std::shared_ptr<SetupWindow> setupWindow = std::make_shared<SetupWindow>();
-std::shared_ptr<SetupWindow> SetupWindow::get(){ return setupWindow; }
-
 	void homingAndSetup(){
 		
 		//=================== NETWORK SETUP =====================

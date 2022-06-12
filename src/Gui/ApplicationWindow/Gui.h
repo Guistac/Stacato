@@ -13,8 +13,8 @@ namespace Gui{
 
 	std::vector<std::shared_ptr<Window>>& getOpenWindows();
 	void openWindow(std::shared_ptr<Window> window);
-	void closeWindow(std::shared_ptr<Window> window);
 
+	void closeWindows();
 	void closeAllWindows();
 
 	std::vector<std::shared_ptr<Popup>>& getOpenPopups();
@@ -34,20 +34,14 @@ namespace Gui{
 	public:
 		QuitApplicationPopup() : Popup("Quit Application", true, true){}
 		virtual void drawContent() override;
-		static std::shared_ptr<QuitApplicationPopup> get(){
-			static auto popup = std::make_shared<QuitApplicationPopup>();
-			return popup;
-		}
+		SINGLETON_GET_METHOD(QuitApplicationPopup);
 	};
 
 	class AboutPopup : public Popup{
 	public:
 		AboutPopup() : Popup("About", true, true){}
 		virtual void drawContent() override;
-		static std::shared_ptr<AboutPopup> get(){
-			static std::shared_ptr<AboutPopup> popup = std::make_shared<AboutPopup>();
-			return popup;
-		}
+		SINGLETON_GET_METHOD(AboutPopup);
 	};
 
 }

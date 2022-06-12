@@ -12,7 +12,7 @@ namespace Sequencer::Gui{
 	public:
 		SequencerWindow() : Window("Sequencer", false){}
 		virtual void drawContent() override { Sequencer::Gui::editor(); };
-		static std::shared_ptr<SequencerWindow> get();
+		SINGLETON_GET_METHOD(SequencerWindow);
 	};
 
 
