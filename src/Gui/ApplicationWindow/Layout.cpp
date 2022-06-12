@@ -74,7 +74,7 @@ bool Layout::save(tinyxml2::XMLElement* xml){
 void Layout::overwrite(){
 	layoutString = ImGui::SaveIniSettingsToMemory();
 	openWindowIds.clear();
-	for(auto& window : Gui::getOpenWindows()) {
+	for(auto& window : WindowManager::getOpenWindows()) {
 		openWindowIds.push_back(window->name);
 	}
 }
@@ -123,9 +123,9 @@ namespace LayoutManager{
 
 	void makeActive(std::shared_ptr<Layout> layout){
 		currentLayout = layout;
-		Gui::closeAllWindows();
+		WindowManager::closeAllWindows();
 		for(auto& openWindowName : layout->openWindowIds){
-			for(auto& window : Gui::getWindowDictionnary()){
+			for(auto& window : WindowManager::getWindowDictionnary()){
 				if(openWindowName == window->name){
 					window->open();
 					break;

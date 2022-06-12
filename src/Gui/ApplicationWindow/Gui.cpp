@@ -6,101 +6,17 @@
 #include "Gui.h"
 
 #include "ApplicationWindow.h"
+#include "Layout.h"
 
 #include "Gui/Project/ProjectGui.h"
 #include "Environnement/Environnement.h"
 #include "Gui/StageView/StageView.h"
-
 #include "Gui/Plot/SequencerGui.h"
 #include "Gui/Environnement/EnvironnementGui.h"
 #include "Gui/Plot/PlotGui.h"
 #include "Gui/Environnement/Dashboard/Managers.h"
 
-
-#include "Layout.h"
-
 namespace Gui {
-
-std::vector<std::shared_ptr<Window>> windowDictionnary;
-std::vector<std::shared_ptr<Window>>& getWindowDictionnary(){ return windowDictionnary; }
-bool isInDictionnary(std::shared_ptr<Window> window){
-	for(auto& dictionnaryWindow : windowDictionnary){
-		if(dictionnaryWindow == window) return true;
-	}
-	return false;
-}
-void addWindowToDictionnary(std::shared_ptr<Window> window){
-	if(isInDictionnary(window)) return;
-	windowDictionnary.push_back(window);
-}
-void removeWindowFromDictionnary(std::shared_ptr<Window> window){
-	window->close();
-	for(int i = 0; i < windowDictionnary.size(); i++){
-		if(windowDictionnary[i] == window){
-			windowDictionnary.erase(windowDictionnary.begin() + i);
-			break;
-		}
-	}
-}
-
-
-std::vector<std::shared_ptr<Window>> openWindows;
-std::vector<std::shared_ptr<Window>>& getOpenWindows(){ return openWindows; }
-void openWindow(std::shared_ptr<Window> window){
-	window->b_open = true;
-	window->onOpen();
-	openWindows.push_back(window);
-}
-
-std::vector<std::shared_ptr<Window>> windowsToClose;
-void closeWindow(std::shared_ptr<Window> window){ windowsToClose.push_back(window); }
-
-void closeAllWindows(){
-	for(auto& window : openWindows) {
-		window->b_open = false;
-		window->onClose();
-	}
-	openWindows.clear();
-}
-
-std::vector<std::shared_ptr<Window>> windowsToFocus;
-void focusWindow(std::shared_ptr<Window> window){ windowsToFocus.push_back(window); }
-
-
-void closeWindows(){
-	for(auto& windowToClose : windowsToClose){
-		windowToClose->b_open = false;
-		windowToClose->onClose();
-		for(int i = 0; i < openWindows.size(); i++){
-			if(openWindows[i] == windowToClose){
-				openWindows.erase(openWindows.begin() + i);
-			}
-		}
-	}
-}
-
-void focusWindows(){
-	if(windowsToFocus.empty()) return;
-	for(auto& window : windowsToFocus) ImGui::FocusWindow(window->imguiWindow);
-	windowsToFocus.clear();
-}
-
-std::vector<std::shared_ptr<Popup>> popupList;
-std::vector<std::shared_ptr<Popup>>& getPopups(){ return popupList; }
-void openPopup(std::shared_ptr<Popup> popup){
-	popup->onOpen();
-	popupList.push_back(popup);
-}
-void closePopup(std::shared_ptr<Popup> popup){
-	for(int i = 0; i < popupList.size(); i++){
-		if(popupList[i] == popup){
-			popupList[i]->onClose();
-			popupList.erase(popupList.begin() + i);
-			break;
-		}
-	}
-}
-
 
 ImGuiID dockspaceID;
 
@@ -166,11 +82,6 @@ void draw(){
 	ImGui::DockSpace(dockspaceID, ImGui::GetContentRegionAvail(), ImGuiDockNodeFlags_NoWindowMenuButton);
 	ImGui::End();
 	
-	//draw all windows
-	for(auto& window : openWindows) window->draw();
-	closeWindows();
-	focusWindows();
-	
 	//draw toolbar
 	ImGui::SetNextWindowPos(mainWindowPosition + glm::vec2(0, mainWindowSize.y));
 	ImGui::SetNextWindowSize(glm::vec2(mainWindowSize.x, toolbarHeight));
@@ -185,17 +96,16 @@ void draw(){
 	toolbar(toolbarHeight);
 	ImGui::End();
 	ImGui::PopStyleVar();
-		
-	//draw all popups
-	for(auto& popup : popupList) popup->draw();
+	
+	WindowManager::manage();
 }
 
 void setDefaultLayout(){
-	closeAllWindows();
-	for(auto& window : windowDictionnary) window->open();
+	WindowManager::closeAllWindows();
+	for(auto& window : WindowManager::getWindowDictionnary()) window->open();
 	ImGui::DockBuilderRemoveNodeDockedWindows(dockspaceID);
 	ImGui::DockBuilderRemoveNodeChildNodes(dockspaceID);
-	for(auto& window : openWindows) ImGui::DockBuilderDockWindow(window->name.c_str(), dockspaceID);
+	for(auto& window : WindowManager::getOpenWindows()) ImGui::DockBuilderDockWindow(window->name.c_str(), dockspaceID);
 	ImGui::DockBuilderFinish(dockspaceID);
 	
 #ifdef STACATO_DEBUG

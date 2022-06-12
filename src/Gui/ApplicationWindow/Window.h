@@ -62,7 +62,22 @@ public:
 
 namespace WindowManager{
 
-	
+	std::vector<std::shared_ptr<Window>>& getWindowDictionnary();
+	bool isInDictionnary(std::shared_ptr<Window> window);
+	void addWindowToDictionnary(std::shared_ptr<Window> window);
+	void removeWindowFromDictionnary(std::shared_ptr<Window> window);
 
+	std::vector<std::shared_ptr<Window>>& getOpenWindows();
+	void openWindow(std::shared_ptr<Window> window);
+	void closeWindow(std::shared_ptr<Window> window);
+	void closeAllWindows();
+
+	void focusWindow(std::shared_ptr<Window> window);
+
+	std::vector<std::shared_ptr<Popup>>& getOpenPopups();
+	void openPopup(std::shared_ptr<Popup> popup);
+	void closePopup(std::shared_ptr<Popup> popup);
+
+	void manage();
 
 };

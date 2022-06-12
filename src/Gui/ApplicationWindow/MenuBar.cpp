@@ -122,7 +122,7 @@ namespace Gui {
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 			ImGui::Text("Windows :");
 			ImGui::PopStyleColor();
-			for(auto& window : getWindowDictionnary()){
+			for(auto& window : WindowManager::getWindowDictionnary()){
 				bool b_open = window->isOpen();
 				if(ImGui::MenuItem(window->name.c_str(), nullptr, &b_open)){
 					if(b_open) window->open();
