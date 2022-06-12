@@ -125,7 +125,8 @@ void Dashboard::canvas(){
 	
 	//panning & zooming
 	if(!b_autoFit){
-		if(ImRect(dashboardPosition, dashboardMax).Contains(ImGui::GetMousePos())){
+		//if(ImRect(dashboardPosition, dashboardMax).Contains(ImGui::GetMousePos())){
+		if(ImGui::IsWindowHovered()){
 			double zoomDelta = ApplicationWindow::getMacOsTrackpadZoom();
 			if(zoomDelta != 0.0) zoom(ImGui::GetMousePos(), zoomDelta);
 			ImGuiIO& io = ImGui::GetIO();
@@ -194,6 +195,7 @@ void Dashboard::canvas(){
 	std::shared_ptr<WidgetInstance> deletedWidget = nullptr;
 	bool widgetHovered = false;
 	
+	glm::vec2 padding(ImGui::GetStyle().WindowPadding);
 	
 	for(int i = 0; i < widgets.size(); i++){
 		ImGui::PushID(i);
@@ -206,6 +208,7 @@ void Dashboard::canvas(){
 		
 		glm::vec2 cursor = canvasToCursor(widget->position);
 		ImGui::SetCursorPos(cursor);
+		
 		
 		if(ImGui::BeginChild("Widget", widgetSize, true, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)){
 			widget->gui();
@@ -231,17 +234,75 @@ void Dashboard::canvas(){
 			}
 		}
 		ImGui::EndChild();
+		 
+		 if(isWidgetSelected(widget)){
+			 float borderWidth = ImGui::GetTextLineHeight() * 0.2;
+			 glm::vec2 widgetMin = dashboardPosition + cursor;
+			 glm::vec2 widgetMax = widgetMin + widgetSize;
+			 glm::vec2 min = widgetMin - glm::vec2(borderWidth / 2.0);
+			 glm::vec2 max = widgetMax + glm::vec2(borderWidth / 2.0);
+			 float rounding = ImGui::GetStyle().FrameRounding + borderWidth / 2.0;
+			 ImGui::GetWindowDrawList()->AddRect(min, max, ImColor(Colors::white), rounding, ImDrawFlags_RoundCornersAll, borderWidth);
+			 if(ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE) || ImGui::IsKeyPressed(GLFW_KEY_DELETE)) deletedWidget = widget;
+		 }
 		
-		if(isWidgetSelected(widget)){
-			float borderWidth = ImGui::GetTextLineHeight() * 0.2;
-			glm::vec2 widgetMin = dashboardPosition + cursor;
-			glm::vec2 widgetMax = widgetMin + widgetSize;
-			glm::vec2 min = widgetMin - glm::vec2(borderWidth / 2.0);
-			glm::vec2 max = widgetMax + glm::vec2(borderWidth / 2.0);
-			float rounding = ImGui::GetStyle().FrameRounding + borderWidth / 2.0;
-			ImGui::GetWindowDrawList()->AddRect(min, max, ImColor(Colors::white), rounding, ImDrawFlags_RoundCornersAll, borderWidth);
-			if(ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE) || ImGui::IsKeyPressed(GLFW_KEY_DELETE)) deletedWidget = widget;
+		
+		/*
+		ImDrawList* windowDrawList = ImGui::GetWindowDrawList();
+		ImDrawListSplitter splitter;
+		splitter.Split(windowDrawList, 2);
+		splitter.SetCurrentChannel(windowDrawList, 1);
+
+		ImGuiID hoveredIdBefore = ImGui::GetHoveredID();
+		
+		ImGui::BeginGroup();
+		glm::vec2 groupCursorMin = ImGui::GetCursorPos();
+		ImGui::SetCursorPos(groupCursorMin + padding);
+		
+		ImGui::BeginGroup();
+		widget->gui();
+		
+		ImGuiID hoveredIdWidget = ImGui::GetHoveredID();
+		ImGui::EndGroup();
+		
+		glm::vec2 groupSize = ImGui::GetItemRectSize();
+		ImGui::SetCursorPos(groupCursorMin + groupSize + padding * 2.0);
+		
+		ImGui::EndGroup();
+				
+		ImGui::SetCursorPos(groupCursorMin);
+		ImGui::InvisibleButton("test", groupSize + padding * 2.0);
+		
+		bool hovered = ImGui::IsItemHovered() && hoveredIdBefore == hoveredIdWidget;
+		if(hovered){
+			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+			if(ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+				clickedWidget = widget;
+				draggedWidget = widget;
+				selectWidget(widget);
+			}
 		}
+			
+		splitter.SetCurrentChannel(windowDrawList, 0);
+		glm::vec2 min = ImGui::GetItemRectMin();
+		glm::vec2 max = ImGui::GetItemRectMax();
+		windowDrawList->AddRectFilled(min, max, ImColor(Colors::almostBlack), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
+		float borderThickness;
+		ImColor borderColor;
+		if(isWidgetSelected(widget)){
+			borderThickness = ImGui::GetTextLineHeight() * 0.2;
+			borderColor = ImColor(Colors::white);
+			if(ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE) || ImGui::IsKeyPressed(GLFW_KEY_DELETE)) deletedWidget = widget;
+		}else {
+			borderThickness = ImGui::GetTextLineHeight() * 0.05;
+			borderColor = ImColor(Colors::darkGray);
+		}
+		windowDrawList->AddRect(min, max, borderColor, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll, borderThickness);
+		splitter.Merge(windowDrawList);
+		*/
+		
+		
+		
 		
 		ImGui::PopID();
 	}

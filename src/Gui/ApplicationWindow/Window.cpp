@@ -20,12 +20,14 @@ void Window::focus(){ WindowManager::focusWindow(shared_from_this()); }
 
 void Window::draw(){
 	if(!b_padding) ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f,0.0f));
-	if(ImGui::Begin(name.c_str(), &b_open)){
+	bool b_manualOpen = true;
+	if(ImGui::Begin(name.c_str(), &b_manualOpen)){
 		imguiWindow = ImGui::GetCurrentContext()->CurrentWindow;
 		if(!b_padding) ImGui::PopStyleVar();
 		drawContent();
 	}else if(!b_padding) ImGui::PopStyleVar();
 	ImGui::End();
+	if(!b_manualOpen) close();
 }
 
 bool Window::isFocused(){
@@ -134,6 +136,7 @@ void closeWindows(){
 			}
 		}
 	}
+	windowsToClose.clear();
 }
 
 

@@ -398,6 +398,8 @@ float PositionControlledMachine::getMiniatureWidth() {
 }
 
 void PositionControlledMachine::machineSpecificMiniatureGui() {
+	
+
 		float bottomControlsHeight = ImGui::GetTextLineHeight() * 4.4;
 		float sliderHeight = ImGui::GetContentRegionAvail().y - bottomControlsHeight;
 		float tripleWidgetWidth = (ImGui::GetContentRegionAvail().x - 2.0 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
@@ -520,7 +522,6 @@ void PositionControlledMachine::machineSpecificMiniatureGui() {
 		}
 
 		ImGui::EndDisabled();
-
 }
 
 
