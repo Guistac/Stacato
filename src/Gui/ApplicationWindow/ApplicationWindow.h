@@ -11,8 +11,6 @@ namespace ApplicationWindow {
 	void update();
 
 	void requestQuit();
-	void cancelQuitRequest();
-	bool isQuitRequested();
 	void quit();
 
 	bool wasLaunchedByOpeningFile();

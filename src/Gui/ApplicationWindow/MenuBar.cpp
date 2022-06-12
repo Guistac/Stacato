@@ -35,7 +35,7 @@ namespace Gui {
 
 		ImGui::BeginMenuBar();
 		if (ImGui::BeginMenu("Stacato")) {
-			if (ImGui::MenuItem("About")) Gui::openAboutPopup();
+			if (ImGui::MenuItem("About")) Gui::AboutPopup::get()->open();
 			ImGui::Separator();
 			if (ImGui::MenuItem("Quit", "Cmd Q")) ApplicationWindow::requestQuit();
 			ImGui::EndMenu();
@@ -85,7 +85,7 @@ namespace Gui {
 		}
 		if(ImGui::BeginMenu("View")){
 			if(ImGui::MenuItem("Save new layout")) LayoutManager::addCurrent();
-			if(ImGui::MenuItem("Reset to default layout")) Gui::resetDefaultLayout();
+			if(ImGui::MenuItem("Reset to factory layout")) Gui::resetToFactoryLayout();
 			
 			if(!LayoutManager::getLayouts().empty()) ImGui::Separator();
 			
@@ -101,7 +101,7 @@ namespace Gui {
 					if(ImGui::MenuItem("Make Default", nullptr, layout->isDefault())) layout->makeDefault();
 					ImGui::EndDisabled();
 					
-					if(layout->isActive()) if(ImGui::MenuItem("Overwrite")) layout->overwriteCurrent();
+					if(layout->isActive()) if(ImGui::MenuItem("Overwrite")) layout->overwrite();
 					if(ImGui::MenuItem("Rename")) layout->edit();
 					if(ImGui::MenuItem("Remove")) removedLayout = layout;
 					ImGui::EndMenu();

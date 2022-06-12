@@ -1,10 +1,83 @@
 #include <pch.h>
 
 #include "Layout.h"
+#include "Gui.h"
+#include "Window.h"
+
+std::shared_ptr<Layout> Layout::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	
+	auto newLayout = std::make_shared<Layout>();
+	
+	const char* layoutNameString;
+	if(xml->QueryStringAttribute("Name", &layoutNameString) != XML_SUCCESS) {
+		Logger::warn("Could not load Layout Name");
+		return nullptr;
+	}
+	strcpy(newLayout->name, layoutNameString);
+	
+	bool b_default;
+	if(xml->QueryBoolAttribute("IsDefault", &b_default) == XML_SUCCESS && b_default == true) newLayout->makeDefault();
+	
+	XMLElement* openWindowsXML = xml->FirstChildElement("OpenWindows");
+	if(openWindowsXML == nullptr){
+		Logger::warn("Could not find layout open windows attribute");
+		return nullptr;
+	}
+	
+	XMLElement* openWindowXML = openWindowsXML->FirstChildElement("Window");
+	while(openWindowXML){
+		const char* openWindowName;
+		if(openWindowXML->QueryStringAttribute("Name", &openWindowName) != XML_SUCCESS){
+			Logger::warn("Could not find open window name attribute");
+			return nullptr;
+		}
+		newLayout->openWindowIds.push_back(openWindowName);
+		openWindowXML = openWindowXML->NextSiblingElement("Window");
+	}
+	
+	XMLElement* iniStringXML = xml->FirstChildElement("ImGuiIniString");
+	if(iniStringXML == nullptr){
+		Logger::warn("Could not find Layout ImGuiIniString attribute");
+		return nullptr;
+	}
+	
+	const char* iniString = iniStringXML->GetText();
+	newLayout->layoutString = iniString;
+	 
+	return newLayout;
+}
 
 
 
+bool Layout::save(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	
+	xml->SetAttribute("Name", name);
+	if(isDefault()) xml->SetAttribute("IsDefault", true);
+	
+	XMLElement* openWindowsXML = xml->InsertNewChildElement("OpenWindows");
+	for(auto& openWindow : openWindowIds){
+		XMLElement* windowXML = openWindowsXML->InsertNewChildElement("Window");
+		windowXML->SetAttribute("Name", openWindow.c_str());
+	}
+	
+	XMLElement* iniStringXML = xml->InsertNewChildElement("ImGuiIniString");
+	iniStringXML->InsertNewText("\n\n");
+	iniStringXML->InsertNewText(layoutString.c_str());
+	
+	return true;
+}
 
+
+
+void Layout::overwrite(){
+	layoutString = ImGui::SaveIniSettingsToMemory();
+	openWindowIds.clear();
+	for(auto& window : Gui::getOpenWindows()) {
+		openWindowIds.push_back(window->name);
+	}
+}
 
 void Layout::makeActive(){
 	LayoutManager::makeActive(shared_from_this());
@@ -76,6 +149,21 @@ namespace LayoutManager{
 
 	void makeActive(std::shared_ptr<Layout> layout){
 		currentLayout = layout;
+
+		
+		Gui::closeAllWindows();
+		for(auto& window : Gui::getWindowDictionnary()){
+			bool windowShouldBeOpen = false;
+			for(auto& openWindowName : layout->openWindowIds){
+				if(openWindowName == window->name){
+					windowShouldBeOpen = true;
+					break;
+				}
+			}
+			if(windowShouldBeOpen) window->open();
+			else window->close();
+		}
+		
 		ImGui::LoadIniSettingsFromMemory(layout->layoutString.c_str());
 	}
 
@@ -89,8 +177,8 @@ namespace LayoutManager{
 
 	void addCurrent(){
 		auto newLayout = std::make_shared<Layout>();
-		newLayout->layoutString = ImGui::SaveIniSettingsToMemory();
 		sprintf(newLayout->name, "Layout %i", int(layouts.size()));
+		newLayout->overwrite();
 		layouts.push_back(newLayout);
 		makeActive(newLayout);
 		edit(newLayout);
@@ -130,8 +218,11 @@ namespace LayoutManager{
 		
 		XMLElement* layoutXML = layoutsXML->FirstChildElement("Layout");
 		while(layoutXML){
-			auto newLayout = std::make_shared<Layout>();
-			if(!newLayout->load(layoutXML)) return Logger::warn("Could not load layout");
+			auto newLayout = Layout::load(layoutXML);
+			if(newLayout == nullptr) {
+				Logger::warn("Could not load layout");
+				return false;
+			}
 			layouts.push_back(newLayout);
 			layoutXML = layoutXML->NextSiblingElement("Layout");
 		}

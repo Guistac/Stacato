@@ -265,21 +265,24 @@ void Dashboard::canvas(){
 	ImGui::GetStyle() = defaultStyleCopy;
 	ImGui::SetWindowFontScale(1.0);
 	
+	//show dashboard controls
+	glm::vec2 max = dashboardPosition + glm::vec2(dashboardSize.x, ImGui::GetFrameHeight() + 2.0 * ImGui::GetStyle().WindowPadding.y);
+	if(!b_lockEdit || (ImRect(dashboardPosition, max).Contains(ImGui::GetMousePos()) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left))){
+		glm::vec2 padding = ImGui::GetStyle().WindowPadding;
+		ImGui::SetCursorPos(padding);
+		ImGui::BeginGroup();
+		if(ImGui::Button("Fit View")) fitView();
+		ImGui::SameLine();
+		if(ImGui::Checkbox("Auto Fit", &b_autoFit)) fitView();
+		ImGui::SameLine();
+		ImGui::Checkbox("Lock", &b_lockEdit);
+		ImGui::SameLine();
+		ImGui::Checkbox("Show Grid", &b_drawGrid);
+		ImGui::EndGroup();
+	}
+	
 	//end dashboard
 	ImGui::EndChild();
-}
-
-void Dashboard::widgetAdder(){
-	ImGui::Text("Available Widgets");
-	ImGui::Separator();
-	for(auto& widget : availableWidgets){
-		ImGui::Selectable(widget->name.c_str());
-		if(ImGui::BeginDragDropSource()){
-			ImGui::SetDragDropPayload("Widget", &widget->uniqueID, sizeof(int));
-			ImGui::Text("%s", widget->name.c_str());
-			ImGui::EndDragDropSource();
-		}
-	}
 }
 
 void Dashboard::fitView(){
@@ -317,7 +320,7 @@ void Dashboard::fitView(){
 
 
 void Dashboard::gui(){
-	
+
 	static float adderWidth = ImGui::GetTextLineHeight() * 15.0;
 	static float minAdderWidth = ImGui::GetTextLineHeight() * 10.0;
 	static float maxAdderWidth = ImGui::GetTextLineHeight() * 25.0;
@@ -385,7 +388,7 @@ void Dashboard::gui(){
 		adderWidth += verticalSeparator(ImGui::GetTextLineHeight() * 0.5, false);
 		adderWidth = std::clamp(adderWidth, minAdderWidth, maxAdderWidth);
 	}
-		
+		 
 	glm::vec2 canvasPosition = ImGui::GetCursorPos();
 	canvas();
 	
@@ -407,22 +410,7 @@ void Dashboard::gui(){
 		}
 		ImGui::PopStyleColor();
 	}
-	
-	glm::vec2 min = ImGui::GetItemRectMin();
-	glm::vec2 maxx = min + glm::vec2(ImGui::GetItemRectMax().x, ImGui::GetFrameHeight() + 2.0 * ImGui::GetStyle().WindowPadding.y);
-	if(!b_lockEdit || (ImRect(min, maxx).Contains(ImGui::GetMousePos()) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left))){
-		ImGui::SetNextWindowPos(min);
-		ImGui::Begin("DashboardControls", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBackground );
-		if(ImGui::Button("Fit View")) fitView();
-		ImGui::SameLine();
-		if(ImGui::Checkbox("Auto Fit", &b_autoFit)) fitView();
-		ImGui::SameLine();
-		ImGui::Checkbox("Lock", &b_lockEdit);
-		ImGui::SameLine();
-		ImGui::Checkbox("Show Grid", &b_drawGrid);
-		ImGui::End();
-	}
-	
+		
 }
 
 

@@ -30,7 +30,6 @@ namespace ApplicationWindow {
 	char windowName[256] = "Stacato";
 	bool b_windowNameShowUnsavedModifications = false;
 
-	bool b_closeRequested = false;
 	bool b_shouldClose = false;
 
 	double macOsTrackpadZoomDelta = 0.0;
@@ -154,7 +153,7 @@ namespace ApplicationWindow {
 		Environnement::StageVisualizer::start();
 		
 		//============ UPDATE LOOP ============
-		Gui::initialize();
+		//Gui::initialize();
 		while (!b_shouldClose) update();
 
 		Environnement::StageVisualizer::stop();
@@ -210,14 +209,8 @@ namespace ApplicationWindow {
 	//request the app to quit, will open popup
 	void requestQuit() {
 		if(Project::canCloseImmediately()) quit();
-		else b_closeRequested = true;
+		else Gui::QuitApplicationPopup::get()->open();
 	}
-
-	//cancel the quit request
-	void cancelQuitRequest() { b_closeRequested = false; }
-
-	//did we try to quit the app
-	bool isQuitRequested() { return b_closeRequested; }
 
 	//definitely close the app
 	void quit() { b_shouldClose = true; }

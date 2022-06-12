@@ -1,9 +1,5 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="Key Start" Description="all machines at lower limit" Type="Key">
-            <Animation Machine="Position Controlled Machine" MachineUniqueID="10" Parameter="Position" IsComposite="false" Type="Key" Target="0"/>
-            <Animation Machine="Position Controlled Machine" MachineUniqueID="23" Parameter="Position" IsComposite="false" Type="Key" Target="0"/>
-        </Manoeuvre>
         <Manoeuvre Name="Sequence Animation" Description="from point A to B" Type="Sequence">
             <Animation Machine="Position Controlled Machine" MachineUniqueID="10" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="3.1798306984058327" Duration="10" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="1">
                 <Curves>
@@ -21,6 +17,10 @@
                     </Curve>
                 </Curves>
             </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="Key Start" Description="all machines at lower limit" Type="Key">
+            <Animation Machine="Position Controlled Machine" MachineUniqueID="10" Parameter="Position" IsComposite="false" Type="Key" Target="0"/>
+            <Animation Machine="Position Controlled Machine" MachineUniqueID="23" Parameter="Position" IsComposite="false" Type="Key" Target="0"/>
         </Manoeuvre>
         <Manoeuvre Name="Target Animation" Description="To target with fixed Velocity" Type="Target">
             <Animation Machine="Position Controlled Machine" MachineUniqueID="10" Parameter="Position" IsComposite="false" Type="Target" Target="30" ConstraintType="Velocity" Time="2" Velocity="0.29999999999999999" StartAcceleration="1" EndAcceleration="1"/>

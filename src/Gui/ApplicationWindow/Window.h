@@ -25,15 +25,16 @@ public:
 class Popup : public std::enable_shared_from_this<Popup>{
 public:
 	
-	Popup(std::string name_, bool modal) : name(name_), b_modal(modal) {}
+	Popup(std::string name_, bool modal, bool canClose) : name(name_), b_modal(modal), b_canClose(canClose) {}
 	
 	std::string name;
 	bool b_modal;
-	bool b_open = false;
+	bool b_open;
+	bool b_canClose;
 		
 	void open();
 	void close();
-	virtual void draw();
+	void draw();
 	
 	virtual void drawContent() = 0;
 	virtual void onOpen(){}

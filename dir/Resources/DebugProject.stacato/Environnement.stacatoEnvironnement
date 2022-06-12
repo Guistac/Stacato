@@ -1,5 +1,5 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.2067469" OffsetX="991.13367" OffsetY="-443.77469" AutoFit="true" DrawGrid="true" LockEdit="true">
+    <Dashboard Scale="1.2145157" OffsetX="985.68457" OffsetY="-443.77469" AutoFit="true" DrawGrid="true" LockEdit="true">
         <Widget UniqueID="1" PositionX="-358.05765" PositionY="443.77469" SizeX="200" SizeY="400"/>
         <Widget UniqueID="2" PositionX="-120.45567" PositionY="816.099" SizeX="200" SizeY="400"/>
     </Dashboard>

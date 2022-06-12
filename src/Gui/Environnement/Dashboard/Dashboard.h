@@ -20,7 +20,6 @@ public:
 	void fitView();
 	
 	void gui();
-	void widgetAdder();
 	void canvas();
 	
 	void selectWidget(std::shared_ptr<WidgetInstance> widget){ selectedWidget = widget; }

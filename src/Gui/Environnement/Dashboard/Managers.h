@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Gui/ApplicationWindow/Window.h"
+
 namespace tinyxml2{ struct XMLElement; }
 class Dashboard;
 class Widget;
@@ -12,6 +14,13 @@ namespace DashboardManager{
 	bool save(tinyxml2::XMLElement* xml);
 	bool load(tinyxml2::XMLElement* xml);
 
+};
+
+class DashboardWindow : public Window{
+public:
+	DashboardWindow() : Window("Dashboard", false){}
+	virtual void drawContent() override;
+	static std::shared_ptr<DashboardWindow> get();
 };
 
 namespace WidgetManager{

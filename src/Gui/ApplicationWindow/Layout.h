@@ -7,25 +7,8 @@
 class Layout : public std::enable_shared_from_this<Layout>{
 public:
 	
-	bool load(tinyxml2::XMLElement* xml){
-		using namespace tinyxml2;
-		const char* layoutNameString;
-		if(xml->QueryStringAttribute("Name", &layoutNameString) != XML_SUCCESS) return Logger::warn("Could not load Layout Name");
-		strcpy(name, layoutNameString);
-		bool b_default;
-		if(xml->QueryBoolAttribute("IsDefault", &b_default) == XML_SUCCESS && b_default == true) makeDefault();
-		const char* iniString = xml->GetText();
-		layoutString = iniString;
-		return true;
-	}
-	
-	bool save(tinyxml2::XMLElement* xml){
-		xml->SetAttribute("Name", name);
-		if(isDefault()) xml->SetAttribute("IsDefault", true);
-		xml->InsertNewText("\n");
-		xml->InsertNewText(layoutString.c_str());
-		return true;
-	}
+	static std::shared_ptr<Layout> load(tinyxml2::XMLElement* xml);
+	bool save(tinyxml2::XMLElement* xml);
 	
 	void makeActive();
 	bool isActive();
@@ -36,11 +19,10 @@ public:
 	void edit();
 	void remove();
 	
-	void overwriteCurrent(){
-		layoutString = ImGui::SaveIniSettingsToMemory();
-	}
+	void overwrite();
 	
 	std::string layoutString;
+	std::vector<std::string> openWindowIds;
 	char name[256];
 	
 	void nameEditField(){

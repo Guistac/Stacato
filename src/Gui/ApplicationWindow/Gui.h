@@ -1,7 +1,6 @@
 #pragma once
 
-class Window;
-class Popup;
+#include "Window.h"
 
 namespace Gui{
 
@@ -16,28 +15,44 @@ namespace Gui{
 	void openWindow(std::shared_ptr<Window> window);
 	void closeWindow(std::shared_ptr<Window> window);
 
+	void closeAllWindows();
+
 	std::vector<std::shared_ptr<Popup>>& getOpenPopups();
 	void openPopup(std::shared_ptr<Popup> popup);
 	void closePopup(std::shared_ptr<Popup> popup);
 	
-
-
-
-
-
-
 	void menuBar();
 	void toolbar(float height);
+
+	void resetToFactoryLayout();
+
+
 	void popups();
 	
-	void quitApplicationPopup();
-	
-	void openAboutPopup();
-	bool isAboutPopupOpenRequested();
-	void aboutPopup();
 
-	void resetDefaultLayout();
-	bool shouldResetDefaultLayout();
-	void finishResetDefaultLayout();
+
+
+	class QuitApplicationPopup : public Popup{
+	public:
+		QuitApplicationPopup() : Popup("Quit Application", true, true){}
+		bool b_quitApplication;
+		virtual void drawContent() override;
+		virtual void onClose() override;
+		virtual void onOpen() override { b_quitApplication = false; };
+		static std::shared_ptr<QuitApplicationPopup> get(){
+			static std::shared_ptr<QuitApplicationPopup> popup = std::make_shared<QuitApplicationPopup>();
+			return popup;
+		}
+	};
+
+	class AboutPopup : public Popup{
+	public:
+		AboutPopup() : Popup("About", true, true){}
+		virtual void drawContent() override;
+		static std::shared_ptr<AboutPopup> get(){
+			static std::shared_ptr<AboutPopup> popup = std::make_shared<AboutPopup>();
+			return popup;
+		}
+	};
 
 }

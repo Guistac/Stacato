@@ -5,26 +5,11 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-void Window::addToDictionnary(){
-	Gui::addWindowToDictionnary(shared_from_this());
-}
+void Window::addToDictionnary(){ Gui::addWindowToDictionnary(shared_from_this()); }
+void Window::removeFromDictionnary(){ Gui::removeWindowFromDictionnary(shared_from_this()); }
 
-void Window::removeFromDictionnary(){
-	close();
-	Gui::removeWindowFromDictionnary(shared_from_this());
-}
-
-void Window::open(){
-	Gui::openWindow(shared_from_this());
-	b_open = true;
-	onOpen();
-}
-
-void Window::close(){
-	Gui::closeWindow(shared_from_this());
-	b_open = false;
-	onClose();
-}
+void Window::open(){ Gui::openWindow(shared_from_this()); }
+void Window::close(){ Gui::closeWindow(shared_from_this()); }
 
 void Window::draw(){
 	if(!b_open) return;
@@ -38,27 +23,25 @@ void Window::draw(){
 
 
 
-void Popup::open(){
-	ImGui::OpenPopup(name.c_str());
-	b_open = true;
-	Gui::openPopup(shared_from_this());
-}
+void Popup::open(){ Gui::openPopup(shared_from_this()); }
 
-void Popup::close(){
-	ImGui::CloseCurrentPopup();
-	b_open = false;
-	Gui::closePopup(shared_from_this());
-}
+void Popup::close(){ Gui::closePopup(shared_from_this()); }
 
 void Popup::draw(){
+	if(b_open && !ImGui::IsPopupOpen(name.c_str())) ImGui::OpenPopup(name.c_str());
+	
 	if(b_modal){
 		glm::vec2 center = ImGui::GetMainViewport()->GetCenter();
 		ImGuiWindowFlags popupFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;
 		ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		if(ImGui::BeginPopupModal(name.c_str(), &b_open, popupFlags)){
+		
+		bool b_manualOpen = true;
+		bool* b_openPointer = b_canClose ? &b_manualOpen : nullptr;
+		if(ImGui::BeginPopupModal(name.c_str(), b_openPointer, popupFlags)){
 			drawContent();
 			ImGui::EndPopup();
 		}
+		if(b_canClose && !b_manualOpen) close();
 	}else{
 		if(ImGui::BeginPopup(name.c_str())){
 			drawContent();

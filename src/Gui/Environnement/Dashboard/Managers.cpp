@@ -6,6 +6,13 @@
 
 #include <tinyxml2.h>
 
+
+void DashboardWindow::drawContent(){ DashboardManager::getDashboard()->gui(); }
+std::shared_ptr<DashboardWindow> dashboardWindow = std::make_shared<DashboardWindow>();
+std::shared_ptr<DashboardWindow> DashboardWindow::get(){ return dashboardWindow; }
+
+
+
 namespace DashboardManager{
 
 /*
@@ -55,7 +62,6 @@ bool load(tinyxml2::XMLElement* xml){
 
 
 };
-
 
 
 
