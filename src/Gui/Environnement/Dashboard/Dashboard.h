@@ -32,6 +32,7 @@ public:
 	std::vector<std::shared_ptr<WidgetInstance>> widgets;
 	std::vector<std::shared_ptr<Widget>> availableWidgets;
 	std::shared_ptr<WidgetInstance> selectedWidget = nullptr;
+	std::shared_ptr<WidgetInstance> hoveredWidget = nullptr;
 	std::shared_ptr<WidgetInstance> draggedWidget = nullptr;
 	
 	std::shared_ptr<StringParameter> name = std::make_shared<StringParameter>("Dashboard", "name", "name", 256);

@@ -12,10 +12,8 @@ public:
 	int uniqueID = -1;
 	
 	Widget(std::string name_, std::string category_) : name(name_), category(category_){}
-	
-	virtual void gui();
-	virtual bool isResizeable(){ return false; }
-	virtual glm::vec2 getDefaultSize(){ return {256.0, 256.0}; }
+		
+	virtual void gui() = 0;
 	
 	virtual std::shared_ptr<Widget> makeCopy(){ return nullptr; }
 	
@@ -29,7 +27,7 @@ public:
 	
 	glm::vec2 position;
 	glm::vec2 size;
-	std::shared_ptr<Widget> widget;
+	std::shared_ptr<Widget> widget = nullptr;
 	int uniqueID = -1;
 	
 	std::shared_ptr<VectorParameter<glm::vec2>> positionParameter = std::make_shared<VectorParameter<glm::vec2>>(glm::vec2(0,0), "Position", "Position");
@@ -37,17 +35,9 @@ public:
 	
 	static std::shared_ptr<WidgetInstance> make(std::shared_ptr<Widget> widget);
 	
-	void gui(){
-		if(widget) widget->gui();
-	}
-	bool isResizeable(){
-		if(widget) return widget->isResizeable();
-		return false;
-	}
-	glm::vec2 getDefaultSize(){
-		if(widget) return widget->getDefaultSize();
-		return size;
-	}
+	bool hasWidget(){ return widget != nullptr; }
+	std::shared_ptr<Widget> getWidget(){ return widget; }
+	void gui(){ if(widget) widget->gui(); }
 	
 	bool save(tinyxml2::XMLElement* xml);
 	static std::shared_ptr<WidgetInstance> load(tinyxml2::XMLElement* xml);

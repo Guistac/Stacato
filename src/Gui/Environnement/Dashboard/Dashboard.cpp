@@ -122,22 +122,7 @@ void Dashboard::canvas(){
 	ImGui::InvisibleButton("Dashboard", dashboardSize);
 	ImGui::SetItemAllowOverlap();
 	ImDrawList* drawing = ImGui::GetWindowDrawList();
-	
-	//panning & zooming
-	if(!b_autoFit){
-		//if(ImRect(dashboardPosition, dashboardMax).Contains(ImGui::GetMousePos())){
-		if(ImGui::IsWindowHovered()){
-			double zoomDelta = ApplicationWindow::getMacOsTrackpadZoom();
-			if(zoomDelta != 0.0) zoom(ImGui::GetMousePos(), zoomDelta);
-			ImGuiIO& io = ImGui::GetIO();
-			glm::vec2 scrollDelta = glm::vec2(io.MouseWheelH, io.MouseWheel);
-			if(scrollDelta != glm::vec2(0.0f, 0.0f)) pan(scrollDelta * 10.0);
-		}
-		if(ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
-			pan(ImGui::GetIO().MouseDelta);
-		}
-	}
-	
+		
 	//set style scaling
 	//we cannot use ImGui::GetStyle().ScaleAllSizes(float scale_factor)
 	//because it rounds values to integers
@@ -191,117 +176,68 @@ void Dashboard::canvas(){
 	ImGui::PushStyleColor(ImGuiCol_ChildBg, Colors::almostBlack);
 	ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImGui::GetStyle().FrameRounding);
 	
-	std::shared_ptr<WidgetInstance> clickedWidget = nullptr;
 	std::shared_ptr<WidgetInstance> deletedWidget = nullptr;
-	bool widgetHovered = false;
+	std::shared_ptr<WidgetInstance> hoveredWidget = nullptr;
+	ImGuiID previousHoveredID = ImGui::GetCurrentContext()->HoveredIdPreviousFrame;
 	
 	glm::vec2 padding(ImGui::GetStyle().WindowPadding);
 	
+	ImDrawListSplitter widgetSplitter;
+	widgetSplitter.Split(drawing, widgets.size());
+	
+	std::shared_ptr<WidgetInstance> mousedWidget = nullptr;
+	
 	for(int i = 0; i < widgets.size(); i++){
+		
 		ImGui::PushID(i);
-		auto widget = widgets[i];
-		
-		glm::vec2 widgetSize;
-		if(widget->isResizeable()) widgetSize = widget->size;
-		else widgetSize = widget->getDefaultSize();
-		widgetSize *= scale;
-		
-		glm::vec2 cursor = canvasToCursor(widget->position);
-		ImGui::SetCursorPos(cursor);
-		
-		
-		if(ImGui::BeginChild("Widget", widgetSize, true, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)){
-			widget->gui();
-			if(ImGui::IsWindowHovered()){
-				widgetHovered = true;
-				if(!ImGui::IsAnyItemHovered()){
-					
-					if(!b_lockEdit){
-						ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-						if(ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-							clickedWidget = widget;
-							draggedWidget = widget;
-							selectWidget(widget);
-						}
-					}
-					
-					if(ImGui::IsKeyDown(GLFW_KEY_LEFT_SUPER) || ImGui::IsKeyDown(GLFW_KEY_RIGHT_SUPER)){
-						ImGui::BeginTooltip();
-						ImGui::Text("UID: %i", widget->uniqueID);
-						ImGui::EndTooltip();
-					}
-				}
-			}
-		}
-		ImGui::EndChild();
-		 
-		 if(isWidgetSelected(widget)){
-			 float borderWidth = ImGui::GetTextLineHeight() * 0.2;
-			 glm::vec2 widgetMin = dashboardPosition + cursor;
-			 glm::vec2 widgetMax = widgetMin + widgetSize;
-			 glm::vec2 min = widgetMin - glm::vec2(borderWidth / 2.0);
-			 glm::vec2 max = widgetMax + glm::vec2(borderWidth / 2.0);
-			 float rounding = ImGui::GetStyle().FrameRounding + borderWidth / 2.0;
-			 ImGui::GetWindowDrawList()->AddRect(min, max, ImColor(Colors::white), rounding, ImDrawFlags_RoundCornersAll, borderWidth);
-			 if(ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE) || ImGui::IsKeyPressed(GLFW_KEY_DELETE)) deletedWidget = widget;
-		 }
-		
-		
-		/*
-		ImDrawList* windowDrawList = ImGui::GetWindowDrawList();
-		ImDrawListSplitter splitter;
-		splitter.Split(windowDrawList, 2);
-		splitter.SetCurrentChannel(windowDrawList, 1);
-
-		ImGuiID hoveredIdBefore = ImGui::GetHoveredID();
-		
-		ImGui::BeginGroup();
-		glm::vec2 groupCursorMin = ImGui::GetCursorPos();
-		ImGui::SetCursorPos(groupCursorMin + padding);
-		
-		ImGui::BeginGroup();
-		widget->gui();
-		
-		ImGuiID hoveredIdWidget = ImGui::GetHoveredID();
-		ImGui::EndGroup();
-		
-		glm::vec2 groupSize = ImGui::GetItemRectSize();
-		ImGui::SetCursorPos(groupCursorMin + groupSize + padding * 2.0);
-		
-		ImGui::EndGroup();
+		auto widgetInstance = widgets[i];
+		widgetSplitter.SetCurrentChannel(drawing, i);
 				
-		ImGui::SetCursorPos(groupCursorMin);
-		ImGui::InvisibleButton("test", groupSize + padding * 2.0);
+		ImDrawListSplitter widgetDrawingLayers;
+		widgetDrawingLayers.Split(drawing, 2);
+		widgetDrawingLayers.SetCurrentChannel(drawing, 1);
+
+		glm::vec2 cursor = canvasToCursor(widgetInstance->position);
+		ImGui::SetCursorPos(cursor);
+		ImGui::BeginGroup();
+		ImGui::SetCursorPos(cursor + padding);
+		ImGui::BeginGroup();
+		ImGuiID hoveredIdBeforeWidget = ImGui::GetHoveredID();
+		widgetInstance->gui();
+		ImGuiID hoveredIdInsideWidget = ImGui::GetHoveredID();
+		ImGui::EndGroup();
+		glm::vec2 contentSize = ImGui::GetItemRectSize();
+		glm::vec2 widgetSize = contentSize + padding * 2.0;
+		ImGui::SetCursorPos(cursor + widgetSize);
+		ImGui::EndGroup();
 		
-		bool hovered = ImGui::IsItemHovered() && hoveredIdBefore == hoveredIdWidget;
-		if(hovered){
-			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-			if(ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-				clickedWidget = widget;
-				draggedWidget = widget;
-				selectWidget(widget);
-			}
-		}
-			
-		splitter.SetCurrentChannel(windowDrawList, 0);
 		glm::vec2 min = ImGui::GetItemRectMin();
 		glm::vec2 max = ImGui::GetItemRectMax();
-		windowDrawList->AddRectFilled(min, max, ImColor(Colors::almostBlack), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
+		
+		if(ImRect(min, max).Contains(ImGui::GetMousePos())) mousedWidget = widgetInstance;
+		
+		ImGui::SetCursorPos(cursor);
+		ImGui::Button("Interaction", widgetSize);
+		ImGui::SetItemAllowOverlap();
+		bool b_hovered = ImGui::GetItemID() == previousHoveredID;
+		if(b_hovered) hoveredWidget = widgetInstance;
+			
+		widgetDrawingLayers.SetCurrentChannel(drawing, 0);
+		
+
+		drawing->AddRectFilled(min, max, b_hovered ? ImColor(Colors::darkGreen) : ImColor(Colors::almostBlack), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 		float borderThickness;
 		ImColor borderColor;
-		if(isWidgetSelected(widget)){
+		if(isWidgetSelected(widgetInstance)){
 			borderThickness = ImGui::GetTextLineHeight() * 0.2;
 			borderColor = ImColor(Colors::white);
-			if(ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE) || ImGui::IsKeyPressed(GLFW_KEY_DELETE)) deletedWidget = widget;
+			if(ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE) || ImGui::IsKeyPressed(GLFW_KEY_DELETE)) deletedWidget = widgetInstance;
 		}else {
 			borderThickness = ImGui::GetTextLineHeight() * 0.05;
 			borderColor = ImColor(Colors::darkGray);
 		}
-		windowDrawList->AddRect(min, max, borderColor, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll, borderThickness);
-		splitter.Merge(windowDrawList);
-		*/
-		
-		
+		drawing->AddRect(min, max, borderColor, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll, borderThickness);
+		widgetDrawingLayers.Merge(drawing);
 		
 		
 		ImGui::PopID();
@@ -309,11 +245,39 @@ void Dashboard::canvas(){
 	ImGui::PopStyleColor();
 	ImGui::PopStyleVar();
 	
-	if(clickedWidget) moveWidgetToTop(clickedWidget);
-	if(deletedWidget) removeWidget(deletedWidget);
-	if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !widgetHovered && ImGui::IsWindowHovered()) deselectWidget();
+	widgetSplitter.Merge(drawing);
 	
-	//widget interactino / dragging
+	if(mousedWidget){
+		ImGui::BeginTooltip();
+		ImGui::Text("UID: %i", mousedWidget->uniqueID);
+		ImGui::EndTooltip();
+	}
+	
+	if(deletedWidget) removeWidget(deletedWidget);
+	if(hoveredWidget){
+		ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+		if(ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+			draggedWidget = hoveredWidget;
+			selectWidget(hoveredWidget);
+			moveWidgetToTop(hoveredWidget);
+		}
+	}else if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) deselectWidget();
+	
+	//panning & zooming
+	if(!b_autoFit){
+		if(ImGui::IsWindowHovered()){
+			double zoomDelta = ApplicationWindow::getMacOsTrackpadZoom();
+			if(zoomDelta != 0.0) zoom(ImGui::GetMousePos(), zoomDelta);
+			ImGuiIO& io = ImGui::GetIO();
+			glm::vec2 scrollDelta = glm::vec2(io.MouseWheelH, io.MouseWheel);
+			if(scrollDelta != glm::vec2(0.0f, 0.0f)) pan(scrollDelta * 10.0);
+		}
+		if(ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left) && !hoveredWidget){
+			pan(ImGui::GetIO().MouseDelta);
+		}
+	}
+	
+	//widget interaction / dragging
 	if(draggedWidget && ImGui::IsMouseDown(ImGuiMouseButton_Left)){
 		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
 		glm::vec2 delta = ImGui::GetIO().MouseDelta;

@@ -399,7 +399,12 @@ float PositionControlledMachine::getMiniatureWidth() {
 
 void PositionControlledMachine::machineSpecificMiniatureGui() {
 	
-
+	if(ImGui::Button("Test")){
+		Logger::warn("Test Time: {}", Timing::getProgramTime_seconds());
+	}
+	ImGui::Text("test Text");
+	
+/*
 		float bottomControlsHeight = ImGui::GetTextLineHeight() * 4.4;
 		float sliderHeight = ImGui::GetContentRegionAvail().y - bottomControlsHeight;
 		float tripleWidgetWidth = (ImGui::GetContentRegionAvail().x - 2.0 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
@@ -522,16 +527,10 @@ void PositionControlledMachine::machineSpecificMiniatureGui() {
 		}
 
 		ImGui::EndDisabled();
+ */
 }
 
-
-glm::vec2 PositionControlledMachine::ControlWidget::getDefaultSize(){
-	float lineHeight = ImGui::GetTextLineHeight();
-	//return {lineHeight * 10.0, lineHeight * 20.0};
-	return {200, 400};
-}
 
 void PositionControlledMachine::ControlWidget::gui(){
 	machine->machineSpecificMiniatureGui();
-	//machine->miniatureGui();
 }

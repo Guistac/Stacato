@@ -7,16 +7,6 @@
 #include <tinyxml2.h>
 #include <imgui.h>
 
-void Widget::gui(){
-	/*
-	glm::vec2 nameSize = ImGui::CalcTextSize(name.c_str());
-	glm::vec2 availableSize = ImGui::GetContentRegionAvail();
-	glm::vec2 windowPosition = ImGui::GetWindowPos();
-	glm::vec2 position = (availableSize - nameSize) / 2.0;
-	ImGui::
-	 */
-}
-
 void Widget::addToDictionnary(){ WidgetManager::addToDictionnary(shared_from_this()); }
 
 void Widget::removeFromDictionnary(){ WidgetManager::removeFromDictionnary(shared_from_this()); }
@@ -24,7 +14,6 @@ void Widget::removeFromDictionnary(){ WidgetManager::removeFromDictionnary(share
 std::shared_ptr<WidgetInstance> WidgetInstance::make(std::shared_ptr<Widget> widget){
 	auto instance = std::make_shared<WidgetInstance>();
 	instance->widget = widget;
-	instance->size = widget->getDefaultSize();
 	instance->uniqueID = widget->uniqueID;
 	return instance;
 }

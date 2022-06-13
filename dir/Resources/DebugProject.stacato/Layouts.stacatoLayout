@@ -29,6 +29,16 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -308,6 +318,16 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,146 Size=2056,967 CentralN
 
 
 
+
+
+
+
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -559,6 +579,8 @@ DockSpace     ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,146 Size=2056,967 Split=X
 
 
 
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -583,7 +605,7 @@ Collapsed=0
 Pos=0,29
 Size=2056,967
 Collapsed=0
-DockId=0xD5272B65,0
+DockId=0xD5272B65,1
 
 [Window][Stage]
 Pos=419,32
@@ -820,7 +842,7 @@ DockSpace       ID=0x0B88F6CB Pos=0,146 Size=2056,967 Split=Y Selected=0x20B12C3
       DockNode  ID=0x00000006 Parent=0x00000003 SizeRef=512,484 Selected=0x47C7A3F3
     DockNode    ID=0x00000004 Parent=0x00000001 SizeRef=1025,484 Selected=0x3E6B10D2
   DockNode      ID=0x00000002 Parent=0x0B88F6CB SizeRef=2056,457 Selected=0xB00214C9
-DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,146 Size=2056,967 CentralNode=1 Selected=0xB00214C9
+DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,146 Size=2056,967 CentralNode=1 HiddenTabBar=1 Selected=0xDE657D5B
 
 </ImGuiIniString>
     </Layout>

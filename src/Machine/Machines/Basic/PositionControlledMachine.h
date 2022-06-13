@@ -81,10 +81,9 @@ class PositionControlledMachine : public Machine{
 	
 	class ControlWidget : public Widget{
 	public:
-		ControlWidget(std::shared_ptr<PositionControlledMachine> machine_, std::string name) : Widget(name, "Machines"), machine(machine_){}
+		ControlWidget(std::shared_ptr<PositionControlledMachine> machine_, std::string name) : Widget("fixed size", "Machines"), machine(machine_){}
 		std::shared_ptr<PositionControlledMachine> machine;
 		virtual void gui() override;
-		virtual glm::vec2 getDefaultSize() override;
 	};
 	std::shared_ptr<ControlWidget> controlWidget;
 };

@@ -44,8 +44,8 @@ void initialize(){
 	style.WindowRounding = rounding;
 	
 	dockspaceID = ImGui::GetID("MainDockspace");
-	setDefaultLayout();
 	if(auto defaultLayout = LayoutManager::getDefaultLayout()) defaultLayout->makeActive();
+	else setDefaultLayout();
 };
 
 void draw(){
@@ -59,9 +59,11 @@ void draw(){
 	
 	//get coordinates for main window and toolbar
 	glm::vec2 mainWindowPosition = ImGui::GetMainViewport()->WorkPos;
-	glm::vec2 mainWindowSize = ImGui::GetMainViewport()->WorkSize;
 	float toolbarHeight = ImGui::GetTextLineHeight() * 4.0;
+	glm::vec2 mainWindowSize = ImGui::GetMainViewport()->WorkSize;
 	mainWindowSize.y -= toolbarHeight;
+	glm::vec2 toolbarPosition(mainWindowPosition.x, mainWindowPosition.y + mainWindowSize.y);
+	glm::vec2 toolbarSize(mainWindowSize.x, toolbarHeight);
 	
 	//draw main window with menu bar and dockspace
 	ImGuiWindowFlags dockspaceWindowFlags = ImGuiWindowFlags_NoMove |
@@ -79,12 +81,13 @@ void draw(){
 	ImGui::Begin("MainWindow", nullptr, dockspaceWindowFlags);
 	ImGui::PopStyleVar();
 	menuBar();
-	ImGui::DockSpace(dockspaceID, ImGui::GetContentRegionAvail(), ImGuiDockNodeFlags_NoWindowMenuButton);
+	ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_NoCloseButton;
+	ImGui::DockSpace(dockspaceID, ImGui::GetContentRegionAvail(), dockspaceFlags);
 	ImGui::End();
 	
 	//draw toolbar
-	ImGui::SetNextWindowPos(mainWindowPosition + glm::vec2(0, mainWindowSize.y));
-	ImGui::SetNextWindowSize(glm::vec2(mainWindowSize.x, toolbarHeight));
+	ImGui::SetNextWindowPos(toolbarPosition);
+	ImGui::SetNextWindowSize(toolbarSize);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.25));
 	ImGuiWindowFlags toolbarFlags = ImGuiWindowFlags_NoTitleBar |
 									ImGuiWindowFlags_NoResize |

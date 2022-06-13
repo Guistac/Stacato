@@ -64,11 +64,19 @@ namespace tinyxml2{ struct XMLElement; }
 
 class Machine : public Node {
 public:
-
+	
 	//===== BASIC PROPRIETIES =====
 	char shortName[16] = "M";
 	const char* getShortName() { return shortName; }
 
+	enum class State{
+		EMERGENCY_STOP,
+		DISABLED,
+		READY,
+		ENABLED,
+		HALTED
+	};
+	
 	//===== STATE CONTROL & MONITORING =====
 	bool b_enabled = false;
 	bool isReady();
