@@ -40,6 +40,7 @@ void Dashboard::removeWidget(std::shared_ptr<WidgetInstance> widget){
 			break;
 		}
 	}
+	if(isWidgetSelected(widget)) deselectWidget();
 }
 
 void Dashboard::moveWidgetToTop(std::shared_ptr<WidgetInstance> widget){
@@ -122,12 +123,26 @@ void Dashboard::canvas(){
 	ImGui::InvisibleButton("Dashboard", dashboardSize);
 	ImGui::SetItemAllowOverlap();
 	ImDrawList* drawing = ImGui::GetWindowDrawList();
+	
+	//panning & zooming
+	if(!b_autoFit){
+		if(ImGui::IsWindowHovered()){
+			double zoomDelta = ApplicationWindow::getMacOsTrackpadZoom();
+			if(zoomDelta != 0.0) zoom(ImGui::GetMousePos(), zoomDelta);
+			ImGuiIO& io = ImGui::GetIO();
+			glm::vec2 scrollDelta = glm::vec2(io.MouseWheelH, io.MouseWheel);
+			if(scrollDelta != glm::vec2(0.0f, 0.0f)) pan(scrollDelta * 10.0);
+		}
+		if(ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
+			pan(ImGui::GetIO().MouseDelta);
+		}
+	}
 		
-	//set style scaling
+	//style scaling
 	//we cannot use ImGui::GetStyle().ScaleAllSizes(float scale_factor)
 	//because it rounds values to integers
 	//instead we buffer the main style structure and generate a new one
-	ImGuiStyle defaultStyleCopy = ImGui::GetStyle();
+	ImGuiStyle mainStyleCopy = ImGui::GetStyle();
 	ImGuiStyle& dashboardStyle = ImGui::GetStyle();
 	dashboardStyle.WindowPadding = dashboardStyle.WindowPadding * scale;
 	dashboardStyle.WindowRounding = dashboardStyle.WindowRounding * scale;
@@ -172,26 +187,15 @@ void Dashboard::canvas(){
 			drawing->AddLine(lineMin, lineMax, ImColor(1.0f, 1.0f, 1.0f, .1f));
 		}
 	}
-	//draw widgets
-	ImGui::PushStyleColor(ImGuiCol_ChildBg, Colors::almostBlack);
-	ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImGui::GetStyle().FrameRounding);
 	
-	std::shared_ptr<WidgetInstance> deletedWidget = nullptr;
 	std::shared_ptr<WidgetInstance> hoveredWidget = nullptr;
 	ImGuiID previousHoveredID = ImGui::GetCurrentContext()->HoveredIdPreviousFrame;
 	
-	glm::vec2 padding(ImGui::GetStyle().WindowPadding);
-	
-	ImDrawListSplitter widgetSplitter;
-	widgetSplitter.Split(drawing, widgets.size());
-	
-	std::shared_ptr<WidgetInstance> mousedWidget = nullptr;
+	glm::vec2 widgetPadding(ImGui::GetStyle().WindowPadding);
 	
 	for(int i = 0; i < widgets.size(); i++){
-		
 		ImGui::PushID(i);
 		auto widgetInstance = widgets[i];
-		widgetSplitter.SetCurrentChannel(drawing, i);
 				
 		ImDrawListSplitter widgetDrawingLayers;
 		widgetDrawingLayers.Split(drawing, 2);
@@ -200,38 +204,33 @@ void Dashboard::canvas(){
 		glm::vec2 cursor = canvasToCursor(widgetInstance->position);
 		ImGui::SetCursorPos(cursor);
 		ImGui::BeginGroup();
-		ImGui::SetCursorPos(cursor + padding);
+		ImGui::SetCursorPos(cursor + widgetPadding);
 		ImGui::BeginGroup();
 		ImGuiID hoveredIdBeforeWidget = ImGui::GetHoveredID();
 		widgetInstance->gui();
 		ImGuiID hoveredIdInsideWidget = ImGui::GetHoveredID();
 		ImGui::EndGroup();
 		glm::vec2 contentSize = ImGui::GetItemRectSize();
-		glm::vec2 widgetSize = contentSize + padding * 2.0;
+		glm::vec2 widgetSize = contentSize + widgetPadding * 2.0;
 		ImGui::SetCursorPos(cursor + widgetSize);
 		ImGui::EndGroup();
 		
-		glm::vec2 min = ImGui::GetItemRectMin();
-		glm::vec2 max = ImGui::GetItemRectMax();
-		
-		if(ImRect(min, max).Contains(ImGui::GetMousePos())) mousedWidget = widgetInstance;
-		
 		ImGui::SetCursorPos(cursor);
-		ImGui::Button("Interaction", widgetSize);
+		ImGui::InvisibleButton("Interaction", widgetSize);
 		ImGui::SetItemAllowOverlap();
 		bool b_hovered = ImGui::GetItemID() == previousHoveredID;
 		if(b_hovered) hoveredWidget = widgetInstance;
 			
 		widgetDrawingLayers.SetCurrentChannel(drawing, 0);
+		glm::vec2 min = ImGui::GetItemRectMin();
+		glm::vec2 max = ImGui::GetItemRectMax();
 		
-
-		drawing->AddRectFilled(min, max, b_hovered ? ImColor(Colors::darkGreen) : ImColor(Colors::almostBlack), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
+		drawing->AddRectFilled(min, max, ImColor(Colors::almostBlack), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 		float borderThickness;
 		ImColor borderColor;
 		if(isWidgetSelected(widgetInstance)){
 			borderThickness = ImGui::GetTextLineHeight() * 0.2;
 			borderColor = ImColor(Colors::white);
-			if(ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE) || ImGui::IsKeyPressed(GLFW_KEY_DELETE)) deletedWidget = widgetInstance;
 		}else {
 			borderThickness = ImGui::GetTextLineHeight() * 0.05;
 			borderColor = ImColor(Colors::darkGray);
@@ -239,22 +238,11 @@ void Dashboard::canvas(){
 		drawing->AddRect(min, max, borderColor, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll, borderThickness);
 		widgetDrawingLayers.Merge(drawing);
 		
-		
 		ImGui::PopID();
 	}
-	ImGui::PopStyleColor();
-	ImGui::PopStyleVar();
 	
-	widgetSplitter.Merge(drawing);
-	
-	if(mousedWidget){
-		ImGui::BeginTooltip();
-		ImGui::Text("UID: %i", mousedWidget->uniqueID);
-		ImGui::EndTooltip();
-	}
-	
-	if(deletedWidget) removeWidget(deletedWidget);
-	if(hoveredWidget){
+	//widget interaction / dragging
+	if(!b_lockEdit && hoveredWidget){
 		ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
 		if(ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 			draggedWidget = hoveredWidget;
@@ -262,22 +250,6 @@ void Dashboard::canvas(){
 			moveWidgetToTop(hoveredWidget);
 		}
 	}else if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) deselectWidget();
-	
-	//panning & zooming
-	if(!b_autoFit){
-		if(ImGui::IsWindowHovered()){
-			double zoomDelta = ApplicationWindow::getMacOsTrackpadZoom();
-			if(zoomDelta != 0.0) zoom(ImGui::GetMousePos(), zoomDelta);
-			ImGuiIO& io = ImGui::GetIO();
-			glm::vec2 scrollDelta = glm::vec2(io.MouseWheelH, io.MouseWheel);
-			if(scrollDelta != glm::vec2(0.0f, 0.0f)) pan(scrollDelta * 10.0);
-		}
-		if(ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left) && !hoveredWidget){
-			pan(ImGui::GetIO().MouseDelta);
-		}
-	}
-	
-	//widget interaction / dragging
 	if(draggedWidget && ImGui::IsMouseDown(ImGuiMouseButton_Left)){
 		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
 		glm::vec2 delta = ImGui::GetIO().MouseDelta;
@@ -285,9 +257,14 @@ void Dashboard::canvas(){
 		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
 	}
 	if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)) draggedWidget = nullptr;
+	if(selectedWidget){
+		if(ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE) || ImGui::IsKeyPressed(GLFW_KEY_DELETE)){
+			removeWidget(selectedWidget);
+		}
+	}
 	
 	//reset default style
-	ImGui::GetStyle() = defaultStyleCopy;
+	ImGui::GetStyle() = mainStyleCopy;
 	ImGui::SetWindowFontScale(1.0);
 	
 	//show dashboard controls
@@ -352,22 +329,23 @@ void Dashboard::gui(){
 	
 	if(!b_lockEdit){
 		
-		ImGui::PushStyleColor(ImGuiCol_ChildBg, Colors::almostBlack);
 		if(ImGui::BeginChild("EditorSideBar", ImVec2(adderWidth, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_AlwaysUseWindowPadding)){
 			float availableWidth = ImGui::GetContentRegionAvail().x;
 
+			/*
 			ImGui::PushFont(Fonts::sansBold15);
-			backgroundText("Dashboard Properties", ImVec2(availableWidth, ImGui::GetFrameHeight()), Colors::darkGray);
+			backgroundText("Dashboard Editor", ImVec2(availableWidth, ImGui::GetFrameHeight()), Colors::darkGray);
 			ImGui::PopFont();
-			
+			*/
+			/*
 			ImGui::Text("Name :");
 			ImGui::SetNextItemWidth(availableWidth);
 			name->gui();
-			
+			*/
 			
 			
 			if(getSelectedWidget()){
-				ImGui::Separator();
+				//ImGui::Separator();
 				
 				ImGui::PushFont(Fonts::sansBold15);
 				backgroundText(getSelectedWidget()->widget->name.c_str(), ImVec2(availableWidth, ImGui::GetFrameHeight()), Colors::darkGray);
@@ -380,9 +358,9 @@ void Dashboard::gui(){
 				ImGui::Text("Size :");
 				ImGui::SetNextItemWidth(availableWidth);
 				getSelectedWidget()->sizeParameter->gui();
+				
+				ImGui::Separator();
 			}
-			
-			ImGui::Separator();
 			
 			ImGui::PushFont(Fonts::sansBold15);
 			backgroundText("Available Widgets", ImVec2(availableWidth, ImGui::GetFrameHeight()), Colors::darkGray);
@@ -408,7 +386,6 @@ void Dashboard::gui(){
 			
 		}
 		ImGui::EndChild();
-		ImGui::PopStyleColor();
 		
 		adderWidth += verticalSeparator(ImGui::GetTextLineHeight() * 0.5, false);
 		adderWidth = std::clamp(adderWidth, minAdderWidth, maxAdderWidth);
