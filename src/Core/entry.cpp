@@ -26,7 +26,7 @@ int main(int argcount, const char ** args){
 	Environnement::initialize();
 	
 	//application gui runtime, function returns when application is quit
-	ApplicationWindow::open(3500,1080);
+	ApplicationWindow::open();
 
 	//stop hardware or simulation and terminate fieldbus
 	Environnement::terminate();

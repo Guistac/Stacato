@@ -55,7 +55,8 @@ void Node::removeIoData(std::shared_ptr<NodePin> removedIoData) {
 bool Node::areAllLinkedInputNodesProcessed() {
 	for (auto inputData : nodeInputPins) {
 		for (auto inputDataLink : inputData->getLinks()) {
-			if (!inputDataLink->getInputData()->getNode()->wasProcessed()) return false;
+			auto connectedNode = inputDataLink->getInputData()->getNode();
+			if (!connectedNode->wasProcessed()) return false;
 		}
 	}
 	return true;

@@ -413,8 +413,10 @@ void BoolNode::initialize(){
 }
 
 void BoolNode::process() {
-	if(in->isConnected()) in->copyConnectedPinValue();
-	*outputPinValue = *inputPinValue;
+	if(in->isConnected()) {
+		double realValue = in->getConnectedPin()->read<double>();
+		*outputPinValue = realValue > 0.0;
+	}else *outputPinValue = false;
 }
 
 

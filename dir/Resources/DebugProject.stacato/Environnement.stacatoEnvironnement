@@ -2,16 +2,142 @@
     <Dashboard Scale="1.5617476" OffsetX="735.93793" OffsetY="-364.27557" AutoFit="false" DrawGrid="true" LockEdit="false"/>
     <NodeGraph>
         <Nodes>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:333)" UniqueID="48">
-                <NodeEditorPosition x="-656" y="672"/>
-                <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="333"/>
-                </NodeSpecificData>
+            <Node NodeType="Clock" ClassName="Clock" CustomName="Clock 1" UniqueID="1">
+                <NodeEditorPosition x="-689" y="652"/>
+                <NodeSpecificData/>
                 <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="output" DisplayString="output" DataType="Real" UniqueID="2" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Mutliplication" CustomName="Multiplication 2" UniqueID="3">
+                <NodeEditorPosition x="-488" y="528"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="input" DisplayString="input" DataType="Real" UniqueID="4" Visible="true" AcceptsMultipleInputs="true"/>
+                    <InputPin SaveString="mult" DisplayString="mult" DataType="Real" UniqueID="5" Visible="true" DisablePin="true" ForceDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="result" DisplayString="result" DataType="Real" UniqueID="6" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Addition" CustomName="Addition 3" UniqueID="8">
+                <NodeEditorPosition x="-254" y="650"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="input" DisplayString="input" DataType="Real" UniqueID="9" Visible="true" AcceptsMultipleInputs="true"/>
+                    <InputPin SaveString="offset" DisplayString="offset" DataType="Real" UniqueID="10" Visible="true" DisablePin="true" ForceDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="result" DisplayString="result" DataType="Real" UniqueID="11" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Display" CustomName="Display 4" UniqueID="14">
+                <NodeEditorPosition x="24" y="640"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="value: " DisplayString="value: " DataType="Real" UniqueID="15" Visible="true" ForceDataField="true" DisableDataField="true"/>
+                </InputPins>
                 <OutputPins/>
             </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Device 1" UniqueID="18">
+                <InputNodeEditorPosition x="280" y="526"/>
+                <OutputNodeEditorPosition x="2.1474836e+09" y="2.1474836e+09"/>
+                <NodeSpecificData>
+                    <Identification Type="ExplicitDeviceID" ExplicitDeviceID="33"/>
+                    <SLIOModules>
+                        <Module Type="VIPA 022-1BF00">
+                            <SignalInversion InvertOutput0="false" InvertOutput1="false" InvertOutput2="false" InvertOutput3="false" InvertOutput4="false" InvertOutput5="false" InvertOutput6="false" InvertOutput7="false"/>
+                        </Module>
+                        <Module Type="VIPA 021-1BF00">
+                            <SignalInversion InvertInput0="false" InvertInput1="false" InvertInput2="false" InvertInput3="false" InvertInput4="false" InvertInput5="false" InvertInput6="false" InvertInput7="false"/>
+                        </Module>
+                        <Module Type="VIPA 022-1HD10">
+                            <SignalInversion InvertRelais0="false" InvertRelais1="false" InvertRelais2="false" InvertRelais3="false"/>
+                        </Module>
+                        <Module Type="VIPA 050-1BS00" Encoding="Binary" TransmissionRate="500Khz" IdleTime="32" CenterRangeOnZero="false" HasResetSignal="false" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" Zero_revolutions="0"/>
+                    </SLIOModules>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Module0DigitalOutput0" DisplayString="Module 0 Digital Output 0" DataType="Boolean" UniqueID="46" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput1" DisplayString="Module 0 Digital Output 1" DataType="Boolean" UniqueID="47" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput2" DisplayString="Module 0 Digital Output 2" DataType="Boolean" UniqueID="48" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput3" DisplayString="Module 0 Digital Output 3" DataType="Boolean" UniqueID="49" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput4" DisplayString="Module 0 Digital Output 4" DataType="Boolean" UniqueID="50" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput5" DisplayString="Module 0 Digital Output 5" DataType="Boolean" UniqueID="51" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput6" DisplayString="Module 0 Digital Output 6" DataType="Boolean" UniqueID="52" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput7" DisplayString="Module 0 Digital Output 7" DataType="Boolean" UniqueID="53" Visible="true"/>
+                    <InputPin SaveString="Module2RelaisOutput0" DisplayString="Module 2 Relais Output 0" DataType="Boolean" UniqueID="54" Visible="true"/>
+                    <InputPin SaveString="Module2RelaisOutput1" DisplayString="Module 2 Relais Output 1" DataType="Boolean" UniqueID="55" Visible="true"/>
+                    <InputPin SaveString="Module2RelaisOutput2" DisplayString="Module 2 Relais Output 2" DataType="Boolean" UniqueID="56" Visible="true"/>
+                    <InputPin SaveString="Module2RelaisOutput3" DisplayString="Module 2 Relais Output 3" DataType="Boolean" UniqueID="57" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GPIODeviceLink" UniqueID="58" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Module1DigitalInput0" DisplayString="Module 1 Digital Input 0" DataType="Boolean" UniqueID="59" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput1" DisplayString="Module 1 Digital Input 1" DataType="Boolean" UniqueID="60" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput2" DisplayString="Module 1 Digital Input 2" DataType="Boolean" UniqueID="61" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput3" DisplayString="Module 1 Digital Input 3" DataType="Boolean" UniqueID="62" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput4" DisplayString="Module 1 Digital Input 4" DataType="Boolean" UniqueID="63" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput5" DisplayString="Module 1 Digital Input 5" DataType="Boolean" UniqueID="64" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput6" DisplayString="Module 1 Digital Input 6" DataType="Boolean" UniqueID="65" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput7" DisplayString="Module 1 Digital Input 7" DataType="Boolean" UniqueID="66" Visible="true"/>
+                    <OutputPin SaveString="Module3SSIEncoder" DisplayString="Module 3 SSI Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="67" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Module3EncoderReset" DisplayString="Module 3 SSI Encoder Reset" DataType="Boolean" UniqueID="68" Visible="false"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Sinus" CustomName="Sinus 4" UniqueID="71">
+                <NodeEditorPosition x="-72" y="832"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="in" DisplayString="in" DataType="Real" UniqueID="72" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="out" DisplayString="out" DataType="Real" UniqueID="73" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Bool" CustomName="Bool 5" UniqueID="76">
+                <NodeEditorPosition x="125" y="851"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="77" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="78" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Constant" CustomName="Constant" UniqueID="82">
+                <NodeEditorPosition x="-751" y="860"/>
+                <NodeSpecificData/>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="value" DisplayString="value" DataType="Real" UniqueID="83" Visible="true" ForceDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Mutliplication" CustomName="Multiplication" UniqueID="86">
+                <NodeEditorPosition x="-472" y="704"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="input" DisplayString="input" DataType="Real" UniqueID="87" Visible="true" AcceptsMultipleInputs="true"/>
+                    <InputPin SaveString="mult" DisplayString="mult" DataType="Real" UniqueID="88" Visible="true" DisablePin="true" ForceDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="result" DisplayString="result" DataType="Real" UniqueID="89" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
-        <Links/>
+        <Links>
+            <Link UniqueID="7" StartPin="2" EndPin="4"/>
+            <Link UniqueID="12" StartPin="6" EndPin="9"/>
+            <Link UniqueID="16" StartPin="11" EndPin="15"/>
+            <Link UniqueID="70" StartPin="59" EndPin="4"/>
+            <Link UniqueID="74" StartPin="11" EndPin="72"/>
+            <Link UniqueID="79" StartPin="73" EndPin="77"/>
+            <Link UniqueID="80" StartPin="78" EndPin="46"/>
+            <Link UniqueID="84" StartPin="83" EndPin="4"/>
+            <Link UniqueID="90" StartPin="2" EndPin="87"/>
+            <Link UniqueID="91" StartPin="89" EndPin="9"/>
+        </Links>
     </NodeGraph>
 </Environnement>
 

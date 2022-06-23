@@ -7,7 +7,7 @@ namespace ApplicationWindow {
 	void init();
 	void terminate();
 	
-	void open(int w, int h);
+	void open();
 	void update();
 
 	void requestQuit();

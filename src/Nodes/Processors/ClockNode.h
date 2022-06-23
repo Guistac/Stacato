@@ -5,7 +5,7 @@
 class ClockNode : public Node {
 public:
 
-	DEFINE_NODE(ClockNode, "Clock", "Clock", Node::Type::PROCESSOR, "Time")
+	DEFINE_NODE(ClockNode, "Clock", "Clock", Node::Type::CLOCK, "Time")
 
 	std::shared_ptr<NodePin> output_seconds = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "output", NodePin::Flags::DisableDataField);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);

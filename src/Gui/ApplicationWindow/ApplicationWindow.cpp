@@ -46,6 +46,10 @@ namespace ApplicationWindow {
 	#endif
 
 
+
+
+
+
 	void init() {
 		
 		pthread_setname_np("Gui Thread");
@@ -89,16 +93,20 @@ namespace ApplicationWindow {
 
 
 
+
+
 	void terminate() {
-		Logger::terminate();
-		FileDialog::terminate();
-		glfwTerminate();
+	   Logger::terminate();
+	   FileDialog::terminate();
+	   glfwTerminate();
 	}
 
 
 
 
-	void open(int w, int h) {
+
+
+	void open() {
 		
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
@@ -106,9 +114,13 @@ namespace ApplicationWindow {
 	#ifdef STACATO_MACOS
 		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 	#endif
+							
+		glm::ivec2 workPos, workSize;
+		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), &workPos.x, &workPos.y, &workSize.x, &workSize.y);
 		
 		//this opens the main application window and creates the main opengl context
-		window = glfwCreateWindow(w, h, windowName, nullptr, nullptr);
+		window = glfwCreateWindow(workSize.x, workSize.y, windowName, nullptr, nullptr);
+		glfwSetWindowPos(window, workPos.x, workPos.y);
 
 		//set window callbacks that are not handled by imgui glfw backend
 		glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int w, int h) { update(); });
@@ -167,6 +179,9 @@ namespace ApplicationWindow {
 	}
 
 
+
+
+
 	void update(){
 				
 		//if a window close request was issued don't close the window but notify the gui and let the user confirm the request
@@ -204,6 +219,9 @@ namespace ApplicationWindow {
 		}
 		 
 	}
+
+
+
 
 
 	//request the app to quit, will open popup

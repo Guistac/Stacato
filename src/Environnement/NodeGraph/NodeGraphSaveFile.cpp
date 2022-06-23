@@ -296,6 +296,8 @@ namespace Environnement::NodeGraph{
 			linkXML = linkXML->NextSiblingElement("Link");
 		}
 		
+		startCountingUniqueIDsFrom(largestUniqueID);
+		
 		Logger::trace("Largest unique ID is {}", largestUniqueID);
 		Logger::info("Successfully loaded Node Graph");
 

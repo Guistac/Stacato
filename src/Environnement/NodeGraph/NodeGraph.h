@@ -38,6 +38,7 @@ namespace Environnement::NodeGraph{
 	void showFlow();
 
 	int getNewUniqueID();
+	void startCountingUniqueIDsFrom(int largestUniqueID);
 	
 	bool& getShowOutputValues();
 	bool& getWasJustLoaded();

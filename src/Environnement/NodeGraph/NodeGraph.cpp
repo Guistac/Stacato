@@ -19,10 +19,18 @@ namespace Environnement::NodeGraph{
 
 	//counter to add new nodes, pins and links
 	//all items are odd numbers except for split node counterparts which are the an even number above the main node ID
-	int uniqueID = 1;
+	int uniqueIdCounter = 1;
 	int getNewUniqueID(){
-		uniqueID++;
-		return uniqueID;
+		uniqueIdCounter++;
+		return uniqueIdCounter;
+	}
+
+	void startCountingUniqueIDsFrom(int largestUniqueID){
+		uniqueIdCounter = largestUniqueID + 1;
+	}
+
+	void registerUniqueID(int id){
+		if(id > uniqueIdCounter) uniqueIdCounter = id + 1;
 	}
 
 
@@ -34,19 +42,16 @@ namespace Environnement::NodeGraph{
 
 	void addNode(std::shared_ptr<Node> newNode) {
 		if(newNode->uniqueID == -1){
-			newNode->uniqueID = uniqueID;
-			uniqueID++;
+			newNode->uniqueID = getNewUniqueID();
 		}
 		nodes.push_back(newNode);
 		for (std::shared_ptr<NodePin> data : newNode->nodeInputPins) {
-			data->uniqueID = uniqueID;
-			uniqueID++;
+			data->uniqueID = getNewUniqueID();
 			data->parentNode = newNode;
 			pins.push_back(data);
 		}
 		for (std::shared_ptr<NodePin> data : newNode->nodeOutputPins) {
-			data->uniqueID = uniqueID;
-			uniqueID++;
+			data->uniqueID = getNewUniqueID();
 			data->parentNode = newNode;
 			pins.push_back(data);
 		}
@@ -101,8 +106,7 @@ namespace Environnement::NodeGraph{
 	std::shared_ptr<NodeLink> connect(std::shared_ptr<NodePin> data1, std::shared_ptr<NodePin> data2) {
 		if (!isConnectionValid(data1, data2)) return nullptr;
 		std::shared_ptr<NodeLink> newIoLink = std::make_shared<NodeLink>();
-		newIoLink->uniqueID = uniqueID;
-		uniqueID++;
+		newIoLink->uniqueID = getNewUniqueID();
 		newIoLink->inputData = data1->isOutput() ? data1 : data2;
 		newIoLink->outputData = data2->isInput() ? data2 : data1;
 		data1->nodeLinks.push_back(newIoLink);

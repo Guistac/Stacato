@@ -38,25 +38,25 @@ namespace Environnement::NodeGraph{
 				startNodes.push_back(node);
 			}
 		}
-
-		//FIRST PHASE:
-		//find all nodes that need processing when the start nodes update
-		//start from the start nodes and go down the tree adding each node to the nodesToProcess vector
-		//nodes can be added to the list more than one time, this is not important
-
+		
+		//PHASE I:
+		//find all nodes that will be processed on this cycle and add them in 'nodesToProcess'
+		//find them by starting from the initial nodes, and go down the connection tree
+		//this way they will more or less be in the right update order
+		//each time they are added, set the processed flag so they don't get added twice
 		std::vector<std::shared_ptr<Node>> nodesToProcess;
+		
+		//set all nodes to unprocessed, so they can all be added exactly once
+		for (auto node : getNodes()) node->b_wasProcessed = false;
+		
+		//linked nodes are all nodes that were found on the outputs of the previous linked nodes
+		//linked nodes is initialized with the start nodes
 		std::vector<std::shared_ptr<Node>> linkedNodes = startNodes;
+		
+		//next linked nodes are candidates for the next round of processing
 		std::vector<std::shared_ptr<Node>> nextLinkedNodes;
 
-
-		std::chrono::time_point start = std::chrono::high_resolution_clock::now();
-
-		//set all nodes to unprocessed, so they will all be searched exactly once
-		for (auto node : getNodes()) node->b_wasProcessed = false;
-
 		while (!linkedNodes.empty()) {
-			//linked nodes are all nodes that were found on the outputs of the previous linked nodes
-			//linked nodes is initialized with the start nodes
 			for (auto node : linkedNodes) {
 				if (node->wasProcessed()) continue;
 				//add the linked nodes to the list of nodes that will need to be processed
@@ -80,54 +80,50 @@ namespace Environnement::NodeGraph{
 			linkedNodes.swap(nextLinkedNodes);
 		}
 
-		//TODO: don't update device nodes other than the specified type
-		//TODO: precompile a list of instructions rather than scanning the tree each time
+		//PHASE 2:
+		//all nodes will be attempt processing in the order of the nodeToProcess list
+		//certain conditions apply:
+		//-a node can only process once
+		//-a node can only process if all nodes connected to its inputs are already processed
+		//-if a circular dependency causes no nodes to process, we force processing of the first one left in the list
 
-		//SECOND PHASE:
-		//all nodesToProcess will need to be processed in a certain order
-		//going from outputs to inputs
-		//each node can only be processed if all the nodes connected to its inputs have been processed
-		//each node can only be processed once
-
-		//set all nodes to processed except the ones that need to be processed
-		//this ensures only nodeToProcess will be processed
+		//set all nodes to processed except the ones that need to be processed and clear circular dependency flags
 		for (auto node : getNodes()) node->b_wasProcessed = true;
 		for (auto node : getNodes()) node->b_circularDependencyFlag = false;
 		for (auto node : nodesToProcess) node->b_wasProcessed = false;
 
+		//keep a list of candidates for the next round of processing
 		std::vector<std::shared_ptr<Node>> nextNodesToProcess;
 
 		while (!nodesToProcess.empty()) {
-			//for each node to process, check if all the nodes connected to the current nodes inputs have been processed
-			//if yes process the node
+			
 			for (auto node : nodesToProcess) {
-				//don't process a node twice
-				if (node->wasProcessed()) continue;
-				//check if all nodes linked to inputs of the current node were processed
+				//skip processing if:
+				//-the node was already processed
+				//-it is an IOdevice (which cannot process, only read inputs and write outputs)
+				if (node->wasProcessed() || node->getType() == Node::Type::IODEVICE) {
+					node->b_wasProcessed = true;
+					continue;
+				}
+				//processing takes place if:
+				//-all nodes connected to the current nodes inputs are already processed
+				//-a circular dependency condition forces the current node to process
 				if (node->areAllLinkedInputNodesProcessed() || node->b_circularDependencyFlag) {
-					//if yes, process the node
 					node->process();
 					node->b_wasProcessed = true;
 				}
-				else {
-					//add to a vector to try again on the next loop
-					nextNodesToProcess.push_back(node);
-				}
+				//if the node can't process, add it as a canditate for the next processing round
+				else nextNodesToProcess.push_back(node);
 			}
 
-			if (nodesToProcess == nextNodesToProcess) {
-				nextNodesToProcess.front()->b_circularDependencyFlag = true;
-			}
+			//if the canditate list didn't change, we are stuck in a cyclic dependency loop.
+			//force update of the first node in the list on the next cycle to try and resolve the loop
+			if (nodesToProcess == nextNodesToProcess) nextNodesToProcess.front()->b_circularDependencyFlag = true;
 
+			//swap the list of canditates with the nodes to be processed on the next round
 			nodesToProcess.clear();
 			nodesToProcess.swap(nextNodesToProcess);
 		}
-
-		std::chrono::time_point end = std::chrono::high_resolution_clock::now();
-
-		long long timeNanos = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-		//Logger::warn("Process Time: {} nanoseconds", timeNanos);
-
 	}
 
 
