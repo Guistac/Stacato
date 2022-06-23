@@ -22,7 +22,7 @@ public:
 	std::shared_ptr<bool> digitalOut2PinValue = std::make_shared<bool>(false);
 
     //node output data
-    std::shared_ptr<NodePin> servoMotorLink = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR, NodePin::Direction::NODE_OUTPUT, "Servo Motor");
+    std::shared_ptr<NodePin> servoMotorLink = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Motor");
     std::shared_ptr<NodePin> actualLoad = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Load", NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
     std::shared_ptr<NodePin> actualPosition = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Position", NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
     std::shared_ptr<NodePin> actualVelocity = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Velocity", NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);

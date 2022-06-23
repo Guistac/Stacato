@@ -11,11 +11,10 @@ class PositionControlledMachine : public Machine{
 	DEFINE_MACHINE_NODE(PositionControlledMachine, "Position Controlled Machine", "PositionControlledMachine", "Basic")
 	DEFINE_HOMEABLE_MACHINE
 	
-	std::shared_ptr<NodePin> positionControlledAxisPin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS, NodePin::Direction::NODE_INPUT, "Position Controlled Axis");
-	
 	std::shared_ptr<double> positionPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<NodePin> positionPin = std::make_shared<NodePin>(positionPinValue, NodePin::Direction::NODE_OUTPUT, "Position");
-	
+
+	std::shared_ptr<NodePin> positionControlledAxisPin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Position Controlled Axis");
 	std::shared_ptr<double> velocityPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(velocityPinValue, NodePin::Direction::NODE_OUTPUT, "Velocity");
 	

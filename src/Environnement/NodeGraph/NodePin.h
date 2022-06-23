@@ -33,6 +33,8 @@ public:
 	enum class Direction {
 		NODE_INPUT,
 		NODE_OUTPUT,
+		NODE_INPUT_BIDIRECTIONAL,
+		NODE_OUTPUT_BIDIRECTIONAL,
 		NO_DIRECTION
 	};
 	
@@ -117,8 +119,9 @@ public:
 	const char* getValueString();
 	
 	//info
-	bool isInput() { return direction == Direction::NODE_INPUT; }
-	bool isOutput() { return direction == Direction::NODE_OUTPUT; }
+	bool isInput() { return direction == Direction::NODE_INPUT || direction == Direction::NODE_INPUT_BIDIRECTIONAL; }
+	bool isOutput() { return direction == Direction::NODE_OUTPUT || direction == Direction::NODE_OUTPUT_BIDIRECTIONAL; }
+	bool isBidirectional(){ return direction == Direction::NODE_INPUT_BIDIRECTIONAL || direction == Direction::NODE_OUTPUT_BIDIRECTIONAL; }
 	bool isConnected() { return !nodeLinks.empty(); }
 	bool hasMultipleConnections() { return nodeLinks.size() > 1; }
 	bool acceptsMultipleInputs() { return b_acceptsMultipleInputs; }
@@ -375,54 +378,34 @@ inline void NodePin::write(double data){
 
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<bool> ptr) {
-	return DataType::BOOLEAN;
-}
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<bool> ptr) { return DataType::BOOLEAN; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<int> ptr) {
-	return DataType::INTEGER;
-}
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<int> ptr) { return DataType::INTEGER; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<double> ptr) {
-	return DataType::REAL;
-}
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<double> ptr) { return DataType::REAL; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<ActuatorDevice> ptr) {
-	return DataType::ACTUATOR;
-}
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<ActuatorDevice> ptr) { return DataType::ACTUATOR; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<PositionFeedbackDevice> ptr) {
-	return DataType::POSITIONFEEDBACK;
-}
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<PositionFeedbackDevice> ptr) { return DataType::POSITIONFEEDBACK; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<GpioDevice> ptr) {
-	return DataType::GPIO;
-}
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<GpioDevice> ptr) { return DataType::GPIO; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<ServoActuatorDevice> ptr) {
-	return DataType::SERVO_ACTUATOR;
-}
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<ServoActuatorDevice> ptr) { return DataType::SERVO_ACTUATOR; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<VelocityControlledAxis> ptr) {
-	return DataType::VELOCITY_CONTROLLED_AXIS;
-}
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<VelocityControlledAxis> ptr) { return DataType::VELOCITY_CONTROLLED_AXIS; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<PositionControlledAxis> ptr) {
-	return DataType::POSITION_CONTROLLED_AXIS;
-}
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<PositionControlledAxis> ptr) { return DataType::POSITION_CONTROLLED_AXIS; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<DeadMansSwitch> ptr) {
-	return DataType::DEAD_MANS_SWITCH;
-}
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<DeadMansSwitch> ptr) { return DataType::DEAD_MANS_SWITCH; }
 
 
 //==============================================================

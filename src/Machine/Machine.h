@@ -18,6 +18,7 @@ namespace tinyxml2{ struct XMLElement; }
 #define DEFINE_MACHINE_NODE(className, nodeName, saveName, category) public:\
 	DEFINE_NODE(className, nodeName, saveName, Node::Type::MACHINE, category)\
 	virtual void process();\
+	virtual void processReverse();\
 	/*Machine Specific*/\
 	virtual void controlsGui();\
 	virtual void settingsGui();\

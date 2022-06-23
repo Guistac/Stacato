@@ -139,6 +139,12 @@ void PositionControlledMachine::process() {
 		motionProfile.setAcceleration(0.0);
 		return;
 	}
+}
+
+
+void PositionControlledMachine::processReverse(){
+	if (!isAxisConnected()) return;
+	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 	
 	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
 	profileDeltaTime_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
@@ -175,8 +181,7 @@ void PositionControlledMachine::process() {
 	}
 	
 	//Send motion values to axis profile
-	axis->setMotionCommand(machinePositionToAxisPosition(motionProfile.getPosition()),
-					 machineVelocityToAxisVelocity(motionProfile.getVelocity()));
+	axis->setMotionCommand(machinePositionToAxisPosition(motionProfile.getPosition()), machineVelocityToAxisVelocity(motionProfile.getVelocity()));
 }
 
 void PositionControlledMachine::simulateProcess() {

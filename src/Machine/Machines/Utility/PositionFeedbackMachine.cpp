@@ -65,6 +65,10 @@ void PositionFeedbackMachine::process(){
 	}
 }
 
+void PositionFeedbackMachine::processReverse(){
+	//not applicable?
+}
+
 bool PositionFeedbackMachine::isMoving(){
 	if(isFeedbackConnected()){
 		auto feedback = getFeedbackDevice();

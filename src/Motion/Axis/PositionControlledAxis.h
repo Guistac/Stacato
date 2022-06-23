@@ -16,24 +16,22 @@ public:
 	//============ PINS ==============
 private:
 	//Inputs
-	std::shared_ptr<NodePin> servoActuatorPin = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR, NodePin::Direction::NODE_INPUT, "Servo Actuator");
-	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_INPUT, "Reference Device");
-	
 	std::shared_ptr<bool> lowLimitSignal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> highLimitSignal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> referenceSignal = std::make_shared<bool>(false);
 	
+	std::shared_ptr<NodePin> servoActuatorPin = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Servo Actuator");
+	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_INPUT, "Reference Device");
 	std::shared_ptr<NodePin> lowLimitSignalPin = std::make_shared<NodePin>(lowLimitSignal, NodePin::Direction::NODE_INPUT, "Low Limit Signal");
 	std::shared_ptr<NodePin> highLimitSignalPin = std::make_shared<NodePin>(highLimitSignal, NodePin::Direction::NODE_INPUT, "High Limit Signal");
 	std::shared_ptr<NodePin> referenceSignalPin = std::make_shared<NodePin>(referenceSignal, NodePin::Direction::NODE_INPUT, "Reference Signal");
 	
 	//Outputs
-	std::shared_ptr<NodePin> axisPin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS, NodePin::Direction::NODE_OUTPUT, "Position Controlled Axis");
-	
 	std::shared_ptr<double> actualPositionValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> actualVelocityValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> actualLoadValue = std::make_shared<double>(0.0);
 	
+	std::shared_ptr<NodePin> axisPin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Position Controlled Axis");
 	std::shared_ptr<NodePin> positionPin = std::make_shared<NodePin>(actualPositionValue, NodePin::Direction::NODE_OUTPUT, "Position");
 	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(actualVelocityValue, NodePin::Direction::NODE_OUTPUT, "Velocity");
 	std::shared_ptr<NodePin> loadPin = std::make_shared<NodePin>(actualLoadValue, NodePin::Direction::NODE_OUTPUT, "Load");
@@ -58,6 +56,7 @@ public:
 	//========== PROCESSING =============
 public:
 	virtual void process();
+	virtual void processReverse();
 	
 	//==================== PARAMETERS ====================
 private:

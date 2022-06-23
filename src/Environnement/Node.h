@@ -65,8 +65,11 @@ public:
 	
 	//processing
 	virtual void process(){}
+	virtual void processReverse(){}
 	bool wasProcessed() { return b_wasProcessed; }
+	
 	bool areAllLinkedInputNodesProcessed();
+	bool areAllLinkedBidirectionalOutputNodesProcessed();
 
 	//gui
 	virtual void nodeGui();

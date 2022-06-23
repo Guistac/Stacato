@@ -17,7 +17,7 @@ public:
 	
 	std::shared_ptr<NodePin> enablePin = std::make_shared<NodePin>(enableSignal, NodePin::Direction::NODE_OUTPUT, "Enable");
 	std::shared_ptr<NodePin> controlSignalPin = std::make_shared<NodePin>(controlSignal, NodePin::Direction::NODE_OUTPUT, "Control Signal");
-	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(actuator, NodePin::Direction::NODE_OUTPUT, "Actuator");
+	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(actuator, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator");
 	
 	//input data
 	std::shared_ptr<bool> readySignal = std::make_shared<bool>(false);

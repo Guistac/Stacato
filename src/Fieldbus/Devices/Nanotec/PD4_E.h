@@ -9,7 +9,7 @@ class PD4_E : public EtherCatDevice {
 	std::shared_ptr<ServoActuatorDevice> servoMotor = std::make_shared<ServoActuatorDevice>("Servo", Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE);
 	std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("Gpio");
 
-	std::shared_ptr<NodePin> servoActuatorDeviceLink = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR, NodePin::Direction::NODE_OUTPUT, "Servo Motor", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> servoActuatorDeviceLink = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Motor", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> positionPin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Position", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Velocity", NodePin::Flags::DisableDataField);
 	std::shared_ptr<double> positionPinValue = std::make_shared<double>(0.0);

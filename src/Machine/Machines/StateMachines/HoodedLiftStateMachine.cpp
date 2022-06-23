@@ -146,6 +146,11 @@ void HoodedLiftStateMachine::process() {
 	updateGpioOutSignals();
 }
 
+void HoodedLiftStateMachine::processReverse(){
+	//not applicable here since we drive inputs directly ?
+	//or maybe we should catch blocking commands from the environnement script
+}
+
 bool HoodedLiftStateMachine::isHardwareReady() { 
 	if (!areGpioSignalsReady()) return false;
 	else if (actualState == MachineState::State::UNEXPECTED_STATE) return false;

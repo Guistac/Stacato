@@ -15,11 +15,11 @@ public:
 	
 	//output data
 	std::shared_ptr<ServoActuatorDevice> servoActuator = std::make_shared<ServoActuatorDevice>("Servo Actuator", Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE);
-	std::shared_ptr<NodePin> servoActuatorPin = std::make_shared<NodePin>(servoActuator, NodePin::Direction::NODE_OUTPUT, "Servo Actuator");
+	std::shared_ptr<NodePin> servoActuatorPin = std::make_shared<NodePin>(servoActuator, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Actuator");
 	
 	//input data
 	std::shared_ptr<NodePin> positionFeedbackPin = std::make_shared<NodePin>(NodePin::DataType::POSITIONFEEDBACK, NodePin::Direction::NODE_INPUT, "Position Feedback");
-	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR, NodePin::Direction::NODE_INPUT, "Actuator");
+	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Actuator");
 	
 	//pin checking
 	bool isPositionFeedbackConnected(){ return positionFeedbackPin->isConnected(); }

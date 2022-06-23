@@ -36,7 +36,8 @@ void PositionControlledAxis::process() {
 
 	//get devices
 	std::shared_ptr<ServoActuatorDevice> servoActuatorDevice = getServoActuatorDevice();
-	std::shared_ptr<GpioDevice> referenceDevice = getReferenceDevice();
+	std::shared_ptr<GpioDevice> referenceDevice;
+	if(needsReferenceDevice()) referenceDevice = getReferenceDevice();
 
 	//update and react to reference signals
 	if (needsReferenceDevice()) {
@@ -116,6 +117,10 @@ void PositionControlledAxis::process() {
 	//in this case the connected node is responsible for sending commands
 	if (controlMode != ControlMode::EXTERNAL) sendActuatorCommands();
 
+}
+
+void PositionControlledAxis::processReverse(){
+	
 }
 
 void PositionControlledAxis::sendActuatorCommands() {

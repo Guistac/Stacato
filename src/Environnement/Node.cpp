@@ -61,3 +61,14 @@ bool Node::areAllLinkedInputNodesProcessed() {
 	}
 	return true;
 }
+
+bool Node::areAllLinkedBidirectionalOutputNodesProcessed(){
+	for(auto outputData : nodeOutputPins){
+		if(!outputData->isBidirectional()) continue;
+		for(auto outputDataLink : outputData->getLinks()){
+			auto connectedNode = outputDataLink->getOutputData()->getNode();
+			if(!connectedNode->wasProcessed()) return false;
+		}
+	}
+	return true;
+}

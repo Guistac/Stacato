@@ -25,10 +25,15 @@ namespace Environnement::NodeGraph{
 	std::vector<std::shared_ptr<Node>>& getSelectedNodes();
 	std::vector<std::shared_ptr<NodeLink>>& getSelectedLinks();
 
-	void evaluate();
-	void evaluate(Device::Type deviceType);
-	void evaluate(std::shared_ptr<Node> node);
-	void evaluate(std::vector<std::shared_ptr<Node>> nodes);
+
+	enum class EvaluationDirection{
+		FROM_INPUTS_TO_OUTPUTS,
+		FROM_OUTPUTS_TO_INPUTS
+	};
+	void evaluate(EvaluationDirection direction);
+	void evaluate(Device::Type deviceType, EvaluationDirection direction);
+	void evaluate(Node::Type nodeType, EvaluationDirection direction);
+	void evaluate(std::shared_ptr<Node> node, EvaluationDirection direction);
 
 	bool load(tinyxml2::XMLElement* xml);
 	bool save(tinyxml2::XMLElement* xml);

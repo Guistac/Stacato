@@ -163,11 +163,15 @@ namespace Environnement {
 		PlaybackManager::incrementPlaybackPosition();
 		
 		//update all nodes connected to ethercat slave nodes
-		Environnement::NodeGraph::evaluate(Device::Type::ETHERCAT_DEVICE);
+		Environnement::NodeGraph::evaluate(Device::Type::ETHERCAT_DEVICE, Environnement::NodeGraph::EvaluationDirection::FROM_INPUTS_TO_OUTPUTS);
+		
+		//TODO: update environnement script here !!!
 		
 		//ends playback of finished manoeuvres and rapids
 		//triggers the onParameterPlaybackEnd() method of machines
 		PlaybackManager::updateActiveManoeuvreState();
+		
+		Environnement::NodeGraph::evaluate(Node::Type::MACHINE, Environnement::NodeGraph::EvaluationDirection::FROM_OUTPUTS_TO_INPUTS);
 		
 		//prepare all slaves output data if operational
 		for (auto slave : EtherCatFieldbus::getDevices()) if (slave->isStateOperational()) slave->prepareOutputs();
