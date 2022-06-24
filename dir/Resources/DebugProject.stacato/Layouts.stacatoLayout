@@ -3,14 +3,9 @@
         <OpenWindows>
             <Window Name="Environnement"/>
             <Window Name="Setup"/>
+            <Window Name="Dashboard"/>
         </OpenWindows>
         <ImGuiIniString>
-
-
-
-
-
-
 
 
 
@@ -52,7 +47,7 @@ Collapsed=0
 
 [Window][Environnement]
 Pos=0,29
-Size=2056,740
+Size=2056,917
 Collapsed=0
 DockId=0x00000009,0
 
@@ -67,7 +62,7 @@ Size=2056,961
 Collapsed=0
 
 [Window][Setup]
-Pos=0,771
+Pos=0,948
 Size=2056,225
 Collapsed=0
 DockId=0x0000000A,0
@@ -107,7 +102,7 @@ Collapsed=0
 
 [Window][MainWindow]
 Pos=0,0
-Size=2056,996
+Size=2056,1173
 Collapsed=0
 
 [Window][OffscreenNodeEditorFor1Frame]
@@ -153,7 +148,7 @@ Collapsed=0
 Pos=1541,539
 Size=515,457
 Collapsed=0
-DockId=0x00000008,0
+DockId=0x00000002,0
 
 [Window][Manoeuvre Sheet]
 Pos=0,32
@@ -201,10 +196,10 @@ Size=449,51
 Collapsed=0
 
 [Window][Dashboard]
-Pos=0,539
-Size=1539,457
+Pos=0,29
+Size=2056,917
 Collapsed=0
-DockId=0x00000007,0
+DockId=0x00000009,1
 
 [Window][Spatial Editor]
 Pos=0,29
@@ -213,7 +208,7 @@ Collapsed=0
 DockId=0x00000005,3
 
 [Window][Toolbar]
-Pos=0,996
+Pos=0,1173
 Size=2056,84
 Collapsed=0
 
@@ -290,12 +285,10 @@ DockSpace       ID=0x0B88F6CB Pos=0,146 Size=2056,967 Split=Y Selected=0x20B12C3
       DockNode  ID=0x00000005 Parent=0x00000003 SizeRef=515,484 CentralNode=1 Selected=0x20B12C37
       DockNode  ID=0x00000006 Parent=0x00000003 SizeRef=512,484 Selected=0x47C7A3F3
     DockNode    ID=0x00000004 Parent=0x00000001 SizeRef=1025,484 Selected=0x3E6B10D2
-  DockNode      ID=0x00000002 Parent=0x0B88F6CB SizeRef=2056,457 Split=X Selected=0xB00214C9
-    DockNode    ID=0x00000007 Parent=0x00000002 SizeRef=1539,457 Selected=0xB00214C9
-    DockNode    ID=0x00000008 Parent=0x00000002 SizeRef=515,457 Selected=0xEBD2820B
-DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,146 Size=2056,967 Split=Y Selected=0x20B12C37
-  DockNode      ID=0x00000009 Parent=0xD5272B65 SizeRef=2056,740 CentralNode=1 HiddenTabBar=1 Selected=0x20B12C37
-  DockNode      ID=0x0000000A Parent=0xD5272B65 SizeRef=2056,225 HiddenTabBar=1 Selected=0xE4DC7934
+  DockNode      ID=0x00000002 Parent=0x0B88F6CB SizeRef=2056,457 Selected=0xB00214C9
+DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,101 Size=2056,1144 Split=Y Selected=0x20B12C37
+  DockNode      ID=0x00000009 Parent=0xD5272B65 SizeRef=2056,740 CentralNode=1 Selected=0xB00214C9
+  DockNode      ID=0x0000000A Parent=0xD5272B65 SizeRef=2056,225 HiddenTabBar=1 Selected=0x27459703
 
 </ImGuiIniString>
     </Layout>
@@ -306,6 +299,30 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,146 Size=2056,967 Split=Y 
             <Window Name="Manoeuvre List"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -615,6 +632,30 @@ DockSpace     ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,146 Size=2056,967 Split=X
             <Window Name="Dashboard"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

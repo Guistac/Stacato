@@ -225,6 +225,9 @@ void Dashboard::canvas(){
 		glm::vec2 min = ImGui::GetItemRectMin();
 		glm::vec2 max = ImGui::GetItemRectMax();
 		
+		widgetInstance->size = widgetSize / scale;
+		Logger::warn("x{} y{}", widgetInstance->size.x, widgetInstance->size.y);
+		
 		drawing->AddRectFilled(min, max, ImColor(Colors::almostBlack), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 		float borderThickness;
 		ImColor borderColor;
@@ -292,7 +295,7 @@ void Dashboard::fitView(){
 	if(widgets.empty()) return;
 	//get content coordinates
 	glm::vec2 contentMin(FLT_MAX);
-	glm::vec2 contentMax(FLT_MIN);
+	glm::vec2 contentMax(-FLT_MAX);
 	for(auto& widget : widgets){
 		glm::vec2 widgetMin = widget->position;
 		glm::vec2 widgetMax = widget->position + widget->size;
@@ -317,6 +320,8 @@ void Dashboard::fitView(){
 		offset.x = -contentMin.x;
 		offset.y = -contentMin.y + (viewSize.y - contentSize.y) / 2.0;
 	}
+	glm::vec2 zoomPosition = (dashboardPosition + dashboardMax) / 2.0;
+	zoom(zoomPosition, -0.1);
 }
 
 
@@ -344,7 +349,7 @@ void Dashboard::gui(){
 			*/
 			
 			
-			if(getSelectedWidget()){
+			if(getSelectedWidget() && getSelectedWidget()->hasWidget()){
 				//ImGui::Separator();
 				
 				ImGui::PushFont(Fonts::sansBold15);

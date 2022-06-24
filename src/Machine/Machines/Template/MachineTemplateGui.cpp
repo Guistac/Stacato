@@ -14,7 +14,7 @@ void MachineTemplate::settingsGui() {
 }
 
 void MachineTemplate::axisGui() {
-	//Gui for enumerating connected axis (actally useful ?)
+	//Gui for enumerating connected axis (actually useful ?)
 }
 
 void MachineTemplate::deviceGui() {
@@ -23,13 +23,4 @@ void MachineTemplate::deviceGui() {
 
 void MachineTemplate::metricsGui() {
 	//Gui for metrics & performance graphs
-}
-
-float MachineTemplate::getMiniatureWidth() {
-	//returns width of miniature control window
-	return ImGui::GetTextLineHeight() * 8.0;
-}
-
-void MachineTemplate::machineSpecificMiniatureGui() {
-	//Gui for Miniature Control Window
 }

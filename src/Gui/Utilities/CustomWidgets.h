@@ -82,3 +82,6 @@ void scrollingText(const char* ID, const char* text, float width, bool lock = fa
 float verticalSeparator(float width, bool drawLine = true);
 
 void centeredText(const char* string, ImVec2 size);
+
+
+bool customRoundedButton(const char* string, ImVec2 size, float rounding, ImDrawFlags whichCornersRounded);

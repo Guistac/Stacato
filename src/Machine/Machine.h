@@ -15,8 +15,21 @@ class Device;
 
 namespace tinyxml2{ struct XMLElement; }
 
+
+
 #define DEFINE_MACHINE_NODE(className, nodeName, saveName, category) public:\
-	DEFINE_NODE(className, nodeName, saveName, Node::Type::MACHINE, category)\
+	/*Node Specific*/\
+	virtual const char* getSaveName() override { return saveName; }\
+	virtual const char* getNodeCategory() override { return category; }\
+	className(){ setName(nodeName); }\
+	virtual Node::Type getType() override { return Node::Type::MACHINE; }\
+	virtual std::shared_ptr<Node> getNewInstance() override {\
+		std::shared_ptr<Machine> newMachineInstance = std::make_shared<className>();\
+		newMachineInstance->addNodePin(newMachineInstance->deadMansSwitchPin);\
+		newMachineInstance->initialize();\
+		return newMachineInstance;\
+	}\
+	virtual void initialize() override;\
 	virtual void inputProcess();\
 	virtual void outputProcess();\
 	/*Machine Specific*/\
@@ -25,8 +38,6 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual void axisGui();\
 	virtual void deviceGui();\
 	virtual void metricsGui();\
-	virtual float getMiniatureWidth();\
-	virtual void machineSpecificMiniatureGui();\
 	virtual bool isMoving();\
 	virtual bool isHardwareReady();\
 	virtual bool isSimulationReady();\
@@ -142,22 +153,27 @@ public:
 	//===== ATTACHED DEVICES =====
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output) = 0;
 	
+	std::shared_ptr<NodePin> deadMansSwitchPin = std::make_shared<NodePin>(NodePin::DataType::DEAD_MANS_SWITCH,
+																		   NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
+																		   "Dead Man's Switch", "DeadMansSwitch",
+																		   NodePin::Flags::AcceptMultipleInputs);
+	
 	//===== GUI STUFF =====
-	virtual void nodeSpecificGui();
+	virtual void nodeSpecificGui() override;
 	virtual void stateControlGui();
 	virtual void generalSettingsGui();
-	void miniatureGui();
 	virtual void controlsGui() = 0;
 	virtual void settingsGui() = 0;
 	virtual void axisGui() = 0;
 	virtual void deviceGui() = 0;
 	virtual void metricsGui() = 0;
-	virtual float getMiniatureWidth() = 0;
-	virtual void machineSpecificMiniatureGui() = 0;
+	
+	void machineHeaderGui(float width);
+	void machineStateControlGui(float width);
 	
 	//===== SAVING & LOADING =====
-	virtual bool save(tinyxml2::XMLElement* xml);
-	virtual bool load(tinyxml2::XMLElement* xml);
+	virtual bool save(tinyxml2::XMLElement* xml) override;
+	virtual bool load(tinyxml2::XMLElement* xml) override;
 	virtual bool saveMachine(tinyxml2::XMLElement* xml) = 0;
 	virtual bool loadMachine(tinyxml2::XMLElement* xml) = 0;
 

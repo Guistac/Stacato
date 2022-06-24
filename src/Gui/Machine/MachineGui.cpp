@@ -7,6 +7,7 @@
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
+#include "Gui/Utilities/CustomWidgets.h"
 
 void Machine::nodeSpecificGui() {
 
@@ -91,70 +92,47 @@ void Machine::generalSettingsGui() {
 	ImGui::InputText("##shortName", shortName, 16);
 }
 
-void Machine::miniatureGui() {
+void Machine::machineHeaderGui(float width){
+	ImGui::PushFont(Fonts::sansBold20);
+	centeredText(getName(), glm::vec2(width, ImGui::GetTextLineHeight()));
+	ImGui::PopFont();
+}
 
-	//glm::vec2 miniatureSize(getMiniatureWidth(), ImGui::GetTextLineHeight() * 20.0);
-	//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
-	//ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImGui::GetTextLineHeight() * 0.2);
-	//ImGui::PushStyleColor(ImGuiCol_ChildBg, Colors::almostBlack);
-	//ImGui::PushID(getName());
-	//if (ImGui::BeginChild("Miniature", miniatureSize, true)) {
-
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0, -ImGui::GetTextLineHeight() * 0.2));
-
-		float availableWidth = ImGui::GetContentRegionAvail().x;
-		ImGui::PushFont(Fonts::sansBold20);
-		float bigNameWidth = ImGui::CalcTextSize(getShortName()).x;
-		ImGui::SameLine((availableWidth - bigNameWidth) * 0.5 + ImGui::GetStyle().WindowPadding.x);
-		ImGui::Text("%s", getShortName());
-		ImGui::PopFont();
-
-		ImGui::PopStyleVar();
-
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.3));
-
-		ImGui::NewLine();
-		ImGui::PushFont(Fonts::sansBold15);
-		float smallNameWidth = ImGui::CalcTextSize(getName()).x;
-		ImGui::SameLine((availableWidth - smallNameWidth) * 0.5 + ImGui::GetStyle().WindowPadding.x);
-		ImGui::Text("%s", getName());
-		ImGui::PopFont();
-
-		float bottomSectionHeight = ImGui::GetTextLineHeight() * 1.8;
-		glm::vec2 miniatureContentSize = ImGui::GetContentRegionAvail();
-		miniatureContentSize.y -= bottomSectionHeight;
-
-		//if (ImGui::BeginChild("MiniatureContent", miniatureContentSize, false)) {
-			//machineSpecificMiniatureGui();
-		//}
-		//ImGui::EndChild();
-
-		glm::vec2 singleButtonSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.5);
-		if (isEnabled()) {
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-			if (ImGui::Button("Disable", singleButtonSize)) {
-				disable();
-			}
-		}
-		else if (isReady()) {
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-			if (ImGui::Button("Enable", singleButtonSize)) {
-				enable();
-			}
-		}
-		else {
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-			ImGui::Button("Not Ready", singleButtonSize);
-			ImGui::PopItemFlag();
-		}
-		ImGui::PopStyleColor();
-
-		ImGui::PopStyleVar();
-	//}
-	//ImGui::EndChild();
-	//ImGui::PopID();
-	//ImGui::PopStyleColor();
-	//ImGui::PopStyleVar(2);
-
+void Machine::machineStateControlGui(float width){
+		
+	glm::vec2 buttonSize(width / 2.0, ImGui::GetTextLineHeight() * 2.0);
+	float rounding = ImGui::GetStyle().FrameRounding;
+	bool b_ready = isReady();
+	
+	glm::vec4 statusColor;
+	const char* statusString;
+	if (isEnabled()) {
+		statusColor = Colors::green;
+		statusString = "Enabled";
+	}
+	else if (b_ready) {
+		statusColor = Colors::yellow;
+		statusString = "Ready";
+	}
+	else {
+		statusColor = Colors::red;
+		statusString = "Not Ready";
+	}
+	
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::black);
+	ImGui::PushStyleColor(ImGuiCol_Button, statusColor);
+	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+	customRoundedButton(statusString, buttonSize, rounding, ImDrawFlags_RoundCornersLeft);
+	ImGui::PopItemFlag();
+	ImGui::PopStyleColor(2);
+	
+	ImGui::SameLine(.0f, .0f);
+	ImGui::BeginDisabled(!b_ready);
+	if (isEnabled()) {
+		if(customRoundedButton("Disable", buttonSize, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersRight)) disable();
+	}
+	else {
+		if(customRoundedButton("Enable", buttonSize, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersRight)) enable();
+	}
+	ImGui::EndDisabled();
 }

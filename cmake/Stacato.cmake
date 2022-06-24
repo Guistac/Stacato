@@ -44,7 +44,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/StageEditorGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeManagerGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/HomingGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/MachinesGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/Dashboard/Dashboard.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/Dashboard/Dashboard.cpp

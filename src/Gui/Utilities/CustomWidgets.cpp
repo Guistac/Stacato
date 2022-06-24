@@ -872,5 +872,30 @@ void centeredText(const char* string, ImVec2 size){
 	ImVec2 min = ImGui::GetItemRectMin();
 	ImVec2 textSize = ImGui::CalcTextSize(string);
 	ImVec2 position(min.x + (size.x - textSize.x) / 2.0, min.y + (size.y - textSize.y) / 2.0);
+	ImGui::PushClipRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), true);
 	ImGui::GetWindowDrawList()->AddText(position, ImGui::GetColorU32(ImGuiCol_Text), string);
+	ImGui::PopClipRect();
+}
+
+bool customRoundedButton(const char* string, ImVec2 size, float rounding, ImDrawFlags whichCornersRounded){
+	
+	bool ret = ImGui::InvisibleButton(string, size);
+	ImVec2 min = ImGui::GetItemRectMin();
+	ImVec2 max = ImGui::GetItemRectMax();
+	
+	ImU32 color = ImGui::GetColorU32(ImGui::IsItemActive() ? ImGuiCol_ButtonActive : ImGui::IsItemHovered() ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+	
+	ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetItemRectMin(),
+											  ImGui::GetItemRectMax(),
+											  color,
+											  rounding,
+											  whichCornersRounded);
+	
+	ImVec2 textSize = ImGui::CalcTextSize(string);
+	ImVec2 position(min.x + (size.x - textSize.x) / 2.0, min.y + (size.y - textSize.y) / 2.0);
+	ImGui::PushClipRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), true);
+	ImGui::GetWindowDrawList()->AddText(position, ImGui::GetColorU32(ImGuiCol_Text), string);
+	ImGui::PopClipRect();
+	
+	return ret;
 }

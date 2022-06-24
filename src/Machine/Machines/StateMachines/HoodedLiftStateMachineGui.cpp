@@ -20,7 +20,7 @@ void HoodedLiftStateMachine::controlsGui() {
 
 	stateControlGui();
 
-	machineSpecificMiniatureGui();
+	//TODO: missing manual controls gui (previously was widget gui copy)
 	
 	ImGui::Separator();
 
@@ -127,14 +127,26 @@ void HoodedLiftStateMachine::deviceGui() {}
 void HoodedLiftStateMachine::metricsGui() {}
 
 
-float HoodedLiftStateMachine::getMiniatureWidth() {
-	return ImGui::GetTextLineHeight() * 6.0;
+
+
+
+
+
+
+void HoodedLiftStateMachine::ControlWidget::gui(){
+	machine->widgetGui();
+}
+glm::vec2 HoodedLiftStateMachine::ControlWidget::getFixedContentSize(){
+	float lineHeight = ImGui::GetTextLineHeight();
+	return glm::vec2(lineHeight * 10.0, lineHeight * 10.0);
 }
 
+void HoodedLiftStateMachine::widgetGui(){
+	glm::vec2 contentSize = controlWidget->getFixedContentSize();
+	glm::vec2 commandButtonSize(contentSize.x, ImGui::GetTextLineHeight() * 3.0);
 
-void HoodedLiftStateMachine::machineSpecificMiniatureGui() {
-	glm::vec2 commandButtonSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 3.0);
-
+	machineHeaderGui(contentSize.x);
+	
 	if(isReady()){
 		
 		bool disableManualCommandButtons = !isEnabled();
@@ -215,4 +227,6 @@ void HoodedLiftStateMachine::machineSpecificMiniatureGui() {
 		ImGui::PopItemFlag();
 		
 	}
+	
+	machineStateControlGui(contentSize.x);
 }

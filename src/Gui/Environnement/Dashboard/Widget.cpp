@@ -53,3 +53,13 @@ std::shared_ptr<WidgetInstance> WidgetInstance::load(tinyxml2::XMLElement* xml){
 	}
 	return widgetInstance;
 }
+
+void WidgetInstance::gui(){
+	if(!widget) return;
+	if(widget->hasFixedContentSize()){
+		glm::vec2 cursor = ImGui::GetCursorPos();
+		ImGui::Dummy(widget->getFixedContentSize());
+		ImGui::SetCursorPos(cursor);
+	}
+	widget->gui();
+}

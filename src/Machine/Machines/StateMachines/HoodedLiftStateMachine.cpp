@@ -4,6 +4,8 @@
 #include "Motion/SubDevice.h"
 #include "Animation/Animatable.h"
 
+#include <tinyxml2.h>
+
 #include "Animation/Animation.h"
 
 std::vector<StateAnimationValue::Value> HoodedLiftStateMachine::stateParameterValues = {
@@ -47,6 +49,9 @@ void HoodedLiftStateMachine::initialize() {
 	addNodePin(lowerLiftCommandPin);
 
 	addAnimatable(stateParameter);
+	
+	auto thisMachine = std::dynamic_pointer_cast<HoodedLiftStateMachine>(shared_from_this());
+	controlWidget = std::make_shared<ControlWidget>(thisMachine, getName());
 }
 
 void HoodedLiftStateMachine::inputProcess() {
@@ -403,8 +408,25 @@ void HoodedLiftStateMachine::onDisableSimulation() {
 
 
 
-bool HoodedLiftStateMachine::loadMachine(tinyxml2::XMLElement* xml) { return true; }
-bool HoodedLiftStateMachine::saveMachine(tinyxml2::XMLElement* xml) { return true; }
+bool HoodedLiftStateMachine::loadMachine(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+	XMLElement* controlWidgetXML = xml->FirstChildElement("ControlWidget");
+	if(!controlWidgetXML){
+		Logger::warn("Could not find hooded lift state machine control widget unique id");
+		return false;
+	}
+	if(controlWidgetXML->QueryIntAttribute("UniqueID", &controlWidget->uniqueID) != XML_SUCCESS){
+		Logger::warn("Could not find hooded lift state machine control widget unique id");
+		return false;
+	}
+	return true;
+}
+bool HoodedLiftStateMachine::saveMachine(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+	XMLElement* controlWidgetXML = xml->InsertNewChildElement("ControlWidget");
+	controlWidgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
+	return true;
+}
 
 
 
@@ -429,3 +451,4 @@ HoodedLiftStateMachine::MachineState* HoodedLiftStateMachine::getState(HoodedLif
 	}
 	return nullptr;
 }
+

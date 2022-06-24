@@ -2,6 +2,8 @@
 #include "Animation/Animatable.h"
 #include "Animation/AnimationValue.h"
 
+#include "Gui/Environnement/Dashboard/Widget.h"
+
 class HoodedLiftStateMachine : public Machine {
 public:
 
@@ -96,4 +98,25 @@ public:
 		lowerLiftCommandPin
 	};
 	virtual std::vector<std::shared_ptr<NodePin>> getUpdatedPinsAfterOutputProcess() override { return outputProcessTriggerPins; };
+	
+	
+	
+	
+	
+	virtual void onAddToNodeGraph() override { controlWidget->addToDictionnary(); };
+	virtual void onRemoveFromNodeGraph() override { controlWidget->removeFromDictionnary(); }
+	
+	void widgetGui();
+	
+	class ControlWidget : public Widget{
+	public:
+		ControlWidget(std::shared_ptr<HoodedLiftStateMachine> machine_, std::string name) : Widget(name, "Machines"), machine(machine_){}
+		std::shared_ptr<HoodedLiftStateMachine> machine;
+		virtual void gui() override;
+		virtual bool hasFixedContentSize() override{ return true; }
+		virtual glm::vec2 getFixedContentSize() override;
+	};
+	std::shared_ptr<ControlWidget> controlWidget;
+	
+	
 };

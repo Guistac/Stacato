@@ -21,6 +21,6 @@ void DeadMansSwitch::inputProcess(){
 }
 
 void DeadMansSwitch::outputProcess(){
-	Logger::critical("output process not defined for dead mans switch");
-	abort();
+	//Logger::critical("output process not defined for dead mans switch");
+	//abort();
 }

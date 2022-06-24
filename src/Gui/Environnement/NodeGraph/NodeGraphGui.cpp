@@ -238,7 +238,10 @@ namespace Environnement::NodeGraph::Gui{
 				}
 				if (!alreadyInSelectedIds) selectedIds.push_back(selectedNodeId);
 			}
-			for (int id : selectedIds) getSelectedNodes().push_back(getNode(id));
+			for (int id : selectedIds) {
+				auto selectedNode = getNode(id);
+				if(selectedNode) getSelectedNodes().push_back(selectedNode);
+			}
 		}
 		
 		//===== Update list of selected links =====

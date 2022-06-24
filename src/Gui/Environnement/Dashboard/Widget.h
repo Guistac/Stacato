@@ -17,6 +17,9 @@ public:
 	
 	virtual std::shared_ptr<Widget> makeCopy(){ return nullptr; }
 	
+	virtual bool hasFixedContentSize(){ return false; }
+	virtual glm::vec2 getFixedContentSize(){ return glm::vec2(.0f); }
+	
 	void addToDictionnary();
 	void removeFromDictionnary();
 };
@@ -34,10 +37,10 @@ public:
 	std::shared_ptr<VectorParameter<glm::vec2>> sizeParameter = std::make_shared<VectorParameter<glm::vec2>>(glm::vec2(0,0), "Size", "Size");
 	
 	static std::shared_ptr<WidgetInstance> make(std::shared_ptr<Widget> widget);
-	
+		
 	bool hasWidget(){ return widget != nullptr; }
 	std::shared_ptr<Widget> getWidget(){ return widget; }
-	void gui(){ if(widget) widget->gui(); }
+	void gui();
 	
 	bool save(tinyxml2::XMLElement* xml);
 	static std::shared_ptr<WidgetInstance> load(tinyxml2::XMLElement* xml);
