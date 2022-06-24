@@ -10,7 +10,7 @@
 	virtual void onConnection();\
 	virtual void onDisconnection();\
 	virtual void readInputs();\
-	virtual void prepareOutputs();\
+	virtual void writeOutputs();\
 
 class Device : public Node {
 public:
@@ -28,7 +28,7 @@ public:
 	//instead we only prepare input when data is available
 	//and prepare outputs when new data is send to the device
 	virtual void readInputs() = 0;
-	virtual void prepareOutputs() = 0;
+	virtual void writeOutputs() = 0;
 
 	virtual bool isDetected() = 0;
 	virtual bool isConnected() = 0;

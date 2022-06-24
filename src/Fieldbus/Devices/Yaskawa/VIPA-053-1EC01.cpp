@@ -80,7 +80,7 @@ void VipaBusCoupler_053_1EC01::readInputs() {
 }
 
 
-void VipaBusCoupler_053_1EC01::prepareOutputs(){
+void VipaBusCoupler_053_1EC01::writeOutputs(){
 	for(auto& module : modules) module->writeOutputs();
 	rxPdoAssignement.pushDataTo(identity->outputs);
 }

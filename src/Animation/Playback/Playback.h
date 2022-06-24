@@ -15,6 +15,5 @@ namespace PlaybackManager {
 	long long getTime_microseconds();
 
 	//playback handling
-	void incrementPlaybackPosition();
-	void updateActiveManoeuvreState();
+	void update();
 }

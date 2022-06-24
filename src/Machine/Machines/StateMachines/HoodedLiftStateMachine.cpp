@@ -363,7 +363,7 @@ void HoodedLiftStateMachine::onDisableHardware() {
 	requestedState = MachineState::State::UNKNOWN;
 }
 
-void HoodedLiftStateMachine::simulateProcess() {
+void HoodedLiftStateMachine::simulateInputProcess() {
 
 	//update outputs signals
 	if (isEnabled()) {
@@ -385,6 +385,10 @@ void HoodedLiftStateMachine::simulateProcess() {
 		}
 		actualState = requestedState;
 	}
+	
+}
+
+void HoodedLiftStateMachine::simulateOutputProcess() {
 	
 }
 

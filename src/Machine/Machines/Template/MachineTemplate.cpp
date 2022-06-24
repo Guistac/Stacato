@@ -62,8 +62,13 @@ void MachineTemplate::outputProcess() {
 	//actuator command sending
 }
 
-void MachineTemplate::simulateProcess() {
-	//same as process();
+void MachineTemplate::simulateInputProcess() {
+	//same as inputProcess();
+	//but used to simulate motion without hardware
+}
+
+void MachineTemplate::simulateOutputProcess(){
+	//same as outputProcess();
 	//but used to simulate motion without hardware
 }
 

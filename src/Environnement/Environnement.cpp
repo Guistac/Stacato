@@ -168,7 +168,7 @@ namespace Environnement {
 	void updateEtherCatHardware(){
 				
 		//interpret all slaves input data if operational
-		for (auto slave : EtherCatFieldbus::getDevices()) if (slave->isStateOperational()) slave->readInputs();
+		for (auto ethercatDevice : EtherCatFieldbus::getDevices()) if (ethercatDevice->isStateOperational()) ethercatDevice->readInputs();
 				
 		//read inputs from devices and propagate them into the node graph
 		NodeGraph::executeInputProcess(ethercatDeviceProcessProgram);
@@ -176,17 +176,13 @@ namespace Environnement {
 		//TODO: update environnement script here !!!
 		
 		//increments the playback position of all active manoeuvres
-		//if a manoeuvre finishes playback, this sets its playback position to the exact end of the manoeuvre
-		PlaybackManager::incrementPlaybackPosition();
-		
-		//increment playback positions and checks if manoeuvres ended
-		PlaybackManager::updateActiveManoeuvreState();
+		PlaybackManager::update();
 		
 		//take nodegraph outputs and propagate them to the devices
 		NodeGraph::executeOutputProcess(ethercatDeviceProcessProgram);
 		
 		//prepare all slaves output data if operational
-		for (auto slave : EtherCatFieldbus::getDevices()) if (slave->isStateOperational()) slave->prepareOutputs();
+		for (auto ethercatDevice : EtherCatFieldbus::getDevices()) if (ethercatDevice->isStateOperational()) ethercatDevice->writeOutputs();
 	}
 
 	void updateSimulation(){
@@ -203,11 +199,11 @@ namespace Environnement {
 		simulationTime_seconds = currentSimulationTime_seconds;
 		simulationTime_nanoseconds = currentSimulationTime_nanoseconds;
 		
-		PlaybackManager::incrementPlaybackPosition();
+		for(auto& machine : getMachines()) machine->simulateInputProcess();
 		
-		for(auto& machine : getMachines()) machine->simulateProcess();
+		PlaybackManager::update();
 		
-		PlaybackManager::updateActiveManoeuvreState();
+		for(auto& machine : getMachines()) machine->simulateOutputProcess();
 	}
 
 

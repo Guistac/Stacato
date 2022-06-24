@@ -42,14 +42,12 @@ namespace PlaybackManager {
 		return Environnement::getTime_nanoseconds() / 1000;
 	}
 
-	void incrementPlaybackPosition() {
+	void update() {
 		long long time_micros = Environnement::getTime_nanoseconds() / 1000;
 		for (auto& manoeuvre : activeManoeuvres) {
 			if (manoeuvre->isPlaying()) manoeuvre->incrementPlaybackPosition(time_micros);
 		}
-	}
-
-	void updateActiveManoeuvreState() {
+		
 		//needs to call onPlaybackEnd in machines
 		std::vector<std::shared_ptr<Manoeuvre>> finishedManoeuvres;
 		for(auto& manoeuvre : activeManoeuvres){

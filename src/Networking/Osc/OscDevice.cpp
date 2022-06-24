@@ -55,7 +55,7 @@ void OscDevice::readInputs(){
 	//incoming messages should be read by and asynchronous asio routine
 }
 
-void OscDevice::prepareOutputs(){
+void OscDevice::writeOutputs(){
 	//outgoing messages should be sent by their respective timing thread
 }
 

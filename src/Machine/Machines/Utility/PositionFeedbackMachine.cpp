@@ -111,10 +111,12 @@ void PositionFeedbackMachine::onDisableSimulation(){
 	//nothing to do here...
 }
 
-void PositionFeedbackMachine::simulateProcess(){
+void PositionFeedbackMachine::simulateInputProcess(){
 	*positionPinValue = 0.0;
 	*velocityPinValue = 0.0;
 }
+
+void PositionFeedbackMachine::simulateOutputProcess(){}
 
 
 

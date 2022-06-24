@@ -36,7 +36,8 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual void onDisableHardware();\
 	virtual void onEnableSimulation();\
 	virtual void onDisableSimulation();\
-	virtual void simulateProcess();\
+	virtual void simulateInputProcess();\
+	virtual void simulateOutputProcess();\
 	virtual bool saveMachine(tinyxml2::XMLElement* xml);\
 	virtual bool loadMachine(tinyxml2::XMLElement* xml);\
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output);\
@@ -108,7 +109,8 @@ public:
 	//===== PROCESSING =====
 	virtual void inputProcess() override = 0;
 	virtual void outputProcess() override = 0;
-	virtual void simulateProcess() = 0;
+	virtual void simulateInputProcess() = 0;
+	virtual void simulateOutputProcess() = 0;
 	virtual bool needsOutputProcess() override { return true; }
 
 	//===== PARAMETERS =====

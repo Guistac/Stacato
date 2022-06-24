@@ -35,7 +35,7 @@
 	virtual void onConnection();\
 	virtual void onDisconnection();\
 	virtual void readInputs();\
-	virtual void prepareOutputs();\
+	virtual void writeOutputs();\
 	/*EtherCat Device Specific*/\
 	virtual const char* getManufacturerName() { return manufacturerName; }\
 	virtual const char* getEtherCatName(){ return EtherCatName; }\

@@ -184,7 +184,7 @@ void PositionControlledMachine::outputProcess(){
 	axis->setMotionCommand(machinePositionToAxisPosition(motionProfile.getPosition()), machineVelocityToAxisVelocity(motionProfile.getVelocity()));
 }
 
-void PositionControlledMachine::simulateProcess() {
+void PositionControlledMachine::simulateInputProcess() {
 	if (!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
@@ -230,6 +230,8 @@ void PositionControlledMachine::simulateProcess() {
 	}
 	
 }
+
+void PositionControlledMachine::simulateOutputProcess(){}
 
 bool PositionControlledMachine::canStartHoming(){
 	return isEnabled() && !Environnement::isSimulating();
