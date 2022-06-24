@@ -27,7 +27,7 @@ namespace NodeFactory {
 	std::vector<Node*>& getAllAxisNodes();
 	std::vector<NodeGroup>& getMachinesByCategory();
 	std::vector<Node*>& getAllSafetyNodes();
-	std::vector<Node*>& getAllMotionAdapterNodes();
+	std::vector<Node*>& getAllMotionUtilityNodes();
 
 	//Network IO
 	std::vector<Node*>& getAllNetworkNodes();

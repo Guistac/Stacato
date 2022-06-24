@@ -96,7 +96,7 @@ namespace Environnement {
 		Logger::info("Starting Environnement Simulation");
 		
 		Logger::info("Compiled EtherCAT Process Program: ");
-		NodeGraph::compileProcessProgram(getEtherCatDeviceNodes())->log();
+		NodeGraph::compileProcess(getEtherCatDeviceNodes())->log();
 		
 		simulationStartTime_seconds = Timing::getProgramTime_seconds();
 		simulationStartTime_nanoseconds = Timing::getProgramTime_nanoseconds();
@@ -122,15 +122,15 @@ namespace Environnement {
 		if(environnementSimulator.joinable()) environnementSimulator.join();
 	}
 
-	std::shared_ptr<NodeGraph::ProcessProgram> ethercatDeviceProcessProgram;
+	std::shared_ptr<NodeGraph::CompiledProcess> ethercatDeviceProcess;
 
 	void startHardware(){
 		b_isStarting = true;
 		Logger::info("Starting Environnement Hardware");
 		
-		ethercatDeviceProcessProgram = NodeGraph::compileProcessProgram(getEtherCatDeviceNodes());
-		Logger::info("Compiled EtherCAT Process Program: ");
-		ethercatDeviceProcessProgram->log();
+		ethercatDeviceProcess = NodeGraph::compileProcess(getEtherCatDeviceNodes());
+		Logger::info("Compiled EtherCAT Process: ");
+		ethercatDeviceProcess->log();
 		
 		EtherCatFieldbus::start();
 		std::thread environnementHardwareStarter([](){
@@ -162,7 +162,7 @@ namespace Environnement {
 		for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
 		
 		//execute the input process one last time to propagate disconnection of ethercat devices
-		NodeGraph::executeInputProcess(ethercatDeviceProcessProgram);
+		NodeGraph::executeInputProcess(ethercatDeviceProcess);
 		
 		b_isRunning = false;
 	}
@@ -174,7 +174,7 @@ namespace Environnement {
 		for (auto ethercatDevice : EtherCatFieldbus::getDevices()) if (ethercatDevice->isStateOperational()) ethercatDevice->readInputs();
 				
 		//read inputs from devices and propagate them into the node graph
-		NodeGraph::executeInputProcess(ethercatDeviceProcessProgram);
+		NodeGraph::executeInputProcess(ethercatDeviceProcess);
 		
 		//TODO: update environnement script here !!!
 		
@@ -182,7 +182,7 @@ namespace Environnement {
 		PlaybackManager::update();
 		
 		//take nodegraph outputs and propagate them to the devices
-		NodeGraph::executeOutputProcess(ethercatDeviceProcessProgram);
+		NodeGraph::executeOutputProcess(ethercatDeviceProcess);
 		
 		//prepare all slaves output data if operational
 		for (auto ethercatDevice : EtherCatFieldbus::getDevices()) if (ethercatDevice->isStateOperational()) ethercatDevice->writeOutputs();

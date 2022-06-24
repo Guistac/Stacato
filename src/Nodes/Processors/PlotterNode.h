@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Environnement/Node.h"
+#include "Environnement/NodeGraph/Node.h"
 #include "Utilities/ScrollingBuffer.h"
 
 #include <imgui.h>

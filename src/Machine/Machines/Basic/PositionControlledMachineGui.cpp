@@ -11,7 +11,7 @@
 
 #include "Gui/Utilities/CustomWidgets.h"
 
-#include "Environnement/DeviceNode.h"
+#include "Environnement/NodeGraph/DeviceNode.h"
 
 #include "Environnement/Environnement.h"
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Environnement/Node.h"
+#include "Environnement/NodeGraph/Node.h"
 
 class DeadMansSwitch : public Node {
 public:
@@ -21,4 +21,7 @@ public:
 	virtual void inputProcess() override;
 	virtual void outputProcess() override;
 	
+	virtual void nodeSpecificGui() override;
+	void controlsGui();
+	void settingsGui();
 };

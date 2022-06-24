@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Environnement/DeviceNode.h"
+#include "Environnement/NodeGraph/DeviceNode.h"
 
 #define DEFINE_NETWORK_DEVICE(className, displayName, saveName)\
 	public:\

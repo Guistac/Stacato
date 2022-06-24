@@ -1,5 +1,5 @@
 #include <pch.h>
-#include "PositionFeedbackMachine.h"
+#include "PositionFeedback.h"
 
 #include <imgui.h>
 
@@ -8,9 +8,20 @@
 #include "Gui/Utilities/CustomWidgets.h"
 
 #include "Motion/SubDevice.h"
-#include "Environnement/DeviceNode.h"
+#include "Environnement/NodeGraph/DeviceNode.h"
 
-void PositionFeedbackMachine::controlsGui(){
+void PositionFeedback::nodeSpecificGui(){
+	if(ImGui::BeginTabItem("Controls")){
+		controlsGui();
+		ImGui::EndTabItem();
+	}
+	if(ImGui::BeginTabItem("Settings")){
+		settingsGui();
+		ImGui::EndTabItem();
+	}
+}
+
+void PositionFeedback::controlsGui(){
 	
 	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Position Feedback");
@@ -55,7 +66,7 @@ void PositionFeedbackMachine::controlsGui(){
 }
 
 
-void PositionFeedbackMachine::settingsGui(){
+void PositionFeedback::settingsGui(){
 	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Feedback Settings");
 	ImGui::PopFont();
@@ -183,33 +194,12 @@ void PositionFeedbackMachine::settingsGui(){
 	}
 }
 
-void PositionFeedbackMachine::axisGui(){
-	ImGui::Text("No Axis.");
-}
 
-void PositionFeedbackMachine::deviceGui(){
-	if(ImGui::BeginTabBar("#channeldeviceTabBar")){
-		std::vector<std::shared_ptr<Device>> devices;
-		getDevices(devices);
-		for(auto& device : devices){
-			if(ImGui::BeginTabItem(device->getName())){
-				if(ImGui::BeginTabBar("##deviceTabBar")){
-					device->nodeSpecificGui();
-					ImGui::EndTabBar();
-				}
-				ImGui::EndTabItem();
-			}
-		}
-		ImGui::EndTabBar();
-	}
-}
-
-void PositionFeedbackMachine::metricsGui(){}
-
-float PositionFeedbackMachine::getMiniatureWidth(){
+/*
+float PositionFeedback::getMiniatureWidth(){
 	return ImGui::GetTextLineHeight() * 10.0;
 }
-void PositionFeedbackMachine::machineSpecificMiniatureGui(){
+void PositionFeedback::machineSpecificMiniatureGui(){
 	
 	std::shared_ptr<PositionFeedbackDevice> feedbackDevice;
 	float progressNormalized = 1.0;
@@ -262,4 +252,4 @@ void PositionFeedbackMachine::machineSpecificMiniatureGui(){
 	
 	
 }
-
+*/

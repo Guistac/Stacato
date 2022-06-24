@@ -2,13 +2,15 @@
 
 #include "NodeFactory.h"
 
-#include "Motion/Axis/VelocityControlledAxis.h"
-#include "Motion/Axis/PositionControlledAxis.h"
 #include "Machine/Machines/Basic/PositionControlledMachine.h"
 #include "Machine/Machines/StateMachines/HoodedLiftStateMachine.h"
-#include "Machine/Machines/Utility/PositionFeedbackMachine.h"
 
-#include "Machine/Machines/Safety/DeadMansSwitch.h"
+#include "Motion/Axis/VelocityControlledAxis.h"
+#include "Motion/Axis/PositionControlledAxis.h"
+
+#include "Motion/Utilities/PositionFeedback.h"
+
+#include "Motion/Safety/DeadMansSwitch.h"
 
 #include "Motion/Adapters/GpioActuator.h"
 #include "Motion/Adapters/ActuatorToServoActuator.h"
@@ -16,10 +18,13 @@
 namespace NodeFactory{
 
 	std::vector<Node*> allAxisNodes;
+
 	std::vector<Node*> allMachineNodes;
 	std::vector<NodeGroup> machinesByCategory;
+
 	std::vector<Node*> allSafetyNodes;
-	std::vector<Node*> allMotionAdapterNodes;
+
+	std::vector<Node*> allMotionUtilityNodes;
 
 	void loadMotionNodes(std::vector<Node*>& nodeList){
 		
@@ -30,17 +35,17 @@ namespace NodeFactory{
 		
 		allMachineNodes = {
 			new PositionControlledMachine(),
-			new HoodedLiftStateMachine(),
-			new PositionFeedbackMachine()
+			new HoodedLiftStateMachine()
 		};
 		
 		allSafetyNodes = {
 			new DeadMansSwitch()
 		};
 		
-		allMotionAdapterNodes = {
+		allMotionUtilityNodes = {
 			new GpioActuator(),
-			new ActuatorToServoActuator()
+			new ActuatorToServoActuator(),
+			new PositionFeedback()
 		};
 		
 		//sort machine nodes by category
@@ -64,13 +69,13 @@ namespace NodeFactory{
 		nodeList.insert(nodeList.end(), allMachineNodes.begin(), allMachineNodes.end());
 		nodeList.insert(nodeList.end(), allAxisNodes.begin(), allAxisNodes.end());
 		nodeList.insert(nodeList.end(), allSafetyNodes.begin(), allSafetyNodes.end());
-		nodeList.insert(nodeList.end(), allMotionAdapterNodes.begin(), allMotionAdapterNodes.end());
+		nodeList.insert(nodeList.end(), allMotionUtilityNodes.begin(), allMotionUtilityNodes.end());
 		
 	}
 
 	std::vector<Node*>& getAllAxisNodes() { return allAxisNodes; }
 	std::vector<NodeGroup>& getMachinesByCategory() { return machinesByCategory; }
 	std::vector<Node*>& getAllSafetyNodes(){ return allSafetyNodes; }
-	std::vector<Node*>& getAllMotionAdapterNodes(){ return allMotionAdapterNodes; }
+	std::vector<Node*>& getAllMotionUtilityNodes(){ return allMotionUtilityNodes; }
 
 }

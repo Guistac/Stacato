@@ -1,60 +1,14 @@
 #include <pch.h>
 
 #include "NodeGraph.h"
-#include "Environnement/DeviceNode.h"
+#include "Environnement/NodeGraph/DeviceNode.h"
 
 #include <iostream>
 
 namespace Environnement::NodeGraph{
 
-/*
-	void evaluate(ProcessDirection direction) {
-		std::vector<std::shared_ptr<Node>> dummyNodeList;
-		evaluateForward(dummyNodeList);
-	}
-
-	void evaluate(Device::Type deviceType, ProcessDirection direction) {
-		std::vector<std::shared_ptr<Node>> devices;
-		//get all the nodes that will be processed
-		for (auto node : getNodes()) {
-			if (node->getType() == Node::Type::IODEVICE) {
-				std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);
-				if(device->getDeviceType() == deviceType) devices.push_back(node);
-			}
-		}
-		evaluateForward(devices);
-	}
-	
-	void evaluate(Node::Type nodeType, ProcessDirection direction){
-		std::vector<std::shared_ptr<Node>> nodes;
-		//get all the nodes that will be processed
-		for (auto node : getNodes()) {
-			if (node->getType() == nodeType) nodes.push_back(node);
-		}
-		evaluateForward(nodes);
-	}
-
-	void evaluate(std::shared_ptr<Node> node, ProcessDirection direction) {
-		std::vector<std::shared_ptr<Node>> nodeList;
-		nodeList.push_back(node);
-		evaluateForward(nodeList);
-	}
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-std::vector<std::shared_ptr<ProcessProgram::Instruction>> compileOrderedInstructions(std::vector<std::shared_ptr<Node>>& startNodes, ProcessDirection processDirection){
+//this compiles a single direction of execution, starting from a set of starting nodes
+std::vector<std::shared_ptr<CompiledProcess::Instruction>> compileOrderedInstructions(std::vector<std::shared_ptr<Node>>& startNodes, ProcessDirection processDirection){
 		
 	if(processDirection == ProcessDirection::INPUT_PROCESS){
 		//in the input process, regardless of the nodes being processed, clock nodes always update their value, so they must always be processed
@@ -63,14 +17,14 @@ std::vector<std::shared_ptr<ProcessProgram::Instruction>> compileOrderedInstruct
 		}
 	}
 	
-	std::vector<std::shared_ptr<ProcessProgram::Instruction>> instructions;
+	std::vector<std::shared_ptr<CompiledProcess::Instruction>> instructions;
 	for(auto node : getNodes()) node->b_wasProcessed = false;
 	
 	std::vector<std::shared_ptr<NodePin>> triggeringPins;
 	std::vector<std::shared_ptr<NodePin>> nextTriggeringPins;
 	
 	for(auto& startNode : startNodes){
-		instructions.push_back(ProcessProgram::Instruction::make(startNode, processDirection));
+		instructions.push_back(CompiledProcess::Instruction::make(startNode, processDirection));
 		startNode->b_wasProcessed = true;
 		std::vector<std::shared_ptr<NodePin>> thisNodeTriggeringPins;
 		switch(processDirection){
@@ -98,7 +52,7 @@ std::vector<std::shared_ptr<ProcessProgram::Instruction>> compileOrderedInstruct
 				else if(processStarterPin->isOutput() && processStarterPin->isBidirectional()) processDirection = ProcessDirection::OUTPUT_PROCESS;
 				else continue;
 				
-				instructions.push_back(ProcessProgram::Instruction::make(processedNode, processDirection));
+				instructions.push_back(CompiledProcess::Instruction::make(processedNode, processDirection));
 				processedNode->b_wasProcessed = true;
 				
 				std::vector<std::shared_ptr<NodePin>> thisNodeTriggeringPins;
@@ -122,8 +76,8 @@ std::vector<std::shared_ptr<ProcessProgram::Instruction>> compileOrderedInstruct
 	for (auto node : getNodes()) node->b_circularDependencyFlag = false;
 	for (auto& instruction : instructions) instruction->processedNode->b_wasProcessed = false;
 	
-	std::vector<std::shared_ptr<ProcessProgram::Instruction>> instructionsOrdered;
-	std::vector<std::shared_ptr<ProcessProgram::Instruction>> nextInstructionCanditates;
+	std::vector<std::shared_ptr<CompiledProcess::Instruction>> instructionsOrdered;
+	std::vector<std::shared_ptr<CompiledProcess::Instruction>> nextInstructionCanditates;
 	
 	while(!instructions.empty()){
 		
@@ -170,9 +124,9 @@ std::vector<std::shared_ptr<ProcessProgram::Instruction>> compileOrderedInstruct
 
 
 
-
-std::shared_ptr<ProcessProgram> compileProcessProgram(std::vector<std::shared_ptr<Node>>& startNodes){
-	std::shared_ptr<ProcessProgram> program = std::make_shared<ProcessProgram>();
+//compiles a input process instructions and output process instructions, from a given list of start nodes
+std::shared_ptr<CompiledProcess> compileProcess(std::vector<std::shared_ptr<Node>>& startNodes){
+	std::shared_ptr<CompiledProcess> program = std::make_shared<CompiledProcess>();
 	
 	program->inputProcessInstructions = compileOrderedInstructions(startNodes, ProcessDirection::INPUT_PROCESS);
 	
@@ -191,7 +145,7 @@ std::shared_ptr<ProcessProgram> compileProcessProgram(std::vector<std::shared_pt
 
 
 
-void ProcessProgram::log(){
+void CompiledProcess::log(){
 	Logger::info("Input Process: {} instructions", inputProcessInstructions.size());
 	for(int i = 0; i < inputProcessInstructions.size(); i++){
 		auto& instruction = inputProcessInstructions[i];
@@ -212,7 +166,7 @@ void ProcessProgram::log(){
 
 
 
-void executeInstructions(std::vector<std::shared_ptr<ProcessProgram::Instruction>>& instructions){
+void executeInstructions(std::vector<std::shared_ptr<CompiledProcess::Instruction>>& instructions){
 	for(auto& instruction : instructions){
 		switch(instruction->processType){
 			case ProcessDirection::INPUT_PROCESS: instruction->processedNode->inputProcess(); break;
@@ -221,10 +175,10 @@ void executeInstructions(std::vector<std::shared_ptr<ProcessProgram::Instruction
 	}
 }
 
-void executeInputProcess(std::shared_ptr<ProcessProgram> processProgram){
+void executeInputProcess(std::shared_ptr<CompiledProcess> processProgram){
 	executeInstructions(processProgram->inputProcessInstructions);
 }
-void executeOutputProcess(std::shared_ptr<ProcessProgram> processProgram){
+void executeOutputProcess(std::shared_ptr<CompiledProcess> processProgram){
 	executeInstructions(processProgram->outputProcessInstructions);
 }
 

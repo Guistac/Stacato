@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Environnement/Node.h"
+#include "Environnement/NodeGraph/Node.h"
 #include "Motion/MotionTypes.h"
 #include "Motion/SubDevice.h"
 #include "Motion/Curve/Profile.h"

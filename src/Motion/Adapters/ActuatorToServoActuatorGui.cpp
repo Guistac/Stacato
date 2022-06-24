@@ -10,7 +10,7 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
-#include "Environnement/DeviceNode.h"
+#include "Environnement/NodeGraph/DeviceNode.h"
 
 void ActuatorToServoActuator::nodeSpecificGui(){
 	if(ImGui::BeginTabItem("Controls")){

@@ -149,15 +149,15 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/EnvironnementSaveFile.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Node.h
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Node.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/DeviceNode.h
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/DeviceNode.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/StageVisualizer.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/StageVisualizer.h
 
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/Node.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/Node.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/DeviceNode.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/DeviceNode.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeLink.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodePin.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodePin.h
@@ -233,9 +233,6 @@ set(STACATO_SOURCE_FILES
 
     #========================== MACHINE TYPES ===========================
 
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Safety/DeadMansSwitch.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Safety/DeadMansSwitch.h
-
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachineGui.cpp
@@ -255,10 +252,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/HoodedLiftStateMachine.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/HoodedLiftStateMachineGui.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Utility/PositionFeedbackMachine.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Utility/PositionFeedbackMachine.h
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Utility/PositionFeedbackMachineGui.cpp
-
     #========================= AXIS TYPES =========================
 
     ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/PositionControlledAxis.cpp
@@ -268,7 +261,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/VelocityControlledAxis.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/VelocityControlledAxisGui.cpp
 
-    #========================== MOTION ADAPTERS =======================
+    #========================== MOTION UTILITIES =======================
 
     ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuator.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuator.h
@@ -276,6 +269,15 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuator.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuator.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuatorGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Utilities/PositionFeedback.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Utilities/PositionFeedback.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Utilities/PositionFeedbackGui.cpp
+
+    #========================== SAFETY NODES ======================
+
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Safety/DeadMansSwitch.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Safety/DeadMansSwitch.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Safety/DeadMansSwitchGui.cpp
 
     #========================== PROCESSOR NODES ========================
 

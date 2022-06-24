@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "NodeFactory.h"
-#include "Environnement/Node.h"
+#include "Environnement/NodeGraph/Node.h"
 
 namespace NodeFactory {
 

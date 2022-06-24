@@ -1,31 +1,31 @@
 #include <pch.h>
 
-#include "PositionFeedbackMachine.h"
+#include "PositionFeedback.h"
 
 #include "Motion/SubDevice.h"
 
 #include <tinyxml2.h>
 
-bool PositionFeedbackMachine::isFeedbackConnected(){
+bool PositionFeedback::isFeedbackConnected(){
 	return positionFeedbackDevicePin->isConnected();
 }
 
-std::shared_ptr<PositionFeedbackDevice> PositionFeedbackMachine::getFeedbackDevice(){
+std::shared_ptr<PositionFeedbackDevice> PositionFeedback::getFeedbackDevice(){
 	return positionFeedbackDevicePin->getConnectedPins().front()->getSharedPointer<PositionFeedbackDevice>();
 }
 
-double PositionFeedbackMachine::feedbackPositionToMachinePosition(double feedbackPosition){
+double PositionFeedback::feedbackPositionToMachinePosition(double feedbackPosition){
 	if(b_invertDirection) return (-1.0 * feedbackPosition * machineUnitsPerFeedbackUnit) + machineUnitOffset;
 	return (feedbackPosition * machineUnitsPerFeedbackUnit) + machineUnitOffset;
 }
 
-double PositionFeedbackMachine::feedbackVelocityToMachineVelocity(double feedbackVelocity){
+double PositionFeedback::feedbackVelocityToMachineVelocity(double feedbackVelocity){
 	if(b_invertDirection) return (-1.0 * feedbackVelocity * machineUnitsPerFeedbackUnit);
 	return (feedbackVelocity * machineUnitsPerFeedbackUnit);
 }
 
 
-void PositionFeedbackMachine::setMovementType(MovementType t){
+void PositionFeedback::setMovementType(MovementType t){
 	movementType = t;
 	switch(movementType){
 		case MovementType::LINEAR:
@@ -41,12 +41,12 @@ void PositionFeedbackMachine::setMovementType(MovementType t){
 	}
 }
 
-void PositionFeedbackMachine::setPositionUnit(Unit u){
+void PositionFeedback::setPositionUnit(Unit u){
 	positionUnit = u;
 }
 
 
-void PositionFeedbackMachine::initialize(){
+void PositionFeedback::initialize(){
 	positionPin->assignData(positionPinValue);
 	velocityPin->assignData(velocityPinValue);
 	addNodePin(positionFeedbackDevicePin);
@@ -54,8 +54,8 @@ void PositionFeedbackMachine::initialize(){
 	addNodePin(velocityPin);
 }
 
-void PositionFeedbackMachine::inputProcess(){
-	if(isFeedbackConnected() && isEnabled()){
+void PositionFeedback::inputProcess(){
+	if(isFeedbackConnected()){
 		std::shared_ptr<PositionFeedbackDevice> feedback = getFeedbackDevice();
 		*positionPinValue = feedbackPositionToMachinePosition(feedback->getPosition());
 		*velocityPinValue = feedbackVelocityToMachineVelocity(feedback->getVelocity());
@@ -65,68 +65,20 @@ void PositionFeedbackMachine::inputProcess(){
 	}
 }
 
-void PositionFeedbackMachine::outputProcess(){
+void PositionFeedback::outputProcess(){
 	Logger::critical("Output process not defined for position feedback machine");
 	abort();
 	//not applicable?
 }
 
-bool PositionFeedbackMachine::isMoving(){
-	if(isFeedbackConnected()){
-		auto feedback = getFeedbackDevice();
-		if(feedback->isReady()) return feedback->isMoving();
-	}
-	return false;
-}
 
-bool PositionFeedbackMachine::isHardwareReady(){
-	return isFeedbackConnected() && getFeedbackDevice()->isReady();
-}
-
-bool PositionFeedbackMachine::isSimulationReady(){
-	return isFeedbackConnected();
-}
-
-void PositionFeedbackMachine::enableHardware(){
-	b_enabled = true;
-}
-
-void PositionFeedbackMachine::disableHardware(){
-	b_enabled = false;
-}
-
-void PositionFeedbackMachine::onEnableHardware(){
-	//nothing to do here...
-}
-
-void PositionFeedbackMachine::onDisableHardware(){
-	//nothing to do here...
-}
-
-void PositionFeedbackMachine::onEnableSimulation(){
-	//nothing to do here...
-}
-
-void PositionFeedbackMachine::onDisableSimulation(){
-	//nothing to do here...
-}
-
-void PositionFeedbackMachine::simulateInputProcess(){
-	*positionPinValue = 0.0;
-	*velocityPinValue = 0.0;
-}
-
-void PositionFeedbackMachine::simulateOutputProcess(){}
-
-
-
-void PositionFeedbackMachine::setScalingPosition(double realPosition_machineUnits){
+void PositionFeedback::setScalingPosition(double realPosition_machineUnits){
 	machineUnitsPerFeedbackUnit = (realPosition_machineUnits - machineUnitOffset) / getFeedbackDevice()->getPosition();
 }
 
 
 
-bool PositionFeedbackMachine::saveMachine(tinyxml2::XMLElement* xml){
+bool PositionFeedback::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	XMLElement* unitsXML = xml->InsertNewChildElement("Units");
 	unitsXML->SetAttribute("Type", Enumerator::getSaveString(movementType));
@@ -139,7 +91,7 @@ bool PositionFeedbackMachine::saveMachine(tinyxml2::XMLElement* xml){
 	return true;
 }
 
-bool PositionFeedbackMachine::loadMachine(tinyxml2::XMLElement* xml){
+bool PositionFeedback::load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	
 	XMLElement* unitsXML = xml->FirstChildElement("Units");
@@ -168,19 +120,3 @@ bool PositionFeedbackMachine::loadMachine(tinyxml2::XMLElement* xml){
 	
 	return true;
 }
-
-void PositionFeedbackMachine::getDevices(std::vector<std::shared_ptr<Device>>& output){
-	if(isFeedbackConnected()) output.push_back(getFeedbackDevice()->parentDevice);
-}
-
-void PositionFeedbackMachine::rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value){}
-void PositionFeedbackMachine::cancelAnimatableRapid(std::shared_ptr<Animatable> animatable){}
-float PositionFeedbackMachine::getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable){ return 0.0; }
-bool PositionFeedbackMachine::isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> Animatable, std::shared_ptr<AnimationValue> value){ return false; }
-void PositionFeedbackMachine::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable){}
-void PositionFeedbackMachine::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable){}
-void PositionFeedbackMachine::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable){}
-std::shared_ptr<AnimationValue> PositionFeedbackMachine::getActualAnimatableValue(std::shared_ptr<Animatable> animatable){}
-void PositionFeedbackMachine::fillAnimationDefaults(std::shared_ptr<Animation> aniamtion){}
-bool PositionFeedbackMachine::validateAnimation(const std::shared_ptr<Animation> animation){ return false; }
-bool PositionFeedbackMachine::generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation){ return false; }

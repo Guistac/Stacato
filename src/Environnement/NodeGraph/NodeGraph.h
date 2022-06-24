@@ -1,12 +1,15 @@
 #pragma once
 
-#include "Environnement/DeviceNode.h"
+#include "Environnement/NodeGraph/DeviceNode.h"
 #include "NodePin.h"
 #include "NodeLink.h"
 
 namespace tinyxml2 { class XMLElement; }
 
 namespace Environnement::NodeGraph{
+
+	int getNewUniqueID();
+	void startCountingUniqueIDsFrom(int largestUniqueID);
 
 	void addNode(std::shared_ptr<Node>);
 	void removeNode(std::shared_ptr<Node>);
@@ -15,9 +18,9 @@ namespace Environnement::NodeGraph{
 	std::shared_ptr<NodeLink> connect(std::shared_ptr<NodePin>, std::shared_ptr<NodePin>);
 	void disconnect(std::shared_ptr<NodeLink>);
 
-	std::shared_ptr<Node> getNode(int);
-	std::shared_ptr<NodePin> getPin(int);
-	std::shared_ptr<NodeLink> getLink(int);
+	std::shared_ptr<Node> getNode(int uniqueID);
+	std::shared_ptr<NodePin> getPin(int uniqueID);
+	std::shared_ptr<NodeLink> getLink(int uniqueID);
 
 	std::vector<std::shared_ptr<Node>>& getNodes();
 	std::vector<std::shared_ptr<NodePin>>& getPins();
@@ -31,7 +34,7 @@ namespace Environnement::NodeGraph{
 		OUTPUT_PROCESS
 	};
 
-	struct ProcessProgram{
+	struct CompiledProcess{
 		struct Instruction{
 			std::shared_ptr<Node> processedNode;
 			ProcessDirection processType;
@@ -47,19 +50,22 @@ namespace Environnement::NodeGraph{
 		void log();
 	};
 
-	std::shared_ptr<ProcessProgram> compileProcessProgram(std::vector<std::shared_ptr<Node>>& startNodes);
-	void executeInputProcess(std::shared_ptr<ProcessProgram> processProgram);
-	void executeOutputProcess(std::shared_ptr<ProcessProgram> processProgram);
+	std::shared_ptr<CompiledProcess> compileProcess(std::vector<std::shared_ptr<Node>>& startNodes);
+	void executeInputProcess(std::shared_ptr<CompiledProcess> processProgram);
+	void executeOutputProcess(std::shared_ptr<CompiledProcess> processProgram);
+
+
+
 
 	bool load(tinyxml2::XMLElement* xml);
 	bool save(tinyxml2::XMLElement* xml);
 
+
+
+
 	void editorGui();
 	void centerView();
 	void showFlow();
-
-	int getNewUniqueID();
-	void startCountingUniqueIDsFrom(int largestUniqueID);
 	
 	bool& getShowOutputValues();
 	bool& getWasJustLoaded();

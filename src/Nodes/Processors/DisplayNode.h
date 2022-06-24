@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Environnement/Node.h"
+#include "Environnement/NodeGraph/Node.h"
 
 class DisplayNode : public Node {
 public:

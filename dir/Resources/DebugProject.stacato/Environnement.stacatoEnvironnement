@@ -237,6 +237,20 @@
                     <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="157" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Processor" ClassName="PositionFeedback" CustomName="Position Feedback" UniqueID="165">
+                <NodeEditorPosition x="-936" y="954"/>
+                <NodeSpecificData>
+                    <Units Type="Linear" Unit="Meter"/>
+                    <Conversion UnitsPerFeedbackUnit="1" InvertDirectionOfMotion="false" UnitOffset="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Feedback Device" DisplayString="Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="166" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="167" Visible="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="168" Visible="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="7" StartPin="2" EndPin="4"/>
@@ -266,6 +280,7 @@
             <Link UniqueID="161" StartPin="138" EndPin="156"/>
             <Link UniqueID="162" StartPin="157" EndPin="47"/>
             <Link UniqueID="163" StartPin="154" EndPin="48"/>
+            <Link UniqueID="169" StartPin="67" EndPin="166"/>
         </Links>
     </NodeGraph>
 </Environnement>
