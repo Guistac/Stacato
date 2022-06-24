@@ -55,8 +55,8 @@ public:
 	
 	//========== PROCESSING =============
 public:
-	virtual void process();
-	virtual void processReverse();
+	virtual void inputProcess() override;
+	virtual void outputProcess() override;
 	
 	//==================== PARAMETERS ====================
 private:

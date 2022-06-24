@@ -49,7 +49,7 @@ void HoodedLiftStateMachine::initialize() {
 	addAnimatable(stateParameter);
 }
 
-void HoodedLiftStateMachine::process() {
+void HoodedLiftStateMachine::inputProcess() {
 	
 	//update inputs signals & state machine
 	if (b_enabled || areGpioSignalsReady()) {
@@ -146,7 +146,9 @@ void HoodedLiftStateMachine::process() {
 	updateGpioOutSignals();
 }
 
-void HoodedLiftStateMachine::processReverse(){
+void HoodedLiftStateMachine::outputProcess(){
+	Logger::critical("Output Process not defined for hooded lift state machine");
+	abort();
 	//not applicable here since we drive inputs directly ?
 	//or maybe we should catch blocking commands from the environnement script
 }

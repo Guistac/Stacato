@@ -17,8 +17,8 @@ namespace tinyxml2{ struct XMLElement; }
 
 #define DEFINE_MACHINE_NODE(className, nodeName, saveName, category) public:\
 	DEFINE_NODE(className, nodeName, saveName, Node::Type::MACHINE, category)\
-	virtual void process();\
-	virtual void processReverse();\
+	virtual void inputProcess();\
+	virtual void outputProcess();\
 	/*Machine Specific*/\
 	virtual void controlsGui();\
 	virtual void settingsGui();\
@@ -106,8 +106,10 @@ public:
 	virtual const char* getHomingStateString(){ return "default state string (something went wrong)"; }
 	
 	//===== PROCESSING =====
-	virtual void process() = 0;
+	virtual void inputProcess() override = 0;
+	virtual void outputProcess() override = 0;
 	virtual void simulateProcess() = 0;
+	virtual bool needsOutputProcess() override { return true; }
 
 	//===== PARAMETERS =====
 	void addAnimatable(std::shared_ptr<Animatable> parameter);

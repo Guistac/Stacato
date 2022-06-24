@@ -54,7 +54,7 @@ void PositionFeedbackMachine::initialize(){
 	addNodePin(velocityPin);
 }
 
-void PositionFeedbackMachine::process(){
+void PositionFeedbackMachine::inputProcess(){
 	if(isFeedbackConnected() && isEnabled()){
 		std::shared_ptr<PositionFeedbackDevice> feedback = getFeedbackDevice();
 		*positionPinValue = feedbackPositionToMachinePosition(feedback->getPosition());
@@ -65,7 +65,9 @@ void PositionFeedbackMachine::process(){
 	}
 }
 
-void PositionFeedbackMachine::processReverse(){
+void PositionFeedbackMachine::outputProcess(){
+	Logger::critical("Output process not defined for position feedback machine");
+	abort();
 	//not applicable?
 }
 

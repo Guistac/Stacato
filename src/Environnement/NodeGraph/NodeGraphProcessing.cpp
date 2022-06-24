@@ -3,23 +3,17 @@
 #include "NodeGraph.h"
 #include "Environnement/DeviceNode.h"
 
+#include <iostream>
+
 namespace Environnement::NodeGraph{
 
-	void evaluateFromInputsToOutputs(std::vector<std::shared_ptr<Node>>& nodes);
-	void evaluateFromOutputsToInputs(std::vector<std::shared_ptr<Node>>& nodes);
-	void evaluate(std::vector<std::shared_ptr<Node>>& nodes, EvaluationDirection direction){
-		switch(direction){
-			case EvaluationDirection::FROM_INPUTS_TO_OUTPUTS: evaluateFromInputsToOutputs(nodes); break;
-			case EvaluationDirection::FROM_OUTPUTS_TO_INPUTS: evaluateFromOutputsToInputs(nodes); break;
-		}
-	}
-
-	void evaluate(EvaluationDirection direction) {
+/*
+	void evaluate(ProcessDirection direction) {
 		std::vector<std::shared_ptr<Node>> dummyNodeList;
-		evaluate(dummyNodeList, direction);
+		evaluateForward(dummyNodeList);
 	}
 
-	void evaluate(Device::Type deviceType, EvaluationDirection direction) {
+	void evaluate(Device::Type deviceType, ProcessDirection direction) {
 		std::vector<std::shared_ptr<Node>> devices;
 		//get all the nodes that will be processed
 		for (auto node : getNodes()) {
@@ -28,214 +22,221 @@ namespace Environnement::NodeGraph{
 				if(device->getDeviceType() == deviceType) devices.push_back(node);
 			}
 		}
-		evaluate(devices, direction);
+		evaluateForward(devices);
 	}
 	
-	void evaluate(Node::Type nodeType, EvaluationDirection direction){
+	void evaluate(Node::Type nodeType, ProcessDirection direction){
 		std::vector<std::shared_ptr<Node>> nodes;
 		//get all the nodes that will be processed
 		for (auto node : getNodes()) {
 			if (node->getType() == nodeType) nodes.push_back(node);
 		}
-		evaluate(nodes, direction);
+		evaluateForward(nodes);
 	}
 
-	void evaluate(std::shared_ptr<Node> node, EvaluationDirection direction) {
+	void evaluate(std::shared_ptr<Node> node, ProcessDirection direction) {
 		std::vector<std::shared_ptr<Node>> nodeList;
 		nodeList.push_back(node);
-		evaluate(nodeList, direction);
+		evaluateForward(nodeList);
 	}
+*/
 
-	void evaluateFromInputsToOutputs(std::vector<std::shared_ptr<Node>>& startNodes) {
 
-		//regardless of the type of node thats being processed
-		//clock nodes always update their value, so they must always be processed
+
+
+
+
+
+
+
+
+
+
+
+
+std::vector<std::shared_ptr<ProcessProgram::Instruction>> compileOrderedInstructions(std::vector<std::shared_ptr<Node>>& startNodes, ProcessDirection processDirection){
+		
+	if(processDirection == ProcessDirection::INPUT_PROCESS){
+		//in the input process, regardless of the nodes being processed, clock nodes always update their value, so they must always be processed
 		for (auto node : getNodes()) {
-			std::shared_ptr<Node> currentNode = node;
-			if (node->getType() == Node::Type::CLOCK) {
-				startNodes.push_back(node);
-			}
-		}
-		
-		//PHASE I:
-		//find all nodes that will be processed on this cycle and add them in 'nodesToProcess'
-		//find them by starting from the initial nodes, and go down the connection tree
-		//this way they will more or less be in the right update order
-		//each time they are added, set the processed flag so they don't get added twice
-		std::vector<std::shared_ptr<Node>> nodesToProcess;
-		
-		//set all nodes to unprocessed, so they can all be added exactly once
-		for (auto node : getNodes()) node->b_wasProcessed = false;
-		
-		//linked nodes are all nodes that were found on the outputs of the previous linked nodes
-		//linked nodes is initialized with the start nodes
-		std::vector<std::shared_ptr<Node>> linkedNodes = startNodes;
-		
-		//next linked nodes are candidates for the next round of processing
-		std::vector<std::shared_ptr<Node>> nextLinkedNodes;
-
-		while (!linkedNodes.empty()) {
-			for (auto node : linkedNodes) {
-				if (node->wasProcessed()) continue;
-				//add the linked nodes to the list of nodes that will need to be processed
-				nodesToProcess.push_back(node);
-				//set the processed flag, so branches from this node's outputs won't be searched again
-				//this prevents an infinite loop
-				node->b_wasProcessed = true;
-				//get each node that is connected to an output of the current node
-				//and add it to the list of next linked nodes
-				for (auto outputData : node->getOutputPins()) {
-					for (auto outputLink : outputData->getLinks()) {
-						std::shared_ptr<Node> linkedOutputNode = outputLink->getOutputData()->getNode();
-						nextLinkedNodes.push_back(linkedOutputNode);
-					}
-				}
-			}
-			//Swap the candidates for the next round with the polled nodes
-			linkedNodes.clear();
-			linkedNodes.swap(nextLinkedNodes);
-		}
-
-		//PHASE 2:
-		//all nodes will be attempt processing in the order of the nodeToProcess list
-		//certain conditions apply:
-		//-a node can only process once
-		//-a node can only process if all nodes connected to its inputs are already processed
-		//-if a circular dependency causes no nodes to process, we force processing of the first one left in the list
-
-		//set all nodes to processed except the ones that need to be processed and clear circular dependency flags
-		for (auto node : getNodes()) node->b_wasProcessed = true;
-		for (auto node : getNodes()) node->b_circularDependencyFlag = false;
-		for (auto node : nodesToProcess) node->b_wasProcessed = false;
-
-		//keep a list of candidates for the next round of processing
-		std::vector<std::shared_ptr<Node>> nextNodesToProcess;
-
-		while (!nodesToProcess.empty()) {
-			
-			for (auto node : nodesToProcess) {
-				//skip processing if:
-				//-the node was already processed
-				//-it is an IOdevice (which cannot process, only read inputs and write outputs)
-				if (node->wasProcessed() || node->getType() == Node::Type::IODEVICE) {
-					node->b_wasProcessed = true;
-					continue;
-				}
-				//processing takes place if:
-				//-all nodes connected to the current nodes inputs are already processed
-				//-a circular dependency condition forces the current node to process
-				if (node->areAllLinkedInputNodesProcessed() || node->b_circularDependencyFlag) {
-					node->process();
-					node->b_wasProcessed = true;
-				}
-				//if the node can't process, add it as a canditate for the next processing round
-				else nextNodesToProcess.push_back(node);
-			}
-
-			//if the canditate list didn't change, we are stuck in a cyclic dependency loop.
-			//force update of the first node in the list on the next cycle to try and resolve the loop
-			if (nodesToProcess == nextNodesToProcess) nextNodesToProcess.front()->b_circularDependencyFlag = true;
-
-			//swap the list of canditates with the nodes to be processed on the next round
-			nodesToProcess.clear();
-			nodesToProcess.swap(nextNodesToProcess);
+			if (node->getType() == Node::Type::CLOCK) startNodes.push_back(node);
 		}
 	}
-
-
-
-	void evaluateFromOutputsToInputs(std::vector<std::shared_ptr<Node>>& startNodes){
-		
-		//when processing from outptus to inputs we will only process nodes that are capable of reverse processing
-		//processing direction takes place through bidirectional pins only
-		
+	
+	std::vector<std::shared_ptr<ProcessProgram::Instruction>> instructions;
+	for(auto node : getNodes()) node->b_wasProcessed = false;
+	
+	std::vector<std::shared_ptr<NodePin>> triggeringPins;
+	std::vector<std::shared_ptr<NodePin>> nextTriggeringPins;
+	
+	for(auto& startNode : startNodes){
+		instructions.push_back(ProcessProgram::Instruction::make(startNode, processDirection));
+		startNode->b_wasProcessed = true;
+		std::vector<std::shared_ptr<NodePin>> thisNodeTriggeringPins;
+		switch(processDirection){
+			case ProcessDirection::INPUT_PROCESS: thisNodeTriggeringPins = startNode->getUpdatedPinsAfterInputProcess(); break;
+			case ProcessDirection::OUTPUT_PROCESS: thisNodeTriggeringPins = startNode->getUpdatedPinsAfterOutputProcess(); break;
+		}
+		triggeringPins.insert(triggeringPins.end(), thisNodeTriggeringPins.begin(), thisNodeTriggeringPins.end());
+	}
+	
+	while(!triggeringPins.empty()){
+		for(auto& triggeringPin : triggeringPins){
+			
+			for(auto& processStarterPin : triggeringPin->getConnectedPins()){
+					
+				std::shared_ptr<Node> processedNode = processStarterPin->parentNode;
+				ProcessDirection processDirection;
 				
-		//PHASE I:
-		//find all nodes that will be processed on this cycle and add them in 'nodesToProcess'
-		//find them by starting from the initial nodes, and go down the connection tree
-		//this way they will more or less be in the right update order
-		//each time they are added, set the processed flag so they don't get added twice
-		std::vector<std::shared_ptr<Node>> nodesToProcess;
-		
-		//set all nodes to unprocessed, so they can all be added exactly once
-		for (auto node : getNodes()) node->b_wasProcessed = false;
-		
-		//linked nodes are all nodes that were found on the outputs of the previous linked nodes
-		//linked nodes is initialized with the start nodes
-		std::vector<std::shared_ptr<Node>> linkedNodes = startNodes;
-		
-		//next linked nodes are candidates for the next round of processing
-		std::vector<std::shared_ptr<Node>> nextLinkedNodes;
-
-		while (!linkedNodes.empty()) {
-			for (auto node : linkedNodes) {
-				if (node->wasProcessed()) continue;
-				//add the linked nodes to the list of nodes that will need to be processed
-				nodesToProcess.push_back(node);
-				//set the processed flag, so branches from this node's outputs won't be searched again
-				//this prevents an infinite loop
-				node->b_wasProcessed = true;
-				//get each node that is connected to an output of the current node
-				//and add it to the list of next linked nodes
-				for (auto inputData : node->getInputPins()) {
-					if(!inputData->isBidirectional()) continue;
-					for (auto inputLink : inputData->getLinks()) {
-						std::shared_ptr<Node> nodeLinkedAtInput = inputLink->getInputData()->getNode();
-						nextLinkedNodes.push_back(nodeLinkedAtInput);
-					}
+				if(processedNode->b_wasProcessed) continue;
+				else if(processStarterPin->isInput()) processDirection = ProcessDirection::INPUT_PROCESS;
+				else if(processStarterPin->isOutput() && processStarterPin->isBidirectional()) processDirection = ProcessDirection::OUTPUT_PROCESS;
+				else continue;
+				
+				instructions.push_back(ProcessProgram::Instruction::make(processedNode, processDirection));
+				processedNode->b_wasProcessed = true;
+				
+				std::vector<std::shared_ptr<NodePin>> thisNodeTriggeringPins;
+				switch(processDirection){
+					case ProcessDirection::INPUT_PROCESS: thisNodeTriggeringPins = processedNode->getUpdatedPinsAfterInputProcess(); break;
+					case ProcessDirection::OUTPUT_PROCESS: thisNodeTriggeringPins = processedNode->getUpdatedPinsAfterOutputProcess(); break;
 				}
+				
+				nextTriggeringPins.insert(nextTriggeringPins.end(), thisNodeTriggeringPins.begin(), thisNodeTriggeringPins.end());
+				
 			}
-			//Swap the candidates for the next round with the polled nodes
-			linkedNodes.clear();
-			linkedNodes.swap(nextLinkedNodes);
-		}
-
-		//PHASE 2:
-		//all nodes will be attempt processing in the order of the nodeToProcess list
-		//certain conditions apply:
-		//-a node can only process once
-		//-a node can only process if all nodes connected to its bidirectional outputs are already processed
-		//-if a circular dependency causes no nodes to process, we force processing of the first one left in the list
-
-		//set all nodes to processed except the ones that need to be processed and clear circular dependency flags
-		for (auto node : getNodes()) node->b_wasProcessed = true;
-		for (auto node : getNodes()) node->b_circularDependencyFlag = false;
-		for (auto node : nodesToProcess) node->b_wasProcessed = false;
-
-		//keep a list of candidates for the next round of processing
-		std::vector<std::shared_ptr<Node>> nextNodesToProcess;
-
-		while (!nodesToProcess.empty()) {
 			
-			for (auto node : nodesToProcess) {
-				//skip processing if:
-				//-the node was already processed
-				//-it is an IOdevice (which cannot process, only read inputs and write outputs)
-				if (node->wasProcessed() || node->getType() == Node::Type::IODEVICE) {
-					node->b_wasProcessed = true;
-					continue;
-				}
-				//processing takes place if:
-				//-all nodes connected to the current nodes inputs are already processed
-				//-a circular dependency condition forces the current node to process
-				if (node->areAllLinkedBidirectionalOutputNodesProcessed() || node->b_circularDependencyFlag) {
-					node->processReverse();
-					node->b_wasProcessed = true;
-				}
-				//if the node can't process, add it as a canditate for the next processing round
-				else nextNodesToProcess.push_back(node);
-			}
-
-			//if the canditate list didn't change, we are stuck in a cyclic dependency loop.
-			//force update of the first node in the list on the next cycle to try and resolve the loop
-			if (nodesToProcess == nextNodesToProcess) nextNodesToProcess.front()->b_circularDependencyFlag = true;
-
-			//swap the list of canditates with the nodes to be processed on the next round
-			nodesToProcess.clear();
-			nodesToProcess.swap(nextNodesToProcess);
 		}
 		
+		triggeringPins.clear();
+		triggeringPins.swap(nextTriggeringPins);
 	}
+	
+	
+	for (auto node : getNodes()) node->b_wasProcessed = true;
+	for (auto node : getNodes()) node->b_circularDependencyFlag = false;
+	for (auto& instruction : instructions) instruction->processedNode->b_wasProcessed = false;
+	
+	std::vector<std::shared_ptr<ProcessProgram::Instruction>> instructionsOrdered;
+	std::vector<std::shared_ptr<ProcessProgram::Instruction>> nextInstructionCanditates;
+	
+	while(!instructions.empty()){
+		
+		for (auto& instruction : instructions) {
+			
+			auto& processedNode = instruction->processedNode;
+			
+			//skip processing if:
+			//-the node was already processed
+			//-it is an IOdevice (which cannot process, only read inputs and write outputs)
+			if (processedNode->b_wasProcessed || processedNode->getType() == Node::Type::IODEVICE) {
+				processedNode->b_wasProcessed = true;
+				continue;
+			}
+			
+			//processing can only happen if all triggering nodes have been processed first
+			//or it can be forced through the ciruclar dependency flag
+			bool b_nodeCanProcess;
+			if(processedNode->b_circularDependencyFlag) b_nodeCanProcess = true;
+			else if(instruction->processType == ProcessDirection::INPUT_PROCESS && processedNode->areAllLinkedInputNodesProcessed()) b_nodeCanProcess = true;
+			else if(instruction->processType == ProcessDirection::OUTPUT_PROCESS && processedNode->areAllLinkedBidirectionalOutputNodesProcessed()) b_nodeCanProcess = true;
+			else b_nodeCanProcess = false;
+			
+			//processed nodes get added to the ordered instruction list
+			//else they get added to a candidate list to try again on the next round
+			if(b_nodeCanProcess){
+				instructionsOrdered.push_back(instruction);
+				processedNode->b_wasProcessed = true;
+			}else nextInstructionCanditates.push_back(instruction);
+		}
+
+		//if the canditate list didn't change, we are stuck in a cyclic dependency loop.
+		//force update of the first node in the list on the next cycle to try and resolve the loop
+		if (instructions == nextInstructionCanditates) nextInstructionCanditates.front()->processedNode->b_circularDependencyFlag = true;
+
+		//swap the list of canditates with the nodes to be processed on the next round
+		instructions.clear();
+		instructions.swap(nextInstructionCanditates);
+	}
+	
+	return instructionsOrdered;
+}
+
+
+
+
+
+std::shared_ptr<ProcessProgram> compileProcessProgram(std::vector<std::shared_ptr<Node>>& startNodes){
+	std::shared_ptr<ProcessProgram> program = std::make_shared<ProcessProgram>();
+	
+	program->inputProcessInstructions = compileOrderedInstructions(startNodes, ProcessDirection::INPUT_PROCESS);
+	
+	std::vector<std::shared_ptr<Node>> outputProcesStartedNodes;
+	for(auto& instruction : program->inputProcessInstructions){
+		if(instruction->processedNode->needsOutputProcess()) {
+			outputProcesStartedNodes.push_back(instruction->processedNode);
+		}
+	}
+	
+	program->outputProcessInstructions = compileOrderedInstructions(outputProcesStartedNodes, ProcessDirection::OUTPUT_PROCESS);
+		
+	return program;
+}
+
+
+
+
+void ProcessProgram::log(){
+	Logger::info("Input Process: {} instructions", inputProcessInstructions.size());
+	for(int i = 0; i < inputProcessInstructions.size(); i++){
+		auto& instruction = inputProcessInstructions[i];
+		switch(instruction->processType){
+			case ProcessDirection::INPUT_PROCESS: Logger::trace("[{}] [Input Process] {}", i, instruction->processedNode->getName()); break;
+			case ProcessDirection::OUTPUT_PROCESS: Logger::trace("[{}] [Output Process] {}", i, instruction->processedNode->getName()); break;
+		}
+	}
+	Logger::info("Output Process: {} instructions", outputProcessInstructions.size());
+	for(int i = 0; i < outputProcessInstructions.size(); i++){
+		auto& instruction = outputProcessInstructions[i];
+		switch(instruction->processType){
+			case ProcessDirection::INPUT_PROCESS: Logger::trace("[{}] [Input Process] {}", i, instruction->processedNode->getName()); break;
+			case ProcessDirection::OUTPUT_PROCESS: Logger::trace("[{}] [Output Process] {}", i, instruction->processedNode->getName()); break;
+		}
+	}
+}
+
+
+
+void executeInstructions(std::vector<std::shared_ptr<ProcessProgram::Instruction>>& instructions){
+	for(auto& instruction : instructions){
+		switch(instruction->processType){
+			case ProcessDirection::INPUT_PROCESS: instruction->processedNode->inputProcess(); break;
+			case ProcessDirection::OUTPUT_PROCESS: instruction->processedNode->outputProcess(); break;
+		}
+	}
+}
+
+void executeInputProcess(std::shared_ptr<ProcessProgram> processProgram){
+	executeInstructions(processProgram->inputProcessInstructions);
+}
+void executeOutputProcess(std::shared_ptr<ProcessProgram> processProgram){
+	executeInstructions(processProgram->outputProcessInstructions);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

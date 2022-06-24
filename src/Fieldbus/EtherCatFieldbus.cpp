@@ -853,8 +853,6 @@ namespace EtherCatFieldbus {
             }
             slave->identity->state = EC_STATE_NONE;
         }
-        //evaluate all nodes one last time to propagate the disconnection of devices
-		Environnement::NodeGraph::evaluate(Device::Type::ETHERCAT_DEVICE, Environnement::NodeGraph::EvaluationDirection::FROM_INPUTS_TO_OUTPUTS);
 
         Logger::info("===== Cyclic Exchange Stopped !");
 

@@ -55,6 +55,7 @@ namespace Environnement{
 
 	//nodegraph interface
 	std::vector<std::shared_ptr<EtherCatDevice>>& getEtherCatDevices();
+	std::vector<std::shared_ptr<Node>>& getEtherCatDeviceNodes();
 	std::vector<std::shared_ptr<Machine>>& getMachines();
 	std::vector<std::shared_ptr<NetworkDevice>>& getNetworkDevices();
 

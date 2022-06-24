@@ -21,7 +21,7 @@ public:
 
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 
-	virtual void process();
+	virtual void inputProcess() override;
 	
 	virtual void nodeSpecificGui() {
 		if (ImGui::BeginTabItem("Plot")) {
@@ -64,7 +64,7 @@ void PlotterNode::initialize(){
 	data.setMaxSize(bufferSize);
 }
 
-void PlotterNode::process() {
+void PlotterNode::inputProcess() {
 	if (input->isConnected()) {
 		input->copyConnectedPinValue();
 		if (!wasConnected) {

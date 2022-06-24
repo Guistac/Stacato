@@ -36,7 +36,9 @@ public:
 	bool areAllPinsConnected();
 	
 	//processing
-	virtual void process();
+	virtual void inputProcess() override;
+	virtual void outputProcess() override;
+	
 	virtual void onPinUpdate(std::shared_ptr<NodePin> pin);
 	
 	//control signal

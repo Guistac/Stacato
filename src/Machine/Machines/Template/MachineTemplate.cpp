@@ -54,11 +54,11 @@ void MachineTemplate::onDisableSimulation() {
 
 //======= PROCESSING =========
 
-void MachineTemplate::process() {
+void MachineTemplate::inputProcess() {
 	//machine inputs processing
 }
 
-void MachineTemplate::processReverse() {
+void MachineTemplate::outputProcess() {
 	//actuator command sending
 }
 

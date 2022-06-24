@@ -10,7 +10,7 @@ public:
 	std::shared_ptr<double> constantValue = std::make_shared<double>(0.0);
 	std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "value", NodePin::Flags::ForceDataField);
 	
-	virtual void process(){}
+	virtual void inputProcess() override{};
 	
 };
 
@@ -32,7 +32,7 @@ public:
 	std::shared_ptr<double> offsetPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 
-	virtual void process();
+	virtual void inputProcess() override;
 	
 };
 
@@ -45,7 +45,7 @@ void AdditionNode::initialize(){
 	addNodePin(output);
 }
 
-void AdditionNode::process() {
+void AdditionNode::inputProcess() {
 	double sum = 0.0;
 	
 	if(input->hasMultipleConnections()) {
@@ -75,7 +75,7 @@ public:
 	std::shared_ptr<double> offsetPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void process();
+	virtual void inputProcess() override;
 	
 };
 
@@ -90,7 +90,7 @@ void SubtractionNode::initialize(){
 	addNodePin(output);
 }
 
-void SubtractionNode::process() {
+void SubtractionNode::inputProcess() {
 	double sum = 0.0;
 	
 	if(base->hasMultipleConnections()) {
@@ -124,7 +124,7 @@ public:
 	std::shared_ptr<double> multiplierPinValue = std::make_shared<double>(1.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void process();
+	virtual void inputProcess() override;
 	
 };
 
@@ -137,7 +137,7 @@ void MultiplicationNode::initialize(){
 	addNodePin(output);
 }
 
-void MultiplicationNode::process() {
+void MultiplicationNode::inputProcess() {
 	double out = 1.0;
 	
 	if(input->hasMultipleConnections()) {
@@ -167,7 +167,7 @@ public:
 	std::shared_ptr<double> multPinValue = std::make_shared<double>(1.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void process();
+	virtual void inputProcess() override;
 	
 };
 
@@ -182,7 +182,7 @@ void DivisionNode::initialize(){
 	addNodePin(output);
 }
 
-void DivisionNode::process() {
+void DivisionNode::inputProcess() {
 	double out = 1.0;
 	
 	if(base->hasMultipleConnections()){
@@ -215,7 +215,7 @@ public:
 	std::shared_ptr<double> expPinValue = std::make_shared<double>(1.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void process();
+	virtual void inputProcess() override;
 	
 };
 
@@ -228,7 +228,7 @@ void ExponentNode::initialize(){
 	addNodePin(output);
 }
 
-void ExponentNode::process() {
+void ExponentNode::inputProcess() {
 	if(base->isConnected()) base->copyConnectedPinValue();
 	
 	if(exp->isConnected()) exp->copyConnectedPinValue();
@@ -248,7 +248,7 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void process();
+	virtual void inputProcess() override;
 	
 };
 
@@ -259,7 +259,7 @@ void AbsoluteNode::initialize(){
 	addNodePin(output);
 }
 
-void AbsoluteNode::process() {
+void AbsoluteNode::inputProcess() {
 	if(input->isConnected()) input->copyConnectedPinValue();
 	
 	*outputPinValue = std::abs(*inputPinValue);
@@ -281,7 +281,7 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 
-	virtual void process();
+	virtual void inputProcess() override;
 	
 };
 
@@ -292,7 +292,7 @@ void SinusNode::initialize(){
 	addNodePin(out);
 }
 
-void SinusNode::process() {
+void SinusNode::inputProcess() {
 	if(in->isConnected()) in->copyConnectedPinValue();
 	*outputPinValue = std::sin(*inputPinValue);
 }
@@ -309,7 +309,7 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(1.0);
 	
-	virtual void process();
+	virtual void inputProcess() override;
 	
 };
 
@@ -320,7 +320,7 @@ void CosinusNode::initialize(){
 	addNodePin(out);
 }
 
-void CosinusNode::process() {
+void CosinusNode::inputProcess() {
 	if(in->isConnected()) in->copyConnectedPinValue();
 	*outputPinValue = std::cos(*inputPinValue);
 }
@@ -336,7 +336,7 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void process();
+	virtual void inputProcess() override;
 	
 };
 
@@ -347,7 +347,7 @@ void TangentNode::initialize(){
 	addNodePin(out);
 }
 
-void TangentNode::process() {
+void TangentNode::inputProcess() {
 	if(in->isConnected()) in->copyConnectedPinValue();
 	*outputPinValue = std::tan(*inputPinValue);
 }
@@ -363,7 +363,7 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(std::numeric_limits<double>::infinity());
 	
-	virtual void process();
+	virtual void inputProcess() override;
 	
 };
 
@@ -374,7 +374,7 @@ void CotangentNode::initialize(){
 	addNodePin(out);
 }
 
-void CotangentNode::process() {
+void CotangentNode::inputProcess() {
 	if(in->isConnected()) in->copyConnectedPinValue();
 	*outputPinValue = 1.0 / std::sin(*inputPinValue);
 }
@@ -401,7 +401,7 @@ public:
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(false);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(false);
 	
-	virtual void process();
+	virtual void inputProcess() override;
 	
 };
 
@@ -412,7 +412,7 @@ void BoolNode::initialize(){
 	addNodePin(out);
 }
 
-void BoolNode::process() {
+void BoolNode::inputProcess() {
 	if(in->isConnected()) {
 		double realValue = in->getConnectedPin()->read<double>();
 		*outputPinValue = realValue > 0.0;
@@ -431,7 +431,7 @@ public:
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(0.0);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
 
-	virtual void process();
+	virtual void inputProcess() override;
 	
 };
 
@@ -442,7 +442,7 @@ void NotNode::initialize(){
 	addNodePin(out);
 }
 
-void NotNode::process() {
+void NotNode::inputProcess() {
 	if(in->isConnected()) in->copyConnectedPinValue();
 	*outputPinValue = !*inputPinValue;
 }
@@ -460,7 +460,7 @@ public:
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(0.0);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
 	
-	virtual void process();
+	virtual void inputProcess() override;
 	
 };
 
@@ -471,7 +471,7 @@ void AndNode::initialize(){
 	addNodePin(out);
 }
 
-void AndNode::process() {
+void AndNode::inputProcess() {
 	if(in->hasMultipleConnections()){
 		*inputPinValue = false;
 		for(auto pin : in->getConnectedPins()) {
@@ -497,7 +497,7 @@ public:
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(0.0);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
 	
-	virtual void process();
+	virtual void inputProcess() override;
 	
 };
 
@@ -508,7 +508,7 @@ void OrNode::initialize(){
 	addNodePin(out);
 }
 
-void OrNode::process() {
+void OrNode::inputProcess() {
 	if(in->hasMultipleConnections()){
 		*inputPinValue = false;
 		for(auto pin : in->getConnectedPins()) {

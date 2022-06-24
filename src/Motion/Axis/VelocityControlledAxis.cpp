@@ -20,7 +20,7 @@ void VelocityControlledAxis::initialize() {
 	addNodePin(loadPin);
 }
 
-void VelocityControlledAxis::process() {
+void VelocityControlledAxis::inputProcess() {
 	
 	//update profile time no matter what
 	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
@@ -53,6 +53,11 @@ void VelocityControlledAxis::process() {
 	}
 
 	sendActuatorCommands();
+}
+
+void VelocityControlledAxis::outputProcess(){
+	Logger::warn("OUTPUT PROCESS NOT DEFINED FOR VELOCITY CONTROLLED AXIS");
+	abort();
 }
 
 //called by node connected to axis pin to send velocity to the axis

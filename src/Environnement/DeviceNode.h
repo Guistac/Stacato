@@ -27,7 +27,6 @@ public:
 	//for device nodes, processing takes place inside the device.
 	//instead we only prepare input when data is available
 	//and prepare outputs when new data is send to the device
-	virtual void process() {}
 	virtual void readInputs() = 0;
 	virtual void prepareOutputs() = 0;
 

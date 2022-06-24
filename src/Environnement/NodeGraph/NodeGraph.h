@@ -26,14 +26,30 @@ namespace Environnement::NodeGraph{
 	std::vector<std::shared_ptr<NodeLink>>& getSelectedLinks();
 
 
-	enum class EvaluationDirection{
-		FROM_INPUTS_TO_OUTPUTS,
-		FROM_OUTPUTS_TO_INPUTS
+	enum class ProcessDirection{
+		INPUT_PROCESS,
+		OUTPUT_PROCESS
 	};
-	void evaluate(EvaluationDirection direction);
-	void evaluate(Device::Type deviceType, EvaluationDirection direction);
-	void evaluate(Node::Type nodeType, EvaluationDirection direction);
-	void evaluate(std::shared_ptr<Node> node, EvaluationDirection direction);
+
+	struct ProcessProgram{
+		struct Instruction{
+			std::shared_ptr<Node> processedNode;
+			ProcessDirection processType;
+			static std::shared_ptr<Instruction> make(std::shared_ptr<Node> node, ProcessDirection direction){
+				auto instruction = std::make_shared<Instruction>();
+				instruction->processedNode = node;
+				instruction->processType = direction;
+				return instruction;
+			}
+		};
+		std::vector<std::shared_ptr<Instruction>> inputProcessInstructions;
+		std::vector<std::shared_ptr<Instruction>> outputProcessInstructions;
+		void log();
+	};
+
+	std::shared_ptr<ProcessProgram> compileProcessProgram(std::vector<std::shared_ptr<Node>>& startNodes);
+	void executeInputProcess(std::shared_ptr<ProcessProgram> processProgram);
+	void executeOutputProcess(std::shared_ptr<ProcessProgram> processProgram);
 
 	bool load(tinyxml2::XMLElement* xml);
 	bool save(tinyxml2::XMLElement* xml);

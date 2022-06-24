@@ -117,7 +117,7 @@ void PositionControlledMachine::onDisableSimulation() {
 	motionProfile.setAcceleration(0.0);
 }
 
-void PositionControlledMachine::process() {
+void PositionControlledMachine::inputProcess() {
 	if (!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
@@ -142,7 +142,7 @@ void PositionControlledMachine::process() {
 }
 
 
-void PositionControlledMachine::processReverse(){
+void PositionControlledMachine::outputProcess(){
 	if (!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 	

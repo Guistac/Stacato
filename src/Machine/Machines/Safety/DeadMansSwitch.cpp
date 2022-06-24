@@ -12,10 +12,15 @@ void DeadMansSwitch::initialize(){
 	addNodePin(deadMansSwitchLink);
 }
 
-void DeadMansSwitch::process(){
+void DeadMansSwitch::inputProcess(){
 	
 	switchPressedPin->copyConnectedPinValue();
 	switchConnectedPin->copyConnectedPinValue();
 	
 	*b_switchLed = *b_switchPressed;
+}
+
+void DeadMansSwitch::outputProcess(){
+	Logger::critical("output process not defined for dead mans switch");
+	abort();
 }

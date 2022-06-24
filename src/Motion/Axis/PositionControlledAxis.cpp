@@ -29,7 +29,7 @@ void PositionControlledAxis::initialize() {
 	setPositionReferenceSignalType(positionReferenceSignal);
 }
 
-void PositionControlledAxis::process() {
+void PositionControlledAxis::inputProcess() {
 
 	//check connection requirements and abort processing if the requirements are not met
 	if(!areAllPinsConnected()) return;
@@ -119,7 +119,7 @@ void PositionControlledAxis::process() {
 
 }
 
-void PositionControlledAxis::processReverse(){
+void PositionControlledAxis::outputProcess(){
 	
 }
 

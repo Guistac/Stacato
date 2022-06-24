@@ -88,7 +88,8 @@ private:
 	void sendActuatorCommands();
 	
 public:
-	virtual void process();
+	virtual void inputProcess() override;
+	virtual void outputProcess() override;
 	
 	void setVelocityCommand(double velocity);
 	

@@ -18,6 +18,7 @@ public:
 	std::shared_ptr<NodePin> switchLedPin = std::make_shared<NodePin>(b_switchLed, NodePin::Direction::NODE_OUTPUT, "Switch LED Signal", "SwitchLEDSignalPin");
 	std::shared_ptr<NodePin> deadMansSwitchLink = std::make_shared<NodePin>(NodePin::DataType::DEAD_MANS_SWITCH, NodePin::Direction::NODE_OUTPUT, "Dead Man's Switch");
 	
-	virtual void process();
+	virtual void inputProcess() override;
+	virtual void outputProcess() override;
 	
 };

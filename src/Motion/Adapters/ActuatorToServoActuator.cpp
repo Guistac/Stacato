@@ -14,7 +14,7 @@ void ActuatorToServoActuator::initialize(){
 	addNodePin(servoActuatorPin);
 }
 
-void ActuatorToServoActuator::process(){
+void ActuatorToServoActuator::inputProcess(){
 	
 	//update time no matter what
 	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
@@ -78,6 +78,11 @@ void ActuatorToServoActuator::process(){
 	//else the node does its own processing of the control loop
 	if(servoActuatorPin->isConnected()) controlMode = ControlMode::EXTERNAL;
 	else controlLoop();
+}
+
+void ActuatorToServoActuator::outputProcess(){
+	Logger::critical("output process not defined for actuator to servo actuator");
+	abort();
 }
 
 void ActuatorToServoActuator::controlLoop(){

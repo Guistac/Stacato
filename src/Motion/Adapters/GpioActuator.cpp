@@ -17,7 +17,7 @@ void GpioActuator::initialize(){
 	addNodePin(actuatorPin);
 }
 
-void GpioActuator::process(){
+void GpioActuator::inputProcess(){
 	
 	//update time no matter what
 	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
@@ -61,6 +61,11 @@ void GpioActuator::process(){
 	
 	if(isActuatorPinConnected()) controlMode = ControlMode::EXTERNAL;
 	else controlLoop();
+}
+
+void GpioActuator::outputProcess(){
+	Logger::critical("Output process not defined for gpio actuator");
+	abort();
 }
 
 void GpioActuator::controlLoop(){

@@ -64,9 +64,27 @@ public:
 	void restoreSavedPosition();
 	
 	//processing
-	virtual void process(){}
-	virtual void processReverse(){}
+	virtual void inputProcess(){}
+	virtual void outputProcess(){}
+	
 	bool wasProcessed() { return b_wasProcessed; }
+	
+	virtual std::vector<std::shared_ptr<NodePin>> getUpdatedPinsAfterInputProcess(){ return nodeOutputPins; }
+	virtual std::vector<std::shared_ptr<NodePin>> getUpdatedPinsAfterOutputProcess(){ return nodeInputPins; }
+	virtual bool needsOutputProcess(){ return false; }
+	
+	//—————————— INPUT VS OUTPUT PROCESSES ——————————
+	//each node has an input process and can have an output process
+	//the input process gets triggered by the left input pins, and generally propagates updates through the right output pins
+	//the output process gets triggered by the right output pins, and generally propagates updates through the left input pins
+	//while regular pins can only trigger the input process
+	//bidirectional pins can trigger input and output processes
+	//if a node has no bidirectional output pin, it does not have an output process
+	//if a node has no bidirectional intput pin, it cannot trigger another nodes output process
+	//each nodes gets to decice which pins will propagate updates after each process
+	//for the input process, all output pins generally trigger the input process on connected nodes
+	//for the output process, all bidirectional input pins generally trigger the output process on connected nodes
+	//but as an exeption to the rule: a node could decide that its output process could update output pins and cause input processes to be executed downstream
 	
 	bool areAllLinkedInputNodesProcessed();
 	bool areAllLinkedBidirectionalOutputNodesProcessed();

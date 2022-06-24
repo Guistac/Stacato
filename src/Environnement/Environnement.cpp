@@ -119,9 +119,16 @@ namespace Environnement {
 		if(environnementSimulator.joinable()) environnementSimulator.join();
 	}
 
+	std::shared_ptr<NodeGraph::ProcessProgram> ethercatDeviceProcessProgram;
+
 	void startHardware(){
 		b_isStarting = true;
 		Logger::info("Starting Environnement Hardware");
+		
+		ethercatDeviceProcessProgram = NodeGraph::compileProcessProgram(getEtherCatDeviceNodes());
+		Logger::info("Compiled EtherCAT Process Program: ");
+		ethercatDeviceProcessProgram->log();
+		
 		EtherCatFieldbus::start();
 		std::thread environnementHardwareStarter([](){
 			//first sleep, to allow the fieldbus some time to start
@@ -150,35 +157,40 @@ namespace Environnement {
 		for(auto& machine : getMachines()) machine->disable();
 		EtherCatFieldbus::stop();
 		for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
+		
+		//execute the input process one last time to propagate disconnection of ethercat devices
+		NodeGraph::executeInputProcess(ethercatDeviceProcessProgram);
+		
 		b_isRunning = false;
 	}
 
 
 	void updateEtherCatHardware(){
+				
 		//interpret all slaves input data if operational
 		for (auto slave : EtherCatFieldbus::getDevices()) if (slave->isStateOperational()) slave->readInputs();
+				
+		//read inputs from devices and propagate them into the node graph
+		NodeGraph::executeInputProcess(ethercatDeviceProcessProgram);
+		
+		//TODO: update environnement script here !!!
 		
 		//increments the playback position of all active manoeuvres
 		//if a manoeuvre finishes playback, this sets its playback position to the exact end of the manoeuvre
 		PlaybackManager::incrementPlaybackPosition();
 		
-		//update all nodes connected to ethercat slave nodes
-		Environnement::NodeGraph::evaluate(Device::Type::ETHERCAT_DEVICE, Environnement::NodeGraph::EvaluationDirection::FROM_INPUTS_TO_OUTPUTS);
-		
-		//TODO: update environnement script here !!!
-		
-		//ends playback of finished manoeuvres and rapids
-		//triggers the onParameterPlaybackEnd() method of machines
+		//increment playback positions and checks if manoeuvres ended
 		PlaybackManager::updateActiveManoeuvreState();
 		
-		Environnement::NodeGraph::evaluate(Node::Type::MACHINE, Environnement::NodeGraph::EvaluationDirection::FROM_OUTPUTS_TO_INPUTS);
+		//take nodegraph outputs and propagate them to the devices
+		NodeGraph::executeOutputProcess(ethercatDeviceProcessProgram);
 		
 		//prepare all slaves output data if operational
 		for (auto slave : EtherCatFieldbus::getDevices()) if (slave->isStateOperational()) slave->prepareOutputs();
 	}
 
 	void updateSimulation(){
-		
+				
 		//get current time
 		double currentSimulationTime_seconds = Timing::getProgramTime_seconds() - simulationStartTime_seconds;
 		long long int currentSimulationTime_nanoseconds = Timing::getProgramTime_nanoseconds() - simulationStartTime_nanoseconds;
@@ -222,31 +234,24 @@ namespace Environnement {
 
 
 	std::vector<std::shared_ptr<EtherCatDevice>> etherCatDevices;
+	std::vector<std::shared_ptr<Node>> etherCatDeviceNodes;
+
 	std::vector<std::shared_ptr<Machine>> machines;
 	std::vector<std::shared_ptr<NetworkDevice>> networkDevices;
 
 	std::shared_ptr<Machine> selectedMachine;
 	std::shared_ptr<EtherCatDevice> selectedEtherCatDevice;
 
-	std::vector<std::shared_ptr<EtherCatDevice>>& getEtherCatDevices() {
-		return etherCatDevices;
-	}
+	std::vector<std::shared_ptr<EtherCatDevice>>& getEtherCatDevices() { return etherCatDevices; }
+	std::vector<std::shared_ptr<Node>>& getEtherCatDeviceNodes(){ return etherCatDeviceNodes; }
 
-	std::vector<std::shared_ptr<Machine>>& getMachines() {
-		return machines;
-	}
+	std::vector<std::shared_ptr<Machine>>& getMachines() { return machines; }
 
-	std::vector<std::shared_ptr<NetworkDevice>>& getNetworkDevices(){
-		return networkDevices;
-	}
+	std::vector<std::shared_ptr<NetworkDevice>>& getNetworkDevices(){ return networkDevices; }
 
-	void enableAllMachines() {
-		for (auto machine : machines) machine->enable();
-	}
+	void enableAllMachines() { for (auto machine : machines) machine->enable(); }
 
-	void disableAllMachines() {
-		for (auto machine : machines) machine->disable();
-	}
+	void disableAllMachines() { for (auto machine : machines) machine->disable(); }
 
 	bool areAllMachinesEnabled() {
 		if (machines.empty()) return false;
@@ -273,6 +278,7 @@ namespace Environnement {
 				switch (deviceNode->getDeviceType()) {
 					case Device::Type::ETHERCAT_DEVICE:
 						etherCatDevices.push_back(std::dynamic_pointer_cast<EtherCatDevice>(deviceNode));
+						etherCatDeviceNodes.push_back(node);
 						break;
 					case Device::Type::NETWORK_DEVICE:
 						networkDevices.push_back(std::dynamic_pointer_cast<NetworkDevice>(deviceNode));
@@ -306,6 +312,12 @@ namespace Environnement {
 					for (int i = 0; i < etherCatDevices.size(); i++) {
 						if (etherCatDevices[i] == etherCatDeviceNode) {
 							etherCatDevices.erase(etherCatDevices.begin() + i);
+							break;
+						}
+					}
+					for (int i = 0; i < etherCatDeviceNodes.size(); i++) {
+						if (etherCatDeviceNodes[i] == node) {
+							etherCatDeviceNodes.erase(etherCatDeviceNodes.begin() + i);
 							break;
 						}
 					}
