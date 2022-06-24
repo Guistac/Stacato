@@ -107,17 +107,17 @@ namespace Environnement::Gui{
 		
 		ImGui::BeginChild("NodeGraphEditor", ImGui::GetContentRegionAvail());
 
-	   //Draw the entire node editor
-		glm::vec2 nodeEditorSize(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y - ImGui::GetTextLineHeight() * 1.7);
-		Environnement::NodeGraph::Gui::editor(nodeEditorSize);
+		   //Draw the entire node editor
+			glm::vec2 nodeEditorSize(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y - ImGui::GetTextLineHeight() * 1.7);
+			Environnement::NodeGraph::Gui::editor(nodeEditorSize);
 
-	   if (ImGui::Button("Center View")) Environnement::NodeGraph::Gui::centerView();
-	   ImGui::SameLine();
-	   if (ImGui::Button("Show Flow")) Environnement::NodeGraph::Gui::showFlow();
-	   ImGui::SameLine();
-	   ImGui::Checkbox("Show Output Values", &Environnement::NodeGraph::getShowOutputValues());
-	   ImGui::SameLine();
-	   if (!Project::isEditingAllowed()) ImGui::TextColored(Colors::gray, "Editing is disabled while the environnement is running");
+		   if (ImGui::Button("Center View")) Environnement::NodeGraph::Gui::centerView();
+		   ImGui::SameLine();
+		   if (ImGui::Button("Show Flow")) Environnement::NodeGraph::Gui::showFlow();
+		   ImGui::SameLine();
+		   ImGui::Checkbox("Show Output Values", &Environnement::NodeGraph::getShowOutputValues());
+		   ImGui::SameLine();
+		   if (!Project::isEditingAllowed()) ImGui::TextColored(Colors::gray, "Editing is disabled while the environnement is running");
 		
 		ImGui::EndChild();
 

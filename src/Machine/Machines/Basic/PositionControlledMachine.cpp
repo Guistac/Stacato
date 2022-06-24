@@ -122,23 +122,11 @@ void PositionControlledMachine::inputProcess() {
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
 	//Get Realtime values from axis (for position and velocity pins only)
-	double actualPosition_machineUnits = axisPositionToMachinePosition(axis->getActualPosition());
-	double actualVelocity_machineUnits = axisVelocityToMachineVelocity(axis->getActualVelocity());
-	*positionPinValue = actualPosition_machineUnits;
-	*velocityPinValue = actualVelocity_machineUnits;
+	*positionPinValue = axisPositionToMachinePosition(axis->getActualPosition());
+	*velocityPinValue = axisVelocityToMachineVelocity(axis->getActualVelocity());
 
 	//Handle Axis state changes
 	if (isEnabled() && !axis->isEnabled()) disable();
-	
-	//Abort the process if the axis is not enabled or is homing (in which case the axis has full control of motion)
-	if (!isEnabled() || isHoming()) {
-		//we still need to copy the current axis motion values to the machines motion profile
-		//so they they are correct when we start the machine or gain back control after homing is finished
-		motionProfile.setPosition(actualPosition_machineUnits);
-		motionProfile.setVelocity(actualVelocity_machineUnits);
-		motionProfile.setAcceleration(0.0);
-		return;
-	}
 }
 
 
@@ -146,12 +134,19 @@ void PositionControlledMachine::outputProcess(){
 	if (!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 	
+	//if the axis is not enabled or is homing, the machine has no control over it, we just update the motion profile
+	if (!isEnabled() || isHoming()) {
+		motionProfile.setPosition(axis->getActualPosition());
+		motionProfile.setVelocity(axis->getActualVelocity());
+		motionProfile.setAcceleration(0.0);
+		return; //don't send motion commands to the axis
+	}
+	
 	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
 	profileDeltaTime_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
-		
+	
 	//Update Motion Profile
 	switch(controlMode){
-			
 		case ControlMode::PARAMETER_TRACK:{
 			auto value = positionParameter->getAnimationValue()->toPosition();
 			
@@ -181,7 +176,10 @@ void PositionControlledMachine::outputProcess(){
 	}
 	
 	//Send motion values to axis profile
-	axis->setMotionCommand(machinePositionToAxisPosition(motionProfile.getPosition()), machineVelocityToAxisVelocity(motionProfile.getVelocity()));
+	double axisPosition = machinePositionToAxisPosition(motionProfile.getPosition());
+	double axisVelocity = machineVelocityToAxisVelocity(motionProfile.getVelocity());
+	double axisAcceleration = machineAccelerationToAxisAcceleration(motionProfile.getAcceleration());
+	axis->setMotionCommand(axisPosition, axisVelocity, axisAcceleration);
 }
 
 void PositionControlledMachine::simulateInputProcess() {
@@ -686,6 +684,11 @@ double PositionControlledMachine::axisVelocityToMachineVelocity(double axisVeloc
 	return axisVelocity;
 }
 
+double PositionControlledMachine::axisAccelerationToMachineAcceleration(double axisAcceleration){
+	if(b_invertDirection) return axisAcceleration * -1.0;
+	return axisAcceleration;
+}
+
 double PositionControlledMachine::machinePositionToAxisPosition(double machinePosition){
 	if(b_invertDirection) return (-1.0f * machinePosition) + machineZero_axisUnits;
 	return machinePosition + machineZero_axisUnits;
@@ -694,6 +697,11 @@ double PositionControlledMachine::machinePositionToAxisPosition(double machinePo
 double PositionControlledMachine::machineVelocityToAxisVelocity(double machineVelocity){
 	if(b_invertDirection) return machineVelocity * -1.0;
 	return machineVelocity;
+}
+
+double PositionControlledMachine::machineAccelerationToAxisAcceleration(double machineAcceleration){
+	if(b_invertDirection) return machineAcceleration * -1.0;
+	return machineAcceleration;
 }
 
 

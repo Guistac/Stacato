@@ -5,16 +5,16 @@
 #include "NodeGraph/NodeLink.h"
 
 #define DEFINE_NODE(className, nodeName, saveName, type, category) \
-	virtual const char* getSaveName() { return saveName; }\
-	virtual const char* getNodeCategory() { return category; }\
+	virtual const char* getSaveName() override { return saveName; }\
+	virtual const char* getNodeCategory() override { return category; }\
 	className(){ setName(nodeName); }\
-	virtual Node::Type getType() { return type; }\
-	virtual std::shared_ptr<Node> getNewInstance(){\
+	virtual Node::Type getType() override { return type; }\
+	virtual std::shared_ptr<Node> getNewInstance() override {\
 		std::shared_ptr<Node> newInstance = std::make_shared<className>();\
 		newInstance->initialize();\
 		return newInstance;\
 	}\
-	virtual void initialize();\
+	virtual void initialize() override;\
 
 namespace tinyxml2 { class XMLElement; }
 

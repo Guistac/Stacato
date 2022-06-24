@@ -54,6 +54,7 @@ void HoodedLiftStateMachine::inputProcess() {
 	//update inputs signals & state machine
 	if (b_enabled || areGpioSignalsReady()) {
 		updateGpioInSignals();
+		
 		if (hoodShut && !hoodOpen) {
 			if (liftLowered && !liftRaised) actualState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
 			else if (liftRaised && !liftLowered) actualState = MachineState::State::UNEXPECTED_STATE;
@@ -86,10 +87,11 @@ void HoodedLiftStateMachine::inputProcess() {
 		else if (liftMotorCircuitBreakerTripped) disable();
 		else if (hoodMotorCircuitBreakerTripped) disable();
 	}
+}
 
+void HoodedLiftStateMachine::outputProcess(){
 	//update outputs signals
 	if (b_enabled) {
-
 		if (stateParameter->hasAnimation()) {
 			auto state = stateParameter->getAnimationValue()->toState();
 			switch (state->value->integerEquivalent) {
@@ -102,7 +104,7 @@ void HoodedLiftStateMachine::inputProcess() {
 				case 2:
 					requestedState = MachineState::State::LIFT_RAISED_HOOD_OPEN;
 					break;
-				default: 
+				default:
 					break;
 			}
 		}
@@ -144,13 +146,6 @@ void HoodedLiftStateMachine::inputProcess() {
 		raisePlatform = false;
 	}
 	updateGpioOutSignals();
-}
-
-void HoodedLiftStateMachine::outputProcess(){
-	Logger::critical("Output Process not defined for hooded lift state machine");
-	abort();
-	//not applicable here since we drive inputs directly ?
-	//or maybe we should catch blocking commands from the environnement script
 }
 
 bool HoodedLiftStateMachine::isHardwareReady() { 

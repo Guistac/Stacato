@@ -17,7 +17,7 @@ bool EtherCatDevice::isConnected() {
 }
 
 void EtherCatDevice::readInputs(){}
-void EtherCatDevice::prepareOutputs(){}
+void EtherCatDevice::writeOutputs(){}
 void EtherCatDevice::onConnection(){}
 void EtherCatDevice::onDisconnection(){}
 

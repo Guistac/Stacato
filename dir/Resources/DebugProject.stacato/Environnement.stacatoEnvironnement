@@ -41,7 +41,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Device 1" UniqueID="18">
-                <InputNodeEditorPosition x="280" y="526"/>
+                <InputNodeEditorPosition x="296" y="492"/>
                 <OutputNodeEditorPosition x="2.1474836e+09" y="2.1474836e+09"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="33"/>
@@ -196,6 +196,47 @@
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="121" Visible="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Hooded Lift State Machine" UniqueID="125">
+                <NodeEditorPosition x="-328" y="92"/>
+                <NodeSpecificData ShortName="M"/>
+                <InputPins>
+                    <InputPin SaveString="GPIO Device" DisplayString="GPIO Device" DataType="GPIODeviceLink" UniqueID="126" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Hood Open" DisplayString="Hood Open" DataType="Boolean" UniqueID="127" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Hood Shut" DisplayString="Hood Shut" DataType="Boolean" UniqueID="128" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Lift Raised" DisplayString="Lift Raised" DataType="Boolean" UniqueID="129" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Lift Lowered" DisplayString="Lift Lowered" DataType="Boolean" UniqueID="130" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Hood Motor Fuse" DisplayString="Hood Motor Fuse" DataType="Boolean" UniqueID="131" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Lift Motor Fuse" DisplayString="Lift Motor Fuse" DataType="Boolean" UniqueID="132" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Emergency Stop Clear" DisplayString="Emergency Stop Clear" DataType="Boolean" UniqueID="133" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Local Control Enabled" DisplayString="Local Control Enabled" DataType="Boolean" UniqueID="134" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Open Hood" DisplayString="Open Hood" DataType="Boolean" UniqueID="135" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Shut Hood" DisplayString="Shut Hood" DataType="Boolean" UniqueID="136" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Raise Lift" DisplayString="Raise Lift" DataType="Boolean" UniqueID="137" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Lower Lift" DisplayString="Lower Lift" DataType="Boolean" UniqueID="138" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Not" CustomName="Not" UniqueID="152">
+                <NodeEditorPosition x="12" y="307"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="153" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="154" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="And" CustomName="And" UniqueID="155">
+                <NodeEditorPosition x="-3" y="419"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="156" Visible="true" AcceptsMultipleInputs="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="157" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="7" StartPin="2" EndPin="4"/>
@@ -210,6 +251,21 @@
             <Link UniqueID="91" StartPin="89" EndPin="9"/>
             <Link UniqueID="122" StartPin="97" EndPin="109"/>
             <Link UniqueID="123" StartPin="114" EndPin="119"/>
+            <Link UniqueID="139" StartPin="58" EndPin="126"/>
+            <Link UniqueID="140" StartPin="59" EndPin="127"/>
+            <Link UniqueID="141" StartPin="60" EndPin="128"/>
+            <Link UniqueID="142" StartPin="61" EndPin="129"/>
+            <Link UniqueID="143" StartPin="62" EndPin="130"/>
+            <Link UniqueID="144" StartPin="63" EndPin="131"/>
+            <Link UniqueID="145" StartPin="64" EndPin="132"/>
+            <Link UniqueID="146" StartPin="65" EndPin="133"/>
+            <Link UniqueID="147" StartPin="66" EndPin="134"/>
+            <Link UniqueID="158" StartPin="135" EndPin="153"/>
+            <Link UniqueID="159" StartPin="136" EndPin="156"/>
+            <Link UniqueID="160" StartPin="137" EndPin="156"/>
+            <Link UniqueID="161" StartPin="138" EndPin="156"/>
+            <Link UniqueID="162" StartPin="157" EndPin="47"/>
+            <Link UniqueID="163" StartPin="154" EndPin="48"/>
         </Links>
     </NodeGraph>
 </Environnement>

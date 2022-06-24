@@ -64,11 +64,9 @@ void Lexium32::initialize() {
 	getEncoderWorkingRange(lowEncoderRange, highEncoderRange);
 	servoMotorDevice->rangeMin_positionUnits = lowEncoderRange;
 	servoMotorDevice->rangeMax_positionUnits = highEncoderRange;
-	servoMotorLink->assignData(servoMotorDevice);
 
 	//gpio device
     gpioDevice->setParentDevice(thisDevice);
-	gpioDeviceLink->assignData(gpioDevice);
 
     //node input data
 	digitalOut0->assignData(digitalOut0PinValue);
@@ -85,14 +83,7 @@ void Lexium32::initialize() {
     addNodePin(actualPosition);
     addNodePin(actualVelocity);
     addNodePin(gpioDeviceLink);
-	
-	digitalIn0->assignData(digitalIn0PinValue);
-	digitalIn1->assignData(digitalIn1PinValue);
-	digitalIn2->assignData(digitalIn2PinValue);
-	digitalIn3->assignData(digitalIn3PinValue);
-	digitalIn4->assignData(digitalIn4PinValue);
-	digitalIn5->assignData(digitalIn5PinValue);
-	
+		
     addNodePin(digitalIn0);
     addNodePin(digitalIn1);
     addNodePin(digitalIn2);
@@ -358,7 +349,7 @@ void Lexium32::readInputs() {
 //====================== PREPARING OUTPUTS =====================
 //==============================================================
 
-void Lexium32::prepareOutputs() {
+void Lexium32::writeOutputs() {
 
 	if (digitalOut0->isConnected()) digitalOut0->copyConnectedPinValue();
 	if (digitalOut1->isConnected()) digitalOut1->copyConnectedPinValue();

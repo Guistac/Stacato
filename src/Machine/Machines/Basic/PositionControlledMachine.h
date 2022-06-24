@@ -50,8 +50,10 @@ class PositionControlledMachine : public Machine{
 	
 	double axisPositionToMachinePosition(double axisPosition);
 	double axisVelocityToMachineVelocity(double axisVelocity);
+	double axisAccelerationToMachineAcceleration(double axisAcceleration);
 	double machinePositionToAxisPosition(double machinePosition);
 	double machineVelocityToAxisVelocity(double machineVelocity);
+	double machineAccelerationToAxisAcceleration(double machineAcceleration);
 	
 	double getLowPositionLimit();
 	double getHighPositionLimit();

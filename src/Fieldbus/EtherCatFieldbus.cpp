@@ -841,7 +841,7 @@ namespace EtherCatFieldbus {
         //this way motors don't suddenly jerk to a stop when stopping the fieldbus in the middle of a movement
         for (auto slave : slaves) {
             slave->onDisconnection();
-            slave->prepareOutputs();
+            slave->writeOutputs();
         }
         ec_send_processdata();
 

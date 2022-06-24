@@ -95,6 +95,9 @@ namespace Environnement {
 		b_isRunning = true;
 		Logger::info("Starting Environnement Simulation");
 		
+		Logger::info("Compiled EtherCAT Process Program: ");
+		NodeGraph::compileProcessProgram(getEtherCatDeviceNodes())->log();
+		
 		simulationStartTime_seconds = Timing::getProgramTime_seconds();
 		simulationStartTime_nanoseconds = Timing::getProgramTime_nanoseconds();
 		
@@ -230,25 +233,21 @@ namespace Environnement {
 
 
 	std::vector<std::shared_ptr<EtherCatDevice>> etherCatDevices;
+	std::vector<std::shared_ptr<EtherCatDevice>>& getEtherCatDevices() { return etherCatDevices; }
 	std::vector<std::shared_ptr<Node>> etherCatDeviceNodes;
+	std::vector<std::shared_ptr<Node>>& getEtherCatDeviceNodes(){ return etherCatDeviceNodes; }
 
 	std::vector<std::shared_ptr<Machine>> machines;
+	std::vector<std::shared_ptr<Machine>>& getMachines() { return machines; }
+	
 	std::vector<std::shared_ptr<NetworkDevice>> networkDevices;
+	std::vector<std::shared_ptr<NetworkDevice>>& getNetworkDevices(){ return networkDevices; }
 
 	std::shared_ptr<Machine> selectedMachine;
 	std::shared_ptr<EtherCatDevice> selectedEtherCatDevice;
 
-	std::vector<std::shared_ptr<EtherCatDevice>>& getEtherCatDevices() { return etherCatDevices; }
-	std::vector<std::shared_ptr<Node>>& getEtherCatDeviceNodes(){ return etherCatDeviceNodes; }
-
-	std::vector<std::shared_ptr<Machine>>& getMachines() { return machines; }
-
-	std::vector<std::shared_ptr<NetworkDevice>>& getNetworkDevices(){ return networkDevices; }
-
 	void enableAllMachines() { for (auto machine : machines) machine->enable(); }
-
 	void disableAllMachines() { for (auto machine : machines) machine->disable(); }
-
 	bool areAllMachinesEnabled() {
 		if (machines.empty()) return false;
 		for (auto machine : machines) {
@@ -256,7 +255,6 @@ namespace Environnement {
 		}
 		return true;
 	}
-
 	bool areNoMachinesEnabled() {
 		for(auto machine : machines) {
 			if (machine->isEnabled()) return false;

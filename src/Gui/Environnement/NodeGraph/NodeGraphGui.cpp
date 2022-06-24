@@ -40,12 +40,16 @@ namespace Environnement::NodeGraph::Gui{
 		
 		//===== DRAW LINKS =====
 
-		for (auto link : Environnement::NodeGraph::getLinks())
-			ax::NodeEditor::Link(link->getUniqueID(),
-				link->getInputData()->getUniqueID(),
-				link->getOutputData()->getUniqueID(),
-				ImColor(1.0f, 1.0f, 1.0f),
-				1.0);
+		for (auto link : Environnement::NodeGraph::getLinks()){
+			ax::NodeEditor::LinkId linkId = link->getUniqueID();
+			ax::NodeEditor::PinId startPinId = link->getInputData()->getUniqueID();
+			ax::NodeEditor::PinId endPinId = link->getOutputData()->getUniqueID();
+			if(link->inputData->isBidirectional() && link->outputData->isBidirectional()){
+				ax::NodeEditor::Link(linkId, startPinId, endPinId, ImColor(1.f, 1.f, .0f, 1.f), 3.0);
+			}else{
+				ax::NodeEditor::Link(linkId, startPinId, endPinId, ImColor(1.0f, 1.0f, 1.0f), 1.0);
+			}
+		}
 
 		
 		

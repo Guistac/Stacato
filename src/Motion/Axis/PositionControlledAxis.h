@@ -56,7 +56,9 @@ public:
 	//========== PROCESSING =============
 public:
 	virtual void inputProcess() override;
+	void setMotionCommand(double position, double velocity, double acceleration);
 	virtual void outputProcess() override;
+	virtual bool needsOutputProcess() override { return !isAxisPinConnected(); }
 	
 	//==================== PARAMETERS ====================
 private:
@@ -135,7 +137,6 @@ private:
 
 	//======= MOTION INTERFACE
 public:
-	void setMotionCommand(double position, double velocity);
 	double getProfileVelocity() { return motionProfile.getVelocity(); }
 	double getProfilePosition() { return motionProfile.getPosition(); }
 	double getActualVelocity() { return *actualVelocityValue; }

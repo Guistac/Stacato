@@ -90,6 +90,7 @@ private:
 public:
 	virtual void inputProcess() override;
 	virtual void outputProcess() override;
+	virtual bool needsOutputProcess() override { return !isAxisPinConnected(); }
 	
 	void setVelocityCommand(double velocity);
 	

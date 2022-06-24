@@ -274,7 +274,7 @@ void PD4_E::readInputs() {
 
 }
 
-void PD4_E::prepareOutputs() {
+void PD4_E::writeOutputs() {
 
 	double time_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
 	double profileTimeDelta_seconds = time_seconds - profileTime_seconds;

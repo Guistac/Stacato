@@ -83,4 +83,17 @@ public:
 	//used to track the progress of a requested parameter movement
 	MachineState::State parameterMovementStartState;
 	MachineState::State parameterMovementTargetState;
+	
+	std::vector<std::shared_ptr<NodePin>> inputProcessTriggerPins = {
+		//none
+	};
+	virtual std::vector<std::shared_ptr<NodePin>> getUpdatedPinsAfterInputProcess() override { return inputProcessTriggerPins; };
+	
+	std::vector<std::shared_ptr<NodePin>> outputProcessTriggerPins = {
+		openHoodCommandPin,
+		shutHoodCommandPin,
+		raiseLiftCommandPin,
+		lowerLiftCommandPin
+	};
+	virtual std::vector<std::shared_ptr<NodePin>> getUpdatedPinsAfterOutputProcess() override { return outputProcessTriggerPins; };
 };

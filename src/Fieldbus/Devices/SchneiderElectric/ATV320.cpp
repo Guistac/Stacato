@@ -162,7 +162,7 @@ void ATV320::readInputs() {
 //====================== PREPARING OUTPUTS =====================
 //==============================================================
 
-void ATV320::prepareOutputs() {
+void ATV320::writeOutputs() {
 	
 	ds402Control.setPowerState(powerStateTarget, powerStateActual);
 	if(b_resetFaultCommand) {

@@ -30,7 +30,6 @@ void PositionControlledAxis::initialize() {
 }
 
 void PositionControlledAxis::inputProcess() {
-
 	//check connection requirements and abort processing if the requirements are not met
 	if(!areAllPinsConnected()) return;
 
@@ -71,9 +70,17 @@ void PositionControlledAxis::inputProcess() {
 	*actualPositionValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getPosition());
 	*actualVelocityValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getVelocity());
 	*actualLoadValue = getServoActuatorDevice()->getLoad();
+}
 
+void PositionControlledAxis::setMotionCommand(double position, double velocity, double acceleration){
+	motionProfile.setPosition(position);
+	motionProfile.setVelocity(velocity);
+	motionProfile.setAcceleration(acceleration);
+	controlMode = ControlMode::EXTERNAL;
+}
+
+void PositionControlledAxis::outputProcess(){
 	//update timing
-	//TODO: Implement Universal Environnement Time
 	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
 	profileTimeDelta_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 	
@@ -102,7 +109,7 @@ void PositionControlledAxis::inputProcess() {
 				if(motionProfile.isInterpolationFinished(profileTime_seconds)) setVelocityTarget(0.0);
 				break;
 			case ControlMode::EXTERNAL:
-				//here we don't do anything, the connected pin updates the axis
+				//here the motion profile is expected to be controlled by the setMotionCommand() method
 				break;
 		}
 	}
@@ -113,30 +120,12 @@ void PositionControlledAxis::inputProcess() {
 		motionProfile.setAcceleration(0.0);
 	}
 	
-	//if the machine is controlled externally (by the axis pin) we don't sent actuator commands here
-	//in this case the connected node is responsible for sending commands
-	if (controlMode != ControlMode::EXTERNAL) sendActuatorCommands();
-
-}
-
-void PositionControlledAxis::outputProcess(){
-	
-}
-
-void PositionControlledAxis::sendActuatorCommands() {
-	//here we expect that the motion profile has new values
-	//we use those values to send commands to the actuators
-	getServoActuatorDevice()->setPositionCommand(axisUnitsToServoActuatorUnits(motionProfile.getPosition()),
-												 axisUnitsToServoActuatorUnits(motionProfile.getVelocity()));
-	servoActuatorPin->updateConnectedPins();
+	//send commands to the actuator
+	double actuatorPosition = axisUnitsToServoActuatorUnits(motionProfile.getPosition());
+	double actuatorVelocity = axisUnitsToServoActuatorUnits(motionProfile.getVelocity());
+	double actuatorAcceleration = axisUnitsToServoActuatorUnits(motionProfile.getAcceleration());
+	getServoActuatorDevice()->setPositionCommand(actuatorPosition, actuatorVelocity, actuatorAcceleration);
 	updateMetrics();
-}
-
-void PositionControlledAxis::setMotionCommand(double position, double velocity){
-	motionProfile.setPosition(position);
-	motionProfile.setVelocity(velocity);
-	controlMode = ControlMode::EXTERNAL;
-	sendActuatorCommands();
 }
 
 //=================================== STATE CONTROL ============================================

@@ -88,7 +88,12 @@ std::vector<std::shared_ptr<ProcessProgram::Instruction>> compileOrderedInstruct
 				std::shared_ptr<Node> processedNode = processStarterPin->parentNode;
 				ProcessDirection processDirection;
 				
+				//skip triggering the node connected to the pin if:
+				//-the node was already processed on this cycle
+				//-the node is an io device (those can't process, they can only read inputs and write outputs)
+				//-the pin is an output but is not bidirectional
 				if(processedNode->b_wasProcessed) continue;
+				else if(processedNode->getType() == Node::Type::IODEVICE) continue;
 				else if(processStarterPin->isInput()) processDirection = ProcessDirection::INPUT_PROCESS;
 				else if(processStarterPin->isOutput() && processStarterPin->isBidirectional()) processDirection = ProcessDirection::OUTPUT_PROCESS;
 				else continue;

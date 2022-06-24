@@ -58,6 +58,8 @@ public:
 	virtual void setVelocityCommand(double velocityCommand) { velocityCommand_deviceUnitsPerSecond = velocityCommand; }
 	//get velocity command
 	virtual double getVelocityCommand() { return velocityCommand_deviceUnitsPerSecond; }
+	//get acceleration command
+	virtual double getAccelerationCommand(){ return accelerationCommand_deviceUnitsPerSecondsSquared; }
 	//don't allow powering the actuator
 	void park() { b_setDisabled = true; b_parked = true; }			
 	//allow powereing of the actuator
@@ -96,6 +98,7 @@ public:
 	bool b_setDisabled = false;
 	bool b_setQuickstop = false;
 	double velocityCommand_deviceUnitsPerSecond = 0.0;
+	double accelerationCommand_deviceUnitsPerSecondsSquared = 0.0;
 };
 
 
@@ -164,9 +167,10 @@ public:
 	virtual Subdevice::Type getSubdeviceType() { return Subdevice::Type::SERVO_ACTUATOR; }
 
 	//set command
-	virtual void setPositionCommand(double positionCommand, double velocityCommand) {
+	virtual void setPositionCommand(double positionCommand, double velocityCommand, double accelerationCommand) {
 		positionCommand_deviceUnits = positionCommand;
 		velocityCommand_deviceUnitsPerSecond = velocityCommand;
+		accelerationCommand_deviceUnitsPerSecondsSquared = accelerationCommand;
 	}
 	//get velocity command
 	virtual double getPositionCommandRaw() { return positionCommand_deviceUnits + positionOffset_positionUnits; }
