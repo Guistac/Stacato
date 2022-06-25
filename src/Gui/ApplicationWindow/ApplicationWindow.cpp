@@ -19,10 +19,10 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 #include "Gui/Assets/Images.h"
-#include "Rendering/ofRenderer.h"
+#include "Visualizer/ofRenderer.h"
 #include "Project/Project.h"
 
-#include "Environnement/Visualizer.h"
+#include "Visualizer/Visualizer.h"
 
 namespace ApplicationWindow {
 

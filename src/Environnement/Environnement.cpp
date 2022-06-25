@@ -15,7 +15,7 @@
 #include "Networking/Network.h"
 #include "Networking/NetworkDevice.h"
 
-#include "Visualizer.h"
+#include "Visualizer/Visualizer.h"
 
 #include "Gui/Environnement/EnvironnementGui.h"
 

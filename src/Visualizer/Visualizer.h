@@ -2,6 +2,11 @@
 
 namespace Environnement::StageVisualizer{
 
+/*
+	void initialize();
+	void terminate();
+*/
+ 
 	void compile();
 	void start();
 	void stop();

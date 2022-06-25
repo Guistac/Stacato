@@ -11,7 +11,7 @@
 
 #include "Environnement/NodeGraph/NodeGraph.h"
 
-#include "Environnement/Visualizer.h"
+#include "Visualizer/Visualizer.h"
 
 
 namespace Environnement::Gui{

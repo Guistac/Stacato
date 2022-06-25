@@ -6,8 +6,10 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Core/pch.cpp
     ${STACATO_SOURCE_DIRECTORY}/Core/pch.h
 
-    ${STACATO_SOURCE_DIRECTORY}/Rendering/ofRenderer.h
-    ${STACATO_SOURCE_DIRECTORY}/Rendering/ofRenderer.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Visualizer/ofRenderer.h
+    ${STACATO_SOURCE_DIRECTORY}/Visualizer/ofRenderer.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Visualizer/Visualizer.h
+    ${STACATO_SOURCE_DIRECTORY}/Visualizer/Visualizer.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Scripting/Script.h
     ${STACATO_SOURCE_DIRECTORY}/Scripting/Script.cpp
@@ -96,7 +98,6 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Motion/MotionTypes.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/SubDevice.h
-
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/Profile.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/Curve.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/Curve.h
@@ -115,14 +116,12 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/SequenceAnimation.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Manoeuvre.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Manoeuvre.h
-
     ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/Playback.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/Playback.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/TimeStringConversion.h
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.h
-
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Template/MachineTemplate.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Template/MachineTemplate.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Template/MachineTemplateGui.cpp
@@ -143,9 +142,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/EnvironnementSaveFile.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Visualizer.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/Visualizer.h
-
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/Node.h

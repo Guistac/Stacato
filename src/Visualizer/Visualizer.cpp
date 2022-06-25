@@ -2,7 +2,7 @@
 #include "Visualizer.h"
 
 #include "Scripting/Script.h"
-#include "Rendering/ofRenderer.h"
+#include "ofRenderer.h"
 #include "ofBindings.h"
 #include <ofMain.h>
 
@@ -16,6 +16,16 @@ extern "C" {
 
 namespace Environnement::StageVisualizer{
 
+/*
+	void initialize(int openGlVersionMajor, int openGlVersionMinor){
+		ofRenderer::init(openGlVersionMajor, openGlVersionMinor);
+	}
+
+	void terminate(){
+		ofRenderer::terminate();
+	}
+*/
+ 
 	Script script("Stage Visualizer Script");
 	ofFbo framebuffer;
 

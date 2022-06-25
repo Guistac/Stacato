@@ -5,7 +5,7 @@
 #include "Environnement/Environnement.h"
 #include "Plot/Plot.h"
 #include "Gui/ApplicationWindow/ApplicationWindow.h"
-#include "Environnement/Visualizer.h"
+#include "Visualizer/Visualizer.h"
 #include "Gui/ApplicationWindow/Layout.h"
 
 #include "config.h"
