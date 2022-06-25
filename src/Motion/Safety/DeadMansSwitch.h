@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Environnement/NodeGraph/Node.h"
+#include "Gui/Environnement/Dashboard/Widget.h"
 
 class DeadMansSwitch : public Node {
 public:
@@ -24,4 +25,21 @@ public:
 	virtual void nodeSpecificGui() override;
 	void controlsGui();
 	void settingsGui();
+	
+	virtual bool save(tinyxml2::XMLElement* xml) override;
+	virtual bool load(tinyxml2::XMLElement* xml) override;
+	
+	virtual void onAddToNodeGraph() override { controlWidget->addToDictionnary(); };
+	virtual void onRemoveFromNodeGraph() override { controlWidget->removeFromDictionnary(); };
+		
+	class ControlWidget : public Widget{
+	public:
+		
+		ControlWidget(std::shared_ptr<DeadMansSwitch> deadMansSwitch_, std::string name) : Widget(name, "Safety"), deadMansSwitch(deadMansSwitch_){}
+		std::shared_ptr<DeadMansSwitch> deadMansSwitch;
+		virtual void gui() override;
+		virtual bool hasFixedContentSize() override { return true; }
+		virtual glm::vec2 getFixedContentSize() override;
+	};
+	std::shared_ptr<ControlWidget> controlWidget;
 };

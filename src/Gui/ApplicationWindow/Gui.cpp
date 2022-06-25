@@ -10,7 +10,6 @@
 
 #include "Gui/Project/ProjectGui.h"
 #include "Environnement/Environnement.h"
-#include "Gui/StageView/StageView.h"
 #include "Gui/Plot/SequencerGui.h"
 #include "Gui/Environnement/EnvironnementGui.h"
 #include "Gui/Plot/PlotGui.h"
@@ -21,8 +20,16 @@ namespace Gui {
 ImGuiID dockspaceID;
 
 void initialize(){
-	Environnement::Gui::EnvironnementEditorWindow::get()->addToDictionnary();
+	
+	//editor windows
+	Environnement::Gui::NodeEditorWindow::get()->addToDictionnary();
+	Environnement::Gui::NodeManagerWindow::get()->addToDictionnary();
+	Environnement::Gui::VisualizerScriptWindow::get()->addToDictionnary();
+	Environnement::Gui::EtherCATWindow::get()->addToDictionnary();
+	Environnement::Gui::LogWindow::get()->addToDictionnary();
+	//performance windows
 	Environnement::Gui::SetupWindow::get()->addToDictionnary();
+	Environnement::Gui::VisualizerWindow::get()->addToDictionnary();
 	PlotGui::ManoeuvreListWindow::get()->addToDictionnary();
 	PlotGui::TrackSheetEditorWindow::get()->addToDictionnary();
 	PlotGui::CurveEditorWindow::get()->addToDictionnary();
@@ -112,7 +119,7 @@ void setDefaultLayout(){
 	ImGui::DockBuilderFinish(dockspaceID);
 	
 #ifdef STACATO_DEBUG
-	Environnement::Gui::EnvironnementEditorWindow::get()->focus();
+	Environnement::Gui::NodeEditorWindow::get()->focus();
 #else
 	DashboardWindow::get()->focus();
 #endif

@@ -11,32 +11,19 @@
 
 #include "Environnement/NodeGraph/NodeGraph.h"
 
+
 namespace Environnement::Gui{
 
-	void gui() {
-		if (ImGui::BeginTabBar("##EnvironnementTabBar")) {
-			if (ImGui::BeginTabItem("Editor")) {
-				Environnement::Gui::editor();
-				ImGui::EndTabItem();
-			}
-			if(ImGui::BeginTabItem("Node Manager")){
-				nodeManager();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Stage Editor")) {
-				stageEditor();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Fieldbus")) {
-				etherCatGui();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Log")) {
-				Utilies::Gui::log();
-				ImGui::EndTabItem();
-			}
-			ImGui::EndTabBar();
-		}
+	void VisualizerScriptWindow::drawContent() {
+		StageVisualizer::editor(ImGui::GetContentRegionAvail());
+	}
+
+	void EtherCATWindow::drawContent() {
+		etherCatGui();
+	}
+	
+	void LogWindow::drawContent() {
+		Utilies::Gui::log();
 	}
 
 	void UnlockEditorPopup::drawContent(){

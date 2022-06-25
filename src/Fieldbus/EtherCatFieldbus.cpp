@@ -24,7 +24,7 @@ namespace EtherCatFieldbus {
     std::vector<std::shared_ptr<EtherCatDevice>> slaves;			//slaves discovered on the network
     std::vector<std::shared_ptr<EtherCatDevice>> slaves_unassigned; //slaves discovered on the network but not added to the environnement editor
 	std::vector<std::shared_ptr<EtherCatDevice>>& getDevices(){ return slaves; }
-	std::vector<std::shared_ptr<EtherCatDevice>>& getUnassignedDevices(){ return slaves; }
+	std::vector<std::shared_ptr<EtherCatDevice>>& getUnassignedDevices(){ return slaves_unassigned; }
 
 	//contiguous storage for cyclic exchange data
     uint8_t ioMap[4096];
@@ -486,17 +486,16 @@ namespace EtherCatFieldbus {
                         if (environnementSlave->stationAlias == stationAlias) {
                             slave = environnementSlave;
                             Logger::info("      Matched Environnement Slave by Name & Station Alias");
-                            break;
                         }
-                        else continue;
+						break;
 						case EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID:
                         if (environnementSlave->explicitDeviceID == explicitDeviceID) {
                             slave = environnementSlave;
                             Logger::info("      Matched Environnement Slave by Name & Explicit Device ID");
-                            break;
                         }
-                        else continue;
+						break;
                     }
+					if(slave != nullptr) break;
                 }
 
                 if (slave == nullptr) {

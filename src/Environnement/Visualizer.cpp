@@ -1,5 +1,5 @@
 #include <pch.h>
-#include "StageVisualizer.h"
+#include "Visualizer.h"
 
 #include "Scripting/Script.h"
 #include "Rendering/ofRenderer.h"

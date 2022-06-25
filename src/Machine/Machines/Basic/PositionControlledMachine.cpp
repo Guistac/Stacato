@@ -43,14 +43,6 @@ void PositionControlledMachine::onPinDisconnection(std::shared_ptr<NodePin> pin)
 	if(pin == positionControlledAxisPin) positionParameter->setUnit(Units::None::None);
 }
 
-void PositionControlledMachine::onAddToNodeGraph(){
-	controlWidget->addToDictionnary();
-}
-
-void PositionControlledMachine::onRemoveFromNodeGraph(){
-	controlWidget->removeFromDictionnary();
-}
-
 bool PositionControlledMachine::isHardwareReady() {
 	if (!isAxisConnected()) return false;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();

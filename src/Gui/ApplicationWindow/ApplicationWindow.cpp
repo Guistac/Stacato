@@ -22,7 +22,7 @@
 #include "Rendering/ofRenderer.h"
 #include "Project/Project.h"
 
-#include "Environnement/StageVisualizer.h"
+#include "Environnement/Visualizer.h"
 
 namespace ApplicationWindow {
 

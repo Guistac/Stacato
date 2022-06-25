@@ -26,8 +26,6 @@ class PositionControlledMachine : public Machine{
 	virtual void onPinUpdate(std::shared_ptr<NodePin> pin) override;
 	virtual void onPinConnection(std::shared_ptr<NodePin> pin) override;
 	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin) override;
-	virtual void onAddToNodeGraph() override;
-	virtual void onRemoveFromNodeGraph() override;
 
 	//======= MANUAL CONTROLS =========
 
@@ -80,6 +78,9 @@ class PositionControlledMachine : public Machine{
 	double getActualVelocitu();
 	
 	void widgetGui();
+	
+	virtual void onAddToNodeGraph() override { controlWidget->addToDictionnary(); }
+	virtual void onRemoveFromNodeGraph() override { controlWidget->removeFromDictionnary(); }
 	
 	class ControlWidget : public Widget{
 	public:

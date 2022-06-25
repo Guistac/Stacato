@@ -1,8 +1,9 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.323162" OffsetX="1445.4921" OffsetY="-462.5231" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget UniqueID="1" PositionX="-949.32837" PositionY="496.51929" SizeX="232.00005" SizeY="512.42035"/>
-        <Widget UniqueID="5" PositionX="-709.39813" PositionY="801.84937" SizeX="232" SizeY="298.49359"/>
-        <Widget UniqueID="4" PositionX="-710.95148" PositionY="496.07901" SizeX="232" SizeY="298.17899"/>
+    <Dashboard Scale="1.1557015" OffsetX="1639.8165" OffsetY="-385.2742" AutoFit="false" DrawGrid="true" LockEdit="true">
+        <Widget UniqueID="4" PositionX="-802.40308" PositionY="496.07901" SizeX="231.99997" SizeY="298.41348"/>
+        <Widget UniqueID="6" PositionX="-1424.2358" PositionY="627.29504" SizeX="231.99998" SizeY="126.52953"/>
+        <Widget UniqueID="5" PositionX="-801.60553" PositionY="800.33777" SizeX="231.99997" SizeY="298.73163"/>
+        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232.00002" SizeY="511.74042"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -44,8 +45,8 @@
                 </InputPins>
                 <OutputPins/>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Device 1" UniqueID="18">
-                <InputNodeEditorPosition x="296" y="492"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="VIPA Bus Coupler (ID:33)" UniqueID="18">
+                <InputNodeEditorPosition x="376" y="1054"/>
                 <OutputNodeEditorPosition x="2.1474836e+09" y="2.1474836e+09"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="33"/>
@@ -111,7 +112,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="Constant" CustomName="Constant" UniqueID="82">
-                <NodeEditorPosition x="-751" y="860"/>
+                <NodeEditorPosition x="-799" y="540"/>
                 <NodeSpecificData/>
                 <InputPins/>
                 <OutputPins>
@@ -163,7 +164,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Position Controlled Axis" UniqueID="108">
-                <NodeEditorPosition x="-264" y="1048"/>
+                <NodeEditorPosition x="-264" y="963"/>
                 <NodeSpecificData>
                     <Units UnitType="Rotary" Unit="Degree"/>
                     <UnitConversion ActuatorUnitsPerMachineUnit="1"/>
@@ -202,7 +203,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip B3" UniqueID="125">
-                <NodeEditorPosition x="-328" y="92"/>
+                <NodeEditorPosition x="-57" y="1322"/>
                 <NodeSpecificData ShortName="M">
                     <ControlWidget UniqueID="4"/>
                 </NodeSpecificData>
@@ -226,7 +227,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="Not" CustomName="Not" UniqueID="152">
-                <NodeEditorPosition x="12" y="307"/>
+                <NodeEditorPosition x="200" y="1267"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="153" Visible="true"/>
@@ -236,7 +237,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="And" CustomName="And" UniqueID="155">
-                <NodeEditorPosition x="-3" y="419"/>
+                <NodeEditorPosition x="230" y="1395"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="156" Visible="true" AcceptsMultipleInputs="true"/>
@@ -246,7 +247,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="PositionFeedback" CustomName="Position Feedback" UniqueID="165">
-                <NodeEditorPosition x="-936" y="976"/>
+                <NodeEditorPosition x="-312" y="1616"/>
                 <NodeSpecificData>
                     <Units Type="Linear" Unit="Meter"/>
                     <Conversion UnitsPerFeedbackUnit="1" InvertDirectionOfMotion="false" UnitOffset="0"/>
@@ -260,8 +261,10 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Dead Man&apos;s Switch" UniqueID="207">
-                <NodeEditorPosition x="-808" y="64"/>
-                <NodeSpecificData/>
+                <NodeEditorPosition x="-312" y="1185"/>
+                <NodeSpecificData>
+                    <ControlWidget UniqueID="6"/>
+                </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="GpioDevicePin" DisplayString="Gpio Device" DataType="GPIODeviceLink" UniqueID="208" Visible="true" NoDataField="true"/>
                     <InputPin SaveString="SwitchPressedPin" DisplayString="Switch Pressed" DataType="Boolean" UniqueID="209" Visible="true"/>
@@ -273,7 +276,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip A4" UniqueID="217">
-                <NodeEditorPosition x="-1368" y="677"/>
+                <NodeEditorPosition x="-761" y="826"/>
                 <NodeSpecificData ShortName="M">
                     <ControlWidget UniqueID="5"/>
                 </NodeSpecificData>
@@ -333,7 +336,7 @@
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en7" Name="en7"/>
+        <Primary Description="en4" Name="en4"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

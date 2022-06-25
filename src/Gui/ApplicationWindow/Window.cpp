@@ -6,17 +6,30 @@
 #include <imgui_internal.h>
 
 
-void Window::addToDictionnary(){ WindowManager::addWindowToDictionnary(shared_from_this()); }
-void Window::removeFromDictionnary(){ WindowManager::removeWindowFromDictionnary(shared_from_this()); }
+void Window::addToDictionnary(){
+	auto thisWindow = shared_from_this();
+	WindowManager::addWindowToDictionnary(thisWindow);
+}
+void Window::removeFromDictionnary(){
+	auto thisWindow = shared_from_this();
+	WindowManager::removeWindowFromDictionnary(thisWindow);
+}
 
 void Window::open(){
 	if(isOpen()) return;
-	WindowManager::openWindow(shared_from_this());
+	auto thisWindow = shared_from_this();
+	WindowManager::openWindow(thisWindow);
 }
 
-void Window::close(){ WindowManager::closeWindow(shared_from_this()); }
+void Window::close(){
+	auto thisWindow = shared_from_this();
+	WindowManager::closeWindow(thisWindow);
+}
 
-void Window::focus(){ WindowManager::focusWindow(shared_from_this()); }
+void Window::focus(){
+	auto thisWindow = shared_from_this();
+	WindowManager::focusWindow(thisWindow);
+}
 
 void Window::draw(){
 	if(!b_padding) ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f,0.0f));
@@ -89,8 +102,9 @@ bool isInDictionnary(std::shared_ptr<Window> window){
 	return false;
 }
 void addWindowToDictionnary(std::shared_ptr<Window> window){
-	if(isInDictionnary(window)) return;
-	windowDictionnary.push_back(window);
+	if(!isInDictionnary(window)) {
+		windowDictionnary.push_back(window);
+	}
 }
 void removeWindowFromDictionnary(std::shared_ptr<Window> window){
 	window->close();

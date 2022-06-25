@@ -6,6 +6,8 @@
 #include "Gui/Assets/Colors.h"
 #include "Gui/Utilities/ReorderableList.h"
 
+#include "EnvironnementGui.h"
+
 #include "Environnement/Environnement.h"
 #include "Machine/Machine.h"
 #include "Networking/NetworkDevice.h"
@@ -15,9 +17,12 @@
 #include "Environnement/NodeGraph/NodeGraph.h"
 #include "Gui/Environnement/NodeGraph/NodeGraphGui.h"
 
+#include "Gui/Utilities/CustomWidgets.h"
+
 namespace Environnement::Gui{
 
-void nodeManager(){
+void NodeManagerWindow::drawContent(){
+
 	static float listWidth = ImGui::GetTextLineHeight() * 20.0;
 	static float minlistWidth = ImGui::GetTextLineHeight() * 15.0;
 	
@@ -178,27 +183,10 @@ void nodeManager(){
 	ImGui::EndChild();
 	
 	
-	static float splitterWidth = ImGui::GetTextLineHeight() * 0.5;
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+	
 	ImGui::SameLine();
-	ImGui::InvisibleButton("VerticalSplitter", glm::vec2(splitterWidth, ImGui::GetContentRegionAvail().y));
-	if (ImGui::IsItemActive()) listWidth += ImGui::GetIO().MouseDelta.x;
-	if (ImGui::IsItemHovered()) ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+	listWidth += verticalSeparator(ImGui::GetTextLineHeight() * 0.5);
 	if (listWidth < minlistWidth) listWidth = minlistWidth;
-	glm::vec2 min = ImGui::GetItemRectMin();
-	glm::vec2 max = ImGui::GetItemRectMax();
-	float middle = (min.x + max.x) / 2.0;
-	ImGui::GetWindowDrawList()->AddLine(glm::vec2(middle, min.y), glm::vec2(middle, max.y), ImColor(Colors::darkGray), ImGui::GetTextLineHeight() * 0.1);
-	ImGui::SameLine();
-	ImGui::PopStyleVar();
-	ImGui::SameLine();
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	
@@ -233,6 +221,7 @@ void nodeManager(){
 	}
 	 
 	ImGui::EndChild();
+	
 }
 
 

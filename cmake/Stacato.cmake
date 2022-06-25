@@ -40,8 +40,7 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/EnvironnementGui.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/EnvironnementGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/EnvironnementEditorGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/StageEditorGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeEditorGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeManagerGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/HomingGui.cpp
 
@@ -86,9 +85,6 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Project/ProjectGui.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Project/FileIO.cpp
-
-    ${STACATO_SOURCE_DIRECTORY}/Gui/StageView/StageView.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/StageView/StageView.h
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/CustomWidgets.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/CustomWidgets.cpp
@@ -148,8 +144,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/EnvironnementSaveFile.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/StageVisualizer.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/StageVisualizer.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Visualizer.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/Visualizer.h
 
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.cpp

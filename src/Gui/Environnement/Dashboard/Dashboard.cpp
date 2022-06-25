@@ -226,7 +226,6 @@ void Dashboard::canvas(){
 		glm::vec2 max = ImGui::GetItemRectMax();
 		
 		widgetInstance->size = widgetSize / scale;
-		Logger::warn("x{} y{}", widgetInstance->size.x, widgetInstance->size.y);
 		
 		drawing->AddRectFilled(min, max, ImColor(Colors::almostBlack), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 		float borderThickness;
@@ -337,18 +336,6 @@ void Dashboard::gui(){
 		if(ImGui::BeginChild("EditorSideBar", ImVec2(adderWidth, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_AlwaysUseWindowPadding)){
 			float availableWidth = ImGui::GetContentRegionAvail().x;
 
-			/*
-			ImGui::PushFont(Fonts::sansBold15);
-			backgroundText("Dashboard Editor", ImVec2(availableWidth, ImGui::GetFrameHeight()), Colors::darkGray);
-			ImGui::PopFont();
-			*/
-			/*
-			ImGui::Text("Name :");
-			ImGui::SetNextItemWidth(availableWidth);
-			name->gui();
-			*/
-			
-			
 			if(getSelectedWidget() && getSelectedWidget()->hasWidget()){
 				//ImGui::Separator();
 				
@@ -394,6 +381,7 @@ void Dashboard::gui(){
 		
 		adderWidth += verticalSeparator(ImGui::GetTextLineHeight() * 0.5, false);
 		adderWidth = std::clamp(adderWidth, minAdderWidth, maxAdderWidth);
+		ImGui::SameLine();
 	}
 		 
 	glm::vec2 canvasPosition = ImGui::GetCursorPos();

@@ -15,7 +15,7 @@
 #include "Networking/Network.h"
 #include "Networking/NetworkDevice.h"
 
-#include "StageVisualizer.h"
+#include "Visualizer.h"
 
 #include "Gui/Environnement/EnvironnementGui.h"
 
@@ -360,13 +360,11 @@ namespace Environnement {
 	bool isEditorLocked(){ return b_editorLocked; }
 	void lockEditor(){
 		b_editorLocked = true;
-		Environnement::Gui::EnvironnementEditorWindow::get()->removeFromDictionnary();
+		Environnement::Gui::restrictEditorWindows();
 	}
 	void unlockEditor(){
 		b_editorLocked = false;
-		auto editorWindow = Environnement::Gui::EnvironnementEditorWindow::get();
-		editorWindow->addToDictionnary();
-		editorWindow->open();
+		Environnement::Gui::allowEditorWindows();
 	}
 	bool checkEditorPassword(const char* password){ return strcmp(password, "StacatoCompact") == 0; }
 

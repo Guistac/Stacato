@@ -1,39 +1,13 @@
 #pragma once
 
 #include "Gui/ApplicationWindow/Window.h"
+#include "Environnement/Visualizer.h"
+#include <imgui.h>
 
 namespace Environnement::Gui{
 
-	//Performance
-	void plot();
-	void machineList();
-	void dashboards();
-	void homingAndSetup();
-	void stageVisualizer();
 
-
-	//Editing & Managing
-	void gui();
-	void editor();
-	void nodeManager();
-	void nodeEditor();
-	void stageEditor();
-	void log();
-
-
-	class EnvironnementEditorWindow : public Window{
-	public:
-		EnvironnementEditorWindow() : Window("Environnement", true){}
-		virtual void drawContent() override { gui(); };
-		SINGLETON_GET_METHOD(EnvironnementEditorWindow);
-	};
-
-	class SetupWindow : public Window{
-	public:
-		SetupWindow() : Window("Setup", true){}
-		virtual void drawContent() override{ homingAndSetup(); };
-		SINGLETON_GET_METHOD(SetupWindow);
-	};
+	//——————————————————— Editor Windows ———————————————————
 
 	class UnlockEditorPopup : public Popup{
 	public:
@@ -41,5 +15,83 @@ namespace Environnement::Gui{
 		virtual void drawContent() override;
 		SINGLETON_GET_METHOD(UnlockEditorPopup);
 	};
+
+	class NodeEditorWindow : public Window{
+	public:
+		NodeEditorWindow() : Window("Node Editor", true){}
+		virtual void drawContent() override;
+		SINGLETON_GET_METHOD(NodeEditorWindow);
+	};
+
+	class NodeManagerWindow : public Window{
+	public:
+		NodeManagerWindow() : Window("Node Manager", true){}
+		virtual void drawContent() override;
+		SINGLETON_GET_METHOD(NodeManagerWindow);
+	};
+
+	class VisualizerScriptWindow : public Window{
+	public:
+		VisualizerScriptWindow() : Window("Visualizer Script", true){}
+		virtual void drawContent() override;
+		SINGLETON_GET_METHOD(VisualizerScriptWindow);
+	};
+
+	class EtherCATWindow : public Window{
+	public:
+		EtherCATWindow() : Window("EtherCAT Fieldbus", true){}
+		virtual void drawContent() override;
+		SINGLETON_GET_METHOD(EtherCATWindow);
+	};
+
+
+	//——————————————————— Performance Windows ———————————————————
+
+	class SetupWindow : public Window{
+	public:
+		SetupWindow() : Window("Setup", true){}
+		virtual void drawContent() override;
+		SINGLETON_GET_METHOD(SetupWindow);
+	};
+
+	class VisualizerWindow : public Window{
+	public:
+		VisualizerWindow() : Window("Visualizer", true){}
+		virtual void drawContent() override { StageVisualizer::canvas(ImGui::GetContentRegionAvail(), 1.0, ImGui::GetStyle().FrameRounding); }
+		SINGLETON_GET_METHOD(VisualizerWindow);
+	};
+
+	class LogWindow : public Window{
+	public:
+		LogWindow() : Window("Log", true){}
+		virtual void drawContent() override;
+		SINGLETON_GET_METHOD(LogWindow);
+	};
+
+
+	
+
+
+
+	inline std::vector<std::shared_ptr<Window>>& getEditorWindows(){
+		static std::vector<std::shared_ptr<Window>> editorWindows = {
+			NodeEditorWindow::get(),
+			NodeManagerWindow::get(),
+			VisualizerScriptWindow::get(),
+			EtherCATWindow::get()
+		};
+		return editorWindows;
+	}
+
+	inline void restrictEditorWindows(){
+		for(auto& editorWindow : getEditorWindows()) {
+			editorWindow->removeFromDictionnary();
+		}
+	}
+	inline void allowEditorWindows(){
+		for(auto& editorWindow : getEditorWindows()) {
+			editorWindow->addToDictionnary();
+		}
+	}
 
 }
