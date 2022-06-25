@@ -7,6 +7,7 @@
 #include <ofMain.h>
 
 #include "Scripting/CanvasLibrary.h"
+#include "Scripting/EnvironnementLibrary.h"
 
 // declare the wrapped modules
 extern "C" {
@@ -16,7 +17,8 @@ extern "C" {
 
 namespace Environnement::StageVisualizer{
 
-/*
+
+
 	void initialize(int openGlVersionMajor, int openGlVersionMinor){
 		ofRenderer::init(openGlVersionMajor, openGlVersionMinor);
 	}
@@ -24,7 +26,8 @@ namespace Environnement::StageVisualizer{
 	void terminate(){
 		ofRenderer::terminate();
 	}
-*/
+
+
  
 	Script script("Stage Visualizer Script");
 	ofFbo framebuffer;
@@ -41,13 +44,18 @@ namespace Environnement::StageVisualizer{
 			luaopen_of(L);
 			luaopen_glm(L);
 			Scripting::CanvasLibrary::openLib(L);
+			Scripting::EnvironnementLibrary::openlib(L);
 		});
 		script.compileAndRun();
+		ofRenderer::startRender();
 		if(script.checkHasFunction("setup")) script.callFunction("setup");
+		ofRenderer::finishRender();
 	}
 
 	void stop(){
+		ofRenderer::startRender();
 		if(script.checkHasFunction("exit")) script.callFunction("exit");
+		ofRenderer::finishRender();
 		script.stop();
 	}
 
@@ -118,10 +126,12 @@ namespace Environnement::StageVisualizer{
 		ofRenderer::setCurrentRenderSize(frameBufferWidth, frameBufferHeight);
 		
 		//actual script rendering
+		ofRenderer::startRender();
 		framebuffer.begin();
 		if(script.isRunning()) script.callFunction("update");
 		else ofBackground(0, 0, 0, 255);
 		framebuffer.end();
+		ofRenderer::finishRender();
 		
 		bool b_drawBorder = border > 0.0;
 		glm::vec2 min = ImGui::GetItemRectMin();
@@ -174,7 +184,7 @@ namespace Environnement::StageVisualizer{
 			"	of.background(brightness)\n"
 			"\n"
 			"	size = glm.vec2(Canvas.getSize())\n"
-			"	middle = glm.vec2(size) / 2.0\n"
+			"	middle = glm.vec2(size.x / 2.0, size.y / 2.0)\n"
 			"	of.drawCircle(middle, diameter)\n"
 			"\n"
 			"	of.drawBitmapStringHighlight(\"Default Stage Visualizer Script\", 20, 30)\n"

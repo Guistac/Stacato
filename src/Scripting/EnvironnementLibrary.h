@@ -9,3 +9,8 @@ namespace CoolContainer{
 	}
 
 }
+
+
+namespace Scripting::EnvironnementLibrary{
+	void openlib(lua_State* L);
+};

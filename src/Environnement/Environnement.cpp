@@ -113,6 +113,8 @@ namespace Environnement {
 		for(auto& networkDevice : getNetworkDevices()) networkDevice->connect();
 		
 		Logger::info("Started Environnement Simulation");
+		
+		Environnement::StageVisualizer::start();
 	}
 
 	void stopSimulation(){
@@ -120,6 +122,8 @@ namespace Environnement {
 		for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
 		b_isRunning = false;
 		if(environnementSimulator.joinable()) environnementSimulator.join();
+		
+		Environnement::StageVisualizer::stop();
 	}
 
 	std::shared_ptr<NodeGraph::CompiledProcess> ethercatDeviceProcess;

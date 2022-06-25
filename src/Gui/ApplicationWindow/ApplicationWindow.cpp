@@ -19,7 +19,6 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 #include "Gui/Assets/Images.h"
-#include "Visualizer/ofRenderer.h"
 #include "Project/Project.h"
 
 #include "Visualizer/Visualizer.h"
@@ -160,18 +159,13 @@ namespace ApplicationWindow {
 		//initialize glfw & opengl backends
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(OPENGL_VERSION_STRING);
-		ofRenderer::init(OPENGL_VERSION_MAJOR, OPENGL_VERSION_MINOR);
-		
-		Environnement::StageVisualizer::start();
-		
+		Environnement::StageVisualizer::initialize(OPENGL_VERSION_MAJOR, OPENGL_VERSION_MINOR);
+				
 		//============ UPDATE LOOP ============
-		//Gui::initialize();
 		while (!b_shouldClose) update();
-
-		Environnement::StageVisualizer::stop();
 		
 		//Gui Shutdown
-		ofRenderer::terminate();
+		Environnement::StageVisualizer::terminate();
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImPlot::DestroyContext();
@@ -200,14 +194,15 @@ namespace ApplicationWindow {
 		if(d_previousZoom == macOsTrackpadZoomDelta) macOsTrackpadZoomDelta = 0.0;
 		if(d_previousRotation == macOsTrackpadRotateDelta) macOsTrackpadRotateDelta = 0.0;
 		
-		//begin new frame and execute all gui draw calls
+		//begin new frame
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		ofRenderer::startRender();
-		Gui::draw();
 		
-		ofRenderer::finishRender();
+		//execute out gui
+		Gui::draw();
+
+		//render and display the gui
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(window);

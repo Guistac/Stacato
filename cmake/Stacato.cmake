@@ -13,6 +13,7 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Scripting/Script.h
     ${STACATO_SOURCE_DIRECTORY}/Scripting/Script.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Scripting/LuaLibrary.h
     ${STACATO_SOURCE_DIRECTORY}/Scripting/EnvironnementLibrary.cpp
     ${STACATO_SOURCE_DIRECTORY}/Scripting/EnvironnementLibrary.h
     ${STACATO_SOURCE_DIRECTORY}/Scripting/LoggingLibrary.h

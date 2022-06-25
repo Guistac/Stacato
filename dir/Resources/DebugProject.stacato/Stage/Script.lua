@@ -9,6 +9,23 @@
 function setup()
 	Logger:info("Starting Stage Visualizer Script at", of.getElapsedTimef(), "seconds.")
 	of.setCircleResolution(128)
+
+	for machineIndex, machine in pairs(Environnement.getMachines()) do
+		Logger:info(machineIndex, machine:getName())
+		for animatableIndex, animatable in pairs(machine:getAnimatables()) do
+			Logger:info("-- animatable", animatableIndex, ":", animatable:getName())
+			Logger:info("--- type:", animatable:getType():getString())
+			if animatable:getType() == AnimatableType.Position then
+				Logger:warn("found position animatable")
+			end
+		end
+	end
+
+	Logger:info("------- Animatable Types --------")
+	for animatableType, index in pairs(AnimatableType) do
+		Logger:info(animatableType, index)
+	end
+
 end
 
 
@@ -22,7 +39,7 @@ function update()
 	of.background(brightness)
 
 	size = glm.vec2(Canvas.getSize())
-	middle = glm.vec2(size) / 2.0
+	middle = glm.vec2(size.x / 2.0, size.y / 2.0)
 	of.drawCircle(middle, diameter)
 
 	of.drawBitmapStringHighlight("Default Stage Visualizer Script", 20, 30)
@@ -47,6 +64,21 @@ end
 function exit()
 	Logger:info("Exiting Stage Visualizer Script at", of.getElapsedTimef(), "seconds.")
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -43,18 +43,16 @@ namespace Enumerator{
 	template<typename E>
 	inline std::vector<TypeStruct<E>>& getTypes();
 		
-	namespace{
-		template<typename E>
-		TypeStruct<E>* getTypeStructure(E enumerator){
-			for(auto& typeStruct : getTypes<E>()) if(enumerator == typeStruct.enumerator) return &typeStruct;
-			return nullptr;
-		}
+	template<typename E>
+	TypeStruct<E>* getTypeStructure(E enumerator){
+		for(auto& typeStruct : getTypes<E>()) if(enumerator == typeStruct.enumerator) return &typeStruct;
+		return nullptr;
+	}
 
-		template<typename E>
-		TypeStruct<E>* getTypeStructureFromSaveString(const char* saveString){
-			for(auto& typeStruct : getTypes<E>()) if(strcmp(saveString, typeStruct.saveString) == 0) return &typeStruct;
-			return nullptr;
-		}
+	template<typename E>
+	TypeStruct<E>* getTypeStructureFromSaveString(const char* saveString){
+		for(auto& typeStruct : getTypes<E>()) if(strcmp(saveString, typeStruct.saveString) == 0) return &typeStruct;
+		return nullptr;
 	}
 
 	template<typename E>
