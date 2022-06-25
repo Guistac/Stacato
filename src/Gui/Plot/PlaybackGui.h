@@ -4,6 +4,6 @@ namespace Playback::Gui{
 
 void manoeuvrePlaybackControls(float height);
 
-void sequencePlaybackControls(float height);
+void sequencerPlaybackControls(float height);
 
 }

@@ -11,6 +11,8 @@
 
 #include "Environnement/NodeGraph/NodeGraph.h"
 
+#include "Environnement/Visualizer.h"
+
 
 namespace Environnement::Gui{
 
@@ -24,6 +26,10 @@ namespace Environnement::Gui{
 	
 	void LogWindow::drawContent() {
 		Utilies::Gui::log();
+	}
+
+	void VisualizerWindow::drawContent() {
+		StageVisualizer::canvas(ImGui::GetContentRegionAvail(), 1.0, ImGui::GetStyle().FrameRounding);
 	}
 
 	void UnlockEditorPopup::drawContent(){

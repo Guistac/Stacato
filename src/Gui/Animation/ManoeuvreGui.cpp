@@ -392,7 +392,10 @@ void Manoeuvre::curveEditor(){
 
 
 
-void Manoeuvre::spatialEditor(){}
+void Manoeuvre::spatialEditor(){
+	ImGui::Text("Spatial Editor is not implemented yet.");
+	ImGui::Text("We need a global 3D scene graph for this");
+}
 
 
 

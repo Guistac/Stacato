@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Gui/ApplicationWindow/Window.h"
-#include "Environnement/Visualizer.h"
-#include <imgui.h>
 
 namespace Environnement::Gui{
 
@@ -57,7 +55,7 @@ namespace Environnement::Gui{
 	class VisualizerWindow : public Window{
 	public:
 		VisualizerWindow() : Window("Visualizer", true){}
-		virtual void drawContent() override { StageVisualizer::canvas(ImGui::GetContentRegionAvail(), 1.0, ImGui::GetStyle().FrameRounding); }
+		virtual void drawContent() override;
 		SINGLETON_GET_METHOD(VisualizerWindow);
 	};
 

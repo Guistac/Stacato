@@ -11,7 +11,7 @@
 
 #include "Gui/Utilities/HelpMarker.h"
 
-void etherCatParameters(bool resetNicLists) {
+void etherCatParameters() {
 
 	if (ImGui::BeginChild("EtherCatParameters")) {
 

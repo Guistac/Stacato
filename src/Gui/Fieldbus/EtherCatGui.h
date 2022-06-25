@@ -5,7 +5,7 @@
 void etherCatGui();
 void etherCatSlaves();
 void etherCatMetrics();
-void etherCatParameters(bool resetList);
+void etherCatParameters();
 
 class EtherCatStartPopup : public Popup{
 public:

@@ -52,7 +52,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/Dashboard/Managers.cpp
     
     ${STACATO_SOURCE_DIRECTORY}/Gui/Machine/MachineGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Machine/AnimatableParameterGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Animation/ManoeuvreGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Animation/AnimationGui.cpp

@@ -92,6 +92,11 @@ void Machine::generalSettingsGui() {
 	ImGui::InputText("##shortName", shortName, 16);
 }
 
+
+
+
+
+
 void Machine::machineHeaderGui(float width){
 	ImGui::PushFont(Fonts::sansBold20);
 	centeredText(getName(), glm::vec2(width, ImGui::GetTextLineHeight()));
