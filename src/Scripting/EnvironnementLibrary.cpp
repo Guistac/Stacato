@@ -4,6 +4,7 @@
 #include "LuaLibrary.h"
 
 #include "Environnement/Environnement.h"
+#include "Animation/AnimationValue.h"
 #include "Machine/Machine.h"
 
 #include <iostream>
@@ -20,7 +21,6 @@ namespace Scripting::EnvironnementLibrary{
 	LuaShared(Machine, "Machine");
 	LuaShared(Animatable, "Animatable");
 	LuaShared(AnimationValue, "AnimationValue");
-	LuaShared(PositionAnimationValue, "PositionAnimationValue");
 
 	//————————————————— ENVIRONNEMENT ——————————————————
 
@@ -163,55 +163,17 @@ namespace Scripting::EnvironnementLibrary{
 			return 1;
 		}
 	
-		int getPosition(lua_State* L){
-			auto animatable = LuaShared_Animatable::checkArgument(L, 1);
-			auto value = animatable->getActualValue()->toPosition();
-			
-			LuaTable positionTable(L);
-			positionTable.begin(0, 3)
-			.addNumber(value->position, "Position")
-			.addNumber(value->velocity, "Velocity")
-			.addNumber(value->acceleration, "Acceleration");
-			return 1;
-		}
-	
 	};
+
 
 	namespace Lua_AnimationValue{
 	
 		int getType(lua_State* L){
-			auto animationValue = LuaShared_PositionAnimationValue::checkArgument(L, 1);
+			auto animationValue = LuaShared_AnimationValue::checkArgument(L, 1);
 			AnimatableType type = animationValue->getType();
 			LuaEnumerator_AnimatableType::push(L, type);
 			return 1;
 		}
-	
-		int toPosition(lua_State* L){
-			auto animationValue = LuaShared_AnimationValue::checkArgument(L, 1);
-			auto position = animationValue->toPosition();
-			LuaShared_PositionAnimationValue::push(L, position);
-			return 1;
-		}
-
-		namespace Position{
-			
-			int getPosition(lua_State* L){
-				auto val = LuaShared_PositionAnimationValue::checkArgument(L, 1);
-				lua_pushnumber(L, val->position);
-				return 1;
-			}
-			int getVelocity(lua_State* L){
-				auto val = LuaShared_PositionAnimationValue::checkArgument(L, 1);
-				lua_pushnumber(L, val->velocity);
-				return 1;
-			}
-			int getAcceleration(lua_State* L){
-				auto val = LuaShared_PositionAnimationValue::checkArgument(L, 1);
-				lua_pushnumber(L, val->acceleration);
-				return 1;
-			}
-			
-		};
 	
 	};
 	
@@ -233,18 +195,12 @@ namespace Scripting::EnvironnementLibrary{
 		LuaShared_Animatable::addMethod("getType", Lua_Animatable::getType);
 		LuaShared_Animatable::addMethod("getActualValue", Lua_Animatable::getActualValue);
 		LuaShared_Animatable::addMethod("getAnimationValue", Lua_Animatable::getAnimationValue);
-		LuaShared_Animatable::addMethod("getPosition", Lua_Animatable::getPosition);
 		LuaShared_Animatable::declare(L);
 		
+		
 		LuaShared_AnimationValue::addMethod("getType", Lua_AnimationValue::getType);
-		LuaShared_AnimationValue::addMethod("toPosition", Lua_AnimationValue::toPosition);
 		LuaShared_AnimationValue::declare(L);
-		
-		LuaShared_PositionAnimationValue::addMethod("getPosition", Lua_AnimationValue::Position::getPosition);
-		LuaShared_PositionAnimationValue::addMethod("getVelocity", Lua_AnimationValue::Position::getVelocity);
-		LuaShared_PositionAnimationValue::addMethod("getAcceleration", Lua_AnimationValue::Position::getAcceleration);
-		LuaShared_PositionAnimationValue::declare(L);
-		
+		 
 		LuaTable environnementLibrary(L);
 		environnementLibrary.begin()
 		.addFunction(Lua_Environnement::getMachineCount, "getMachineCount")

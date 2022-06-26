@@ -341,7 +341,7 @@ void SequenceAnimation::drawCurveControls(){
 			bool controlPointEdited = false;
 			
 			//don't draw the first control point of a step interpolation sequence, since we can't edit it anyway
-			if(i == 0 && interpolationType->value == Motion::Interpolation::Type::STEP) continue;
+			if(i == 0 && interpolationType->value == InterpolationType::STEP) continue;
 
 			ImGui::BeginDisabled();
 			if (controlPoint->b_valid) controlPointEdited = ImPlot::DragPoint("", &controlPoint->time, &controlPoint->position, true, Colors::white, controlPointMedium);

@@ -3,7 +3,6 @@
 #include <tinyxml2.h>
 #include <imgui.h>
 #include "CommandHistory.h"
-#include "Animation/AnimationValue.h"
 #include "Gui/Assets/Colors.h"
 #include "Gui/Assets/Fonts.h"
 
@@ -727,14 +726,16 @@ public:
 //=================================== STATE PARAMETER ===============================
 //===================================================================================
 
+#include "Animation/Animatables/AnimatableState.h"
+
 class StateParameter : public Parameter{
 public:
 	
-	StateAnimationValue::Value* value;
-	StateAnimationValue::Value* displayValue;
-	std::vector<StateAnimationValue::Value>* values;
+	AnimatableState::State* value;
+	AnimatableState::State* displayValue;
+	std::vector<AnimatableState::State>* values;
 	
-	StateParameter(StateAnimationValue::Value* value_, std::vector<StateAnimationValue::Value>* values_, std::string name, std::string saveString_) : Parameter(name, saveString_){
+	StateParameter(AnimatableState::State* value_, std::vector<AnimatableState::State>* values_, std::string name, std::string saveString_) : Parameter(name, saveString_){
 		value = value_;
 		displayValue = value_;
 		values = values_;
@@ -785,7 +786,7 @@ public:
 	
 	virtual std::shared_ptr<Parameter> makeBaseCopy() override { return makeCopy(); };
 	
-	void overwrite(StateAnimationValue::Value* newValue){
+	void overwrite(AnimatableState::State* newValue){
 		displayValue = newValue;
 		value = newValue;
 	}
@@ -793,8 +794,8 @@ public:
 	class EditCommand : public Command{
 	public:
 		std::shared_ptr<StateParameter> parameter;
-		StateAnimationValue::Value* oldValue;
-		StateAnimationValue::Value* newValue;
+		AnimatableState::State* oldValue;
+		AnimatableState::State* newValue;
 		
 		EditCommand(std::shared_ptr<StateParameter> parameter_, std::string& commandName) : Command(commandName){
 			parameter = parameter_;

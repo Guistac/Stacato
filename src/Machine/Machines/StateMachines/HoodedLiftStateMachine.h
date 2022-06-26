@@ -1,5 +1,7 @@
 #include "Machine/Machine.h"
-#include "Animation/Animatable.h"
+
+#include "Animation/Animatables/AnimatableState.h"
+
 #include "Animation/AnimationValue.h"
 
 #include "Gui/Environnement/Dashboard/Widget.h"
@@ -39,8 +41,8 @@ public:
 	std::shared_ptr<bool> raiseLiftCommandPinValue = std::make_shared<bool>(false);
 	std::shared_ptr<bool> lowerLiftCommandPinValue = std::make_shared<bool>(false);
 	
-	std::shared_ptr<Animatable> stateParameter = std::make_shared<AnimatableState>("State", &stateParameterValues);
-	static std::vector<StateAnimationValue::Value> stateParameterValues;
+	static std::vector<AnimatableState::State> stateParameterValues;
+	std::shared_ptr<AnimatableState> animatableState = AnimatableState::make("State", &stateParameterValues);
 
 	bool hoodShut = false;
 	bool hoodOpen = false;

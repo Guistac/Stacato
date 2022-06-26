@@ -24,8 +24,8 @@ SequenceAnimation::SequenceAnimation(std::shared_ptr<Animatable> animatable) : A
 		outAcceleration->setDisabled(true);
 	}
 	
-	Motion::Interpolation::Type defaultInterpolation = animatable->getCompatibleInterpolationTypes().front();
-	interpolationType = std::make_shared<EnumeratorParameter<Motion::Interpolation::Type>>(defaultInterpolation, "Interpolation Type", "interpolationType");
+	InterpolationType defaultInterpolation = animatable->getCompatibleInterpolationTypes().front();
+	interpolationType = std::make_shared<EnumeratorParameter<InterpolationType>>(defaultInterpolation, "Interpolation Type", "interpolationType");
 	
 	auto editCallback = [this](std::shared_ptr<Parameter> thisParameter){ updateAfterParameterEdit(); };
 	interpolationType->setEditCallback(editCallback);

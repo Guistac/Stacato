@@ -8,7 +8,7 @@
 
 #include "Animation/Animation.h"
 
-std::vector<StateAnimationValue::Value> HoodedLiftStateMachine::stateParameterValues = {
+std::vector<AnimatableState::State> HoodedLiftStateMachine::stateParameterValues = {
 	{-1, "Stopped", "Stopped"},
 	{0, "Shut", "Shut"},
 	{1, "Open", "Open"},
@@ -48,7 +48,7 @@ void HoodedLiftStateMachine::initialize() {
 	addNodePin(raiseLiftCommandPin);
 	addNodePin(lowerLiftCommandPin);
 
-	addAnimatable(stateParameter);
+	addAnimatable(animatableState);
 	
 	auto thisMachine = std::dynamic_pointer_cast<HoodedLiftStateMachine>(shared_from_this());
 	controlWidget = std::make_shared<ControlWidget>(thisMachine, getName());
@@ -97,8 +97,8 @@ void HoodedLiftStateMachine::inputProcess() {
 void HoodedLiftStateMachine::outputProcess(){
 	//update outputs signals
 	if (b_enabled) {
-		if (stateParameter->hasAnimation()) {
-			auto state = stateParameter->getAnimationValue()->toState();
+		if (animatableState->hasAnimation()) {
+			auto state = animatableState->getAnimationValue()->toState();
 			switch (state->value->integerEquivalent) {
 				case 0:
 					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
@@ -256,7 +256,7 @@ bool HoodedLiftStateMachine::isMoving() {
 }
 
 void HoodedLiftStateMachine::rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
-	if (animatable == stateParameter) {
+	if (animatable == animatableState) {
 		auto state = value->toState()->value;
 		switch (state->integerEquivalent) {
 			case 0:
@@ -274,7 +274,7 @@ void HoodedLiftStateMachine::rapidAnimatableToValue(std::shared_ptr<Animatable> 
 }
 
 float HoodedLiftStateMachine::getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable) {
-	if (animatable == stateParameter) {
+	if (animatable == animatableState) {
 		float actual = getState(actualState)->floatEquivalent;
 		float start = getState(parameterMovementStartState)->floatEquivalent;
 		float target = getState(parameterMovementTargetState)->floatEquivalent;
@@ -287,7 +287,7 @@ float HoodedLiftStateMachine::getAnimatableRapidProgress(std::shared_ptr<Animata
 }
 
 bool HoodedLiftStateMachine::isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
-	if (animatable == stateParameter) {
+	if (animatable == animatableState) {
 		auto state = value->toState()->value;
 		//TODO: this is broken
 		if (state->integerEquivalent == getState(actualState)->floatEquivalent) return true;
@@ -367,8 +367,8 @@ void HoodedLiftStateMachine::simulateInputProcess() {
 
 	//update outputs signals
 	if (isEnabled()) {
-		if (stateParameter->hasAnimation()) {
-			auto state = stateParameter->getAnimationValue()->toState()->value;
+		if (animatableState->hasAnimation()) {
+			auto state = animatableState->getAnimationValue()->toState()->value;
 			switch (state->integerEquivalent) {
 				case 0:
 					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;

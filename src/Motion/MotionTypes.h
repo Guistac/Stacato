@@ -23,6 +23,24 @@ enum class PositionFeedbackType{
 DEFINE_ENUMERATOR(PositionFeedbackType, PositionFeedbackTypeStrings)
 
 
+
+//================================================================================================================================
+
+enum class InterpolationType {
+	STEP,
+	LINEAR,
+	TRAPEZOIDAL,
+	BEZIER
+};
+
+#define InterpolationTypeStrings \
+	{InterpolationType::STEP,			"Step", "Step"},\
+	{InterpolationType::LINEAR,			"Linear", "Linear"},\
+	{InterpolationType::TRAPEZOIDAL,	"Constant Acceleration", "Trapezoidal"},\
+	{InterpolationType::BEZIER,			"Bezier", "Bezier"}\
+
+DEFINE_ENUMERATOR(InterpolationType, InterpolationTypeStrings)
+
 //================================================================================================================================
 
 enum class PositionReferenceSignal{

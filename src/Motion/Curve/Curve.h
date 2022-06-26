@@ -52,14 +52,7 @@ namespace Motion {
 	class Interpolation : public std::enable_shared_from_this<Interpolation>{
 	public:
 		
-		enum class Type {
-			STEP,
-			LINEAR,
-			TRAPEZOIDAL,
-			BEZIER
-		};
-		
-		virtual Type getType() = 0;
+		virtual InterpolationType getType() = 0;
 		std::shared_ptr<TrapezoidalInterpolation> castToTrapezoidal(){ return std::dynamic_pointer_cast<TrapezoidalInterpolation>(shared_from_this()); }
 		std::shared_ptr<LinearInterpolation> castToLinear(){ return std::dynamic_pointer_cast<LinearInterpolation>(shared_from_this()); }
 		std::shared_ptr<StepInterpolation> castToStep() { return std::dynamic_pointer_cast<StepInterpolation>(shared_from_this()); }
@@ -91,7 +84,7 @@ namespace Motion {
 	class TrapezoidalInterpolation : public Interpolation{
 	public:
 		
-		virtual Type getType() override { return Interpolation::Type::TRAPEZOIDAL; }
+		virtual InterpolationType getType() override { return InterpolationType::TRAPEZOIDAL; }
 		
 		enum class Phase{
 			NOT_STARTED,
@@ -148,7 +141,7 @@ namespace Motion {
 	class LinearInterpolation : public Interpolation{
 	public:
 		
-		virtual Interpolation::Type getType() override { return Interpolation::Type::LINEAR; }
+		virtual InterpolationType getType() override { return InterpolationType::LINEAR; }
 		
 		double interpolationVelocity;
 		
@@ -166,7 +159,7 @@ namespace Motion {
 	class StepInterpolation : public Interpolation{
 	public:
 		
-		virtual Interpolation::Type getType() override { return Interpolation::Type::STEP; }
+		virtual InterpolationType getType() override { return InterpolationType::STEP; }
 		
 		virtual Point getPointAtTime(double time) override;
 		virtual double getNextIncrementTime(double previousPulseTime, double incrementsPerUnit) override;
@@ -197,7 +190,7 @@ namespace Motion {
 		
 		bool b_valid;
 		
-		Interpolation::Type interpolationType;
+		InterpolationType interpolationType;
 		
 	private:
 		std::vector<std::shared_ptr<ControlPoint>> controlPoints;
@@ -221,11 +214,3 @@ namespace Motion {
 	{Motion::ValidationError::INTERPOLATION_OUTPUT_ACCELERATION_IS_ZERO,		"Interpolation Output Acceleration Is Zero"}\
 
 DEFINE_ENUMERATOR(Motion::ValidationError, CurveValidationErrorTypeStrings)
-
-#define InterpolationTypeStrings \
-	{Motion::Interpolation::Type::STEP,			"Step", "Step"},\
-	{Motion::Interpolation::Type::LINEAR,		"Linear", "Linear"},\
-	{Motion::Interpolation::Type::TRAPEZOIDAL,	"Constant Acceleration", "Trapezoidal"},\
-	{Motion::Interpolation::Type::BEZIER,		"Bezier", "Bezier"}\
-
-DEFINE_ENUMERATOR(Motion::Interpolation::Type, InterpolationTypeStrings)

@@ -4,12 +4,45 @@
 #include "Machine/Machine.h"
 #include "Animation/Animation.h"
 
+#include "Animatables/AnimatableState.h"
+#include "Animatables/AnimatablePosition.h"
+#include "Animatables/AnimatableBoolean.h"
+
+std::shared_ptr<AnimatableState> Animatable::toState(){ return std::dynamic_pointer_cast<AnimatableState>(shared_from_this()); }
+std::shared_ptr<AnimatablePosition> Animatable::toPosition(){ return std::dynamic_pointer_cast<AnimatablePosition>(shared_from_this()); }
+std::shared_ptr<AnimatableBoolean> Animatable::toBoolean(){ return std::dynamic_pointer_cast<AnimatableBoolean>(shared_from_this()); }
+
 std::shared_ptr<Animation> Animatable::makeAnimation(ManoeuvreType manoeuvreType){
 	auto track = Animation::create(shared_from_this(), manoeuvreType);
-	//subscribe track to parameter changes
 	track->subscribeToMachineParameter();
 	return track;
 }
+
+std::shared_ptr<AnimationValue> Animatable::getAnimationValue(){
+	return currentAnimation->getValueAtPlaybackTime();
+}
+
+void Animatable::stopAnimationPlayback(){
+	if(hasAnimation()){
+		auto animation = currentAnimation;
+		currentAnimation = nullptr;
+		animation->stop();
+	}
+}
+
+void AnimatableNumber::setUnit(Unit u){
+	unit = u;
+	for(auto animation : getAnimations()) animation->setUnit(u);
+}
+
+std::shared_ptr<AnimationValue> Animatable::getActualValue(){
+	return getMachine()->getActualAnimatableValue(shared_from_this());
+}
+
+
+
+
+/*
 
 int Animatable::getCurveCount(){
 	switch(getType()){
@@ -33,30 +66,30 @@ int Animatable::getCurveCount(){
 	}
 }
 
-std::vector<Motion::Interpolation::Type>& Animatable::getCompatibleInterpolationTypes(){
-	static std::vector<Motion::Interpolation::Type> stepOnly = {
-		Motion::Interpolation::Type::STEP
+std::vector<InterpolationType>& Animatable::getCompatibleInterpolationTypes(){
+	static std::vector<InterpolationType> stepOnly = {
+		InterpolationType::STEP
 	};
 	
-	static std::vector<Motion::Interpolation::Type> allInterpolationTypes = {
-		Motion::Interpolation::Type::STEP,
-		Motion::Interpolation::Type::LINEAR,
-		Motion::Interpolation::Type::TRAPEZOIDAL,
-		//Motion::Interpolation::Type::BEZIER
+	static std::vector<InterpolationType> allInterpolationTypes = {
+		InterpolationType::STEP,
+		InterpolationType::LINEAR,
+		InterpolationType::TRAPEZOIDAL,
+		//InterpolationType::BEZIER
 	};
 	
-	static std::vector<Motion::Interpolation::Type> forPosition = {
-		Motion::Interpolation::Type::TRAPEZOIDAL,
-		//Motion::Interpolation::Type::BEZIER
+	static std::vector<InterpolationType> forPosition = {
+		InterpolationType::TRAPEZOIDAL,
+		//InterpolationType::BEZIER
 	};
 	
-	static std::vector<Motion::Interpolation::Type> forVelocity = {
-		Motion::Interpolation::Type::LINEAR,
-		Motion::Interpolation::Type::TRAPEZOIDAL,
-		//Motion::Interpolation::Type::BEZIER
+	static std::vector<InterpolationType> forVelocity = {
+		InterpolationType::LINEAR,
+		InterpolationType::TRAPEZOIDAL,
+		//InterpolationType::BEZIER
 	};
 	
-	static std::vector<Motion::Interpolation::Type> none = {};
+	static std::vector<InterpolationType> none = {};
 	
 	switch (getType()) {
 		case AnimatableType::BOOLEAN:
@@ -78,16 +111,6 @@ std::vector<Motion::Interpolation::Type>& Animatable::getCompatibleInterpolation
 		case AnimatableType::COMPOSITE:
 			return none;
 	}
-}
-
-
-void AnimatableNumber::setUnit(Unit u){
-	unit = u;
-	for(auto animation : getAnimations()) animation->setUnit(u);
-}
-
-std::shared_ptr<AnimationValue> Animatable::getActualValue(){
-	return getMachine()->getActualAnimatableValue(shared_from_this());
 }
 
 std::shared_ptr<Parameter> Animatable::makeParameter(){
@@ -371,15 +394,4 @@ std::vector<double> Animatable::getCurvePositionsFromAnimationValue(std::shared_
 		case AnimatableType::COMPOSITE:		return {};
 	}
 }
-
-std::shared_ptr<AnimationValue> Animatable::getAnimationValue(){
-	return currentAnimation->getValueAtPlaybackTime();
-}
-
-void Animatable::stopAnimationPlayback(){
-	if(hasAnimation()){
-		auto animation = currentAnimation;
-		currentAnimation = nullptr;
-		animation->stop();
-	}
-}
+*/

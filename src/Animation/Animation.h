@@ -253,7 +253,7 @@ public:
 	std::shared_ptr<EnumeratorParameter<Constraint>> constraintType = std::make_shared<EnumeratorParameter<Constraint>>(Constraint::TIME, "Constraint Type", "ConstraintType");
 	std::shared_ptr<TimeParameter> timeConstraint = std::make_shared<TimeParameter>(0.0, "Movement Time", "Time");
 	std::shared_ptr<NumberParameter<double>> velocityConstraint = NumberParameter<double>::make(0.0, "Movement Velocity", "Velocity");
-	std::shared_ptr<EnumeratorParameter<Motion::Interpolation::Type>> interpolationType;
+	std::shared_ptr<EnumeratorParameter<InterpolationType>> interpolationType;
 	std::shared_ptr<NumberParameter<double>> inAcceleration = NumberParameter<double>::make(0.0, "Start Acceleration", "StartAcceleration");
 	std::shared_ptr<NumberParameter<double>> outAcceleration = NumberParameter<double>::make(0.0, "End Acceleration", "EndAcceleration");
 	
@@ -332,7 +332,7 @@ public:
 	std::shared_ptr<Parameter> start;
 	std::shared_ptr<Parameter> target;
 	std::shared_ptr<TimeParameter> duration = std::make_shared<TimeParameter>(0, "Duration", "Duration");
-	std::shared_ptr<EnumeratorParameter<Motion::Interpolation::Type>> interpolationType;
+	std::shared_ptr<EnumeratorParameter<InterpolationType>> interpolationType;
 	std::shared_ptr<TimeParameter> timeOffset = std::make_shared<TimeParameter>(0.0, "Time Offset", "TimeOffset");
 	std::shared_ptr<NumberParameter<double>> inAcceleration = NumberParameter<double>::make(0.0, "Start Acceleration", "StartAcceleration");
 	std::shared_ptr<NumberParameter<double>> outAcceleration = NumberParameter<double>::make(0.0, "End Acceleration", "EndAcceleration");

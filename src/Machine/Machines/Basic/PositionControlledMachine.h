@@ -6,6 +6,8 @@
 
 #include "Gui/Environnement/Dashboard/Widget.h"
 
+#include "Animation/Animatables/AnimatablePosition.h"
+
 class PositionControlledMachine : public Machine{
 	
 	DEFINE_MACHINE_NODE(PositionControlledMachine, "Position Controlled Machine", "PositionControlledMachine", "Basic")
@@ -18,7 +20,8 @@ class PositionControlledMachine : public Machine{
 	std::shared_ptr<double> velocityPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(velocityPinValue, NodePin::Direction::NODE_OUTPUT, "Velocity");
 	
-	std::shared_ptr<AnimatableNumber> positionParameter = std::make_shared<AnimatableNumber>("Position", AnimatableType::POSITION, Units::None::None);
+	
+	std::shared_ptr<AnimatablePosition> animatablePosition = AnimatablePosition::make("Position", Units::None::None);
 	
 	bool isAxisConnected();
 	std::shared_ptr<PositionControlledAxis> getAxis();

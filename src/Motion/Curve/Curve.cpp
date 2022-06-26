@@ -84,16 +84,16 @@ namespace Motion {
 			std::shared_ptr<Motion::ControlPoint>& outPoint = controlPoints[i + 1];
 			std::shared_ptr<Motion::Interpolation> interpolation;
 			switch (interpolationType) {
-				case Interpolation::Type::STEP:
+				case InterpolationType::STEP:
 					interpolation = Motion::StepInterpolation::getInterpolation(inPoint, outPoint);
 					break;
-				case Interpolation::Type::LINEAR:
+				case InterpolationType::LINEAR:
 					interpolation = Motion::LinearInterpolation::getTimeConstrained(inPoint, outPoint);
 					break;
-				case Interpolation::Type::BEZIER: //not supported yet:
+				case InterpolationType::BEZIER: //not supported yet:
 					interpolation = Motion::LinearInterpolation::getTimeConstrained(inPoint, outPoint);
 					break;
-				case Interpolation::Type::TRAPEZOIDAL:
+				case InterpolationType::TRAPEZOIDAL:
 					interpolation = TrapezoidalInterpolation::getTimeConstrained(inPoint, outPoint);
 					break;
 			}

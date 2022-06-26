@@ -109,6 +109,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatable.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatable.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/AnimationValue.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/AnimationValue.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animation.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animation.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/AnimationKey.cpp
@@ -120,6 +121,11 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/Playback.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/Playback.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/TimeStringConversion.h
+
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatablePosition.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatablePosition.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableState.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableState.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.h

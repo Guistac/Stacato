@@ -1,17 +1,21 @@
 #pragma once
 
-#include "AnimationValue.h"
-#include "Motion/Curve/Curve.h"
-#include "Project/Editor/Parameter.h"
+#include "Motion/MotionTypes.h"
+
+class Parameter;
 
 class Machine;
 namespace tinyxml2 { class XMLElement; }
 
+class AnimationValue;
 
 class Animation;
 class AnimatableComposite;
 class AnimatableNumber;
+
 class AnimatableState;
+class AnimatablePosition;
+class AnimatableBoolean;
 
 class Animatable : public std::enable_shared_from_this<Animatable>{
 public:
@@ -33,12 +37,16 @@ public:
 	
 	std::shared_ptr<AnimatableComposite> toComposite(){ return std::dynamic_pointer_cast<AnimatableComposite>(shared_from_this()); }
 	std::shared_ptr<AnimatableNumber> toNumber(){ return std::dynamic_pointer_cast<AnimatableNumber>(shared_from_this()); }
-	std::shared_ptr<AnimatableState> toState(){ return std::dynamic_pointer_cast<AnimatableState>(shared_from_this()); }
+	
+	std::shared_ptr<AnimatableState> toState();
+	std::shared_ptr<AnimatablePosition> toPosition();
+	std::shared_ptr<AnimatableBoolean> toBoolean();
 	
 	//———————————— ANIMATIONS ————————————
 	
 	std::shared_ptr<Animation> makeAnimation(ManoeuvreType manoeuvreType);
-	std::vector<Motion::Interpolation::Type>& getCompatibleInterpolationTypes();
+	
+	virtual std::vector<InterpolationType>& getCompatibleInterpolationTypes() = 0;
 	
 	std::vector<std::shared_ptr<Animation>>& getAnimations(){ return animations; }
 	void subscribeAnimation(std::shared_ptr<Animation> animation){ animations.push_back(animation); }
@@ -62,14 +70,14 @@ public:
 	std::shared_ptr<AnimationValue> getAnimationValue();
 	std::shared_ptr<AnimationValue> getActualValue();
 	
-	int getCurveCount();
-	std::shared_ptr<Parameter> makeParameter();
-	void setParameterValueFromAnimationValue(std::shared_ptr<Parameter> parameter, std::shared_ptr<AnimationValue> value);
-	void copyParameterValue(std::shared_ptr<Parameter> from, std::shared_ptr<Parameter> to);
-	std::shared_ptr<AnimationValue> parameterValueToAnimationValue(std::shared_ptr<Parameter> parameter);
-	bool isParameterValueEqual(std::shared_ptr<AnimationValue> value1, std::shared_ptr<AnimationValue> value2);
-	std::shared_ptr<AnimationValue> getValueAtAnimationTime(std::shared_ptr<Animation> animation, double time_seconds);
-	std::vector<double> getCurvePositionsFromAnimationValue(std::shared_ptr<AnimationValue> value);
+	virtual int getCurveCount() = 0;
+	virtual std::shared_ptr<Parameter> makeParameter() = 0;
+	virtual void setParameterValueFromAnimationValue(std::shared_ptr<Parameter> parameter, std::shared_ptr<AnimationValue> value) = 0;
+	virtual void copyParameterValue(std::shared_ptr<Parameter> from, std::shared_ptr<Parameter> to) = 0;
+	virtual std::shared_ptr<AnimationValue> parameterValueToAnimationValue(std::shared_ptr<Parameter> parameter) = 0;
+	virtual bool isParameterValueEqual(std::shared_ptr<AnimationValue> value1, std::shared_ptr<AnimationValue> value2) = 0;
+	virtual std::shared_ptr<AnimationValue> getValueAtAnimationTime(std::shared_ptr<Animation> animation, double time_seconds) = 0;
+	virtual std::vector<double> getCurvePositionsFromAnimationValue(std::shared_ptr<AnimationValue> value) = 0;
 	
 private:
 	
@@ -84,14 +92,6 @@ private:
 
 
 
-
-
-
-
-
-
-
-
 //———————————————————————————————————————————————
 //				ANIMATABLE NUMBER
 //———————————————————————————————————————————————
@@ -99,19 +99,17 @@ private:
 class AnimatableNumber : public Animatable{
 public:
 	
-	AnimatableNumber(const char* name, AnimatableType type_, Unit unit_) : Animatable(name), type(type_){
-		assert(type != AnimatableType::COMPOSITE);
-		assert(type != AnimatableType::BOOLEAN);
-		assert(type != AnimatableType::STATE);
+	AnimatableNumber(const char* name, Unit unit_) : Animatable(name) {
 		setUnit(unit_);
 	}
 
 	virtual bool isNumber() override { return true; }
-	virtual AnimatableType getType() override { return type; }
 	
 	bool isReal(){
-		switch(type){
-			case AnimatableType::INTEGER: return false;
+		switch(getType()){
+			case AnimatableType::INTEGER:
+			case AnimatableType::BOOLEAN:
+			case AnimatableType::STATE: return false;
 			default: return true;
 		}
 	}
@@ -125,41 +123,9 @@ public:
 	
 private:
 	Unit unit;
-	AnimatableType type;
 };
 
 
-
-//———————————————————————————————————————————————
-//				ANIMATABLE STATE
-//———————————————————————————————————————————————
-
-class AnimatableState : public Animatable{
-public:
-	
-	AnimatableState(const char* name, std::vector<StateAnimationValue::Value>* stateValues) : Animatable(name), states(stateValues){};
-	
-	virtual AnimatableType getType() override { return AnimatableType::STATE; }
-	
-	std::vector<StateAnimationValue::Value>& getStates() { return *states; }
-	
-private:
-	std::vector<StateAnimationValue::Value>* states;
-};
-
-
-
-//———————————————————————————————————————————————
-//				ANIMATABLE BOOLEAN
-//———————————————————————————————————————————————
-
-class AnimatableBoolean : public Animatable{
-public:
-	
-	AnimatableBoolean(const char* name) : Animatable(name){}
-	
-	virtual AnimatableType getType() override { return AnimatableType::BOOLEAN; }
-};
 
 
 
