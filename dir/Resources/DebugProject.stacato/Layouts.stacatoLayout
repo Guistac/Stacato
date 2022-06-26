@@ -42,6 +42,14 @@
 
 
 
+
+
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -326,6 +334,14 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,101 Size=2056,1144 Central
             <Window Name="Manoeuvre List"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
+
+
 
 
 
@@ -810,6 +826,14 @@ DockSpace     ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,146 Size=2056,967 Split=X
 
 
 
+
+
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -1079,26 +1103,9 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,146 Size=2056,967 CentralN
         <OpenWindows>
             <Window Name="Visualizer"/>
             <Window Name="Visualizer Script"/>
+            <Window Name="Dashboard"/>
         </OpenWindows>
         <ImGuiIniString>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1126,7 +1133,7 @@ Collapsed=0
 Pos=0,29
 Size=2056,1144
 Collapsed=0
-DockId=0x00000007,0
+DockId=0x00000009,0
 
 [Window][Stage]
 Pos=419,32
@@ -1142,7 +1149,7 @@ Collapsed=0
 Pos=0,29
 Size=1728,938
 Collapsed=0
-DockId=0x00000007,2
+DockId=0x00000009,2
 
 [Window][Plot List]
 Pos=0,32
@@ -1273,10 +1280,10 @@ Size=449,51
 Collapsed=0
 
 [Window][Dashboard]
-Pos=0,29
-Size=1728,938
+Pos=0,501
+Size=729,466
 Collapsed=0
-DockId=0x00000007,0
+DockId=0x0000000A,0
 
 [Window][Spatial Editor]
 Pos=0,29
@@ -1311,15 +1318,15 @@ Collapsed=0
 
 [Window][Visualizer]
 Pos=0,29
-Size=729,938
+Size=729,470
 Collapsed=0
-DockId=0x00000007,0
+DockId=0x00000009,0
 
 [Window][Node Editor]
 Pos=0,29
 Size=1728,938
 Collapsed=0
-DockId=0x00000007,2
+DockId=0x00000009,2
 
 [Window][Node Manager]
 Pos=0,29
@@ -1397,7 +1404,9 @@ DockSpace       ID=0x0B88F6CB Pos=0,146 Size=2056,967 Split=Y Selected=0x20B12C3
     DockNode    ID=0x00000004 Parent=0x00000001 SizeRef=1025,484 Selected=0x3E6B10D2
   DockNode      ID=0x00000002 Parent=0x0B88F6CB SizeRef=2056,457 Selected=0xB00214C9
 DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X Selected=0x2BD258E6
-  DockNode      ID=0x00000007 Parent=0xD5272B65 SizeRef=729,938 CentralNode=1 HiddenTabBar=1 Selected=0x2BD258E6
+  DockNode      ID=0x00000007 Parent=0xD5272B65 SizeRef=729,938 Split=Y Selected=0x1D6C5C37
+    DockNode    ID=0x00000009 Parent=0x00000007 SizeRef=729,470 CentralNode=1 HiddenTabBar=1 Selected=0x1D6C5C37
+    DockNode    ID=0x0000000A Parent=0x00000007 SizeRef=729,466 HiddenTabBar=1 Selected=0xDE657D5B
   DockNode      ID=0x00000008 Parent=0xD5272B65 SizeRef=997,938 HiddenTabBar=1 Selected=0x7AEFDC53
 
 </ImGuiIniString>

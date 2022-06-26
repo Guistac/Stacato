@@ -18,6 +18,8 @@ function setup()
 			if animatable:getType() == AnimatableType.Position then
 				Logger:warn("found position animatable")
 			end
+			value = animatable:getActualValue()
+			Logger:warn("AAAAA", value:getType():getString())
 		end
 	end
 
@@ -32,9 +34,19 @@ end
 --Display and Animate stuff here :
 
 function update()
+
+	costiereA = Environnement.getMachine("Costière A")
+	costierePosition = costiereA:getAnimatable("Position")
+	positionValue = costierePosition:getActualValue():toPosition()
+	pos = positionValue:getPosition()
+	vel = positionValue:getVelocity()
+	acc = positionValue:getAcceleration()
+
 	time = of.getElapsedTimef()
-	brightness = (math.sin(time) + 1.0) * 64
-	diameter = (math.sin(time) + 1.0) * 100
+	--brightness = (math.sin(time) + 1.0) * 64
+	brightness = math.abs(acc * 16)
+	--diameter = (math.sin(time) + 1.0) * 100
+	diameter = (vel / 1) * 100
 
 	of.background(brightness)
 
@@ -53,7 +65,7 @@ function update()
 	lEnd = glm.vec2(size.x - lStart.x, size.y - lStart.y)
 	of.setColor(255, 0, 0, 255)
 	of.drawLine(lStart, lEnd)
-	lerp = (math.sin(of.getElapsedTimef() * 0.456) + 1.0) / 2.0
+	lerp = pos / 10
 	rPos = glm.vec2(of.lerp(lStart.x, lEnd.x, lerp), of.lerp(lStart.y, lEnd.y, lerp))
 	of.drawCircle(rPos, 50)
 end
@@ -64,6 +76,10 @@ end
 function exit()
 	Logger:info("Exiting Stage Visualizer Script at", of.getElapsedTimef(), "seconds.")
 end
+
+
+
+
 
 
 

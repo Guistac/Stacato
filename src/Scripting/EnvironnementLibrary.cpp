@@ -19,6 +19,8 @@ namespace Scripting::EnvironnementLibrary{
 	LuaLibrary lua_Environnement;
 	LuaObject<Machine> lua_Machine("Machine");
 	LuaObject<Animatable> lua_Animatable("Animatable");
+	LuaObject<AnimationValue> lua_AnimationValue("AnimationValue");
+	LuaObject<PositionAnimationValue> lua_PositionAnimationValue("PositionAnimationValue");
 	LuaEnumerator(AnimatableType, "AnimatableType");
 
 	//————————————————— ENVIRONNEMENT ——————————————————
@@ -144,7 +146,59 @@ namespace Scripting::EnvironnementLibrary{
 			return 1;
 		}
 	
-	}
+		int getActualValue(lua_State* L){
+			auto animatable = lua_Animatable.checkArgument(L, 1);
+			auto value = animatable->getActualValue();
+			lua_AnimationValue.push(L, value.get());
+			return 1;
+		}
+	
+		int getAnimationValue(lua_State* L){
+			auto animatable = lua_Animatable.checkArgument(L, 1);
+			auto value = animatable->getAnimationValue();
+			lua_AnimationValue.push(L, value.get());
+			return 1;
+		}
+	
+	};
+
+	namespace Lua_AnimationValue{
+	
+		int getType(lua_State* L){
+			auto animationValue = lua_AnimationValue.checkArgument(L, 1);
+			AnimatableType type = animationValue->getType();
+			LuaEnumerator_AnimatableType::push(L, type);
+			return 1;
+		}
+	
+		int toPosition(lua_State* L){
+			auto animationValue = lua_AnimationValue.checkArgument(L, 1);
+			auto position = animationValue->toPosition();
+			lua_PositionAnimationValue.push(L, position.get());
+			return 1;
+		}
+
+		namespace Position{
+			
+			int getPosition(lua_State* L){
+				auto val = lua_PositionAnimationValue.checkArgument(L, 1);
+				lua_pushnumber(L, val->position);
+				return 1;
+			}
+			int getVelocity(lua_State* L){
+				auto val = lua_PositionAnimationValue.checkArgument(L, 1);
+				lua_pushnumber(L, val->velocity);
+				return 1;
+			}
+			int getAcceleration(lua_State* L){
+				auto val = lua_PositionAnimationValue.checkArgument(L, 1);
+				lua_pushnumber(L, val->acceleration);
+				return 1;
+			}
+			
+		};
+	
+	};
 	
 
 	//————————————————— LIBRARY ——————————————————
@@ -161,7 +215,18 @@ namespace Scripting::EnvironnementLibrary{
 		
 		lua_Animatable.addMethod("getName", Lua_Animatable::getName);
 		lua_Animatable.addMethod("getType", Lua_Animatable::getType);
+		lua_Animatable.addMethod("getActualValue", Lua_Animatable::getActualValue);
+		lua_Animatable.addMethod("getAnimationValue", Lua_Animatable::getAnimationValue);
 		lua_Animatable.declare(L);
+		
+		lua_AnimationValue.addMethod("getType", Lua_AnimationValue::getType);
+		lua_AnimationValue.addMethod("toPosition", Lua_AnimationValue::toPosition);
+		lua_AnimationValue.declare(L);
+		
+		lua_PositionAnimationValue.addMethod("getPosition", Lua_AnimationValue::Position::getPosition);
+		lua_PositionAnimationValue.addMethod("getVelocity", Lua_AnimationValue::Position::getVelocity);
+		lua_PositionAnimationValue.addMethod("getAcceleration", Lua_AnimationValue::Position::getAcceleration);
+		lua_PositionAnimationValue.declare(L);
 		
 		lua_Environnement.addFunction("getMachineCount", Lua_Environnement::getMachineCount);
 		lua_Environnement.addFunction("hasMachine", Lua_Environnement::hasMachine);
