@@ -9,9 +9,33 @@
 local costiereA = Environnement.getMachine("Costière A")
 local costiereA_Position = costiereA:getAnimatable("Position")
 
+local flipB3 = Environnement.getMachine("Flip B3")
+local flipB3_State = flipB3:getAnimatable("State")
+
+local baseclasses = flipB3_State.BaseClasses
+
+
+Logger:warn("---------", baseclasses)
+for key, value in pairs(baseclasses) do
+	Logger:warn("base class", key, value)
+end
+Logger:warn("---------")
+
+local name = flipB3_State:getName()
+
+local flipA4 = Environnement.getMachine("Flip A4")
+local flipA4_State = flipA4:getAnimatable("State")
+
+local flipStates = flipB3_State:getStates()
+
 function setup()
 	Logger:info("Starting Stage Visualizer Script at", of.getElapsedTimef(), "seconds.")
 	of.setCircleResolution(128)
+
+	for name, state in pairs(flipStates) do
+		Logger:info("state", name, "=", state:toInteger())
+	end
+
 end
 
 
@@ -19,7 +43,7 @@ end
 
 function update()
 
-	local actualPosition = costiereA_Position:getPosition()
+	local actualPosition = costiereA_Position:getActualValue():toPosition()
 	local pos = actualPosition.Position
 	local vel = actualPosition.Velocity
 	local acc = actualPosition.Acceleration
@@ -57,246 +81,4 @@ end
 function exit()
 	Logger:info("Exiting Stage Visualizer Script at", of.getElapsedTimef(), "seconds.")
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

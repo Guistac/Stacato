@@ -731,11 +731,11 @@ public:
 class StateParameter : public Parameter{
 public:
 	
-	AnimatableState::State* value;
-	AnimatableState::State* displayValue;
-	std::vector<AnimatableState::State>* values;
+	AnimatableStateStruct* value;
+	AnimatableStateStruct* displayValue;
+	std::vector<AnimatableStateStruct>* values;
 	
-	StateParameter(AnimatableState::State* value_, std::vector<AnimatableState::State>* values_, std::string name, std::string saveString_) : Parameter(name, saveString_){
+	StateParameter(AnimatableStateStruct* value_, std::vector<AnimatableStateStruct>* values_, std::string name, std::string saveString_) : Parameter(name, saveString_){
 		value = value_;
 		displayValue = value_;
 		values = values_;
@@ -786,7 +786,7 @@ public:
 	
 	virtual std::shared_ptr<Parameter> makeBaseCopy() override { return makeCopy(); };
 	
-	void overwrite(AnimatableState::State* newValue){
+	void overwrite(AnimatableStateStruct* newValue){
 		displayValue = newValue;
 		value = newValue;
 	}
@@ -794,8 +794,8 @@ public:
 	class EditCommand : public Command{
 	public:
 		std::shared_ptr<StateParameter> parameter;
-		AnimatableState::State* oldValue;
-		AnimatableState::State* newValue;
+		AnimatableStateStruct* oldValue;
+		AnimatableStateStruct* newValue;
 		
 		EditCommand(std::shared_ptr<StateParameter> parameter_, std::string& commandName) : Command(commandName){
 			parameter = parameter_;

@@ -3,6 +3,13 @@
 #include "Animation/Animatable.h"
 #include "Animation/AnimationValue.h"
 
+//core state structure
+struct AnimatableStateStruct{
+	int integerEquivalent;
+	const char displayName[64];
+	const char saveName[64];
+};
+
 class AnimatableState : public Animatable{
 public:
 	
@@ -19,29 +26,23 @@ public:
 	virtual std::shared_ptr<AnimationValue> getValueAtAnimationTime(std::shared_ptr<Animation> animation, double time_seconds) override;
 	virtual std::vector<double> getCurvePositionsFromAnimationValue(std::shared_ptr<AnimationValue> value) override;
 
-	//core state structure
-	struct State{
-		int integerEquivalent;
-		const char displayName[64];
-		const char saveName[64];
-	};
-	std::vector<State>& getStates() { return *states; }
+	std::vector<AnimatableStateStruct>& getStates() { return *states; }
 	
 	//construction
-	AnimatableState(const char* name, std::vector<State>* stateValues) : Animatable(name), states(stateValues){};
-	static std::shared_ptr<AnimatableState> make(std::string name, std::vector<State>* stateValues){
+	AnimatableState(const char* name, std::vector<AnimatableStateStruct>* stateValues) : Animatable(name), states(stateValues){};
+	static std::shared_ptr<AnimatableState> make(std::string name, std::vector<AnimatableStateStruct>* stateValues){
 		return std::make_shared<AnimatableState>(name.c_str(), stateValues);
 	}
 	
 private:
-	std::vector<State>* states;
+	std::vector<AnimatableStateStruct>* states;
 };
 
 
 
 struct AnimatableStateValue : public AnimationValue{
 	virtual AnimatableType getType(){ return AnimatableType::STATE; }
-	AnimatableState::State* value;
-	std::vector<AnimatableState::State>* values;
+	AnimatableStateStruct* value;
+	std::vector<AnimatableStateStruct>* values;
 };
 

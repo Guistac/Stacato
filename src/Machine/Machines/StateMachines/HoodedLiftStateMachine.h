@@ -41,7 +41,7 @@ public:
 	std::shared_ptr<bool> raiseLiftCommandPinValue = std::make_shared<bool>(false);
 	std::shared_ptr<bool> lowerLiftCommandPinValue = std::make_shared<bool>(false);
 	
-	static std::vector<AnimatableState::State> stateParameterValues;
+	static std::vector<AnimatableStateStruct> stateParameterValues;
 	std::shared_ptr<AnimatableState> animatableState = AnimatableState::make("State", &stateParameterValues);
 
 	bool hoodShut = false;

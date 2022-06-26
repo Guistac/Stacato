@@ -4,9 +4,10 @@
 
 typedef int (*LuaCFunction)(lua_State*);
 
-struct LuaFunction{
-	std::string name;
+struct LuaMethod{
+	const char* name;
 	LuaCFunction function;
+	const char* objectTypeString;
 };
 
 class LuaTable{
@@ -21,9 +22,9 @@ public:
 	}
 	
 	template<typename T>
-	LuaTable& addShared(T sharedPointer, void (*pushSharedFunction)(lua_State*, T), const char* key = nullptr){
+	LuaTable& addCustom(T customData, void (*pushCustomFunction)(lua_State*, T), const char* key = nullptr){
 		setKey(key);
-		pushSharedFunction(L, sharedPointer);
+		pushCustomFunction(L, customData);
 		lua_settable(L, -3);
 		return *this;
 	}
@@ -80,53 +81,87 @@ private:
 };
 
 
-#define LuaShared(ObjectType, TypeName)																\
-namespace LuaShared_##ObjectType{																	\
+
+class LuaStaticStruct{
+	
+};
+
+
+#define LuaSharedPointer(ObjectType)																\
+namespace LuaSharedPointer_##ObjectType{															\
 																									\
-	inline const char* getTypeString(){ return TypeName; }											\
-																									\
-	inline std::vector<LuaFunction>& getMethods(){													\
-		static std::vector<LuaFunction> methods;													\
+	inline std::vector<LuaMethod>& getMethods(){													\
+		static std::vector<LuaMethod> methods;														\
 		return methods;																				\
 	}																								\
-	inline void addMethod(std::string methodName, LuaCFunction luaFunction){						\
-		getMethods().push_back(LuaFunction{.name = methodName, .function = luaFunction});			\
+	inline void addMethod(const char* methodName, LuaCFunction luaCFunction){						\
+		getMethods().push_back(LuaMethod{.name = methodName,										\
+										 .function = luaCFunction,									\
+										 .objectTypeString = #ObjectType});							\
+	}																								\
+																									\
+	inline void inheritMethods(std::vector<LuaMethod>& inheritedMethods){							\
+		for(auto& inheritedMethod : inheritedMethods){												\
+			getMethods().push_back(inheritedMethod);												\
+		}																							\
 	}																								\
 																									\
 	inline LuaCFunction& getToStringMethod(){														\
 		static LuaCFunction toStringMethod;															\
 		return toStringMethod;																		\
 	}																								\
-	inline void setToStringMethod(LuaCFunction luaFunction){ getToStringMethod() = luaFunction; }	\
+	inline void setToStringMethod(LuaCFunction luaCFunction){ getToStringMethod() = luaCFunction; }	\
 																									\
 	inline void push(lua_State* L, std::shared_ptr<ObjectType> object){								\
 		void* userData = lua_newuserdata(L, sizeof(std::shared_ptr<ObjectType>));					\
 		new(userData) std::shared_ptr<ObjectType>(object); /*new placement operator*/				\
-		luaL_getmetatable(L, getTypeString());														\
+		luaL_getmetatable(L, #ObjectType);															\
 		lua_setmetatable(L, -2);																	\
 		return 1;																					\
 	}																								\
 																									\
 	inline std::shared_ptr<ObjectType> checkArgument(lua_State* L, int argumentIndex){				\
-		void* userData = luaL_checkudata(L, argumentIndex, getTypeString());						\
+		void* userData = luaL_checkudata(L, argumentIndex, #ObjectType);							\
 		auto pointerToSharedPointer = static_cast<std::shared_ptr<ObjectType>*>(userData);			\
 		return *pointerToSharedPointer;																\
 	}																								\
 																									\
 	inline int destroy(lua_State* L){																\
-		void* userData = luaL_checkudata(L, 1, getTypeString());									\
+		void* userData = luaL_checkudata(L, 1, #ObjectType);										\
 		auto pointerToSharedPointer = static_cast<std::shared_ptr<ObjectType>*>(userData);			\
 		pointerToSharedPointer->reset();															\
 		return 0;																					\
 	}																								\
 																									\
 	inline void declare(lua_State* L){																\
-		luaL_newmetatable(L, getTypeString()); /*new MetaTable for UserData*/						\
+		luaL_newmetatable(L, #ObjectType); /*new MetaTable for UserData*/							\
 																									\
 		lua_newtable(L); /*index table for UserData (holds member functions)*/						\
+																									\
+																									\
+		std::vector<const char*> baseClassStrings;													\
+		for(auto& method : getMethods()){															\
+			bool b_alreadyHasBaseClass = false;														\
+			for(auto baseClassString : baseClassStrings){											\
+				if(strcmp(baseClassString, method.objectTypeString) == 0){							\
+					b_alreadyHasBaseClass = true;													\
+					break;																			\
+				}																					\
+			}																						\
+			if(!b_alreadyHasBaseClass) baseClassStrings.push_back(method.objectTypeString);			\
+		}																							\
+		LuaTable baseClassesTable(L);																\
+		baseClassesTable.begin(baseClassStrings.size());											\
+		for(auto baseClassString : baseClassStrings){												\
+			baseClassesTable.addString(baseClassString);											\
+			Logger::critical("ADDED BASE CLASS {}", baseClassString);								\
+		}																							\
+		lua_setfield(L, -2, "BaseClasses");															\
+																									\
+																									\
 		for(auto& method : getMethods()){															\
 			lua_pushcfunction(L, method.function);													\
-			lua_setfield(L, -2, method.name.c_str());												\
+			lua_setfield(L, -2, method.name);														\
 		}																							\
 		lua_setfield(L, -2, "__index");	/*set index table key*/										\
 																									\
@@ -134,6 +169,11 @@ namespace LuaShared_##ObjectType{																	\
 		/*to decrement the shared pointer user count when lua garbage collects the user data */		\
 		lua_pushcfunction(L, destroy);																\
 		lua_setfield(L, -2, "__gc");																\
+																									\
+																									\
+																									\
+																									\
+																									\
 																									\
 		if(LuaCFunction toStringMethod = getToStringMethod()){ /*set tostring metmethod*/			\
 			lua_pushcfunction(L, toStringMethod);													\
@@ -147,19 +187,72 @@ namespace LuaShared_##ObjectType{																	\
 
 
 
-#define LuaEnumerator(EnumeratorType, TypeName)													\
+#define LuaPointer(ObjectType)																\
+namespace LuaPointer_##ObjectType{															\
+																							\
+	inline void push(lua_State* L, ObjectType* pointer){									\
+		void* userData = lua_newuserdata(L, sizeof(ObjectType*));							\
+		auto pointerToPointer = static_cast<ObjectType**>(userData);						\
+		*pointerToPointer = pointer;														\
+		luaL_getmetatable(L, #ObjectType);													\
+		lua_setmetatable(L, -2);															\
+	}																						\
+																							\
+	inline ObjectType* checkArgument(lua_State* L, int argumentIndex){						\
+		void* userData = luaL_checkudata(L, argumentIndex, #ObjectType);					\
+		auto pointerToPointer = static_cast<ObjectType**>(userData);						\
+		return *pointerToPointer;															\
+	}																						\
+																							\
+	inline std::vector<LuaMethod>& getMethods(){											\
+		static std::vector<LuaMethod> methods;												\
+		return methods;																		\
+	}																						\
+	inline void addMethod(const char* methodName, LuaCFunction luaCFunction){				\
+		getMethods().push_back(LuaMethod{.name = methodName, .function = luaCFunction});	\
+	}																						\
+																							\
+	inline int equals(lua_State* L){														\
+		ObjectType* pointer1 = checkArgument(L, 1);											\
+		ObjectType* pointer2 = checkArgument(L, 2);											\
+		lua_pushboolean(L, pointer1 == pointer2);											\
+		return 1;																			\
+	}																						\
+																							\
+	inline void declare(lua_State* L){														\
+		luaL_newmetatable(L, #ObjectType);													\
+																							\
+		lua_newtable(L); /*index table for UserData Metatable*/								\
+		for(auto& method : getMethods()){													\
+			lua_pushstring(L, method.name);													\
+			lua_pushcfunction(L, method.function);											\
+			lua_settable(L, -3);															\
+		}																					\
+		lua_setfield(L, -2, "__index"); /*set index table key*/								\
+																							\
+		lua_pushcfunction(L, equals);														\
+		lua_setfield(L, -2, "__eq"); /*set equality metathod key*/							\
+																							\
+		lua_pop(L, 1); /*pop metatable*/													\
+	}																						\
+																							\
+}																							\
+
+
+
+#define LuaEnumerator(EnumeratorType)															\
 namespace LuaEnumerator_##EnumeratorType{														\
 																								\
 	inline void push(lua_State* L, EnumeratorType enumerator){									\
 		auto typeStructure = Enumerator::getTypeStructure(enumerator);							\
 		void* userData = lua_newuserdata(L, sizeof(Enumerator::TypeStruct<EnumeratorType>*));	\
 		new(userData) Enumerator::TypeStruct<EnumeratorType>*(typeStructure);					\
-		luaL_getmetatable(L, TypeName);															\
+		luaL_getmetatable(L, #EnumeratorType);													\
 		lua_setmetatable(L, -2);																\
 	}																							\
 																								\
 	inline EnumeratorType checkArgument(lua_State* L, int argumentIndex){						\
-		void* userData = luaL_checkudata(L, argumentIndex, TypeName);							\
+		void* userData = luaL_checkudata(L, argumentIndex, #EnumeratorType);					\
 		auto typeStruct = static_cast<Enumerator::TypeStruct<EnumeratorType>*>(userData);		\
 		return typeStruct->enumerator;															\
 	}																							\
@@ -182,7 +275,7 @@ namespace LuaEnumerator_##EnumeratorType{														\
 	}																							\
 																								\
 	inline void declare(lua_State* L){															\
-		luaL_newmetatable(L, TypeName); /*new MetaTable for ObjectType*/						\
+		luaL_newmetatable(L, #EnumeratorType); /*new MetaTable for ObjectType*/					\
 		lua_newtable(L); /*index table for UserData Metatable*/									\
 		lua_pushcfunction(L, getString);														\
 		lua_setfield(L, -2, "getString");														\
@@ -200,7 +293,7 @@ namespace LuaEnumerator_##EnumeratorType{														\
 			push(L, type.enumerator); /*value*/													\
 			lua_settable(L, -3);																\
 		}																						\
-		lua_setglobal(L, TypeName);																\
+		lua_setglobal(L, #EnumeratorType);														\
 	}																							\
 																								\
 };																								\

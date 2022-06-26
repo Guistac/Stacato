@@ -49,6 +49,7 @@ void initialize(){
 	style.FrameRounding = rounding;
 	style.PopupRounding = rounding;
 	style.WindowRounding = rounding;
+	style.GrabRounding = rounding;
 	
 	dockspaceID = ImGui::GetID("MainDockspace");
 	if(auto defaultLayout = LayoutManager::getDefaultLayout()) defaultLayout->makeActive();

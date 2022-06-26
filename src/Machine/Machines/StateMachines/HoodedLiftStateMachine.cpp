@@ -8,7 +8,7 @@
 
 #include "Animation/Animation.h"
 
-std::vector<AnimatableState::State> HoodedLiftStateMachine::stateParameterValues = {
+std::vector<AnimatableStateStruct> HoodedLiftStateMachine::stateParameterValues = {
 	{-1, "Stopped", "Stopped"},
 	{0, "Shut", "Shut"},
 	{1, "Open", "Open"},
