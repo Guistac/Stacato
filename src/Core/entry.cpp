@@ -5,7 +5,6 @@
 #include "Project/Project.h"
 #include "Environnement/Environnement.h"
 
-void test();
 
 #ifdef STACATO_WIN32_APPLICATION
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {

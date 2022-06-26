@@ -6,28 +6,12 @@
 
 --Initialize and Load stuff here :
 
+local costiereA = Environnement.getMachine("Costière A")
+local costiereA_Position = costiereA:getAnimatable("Position")
+
 function setup()
 	Logger:info("Starting Stage Visualizer Script at", of.getElapsedTimef(), "seconds.")
 	of.setCircleResolution(128)
-
-	for machineIndex, machine in pairs(Environnement.getMachines()) do
-		Logger:info(machineIndex, machine:getName())
-		for animatableIndex, animatable in pairs(machine:getAnimatables()) do
-			Logger:info("-- animatable", animatableIndex, ":", animatable:getName())
-			Logger:info("--- type:", animatable:getType():getString())
-			if animatable:getType() == AnimatableType.Position then
-				Logger:warn("found position animatable")
-			end
-			value = animatable:getActualValue()
-			Logger:warn("AAAAA", value:getType():getString())
-		end
-	end
-
-	Logger:info("------- Animatable Types --------")
-	for animatableType, index in pairs(AnimatableType) do
-		Logger:info(animatableType, index)
-	end
-
 end
 
 
@@ -35,39 +19,36 @@ end
 
 function update()
 
-	costiereA = Environnement.getMachine("Costière A")
-	costierePosition = costiereA:getAnimatable("Position")
-	positionValue = costierePosition:getActualValue():toPosition()
-	pos = positionValue:getPosition()
-	vel = positionValue:getVelocity()
-	acc = positionValue:getAcceleration()
+	local actualPosition = costiereA_Position:getPosition()
+	local pos = actualPosition.Position
+	local vel = actualPosition.Velocity
+	local acc = actualPosition.Acceleration
 
-	time = of.getElapsedTimef()
-	--brightness = (math.sin(time) + 1.0) * 64
-	brightness = math.abs(acc * 16)
-	--diameter = (math.sin(time) + 1.0) * 100
-	diameter = (vel / 1) * 100
+	local time = of.getElapsedTimef()
+	local brightness = math.abs(acc * 16)
+	local diameter = (vel / 1) * 100
 
 	of.background(brightness)
 
-	size = glm.vec2(Canvas.getSize())
-	middle = glm.vec2(size.x / 2.0, size.y / 2.0)
+	local size = glm.vec2(Canvas.getSize())
+	local middle = glm.vec2(size.x / 2.0, size.y / 2.0)
 	of.drawCircle(middle, diameter)
 
 	of.drawBitmapStringHighlight("Default Stage Visualizer Script", 20, 30)
 
-	mouse = glm.vec2(Canvas.getMousePosition())
+	local mouse = glm.vec2(Canvas.getMousePosition())
 	if Canvas.isPressed() then of.setColor(255, 0, 0, 255)
 	else of.setColor(0, 0, 255, 255) end
 	of.drawCircle(mouse, 10)
 
-	lStart = glm.vec2(100, 100)
-	lEnd = glm.vec2(size.x - lStart.x, size.y - lStart.y)
+	local lStart = glm.vec2(100, 100)
+	local lEnd = glm.vec2(size.x - lStart.x, size.y - lStart.y)
 	of.setColor(255, 0, 0, 255)
 	of.drawLine(lStart, lEnd)
-	lerp = pos / 10
-	rPos = glm.vec2(of.lerp(lStart.x, lEnd.x, lerp), of.lerp(lStart.y, lEnd.y, lerp))
+	local lerp = pos / 10
+	local rPos = glm.vec2(of.lerp(lStart.x, lEnd.x, lerp), of.lerp(lStart.y, lEnd.y, lerp))
 	of.drawCircle(rPos, 50)
+
 end
 
 
@@ -76,6 +57,21 @@ end
 function exit()
 	Logger:info("Exiting Stage Visualizer Script at", of.getElapsedTimef(), "seconds.")
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

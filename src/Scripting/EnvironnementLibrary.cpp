@@ -14,14 +14,13 @@
 
 namespace Scripting::EnvironnementLibrary{
 
-	//————————————————— LIBRARY TYPES ——————————————————
+	//————————————————— TYPES ——————————————————
 
-	LuaLibrary lua_Environnement;
-	LuaObject<Machine> lua_Machine("Machine");
-	LuaObject<Animatable> lua_Animatable("Animatable");
-	LuaObject<AnimationValue> lua_AnimationValue("AnimationValue");
-	LuaObject<PositionAnimationValue> lua_PositionAnimationValue("PositionAnimationValue");
 	LuaEnumerator(AnimatableType, "AnimatableType");
+	LuaShared(Machine, "Machine");
+	LuaShared(Animatable, "Animatable");
+	LuaShared(AnimationValue, "AnimationValue");
+	LuaShared(PositionAnimationValue, "PositionAnimationValue");
 
 	//————————————————— ENVIRONNEMENT ——————————————————
 
@@ -52,8 +51,7 @@ namespace Scripting::EnvironnementLibrary{
 			const char* machineName = luaL_checkstring(L, -1);
 			for(auto& machine : Environnement::getMachines()){
 				if(strcmp(machine->getName(), machineName) == 0){
-
-					lua_Machine.push(L, machine.get());
+					LuaShared_Machine::push(L, machine);
 					return 1;
 				}
 			}
@@ -64,11 +62,10 @@ namespace Scripting::EnvironnementLibrary{
 		int getMachines(lua_State* L){
 			if(lua_gettop(L) != 0) luaL_error(L, "Incorrect argument count provided to Environnement.getMachines(), expected 0");
 			auto& machines = Environnement::getMachines();
-			lua_createtable(L, machines.size(), 1);
-			for(int i = 0; i < machines.size(); i++){
-				lua_pushinteger(L, i);
-				lua_Machine.push(L, machines[i].get());
-				lua_settable(L, -3);
+			LuaTable machinesTable(L);
+			machinesTable.begin(machines.size());
+			for(auto& machine : machines){
+				machinesTable.addShared(machine, LuaShared_Machine::push);
 			}
 			return 1;
 		}
@@ -82,13 +79,13 @@ namespace Scripting::EnvironnementLibrary{
 	namespace Lua_Machine{
 
 		int getName(lua_State* L){
-			Machine* machine = lua_Machine.checkArgument(L, 1);
+			auto machine = LuaShared_Machine::checkArgument(L, 1);
 			lua_pushstring(L, machine->getName());
 			return 1;
 		}
 
 		int hasAnimatable(lua_State* L){
-			auto machine = lua_Machine.checkArgument(L, 1);
+			auto machine = LuaShared_Machine::checkArgument(L, 1);
 			const char* animatableName = luaL_checkstring(L, 2);
 			for(auto& animatable : machine->animatables){
 				if(strcmp(animatable->getName(), animatableName) == 0){
@@ -101,11 +98,11 @@ namespace Scripting::EnvironnementLibrary{
 		}
 
 		int getAnimatable(lua_State* L){
-			auto machine = lua_Machine.checkArgument(L, 1);
+			auto machine = LuaShared_Machine::checkArgument(L, 1);
 			const char* animatableName = luaL_checkstring(L, 2);
 			for(auto& animatable : machine->animatables){
 				if(strcmp(animatable->getName(), animatableName) == 0){
-					lua_Animatable.push(L, animatable.get());
+					LuaShared_Animatable::push(L, animatable);
 					return 1;
 				}
 			}
@@ -114,14 +111,20 @@ namespace Scripting::EnvironnementLibrary{
 		}
 	
 		int getAnimatables(lua_State* L){
-			auto machine = lua_Machine.checkArgument(L, 1);
+			auto machine = LuaShared_Machine::checkArgument(L, 1);
 			auto& animatables = machine->animatables;
 			lua_createtable(L, animatables.size(), 1);
 			for(int i = 0; i < animatables.size(); i++){
 				lua_pushinteger(L, i);
-				lua_Animatable.push(L, animatables[i].get());
+				LuaShared_Animatable::push(L, animatables[i]);
 				lua_settable(L, -3);
 			}
+			return 1;
+		}
+	
+		int toString(lua_State* L){
+			auto machine = LuaShared_Machine::checkArgument(L, 1);
+			lua_pushstring(L, machine->getName());
 			return 1;
 		}
 
@@ -134,29 +137,41 @@ namespace Scripting::EnvironnementLibrary{
 	namespace Lua_Animatable{
 
 		int getName(lua_State* L){
-			auto animatable = lua_Animatable.checkArgument(L, 1);
+			auto animatable = LuaShared_Animatable::checkArgument(L, 1);
 			lua_pushstring(L, animatable->getName());
 			return 1;
 		}
 
 		int getType(lua_State* L){
-			auto animatable = lua_Animatable.checkArgument(L, 1);
+			auto animatable = LuaShared_Animatable::checkArgument(L, 1);
 			AnimatableType type = animatable->getType();
 			LuaEnumerator_AnimatableType::push(L, type);
 			return 1;
 		}
 	
 		int getActualValue(lua_State* L){
-			auto animatable = lua_Animatable.checkArgument(L, 1);
+			auto animatable = LuaShared_Animatable::checkArgument(L, 1);
 			auto value = animatable->getActualValue();
-			lua_AnimationValue.push(L, value.get());
+			LuaShared_AnimationValue::push(L, value);
 			return 1;
 		}
 	
 		int getAnimationValue(lua_State* L){
-			auto animatable = lua_Animatable.checkArgument(L, 1);
+			auto animatable = LuaShared_Animatable::checkArgument(L, 1);
 			auto value = animatable->getAnimationValue();
-			lua_AnimationValue.push(L, value.get());
+			LuaShared_AnimationValue::push(L, value);
+			return 1;
+		}
+	
+		int getPosition(lua_State* L){
+			auto animatable = LuaShared_Animatable::checkArgument(L, 1);
+			auto value = animatable->getActualValue()->toPosition();
+			
+			LuaTable positionTable(L);
+			positionTable.begin(0, 3)
+			.addNumber(value->position, "Position")
+			.addNumber(value->velocity, "Velocity")
+			.addNumber(value->acceleration, "Acceleration");
 			return 1;
 		}
 	
@@ -165,33 +180,33 @@ namespace Scripting::EnvironnementLibrary{
 	namespace Lua_AnimationValue{
 	
 		int getType(lua_State* L){
-			auto animationValue = lua_AnimationValue.checkArgument(L, 1);
+			auto animationValue = LuaShared_PositionAnimationValue::checkArgument(L, 1);
 			AnimatableType type = animationValue->getType();
 			LuaEnumerator_AnimatableType::push(L, type);
 			return 1;
 		}
 	
 		int toPosition(lua_State* L){
-			auto animationValue = lua_AnimationValue.checkArgument(L, 1);
+			auto animationValue = LuaShared_AnimationValue::checkArgument(L, 1);
 			auto position = animationValue->toPosition();
-			lua_PositionAnimationValue.push(L, position.get());
+			LuaShared_PositionAnimationValue::push(L, position);
 			return 1;
 		}
 
 		namespace Position{
 			
 			int getPosition(lua_State* L){
-				auto val = lua_PositionAnimationValue.checkArgument(L, 1);
+				auto val = LuaShared_PositionAnimationValue::checkArgument(L, 1);
 				lua_pushnumber(L, val->position);
 				return 1;
 			}
 			int getVelocity(lua_State* L){
-				auto val = lua_PositionAnimationValue.checkArgument(L, 1);
+				auto val = LuaShared_PositionAnimationValue::checkArgument(L, 1);
 				lua_pushnumber(L, val->velocity);
 				return 1;
 			}
 			int getAcceleration(lua_State* L){
-				auto val = lua_PositionAnimationValue.checkArgument(L, 1);
+				auto val = LuaShared_PositionAnimationValue::checkArgument(L, 1);
 				lua_pushnumber(L, val->acceleration);
 				return 1;
 			}
@@ -207,37 +222,38 @@ namespace Scripting::EnvironnementLibrary{
 		
 		LuaEnumerator_AnimatableType::declare(L);
 		
-		lua_Machine.addMethod("getName", Lua_Machine::getName);
-		lua_Machine.addMethod("hasAnimatable", Lua_Machine::hasAnimatable);
-		lua_Machine.addMethod("getAnimatable", Lua_Machine::getAnimatable);
-		lua_Machine.addMethod("getAnimatables", Lua_Machine::getAnimatables);
-		lua_Machine.declare(L);
+		LuaShared_Machine::addMethod("getName", Lua_Machine::getName);
+		LuaShared_Machine::addMethod("hasAnimatable", Lua_Machine::hasAnimatable);
+		LuaShared_Machine::addMethod("getAnimatable", Lua_Machine::getAnimatable);
+		LuaShared_Machine::addMethod("getAnimatables", Lua_Machine::getAnimatables);
+		LuaShared_Machine::setToStringMethod(Lua_Machine::toString);
+		LuaShared_Machine::declare(L);
 		
-		lua_Animatable.addMethod("getName", Lua_Animatable::getName);
-		lua_Animatable.addMethod("getType", Lua_Animatable::getType);
-		lua_Animatable.addMethod("getActualValue", Lua_Animatable::getActualValue);
-		lua_Animatable.addMethod("getAnimationValue", Lua_Animatable::getAnimationValue);
-		lua_Animatable.declare(L);
+		LuaShared_Animatable::addMethod("getName", Lua_Animatable::getName);
+		LuaShared_Animatable::addMethod("getType", Lua_Animatable::getType);
+		LuaShared_Animatable::addMethod("getActualValue", Lua_Animatable::getActualValue);
+		LuaShared_Animatable::addMethod("getAnimationValue", Lua_Animatable::getAnimationValue);
+		LuaShared_Animatable::addMethod("getPosition", Lua_Animatable::getPosition);
+		LuaShared_Animatable::declare(L);
 		
-		lua_AnimationValue.addMethod("getType", Lua_AnimationValue::getType);
-		lua_AnimationValue.addMethod("toPosition", Lua_AnimationValue::toPosition);
-		lua_AnimationValue.declare(L);
+		LuaShared_AnimationValue::addMethod("getType", Lua_AnimationValue::getType);
+		LuaShared_AnimationValue::addMethod("toPosition", Lua_AnimationValue::toPosition);
+		LuaShared_AnimationValue::declare(L);
 		
-		lua_PositionAnimationValue.addMethod("getPosition", Lua_AnimationValue::Position::getPosition);
-		lua_PositionAnimationValue.addMethod("getVelocity", Lua_AnimationValue::Position::getVelocity);
-		lua_PositionAnimationValue.addMethod("getAcceleration", Lua_AnimationValue::Position::getAcceleration);
-		lua_PositionAnimationValue.declare(L);
+		LuaShared_PositionAnimationValue::addMethod("getPosition", Lua_AnimationValue::Position::getPosition);
+		LuaShared_PositionAnimationValue::addMethod("getVelocity", Lua_AnimationValue::Position::getVelocity);
+		LuaShared_PositionAnimationValue::addMethod("getAcceleration", Lua_AnimationValue::Position::getAcceleration);
+		LuaShared_PositionAnimationValue::declare(L);
 		
-		lua_Environnement.addFunction("getMachineCount", Lua_Environnement::getMachineCount);
-		lua_Environnement.addFunction("hasMachine", Lua_Environnement::hasMachine);
-		lua_Environnement.addFunction("getMachine", Lua_Environnement::getMachine);
-		lua_Environnement.addFunction("getMachines", Lua_Environnement::getMachines);
-		lua_Environnement.declare(L, "Environnement");
-		
+		LuaTable environnementLibrary(L);
+		environnementLibrary.begin()
+		.addFunction(Lua_Environnement::getMachineCount, "getMachineCount")
+		.addFunction(Lua_Environnement::hasMachine, "hasMachine")
+		.addFunction(Lua_Environnement::getMachine, "getMachine")
+		.addFunction(Lua_Environnement::getMachines, "getMachines")
+		.setGlobal("Environnement");
 		
 	}
-
-
 
 };
 
