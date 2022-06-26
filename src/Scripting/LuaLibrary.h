@@ -4,13 +4,10 @@
 
 typedef int (*LuaCFunction)(lua_State*);
 
-
-
 struct LuaFunction{
 	std::string name;
 	LuaCFunction function;
 };
-
 
 class LuaTable{
 public:
@@ -72,86 +69,80 @@ public:
 	
 private:
 	lua_State* L;
-	int elementCount = 1;
+	int arrayIndex = 1;
 	
 	void setKey(const char* key){
 		if(key == nullptr) {
-			lua_pushinteger(L, elementCount);
-			elementCount++;
+			lua_pushinteger(L, arrayIndex);
+			arrayIndex++;
 		}else lua_pushstring(L, key);
 	}
 };
 
 
-#define LuaShared(ObjectType, TypeName)																	\
-namespace LuaShared_##ObjectType{																		\
-																										\
-	const char* getTypeString(){ return TypeName; }														\
-																										\
-	std::vector<LuaFunction>& getMethods(){																\
-		static std::vector<LuaFunction> methods;														\
-		return methods;																					\
-	}																									\
-	void addMethod(std::string methodName, LuaCFunction luaFunction){									\
-		getMethods().push_back(LuaFunction{.name = methodName, .function = luaFunction});				\
-	}																									\
-																										\
-	long& getAllocationCount(){ static long allocationCount = 0; return allocationCount; }				\
-																										\
-	LuaCFunction& getToStringMethod(){																	\
-		static LuaCFunction toStringMethod;																\
-		return toStringMethod;																			\
-	}																									\
-	void setToStringMethod(LuaCFunction luaFunction){ getToStringMethod() = luaFunction; }				\
-																										\
-	void push(lua_State* L, std::shared_ptr<ObjectType> object){										\
-		void* userData = lua_newuserdata(L, sizeof(std::shared_ptr<ObjectType>));						\
-		new(userData) std::shared_ptr<ObjectType>(object); /*new placement operator*/					\
-		luaL_getmetatable(L, getTypeString());															\
-		lua_setmetatable(L, -2);																		\
-		/*getAllocationCount()++;*/																		\
-		/*Logger::info("{} count: {}", getTypeString(), getAllocationCount());*/						\
-		return 1;																						\
-	}																									\
-																										\
-	std::shared_ptr<ObjectType> checkArgument(lua_State* L, int argumentIndex){							\
-		void* userData = luaL_checkudata(L, argumentIndex, getTypeString());							\
-		auto pointerToSharedPointer = static_cast<std::shared_ptr<ObjectType>*>(userData);				\
-		return *pointerToSharedPointer;																	\
-	}																									\
-																										\
-	int destroy(lua_State* L){																			\
-		void* userData = luaL_checkudata(L, 1, getTypeString());										\
-		auto pointerToSharedPointer = static_cast<std::shared_ptr<ObjectType>*>(userData);				\
-		pointerToSharedPointer->reset();																\
-		/*Logger::critical("Releasing Resource !");*/													\
-		/*getAllocationCount()--;*/																		\
-		/*Logger::info("{} count: {}", getTypeString(), getAllocationCount());*/						\
-		return 0;																						\
-	}																									\
-																										\
-	void declare(lua_State* L){																			\
-		luaL_newmetatable(L, getTypeString()); /*new MetaTable for UserData*/							\
-																										\
-		lua_newtable(L); /*index table for UserData (holds member functions)*/							\
-		for(auto& method : getMethods()){																\
-			lua_pushcfunction(L, method.function);														\
-			lua_setfield(L, -2, method.name.c_str());													\
-		}																								\
-		lua_setfield(L, -2, "__index");	/*set index table key*/											\
-																										\
-		/*set destroy function for garbage collector metamethod*/										\
-		lua_pushcfunction(L, destroy);																	\
-		lua_setfield(L, -2, "__gc");																	\
-																										\
-		if(LuaCFunction toStringMethod = getToStringMethod()){ /*set tostring metmethod*/				\
-			lua_pushcfunction(L, toStringMethod);														\
-			lua_setfield(L, -2, "__tostring");															\
-		}																								\
-																										\
-		lua_pop(L, 1); /*pop the UserData MetaTable off the stack	*/									\
-	}																									\
-};																										\
+#define LuaShared(ObjectType, TypeName)																\
+namespace LuaShared_##ObjectType{																	\
+																									\
+	inline const char* getTypeString(){ return TypeName; }											\
+																									\
+	inline std::vector<LuaFunction>& getMethods(){													\
+		static std::vector<LuaFunction> methods;													\
+		return methods;																				\
+	}																								\
+	inline void addMethod(std::string methodName, LuaCFunction luaFunction){						\
+		getMethods().push_back(LuaFunction{.name = methodName, .function = luaFunction});			\
+	}																								\
+																									\
+	inline LuaCFunction& getToStringMethod(){														\
+		static LuaCFunction toStringMethod;															\
+		return toStringMethod;																		\
+	}																								\
+	inline void setToStringMethod(LuaCFunction luaFunction){ getToStringMethod() = luaFunction; }	\
+																									\
+	inline void push(lua_State* L, std::shared_ptr<ObjectType> object){								\
+		void* userData = lua_newuserdata(L, sizeof(std::shared_ptr<ObjectType>));					\
+		new(userData) std::shared_ptr<ObjectType>(object); /*new placement operator*/				\
+		luaL_getmetatable(L, getTypeString());														\
+		lua_setmetatable(L, -2);																	\
+		return 1;																					\
+	}																								\
+																									\
+	inline std::shared_ptr<ObjectType> checkArgument(lua_State* L, int argumentIndex){				\
+		void* userData = luaL_checkudata(L, argumentIndex, getTypeString());						\
+		auto pointerToSharedPointer = static_cast<std::shared_ptr<ObjectType>*>(userData);			\
+		return *pointerToSharedPointer;																\
+	}																								\
+																									\
+	inline int destroy(lua_State* L){																\
+		void* userData = luaL_checkudata(L, 1, getTypeString());									\
+		auto pointerToSharedPointer = static_cast<std::shared_ptr<ObjectType>*>(userData);			\
+		pointerToSharedPointer->reset();															\
+		return 0;																					\
+	}																								\
+																									\
+	inline void declare(lua_State* L){																\
+		luaL_newmetatable(L, getTypeString()); /*new MetaTable for UserData*/						\
+																									\
+		lua_newtable(L); /*index table for UserData (holds member functions)*/						\
+		for(auto& method : getMethods()){															\
+			lua_pushcfunction(L, method.function);													\
+			lua_setfield(L, -2, method.name.c_str());												\
+		}																							\
+		lua_setfield(L, -2, "__index");	/*set index table key*/										\
+																									\
+		/*set destroy function for garbage collector metamethod*/									\
+		/*to decrement the shared pointer user count when lua garbage collects the user data */		\
+		lua_pushcfunction(L, destroy);																\
+		lua_setfield(L, -2, "__gc");																\
+																									\
+		if(LuaCFunction toStringMethod = getToStringMethod()){ /*set tostring metmethod*/			\
+			lua_pushcfunction(L, toStringMethod);													\
+			lua_setfield(L, -2, "__tostring");														\
+		}																							\
+																									\
+		lua_pop(L, 1); /*pop the UserData MetaTable off the stack	*/								\
+	}																								\
+};																									\
 
 
 
