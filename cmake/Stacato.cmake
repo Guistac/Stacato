@@ -13,7 +13,7 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Scripting/Script.h
     ${STACATO_SOURCE_DIRECTORY}/Scripting/Script.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Scripting/LuaLibrary.h
+    ${STACATO_SOURCE_DIRECTORY}/Scripting/LuaLibraryHelper.h
     ${STACATO_SOURCE_DIRECTORY}/Scripting/EnvironnementLibrary.cpp
     ${STACATO_SOURCE_DIRECTORY}/Scripting/EnvironnementLibrary.h
     ${STACATO_SOURCE_DIRECTORY}/Scripting/LoggingLibrary.h
@@ -122,6 +122,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/Playback.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/TimeStringConversion.h
 
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableBoolean.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableBoolean.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatablePosition.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatablePosition.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableState.h
