@@ -3,15 +3,8 @@
 #include "Animation.h"
 
 #include "Machine/Machine.h"
-#include "Animation/Animatable.h"
-#include "Motion/Curve/Curve.h"
-#include "Fieldbus/EtherCatFieldbus.h"
 #include "Environnement/Environnement.h"
 #include "Animation/Manoeuvre.h"
-#include "Plot/Plot.h"
-
-#include "Project/Editor/Parameter.h"
-
 
 std::shared_ptr<Animation> Animation::create(std::shared_ptr<Animatable> animatable, ManoeuvreType manoeuvreType){
 	if(animatable->isComposite()) return std::make_shared<AnimationComposite>(animatable->toComposite(), manoeuvreType);
@@ -160,7 +153,7 @@ void Animation::subscribeToMachineParameter(){
 }
 
 void Animation::unsubscribeFromMachineParameter(){
-	animatable->unsubscribeTrack(shared_from_this());
+	animatable->unsubscribeAnimation(shared_from_this());
 }
 
 void Animation::validate(){

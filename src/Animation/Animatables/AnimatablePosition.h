@@ -3,9 +3,14 @@
 #include "Animation/Animatable.h"
 #include "Animation/AnimationValue.h"
 
+#include "Motion/Curve/Profile.h"
+
 class AnimatablePosition : public AnimatableNumber{
 public:
 	
+	//construction
+	AnimatablePosition(const char* name, Unit unit) : AnimatableNumber(name, unit) {};
+	static std::shared_ptr<AnimatablePosition> make(std::string name, Unit unit){ return std::make_shared<AnimatablePosition>(name.c_str(), unit); }
 	virtual AnimatableType getType() override { return AnimatableType::POSITION; }
 	
 	virtual std::vector<InterpolationType>& getCompatibleInterpolationTypes() override;
@@ -18,9 +23,31 @@ public:
 	virtual std::shared_ptr<AnimationValue> getValueAtAnimationTime(std::shared_ptr<Animation> animation, double time_seconds) override;
 	virtual std::vector<double> getCurvePositionsFromAnimationValue(std::shared_ptr<AnimationValue> value) override;
 	
-	//construction
-	AnimatablePosition(const char* name, Unit unit) : AnimatableNumber(name, unit) {};
-	static std::shared_ptr<AnimatablePosition> make(std::string name, Unit unit){ return std::make_shared<AnimatablePosition>(name.c_str(), unit); }
+	
+	Motion::Profile motionProfile;
+	double lowerPositionLimit;
+	double upperPositionLimit;
+	double velocityLimit;
+	double accelerationLimit;
+	
+	
+	enum ControlMode{
+		COPY,				//no target, we copy external values
+		VELOCITY_SETPOINT,	//manual velocity control
+		POSITION_SETPOINT,	//position curve following
+		POSITION_TARGET		//planned movement to given position
+	};
+	
+	/*
+	 
+	 the position animatable handles:
+	 -manual velocity control
+	 -manual position control
+	 -control mode
+	 -set point following
+	 -position, velocity, acceleration limits
+	 
+	 */
 	
 };
 

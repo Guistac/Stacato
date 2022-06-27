@@ -288,12 +288,3 @@ namespace Scripting::EnvironnementLibrary{
 	}
 
 };
-
-
-
-
-
-
-
-
-

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <tinyxml2.h>
-
-#include "Animation/Animatable.h"
 #include "Project/Editor/Parameter.h"
 #include "Motion/Curve/Curve.h"
 
@@ -295,7 +292,7 @@ DEFINE_ENUMERATOR(TargetAnimation::Constraint, TargetConstraintStrings)
 
 
 //--------------------------------------------
-//			SEQUENCE PARAMETER TRACK
+//				SEQUENCE ANIMATION
 //--------------------------------------------
 
 class SequenceAnimation : public Animation{
@@ -375,7 +372,7 @@ public:
 
 
 //————————————————————————————————————————————
-//			PARAMETER TRACK GROUP
+//				COMPOSITE ANIMATION
 //————————————————————————————————————————————
 
 class AnimationComposite : public Animation{

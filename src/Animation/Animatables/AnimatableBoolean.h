@@ -6,7 +6,9 @@
 class AnimatableBoolean : public Animatable{
 public:
 	
-	
+	//construction
+	AnimatableBoolean(const char* name) : Animatable(name) {};
+	static std::shared_ptr<AnimatableBoolean> make(std::string name){ return std::make_shared<AnimatableBoolean>(name.c_str()); }
 	virtual AnimatableType getType() override { return AnimatableType::BOOLEAN; }
 
 	virtual std::vector<InterpolationType>& getCompatibleInterpolationTypes() override;
@@ -18,10 +20,6 @@ public:
 	virtual bool isParameterValueEqual(std::shared_ptr<AnimationValue> value1, std::shared_ptr<AnimationValue> value2) override;
 	virtual std::shared_ptr<AnimationValue> getValueAtAnimationTime(std::shared_ptr<Animation> animation, double time_seconds) override;
 	virtual std::vector<double> getCurvePositionsFromAnimationValue(std::shared_ptr<AnimationValue> value) override;
-	
-	//construction
-	AnimatableBoolean(const char* name) : Animatable(name) {};
-	static std::shared_ptr<AnimatableBoolean> make(std::string name){ return std::make_shared<AnimatableBoolean>(name.c_str()); }
 	
 };
 

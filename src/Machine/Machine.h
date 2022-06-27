@@ -30,39 +30,39 @@ namespace tinyxml2{ struct XMLElement; }
 		return newMachineInstance;\
 	}\
 	virtual void initialize() override;\
-	virtual void inputProcess();\
-	virtual void outputProcess();\
+	virtual void inputProcess() override;\
+	virtual void outputProcess()override;\
 	/*Machine Specific*/\
-	virtual void controlsGui();\
-	virtual void settingsGui();\
-	virtual void axisGui();\
-	virtual void deviceGui();\
-	virtual void metricsGui();\
-	virtual bool isMoving();\
-	virtual bool isHardwareReady();\
-	virtual bool isSimulationReady();\
-	virtual void enableHardware();\
-	virtual void disableHardware();\
-	virtual void onEnableHardware();\
-	virtual void onDisableHardware();\
-	virtual void onEnableSimulation();\
-	virtual void onDisableSimulation();\
-	virtual void simulateInputProcess();\
-	virtual void simulateOutputProcess();\
-	virtual bool saveMachine(tinyxml2::XMLElement* xml);\
-	virtual bool loadMachine(tinyxml2::XMLElement* xml);\
-	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output);\
-	virtual void rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value);\
-	virtual void cancelAnimatableRapid(std::shared_ptr<Animatable> animatable); \
-	virtual float getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable); \
-	virtual bool isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value);\
-	virtual void onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable);\
-	virtual void onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable);\
-	virtual void onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable);\
-	virtual std::shared_ptr<AnimationValue> getActualAnimatableValue(std::shared_ptr<Animatable> animatable);\
-	virtual void fillAnimationDefaults(std::shared_ptr<Animation> animation);\
-	virtual bool validateAnimation(std::shared_ptr<Animation> animation);\
-	virtual bool generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation);\
+	virtual void controlsGui()override;\
+	virtual void settingsGui()override;\
+	virtual void axisGui()override;\
+	virtual void deviceGui()override;\
+	virtual void metricsGui()override;\
+	virtual bool isMoving()override;\
+	virtual bool isHardwareReady()override;\
+	virtual bool isSimulationReady()override;\
+	virtual void enableHardware()override;\
+	virtual void disableHardware()override;\
+	virtual void onEnableHardware()override;\
+	virtual void onDisableHardware()override;\
+	virtual void onEnableSimulation()override;\
+	virtual void onDisableSimulation()override;\
+	virtual void simulateInputProcess()override;\
+	virtual void simulateOutputProcess()override;\
+	virtual bool saveMachine(tinyxml2::XMLElement* xml)override;\
+	virtual bool loadMachine(tinyxml2::XMLElement* xml)override;\
+	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output)override;\
+	virtual void rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value)override;\
+	virtual void cancelAnimatableRapid(std::shared_ptr<Animatable> animatable)override; \
+	virtual float getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable)override; \
+	virtual bool isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value)override;\
+	virtual void onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable)override;\
+	virtual void onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable)override;\
+	virtual void onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable)override;\
+	virtual std::shared_ptr<AnimationValue> getActualAnimatableValue(std::shared_ptr<Animatable> animatable)override;\
+	virtual void fillAnimationDefaults(std::shared_ptr<Animation> animation)override;\
+	virtual bool validateAnimation(std::shared_ptr<Animation> animation)override;\
+	virtual bool generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation)override;\
 
 #define DEFINE_HOMEABLE_MACHINE \
 	virtual bool isHomeable() override { return true; }\
