@@ -49,34 +49,40 @@ public:
 	std::vector<std::shared_ptr<Animation>>& getAnimations(){ return animations; }
 	
 	//animation currently animating this animatable
-	bool hasAnimation(){ return currentAnimation != nullptr; }
 	std::shared_ptr<Animation> getAnimation(){ return currentAnimation; }
-	void setAnimation(std::shared_ptr<Animation> animation){ currentAnimation = animation; }
-	void stopAnimationPlayback();
 	
 	//animatable value retrieval
 	std::shared_ptr<AnimationValue> getAnimationValue();
-	std::shared_ptr<AnimationValue> getActualValue();
+	void updateActualValue(std::shared_ptr<AnimationValue> newActualValue){ actualValue = newActualValue; }
+	std::shared_ptr<AnimationValue> getActualValue(){ return actualValue; }
 	
 	//—————————————— Commands ———————————————
 	
-	/*
-	virtual bool isReadyToMove() = 0;
-	virtual bool isReadyToStartAnimationFromValue(std::shared_ptr<AnimationValue> animationValue) = 0;
+public:
+	virtual bool generateTargetAnimation(std::shared_ptr<Animation> animation) = 0;
+	virtual bool validateAnimation(std::shared_ptr<Animation> animation) = 0;
 	
-	virtual void rapidToValue(std::shared_ptr<AnimationValue> animationValue) = 0;
-	virtual bool isInRapid() = 0;
+	virtual bool isReadyToMove() = 0;
+	virtual bool isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationValue> animationValue) = 0; //this doesn't make a whole lot of sense
+	
+	void rapidToValue(std::shared_ptr<AnimationValue> animationValue);
 	virtual float getRapidProgress() = 0;
+	virtual bool isInRapid() = 0;
 	virtual void cancelRapid() = 0;
 	
-	void startAnimationPlayback(std::shared_ptr<Animation> animation);
-	bool isAnimationPlaying();
-	void interruptAnimationPlayback();
-	void endAnimationPlayback();
-	*/
+	void startAnimation(std::shared_ptr<Animation> animation);
+	bool hasAnimation(){ return currentAnimation != nullptr; }
+	void interruptAnimation();
+	void endAnimation();
+	
+	void stop();
+	
+private:
+	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) = 0;
 	
 	//—————————————— Virtual Methods ——————————
 	
+public:
 	//implemented by each animatable type
 	virtual std::vector<InterpolationType>& getCompatibleInterpolationTypes() = 0;
 	virtual int getCurveCount() = 0;
@@ -95,6 +101,7 @@ private:
 	std::shared_ptr<AnimatableComposite> parentComposite;
 	std::shared_ptr<Animation> currentAnimation;
 	std::vector<std::shared_ptr<Animation>> animations;
+	std::shared_ptr<AnimationValue> actualValue;
 };
 
 

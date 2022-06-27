@@ -152,9 +152,8 @@ bool TargetAnimation::isAtTarget(){
 
 void TargetAnimation::rapidToTarget(){
 	auto animatable = getAnimatable();
-	animatable->stopAnimationPlayback();
 	auto targetValue = animatable->parameterValueToAnimationValue(target);
-	animatable->getMachine()->rapidAnimatableToValue(animatable, targetValue);
+	animatable->rapidToValue(targetValue);
 }
 
 
@@ -164,21 +163,19 @@ bool TargetAnimation::isReadyToStartPlayback(){
 
 void TargetAnimation::startPlayback(){
 	if(!isReadyToStartPlayback()) return;
-	auto machine = getMachine();
-	if(!machine->generateTargetAnimation(shared_from_this()->toTarget())) return;
-	machine->startAnimationPlayback(shared_from_this());
+	getAnimatable()->generateTargetAnimation(shared_from_this()->toTarget());
+	getAnimatable()->startAnimation(shared_from_this());
 }
 
 void TargetAnimation::endPlayback(){
-	if(isPlaying()) getMachine()->endAnimationPlayback(getAnimatable());
+	if(isPlaying()) getAnimatable()->endAnimation();
 	setPlaybackPosition(0.0);
 	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
 	clearCurves();
 }
 
 void TargetAnimation::stop(){
-	if(isPlaying()) getMachine()->interruptAnimationPlayback(getAnimatable());
-	else getMachine()->cancelAnimatableRapid(getAnimatable());
+	getAnimatable()->stop();
 	setPlaybackPosition(0.0);
 	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
 	clearCurves();

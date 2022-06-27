@@ -17,63 +17,57 @@ namespace tinyxml2{ struct XMLElement; }
 
 
 
-#define DEFINE_MACHINE_NODE(className, nodeName, saveName, category) public:\
-	/*Node Specific*/\
-	virtual const char* getSaveName() override { return saveName; }\
-	virtual const char* getNodeCategory() override { return category; }\
-	className(){ setName(nodeName); }\
-	virtual Node::Type getType() override { return Node::Type::MACHINE; }\
-	virtual std::shared_ptr<Node> getNewInstance() override {\
-		std::shared_ptr<Machine> newMachineInstance = std::make_shared<className>();\
-		newMachineInstance->addNodePin(newMachineInstance->deadMansSwitchPin);\
-		newMachineInstance->initialize();\
-		return newMachineInstance;\
-	}\
-	virtual void initialize() override;\
-	virtual void inputProcess() override;\
-	virtual void outputProcess()override;\
-	/*Machine Specific*/\
-	virtual void controlsGui()override;\
-	virtual void settingsGui()override;\
-	virtual void axisGui()override;\
-	virtual void deviceGui()override;\
-	virtual void metricsGui()override;\
-	virtual bool isMoving()override;\
-	virtual bool isHardwareReady()override;\
-	virtual bool isSimulationReady()override;\
-	virtual void enableHardware()override;\
-	virtual void disableHardware()override;\
-	virtual void onEnableHardware()override;\
-	virtual void onDisableHardware()override;\
-	virtual void onEnableSimulation()override;\
-	virtual void onDisableSimulation()override;\
-	virtual void simulateInputProcess()override;\
-	virtual void simulateOutputProcess()override;\
-	virtual bool saveMachine(tinyxml2::XMLElement* xml)override;\
-	virtual bool loadMachine(tinyxml2::XMLElement* xml)override;\
-	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output)override;\
-	virtual void rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value)override;\
-	virtual void cancelAnimatableRapid(std::shared_ptr<Animatable> animatable)override; \
-	virtual float getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable)override; \
-	virtual bool isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value)override;\
-	virtual void onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable)override;\
-	virtual void onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable)override;\
-	virtual void onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable)override;\
-	virtual std::shared_ptr<AnimationValue> getActualAnimatableValue(std::shared_ptr<Animatable> animatable)override;\
-	virtual void fillAnimationDefaults(std::shared_ptr<Animation> animation)override;\
-	virtual bool validateAnimation(std::shared_ptr<Animation> animation)override;\
-	virtual bool generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation)override;\
+#define DEFINE_MACHINE_NODE(className, nodeName, saveName, category) public:																	\
+	/*Node Specific*/																															\
+	virtual const char* getSaveName() override { return saveName; }																				\
+	virtual const char* getNodeCategory() override { return category; }																			\
+	className(){ setName(nodeName); }																											\
+	virtual Node::Type getType() override { return Node::Type::MACHINE; }																		\
+	virtual std::shared_ptr<Node> getNewInstance() override {																					\
+		std::shared_ptr<Machine> newMachineInstance = std::make_shared<className>();															\
+		newMachineInstance->addNodePin(newMachineInstance->deadMansSwitchPin);																	\
+		newMachineInstance->initialize();																										\
+		return newMachineInstance;																												\
+	}																																			\
+	virtual void initialize() override;																											\
+	virtual void inputProcess() override;																										\
+	virtual void outputProcess()override;																										\
+	/*Machine Specific*/																														\
+	virtual void controlsGui() override;																										\
+	virtual void settingsGui() override;																										\
+	virtual void axisGui() override;																											\
+	virtual void deviceGui() override;																											\
+	virtual void metricsGui() override;																											\
+	virtual bool isMoving() override;																											\
+	virtual bool isHardwareReady() override;																									\
+	virtual bool isSimulationReady() override;																									\
+	virtual void enableHardware() override;																										\
+	virtual void disableHardware() override;																									\
+	virtual void onEnableHardware() override;																									\
+	virtual void onDisableHardware() override;																									\
+	virtual void onEnableSimulation() override;																									\
+	virtual void onDisableSimulation() override;																								\
+	virtual void simulateInputProcess() override;																								\
+	virtual void simulateOutputProcess() override;																								\
+	virtual bool saveMachine(tinyxml2::XMLElement* xml) override;																				\
+	virtual bool loadMachine(tinyxml2::XMLElement* xml) override;																				\
+	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output) override;																\
+	/*AnimatableOwner Specific*/																												\
+	virtual void onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable) override;														\
+	virtual void onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable) override;													\
+	virtual void onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable) override;														\
+	virtual void fillAnimationDefaults(std::shared_ptr<Animation> animation) override;															\
 
-#define DEFINE_HOMEABLE_MACHINE \
-	virtual bool isHomeable() override { return true; }\
-	virtual bool canStartHoming() override;\
-	virtual bool isHoming() override;\
-	virtual void startHoming() override;\
-	virtual void stopHoming() override;\
-	virtual bool didHomingSucceed() override;\
-	virtual bool didHomingFail() override;\
-	virtual float getHomingProgress() override;\
-	virtual const char* getHomingStateString() override;\
+#define DEFINE_HOMEABLE_MACHINE 							\
+	virtual bool isHomeable() override { return true; }		\
+	virtual bool canStartHoming() override;					\
+	virtual bool isHoming() override;						\
+	virtual void startHoming() override;					\
+	virtual void stopHoming() override;						\
+	virtual bool didHomingSucceed() override;				\
+	virtual bool didHomingFail() override;					\
+	virtual float getHomingProgress() override;				\
+	virtual const char* getHomingStateString() override;	\
 
 class Machine : public Node {
 public:
@@ -123,34 +117,20 @@ public:
 	virtual void simulateInputProcess() = 0;
 	virtual void simulateOutputProcess() = 0;
 	virtual bool needsOutputProcess() override { return true; }
-
-	//===== PARAMETERS =====
-	void addAnimatable(std::shared_ptr<Animatable> parameter);
-	std::vector<std::shared_ptr<Animatable>> animatables;
-
-	//===== RAPIDS =====
-	virtual void rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) = 0;
-	virtual void cancelAnimatableRapid(std::shared_ptr<Animatable> animatable) = 0;
-	virtual float getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable) = 0;
-	virtual bool isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) = 0;
-
-	//===== PLAYBACK CONTROL ======
-	void startAnimationPlayback(std::shared_ptr<Animation> animation);
-	void interruptAnimationPlayback(std::shared_ptr<Animatable> animatable);
-	void endAnimationPlayback(std::shared_ptr<Animatable> animatable);
+	
+	//===== ANIMATABLES ======
+		
 	virtual void onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable) = 0;
 	virtual void onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable) = 0;
 	virtual void onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable) = 0;
-
-	//====== PARAMETER VALUE =======
-	virtual std::shared_ptr<AnimationValue> getActualAnimatableValue(std::shared_ptr<Animatable> animatable) = 0;
-
-	//======= ANIMATION ======
+	
 	virtual void fillAnimationDefaults(std::shared_ptr<Animation> animation) = 0;
-	virtual bool validateAnimation(std::shared_ptr<Animation> animation) = 0;
-	virtual bool generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation) = 0;
-
+	
+	void addAnimatable(std::shared_ptr<Animatable> animatable);
+	std::vector<std::shared_ptr<Animatable>>& getAnimatables(){ return animatables; }
+	
 	//===== ATTACHED DEVICES =====
+	
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output) = 0;
 	
 	std::shared_ptr<NodePin> deadMansSwitchPin = std::make_shared<NodePin>(NodePin::DataType::DEAD_MANS_SWITCH,
@@ -176,6 +156,9 @@ public:
 	virtual bool load(tinyxml2::XMLElement* xml) override;
 	virtual bool saveMachine(tinyxml2::XMLElement* xml) = 0;
 	virtual bool loadMachine(tinyxml2::XMLElement* xml) = 0;
+	
+private:
+	std::vector<std::shared_ptr<Animatable>> animatables;
 
 };
 

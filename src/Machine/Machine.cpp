@@ -38,7 +38,7 @@ bool Machine::isSimulating(){
 	return Environnement::isSimulating();
 }
 
-void Machine::addAnimatable(std::shared_ptr<Animatable> animatable) {
+void Machine::addAnimatable(std::shared_ptr<Animatable> animatable){
 	auto thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
 	animatable->setMachine(thisMachine);
 	if(animatable->isComposite()){
@@ -48,36 +48,6 @@ void Machine::addAnimatable(std::shared_ptr<Animatable> animatable) {
 		}
 	}
 	animatables.push_back(animatable);
-}
-
-void Machine::startAnimationPlayback(std::shared_ptr<Animation> animation) {
-	auto animationAnimatable = animation->getAnimatable();
-	for (auto& animatable : animatables) {
-		if (animationAnimatable == animatable) {
-			//stop playback of this parameter if it is already playing
-			if(animatable->hasAnimation()) animatable->stopAnimationPlayback();
-			animatable->setAnimation(animation);
-			onAnimationPlaybackStart(animatable);
-		}
-	}
-}
-
-void Machine::interruptAnimationPlayback(std::shared_ptr<Animatable> playingAnimatable) {
-	for (auto& animatable : animatables) {
-		if (playingAnimatable == animatable) {
-			animatable->setAnimation(nullptr);
-			onAnimationPlaybackInterrupt(animatable);
-		}
-	}
-}
-
-void Machine::endAnimationPlayback(std::shared_ptr<Animatable> playingAnimatable){
-	for (auto& animatable : animatables) {
-		if (playingAnimatable == animatable) {
-			animatable->setAnimation(nullptr);
-			onAnimationPlaybackEnd(animatable);
-		}
-	}
 }
 
 bool Machine::save(tinyxml2::XMLElement* xml){

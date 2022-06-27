@@ -39,12 +39,37 @@ void Animatable::unsubscribeAnimation(std::shared_ptr<Animation> animation){
 	}
 }
 
-void Animatable::stopAnimationPlayback(){
-	if(hasAnimation()){
-		auto animation = currentAnimation;
-		currentAnimation = nullptr;
-		animation->stop();
-	}
+
+
+void Animatable::startAnimation(std::shared_ptr<Animation> animation){
+	assert(animation->getAnimatable() == shared_from_this());
+	//stop playback of current animation if there is one playing
+	interruptAnimation();
+	//set animation as current
+	currentAnimation = animation;
+	//notify machine of playback start
+	getMachine()->onAnimationPlaybackStart(shared_from_this());
+}
+
+void Animatable::interruptAnimation(){
+	if(!hasAnimation()) return;
+	currentAnimation = nullptr;
+	getMachine()->onAnimationPlaybackInterrupt(shared_from_this());
+}
+
+void Animatable::endAnimation(){
+	if(!hasAnimation()) return;
+	getMachine()->onAnimationPlaybackEnd(shared_from_this());
+}
+
+void Animatable::rapidToValue(std::shared_ptr<AnimationValue> animationValue){
+	stop();
+	onRapidToValue(animationValue);
+}
+
+void Animatable::stop(){
+	if(isInRapid()) cancelRapid();
+	else if(hasAnimation()) interruptAnimation();
 }
 
 
@@ -55,12 +80,6 @@ void Animatable::stopAnimationPlayback(){
 std::shared_ptr<AnimationValue> Animatable::getAnimationValue(){
 	return currentAnimation->getValueAtPlaybackTime();
 }
-
-std::shared_ptr<AnimationValue> Animatable::getActualValue(){
-	return getMachine()->getActualAnimatableValue(shared_from_this());
-}
-
-
 
 
 //——————————————————— Number ————————————————————

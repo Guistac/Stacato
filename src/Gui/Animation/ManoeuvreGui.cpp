@@ -184,8 +184,8 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 		if(!areAllMachinesEnabled()){
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
 			for(auto& animation : animations){
-				auto machine = animation->getAnimatable()->getMachine();
-				if(!machine->isEnabled()) ImGui::Text("%s is not enabled.", machine->getName());
+				
+				//if(!machine->isEnabled()) ImGui::Text("%s is not enabled.", machine->getName());
 			}
 			ImGui::PopStyleColor();
 		}else ImGui::Text("All Machines are Enabled");
@@ -296,9 +296,9 @@ void Manoeuvre::sheetEditor(){
 			ImGui::EndDisabled();
 			ImGui::Separator();
 			for (auto& machine : Environnement::getMachines()) {
-				if(machine->animatables.empty()) continue;
+				if(machine->getAnimatables().empty()) continue;
 				if (ImGui::BeginMenu(machine->getName())) {
-					for (auto& animatable : machine->animatables) {
+					for (auto& animatable : machine->getAnimatables()) {
 						if (animatable->hasParentComposite()) continue;
 						bool isSelected = hasAnimation(animatable);
 						if (ImGui::MenuItem(animatable->getName(), nullptr, isSelected)) {
@@ -370,11 +370,11 @@ void Manoeuvre::curveEditor(){
 		
 		for (auto& animation : getAnimations()) animation->drawCurves();
 		for (auto& animation : getAnimations()) {
-			ImGui::PushID(animation->getAnimatable()->getMachine()->getName());
+			//ImGui::PushID(animation->getAnimatable()->getMachine()->getName());
 			ImGui::PushID(animation->getAnimatable()->getName());
 			animation->drawCurveControls();
 			ImGui::PopID();
-			ImGui::PopID();
+			//ImGui::PopID();
 		}
 		
 		if(getType() != ManoeuvreType::KEY){

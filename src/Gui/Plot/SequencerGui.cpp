@@ -249,6 +249,7 @@ void editor(){
 	
 	if(SequencerLibrary::begin("Sequencer")){
 		
+		/*
 		glm::vec2 sequencerMin(0,0);
 		glm::vec2 crossSize(sequence->guiContext->style.trackHeaderWidth, sequence->guiContext->style.timelineHeight);
 		float padding = ImGui::GetTextLineHeight() * 0.1;
@@ -264,9 +265,9 @@ void editor(){
 			ImGui::EndDisabled();
 			ImGui::Separator();
 			for (auto& machine : Environnement::getMachines()) {
-				if(machine->animatables.empty()) continue;
+				if(machine->getAnimatables().empty()) continue;
 				if (ImGui::BeginMenu(machine->getName())) {
-					for (auto& animatable : machine->animatables) {
+					for (auto& animatable : machine->getAnimatables()) {
 						if (animatable->hasParentComposite()) continue;
 						bool isSelected = sequence->hasTrack(animatable);
 						if (ImGui::MenuItem(animatable->getName(), nullptr, isSelected)) {
@@ -278,7 +279,7 @@ void editor(){
 			}
 			ImGui::EndPopup();
 		}
-		
+		*/
 		
 		auto& tracks = sequence->getTracks();
 		for(int i = 0; i < tracks.size(); i++){

@@ -36,7 +36,6 @@ protected:
 public:
 
 	std::shared_ptr<Animatable> getAnimatable(){ return animatable; }
-	std::shared_ptr<Machine> getMachine(){ return animatable->getMachine(); }
 	
 	bool hasManoeuvre(){ return manoeuvre != nullptr; }
 	void setManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre_){ manoeuvre = manoeuvre_; }

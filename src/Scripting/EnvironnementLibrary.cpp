@@ -63,6 +63,7 @@ namespace Scripting::EnvironnementLibrary{
 			return 1;
 		}
 	
+		//indexed table of all machines
 		int getMachines(lua_State* L){
 			if(lua_gettop(L) != 0) luaL_error(L, "Incorrect argument count provided to Environnement.getMachines(), expected 0");
 			auto& machines = Environnement::getMachines();
@@ -91,7 +92,7 @@ namespace Scripting::EnvironnementLibrary{
 		int hasAnimatable(lua_State* L){
 			auto machine = lua_Machine.checkArgument(L, 1);
 			const char* animatableName = luaL_checkstring(L, 2);
-			for(auto& animatable : machine->animatables){
+			for(auto& animatable : machine->getAnimatables()){
 				if(strcmp(animatable->getName(), animatableName) == 0){
 					lua_pushboolean(L, true);
 					return 1;
@@ -104,7 +105,7 @@ namespace Scripting::EnvironnementLibrary{
 		int getAnimatable(lua_State* L){
 			auto machine = lua_Machine.checkArgument(L, 1);
 			const char* animatableName = luaL_checkstring(L, 2);
-			for(auto& animatable : machine->animatables){
+			for(auto& animatable : machine->getAnimatables()){
 				if(strcmp(animatable->getName(), animatableName) == 0){
 					switch(animatable->getType()){
 						case AnimatableType::BOOLEAN:
@@ -123,9 +124,10 @@ namespace Scripting::EnvironnementLibrary{
 			return 1;
 		}
 	
+		//indexed table of all animatables
 		int getAnimatables(lua_State* L){
 			auto machine = lua_Machine.checkArgument(L, 1);
-			auto& animatables = machine->animatables;
+			auto& animatables = machine->getAnimatables();
 			lua_createtable(L, animatables.size(), 1);
 			for(int i = 0; i < animatables.size(); i++){
 				lua_pushinteger(L, i);

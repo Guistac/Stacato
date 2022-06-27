@@ -255,6 +255,9 @@ bool HoodedLiftStateMachine::isMoving() {
 	return actualState == MachineState::State::LIFT_LOWERED_HOOD_MOVING || actualState == MachineState::State::LIFT_MOVING_HOOD_OPEN;
 }
 
+
+/*
+
 void HoodedLiftStateMachine::rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
 	if (animatable == animatableState) {
 		auto state = value->toState()->value;
@@ -322,17 +325,12 @@ void HoodedLiftStateMachine::cancelAnimatableRapid(std::shared_ptr<Animatable> a
 	
 }
 
-void HoodedLiftStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
-	if (isGpioDeviceConnected()) output.push_back(getGpioDevice()->parentDevice);
-}
-
 
 void HoodedLiftStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){
 	
 }
 
 bool HoodedLiftStateMachine::validateAnimation(const std::shared_ptr<Animation> animation) {
-	/*
 	parameterTrack->b_valid = true;
 	for (auto& curve : parameterTrack->curves) {
 		curve->b_valid = true;
@@ -345,13 +343,33 @@ bool HoodedLiftStateMachine::validateAnimation(const std::shared_ptr<Animation> 
 			interpolation->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
 		}
 	}
-	 */
 	return true;
 }
 
 bool HoodedLiftStateMachine::generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation){
 	return false;
 }
+
+*/
+
+
+
+//========= ANIMATABLE OWNER ==========
+
+void HoodedLiftStateMachine::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable){}
+
+void HoodedLiftStateMachine::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable){}
+
+void HoodedLiftStateMachine::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable){}
+
+void HoodedLiftStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){}
+
+
+void HoodedLiftStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
+	if (isGpioDeviceConnected()) output.push_back(getGpioDevice()->parentDevice);
+}
+
+
 
 void HoodedLiftStateMachine::onEnableHardware() {
 	actualState = MachineState::State::UNKNOWN;

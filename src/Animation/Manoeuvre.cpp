@@ -166,7 +166,7 @@ public:
 };
 
 void Manoeuvre::addAnimation(std::shared_ptr<Animatable> animatable) {
-	std::string name = "Add Animation " + std::string(animatable->getMachine()->getName()) + " : " + std::string(animatable->getName());
+	std::string name = "Add Animation " + /*std::string(animatable->getMachine()->getName()) + " : " +*/ std::string(animatable->getName());
 	auto command = std::make_shared<AddAnimationCommand>(name, animatable, shared_from_this());
 	CommandHistory::pushAndExecute(command);
 }
@@ -217,7 +217,7 @@ public:
 
 void Manoeuvre::removeAnimation(std::shared_ptr<Animatable> animatable) {
 	if(hasAnimation(animatable)){
-		std::string name = "Remove Animation " + std::string(animatable->getMachine()->getName()) + " : " + std::string(animatable->getName());
+		std::string name = "Remove Animation " + /*std::string(animatable->getMachine()->getName()) + " : " +*/ std::string(animatable->getName());
 		auto command = std::make_shared<RemoveAnimationCommand>(name, animatable, shared_from_this());
 		CommandHistory::pushAndExecute(command);
 	}

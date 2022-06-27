@@ -99,88 +99,16 @@ const char* MachineTemplate::getHomingStateString(){ return "Homing Step String"
 
 
 
+//========= ANIMATABLE OWNER ==========
 
-//======= PLOT INTERFACE =========
+void MachineTemplate::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable){}
 
+void MachineTemplate::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable){}
 
-void MachineTemplate::rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
-	//check against all animatable parameters
-	//start moving parameter to requested value
-}
+void MachineTemplate::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable){}
 
-float MachineTemplate::getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable) {
-	//check against all animatable parameters
-	//report status of rapid movement of parameter
-	//0.0 = 0%
-	//1.0 = 100%
-}
+void MachineTemplate::fillAnimationDefaults(std::shared_ptr<Animation> animation){}
 
-void MachineTemplate::cancelAnimatableRapid(std::shared_ptr<Animatable> animatable) {
-	//check against all animatable parameters
-	//stop rapid movement of specified parameter
-}
-
-
-bool MachineTemplate::isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
-	//check against all animatable parameters
-	//report if playback of the parameter is ready to start from the given value
-}
-
-void MachineTemplate::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable) {
-	//check against all animatable parameters
-	//called when playback of that parameter starts
-}
-
-void MachineTemplate::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable) {
-	//check against all animatable parameters
-	//called when playback of that parameter is interrupted
-}
-
-void MachineTemplate::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable) {
-	//check against all animatable parameters
-	//called when playback of that parameter end / finishes
-}
-
-std::shared_ptr<AnimationValue> MachineTemplate::getActualAnimatableValue(std::shared_ptr<Animatable> animatable) {
-	//check against all animatable parameters
-	//write actual value of parameter to value argument
-}
-
-
-void MachineTemplate::fillAnimationDefaults(std::shared_ptr<Animation> animation){
-	
-}
-
-bool MachineTemplate::validateAnimation(const std::shared_ptr<Animation> animation) {
-	//check the parameter of the given track against all animatable parameters
-	//check all curves of the parameters track
-	//check all control points of each curve
-	//check all interpolations of each curve
-	
-	//set validity flag for:
-	//-each curve
-	//-each control point
-	//-each interpolation
-	
-	//set validation error for:
-	//-each control point
-	//-each interpolation
-	
-	//aditionally, interpolations can have their preview points checked for range violation
-	
-	//interpolations may already have a validation status from previous external validation
-	//in this case validity and validation errors needs to be left untouched
-	
-	//return overall validity
-}
-
-
-bool MachineTemplate::generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation){
-	//check against all animatable parameters
-	//generate timed motion curves to the target points and write them to the parameter track curves
-	//return if success
-	return false;
-}
 
 
 

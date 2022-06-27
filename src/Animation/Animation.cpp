@@ -80,7 +80,7 @@ std::shared_ptr<Animation> Animation::load(tinyxml2::XMLElement* xml){
 	}
 
 	std::shared_ptr<Animatable> animatable = nullptr;
-	for (auto& a : machine->animatables) {
+	for (auto& a : machine->getAnimatables()) {
 		if (strcmp(animatableName, a->getName()) == 0) {
 			animatable = a;
 			break;
@@ -158,7 +158,7 @@ void Animation::unsubscribeFromMachineParameter(){
 
 void Animation::validate(){
 	validationErrorString = "";
-	b_valid = getMachine()->validateAnimation(shared_from_this());
+	b_valid = getAnimatable()->validateAnimation(shared_from_this());
 	if(hasManoeuvre()) manoeuvre->updateTrackSummary();
 }
 
@@ -174,7 +174,7 @@ bool Animation::isInRapid(){
 }
 
 float Animation::getRapidProgress(){
-	return animatable->getMachine()->getAnimatableRapidProgress(animatable);
+	return animatable->getRapidProgress();
 }
 
 bool Animation::isPlaying(){
@@ -187,23 +187,23 @@ std::shared_ptr<AnimationValue> Animation::getValueAtPlaybackTime(){
 
 void Animation::startPlayback(){
 	if(!isReadyToStartPlayback()) return;
-	getMachine()->startAnimationPlayback(shared_from_this());
+	animatable->startAnimation(shared_from_this());
 }
 
 void Animation::interruptPlayback(){
 	if(!isPlaying()) return;
-	getMachine()->interruptAnimationPlayback(animatable);
+	animatable->interruptAnimation();
 }
 
 void Animation::endPlayback(){
-	if(isPlaying()) getMachine()->endAnimationPlayback(animatable);
+	if(isPlaying()) animatable->endAnimation();
 	setPlaybackPosition(0.0);
 	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
 }
 
 void Animation::stop(){
-	if(isPlaying()) getMachine()->interruptAnimationPlayback(animatable);
-	else getMachine()->cancelAnimatableRapid(animatable);
+	if(isPlaying()) animatable->interruptAnimation();
+	else animatable->cancelRapid();
 	setPlaybackPosition(0.0);
 	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
 }

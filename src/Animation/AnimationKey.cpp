@@ -60,6 +60,6 @@ bool AnimationKey::isAtPlaybackPosition(){
 void AnimationKey::rapidToPlaybackPosition(){
 	auto animatable = getAnimatable();
 	auto targetValue = animatable->parameterValueToAnimationValue(target);
-	animatable->getMachine()->rapidAnimatableToValue(animatable, targetValue);
+	animatable->rapidToValue(targetValue);
 }
 
