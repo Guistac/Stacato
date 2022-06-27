@@ -46,7 +46,7 @@ public:
 	 -control mode
 	 -set point following
 	 -position, velocity, acceleration limits
-	 
+	 -hold actual values and target values
 	 */
 	
 };

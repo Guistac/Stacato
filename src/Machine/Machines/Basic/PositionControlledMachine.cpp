@@ -86,7 +86,7 @@ void PositionControlledMachine::onEnableHardware() {
 }
 
 void PositionControlledMachine::onDisableHardware() {
-	setVelocityTarget(0.0);
+	//setVelocityTarget(0.0);
 	animatablePosition->stopAnimationPlayback();
 	Logger::info("Disabled Machine {}", getName());
 }
@@ -96,17 +96,21 @@ bool PositionControlledMachine::isSimulationReady(){
 }
 
 void PositionControlledMachine::onEnableSimulation() {
+	/*
 	motionProfile.resetInterpolation();
 	motionProfile.setVelocity(0.0);
 	motionProfile.setAcceleration(0.0);
 	setVelocityTarget(0.0);
+	 */
 }
 
 void PositionControlledMachine::onDisableSimulation() {
 	animatablePosition->stopAnimationPlayback();
+	/*
 	setVelocityTarget(0.0);
 	motionProfile.setVelocity(0.0);
 	motionProfile.setAcceleration(0.0);
+	 */
 }
 
 void PositionControlledMachine::inputProcess() {
@@ -128,16 +132,19 @@ void PositionControlledMachine::outputProcess(){
 	
 	//if the axis is not enabled or is homing, the machine has no control over it, we just update the motion profile
 	if (!isEnabled() || isHoming()) {
+		/*
 		motionProfile.setPosition(axis->getActualPosition());
 		motionProfile.setVelocity(axis->getActualVelocity());
 		motionProfile.setAcceleration(0.0);
+		 */
 		return; //don't send motion commands to the axis
 	}
 	
-	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
-	profileDeltaTime_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
+	//profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
+	//profileDeltaTime_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 	
 	//Update Motion Profile
+	/*
 	switch(controlMode){
 		case ControlMode::PARAMETER_TRACK:{
 			auto value = animatablePosition->getAnimationValue()->toPosition();
@@ -166,12 +173,15 @@ void PositionControlledMachine::outputProcess(){
 			if(motionProfile.isInterpolationFinished(profileTime_seconds)) setVelocityTarget(0.0);
 		}break;
 	}
+	 */
 	
 	//Send motion values to axis profile
+	/*
 	double axisPosition = machinePositionToAxisPosition(motionProfile.getPosition());
 	double axisVelocity = machineVelocityToAxisVelocity(motionProfile.getVelocity());
 	double axisAcceleration = machineAccelerationToAxisAcceleration(motionProfile.getAcceleration());
 	axis->setMotionCommand(axisPosition, axisVelocity, axisAcceleration);
+	 */
 }
 
 void PositionControlledMachine::simulateInputProcess() {
@@ -179,14 +189,17 @@ void PositionControlledMachine::simulateInputProcess() {
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
 	//update position and velocity pins
+	/*
 	*positionPinValue = motionProfile.getPosition();
 	*velocityPinValue = motionProfile.getVelocity();
-
+	 */
+	 
 	//Update Time
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
 
 	//Update Motion Profile
+	/*
 	switch(controlMode){
 			
 		case ControlMode::PARAMETER_TRACK:{
@@ -218,6 +231,7 @@ void PositionControlledMachine::simulateInputProcess() {
 		}break;
 			
 	}
+	 */
 	
 }
 
@@ -264,37 +278,7 @@ std::shared_ptr<PositionControlledAxis> PositionControlledMachine::getAxis() {
 
 //===================== MANUAL CONTROLS =========================
 
-void PositionControlledMachine::setVelocityTarget(double velocityTarget_machineUnitsPerSecond) {
-	animatablePosition->stopAnimationPlayback();
-	
-	manualVelocityTarget_machineUnitsPerSecond = velocityTarget_machineUnitsPerSecond;
-	if(controlMode == ControlMode::POSITION_TARGET) motionProfile.resetInterpolation();
-	controlMode = ControlMode::VELOCITY_TARGET;
-}
 
-void PositionControlledMachine::moveToPosition(double target_machineUnits) {
-	animatablePosition->stopAnimationPlayback();
-	
-	double lowLimit_machineUnits = getLowPositionLimit();
-	double highLimit_machineUnits = getHighPositionLimit();
-	target_machineUnits = std::min(target_machineUnits, highLimit_machineUnits);
-	target_machineUnits = std::max(target_machineUnits, lowLimit_machineUnits);
-	
-	double startTime;
-	if(isSimulating()) startTime = Environnement::getTime_seconds();
-	else startTime = EtherCatFieldbus::getCycleProgramTime_seconds();
-	
-	bool success = motionProfile.moveToPositionWithVelocity(startTime,
-															target_machineUnits,
-															rapidVelocity_machineUnitsPerSecond,
-															rapidAcceleration_machineUnitsPerSecond);
-	
-	double target = motionProfile.getInterpolationTarget();
-	double left = motionProfile.getRemainingInterpolationTime(startTime);
-	
-	if(success) controlMode = ControlMode::POSITION_TARGET;
-	else setVelocityTarget(0.0);
-}
 
 
 
@@ -304,41 +288,41 @@ void PositionControlledMachine::moveToPosition(double target_machineUnits) {
 void PositionControlledMachine::rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
 	if (animatable == animatablePosition) {
 		animatablePosition->stopAnimationPlayback();
-		moveToPosition(value->toPosition()->position);
+		//moveToPosition(value->toPosition()->position);
 	}
 }
 
 float PositionControlledMachine::getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable) {
 	if (animatable == animatablePosition) {
-		float progress = motionProfile.getInterpolationProgress(Environnement::getTime_seconds());
-		return progress;
+		//float progress = motionProfile.getInterpolationProgress(Environnement::getTime_seconds());
+		//return progress;
 	}
 	return 0.0;
 }
 
 void PositionControlledMachine::cancelAnimatableRapid(std::shared_ptr<Animatable> animatable) {
 	if (animatable == animatablePosition) {
-		setVelocityTarget(0.0);
+		//setVelocityTarget(0.0);
 	}
 }
 
 bool PositionControlledMachine::isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
 	if (animatable == animatablePosition) {
-		return motionProfile.getPosition() == value->toPosition()->position && motionProfile.getVelocity() == 0.0;
+		//return motionProfile.getPosition() == value->toPosition()->position && motionProfile.getVelocity() == 0.0;
 	}
 	return false;
 }
 
 void PositionControlledMachine::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable) {
 	if (animatable == animatablePosition) {
-		controlMode = ControlMode::PARAMETER_TRACK;
+		//controlMode = ControlMode::PARAMETER_TRACK;
 	}
 }
 
 void PositionControlledMachine::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable) {
 	//here we just set the velocity target to 0 regardless of where we are at in the manoeuvre
 	if (animatable == animatablePosition) {
-		setVelocityTarget(0.0);
+		//setVelocityTarget(0.0);
 	}
 }
 
@@ -346,18 +330,20 @@ void PositionControlledMachine::onAnimationPlaybackEnd(std::shared_ptr<Animatabl
 	//here we have to make sure that the last position of the manoeuvre stays in the motion profile on the next loop
 	//to make sure of this we manually set the profile velocity to 0.0, and the target velocity to 0.0 to make sure nothing moves after the manoeuvre is done playing
 	if (animatable == animatablePosition) {
-		motionProfile.setVelocity(0.0);
-		setVelocityTarget(0.0);
+		//motionProfile.setVelocity(0.0);
+		//setVelocityTarget(0.0);
 	}
 }
 
 std::shared_ptr<AnimationValue> PositionControlledMachine::getActualAnimatableValue(std::shared_ptr<Animatable> animatable) {
 	if (animatable == animatablePosition) {
 		auto output = AnimationValue::makePosition();
+		/*
 		output->position = motionProfile.getPosition();
 		output->velocity = motionProfile.getVelocity();
 		output->acceleration = motionProfile.getAcceleration();
 		return output;
+		 */
 	}
 	return nullptr;
 }
@@ -388,6 +374,7 @@ void PositionControlledMachine::fillAnimationDefaults(std::shared_ptr<Animation>
 
 
 bool PositionControlledMachine::validateAnimation(const std::shared_ptr<Animation> animation) {
+	/*
 	using namespace Motion;
 	
 	if (animation->getAnimatable() != animatablePosition) {
@@ -546,10 +533,12 @@ bool PositionControlledMachine::validateAnimation(const std::shared_ptr<Animatio
 	
 	//we return the result of the validation
 	return b_trackValid;
+	 */
+	return false; //TODO: temporary!
 }
 
 bool PositionControlledMachine::generateTargetAnimation(std::shared_ptr<TargetAnimation> animation){
-	
+	/*
 	if(animation->getAnimatable() != animatablePosition) return false;
 	
 	auto target = animatablePosition->parameterValueToAnimationValue(animation->target)->toPosition();
@@ -599,7 +588,7 @@ bool PositionControlledMachine::generateTargetAnimation(std::shared_ptr<TargetAn
 	curve.b_valid = true;
 	animation->setDuration(interpolation->getDuration());
 	animation->setPlaybackPosition(0.0);
-	
+	*/
 	return true;
 	
 }
@@ -660,7 +649,7 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 
 
 void PositionControlledMachine::captureMachineZero(){
-	machineZero_axisUnits = motionProfile.getPosition();
+	//machineZero_axisUnits = motionProfile.getPosition();
 }
 
 
@@ -694,43 +683,4 @@ double PositionControlledMachine::machineVelocityToAxisVelocity(double machineVe
 double PositionControlledMachine::machineAccelerationToAxisAcceleration(double machineAcceleration){
 	if(b_invertDirection) return machineAcceleration * -1.0;
 	return machineAcceleration;
-}
-
-
-double PositionControlledMachine::getLowPositionLimit(){
-	//if the machine motion is inverted relative to the axis motion, we also need to invert the limits
-	if(b_invertDirection) return axisPositionToMachinePosition(getAxis()->getHighPositionLimit());
-	return axisPositionToMachinePosition(getAxis()->getLowPositionLimit());
-}
-
-double PositionControlledMachine::getHighPositionLimit(){
-	//if the machine motion is inverted relative to the axis motion, we also need to invert the limits
-	if(b_invertDirection) return axisPositionToMachinePosition(getAxis()->getLowPositionLimit());
-	return axisPositionToMachinePosition(getAxis()->getHighPositionLimit());
-}
-
-double PositionControlledMachine::getPositionNormalized(){
-	double lowLimit = getLowPositionLimit();
-	double highLimit = getHighPositionLimit();
-	double position;
-	if(isSimulating()) position = motionProfile.getPosition();
-	else position = axisPositionToMachinePosition(getAxis()->getActualPosition());
-	return (position - lowLimit) / (highLimit - lowLimit);
-}
-
-double PositionControlledMachine::getVelocityNormalized(){
-	double velocityLimit = getAxis()->getVelocityLimit();
-	double velocity;
-	if(isSimulating()) velocity = motionProfile.getVelocity();
-	else velocity = axisVelocityToMachineVelocity(getAxis()->getActualVelocity());
-	return velocity / velocityLimit;
-}
-
-
-bool PositionControlledMachine::hasManualPositionTarget(){
-	return controlMode == ControlMode::POSITION_TARGET;
-}
-
-double PositionControlledMachine::getManualPositionTarget(){
-	return motionProfile.getInterpolationTarget();
 }

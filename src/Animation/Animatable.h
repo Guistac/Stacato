@@ -58,6 +58,23 @@ public:
 	std::shared_ptr<AnimationValue> getAnimationValue();
 	std::shared_ptr<AnimationValue> getActualValue();
 	
+	//—————————————— Commands ———————————————
+	
+	/*
+	virtual bool isReadyToMove() = 0;
+	virtual bool isReadyToStartAnimationFromValue(std::shared_ptr<AnimationValue> animationValue) = 0;
+	
+	virtual void rapidToValue(std::shared_ptr<AnimationValue> animationValue) = 0;
+	virtual bool isInRapid() = 0;
+	virtual float getRapidProgress() = 0;
+	virtual void cancelRapid() = 0;
+	
+	void startAnimationPlayback(std::shared_ptr<Animation> animation);
+	bool isAnimationPlaying();
+	void interruptAnimationPlayback();
+	void endAnimationPlayback();
+	*/
+	
 	//—————————————— Virtual Methods ——————————
 	
 	//implemented by each animatable type

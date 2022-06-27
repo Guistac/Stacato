@@ -34,6 +34,7 @@ static void popInvalidValue(){
 
 void PositionControlledMachine::controlsGui() {
 	
+	/*
 	ImGui::BeginChild("##manualMachineControls", ImGui::GetContentRegionAvail());
 	
 	if(!isAxisConnected()) {
@@ -227,12 +228,12 @@ void PositionControlledMachine::controlsGui() {
 	ImGui::PopStyleColor();
 	
 	ImGui::EndChild();
-	 
+	 */
 }
 
 
 void PositionControlledMachine::settingsGui() {
-	
+	/*
 	if (!isAxisConnected()) {
 		ImGui::Text("No Axis Connected");
 		return;
@@ -325,10 +326,11 @@ void PositionControlledMachine::settingsGui() {
 	}
 	
 	ImGui::Checkbox("Invert Axis Direction", &b_invertDirection);
-
+*/
 }
 
 void PositionControlledMachine::axisGui() {
+	/*
 	if (!isAxisConnected()) {
 		ImGui::Text("No Axis Connected");
 		return;
@@ -354,9 +356,11 @@ void PositionControlledMachine::axisGui() {
 		}
 		ImGui::EndTabBar();
 	}
+	 */
 }
 
 void PositionControlledMachine::deviceGui() {
+	/*
 	std::vector<std::shared_ptr<Device>> devices;
 	getDevices(devices);
 
@@ -382,15 +386,18 @@ void PositionControlledMachine::deviceGui() {
 			ImGui::EndTabBar();
 		}
 	}
+	 */
 }
 
 void PositionControlledMachine::metricsGui() {
+	/*
 	if (!isAxisConnected()) {
 		ImGui::Text("No Axis Connected");
 		return;
 	}
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 	axis->metricsGui();
+	 */
 }
 
 
@@ -410,6 +417,7 @@ void PositionControlledMachine::ControlWidget::gui(){
 
 void PositionControlledMachine::widgetGui(){
 		
+	/*
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
 	
 	glm::vec2 contentSize = controlWidget->getFixedContentSize();
@@ -544,4 +552,5 @@ void PositionControlledMachine::widgetGui(){
 	machineStateControlGui(contentSize.x);
 	
 	ImGui::PopStyleVar();
+	 */
 }

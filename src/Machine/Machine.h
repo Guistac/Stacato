@@ -177,5 +177,23 @@ public:
 	virtual bool saveMachine(tinyxml2::XMLElement* xml) = 0;
 	virtual bool loadMachine(tinyxml2::XMLElement* xml) = 0;
 
-	//TODO: reference to stage geometry, mesh index, available meshes...
 };
+
+//animatable controls the virtual target value
+//rapidAnimatableToValue()
+//cancelAnimatableRapid()
+//getAnimatableRapidProgress()
+//startAnimationPlayback()
+//interruptAnimationPlayback()
+//endAnimationPlayback()
+
+//animatable owner: generates the outputs to follow the virtual target
+//isAnimatableReadyToStartPlaybackFromValue()
+//also is ready to rapid / move ?
+//onAnimationPlaybackStart()
+//onAnimationPlaybackInterrupt()
+//onAnimationPlaybackEnd()
+//getActualAnimatableValue()
+//fillAnimationDefaults()
+//validateAnimation()
+//generateTargetAnimation()
