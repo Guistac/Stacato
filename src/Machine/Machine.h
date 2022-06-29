@@ -53,9 +53,6 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual bool loadMachine(tinyxml2::XMLElement* xml) override;																				\
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output) override;																\
 	/*AnimatableOwner Specific*/																												\
-	virtual void onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable) override;														\
-	virtual void onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable) override;													\
-	virtual void onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable) override;														\
 	virtual void fillAnimationDefaults(std::shared_ptr<Animation> animation) override;															\
 
 #define DEFINE_HOMEABLE_MACHINE 							\
@@ -119,10 +116,6 @@ public:
 	virtual bool needsOutputProcess() override { return true; }
 	
 	//===== ANIMATABLES ======
-		
-	virtual void onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable) = 0;
-	virtual void onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable) = 0;
-	virtual void onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable) = 0;
 	
 	virtual void fillAnimationDefaults(std::shared_ptr<Animation> animation) = 0;
 	

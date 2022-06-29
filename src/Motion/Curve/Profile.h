@@ -321,6 +321,10 @@ public:
 		return 1.0;
 	}
 	
+	bool hasInterpolationTarget(){
+		return targetInterpolation != nullptr;
+	}
+	
 	bool isInterpolationFinished(double time){
 		return targetInterpolation->getProgressAtTime(time) >= 1.0;
 	}

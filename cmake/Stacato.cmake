@@ -122,8 +122,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/Playback.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/TimeStringConversion.h
 
-    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableBoolean.h
-    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableBoolean.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatablePosition.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatablePosition.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableState.h

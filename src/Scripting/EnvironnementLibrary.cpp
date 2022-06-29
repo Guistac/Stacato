@@ -6,7 +6,6 @@
 #include "Environnement/Environnement.h"
 #include "Machine/Machine.h"
 
-#include "Animation/Animatables/AnimatableBoolean.h"
 #include "Animation/Animatables/AnimatableState.h"
 #include "Animation/Animatables/AnimatablePosition.h"
 
@@ -18,8 +17,6 @@ namespace Scripting::EnvironnementLibrary{
 
 	LuaSharedPointer<Machine, "Machine"> lua_Machine;
 	LuaSharedPointer<Animatable, "Animatable"> lua_Animatable;
-
-	LuaSharedPointer<AnimatableBoolean, "AnimatableBoolean"> lua_AnimatableBoolean;
 
 	LuaSharedPointer<AnimatableState, "AnimatableState"> lua_AnimatableState;
 	LuaPointer<AnimatableStateStruct, "AnimatableStateStruct"> lua_AnimatableStateStruct;
@@ -108,8 +105,6 @@ namespace Scripting::EnvironnementLibrary{
 			for(auto& animatable : machine->getAnimatables()){
 				if(strcmp(animatable->getName(), animatableName) == 0){
 					switch(animatable->getType()){
-						case AnimatableType::BOOLEAN:
-							lua_AnimatableBoolean.push(L, animatable->toBoolean()); return 1;
 						case AnimatableType::STATE:
 							lua_AnimatableState.push(L, animatable->toState()); return 1;
 						case AnimatableType::POSITION:
@@ -166,9 +161,6 @@ namespace Scripting::EnvironnementLibrary{
 	
 		int pushAnimationValue(lua_State* L, std::shared_ptr<AnimationValue> value){
 			switch(value->getType()){
-				case AnimatableType::BOOLEAN:
-					lua_pushboolean(L, value->toBoolean()->value);
-					return 1;
 				case AnimatableType::STATE:
 					lua_AnimatableStateStruct.push(L, value->toState()->value);
 					return 1;
@@ -265,9 +257,6 @@ namespace Scripting::EnvironnementLibrary{
 		lua_Animatable.addMethod("getActualValue", Lua_Animatable::getActualValue);
 		lua_Animatable.addMethod("getAnimationValue", Lua_Animatable::getAnimationValue);
 		lua_Animatable.declare(L);
-		
-		lua_AnimatableBoolean.inherit(lua_Animatable);
-		lua_AnimatableBoolean.declare(L);
 		
 		lua_AnimatableState.addMethod("getStates", Lua_AnimatableState::getStates);
 		lua_AnimatableState.inherit(lua_Animatable);

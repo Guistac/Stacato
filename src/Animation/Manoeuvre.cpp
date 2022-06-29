@@ -56,7 +56,7 @@ std::shared_ptr<Manoeuvre> Manoeuvre::load(tinyxml2::XMLElement* xml){
 }
 
 
-class SetManoeuvreTypeCommand : public Command{
+class SetManoeuvreTypeCommand : public UndoableCommand{
 public:
 	
 	std::shared_ptr<Manoeuvre> manoeuvre;
@@ -64,13 +64,13 @@ public:
 	std::vector<std::shared_ptr<Animation>> oldTracks;
 	std::vector<std::shared_ptr<Animation>> newTracks;
 	
-	SetManoeuvreTypeCommand(std::string& name, std::shared_ptr<Manoeuvre> manoeuvre_, ManoeuvreType newType_) : Command(name){
+	SetManoeuvreTypeCommand(std::string& name, std::shared_ptr<Manoeuvre> manoeuvre_, ManoeuvreType newType_) : UndoableCommand(name){
 		manoeuvre = manoeuvre_;
 		newType = newType_;
 		oldTracks = manoeuvre->getAnimations();
 	}
 	
-	virtual void execute(){
+	virtual void onExecute(){
 		for(int i = 0; i < manoeuvre->getAnimations().size(); i++){
 			std::shared_ptr<Animation>& animation = manoeuvre->getAnimations()[i];
 			animation = Animation::create(animation->getAnimatable(), newType);
@@ -80,11 +80,11 @@ public:
 		newTracks = manoeuvre->getAnimations();
 		manoeuvre->updateTrackSummary();
 	}
-	virtual void undo(){
+	virtual void onUndo(){
 		manoeuvre->getAnimations() = oldTracks;
 		manoeuvre->updateTrackSummary();
 	}
-	virtual void redo(){
+	virtual void onRedo(){
 		manoeuvre->getAnimations() = newTracks;
 		manoeuvre->updateTrackSummary();
 	}
@@ -99,8 +99,7 @@ std::shared_ptr<Manoeuvre> Manoeuvre::make(ManoeuvreType type){
 	manoeuvre->type->setEditCallback([manoeuvre](std::shared_ptr<Parameter> parameter){
 		auto typeParameter = std::dynamic_pointer_cast<EnumeratorParameter<ManoeuvreType>>(parameter);
 		std::string commandName = "Set Manoeuvre type to " + std::string(Enumerator::getDisplayString(manoeuvre->getType()));
-		auto setManoeuvreTypeCommand = std::make_shared<SetManoeuvreTypeCommand>(commandName, manoeuvre, typeParameter->value);
-		CommandHistory::pushAndExecute(setManoeuvreTypeCommand);
+		std::make_shared<SetManoeuvreTypeCommand>(commandName, manoeuvre, typeParameter->value)->execute();
 	});
 	return manoeuvre;
 }
@@ -125,19 +124,19 @@ std::shared_ptr<Manoeuvre> Manoeuvre::copy(){
 
 
 
-class AddAnimationCommand : public Command{
+class AddAnimationCommand : public UndoableCommand{
 public:
 	
 	std::shared_ptr<Animatable> animatable;
 	std::shared_ptr<Animation> addedAnimation;
 	std::shared_ptr<Manoeuvre> manoeuvre;
 	
-	AddAnimationCommand(std::string& name, std::shared_ptr<Animatable> animatable_, std::shared_ptr<Manoeuvre> manoeuvre_) : Command(name){
+	AddAnimationCommand(std::string& name, std::shared_ptr<Animatable> animatable_, std::shared_ptr<Manoeuvre> manoeuvre_) : UndoableCommand(name){
 		animatable = animatable_;
 		manoeuvre = manoeuvre_;
 	}
 	
-	virtual void execute(){
+	virtual void onExecute(){
 		addedAnimation = animatable->makeAnimation(manoeuvre->getType());
 		manoeuvre->getAnimations().push_back(addedAnimation);
 		addedAnimation->setManoeuvre(manoeuvre);
@@ -145,7 +144,7 @@ public:
 		addedAnimation->validate();
 	}
 	
-	virtual void undo(){
+	virtual void onUndo(){
 		auto& animations = manoeuvre->getAnimations();
 		for(int i = 0; i < animations.size(); i++){
 			if(animations[i] == addedAnimation){
@@ -157,7 +156,7 @@ public:
 		manoeuvre->updateTrackSummary();
 	}
 	
-	virtual void redo(){
+	virtual void onRedo(){
 		manoeuvre->getAnimations().push_back(addedAnimation);
 		addedAnimation->subscribeToMachineParameter();
 		manoeuvre->updateTrackSummary();
@@ -167,8 +166,7 @@ public:
 
 void Manoeuvre::addAnimation(std::shared_ptr<Animatable> animatable) {
 	std::string name = "Add Animation " + /*std::string(animatable->getMachine()->getName()) + " : " +*/ std::string(animatable->getName());
-	auto command = std::make_shared<AddAnimationCommand>(name, animatable, shared_from_this());
-	CommandHistory::pushAndExecute(command);
+	std::make_shared<AddAnimationCommand>(name, animatable, shared_from_this())->execute();
 }
 
 
@@ -179,7 +177,7 @@ void Manoeuvre::addAnimation(std::shared_ptr<Animatable> animatable) {
 
 
 
-class RemoveAnimationCommand : public Command{
+class RemoveAnimationCommand : public UndoableCommand{
 public:
 	
 	std::shared_ptr<Animatable> removedAnimatable;
@@ -187,12 +185,12 @@ public:
 	std::shared_ptr<Manoeuvre> manoeuvre;
 	int removeIndex;
 	
-	RemoveAnimationCommand(std::string& name, std::shared_ptr<Animatable> removedParameter_, std::shared_ptr<Manoeuvre> manoeuvre_) : Command(name){
+	RemoveAnimationCommand(std::string& name, std::shared_ptr<Animatable> removedParameter_, std::shared_ptr<Manoeuvre> manoeuvre_) : UndoableCommand(name){
 		removedAnimatable = removedParameter_;
 		manoeuvre = manoeuvre_;
 	}
 	
-	virtual void execute(){
+	virtual void onExecute(){
 		auto& animations = manoeuvre->getAnimations();
 		for (int i = 0; i < animations.size(); i++) {
 			if (animations[i]->getAnimatable() == removedAnimatable) {
@@ -206,7 +204,7 @@ public:
 		manoeuvre->updateTrackSummary();
 	}
 	
-	virtual void undo(){
+	virtual void onUndo(){
 		auto& animations = manoeuvre->getAnimations();
 		animations.insert(animations.begin() + removeIndex, removedAnimation);
 		removedAnimation->subscribeToMachineParameter();
@@ -218,8 +216,7 @@ public:
 void Manoeuvre::removeAnimation(std::shared_ptr<Animatable> animatable) {
 	if(hasAnimation(animatable)){
 		std::string name = "Remove Animation " + /*std::string(animatable->getMachine()->getName()) + " : " +*/ std::string(animatable->getName());
-		auto command = std::make_shared<RemoveAnimationCommand>(name, animatable, shared_from_this());
-		CommandHistory::pushAndExecute(command);
+		std::make_shared<RemoveAnimationCommand>(name, animatable, shared_from_this())->execute();
 	}
 }
 
@@ -228,26 +225,26 @@ void Manoeuvre::removeAnimation(std::shared_ptr<Animatable> animatable) {
 
 
 
-class MoveAnimationCommand : public Command{
+class MoveAnimationCommand : public UndoableCommand{
 public:
 	
 	int newIndex, oldIndex;
 	std::shared_ptr<Manoeuvre> manoeuvre;
 	
-	MoveAnimationCommand(std::string& name, int oldIndex_, int newIndex_, std::shared_ptr<Manoeuvre> manoeuvre_) : Command(name){
+	MoveAnimationCommand(std::string& name, int oldIndex_, int newIndex_, std::shared_ptr<Manoeuvre> manoeuvre_) : UndoableCommand(name){
 		manoeuvre = manoeuvre_;
 		oldIndex = oldIndex_;
 		newIndex = newIndex_;
 	}
 	
-	virtual void execute(){
+	virtual void onExecute(){
 		auto& animations = manoeuvre->getAnimations();
 		auto temp = animations[oldIndex];
 		animations.erase(animations.begin() + oldIndex);
 		animations.insert(animations.begin() + newIndex, temp);
 	}
 	
-	virtual void undo(){
+	virtual void onUndo(){
 		auto& animations = manoeuvre->getAnimations();
 		auto temp = animations[newIndex];
 		animations.erase(animations.begin() + newIndex);
@@ -263,8 +260,7 @@ void Manoeuvre::moveAnimation(int oldIndex, int newIndex){
 	if(newIndex >= animations.size()) return;
 	if(oldIndex == newIndex) return;
 	std::string name = "Move Animation " + std::string(animations[oldIndex]->getAnimatable()->getName());
-	auto command = std::make_shared<MoveAnimationCommand>(name, oldIndex, newIndex, shared_from_this());
-	CommandHistory::pushAndExecute(command);
+	std::make_shared<MoveAnimationCommand>(name, oldIndex, newIndex, shared_from_this())->execute();
 }
 
 

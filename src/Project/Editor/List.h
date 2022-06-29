@@ -61,21 +61,22 @@ public:
 		int idx = index;
 		if(index < 0 || index >= elements.size()) idx = elements.size();
 		auto thisList = this->shared_from_this();
-		CommandHistory::pushAndExecute(std::make_shared<AddElementCommand>(element, thisList, idx));
+		auto command = std::make_shared<AddElementCommand>(element, thisList, idx);
+		command->execute();
 	}
 	
 	void removeElement(int index){
 		if(index < 0 || index >= elements.size()) return;
 		T element = elements[index];
 		auto thisList = this->shared_from_this();
-		CommandHistory::pushAndExecute(std::make_shared<RemoveElementCommand>(element, thisList, index));
+		std::make_shared<RemoveElementCommand>(element, thisList, index)->execute();
 	}
 	
 	void moveElement(int oldIndex, int newIndex){
 		if(oldIndex < 0 || oldIndex >= elements.size()) return;
 		if(newIndex < 0 || newIndex >= elements.size()) return;
 		auto thisList = this->shared_from_this();
-		CommandHistory::pushAndExecute(std::make_shared<MoveElementCommand>(thisList, oldIndex, newIndex));
+		std::make_shared<MoveElementCommand>(thisList, oldIndex, newIndex)->execute();
 	}
 	
 	
@@ -85,71 +86,71 @@ private:
 	std::vector<T> elements;
 	
 	
-	class AddElementCommand : public Command{
+	class AddElementCommand : public UndoableCommand{
 	public:
 		T element;
 		std::shared_ptr<List> list;
 		int index;
 		
 		AddElementCommand(T element_, std::shared_ptr<List> list_, int index_) :
-		Command("Added Element at index " + std::to_string(index)){
+		UndoableCommand("Added Element at index " + std::to_string(index)){
 			element = element_;
 			list = list_;
 			index = index_;
 		}
 		
-		virtual void execute(){
+		virtual void onExecute(){
 			list->elements.insert(list->elements.begin() + index, element);
 		}
 		
-		virtual void undo(){
+		virtual void onUndo(){
 			list->elements.erase(list->elements.begin() + index);
 		}
 	};
 
 	
-	class RemoveElementCommand : public Command{
+	class RemoveElementCommand : public UndoableCommand{
 	public:
 		T element;
 		std::shared_ptr<List> list;
 		int index;
 		
 		RemoveElementCommand(T element_, std::shared_ptr<List> list_, int index_) :
-		Command("Added Element at index " + std::to_string(index)){
+		UndoableCommand("Removed Element at index " + std::to_string(index)){
 			element = element_;
 			list = list_;
 			index = index_;
 		}
 		
-		virtual void execute(){
+		virtual void onExecute(){
 			list->elements.erase(list->elements.begin() + index);
 		}
 		
-		virtual void undo(){
+		virtual void onUndo(){
 			list->elements.insert(list->elements.begin() + index, element);
 		}
 	};
 	
-	class MoveElementCommand : public Command{
+	class MoveElementCommand : public UndoableCommand{
 	public:
 		std::shared_ptr<List> list;
 		int oldIndex;
 		int newIndex;
 		
 		MoveElementCommand(std::shared_ptr<List> list_, int oldIndex_, int newIndex_) :
-		Command("Moved Element at index " + std::to_string(oldIndex) + " to index " + std::to_string(newIndex)){
+		UndoableCommand("Moved Element at index " + std::to_string(oldIndex) + " to index " + std::to_string(newIndex)){
 			list = list_;
 			oldIndex = oldIndex_;
 			newIndex = newIndex_;
 		}
 		
-		virtual void execute(){
+		virtual void onExecute(){
 			T tmp = list->elements[oldIndex];
 			list->elements.erase(list->elements.begin() + oldIndex);
 			list->elements.insert(list->elements.begin() + newIndex, tmp);
 		}
 		
-		virtual void undo(){
+		virtual void onUndo(){
 			T tmp = list->elements[newIndex];
 			list->elements.erase(list->elements.begin() + newIndex);
 			list->elements.insert(list->elements.begin() + oldIndex, tmp);

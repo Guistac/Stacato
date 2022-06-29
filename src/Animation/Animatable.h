@@ -5,6 +5,7 @@
 class Parameter;
 class Machine;
 class Animation;
+class TargetAnimation;
 
 class AnimatableComposite;
 class AnimatableNumber;
@@ -49,29 +50,35 @@ public:
 	std::vector<std::shared_ptr<Animation>>& getAnimations(){ return animations; }
 	
 	//animation currently animating this animatable
+	bool hasAnimation(){ return currentAnimation != nullptr; }
 	std::shared_ptr<Animation> getAnimation(){ return currentAnimation; }
 	
 	//animatable value retrieval
 	std::shared_ptr<AnimationValue> getAnimationValue();
-	void updateActualValue(std::shared_ptr<AnimationValue> newActualValue){ actualValue = newActualValue; }
-	std::shared_ptr<AnimationValue> getActualValue(){ return actualValue; }
+
+	virtual void updateTargetValue(double time_seconds, double deltaTime_seconds) = 0;
+	virtual std::shared_ptr<AnimationValue> getTargetValue() = 0;
+	
+	virtual void updateActualValue(std::shared_ptr<AnimationValue> newActualValue) = 0;
+	virtual std::shared_ptr<AnimationValue> getActualValue() = 0;
+	
+	virtual void updateDisabled() = 0;
 	
 	//—————————————— Commands ———————————————
 	
 public:
-	virtual bool generateTargetAnimation(std::shared_ptr<Animation> animation) = 0;
+	virtual bool generateTargetAnimation(std::shared_ptr<TargetAnimation> animation) = 0;
 	virtual bool validateAnimation(std::shared_ptr<Animation> animation) = 0;
 	
 	virtual bool isReadyToMove() = 0;
 	virtual bool isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationValue> animationValue) = 0; //this doesn't make a whole lot of sense
 	
 	void rapidToValue(std::shared_ptr<AnimationValue> animationValue);
-	virtual float getRapidProgress() = 0;
 	virtual bool isInRapid() = 0;
+	virtual float getRapidProgress() = 0;
 	virtual void cancelRapid() = 0;
 	
 	void startAnimation(std::shared_ptr<Animation> animation);
-	bool hasAnimation(){ return currentAnimation != nullptr; }
 	void interruptAnimation();
 	void endAnimation();
 	
@@ -79,6 +86,20 @@ public:
 	
 private:
 	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) = 0;
+	virtual void onPlaybackStart() = 0;
+	virtual void onPlaybackInterrupt() = 0;
+	virtual void onPlaybackEnd() = 0;
+	virtual void onStop() = 0;
+	
+	//———————————— Manual Controls —————————————
+	
+public:
+	virtual bool hasManualControls() = 0;
+	void setManualControlTarget(float x, float y = 0.0, float z = 0.0){
+		stop();
+		onSetManualControlTarget(x, y, z);
+	}
+	virtual void onSetManualControlTarget(float x, float y, float z) = 0;
 	
 	//—————————————— Virtual Methods ——————————
 	
@@ -101,7 +122,6 @@ private:
 	std::shared_ptr<AnimatableComposite> parentComposite;
 	std::shared_ptr<Animation> currentAnimation;
 	std::vector<std::shared_ptr<Animation>> animations;
-	std::shared_ptr<AnimationValue> actualValue;
 };
 
 

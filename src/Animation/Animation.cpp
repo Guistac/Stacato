@@ -185,6 +185,9 @@ std::shared_ptr<AnimationValue> Animation::getValueAtPlaybackTime(){
 	return animatable->getValueAtAnimationTime(shared_from_this(), playbackPosition_seconds);
 }
 
+
+
+
 void Animation::startPlayback(){
 	if(!isReadyToStartPlayback()) return;
 	animatable->startAnimation(shared_from_this());
@@ -200,6 +203,8 @@ void Animation::endPlayback(){
 	setPlaybackPosition(0.0);
 	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
 }
+
+
 
 void Animation::stop(){
 	if(isPlaying()) animatable->interruptAnimation();

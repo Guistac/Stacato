@@ -58,14 +58,14 @@ namespace Gui {
 		if (ImGui::BeginMenu("Edit")) {
 			
 			static char undoMenuString[256];
-			if(CommandHistory::canUndo()) sprintf(undoMenuString, "Undo %s", CommandHistory::getUndoableCommand()->getName());
+			if(CommandHistory::canUndo()) sprintf(undoMenuString, "Undo %s", CommandHistory::getUndoableCommand()->getName().c_str());
 			else sprintf(undoMenuString, "Undo");
 			ImGui::BeginDisabled(!CommandHistory::canUndo());
 			if(ImGui::MenuItem(undoMenuString, "Cmd Z")) CommandHistory::undo();
 			ImGui::EndDisabled();
 			
 			static char redoMenuString[256];
-			if(CommandHistory::canRedo()) sprintf(redoMenuString, "Redo %s", CommandHistory::getRedoableCommand()->getName());
+			if(CommandHistory::canRedo()) sprintf(redoMenuString, "Redo %s", CommandHistory::getRedoableCommand()->getName().c_str());
 			else sprintf(redoMenuString, "Redo");
 			ImGui::BeginDisabled(!CommandHistory::canRedo());
 			if(ImGui::MenuItem(redoMenuString, "Cmd Shift Z")) CommandHistory::redo();

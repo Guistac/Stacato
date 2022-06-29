@@ -3,78 +3,89 @@
 
 #include "Project/Project.h"
 
+
 namespace CommandHistory{
-
-	std::vector<std::shared_ptr<Command>> history;
+	
+	std::vector<std::shared_ptr<UndoableCommand>> history;
 	size_t undoableCommandCount = 0;
-	std::shared_ptr<Command> currentCommand = nullptr;
 
-	std::vector<std::shared_ptr<Command>>& get(){
-		return history;
-	}
+	std::shared_ptr<UndoableCommand> currentCommand = nullptr;
 
-	size_t getUndoableCommandCount(){
-		return undoableCommandCount;
-	}
-
-	void pushAndExecute(std::shared_ptr<Command> command){
-		if(currentCommand == nullptr) {
+	void push(std::shared_ptr<UndoableCommand> command){
+		if(currentCommand){
+			Logger::trace("Executing Undoable SideEffect: {}", command->getName());
+			currentCommand->addSideEffect(command);
+			command->onExecute();
+		}else{
 			currentCommand = command;
-			command->execute(); //if other commands get execute by this one, they will get added to the original commands side effects
+			Logger::trace("Executing Undoable Command: {}", command->getName());
+			command->onExecute();
 			if(undoableCommandCount < history.size()) history.erase(history.begin() + undoableCommandCount, history.end());
 			history.push_back(command);
 			undoableCommandCount++;
 			currentCommand = nullptr;
 		}
-		else{
-			currentCommand->addSideEffect(command);
-			command->execute();
-		}
-		Project::setModified();
 	}
 
-	bool canUndo(){
-		return undoableCommandCount > 0;
-	}
+	bool canUndo(){ return undoableCommandCount > 0; }
 
-	bool canRedo(){
-		return undoableCommandCount < history.size();
-	}
+	bool canRedo(){ return undoableCommandCount < history.size(); }
 
 	void undo(){
 		if(!canUndo()) return;
 		undoableCommandCount--;
-		std::shared_ptr<Command> undoneCommand = history[undoableCommandCount];
-		auto& sideEffects = undoneCommand->getSideEffects();
-		for(int i = sideEffects.size() - 1; i >= 0; i--) sideEffects[i]->undo();
-		undoneCommand->undo();
+		
+		//undo all side effects in reverse order, the undo command
+		auto command = history[undoableCommandCount];
+		for(int i = command->getSideEffects().size() - 1; i >= 0; i--) {
+			auto sideEffect = command->getSideEffects()[i];
+			Logger::trace("Undoing SideEffect: {}", sideEffect->getName());
+			sideEffect->onUndo();
+		}
+		Logger::trace("Undoing Command: {}", command->getName());
+		command->onUndo();
+		
 		Project::setModified();
 	}
 
 	void redo(){
 		if(!canRedo()) return;
-		std::shared_ptr<Command> redoneCommand = history[undoableCommandCount];
-		currentCommand = redoneCommand;
-		redoneCommand->redo();
-		auto& sideEffects = redoneCommand->getSideEffects();
-		for(int i = 0; i < sideEffects.size(); i++) sideEffects[i]->redo();
-		currentCommand = nullptr;
+		
+		//redo command, the redo all side effects in order
+		auto command = history[undoableCommandCount];
+		Logger::trace("Redoing Command: {}", command->getName());
+		command->onRedo();
+		for(int i = 0; i < command->getSideEffects().size(); i++) {
+			auto sideEffect = command->getSideEffects()[i];
+			Logger::trace("Redoing SideEffect: {}", sideEffect->getName());
+			sideEffect->onRedo();
+		}
+		
+		
 		undoableCommandCount++;
 		Project::setModified();
 	}
 
-	std::shared_ptr<Command> getUndoableCommand(){
+
+	std::shared_ptr<UndoableCommand> getUndoableCommand(){
 		if(canUndo()) return history[undoableCommandCount - 1];
 		return nullptr;
 	}
 
-	std::shared_ptr<Command> getRedoableCommand(){
+	std::shared_ptr<UndoableCommand> getRedoableCommand(){
 		if(canRedo()) return history[undoableCommandCount];
 		return nullptr;
 	}
+
+	std::vector<std::shared_ptr<UndoableCommand>>& get(){ return history; }
+
+	size_t getUndoableCommandCount(){ return undoableCommandCount; }
 
 }
 
 
 
-
+void UndoableCommand::execute(){
+	auto thisCommand = shared_from_this();
+	CommandHistory::push(thisCommand);
+}

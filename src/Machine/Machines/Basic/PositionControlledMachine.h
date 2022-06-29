@@ -32,11 +32,10 @@ class PositionControlledMachine : public Machine{
 	virtual void onPinUpdate(std::shared_ptr<NodePin> pin) override;
 	virtual void onPinConnection(std::shared_ptr<NodePin> pin) override;
 	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin) override;
+	
+	void updateAnimatableParameters();
 
 	//————————— Settings ——————————
-
-	double rapidVelocity_machineUnitsPerSecond = 0.0;
-	double rapidAcceleration_machineUnitsPerSecond = 0.0;
 
 	double machineZero_axisUnits = 0.0;
 	bool b_invertDirection = false;
@@ -67,4 +66,6 @@ class PositionControlledMachine : public Machine{
 		virtual glm::vec2 getFixedContentSize() override;
 	};
 	std::shared_ptr<ControlWidget> controlWidget;
+	double velocitySliderValue = .0f;
+	double positionTargetValue = .0f;
 };

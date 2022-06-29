@@ -6,8 +6,10 @@ class EtherCatDevice;
 class Machine;
 class Plot;
 class NetworkDevice;
+class CommandExecutor;
 
 class Script;
+class Command;
 
 namespace Environnement{
 
@@ -18,9 +20,6 @@ namespace Environnement{
 
 	void initialize();
 	void terminate();
-
-	void open();
-	void close();
 
 	//project text information
 	void setName(const char* _name);
@@ -66,4 +65,6 @@ namespace Environnement{
 	void lockEditor();
 	void unlockEditor();
 	bool checkEditorPassword(const char* password);
+
+	std::recursive_mutex* getMutex();
 };

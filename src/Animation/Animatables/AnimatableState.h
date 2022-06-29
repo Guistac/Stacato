@@ -42,13 +42,36 @@ public:
 
 	virtual bool isReadyToMove() override {}
 	virtual bool isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationValue> animationValue) override {}
-	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) override {}
 	virtual bool isInRapid() override {}
 	virtual float getRapidProgress() override {}
 	virtual void cancelRapid() override {}
 	
+	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) override {}
+	virtual void onPlaybackStart() override{}
+	virtual void onPlaybackInterrupt() override{}
+	virtual void onPlaybackEnd() override{}
+	virtual void onStop() override{}
 	
-	virtual bool generateTargetAnimation(std::shared_ptr<Animation> animation) override {
+	virtual bool hasManualControls() override { return true; }
+	virtual void onSetManualControlTarget(float x, float y, float z) override {}
+	
+	
+	virtual void updateTargetValue(double time_seconds, double deltaTime_seconds) override{}
+	virtual std::shared_ptr<AnimationValue> getTargetValue() override{}
+	
+	virtual void updateActualValue(std::shared_ptr<AnimationValue> newActualValue) override{}
+	virtual std::shared_ptr<AnimationValue> getActualValue() override{
+		auto actual = AnimationValue::makeState();
+		actual->value = &states->front();
+		return actual;
+	}
+	
+	virtual void updateDisabled() override{}
+	
+	
+	
+	
+	virtual bool generateTargetAnimation(std::shared_ptr<TargetAnimation> animation) override {
 		return false;
 	}
 	

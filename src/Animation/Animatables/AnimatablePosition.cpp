@@ -4,6 +4,7 @@
 #include "Project/Editor/Parameter.h"
 #include "Animation/Animation.h"
 #include "Motion/MotionTypes.h"
+#include "Machine/Machine.h"
 
 std::vector<InterpolationType>& AnimatablePosition::getCompatibleInterpolationTypes(){
 	static std::vector<InterpolationType> compatibleInterpolationTypes = { InterpolationType::TRAPEZOIDAL };
@@ -49,14 +50,9 @@ std::vector<double> AnimatablePosition::getCurvePositionsFromAnimationValue(std:
 	return std::vector<double>{value->toPosition()->position};
 }
 
-
-
-
-bool AnimatablePosition::generateTargetAnimation(std::shared_ptr<Animation> animation){
-	/*
-	if(animation->getAnimatable() != animatablePosition) return false;
+bool AnimatablePosition::generateTargetAnimation(std::shared_ptr<TargetAnimation> animation){
 	
-	auto target = animatablePosition->parameterValueToAnimationValue(animation->target)->toPosition();
+	auto target = parameterValueToAnimationValue(animation->target)->toPosition();
 	double inAcceleration = animation->inAcceleration->value;
 	double outAcceleration = animation->outAcceleration->value;
 	TargetAnimation::Constraint constraint = animation->getConstraintType();
@@ -80,7 +76,7 @@ bool AnimatablePosition::generateTargetAnimation(std::shared_ptr<Animation> anim
 	
 	if(constraint == TargetAnimation::Constraint::TIME){
 		endPoint->time = animation->timeConstraint->value;
-		interpolation = Motion::TrapezoidalInterpolation::getTimeConstrainedOrSlower(startPoint, endPoint, getAxis()->getVelocityLimit());
+		interpolation = Motion::TrapezoidalInterpolation::getTimeConstrainedOrSlower(startPoint, endPoint, velocityLimit);
 	}else if(constraint == TargetAnimation::Constraint::VELOCITY){
 		double velocityConstraint = animation->velocityConstraint->value;
 		interpolation = Motion::TrapezoidalInterpolation::getVelocityConstrained(startPoint, endPoint, velocityConstraint);
@@ -104,61 +100,39 @@ bool AnimatablePosition::generateTargetAnimation(std::shared_ptr<Animation> anim
 	animation->setDuration(interpolation->getDuration());
 	animation->setPlaybackPosition(0.0);
 	return true;
-	 */
-	
-	return false;
 }
-
-
-
-
 
 bool AnimatablePosition::validateAnimation(std::shared_ptr<Animation> animation){
 	
-	/*
 	using namespace Motion;
 	
-	if (animation->getAnimatable() != animatablePosition) {
-		animation->appendValidationErrorString("Unknown Parameter");
-		return false;
-	}
-	else if (!isAxisConnected()) {
-		animation->appendValidationErrorString("No Axis Connected To Machine");
-		return false;
-	}
-	
-	bool b_trackValid = true;
-	
-	double lowLimit_machineUnits = getLowPositionLimit();
-	double highLimit_machineUnits = getHighPositionLimit();
-	double velocityLimit_machineUnits = getAxis()->getVelocityLimit();
-	double accelerationLimit_machineUnits = getAxis()->getAccelerationLimit();
+	bool b_animationValid = true;
 	
 	auto validatePosition = [&](std::shared_ptr<BaseNumberParameter> animatablePosition){
-		if(!animatablePosition->validateRange(lowLimit_machineUnits, highLimit_machineUnits)){
-			std::string error = std::string(animatablePosition->getName()) + " is out of range. (" + std::to_string(lowLimit_machineUnits) + " - " + std::to_string(highLimit_machineUnits) + ")";
+		if(!animatablePosition->validateRange(lowerPositionLimit, upperPositionLimit)){
+			std::string error = std::string(animatablePosition->getName()) + " is out of range. (" + std::to_string(lowerPositionLimit) + " - " + std::to_string(upperPositionLimit) + ")";
 			animation->appendValidationErrorString(error);
-			b_trackValid = false;
+			b_animationValid = false;
 		}
 	};
 	
 	auto validateVelocity = [&](std::shared_ptr<NumberParameter<double>> velocityParameter){
-		if(!velocityParameter->validateRange(0.0, std::abs(velocityLimit_machineUnits), false, true)){
+		if(!velocityParameter->validateRange(0.0, std::abs(velocityLimit), false, true)){
 			std::string error = std::string(velocityParameter->getName()) + " ";
 			if(velocityParameter->getReal() == 0.0) error += "is Zero";
-			else error += "is out of range. (max: " + std::to_string(std::abs(velocityLimit_machineUnits)) + ")";
+			else error += "is out of range. (max: " + std::to_string(std::abs(velocityLimit)) + ")";
 			animation->appendValidationErrorString(error);
-			b_trackValid = false;
+			b_animationValid = false;
 		}
 	};
 	
 	auto validateAcceleration = [&](std::shared_ptr<NumberParameter<double>> accelerationParameter){
-		if(!accelerationParameter->validateRange(0.0, std::abs(accelerationLimit_machineUnits), false, true)){
+		if(!accelerationParameter->validateRange(0.0, std::abs(accelerationLimit), false, true)){
 			std::string error = std::string(accelerationParameter->getName()) + " ";
 			if(accelerationParameter->getReal() == 0.0) error += "is Zero";
-			else error += "is out of range. (max: " + std::to_string(std::abs(accelerationLimit_machineUnits)) + ")";
+			else error += "is out of range. (max: " + std::to_string(std::abs(accelerationLimit)) + ")";
 			animation->appendValidationErrorString(error);
-			b_trackValid = false;
+			b_animationValid = false;
 		}
 	};
 	
@@ -197,13 +171,13 @@ bool AnimatablePosition::validateAnimation(std::shared_ptr<Animation> animation)
 		//validate all control points
 		for (auto& controlPoint : curve.getPoints()) {
 			//check all validation conditions and find validaiton error state
-			if (controlPoint->position < lowLimit_machineUnits || controlPoint->position > highLimit_machineUnits)
+			if (controlPoint->position < lowerPositionLimit || controlPoint->position > upperPositionLimit)
 				controlPoint->validationError = ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
-			else if (std::abs(controlPoint->velocity) > velocityLimit_machineUnits)
+			else if (std::abs(controlPoint->velocity) > velocityLimit)
 				controlPoint->validationError = ValidationError::CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED;
-			else if (std::abs(controlPoint->inAcceleration) > accelerationLimit_machineUnits)
+			else if (std::abs(controlPoint->inAcceleration) > accelerationLimit)
 				controlPoint->validationError = ValidationError::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED;
-			else if (std::abs(controlPoint->outAcceleration) > accelerationLimit_machineUnits)
+			else if (std::abs(controlPoint->outAcceleration) > accelerationLimit)
 				controlPoint->validationError = ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED;
 			else if (controlPoint->inAcceleration == 0.0)
 				controlPoint->validationError = ValidationError::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO;
@@ -241,7 +215,7 @@ bool AnimatablePosition::validateAnimation(std::shared_ptr<Animation> animation)
 			auto trapezoidalInteroplation = interpolation->castToTrapezoidal();
 			
 			//check if the velocity of the interpolation exceeds the limit
-			if (std::abs(trapezoidalInteroplation->coastVelocity) > velocityLimit_machineUnits) {
+			if (std::abs(trapezoidalInteroplation->coastVelocity) > velocityLimit) {
 				interpolation->validationError = ValidationError::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED;
 				interpolation->b_valid = false;
 				if(sequence->isSimple()) {
@@ -253,7 +227,7 @@ bool AnimatablePosition::validateAnimation(std::shared_ptr<Animation> animation)
 			}
 			//if all interpolation checks passed, we check all interpolation preview points for their range
 			for (auto& point : interpolation->displayPoints) {
-				if (point.position > highLimit_machineUnits || point.position < lowLimit_machineUnits) {
+				if (point.position > upperPositionLimit || point.position < lowerPositionLimit) {
 					interpolation->validationError = ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
 					interpolation->b_valid = false;
 					animation->appendValidationErrorString("Interpolation is out of range: check the curve editor for details.");
@@ -268,13 +242,224 @@ bool AnimatablePosition::validateAnimation(std::shared_ptr<Animation> animation)
 		curve.b_valid = b_curveValid;
 		if(!b_curveValid){
 			animation->appendValidationErrorString("Curve could not be validated : check the Curve editor for details.");
-			b_trackValid = false;
+			b_animationValid = false;
 		}
 	}
 	
 	//we return the result of the validation
-	return b_trackValid;
-	 */
-	return false;
+	return b_animationValid;
 }
 
+
+
+
+
+
+
+
+
+
+
+bool AnimatablePosition::isReadyToMove(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	return !getMachine()->isEnabled() || getMachine()->isHoming();
+}
+
+bool AnimatablePosition::isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationValue> animationValue){
+	const std::lock_guard<std::mutex> lock(mutex);
+	return animationValue->toPosition()->position == getActualPosition();
+}
+
+bool AnimatablePosition::isInRapid(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	return motionProfile.hasInterpolationTarget();
+}
+
+float AnimatablePosition::getRapidProgress(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	return motionProfile.getInterpolationProgress(profileTime_seconds);
+}
+
+void AnimatablePosition::cancelRapid(){
+	setVelocityTarget(0.0);
+}
+
+void AnimatablePosition::onRapidToValue(std::shared_ptr<AnimationValue> animationValue){
+	moveToPositionWithVelocity(animationValue->toPosition()->position, rapidVelocity);
+}
+
+void AnimatablePosition::onSetManualControlTarget(float x, float y, float z){
+	setVelocityTarget(velocityLimit * x);
+}
+
+
+
+
+
+
+
+
+
+void AnimatablePosition::setVelocityTarget(double velocityTarget){
+	const std::lock_guard<std::mutex> lock(mutex);
+	velocitySetpoint = std::clamp(velocityTarget, -velocityLimit, velocityLimit);
+	controlMode = VELOCITY_SETPOINT;
+	motionProfile.resetInterpolation();
+}
+
+void AnimatablePosition::moveToPositionWithVelocity(double targetPosition, double targetVelocity){
+	const std::lock_guard<std::mutex> lock(mutex);
+	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
+	motionProfile.moveToPositionWithVelocity(profileTime_seconds, targetPosition, targetVelocity, rapidAcceleration);
+	controlMode = POSITION_TARGET;
+}
+
+void AnimatablePosition::moveToPositionInTime(double targetPosition, double targetTime){
+	const std::lock_guard<std::mutex> lock(mutex);
+	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
+	motionProfile.moveToPositionInTime(profileTime_seconds, targetPosition, targetTime, rapidAcceleration, velocityLimit);
+	controlMode = POSITION_TARGET;
+}
+
+
+
+
+
+
+
+bool AnimatablePosition::hasPositionSetpoint(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	return controlMode == POSITION_SETPOINT || controlMode == POSITION_TARGET || hasAnimation();
+}
+double AnimatablePosition::getPositionSetpoint(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	double target;
+	if(controlMode == POSITION_TARGET) target = motionProfile.getInterpolationTarget();
+	else target = getTargetValue()->toPosition()->position;
+	return target;
+}
+double AnimatablePosition::getPositionSetpointNormalized(){
+	return (getPositionSetpoint() - lowerPositionLimit) / (upperPositionLimit - lowerPositionLimit);
+}
+
+
+bool AnimatablePosition::hasVelocitySetpoint(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	return isReadyToMove();
+}
+double AnimatablePosition::getVelocitySetpoint(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	return getTargetValue()->toPosition()->velocity;
+}
+double AnimatablePosition::getVelocitySetpointNormalized(){
+	return getVelocitySetpoint() / velocityLimit;
+}
+
+
+double AnimatablePosition::getActualPosition(){
+	return getActualValue()->toPosition()->position;
+}
+double AnimatablePosition::getActualPositionNormalized(){
+	return (getActualPosition() - lowerPositionLimit) / (upperPositionLimit - lowerPositionLimit);
+}
+
+
+double AnimatablePosition::getActualVelocity(){
+	return getActualValue()->toPosition()->velocity;
+}
+double AnimatablePosition::getActualVelocityNormalized(){
+	return getActualVelocity() / velocityLimit;
+}
+
+double AnimatablePosition::getActualAcceleration(){
+	return getActualValue()->toPosition()->acceleration;
+}
+double AnimatablePosition::getActualAccelerationNormalized(){
+	return getActualAcceleration() / accelerationLimit;
+}
+
+
+
+
+
+
+
+
+
+
+
+void AnimatablePosition::updateActualValue(std::shared_ptr<AnimationValue> newActualValue){
+	const std::lock_guard<std::mutex> lock(mutex);
+	actualValue = newActualValue->toPosition();
+}
+
+std::shared_ptr<AnimationValue> AnimatablePosition::getActualValue(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	return actualValue;
+}
+
+void AnimatablePosition::updateDisabled(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	auto newTargetValue = AnimationValue::makePosition();
+	newTargetValue->position = actualValue->position;
+	newTargetValue->velocity = actualValue->velocity;
+	newTargetValue->acceleration = actualValue->acceleration;
+	targetValue = newTargetValue;
+}
+
+void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_seconds){
+	const std::lock_guard<std::mutex> lock(mutex);
+	profileTime_seconds = time_seconds;
+	
+	if(hasAnimation()){
+		auto target = getAnimationValue()->toPosition();
+		motionProfile.matchPositionAndRespectPositionLimits(deltaT_seconds,
+															target->position,
+															target->velocity,
+															target->acceleration,
+															accelerationLimit,
+															velocityLimit,
+															lowerPositionLimit,
+															upperPositionLimit);
+	}else{
+		switch(controlMode){
+			case VELOCITY_SETPOINT:
+				motionProfile.matchVelocityAndRespectPositionLimits(deltaT_seconds,
+																	velocitySetpoint,
+																	rapidAcceleration,
+																	lowerPositionLimit,
+																	upperPositionLimit,
+																	rapidAcceleration);
+				break;
+			case POSITION_SETPOINT:
+				motionProfile.matchPositionAndRespectPositionLimits(deltaT_seconds,
+																	positionSetpoint,
+																	0.0,
+																	0.0,
+																	accelerationLimit,
+																	velocityLimit,
+																	lowerPositionLimit,
+																	upperPositionLimit);
+				break;
+			case POSITION_TARGET:
+				motionProfile.updateInterpolation(profileTime_seconds);
+				if(motionProfile.isInterpolationFinished(profileTime_seconds)) {
+					controlMode = VELOCITY_SETPOINT;
+					velocitySetpoint = 0.0;
+				}
+				break;
+		}
+	}
+		
+	//generate an output target value to be read by the machine
+	auto newTargetValue = AnimationValue::makePosition();
+	newTargetValue->position = motionProfile.getPosition();
+	newTargetValue->velocity = motionProfile.getVelocity();
+	newTargetValue->acceleration = motionProfile.getAcceleration();
+	targetValue = newTargetValue;
+}
+
+std::shared_ptr<AnimationValue> AnimatablePosition::getTargetValue(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	return targetValue;
+}

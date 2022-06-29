@@ -10,7 +10,7 @@
 //			Add Manoeuvre
 //————————————————————————————————
 
-class AddManoeuvreCommand : public Command{
+class AddManoeuvreCommand : public UndoableCommand{
 public:
 	
 	std::shared_ptr<ManoeuvreList> manoeuvreList;
@@ -18,12 +18,12 @@ public:
 	int addedIndex;
 	ManoeuvreType type;
 	
-	AddManoeuvreCommand(std::string& name, std::shared_ptr<ManoeuvreList> manoeuvreList_, ManoeuvreType type_) : Command(name){
+	AddManoeuvreCommand(std::string name, std::shared_ptr<ManoeuvreList> manoeuvreList_, ManoeuvreType type_) : UndoableCommand(name){
 		manoeuvreList = manoeuvreList_;
 		type = type_;
 	}
 	
-	virtual void execute(){
+	virtual void onExecute(){
 		addedManoeuvre = Manoeuvre::make(ManoeuvreType::KEY);
 		addedManoeuvre->overwriteType(type);
 		addedManoeuvre->setDescription("");
@@ -41,7 +41,7 @@ public:
 		addedManoeuvre->select();
 	}
 	
-	virtual void undo(){
+	virtual void onUndo(){
 		auto& manoeuvres = manoeuvreList->getManoeuvres();
 		for(int i = 0; i < manoeuvres.size(); i++){
 			if(manoeuvres[i] == addedManoeuvre){
@@ -52,7 +52,7 @@ public:
 		addedManoeuvre->unsubscribeAllTracksFromMachineParameter();
 		addedManoeuvre->deselect();
 	}
-	virtual void redo(){
+	virtual void onRedo(){
 		auto& manoeuvres = manoeuvreList->getManoeuvres();
 		manoeuvres.insert(manoeuvres.begin() + addedIndex, addedManoeuvre);
 		addedManoeuvre->subscribeAllTracksToMachineParameter();
@@ -61,10 +61,7 @@ public:
 };
 
 void ManoeuvreList::addManoeuvre() {
-	std::string name = "Add Manoeuvre";
-	auto thisPlot = shared_from_this();
-	auto command = std::make_shared<AddManoeuvreCommand>(name, thisPlot, ManoeuvreType::KEY);
-	CommandHistory::pushAndExecute(command);
+	std::make_shared<AddManoeuvreCommand>("Add Manoeuvre", shared_from_this(), ManoeuvreType::KEY)->execute();
 }
 
 
@@ -75,19 +72,19 @@ void ManoeuvreList::addManoeuvre() {
 //————————————————————————————————
 
 
-class DeleteManoeuvreCommand : public Command{
+class DeleteManoeuvreCommand : public UndoableCommand{
 public:
 	
 	std::shared_ptr<ManoeuvreList> manoeuvreList;
 	std::shared_ptr<Manoeuvre> deletedManoeuvre;
 	int deletedIndex;
 	
-	DeleteManoeuvreCommand(std::string name, std::shared_ptr<ManoeuvreList> manoeuvreList_, std::shared_ptr<Manoeuvre> deleted_) : Command(name){
+	DeleteManoeuvreCommand(std::string name, std::shared_ptr<ManoeuvreList> manoeuvreList_, std::shared_ptr<Manoeuvre> deleted_) : UndoableCommand(name){
 		manoeuvreList = manoeuvreList_;
 		deletedManoeuvre = deleted_;
 	}
 	
-	virtual void execute(){
+	virtual void onExecute(){
 		auto& manoeuvres = manoeuvreList->getManoeuvres();
 		for (int i = 0; i < manoeuvres.size(); i++) {
 			if (manoeuvres[i] == deletedManoeuvre) {
@@ -99,7 +96,7 @@ public:
 		deletedManoeuvre->unsubscribeAllTracksFromMachineParameter();
 		deletedManoeuvre->deselect();
 	}
-	virtual void undo(){
+	virtual void onUndo(){
 		auto& manoeuvres = manoeuvreList->getManoeuvres();
 		manoeuvres.insert(manoeuvres.begin() + deletedIndex, deletedManoeuvre);
 		deletedManoeuvre->subscribeAllTracksToMachineParameter();
@@ -111,8 +108,7 @@ void ManoeuvreList::deleteSelectedManoeuvre() {
 	auto selectedManoeuvre = getPlot()->getSelectedManoeuvre();
 	if (selectedManoeuvre && selectedManoeuvre->isInManoeuvreList()) {
 		std::string name = "Delete Manoeuvre " + std::string(selectedManoeuvre->getName());
-		auto command = std::make_shared<DeleteManoeuvreCommand>(name, shared_from_this(), selectedManoeuvre);
-		CommandHistory::pushAndExecute(command);
+		std::make_shared<DeleteManoeuvreCommand>(name, shared_from_this(), selectedManoeuvre)->execute();
 	}
 }
 
@@ -123,7 +119,7 @@ void ManoeuvreList::deleteSelectedManoeuvre() {
 //		Duplicate Manoeuvre
 //————————————————————————————————
 
-class DuplicateManoeuvreCommand : public Command{
+class DuplicateManoeuvreCommand : public UndoableCommand{
 public:
 	
 	std::shared_ptr<ManoeuvreList> manoeuvreList;
@@ -131,12 +127,12 @@ public:
 	std::shared_ptr<Manoeuvre> copy;
 	int insertIndex;
 	
-	DuplicateManoeuvreCommand(std::string& name, std::shared_ptr<Manoeuvre> original_, std::shared_ptr<ManoeuvreList> manoeuvreList_) : Command(name){
+	DuplicateManoeuvreCommand(std::string& name, std::shared_ptr<Manoeuvre> original_, std::shared_ptr<ManoeuvreList> manoeuvreList_) : UndoableCommand(name){
 		original = original_;
 		manoeuvreList = manoeuvreList_;
 	}
 	
-	virtual void execute(){
+	virtual void onExecute(){
 		copy = original->copy();
 		copy->validateAllParameterTracks();
 		auto& manoeuvres = manoeuvreList->getManoeuvres();
@@ -145,12 +141,12 @@ public:
 		copy->updateTrackSummary();
 		copy->select();
 	}
-	virtual void undo(){
+	virtual void onUndo(){
 		auto& manoeuvres = manoeuvreList->getManoeuvres();
 		manoeuvres.erase(manoeuvres.begin() + insertIndex);
 		copy->deselect();
 	}
-	virtual void redo(){
+	virtual void onRedo(){
 		auto& manoeuvres = manoeuvreList->getManoeuvres();
 		manoeuvres.insert(manoeuvres.begin() + insertIndex, copy);
 		copy->select();
@@ -162,8 +158,7 @@ void ManoeuvreList::duplicateSelectedManoeuvre() {
 	auto selectedManoeuvre = getPlot()->getSelectedManoeuvre();
 	if (selectedManoeuvre && selectedManoeuvre->isInManoeuvreList()) {
 		std::string name = "Duplicate Manoeuvre " + std::string(selectedManoeuvre->getName());
-		auto command = std::make_shared<DuplicateManoeuvreCommand>(name, selectedManoeuvre, shared_from_this());
-		CommandHistory::pushAndExecute(command);
+		std::make_shared<DuplicateManoeuvreCommand>(name, selectedManoeuvre, shared_from_this())->execute();
 	}
 }
 
@@ -174,27 +169,27 @@ void ManoeuvreList::duplicateSelectedManoeuvre() {
 //			Move Manoeuvre
 //————————————————————————————————
 
-class ReorderManoeuvreCommand : public Command{
+class ReorderManoeuvreCommand : public UndoableCommand{
 public:
 	
 	std::shared_ptr<ManoeuvreList> manoeuvreList;
 	int oldIndex;
 	int newIndex;
 	
-	ReorderManoeuvreCommand(std::string& name, int oldIndex_, int newIndex_, std::shared_ptr<ManoeuvreList> manoeuvreList_) : Command(name){
+	ReorderManoeuvreCommand(std::string& name, int oldIndex_, int newIndex_, std::shared_ptr<ManoeuvreList> manoeuvreList_) : UndoableCommand(name){
 		manoeuvreList = manoeuvreList_;
 		oldIndex = oldIndex_;
 		newIndex = newIndex_;
 	}
 	
-	virtual void execute(){
+	virtual void onExecute(){
 		auto& manoeuvres = manoeuvreList->getManoeuvres();
 		auto temp = manoeuvres[oldIndex];
 		manoeuvres.erase(manoeuvres.begin() + oldIndex);
 		manoeuvres.insert(manoeuvres.begin() + newIndex, temp);
 	}
 	
-	virtual void undo(){
+	virtual void onUndo(){
 		auto& manoeuvres = manoeuvreList->getManoeuvres();
 		auto temp = manoeuvres[newIndex];
 		manoeuvres.erase(manoeuvres.begin() + newIndex);
@@ -206,8 +201,7 @@ public:
 void ManoeuvreList::moveManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre, int newIndex) {
 	std::string name = "Move Manoeuvre " + std::string(manoeuvre->getName());
 	int oldIndex = getManoeuvreIndex(manoeuvre);
-	auto command = std::make_shared<ReorderManoeuvreCommand>(name, oldIndex, newIndex, shared_from_this());
-	CommandHistory::pushAndExecute(command);
+	std::make_shared<ReorderManoeuvreCommand>(name, oldIndex, newIndex, shared_from_this())->execute();
 }
 
 

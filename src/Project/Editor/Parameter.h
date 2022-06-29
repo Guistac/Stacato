@@ -6,12 +6,14 @@
 #include "Gui/Assets/Colors.h"
 #include "Gui/Assets/Fonts.h"
 
+#include "Environnement/Environnement.h"
+
 class BaseNumberParameter;
 
 class Parameter : public std::enable_shared_from_this<Parameter>{
 public:
 	
-	Parameter(std::string name_, std::string saveString_ = ""){
+	Parameter(std::string name_, std::string saveString_){
 		setName(name_);
 		setSaveString(saveString_);
 	}
@@ -54,6 +56,11 @@ public:
 	
 	virtual bool isNumber(){ return false; }
 	std::shared_ptr<BaseNumberParameter> toNumber(){ return std::dynamic_pointer_cast<BaseNumberParameter>(shared_from_this()); }
+	
+	std::recursive_mutex* mutex = nullptr;
+	void setMutex(std::recursive_mutex* mutex_){ mutex = mutex_; }
+	void lockMutex(){ if(mutex) mutex->lock(); }
+	void unlockMutex(){ if(mutex) mutex->unlock(); }
 	
 private:
 	std::function<void(std::shared_ptr<Parameter>)> editCallback;
@@ -184,16 +191,8 @@ public:
 		ImGui::BeginDisabled(isDisabled());
 		ImGui::InputScalar(getImGuiID(), getImGuiDataType(), &displayValue, stepSmallPtr, stepLargePtr, getFormatString());
 		ImGui::EndDisabled();
-		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
-			if(!b_allowNegatives && displayValue < 0) {
-				displayValue = 0;
-				if(value == displayValue) return;
-			}
-			//=========Command Invoker=========
-			std::shared_ptr<NumberParameter<T>> thisParameter = std::dynamic_pointer_cast<NumberParameter<T>>(shared_from_this());
-			std::string commandName = "Changed " + std::string(getName()) + " from " + std::to_string(value) + " to " + std::to_string(displayValue);
-			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
-			//=================================
+		if(ImGui::IsItemDeactivatedAfterEdit()){
+			overwriteWithHistory(displayValue);
 		}
 	}
 	
@@ -219,6 +218,18 @@ public:
 		value = newValue;
 	}
 	
+	void overwriteWithHistory(T newValue){
+		//=========Sanitize Value==========
+		if(!b_allowNegatives && newValue < 0) displayValue = 0;
+		else displayValue = newValue;
+		if(value == newValue) return;
+		//=========Invoke Command=========
+		std::shared_ptr<NumberParameter<T>> thisParameter = std::dynamic_pointer_cast<NumberParameter<T>>(shared_from_this());
+		std::string commandName = "Changed " + std::string(getName()) + " from " + std::to_string(value) + " to " + std::to_string(displayValue);
+		std::make_shared<EditCommand>(thisParameter, commandName)->execute();
+		//=================================
+	}
+	
 	template<typename O>
 	void copyValue(std::shared_ptr<NumberParameter<O>> otherNumberParameter){
 		value = otherNumberParameter->getValue();
@@ -229,27 +240,31 @@ private:
 	ImGuiDataType getImGuiDataType();
 	std::string getDefaultFormatString(){ return "%i"; } //template specialisation for real float and double types
 	
-	class EditCommand : public Command{
+	class EditCommand : public UndoableCommand{
 	public:
 		std::shared_ptr<NumberParameter<T>> parameter;
 		T newValue;
 		T previousValue;
-		EditCommand(std::shared_ptr<NumberParameter<T>> parameter_, std::string& commandName) : Command(commandName){
+		EditCommand(std::shared_ptr<NumberParameter<T>> parameter_, std::string& commandName) : UndoableCommand(commandName){
 			parameter = parameter_;
 			newValue = parameter->displayValue;
 			previousValue = parameter->value;
 		}
 		void setNewValue(){
+			parameter->lockMutex();
 			parameter->value = newValue;
 			parameter->displayValue = newValue;
+			parameter->unlockMutex();
 		}
 		void setOldValue(){
+			parameter->lockMutex();
 			parameter->value = previousValue;
 			parameter->displayValue = previousValue;
+			parameter->unlockMutex();
 		}
-		virtual void execute(){ setNewValue(); parameter->onEdit(); }
-		virtual void undo(){ setOldValue(); }
-		virtual void redo(){ setNewValue(); }
+		virtual void onExecute(){ setNewValue(); parameter->onEdit(); }
+		virtual void onUndo(){ setOldValue(); }
+		virtual void onRedo(){ setNewValue(); }
 	};
 };
 
@@ -305,12 +320,8 @@ public:
 	
 	virtual void onGui() override {
 		inputField();
-		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
-			//=========Command Invoker=========
-			auto thisParameter = std::dynamic_pointer_cast<VectorParameter<T>>(shared_from_this());
-			std::string commandName = "Changed " + std::string(getName()) + " from " + glm::to_string(value) + " to " + glm::to_string(displayValue);
-			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
-			//=================================
+		if(ImGui::IsItemDeactivatedAfterEdit()){
+			overwriteWithHistory(displayValue);
 		}
 	}
 	
@@ -328,30 +339,41 @@ public:
 		value = newValue;
 	}
 	
-	class EditCommand : public Command{
+	void overwriteWithHistory(T newValue){
+		if(value == newValue) return;
+		displayValue = newValue;
+		//=========Command Invoker=========
+		auto thisParameter = std::dynamic_pointer_cast<VectorParameter<T>>(shared_from_this());
+		std::string commandName = "Changed " + std::string(getName()) + " from " + glm::to_string(value) + " to " + glm::to_string(displayValue);
+		std::make_shared<EditCommand>(thisParameter, commandName)->execute();
+		//=================================
+	}
+	
+	class EditCommand : public UndoableCommand{
 	public:
 		std::shared_ptr<VectorParameter<T>> parameter;
 		T newValue;
 		T previousValue;
-		EditCommand(std::shared_ptr<VectorParameter<T>> parameter_, std::string& commandName) : Command(commandName){
+		EditCommand(std::shared_ptr<VectorParameter<T>> parameter_, std::string& commandName) : UndoableCommand(commandName){
 			parameter = parameter_;
 			newValue = parameter->displayValue;
 			previousValue = parameter->value;
 		}
 		void setNewValue(){
+			parameter->lockMutex();
 			parameter->value = newValue;
 			parameter->displayValue = newValue;
+			parameter->unlockMutex();
 		}
 		void setOldValue(){
+			parameter->lockMutex();
 			parameter->value = previousValue;
 			parameter->displayValue = previousValue;
+			parameter->unlockMutex();
 		}
-		virtual void execute(){
-			setNewValue();
-			parameter->onEdit();
-		}
-		virtual void undo(){ setOldValue(); }
-		virtual void redo(){ setNewValue(); }
+		virtual void onExecute(){ setNewValue(); parameter->onEdit(); }
+		virtual void onUndo(){ setOldValue(); }
+		virtual void onRedo(){ setNewValue(); }
 	};
 	
 };
@@ -473,12 +495,8 @@ public:
 		ImGui::BeginDisabled(isDisabled());
 		ImGui::Checkbox(getImGuiID(), &displayValue);
 		ImGui::EndDisabled();
-		if(ImGui::IsItemDeactivatedAfterEdit() && value != displayValue){
-			//=========Command Invoker=========
-			auto thisParameter = std::dynamic_pointer_cast<BooleanParameter>(shared_from_this());
-			std::string commandName = "Inverted " + std::string(getName());
-			CommandHistory::pushAndExecute(std::make_shared<InvertCommand>(thisParameter, commandName));
-			//=================================
+		if(ImGui::IsItemDeactivatedAfterEdit()){
+			overwriteWithHistory(displayValue);
 		}
 	}
 	
@@ -506,19 +524,31 @@ public:
 		value = newValue;
 	}
 	
-	class InvertCommand : public Command{
+	void overwriteWithHistory(bool newValue){
+		if(value == newValue) return;
+		displayValue = newValue;
+		//=========Command Invoker=========
+		auto thisParameter = std::dynamic_pointer_cast<BooleanParameter>(shared_from_this());
+		std::string commandName = "Inverted " + std::string(getName());
+		std::make_shared<InvertCommand>(thisParameter, commandName)->execute();
+		//=================================
+	}
+	
+	class InvertCommand : public UndoableCommand{
 	public:
 		std::shared_ptr<BooleanParameter> parameter;
-		InvertCommand(std::shared_ptr<BooleanParameter> parameter_, std::string& commandName) : Command(commandName){
+		InvertCommand(std::shared_ptr<BooleanParameter> parameter_, std::string& commandName) : UndoableCommand(commandName){
 			parameter = parameter_;
 		}
 		void invert(){
+			parameter->lockMutex();
 			parameter->value = !parameter->value;
 			parameter->displayValue = parameter->value;
+			parameter->unlockMutex();
 		}
-		virtual void execute(){ invert(); parameter->onEdit(); }
-		virtual void undo(){ invert(); }
-		virtual void redo(){ invert(); }
+		virtual void onExecute(){ invert(); parameter->onEdit(); }
+		virtual void onUndo(){ invert(); }
+		virtual void onRedo(){ invert(); }
 	};
 	
 };
@@ -553,12 +583,8 @@ public:
 		ImGui::BeginDisabled(isDisabled());
 		ImGui::InputText(getImGuiID(), displayValue, bufferSize);
 		ImGui::EndDisabled();
-		if(ImGui::IsItemDeactivatedAfterEdit() && strcmp(displayValue, value.c_str()) != 0){
-			//=========Command Invoker=========
-			std::shared_ptr<StringParameter> thisParameter = std::dynamic_pointer_cast<StringParameter>(shared_from_this());
-			std::string commandName = "Changed " + std::string(getName()) + " from \'" + value + "\' to \'" + displayValue + "\'";
-			CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
-			//=================================
+		if(ImGui::IsItemDeactivatedAfterEdit()){
+			overwriteWithHistory(displayValue);
 		}
 	}
 	
@@ -588,27 +614,41 @@ public:
 		value = newValue;
 	}
 	
-	class EditCommand : public Command{
+	void overwriteWithHistory(std::string newValue){
+		if(value == newValue) return;
+		strcpy(displayValue, newValue.c_str());
+		//=========Command Invoker=========
+		std::shared_ptr<StringParameter> thisParameter = std::dynamic_pointer_cast<StringParameter>(shared_from_this());
+		std::string commandName = "Changed " + std::string(getName()) + " from \'" + value + "\' to \'" + displayValue + "\'";
+		std::make_shared<EditCommand>(thisParameter, commandName)->execute();
+		//=================================
+	}
+	
+	class EditCommand : public UndoableCommand{
 	public:
 		std::shared_ptr<StringParameter> parameter;
 		std::string newValue;
 		std::string previousValue;
-		EditCommand(std::shared_ptr<StringParameter> parameter_, std::string& commandName) : Command(commandName){
+		EditCommand(std::shared_ptr<StringParameter> parameter_, std::string& commandName) : UndoableCommand(commandName){
 			parameter = parameter_;
 			newValue = parameter->displayValue;
 			previousValue = parameter->value;
 		}
 		void setNewValue(){
+			parameter->lockMutex();
 			parameter->value = newValue;
 			strcpy(parameter->displayValue, newValue.c_str());
+			parameter->unlockMutex();
 		}
 		void setOldValue(){
+			parameter->lockMutex();
 			parameter->value = previousValue;
 			strcpy(parameter->displayValue, previousValue.c_str());
+			parameter->unlockMutex();
 		}
-		virtual void execute(){ setNewValue(); parameter->onEdit(); }
-		virtual void undo(){ setOldValue(); }
-		virtual void redo(){ setNewValue(); }
+		virtual void onExecute(){ setNewValue(); parameter->onEdit(); }
+		virtual void onUndo(){ setOldValue(); }
+		virtual void onRedo(){ setNewValue(); }
 	};
 	
 };
@@ -644,11 +684,11 @@ public:
 			if(availableValues != nullptr && availableValueCount > 0){
 				for(int i = 0; i < availableValueCount; i++){
 					T type = availableValues[i];
-					if(ImGui::Selectable(Enumerator::getDisplayString(type), type == displayValue)) onChange(type);
+					if(ImGui::Selectable(Enumerator::getDisplayString(type), type == displayValue))  overwriteWithHistory(type);
 				}
 			}else{
 				for(auto& type : Enumerator::getTypes<T>()){
-					if(ImGui::Selectable(type.displayString, type.enumerator == displayValue)) onChange(type.enumerator);
+					if(ImGui::Selectable(type.displayString, type.enumerator == displayValue)) overwriteWithHistory(type.enumerator);
 				}
 			}
 			ImGui::EndCombo();
@@ -683,40 +723,43 @@ public:
 		value = newValue;
 	}
 	
-	class EditCommand : public Command{
+	void overwriteWithHistory(T newValue){
+		if(value == newValue) return;
+		displayValue = newValue;
+		//=========Command Invoker=========
+		std::shared_ptr<EnumeratorParameter<T>> thisParameter = std::dynamic_pointer_cast<EnumeratorParameter<T>>(shared_from_this());
+		std::string commandName = "Changed " + std::string(getName()) + " from \'" + Enumerator::getDisplayString(value) + "\' to \'" + Enumerator::getDisplayString(displayValue) + "\'";
+		std::make_shared<EditCommand>(thisParameter, commandName)->execute();
+		//=================================
+	}
+	
+	class EditCommand : public UndoableCommand{
 	public:
 		std::shared_ptr<EnumeratorParameter<T>> parameter;
 		T oldValue;
 		T newValue;
-		EditCommand(std::shared_ptr<EnumeratorParameter<T>> parameter_, std::string& commandName) : Command(commandName){
+		EditCommand(std::shared_ptr<EnumeratorParameter<T>> parameter_, std::string& commandName) : UndoableCommand(commandName){
 			parameter = parameter_;
 			oldValue = parameter->value;
 			newValue = parameter->displayValue;
 		}
 		void setNewValue(){
+			parameter->lockMutex();
 			parameter->value = newValue;
 			parameter->displayValue = newValue;
+			parameter->unlockMutex();
 		}
 		void setOldValue(){
+			parameter->lockMutex();
 			parameter->value = oldValue;
 			parameter->displayValue = oldValue;
+			parameter->unlockMutex();
 		}
-		virtual void execute(){ setNewValue(); parameter->onEdit(); }
-		virtual void undo(){ setOldValue(); }
-		virtual void redo(){ setNewValue(); }
+		virtual void onExecute(){ setNewValue(); parameter->onEdit(); }
+		virtual void onUndo(){ setOldValue(); }
+		virtual void onRedo(){ setNewValue(); }
 	};
-	
-	private:
-	
-	void onChange(T newValue){
-		displayValue = newValue;
-		//=========Command Invoker=========
-		std::shared_ptr<EnumeratorParameter<T>> thisParameter = std::dynamic_pointer_cast<EnumeratorParameter<T>>(shared_from_this());
-		std::string commandName = "Changed " + std::string(getName()) + " from \'" + Enumerator::getDisplayString(value) + "\' to \'" + Enumerator::getDisplayString(displayValue) + "\'";
-		CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
-		//=================================
-	}
-	
+		
 };
 
 
@@ -746,12 +789,7 @@ public:
 		if(ImGui::BeginCombo(getImGuiID(), displayValue->displayName)){
 			for(auto& entry : *values){
 				if(ImGui::Selectable(entry.displayName, &entry == displayValue)){
-					displayValue = &entry;
-					//=========Command Invoker=========
-					std::shared_ptr<StateParameter> thisParameter = std::dynamic_pointer_cast<StateParameter>(shared_from_this());
-					std::string commandName = "Changed " + std::string(getName()) + " from \'" + value->displayName + "\' to \'" + displayValue->displayName + "\'";
-					CommandHistory::pushAndExecute(std::make_shared<EditCommand>(thisParameter, commandName));
-					//=================================
+					overwriteWithHistory(&entry);
 				}
 			}
 			ImGui::EndCombo();
@@ -791,28 +829,42 @@ public:
 		value = newValue;
 	}
 	
-	class EditCommand : public Command{
+	void overwriteWithHistory(AnimatableStateStruct* newValue){
+		if(value == newValue) return;
+		displayValue = newValue;
+		//=========Command Invoker=========
+		std::shared_ptr<StateParameter> thisParameter = std::dynamic_pointer_cast<StateParameter>(shared_from_this());
+		std::string commandName = "Changed " + std::string(getName()) + " from \'" + value->displayName + "\' to \'" + displayValue->displayName + "\'";
+		std::make_shared<EditCommand>(thisParameter, commandName)->execute();
+		//=================================
+	}
+	
+	class EditCommand : public UndoableCommand{
 	public:
 		std::shared_ptr<StateParameter> parameter;
 		AnimatableStateStruct* oldValue;
 		AnimatableStateStruct* newValue;
 		
-		EditCommand(std::shared_ptr<StateParameter> parameter_, std::string& commandName) : Command(commandName){
+		EditCommand(std::shared_ptr<StateParameter> parameter_, std::string& commandName) : UndoableCommand(commandName){
 			parameter = parameter_;
 			oldValue = parameter->value;
 			newValue = parameter->displayValue;
 		}
 		void setNewValue(){
+			parameter->lockMutex();
 			parameter->value = newValue;
 			parameter->displayValue = newValue;
+			parameter->unlockMutex();
 		}
 		void setOldValue(){
+			parameter->lockMutex();
 			parameter->value = oldValue;
 			parameter->displayValue = oldValue;
+			parameter->unlockMutex();
 		}
-		virtual void execute(){ setNewValue(); parameter->onEdit(); }
-		virtual void undo(){ setOldValue(); }
-		virtual void redo(){ setNewValue(); }
+		virtual void onExecute(){ setNewValue(); parameter->onEdit(); }
+		virtual void onUndo(){ setOldValue(); }
+		virtual void onRedo(){ setNewValue(); }
 	};
 	
 };
@@ -839,10 +891,7 @@ public:
 		ImGui::InputText(getImGuiID(), displayBuffer, 32, ImGuiInputTextFlags_AutoSelectAll);
 		if(ImGui::IsItemDeactivatedAfterEdit()){
 			double newTime = TimeStringConversion::timecodeStringToSeconds(displayBuffer);
-			std::string newTimeString = TimeStringConversion::secondsToTimecodeString(newTime);
-			std::string name = "Change " + std::string(getName()) + " from " + TimeStringConversion::secondsToTimecodeString(value) + " to " + newTimeString;
-			auto command = std::make_shared<EditCommand>(std::dynamic_pointer_cast<TimeParameter>(shared_from_this()), name);
-			CommandHistory::pushAndExecute(command);
+			overwriteWithHistory(newTime);
 		}
 		ImGui::EndDisabled();
 	}
@@ -870,26 +919,37 @@ public:
 		strcpy(displayBuffer, TimeStringConversion::secondsToTimecodeString(newValue).c_str());
 	}
 	
-	class EditCommand : public Command{
+	void overwriteWithHistory(double newValue){
+		if(value == newValue) return;
+		std::string newTimeString = TimeStringConversion::secondsToTimecodeString(newValue);
+		std::string name = "Change " + std::string(getName()) + " from " + TimeStringConversion::secondsToTimecodeString(value) + " to " + newTimeString;
+		std::make_shared<EditCommand>(std::dynamic_pointer_cast<TimeParameter>(shared_from_this()), name)->execute();
+	}
+	
+	class EditCommand : public UndoableCommand{
 	public:
 		std::shared_ptr<TimeParameter> parameter;
 		double oldValue;
 		double newValue;
 		
-		EditCommand(std::shared_ptr<TimeParameter> parameter_, std::string& commandName) : Command(commandName){
+		EditCommand(std::shared_ptr<TimeParameter> parameter_, std::string& commandName) : UndoableCommand(commandName){
 			parameter = parameter_;
 			oldValue = parameter->value;
 			newValue = TimeStringConversion::timecodeStringToSeconds(parameter->displayBuffer);
 		}
 		void setNewValue(){
+			parameter->lockMutex();
 			parameter->overwrite(newValue);
+			parameter->unlockMutex();
 		}
 		void setOldValue(){
+			parameter->lockMutex();
 			parameter->overwrite(oldValue);
+			parameter->unlockMutex();
 		}
-		virtual void execute(){ setNewValue(); parameter->onEdit(); }
-		virtual void undo(){ setOldValue(); }
-		virtual void redo(){ setNewValue(); }
+		virtual void onExecute(){ setNewValue(); parameter->onEdit(); }
+		virtual void onUndo(){ setOldValue(); }
+		virtual void onRedo(){ setNewValue(); }
 	};
 	
 };

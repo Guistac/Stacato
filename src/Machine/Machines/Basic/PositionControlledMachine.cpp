@@ -31,16 +31,24 @@ void PositionControlledMachine::initialize() {
 	controlWidget = std::make_shared<ControlWidget>(thisMachine, getName());
 }
 
+bool PositionControlledMachine::isAxisConnected() {
+	return positionControlledAxisPin->isConnected();
+}
+
+std::shared_ptr<PositionControlledAxis> PositionControlledMachine::getAxis() {
+	return positionControlledAxisPin->getConnectedPins().front()->getSharedPointer<PositionControlledAxis>();
+}
+
 void PositionControlledMachine::onPinUpdate(std::shared_ptr<NodePin> pin){
-	if(pin == positionControlledAxisPin) animatablePosition->setUnit(getAxis()->getPositionUnit());
+	if(pin == positionControlledAxisPin) updateAnimatableParameters();
 }
 
 void PositionControlledMachine::onPinConnection(std::shared_ptr<NodePin> pin){
-	if(pin == positionControlledAxisPin) animatablePosition->setUnit(getAxis()->getPositionUnit());
+	if(pin == positionControlledAxisPin) updateAnimatableParameters();
 }
 
 void PositionControlledMachine::onPinDisconnection(std::shared_ptr<NodePin> pin){
-	if(pin == positionControlledAxisPin) animatablePosition->setUnit(Units::None::None);
+	if(pin == positionControlledAxisPin) updateAnimatableParameters();
 }
 
 bool PositionControlledMachine::isHardwareReady() {
@@ -82,11 +90,11 @@ void PositionControlledMachine::disableHardware() {
 }
 
 void PositionControlledMachine::onEnableHardware() {
+	animatablePosition->stop();
 	Logger::info("Enabled Machine {}", getName());
 }
 
 void PositionControlledMachine::onDisableHardware() {
-	//setVelocityTarget(0.0);
 	animatablePosition->stop();
 	Logger::info("Disabled Machine {}", getName());
 }
@@ -96,30 +104,26 @@ bool PositionControlledMachine::isSimulationReady(){
 }
 
 void PositionControlledMachine::onEnableSimulation() {
-	/*
-	motionProfile.resetInterpolation();
-	motionProfile.setVelocity(0.0);
-	motionProfile.setAcceleration(0.0);
-	setVelocityTarget(0.0);
-	 */
+	animatablePosition->stop();
 }
 
 void PositionControlledMachine::onDisableSimulation() {
 	animatablePosition->stop();
-	/*
-	setVelocityTarget(0.0);
-	motionProfile.setVelocity(0.0);
-	motionProfile.setAcceleration(0.0);
-	 */
 }
 
 void PositionControlledMachine::inputProcess() {
 	if (!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
+	auto actualPosition = AnimationValue::makePosition();
+	actualPosition->position = axisPositionToMachinePosition(axis->getActualPosition());
+	actualPosition->velocity = axisVelocityToMachineVelocity(axis->getActualVelocity());
+	actualPosition->acceleration = axisAccelerationToMachineAcceleration(0.0);
+	animatablePosition->updateActualValue(actualPosition);
+	
 	//Get Realtime values from axis (for position and velocity pins only)
-	*positionPinValue = axisPositionToMachinePosition(axis->getActualPosition());
-	*velocityPinValue = axisVelocityToMachineVelocity(axis->getActualVelocity());
+	*positionPinValue = actualPosition->position;
+	*velocityPinValue = actualPosition->velocity;
 
 	//Handle Axis state changes
 	if (isEnabled() && !axis->isEnabled()) disable();
@@ -127,115 +131,36 @@ void PositionControlledMachine::inputProcess() {
 
 
 void PositionControlledMachine::outputProcess(){
-	if (!isAxisConnected()) return;
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-	
-	//if the axis is not enabled or is homing, the machine has no control over it, we just update the motion profile
 	if (!isEnabled() || isHoming()) {
-		/*
-		motionProfile.setPosition(axis->getActualPosition());
-		motionProfile.setVelocity(axis->getActualVelocity());
-		motionProfile.setAcceleration(0.0);
-		 */
-		return; //don't send motion commands to the axis
+		//if the axis is not enabled or is homing, the animatable doesn't do anything
+		animatablePosition->updateDisabled();
 	}
-	
-	//profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
-	//profileDeltaTime_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
-	
-	//Update Motion Profile
-	/*
-	switch(controlMode){
-		case ControlMode::PARAMETER_TRACK:{
-			auto value = animatablePosition->getAnimationValue()->toPosition();
-			
-			motionProfile.matchPositionAndRespectPositionLimits(profileDeltaTime_seconds,
-																value->position,
-																value->velocity,
-																value->acceleration,
-																rapidAcceleration_machineUnitsPerSecond,
-																rapidVelocity_machineUnitsPerSecond,
-																getLowPositionLimit(),
-																getHighPositionLimit());
-			}break;
-			
-		case ControlMode::VELOCITY_TARGET:{
-			motionProfile.matchVelocityAndRespectPositionLimits(profileDeltaTime_seconds,
-																manualVelocityTarget_machineUnitsPerSecond,
-																rapidAcceleration_machineUnitsPerSecond,
-																getLowPositionLimit(),
-																getHighPositionLimit(),
-																axis->getAccelerationLimit());
-			}break;
-			
-		case ControlMode::POSITION_TARGET:{
-			motionProfile.updateInterpolation(profileTime_seconds);
-			if(motionProfile.isInterpolationFinished(profileTime_seconds)) setVelocityTarget(0.0);
-		}break;
+	else{
+		//else we update the animatable, get its target and send it to the axis
+		double profileTime_seconds = Environnement::getTime_seconds();
+		double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
+		animatablePosition->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+		auto target = animatablePosition->getTargetValue()->toPosition();
+		getAxis()->setMotionCommand(target->position, target->velocity, target->acceleration);
 	}
-	 */
-	
-	//Send motion values to axis profile
-	/*
-	double axisPosition = machinePositionToAxisPosition(motionProfile.getPosition());
-	double axisVelocity = machineVelocityToAxisVelocity(motionProfile.getVelocity());
-	double axisAcceleration = machineAccelerationToAxisAcceleration(motionProfile.getAcceleration());
-	axis->setMotionCommand(axisPosition, axisVelocity, axisAcceleration);
-	 */
 }
 
 void PositionControlledMachine::simulateInputProcess() {
-	if (!isAxisConnected()) return;
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-
-	//update position and velocity pins
-	/*
-	*positionPinValue = motionProfile.getPosition();
-	*velocityPinValue = motionProfile.getVelocity();
-	 */
-	 
-	//Update Time
-	double profileTime_seconds = Environnement::getTime_seconds();
-	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
-
-	//Update Motion Profile
-	/*
-	switch(controlMode){
-			
-		case ControlMode::PARAMETER_TRACK:{
-			auto value = animatablePosition->getAnimationValue()->toPosition();
-			motionProfile.matchPositionAndRespectPositionLimits(profileDeltaTime_seconds,
-																value->position,
-																value->velocity,
-																value->acceleration,
-																rapidAcceleration_machineUnitsPerSecond,
-																rapidVelocity_machineUnitsPerSecond,
-																getLowPositionLimit(),
-																getHighPositionLimit());
-			}break;
-		case ControlMode::VELOCITY_TARGET:{
-			double lowLimit_machineUnits = getLowPositionLimit();
-			double highLimit_machineUnits = getHighPositionLimit();
-			double accelerationLimit = axis->getAccelerationLimit();
-			motionProfile.matchVelocityAndRespectPositionLimits(profileDeltaTime_seconds,
-																  manualVelocityTarget_machineUnitsPerSecond,
-																  rapidAcceleration_machineUnitsPerSecond,
-																  lowLimit_machineUnits,
-																  highLimit_machineUnits,
-																  accelerationLimit);
-		}break;
-			
-		case ControlMode::POSITION_TARGET:{
-			motionProfile.updateInterpolation(profileTime_seconds);
-			if(motionProfile.isInterpolationFinished(profileTime_seconds)) setVelocityTarget(0.0);
-		}break;
-			
-	}
-	 */
-	
+	//nothing to do here
 }
 
-void PositionControlledMachine::simulateOutputProcess(){}
+void PositionControlledMachine::simulateOutputProcess(){
+	if (!isAxisConnected()) return;
+	std::shared_ptr<PositionControlledAxis> axis = getAxis();
+	 
+	double profileTime_seconds = Environnement::getTime_seconds();
+	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
+	animatablePosition->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+	auto target = animatablePosition->getTargetValue()->toPosition();
+	animatablePosition->updateActualValue(target);
+	*positionPinValue = target->position;
+	*velocityPinValue = target->velocity;
+}
 
 bool PositionControlledMachine::canStartHoming(){
 	return isEnabled() && !Environnement::isSimulating();
@@ -266,22 +191,29 @@ const char* PositionControlledMachine::getHomingStateString(){
 }
 
 
-bool PositionControlledMachine::isAxisConnected() {
-	return positionControlledAxisPin->isConnected();
+
+
+
+
+
+void PositionControlledMachine::updateAnimatableParameters(){
+	if(!isAxisConnected()) {
+		animatablePosition->setUnit(Units::None::None);
+		animatablePosition->lowerPositionLimit = 0.0;
+		animatablePosition->upperPositionLimit = 0.0;
+		animatablePosition->velocityLimit = 0.0;
+		animatablePosition->accelerationLimit = 0.0;
+		animatablePosition->rapidVelocity = 0.0;
+		animatablePosition->rapidAcceleration = 0.0;
+		return;
+	}
+	auto axis = getAxis();
+	animatablePosition->setUnit(axis->getPositionUnit());
+	animatablePosition->lowerPositionLimit = axisPositionToMachinePosition(axis->getLowPositionLimit());
+	animatablePosition->upperPositionLimit = axisPositionToMachinePosition(axis->getHighPositionLimit());
+	animatablePosition->velocityLimit = axisVelocityToMachineVelocity(axis->getVelocityLimit());
+	animatablePosition->accelerationLimit = axisAccelerationToMachineAcceleration(axis->getAccelerationLimit());
 }
-
-std::shared_ptr<PositionControlledAxis> PositionControlledMachine::getAxis() {
-	return positionControlledAxisPin->getConnectedPins().front()->getSharedPointer<PositionControlledAxis>();
-}
-
-
-
-
-
-
-
-
-
 
 
 
@@ -292,13 +224,8 @@ std::shared_ptr<PositionControlledAxis> PositionControlledMachine::getAxis() {
 
 //========= ANIMATABLE OWNER ==========
 
-void PositionControlledMachine::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable){}
-
-void PositionControlledMachine::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable){}
-
-void PositionControlledMachine::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable){}
-
 void PositionControlledMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){
+	/*
 	if(animation->getAnimatable() != animatablePosition) return;
 	switch(animation->getType()){
 		case ManoeuvreType::KEY:
@@ -320,6 +247,7 @@ void PositionControlledMachine::fillAnimationDefaults(std::shared_ptr<Animation>
 			animation->toSequence()->outAcceleration->overwrite(rapidAcceleration_machineUnitsPerSecond);
 			break;
 	}
+	*/
 }
 
 
@@ -334,9 +262,9 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 
 	XMLElement* rapidsXML = xml->InsertNewChildElement("Rapids");
-	rapidsXML->SetAttribute("Velocity_machineUnitsPerSecond", rapidVelocity_machineUnitsPerSecond);
-	rapidsXML->SetAttribute("Acceleration_machineUnitsPerSecondSquared", rapidAcceleration_machineUnitsPerSecond);
-	
+	rapidsXML->SetAttribute("Velocity_machineUnitsPerSecond", animatablePosition->rapidVelocity);
+	rapidsXML->SetAttribute("Acceleration_machineUnitsPerSecondSquared", animatablePosition->rapidAcceleration);
+	 
 	XMLElement* machineZeroXML = xml->InsertNewChildElement("MachineZero");
 	machineZeroXML->SetAttribute("MachineZero_AxisUnits", machineZero_axisUnits);
 	machineZeroXML->SetAttribute("InvertAxisDirection", b_invertDirection);
@@ -353,9 +281,9 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 
 	XMLElement* rapidsXML = xml->FirstChildElement("Rapids");
 	if (rapidsXML == nullptr) return Logger::warn("Could not find Rapids attribute");
-	if (rapidsXML->QueryDoubleAttribute("Velocity_machineUnitsPerSecond", &rapidVelocity_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could find rapid velocity attribute");
-	if (rapidsXML->QueryDoubleAttribute("Acceleration_machineUnitsPerSecondSquared", &rapidAcceleration_machineUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could find rapid acceleration attribute");
-	
+	if (rapidsXML->QueryDoubleAttribute("Velocity_machineUnitsPerSecond", &animatablePosition->rapidVelocity) != XML_SUCCESS) return Logger::warn("Could find rapid velocity attribute");
+	if (rapidsXML->QueryDoubleAttribute("Acceleration_machineUnitsPerSecondSquared", &animatablePosition->rapidAcceleration) != XML_SUCCESS) return Logger::warn("Could find rapid acceleration attribute");
+	 
 	XMLElement* machineZeroXML = xml->FirstChildElement("MachineZero");
 	if(machineZeroXML == nullptr) return Logger::warn("Could not find Machine Zero Attribute");
 	if(machineZeroXML->QueryDoubleAttribute("MachineZero_AxisUnits", &machineZero_axisUnits) != XML_SUCCESS) return Logger::warn("Could not find machine zero value attribute");

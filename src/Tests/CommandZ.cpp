@@ -29,23 +29,23 @@ struct Thing{
 };
 std::vector<std::shared_ptr<Thing>> things;
 
-class AddThingCommand : public Command{
+class AddThingCommand : public UndoableCommand{
 public:
 	
 	std::vector<std::shared_ptr<Thing>>* thingList;
 	std::vector<std::shared_ptr<Thing>> addedThings;
 
 	AddThingCommand(std::vector<std::shared_ptr<Thing>>* thingList_, std::vector<std::shared_ptr<Thing>> addedThings_) :
-	Command("Added " + std::to_string(addedThings.size()) + " Things"){
+	UndoableCommand("Added " + std::to_string(addedThings.size()) + " Things"){
 		thingList = thingList_;
 		addedThings = addedThings_;
 	}
 	
-	virtual void execute(){
+	virtual void onExecute(){
 		thingList->insert(thingList->end(), addedThings.begin(), addedThings.end());
 	}
 	
-	virtual void undo(){
+	virtual void onUndo(){
 		for(int i = 0; i < addedThings.size(); i++){
 			std::shared_ptr<Thing> deletedThing = addedThings[i];
 			for(int j = 0; j < thingList->size(); j++){
@@ -119,8 +119,7 @@ void testUndoHistory(){
 				addedThings.push_back(newThing);
 			}
 			std::vector<std::shared_ptr<Thing>>* list = &things;
-			auto addThingCommand = std::make_shared<AddThingCommand>(list, addedThings);
-			CommandHistory::pushAndExecute(addThingCommand);
+			std::make_shared<AddThingCommand>(list, addedThings)->execute();
 			
 			if(num == 2){
 				std::vector<std::shared_ptr<Thing>> moreThings;
@@ -130,8 +129,7 @@ void testUndoHistory(){
 					moreThings.push_back(newThing);
 				}
 				std::vector<std::shared_ptr<Thing>>* list = &things;
-				auto addThingCommand = std::make_shared<AddThingCommand>(list, moreThings);
-				CommandHistory::pushAndExecute(addThingCommand);
+				std::make_shared<AddThingCommand>(list, moreThings)->execute();
 			}
 		});
 	}
@@ -223,7 +221,7 @@ void testUndoHistory(){
 	
 	if(ImGui::BeginListBox("##History", ImGui::GetContentRegionAvail())){
 		int topIndex = CommandHistory::getUndoableCommandCount();
-		std::vector<std::shared_ptr<Command>>& history = CommandHistory::get();
+		std::vector<std::shared_ptr<UndoableCommand>>& history = CommandHistory::get();
 		bool b_disabled = false;
 		for(int i = 0; i < history.size(); i++){
 			if(i == topIndex){
@@ -233,12 +231,12 @@ void testUndoHistory(){
 			
 			auto& command = history[i];
 			
-			if(command->getSideEffects().empty()) ImGui::Selectable(command->getName());
+			if(command->getSideEffects().empty()) ImGui::Selectable(command->getName().c_str());
 			else{
-				if(ImGui::TreeNode(command->getName())){
+				if(ImGui::TreeNode(command->getName().c_str())){
 					
 					for(auto& sideEffect : command->getSideEffects()){
-						ImGui::Selectable(sideEffect->getName());
+						ImGui::Selectable(sideEffect->getName().c_str());
 					}
 					
 					ImGui::TreePop();

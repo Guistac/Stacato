@@ -6,15 +6,12 @@
 
 #include "Animatables/AnimatableState.h"
 #include "Animatables/AnimatablePosition.h"
-#include "Animatables/AnimatableBoolean.h"
 
 
 //——————————————————— Type Casting ————————————————————
 
 std::shared_ptr<AnimatableState> Animatable::toState(){ return std::dynamic_pointer_cast<AnimatableState>(shared_from_this()); }
 std::shared_ptr<AnimatablePosition> Animatable::toPosition(){ return std::dynamic_pointer_cast<AnimatablePosition>(shared_from_this()); }
-std::shared_ptr<AnimatableBoolean> Animatable::toBoolean(){ return std::dynamic_pointer_cast<AnimatableBoolean>(shared_from_this()); }
-
 
 
 
@@ -40,6 +37,7 @@ void Animatable::unsubscribeAnimation(std::shared_ptr<Animation> animation){
 }
 
 
+//—————————————— MOTION COMMANDS ——————————————————
 
 void Animatable::startAnimation(std::shared_ptr<Animation> animation){
 	assert(animation->getAnimatable() == shared_from_this());
@@ -48,18 +46,18 @@ void Animatable::startAnimation(std::shared_ptr<Animation> animation){
 	//set animation as current
 	currentAnimation = animation;
 	//notify machine of playback start
-	getMachine()->onAnimationPlaybackStart(shared_from_this());
+	onPlaybackStart();
 }
 
 void Animatable::interruptAnimation(){
 	if(!hasAnimation()) return;
 	currentAnimation = nullptr;
-	getMachine()->onAnimationPlaybackInterrupt(shared_from_this());
+	onPlaybackInterrupt();
 }
 
 void Animatable::endAnimation(){
 	if(!hasAnimation()) return;
-	getMachine()->onAnimationPlaybackEnd(shared_from_this());
+	onPlaybackEnd();
 }
 
 void Animatable::rapidToValue(std::shared_ptr<AnimationValue> animationValue){
@@ -67,9 +65,10 @@ void Animatable::rapidToValue(std::shared_ptr<AnimationValue> animationValue){
 	onRapidToValue(animationValue);
 }
 
-void Animatable::stop(){
+void Animatable::stop(){	
 	if(isInRapid()) cancelRapid();
 	else if(hasAnimation()) interruptAnimation();
+	else onStop();
 }
 
 

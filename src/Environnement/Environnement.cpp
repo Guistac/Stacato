@@ -19,7 +19,12 @@
 
 #include "Gui/Environnement/EnvironnementGui.h"
 
+#include "Project/Editor/CommandHistory.h"
+
 namespace Environnement {
+
+	std::recursive_mutex mutex;
+	std::recursive_mutex* getMutex(){ return &mutex; }
 
 	bool b_isStarting = false;
 	bool b_isRunning = false;
@@ -51,10 +56,6 @@ namespace Environnement {
 		if(isRunning()) stop();
 		EtherCatFieldbus::terminate();
 		Network::terminate();
-	}
-
-	void close(){
-		EtherCatFieldbus::terminate();
 	}
 
 	void start(){
@@ -90,6 +91,7 @@ namespace Environnement {
 
 
 
+	//—————————————— SIMULATION —————————————————
 
 	void startSimulation(){
 		b_isRunning = true;
@@ -117,6 +119,28 @@ namespace Environnement {
 		Environnement::StageVisualizer::start();
 	}
 
+
+	void updateSimulation(){
+		mutex.lock();
+
+		//update simulation time
+		double currentSimulationTime_seconds = Timing::getProgramTime_seconds() - simulationStartTime_seconds;
+		long long int currentSimulationTime_nanoseconds = Timing::getProgramTime_nanoseconds() - simulationStartTime_nanoseconds;
+		simulationTimeDelta_seconds = currentSimulationTime_seconds - simulationTime_seconds;
+		simulationTimeDelta_nanoseconds = currentSimulationTime_nanoseconds - simulationTime_nanoseconds;
+		simulationTime_seconds = currentSimulationTime_seconds;
+		simulationTime_nanoseconds = currentSimulationTime_nanoseconds;
+
+		for(auto& machine : getMachines()) machine->simulateInputProcess();
+
+		PlaybackManager::update();
+
+		for(auto& machine : getMachines()) machine->simulateOutputProcess();
+
+		mutex.unlock();
+	}
+
+
 	void stopSimulation(){
 		disableAllMachines();
 		for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
@@ -125,6 +149,9 @@ namespace Environnement {
 		
 		Environnement::StageVisualizer::stop();
 	}
+
+
+	//—————————————— HARDWARE RUNTIME —————————————————
 
 	std::shared_ptr<NodeGraph::CompiledProcess> ethercatDeviceProcess;
 
@@ -138,10 +165,10 @@ namespace Environnement {
 		
 		EtherCatFieldbus::start();
 		std::thread environnementHardwareStarter([](){
-			//first sleep, to allow the fieldbus some time to start
-			//then check if the fieldbus is starting until it isn't anymore
-			do{ std::this_thread::sleep_for(std::chrono::milliseconds(20));
-			} while(EtherCatFieldbus::isStarting());
+			//wait while the fieldbus is starting
+			while(EtherCatFieldbus::isStarting()) std::this_thread::sleep_for(std::chrono::milliseconds(20));
+			
+			//when done starting, check if start succeded
 			if(!EtherCatFieldbus::isRunning()) {
 				b_isRunning = false;
 				b_isStarting = false;
@@ -159,21 +186,9 @@ namespace Environnement {
 		environnementHardwareStarter.detach();
 	}
 
-
-	void stopHardware(){
-		for(auto& machine : getMachines()) machine->disable();
-		EtherCatFieldbus::stop();
-		for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
-		
-		//execute the input process one last time to propagate disconnection of ethercat devices
-		NodeGraph::executeInputProcess(ethercatDeviceProcess);
-		
-		b_isRunning = false;
-	}
-
-
 	void updateEtherCatHardware(){
-				
+		mutex.lock();
+		
 		//interpret all slaves input data if operational
 		for (auto ethercatDevice : EtherCatFieldbus::getDevices()) if (ethercatDevice->isStateOperational()) ethercatDevice->readInputs();
 				
@@ -190,28 +205,23 @@ namespace Environnement {
 		
 		//prepare all slaves output data if operational
 		for (auto ethercatDevice : EtherCatFieldbus::getDevices()) if (ethercatDevice->isStateOperational()) ethercatDevice->writeOutputs();
+		
+		mutex.unlock();
 	}
 
-	void updateSimulation(){
-				
-		//get current time
-		double currentSimulationTime_seconds = Timing::getProgramTime_seconds() - simulationStartTime_seconds;
-		long long int currentSimulationTime_nanoseconds = Timing::getProgramTime_nanoseconds() - simulationStartTime_nanoseconds;
+	void stopHardware(){
+		for(auto& machine : getMachines()) machine->disable();
+		EtherCatFieldbus::stop();
+		for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
 		
-		//update time deltas
-		simulationTimeDelta_seconds = currentSimulationTime_seconds - simulationTime_seconds;
-		simulationTimeDelta_nanoseconds = currentSimulationTime_nanoseconds - simulationTime_nanoseconds;
+		//execute the input process one last time to propagate disconnection of ethercat devices
+		NodeGraph::executeInputProcess(ethercatDeviceProcess);
 		
-		//update current time
-		simulationTime_seconds = currentSimulationTime_seconds;
-		simulationTime_nanoseconds = currentSimulationTime_nanoseconds;
-		
-		for(auto& machine : getMachines()) machine->simulateInputProcess();
-		
-		PlaybackManager::update();
-		
-		for(auto& machine : getMachines()) machine->simulateOutputProcess();
+		b_isRunning = false;
 	}
+
+
+
 
 
 	double getTime_seconds(){

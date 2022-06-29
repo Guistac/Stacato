@@ -1,7 +1,7 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="M-0" Description="" Type="Key">
-            <Animation Machine="Costière A" MachineUniqueID="118" Parameter="Position" IsComposite="false" Type="Key" Target="2"/>
+        <Manoeuvre Name="M-0" Description="" Type="Target">
+            <Animation Machine="Costière A" MachineUniqueID="118" Parameter="Position" IsComposite="false" Type="Target" Target="5" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0.5" EndAcceleration="0.5"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

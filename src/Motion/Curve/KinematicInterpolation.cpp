@@ -324,7 +324,7 @@ std::shared_ptr<TrapezoidalInterpolation> TrapezoidalInterpolation::getTimeConst
 	
 	//first we try finding a solution that matches the requested time exactly and respects the max velocity
 	std::shared_ptr<TrapezoidalInterpolation> timeConstrainedSolution = TrapezoidalInterpolation::getTimeConstrained(startPoint, endPoint);
-	if(timeConstrainedSolution && timeConstrainedSolution->coastVelocity <= maxVelocity) return timeConstrainedSolution;
+	if(timeConstrainedSolution->b_valid && timeConstrainedSolution->coastVelocity <= maxVelocity) return timeConstrainedSolution;
 
 	//if that solution does not exists we get all profiles that use the max velocity
 	//if no solution is found here, there is no solution)

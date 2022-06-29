@@ -101,12 +101,6 @@ const char* MachineTemplate::getHomingStateString(){ return "Homing Step String"
 
 //========= ANIMATABLE OWNER ==========
 
-void MachineTemplate::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable){}
-
-void MachineTemplate::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable){}
-
-void MachineTemplate::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable){}
-
 void MachineTemplate::fillAnimationDefaults(std::shared_ptr<Animation> animation){}
 
 

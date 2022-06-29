@@ -356,12 +356,6 @@ bool HoodedLiftStateMachine::generateTargetAnimation(std::shared_ptr<TargetAnima
 
 //========= ANIMATABLE OWNER ==========
 
-void HoodedLiftStateMachine::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable){}
-
-void HoodedLiftStateMachine::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable){}
-
-void HoodedLiftStateMachine::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable){}
-
 void HoodedLiftStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){}
 
 

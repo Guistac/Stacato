@@ -15,6 +15,8 @@
 #include "Gui/Plot/PlotGui.h"
 #include "Gui/Environnement/Dashboard/Managers.h"
 
+#include "Tests/CommandZ.h"
+
 namespace Gui {
 
 ImGuiID dockspaceID;
