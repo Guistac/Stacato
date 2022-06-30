@@ -14,6 +14,7 @@
 #include "Gui/Environnement/EnvironnementGui.h"
 #include "Gui/Plot/PlotGui.h"
 #include "Gui/Environnement/Dashboard/Managers.h"
+#include "Gui/Plot/PlaybackGui.h"
 
 #include "Tests/CommandZ.h"
 
@@ -37,6 +38,8 @@ void initialize(){
 	PlotGui::CurveEditorWindow::get()->addToDictionnary();
 	Sequencer::Gui::SequencerWindow::get()->addToDictionnary();
 	DashboardWindow::get()->addToDictionnary();
+	Playback::Gui::ActiveAnimationsWindows::get()->addToDictionnary();
+
 	
 #ifdef STACATO_DEBUG
 	Environnement::unlockEditor();

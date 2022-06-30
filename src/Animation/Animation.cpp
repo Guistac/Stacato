@@ -143,10 +143,19 @@ std::shared_ptr<Animation> Animation::load(tinyxml2::XMLElement* xml, std::share
 
 
 
+
+
+//————————— Validation & Filling ——————————
+
 void Animation::fillDefaults(){
 	animatable->getMachine()->fillAnimationDefaults(shared_from_this());
 }
 
+void Animation::validate(){
+	validationErrorString = "";
+	b_valid = getAnimatable()->validateAnimation(shared_from_this());
+	if(hasManoeuvre()) manoeuvre->updateTrackSummary();
+}
 
 void Animation::subscribeToMachineParameter(){
 	animatable->subscribeAnimation(shared_from_this());
@@ -156,65 +165,143 @@ void Animation::unsubscribeFromMachineParameter(){
 	animatable->unsubscribeAnimation(shared_from_this());
 }
 
-void Animation::validate(){
-	validationErrorString = "";
-	b_valid = getAnimatable()->validateAnimation(shared_from_this());
-	if(hasManoeuvre()) manoeuvre->updateTrackSummary();
+
+
+
+
+
+//—————————— Rapids ——————————
+
+bool Animation::isReadyToRapid(){
+	return animatable->isReadyToMove();
 }
 
-bool Animation::isMachineEnabled(){ return animatable->getMachine()->isEnabled(); }
+void Animation::rapidToStart(){
+	if(!canRapidToStart()) return;
+	if(onRapidToStart()){
+		setPlaybackPosition(0.0);
+		playbackState = PlaybackState::IN_RAPID;
+		PlaybackManager::push(shared_from_this());
+	}
+}
 
+void Animation::rapidToTarget(){
+	if(!canRapidToTarget()) return;
+	if(onRapidToTarget()){
+		setPlaybackPosition(duration_seconds);
+		playbackState = PlaybackState::IN_RAPID;
+		PlaybackManager::push(shared_from_this());
+	}
+}
 
-
-
-
-
-bool Animation::isInRapid(){
-	return getRapidProgress() < 1.0;
+void Animation::rapidToPlaybackPosition(){
+	if(!canRapidToPlaybackPosition()) return;
+	if(onRapidToPlaybackPosition()){
+		playbackState = PlaybackState::IN_RAPID;
+		PlaybackManager::push(shared_from_this());
+	}
 }
 
 float Animation::getRapidProgress(){
 	return animatable->getRapidProgress();
 }
 
-bool Animation::isPlaying(){
-	return getAnimatable()->getAnimation() == shared_from_this();
+void Animation::stopRapid(){
+	animatable->cancelRapid();
 }
+
+
+
+
+
+//—————————— Playback ——————————
+
+void Animation::startPlayback(){
+	if(!isReadyToStartPlayback()) return;
+	if(onStartPlayback()){
+		updateDuration();
+		//the offset is to account for starting playback when the playback position is not zero
+		playbackStartTime_microseconds = PlaybackManager::getTime_microseconds() - playbackPosition_seconds * 1000000;
+		playbackState = PlaybackState::PLAYING;
+		PlaybackManager::push(shared_from_this());
+		//stop playback of current animation if there is one playing
+		if(animatable->hasAnimation()) animatable->getAnimation()->stopPlayback();
+		//set animation as current
+		animatable->currentAnimation = shared_from_this();
+		//notify animatable of playback start
+		animatable->onPlaybackStart();
+	}
+}
+
+void Animation::pausePlayback(){
+	if(playbackState != PlaybackState::PLAYING) return;
+	playbackState = PlaybackState::PAUSED;
+	animatable->currentAnimation = nullptr;
+	animatable->onPlaybackPause();
+}
+
+void Animation::stopPlayback(){
+	if(playbackState == PlaybackState::NOT_PLAYING) return;
+	playbackState = PlaybackState::NOT_PLAYING;
+	animatable->currentAnimation = nullptr;
+	animatable->onPlaybackStop();
+	setPlaybackPosition(0.0);
+}
+
+void Animation::endPlayback(){
+	if(playbackState != PlaybackState::PLAYING) return;
+	playbackState = PlaybackState::NOT_PLAYING;
+	animatable->currentAnimation = nullptr;
+	animatable->onPlaybackEnd();
+	setPlaybackPosition(0.0);
+}
+
+
+
+
+
+
+
+bool Animation::isMachineEnabled(){ return animatable->getMachine()->isEnabled(); }
 
 std::shared_ptr<AnimationValue> Animation::getValueAtPlaybackTime(){
 	return animatable->getValueAtAnimationTime(shared_from_this(), playbackPosition_seconds);
 }
 
-
-
-
-void Animation::startPlayback(){
-	if(!isReadyToStartPlayback()) return;
-	animatable->startAnimation(shared_from_this());
-}
-
-void Animation::interruptPlayback(){
-	if(!isPlaying()) return;
-	animatable->interruptAnimation();
-}
-
-void Animation::endPlayback(){
-	if(isPlaying()) animatable->endAnimation();
-	setPlaybackPosition(0.0);
-	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
-}
-
-
-
 void Animation::stop(){
-	if(isPlaying()) animatable->interruptAnimation();
-	else animatable->cancelRapid();
-	setPlaybackPosition(0.0);
-	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
+	switch(playbackState){
+		case PlaybackState::NOT_PLAYING: return;
+		case PlaybackState::PAUSED:
+		case PlaybackState::PLAYING: stopPlayback(); break;
+		case PlaybackState::IN_RAPID: stopRapid(); break;
+	}
 }
 
-void Animation::updatePlaybackStatus(){
-	if(playbackPosition_seconds >= duration_seconds){
-		endPlayback();
+void Animation::updateDuration(){
+	double longestCurveDuration = 0.0;
+	for(auto& curve : getCurves()) {
+		longestCurveDuration = std::max(longestCurveDuration, curve.getLength());
 	}
+	duration_seconds = longestCurveDuration;
+}
+
+void Animation::updatePlaybackState(){
+	switch(playbackState){
+		case PlaybackState::PLAYING:
+			if(playbackPosition_seconds >= duration_seconds && isAtTarget()) stopPlayback();
+			break;
+		case PlaybackState::IN_RAPID:
+			if(!animatable->isInRapid()) {
+				playbackState = PlaybackState::NOT_PLAYING;
+			}
+			break;
+		default:
+			break;
+	}
+	if(manoeuvre) manoeuvre->updatePlaybackStatus();
+}
+
+void Animation::incrementPlaybackPosition(long long playbackTime_microseconds){
+	playbackPosition_seconds = (playbackTime_microseconds - playbackStartTime_microseconds) / 1000000.0;
+	playbackPosition_seconds = std::min(playbackPosition_seconds, duration_seconds);
 }

@@ -212,10 +212,11 @@ bool SequenceAnimation::isAtStart(){
 	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(start), animatable->getActualValue());
 }
 
-void SequenceAnimation::rapidToStart(){
+bool SequenceAnimation::onRapidToStart(){
 	auto animatable = getAnimatable();
 	auto targetValue = animatable->parameterValueToAnimationValue(start);
 	animatable->rapidToValue(targetValue);
+	return true;
 }
 
 bool SequenceAnimation::isAtTarget(){
@@ -223,10 +224,11 @@ bool SequenceAnimation::isAtTarget(){
 	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(target), animatable->getActualValue());
 }
 
-void SequenceAnimation::rapidToTarget(){
+bool SequenceAnimation::onRapidToTarget(){
 	auto animatable = getAnimatable();
 	auto targetValue = animatable->parameterValueToAnimationValue(target);
 	animatable->rapidToValue(targetValue);
+	return true;
 }
 
 bool SequenceAnimation::isAtPlaybackPosition(){
@@ -234,16 +236,17 @@ bool SequenceAnimation::isAtPlaybackPosition(){
 	return animatable->isParameterValueEqual(getValueAtPlaybackTime(), animatable->getActualValue());
 }
 
-void SequenceAnimation::rapidToPlaybackPosition(){
+bool SequenceAnimation::onRapidToPlaybackPosition(){
 	auto animatable = getAnimatable();
 	auto valueAtPlaybackTime = getValueAtPlaybackTime();
 	animatable->rapidToValue(valueAtPlaybackTime);
+	return true;
 }
 
 bool SequenceAnimation::isReadyToStartPlayback(){
 	auto animatable = getAnimatable();
-	if(!getAnimatable()->isReadyToMove()) return false;
-	return getAnimatable()->isReadyToStartPlaybackFromValue(getValueAtPlaybackTime());
+	if(!animatable->isReadyToMove()) return false;
+	return animatable->isReadyToStartPlaybackFromValue(getValueAtPlaybackTime());
 }
 
 

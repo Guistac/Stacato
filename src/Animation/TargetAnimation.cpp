@@ -150,37 +150,27 @@ bool TargetAnimation::isAtTarget(){
 	return animatable->isParameterValueEqual(actualValue, targetValue);
 }
 
-void TargetAnimation::rapidToTarget(){
+bool TargetAnimation::onRapidToTarget(){
 	auto animatable = getAnimatable();
 	auto targetValue = animatable->parameterValueToAnimationValue(target);
 	animatable->rapidToValue(targetValue);
+	return true;
 }
 
 
 bool TargetAnimation::isReadyToStartPlayback(){
-	return isMachineEnabled();
+	auto animatable = getAnimatable();
+	if(!animatable->isReadyToMove()) return false;
+	auto actualValue = animatable->getActualValue();
+	auto targetValue = animatable->parameterValueToAnimationValue(target);
+	bool b_alreadyAtTarget = animatable->isParameterValueEqual(actualValue, targetValue);
+	return !b_alreadyAtTarget;
 }
 
-void TargetAnimation::startPlayback(){
+bool TargetAnimation::onStartPlayback(){
 	if(!isReadyToStartPlayback()) return;
-	getAnimatable()->generateTargetAnimation(shared_from_this()->toTarget());
-	getAnimatable()->startAnimation(shared_from_this());
+	return getAnimatable()->generateTargetAnimation(shared_from_this()->toTarget());
 }
-
-void TargetAnimation::endPlayback(){
-	if(isPlaying()) getAnimatable()->endAnimation();
-	setPlaybackPosition(0.0);
-	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
-	clearCurves();
-}
-
-void TargetAnimation::stop(){
-	getAnimatable()->stop();
-	setPlaybackPosition(0.0);
-	if(hasManoeuvre()) getManoeuvre()->onTrackPlaybackStop();
-	clearCurves();
-}
-
 
 
 

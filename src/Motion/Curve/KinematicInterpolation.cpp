@@ -345,7 +345,10 @@ std::shared_ptr<TrapezoidalInterpolation> TrapezoidalInterpolation::getTimeConst
 		}
 	}
 
-	if(fastestSolution) return std::make_shared<TrapezoidalInterpolation>(*fastestSolution);
+	if(fastestSolution) {
+		endPoint->time = fastestSolution->endTime;
+		return std::make_shared<TrapezoidalInterpolation>(*fastestSolution);
+	}
 	return invalidInterpolation(startPoint, endPoint);
 }
 

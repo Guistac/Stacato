@@ -97,30 +97,29 @@ public:
 	bool canRapidToPlaybackPosition();
 	bool isAtPlaybackPosition();
 	void rapidToPlaybackPosition();
-	
-	bool isInRapid(){ return b_inRapid; }
-	float getRapidProgress();
-	bool isRapidFinished();
 
 	bool canStartPlayback();
 	bool canPausePlayback();
-	bool isPlaying(){ return b_playing; }
-	bool isPaused(){ return b_paused; }
 	void startPlayback();
 	void pausePlayback();
 
-	bool canStop(){ return !isFinished(); }
-	bool isFinished() { return !(b_playing || b_inRapid || b_paused); } //if any of these is true, the manoeuvre is not finished
+	bool canStop();
 	void stop();
 	
 	bool canSetPlaybackPosition();
 	void setPlaybackPosition(double seconds);
 	
-	float getPlaybackProgress(){ return playbackPosition_seconds / duration_seconds; }
-	bool isPlaybackFinished(){ return playbackPosition_seconds >= duration_seconds; }
+	
+	void updatePlaybackState();
+	bool b_hasActiveAnimations = false;
+	bool hasActiveAnimations(){ return b_hasActiveAnimations; }
+	std::vector<std::shared_ptr<Animation>> getActiveAnimations();
+	
 	
 	bool hasDuration();
+	void updateDuration();
 	double getDuration();
+	
 	double getPlaybackPosition();
 	double getRemainingPlaybackTime();
 	
@@ -129,20 +128,11 @@ public:
 	bool areAllMachinesEnabled();
 	bool areNoMachinesEnabled();
 	
-	void incrementPlaybackPosition(long long time_microseconds);
+	//called by animations
 	void updatePlaybackStatus();
-	
-	//called by parameter when a track is stopped
-	void onTrackPlaybackStop();
 
 private:
 	
-	bool b_playing = false;
-	bool b_paused = false;
-	bool b_inRapid = false;
-	
-	long long playbackStartTime_microseconds = 0;
-	double playbackPosition_seconds = 0.0;
 	double duration_seconds = 0.0;
 	
 	//———————————————————————————————

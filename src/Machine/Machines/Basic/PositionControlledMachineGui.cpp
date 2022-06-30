@@ -518,6 +518,18 @@ void PositionControlledMachine::widgetGui(){
 
 	ImGui::EndDisabled();
 	
+	switch(animatablePosition->controlMode){
+		case AnimatablePosition::POSITION_SETPOINT:
+			ImGui::Text("Position Setpoint");
+			break;
+		case AnimatablePosition::POSITION_TARGET:
+			ImGui::Text("Position Target");
+			break;
+		case AnimatablePosition::VELOCITY_SETPOINT:
+			ImGui::Text("Velocity Setpoint");
+			break;
+	}
+	
 	machineStateControlGui(contentSize.x);
 	
 	ImGui::PopStyleVar();

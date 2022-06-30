@@ -92,7 +92,7 @@ void manoeuvrePlaybackControls(float height){
 	//Rapid to playback position
 	ImGui::SameLine();
 	bool atPlayback = !b_noSelection && selectedManoeuvre->isAtPlaybackPosition();
-	ImGui::BeginDisabled(b_noSelection || atPlayback || !selectedManoeuvre->canRapidToPlaybackPosition() || selectedManoeuvre->isPlaying());
+	ImGui::BeginDisabled(b_noSelection || atPlayback || !selectedManoeuvre->canRapidToPlaybackPosition());
 	if(atPlayback) ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 	if(buttonArrowDownStop("rapidToPlaybackPosition", height)) selectedManoeuvre->rapidToPlaybackPosition();
 	if(atPlayback) ImGui::PopStyleColor();
@@ -100,15 +100,15 @@ void manoeuvrePlaybackControls(float height){
 	
 	//Start Playback
 	ImGui::SameLine();
-	if(b_noSelection || !selectedManoeuvre->isPlaying()){
-		ImGui::BeginDisabled(b_noSelection || !selectedManoeuvre->canStartPlayback());
-		if(buttonPlay("PlayManoeuvre", height)) selectedManoeuvre->startPlayback();
-		ImGui::EndDisabled();
-	}else{
-		ImGui::BeginDisabled(!selectedManoeuvre->canPausePlayback());
-		if(buttonPause("PauseManoeuvre", height)) selectedManoeuvre->pausePlayback();
-		ImGui::EndDisabled();
-	}
+	ImGui::BeginDisabled(b_noSelection || !selectedManoeuvre->canStartPlayback());
+	if(buttonPlay("PlayManoeuvre", height)) selectedManoeuvre->startPlayback();
+	ImGui::EndDisabled();
+	
+	//Pause Playback
+	ImGui::SameLine();
+	ImGui::BeginDisabled(!selectedManoeuvre->canPausePlayback());
+	if(buttonPause("PauseManoeuvre", height)) selectedManoeuvre->pausePlayback();
+	ImGui::EndDisabled();
 	
 	//Stop
 	ImGui::SameLine();
@@ -118,12 +118,32 @@ void manoeuvrePlaybackControls(float height){
 	
 	//Stop All
 	ImGui::SameLine();
-	ImGui::BeginDisabled(!PlaybackManager::isAnyManoeuvreActive());
-	if(buttonSTOP("StopAll", height)) PlaybackManager::stopAllManoeuvres();
+	ImGui::BeginDisabled(!PlaybackManager::isAnyAnimationActive());
+	if(buttonSTOP("StopAll", height)) PlaybackManager::stopAllAnimations();
 	ImGui::EndDisabled();
 
 }
 
 void sequencerPlaybackControls(float height){}
+
+
+
+
+
+
+
+
+void ActiveAnimationsWindows::drawContent(){
+	
+	for(auto animation : PlaybackManager::getActiveAnimations()){
+		auto animatable = animation->getAnimatable();
+		auto machine = animatable->getMachine();
+		ImGui::Text("%s->%s : %.1f/%.1fs", machine->getName(), animatable->getName(), animation->getPlaybackPosition(), animation->getDuration());
+	}
+	
+	
+	
+}
+
 
 }

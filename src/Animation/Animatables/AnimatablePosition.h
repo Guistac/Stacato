@@ -56,11 +56,10 @@ public:
 	//—————————movement commands——————————
 	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) override;
 	virtual void cancelRapid() override;
-	virtual void onPlaybackStart() override{}
-	virtual void onPlaybackInterrupt() override{}
-	virtual void onPlaybackEnd() override{
-		Logger::warn("AnimationEnded");
-	}
+	virtual void onPlaybackStart() override;
+	virtual void onPlaybackPause() override;
+	virtual void onPlaybackStop() override;
+	virtual void onPlaybackEnd() override;
 	virtual void onStop() override{}
 	
 	//—————————manual controls——————————
@@ -109,4 +108,5 @@ public:
 	}controlMode = ControlMode::VELOCITY_SETPOINT;
 	double velocitySetpoint = 0.0;
 	double positionSetpoint = 0.0;
+	double accelerationSetpoint = 0.0;
 };

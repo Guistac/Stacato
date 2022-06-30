@@ -89,27 +89,51 @@ public:
 	
 	bool isMachineEnabled();
 	
+	//——————— Rapid Control ———————
+	
 	virtual bool isAtStart(){ return false; }
-	virtual void rapidToStart(){ return; }
+	virtual bool canRapidToStart(){ return false; }
+	void rapidToStart();
+	virtual bool onRapidToStart(){}
 	
 	virtual bool isAtTarget(){ return false; }
-	virtual void rapidToTarget(){ return; }
+	virtual bool canRapidToTarget(){ return false; }
+	void rapidToTarget();
+	virtual bool onRapidToTarget(){}
 	
 	virtual bool isAtPlaybackPosition(){ return false; }
-	virtual void rapidToPlaybackPosition(){ return; }
+	virtual bool canRapidToPlaybackPosition(){ return false; }
+	void rapidToPlaybackPosition();
+	virtual bool onRapidToPlaybackPosition(){}
 	
-	virtual bool isInRapid();
+	void stopRapid();
 	virtual float getRapidProgress();
 	
+	//——————— Playback Control ———————
+	
 	virtual bool isReadyToStartPlayback(){ return false; }
-	virtual bool isPlaying();
+	bool isReadyToRapid();
 	
-	virtual void startPlayback();
-	virtual void interruptPlayback();
-	virtual void endPlayback();
-	virtual void stop();
+	void startPlayback();
+	virtual bool onStartPlayback(){ return true; }
+	void pausePlayback();
+	void resumePlayback(); //TODO: implement this
+	void stopPlayback();
+	void endPlayback();
 	
-	void updatePlaybackStatus();
+	void stop();
+	
+	void updateDuration();
+	void updatePlaybackState();
+	void incrementPlaybackPosition(long long playbackTime_microseconds);
+	enum class PlaybackState{
+		NOT_PLAYING,
+		IN_RAPID,
+		PLAYING,
+		PAUSED
+	};
+	PlaybackState getPlaybackState(){ return playbackState; }
+	
 	
 	void setDuration(double seconds){ duration_seconds = seconds; }
 	void setPlaybackPosition(double seconds){ playbackPosition_seconds = seconds; }
@@ -120,8 +144,10 @@ public:
 	
 private:
 	
+	long long playbackStartTime_microseconds;
 	double playbackPosition_seconds;
 	double duration_seconds;
+	PlaybackState playbackState = PlaybackState::NOT_PLAYING;
 	
 	//—————————————————— User Interface ———————————————————
 	
@@ -185,8 +211,11 @@ public:
 	
 public:
 	
+
+	
 	virtual bool isAtPlaybackPosition() override;
-	virtual void rapidToPlaybackPosition() override;
+	virtual bool canRapidToPlaybackPosition() override { return isReadyToRapid(); }
+	virtual bool onRapidToPlaybackPosition() override;
 
 	//—————————————————— User Interface ———————————————————
 	
@@ -257,13 +286,12 @@ public:
 	
 public:
 	
+	virtual bool canRapidToTarget() override { return isReadyToRapid(); }
 	virtual bool isAtTarget() override;
-	virtual void rapidToTarget() override;
+	virtual bool onRapidToTarget() override;
 	
 	virtual bool isReadyToStartPlayback() override;
-	virtual void startPlayback() override;
-	virtual void endPlayback() override;
-	virtual void stop() override;
+	virtual bool onStartPlayback() override;
 	
 	//—————————————————— User Interface ———————————————————
 	
@@ -337,15 +365,19 @@ public:
 	//————————————————————— Playback —————————————————————
 	
 public:
-		
+	
+	virtual bool canRapidToStart() override { return isReadyToRapid(); }
 	virtual bool isAtStart() override;
-	virtual void rapidToStart() override;
+	virtual bool onRapidToStart() override;
 	
+	virtual bool canRapidToTarget() override { return isReadyToRapid(); }
 	virtual bool isAtTarget() override;
-	virtual void rapidToTarget() override;
+	virtual bool onRapidToTarget() override;
 	
+	virtual bool canRapidToPlaybackPosition() override { return isReadyToRapid(); }
 	virtual bool isAtPlaybackPosition() override;
-	virtual void rapidToPlaybackPosition() override;
+	virtual bool onRapidToPlaybackPosition() override;
+	
 	virtual bool isReadyToStartPlayback() override;
 	
 	//—————————————————— User Interface ———————————————————

@@ -11,60 +11,69 @@
 
 namespace PlaybackManager {
 
-	std::recursive_mutex mutex;
+	std::mutex mutex;
 
-	std::vector<std::shared_ptr<Manoeuvre>> activeManoeuvres;
+	std::vector<std::shared_ptr<Animation>> activeAnimations;
 
-	void push(std::shared_ptr<Manoeuvre> manoeuvre){
-		mutex.lock();
-		activeManoeuvres.push_back(manoeuvre);
-		mutex.unlock();
-	}
-
-	void pop(std::shared_ptr<Manoeuvre> manoeuvre){
-		mutex.lock();
-		for(int i = 0; i < activeManoeuvres.size(); i++){
-			if(activeManoeuvres[i] == manoeuvre){
-				activeManoeuvres.erase(activeManoeuvres.begin() + i);
+	void removeAnimation(std::shared_ptr<Animation> animation){
+		for(int i = 0; i < activeAnimations.size(); i++){
+			if(activeAnimations[i] == animation){
+				activeAnimations.erase(activeAnimations.begin() + i);
 				break;
 			}
 		}
-		mutex.unlock();
 	}
 
-	std::vector<std::shared_ptr<Manoeuvre>>& getActiveManoeuvres(){
-		return activeManoeuvres;
+	void push(std::shared_ptr<Animation> animation){
+		const std::lock_guard<std::mutex> lock(mutex);
+		activeAnimations.push_back(animation);
 	}
 
-	bool isAnyManoeuvreActive(){
-		return !activeManoeuvres.empty();
+	void pop(std::shared_ptr<Animation> animation){
+		const std::lock_guard<std::mutex> lock(mutex);
+		removeAnimation(animation);
 	}
 
-	void stopAllManoeuvres() {
-		for(int i = activeManoeuvres.size() - 1; i >= 0; i--) activeManoeuvres[i]->stop();
+
+	std::vector<std::shared_ptr<Animation>> getActiveAnimations(){
+		const std::lock_guard<std::mutex> lock(mutex);
+		return activeAnimations;
 	}
+
+	bool isAnyAnimationActive(){
+		return activeAnimations.empty();
+	}
+
+	void stopAllAnimations(){
+		for(auto& animation : activeAnimations) animation->stop();
+	}
+
 
 	long long getTime_microseconds(){
 		return Environnement::getTime_nanoseconds() / 1000;
 	}
 
 	void update() {
-		mutex.lock();
-		long long time_micros = Environnement::getTime_nanoseconds() / 1000;
-		for (auto& manoeuvre : activeManoeuvres) {
-			if (manoeuvre->isPlaying()) manoeuvre->incrementPlaybackPosition(time_micros);
-		}
+		const std::lock_guard<std::mutex> lock(mutex);
 		
-		//needs to call onPlaybackEnd in machines
-		std::vector<std::shared_ptr<Manoeuvre>> finishedManoeuvres;
-		for(auto& manoeuvre : activeManoeuvres){
-			manoeuvre->updatePlaybackStatus();
-			if(manoeuvre->isFinished()) {
-				finishedManoeuvres.push_back(manoeuvre);
+		//check playback status of animations on previous cycle
+		//remove them if they are finished
+		std::vector<std::shared_ptr<Animation>> finishedAnimations;
+		for(auto& animation : activeAnimations){
+			animation->updatePlaybackState();
+			if(animation->getPlaybackState() == Animation::PlaybackState::NOT_PLAYING){
+				finishedAnimations.push_back(animation);
 			}
 		}
-		for(auto& manoeuvre : finishedManoeuvres) pop(manoeuvre);
-		mutex.unlock();
+		for(auto& animation : finishedAnimations) removeAnimation(animation);
+		
+		//increment playback position of current manoeuvres
+		long long time_micros = Environnement::getTime_nanoseconds() / 1000;
+		for (auto& animation : activeAnimations) {
+			if(animation->getPlaybackState() == Animation::PlaybackState::PLAYING){
+				animation->incrementPlaybackPosition(time_micros);
+			}
+		}
 	}
 
 }

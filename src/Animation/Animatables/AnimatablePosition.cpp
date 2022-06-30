@@ -262,12 +262,12 @@ bool AnimatablePosition::validateAnimation(std::shared_ptr<Animation> animation)
 
 bool AnimatablePosition::isReadyToMove(){
 	const std::lock_guard<std::mutex> lock(mutex);
-	return !getMachine()->isEnabled() || getMachine()->isHoming();
+	return getMachine()->isEnabled() && !getMachine()->isHoming();
 }
 
 bool AnimatablePosition::isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationValue> animationValue){
 	const std::lock_guard<std::mutex> lock(mutex);
-	return animationValue->toPosition()->position == getActualPosition();
+	return animationValue->toPosition()->position == actualValue->position;
 }
 
 bool AnimatablePosition::isInRapid(){
@@ -292,6 +292,11 @@ void AnimatablePosition::onSetManualControlTarget(float x, float y, float z){
 	setVelocityTarget(velocityLimit * x);
 }
 
+void AnimatablePosition::onPlaybackStart(){}
+void AnimatablePosition::onPlaybackPause(){}
+void AnimatablePosition::onPlaybackStop(){}
+void AnimatablePosition::onPlaybackEnd(){}
+
 
 
 
@@ -301,13 +306,17 @@ void AnimatablePosition::onSetManualControlTarget(float x, float y, float z){
 
 
 void AnimatablePosition::setVelocityTarget(double velocityTarget){
+	stop();
 	const std::lock_guard<std::mutex> lock(mutex);
 	velocitySetpoint = std::clamp(velocityTarget, -velocityLimit, velocityLimit);
+	positionSetpoint = 0.0;
+	accelerationSetpoint = 0.0;
 	controlMode = VELOCITY_SETPOINT;
 	motionProfile.resetInterpolation();
 }
 
 void AnimatablePosition::moveToPositionWithVelocity(double targetPosition, double targetVelocity){
+	stop();
 	const std::lock_guard<std::mutex> lock(mutex);
 	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
 	motionProfile.moveToPositionWithVelocity(profileTime_seconds, targetPosition, targetVelocity, rapidAcceleration);
@@ -315,6 +324,7 @@ void AnimatablePosition::moveToPositionWithVelocity(double targetPosition, doubl
 }
 
 void AnimatablePosition::moveToPositionInTime(double targetPosition, double targetTime){
+	stop();
 	const std::lock_guard<std::mutex> lock(mutex);
 	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
 	motionProfile.moveToPositionInTime(profileTime_seconds, targetPosition, targetTime, rapidAcceleration, velocityLimit);
@@ -413,43 +423,44 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 	
 	if(hasAnimation()){
 		auto target = getAnimationValue()->toPosition();
-		motionProfile.matchPositionAndRespectPositionLimits(deltaT_seconds,
-															target->position,
-															target->velocity,
-															target->acceleration,
-															accelerationLimit,
-															velocityLimit,
-															lowerPositionLimit,
-															upperPositionLimit);
-	}else{
-		switch(controlMode){
-			case VELOCITY_SETPOINT:
-				motionProfile.matchVelocityAndRespectPositionLimits(deltaT_seconds,
-																	velocitySetpoint,
-																	rapidAcceleration,
-																	lowerPositionLimit,
-																	upperPositionLimit,
-																	rapidAcceleration);
-				break;
-			case POSITION_SETPOINT:
-				motionProfile.matchPositionAndRespectPositionLimits(deltaT_seconds,
-																	positionSetpoint,
-																	0.0,
-																	0.0,
-																	accelerationLimit,
-																	velocityLimit,
-																	lowerPositionLimit,
-																	upperPositionLimit);
-				break;
-			case POSITION_TARGET:
-				motionProfile.updateInterpolation(profileTime_seconds);
-				if(motionProfile.isInterpolationFinished(profileTime_seconds)) {
-					controlMode = VELOCITY_SETPOINT;
-					velocitySetpoint = 0.0;
-				}
-				break;
-		}
+		positionSetpoint = target->position;
+		velocitySetpoint = target->velocity;
+		accelerationSetpoint = target->acceleration;
+		controlMode = POSITION_SETPOINT;
+	}else if(controlMode == POSITION_SETPOINT){
+		velocitySetpoint = 0.0;
+		accelerationSetpoint = 0.0;
 	}
+	
+	switch(controlMode){
+		case VELOCITY_SETPOINT:
+			motionProfile.matchVelocityAndRespectPositionLimits(deltaT_seconds,
+																velocitySetpoint,
+																rapidAcceleration,
+																lowerPositionLimit,
+																upperPositionLimit,
+																rapidAcceleration);
+			break;
+		case POSITION_SETPOINT:
+			motionProfile.matchPositionAndRespectPositionLimits(deltaT_seconds,
+																positionSetpoint,
+																velocitySetpoint,
+																accelerationSetpoint,
+																accelerationLimit,
+																velocityLimit,
+																lowerPositionLimit,
+																upperPositionLimit);
+			break;
+		case POSITION_TARGET:
+			motionProfile.updateInterpolation(profileTime_seconds);
+			if(motionProfile.isInterpolationFinished(profileTime_seconds)) {
+				motionProfile.resetInterpolation();
+				controlMode = VELOCITY_SETPOINT;
+				velocitySetpoint = 0.0;
+			}
+			break;
+	}
+	
 		
 	//generate an output target value to be read by the machine
 	auto newTargetValue = AnimationValue::makePosition();

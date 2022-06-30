@@ -39,36 +39,15 @@ void Animatable::unsubscribeAnimation(std::shared_ptr<Animation> animation){
 
 //—————————————— MOTION COMMANDS ——————————————————
 
-void Animatable::startAnimation(std::shared_ptr<Animation> animation){
-	assert(animation->getAnimatable() == shared_from_this());
-	//stop playback of current animation if there is one playing
-	interruptAnimation();
-	//set animation as current
-	currentAnimation = animation;
-	//notify machine of playback start
-	onPlaybackStart();
-}
-
-void Animatable::interruptAnimation(){
-	if(!hasAnimation()) return;
-	currentAnimation = nullptr;
-	onPlaybackInterrupt();
-}
-
-void Animatable::endAnimation(){
-	if(!hasAnimation()) return;
-	onPlaybackEnd();
-}
 
 void Animatable::rapidToValue(std::shared_ptr<AnimationValue> animationValue){
 	stop();
 	onRapidToValue(animationValue);
 }
 
-void Animatable::stop(){	
+void Animatable::stop(){
 	if(isInRapid()) cancelRapid();
-	else if(hasAnimation()) interruptAnimation();
-	else onStop();
+	else if(hasAnimation()) getAnimation()->stop();
 }
 
 

@@ -104,6 +104,7 @@ namespace Environnement {
 		simulationStartTime_nanoseconds = Timing::getProgramTime_nanoseconds();
 		
 		environnementSimulator = std::thread([](){
+			pthread_setname_np("Environnement Simulation Thread");
 			while(b_isRunning){
 				updateSimulation();
 				//run simulation at 100Hz and free the cpu core in between processing cycles

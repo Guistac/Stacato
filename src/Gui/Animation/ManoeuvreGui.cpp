@@ -101,18 +101,31 @@ void Manoeuvre::listGui(){
 	ImGui::PopFont();
 	
 	//show playback or rapid state
-	if(isInRapid()){
-		int trackCount = animations.size();
-		float trackHeight = size.y / (float)trackCount;
-		for (int i = 0; i < trackCount; i++) {
-			glm::vec2 minBar(min.x, min.y + trackHeight * i);
-			glm::vec2 maxBar(minBar.x + size.x * animations[i]->getRapidProgress(), minBar.y + trackHeight);
+	
+	if(hasActiveAnimations()){
+		auto activeAnimations = getActiveAnimations();
+		int animationCount = activeAnimations.size();
+		float animationHeight = size.y / (float)animationCount;
+		for(int i = 0; i < animationCount; i++){
+			auto& animation = activeAnimations[i];
+			float progress;
+			switch(animation->getPlaybackState()){
+				case Animation::PlaybackState::PLAYING:
+				case Animation::PlaybackState::PAUSED:
+					progress = animation->getPlaybackPosition() / animation->getDuration();
+					break;
+				case Animation::PlaybackState::IN_RAPID:
+					progress = animation->getRapidProgress();
+					break;
+				default:
+					progress = 0.0;
+					break;
+			}
+			glm::vec2 minBar(min.x, min.y + animationHeight * i);
+			glm::vec2 maxBar(minBar.x + size.x * animations[i]->getRapidProgress(), minBar.y + animationHeight);
 			ImGui::GetWindowDrawList()->AddRectFilled(minBar, maxBar, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
+			
 		}
-	}else if(isPlaying() || isPaused()){
-		float progress = getPlaybackProgress();
-		glm::vec2 maxBar(min.x + size.x * progress, min.y + size.y);
-		ImGui::GetWindowDrawList()->AddRectFilled(min, maxBar, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.4)), 5.0);
 	}
 	
 	//mouse interaction and selection display
@@ -155,22 +168,33 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 	scrollingTextWithBackground("ManoeuvreName", getName(), size_arg, backgroundColor);
 	ImGui::PopFont();
 	
-	if(isInRapid()){
-		glm::vec2 pos = ImGui::GetItemRectMin();
-		glm::vec2 size = ImGui::GetItemRectSize();
-		int trackCount = animations.size();
-		float trackHeight = size.y / (float)trackCount;
-		for (int i = 0; i < trackCount; i++) {
-			glm::vec2 min(pos.x, pos.y + trackHeight * i);
-			glm::vec2 max(pos.x + size.x * animations[i]->getRapidProgress(), pos.y + trackHeight);
-			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
-		}
-	}else if(isPlaying() || isPaused()){
+
+	if(hasActiveAnimations()){
+		auto activeAnimations = getActiveAnimations();
+		int animationCount = activeAnimations.size();
 		glm::vec2 min = ImGui::GetItemRectMin();
 		glm::vec2 size = ImGui::GetItemRectSize();
-		float progress = getPlaybackProgress();
-		glm::vec2 max(min.x + size.x * progress, min.y + size.y);
-		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.4)), 5.0);
+		float animationHeight = size.y / (float)animationCount;
+		for(int i = 0; i < animationCount; i++){
+			auto& animation = activeAnimations[i];
+			float progress;
+			switch(animation->getPlaybackState()){
+				case Animation::PlaybackState::PLAYING:
+				case Animation::PlaybackState::PAUSED:
+					progress = animation->getPlaybackPosition() / animation->getDuration();
+					break;
+				case Animation::PlaybackState::IN_RAPID:
+					progress = animation->getRapidProgress();
+					break;
+				default:
+					progress = 0.0;
+					break;
+			}
+			glm::vec2 minBar(min.x, min.y + animationHeight * i);
+			glm::vec2 maxBar(minBar.x + size.x * animations[i]->getRapidProgress(), minBar.y + animationHeight);
+			ImGui::GetWindowDrawList()->AddRectFilled(minBar, maxBar, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
+			
+		}
 	}
 	
 	if(ImGui::IsItemHovered()){
@@ -196,7 +220,8 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 
 void Manoeuvre::sheetEditor(){
 	
-	ImGui::BeginDisabled(isPlaying() || isPaused());
+	
+	
 	
 	ImVec2 cursorPos = ImGui::GetCursorPos();
 	
@@ -275,8 +300,11 @@ void Manoeuvre::sheetEditor(){
 				for(int j = 0; j < childAnimations.size(); j++){
 					ImGui::TableNextRow();
 					ImGui::PushID(j);
+					Animation::PlaybackState playbackState = animation->getPlaybackState();
+					ImGui::BeginDisabled(playbackState == Animation::PlaybackState::PLAYING || playbackState == Animation::PlaybackState::PAUSED);
 					childAnimations[j]->baseTrackSheetRowGui();
 					childAnimations[j]->trackSheetRowGui();
+					ImGui::EndDisabled();
 					ImGui::PopID();
 				}
 			}
@@ -321,7 +349,7 @@ void Manoeuvre::sheetEditor(){
 	
 	ImGui::PopStyleVar(2);
 	
-	ImGui::EndDisabled();
+	
 	
 	if(removedTrackIndex > -1) removeAnimation(getAnimations()[removedTrackIndex]->getAnimatable());
 	if(movedUpTrackIndex > -1) moveAnimation(movedUpTrackIndex, movedUpTrackIndex - 1);
@@ -381,6 +409,22 @@ void Manoeuvre::curveEditor(){
 			double playbackTime = getPlaybackPosition();
 			ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
 			ImPlot::PlotVLines("Playhead", &playbackTime, 1);
+		}
+		
+		if(hasActiveAnimations()){
+			for(auto& animation : getAnimations()){
+				auto animatable = animation->getAnimatable();
+				double playbackTime = animation->getPlaybackPosition();
+				auto actualValue = animatable->getActualValue();
+				auto curveValues = animatable->getCurvePositionsFromAnimationValue(actualValue);
+				int curveCount = animatable->getCurveCount();
+				std::vector<glm::vec2> playbackIndicators(curveCount);
+				for(int i = 0; i < curveCount; i++){
+					playbackIndicators[i].x = playbackTime;
+					playbackIndicators[i].y = curveValues[i];
+				}
+				ImPlot::PlotScatter("##PlayackIndicator", &playbackIndicators.front().x, &playbackIndicators.front().y, curveCount);
+			}
 		}
 		
 

@@ -78,16 +78,13 @@ public:
 	virtual float getRapidProgress() = 0;
 	virtual void cancelRapid() = 0;
 	
-	void startAnimation(std::shared_ptr<Animation> animation);
-	void interruptAnimation();
-	void endAnimation();
-	
 	void stop();
 	
 private:
 	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) = 0;
 	virtual void onPlaybackStart() = 0;
-	virtual void onPlaybackInterrupt() = 0;
+	virtual void onPlaybackPause() = 0;
+	virtual void onPlaybackStop() = 0;
 	virtual void onPlaybackEnd() = 0;
 	virtual void onStop() = 0;
 	
@@ -116,6 +113,8 @@ public:
 	virtual std::vector<double> getCurvePositionsFromAnimationValue(std::shared_ptr<AnimationValue> value) = 0;
 	
 private:
+	
+	friend class Animation;
 	
 	std::string name;
 	std::shared_ptr<Machine> machine;

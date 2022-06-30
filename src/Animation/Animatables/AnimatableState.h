@@ -48,7 +48,8 @@ public:
 	
 	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) override {}
 	virtual void onPlaybackStart() override{}
-	virtual void onPlaybackInterrupt() override{}
+	virtual void onPlaybackPause() override{}
+	virtual void onPlaybackStop() override{}
 	virtual void onPlaybackEnd() override{}
 	virtual void onStop() override{}
 	

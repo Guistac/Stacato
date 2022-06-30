@@ -1,7 +1,23 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
         <Manoeuvre Name="M-0" Description="" Type="Target">
-            <Animation Machine="Costière A" MachineUniqueID="118" Parameter="Position" IsComposite="false" Type="Target" Target="5" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0.5" EndAcceleration="0.5"/>
+            <Animation Machine="Costière A" MachineUniqueID="118" Parameter="Position" IsComposite="false" Type="Target" Target="5" ConstraintType="Time" Time="5" Velocity="0" StartAcceleration="0.5" EndAcceleration="0.5"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-2" Description="" Type="Sequence">
+            <Animation Machine="Costière A" MachineUniqueID="118" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="1" End="2" Duration="5" TimeOffset="0" StartAcceleration="1" EndAcceleration="0.10000000000000001">
+                <Curves>
+                    <Curve>
+                        <ControlPoint Position="1" Time="0" Velocity="0" InAcceleration="1" OutAcceleration="1"/>
+                        <ControlPoint Position="2" Time="5" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="M-0 (copy)" Description="" Type="Target">
+            <Animation Machine="Costière A" MachineUniqueID="118" Parameter="Position" IsComposite="false" Type="Target" Target="2" ConstraintType="Velocity" Time="10" Velocity="1" StartAcceleration="0.5" EndAcceleration="0.5"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-3" Description="" Type="Key">
+            <Animation Machine="Costière A" MachineUniqueID="118" Parameter="Position" IsComposite="false" Type="Key" Target="9"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>
