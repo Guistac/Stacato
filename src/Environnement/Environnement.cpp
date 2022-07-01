@@ -261,8 +261,12 @@ namespace Environnement {
 	std::shared_ptr<Machine> selectedMachine;
 	std::shared_ptr<EtherCatDevice> selectedEtherCatDevice;
 
-	void enableAllMachines() { for (auto machine : machines) machine->enable(); }
-	void disableAllMachines() { for (auto machine : machines) machine->disable(); }
+	void enableAllMachines() {
+		for (auto machine : machines) machine->enable();
+	}
+	void disableAllMachines() {
+		for (auto machine : machines) machine->disable();
+	}
 	bool areAllMachinesEnabled() {
 		if (machines.empty()) return false;
 		for (auto machine : machines) {

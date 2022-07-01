@@ -27,7 +27,7 @@ public:
 	
 	std::shared_ptr<ManoeuvreList> getManoeuvreList(){ return manoeuvreList; }
 	std::shared_ptr<Manoeuvre> getSelectedManoeuvre(){ return selectedManoeuvre; }
-	void selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre){ selectedManoeuvre = manoeuvre; }
+	void selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre);
 	
 private:
 	

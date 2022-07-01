@@ -28,8 +28,9 @@ bool Animation::beginTrackSheetTable(ManoeuvreType type, ImGuiTableFlags tableFl
 }
 
 bool AnimationKey::beginTrackSheetTable(ImGuiTableFlags tableFlags){
-	if(ImGui::BeginTable("##TrackParameters", 4, tableFlags)){
+	if(ImGui::BeginTable("##TrackParameters", 5, tableFlags)){
 		ImGui::TableSetupColumn("Manage");
+		ImGui::TableSetupColumn("Playback");
 		ImGui::TableSetupColumn("Machine");
 		ImGui::TableSetupColumn("Parameter");
 		ImGui::TableSetupColumn("Target");
@@ -39,8 +40,9 @@ bool AnimationKey::beginTrackSheetTable(ImGuiTableFlags tableFlags){
 }
 
 bool TargetAnimation::beginTrackSheetTable(ImGuiTableFlags tableFlags){
-	if(ImGui::BeginTable("##TrackParameters", 8, tableFlags)){
+	if(ImGui::BeginTable("##TrackParameters", 9, tableFlags)){
 		ImGui::TableSetupColumn("Manage");
+		ImGui::TableSetupColumn("Playback");
 		ImGui::TableSetupColumn("Machine");
 		ImGui::TableSetupColumn("Parameter");
 		ImGui::TableSetupColumn("Interpolation");	//kinematic, linear, step, bezier
@@ -54,8 +56,9 @@ bool TargetAnimation::beginTrackSheetTable(ImGuiTableFlags tableFlags){
 }
 
 bool SequenceAnimation::beginTrackSheetTable(ImGuiTableFlags tableFlags){
-	if(ImGui::BeginTable("##TrackParameters", 9, tableFlags)){
+	if(ImGui::BeginTable("##TrackParameters", 10, tableFlags)){
 		ImGui::TableSetupColumn("Manage");
+		ImGui::TableSetupColumn("Playback");
 		ImGui::TableSetupColumn("Machine");
 		ImGui::TableSetupColumn("Parameter");
 		ImGui::TableSetupColumn("Interpolation");
@@ -70,11 +73,11 @@ bool SequenceAnimation::beginTrackSheetTable(ImGuiTableFlags tableFlags){
 }
 
 void Animation::baseTrackSheetRowGui(){
-
-	bool b_showValidationErrorPopup = false;
 	
-	//[1] "Machine"
-	ImGui::TableSetColumnIndex(1);
+	bool b_showValidationErrorPopup = false;
+		
+	//[2] "Machine"
+	ImGui::TableSetColumnIndex(2);
 	
 	auto machine = animatable->getMachine();
 	glm::vec4 machineColor;
@@ -87,16 +90,77 @@ void Animation::baseTrackSheetRowGui(){
 	}
 	if (!hasParentComposite()) backgroundText(animatable->getMachine()->getName(), machineColor, machineTextColor);
 	
-	//[2] "Parameter"
-	ImGui::TableSetColumnIndex(2);
+	//[3] "Parameter"
+	ImGui::TableSetColumnIndex(3);
 	backgroundText(animatable->getName(), b_valid ? Colors::darkGreen : Colors::red, b_valid ? Colors::white : Colors::white);
 	if(ImGui::IsItemHovered() && !b_valid) validationErrorPopup();
 }
 
+void AnimationKey::playbackGui(){
+	ImGui::BeginDisabled(!canRapidToPlaybackPosition());
+	bool atKey = isAtPlaybackPosition();
+	if(atKey) ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+	if(buttonArrowDownStop("goToPos", ImGui::GetFrameHeight())) rapidToPlaybackPosition();
+	if(atKey) ImGui::PopStyleColor();
+	ImGui::EndDisabled();
+	ImGui::SameLine();
+	if(buttonStop("StopPlayback")) stop();
+}
+
+void TargetAnimation::playbackGui(){
+	ImGui::BeginDisabled(!canRapidToTarget());
+	bool atTarget = isAtTarget();
+	if(atTarget) ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+	if(buttonArrowRightStop("goToTarget")) rapidToTarget();
+	if(atTarget) ImGui::PopStyleColor();
+	ImGui::EndDisabled();
+	ImGui::SameLine();
+	ImGui::BeginDisabled(!isReadyToStartPlayback());
+	if(buttonPlay("StartPlayback")) startPlayback();
+	ImGui::EndDisabled();
+	ImGui::SameLine();
+	if(buttonStop("StopPlayback")) stop();
+}
+
+void SequenceAnimation::playbackGui(){
+	ImGui::BeginDisabled(!canRapidToStart());
+	bool atStart = isAtStart();
+	if(atStart) ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+	if(buttonArrowLeftStop("goToStart")) rapidToStart();
+	if(atStart) ImGui::PopStyleColor();
+	ImGui::EndDisabled();
+	ImGui::SameLine();
+	ImGui::BeginDisabled(!canRapidToTarget());
+	bool atTarget = isAtTarget();
+	if(atTarget) ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+	if(buttonArrowRightStop("goToTarget")) rapidToTarget();
+	if(atTarget) ImGui::PopStyleColor();
+	ImGui::EndDisabled();
+	ImGui::SameLine();
+	if(getPlaybackState() == Animation::PlaybackState::PLAYING){
+		ImGui::BeginDisabled(!canPausePlayback());
+		if(buttonPause("PausePlayback")) {
+			pausePlayback();
+		}
+		ImGui::EndDisabled();
+	}
+	else{
+		ImGui::BeginDisabled(!isReadyToStartPlayback());
+		if(buttonPlay("StartPlayback")) {
+			startPlayback();
+		}
+		ImGui::EndDisabled();
+	}
+	ImGui::SameLine();
+	if(buttonStop("StopPlayback")) {
+		stop();
+	}
+}
+
 void AnimationKey::trackSheetRowGui(){
 	
-	//[3] "Target"			//position or other
-	ImGui::TableSetColumnIndex(3);
+	//[4] "Target"			//position or other
+	ImGui::TableSetColumnIndex(4);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	target->gui();
 	if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
@@ -107,27 +171,27 @@ void AnimationKey::trackSheetRowGui(){
 
 void TargetAnimation::trackSheetRowGui(){
 	
-	//[3] "Interpolation"	//kinematic, linear, step, bezier
-	ImGui::TableSetColumnIndex(3);
+	//[4] "Interpolation"	//kinematic, linear, step, bezier
+	ImGui::TableSetColumnIndex(4);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 10.0);
 	auto& compatibleTypes = getAnimatable()->getCompatibleInterpolationTypes();
 	interpolationType->combo(compatibleTypes.data(), compatibleTypes.size());
 	 
-	//[4] "Target"			//position or other
-	ImGui::TableSetColumnIndex(4);
+	//[5] "Target"			//position or other
+	ImGui::TableSetColumnIndex(5);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	target->gui();
 	if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 	ImGui::SameLine();
 	if(ImGui::Button("Capture")) captureTarget();
 	
-	//[5] "Using"			//time vs velocity
-	ImGui::TableSetColumnIndex(5);
+	//[6] "Using"			//time vs velocity
+	ImGui::TableSetColumnIndex(6);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	constraintType->gui();
 
-	//[6] "Constraint"		//time or velocity
-	ImGui::TableSetColumnIndex(6);
+	//[7] "Constraint"		//time or velocity
+	ImGui::TableSetColumnIndex(7);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 7.0);
 	if(getConstraintType() == Constraint::TIME) {
 		timeConstraint->gui();
@@ -137,8 +201,8 @@ void TargetAnimation::trackSheetRowGui(){
 		if(!velocityConstraint->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 	}
 	
-	//[7] "Ramps"			//for kinematic or bezier
-	ImGui::TableSetColumnIndex(7);
+	//[8] "Ramps"			//for kinematic or bezier
+	ImGui::TableSetColumnIndex(8);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	inAcceleration->gui();
 	if(!inAcceleration->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
@@ -151,40 +215,40 @@ void TargetAnimation::trackSheetRowGui(){
 
 void SequenceAnimation::trackSheetRowGui(){
 	
-	//[3] "Interpolation"	//kinematic, linear, step, bezier
-	ImGui::TableSetColumnIndex(3);
+	//[4] "Interpolation"	//kinematic, linear, step, bezier
+	ImGui::TableSetColumnIndex(4);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 10.0);
 	auto& compatibleTypes = getAnimatable()->getCompatibleInterpolationTypes();
 	interpolationType->combo(compatibleTypes.data(), compatibleTypes.size());
 	
-	//[4] "Start"
-	ImGui::TableSetColumnIndex(4);
+	//[5] "Start"
+	ImGui::TableSetColumnIndex(5);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	start->gui();
 	if(!start->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 	ImGui::SameLine();
 	if(ImGui::Button("Capture##Start")) captureStart();
 	
-	//[5] "End"
-	ImGui::TableSetColumnIndex(5);
+	//[6] "End"
+	ImGui::TableSetColumnIndex(6);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	target->gui();
 	if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 	ImGui::SameLine();
 	if(ImGui::Button("Capture##Target")) captureTarget();
 	
-	//[6] "Duration"
-	ImGui::TableSetColumnIndex(6);
+	//[7] "Duration"
+	ImGui::TableSetColumnIndex(7);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	duration->gui();
 	
-	//[7] "Time Offset"
-	ImGui::TableSetColumnIndex(7);
+	//[8] "Time Offset"
+	ImGui::TableSetColumnIndex(8);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	timeOffset->gui();
 	
-	//[8] "Ramps"			//for kinematic or bezier
-	ImGui::TableSetColumnIndex(8);
+	//[9] "Ramps"			//for kinematic or bezier
+	ImGui::TableSetColumnIndex(9);
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 	inAcceleration->gui();
 	if(!inAcceleration->isValid() && ImGui::IsItemHovered()) validationErrorPopup();

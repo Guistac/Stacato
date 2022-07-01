@@ -51,7 +51,7 @@ public:
 	virtual void onPlaybackPause() override{}
 	virtual void onPlaybackStop() override{}
 	virtual void onPlaybackEnd() override{}
-	virtual void onStop() override{}
+	virtual void stopMovement() override {}
 	
 	virtual bool hasManualControls() override { return true; }
 	virtual void onSetManualControlTarget(float x, float y, float z) override {}

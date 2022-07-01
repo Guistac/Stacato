@@ -115,21 +115,21 @@ public:
 	bool hasActiveAnimations(){ return b_hasActiveAnimations; }
 	std::vector<std::shared_ptr<Animation>> getActiveAnimations();
 	
+	double synchronizedPlaybackPosition;
+	double getSychronizedPlaybackPosition(){ return synchronizedPlaybackPosition; }
+	double getRemainingPlaybackTime();
 	
 	bool hasDuration();
 	void updateDuration();
 	double getDuration();
-	
-	double getPlaybackPosition();
-	double getRemainingPlaybackTime();
 	
 	void getCurveRange(double& minX, double& maxX, double& minY, double& maxY);
 	
 	bool areAllMachinesEnabled();
 	bool areNoMachinesEnabled();
 	
-	//called by animations
-	void updatePlaybackStatus();
+	void requestCurveRefocus();
+	bool shouldRefocusCurves();
 
 private:
 	

@@ -78,7 +78,8 @@ public:
 	virtual float getRapidProgress() = 0;
 	virtual void cancelRapid() = 0;
 	
-	void stop();
+	virtual void stopMovement() = 0;
+	void stopAnimation();
 	
 private:
 	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) = 0;
@@ -86,14 +87,13 @@ private:
 	virtual void onPlaybackPause() = 0;
 	virtual void onPlaybackStop() = 0;
 	virtual void onPlaybackEnd() = 0;
-	virtual void onStop() = 0;
 	
 	//———————————— Manual Controls —————————————
 	
 public:
 	virtual bool hasManualControls() = 0;
 	void setManualControlTarget(float x, float y = 0.0, float z = 0.0){
-		stop();
+		stopAnimation();
 		onSetManualControlTarget(x, y, z);
 	}
 	virtual void onSetManualControlTarget(float x, float y, float z) = 0;

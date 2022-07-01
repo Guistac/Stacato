@@ -60,7 +60,7 @@ public:
 	virtual void onPlaybackPause() override;
 	virtual void onPlaybackStop() override;
 	virtual void onPlaybackEnd() override;
-	virtual void onStop() override{}
+	virtual void stopMovement() override { setVelocityTarget(0.0); }
 	
 	//—————————manual controls——————————
 	virtual bool hasManualControls() override { return true; }

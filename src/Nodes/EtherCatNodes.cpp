@@ -64,7 +64,9 @@ namespace NodeFactory{
 	
 	std::shared_ptr<EtherCatDevice> getDeviceByEtherCatName(const char* etherCatName) {
 	   for (EtherCatDevice* device : allEtherCatDevices) {
-		   if (strcmp(etherCatName, device->getEtherCatName()) == 0) return std::dynamic_pointer_cast<EtherCatDevice>(device->getNewInstance());
+		   if (strcmp(etherCatName, device->getEtherCatName()) == 0) {
+			   return std::dynamic_pointer_cast<EtherCatDevice>(device->getNewInstance());
+		   }
 	   }
 	   return std::make_shared<EtherCatDevice>();
 	}

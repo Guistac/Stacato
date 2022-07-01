@@ -14,30 +14,28 @@ namespace PlaybackManager {
 	std::mutex mutex;
 
 	std::vector<std::shared_ptr<Animation>> activeAnimations;
-
-	void removeAnimation(std::shared_ptr<Animation> animation){
-		for(int i = 0; i < activeAnimations.size(); i++){
-			if(activeAnimations[i] == animation){
-				activeAnimations.erase(activeAnimations.begin() + i);
-				break;
-			}
-		}
-	}
+	std::vector<std::shared_ptr<Manoeuvre>> activeManoeuvres;
 
 	void push(std::shared_ptr<Animation> animation){
 		const std::lock_guard<std::mutex> lock(mutex);
+		for(auto& activeAnimation : activeAnimations) if(activeAnimation == animation) return;
 		activeAnimations.push_back(animation);
 	}
 
-	void pop(std::shared_ptr<Animation> animation){
+	void push(std::shared_ptr<Manoeuvre> manoeuvre){
 		const std::lock_guard<std::mutex> lock(mutex);
-		removeAnimation(animation);
+		for(auto& activeManoeuvre : activeManoeuvres) if(manoeuvre == activeManoeuvre) return;
+		activeManoeuvres.push_back(manoeuvre);
 	}
-
 
 	std::vector<std::shared_ptr<Animation>> getActiveAnimations(){
 		const std::lock_guard<std::mutex> lock(mutex);
 		return activeAnimations;
+	}
+
+	std::vector<std::shared_ptr<Manoeuvre>> getActiveManoeuvres(){
+		const std::lock_guard<std::mutex> lock(mutex);
+		return activeManoeuvres;
 	}
 
 	bool isAnyAnimationActive(){
@@ -53,6 +51,26 @@ namespace PlaybackManager {
 		return Environnement::getTime_nanoseconds() / 1000;
 	}
 
+
+	
+	void removeAnimation(std::shared_ptr<Animation> animation){
+		for(int i = 0; i < activeAnimations.size(); i++){
+		   if(activeAnimations[i] == animation){
+			   activeAnimations.erase(activeAnimations.begin() + i);
+			   break;
+		   }
+		}
+	}
+
+	void removeManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre){
+		for(int i = 0; i < activeManoeuvres.size(); i++){
+		   if(activeManoeuvres[i] == manoeuvre){
+			   activeManoeuvres.erase(activeManoeuvres.begin() + i);
+			   break;
+		   }
+		}
+	}
+
 	void update() {
 		const std::lock_guard<std::mutex> lock(mutex);
 		
@@ -61,11 +79,19 @@ namespace PlaybackManager {
 		std::vector<std::shared_ptr<Animation>> finishedAnimations;
 		for(auto& animation : activeAnimations){
 			animation->updatePlaybackState();
-			if(animation->getPlaybackState() == Animation::PlaybackState::NOT_PLAYING){
-				finishedAnimations.push_back(animation);
-			}
+			if(animation->getPlaybackState() == Animation::PlaybackState::NOT_PLAYING) finishedAnimations.push_back(animation);
 		}
 		for(auto& animation : finishedAnimations) removeAnimation(animation);
+		
+		//check playback status of manoeuvres on previous cycle
+		//remove them if they are finished
+		std::vector<std::shared_ptr<Manoeuvre>> finishedManoeuvres;
+		for(auto& manoeuvre : activeManoeuvres){
+			manoeuvre->updatePlaybackState();
+			if(!manoeuvre->hasActiveAnimations()) finishedManoeuvres.push_back(manoeuvre);
+		}
+		for(auto& manoeuvre : finishedManoeuvres) removeManoeuvre(manoeuvre);
+		
 		
 		//increment playback position of current manoeuvres
 		long long time_micros = Environnement::getTime_nanoseconds() / 1000;

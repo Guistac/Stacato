@@ -90,12 +90,10 @@ void PositionControlledMachine::disableHardware() {
 }
 
 void PositionControlledMachine::onEnableHardware() {
-	animatablePosition->stop();
 	Logger::info("Enabled Machine {}", getName());
 }
 
 void PositionControlledMachine::onDisableHardware() {
-	animatablePosition->stop();
 	Logger::info("Disabled Machine {}", getName());
 }
 
@@ -104,11 +102,9 @@ bool PositionControlledMachine::isSimulationReady(){
 }
 
 void PositionControlledMachine::onEnableSimulation() {
-	animatablePosition->stop();
 }
 
 void PositionControlledMachine::onDisableSimulation() {
-	animatablePosition->stop();
 }
 
 void PositionControlledMachine::inputProcess() {
@@ -170,7 +166,7 @@ bool PositionControlledMachine::isHoming(){
 	return isAxisConnected() && getAxis()->isHoming();
 }
 void PositionControlledMachine::startHoming(){
-	animatablePosition->stop();
+	animatablePosition->stopAnimation();
 	getAxis()->startHoming();
 }
 void PositionControlledMachine::stopHoming(){

@@ -182,6 +182,7 @@ void Animation::rapidToStart(){
 		setPlaybackPosition(0.0);
 		playbackState = PlaybackState::IN_RAPID;
 		PlaybackManager::push(shared_from_this());
+		if(hasManoeuvre()) PlaybackManager::push(getManoeuvre());
 	}
 }
 
@@ -191,6 +192,7 @@ void Animation::rapidToTarget(){
 		setPlaybackPosition(duration_seconds);
 		playbackState = PlaybackState::IN_RAPID;
 		PlaybackManager::push(shared_from_this());
+		if(hasManoeuvre()) PlaybackManager::push(getManoeuvre());
 	}
 }
 
@@ -199,6 +201,7 @@ void Animation::rapidToPlaybackPosition(){
 	if(onRapidToPlaybackPosition()){
 		playbackState = PlaybackState::IN_RAPID;
 		PlaybackManager::push(shared_from_this());
+		if(hasManoeuvre()) PlaybackManager::push(getManoeuvre());
 	}
 }
 
@@ -230,6 +233,8 @@ void Animation::startPlayback(){
 		animatable->currentAnimation = shared_from_this();
 		//notify animatable of playback start
 		animatable->onPlaybackStart();
+		if(hasManoeuvre()) PlaybackManager::push(getManoeuvre());
+		requestCurveRefocus();
 	}
 }
 
@@ -298,7 +303,6 @@ void Animation::updatePlaybackState(){
 		default:
 			break;
 	}
-	if(manoeuvre) manoeuvre->updatePlaybackStatus();
 }
 
 void Animation::incrementPlaybackPosition(long long playbackTime_microseconds){

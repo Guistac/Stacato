@@ -290,6 +290,10 @@ void Manoeuvre::sheetEditor(){
 				case ListManagerWidget::Interaction::DELETE: removedTrackIndex = i; break;
 			}
 			
+			//[1] "Playback"
+			ImGui::TableSetColumnIndex(1);
+			animation->playbackGui();
+			
 			animation->baseTrackSheetRowGui();
 			animation->trackSheetRowGui();
 			
@@ -357,8 +361,9 @@ void Manoeuvre::sheetEditor(){
 }
 
 void Manoeuvre::curveEditor(){
-			
-	if (ImGui::Button("Center On Curves")) {
+	
+				
+	if (ImGui::Button("Center On Curves") || shouldRefocusCurves()) {
 		double minX, maxX, minY, maxY;
 		getCurveRange(minX, maxX, minY, maxY);
 		double rangeX = maxX - minX;
@@ -398,15 +403,15 @@ void Manoeuvre::curveEditor(){
 		
 		for (auto& animation : getAnimations()) animation->drawCurves();
 		for (auto& animation : getAnimations()) {
-			//ImGui::PushID(animation->getAnimatable()->getMachine()->getName());
+			ImGui::PushID(animation->getAnimatable()->getMachine()->getName());
 			ImGui::PushID(animation->getAnimatable()->getName());
 			animation->drawCurveControls();
 			ImGui::PopID();
-			//ImGui::PopID();
+			ImGui::PopID();
 		}
 		
 		if(getType() != ManoeuvreType::KEY){
-			double playbackTime = getPlaybackPosition();
+			double playbackTime = getSychronizedPlaybackPosition();
 			ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
 			ImPlot::PlotVLines("Playhead", &playbackTime, 1);
 		}

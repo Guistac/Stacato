@@ -8,11 +8,11 @@ namespace Playback::Gui{
 
 	void sequencerPlaybackControls(float height);
 
-	class ActiveAnimationsWindows : public Window{
+	class PlaybackManagerWindow : public Window{
 	public:
-		ActiveAnimationsWindows() : Window("Active Animations", true){}
+		PlaybackManagerWindow() : Window("Playback Manager", true){}
 		virtual void drawContent() override;
-		SINGLETON_GET_METHOD(ActiveAnimationsWindows)
+		SINGLETON_GET_METHOD(PlaybackManagerWindow)
 	};
 
 }

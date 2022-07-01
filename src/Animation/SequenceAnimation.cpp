@@ -249,9 +249,9 @@ bool SequenceAnimation::isReadyToStartPlayback(){
 	return animatable->isReadyToStartPlaybackFromValue(getValueAtPlaybackTime());
 }
 
-
-
-
+bool SequenceAnimation::canPausePlayback(){
+	return getPlaybackState() == Animation::PlaybackState::PLAYING;
+}
 
 
 void SequenceAnimation::updateAfterParameterEdit(){
@@ -289,6 +289,8 @@ void SequenceAnimation::updateAfterParameterEdit(){
 	setDuration(timeOffset->value + duration->value);
 	
 	validate();
+	
+	requestCurveRefocus();
 }
 
 void SequenceAnimation::updateAfterCurveEdit(){

@@ -235,10 +235,9 @@ bool buttonArrowRight(const char* id, float size){
 
 
 bool buttonArrowRightStop(const char* id, float size){
-	bool ret;
 	if (size == 0) size = ImGui::GetFrameHeight();
 	
-	ImGui::InvisibleButton(id, ImVec2(size, size));
+	bool ret = ImGui::InvisibleButton(id, ImVec2(size, size));
 	
 	float padding = size * 0.15;
 	float triangleSize = size * 0.4;
@@ -275,10 +274,9 @@ bool buttonArrowRightStop(const char* id, float size){
 }
 
 bool buttonArrowLeftStop(const char* id, float size){
-	bool ret;
 	if (size == 0) size = ImGui::GetFrameHeight();
 	
-	ImGui::InvisibleButton(id, ImVec2(size, size));
+	bool ret = ImGui::InvisibleButton(id, ImVec2(size, size));
 	
 	float padding = size * 0.15;
 	float triangleSize = size * 0.4;
@@ -315,10 +313,9 @@ bool buttonArrowLeftStop(const char* id, float size){
 }
 
 bool buttonArrowDownStop(const char* id, float size){
-	bool ret = false;
 	if (size == 0) size = ImGui::GetFrameHeight();
 	
-	if(ImGui::InvisibleButton(id, ImVec2(size, size))) ret = true;
+	bool ret = ImGui::InvisibleButton(id, ImVec2(size, size));
 	
 	float padding = size * 0.15;
 	float triangleSize = size * 0.4;

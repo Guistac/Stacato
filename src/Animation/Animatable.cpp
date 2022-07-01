@@ -41,16 +41,14 @@ void Animatable::unsubscribeAnimation(std::shared_ptr<Animation> animation){
 
 
 void Animatable::rapidToValue(std::shared_ptr<AnimationValue> animationValue){
-	stop();
+	stopAnimation();
 	onRapidToValue(animationValue);
 }
 
-void Animatable::stop(){
+void Animatable::stopAnimation(){
 	if(isInRapid()) cancelRapid();
 	else if(hasAnimation()) getAnimation()->stop();
 }
-
-
 
 
 //——————————————————— Value Retrieval ————————————————————

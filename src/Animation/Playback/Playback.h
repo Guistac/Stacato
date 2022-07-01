@@ -1,27 +1,18 @@
 
-//class Manoeuvre;
 class Animation;
+class Manoeuvre;
 
 namespace PlaybackManager {
 
-	//watched manoeuvres
-	//void push(std::shared_ptr<Manoeuvre> manoeuvre);
-	//void pop(std::shared_ptr<Manoeuvre> manoeuvre);
-
+	//starting watching those
 	void push(std::shared_ptr<Animation> animation);
-	void pop(std::shared_ptr<Animation> animation);
+	void push(std::shared_ptr<Manoeuvre> manoeuvre);
 
 	//general
-	//std::vector<std::shared_ptr<Manoeuvre>> getActiveManoeuvres();
-	//bool isAnsyManoeuvreActive();
-	//void stopAllManoeuvres();
-	//void stopAllAnimations();
-
 	std::vector<std::shared_ptr<Animation>> getActiveAnimations();
+	std::vector<std::shared_ptr<Manoeuvre>> getActiveManoeuvres();
 	bool isAnyAnimationActive();
 	void stopAllAnimations();
-
-
 	long long getTime_microseconds();
 
 	//playback handling

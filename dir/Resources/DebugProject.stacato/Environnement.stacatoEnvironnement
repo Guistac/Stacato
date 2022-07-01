@@ -1,8 +1,9 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.71232641" OffsetX="1047.7571" OffsetY="-454.43851" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget UniqueID="4" PositionX="-802.40308" PositionY="496.07901" SizeX="232.00002" SizeY="298.47598"/>
-        <Widget UniqueID="5" PositionX="-801.60553" PositionY="800.33777" SizeX="232.00002" SizeY="297.44897"/>
-        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232.00002" SizeY="532.52295"/>
+    <Dashboard Scale="1.3666779" OffsetX="1267.6172" OffsetY="-477.45718" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget UniqueID="4" PositionX="-802.40308" PositionY="496.07901" SizeX="231.99998" SizeY="298.35126"/>
+        <Widget UniqueID="5" PositionX="-801.60553" PositionY="800.33777" SizeX="231.99998" SizeY="298.48026"/>
+        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232" SizeY="537.22144"/>
+        <Widget UniqueID="7" PositionX="-557.11194" PositionY="499.23932" SizeX="232.00003" SizeY="536.72064"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -298,6 +299,45 @@
                     <OutputPin SaveString="Lower Lift" DisplayString="Lower Lift" DataType="Boolean" UniqueID="231" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Position Controlled Axis" UniqueID="238">
+                <NodeEditorPosition x="232" y="627"/>
+                <NodeSpecificData>
+                    <Units UnitType="Linear" Unit="Centimeter"/>
+                    <UnitConversion ActuatorUnitsPerMachineUnit="0"/>
+                    <KinematicLimits VelocityLimit="10" AccelerationLimit="10" ManualAcceleration="10"/>
+                    <PositionReferenceSignals Type="None" HomingVelocityCoarse="0" HomingVelocityFine="0" HomingDirection="Negative"/>
+                    <PositionLimits LowLimit="-50" EnableLowLimit="true" LowLimitClearance="0" HighLimit="50" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="true"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Servo Actuator" DisplayString="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="239" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Reference Device" DisplayString="Reference Device" DataType="GPIODeviceLink" UniqueID="240" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="Low Limit Signal" DisplayString="Low Limit Signal" DataType="Boolean" UniqueID="241" Visible="false"/>
+                    <InputPin SaveString="High Limit Signal" DisplayString="High Limit Signal" DataType="Boolean" UniqueID="242" Visible="false"/>
+                    <InputPin SaveString="Reference Signal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="243" Visible="false"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="244" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="245" Visible="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="246" Visible="true"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="247" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Costière B" UniqueID="249">
+                <NodeEditorPosition x="542" y="570"/>
+                <NodeSpecificData ShortName="M">
+                    <Rapids Velocity_machineUnitsPerSecond="20" Acceleration_machineUnitsPerSecondSquared="10"/>
+                    <MachineZero MachineZero_AxisUnits="0" InvertAxisDirection="false"/>
+                    <ControWidget UniqueID="7"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="250" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="251" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="252" Visible="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="253" Visible="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="7" StartPin="2" EndPin="4"/>
@@ -329,6 +369,7 @@
             <Link UniqueID="206" StartPin="157" EndPin="173"/>
             <Link UniqueID="214" StartPin="212" EndPin="68"/>
             <Link UniqueID="215" StartPin="212" EndPin="64"/>
+            <Link UniqueID="254" StartPin="244" EndPin="251"/>
         </Links>
     </NodeGraph>
 </Environnement>

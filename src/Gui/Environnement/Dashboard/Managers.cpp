@@ -80,6 +80,7 @@ namespace WidgetManager{
 
 	void addToDictionnary(std::shared_ptr<Widget> widget){
 		if(widget->uniqueID == -1) widget->uniqueID = getNewUniqueID();
+		registerUniqueID(widget->uniqueID);
 		dictionnary.push_back(widget);
 		DashboardManager::getDashboard()->addAvailableWidget(widget);
 		//for(auto& dashboard : DashboardManager::getDashboards()) dashboard->addAvailableWidget(widget);

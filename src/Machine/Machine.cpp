@@ -19,6 +19,7 @@ void Machine::enable(){
 	}else {
 		enableHardware();
 	}
+	for(auto animatable : animatables) animatable->stopAnimation();
 }
 
 void Machine::disable(){
@@ -28,6 +29,7 @@ void Machine::disable(){
 	}else {
 		disableHardware();
 	}
+	for(auto animatable : animatables) animatable->stopAnimation();
 }
 
 bool Machine::isEnabled(){

@@ -112,12 +112,12 @@ public:
 	//——————— Playback Control ———————
 	
 	virtual bool isReadyToStartPlayback(){ return false; }
+	virtual bool canPausePlayback(){ return false; }
 	bool isReadyToRapid();
 	
 	void startPlayback();
 	virtual bool onStartPlayback(){ return true; }
 	void pausePlayback();
-	void resumePlayback(); //TODO: implement this
 	void stopPlayback();
 	void endPlayback();
 	
@@ -153,6 +153,7 @@ private:
 	
 public:
 	
+	virtual void playbackGui() = 0;
 	void baseTrackSheetRowGui();
 	virtual void trackSheetRowGui() = 0;
 	void validationErrorPopup();
@@ -160,6 +161,25 @@ public:
 	virtual void drawCurves();
 	virtual void drawCurveControls() = 0;
 	static bool beginTrackSheetTable(ManoeuvreType type, ImGuiTableFlags tableFlags);
+	
+	std::mutex mutex;
+	
+	void requestCurveRefocus(){
+		const std::lock_guard<std::mutex> lock(mutex);
+		b_shouldRefocusCurves = true;
+	}
+	bool shouldRefocusCurves(){
+		const std::lock_guard<std::mutex> lock(mutex);
+		if(b_shouldRefocusCurves){
+			b_shouldRefocusCurves = false;
+			return true;
+		}
+		return false;
+	}
+	
+private:
+	
+	bool b_shouldRefocusCurves = false;
 	
 };
 
@@ -219,6 +239,7 @@ public:
 
 	//—————————————————— User Interface ———————————————————
 	
+	virtual void playbackGui() override;
 	virtual void trackSheetRowGui() override;
 	virtual void drawCurves() override {}
 	virtual void drawCurveControls() override;
@@ -295,6 +316,7 @@ public:
 	
 	//—————————————————— User Interface ———————————————————
 	
+	virtual void playbackGui() override;
 	virtual void trackSheetRowGui() override;
 	virtual void drawCurveControls() override;
 	static bool beginTrackSheetTable(ImGuiTableFlags tableFlags);
@@ -379,11 +401,13 @@ public:
 	virtual bool onRapidToPlaybackPosition() override;
 	
 	virtual bool isReadyToStartPlayback() override;
+	virtual bool canPausePlayback() override;
 	
 	//—————————————————— User Interface ———————————————————
 	
 public:
 	
+	virtual void playbackGui() override;
 	virtual void trackSheetRowGui() override;
 	virtual void drawCurveControls() override;
 	static bool beginTrackSheetTable(ImGuiTableFlags tableFlags);
@@ -437,6 +461,8 @@ public:
 	virtual void drawCurveControls() override {
 		for(auto& childTrack : children) childTrack->drawCurveControls();
 	}
+	
+	virtual void playbackGui() override {}
 	
 private:
 	std::vector<std::shared_ptr<Animation>> children;

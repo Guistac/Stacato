@@ -233,6 +233,11 @@ void PositionControlledMachine::controlsGui() {
 
 
 void PositionControlledMachine::settingsGui() {
+	
+	
+	ImGui::InputDouble("rapid velocity", &animatablePosition->rapidVelocity);
+	ImGui::InputDouble("rapid acceleration", &animatablePosition->rapidAcceleration);
+	
 	/*
 	if (!isAxisConnected()) {
 		ImGui::Text("No Axis Connected");
@@ -513,7 +518,7 @@ void PositionControlledMachine::widgetGui(){
 
 	ImGui::SameLine();
 
-	if (ImGui::Button("Stop", doubleButtonSize)) animatablePosition->stop();
+	if (ImGui::Button("Stop", doubleButtonSize)) animatablePosition->stopMovement();
 
 
 	ImGui::EndDisabled();

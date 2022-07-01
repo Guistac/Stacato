@@ -281,7 +281,10 @@ float AnimatablePosition::getRapidProgress(){
 }
 
 void AnimatablePosition::cancelRapid(){
-	setVelocityTarget(0.0);
+	const std::lock_guard<std::mutex> lock(mutex);
+	velocitySetpoint = 0.0;
+	controlMode = VELOCITY_SETPOINT;
+	motionProfile.resetInterpolation();
 }
 
 void AnimatablePosition::onRapidToValue(std::shared_ptr<AnimationValue> animationValue){
@@ -306,7 +309,7 @@ void AnimatablePosition::onPlaybackEnd(){}
 
 
 void AnimatablePosition::setVelocityTarget(double velocityTarget){
-	stop();
+	stopAnimation();
 	const std::lock_guard<std::mutex> lock(mutex);
 	velocitySetpoint = std::clamp(velocityTarget, -velocityLimit, velocityLimit);
 	positionSetpoint = 0.0;
@@ -316,7 +319,7 @@ void AnimatablePosition::setVelocityTarget(double velocityTarget){
 }
 
 void AnimatablePosition::moveToPositionWithVelocity(double targetPosition, double targetVelocity){
-	stop();
+	stopAnimation();
 	const std::lock_guard<std::mutex> lock(mutex);
 	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
 	motionProfile.moveToPositionWithVelocity(profileTime_seconds, targetPosition, targetVelocity, rapidAcceleration);
@@ -324,7 +327,7 @@ void AnimatablePosition::moveToPositionWithVelocity(double targetPosition, doubl
 }
 
 void AnimatablePosition::moveToPositionInTime(double targetPosition, double targetTime){
-	stop();
+	stopAnimation();
 	const std::lock_guard<std::mutex> lock(mutex);
 	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
 	motionProfile.moveToPositionInTime(profileTime_seconds, targetPosition, targetTime, rapidAcceleration, velocityLimit);
