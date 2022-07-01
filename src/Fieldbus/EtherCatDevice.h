@@ -17,38 +17,40 @@
 //Device that are matched against a device class will return true for isDeviceKnown()
 //Unknown devices will not and will be of the base type EtherCatDevice
 
-#define DEFINE_ETHERCAT_DEVICE_INTERFACE(className, EtherCatName, displayName, saveName, manufacturerName, category) public:\
-	DEFINE_DEVICE_NODE(className, displayName, saveName, Device::Type::ETHERCAT_DEVICE, category)\
-	/*EtherCat Device Specific*/\
-	virtual const char* getManufacturerName(){ return manufacturerName; }\
-	virtual const char* getEtherCatName(){ return EtherCatName; }\
-	virtual bool isSlaveKnown(){ return false; }\
-	virtual bool startupConfiguration(){ return true; }\
-	virtual bool saveDeviceData(tinyxml2::XMLElement* xml){ return true; }\
-	virtual bool loadDeviceData(tinyxml2::XMLElement* xml){ return true; }\
-	virtual void deviceSpecificGui(){}\
-
-#define DEFINE_ETHERCAT_DEVICE(className, EtherCatName, displayName, saveName, manufacturerName, category) public:\
+#define DEFINE_ETHERCAT_DEVICE(className, EtherCatName, displayName, saveName, manufacturerName, category, ManufacturerCode, IdentificationCode) public:\
 	DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, category)\
 	/*Device Specific*/\
-	virtual Device::Type getDeviceType() { return Device::Type::ETHERCAT_DEVICE; }\
-	virtual void onConnection();\
-	virtual void onDisconnection();\
-	virtual void readInputs();\
-	virtual void writeOutputs();\
+	virtual Device::Type getDeviceType() override { return Device::Type::ETHERCAT_DEVICE; }\
+	virtual void onConnection() override;\
+	virtual void onDisconnection() override;\
+	virtual void readInputs() override;\
+	virtual void writeOutputs() override;\
 	/*EtherCat Device Specific*/\
-	virtual const char* getManufacturerName() { return manufacturerName; }\
-	virtual const char* getEtherCatName(){ return EtherCatName; }\
-	virtual bool isSlaveKnown(){ return true; }\
-	virtual bool startupConfiguration();\
-	virtual bool saveDeviceData(tinyxml2::XMLElement* xml);\
-	virtual bool loadDeviceData(tinyxml2::XMLElement* xml);\
-	virtual void deviceSpecificGui();\
+	virtual const char* getManufacturerName() override { return manufacturerName; }\
+	virtual const char* getEtherCatName() override{ return EtherCatName; }\
+	virtual uint32_t getManufacturerCode() override{ return ManufacturerCode; }\
+	virtual uint32_t getIdentificationCode() override { return IdentificationCode; }\
+	virtual bool isSlaveKnown() override { return true; }\
+	virtual bool startupConfiguration() override;\
+	virtual bool saveDeviceData(tinyxml2::XMLElement* xml) override;\
+	virtual bool loadDeviceData(tinyxml2::XMLElement* xml) override;\
+	virtual void deviceSpecificGui() override;\
 
 namespace tinyxml2{ class XMLElement; }
 
 class EtherCatDevice : public Device {
 public:
+	
+	DEFINE_DEVICE_NODE(EtherCatDevice, "Unknown EtherCAT Device", "UnknownEtherCatDevice", Device::Type::ETHERCAT_DEVICE, "Unknown Category")
+	virtual const char* getManufacturerName(){ return "Unknown Manufacturer"; }
+	virtual const char* getEtherCatName(){ return "Unknown EtherCAT Device"; }
+	virtual uint32_t getManufacturerCode(){ return 0; }
+	virtual uint32_t getIdentificationCode(){ return 0; }
+	virtual bool isSlaveKnown(){ return false; }
+	virtual bool startupConfiguration(){ return true; }
+	virtual bool saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
+	virtual bool loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
+	virtual void deviceSpecificGui() {}
 	
 	enum class IdentificationType{
 		STATION_ALIAS,
@@ -57,8 +59,8 @@ public:
 
     //===== Base EtherCAT device
     //serves as device interface and as default device type for unknow devices
-    DEFINE_ETHERCAT_DEVICE_INTERFACE(EtherCatDevice, "Unknown Device", "Unknown Device", "UnknownDevice", "Unknown manufacturer", "No Category");
-
+	
+	
     ec_slavet* identity = nullptr;
     IdentificationType identificationType = IdentificationType::STATION_ALIAS;
     int slaveIndex = -1;

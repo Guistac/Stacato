@@ -228,6 +228,10 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Nanotec/PD4_E.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Nanotec/PD4_EGui.cpp
 
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ABB/MicroFlexE190.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ABB/MicroFlexE190.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ABB/MicroFlexE190Gui.cpp
+
     #========================== MACHINE TYPES ===========================
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.cpp

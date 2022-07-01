@@ -6,6 +6,7 @@
 #include "Fieldbus/Devices/SchneiderElectric/ATV320.h"
 #include "Fieldbus/Devices/Yaskawa/VIPA-053-1EC01.h"
 #include "Fieldbus/Devices/Nanotec/PD4_E.h"
+#include "Fieldbus/Devices/ABB/MicroFlexE190.h"
 
 namespace NodeFactory{
 	
@@ -19,7 +20,8 @@ namespace NodeFactory{
 			new Lexium32(),
 			new ATV320(),
 			new VipaBusCoupler_053_1EC01(),
-			new PD4_E()
+			new PD4_E(),
+			new MicroFlex_e190()
 		};
 
 		//sort devices by manufacturer
@@ -69,6 +71,15 @@ namespace NodeFactory{
 		   }
 	   }
 	   return std::make_shared<EtherCatDevice>();
+	}
+
+	std::shared_ptr<EtherCatDevice> getDeviceByIdCodes(uint32_t manufacturerCode, uint32_t identificationCode){
+		for(EtherCatDevice* device : allEtherCatDevices){
+			if(device->getManufacturerCode() == manufacturerCode && device->getIdentificationCode() == identificationCode){
+				return std::dynamic_pointer_cast<EtherCatDevice>(device->getNewInstance());
+			}
+		}
+		return std::make_shared<EtherCatDevice>();
 	}
 
 	const std::vector<NodeGroup>& getEtherCatDevicesByManufacturer() { return etherCatdevicesByManufacturer; }

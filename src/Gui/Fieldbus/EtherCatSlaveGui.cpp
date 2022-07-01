@@ -236,9 +236,9 @@ void EtherCatDevice::genericInfoGui() {
 
     ImGui::Separator();
 
-    ImGui::Text("EEPROM Manufacturer: %i", identity->eep_man);
-    ImGui::Text("EEPROM ID: %i", identity->eep_id);
-    ImGui::Text("EEPROM Revision: %i", identity->eep_rev);
+    ImGui::Text("EEPROM Manufacturer: %x", identity->eep_man);
+    ImGui::Text("EEPROM ID: %x", identity->eep_id);
+    ImGui::Text("EEPROM Revision: %x", identity->eep_rev);
 
     ImGui::Separator();
 

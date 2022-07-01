@@ -17,6 +17,7 @@
 #include "Gui/Plot/PlaybackGui.h"
 
 #include "Tests/CommandZ.h"
+#include "Tests/EsiReader.h"
 
 namespace Gui {
 
@@ -40,6 +41,7 @@ void initialize(){
 	DashboardWindow::get()->addToDictionnary();
 	Playback::Gui::PlaybackManagerWindow::get()->addToDictionnary();
 
+	EsiReaderWindow::get()->addToDictionnary();
 	
 #ifdef STACATO_DEBUG
 	Environnement::unlockEditor();

@@ -130,4 +130,6 @@ DEFINE_ENUMERATOR(DS402::PowerState, PowerStateStrings)
 	{DS402::OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY, 						"Cyclic synchronous velocity"},\
 	{DS402::OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE, 							"Cyclic synchronous torque"},\
 	{DS402::OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE_WITH_COMMUTATION_ANGLE, 	"Cyclic synchronous torque with communcation angle"},\
-	{DS402::OperatingMode::UNKNOW, 												"Unknown operating mode"}\
+	{DS402::OperatingMode::UNKNOWN, 											"Unknown operating mode"}\
+
+DEFINE_ENUMERATOR(DS402::OperatingMode, OperatingModeStrings)

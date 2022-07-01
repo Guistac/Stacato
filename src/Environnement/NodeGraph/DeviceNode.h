@@ -4,13 +4,13 @@
 
 #define DEFINE_DEVICE_NODE(className, displayName, saveName, deviceType, category)\
 	DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, category)\
-	virtual Device::Type getDeviceType() { return deviceType; }\
-	virtual bool isDetected();\
-	virtual bool isConnected();\
-	virtual void onConnection();\
-	virtual void onDisconnection();\
-	virtual void readInputs();\
-	virtual void writeOutputs();\
+	virtual Device::Type getDeviceType() override { return deviceType; }\
+	virtual bool isDetected() override;\
+	virtual bool isConnected() override;\
+	virtual void onConnection() override;\
+	virtual void onDisconnection() override;\
+	virtual void readInputs() override;\
+	virtual void writeOutputs() override;\
 
 class Device : public Node {
 public:

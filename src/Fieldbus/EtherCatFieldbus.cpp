@@ -479,28 +479,29 @@ namespace EtherCatFieldbus {
                 std::shared_ptr<EtherCatDevice> slave = nullptr;
 
                 for (auto environnementSlave : Environnement::getEtherCatDevices()) {
-                    //match the detected device name against the expected ethercat name of the environnement device
-                    if (strcmp(environnementSlave->getEtherCatName(), identity.name) != 0) continue;
+                    //match the detected device name against the manufacturer and identification codes
+					if(environnementSlave->getManufacturerCode() != identity.eep_man || environnementSlave->getIdentificationCode() != identity.eep_id) continue;
                     switch (environnementSlave->identificationType) {
 						case EtherCatDevice::IdentificationType::STATION_ALIAS:
-                        if (environnementSlave->stationAlias == stationAlias) {
-                            slave = environnementSlave;
-                            Logger::info("      Matched Environnement Slave by Name & Station Alias");
-                        }
-						break;
+							if (environnementSlave->stationAlias == stationAlias) {
+								slave = environnementSlave;
+								Logger::info("      Matched Environnement Slave by Name & Station Alias");
+							}
+							break;
 						case EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID:
-                        if (environnementSlave->explicitDeviceID == explicitDeviceID) {
-                            slave = environnementSlave;
-                            Logger::info("      Matched Environnement Slave by Name & Explicit Device ID");
-                        }
-						break;
+							if (explicitDeviceIdSupported && environnementSlave->explicitDeviceID == explicitDeviceID) {
+								slave = environnementSlave;
+								Logger::info("      Matched Environnement Slave by Name & Explicit Device ID");
+							}
+							break;
                     }
 					if(slave != nullptr) break;
                 }
 
                 if (slave == nullptr) {
                     Logger::info("      Slave did not match any Environnement Slave");
-                    slave = NodeFactory::getDeviceByEtherCatName(identity.name);
+                    //slave = NodeFactory::getDeviceByEtherCatName(identity.name);
+					slave = NodeFactory::getDeviceByIdCodes(identity.eep_man, identity.eep_id);
                     slave->stationAlias = stationAlias;
                     slave->explicitDeviceID = explicitDeviceID;
                     char name[128];

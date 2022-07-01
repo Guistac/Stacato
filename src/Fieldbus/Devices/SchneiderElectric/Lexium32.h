@@ -6,7 +6,7 @@
 class Lexium32 : public EtherCatDevice {
 public:
 
-    DEFINE_ETHERCAT_DEVICE(Lexium32, "LXM32M EtherCAT", "Lexium32M", "Lexium32M", "Schneider Electric", "Servo Drives")
+    DEFINE_ETHERCAT_DEVICE(Lexium32, "LXM32M EtherCAT", "Lexium32M", "Lexium32M", "Schneider Electric", "Servo Drives", 0x800005A, 0x16440)
 
     //node input data
     std::shared_ptr<NodePin> digitalOut0 = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ0");
