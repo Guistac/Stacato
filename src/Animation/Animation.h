@@ -83,37 +83,30 @@ public:
 	std::shared_ptr<SequenceAnimation> toSequence(){ return std::dynamic_pointer_cast<SequenceAnimation>(shared_from_this()); }
 	
 	
-	//————————————————————— Playback ——————————————————————
+	//——————— Playback Control ———————
 	
 public:
 	
 	bool isMachineEnabled();
-	
-	//——————— Rapid Control ———————
+	virtual bool isReadyToStartPlayback(){ return false; }
+	virtual bool canPausePlayback(){ return false; }
+	bool isReadyToRapid();
+	float getProgress();
 	
 	virtual bool isAtStart(){ return false; }
 	virtual bool canRapidToStart(){ return false; }
 	void rapidToStart();
-	virtual bool onRapidToStart(){}
+	virtual bool onRapidToStart(){ return false; }
 	
 	virtual bool isAtTarget(){ return false; }
 	virtual bool canRapidToTarget(){ return false; }
 	void rapidToTarget();
-	virtual bool onRapidToTarget(){}
+	virtual bool onRapidToTarget(){ return false; }
 	
 	virtual bool isAtPlaybackPosition(){ return false; }
 	virtual bool canRapidToPlaybackPosition(){ return false; }
 	void rapidToPlaybackPosition();
-	virtual bool onRapidToPlaybackPosition(){}
-	
-	void stopRapid();
-	virtual float getRapidProgress();
-	
-	//——————— Playback Control ———————
-	
-	virtual bool isReadyToStartPlayback(){ return false; }
-	virtual bool canPausePlayback(){ return false; }
-	bool isReadyToRapid();
+	virtual bool onRapidToPlaybackPosition(){ return false; }
 	
 	void startPlayback();
 	virtual bool onStartPlayback(){ return true; }
@@ -121,7 +114,11 @@ public:
 	void stopPlayback();
 	void endPlayback();
 	
+	void stopRapid();
+	
 	void stop();
+	
+	//——————— Playback Update ———————
 	
 	void updateDuration();
 	void updatePlaybackState();

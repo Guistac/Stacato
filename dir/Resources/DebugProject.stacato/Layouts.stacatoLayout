@@ -196,6 +196,8 @@
 
 
 
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -480,6 +482,8 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,101 Size=2056,1144 Central
             <Window Name="Dashboard"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
 
 
 
@@ -931,7 +935,7 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
 
 </ImGuiIniString>
     </Layout>
-    <Layout Name="Plot Debug">
+    <Layout Name="Plot Debug" IsDefault="true">
         <OpenWindows>
             <Window Name="Visualizer"/>
             <Window Name="Dashboard"/>
@@ -941,6 +945,8 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
             <Window Name="Playback Manager"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
 
 
 
@@ -1272,11 +1278,13 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split
 
 </ImGuiIniString>
     </Layout>
-    <Layout Name="ESI Tests" IsDefault="true">
+    <Layout Name="ESI Tests">
         <OpenWindows>
             <Window Name="ESI Reader"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
 
 
 

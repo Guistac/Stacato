@@ -211,17 +211,7 @@ void PlaybackManagerWindow::drawContent(){
 			glm::vec2 max = ImGui::GetItemRectMax();
 			drawing->AddRectFilled(min, max, ImColor(Colors::black), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 			
-			float progress = 0.0;
-			switch(animation->getPlaybackState()){
-				case Animation::PlaybackState::IN_RAPID:
-					progress = animation->getRapidProgress();
-					break;
-				case Animation::PlaybackState::PLAYING:
-				case Animation::PlaybackState::PAUSED:
-					progress = animation->getPlaybackPosition() / animation->getDuration();
-					break;
-				default: break;
-			}
+			float progress = animation->getProgress();
 			if(progress > 0.0 && progress < 1.0){
 				glm::vec2 maxPlayback(min.x + (max.x - min.x) * progress, max.y);
 				drawing->AddRectFilled(min, maxPlayback, ImColor(1.f, 1.f, 1.f, .2f), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);

@@ -309,7 +309,6 @@ void AnimatablePosition::onPlaybackEnd(){}
 
 
 void AnimatablePosition::setVelocityTarget(double velocityTarget){
-	stopAnimation();
 	const std::lock_guard<std::mutex> lock(mutex);
 	velocitySetpoint = std::clamp(velocityTarget, -velocityLimit, velocityLimit);
 	positionSetpoint = 0.0;
@@ -319,7 +318,6 @@ void AnimatablePosition::setVelocityTarget(double velocityTarget){
 }
 
 void AnimatablePosition::moveToPositionWithVelocity(double targetPosition, double targetVelocity){
-	stopAnimation();
 	const std::lock_guard<std::mutex> lock(mutex);
 	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
 	motionProfile.moveToPositionWithVelocity(profileTime_seconds, targetPosition, targetVelocity, rapidAcceleration);
@@ -327,11 +325,28 @@ void AnimatablePosition::moveToPositionWithVelocity(double targetPosition, doubl
 }
 
 void AnimatablePosition::moveToPositionInTime(double targetPosition, double targetTime){
-	stopAnimation();
 	const std::lock_guard<std::mutex> lock(mutex);
 	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
 	motionProfile.moveToPositionInTime(profileTime_seconds, targetPosition, targetTime, rapidAcceleration, velocityLimit);
 	controlMode = POSITION_TARGET;
+}
+
+
+
+
+void AnimatablePosition::setManualVelocityTarget(double velocityTarget){
+	stopAnimation();
+	setVelocityTarget(velocityTarget);
+}
+
+void AnimatablePosition::setManualPositionTargetWithVelocity(double targetPosition, double targetVelocity){
+	stopAnimation();
+	moveToPositionWithVelocity(targetPosition, targetVelocity);
+}
+
+void AnimatablePosition::setManualPositionTargetWithTime(double targetPosition, double targetTime){
+	stopAnimation();
+	moveToPositionInTime(targetPosition, targetTime);
 }
 
 
@@ -424,7 +439,7 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 	const std::lock_guard<std::mutex> lock(mutex);
 	profileTime_seconds = time_seconds;
 	
-	if(hasAnimation()){
+	if(hasAnimation() && getAnimation()->getPlaybackState() == Animation::PlaybackState::PLAYING){
 		auto target = getAnimationValue()->toPosition();
 		positionSetpoint = target->position;
 		velocitySetpoint = target->velocity;

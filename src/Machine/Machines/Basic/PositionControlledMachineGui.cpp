@@ -444,9 +444,9 @@ void PositionControlledMachine::widgetGui(){
 	static double min = -1.0;
 	static double max = 1.0;
 	ImGui::VSliderScalar("##ManualVelocity", verticalSliderSize, ImGuiDataType_Double, &velocitySliderValue, &min, &max, "");
-	if (ImGui::IsItemActive()) animatablePosition->setManualControlTarget(velocitySliderValue);
+	if (ImGui::IsItemActive()) animatablePosition->setManualVelocityTarget(velocitySliderValue);
 	else if (ImGui::IsItemDeactivatedAfterEdit()) {
-		animatablePosition->setManualControlTarget(0.0);
+		animatablePosition->setManualVelocityTarget(0.0);
 		velocitySliderValue = 0.0;
 	}
 		
@@ -514,7 +514,7 @@ void PositionControlledMachine::widgetGui(){
 	float doubleWidgetWidth = (contentSize.x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
 	glm::vec2 doubleButtonSize(doubleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
 
-	if (ImGui::Button("Move", doubleButtonSize)) animatablePosition->moveToPositionWithVelocity(positionTargetValue, animatablePosition->rapidVelocity);
+	if (ImGui::Button("Move", doubleButtonSize)) animatablePosition->setManualPositionTargetWithVelocity(positionTargetValue, animatablePosition->rapidVelocity);
 
 	ImGui::SameLine();
 

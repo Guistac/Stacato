@@ -178,42 +178,59 @@ bool Animation::isReadyToRapid(){
 
 void Animation::rapidToStart(){
 	if(!canRapidToStart()) return;
+	animatable->stopAnimation();
 	if(onRapidToStart()){
 		setPlaybackPosition(0.0);
 		playbackState = PlaybackState::IN_RAPID;
-		PlaybackManager::push(shared_from_this());
+		
+		auto thisAnimation = shared_from_this();
+		animatable->currentAnimation = thisAnimation;
+		
+		PlaybackManager::push(thisAnimation);
 		if(hasManoeuvre()) PlaybackManager::push(getManoeuvre());
 	}
 }
 
 void Animation::rapidToTarget(){
 	if(!canRapidToTarget()) return;
+	animatable->stopAnimation();
 	if(onRapidToTarget()){
 		setPlaybackPosition(duration_seconds);
 		playbackState = PlaybackState::IN_RAPID;
-		PlaybackManager::push(shared_from_this());
+		
+		auto thisAnimation = shared_from_this();
+		animatable->currentAnimation = thisAnimation;
+		
+		PlaybackManager::push(thisAnimation);
 		if(hasManoeuvre()) PlaybackManager::push(getManoeuvre());
 	}
 }
 
 void Animation::rapidToPlaybackPosition(){
 	if(!canRapidToPlaybackPosition()) return;
+	animatable->stopAnimation();
 	if(onRapidToPlaybackPosition()){
 		playbackState = PlaybackState::IN_RAPID;
-		PlaybackManager::push(shared_from_this());
+		
+		auto thisAnimation = shared_from_this();
+		animatable->currentAnimation = thisAnimation;
+		
+		PlaybackManager::push(thisAnimation);
 		if(hasManoeuvre()) PlaybackManager::push(getManoeuvre());
 	}
 }
 
-float Animation::getRapidProgress(){
-	return animatable->getRapidProgress();
+float Animation::getProgress(){
+	switch(playbackState){
+		case PlaybackState::NOT_PLAYING:
+			return 0;
+		case PlaybackState::IN_RAPID:
+			return animatable->getRapidProgress();
+		case PlaybackState::PAUSED:
+		case PlaybackState::PLAYING:
+			return playbackPosition_seconds / duration_seconds;
+	}
 }
-
-void Animation::stopRapid(){
-	animatable->cancelRapid();
-}
-
-
 
 
 
@@ -221,19 +238,21 @@ void Animation::stopRapid(){
 
 void Animation::startPlayback(){
 	if(!isReadyToStartPlayback()) return;
+	animatable->stopAnimation();
 	if(onStartPlayback()){
 		updateDuration();
+		
 		//the offset is to account for starting playback when the playback position is not zero
 		playbackStartTime_microseconds = PlaybackManager::getTime_microseconds() - playbackPosition_seconds * 1000000;
 		playbackState = PlaybackState::PLAYING;
-		PlaybackManager::push(shared_from_this());
-		//stop playback of current animation if there is one playing
-		if(animatable->hasAnimation()) animatable->getAnimation()->stopPlayback();
-		//set animation as current
-		animatable->currentAnimation = shared_from_this();
-		//notify animatable of playback start
+		
+		auto thisAnimation = shared_from_this();
+		animatable->currentAnimation = thisAnimation;
 		animatable->onPlaybackStart();
-		if(hasManoeuvre()) PlaybackManager::push(getManoeuvre());
+		
+		PlaybackManager::push(thisAnimation);
+		if(manoeuvre) PlaybackManager::push(manoeuvre);
+		
 		requestCurveRefocus();
 	}
 }
@@ -263,7 +282,12 @@ void Animation::endPlayback(){
 
 
 
-
+void Animation::stopRapid(){
+	animatable->cancelRapid();
+	animatable->currentAnimation = nullptr;
+	playbackState = PlaybackState::NOT_PLAYING;
+	//setPlaybackPosition(0.0);
+}
 
 
 

@@ -108,21 +108,9 @@ void Manoeuvre::listGui(){
 		float animationHeight = size.y / (float)animationCount;
 		for(int i = 0; i < animationCount; i++){
 			auto& animation = activeAnimations[i];
-			float progress;
-			switch(animation->getPlaybackState()){
-				case Animation::PlaybackState::PLAYING:
-				case Animation::PlaybackState::PAUSED:
-					progress = animation->getPlaybackPosition() / animation->getDuration();
-					break;
-				case Animation::PlaybackState::IN_RAPID:
-					progress = animation->getRapidProgress();
-					break;
-				default:
-					progress = 0.0;
-					break;
-			}
+			float progress = animation->getProgress();
 			glm::vec2 minBar(min.x, min.y + animationHeight * i);
-			glm::vec2 maxBar(minBar.x + size.x * animations[i]->getRapidProgress(), minBar.y + animationHeight);
+			glm::vec2 maxBar(minBar.x + size.x * progress, minBar.y + animationHeight);
 			ImGui::GetWindowDrawList()->AddRectFilled(minBar, maxBar, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
 			
 		}
@@ -177,21 +165,9 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 		float animationHeight = size.y / (float)animationCount;
 		for(int i = 0; i < animationCount; i++){
 			auto& animation = activeAnimations[i];
-			float progress;
-			switch(animation->getPlaybackState()){
-				case Animation::PlaybackState::PLAYING:
-				case Animation::PlaybackState::PAUSED:
-					progress = animation->getPlaybackPosition() / animation->getDuration();
-					break;
-				case Animation::PlaybackState::IN_RAPID:
-					progress = animation->getRapidProgress();
-					break;
-				default:
-					progress = 0.0;
-					break;
-			}
+			float progress = animation->getProgress();
 			glm::vec2 minBar(min.x, min.y + animationHeight * i);
-			glm::vec2 maxBar(minBar.x + size.x * animations[i]->getRapidProgress(), minBar.y + animationHeight);
+			glm::vec2 maxBar(minBar.x + size.x * progress, minBar.y + animationHeight);
 			ImGui::GetWindowDrawList()->AddRectFilled(minBar, maxBar, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
 			
 		}

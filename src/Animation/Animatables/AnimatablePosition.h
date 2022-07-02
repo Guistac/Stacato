@@ -67,10 +67,17 @@ public:
 	virtual void onSetManualControlTarget(float x, float y, float z) override;
 	
 	
+public:
+	void setManualVelocityTarget(double velocityTarget);
+	void setManualPositionTargetWithVelocity(double targetPosition, double targetVelocity);
+	void setManualPositionTargetWithTime(double targetPosition, double targetTime);
 	
+private:
 	void setVelocityTarget(double velocityTarget);
 	void moveToPositionWithVelocity(double targetPosition, double targetVelocity);
 	void moveToPositionInTime(double targetPosition, double targetTime);
+	
+public:
 	
 	bool hasPositionSetpoint();
 	double getPositionSetpoint();
@@ -110,3 +117,8 @@ public:
 	double positionSetpoint = 0.0;
 	double accelerationSetpoint = 0.0;
 };
+
+
+//public: lock mutex
+//private: require locked mutex
+//do not call public functions internally
