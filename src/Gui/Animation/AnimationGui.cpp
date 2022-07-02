@@ -137,7 +137,7 @@ void SequenceAnimation::playbackGui(){
 	if(atTarget) ImGui::PopStyleColor();
 	ImGui::EndDisabled();
 	ImGui::SameLine();
-	if(getPlaybackState() == Animation::PlaybackState::PLAYING){
+	if(isPlaying()){
 		ImGui::BeginDisabled(!canPausePlayback());
 		if(buttonPause("PausePlayback")) {
 			pausePlayback();

@@ -108,7 +108,9 @@ void Manoeuvre::listGui(){
 		float animationHeight = size.y / (float)animationCount;
 		for(int i = 0; i < animationCount; i++){
 			auto& animation = activeAnimations[i];
-			float progress = animation->getProgress();
+			float progress;
+			if(animation->isInRapid()) progress = animation->getRapidProgress();
+			else progress = animation->getPlaybackProgress();
 			glm::vec2 minBar(min.x, min.y + animationHeight * i);
 			glm::vec2 maxBar(minBar.x + size.x * progress, minBar.y + animationHeight);
 			ImGui::GetWindowDrawList()->AddRectFilled(minBar, maxBar, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
@@ -165,7 +167,9 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 		float animationHeight = size.y / (float)animationCount;
 		for(int i = 0; i < animationCount; i++){
 			auto& animation = activeAnimations[i];
-			float progress = animation->getProgress();
+			float progress;
+			if(animation->isInRapid()) progress = animation->getRapidProgress();
+			else progress = animation->getPlaybackProgress();
 			glm::vec2 minBar(min.x, min.y + animationHeight * i);
 			glm::vec2 maxBar(minBar.x + size.x * progress, minBar.y + animationHeight);
 			ImGui::GetWindowDrawList()->AddRectFilled(minBar, maxBar, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
@@ -280,8 +284,7 @@ void Manoeuvre::sheetEditor(){
 				for(int j = 0; j < childAnimations.size(); j++){
 					ImGui::TableNextRow();
 					ImGui::PushID(j);
-					Animation::PlaybackState playbackState = animation->getPlaybackState();
-					ImGui::BeginDisabled(playbackState == Animation::PlaybackState::PLAYING || playbackState == Animation::PlaybackState::PAUSED);
+					ImGui::BeginDisabled(animation->isPlaying() || animation->isPaused());
 					childAnimations[j]->baseTrackSheetRowGui();
 					childAnimations[j]->trackSheetRowGui();
 					ImGui::EndDisabled();

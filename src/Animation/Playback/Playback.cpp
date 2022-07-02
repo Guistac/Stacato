@@ -39,7 +39,7 @@ namespace PlaybackManager {
 	}
 
 	bool isAnyAnimationActive(){
-		return activeAnimations.empty();
+		return !activeAnimations.empty();
 	}
 
 	void stopAllAnimations(){
@@ -79,7 +79,9 @@ namespace PlaybackManager {
 		std::vector<std::shared_ptr<Animation>> finishedAnimations;
 		for(auto& animation : activeAnimations){
 			animation->updatePlaybackState();
-			if(animation->getPlaybackState() == Animation::PlaybackState::NOT_PLAYING) finishedAnimations.push_back(animation);
+			if(!animation->isPlaying() && !animation->isPaused() && !animation->isInRapid()){
+				finishedAnimations.push_back(animation);
+			}
 		}
 		for(auto& animation : finishedAnimations) removeAnimation(animation);
 		
@@ -96,7 +98,7 @@ namespace PlaybackManager {
 		//increment playback position of current manoeuvres
 		long long time_micros = Environnement::getTime_nanoseconds() / 1000;
 		for (auto& animation : activeAnimations) {
-			if(animation->getPlaybackState() == Animation::PlaybackState::PLAYING){
+			if(animation->isPlaying()){
 				animation->incrementPlaybackPosition(time_micros);
 			}
 		}

@@ -246,11 +246,12 @@ bool SequenceAnimation::onRapidToPlaybackPosition(){
 bool SequenceAnimation::isReadyToStartPlayback(){
 	auto animatable = getAnimatable();
 	if(!animatable->isReadyToMove()) return false;
+	if(isPlaying()) return false;
 	return animatable->isReadyToStartPlaybackFromValue(getValueAtPlaybackTime());
 }
 
 bool SequenceAnimation::canPausePlayback(){
-	return getPlaybackState() == Animation::PlaybackState::PLAYING;
+	return isPlaying();
 }
 
 

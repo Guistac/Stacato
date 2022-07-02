@@ -106,18 +106,16 @@ public:
 	bool canStop();
 	void stop();
 	
-	bool canSetPlaybackPosition();
-	void setPlaybackPosition(double seconds);
-	
-	
 	void updatePlaybackState();
 	bool b_hasActiveAnimations = false;
 	bool hasActiveAnimations(){ return b_hasActiveAnimations; }
 	std::vector<std::shared_ptr<Animation>> getActiveAnimations();
 	
 	double synchronizedPlaybackPosition;
-	double getSychronizedPlaybackPosition(){ return synchronizedPlaybackPosition; }
+	double getSychronizedPlaybackPosition();
 	double getRemainingPlaybackTime();
+	bool canSetPlaybackPosition();
+	void setSynchronizedPlaybackPosition(double seconds);
 	
 	bool hasDuration();
 	void updateDuration();

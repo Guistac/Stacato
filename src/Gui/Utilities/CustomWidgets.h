@@ -67,13 +67,14 @@ void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor);
 void backgroundText(const char* text, ImVec4 backgroundColor, ImVec4 textColor);
 void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec4 textColor);
 
+bool textInputCustom(const char* ID, char* buffer, size_t bufferSize, ImVec2 size, ImGuiInputTextFlags flags);
+
 //—————————————————————————————————————
 //			Time Entry
 //—————————————————————————————————————
 
-bool timeEntryWidgetSeconds(const char* ID, float height, double& time_seconds);
+bool timeEntryWidgetSeconds(const char* ID, float height, double& time_seconds, const char* message = nullptr);
 bool timeEntryWidgetMicroseconds(const char* ID, float height, long long int time_microseconds);
-
 
 void scrollingTextWithBackground(const char* ID, const char* text, ImVec2 size, ImVec4 backgroundColor, bool lock = false, float pausetime = 2.0, float velocity = 2.0);
 void scrollingText(const char* ID, const char* text, float width, bool lock = false, float pauseTime = 2.0, float velocity = 2.0);

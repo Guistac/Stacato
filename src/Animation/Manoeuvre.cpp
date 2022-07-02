@@ -452,7 +452,7 @@ void Manoeuvre::rapidToPlaybackPosition(){
 void Manoeuvre::updatePlaybackState(){
 	bool hasActiveAnimations = false;
 	for(auto& animation : getAnimations()){
-		if(animation->getPlaybackState() != Animation::PlaybackState::NOT_PLAYING){
+		if(animation->isActive()){
 			hasActiveAnimations = true;
 			break;
 		}
@@ -463,28 +463,84 @@ void Manoeuvre::updatePlaybackState(){
 		//update synchronized playback position
 		int firstActiveAnimationIndex;
 		for(int i = 0; i < animations.size(); i++){
-			if(animations[i]->getPlaybackState() != Animation::PlaybackState::NOT_PLAYING){
+			if(animations[i]->isActive()){
 				firstActiveAnimationIndex = i;
 				break;
 			}
 		}
 		double playbackPosition = animations[firstActiveAnimationIndex]->getPlaybackPosition();
 		for(int i = firstActiveAnimationIndex + 1; i < animations.size(); i++){
-			if(animations[i]->getPlaybackState() == Animation::PlaybackState::NOT_PLAYING) continue;
+			if(!animations[i]->isActive()) continue;
 			double position = animations[i]->getPlaybackPosition();
-			if(playbackPosition != position) return std::numeric_limits<double>::quiet_NaN();
+			if(playbackPosition != position) {
+				playbackPosition = std::numeric_limits<double>::quiet_NaN();
+				break;
+			}
 		}
 		synchronizedPlaybackPosition = playbackPosition;
 	}else{
-		synchronizedPlaybackPosition = std::numeric_limits<double>::quiet_NaN();
+		double playbackPosition;
+		if(animations.empty()) playbackPosition = std::numeric_limits<double>::quiet_NaN();
+		else{
+			playbackPosition = animations.front()->getPlaybackPosition();
+			for(int i = 1; i < animations.size(); i++){
+				if(animations[i]->getPlaybackPosition() != playbackPosition){
+					playbackPosition = std::numeric_limits<double>::quiet_NaN();
+					break;
+				}
+			}
+		}
+		synchronizedPlaybackPosition = playbackPosition;
 	}
 	
 }
 
+
+
+double Manoeuvre::getSychronizedPlaybackPosition(){
+	if(b_hasActiveAnimations) return synchronizedPlaybackPosition;
+	else{
+		double playbackPosition;
+		if(animations.empty()) return std::numeric_limits<double>::quiet_NaN();
+		else{
+			playbackPosition = animations.front()->getPlaybackPosition();
+			for(int i = 1; i < animations.size(); i++){
+				if(animations[i]->getPlaybackPosition() != playbackPosition){
+					playbackPosition = std::numeric_limits<double>::quiet_NaN();
+					break;
+				}
+			}
+		}
+		return playbackPosition;
+	}
+}
+
+
+bool Manoeuvre::canSetPlaybackPosition(){
+	switch(getType()){
+		case ManoeuvreType::KEY:
+			return false;
+		case ManoeuvreType::TARGET: return false;
+		case ManoeuvreType::SEQUENCE:
+			for(auto& animation : getAnimations()){
+				if(animation->isPlaying()) return false;
+			}
+			return true;
+	}
+}
+
+void Manoeuvre::setSynchronizedPlaybackPosition(double seconds){
+	if(!canSetPlaybackPosition()) return;
+	for(auto& animation : animations) animation->setPlaybackPosition(seconds);
+}
+
+
+
+
 std::vector<std::shared_ptr<Animation>> Manoeuvre::getActiveAnimations(){
 	std::vector<std::shared_ptr<Animation>> activeAnimations;
 	for(auto& animation : getAnimations()){
-		if(animation->getPlaybackState() != Animation::PlaybackState::NOT_PLAYING){
+		if(animation->isActive()){
 			activeAnimations.push_back(animation);
 		}
 	}
@@ -569,38 +625,13 @@ void Manoeuvre::updateDuration(){
 
 
 
-bool Manoeuvre::canSetPlaybackPosition(){
-	switch(getType()){
-		case ManoeuvreType::KEY:
-			return false;
-		case ManoeuvreType::TARGET:
-			for(auto& animation : getAnimations()){
-				if(animation->getPlaybackState() != Animation::PlaybackState::PAUSED) return false;
-			}
-			return true;
-		case ManoeuvreType::SEQUENCE:
-			for(auto& animation : getAnimations()){
-				Animation::PlaybackState state = animation->getPlaybackState();
-				if(state == Animation::PlaybackState::PLAYING || state == Animation::PlaybackState::IN_RAPID) return false;
-			}
-			return true;
-	}
-}
-
-void Manoeuvre::setPlaybackPosition(double seconds){
-	if(!canSetPlaybackPosition()) return;
-	for(auto& animation : animations) animation->setPlaybackPosition(seconds);
-}
-
-
-
 
 
 
 
 bool Manoeuvre::canStop(){
 	for(auto& animation : getAnimations()){
-		if(animation->getPlaybackState() != Animation::PlaybackState::NOT_PLAYING) return true;
+		if(animation->isActive()) return true;
 	}
 	return false;
 }
@@ -623,11 +654,7 @@ bool Manoeuvre::hasDuration(){
 		case ManoeuvreType::KEY: return false;
 		case ManoeuvreType::TARGET:
 			for(auto& animation : getAnimations()){
-				switch(animation->getPlaybackState()){
-					case Animation::PlaybackState::PLAYING:
-					case Animation::PlaybackState::PAUSED: return true;
-					default: break;
-				}
+				if(animation->isPlaying() || animation->isPaused()) return true;
 			}
 			return false;
 		case ManoeuvreType::SEQUENCE: return true;

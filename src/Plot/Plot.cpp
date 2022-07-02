@@ -14,5 +14,5 @@ std::shared_ptr<Plot> Plot::create(){
 
 void Plot::selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre){
 	selectedManoeuvre = manoeuvre;
-	selectedManoeuvre->requestCurveRefocus();
+	if(manoeuvre) selectedManoeuvre->requestCurveRefocus();
 }

@@ -181,7 +181,9 @@ void Animation::rapidToStart(){
 	animatable->stopAnimation();
 	if(onRapidToStart()){
 		setPlaybackPosition(0.0);
-		playbackState = PlaybackState::IN_RAPID;
+		
+		b_isPlaying = false;
+		b_isInRapid = true;
 		
 		auto thisAnimation = shared_from_this();
 		animatable->currentAnimation = thisAnimation;
@@ -196,7 +198,9 @@ void Animation::rapidToTarget(){
 	animatable->stopAnimation();
 	if(onRapidToTarget()){
 		setPlaybackPosition(duration_seconds);
-		playbackState = PlaybackState::IN_RAPID;
+		
+		b_isPlaying = false;
+		b_isInRapid = true;
 		
 		auto thisAnimation = shared_from_this();
 		animatable->currentAnimation = thisAnimation;
@@ -210,7 +214,10 @@ void Animation::rapidToPlaybackPosition(){
 	if(!canRapidToPlaybackPosition()) return;
 	animatable->stopAnimation();
 	if(onRapidToPlaybackPosition()){
-		playbackState = PlaybackState::IN_RAPID;
+		
+		b_isPlaying = false;
+		b_isInRapid = true;
+		b_isPaused = true;
 		
 		auto thisAnimation = shared_from_this();
 		animatable->currentAnimation = thisAnimation;
@@ -220,17 +227,14 @@ void Animation::rapidToPlaybackPosition(){
 	}
 }
 
-float Animation::getProgress(){
-	switch(playbackState){
-		case PlaybackState::NOT_PLAYING:
-			return 0;
-		case PlaybackState::IN_RAPID:
-			return animatable->getRapidProgress();
-		case PlaybackState::PAUSED:
-		case PlaybackState::PLAYING:
-			return playbackPosition_seconds / duration_seconds;
-	}
+float Animation::getRapidProgress(){
+	return animatable->getRapidProgress();
 }
+
+float Animation::getPlaybackProgress(){
+	return playbackPosition_seconds / duration_seconds;
+}
+
 
 
 
@@ -238,13 +242,15 @@ float Animation::getProgress(){
 
 void Animation::startPlayback(){
 	if(!isReadyToStartPlayback()) return;
-	animatable->stopAnimation();
+	if(!b_isPaused) animatable->stopAnimation();
 	if(onStartPlayback()){
 		updateDuration();
 		
 		//the offset is to account for starting playback when the playback position is not zero
 		playbackStartTime_microseconds = PlaybackManager::getTime_microseconds() - playbackPosition_seconds * 1000000;
-		playbackState = PlaybackState::PLAYING;
+		b_isPlaying = true;
+		b_isPaused = false;
+		b_isInRapid = false;
 		
 		auto thisAnimation = shared_from_this();
 		animatable->currentAnimation = thisAnimation;
@@ -258,34 +264,30 @@ void Animation::startPlayback(){
 }
 
 void Animation::pausePlayback(){
-	if(playbackState != PlaybackState::PLAYING) return;
-	playbackState = PlaybackState::PAUSED;
+	if(!b_isPlaying) return;
+	b_isPlaying = false;
+	b_isPaused = true;
 	animatable->currentAnimation = nullptr;
 	animatable->onPlaybackPause();
 }
 
 void Animation::stopPlayback(){
-	if(playbackState == PlaybackState::NOT_PLAYING) return;
-	playbackState = PlaybackState::NOT_PLAYING;
+	if(!b_isPlaying && !b_isPaused) return;
+	b_isPlaying = false;
+	b_isPaused = false;
 	animatable->currentAnimation = nullptr;
 	animatable->onPlaybackStop();
 	setPlaybackPosition(0.0);
 }
 
-void Animation::endPlayback(){
-	if(playbackState != PlaybackState::PLAYING) return;
-	playbackState = PlaybackState::NOT_PLAYING;
-	animatable->currentAnimation = nullptr;
-	animatable->onPlaybackEnd();
-	setPlaybackPosition(0.0);
-}
+
 
 
 
 void Animation::stopRapid(){
 	animatable->cancelRapid();
 	animatable->currentAnimation = nullptr;
-	playbackState = PlaybackState::NOT_PLAYING;
+	b_isInRapid = false;
 	//setPlaybackPosition(0.0);
 }
 
@@ -298,11 +300,11 @@ std::shared_ptr<AnimationValue> Animation::getValueAtPlaybackTime(){
 }
 
 void Animation::stop(){
-	switch(playbackState){
-		case PlaybackState::NOT_PLAYING: return;
-		case PlaybackState::PAUSED:
-		case PlaybackState::PLAYING: stopPlayback(); break;
-		case PlaybackState::IN_RAPID: stopRapid(); break;
+	if(isPlaying() || isPaused()) {
+		stopPlayback();
+	}
+	else if(isInRapid()) {
+		stopRapid();
 	}
 }
 
@@ -315,17 +317,17 @@ void Animation::updateDuration(){
 }
 
 void Animation::updatePlaybackState(){
-	switch(playbackState){
-		case PlaybackState::PLAYING:
-			if(playbackPosition_seconds >= duration_seconds && isAtTarget()) stopPlayback();
-			break;
-		case PlaybackState::IN_RAPID:
-			if(!animatable->isInRapid()) {
-				playbackState = PlaybackState::NOT_PLAYING;
-			}
-			break;
-		default:
-			break;
+	if(isPlaying()){
+		if(playbackPosition_seconds >= duration_seconds && isAtTarget()) {
+			b_isPlaying = false;
+			b_isPaused = false;
+			animatable->currentAnimation = nullptr;
+			animatable->onPlaybackEnd();
+			setPlaybackPosition(0.0);
+		}
+	}
+	else if(isInRapid()){
+		if(!animatable->isInRapid()) b_isInRapid = false;
 	}
 }
 

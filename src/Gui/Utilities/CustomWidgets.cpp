@@ -722,25 +722,30 @@ void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec
 	ImGui::PopStyleVar();
 }
 
+bool textInputCustom(const char* ID, char* buffer, size_t bufferSize, ImVec2 size, ImGuiInputTextFlags flags){
+	float paddingY = (size.y - ImGui::GetTextLineHeight()) / 2.0;
+	float paddingX = ImGui::GetStyle().FramePadding.x;
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(paddingX, paddingY));
+	ImGui::SetNextItemWidth(size.x);
+	ImGui::InputText(ID, buffer, bufferSize, flags);
+	bool ret = ImGui::IsItemDeactivatedAfterEdit();
+	ImGui::PopStyleVar();
+	return ret;
+}
 
 #include "Animation/Playback/TimeStringConversion.h"
 
-bool timeEntryWidgetSeconds(const char* ID, float height, double& time_seconds){
+bool timeEntryWidgetSeconds(const char* ID, float height, double& time_seconds, const char* message){
 	static char textBuffer[64];
-	strcpy(textBuffer, TimeStringConversion::secondsToTimecodeString(time_seconds).c_str());
-	bool ret = false;
+	if(message) strcpy(textBuffer, message);
+	else strcpy(textBuffer, TimeStringConversion::secondsToTimecodeString(time_seconds).c_str());
 	
-	float paddingY = (height - ImGui::GetTextLineHeight()) / 2.0;
-	float paddingX = ImGui::GetStyle().FramePadding.x;
-	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(paddingX, paddingY));
-	ImGui::SetNextItemWidth(ImGui::CalcTextSize("+00:00:00.0").x + ImGui::GetStyle().FramePadding.x * 2.0);
-	ImGui::InputText(ID, textBuffer, 64, ImGuiInputTextFlags_AutoSelectAll);
-	if(ImGui::IsItemDeactivatedAfterEdit()){
+	ImVec2 size(ImGui::CalcTextSize("+00:00:00.0").x + ImGui::GetStyle().FramePadding.x * 2.0, height);
+	if(textInputCustom(ID, textBuffer, 64, size, ImGuiInputTextFlags_AutoSelectAll)){
 		time_seconds = TimeStringConversion::timecodeStringToSeconds(textBuffer);
-		ret = true;
+		return true;
 	}
-	ImGui::PopStyleVar();
-	return ret;
+	return false;
 }
 
 bool timeEntryWidgetMicroseconds(const char* ID, float height, long long int time_microseconds){

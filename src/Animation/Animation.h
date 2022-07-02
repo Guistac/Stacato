@@ -91,7 +91,9 @@ public:
 	virtual bool isReadyToStartPlayback(){ return false; }
 	virtual bool canPausePlayback(){ return false; }
 	bool isReadyToRapid();
-	float getProgress();
+	
+	float getRapidProgress();
+	float getPlaybackProgress();
 	
 	virtual bool isAtStart(){ return false; }
 	virtual bool canRapidToStart(){ return false; }
@@ -112,7 +114,6 @@ public:
 	virtual bool onStartPlayback(){ return true; }
 	void pausePlayback();
 	void stopPlayback();
-	void endPlayback();
 	
 	void stopRapid();
 	
@@ -123,13 +124,27 @@ public:
 	void updateDuration();
 	void updatePlaybackState();
 	void incrementPlaybackPosition(long long playbackTime_microseconds);
-	enum class PlaybackState{
-		NOT_PLAYING,
-		IN_RAPID,
-		PLAYING,
-		PAUSED
-	};
-	PlaybackState getPlaybackState(){ return playbackState; }
+	
+private:
+	bool b_isPlaying = false; 	//indicates active playback
+	bool b_isPaused = false;	//indicates inactive playback but prevent removal from playback manager
+	bool b_isInRapid = false;	//indicates active rapid movement
+	
+public:
+	bool isInRapid(){ return b_isInRapid; }
+	bool isPlaying(){ return b_isPlaying; }
+	bool isPaused(){ return b_isPaused; }
+	bool isActive(){ return b_isPlaying || b_isInRapid || b_isPaused; }
+	
+	//not playing, no rapid
+	//playing, no rapid
+	//paused, no rapid
+	
+	//not playing, in rapid
+	//paused, in rapid
+	
+	//rapid/play/pause request setAnimation()
+	
 	
 	
 	void setDuration(double seconds){ duration_seconds = seconds; }
@@ -142,9 +157,8 @@ public:
 private:
 	
 	long long playbackStartTime_microseconds;
-	double playbackPosition_seconds;
-	double duration_seconds;
-	PlaybackState playbackState = PlaybackState::NOT_PLAYING;
+	double playbackPosition_seconds = 0.0;
+	double duration_seconds = 0.0;
 	
 	//—————————————————— User Interface ———————————————————
 	

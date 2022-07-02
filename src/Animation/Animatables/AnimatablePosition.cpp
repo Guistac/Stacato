@@ -297,7 +297,7 @@ void AnimatablePosition::onSetManualControlTarget(float x, float y, float z){
 
 void AnimatablePosition::onPlaybackStart(){}
 void AnimatablePosition::onPlaybackPause(){}
-void AnimatablePosition::onPlaybackStop(){}
+void AnimatablePosition::onPlaybackStop(){ setVelocityTarget(0.0); }
 void AnimatablePosition::onPlaybackEnd(){}
 
 
@@ -309,7 +309,6 @@ void AnimatablePosition::onPlaybackEnd(){}
 
 
 void AnimatablePosition::setVelocityTarget(double velocityTarget){
-	const std::lock_guard<std::mutex> lock(mutex);
 	velocitySetpoint = std::clamp(velocityTarget, -velocityLimit, velocityLimit);
 	positionSetpoint = 0.0;
 	accelerationSetpoint = 0.0;
@@ -318,14 +317,12 @@ void AnimatablePosition::setVelocityTarget(double velocityTarget){
 }
 
 void AnimatablePosition::moveToPositionWithVelocity(double targetPosition, double targetVelocity){
-	const std::lock_guard<std::mutex> lock(mutex);
 	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
 	motionProfile.moveToPositionWithVelocity(profileTime_seconds, targetPosition, targetVelocity, rapidAcceleration);
 	controlMode = POSITION_TARGET;
 }
 
 void AnimatablePosition::moveToPositionInTime(double targetPosition, double targetTime){
-	const std::lock_guard<std::mutex> lock(mutex);
 	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
 	motionProfile.moveToPositionInTime(profileTime_seconds, targetPosition, targetTime, rapidAcceleration, velocityLimit);
 	controlMode = POSITION_TARGET;
@@ -335,16 +332,19 @@ void AnimatablePosition::moveToPositionInTime(double targetPosition, double targ
 
 
 void AnimatablePosition::setManualVelocityTarget(double velocityTarget){
+	const std::lock_guard<std::mutex> lock(mutex);
 	stopAnimation();
 	setVelocityTarget(velocityTarget);
 }
 
 void AnimatablePosition::setManualPositionTargetWithVelocity(double targetPosition, double targetVelocity){
+	const std::lock_guard<std::mutex> lock(mutex);
 	stopAnimation();
 	moveToPositionWithVelocity(targetPosition, targetVelocity);
 }
 
 void AnimatablePosition::setManualPositionTargetWithTime(double targetPosition, double targetTime){
+	const std::lock_guard<std::mutex> lock(mutex);
 	stopAnimation();
 	moveToPositionInTime(targetPosition, targetTime);
 }
@@ -439,7 +439,7 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 	const std::lock_guard<std::mutex> lock(mutex);
 	profileTime_seconds = time_seconds;
 	
-	if(hasAnimation() && getAnimation()->getPlaybackState() == Animation::PlaybackState::PLAYING){
+	if(hasAnimation() && getAnimation()->isPlaying()){
 		auto target = getAnimationValue()->toPosition();
 		positionSetpoint = target->position;
 		velocitySetpoint = target->velocity;

@@ -70,17 +70,27 @@ void manoeuvrePlaybackControls(float height){
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, Colors::darkGray);
 	}
+	static bool b_hasPlaybackPosition = false;
 	static double playbackPosition = 0.0;
 	static double remaningPlaybackTime = 0.0;
 	if(b_noSelection){
+		b_hasPlaybackPosition = false;
 		playbackPosition = 0.0;
 		remaningPlaybackTime = 0.0;
 	}else{
 		playbackPosition = selectedManoeuvre->getSychronizedPlaybackPosition();
+		b_hasPlaybackPosition = !isnan(playbackPosition);
 		remaningPlaybackTime = selectedManoeuvre->getRemainingPlaybackTime();
 	}
-	if(timeEntryWidgetSeconds("##timeFromStart", (height / 2.0) - 1, playbackPosition)) selectedManoeuvre->setPlaybackPosition(playbackPosition);
-	if(timeEntryWidgetSeconds("##timeToEnd", (height / 2.0) - 1, remaningPlaybackTime)) selectedManoeuvre->setPlaybackPosition(selectedManoeuvre->getDuration() - remaningPlaybackTime);
+	
+	if(b_hasPlaybackPosition){
+		if(timeEntryWidgetSeconds("##timeFromStart", (height / 2.0) - 1, playbackPosition)) selectedManoeuvre->setSynchronizedPlaybackPosition(playbackPosition);
+		if(timeEntryWidgetSeconds("##timeToEnd", (height / 2.0) - 1, remaningPlaybackTime)) selectedManoeuvre->setSynchronizedPlaybackPosition(selectedManoeuvre->getDuration() - remaningPlaybackTime);
+	}else{
+		static double pos = 0.0;
+		if(timeEntryWidgetSeconds("##timeFromStart", (height / 2.0) - 1, pos, "+xx:xx:xx.x")) selectedManoeuvre->setSynchronizedPlaybackPosition(pos);
+		if(timeEntryWidgetSeconds("##timeToEnd", (height / 2.0) - 1, pos, "-xx:xx:xx.x")) selectedManoeuvre->setSynchronizedPlaybackPosition(selectedManoeuvre->getDuration() - pos);
+	}
 	if(disablePlaybackTimeSetting) {
 		ImGui::PopItemFlag();
 		ImGui::PopStyleColor();
@@ -106,7 +116,7 @@ void manoeuvrePlaybackControls(float height){
 	
 	//Pause Playback
 	ImGui::SameLine();
-	ImGui::BeginDisabled(!selectedManoeuvre->canPausePlayback());
+	ImGui::BeginDisabled(b_noSelection || !selectedManoeuvre->canPausePlayback());
 	if(buttonPause("PauseManoeuvre", height)) selectedManoeuvre->pausePlayback();
 	ImGui::EndDisabled();
 	
@@ -193,10 +203,11 @@ void PlaybackManagerWindow::drawContent(){
 			
 			if(buttonStop("stop")) animation->stop();
 			
-			if(animation->getPlaybackState() == Animation::PlaybackState::PLAYING && animation->canPausePlayback()){
+			if(animation->canPausePlayback()){
 				ImGui::SameLine();
 				if(buttonPause("pause")) animation->pausePlayback();
-			}else if(animation->getPlaybackState() == Animation::PlaybackState::PAUSED){
+			}
+			if(animation->isPaused()){
 				ImGui::SameLine();
 				ImGui::BeginDisabled(!animation->isReadyToStartPlayback());
 				if(buttonPlay("resume")) animation->startPlayback();
@@ -211,7 +222,9 @@ void PlaybackManagerWindow::drawContent(){
 			glm::vec2 max = ImGui::GetItemRectMax();
 			drawing->AddRectFilled(min, max, ImColor(Colors::black), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 			
-			float progress = animation->getProgress();
+			float progress;
+			if(animation->isInRapid()) progress = animation->getRapidProgress();
+			else progress = animation->getPlaybackProgress();
 			if(progress > 0.0 && progress < 1.0){
 				glm::vec2 maxPlayback(min.x + (max.x - min.x) * progress, max.y);
 				drawing->AddRectFilled(min, maxPlayback, ImColor(1.f, 1.f, 1.f, .2f), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
