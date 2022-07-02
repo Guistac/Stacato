@@ -88,17 +88,18 @@ bool AnimatablePosition::generateTargetAnimation(std::shared_ptr<TargetAnimation
 	auto& points = curve.getPoints();
 	auto& interpolations = curve.getInterpolations();
 	
+	
+	
 	points.clear();
-	points.push_back(startPoint);
-	points.push_back(endPoint);
+	points.push_back(interpolation->inPoint);
+	points.push_back(interpolation->outPoint);
 	
 	interpolations.clear();
 	interpolation->updateDisplayCurvePoints();
 	interpolations.push_back(interpolation);
 	
 	curve.b_valid = true;
-	animation->setDuration(interpolation->getDuration());
-	animation->setPlaybackPosition(0.0);
+	
 	return true;
 }
 

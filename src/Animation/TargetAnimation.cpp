@@ -144,10 +144,15 @@ void TargetAnimation::getCurvePositionRange(double& min, double& max){
 
 
 bool TargetAnimation::isAtTarget(){
+	if(!target->isValid()) return false;
 	auto animatable = getAnimatable();
 	auto actualValue = animatable->getActualValue();
 	auto targetValue = animatable->parameterValueToAnimationValue(target);
 	return animatable->isParameterValueEqual(actualValue, targetValue);
+}
+
+bool TargetAnimation::canRapidToTarget(){
+	return target->isValid() && canRapid();
 }
 
 bool TargetAnimation::onRapidToTarget(){
@@ -158,19 +163,27 @@ bool TargetAnimation::onRapidToTarget(){
 }
 
 
-bool TargetAnimation::isReadyToStartPlayback(){
+bool TargetAnimation::canStartPlayback(){
+	if(!isValid()) return false;
 	auto animatable = getAnimatable();
 	if(!animatable->isReadyToMove()) return false;
 	auto actualValue = animatable->getActualValue();
 	auto targetValue = animatable->parameterValueToAnimationValue(target);
 	bool b_alreadyAtTarget = animatable->isParameterValueEqual(actualValue, targetValue);
 	return !b_alreadyAtTarget;
+	return true;
 }
 
 bool TargetAnimation::onStartPlayback(){
-	if(!isReadyToStartPlayback()) return;
-	return getAnimatable()->generateTargetAnimation(shared_from_this()->toTarget());
+	clearCurves();
+	if(!canStartPlayback()) return;
+	auto animatable = getAnimatable();
+	auto thisTargetAnimation = shared_from_this()->toTarget();
+	setPlaybackPosition(0.0);
+	return animatable->generateTargetAnimation(thisTargetAnimation);
 }
+
+
 
 
 

@@ -50,7 +50,12 @@ void AnimationKey::getCurvePositionRange(double& min, double& max){
 	max = ma;
 }
 
+bool AnimationKey::canRapidToPlaybackPosition(){
+	return isValid() && canRapid();
+}
+
 bool AnimationKey::isAtPlaybackPosition(){
+	if(!isValid()) return false;
 	auto animatable = getAnimatable();
 	auto actualValue = animatable->getActualValue();
 	auto targetValue = animatable->parameterValueToAnimationValue(target);

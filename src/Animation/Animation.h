@@ -20,7 +20,6 @@ public:
 	static std::shared_ptr<Animation> load(tinyxml2::XMLElement* trackXML);
 	static std::shared_ptr<Animation> load(tinyxml2::XMLElement* trackXML, std::shared_ptr<Animatable> animatable);
 	std::shared_ptr<Animation> copy();
-	
 	bool save(tinyxml2::XMLElement* trackXML);
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) = 0;
 
@@ -31,6 +30,18 @@ protected:
 		curves.resize(animatable->getCurveCount());
 	}
 	
+	//———————————— Sub Class Identification & Casting ————————————————
+	
+public:
+	
+	virtual bool isComposite(){ return false; }
+	std::shared_ptr<AnimationComposite> toComposite(){ return std::dynamic_pointer_cast<AnimationComposite>(shared_from_this()); }
+	virtual ManoeuvreType getType() = 0;
+	std::shared_ptr<AnimationKey> toKey(){ return std::dynamic_pointer_cast<AnimationKey>(shared_from_this()); }
+	std::shared_ptr<TargetAnimation> toTarget(){ return std::dynamic_pointer_cast<TargetAnimation>(shared_from_this()); }
+	std::shared_ptr<SequenceAnimation> toSequence(){ return std::dynamic_pointer_cast<SequenceAnimation>(shared_from_this()); }
+	
+	
 	//————————————————— General Properties ——————————————————
 	
 public:
@@ -38,8 +49,8 @@ public:
 	std::shared_ptr<Animatable> getAnimatable(){ return animatable; }
 	
 	bool hasManoeuvre(){ return manoeuvre != nullptr; }
-	void setManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre_){ manoeuvre = manoeuvre_; }
 	std::shared_ptr<Manoeuvre> getManoeuvre(){ return manoeuvre; }
+	void setManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre_){ manoeuvre = manoeuvre_; }
 	
 	bool hasParentComposite(){ return parentComposite != nullptr; }
 	void setParentComposite(std::shared_ptr<AnimationComposite> parentComposite_){ parentComposite = parentComposite_; }
@@ -61,6 +72,9 @@ public:
 	virtual void setUnit(Unit unit){}
 
 	std::vector<Motion::Curve>& getCurves(){ return curves; }
+	virtual void getCurvePositionRange(double& min, double& max){}
+
+	std::shared_ptr<AnimationValue> getValueAtPlaybackTime();
 	
 private:
 	
@@ -71,94 +85,71 @@ private:
 	bool b_valid = false;
 	std::string validationErrorString = "";
 	
-	//———————————— Sub Class Identification & Casting ————————————————
 	
-public:
-	
-	virtual bool isComposite(){ return false; }
-	std::shared_ptr<AnimationComposite> toComposite(){ return std::dynamic_pointer_cast<AnimationComposite>(shared_from_this()); }
-	virtual ManoeuvreType getType() = 0;
-	std::shared_ptr<AnimationKey> toKey(){ return std::dynamic_pointer_cast<AnimationKey>(shared_from_this()); }
-	std::shared_ptr<TargetAnimation> toTarget(){ return std::dynamic_pointer_cast<TargetAnimation>(shared_from_this()); }
-	std::shared_ptr<SequenceAnimation> toSequence(){ return std::dynamic_pointer_cast<SequenceAnimation>(shared_from_this()); }
-	
-	
-	//——————— Playback Control ———————
+	//————————————— Playback Control ————————————
 	
 public:
 	
 	bool isMachineEnabled();
-	virtual bool isReadyToStartPlayback(){ return false; }
+	
+	virtual bool canStartPlayback(){ return false; }
 	virtual bool canPausePlayback(){ return false; }
-	bool isReadyToRapid();
+	bool canRapid();
+	bool canStop(){ return isActive(); }
 	
 	float getRapidProgress();
 	float getPlaybackProgress();
 	
 	virtual bool isAtStart(){ return false; }
-	virtual bool canRapidToStart(){ return false; }
-	void rapidToStart();
-	virtual bool onRapidToStart(){ return false; }
-	
 	virtual bool isAtTarget(){ return false; }
-	virtual bool canRapidToTarget(){ return false; }
-	void rapidToTarget();
-	virtual bool onRapidToTarget(){ return false; }
-	
 	virtual bool isAtPlaybackPosition(){ return false; }
+
+	virtual bool canRapidToStart(){ return false; }
+	virtual bool canRapidToTarget(){ return false; }
 	virtual bool canRapidToPlaybackPosition(){ return false; }
+
+	void rapidToStart();
+	void rapidToTarget();
 	void rapidToPlaybackPosition();
-	virtual bool onRapidToPlaybackPosition(){ return false; }
-	
 	void startPlayback();
-	virtual bool onStartPlayback(){ return true; }
 	void pausePlayback();
 	void stopPlayback();
-	
 	void stopRapid();
-	
 	void stop();
 	
+private:
+	
+	virtual bool onRapidToStart(){ return false; }
+	virtual bool onRapidToTarget(){ return false; }
+	virtual bool onRapidToPlaybackPosition(){ return false; }
+	virtual bool onStartPlayback(){ return true; }
+	
 	//——————— Playback Update ———————
+public:
 	
 	void updateDuration();
 	void updatePlaybackState();
 	void incrementPlaybackPosition(long long playbackTime_microseconds);
 	
-private:
-	bool b_isPlaying = false; 	//indicates active playback
-	bool b_isPaused = false;	//indicates inactive playback but prevent removal from playback manager
-	bool b_isInRapid = false;	//indicates active rapid movement
-	
-public:
 	bool isInRapid(){ return b_isInRapid; }
 	bool isPlaying(){ return b_isPlaying; }
 	bool isPaused(){ return b_isPaused; }
 	bool isActive(){ return b_isPlaying || b_isInRapid || b_isPaused; }
-	
-	//not playing, no rapid
-	//playing, no rapid
-	//paused, no rapid
-	
-	//not playing, in rapid
-	//paused, in rapid
-	
-	//rapid/play/pause request setAnimation()
-	
-	
-	
+		
 	void setDuration(double seconds){ duration_seconds = seconds; }
 	void setPlaybackPosition(double seconds){ playbackPosition_seconds = seconds; }
+	
 	double getPlaybackPosition(){ return playbackPosition_seconds; }
 	double getDuration(){ return duration_seconds; }
-	virtual void getCurvePositionRange(double& min, double& max){}
-	std::shared_ptr<AnimationValue> getValueAtPlaybackTime();
 	
 private:
 	
 	long long playbackStartTime_microseconds;
 	double playbackPosition_seconds = 0.0;
 	double duration_seconds = 0.0;
+	bool b_isPlaying = false; 	//indicates active playback
+	bool b_isPaused = false;	//indicates inactive playback but prevent removal from playback manager
+	bool b_isInRapid = false;	//indicates active rapid movement
 	
 	//—————————————————— User Interface ———————————————————
 	
@@ -173,14 +164,10 @@ public:
 	virtual void drawCurveControls() = 0;
 	static bool beginTrackSheetTable(ManoeuvreType type, ImGuiTableFlags tableFlags);
 	
-	std::mutex mutex;
-	
 	void requestCurveRefocus(){
-		const std::lock_guard<std::mutex> lock(mutex);
 		b_shouldRefocusCurves = true;
 	}
 	bool shouldRefocusCurves(){
-		const std::lock_guard<std::mutex> lock(mutex);
 		if(b_shouldRefocusCurves){
 			b_shouldRefocusCurves = false;
 			return true;
@@ -220,9 +207,7 @@ class AnimationKey : public Animation{
 public:
 	
 	AnimationKey(std::shared_ptr<Animatable> animatable);
-	
 	virtual ManoeuvreType getType() override { return ManoeuvreType::KEY; }
-	
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
 	static std::shared_ptr<AnimationKey> load(tinyxml2::XMLElement* xml, std::shared_ptr<Animatable> animatable);
 	std::shared_ptr<AnimationKey> copy();
@@ -242,13 +227,15 @@ public:
 	
 public:
 	
-
-	
 	virtual bool isAtPlaybackPosition() override;
-	virtual bool canRapidToPlaybackPosition() override { return isReadyToRapid(); }
+	virtual bool canRapidToPlaybackPosition() override;
+	
+private:
+	
 	virtual bool onRapidToPlaybackPosition() override;
-
+	
 	//—————————————————— User Interface ———————————————————
+public:
 	
 	virtual void playbackGui() override;
 	virtual void trackSheetRowGui() override;
@@ -283,7 +270,6 @@ public:
 	
 	TargetAnimation(std::shared_ptr<Animatable> animatable);
 	virtual ManoeuvreType getType() override { return ManoeuvreType::TARGET; }
-	
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
 	static std::shared_ptr<TargetAnimation> load(tinyxml2::XMLElement* xml, std::shared_ptr<Animatable> animatable);
 	std::shared_ptr<TargetAnimation> copy();
@@ -318,14 +304,18 @@ public:
 	
 public:
 	
-	virtual bool canRapidToTarget() override { return isReadyToRapid(); }
+	virtual bool canRapidToTarget() override;
 	virtual bool isAtTarget() override;
-	virtual bool onRapidToTarget() override;
+	virtual bool canStartPlayback() override;
 	
-	virtual bool isReadyToStartPlayback() override;
+private:
+	
+	virtual bool onRapidToTarget() override;
 	virtual bool onStartPlayback() override;
 	
 	//—————————————————— User Interface ———————————————————
+	
+public:
 	
 	virtual void playbackGui() override;
 	virtual void trackSheetRowGui() override;
@@ -364,7 +354,6 @@ public:
 	
 	SequenceAnimation(std::shared_ptr<Animatable> animatable);
 	virtual ManoeuvreType getType() override { return ManoeuvreType::SEQUENCE; }
-	
 	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
 	static std::shared_ptr<SequenceAnimation> load(tinyxml2::XMLElement* xml, std::shared_ptr<Animatable> animatable);
 	std::shared_ptr<SequenceAnimation> copy();
@@ -399,20 +388,22 @@ public:
 	
 public:
 	
-	virtual bool canRapidToStart() override { return isReadyToRapid(); }
-	virtual bool isAtStart() override;
-	virtual bool onRapidToStart() override;
+	virtual bool canRapidToStart() override;
+	virtual bool canRapidToTarget() override;
+	virtual bool canRapidToPlaybackPosition() override;
 	
-	virtual bool canRapidToTarget() override { return isReadyToRapid(); }
-	virtual bool isAtTarget() override;
-	virtual bool onRapidToTarget() override;
-	
-	virtual bool canRapidToPlaybackPosition() override { return isReadyToRapid(); }
-	virtual bool isAtPlaybackPosition() override;
-	virtual bool onRapidToPlaybackPosition() override;
-	
-	virtual bool isReadyToStartPlayback() override;
+	virtual bool canStartPlayback() override;
 	virtual bool canPausePlayback() override;
+	
+	virtual bool isAtStart() override;
+	virtual bool isAtTarget() override;
+	virtual bool isAtPlaybackPosition() override;
+	
+private:
+	
+	virtual bool onRapidToStart() override;
+	virtual bool onRapidToTarget() override;
+	virtual bool onRapidToPlaybackPosition() override;
 	
 	//—————————————————— User Interface ———————————————————
 	
@@ -451,20 +442,21 @@ public:
 			children.push_back(childAnimation);
 		}
 	}
-	
 	//called when loading a parameter track group or duplicating one
 	AnimationComposite(std::shared_ptr<AnimatableComposite> animatableComposite) : Animation(animatableComposite){}
 	
 	virtual bool isComposite() override { return true; }
 	virtual ManoeuvreType getType() override { return ManoeuvreType::KEY;} //this should never be used }
+	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
+	
+	static std::shared_ptr<AnimationComposite> load(tinyxml2::XMLElement* xml, std::shared_ptr<AnimatableComposite> animatableComposite);
+	std::shared_ptr<AnimationComposite> copy();
+	
+	//—————————————— General —————————————
 	
 	std::vector<std::shared_ptr<Animation>>& getChildren(){ return children; }
 	
 	virtual void trackSheetRowGui() override {}
-	
-	virtual bool onSave(tinyxml2::XMLElement* trackXML) override;
-	static std::shared_ptr<AnimationComposite> load(tinyxml2::XMLElement* xml, std::shared_ptr<AnimatableComposite> animatableComposite);
-	std::shared_ptr<AnimationComposite> copy();
 	
 	virtual void drawCurves() override{
 		for(auto& childTrack : children) childTrack->drawCurves();

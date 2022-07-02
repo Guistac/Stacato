@@ -209,7 +209,7 @@ void PlaybackManagerWindow::drawContent(){
 			}
 			if(animation->isPaused()){
 				ImGui::SameLine();
-				ImGui::BeginDisabled(!animation->isReadyToStartPlayback());
+				ImGui::BeginDisabled(!animation->canStartPlayback());
 				if(buttonPlay("resume")) animation->startPlayback();
 				ImGui::EndDisabled();
 			}
@@ -225,7 +225,7 @@ void PlaybackManagerWindow::drawContent(){
 			float progress;
 			if(animation->isInRapid()) progress = animation->getRapidProgress();
 			else progress = animation->getPlaybackProgress();
-			if(progress > 0.0 && progress < 1.0){
+			if(progress > 0.0 && progress <= 1.0){
 				glm::vec2 maxPlayback(min.x + (max.x - min.x) * progress, max.y);
 				drawing->AddRectFilled(min, maxPlayback, ImColor(1.f, 1.f, 1.f, .2f), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 			}

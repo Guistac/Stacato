@@ -391,12 +391,15 @@ void Manoeuvre::curveEditor(){
 		
 		if(getType() != ManoeuvreType::KEY){
 			double playbackTime = getSychronizedPlaybackPosition();
-			ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
-			ImPlot::PlotVLines("Playhead", &playbackTime, 1);
+			if(!isnan(playbackTime)){
+				ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
+				ImPlot::PlotVLines("Playhead", &playbackTime, 1);
+			}
 		}
 		
 		if(hasActiveAnimations()){
 			for(auto& animation : getAnimations()){
+				if(!animation->isActive()) continue;
 				auto animatable = animation->getAnimatable();
 				double playbackTime = animation->getPlaybackPosition();
 				auto actualValue = animatable->getActualValue();
@@ -407,6 +410,7 @@ void Manoeuvre::curveEditor(){
 					playbackIndicators[i].x = playbackTime;
 					playbackIndicators[i].y = curveValues[i];
 				}
+				ImPlot::SetNextMarkerStyle(ImPlotMarker_Diamond, ImGui::GetTextLineHeight() * .2f, Colors::white, -1, ImVec4(0.0, 0.0, 0.0, 0.0));
 				ImPlot::PlotScatter("##PlayackIndicator", &playbackIndicators.front().x, &playbackIndicators.front().y, curveCount);
 			}
 		}

@@ -71,7 +71,7 @@ public:
 	virtual bool validateAnimation(std::shared_ptr<Animation> animation) = 0;
 	
 	virtual bool isReadyToMove() = 0;
-	virtual bool isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationValue> animationValue) = 0; //this doesn't make a whole lot of sense
+	virtual bool isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationValue> animationValue) = 0;
 	
 	void rapidToValue(std::shared_ptr<AnimationValue> animationValue);
 	virtual bool isInRapid() = 0;

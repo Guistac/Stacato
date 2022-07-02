@@ -307,7 +307,9 @@ std::shared_ptr<TrapezoidalInterpolation> TrapezoidalInterpolation::getVelocityC
 		}
 	}
 	
-	return std::make_shared<TrapezoidalInterpolation>(*fastestSolution);
+	auto output = std::make_shared<TrapezoidalInterpolation>(*fastestSolution);
+	output->outPoint->time = output->endTime;
+	return output;
 }
 
 

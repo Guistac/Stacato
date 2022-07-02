@@ -4,6 +4,16 @@
             <Animation Machine="Costière A" MachineUniqueID="118" Parameter="Position" IsComposite="false" Type="Target" Target="5" ConstraintType="Time" Time="5" Velocity="0" StartAcceleration="0.5" EndAcceleration="0.5"/>
             <Animation Machine="Costière B" MachineUniqueID="249" Parameter="Position" IsComposite="false" Type="Target" Target="40" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="3" EndAcceleration="5"/>
         </Manoeuvre>
+        <Manoeuvre Name="M-4" Description="" Type="Sequence">
+            <Animation Machine="Costière B" MachineUniqueID="249" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="50" Duration="10" TimeOffset="0" StartAcceleration="10" EndAcceleration="10">
+                <Curves>
+                    <Curve>
+                        <ControlPoint Position="0" Time="0" Velocity="0" InAcceleration="10" OutAcceleration="10"/>
+                        <ControlPoint Position="50" Time="10" Velocity="0" InAcceleration="10" OutAcceleration="10"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
         <Manoeuvre Name="M-2" Description="" Type="Sequence">
             <Animation Machine="Costière A" MachineUniqueID="118" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="1" End="2" Duration="5" TimeOffset="0" StartAcceleration="1" EndAcceleration="0.10000000000000001">
                 <Curves>
@@ -13,11 +23,11 @@
                     </Curve>
                 </Curves>
             </Animation>
-            <Animation Machine="Costière B" MachineUniqueID="249" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="-33.299999999999997" End="33.299999999999997" Duration="10" TimeOffset="0" StartAcceleration="5" EndAcceleration="5">
+            <Animation Machine="Costière B" MachineUniqueID="249" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="-33.299999999999997" End="33.299999999999997" Duration="10" TimeOffset="0" StartAcceleration="5" EndAcceleration="10">
                 <Curves>
                     <Curve>
                         <ControlPoint Position="-33.299999999999997" Time="0" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
-                        <ControlPoint Position="33.299999999999997" Time="10" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="33.299999999999997" Time="10" Velocity="0" InAcceleration="10" OutAcceleration="10"/>
                     </Curve>
                 </Curves>
             </Animation>

@@ -205,23 +205,47 @@ void SequenceAnimation::captureTarget(){
 
 
 
+bool SequenceAnimation::canRapidToStart(){
+	return start->isValid() && canRapid();
+}
+
+bool SequenceAnimation::canRapidToTarget(){
+	return target->isValid() && canRapid();
+}
+
+bool SequenceAnimation::canRapidToPlaybackPosition(){
+	return isValid() && canRapid();
+}
+
+
 
 
 bool SequenceAnimation::isAtStart(){
+	if(!start->isValid()) return false;
 	auto animatable = getAnimatable();
 	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(start), animatable->getActualValue());
 }
+
+bool SequenceAnimation::isAtTarget(){
+	if(!target->isValid()) return false;
+	auto animatable = getAnimatable();
+	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(target), animatable->getActualValue());
+}
+
+bool SequenceAnimation::isAtPlaybackPosition(){
+	if(!isValid()) return false;
+	auto animatable = getAnimatable();
+	return animatable->isParameterValueEqual(getValueAtPlaybackTime(), animatable->getActualValue());
+}
+
+
+
 
 bool SequenceAnimation::onRapidToStart(){
 	auto animatable = getAnimatable();
 	auto targetValue = animatable->parameterValueToAnimationValue(start);
 	animatable->rapidToValue(targetValue);
 	return true;
-}
-
-bool SequenceAnimation::isAtTarget(){
-	auto animatable = getAnimatable();
-	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(target), animatable->getActualValue());
 }
 
 bool SequenceAnimation::onRapidToTarget(){
@@ -231,11 +255,6 @@ bool SequenceAnimation::onRapidToTarget(){
 	return true;
 }
 
-bool SequenceAnimation::isAtPlaybackPosition(){
-	auto animatable = getAnimatable();
-	return animatable->isParameterValueEqual(getValueAtPlaybackTime(), animatable->getActualValue());
-}
-
 bool SequenceAnimation::onRapidToPlaybackPosition(){
 	auto animatable = getAnimatable();
 	auto valueAtPlaybackTime = getValueAtPlaybackTime();
@@ -243,7 +262,12 @@ bool SequenceAnimation::onRapidToPlaybackPosition(){
 	return true;
 }
 
-bool SequenceAnimation::isReadyToStartPlayback(){
+
+
+
+bool SequenceAnimation::canStartPlayback(){
+	if(!isValid()) return false;
+	if(getPlaybackPosition() >= getDuration()) return false;
 	auto animatable = getAnimatable();
 	if(!animatable->isReadyToMove()) return false;
 	if(isPlaying()) return false;

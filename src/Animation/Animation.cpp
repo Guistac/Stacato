@@ -154,7 +154,7 @@ void Animation::fillDefaults(){
 void Animation::validate(){
 	validationErrorString = "";
 	b_valid = getAnimatable()->validateAnimation(shared_from_this());
-	if(hasManoeuvre()) manoeuvre->updateTrackSummary();
+	if(hasManoeuvre()) manoeuvre->updateAnimationSummary();
 }
 
 void Animation::subscribeToMachineParameter(){
@@ -172,7 +172,7 @@ void Animation::unsubscribeFromMachineParameter(){
 
 //—————————— Rapids ——————————
 
-bool Animation::isReadyToRapid(){
+bool Animation::canRapid(){
 	return animatable->isReadyToMove();
 }
 
@@ -241,7 +241,6 @@ float Animation::getPlaybackProgress(){
 //—————————— Playback ——————————
 
 void Animation::startPlayback(){
-	if(!isReadyToStartPlayback()) return;
 	if(!b_isPaused) animatable->stopAnimation();
 	if(onStartPlayback()){
 		updateDuration();
@@ -334,4 +333,5 @@ void Animation::updatePlaybackState(){
 void Animation::incrementPlaybackPosition(long long playbackTime_microseconds){
 	playbackPosition_seconds = (playbackTime_microseconds - playbackStartTime_microseconds) / 1000000.0;
 	playbackPosition_seconds = std::min(playbackPosition_seconds, duration_seconds);
+	Logger::warn("{} / {}", playbackPosition_seconds, duration_seconds);
 }

@@ -12,33 +12,22 @@ namespace tinyxml2 { class XMLElement; }
 
 class Manoeuvre : public std::enable_shared_from_this<Manoeuvre>{
 
-	//———————————————————————————————
-	// Construction, Saving & Loading
-	//———————————————————————————————
+	//———————————— Construction, Saving & Loading ————————————
 	
 public:
 	
 	static std::shared_ptr<Manoeuvre> make(ManoeuvreType type = ManoeuvreType::KEY);
 	static std::shared_ptr<Manoeuvre> load(tinyxml2::XMLElement* manoeuvreXML);
-	
 	std::shared_ptr<Manoeuvre> copy();
-	
 	bool save(tinyxml2::XMLElement* manoeuvreXML);
 	
-	//———————————————————————————————
-	//		General Properties
-	//———————————————————————————————
-
+	//—————————————— General —————————————————
+	
 public:
 
 	ManoeuvreType getType(){ return type->value; }
-	void overwriteType(ManoeuvreType type_){ type->overwrite(type_); }
-	
 	const char* getName(){ return name->value.c_str(); }
-	void setName(std::string name_){ name->overwrite(name_); }
-	
 	const char* getDescription(){ return description->value.c_str(); }
-	void setDescription(const char* descr){ description->overwrite(descr); }
 	
 	bool isInManoeuvreList(){ return manoeuvreList != nullptr; }
 	void setManoeuvreList(std::shared_ptr<ManoeuvreList> manoeuvreList_){ manoeuvreList = manoeuvreList_; }
@@ -51,15 +40,12 @@ public:
 	bool isValid(){ return b_valid; }
 	void setValid(bool valid){ b_valid = valid; }
 	
-private:
-	
 	std::shared_ptr<StringParameter> name = std::make_shared<StringParameter>("Default Name","Manoeuvre Name","Name",256);
 	std::shared_ptr<StringParameter> description = std::make_shared<StringParameter>("Default Description","Manoeuvre Description","Description",512);
 	std::shared_ptr<EnumeratorParameter<ManoeuvreType>> type = std::make_shared<EnumeratorParameter<ManoeuvreType>>(ManoeuvreType::KEY,"Manoeuvre Type","Type");
 	std::shared_ptr<ManoeuvreList> manoeuvreList = nullptr;
-	bool b_valid = false;
 	
-	//—————————————— Animation Tracks —————————————————
+	//—————————————— Animations —————————————————
 	
 public:
 		
@@ -73,45 +59,36 @@ public:
 	void subscribeAllTracksToMachineParameter();
 	void unsubscribeAllTracksFromMachineParameter();
 	
-	void updateTrackSummary();
-	void validateAllParameterTracks();
+	void updateAnimationSummary();
+	void validateAllAnimations();
 	
-private:
-	
-	std::vector<std::shared_ptr<Animation>> animations;
-	
-	//———————————————————————————————
-	//			Playback
-	//———————————————————————————————
+	//—————————————— Playback —————————————————
 	
 public:
 	
 	bool canRapidToStart();
-	bool isAtStart();
-	void rapidToStart();
-
 	bool canRapidToTarget();
-	bool isAtTarget();
-	void rapidToTarget();
-	
 	bool canRapidToPlaybackPosition();
-	bool isAtPlaybackPosition();
-	void rapidToPlaybackPosition();
-
 	bool canStartPlayback();
 	bool canPausePlayback();
+	bool canStop();
+	
+	bool isAtStart();
+	bool isAtTarget();
+	bool isAtPlaybackPosition();
+	
+	void rapidToStart();
+	void rapidToTarget();
+	void rapidToPlaybackPosition();
+
 	void startPlayback();
 	void pausePlayback();
-
-	bool canStop();
 	void stop();
 	
 	void updatePlaybackState();
-	bool b_hasActiveAnimations = false;
 	bool hasActiveAnimations(){ return b_hasActiveAnimations; }
 	std::vector<std::shared_ptr<Animation>> getActiveAnimations();
 	
-	double synchronizedPlaybackPosition;
 	double getSychronizedPlaybackPosition();
 	double getRemainingPlaybackTime();
 	bool canSetPlaybackPosition();
@@ -125,17 +102,16 @@ public:
 	
 	bool areAllMachinesEnabled();
 	bool areNoMachinesEnabled();
-	
-	void requestCurveRefocus();
-	bool shouldRefocusCurves();
 
 private:
 	
+	bool b_hasActiveAnimations = false;
+	double synchronizedPlaybackPosition;
+	std::vector<std::shared_ptr<Animation>> animations;
 	double duration_seconds = 0.0;
+	bool b_valid = false;
 	
-	//———————————————————————————————
-	//		   User Interface
-	//———————————————————————————————
+	//—————————— User Interface ———————————
 	
 public:
 	
@@ -145,4 +121,7 @@ public:
 	void sheetEditor();
 	void curveEditor();
 	void spatialEditor();
+	
+	void requestCurveRefocus();
+	bool shouldRefocusCurves();
 };

@@ -25,10 +25,10 @@ public:
 	
 	virtual void onExecute(){
 		addedManoeuvre = Manoeuvre::make(ManoeuvreType::KEY);
-		addedManoeuvre->overwriteType(type);
-		addedManoeuvre->setDescription("");
+		addedManoeuvre->type->overwrite(type);
+		addedManoeuvre->description->overwrite("");
 		std::string manoeuvreName = "M-" + std::to_string(manoeuvreList->getManoeuvres().size());
-		addedManoeuvre->setName(manoeuvreName);
+		addedManoeuvre->name->overwrite(manoeuvreName);
 		addedManoeuvre->setManoeuvreList(manoeuvreList);
 		auto plot = manoeuvreList->getPlot();
 		auto& manoeuvres = manoeuvreList->getManoeuvres();
@@ -37,7 +37,7 @@ public:
 		if(selectedManoeuvre) insertionIndex = manoeuvreList->getManoeuvreIndex(selectedManoeuvre) + 1;
 		manoeuvres.insert(manoeuvres.begin() + insertionIndex, addedManoeuvre);
 		addedManoeuvre->subscribeAllTracksToMachineParameter();
-		addedManoeuvre->updateTrackSummary();
+		addedManoeuvre->updateAnimationSummary();
 		addedManoeuvre->select();
 	}
 	
@@ -134,11 +134,11 @@ public:
 	
 	virtual void onExecute(){
 		copy = original->copy();
-		copy->validateAllParameterTracks();
+		copy->validateAllAnimations();
 		auto& manoeuvres = manoeuvreList->getManoeuvres();
 		insertIndex = manoeuvreList->getManoeuvreIndex(original) + 1;
 		manoeuvres.insert(manoeuvres.begin() + insertIndex, copy);
-		copy->updateTrackSummary();
+		copy->updateAnimationSummary();
 		copy->select();
 	}
 	virtual void onUndo(){

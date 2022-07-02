@@ -104,7 +104,9 @@ void AnimationKey::playbackGui(){
 	if(atKey) ImGui::PopStyleColor();
 	ImGui::EndDisabled();
 	ImGui::SameLine();
+	ImGui::BeginDisabled(!canStop());
 	if(buttonStop("StopPlayback")) stop();
+	ImGui::EndDisabled();
 }
 
 void TargetAnimation::playbackGui(){
@@ -115,11 +117,13 @@ void TargetAnimation::playbackGui(){
 	if(atTarget) ImGui::PopStyleColor();
 	ImGui::EndDisabled();
 	ImGui::SameLine();
-	ImGui::BeginDisabled(!isReadyToStartPlayback());
+	ImGui::BeginDisabled(!canStartPlayback());
 	if(buttonPlay("StartPlayback")) startPlayback();
 	ImGui::EndDisabled();
 	ImGui::SameLine();
+	ImGui::BeginDisabled(!canStop());
 	if(buttonStop("StopPlayback")) stop();
+	ImGui::EndDisabled();
 }
 
 void SequenceAnimation::playbackGui(){
@@ -145,16 +149,16 @@ void SequenceAnimation::playbackGui(){
 		ImGui::EndDisabled();
 	}
 	else{
-		ImGui::BeginDisabled(!isReadyToStartPlayback());
+		ImGui::BeginDisabled(!canStartPlayback());
 		if(buttonPlay("StartPlayback")) {
 			startPlayback();
 		}
 		ImGui::EndDisabled();
 	}
 	ImGui::SameLine();
-	if(buttonStop("StopPlayback")) {
-		stop();
-	}
+	ImGui::BeginDisabled(!canStop());
+	if(buttonStop("StopPlayback")) stop();
+	ImGui::EndDisabled();
 }
 
 void AnimationKey::trackSheetRowGui(){

@@ -920,7 +920,10 @@ public:
 	}
 	
 	void overwriteWithHistory(double newValue){
-		if(value == newValue) return;
+		if(value == newValue) {
+			strcpy(displayBuffer, TimeStringConversion::secondsToTimecodeString(newValue).c_str());
+			return;
+		}
 		std::string newTimeString = TimeStringConversion::secondsToTimecodeString(newValue);
 		std::string name = "Change " + std::string(getName()) + " from " + TimeStringConversion::secondsToTimecodeString(value) + " to " + newTimeString;
 		std::make_shared<EditCommand>(std::dynamic_pointer_cast<TimeParameter>(shared_from_this()), name)->execute();

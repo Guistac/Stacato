@@ -50,7 +50,7 @@ std::shared_ptr<Manoeuvre> Manoeuvre::load(tinyxml2::XMLElement* xml){
 		animationXML = animationXML->NextSiblingElement("Animation");
 	}
 	
-	manoeuvre->validateAllParameterTracks();
+	manoeuvre->validateAllAnimations();
 	
 	return manoeuvre;
 }
@@ -78,15 +78,15 @@ public:
 			animation->validate();
 		}
 		newTracks = manoeuvre->getAnimations();
-		manoeuvre->updateTrackSummary();
+		manoeuvre->updateAnimationSummary();
 	}
 	virtual void onUndo(){
 		manoeuvre->getAnimations() = oldTracks;
-		manoeuvre->updateTrackSummary();
+		manoeuvre->updateAnimationSummary();
 	}
 	virtual void onRedo(){
 		manoeuvre->getAnimations() = newTracks;
-		manoeuvre->updateTrackSummary();
+		manoeuvre->updateAnimationSummary();
 	}
 
 };
@@ -153,13 +153,13 @@ public:
 			}
 		}
 		addedAnimation->unsubscribeFromMachineParameter();
-		manoeuvre->updateTrackSummary();
+		manoeuvre->updateAnimationSummary();
 	}
 	
 	virtual void onRedo(){
 		manoeuvre->getAnimations().push_back(addedAnimation);
 		addedAnimation->subscribeToMachineParameter();
-		manoeuvre->updateTrackSummary();
+		manoeuvre->updateAnimationSummary();
 	}
 	
 };
@@ -201,14 +201,14 @@ public:
 			}
 		}
 		removedAnimation->unsubscribeFromMachineParameter();
-		manoeuvre->updateTrackSummary();
+		manoeuvre->updateAnimationSummary();
 	}
 	
 	virtual void onUndo(){
 		auto& animations = manoeuvre->getAnimations();
 		animations.insert(animations.begin() + removeIndex, removedAnimation);
 		removedAnimation->subscribeToMachineParameter();
-		manoeuvre->updateTrackSummary();
+		manoeuvre->updateAnimationSummary();
 	}
 	
 };
@@ -286,11 +286,11 @@ void Manoeuvre::unsubscribeAllTracksFromMachineParameter(){
 }
 
 
-void Manoeuvre::validateAllParameterTracks(){
+void Manoeuvre::validateAllAnimations(){
 	for(auto& animation : animations) animation->validate();
 }
 
-void Manoeuvre::updateTrackSummary(){
+void Manoeuvre::updateAnimationSummary(){
 	double longestAnimationDuration_seconds = 0.0;
 	bool allAnimationsValid = true;
 	for(auto& animation : animations){
@@ -589,7 +589,7 @@ bool Manoeuvre::canStartPlayback(){
 		case ManoeuvreType::TARGET:
 		case ManoeuvreType::SEQUENCE:
 			for(auto& animation : animations){
-				if(animation->isReadyToStartPlayback()) return true;
+				if(animation->canStartPlayback()) return true;
 			}
 			return false;
 	}
@@ -631,7 +631,7 @@ void Manoeuvre::updateDuration(){
 
 bool Manoeuvre::canStop(){
 	for(auto& animation : getAnimations()){
-		if(animation->isActive()) return true;
+		if(animation->canStop()) return true;
 	}
 	return false;
 }
