@@ -10,15 +10,13 @@ void Lexium32::onConnection() {
 
 void Lexium32::onDisconnection() {
     resetData();
+	requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
 }
 
 void Lexium32::resetData() {
-    actualOperatingMode = OperatingMode::UNKNOWN;
-    state = State::SwitchOnDisabled;
     manualVelocityCommand_rps = 0.0;
     profilePosition_r = 0.0;
     profileVelocity_rps = 0.0;
-    b_emergencyStopActive = false;
     servoMotorDevice->positionRaw_positionUnits = 0.0;
     servoMotorDevice->velocity_positionUnitsPerSecond = 0.0;
     servoMotorDevice->b_moving = false;
@@ -33,16 +31,6 @@ void Lexium32::resetData() {
 	*digitalOut0PinValue = false;
 	*digitalOut1PinValue = false;
 	*digitalOut2PinValue = false;
-    b_switchedOn = false;
-    b_voltageEnabled = false;
-    b_quickStopActive = true; //quickstop is active when bit is low
-    b_operationEnabled = false;
-    opModeSpec4 = false;
-    opModeSpec5 = false;
-    opModeSpec6 = false;
-    b_faultResetState = false;
-    b_halted = false;
-    opModeSpec9 = false;
     servoMotorDevice->b_detected = false;
     servoMotorDevice->b_online = false;
     servoMotorDevice->b_ready = false;
@@ -92,21 +80,21 @@ void Lexium32::initialize() {
     addNodePin(digitalIn5);
 
     rxPdoAssignement.addNewModule(0x1603);
-    rxPdoAssignement.addEntry(0x6040, 0x0, 16, "DCOMcontrol", &DCOMcontrol);
-    rxPdoAssignement.addEntry(0x6060, 0x0, 8, "DCOMopmode", &DCOMopmode);
-    rxPdoAssignement.addEntry(0x607A, 0x0, 32, "PPp_target", &PPp_target);
-    rxPdoAssignement.addEntry(0x3008, 0x11, 16, "IO_DQ_set", &IO_DQ_set);
+    rxPdoAssignement.addEntry(0x6040, 0x0, 16, "DCOMcontrol", &ds402Control.controlWord);	//DS402 control word
+    rxPdoAssignement.addEntry(0x6060, 0x0, 8, "DCOMopmode", &ds402Control.operatingMode);	//DS402 operating mode control
+    rxPdoAssignement.addEntry(0x607A, 0x0, 32, "PPp_target", &PPp_target);					//Position Target
+    rxPdoAssignement.addEntry(0x3008, 0x11, 16, "IO_DQ_set", &IO_DQ_set);					//Digital Outputs
 
     txPdoAssignement.addNewModule(0x1A03);
-    txPdoAssignement.addEntry(0x6041, 0x0, 16, "_DCOMstatus", &_DCOMstatus);
-    txPdoAssignement.addEntry(0x6061, 0x0, 8, "_DCOMopmd_act", &_DCOMopmd_act);
-    txPdoAssignement.addEntry(0x6064, 0x0, 32, "_p_act", &_p_act);
-	txPdoAssignement.addEntry(0x301E, 0x14, 32, "_p_dif_usr", &_p_dif_usr);
-    txPdoAssignement.addEntry(0x606C, 0x0, 32, "_v_act", &_v_act);
-    txPdoAssignement.addEntry(0x301E, 0x3, 16, "_I_act", &_I_act);
-    txPdoAssignement.addEntry(0x603F, 0x0, 16, "_LastError", &_LastError);
-    txPdoAssignement.addEntry(0x3008, 0x1, 16, "_IO_act", &_IO_act);
-    txPdoAssignement.addEntry(0x3008, 0x26, 16, "_IO_STO_act", &_IO_STO_act);
+    txPdoAssignement.addEntry(0x6041, 0x0, 16, "_DCOMstatus", &ds402Status.statusWord);		//DS402 status word
+    txPdoAssignement.addEntry(0x6061, 0x0, 8, "_DCOMopmd_act", &ds402Status.operatingMode);	//DS402 operating mode display
+    txPdoAssignement.addEntry(0x6064, 0x0, 32, "_p_act", &_p_act);							//Actual Position
+	txPdoAssignement.addEntry(0x301E, 0x14, 32, "_p_dif_usr", &_p_dif_usr);					//Following Error
+    txPdoAssignement.addEntry(0x606C, 0x0, 32, "_v_act", &_v_act);							//Actual Velocity
+    txPdoAssignement.addEntry(0x301E, 0x3, 16, "_I_act", &_I_act);							//Actual Current
+    txPdoAssignement.addEntry(0x603F, 0x0, 16, "_LastError", &_LastError);					//Current Error
+    txPdoAssignement.addEntry(0x3008, 0x1, 16, "_IO_act", &_IO_act);						//Digital Inputs
+    txPdoAssignement.addEntry(0x3008, 0x26, 16, "_IO_STO_act", &_IO_STO_act);				//STO Status
 }
 
 
@@ -183,6 +171,12 @@ bool Lexium32::startupConfiguration() {
     uint32_t CTRL_v_max = _M_n_max * velocityUnitsPerRpm; //Velocity Limit in usr_v units
     if (!writeSDO_U32(0x3011, 0x10, CTRL_v_max)) return false;
 
+	int8_t HMmethod = 35;
+	if(!writeSDO_S8(0x6098, 0x0, HMmethod)) return false;
+	
+	int32_t HMp_setP = 0;
+	if(!writeSDO_S32(0x301B, 0x16, HMp_setP)) return false;
+
     //=============== PROCESS DATA ASSIGNEMENT ===============
 
     rxPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C12);
@@ -198,10 +192,6 @@ bool Lexium32::startupConfiguration() {
     uint32_t sync0offset_nanoseconds = sync0Interval_nanoseconds / 2;
     ec_dcsync0(getSlaveIndex(), true, sync0Interval_nanoseconds, sync0offset_nanoseconds);
 
-    //TODO: does this still apply with a lot of slaves ?
-    //if propagation delays add up, might the last slaves have their sync event happen at the same time as their frame receive time?
-	//if so should the sync event happen earlier or later inside the cycle?
-
     return true;
 }
 
@@ -213,95 +203,52 @@ bool Lexium32::startupConfiguration() {
 //==============================================================
 
 void Lexium32::readInputs() {
-    //TxPDO (input data)
-    //_DCOMstatus   (uint16_t)  2
-    //_DCOMopmd_act (uint8_t)   1
-    //_p_act        (int32_t)   4
-	//_p_dif_usr	(int32_t)	4
-    //_v_act        (int32_t)   4
-    //_tq_act       (int16_t)   2
-    //_LastError    (uint16_t)  2
-    //_IO_act       (uint16_t)  2
-    txPdoAssignement.pullDataFrom(identity->inputs);
 
-    //state machine bits (0,1,2,3,5,6)
-    bool readyToSwitchOn = _DCOMstatus & 0x1;
-    bool switchedOn = _DCOMstatus & 0x2;
-    bool operationEnabled = _DCOMstatus & 0x4;
-    bool fault = _DCOMstatus & 0x8;
-    bool quickStop = _DCOMstatus & 0x20;
-    bool switchOnDisabled = _DCOMstatus & 0x40;
-
-    //Other State Information
-    motorVoltagePresent = _DCOMstatus & 0x10;     //is the voltage for the motor connected
-    class0error = _DCOMstatus & 0x80;     //is there a critical error
-    halted = _DCOMstatus & 0x100;    //is the motor in a halt state
-    fieldbusControlActive = _DCOMstatus & 0x200;    //is the drive controlled by the fieldbus
-    targetReached = _DCOMstatus & 0x400;    //Operating mode specifig information (b10) 
-    internalLimitActive = _DCOMstatus & 0x800;    //DS402intLim
-    operatingModeSpecificFlag = _DCOMstatus & 0x1000;   //varies by operatin mode
-    stoppedByError = _DCOMstatus & 0x2000;   //drive is stopped because of an error
-    operatingModeFinished = _DCOMstatus & 0x4000;   //Operating mode specific information (b12)
-    validPositionReference = _DCOMstatus & 0x8000;   //drive has a valid position reference
-
-    //retrieve the operating mode id
-    OperatingMode previousOperatingMode = actualOperatingMode;
-    actualOperatingMode = getOperatingMode(_DCOMopmd_act);
-
-    //if we switched operating modes, reset the profile generator and manual velocity command
-    if (previousOperatingMode != actualOperatingMode) {
-        manualVelocityCommand_rps = 0.0;
-        profileVelocity_rps = 0.0;
-    }
+	uint16_t previousError = _LastError;
 	
-    State previousState = state;
-
-    //find the state using the state bits
-    if (!readyToSwitchOn) {
-        if (switchOnDisabled)       state = State::SwitchOnDisabled;
-        else if (fault)             state = State::Fault;
-        else                        state = State::NotReadyToSwitchOn;
-    }
-    else {
-        if (fault)                  state = State::FaultReactionActive;
-        else if (!quickStop)        state = State::QuickStopActive;
-        else if (operationEnabled)  state = State::OperationEnabled;
-        else if (switchedOn)        state = State::SwitchedOn;
-        else                        state = State::ReadyToSwitchOn;
-    }
-
-    if (state != previousState) {
-        switch (state) {
-        case State::SwitchOnDisabled:       pushEvent("StateChange: Switch on Disabled", true); break;
-        case State::Fault:                  break;
-        case State::NotReadyToSwitchOn:     pushEvent("StateChange: Not Ready To Switch On", true); break;
-        case State::FaultReactionActive:    pushEvent("StateChange: Fault Reaction Active", true); break;
-        case State::QuickStopActive:        pushEvent("StateChange: QuickStop Active", true); break;
-        case State::ReadyToSwitchOn:        pushEvent("StateChange: Ready To Switch On", false); break;
-        case State::SwitchedOn:             pushEvent("StateChange: Switched On", false); break;
-        case State::OperationEnabled:       pushEvent("StateChange: Operation Enabled", false); break;
-        }
-    }
-
-    //if an error appeared, push it to the error list
-    //if the error is the same as the previous one, don't log it again
-    if (_LastError != previousErrorCode && _LastError != 0) {
-        pushEvent(_LastError);
-        //disable(); //TODO: Verify that this is not necessary
-    }
-    previousErrorCode = _LastError;
-
-    //emergency stop state
-    bool actualEstop = _IO_STO_act == 0;
-    if (actualEstop != b_emergencyStopActive) {
-        if (actualEstop) {
-            //disable(); //TODO: Verify that this is not necessary
-            pushEvent("Emergency Stop Triggered", true);
-        }
-        else pushEvent("Emergency Stop Released", false);
-        b_emergencyStopActive = actualEstop;
-    }
-
+    txPdoAssignement.pullDataFrom(identity->inputs);
+	
+	if(b_isHoming && _p_act == 0) b_isHoming = false;
+	
+	//read power state
+	auto newPowerState = ds402Status.getPowerState();
+	if(newPowerState != actualPowerState){
+		std::string message = "Power State changed to " + std::string(Enumerator::getDisplayString(newPowerState));
+		pushEvent(message.c_str(), !DS402::isNominal(newPowerState));
+	}
+	actualPowerState = newPowerState;
+	
+	//Read Error
+	if(_LastError != previousError){
+		if(_LastError == 0x0) pushEvent("Error Cleared", false);
+		else{
+			std::string message = "Error " + getErrorCodeString(_LastError);
+			pushEvent(message.c_str(), true);
+		}
+	}
+	b_hasFault = ds402Status.hasFault();
+	if(b_hasFault && requestedPowerState == DS402::PowerState::OPERATION_ENABLED){
+		requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
+	}
+	
+	//read operating mode
+	auto newOperatingMode = ds402Status.getOperatingMode();
+	if(newOperatingMode != actualOperatingMode){
+		std::string message = "Operating Mode changed to " + std::string(Enumerator::getDisplayString(newOperatingMode));
+		pushEvent(message.c_str(), false);
+	}
+	actualOperatingMode = newOperatingMode;
+	
+	
+	//read STO State
+	bool newStoState = _IO_STO_act == 0;
+	if (newStoState != servoMotorDevice->b_emergencyStopActive) {
+		if (newStoState) pushEvent("STO Activated", true);
+		else pushEvent("STO Released", false);
+	}
+	servoMotorDevice->b_emergencyStopActive = newStoState;
+	
+	
 	actualFollowingError_r = (double)_p_dif_usr / (double)positionUnitsPerRevolution;
 	
     //set the encoder position in revolution units and velocity in revolutions per second
@@ -310,7 +257,7 @@ void Lexium32::readInputs() {
     servoMotorDevice->b_moving = std::abs(servoMotorDevice->velocity_positionUnitsPerSecond) > 0.03;
     //set motor device load
     servoMotorDevice->load = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
-
+	
     //assign public input data
 	*positionPinValue = servoMotorDevice->getPosition();
 	*velocityPinValue = servoMotorDevice->getVelocity();
@@ -331,11 +278,14 @@ void Lexium32::readInputs() {
 	*digitalIn5PinValue = b_invertDI5 ? !DI5 : DI5;
 
     //set actuator subdevice
-    servoMotorDevice->b_ready = actualOperatingMode == OperatingMode::CYCLIC_SYNCHRONOUS_POSITION
-								&& (state == State::ReadyToSwitchOn || state == State::SwitchedOn || state == State::OperationEnabled || state == State::QuickStopActive);
-    servoMotorDevice->b_enabled = state == State::OperationEnabled;
-    servoMotorDevice->b_online = isConnected() && motorVoltagePresent;
-    servoMotorDevice->b_emergencyStopActive = b_emergencyStopActive;
+    servoMotorDevice->b_ready = (actualOperatingMode == DS402::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION ||
+								 actualOperatingMode == DS402::OperatingMode::HOMING)
+								&& (actualPowerState == DS402::PowerState::READY_TO_SWITCH_ON ||
+									actualPowerState == DS402::PowerState::SWITCHED_ON ||
+									actualPowerState == DS402::PowerState::OPERATION_ENABLED ||
+									actualPowerState == DS402::PowerState::QUICKSTOP_ACTIVE);
+    servoMotorDevice->b_enabled = actualPowerState == DS402::PowerState::OPERATION_ENABLED;
+    servoMotorDevice->b_online = isConnected();
     //set gpio subdevice status
     gpioDevice->b_ready = isConnected(); //gpio is always ready when lexium is in ESM operational state
     gpioDevice->b_online = isConnected();
@@ -350,82 +300,58 @@ void Lexium32::readInputs() {
 //==============================================================
 
 void Lexium32::writeOutputs() {
-
+	
 	if (digitalOut0->isConnected()) digitalOut0->copyConnectedPinValue();
 	if (digitalOut1->isConnected()) digitalOut1->copyConnectedPinValue();
 	if (digitalOut2->isConnected()) digitalOut2->copyConnectedPinValue();
 	
-	bool b_externalControl = servoMotorLink->isConnected();
-	
-    //------ internal profile generator ------
-	double deltaT_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
-	if (!b_externalControl) {
-		if(!servoMotorDevice->isEnabled()){
-			//if the servo motor is not enabled
-			//update the motion profile with realtime encoder position data
-			profilePosition_r = servoMotorDevice->positionRaw_positionUnits;
-			profileVelocity_rps = servoMotorDevice->velocity_positionUnitsPerSecond;
-		}else{
-			//if the servo motor is enabled but not connected to another node
-			//generate new profile position points using the internal profile generator in manual velocity control
-			double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
-			if (manualVelocityCommand_rps > profileVelocity_rps) {
-				profileVelocity_rps += deltaV_rps;
-				if (profileVelocity_rps > manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
-			}
-			else if (manualVelocityCommand_rps < profileVelocity_rps) {
-				profileVelocity_rps -= deltaV_rps;
-				if (profileVelocity_rps < manualVelocityCommand_rps) profileVelocity_rps = manualVelocityCommand_rps;
-			}
-			double deltaP_r = profileVelocity_rps * deltaT_seconds;
-			profilePosition_r += deltaP_r;
-		}
-	}else{
-		//if the servo motor is enable and controlled externally
-		//update the motion profile using the profile position points send to the servo motor
-		profilePosition_r = servoMotorDevice->getPositionCommandRaw();
-		profileVelocity_rps = servoMotorDevice->getVelocityCommand();
+	if(b_startHoming){
+		b_startHoming = false;
+		b_isHoming = true;
 	}
 	
-    //handle commands from subdevices
+	if(b_isHoming){
+		servoMotorDevice->setPositionCommand(servoMotorDevice->getPosition(), servoMotorDevice->getVelocity(), 0.0);
+	}
+	else if(!servoMotorLink->isConnected()){
+		if(!servoMotorDevice->isEnabled()){
+			//------ motor profile follows actual data ------
+			servoMotorDevice->setPositionCommand(servoMotorDevice->getPosition(), servoMotorDevice->getVelocity(), 0.0);
+		}else{
+			//------ internal profile generator ------
+			double deltaT_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
+			double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
+			
+			double previousVelocityCommand = servoMotorDevice->velocityCommand_deviceUnitsPerSecond;
+			double newVelocityCommand;
+			double accelerationCommand;
+			if (manualVelocityCommand_rps > previousVelocityCommand) {
+				newVelocityCommand = std::min(previousVelocityCommand + deltaV_rps, (double)manualVelocityCommand_rps);
+				accelerationCommand = manualAcceleration_rpsps;
+			}
+			else if (manualVelocityCommand_rps < previousVelocityCommand) {
+				newVelocityCommand = std::max(previousVelocityCommand - deltaV_rps, (double)manualVelocityCommand_rps);
+				accelerationCommand = -manualAcceleration_rpsps;
+			}else newVelocityCommand = previousVelocityCommand;
+			double deltaP_r = deltaT_seconds * (previousVelocityCommand + newVelocityCommand) / 2.0;
+			servoMotorDevice->setPositionCommand(servoMotorDevice->getPositionCommand() + deltaP_r,
+												 newVelocityCommand,
+												 accelerationCommand);
+		}
+	}
+	
+    //handle power state transitions
     if (servoMotorDevice->b_setEnabled) {
         servoMotorDevice->b_setEnabled = false;
-        b_enableOperation = true;
+		requestedPowerState = DS402::PowerState::OPERATION_ENABLED;
     }
     if (servoMotorDevice->b_setDisabled) {
         servoMotorDevice->b_setDisabled = false;
-        b_disableOperation = true;
+		requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
     }
     if (servoMotorDevice->b_setQuickstop) {
         servoMotorDevice->b_setQuickstop = false;
-        b_quickStop = true;
-    }
-
-    //if there is an error present, automatically clear it
-    //the fault reset event only happens on a transition from 0 to 1
-    //we have to clear the fault reset flag after every activation
-    //to be able to use it again
-    if (b_faultReset) b_faultReset = false;
-    else if (_LastError != 0) b_faultReset = true;
-
-    //handle state transition commands
-    if (b_quickStop) {
-        b_quickStop = false;
-        b_quickStopActive = false;
-    }
-    if (b_enableOperation) {
-        b_enableOperation = false;
-        b_operationEnabled = true;
-        b_quickStopActive = true;
-        b_voltageEnabled = true;
-        b_switchedOn = true;
-    }
-    if (b_disableOperation) {
-        b_disableOperation = false;
-        b_operationEnabled = false;
-        b_quickStopActive = true;
-        b_voltageEnabled = true;
-        b_switchedOn = false;
+		requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
     }
 
     //========== PREPARE RXPDO OUTPUTS ==========
@@ -434,28 +360,30 @@ void Lexium32::writeOutputs() {
     //PPp_target    (int32_t)   4
     //IO_DQ_set     (uint16_t)  2
 
-    //state control word
-    DCOMcontrol = 0x0000;
-    if (b_switchedOn)       DCOMcontrol |= 0x1;
-    if (b_voltageEnabled)   DCOMcontrol |= 0x2;
-    if (b_quickStopActive)  DCOMcontrol |= 0x4;
-    if (b_operationEnabled) DCOMcontrol |= 0x8;
-    if (opModeSpec4)        DCOMcontrol |= 0x10;
-    if (opModeSpec5)        DCOMcontrol |= 0x20;
-    if (opModeSpec6)        DCOMcontrol |= 0x40;
-    if (b_faultReset)       DCOMcontrol |= 0x80;
-    if (b_halted)           DCOMcontrol |= 0x100;
-    if (opModeSpec9)        DCOMcontrol |= 0x200;
-    //bits 10 to 15 of control word have to be 0
-
-	//set operating mode (cyclic synchronous position)
-    DCOMopmode = getOperatingModeId(requestedOperatingMode);
-
-	//set profile position point
-	if(b_externalControl) PPp_target = (int32_t)(servoMotorDevice->getPositionCommandRaw() * positionUnitsPerRevolution);
-	else PPp_target = (int32_t)(profilePosition_r * positionUnitsPerRevolution);
-		
-	//set digital output signals
+	//DCOMcontrol
+	ds402Control.setPowerState(requestedPowerState, actualPowerState);
+	
+	if(b_isHoming && actualOperatingMode == DS402::OperatingMode::HOMING) ds402Control.setOperatingModeSpecificByte4(true);
+	else ds402Control.setOperatingModeSpecificByte4(false);
+	
+	//if there is an error present, automatically clear it
+	//the fault reset event only happens on a transition from 0 to 1
+	//we have to clear the fault reset flag after every activation
+	//to be able to use it again
+	if(b_hasFault && !b_isResettingFault) {
+		b_isResettingFault = true;
+		ds402Control.performFaultReset();
+	}else b_isResettingFault = false;
+	ds402Control.updateControlWord();
+	
+	//DCOMopmode
+	if(b_isHoming) ds402Control.setOperatingMode(DS402::OperatingMode::HOMING);
+	else ds402Control.setOperatingMode(DS402::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION);
+	
+	//PPp_target
+	PPp_target = (int32_t)(servoMotorDevice->getPositionCommandRaw() * positionUnitsPerRevolution);
+	
+	//IO_DQ_set
     IO_DQ_set = 0;
     if (*digitalOut0PinValue) IO_DQ_set |= 0x1;
     if (*digitalOut1PinValue) IO_DQ_set |= 0x2;

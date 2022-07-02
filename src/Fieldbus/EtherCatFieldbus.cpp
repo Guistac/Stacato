@@ -836,22 +836,19 @@ namespace EtherCatFieldbus {
 		b_cyclicExchangeRunning = false; //set this in case we broke out of the main loop
         b_running = false;
 
+		
+		
+		
+		
         //send one last frame to all slaves to disable them
         //this way motors don't suddenly jerk to a stop when stopping the fieldbus in the middle of a movement
         for (auto slave : slaves) {
             slave->onDisconnection();
             slave->writeOutputs();
+			slave->pushEvent("Device Disconnected (Fieldbus Shutdown)", false);
+			slave->identity->state = EC_STATE_NONE;
         }
         ec_send_processdata();
-
-        //terminate and disable all slaves
-        for (auto slave : slaves) {
-            if (slave->isDetected()) {
-                slave->pushEvent("Device Disconnected (Fieldbus Shutdown)", false);
-                slave->onDisconnection();
-            }
-            slave->identity->state = EC_STATE_NONE;
-        }
 
         Logger::info("===== Cyclic Exchange Stopped !");
 

@@ -40,7 +40,7 @@ void initialize(){
 	Sequencer::Gui::SequencerWindow::get()->addToDictionnary();
 	DashboardWindow::get()->addToDictionnary();
 	Playback::Gui::PlaybackManagerWindow::get()->addToDictionnary();
-
+	 
 	EsiReaderWindow::get()->addToDictionnary();
 	
 #ifdef STACATO_DEBUG

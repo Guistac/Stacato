@@ -14,6 +14,9 @@ namespace DS402 {
 		UNKNOWN
 	};
 
+	glm::vec4 getColor(PowerState state);
+	bool isNominal(PowerState state);
+
 	enum class OperatingMode {
 		NONE,
 		PROFILE_POSITION,

@@ -10,7 +10,7 @@
 #include "Gui/Assets/Colors.h"
 
 #include "Gui/Utilities/HelpMarker.h"
-
+#include "Gui/Utilities/CustomWidgets.h"
 
 void Lexium32::deviceSpecificGui() {
 
@@ -80,7 +80,7 @@ void Lexium32::deviceSpecificGui() {
 
 
 void Lexium32::statusGui() {
-
+	
     float doubleWidgetWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
     float maxDoubleWidgetWidth = ImGui::GetTextLineHeight() * 15.0;
     if (doubleWidgetWidth > maxDoubleWidgetWidth) doubleWidgetWidth = maxDoubleWidgetWidth;
@@ -103,59 +103,49 @@ void Lexium32::statusGui() {
     ImGui::PopStyleVar();
     ImGui::PopItemFlag();
 
-    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+    
     ImGui::PushFont(Fonts::sansBold15);
-    ImGui::PushStyleColor(ImGuiCol_Button, isConnected() ? Colors::green : (isDetected() ? Colors::yellow : Colors::red));
-
-    ImGui::Button(isConnected() ? "Online" : (isDetected() ? "Detected" : "Offline"), statusDisplaySize);
-    ImGui::PopStyleColor();
-
-    ImGui::SameLine();
-    if (!isDetected()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
-    else if (isStateBootstrap() || isStateInit()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
-    else if (isStatePreOperational() || isStateSafeOperational()) ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-    else ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-    ImGui::Button(getEtherCatStateChar(), statusDisplaySize);
-    ImGui::PopStyleColor();
+	
+	const char* networkStatusString = isConnected() ? "Online" : (isDetected() ? "Detected" : "Offline");
+	glm::vec4 networkStatusColor = isConnected() ? Colors::green : (isDetected() ? Colors::yellow : Colors::red);
+	backgroundText(networkStatusString, statusDisplaySize, networkStatusColor);
 
     ImGui::SameLine();
+	backgroundText(getEtherCatStateChar(), statusDisplaySize, getEtherCatStateColor());
 
-    if (isConnected()) {
-
-        glm::vec4 statusButtonColor;
-        switch (state) {
-        case State::NotReadyToSwitchOn:
-        case State::SwitchOnDisabled: statusButtonColor = Colors::red; break;
-        case State::ReadyToSwitchOn: statusButtonColor = Colors::orange; break;
-        case State::SwitchedOn: statusButtonColor = Colors::yellow; break;
-        case State::OperationEnabled: statusButtonColor = Colors::green; break;
-        case State::QuickStopActive:
-        case State::FaultReactionActive:
-        case State::Fault: statusButtonColor = Colors::red; break;
-        }
-        ImGui::PushStyleColor(ImGuiCol_Button, statusButtonColor);
-        ImGui::Button(getStateChar(), statusDisplaySize);
-    }
-    else {
-        ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
-        ImGui::Button("No Status", statusDisplaySize);
+    ImGui::SameLine();
+	if (!isConnected()) backgroundText("Offline", statusDisplaySize, Colors::blue);
+	else{
+		if(!b_hasFault) backgroundText(Enumerator::getDisplayString(actualPowerState), statusDisplaySize, DS402::getColor(actualPowerState));
+		else{
+			static char errorDisplay[16];
+			sprintf(errorDisplay, "Error %X", _LastError);
+			backgroundText(errorDisplay, statusDisplaySize, Colors::red);
+			if(ImGui::IsItemHovered()){
+				ImGui::BeginTooltip();
+				ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+				ImGui::Text("%s", getErrorCodeString(_LastError).c_str());
+				ImGui::PopStyleColor();
+				ImGui::EndTooltip();
+			}
+		}
     }
 
-    ImGui::PopStyleColor();
     ImGui::PopFont();
-    ImGui::PopItemFlag();
 
+	
+	
     glm::vec2 commandButtonSize(doubleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
 
-    if (isEmergencyStopActive()) {
+    if (servoMotorDevice->isEmergencyStopActive()) {
         int millis = Timing::getProgramTime_seconds() * 1000.0;
         if (millis % 1000 < 500) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
         else ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkRed);
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
         ImGui::PushFont(Fonts::sansBold15);
-        ImGui::Button("E-STOP", commandButtonSize);
+        ImGui::Button("STO", commandButtonSize);
         ImGui::SameLine();
-        ImGui::Button("E-STOP", commandButtonSize);
+        ImGui::Button("STO", commandButtonSize);
         ImGui::PopFont();
         ImGui::PopItemFlag();
         ImGui::PopStyleColor();
@@ -167,7 +157,7 @@ void Lexium32::statusGui() {
         if (servoMotorDevice->isEnabled()) { if (ImGui::Button("Disable Operation", commandButtonSize)) servoMotorDevice->disable(); }
         else { if (ImGui::Button("Enable Operation", commandButtonSize)) servoMotorDevice->enable(); }
         ImGui::SameLine();
-        if (ImGui::Button("Quick Stop", commandButtonSize)) quickStop();
+		if (ImGui::Button("Quick Stop", commandButtonSize)) servoMotorDevice->quickstop();
 		ImGui::EndDisabled();
     }
 }
@@ -323,6 +313,28 @@ void Lexium32::controlsGui() {
 	
 	ImGui::EndDisabled();
 	ImGui::EndDisabled();
+	
+	
+	if(ImGui::Button("Start Homing")) b_startHoming = true;
+	ImGui::BeginDisabled(!b_isHoming);
+	if(ImGui::Button("Stop Homing")) b_isHoming = false;
+	ImGui::EndDisabled();
+	
+	/*
+	ImGui::Checkbox("Homing Mode", &b_homingMode);
+	ImGui::Checkbox("Do Homing", &b_doHoming);
+	
+	ImGui::BeginDisabled();
+	ImGui::Checkbox("Homing Completed", &b_homingCompleted);
+	ImGui::Checkbox("Homing Success", &b_homingSuccessful);
+	ImGui::EndDisabled();
+	
+	ImGui::Text("     Status   Control");
+	for(int i = 0; i < 16; i++){
+		ImGui::Text("%i:      %i            %i", i, (ds402Status.statusWord >> i) & 0x1, (ds402Control.controlWord >> i) & 0x1);
+	}
+	*/
+	
 }
 
 
@@ -829,20 +841,4 @@ void Lexium32::miscellaneousGui() {
     ImGui::SameLine();
     ImGui::Text("%s", Enumerator::getDisplayString(factoryResetTransferState));
     
-    ImGui::Separator();
-
-    ImGui::PushFont(Fonts::sansBold15);
-    ImGui::Text("Miscellaneous Device Status Flags");
-    ImGui::PopFont();
-
-    ImGui::Text("motorVoltagePresent : %i", motorVoltagePresent);
-    ImGui::Text("class0error : %i", class0error);
-    ImGui::Text("halted : %i", halted);
-    ImGui::Text("fieldbusControlActive : %i", fieldbusControlActive);
-    ImGui::Text("targetReached : %i", targetReached);
-    ImGui::Text("internalLimitActive : %i", internalLimitActive);
-    ImGui::Text("operatingModeSpecificFlag : %i", operatingModeSpecificFlag);
-    ImGui::Text("stoppedByError : %i", stoppedByError);
-    ImGui::Text("operatingModeFinished : %i", operatingModeFinished);
-    ImGui::Text("validPositionReference : %i", validPositionReference);
 }

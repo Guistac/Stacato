@@ -766,3 +766,16 @@ void EtherCatDevice::eventListGui() {
     ImGui::PopStyleColor();
 
 }
+
+
+glm::vec4 EtherCatDevice::getEtherCatStateColor(){
+	if (!isDetected()) return Colors::blue;
+	uint16_t stateWithoutErrorBit = identity->state & 0xF;
+	switch (stateWithoutErrorBit) {
+		case EC_STATE_INIT: return Colors::red;
+		case EC_STATE_PRE_OP:
+		case EC_STATE_SAFE_OP: return Colors::yellow;
+		case EC_STATE_OPERATIONAL: return Colors::green;
+		default: return Colors::blue;
+	}
+}

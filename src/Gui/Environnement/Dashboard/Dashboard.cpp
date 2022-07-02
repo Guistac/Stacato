@@ -207,7 +207,7 @@ void Dashboard::canvas(){
 		ImGui::SetCursorPos(cursor + widgetPadding);
 		ImGui::BeginGroup();
 		ImGuiID hoveredIdBeforeWidget = ImGui::GetHoveredID();
-		widgetInstance->gui();
+		//widgetInstance->gui();
 		ImGuiID hoveredIdInsideWidget = ImGui::GetHoveredID();
 		ImGui::EndGroup();
 		glm::vec2 contentSize = ImGui::GetItemRectSize();

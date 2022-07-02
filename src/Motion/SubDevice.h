@@ -172,8 +172,9 @@ public:
 		velocityCommand_deviceUnitsPerSecond = velocityCommand;
 		accelerationCommand_deviceUnitsPerSecondsSquared = accelerationCommand;
 	}
-	//get velocity command
+	//get position command
 	virtual double getPositionCommandRaw() { return positionCommand_deviceUnits + positionOffset_positionUnits; }
+	double getPositionCommand(){ return positionCommand_deviceUnits; }
 	
 	double getFollowingError(){ return getPositionCommandRaw() - positionRaw_positionUnits; }
 	double getFollowingErrorNormalized(){ return getFollowingError() / maxfollowingError; }

@@ -3,6 +3,8 @@
 #include "Fieldbus/EtherCatDevice.h"
 #include "Utilities/ScrollingBuffer.h"
 
+#include "Fieldbus/Utilities/DS402.h"
+
 class Lexium32 : public EtherCatDevice {
 public:
 
@@ -47,95 +49,6 @@ public:
 	
     //===== drive status =====
 
-    enum class State {
-        NotReadyToSwitchOn,
-        SwitchOnDisabled,
-        ReadyToSwitchOn,
-        SwitchedOn,
-        OperationEnabled,
-        QuickStopActive,
-        FaultReactionActive,
-        Fault
-    };
-
-    State state = State::SwitchOnDisabled;
-
-    const char* getStateChar() {
-        switch (state) {
-            case State::NotReadyToSwitchOn: return "Restart Needed";
-            case State::SwitchOnDisabled: return "Switch On Disabled";
-            case State::ReadyToSwitchOn: return "Ready To Switch On";
-            case State::SwitchedOn: return "Switched On";
-            case State::OperationEnabled: return "Operation Enabled";
-            case State::QuickStopActive: return "Quick Stop Active";
-            case State::FaultReactionActive: return "Fault Reaction Active";
-            case State::Fault: return "Fault";
-            default: return "";
-        }
-    }
-
-    //===== mode display and changing =====
-
-	enum class OperatingMode{
-		TUNING,
-		MOTION_SEQUENCE,
-		ELECTRONIC_GEAR,
-		JOG,
-		PROFILE_POSITION,
-		PROFILE_VELOCITY,
-		PROFILE_TORQUE,
-		HOMING,
-		INTERPOLATED_POSITION,
-		CYCLIC_SYNCHRONOUS_POSITION,
-		CYCLIC_SYNCHRONOUS_VELOCITY,
-		CYCLIC_SYNCHRONOUS_TORQUE,
-		UNKNOWN
-	};
-	
-	static OperatingMode getOperatingMode(int ds402Identifier){
-		switch(ds402Identifier){
-			case -6: return OperatingMode::TUNING;
-			case -3: return OperatingMode::MOTION_SEQUENCE;
-			case -2: return OperatingMode::ELECTRONIC_GEAR;
-			case -1: return OperatingMode::JOG;
-			case 1:  return OperatingMode::PROFILE_POSITION;
-			case 3:  return OperatingMode::PROFILE_VELOCITY;
-			case 4:  return OperatingMode::PROFILE_TORQUE;
-			case 6:  return OperatingMode::HOMING;
-			case 7:  return OperatingMode::INTERPOLATED_POSITION;
-			case 8:  return OperatingMode::CYCLIC_SYNCHRONOUS_POSITION;
-			case 9:  return OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY;
-			case 10: return OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE;
-			default: return OperatingMode::UNKNOWN;
-		}
-	}
-	
-	static int getOperatingModeId(OperatingMode mode){
-		switch(mode){
-			case OperatingMode::TUNING: return -6;
-			case OperatingMode::MOTION_SEQUENCE: return -3;
-			case OperatingMode::ELECTRONIC_GEAR: return -2;
-			case OperatingMode::JOG: return -1;
-			case OperatingMode::PROFILE_POSITION: return 1;
-			case OperatingMode::PROFILE_VELOCITY: return 3;
-			case OperatingMode::PROFILE_TORQUE: return 4;
-			case OperatingMode::HOMING: return 6;
-			case OperatingMode::INTERPOLATED_POSITION: return 7;
-			case OperatingMode::CYCLIC_SYNCHRONOUS_POSITION: return 8;
-			case OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY: return 9;
-			case OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE: return 10;
-			default: return 33333;
-		}
-	}
-
-    OperatingMode actualOperatingMode = OperatingMode::UNKNOWN;
-    const OperatingMode requestedOperatingMode = OperatingMode::CYCLIC_SYNCHRONOUS_POSITION;
-
-    //===== EMERGENCY STOP =====
-
-    bool b_emergencyStopActive = false;
-    bool isEmergencyStopActive() { return b_emergencyStopActive; }
-    void quickStop() { b_quickStop = true; }
 
     //===== INTERNAL MOTION PROFILE GENERATOR =====
 
@@ -377,32 +290,22 @@ public:
     void setStationAlias(uint16_t a);
     DataTransferState stationAliasUploadState = DataTransferState::NO_TRANSFER;
 
-    //===== Drive Status Flags ======
-
-    //from _DCOMstatus
-    bool motorVoltagePresent = false;
-    bool class0error = false;
-    bool halted = false;
-    bool fieldbusControlActive = false;
-    bool targetReached = false;
-    bool internalLimitActive = false; //DS402intLim
-    bool operatingModeSpecificFlag = false;
-    bool stoppedByError = false;
-    bool operatingModeFinished = false;
-    bool validPositionReference = false;
-
 
 private:
 
-    //Rx PDO display Data
-    uint16_t DCOMcontrol = 0;
-    int8_t DCOMopmode = 0;
+	DS402::PowerState actualPowerState = DS402::PowerState::UNKNOWN;
+	DS402::OperatingMode actualOperatingMode = DS402::OperatingMode::UNKNOWN;
+	
+	DS402::PowerState requestedPowerState = DS402::PowerState::UNKNOWN;
+	DS402::OperatingMode requestedOperatingMode = DS402::OperatingMode::UNKNOWN;
+	
+	//Rx-PDO
+	DS402::Control ds402Control;
     int32_t PPp_target = 0;
     uint16_t IO_DQ_set = 0;
 
-    //Tx PDO display Data
-    uint16_t _DCOMstatus = 0;
-    int8_t _DCOMopmd_act = 0;
+	//Tx-PDO
+	DS402::Status ds402Status;
     int32_t _p_act = 0;
 	int32_t _p_dif_usr = 0;
     int32_t _v_act = 0;
@@ -410,29 +313,43 @@ private:
     uint16_t _LastError = 0;
     uint16_t _IO_act = 0;
     uint16_t _IO_STO_act = 0;
-
-    //used to track change in _LastError
-    uint16_t previousErrorCode = 0;
-
-    //command flags to control state machine (interface to construct DCOM_control word)
-    bool b_disableOperation = false;
-    bool b_enableOperation = false;
-    bool b_faultReset = false;
-    bool b_quickStop = false;
-
-    //bits used to construct DCOM_control word (DS402 state machine control word)
-    bool b_switchedOn = false;
-    bool b_voltageEnabled = false;
-    bool b_quickStopActive = true; //quickstop is active when bit is low
-    bool b_operationEnabled = false;
-    bool opModeSpec4 = false;
-    bool opModeSpec5 = false;
-    bool opModeSpec6 = false;
-    bool b_faultResetState = false;
-    bool b_halted = false;
-    bool opModeSpec9 = false;
-
-
+	
+	bool b_hasFault = false;
+	bool b_isResettingFault = false;
+	
+	
+	static std::string getErrorCodeString(uint16_t errorCode){
+		switch(errorCode){
+			case 0x0: return "No Error";
+			case 0xA320: return "A320 : Max Following Error Exceeded";
+			case 0xB122: return "B122 : Communication Synchronization Error";
+			case 0xB610: return "B610 : Fieldbus Watchdog";
+			case 0xB103: return "B103 : Fieldbus Communication Closed";
+			case 0X733F: return "733F : Encoder Connection Error";
+			default: {
+				static char hexString[16];
+				sprintf(hexString, "%X", errorCode);
+				std::string output = std::string(hexString) + " (Unknown Error Code)";
+				return output;
+			}
+		}
+	}
+	
+	/*
+	bool b_resetEncoder = false;
+	bool b_resettingEncoder = false;
+	
+	bool b_homingMode = false;
+	bool b_sendHomingMode = false;
+	bool b_doHoming = false;
+	
+	bool b_homingCompleted = false;
+	bool b_homingSuccessful = false;
+	*/
+	 
+	bool b_startHoming = false;
+	bool b_isHoming = false;
+	
     //Lexium GUI functions
     void statusGui();
     void controlsGui();

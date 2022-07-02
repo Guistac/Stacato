@@ -1,9 +1,9 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.3553813" OffsetX="1258.6034" OffsetY="-496.07901" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget UniqueID="4" PositionX="-802.40308" PositionY="496.07901" SizeX="232" SizeY="299.64432"/>
-        <Widget UniqueID="5" PositionX="-801.60553" PositionY="800.33777" SizeX="232" SizeY="300.09689"/>
-        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="231.99998" SizeY="536.8197"/>
-        <Widget UniqueID="7" PositionX="-557.11194" PositionY="499.23932" SizeX="232" SizeY="536.33112"/>
+    <Dashboard Scale="2.5075188" OffsetX="1099.9976" OffsetY="-496.07901" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget UniqueID="4" PositionX="-802.40308" PositionY="496.07901" SizeX="22" SizeY="22"/>
+        <Widget UniqueID="5" PositionX="-801.60553" PositionY="800.33777" SizeX="22" SizeY="22"/>
+        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="22" SizeY="22"/>
+        <Widget UniqueID="7" PositionX="-557.11194" PositionY="499.23932" SizeX="22" SizeY="22"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -142,7 +142,7 @@
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
-                    <EncoderSettings Assignement="Internal" RangeShifted="true" PositionOffset_revolutions="119.62162780761719"/>
+                    <EncoderSettings Assignement="Internal" RangeShifted="true" PositionOffset_revolutions="0"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DQ0" DisplayString="DQ0" DataType="Boolean" UniqueID="94" Visible="true"/>
@@ -376,7 +376,6 @@
             <Link UniqueID="214" StartPin="212" EndPin="68"/>
             <Link UniqueID="215" StartPin="212" EndPin="64"/>
             <Link UniqueID="254" StartPin="244" EndPin="251"/>
-            <Link UniqueID="260" StartPin="97" EndPin="109"/>
         </Links>
     </NodeGraph>
 </Environnement>
@@ -385,5 +384,5 @@
     <NetworkInterfaceCard>
         <Primary Description="en7" Name="en7"/>
     </NetworkInterfaceCard>
-    <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="1.5" ClockStableThresholdMilliseconds="0.10000000149011612" FieldbusTimeoutDelayMilliseconds="100"/>
+    <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="5" ClockStableThresholdMilliseconds="0.5" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

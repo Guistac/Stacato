@@ -3,6 +3,21 @@
 
 namespace DS402 {
 		
+
+	bool isNominal(PowerState state){
+		switch(state){
+			case PowerState::NOT_READY_TO_SWITCH_ON:
+			case PowerState::SWITCH_ON_DISABLED:
+			case PowerState::FAULT_REACTION_ACTIVE:
+			case PowerState::FAULT:
+			case PowerState::UNKNOWN: return false;
+			case PowerState::READY_TO_SWITCH_ON:
+			case PowerState::SWITCHED_ON:
+			case PowerState::OPERATION_ENABLED:
+			case PowerState::QUICKSTOP_ACTIVE: return true;
+		}
+	}
+
 	int8_t getOperatingModeInteger(OperatingMode mode) {
 		switch(mode){
 			case OperatingMode::NONE:												return 0;

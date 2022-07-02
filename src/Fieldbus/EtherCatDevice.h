@@ -86,6 +86,7 @@ public:
     bool isStateOperational()       { return (identity->state & 0xF) == EC_STATE_OPERATIONAL; }
 
     const char* getEtherCatStateChar();
+	glm::vec4 getEtherCatStateColor();
     bool hasStateError();
     uint16_t previousState = -1;
 

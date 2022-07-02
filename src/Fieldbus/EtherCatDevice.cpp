@@ -87,15 +87,15 @@ void EtherCatDevice::pushEvent(const char* eventMessage, bool isError) {
     eventListMutex.lock();
     eventList.push_back(new Event(eventMessage, isError));
     eventListMutex.unlock();
-	if(isError) Logger::error("{} : {}", getName(), eventMessage);
-	else Logger::info("{} : {}", getName(), eventMessage);
+	if(isError) Logger::warn("{} : {}", getName(), eventMessage);
+	else Logger::trace("{} : {}", getName(), eventMessage);
 }
 
 void EtherCatDevice::pushEvent(uint16_t errorCode) {
     eventListMutex.lock();
     eventList.push_back(new Event(errorCode));
     eventListMutex.unlock();
-	Logger::error("{} : Error Code 0x{:X}", getName(), errorCode);
+	Logger::warn("{} : Error Code 0x{:X}", getName(), errorCode);
 }
 
 void EtherCatDevice::clearEventList() {
