@@ -17,7 +17,7 @@
 //Device that are matched against a device class will return true for isDeviceKnown()
 //Unknown devices will not and will be of the base type EtherCatDevice
 
-#define DEFINE_ETHERCAT_DEVICE(className, EtherCatName, displayName, saveName, manufacturerName, category, ManufacturerCode, IdentificationCode) public:\
+#define DEFINE_ETHERCAT_DEVICE(className, displayName, saveName, manufacturerName, category, ManufacturerCode, IdentificationCode) public:\
 	DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, category)\
 	/*Device Specific*/\
 	virtual Device::Type getDeviceType() override { return Device::Type::ETHERCAT_DEVICE; }\
@@ -27,10 +27,10 @@
 	virtual void writeOutputs() override;\
 	/*EtherCat Device Specific*/\
 	virtual const char* getManufacturerName() override { return manufacturerName; }\
-	virtual const char* getEtherCatName() override{ return EtherCatName; }\
+	virtual const char* getDeviceName() override{ return displayName; }\
 	virtual uint32_t getManufacturerCode() override{ return ManufacturerCode; }\
 	virtual uint32_t getIdentificationCode() override { return IdentificationCode; }\
-	virtual bool isSlaveKnown() override { return true; }\
+	virtual bool isEtherCatDeviceKnown() override { return true; }\
 	virtual bool startupConfiguration() override;\
 	virtual bool saveDeviceData(tinyxml2::XMLElement* xml) override;\
 	virtual bool loadDeviceData(tinyxml2::XMLElement* xml) override;\
@@ -43,10 +43,10 @@ public:
 	
 	DEFINE_DEVICE_NODE(EtherCatDevice, "Unknown EtherCAT Device", "UnknownEtherCatDevice", Device::Type::ETHERCAT_DEVICE, "Unknown Category")
 	virtual const char* getManufacturerName(){ return "Unknown Manufacturer"; }
-	virtual const char* getEtherCatName(){ return "Unknown EtherCAT Device"; }
+	virtual const char* getDeviceName(){ return "Unknown EtherCAT Device"; }
 	virtual uint32_t getManufacturerCode(){ return 0; }
 	virtual uint32_t getIdentificationCode(){ return 0; }
-	virtual bool isSlaveKnown(){ return false; }
+	virtual bool isEtherCatDeviceKnown(){ return false; }
 	virtual bool startupConfiguration(){ return true; }
 	virtual bool saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 	virtual bool loadDeviceData(tinyxml2::XMLElement* xml) { return true; }

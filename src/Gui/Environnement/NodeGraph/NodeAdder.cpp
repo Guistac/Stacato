@@ -43,20 +43,24 @@ namespace Environnement::NodeGraph::Gui{
 				ImGui::Text("By Manufacturer");
 				ImGui::PopStyleColor();
 				for (auto& manufacturer : NodeFactory::getEtherCatDevicesByManufacturer()) {
+					ImGui::PushFont(Fonts::sansBold15);
 					if (ImGui::TreeNode(manufacturer.name)) {
+						ImGui::PopFont();
 						listNodes(manufacturer.nodes);
 						ImGui::TreePop();
-					}
+					}else ImGui::PopFont();
 				}
 				ImGui::Separator();
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));
 				ImGui::Text("By Category");
 				ImGui::PopStyleColor();
 				for (auto& category : NodeFactory::getEtherCatDevicesByCategory()) {
+					ImGui::PushFont(Fonts::sansBold15);
 					if (ImGui::TreeNode(category.name)) {
+						ImGui::PopFont();
 						listNodes(category.nodes);
 						ImGui::TreePop();
-					}
+					}else ImGui::PopFont();
 				}
 				
 				
@@ -65,24 +69,25 @@ namespace Environnement::NodeGraph::Gui{
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 1.0));
 				ImGui::Text("Detected Devices");
 				ImGui::PopStyleColor();
-				static bool b_scanningNetwork = false;
-				bool disableScanButton = !EtherCatFieldbus::canScan();
+				
+				bool disableScanButton = EtherCatFieldbus::isRunning();
 				ImGui::BeginDisabled(disableScanButton);
 				if (ImGui::Button("Scan Network")) {
-					std::thread etherCatNetworkScanner = std::thread([]() {
-						pthread_setname_np("EtherCAT Network Scanner Thread");
-						b_scanningNetwork = true;
-						EtherCatFieldbus::scanNetwork();
-						b_scanningNetwork = false;
-					});
-					etherCatNetworkScanner.detach();
+					EtherCatFieldbus::autoInit();
 				}
 				ImGui::EndDisabled();
-				if (b_scanningNetwork) {
+				if (EtherCatFieldbus::isAutoInitRunning()) {
 					ImGui::SameLine();
-					ImGui::Text("Scanning...");
+					auto nic = EtherCatFieldbus::getActiveNetworkInterfaceCard();
+					if(nic) ImGui::TextWrapped("Scanning network interface %s", nic->name);
+					else ImGui::Text("Scanning...");
+				}else if(EtherCatFieldbus::hasDetectedDevices()){
+					ImGui::PushFont(Fonts::sansBold15);
+					ImGui::Text("Devices detected on network interface %s:", EtherCatFieldbus::getActiveNetworkInterfaceCard()->name);
+					ImGui::PopFont();
 				}
 				
+				ImGui::TreePush();
 				
 				for (auto device : EtherCatFieldbus::getUnassignedDevices()) {
 					const char* deviceDisplayName = device->getName();
@@ -93,6 +98,8 @@ namespace Environnement::NodeGraph::Gui{
 						ImGui::EndDragDropSource();
 					}
 				}
+				
+				ImGui::TreePop();
 				ImGui::PopFont();
 			}
 			ImGui::PopFont();

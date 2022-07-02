@@ -500,8 +500,7 @@ namespace EtherCatFieldbus {
 
                 if (slave == nullptr) {
                     Logger::info("      Slave did not match any Environnement Slave");
-                    //slave = NodeFactory::getDeviceByEtherCatName(identity.name);
-					slave = NodeFactory::getDeviceByIdCodes(identity.eep_man, identity.eep_id);
+					slave = NodeFactory::getEtherCatDeviceByIdCodes(identity.eep_man, identity.eep_id);
                     slave->stationAlias = stationAlias;
                     slave->explicitDeviceID = explicitDeviceID;
                     char name[128];
@@ -520,7 +519,7 @@ namespace EtherCatFieldbus {
                 slave->identity = &identity;
                 slave->slaveIndex = i;
 
-                if (!slave->isSlaveKnown()) {
+                if (!slave->isEtherCatDeviceKnown()) {
                     Logger::warn("Found Unknown Slave: {}", identity.name);
                 }
 

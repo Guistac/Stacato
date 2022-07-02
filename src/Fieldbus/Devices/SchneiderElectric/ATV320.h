@@ -6,7 +6,7 @@
 class ATV320 : public EtherCatDevice{
 public:
 	
-	DEFINE_ETHERCAT_DEVICE(ATV320, "ATV320 EtherCAT", "ATV320", "ATV320", "Schneider Electric", "Motor Drives", 0x800005A, 0x0)
+	DEFINE_ETHERCAT_DEVICE(ATV320, "ATV320", "ATV320", "Schneider Electric", "Motor Drives", 0x800005A, 0x0)
 	
 	DS402::Status ds402SStatus;
 	DS402::Control ds402Control;

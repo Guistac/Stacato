@@ -40,7 +40,7 @@ void EtherCatDevice::nodeSpecificGui() {
                     ImGui::EndTabItem();
                 }
 
-                if (isSlaveKnown() && ImGui::BeginTabItem("PDO Data")) {
+                if (isEtherCatDeviceKnown() && ImGui::BeginTabItem("PDO Data")) {
                     if (ImGui::BeginChild("PDOData")) {
                         pdoDataGui();
                         ImGui::EndChild();

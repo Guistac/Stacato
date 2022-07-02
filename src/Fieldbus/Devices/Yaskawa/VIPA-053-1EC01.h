@@ -9,7 +9,7 @@ class VipaModule;
 class VipaBusCoupler_053_1EC01 : public EtherCatDevice {
 public:
 
-    DEFINE_ETHERCAT_DEVICE(VipaBusCoupler_053_1EC01, "053-1EC01", "Vipa Bus Coupler (053_1EC01)", "VipaBusCoupler-053-1EC01", "Yaskawa", "I/O", 0x2BB, 0x531EC01)
+    DEFINE_ETHERCAT_DEVICE(VipaBusCoupler_053_1EC01, "VIPA Bus Coupler", "VipaBusCoupler-053-1EC01", "Yaskawa", "I/O", 0x22B, 0x531EC01)
 	
     //master GPIO Subdevice
     std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");

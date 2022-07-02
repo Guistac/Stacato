@@ -196,6 +196,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Tests/C_Curves.h
     ${STACATO_SOURCE_DIRECTORY}/Tests/CommandZ.cpp
     ${STACATO_SOURCE_DIRECTORY}/Tests/CommandZ.h
+    ${STACATO_SOURCE_DIRECTORY}/Tests/EsiReader.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Tests/EsiReader.h
 
     #===================== ETHERCAT DEVICE DRIVERS ======================
 

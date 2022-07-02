@@ -8,7 +8,7 @@
 class MicroFlex_e190 : public EtherCatDevice {
 public:
 
-    DEFINE_ETHERCAT_DEVICE(MicroFlex_e190, "MicroFlex e190", "MicroFlex_e190", "MicroFlex_e190", "ABB", "Servo Drives", 0xB7, 0x2C1)
+    DEFINE_ETHERCAT_DEVICE(MicroFlex_e190, "MicroFlex e190", "MicroFlex_e190", "ABB", "Servo Drives", 0xB7, 0x2C1)
 	
 	DS402::Status ds402Status;
 	DS402::Control ds402Control;

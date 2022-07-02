@@ -17,6 +17,7 @@ namespace NodeFactory{
 	void loadEtherCatNodes(std::vector<Node*>& nodeList) {
 		
 		allEtherCatDevices = {
+			new EtherCatDevice(),
 			new Lexium32(),
 			new ATV320(),
 			new VipaBusCoupler_053_1EC01(),
@@ -63,17 +64,7 @@ namespace NodeFactory{
 		nodeList.insert(nodeList.end(), allEtherCatDevices.begin(), allEtherCatDevices.end());
 	}
 
-	
-	std::shared_ptr<EtherCatDevice> getDeviceByEtherCatName(const char* etherCatName) {
-	   for (EtherCatDevice* device : allEtherCatDevices) {
-		   if (strcmp(etherCatName, device->getEtherCatName()) == 0) {
-			   return std::dynamic_pointer_cast<EtherCatDevice>(device->getNewInstance());
-		   }
-	   }
-	   return std::make_shared<EtherCatDevice>();
-	}
-
-	std::shared_ptr<EtherCatDevice> getDeviceByIdCodes(uint32_t manufacturerCode, uint32_t identificationCode){
+	std::shared_ptr<EtherCatDevice> getEtherCatDeviceByIdCodes(uint32_t manufacturerCode, uint32_t identificationCode){
 		for(EtherCatDevice* device : allEtherCatDevices){
 			if(device->getManufacturerCode() == manufacturerCode && device->getIdentificationCode() == identificationCode){
 				return std::dynamic_pointer_cast<EtherCatDevice>(device->getNewInstance());

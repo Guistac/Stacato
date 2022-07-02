@@ -19,8 +19,7 @@ namespace NodeFactory {
 	std::shared_ptr<Node> getNodeBySaveName(const char* saveName);
 
 	//EtherCAT
-	std::shared_ptr<EtherCatDevice> getDeviceByEtherCatName(const char* etherCatName);
-	std::shared_ptr<EtherCatDevice> getDeviceByIdCodes(uint32_t manufacturerCode, uint32_t identificationCode);
+	std::shared_ptr<EtherCatDevice> getEtherCatDeviceByIdCodes(uint32_t manufacturerCode, uint32_t identificationCode);
 	const std::vector<NodeGroup>& getEtherCatDevicesByManufacturer();
 	const std::vector<NodeGroup>& getEtherCatDevicesByCategory();
 
