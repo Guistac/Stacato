@@ -37,6 +37,7 @@
 	virtual void deviceSpecificGui() override;\
 
 namespace tinyxml2{ class XMLElement; }
+namespace EtherCatFieldbus{ struct DeviceConnection; }
 
 class EtherCatDevice : public Device {
 public:
@@ -108,6 +109,9 @@ public:
     bool supportsCoE_upload()       { return identity->CoEdetails & ECT_COEDET_UPLOAD; }
     bool supportsCoE_SDOCA()        { return identity->CoEdetails & ECT_COEDET_SDOCA; }
 
+	
+	std::vector<std::shared_ptr<EtherCatDevice>> connectedDevices;
+	
     //===== EVENTS =====
 
     struct Event {
@@ -146,6 +150,7 @@ public:
     void sendReceiveSiiGui();
     void sendReceiveEeprom();
     void eventListGui();
+	void deviceIdVignette(float height = 0.0);
 
     //=====Reading and Writing SDO Data
 
@@ -194,8 +199,40 @@ public:
     uint16_t stationAliasToolValue = 0;
     DataTransferState stationAliasAssignState = DataTransferState::NO_TRANSFER;
 	
-	virtual bool save(tinyxml2::XMLElement* xml);
-	virtual bool load(tinyxml2::XMLElement* xml);
+	virtual bool save(tinyxml2::XMLElement* xml) override;
+	virtual bool load(tinyxml2::XMLElement* xml) override;
+	
+	
+	struct ErrorCounters{
+		struct PortErrors{
+			uint8_t frameRxErrors = 0;
+			uint8_t physicalRxErrors = 0;
+			uint8_t forwardedRxErrors = 0;
+			uint8_t lostLinks = 0;
+		};
+		PortErrors portErrors[4];
+		uint8_t processingUnitErrors = 0;
+		uint8_t processDataInterfaceErrors = 0;
+	}errorCounters;
+		
+	void downloadErrorCounters();
+	DataTransferState errorCounterDownloadState = DataTransferState::NO_TRANSFER;
+		
+	void resetErrorCounters();
+	DataTransferState resetErrorCounterState = DataTransferState::NO_TRANSFER;
+	
+	static const char* getPortName(uint8_t port){
+		switch(port){
+			case 0: return "A (in)";
+			case 1: return "B (out)";
+			case 2: return "C";
+			case 3: return "D";
+			default: return "???";
+		}
+	}
+	
+	std::vector<std::shared_ptr<EtherCatFieldbus::DeviceConnection>> connections;
+	
 };
 
 #define EtherCatIdentificationTypeStrings \

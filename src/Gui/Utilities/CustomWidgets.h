@@ -86,3 +86,8 @@ void centeredText(const char* string, ImVec2 size);
 
 
 bool customRoundedButton(const char* string, ImVec2 size, float rounding, ImDrawFlags whichCornersRounded);
+
+
+
+void startFrame(ImVec4 backgroundColor, float outlineWidth, ImVec4 outlineColor, ImVec2 outerSize = ImVec2(0,0), ImDrawFlags drawFlags = ImDrawFlags_RoundCornersAll);
+void endFrame();

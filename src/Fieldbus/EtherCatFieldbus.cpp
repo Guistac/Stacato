@@ -36,11 +36,14 @@ namespace EtherCatFieldbus {
 
 	bool b_cyclicExchangeRunning = false;
 	std::thread cyclicExchangeThread;	//cyclic exchange thread (needs a full cpu core to avoid scheduler issues and achieve realtime performance)
-	std::thread slaveStateHandler; 		//thread to periodically check the state of all slaves and recover them if necessary
+	std::thread slaveStateHandler; 		//helper thread to periodically check the state of all slaves and recover them if necessary
+	std::thread slaveErrorCounter;		//helper thread to periodically read all slaves error counters
 
 	bool b_errorWatcherRunning = false;
 	std::thread errorWatcherThread;       //thread to read errors encountered by SOEM
 
+	int cyclicFrameTimeoutCounter = 0;
+	int cyclicFrameErrorCounter = 0;
 
     bool b_networkOpen = false; //Network is initialized on one or two networks interface cards
 	bool b_starting = false;	//while cyclic exchange is starting
@@ -83,9 +86,12 @@ namespace EtherCatFieldbus {
 	bool discoverDevices(bool logStartup);
     bool configureSlaves();
     void startCyclicExchange();
+	void updateNetworkTopology();
     void cyclicExchange();
     void transitionToOperationalState();
     void handleStateTransitions();
+	void countSlaveErrors();
+	void updateErrorCounters();
 
     void startSlaveDetectionHandler();
     void stopSlaveDetectionHandler();
@@ -314,6 +320,8 @@ namespace EtherCatFieldbus {
 					logAlStatusCodes();
                     return;
                 }
+				
+				updateNetworkTopology();
 
                 startCyclicExchange();
 			});
@@ -450,7 +458,9 @@ namespace EtherCatFieldbus {
         slaves_unassigned.clear();
 
         //setup all slaves, get slave count and info in ec_slave, setup mailboxes, request state PRE-OP for all slaves
-        int workingCounter = ec_config_init(FALSE); //what is usetable??
+		//BUG: we need to do this twice: when swapping etherCAT connections, sometimes the aliasAdress doesn't read on the first config call (probably SOEM bug)
+        int workingCounter = ec_config_init(false);
+		workingCounter = ec_config_init(false);
 
         if (workingCounter > 0) {
 
@@ -557,7 +567,7 @@ namespace EtherCatFieldbus {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
             Logger::debug("Exited EtherCAT Detection Handler");
-            });
+		});
     }
 
     void stopSlaveDetectionHandler() {
@@ -712,6 +722,18 @@ namespace EtherCatFieldbus {
             uint64_t frameSentTime_nanoseconds = Timing::getProgramTime_nanoseconds();
             int workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
             uint64_t frameReceivedTime_nanoseconds = Timing::getProgramTime_nanoseconds();
+			
+			switch(workingCounter){
+				case EC_NOFRAME:
+				case EC_TIMEOUT:
+					cyclicFrameTimeoutCounter++;
+					break;
+				case EC_OTHERFRAME:
+				case EC_ERROR:
+				case EC_SLAVECOUNTEXCEEDED:
+					cyclicFrameErrorCounter++;
+					break;
+			}
 
             //===================== TIMEOUT HANDLING ========================
 
@@ -854,6 +876,7 @@ namespace EtherCatFieldbus {
 
         //cleanup threads and relaunch slave detection handler
         if (slaveStateHandler.joinable()) slaveStateHandler.join();
+		if(slaveErrorCounter.joinable()) slaveErrorCounter.join();
         startSlaveDetectionHandler();
 		
 		Environnement::stop();
@@ -876,6 +899,7 @@ namespace EtherCatFieldbus {
             //statecheck on slave zero doesn't assign the state of each individual slave, only global slave 0
             ec_readstate();
 			handleStateTransitions();
+			countSlaveErrors();
         }
         else {
 			startupProgress.setFailure("Not all slaves reached Operational State. Check the Log for more detailed errors.");
@@ -973,6 +997,18 @@ namespace EtherCatFieldbus {
 		});
     }
 
+	void countSlaveErrors(){
+		slaveErrorCounter = std::thread([]() {
+			pthread_setname_np("EtherCAT Slave Error Counter Thread");
+			Logger::debug("Started Slave Error Counter Thread");
+			while (b_cyclicExchangeRunning) {
+				updateErrorCounters();
+				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			}
+			Logger::debug("Exited Slave Error Counter Thread");
+		});
+	}
+
 	//========= DEVICE STATE LOGGING ========
 
 	void logDeviceStates(){
@@ -989,6 +1025,148 @@ namespace EtherCatFieldbus {
 			else if(AlStatusCode != 0x0) Logger::error("{} : AL Status Code 0x{:X} ({})", slave->getName(), AlStatusCode, ec_ALstatuscode2string(AlStatusCode));
 		}
 	}
+
+
+
+
+
+
+
+
+std::vector<std::shared_ptr<DeviceConnection>> networkTopology;
+std::vector<std::shared_ptr<WrongConnection>> wrongConnections;
+
+std::vector<std::shared_ptr<DeviceConnection>>& getNetworkTopology(){ return networkTopology; }
+std::vector<std::shared_ptr<WrongConnection>>& getWrongConnections(){ return wrongConnections; }
+
+
+void updateNetworkTopology(){
+	
+	//remove all existing connections
+	networkTopology.clear();
+	wrongConnections.clear();
+	for(auto& device : slaves) device->connections.clear();
+	
+	
+	
+	for(auto device : slaves){
+		if(device->identity->entryport != 0) {
+			auto wrongConnection = std::make_shared<WrongConnection>();
+			wrongConnection->device = device;
+			wrongConnection->port = device->identity->entryport;
+			wrongConnections.push_back(wrongConnection);
+		}
+	}
+	if(!wrongConnections.empty()) return;
+	
+	
+	
+	
+	//find the first device after the master on the network chain
+	std::shared_ptr<EtherCatDevice> firstDeviceConnectedToMaster = nullptr;
+	for(auto& device : slaves){
+		if(device->identity->parent == 0) {
+			firstDeviceConnectedToMaster = device;
+			break;
+		}
+	}
+	if(!firstDeviceConnectedToMaster) return;
+	
+	//add a special connection between the master and the first device
+	auto masterConnection = std::make_shared<DeviceConnection>();
+	masterConnection->b_parentIsMaster = true;
+	masterConnection->childDevice = firstDeviceConnectedToMaster;
+	masterConnection->childDevicePort = firstDeviceConnectedToMaster->identity->entryport;
+	networkTopology.push_back(masterConnection);
+	
+	auto getNextChildDeviceOnPort = [](int port, std::shared_ptr<EtherCatDevice> parent, std::vector<std::shared_ptr<EtherCatDevice>>& children) -> std::shared_ptr<EtherCatDevice> {
+		for(auto& connection : parent->connections){
+			if(connection->parentDevice == parent && connection->parentDevicePort == port) return nullptr;
+		}
+		for(auto& child : children){
+			if(child->identity->parentport == port) return child;
+		}
+		return nullptr;
+	};
+	
+	auto getNextChildDeviceOf = [&getNextChildDeviceOnPort](std::shared_ptr<EtherCatDevice> parent) -> std::shared_ptr<EtherCatDevice> {
+		int parentDeviceIndex = parent->getSlaveIndex();
+		std::vector<std::shared_ptr<EtherCatDevice>> childDevices;
+		for(auto& device : slaves){
+			if(device->identity->parent == parentDeviceIndex) childDevices.push_back(device);
+		}
+		if(auto nextChild = getNextChildDeviceOnPort(3, parent, childDevices)) {
+			return nextChild;
+		}
+		if(auto nextChild = getNextChildDeviceOnPort(1, parent, childDevices)) {
+			return nextChild;
+		}
+		if(auto nextChild = getNextChildDeviceOnPort(2, parent, childDevices)) {
+			return nextChild;
+		}
+		if(auto nextChild = getNextChildDeviceOnPort(0, parent, childDevices)) {
+			return nextChild;
+		}
+		return nullptr;
+	};
+	
+	std::shared_ptr<EtherCatDevice> parentDevice = firstDeviceConnectedToMaster;
+	
+	while(parentDevice){
+		auto childDevice = getNextChildDeviceOf(parentDevice);
+		if(childDevice){
+			auto connection = std::make_shared<DeviceConnection>();
+			connection->parentDevice = parentDevice;
+			connection->parentDevicePort = childDevice->identity->parentport;
+			connection->childDevice = childDevice;
+			connection->childDevicePort = childDevice->identity->entryport;
+			parentDevice->connections.push_back(connection);
+			childDevice->connections.push_back(connection);
+			networkTopology.push_back(connection);
+		}
+		parentDevice = childDevice;
+	}
+	
+}
+
+void updateErrorCounters(){
+	for(auto& device : slaves) device->downloadErrorCounters();
+	for(auto& connection : networkTopology){
+		int largestErrorCount = 0;
+		if(connection->b_parentIsMaster) {
+			auto& childPortErrors = connection->childDevice->errorCounters.portErrors[connection->childDevicePort];
+			largestErrorCount = std::max(largestErrorCount, cyclicFrameTimeoutCounter);
+			largestErrorCount = std::max(largestErrorCount, cyclicFrameErrorCounter);
+			largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.frameRxErrors);
+			largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.physicalRxErrors);
+			connection->b_wasDisconnected = childPortErrors.lostLinks > 0;
+		}else{
+			auto& parentPortErrors = connection->parentDevice->errorCounters.portErrors[connection->parentDevicePort];
+			auto& childPortErrors = connection->childDevice->errorCounters.portErrors[connection->childDevicePort];
+			connection->b_wasDisconnected = parentPortErrors.lostLinks > 0 || childPortErrors.lostLinks > 0;
+			largestErrorCount = std::max(largestErrorCount, (int)parentPortErrors.frameRxErrors);
+			largestErrorCount = std::max(largestErrorCount, (int)parentPortErrors.physicalRxErrors);
+			largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.frameRxErrors);
+			largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.physicalRxErrors);
+		}
+		connection->instability = (float)largestErrorCount / 255.0;
+	}
+}
+
+void resetErrorCounters(){
+	std::thread errorCounterResetter([](){
+		cyclicFrameTimeoutCounter = 0;
+		cyclicFrameErrorCounter = 0;
+		for(auto& device : slaves) device->resetErrorCounters();
+		updateErrorCounters();
+	});
+	errorCounterResetter.detach();
+}
+
+int getCyclicFrameTimeoutCounter(){ return cyclicFrameTimeoutCounter; }
+int getCyclicFrameErrorCounter(){ return cyclicFrameErrorCounter; }
+
+
 
 
 }

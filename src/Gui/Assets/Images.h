@@ -20,5 +20,6 @@ namespace Images{
 	extern Image TargetIcon;
 	extern Image SequenceIcon;
 	extern Image StacatoIcon;
+	extern Image WarningIcon;
 
 }

@@ -191,3 +191,55 @@ void EtherCatDevice::downloadALStatusCode(){
 	});
 	AlStatusDownloader.detach();
 }
+
+void EtherCatDevice::downloadErrorCounters(){
+	ec_FPRD(getAssignedAddress(), 0x0300, 1, &errorCounters.portErrors[0].frameRxErrors, EC_TIMEOUTSAFE);
+	ec_FPRD(getAssignedAddress(), 0x0302, 1, &errorCounters.portErrors[1].frameRxErrors, EC_TIMEOUTSAFE);
+	ec_FPRD(getAssignedAddress(), 0x0304, 1, &errorCounters.portErrors[2].frameRxErrors, EC_TIMEOUTSAFE);
+	ec_FPRD(getAssignedAddress(), 0x0306, 1, &errorCounters.portErrors[3].frameRxErrors, EC_TIMEOUTSAFE);
+	
+	ec_FPRD(getAssignedAddress(), 0x0301, 1, &errorCounters.portErrors[0].physicalRxErrors, EC_TIMEOUTSAFE);
+	ec_FPRD(getAssignedAddress(), 0x0303, 1, &errorCounters.portErrors[1].physicalRxErrors, EC_TIMEOUTSAFE);
+	ec_FPRD(getAssignedAddress(), 0x0305, 1, &errorCounters.portErrors[2].physicalRxErrors, EC_TIMEOUTSAFE);
+	ec_FPRD(getAssignedAddress(), 0x0307, 1, &errorCounters.portErrors[3].physicalRxErrors, EC_TIMEOUTSAFE);
+	
+	ec_FPRD(getAssignedAddress(), 0x0308, 1, &errorCounters.portErrors[0].forwardedRxErrors, EC_TIMEOUTSAFE);
+	ec_FPRD(getAssignedAddress(), 0x0309, 1, &errorCounters.portErrors[1].forwardedRxErrors, EC_TIMEOUTSAFE);
+	ec_FPRD(getAssignedAddress(), 0x030A, 1, &errorCounters.portErrors[2].forwardedRxErrors, EC_TIMEOUTSAFE);
+	ec_FPRD(getAssignedAddress(), 0x030B, 1, &errorCounters.portErrors[3].forwardedRxErrors, EC_TIMEOUTSAFE);
+	
+	ec_FPRD(getAssignedAddress(), 0x0310, 1, &errorCounters.portErrors[0].lostLinks, EC_TIMEOUTSAFE);
+	ec_FPRD(getAssignedAddress(), 0x0311, 2, &errorCounters.portErrors[1].lostLinks, EC_TIMEOUTSAFE);
+	ec_FPRD(getAssignedAddress(), 0x0312, 3, &errorCounters.portErrors[2].lostLinks, EC_TIMEOUTSAFE);
+	ec_FPRD(getAssignedAddress(), 0x0313, 4, &errorCounters.portErrors[3].lostLinks, EC_TIMEOUTSAFE);
+	
+	ec_FPRD(getAssignedAddress(), 0x030C, 1, &errorCounters.processingUnitErrors, EC_TIMEOUTSAFE);
+	ec_FPRD(getAssignedAddress(), 0x030D, 1, &errorCounters.processDataInterfaceErrors, EC_TIMEOUTSAFE);
+}
+
+
+void EtherCatDevice::resetErrorCounters(){
+	uint16_t resetRxErrors = 0;
+	ec_FPWR(getAssignedAddress(), 0x0300, 2, &resetRxErrors, EC_TIMEOUTSAFE);
+	
+	uint8_t resetFwErrors = 0;
+	ec_FPWR(getAssignedAddress(), 0x0308, 1, &resetFwErrors, EC_TIMEOUTSAFE);
+	
+	uint8_t resetProcessingUnitErrors = 0;
+	ec_FPWR(getAssignedAddress(), 0x030C, 1, &resetProcessingUnitErrors, EC_TIMEOUTSAFE);
+	
+	uint8_t resetPdiErrors = 0;
+	ec_FPWR(getAssignedAddress(), 0x030D, 1, &resetPdiErrors, EC_TIMEOUTSAFE);
+	
+	uint8_t resetLostLinks = 0;
+	ec_FPWR(getAssignedAddress(), 0x0310, 1, &resetLostLinks, EC_TIMEOUTSAFE);
+	
+	for(int i = 0; i < 4; i++){
+		errorCounters.portErrors[i].frameRxErrors = 0;
+		errorCounters.portErrors[i].physicalRxErrors = 0;
+		errorCounters.portErrors[i].forwardedRxErrors = 0;
+		errorCounters.portErrors[i].lostLinks = 0;
+	}
+	errorCounters.processingUnitErrors = 0;
+	errorCounters.processDataInterfaceErrors = 0;
+}

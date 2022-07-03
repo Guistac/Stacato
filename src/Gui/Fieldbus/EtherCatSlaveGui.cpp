@@ -11,6 +11,7 @@
 
 #include "Gui/Utilities/HelpMarker.h"
 #include "Gui/Utilities/FileDialog.h"
+#include "Gui/Utilities/CustomWidgets.h"
 
 void EtherCatDevice::nodeSpecificGui() {
 
@@ -777,5 +778,20 @@ glm::vec4 EtherCatDevice::getEtherCatStateColor(){
 		case EC_STATE_SAFE_OP: return Colors::yellow;
 		case EC_STATE_OPERATIONAL: return Colors::green;
 		default: return Colors::blue;
+	}
+}
+
+void EtherCatDevice::deviceIdVignette(float height){
+	if(height == 0) height = ImGui::GetTextLineHeight();
+	static char idString[32];
+	switch(identificationType){
+		case EtherCatDevice::IdentificationType::STATION_ALIAS:
+			sprintf(idString, "Alias #%i", stationAlias);
+			backgroundText(idString, ImVec2(0, height), getEtherCatStateColor());
+			break;
+		case EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID:
+			sprintf(idString, "ID #%i", explicitDeviceID);
+			backgroundText(idString, ImVec2(0, height), getEtherCatStateColor());
+			break;
 	}
 }

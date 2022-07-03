@@ -712,10 +712,13 @@ void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec
 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, backgroundColor);
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, backgroundColor);
 	ImGui::PushStyleColor(ImGuiCol_Text, textColor);
-	if(size.x == 0.0 && size.y == 0.0) {
+	if(size.x <= 0.0 && size.y <= 0.0) {
 		size = ImGui::CalcTextSize(text);
 		size.x += padding.x * 2.0;
 		size.y += padding.y * 2.0;
+	}else if(size.x <= 0.0){
+		ImVec2 txtSize = ImGui::CalcTextSize(text);
+		size.x = txtSize.x + padding.x * 2.0;
 	}
 	ImGui::Button(text, size);
 	ImGui::PopStyleColor(4);
@@ -903,3 +906,50 @@ bool customRoundedButton(const char* string, ImVec2 size, float rounding, ImDraw
 	
 	return ret;
 }
+
+
+
+ImVec2 frameStart;
+ImVec2 framePadding;
+ImVec4 frameColor;
+float frameOutlineWidth;
+ImVec4 frameOutlineColor;
+ImDrawList* frameDrawing;
+ImDrawListSplitter frameDrawingLayers;
+ImDrawFlags frameDrawFlags;
+
+
+void startFrame(ImVec4 backgroundColor, float outlineWidth, ImVec4 outlineColor, ImVec2 outerSize, ImDrawFlags drawFlags){
+	frameDrawing = ImGui::GetWindowDrawList();
+	frameDrawingLayers.Split(frameDrawing, 2);
+	frameDrawingLayers.SetCurrentChannel(frameDrawing, 1);
+	frameStart = ImGui::GetCursorPos();
+	framePadding = ImGui::GetStyle().FramePadding;
+	frameColor = backgroundColor;
+	frameOutlineWidth = outlineWidth;
+	frameOutlineColor = outlineColor;
+	frameDrawFlags = drawFlags;
+	ImGui::BeginGroup();
+	ImGui::SetCursorPos(ImVec2(frameStart.x + framePadding.x, frameStart.y + framePadding.y));
+	ImGui::BeginGroup();
+	ImVec2 contentSize(outerSize.x - framePadding.x * 2.0, outerSize.y - framePadding.y * 2.0);
+	if(contentSize.x > 0.0 || contentSize.x > 0.0){
+		ImVec2 cursor = ImGui::GetCursorPos();
+		ImGui::Dummy(contentSize);
+		ImGui::SetCursorPos(cursor);
+	}
+}
+
+void endFrame(){
+	ImGui::EndGroup();
+	ImVec2 contentSize = ImGui::GetItemRectSize();
+	ImGui::SetCursorPos(ImVec2(frameStart.x + framePadding.x * 2.0 + contentSize.x, frameStart.y + framePadding.y * 2.0 + contentSize.y));
+	ImGui::EndGroup();
+	ImVec2 min = ImGui::GetItemRectMin();
+	ImVec2 max = ImGui::GetItemRectMax();
+	frameDrawingLayers.SetCurrentChannel(frameDrawing, 0);
+	frameDrawing->AddRectFilled(min, max, ImColor(frameColor), ImGui::GetStyle().FrameRounding, frameDrawFlags);
+	if(frameOutlineWidth > 0.0) frameDrawing->AddRect(min, max, ImColor(frameOutlineColor), ImGui::GetStyle().FrameRounding, frameDrawFlags, frameOutlineWidth);
+	frameDrawingLayers.Merge(frameDrawing);
+}
+

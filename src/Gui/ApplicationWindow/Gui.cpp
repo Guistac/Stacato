@@ -15,6 +15,7 @@
 #include "Gui/Plot/PlotGui.h"
 #include "Gui/Environnement/Dashboard/Managers.h"
 #include "Gui/Plot/PlaybackGui.h"
+#include "Gui/Fieldbus/EtherCatGui.h"
 
 #include "Tests/CommandZ.h"
 #include "Tests/EsiReader.h"
@@ -40,6 +41,8 @@ void initialize(){
 	Sequencer::Gui::SequencerWindow::get()->addToDictionnary();
 	DashboardWindow::get()->addToDictionnary();
 	Playback::Gui::PlaybackManagerWindow::get()->addToDictionnary();
+	
+	EtherCatNetworkWindow::get()->addToDictionnary();
 	 
 	EsiReaderWindow::get()->addToDictionnary();
 	

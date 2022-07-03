@@ -40,12 +40,14 @@ namespace Images{
 	Image TargetIcon;
 	Image SequenceIcon;
 	Image StacatoIcon;
+	Image WarningIcon;
 
 	void load(){
 		LoadTextureFromFile("icons/KeyIcon.png", KeyIcon);
 		LoadTextureFromFile("icons/TimeIcon.png", TargetIcon);
 		LoadTextureFromFile("icons/SequenceIcon.png", SequenceIcon);
 		LoadTextureFromFile("icons/StacatoIcon.png", StacatoIcon);
+		LoadTextureFromFile("icons/WarningIcon.png", WarningIcon);
 	}
 
 	

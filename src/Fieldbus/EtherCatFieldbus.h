@@ -73,5 +73,29 @@ namespace EtherCatFieldbus {
     //Save and load EtherCAT settings
     bool save(tinyxml2::XMLElement* xml);
     bool load(tinyxml2::XMLElement* xml);
+
+
+
+	struct DeviceConnection{
+		bool b_parentIsMaster = false;
+		std::shared_ptr<EtherCatDevice> parentDevice;
+		uint8_t parentDevicePort;
+		std::shared_ptr<EtherCatDevice> childDevice;
+		uint8_t childDevicePort;
+		float instability = 1.0;
+		bool b_wasDisconnected = false;
+	};
+	struct WrongConnection{
+		std::shared_ptr<EtherCatDevice> device;
+		uint8_t port;
+	};
+	std::vector<std::shared_ptr<DeviceConnection>>& getNetworkTopology();
+	std::vector<std::shared_ptr<WrongConnection>>& getWrongConnections();
+	
+	void resetErrorCounters();
+
+	int getCyclicFrameTimeoutCounter();
+	int getCyclicFrameErrorCounter();
+
 };
 

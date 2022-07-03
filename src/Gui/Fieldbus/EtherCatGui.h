@@ -14,3 +14,10 @@ public:
 	virtual glm::vec2 getSize() override;
 	SINGLETON_GET_METHOD(EtherCatStartPopup);
 };
+
+class EtherCatNetworkWindow : public Window{
+public:
+	EtherCatNetworkWindow() : Window("EtherCAT Network", true){}
+	virtual void drawContent() override;
+	SINGLETON_GET_METHOD(EtherCatNetworkWindow);
+};
