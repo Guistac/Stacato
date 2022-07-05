@@ -192,6 +192,11 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatDevice.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatDevice.cpp
 
+    ${STACATO_SOURCE_DIRECTORY}/Console/Console.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Console/Console.h
+    ${STACATO_SOURCE_DIRECTORY}/Console/Serial.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Console/Serial.h
+
     ${STACATO_SOURCE_DIRECTORY}/Tests/C_Curves.cpp
     ${STACATO_SOURCE_DIRECTORY}/Tests/C_Curves.h
     ${STACATO_SOURCE_DIRECTORY}/Tests/CommandZ.cpp

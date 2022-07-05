@@ -1,4 +1,7 @@
 
+##WARNING: we are not currently using the shipped Cmake script
+##there could be issues with the library due to this
+
 message(STATUS "== Including Serial")
 
 set(SERIAL_DIRECTORY ${DEPENDENCIES_DIRECTORY}/Serial)
