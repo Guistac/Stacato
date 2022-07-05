@@ -45,9 +45,9 @@ void topologyConnectionIssues(){
 		device->deviceIdVignette();
 		
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
-		ImGui::TextWrapped("Device is not connected to its parent device via the network input port.");
+		ImGui::TextWrapped("Device is not connected to the master via the network input port.");
 		ImGui::PopFont();
-		ImGui::TextWrapped("Current connection to parent is on port %s and should be on port %s.", EtherCatDevice::getPortName(wrongConnection->port), EtherCatDevice::getPortName(0));
+		ImGui::TextWrapped("Current connection to the master is on port %s and should be on port %s.", EtherCatDevice::getPortName(wrongConnection->port), EtherCatDevice::getPortName(0));
 		ImGui::PopStyleColor();
 		
 		endFrame();

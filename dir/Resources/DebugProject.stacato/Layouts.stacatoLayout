@@ -1,5 +1,5 @@
 <Layouts>
-    <Layout Name="Node Editor">
+    <Layout Name="Node Editor" IsDefault="true">
         <OpenWindows>
             <Window Name="Setup"/>
             <Window Name="Node Editor"/>
@@ -7,8 +7,6 @@
             <Window Name="EtherCAT Network"/>
         </OpenWindows>
         <ImGuiIniString>
-
-
 
 
 
@@ -329,7 +327,7 @@ DockSpace       ID=0x0B88F6CB Pos=0,146 Size=2056,967 Split=Y Selected=0x20B12C3
   DockNode      ID=0x00000002 Parent=0x0B88F6CB SizeRef=2056,457 Selected=0xB00214C9
 DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X Selected=0xAE98FAB7
   DockNode      ID=0x00000007 Parent=0xD5272B65 SizeRef=1317,938 CentralNode=1 Selected=0xAE98FAB7
-  DockNode      ID=0x00000008 Parent=0xD5272B65 SizeRef=409,938 Selected=0x64F50EE5
+  DockNode      ID=0x00000008 Parent=0xD5272B65 SizeRef=409,938 Selected=0xBC7A743B
 
 </ImGuiIniString>
     </Layout>
@@ -340,6 +338,12 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
             <Window Name="Dashboard"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
 
 
 
@@ -890,6 +894,12 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
 
 
 
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -1213,6 +1223,12 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split
             <Window Name="ESI Reader"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
 
 
 
@@ -1578,17 +1594,14 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split
 
 </ImGuiIniString>
     </Layout>
-    <Layout Name="TopologyTests" IsDefault="true">
+    <Layout Name="TopologyTests">
         <OpenWindows>
             <Window Name="Setup"/>
             <Window Name="Log"/>
             <Window Name="EtherCAT Network"/>
+            <Window Name="EtherCAT Fieldbus"/>
         </OpenWindows>
         <ImGuiIniString>
-
-
-
-
 
 
 
@@ -1819,9 +1832,10 @@ Size=639,938
 Collapsed=0
 
 [Window][EtherCAT Fieldbus]
-Pos=1032,29
-Size=696,938
+Pos=0,175
+Size=1056,792
 Collapsed=0
+DockId=0x0000000B,0
 
 [Window][Visualizer Script]
 Pos=732,487
@@ -1832,7 +1846,7 @@ Collapsed=0
 Pos=0,175
 Size=1056,792
 Collapsed=0
-DockId=0x0000000B,0
+DockId=0x0000000B,1
 
 [Window][Active Animations]
 Pos=378,713
@@ -1912,7 +1926,7 @@ DockSpace       ID=0x0B88F6CB Pos=0,146 Size=2056,967 Split=Y Selected=0x20B12C3
 DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X Selected=0xAE98FAB7
   DockNode      ID=0x00000007 Parent=0xD5272B65 SizeRef=1056,938 Split=Y Selected=0x27459703
     DockNode    ID=0x00000009 Parent=0x00000007 SizeRef=1056,144 CentralNode=1 HiddenTabBar=1 Selected=0x27459703
-    DockNode    ID=0x0000000B Parent=0x00000007 SizeRef=1056,792 HiddenTabBar=1 Selected=0x64F50EE5
+    DockNode    ID=0x0000000B Parent=0x00000007 SizeRef=1056,792 Selected=0x64F50EE5
   DockNode      ID=0x00000008 Parent=0xD5272B65 SizeRef=670,938 HiddenTabBar=1 Selected=0xBC7A743B
 
 </ImGuiIniString>

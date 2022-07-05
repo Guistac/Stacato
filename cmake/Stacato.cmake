@@ -234,6 +234,10 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ABB/MicroFlexE190.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ABB/MicroFlexE190Gui.cpp
 
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/PhoenixContact/BusCouper_IL-EC-BK.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/PhoenixContact/BusCouper_IL-EC-BK.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/PhoenixContact/BusCouper_IL-EC-BK_Gui.cpp
+
     #========================== MACHINE TYPES ===========================
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.cpp

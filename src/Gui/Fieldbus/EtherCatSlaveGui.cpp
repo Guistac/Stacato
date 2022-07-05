@@ -53,16 +53,32 @@ void EtherCatDevice::nodeSpecificGui() {
                     if (ImGui::BeginChild("DataExchange")) {
                         bool disableDataExchange = !isDetected();
 						ImGui::BeginDisabled(disableDataExchange);
-                        sendReceiveEtherCatRegisterGui();
-                        ImGui::Separator();
-                        ImGui::Spacing();
-                        sendReceiveCanOpenGui();
-                        ImGui::Separator();
-                        ImGui::Spacing();
-                        sendReceiveSiiGui();
-                        ImGui::Separator();
-                        ImGui::Spacing();
-                        sendReceiveEeprom();
+						
+						if(ImGui::BeginTabBar("Communication Type")){
+							if(ImGui::BeginTabItem("CanOpen")){
+								sendReceiveCanOpenGui();
+								ImGui::EndTabItem();
+							}
+							if(ImGui::BeginTabItem("AL-Status")){
+								downloadAlStatusCodeGui();
+								ImGui::EndTabItem();
+							}
+							if(ImGui::BeginTabItem("Registers")){
+								sendReceiveEtherCatRegisterGui();
+								ImGui::EndTabItem();
+							}
+							if(ImGui::BeginTabItem("SII")){
+								sendReceiveSiiGui();
+								ImGui::EndTabItem();
+							}
+							if(ImGui::BeginTabItem("EEPROM")){
+								sendReceiveEeprom();
+								ImGui::EndTabItem();
+							}
+							
+							ImGui::EndTabBar();
+						}
+												
 						ImGui::EndDisabled();
                         ImGui::EndChild();
                     }
@@ -491,6 +507,31 @@ void EtherCatDevice::sendReceiveCanOpenGui() {
 }
 
 
+void EtherCatDevice::downloadAlStatusCodeGui(){
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("AL Status Code");
+	ImGui::PopFont();
+	
+	if(ImGui::Button("Download")){
+		downloadALStatusCode();
+	}
+	ImGui::SameLine();
+	if(AlStatusCodeDownloadState != DataTransferState::NO_TRANSFER){
+		ImGui::Text("%s", Enumerator::getDisplayString(AlStatusCodeDownloadState));
+	}
+	const char* statusCodeString = ec_ALstatuscode2string(downloadedALStatuscode);
+	ImGui::Text("AL Status Code:");
+	bool errorCode = downloadedALStatuscode != 0x0;
+	if(errorCode){
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+		ImGui::PushFont(Fonts::sansBold15);
+	}
+	ImGui::TextWrapped("%X : %s", downloadedALStatuscode, statusCodeString);
+	if(errorCode){
+		ImGui::PopStyleColor();
+		ImGui::PopFont();
+	}
+}
 
 
 
@@ -585,33 +626,6 @@ void EtherCatDevice::sendReceiveEtherCatRegisterGui() {
     }
 
     ImGui::PopID();
-
-	ImGui::Separator();
-	
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("AL Status Code");
-	ImGui::PopFont();
-	
-	if(ImGui::Button("Download")){
-		downloadALStatusCode();
-	}
-	ImGui::SameLine();
-	if(AlStatusCodeDownloadState != DataTransferState::NO_TRANSFER){
-		ImGui::Text("%s", Enumerator::getDisplayString(AlStatusCodeDownloadState));
-	}
-	const char* statusCodeString = ec_ALstatuscode2string(downloadedALStatuscode);
-	ImGui::Text("AL Status Code:");
-	bool errorCode = downloadedALStatuscode != 0x0;
-	if(errorCode){
-		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
-		ImGui::PushFont(Fonts::sansBold15);
-	}
-	ImGui::TextWrapped("%X : %s", downloadedALStatuscode, statusCodeString);
-	if(errorCode){
-		ImGui::PopStyleColor();
-		ImGui::PopFont();
-	}
-	
 }
 
 

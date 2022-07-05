@@ -7,6 +7,7 @@
 #include "Fieldbus/Devices/Yaskawa/VIPA-053-1EC01.h"
 #include "Fieldbus/Devices/Nanotec/PD4_E.h"
 #include "Fieldbus/Devices/ABB/MicroFlexE190.h"
+#include "Fieldbus/Devices/PhoenixContact/BusCouper_IL-EC-BK.h"
 
 namespace NodeFactory{
 	
@@ -21,6 +22,7 @@ namespace NodeFactory{
 			new Lexium32(),
 			new ATV320(),
 			new VipaBusCoupler_053_1EC01(),
+			new IL_EC_BK_BusCoupler(),
 			new PD4_E(),
 			new MicroFlex_e190()
 		};

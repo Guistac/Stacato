@@ -149,6 +149,7 @@ public:
     void sendReceiveEtherCatRegisterGui();
     void sendReceiveSiiGui();
     void sendReceiveEeprom();
+	void downloadAlStatusCodeGui();
     void eventListGui();
 	void deviceIdVignette(float height = 0.0);
 
