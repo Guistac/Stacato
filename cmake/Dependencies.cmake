@@ -22,6 +22,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/nativefiledialog.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/spdlog.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/tinyxml2.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/stb.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/Serial.cmake)
 
 # Graphics
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/openFrameworks.cmake)
@@ -46,6 +47,7 @@ set(STACATO_DEPENDENCIES
     spdlog
     tinyxml2
     stb
+    serial
 # Graphics
     openFrameworks
 )

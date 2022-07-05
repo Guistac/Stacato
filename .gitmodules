@@ -44,3 +44,6 @@
 [submodule "deps/stb"]
 	path = deps/stb
 	url = https://github.com/nothings/stb.git
+[submodule "deps/Serial"]
+	path = deps/Serial
+	url = https://github.com/wjwwood/serial.git
