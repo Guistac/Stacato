@@ -281,7 +281,7 @@ void handleTimeout(){
 	if(!isConnected()){
 		if(now - connectionRequestTime > milliseconds(connectionTimeoutDelay_milliseconds)){
 			connectionState = ConnectionState::NOT_CONNECTED;
-			Logger::warn("Connection Request Timed out");
+			Logger::info("Connection Request Timed out");
 		}
 	}else{
 		if(now - lastHeartbeatSendTime > milliseconds(heartbeatInterval_milliseconds)){
@@ -289,7 +289,7 @@ void handleTimeout(){
 			sendHeartbeat();
 		}
 		if(now - lastHeartbeatReceiveTime > milliseconds(timeoutDelay_milliseconds)){
-			Logger::warn("Connection Timed out");
+			Logger::info("Console Connection Timed out");
 			onDisconnection();
 		}
 	}

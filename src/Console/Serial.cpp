@@ -93,7 +93,7 @@ void SerialPort::send(uint8_t* message, size_t messageLength){
 	catch(serial::PortNotOpenedException e){
 		Logger::info("Error while writing to serial port {} :", portName);
 		Logger::info("{}", e.what());
-		onIssue();
+		onIssue();	
 	}
 }
 	

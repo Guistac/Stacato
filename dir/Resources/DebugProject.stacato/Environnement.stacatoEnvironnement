@@ -342,11 +342,11 @@
                 <NodeEditorPosition x="-712" y="1728"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="101"/>
-                    <KinematicLimits velocityLimit_rps="10" accelerationLimit_rpsps="1" defaultManualAcceleration_rpsps="1"/>
+                    <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="50" defaultManualAcceleration_rpsps="50"/>
                     <InvertDirectionOfMovement Invert="false"/>
-                    <MaxFollowingError revolutions="0"/>
-                    <CurrentLimit amps="0"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="0"/>
+                    <MaxFollowingError revolutions="2"/>
+                    <CurrentLimit amps="9"/>
+                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="9"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
@@ -415,7 +415,7 @@
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en4" Name="en4"/>
+        <Primary Description="en7" Name="en7"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="2" ClockStableThresholdMilliseconds="0.5" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

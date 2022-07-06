@@ -4,8 +4,11 @@
             <Window Name="Setup"/>
             <Window Name="Node Editor"/>
             <Window Name="Log"/>
+            <Window Name="EtherCAT Fieldbus"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
 
 [Window][Debug##Default]
 Pos=60,60
@@ -232,9 +235,10 @@ Size=639,938
 Collapsed=0
 
 [Window][EtherCAT Fieldbus]
-Pos=1032,29
-Size=696,938
+Pos=0,29
+Size=974,938
 Collapsed=0
+DockId=0x00000007,2
 
 [Window][Visualizer Script]
 Pos=732,487
@@ -323,7 +327,7 @@ DockSpace       ID=0x0B88F6CB Pos=0,146 Size=2056,967 Split=Y Selected=0x20B12C3
     DockNode    ID=0x00000004 Parent=0x00000001 SizeRef=1025,484 Selected=0x3E6B10D2
   DockNode      ID=0x00000002 Parent=0x0B88F6CB SizeRef=2056,457 Selected=0xB00214C9
 DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X Selected=0xAE98FAB7
-  DockNode      ID=0x00000007 Parent=0xD5272B65 SizeRef=974,938 CentralNode=1 Selected=0xAE98FAB7
+  DockNode      ID=0x00000007 Parent=0xD5272B65 SizeRef=974,938 CentralNode=1 Selected=0xEDDB08E7
   DockNode      ID=0x00000008 Parent=0xD5272B65 SizeRef=752,938 HiddenTabBar=1 Selected=0x64F50EE5
 
 </ImGuiIniString>
@@ -335,6 +339,10 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
             <Window Name="Dashboard"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
 
 
 
@@ -909,6 +917,10 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
 
 
 
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -1232,6 +1244,10 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split
             <Window Name="ESI Reader"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
 
 
 
@@ -1617,6 +1633,10 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split
             <Window Name="EtherCAT Fieldbus"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
 
 
 
