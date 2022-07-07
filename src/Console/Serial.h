@@ -4,27 +4,22 @@ namespace serial{ class Serial; }
 
 class SerialPort{
 public:
-
-	SerialPort(std::string port) : portIdentificationString(port){}
+	
+	SerialPort(std::shared_ptr<serial::Serial> port, std::string& name);
 	
 	typedef std::function<void(uint8_t*,size_t)> MessageReceiveCallback;
 	typedef std::function<void(void)> PortCloseCallback;
 	void setMessageReceiveCallback(MessageReceiveCallback callback){ messageReceivedCallback = callback; }
 	void setPortCloseCallback(PortCloseCallback callback) { portClosedCallback = callback; }
 	
-	void update();
+	void read();
 	void send(uint8_t* buffer, size_t size);
-	
-	bool isOpen(){ return b_portOpen; }
 	
 private:
 	
 	void onIssue();
-	void findPort();
-	void read();
-	void readMessage(uint8_t byte);
+	void readByte(uint8_t byte);
 	
-	std::string portIdentificationString;
 	std::string portName;
 	std::shared_ptr<serial::Serial> serialPort;
 	bool b_portOpen = false;
@@ -40,7 +35,10 @@ private:
 	};
 	uint8_t incomingBytes[512];
 	uint8_t currentMessage[512];
+	uint8_t outgoingFrame[512];
 	IncomingMessageState incomingMessageState = IncomingMessageState::EXPECTING_START_BYTE;
 	int currentIncomingMessageLength = 0;
 	int expectedIncomingMessageLength = 0;
 };
+
+std::shared_ptr<SerialPort> findSerialPort(std::string& portMatchingString);

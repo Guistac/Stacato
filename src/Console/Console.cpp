@@ -1,159 +1,108 @@
 #include <pch.h>
 #include "Console.h"
 
-#include <serial/serial.h>
+#include "ConsoleHandler.h"
+#include "ConsoleMapping.h"
+#include "ConsoleIODevice.h"
 #include "Serial.h"
 
-namespace Console{
 
-std::thread consoleHandler;
-bool b_handlerRunning = false;
-void update();
-
-SerialPort consoleSerialPort("Stacato");
-
-std::mutex mutex;
-
-ConnectionState connectionState = ConnectionState::NOT_CONNECTED;
-bool isConnected(){ return connectionState == ConnectionState::CONNECTED; }
-
-std::string consoleName;
-std::string& getName(){ return consoleName; }
-
-int timeoutDelay_milliseconds = 200;
-int heartbeatInterval_milliseconds = 50;
-int connectionTimeoutDelay_milliseconds = 200;
-std::chrono::time_point<std::chrono::system_clock> lastHeartbeatReceiveTime;
-std::chrono::time_point<std::chrono::system_clock> lastHeartbeatSendTime;
-std::chrono::time_point<std::chrono::system_clock> connectionRequestTime;
-
-void readMessage(uint8_t*, size_t);
-void onDisconnection();
-
-void initialize(){
-	if(b_handlerRunning) return;
-	consoleSerialPort.setMessageReceiveCallback(readMessage);
-	consoleSerialPort.setPortCloseCallback(onDisconnection);
-	consoleHandler = std::thread([](){
-		b_handlerRunning = true;
-		pthread_setname_np("Console Handler Thread");
-		while(b_handlerRunning) update();
-		b_handlerRunning = false;
+std::shared_ptr<Console> Console::initialize(std::shared_ptr<SerialPort> port){
+	auto console = std::make_shared<Console>();
+	console->serialPort = port;
+	console->connectionState = ConnectionState::NOT_CONNECTED;
+	console->serialPort->setMessageReceiveCallback([console](uint8_t* message, size_t size){
+		console->readMessage(message, size);
 	});
+	console->serialPort->setPortCloseCallback([console](){
+		console->onDisconnection();
+	});
+	console->inputHandler = std::thread([console](){
+		console->updateInputs();
+	});
+	return console;
 }
 
-void terminate(){
-	if(!b_handlerRunning) return;
-	b_handlerRunning = false;
-	consoleHandler.join();
+void Console::terminate(std::shared_ptr<Console> console){
+	if(console->inputHandler.joinable()) console->inputHandler.join();
+	if(console->outputHandler.joinable()) console->outputHandler.join();
 }
 
-void onDisconnection(){
-	if(!isConnected()) return;
+
+
+
+
+
+
+void Console::onDisconnection(){
 	Logger::warn("Console {} Disconnected", consoleName);
-	connectionState = ConnectionState::NOT_CONNECTED;
+	b_inputHandlerRunning = false;
+	b_outputHandlerRunning = false;
+	connectionState = ConnectionState::DISCONNECTED;
 }
 
-void onConnection(){
+void Console::onConnection(){
 	Logger::info("Console {} Connected !", consoleName);
+	std::string threadName = "Console " + getName() + " Input Handler";
+	pthread_setname_np(threadName.c_str());
+	connectionState = ConnectionState::CONNECTED;
+	ConsoleHandler::applyMapping(shared_from_this());
+	outputHandler = std::thread([this](){ updateOutputs(); });
 }
 
 
-
-uint8_t getDeviceTypeCode(DeviceType deviceType){
-	switch(deviceType){
-		case DeviceType::PUSHBUTTON:        return 0x10;
-		case DeviceType::SWITCH:            return 0x11;
-		case DeviceType::POTENTIOMETER:     return 0x12;
-		case DeviceType::ENCODER:           return 0x13;
-		case DeviceType::JOYSTICK_1AXIS:    return 0x14;
-		case DeviceType::JOYSTICK_2AXIS:    return 0x15;
-		case DeviceType::JOYSTICK_3AXIS:    return 0x16;
-		case DeviceType::LED:               return 0x17;
-		case DeviceType::LED_PWM:           return 0x18;
-		case DeviceType::LED_RGB:           return 0x19;
-		case DeviceType::LED_BUTTON:        return 0x1A;
-		case DeviceType::LED_PWM_BUTTON:    return 0x1B;
-		case DeviceType::LED_RGB_BUTTON:    return 0x1C;
-		default: 							return 0xFF;
-	}
-}
-
-DeviceType getDeviceType(uint8_t deviceTypeCode){
-	switch(deviceTypeCode){
-		case 0x10: 	return DeviceType::PUSHBUTTON;
-		case 0x11: 	return DeviceType::SWITCH;
-		case 0x12: 	return DeviceType::POTENTIOMETER;
-		case 0x13: 	return DeviceType::ENCODER;
-		case 0x14: 	return DeviceType::JOYSTICK_1AXIS;
-		case 0x15: 	return DeviceType::JOYSTICK_2AXIS;
-		case 0x16: 	return DeviceType::JOYSTICK_3AXIS;
-		case 0x17: 	return DeviceType::LED;
-		case 0x18: 	return DeviceType::LED_PWM;
-		case 0x19: 	return DeviceType::LED_RGB;
-		case 0x1A: 	return DeviceType::LED_BUTTON;
-		case 0x1B: 	return DeviceType::LED_PWM_BUTTON;
-		case 0x1C: 	return DeviceType::LED_RGB_BUTTON;
-		default: 	return DeviceType::UNKNOWN;
-	}
-}
-
-const char* getDeviceTypeString(DeviceType deviceType){
-	switch(deviceType){
-		case DeviceType::PUSHBUTTON:        return "PushButton";
-		case DeviceType::SWITCH:            return "Switch";
-		case DeviceType::POTENTIOMETER:     return "Potentiometer";
-		case DeviceType::ENCODER:           return "Encoder";
-		case DeviceType::JOYSTICK_1AXIS:    return "Joystick 1 Axis";
-		case DeviceType::JOYSTICK_2AXIS:    return "Joystick 2 Axis";
-		case DeviceType::JOYSTICK_3AXIS:    return "Joystick 3 Axis";
-		case DeviceType::LED:               return "LED";
-		case DeviceType::LED_PWM:           return "LED (PWM)";
-		case DeviceType::LED_RGB:           return "LED (RGB)";
-		case DeviceType::LED_BUTTON:        return "Button with LED";
-		case DeviceType::LED_PWM_BUTTON:    return "Button with LED (PWM)";
-		case DeviceType::LED_RGB_BUTTON:    return "Button with LED (RGB)";
-		default: 							return "Unknown Device";
-	}
-}
-
-
-void receiveDeviceInput(uint8_t* message, size_t size){
+void Console::receiveDeviceInput(uint8_t* message, size_t size){
+	
+	IODevice::Type deviceType = IODevice::getTypeFromCode(message[0]);
+	uint8_t deviceIndex = message[1];
+	
+	if(deviceIndex >= ioDevices.size()) return;
+	auto& device = ioDevices[deviceIndex];
+	if(device->getType() != deviceType) return;
+	
+	if(size < 3) return;
+	size_t deviceInputDataSize = size - 2;
+	uint8_t* deviceInputData = &message[2];
+	
+	device->updateInput(deviceInputData, deviceInputDataSize);
+	
+	
+	/*
 	uint8_t deviceTypeCode = message[0];
-	DeviceType deviceType = getDeviceType(deviceTypeCode);
-	switch(deviceType){
-		case DeviceType::PUSHBUTTON:
+	switch(IODevice::getTypeFromCode(deviceTypeCode)){
+		case IODevice::Type::PUSHBUTTON:
 			Logger::warn("Push Button {} {}", message[1], message[2] == 1 ? "Pressed" : "Released");
 			break;
-		case DeviceType::SWITCH:			break;
-		case DeviceType::POTENTIOMETER:		break;
-		case DeviceType::ENCODER:			break;
-		case DeviceType::JOYSTICK_1AXIS:	break;
-		case DeviceType::JOYSTICK_2AXIS:{
+		case IODevice::Type::SWITCH:			break;
+		case IODevice::Type::POTENTIOMETER:		break;
+		case IODevice::Type::ENCODER:			break;
+		case IODevice::Type::JOYSTICK_1AXIS:	break;
+		case IODevice::Type::JOYSTICK_2AXIS:{
 			float x = (int8_t)message[2] / 127.f;
 			float y = (int8_t)message[3] / 127.f;
 			Logger::warn("Joystick {} x:{:.2f} y:{:.2f}", message[1], x, y);
 			}break;
-		case DeviceType::JOYSTICK_3AXIS:	break;
-		case DeviceType::LED:				break;
-		case DeviceType::LED_PWM:			break;
-		case DeviceType::LED_RGB:			break;
-		case DeviceType::LED_BUTTON:
+		case IODevice::Type::JOYSTICK_3AXIS:	break;
+		case IODevice::Type::LED:				break;
+		case IODevice::Type::LED_PWM:			break;
+		case IODevice::Type::LED_RGB:			break;
+		case IODevice::Type::LED_BUTTON:
 			Logger::warn("LED Button {} {}", message[1], message[2] == 1 ? "Pressed" : "Released");
 			break;
-		case DeviceType::LED_PWM_BUTTON:
+		case IODevice::Type::LED_PWM_BUTTON:
 			Logger::warn("PWM LED Button {} {}", message[1], message[2] == 1 ? "Pressed" : "Released");
 			break;
-		case DeviceType::LED_RGB_BUTTON:
+		case IODevice::Type::LED_RGB_BUTTON:
 			Logger::warn("RGB LED Button {} {}", message[1], message[2] == 1 ? "Pressed" : "Released");
 			break;
-		case DeviceType::UNKNOWN:
+		case IODevice::Type::UNKNOWN:
 			Logger::warn("Unknown device input received...");
 			break;
 	}
+	 */
 }
 
-void receiveConnectionConfirmation(uint8_t* message, size_t size){
+void Console::receiveConnectionConfirmation(uint8_t* message, size_t size){
 	if(connectionState != ConnectionState::CONNECTION_REQUESTED) return;
 	if(size != 3) return;
 	if(message[1] != timeoutDelay_milliseconds) return;
@@ -162,7 +111,7 @@ void receiveConnectionConfirmation(uint8_t* message, size_t size){
 	Logger::debug("Received Connection Confirmation");
 }
 
-void receiveIdentificationReply(uint8_t* message, size_t size){
+void Console::receiveIdentificationReply(uint8_t* message, size_t size){
 	if(connectionState != ConnectionState::IDENTIFICATION_REQUESTED) return;
 	if(size < 2) return;
 	if(message[size - 1] != 0) return;
@@ -172,22 +121,23 @@ void receiveIdentificationReply(uint8_t* message, size_t size){
 	Logger::debug("Received Identification Reply, console name is {}", consoleName);
 }
 
-void receiveDeviceEnumerationReply(uint8_t* message, size_t size){
+void Console::receiveDeviceEnumerationReply(uint8_t* message, size_t size){
 	if(connectionState != ConnectionState::DEVICE_ENUMERATION_REQUESTED) return;
 	if(size < 2) return;
-	for(int i = 1; i < size; i++) if(getDeviceType(message[i]) == DeviceType::UNKNOWN) return;
-	
+	for(int i = 1; i < size; i++) if(IODevice::getTypeFromCode(message[i]) == IODevice::Type::UNKNOWN) return;
+	int deviceCount = size - 1;
 	Logger::debug("Received Device Enumeration Reply");
-	Logger::debug("{} has {} Devices:", consoleName, size - 1);
+	Logger::debug("{} has {} IODevices:", consoleName, deviceCount);
+	ioDevices.reserve(deviceCount);
 	for(int i = 1; i < size; i++){
-		DeviceType deviceType = getDeviceType(message[i]);
-		Logger::debug("[{}] {}", i, getDeviceTypeString(deviceType));
+		IODevice::Type deviceType = IODevice::getTypeFromCode(message[i]);
+		ioDevices.push_back(IODevice::make(deviceType));
+		Logger::debug("[{}] {}", i, IODevice::getTypeString(deviceType));
 	}
-	
 	connectionState = ConnectionState::DEVICE_ENUMERATION_RECEIVED;
 }
 
-void receiveHeartbeat(uint8_t* message, size_t size){
+void Console::receiveHeartbeat(uint8_t* message, size_t size){
 	if(size != 1) return;
 	lastHeartbeatReceiveTime = std::chrono::system_clock::now();
 }
@@ -195,7 +145,7 @@ void receiveHeartbeat(uint8_t* message, size_t size){
 
 
 
-void readMessage(uint8_t* message, size_t messageLength){
+void Console::readMessage(uint8_t* message, size_t messageLength){
 	uint8_t header = message[0];
 	switch(header){
 		case CONNECTION_CONFIRMATION: 	receiveConnectionConfirmation(message, messageLength); break;
@@ -211,41 +161,41 @@ void readMessage(uint8_t* message, size_t messageLength){
 
 
 
-void sendConnectionRequest(){
+void Console::sendConnectionRequest(){
 	uint8_t message[3];
 	message[0] = CONNECTION_REQUEST;
 	message[1] = timeoutDelay_milliseconds;
 	message[2] = heartbeatInterval_milliseconds;
-	consoleSerialPort.send(message, 3);
+	serialPort->send(message, 3);
 }
 
-void sendIdentificationRequest(){
+void Console::sendIdentificationRequest(){
 	uint8_t message[1];
 	message[0] = IDENTIFICATION_REQUEST;
-	consoleSerialPort.send(message, 1);
+	serialPort->send(message, 1);
 }
 
-void sendDeviceEnumerationRequest(){
+void Console::sendDeviceEnumerationRequest(){
 	uint8_t message[1];
 	message[0] = DEVICE_ENUMERATION_REQUEST;
-	consoleSerialPort.send(message, 1);
+	serialPort->send(message, 1);
 }
 
-void sendConnectionConfirmation(){
+void Console::sendConnectionConfirmation(){
 	uint8_t message[1];
 	message[0] = CONNECTION_CONFIRMATION;
-	consoleSerialPort.send(message, 1);
+	serialPort->send(message, 1);
 }
 
-void sendHeartbeat(){
+void Console::sendHeartbeat(){
 	uint8_t message[1];
 	message[0] = HEARTBEAT;
-	consoleSerialPort.send(message, 1);
+	serialPort->send(message, 1);
 }
 
 
 
-void connect(){
+void Console::connect(){
 	switch(connectionState){
 		case ConnectionState::NOT_CONNECTED:
 			sendConnectionRequest();
@@ -265,7 +215,6 @@ void connect(){
 			break;
 		case ConnectionState::DEVICE_ENUMERATION_RECEIVED:
 			sendConnectionConfirmation();
-			connectionState = ConnectionState::CONNECTED;
 			lastHeartbeatReceiveTime = std::chrono::system_clock::now();
 			lastHeartbeatSendTime = std::chrono::system_clock::now();
 			onConnection();
@@ -275,15 +224,10 @@ void connect(){
 }
 
 
-void handleTimeout(){
+void Console::handleTimeout(){
 	using namespace std::chrono;
 	auto now = system_clock::now();
-	if(!isConnected()){
-		if(now - connectionRequestTime > milliseconds(connectionTimeoutDelay_milliseconds)){
-			connectionState = ConnectionState::NOT_CONNECTED;
-			Logger::info("Connection Request Timed out");
-		}
-	}else{
+	if(isConnected()){
 		if(now - lastHeartbeatSendTime > milliseconds(heartbeatInterval_milliseconds)){
 			lastHeartbeatSendTime = now;
 			sendHeartbeat();
@@ -293,19 +237,44 @@ void handleTimeout(){
 			onDisconnection();
 		}
 	}
+	else if(isConnecting()){
+		if(now - connectionRequestTime > milliseconds(connectionTimeoutDelay_milliseconds)){
+			Logger::info("Connection Request Timed out");
+			onDisconnection();
+		}
+	}
 }
 
-void update(){
-	using namespace std::chrono;
-	if(consoleSerialPort.isOpen()){
-		std::this_thread::sleep_for(milliseconds(10));
-		const std::lock_guard<std::mutex> lock(mutex);
+
+
+void Console::updateInputs(){
+	std::string threadName = "Unknown Console Connection Handler";
+	pthread_setname_np(threadName.c_str());
+	b_inputHandlerRunning = true;
+	while(b_inputHandlerRunning){
 		if(!isConnected()) connect();
+		serialPort->read();
 		handleTimeout();
-	}else std::this_thread::sleep_for(milliseconds(250));
-	consoleSerialPort.update();
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
 }
 
-
-
-};
+void Console::updateOutputs(){
+	std::string threadName = "Console " + getName() + " Output Handler";
+	pthread_setname_np(threadName.c_str());
+	b_outputHandlerRunning = true;
+	while(b_outputHandlerRunning){
+		for(int i = 0; i < ioDevices.size(); i++){
+			uint8_t* deviceData;
+			size_t deviceDataSize = 0;
+			if(ioDevices[i]->updateOutput(&deviceData, &deviceDataSize)){
+				outputMessage[0] = IODevice::getCodeFromType(ioDevices[i]->getType());
+				outputMessage[1] = i;
+				memcpy(&outputMessage[2], deviceData, deviceDataSize);
+				size_t messageSize = deviceDataSize + 2;
+				serialPort->send(outputMessage, messageSize);
+			}
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	}
+}

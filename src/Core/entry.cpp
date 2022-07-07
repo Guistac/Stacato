@@ -5,7 +5,7 @@
 #include "Project/Project.h"
 #include "Environnement/Environnement.h"
 
-#include "Console/Console.h"
+#include "Console/ConsoleHandler.h"
 
 #ifdef STACATO_WIN32_APPLICATION
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
@@ -25,12 +25,14 @@ int main(int argcount, const char ** args){
 	//load network interfaces, initialize networking, open ethercat network interface
 	Environnement::initialize();
 	
-	Console::initialize();
+	//start looking for consoles, and load profile for previously connected ones
+	ConsoleHandler::initialize();
 	
 	//application gui runtime, function returns when application is quit
 	ApplicationWindow::open();
 	
-	Console::terminate();
+	//terminate serial communications
+	ConsoleHandler::terminate();
 	
 	//stop hardware or simulation and terminate fieldbus
 	Environnement::terminate();

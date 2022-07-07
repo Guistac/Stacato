@@ -5,19 +5,39 @@
 #include <serial/serial.h>
 
 
+std::shared_ptr<SerialPort> findSerialPort(std::string& portMatchingString){
+	for(auto& port : serial::list_ports()){
+		if(port.port.find(portMatchingString) != std::string::npos){
+			auto openedPort = std::make_shared<serial::Serial>(port.port);
+			if(openedPort->isOpen()) return std::make_shared<SerialPort>(openedPort, port.port);
+			else openedPort = nullptr;
+		}
+	}
+	return nullptr;
+}
+
+
+
+//[0]   Start Byte
+//[1]   Length of the message content (L + 2)
+//[2]   Message Buffer Start
+//[2+L] Checksum (xor of all bytes after start end before stop, starting with message length)
+//[3+L] Stop Byte
+
+SerialPort::SerialPort(std::shared_ptr<serial::Serial> port, std::string& name) : serialPort(port), portName(name){
+	Logger::info("Opened serial port {}", name);
+	serialPort->flush();
+}
+
 constexpr uint8_t startByte = 0x33;
 constexpr uint8_t stopByte = 0x99;
 	
-void SerialPort::onIssue(){
-	b_portOpen = false;
-	Logger::warn("Serial Port {} Closed", portName);
-	portClosedCallback();
-}
-
-void SerialPort::update(){
+void SerialPort::read(){
 	try{
-		if(b_portOpen) read();
-		else findPort();
+		while(size_t byteCount = serialPort->available()){
+			serialPort->read(incomingBytes, byteCount);
+			for(int i = 0; i < byteCount; i++) readByte(incomingBytes[i]);
+		}
 	}
 	catch(serial::IOException e){
 		if(e.getErrorNumber() != 6) {
@@ -39,45 +59,19 @@ void SerialPort::update(){
 	}
 }
 
-
-void SerialPort::findPort(){
-	for(auto& port : serial::list_ports()){
-		if(port.port.find(portIdentificationString) != std::string::npos){
-			serialPort = std::make_shared<serial::Serial>(port.port);
-			if(serialPort->isOpen()){
-				serialPort->flush();
-				b_portOpen = true;
-				portName = port.port;
-				Logger::info("Opened serial port {}", portName);
-				return;
-			}else serialPort.reset();
-		}
-	}
-}
-
-
 void SerialPort::send(uint8_t* message, size_t messageLength){
 	
-	try{
+	outgoingFrame[0] = startByte;
+	outgoingFrame[1] = messageLength;
+	memcpy(outgoingFrame + 2, message, messageLength);
+	uint8_t checksum = messageLength;
+	for(int i = 0; i < messageLength; i++) checksum ^= message[i];
+	outgoingFrame[2 + messageLength] = checksum;
+	outgoingFrame[3 + messageLength] = stopByte;
+	size_t frameLength = messageLength + 4;
 	
-		//[0]   Start Byte
-		//[1]   Length of the message content (L + 2)
-		//[2]   Message Buffer Start
-		//[2+L] Checksum (xor of all bytes after start end before stop, starting with message length)
-		//[3+L] Stop Byte
-		
-		static uint8_t frame[512];
-		frame[0] = startByte;
-		frame[1] = messageLength;
-		memcpy(frame + 2, message, messageLength);
-		uint8_t checksum = messageLength;
-		for(int i = 0; i < messageLength; i++) checksum ^= message[i];
-		frame[2 + messageLength] = checksum;
-		frame[3 + messageLength] = stopByte;
-		
-		size_t frameLength = messageLength + 4;
-		serialPort->write(frame, frameLength);
-		
+	try{
+		serialPort->write(outgoingFrame, frameLength);
 	}
 	catch(serial::IOException e){
 		Logger::critical("Error while writing to serial port {} :", portName);
@@ -96,15 +90,14 @@ void SerialPort::send(uint8_t* message, size_t messageLength){
 		onIssue();	
 	}
 }
-	
-void SerialPort::read(){
-	while(size_t byteCount = serialPort->available()){
-		serialPort->read(incomingBytes, byteCount);
-		for(int i = 0; i < byteCount; i++) readMessage(incomingBytes[i]);
-	}
+
+void SerialPort::onIssue(){
+	b_portOpen = false;
+	Logger::warn("Serial Port {} Closed", portName);
+	portClosedCallback();
 }
 
-void SerialPort::readMessage(uint8_t newByte){
+void SerialPort::readByte(uint8_t newByte){
 	switch(incomingMessageState){
 		case IncomingMessageState::EXPECTING_START_BYTE:
 			if(newByte == startByte) incomingMessageState = IncomingMessageState::EXPECTING_LENGTH;

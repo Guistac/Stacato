@@ -1,29 +1,43 @@
 #pragma once
 
-namespace Console{
-	
-	void initialize();
-	void terminate();
-	
-	bool isConnected();
-	std::string& getName();
+class SerialPort;
+class ConsoleMapping;
+class IODevice;
 
-	enum class DeviceType{
-		PUSHBUTTON,
-		SWITCH,
-		POTENTIOMETER,
-		ENCODER,
-		JOYSTICK_1AXIS,
-		JOYSTICK_2AXIS,
-		JOYSTICK_3AXIS,
-		LED,
-		LED_PWM,
-		LED_RGB,
-		LED_BUTTON,
-		LED_PWM_BUTTON,
-		LED_RGB_BUTTON,
-		UNKNOWN
-	};
+class Console : public std::enable_shared_from_this<Console>{
+public:
+	
+	static std::shared_ptr<Console> initialize(std::shared_ptr<SerialPort> port);
+	static void terminate(std::shared_ptr<Console> console);
+		
+	bool isConnected(){ return connectionState == ConnectionState::CONNECTED; }
+	bool isConnecting(){
+		switch(connectionState){
+			case ConnectionState::NOT_CONNECTED:
+			case ConnectionState::CONNECTION_REQUESTED:
+			case ConnectionState::CONNECTION_CONFIRMATION_RECEIVED:
+			case ConnectionState::IDENTIFICATION_REQUESTED:
+			case ConnectionState::IDENTIFICATION_RECEIVED:
+			case ConnectionState::DEVICE_ENUMERATION_REQUESTED:
+			case ConnectionState::DEVICE_ENUMERATION_RECEIVED: return true;
+			default: return false;
+		}
+	}
+	bool wasDisconnected(){ return connectionState == ConnectionState::DISCONNECTED; }
+	
+	std::string& getName(){ return consoleName; }
+	std::vector<std::shared_ptr<IODevice>>& getIODevices(){ return ioDevices; }
+	
+private:
+	
+	std::thread inputHandler;
+	std::thread outputHandler;
+	bool b_inputHandlerRunning = false;
+	bool b_outputHandlerRunning = false;
+	void connect();
+	void updateInputs();
+	void updateOutputs();
+	void handleTimeout();
 
 	enum MessageHeader{
 		CONNECTION_REQUEST 					= 0x0, //[2] uint16_t (timeout in milliseconds)
@@ -44,7 +58,39 @@ namespace Console{
 		IDENTIFICATION_RECEIVED,
 		DEVICE_ENUMERATION_REQUESTED,
 		DEVICE_ENUMERATION_RECEIVED,
-		CONNECTED
+		CONNECTED,
+		DISCONNECTED
 	};
 
+	std::shared_ptr<SerialPort> serialPort;
+	ConnectionState connectionState = ConnectionState::NOT_CONNECTED;
+	std::string consoleName;
+	std::vector<std::shared_ptr<IODevice>> ioDevices;
+	std::shared_ptr<ConsoleMapping> mapping;
+
+	int timeoutDelay_milliseconds = 200;
+	int heartbeatInterval_milliseconds = 50;
+	int connectionTimeoutDelay_milliseconds = 200;
+	std::chrono::time_point<std::chrono::system_clock> lastHeartbeatReceiveTime;
+	std::chrono::time_point<std::chrono::system_clock> lastHeartbeatSendTime;
+	std::chrono::time_point<std::chrono::system_clock> connectionRequestTime;
+	
+	uint8_t outputMessage[128];
+
+	void readMessage(uint8_t*, size_t);
+	void receiveConnectionConfirmation(uint8_t* message, size_t size);
+	void receiveIdentificationReply(uint8_t* message, size_t size);
+	void receiveDeviceEnumerationReply(uint8_t* message, size_t size);
+	void receiveHeartbeat(uint8_t* message, size_t size);
+	void receiveDeviceInput(uint8_t* message, size_t size);
+	
+	void sendConnectionRequest();
+	void sendIdentificationRequest();
+	void sendDeviceEnumerationRequest();
+	void sendConnectionConfirmation();
+	void sendHeartbeat();
+	
+	void onDisconnection();
+	void onConnection();
+	
 };
