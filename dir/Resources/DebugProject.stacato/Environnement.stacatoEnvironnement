@@ -1,9 +1,9 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.8651508" OffsetX="1044.6686" OffsetY="-439.89636" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget UniqueID="4" PositionX="-802.40308" PositionY="496.07901" SizeX="22" SizeY="22"/>
-        <Widget UniqueID="5" PositionX="-801.60553" PositionY="800.33777" SizeX="22" SizeY="22"/>
-        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="22" SizeY="22"/>
-        <Widget UniqueID="7" PositionX="-557.11194" PositionY="499.23932" SizeX="22" SizeY="22"/>
+    <Dashboard Scale="0.47028956" OffsetX="1049.3464" OffsetY="-287.0972" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget UniqueID="4" PositionX="-802.40308" PositionY="496.07901" SizeX="232" SizeY="292.45767"/>
+        <Widget UniqueID="5" PositionX="-801.60553" PositionY="800.33777" SizeX="232" SizeY="294.39325"/>
+        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232" SizeY="530.21277"/>
+        <Widget UniqueID="7" PositionX="-557.11194" PositionY="499.23932" SizeX="232" SizeY="530.37482"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -46,7 +46,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="VIPA Bus Coupler" UniqueID="18">
-                <InputNodeEditorPosition x="376" y="1047"/>
+                <InputNodeEditorPosition x="392" y="1172"/>
                 <OutputNodeEditorPosition x="2.1474836e+09" y="2.1474836e+09"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="33"/>
@@ -137,8 +137,8 @@
                     <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="50" defaultManualAcceleration_rpsps="50"/>
                     <InvertDirectionOfMovement Invert="false"/>
                     <MaxFollowingError revolutions="2"/>
-                    <CurrentLimit amps="9"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="7.4500000000000002"/>
+                    <CurrentLimit amps="1"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="100"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
@@ -409,13 +409,14 @@
             <Link UniqueID="214" StartPin="212" EndPin="68"/>
             <Link UniqueID="215" StartPin="212" EndPin="64"/>
             <Link UniqueID="254" StartPin="244" EndPin="251"/>
+            <Link UniqueID="278" StartPin="114" EndPin="119"/>
         </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en4" Name="en4"/>
+        <Primary Description="en7" Name="en7"/>
     </NetworkInterfaceCard>
-    <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="2" ClockStableThresholdMilliseconds="0.5" FieldbusTimeoutDelayMilliseconds="100"/>
+    <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="2.5999999046325684" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

@@ -1,43 +1,14 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="M-0" Description="" Type="Target">
-            <Animation Machine="Costière A" MachineUniqueID="118" Parameter="Position" IsComposite="false" Type="Target" Target="5" ConstraintType="Time" Time="5" Velocity="0" StartAcceleration="0.5" EndAcceleration="0.5"/>
-            <Animation Machine="Costière B" MachineUniqueID="249" Parameter="Position" IsComposite="false" Type="Target" Target="40" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="3" EndAcceleration="5"/>
-        </Manoeuvre>
-        <Manoeuvre Name="M-4" Description="" Type="Sequence">
-            <Animation Machine="Costière B" MachineUniqueID="249" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="50" Duration="10" TimeOffset="0" StartAcceleration="10" EndAcceleration="10">
+        <Manoeuvre Name="M-0" Description="" Type="Sequence">
+            <Animation Machine="Costière A" MachineUniqueID="118" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0.10000000000000001" End="9" Duration="20" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
                 <Curves>
                     <Curve>
-                        <ControlPoint Position="0" Time="0" Velocity="0" InAcceleration="10" OutAcceleration="10"/>
-                        <ControlPoint Position="50" Time="10" Velocity="0" InAcceleration="10" OutAcceleration="10"/>
+                        <ControlPoint Position="0.10000000000000001" Time="0" Velocity="0" InAcceleration="0.29999999999999999" OutAcceleration="0.29999999999999999"/>
+                        <ControlPoint Position="9" Time="20" Velocity="0" InAcceleration="0.29999999999999999" OutAcceleration="0.29999999999999999"/>
                     </Curve>
                 </Curves>
             </Animation>
-        </Manoeuvre>
-        <Manoeuvre Name="M-2" Description="" Type="Sequence">
-            <Animation Machine="Costière A" MachineUniqueID="118" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="1" End="2" Duration="5" TimeOffset="0" StartAcceleration="1" EndAcceleration="0.10000000000000001">
-                <Curves>
-                    <Curve>
-                        <ControlPoint Position="1" Time="0" Velocity="0" InAcceleration="1" OutAcceleration="1"/>
-                        <ControlPoint Position="2" Time="5" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
-                    </Curve>
-                </Curves>
-            </Animation>
-            <Animation Machine="Costière B" MachineUniqueID="249" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="-33.299999999999997" End="33.299999999999997" Duration="10" TimeOffset="0" StartAcceleration="5" EndAcceleration="10">
-                <Curves>
-                    <Curve>
-                        <ControlPoint Position="-33.299999999999997" Time="0" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
-                        <ControlPoint Position="33.299999999999997" Time="10" Velocity="0" InAcceleration="10" OutAcceleration="10"/>
-                    </Curve>
-                </Curves>
-            </Animation>
-        </Manoeuvre>
-        <Manoeuvre Name="M-0 (copy)" Description="" Type="Target">
-            <Animation Machine="Costière A" MachineUniqueID="118" Parameter="Position" IsComposite="false" Type="Target" Target="2" ConstraintType="Velocity" Time="10" Velocity="1" StartAcceleration="0.5" EndAcceleration="0.5"/>
-        </Manoeuvre>
-        <Manoeuvre Name="M-3" Description="" Type="Key">
-            <Animation Machine="Costière A" MachineUniqueID="118" Parameter="Position" IsComposite="false" Type="Key" Target="9"/>
-            <Animation Machine="Costière B" MachineUniqueID="249" Parameter="Position" IsComposite="false" Type="Key" Target="3"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

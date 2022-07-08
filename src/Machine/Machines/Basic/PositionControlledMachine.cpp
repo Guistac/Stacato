@@ -135,9 +135,17 @@ void PositionControlledMachine::outputProcess(){
 		//else we update the animatable, get its target and send it to the axis
 		double profileTime_seconds = Environnement::getTime_seconds();
 		double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
+		
 		animatablePosition->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
 		auto target = animatablePosition->getTargetValue()->toPosition();
-		getAxis()->setMotionCommand(target->position, target->velocity, target->acceleration);
+		
+		double axisPositionTarget = machinePositionToAxisPosition(target->position);
+		double axisVelocityTarget = machineVelocityToAxisVelocity(target->velocity);
+		double axisAccelerationTarget = machineAccelerationToAxisAcceleration(target->acceleration);
+		
+		getAxis()->setMotionCommand(axisPositionTarget,
+									axisVelocityTarget,
+									axisAccelerationTarget);
 	}
 }
 

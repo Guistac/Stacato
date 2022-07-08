@@ -18,7 +18,10 @@ class AnimatablePosition : public AnimatableNumber{
 public:
 	
 	//—————————construction & typeId——————————
-	AnimatablePosition(const char* name, Unit unit) : AnimatableNumber(name, unit) { updateActualValue(AnimationValue::makePosition()); };
+	AnimatablePosition(const char* name, Unit unit) : AnimatableNumber(name, unit) {
+		actualValue = AnimationValue::makePosition();
+		targetValue = AnimationValue::makePosition();
+	};
 	static std::shared_ptr<AnimatablePosition> make(std::string name, Unit unit){ return std::make_shared<AnimatablePosition>(name.c_str(), unit); }
 	virtual AnimatableType getType() override { return AnimatableType::POSITION; }
 	

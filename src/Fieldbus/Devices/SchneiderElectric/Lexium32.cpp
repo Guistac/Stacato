@@ -119,8 +119,9 @@ bool Lexium32::startupConfiguration() {
     //on quickstop, come to a stop using a torque ramp (intensity defined by max quickstop current)
     //transition to operating state Quickstop, this allows us to go back to operationEnabled and move the motor while the limit signal is still triggered
     //if we choose to trigger the fault state, we would not be able to go back to operationEnabled while the limit signal is still high
-    int16_t LIM_QStopReact_set = 7;
-    if (!writeSDO_S16(0x3006, 0x18, LIM_QStopReact_set)) return false;
+    //int16_t LIM_QStopReact_set = 7;
+    //if (!writeSDO_S16(0x3006, 0x18, LIM_QStopReact_set)) return false;
+	//actually we dont need to set this, since it was uploaded as a configuration parameter
 
     uint16_t IOSigRespOfPS_set = 1;
     if (!writeSDO_U16(0x3006, 0x6, IOSigRespOfPS_set)) return false;

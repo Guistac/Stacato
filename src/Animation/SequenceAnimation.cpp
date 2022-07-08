@@ -223,19 +223,19 @@ bool SequenceAnimation::canRapidToPlaybackPosition(){
 bool SequenceAnimation::isAtStart(){
 	if(!start->isValid()) return false;
 	auto animatable = getAnimatable();
-	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(start), animatable->getActualValue());
+	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(start), animatable->getTargetValue());
 }
 
 bool SequenceAnimation::isAtTarget(){
 	if(!target->isValid()) return false;
 	auto animatable = getAnimatable();
-	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(target), animatable->getActualValue());
+	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(target), animatable->getTargetValue());
 }
 
 bool SequenceAnimation::isAtPlaybackPosition(){
 	if(!isValid()) return false;
 	auto animatable = getAnimatable();
-	return animatable->isParameterValueEqual(getValueAtPlaybackTime(), animatable->getActualValue());
+	return animatable->isParameterValueEqual(getValueAtPlaybackTime(), animatable->getTargetValue());
 }
 
 

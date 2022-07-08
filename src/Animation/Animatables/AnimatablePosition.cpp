@@ -268,7 +268,7 @@ bool AnimatablePosition::isReadyToMove(){
 
 bool AnimatablePosition::isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationValue> animationValue){
 	const std::lock_guard<std::mutex> lock(mutex);
-	return animationValue->toPosition()->position == actualValue->position;
+	return animationValue->toPosition()->position == targetValue->position;
 }
 
 bool AnimatablePosition::isInRapid(){
@@ -429,11 +429,9 @@ std::shared_ptr<AnimationValue> AnimatablePosition::getActualValue(){
 
 void AnimatablePosition::updateDisabled(){
 	const std::lock_guard<std::mutex> lock(mutex);
-	auto newTargetValue = AnimationValue::makePosition();
-	newTargetValue->position = actualValue->position;
-	newTargetValue->velocity = actualValue->velocity;
-	newTargetValue->acceleration = actualValue->acceleration;
-	targetValue = newTargetValue;
+	motionProfile.setPosition(actualValue->position);
+	motionProfile.setVelocity(actualValue->velocity);
+	motionProfile.setAcceleration(actualValue->acceleration);
 }
 
 void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_seconds){
