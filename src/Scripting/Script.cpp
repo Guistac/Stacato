@@ -8,7 +8,7 @@
 
 #include "LoggingLibrary.h"
 
-Script::Script(const char* n){
+LuaScript::LuaScript(const char* n){
 	name = n;
 	textEditor.SetImGuiChildIgnored(true);
 	textEditor.SetHandleKeyboardInputs(true);
@@ -18,7 +18,7 @@ Script::Script(const char* n){
 }
 
 
-void Script::editor(ImVec2 size_arg){
+void LuaScript::editor(ImVec2 size_arg){
 		
 	float f_separatorHeight = ImGui::GetTextLineHeight() / 2.0;
 	float f_editorHeight = ImGui::GetContentRegionAvail().y - f_separatorHeight - f_consoleHeight;
@@ -92,7 +92,7 @@ void Script::editor(ImVec2 size_arg){
 
 
 
-bool Script::load(const char* filePath){
+bool LuaScript::load(const char* filePath){
 	scriptFilePath = filePath;
 	if(!std::filesystem::exists(std::filesystem::path(filePath))) return false;
 	std::ifstream inputFileStream(scriptFilePath);
@@ -102,18 +102,18 @@ bool Script::load(const char* filePath){
 	return true;
 }
 
-void Script::load(std::string& script){
+void LuaScript::load(std::string& script){
 	scriptFilePath = "";
 	textEditor.SetText(script);
 }
 
-void Script::save(const char* filePath){
+void LuaScript::save(const char* filePath){
 	std::ofstream outputFileStream(filePath);
 	outputFileStream << textEditor.GetText();
 	outputFileStream.close();
 }
 
-void Script::reloadSaved(){
+void LuaScript::reloadSaved(){
 	if(!std::filesystem::exists(std::filesystem::path(scriptFilePath))) return;
 	std::ifstream inputFileStream(scriptFilePath);
 	std::stringstream buffer;
@@ -122,7 +122,7 @@ void Script::reloadSaved(){
 }
 
 
-bool Script::compile(bool hideSuccessMessage){
+bool LuaScript::compile(bool hideSuccessMessage){
 	if(isRunning()) stop();
 	
 	//initialize lua state and load librairies
@@ -160,7 +160,7 @@ bool Script::compile(bool hideSuccessMessage){
 	}
 }
 
-void Script::compileAndRun() {
+void LuaScript::compileAndRun() {
 	if(!compile(true)) return;
 	addConsoleMessage("Starting Script...", ScriptFlag::INFO);
 	if(lua_pcall(L, 0, LUA_MULTRET, 0) != LUA_OK) {
@@ -172,11 +172,11 @@ void Script::compileAndRun() {
 	}
 }
 
-bool Script::isRunning(){
+bool LuaScript::isRunning(){
 	return L != nullptr;
 }
 
-void Script::stop(){
+void LuaScript::stop(){
 	if(L != nullptr) {
 		lua_close(L);
 		L = nullptr;
@@ -185,7 +185,7 @@ void Script::stop(){
 }
 
 
-bool Script::checkHasFunction(const char* functionName){
+bool LuaScript::checkHasFunction(const char* functionName){
 	if(!isRunning()) return false;
 	lua_getglobal(L, functionName);
 	bool b_hasFunction = lua_type(L, -1) == LUA_TFUNCTION;
@@ -193,7 +193,7 @@ bool Script::checkHasFunction(const char* functionName){
 	return b_hasFunction;
 }
 
-void Script::callFunction(const char* functionName){
+void LuaScript::callFunction(const char* functionName){
 	if(!isRunning()) return;
 	lua_getglobal(L, functionName);
 	if(lua_type(L, -1) != LUA_TFUNCTION) {
@@ -216,27 +216,27 @@ void Script::callFunction(const char* functionName){
 
 
 
-void Script::logInfo(const char* message){
+void LuaScript::logInfo(const char* message){
 	addConsoleMessage(message, ScriptFlag::INFO);
 }
 
-void Script::logWarning(const char* message){
+void LuaScript::logWarning(const char* message){
 	addConsoleMessage(message, ScriptFlag::WARNING);
 }
 
 
-void Script::addConsoleMessage(const char* string, ScriptFlag t){
+void LuaScript::addConsoleMessage(const char* string, ScriptFlag t){
 	consoleMessages.push_back(ConsoleMessage());
 	ConsoleMessage& message = consoleMessages.back();
 	message.type = t;
 	strcpy(message.string, string);
 }
 
-void Script::clearConsole(){
+void LuaScript::clearConsole(){
 	consoleMessages.clear();
 }
 
-void Script::handleScriptError(const char* errorString, ScriptFlag t){
+void LuaScript::handleScriptError(const char* errorString, ScriptFlag t){
 	
 	size_t stringLength = strlen(errorString);
 	int lineStringIndex = -1;
@@ -267,7 +267,7 @@ void Script::handleScriptError(const char* errorString, ScriptFlag t){
 	textEditor.SetErrorMarkers(errorMarkers);
 }
 
-void Script::clearEditorErrors(){
+void LuaScript::clearEditorErrors(){
 	std::map<int, std::string> errorMarkers;
 	textEditor.SetErrorMarkers(errorMarkers);
 }

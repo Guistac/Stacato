@@ -146,7 +146,7 @@ std::shared_ptr<CompiledProcess> compileProcess(std::vector<std::shared_ptr<Node
 
 
 void CompiledProcess::log(){
-	Logger::info("Input Process: {} instructions", inputProcessInstructions.size());
+	Logger::debug("Input Process: {} instructions", inputProcessInstructions.size());
 	for(int i = 0; i < inputProcessInstructions.size(); i++){
 		auto& instruction = inputProcessInstructions[i];
 		switch(instruction->processType){
@@ -154,7 +154,7 @@ void CompiledProcess::log(){
 			case ProcessDirection::OUTPUT_PROCESS: Logger::trace("[{}] [Output Process] {}", i, instruction->processedNode->getName()); break;
 		}
 	}
-	Logger::info("Output Process: {} instructions", outputProcessInstructions.size());
+	Logger::debug("Output Process: {} instructions", outputProcessInstructions.size());
 	for(int i = 0; i < outputProcessInstructions.size(); i++){
 		auto& instruction = outputProcessInstructions[i];
 		switch(instruction->processType){

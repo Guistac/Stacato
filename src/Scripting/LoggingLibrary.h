@@ -1,10 +1,10 @@
 #pragma once
 
-class Script;
+class LuaScript;
 struct lua_State;
 
 namespace Scripting::LogLibrary{
 
-	void openLib(lua_State* L, Script* script);
+	void openLib(lua_State* L, LuaScript* script);
 
 }

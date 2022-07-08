@@ -148,6 +148,8 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/Environnement.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/EnvironnementScript.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/EnvironnementScript.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/EnvironnementSaveFile.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.cpp

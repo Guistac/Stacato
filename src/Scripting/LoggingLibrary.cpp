@@ -14,8 +14,8 @@ namespace Scripting::LogLibrary{
 
 	void log(lua_State* L, LogLevel level){
 		
-		Script** userData = (Script**)luaL_checkudata(L, 1, "Logger.Type");
-		Script* script = *userData;
+		LuaScript** userData = (LuaScript**)luaL_checkudata(L, 1, "Logger.Type");
+		LuaScript* script = *userData;
 		
 		char messageBuffer[512];
 		messageBuffer[0] = 0;
@@ -70,13 +70,13 @@ namespace Scripting::LogLibrary{
 	}
 
 	int clearLog(lua_State* L){
-		Script** userData = (Script**)luaL_checkudata(L, 1, "Logger.Type");
-		Script* script = *userData;
+		LuaScript** userData = (LuaScript**)luaL_checkudata(L, 1, "Logger.Type");
+		LuaScript* script = *userData;
 		script->clearConsole();
 		return 0;
 	}
 
-	void openLib(lua_State* L, Script* script){
+	void openLib(lua_State* L, LuaScript* script){
 		//metatable for Logger.Type
 		luaL_newmetatable(L, "Logger.Type");
 		//index table for Logger.Type Metatable
@@ -96,7 +96,7 @@ namespace Scripting::LogLibrary{
 		lua_pop(L, 1);
 
 		//create Logger Object in Lua
-		Script** userData = (Script**)lua_newuserdata(L, sizeof(Script*));
+		LuaScript** userData = (LuaScript**)lua_newuserdata(L, sizeof(LuaScript*));
 		*userData = script;
 		
 		//assign Logger.Type metatable to Logger object

@@ -12,6 +12,8 @@
 
 #include "Gui/Project/ProjectGui.h"
 
+#include "Environnement/EnvironnementScript.h"
+
 namespace Project{
 
 	char saveFilePath[512];
@@ -135,6 +137,9 @@ namespace Project{
 		std::string stageVisualizeScriptPath = stageFolderPath + "Script.lua";
 		Environnement::StageVisualizer::loadScript(stageVisualizeScriptPath.c_str());
 
+		std::string environnementScriptPath = projectFolderPath + "EnvironnementScript.lua";
+		Environnement::Script::load(environnementScriptPath.c_str());
+		
 		//look for the plot folder
 		std::string plotsFolderPath = projectFolderPath + "Plots/";
 		if (!std::filesystem::exists(std::filesystem::path(plotsFolderPath))) {
@@ -203,6 +208,9 @@ namespace Project{
 
 		std::string stageVisualizeScriptPath = stageFolder + "Script.lua";
 		Environnement::StageVisualizer::saveScript(stageVisualizeScriptPath.c_str());
+		
+		std::string environnementScriptPath = projectFolderPath + "EnvironnementScript.lua";
+		Environnement::Script::save(environnementScriptPath.c_str());
 		
 		std::string plotsFolder = projectFolderPath + "Plots/";
 		if (!std::filesystem::exists(std::filesystem::path(plotsFolder))) std::filesystem::create_directory(std::filesystem::path(plotsFolder));

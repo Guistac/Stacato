@@ -21,6 +21,8 @@
 
 #include "Project/Editor/CommandHistory.h"
 
+#include "EnvironnementScript.h"
+
 namespace Environnement {
 
 	std::recursive_mutex mutex;
@@ -97,8 +99,15 @@ namespace Environnement {
 		b_isRunning = true;
 		Logger::info("Starting Environnement Simulation");
 		
-		Logger::info("Compiled EtherCAT Process Program: ");
+		Logger::debug("Compiling: EtherCAT Process Program: ");
 		NodeGraph::compileProcess(getEtherCatDeviceNodes())->log();
+		
+		Script::start();
+		if(!Script::isRunning()){
+			b_isRunning = false;
+			Logger::error("Environnement Script could not be started");
+			return;
+		}
 		
 		simulationStartTime_seconds = Timing::getProgramTime_seconds();
 		simulationStartTime_nanoseconds = Timing::getProgramTime_nanoseconds();
@@ -110,14 +119,13 @@ namespace Environnement {
 				//run simulation at 100Hz and free the cpu core in between processing cycles
 				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
-			Logger::info("Stopped Environnement Simulation");
 		});
 		
 		for(auto& networkDevice : getNetworkDevices()) networkDevice->connect();
+				
+		Environnement::StageVisualizer::start();
 		
 		Logger::info("Started Environnement Simulation");
-		
-		Environnement::StageVisualizer::start();
 	}
 
 
@@ -134,21 +142,36 @@ namespace Environnement {
 
 		for(auto& machine : getMachines()) machine->simulateInputProcess();
 
+		Script::update();
+		
 		PlaybackManager::update();
 
 		for(auto& machine : getMachines()) machine->simulateOutputProcess();
 
 		mutex.unlock();
+		
+		if(!Script::isRunning()) {
+			Logger::error("Environnement Script Crashed, Stopping Environnement.");
+			stopSimulation();
+		}
 	}
 
 
 	void stopSimulation(){
-		disableAllMachines();
-		for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
-		b_isRunning = false;
-		if(environnementSimulator.joinable()) environnementSimulator.join();
-		
-		Environnement::StageVisualizer::stop();
+		std::thread simulationStopper = std::thread([](){
+			disableAllMachines();
+			
+			Script::stop();
+			
+			for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
+			b_isRunning = false;
+			if(environnementSimulator.joinable()) environnementSimulator.join();
+			
+			Environnement::StageVisualizer::stop();
+			
+			Logger::info("Stopped Environnement Simulation");
+		});
+		simulationStopper.detach();
 	}
 
 
@@ -159,6 +182,13 @@ namespace Environnement {
 	void startHardware(){
 		b_isStarting = true;
 		Logger::info("Starting Environnement Hardware");
+		
+		Script::start();
+		if(!Script::isRunning()){
+			Logger::error("Could not start Environnement Script, stopping environnement");
+			b_isStarting = false;
+			return;
+		}
 		
 		ethercatDeviceProcess = NodeGraph::compileProcess(getEtherCatDeviceNodes());
 		Logger::info("Compiled EtherCAT Process: ");
@@ -196,7 +226,7 @@ namespace Environnement {
 		//read inputs from devices and propagate them into the node graph
 		NodeGraph::executeInputProcess(ethercatDeviceProcess);
 		
-		//TODO: update environnement script here !!!
+		Script::update();
 		
 		//increments the playback position of all active manoeuvres
 		PlaybackManager::update();
@@ -208,17 +238,31 @@ namespace Environnement {
 		for (auto ethercatDevice : EtherCatFieldbus::getDevices()) if (ethercatDevice->isStateOperational()) ethercatDevice->writeOutputs();
 		
 		mutex.unlock();
+		
+		if(!Script::isRunning()){
+			Logger::error("Environnement Script Crashed, Stopping Environnement");
+			stopHardware();
+		}
 	}
 
 	void stopHardware(){
-		for(auto& machine : getMachines()) machine->disable();
-		EtherCatFieldbus::stop();
-		for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
-		
-		//execute the input process one last time to propagate disconnection of ethercat devices
-		NodeGraph::executeInputProcess(ethercatDeviceProcess);
-		
-		b_isRunning = false;
+		std::thread hardwareStopper = std::thread([](){
+			
+			Script::stop();
+			
+			for(auto& machine : getMachines()) machine->disable();
+			EtherCatFieldbus::stop();
+			for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
+			
+			//execute the input process one last time to propagate disconnection of ethercat devices
+			NodeGraph::executeInputProcess(ethercatDeviceProcess);
+			
+			b_isRunning = false;
+			
+			Logger::info("Stopped Environnement.");
+			
+		});
+		hardwareStopper.detach();
 	}
 
 

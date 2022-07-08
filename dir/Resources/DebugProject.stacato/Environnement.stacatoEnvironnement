@@ -1,9 +1,9 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.47028956" OffsetX="1049.3464" OffsetY="-287.0972" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget UniqueID="4" PositionX="-802.40308" PositionY="496.07901" SizeX="232" SizeY="292.45767"/>
-        <Widget UniqueID="5" PositionX="-801.60553" PositionY="800.33777" SizeX="232" SizeY="294.39325"/>
-        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232" SizeY="530.21277"/>
-        <Widget UniqueID="7" PositionX="-557.11194" PositionY="499.23932" SizeX="232" SizeY="530.37482"/>
+    <Dashboard Scale="0.47028956" OffsetX="1049.3464" OffsetY="-287.13455" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget UniqueID="4" PositionX="-802.40308" PositionY="496.07901" SizeX="232" SizeY="292.49506"/>
+        <Widget UniqueID="5" PositionX="-801.60553" PositionY="800.33777" SizeX="232" SizeY="294.43051"/>
+        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232" SizeY="530.25012"/>
+        <Widget UniqueID="7" PositionX="-557.11194" PositionY="499.23932" SizeX="232" SizeY="530.41223"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -416,7 +416,7 @@
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en7" Name="en7"/>
+        <Primary Description="en4" Name="en4"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="2.5999999046325684" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

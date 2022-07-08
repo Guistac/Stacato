@@ -3,7 +3,6 @@
 
 #include "Scripting/Script.h"
 #include "ofRenderer.h"
-#include "ofBindings.h"
 #include <ofMain.h>
 
 #include "Scripting/CanvasLibrary.h"
@@ -29,7 +28,7 @@ namespace Environnement::StageVisualizer{
 
 
  
-	Script script("Stage Visualizer Script");
+	LuaScript script("Stage Visualizer Script");
 	ofFbo framebuffer;
 
 	void compile(){
@@ -37,8 +36,14 @@ namespace Environnement::StageVisualizer{
 		script.compile();
 		script.stop();
 	}
+
+	bool b_shouldStart = false;
+	bool b_shouldStop = false;
+
+	void start(){ b_shouldStart = true; }
+	void stop(){ b_shouldStop = true; }
 	
-	void start(){
+	void onStart(){
 		script.stop();
 		script.setLoadLibrairiesCallback([](lua_State* L){
 			luaopen_of(L);
@@ -52,7 +57,7 @@ namespace Environnement::StageVisualizer{
 		ofRenderer::finishRender();
 	}
 
-	void stop(){
+	void onStop(){
 		ofRenderer::startRender();
 		if(script.checkHasFunction("exit")) script.callFunction("exit");
 		ofRenderer::finishRender();
@@ -128,8 +133,18 @@ namespace Environnement::StageVisualizer{
 		//actual script rendering
 		ofRenderer::startRender();
 		framebuffer.begin();
+		
+		if(b_shouldStart) {
+			b_shouldStart = false;
+			onStart();
+		}
 		if(script.isRunning()) script.callFunction("update");
 		else ofBackground(0, 0, 0, 255);
+		if(b_shouldStop){
+			b_shouldStop = false;
+			onStop();
+		}
+			 
 		framebuffer.end();
 		ofRenderer::finishRender();
 		

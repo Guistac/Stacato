@@ -42,6 +42,13 @@ namespace Environnement::Gui{
 		SINGLETON_GET_METHOD(EtherCATWindow);
 	};
 
+	class ScriptEditorWindow : public Window{
+	public:
+		ScriptEditorWindow() : Window("Environnement Script", true){}
+		virtual void drawContent() override;
+		SINGLETON_GET_METHOD(ScriptEditorWindow);
+	};
+
 
 	//——————————————————— Performance Windows ———————————————————
 
@@ -76,7 +83,8 @@ namespace Environnement::Gui{
 			NodeEditorWindow::get(),
 			NodeManagerWindow::get(),
 			VisualizerScriptWindow::get(),
-			EtherCATWindow::get()
+			EtherCATWindow::get(),
+			ScriptEditorWindow::get()
 		};
 		return editorWindows;
 	}

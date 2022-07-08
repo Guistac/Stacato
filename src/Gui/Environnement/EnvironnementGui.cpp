@@ -13,6 +13,9 @@
 
 #include "Visualizer/Visualizer.h"
 
+#include "Environnement/EnvironnementScript.h"
+
+
 
 namespace Environnement::Gui{
 
@@ -22,6 +25,15 @@ namespace Environnement::Gui{
 
 	void EtherCATWindow::drawContent() {
 		etherCatGui();
+	}
+
+	void ScriptEditorWindow::drawContent(){
+		ImGui::BeginDisabled(!Script::canCompile());
+		if(ImGui::Button("Compile")) Script::compile();
+		ImGui::SameLine();
+		if(ImGui::Button("Reset")) Script::reset();
+		ImGui::EndDisabled();
+		Script::editor(ImGui::GetContentRegionAvail());
 	}
 	
 	void LogWindow::drawContent() {

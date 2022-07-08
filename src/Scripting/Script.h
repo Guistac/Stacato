@@ -1,14 +1,12 @@
 #pragma once
 
 #include <ofxLua.h>
-#include <imgui.h>
 #include <TextEditor.h>
 
-
-class Script{
+class LuaScript{
 public:
 	
-	Script(const char* name);
+	LuaScript(const char* name);
 	std::string name;
 	
 	void editor(ImVec2 size_arg);
