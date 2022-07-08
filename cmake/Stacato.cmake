@@ -196,6 +196,17 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Console/Console.h
     ${STACATO_SOURCE_DIRECTORY}/Console/Serial.cpp
     ${STACATO_SOURCE_DIRECTORY}/Console/Serial.h
+    ${STACATO_SOURCE_DIRECTORY}/Console/ConsoleHandler.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Console/ConsoleHandler.h
+    ${STACATO_SOURCE_DIRECTORY}/Console/ConsoleMapping.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Console/ConsoleMapping.h
+    ${STACATO_SOURCE_DIRECTORY}/Console/ConsoleIODevice.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Console/ConsoleIODevice.h
+
+    ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/StacatoCompact.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/StacatoCompact.h
+    ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/ButtonBoard.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/ButtonBoard.h
 
     ${STACATO_SOURCE_DIRECTORY}/Tests/C_Curves.cpp
     ${STACATO_SOURCE_DIRECTORY}/Tests/C_Curves.h
