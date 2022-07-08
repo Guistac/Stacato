@@ -55,7 +55,7 @@ public:
 	virtual std::shared_ptr<Parameter> makeBaseCopy() = 0;
 	
 	virtual bool isNumber(){ return false; }
-	std::shared_ptr<BaseNumberParameter> toNumber(){ return std::dynamic_pointer_cast<BaseNumberParameter>(shared_from_this()); }
+	std::shared_ptr<BaseNumberParameter> toNumber(){ return std::static_pointer_cast<BaseNumberParameter>(shared_from_this()); }
 	
 	std::recursive_mutex* mutex = nullptr;
 	void setMutex(std::recursive_mutex* mutex_){ mutex = mutex_; }
@@ -224,7 +224,7 @@ public:
 		else displayValue = newValue;
 		if(value == newValue) return;
 		//=========Invoke Command=========
-		std::shared_ptr<NumberParameter<T>> thisParameter = std::dynamic_pointer_cast<NumberParameter<T>>(shared_from_this());
+		std::shared_ptr<NumberParameter<T>> thisParameter = std::static_pointer_cast<NumberParameter<T>>(shared_from_this());
 		std::string commandName = "Changed " + std::string(getName()) + " from " + std::to_string(value) + " to " + std::to_string(displayValue);
 		std::make_shared<EditCommand>(thisParameter, commandName)->execute();
 		//=================================
@@ -343,7 +343,7 @@ public:
 		if(value == newValue) return;
 		displayValue = newValue;
 		//=========Command Invoker=========
-		auto thisParameter = std::dynamic_pointer_cast<VectorParameter<T>>(shared_from_this());
+		auto thisParameter = std::static_pointer_cast<VectorParameter<T>>(shared_from_this());
 		std::string commandName = "Changed " + std::string(getName()) + " from " + glm::to_string(value) + " to " + glm::to_string(displayValue);
 		std::make_shared<EditCommand>(thisParameter, commandName)->execute();
 		//=================================
@@ -528,7 +528,7 @@ public:
 		if(value == newValue) return;
 		displayValue = newValue;
 		//=========Command Invoker=========
-		auto thisParameter = std::dynamic_pointer_cast<BooleanParameter>(shared_from_this());
+		auto thisParameter = std::static_pointer_cast<BooleanParameter>(shared_from_this());
 		std::string commandName = "Inverted " + std::string(getName());
 		std::make_shared<InvertCommand>(thisParameter, commandName)->execute();
 		//=================================
@@ -618,7 +618,7 @@ public:
 		if(value == newValue) return;
 		strcpy(displayValue, newValue.c_str());
 		//=========Command Invoker=========
-		std::shared_ptr<StringParameter> thisParameter = std::dynamic_pointer_cast<StringParameter>(shared_from_this());
+		std::shared_ptr<StringParameter> thisParameter = std::static_pointer_cast<StringParameter>(shared_from_this());
 		std::string commandName = "Changed " + std::string(getName()) + " from \'" + value + "\' to \'" + displayValue + "\'";
 		std::make_shared<EditCommand>(thisParameter, commandName)->execute();
 		//=================================
@@ -727,7 +727,7 @@ public:
 		if(value == newValue) return;
 		displayValue = newValue;
 		//=========Command Invoker=========
-		std::shared_ptr<EnumeratorParameter<T>> thisParameter = std::dynamic_pointer_cast<EnumeratorParameter<T>>(shared_from_this());
+		std::shared_ptr<EnumeratorParameter<T>> thisParameter = std::static_pointer_cast<EnumeratorParameter<T>>(shared_from_this());
 		std::string commandName = "Changed " + std::string(getName()) + " from \'" + Enumerator::getDisplayString(value) + "\' to \'" + Enumerator::getDisplayString(displayValue) + "\'";
 		std::make_shared<EditCommand>(thisParameter, commandName)->execute();
 		//=================================
@@ -833,7 +833,7 @@ public:
 		if(value == newValue) return;
 		displayValue = newValue;
 		//=========Command Invoker=========
-		std::shared_ptr<StateParameter> thisParameter = std::dynamic_pointer_cast<StateParameter>(shared_from_this());
+		std::shared_ptr<StateParameter> thisParameter = std::static_pointer_cast<StateParameter>(shared_from_this());
 		std::string commandName = "Changed " + std::string(getName()) + " from \'" + value->displayName + "\' to \'" + displayValue->displayName + "\'";
 		std::make_shared<EditCommand>(thisParameter, commandName)->execute();
 		//=================================
@@ -926,7 +926,7 @@ public:
 		}
 		std::string newTimeString = TimeStringConversion::secondsToTimecodeString(newValue);
 		std::string name = "Change " + std::string(getName()) + " from " + TimeStringConversion::secondsToTimecodeString(value) + " to " + newTimeString;
-		std::make_shared<EditCommand>(std::dynamic_pointer_cast<TimeParameter>(shared_from_this()), name)->execute();
+		std::make_shared<EditCommand>(std::static_pointer_cast<TimeParameter>(shared_from_this()), name)->execute();
 	}
 	
 	class EditCommand : public UndoableCommand{

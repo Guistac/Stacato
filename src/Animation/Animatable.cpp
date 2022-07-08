@@ -10,8 +10,8 @@
 
 //——————————————————— Type Casting ————————————————————
 
-std::shared_ptr<AnimatableState> Animatable::toState(){ return std::dynamic_pointer_cast<AnimatableState>(shared_from_this()); }
-std::shared_ptr<AnimatablePosition> Animatable::toPosition(){ return std::dynamic_pointer_cast<AnimatablePosition>(shared_from_this()); }
+std::shared_ptr<AnimatableState> Animatable::toState(){ return std::static_pointer_cast<AnimatableState>(shared_from_this()); }
+std::shared_ptr<AnimatablePosition> Animatable::toPosition(){ return std::static_pointer_cast<AnimatablePosition>(shared_from_this()); }
 
 
 

@@ -22,10 +22,10 @@ void PD4_E::resetData() {
 }
 
 void PD4_E::initialize() {
-	servoMotor->setParentDevice(std::dynamic_pointer_cast<Device>(shared_from_this()));
+	servoMotor->setParentDevice(std::static_pointer_cast<Device>(shared_from_this()));
 	servoActuatorDeviceLink->assignData(servoMotor);
 
-	gpioDevice->setParentDevice(std::dynamic_pointer_cast<Device>(shared_from_this()));
+	gpioDevice->setParentDevice(std::static_pointer_cast<Device>(shared_from_this()));
 	gpioDeviceLink->assignData(gpioDevice);
 
 	addNodePin(servoActuatorDeviceLink);

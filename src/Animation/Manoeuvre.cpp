@@ -97,7 +97,7 @@ std::shared_ptr<Manoeuvre> Manoeuvre::make(ManoeuvreType type){
 	auto manoeuvre = std::make_shared<Manoeuvre>();
 	manoeuvre->type->overwrite(type);
 	manoeuvre->type->setEditCallback([manoeuvre](std::shared_ptr<Parameter> parameter){
-		auto typeParameter = std::dynamic_pointer_cast<EnumeratorParameter<ManoeuvreType>>(parameter);
+		auto typeParameter = std::static_pointer_cast<EnumeratorParameter<ManoeuvreType>>(parameter);
 		std::string commandName = "Set Manoeuvre type to " + std::string(Enumerator::getDisplayString(manoeuvre->getType()));
 		std::make_shared<SetManoeuvreTypeCommand>(commandName, manoeuvre, typeParameter->value)->execute();
 	});

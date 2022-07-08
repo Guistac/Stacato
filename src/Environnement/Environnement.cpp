@@ -328,17 +328,17 @@ namespace Environnement {
 	void addNode(std::shared_ptr<Node> node) {
 		switch (node->getType()) {
 			case Node::Type::MACHINE:
-				machines.push_back(std::dynamic_pointer_cast<Machine>(node));
+				machines.push_back(std::static_pointer_cast<Machine>(node));
 				break;
 			case Node::Type::IODEVICE:{
-				std::shared_ptr<Device> deviceNode = std::dynamic_pointer_cast<Device>(node);
+				std::shared_ptr<Device> deviceNode = std::static_pointer_cast<Device>(node);
 				switch (deviceNode->getDeviceType()) {
 					case Device::Type::ETHERCAT_DEVICE:
-						etherCatDevices.push_back(std::dynamic_pointer_cast<EtherCatDevice>(deviceNode));
+						etherCatDevices.push_back(std::static_pointer_cast<EtherCatDevice>(deviceNode));
 						etherCatDeviceNodes.push_back(node);
 						break;
 					case Device::Type::NETWORK_DEVICE:
-						networkDevices.push_back(std::dynamic_pointer_cast<NetworkDevice>(deviceNode));
+						networkDevices.push_back(std::static_pointer_cast<NetworkDevice>(deviceNode));
 						break;
 					case Device::Type::USB_DEVICE:
 						break;
@@ -353,7 +353,7 @@ namespace Environnement {
 	void removeNode(std::shared_ptr<Node> node){
 		switch (node->getType()) {
 			case Node::Type::MACHINE:{
-				std::shared_ptr<Machine> machineNode = std::dynamic_pointer_cast<Machine>(node);
+				std::shared_ptr<Machine> machineNode = std::static_pointer_cast<Machine>(node);
 				for (int i = 0; i < machines.size(); i++) {
 					if (machines[i] == machineNode) {
 						machines.erase(machines.begin() + i);
@@ -362,10 +362,10 @@ namespace Environnement {
 				}
 			}break;
 			case Node::Type::IODEVICE:{
-				std::shared_ptr<Device> deviceNode = std::dynamic_pointer_cast<Device>(node);
+				std::shared_ptr<Device> deviceNode = std::static_pointer_cast<Device>(node);
 				switch (deviceNode->getDeviceType()) {
 				case Device::Type::ETHERCAT_DEVICE: {
-					std::shared_ptr<EtherCatDevice> etherCatDeviceNode = std::dynamic_pointer_cast<EtherCatDevice>(deviceNode);
+					std::shared_ptr<EtherCatDevice> etherCatDeviceNode = std::static_pointer_cast<EtherCatDevice>(deviceNode);
 					for (int i = 0; i < etherCatDevices.size(); i++) {
 						if (etherCatDevices[i] == etherCatDeviceNode) {
 							etherCatDevices.erase(etherCatDevices.begin() + i);
@@ -380,7 +380,7 @@ namespace Environnement {
 					}
 				}break;
 				case Device::Type::NETWORK_DEVICE: {
-					std::shared_ptr<NetworkDevice> networkDeviceNode = std::dynamic_pointer_cast<NetworkDevice>(deviceNode);
+					std::shared_ptr<NetworkDevice> networkDeviceNode = std::static_pointer_cast<NetworkDevice>(deviceNode);
 					for (int i = 0; i < networkDevices.size(); i++) {
 						if (networkDevices[i] == networkDeviceNode) {
 							networkDevices.erase(networkDevices.begin() + i);

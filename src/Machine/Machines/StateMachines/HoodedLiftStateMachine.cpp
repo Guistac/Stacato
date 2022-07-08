@@ -50,7 +50,7 @@ void HoodedLiftStateMachine::initialize() {
 
 	addAnimatable(animatableState);
 	
-	auto thisMachine = std::dynamic_pointer_cast<HoodedLiftStateMachine>(shared_from_this());
+	auto thisMachine = std::static_pointer_cast<HoodedLiftStateMachine>(shared_from_this());
 	controlWidget = std::make_shared<ControlWidget>(thisMachine, getName());
 }
 

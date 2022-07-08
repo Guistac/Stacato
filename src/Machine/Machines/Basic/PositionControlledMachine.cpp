@@ -27,7 +27,7 @@ void PositionControlledMachine::initialize() {
 	//machine parameters
 	addAnimatable(animatablePosition);
 	
-	auto thisMachine = std::dynamic_pointer_cast<PositionControlledMachine>(shared_from_this());
+	auto thisMachine = std::static_pointer_cast<PositionControlledMachine>(shared_from_this());
 	controlWidget = std::make_shared<ControlWidget>(thisMachine, getName());
 }
 

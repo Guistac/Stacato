@@ -20,16 +20,16 @@ std::shared_ptr<Parameter> AnimatablePosition::makeParameter(){
 }
 
 void AnimatablePosition::setParameterValueFromAnimationValue(std::shared_ptr<Parameter> parameter, std::shared_ptr<AnimationValue> value){
-	std::dynamic_pointer_cast<NumberParameter<double>>(parameter)->overwrite(value->toPosition()->position);
+	std::static_pointer_cast<NumberParameter<double>>(parameter)->overwrite(value->toPosition()->position);
 }
 
 void AnimatablePosition::copyParameterValue(std::shared_ptr<Parameter> from, std::shared_ptr<Parameter> to){
-	std::dynamic_pointer_cast<NumberParameter<double>>(to)->overwrite(std::dynamic_pointer_cast<NumberParameter<double>>(from)->value);
+	std::static_pointer_cast<NumberParameter<double>>(to)->overwrite(std::static_pointer_cast<NumberParameter<double>>(from)->value);
 }
 
 std::shared_ptr<AnimationValue> AnimatablePosition::parameterValueToAnimationValue(std::shared_ptr<Parameter> parameter){
 	auto output = AnimationValue::makePosition();
-	output->position = std::dynamic_pointer_cast<NumberParameter<double>>(parameter)->value;
+	output->position = std::static_pointer_cast<NumberParameter<double>>(parameter)->value;
 	return output;
 }
 

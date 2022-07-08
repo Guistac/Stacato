@@ -34,8 +34,8 @@ public:
 	virtual bool isNumber(){ return false; }
 	virtual AnimatableType getType() = 0;
 	
-	std::shared_ptr<AnimatableComposite> toComposite(){ return std::dynamic_pointer_cast<AnimatableComposite>(shared_from_this()); }
-	std::shared_ptr<AnimatableNumber> toNumber(){ return std::dynamic_pointer_cast<AnimatableNumber>(shared_from_this()); }
+	std::shared_ptr<AnimatableComposite> toComposite(){ return std::static_pointer_cast<AnimatableComposite>(shared_from_this()); }
+	std::shared_ptr<AnimatableNumber> toNumber(){ return std::static_pointer_cast<AnimatableNumber>(shared_from_this()); }
 	
 	std::shared_ptr<AnimatableState> toState();
 	std::shared_ptr<AnimatablePosition> toPosition();

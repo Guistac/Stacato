@@ -30,7 +30,7 @@ namespace Environnement::NodeGraph{
 
 			nodeXML->SetAttribute("NodeType", Enumerator::getSaveString(node->getType()));
 			if (node->getType() == Node::Type::IODEVICE) {
-				std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);
+				std::shared_ptr<Device> device = std::static_pointer_cast<Device>(node);
 				nodeXML->SetAttribute("DeviceType", getDeviceType(device->getDeviceType())->saveName);
 				nodeXML->SetAttribute("ClassName", node->getSaveName());
 				nodeXML->SetAttribute("Split", node->isSplit());

@@ -109,7 +109,7 @@ void testUndoHistory(){
 		parameterList = std::make_shared<List<std::shared_ptr<Parameter>>>(parameters);
 		
 		parameters.front()->setEditCallback([](std::shared_ptr<Parameter> parameter){
-			auto param = std::dynamic_pointer_cast<NumberParameter<int>>(parameter);
+			auto param = std::static_pointer_cast<NumberParameter<int>>(parameter);
 			int num = param->value;
 			
 			std::vector<std::shared_ptr<Thing>> addedThings;

@@ -69,7 +69,7 @@ namespace NodeFactory{
 	std::shared_ptr<EtherCatDevice> getEtherCatDeviceByIdCodes(uint32_t manufacturerCode, uint32_t identificationCode){
 		for(EtherCatDevice* device : allEtherCatDevices){
 			if(device->getManufacturerCode() == manufacturerCode && device->getIdentificationCode() == identificationCode){
-				return std::dynamic_pointer_cast<EtherCatDevice>(device->getNewInstance());
+				return std::static_pointer_cast<EtherCatDevice>(device->getNewInstance());
 			}
 		}
 		return std::make_shared<EtherCatDevice>();

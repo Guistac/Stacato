@@ -19,16 +19,16 @@ std::shared_ptr<Parameter> AnimatableState::makeParameter(){
 }
 
 void AnimatableState::setParameterValueFromAnimationValue(std::shared_ptr<Parameter> parameter, std::shared_ptr<AnimationValue> value){
-	std::dynamic_pointer_cast<StateParameter>(parameter)->overwrite(value->toState()->value);
+	std::static_pointer_cast<StateParameter>(parameter)->overwrite(value->toState()->value);
 }
 
 void AnimatableState::copyParameterValue(std::shared_ptr<Parameter> from, std::shared_ptr<Parameter> to){
-	std::dynamic_pointer_cast<StateParameter>(to)->overwrite(std::dynamic_pointer_cast<StateParameter>(from)->value);
+	std::static_pointer_cast<StateParameter>(to)->overwrite(std::static_pointer_cast<StateParameter>(from)->value);
 }
 
 std::shared_ptr<AnimationValue> AnimatableState::parameterValueToAnimationValue(std::shared_ptr<Parameter> parameter){
 	auto output = AnimationValue::makeState();
-	output->value = std::dynamic_pointer_cast<StateParameter>(parameter)->value;
+	output->value = std::static_pointer_cast<StateParameter>(parameter)->value;
 	return output;
 }
 

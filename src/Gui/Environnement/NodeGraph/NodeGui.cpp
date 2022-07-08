@@ -36,7 +36,7 @@ void Node::nodeGui() {
     bool nodeIsOffline = false;
 
     if (getType() == Node::Type::IODEVICE) {
-        std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(shared_from_this());
+        std::shared_ptr<Device> device = std::static_pointer_cast<Device>(shared_from_this());
         nodeIsOffline = !device->isDetected() && !device->isConnected();
         switch (device->getDeviceType()) {
             case Device::Type::ETHERCAT_DEVICE:

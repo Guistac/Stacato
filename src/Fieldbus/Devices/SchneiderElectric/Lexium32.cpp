@@ -41,7 +41,7 @@ void Lexium32::resetData() {
 }
 
 void Lexium32::initialize() {
-    std::shared_ptr<Device> thisDevice = std::dynamic_pointer_cast<Device>(shared_from_this());
+    std::shared_ptr<Device> thisDevice = std::static_pointer_cast<Device>(shared_from_this());
 
 	//servo device
     servoMotorDevice->setParentDevice(thisDevice);

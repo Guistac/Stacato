@@ -41,7 +41,7 @@ bool Machine::isSimulating(){
 }
 
 void Machine::addAnimatable(std::shared_ptr<Animatable> animatable){
-	auto thisMachine = std::dynamic_pointer_cast<Machine>(shared_from_this());
+	auto thisMachine = std::static_pointer_cast<Machine>(shared_from_this());
 	animatable->setMachine(thisMachine);
 	if(animatable->isComposite()){
 		auto animatableComposite = animatable->toComposite();

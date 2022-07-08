@@ -19,7 +19,7 @@ void PositionControlledAxis::initialize() {
 	addNodePin(referenceSignalPin);
 	
 	//outputs
-	axisPin->assignData(std::dynamic_pointer_cast<PositionControlledAxis>(shared_from_this()));
+	axisPin->assignData(std::static_pointer_cast<PositionControlledAxis>(shared_from_this()));
 	addNodePin(axisPin);
 	addNodePin(positionPin);
 	addNodePin(velocityPin);

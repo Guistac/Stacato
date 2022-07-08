@@ -138,7 +138,7 @@ namespace Environnement::NodeGraph::Gui{
 						ImGui::Text("Type: %s", Enumerator::getDisplayString(node->getType()));
 						break;
 					case Node::Type::IODEVICE: {
-						std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(node);
+						std::shared_ptr<Device> device = std::static_pointer_cast<Device>(node);
 						ImGui::Text("Type: %s", getDeviceType(device->getDeviceType())->displayName);
 						if (device->isConnected()) ImGui::Text("Status: Online");
 						else if (device->isDetected()) ImGui::Text("Status: Detected");

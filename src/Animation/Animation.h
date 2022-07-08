@@ -35,11 +35,11 @@ protected:
 public:
 	
 	virtual bool isComposite(){ return false; }
-	std::shared_ptr<AnimationComposite> toComposite(){ return std::dynamic_pointer_cast<AnimationComposite>(shared_from_this()); }
+	std::shared_ptr<AnimationComposite> toComposite(){ return std::static_pointer_cast<AnimationComposite>(shared_from_this()); }
 	virtual ManoeuvreType getType() = 0;
-	std::shared_ptr<AnimationKey> toKey(){ return std::dynamic_pointer_cast<AnimationKey>(shared_from_this()); }
-	std::shared_ptr<TargetAnimation> toTarget(){ return std::dynamic_pointer_cast<TargetAnimation>(shared_from_this()); }
-	std::shared_ptr<SequenceAnimation> toSequence(){ return std::dynamic_pointer_cast<SequenceAnimation>(shared_from_this()); }
+	std::shared_ptr<AnimationKey> toKey(){ return std::static_pointer_cast<AnimationKey>(shared_from_this()); }
+	std::shared_ptr<TargetAnimation> toTarget(){ return std::static_pointer_cast<TargetAnimation>(shared_from_this()); }
+	std::shared_ptr<SequenceAnimation> toSequence(){ return std::static_pointer_cast<SequenceAnimation>(shared_from_this()); }
 	
 	
 	//————————————————— General Properties ——————————————————

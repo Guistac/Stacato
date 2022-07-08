@@ -53,9 +53,9 @@ namespace Motion {
 	public:
 		
 		virtual InterpolationType getType() = 0;
-		std::shared_ptr<TrapezoidalInterpolation> castToTrapezoidal(){ return std::dynamic_pointer_cast<TrapezoidalInterpolation>(shared_from_this()); }
-		std::shared_ptr<LinearInterpolation> castToLinear(){ return std::dynamic_pointer_cast<LinearInterpolation>(shared_from_this()); }
-		std::shared_ptr<StepInterpolation> castToStep() { return std::dynamic_pointer_cast<StepInterpolation>(shared_from_this()); }
+		std::shared_ptr<TrapezoidalInterpolation> castToTrapezoidal(){ return std::static_pointer_cast<TrapezoidalInterpolation>(shared_from_this()); }
+		std::shared_ptr<LinearInterpolation> castToLinear(){ return std::static_pointer_cast<LinearInterpolation>(shared_from_this()); }
+		std::shared_ptr<StepInterpolation> castToStep() { return std::static_pointer_cast<StepInterpolation>(shared_from_this()); }
 	
 		double startPosition;
 		double startTime;
