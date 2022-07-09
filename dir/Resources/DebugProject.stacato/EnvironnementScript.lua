@@ -13,7 +13,10 @@ end
 
 --Perform Environnement Logic here :
 
+local test = 0
 function update()
+test = test + 1
+Logger:info(test)
 end
 
 
@@ -21,5 +24,6 @@ end
 
 function exit()
 end
+
 
 

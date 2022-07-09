@@ -123,7 +123,6 @@ std::vector<std::shared_ptr<Window>> openWindows;
 std::vector<std::shared_ptr<Window>>& getOpenWindows(){ return openWindows; }
 void openWindow(std::shared_ptr<Window> window){
 	window->b_open = true;
-	window->onOpen();
 	openWindows.push_back(window);
 }
 
@@ -135,7 +134,6 @@ void closeWindow(std::shared_ptr<Window> window){ windowsToClose.push_back(windo
 void closeAllWindows(){
 	for(auto& window : openWindows) {
 		window->b_open = false;
-		window->onClose();
 	}
 	openWindows.clear();
 }
@@ -143,7 +141,6 @@ void closeAllWindows(){
 void closeWindows(){
 	for(auto& windowToClose : windowsToClose){
 		windowToClose->b_open = false;
-		windowToClose->onClose();
 		for(int i = 0; i < openWindows.size(); i++){
 			if(openWindows[i] == windowToClose){
 				openWindows.erase(openWindows.begin() + i);
@@ -171,7 +168,7 @@ void focusWindows(){
 std::vector<std::shared_ptr<Popup>> popupList;
 std::vector<std::shared_ptr<Popup>>& getPopups(){ return popupList; }
 void openPopup(std::shared_ptr<Popup> popup){
-	popup->onOpen();
+	if(popup->b_open) return;
 	popup->b_open = true;
 	popupList.push_back(popup);
 }
@@ -181,7 +178,6 @@ void closePopup(std::shared_ptr<Popup> popup){ popupsToClose.push_back(popup); }
 void closePopups(){
 	for(auto& popupToClose : popupsToClose){
 		popupToClose->b_open = false;
-		popupToClose->onClose();
 		for(int i = 0; i < popupList.size(); i++){
 			if(popupList[i] == popupToClose){
 				popupList.erase(popupList.begin() + i);

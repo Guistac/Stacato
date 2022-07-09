@@ -416,7 +416,7 @@
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en4" Name="en4"/>
+        <Primary Description="en7" Name="en7"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="2.5999999046325684" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

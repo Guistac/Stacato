@@ -23,6 +23,8 @@
 
 #include "EnvironnementScript.h"
 
+#include "Gui/Fieldbus/EtherCatGui.h"
+
 namespace Environnement {
 
 	std::recursive_mutex mutex;
@@ -61,6 +63,7 @@ namespace Environnement {
 	}
 
 	void start(){
+		if(isStarting() || isRunning()) return;
 		if(b_isSimulating) startSimulation();
 		else startHardware();
 	}
@@ -180,6 +183,9 @@ namespace Environnement {
 	std::shared_ptr<NodeGraph::CompiledProcess> ethercatDeviceProcess;
 
 	void startHardware(){
+		
+		EtherCatStartPopup::get()->open();
+		
 		b_isStarting = true;
 		Logger::info("Starting Environnement Hardware");
 		
@@ -215,6 +221,8 @@ namespace Environnement {
 			b_isStarting = false;
 		});
 		environnementHardwareStarter.detach();
+		
+		Environnement::StageVisualizer::start();
 	}
 
 	void updateEtherCatHardware(){
@@ -258,6 +266,8 @@ namespace Environnement {
 			NodeGraph::executeInputProcess(ethercatDeviceProcess);
 			
 			b_isRunning = false;
+			
+			Environnement::StageVisualizer::stop();
 			
 			Logger::info("Stopped Environnement.");
 			

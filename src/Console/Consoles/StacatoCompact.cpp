@@ -33,7 +33,7 @@ void StacatoCompactMapping::apply(std::shared_ptr<Console> console){
 	
 	rgb_Button_0->setInputUpdateCallback([](std::shared_ptr<IODevice> device){
 		auto button = device->toPushButton();
-		if(button->isPressed()){
+		if(!button->isPressed()){
 			if(Environnement::isRunning()) Environnement::stop();
 			else Environnement::start();
 		}
@@ -41,7 +41,7 @@ void StacatoCompactMapping::apply(std::shared_ptr<Console> console){
 	
 	rgb_Button_0->setOutputUpdateCallback([](std::shared_ptr<IODevice> device){
 		auto rgbLed = device->toLED_RGB();
-		if(Environnement::isRunning()) rgbLed->setColor(glm::vec3(1.f, 0.f, 0.f));
+		if(Environnement::isRunning()) rgbLed->setColor(glm::vec3(0.f, 1.f, 0.f));
 		else if(Environnement::isStarting()) rgbLed->setColor(glm::vec3(1.f, 1.f, 0.f));
 		else rgbLed->setColor(glm::vec3(0.f, 0.f, 1.f));
 	});
