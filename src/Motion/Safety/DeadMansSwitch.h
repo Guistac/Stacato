@@ -58,6 +58,8 @@ private:
 																							 Units::Time::Second,
 																							 false);
 
+	void handlePressRequest();
+	void updateLedState();
 	
 	std::shared_ptr<bool> b_switchPressed = std::make_shared<bool>(false);
 	std::shared_ptr<bool> b_switchConnected = std::make_shared<bool>(false);

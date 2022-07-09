@@ -58,17 +58,23 @@ void DeadMansSwitch::inputProcess(){
 	else if(*b_switchPressed) state = State::PRESSED;
 	else if(b_pressRequested) state = State::PRESS_REQUESTED;
 	else state = State::NOT_PRESSED;
+	
+	handlePressRequest();
+	updateLedState();
 }
 
-void DeadMansSwitch::outputProcess(){
-	
+void DeadMansSwitch::outputProcess(){}
+
+void DeadMansSwitch::handlePressRequest(){
 	//handle press request
 	if(b_shouldRequestPress){
 		b_shouldRequestPress = false;
 		pressRequestTime_nanoseconds = Environnement::getTime_nanoseconds();
 		b_pressRequested = true;
 	}
-	
+}
+
+void DeadMansSwitch::updateLedState(){
 	//get LED state
 	if(*b_switchPressed){
 		*b_switchLed = true;
@@ -84,7 +90,6 @@ void DeadMansSwitch::outputProcess(){
 		*b_switchLed = false;
 	}
 }
-
 
 
 

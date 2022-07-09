@@ -7,6 +7,8 @@
 
 #include "Environnement/Environnement.h"
 
+#include "Motion/Safety/DeadMansSwitch.h"
+
 bool Machine::isReady(){
 	if(Environnement::isSimulating()) return isSimulationReady() && Environnement::isRunning();
 	else return isHardwareReady();
@@ -51,6 +53,18 @@ void Machine::addAnimatable(std::shared_ptr<Animatable> animatable){
 	}
 	animatables.push_back(animatable);
 }
+
+
+bool Machine::isMotionAllowed(){
+	if(!deadMansSwitchPin->isConnected()) return true;
+	for(auto deadMansSwitchPin : deadMansSwitchPin->getConnectedPins()){
+		auto deadMansSwitch = deadMansSwitchPin->getSharedPointer<DeadMansSwitch>();
+		if(!deadMansSwitch->isPressed()) return false;
+	}
+	return true;
+}
+
+
 
 bool Machine::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;

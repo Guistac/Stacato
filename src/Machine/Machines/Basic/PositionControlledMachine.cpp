@@ -14,6 +14,8 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
+#include "Motion/Safety/DeadMansSwitch.h"
+
 void PositionControlledMachine::initialize() {
 	//inputs
 	addNodePin(positionControlledAxisPin);
@@ -126,6 +128,13 @@ void PositionControlledMachine::inputProcess() {
 }
 
 void PositionControlledMachine::outputProcess(){
+	
+	if(!isMotionAllowed()){
+		if(animatablePosition->hasAnimation()){
+			animatablePosition->getAnimation()->pausePlayback();
+		}
+		animatablePosition->stopMovement();
+	}
 	
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();

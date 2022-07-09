@@ -82,10 +82,3 @@ namespace Script{
 
 };
 };
-
-
-//Machine State:
-//-OFFLINE 		(no valid state feedback)			[provide a reason for this state to the user]
-//-NOT_READY 	(valid feedback, but can't enable)	[provide a reason for this state to the user]
-//-READY 		(not ready to move, but can enable)
-//-ENABLED 		(ready to move)

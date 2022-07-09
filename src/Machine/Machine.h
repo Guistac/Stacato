@@ -74,8 +74,9 @@ public:
 	const char* getShortName() { return shortName; }
 
 	enum class State{
+		OFFLINE,
 		EMERGENCY_STOP,
-		DISABLED,
+		NOT_READY,
 		READY,
 		ENABLED,
 		HALTED
@@ -130,6 +131,8 @@ public:
 																		   NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
 																		   "Dead Man's Switch", "DeadMansSwitch",
 																		   NodePin::Flags::AcceptMultipleInputs);
+	
+	bool isMotionAllowed();
 	
 	//===== GUI STUFF =====
 	virtual void nodeSpecificGui() override;
