@@ -54,7 +54,8 @@ public:
 	virtual std::shared_ptr<AnimationValue> getActualValue() override;
 	std::shared_ptr<AnimatablePositionValue> actualValue;
 	
-	virtual void updateDisabled() override;
+	virtual void followActualValue(double time_seconds, double deltaTime_seconds) override;
+	void copyMotionProfilerValueToTargetValue();
 	
 	//—————————movement commands——————————
 	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) override;

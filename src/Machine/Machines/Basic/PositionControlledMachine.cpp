@@ -125,17 +125,17 @@ void PositionControlledMachine::inputProcess() {
 	if (isEnabled() && !axis->isEnabled()) disable();
 }
 
-
 void PositionControlledMachine::outputProcess(){
+	
+	double profileTime_seconds = Environnement::getTime_seconds();
+	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
+	
 	if (!isEnabled() || isHoming()) {
 		//if the axis is not enabled or is homing, the animatable doesn't do anything
-		animatablePosition->updateDisabled();
+		animatablePosition->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
 	}
 	else{
 		//else we update the animatable, get its target and send it to the axis
-		double profileTime_seconds = Environnement::getTime_seconds();
-		double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
-		
 		animatablePosition->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
 		auto target = animatablePosition->getTargetValue()->toPosition();
 		

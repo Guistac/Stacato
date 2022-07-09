@@ -67,7 +67,11 @@ public:
 		return actual;
 	}
 	
-	virtual void updateDisabled() override{}
+	virtual void followActualValue(double time_seconds, double deltaTime_seconds) override {};
+	
+	
+	
+	
 	
 	
 	

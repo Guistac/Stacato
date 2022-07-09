@@ -336,7 +336,7 @@ namespace EtherCatFieldbus {
             Logger::debug("===== Stopping Cyclic Exchange...");
 			b_cyclicExchangeRunning = false;
 			b_starting = false;
-			if(cyclicExchangeThread.joinable()) cyclicExchangeThread.join(); //TODO: untested...
+			if(cyclicExchangeThread.joinable()) cyclicExchangeThread.join();
         }
     }
 

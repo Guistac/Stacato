@@ -427,11 +427,20 @@ std::shared_ptr<AnimationValue> AnimatablePosition::getActualValue(){
 	return actualValue;
 }
 
-void AnimatablePosition::updateDisabled(){
+void AnimatablePosition::copyMotionProfilerValueToTargetValue(){
+	auto newTargetValue = AnimationValue::makePosition();
+	newTargetValue->position = motionProfile.getPosition();
+	newTargetValue->velocity = motionProfile.getVelocity();
+	newTargetValue->acceleration = motionProfile.getAcceleration();
+	targetValue = newTargetValue;
+}
+
+void AnimatablePosition::followActualValue(double time_seconds, double deltaTime_seconds){
 	const std::lock_guard<std::mutex> lock(mutex);
 	motionProfile.setPosition(actualValue->position);
 	motionProfile.setVelocity(actualValue->velocity);
 	motionProfile.setAcceleration(actualValue->acceleration);
+	copyMotionProfilerValueToTargetValue();
 }
 
 void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_seconds){
@@ -480,11 +489,7 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 	
 		
 	//generate an output target value to be read by the machine
-	auto newTargetValue = AnimationValue::makePosition();
-	newTargetValue->position = motionProfile.getPosition();
-	newTargetValue->velocity = motionProfile.getVelocity();
-	newTargetValue->acceleration = motionProfile.getAcceleration();
-	targetValue = newTargetValue;
+	copyMotionProfilerValueToTargetValue();
 }
 
 std::shared_ptr<AnimationValue> AnimatablePosition::getTargetValue(){

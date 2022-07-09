@@ -16,7 +16,7 @@ end
 local test = 0
 function update()
 test = test + 1
-Logger:info(test)
+--Logger:info(test)
 end
 
 
@@ -24,6 +24,16 @@ end
 
 function exit()
 end
+
+
+
+
+
+
+
+
+
+
 
 
 

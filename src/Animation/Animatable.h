@@ -53,16 +53,13 @@ public:
 	bool hasAnimation(){ return currentAnimation != nullptr; }
 	std::shared_ptr<Animation> getAnimation(){ return currentAnimation; }
 	
-	//animatable value retrieval
-	std::shared_ptr<AnimationValue> getAnimationValue();
-
-	virtual void updateTargetValue(double time_seconds, double deltaTime_seconds) = 0;
-	virtual std::shared_ptr<AnimationValue> getTargetValue() = 0;
-	
 	virtual void updateActualValue(std::shared_ptr<AnimationValue> newActualValue) = 0;
-	virtual std::shared_ptr<AnimationValue> getActualValue() = 0;
+	virtual void updateTargetValue(double time_seconds, double deltaTime_seconds) = 0;
+	virtual void followActualValue(double time_seconds, double deltaTime_seconds) = 0;
 	
-	virtual void updateDisabled() = 0;
+	std::shared_ptr<AnimationValue> getAnimationValue();
+	virtual std::shared_ptr<AnimationValue> getActualValue() = 0;
+	virtual std::shared_ptr<AnimationValue> getTargetValue() = 0;
 	
 	//—————————————— Commands ———————————————
 	

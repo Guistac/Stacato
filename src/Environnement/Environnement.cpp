@@ -69,6 +69,7 @@ namespace Environnement {
 	}
 
 	void stop(){
+		if(!isStarting() && !isRunning()) return;
 		if(b_isSimulating) stopSimulation();
 		else stopHardware();
 	}
@@ -155,7 +156,7 @@ namespace Environnement {
 		
 		if(!Script::isRunning()) {
 			Logger::error("Environnement Script Crashed, Stopping Environnement.");
-			stopSimulation();
+			stop();
 		}
 	}
 
@@ -249,15 +250,14 @@ namespace Environnement {
 		
 		if(!Script::isRunning()){
 			Logger::error("Environnement Script Crashed, Stopping Environnement");
-			stopHardware();
+			stop();
 		}
 	}
 
 	void stopHardware(){
 		std::thread hardwareStopper = std::thread([](){
-			
-			Script::stop();
-			
+			b_isRunning = false;
+						
 			for(auto& machine : getMachines()) machine->disable();
 			EtherCatFieldbus::stop();
 			for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
@@ -265,12 +265,10 @@ namespace Environnement {
 			//execute the input process one last time to propagate disconnection of ethercat devices
 			NodeGraph::executeInputProcess(ethercatDeviceProcess);
 			
-			b_isRunning = false;
-			
+			Script::stop();
 			Environnement::StageVisualizer::stop();
 			
 			Logger::info("Stopped Environnement.");
-			
 		});
 		hardwareStopper.detach();
 	}
