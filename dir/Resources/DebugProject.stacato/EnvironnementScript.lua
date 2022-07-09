@@ -3,11 +3,17 @@
 ----Default Environnement Script----
 ---------------------------------------
 
---TESTING SAVELOAD
-
 --Initialize stuff here :
 
+local costiereA_Position
+local costiereA_constraintA
+
 function setup()
+
+	local costiereA = Environnement.getMachine("Costière A")
+	costiereA_Position = costiereA:getAnimatable("Position")
+	costiereA_constraintA = costiereA_Position:createKeepoutConstraint("KeepoutA", 2.3, 9.3)
+
 end
 
 
@@ -24,6 +30,8 @@ end
 
 function exit()
 end
+
+
 
 
 

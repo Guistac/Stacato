@@ -106,6 +106,12 @@ namespace Environnement {
 		Logger::debug("Compiling: EtherCAT Process Program: ");
 		NodeGraph::compileProcess(getEtherCatDeviceNodes())->log();
 		
+		for(auto machine : getMachines()){
+			for(auto animatable : machine->getAnimatables()){
+				animatable->clearConstraints();
+			}
+		}
+		
 		Script::start();
 		if(!Script::isRunning()){
 			b_isRunning = false;
@@ -189,6 +195,12 @@ namespace Environnement {
 		
 		b_isStarting = true;
 		Logger::info("Starting Environnement Hardware");
+		
+		for(auto machine : getMachines()){
+			for(auto animatable : machine->getAnimatables()){
+				animatable->clearConstraints();
+			}
+		}
 		
 		Script::start();
 		if(!Script::isRunning()){

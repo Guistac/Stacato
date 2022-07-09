@@ -458,6 +458,12 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 		accelerationSetpoint = 0.0;
 	}
 	
+	
+	
+	//here we should evaluate all constraint and get new new position limits
+	
+	
+	
 	switch(controlMode){
 		case VELOCITY_SETPOINT:
 			motionProfile.matchVelocityAndRespectPositionLimits(deltaT_seconds,

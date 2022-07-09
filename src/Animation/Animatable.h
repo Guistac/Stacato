@@ -15,6 +15,7 @@ class AnimatablePosition;
 class AnimatableBoolean;
 
 class AnimationValue;
+class AnimationConstraint;
 
 class Animatable : public std::enable_shared_from_this<Animatable>{
 public:
@@ -60,6 +61,17 @@ public:
 	std::shared_ptr<AnimationValue> getAnimationValue();
 	virtual std::shared_ptr<AnimationValue> getActualValue() = 0;
 	virtual std::shared_ptr<AnimationValue> getTargetValue() = 0;
+	
+	//—————————————— Constraints —————————————
+	
+public:
+	
+	void addConstraint(std::shared_ptr<AnimationConstraint> newConstraint);
+	void clearConstraints(){ constraints.clear(); }
+	std::vector<std::shared_ptr<AnimationConstraint>>& getConstraints(){ return constraints; }
+	
+private:
+	std::vector<std::shared_ptr<AnimationConstraint>> constraints;
 	
 	//—————————————— Commands ———————————————
 	

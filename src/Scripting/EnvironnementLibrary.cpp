@@ -17,11 +17,14 @@ namespace Scripting::EnvironnementLibrary{
 
 	LuaSharedPointer<Machine, "Machine"> lua_Machine;
 	LuaSharedPointer<Animatable, "Animatable"> lua_Animatable;
+	LuaSharedPointer<AnimationConstraint, "AnimationConstraint"> lua_AnimationConstraint;
 
 	LuaSharedPointer<AnimatableState, "AnimatableState"> lua_AnimatableState;
 	LuaPointer<AnimatableStateStruct, "AnimatableStateStruct"> lua_AnimatableStateStruct;
+	LuaSharedPointer<AnimatableState_StateConstraint, "AnimatableStateStateConstraint"> lua_AnimatableState_StateConstraint;
 
 	LuaSharedPointer<AnimatablePosition, "AnimatablePosition"> lua_AnimatablePosition;
+	LuaSharedPointer<AnimatablePosition_KeepoutConstraint, "AnimatablePositionKeepoutConstraint"> lua_AnimatablePosition_KeepoutConstraint;
 
 	//————————————————— ENVIRONNEMENT ——————————————————
 
@@ -186,9 +189,55 @@ namespace Scripting::EnvironnementLibrary{
 			auto animatable = lua_Animatable.checkDerivedArgument(L, 1);
 			return pushAnimationValue(L, animatable->getAnimationValue());
 		}
+	
+		int createHaltConstraint(lua_State* L){
+			auto animatable = lua_Animatable.checkDerivedArgument(L, 1);
+			const char* constraintName = luaL_checkstring(L, 2);
+			auto constraint = std::make_shared<HaltConstraint>(constraintName);
+			animatable->addConstraint(constraint);
+			lua_AnimationConstraint.push(L, constraint);
+			return 1;
+		}
 		
 	};
 
+
+
+	//———————————————— Constraint Base ———————————————
+
+	namespace Lua_AnimationConstraint{
+
+		int enable(lua_State* L){
+			auto constraint = lua_AnimationConstraint.checkDerivedArgument(L, 1);
+			constraint->enable();
+			return 0;
+		}
+
+		int disable(lua_State* L){
+			auto constraint = lua_AnimationConstraint.checkDerivedArgument(L, 1);
+			constraint->disable();
+			return 0;
+		}
+
+		int isEnabled(lua_State* L){
+			auto constraint = lua_AnimationConstraint.checkDerivedArgument(L, 1);
+			lua_pushboolean(L, constraint->isEnabled());
+			return 1;
+		}
+
+		int getName(lua_State* L){
+			auto constraint = lua_AnimationConstraint.checkDerivedArgument(L, 1);
+			lua_pushstring(L, constraint->getName().c_str());
+			return 1;
+		}
+
+		int isHaltConstraint(lua_State* L){
+			auto constraint = lua_AnimationConstraint.checkDerivedArgument(L, 1);
+			lua_pushboolean(L, constraint->isHaltConstraint());
+			return 1;
+		}
+	
+	};
 
 
 
@@ -215,19 +264,68 @@ namespace Scripting::EnvironnementLibrary{
 			return 1;
 		}
 	
-		int state_toString(lua_State* L){
+		int createStateConstraint(lua_State* L){
+			auto animatableState = lua_AnimatableState.checkArgument(L, 1);
+			const char* constraintName = luaL_checkstring(L, 2);
+			auto constraint = std::make_shared<AnimatableState_StateConstraint>(constraintName, &animatableState->getStates());
+			animatableState->addConstraint(constraint);
+			lua_AnimatableState_StateConstraint.push(L, constraint);
+			return 1;
+		}
+	
+	};
+
+	namespace Lua_AnimatableStateStruct{
+
+		int toString(lua_State* L){
 			auto animatableStateStruct = lua_AnimatableStateStruct.checkArgument(L, 1);
 			lua_pushstring(L, animatableStateStruct->displayName);
 			return 1;
 		}
 
-		int state_toInteger(lua_State* L){
+		int toInteger(lua_State* L){
 			auto animatableStateStruct = lua_AnimatableStateStruct.checkArgument(L, 1);
 			lua_pushinteger(L, animatableStateStruct->integerEquivalent);
 			return 1;
 		}
+
+	};
+
+	namespace Lua_AnimatableState_StateConstraint{
+	
+		int allowAllStates(lua_State* L){
+			auto animatableStateConstraint = lua_AnimatableState_StateConstraint.checkArgument(L, 1);
+			animatableStateConstraint->allowAllStates();
+			return 0;
+		}
+		
+		int forbidAllStates(lua_State* L){
+			auto animatableStateConstraint = lua_AnimatableState_StateConstraint.checkArgument(L, 1);
+			animatableStateConstraint->forbidAllStates();
+			return 0;
+		}
+		
+		int allowState(lua_State* L){
+			auto animatableStateConstraint = lua_AnimatableState_StateConstraint.checkArgument(L, 1);
+			auto stateStruct = lua_AnimatableStateStruct.checkArgument(L, 2);
+			animatableStateConstraint->allowState(stateStruct);
+			return 0;
+		}
+		
+		int forbidState(lua_State* L){
+			auto animatableStateConstraint = lua_AnimatableState_StateConstraint.checkArgument(L, 1);
+			auto stateStruct = lua_AnimatableStateStruct.checkArgument(L, 2);
+			animatableStateConstraint->forbidState(stateStruct);
+			return 0;
+		}
+	
 	
 	};
+
+
+
+
+
 
 
 
@@ -236,15 +334,67 @@ namespace Scripting::EnvironnementLibrary{
 
 	namespace Lua_AnimatablePosition{
 		//create, enable, disable, modify parameter constraints
+	
+		int createKeepoutConstraint(lua_State* L){
+			auto animatablePosition = lua_AnimatablePosition.checkArgument(L, 1);
+			const char* constraintName = luaL_checkstring(L, 2);
+			double min = luaL_checknumber(L, 3);
+			double max = luaL_checknumber(L, 4);
+			auto constraint = std::make_shared<AnimatablePosition_KeepoutConstraint>(constraintName, min, max);
+			animatablePosition->addConstraint(constraint);
+			lua_AnimatablePosition_KeepoutConstraint.push(L, constraint);
+			return 1;
+		};
+	
+		int getConstraints(lua_State* L){
+			auto animatablePosition = lua_AnimatablePosition.checkDerivedArgument(L, 1);
+			auto& constraints = animatablePosition->getConstraints();
+			int constraintCount = constraints.size();
+			LuaTable constraintsTable(L);
+			constraintsTable.begin(constraintCount);
+			for(auto& constraint : constraints){
+				auto keepoutConstraint = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
+				constraintsTable.addCustom(keepoutConstraint, lua_AnimatablePosition_KeepoutConstraint.push);
+			}
+			return 1;
+		}
+	
 	};
 	
+	namespace Lua_AnimatablePosition_KeepoutConstraint{
+
+		int adjust(lua_State* L){
+			auto constraint = lua_AnimatablePosition_KeepoutConstraint.checkArgument(L, 1);
+			double min = luaL_checknumber(L, 2);
+			double max = luaL_checknumber(L, 3);
+			constraint->adjust(min, max);
+			return 0;
+		}
+	
+		int getMin(lua_State* L){
+			auto constraint = lua_AnimatablePosition_KeepoutConstraint.checkArgument(L, 1);
+			lua_pushnumber(L, constraint->keepOutMinPosition);
+			return 1;
+		}
+		
+		int getMax(lua_State* L){
+			auto constraint = lua_AnimatablePosition_KeepoutConstraint.checkArgument(L, 1);
+			lua_pushnumber(L, constraint->keepOutMaxPosition);
+			return 1;
+		}
+	
+	};
+
 
 	//————————————————— LIBRARY ——————————————————
 	
-	void openlib(lua_State* L){
+	void openlib(lua_State* L, bool includeMotionFunctions){
 		
+		//——— AnimatableType Enumerator
 		lua_AnimatableType.declare(L);
 		
+		
+		//——— Machines
 		lua_Machine.addMethod("getName", Lua_Machine::getName);
 		lua_Machine.addMethod("hasAnimatable", Lua_Machine::hasAnimatable);
 		lua_Machine.addMethod("getAnimatable", Lua_Machine::getAnimatable);
@@ -252,22 +402,64 @@ namespace Scripting::EnvironnementLibrary{
 		lua_Machine.setToStringMethod(Lua_Machine::toString);
 		lua_Machine.declare(L);
 		
+		//——— Animatables
 		lua_Animatable.addMethod("getName", Lua_Animatable::getName);
 		lua_Animatable.addMethod("getType", Lua_Animatable::getType);
 		lua_Animatable.addMethod("getActualValue", Lua_Animatable::getActualValue);
 		lua_Animatable.addMethod("getAnimationValue", Lua_Animatable::getAnimationValue);
+		lua_Animatable.addMethod("createHaltConstraint", Lua_Animatable::createHaltConstraint);
 		lua_Animatable.declare(L);
 		
-		lua_AnimatableState.addMethod("getStates", Lua_AnimatableState::getStates);
+		//——— Constraints
+		lua_AnimationConstraint.addMethod("enable", Lua_AnimationConstraint::enable);
+		lua_AnimationConstraint.addMethod("disable", Lua_AnimationConstraint::disable);
+		lua_AnimationConstraint.addMethod("getName", Lua_AnimationConstraint::getName);
+		lua_AnimationConstraint.declare(L);
+		
+		
+		
+		//——— Animatable State —————————————————————————————————————————————————————————————————————————
 		lua_AnimatableState.inherit(lua_Animatable);
+		lua_AnimatableState.addMethod("getStates", Lua_AnimatableState::getStates);
 		lua_AnimatableState.declare(L);
-		lua_AnimatableStateStruct.addMethod("toInteger", Lua_AnimatableState::state_toInteger);
-		lua_AnimatableStateStruct.addMethod("toString", Lua_AnimatableState::state_toString);
+		
+		//——— Animatable State Struct
+		lua_AnimatableStateStruct.addMethod("toInteger", Lua_AnimatableStateStruct::toInteger);
+		lua_AnimatableStateStruct.addMethod("toString", Lua_AnimatableStateStruct::toString);
 		lua_AnimatableStateStruct.declare(L);
 		
+		//——— Animatable State Constraint
+		lua_AnimatableState_StateConstraint.inherit(lua_AnimationConstraint);
+		if(includeMotionFunctions){
+			lua_AnimatableState_StateConstraint.addMethod("allowAllState", Lua_AnimatableState_StateConstraint::allowAllStates);
+			lua_AnimatableState_StateConstraint.addMethod("forbidAllStates", Lua_AnimatableState_StateConstraint::forbidAllStates);
+			lua_AnimatableState_StateConstraint.addMethod("allowState", Lua_AnimatableState_StateConstraint::allowState);
+			lua_AnimatableState_StateConstraint.addMethod("forbidState", Lua_AnimatableState_StateConstraint::forbidState);
+		}
+		lua_AnimatableState_StateConstraint.declare(L);
+		
+		
+		
+		//——— Animatable Position ——————————————————————————————————————————————————————————————————————
 		lua_AnimatablePosition.inherit(lua_Animatable);
+		if(includeMotionFunctions){
+			lua_AnimatablePosition.addMethod("createKeepoutConstraint", Lua_AnimatablePosition::createKeepoutConstraint);
+		}
+		lua_AnimatablePosition.addMethod("getConstraints", Lua_AnimatablePosition::getConstraints);
 		lua_AnimatablePosition.declare(L);
-		 
+		
+		//——— Animatable Position Keepout Constraint
+		lua_AnimatablePosition_KeepoutConstraint.inherit(lua_AnimationConstraint);
+		if(includeMotionFunctions){
+			lua_AnimatablePosition_KeepoutConstraint.addMethod("adjust", Lua_AnimatablePosition_KeepoutConstraint::adjust);
+		}
+		lua_AnimatablePosition_KeepoutConstraint.addMethod("getMin", Lua_AnimatablePosition_KeepoutConstraint::getMin);
+		lua_AnimatablePosition_KeepoutConstraint.addMethod("getMax", Lua_AnimatablePosition_KeepoutConstraint::getMax);
+		lua_AnimatablePosition_KeepoutConstraint.declare(L);
+		
+		
+		//——— Environnement Library ——————————————————————————————————————————————————————————————————————
+		
 		LuaTable environnementLibrary(L);
 		environnementLibrary.begin()
 		.addFunction(Lua_Environnement::getMachineCount, "getMachineCount")

@@ -12,5 +12,5 @@ namespace CoolContainer{
 
 
 namespace Scripting::EnvironnementLibrary{
-	void openlib(lua_State* L);
+	void openlib(lua_State* L, bool includeMotionFunctions = false);
 };

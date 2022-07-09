@@ -31,7 +31,7 @@ namespace Script{
    void start(){
 	   script.stop();
 	   script.setLoadLibrairiesCallback([](lua_State* L){
-		   Scripting::EnvironnementLibrary::openlib(L);
+		   Scripting::EnvironnementLibrary::openlib(L, true);
 	   });
 	   script.compileAndRun();
 	   if(script.checkHasFunction("setup")) script.callFunction("setup");

@@ -3,6 +3,7 @@
 #include "Machine/Machine.h"
 #include "Animation/Animation.h"
 #include "AnimationValue.h"
+#include "AnimationConstraint.h"
 
 #include "Animatables/AnimatableState.h"
 #include "Animatables/AnimatablePosition.h"
@@ -34,6 +35,20 @@ void Animatable::unsubscribeAnimation(std::shared_ptr<Animation> animation){
 			break;
 		}
 	}
+}
+
+//———————————————— Constraints —————————————————
+
+void Animatable::addConstraint(std::shared_ptr<AnimationConstraint> newConstraint){
+	if(!newConstraint->isHaltConstraint() && newConstraint->getType() != getType()) {
+		Logger::error("Cannot add constraint {} (Type: {}) to animatable {} (Type: {}), types don't match.",
+					  newConstraint->getName(),
+					  Enumerator::getDisplayString(newConstraint->getType()),
+					  getName(),
+					  Enumerator::getDisplayString(getType()));
+		return;
+	}
+	constraints.push_back(newConstraint);
 }
 
 

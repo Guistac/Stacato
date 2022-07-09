@@ -2,15 +2,38 @@
 
 #include "Animation/Animatable.h"
 #include "Animation/AnimationValue.h"
+#include "Animation/AnimationConstraint.h"
 
 #include "Motion/Curve/Profile.h"
-
 
 struct AnimatablePositionValue : public AnimationValue{
 	virtual AnimatableType getType(){ return AnimatableType::POSITION; }
 	double position;
 	double velocity;
 	double acceleration;
+};
+
+class AnimatablePosition_KeepoutConstraint : public AnimationConstraint{
+public:
+	
+	AnimatablePosition_KeepoutConstraint(std::string name, double min, double max) : AnimationConstraint(name){
+		adjust(min, max);
+	}
+	
+	void adjust(double min, double max){
+		if(min > max) {
+			keepOutMinPosition = max;
+			keepOutMaxPosition = min;
+		}else{
+			keepOutMinPosition = min;
+			keepOutMaxPosition = max;
+		}
+	}
+	
+	virtual AnimatableType getType() override { return AnimatableType::POSITION; };
+	
+	double keepOutMinPosition;
+	double keepOutMaxPosition;
 };
 
 
