@@ -69,7 +69,8 @@ void VelocityControlledAxis::setVelocityCommand(double velocity){
 void VelocityControlledAxis::sendActuatorCommands() {
 	*actualVelocity = motionProfile.getVelocity();
 	double velocity_actuatorUnits = axisUnitsToActuatorUnits(motionProfile.getVelocity());
-	getActuatorDevice()->setVelocityCommand(velocity_actuatorUnits);
+	double acceleration_actuatorUnits = axisUnitsToActuatorUnits(motionProfile.getAcceleration());
+	getActuatorDevice()->setVelocityCommand(velocity_actuatorUnits, acceleration_actuatorUnits);
 	actuatorPin->updateConnectedPins();
 }
 

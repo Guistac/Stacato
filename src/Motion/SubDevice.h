@@ -17,9 +17,9 @@ public:
 	virtual Type getType() = 0;
 	
 	virtual MotionState getState() = 0;
-	virtual std::string& getName() = 0;
+	virtual std::string getName() = 0;
 	virtual bool hasFault() = 0;
-	virtual std::string& getStatusString() = 0;
+	virtual std::string getStatusString() = 0;
 
 	//set the parent device, which will provide further information on device status
 	void setParentDevice(std::shared_ptr<Device> pd) { parentDevice = pd; }
@@ -64,9 +64,9 @@ public:
 };
 
 
-class GpioDevice : public MotionDevice {
+class GpioDevice : public SubDevice {
 public:
-	virtual Type getSubdeviceType() { return Type::GPIO; }
+	virtual Type getType() override { return SubDevice::Type::GPIO; }
 };
 
 
@@ -86,28 +86,28 @@ public:
 };
 
 
-class PositionFeedbackDevice : public virtual MotionDevice {
+class PositionFeedbackDevice : public VelocityFeedbackDevice {
 public:
 
-	virtual Type getSubdeviceType() { return SubDevice::Type::POSITION_FEEDBACK; }
+	virtual Type getType() override { return SubDevice::Type::POSITION_FEEDBACK; }
 	
 	virtual PositionFeedbackType getPositionFeedbackType() = 0;
-
-	virtual void overridePosition(double position) = 0;
 	
 	virtual bool isInsideWorkingRange() = 0;
-	virtual double getPositionInRange() = 0;
+	virtual double getPositionInWorkingRange() = 0;
 	virtual double getMinPosition() = 0;
 	virtual double getMaxPosition() = 0;
 	virtual double getPosition() = 0;
 	
-	virtual bool canHardReset() = 0;
-	virtual void executeHardReset() = 0;
-	virtual bool isExecutingHardReset() = 0;
+	virtual bool canHardReset() { return false; }
+	virtual void executeHardReset() {}
+	virtual bool isExecutingHardReset() { return false; }
 	
-	virtual bool canHardOverride() = 0;
-	virtual void executeHardOverride(double overridePosition) = 0;
-	virtual bool isExecutingHardOverride() = 0;
+	virtual bool canHardOverride() { return false; }
+	virtual void executeHardOverride(double overridePosition) {}
+	virtual bool isExecutingHardOverride() { return false; }
+	
+	virtual void softOverridePosition(double position) = 0;
 };
 
 
@@ -119,30 +119,28 @@ public:
 	virtual void enable() = 0;
 	virtual void disable() = 0;
 	virtual void quickstop() = 0;
-
-	virtual void setVelocityCommand(double velocityCommand, double accelerationCommand) = 0;
-	virtual double getVelocityCommand() = 0;
-	virtual double getAccelerationCommand() = 0;
 	
 	virtual double getVelocityLimit() = 0;
 	virtual double getAccelerationLimit() = 0;
+	virtual void setVelocityCommand(double velocityCommand, double accelerationCommand) = 0;
+	
+	virtual bool hasManualHoldingBrake() { return false; }
+	virtual bool isHoldingBrakeApplied() { return false; }
+	virtual void releaseHoldingBrake() {}
+	virtual void applyHoldingBrake() {}
 
-	virtual bool hasManualHoldingBrake() = 0;
-	virtual bool isHoldingBrakeApplied() = 0;
-	virtual void releaseHoldingBrake() = 0;
-	virtual void applyHoldingBrake() = 0;
-
-	virtual double getLoad();
+	virtual double getLoad() = 0;
 };
 
 
 class ServoActuatorDevice : public ActuatorDevice, public PositionFeedbackDevice {
 public:
 
-	virtual Type getSubdeviceType() { return SubDevice::Type::SERVO_ACTUATOR; }
+	virtual Type getType() override { return SubDevice::Type::SERVO_ACTUATOR; }
 
 	virtual void setPositionCommand(double positionCommand, double velocityCommand, double accelerationCommand) = 0;
 	
 	virtual double getFollowingError() = 0;
-	virtual double getFollowingErrorRanged() = 0;
+	virtual double getMaxFollowingError() = 0;
+	virtual double getFollowingErrorInRange() = 0;
 };

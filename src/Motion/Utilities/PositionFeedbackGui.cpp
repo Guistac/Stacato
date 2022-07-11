@@ -56,11 +56,11 @@ void PositionFeedback::controlsGui(){
 	ImGui::Text("%.3f %s/s", velocity, shortPositionUnitString);
 	
 	static char workingRangeString[256];
-	sprintf(workingRangeString, "Working Range: %.3f%%", feedbackDevice->getPositionInRange() * 100.0);
-	ImGui::ProgressBar(feedbackDevice->getPositionInRange(), glm::vec2(widgetWidth, ImGui::GetFrameHeight()), workingRangeString);
+	sprintf(workingRangeString, "Working Range: %.3f%%", feedbackDevice->getPositionInWorkingRange() * 100.0);
+	ImGui::ProgressBar(feedbackDevice->getPositionInWorkingRange(), glm::vec2(widgetWidth, ImGui::GetFrameHeight()), workingRangeString);
 	
 	if(ImGui::Button("Hard Reset Position Feedback")){
-		feedbackDevice->hardReset();
+		feedbackDevice->executeHardReset();
 	}
 	
 }
@@ -81,7 +81,7 @@ void PositionFeedback::settingsGui(){
 	}
 	
 	auto feedbackDevice = getFeedbackDevice();
-	ImGui::Text("%s on %s", feedbackDevice->getName(), feedbackDevice->parentDevice->getName());
+	ImGui::Text("%s on %s", feedbackDevice->getName().c_str(), feedbackDevice->parentDevice->getName());
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Device Unit :");
 	ImGui::PopFont();
@@ -170,8 +170,8 @@ void PositionFeedback::settingsGui(){
 	ImGui::Text("%.3f %s/s", velocity, positionUnitShortString);
 	
 	static char workingRangeString[128];
-	sprintf(workingRangeString, "Working Range: %.3f%%", feedbackDevice->getPositionInRange() * 100.0);
-	ImGui::ProgressBar(feedbackDevice->getPositionInRange(), glm::vec2(widgetWidth, ImGui::GetFrameHeight()), workingRangeString);
+	sprintf(workingRangeString, "Working Range: %.3f%%", feedbackDevice->getPositionInWorkingRange() * 100.0);
+	ImGui::ProgressBar(feedbackDevice->getPositionInWorkingRange(), glm::vec2(widgetWidth, ImGui::GetFrameHeight()), workingRangeString);
 	
 	ImGui::Separator();
 	
@@ -180,7 +180,7 @@ void PositionFeedback::settingsGui(){
 	ImGui::PopFont();
 	
 	if(ImGui::Button("Hard Reset Position Feedback")){
-		feedbackDevice->hardReset();
+		feedbackDevice->executeHardReset();
 	}
 	
 	static double positionScalingValue = 0.0;

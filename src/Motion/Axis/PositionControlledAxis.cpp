@@ -387,15 +387,15 @@ double PositionControlledAxis::getActualFollowingError(){
 }
 
 float PositionControlledAxis::getActualFollowingErrorNormalized(){
-	return getServoActuatorDevice()->getFollowingErrorNormalized();
+	return getServoActuatorDevice()->getFollowingErrorInRange();
 }
 
 double PositionControlledAxis::getFollowingErrorLimit(){
-	return servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->maxfollowingError);
+	return servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getMaxFollowingError());
 }
 
 void PositionControlledAxis::setCurrentPosition(double distance) {
-	getServoActuatorDevice()->setPosition(distance * servoActuatorUnitsPerAxisUnits);
+	getServoActuatorDevice()->softOverridePosition(distance * servoActuatorUnitsPerAxisUnits);
 	motionProfile.setPosition(distance);
 }
 
@@ -643,12 +643,12 @@ void PositionControlledAxis::homingControl(){
 						auto servoActuator = getServoActuatorDevice();
 						//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
 						if(servoActuator->canHardReset()) {
-							servoActuator->hardReset();
+							servoActuator->executeHardReset();
 							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
 							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 							Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
 						}else{
-							servoActuator->setPosition(0.0);
+							servoActuator->softOverridePosition(0.0);
 							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
 							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
@@ -657,7 +657,7 @@ void PositionControlledAxis::homingControl(){
 				case HomingStep::RESETTING_POSITION_FEEDBACK:
 					if(getServoActuatorDevice()->canHardReset()){
 						//if the servo actuator can hard reset its encoder, check if we are done resetting
-						if(!getServoActuatorDevice()->isHardResetting()) {
+						if(!getServoActuatorDevice()->isExecutingHardReset()) {
 							motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
 							onHomingSuccess();
 						}
@@ -715,7 +715,7 @@ void PositionControlledAxis::homingControl(){
 							//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
 							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 							if(getServoActuatorDevice()->canHardReset()) {
-								getServoActuatorDevice()->hardReset();
+								getServoActuatorDevice()->executeHardReset();
 								Logger::info("Homing Axis {} : Hard Reset Position Feedback", getName());
 							}
 						}
@@ -723,9 +723,7 @@ void PositionControlledAxis::homingControl(){
 					case HomingStep::RESETTING_POSITION_FEEDBACK:
 						//if the servo actuator can hard reset its encoder, check if we are done resetting
 						if(getServoActuatorDevice()->canHardReset()){
-							if(!getServoActuatorDevice()->isHardResetting()) {
-								//reset the software offset of the encoder
-								getServoActuatorDevice()->resetOffset();
+							if(!getServoActuatorDevice()->isExecutingHardReset()) {
 								motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
 								homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
 								setVelocityTarget(homingVelocityCoarse);
@@ -860,7 +858,7 @@ void PositionControlledAxis::homingControl(){
 							highPositionLimit = std::abs(*actualPositionValue);
 							//if we can hard reset the servo actuator encoder here, do it
 							if(getServoActuatorDevice()->canHardReset()) {
-								getServoActuatorDevice()->hardReset();
+								getServoActuatorDevice()->executeHardReset();
 								Logger::info("Homing Axis {} : Hard Reset Position Feedback", getName());
 							}else{
 								setCurrentPosition(0.0);
@@ -871,9 +869,7 @@ void PositionControlledAxis::homingControl(){
 						break;
 					case HomingStep::RESETTING_POSITION_FEEDBACK:
 						if(getServoActuatorDevice()->canHardReset()){
-							if(!getServoActuatorDevice()->isHardResetting()){
-								//reset the software offset of the encoder
-								getServoActuatorDevice()->resetOffset();
+							if(!getServoActuatorDevice()->isExecutingHardReset()){
 								motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
 								onHomingSuccess();
 							}

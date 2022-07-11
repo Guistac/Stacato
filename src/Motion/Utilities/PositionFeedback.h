@@ -7,7 +7,7 @@ class PositionFeedback : public Node {
 public:
 	DEFINE_NODE(PositionFeedback, "Position Feedback", "PositionFeedback", Node::Type::PROCESSOR, "Motion/Utilities");
 	
-	std::shared_ptr<NodePin> positionFeedbackDevicePin = std::make_shared<NodePin>(NodePin::DataType::POSITIONFEEDBACK, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Feedback Device");
+	std::shared_ptr<NodePin> positionFeedbackDevicePin = std::make_shared<NodePin>(NodePin::DataType::POSITION_FEEDBACK, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Feedback Device");
 	std::shared_ptr<NodePin> positionPin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Position");
 	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Velocity");
 	

@@ -403,10 +403,10 @@ void PositionControlledAxis::controlsGui() {
 		sprintf(positionErrorString, "Axis Disabled");
 	}else{
 		auto servoActuator = getServoActuatorDevice();
-		positionErrorProgress = std::abs(servoActuator->getFollowingErrorNormalized());
+		positionErrorProgress = std::abs(servoActuator->getFollowingErrorInRange());
 		if(positionErrorProgress < 1.0) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
-		maxfollowingError = servoActuatorUnitsToAxisUnits(servoActuator->maxfollowingError);
+		maxfollowingError = servoActuatorUnitsToAxisUnits(servoActuator->getMaxFollowingError());
 		double followingError = servoActuatorUnitsToAxisUnits(servoActuator->getFollowingError());
 		sprintf(positionErrorString, "%.3f %s", followingError, positionUnit->abbreviated);
 	}
@@ -454,10 +454,10 @@ void PositionControlledAxis::controlsGui() {
 	static char rangeString[64];
 	if (isServoActuatorDeviceConnected()) {
 		std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
-		rangeProgress = servo->getPositionInRange();
+		rangeProgress = servo->getPositionInWorkingRange();
 		rangeMin = servo->getMinPosition();
 		rangeMax = servo->getMaxPosition();
-		feedbackPositionUnit = servo->positionUnit;
+		feedbackPositionUnit = servo->getPositionUnit();
 		feedbackPosition = servo->getPosition();
 	}
 	if (!isEnabled()) {
@@ -549,14 +549,14 @@ void PositionControlledAxis::settingsGui() {
 		ImGui::Text("Device:");
 		ImGui::PopFont();
 		ImGui::SameLine();
-		if(servoActuatorParentDevice) ImGui::Text("%s on %s", servo->getName(), servo->parentDevice->getName());
-		else ImGui::Text("%s on Node %s", servo->getName(), servoActuatorPin->getConnectedPin()->getNode()->getName());
+		if(servoActuatorParentDevice) ImGui::Text("%s on %s", servo->getName().c_str(), servo->parentDevice->getName());
+		else ImGui::Text("%s on Node %s", servo->getName().c_str(), servoActuatorPin->getConnectedPin()->getNode()->getName());
 
 		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Position Unit:");
 		ImGui::PopFont();
 		ImGui::SameLine();
-		ImGui::Text("%s", servo->positionUnit->singular);
+		ImGui::Text("%s", servo->getPositionUnit()->singular);
 
 		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Feedback Type:");
@@ -564,7 +564,7 @@ void PositionControlledAxis::settingsGui() {
 		ImGui::SameLine();
 		ImGui::Text("%s", feedbackTypeString);
 
-		switch (servo->feedbackType) {
+		switch (servo->getPositionFeedbackType()) {
 			case PositionFeedbackType::INCREMENTAL:
 			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
 			ImGui::TextWrapped("With incremental position feedback, the homing routine needs to be executed on each system power cycle");
@@ -573,7 +573,7 @@ void PositionControlledAxis::settingsGui() {
 		default: break;
 		}
 
-		ImGui::Text("%s %s per Machine %s :", servo->getName(), servo->positionUnit->plural, positionUnit->singular);
+		ImGui::Text("%s %s per Machine %s :", servo->getName().c_str(), servo->getPositionUnit()->plural, positionUnit->singular);
 		pushInvalidValue(servoActuatorUnitsPerAxisUnits == 0.0);
 		ImGui::InputDouble("##servoActuatorCoupling", &servoActuatorUnitsPerAxisUnits);
 		popInvalidValue();
@@ -604,9 +604,6 @@ void PositionControlledAxis::settingsGui() {
 						   servoActuatorPositionUnit->abbreviated,
 						   servoActuator->getAccelerationLimit(),
 						   servoActuatorPositionUnit->abbreviated);
-		ImGui::TextWrapped("Min actuator velocity is %.3f %s/s",
-						   servoActuator->getMinVelocity(),
-						   servoActuatorPositionUnit->abbreviated);
 		
 		const char* machineUnitShortString = positionUnit->abbreviated;
 		ImGui::TextWrapped("Actuator limits axis to %.3f %s/s and %.3f %s/s\xc2\xb2",
@@ -614,9 +611,6 @@ void PositionControlledAxis::settingsGui() {
 						   positionUnit->abbreviated,
 						   servoActuatorUnitsToAxisUnits(servoActuator->getAccelerationLimit()),
 							positionUnit->abbreviated);
-		ImGui::TextWrapped("Min Axis velocity is %.3f %s/s",
-						   servoActuatorUnitsToAxisUnits(servoActuator->getMinVelocity()),
-						   positionUnit->abbreviated);
 		ImGui::PopStyleColor();
 	}
 
@@ -714,7 +708,7 @@ void PositionControlledAxis::settingsGui() {
 			ImGui::Text("Reference Device:");
 			ImGui::PopFont();
 			ImGui::SameLine();
-			ImGui::Text("%s on %s", gpioDevice->getName(), gpioDevice->parentDevice->getName());
+			ImGui::Text("%s on %s", gpioDevice->getName().c_str(), gpioDevice->parentDevice->getName());
 		}
 
 		ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
@@ -904,8 +898,8 @@ void PositionControlledAxis::devicesGui() {
 	if (isServoActuatorDeviceConnected()) {
 		std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
 		ImGui::PushFont(Fonts::sansBold15);
-		if(servo->parentDevice) ImGui::Text("'%s' on device %s", servo->getName(), servo->parentDevice->getName());
-		else ImGui::Text("'%s' on node %s", servo->getName(), servoActuatorPin->getConnectedPin()->parentNode->getName());
+		if(servo->parentDevice) ImGui::Text("'%s' on device %s", servo->getName().c_str(), servo->parentDevice->getName());
+		else ImGui::Text("'%s' on node %s", servo->getName().c_str(), servoActuatorPin->getConnectedPin()->parentNode->getName());
 		ImGui::PopFont();
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleColor(ImGuiCol_Button, servo->isOnline() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
@@ -932,7 +926,7 @@ void PositionControlledAxis::devicesGui() {
 		if (isReferenceDeviceConnected()) {
 			std::shared_ptr<GpioDevice> gpioDevice = getReferenceDevice();
 			ImGui::PushFont(Fonts::sansBold15);
-			ImGui::Text("'%s' on device %s", gpioDevice->getName(), gpioDevice->parentDevice->getName());
+			ImGui::Text("'%s' on device %s", gpioDevice->getName().c_str(), gpioDevice->parentDevice->getName());
 			ImGui::PopFont();
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 			ImGui::PushStyleColor(ImGuiCol_Button, gpioDevice->isOnline() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));

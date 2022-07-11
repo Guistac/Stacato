@@ -7,6 +7,10 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 
 void GpioActuator::initialize(){
+	auto thisGpioActuator = std::static_pointer_cast<GpioActuator>(shared_from_this());
+	actuator = std::make_shared<Actuator>(thisGpioActuator);
+	actuatorPin->assignData(actuator);
+	
 	//input pins
 	addNodePin(gpioDevicePin);
 	addNodePin(emergencyStopPin);
@@ -25,36 +29,24 @@ void GpioActuator::inputProcess(){
 	
 	//abort if not all connections are made
 	if(!areAllPinsConnected()) {
-		actuator->b_online = false;
-		actuator->b_detected = false;
-		actuator->b_ready = false;
-		actuator->b_enabled = false;
+		actuator->b_wrongConnections = true;
 		return;
-	}
+	}else actuator->b_wrongConnections = false;
 		
 	//update input signals
 	readyPin->copyConnectedPinValue();
 	emergencyStopPin->copyConnectedPinValue();
 	
 	//handle actuator enabling
-	if(actuator->b_setEnabled){
-		actuator->b_setEnabled = false;
+	if(actuator->b_enable){
+		actuator->b_disable = false;
 		enable();
 	}
-	if(actuator->b_setDisabled){
-		actuator->b_setDisabled = false;
+	if(actuator->b_disable){
+		actuator->b_disable = false;
 		disable();
 	}
-	
-	//update servo actuator data
-	actuator->b_online = true;
-	actuator->b_detected = true;
-	actuator->b_ready = getGpioDevice()->isReady() && *readySignal && !*emergencyStopSignal;
-	actuator->b_emergencyStopActive = *emergencyStopSignal;
-	actuator->load = 0.0; //not supported by gpio actuator
-	//actuator->b_brakesActive = //is this really useful?
-	//actuator->b_parked = //not yet supported
-	
+		
 	//disable actuator conditions
 	if(!*readySignal && actuator->isEnabled()) disable();
 	if(*emergencyStopSignal && actuator->isEnabled()) disable();
@@ -69,15 +61,6 @@ void GpioActuator::outputProcess(){
 }
 
 void GpioActuator::controlLoop(){
-	//handle actuator enabling
-	if(actuator->b_setEnabled){
-		actuator->b_setEnabled = false;
-		enable();
-	}
-	if(actuator->b_setDisabled){
-		actuator->b_setDisabled = false;
-		disable();
-	}
 	
 	//get output velocity
 	double outputVelocity;
@@ -88,7 +71,8 @@ void GpioActuator::controlLoop(){
 				motionProfile.stop(profileTimeDelta_seconds, actuator->getAccelerationLimit());
 				break;
 			case ControlMode::EXTERNAL:
-				motionProfile.setVelocity(actuator->getVelocityCommand());
+				motionProfile.setVelocity(actuator->velocityCommand);
+				motionProfile.setAcceleration(actuator->accelerationCommand);
 				break;
 			case ControlMode::VELOCITY_TARGET:
 				motionProfile.matchVelocity(profileTimeDelta_seconds, manualVelocityTarget, manualAcceleration);
@@ -104,8 +88,8 @@ void GpioActuator::controlLoop(){
 	
 	//generate control signal output value and assign to output pin
 	//cut off velocity below minimum value
-	if(std::abs(motionProfile.getVelocity()) < actuator->getMinVelocity()) *controlSignal = actuatorVelocityToControlSignal(0.0);
-	else *controlSignal = actuatorVelocityToControlSignal(outputVelocity);
+	//if(std::abs(motionProfile.getVelocity()) < actuator->getMinVelocity()) *controlSignal = actuatorVelocityToControlSignal(0.0);
+	/*else*/ *controlSignal = actuatorVelocityToControlSignal(outputVelocity);
 }
 
 //needs to be called by controlling node to execute control loop
@@ -116,7 +100,7 @@ void GpioActuator::onPinUpdate(std::shared_ptr<NodePin> pin){
 }
 
 void GpioActuator::enable(){
-	if(actuator->b_ready) {
+	if(actuator->isReady()) {
 		*enableSignal = true;
 		actuator->b_enabled = true;
 		onEnable();

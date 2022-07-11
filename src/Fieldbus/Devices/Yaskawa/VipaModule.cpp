@@ -355,7 +355,10 @@ bool VIPA_022_1BF00::load(tinyxml2::XMLElement* xml){
 //=================================================================
 
 void VIPA_050_1BS00::onConstruction(){
-	encoderPin->assignData(encoderDevice);
+	auto thisEncoderModule = std::static_pointer_cast<VIPA_050_1BS00>(shared_from_this());
+	encoder = std::make_shared<VIPA_050_1BS00::SsiEncoder>(thisEncoderModule);
+	auto abstractEncoder = std::static_pointer_cast<PositionFeedbackDevice>(encoder);
+	encoderPin->assignData(abstractEncoder);
 	outputPins.push_back(encoderPin);
 	resetPin->assignData(resetPinValue);
 	outputPins.push_back(resetPin);
@@ -367,7 +370,7 @@ void VIPA_050_1BS00::onConstruction(){
 }
 
 void VIPA_050_1BS00::onSetParentBusCoupler(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler){
-	encoderDevice->setParentDevice(busCoupler);
+	encoder->setParentDevice(busCoupler);
 }
 
 void VIPA_050_1BS00::onSetIndex(int i){
@@ -375,7 +378,6 @@ void VIPA_050_1BS00::onSetIndex(int i){
 	sprintf((char*)encoderPin->getSaveString(), "Module%iSSIEncoder", moduleIndex);
 	sprintf((char*)resetPin->getDisplayString(), "Module %i SSI Encoder Reset", moduleIndex);
 	sprintf((char*)resetPin->getSaveString(), "Module%iEncoderReset", moduleIndex);
-	sprintf(encoderDevice->name, "Module %i SSI Encoder", moduleIndex);
 }
 
 void VIPA_050_1BS00::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -440,33 +442,28 @@ void VIPA_050_1BS00::readInputs(){
 	previousReadingTime_microseconds = time_microseconds;
 	previousEncoderPosition_revolutions = encoderPosition_revolutions;
 	
-	encoderDevice->positionRaw_positionUnits = encoderPosition_revolutions;
-	encoderDevice->velocity_positionUnitsPerSecond = encoderVelocity_revolutionsPerSecond;
+	encoder->rawPosition = encoderPosition_revolutions;
+	encoder->rawVelocity = encoderVelocity_revolutionsPerSecond;
 	
-	encoderDevice->b_canHardReset = b_hasResetSignal && resetPin->isConnected();
-	encoderDevice->b_detected = true;
-	encoderDevice->b_ready = parentBusCoupler->isStateOperational();
+	if(parentBusCoupler->isStateOperational()) encoder->state = MotionState::ENABLED;
+	else encoder->state = MotionState::OFFLINE;
 	
-
-	
-	if(encoderDevice->b_doHardReset){
-		if(strcmp(encoderDevice->getName(), "Module 3 SSI Encoder") == 0){
-			Logger::warn("REQUEST HARD RESET");
+	if(encoder->b_doHardReset){
+		encoder->b_doHardReset = false;
+		if(encoder->canHardReset()){
+			encoder->b_hardResetBusy = true;
+			*resetPinValue = true;
+			resetStartTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
+			Logger::warn("Hard Resettings {}", encoder->getName());
 		}
-		encoderDevice->b_doHardReset = false;
-		encoderDevice->b_isHardResetting = true;
-		*resetPinValue = true;
-		resetStartTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
-		Logger::warn("Do Hard Reset");
-		//resetStartTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	}
 	
-	if(encoderDevice->isHardResetting()) {
-		encoderDevice->velocity_positionUnitsPerSecond = 0.0;
-		//if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() > resetStartTime_nanoseconds + resetTime_milliseconds * 1000000.0){
+	if(encoder->b_hardResetBusy){
+		encoder->rawVelocity = 0.0;
 		double time = EtherCatFieldbus::getCycleProgramTime_seconds();
 		if(time > resetStartTime_seconds + (double)resetTime_milliseconds / 1000.0){
-			encoderDevice->b_isHardResetting = false;
+			encoder->b_hardResetBusy = false;
+			encoder->positionOffset = 0.0;
 			*resetPinValue = false;
 		}
 	}
@@ -475,12 +472,6 @@ void VIPA_050_1BS00::readInputs(){
 
 void VIPA_050_1BS00::writeOutputs(){ /*No Outputs*/ }
 
-void VIPA_050_1BS00::onConnection(){
-	encoderDevice->b_ready = true;
-}
-void VIPA_050_1BS00::onDisconnection(){
-	encoderDevice->b_ready = false;
-}
 
 void VIPA_050_1BS00::moduleParameterGui(){
 	
@@ -561,13 +552,13 @@ void VIPA_050_1BS00::moduleParameterGui(){
 	
 	ImGui::Separator();
 	
-	ImGui::Text("Encoder position in working range (%.3f to %.3f revolutions)", encoderDevice->getMinPosition(), encoderDevice->getMaxPosition());
+	ImGui::Text("Encoder position in working range (%.3f to %.3f revolutions)", encoder->getMinPosition(), encoder->getMaxPosition());
 	
 	glm::vec2 progressBarSize(widgetWidth, ImGui::GetFrameHeight());
 	
 	static char encoderRangeProgressString[64];
-	sprintf(encoderRangeProgressString, "%.3f revolutions", encoderDevice->positionRaw_positionUnits);
-	ImGui::ProgressBar((float)encoderDevice->getPositionInRange(), progressBarSize, encoderRangeProgressString);
+	sprintf(encoderRangeProgressString, "%.3f revolutions", encoder->rawPosition);
+	ImGui::ProgressBar((float)encoder->getPositionInWorkingRange(), progressBarSize, encoderRangeProgressString);
 	   
 	static char encoderVelocityString[64];
 	sprintf(encoderVelocityString, "%.3f rev/s", encoderVelocity_revolutionsPerSecond);
@@ -576,7 +567,7 @@ void VIPA_050_1BS00::moduleParameterGui(){
 	
 	bool disableResetButton = !b_hasResetSignal;
 	ImGui::BeginDisabled(disableResetButton);
-	if(ImGui::Button("Reset Encoder")) encoderDevice->hardReset();
+	if(ImGui::Button("Reset Encoder")) encoder->executeHardReset();
 	ImGui::EndDisabled();
 }
 
@@ -584,11 +575,11 @@ void VIPA_050_1BS00::updateEncoderWorkingRange(){
 	int multiturnBitCount = encoderBitCount - singleTurnBitCount;
 	int maxRevolutions = 0x1 << multiturnBitCount;
 	if(b_centerRangeOnZero){
-		encoderDevice->rangeMin_positionUnits = -maxRevolutions / 2;
-		encoderDevice->rangeMax_positionUnits = maxRevolutions / 2;
+		encoder->workingRangeMin = -maxRevolutions / 2.0;
+		encoder->workingRangeMax = maxRevolutions / 2.0;
 	}else{
-		encoderDevice->rangeMin_positionUnits = 0;
-		encoderDevice->rangeMax_positionUnits = maxRevolutions;
+		encoder->workingRangeMin = 0.0;
+		encoder->workingRangeMax = maxRevolutions;
 	}
 }
 
@@ -608,7 +599,7 @@ bool VIPA_050_1BS00::save(tinyxml2::XMLElement* xml){
 	xml->SetAttribute("IgnoredBitCount", normalisationBitCount);
 	xml->SetAttribute("BitShiftDirection", Enumerator::getSaveString(bitshiftDirection));
 	xml->SetAttribute("ClockEdge", Enumerator::getSaveString(clockEdge));
-	xml->SetAttribute("Zero_revolutions", encoderDevice->positionOffset_positionUnits);
+	xml->SetAttribute("Zero_revolutions", encoder->positionOffset);
 	return true;
 }
 
@@ -642,41 +633,9 @@ bool VIPA_050_1BS00::load(tinyxml2::XMLElement* xml){
 	if(xml->QueryStringAttribute("ClockEdge", &clockEdgeString) != XML_SUCCESS) return Logger::warn("Could not find Clock Edge attribute");
 	if(!Enumerator::isValidSaveName<ClockEdge>(clockEdgeString)) return Logger::warn("Could not identify Clock Edge Attribute");
 	clockEdge = Enumerator::getEnumeratorFromSaveString<ClockEdge>(clockEdgeString);
-	if(xml->QueryDoubleAttribute("Zero_revolutions", &encoderDevice->positionOffset_positionUnits) != XML_SUCCESS) return Logger::warn("Could not find encoder zero attribute");
+	if(xml->QueryDoubleAttribute("Zero_revolutions", &encoder->positionOffset) != XML_SUCCESS) return Logger::warn("Could not find encoder zero attribute");
 	updateEncoderWorkingRange();
 	return true;
-}
-
-
-
-
-
-
-int VIPA_050_1BS00::maxNormalisationBits = 15;
-int VIPA_050_1BS00::minNormalisationBits = 0;
-
-uint8_t VIPA_050_1BS00::normalisationBitCountToCanValue(int bitCount){
-	uint8_t output = std::max(minNormalisationBits, bitCount);
-	output = std::min(maxNormalisationBits, bitCount);
-	return output;
-}
-
-int VIPA_050_1BS00::canValuetoNormalisationBitCount(uint8_t canValue){
-	return canValue;
-}
-
-int VIPA_050_1BS00::maxEncoderBits = 32;
-int VIPA_050_1BS00::minEncoderBits = 8;
-
-uint8_t VIPA_050_1BS00::encoderBitCountToCanValue(int bitCount){
-	bitCount = std::max(minEncoderBits, bitCount);
-	bitCount = std::min(maxEncoderBits, bitCount);
-	uint8_t output = bitCount - 1;
-	return output;
-}
-
-int VIPA_050_1BS00::canValuetoEncoderBitCount(uint8_t canValue){
-	return canValue + 1;
 }
 
 

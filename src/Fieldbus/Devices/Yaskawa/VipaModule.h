@@ -1,9 +1,12 @@
 #pragma once
 
 #define DEFINE_VIPA_MODULE(className, saveName, displayName) public:\
-	className() { onConstruction(); }\
 	virtual void onConstruction();\
-	virtual std::shared_ptr<VipaModule> getInstance(){ return std::make_shared<className>();}\
+	virtual std::shared_ptr<VipaModule> getInstance(){\
+		auto newModule = std::make_shared<className>();\
+		newModule->onConstruction();\
+		return newModule;\
+	}\
 	virtual const char* getSaveName(){ return saveName; }\
 	virtual const char* getDisplayName() { return displayName; }\
 	virtual void onSetIndex(int i);\
@@ -21,7 +24,7 @@ class NodePin;
 class VipaBusCoupler_053_1EC01;
 namespace tinyxml2{ struct XMLElement; }
 
-class VipaModule {
+class VipaModule : public std::enable_shared_from_this<VipaModule>{
 public:
 
 	virtual void onConstruction() = 0;
@@ -161,15 +164,13 @@ class VIPA_050_1BS00 : public VipaModule{
 public:
 	DEFINE_VIPA_MODULE(VIPA_050_1BS00, "VIPA 050-1BS00", "SSI RS422 (DC24V)")
 	
-	//output pins
-	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodePin::DataType::POSITIONFEEDBACK, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "SSI Encoder");
+	//————— Node Pins ———————
+	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodePin::DataType::POSITION_FEEDBACK, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "SSI Encoder");
 	std::shared_ptr<NodePin> resetPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Reset Encoder");
 	
 	std::shared_ptr<bool> resetPinValue = std::make_shared<bool>(false);
 	
-	virtual void onConnection();
-	virtual void onDisconnection();
-	
+	//————— PDO DATA —————
 	uint32_t encoderValue;
 	uint16_t time_microseconds;
 	
@@ -179,16 +180,62 @@ public:
 	uint16_t previousReadingTime_microseconds = 0.0;
 	double previousEncoderPosition_revolutions = 0.0;
 	
-	//==== Subdevices ====
-	
-	void onSetParentBusCoupler(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler);
-	std::shared_ptr<PositionFeedbackDevice> encoderDevice = std::make_shared<PositionFeedbackDevice>("SSI Encoder", Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE);
-	void updateEncoderWorkingRange();
-	void updateResetPinVisibility();
 	uint64_t resetStartTime_nanoseconds = 0;
 	double resetStartTime_seconds = 0.0;
 	
-	//==== Data Type ====
+	//————— SubDevice ——————
+	
+	class SsiEncoder : public PositionFeedbackDevice{
+	public:
+		SsiEncoder(std::shared_ptr<VIPA_050_1BS00> module) : encoderModule(module){}
+
+		virtual MotionState getState() override{ return MotionState::OFFLINE; }
+		virtual std::string getName() override {
+			std::string name = "Module " + std::to_string(encoderModule->moduleIndex) + " SSI Encoder";
+			return name;
+		};
+		virtual bool hasFault() override { return false; };
+		virtual std::string getStatusString() override { return ""; }
+		
+		virtual Unit getPositionUnit() override { return Units::AngularDistance::Revolution; }
+		
+		virtual PositionFeedbackType getPositionFeedbackType() override { return PositionFeedbackType::ABSOLUTE; }
+		
+		virtual bool isInsideWorkingRange() override { return rawPosition >= workingRangeMin && rawPosition < workingRangeMax; }
+		virtual double getPositionInWorkingRange() override { return (rawPosition - workingRangeMin) / (workingRangeMax - workingRangeMin); }
+		virtual double getMinPosition() override { return workingRangeMin; }
+		virtual double getMaxPosition() override { return workingRangeMax; }
+		virtual double getPosition() override { return rawPosition - positionOffset; }
+		virtual double getVelocity() override { return rawVelocity; }
+		virtual bool isMoving() override { return rawVelocity != 0.0; }
+		
+		virtual bool canHardReset() override { return encoderModule->b_hasResetSignal && encoderModule->resetPin->isConnected(); }
+		virtual void executeHardReset() override {
+			b_doHardReset = true;
+			b_hardResetBusy = true;
+		}
+		virtual bool isExecutingHardReset() override { return b_hardResetBusy; }
+				
+		virtual void softOverridePosition(double position) override {}
+		
+		std::shared_ptr<VIPA_050_1BS00> encoderModule;
+		MotionState state = MotionState::OFFLINE;
+		bool b_doHardReset = false;
+		bool b_hardResetBusy = false;
+		double rawPosition;
+		double rawVelocity;
+		double positionOffset;
+		double workingRangeMin;
+		double workingRangeMax;
+	};
+	
+	std::shared_ptr<SsiEncoder> encoder;
+	
+	void onSetParentBusCoupler(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler);
+	void updateEncoderWorkingRange();
+	void updateResetPinVisibility();
+	
+	//==== Setting Types ====
 	
 	enum class MeasurementPauseTime{
 		_1_MICROSECONDS,
@@ -200,7 +247,18 @@ public:
 		_48_MICROSECONDS,
 		_64_MICROSECONDS
 	};
-	static uint16_t getMeasurementPauseTimeValue(MeasurementPauseTime time);
+	static uint16_t getMeasurementPauseTimeValue(MeasurementPauseTime time){
+		switch(time){
+			case MeasurementPauseTime::_1_MICROSECONDS: return 0x0030;
+			case MeasurementPauseTime::_2_MICROSECONDS: return 0x0060;
+			case MeasurementPauseTime::_4_MICROSECONDS: return 0x00C0;
+			case MeasurementPauseTime::_8_MICROSECONDS: return 0x0180;
+			case MeasurementPauseTime::_16_MICROSECONDS: return 0x0300;
+			case MeasurementPauseTime::_32_MICROSECONDS: return 0x0600;
+			case MeasurementPauseTime::_48_MICROSECONDS: return 0x0900;
+			case MeasurementPauseTime::_64_MICROSECONDS: return 0x0C00;
+		}
+	}
 	
 	enum class TransmissionRate{
 		_2_MEGAHERTZ,
@@ -210,35 +268,68 @@ public:
 		_250_KILOHERTZ,
 		_125_KILOHERTZ
 	};
-	static uint16_t getTransmissionRateValue(TransmissionRate rate);
+	static uint16_t getTransmissionRateValue(TransmissionRate rate){
+		switch(rate){
+			case TransmissionRate::_2_MEGAHERTZ: return 0x0018;
+			case TransmissionRate::_1p5_MEGAHERTZ: return 0x0020;
+			case TransmissionRate::_1_MEGAHERTZ: return 0x0030;
+			case TransmissionRate::_500_KILOHERTZ: return 0x0060;
+			case TransmissionRate::_250_KILOHERTZ: return 0x00C0;
+			case TransmissionRate::_125_KILOHERTZ: return 0x0180;
+		}
+	}
 	
-	static int maxNormalisationBits;
-	static int minNormalisationBits;
-	uint8_t normalisationBitCountToCanValue(int bitCount);
-	int canValuetoNormalisationBitCount(uint8_t canValue);
+	constexpr static int maxNormalisationBits = 15;
+	constexpr static int minNormalisationBits = 0;
+	static uint8_t normalisationBitCountToCanValue(int bitCount){
+		uint8_t output = std::max(minNormalisationBits, bitCount);
+		output = std::min(maxNormalisationBits, bitCount);
+		return output;
+	}
+	static int canValuetoNormalisationBitCount(uint8_t canValue){ return canValue; }
 	
-	static int maxEncoderBits;
-	static int minEncoderBits;
-	uint8_t encoderBitCountToCanValue(int bitCount);
-	int canValuetoEncoderBitCount(uint8_t canValue);
+	constexpr static int maxEncoderBits = 32;
+	constexpr static int minEncoderBits = 8;
+	static uint8_t encoderBitCountToCanValue(int bitCount){
+		bitCount = std::max(minEncoderBits, bitCount);
+		bitCount = std::min(maxEncoderBits, bitCount);
+		uint8_t output = bitCount - 1;
+		return output;
+	}
+	static int canValuetoEncoderBitCount(uint8_t canValue){ return canValue + 1; }
 	
 	enum class BitDirection{
 		LSB_FIRST,
 		MSB_FIRST
 	};
-	static bool getBitDirectionValue(BitDirection dir);
+	static bool getBitDirectionValue(BitDirection dir){
+		switch(dir){
+			case BitDirection::LSB_FIRST: return false;
+			case BitDirection::MSB_FIRST: return true;
+		}
+	}
 	
 	enum class ClockEdge{
 		FALLING_EDGE,
 		RISING_EDGE
 	};
-	static bool getClockEdgeValue(ClockEdge edge);
+	inline bool getClockEdgeValue(ClockEdge edge){
+		switch(edge){
+			case ClockEdge::FALLING_EDGE: return false;
+			case ClockEdge::RISING_EDGE: return false;
+		}
+	}
 	
 	enum class Encoding{
 		BINARY,
 		GRAY
 	};
-	static bool getEncodingValue(Encoding cod);
+	inline bool getEncodingValue(Encoding cod){
+		switch(cod){
+			case Encoding::BINARY: return false;
+			case Encoding::GRAY: return true;
+		}
+	}
 	
 	//==== Settings Data ====
 	MeasurementPauseTime pausetime = MeasurementPauseTime::_32_MICROSECONDS;
@@ -262,7 +353,6 @@ public:
 	
 };
 
-
 #define VipaSSIPauseTimeTypeStrings \
 	{VIPA_050_1BS00::MeasurementPauseTime::_1_MICROSECONDS, "1 µs", 	"1"},\
 	{VIPA_050_1BS00::MeasurementPauseTime::_2_MICROSECONDS, "2 µs", 	"2"},\
@@ -275,20 +365,6 @@ public:
 
 DEFINE_ENUMERATOR(VIPA_050_1BS00::MeasurementPauseTime, VipaSSIPauseTimeTypeStrings)
 
-inline uint16_t VIPA_050_1BS00::getMeasurementPauseTimeValue(MeasurementPauseTime time){
-	switch(time){
-		case MeasurementPauseTime::_1_MICROSECONDS: return 0x0030;
-		case MeasurementPauseTime::_2_MICROSECONDS: return 0x0060;
-		case MeasurementPauseTime::_4_MICROSECONDS: return 0x00C0;
-		case MeasurementPauseTime::_8_MICROSECONDS: return 0x0180;
-		case MeasurementPauseTime::_16_MICROSECONDS: return 0x0300;
-		case MeasurementPauseTime::_32_MICROSECONDS: return 0x0600;
-		case MeasurementPauseTime::_48_MICROSECONDS: return 0x0900;
-		case MeasurementPauseTime::_64_MICROSECONDS: return 0x0C00;
-	}
-}
-
-
 #define VipaSSITransmissionRateTypeStrings \
 	{VIPA_050_1BS00::TransmissionRate::_2_MEGAHERTZ,  	"2.0 Mhz", 		"2Mhz"},\
 	{VIPA_050_1BS00::TransmissionRate::_1p5_MEGAHERTZ,  "1.5 Mhz", 		"1.5Mhz"},\
@@ -299,31 +375,11 @@ inline uint16_t VIPA_050_1BS00::getMeasurementPauseTimeValue(MeasurementPauseTim
 
 DEFINE_ENUMERATOR(VIPA_050_1BS00::TransmissionRate, VipaSSITransmissionRateTypeStrings)
 
-inline uint16_t VIPA_050_1BS00::getTransmissionRateValue(TransmissionRate rate){
-	switch(rate){
-		case TransmissionRate::_2_MEGAHERTZ: return 0x0018;
-		case TransmissionRate::_1p5_MEGAHERTZ: return 0x0020;
-		case TransmissionRate::_1_MEGAHERTZ: return 0x0030;
-		case TransmissionRate::_500_KILOHERTZ: return 0x0060;
-		case TransmissionRate::_250_KILOHERTZ: return 0x00C0;
-		case TransmissionRate::_125_KILOHERTZ: return 0x0180;
-	}
-}
-
-
 #define VipaSSIBitShiftTypeStrings \
 	{VIPA_050_1BS00::BitDirection::LSB_FIRST, "LSB First", "LSBFirst"},\
 	{VIPA_050_1BS00::BitDirection::MSB_FIRST,"MSB First (default)", "MSBFirst"}\
 
 DEFINE_ENUMERATOR(VIPA_050_1BS00::BitDirection, VipaSSIBitShiftTypeStrings)
-
-inline bool VIPA_050_1BS00::getBitDirectionValue(BitDirection dir){
-	switch(dir){
-		case BitDirection::LSB_FIRST: return false;
-		case BitDirection::MSB_FIRST: return true;
-	}
-}
-
 
 #define VipaSSIClockEdgeTypeStrings \
 	{VIPA_050_1BS00::ClockEdge::FALLING_EDGE, "Falling Edge", "FallingEdge"},\
@@ -331,26 +387,12 @@ inline bool VIPA_050_1BS00::getBitDirectionValue(BitDirection dir){
 
 DEFINE_ENUMERATOR(VIPA_050_1BS00::ClockEdge, VipaSSIClockEdgeTypeStrings)
 
-inline bool VIPA_050_1BS00::getClockEdgeValue(ClockEdge edge){
-	switch(edge){
-		case ClockEdge::FALLING_EDGE: return false;
-		case ClockEdge::RISING_EDGE: return false;
-	}
-}
-
 
 #define VipaSSIEncodingTypeStrings \
 	{VIPA_050_1BS00::Encoding::BINARY, "Binary", "Binary"},\
 	{VIPA_050_1BS00::Encoding::GRAY, "Gray", "Gray"}\
 
 DEFINE_ENUMERATOR(VIPA_050_1BS00::Encoding, VipaSSIEncodingTypeStrings)
-
-inline bool VIPA_050_1BS00::getEncodingValue(Encoding cod){
-	switch(cod){
-		case Encoding::BINARY: return false;
-		case Encoding::GRAY: return true;
-	}
-}
 
 
 

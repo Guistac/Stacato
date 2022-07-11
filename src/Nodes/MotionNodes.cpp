@@ -12,8 +12,8 @@
 
 #include "Motion/Safety/DeadMansSwitch.h"
 
-#include "Motion/Adapters/GpioActuator.h"
-#include "Motion/Adapters/ActuatorToServoActuator.h"
+//#include "Motion/Adapters/GpioActuator.h"
+//#include "Motion/Adapters/ActuatorToServoActuator.h"
 
 namespace NodeFactory{
 
@@ -43,8 +43,8 @@ namespace NodeFactory{
 		};
 		
 		allMotionUtilityNodes = {
-			new GpioActuator(),
-			new ActuatorToServoActuator(),
+			//new GpioActuator(),
+			//new ActuatorToServoActuator(),
 			new PositionFeedback()
 		};
 		

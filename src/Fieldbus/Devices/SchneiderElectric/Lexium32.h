@@ -12,39 +12,135 @@ public:
 	
     DEFINE_ETHERCAT_DEVICE(Lexium32, "Lexium32M", "Lexium32M", "Schneider Electric", "Servo Drives", 0x800005A, 0x16440)
 
-    //node input data
-    std::shared_ptr<NodePin> digitalOut0 = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ0");
-    std::shared_ptr<NodePin> digitalOut1 = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ1");
-    std::shared_ptr<NodePin> digitalOut2 = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ2");
+	class LexiumServoMotor : public ServoActuatorDevice{
+	public:
+		
+		LexiumServoMotor(std::shared_ptr<Lexium32> lexium32) : drive(lexium32){}
+		
+		virtual MotionState getState() override {
+			
+		};
+		virtual std::string getName() override { return "Servo Motor"; }
+		virtual bool hasFault() override { return drive->b_hasFault; }
+		virtual std::string getStatusString() override { return drive->getStatusString(); }
+		
+		virtual Unit getPositionUnit() override { return Units::AngularDistance::Revolution; }
+		virtual PositionFeedbackType getPositionFeedbackType() override { return PositionFeedbackType::ABSOLUTE; }
+		
+		virtual bool isInsideWorkingRange() override { return drive->position >= drive->minWorkingRange && drive->position <= drive->maxWorkingRange; }
+		virtual double getPositionInWorkingRange() override { return (drive->position - drive->minWorkingRange) / (drive->maxWorkingRange - drive->minWorkingRange); }
+		virtual double getMinPosition() override { return drive->minWorkingRange; }
+		virtual double getMaxPosition() override { return drive->maxWorkingRange; }
+		
+		virtual double getPosition() override { return drive->position - drive->positionOffset; }
+		virtual double getVelocity() override { return drive->velocity; }
+		virtual bool isMoving() override { return drive->b_isMoving; }
+		virtual double getLoad() override { return drive->load; }
+		
+		virtual bool canHardReset() override { return true; }
+		virtual void executeHardReset() override { return b_hardReset; }
+		virtual bool isExecutingHardReset() override { return b_hardResetBusy; }
+		
+		//virtual bool canHardOverride() override { return false; }
+		//virtual void executeHardOverride(double overridePosition) override {}
+		//virtual bool isExecutingHardOverride() override { return false; }
+		
+		virtual void softOverridePosition(double position) override {
+			//UNIMPLEMENTED
+		}
+		
+		virtual void enable() override { b_enable = true; }
+		virtual void disable() override { b_disable = true; }
+		virtual void quickstop() override { b_quickstop = true; }
+
+		virtual void setVelocityCommand(double velocityCommand, double accelerationCommand) override { /*UNIMPLEMENTED*/ }
+		
+		virtual double getVelocityLimit() override { return drive->velocityLimit; }
+		virtual double getAccelerationLimit() override { return drive->accelerationLimit; }
+
+		//virtual bool hasManualHoldingBrake() { return false; }
+		//virtual bool isHoldingBrakeApplied() { return false; }
+		//virtual void releaseHoldingBrake() {}
+		//virtual void applyHoldingBrake() {}
+		
+		
+		virtual void setPositionCommand(double positionCommand, double velocityCommand, double accelerationCommand) override {
+			drive->targetPosition = positionCommand;
+			drive->targetVelocity = velocityCommand;
+			drive->targetAcceleration = accelerationCommand;
+		};
+		
+		virtual double getFollowingError() override { return drive->followingError; }
+		virtual double getMaxFollowingError() override { return drive->maxFollowingError; }
+		virtual double getFollowingErrorInRange() override { return std::abs(drive->followingError / drive->maxFollowingError); }
+		
+		std::shared_ptr<Lexium32> drive;
+		bool b_enable = false;
+		bool b_disable = false;
+		bool b_quickstop = false;
+		bool b_hardReset = false;
+		bool b_hardResetBusy = false;
+		MotionState state = MotionState::OFFLINE;
+	};
 	
-	std::shared_ptr<bool> digitalOut0PinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> digitalOut1PinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> digitalOut2PinValue = std::make_shared<bool>(false);
+	class LexiumGpio : public GpioDevice{
+	public:
+		LexiumGpio(std::shared_ptr<Lexium32> lexium32) : drive(lexium32){}
+		virtual MotionState getState() override { return state; }
+		virtual std::string getName() override { return "Lexium32 Gpio"; }
+		virtual bool hasFault() override { return drive->b_hasFault; }
+		virtual std::string getStatusString() override { return ""; }
+		std::shared_ptr<Lexium32> drive;
+		MotionState state = MotionState::OFFLINE;
+	};
+	
+	
+    //node input data
+    std::shared_ptr<NodePin> digitalOut0Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ0");
+    std::shared_ptr<NodePin> digitalOut1Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ1");
+    std::shared_ptr<NodePin> digitalOut2Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ2");
+	
+	std::shared_ptr<bool> digitalOut0Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalOut1Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalOut2Value = std::make_shared<bool>(false);
 
     //node output data
-	std::shared_ptr<ServoActuatorDevice> servoMotorDevice = std::make_shared<ServoActuatorDevice>("Servo", Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE);
-	std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
-	std::shared_ptr<double> loadPinValue = std::make_shared<double>(0.0);
-	std::shared_ptr<double> positionPinValue = std::make_shared<double>(0.0);
-	std::shared_ptr<double> velocityPinValue = std::make_shared<double>(0.0);
-	std::shared_ptr<bool> digitalIn0PinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> digitalIn1PinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> digitalIn2PinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> digitalIn3PinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> digitalIn4PinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> digitalIn5PinValue = std::make_shared<bool>(false);
+	std::shared_ptr<LexiumServoMotor> servoMotor;
+	std::shared_ptr<double> actualLoadValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> actualPositionValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> actualVelocityValue = std::make_shared<double>(0.0);
 	
-    std::shared_ptr<NodePin> servoMotorLink = std::make_shared<NodePin>(servoMotorDevice, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Motor");
-    std::shared_ptr<NodePin> actualLoad = std::make_shared<NodePin>(loadPinValue, NodePin::Direction::NODE_OUTPUT, "Load", NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
-    std::shared_ptr<NodePin> actualPosition = std::make_shared<NodePin>(positionPinValue, NodePin::Direction::NODE_OUTPUT, "Position", NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
-    std::shared_ptr<NodePin> actualVelocity = std::make_shared<NodePin>(velocityPinValue, NodePin::Direction::NODE_OUTPUT, "Velocity", NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
-    std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(gpioDevice, NodePin::Direction::NODE_OUTPUT, "GPIO");
-    std::shared_ptr<NodePin> digitalIn0 = std::make_shared<NodePin>(digitalIn0PinValue, NodePin::Direction::NODE_OUTPUT, "DI0", NodePin::Flags::DisableDataField);
-    std::shared_ptr<NodePin> digitalIn1 = std::make_shared<NodePin>(digitalIn1PinValue, NodePin::Direction::NODE_OUTPUT, "DI1", NodePin::Flags::DisableDataField);
-    std::shared_ptr<NodePin> digitalIn2 = std::make_shared<NodePin>(digitalIn2PinValue, NodePin::Direction::NODE_OUTPUT, "DI2", NodePin::Flags::DisableDataField);
-    std::shared_ptr<NodePin> digitalIn3 = std::make_shared<NodePin>(digitalIn3PinValue, NodePin::Direction::NODE_OUTPUT, "DI3", NodePin::Flags::DisableDataField);
-    std::shared_ptr<NodePin> digitalIn4 = std::make_shared<NodePin>(digitalIn4PinValue, NodePin::Direction::NODE_OUTPUT, "DI4", NodePin::Flags::DisableDataField);
-    std::shared_ptr<NodePin> digitalIn5 = std::make_shared<NodePin>(digitalIn5PinValue, NodePin::Direction::NODE_OUTPUT, "DI5", NodePin::Flags::DisableDataField);
+	std::shared_ptr<LexiumGpio> gpioDevice;
+	std::shared_ptr<bool> digitalIn0Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn1Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn2Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn3Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn4Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn5Value = std::make_shared<bool>(false);
+	
+    std::shared_ptr<NodePin> servoMotorPin = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR,
+																	   NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
+																	   "Servo Motor");
+    std::shared_ptr<NodePin> actualLoadPin = std::make_shared<NodePin>(actualLoadValue,
+																	   NodePin::Direction::NODE_OUTPUT,
+																	   "Load",
+																	   NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
+    std::shared_ptr<NodePin> actualPositionPin = std::make_shared<NodePin>(actualPositionValue,
+																		   NodePin::Direction::NODE_OUTPUT,
+																		   "Position",
+																		   NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
+    std::shared_ptr<NodePin> actualVelocityPin = std::make_shared<NodePin>(actualVelocityValue,
+																		   NodePin::Direction::NODE_OUTPUT,
+																		   "Velocity",
+																		   NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
+	
+    std::shared_ptr<NodePin> gpioDevicePin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT, "GPIO");
+    std::shared_ptr<NodePin> digitalIn0Pin = std::make_shared<NodePin>(digitalIn0Value, NodePin::Direction::NODE_OUTPUT, "DI0", NodePin::Flags::DisableDataField);
+    std::shared_ptr<NodePin> digitalIn1Pin = std::make_shared<NodePin>(digitalIn1Value, NodePin::Direction::NODE_OUTPUT, "DI1", NodePin::Flags::DisableDataField);
+    std::shared_ptr<NodePin> digitalIn2Pin = std::make_shared<NodePin>(digitalIn2Value, NodePin::Direction::NODE_OUTPUT, "DI2", NodePin::Flags::DisableDataField);
+    std::shared_ptr<NodePin> digitalIn3Pin = std::make_shared<NodePin>(digitalIn3Value, NodePin::Direction::NODE_OUTPUT, "DI3", NodePin::Flags::DisableDataField);
+    std::shared_ptr<NodePin> digitalIn4Pin = std::make_shared<NodePin>(digitalIn4Value, NodePin::Direction::NODE_OUTPUT, "DI4", NodePin::Flags::DisableDataField);
+    std::shared_ptr<NodePin> digitalIn5Pin = std::make_shared<NodePin>(digitalIn5Value, NodePin::Direction::NODE_OUTPUT, "DI5", NodePin::Flags::DisableDataField);
 
 
 	void resetData();
@@ -86,7 +182,27 @@ private:
 	
 	bool b_startHoming = false;
 	bool b_isHoming = false;
+	bool b_isMoving = false;
 	
+	//all units are in revolutions and seconds
+	
+	double position;
+	double velocity;
+	double load;
+	double followingError;
+	
+	double positionOffset = 0.0;
+	
+	void updateEncoderWorkingRange();
+	double minWorkingRange;
+	double maxWorkingRange;
+	double velocityLimit;
+	double accelerationLimit;
+	
+	double targetPosition;
+	double targetVelocity;
+	double targetAcceleration;
+
 	static std::string getErrorCodeString(uint16_t errorCode){
 		switch(errorCode){
 			case 0x0: return "No Error";
@@ -140,8 +256,8 @@ private:
 			if(b_faultNeedsRestart) return Colors::red;
 			else return Colors::orange;
 		}
-		else if(!servoMotorDevice->isReady()) return Colors::red;
-		else if(servoMotorDevice->isEnabled()) return Colors::green;
+		else if(!servoMotor->isReady()) return Colors::red;
+		else if(servoMotor->isEnabled()) return Colors::green;
 		else return Colors::yellow;
 	}
 	
@@ -154,7 +270,6 @@ public:
 
     double profileVelocity_rps = 0.0;
     double profilePosition_r = 0.0;
-	double actualFollowingError_r = 0.0;
 	
     //===== Manual Controls =====
 
@@ -174,7 +289,8 @@ public:
     bool b_invertDirectionOfMotorMovement = false;
     double maxCurrent_amps = 0.0;
     
-    float maxMotorVelocity_rps = 0.0;
+    double maxMotorVelocity = 0.0;
+	double maxFollowingError = 0.0;
 
     void uploadGeneralParameters();
     DataTransferState generalParameterUploadState = DataTransferState::NO_TRANSFER;
@@ -358,8 +474,6 @@ public:
     float manualAbsoluteEncoderPosition_revolutions = 0.0;
     void uploadManualAbsoluteEncoderPosition();
     DataTransferState encoderAbsolutePositionUploadState = DataTransferState::NO_TRANSFER;
-
-    void getEncoderWorkingRange(float& low, float& high);
 
     //display variable for the new encoder position setting
     double newEncoderPosition = 0.0;

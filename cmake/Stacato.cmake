@@ -245,9 +245,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VipaModule.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VipaModuleGui.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Nanotec/PD4_E.h
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Nanotec/PD4_E.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Nanotec/PD4_EGui.cpp
+    ##${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Nanotec/PD4_E.h
+    ##${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Nanotec/PD4_E.cpp
+    ##${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Nanotec/PD4_EGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ABB/MicroFlexE190.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ABB/MicroFlexE190.cpp
@@ -269,7 +269,6 @@ set(STACATO_SOURCE_FILES
     #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/Oscillator3x.cpp
     #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/Oscillator3x.h
     #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/Oscillator3xGui.cpp
-
     #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/LinearMecanumClaw.cpp
     #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/LinearMecanumClaw.h
     #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/LinearMecanumClawGui.cpp
@@ -289,12 +288,12 @@ set(STACATO_SOURCE_FILES
 
     #========================== MOTION UTILITIES =======================
 
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuator.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuator.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuatorGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuator.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuator.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuatorGui.cpp
+    #${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuator.cpp
+    #${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuator.h
+    #${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuatorGui.cpp
+    #${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuator.cpp
+    #${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuator.h
+    #${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuatorGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Utilities/PositionFeedback.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Utilities/PositionFeedback.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Utilities/PositionFeedbackGui.cpp

@@ -5,79 +5,52 @@
 #include <tinyxml2.h>
 
 void Lexium32::onConnection() {
-    resetData();
+	requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
 }
 
 void Lexium32::onDisconnection() {
-    resetData();
 	requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
 }
 
-void Lexium32::resetData() {
-    manualVelocityCommand_rps = 0.0;
-    profilePosition_r = 0.0;
-    profileVelocity_rps = 0.0;
-    servoMotorDevice->positionRaw_positionUnits = 0.0;
-    servoMotorDevice->velocity_positionUnitsPerSecond = 0.0;
-    servoMotorDevice->b_moving = false;
-	*positionPinValue = 0.0;
-	*velocityPinValue = 0.0;
-	*loadPinValue = 0.0;
-	*digitalIn1PinValue = false;
-	*digitalIn2PinValue = false;
-	*digitalIn3PinValue = false;
-	*digitalIn4PinValue = false;
-	*digitalIn5PinValue = false;
-	*digitalOut0PinValue = false;
-	*digitalOut1PinValue = false;
-	*digitalOut2PinValue = false;
-    servoMotorDevice->b_detected = false;
-    servoMotorDevice->b_online = false;
-    servoMotorDevice->b_ready = false;
-    servoMotorDevice->b_enabled = false;
-    gpioDevice->b_detected = false;
-    gpioDevice->b_online = false;
-    gpioDevice->b_ready = false;
-}
-
 void Lexium32::initialize() {
-    std::shared_ptr<Device> thisDevice = std::static_pointer_cast<Device>(shared_from_this());
 
-	//servo device
-    servoMotorDevice->setParentDevice(thisDevice);
-    servoMotorDevice->velocityLimit_positionUnitsPerSecond = 10.0;
-    servoMotorDevice->accelerationLimit_positionUnitsPerSecondSquared = 1.0;
-    servoMotorDevice->setParentDevice(thisDevice);
-	float lowEncoderRange, highEncoderRange;
-	getEncoderWorkingRange(lowEncoderRange, highEncoderRange);
-	servoMotorDevice->rangeMin_positionUnits = lowEncoderRange;
-	servoMotorDevice->rangeMax_positionUnits = highEncoderRange;
-
-	//gpio device
-    gpioDevice->setParentDevice(thisDevice);
+	auto thisLexiumDrive = std::dynamic_pointer_cast<Lexium32>(shared_from_this());
+	servoMotor = std::make_shared<LexiumServoMotor>(thisLexiumDrive);
+	servoMotor->setParentDevice(thisLexiumDrive);
+	gpioDevice = std::make_shared<LexiumGpio>(thisLexiumDrive);
+	gpioDevice->setParentDevice(thisLexiumDrive);
+	
+	auto abstractServoMotor = std::static_pointer_cast<ServoActuatorDevice>(servoMotor);
+	auto abstractGpioDevice = std::static_pointer_cast<GpioDevice>(gpioDevice);
+	
+	servoMotorPin->assignData(abstractServoMotor);
+	gpioDevicePin->assignData(abstractGpioDevice);
+	
+	//working range
+	updateEncoderWorkingRange();
 
     //node input data
-	digitalOut0->assignData(digitalOut0PinValue);
-	digitalOut1->assignData(digitalOut1PinValue);
-	digitalOut2->assignData(digitalOut2PinValue);
+	digitalOut0Pin->assignData(digitalOut0Value);
+	digitalOut1Pin->assignData(digitalOut1Value);
+	digitalOut2Pin->assignData(digitalOut2Value);
 	
-    addNodePin(digitalOut0);
-    addNodePin(digitalOut1);
-    addNodePin(digitalOut2);
+    addNodePin(digitalOut0Pin);
+    addNodePin(digitalOut1Pin);
+    addNodePin(digitalOut2Pin);
 
     //node output data
-    addNodePin(servoMotorLink);
-    addNodePin(actualLoad);
-    addNodePin(actualPosition);
-    addNodePin(actualVelocity);
-    addNodePin(gpioDeviceLink);
+    addNodePin(servoMotorPin);
+    addNodePin(actualLoadPin);
+    addNodePin(actualPositionPin);
+    addNodePin(actualVelocityPin);
+    addNodePin(gpioDevicePin);
 		
-    addNodePin(digitalIn0);
-    addNodePin(digitalIn1);
-    addNodePin(digitalIn2);
-    addNodePin(digitalIn3);
-    addNodePin(digitalIn4);
-    addNodePin(digitalIn5);
+    addNodePin(digitalIn0Pin);
+    addNodePin(digitalIn1Pin);
+    addNodePin(digitalIn2Pin);
+    addNodePin(digitalIn3Pin);
+    addNodePin(digitalIn4Pin);
+    addNodePin(digitalIn5Pin);
 
     rxPdoAssignement.addNewModule(0x1603);
     rxPdoAssignement.addEntry(0x6040, 0x0, 16, "DCOMcontrol", &ds402Control.controlWord);	//DS402 control word
@@ -168,7 +141,7 @@ bool Lexium32::startupConfiguration() {
 
     uint16_t _M_n_max; //max motor spec velocity in rpm
     if (!readSDO_U16(0x300D, 0x4, _M_n_max)) return false;
-    maxMotorVelocity_rps = (double)_M_n_max / 60.0;
+    maxMotorVelocity = (double)_M_n_max / 60.0;
 
     uint32_t CTRL_v_max = _M_n_max * velocityUnitsPerRpm; //Velocity Limit in usr_v units
     if (!writeSDO_U32(0x3011, 0x10, CTRL_v_max)) return false;
@@ -249,7 +222,7 @@ void Lexium32::readInputs() {
 	
 	//read STO State
 	bool newStoState = _IO_STO_act == 0;
-	if (newStoState != servoMotorDevice->b_emergencyStopActive) {
+	if (newStoState != b_stoActive) {
 		if (newStoState) pushEvent("STO Activated", true);
 		else pushEvent("STO Released", false);
 	}
@@ -257,21 +230,18 @@ void Lexium32::readInputs() {
 	b_faultNeedsRestart = _actionStatus & 0x10;
 	b_motorVoltagePresent = ds402Status.statusWord & 0x10;
 	b_stoActive = newStoState;
-	servoMotorDevice->b_emergencyStopActive = b_stoActive;
-	
-	actualFollowingError_r = (double)_p_dif_usr / (double)positionUnitsPerRevolution;
-	
+		
     //set the encoder position in revolution units and velocity in revolutions per second
-    servoMotorDevice->positionRaw_positionUnits = (double)_p_act / (double)positionUnitsPerRevolution;
-    servoMotorDevice->velocity_positionUnitsPerSecond = (double)_v_act / ((double)velocityUnitsPerRpm * 60.0);
-    servoMotorDevice->b_moving = std::abs(servoMotorDevice->velocity_positionUnitsPerSecond) > 0.03;
-    //set motor device load
-    servoMotorDevice->load = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
+	position = (double)_p_act / (double)positionUnitsPerRevolution;
+	velocity = (double)_v_act / ((double)velocityUnitsPerRpm * 60.0);
+	load = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
+	followingError = (double)_p_dif_usr / (double)positionUnitsPerRevolution;
+	b_isMoving = std::abs(velocity) > 0.03;
 	
     //assign public input data
-	*positionPinValue = servoMotorDevice->getPosition();
-	*velocityPinValue = servoMotorDevice->getVelocity();
-	*loadPinValue = servoMotorDevice->getLoad();
+	*actualPositionValue = servoMotor->getPosition();
+	*actualVelocityValue = servoMotor->getVelocity();
+	*actualLoadValue = servoMotor->getLoad();
 	
     bool DI0 = (_IO_act & 0x1) != 0x0;
     bool DI1 = (_IO_act & 0x2) != 0x0;
@@ -280,27 +250,22 @@ void Lexium32::readInputs() {
     bool DI4 = (_IO_act & 0x10) != 0x0;
     bool DI5 = (_IO_act & 0x20) != 0x0;
 	
-	*digitalIn0PinValue = b_invertDI0 ? !DI0 : DI0;
-	*digitalIn1PinValue = b_invertDI1 ? !DI1 : DI1;
-	*digitalIn2PinValue = b_invertDI2 ? !DI2 : DI2;
-	*digitalIn3PinValue = b_invertDI3 ? !DI3 : DI3;
-	*digitalIn4PinValue = b_invertDI4 ? !DI4 : DI4;
-	*digitalIn5PinValue = b_invertDI5 ? !DI5 : DI5;
+	*digitalIn0Value = b_invertDI0 ? !DI0 : DI0;
+	*digitalIn1Value = b_invertDI1 ? !DI1 : DI1;
+	*digitalIn2Value = b_invertDI2 ? !DI2 : DI2;
+	*digitalIn3Value = b_invertDI3 ? !DI3 : DI3;
+	*digitalIn4Value = b_invertDI4 ? !DI4 : DI4;
+	*digitalIn5Value = b_invertDI5 ? !DI5 : DI5;
+	
+	
+	if(!isConnected()) 														servoMotor->state = MotionState::OFFLINE;
+	else if(b_hasFault && b_faultNeedsRestart) 								servoMotor->state = MotionState::OFFLINE;
+	else if(b_stoActive) 													servoMotor->state = MotionState::EMERGENY_STOP;
+	else if(!b_motorVoltagePresent) 										servoMotor->state = MotionState::NOT_READY;
+	else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) 	servoMotor->state = MotionState::NOT_READY;
+	else if(actualPowerState == DS402::PowerState::OPERATION_ENABLED) 		servoMotor->state = MotionState::ENABLED;
+	else 																	servoMotor->state = MotionState::READY;
 
-    //set actuator subdevice
-    servoMotorDevice->b_ready = (actualOperatingMode == DS402::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION ||
-								 actualOperatingMode == DS402::OperatingMode::HOMING)
-								&& (actualPowerState == DS402::PowerState::READY_TO_SWITCH_ON ||
-									actualPowerState == DS402::PowerState::SWITCHED_ON ||
-									actualPowerState == DS402::PowerState::OPERATION_ENABLED ||
-									actualPowerState == DS402::PowerState::QUICKSTOP_ACTIVE ||
-									(actualPowerState == DS402::PowerState::FAULT && !b_faultNeedsRestart))
-								&& b_motorVoltagePresent;
-    servoMotorDevice->b_enabled = actualPowerState == DS402::PowerState::OPERATION_ENABLED;
-    servoMotorDevice->b_online = isConnected();
-    //set gpio subdevice status
-    gpioDevice->b_ready = isConnected(); //gpio is always ready when lexium is in ESM operational state
-    gpioDevice->b_online = isConnected();
 }
 
 
@@ -313,9 +278,9 @@ void Lexium32::readInputs() {
 
 void Lexium32::writeOutputs() {
 	
-	if (digitalOut0->isConnected()) digitalOut0->copyConnectedPinValue();
-	if (digitalOut1->isConnected()) digitalOut1->copyConnectedPinValue();
-	if (digitalOut2->isConnected()) digitalOut2->copyConnectedPinValue();
+	if (digitalOut0Pin->isConnected()) digitalOut0Pin->copyConnectedPinValue();
+	if (digitalOut1Pin->isConnected()) digitalOut1Pin->copyConnectedPinValue();
+	if (digitalOut2Pin->isConnected()) digitalOut2Pin->copyConnectedPinValue();
 	
 	if(b_startHoming){
 		b_startHoming = false;
@@ -323,18 +288,18 @@ void Lexium32::writeOutputs() {
 	}
 	
 	if(b_isHoming){
-		servoMotorDevice->setPositionCommand(servoMotorDevice->getPosition(), servoMotorDevice->getVelocity(), 0.0);
+		servoMotor->setPositionCommand(servoMotor->getPosition(), servoMotor->getVelocity(), 0.0);
 	}
-	else if(!servoMotorLink->isConnected()){
-		if(!servoMotorDevice->isEnabled()){
+	else if(!servoMotorPin->isConnected()){
+		if(!servoMotor->isEnabled()){
 			//------ motor profile follows actual data ------
-			servoMotorDevice->setPositionCommand(servoMotorDevice->getPosition(), servoMotorDevice->getVelocity(), 0.0);
+			servoMotor->setPositionCommand(servoMotor->getPosition(), servoMotor->getVelocity(), 0.0);
 		}else{
 			//------ internal profile generator ------
 			double deltaT_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 			double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
 			
-			double previousVelocityCommand = servoMotorDevice->velocityCommand_deviceUnitsPerSecond;
+			double previousVelocityCommand = targetVelocity;
 			double newVelocityCommand;
 			double accelerationCommand;
 			if (manualVelocityCommand_rps > previousVelocityCommand) {
@@ -346,25 +311,23 @@ void Lexium32::writeOutputs() {
 				accelerationCommand = -manualAcceleration_rpsps;
 			}else newVelocityCommand = previousVelocityCommand;
 			double deltaP_r = deltaT_seconds * (previousVelocityCommand + newVelocityCommand) / 2.0;
-			servoMotorDevice->setPositionCommand(servoMotorDevice->getPositionCommand() + deltaP_r,
-												 newVelocityCommand,
-												 accelerationCommand);
+			servoMotor->setPositionCommand(targetPosition + deltaP_r, newVelocityCommand, accelerationCommand);
 		}
 	}
 	
     //handle power state transitions
-    if (servoMotorDevice->b_setEnabled) {
-        servoMotorDevice->b_setEnabled = false;
+    if (servoMotor->b_enable) {
+		servoMotor->b_enable = false;
 		requestedPowerState = DS402::PowerState::OPERATION_ENABLED;
 		enableRequestTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 		Logger::warn("ENABLE REQUEST");
     }
-    if (servoMotorDevice->b_setDisabled) {
-        servoMotorDevice->b_setDisabled = false;
+    if (servoMotor->b_disable) {
+		servoMotor->b_disable = false;
 		requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
     }
-    if (servoMotorDevice->b_setQuickstop) {
-        servoMotorDevice->b_setQuickstop = false;
+    if (servoMotor->b_quickstop) {
+		servoMotor->b_quickstop = false;
 		requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
     }
 
@@ -393,13 +356,13 @@ void Lexium32::writeOutputs() {
 	else ds402Control.setOperatingMode(DS402::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION);
 	
 	//PPp_target
-	PPp_target = (int32_t)(servoMotorDevice->getPositionCommandRaw() * positionUnitsPerRevolution);
+	PPp_target = (int32_t)(targetPosition * positionUnitsPerRevolution);
 	
 	//IO_DQ_set
     IO_DQ_set = 0;
-    if (*digitalOut0PinValue) IO_DQ_set |= 0x1;
-    if (*digitalOut1PinValue) IO_DQ_set |= 0x2;
-    if (*digitalOut2PinValue) IO_DQ_set |= 0x4;
+    if (*digitalOut0Value) IO_DQ_set |= 0x1;
+    if (*digitalOut1Value) IO_DQ_set |= 0x2;
+    if (*digitalOut2Value) IO_DQ_set |= 0x4;
 
     rxPdoAssignement.pushDataTo(identity->outputs);
 }
@@ -542,7 +505,7 @@ void Lexium32::uploadGeneralParameters() {
 
 	{
 		EtherCatCoeData MON_p_dif_load_usr(0x3006, 0x3E, EtherCatData::Type::INT32_T);
-		MON_p_dif_load_usr.setS32(servoMotorDevice->maxfollowingError * positionUnitsPerRevolution);
+		MON_p_dif_load_usr.setS32(maxFollowingError * positionUnitsPerRevolution);
 		if(!MON_p_dif_load_usr.write(getSlaveIndex())) goto transferfailed;
 	}
 	
@@ -601,7 +564,7 @@ void Lexium32::downloadGeneralParameters() {
 	{
 		EtherCatCoeData MON_p_dif_load_usr(0x3006, 0x3E, EtherCatData::Type::INT32_T);
 		if(!MON_p_dif_load_usr.read(getSlaveIndex())) goto transferfailed;
-		servoMotorDevice->maxfollowingError = (float)MON_p_dif_load_usr.getS32() / positionUnitsPerRevolution;
+		maxFollowingError = (float)MON_p_dif_load_usr.getS32() / positionUnitsPerRevolution;
 	}
 	
     {
@@ -630,7 +593,7 @@ void Lexium32::downloadGeneralParameters() {
     {
         EtherCatCoeData _M_n_max(0x300D, 0x4, EtherCatData::Type::UINT16_T);
         if (!_M_n_max.read(getSlaveIndex())) goto transferfailed;
-        maxMotorVelocity_rps = (double)_M_n_max.getU16() / 60.0;
+        maxMotorVelocity = (double)_M_n_max.getU16() / 60.0;
     }
 
     switch (quickstopReaction) {
@@ -899,10 +862,7 @@ void Lexium32::downloadEncoderSettings() {
         else goto downloadfailed;
     }
 
-    float lowEncoderRange, highEncoderRange;
-    getEncoderWorkingRange(lowEncoderRange, highEncoderRange);
-    servoMotorDevice->rangeMin_positionUnits = lowEncoderRange;
-    servoMotorDevice->rangeMax_positionUnits = highEncoderRange;
+	updateEncoderWorkingRange();
 
     encoderSettingsDownloadState = DataTransferState::SUCCEEDED;
     return;
@@ -949,28 +909,28 @@ failed:
 
 
 
-void Lexium32::getEncoderWorkingRange(float& low, float& high) {
+void Lexium32::updateEncoderWorkingRange() {
     switch (encoderAssignement) {
-    case EncoderAssignement::INTERNAL_ENCODER:
-        if (b_encoderRangeShifted) {
-            low = -(float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
-            high = (float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
-        }
-        else {
-            low = 0.0;
-            high = (float)(0x1 << encoder1_multiTurnResolutionBits);
-        }
-        break;
-    case EncoderAssignement::ENCODER_MODULE:
-        if (b_encoderRangeShifted) {
-            low = -(float)(0x1 << encoder2_multiTurnResolutionBits) * (float)encoder2_EncoderToMotorRatioDenominator / ((float)encoder2_EncoderToMotorRatioNumerator * 2.0);
-            high = -low;
-        }
-        else {
-            low = 0.0;
-            high = (float)(0x1 << encoder2_multiTurnResolutionBits) * (float)encoder2_EncoderToMotorRatioDenominator / (float)encoder2_EncoderToMotorRatioNumerator;
-        }
-        break;
+		case EncoderAssignement::INTERNAL_ENCODER:
+			if (b_encoderRangeShifted) {
+				minWorkingRange = -(float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
+				maxWorkingRange = (float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
+			}
+			else {
+				minWorkingRange = 0.0;
+				maxWorkingRange = (float)(0x1 << encoder1_multiTurnResolutionBits);
+			}
+			break;
+		case EncoderAssignement::ENCODER_MODULE:
+			if (b_encoderRangeShifted) {
+				minWorkingRange = -(float)(0x1 << encoder2_multiTurnResolutionBits) * (float)encoder2_EncoderToMotorRatioDenominator / ((float)encoder2_EncoderToMotorRatioNumerator * 2.0);
+				maxWorkingRange = -minWorkingRange;
+			}
+			else {
+				minWorkingRange = 0.0;
+				maxWorkingRange = (float)(0x1 << encoder2_multiTurnResolutionBits) * (float)encoder2_EncoderToMotorRatioDenominator / (float)encoder2_EncoderToMotorRatioNumerator;
+			}
+			break;
     }
 }
 
@@ -1158,15 +1118,15 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
     using namespace tinyxml2;
 
     XMLElement* kinematicLimitsXML = xml->InsertNewChildElement("KinematicLimits");
-    kinematicLimitsXML->SetAttribute("velocityLimit_rps", servoMotorDevice->velocityLimit_positionUnitsPerSecond);
-    kinematicLimitsXML->SetAttribute("accelerationLimit_rpsps", servoMotorDevice->accelerationLimit_positionUnitsPerSecondSquared);
+    kinematicLimitsXML->SetAttribute("velocityLimit_rps", velocityLimit);
+    kinematicLimitsXML->SetAttribute("accelerationLimit_rpsps", accelerationLimit);
     kinematicLimitsXML->SetAttribute("defaultManualAcceleration_rpsps", defaultManualAcceleration_rpsps);
 
     XMLElement* invertDirectionOfMovementXML = xml->InsertNewChildElement("InvertDirectionOfMovement");
     invertDirectionOfMovementXML->SetAttribute("Invert", b_invertDirectionOfMotorMovement);
 	
 	XMLElement* maxFollowingErrorXML = xml->InsertNewChildElement("MaxFollowingError");
-	maxFollowingErrorXML->SetAttribute("revolutions", servoMotorDevice->maxfollowingError);
+	maxFollowingErrorXML->SetAttribute("revolutions", maxFollowingError);
 
     XMLElement* currentLimitXML = xml->InsertNewChildElement("CurrentLimit");
     currentLimitXML->SetAttribute("amps", maxCurrent_amps);
@@ -1229,7 +1189,7 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
         break;
     }
     encoderSettingsXML->SetAttribute("RangeShifted", b_encoderRangeShifted);
-    encoderSettingsXML->SetAttribute("PositionOffset_revolutions", servoMotorDevice->positionOffset_positionUnits);
+    encoderSettingsXML->SetAttribute("PositionOffset_revolutions", positionOffset);
 
     return true;
 }
@@ -1242,8 +1202,8 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
     XMLElement* kinematicLimitsXML = xml->FirstChildElement("KinematicLimits");
     if (kinematicLimitsXML == nullptr) return Logger::warn("Could not find kinematic limits attribute");
 
-    if (kinematicLimitsXML->QueryDoubleAttribute("velocityLimit_rps", &servoMotorDevice->velocityLimit_positionUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not read velocity limit attribute");
-    if (kinematicLimitsXML->QueryDoubleAttribute("accelerationLimit_rpsps", &servoMotorDevice->accelerationLimit_positionUnitsPerSecondSquared) != XML_SUCCESS) return Logger::warn("Could not read acceleration limit attribute");
+    if (kinematicLimitsXML->QueryDoubleAttribute("velocityLimit_rps", &velocityLimit) != XML_SUCCESS) return Logger::warn("Could not read velocity limit attribute");
+    if (kinematicLimitsXML->QueryDoubleAttribute("accelerationLimit_rpsps", &accelerationLimit) != XML_SUCCESS) return Logger::warn("Could not read acceleration limit attribute");
     if (kinematicLimitsXML->QueryFloatAttribute("defaultManualAcceleration_rpsps", &defaultManualAcceleration_rpsps) != XML_SUCCESS) return Logger::warn("Could not read acceleration limit attribute");
     manualAcceleration_rpsps = defaultManualAcceleration_rpsps;
 
@@ -1253,7 +1213,7 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
 
 	XMLElement* maxFollowingErrorXML = xml->FirstChildElement("MaxFollowingError");
 	if(maxFollowingErrorXML == nullptr) return Logger::warn("Could not find max following error attribute");
-	if(maxFollowingErrorXML->QueryAttribute("revolutions", &servoMotorDevice->maxfollowingError) != XML_SUCCESS) return Logger::warn("Could not read max following error attribute");
+	if(maxFollowingErrorXML->QueryAttribute("revolutions", &maxFollowingError) != XML_SUCCESS) return Logger::warn("Could not read max following error attribute");
 	 
     XMLElement* currentLimitsXML = xml->FirstChildElement("CurrentLimit");
     if (currentLimitsXML == nullptr) return Logger::warn("Could not find current limits attribute");
@@ -1361,11 +1321,8 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
         break;
     }
     if (encoderSettingsXML->QueryBoolAttribute("RangeShifted", &b_encoderRangeShifted) != XML_SUCCESS) return Logger::warn("Could not find encoder range shift attribute");
-    if (encoderSettingsXML->QueryDoubleAttribute("PositionOffset_revolutions", &servoMotorDevice->positionOffset_positionUnits) != XML_SUCCESS) return Logger::warn("Could not find position offset attribute");
-    float lowEncoderRange, highEncoderRange;
-    getEncoderWorkingRange(lowEncoderRange, highEncoderRange);
-    servoMotorDevice->rangeMin_positionUnits = lowEncoderRange;
-    servoMotorDevice->rangeMax_positionUnits = highEncoderRange;
+    if (encoderSettingsXML->QueryDoubleAttribute("PositionOffset_revolutions", &positionOffset) != XML_SUCCESS) return Logger::warn("Could not find position offset attribute");
+	updateEncoderWorkingRange();
 
     return true;
 }

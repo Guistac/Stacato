@@ -172,16 +172,16 @@ void VelocityControlledAxis::settingsGui() {
 		ImGui::Text("Device:");
 		ImGui::PopFont();
 		ImGui::SameLine();
-		if(actuatorParentDevice) ImGui::Text("%s on %s", actuator->getName(), actuator->parentDevice->getName());
-		else ImGui::Text("%s on Node %s", actuator->getName(), actuatorPin->getConnectedPin()->getNode()->getName());
+		if(actuatorParentDevice) ImGui::Text("%s on %s", actuator->getName().c_str(), actuator->parentDevice->getName());
+		else ImGui::Text("%s on Node %s", actuator->getName().c_str(), actuatorPin->getConnectedPin()->getNode()->getName());
 
 		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Position Unit:");
 		ImGui::PopFont();
 		ImGui::SameLine();
-		ImGui::Text("%s", actuator->positionUnit->plural);
+		ImGui::Text("%s", actuator->getPositionUnit()->plural);
 
-		ImGui::Text("Actuator %s/s per Axis %s/s :", actuator->positionUnit->abbreviated, positionUnit->abbreviated);
+		ImGui::Text("Actuator %s/s per Axis %s/s :", actuator->getPositionUnit()->abbreviated, positionUnit->abbreviated);
 		ImGui::InputDouble("##actuatorCoupling", &actuatorUnitsPerAxisUnits);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		

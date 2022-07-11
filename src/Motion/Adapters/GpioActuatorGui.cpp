@@ -105,7 +105,7 @@ void GpioActuator::settingsGui(){
 	ImGui::SameLine();
 	if(isGpioDeviceConnected()){
 		std::shared_ptr<GpioDevice> gpioDevice = getGpioDevice();
-		ImGui::Text("%s on %s", gpioDevice->getName(), gpioDevice->parentDevice->getName());
+		ImGui::Text("%s on %s", gpioDevice->getName().c_str(), gpioDevice->parentDevice->getName());
 	}else ImGui::TextColored(Colors::red, "Not Connected");
 	
 	ImGui::Separator();
@@ -117,9 +117,9 @@ void GpioActuator::settingsGui(){
 		ImGui::PopFont();
 		
 		ImGui::Text("Position Unit");
-		if(ImGui::BeginCombo("##actuatorUnit", actuator->positionUnit->singular)){
+		if(ImGui::BeginCombo("##actuatorUnit", actuator->getPositionUnit()->singular)){
 			for(auto& unit : Units::AngularDistance::get()){
-				if(ImGui::Selectable(unit->singular, unit == actuator->positionUnit)){
+				if(ImGui::Selectable(unit->singular, unit == actuator->getPositionUnit())){
 					actuator->positionUnit = unit;
 				}
 			}
@@ -128,20 +128,22 @@ void GpioActuator::settingsGui(){
 		
 		ImGui::Text("Velocity Limit");
 		static char servoVelocityLimitString[256];
-		sprintf(servoVelocityLimitString, "%.3f %s/s", actuator->velocityLimit_positionUnitsPerSecond, actuator->positionUnit->abbreviated);
-		ImGui::InputDouble("##velocityLimit", &actuator->velocityLimit_positionUnitsPerSecond, 0.0, 0.0, servoVelocityLimitString);
+		sprintf(servoVelocityLimitString, "%.3f %s/s", actuator->getVelocityLimit(), actuator->getPositionUnit()->abbreviated);
+		ImGui::InputDouble("##velocityLimit", &actuator->velocityLimit, 0.0, 0.0, servoVelocityLimitString);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		
+		/*
 		ImGui::Text("Minimum Velocity");
 		static char actuatorMinVelocityString[256];
 		sprintf(actuatorMinVelocityString, "%.3f %s/s", actuator->minVelocity_positionUnitsPerSecond, actuator->positionUnit->abbreviated);
 		ImGui::InputDouble("##minvel", &actuator->minVelocity_positionUnitsPerSecond, 0.0, 0.0, actuatorMinVelocityString);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
-		
+		*/
+		 
 		ImGui::Text("Acceleration Limit");
 		static char servoAccelerationLimitString[256];
-		sprintf(servoAccelerationLimitString, "%.3f %s/s2", actuator->accelerationLimit_positionUnitsPerSecondSquared, actuator->positionUnit->abbreviated);
-		ImGui::InputDouble("##accelerationLimit", &actuator->accelerationLimit_positionUnitsPerSecondSquared, 0.0, 0.0, servoAccelerationLimitString);
+		sprintf(servoAccelerationLimitString, "%.3f %s/s2", actuator->getAccelerationLimit(), actuator->getPositionUnit()->abbreviated);
+		ImGui::InputDouble("##accelerationLimit", &actuator->accelerationLimit, 0.0, 0.0, servoAccelerationLimitString);
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		
 		ImGui::Text("Acceleration for Manual Controls");

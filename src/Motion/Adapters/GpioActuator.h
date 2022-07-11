@@ -10,14 +10,66 @@ public:
 	
 	DEFINE_NODE(GpioActuator, "Gpio Actuator", "GpioActuator", Node::Type::PROCESSOR, "Adapters")
 	
+	class Actuator : public ActuatorDevice{
+	public:
+		
+		Actuator(std::shared_ptr<GpioActuator> node) : adapter(node){}
+		
+		virtual MotionState getState() override {
+			if(!adapter->getGpioDevice()->isReady()) return MotionState::OFFLINE;
+			else if(*adapter->emergencyStopSignal) return MotionState::EMERGENY_STOP;
+			else if(!*adapter->readySignal) return MotionState::NOT_READY;
+			else if(b_enabled) return MotionState::ENABLED;
+			else return MotionState::READY;
+		}
+		virtual std::string getName() override { return "Gpio Actuator"; }
+		virtual bool hasFault() override { return b_wrongConnections; }
+		virtual std::string getStatusString() override {
+			if(b_wrongConnections) return "Gpio Actuator Node is not connected correctly";
+			return "";
+		}
+	
+		virtual Unit getPositionUnit() override { return positionUnit; }
+		
+		virtual void enable() override { b_enable = true; };
+		virtual void disable() override { b_disable = true; }
+		virtual void quickstop() override { b_quickstop = true; }
+
+		virtual void setVelocityCommand(double velocity, double acceleration) override {
+			velocityCommand = velocity;
+			accelerationCommand = acceleration;
+		}
+		double velocityCommand = 0.0;
+		double accelerationCommand = 0.0;
+		
+		virtual double getVelocityLimit() override { return velocityLimit; }
+		virtual double getAccelerationLimit() override { return accelerationLimit; }
+
+		virtual double getLoad() override { return 0.0; }
+		
+		std::shared_ptr<GpioActuator> adapter;
+		bool b_enable = false;
+		bool b_disable = false;
+		bool b_quickstop = false;
+		
+		bool b_wrongConnections = false;
+		bool b_enabled = false;
+		
+		Unit positionUnit = Units::AngularDistance::Revolution;
+		
+		double velocityLimit = 0.0;
+		double accelerationLimit = 0.0;
+		
+	};
+	
 	//output data
 	std::shared_ptr<bool> enableSignal = std::make_shared<bool>(false);
 	std::shared_ptr<double> controlSignal = std::make_shared<double>(0.0);
-	std::shared_ptr<ActuatorDevice> actuator = std::make_shared<ActuatorDevice>("Actuator", Units::AngularDistance::Revolution);
+	std::shared_ptr<Actuator> actuator;
 	
 	std::shared_ptr<NodePin> enablePin = std::make_shared<NodePin>(enableSignal, NodePin::Direction::NODE_OUTPUT, "Enable");
 	std::shared_ptr<NodePin> controlSignalPin = std::make_shared<NodePin>(controlSignal, NodePin::Direction::NODE_OUTPUT, "Control Signal");
-	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(actuator, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator");
+	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator");
 	
 	//input data
 	std::shared_ptr<bool> readySignal = std::make_shared<bool>(false);

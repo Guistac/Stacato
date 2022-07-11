@@ -1,6 +1,7 @@
 #pragma once
 
 class ActuatorDevice;
+class VelocityFeedbackDevice;
 class PositionFeedbackDevice;
 class GpioDevice;
 class ServoActuatorDevice;
@@ -22,7 +23,8 @@ public:
 		INTEGER,
 		REAL,
 		ACTUATOR,
-		POSITIONFEEDBACK,
+		VELOCITY_FEEDBACK,
+		POSITION_FEEDBACK,
 		GPIO,
 		SERVO_ACTUATOR,
 		VELOCITY_CONTROLLED_AXIS,
@@ -243,7 +245,8 @@ inline NodePin::Flags operator|(NodePin::Flags a, NodePin::Flags b) {
 	{NodePin::DataType::INTEGER, 					.displayString = "Integer", 					.saveString = "Integer"},\
 	{NodePin::DataType::REAL, 						.displayString = "Real", 						.saveString = "Real"},\
 	{NodePin::DataType::ACTUATOR, 					.displayString = "Actuator", 					.saveString = "ActuatorDeviceLink"},\
-	{NodePin::DataType::POSITIONFEEDBACK, 			.displayString = "Position Feedback", 			.saveString = "PositionFeedbackDeviceLink"},\
+	{NodePin::DataType::VELOCITY_FEEDBACK, 			.displayString = "Velocity Feedback", 			.saveString = "VelocityFeedbackDeviceLink"},\
+	{NodePin::DataType::POSITION_FEEDBACK, 			.displayString = "Position Feedback", 			.saveString = "PositionFeedbackDeviceLink"},\
 	{NodePin::DataType::GPIO, 						.displayString = "GPIO", 						.saveString = "GPIODeviceLink"},\
 	{NodePin::DataType::SERVO_ACTUATOR, 			.displayString = "Servo Actuator", 				.saveString = "ServoActuatorDeviceLink"},\
 	{NodePin::DataType::VELOCITY_CONTROLLED_AXIS, 	.displayString = "Velocity Controlled Axis", 	.saveString = "VelocityControlledAxisLink"},\
@@ -390,7 +393,10 @@ template<>
 inline NodePin::DataType NodePin::detectType(std::shared_ptr<ActuatorDevice> ptr) { return DataType::ACTUATOR; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<PositionFeedbackDevice> ptr) { return DataType::POSITIONFEEDBACK; }
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<VelocityFeedbackDevice> ptr) { return DataType::VELOCITY_FEEDBACK; }
+
+template<>
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<PositionFeedbackDevice> ptr) { return DataType::POSITION_FEEDBACK; }
 
 template<>
 inline NodePin::DataType NodePin::detectType(std::shared_ptr<GpioDevice> ptr) { return DataType::GPIO; }
@@ -438,8 +444,14 @@ inline void NodePin::assignData(std::shared_ptr<ActuatorDevice> ptr) {
 }
 
 template<>
+inline void NodePin::assignData(std::shared_ptr<VelocityFeedbackDevice> ptr) {
+	if(dataType != DataType::VELOCITY_FEEDBACK) return logTypeMismatchError(ptr);
+	pointer = ptr;
+}
+
+template<>
 inline void NodePin::assignData(std::shared_ptr<PositionFeedbackDevice> ptr) {
-	if(dataType != DataType::POSITIONFEEDBACK) return logTypeMismatchError(ptr);
+	if(dataType != DataType::POSITION_FEEDBACK) return logTypeMismatchError(ptr);
 	pointer = ptr;
 }
 

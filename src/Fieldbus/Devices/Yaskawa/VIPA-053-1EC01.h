@@ -11,8 +11,25 @@ public:
 
     DEFINE_ETHERCAT_DEVICE(VipaBusCoupler_053_1EC01, "VIPA Bus Coupler", "VipaBusCoupler-053-1EC01", "Yaskawa", "I/O", 0x22B, 0x531EC01)
 	
+	class VipaGpioDevice : public GpioDevice{
+	public:
+		
+		VipaGpioDevice(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler) : coupler(busCoupler){}
+		
+		virtual MotionState getState() override {
+			if(!coupler->isConnected()) return MotionState::OFFLINE;
+			else if(coupler->isStateOperational()) return MotionState::ENABLED;
+			else return MotionState::NOT_READY;
+		}
+		virtual std::string getName() override { return "Vipa GPIO"; }
+		virtual bool hasFault() override { return false; }
+		virtual std::string getStatusString() override { return ""; }
+		
+		std::shared_ptr<VipaBusCoupler_053_1EC01> coupler;
+	};
+	
     //master GPIO Subdevice
-    std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("GPIO");
+	std::shared_ptr<VipaGpioDevice> gpioDevice;
     std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT, "GPIO");
 	
 	//modules and module management
