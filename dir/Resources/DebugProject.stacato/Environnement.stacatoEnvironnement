@@ -110,7 +110,7 @@
                 <NodeEditorPosition x="-473" y="753"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="101"/>
-                    <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="50" defaultManualAcceleration_rpsps="50"/>
+                    <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="50" manualAcceleration_rpsps="1"/>
                     <InvertDirectionOfMovement Invert="false"/>
                     <MaxFollowingError revolutions="2"/>
                     <CurrentLimit amps="9"/>
@@ -143,9 +143,9 @@
                 <NodeEditorPosition x="-325" y="1502"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="100"/>
-                    <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="100" defaultManualAcceleration_rpsps="50"/>
+                    <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="100" manualAcceleration_rpsps="50"/>
                     <InvertDirectionOfMovement Invert="false"/>
-                    <MaxFollowingError revolutions="2"/>
+                    <MaxFollowingError revolutions="0.09999847412109375"/>
                     <CurrentLimit amps="9"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="100"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
@@ -170,6 +170,29 @@
                     <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="304" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="305" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="306" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Position Controlled Axis" UniqueID="308">
+                <NodeEditorPosition x="-27" y="1544"/>
+                <NodeSpecificData>
+                    <Units UnitType="Rotary" Unit="Degree"/>
+                    <UnitConversion ActuatorUnitsPerMachineUnit="1"/>
+                    <KinematicLimits VelocityLimit="100" AccelerationLimit="50" ManualAcceleration="50"/>
+                    <PositionReferenceSignals Type="None" HomingVelocityCoarse="0" HomingVelocityFine="0" HomingDirection="Negative"/>
+                    <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="1" HighLimit="100" EnableHighLimit="true" HighLimitClearance="1" LimitToFeedbackWorkingRange="true"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Servo Actuator" DisplayString="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="309" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Reference Device" DisplayString="Reference Device" DataType="GPIODeviceLink" UniqueID="310" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="Low Limit Signal" DisplayString="Low Limit Signal" DataType="Boolean" UniqueID="311" Visible="false"/>
+                    <InputPin SaveString="High Limit Signal" DisplayString="High Limit Signal" DataType="Boolean" UniqueID="312" Visible="false"/>
+                    <InputPin SaveString="Reference Signal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="313" Visible="false"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="314" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="315" Visible="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="316" Visible="true"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="317" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>

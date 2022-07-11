@@ -240,7 +240,6 @@ DEFINE_ENUMERATOR(ManoeuvreType, ManoeuvreTypeStrings)
 
 enum class MotionState{
 	OFFLINE,
-	EMERGENY_STOP,
 	NOT_READY,
 	READY,
 	ENABLED

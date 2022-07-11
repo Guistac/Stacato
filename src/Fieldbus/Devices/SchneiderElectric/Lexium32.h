@@ -17,9 +17,7 @@ public:
 		
 		LexiumServoMotor(std::shared_ptr<Lexium32> lexium32) : drive(lexium32){}
 		
-		virtual MotionState getState() override {
-			
-		};
+		virtual MotionState getState() override { return state; };
 		virtual std::string getName() override { return "Servo Motor"; }
 		virtual bool hasFault() override { return drive->b_hasFault; }
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
@@ -27,27 +25,25 @@ public:
 		virtual Unit getPositionUnit() override { return Units::AngularDistance::Revolution; }
 		virtual PositionFeedbackType getPositionFeedbackType() override { return PositionFeedbackType::ABSOLUTE; }
 		
-		virtual bool isInsideWorkingRange() override { return drive->position >= drive->minWorkingRange && drive->position <= drive->maxWorkingRange; }
-		virtual double getPositionInWorkingRange() override { return (drive->position - drive->minWorkingRange) / (drive->maxWorkingRange - drive->minWorkingRange); }
-		virtual double getMinPosition() override { return drive->minWorkingRange; }
-		virtual double getMaxPosition() override { return drive->maxWorkingRange; }
+		virtual bool isInsideWorkingRange() override { return position >= minWorkingRange && position <= maxWorkingRange; }
+		virtual double getPositionInWorkingRange() override { return (position - minWorkingRange) / (maxWorkingRange - minWorkingRange); }
+		virtual double getMinPosition() override { return minWorkingRange - positionOffset; }
+		virtual double getMaxPosition() override { return maxWorkingRange - positionOffset; }
 		
-		virtual double getPosition() override { return drive->position - drive->positionOffset; }
-		virtual double getVelocity() override { return drive->velocity; }
-		virtual bool isMoving() override { return drive->b_isMoving; }
-		virtual double getLoad() override { return drive->load; }
+		virtual double getPosition() override { return position - positionOffset; }
+		virtual double getVelocity() override { return velocity; }
+		virtual bool isMoving() override { return b_isMoving; }
+		virtual double getLoad() override { return load; }
 		
-		virtual bool canHardReset() override { return true; }
-		virtual void executeHardReset() override { return b_hardReset; }
-		virtual bool isExecutingHardReset() override { return b_hardResetBusy; }
+		//virtual bool canHardReset() override { return true; }
+		//virtual void executeHardReset() override {}
+		//virtual bool isExecutingHardReset() override { return b_hardResetBusy; }
 		
 		//virtual bool canHardOverride() override { return false; }
 		//virtual void executeHardOverride(double overridePosition) override {}
 		//virtual bool isExecutingHardOverride() override { return false; }
 		
-		virtual void softOverridePosition(double position) override {
-			//UNIMPLEMENTED
-		}
+		virtual void softOverridePosition(double softPosition) override { positionOffset = position - softPosition; }
 		
 		virtual void enable() override { b_enable = true; }
 		virtual void disable() override { b_disable = true; }
@@ -55,32 +51,52 @@ public:
 
 		virtual void setVelocityCommand(double velocityCommand, double accelerationCommand) override { /*UNIMPLEMENTED*/ }
 		
-		virtual double getVelocityLimit() override { return drive->velocityLimit; }
-		virtual double getAccelerationLimit() override { return drive->accelerationLimit; }
+		virtual double getVelocityLimit() override { return velocityLimit; }
+		virtual double getAccelerationLimit() override { return accelerationLimit; }
 
 		//virtual bool hasManualHoldingBrake() { return false; }
 		//virtual bool isHoldingBrakeApplied() { return false; }
 		//virtual void releaseHoldingBrake() {}
 		//virtual void applyHoldingBrake() {}
 		
+		virtual bool isEmergencyStopped() override { return drive->b_stoActive; }
 		
 		virtual void setPositionCommand(double positionCommand, double velocityCommand, double accelerationCommand) override {
-			drive->targetPosition = positionCommand;
-			drive->targetVelocity = velocityCommand;
-			drive->targetAcceleration = accelerationCommand;
+			targetPosition = positionCommand + positionOffset;
+			targetVelocity = velocityCommand;
+			targetAcceleration = accelerationCommand;
 		};
 		
-		virtual double getFollowingError() override { return drive->followingError; }
+		virtual double getFollowingError() override { return followingError; }
 		virtual double getMaxFollowingError() override { return drive->maxFollowingError; }
-		virtual double getFollowingErrorInRange() override { return std::abs(drive->followingError / drive->maxFollowingError); }
+		virtual double getFollowingErrorInRange() override { return std::abs(followingError / drive->maxFollowingError); }
 		
 		std::shared_ptr<Lexium32> drive;
+		
+		//state change commands
 		bool b_enable = false;
 		bool b_disable = false;
 		bool b_quickstop = false;
-		bool b_hardReset = false;
-		bool b_hardResetBusy = false;
+		
+		//state
 		MotionState state = MotionState::OFFLINE;
+		double load;
+		bool b_isMoving = false;
+		
+		//all units are in revolutions and seconds
+		double position;
+		double velocity;
+		double followingError;
+		double positionOffset = 0.0;
+		
+		double minWorkingRange;
+		double maxWorkingRange;
+		double velocityLimit;
+		double accelerationLimit;
+		
+		double targetPosition;
+		double targetVelocity;
+		double targetAcceleration;
 	};
 	
 	class LexiumGpio : public GpioDevice{
@@ -141,9 +157,6 @@ public:
     std::shared_ptr<NodePin> digitalIn3Pin = std::make_shared<NodePin>(digitalIn3Value, NodePin::Direction::NODE_OUTPUT, "DI3", NodePin::Flags::DisableDataField);
     std::shared_ptr<NodePin> digitalIn4Pin = std::make_shared<NodePin>(digitalIn4Value, NodePin::Direction::NODE_OUTPUT, "DI4", NodePin::Flags::DisableDataField);
     std::shared_ptr<NodePin> digitalIn5Pin = std::make_shared<NodePin>(digitalIn5Value, NodePin::Direction::NODE_OUTPUT, "DI5", NodePin::Flags::DisableDataField);
-
-
-	void resetData();
 	
 	//————————— PROCESS DATA ———————————
 	
@@ -180,29 +193,12 @@ private:
 	bool b_motorVoltagePresent = false;
 	bool b_stoActive = false;
 	
+	//homing mode commands
 	bool b_startHoming = false;
 	bool b_isHoming = false;
-	bool b_isMoving = false;
-	
-	//all units are in revolutions and seconds
-	
-	double position;
-	double velocity;
-	double load;
-	double followingError;
-	
-	double positionOffset = 0.0;
-	
-	void updateEncoderWorkingRange();
-	double minWorkingRange;
-	double maxWorkingRange;
-	double velocityLimit;
-	double accelerationLimit;
-	
-	double targetPosition;
-	double targetVelocity;
-	double targetAcceleration;
 
+	void updateEncoderWorkingRange();
+	
 	static std::string getErrorCodeString(uint16_t errorCode){
 		switch(errorCode){
 			case 0x0: return "No Error";
@@ -251,6 +247,7 @@ private:
 	 
 	glm::vec4 getStatusColor(){
 		if(!isConnected()) return Colors::blue;
+		else if(b_stoActive) return Colors::red;
 		else if(!b_motorVoltagePresent) return Colors::red;
 		else if(b_hasFault) {
 			if(b_faultNeedsRestart) return Colors::red;
@@ -275,7 +272,6 @@ public:
 
     float manualVelocityCommand_rps = 0.0;
     float manualAcceleration_rpsps = 1.0;
-    float defaultManualAcceleration_rpsps = 1.0;
 
     //===== Unit Settings =====
 

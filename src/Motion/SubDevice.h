@@ -28,7 +28,6 @@ public:
 	bool isOnline() {
 		switch(getState()){
 			case MotionState::OFFLINE: return false;
-			case MotionState::EMERGENY_STOP:
 			case MotionState::NOT_READY:
 			case MotionState::READY:
 			case MotionState::ENABLED: return true;
@@ -37,7 +36,6 @@ public:
 	bool isReady() {
 		switch(getState()){
 			case MotionState::OFFLINE:
-			case MotionState::EMERGENY_STOP:
 			case MotionState::NOT_READY: return false;
 			case MotionState::READY:
 			case MotionState::ENABLED: return true;
@@ -46,19 +44,9 @@ public:
 	bool isEnabled(){
 		switch(getState()){
 			case MotionState::OFFLINE:
-			case MotionState::EMERGENY_STOP:
 			case MotionState::NOT_READY:
 			case MotionState::READY: return false;
 			case MotionState::ENABLED: return true;
-		}
-	}
-	bool isEmergencyStopped(){
-		switch(getState()){
-			case MotionState::OFFLINE: return false;
-			case MotionState::EMERGENY_STOP: return true;
-			case MotionState::NOT_READY:
-			case MotionState::READY:
-			case MotionState::ENABLED: return false;
 		}
 	}
 };
@@ -130,6 +118,8 @@ public:
 	virtual void applyHoldingBrake() {}
 
 	virtual double getLoad() = 0;
+	
+	virtual bool isEmergencyStopped() = 0;
 };
 
 

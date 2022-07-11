@@ -18,7 +18,7 @@ namespace NodeFactory{
 	void loadEtherCatNodes(std::vector<Node*>& nodeList) {
 		
 		allEtherCatDevices = {
-			new EtherCatDevice(),
+			//new EtherCatDevice(),
 			new Lexium32(),
 			new ATV320(),
 			new VipaBusCoupler_053_1EC01(),
