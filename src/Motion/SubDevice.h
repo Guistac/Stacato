@@ -35,6 +35,9 @@ public:
 	bool b_detected = false;
 	bool b_online = false;
 	bool b_ready = false;
+	
+	MotionState getState(){ return state; }
+	MotionState state = MotionState::OFFLINE;
 };
 
 class PositionDevice: public Subdevice {

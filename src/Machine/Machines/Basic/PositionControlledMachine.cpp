@@ -72,7 +72,7 @@ void PositionControlledMachine::enableHardware() {
 			std::shared_ptr<PositionControlledAxis> axis = getAxis();
 			axis->enable();
 			time_point enableRequestTime = system_clock::now();
-			while (duration(system_clock::now() - enableRequestTime) < milliseconds(100)) {
+			while (duration(system_clock::now() - enableRequestTime) < milliseconds(500)) {
 				std::this_thread::sleep_for(milliseconds(10));
 				if (axis->isEnabled()) {
 					b_enabled = true;
@@ -110,9 +110,25 @@ void PositionControlledMachine::onDisableSimulation() {
 }
 
 void PositionControlledMachine::inputProcess() {
-	if (!isAxisConnected()) return;
+	if (!isAxisConnected()) {
+		state = State::OFFLINE;
+		return;
+	}
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
+	/*
+	 OFFLINE,
+	 EMERGENCY_STOP,
+	 NOT_READY,
+	 READY,
+	 ENABLED,
+	 HALTED
+	 */
+	
+	
+	if(!isMotionAllowed()) state = Machine::State::HALTED;
+	else state = Machine::State::READY;
+	
 	auto actualPosition = AnimationValue::makePosition();
 	actualPosition->position = axisPositionToMachinePosition(axis->getActualPosition());
 	actualPosition->velocity = axisVelocityToMachineVelocity(axis->getActualVelocity());

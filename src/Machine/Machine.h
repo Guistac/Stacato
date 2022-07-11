@@ -81,8 +81,15 @@ public:
 		ENABLED,
 		HALTED
 	};
+	State getState(){ return state; }
+	
+protected:
+	State state = State::OFFLINE;
 	
 	//===== STATE CONTROL & MONITORING =====
+	
+public:
+	
 	bool b_enabled = false;
 	bool isReady();
 	void enable();
