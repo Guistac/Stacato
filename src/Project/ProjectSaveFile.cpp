@@ -134,7 +134,7 @@ namespace Project{
 			return false;
 		}
 		
-		std::string stageVisualizeScriptPath = stageFolderPath + "Script.lua";
+		std::string stageVisualizeScriptPath = stageFolderPath + "main.lua";
 		Environnement::StageVisualizer::loadScript(stageVisualizeScriptPath.c_str());
 
 		std::string environnementScriptPath = projectFolderPath + "EnvironnementScript.lua";
@@ -206,7 +206,7 @@ namespace Project{
 		std::string stageFolder = projectFolderPath + "Stage/";
 		if(!std::filesystem::exists(std::filesystem::path(stageFolder))) std::filesystem::create_directory(std::filesystem::path(stageFolder));
 
-		std::string stageVisualizeScriptPath = stageFolder + "Script.lua";
+		std::string stageVisualizeScriptPath = stageFolder + "main.lua";
 		Environnement::StageVisualizer::saveScript(stageVisualizeScriptPath.c_str());
 		
 		std::string environnementScriptPath = projectFolderPath + "EnvironnementScript.lua";

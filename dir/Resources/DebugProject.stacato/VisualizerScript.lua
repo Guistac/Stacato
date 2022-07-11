@@ -1,15 +1,22 @@
+
+local test = debug.getinfo(1).source
+Logger:warn(test)
+
+local module = require("ModuleTest")
+
+
 --Initialize and Load stuff here :
 
 local costiereA = Environnement.getMachine("Costière A")
 local costiereA_Position = costiereA:getAnimatable("Position")
 
 local flipB3 = Environnement.getMachine("Flip B3")
-local flipB3_State = flipB3:getAnimatable("State")
+--local flipB3_State = flipB3:getAnimatable("State")
 
-local flipA4 = Environnement.getMachine("Flip A4")
-local flipA4_State = flipA4:getAnimatable("State")
+--local flipA4 = Environnement.getMachine("Flip A4")
+--local flipA4_State = flipA4:getAnimatable("State")
 
-local flipStates = flipB3_State:getStates()
+--local flipStates = flipB3_State:getStates()
 
 
 
@@ -22,8 +29,8 @@ end
 function update()
 
 	local costiereA_Position = costiereA_Position:getActualValue()
-	local flipB3_State = flipB3_State:getActualValue()
-	local flipA4_State = flipA4_State:getActualValue()
+	--local flipB3_State = flipB3_State:getActualValue()
+	--local flipA4_State = flipA4_State:getActualValue()
 
 	local canvasSize = glm.vec2(Canvas.getSize())
 
@@ -51,10 +58,10 @@ function update()
 	local rPos = glm.vec2(of.lerp(lStart.x, lEnd.x, lerp), of.lerp(lStart.y, lEnd.y, lerp))
 	of.drawCircle(rPos, 50)
 
-	local B3stateString = "Flip B3: " .. flipB3_State:toString()
-	local A4stateString = "Flip A4: " .. flipA4_State:toString()
-	of.drawBitmapStringHighlight(B3stateString, 20, canvasSize.y - 50)
-	of.drawBitmapStringHighlight(A4stateString, 20, canvasSize.y - 30)
+	--local B3stateString = "Flip B3: " .. flipB3_State:toString()
+	--local A4stateString = "Flip A4: " .. flipA4_State:toString()
+	--of.drawBitmapStringHighlight(B3stateString, 20, canvasSize.y - 50)
+	--of.drawBitmapStringHighlight(A4stateString, 20, canvasSize.y - 30)
 
 end
 
@@ -64,6 +71,13 @@ end
 function exit()
 	Logger:info("Exiting Stage Visualizer Script at", of.getElapsedTimef(), "seconds.")
 end
+
+
+
+
+
+
+
 
 
 

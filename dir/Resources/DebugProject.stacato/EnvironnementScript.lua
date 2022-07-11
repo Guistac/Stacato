@@ -1,4 +1,13 @@
 
+
+local library = require("Stage.library")
+
+Logger:warn(library.get())
+library.increment()
+Logger:warn(library.get())
+
+--ModuleTest.increment()
+
 ---------------------------------------
 ----Default Environnement Script----
 ---------------------------------------
@@ -30,28 +39,5 @@ end
 
 function exit()
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
