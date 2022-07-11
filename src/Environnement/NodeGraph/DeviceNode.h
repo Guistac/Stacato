@@ -23,7 +23,6 @@ public:
 
 	virtual Type getDeviceType() = 0;
 
-	//we define process() here so device subclasses don't have to define it.
 	//for device nodes, processing takes place inside the device.
 	//instead we only prepare input when data is available
 	//and prepare outputs when new data is send to the device

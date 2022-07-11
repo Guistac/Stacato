@@ -5,9 +5,11 @@
 
 #include "Fieldbus/Utilities/DS402.h"
 
+#include "Gui/Assets/Colors.h"
+
 class Lexium32 : public EtherCatDevice {
 public:
-
+	
     DEFINE_ETHERCAT_DEVICE(Lexium32, "Lexium32M", "Lexium32M", "Schneider Electric", "Servo Drives", 0x800005A, 0x16440)
 
     //node input data
@@ -47,7 +49,105 @@ public:
 
 	void resetData();
 	
-    //===== drive status =====
+	//————————— PROCESS DATA ———————————
+	
+private:
+
+	DS402::PowerState actualPowerState = DS402::PowerState::UNKNOWN;
+	DS402::OperatingMode actualOperatingMode = DS402::OperatingMode::UNKNOWN;
+	
+	DS402::PowerState requestedPowerState = DS402::PowerState::UNKNOWN;
+	DS402::OperatingMode requestedOperatingMode = DS402::OperatingMode::UNKNOWN;
+	
+	//Rx-PDO
+	DS402::Control ds402Control;
+	int32_t PPp_target = 0;
+	uint16_t IO_DQ_set = 0;
+
+	//Tx-PDO
+	DS402::Status ds402Status;
+	int32_t _p_act = 0;
+	int32_t _p_dif_usr = 0;
+	int32_t _v_act = 0;
+	uint16_t _I_act = 0;
+	uint16_t _LastError = 0;
+	uint16_t _actionStatus = 0;
+	uint16_t _IO_act = 0;
+	uint16_t _IO_STO_act = 0;
+	
+	long long enableRequestTime_nanoseconds;
+	long long enableRequestTimeout_nanoseconds = 250'000'000; //250ms enable timeout
+	
+	bool b_hasFault = false;
+	bool b_isResettingFault = false;
+	bool b_faultNeedsRestart = false;
+	bool b_motorVoltagePresent = false;
+	bool b_stoActive = false;
+	
+	bool b_startHoming = false;
+	bool b_isHoming = false;
+	
+	static std::string getErrorCodeString(uint16_t errorCode){
+		switch(errorCode){
+			case 0x0: return "No Error";
+			case 0xA320: return "A320 : Max Following Error Exceeded";
+			case 0xB122: return "B122 : Cyclic communication: Incorrect synchronization";
+			case 0xB610: return "B610 : Fieldbus Watchdog";
+			case 0xB103: return "B103 : Fieldbus Communication Closed";
+			case 0x733F: return "733F : Amplitude of encoder analog signals too low";
+			case 0x5200: return "5200 : Error detected at connection to motor encoder";
+			case 0x1300: return "1300 : Safety Function STO was Enabled";
+			case 0x1301: return "1301 : STO_A and STO_B different level";
+			case 0x3100: return "3100 : Missing mains supply, undervoltage mains supply or overvoltage mains supply";
+			default: {
+				static char hexString[16];
+				sprintf(hexString, "%X", errorCode);
+				std::string output = std::string(hexString) + " (Unknown Error Code)";
+				return output;
+			}
+		}
+	}
+	
+	std::string getStatusString(){
+		if(!isConnected()) return "Device Offline";
+		else if(!b_motorVoltagePresent) return "Motor voltage is not present, check power connections.";
+		else if(b_hasFault){
+			if(b_faultNeedsRestart) return getErrorCodeString(_LastError) + "\nDrive Restart needed to reset fault.";
+			else return getErrorCodeString(_LastError) + "\nFault will be cleared when enabling.";
+		}else if(b_stoActive) return "STO Active";
+		else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) return "Drive Restart Needed.";
+		else return "No Issues";
+	}
+	
+	std::string getShortStatusString(){
+		if(!isConnected()) return "Device Offline";
+		else if(!b_motorVoltagePresent) return "No Motor Voltage";
+		else if(b_stoActive) return "STO Active";
+		else if(b_hasFault) {
+			static char hexFaultCodeString[16];
+			sprintf(hexFaultCodeString, "%X", _LastError);
+			if(b_faultNeedsRestart) return "Critical Fault : " + std::string(hexFaultCodeString);
+			else return "Fault : " + std::string(hexFaultCodeString);
+		}
+		else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) return "Restart Needed";
+		else return Enumerator::getDisplayString(actualPowerState);
+	}
+	 
+	glm::vec4 getStatusColor(){
+		if(!isConnected()) return Colors::blue;
+		else if(!b_motorVoltagePresent) return Colors::red;
+		else if(b_hasFault) {
+			if(b_faultNeedsRestart) return Colors::red;
+			else return Colors::orange;
+		}
+		else if(!servoMotorDevice->isReady()) return Colors::red;
+		else if(servoMotorDevice->isEnabled()) return Colors::green;
+		else return Colors::yellow;
+	}
+	
+	//———————————————————————————————————————
+	
+public:
 
 
     //===== INTERNAL MOTION PROFILE GENERATOR =====
@@ -72,7 +172,6 @@ public:
     //===== General Settings =====
 
     bool b_invertDirectionOfMotorMovement = false;
-
     double maxCurrent_amps = 0.0;
     
     float maxMotorVelocity_rps = 0.0;
@@ -134,9 +233,9 @@ public:
     void downloadPinAssignements();
     DataTransferState pinAssignementDownloadState = DataTransferState::NO_TRANSFER;
 
+	
     //===== Encoder Settings =====
 
-	
     enum class EncoderAssignement {
 		INTERNAL_ENCODER,
 		ENCODER_MODULE
@@ -153,7 +252,6 @@ public:
 			case 1: return EncoderAssignement::ENCODER_MODULE;
 		}
 	}
-
 	
     enum class EncoderModule {
 		ANALOG_MODULE,
@@ -290,68 +388,10 @@ public:
     void setStationAlias(uint16_t a);
     DataTransferState stationAliasUploadState = DataTransferState::NO_TRANSFER;
 
-
-private:
-
-	DS402::PowerState actualPowerState = DS402::PowerState::UNKNOWN;
-	DS402::OperatingMode actualOperatingMode = DS402::OperatingMode::UNKNOWN;
-	
-	DS402::PowerState requestedPowerState = DS402::PowerState::UNKNOWN;
-	DS402::OperatingMode requestedOperatingMode = DS402::OperatingMode::UNKNOWN;
-	
-	//Rx-PDO
-	DS402::Control ds402Control;
-    int32_t PPp_target = 0;
-    uint16_t IO_DQ_set = 0;
-
-	//Tx-PDO
-	DS402::Status ds402Status;
-    int32_t _p_act = 0;
-	int32_t _p_dif_usr = 0;
-    int32_t _v_act = 0;
-    uint16_t _I_act = 0;
-    uint16_t _LastError = 0;
-    uint16_t _IO_act = 0;
-    uint16_t _IO_STO_act = 0;
-	
-	bool b_hasFault = false;
-	bool b_isResettingFault = false;
 	
 	
-	static std::string getErrorCodeString(uint16_t errorCode){
-		switch(errorCode){
-			case 0x0: return "No Error";
-			case 0xA320: return "A320 : Max Following Error Exceeded";
-			case 0xB122: return "B122 : Communication Synchronization Error";
-			case 0xB610: return "B610 : Fieldbus Watchdog";
-			case 0xB103: return "B103 : Fieldbus Communication Closed";
-			case 0x733F: return "733F : Amplitude of encoder analog signals too low";
-			case 0x5200: return "5200 : Error detected at connection to motor encoder";
-			case 0x1300: return "1300 : Safety function STO Active";
-			case 0x1301: return "1301 : STO_A and STO_B different level";
-			default: {
-				static char hexString[16];
-				sprintf(hexString, "%X", errorCode);
-				std::string output = std::string(hexString) + " (Unknown Error Code)";
-				return output;
-			}
-		}
-	}
 	
-	/*
-	bool b_resetEncoder = false;
-	bool b_resettingEncoder = false;
 	
-	bool b_homingMode = false;
-	bool b_sendHomingMode = false;
-	bool b_doHoming = false;
-	
-	bool b_homingCompleted = false;
-	bool b_homingSuccessful = false;
-	*/
-	 
-	bool b_startHoming = false;
-	bool b_isHoming = false;
 	
     //Lexium GUI functions
     void statusGui();

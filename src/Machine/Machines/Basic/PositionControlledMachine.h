@@ -34,6 +34,12 @@ class PositionControlledMachine : public Machine{
 	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin) override;
 	
 	void updateAnimatableParameters();
+	
+	virtual std::vector<std::shared_ptr<PositionControlledAxis>> getPositionControlledAxes() override {
+		std::vector<std::shared_ptr<PositionControlledAxis>> output;
+		if(isAxisConnected()) output.push_back(getAxis());
+		return output;
+	}
 
 	//————————— Settings ——————————
 

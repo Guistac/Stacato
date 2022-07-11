@@ -43,8 +43,9 @@ namespace Script{
 	}
 
    void stop(){
+	   //TODO: this sometimes crashes
 	   if(script.checkHasFunction("exit")) script.callFunction("exit");
-	   script.stop();
+	   script.stop(); //TODO: this crashes sometimes
 	   Logger::info("Stopped Environnement Script");
    }
 

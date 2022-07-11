@@ -4,6 +4,7 @@
 #include <imgui_internal.h>
 
 #include "Machine/Machine.h"
+#include "Animation/AnimationConstraint.h"
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
@@ -140,4 +141,43 @@ void Machine::machineStateControlGui(float width){
 		if(customRoundedButton("Enable", buttonSize, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersRight)) enable();
 	}
 	ImGui::EndDisabled();
+}
+
+
+void Machine::setupGui(){
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("%s", getName());
+	ImGui::PopFont();
+	
+	setupGuiContent();
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Animatables");
+	ImGui::PopFont();
+	auto animatables = getAnimatables();
+	for(int i = 0; i < animatables.size(); i++){
+		auto animatable = animatables[i];
+		ImGui::Text("%s", animatable->getName());
+		ImGui::TreePush();
+		auto& constraints = animatable->getConstraints();
+		for(int j = 0; j < constraints.size(); j++){
+			auto constraint = constraints[j];
+			ImGui::PushID(i);
+			ImGui::Text("%s", constraint->getName().c_str());
+			ImGui::SameLine();
+			static bool b_enabled = constraint->isEnabled();
+			ImGui::BeginDisabled();
+			ImGui::Checkbox("isEnabled", &b_enabled);
+			ImGui::EndDisabled();
+			ImGui::PopID();
+		}
+		ImGui::TreePop();
+	}
+	
+	if(hasAxis() && ImGui::CollapsingHeader("Axis")){
+		axisSetupGui();
+	}
+	
+	
 }

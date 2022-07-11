@@ -134,6 +134,9 @@ public:
 	
 	bool isMotionAllowed();
 	
+	virtual std::vector<std::shared_ptr<PositionControlledAxis>> getPositionControlledAxes(){}
+	virtual std::vector<std::shared_ptr<VelocityControlledAxis>> getVelocityControlledAxes(){}
+	
 	//===== GUI STUFF =====
 	virtual void nodeSpecificGui() override;
 	virtual void stateControlGui();
@@ -143,6 +146,12 @@ public:
 	virtual void axisGui() = 0;
 	virtual void deviceGui() = 0;
 	virtual void metricsGui() = 0;
+	
+	void setupGui();
+	virtual void setupGuiContent(){}
+	
+	virtual bool hasAxis(){ return true; }
+	virtual void axisSetupGui(){}
 	
 	void machineHeaderGui(float width);
 	void machineStateControlGui(float width);

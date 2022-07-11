@@ -114,6 +114,10 @@ void Lexium32::statusGui() {
 	backgroundText(getEtherCatStateChar(), statusDisplaySize, getEtherCatStateColor());
 
     ImGui::SameLine();
+	
+	backgroundText(getShortStatusString().c_str(), statusDisplaySize, getStatusColor());
+	
+	/*
 	if (!isConnected()) backgroundText("Offline", statusDisplaySize, Colors::blue);
 	else{
 		if(!b_hasFault) backgroundText(Enumerator::getDisplayString(actualPowerState), statusDisplaySize, DS402::getColor(actualPowerState));
@@ -121,15 +125,18 @@ void Lexium32::statusGui() {
 			static char errorDisplay[16];
 			sprintf(errorDisplay, "Error %X", _LastError);
 			backgroundText(errorDisplay, statusDisplaySize, Colors::red);
-			if(ImGui::IsItemHovered()){
-				ImGui::BeginTooltip();
-				ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
-				ImGui::Text("%s", getErrorCodeString(_LastError).c_str());
-				ImGui::PopStyleColor();
-				ImGui::EndTooltip();
-			}
 		}
     }
+	 */
+	
+	
+	if(ImGui::IsItemHovered()){
+		ImGui::BeginTooltip();
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+		ImGui::Text("%s", getStatusString().c_str());
+		ImGui::PopStyleColor();
+		ImGui::EndTooltip();
+	}
 
     ImGui::PopFont();
 
@@ -152,10 +159,17 @@ void Lexium32::statusGui() {
     }
     else {
 		bool b_externalControl = servoMotorLink->isConnected();
-        bool disableCommandButton = !isConnected() || b_externalControl;
+        bool disableCommandButton = !servoMotorDevice->isReady() || b_externalControl;
 		ImGui::BeginDisabled(disableCommandButton);
-        if (servoMotorDevice->isEnabled()) { if (ImGui::Button("Disable Operation", commandButtonSize)) servoMotorDevice->disable(); }
-        else { if (ImGui::Button("Enable Operation", commandButtonSize)) servoMotorDevice->enable(); }
+        if (servoMotorDevice->isEnabled()) {
+			if (ImGui::Button("Disable", commandButtonSize)) servoMotorDevice->disable();
+		}
+		else if(b_hasFault){
+			if(ImGui::Button("Reset Faults & Enable", commandButtonSize)) servoMotorDevice->enable();
+		}
+        else {
+			if (ImGui::Button("Enable", commandButtonSize)) servoMotorDevice->enable();
+		}
         ImGui::SameLine();
 		if (ImGui::Button("Quick Stop", commandButtonSize)) servoMotorDevice->quickstop();
 		ImGui::EndDisabled();
@@ -319,22 +333,7 @@ void Lexium32::controlsGui() {
 	ImGui::BeginDisabled(!b_isHoming);
 	if(ImGui::Button("Stop Homing")) b_isHoming = false;
 	ImGui::EndDisabled();
-	
-	/*
-	ImGui::Checkbox("Homing Mode", &b_homingMode);
-	ImGui::Checkbox("Do Homing", &b_doHoming);
-	
-	ImGui::BeginDisabled();
-	ImGui::Checkbox("Homing Completed", &b_homingCompleted);
-	ImGui::Checkbox("Homing Success", &b_homingSuccessful);
-	ImGui::EndDisabled();
-	
-	ImGui::Text("     Status   Control");
-	for(int i = 0; i < 16; i++){
-		ImGui::Text("%i:      %i            %i", i, (ds402Status.statusWord >> i) & 0x1, (ds402Control.controlWord >> i) & 0x1);
-	}
-	*/
-	
+		
 }
 
 

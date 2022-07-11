@@ -93,6 +93,7 @@ void Lexium32::initialize() {
     txPdoAssignement.addEntry(0x606C, 0x0, 32, "_v_act", &_v_act);							//Actual Velocity
     txPdoAssignement.addEntry(0x301E, 0x3, 16, "_I_act", &_I_act);							//Actual Current
     txPdoAssignement.addEntry(0x603F, 0x0, 16, "_LastError", &_LastError);					//Current Error
+	txPdoAssignement.addEntry(0x301C, 0x4, 16, "_actionStatus", &_actionStatus);			//error class / additional drive info
     txPdoAssignement.addEntry(0x3008, 0x1, 16, "_IO_act", &_IO_act);						//Digital Inputs
     txPdoAssignement.addEntry(0x3008, 0x26, 16, "_IO_STO_act", &_IO_STO_act);				//STO Status
 }
@@ -205,6 +206,7 @@ bool Lexium32::startupConfiguration() {
 
 void Lexium32::readInputs() {
 
+	//remember previous error to detect change
 	uint16_t previousError = _LastError;
 	
     txPdoAssignement.pullDataFrom(identity->inputs);
@@ -228,10 +230,15 @@ void Lexium32::readInputs() {
 		}
 	}
 	b_hasFault = ds402Status.hasFault();
-	if(b_hasFault && requestedPowerState == DS402::PowerState::OPERATION_ENABLED){
-		requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
-	}
 	
+	//react to power state change
+	if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED && actualPowerState != DS402::PowerState::OPERATION_ENABLED){
+		if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - enableRequestTime_nanoseconds > enableRequestTimeout_nanoseconds){
+			Logger::warn("{} : Enable Request Timeout", getName());
+			requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
+		}
+	}
+
 	//read operating mode
 	auto newOperatingMode = ds402Status.getOperatingMode();
 	if(newOperatingMode != actualOperatingMode){
@@ -240,15 +247,17 @@ void Lexium32::readInputs() {
 	}
 	actualOperatingMode = newOperatingMode;
 	
-	
 	//read STO State
 	bool newStoState = _IO_STO_act == 0;
 	if (newStoState != servoMotorDevice->b_emergencyStopActive) {
 		if (newStoState) pushEvent("STO Activated", true);
 		else pushEvent("STO Released", false);
 	}
-	servoMotorDevice->b_emergencyStopActive = newStoState;
 	
+	b_faultNeedsRestart = _actionStatus & 0x10;
+	b_motorVoltagePresent = ds402Status.statusWord & 0x10;
+	b_stoActive = newStoState;
+	servoMotorDevice->b_emergencyStopActive = b_stoActive;
 	
 	actualFollowingError_r = (double)_p_dif_usr / (double)positionUnitsPerRevolution;
 	
@@ -284,7 +293,9 @@ void Lexium32::readInputs() {
 								&& (actualPowerState == DS402::PowerState::READY_TO_SWITCH_ON ||
 									actualPowerState == DS402::PowerState::SWITCHED_ON ||
 									actualPowerState == DS402::PowerState::OPERATION_ENABLED ||
-									actualPowerState == DS402::PowerState::QUICKSTOP_ACTIVE);
+									actualPowerState == DS402::PowerState::QUICKSTOP_ACTIVE ||
+									(actualPowerState == DS402::PowerState::FAULT && !b_faultNeedsRestart))
+								&& b_motorVoltagePresent;
     servoMotorDevice->b_enabled = actualPowerState == DS402::PowerState::OPERATION_ENABLED;
     servoMotorDevice->b_online = isConnected();
     //set gpio subdevice status
@@ -345,6 +356,8 @@ void Lexium32::writeOutputs() {
     if (servoMotorDevice->b_setEnabled) {
         servoMotorDevice->b_setEnabled = false;
 		requestedPowerState = DS402::PowerState::OPERATION_ENABLED;
+		enableRequestTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+		Logger::warn("ENABLE REQUEST");
     }
     if (servoMotorDevice->b_setDisabled) {
         servoMotorDevice->b_setDisabled = false;
@@ -367,13 +380,11 @@ void Lexium32::writeOutputs() {
 	if(b_isHoming && actualOperatingMode == DS402::OperatingMode::HOMING) ds402Control.setOperatingModeSpecificByte4(true);
 	else ds402Control.setOperatingModeSpecificByte4(false);
 	
-	//if there is an error present, automatically clear it
-	//the fault reset event only happens on a transition from 0 to 1
-	//we have to clear the fault reset flag after every activation
-	//to be able to use it again
-	if(b_hasFault && !b_isResettingFault) {
+	//clear errors when we enable the power stage
+	if(b_hasFault && !b_isResettingFault && requestedPowerState == DS402::PowerState::OPERATION_ENABLED){
 		b_isResettingFault = true;
 		ds402Control.performFaultReset();
+		Logger::warn("fault reset");
 	}else b_isResettingFault = false;
 	ds402Control.updateControlWord();
 	
@@ -392,6 +403,23 @@ void Lexium32::writeOutputs() {
 
     rxPdoAssignement.pushDataTo(identity->outputs);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1102,6 +1130,17 @@ void Lexium32::setStationAlias(uint16_t a) {
     }
     else stationAliasUploadState = DataTransferState::FAILED;
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
