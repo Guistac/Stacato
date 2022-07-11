@@ -368,7 +368,7 @@ void Lexium32::generalSettingsGui() {
     ImGui::Text("Invert Direction of Movement");
 
 	ImGui::Text("Max Position Following Error");
-	if (ImGui::InputDouble("##MaxError", &maxFollowingError, 0.0, 0.0, "%.3f revolutions")) generalParameterUploadState = DataTransferState::NO_TRANSFER;
+	if (ImGui::InputDouble("##MaxError", &servoMotor->maxFollowingError, 0.0, 0.0, "%.3f revolutions")) generalParameterUploadState = DataTransferState::NO_TRANSFER;
 	
     ImGui::Text("Max Current");
     if (ImGui::InputDouble("##maxI", &maxCurrent_amps, 0.0, 0.0, "%.1f Amperes")) generalParameterUploadState = DataTransferState::NO_TRANSFER;

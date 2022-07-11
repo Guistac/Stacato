@@ -214,15 +214,15 @@ void Lexium32::readInputs() {
 	actualOperatingMode = newOperatingMode;
 	
 	//read STO State
-	bool newStoState = _IO_STO_act == 0;
-	if (newStoState != b_stoActive) {
-		if (newStoState) pushEvent("STO Activated", true);
+	bool b_stoActive = _IO_STO_act == 0;
+	if (b_stoActive != servoMotor->b_emergencyStopActive) {
+		if (b_stoActive) pushEvent("STO Activated", true);
 		else pushEvent("STO Released", false);
 	}
+	servoMotor->b_emergencyStopActive = b_stoActive;
 	
 	b_faultNeedsRestart = _actionStatus & 0x10;
 	b_motorVoltagePresent = ds402Status.statusWord & 0x10;
-	b_stoActive = newStoState;
 		
     //set the encoder position in revolution units and velocity in revolutions per second
 	servoMotor->position = (double)_p_act / (double)positionUnitsPerRevolution;
@@ -496,7 +496,7 @@ void Lexium32::uploadGeneralParameters() {
 
 	{
 		EtherCatCoeData MON_p_dif_load_usr(0x3006, 0x3E, EtherCatData::Type::INT32_T);
-		MON_p_dif_load_usr.setS32(maxFollowingError * positionUnitsPerRevolution);
+		MON_p_dif_load_usr.setS32(servoMotor->maxFollowingError * positionUnitsPerRevolution);
 		if(!MON_p_dif_load_usr.write(getSlaveIndex())) goto transferfailed;
 	}
 	
@@ -555,7 +555,7 @@ void Lexium32::downloadGeneralParameters() {
 	{
 		EtherCatCoeData MON_p_dif_load_usr(0x3006, 0x3E, EtherCatData::Type::INT32_T);
 		if(!MON_p_dif_load_usr.read(getSlaveIndex())) goto transferfailed;
-		maxFollowingError = (float)MON_p_dif_load_usr.getS32() / positionUnitsPerRevolution;
+		servoMotor->maxFollowingError = (float)MON_p_dif_load_usr.getS32() / positionUnitsPerRevolution;
 	}
 	
     {
@@ -1117,7 +1117,7 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
     invertDirectionOfMovementXML->SetAttribute("Invert", b_invertDirectionOfMotorMovement);
 	
 	XMLElement* maxFollowingErrorXML = xml->InsertNewChildElement("MaxFollowingError");
-	maxFollowingErrorXML->SetAttribute("revolutions", maxFollowingError);
+	maxFollowingErrorXML->SetAttribute("revolutions", servoMotor->maxFollowingError);
 
     XMLElement* currentLimitXML = xml->InsertNewChildElement("CurrentLimit");
     currentLimitXML->SetAttribute("amps", maxCurrent_amps);
@@ -1203,7 +1203,7 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
 
 	XMLElement* maxFollowingErrorXML = xml->FirstChildElement("MaxFollowingError");
 	if(maxFollowingErrorXML == nullptr) return Logger::warn("Could not find max following error attribute");
-	if(maxFollowingErrorXML->QueryAttribute("revolutions", &maxFollowingError) != XML_SUCCESS) return Logger::warn("Could not read max following error attribute");
+	if(maxFollowingErrorXML->QueryAttribute("revolutions", &servoMotor->maxFollowingError) != XML_SUCCESS) return Logger::warn("Could not read max following error attribute");
 	 
     XMLElement* currentLimitsXML = xml->FirstChildElement("CurrentLimit");
     if (currentLimitsXML == nullptr) return Logger::warn("Could not find current limits attribute");

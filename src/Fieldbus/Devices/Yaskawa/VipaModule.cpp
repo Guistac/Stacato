@@ -442,8 +442,8 @@ void VIPA_050_1BS00::readInputs(){
 	previousReadingTime_microseconds = time_microseconds;
 	previousEncoderPosition_revolutions = encoderPosition_revolutions;
 	
-	encoder->rawPosition = encoderPosition_revolutions;
-	encoder->rawVelocity = encoderVelocity_revolutionsPerSecond;
+	encoder->position = encoderPosition_revolutions;
+	encoder->velocity = encoderVelocity_revolutionsPerSecond;
 	
 	if(parentBusCoupler->isStateOperational()) encoder->state = MotionState::ENABLED;
 	else encoder->state = MotionState::OFFLINE;
@@ -459,7 +459,7 @@ void VIPA_050_1BS00::readInputs(){
 	}
 	
 	if(encoder->b_hardResetBusy){
-		encoder->rawVelocity = 0.0;
+		encoder->velocity = 0.0;
 		double time = EtherCatFieldbus::getCycleProgramTime_seconds();
 		if(time > resetStartTime_seconds + (double)resetTime_milliseconds / 1000.0){
 			encoder->b_hardResetBusy = false;
@@ -557,7 +557,7 @@ void VIPA_050_1BS00::moduleParameterGui(){
 	glm::vec2 progressBarSize(widgetWidth, ImGui::GetFrameHeight());
 	
 	static char encoderRangeProgressString[64];
-	sprintf(encoderRangeProgressString, "%.3f revolutions", encoder->rawPosition);
+	sprintf(encoderRangeProgressString, "%.3f revolutions", encoder->getPosition());
 	ImGui::ProgressBar((float)encoder->getPositionInWorkingRange(), progressBarSize, encoderRangeProgressString);
 	   
 	static char encoderVelocityString[64];
@@ -575,11 +575,11 @@ void VIPA_050_1BS00::updateEncoderWorkingRange(){
 	int multiturnBitCount = encoderBitCount - singleTurnBitCount;
 	int maxRevolutions = 0x1 << multiturnBitCount;
 	if(b_centerRangeOnZero){
-		encoder->workingRangeMin = -maxRevolutions / 2.0;
-		encoder->workingRangeMax = maxRevolutions / 2.0;
+		encoder->minWorkingRange = -maxRevolutions / 2.0;
+		encoder->maxWorkingRange = maxRevolutions / 2.0;
 	}else{
-		encoder->workingRangeMin = 0.0;
-		encoder->workingRangeMax = maxRevolutions;
+		encoder->minWorkingRange = 0.0;
+		encoder->maxWorkingRange = maxRevolutions;
 	}
 }
 

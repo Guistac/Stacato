@@ -14,100 +14,22 @@ public:
 
 	class LexiumServoMotor : public ServoActuatorDevice{
 	public:
+		LexiumServoMotor(std::shared_ptr<Lexium32> lexium32) :
+		MotionDevice("Lexium Servo Motor", Units::AngularDistance::Revolution),
+		ServoActuatorDevice("Lexium Servo Motor", Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE), drive(lexium32){}
 		
-		LexiumServoMotor(std::shared_ptr<Lexium32> lexium32) : drive(lexium32){}
-		
-		virtual MotionState getState() override { return state; };
-		virtual std::string getName() override { return "Servo Motor"; }
-		virtual bool hasFault() override { return drive->b_hasFault; }
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
-		
-		virtual Unit getPositionUnit() override { return Units::AngularDistance::Revolution; }
-		virtual PositionFeedbackType getPositionFeedbackType() override { return PositionFeedbackType::ABSOLUTE; }
-		
-		virtual bool isInsideWorkingRange() override { return position >= minWorkingRange && position <= maxWorkingRange; }
-		virtual double getPositionInWorkingRange() override { return (position - minWorkingRange) / (maxWorkingRange - minWorkingRange); }
-		virtual double getMinPosition() override { return minWorkingRange - positionOffset; }
-		virtual double getMaxPosition() override { return maxWorkingRange - positionOffset; }
-		
-		virtual double getPosition() override { return position - positionOffset; }
-		virtual double getVelocity() override { return velocity; }
-		virtual bool isMoving() override { return b_isMoving; }
-		virtual double getLoad() override { return load; }
-		
-		//virtual bool canHardReset() override { return true; }
-		//virtual void executeHardReset() override {}
-		//virtual bool isExecutingHardReset() override { return b_hardResetBusy; }
-		
-		//virtual bool canHardOverride() override { return false; }
-		//virtual void executeHardOverride(double overridePosition) override {}
-		//virtual bool isExecutingHardOverride() override { return false; }
-		
-		virtual void softOverridePosition(double softPosition) override { positionOffset = position - softPosition; }
-		
-		virtual void enable() override { b_enable = true; }
-		virtual void disable() override { b_disable = true; }
-		virtual void quickstop() override { b_quickstop = true; }
-
-		virtual void setVelocityCommand(double velocityCommand, double accelerationCommand) override { /*UNIMPLEMENTED*/ }
-		
-		virtual double getVelocityLimit() override { return velocityLimit; }
-		virtual double getAccelerationLimit() override { return accelerationLimit; }
-
-		//virtual bool hasManualHoldingBrake() { return false; }
-		//virtual bool isHoldingBrakeApplied() { return false; }
-		//virtual void releaseHoldingBrake() {}
-		//virtual void applyHoldingBrake() {}
-		
-		virtual bool isEmergencyStopped() override { return drive->b_stoActive; }
-		
-		virtual void setPositionCommand(double positionCommand, double velocityCommand, double accelerationCommand) override {
-			targetPosition = positionCommand + positionOffset;
-			targetVelocity = velocityCommand;
-			targetAcceleration = accelerationCommand;
-		};
-		
-		virtual double getFollowingError() override { return followingError; }
-		virtual double getMaxFollowingError() override { return drive->maxFollowingError; }
-		virtual double getFollowingErrorInRange() override { return std::abs(followingError / drive->maxFollowingError); }
-		
 		std::shared_ptr<Lexium32> drive;
-		
-		//state change commands
-		bool b_enable = false;
-		bool b_disable = false;
-		bool b_quickstop = false;
-		
-		//state
-		MotionState state = MotionState::OFFLINE;
-		double load;
-		bool b_isMoving = false;
-		
-		//all units are in revolutions and seconds
-		double position;
-		double velocity;
-		double followingError;
-		double positionOffset = 0.0;
-		
-		double minWorkingRange;
-		double maxWorkingRange;
-		double velocityLimit;
-		double accelerationLimit;
-		
-		double targetPosition;
-		double targetVelocity;
-		double targetAcceleration;
 	};
 	
 	class LexiumGpio : public GpioDevice{
 	public:
-		LexiumGpio(std::shared_ptr<Lexium32> lexium32) : drive(lexium32){}
-		virtual MotionState getState() override { return state; }
-		virtual std::string getName() override { return "Lexium32 Gpio"; }
-		virtual bool hasFault() override { return drive->b_hasFault; }
+		LexiumGpio(std::shared_ptr<Lexium32> lexium32) :
+		GpioDevice("Lexium Gpio"),
+		drive(lexium32){}
+		
 		virtual std::string getStatusString() override { return ""; }
 		std::shared_ptr<Lexium32> drive;
-		MotionState state = MotionState::OFFLINE;
 	};
 	
 	
@@ -191,7 +113,7 @@ private:
 	bool b_isResettingFault = false;
 	bool b_faultNeedsRestart = false;
 	bool b_motorVoltagePresent = false;
-	bool b_stoActive = false;
+	//bool b_stoActive = false;
 	
 	//homing mode commands
 	bool b_startHoming = false;
@@ -226,7 +148,7 @@ private:
 		else if(b_hasFault){
 			if(b_faultNeedsRestart) return getErrorCodeString(_LastError) + "\nDrive Restart needed to reset fault.";
 			else return getErrorCodeString(_LastError) + "\nFault will be cleared when enabling.";
-		}else if(b_stoActive) return "STO Active";
+		}else if(servoMotor->b_emergencyStopActive) return "STO Active";
 		else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) return "Drive Restart Needed.";
 		else return "No Issues";
 	}
@@ -234,7 +156,7 @@ private:
 	std::string getShortStatusString(){
 		if(!isConnected()) return "Device Offline";
 		else if(!b_motorVoltagePresent) return "No Motor Voltage";
-		else if(b_stoActive) return "STO Active";
+		else if(servoMotor->b_emergencyStopActive) return "STO Active";
 		else if(b_hasFault) {
 			static char hexFaultCodeString[16];
 			sprintf(hexFaultCodeString, "%X", _LastError);
@@ -247,7 +169,7 @@ private:
 	 
 	glm::vec4 getStatusColor(){
 		if(!isConnected()) return Colors::blue;
-		else if(b_stoActive) return Colors::red;
+		else if(servoMotor->b_emergencyStopActive) return Colors::red;
 		else if(!b_motorVoltagePresent) return Colors::red;
 		else if(b_hasFault) {
 			if(b_faultNeedsRestart) return Colors::red;
@@ -286,7 +208,7 @@ public:
     double maxCurrent_amps = 0.0;
     
     double maxMotorVelocity = 0.0;
-	double maxFollowingError = 0.0;
+	//double maxFollowingError = 0.0;
 
     void uploadGeneralParameters();
     DataTransferState generalParameterUploadState = DataTransferState::NO_TRANSFER;

@@ -7,6 +7,8 @@ class Device;
 class SubDevice{
 public:
 
+	SubDevice(std::string n) : name(n){}
+	
 	enum class Type {
 		GPIO,
 		ACTUATOR,
@@ -16,14 +18,16 @@ public:
 	};
 	virtual Type getType() = 0;
 	
-	virtual MotionState getState() = 0;
-	virtual std::string getName() = 0;
-	virtual bool hasFault() = 0;
+	virtual MotionState getState() { return state; }
+	virtual std::string& getName() { return name; }
+	virtual bool hasFault() { return b_hasFault; }
 	virtual std::string getStatusString() = 0;
 
 	//set the parent device, which will provide further information on device status
 	void setParentDevice(std::shared_ptr<Device> pd) { parentDevice = pd; }
 	std::shared_ptr<Device> parentDevice = nullptr;
+	
+	virtual bool isEmergencyStopped() { return b_emergencyStopActive; }
 
 	bool isOnline() {
 		switch(getState()){
@@ -49,43 +53,60 @@ public:
 			case MotionState::ENABLED: return true;
 		}
 	}
+	
+	MotionState state = MotionState::OFFLINE;
+	std::string name;
+	bool b_hasFault;
+	bool b_emergencyStopActive;
 };
 
 
 class GpioDevice : public SubDevice {
 public:
+	GpioDevice(std::string name) : SubDevice(name){}
+	
 	virtual Type getType() override { return SubDevice::Type::GPIO; }
 };
 
 
 class MotionDevice : public SubDevice {
 public:
-	virtual Unit getPositionUnit() = 0;
+	
+	MotionDevice(std::string name, Unit unit) : SubDevice(name), positionUnit(unit){}
+	
+	Unit getPositionUnit() { return positionUnit; }
+	
+	//settings
+	Unit positionUnit;
 };
 
 
 class VelocityFeedbackDevice : public virtual MotionDevice{
 public:
 	
+	VelocityFeedbackDevice(std::string name, Unit unit) : MotionDevice(name, unit){}
+	
 	virtual Type getType() override { return SubDevice::Type::VELOCITY_FEEDBACK; }
 	
-	virtual double getVelocity() = 0;
-	virtual bool isMoving() = 0;
+	double getVelocity() { return velocity; }
+	bool isMoving() { return b_isMoving; }
+	
+	//current data
+	bool b_isMoving = false;
+	double velocity;
 };
 
 
 class PositionFeedbackDevice : public VelocityFeedbackDevice {
 public:
+	
+	PositionFeedbackDevice(std::string name, Unit unit, PositionFeedbackType feedbackType) : VelocityFeedbackDevice(name, unit), positionFeedbackType(feedbackType){}
 
-	virtual Type getType() override { return SubDevice::Type::POSITION_FEEDBACK; }
+	Type getType() override { return SubDevice::Type::POSITION_FEEDBACK; }
 	
-	virtual PositionFeedbackType getPositionFeedbackType() = 0;
+	PositionFeedbackType getPositionFeedbackType() { return positionFeedbackType; }
 	
-	virtual bool isInsideWorkingRange() = 0;
-	virtual double getPositionInWorkingRange() = 0;
-	virtual double getMinPosition() = 0;
-	virtual double getMaxPosition() = 0;
-	virtual double getPosition() = 0;
+	double getPosition() { return position - positionOffset; }
 	
 	virtual bool canHardReset() { return false; }
 	virtual void executeHardReset() {}
@@ -95,42 +116,90 @@ public:
 	virtual void executeHardOverride(double overridePosition) {}
 	virtual bool isExecutingHardOverride() { return false; }
 	
-	virtual void softOverridePosition(double position) = 0;
+	void softOverridePosition(double softPosition) { positionOffset = position - softPosition; }
+	
+	bool isInsideWorkingRange() { return position >= minWorkingRange && position <= maxWorkingRange; }
+	double getPositionInWorkingRange() { return (position - minWorkingRange) / (maxWorkingRange - minWorkingRange); }
+	double getMinPosition() { return minWorkingRange - positionOffset; }
+	double getMaxPosition() { return maxWorkingRange - positionOffset; }
+	
+	//settings
+	PositionFeedbackType positionFeedbackType;
+	double positionOffset = 0.0;
+	double minWorkingRange;
+	double maxWorkingRange;
+	
+	//current data
+	double position;
 };
 
 
 class ActuatorDevice : public virtual MotionDevice {
 public:
+	
+	ActuatorDevice(std::string name, Unit unit) : MotionDevice(name, unit){}
 
 	virtual Type getType() override { return SubDevice::Type::ACTUATOR; }
 
-	virtual void enable() = 0;
-	virtual void disable() = 0;
-	virtual void quickstop() = 0;
+	void enable() { b_enable = true; }
+	void disable() { b_disable = true; }
+	void quickstop() { b_quickstop = true; }
 	
-	virtual double getVelocityLimit() = 0;
-	virtual double getAccelerationLimit() = 0;
-	virtual void setVelocityCommand(double velocityCommand, double accelerationCommand) = 0;
+	void setVelocityCommand(double velocityCommand, double accelerationCommand) {
+		targetVelocity = velocityCommand;
+		targetAcceleration = accelerationCommand;
+	}
+	double getVelocityLimit() { return velocityLimit; }
+	double getAccelerationLimit() { return accelerationLimit; }
 	
 	virtual bool hasManualHoldingBrake() { return false; }
 	virtual bool isHoldingBrakeApplied() { return false; }
 	virtual void releaseHoldingBrake() {}
 	virtual void applyHoldingBrake() {}
-
-	virtual double getLoad() = 0;
 	
-	virtual bool isEmergencyStopped() = 0;
+	double getLoad() { return load; }
+	
+	//state change commands
+	bool b_enable = false;
+	bool b_disable = false;
+	bool b_quickstop = false;
+		
+	//settings
+	double velocityLimit;
+	double accelerationLimit;
+	
+	//current data
+	double load;
+	
+	//target data
+	double targetVelocity;
+	double targetAcceleration;
 };
 
 
 class ServoActuatorDevice : public ActuatorDevice, public PositionFeedbackDevice {
 public:
+	
+	ServoActuatorDevice(std::string name, Unit unit, PositionFeedbackType feedbackType) : ActuatorDevice(name, unit), PositionFeedbackDevice(name, unit, feedbackType){}
 
 	virtual Type getType() override { return SubDevice::Type::SERVO_ACTUATOR; }
-
-	virtual void setPositionCommand(double positionCommand, double velocityCommand, double accelerationCommand) = 0;
 	
-	virtual double getFollowingError() = 0;
-	virtual double getMaxFollowingError() = 0;
-	virtual double getFollowingErrorInRange() = 0;
+	void setPositionCommand(double positionCommand, double velocityCommand, double accelerationCommand) {
+		targetPosition = positionCommand + positionOffset;
+		targetVelocity = velocityCommand;
+		targetAcceleration = accelerationCommand;
+	};
+	
+	double getFollowingError() { return followingError; }
+	double getMaxFollowingError() { return maxFollowingError; }
+	double getFollowingErrorInRange() { return std::abs(followingError / maxFollowingError); }
+	
+	//settings
+	double maxFollowingError;
+	
+	//current data
+	double followingError;
+	
+	//target data
+	double targetPosition;
 };

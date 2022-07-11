@@ -14,16 +14,11 @@ public:
 	class VipaGpioDevice : public GpioDevice{
 	public:
 		
-		VipaGpioDevice(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler) : coupler(busCoupler){}
+		VipaGpioDevice(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler) : GpioDevice("VIPA Gpio"), coupler(busCoupler){}
 		
-		virtual MotionState getState() override {
-			if(!coupler->isConnected()) return MotionState::OFFLINE;
-			else if(coupler->isStateOperational()) return MotionState::ENABLED;
-			else return MotionState::NOT_READY;
+		virtual std::string getStatusString() override{
+			return "";
 		}
-		virtual std::string getName() override { return "Vipa GPIO"; }
-		virtual bool hasFault() override { return false; }
-		virtual std::string getStatusString() override { return ""; }
 		
 		std::shared_ptr<VipaBusCoupler_053_1EC01> coupler;
 	};

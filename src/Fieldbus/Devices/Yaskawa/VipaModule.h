@@ -187,27 +187,12 @@ public:
 	
 	class SsiEncoder : public PositionFeedbackDevice{
 	public:
-		SsiEncoder(std::shared_ptr<VIPA_050_1BS00> module) : encoderModule(module){}
-
-		virtual MotionState getState() override{ return MotionState::OFFLINE; }
-		virtual std::string getName() override {
-			std::string name = "Module " + std::to_string(encoderModule->moduleIndex) + " SSI Encoder";
-			return name;
-		};
-		virtual bool hasFault() override { return false; };
+		SsiEncoder(std::shared_ptr<VIPA_050_1BS00> module) :
+		MotionDevice(name, Units::AngularDistance::Revolution),
+		PositionFeedbackDevice("Vipa Module SSI Encoder", Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE),
+		encoderModule(module){}
+		
 		virtual std::string getStatusString() override { return ""; }
-		
-		virtual Unit getPositionUnit() override { return Units::AngularDistance::Revolution; }
-		
-		virtual PositionFeedbackType getPositionFeedbackType() override { return PositionFeedbackType::ABSOLUTE; }
-		
-		virtual bool isInsideWorkingRange() override { return rawPosition >= workingRangeMin && rawPosition < workingRangeMax; }
-		virtual double getPositionInWorkingRange() override { return (rawPosition - workingRangeMin) / (workingRangeMax - workingRangeMin); }
-		virtual double getMinPosition() override { return workingRangeMin; }
-		virtual double getMaxPosition() override { return workingRangeMax; }
-		virtual double getPosition() override { return rawPosition - positionOffset; }
-		virtual double getVelocity() override { return rawVelocity; }
-		virtual bool isMoving() override { return rawVelocity != 0.0; }
 		
 		virtual bool canHardReset() override { return encoderModule->b_hasResetSignal && encoderModule->resetPin->isConnected(); }
 		virtual void executeHardReset() override {
@@ -215,18 +200,10 @@ public:
 			b_hardResetBusy = true;
 		}
 		virtual bool isExecutingHardReset() override { return b_hardResetBusy; }
-				
-		virtual void softOverridePosition(double position) override {}
-		
+						
 		std::shared_ptr<VIPA_050_1BS00> encoderModule;
-		MotionState state = MotionState::OFFLINE;
 		bool b_doHardReset = false;
 		bool b_hardResetBusy = false;
-		double rawPosition;
-		double rawVelocity;
-		double positionOffset;
-		double workingRangeMin;
-		double workingRangeMax;
 	};
 	
 	std::shared_ptr<SsiEncoder> encoder;
