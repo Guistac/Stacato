@@ -106,6 +106,8 @@ private:
 	
 public:
 	
+	double getBrakingPosition();
+	
 	bool hasPositionSetpoint();
 	double getPositionSetpoint();
 	double getPositionSetpointNormalized();

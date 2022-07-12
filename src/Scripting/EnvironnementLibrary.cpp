@@ -359,6 +359,13 @@ namespace Scripting::EnvironnementLibrary{
 			return 1;
 		}
 	
+		int getBrakingPosition(lua_State* L){
+			auto animatablePosition = lua_AnimatablePosition.checkArgument(L, 1);
+			double brakingPosition = animatablePosition->getBrakingPosition();
+			lua_pushnumber(L, brakingPosition);
+			return 1;
+		}
+	
 	};
 	
 	namespace Lua_AnimatablePosition_KeepoutConstraint{
@@ -446,6 +453,7 @@ namespace Scripting::EnvironnementLibrary{
 			lua_AnimatablePosition.addMethod("createKeepoutConstraint", Lua_AnimatablePosition::createKeepoutConstraint);
 		}
 		lua_AnimatablePosition.addMethod("getConstraints", Lua_AnimatablePosition::getConstraints);
+		lua_AnimatablePosition.addMethod("getBrakingPosition", Lua_AnimatablePosition::getBrakingPosition);
 		lua_AnimatablePosition.declare(L);
 		
 		//——— Animatable Position Keepout Constraint

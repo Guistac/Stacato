@@ -1,10 +1,11 @@
 
+--Logger:warn(package.path)
 
-local library = require("Stage.library")
+--local library = require("lib.library")
 
-Logger:warn(library.get())
-library.increment()
-Logger:warn(library.get())
+--Logger:warn(library.get())
+--library.increment()
+--Logger:warn(library.get())
 
 --ModuleTest.increment()
 
@@ -39,5 +40,16 @@ end
 
 function exit()
 end
+
+
+
+
+
+
+
+
+
+
+
 
 

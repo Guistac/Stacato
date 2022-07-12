@@ -96,7 +96,7 @@ namespace Project{
 		
 		Logger::info("Loading Project File {}", filePath.filename().string());
 		
-		std::string projectFolderPath = std::string(dir) + "/";
+		std::string projectFolderPath = std::string(dir);
 		if (!std::filesystem::is_directory(projectFolderPath)) return false;
 
 		//look for the environnement file
@@ -128,20 +128,17 @@ namespace Project{
 		}
 		
 		//look for the stage folder
-		std::string stageFolderPath = projectFolderPath + "Stage/";
-		if (!std::filesystem::exists(std::filesystem::path(stageFolderPath))) {
-			Logger::warn("Could not find Stage Folder in project {}", filePath.filename().string());
+		std::string scriptFolderPath = projectFolderPath + "/Scripts";
+		if (!std::filesystem::exists(std::filesystem::path(scriptFolderPath))) {
+			Logger::warn("Could not find Scripts Folder in project {}", filePath.filename().string());
 			return false;
 		}
 		
-		std::string stageVisualizeScriptPath = stageFolderPath + "main.lua";
-		Environnement::StageVisualizer::loadScript(stageVisualizeScriptPath.c_str());
-
-		std::string environnementScriptPath = projectFolderPath + "EnvironnementScript.lua";
-		Environnement::Script::load(environnementScriptPath.c_str());
+		Environnement::StageVisualizer::loadScript(scriptFolderPath + "/VisualizerScript");
+		Environnement::Script::load(scriptFolderPath + "/EnvironnementScript");
 		
 		//look for the plot folder
-		std::string plotsFolderPath = projectFolderPath + "Plots/";
+		std::string plotsFolderPath = projectFolderPath + "/Plots";
 		if (!std::filesystem::exists(std::filesystem::path(plotsFolderPath))) {
 			Logger::warn("Could not find Plot Folder in project {}", filePath.filename().string());
 			return false;
@@ -195,29 +192,26 @@ namespace Project{
 		if(filePath.extension() != ".stacato") filePath.replace_extension(".stacato");
 		
 		if (!std::filesystem::exists(filePath)) std::filesystem::create_directory(filePath);
-		std::string projectFolderPath = filePath.string() + "/";
+		std::string projectFolderPath = filePath.string();
 
-		std::string environnementFilePath = projectFolderPath + "Environnement.stacatoEnvironnement";
+		std::string environnementFilePath = projectFolderPath + "/Environnement.stacatoEnvironnement";
 		if (!Environnement::save(environnementFilePath.c_str())) return false;
 		
-		std::string layoutFilePath = projectFolderPath + "Layouts.stacatoLayout";
+		std::string layoutFilePath = projectFolderPath + "/Layouts.stacatoLayout";
 		if(!LayoutManager::save(layoutFilePath.c_str())) return false;
 
-		std::string stageFolder = projectFolderPath + "Stage/";
-		if(!std::filesystem::exists(std::filesystem::path(stageFolder))) std::filesystem::create_directory(std::filesystem::path(stageFolder));
+		std::string scriptsFolderPath = projectFolderPath + "/Scripts";
+		if(!std::filesystem::exists(std::filesystem::path(scriptsFolderPath))) std::filesystem::create_directory(std::filesystem::path(scriptsFolderPath));
 
-		std::string stageVisualizeScriptPath = stageFolder + "main.lua";
-		Environnement::StageVisualizer::saveScript(stageVisualizeScriptPath.c_str());
+		Environnement::StageVisualizer::saveScript(scriptsFolderPath + "/VisualizerScript");
+		Environnement::Script::save(scriptsFolderPath + "/EnvironnementScript");
 		
-		std::string environnementScriptPath = projectFolderPath + "EnvironnementScript.lua";
-		Environnement::Script::save(environnementScriptPath.c_str());
-		
-		std::string plotsFolder = projectFolderPath + "Plots/";
+		std::string plotsFolder = projectFolderPath + "/Plots";
 		if (!std::filesystem::exists(std::filesystem::path(plotsFolder))) std::filesystem::create_directory(std::filesystem::path(plotsFolder));
 
 		for (int i = 0; i < plots.size(); i++) {
 			std::shared_ptr<Plot> plot = plots[i];
-			std::string plotFilePath = plotsFolder + plot->getName() + "_" + std::to_string(i) + ".stacatoPlot";
+			std::string plotFilePath = plotsFolder + "/" + plot->getName() + "_" + std::to_string(i) + ".stacatoPlot";
 			plot->save(plotFilePath);
 		}
 	

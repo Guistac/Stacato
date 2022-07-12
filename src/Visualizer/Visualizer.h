@@ -13,6 +13,6 @@ namespace Environnement::StageVisualizer{
 	void editor(glm::vec2 size_arg);
 
 	void reset();
-	void saveScript(const char* filePath);
-	void loadScript(const char* filePath);
+	void saveScript(std::string folderPath);
+	void loadScript(std::string folderPath);
 };

@@ -18,8 +18,8 @@ namespace Script{
 	void editor(glm::vec2 size_arg);
 
 	void reset();
-	void save(const char* filePath);
-	void load(const char* filePath);
+	void save(std::string folderPath);
+	void load(std::string folderPath);
 
 };
 };

@@ -10,7 +10,7 @@
 namespace Environnement{
 namespace Script{
 
-	std::string directory;
+	std::string scriptFolder;
 
 	LuaScript script("Environnement Script");
 
@@ -34,18 +34,17 @@ namespace Script{
 	   script.setLoadLibrairiesCallback([](lua_State* L){
 		   Scripting::EnvironnementLibrary::openlib(L, true);
 		   
-		   std::string path = directory;
-		   path.append("?.lua");
+		   std::string folderIncludePath = scriptFolder + "/?.lua";
+		   std::string parentFolderIncludePath = std::filesystem::path(scriptFolder).parent_path().string() + "/?.lua";
+		   std::string lua_path;
+		   lua_path.append(folderIncludePath);
+		   lua_path.append(";");
+		   lua_path.append(parentFolderIncludePath);
 		   
-		   lua_getglobal( L, "package" );
-		   lua_getfield( L, -1, "path" ); // get field "path" from table at top of stack (-1)
-		   std::string cur_path = lua_tostring( L, -1 ); // grab path string from top of stack
-		   cur_path.append( ";" ); // do your path magic here
-		   cur_path.append( path );
-		   lua_pop( L, 1 ); // get rid of the string on the stack we just pushed on line 5
-		   lua_pushstring( L, cur_path.c_str() ); // push the new one
-		   lua_setfield( L, -2, "path" ); // set the field "path" in table at -2 with value at top of stack
-		   lua_pop( L, 1 ); // get rid of package table from top of stack
+		   lua_getglobal(L, "package"); 			//get the package table
+		   lua_pushstring( L, lua_path.c_str() ); 	//push the new path string
+		   lua_setfield( L, -2, "path" ); 			//set the new path string as index "path" of the table at -2
+		   lua_pop( L, 1 ); 						//pop the package table from top of stack
 
 	   });
 	   script.compileAndRun();
@@ -86,15 +85,16 @@ namespace Script{
 		script.load(defaultScript);
 	}
 
-	void save(const char* filePath){
-		script.save(filePath);
+	void save(std::string folderPath){
+		std::string path = folderPath + "/main.lua";
+		script.save(path.c_str());
 	}
 
-	void load(const char* filePath){
+	void load(std::string folderPath){
+		std::string path = folderPath + "/main.lua";
 		script.stop();
-		script.load(filePath);
-		std::filesystem::path fileSystemPath = filePath;
-		directory = fileSystemPath.remove_filename().string();
+		script.load(path.c_str());
+		scriptFolder = folderPath;
 	}
 
 

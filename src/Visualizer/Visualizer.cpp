@@ -27,7 +27,7 @@ namespace Environnement::StageVisualizer{
 	}
 
 
- 
+	std::string scriptFolder;
 	LuaScript script("Stage Visualizer Script");
 	ofFbo framebuffer;
 
@@ -50,7 +50,22 @@ namespace Environnement::StageVisualizer{
 			luaopen_glm(L);
 			Scripting::CanvasLibrary::openLib(L);
 			Scripting::EnvironnementLibrary::openlib(L);
+			
+			std::string folderIncludePath = scriptFolder + "/?.lua";
+			std::string parentFolderIncludePath = std::filesystem::path(scriptFolder).parent_path().string() + "/?.lua";
+			std::string lua_path;
+			lua_path.append(folderIncludePath);
+			lua_path.append(";");
+			lua_path.append(parentFolderIncludePath);
+			
+			lua_getglobal(L, "package"); 			//get the package table
+			lua_pushstring( L, lua_path.c_str() ); 	//push the new path string
+			lua_setfield( L, -2, "path" ); 			//set the new path string as index "path" of the table at -2
+			lua_pop( L, 1 ); 						//pop the package table from top of stack
+			
+			ofSetDataPathRoot(scriptFolder);
 		});
+		
 		script.compileAndRun();
 		ofRenderer::startRender();
 		if(script.checkHasFunction("setup")) script.callFunction("setup");
@@ -64,13 +79,16 @@ namespace Environnement::StageVisualizer{
 		script.stop();
 	}
 
-	void saveScript(const char* filePath){
-		script.save(filePath);
+	void saveScript(std::string folderPath){
+		std::string path = folderPath + "/main.lua";
+		script.save(path.c_str());
 	}
 
-	void loadScript(const char* filePath){
+	void loadScript(std::string folderPath){
+		std::string path = folderPath + "/main.lua";
 		script.stop();
-		script.load(filePath);
+		script.load(path.c_str());
+		scriptFolder = folderPath;
 	}
 
 	void editor(glm::vec2 size_arg){

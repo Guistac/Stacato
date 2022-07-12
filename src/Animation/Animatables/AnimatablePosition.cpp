@@ -413,7 +413,9 @@ double AnimatablePosition::getActualAccelerationNormalized(){
 
 
 
-
+double AnimatablePosition::getBrakingPosition(){
+	return motionProfile.getBrakingPosition(Environnement::getDeltaTime_seconds(), accelerationLimit);
+}
 
 
 
