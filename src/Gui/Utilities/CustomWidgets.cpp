@@ -705,24 +705,35 @@ void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor){
 void backgroundText(const char* text, ImVec4 backgroundColor, ImVec4 textColor){
 	backgroundText(text, ImVec2(0.0, 0.0), backgroundColor, textColor);
 }
-void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec4 textColor){
-	ImVec2 padding = ImGui::GetStyle().FramePadding;
-	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0, 0.0));
-	ImGui::PushStyleColor(ImGuiCol_Button, backgroundColor);
-	ImGui::PushStyleColor(ImGuiCol_ButtonActive, backgroundColor);
-	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, backgroundColor);
-	ImGui::PushStyleColor(ImGuiCol_Text, textColor);
+void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec4 textColor, ImDrawFlags drawFlags){
+	ImVec2 textSize = ImGui::CalcTextSize(text);
 	if(size.x <= 0.0 && size.y <= 0.0) {
-		size = ImGui::CalcTextSize(text);
+		ImVec2 padding = ImGui::GetStyle().FramePadding;
+		size = textSize;
 		size.x += padding.x * 2.0;
 		size.y += padding.y * 2.0;
 	}else if(size.x <= 0.0){
-		ImVec2 txtSize = ImGui::CalcTextSize(text);
-		size.x = txtSize.x + padding.x * 2.0;
+		ImVec2 padding = ImGui::GetStyle().FramePadding;
+		size.x = textSize.x + padding.x * 2.0;
 	}
-	ImGui::Button(text, size);
-	ImGui::PopStyleColor(4);
-	ImGui::PopStyleVar();
+		
+	ImGui::InvisibleButton(text, size);
+	ImVec2 min = ImGui::GetItemRectMin();
+	ImVec2 max = ImGui::GetItemRectMax();
+	
+	
+	ImDrawList* drawing = ImGui::GetWindowDrawList();
+	drawing->AddRectFilled(min,
+						   max,
+						   ImColor(backgroundColor),
+						   ImGui::GetStyle().FrameRounding,
+						   drawFlags);
+	
+	ImVec2 position(min.x + (size.x - textSize.x) / 2.0, min.y + (size.y - textSize.y) / 2.0);
+	ImGui::PushClipRect(min, max, true);
+	drawing->AddText(position, ImColor(textColor), text);
+	ImGui::PopClipRect();
+	
 }
 
 bool textInputCustom(const char* ID, char* buffer, size_t bufferSize, ImVec2 size, ImGuiInputTextFlags flags){

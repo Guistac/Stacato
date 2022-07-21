@@ -28,13 +28,13 @@ function setup()
 	costiereA_Position = costiereA:getAnimatable("Position")
 
 	local flipA = Environnement.getMachine("Flip A")
-	flipA_State = flipA:getAnimatable("State")
-	flipStates = flipA_State:getStates()
+	--flipA_State = flipA:getAnimatable("State")
+	--flipStates = flipA_State:getStates()
 
-	Logger:warn("logging flip states")
-	for k, v in pairs(flipStates) do
-		Logger:warn(k, v)
-	end
+	--Logger:warn("logging flip states")
+	--for k, v in pairs(flipStates) do
+	--	Logger:warn(k, v)
+	--end
 
 	costiereA_constraintA = costiereA_Position:createKeepoutConstraint("KeepoutA", 2.3, 4.5)
 	costiereA_constraintB = costiereA_Position:createKeepoutConstraint("KeepoutB", 6.7, 8.0)
@@ -47,10 +47,9 @@ end
 
 function update()
 
-	local flipA_ActualState = flipA_State:getActualValue()
-	if flipA_ActualState == flipStates.Open then
-
-	end
+	--local flipA_ActualState = flipA_State:getActualValue()
+	--if flipA_ActualState == flipStates.Open then
+	--end
 
 end
 
@@ -59,6 +58,9 @@ end
 
 function exit()
 end
+
+
+
 
 
 

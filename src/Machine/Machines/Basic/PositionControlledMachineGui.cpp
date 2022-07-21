@@ -501,7 +501,7 @@ void PositionControlledMachine::widgetGui(){
 	static char actualPositionString[32];
 	const char *positionUnitAbbreviated = animatablePosition->getUnit()->abbreviated;
 	sprintf(actualVelocityString, "%.2f%s/s", animatablePosition->getActualVelocity(), positionUnitAbbreviated);
-	sprintf(actualPositionString, "%.3f%s", animatablePosition->getActualPosition(), positionUnitAbbreviated);
+	sprintf(actualPositionString, "%.7f%s", animatablePosition->getActualPosition(), positionUnitAbbreviated);
 	
 	ImGui::PushFont(Fonts::sansRegular12);
 	glm::vec2 feedbackButtonSize(verticalSliderSize.x, ImGui::GetTextLineHeight());
@@ -552,19 +552,7 @@ void PositionControlledMachine::widgetGui(){
 
 
 	ImGui::EndDisabled();
-	
-	switch(animatablePosition->controlMode){
-		case AnimatablePosition::POSITION_SETPOINT:
-			ImGui::Text("Position Setpoint");
-			break;
-		case AnimatablePosition::POSITION_TARGET:
-			ImGui::Text("Position Target");
-			break;
-		case AnimatablePosition::VELOCITY_SETPOINT:
-			ImGui::Text("Velocity Setpoint");
-			break;
-	}
-	
+		
 	machineStateControlGui(contentSize.x);
 	
 	ImGui::PopStyleVar();

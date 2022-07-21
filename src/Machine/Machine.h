@@ -90,7 +90,7 @@ public:
 	
 public:
 	
-	bool b_enabled = false;
+	//bool b_enabled = false;
 	bool isReady();
 	void enable();
 	void disable();

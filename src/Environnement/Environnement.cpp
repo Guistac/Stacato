@@ -177,6 +177,10 @@ namespace Environnement {
 			b_isRunning = false;
 			if(environnementSimulator.joinable()) environnementSimulator.join();
 			
+			for(auto machine : getMachines()){
+				machine->state = MotionState::OFFLINE;
+			}
+			
 			Environnement::StageVisualizer::stop();
 			
 			Logger::info("Stopped Environnement Simulation");

@@ -320,13 +320,13 @@ void AnimatablePosition::setVelocityTarget(double velocityTarget){
 void AnimatablePosition::moveToPositionWithVelocity(double targetPosition, double targetVelocity){
 	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
 	motionProfile.moveToPositionWithVelocity(profileTime_seconds, targetPosition, targetVelocity, rapidAcceleration);
-	controlMode = POSITION_TARGET;
+	controlMode = POSITION_SETPOINT;
 }
 
 void AnimatablePosition::moveToPositionInTime(double targetPosition, double targetTime){
 	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
 	motionProfile.moveToPositionInTime(profileTime_seconds, targetPosition, targetTime, rapidAcceleration, velocityLimit);
-	controlMode = POSITION_TARGET;
+	controlMode = POSITION_SETPOINT;
 }
 
 
@@ -358,14 +358,11 @@ void AnimatablePosition::setManualPositionTargetWithTime(double targetPosition, 
 
 bool AnimatablePosition::hasPositionSetpoint(){
 	const std::lock_guard<std::mutex> lock(mutex);
-	return controlMode == POSITION_SETPOINT || controlMode == POSITION_TARGET || hasAnimation();
+	return controlMode == POSITION_SETPOINT || hasAnimation();
 }
 double AnimatablePosition::getPositionSetpoint(){
 	const std::lock_guard<std::mutex> lock(mutex);
-	double target;
-	if(controlMode == POSITION_TARGET) target = motionProfile.getInterpolationTarget();
-	else target = getTargetValue()->toPosition()->position;
-	return target;
+	return getTargetValue()->toPosition()->position;
 }
 double AnimatablePosition::getPositionSetpointNormalized(){
 	return (getPositionSetpoint() - lowerPositionLimit) / (upperPositionLimit - lowerPositionLimit);
@@ -473,8 +470,6 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 	const std::lock_guard<std::mutex> lock(mutex);
 	profileTime_seconds = time_seconds;
 	
-	
-	
 	double minPosition, maxPosition;
 	getConstraintPositionLimits(minPosition, maxPosition);
 	
@@ -484,16 +479,29 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 		velocitySetpoint = target->velocity;
 		accelerationSetpoint = target->acceleration;
 		controlMode = POSITION_SETPOINT;
-	}else if(controlMode == POSITION_SETPOINT){
+	}
+	else if(motionProfile.hasInterpolationTarget()){
+		auto interpolationPoint = motionProfile.getInterpolationPoint(profileTime_seconds);
+		positionSetpoint = interpolationPoint.position;
+		velocitySetpoint = interpolationPoint.velocity;
+		controlMode = POSITION_SETPOINT;
+		if(motionProfile.isInterpolationFinished(profileTime_seconds)) {
+			velocitySetpoint = 0.0;
+			motionProfile.resetInterpolation();
+		}
+	}
+	else if(controlMode == POSITION_SETPOINT){
 		velocitySetpoint = 0.0;
 		accelerationSetpoint = 0.0;
 	}
 	
-	
-	
-	//here we should evaluate all constraint and get new new position limits
-	
-	
+	if(controlMode == POSITION_SETPOINT){
+		if((positionSetpoint < minPosition && velocitySetpoint < 0.0) || (positionSetpoint > maxPosition && velocitySetpoint > 0.0)){
+			if(hasAnimation()) getAnimation()->pausePlayback();
+			stopMovement();
+			Logger::info("{} movement aborted, position set point was outside limits", getName());
+		}
+	}
 	
 	switch(controlMode){
 		case VELOCITY_SETPOINT:
@@ -513,14 +521,6 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 																velocityLimit,
 																minPosition,
 																maxPosition);
-			break;
-		case POSITION_TARGET:
-			motionProfile.updateInterpolation(profileTime_seconds);
-			if(motionProfile.isInterpolationFinished(profileTime_seconds)) {
-				motionProfile.resetInterpolation();
-				controlMode = VELOCITY_SETPOINT;
-				velocitySetpoint = 0.0;
-			}
 			break;
 	}
 	

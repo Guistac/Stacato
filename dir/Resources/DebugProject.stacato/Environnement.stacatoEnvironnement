@@ -1,6 +1,6 @@
 <Environnement name="Default Environnement" notes="">
     <Dashboard Scale="0.62041414" OffsetX="1337.5739" OffsetY="-493.72906" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232.00003" SizeY="535.1568"/>
+        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232.00003" SizeY="510.97943"/>
         <Widget UniqueID="6" PositionX="-1044.4771" PositionY="1044.005" SizeX="232.00003" SizeY="135.91493"/>
     </Dashboard>
     <NodeGraph>

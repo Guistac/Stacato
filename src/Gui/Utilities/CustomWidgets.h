@@ -65,7 +65,7 @@ void backgroundText(const char* text, ImVec2 size);
 void backgroundText(const char* text, ImVec4 backgroundColor);
 void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor);
 void backgroundText(const char* text, ImVec4 backgroundColor, ImVec4 textColor);
-void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec4 textColor);
+void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec4 textColor, ImDrawFlags drawFlags = ImDrawFlags_RoundCornersAll);
 
 bool textInputCustom(const char* ID, char* buffer, size_t bufferSize, ImVec2 size, ImGuiInputTextFlags flags);
 

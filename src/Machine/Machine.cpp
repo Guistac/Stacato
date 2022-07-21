@@ -17,7 +17,8 @@ bool Machine::isReady(){
 void Machine::enable(){
 	if(Environnement::isSimulating() && isSimulationReady()){
 		onEnableSimulation();
-		b_enabled = true;
+		state = MotionState::ENABLED;
+		//b_enabled = true;
 	}else {
 		enableHardware();
 	}
@@ -26,7 +27,8 @@ void Machine::enable(){
 
 void Machine::disable(){
 	if(Environnement::isSimulating()){
-		b_enabled = false;
+		state = MotionState::READY;
+		//b_enabled = false;
 		onDisableSimulation();
 	}else {
 		disableHardware();
@@ -35,7 +37,8 @@ void Machine::disable(){
 }
 
 bool Machine::isEnabled(){
-	return b_enabled;
+	//return b_enabled;
+	return state == MotionState::ENABLED;
 }
 
 bool Machine::isSimulating(){

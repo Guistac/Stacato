@@ -84,13 +84,15 @@ void Machine::stateControlGui() {
 }
 
 void Machine::generalSettingsGui() {
-	ImGui::Text("Machine Name :");
-	int nameBufferSize;
-	char* nameBuffer = getNameBuffer(nameBufferSize);
-	ImGui::InputText("##name", nameBuffer, nameBufferSize);
+	ImGui::Text("general settings were removed");
+	
+	//ImGui::Text("Machine Name :");
+	//int nameBufferSize;
+	//char* nameBuffer = getNameBuffer(nameBufferSize);
+	//ImGui::InputText("##name", nameBuffer, nameBufferSize);
 
-	ImGui::Text("Short Name :");
-	ImGui::InputText("##shortName", shortName, 16);
+	//ImGui::Text("Short Name :");
+	//ImGui::InputText("##shortName", shortName, 16);
 }
 
 
@@ -111,26 +113,57 @@ void Machine::machineStateControlGui(float width){
 	bool b_ready = isReady();
 	
 	glm::vec4 statusColor;
+	glm::vec4 statusTextColor;
 	const char* statusString;
-	if (isEnabled()) {
-		statusColor = Colors::green;
-		statusString = "Enabled";
-	}
-	else if (b_ready) {
-		statusColor = Colors::yellow;
-		statusString = "Ready";
-	}
-	else {
-		statusColor = Colors::red;
-		statusString = "Not Ready";
+	ImFont* statusTextFont;
+	
+	if(isEmergencyStopped()){
+		statusColor = fmod(Timing::getProgramTime_seconds(), .5) < .25 ? Colors::red : Colors::yellow;
+		statusString = "E-STOP";
+		statusTextColor = Colors::black;
+		statusTextFont = Fonts::sansBold15;
+	}else{
+		switch(getState()){
+			case MotionState::OFFLINE:
+				statusColor = Colors::blue;
+				statusString = "Offline";
+				statusTextColor = Colors::white;
+				statusTextFont = Fonts::sansRegular15;
+				break;
+			case MotionState::NOT_READY:
+				statusColor = Colors::orange;
+				statusString = "Not Ready";
+				statusTextColor = Colors::black;
+				statusTextFont = Fonts::sansRegular15;
+				break;
+			case MotionState::READY:
+				statusColor = Colors::yellow;
+				statusString = "Ready";
+				statusTextColor = Colors::black;
+				statusTextFont = Fonts::sansRegular15;
+				break;
+			case MotionState::ENABLED:
+				statusColor = Colors::green;
+				statusString = "Enabled";
+				statusTextColor = Colors::black;
+				statusTextFont = Fonts::sansRegular15;
+				break;
+		}
 	}
 	
 	ImGui::PushStyleColor(ImGuiCol_Text, Colors::black);
 	ImGui::PushStyleColor(ImGuiCol_Button, statusColor);
-	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-	customRoundedButton(statusString, buttonSize, rounding, ImDrawFlags_RoundCornersLeft);
-	ImGui::PopItemFlag();
-	ImGui::PopStyleColor(2);
+	ImGui::PushStyleColor(ImGuiCol_Text, statusTextColor);
+	ImGui::PushFont(statusTextFont);
+	backgroundText(statusString, buttonSize, statusColor, statusTextColor, ImDrawFlags_RoundCornersLeft);
+	ImGui::PopFont();
+	ImGui::PopStyleColor(3);
+	
+	if(ImGui::IsItemHovered()){
+		ImGui::BeginTooltip();
+		ImGui::Text("%s", getStatusString().c_str());
+		ImGui::EndTooltip();
+	}
 	
 	ImGui::SameLine(.0f, .0f);
 	ImGui::BeginDisabled(!b_ready);

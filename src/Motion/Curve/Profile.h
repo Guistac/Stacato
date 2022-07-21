@@ -2,6 +2,8 @@
 
 #include "Motion/Curve/Curve.h"
 
+#define square(x) (x) * (x)
+
 namespace Motion{
 
 //profile generator for 2nd degree motion profiles with constant acceleration
@@ -47,28 +49,23 @@ public:
 	void matchVelocityAndRespectPositionLimits(double deltaT_seconds, double targetVelocity, double fixedAcceleration, double lowPositionLimit, double highPositionLimit, double maxAcceleration){
 		//check braking position at max deceleration to see if a fast stop is needed
 		double brakingPosition = getBrakingPosition(deltaT_seconds, maxAcceleration);
-		if((velocity < 0.0 && brakingPosition <= lowPositionLimit) || (velocity > 0.0 && brakingPosition >= highPositionLimit)){
-			//if yes, stop at full deceleration and don't update the profile any more
-			matchVelocity(deltaT_seconds, 0.0, maxAcceleration);
+		if(velocity < 0.0 && brakingPosition <= lowPositionLimit){
+			double distanceToLimit = std::abs(lowPositionLimit - position);
+			double exactStoppingAcceleration = square(velocity) / (2.0 * distanceToLimit);
+			stop(deltaT_seconds, exactStoppingAcceleration);
+			return;
+		}else if(velocity > 0.0 && brakingPosition >= highPositionLimit){
+			double distanceToLimit = std::abs(highPositionLimit - position);
+			double exactStoppingAcceleration = square(velocity) / (2.0 * distanceToLimit);
+			stop(deltaT_seconds, exactStoppingAcceleration);
+			return;
+		}else if((position <= lowPositionLimit && targetVelocity < 0.0) || (position >= highPositionLimit && targetVelocity > 0.0)){
+			stop(deltaT_seconds, maxAcceleration);
 			return;
 		}
 		
-		//if the current braking position is not over limit
-		//we might still exceed limit with the normal profile routine
-		//take a backup in case we need to revert to those values
-		double positionBackup = position;
-		double velocityBackup = velocity;
-		double accelerationBackup = acceleration;
-		
 		//basic linear interpolation for target velocity
 		matchVelocity(deltaT_seconds, targetVelocity, fixedAcceleration);
-		
-		//if we would exceed limits, just stop the profile and ignore target velocity
-		if((position <= lowPositionLimit && velocity < 0.0) || (position >= highPositionLimit && velocity > 0.0)){
-			position = positionBackup;
-			velocity = velocityBackup;
-			acceleration = accelerationBackup;
-		}
 	}
 	
 	
@@ -309,11 +306,17 @@ public:
 		return targetInterpolation != nullptr;
 	}
 	
+	/*
 	void updateInterpolation(double time){
 		Motion::Point point = targetInterpolation->getPointAtTime(time);
 		position = point.position;
 		velocity = point.velocity;
 		acceleration = point.acceleration;
+	}
+	*/
+	
+	Motion::Point getInterpolationPoint(double time){
+		return targetInterpolation->getPointAtTime(time);
 	}
 	
 	double getInterpolationProgress(double time){

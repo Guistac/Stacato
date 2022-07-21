@@ -61,7 +61,7 @@ std::string FlipStateMachine::getStatusString(){
 void FlipStateMachine::inputProcess() {
 	
 	//update inputs signals & state machine
-	if (b_enabled || areGpioSignalsReady()) {
+	if (/*b_enabled*/ isEnabled() || areGpioSignalsReady()) {
 		updateGpioInSignals();
 		
 		if (hoodShut && !hoodOpen) {
@@ -88,7 +88,7 @@ void FlipStateMachine::inputProcess() {
 	}
 
 	//handle disabling condition
-	if (b_enabled) {
+	if (/*b_enabled*/ isEnabled()) {
 		if (actualState == MachineState::State::UNEXPECTED_STATE) disable();
 		else if (actualState == MachineState::State::UNKNOWN) disable();
 		else if (!emergencyStopClear) disable();
@@ -100,7 +100,7 @@ void FlipStateMachine::inputProcess() {
 
 void FlipStateMachine::outputProcess(){
 	//update outputs signals
-	if (b_enabled) {
+	if (/*b_enabled*/ isEnabled()) {
 		if (animatableState->hasAnimation()) {
 			auto state = animatableState->getAnimationValue()->toState();
 			switch (state->value->integerEquivalent) {
@@ -171,13 +171,15 @@ bool FlipStateMachine::isHardwareReady() {
 void FlipStateMachine::enableHardware() {
 	if (!isEnabled() && isReady()) {
 		requestedState = actualState;
-		b_enabled = true;
+		state = MotionState::ENABLED;
+		//b_enabled = true;
 		onEnableHardware();
 	}
 }
 
 void FlipStateMachine::disableHardware() {
-	b_enabled = false;
+	state = MotionState::READY;
+	//b_enabled = false;
 	shutLid = false;
 	openLid = false;
 	lowerPlatform = false;

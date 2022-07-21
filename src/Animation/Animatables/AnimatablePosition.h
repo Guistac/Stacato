@@ -145,8 +145,7 @@ public:
 	
 	enum ControlMode{
 		VELOCITY_SETPOINT,	//manual velocity control
-		POSITION_SETPOINT,	//go to position
-		POSITION_TARGET		//planned movement to given position
+		POSITION_SETPOINT	//go to position
 	}controlMode = ControlMode::VELOCITY_SETPOINT;
 	double velocitySetpoint = 0.0;
 	double positionSetpoint = 0.0;

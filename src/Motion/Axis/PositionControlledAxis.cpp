@@ -131,10 +131,13 @@ void PositionControlledAxis::outputProcess(){
 			case ControlMode::FAST_STOP:
 				motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, manualAcceleration);
 				break;
-			case ControlMode::POSITION_TARGET:
-				motionProfile.updateInterpolation(profileTime_seconds);
+			case ControlMode::POSITION_TARGET:{
+				auto interpolationPoint = motionProfile.getInterpolationPoint(profileTime_seconds);
+				motionProfile.setPosition(interpolationPoint.position);
+				motionProfile.setVelocity(interpolationPoint.velocity);
+				motionProfile.setAcceleration(interpolationPoint.acceleration);
 				if(motionProfile.isInterpolationFinished(profileTime_seconds)) setVelocityTarget(0.0);
-				break;
+				}break;
 			case ControlMode::EXTERNAL:
 				//here the motion profile is expected to be controlled by the setMotionCommand() method
 				break;

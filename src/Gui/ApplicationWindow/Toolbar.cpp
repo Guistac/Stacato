@@ -85,7 +85,7 @@ namespace Gui {
 		ImGui::EndGroup();
 		
 		ImGui::PushFont(Fonts::sansRegular12);
-		backgroundText("Environnement", glm::vec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
+		backgroundText("Environnement", ImVec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
 		ImGui::PopFont();
 		ImGui::EndGroup();
 		

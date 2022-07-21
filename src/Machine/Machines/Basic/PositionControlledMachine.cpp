@@ -75,7 +75,8 @@ void PositionControlledMachine::enableHardware() {
 			while (duration(system_clock::now() - enableRequestTime) < milliseconds(500)) {
 				std::this_thread::sleep_for(milliseconds(10));
 				if (axis->isEnabled()) {
-					b_enabled = true;
+					state = MotionState::ENABLED;
+					//b_enabled = true;
 					onEnableHardware();
 					break;
 				}
@@ -86,7 +87,8 @@ void PositionControlledMachine::enableHardware() {
 }
 
 void PositionControlledMachine::disableHardware() {
-	b_enabled = false;
+	//b_enabled = false;
+	state = MotionState::READY;
 	if (isAxisConnected()) getAxis()->disable();
 	onDisableHardware();
 }
@@ -128,14 +130,17 @@ void PositionControlledMachine::inputProcess() {
 	}
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 	
-	if(isEnabled()) state = MotionState::ENABLED;
-	else if(isReady()) state = MotionState::READY;
-	else if(axis->getState() == MotionState::NOT_READY) state = MotionState::NOT_READY;
-	else if(axis->getState() == MotionState::OFFLINE) state = MotionState::OFFLINE;
+	//update machine state
+	if (isEnabled() && !axis->isEnabled()) disable();
+	else state = axis->getState();
 	
+	//update estop state
 	b_emergencyStopActive = axis->isEmergencyStopActive();
+	
+	//update halt state
 	if(b_emergencyStopActive || !isMotionAllowed()) b_halted = true;
 	
+	//update animatable state
 	if(state == MotionState::OFFLINE) animatablePosition->state = Animatable::State::OFFLINE;
 	else if(state == MotionState::ENABLED && !b_halted) animatablePosition->state = Animatable::State::READY;
 	else animatablePosition->state = Animatable::State::NOT_READY;
@@ -149,9 +154,6 @@ void PositionControlledMachine::inputProcess() {
 	//Get Realtime values from axis (for position and velocity pins only)
 	*positionPinValue = actualPosition->position;
 	*velocityPinValue = actualPosition->velocity;
-
-	//Handle Axis state changes
-	if (isEnabled() && !axis->isEnabled()) disable();
 }
 
 void PositionControlledMachine::outputProcess(){
@@ -186,8 +188,18 @@ void PositionControlledMachine::outputProcess(){
 }
 
 void PositionControlledMachine::simulateInputProcess() {
-	//nothing to do here
-	if(isEnabled() && !b_halted) animatablePosition->state = Animatable::State::READY;
+	//update machine state
+	if(isEnabled()) state = MotionState::ENABLED;
+	else if(isAxisConnected()) state = MotionState::READY;
+	else state = MotionState::OFFLINE;
+	
+	//update halt and estop state
+	b_emergencyStopActive = false;
+	b_halted = false;
+		
+	//update animatable state
+	if(state == MotionState::OFFLINE) animatablePosition->state = Animatable::State::OFFLINE;
+	else if(isEnabled() && !b_halted) animatablePosition->state = Animatable::State::READY;
 	else animatablePosition->state = Animatable::State::NOT_READY;
 }
 
