@@ -4,11 +4,17 @@
 
 class AnimationConstraint{
 public:
+
+	enum class Type{
+		HALT,
+		KEEPIN,
+		KEEPOUT
+	};
 	
 	AnimationConstraint(std::string name_) : name(name_){}
 	
-	virtual AnimatableType getType() = 0;
-	virtual bool isHaltConstraint(){ return false; }
+	virtual AnimatableType getAnimatableType() = 0;
+	virtual Type getType() = 0;
 	
 	std::string& getName(){ return name; }
 	bool isEnabled() { return b_enabled; }
@@ -25,7 +31,8 @@ public:
 	
 	HaltConstraint(std::string name) : AnimationConstraint(name){}
 	
-	virtual AnimatableType getType() override { return AnimatableType::COMPOSITE; }
-	virtual bool isHaltConstraint() override { return true; }
+	virtual Type getType() override { return AnimationConstraint::Type::HALT; }
+	
+	virtual AnimatableType getAnimatableType() override { return AnimatableType::COMPOSITE; }
 	
 };

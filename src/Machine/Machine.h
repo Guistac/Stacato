@@ -29,6 +29,7 @@ namespace tinyxml2{ struct XMLElement; }
 		newMachineInstance->initialize();																										\
 		return newMachineInstance;																												\
 	}																																			\
+	virtual std::string getStatusString() override;																								\
 	virtual void initialize() override;																											\
 	virtual void inputProcess() override;																										\
 	virtual void outputProcess()override;																										\
@@ -72,19 +73,18 @@ public:
 	//===== BASIC PROPRIETIES =====
 	char shortName[16] = "M";
 	const char* getShortName() { return shortName; }
-
-	enum class State{
-		OFFLINE,
-		EMERGENCY_STOP,
-		NOT_READY,
-		READY,
-		ENABLED,
-		HALTED
-	};
-	State getState(){ return state; }
 	
-protected:
-	State state = State::OFFLINE;
+	MotionState getState(){ return state; }
+	MotionState state = MotionState::OFFLINE;
+	virtual std::string getStatusString() = 0;
+	
+	bool b_emergencyStopActive = false;
+	bool isEmergencyStopped(){ return b_emergencyStopActive; }
+	
+	//a machine can be halted by the dead mans switch or a constraint
+	bool b_halted = false;
+	bool isHalted(){ return b_halted; }
+	//virtual std::string getHaltStatusString() = 0;
 	
 	//===== STATE CONTROL & MONITORING =====
 	

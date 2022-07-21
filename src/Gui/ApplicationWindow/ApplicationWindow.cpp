@@ -75,6 +75,11 @@ namespace ApplicationWindow {
 		const char* path = glfwGetOpenedFilePath();
 		b_launchedByOpenedFile = path != nullptr;
 		if(b_launchedByOpenedFile) strcpy(openedFilePath, path);
+		
+		//we delete this file on each startup since we don't use it and it sometimes causes loading problems with imguinodeeditor
+		std::filesystem::path nodeEditorJsonFile = "NodeEditor.json";
+		std::filesystem::remove(nodeEditorJsonFile);
+		
 	#endif
 		
 	#ifdef STACATO_WIN32

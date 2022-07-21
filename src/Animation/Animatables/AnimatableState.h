@@ -24,7 +24,8 @@ struct AnimatableStateValue : public AnimationValue{
 class AnimatableState_StateConstraint : public AnimationConstraint{
 public:
 	
-	virtual AnimatableType getType() override { return AnimatableType::STATE; }
+	virtual Type getType() override { return Type::KEEPIN; }
+	virtual AnimatableType getAnimatableType() override { return AnimatableType::STATE; }
 	
 	AnimatableState_StateConstraint(std::string name, std::vector<AnimatableStateStruct>* values_)
 	: AnimationConstraint(name), values(values_) {}

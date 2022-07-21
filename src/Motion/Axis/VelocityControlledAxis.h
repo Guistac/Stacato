@@ -26,6 +26,14 @@ public:
 	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(actualVelocity, NodePin::Direction::NODE_OUTPUT, "Velocity");
 	std::shared_ptr<NodePin> loadPin = std::make_shared<NodePin>(actualLoad, NodePin::Direction::NODE_OUTPUT, "Load");
 	
+	
+	MotionState getState(){ return state; }
+	std::string getStatusString();
+	bool isEmergencyStopActive(){ return b_emergencyStopActive; }
+	
+	MotionState state = MotionState::OFFLINE;
+	bool b_emergencyStopActive = false;
+	
 	//========= DEVICES ========
 	
 private:

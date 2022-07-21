@@ -42,6 +42,16 @@ public:
 	std::shared_ptr<AnimatablePosition> toPosition();
 	std::shared_ptr<AnimatableBoolean> toBoolean();
 	
+	enum class State{
+		OFFLINE,
+		NOT_READY,
+		READY
+	};
+	
+	State state = State::OFFLINE;
+	std::string getStatusString();
+	std::function<std::string(void)> machineStatusReturnMethod = [](){ return ""; };
+	
 	//———————————— Animations ————————————
 		
 	//animations which animate this animatable

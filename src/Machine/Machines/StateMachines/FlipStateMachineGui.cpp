@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "HoodedLiftStateMachine.h"
+#include "FlipStateMachine.h"
 
 #include "Motion/SubDevice.h"
 
@@ -12,7 +12,7 @@
 
 #include "Gui/Utilities/CustomWidgets.h"
 
-void HoodedLiftStateMachine::controlsGui() {
+void FlipStateMachine::controlsGui() {
 
 	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Flip Controls");
@@ -121,10 +121,10 @@ void HoodedLiftStateMachine::controlsGui() {
 	ImGui::PopItemFlag();
 
 }
-void HoodedLiftStateMachine::settingsGui() {}
-void HoodedLiftStateMachine::axisGui() {}
-void HoodedLiftStateMachine::deviceGui() {}
-void HoodedLiftStateMachine::metricsGui() {}
+void FlipStateMachine::settingsGui() {}
+void FlipStateMachine::axisGui() {}
+void FlipStateMachine::deviceGui() {}
+void FlipStateMachine::metricsGui() {}
 
 
 
@@ -133,15 +133,15 @@ void HoodedLiftStateMachine::metricsGui() {}
 
 
 
-void HoodedLiftStateMachine::ControlWidget::gui(){
+void FlipStateMachine::ControlWidget::gui(){
 	machine->widgetGui();
 }
-glm::vec2 HoodedLiftStateMachine::ControlWidget::getFixedContentSize(){
+glm::vec2 FlipStateMachine::ControlWidget::getFixedContentSize(){
 	float lineHeight = ImGui::GetTextLineHeight();
 	return glm::vec2(lineHeight * 10.0, lineHeight * 10.0);
 }
 
-void HoodedLiftStateMachine::widgetGui(){
+void FlipStateMachine::widgetGui(){
 	glm::vec2 contentSize = controlWidget->getFixedContentSize();
 	glm::vec2 commandButtonSize(contentSize.x, ImGui::GetTextLineHeight() * 3.0);
 

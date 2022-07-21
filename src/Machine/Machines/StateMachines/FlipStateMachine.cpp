@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "HoodedLiftStateMachine.h"
+#include "FlipStateMachine.h"
 #include "Motion/SubDevice.h"
 #include "Animation/Animatable.h"
 
@@ -8,7 +8,7 @@
 
 #include "Animation/Animation.h"
 
-std::vector<AnimatableStateStruct> HoodedLiftStateMachine::stateParameterValues = {
+std::vector<AnimatableStateStruct> FlipStateMachine::stateParameterValues = {
 	{-1, "Stopped", "Stopped"},
 	{0, "Shut", "Shut"},
 	{1, "Open", "Open"},
@@ -16,7 +16,7 @@ std::vector<AnimatableStateStruct> HoodedLiftStateMachine::stateParameterValues 
 	{3, "Unknown", "Unknown"}
 };
 
-void HoodedLiftStateMachine::initialize() {
+void FlipStateMachine::initialize() {
 	
 	openHoodCommandPin->assignData(openHoodCommandPinValue);
 	shutHoodCommandPin->assignData(shutHoodCommandPinValue);
@@ -50,11 +50,15 @@ void HoodedLiftStateMachine::initialize() {
 
 	addAnimatable(animatableState);
 	
-	auto thisMachine = std::static_pointer_cast<HoodedLiftStateMachine>(shared_from_this());
+	auto thisMachine = std::static_pointer_cast<FlipStateMachine>(shared_from_this());
 	controlWidget = std::make_shared<ControlWidget>(thisMachine, getName());
 }
 
-void HoodedLiftStateMachine::inputProcess() {
+std::string FlipStateMachine::getStatusString(){
+	
+}
+
+void FlipStateMachine::inputProcess() {
 	
 	//update inputs signals & state machine
 	if (b_enabled || areGpioSignalsReady()) {
@@ -94,7 +98,7 @@ void HoodedLiftStateMachine::inputProcess() {
 	}
 }
 
-void HoodedLiftStateMachine::outputProcess(){
+void FlipStateMachine::outputProcess(){
 	//update outputs signals
 	if (b_enabled) {
 		if (animatableState->hasAnimation()) {
@@ -153,7 +157,7 @@ void HoodedLiftStateMachine::outputProcess(){
 	updateGpioOutSignals();
 }
 
-bool HoodedLiftStateMachine::isHardwareReady() { 
+bool FlipStateMachine::isHardwareReady() { 
 	if (!areGpioSignalsReady()) return false;
 	else if (actualState == MachineState::State::UNEXPECTED_STATE) return false;
 	else if (actualState == MachineState::State::UNKNOWN) return false;
@@ -164,7 +168,7 @@ bool HoodedLiftStateMachine::isHardwareReady() {
 	return true;
 }
 
-void HoodedLiftStateMachine::enableHardware() {
+void FlipStateMachine::enableHardware() {
 	if (!isEnabled() && isReady()) {
 		requestedState = actualState;
 		b_enabled = true;
@@ -172,7 +176,7 @@ void HoodedLiftStateMachine::enableHardware() {
 	}
 }
 
-void HoodedLiftStateMachine::disableHardware() {
+void FlipStateMachine::disableHardware() {
 	b_enabled = false;
 	shutLid = false;
 	openLid = false;
@@ -183,15 +187,15 @@ void HoodedLiftStateMachine::disableHardware() {
 	onDisableHardware();
 }
 
-bool HoodedLiftStateMachine::isGpioDeviceConnected() {
+bool FlipStateMachine::isGpioDeviceConnected() {
 	return gpioDeviceLink->isConnected();
 }
 
-std::shared_ptr<GpioDevice> HoodedLiftStateMachine::getGpioDevice() {
+std::shared_ptr<GpioDevice> FlipStateMachine::getGpioDevice() {
 	return gpioDeviceLink->getConnectedPins().front()->getSharedPointer<GpioDevice>();
 }
 
-void HoodedLiftStateMachine::updateGpioInSignals() {
+void FlipStateMachine::updateGpioInSignals() {
 	if(hoodOpenSignalPin->isConnected()) hoodOpenSignalPin->copyConnectedPinValue();
 	hoodOpen = *hoodOpenSignalPinValue;
 	
@@ -217,7 +221,7 @@ void HoodedLiftStateMachine::updateGpioInSignals() {
 	localControlEnabled = *localControlEnabledSignalPinValue;
 }
 
-void HoodedLiftStateMachine::updateGpioOutSignals() {
+void FlipStateMachine::updateGpioOutSignals() {
 	/*
 	openHoodCommandPin->set(openLid);
 	shutHoodCommandPin->set(shutLid);
@@ -230,7 +234,7 @@ void HoodedLiftStateMachine::updateGpioOutSignals() {
 	*raiseLiftCommandPinValue = raisePlatform;
 }
 
-bool HoodedLiftStateMachine::areGpioSignalsReady() {
+bool FlipStateMachine::areGpioSignalsReady() {
 	//device
 	if (!isGpioDeviceConnected()) return false;
 	if (!getGpioDevice()->isReady()) return false;
@@ -251,14 +255,14 @@ bool HoodedLiftStateMachine::areGpioSignalsReady() {
 	return true;
 }
 
-bool HoodedLiftStateMachine::isMoving() { 
+bool FlipStateMachine::isMoving() { 
 	return actualState == MachineState::State::LIFT_LOWERED_HOOD_MOVING || actualState == MachineState::State::LIFT_MOVING_HOOD_OPEN;
 }
 
 
 /*
 
-void HoodedLiftStateMachine::rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
+void FlipStateMachine::rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
 	if (animatable == animatableState) {
 		auto state = value->toState()->value;
 		switch (state->integerEquivalent) {
@@ -276,7 +280,7 @@ void HoodedLiftStateMachine::rapidAnimatableToValue(std::shared_ptr<Animatable> 
 	}
 }
 
-float HoodedLiftStateMachine::getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable) {
+float FlipStateMachine::getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable) {
 	if (animatable == animatableState) {
 		float actual = getState(actualState)->floatEquivalent;
 		float start = getState(parameterMovementStartState)->floatEquivalent;
@@ -289,7 +293,7 @@ float HoodedLiftStateMachine::getAnimatableRapidProgress(std::shared_ptr<Animata
 	return 0.0;
 }
 
-bool HoodedLiftStateMachine::isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
+bool FlipStateMachine::isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
 	if (animatable == animatableState) {
 		auto state = value->toState()->value;
 		//TODO: this is broken
@@ -298,39 +302,39 @@ bool HoodedLiftStateMachine::isAnimatableReadyToStartPlaybackFromValue(std::shar
 	return false;
 }
 
-void HoodedLiftStateMachine::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable) {}
+void FlipStateMachine::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable) {}
 
-void HoodedLiftStateMachine::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable) {}
+void FlipStateMachine::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable) {}
 
-void HoodedLiftStateMachine::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable) {}
+void FlipStateMachine::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable) {}
 
-std::shared_ptr<AnimationValue> HoodedLiftStateMachine::getActualAnimatableValue(std::shared_ptr<Animatable> animatable) {
+std::shared_ptr<AnimationValue> FlipStateMachine::getActualAnimatableValue(std::shared_ptr<Animatable> animatable) {
 	auto output = AnimationValue::makeState();
 	output->value = &stateParameterValues.front();
 	switch(actualState){
-		case HoodedLiftStateMachine::MachineState::State::UNKNOWN:
-		case HoodedLiftStateMachine::MachineState::State::UNEXPECTED_STATE: output->value = &stateParameterValues.front(); break;
-		case HoodedLiftStateMachine::MachineState::State::LIFT_LOWERED_HOOD_SHUT: output->value = &stateParameterValues[1]; break;
-		case HoodedLiftStateMachine::MachineState::State::LIFT_LOWERED_HOOD_MOVING: output->value = &stateParameterValues.front(); break;
-		case HoodedLiftStateMachine::MachineState::State::LIFT_LOWERED_HOOD_OPEN: output->value = &stateParameterValues[2]; break;
-		case HoodedLiftStateMachine::MachineState::State::LIFT_MOVING_HOOD_OPEN: output->value = &stateParameterValues.front(); break;
-		case HoodedLiftStateMachine::MachineState::State::LIFT_RAISED_HOOD_OPEN: output->value = &stateParameterValues[2]; break;
+		case FlipStateMachine::MachineState::State::UNKNOWN:
+		case FlipStateMachine::MachineState::State::UNEXPECTED_STATE: output->value = &stateParameterValues.front(); break;
+		case FlipStateMachine::MachineState::State::LIFT_LOWERED_HOOD_SHUT: output->value = &stateParameterValues[1]; break;
+		case FlipStateMachine::MachineState::State::LIFT_LOWERED_HOOD_MOVING: output->value = &stateParameterValues.front(); break;
+		case FlipStateMachine::MachineState::State::LIFT_LOWERED_HOOD_OPEN: output->value = &stateParameterValues[2]; break;
+		case FlipStateMachine::MachineState::State::LIFT_MOVING_HOOD_OPEN: output->value = &stateParameterValues.front(); break;
+		case FlipStateMachine::MachineState::State::LIFT_RAISED_HOOD_OPEN: output->value = &stateParameterValues[2]; break;
 	}
 	return output;
 }
 
 
 
-void HoodedLiftStateMachine::cancelAnimatableRapid(std::shared_ptr<Animatable> animatable) {
+void FlipStateMachine::cancelAnimatableRapid(std::shared_ptr<Animatable> animatable) {
 	
 }
 
 
-void HoodedLiftStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){
+void FlipStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){
 	
 }
 
-bool HoodedLiftStateMachine::validateAnimation(const std::shared_ptr<Animation> animation) {
+bool FlipStateMachine::validateAnimation(const std::shared_ptr<Animation> animation) {
 	parameterTrack->b_valid = true;
 	for (auto& curve : parameterTrack->curves) {
 		curve->b_valid = true;
@@ -346,7 +350,7 @@ bool HoodedLiftStateMachine::validateAnimation(const std::shared_ptr<Animation> 
 	return true;
 }
 
-bool HoodedLiftStateMachine::generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation){
+bool FlipStateMachine::generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation){
 	return false;
 }
 
@@ -356,26 +360,26 @@ bool HoodedLiftStateMachine::generateTargetAnimation(std::shared_ptr<TargetAnima
 
 //========= ANIMATABLE OWNER ==========
 
-void HoodedLiftStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){}
+void FlipStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){}
 
 
-void HoodedLiftStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
+void FlipStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
 	if (isGpioDeviceConnected()) output.push_back(getGpioDevice()->parentDevice);
 }
 
 
 
-void HoodedLiftStateMachine::onEnableHardware() {
+void FlipStateMachine::onEnableHardware() {
 	actualState = MachineState::State::UNKNOWN;
 	requestedState = MachineState::State::UNKNOWN;
 }
 
-void HoodedLiftStateMachine::onDisableHardware() {
+void FlipStateMachine::onDisableHardware() {
 	actualState = MachineState::State::UNKNOWN;
 	requestedState = MachineState::State::UNKNOWN;
 }
 
-void HoodedLiftStateMachine::simulateInputProcess() {
+void FlipStateMachine::simulateInputProcess() {
 
 	//update outputs signals
 	if (isEnabled()) {
@@ -400,27 +404,27 @@ void HoodedLiftStateMachine::simulateInputProcess() {
 	
 }
 
-void HoodedLiftStateMachine::simulateOutputProcess() {
+void FlipStateMachine::simulateOutputProcess() {
 	
 }
 
-bool HoodedLiftStateMachine::isSimulationReady(){
+bool FlipStateMachine::isSimulationReady(){
 	return true;
 }
 
 
-void HoodedLiftStateMachine::onEnableSimulation() {
+void FlipStateMachine::onEnableSimulation() {
 	if(actualState == MachineState::State::UNKNOWN) actualState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
 	requestedState = actualState;
 }
 
-void HoodedLiftStateMachine::onDisableSimulation() {
+void FlipStateMachine::onDisableSimulation() {
 	actualState = requestedState;
 }
 
 
 
-bool HoodedLiftStateMachine::loadMachine(tinyxml2::XMLElement* xml) {
+bool FlipStateMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	XMLElement* controlWidgetXML = xml->FirstChildElement("ControlWidget");
 	if(!controlWidgetXML){
@@ -433,7 +437,7 @@ bool HoodedLiftStateMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	}
 	return true;
 }
-bool HoodedLiftStateMachine::saveMachine(tinyxml2::XMLElement* xml) {
+bool FlipStateMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	XMLElement* controlWidgetXML = xml->InsertNewChildElement("ControlWidget");
 	controlWidgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
@@ -444,20 +448,20 @@ bool HoodedLiftStateMachine::saveMachine(tinyxml2::XMLElement* xml) {
 
 
 
-std::vector<HoodedLiftStateMachine::MachineState> machineStates = {
-	{HoodedLiftStateMachine::MachineState::State::UNKNOWN,					-1.0,	"Unknown State"},
-	{HoodedLiftStateMachine::MachineState::State::UNEXPECTED_STATE,			-2.0,	"Unexpected State"},
-	{HoodedLiftStateMachine::MachineState::State::LIFT_LOWERED_HOOD_SHUT,	0.0,	"Lift Lowered, Hood Shut"},
-	{HoodedLiftStateMachine::MachineState::State::LIFT_LOWERED_HOOD_MOVING,	0.5,	"Lift Lowered, Hood Moving"},
-	{HoodedLiftStateMachine::MachineState::State::LIFT_LOWERED_HOOD_OPEN,	1.0,	"Lift Lowered, Hood Open"},
-	{HoodedLiftStateMachine::MachineState::State::LIFT_MOVING_HOOD_OPEN,	1.5, 	"Lift Moving, Hood Open"},
-	{HoodedLiftStateMachine::MachineState::State::LIFT_RAISED_HOOD_OPEN,	2.0,	"Lift Raised, Hood Open"},
+std::vector<FlipStateMachine::MachineState> machineStates = {
+	{FlipStateMachine::MachineState::State::UNKNOWN,					-1.0,	"Unknown State"},
+	{FlipStateMachine::MachineState::State::UNEXPECTED_STATE,			-2.0,	"Unexpected State"},
+	{FlipStateMachine::MachineState::State::LIFT_LOWERED_HOOD_SHUT,	0.0,	"Lift Lowered, Hood Shut"},
+	{FlipStateMachine::MachineState::State::LIFT_LOWERED_HOOD_MOVING,	0.5,	"Lift Lowered, Hood Moving"},
+	{FlipStateMachine::MachineState::State::LIFT_LOWERED_HOOD_OPEN,	1.0,	"Lift Lowered, Hood Open"},
+	{FlipStateMachine::MachineState::State::LIFT_MOVING_HOOD_OPEN,	1.5, 	"Lift Moving, Hood Open"},
+	{FlipStateMachine::MachineState::State::LIFT_RAISED_HOOD_OPEN,	2.0,	"Lift Raised, Hood Open"},
 };
 
-std::vector<HoodedLiftStateMachine::MachineState>& HoodedLiftStateMachine::getStates() {
+std::vector<FlipStateMachine::MachineState>& FlipStateMachine::getStates() {
 	return machineStates;
 }
-HoodedLiftStateMachine::MachineState* HoodedLiftStateMachine::getState(HoodedLiftStateMachine::MachineState::State s) {
+FlipStateMachine::MachineState* FlipStateMachine::getState(FlipStateMachine::MachineState::State s) {
 	for (auto& state : machineStates) {
 		if (s == state.state) return &state;
 	}

@@ -20,6 +20,18 @@ void VelocityControlledAxis::initialize() {
 	addNodePin(loadPin);
 }
 
+std::string VelocityControlledAxis::getStatusString(){
+	switch(state){
+		case MotionState::OFFLINE:
+			if(!isActuatorDeviceConnected()) return "Actuator device pin is not connected";
+			else return "Actuator is Offline : " + getActuatorDevice()->getStatusString();
+		case MotionState::NOT_READY:
+			return "Actuator is not ready : " + getActuatorDevice()->getStatusString();
+		case MotionState::READY:	return "Axis is ready to enable";
+		case MotionState::ENABLED: 	return "Axis is enabled";
+	}
+}
+
 void VelocityControlledAxis::inputProcess() {
 	
 	//update profile time no matter what
@@ -30,9 +42,18 @@ void VelocityControlledAxis::inputProcess() {
 	if(!isActuatorDeviceConnected()) {
 		*actualLoad = 0.0;
 		*actualVelocity = 0.0;
+		state = MotionState::OFFLINE;
+		b_emergencyStopActive = false;
 		return;
 	}
 	auto actuator = getActuatorDevice();
+	
+	if(isEnabled()) state = MotionState::ENABLED;
+	else if(isReady()) state = MotionState::READY;
+	else if(!actuator->isOnline()) state = MotionState::OFFLINE;
+	else if(!actuator->isReady()) state = MotionState::NOT_READY;
+	
+	b_emergencyStopActive = actuator->isEmergencyStopped();
 	
 	//handle disabling of the axis if the actuator gets disabled
 	if(isEnabled() && !actuator->isEnabled()) disable();

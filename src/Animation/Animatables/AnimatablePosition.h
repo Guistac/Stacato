@@ -30,7 +30,9 @@ public:
 		}
 	}
 	
-	virtual AnimatableType getType() override { return AnimatableType::POSITION; };
+	virtual AnimatableType getAnimatableType() override { return AnimatableType::POSITION; };
+	
+	virtual Type getType() override { return Type::KEEPOUT; }
 	
 	double keepOutMinPosition;
 	double keepOutMaxPosition;

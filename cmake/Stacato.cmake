@@ -273,9 +273,9 @@ set(STACATO_SOURCE_FILES
     #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/LinearMecanumClaw.h
     #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/LinearMecanumClawGui.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/HoodedLiftStateMachine.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/HoodedLiftStateMachine.h
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/HoodedLiftStateMachineGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/FlipStateMachine.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/FlipStateMachine.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/FlipStateMachineGui.cpp
 
     #========================= AXIS TYPES =========================
 

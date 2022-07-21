@@ -233,7 +233,7 @@ namespace Scripting::EnvironnementLibrary{
 
 		int isHaltConstraint(lua_State* L){
 			auto constraint = lua_AnimationConstraint.checkDerivedArgument(L, 1);
-			lua_pushboolean(L, constraint->isHaltConstraint());
+			lua_pushboolean(L, constraint->getType() == AnimationConstraint::Type::HALT);
 			return 1;
 		}
 	

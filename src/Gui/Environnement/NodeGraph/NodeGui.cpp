@@ -328,10 +328,10 @@ glm::vec2 Node::getNodeGraphPosition() {
 
 void Node::getSplitNodeGraphPosition(glm::vec2& in, glm::vec2& out) {
     in = NodeEditor::GetNodePosition(getUniqueID());
-    out = NodeEditor::GetNodePosition(-getUniqueID());
+    out = NodeEditor::GetNodePosition(INT_MAX - getUniqueID());
 }
 
 void Node::restoreSavedPosition() {
     NodeEditor::SetNodePosition(getUniqueID(), savedPosition);
-    if (isSplit()) NodeEditor::SetNodePosition(-getUniqueID(), savedSplitPosition);
+    if (isSplit()) NodeEditor::SetNodePosition(INT_MAX - getUniqueID(), savedSplitPosition);
 }

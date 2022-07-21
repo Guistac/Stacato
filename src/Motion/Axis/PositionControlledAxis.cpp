@@ -29,15 +29,42 @@ void PositionControlledAxis::initialize() {
 	setPositionReferenceSignalType(positionReferenceSignal);
 }
 
+std::string PositionControlledAxis::getStatusString(){
+	switch(state){
+		case MotionState::OFFLINE:
+			if(!areAllPinsConnected()) return "Axis pins are not connected correctly";
+			else return "Servo Actuator is offline : " + getServoActuatorDevice()->getStatusString();
+			break;
+		case MotionState::NOT_READY:
+			if(!getServoActuatorDevice()->isReady()) return "Servo Actuator is not ready : " + getServoActuatorDevice()->getStatusString();
+			if(needsReferenceDevice() && !getReferenceDevice()->isReady()) return "Axis Reference Device is not ready : " + getReferenceDevice()->getStatusString();
+		case MotionState::READY:	return "Axis is not enabled";
+		case MotionState::ENABLED: 	return "Axis is enabled";
+	}
+	
+}
+
 void PositionControlledAxis::inputProcess() {
 	//check connection requirements and abort processing if the requirements are not met
-	if(!areAllPinsConnected()) return;
-
+	if(!areAllPinsConnected()) {
+		state = MotionState::OFFLINE;
+		b_emergencyStopActive = false;
+		return;
+	}
+	
 	//get devices
 	std::shared_ptr<ServoActuatorDevice> servoActuatorDevice = getServoActuatorDevice();
 	std::shared_ptr<GpioDevice> referenceDevice;
 	if(needsReferenceDevice()) referenceDevice = getReferenceDevice();
 
+	if(isEnabled()) state = MotionState::ENABLED;
+	else if(isReady()) state = MotionState::READY;
+	else if(!servoActuatorDevice->isOnline()) state = MotionState::OFFLINE;
+	else if(!servoActuatorDevice->isReady()) state = MotionState::NOT_READY;
+	else if(needsReferenceDevice() && !referenceDevice->isReady()) state = MotionState::NOT_READY;
+	
+	b_emergencyStopActive = servoActuatorDevice->isEmergencyStopped();
+	
 	//update and react to reference signals
 	if (needsReferenceDevice()) {
 		updateReferenceSignals();

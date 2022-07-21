@@ -15,6 +15,8 @@ std::shared_ptr<AnimatableState> Animatable::toState(){ return std::static_point
 std::shared_ptr<AnimatablePosition> Animatable::toPosition(){ return std::static_pointer_cast<AnimatablePosition>(shared_from_this()); }
 
 
+std::string Animatable::getStatusString(){ return machineStatusReturnMethod(); }
+
 
 //——————————————————— Animations ————————————————————
 
@@ -40,10 +42,10 @@ void Animatable::unsubscribeAnimation(std::shared_ptr<Animation> animation){
 //———————————————— Constraints —————————————————
 
 void Animatable::addConstraint(std::shared_ptr<AnimationConstraint> newConstraint){
-	if(!newConstraint->isHaltConstraint() && newConstraint->getType() != getType()) {
+	if(newConstraint->getType() != AnimationConstraint::Type::HALT && newConstraint->getAnimatableType() != getType()) {
 		Logger::error("Cannot add constraint {} (Type: {}) to animatable {} (Type: {}), types don't match.",
 					  newConstraint->getName(),
-					  Enumerator::getDisplayString(newConstraint->getType()),
+					  Enumerator::getDisplayString(newConstraint->getAnimatableType()),
 					  getName(),
 					  Enumerator::getDisplayString(getType()));
 		return;

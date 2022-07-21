@@ -50,6 +50,9 @@ void MachineTemplate::onDisableSimulation() {
 	//called when simulation is disabled
 }
 
+std::string MachineTemplate::getStatusString(){
+	//return a string depending on the machine state
+}
 
 
 //======= PROCESSING =========

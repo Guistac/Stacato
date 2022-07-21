@@ -109,25 +109,36 @@ void PositionControlledMachine::onEnableSimulation() {
 void PositionControlledMachine::onDisableSimulation() {
 }
 
+std::string PositionControlledMachine::getStatusString(){
+	switch(state){
+		case MotionState::OFFLINE:
+			if(!isAxisConnected()) return std::string(getName()) + " is Offline : no axis connected";
+			else return "Axis is Offline : " + getAxis()->getStatusString();
+		case MotionState::NOT_READY:
+			return "Axis is not ready : " + getAxis()->getStatusString();
+		case MotionState::READY: return std::string(getName()) + " is Not Enabled";
+		case MotionState::ENABLED: return std::string(getName()) + " is Enabled";
+	}
+}
+
 void PositionControlledMachine::inputProcess() {
 	if (!isAxisConnected()) {
-		state = State::OFFLINE;
+		state = MotionState::OFFLINE;
 		return;
 	}
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-
-	/*
-	 OFFLINE,
-	 EMERGENCY_STOP,
-	 NOT_READY,
-	 READY,
-	 ENABLED,
-	 HALTED
-	 */
 	
+	if(isEnabled()) state = MotionState::ENABLED;
+	else if(isReady()) state = MotionState::READY;
+	else if(axis->getState() == MotionState::NOT_READY) state = MotionState::NOT_READY;
+	else if(axis->getState() == MotionState::OFFLINE) state = MotionState::OFFLINE;
 	
-	if(!isMotionAllowed()) state = Machine::State::HALTED;
-	else state = Machine::State::READY;
+	b_emergencyStopActive = axis->isEmergencyStopActive();
+	if(b_emergencyStopActive || !isMotionAllowed()) b_halted = true;
+	
+	if(state == MotionState::OFFLINE) animatablePosition->state = Animatable::State::OFFLINE;
+	else if(state == MotionState::ENABLED && !b_halted) animatablePosition->state = Animatable::State::READY;
+	else animatablePosition->state = Animatable::State::NOT_READY;
 	
 	auto actualPosition = AnimationValue::makePosition();
 	actualPosition->position = axisPositionToMachinePosition(axis->getActualPosition());
@@ -176,6 +187,8 @@ void PositionControlledMachine::outputProcess(){
 
 void PositionControlledMachine::simulateInputProcess() {
 	//nothing to do here
+	if(isEnabled() && !b_halted) animatablePosition->state = Animatable::State::READY;
+	else animatablePosition->state = Animatable::State::NOT_READY;
 }
 
 void PositionControlledMachine::simulateOutputProcess(){

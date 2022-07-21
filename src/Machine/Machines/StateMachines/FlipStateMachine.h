@@ -6,10 +6,10 @@
 
 #include "Gui/Environnement/Dashboard/Widget.h"
 
-class HoodedLiftStateMachine : public Machine {
+class FlipStateMachine : public Machine {
 public:
 
-	DEFINE_MACHINE_NODE(HoodedLiftStateMachine, "Hooded Lift State Machine", "HoodedLiftStateMachine", "State Machines");
+	DEFINE_MACHINE_NODE(FlipStateMachine, "Flip State Machine", "FlipStateMachine", "State Machines");
 
 	std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_INPUT, "GPIO Device", NodePin::Flags::NoDataField);
 
@@ -112,8 +112,8 @@ public:
 	
 	class ControlWidget : public Widget{
 	public:
-		ControlWidget(std::shared_ptr<HoodedLiftStateMachine> machine_, std::string name) : Widget(name, "Machines"), machine(machine_){}
-		std::shared_ptr<HoodedLiftStateMachine> machine;
+		ControlWidget(std::shared_ptr<FlipStateMachine> machine_, std::string name) : Widget(name, "Machines"), machine(machine_){}
+		std::shared_ptr<FlipStateMachine> machine;
 		virtual void gui() override;
 		virtual bool hasFixedContentSize() override{ return true; }
 		virtual glm::vec2 getFixedContentSize() override;
