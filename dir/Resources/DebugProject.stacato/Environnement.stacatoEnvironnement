@@ -1,7 +1,8 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.62041414" OffsetX="1337.5739" OffsetY="-493.72906" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232.00003" SizeY="535.1568"/>
-        <Widget UniqueID="6" PositionX="-1044.4771" PositionY="1044.005" SizeX="232.00003" SizeY="135.91493"/>
+    <Dashboard Scale="0.53273576" OffsetX="1579.2324" OffsetY="-459.26373" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232" SizeY="533.79669"/>
+        <Widget UniqueID="6" PositionX="-1044.4771" PositionY="1044.005" SizeX="232" SizeY="134.55791"/>
+        <Widget UniqueID="7" PositionX="-1296.6873" PositionY="586.53156" SizeX="232" SizeY="299.20325"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -193,6 +194,30 @@
                     <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="315" Visible="true"/>
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="316" Visible="true"/>
                     <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="317" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="HoodedLiftStateMachine" CustomName="Flip A" UniqueID="319">
+                <NodeEditorPosition x="-84" y="428"/>
+                <NodeSpecificData ShortName="F-A">
+                    <ControlWidget UniqueID="7"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="320" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="GPIO Device" DisplayString="GPIO Device" DataType="GPIODeviceLink" UniqueID="321" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Hood Open" DisplayString="Hood Open" DataType="Boolean" UniqueID="322" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Hood Shut" DisplayString="Hood Shut" DataType="Boolean" UniqueID="323" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Lift Raised" DisplayString="Lift Raised" DataType="Boolean" UniqueID="324" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Lift Lowered" DisplayString="Lift Lowered" DataType="Boolean" UniqueID="325" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Hood Motor Fuse" DisplayString="Hood Motor Fuse" DataType="Boolean" UniqueID="326" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Lift Motor Fuse" DisplayString="Lift Motor Fuse" DataType="Boolean" UniqueID="327" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Emergency Stop Clear" DisplayString="Emergency Stop Clear" DataType="Boolean" UniqueID="328" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Local Control Enabled" DisplayString="Local Control Enabled" DataType="Boolean" UniqueID="329" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Open Hood" DisplayString="Open Hood" DataType="Boolean" UniqueID="330" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Shut Hood" DisplayString="Shut Hood" DataType="Boolean" UniqueID="331" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Raise Lift" DisplayString="Raise Lift" DataType="Boolean" UniqueID="332" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Lower Lift" DisplayString="Lower Lift" DataType="Boolean" UniqueID="333" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
         </Nodes>

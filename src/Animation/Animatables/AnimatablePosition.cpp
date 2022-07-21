@@ -392,6 +392,10 @@ double AnimatablePosition::getActualPositionNormalized(){
 	return (getActualPosition() - lowerPositionLimit) / (upperPositionLimit - lowerPositionLimit);
 }
 
+double AnimatablePosition::normalizePosition(double position){
+	return (position - lowerPositionLimit) / (upperPositionLimit - lowerPositionLimit);
+}
+
 
 double AnimatablePosition::getActualVelocity(){
 	return getActualValue()->toPosition()->velocity;
@@ -445,9 +449,34 @@ void AnimatablePosition::followActualValue(double time_seconds, double deltaTime
 	copyMotionProfilerValueToTargetValue();
 }
 
+void AnimatablePosition::getConstraintPositionLimits(double& min, double& max){
+	double position = motionProfile.getPosition();
+	min = lowerPositionLimit;
+	max = upperPositionLimit;
+	for(auto& constraint : getConstraints()){
+		//if(!constraint->isEnabled()) continue;
+		auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
+		if(position > keepout->keepOutMinPosition && position < keepout->keepOutMaxPosition){
+			double middle = (keepout->keepOutMinPosition + keepout->keepOutMaxPosition) / 2.0;
+			if(position > middle){
+				min = keepout->keepOutMaxPosition;
+			}else{
+				max = keepout->keepOutMinPosition;
+			}
+		}
+		else if(position < keepout->keepOutMinPosition && keepout->keepOutMinPosition < max) max = keepout->keepOutMinPosition;
+		else if(position > keepout->keepOutMaxPosition && keepout->keepOutMaxPosition > min) min = keepout->keepOutMaxPosition;
+	}
+}
+
 void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_seconds){
 	const std::lock_guard<std::mutex> lock(mutex);
 	profileTime_seconds = time_seconds;
+	
+	
+	
+	double minPosition, maxPosition;
+	getConstraintPositionLimits(minPosition, maxPosition);
 	
 	if(hasAnimation() && getAnimation()->isPlaying()){
 		auto target = getAnimationValue()->toPosition();
@@ -471,8 +500,8 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 			motionProfile.matchVelocityAndRespectPositionLimits(deltaT_seconds,
 																velocitySetpoint,
 																rapidAcceleration,
-																lowerPositionLimit,
-																upperPositionLimit,
+																minPosition,
+																maxPosition,
 																rapidAcceleration);
 			break;
 		case POSITION_SETPOINT:
@@ -482,8 +511,8 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 																accelerationSetpoint,
 																accelerationLimit,
 																velocityLimit,
-																lowerPositionLimit,
-																upperPositionLimit);
+																minPosition,
+																maxPosition);
 			break;
 		case POSITION_TARGET:
 			motionProfile.updateInterpolation(profileTime_seconds);

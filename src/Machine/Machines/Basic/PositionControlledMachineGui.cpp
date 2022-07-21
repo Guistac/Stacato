@@ -454,7 +454,37 @@ void PositionControlledMachine::widgetGui(){
 	verticalProgressBar(std::abs(animatablePosition->getActualVelocityNormalized()), verticalSliderSize);
 	ImGui::SameLine();
 	verticalProgressBar(animatablePosition->getActualPositionNormalized(), verticalSliderSize);
-
+	
+	glm::vec2 minPosProg = ImGui::GetItemRectMin();
+	glm::vec2 maxPosProg = ImGui::GetItemRectMax();
+	glm::vec2 progSize = maxPosProg - minPosProg;
+	
+	auto& constraints = animatablePosition->getConstraints();
+	
+	ImDrawList* drawing = ImGui::GetWindowDrawList();
+	
+	for(auto& constraint : constraints){
+		auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
+		double minKeepout = animatablePosition->normalizePosition(keepout->keepOutMinPosition);
+		double maxKeepout = animatablePosition->normalizePosition(keepout->keepOutMaxPosition);
+		double keepoutSize = maxKeepout - minKeepout;
+		glm::vec2 keepoutStartPos(minPosProg.x, maxPosProg.y - progSize.y * minKeepout);
+		glm::vec2 keepoutEndPos(maxPosProg.x, maxPosProg.y - progSize.y * maxKeepout);
+		ImColor constraintColor;
+		if(!constraint->isEnabled()) constraintColor = ImColor(1.f, 1.f, 1.f, .3f);
+		else constraintColor = ImColor(1.f, 0.f, 0.f, .5f);
+		drawing->AddRectFilled(keepoutStartPos, keepoutEndPos, constraintColor);
+	}
+	
+	{
+	double minPositionLimit, maxPositionLimit;
+	animatablePosition->getConstraintPositionLimits(minPositionLimit, maxPositionLimit);
+	double minPosition = maxPosProg.y - progSize.y * animatablePosition->normalizePosition(minPositionLimit);
+	double maxPosition = maxPosProg.y - progSize.y * animatablePosition->normalizePosition(maxPositionLimit);
+		drawing->AddLine(ImVec2(minPosProg.x, minPosition), ImVec2(maxPosProg.x, minPosition), ImColor(1.f, 1.f, 1.f, 1.f));
+		drawing->AddLine(ImVec2(minPosProg.x, maxPosition), ImVec2(maxPosProg.x, maxPosition), ImColor(1.f, 1.f, 1.f, 1.f));
+	}
+		
 	/*
 	if(b_hasPositionTarget){
 		glm::vec2 min = ImGui::GetItemRectMin();

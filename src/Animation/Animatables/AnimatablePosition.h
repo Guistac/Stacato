@@ -108,6 +108,8 @@ public:
 	
 	double getBrakingPosition();
 	
+	void getConstraintPositionLimits(double& min, double& max);
+	
 	bool hasPositionSetpoint();
 	double getPositionSetpoint();
 	double getPositionSetpointNormalized();
@@ -118,6 +120,8 @@ public:
 	
 	double getActualPosition();
 	double getActualPositionNormalized();
+	
+	double normalizePosition(double position);
 	
 	double getActualVelocity();
 	double getActualVelocityNormalized();
