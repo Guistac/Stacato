@@ -1,13 +1,14 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.70158774" OffsetX="1292.7202" OffsetY="-461.00024" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232" SizeY="510.72842"/>
-        <Widget UniqueID="2" PositionX="-1044.139" PositionY="1012.5428" SizeX="232" SizeY="137.19456"/>
+    <Dashboard Scale="0.6594339" OffsetX="1189.6642" OffsetY="-493.9389" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="231.99992" SizeY="509.95892"/>
+        <Widget UniqueID="2" PositionX="-1044.139" PositionY="1012.5428" SizeX="231.99992" SizeY="137.95407"/>
+        <Widget UniqueID="3" PositionX="-797.06036" PositionY="498.3642" SizeX="231.99992" SizeY="294.25"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="VIPA Bus Coupler" UniqueID="18">
-                <InputNodeEditorPosition x="24" y="1129"/>
-                <OutputNodeEditorPosition x="-615" y="1221"/>
+                <InputNodeEditorPosition x="72" y="1307"/>
+                <OutputNodeEditorPosition x="-743" y="1290"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="33"/>
                     <SLIOModules>
@@ -124,7 +125,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M (Alias:100)" UniqueID="292">
-                <NodeEditorPosition x="-325" y="1502"/>
+                <NodeEditorPosition x="-692" y="751"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="100"/>
                     <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="100" manualAcceleration_rpsps="50"/>
@@ -156,31 +157,8 @@
                     <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="306" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Position Controlled Axis" UniqueID="308">
-                <NodeEditorPosition x="-27" y="1544"/>
-                <NodeSpecificData>
-                    <Units UnitType="Rotary" Unit="Degree"/>
-                    <UnitConversion ActuatorUnitsPerMachineUnit="1"/>
-                    <KinematicLimits VelocityLimit="100" AccelerationLimit="50" ManualAcceleration="50"/>
-                    <PositionReferenceSignals Type="None" HomingVelocityCoarse="0" HomingVelocityFine="0" HomingDirection="Negative"/>
-                    <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="1" HighLimit="100" EnableHighLimit="true" HighLimitClearance="1" LimitToFeedbackWorkingRange="true"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="Servo Actuator" DisplayString="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="309" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Reference Device" DisplayString="Reference Device" DataType="GPIODeviceLink" UniqueID="310" Visible="false" NoDataField="true"/>
-                    <InputPin SaveString="Low Limit Signal" DisplayString="Low Limit Signal" DataType="Boolean" UniqueID="311" Visible="false"/>
-                    <InputPin SaveString="High Limit Signal" DisplayString="High Limit Signal" DataType="Boolean" UniqueID="312" Visible="false"/>
-                    <InputPin SaveString="Reference Signal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="313" Visible="false"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="314" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="315" Visible="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="316" Visible="true"/>
-                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="317" Visible="true"/>
-                </OutputPins>
-            </Node>
             <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Dead Man&apos;s Switch" UniqueID="319">
-                <NodeEditorPosition x="-296" y="1264"/>
+                <NodeEditorPosition x="-456" y="1127"/>
                 <NodeSpecificData>
                     <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
                     <ControlWidget UniqueID="2"/>
@@ -195,7 +173,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="FlipStateMachine" CustomName="Flip A" UniqueID="334">
-                <NodeEditorPosition x="-601" y="1570"/>
+                <NodeEditorPosition x="-185" y="1279"/>
                 <NodeSpecificData ShortName="M">
                     <ControlWidget UniqueID="3"/>
                 </NodeSpecificData>
@@ -228,6 +206,20 @@
             <Link UniqueID="330" StartPin="266" EndPin="110"/>
             <Link UniqueID="331" StartPin="267" EndPin="111"/>
             <Link UniqueID="333" StartPin="114" EndPin="119"/>
+            <Link UniqueID="350" StartPin="179" EndPin="337"/>
+            <Link UniqueID="351" StartPin="180" EndPin="338"/>
+            <Link UniqueID="352" StartPin="181" EndPin="339"/>
+            <Link UniqueID="353" StartPin="182" EndPin="340"/>
+            <Link UniqueID="354" StartPin="183" EndPin="341"/>
+            <Link UniqueID="355" StartPin="184" EndPin="342"/>
+            <Link UniqueID="356" StartPin="185" EndPin="343"/>
+            <Link UniqueID="357" StartPin="186" EndPin="344"/>
+            <Link UniqueID="358" StartPin="345" EndPin="187"/>
+            <Link UniqueID="359" StartPin="346" EndPin="188"/>
+            <Link UniqueID="360" StartPin="347" EndPin="189"/>
+            <Link UniqueID="361" StartPin="348" EndPin="190"/>
+            <Link UniqueID="362" StartPin="58" EndPin="336"/>
+            <Link UniqueID="363" StartPin="323" EndPin="335"/>
         </Links>
     </NodeGraph>
 </Environnement>

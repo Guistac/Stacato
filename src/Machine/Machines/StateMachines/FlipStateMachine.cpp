@@ -12,7 +12,7 @@ AnimatableStateStruct FlipStateMachine::stateUnknown = 			{-1, "Unknown", "Unkno
 AnimatableStateStruct FlipStateMachine::stateStopped = 			{0, "Stopped", "Stopped"};
 AnimatableStateStruct FlipStateMachine::stateClosed = 			{1, "Shut", "Shut"};
 AnimatableStateStruct FlipStateMachine::stateClosingOpening = 	{2, "Opening/Closing", "Opening/Closing"};
-AnimatableStateStruct FlipStateMachine::stateOpened = 			{3, "Open", "Open"};
+AnimatableStateStruct FlipStateMachine::stateOpenLowered = 		{3, "Open & Lowered", "Open&Lowered"};
 AnimatableStateStruct FlipStateMachine::stateRaisingLowering = 	{4, "Raising/Lowering", "Raising/Lowering"};
 AnimatableStateStruct FlipStateMachine::stateRaised = 			{5, "Raised", "Raised"};
 
@@ -21,37 +21,22 @@ std::vector<AnimatableStateStruct*> FlipStateMachine::allStates = {
 	&FlipStateMachine::stateStopped,
 	&FlipStateMachine::stateClosed,
 	&FlipStateMachine::stateClosingOpening,
-	&FlipStateMachine::stateOpened,
+	&FlipStateMachine::stateOpenLowered,
 	&FlipStateMachine::stateRaisingLowering,
 	&FlipStateMachine::stateRaised
 };
 std::vector<AnimatableStateStruct*> FlipStateMachine::selectableStates = {
 	&FlipStateMachine::stateStopped,
 	&FlipStateMachine::stateClosed,
-	&FlipStateMachine::stateOpened,
+	&FlipStateMachine::stateOpenLowered,
 	&FlipStateMachine::stateRaised
 };
 
 
 
 void FlipStateMachine::initialize() {
-	
-	openHoodCommandPin->assignData(openHoodCommandPinValue);
-	shutHoodCommandPin->assignData(shutHoodCommandPinValue);
-	raiseLiftCommandPin->assignData(raiseLiftCommandPinValue);
-	lowerLiftCommandPin->assignData(lowerLiftCommandPinValue);
-	
-	hoodOpenSignalPin->assignData(hoodOpenSignalPinValue);
-	hoodShutSignalPin->assignData(hoodShutSignalPinValue);
-	liftRaisedSignalPin->assignData(liftRaisedSignalPinValue);
-	liftLoweredSignalPin->assignData(liftLoweredSignalPinValue);
-	hoodMotorCircuitBreakerSignalPin->assignData(hoodMotorCircuitBreakerSignalPinValue);
-	liftMotorCircuitBreakerSignalPin->assignData(liftMotorCircuitBreakerSignalPinValue);
-	emergencyStopClearSignalPin->assignData(emergencyStopClearSignalPinValue);
-	localControlEnabledSignalPin->assignData(localControlEnabledSignalPinValue);
-	
+		
 	addNodePin(gpioDeviceLink);
-
 	addNodePin(hoodOpenSignalPin);
 	addNodePin(hoodShutSignalPin);
 	addNodePin(liftRaisedSignalPin);
@@ -73,138 +58,133 @@ void FlipStateMachine::initialize() {
 }
 
 std::string FlipStateMachine::getStatusString(){
-	
+	return "No Status String Available Yet";
 }
 
 void FlipStateMachine::inputProcess() {
-	
-	//update inputs signals & state machine
-	if (/*b_enabled*/ isEnabled() || areGpioSignalsReady()) {
-		updateGpioInSignals();
 		
-		if (hoodShut && !hoodOpen) {
-			if (liftLowered && !liftRaised) actualState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
-			else if (liftRaised && !liftLowered) actualState = MachineState::State::UNEXPECTED_STATE;
-			else if (!liftLowered && !liftRaised) actualState = MachineState::State::UNEXPECTED_STATE;
-			else if (liftLowered && liftRaised) actualState = MachineState::State::UNEXPECTED_STATE;
-		}
-		else if (hoodOpen && !hoodShut) {
-			if (liftLowered && !liftRaised) actualState = MachineState::State::LIFT_LOWERED_HOOD_OPEN;
-			else if (liftRaised && !liftLowered) actualState = MachineState::State::LIFT_RAISED_HOOD_OPEN;
-			else if (!liftLowered && !liftRaised) actualState = MachineState::State::LIFT_MOVING_HOOD_OPEN;
-			else if (liftLowered && liftRaised) actualState = MachineState::State::UNEXPECTED_STATE;
-		}
-		else if (!hoodOpen && !hoodShut) {
-			if (liftLowered && !liftRaised) actualState = MachineState::State::LIFT_LOWERED_HOOD_MOVING;
-			else if (liftRaised && !liftLowered) actualState = MachineState::State::UNEXPECTED_STATE;
-			else if (!liftLowered && !liftRaised) actualState = MachineState::State::UNKNOWN;
-			else if (liftLowered && liftRaised) actualState = MachineState::State::UNEXPECTED_STATE;
-		}
-		else if (hoodOpen && hoodShut) {
-			actualState = MachineState::State::UNEXPECTED_STATE;
-		}
+	if(!areAllPinsConnected()){
+		state = MotionState::OFFLINE;
+		actualState = State::UNKNOWN;
+		return;
 	}
-
-	//handle disabling condition
-	if (/*b_enabled*/ isEnabled()) {
-		if (actualState == MachineState::State::UNEXPECTED_STATE) disable();
-		else if (actualState == MachineState::State::UNKNOWN) disable();
-		else if (!emergencyStopClear) disable();
-		else if (localControlEnabled) disable();
-		else if (liftMotorCircuitBreakerTripped) disable();
-		else if (hoodMotorCircuitBreakerTripped) disable();
+	
+	auto gpioDevice = getGpioDevice();
+	MotionState gpioState = gpioDevice->getState();
+		
+	//if the gpio device provides valid values, update the state of the flip machine
+	if(gpioState != MotionState::OFFLINE){
+		hoodOpenSignalPin->copyConnectedPinValue();
+		hoodShutSignalPin->copyConnectedPinValue();
+		liftRaisedSignalPin->copyConnectedPinValue();
+		liftLoweredSignalPin->copyConnectedPinValue();
+		hoodMotorCircuitBreakerSignalPin->copyConnectedPinValue();
+		liftMotorCircuitBreakerSignalPin->copyConnectedPinValue();
+		emergencyStopClearSignalPin->copyConnectedPinValue();
+		localControlEnabledSignalPin->copyConnectedPinValue();
+		if (*hoodShutSignal && !*hoodOpenSignal) {
+			if (*liftLoweredSignal && !*liftRaisedSignal) actualState = State::CLOSED;
+			else actualState = State::UNKNOWN;
+		}
+		else if (*hoodOpenSignal && !*hoodShutSignal) {
+			if (*liftLoweredSignal && !*liftRaisedSignal) actualState = State::OPEN_LOWERED;
+			else if (*liftRaisedSignal && !*liftLoweredSignal) actualState = State::RAISED;
+			else if (!*liftLoweredSignal && !*liftRaisedSignal) actualState = State::LOWERING_RAISING;
+			else actualState = State::UNKNOWN;
+		}
+		else if (!*hoodOpenSignal && !*hoodShutSignal) {
+			if (*liftLoweredSignal && !*liftRaisedSignal) actualState = State::OPENING_CLOSING;
+			else actualState = State::UNKNOWN;
+		}
+		else actualState = State::UNKNOWN;
+	}else{
+		actualState = State::UNKNOWN;
 	}
+	
+	MotionState newState;
+	if(actualState == State::UNKNOWN) newState = MotionState::OFFLINE;
+	else if (!*emergencyStopClearSignal) newState = MotionState::NOT_READY;
+	else if (*localControlEnabledSignal) newState = MotionState::NOT_READY;
+	else if (*liftMotorCircuitBreakerSignal) newState = MotionState::NOT_READY;
+	else if (*hoodMotorCircuitBreakerSignal) newState = MotionState::NOT_READY;
+	else if (!isEnabled()) newState = MotionState::READY;
+	else newState = MotionState::ENABLED;
+	
+	if(isEnabled() && newState != MotionState::ENABLED) disable();
+	state = newState;
 }
 
 void FlipStateMachine::outputProcess(){
 	//update outputs signals
-	if (/*b_enabled*/ isEnabled()) {
-		if (animatableState->hasAnimation()) {
-			auto state = animatableState->getAnimationValue()->toState();
-			switch (state->value->integerEquivalent) {
-				case 0:
-					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
-					break;
-				case 1:
-					requestedState = MachineState::State::LIFT_LOWERED_HOOD_OPEN;
-					break;
-				case 2:
-					requestedState = MachineState::State::LIFT_RAISED_HOOD_OPEN;
-					break;
-				default:
-					break;
-			}
-		}
-
+	if (state == MotionState::ENABLED) {
+		
+		auto targetValue = animatableState->getTargetValue()->toState()->value;
+		
+		if(targetValue == &stateClosed) requestedState = State::CLOSED;
+		else if(targetValue == &stateOpenLowered) requestedState = State::OPEN_LOWERED;
+		else if(targetValue == &stateRaised) requestedState = State::RAISED;
+		else requestedState = State::STOPPED;
+		
 		switch (requestedState) {
-			case MachineState::State::LIFT_LOWERED_HOOD_SHUT:
-				shutLid = true;
-				openLid = false;
-				lowerPlatform = true;
-				raisePlatform = false;
+			case State::CLOSED:
+				*shutHoodSignal = true;
+				*openHoodSignal = false;
+				*lowerLiftSignal = true;
+				*raiseLiftSignal = false;
 				break;
-			case MachineState::State::LIFT_LOWERED_HOOD_OPEN:
-				shutLid = false;
-				openLid = true;
-				lowerPlatform = true;
-				raisePlatform = false;
+			case State::OPEN_LOWERED:
+				*shutHoodSignal = false;
+				*openHoodSignal = true;
+				*lowerLiftSignal = true;
+				*raiseLiftSignal = false;
 				break;
-			case MachineState::State::LIFT_RAISED_HOOD_OPEN:
-				shutLid = false;
-				openLid = true;
-				lowerPlatform = false;
-				raisePlatform = true;
+			case State::RAISED:
+				*shutHoodSignal = false;
+				*openHoodSignal = true;
+				*lowerLiftSignal = false;
+				*raiseLiftSignal = true;
 				break;
 			default:
-				//in case a transition state is requested, we stop all movement
-				//the only case where this is possible is when the machine was activated while being in a transition case
-				//here we don't move until a selection to return to one of the fixed states is made
-				shutLid = false;
-				openLid = false;
-				lowerPlatform = false;
-				raisePlatform = false;
+				//in any other state (include STOPPED), we stop all motion
+				*shutHoodSignal = false;
+				*openHoodSignal = false;
+				*lowerLiftSignal = false;
+				*raiseLiftSignal = false;
 				break;
 		}
 	}
 	else {
-		shutLid = false;
-		openLid = false;
-		lowerPlatform = false;
-		raisePlatform = false;
+		*shutHoodSignal = false;
+		*openHoodSignal = false;
+		*lowerLiftSignal = false;
+		*raiseLiftSignal = false;
 	}
-	updateGpioOutSignals();
 }
 
 bool FlipStateMachine::isHardwareReady() { 
-	if (!areGpioSignalsReady()) return false;
-	else if (actualState == MachineState::State::UNEXPECTED_STATE) return false;
-	else if (actualState == MachineState::State::UNKNOWN) return false;
-	else if (localControlEnabled) return false;
-	else if (hoodMotorCircuitBreakerTripped) return false;
-	else if (liftMotorCircuitBreakerTripped) return false;
-	else if (!emergencyStopClear) return false;
+	if (!areAllPinsConnected()) return false;
+	else if (actualState == State::UNKNOWN) return false;
+	else if (*localControlEnabledSignal) return false;
+	else if (*hoodMotorCircuitBreakerSignal) return false;
+	else if (*liftMotorCircuitBreakerSignal) return false;
+	else if (!*emergencyStopClearSignal) return false;
 	return true;
 }
 
 void FlipStateMachine::enableHardware() {
 	if (!isEnabled() && isReady()) {
-		requestedState = actualState;
+		requestedState = State::STOPPED;
 		state = MotionState::ENABLED;
-		//b_enabled = true;
 		onEnableHardware();
 	}
 }
 
 void FlipStateMachine::disableHardware() {
-	state = MotionState::READY;
-	//b_enabled = false;
-	shutLid = false;
-	openLid = false;
-	lowerPlatform = false;
-	raisePlatform = false;
-	requestedState = MachineState::State::UNKNOWN;
-	updateGpioOutSignals();
-	onDisableHardware();
+	if(isEnabled()){
+		state = MotionState::READY;
+		requestedState = State::STOPPED;
+		onDisableHardware();
+	}
 }
 
 bool FlipStateMachine::isGpioDeviceConnected() {
@@ -215,49 +195,9 @@ std::shared_ptr<GpioDevice> FlipStateMachine::getGpioDevice() {
 	return gpioDeviceLink->getConnectedPins().front()->getSharedPointer<GpioDevice>();
 }
 
-void FlipStateMachine::updateGpioInSignals() {
-	if(hoodOpenSignalPin->isConnected()) hoodOpenSignalPin->copyConnectedPinValue();
-	hoodOpen = *hoodOpenSignalPinValue;
-	
-	if(hoodShutSignalPin->isConnected()) hoodShutSignalPin->copyConnectedPinValue();
-	hoodShut = *hoodShutSignalPinValue;
-	
-	if(liftRaisedSignalPin->isConnected()) liftRaisedSignalPin->copyConnectedPinValue();
-	liftRaised = *liftRaisedSignalPinValue;
-	
-	if(liftLoweredSignalPin->isConnected()) liftLoweredSignalPin->copyConnectedPinValue();
-	liftLowered = *liftLoweredSignalPinValue;
-	
-	if(hoodMotorCircuitBreakerSignalPin->isConnected()) hoodMotorCircuitBreakerSignalPin->copyConnectedPinValue();
-	hoodMotorCircuitBreakerTripped = *hoodMotorCircuitBreakerSignalPinValue;
-	
-	if(liftMotorCircuitBreakerSignalPin->isConnected()) liftMotorCircuitBreakerSignalPin->copyConnectedPinValue();
-	liftMotorCircuitBreakerTripped = *liftMotorCircuitBreakerSignalPinValue;
-	
-	if(emergencyStopClearSignalPin->isConnected()) emergencyStopClearSignalPin->copyConnectedPinValue();
-	emergencyStopClear = *emergencyStopClearSignalPinValue;
-	
-	if(localControlEnabledSignalPin->isConnected()) localControlEnabledSignalPin->copyConnectedPinValue();
-	localControlEnabled = *localControlEnabledSignalPinValue;
-}
-
-void FlipStateMachine::updateGpioOutSignals() {
-	/*
-	openHoodCommandPin->set(openLid);
-	shutHoodCommandPin->set(shutLid);
-	lowerLiftCommandPin->set(lowerPlatform);
-	raiseLiftCommandPin->set(raisePlatform);
-	 */
-	*openHoodCommandPinValue = openLid;
-	*shutHoodCommandPinValue = shutLid;
-	*lowerLiftCommandPinValue = lowerPlatform;
-	*raiseLiftCommandPinValue = raisePlatform;
-}
-
-bool FlipStateMachine::areGpioSignalsReady() {
+bool FlipStateMachine::areAllPinsConnected() {
 	//device
 	if (!isGpioDeviceConnected()) return false;
-	if (!getGpioDevice()->isReady()) return false;
 	//inputs
 	if (!hoodOpenSignalPin->isConnected()) return false;
 	if (!hoodShutSignalPin->isConnected()) return false;
@@ -276,7 +216,23 @@ bool FlipStateMachine::areGpioSignalsReady() {
 }
 
 bool FlipStateMachine::isMoving() { 
-	return actualState == MachineState::State::LIFT_LOWERED_HOOD_MOVING || actualState == MachineState::State::LIFT_MOVING_HOOD_OPEN;
+	return actualState == State::LOWERING_RAISING || actualState == State::OPENING_CLOSING;
+}
+
+
+void FlipStateMachine::requestState(State newState){
+	switch(newState){
+		case State::STOPPED:
+		case State::CLOSED:
+		case State::OPEN_LOWERED:
+		case State::RAISED:
+			requestedState = newState;
+			break;
+		default:
+			Logger::warn("state {} is not selectable", Enumerator::getDisplayString(newState));
+			break;
+	}
+	//TODO: interrupt animation here
 }
 
 
@@ -389,43 +345,25 @@ void FlipStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) 
 
 
 
-void FlipStateMachine::onEnableHardware() {
-	actualState = MachineState::State::UNKNOWN;
-	requestedState = MachineState::State::UNKNOWN;
-}
+void FlipStateMachine::onEnableHardware() {}
 
-void FlipStateMachine::onDisableHardware() {
-	actualState = MachineState::State::UNKNOWN;
-	requestedState = MachineState::State::UNKNOWN;
-}
+void FlipStateMachine::onDisableHardware() {}
 
 void FlipStateMachine::simulateInputProcess() {
-
-	//update outputs signals
-	if (isEnabled()) {
-		if (animatableState->hasAnimation()) {
-			auto state = animatableState->getAnimationValue()->toState()->value;
-			switch (state->integerEquivalent) {
-				case 0:
-					requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
-					break;
-				case 1:
-					requestedState = MachineState::State::LIFT_LOWERED_HOOD_OPEN;
-					break;
-				case 2:
-					requestedState = MachineState::State::LIFT_RAISED_HOOD_OPEN;
-					break;
-				default:
-					break;
-			}
-		}
-		actualState = requestedState;
-	}
-	
 }
 
 void FlipStateMachine::simulateOutputProcess() {
-	
+	//update outputs signals
+	if (isEnabled()) {
+		auto targetValue = animatableState->getTargetValue()->toState()->value;
+		if(targetValue == &stateClosed) requestedState = State::CLOSED;
+		else if(targetValue == &stateOpenLowered) requestedState = State::OPEN_LOWERED;
+		else if(targetValue == &stateRaised) requestedState = State::RAISED;
+		else requestedState = State::STOPPED;
+		
+		if(requestedState == State::STOPPED) actualState = State::CLOSED;
+		else actualState = requestedState;
+	}
 }
 
 bool FlipStateMachine::isSimulationReady(){
@@ -434,12 +372,12 @@ bool FlipStateMachine::isSimulationReady(){
 
 
 void FlipStateMachine::onEnableSimulation() {
-	if(actualState == MachineState::State::UNKNOWN) actualState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
-	requestedState = actualState;
+	if(requestedState == State::UNKNOWN) actualState = State::CLOSED;
+	actualState = requestedState;
 }
 
 void FlipStateMachine::onDisableSimulation() {
-	actualState = requestedState;
+	
 }
 
 
@@ -463,28 +401,3 @@ bool FlipStateMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	controlWidgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
 	return true;
 }
-
-
-
-
-
-std::vector<FlipStateMachine::MachineState> machineStates = {
-	{FlipStateMachine::MachineState::State::UNKNOWN,					-1.0,	"Unknown State"},
-	{FlipStateMachine::MachineState::State::UNEXPECTED_STATE,			-2.0,	"Unexpected State"},
-	{FlipStateMachine::MachineState::State::LIFT_LOWERED_HOOD_SHUT,	0.0,	"Lift Lowered, Hood Shut"},
-	{FlipStateMachine::MachineState::State::LIFT_LOWERED_HOOD_MOVING,	0.5,	"Lift Lowered, Hood Moving"},
-	{FlipStateMachine::MachineState::State::LIFT_LOWERED_HOOD_OPEN,	1.0,	"Lift Lowered, Hood Open"},
-	{FlipStateMachine::MachineState::State::LIFT_MOVING_HOOD_OPEN,	1.5, 	"Lift Moving, Hood Open"},
-	{FlipStateMachine::MachineState::State::LIFT_RAISED_HOOD_OPEN,	2.0,	"Lift Raised, Hood Open"},
-};
-
-std::vector<FlipStateMachine::MachineState>& FlipStateMachine::getStates() {
-	return machineStates;
-}
-FlipStateMachine::MachineState* FlipStateMachine::getState(FlipStateMachine::MachineState::State s) {
-	for (auto& state : machineStates) {
-		if (s == state.state) return &state;
-	}
-	return nullptr;
-}
-

@@ -11,115 +11,95 @@ public:
 
 	DEFINE_MACHINE_NODE(FlipStateMachine, "Flip State Machine", "FlipStateMachine", "State Machines");
 
+	//————— Input Pins —————
+	
 	std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_INPUT, "GPIO Device", NodePin::Flags::NoDataField);
 
-	std::shared_ptr<NodePin> hoodOpenSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Hood Open", NodePin::Flags::NoDataField);
-	std::shared_ptr<NodePin> hoodShutSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Hood Shut", NodePin::Flags::NoDataField);
-	std::shared_ptr<NodePin> liftRaisedSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Lift Raised", NodePin::Flags::NoDataField);
-	std::shared_ptr<NodePin> liftLoweredSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Lift Lowered", NodePin::Flags::NoDataField);
-	std::shared_ptr<NodePin> hoodMotorCircuitBreakerSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Hood Motor Fuse", NodePin::Flags::NoDataField);
-	std::shared_ptr<NodePin> liftMotorCircuitBreakerSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Lift Motor Fuse", NodePin::Flags::NoDataField);
-	std::shared_ptr<NodePin> emergencyStopClearSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Emergency Stop Clear", NodePin::Flags::NoDataField);
-	std::shared_ptr<NodePin> localControlEnabledSignalPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Local Control Enabled", NodePin::Flags::NoDataField);
-
-	std::shared_ptr<bool> hoodOpenSignalPinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> hoodShutSignalPinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> liftRaisedSignalPinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> liftLoweredSignalPinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> hoodMotorCircuitBreakerSignalPinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> liftMotorCircuitBreakerSignalPinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> emergencyStopClearSignalPinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> localControlEnabledSignalPinValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> hoodOpenSignal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> hoodShutSignal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> liftRaisedSignal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> liftLoweredSignal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> hoodMotorCircuitBreakerSignal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> liftMotorCircuitBreakerSignal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> emergencyStopClearSignal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> localControlEnabledSignal = std::make_shared<bool>(false);
 	
-	std::shared_ptr<NodePin> openHoodCommandPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Open Hood", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> shutHoodCommandPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Shut Hood", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> raiseLiftCommandPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Raise Lift", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> lowerLiftCommandPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Lower Lift", NodePin::Flags::DisableDataField);
-
-	std::shared_ptr<bool> openHoodCommandPinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> shutHoodCommandPinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> raiseLiftCommandPinValue = std::make_shared<bool>(false);
-	std::shared_ptr<bool> lowerLiftCommandPinValue = std::make_shared<bool>(false);
+	std::shared_ptr<NodePin> hoodOpenSignalPin = std::make_shared<NodePin>(hoodOpenSignal,
+																		   NodePin::Direction::NODE_INPUT, "Hood Open", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> hoodShutSignalPin = std::make_shared<NodePin>(hoodShutSignal,
+																		   NodePin::Direction::NODE_INPUT, "Hood Shut", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> liftRaisedSignalPin = std::make_shared<NodePin>(liftRaisedSignal,
+																			 NodePin::Direction::NODE_INPUT, "Lift Raised", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> liftLoweredSignalPin = std::make_shared<NodePin>(liftLoweredSignal,
+																			  NodePin::Direction::NODE_INPUT, "Lift Lowered", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> hoodMotorCircuitBreakerSignalPin = std::make_shared<NodePin>(hoodMotorCircuitBreakerSignal,
+																						  NodePin::Direction::NODE_INPUT, "Hood Motor Fuse", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> liftMotorCircuitBreakerSignalPin = std::make_shared<NodePin>(liftMotorCircuitBreakerSignal,
+																						  NodePin::Direction::NODE_INPUT, "Lift Motor Fuse", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> emergencyStopClearSignalPin = std::make_shared<NodePin>(emergencyStopClearSignal,
+																					 NodePin::Direction::NODE_INPUT, "Emergency Stop Clear", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> localControlEnabledSignalPin = std::make_shared<NodePin>(localControlEnabledSignal,
+																					  NodePin::Direction::NODE_INPUT, "Local Control Enabled", NodePin::Flags::NoDataField);
 	
-	std::shared_ptr<AnimatableState> animatableState = AnimatableState::make("State", allStates, selectableStates);
-
+	//————— Output Pins —————
+	
+	std::shared_ptr<bool> openHoodSignal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> shutHoodSignal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> raiseLiftSignal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> lowerLiftSignal = std::make_shared<bool>(false);
+	
+	std::shared_ptr<NodePin> openHoodCommandPin = std::make_shared<NodePin>(openHoodSignal,
+																			NodePin::Direction::NODE_OUTPUT, "Open Hood", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> shutHoodCommandPin = std::make_shared<NodePin>(shutHoodSignal,
+																			NodePin::Direction::NODE_OUTPUT, "Shut Hood", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> raiseLiftCommandPin = std::make_shared<NodePin>(raiseLiftSignal,
+																			 NodePin::Direction::NODE_OUTPUT, "Raise Lift", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> lowerLiftCommandPin = std::make_shared<NodePin>(lowerLiftSignal,
+																			 NodePin::Direction::NODE_OUTPUT, "Lower Lift", NodePin::Flags::DisableDataField);
+	
+	//————— Machine State —————
+	
+	bool areAllPinsConnected();
+	bool isGpioDeviceConnected();
+	std::shared_ptr<GpioDevice> getGpioDevice();
+	
+	bool b_enabled = false;
+	
+	//————— State Machine —————
+	
 	static AnimatableStateStruct stateUnknown;
 	static AnimatableStateStruct stateStopped;
 	static AnimatableStateStruct stateClosed;
 	static AnimatableStateStruct stateClosingOpening;
-	static AnimatableStateStruct stateOpened;
+	static AnimatableStateStruct stateOpenLowered;
 	static AnimatableStateStruct stateRaisingLowering;
 	static AnimatableStateStruct stateRaised;
 	
 	static std::vector<AnimatableStateStruct*> allStates;
 	static std::vector<AnimatableStateStruct*> selectableStates;
-	
-	bool hoodShut = false;
-	bool hoodOpen = false;
-	bool liftLowered = false;
-	bool liftRaised = false;
-	bool emergencyStopClear = false;
-	bool localControlEnabled = false;
-	bool hoodMotorCircuitBreakerTripped = false;
-	bool liftMotorCircuitBreakerTripped = false;
 
-	bool shutLid = false;
-	bool openLid = false;
-	bool lowerPlatform = false;
-	bool raisePlatform = false;
-
-	struct MachineState {
-		enum class State{
-			UNKNOWN,
-			UNEXPECTED_STATE,
-			LIFT_LOWERED_HOOD_SHUT,
-			LIFT_LOWERED_HOOD_MOVING,
-			LIFT_LOWERED_HOOD_OPEN,
-			LIFT_MOVING_HOOD_OPEN,
-			LIFT_RAISED_HOOD_OPEN
-		};
-		State state;
-		float floatEquivalent;
-		const char displayName[64];
+	enum class State{
+		UNKNOWN,
+		STOPPED,
+		CLOSED,
+		OPENING_CLOSING,
+		OPEN_LOWERED,
+		LOWERING_RAISING,
+		RAISED
 	};
-	std::vector<MachineState>& getStates();
-	MachineState* getState(MachineState::State s);
-
-	bool isGpioDeviceConnected();
-	std::shared_ptr<GpioDevice> getGpioDevice();
-	void updateGpioInSignals();
-	void updateGpioOutSignals();
-	bool areGpioSignalsReady();
-
-	MachineState::State actualState = MachineState::State::UNKNOWN;
-	MachineState::State requestedState = MachineState::State::UNKNOWN;
-
-	//used to track the progress of a requested parameter movement
-	MachineState::State parameterMovementStartState;
-	MachineState::State parameterMovementTargetState;
+	State actualState = State::UNKNOWN;
+	State requestedState = State::STOPPED;
 	
-	std::vector<std::shared_ptr<NodePin>> inputProcessTriggerPins = {
-		//none
-	};
-	virtual std::vector<std::shared_ptr<NodePin>> getUpdatedPinsAfterInputProcess() override { return inputProcessTriggerPins; };
+	//————— Animation —————
 	
-	std::vector<std::shared_ptr<NodePin>> outputProcessTriggerPins = {
-		openHoodCommandPin,
-		shutHoodCommandPin,
-		raiseLiftCommandPin,
-		lowerLiftCommandPin
-	};
-	virtual std::vector<std::shared_ptr<NodePin>> getUpdatedPinsAfterOutputProcess() override { return outputProcessTriggerPins; };
+	std::shared_ptr<AnimatableState> animatableState = AnimatableState::make("State", allStates, selectableStates);
+	void requestState(State newState);
 	
-	
-	
-	
+	//————— Control Widget —————
 	
 	virtual void onAddToNodeGraph() override { controlWidget->addToDictionnary(); };
 	virtual void onRemoveFromNodeGraph() override { controlWidget->removeFromDictionnary(); }
-	
 	void widgetGui();
-	
 	class ControlWidget : public Widget{
 	public:
 		ControlWidget(std::shared_ptr<FlipStateMachine> machine_, std::string name) : Widget(name, "Machines"), machine(machine_){}
@@ -132,3 +112,16 @@ public:
 	
 	
 };
+
+
+#define FlipStateMachineStrings {\
+{FlipStateMachine::State::UNKNOWN, 			.displayString = "Unknown State"},\
+{FlipStateMachine::State::STOPPED, 			.displayString = "Stopped"},\
+{FlipStateMachine::State::CLOSED, 			.displayString = "Closed"},\
+{FlipStateMachine::State::OPENING_CLOSING, 	.displayString = "Opening/Closing"},\
+{FlipStateMachine::State::OPEN_LOWERED, 	.displayString = "Open & Lowered"},\
+{FlipStateMachine::State::LOWERING_RAISING, .displayString = "Lowering/Raising"},\
+{FlipStateMachine::State::RAISED, 			.displayString = "Raised"},\
+}\
+
+DEFINE_ENUMERATOR(FlipStateMachine::State, FlipStateMachineStrings)

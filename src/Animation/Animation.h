@@ -218,7 +218,9 @@ public:
 		
 	virtual void setUnit(Unit unit) override;
 	
-	void captureTarget(){}
+	void captureTarget(){
+		//TODO: implement this
+	}
 	std::shared_ptr<Parameter> target;
 	
 	virtual void getCurvePositionRange(double& min, double& max) override;
@@ -291,7 +293,9 @@ public:
 	bool areCurvesGenerated();
 	void clearCurves();
 	
-	void captureTarget(){}
+	void captureTarget(){
+		//TODO: implement this
+	}
 	std::shared_ptr<Parameter> target;
 	std::shared_ptr<EnumeratorParameter<Constraint>> constraintType = std::make_shared<EnumeratorParameter<Constraint>>(Constraint::TIME, "Constraint Type", "ConstraintType");
 	std::shared_ptr<TimeParameter> timeConstraint = std::make_shared<TimeParameter>(0.0, "Movement Time", "Time");
