@@ -1,3 +1,17 @@
 <Plot Name="Default Plot">
-    <ManoeuvreList/>
+    <ManoeuvreList>
+        <Manoeuvre Name="M-0" Description="" Type="Key">
+            <Animation Machine="Flip A" MachineUniqueID="335" Parameter="State" IsComposite="false" Type="Key" Target="Shut"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-1" Description="" Type="Sequence">
+            <Animation Machine="Flip A" MachineUniqueID="335" Parameter="State" IsComposite="false" Type="Sequence" interpolationType="Step" Start="Shut" End="Raised" Duration="4" TimeOffset="0" StartAcceleration="0" EndAcceleration="0">
+                <Curves>
+                    <Curve>
+                        <ControlPoint Position="1" Time="0" Velocity="0" InAcceleration="0" OutAcceleration="0"/>
+                        <ControlPoint Position="5" Time="4" Velocity="0" InAcceleration="0" OutAcceleration="0"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+    </ManoeuvreList>
 </Plot>

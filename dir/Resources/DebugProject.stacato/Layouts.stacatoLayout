@@ -1,11 +1,25 @@
 <Layouts>
-    <Layout Name="Node Editor" IsDefault="true">
+    <Layout Name="Node Editor">
         <OpenWindows>
             <Window Name="Node Editor"/>
             <Window Name="Log"/>
             <Window Name="Dashboard"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -715,6 +729,20 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -1017,7 +1045,7 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
 
 </ImGuiIniString>
     </Layout>
-    <Layout Name="Plot Debug">
+    <Layout Name="Plot Debug" IsDefault="true">
         <OpenWindows>
             <Window Name="Visualizer"/>
             <Window Name="Dashboard"/>
@@ -1027,6 +1055,20 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
             <Window Name="Playback Manager"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1786,6 +1828,20 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -2118,6 +2174,20 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split
             <Window Name="EtherCAT Fieldbus"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2767,6 +2837,20 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -3098,6 +3182,20 @@ DockSpace     ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X Sel
             <Window Name="Visualizer Script"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3575,6 +3673,20 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
             <Window Name="Node Editor"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

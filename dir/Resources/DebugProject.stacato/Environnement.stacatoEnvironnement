@@ -1,8 +1,8 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.6594339" OffsetX="1189.6642" OffsetY="-493.9389" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="231.99992" SizeY="509.95892"/>
-        <Widget UniqueID="2" PositionX="-1044.139" PositionY="1012.5428" SizeX="231.99992" SizeY="137.95407"/>
-        <Widget UniqueID="3" PositionX="-797.06036" PositionY="498.3642" SizeX="231.99992" SizeY="294.25"/>
+    <Dashboard Scale="0.70158774" OffsetX="1416.428" OffsetY="-461.00024" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232.00003" SizeY="510.72842"/>
+        <Widget UniqueID="2" PositionX="-1044.139" PositionY="1012.5428" SizeX="232.00003" SizeY="137.19456"/>
+        <Widget UniqueID="3" PositionX="-1292.0841" PositionY="661.90454" SizeX="232.00003" SizeY="295.4122"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -158,7 +158,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Dead Man&apos;s Switch" UniqueID="319">
-                <NodeEditorPosition x="-456" y="1127"/>
+                <NodeEditorPosition x="-519" y="1121"/>
                 <NodeSpecificData>
                     <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
                     <ControlWidget UniqueID="2"/>
@@ -172,28 +172,29 @@
                     <OutputPin SaveString="Dead Man&apos;s Switch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="323" Visible="true" NoDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Machine" ClassName="FlipStateMachine" CustomName="Flip A" UniqueID="334">
-                <NodeEditorPosition x="-185" y="1279"/>
+            <Node NodeType="Machine" ClassName="FlipStateMachine" CustomName="Flip A" UniqueID="335">
+                <NodeEditorPosition x="-269" y="1324"/>
                 <NodeSpecificData ShortName="M">
                     <ControlWidget UniqueID="3"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="335" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="GPIO Device" DisplayString="GPIO Device" DataType="GPIODeviceLink" UniqueID="336" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Hood Open" DisplayString="Hood Open" DataType="Boolean" UniqueID="337" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Hood Shut" DisplayString="Hood Shut" DataType="Boolean" UniqueID="338" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Lift Raised" DisplayString="Lift Raised" DataType="Boolean" UniqueID="339" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Lift Lowered" DisplayString="Lift Lowered" DataType="Boolean" UniqueID="340" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Hood Motor Fuse" DisplayString="Hood Motor Fuse" DataType="Boolean" UniqueID="341" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Lift Motor Fuse" DisplayString="Lift Motor Fuse" DataType="Boolean" UniqueID="342" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Emergency Stop Clear" DisplayString="Emergency Stop Clear" DataType="Boolean" UniqueID="343" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Local Control Enabled" DisplayString="Local Control Enabled" DataType="Boolean" UniqueID="344" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="336" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="GPIO Device" DisplayString="GPIO Device" DataType="GPIODeviceLink" UniqueID="337" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Hood Open" DisplayString="Hood Open" DataType="Boolean" UniqueID="338" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Hood Shut" DisplayString="Hood Shut" DataType="Boolean" UniqueID="339" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Lift Raised" DisplayString="Lift Raised" DataType="Boolean" UniqueID="340" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Lift Lowered" DisplayString="Lift Lowered" DataType="Boolean" UniqueID="341" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Hood Motor Fuse" DisplayString="Hood Motor Fuse" DataType="Boolean" UniqueID="342" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Lift Motor Fuse" DisplayString="Lift Motor Fuse" DataType="Boolean" UniqueID="343" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Emergency Stop Clear" DisplayString="Emergency Stop Clear" DataType="Boolean" UniqueID="344" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Local Control Enabled" DisplayString="Local Control Enabled" DataType="Boolean" UniqueID="345" Visible="true" NoDataField="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveString="Open Hood" DisplayString="Open Hood" DataType="Boolean" UniqueID="345" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Shut Hood" DisplayString="Shut Hood" DataType="Boolean" UniqueID="346" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Raise Lift" DisplayString="Raise Lift" DataType="Boolean" UniqueID="347" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Lower Lift" DisplayString="Lower Lift" DataType="Boolean" UniqueID="348" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Open Hood" DisplayString="Open Hood" DataType="Boolean" UniqueID="346" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Shut Hood" DisplayString="Shut Hood" DataType="Boolean" UniqueID="347" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Raise Lift" DisplayString="Raise Lift" DataType="Boolean" UniqueID="348" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Lower Lift" DisplayString="Lower Lift" DataType="Boolean" UniqueID="349" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="State Number" DisplayString="State Number" DataType="Integer" UniqueID="350" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -206,20 +207,20 @@
             <Link UniqueID="330" StartPin="266" EndPin="110"/>
             <Link UniqueID="331" StartPin="267" EndPin="111"/>
             <Link UniqueID="333" StartPin="114" EndPin="119"/>
-            <Link UniqueID="350" StartPin="179" EndPin="337"/>
-            <Link UniqueID="351" StartPin="180" EndPin="338"/>
-            <Link UniqueID="352" StartPin="181" EndPin="339"/>
-            <Link UniqueID="353" StartPin="182" EndPin="340"/>
-            <Link UniqueID="354" StartPin="183" EndPin="341"/>
-            <Link UniqueID="355" StartPin="184" EndPin="342"/>
-            <Link UniqueID="356" StartPin="185" EndPin="343"/>
-            <Link UniqueID="357" StartPin="186" EndPin="344"/>
-            <Link UniqueID="358" StartPin="345" EndPin="187"/>
-            <Link UniqueID="359" StartPin="346" EndPin="188"/>
-            <Link UniqueID="360" StartPin="347" EndPin="189"/>
-            <Link UniqueID="361" StartPin="348" EndPin="190"/>
-            <Link UniqueID="362" StartPin="58" EndPin="336"/>
-            <Link UniqueID="363" StartPin="323" EndPin="335"/>
+            <Link UniqueID="351" StartPin="58" EndPin="337"/>
+            <Link UniqueID="352" StartPin="179" EndPin="338"/>
+            <Link UniqueID="353" StartPin="180" EndPin="339"/>
+            <Link UniqueID="354" StartPin="181" EndPin="340"/>
+            <Link UniqueID="355" StartPin="182" EndPin="341"/>
+            <Link UniqueID="356" StartPin="183" EndPin="342"/>
+            <Link UniqueID="357" StartPin="184" EndPin="343"/>
+            <Link UniqueID="358" StartPin="185" EndPin="344"/>
+            <Link UniqueID="359" StartPin="186" EndPin="345"/>
+            <Link UniqueID="360" StartPin="346" EndPin="172"/>
+            <Link UniqueID="361" StartPin="347" EndPin="173"/>
+            <Link UniqueID="362" StartPin="348" EndPin="174"/>
+            <Link UniqueID="363" StartPin="349" EndPin="175"/>
+            <Link UniqueID="364" StartPin="323" EndPin="336"/>
         </Links>
     </NodeGraph>
 </Environnement>

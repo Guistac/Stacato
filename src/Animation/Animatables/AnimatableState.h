@@ -90,41 +90,36 @@ public:
 	virtual std::shared_ptr<AnimationValue> getValueAtAnimationTime(std::shared_ptr<Animation> animation, double time_seconds) override;
 	virtual std::vector<double> getCurvePositionsFromAnimationValue(std::shared_ptr<AnimationValue> value) override;
 
-	virtual bool isReadyToMove() override {}
-	virtual bool isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationValue> animationValue) override {}
-	virtual bool isInRapid() override {}
-	virtual float getRapidProgress() override {}
-	virtual void cancelRapid() override {}
+	virtual bool isReadyToMove() override;
+	virtual bool isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationValue> animationValue) override;
+	virtual bool isInRapid() override;
+	virtual float getRapidProgress() override;
+	virtual void cancelRapid() override;
 	
-	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) override {}
-	virtual void onPlaybackStart() override{}
-	virtual void onPlaybackPause() override{}
-	virtual void onPlaybackStop() override{}
-	virtual void onPlaybackEnd() override{}
-	virtual void stopMovement() override {}
+	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) override;
+	virtual void onPlaybackStart() override;
+	virtual void onPlaybackPause() override;
+	virtual void onPlaybackStop() override;
+	virtual void onPlaybackEnd() override;
+	virtual void stopMovement() override;
 	
 	virtual bool hasManualControls() override { return true; }
 	virtual void onSetManualControlTarget(float x, float y, float z) override {}
 	
-	
-	virtual void updateTargetValue(double time_seconds, double deltaTime_seconds) override{}
-	virtual std::shared_ptr<AnimationValue> getTargetValue() override{
-		return targetValue;
-	}
+		
+	virtual std::shared_ptr<AnimationValue> getTargetValue() override{ return targetValue; }
 	std::shared_ptr<AnimatableStateValue> targetValue;
 	
-	virtual void updateActualValue(std::shared_ptr<AnimationValue> newActualValue) override{}
-	virtual std::shared_ptr<AnimationValue> getActualValue() override{
-		return actualValue;
-	}
+	virtual void updateActualValue(std::shared_ptr<AnimationValue> newActualValue) override{ actualValue = newActualValue->toState(); }
+	virtual std::shared_ptr<AnimationValue> getActualValue() override{ return actualValue; }
 	std::shared_ptr<AnimatableStateValue> actualValue;
 	
-	virtual void followActualValue(double time_seconds, double deltaTime_seconds) override {};
+	virtual void updateTargetValue(double time_seconds, double deltaTime_seconds) override;
+	virtual void followActualValue(double time_seconds, double deltaTime_seconds) override;
 	
 	
 	
-	
-	
+	bool b_inRapid = false;
 	
 	
 	
@@ -133,7 +128,7 @@ public:
 	}
 	
 	virtual bool validateAnimation(std::shared_ptr<Animation> animation) override {
-		return false;
+		return true;
 	}
 	
 	std::vector<AnimatableStateStruct*>* getStates() { return states; }

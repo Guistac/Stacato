@@ -5,6 +5,8 @@
 #include "Animation/Animation.h"
 #include "Motion/MotionTypes.h"
 
+#include "Machine/Machine.h"
+
 std::vector<InterpolationType>& AnimatableState::getCompatibleInterpolationTypes(){
 	static std::vector<InterpolationType> compatibleInterpolationTypes = { InterpolationType::STEP };
 	return compatibleInterpolationTypes;
@@ -40,7 +42,8 @@ std::shared_ptr<AnimationValue> AnimatableState::getValueAtAnimationTime(std::sh
 	auto output = AnimationValue::makeState();
 	int integer = std::round(animation->getCurves().front().getPointAtTime(time_seconds).position);
 	for(int i = 0; i < states->size(); i++){
-		if(states->at(i)->integerEquivalent == i){
+		auto state = states->at(i);
+		if(state->integerEquivalent == integer){
 			output->value = states->at(i);
 			break;
 		}
@@ -50,5 +53,56 @@ std::shared_ptr<AnimationValue> AnimatableState::getValueAtAnimationTime(std::sh
 
 std::vector<double> AnimatableState::getCurvePositionsFromAnimationValue(std::shared_ptr<AnimationValue> value){
 	return std::vector<double>{(double)value->toState()->value->integerEquivalent};
+}
+
+
+
+
+
+
+bool AnimatableState::isReadyToMove(){
+	auto machine = getMachine();
+	return machine->isEnabled() && !machine->isHalted();
+}
+bool AnimatableState::isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationValue> animationValue){
+	return animationValue->toState()->value == actualValue->value;
+}
+bool AnimatableState::isInRapid(){ return b_inRapid; }
+float AnimatableState::getRapidProgress(){ return .5f; }
+void AnimatableState::cancelRapid(){ b_inRapid = false; }
+
+
+
+
+
+void AnimatableState::onRapidToValue(std::shared_ptr<AnimationValue> animationValue){
+	auto newTargetValue = AnimationValue::makeState();
+	newTargetValue->value = animationValue->toState()->value;
+	targetValue = newTargetValue;
+	b_inRapid = true;
+}
+
+void AnimatableState::onPlaybackStart(){}
+void AnimatableState::onPlaybackPause(){}
+void AnimatableState::onPlaybackStop(){}
+void AnimatableState::onPlaybackEnd(){}
+void AnimatableState::stopMovement(){}
+
+
+
+
+
+
+
+void AnimatableState::updateTargetValue(double time_seconds, double deltaTime_seconds){
+	if(hasAnimation() && getAnimation()->isPlaying()){
+		b_inRapid = false;
+		targetValue->value = getAnimationValue()->toState()->value;
+	}
+	if(b_inRapid && targetValue->value == actualValue->value) b_inRapid = false;
+}
+
+void AnimatableState::followActualValue(double time_seconds, double deltaTime_seconds){
+	targetValue->value = actualValue->value;
 }
 

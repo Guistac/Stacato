@@ -27,7 +27,7 @@ void NodePin::dataGui() {
 			ImGui::Checkbox("##", getSharedPointer<bool>().get());
 			break;
 		case DataType::INTEGER:
-			ImGui::InputInt("##", getSharedPointer<int>().get());
+			ImGui::InputInt("##", getSharedPointer<int>().get(), 0, 0);
 			break;
 		case DataType::REAL:
 			ImGui::InputDouble("##", getSharedPointer<double>().get(), 0.0, 0.0, "%.3f");

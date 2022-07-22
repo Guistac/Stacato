@@ -50,6 +50,7 @@ void FlipStateMachine::initialize() {
 	addNodePin(shutHoodCommandPin);
 	addNodePin(raiseLiftCommandPin);
 	addNodePin(lowerLiftCommandPin);
+	addNodePin(stateIntegerPin);
 
 	addAnimatable(animatableState);
 	
@@ -66,6 +67,8 @@ void FlipStateMachine::inputProcess() {
 	if(!areAllPinsConnected()){
 		state = MotionState::OFFLINE;
 		actualState = State::UNKNOWN;
+		b_emergencyStopActive = false;
+		b_halted = false;
 		return;
 	}
 	
@@ -82,6 +85,10 @@ void FlipStateMachine::inputProcess() {
 		liftMotorCircuitBreakerSignalPin->copyConnectedPinValue();
 		emergencyStopClearSignalPin->copyConnectedPinValue();
 		localControlEnabledSignalPin->copyConnectedPinValue();
+		
+		b_emergencyStopActive = !*emergencyStopClearSignal;
+		b_halted = isEnabled() && !isMotionAllowed();
+		
 		if (*hoodShutSignal && !*hoodOpenSignal) {
 			if (*liftLoweredSignal && !*liftRaisedSignal) actualState = State::CLOSED;
 			else actualState = State::UNKNOWN;
@@ -98,7 +105,11 @@ void FlipStateMachine::inputProcess() {
 		}
 		else actualState = State::UNKNOWN;
 	}else{
+		state = MotionState::OFFLINE;
 		actualState = State::UNKNOWN;
+		b_emergencyStopActive = false;
+		b_halted = false;
+		return;
 	}
 	
 	MotionState newState;
@@ -109,15 +120,51 @@ void FlipStateMachine::inputProcess() {
 	else if (*hoodMotorCircuitBreakerSignal) newState = MotionState::NOT_READY;
 	else if (!isEnabled()) newState = MotionState::READY;
 	else newState = MotionState::ENABLED;
-	
+		
 	if(isEnabled() && newState != MotionState::ENABLED) disable();
 	state = newState;
+	
+	//update animatable state
+	if(state == MotionState::OFFLINE) animatableState->state = Animatable::State::OFFLINE;
+	else if(state == MotionState::ENABLED && !b_halted) animatableState->state = Animatable::State::READY;
+	else animatableState->state = Animatable::State::NOT_READY;
+	
+	auto actualStateValue = AnimationValue::makeState();
+	switch(actualState){
+		case State::CLOSED: 		actualStateValue->value = &stateClosed; break;
+		case State::OPEN_LOWERED: 	actualStateValue->value = &stateOpenLowered; break;
+		case State::RAISED: 		actualStateValue->value = &stateRaised; break;
+		default: 					actualStateValue->value = &stateStopped; break;
+	}
+	animatableState->updateActualValue(actualStateValue);
+	
+	*stateIntegerValue = getStateInteger(actualState);
 }
 
 void FlipStateMachine::outputProcess(){
+	
+	//handle dead mans switch
+	if(!isMotionAllowed()){
+		if(animatableState->hasAnimation()) animatableState->getAnimation()->pausePlayback();
+		animatableState->stopMovement();
+	}
+	
+	double profileTime_seconds = Environnement::getTime_seconds();
+	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
+	
 	//update outputs signals
-	if (state == MotionState::ENABLED) {
+	if (!isEnabled()) {
 		
+		animatableState->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
+		
+		*shutHoodSignal = false;
+		*openHoodSignal = false;
+		*lowerLiftSignal = false;
+		*raiseLiftSignal = false;
+		
+	}else{
+		
+		animatableState->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
 		auto targetValue = animatableState->getTargetValue()->toState()->value;
 		
 		if(targetValue == &stateClosed) requestedState = State::CLOSED;
@@ -153,12 +200,7 @@ void FlipStateMachine::outputProcess(){
 				break;
 		}
 	}
-	else {
-		*shutHoodSignal = false;
-		*openHoodSignal = false;
-		*lowerLiftSignal = false;
-		*raiseLiftSignal = false;
-	}
+	
 }
 
 bool FlipStateMachine::isHardwareReady() { 
@@ -221,19 +263,24 @@ bool FlipStateMachine::isMoving() {
 
 
 void FlipStateMachine::requestState(State newState){
+	animatableState->stopMovement();
+	auto targetValue = AnimationValue::makeState();
 	switch(newState){
-		case State::STOPPED:
-		case State::CLOSED:
-		case State::OPEN_LOWERED:
-		case State::RAISED:
-			requestedState = newState;
-			break;
+		case State::STOPPED: 		targetValue->value = &stateStopped; break;
+		case State::CLOSED:			targetValue->value = &stateClosed; break;
+		case State::OPEN_LOWERED:	targetValue->value = &stateOpenLowered; break;
+		case State::RAISED:			targetValue->value = &stateRaised; break;
 		default:
-			Logger::warn("state {} is not selectable", Enumerator::getDisplayString(newState));
+			targetValue = nullptr;
+			Logger::error("machine {} = state {} is not selectable", getName(), Enumerator::getDisplayString(newState));
 			break;
 	}
-	//TODO: interrupt animation here
+	if(targetValue) {
+		animatableState->rapidToValue(targetValue);
+		Logger::info("rapid {} to value {}", getName(), targetValue->value->displayName);
+	}
 }
+
 
 
 /*
@@ -350,20 +397,30 @@ void FlipStateMachine::onEnableHardware() {}
 void FlipStateMachine::onDisableHardware() {}
 
 void FlipStateMachine::simulateInputProcess() {
+	*stateIntegerValue = getStateInteger(actualState);
 }
 
 void FlipStateMachine::simulateOutputProcess() {
 	//update outputs signals
 	if (isEnabled()) {
-		auto targetValue = animatableState->getTargetValue()->toState()->value;
-		if(targetValue == &stateClosed) requestedState = State::CLOSED;
-		else if(targetValue == &stateOpenLowered) requestedState = State::OPEN_LOWERED;
-		else if(targetValue == &stateRaised) requestedState = State::RAISED;
+		
+		double profileTime_seconds = Environnement::getTime_seconds();
+		double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
+		animatableState->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+		auto targetValue = animatableState->getTargetValue()->toState();
+		animatableState->updateActualValue(targetValue);
+		
+		auto targetState = targetValue->value;
+		
+		if(targetState == &stateClosed) requestedState = State::CLOSED;
+		else if(targetState == &stateOpenLowered) requestedState = State::OPEN_LOWERED;
+		else if(targetState == &stateRaised) requestedState = State::RAISED;
 		else requestedState = State::STOPPED;
 		
 		if(requestedState == State::STOPPED) actualState = State::CLOSED;
 		else actualState = requestedState;
 	}
+	
 }
 
 bool FlipStateMachine::isSimulationReady(){

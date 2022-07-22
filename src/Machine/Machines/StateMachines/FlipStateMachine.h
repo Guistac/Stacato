@@ -57,6 +57,10 @@ public:
 	std::shared_ptr<NodePin> lowerLiftCommandPin = std::make_shared<NodePin>(lowerLiftSignal,
 																			 NodePin::Direction::NODE_OUTPUT, "Lower Lift", NodePin::Flags::DisableDataField);
 	
+	std::shared_ptr<int> stateIntegerValue = std::make_shared<int>(-1);
+	std::shared_ptr<NodePin> stateIntegerPin = std::make_shared<NodePin>(stateIntegerValue,
+																		 NodePin::Direction::NODE_OUTPUT, "State Number", NodePin::Flags::DisableDataField);
+	
 	//————— Machine State —————
 	
 	bool areAllPinsConnected();
@@ -89,6 +93,18 @@ public:
 	};
 	State actualState = State::UNKNOWN;
 	State requestedState = State::STOPPED;
+	
+	int getStateInteger(State state){
+		switch(state){
+			case State::UNKNOWN:
+			case State::STOPPED:			return -1;
+			case State::CLOSED:				return 0;
+			case State::OPENING_CLOSING:	return 1;
+			case State::OPEN_LOWERED:		return 2;
+			case State::LOWERING_RAISING:	return 3;
+			case State::RAISED:				return 4;
+		}
+	}
 	
 	//————— Animation —————
 	
