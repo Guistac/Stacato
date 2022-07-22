@@ -21,7 +21,6 @@ namespace Scripting::EnvironnementLibrary{
 
 	LuaSharedPointer<AnimatableState, "AnimatableState"> lua_AnimatableState;
 	LuaPointer<AnimatableStateStruct, "AnimatableStateStruct"> lua_AnimatableStateStruct;
-	//LuaSharedPointer<AnimatableState_StateConstraint, "AnimatableStateStateConstraint"> lua_AnimatableState_StateConstraint;
 
 	LuaSharedPointer<AnimatablePosition, "AnimatablePosition"> lua_AnimatablePosition;
 	LuaSharedPointer<AnimatablePosition_KeepoutConstraint, "AnimatablePositionKeepoutConstraint"> lua_AnimatablePosition_KeepoutConstraint;
@@ -218,6 +217,13 @@ namespace Scripting::EnvironnementLibrary{
 			constraint->disable();
 			return 0;
 		}
+	
+		int setEnabled(lua_State* L){
+			auto constraint = lua_AnimationConstraint.checkDerivedArgument(L, 1);
+			bool enabled = lua_toboolean(L, 2);
+			if(enabled) constraint->enable();
+			else constraint->disable();
+		}
 
 		int isEnabled(lua_State* L){
 			auto constraint = lua_AnimationConstraint.checkDerivedArgument(L, 1);
@@ -263,17 +269,6 @@ namespace Scripting::EnvironnementLibrary{
 			return 1;
 		}
 	
-	/*
-		int createStateConstraint(lua_State* L){
-			auto animatableState = lua_AnimatableState.checkArgument(L, 1);
-			const char* constraintName = luaL_checkstring(L, 2);
-			auto constraint = std::make_shared<AnimatableState_StateConstraint>(constraintName, &animatableState->getStates());
-			animatableState->addConstraint(constraint);
-			lua_AnimatableState_StateConstraint.push(L, constraint);
-			return 1;
-		}
-	*/
-	
 	};
 
 	namespace Lua_AnimatableStateStruct{
@@ -291,39 +286,6 @@ namespace Scripting::EnvironnementLibrary{
 		}
 
 	};
-
-/*
-	namespace Lua_AnimatableState_StateConstraint{
-	
-		int allowAllStates(lua_State* L){
-			auto animatableStateConstraint = lua_AnimatableState_StateConstraint.checkArgument(L, 1);
-			animatableStateConstraint->allowAllStates();
-			return 0;
-		}
-		
-		int forbidAllStates(lua_State* L){
-			auto animatableStateConstraint = lua_AnimatableState_StateConstraint.checkArgument(L, 1);
-			animatableStateConstraint->forbidAllStates();
-			return 0;
-		}
-		
-		int allowState(lua_State* L){
-			auto animatableStateConstraint = lua_AnimatableState_StateConstraint.checkArgument(L, 1);
-			auto stateStruct = lua_AnimatableStateStruct.checkArgument(L, 2);
-			animatableStateConstraint->allowState(stateStruct);
-			return 0;
-		}
-		
-		int forbidState(lua_State* L){
-			auto animatableStateConstraint = lua_AnimatableState_StateConstraint.checkArgument(L, 1);
-			auto stateStruct = lua_AnimatableStateStruct.checkArgument(L, 2);
-			animatableStateConstraint->forbidState(stateStruct);
-			return 0;
-		}
-	
-	
-	};
-*/
 
 
 
@@ -422,6 +384,7 @@ namespace Scripting::EnvironnementLibrary{
 		//——— Constraints
 		lua_AnimationConstraint.addMethod("enable", Lua_AnimationConstraint::enable);
 		lua_AnimationConstraint.addMethod("disable", Lua_AnimationConstraint::disable);
+		lua_AnimationConstraint.addMethod("setEnabled", Lua_AnimationConstraint::setEnabled);
 		lua_AnimationConstraint.addMethod("getName", Lua_AnimationConstraint::getName);
 		lua_AnimationConstraint.declare(L);
 		
@@ -436,18 +399,6 @@ namespace Scripting::EnvironnementLibrary{
 		lua_AnimatableStateStruct.addMethod("toInteger", Lua_AnimatableStateStruct::toInteger);
 		lua_AnimatableStateStruct.addMethod("toString", Lua_AnimatableStateStruct::toString);
 		lua_AnimatableStateStruct.declare(L);
-		
-		/*
-		//——— Animatable State Constraint
-		lua_AnimatableState_StateConstraint.inherit(lua_AnimationConstraint);
-		if(includeMotionFunctions){
-			lua_AnimatableState_StateConstraint.addMethod("allowAllState", Lua_AnimatableState_StateConstraint::allowAllStates);
-			lua_AnimatableState_StateConstraint.addMethod("forbidAllStates", Lua_AnimatableState_StateConstraint::forbidAllStates);
-			lua_AnimatableState_StateConstraint.addMethod("allowState", Lua_AnimatableState_StateConstraint::allowState);
-			lua_AnimatableState_StateConstraint.addMethod("forbidState", Lua_AnimatableState_StateConstraint::forbidState);
-		}
-		lua_AnimatableState_StateConstraint.declare(L);
-		*/
 		
 		
 		//——— Animatable Position ——————————————————————————————————————————————————————————————————————

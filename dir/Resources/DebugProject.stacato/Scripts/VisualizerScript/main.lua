@@ -19,11 +19,20 @@ local costiereA = Environnement.getMachine("Costière A")
 local costiereAPosition = costiereA:getAnimatable("Position")
 local costiereAPositionConstraints = costiereAPosition:getConstraints()
 
+local flipA = Environnement.getMachine("Flip A")
+local flipAState = flipA:getAnimatable("State")
+local flipStates = flipAState:getStates()
+
 function setup()
 	Logger:info("Starting Stage Visualizer Script at", of.getElapsedTimef(), "seconds.")
 	of.setCircleResolution(128)
 	--image:load("test.jpg")
 	--Logger:warn(image:getWidth(), image:getHeight())
+
+	for k, v in pairs(flipStates) do
+		Logger:warn(k,v)
+	end
+
 end
 
 
@@ -78,6 +87,10 @@ function update()
 	--of.setColor(255)
 	--image:draw(actPos, image:getWidth() / 10, image:getHeight() / 10)
 
+	local flipAValue = flipAState:getActualValue()
+
+	of.drawBitmapStringHighlight(flipAValue:toString(), 20, 50)
+
 end
 
 
@@ -86,6 +99,15 @@ end
 function exit()
 	Logger:info("Exiting Stage Visualizer Script at", of.getElapsedTimef(), "seconds.")
 end
+
+
+
+
+
+
+
+
+
 
 
 

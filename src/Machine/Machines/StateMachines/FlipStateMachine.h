@@ -108,7 +108,7 @@ public:
 	
 	//————— Animation —————
 	
-	std::shared_ptr<AnimatableState> animatableState = AnimatableState::make("State", allStates, selectableStates);
+	std::shared_ptr<AnimatableState> animatableState = AnimatableState::make("State", allStates, selectableStates, &stateStopped);
 	void requestState(State newState);
 	
 	//————— Control Widget —————

@@ -17,7 +17,7 @@ int AnimatableState::getCurveCount(){
 }
 
 std::shared_ptr<Parameter> AnimatableState::makeParameter(){
-	return std::make_shared<StateParameter>(selectableStates->front(), *selectableStates, "DefaultName", "DefaultSaveString");
+	return std::make_shared<StateParameter>(stoppedState, *selectableStates, "DefaultName", "DefaultSaveString");
 }
 
 void AnimatableState::setParameterValueFromAnimationValue(std::shared_ptr<Parameter> parameter, std::shared_ptr<AnimationValue> value){
@@ -41,10 +41,10 @@ bool AnimatableState::isParameterValueEqual(std::shared_ptr<AnimationValue> valu
 std::shared_ptr<AnimationValue> AnimatableState::getValueAtAnimationTime(std::shared_ptr<Animation> animation, double time_seconds){
 	auto output = AnimationValue::makeState();
 	int integer = std::round(animation->getCurves().front().getPointAtTime(time_seconds).position);
-	for(int i = 0; i < states->size(); i++){
-		auto state = states->at(i);
+	for(int i = 0; i < selectableStates->size(); i++){
+		auto state = selectableStates->at(i);
 		if(state->integerEquivalent == integer){
-			output->value = states->at(i);
+			output->value = selectableStates->at(i);
 			break;
 		}
 	}
@@ -69,7 +69,10 @@ bool AnimatableState::isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationV
 }
 bool AnimatableState::isInRapid(){ return b_inRapid; }
 float AnimatableState::getRapidProgress(){ return .5f; }
-void AnimatableState::cancelRapid(){ b_inRapid = false; }
+void AnimatableState::cancelRapid(){
+	targetValue->value = stoppedState;
+	b_inRapid = false;
+}
 
 
 
@@ -86,7 +89,9 @@ void AnimatableState::onPlaybackStart(){}
 void AnimatableState::onPlaybackPause(){}
 void AnimatableState::onPlaybackStop(){}
 void AnimatableState::onPlaybackEnd(){}
-void AnimatableState::stopMovement(){}
+void AnimatableState::stopMovement(){
+	targetValue->value = stoppedState;
+}
 
 
 

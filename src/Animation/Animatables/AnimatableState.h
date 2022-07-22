@@ -11,14 +11,10 @@ struct AnimatableStateStruct{
 	const char saveName[64];
 };
 
-
-
 struct AnimatableStateValue : public AnimationValue{
 	virtual AnimatableType getType() override { return AnimatableType::STATE; }
 	AnimatableStateStruct* value;
-	//std::vector<AnimatableStateStruct*>* values;
 };
-
 
 /*
 class AnimatableState_StateConstraint : public AnimationConstraint{
@@ -63,20 +59,23 @@ public:
 	
 	//construction & type identification
 	AnimatableState(const char* name,
-					std::vector<AnimatableStateStruct*>& states_,
-					std::vector<AnimatableStateStruct*>& selectableStates_) :
+					std::vector<AnimatableStateStruct*>& allStates_,
+					std::vector<AnimatableStateStruct*>& selectableStates_,
+					AnimatableStateStruct* stoppedState_) :
 	Animatable(name),
-	states(&states_),
-	selectableStates(&selectableStates_){
+	allStates(&allStates_),
+	selectableStates(&selectableStates_),
+	stoppedState(stoppedState_){
 		actualValue = AnimationValue::makeState();
-		actualValue->value = states->front();
+		actualValue->value = stoppedState;
 		targetValue = AnimationValue::makeState();
-		targetValue->value = selectableStates->front();
+		targetValue->value = stoppedState;
 	};
 	static std::shared_ptr<AnimatableState> make(std::string name,
-												 std::vector<AnimatableStateStruct*>& stateValues,
-												 std::vector<AnimatableStateStruct*>& selectableStates){
-		return std::make_shared<AnimatableState>(name.c_str(), stateValues, selectableStates);
+												 std::vector<AnimatableStateStruct*>& allStates_,
+												 std::vector<AnimatableStateStruct*>& selectableStates_,
+												 AnimatableStateStruct* stoppedState_){
+		return std::make_shared<AnimatableState>(name.c_str(), allStates_, selectableStates_, stoppedState_);
 	}
 	virtual AnimatableType getType() override { return AnimatableType::STATE; }
 
@@ -131,10 +130,11 @@ public:
 		return true;
 	}
 	
-	std::vector<AnimatableStateStruct*>* getStates() { return states; }
+	std::vector<AnimatableStateStruct*>* getStates() { return allStates; }
 	
 private:
-	std::vector<AnimatableStateStruct*>* states;
+	std::vector<AnimatableStateStruct*>* allStates;
 	std::vector<AnimatableStateStruct*>* selectableStates;
+	AnimatableStateStruct* stoppedState;
 };
 

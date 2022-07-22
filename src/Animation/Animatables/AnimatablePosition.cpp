@@ -451,7 +451,7 @@ void AnimatablePosition::getConstraintPositionLimits(double& min, double& max){
 	min = lowerPositionLimit;
 	max = upperPositionLimit;
 	for(auto& constraint : getConstraints()){
-		//if(!constraint->isEnabled()) continue;
+		if(!constraint->isEnabled()) continue;
 		auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
 		if(position > keepout->keepOutMinPosition && position < keepout->keepOutMaxPosition){
 			double middle = (keepout->keepOutMinPosition + keepout->keepOutMaxPosition) / 2.0;

@@ -10,10 +10,10 @@
 
 AnimatableStateStruct FlipStateMachine::stateUnknown = 			{-1, "Unknown", "Unknown"};
 AnimatableStateStruct FlipStateMachine::stateStopped = 			{0, "Stopped", "Stopped"};
-AnimatableStateStruct FlipStateMachine::stateClosed = 			{1, "Shut", "Shut"};
-AnimatableStateStruct FlipStateMachine::stateClosingOpening = 	{2, "Opening/Closing", "Opening/Closing"};
-AnimatableStateStruct FlipStateMachine::stateOpenLowered = 		{3, "Open & Lowered", "Open&Lowered"};
-AnimatableStateStruct FlipStateMachine::stateRaisingLowering = 	{4, "Raising/Lowering", "Raising/Lowering"};
+AnimatableStateStruct FlipStateMachine::stateClosed = 			{1, "Closed", "Closed"};
+AnimatableStateStruct FlipStateMachine::stateClosingOpening = 	{2, "Opening/Closing", "OpeningClosing"};
+AnimatableStateStruct FlipStateMachine::stateOpenLowered = 		{3, "Open & Lowered", "OpenLowered"};
+AnimatableStateStruct FlipStateMachine::stateRaisingLowering = 	{4, "Raising/Lowering", "RaisingLowering"};
 AnimatableStateStruct FlipStateMachine::stateRaised = 			{5, "Raised", "Raised"};
 
 std::vector<AnimatableStateStruct*> FlipStateMachine::allStates = {
@@ -282,7 +282,6 @@ void FlipStateMachine::requestState(State newState){
 }
 
 
-
 /*
 
 void FlipStateMachine::rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
@@ -398,6 +397,18 @@ void FlipStateMachine::onDisableHardware() {}
 
 void FlipStateMachine::simulateInputProcess() {
 	*stateIntegerValue = getStateInteger(actualState);
+	
+	auto actualValue = AnimationValue::makeState();
+	switch(actualState){
+		case State::UNKNOWN:			actualValue->value = &stateUnknown; break;
+		case State::STOPPED:			actualValue->value = &stateStopped; break;
+		case State::CLOSED:				actualValue->value = &stateClosed; break;
+		case State::OPENING_CLOSING:	actualValue->value = &stateClosingOpening; break;
+		case State::OPEN_LOWERED:		actualValue->value = &stateOpenLowered; break;
+		case State::LOWERING_RAISING:	actualValue->value = &stateRaisingLowering; break;
+		case State::RAISED:				actualValue->value = &stateRaised; break;
+	}
+	animatableState->updateActualValue(actualValue);
 }
 
 void FlipStateMachine::simulateOutputProcess() {
