@@ -21,7 +21,7 @@ namespace Scripting::EnvironnementLibrary{
 
 	LuaSharedPointer<AnimatableState, "AnimatableState"> lua_AnimatableState;
 	LuaPointer<AnimatableStateStruct, "AnimatableStateStruct"> lua_AnimatableStateStruct;
-	LuaSharedPointer<AnimatableState_StateConstraint, "AnimatableStateStateConstraint"> lua_AnimatableState_StateConstraint;
+	//LuaSharedPointer<AnimatableState_StateConstraint, "AnimatableStateStateConstraint"> lua_AnimatableState_StateConstraint;
 
 	LuaSharedPointer<AnimatablePosition, "AnimatablePosition"> lua_AnimatablePosition;
 	LuaSharedPointer<AnimatablePosition_KeepoutConstraint, "AnimatablePositionKeepoutConstraint"> lua_AnimatablePosition_KeepoutConstraint;
@@ -254,16 +254,16 @@ namespace Scripting::EnvironnementLibrary{
 
 		int getStates(lua_State* L){
 			auto animatableState = lua_AnimatableState.checkArgument(L, 1);
-			auto& states = animatableState->getStates();
+			auto states = animatableState->getStates();
 			LuaTable statesTable(L);
-			statesTable.begin(0, states.size());
-			for(auto& state : states){
-				AnimatableStateStruct* stateStructPointer = &state;
-				statesTable.addCustom(&state, lua_AnimatableStateStruct.push, state.saveName);
+			statesTable.begin(0, states->size());
+			for(auto& state : *states){
+				statesTable.addCustom(state, lua_AnimatableStateStruct.push, state->saveName);
 			}
 			return 1;
 		}
 	
+	/*
 		int createStateConstraint(lua_State* L){
 			auto animatableState = lua_AnimatableState.checkArgument(L, 1);
 			const char* constraintName = luaL_checkstring(L, 2);
@@ -272,6 +272,7 @@ namespace Scripting::EnvironnementLibrary{
 			lua_AnimatableState_StateConstraint.push(L, constraint);
 			return 1;
 		}
+	*/
 	
 	};
 
@@ -291,6 +292,7 @@ namespace Scripting::EnvironnementLibrary{
 
 	};
 
+/*
 	namespace Lua_AnimatableState_StateConstraint{
 	
 		int allowAllStates(lua_State* L){
@@ -321,7 +323,7 @@ namespace Scripting::EnvironnementLibrary{
 	
 	
 	};
-
+*/
 
 
 
@@ -435,6 +437,7 @@ namespace Scripting::EnvironnementLibrary{
 		lua_AnimatableStateStruct.addMethod("toString", Lua_AnimatableStateStruct::toString);
 		lua_AnimatableStateStruct.declare(L);
 		
+		/*
 		//——— Animatable State Constraint
 		lua_AnimatableState_StateConstraint.inherit(lua_AnimationConstraint);
 		if(includeMotionFunctions){
@@ -444,7 +447,7 @@ namespace Scripting::EnvironnementLibrary{
 			lua_AnimatableState_StateConstraint.addMethod("forbidState", Lua_AnimatableState_StateConstraint::forbidState);
 		}
 		lua_AnimatableState_StateConstraint.declare(L);
-		
+		*/
 		
 		
 		//——— Animatable Position ——————————————————————————————————————————————————————————————————————

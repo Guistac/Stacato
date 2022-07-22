@@ -1,7 +1,7 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.6594339" OffsetX="1313.2036" OffsetY="-493.9389" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="231.99992" SizeY="440.91852"/>
-        <Widget UniqueID="2" PositionX="-1044.139" PositionY="1012.5428" SizeX="231.99992" SizeY="137.95407"/>
+    <Dashboard Scale="0.70158774" OffsetX="1292.7202" OffsetY="-461.00024" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232" SizeY="510.72842"/>
+        <Widget UniqueID="2" PositionX="-1044.139" PositionY="1012.5428" SizeX="232" SizeY="137.19456"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -194,6 +194,30 @@
                     <OutputPin SaveString="Dead Man&apos;s Switch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="323" Visible="true" NoDataField="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Machine" ClassName="FlipStateMachine" CustomName="Flip A" UniqueID="334">
+                <NodeEditorPosition x="-601" y="1570"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="3"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="335" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="GPIO Device" DisplayString="GPIO Device" DataType="GPIODeviceLink" UniqueID="336" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Hood Open" DisplayString="Hood Open" DataType="Boolean" UniqueID="337" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Hood Shut" DisplayString="Hood Shut" DataType="Boolean" UniqueID="338" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Lift Raised" DisplayString="Lift Raised" DataType="Boolean" UniqueID="339" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Lift Lowered" DisplayString="Lift Lowered" DataType="Boolean" UniqueID="340" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Hood Motor Fuse" DisplayString="Hood Motor Fuse" DataType="Boolean" UniqueID="341" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Lift Motor Fuse" DisplayString="Lift Motor Fuse" DataType="Boolean" UniqueID="342" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Emergency Stop Clear" DisplayString="Emergency Stop Clear" DataType="Boolean" UniqueID="343" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Local Control Enabled" DisplayString="Local Control Enabled" DataType="Boolean" UniqueID="344" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Open Hood" DisplayString="Open Hood" DataType="Boolean" UniqueID="345" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Shut Hood" DisplayString="Shut Hood" DataType="Boolean" UniqueID="346" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Raise Lift" DisplayString="Raise Lift" DataType="Boolean" UniqueID="347" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Lower Lift" DisplayString="Lower Lift" DataType="Boolean" UniqueID="348" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="288" StartPin="262" EndPin="109"/>
@@ -203,13 +227,14 @@
             <Link UniqueID="328" StartPin="323" EndPin="64"/>
             <Link UniqueID="330" StartPin="266" EndPin="110"/>
             <Link UniqueID="331" StartPin="267" EndPin="111"/>
+            <Link UniqueID="333" StartPin="114" EndPin="119"/>
         </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en7" Name="en7"/>
+        <Primary Description="en4" Name="en4"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="8" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

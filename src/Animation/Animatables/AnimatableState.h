@@ -16,11 +16,11 @@ struct AnimatableStateStruct{
 struct AnimatableStateValue : public AnimationValue{
 	virtual AnimatableType getType() override { return AnimatableType::STATE; }
 	AnimatableStateStruct* value;
-	std::vector<AnimatableStateStruct>* values;
+	//std::vector<AnimatableStateStruct*>* values;
 };
 
 
-
+/*
 class AnimatableState_StateConstraint : public AnimationConstraint{
 public:
 	
@@ -55,20 +55,28 @@ public:
 	std::vector<AnimatableStateStruct*> allowedStates;
 	
 };
-
+*/
 
 
 class AnimatableState : public Animatable{
 public:
 	
 	//construction & type identification
-	AnimatableState(const char* name, std::vector<AnimatableStateStruct>* stateValues) : Animatable(name), states(stateValues){
-		auto defaultValue = AnimationValue::makeState();
-		defaultValue->value = &stateValues->front();
-		updateActualValue(defaultValue);
+	AnimatableState(const char* name,
+					std::vector<AnimatableStateStruct*>& states_,
+					std::vector<AnimatableStateStruct*>& selectableStates_) :
+	Animatable(name),
+	states(&states_),
+	selectableStates(&selectableStates_){
+		actualValue = AnimationValue::makeState();
+		actualValue->value = states->front();
+		targetValue = AnimationValue::makeState();
+		targetValue->value = selectableStates->front();
 	};
-	static std::shared_ptr<AnimatableState> make(std::string name, std::vector<AnimatableStateStruct>* stateValues){
-		return std::make_shared<AnimatableState>(name.c_str(), stateValues);
+	static std::shared_ptr<AnimatableState> make(std::string name,
+												 std::vector<AnimatableStateStruct*>& stateValues,
+												 std::vector<AnimatableStateStruct*>& selectableStates){
+		return std::make_shared<AnimatableState>(name.c_str(), stateValues, selectableStates);
 	}
 	virtual AnimatableType getType() override { return AnimatableType::STATE; }
 
@@ -100,14 +108,16 @@ public:
 	
 	
 	virtual void updateTargetValue(double time_seconds, double deltaTime_seconds) override{}
-	virtual std::shared_ptr<AnimationValue> getTargetValue() override{}
+	virtual std::shared_ptr<AnimationValue> getTargetValue() override{
+		return targetValue;
+	}
+	std::shared_ptr<AnimatableStateValue> targetValue;
 	
 	virtual void updateActualValue(std::shared_ptr<AnimationValue> newActualValue) override{}
 	virtual std::shared_ptr<AnimationValue> getActualValue() override{
-		auto actual = AnimationValue::makeState();
-		actual->value = &states->front();
-		return actual;
+		return actualValue;
 	}
+	std::shared_ptr<AnimatableStateValue> actualValue;
 	
 	virtual void followActualValue(double time_seconds, double deltaTime_seconds) override {};
 	
@@ -126,9 +136,10 @@ public:
 		return false;
 	}
 	
-	std::vector<AnimatableStateStruct>& getStates() { return *states; }
+	std::vector<AnimatableStateStruct*>* getStates() { return states; }
 	
 private:
-	std::vector<AnimatableStateStruct>* states;
+	std::vector<AnimatableStateStruct*>* states;
+	std::vector<AnimatableStateStruct*>* selectableStates;
 };
 

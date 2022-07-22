@@ -15,7 +15,7 @@ int AnimatableState::getCurveCount(){
 }
 
 std::shared_ptr<Parameter> AnimatableState::makeParameter(){
-	return std::make_shared<StateParameter>(&states->front(), states, "DefaultName", "DefaultSaveString");
+	return std::make_shared<StateParameter>(selectableStates->front(), *selectableStates, "DefaultName", "DefaultSaveString");
 }
 
 void AnimatableState::setParameterValueFromAnimationValue(std::shared_ptr<Parameter> parameter, std::shared_ptr<AnimationValue> value){
@@ -38,11 +38,10 @@ bool AnimatableState::isParameterValueEqual(std::shared_ptr<AnimationValue> valu
 
 std::shared_ptr<AnimationValue> AnimatableState::getValueAtAnimationTime(std::shared_ptr<Animation> animation, double time_seconds){
 	auto output = AnimationValue::makeState();
-	output->values = states;
 	int integer = std::round(animation->getCurves().front().getPointAtTime(time_seconds).position);
-	for(int i = 0; i < output->values->size(); i++){
-		if(output->values->at(i).integerEquivalent == i){
-			output->value = &output->values->at(i);
+	for(int i = 0; i < states->size(); i++){
+		if(states->at(i)->integerEquivalent == i){
+			output->value = states->at(i);
 			break;
 		}
 	}

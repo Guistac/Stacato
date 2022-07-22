@@ -9,6 +9,14 @@
                     </Curve>
                 </Curves>
             </Animation>
+            <Animation Machine="Flip A" MachineUniqueID="334" Parameter="State" IsComposite="false" Type="Sequence" interpolationType="Step" Start="Shut" End="Open" Duration="0" TimeOffset="0" StartAcceleration="0" EndAcceleration="0">
+                <Curves>
+                    <Curve>
+                        <ControlPoint Position="1" Time="0" Velocity="0" InAcceleration="0" OutAcceleration="0"/>
+                        <ControlPoint Position="3" Time="0" Velocity="0" InAcceleration="0" OutAcceleration="0"/>
+                    </Curve>
+                </Curves>
+            </Animation>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

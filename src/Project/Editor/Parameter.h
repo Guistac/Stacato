@@ -776,20 +776,21 @@ public:
 	
 	AnimatableStateStruct* value;
 	AnimatableStateStruct* displayValue;
-	std::vector<AnimatableStateStruct>* values;
+	std::vector<AnimatableStateStruct*>* selectableStates;
 	
-	StateParameter(AnimatableStateStruct* value_, std::vector<AnimatableStateStruct>* values_, std::string name, std::string saveString_) : Parameter(name, saveString_){
+	StateParameter(AnimatableStateStruct* value_, std::vector<AnimatableStateStruct*>& selectableStates_, std::string name, std::string saveString_) :
+	Parameter(name, saveString_){
 		value = value_;
 		displayValue = value_;
-		values = values_;
+		selectableStates = &selectableStates_;
 	}
 	
 	virtual void onGui() override {
 		ImGui::BeginDisabled(isDisabled());
 		if(ImGui::BeginCombo(getImGuiID(), displayValue->displayName)){
-			for(auto& entry : *values){
-				if(ImGui::Selectable(entry.displayName, &entry == displayValue)){
-					overwriteWithHistory(&entry);
+			for(auto& state : *selectableStates){
+				if(ImGui::Selectable(state->displayName, state == displayValue)){
+					overwriteWithHistory(state);
 				}
 			}
 			ImGui::EndCombo();
@@ -807,9 +808,9 @@ public:
 		XMLError result = xml->QueryStringAttribute(getSaveString(), &stateSaveString);
 		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", getName());
 		
-		for(auto& entry : *values){
-			if(strcmp(entry.saveName, stateSaveString) == 0){
-				value = &entry;
+		for(auto& state : *selectableStates){
+			if(strcmp(state->saveName, stateSaveString) == 0){
+				value = state;
 				displayValue = value;
 				return true;
 			}
@@ -819,7 +820,7 @@ public:
 	}
 	
 	std::shared_ptr<StateParameter> makeCopy() {
-		return std::make_shared<StateParameter>(value, values, getName(), getSaveString());
+		return std::make_shared<StateParameter>(value, *selectableStates, getName(), getSaveString());
 	}
 	
 	virtual std::shared_ptr<Parameter> makeBaseCopy() override { return makeCopy(); };

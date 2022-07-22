@@ -8,13 +8,31 @@
 
 #include "Animation/Animation.h"
 
-std::vector<AnimatableStateStruct> FlipStateMachine::stateParameterValues = {
-	{-1, "Stopped", "Stopped"},
-	{0, "Shut", "Shut"},
-	{1, "Open", "Open"},
-	{2, "Raised", "Raised"},
-	{3, "Unknown", "Unknown"}
+AnimatableStateStruct FlipStateMachine::stateUnknown = 			{-1, "Unknown", "Unknown"};
+AnimatableStateStruct FlipStateMachine::stateStopped = 			{0, "Stopped", "Stopped"};
+AnimatableStateStruct FlipStateMachine::stateClosed = 			{1, "Shut", "Shut"};
+AnimatableStateStruct FlipStateMachine::stateClosingOpening = 	{2, "Opening/Closing", "Opening/Closing"};
+AnimatableStateStruct FlipStateMachine::stateOpened = 			{3, "Open", "Open"};
+AnimatableStateStruct FlipStateMachine::stateRaisingLowering = 	{4, "Raising/Lowering", "Raising/Lowering"};
+AnimatableStateStruct FlipStateMachine::stateRaised = 			{5, "Raised", "Raised"};
+
+std::vector<AnimatableStateStruct*> FlipStateMachine::allStates = {
+	&FlipStateMachine::stateUnknown,
+	&FlipStateMachine::stateStopped,
+	&FlipStateMachine::stateClosed,
+	&FlipStateMachine::stateClosingOpening,
+	&FlipStateMachine::stateOpened,
+	&FlipStateMachine::stateRaisingLowering,
+	&FlipStateMachine::stateRaised
 };
+std::vector<AnimatableStateStruct*> FlipStateMachine::selectableStates = {
+	&FlipStateMachine::stateStopped,
+	&FlipStateMachine::stateClosed,
+	&FlipStateMachine::stateOpened,
+	&FlipStateMachine::stateRaised
+};
+
+
 
 void FlipStateMachine::initialize() {
 	
