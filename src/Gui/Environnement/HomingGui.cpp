@@ -94,7 +94,7 @@ void SetupWindow::drawContent(){
 	ImGui::PopStyleColor();
 	ImGui::PopStyleVar();
 	
-	
+	/*
 	for(auto machine : Environnement::getMachines()){
 		ImGui::BeginGroup();
 		
@@ -102,11 +102,12 @@ void SetupWindow::drawContent(){
 		
 		ImGui::EndGroup();
 	}
+	 */
 	
 	
 	//============== HOMING =============
 	
-	/*
+
 	glm::vec2 machineHomingBoxSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 4.2);
 	glm::vec2 homingControlButtonSize(ImGui::GetTextLineHeight() * 5.0, ImGui::GetFrameHeight());
 	
@@ -161,7 +162,6 @@ void SetupWindow::drawContent(){
 	}
 	ImGui::PopStyleColor();
 	ImGui::PopStyleVar();
-	*/
 	
 }
 

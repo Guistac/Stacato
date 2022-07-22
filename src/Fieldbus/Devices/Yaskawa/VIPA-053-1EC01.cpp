@@ -9,10 +9,12 @@
 //TODO: this onConnection & onDisconnection Methods don't get called at the operational state transition and this might cause issues with subdevice readyness state
 void VipaBusCoupler_053_1EC01::onDisconnection() {
 	for(auto& module : modules) module->onDisconnection();
+	gpioDevice->state = MotionState::OFFLINE;
 }
 
 void VipaBusCoupler_053_1EC01::onConnection() {
 	for(auto& module : modules) module->onConnection();
+	gpioDevice->state = MotionState::ENABLED;
 }
 
 void VipaBusCoupler_053_1EC01::initialize() {

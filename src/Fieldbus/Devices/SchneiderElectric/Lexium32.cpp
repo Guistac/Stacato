@@ -259,6 +259,11 @@ void Lexium32::readInputs() {
 	else if(actualPowerState == DS402::PowerState::OPERATION_ENABLED) 		servoMotor->state = MotionState::ENABLED;
 	else 																	servoMotor->state = MotionState::READY;
 
+	if(!isConnected()) gpioDevice->state = MotionState::OFFLINE;
+	else if(isStateSafeOperational()) gpioDevice->state = MotionState::READY;
+	else if(isStateOperational()) gpioDevice->state = MotionState::ENABLED;
+	else gpioDevice->state = MotionState::NOT_READY;
+	
 }
 
 

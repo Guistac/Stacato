@@ -46,10 +46,19 @@ public:
 	}
 	
 	//Match a fixed target velocity using linear velocity interpolation but don't go over specified position limits, brake using a specified max acceleration if necessary
-	void matchVelocityAndRespectPositionLimits(double deltaT_seconds, double targetVelocity, double fixedAcceleration, double lowPositionLimit, double highPositionLimit, double maxAcceleration){
+	void matchVelocityAndRespectPositionLimits(double deltaT_seconds,
+											   double targetVelocity,
+											   double fixedAcceleration,
+											   double lowPositionLimit,
+											   double highPositionLimit,
+											   double maxAcceleration){
 		//check braking position at max deceleration to see if a fast stop is needed
 		double brakingPosition = getBrakingPosition(deltaT_seconds, maxAcceleration);
-		if(velocity < 0.0 && brakingPosition <= lowPositionLimit){
+		if((position < lowPositionLimit && velocity < 0.0) || (position > highPositionLimit && velocity > 0.0)){
+			stop(deltaT_seconds, maxAcceleration);
+			return;
+		}
+		else if(velocity < 0.0 && brakingPosition <= lowPositionLimit){
 			double distanceToLimit = std::abs(lowPositionLimit - position);
 			double exactStoppingAcceleration = square(velocity) / (2.0 * distanceToLimit);
 			stop(deltaT_seconds, exactStoppingAcceleration);

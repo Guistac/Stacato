@@ -116,7 +116,7 @@ public:
 	
 	//========== STATE ===========
 public:
-	bool isEnabled() { return b_enabled; }
+	//bool isEnabled() { return b_enabled; }
 	bool isReady();
 	bool isMoving();
 
@@ -124,7 +124,7 @@ public:
 	void disable();
 	
 private:
-	bool b_enabled = false;
+	//bool b_enabled = false;
 	void onEnable();
 	void onDisable();
 	
@@ -214,12 +214,12 @@ private:
 	
 	//============ LOADING & SAVING ============
 public:
-	virtual bool load(tinyxml2::XMLElement* xml);
-	virtual bool save(tinyxml2::XMLElement* xml);
+	virtual bool load(tinyxml2::XMLElement* xml) override;
+	virtual bool save(tinyxml2::XMLElement* xml) override;
 
 	//============== GUI ================
 
-	virtual void nodeSpecificGui();
+	virtual void nodeSpecificGui() override;
 	virtual void controlsGui();
 	virtual void settingsGui();
 	virtual void devicesGui();

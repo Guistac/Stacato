@@ -422,7 +422,6 @@ void PositionControlledMachine::ControlWidget::gui(){
 
 void PositionControlledMachine::widgetGui(){
 		
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
 	
 	glm::vec2 contentSize = controlWidget->getFixedContentSize();
 	glm::vec2 contentMin = ImGui::GetCursorPos();
@@ -432,6 +431,8 @@ void PositionControlledMachine::widgetGui(){
 	
 	if(!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
+
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
 	
 	float bottomControlsHeight = ImGui::GetTextLineHeight() * 4.4;
 	float sliderHeight = contentSize.y - bottomControlsHeight;

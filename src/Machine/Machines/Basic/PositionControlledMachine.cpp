@@ -74,7 +74,7 @@ void PositionControlledMachine::enableHardware() {
 			time_point enableRequestTime = system_clock::now();
 			while (duration(system_clock::now() - enableRequestTime) < milliseconds(500)) {
 				std::this_thread::sleep_for(milliseconds(10));
-				if (axis->isEnabled()) {
+				if (axis->getState() == MotionState::ENABLED) {
 					state = MotionState::ENABLED;
 					//b_enabled = true;
 					onEnableHardware();
@@ -112,6 +112,10 @@ void PositionControlledMachine::onDisableSimulation() {
 }
 
 std::string PositionControlledMachine::getStatusString(){
+	if(b_halted){
+		std::string output = "Machine is Halted";
+		return output;
+	}
 	switch(state){
 		case MotionState::OFFLINE:
 			if(!isAxisConnected()) return std::string(getName()) + " is Offline : no axis connected";
@@ -131,14 +135,14 @@ void PositionControlledMachine::inputProcess() {
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 	
 	//update machine state
-	if (isEnabled() && !axis->isEnabled()) disable();
+	if (isEnabled() && axis->getState() != MotionState::ENABLED) disable();
 	else state = axis->getState();
 	
 	//update estop state
-	b_emergencyStopActive = axis->isEmergencyStopActive();
+	b_emergencyStopActive = axis->isEmergencyStopActive() && axis->getState() != MotionState::OFFLINE;
 	
 	//update halt state
-	if(b_emergencyStopActive || !isMotionAllowed()) b_halted = true;
+	b_halted = isEnabled() && !isMotionAllowed();
 	
 	//update animatable state
 	if(state == MotionState::OFFLINE) animatablePosition->state = Animatable::State::OFFLINE;

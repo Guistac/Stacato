@@ -8,7 +8,6 @@
 void DeadMansSwitch::initialize(){
 	addNodePin(gpioDevicePin);
 	addNodePin(switchPressedPin);
-	addNodePin(switchConnectedPin);
 	addNodePin(switchLedPin);
 	std::shared_ptr<DeadMansSwitch> thisDeadMansSwitch = std::static_pointer_cast<DeadMansSwitch>(shared_from_this());
 	deadMansSwitchLink->assignData(thisDeadMansSwitch);
@@ -22,7 +21,6 @@ bool DeadMansSwitch::areAllInputsReady(){
 	auto gpioDevice = gpioDevicePin->getConnectedPin()->getSharedPointer<GpioDevice>();
 	if(!gpioDevice->isReady()) return false;
 	if(!switchPressedPin->isConnected()) return false;
-	if(!switchConnectedPin->isConnected()) return false;
 	return true;
 }
 
@@ -36,8 +34,6 @@ void DeadMansSwitch::inputProcess(){
 	
 	//update inputs
 	switchPressedPin->copyConnectedPinValue();
-	switchConnectedPin->copyConnectedPinValue();
-	*b_switchConnected = true;
 	
 	
 	if(b_pressRequested && !*b_switchPressed){
@@ -54,8 +50,7 @@ void DeadMansSwitch::inputProcess(){
 	}
 	
 	//update switch state
-	if(!*b_switchConnected) state = State::NOT_CONNECTED;
-	else if(*b_switchPressed) state = State::PRESSED;
+	if(*b_switchPressed) state = State::PRESSED;
 	else if(b_pressRequested) state = State::PRESS_REQUESTED;
 	else state = State::NOT_PRESSED;
 	
@@ -81,13 +76,11 @@ void DeadMansSwitch::updateLedState(){
 	}else if(b_pressRequested){
 		double blinkPeriod = 1.0 / requestBlinkFrequency->value;
 		*b_switchLed = fmod(timeSincePressRequest_seconds, blinkPeriod) < blinkPeriod * .5;
-	}else if(*b_switchConnected){
+	}else{
 		long long time_nanoseconds = Environnement::getTime_nanoseconds();
 		long long blinkPeriod = 1000000000 / idleBlinkFrequency->value;
 		long long blinkLength = 1000000000 * idleBlinkLength->value;
 		*b_switchLed = time_nanoseconds % blinkPeriod < blinkLength;
-	}else{
-		*b_switchLed = false;
 	}
 }
 

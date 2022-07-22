@@ -473,6 +473,7 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 	double minPosition, maxPosition;
 	getConstraintPositionLimits(minPosition, maxPosition);
 	
+	//update the setpoints
 	if(hasAnimation() && getAnimation()->isPlaying()){
 		auto target = getAnimationValue()->toPosition();
 		positionSetpoint = target->position;
@@ -493,8 +494,12 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 	else if(controlMode == POSITION_SETPOINT){
 		velocitySetpoint = 0.0;
 		accelerationSetpoint = 0.0;
+	}else{
+		//velocity set point for this control mode is adjusted externally
+		controlMode = VELOCITY_SETPOINT;
 	}
 	
+	//handle motion interrupt if the setpoint goes outside limits
 	if(controlMode == POSITION_SETPOINT){
 		if((positionSetpoint < minPosition && velocitySetpoint < 0.0) || (positionSetpoint > maxPosition && velocitySetpoint > 0.0)){
 			if(hasAnimation()) getAnimation()->pausePlayback();
@@ -503,6 +508,7 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 		}
 	}
 	
+	//update the motion profiler
 	switch(controlMode){
 		case VELOCITY_SETPOINT:
 			motionProfile.matchVelocityAndRespectPositionLimits(deltaT_seconds,

@@ -57,18 +57,27 @@ void PositionControlledAxis::inputProcess() {
 	std::shared_ptr<GpioDevice> referenceDevice;
 	if(needsReferenceDevice()) referenceDevice = getReferenceDevice();
 
-	if(isEnabled()) state = MotionState::ENABLED;
-	else if(isReady()) state = MotionState::READY;
-	else if(!servoActuatorDevice->isOnline()) state = MotionState::OFFLINE;
-	else if(!servoActuatorDevice->isReady()) state = MotionState::NOT_READY;
-	else if(needsReferenceDevice() && !referenceDevice->isReady()) state = MotionState::NOT_READY;
+	//get combined device state
+	MotionState devicesState = MotionState::ENABLED;
+	MotionState servoState = servoActuatorDevice->getState();
+	MotionState referenceState = MotionState::ENABLED;
+	if(needsReferenceDevice()) referenceState = referenceDevice->getState();
+	if(servoState == MotionState::OFFLINE || referenceState == MotionState::OFFLINE) devicesState = MotionState::OFFLINE;
+	else if(servoState == MotionState::NOT_READY || referenceState == MotionState::NOT_READY) devicesState = MotionState::NOT_READY;
+	else if(servoState == MotionState::READY || referenceState == MotionState::READY) devicesState = MotionState::READY;
+	else devicesState = MotionState::ENABLED;
 	
+	//handle transition from enabled state
+	if(state == MotionState::ENABLED && devicesState != MotionState::ENABLED) disable();
+	state = devicesState;
+	
+	//update estop state
 	b_emergencyStopActive = servoActuatorDevice->isEmergencyStopped();
 	
 	//update and react to reference signals
 	if (needsReferenceDevice()) {
 		updateReferenceSignals();
-		if(isEnabled() && !isHoming()){
+		if(state == MotionState::ENABLED && !isHoming()){
 			switch(positionReferenceSignal){
 				case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
 					if(*highLimitSignal && motionProfile.getVelocity() > 0.0) {
@@ -85,12 +94,6 @@ void PositionControlledAxis::inputProcess() {
 					break;
 			}
 		}
-	}
-
-	//handle device state transitions
-	if (isEnabled()) {
-		if (needsReferenceDevice() && !referenceDevice->isReady()) disable();
-		else if (!servoActuatorDevice->isEnabled()) disable();
 	}
 
 	//get actual realtime axis motion values
@@ -112,7 +115,7 @@ void PositionControlledAxis::outputProcess(){
 	profileTimeDelta_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 	
 	//update profile generator
-	if (isEnabled()) {
+	if (state == MotionState::ENABLED) {
 		if (b_isHoming) homingControl();
 		switch (controlMode) {
 			case ControlMode::VELOCITY_TARGET:
@@ -171,7 +174,8 @@ void PositionControlledAxis::enable() {
 		while(system_clock::now() - start < milliseconds(500)){
 			
 			if(servoActuator->isEnabled()){
-				b_enabled = true;
+				//b_enabled = true;
+				state = MotionState::ENABLED;
 				onEnable();
 				Logger::info("Axis {} Enabled", getName());
 				return;
@@ -180,7 +184,7 @@ void PositionControlledAxis::enable() {
 		}
 		
 		servoActuator->disable();
-		b_enabled = false;
+		state = MotionState::READY;
 		Logger::warn("Could not enable Axis '{}', servo actuator did not enable on time", getName());
 
 	});
@@ -188,7 +192,7 @@ void PositionControlledAxis::enable() {
 }
 
 void PositionControlledAxis::onEnable() {
-	b_enabled = true;
+	//b_enabled = true;
 	setVelocityTarget(0.0);
 	b_isHoming = false;
 	homingStep = HomingStep::NOT_STARTED;
@@ -202,7 +206,8 @@ void PositionControlledAxis::disable() {
 }
 
 void PositionControlledAxis::onDisable() {
-	b_enabled = false;
+	//b_enabled = false;
+	state = MotionState::READY;
 	setVelocityTarget(0.0);
 	b_isHoming = false;
 	homingStep = HomingStep::NOT_STARTED;
@@ -425,7 +430,8 @@ double PositionControlledAxis::getFollowingErrorLimit(){
 }
 
 void PositionControlledAxis::setCurrentPosition(double distance) {
-	getServoActuatorDevice()->softOverridePosition(distance * servoActuatorUnitsPerAxisUnits);
+	auto servo = getServoActuatorDevice();
+	servo->softOverridePosition(distance * servoActuatorUnitsPerAxisUnits);
 	motionProfile.setPosition(distance);
 }
 
@@ -679,6 +685,8 @@ void PositionControlledAxis::homingControl(){
 							Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
 						}else{
 							servoActuator->softOverridePosition(0.0);
+							//else we set a software offset in the encoder object
+							setCurrentPosition(0.0);
 							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
 							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
@@ -692,8 +700,6 @@ void PositionControlledAxis::homingControl(){
 							onHomingSuccess();
 						}
 					}else{
-						//else we set a software offset in the encoder object
-						setCurrentPosition(0.0);
 						onHomingSuccess();
 					}
 					break;

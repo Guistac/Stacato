@@ -92,11 +92,11 @@ void PositionControlledAxis::controlsGui() {
 	ImGui::BeginDisabled(isAxisPinConnected() || !isReady());
 	
 	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-	if (isEnabled()) {
+	if (state == MotionState::ENABLED) {
 		ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 		ImGui::Button("Enabled", largeDoubleButtonSize);
 	}
-	else if (isReady()) {
+	else if (state == MotionState::READY) {
 		ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
 		ImGui::Button("Ready", largeDoubleButtonSize);
 	}
@@ -108,7 +108,7 @@ void PositionControlledAxis::controlsGui() {
 	ImGui::PopItemFlag();
 
 	ImGui::SameLine();
-	if (isEnabled()) {
+	if (state == MotionState::ENABLED) {
 		if (ImGui::Button("Disable Axis", largeDoubleButtonSize)) disable();
 	}else if (isReady()){
 		if (ImGui::Button("Enable Axis", largeDoubleButtonSize)) enable();
@@ -118,7 +118,7 @@ void PositionControlledAxis::controlsGui() {
 	
 	ImGui::EndDisabled(); //if axis is controlled externally or not ready
 	
-	bool b_disableControls = isAxisPinConnected() || !isEnabled();
+	bool b_disableControls = state != MotionState::ENABLED;
 	ImGui::BeginDisabled(b_disableControls);
 	
 	ImGui::BeginDisabled(isHoming());
@@ -260,7 +260,7 @@ void PositionControlledAxis::controlsGui() {
 		default: break;
 	}
 
-	bool b_disableCaptureButtons = !isEnabled() || isMoving() || isHoming();
+	bool b_disableCaptureButtons = state != MotionState::ENABLED || isMoving() || isHoming();
 	bool disableCaptureLowerLimit = *actualPositionValue > 0.0;
 	bool disableCaptureHigherLimit = *actualPositionValue < 0.0;
 	ImGui::BeginDisabled(b_disableCaptureButtons);
@@ -345,7 +345,7 @@ void PositionControlledAxis::controlsGui() {
 	double maxPosition = 0.0;
 	double positionProgress = 0.0;
 	static char positionString[32];
-	if (!isEnabled()) {
+	if (state != MotionState::ENABLED) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		positionProgress = 1.0;
 		sprintf(positionString, "Axis Disabled");
@@ -378,7 +378,7 @@ void PositionControlledAxis::controlsGui() {
 	//actual velocity
 	float velocityProgress;
 	static char velocityString[32];
-	if (!isEnabled()) {
+	if (state != MotionState::ENABLED) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		velocityProgress = 1.0;
 		sprintf(velocityString, "Axis Disabled");
@@ -397,7 +397,7 @@ void PositionControlledAxis::controlsGui() {
 	float positionErrorProgress;
 	float maxfollowingError = 0.0;
 	static char positionErrorString[32];
-	if(!isEnabled()){
+	if(state != MotionState::ENABLED){
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		positionErrorProgress = 1.0;
 		sprintf(positionErrorString, "Axis Disabled");
@@ -419,7 +419,7 @@ void PositionControlledAxis::controlsGui() {
 	float targetProgress;
 	double movementSecondsLeft = 0.0;
 	static char movementProgressChar[32];
-	if (!isEnabled()) {
+	if (state != MotionState::ENABLED) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		sprintf(movementProgressChar, "Axis Disabled");
 		targetProgress = 1.0;
@@ -460,7 +460,7 @@ void PositionControlledAxis::controlsGui() {
 		feedbackPositionUnit = servo->getPositionUnit();
 		feedbackPosition = servo->getPosition();
 	}
-	if (!isEnabled()) {
+	if (state != MotionState::ENABLED) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		sprintf(rangeString, "Axis Disabled");
 		rangeProgress = 1.0;

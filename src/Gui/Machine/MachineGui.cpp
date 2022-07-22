@@ -117,7 +117,13 @@ void Machine::machineStateControlGui(float width){
 	const char* statusString;
 	ImFont* statusTextFont;
 	
-	if(isEmergencyStopped()){
+	if(b_halted){
+		statusColor = Colors::orange;
+		statusString = "Halted";
+		statusTextColor = Colors::black;
+		statusTextFont = Fonts::sansRegular15;
+	}
+	else if(isEmergencyStopped()){
 		statusColor = fmod(Timing::getProgramTime_seconds(), .5) < .25 ? Colors::red : Colors::yellow;
 		statusString = "E-STOP";
 		statusTextColor = Colors::black;
@@ -131,7 +137,7 @@ void Machine::machineStateControlGui(float width){
 				statusTextFont = Fonts::sansRegular15;
 				break;
 			case MotionState::NOT_READY:
-				statusColor = Colors::orange;
+				statusColor = Colors::red;
 				statusString = "Not Ready";
 				statusTextColor = Colors::black;
 				statusTextFont = Fonts::sansRegular15;

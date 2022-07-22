@@ -1,7 +1,7 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.62041414" OffsetX="1337.5739" OffsetY="-493.72906" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232.00003" SizeY="510.97943"/>
-        <Widget UniqueID="6" PositionX="-1044.4771" PositionY="1044.005" SizeX="232.00003" SizeY="135.91493"/>
+    <Dashboard Scale="0.6594339" OffsetX="1313.2036" OffsetY="-493.9389" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="231.99992" SizeY="440.91852"/>
+        <Widget UniqueID="2" PositionX="-1044.139" PositionY="1012.5428" SizeX="231.99992" SizeY="137.95407"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -57,13 +57,13 @@
                     <Units UnitType="Rotary" Unit="Degree"/>
                     <UnitConversion ActuatorUnitsPerMachineUnit="50"/>
                     <KinematicLimits VelocityLimit="1" AccelerationLimit="1" ManualAcceleration="1"/>
-                    <PositionReferenceSignals Type="None" HomingVelocityCoarse="0" HomingVelocityFine="0" HomingDirection="Negative"/>
+                    <PositionReferenceSignals Type="LowSignal" HomingVelocityCoarse="0.10000000000000001" HomingVelocityFine="0.02" HomingDirection="Negative"/>
                     <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="0.10000000000000001" HighLimit="10" EnableHighLimit="true" HighLimitClearance="0.10000000000000001" LimitToFeedbackWorkingRange="true"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Servo Actuator" DisplayString="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="109" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Reference Device" DisplayString="Reference Device" DataType="GPIODeviceLink" UniqueID="110" Visible="false" NoDataField="true"/>
-                    <InputPin SaveString="Low Limit Signal" DisplayString="Low Limit Signal" DataType="Boolean" UniqueID="111" Visible="false"/>
+                    <InputPin SaveString="Reference Device" DisplayString="Reference Device" DataType="GPIODeviceLink" UniqueID="110" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Low Limit Signal" DisplayString="Low Limit Signal" DataType="Boolean" UniqueID="111" Visible="true"/>
                     <InputPin SaveString="High Limit Signal" DisplayString="High Limit Signal" DataType="Boolean" UniqueID="112" Visible="false"/>
                     <InputPin SaveString="Reference Signal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="113" Visible="false"/>
                 </InputPins>
@@ -90,22 +90,6 @@
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="121" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Homme Mort A" UniqueID="207">
-                <NodeEditorPosition x="-264" y="1159"/>
-                <NodeSpecificData>
-                    <Settings PressReuqestTimeoutDelay="7.5" RequestBlinkFrequency="5" IdleBlinkFrequency="1" IdleBlinkLength="0.050000000000000003"/>
-                    <ControlWidget UniqueID="6"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="GpioDevicePin" DisplayString="Gpio Device" DataType="GPIODeviceLink" UniqueID="208" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="SwitchPressedPin" DisplayString="Switch Pressed" DataType="Boolean" UniqueID="209" Visible="true"/>
-                    <InputPin SaveString="SwitchConnectedPin" DisplayString="Switch Connected" DataType="Boolean" UniqueID="210" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="SwitchLEDSignalPin" DisplayString="Switch LED Signal" DataType="Boolean" UniqueID="211" Visible="true"/>
-                    <OutputPin SaveString="Dead Man&apos;s Switch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="212" Visible="true" NoDataField="true"/>
-                </OutputPins>
-            </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M" UniqueID="258">
                 <NodeEditorPosition x="-473" y="753"/>
                 <NodeSpecificData>
@@ -117,8 +101,8 @@
                     <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="9"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
-                    <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
-                    <EncoderSettings Assignement="Internal" RangeShifted="false" PositionOffset_revolutions="0"/>
+                    <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
+                    <EncoderSettings Assignement="Internal" RangeShifted="false" PositionOffset_revolutions="575.01225280761719"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DQ0" DisplayString="DQ0" DataType="Boolean" UniqueID="259" Visible="true"/>
@@ -195,22 +179,37 @@
                     <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="317" Visible="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Dead Man&apos;s Switch" UniqueID="319">
+                <NodeEditorPosition x="-296" y="1264"/>
+                <NodeSpecificData>
+                    <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
+                    <ControlWidget UniqueID="2"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="GpioDevicePin" DisplayString="Gpio Device" DataType="GPIODeviceLink" UniqueID="320" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="SwitchPressedPin" DisplayString="Switch Pressed" DataType="Boolean" UniqueID="321" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="SwitchLEDSignalPin" DisplayString="Switch LED Signal" DataType="Boolean" UniqueID="322" Visible="true"/>
+                    <OutputPin SaveString="Dead Man&apos;s Switch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="323" Visible="true" NoDataField="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
-            <Link UniqueID="278" StartPin="114" EndPin="119"/>
-            <Link UniqueID="280" StartPin="58" EndPin="208"/>
-            <Link UniqueID="281" StartPin="179" EndPin="209"/>
-            <Link UniqueID="282" StartPin="180" EndPin="210"/>
-            <Link UniqueID="286" StartPin="211" EndPin="171"/>
             <Link UniqueID="288" StartPin="262" EndPin="109"/>
-            <Link UniqueID="290" StartPin="212" EndPin="64"/>
+            <Link UniqueID="324" StartPin="58" EndPin="320"/>
+            <Link UniqueID="325" StartPin="179" EndPin="321"/>
+            <Link UniqueID="326" StartPin="322" EndPin="171"/>
+            <Link UniqueID="328" StartPin="323" EndPin="64"/>
+            <Link UniqueID="330" StartPin="266" EndPin="110"/>
+            <Link UniqueID="331" StartPin="267" EndPin="111"/>
         </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en4" Name="en4"/>
+        <Primary Description="en7" Name="en7"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="8" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>
