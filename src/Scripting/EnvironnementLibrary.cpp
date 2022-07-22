@@ -357,6 +357,23 @@ namespace Scripting::EnvironnementLibrary{
 	};
 
 
+	int checkRangeOverlap(lua_State* L){
+		//get all 4 range arguments
+		double range1a = luaL_checknumber(L, 1);
+		double range1b = luaL_checknumber(L, 2);
+		double range2a = luaL_checknumber(L, 3);
+		double range2b = luaL_checknumber(L, 4);
+		//make sure the ranges are well formed (min < max)
+		double start1 = std::min(range1a, range1b);
+		double end1 = std::max(range1a, range1b);
+		double start2 = std::min(range2a, range2b);
+		double end2 = std::max(range2a, range2b);
+		bool overlapping = start1 <= end2 && start2 <= end1;
+		lua_pushboolean(L, overlapping);
+		return 1;
+	}
+
+
 	//————————————————— LIBRARY ——————————————————
 	
 	void openlib(lua_State* L, bool includeMotionFunctions){
@@ -419,6 +436,10 @@ namespace Scripting::EnvironnementLibrary{
 		lua_AnimatablePosition_KeepoutConstraint.addMethod("getMax", Lua_AnimatablePosition_KeepoutConstraint::getMax);
 		lua_AnimatablePosition_KeepoutConstraint.declare(L);
 		
+		//——— Global Functions ——————————
+		
+		lua_pushcfunction(L, checkRangeOverlap);
+		lua_setglobal(L, "checkRangeOverlap");
 		
 		//——— Environnement Library ——————————————————————————————————————————————————————————————————————
 		

@@ -16,43 +16,6 @@ struct AnimatableStateValue : public AnimationValue{
 	AnimatableStateStruct* value;
 };
 
-/*
-class AnimatableState_StateConstraint : public AnimationConstraint{
-public:
-	
-	virtual Type getType() override { return Type::KEEPIN; }
-	virtual AnimatableType getAnimatableType() override { return AnimatableType::STATE; }
-	
-	AnimatableState_StateConstraint(std::string name, std::vector<AnimatableStateStruct>* values_)
-	: AnimationConstraint(name), values(values_) {}
-	
-	void allowAllStates(){
-		allowedStates.clear();
-		allowedStates.reserve(values->size());
-		auto& stateValues = *values;
-		for(auto& value : stateValues) allowedStates.push_back(&value);
-	}
-	void forbidAllStates(){
-		allowedStates.clear();
-	}
-	void allowState(AnimatableStateStruct* state){
-		allowedStates.push_back(state);
-	}
-	void forbidState(AnimatableStateStruct* state){
-		for(int i = allowedStates.size() - 1; i >= 0; i--){
-			if(allowedStates[i] == state){
-				allowedStates.erase(allowedStates.begin() + i);
-				break;
-			}
-		}
-	}
-	
-	std::vector<AnimatableStateStruct>* values;
-	std::vector<AnimatableStateStruct*> allowedStates;
-	
-};
-*/
-
 
 class AnimatableState : public Animatable{
 public:

@@ -8,13 +8,13 @@
 
 #include "Animation/Animation.h"
 
-AnimatableStateStruct FlipStateMachine::stateUnknown = 			{-1, "Unknown", "Unknown"};
-AnimatableStateStruct FlipStateMachine::stateStopped = 			{0, "Stopped", "Stopped"};
-AnimatableStateStruct FlipStateMachine::stateClosed = 			{1, "Closed", "Closed"};
-AnimatableStateStruct FlipStateMachine::stateClosingOpening = 	{2, "Opening/Closing", "OpeningClosing"};
-AnimatableStateStruct FlipStateMachine::stateOpenLowered = 		{3, "Open & Lowered", "OpenLowered"};
-AnimatableStateStruct FlipStateMachine::stateRaisingLowering = 	{4, "Raising/Lowering", "RaisingLowering"};
-AnimatableStateStruct FlipStateMachine::stateRaised = 			{5, "Raised", "Raised"};
+AnimatableStateStruct FlipStateMachine::stateUnknown = 			{-1, 	"Unknown", 			"Unknown"};
+AnimatableStateStruct FlipStateMachine::stateStopped = 			{0, 	"Stopped", 			"Stopped"};
+AnimatableStateStruct FlipStateMachine::stateClosed = 			{1, 	"Closed", 			"Closed"};
+AnimatableStateStruct FlipStateMachine::stateClosingOpening = 	{2, 	"Opening/Closing", 	"OpeningClosing"};
+AnimatableStateStruct FlipStateMachine::stateOpenLowered = 		{3, 	"Open & Lowered", 	"OpenLowered"};
+AnimatableStateStruct FlipStateMachine::stateRaisingLowering = 	{4, 	"Raising/Lowering", "RaisingLowering"};
+AnimatableStateStruct FlipStateMachine::stateRaised = 			{5, 	"Raised", 			"Raised"};
 
 std::vector<AnimatableStateStruct*> FlipStateMachine::allStates = {
 	&FlipStateMachine::stateUnknown,
@@ -25,6 +25,7 @@ std::vector<AnimatableStateStruct*> FlipStateMachine::allStates = {
 	&FlipStateMachine::stateRaisingLowering,
 	&FlipStateMachine::stateRaised
 };
+
 std::vector<AnimatableStateStruct*> FlipStateMachine::selectableStates = {
 	&FlipStateMachine::stateStopped,
 	&FlipStateMachine::stateClosed,
@@ -229,6 +230,64 @@ void FlipStateMachine::disableHardware() {
 	}
 }
 
+
+void FlipStateMachine::onEnableHardware() {}
+
+void FlipStateMachine::onDisableHardware() {}
+
+void FlipStateMachine::simulateInputProcess() {
+	
+	if(state != MotionState::ENABLED) state = MotionState::READY;
+	
+	*stateIntegerValue = getStateInteger(actualState);
+	
+	auto actualValue = AnimationValue::makeState();
+	switch(actualState){
+		case State::UNKNOWN:			actualValue->value = &stateUnknown; break;
+		case State::STOPPED:			actualValue->value = &stateStopped; break;
+		case State::CLOSED:				actualValue->value = &stateClosed; break;
+		case State::OPENING_CLOSING:	actualValue->value = &stateClosingOpening; break;
+		case State::OPEN_LOWERED:		actualValue->value = &stateOpenLowered; break;
+		case State::LOWERING_RAISING:	actualValue->value = &stateRaisingLowering; break;
+		case State::RAISED:				actualValue->value = &stateRaised; break;
+	}
+	animatableState->updateActualValue(actualValue);
+}
+
+void FlipStateMachine::simulateOutputProcess() {
+	//update outputs signals
+	if (isEnabled()) {
+		
+		double profileTime_seconds = Environnement::getTime_seconds();
+		double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
+		animatableState->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+		auto targetValue = animatableState->getTargetValue()->toState();
+		animatableState->updateActualValue(targetValue);
+		
+		auto targetState = targetValue->value;
+		
+		if(targetState == &stateClosed) requestedState = State::CLOSED;
+		else if(targetState == &stateOpenLowered) requestedState = State::OPEN_LOWERED;
+		else if(targetState == &stateRaised) requestedState = State::RAISED;
+		else requestedState = State::STOPPED;
+		
+		if(requestedState == State::STOPPED) actualState = State::CLOSED;
+		else actualState = requestedState;
+	}
+	
+}
+
+bool FlipStateMachine::isSimulationReady(){
+	return true;
+}
+
+
+void FlipStateMachine::onEnableSimulation() {}
+void FlipStateMachine::onDisableSimulation() {}
+
+
+
+
 bool FlipStateMachine::isGpioDeviceConnected() {
 	return gpioDeviceLink->isConnected();
 }
@@ -387,65 +446,6 @@ void FlipStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animatio
 
 void FlipStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
 	if (isGpioDeviceConnected()) output.push_back(getGpioDevice()->parentDevice);
-}
-
-
-
-void FlipStateMachine::onEnableHardware() {}
-
-void FlipStateMachine::onDisableHardware() {}
-
-void FlipStateMachine::simulateInputProcess() {
-	*stateIntegerValue = getStateInteger(actualState);
-	
-	auto actualValue = AnimationValue::makeState();
-	switch(actualState){
-		case State::UNKNOWN:			actualValue->value = &stateUnknown; break;
-		case State::STOPPED:			actualValue->value = &stateStopped; break;
-		case State::CLOSED:				actualValue->value = &stateClosed; break;
-		case State::OPENING_CLOSING:	actualValue->value = &stateClosingOpening; break;
-		case State::OPEN_LOWERED:		actualValue->value = &stateOpenLowered; break;
-		case State::LOWERING_RAISING:	actualValue->value = &stateRaisingLowering; break;
-		case State::RAISED:				actualValue->value = &stateRaised; break;
-	}
-	animatableState->updateActualValue(actualValue);
-}
-
-void FlipStateMachine::simulateOutputProcess() {
-	//update outputs signals
-	if (isEnabled()) {
-		
-		double profileTime_seconds = Environnement::getTime_seconds();
-		double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
-		animatableState->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
-		auto targetValue = animatableState->getTargetValue()->toState();
-		animatableState->updateActualValue(targetValue);
-		
-		auto targetState = targetValue->value;
-		
-		if(targetState == &stateClosed) requestedState = State::CLOSED;
-		else if(targetState == &stateOpenLowered) requestedState = State::OPEN_LOWERED;
-		else if(targetState == &stateRaised) requestedState = State::RAISED;
-		else requestedState = State::STOPPED;
-		
-		if(requestedState == State::STOPPED) actualState = State::CLOSED;
-		else actualState = requestedState;
-	}
-	
-}
-
-bool FlipStateMachine::isSimulationReady(){
-	return true;
-}
-
-
-void FlipStateMachine::onEnableSimulation() {
-	if(requestedState == State::UNKNOWN) actualState = State::CLOSED;
-	actualState = requestedState;
-}
-
-void FlipStateMachine::onDisableSimulation() {
-	
 }
 
 

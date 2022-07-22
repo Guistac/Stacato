@@ -152,7 +152,10 @@ namespace Environnement {
 
 		for(auto& machine : getMachines()) machine->simulateInputProcess();
 
+		//auto start = std::chrono::high_resolution_clock::now();
 		Script::update();
+		//auto end = std::chrono::high_resolution_clock::now();
+		//Logger::warn("scrip processing duration {}µs", std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
 		
 		PlaybackManager::update();
 

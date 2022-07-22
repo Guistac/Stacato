@@ -67,8 +67,6 @@ public:
 	bool isGpioDeviceConnected();
 	std::shared_ptr<GpioDevice> getGpioDevice();
 	
-	bool b_enabled = false;
-	
 	//————— State Machine —————
 	
 	static AnimatableStateStruct stateUnknown;
@@ -91,7 +89,7 @@ public:
 		LOWERING_RAISING,
 		RAISED
 	};
-	State actualState = State::UNKNOWN;
+	State actualState = State::CLOSED;
 	State requestedState = State::STOPPED;
 	
 	int getStateInteger(State state){

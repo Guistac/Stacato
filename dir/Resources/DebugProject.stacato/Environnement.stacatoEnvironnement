@@ -1,8 +1,8 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.64956421" OffsetX="1463.2335" OffsetY="-461.09705" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="231.99994" SizeY="512.52368"/>
-        <Widget UniqueID="2" PositionX="-1044.139" PositionY="1012.5428" SizeX="232.00003" SizeY="135.01053"/>
-        <Widget UniqueID="3" PositionX="-1292.0841" PositionY="661.90454" SizeX="231.99994" SizeY="299.36996"/>
+    <Dashboard Scale="0.64926058" OffsetX="1364.0049" OffsetY="-425.039" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232.00002" SizeY="510.60379"/>
+        <Widget UniqueID="2" PositionX="-1044.139" PositionY="1012.5428" SizeX="232.00002" SizeY="136.23578"/>
+        <Widget UniqueID="3" PositionX="-1292.0841" PositionY="661.90454" SizeX="232.00002" SizeY="298.96796"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
