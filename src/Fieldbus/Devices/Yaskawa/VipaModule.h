@@ -20,6 +20,8 @@
 #include "VIPA-053-1EC01.h"
 #include "Fieldbus/Utilities/EtherCatPDO.h"
 
+#include "Project/Editor/Parameter.h"
+
 class NodePin;
 class VipaBusCoupler_053_1EC01;
 namespace tinyxml2{ struct XMLElement; }
@@ -424,3 +426,83 @@ inline uint8_t VIPA_032_1BD70::getVoltageRangeValue(VoltageRange range){
 		case VoltageRange::NEGATIVE_TO_POSITIVE_10V: return 0x22;
 	}
 }
+
+
+
+//=================================================================
+//============ 050-1BB40 Two Channel Frequency Counter ============
+//=================================================================
+
+
+class VIPA_050_1BB40 : public VipaModule{
+public:
+	DEFINE_VIPA_MODULE(VIPA_050_1BB40, "VIPA 050-1BB40", "2x Frequency Counter")
+	
+	//————— Node Pins ———————
+	std::shared_ptr<double> frequency0Value = std::make_shared<double>(0.0);
+	std::shared_ptr<double> frequency1Value = std::make_shared<double>(0.0);
+	std::shared_ptr<NodePin> frequency0Pin = std::make_shared<NodePin>(frequency0Value, NodePin::Direction::NODE_OUTPUT, "Frequency 0");
+	std::shared_ptr<NodePin> frequency1Pin = std::make_shared<NodePin>(frequency1Value, NodePin::Direction::NODE_OUTPUT, "Frequency 1");
+	
+	//————— PDO DATA —————
+	
+	//txpdo (inputs)
+	uint32_t fm_period_ch0;
+	uint32_t fm_rising_edges_ch0;
+	uint32_t fm_period_ch1;
+	uint32_t fm_rising_edges_ch1;
+	uint16_t fm_status_ch0;
+	uint16_t fm_status_ch1;
+	
+	//rxpdo (outputs)
+	uint32_t fm_preset_period_ch0;
+	uint32_t fm_preset_period_ch1;
+	uint16_t fm_control_ch0;
+	uint16_t fm_control_ch1;
+	
+	bool ch0Control = false;
+	bool ch1Control = false;
+	
+	enum class InputFilter{
+		KHZ_600,
+		KHZ_250,
+		KHZ_100,
+		KHZ_60,
+		KHZ_30,
+		KHZ_10,
+		KHZ_5,
+		KHZ_2,
+		KHZ_1
+	};
+	
+	std::shared_ptr<EnumeratorParameter<InputFilter>> channel0InputFilter = std::make_shared<EnumeratorParameter<InputFilter>>(InputFilter::KHZ_600,
+																															   "Channel 0 Input Filter",
+																															   "Ch0InputFilter");
+	std::shared_ptr<EnumeratorParameter<InputFilter>> channel1InputFilter = std::make_shared<EnumeratorParameter<InputFilter>>(InputFilter::KHZ_600,
+																															   "Channel 1 Input Filter",
+																															   "Ch1InputFilter");
+	std::shared_ptr<NumberParameter<double>> channel0MeasurementPeriod;
+	std::shared_ptr<NumberParameter<double>> channel1MeasurementPeriod;
+	
+	
+	//==== Gui Stuff ====
+	virtual void moduleParameterGui();
+	
+	//==== Parameter Saving & Loading ====
+	virtual bool save(tinyxml2::XMLElement* xml);
+	virtual bool load(tinyxml2::XMLElement* xml);
+	
+};
+
+#define VipaFrequencyInputFilterStrings \
+{VIPA_050_1BB40::InputFilter::KHZ_600, 	"600 KHz", 	"600KHz"},\
+{VIPA_050_1BB40::InputFilter::KHZ_250, 	"250 KHz", 	"250KHz"},\
+{VIPA_050_1BB40::InputFilter::KHZ_100, 	"100 KHz", 	"100KHz"},\
+{VIPA_050_1BB40::InputFilter::KHZ_60, 	"60 KHz", 	"60KHz"},\
+{VIPA_050_1BB40::InputFilter::KHZ_30, 	"30 KHz", 	"30KHz"},\
+{VIPA_050_1BB40::InputFilter::KHZ_10, 	"10 KHz", 	"10KHz"},\
+{VIPA_050_1BB40::InputFilter::KHZ_5, 	"5 KHz", 	"5KHz"},\
+{VIPA_050_1BB40::InputFilter::KHZ_2, 	"2 KHz",	"2KHz"},\
+{VIPA_050_1BB40::InputFilter::KHZ_1, 	"1 KHz", 	"1KHz"}\
+
+DEFINE_ENUMERATOR(VIPA_050_1BB40::InputFilter, VipaFrequencyInputFilterStrings)

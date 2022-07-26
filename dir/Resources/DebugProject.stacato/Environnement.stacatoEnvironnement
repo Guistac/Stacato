@@ -1,8 +1,8 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.64926058" OffsetX="1364.0049" OffsetY="-425.039" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232.00002" SizeY="510.60379"/>
-        <Widget UniqueID="2" PositionX="-1044.139" PositionY="1012.5428" SizeX="232.00002" SizeY="136.23578"/>
-        <Widget UniqueID="3" PositionX="-1292.0841" PositionY="661.90454" SizeX="232.00002" SizeY="298.96796"/>
+    <Dashboard Scale="1.0482451" OffsetX="1318.7477" OffsetY="-388.74936" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget UniqueID="1" PositionX="-1044.6686" PositionY="497.27509" SizeX="232" SizeY="511.68045"/>
+        <Widget UniqueID="2" PositionX="-1044.139" PositionY="1012.5428" SizeX="232" SizeY="137.75505"/>
+        <Widget UniqueID="3" PositionX="-1292.0841" PositionY="661.90454" SizeX="232" SizeY="299.50623"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -197,6 +197,80 @@
                     <OutputPin SaveString="State Number" DisplayString="State Number" DataType="Integer" UniqueID="350" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="false" CustomName="VipaBusCoupler-053-1EC01 (ID:3)" UniqueID="366">
+                <NodeEditorPosition x="-192" y="236"/>
+                <NodeSpecificData>
+                    <Identification Type="ExplicitDeviceID" ExplicitDeviceID="3"/>
+                    <SLIOModules>
+                        <Module Type="VIPA 021-1BF00">
+                            <SignalInversion InvertInput0="false" InvertInput1="false" InvertInput2="false" InvertInput3="false" InvertInput4="false" InvertInput5="false" InvertInput6="false" InvertInput7="false"/>
+                        </Module>
+                        <Module Type="VIPA 022-1HD10">
+                            <SignalInversion InvertRelais0="false" InvertRelais1="false" InvertRelais2="false" InvertRelais3="false"/>
+                        </Module>
+                        <Module Type="VIPA 022-1HD10">
+                            <SignalInversion InvertRelais0="false" InvertRelais1="false" InvertRelais2="false" InvertRelais3="false"/>
+                        </Module>
+                        <Module Type="VIPA 050-1BB40" Ch0InputFilter="250KHz" Ch1InputFilter="600KHz" Ch0MeasurementPeriod="0.10000000000000001" Ch1MeasurementPeriod="0.10000000000000001"/>
+                    </SLIOModules>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Module1RelaisOutput0" DisplayString="Module 1 Relais Output 0" DataType="Boolean" UniqueID="376" Visible="true"/>
+                    <InputPin SaveString="Module1RelaisOutput1" DisplayString="Module 1 Relais Output 1" DataType="Boolean" UniqueID="377" Visible="true"/>
+                    <InputPin SaveString="Module1RelaisOutput2" DisplayString="Module 1 Relais Output 2" DataType="Boolean" UniqueID="378" Visible="true"/>
+                    <InputPin SaveString="Module1RelaisOutput3" DisplayString="Module 1 Relais Output 3" DataType="Boolean" UniqueID="379" Visible="true"/>
+                    <InputPin SaveString="Module2RelaisOutput0" DisplayString="Module 2 Relais Output 0" DataType="Boolean" UniqueID="380" Visible="true"/>
+                    <InputPin SaveString="Module2RelaisOutput1" DisplayString="Module 2 Relais Output 1" DataType="Boolean" UniqueID="381" Visible="true"/>
+                    <InputPin SaveString="Module2RelaisOutput2" DisplayString="Module 2 Relais Output 2" DataType="Boolean" UniqueID="382" Visible="true"/>
+                    <InputPin SaveString="Module2RelaisOutput3" DisplayString="Module 2 Relais Output 3" DataType="Boolean" UniqueID="383" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GPIODeviceLink" UniqueID="367" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Module0DigitalInput0" DisplayString="Module 0 Digital Input 0" DataType="Boolean" UniqueID="368" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput1" DisplayString="Module 0 Digital Input 1" DataType="Boolean" UniqueID="369" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput2" DisplayString="Module 0 Digital Input 2" DataType="Boolean" UniqueID="370" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput3" DisplayString="Module 0 Digital Input 3" DataType="Boolean" UniqueID="371" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput4" DisplayString="Module 0 Digital Input 4" DataType="Boolean" UniqueID="372" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput5" DisplayString="Module 0 Digital Input 5" DataType="Boolean" UniqueID="373" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput6" DisplayString="Module 0 Digital Input 6" DataType="Boolean" UniqueID="374" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput7" DisplayString="Module 0 Digital Input 7" DataType="Boolean" UniqueID="375" Visible="true"/>
+                    <OutputPin SaveString="Frequency 0" DisplayString="Module 3 Frequency Counter 1" DataType="Real" UniqueID="384" Visible="true"/>
+                    <OutputPin SaveString="Frequency 1" DisplayString="Module 3 Frequency Counter 2" DataType="Real" UniqueID="385" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M (Alias:1238)" UniqueID="387">
+                <NodeEditorPosition x="-650" y="98"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="1238"/>
+                    <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="6.4020396223269572e-310" manualAcceleration_rpsps="0"/>
+                    <InvertDirectionOfMovement Invert="false"/>
+                    <MaxFollowingError revolutions="1"/>
+                    <CurrentLimit amps="5"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="100"/>
+                    <NegativeLimitSwitch Pin="Unassigned"/>
+                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
+                    <EncoderSettings Assignement="Internal" RangeShifted="true" PositionOffset_revolutions="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DQ0" DisplayString="DQ0" DataType="Boolean" UniqueID="388" Visible="true"/>
+                    <InputPin SaveString="DQ1" DisplayString="DQ1" DataType="Boolean" UniqueID="389" Visible="true"/>
+                    <InputPin SaveString="DQ2" DisplayString="DQ2" DataType="Boolean" UniqueID="390" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ServoActuatorDeviceLink" UniqueID="391" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="392" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="393" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="394" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GPIODeviceLink" UniqueID="395" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="DI0" DisplayString="DI0" DataType="Boolean" UniqueID="396" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI1" DisplayString="DI1" DataType="Boolean" UniqueID="397" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="398" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="399" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="400" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="401" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="288" StartPin="262" EndPin="109"/>
@@ -227,7 +301,7 @@
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en4" Name="en4"/>
+        <Primary Description="en7" Name="en7"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="8" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

@@ -16,7 +16,8 @@ namespace VipaModuleFactory{
 		new VIPA_021_1BF00(),
 		new VIPA_022_1BF00(),
 		new VIPA_050_1BS00(),
-		new VIPA_032_1BD70()
+		new VIPA_032_1BD70(),
+		new VIPA_050_1BB40()
 	};
 
 	std::vector<VipaModule*>& getModules(){
@@ -782,5 +783,150 @@ bool VIPA_032_1BD70::load(tinyxml2::XMLElement* xml){
 		if(channelXML->QueryBoolAttribute("ShortCircuitDetection", &shortCircuitDetectionSettings[i]) != XML_SUCCESS) Logger::warn("Could not find short circuit detection attribute");
 	}
 	
+	return true;
+}
+
+
+
+
+
+
+
+
+
+
+//=================================================================
+//============ 050-1BB40 Two Channel Frequency Counter ============
+//=================================================================
+
+void VIPA_050_1BB40::onConstruction(){
+	outputPins.push_back(frequency0Pin);
+	outputPins.push_back(frequency1Pin);
+	inputBitCount = 160;
+	inputByteCount = 20;
+	outputBitCount = 96;
+	outputByteCount = 12;
+	channel0MeasurementPeriod = NumberParameter<double>::make(0.1,
+															  "Channel 0 Measurement Period",
+															  "Ch0MeasurementPeriod",
+															  "%.4f",
+															  Units::Time::Second,
+															  false);
+	channel1MeasurementPeriod = NumberParameter<double>::make(0.1,
+															  "Channel 1 Measurement Period",
+															  "Ch1MeasurementPeriod",
+															  "%.4f",
+															  Units::Time::Second,
+															  false);
+}
+
+void VIPA_050_1BB40::onSetIndex(int i){
+	sprintf((char*)frequency0Pin->getDisplayString(), "Module %i Frequency Counter 1", moduleIndex);
+	sprintf((char*)frequency1Pin->getDisplayString(), "Module %i Frequency Counter 2", moduleIndex);
+}
+
+void VIPA_050_1BB40::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
+	//this module has no tx pdo module
+	txPdoAssignement.addNewModule(0x1A00 + moduleIndex);
+	uint16_t dataObjectIndex = 0x6000 + moduleIndex;
+	txPdoAssignement.addEntry(dataObjectIndex, 1, 32, "FM_PERIOD_CH0", &fm_period_ch0);
+	txPdoAssignement.addEntry(dataObjectIndex, 2, 32, "FM_RISING_EDGES_CH0", &fm_rising_edges_ch0);
+	txPdoAssignement.addEntry(dataObjectIndex, 3, 32, "FM_PERIOD_CH1", &fm_period_ch1);
+	txPdoAssignement.addEntry(dataObjectIndex, 4, 32, "FM_RISING_EDGES_CH1", &fm_rising_edges_ch1);
+	txPdoAssignement.addEntry(dataObjectIndex, 5, 16, "FM_STATUS_CH0", &fm_status_ch0);
+	txPdoAssignement.addEntry(dataObjectIndex, 6, 16, "FM_STATUS_CH1", &fm_status_ch1);
+}
+
+void VIPA_050_1BB40::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignement){
+	rxPdoAssignement.addNewModule(0x1600 + moduleIndex);
+	uint16_t dataObjectIndex = 0x7000 + moduleIndex;
+	rxPdoAssignement.addEntry(dataObjectIndex, 1, 32, "FM_PRESET_PERIOD_CH0", &fm_preset_period_ch0);
+	rxPdoAssignement.addEntry(dataObjectIndex, 2, 32, "FM_PRESET_PERIOD_CH1", &fm_preset_period_ch1);
+	rxPdoAssignement.addEntry(dataObjectIndex, 3, 16, "FM_CONTROL_CH0", &fm_control_ch0);
+	rxPdoAssignement.addEntry(dataObjectIndex, 4, 16, "FM_CONTROL_CH1", &fm_control_ch1);
+}
+
+bool VIPA_050_1BB40::configureParameters(){
+	uint16_t settingsObjectIndex = 0x3100 + moduleIndex;
+	return true;
+}
+
+void VIPA_050_1BB40::readInputs(){
+	//read input pdo
+	double ch0_period = fm_period_ch0 / 8000000.0; //measurement period in seconds
+	double ch1_period = fm_period_ch1 / 8000000.0;
+	bool ch0_active = fm_status_ch0 & 0x100;
+	bool ch1_active = fm_status_ch1 & 0x100;
+}
+
+void VIPA_050_1BB40::writeOutputs(){
+	//write output pdo
+	//adjust state machine and preset period
+	
+	fm_control_ch0 = ch0Control ? 0x100 : 0x200;
+	fm_control_ch1 = ch1Control ? 0x100 : 0x200;
+	fm_preset_period_ch0 = channel0MeasurementPeriod->getValue() * 1000000.0;
+	fm_preset_period_ch1 = channel1MeasurementPeriod->getValue() * 1000000.0;
+}
+
+void VIPA_050_1BB40::moduleParameterGui(){
+	/*
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+	ImGui::Text("All analog outputs return to 0 Volts when fieldbus is stopped.");
+	ImGui::PopStyleColor();
+	*/
+	 
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Channel 1");
+	ImGui::PopFont();
+	
+	ImGui::Text("Input Filter");
+	channel0InputFilter->gui();
+	
+	ImGui::Text("Measurement Period");
+	channel0MeasurementPeriod->gui();
+	
+	ImGui::Checkbox("Enable##ch0", &ch0Control);
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Channel 2");
+	ImGui::PopFont();
+	
+	ImGui::Text("Input Filter");
+	channel1InputFilter->gui();
+	
+	ImGui::Text("Measurement Period");
+	channel1MeasurementPeriod->gui();
+	
+	ImGui::Checkbox("Enable##ch1", &ch1Control);
+}
+
+bool VIPA_050_1BB40::save(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	channel0InputFilter->save(xml);
+	channel1InputFilter->save(xml);
+	channel0MeasurementPeriod->save(xml);
+	channel1MeasurementPeriod->save(xml);
+	return true;
+}
+
+bool VIPA_050_1BB40::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	if(!channel0InputFilter->load(xml)){
+		Logger::warn("could not load attribute channel 0 input filter of vipa module frequency counter");
+		return false;
+	}
+	if(!channel1InputFilter->load(xml)){
+		Logger::warn("could not load attribute channel 1 input filter of vipa module frequency counter");
+		return false;
+	}
+	if(!channel0MeasurementPeriod->load(xml)){
+		Logger::warn("could not load attribute channel 0 measurement time of vipa module frequency counter");
+		return false;
+	}
+	if(!channel1MeasurementPeriod->load(xml)){
+		Logger::warn("could not load attribute channel 1 measurement time of vipa module frequency counter");
+		return false;
+	}
 	return true;
 }
