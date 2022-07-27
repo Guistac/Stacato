@@ -23,6 +23,8 @@ namespace EtherCatFieldbus {
 	std::shared_ptr<NetworkInterfaceCard> getActiveNetworkInterfaceCard();
 	std::shared_ptr<NetworkInterfaceCard> getActiveRedundantNetworkInterfaceCard();
 
+	void setDefaultNetworkInterfaces(const char* primary, const char* secondary = nullptr);
+
     //initialize and terminate
     bool init();
     bool init(std::shared_ptr<NetworkInterfaceCard>);

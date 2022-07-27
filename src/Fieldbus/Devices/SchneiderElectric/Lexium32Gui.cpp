@@ -41,13 +41,6 @@ void Lexium32::deviceSpecificGui() {
                 }
                 ImGui::EndTabItem();
             }
-            if (ImGui::BeginTabItem("Encoder")) {
-                if (ImGui::BeginChild("Encoder")) {
-                    encoderGui();
-                    ImGui::EndChild();
-                }
-                ImGui::EndTabItem();
-            }
             if (ImGui::BeginTabItem("Tuning")) {
                 if (ImGui::BeginChild("Tuning")) {
                     tuningGui();
@@ -240,14 +233,6 @@ void Lexium32::controlsGui() {
 
 	ImGui::BeginDisabled(servoMotorPin->isConnected());
 	
-    ImGui::Text("Soft Setting of Encoder Position (Current Offset: %.2f)", servoMotor->positionOffset);
-    ImGui::SetNextItemWidth(tripleWidgetWidth);
-    ImGui::InputDouble("##encoderPosition", &newEncoderPosition, 0.0, 0.0, "%.3f rev");
-    ImGui::SameLine();
-    if (ImGui::Button("Set", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotor->softOverridePosition(newEncoderPosition);
-    ImGui::SameLine();
-    if (ImGui::Button("Reset", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotor->positionOffset = 0.0;
-	
 	ImGui::Text("Load :");
 	static char loadString[64];
 	float loadProgress;
@@ -287,11 +272,51 @@ void Lexium32::controlsGui() {
 	
 	ImGui::EndDisabled();
 	
+	ImGui::Separator();
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Encoder Override");
+	ImGui::PopFont();
+	
+	ImGui::Text("Soft Setting of Encoder Position (Current Offset: %.2f)", servoMotor->positionOffset);
+	ImGui::SetNextItemWidth(tripleWidgetWidth);
+	ImGui::InputDouble("##encoderPosition", &newEncoderPosition, 0.0, 0.0, "%.3f rev");
+	ImGui::SameLine();
+	if (ImGui::Button("Set", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotor->softOverridePosition(newEncoderPosition);
+	ImGui::SameLine();
+	if (ImGui::Button("Reset", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotor->positionOffset = 0.0;
 	
 	if(ImGui::Button("Start Homing")) b_startHoming = true;
 	ImGui::BeginDisabled(!b_isHoming);
 	if(ImGui::Button("Stop Homing")) b_isHoming = false;
 	ImGui::EndDisabled();
+	
+
+	if(servoMotor->hasManualHoldingBrake()){
+		ImGui::Separator();
+		
+		ImGui::PushFont(Fonts::sansBold20);
+		ImGui::Text("Holding Brake");
+		ImGui::PopFont();
+		
+		if(servoMotor->isOnline()) ImGui::Text("Holding Brake is %s", servoMotor->isHoldingBrakeReleased() ? "Released" : "Applied");
+		
+		ImGui::BeginDisabled(servoMotor->isEnabled() || !servoMotor->isOnline());
+		
+		ImGui::Button("Momentary Release");
+		if(ImGui::IsItemActivated()) servoMotor->releaseHoldingBrake();
+		else if(ImGui::IsItemDeactivated()) servoMotor->applyHoldingBrake();
+		
+		ImGui::SameLine();
+		
+		if(servoMotor->isHoldingBrakeReleased()){
+			if(ImGui::Button("Apply Brake")) servoMotor->applyHoldingBrake();
+		}else{
+			if(ImGui::Button("Release Brake")) servoMotor->releaseHoldingBrake();
+		}
+		
+		ImGui::EndDisabled();
+	}
 		
 }
 
@@ -355,13 +380,22 @@ void Lexium32::generalSettingsGui() {
 	ImGui::SameLine();
     ImGui::Text("%s", Enumerator::getDisplayString(generalParameterUploadState));
 
-	if (maxMotorVelocity == 0.0) {
-		ImGui::Text("Max Motor Velocity is unknown : Download the value from the drive.");
-	}
-	else {
-		ImGui::Text("Max Motor Velocity: %.3f rev/s", maxMotorVelocity);
-		if (servoMotor->getVelocityLimit() > maxMotorVelocity) servoMotor->velocityLimit = maxMotorVelocity;
-	}
+	ImGui::Separator();
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Motor Properties");
+	ImGui::PopFont();
+	
+	ImGui::Text("Max Motor Velocity: %.3f rev/s", maxMotorVelocity);
+	ImGui::Text("Max Motor Current: %.1f Amperes", maxMotorCurrent_amps);
+	ImGui::Text("Motor has %s Holding Brake", servoMotor->b_hasHoldingBrake ? "a" : "no");
+	if (servoMotor->getVelocityLimit() > maxMotorVelocity) servoMotor->velocityLimit = maxMotorVelocity;
+	
+	ImGui::Separator();
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Drive Settings");
+	ImGui::PopFont();
 	
     ImGui::Checkbox("##dir", &b_invertDirectionOfMotorMovement);
     ImGui::SameLine();
@@ -419,8 +453,54 @@ void Lexium32::generalSettingsGui() {
             }break;
     }
 
+	ImGui::Separator();
 
-  
+	//=========== Encoder Settings =============
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Encoder Settings");
+	ImGui::PopFont();
+
+	ImGui::Checkbox("##Multiturn", &b_encoderIsMultiturn);
+	ImGui::SameLine();
+	ImGui::TextWrapped("Encoder is Multiturn");
+	
+	if(ImGui::Checkbox("##shifting", &b_encoderRangeShifted)) updateEncoderWorkingRange();
+	ImGui::SameLine();
+	ImGui::TextWrapped("Center the encoder working range around 0.");
+	ImGui::TextWrapped("Working Range : %.1f to %.1f motor revolutions", servoMotor->minWorkingRange, servoMotor->maxWorkingRange);
+
+	ImGui::Separator();
+
+	//============ Encoder Position Override ============
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Manual Absolute Position setting");
+	ImGui::PopFont();
+
+	ImGui::SameLine();
+	if (beginHelpMarker("(help)")) {
+	  ImGui::TextWrapped("Overwrite the hard absolute position of the current encoder as stored on the drive."
+		  "\nUseful to get the encoder back into its working range and prevent it from exceeding it during normal operation."
+		  "\nThe drive needs to be restarted for this change to take effect.");
+	  endHelpMarker();
+	}
+
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Assign hard absolute position of Internal Encoder");
+	ImGui::PopFont();
+	ImGui::InputFloat("##manualabsolute", &manualAbsoluteEncoderPosition_revolutions, 0.0, 0.0, "%.3f motor revolutions");
+
+	ImGui::BeginDisabled(disableTransferButton);
+	ImGui::Spacing();
+	if (ImGui::Button("Upload New Absolute Position")) {
+	  std::thread absolutePositionAssigner([this]() { uploadManualAbsoluteEncoderPosition(); });
+	  absolutePositionAssigner.detach();
+	}
+	ImGui::EndDisabled();
+	ImGui::SameLine();
+	ImGui::Text("%s", Enumerator::getDisplayString(encoderAbsolutePositionUploadState));
+
 }
 
 
@@ -436,7 +516,7 @@ void Lexium32::generalSettingsGui() {
 void Lexium32::gpioGui() {
 
     ImGui::PushFont(Fonts::sansBold20);
-    ImGui::Text("Limit Signals");
+    ImGui::Text("GPIO Input Functions");
     ImGui::PopFont();
 
     ImGui::SameLine();
@@ -458,10 +538,10 @@ void Lexium32::gpioGui() {
     ImGui::SameLine();
     ImGui::Text("%s", Enumerator::getDisplayString(pinAssignementDownloadState));
 	ImGui::BeginDisabled(disableTransferButton);
-        if (ImGui::Button("Upload Settings To Drive")) {
-            std::thread pinAssigmentUploader([this]() { uploadPinAssignements(); });
-            pinAssigmentUploader.detach();
-        }
+	if (ImGui::Button("Upload Settings To Drive")) {
+		std::thread pinAssigmentUploader([this]() { uploadPinAssignements(); });
+		pinAssigmentUploader.detach();
+	}
 	ImGui::EndDisabled();
 	ImGui::SameLine();
     ImGui::Text("%s", Enumerator::getDisplayString(pinAssignementUploadState));
@@ -476,6 +556,7 @@ void Lexium32::gpioGui() {
         ImGui::EndCombo();
     }
     if (negativeLimitSwitchPin != InputPin::NONE) {
+		ImGui::SameLine();
         ImGui::Checkbox("##negsig", &b_negativeLimitSwitchNormallyClosed);
         ImGui::SameLine();
         ImGui::Text("Normally Closed");
@@ -490,10 +571,23 @@ void Lexium32::gpioGui() {
         ImGui::EndCombo();
     }
     if (positiveLimitSwitchPin != InputPin::NONE) {
+		ImGui::SameLine();
         ImGui::Checkbox("##possig", &b_positiveLimitSwitchNormallyClosed);
         ImGui::SameLine();
         ImGui::Text("Normally Closed");
     }
+	
+	ImGui::Text("Holding Brake Release Pin");
+	if(ImGui::BeginCombo("##brakeReleasePin", Enumerator::getDisplayString(holdingBrakeReleasePin))){
+		
+		for(auto& pin : Enumerator::getTypes<InputPin>()){
+			if(ImGui::Selectable(pin.displayString, holdingBrakeReleasePin == pin.enumerator)){
+				holdingBrakeReleasePin = pin.enumerator;
+			}
+		}
+		
+		ImGui::EndCombo();
+	}
 
     ImGui::Separator();
 
@@ -525,191 +619,6 @@ void Lexium32::gpioGui() {
     ImGui::SameLine();
     ImGui::Text("Invert DI5");
 }
-
-
-
-
-void Lexium32::encoderGui() {
-
-    ImGui::PushFont(Fonts::sansBold20);
-    ImGui::Text("Encoder Settings");
-    ImGui::PopFont();
-
-    ImGui::SameLine();
-    if (beginHelpMarker("(help)")) {
-        ImGui::TextWrapped("All Encoder settings are stored in the drive."
-            "\nFor the settings to take effect, the drive has to be restared. "
-            "\nChanging these settings will invalidate all current position references of the corresponding machine, homing procedures will need to be reexecuted.");
-        endHelpMarker();
-    }
-   
-    bool disableTransferButton = !isDetected();
-	ImGui::BeginDisabled(disableTransferButton);
-    if (ImGui::Button("Download Settings From Drive")) {
-        std::thread encoderSettingsDownloader([this]() { downloadEncoderSettings(); });
-        encoderSettingsDownloader.detach();
-    }
-	ImGui::EndDisabled();
-    ImGui::SameLine();
-    ImGui::Text("%s", Enumerator::getDisplayString(encoderSettingsDownloadState));
-	ImGui::BeginDisabled(disableTransferButton);
-	if (ImGui::Button("Upload Settings To Drive")) {
-		std::thread encoderSettingsUploader([this]() {
-			uploadEncoderSettings();
-			});
-		encoderSettingsUploader.detach();
-	}
-	ImGui::EndDisabled();
-    ImGui::SameLine();
-    ImGui::Text("%s", Enumerator::getDisplayString(encoderSettingsUploadState));
-
-    ImGui::Text("Main Encoder used for absolute positionning:");
-    if (ImGui::BeginCombo("##encoderAssignement", Enumerator::getDisplayString(encoderAssignement))) {
-        for (auto type : Enumerator::getTypes<EncoderAssignement>()) {
-            if (ImGui::Selectable(type.displayString, type.enumerator == encoderAssignement)) {
-                encoderAssignement = type.enumerator;
-            }
-        }
-        ImGui::EndCombo();
-    }
-
-    float doublewidgetWidth = (ImGui::GetItemRectSize().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
-
-    if (encoderAssignement == EncoderAssignement::INTERNAL_ENCODER) {
-        ImGui::TextWrapped("The Resolution of the internal motor encoder is 17 bits singleturn, 12 bits multiturn.");
-    }
-    else if (encoderAssignement == EncoderAssignement::ENCODER_MODULE) {
-       
-		ImGui::BeginDisabled(disableTransferButton);
-        ImGui::SameLine();
-        if (ImGui::Button("Detect Module")) {
-            std::thread encoderModuleDetector([this]() { detectEncoderModule(); });
-            encoderModuleDetector.detach();
-        }
-		ImGui::EndDisabled();
-
-        switch (encoderModuleType) {
-        case EncoderModule::DIGITAL_MODULE:
-
-            ImGui::Text("Digital Encoder Type:");
-            if (ImGui::BeginCombo("##EncoderType", Enumerator::getDisplayString(encoderType))) {
-                for (auto type : Enumerator::getTypes<EncoderType>()) {
-                    if (ImGui::Selectable(type.displayString, type.enumerator == encoderType)) {
-                        encoderType = type.enumerator;
-                    }
-                }
-                ImGui::EndCombo();
-            }
-
-            switch (encoderType) {
-            case EncoderType::SSI_ROTARY:
-
-                ImGui::Text("Coding");
-                if (ImGui::BeginCombo("##Encoding", Enumerator::getDisplayString(encoderCoding))) {
-                    for (auto& type : Enumerator::getTypes<EncoderCoding>()) {
-                        if(ImGui::Selectable(type.displayString, encoderCoding == type.enumerator)) encoderCoding = type.enumerator;
-                    }
-                    ImGui::EndCombo();
-                }
-                ImGui::Text("Voltage");
-                if (ImGui::BeginCombo("##Voltage", Enumerator::getDisplayString(encoderVoltage))) {
-                    for (auto& type : Enumerator::getTypes<EncoderVoltage>()) {
-                        if (ImGui::Selectable(type.displayString, encoderVoltage == type.enumerator)) encoderVoltage = type.enumerator;
-                    }
-                    ImGui::EndCombo();
-                }
-
-                ImGui::Text("Single Turn Resolution (bits)");
-                ImGui::InputScalar("##STres", ImGuiDataType_U8, &encoder2_singleTurnResolutionBits);
-                ImGui::Text("Multi Turn Resolution (bits)");
-                ImGui::InputScalar("##MTres", ImGuiDataType_U8, &encoder2_multiTurnResolutionBits);
-
-                ImGui::Text("Encoder Revolution to Motor Revolution Ratio");
-                ImGui::SetNextItemWidth(doublewidgetWidth);
-                ImGui::InputInt("##ratio", &encoder2_EncoderToMotorRatioNumerator);
-                ImGui::SameLine();
-                ImGui::SetNextItemWidth(doublewidgetWidth);
-                ImGui::InputInt("##ratio2", &encoder2_EncoderToMotorRatioDenominator);
-
-                if (encoder2_EncoderToMotorRatioNumerator < 1) encoder2_EncoderToMotorRatioNumerator = 1;
-                if (encoder2_EncoderToMotorRatioDenominator < 1) encoder2_EncoderToMotorRatioDenominator = 1;
-
-                ImGui::Checkbox("##invert", &encoder2_invertDirection);
-                ImGui::SameLine();
-                ImGui::Text("Invert Encoder Motion Direction");
-                ImGui::Text("Max Motor Encoder Deviation from Module Encoder");
-                ImGui::InputDouble("##maxdev", &encoder2_maxDifferenceToMotorEncoder_rotations, 0.0, 0.0,"%.2f motor revolutions");
-                break;
-            case EncoderType::NONE:
-                ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
-                ImGui::TextWrapped("Other Encoder Types are not yet supported");
-                ImGui::PopStyleColor();
-                break;
-            }
-            break;
-        case EncoderModule::ANALOG_MODULE:
-            ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
-            ImGui::TextWrapped("Analog Encoder Modules are not yet supported.");
-            ImGui::PopStyleColor();
-            break;
-        case EncoderModule::RESOLVER_MODULE:
-            ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
-            ImGui::TextWrapped("Resolver Encoder Modules are not yet supported.");
-            ImGui::PopStyleColor();
-            break;
-        case EncoderModule::NONE:
-            ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
-            ImGui::TextWrapped("No Encoder Module was detected in module slot 2."
-                                "\nRestart the drive and detect the module again. Never insert or remove modules while the drive is powered on.");
-            ImGui::PopStyleColor();
-            break;
-        }
-    }
-
-    ImGui::Spacing();
-    ImGui::Checkbox("##shifting", &b_encoderRangeShifted);
-    ImGui::SameLine();
-    ImGui::TextWrapped("Center the encoder working range around 0.");
-    ImGui::Text("Working Range : %.1f to %.1f motor revolutions", servoMotor->minWorkingRange, servoMotor->maxWorkingRange);
-
-    ImGui::Separator();
-
-
-    ImGui::PushFont(Fonts::sansBold20);
-    ImGui::Text("Manual Absolute Position setting");
-    ImGui::PopFont();
-
-    ImGui::SameLine();
-    if (beginHelpMarker("(help)")) {
-        ImGui::TextWrapped("Overwrite the hard absolute position of the current encoder as stored on the drive."
-            "\nUseful to get the encoder back into its working range and prevent it from exceeding it during normal operation."
-            "\nThe drive needs to be restarted for this change to take effect.");
-        endHelpMarker();
-    }
-
-    ImGui::PushFont(Fonts::sansBold15);
-    switch(encoderAssignement) {
-        case EncoderAssignement::INTERNAL_ENCODER:
-            ImGui::Text("Assign hard absolute position of Internal Encoder");
-            break;
-        case EncoderAssignement::ENCODER_MODULE:
-            ImGui::Text("Assign hard absolute position of Module Encoder");
-            break;
-    }
-    ImGui::PopFont();
-    ImGui::InputFloat("##manualabsolute", &manualAbsoluteEncoderPosition_revolutions, 0.0, 0.0, "%.3f motor revolutions");
-
-	ImGui::BeginDisabled(disableTransferButton);
-    ImGui::Spacing();
-    if (ImGui::Button("Upload New Absolute Position")) {
-        std::thread absolutePositionAssigner([this]() { uploadManualAbsoluteEncoderPosition(); });
-        absolutePositionAssigner.detach();
-    }
-	ImGui::EndDisabled();
-    ImGui::SameLine();
-    ImGui::Text("%s", Enumerator::getDisplayString(encoderAbsolutePositionUploadState));
-}
-
 
 void Lexium32::tuningGui() {
 

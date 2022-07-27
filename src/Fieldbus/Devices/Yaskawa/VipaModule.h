@@ -460,8 +460,8 @@ public:
 	uint16_t fm_control_ch0;
 	uint16_t fm_control_ch1;
 	
-	bool ch0Control = false;
-	bool ch1Control = false;
+	//bool ch0Control = false;
+	//bool ch1Control = false;
 	
 	enum class InputFilter{
 		KHZ_600,
@@ -474,6 +474,20 @@ public:
 		KHZ_2,
 		KHZ_1
 	};
+	
+	uint8_t getInputFilterCode(InputFilter filter){
+		switch(filter){
+			case InputFilter::KHZ_600: return 0x0;
+			case InputFilter::KHZ_250: return 0x1;
+			case InputFilter::KHZ_100: return 0x2;
+			case InputFilter::KHZ_60: return 0x3;
+			case InputFilter::KHZ_30: return 0x4;
+			case InputFilter::KHZ_10: return 0x6;
+			case InputFilter::KHZ_5: return 0x7;
+			case InputFilter::KHZ_2: return 0x8;
+			case InputFilter::KHZ_1: return 0x9;
+		}
+	}
 	
 	std::shared_ptr<EnumeratorParameter<InputFilter>> channel0InputFilter = std::make_shared<EnumeratorParameter<InputFilter>>(InputFilter::KHZ_600,
 																															   "Channel 0 Input Filter",

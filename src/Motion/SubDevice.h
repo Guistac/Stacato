@@ -152,10 +152,10 @@ public:
 	double getVelocityLimit() { return velocityLimit; }
 	double getAccelerationLimit() { return accelerationLimit; }
 	
-	virtual bool hasManualHoldingBrake() { return false; }
-	virtual bool isHoldingBrakeApplied() { return false; }
-	virtual void releaseHoldingBrake() {}
-	virtual void applyHoldingBrake() {}
+	bool hasManualHoldingBrake() { return b_hasHoldingBrake; }
+	bool isHoldingBrakeReleased() { return b_holdingBrakeIsReleased; }
+	void releaseHoldingBrake() { b_releaseHoldingBrake = true; }
+	void applyHoldingBrake() { b_applyHoldingBrake = true; }
 	
 	double getLoad() { return load; }
 	
@@ -174,6 +174,11 @@ public:
 	//target data
 	double targetVelocity;
 	double targetAcceleration;
+	
+	bool b_hasHoldingBrake = false;
+	bool b_holdingBrakeIsReleased = false;
+	bool b_applyHoldingBrake = false;
+	bool b_releaseHoldingBrake = false;
 };
 
 

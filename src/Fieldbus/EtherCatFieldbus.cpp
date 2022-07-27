@@ -20,7 +20,14 @@ namespace EtherCatFieldbus {
 	std::shared_ptr<NetworkInterfaceCard> redundantNetworkInterfaceCard;
 	std::shared_ptr<NetworkInterfaceCard> getActiveNetworkInterfaceCard(){ return primaryNetworkInterfaceCard; }
 	std::shared_ptr<NetworkInterfaceCard> getActiveRedundantNetworkInterfaceCard(){ return redundantNetworkInterfaceCard; }
-	
+
+	const char* defaultPrimaryNetworkInterfaceDescription = nullptr;
+	const char* defaultSecondaryNetworkInterfaceDescription = nullptr;
+	void setDefaultNetworkInterfaces(const char* primary, const char* secondary){
+		defaultPrimaryNetworkInterfaceDescription = primary;
+		defaultSecondaryNetworkInterfaceDescription = secondary;
+	}
+
     std::vector<std::shared_ptr<EtherCatDevice>> slaves;			//slaves discovered on the network
     std::vector<std::shared_ptr<EtherCatDevice>> slaves_unassigned; //slaves discovered on the network but not added to the environnement editor
 	std::vector<std::shared_ptr<EtherCatDevice>>& getDevices(){ return slaves; }
@@ -168,15 +175,36 @@ namespace EtherCatFieldbus {
     //============== INTIALIZE FIELDBUS WITH AND OPEN NETWORK INTERFACE CARD ==============
 
     bool init() {
-		if(primaryNetworkInterfaceCard && redundantNetworkInterfaceCard) return init(primaryNetworkInterfaceCard, redundantNetworkInterfaceCard);
-		else if(primaryNetworkInterfaceCard) return init(primaryNetworkInterfaceCard);
-		else if (!networkInterfaceCards.empty()) {
-			Logger::warn("===== Could not find saved network interface card... Starting Fieldbus on default nic.");
-			return init(networkInterfaceCards.front());
-		}
-		primaryNetworkInterfaceCard = nullptr;
-		redundantNetworkInterfaceCard = nullptr;
-        return Logger::warn("===== No Network interface cards present... Could not start EtherCAT Fieldbus");
+		
+		std::shared_ptr<NetworkInterfaceCard> primary = nullptr;
+		std::shared_ptr<NetworkInterfaceCard> secondary = nullptr;
+		
+		if(defaultPrimaryNetworkInterfaceDescription){
+			for(auto nic : getNetworksInterfaceCards()){
+				if(strcmp(defaultPrimaryNetworkInterfaceDescription, nic->description) == 0){
+					primary = nic;
+					break;
+				}
+			}
+			if(primary) Logger::info("Found default primary EtherCAT network interface");
+			else Logger::info("Could not find default primary EtherCAT network interface");
+
+			if(primary && defaultSecondaryNetworkInterfaceDescription){
+				for(auto nic : getNetworksInterfaceCards()){
+					if(strcmp(defaultSecondaryNetworkInterfaceDescription, nic->description) == 0){
+						secondary = nic;
+						break;
+					}
+				}
+				if(secondary) Logger::info("Found default secondary EtherCAT network interface");
+				else Logger::info("Could not find default secondary EtherCAT network interface");
+			}
+		}else Logger::warn("No Default EtherCAT network interface");
+		
+		if(primary && secondary) return init(primary, secondary);
+		else if(primary) return init(primary);
+		else if(!getNetworksInterfaceCards().empty()) return init(getNetworksInterfaceCards().front());
+		else return false;
     }
 
 

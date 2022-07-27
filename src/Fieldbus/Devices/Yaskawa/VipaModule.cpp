@@ -848,33 +848,32 @@ void VIPA_050_1BB40::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignem
 
 bool VIPA_050_1BB40::configureParameters(){
 	uint16_t settingsObjectIndex = 0x3100 + moduleIndex;
+	if(parentBusCoupler->writeSDO_U8(settingsObjectIndex, 0x2, getInputFilterCode(channel0InputFilter->value)));
+	if(parentBusCoupler->writeSDO_U8(settingsObjectIndex, 0x4, getInputFilterCode(channel1InputFilter->value)));
 	return true;
 }
 
 void VIPA_050_1BB40::readInputs(){
-	//read input pdo
 	double ch0_period = fm_period_ch0 / 8000000.0; //measurement period in seconds
 	double ch1_period = fm_period_ch1 / 8000000.0;
 	bool ch0_active = fm_status_ch0 & 0x100;
 	bool ch1_active = fm_status_ch1 & 0x100;
+	
+	if(ch0_period > 0.0) *frequency0Value = fm_rising_edges_ch0 / ch0_period;
+	if(ch1_period > 0.0) *frequency1Value = fm_rising_edges_ch1 / ch1_period;
+	
+	//Logger::debug("ch0 e:{} p:{}", fm_rising_edges_ch0, ch0_period);
+	//Logger::debug("ch1 e:{} p:{}", fm_rising_edges_ch1, ch1_period);
 }
 
 void VIPA_050_1BB40::writeOutputs(){
-	//write output pdo
-	//adjust state machine and preset period
-	
-	fm_control_ch0 = ch0Control ? 0x100 : 0x200;
-	fm_control_ch1 = ch1Control ? 0x100 : 0x200;
+	fm_control_ch0 = true;
+	fm_control_ch1 = true;
 	fm_preset_period_ch0 = channel0MeasurementPeriod->getValue() * 1000000.0;
 	fm_preset_period_ch1 = channel1MeasurementPeriod->getValue() * 1000000.0;
 }
 
 void VIPA_050_1BB40::moduleParameterGui(){
-	/*
-	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-	ImGui::Text("All analog outputs return to 0 Volts when fieldbus is stopped.");
-	ImGui::PopStyleColor();
-	*/
 	 
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Channel 1");
@@ -886,7 +885,7 @@ void VIPA_050_1BB40::moduleParameterGui(){
 	ImGui::Text("Measurement Period");
 	channel0MeasurementPeriod->gui();
 	
-	ImGui::Checkbox("Enable##ch0", &ch0Control);
+	//ImGui::Checkbox("Enable##ch0", &ch0Control);
 	
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Channel 2");
@@ -898,7 +897,7 @@ void VIPA_050_1BB40::moduleParameterGui(){
 	ImGui::Text("Measurement Period");
 	channel1MeasurementPeriod->gui();
 	
-	ImGui::Checkbox("Enable##ch1", &ch1Control);
+	//ImGui::Checkbox("Enable##ch1", &ch1Control);
 }
 
 bool VIPA_050_1BB40::save(tinyxml2::XMLElement* xml){

@@ -56,7 +56,8 @@ void Lexium32::initialize() {
     rxPdoAssignement.addEntry(0x6060, 0x0, 8, "DCOMopmode", &ds402Control.operatingMode);	//DS402 operating mode control
     rxPdoAssignement.addEntry(0x607A, 0x0, 32, "PPp_target", &PPp_target);					//Position Target
     rxPdoAssignement.addEntry(0x3008, 0x11, 16, "IO_DQ_set", &IO_DQ_set);					//Digital Outputs
-
+	rxPdoAssignement.addEntry(0x3008, 0xA, 16, "BRK_release", &BRK_release);				//Manual Holding Brake Control
+	
     txPdoAssignement.addNewModule(0x1A03);
     txPdoAssignement.addEntry(0x6041, 0x0, 16, "_DCOMstatus", &ds402Status.statusWord);		//DS402 status word
     txPdoAssignement.addEntry(0x6061, 0x0, 8, "_DCOMopmd_act", &ds402Status.operatingMode);	//DS402 operating mode display
@@ -129,15 +130,19 @@ bool Lexium32::startupConfiguration() {
     int32_t ScaleRAMPnom = 1;
     if (!writeSDO_S32(0x3006, 0x31, ScaleRAMPnom)) return false;
 
-    //get max velocity and set as velocity limit
+	
+	
+	uint16_t _M_n_max; //max motor spec velocity in rpm
+	if (!readSDO_U16(0x300D, 0x4, _M_n_max)) return false;
+	maxMotorVelocity = (double)_M_n_max / 60.0;
 
-    uint16_t _M_n_max; //max motor spec velocity in rpm
-    if (!readSDO_U16(0x300D, 0x4, _M_n_max)) return false;
-    maxMotorVelocity = (double)_M_n_max / 60.0;
-
-    uint32_t CTRL_v_max = _M_n_max * velocityUnitsPerRpm; //Velocity Limit in usr_v units
-    if (!writeSDO_U32(0x3011, 0x10, CTRL_v_max)) return false;
-
+	uint32_t CTRL_v_max = _M_n_max * velocityUnitsPerRpm; //Velocity Limit in usr_v units
+	if (!writeSDO_U32(0x3011, 0x10, CTRL_v_max)) return false;
+	
+	
+	
+	//=============== Homing method for singleturn encoders =============
+	
 	int8_t HMmethod = 35;
 	if(!writeSDO_S8(0x6098, 0x0, HMmethod)) return false;
 	
@@ -195,7 +200,7 @@ void Lexium32::readInputs() {
 			requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
 		}
 	}
-	b_hasFault = ds402Status.hasFault();
+	b_hasFault = ds402Status.hasFault() || _LastError != 0x0;
 	
 	//react to power state change
 	if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED && actualPowerState != DS402::PowerState::OPERATION_ENABLED){
@@ -256,6 +261,7 @@ void Lexium32::readInputs() {
 	else if(b_stoActive) 													servoMotor->state = MotionState::NOT_READY;
 	else if(!b_motorVoltagePresent) 										servoMotor->state = MotionState::NOT_READY;
 	else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) 	servoMotor->state = MotionState::NOT_READY;
+	else if(actualPowerState == DS402::PowerState::SWITCH_ON_DISABLED)		servoMotor->state = MotionState::NOT_READY;
 	else if(actualPowerState == DS402::PowerState::OPERATION_ENABLED) 		servoMotor->state = MotionState::ENABLED;
 	else 																	servoMotor->state = MotionState::READY;
 
@@ -327,7 +333,25 @@ void Lexium32::writeOutputs() {
 		servoMotor->b_quickstop = false;
 		requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
     }
-
+	
+	//manual holding brake control
+	if(servoMotor->b_releaseHoldingBrake){
+		servoMotor->b_releaseHoldingBrake = false;
+		switch(actualPowerState){
+			case DS402::PowerState::SWITCH_ON_DISABLED:
+			case DS402::PowerState::READY_TO_SWITCH_ON:
+			case DS402::PowerState::FAULT:
+				servoMotor->b_holdingBrakeIsReleased = true;
+				break;
+			default: break;
+		}
+	}
+	if(servoMotor->b_applyHoldingBrake){
+		servoMotor->b_applyHoldingBrake = false;
+		servoMotor->b_holdingBrakeIsReleased = false;
+	}
+	BRK_release = servoMotor->b_holdingBrakeIsReleased ? 1 : 0;
+	
     //========== PREPARE RXPDO OUTPUTS ==========
     //DCOMcontrol   (uint16_t)  2
     //DCOMopmode    (int8_t)    1
@@ -448,7 +472,7 @@ transferfailed:
 void Lexium32::downloadPinAssignements() {
     pinAssignementDownloadState = DataTransferState::NO_TRANSFER;
 
-    for (auto& type :Enumerator::getTypes<InputPin>()) {
+    for (auto& type : Enumerator::getTypes<InputPin>()) {
         if (type.enumerator == InputPin::NONE) continue;
         EtherCatCoeData IOfunct_DIx(0x3007, getInputPinSubindex(type.enumerator), EtherCatData::Type::UINT16_T);
         if (!IOfunct_DIx.read(getSlaveIndex())) goto transferfailed;
@@ -499,127 +523,128 @@ transferfailed:
 void Lexium32::uploadGeneralParameters() {
     generalParameterUploadState = DataTransferState::TRANSFERRING;
 
-	{
-		EtherCatCoeData MON_p_dif_load_usr(0x3006, 0x3E, EtherCatData::Type::INT32_T);
-		MON_p_dif_load_usr.setS32(servoMotor->maxFollowingError * positionUnitsPerRevolution);
-		if(!MON_p_dif_load_usr.write(getSlaveIndex())) goto transferfailed;
-	}
+	auto onFailure = [&]() -> bool {
+		generalParameterUploadState = DataTransferState::FAILED;
+		return false;
+	};
 	
-    {
-        EtherCatCoeData CTRL_I_max(0x3011, 0xC, EtherCatData::Type::UINT16_T);
-        CTRL_I_max.setU16(maxCurrent_amps * 100.0);
-        if (!CTRL_I_max.write(getSlaveIndex())) goto transferfailed;
-    }
-
-    {
-        EtherCatCoeData LIM_QStopReact(0x3006, 0x18, EtherCatData::Type::INT16_T);
-        switch (quickstopReaction) {
-            case QuickStopReaction::DECELERATION_RAMP:
-                LIM_QStopReact.setS16(6);
-                break;
-            case QuickStopReaction::TORQUE_RAMP:
-                LIM_QStopReact.setS16(7);
-                break;
-        }
-        if (!LIM_QStopReact.write(getSlaveIndex())) goto transferfailed;
-    }
+	int32_t MON_p_dif_load_usr = servoMotor->maxFollowingError * positionUnitsPerRevolution;
+	if(!writeSDO_S32(0x3006, 0x3E, MON_p_dif_load_usr)) return onFailure();
+	
+	uint16_t CTRL_I_max = maxCurrent_amps * 100.0;
+	if(!writeSDO_U16(0x3011, 0xC, CTRL_I_max)) return onFailure();
+	
+	int16_t LIM_QStopReact;
+	switch(quickstopReaction){
+		case QuickStopReaction::DECELERATION_RAMP: LIM_QStopReact = 6; break;
+		case QuickStopReaction::TORQUE_RAMP: LIM_QStopReact = 8; break;
+	}
+	if(!writeSDO_S16(0x3006, 0x18, LIM_QStopReact)) return onFailure();
 
     switch (quickstopReaction) {
         case QuickStopReaction::DECELERATION_RAMP: {
-            EtherCatCoeData RAMPquickstop(0x3006, 0x12, EtherCatData::Type::UINT32_T);
-            RAMPquickstop.setU32(quickStopDeceleration_revolutionsPerSecondSquared * 60.0);
-            if (!RAMPquickstop.write(getSlaveIndex())) goto transferfailed;
+			uint32_t RAMPquickstop = quickStopDeceleration_revolutionsPerSecondSquared * 60.0;
+			if(!writeSDO_U32(0x3006, 0x12, RAMPquickstop)) return onFailure();
         }break;
         case QuickStopReaction::TORQUE_RAMP: {
-            EtherCatCoeData LIM_I_maxQSTP(0x3011, 0xD, EtherCatData::Type::UINT16_T);
-            LIM_I_maxQSTP.setU16(maxQuickstopCurrent_amps * 100.0);
-            if (!LIM_I_maxQSTP.write(getSlaveIndex())) goto transferfailed;
+			uint16_t LIM_I_maxQSTP = maxQuickstopCurrent_amps * 100.0;
+			if(!writeSDO_U16(0x3011, 0xD, LIM_I_maxQSTP)) return onFailure();
         }break;
     }
 
-    {
-        EtherCatCoeData InvertDirOfMove(0x3006, 0xC, EtherCatData::Type::UINT16_T);
-        InvertDirOfMove.setU16((b_invertDirectionOfMotorMovement ? 1 : 0));
-        if (!InvertDirOfMove.write(getSlaveIndex())) goto transferfailed;
-    }
+	uint16_t InvertDirOfMove = b_invertDirectionOfMotorMovement ? 1 : 0;
+	if(!writeSDO_U16(0x3006, 0xC, InvertDirOfMove)) return onFailure();
+		
+	uint16_t ShiftEncWorkRange = b_encoderRangeShifted ? 1 : 0;
+	if(!writeSDO_U16(0x3005, 0x21, ShiftEncWorkRange)) return onFailure();
 
     generalParameterUploadState = DataTransferState::SAVING;
-    if (!saveToEEPROM()) goto transferfailed;
+	if (!saveToEEPROM()) return onFailure();
     generalParameterUploadState = DataTransferState::SAVED;
-    return;
-
-transferfailed:
-    generalParameterUploadState = DataTransferState::FAILED;
-    return;
+	
+	updateEncoderWorkingRange();
 }
 
 
 void Lexium32::downloadGeneralParameters() {
     generalParameterDownloadState = DataTransferState::TRANSFERRING;
-
-	{
-		EtherCatCoeData MON_p_dif_load_usr(0x3006, 0x3E, EtherCatData::Type::INT32_T);
-		if(!MON_p_dif_load_usr.read(getSlaveIndex())) goto transferfailed;
-		servoMotor->maxFollowingError = (float)MON_p_dif_load_usr.getS32() / positionUnitsPerRevolution;
-	}
 	
-    {
-        EtherCatCoeData CTRL_I_max(0x3011, 0xC, EtherCatData::Type::UINT16_T);
-        if (!CTRL_I_max.read(getSlaveIndex())) goto transferfailed;
-        maxCurrent_amps = (float)CTRL_I_max.getU16() / 100.0;
-    }
+	auto onFailure = [&]() -> bool {
+		generalParameterDownloadState = DataTransferState::FAILED;
+		return false;
+	};
+ 
+	//====== Fixed Drive and Motor Properties ======
+	
+	uint16_t _M_I_max;
+	if(!readSDO_U16(0x300D, 0x6, _M_I_max)) return onFailure();
+	maxMotorCurrent_amps = (float)_M_I_max / 100.0;
+	
+	uint16_t _M_n_max; //max motor spec velocity in rpm
+	if (!readSDO_U16(0x300D, 0x4, _M_n_max)) return onFailure();
+	maxMotorVelocity = (double)_M_n_max / 60.0;
+	
+	uint16_t _M_HoldingBrake;
+	if(!readSDO_U16(0x300D, 0x20, _M_HoldingBrake)) return onFailure();
+	servoMotor->b_hasHoldingBrake = _M_HoldingBrake == 1;
+	
+	uint16_t _M_Encoder;
+	if(!readSDO_U16(0x300D, 0x3, _M_Encoder)) return onFailure();
+	//detect encoder type
+	
+	
+	//====== General Drive Settings ======
+	
+	uint16_t CTRL_I_max;
+	if(!readSDO_U16(0x3011, 0xC, CTRL_I_max)) return onFailure();
+	maxCurrent_amps = (float)CTRL_I_max / 100.0;
+	
+	int32_t MON_p_dif_load_usr;
+	if(!readSDO_S32(0x3006, 0x3E, MON_p_dif_load_usr)) return onFailure();
+	servoMotor->maxFollowingError = (float)MON_p_dif_load_usr / positionUnitsPerRevolution;
 
-    {
-        EtherCatCoeData LIM_QStopReact(0x3006, 0x18, EtherCatData::Type::INT16_T);
-        if (!LIM_QStopReact.read(getSlaveIndex())) goto transferfailed;
-        switch (LIM_QStopReact.getS16()) {
-            case -1:
-            case 6:
-                quickstopReaction = QuickStopReaction::DECELERATION_RAMP;
-                break;
-            case -2:
-            case 7:
-                quickstopReaction = QuickStopReaction::TORQUE_RAMP;
-                break;
-            default:
-                goto transferfailed;
-        }
-    }
-
-    {
-        EtherCatCoeData _M_n_max(0x300D, 0x4, EtherCatData::Type::UINT16_T);
-        if (!_M_n_max.read(getSlaveIndex())) goto transferfailed;
-        maxMotorVelocity = (double)_M_n_max.getU16() / 60.0;
-    }
+	int16_t LIM_QStopReact;
+	if(!readSDO_S16(0x3006, 0x18, LIM_QStopReact)) return onFailure();
+	switch (LIM_QStopReact) {
+		case -1:
+		case 6: quickstopReaction = QuickStopReaction::DECELERATION_RAMP; break;
+		case -2:
+		case 7: quickstopReaction = QuickStopReaction::TORQUE_RAMP; break;
+		default: return onFailure();
+	}
 
     switch (quickstopReaction) {
         case QuickStopReaction::DECELERATION_RAMP: {
-            EtherCatCoeData RAMPquickstop(0x3006, 0x12, EtherCatData::Type::UINT32_T);
-            if (!RAMPquickstop.read(getSlaveIndex())) goto transferfailed;
-            quickStopDeceleration_revolutionsPerSecondSquared = ((double)RAMPquickstop.getU32() / (double)accelerationUnitsPerRpmps) / 60.0;
+			uint32_t RAMPquickstop;
+			if(!readSDO_U32(0x3006, 0X12, RAMPquickstop)) return onFailure();
+            quickStopDeceleration_revolutionsPerSecondSquared = ((double)RAMPquickstop / (double)accelerationUnitsPerRpmps) / 60.0;
         }break;
         case QuickStopReaction::TORQUE_RAMP: {
-            EtherCatCoeData LIM_I_maxQSTP(0x3011, 0xD, EtherCatData::Type::UINT16_T);
-            if (!LIM_I_maxQSTP.read(getSlaveIndex())) goto transferfailed;
-            maxQuickstopCurrent_amps = (float)LIM_I_maxQSTP.getU16() / 100.0;
+			uint16_t LIM_I_maxQSTP;
+			if(!readSDO_U16(0x3011, 0xD, LIM_I_maxQSTP)) return onFailure();
+            maxQuickstopCurrent_amps = (float)LIM_I_maxQSTP / 100.0;
         }break;
     }
+	
+	uint16_t InvertDirOfMove;
+	if(!readSDO_U16(0x3006, 0xC, InvertDirOfMove)) return onFailure();
+	switch(InvertDirOfMove){
+		case 0: b_invertDirectionOfMotorMovement = false; break;
+		case 1: b_invertDirectionOfMotorMovement = true; break;
+		default: return onFailure();
+	}
 
-    {
-        EtherCatCoeData InvertDirOfMove(0x3006, 0xC, EtherCatData::Type::UINT16_T);
-        if (!InvertDirOfMove.read(getSlaveIndex())) goto transferfailed;
-        uint16_t dir = InvertDirOfMove.getU16();
-        if (dir == 1) b_invertDirectionOfMotorMovement = true;
-        else if (dir == 0) b_invertDirectionOfMotorMovement = false;
-        else goto transferfailed;
-    }
-
+	uint16_t ShiftEncWorkRange;
+	if(!readSDO_U16(0x3005, 0x21, ShiftEncWorkRange)) return onFailure();
+	switch(ShiftEncWorkRange){
+		case 0: b_encoderRangeShifted = false; break;
+		case 1: b_encoderRangeShifted = true; break;
+		default: return onFailure();
+	}
+	
     generalParameterDownloadState = DataTransferState::SUCCEEDED;
-    return;
-
-transferfailed:
-    generalParameterDownloadState = DataTransferState::FAILED;
-    return;
+	
+	updateEncoderWorkingRange();
 }
 
 
@@ -631,264 +656,14 @@ transferfailed:
 //====================== ENCODER SETTINGS ======================
 //==============================================================
 
-void Lexium32::detectEncoderModule() {
-    encoderModuleType = EncoderModule::NONE;
-	
-    EtherCatCoeData _ModuleSlot2(0x3002, 0x1A, EtherCatData::Type::UINT16_T);
-    if (!_ModuleSlot2.read(getSlaveIndex())) return;
-	
-	encoderModuleType = getEncoderModule(_ModuleSlot2.getU16());
-}
-
-void Lexium32::uploadEncoderSettings() {
-
-    encoderSettingsUploadState = DataTransferState::TRANSFERRING;
-
-    //switch between internal motor encoder and encoder module
-    EtherCatCoeData ENC_abs_source(0x3005, 0x25, EtherCatData::Type::UINT16_T);
-
-    //general settings for encoder2 if encoder module is selected
-    EtherCatCoeData ENC2_type(0x3050, 0x3, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData ENC2_usage(0x3050, 0x1, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData ENC_ModeOfMaEnc(0x3050, 0x2, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData InvertDirOfMaEnc(0x3050, 0x8, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData p_MaxDifToENC2(0x3050, 0x7, EtherCatData::Type::INT32_T);
-    EtherCatCoeData ResolENC2(0x3050, 0xF, EtherCatData::Type::UINT32_T);
-    EtherCatCoeData ResolENC2Num(0x3050, 0x6, EtherCatData::Type::INT32_T);
-    EtherCatCoeData ResolENC2Denom(0x3050, 0x5, EtherCatData::Type::INT32_T);
-
-    //general settings for the digital encoder module
-    EtherCatCoeData ENCDigPowSupply(0x3052, 0x4, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData ENCDigResMulUsed(0x3052, 0xB, EtherCatData::Type::UINT16_T);
-
-    //settings for digital SSI rotary encoders
-    EtherCatCoeData ENCDigSSICoding(0x3052, 0x3, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData ENCDigSSIMaxFreq(0x3052, 0x5, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData ENCDigSSIResMult(0x3052, 0x2, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData ENCDigSSIResSgl(0x3052, 0x1, EtherCatData::Type::UINT16_T);
-
-    switch (encoderAssignement) {
-
-    case EncoderAssignement::INTERNAL_ENCODER:
-    {
-        ENC_abs_source.setU16(0); //INTERNAL MOTOR ENCODER
-        ENC2_type.setU16(0);      //ENCODER 2 TYPE (none)
-        ENC2_usage.setU16(0);     //ENCODER 2 USAGE(none)
-        if (!ENC_abs_source.write(getSlaveIndex())) goto transferfailed;
-        if (!ENC2_type.write(getSlaveIndex())) goto transferfailed;
-        if (!ENC2_usage.write(getSlaveIndex())) goto transferfailed;
-    }
-    break;
-
-    case EncoderAssignement::ENCODER_MODULE:
-    {
-        //encoder usage settings for encoder module
-        ENC_abs_source.setU16(1); //absolute position reference is encoder 2 (encoder module)
-        ENC2_usage.setU16(2); //use as machine encoder (as motor encoder doesn't work)
-        ENC_ModeOfMaEnc.setU16(2); //use for position and velocity control
-        InvertDirOfMaEnc.setU16((encoder2_invertDirection ? 1 : 0));
-        p_MaxDifToENC2.setS32((encoder2_maxDifferenceToMotorEncoder_rotations * (float)(0x1 << encoder1_singleTurnResolutionBits))); //max difference between machine and motor encoder before error triggered
-        if (!ENC_abs_source.write(getSlaveIndex())) goto transferfailed;
-        if (!ENC2_usage.write(getSlaveIndex())) goto transferfailed;
-        if (!ENC_ModeOfMaEnc.write(getSlaveIndex())) goto transferfailed;
-        if (!InvertDirOfMaEnc.write(getSlaveIndex())) goto transferfailed;
-        if (!p_MaxDifToENC2.write(getSlaveIndex())) goto transferfailed;
-    }
-
-    switch (encoderModuleType) {
-
-    case EncoderModule::DIGITAL_MODULE:
-    {
-        //digital encoder module setting
-        switch (encoderVoltage) { //which power supply the digital encoder uses
-        case EncoderVoltage::V5: ENCDigPowSupply.setU16(5); break;
-        case EncoderVoltage::V12: ENCDigPowSupply.setU16(12); break;
-        }
-        if (!ENCDigPowSupply.write(getSlaveIndex())) goto transferfailed;
-
-        //general encoder 2 scaling settings
-        ResolENC2.setU32(0x1 << encoder2_singleTurnResolutionBits);                                      //Increments per encoder rotation (singleturn resolution)
-        ResolENC2Num.setS32((0x1 << encoder2_singleTurnResolutionBits) * encoder2_EncoderToMotorRatioNumerator); //encoder increments
-        ResolENC2Denom.setS32(encoder2_EncoderToMotorRatioDenominator);                                              //per motor revolution
-        if (!ResolENC2.write(getSlaveIndex())) goto transferfailed;
-        if (!ResolENC2Denom.write(getSlaveIndex())) goto transferfailed;
-        if (!ResolENC2Num.write(getSlaveIndex())) goto transferfailed;
-    }
-
-    switch (encoderType) {
-    case EncoderType::SSI_ROTARY:
-    {
-        ENC2_type.setU16(10); //encoder type is ssi rotary
-        switch (encoderCoding) { //bit encoding of the encoder
-        case EncoderCoding::BINARY: ENCDigSSICoding.setU16(0); break;
-        case EncoderCoding::GRAY: ENCDigSSICoding.setU16(1); break;
-        }
-        ENCDigSSIMaxFreq.setU16(200);                                //SSI communication frequency in KHz
-        ENCDigSSIResMult.setU16(encoder2_multiTurnResolutionBits);   //Multiturn resolution bits
-        ENCDigResMulUsed.setU16(0);                                  //amount of multiturn bits user (0 = all)
-        ENCDigSSIResSgl.setU16(encoder2_singleTurnResolutionBits);   //Singleturn resolution bits
-
-        if (!ENC2_type.write(getSlaveIndex())) goto transferfailed;
-        if (!ENCDigSSICoding.write(getSlaveIndex())) goto transferfailed;
-        if (!ENCDigSSIMaxFreq.write(getSlaveIndex())) goto transferfailed;
-        if (!ENCDigSSIResMult.write(getSlaveIndex())) goto transferfailed;
-        if (!ENCDigResMulUsed.write(getSlaveIndex())) goto transferfailed;
-        if (!ENCDigSSIResSgl.write(getSlaveIndex())) goto transferfailed;
-    }
-    break;
-
-    default: break;
-
-    }//encoder type
-    break;
-
-    default: break;
-
-    }//encoder module type
-
-
-    };//internal encoder or encoder module
-
-    {
-        EtherCatCoeData ShiftEncWorkRange(0x3005, 0X21, EtherCatData::Type::UINT16_T);
-        if (b_encoderRangeShifted) ShiftEncWorkRange.setU16(1);
-        else ShiftEncWorkRange.setU16(0);
-        if (!ShiftEncWorkRange.write(getSlaveIndex())) goto transferfailed;
-    }
-
-    encoderSettingsUploadState = DataTransferState::SAVING;
-    if (!saveToEEPROM()) encoderSettingsUploadState = DataTransferState::FAILED;
-    encoderSettingsUploadState = DataTransferState::SAVED;
-    Logger::warn("Encoder assignement success");
-    return;
-
-transferfailed:
-    encoderSettingsUploadState = DataTransferState::FAILED;
-    Logger::warn("Transfer Failed");
-    return;
-
-}
-
-
-void Lexium32::downloadEncoderSettings() {
-
-    encoderSettingsDownloadState = DataTransferState::TRANSFERRING;
-
-    //general settings for encoder2 if encoder module is selected
-    EtherCatCoeData ENC2_type(0x3050, 0x3, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData InvertDirOfMaEnc(0x3050, 0x8, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData p_MaxDifToENC2(0x3050, 0x7, EtherCatData::Type::INT32_T);
-    EtherCatCoeData ResolENC2Num(0x3050, 0x6, EtherCatData::Type::INT32_T);
-    EtherCatCoeData ResolENC2Denom(0x3050, 0x5, EtherCatData::Type::INT32_T);
-
-    //general settings for the digital encoder module
-    EtherCatCoeData ENCDigPowSupply(0x3052, 0x4, EtherCatData::Type::UINT16_T);
-
-    //settings for digital SSI rotary encoders
-    EtherCatCoeData ENCDigSSICoding(0x3052, 0x3, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData ENCDigSSIResMult(0x3052, 0x2, EtherCatData::Type::UINT16_T);
-    EtherCatCoeData ENCDigSSIResSgl(0x3052, 0x1, EtherCatData::Type::UINT16_T);
-
-    {
-        //main switch between internal motor encoder and encoder module
-        EtherCatCoeData ENC_abs_source(0x3005, 0x25, EtherCatData::Type::UINT16_T);
-        if (!ENC_abs_source.read(getSlaveIndex())) goto downloadfailed;
-        encoderAssignement = getEncoderAssignement(ENC_abs_source.getU16());
-    }
-
-    switch (encoderAssignement) {
-    case EncoderAssignement::INTERNAL_ENCODER:
-        //no additionnal settings for internal encoder
-        break;
-    case EncoderAssignement::ENCODER_MODULE:
-        detectEncoderModule();
-
-        {
-            if (!ENC2_type.read(getSlaveIndex())) goto downloadfailed;
-            encoderType = getEncoderType(ENC2_type.getU16());
-            if (!InvertDirOfMaEnc.read(getSlaveIndex())) goto downloadfailed;
-            encoder2_invertDirection = InvertDirOfMaEnc.getU16() == 1;
-            if (!p_MaxDifToENC2.read(getSlaveIndex())) goto downloadfailed;
-            encoder2_maxDifferenceToMotorEncoder_rotations = (float)p_MaxDifToENC2.getS32() / (float)(0x1 << encoder1_singleTurnResolutionBits);
-        }
-
-        switch (encoderModuleType) {
-        case EncoderModule::ANALOG_MODULE:
-        case EncoderModule::RESOLVER_MODULE:
-        case EncoderModule::NONE: break;
-        case EncoderModule::DIGITAL_MODULE:
-
-        {
-            if (!ENCDigPowSupply.read(getSlaveIndex())) goto downloadfailed;
-            encoderVoltage = getEncoderVoltage(ENCDigPowSupply.getU16());
-        }
-
-        switch (encoderType) {
-			case EncoderType::NONE: break;
-			case EncoderType::SSI_ROTARY:
-        {
-            if (!ENCDigSSICoding.read(getSlaveIndex())) goto downloadfailed;
-            encoderCoding = getEncoderCoding(ENCDigSSICoding.getU16());
-            if (!ENCDigSSIResMult.read(getSlaveIndex())) goto downloadfailed;
-            encoder2_multiTurnResolutionBits = ENCDigSSIResMult.getU16();
-            if (!ENCDigSSIResSgl.read(getSlaveIndex())) goto downloadfailed;
-            encoder2_singleTurnResolutionBits = ENCDigSSIResSgl.getU16();
-        }
-        break;
-        }
-
-        break;
-        }
-
-        {
-            if (!ResolENC2Num.read(getSlaveIndex())) goto downloadfailed;
-            encoder2_EncoderToMotorRatioNumerator = ResolENC2Num.getS32() / (0x1 << encoder2_singleTurnResolutionBits);
-            if (!ResolENC2Denom.read(getSlaveIndex())) goto downloadfailed;
-            encoder2_EncoderToMotorRatioDenominator = ResolENC2Denom.getS32();
-        }
-
-        break;
-    }
-
-    {
-        EtherCatCoeData ShiftEncWorkRange(0x3005, 0X21, EtherCatData::Type::UINT16_T);
-        ShiftEncWorkRange.read(getSlaveIndex());
-        if (ShiftEncWorkRange.getU16() == 0) b_encoderRangeShifted = false;
-        else if (ShiftEncWorkRange.getU16() == 1) b_encoderRangeShifted = true;
-        else goto downloadfailed;
-    }
-
-	updateEncoderWorkingRange();
-
-    encoderSettingsDownloadState = DataTransferState::SUCCEEDED;
-    return;
-
-downloadfailed:
-    encoderSettingsDownloadState = DataTransferState::FAILED;
-    return;
-
-}
-
-
 void Lexium32::uploadManualAbsoluteEncoderPosition() {
     encoderAbsolutePositionUploadState = DataTransferState::TRANSFERRING;
-    int absolutePositionEncoderIncrements;
+
     EtherCatCoeData ENC1_adjustment(0x3005, 0x16, EtherCatData::Type::INT32_T);
-    EtherCatCoeData ENC2_adjustement(0x3005, 0x24, EtherCatData::Type::INT32_T);
-    switch (encoderAssignement) {
-    case EncoderAssignement::INTERNAL_ENCODER:
-        absolutePositionEncoderIncrements = manualAbsoluteEncoderPosition_revolutions * (float)(0x1 << encoder1_singleTurnResolutionBits);
-        ENC1_adjustment.setS32(absolutePositionEncoderIncrements);
-        if (ENC1_adjustment.write(getSlaveIndex())) goto saving;
-        else goto failed;
-        break;
-    case EncoderAssignement::ENCODER_MODULE:
-        absolutePositionEncoderIncrements = manualAbsoluteEncoderPosition_revolutions * (float)(0x1 << encoder2_singleTurnResolutionBits);
-        ENC2_adjustement.setS32(absolutePositionEncoderIncrements);
-        if (ENC2_adjustement.write(getSlaveIndex())) goto saving;
-        else goto failed;
-        break;
-    }
+	int absolutePositionEncoderIncrements = manualAbsoluteEncoderPosition_revolutions * (float)(0x1 << encoder1_singleTurnResolutionBits);
+	ENC1_adjustment.setS32(absolutePositionEncoderIncrements);
+	if (ENC1_adjustment.write(getSlaveIndex())) goto saving;
+	else goto failed;
 
 saving:
 
@@ -906,28 +681,14 @@ failed:
 
 
 void Lexium32::updateEncoderWorkingRange() {
-    switch (encoderAssignement) {
-		case EncoderAssignement::INTERNAL_ENCODER:
-			if (b_encoderRangeShifted) {
-				servoMotor->minWorkingRange = -(float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
-				servoMotor->maxWorkingRange = (float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
-			}
-			else {
-				servoMotor->minWorkingRange = 0.0;
-				servoMotor->maxWorkingRange = (float)(0x1 << encoder1_multiTurnResolutionBits);
-			}
-			break;
-		case EncoderAssignement::ENCODER_MODULE:
-			if (b_encoderRangeShifted) {
-				servoMotor->minWorkingRange = -(float)(0x1 << encoder2_multiTurnResolutionBits) * (float)encoder2_EncoderToMotorRatioDenominator / ((float)encoder2_EncoderToMotorRatioNumerator * 2.0);
-				servoMotor->maxWorkingRange = -servoMotor->minWorkingRange;
-			}
-			else {
-				servoMotor->minWorkingRange = 0.0;
-				servoMotor->maxWorkingRange = (float)(0x1 << encoder2_multiTurnResolutionBits) * (float)encoder2_EncoderToMotorRatioDenominator / (float)encoder2_EncoderToMotorRatioNumerator;
-			}
-			break;
-    }
+	if (b_encoderRangeShifted) {
+		servoMotor->minWorkingRange = -(float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
+		servoMotor->maxWorkingRange = (float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
+	}
+	else {
+		servoMotor->minWorkingRange = 0.0;
+		servoMotor->maxWorkingRange = (float)(0x1 << encoder1_multiTurnResolutionBits);
+	}
 }
 
 
@@ -1155,37 +916,11 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
     pinInversionXML->SetAttribute("DI5", b_invertDI5);
 
     XMLElement* encoderSettingsXML = xml->InsertNewChildElement("EncoderSettings");
-    encoderSettingsXML->SetAttribute("Assignement", Enumerator::getSaveString(encoderAssignement));
-    switch (encoderAssignement) {
-    case EncoderAssignement::INTERNAL_ENCODER:
-        break;
-    case EncoderAssignement::ENCODER_MODULE:
-        encoderSettingsXML->SetAttribute("EncoderModule", Enumerator::getSaveString(encoderModuleType));
-        encoderSettingsXML->SetAttribute("EncoderToMotorRatioNumerator", encoder2_EncoderToMotorRatioNumerator);
-        encoderSettingsXML->SetAttribute("EncoderToMotorRatioDenominator", encoder2_EncoderToMotorRatioDenominator);
-        encoderSettingsXML->SetAttribute("InvertDirection", encoder2_invertDirection);
-        encoderSettingsXML->SetAttribute("MaxDifferenceToMotorEncoder_revolutions", encoder2_maxDifferenceToMotorEncoder_rotations);
-        switch (encoderModuleType) {
-        case EncoderModule::ANALOG_MODULE: break;
-        case EncoderModule::RESOLVER_MODULE: break;
-        case EncoderModule::NONE: break;
-        case EncoderModule::DIGITAL_MODULE:
-            encoderSettingsXML->SetAttribute("EncoderType", Enumerator::getSaveString(encoderType));
-            encoderSettingsXML->SetAttribute("Voltage", Enumerator::getSaveString(encoderVoltage));
-            encoderSettingsXML->SetAttribute("SingleTurnBits", encoder2_singleTurnResolutionBits);
-            encoderSettingsXML->SetAttribute("MultiTurnBits", encoder2_multiTurnResolutionBits);
-            switch (encoderType) {
-            case EncoderType::NONE: break;
-            case EncoderType::SSI_ROTARY:
-                encoderSettingsXML->SetAttribute("SSIEncoding", Enumerator::getSaveString(encoderCoding));
-                break;
-            }
-            break;
-        }
-        break;
-    }
     encoderSettingsXML->SetAttribute("RangeShifted", b_encoderRangeShifted);
     encoderSettingsXML->SetAttribute("PositionOffset_revolutions", servoMotor->positionOffset);
+	
+	XMLElement* holdingBrakeXML = xml->InsertNewChildElement("HoldingBrake");
+	holdingBrakeXML->SetAttribute("HasHoldingBrake", servoMotor->hasManualHoldingBrake());
 
     return true;
 }
@@ -1263,61 +998,13 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
 
     XMLElement* encoderSettingsXML = xml->FirstChildElement("EncoderSettings");
     if (encoderSettingsXML == nullptr) return Logger::warn("Could not find Encoder Settings Attribute");
-    const char* encoderAssignementString = "";
-    encoderSettingsXML->QueryStringAttribute("Assignement", &encoderAssignementString);
-    if (!Enumerator::isValidSaveName<EncoderAssignement>(encoderAssignementString)) return Logger::warn("Could not read encoder assignement attribute");
-	encoderAssignement = Enumerator::getEnumeratorFromSaveString<EncoderAssignement>(encoderAssignementString);
-
-    switch (encoderAssignement) {
-    case EncoderAssignement::INTERNAL_ENCODER:
-        break;
-    case EncoderAssignement::ENCODER_MODULE:
-
-        const char* encoderModuleString = "";
-        encoderSettingsXML->QueryStringAttribute("EncoderModule", &encoderModuleString);
-        if (!Enumerator::isValidSaveName<EncoderModule>(encoderModuleString)) return Logger::warn("Could not read encoder module attribute");
-		encoderModuleType = Enumerator::getEnumeratorFromSaveString<EncoderModule>(encoderModuleString);
-
-        if (encoderSettingsXML->QueryIntAttribute("EncoderToMotorRatioNumerator", &encoder2_EncoderToMotorRatioNumerator) != XML_SUCCESS) return Logger::warn("Could not read Encoder to Motor Ratio Numerator Attribute");
-        if (encoderSettingsXML->QueryIntAttribute("EncoderToMotorRatioDenominator", &encoder2_EncoderToMotorRatioDenominator) != XML_SUCCESS) return Logger::warn("Could not read Encoder to Motor Ratio Denominator Attribute");
-        if (encoderSettingsXML->QueryBoolAttribute("InvertDirection", &encoder2_invertDirection) != XML_SUCCESS) return Logger::warn("Could not read Invert Encoder Direction Attribute");
-        if (encoderSettingsXML->QueryDoubleAttribute("MaxDifferenceToMotorEncoder_revolutions", &encoder2_maxDifferenceToMotorEncoder_rotations) != XML_SUCCESS) return Logger::warn("Could not read Max Encoder to Motor Encoder Difference Attribute");
-
-        switch (encoderModuleType) {
-        case EncoderModule::ANALOG_MODULE: break;
-        case EncoderModule::RESOLVER_MODULE: break;
-        case EncoderModule::NONE: break;
-        case EncoderModule::DIGITAL_MODULE:
-
-            const char* encoderTypeString = "";
-            encoderSettingsXML->QueryStringAttribute("EncoderType", &encoderTypeString);
-            if (!Enumerator::isValidSaveName<EncoderType>(encoderTypeString)) return Logger::warn("Could not read encoder type attribute");
-			encoderType = Enumerator::getEnumeratorFromSaveString<EncoderType>(encoderTypeString);
-
-            const char* encoderVoltageString = "";
-            encoderSettingsXML->QueryStringAttribute("Voltage", &encoderVoltageString);
-            if (!Enumerator::isValidSaveName<EncoderVoltage>(encoderVoltageString)) return Logger::warn("Could not read encoder voltage attribute");
-			encoderVoltage = Enumerator::getEnumeratorFromSaveString<EncoderVoltage>(encoderVoltageString);
-
-            if (encoderSettingsXML->QueryIntAttribute("SingleTurnBits", &encoder2_singleTurnResolutionBits) != XML_SUCCESS) return Logger::warn("Could not read encoder Single Turn bit count attribute");
-            if (encoderSettingsXML->QueryIntAttribute("MultiTurnBits", &encoder2_multiTurnResolutionBits) != XML_SUCCESS) return Logger::warn("Could not read encoder Multi Turn bit count attribute");
-
-            switch (encoderType) {
-            case EncoderType::NONE: break;
-            case EncoderType::SSI_ROTARY:
-                const char* SSIencodingString = "";
-				if(encoderSettingsXML->QueryStringAttribute("SSIEncoding", &SSIencodingString) != XML_SUCCESS) return Logger::warn("Could not read ssi encoder encoding type");
-                if (!Enumerator::isValidSaveName<EncoderCoding>(SSIencodingString)) return Logger::warn("Could not read SSI encoding attribute");
-				encoderCoding = Enumerator::getEnumeratorFromSaveString<EncoderCoding>(SSIencodingString);
-                break;
-            }
-            break;
-        }
-        break;
-    }
     if (encoderSettingsXML->QueryBoolAttribute("RangeShifted", &b_encoderRangeShifted) != XML_SUCCESS) return Logger::warn("Could not find encoder range shift attribute");
     if (encoderSettingsXML->QueryDoubleAttribute("PositionOffset_revolutions", &servoMotor->positionOffset) != XML_SUCCESS) return Logger::warn("Could not find position offset attribute");
 	updateEncoderWorkingRange();
-
+	
+	XMLElement* holdingBrakeXML = xml->FirstChildElement("HoldingBrake");
+	if(holdingBrakeXML == nullptr) return Logger::warn("Could not find holding brake attribute");
+	if(holdingBrakeXML->QueryBoolAttribute("HasHoldingBrake", &servoMotor->b_hasHoldingBrake) != XML_SUCCESS) return Logger::warn("could not find has holdin brake attribute");
+	 
     return true;
 }

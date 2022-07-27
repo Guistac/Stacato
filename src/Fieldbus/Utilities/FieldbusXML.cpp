@@ -41,47 +41,21 @@ namespace EtherCatFieldbus {
 
 		XMLElement* networkInterfaceCardXML = xml->FirstChildElement("NetworkInterfaceCard");
 		if (!networkInterfaceCardXML) return Logger::warn("Could not load Network Interface Card Attribute");
-
 		XMLElement* primaryNicXML = networkInterfaceCardXML->FirstChildElement("Primary");
 		if (primaryNicXML){
-			const char* nicDescription;
-			const char* nicName;
-			if (primaryNicXML->QueryStringAttribute("Description", &nicDescription) != XML_SUCCESS) return Logger::warn("Could not read primary NIC description");
-			if (primaryNicXML->QueryStringAttribute("Name", &nicName) != XML_SUCCESS) return Logger::warn("Could not read primary NIC name");
-			
-			/*
-			//try to find the saved nic in the list of available nics and set it
-			EtherCatFieldbus::primaryNetworkInterfaceCard = nullptr;
-			for(auto& nic : EtherCatFieldbus::getNetworksInterfaceCards()){
-				if(strcmp(nic->name, nicDescription) == 0 && strcmp(nic->description, nicDescription) == 0){
-					EtherCatFieldbus::primaryNetworkInterfaceCard = nic;
-					break;
-				}
-			}
-			
-			if(EtherCatFieldbus::primaryNetworkInterfaceCard == nullptr)
-				Logger::warn("Could not find network interface card '{}'", nicDescription);
-
+			const char* primaryNicDescription;
+			const char* primaryNicName;
 			const char* redundantNicDescription;
 			const char* redundantNicName;
+			if (primaryNicXML->QueryStringAttribute("Description", &primaryNicDescription) != XML_SUCCESS) return Logger::warn("Could not read primary NIC description");
+			if (primaryNicXML->QueryStringAttribute("Name", &primaryNicName) != XML_SUCCESS) return Logger::warn("Could not read primary NIC name");
 			XMLElement* redundantNicXML = networkInterfaceCardXML->FirstChildElement("Redundant");
 			bool hasRedundantNic = redundantNicXML != nullptr;
 			if (hasRedundantNic) {
 				if (redundantNicXML->QueryStringAttribute("Description", &redundantNicDescription) != XML_SUCCESS) return Logger::warn("Could not read redundant NIC description");
 				if (redundantNicXML->QueryStringAttribute("Name", &redundantNicName) != XML_SUCCESS) return Logger::warn("Could not read redundant NIC name");
-				
-				//try to find the saved nic in the list of available nics and set it
-				for(auto& nic : EtherCatFieldbus::getNetworksInterfaceCards()){
-					if(strcmp(nic->name, redundantNicDescription) == 0 && strcmp(nic->description, redundantNicName) == 0){
-						EtherCatFieldbus::redundantNetworkInterfaceCard = nic;
-						break;
-					}
-				}
-				
-				if(EtherCatFieldbus::redundantNetworkInterfaceCard == nullptr)
-					Logger::warn("Could not find redundant network interface card '{}'", redundantNicDescription);
 			}
-			 */
+			setDefaultNetworkInterfaces(primaryNicDescription, redundantNicDescription);
 		}
 
 		XMLElement* timingXML = xml->FirstChildElement("Timing");

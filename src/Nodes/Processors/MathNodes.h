@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Environnement/NodeGraph/Node.h"
+#include <tinyxml2.h>
 
 class ConstantNode : public Node {
 public:
@@ -11,6 +12,21 @@ public:
 	std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "value", NodePin::Flags::ForceDataField);
 	
 	virtual void inputProcess() override{};
+	
+	//saving & loading
+	virtual bool load(tinyxml2::XMLElement* xml) override {
+		double val;
+		if(xml->QueryDoubleAttribute("ConstantValue", &val) != tinyxml2::XML_SUCCESS){
+			Logger::warn("could not load constant value");
+			return false;
+		}
+		*constantValue = val;
+		return true;
+	}
+	virtual bool save(tinyxml2::XMLElement* xml) override {
+		xml->SetAttribute("ConstantValue", *constantValue);
+		return true;
+	}
 	
 };
 

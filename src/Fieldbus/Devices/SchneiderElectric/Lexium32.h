@@ -105,6 +105,7 @@ private:
 	uint16_t _actionStatus = 0;
 	uint16_t _IO_act = 0;
 	uint16_t _IO_STO_act = 0;
+	uint16_t BRK_release = 0;
 	
 	long long enableRequestTime_nanoseconds;
 	long long enableRequestTimeout_nanoseconds = 250'000'000; //250ms enable timeout
@@ -113,7 +114,6 @@ private:
 	bool b_isResettingFault = false;
 	bool b_faultNeedsRestart = false;
 	bool b_motorVoltagePresent = false;
-	//bool b_stoActive = false;
 	
 	//homing mode commands
 	bool b_startHoming = false;
@@ -124,7 +124,10 @@ private:
 	static std::string getErrorCodeString(uint16_t errorCode){
 		switch(errorCode){
 			case 0x0: return "No Error";
+			case 0xA302: return "A302 : Stop by positive limit switch";
+			case 0xA303: return "A303 : Stop by negative limit switch";
 			case 0xA320: return "A320 : Max Following Error Exceeded";
+			case 0xB121: return "B121 : Cyclic communication: Synchronization signal missing";
 			case 0xB122: return "B122 : Cyclic communication: Incorrect synchronization";
 			case 0xB610: return "B610 : Fieldbus Watchdog";
 			case 0xB103: return "B103 : Fieldbus Communication Closed";
@@ -149,6 +152,7 @@ private:
 			if(b_faultNeedsRestart) return getErrorCodeString(_LastError) + "\nDrive Restart needed to reset fault.";
 			else return getErrorCodeString(_LastError) + "\nFault will be cleared when enabling.";
 		}else if(servoMotor->b_emergencyStopActive) return "STO Active";
+		else if(servoMotor->isHoldingBrakeReleased()) return "Motor holding brake is manually released";
 		else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) return "Drive Restart Needed.";
 		else return "No Issues";
 	}
@@ -163,6 +167,7 @@ private:
 			if(b_faultNeedsRestart) return "Critical Fault : " + std::string(hexFaultCodeString);
 			else return "Fault : " + std::string(hexFaultCodeString);
 		}
+		else if(servoMotor->isHoldingBrakeReleased()) return "Holding Brake Released";
 		else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) return "Restart Needed";
 		else return Enumerator::getDisplayString(actualPowerState);
 	}
@@ -207,8 +212,9 @@ public:
     bool b_invertDirectionOfMotorMovement = false;
     double maxCurrent_amps = 0.0;
     
+	//===== Drive Properties
     double maxMotorVelocity = 0.0;
-	//double maxFollowingError = 0.0;
+	double maxMotorCurrent_amps = 0.0;
 
     void uploadGeneralParameters();
     DataTransferState generalParameterUploadState = DataTransferState::NO_TRANSFER;
@@ -226,7 +232,7 @@ public:
     double maxQuickstopCurrent_amps = 0.0;
     double quickStopDeceleration_revolutionsPerSecondSquared = 0.0;
 
-    //===== GPIO settings ======
+    //===== GPIO Input settings ======
 
     enum class InputPin {
 		DI0,
@@ -252,8 +258,11 @@ public:
 
     InputPin negativeLimitSwitchPin = InputPin::NONE;
     bool b_negativeLimitSwitchNormallyClosed = false;
+	
     InputPin positiveLimitSwitchPin = InputPin::NONE;
     bool b_positiveLimitSwitchNormallyClosed = false;
+	
+	InputPin holdingBrakeReleasePin = InputPin::NONE;
 
     bool b_invertDI0 = false;
     bool b_invertDI1 = false;
@@ -269,125 +278,13 @@ public:
 
 	
     //===== Encoder Settings =====
+		
+	//internal encoder settings are constant
+	const int encoder1_singleTurnResolutionBits = 17;
+	const int encoder1_multiTurnResolutionBits = 12;
 
-    enum class EncoderAssignement {
-		INTERNAL_ENCODER,
-		ENCODER_MODULE
-    };
-	uint16_t getEncoderAssignementValue(EncoderAssignement assignement){
-		switch(assignement){
-			case EncoderAssignement::INTERNAL_ENCODER: return 0;
-			case EncoderAssignement::ENCODER_MODULE: return 1;
-		}
-	}
-	EncoderAssignement getEncoderAssignement(uint16_t val){
-		switch(val){
-			case 0: return EncoderAssignement::INTERNAL_ENCODER;
-			case 1: return EncoderAssignement::ENCODER_MODULE;
-		}
-	}
-	
-    enum class EncoderModule {
-		ANALOG_MODULE,
-		DIGITAL_MODULE,
-		RESOLVER_MODULE,
-		NONE
-    };
-	uint16_t getEncoderModuleValue(EncoderModule module){
-		switch(module){
-			case Lexium32::EncoderModule::ANALOG_MODULE: return 769;
-			case Lexium32::EncoderModule::DIGITAL_MODULE: return 770;
-			case Lexium32::EncoderModule::RESOLVER_MODULE: return 771;
-			case Lexium32::EncoderModule::NONE: return 0;
-		}
-	}
-	EncoderModule getEncoderModule(uint16_t val){
-		switch(val){
-			case 769: return EncoderModule::ANALOG_MODULE;
-			case 770: return EncoderModule::DIGITAL_MODULE;
-			case 771: return EncoderModule::RESOLVER_MODULE;
-			case 0: return EncoderModule::NONE;
-			default: return EncoderModule::NONE;
-		}
-	}
-	
-
-
-    enum class EncoderType {
-		NONE,
-		SSI_ROTARY
-    };
-	uint16_t getEncoderTypeValue(EncoderType type){
-		switch(type){
-			case EncoderType::NONE: return 0;
-			case EncoderType::SSI_ROTARY: return 10;
-		}
-	}
-	EncoderType getEncoderType(uint16_t val){
-		switch(val){
-			case 0: return EncoderType::NONE;
-			case 10: return EncoderType::SSI_ROTARY;
-		}
-	}
-	
-
-    enum class EncoderCoding {
-		BINARY,
-		GRAY
-    };
-	uint16_t getEncoderEncodingValue(EncoderCoding coding){
-		switch(coding){
-			case EncoderCoding::BINARY: return 0;
-			case EncoderCoding::GRAY: return 1;
-		}
-	}
-	EncoderCoding getEncoderCoding(uint16_t val){
-		switch(val){
-			case 0: return EncoderCoding::BINARY;
-			case 1: return EncoderCoding::GRAY;
-		}
-	}
-    
-	enum class EncoderVoltage {
-		V5,
-		V12
-    };
-	uint16_t getEncoderVoltageValue(EncoderVoltage voltage){
-		switch(voltage){
-			case EncoderVoltage::V5: return 5;
-			case EncoderVoltage::V12: return 12;
-		}
-	}
-	EncoderVoltage getEncoderVoltage(uint16_t id){
-		switch(id){
-			case 5: return EncoderVoltage::V5;
-			case 12: return EncoderVoltage::V12;
-		}
-	}
-
-    EncoderAssignement encoderAssignement = EncoderAssignement::INTERNAL_ENCODER;
-    EncoderModule encoderModuleType = EncoderModule::NONE;
-    EncoderType encoderType = EncoderType::NONE;
-    EncoderCoding encoderCoding = EncoderCoding::BINARY;
-    EncoderVoltage encoderVoltage = EncoderVoltage::V12;
-
-    //internal encoder settings are constant
-    const int encoder1_singleTurnResolutionBits = 17;
-    const int encoder1_multiTurnResolutionBits = 12;
-
-    int encoder2_singleTurnResolutionBits = 17;
-    int encoder2_multiTurnResolutionBits = 12;
-    int encoder2_EncoderToMotorRatioNumerator = 1;   //integer amount of encoder revolutions per ->
-    int encoder2_EncoderToMotorRatioDenominator = 1;   //-> per integer amount of motor revolutions
-    bool encoder2_invertDirection = false;
-    double encoder2_maxDifferenceToMotorEncoder_rotations = 0.5;
-    bool b_encoderRangeShifted = false;
-
-    void detectEncoderModule();
-    void uploadEncoderSettings();
-    DataTransferState encoderSettingsUploadState = DataTransferState::NO_TRANSFER;
-    void downloadEncoderSettings();
-    DataTransferState encoderSettingsDownloadState = DataTransferState::NO_TRANSFER;
+	bool b_encoderRangeShifted = false;
+	bool b_encoderIsMultiturn = false;
 
     float manualAbsoluteEncoderPosition_revolutions = 0.0;
     void uploadManualAbsoluteEncoderPosition();
@@ -430,7 +327,6 @@ public:
     void controlsGui();
     void generalSettingsGui();
     void gpioGui();
-    void encoderGui();
     void tuningGui();
     void miscellaneousGui();
 };
@@ -453,42 +349,3 @@ DEFINE_ENUMERATOR(Lexium32::QuickStopReaction, QuickstopRectionTypeString)
 	{Lexium32::InputPin::NONE, "Unassigned", "Unassigned"}\
 
 DEFINE_ENUMERATOR(Lexium32::InputPin, InputPinStrings)
-
-
-#define EncoderAssignementTypeStrings \
-	{Lexium32::EncoderAssignement::INTERNAL_ENCODER, "Internal Motor Encoder", "Internal"},\
-	{Lexium32::EncoderAssignement::ENCODER_MODULE, "Encoder Module", "Module"}\
-
-DEFINE_ENUMERATOR(Lexium32::EncoderAssignement, EncoderAssignementTypeStrings)
-
-
-#define EncoderModuleTypeStrings \
-	{Lexium32::EncoderModule::ANALOG_MODULE, "Analog Encoder Module", "Analog"},\
-	{Lexium32::EncoderModule::DIGITAL_MODULE, "Digital Encoder Module", "Digital"},\
-	{Lexium32::EncoderModule::RESOLVER_MODULE, "Resolver Encoder Module", "Resolver"},\
-	{Lexium32::EncoderModule::NONE, "No Encoder Module", "None"}\
-
-DEFINE_ENUMERATOR(Lexium32::EncoderModule, EncoderModuleTypeStrings)
-
-
-#define EncoderTypeStrings \
-	{Lexium32::EncoderType::NONE, "None", "None"},\
-	{Lexium32::EncoderType::SSI_ROTARY, "SSI Absolute Rotary", "SSIRotary"}\
-
-DEFINE_ENUMERATOR(Lexium32::EncoderType, EncoderTypeStrings)
-
-
-#define EncoderCodingTypeStrings \
-	{Lexium32::EncoderCoding::BINARY, "Binary", "Binary"},\
-	{Lexium32::EncoderCoding::GRAY, "Gray", "Gray"}\
-
-DEFINE_ENUMERATOR(Lexium32::EncoderCoding, EncoderCodingTypeStrings)
-
-
-#define EncoderVoltageTypeStrings \
-	{Lexium32::EncoderVoltage::V5, "5V", "5V"},\
-	{Lexium32::EncoderVoltage::V12, "12V", "12V"}\
-
-DEFINE_ENUMERATOR(Lexium32::EncoderVoltage, EncoderVoltageTypeStrings)
-
-
