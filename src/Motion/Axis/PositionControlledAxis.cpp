@@ -17,8 +17,12 @@ void PositionControlledAxis::initialize() {
 	addNodePin(lowLimitSignalPin);
 	addNodePin(highLimitSignalPin);
 	addNodePin(referenceSignalPin);
+	addNodePin(surveillanceValidInputPin);
+	addNodePin(surveillanceFeedbackDevicePin);
 	
 	//outputs
+	addNodePin(surveillanceValidOutputPin);
+	addNodePin(surveillanceFaultResetPin);
 	axisPin->assignData(std::static_pointer_cast<PositionControlledAxis>(shared_from_this()));
 	addNodePin(axisPin);
 	addNodePin(positionPin);
@@ -27,6 +31,11 @@ void PositionControlledAxis::initialize() {
 	
 	//initialize parameters
 	setPositionReferenceSignalType(positionReferenceSignal);
+	setSurveillance(isSurveilled());
+	
+	b_isSurveilled->setEditCallback([this](std::shared_ptr<Parameter> editedParameter){
+		setSurveillance(isSurveilled());
+	});
 }
 
 std::string PositionControlledAxis::getStatusString(){
@@ -44,62 +53,98 @@ std::string PositionControlledAxis::getStatusString(){
 	
 }
 
+void PositionControlledAxis::updateAxisState(){
+	
+	MotionState newAxisState = MotionState::ENABLED;
+	auto checkState = [&](MotionState deviceState){ if(int(deviceState) < int(newAxisState)) newAxisState = deviceState; };
+	
+	for(auto gpioDevicePin : gpioPin->getConnectedPins()){
+		auto gpioDeviceState = gpioDevicePin->getSharedPointer<GpioDevice>()->getState();
+		checkState(gpioDeviceState);
+	}
+	
+	auto servoActuatorDevice = getServoActuatorDevice();
+	
+	if(isSurveilled()) {
+		checkState(getSurveillanceFeedbackDevice()->getState());
+		if(servoActuatorDevice->isEmergencyStopped() && servoActuatorDevice->getState() == MotionState::NOT_READY){
+			//if the servo is in STO and not ready, a surveilled is still considered to be ready to enable
+			checkState(MotionState::READY);
+		}else checkState(servoActuatorDevice->getState());
+	}else{
+		checkState(getServoActuatorDevice()->getState());
+	}
+	
+	//handle transition from enabled state
+	if(state == MotionState::ENABLED && newAxisState != MotionState::ENABLED) disable();
+	state = newAxisState;
+	
+	//update estop state
+	b_emergencyStopActive = servoActuatorDevice->isEmergencyStopped();
+	
+	//get actual realtime axis motion values
+	*actualPositionValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getPosition());
+	*actualVelocityValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getVelocity());
+	*actualLoadValue = getServoActuatorDevice()->getLoad();
+}
+
+void PositionControlledAxis::reactToReferenceSignals(){
+	//update and react to reference signals
+	updateReferenceSignals();
+	if(state == MotionState::ENABLED && !isHoming()){
+		switch(positionReferenceSignal){
+			case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+				if(*highLimitSignal && motionProfile.getVelocity() > 0.0) {
+					Logger::critical("Axis {} Disabled : Hit Upper Limit Signal", getName());
+					disable();
+				}
+			case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
+				if(*lowLimitSignal && motionProfile.getVelocity() < 0.0) {
+					Logger::critical("Axis {} Disabled : Hit Lower Limit Signal", getName());
+					disable();
+				}
+				break;
+			default:
+				break;
+		}
+	}
+}
+
 void PositionControlledAxis::inputProcess() {
 	//check connection requirements and abort processing if the requirements are not met
 	if(!areAllPinsConnected()) {
 		state = MotionState::OFFLINE;
 		b_emergencyStopActive = false;
+		b_hasSurveillanceError = false;
+		if(isSurveilled()) *surveillanceValidOutputSignal = false;
 		return;
 	}
 	
-	//get devices
-	std::shared_ptr<ServoActuatorDevice> servoActuatorDevice = getServoActuatorDevice();
-	std::shared_ptr<GpioDevice> referenceDevice;
-	if(needsReferenceDevice()) referenceDevice = getReferenceDevice();
+	updateAxisState();
+	reactToReferenceSignals();
+	if(isSurveilled()) updateSurveillance();
+}
 
-	//get combined device state
-	MotionState devicesState = MotionState::ENABLED;
-	MotionState servoState = servoActuatorDevice->getState();
-	MotionState referenceState = MotionState::ENABLED;
-	if(needsReferenceDevice()) referenceState = referenceDevice->getState();
-	if(servoState == MotionState::OFFLINE || referenceState == MotionState::OFFLINE) devicesState = MotionState::OFFLINE;
-	else if(servoState == MotionState::NOT_READY || referenceState == MotionState::NOT_READY) devicesState = MotionState::NOT_READY;
-	else if(servoState == MotionState::READY || referenceState == MotionState::READY) devicesState = MotionState::READY;
-	else devicesState = MotionState::ENABLED;
-	
-	//handle transition from enabled state
-	if(state == MotionState::ENABLED && devicesState != MotionState::ENABLED) disable();
-	state = devicesState;
-	
-	//update estop state
-	b_emergencyStopActive = servoActuatorDevice->isEmergencyStopped();
-	
-	//update and react to reference signals
-	if (needsReferenceDevice()) {
-		updateReferenceSignals();
-		if(state == MotionState::ENABLED && !isHoming()){
-			switch(positionReferenceSignal){
-				case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-					if(*highLimitSignal && motionProfile.getVelocity() > 0.0) {
-						Logger::critical("Axis {} Disabled : Hit Upper Limit Signal", getName());
-						disable();
-					}
-				case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
-					if(*lowLimitSignal && motionProfile.getVelocity() < 0.0) {
-						Logger::critical("Axis {} Disabled : Hit Lower Limit Signal", getName());
-						disable();
-					}
-					break;
-				default:
-					break;
-			}
+void PositionControlledAxis::updateSurveillance(){
+	if(b_hasSurveillanceError){
+		*surveillanceValidOutputSignal = false;
+	}else{
+		double axisVelocity = *actualVelocityValue;
+		auto surveillanceFeedbackDevice = getSurveillanceFeedbackDevice();
+		double surveillanceVelocity = surveillanceFeedbackDevice->getVelocity() / surveillancefeedbackUnitsPerAxisUnits->value;
+		double velocityError = std::abs(surveillanceVelocity - axisVelocity);
+		surveillanceValidInputPin->copyConnectedPinValue();
+		if(!*surveillanceValidInputSignal || velocityError > maxVelocityDeviation->value){
+			b_hasSurveillanceError = true;
+			*surveillanceValidOutputSignal = false;
+			Logger::critical("Axis {} Surveillance Error !", getName());
+			disable();
+		}else{
+			b_hasSurveillanceError = false;
+			*surveillanceValidOutputSignal = true;
 		}
 	}
-
-	//get actual realtime axis motion values
-	*actualPositionValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getPosition());
-	*actualVelocityValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getVelocity());
-	*actualLoadValue = getServoActuatorDevice()->getLoad();
+	
 }
 
 void PositionControlledAxis::setMotionCommand(double position, double velocity, double acceleration){
@@ -169,20 +214,45 @@ void PositionControlledAxis::enable() {
 		system_clock::time_point start = system_clock::now();
 		
 		auto servoActuator = getServoActuatorDevice();
-		servoActuator->enable();
 		
-		while(system_clock::now() - start < milliseconds(500)){
+		if(isSurveilled()){
 			
-			if(servoActuator->isEnabled()){
-				//b_enabled = true;
-				state = MotionState::ENABLED;
-				onEnable();
-				Logger::info("Axis {} Enabled", getName());
-				return;
+			long long maxEnableTimeMillis = maxSurveillanceErrorClearTime->value * 1000.0;
+			
+			//settings these to signals high clears the sto status of the drive
+			*surveillanceFaultResetSignal = true;
+			*surveillanceValidOutputSignal = true;
+			
+			while(system_clock::now() - start < milliseconds(maxEnableTimeMillis)){
+				servoActuator->enable();
+				if(servoActuator->isEnabled()){
+					state = MotionState::ENABLED;
+					b_hasSurveillanceError = false;
+					*surveillanceFaultResetSignal = false;
+					Logger::warn("Surveillance Error Cleared");
+					onEnable();
+					return;
+				}
+				std::this_thread::sleep_for(milliseconds(10));
 			}
-			std::this_thread::sleep_for(milliseconds(10));
+			
+			*surveillanceFaultResetSignal = false;
+			*surveillanceValidOutputSignal = false;
+			
+		}else{
+			
+			servoActuator->enable();
+			while(system_clock::now() - start < milliseconds(500)){
+				if(servoActuator->isEnabled()){
+					state = MotionState::ENABLED;
+					onEnable();
+					return;
+				}
+				std::this_thread::sleep_for(milliseconds(10));
+			}
+			
 		}
-		
+			
 		servoActuator->disable();
 		state = MotionState::READY;
 		Logger::warn("Could not enable Axis '{}', servo actuator did not enable on time", getName());
@@ -192,12 +262,11 @@ void PositionControlledAxis::enable() {
 }
 
 void PositionControlledAxis::onEnable() {
-	//b_enabled = true;
 	setVelocityTarget(0.0);
 	b_isHoming = false;
 	homingStep = HomingStep::NOT_STARTED;
 	homingError = HomingError::NONE;
-	Logger::info("Axis '{}' was enabled", getName());
+	Logger::info("Axis {} was enabled", getName());
 }
 
 void PositionControlledAxis::disable() {
@@ -206,26 +275,30 @@ void PositionControlledAxis::disable() {
 }
 
 void PositionControlledAxis::onDisable() {
-	//b_enabled = false;
-	state = MotionState::READY;
-	setVelocityTarget(0.0);
-	b_isHoming = false;
-	homingStep = HomingStep::NOT_STARTED;
-	homingError = HomingError::NONE;
 	Logger::info("Axis was {} disabled", getName());
 }
 
-bool PositionControlledAxis::isReady() {
+bool PositionControlledAxis::isReadyToEnable() {
 	if(!areAllPinsConnected()) return false;
-	if(!getServoActuatorDevice()->isReady()) return false;
-	if(needsReferenceDevice() && !getReferenceDevice()->isReady()) return false;
-	return true;
+	if(isSurveilled()){
+		//if the axis is surveilled
+		//the only condition necessary to allow enabling
+		//is that the gpio devices are enabled and the servo actuator be online
+		//the servo actuator can be in sto state and we can still can request enabling of the axis
+		for(auto gpioPin : gpioPin->getConnectedPins()){
+			auto gpioDevice = gpioPin->getSharedPointer<GpioDevice>();
+			if(!gpioDevice->isEnabled()) return false;
+		}
+		if(!getServoActuatorDevice()->isOnline()) return false;
+		return true;
+	}else return areAllDevicesReady();
 }
 
 //========================== DEVICES =============================
 
 bool PositionControlledAxis::areAllPinsConnected(){
 	if(needsReferenceDevice() && !isReferenceDeviceConnected()) return false;
+	if(isSurveilled() && !isSurveillanceFeedbackDeviceConnected()) return false;
 	if(!isServoActuatorDeviceConnected()) return false;
 	switch (positionReferenceSignal) {
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
@@ -241,18 +314,31 @@ bool PositionControlledAxis::areAllPinsConnected(){
 		case PositionReferenceSignal::NO_SIGNAL:
 			break;
 	}
+	if(isSurveilled()){
+		
+	}
 	return true;
 }
 
+bool PositionControlledAxis::areAllDevicesReady(){
+	if(needsReferenceDevice()){
+		for(auto referenceDevicePin : gpioPin->getConnectedPins()){
+			auto gpioDevice = referenceDevicePin->getSharedPointer<GpioDevice>();
+			if(!gpioDevice->isEnabled()) return false;
+		}
+	}
+	if(isSurveilled() && !getSurveillanceFeedbackDevice()->isEnabled()) return false;
+	if(!getServoActuatorDevice()->isReady()) return false;
+}
+
 bool PositionControlledAxis::needsReferenceDevice() {
+	if(isSurveilled()) return true;
 	switch (positionReferenceSignal) {
-	case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
-	case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-	case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
-		return true;
-	case PositionReferenceSignal::NO_SIGNAL:
-		return false;
-	default: return false;
+		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
+		case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
+		case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
+			return true;
+		default: return false;
 	}
 }
 
@@ -344,6 +430,23 @@ void PositionControlledAxis::setPositionReferenceSignalType(PositionReferenceSig
 	axisPin->updateConnectedPins();
 }
 
+void PositionControlledAxis::setSurveillance(bool isSurveilled){
+	if(isSurveilled){
+		surveillanceValidInputPin->setVisible(true);
+		surveillanceFeedbackDevicePin->setVisible(true);
+		surveillanceValidOutputPin->setVisible(true);
+		surveillanceFaultResetPin->setVisible(true);
+	}else{
+		surveillanceValidInputPin->disconnectAllLinks();
+		surveillanceValidInputPin->setVisible(false);
+		surveillanceFeedbackDevicePin->disconnectAllLinks();
+		surveillanceFeedbackDevicePin->setVisible(false);
+		surveillanceValidOutputPin->disconnectAllLinks();
+		surveillanceValidOutputPin->setVisible(false);
+		surveillanceFaultResetPin->disconnectAllLinks();
+		surveillanceFaultResetPin->setVisible(false);
+	}
+}
 
 
 
@@ -353,26 +456,24 @@ void PositionControlledAxis::updateReferenceSignals() {
 	switch (positionReferenceSignal) {
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
 			previousLowLimitSignal = *lowLimitSignal;
-			if(lowLimitSignalPin->isConnected()) lowLimitSignalPin->copyConnectedPinValue();
+			lowLimitSignalPin->copyConnectedPinValue();
 			break;
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
 			previousLowLimitSignal = *lowLimitSignal;
-			if (lowLimitSignalPin->isConnected()) lowLimitSignalPin->copyConnectedPinValue();
+			lowLimitSignalPin->copyConnectedPinValue();
 			previousHighLimitSignal = *highLimitSignal;
-			if (highLimitSignalPin->isConnected()) highLimitSignalPin->copyConnectedPinValue();
+			highLimitSignalPin->copyConnectedPinValue();
 			break;
 		case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
 			previousReferenceSignal = *referenceSignal;
-			if (referenceSignalPin->isConnected()) referenceSignalPin->copyConnectedPinValue();
+			referenceSignalPin->copyConnectedPinValue();
 			break;
 		default: break;
 	}
 }
 
 bool PositionControlledAxis::isMoving() {
-	
 	return motionProfile.getVelocity() != 0.0;
-	
 	//TODO: this needs a threshold setting
 	//return getServoActuatorDevice()->isMoving();
 }
@@ -446,6 +547,7 @@ void PositionControlledAxis::setCurrentPositionAsPositiveLimit() {
 void PositionControlledAxis::scaleFeedbackToMatchPosition(double position_axisUnits) {
 	double servoActuatorPosition_actuatorUnits = getServoActuatorDevice()->getPosition();
 	//this recalculates unit scaling based on the distance from zero position
+	//TODO: is this not working anymore ???
 	servoActuatorUnitsPerAxisUnits = servoActuatorPosition_actuatorUnits / position_axisUnits;
 	motionProfile.setPosition(position_axisUnits);
 }
@@ -530,14 +632,14 @@ HomingStep PositionControlledAxis::getHomingStep(){
 void PositionControlledAxis::onHomingSuccess() {
 	b_isHoming = false;
 	homingStep = HomingStep::FINISHED;
-	Logger::info("Homing Axis {} SUCCEEDED !", getName());
+	Logger::info("Homing Axis {} Success !", getName());
 }
 
 void PositionControlledAxis::onHomingError() {
 	b_isHoming = false;
 	homingStep = HomingStep::NOT_STARTED;
 	disable();
-	Logger::info("Homing Axis {} FAILED : {}", getName(), Enumerator::getDisplayString(homingError));
+	Logger::info("Homing Axis {} Failure : {}", getName(), Enumerator::getDisplayString(homingError));
 }
 
 float PositionControlledAxis::getHomingProgress() {
@@ -1106,8 +1208,14 @@ bool PositionControlledAxis::save(tinyxml2::XMLElement* xml) {
 	positionLimitsXML->SetAttribute("EnableHighLimit", b_enableHighLimit);
 	positionLimitsXML->SetAttribute("HighLimitClearance", highLimitClearance);
 	positionLimitsXML->SetAttribute("LimitToFeedbackWorkingRange", limitToFeedbackWorkingRange);
-
-	return false;
+	
+	XMLElement* surveillanceXML = xml->InsertNewChildElement("Surveillance");
+	b_isSurveilled->save(surveillanceXML);
+	surveillancefeedbackUnitsPerAxisUnits->save(surveillanceXML);
+	maxVelocityDeviation->save(surveillanceXML);
+	maxSurveillanceErrorClearTime->save(surveillanceXML);
+	
+	return true;
 }
 
 
@@ -1166,6 +1274,17 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if (!Enumerator::isValidSaveName<HomingDirection>(homingDirectionString)) return Logger::warn("Could not read homing direction");
 	homingDirection = Enumerator::getEnumeratorFromSaveString<HomingDirection>(homingDirectionString);
 	
+	
+	XMLElement* surveillanceXML = xml->FirstChildElement("Surveillance");
+	if(surveillanceXML == nullptr){
+		Logger::warn("Could not load Surveillance Attribute");
+		return false;
+	}
+	if(!b_isSurveilled->load(surveillanceXML)) return false;
+	if(!surveillancefeedbackUnitsPerAxisUnits->load(surveillanceXML)) return false;
+	if(!maxVelocityDeviation->load(surveillanceXML)) return false;
+	if(!maxSurveillanceErrorClearTime->load(surveillanceXML)) return false;
+	 
 	return true;
 }
 

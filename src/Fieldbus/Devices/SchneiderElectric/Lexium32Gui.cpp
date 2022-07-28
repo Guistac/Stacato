@@ -465,11 +465,13 @@ void Lexium32::generalSettingsGui() {
 	ImGui::SameLine();
 	ImGui::TextWrapped("Encoder is Multiturn");
 	
-	if(ImGui::Checkbox("##shifting", &b_encoderRangeShifted)) updateEncoderWorkingRange();
-	ImGui::SameLine();
-	ImGui::TextWrapped("Center the encoder working range around 0.");
-	ImGui::TextWrapped("Working Range : %.1f to %.1f motor revolutions", servoMotor->minWorkingRange, servoMotor->maxWorkingRange);
-
+	if(b_encoderIsMultiturn){
+		if(ImGui::Checkbox("##shifting", &b_encoderRangeShifted)) updateEncoderWorkingRange();
+		ImGui::SameLine();
+		ImGui::TextWrapped("Center the encoder working range around 0.");
+		ImGui::TextWrapped("Working Range : %.1f to %.1f motor revolutions", servoMotor->minWorkingRange, servoMotor->maxWorkingRange);
+	}
+		
 	ImGui::Separator();
 
 	//============ Encoder Position Override ============

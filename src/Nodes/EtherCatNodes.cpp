@@ -8,6 +8,7 @@
 //#include "Fieldbus/Devices/Nanotec/PD4_E.h"
 #include "Fieldbus/Devices/ABB/MicroFlexE190.h"
 #include "Fieldbus/Devices/PhoenixContact/BusCouper_IL-EC-BK.h"
+#include "Fieldbus/Devices/Beckhoff/EtherCatJunctions.h"
 
 namespace NodeFactory{
 	
@@ -24,7 +25,9 @@ namespace NodeFactory{
 			new VipaBusCoupler_053_1EC01(),
 			new IL_EC_BK_BusCoupler(),
 			//new PD4_E(),
-			new MicroFlex_e190()
+			new MicroFlex_e190(),
+			new CU1128(),
+			new CU1124()
 		};
 
 		//sort devices by manufacturer

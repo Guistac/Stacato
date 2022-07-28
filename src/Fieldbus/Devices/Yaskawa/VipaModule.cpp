@@ -861,14 +861,11 @@ void VIPA_050_1BB40::readInputs(){
 	
 	if(ch0_period > 0.0) *frequency0Value = fm_rising_edges_ch0 / ch0_period;
 	if(ch1_period > 0.0) *frequency1Value = fm_rising_edges_ch1 / ch1_period;
-	
-	//Logger::debug("ch0 e:{} p:{}", fm_rising_edges_ch0, ch0_period);
-	//Logger::debug("ch1 e:{} p:{}", fm_rising_edges_ch1, ch1_period);
 }
 
 void VIPA_050_1BB40::writeOutputs(){
-	fm_control_ch0 = true;
-	fm_control_ch1 = true;
+	fm_control_ch0 = 0x100;
+	fm_control_ch1 = 0x100;
 	fm_preset_period_ch0 = channel0MeasurementPeriod->getValue() * 1000000.0;
 	fm_preset_period_ch1 = channel1MeasurementPeriod->getValue() * 1000000.0;
 }

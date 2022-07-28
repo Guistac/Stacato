@@ -190,7 +190,7 @@ public:
 	class SsiEncoder : public PositionFeedbackDevice{
 	public:
 		SsiEncoder(std::shared_ptr<VIPA_050_1BS00> module) :
-		MotionDevice(name, Units::AngularDistance::Revolution),
+		MotionDevice("Vipa Module SSI Encoder", Units::AngularDistance::Revolution),
 		PositionFeedbackDevice("Vipa Module SSI Encoder", Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE),
 		encoderModule(module){}
 		
@@ -459,10 +459,7 @@ public:
 	uint32_t fm_preset_period_ch1;
 	uint16_t fm_control_ch0;
 	uint16_t fm_control_ch1;
-	
-	//bool ch0Control = false;
-	//bool ch1Control = false;
-	
+
 	enum class InputFilter{
 		KHZ_600,
 		KHZ_250,

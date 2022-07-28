@@ -11,6 +11,8 @@
 #include "Nodes/NodeFactory.h"
 #include "config.h"
 
+#define MAX_IO_MAP_SIZE 4096
+
 namespace EtherCatFieldbus {
 
     std::vector<std::shared_ptr<NetworkInterfaceCard>> networkInterfaceCards;
@@ -34,7 +36,8 @@ namespace EtherCatFieldbus {
 	std::vector<std::shared_ptr<EtherCatDevice>>& getUnassignedDevices(){ return slaves_unassigned; }
 
 	//contiguous storage for cyclic exchange data
-    uint8_t ioMap[4096];
+	
+    uint8_t ioMap[MAX_IO_MAP_SIZE];
     int ioMapSize = 0;
 
 
@@ -545,11 +548,11 @@ namespace EtherCatFieldbus {
                     char name[128];
                     if (explicitDeviceIdSupported && explicitDeviceID != 0) {
                         slave->identificationType = EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID;
-                        sprintf(name, "%s (ID:%i)", slave->getSaveName(), slave->explicitDeviceID);
+                        sprintf(name, "%s (ID:%i)", slave->getName(), slave->explicitDeviceID);
                     }
                     else {
                         slave->identificationType = EtherCatDevice::IdentificationType::STATION_ALIAS;
-                        sprintf(name, "%s (Alias:%i)", slave->getSaveName(), slave->stationAlias);
+                        sprintf(name, "%s (Alias:%i)", slave->getName(), slave->stationAlias);
                     }
                     slave->setName(name);
                     slaves_unassigned.push_back(slave);
@@ -658,7 +661,9 @@ namespace EtherCatFieldbus {
 			startupProgress.setFailure("Failed to configure devices");
             Logger::error("===== Failed To Configure Devices. Check the Log for more detailed errors.", ioMapSize);
             return false;
-        }
+		}else if(ioMapSize >= MAX_IO_MAP_SIZE){
+			Logger::critical("IoMap size is exceeded !");
+		}
         Logger::info("===== Finished Configuring Devices  (IOMap size : {} bytes)", ioMapSize);
 
 		

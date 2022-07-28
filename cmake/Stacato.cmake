@@ -257,6 +257,10 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/PhoenixContact/BusCouper_IL-EC-BK.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/PhoenixContact/BusCouper_IL-EC-BK_Gui.cpp
 
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EtherCatJunctions.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EtherCatJunctions.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EtherCatJunctionsGui.cpp
+
     #========================== MACHINE TYPES ===========================
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.cpp

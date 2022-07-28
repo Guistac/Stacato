@@ -409,109 +409,6 @@ void Lexium32::writeOutputs() {
 
 
 
-//==============================================================
-//======================= I/O ASSIGNEMENT ======================
-//==============================================================
-
-
-void Lexium32::uploadPinAssignements() {
-
-    pinAssignementUploadState = DataTransferState::TRANSFERRING;
-
-    for (auto& type : Enumerator::getTypes<InputPin>()) {
-        if (type.enumerator == InputPin::NONE) continue;
-        EtherCatCoeData IOfunct_DIx(0x3007, getInputPinSubindex(type.enumerator), EtherCatData::Type::UINT16_T);
-        if (negativeLimitSwitchPin == type.enumerator) IOfunct_DIx.setU16(23);
-        else if (positiveLimitSwitchPin == type.enumerator) IOfunct_DIx.setU16(22);
-        else IOfunct_DIx.setU16(1);
-        if (!IOfunct_DIx.write(getSlaveIndex())) goto transferfailed;
-    }
-
-    {
-        EtherCatCoeData IOsigLIMN(0x3006, 0xF, EtherCatData::Type::UINT16_T);
-        EtherCatCoeData IOsigLIMP(0x3006, 0x10, EtherCatData::Type::UINT16_T);
-
-        if (negativeLimitSwitchPin == InputPin::NONE) IOsigLIMN.setU16(0);
-        else if (b_negativeLimitSwitchNormallyClosed) IOsigLIMN.setU16(1);
-        else IOsigLIMN.setU16(2);
-
-        if (positiveLimitSwitchPin == InputPin::NONE) IOsigLIMP.setU16(0);
-        else if (b_positiveLimitSwitchNormallyClosed) IOsigLIMP.setU16(1);
-        else IOsigLIMP.setU16(2);
-
-        if (!IOsigLIMN.write(getSlaveIndex())) goto transferfailed;
-        if (!IOsigLIMP.write(getSlaveIndex())) goto transferfailed;
-    }
-
-    {
-        //set all output pins to freely available by default
-        EtherCatCoeData IOfunct_DQ0(0x3007, 0x9, EtherCatData::Type::UINT16_T);
-        EtherCatCoeData IOfunct_DQ1(0x3007, 0xA, EtherCatData::Type::UINT16_T);
-        EtherCatCoeData IOfunct_DQ2(0x3007, 0xB, EtherCatData::Type::UINT16_T);
-        IOfunct_DQ0.setU16(1);
-        IOfunct_DQ1.setU16(1);
-        IOfunct_DQ2.setU16(1);
-        if (!IOfunct_DQ0.write(getSlaveIndex())) goto transferfailed;
-        if (!IOfunct_DQ1.write(getSlaveIndex())) goto transferfailed;
-        if (!IOfunct_DQ2.write(getSlaveIndex())) goto transferfailed;
-    }
-
-    pinAssignementUploadState = DataTransferState::SAVING;
-    if (!saveToEEPROM()) goto transferfailed;
-    pinAssignementUploadState = DataTransferState::SAVED;
-    Logger::warn("Pin Assignement Successfull");
-    return;
-
-transferfailed:
-    pinAssignementUploadState = DataTransferState::FAILED;
-    Logger::warn("Pin Assignement Failed");
-    return;
-}
-
-
-void Lexium32::downloadPinAssignements() {
-    pinAssignementDownloadState = DataTransferState::NO_TRANSFER;
-
-    for (auto& type : Enumerator::getTypes<InputPin>()) {
-        if (type.enumerator == InputPin::NONE) continue;
-        EtherCatCoeData IOfunct_DIx(0x3007, getInputPinSubindex(type.enumerator), EtherCatData::Type::UINT16_T);
-        if (!IOfunct_DIx.read(getSlaveIndex())) goto transferfailed;
-        uint16_t pinFunction = IOfunct_DIx.getU16();
-        //for each pin, read the function assignement stored on the drive
-        switch (pinFunction) {
-        case 23:
-            negativeLimitSwitchPin = type.enumerator;
-            break;
-        case 22:
-            positiveLimitSwitchPin = type.enumerator;
-            break;
-        case 1:
-        default:
-            break;
-        }
-    }
-
-    {
-        EtherCatCoeData IOsigLIMN(0x3006, 0xF, EtherCatData::Type::UINT16_T);
-        EtherCatCoeData IOsigLIMP(0x3006, 0x10, EtherCatData::Type::UINT16_T);
-        if (!IOsigLIMN.read(getSlaveIndex())) goto transferfailed;
-        if (!IOsigLIMP.read(getSlaveIndex())) goto transferfailed;
-
-        if (IOsigLIMN.getU16() == 1) b_negativeLimitSwitchNormallyClosed = true;
-        else if (IOsigLIMN.getU16() == 2) b_negativeLimitSwitchNormallyClosed = false;
-
-        if (IOsigLIMP.getU16() == 1) b_positiveLimitSwitchNormallyClosed = true;
-        else if (IOsigLIMP.getU16() == 2) b_positiveLimitSwitchNormallyClosed = false;
-    }
-
-    pinAssignementDownloadState = DataTransferState::SUCCEEDED;
-    return;
-
-transferfailed:
-    pinAssignementDownloadState = DataTransferState::FAILED;
-    return;
-}
-
 
 
 
@@ -649,6 +546,103 @@ void Lexium32::downloadGeneralParameters() {
 
 
 
+//==============================================================
+//======================= I/O ASSIGNEMENT ======================
+//==============================================================
+
+
+void Lexium32::uploadPinAssignements() {
+
+	pinAssignementUploadState = DataTransferState::TRANSFERRING;
+
+	auto onFailure = [&]() -> bool{
+		pinAssignementUploadState = DataTransferState::FAILED;
+		return false;
+	};
+	
+	for(auto& pin : Enumerator::getTypes<InputPin>()){
+		if(pin.enumerator == InputPin::NONE) continue;
+		uint16_t IOfunct_DIx;
+		if(negativeLimitSwitchPin == pin.enumerator) IOfunct_DIx = 23;
+		else if(positiveLimitSwitchPin == pin.enumerator) IOfunct_DIx = 22;
+		else if(holdingBrakeReleasePin == pin.enumerator) IOfunct_DIx = 40;
+		else IOfunct_DIx = 1;
+		if(!writeSDO_U16(0x3007, getInputPinSubindex(pin.enumerator), IOfunct_DIx)) return onFailure();
+	}
+	
+	uint16_t IOsigLIMN;
+	if(negativeLimitSwitchPin == InputPin::NONE) IOsigLIMN = 0;
+	else if(b_negativeLimitSwitchNormallyClosed) IOsigLIMN = 1;
+	else IOsigLIMN = 2;
+	if(!writeSDO_U16(0x3006, 0xF, IOsigLIMN)) return onFailure();
+	
+	uint16_t IOsigLIMP;
+	if(positiveLimitSwitchPin == InputPin::NONE) IOsigLIMP = 0;
+	else if(b_positiveLimitSwitchNormallyClosed) IOsigLIMP = 1;
+	else IOsigLIMP = 2;
+	if(!writeSDO_U16(0x3006, 0x10, IOsigLIMP)) return onFailure();
+
+	
+	//set all output pins to freely available
+	uint16_t IOfunct_DQx = 1;
+	if(!writeSDO_U16(0x3007, 0x9, IOfunct_DQx)) return onFailure();
+	if(!writeSDO_U16(0x3007, 0xA, IOfunct_DQx)) return onFailure();
+	if(!writeSDO_U16(0x3007, 0xB, IOfunct_DQx)) return onFailure();
+
+	pinAssignementUploadState = DataTransferState::SAVING;
+	if (!saveToEEPROM()) return onFailure();
+	
+	pinAssignementUploadState = DataTransferState::SAVED;
+	Logger::info("Pin Assignement Successfull");
+}
+
+
+void Lexium32::downloadPinAssignements() {
+	pinAssignementDownloadState = DataTransferState::NO_TRANSFER;
+
+	auto onFailure = [&]() -> bool{
+		pinAssignementDownloadState = DataTransferState::FAILED;
+		return false;
+	};
+	
+	negativeLimitSwitchPin = InputPin::NONE;
+	positiveLimitSwitchPin = InputPin::NONE;
+	holdingBrakeReleasePin = InputPin::NONE;
+	
+	for (auto& type : Enumerator::getTypes<InputPin>()) {
+		if (type.enumerator == InputPin::NONE) continue;
+		
+		uint16_t IOfunct_DIx;
+		if(!readSDO_U16(0x3007, getInputPinSubindex(type.enumerator), IOfunct_DIx)) return onFailure();
+		
+		//for each pin, read the function assignement stored on the drive
+		switch (IOfunct_DIx) {
+			case 23: negativeLimitSwitchPin = type.enumerator; break;
+			case 22: positiveLimitSwitchPin = type.enumerator; break;
+			case 40: holdingBrakeReleasePin = type.enumerator; break;
+			case 1: //freely available pin / unassigned
+			default: break;
+		}
+	}
+
+	uint16_t IOsignLMN;
+	if(!readSDO_U16(0x3006, 0xF, IOsignLMN)) return onFailure();
+	switch(IOsignLMN){
+		case 1: b_negativeLimitSwitchNormallyClosed = true; break;
+		case 2: b_negativeLimitSwitchNormallyClosed = false; break;
+		default: return onFailure();
+	}
+	
+	uint16_t IOsigLIMP;
+	if(!readSDO_U16(0x3006, 0x10, IOsigLIMP)) return onFailure();
+	switch(IOsigLIMP){
+		case 1: b_positiveLimitSwitchNormallyClosed = true; break;
+		case 2: b_positiveLimitSwitchNormallyClosed = false; break;
+		default: return onFailure();
+	}
+
+	pinAssignementDownloadState = DataTransferState::SUCCEEDED;
+}
 
 
 
@@ -659,23 +653,16 @@ void Lexium32::downloadGeneralParameters() {
 void Lexium32::uploadManualAbsoluteEncoderPosition() {
     encoderAbsolutePositionUploadState = DataTransferState::TRANSFERRING;
 
-    EtherCatCoeData ENC1_adjustment(0x3005, 0x16, EtherCatData::Type::INT32_T);
-	int absolutePositionEncoderIncrements = manualAbsoluteEncoderPosition_revolutions * (float)(0x1 << encoder1_singleTurnResolutionBits);
-	ENC1_adjustment.setS32(absolutePositionEncoderIncrements);
-	if (ENC1_adjustment.write(getSlaveIndex())) goto saving;
-	else goto failed;
-
-saving:
+	auto onFailure = [&]() -> bool {
+		encoderAbsolutePositionUploadState = EtherCatDevice::DataTransferState::FAILED;
+		return false;
+	};
+	
+	int32_t ENC1_adjustment = manualAbsoluteEncoderPosition_revolutions * (float)(0x1 << encoder1_singleTurnResolutionBits);
+	if(!writeSDO_S32(0x3005, 0x16, ENC1_adjustment)) return onFailure();
 
     encoderAbsolutePositionUploadState = DataTransferState::SAVING;
-    if (saveToEEPROM()) encoderAbsolutePositionUploadState = DataTransferState::SAVED;
-    else goto failed;
-    return;
-
-failed:
-
-    encoderAbsolutePositionUploadState = DataTransferState::FAILED;
-    return;
+	if (saveToEEPROM()) return onFailure();
 }
 
 
@@ -874,6 +861,11 @@ void Lexium32::setStationAlias(uint16_t a) {
 bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
     using namespace tinyxml2;
 
+	XMLElement* motorPropertiesXML = xml->InsertNewChildElement("MotorProperties");
+	motorPropertiesXML->SetAttribute("MaxVelocity", maxMotorVelocity);
+	motorPropertiesXML->SetAttribute("MaxCurrent", maxMotorCurrent_amps);
+	motorPropertiesXML->SetAttribute("EncoderIsMultiturn", b_encoderIsMultiturn);
+	
     XMLElement* kinematicLimitsXML = xml->InsertNewChildElement("KinematicLimits");
     kinematicLimitsXML->SetAttribute("velocityLimit_rps", servoMotor->velocityLimit);
     kinematicLimitsXML->SetAttribute("accelerationLimit_rpsps", servoMotor->accelerationLimit);
@@ -929,10 +921,16 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
 bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
 
     using namespace tinyxml2;
+	
+	XMLElement* motorPropertiesXML = xml->FirstChildElement("MotorProperties");
+	if(motorPropertiesXML == nullptr) return Logger::warn("Could not find motor properties");
+	if(motorPropertiesXML->QueryDoubleAttribute("MaxVelocity", &maxMotorVelocity) != XML_SUCCESS) return Logger::warn("Could not read max motor velocity attribute");
+	if(motorPropertiesXML->QueryDoubleAttribute("MaxCurrent", &maxMotorCurrent_amps) != XML_SUCCESS) return Logger::warn("Could not read max motor current attribute");
+	if(motorPropertiesXML->QueryBoolAttribute("EncoderIsMultiturn", &b_encoderIsMultiturn) != XML_SUCCESS) return Logger::warn("Could not read encoder is multiturn attribute");
 
     XMLElement* kinematicLimitsXML = xml->FirstChildElement("KinematicLimits");
     if (kinematicLimitsXML == nullptr) return Logger::warn("Could not find kinematic limits attribute");
-
+	
     if (kinematicLimitsXML->QueryDoubleAttribute("velocityLimit_rps", &servoMotor->velocityLimit) != XML_SUCCESS) return Logger::warn("Could not read velocity limit attribute");
     if (kinematicLimitsXML->QueryDoubleAttribute("accelerationLimit_rpsps", &servoMotor->accelerationLimit) != XML_SUCCESS) return Logger::warn("Could not read acceleration limit attribute");
     if (kinematicLimitsXML->QueryFloatAttribute("manualAcceleration_rpsps", &manualAcceleration_rpsps) != XML_SUCCESS) return Logger::warn("Could not read manual acceleration attribute");

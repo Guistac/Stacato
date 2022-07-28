@@ -89,7 +89,7 @@ void PositionControlledAxis::controlsGui() {
 						   axisPin->getConnectedPin()->getNode()->getName());
 	}
 	
-	ImGui::BeginDisabled(isAxisPinConnected() || !isReady());
+	ImGui::BeginDisabled(isAxisPinConnected());
 	
 	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 	if (state == MotionState::ENABLED) {
@@ -110,13 +110,13 @@ void PositionControlledAxis::controlsGui() {
 	ImGui::SameLine();
 	if (state == MotionState::ENABLED) {
 		if (ImGui::Button("Disable Axis", largeDoubleButtonSize)) disable();
-	}else if (isReady()){
-		if (ImGui::Button("Enable Axis", largeDoubleButtonSize)) enable();
 	}else{
-		ImGui::Button("Axis Not Ready", largeDoubleButtonSize);
+		ImGui::BeginDisabled(state != MotionState::READY);
+		if (ImGui::Button("Enable Axis", largeDoubleButtonSize)) enable();
+		ImGui::EndDisabled();
 	}
 	
-	ImGui::EndDisabled(); //if axis is controlled externally or not ready
+	ImGui::EndDisabled(); //if axis is controlled externally
 	
 	bool b_disableControls = state != MotionState::ENABLED;
 	ImGui::BeginDisabled(b_disableControls);
@@ -877,6 +877,52 @@ void PositionControlledAxis::settingsGui() {
 	popInvalidValue();
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 
+	
+	//----------------- SURVEILLANCE -----------------
+	
+	ImGui::Separator();
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Surveillance");
+	ImGui::PopFont();
+	
+	b_isSurveilled->gui();
+	ImGui::SameLine();
+	ImGui::TextWrapped("Axis is Surveilled");
+	
+	if(b_isSurveilled->value){
+		
+		bool surveillanceDeviceConnected = isSurveillanceFeedbackDeviceConnected();
+		std::shared_ptr<PositionFeedbackDevice> surveillanceDevice;
+		
+		if(!surveillanceDeviceConnected){
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+			ImGui::TextWrapped("Surveillance Feedback Device is not connected");
+			ImGui::PopStyleColor();
+		}else{
+			surveillanceDevice = getSurveillanceFeedbackDevice();
+			ImGui::TextWrapped("Surveillance Device: %s \nPosition Unit: %s", surveillanceDevice->getName().c_str(), surveillanceDevice->getPositionUnit()->singular);
+		}
+		
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+		if(!surveillanceValidInputPin->isConnected()) ImGui::TextWrapped("Suveillance Valid Input Pin is not connected");
+		if(!surveillanceValidOutputPin->isConnected()) ImGui::TextWrapped("Surveillance Valid Output Pin is not connected");
+		if(!surveillanceFaultResetPin->isConnected()) ImGui::TextWrapped("Surveillance Fault Reset Pin is not connected");
+		ImGui::PopStyleColor();
+		
+		ImGui::Text("Surveillance Feedback %s Per Axis %s",
+					surveillanceDeviceConnected ? surveillanceDevice->getPositionUnit()->plural : "Units",
+					getPositionUnit()->singular);
+		surveillancefeedbackUnitsPerAxisUnits->gui();
+
+		ImGui::Text("Max Velocity Deviation");
+		maxVelocityDeviation->gui();
+		
+		ImGui::Text("Max Surveillance Error Clear Time");
+		maxSurveillanceErrorClearTime->gui();
+	}
+	
+	
 }
 
 

@@ -491,6 +491,10 @@ public:
 		value = value_;
 	}
 	
+	static std::shared_ptr<BooleanParameter> make(bool value_, std::string name_, std::string saveString_){
+		return std::make_shared<BooleanParameter>(value_, name_, saveString_);
+	};
+	
 	virtual void onGui() override {
 		ImGui::BeginDisabled(isDisabled());
 		ImGui::Checkbox(getImGuiID(), &displayValue);

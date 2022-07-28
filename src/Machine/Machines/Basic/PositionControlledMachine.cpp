@@ -56,7 +56,7 @@ void PositionControlledMachine::onPinDisconnection(std::shared_ptr<NodePin> pin)
 bool PositionControlledMachine::isHardwareReady() {
 	if (!isAxisConnected()) return false;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-	if (!axis->isReady()) return false;
+	if(axis->getState() != MotionState::READY) return false;
 	return true;
 }
 
