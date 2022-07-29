@@ -8,32 +8,32 @@
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa Vol" UniqueID="366">
-                <InputNodeEditorPosition x="-72" y="550"/>
-                <OutputNodeEditorPosition x="-676" y="713"/>
+                <InputNodeEditorPosition x="104" y="431"/>
+                <OutputNodeEditorPosition x="-660" y="674"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="3"/>
                     <SLIOModules>
+                        <Module Type="VIPA 050-1BS00" Encoding="Gray" TransmissionRate="250Khz" IdleTime="64" CenterRangeOnZero="true" HasResetSignal="true" ResetTime="1" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" Zero_revolutions="0"/>
                         <Module Type="VIPA 022-1HD10">
                             <SignalInversion InvertRelais0="false" InvertRelais1="false" InvertRelais2="false" InvertRelais3="false"/>
                         </Module>
-                        <Module Type="VIPA 050-1BS00" Encoding="Binary" TransmissionRate="500Khz" IdleTime="32" CenterRangeOnZero="false" HasResetSignal="true" ResetTime="1" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" Zero_revolutions="0"/>
                     </SLIOModules>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveString="Module0RelaisOutput0" DisplayString="Relais 0 STO A" DataType="Boolean" UniqueID="376" Visible="true"/>
-                    <InputPin SaveString="Module0RelaisOutput1" DisplayString="Module 0 Relais Output 1" DataType="Boolean" UniqueID="377" Visible="false"/>
-                    <InputPin SaveString="Module0RelaisOutput2" DisplayString="Relais 2 STO B" DataType="Boolean" UniqueID="378" Visible="true"/>
-                    <InputPin SaveString="Module0RelaisOutput3" DisplayString="Module 0 Relais Output 3" DataType="Boolean" UniqueID="379" Visible="false"/>
+                    <InputPin SaveString="Module1RelaisOutput0" DisplayString="Output 0 STO A" DataType="Boolean" UniqueID="546" Visible="true"/>
+                    <InputPin SaveString="Module1RelaisOutput1" DisplayString="Module 1 Relais Output 1" DataType="Boolean" UniqueID="547" Visible="false"/>
+                    <InputPin SaveString="Module1RelaisOutput2" DisplayString="Output 2 STO B" DataType="Boolean" UniqueID="548" Visible="true"/>
+                    <InputPin SaveString="Module1RelaisOutput3" DisplayString="Module 1 Relais Output 3" DataType="Boolean" UniqueID="549" Visible="false"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GPIODeviceLink" UniqueID="367" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Module1SSIEncoder" DisplayString="Codeur SSI Surveillance" DataType="PositionFeedbackDeviceLink" UniqueID="489" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Module1EncoderReset" DisplayString="Zero Codeur SSI" DataType="Boolean" UniqueID="490" Visible="true"/>
+                    <OutputPin SaveString="Module0SSIEncoder" DisplayString="Module 0 SSI Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="544" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Module0EncoderReset" DisplayString="Module 0 SSI Encoder Reset" DataType="Boolean" UniqueID="545" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="true" CustomName="Lexium Vol" UniqueID="387">
-                <InputNodeEditorPosition x="-72" y="678"/>
-                <OutputNodeEditorPosition x="-687" y="441"/>
+                <InputNodeEditorPosition x="-56" y="703"/>
+                <OutputNodeEditorPosition x="-671" y="402"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1238"/>
                     <MotorProperties MaxVelocity="100" MaxCurrent="34.700000000000003" EncoderIsMultiturn="true"/>
@@ -68,8 +68,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa Dispatch" UniqueID="408">
-                <InputNodeEditorPosition x="-72" y="-219"/>
-                <OutputNodeEditorPosition x="-698" y="-242"/>
+                <InputNodeEditorPosition x="-72" y="-173"/>
+                <OutputNodeEditorPosition x="-698" y="-196"/>
                 <NodeSpecificData>
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="64"/>
                     <SLIOModules>
@@ -97,14 +97,14 @@
                     <OutputPin SaveString="Module0DigitalInput1" DisplayString="Input 1 Homme Mort 3" DataType="Boolean" UniqueID="411" Visible="true"/>
                     <OutputPin SaveString="Module0DigitalInput2" DisplayString="Input 2 Homme Mort 1" DataType="Boolean" UniqueID="412" Visible="true"/>
                     <OutputPin SaveString="Module0DigitalInput3" DisplayString="Input 3 Homme Mort 4" DataType="Boolean" UniqueID="413" Visible="true"/>
-                    <OutputPin SaveString="Module0DigitalInput4" DisplayString="Module 0 Digital Input 4" DataType="Boolean" UniqueID="414" Visible="false"/>
-                    <OutputPin SaveString="Module0DigitalInput5" DisplayString="Module 0 Digital Input 5" DataType="Boolean" UniqueID="415" Visible="false"/>
+                    <OutputPin SaveString="Module0DigitalInput4" DisplayString="Input 4 STO Active" DataType="Boolean" UniqueID="414" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput5" DisplayString="Input 5 STO Active" DataType="Boolean" UniqueID="415" Visible="false"/>
                     <OutputPin SaveString="Module0DigitalInput6" DisplayString="Module 0 Digital Input 6" DataType="Boolean" UniqueID="416" Visible="false"/>
                     <OutputPin SaveString="Module0DigitalInput7" DisplayString="Module 0 Digital Input 7" DataType="Boolean" UniqueID="417" Visible="false"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Homme Mort 1" UniqueID="431">
-                <NodeEditorPosition x="-344" y="-468"/>
+                <NodeEditorPosition x="-344" y="-422"/>
                 <NodeSpecificData>
                     <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
                     <ControlWidget UniqueID="4"/>
@@ -119,7 +119,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Homme Mort 2" UniqueID="436">
-                <NodeEditorPosition x="-345" y="-308"/>
+                <NodeEditorPosition x="-345" y="-262"/>
                 <NodeSpecificData>
                     <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
                     <ControlWidget UniqueID="5"/>
@@ -134,7 +134,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Homme Mort 3" UniqueID="441">
-                <NodeEditorPosition x="-344" y="-148"/>
+                <NodeEditorPosition x="-344" y="-102"/>
                 <NodeSpecificData>
                     <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
                     <ControlWidget UniqueID="6"/>
@@ -149,7 +149,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Homme Mort 4" UniqueID="446">
-                <NodeEditorPosition x="-345" y="13"/>
+                <NodeEditorPosition x="-345" y="58"/>
                 <NodeSpecificData>
                     <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
                     <ControlWidget UniqueID="7"/>
@@ -164,7 +164,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="CU1128" Split="false" CustomName="EtherCAT Junction 8-port (Alias:10000)" UniqueID="460">
-                <NodeEditorPosition x="-416" y="-672"/>
+                <NodeEditorPosition x="-416" y="-626"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="10000"/>
                 </NodeSpecificData>
@@ -172,7 +172,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="CU1128" Split="false" CustomName="EtherCAT Junction 8-port (Alias:10001)" UniqueID="461">
-                <NodeEditorPosition x="-416" y="-624"/>
+                <NodeEditorPosition x="-416" y="-578"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="10001"/>
                 </NodeSpecificData>
@@ -180,7 +180,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="CU1124" Split="false" CustomName="EtherCAT Junction 4-port (Alias:10003)" UniqueID="462">
-                <NodeEditorPosition x="-416" y="-528"/>
+                <NodeEditorPosition x="-416" y="-482"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="10003"/>
                 </NodeSpecificData>
@@ -188,7 +188,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="CU1128" Split="false" CustomName="EtherCAT Junction 8-port (Alias:10002)" UniqueID="463">
-                <NodeEditorPosition x="-416" y="-576"/>
+                <NodeEditorPosition x="-416" y="-530"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="10002"/>
                 </NodeSpecificData>
@@ -196,7 +196,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Axe Vol Surveillé" UniqueID="470">
-                <NodeEditorPosition x="-382" y="484"/>
+                <NodeEditorPosition x="-350" y="391"/>
                 <NodeSpecificData>
                     <Units UnitType="Linear" Unit="Meter"/>
                     <UnitConversion ActuatorUnitsPerMachineUnit="57.55395"/>
@@ -249,7 +249,7 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GPIODeviceLink" UniqueID="514" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Module0DigitalInput0" DisplayString="Input 0 STO Console" DataType="Boolean" UniqueID="515" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput0" DisplayString="Input 0 Sortie Preventa" DataType="Boolean" UniqueID="515" Visible="true"/>
                     <OutputPin SaveString="Module0DigitalInput1" DisplayString="Input 1 Homme Mort Déporté" DataType="Boolean" UniqueID="516" Visible="true"/>
                     <OutputPin SaveString="Module0DigitalInput2" DisplayString="Input 2 Homme Mort Gauche" DataType="Boolean" UniqueID="517" Visible="true"/>
                     <OutputPin SaveString="Module0DigitalInput3" DisplayString="Input 3 Homme Mort Droite" DataType="Boolean" UniqueID="518" Visible="true"/>
@@ -267,6 +267,14 @@
                     <OutputPin SaveString="value" DisplayString="value" DataType="Real" UniqueID="541" Visible="true" ForceDataField="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Processor" ClassName="Constant" CustomName="Constant" UniqueID="561">
+                <NodeEditorPosition x="-79" y="460"/>
+                <NodeSpecificData ConstantValue="1"/>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="value" DisplayString="value" DataType="Real" UniqueID="562" Visible="true" ForceDataField="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="451" StartPin="409" EndPin="432"/>
@@ -280,26 +288,24 @@
             <Link UniqueID="485" StartPin="395" EndPin="472"/>
             <Link UniqueID="486" StartPin="396" EndPin="473"/>
             <Link UniqueID="487" StartPin="397" EndPin="474"/>
-            <Link UniqueID="491" StartPin="478" EndPin="376"/>
-            <Link UniqueID="492" StartPin="478" EndPin="378"/>
-            <Link UniqueID="493" StartPin="479" EndPin="389"/>
-            <Link UniqueID="494" StartPin="490" EndPin="388"/>
-            <Link UniqueID="495" StartPin="489" EndPin="477"/>
             <Link UniqueID="505" StartPin="400" EndPin="476"/>
             <Link UniqueID="507" StartPin="412" EndPin="433"/>
             <Link UniqueID="508" StartPin="410" EndPin="438"/>
             <Link UniqueID="509" StartPin="411" EndPin="443"/>
             <Link UniqueID="510" StartPin="439" EndPin="420"/>
             <Link UniqueID="511" StartPin="444" EndPin="419"/>
-            <Link UniqueID="539" StartPin="519" EndPin="422"/>
             <Link UniqueID="542" StartPin="541" EndPin="525"/>
+            <Link UniqueID="558" StartPin="545" EndPin="388"/>
+            <Link UniqueID="559" StartPin="544" EndPin="477"/>
+            <Link UniqueID="563" StartPin="562" EndPin="546"/>
+            <Link UniqueID="564" StartPin="562" EndPin="548"/>
         </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en4" Name="en4"/>
+        <Primary Description="en7" Name="en7"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="8" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

@@ -58,7 +58,7 @@ void Node::nodeGui() {
     if (getType() == Node::Type::CONTAINER) {
 
         NodeEditor::BeginNode(getUniqueID());
-        ImGui::Text("%s", getName());
+        //ImGui::Text("%s", getName());
         NodeEditor::Group(NodeEditor::GetNodeSize(getUniqueID()));
         NodeEditor::EndNode();
         if (NodeEditor::BeginGroupHint(getUniqueID())) {

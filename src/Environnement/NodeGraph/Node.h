@@ -61,7 +61,7 @@ public:
 	int getUniqueID() { return uniqueID; }
 	bool isInNodeGraph() { return b_isInNodeGraph; }
 	glm::vec2 getNodeGraphPosition();
-	void restoreSavedPosition();
+	virtual void restoreSavedPosition();
 	
 	//processing
 	virtual void inputProcess(){}
