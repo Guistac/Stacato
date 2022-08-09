@@ -54,7 +54,7 @@ bool ATV320::startupConfiguration() {
 	
 	//rated motor voltage in 1V increments
 	uint16_t ratedMotorVoltage = 400;
-	if(writeSDO_U16(0x2042, 0x2, ratedMotorVoltage)) return false;
+	if(!writeSDO_U16(0x2042, 0x2, ratedMotorVoltage)) return false;
 	
 	//rated motor power in 0.1Kw increments
 	uint16_t ratedMotorPower = 75;
@@ -69,9 +69,8 @@ bool ATV320::startupConfiguration() {
 	if(!writeSDO_U16(0x2042, 0x5, nominalMotorSpeed)) return false;
 
 	//set motor control type to standart (Standart aynchronous motor control = 3)
-	uint16_t motorControlType = 3;
-	if(!writeSDO_U16(0x2042, 0x8, motorControlType)) return false;
-	
+	//uint16_t motorControlType = 3;
+	//if(!writeSDO_U16(0x2042, 0x8, motorControlType)) return false;
 	
 	//————————— CONTROL SETTINGS —————————————
 	
@@ -175,8 +174,6 @@ bool ATV320::startupConfiguration() {
 
 void ATV320::readInputs() {
 	txPdoAssignement.pullDataFrom(identity->inputs);
-
-	//b_velocityTargetReached = ds402Status.getOperationModeSpecificByte10();
 	
 	//read power state
 	auto newPowerState = ds402Status.getPowerState();
@@ -185,8 +182,6 @@ void ATV320::readInputs() {
 		pushEvent(message.c_str(), !DS402::isNominal(newPowerState));
 	}
 	actualPowerState = newPowerState;
-	
-	b_hasFault = ds402Status.hasFault();
 	
 	//react to power state change
 	if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED && actualPowerState != DS402::PowerState::OPERATION_ENABLED){
@@ -197,20 +192,13 @@ void ATV320::readInputs() {
 	}
 	
 	actuator->b_emergencyStopActive = stoState != 0;
+	actuator->load = (double)motorPower / 100.0;
+	actuator->b_hasHoldingBrake = false;
+	actuator->b_hasFault = ds402Status.hasFault();
 		
-	/*
-	actuator->load;
-	actuator->b_hasHoldingBrake;
-	actuator->b_holdingBrakeIsReleased;
-	actuator->b_applyHoldingBrake;
-	actuator->b_releaseHoldingBrake;
-	actuator->b_hasFault;
-	 */
+	b_motorVoltagePresent = ds402Status.statusWord & 0x10;
 	
-	//servoMotor->b_emergencyStopActive = b_stoActive;
 	
-	//b_faultNeedsRestart = _actionStatus & 0x10;
-	//b_motorVoltagePresent = ds402Status.statusWord & 0x10;
 	
 	//set the encoder position in revolution units and velocity in revolutions per second
 	//servoMotor->position = (double)_p_act / (double)positionUnitsPerRevolution;
@@ -219,15 +207,17 @@ void ATV320::readInputs() {
 	//servoMotor->followingError = (double)_p_dif_usr / (double)positionUnitsPerRevolution;
 	//servoMotor->b_isMoving = std::abs(servoMotor->velocity) > 0.03;
 	
+	
+	
 	//assign public input data
 	*actualVelocity = velocityActual_rpm / 60;
 	
-	*digitalInput1 = logicInputs & 0x1;
-	*digitalInput2 = logicInputs & 0x2;
-	*digitalInput3 = logicInputs & 0x4;
-	*digitalInput4 = logicInputs & 0x8;
-	*digitalInput5 = logicInputs & 0x10;
-	*digitalInput6 = logicInputs & 0x20;
+	*digitalInput1Signal = logicInputs & 0x1;
+	*digitalInput2Signal = logicInputs & 0x2;
+	*digitalInput3Signal = logicInputs & 0x4;
+	*digitalInput4Signal = logicInputs & 0x8;
+	*digitalInput5Signal = logicInputs & 0x10;
+	*digitalInput6Signal = logicInputs & 0x20;
 	
 	if(!isConnected()) 														actuator->state = MotionState::OFFLINE;
 	//else if(b_hasFault && b_faultNeedsRestart) 								actuator->state = MotionState::OFFLINE;
@@ -255,6 +245,8 @@ void ATV320::readInputs() {
 //==============================================================
 
 void ATV320::writeOutputs() {
+	
+	Logger::warn("ATV outputs");
 	
 	//state change commands
 	//bool b_enable = false;

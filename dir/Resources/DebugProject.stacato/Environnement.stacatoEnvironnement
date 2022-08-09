@@ -209,7 +209,7 @@
                     <Identification Type="StationAlias" StationAlias="101"/>
                     <SLIOModules>
                         <Module Type="VIPA 021-1BF00">
-                            <SignalInversion InvertInput0="true" InvertInput1="true" InvertInput2="true" InvertInput3="true" InvertInput4="false" InvertInput5="false" InvertInput6="false" InvertInput7="false"/>
+                            <SignalInversion InvertInput0="true" InvertInput1="true" InvertInput2="true" InvertInput3="true" InvertInput4="true" InvertInput5="false" InvertInput6="false" InvertInput7="false"/>
                         </Module>
                     </SLIOModules>
                 </NodeSpecificData>
@@ -235,12 +235,12 @@
                 <OutputPins>
                     <OutputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorDeviceLink" UniqueID="97" Visible="true" NoDataField="true"/>
                     <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GPIODeviceLink" UniqueID="98" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="DI1" DisplayString="DI1" DataType="Boolean" UniqueID="99" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="100" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="101" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="102" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="103" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="DI6" DisplayString="DI6" DataType="Boolean" UniqueID="104" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI1" DisplayString="DI1 Montée Locale" DataType="Boolean" UniqueID="99" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2 Descente Locale" DataType="Boolean" UniqueID="100" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3 Commande Réseau Active" DataType="Boolean" UniqueID="101" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4 Ralentissement Manuel" DataType="Boolean" UniqueID="102" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5  Acquittement Local" DataType="Boolean" UniqueID="103" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI6" DisplayString="DI6 Défaut Externe NC" DataType="Boolean" UniqueID="104" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="105" Visible="true"/>
                 </OutputPins>
             </Node>
@@ -253,12 +253,12 @@
                     <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="100" manualAcceleration_rpsps="100"/>
                     <InvertDirectionOfMovement Invert="true"/>
                     <MaxFollowingError revolutions="2"/>
-                    <CurrentLimit amps="30"/>
+                    <CurrentLimit amps="5"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="100"/>
-                    <NegativeLimitSwitch Pin="Unassigned"/>
-                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <NegativeLimitSwitch Pin="DI2" NormallyClosed="true"/>
+                    <PositiveLimitSwitch Pin="DI3" NormallyClosed="true"/>
                     <DigitalPinInversion DI0="true" DI1="true" DI2="true" DI3="true" DI4="false" DI5="true"/>
-                    <EncoderSettings RangeShifted="true" PositionOffset_revolutions="-402.61712646484375"/>
+                    <EncoderSettings RangeShifted="true" PositionOffset_revolutions="-402.60984039306641"/>
                     <HoldingBrake HasHoldingBrake="true"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -347,8 +347,8 @@
                     <UnitConversion ActuatorUnitsPerMachineUnit="57.55395"/>
                     <KinematicLimits VelocityLimit="1" AccelerationLimit="1" ManualAcceleration="1"/>
                     <PositionReferenceSignals Type="LowHighSignals" HomingVelocityCoarse="0.5" HomingVelocityFine="0.10000000000000001" HomingDirection="Negative"/>
-                    <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="0" HighLimit="0" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="true"/>
-                    <Surveillance AxisIsSurveilled="true" SurveillanceFeedbackUnitsPerAxisUnits="57.55395" MaxSurveillanceVelocityDeviation="0.10000000000000001" MaxSurveillanceErrorClearTime="0.10000000000000001"/>
+                    <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="0" HighLimit="14.149305728768264" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="true"/>
+                    <Surveillance AxisIsSurveilled="true" SurveillanceFeedbackUnitsPerAxisUnits="-1.4388000000000001" MaxSurveillanceVelocityDeviation="0.5" MaxSurveillanceErrorClearTime="0.10000000000000001"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="ServoActuator" DisplayString="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="674" Visible="true" NoDataField="true"/>

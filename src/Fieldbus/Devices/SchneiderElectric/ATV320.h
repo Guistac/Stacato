@@ -35,20 +35,20 @@ public:
 	
 	std::shared_ptr<ATV_Motor> actuator;
 	std::shared_ptr<ATV_GPIO> gpio;
-	std::shared_ptr<bool> digitalInput1 = std::make_shared<bool>(false);
-	std::shared_ptr<bool> digitalInput2 = std::make_shared<bool>(false);
-	std::shared_ptr<bool> digitalInput3 = std::make_shared<bool>(false);
-	std::shared_ptr<bool> digitalInput4 = std::make_shared<bool>(false);
-	std::shared_ptr<bool> digitalInput5 = std::make_shared<bool>(false);
-	std::shared_ptr<bool> digitalInput6 = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput1Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput2Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput3Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput4Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput5Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput6Signal = std::make_shared<bool>(false);
 	std::shared_ptr<double> actualVelocity = std::make_shared<double>(0.0);
 	
-	std::shared_ptr<NodePin> digitalInput1Pin = std::make_shared<NodePin>(digitalInput1, NodePin::Direction::NODE_OUTPUT, "DI1", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput2Pin = std::make_shared<NodePin>(digitalInput1, NodePin::Direction::NODE_OUTPUT, "DI2", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput3Pin = std::make_shared<NodePin>(digitalInput1, NodePin::Direction::NODE_OUTPUT, "DI3", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput4Pin = std::make_shared<NodePin>(digitalInput1, NodePin::Direction::NODE_OUTPUT, "DI4", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput5Pin = std::make_shared<NodePin>(digitalInput1, NodePin::Direction::NODE_OUTPUT, "DI5", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput6Pin = std::make_shared<NodePin>(digitalInput1, NodePin::Direction::NODE_OUTPUT, "DI6", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput1Pin = std::make_shared<NodePin>(digitalInput1Signal, NodePin::Direction::NODE_OUTPUT, "DI1", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput2Pin = std::make_shared<NodePin>(digitalInput2Signal, NodePin::Direction::NODE_OUTPUT, "DI2", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput3Pin = std::make_shared<NodePin>(digitalInput3Signal, NodePin::Direction::NODE_OUTPUT, "DI3", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput4Pin = std::make_shared<NodePin>(digitalInput4Signal, NodePin::Direction::NODE_OUTPUT, "DI4", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput5Pin = std::make_shared<NodePin>(digitalInput5Signal, NodePin::Direction::NODE_OUTPUT, "DI5", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput6Pin = std::make_shared<NodePin>(digitalInput6Signal, NodePin::Direction::NODE_OUTPUT, "DI6", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator");
 	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
 	std::shared_ptr<NodePin> actualVelocityPin = std::make_shared<NodePin>(actualVelocity, NodePin::Direction::NODE_OUTPUT, "Velocity");
@@ -58,8 +58,8 @@ public:
 	DS402::PowerState actualPowerState = DS402::PowerState::UNKNOWN;
 	bool b_resetFaultCommand = false;
 	bool b_velocityTargetReached = false;
-	bool b_hasFault = false;
 	long long enableRequestTime_nanoseconds;
+	bool b_motorVoltagePresent = false;
 	
 	//————— RX PDO —————
 	DS402::Control ds402Control;
