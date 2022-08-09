@@ -245,6 +245,7 @@ private:
 	//================ SURVEILLANCE ==================
 	
 	bool b_hasSurveillanceError = false;
+	bool b_isClearingSurveillanceError = false;
 	
 	std::shared_ptr<BooleanParameter> b_isSurveilled = BooleanParameter::make(false,
 																			  "Axis is Surveilled",
@@ -263,8 +264,17 @@ private:
 																										   "%.3f",
 																										   Units::Time::Second);
 
+	double surveillanceUnitsToAxisUnits(double surveillanceValue) { return surveillanceValue / surveillancefeedbackUnitsPerAxisUnits->value; }
+	double axisUnitsToSurveillanceUnits(double axisValue) { return axisValue * surveillancefeedbackUnitsPerAxisUnits->value; }
+	
+	double surveillanceVelocity = 0.0;
+	double surveillanceVelocityError = 0.0;
+	
 	bool isSurveilled(){ return b_isSurveilled->value; }
 	void updateSurveillance();
+	
+	void clearSurveillanceFault();
+	void triggerSurveillanceFault();
 	
 	void setSurveillance(bool isSurveilled);
 	

@@ -1,5 +1,7 @@
 #include "ATV320.h"
 
+#include "Fieldbus/EtherCatFieldbus.h"
+
 void ATV320::onConnection() {
 }
 
@@ -7,14 +9,35 @@ void ATV320::onDisconnection() {
 }
 
 void ATV320::initialize() {
+	
+	std::shared_ptr<ATV320> thisDrive = std::static_pointer_cast<ATV320>(shared_from_this());
+	actuator = std::make_shared<ATV_Motor>(thisDrive);
+	gpio = std::make_shared<ATV_GPIO>(thisDrive);
+	
+	actuatorPin->assignData(std::static_pointer_cast<ActuatorDevice>(actuator));
+	gpioPin->assignData(std::static_pointer_cast<GpioDevice>(gpio));
+	
+	addNodePin(actuatorPin);
+	addNodePin(gpioPin);
+	
+	addNodePin(digitalInput1Pin);
+	addNodePin(digitalInput2Pin);
+	addNodePin(digitalInput3Pin);
+	addNodePin(digitalInput4Pin);
+	addNodePin(digitalInput5Pin);
+	addNodePin(digitalInput6Pin);
+	addNodePin(actualVelocityPin);
+	
 	rxPdoAssignement.addNewModule(0x1600);
 	rxPdoAssignement.addEntry(0x6040, 0x0, 16, "ControlWorld", &ds402Control.controlWord);
-	rxPdoAssignement.addEntry(0x6042, 0x0, 16, "VelocityTarget", &velocityTarget);
+	rxPdoAssignement.addEntry(0x6042, 0x0, 16, "VelocityTarget", &velocityTarget_rpm);
 	
 	txPdoAssignement.addNewModule(0x1A00);
-	txPdoAssignement.addEntry(0x6041, 0x0, 16, "StatusWord", &ds402SStatus.statusWord);
-	txPdoAssignement.addEntry(0x6044, 0x0, 16, "VelocityActual", &velocityActual);
+	txPdoAssignement.addEntry(0x6041, 0x0, 16, "StatusWord", &ds402Status.statusWord);
+	txPdoAssignement.addEntry(0x6044, 0x0, 16, "VelocityActual", &velocityActual_rpm);
+	txPdoAssignement.addEntry(0x2002, 0xC, 16, "MotorPower", &motorPower);
 	txPdoAssignement.addEntry(0x2016, 0x3, 16, "LogicInputs", &logicInputs);
+	txPdoAssignement.addEntry(0x207B, 0x17, 16, "STOstate", &stoState);
 }
 
 //==============================================================
@@ -153,8 +176,77 @@ bool ATV320::startupConfiguration() {
 void ATV320::readInputs() {
 	txPdoAssignement.pullDataFrom(identity->inputs);
 
-	powerStateActual = ds402SStatus.getPowerState();
-	b_velocityTargetReached = ds402SStatus.getOperationModeSpecificByte10();
+	//b_velocityTargetReached = ds402Status.getOperationModeSpecificByte10();
+	
+	//read power state
+	auto newPowerState = ds402Status.getPowerState();
+	if(newPowerState != actualPowerState){
+		std::string message = "Power State changed to " + std::string(Enumerator::getDisplayString(newPowerState));
+		pushEvent(message.c_str(), !DS402::isNominal(newPowerState));
+	}
+	actualPowerState = newPowerState;
+	
+	b_hasFault = ds402Status.hasFault();
+	
+	//react to power state change
+	if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED && actualPowerState != DS402::PowerState::OPERATION_ENABLED){
+		if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - enableRequestTime_nanoseconds > enableRequestTimeout_nanoseconds){
+			Logger::warn("{} : Enable Request Timeout", getName());
+			requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
+		}
+	}
+	
+	actuator->b_emergencyStopActive = stoState != 0;
+		
+	/*
+	actuator->load;
+	actuator->b_hasHoldingBrake;
+	actuator->b_holdingBrakeIsReleased;
+	actuator->b_applyHoldingBrake;
+	actuator->b_releaseHoldingBrake;
+	actuator->b_hasFault;
+	 */
+	
+	//servoMotor->b_emergencyStopActive = b_stoActive;
+	
+	//b_faultNeedsRestart = _actionStatus & 0x10;
+	//b_motorVoltagePresent = ds402Status.statusWord & 0x10;
+	
+	//set the encoder position in revolution units and velocity in revolutions per second
+	//servoMotor->position = (double)_p_act / (double)positionUnitsPerRevolution;
+	//servoMotor->velocity = (double)_v_act / ((double)velocityUnitsPerRpm * 60.0);
+	//servoMotor->load = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
+	//servoMotor->followingError = (double)_p_dif_usr / (double)positionUnitsPerRevolution;
+	//servoMotor->b_isMoving = std::abs(servoMotor->velocity) > 0.03;
+	
+	//assign public input data
+	*actualVelocity = velocityActual_rpm / 60;
+	
+	*digitalInput1 = logicInputs & 0x1;
+	*digitalInput2 = logicInputs & 0x2;
+	*digitalInput3 = logicInputs & 0x4;
+	*digitalInput4 = logicInputs & 0x8;
+	*digitalInput5 = logicInputs & 0x10;
+	*digitalInput6 = logicInputs & 0x20;
+	
+	if(!isConnected()) 														actuator->state = MotionState::OFFLINE;
+	//else if(b_hasFault && b_faultNeedsRestart) 								actuator->state = MotionState::OFFLINE;
+	//else if(b_stoActive) 													actuator->state = MotionState::NOT_READY;
+	//else if(!b_motorVoltagePresent) 										actuator->state = MotionState::NOT_READY;
+	else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) 	actuator->state = MotionState::NOT_READY;
+	else if(actualPowerState == DS402::PowerState::SWITCH_ON_DISABLED)		actuator->state = MotionState::NOT_READY;
+	else if(actualPowerState == DS402::PowerState::OPERATION_ENABLED) 		actuator->state = MotionState::ENABLED;
+	else 																	actuator->state = MotionState::READY;
+
+	if(!isConnected()) 					gpio->state = MotionState::OFFLINE;
+	else if(isStateSafeOperational()) 	gpio->state = MotionState::READY;
+	else if(isStateOperational()) 		gpio->state = MotionState::ENABLED;
+	else 								gpio->state = MotionState::NOT_READY;
+	
+	
+	
+	
+	
 	
 }
 
@@ -164,7 +256,12 @@ void ATV320::readInputs() {
 
 void ATV320::writeOutputs() {
 	
-	ds402Control.setPowerState(powerStateTarget, powerStateActual);
+	//state change commands
+	//bool b_enable = false;
+	//bool b_disable = false;
+	//bool b_quickstop = false;
+	
+	ds402Control.setPowerState(requestedPowerState, actualPowerState);
 	if(b_resetFaultCommand) {
 		b_resetFaultCommand = false;
 		ds402Control.performFaultReset();

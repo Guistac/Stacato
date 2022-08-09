@@ -6,15 +6,15 @@ void ATV320::deviceSpecificGui(){
 	
 	if(ImGui::BeginTabItem("Controls")){
 	
-		if(ImGui::BeginCombo("Requested Power State", Enumerator::getDisplayString(powerStateTarget))){
+		if(ImGui::BeginCombo("Requested Power State", Enumerator::getDisplayString(requestedPowerState))){
 			for(auto& state : Enumerator::getTypes<DS402::PowerState>()){
-				if(ImGui::Selectable(state.displayString, state.enumerator == powerStateTarget)){
-					powerStateTarget = state.enumerator;
+				if(ImGui::Selectable(state.displayString, state.enumerator == requestedPowerState)){
+					requestedPowerState = state.enumerator;
 				}
 			}
 			ImGui::EndCombo();
 		}
-		ImGui::Text("Actual Power State: %s", Enumerator::getDisplayString(powerStateActual));
+		ImGui::Text("Actual Power State: %s", Enumerator::getDisplayString(actualPowerState));
 		
 		if(ImGui::Button("Reset Fault")) b_resetFaultCommand = true;
 		
@@ -28,8 +28,8 @@ void ATV320::deviceSpecificGui(){
 		int maxVelocity = 2000;
 		int16_t max = maxVelocity;
 		int16_t min = -maxVelocity;
-		ImGui::SliderScalar("##VelocityTarget", ImGuiDataType_S16, &velocityTarget, &min, &max);
-		if(ImGui::IsItemDeactivatedAfterEdit()) velocityTarget = 0;
+		ImGui::SliderScalar("##VelocityTarget", ImGuiDataType_S16, &velocityTarget_rpm, &min, &max);
+		if(ImGui::IsItemDeactivatedAfterEdit()) velocityTarget_rpm = 0;
 		
 		ImGui::InvisibleButton("velocityIndicator", ImGui::GetItemRectSize());
 		glm::vec2 minIndicator = ImGui::GetItemRectMin();
@@ -37,7 +37,7 @@ void ATV320::deviceSpecificGui(){
 		glm::vec2 sizeIndicator = ImGui::GetItemRectSize();
 		ImDrawList* drawing = ImGui::GetWindowDrawList();
 		drawing->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImGui::GetColorU32(ImGuiCol_Button), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
-		float velocityNormalized = (float)velocityActual / maxVelocity;
+		float velocityNormalized = (float)velocityActual_rpm / maxVelocity;
 		float sizeIndicatorWidthHalf = sizeIndicator.x / 2.0;
 		float velocityWidth = velocityNormalized * sizeIndicatorWidthHalf;
 		if(velocityNormalized > 0.0f){
@@ -53,7 +53,7 @@ void ATV320::deviceSpecificGui(){
 		glm::vec2 maxCenter = glm::vec2(minIndicator.x + sizeIndicatorWidthHalf, maxIndicator.y);
 		ImColor centerColor = b_velocityTargetReached ? ImColor(.0f, 1.0f, .0f, 1.f) : ImColor(1.f, 1.f, 1.f, 1.f);
 		drawing->AddRectFilled(minCenter, maxCenter, centerColor, 2.0);
-		ImGui::Text("Velocity: %i", velocityActual);
+		ImGui::Text("Velocity: %i", velocityActual_rpm);
 		
 		std::bitset<16> bits16;
 		bits16 = logicInputs;

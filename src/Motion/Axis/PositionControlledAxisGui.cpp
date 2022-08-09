@@ -18,6 +18,8 @@
 
 #include "Motion/Curve/Curve.h"
 
+#include "Gui/Utilities/CustomWidgets.h"
+
 static bool b_axisValueInvalid = false;
 
 void pushInvalidValue(bool doit){
@@ -118,13 +120,34 @@ void PositionControlledAxis::controlsGui() {
 	
 	ImGui::EndDisabled(); //if axis is controlled externally
 	
-	bool b_disableControls = state != MotionState::ENABLED;
-	ImGui::BeginDisabled(b_disableControls);
 	
-	ImGui::BeginDisabled(isHoming());
+	if(isSurveilled()){
+		
+		if(state == MotionState::OFFLINE){
+			backgroundText("Axis Offline", largeDoubleButtonSize, Colors::blue);
+		}
+		else if(b_hasSurveillanceError){
+			bool blink = fmod(Timing::getProgramTime_seconds(), 0.5) < 0.25;
+			backgroundText("Surveillance Fault", largeDoubleButtonSize, blink ? Colors::red : Colors::yellow);
+		}else{
+			backgroundText("Surveillance OK", largeDoubleButtonSize, Colors::green);
+		}
+		ImGui::SameLine();
+		
+		if(b_hasSurveillanceError){
+			if(ImGui::Button("Clear Surveillance Fault", largeDoubleButtonSize)) clearSurveillanceFault();
+		}
+		else{
+			if(ImGui::Button("Trigger Surveillance Fault", largeDoubleButtonSize)) triggerSurveillanceFault();
+		}
+		
+	}
 	
 	//------------------- VELOCITY CONTROLS ------------------------
 
+	ImGui::BeginDisabled(state != MotionState::ENABLED);
+	ImGui::BeginDisabled(isHoming());
+	
 	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Velocity Control");
 	ImGui::PopFont();
@@ -330,6 +353,8 @@ void PositionControlledAxis::controlsGui() {
 	}
 	ImGui::EndDisabled(); //disable set scaling
 	
+	ImGui::EndDisabled(); //master controls disable
+	
 	ImGui::Separator();
 		
 		
@@ -345,10 +370,10 @@ void PositionControlledAxis::controlsGui() {
 	double maxPosition = 0.0;
 	double positionProgress = 0.0;
 	static char positionString[32];
-	if (state != MotionState::ENABLED) {
+	if (state == MotionState::OFFLINE) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		positionProgress = 1.0;
-		sprintf(positionString, "Axis Disabled");
+		sprintf(positionString, "Axis Offline");
 	}
 	else {
 		minPosition = getLowPositionLimit();
@@ -378,10 +403,10 @@ void PositionControlledAxis::controlsGui() {
 	//actual velocity
 	float velocityProgress;
 	static char velocityString[32];
-	if (state != MotionState::ENABLED) {
+	if (state == MotionState::OFFLINE) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		velocityProgress = 1.0;
-		sprintf(velocityString, "Axis Disabled");
+		sprintf(velocityString, "Axis Offline");
 	}
 	else {
 		velocityProgress = std::abs(*actualVelocityValue) / velocityLimit;
@@ -397,7 +422,7 @@ void PositionControlledAxis::controlsGui() {
 	float positionErrorProgress;
 	float maxfollowingError = 0.0;
 	static char positionErrorString[32];
-	if(state != MotionState::ENABLED){
+	if(state == MotionState::OFFLINE){
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		positionErrorProgress = 1.0;
 		sprintf(positionErrorString, "Axis Disabled");
@@ -411,6 +436,44 @@ void PositionControlledAxis::controlsGui() {
 		sprintf(positionErrorString, "%.3f %s", followingError, positionUnit->abbreviated);
 	}
 	
+	
+	if(isSurveilled()){
+		
+		float surveillanceVelocityProgress;
+		static char surveillanceVelocityString[32];
+		if(state == MotionState::OFFLINE){
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+			surveillanceVelocityProgress = 1.0;
+			sprintf(surveillanceVelocityString, "Axis Offline");
+		}
+		else{
+			surveillanceVelocityProgress = std::min(std::abs(surveillanceVelocity / velocityLimit), 1.0);
+			sprintf(surveillanceVelocityString, "%.2f %s/s", surveillanceVelocity, positionUnit->abbreviated);
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+		}
+		ImGui::Text("Surveillance Velocity :");
+		ImGui::ProgressBar(surveillanceVelocityProgress, progressBarSize, surveillanceVelocityString);
+		ImGui::PopStyleColor();
+		
+		
+		float surveillanceErrorProgress;
+		static char surveillanceErrorString[32];
+		if(state == MotionState::OFFLINE){
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
+			surveillanceErrorProgress = 1.0;
+			sprintf(surveillanceErrorString, "Axis Offline");
+		}else{
+			surveillanceErrorProgress = std::min(std::abs(surveillanceVelocityError / maxVelocityDeviation->value), 1.0);
+			sprintf(surveillanceErrorString, "%.2f %s/s", surveillanceVelocityError, positionUnit->abbreviated);
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+		}
+		
+		ImGui::Text("Surveillance Velocity Error : (max %.3f %s/s)", maxVelocityDeviation->value, positionUnit->abbreviated);
+		ImGui::ProgressBar(surveillanceErrorProgress, progressBarSize, surveillanceErrorString);
+		ImGui::PopStyleColor();
+	}
+	
+	
 	ImGui::Text("Current Following Error : (max %.3f%s)", maxfollowingError, positionUnit->abbreviated);
 	ImGui::ProgressBar(positionErrorProgress, progressBarSize, positionErrorString);
 	ImGui::PopStyleColor();
@@ -419,9 +482,9 @@ void PositionControlledAxis::controlsGui() {
 	float targetProgress;
 	double movementSecondsLeft = 0.0;
 	static char movementProgressChar[32];
-	if (state != MotionState::ENABLED) {
+	if (state == MotionState::OFFLINE) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		sprintf(movementProgressChar, "Axis Disabled");
+		sprintf(movementProgressChar, "Axis Offline");
 		targetProgress = 1.0;
 	}
 	else if (controlMode != ControlMode::POSITION_TARGET) {
@@ -460,9 +523,9 @@ void PositionControlledAxis::controlsGui() {
 		feedbackPositionUnit = servo->getPositionUnit();
 		feedbackPosition = servo->getPosition();
 	}
-	if (state != MotionState::ENABLED) {
+	if (state == MotionState::OFFLINE) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		sprintf(rangeString, "Axis Disabled");
+		sprintf(rangeString, "Axis Offline");
 		rangeProgress = 1.0;
 	}
 	else if (rangeProgress < 1.0 && rangeProgress > 0.0) {
@@ -482,8 +545,6 @@ void PositionControlledAxis::controlsGui() {
 				feedbackPositionUnit->abbreviated);
 	ImGui::ProgressBar(rangeProgress, progressBarSize, rangeString);
 	ImGui::PopStyleColor();
-	
-	ImGui::EndDisabled(); //master controls disable
 }
 
 
@@ -901,7 +962,16 @@ void PositionControlledAxis::settingsGui() {
 			ImGui::PopStyleColor();
 		}else{
 			surveillanceDevice = getSurveillanceFeedbackDevice();
-			ImGui::TextWrapped("Surveillance Device: %s \nPosition Unit: %s", surveillanceDevice->getName().c_str(), surveillanceDevice->getPositionUnit()->singular);
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("Surveillance Device:");
+			ImGui::PopFont();
+			ImGui::SameLine();
+			ImGui::TextWrapped("%s", surveillanceDevice->getName().c_str());
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("Position Unit:");
+			ImGui::PopFont();
+			ImGui::SameLine();
+			ImGui::TextWrapped("%s", surveillanceDevice->getPositionUnit()->singular);
 		}
 		
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);

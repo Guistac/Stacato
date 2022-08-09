@@ -280,6 +280,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/FlipStateMachine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/FlipStateMachine.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/FlipStateMachineGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/AxisStateMachine.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/AxisStateMachine.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/AxisStateMachineGui.cpp
 
     #========================= AXIS TYPES =========================
 

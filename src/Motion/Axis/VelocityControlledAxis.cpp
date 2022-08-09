@@ -11,6 +11,11 @@
 void VelocityControlledAxis::initialize() {
 	//inputs
 	addNodePin(actuatorPin);
+	addNodePin(gpioPin);
+	addNodePin(lowLimitPin);
+	addNodePin(lowSlowdownPin);
+	addNodePin(highLimitPin);
+	addNodePin(highSlowdownPin);
 	
 	//outputs
 	std::shared_ptr<VelocityControlledAxis> thisAxis = std::static_pointer_cast<VelocityControlledAxis>(shared_from_this());

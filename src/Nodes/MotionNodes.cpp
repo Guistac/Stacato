@@ -4,6 +4,7 @@
 
 #include "Machine/Machines/Basic/PositionControlledMachine.h"
 #include "Machine/Machines/StateMachines/FlipStateMachine.h"
+#include "Machine/Machines/StateMachines/AxisStateMachine.h"
 
 #include "Motion/Axis/VelocityControlledAxis.h"
 #include "Motion/Axis/PositionControlledAxis.h"
@@ -35,7 +36,8 @@ namespace NodeFactory{
 		
 		allMachineNodes = {
 			new PositionControlledMachine(),
-			new FlipStateMachine()
+			new FlipStateMachine(),
+			new AxisStateMachine()
 		};
 		
 		allSafetyNodes = {

@@ -408,15 +408,9 @@ bool VIPA_050_1BS00::configureParameters(){
 	
 	uint8_t ssiModeSetting = 0x0;
 	ssiModeSetting |= 0b10; //set ssi master mode
-	if(getBitDirectionValue(bitshiftDirection)) {
-		ssiModeSetting |= 0b100;
-	}
-	if(getClockEdgeValue(clockEdge)) {
-		ssiModeSetting |= 0b1000;
-	}
-	if(getEncodingValue(encodingFormat)) {
-		ssiModeSetting |= 0b10000;
-	}
+	if(getBitDirectionValue(bitshiftDirection)) ssiModeSetting |= 0b100;
+	if(getClockEdgeValue(clockEdge)) ssiModeSetting |= 0b1000;
+	if(getEncodingValue(encodingFormat)) ssiModeSetting |= 0b10000;
 	//last three bits are reserved to 0
 	if(!parentBusCoupler->writeSDO_U8(settingsObjectIndex, 0x7, ssiModeSetting)) return false;
 	
@@ -435,8 +429,9 @@ void VIPA_050_1BS00::readInputs(){
 	
 	encoderPosition_revolutions = (float)encoderValue / (float)incrementsPerRevolution;
 	if(b_centerRangeOnZero && encoderPosition_revolutions >= maxRevolutions / 2) encoderPosition_revolutions -= maxRevolutions;
-		
-	double readingDeltaT_seconds = (double)(time_microseconds - previousReadingTime_microseconds) / 1000000.0;
+	
+	uint16_t deltaT_microseconds = time_microseconds - previousReadingTime_microseconds;
+	double readingDeltaT_seconds = double(deltaT_microseconds) / 1000000.0;
 	double positionDelta_revolutions = encoderPosition_revolutions - previousEncoderPosition_revolutions;
 	encoderVelocity_revolutionsPerSecond = positionDelta_revolutions / readingDeltaT_seconds;
 	
@@ -455,7 +450,7 @@ void VIPA_050_1BS00::readInputs(){
 			encoder->b_hardResetBusy = true;
 			*resetPinValue = true;
 			resetStartTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
-			Logger::warn("Hard Resettings {}", encoder->getName());
+			Logger::warn("Hard Resetting {}", encoder->getName());
 		}
 	}
 	
@@ -473,6 +468,9 @@ void VIPA_050_1BS00::readInputs(){
 
 void VIPA_050_1BS00::writeOutputs(){ /*No Outputs*/ }
 
+void VIPA_050_1BS00::onDisconnection(){
+	encoder->state = MotionState::OFFLINE;
+}
 
 void VIPA_050_1BS00::moduleParameterGui(){
 	

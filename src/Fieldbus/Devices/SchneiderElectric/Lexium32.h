@@ -16,7 +16,8 @@ public:
 	public:
 		LexiumServoMotor(std::shared_ptr<Lexium32> lexium32) :
 		MotionDevice("Lexium Servo Motor", Units::AngularDistance::Revolution),
-		ServoActuatorDevice("Lexium Servo Motor", Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE), drive(lexium32){}
+		ServoActuatorDevice("Lexium Servo Motor", Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE),
+		drive(lexium32){}
 		
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
 		std::shared_ptr<Lexium32> drive;

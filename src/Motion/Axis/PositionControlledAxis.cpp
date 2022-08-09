@@ -39,18 +39,29 @@ void PositionControlledAxis::initialize() {
 }
 
 std::string PositionControlledAxis::getStatusString(){
+	std::string statusString;
 	switch(state){
 		case MotionState::OFFLINE:
 			if(!areAllPinsConnected()) return "Axis pins are not connected correctly";
-			else return "Servo Actuator is offline : " + getServoActuatorDevice()->getStatusString();
+			if(!getServoActuatorDevice()->isOnline()) statusString += "Servo Actuator is offline : " + getServoActuatorDevice()->getStatusString() + "\n";
+			for(auto gpioDevicePin : gpioPin->getConnectedPins()){
+				auto gpioDevice = gpioDevicePin->getSharedPointer<GpioDevice>();
+				if(!gpioDevice->isOnline()) statusString += "Gpio Device " + gpioDevice->getName() + " is Offline : " + gpioDevice->getStatusString() + "\n";
+			}
+			if(isSurveilled() && !getSurveillanceFeedbackDevice()->isOnline()) statusString += "Surveillance Feedback Device is Offline : " + getSurveillanceFeedbackDevice()->getStatusString() + "\n";
 			break;
 		case MotionState::NOT_READY:
-			if(!getServoActuatorDevice()->isReady()) return "Servo Actuator is not ready : " + getServoActuatorDevice()->getStatusString();
-			if(needsReferenceDevice() && !getReferenceDevice()->isReady()) return "Axis Reference Device is not ready : " + getReferenceDevice()->getStatusString();
+			if(b_hasSurveillanceError) statusString += "Axis has Surveillance Error\n";
+			if(!getServoActuatorDevice()->isReady()) return "Servo Actuator is not ready : " + getServoActuatorDevice()->getStatusString() + "\n";
+			for(auto gpioDevicePin : gpioPin->getConnectedPins()){
+				auto gpioDevice = gpioDevicePin->getSharedPointer<GpioDevice>();
+				if(!gpioDevice->isOnline()) statusString += "Gpio Device " + gpioDevice->getName() + " is Offline : " + gpioDevice->getStatusString() + "\n";
+			}
+			if(isSurveilled() && !getSurveillanceFeedbackDevice()->isReady()) return "Surveillance Feedback device is not ready : " + getSurveillanceFeedbackDevice()->getStatusString() + "\n";
 		case MotionState::READY:	return "Axis is not enabled";
 		case MotionState::ENABLED: 	return "Axis is enabled";
 	}
-	
+	return statusString;
 }
 
 void PositionControlledAxis::updateAxisState(){
@@ -58,22 +69,14 @@ void PositionControlledAxis::updateAxisState(){
 	MotionState newAxisState = MotionState::ENABLED;
 	auto checkState = [&](MotionState deviceState){ if(int(deviceState) < int(newAxisState)) newAxisState = deviceState; };
 	
+	auto servoActuatorDevice = getServoActuatorDevice();
+	
 	for(auto gpioDevicePin : gpioPin->getConnectedPins()){
 		auto gpioDeviceState = gpioDevicePin->getSharedPointer<GpioDevice>()->getState();
 		checkState(gpioDeviceState);
 	}
-	
-	auto servoActuatorDevice = getServoActuatorDevice();
-	
-	if(isSurveilled()) {
-		checkState(getSurveillanceFeedbackDevice()->getState());
-		if(servoActuatorDevice->isEmergencyStopped() && servoActuatorDevice->getState() == MotionState::NOT_READY){
-			//if the servo is in STO and not ready, a surveilled is still considered to be ready to enable
-			checkState(MotionState::READY);
-		}else checkState(servoActuatorDevice->getState());
-	}else{
-		checkState(getServoActuatorDevice()->getState());
-	}
+	checkState(servoActuatorDevice->getState());
+	if(isSurveilled()) checkState(getSurveillanceFeedbackDevice()->getState());
 	
 	//handle transition from enabled state
 	if(state == MotionState::ENABLED && newAxisState != MotionState::ENABLED) disable();
@@ -126,23 +129,42 @@ void PositionControlledAxis::inputProcess() {
 }
 
 void PositionControlledAxis::updateSurveillance(){
-	if(b_hasSurveillanceError){
+	
+	auto surveillanceFeedbackDevice = getSurveillanceFeedbackDevice();
+	surveillanceValidInputPin->copyConnectedPinValue();
+	surveillanceVelocity = surveillanceUnitsToAxisUnits(surveillanceFeedbackDevice->getVelocity());
+	double requestedVelocity = motionProfile.getVelocity();
+	surveillanceVelocityError = abs(requestedVelocity - surveillanceVelocity);
+	
+	if(b_isClearingSurveillanceError){
+		*surveillanceValidOutputSignal = true;
+		*surveillanceFaultResetSignal = true;
+	}
+	else if(b_hasSurveillanceError){
 		*surveillanceValidOutputSignal = false;
+		*surveillanceFaultResetSignal = false;
 	}else{
-		double axisVelocity = *actualVelocityValue;
-		auto surveillanceFeedbackDevice = getSurveillanceFeedbackDevice();
-		double surveillanceVelocity = surveillanceFeedbackDevice->getVelocity() / surveillancefeedbackUnitsPerAxisUnits->value;
-		double velocityError = std::abs(surveillanceVelocity - axisVelocity);
-		surveillanceValidInputPin->copyConnectedPinValue();
-		if(!*surveillanceValidInputSignal || velocityError > maxVelocityDeviation->value){
+		auto triggerSurveillanceError = [this](std::string reason){
 			b_hasSurveillanceError = true;
 			*surveillanceValidOutputSignal = false;
-			Logger::critical("Axis {} Surveillance Error !", getName());
+			Logger::critical("Axis {} Surveillance Error : {}", getName(), reason);
 			disable();
-		}else{
+		};
+		if(!surveillanceFeedbackDevice->isEnabled()){
+			std::string reason = "Surveillance Feedback device " + surveillanceFeedbackDevice->getName() + " is not enabled anymore";
+			triggerSurveillanceError(reason);
+		}
+		else if(!*surveillanceValidInputSignal){
+			triggerSurveillanceError("Surveillance Input Signal Not Valid");
+		}
+		else if(surveillanceVelocityError > maxVelocityDeviation->value){
+			triggerSurveillanceError("Max Velocity Deviation Exceeded");
+		}
+		else{
 			b_hasSurveillanceError = false;
 			*surveillanceValidOutputSignal = true;
 		}
+		*surveillanceFaultResetSignal = false;
 	}
 	
 }
@@ -215,42 +237,14 @@ void PositionControlledAxis::enable() {
 		
 		auto servoActuator = getServoActuatorDevice();
 		
-		if(isSurveilled()){
-			
-			long long maxEnableTimeMillis = maxSurveillanceErrorClearTime->value * 1000.0;
-			
-			//settings these to signals high clears the sto status of the drive
-			*surveillanceFaultResetSignal = true;
-			*surveillanceValidOutputSignal = true;
-			
-			while(system_clock::now() - start < milliseconds(maxEnableTimeMillis)){
-				servoActuator->enable();
-				if(servoActuator->isEnabled()){
-					state = MotionState::ENABLED;
-					b_hasSurveillanceError = false;
-					*surveillanceFaultResetSignal = false;
-					Logger::warn("Surveillance Error Cleared");
-					onEnable();
-					return;
-				}
-				std::this_thread::sleep_for(milliseconds(10));
+		servoActuator->enable();
+		while(system_clock::now() - start < milliseconds(500)){
+			if(servoActuator->isEnabled()){
+				state = MotionState::ENABLED;
+				onEnable();
+				return;
 			}
-			
-			*surveillanceFaultResetSignal = false;
-			*surveillanceValidOutputSignal = false;
-			
-		}else{
-			
-			servoActuator->enable();
-			while(system_clock::now() - start < milliseconds(500)){
-				if(servoActuator->isEnabled()){
-					state = MotionState::ENABLED;
-					onEnable();
-					return;
-				}
-				std::this_thread::sleep_for(milliseconds(10));
-			}
-			
+			std::this_thread::sleep_for(milliseconds(10));
 		}
 			
 		servoActuator->disable();
@@ -292,6 +286,42 @@ bool PositionControlledAxis::isReadyToEnable() {
 		if(!getServoActuatorDevice()->isOnline()) return false;
 		return true;
 	}else return areAllDevicesReady();
+}
+
+
+void PositionControlledAxis::clearSurveillanceFault(){
+	std::thread surveillanceErrorClearer([this]() {
+		using namespace std::chrono;
+		system_clock::time_point start = system_clock::now();
+		
+		long long maxEnableTimeMillis = maxSurveillanceErrorClearTime->value * 1000.0;
+		
+		//settings these to signals high clears the sto status of the drive
+		b_isClearingSurveillanceError = true;
+		
+		Logger::info("Clearing Surveillance Fault");
+		
+		while(system_clock::now() - start < milliseconds(maxEnableTimeMillis)){
+			if(*surveillanceValidInputSignal){
+				b_hasSurveillanceError = false;
+				b_isClearingSurveillanceError = false;
+				Logger::info("Surveillance Error Cleared");
+				return;
+			}
+			std::this_thread::sleep_for(milliseconds(10));
+		}
+		
+		b_hasSurveillanceError = true;
+		b_isClearingSurveillanceError = false;
+		
+		Logger::warn("Failed to clear surveillance fault");
+
+	});
+	surveillanceErrorClearer.detach();
+}
+
+void PositionControlledAxis::triggerSurveillanceFault(){
+	b_hasSurveillanceError = true;
 }
 
 //========================== DEVICES =============================

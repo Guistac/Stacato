@@ -214,6 +214,8 @@ public:
 	void updateEncoderWorkingRange();
 	void updateResetPinVisibility();
 	
+	virtual void onDisconnection() override;
+	
 	//==== Setting Types ====
 	
 	enum class MeasurementPauseTime{
@@ -295,7 +297,7 @@ public:
 	inline bool getClockEdgeValue(ClockEdge edge){
 		switch(edge){
 			case ClockEdge::FALLING_EDGE: return false;
-			case ClockEdge::RISING_EDGE: return false;
+			case ClockEdge::RISING_EDGE: return true;
 		}
 	}
 	

@@ -16,7 +16,18 @@ public:
 	//======= NODE ========
 
 	//inputs
+	
+	std::shared_ptr<bool> lowLimitSignal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> lowSlowdownSignal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> highLimitSignal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> highSlowdownSignal = std::make_shared<bool>(false);
+	
 	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Actuator");
+	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_INPUT, "Gpio");
+	std::shared_ptr<NodePin> lowLimitPin = std::make_shared<NodePin>(lowLimitSignal, NodePin::Direction::NODE_INPUT, "Low Limit");
+	std::shared_ptr<NodePin> lowSlowdownPin = std::make_shared<NodePin>(lowLimitSignal, NodePin::Direction::NODE_INPUT, "Low Slowdown");
+	std::shared_ptr<NodePin> highLimitPin = std::make_shared<NodePin>(lowLimitSignal, NodePin::Direction::NODE_INPUT, "High Limit");
+	std::shared_ptr<NodePin> highSlowdownPin = std::make_shared<NodePin>(lowLimitSignal, NodePin::Direction::NODE_INPUT, "High Slowdown");
 	
 	//outputs
 	std::shared_ptr<double> actualVelocity = std::make_shared<double>(0.0);
