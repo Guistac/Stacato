@@ -19,6 +19,7 @@ void Lexium32::initialize() {
 	auto thisLexiumDrive = std::dynamic_pointer_cast<Lexium32>(shared_from_this());
 	servoMotor = std::make_shared<LexiumServoMotor>(thisLexiumDrive);
 	servoMotor->setParentDevice(thisLexiumDrive);
+	servoMotor->b_decelerationLimitEqualsAccelerationLimit = true;
 	gpioDevice = std::make_shared<LexiumGpio>(thisLexiumDrive);
 	gpioDevice->setParentDevice(thisLexiumDrive);
 		

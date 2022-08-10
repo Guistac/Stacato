@@ -37,59 +37,134 @@ std::string VelocityControlledAxis::getStatusString(){
 	}
 }
 
+bool VelocityControlledAxis::areAllPinsConnected(){
+	if(!isActuatorDeviceConnected()) 	return false;
+	if(!gpioPin->isConnected()) 		return false;
+	if(!lowLimitPin->isConnected()) 	return false;
+	if(!lowSlowdownPin->isConnected()) 	return false;
+	if(!highLimitPin->isConnected()) 	return false;
+	if(!highSlowdownPin->isConnected()) return false;
+	return true;
+}
+
+bool VelocityControlledAxis::areAllDeviceReady(){
+	for(auto referenceDevicePin : gpioPin->getConnectedPins()){
+		auto gpioDevice = referenceDevicePin->getSharedPointer<GpioDevice>();
+		if(!gpioDevice->isEnabled()) return false;
+	}
+	if(!getActuatorDevice()->isReady()) return false;
+}
+
+void VelocityControlledAxis::updateAxisState(){
+	MotionState newAxisState = MotionState::ENABLED;
+	auto checkState = [&](MotionState deviceState){ if(int(deviceState) < int(newAxisState)) newAxisState = deviceState; };
+		
+	auto actuatorDevice = getActuatorDevice();
+	
+	for(auto gpioDevicePin : gpioPin->getConnectedPins()){
+		auto gpioDeviceState = gpioDevicePin->getSharedPointer<GpioDevice>()->getState();
+		checkState(gpioDeviceState);
+	}
+	checkState(actuatorDevice->getState());
+	
+	//handle transition from enabled state
+	if(state == MotionState::ENABLED && newAxisState != MotionState::ENABLED) disable();
+	state = newAxisState;
+	
+	//update estop state
+	b_emergencyStopActive = actuatorDevice->isEmergencyStopped();
+	
+	//get actual realtime axis motion values
+	*actualVelocity = motionProfile.getVelocity();
+	*actualLoad = actuatorDevice->getLoad();
+}
+
+void VelocityControlledAxis::updateReferenceSignals(){
+	lowLimitPin->copyConnectedPinValue();
+	lowSlowdownPin->copyConnectedPinValue();
+	highLimitPin->copyConnectedPinValue();
+	highSlowdownPin->copyConnectedPinValue();
+}
+
 void VelocityControlledAxis::inputProcess() {
-	
-	//update profile time no matter what
-	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
-	profileTimeDelta_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
-	
-	//exit the process loop if no actuator is connected
-	if(!isActuatorDeviceConnected()) {
-		*actualLoad = 0.0;
-		*actualVelocity = 0.0;
+	//check connection requirements and abort processing if the requirements are not met
+	if(!areAllPinsConnected()) {
 		state = MotionState::OFFLINE;
 		b_emergencyStopActive = false;
 		return;
-	}
-	auto actuator = getActuatorDevice();
+	}	
+	updateAxisState();
+	updateReferenceSignals();
+}
 	
-	if(isEnabled()) state = MotionState::ENABLED;
-	else if(isReady()) state = MotionState::READY;
-	else if(!actuator->isOnline()) state = MotionState::OFFLINE;
-	else if(!actuator->isReady()) state = MotionState::NOT_READY;
+void VelocityControlledAxis::outputProcess(){
 	
-	b_emergencyStopActive = actuator->isEmergencyStopped();
+	//TODO: abort if no pins connected
 	
-	//handle disabling of the axis if the actuator gets disabled
-	if(isEnabled() && !actuator->isEnabled()) disable();
+	//update timing
+	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
+	profileTimeDelta_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 	
-	//get load
-	*actualLoad = actuator->getLoad();
-	
-	if (isAxisPinConnected()) return;
-	
+	double velocityTarget;
+	double accelerationTarget;
 	switch(controlMode){
 		case ControlMode::VELOCITY_TARGET:
-			motionProfile.matchVelocity(profileTimeDelta_seconds, manualVelocityTarget, manualAcceleration);
+			velocityTarget = manualVelocityTarget;
+			if(abs(velocityTarget) > abs(motionProfile.getVelocity())) accelerationTarget = manualAcceleration->value;
+			else if(abs(velocityTarget) < abs(motionProfile.getVelocity())) accelerationTarget = manualDeceleration->value;
+			else accelerationTarget = 0.0;
 			break;
 		case ControlMode::FAST_STOP:
-			motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, accelerationLimit);
+			velocityTarget = 0.0;
+			accelerationTarget = decelerationLimit->value;
 			break;
-		default: break;
+		case ControlMode::EXTERNAL:
+			velocityTarget = externalVelocityCommand;
+			accelerationTarget = abs(externalAccelerationCommand);
+			break;
+		default:
+			velocityTarget = 0.0;
+			accelerationTarget = 0.0;
+			break;
 	}
-
-	sendActuatorCommands();
-}
-
-void VelocityControlledAxis::outputProcess(){
-	Logger::warn("OUTPUT PROCESS NOT DEFINED FOR VELOCITY CONTROLLED AXIS");
-	abort();
+	
+	if((motionProfile.getVelocity() < 0.0 || velocityTarget < 0.0) && *lowLimitSignal){
+		motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, decelerationLimit->value);
+	}
+	else if((motionProfile.getVelocity() > 0.0 || velocityTarget > 0.0) && *highLimitSignal){
+		motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, decelerationLimit->value);
+	}
+	else if((motionProfile.getVelocity() < -slowdownVelocity->value || velocityTarget < -slowdownVelocity->value) && *lowSlowdownSignal){
+		motionProfile.matchVelocity(profileTimeDelta_seconds, -slowdownVelocity->value, decelerationLimit->value);
+	}
+	else if((motionProfile.getVelocity() > slowdownVelocity->value || velocityTarget > slowdownVelocity->value) && *highSlowdownSignal){
+		motionProfile.matchVelocity(profileTimeDelta_seconds, slowdownVelocity->value, decelerationLimit->value);
+	}
+	else{
+		if(abs(velocityTarget) > abs(motionProfile.getVelocity())){
+			//accelerate
+			accelerationTarget = std::min(accelerationTarget, accelerationLimit->value);
+			motionProfile.matchVelocity(profileTimeDelta_seconds, velocityTarget, accelerationTarget);
+		}else if(abs(velocityTarget) < abs(motionProfile.getVelocity())){
+			//decelerate
+			accelerationTarget = std::min(accelerationTarget, decelerationLimit->value);
+			motionProfile.matchVelocity(profileTimeDelta_seconds, velocityTarget, accelerationTarget);
+		}else{
+			//constant velocity
+		}
+	}
+		
+	//send commands to the actuator
+	double actuatorVelocity = axisUnitsToActuatorUnits(motionProfile.getVelocity());
+	double actuatorAcceleration = axisUnitsToActuatorUnits(motionProfile.getAcceleration());
+	getActuatorDevice()->setVelocityCommand(actuatorVelocity, actuatorAcceleration);
 }
 
 //called by node connected to axis pin to send velocity to the axis
-void VelocityControlledAxis::setVelocityCommand(double velocity){
-	motionProfile.setVelocity(velocity);
-	sendActuatorCommands();
+void VelocityControlledAxis::setVelocityCommand(double velocity, double acceleration){
+	externalVelocityCommand = velocity;
+	externalAccelerationCommand = acceleration;
+	controlMode = ControlMode::EXTERNAL;
 }
 
 void VelocityControlledAxis::sendActuatorCommands() {
@@ -104,18 +179,12 @@ void VelocityControlledAxis::getDevices(std::vector<std::shared_ptr<Device>>& ou
 	if (isActuatorDeviceConnected()) output.push_back(getActuatorDevice()->parentDevice);
 }
 
-bool VelocityControlledAxis::isReady() {
-	if (isActuatorDeviceConnected() && getActuatorDevice()->isReady()) return true;
-	return false;
-}
-
 bool VelocityControlledAxis::isMoving() {
-	return false;
-	//return getActuatorDevice()->isMoving
+	return motionProfile.getVelocity() != 0.0;
 }
 
 void VelocityControlledAxis::enable() {
-	if (!isReady()) return;
+	if(state != MotionState::READY) return;
 	std::thread axisEnabler([this]() {
 		using namespace std::chrono;
 		system_clock::time_point enableTime = system_clock::now();
@@ -124,15 +193,14 @@ void VelocityControlledAxis::enable() {
 		actuator->enable();
 		while(system_clock::now() - enableTime < milliseconds(500)){
 			if(actuator->isEnabled()){
-				b_enabled = true;
+				state = MotionState::ENABLED;
 				onEnable();
 				Logger::info("Velocity Controlled Axis '{}' Enabled", getName());
 				return;
 			}
 			std::this_thread::sleep_for(milliseconds(10));
 		}
-		
-		b_enabled = false;
+		state = MotionState::NOT_READY;
 		actuator->disable();
 		Logger::warn("Could not enable velocity controlled axis '{}'", getName());
 	});
@@ -141,7 +209,7 @@ void VelocityControlledAxis::enable() {
 
 void VelocityControlledAxis::disable() {
 	getActuatorDevice()->disable();
-	b_enabled = false;
+	state = MotionState::NOT_READY;
 }
 
 void VelocityControlledAxis::onEnable() {}
@@ -180,10 +248,12 @@ void VelocityControlledAxis::setPositionUnit(Unit unit){
 
 
 void VelocityControlledAxis::sanitizeParameters(){
-	actuatorUnitsPerAxisUnits = std::abs(actuatorUnitsPerAxisUnits);
-	velocityLimit = std::min(std::abs(velocityLimit), actuatorUnitsToAxisUnits(getActuatorDevice()->getVelocityLimit()));
-	accelerationLimit = std::min(std::abs(accelerationLimit), actuatorUnitsToAxisUnits(getActuatorDevice()->getAccelerationLimit()));
-	manualAcceleration = std::min(std::abs(manualAcceleration), accelerationLimit);
+	velocityLimit->validateRange(0.0, actuatorUnitsToAxisUnits(getActuatorDevice()->getVelocityLimit()), true, true);
+	accelerationLimit->validateRange(0.0, actuatorUnitsToAxisUnits(getActuatorDevice()->getAccelerationLimit()), true, true);
+	decelerationLimit->validateRange(0.0, actuatorUnitsToAxisUnits(getActuatorDevice()->getDecelerationLimit()), true, true);
+	manualAcceleration->validateRange(0.0, accelerationLimit->value, true, true);
+	manualDeceleration->validateRange(0.0, decelerationLimit->value, true, true);
+	slowdownVelocity->validateRange(0.0, velocityLimit->value, true, true);
 }
 
 
@@ -194,13 +264,15 @@ bool VelocityControlledAxis::save(tinyxml2::XMLElement* xml) {
 	axisXML->SetAttribute("UnitType", Enumerator::getSaveString(movementType));
 	axisXML->SetAttribute("Unit", positionUnit->saveString);
 	
-	XMLElement* unitConversionXML = xml->InsertNewChildElement("UnitConversion");
-	unitConversionXML->SetAttribute("ActuatorUnitsPerAxisUnit", actuatorUnitsPerAxisUnits);
+	actuatorUnitsPerAxisUnits->save(axisXML);
 
 	XMLElement* kinematicLimitsXML = xml->InsertNewChildElement("Limits");
-	kinematicLimitsXML->SetAttribute("VelocityLimit", velocityLimit);
-	kinematicLimitsXML->SetAttribute("AccelerationLimit", accelerationLimit);
-	kinematicLimitsXML->SetAttribute("ManualAcceleration", manualAcceleration);
+	velocityLimit->save(kinematicLimitsXML);
+	accelerationLimit->save(kinematicLimitsXML);
+	decelerationLimit->save(kinematicLimitsXML);
+	manualAcceleration->save(kinematicLimitsXML);
+	manualDeceleration->save(kinematicLimitsXML);
+	slowdownVelocity->save(kinematicLimitsXML);
 
 	return true;
 }
@@ -228,15 +300,16 @@ bool VelocityControlledAxis::load(tinyxml2::XMLElement* xml) {
 	}
 	positionUnit = Units::fromSaveString(axisUnitString);
 
-	XMLElement* unitConversionXML = xml->FirstChildElement("UnitConversion");
-	if (!unitConversionXML) return Logger::warn("Could not load Unit Conversion");
-	if (unitConversionXML->QueryDoubleAttribute("ActuatorUnitsPerAxisUnit", &actuatorUnitsPerAxisUnits) != XML_SUCCESS) return Logger::warn("Could not load Actuator Units Per Axis Unit");
+	if(!actuatorUnitsPerAxisUnits->load(axisXML)) return false;
 
 	XMLElement* kinematicLimitsXML = xml->FirstChildElement("Limits");
 	if (!kinematicLimitsXML) return Logger::warn("Could not load Axis Kinematic Kimits");
-	if (kinematicLimitsXML->QueryDoubleAttribute("VelocityLimit", &velocityLimit)) Logger::warn("Could not load velocity limit");
-	if (kinematicLimitsXML->QueryDoubleAttribute("AccelerationLimit", &accelerationLimit) != XML_SUCCESS) Logger::warn("Could not load acceleration limit");
-	if (kinematicLimitsXML->QueryDoubleAttribute("ManualAcceleration", &manualAcceleration) != XML_SUCCESS) Logger::warn("Could not load manual acceleration");
 	
+	if(!velocityLimit->load(kinematicLimitsXML)) return false;
+	if(!accelerationLimit->load(kinematicLimitsXML)) return false;
+	if(!decelerationLimit->load(kinematicLimitsXML)) return false;
+	if(!manualAcceleration->load(kinematicLimitsXML)) return false;
+	if(!manualDeceleration->load(kinematicLimitsXML)) return false;
+	if(!slowdownVelocity->load(kinematicLimitsXML)) return false;
 	return true;
 }

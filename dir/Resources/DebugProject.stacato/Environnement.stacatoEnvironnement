@@ -204,7 +204,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="false" CustomName="VIPA Romaine (Alias:101)" UniqueID="566">
-                <NodeEditorPosition x="1451" y="310"/>
+                <NodeEditorPosition x="1454" y="586"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="101"/>
                     <SLIOModules>
@@ -227,9 +227,10 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 Romaine (Alias:100)" UniqueID="568">
-                <NodeEditorPosition x="1445" y="524"/>
+                <NodeEditorPosition x="1431" y="335"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="100"/>
+                    <KinematicLimits AccelerationRamp="3" DecelerationRamp="0.5" MaxVelocity="1400" InvertMotionDirection="false" SlowdownVelocity="5"/>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins>
@@ -241,7 +242,8 @@
                     <OutputPin SaveString="DI4" DisplayString="DI4 Ralentissement Manuel" DataType="Boolean" UniqueID="102" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveString="DI5" DisplayString="DI5  Acquittement Local" DataType="Boolean" UniqueID="103" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveString="DI6" DisplayString="DI6 Défaut Externe NC" DataType="Boolean" UniqueID="104" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="105" Visible="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="105" Visible="false"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="78" Visible="false"/>
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="true" CustomName="Lexium32M Vol Jardin (Alias:200)" UniqueID="607">
@@ -416,6 +418,26 @@
                     <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="755" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Axis" ClassName="VelocityControlledAxis" CustomName="Axe Romaine" UniqueID="766">
+                <NodeEditorPosition x="1752" y="557"/>
+                <NodeSpecificData>
+                    <Axis UnitType="Linear" Unit="Meter" ActuatorUnitsPerAxisUnits="28.571400000000001"/>
+                    <Limits VelocityLimit="0.80000000000000004" AccelerationLimit="0.25" DecelerationLimit="1.5" ManualAcceleration="0.20000000000000001" ManualDeceleration="1" SlowdownVelocity="0.20000000000000001"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorDeviceLink" UniqueID="767" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Gpio" DisplayString="Gpio" DataType="GPIODeviceLink" UniqueID="768" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Low Limit" DisplayString="Low Limit" DataType="Boolean" UniqueID="769" Visible="true"/>
+                    <InputPin SaveString="Low Slowdown" DisplayString="Low Slowdown" DataType="Boolean" UniqueID="770" Visible="true"/>
+                    <InputPin SaveString="High Limit" DisplayString="High Limit" DataType="Boolean" UniqueID="771" Visible="true"/>
+                    <InputPin SaveString="High Slowdown" DisplayString="High Slowdown" DataType="Boolean" UniqueID="772" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Velocity Controlled Axis" DisplayString="Velocity Controlled Axis" DataType="VelocityControlledAxisLink" UniqueID="773" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="774" Visible="true"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="775" Visible="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="451" StartPin="409" EndPin="432"/>
@@ -459,6 +481,12 @@
             <Link UniqueID="762" StartPin="743" EndPin="661"/>
             <Link UniqueID="763" StartPin="744" EndPin="625"/>
             <Link UniqueID="764" StartPin="656" EndPin="742"/>
+            <Link UniqueID="797" StartPin="567" EndPin="768"/>
+            <Link UniqueID="798" StartPin="569" EndPin="769"/>
+            <Link UniqueID="799" StartPin="570" EndPin="770"/>
+            <Link UniqueID="800" StartPin="571" EndPin="771"/>
+            <Link UniqueID="801" StartPin="572" EndPin="772"/>
+            <Link UniqueID="802" StartPin="97" EndPin="767"/>
         </Links>
     </NodeGraph>
 </Environnement>

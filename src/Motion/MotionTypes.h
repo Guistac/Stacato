@@ -245,3 +245,11 @@ enum class MotionState{
 	ENABLED = 3
 };
 
+
+#define MotionStateStrings \
+{MotionState::OFFLINE, 		"Offline", "Offline"},\
+{MotionState::NOT_READY, 	"Not Ready", "NotReady"},\
+{MotionState::READY, 		"Ready", "Ready"},\
+{MotionState::ENABLED, 		"Enabled", "Enabled"}\
+
+DEFINE_ENUMERATOR(MotionState, MotionStateStrings)

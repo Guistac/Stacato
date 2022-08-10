@@ -7,9 +7,13 @@
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
+#include "Gui/Utilities/CustomWidgets.h"
+
 
 #include "Motion/SubDevice.h"
 #include "Environnement/NodeGraph/DeviceNode.h"
+
+
 
 void VelocityControlledAxis::nodeSpecificGui() {
 	if (ImGui::BeginTabItem("Controls")) {
@@ -64,28 +68,33 @@ void VelocityControlledAxis::controlsGui() {
 	glm::vec2 largeDoubleButtonSize((singleWidgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, ImGui::GetTextLineHeight() * 2.0);
 	glm::vec2 largeSingleButtonSize(singleWidgetWidth, ImGui::GetTextLineHeight() * 2.0);
 	
-	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-	if(isEnabled()) {
-		ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-		ImGui::Button("Enabled", largeDoubleButtonSize);
-	}else if(isReady()){
-		ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-		ImGui::Button("Ready", largeDoubleButtonSize);
+	
+	if(isEmergencyStopActive()){
+		bool blink = fmod(Timing::getProgramTime_seconds(), 0.5) > 0.25;
+		backgroundText("E-Stop", largeDoubleButtonSize, blink ? Colors::yellow : Colors::red);
 	}else{
-		ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
-		ImGui::Button("Disabled", largeDoubleButtonSize);
+		switch(state){
+			case MotionState::OFFLINE:
+				backgroundText("Offline", largeDoubleButtonSize, Colors::blue);
+				break;
+			case MotionState::NOT_READY:
+				backgroundText("Not Ready", largeDoubleButtonSize, Colors::red);
+				break;
+			case MotionState::READY:
+				backgroundText("Ready", largeDoubleButtonSize, Colors::yellow);
+				break;
+			case MotionState::ENABLED:
+				backgroundText("Enabled", largeDoubleButtonSize, Colors::green);
+				break;
+		}
 	}
-	ImGui::PopStyleColor();
-	ImGui::PopItemFlag();
 	
 	ImGui::SameLine();
 	if(isEnabled()){
 		if(ImGui::Button("Disable", largeDoubleButtonSize)) disable();
-	}else if(isReady()){
-		if(ImGui::Button("Enable", largeDoubleButtonSize)) enable();
 	}else{
-		ImGui::BeginDisabled();
-		ImGui::Button("Not Ready", largeDoubleButtonSize);
+		ImGui::BeginDisabled(state != MotionState::READY);
+		if(ImGui::Button("Enable", largeDoubleButtonSize)) enable();
 		ImGui::EndDisabled();
 	}
 	
@@ -111,7 +120,18 @@ void VelocityControlledAxis::controlsGui() {
 	sprintf(velocityString, "%.3f %s/s", motionProfile.getVelocity(), positionUnit->abbreviated);
 	ImGui::ProgressBar(velocityProgress, progressBarSize, velocityString);
 	
-	if(ImGui::Button("Fast Stop", largeSingleButtonSize)) fastStop();
+	float width = ImGui::GetItemRectSize().x;
+	float quadWidgetWidth = (width - 3.0 * ImGui::GetStyle().ItemSpacing.x) / 4.0;
+	ImVec2 quadFieldSize(quadWidgetWidth, ImGui::GetTextLineHeight() * 2.0);
+	
+	
+	backgroundText("Low Limit", quadFieldSize, !*lowLimitSignal ? Colors::darkYellow : Colors::yellow);
+	ImGui::SameLine();
+	backgroundText("Low Slowdown", quadFieldSize, !*lowSlowdownSignal ? Colors::darkGreen : Colors::green);
+	ImGui::SameLine();
+	backgroundText("High Slowdown", quadFieldSize, !*highSlowdownSignal ? Colors::darkGreen : Colors::green);
+	ImGui::SameLine();
+	backgroundText("High Limit", quadFieldSize, !*highLimitSignal ? Colors::darkYellow : Colors::yellow);
 	
 	ImGui::EndDisabled();
 }
@@ -181,8 +201,8 @@ void VelocityControlledAxis::settingsGui() {
 		ImGui::SameLine();
 		ImGui::Text("%s", actuator->getPositionUnit()->plural);
 
-		ImGui::Text("Actuator %s/s per Axis %s/s :", actuator->getPositionUnit()->abbreviated, positionUnit->abbreviated);
-		ImGui::InputDouble("##actuatorCoupling", &actuatorUnitsPerAxisUnits);
+		ImGui::Text("Actuator %s per Axis %s :", actuator->getPositionUnit()->plural, positionUnit->singular);
+		actuatorUnitsPerAxisUnits->gui();
 		if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 		
 	}
@@ -204,36 +224,38 @@ void VelocityControlledAxis::settingsGui() {
 		std::shared_ptr<ActuatorDevice> actuator = getActuatorDevice();
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 		const char* actuatorUnitAbbreviated = actuator->getPositionUnit()->abbreviated;
-		ImGui::TextWrapped("Max actuator velocity is %.1f %s/s and max acceleration is %.1f %s/s\xc2\xb2",
-						   actuator->getVelocityLimit(),
-						   actuatorUnitAbbreviated,
-						   actuator->getAccelerationLimit(),
-						   actuatorUnitAbbreviated);
-		const char* axisUnitAbbreviated = positionUnit->abbreviated;
-		ImGui::TextWrapped("Axis is limited to %.3f %s/s and %.3f %s/s\xc2\xb2",
-						   actuatorUnitsToAxisUnits(actuator->getVelocityLimit()),
-						   axisUnitAbbreviated,
-						   actuatorUnitsToAxisUnits(actuator->getAccelerationLimit()),
-						   axisUnitAbbreviated);
+		ImGui::TextWrapped("Max actuator velocity is %.1f%s/s", actuator->getVelocityLimit(), actuatorUnitAbbreviated);
+		ImGui::TextWrapped("Max actuator acceleration is %.1f%s/s\xc2\xb2", actuator->getAccelerationLimit(), actuatorUnitAbbreviated);
+		ImGui::TextWrapped("Max actuator deceleration is %.1f%s/s\xc2\xb2", actuator->getDecelerationLimit(), actuatorUnitAbbreviated);
+		const char* axisUnitAbbreviated = getPositionUnit()->abbreviated;
+		ImGui::TextWrapped("Axis velocity is limited to %.3f %s/s", actuatorUnitsToAxisUnits(actuator->getVelocityLimit()), axisUnitAbbreviated);
+		ImGui::TextWrapped("Axis acceleration is limited to %.3f %s/s\xc2\xb2", actuatorUnitsToAxisUnits(actuator->getAccelerationLimit()), axisUnitAbbreviated);
+		ImGui::TextWrapped("Axis deceleration is limited to %.3f %s/s\xc2\xb2", actuatorUnitsToAxisUnits(actuator->getDecelerationLimit()), axisUnitAbbreviated);
 		ImGui::PopStyleColor();
 	}
 
 	ImGui::Text("Velocity Limit");
-	static char velLimitString[16];
-	sprintf(velLimitString, "%.3f %s/s", velocityLimit, positionUnit->abbreviated);
-	ImGui::InputDouble("##VelLimit", &velocityLimit, 0.0, 0.0, velLimitString);
+	velocityLimit->gui();
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
-	static char accLimitString[16];
-	sprintf(accLimitString, "%.3f %s/s\xc2\xb2", accelerationLimit, positionUnit->abbreviated);
 	ImGui::Text("Acceleration Limit");
-	ImGui::InputDouble("##AccLimit", &accelerationLimit, 0.0, 0.0, accLimitString);
+	accelerationLimit->gui();
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 	
-	static char manualAccelerationString[16];
-	sprintf(manualAccelerationString, "%.3f %s/s\xc2\xb2", manualAcceleration, positionUnit->abbreviated);
-	ImGui::Text("Manul Controls Acceleration");
-	ImGui::InputDouble("##ManAccLimit", &manualAcceleration, 0.0, 0.0, manualAccelerationString);
+	ImGui::Text("Deceleration Limit");
+	decelerationLimit->gui();
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
+	
+	ImGui::Text("Manual Controls Acceleration");
+	manualAcceleration->gui();
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
+	
+	ImGui::Text("Manual Controls Deceleration");
+	manualDeceleration->gui();
+	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
+	
+	ImGui::Text("Slowdown Velocity");
+	slowdownVelocity->gui();
 	if(ImGui::IsItemDeactivatedAfterEdit()) sanitizeParameters();
 }
 

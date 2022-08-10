@@ -12,6 +12,7 @@ void ATV320::initialize() {
 	
 	std::shared_ptr<ATV320> thisDrive = std::static_pointer_cast<ATV320>(shared_from_this());
 	actuator = std::make_shared<ATV_Motor>(thisDrive);
+	actuator->b_decelerationLimitEqualsAccelerationLimit = false;
 	gpio = std::make_shared<ATV_GPIO>(thisDrive);
 	
 	actuatorPin->assignData(std::static_pointer_cast<ActuatorDevice>(actuator));
@@ -27,6 +28,19 @@ void ATV320::initialize() {
 	addNodePin(digitalInput5Pin);
 	addNodePin(digitalInput6Pin);
 	addNodePin(actualVelocityPin);
+	addNodePin(actualLoadPin);
+
+
+	maxVelocityRPM->setEditCallback([this](std::shared_ptr<Parameter>){
+		actuator->velocityLimit = maxVelocityRPM->value / 60.0;
+	});
+	accelerationRampTime->setEditCallback([this](std::shared_ptr<Parameter>){
+		actuator->accelerationLimit = actuator->velocityLimit / accelerationRampTime->value;
+	});
+	decelerationRampTime->setEditCallback([this](std::shared_ptr<Parameter>){
+		actuator->decelerationLimit = actuator->velocityLimit / decelerationRampTime->value;
+	});
+	
 	
 	rxPdoAssignement.addNewModule(0x1600);
 	rxPdoAssignement.addEntry(0x6040, 0x0, 16, "ControlWorld", &ds402Control.controlWord);
@@ -38,6 +52,7 @@ void ATV320::initialize() {
 	txPdoAssignement.addEntry(0x2002, 0xC, 16, "MotorPower", &motorPower);
 	txPdoAssignement.addEntry(0x2016, 0x3, 16, "LogicInputs", &logicInputs);
 	txPdoAssignement.addEntry(0x207B, 0x17, 16, "STOstate", &stoState);
+	txPdoAssignement.addEntry(0x2029, 0x16, 16, "LastFaultCode", &lastFaultCode);
 }
 
 //==============================================================
@@ -68,6 +83,7 @@ bool ATV320::startupConfiguration() {
 	uint16_t nominalMotorSpeed = 1400;
 	if(!writeSDO_U16(0x2042, 0x5, nominalMotorSpeed)) return false;
 
+	//TODO: this must be configured when the fieldbus is not active
 	//set motor control type to standart (Standart aynchronous motor control = 3)
 	//uint16_t motorControlType = 3;
 	//if(!writeSDO_U16(0x2042, 0x8, motorControlType)) return false;
@@ -126,7 +142,7 @@ bool ATV320::startupConfiguration() {
 	if(!writeSDO_U16(0x2054, 0x2, presetSpeed2InputAssignement)) return false;
 	   
 	//set preset slowdown speed to 5Hz (in .1Hz Increments)
-	uint16_t presetSpeed2Frequency = 50;
+	uint16_t presetSpeed2Frequency = slowdownVelocityHertz->value * 10.0;
 	if(!writeSDO_U16(0x2054, 0xB, presetSpeed2Frequency)) return false;
 	
 	
@@ -137,11 +153,11 @@ bool ATV320::startupConfiguration() {
 	if(!writeSDO_U16(0x203C, 0x15, rampIncrement)) return false;
 	
 	//set acceleration time
-	uint16_t accelerationTime = accelerationTime_seconds * 100.0;
+	uint16_t accelerationTime = accelerationRampTime->value * 100.0;
 	if(!writeSDO_U16(0x203C, 0x2, accelerationTime)) return false;
 	
 	//set deceleration time
-	uint16_t decelerationTime = decelerationTime_seconds * 100.0;
+	uint16_t decelerationTime = decelerationRampTime->value * 100.0;
 	if(!writeSDO_U16(0x203C, 0x3, decelerationTime)) return false;
 	
 	
@@ -165,6 +181,8 @@ bool ATV320::startupConfiguration() {
 	if(!rxPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C12)) return false;
 	if(!txPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C13)) return false;
 	
+	b_reverseDirection = invertDirection->value;
+	
 	return true;
 }
 
@@ -175,7 +193,7 @@ bool ATV320::startupConfiguration() {
 void ATV320::readInputs() {
 	txPdoAssignement.pullDataFrom(identity->inputs);
 	
-	//read power state
+	//read power state and react to change
 	auto newPowerState = ds402Status.getPowerState();
 	if(newPowerState != actualPowerState){
 		std::string message = "Power State changed to " + std::string(Enumerator::getDisplayString(newPowerState));
@@ -183,7 +201,7 @@ void ATV320::readInputs() {
 	}
 	actualPowerState = newPowerState;
 	
-	//react to power state change
+	//enable request timeout
 	if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED && actualPowerState != DS402::PowerState::OPERATION_ENABLED){
 		if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - enableRequestTime_nanoseconds > enableRequestTimeout_nanoseconds){
 			Logger::warn("{} : Enable Request Timeout", getName());
@@ -191,27 +209,15 @@ void ATV320::readInputs() {
 		}
 	}
 	
-	actuator->b_emergencyStopActive = stoState != 0;
-	actuator->load = (double)motorPower / 100.0;
-	actuator->b_hasHoldingBrake = false;
-	actuator->b_hasFault = ds402Status.hasFault();
-		
+	//update general state
+	b_remoteControlEnabled = ds402Status.isRemoteControlled();
+	b_stoActive = stoState != 0;
+	b_hasFault = ds402Status.hasFault();
 	b_motorVoltagePresent = ds402Status.statusWord & 0x10;
 	
-	
-	
-	//set the encoder position in revolution units and velocity in revolutions per second
-	//servoMotor->position = (double)_p_act / (double)positionUnitsPerRevolution;
-	//servoMotor->velocity = (double)_v_act / ((double)velocityUnitsPerRpm * 60.0);
-	//servoMotor->load = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
-	//servoMotor->followingError = (double)_p_dif_usr / (double)positionUnitsPerRevolution;
-	//servoMotor->b_isMoving = std::abs(servoMotor->velocity) > 0.03;
-	
-	
-	
-	//assign public input data
+	//update output pin data
 	*actualVelocity = velocityActual_rpm / 60;
-	
+	*actualLoad = motorPower / 100.0;
 	*digitalInput1Signal = logicInputs & 0x1;
 	*digitalInput2Signal = logicInputs & 0x2;
 	*digitalInput3Signal = logicInputs & 0x4;
@@ -219,24 +225,30 @@ void ATV320::readInputs() {
 	*digitalInput5Signal = logicInputs & 0x10;
 	*digitalInput6Signal = logicInputs & 0x20;
 	
+	//update subdevices
 	if(!isConnected()) 														actuator->state = MotionState::OFFLINE;
-	//else if(b_hasFault && b_faultNeedsRestart) 								actuator->state = MotionState::OFFLINE;
-	//else if(b_stoActive) 													actuator->state = MotionState::NOT_READY;
-	//else if(!b_motorVoltagePresent) 										actuator->state = MotionState::NOT_READY;
+	if(!b_remoteControlEnabled)												actuator->state = MotionState::NOT_READY;
+	else if(b_stoActive) 													actuator->state = MotionState::NOT_READY;
+	else if(!b_motorVoltagePresent) 										actuator->state = MotionState::NOT_READY;
 	else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) 	actuator->state = MotionState::NOT_READY;
 	else if(actualPowerState == DS402::PowerState::SWITCH_ON_DISABLED)		actuator->state = MotionState::NOT_READY;
 	else if(actualPowerState == DS402::PowerState::OPERATION_ENABLED) 		actuator->state = MotionState::ENABLED;
 	else 																	actuator->state = MotionState::READY;
 
 	if(!isConnected()) 					gpio->state = MotionState::OFFLINE;
+	else if(b_stoActive)				gpio->state = MotionState::NOT_READY;
 	else if(isStateSafeOperational()) 	gpio->state = MotionState::READY;
 	else if(isStateOperational()) 		gpio->state = MotionState::ENABLED;
 	else 								gpio->state = MotionState::NOT_READY;
 	
+	actuator->b_emergencyStopActive = b_stoActive;
+	actuator->load = (double)motorPower / 100.0;
+	//actuator->actualVelocity = velocityActual_rpm;
+	actuator->b_hasHoldingBrake = false;
+	actuator->b_hasFault = b_hasFault;
 	
-	
-	
-	
+	gpio->b_hasFault = b_hasFault;
+	gpio->b_emergencyStopActive = b_stoActive;
 	
 }
 
@@ -246,20 +258,35 @@ void ATV320::readInputs() {
 
 void ATV320::writeOutputs() {
 	
-	Logger::warn("ATV outputs");
-	
 	//state change commands
-	//bool b_enable = false;
-	//bool b_disable = false;
-	//bool b_quickstop = false;
-	
-	ds402Control.setPowerState(requestedPowerState, actualPowerState);
-	if(b_resetFaultCommand) {
-		b_resetFaultCommand = false;
-		ds402Control.performFaultReset();
+	if(actuator->b_enable){
+		actuator->b_enable = false;
+		requestedPowerState = DS402::PowerState::OPERATION_ENABLED;
+		enableRequestTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	}
+	if(actuator->b_disable){
+		actuator->b_disable = false;
+		requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
+	}
+	if(actuator->b_quickstop){
+		actuator->b_quickstop = false;
+		requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
+	}
+	ds402Control.setPowerState(requestedPowerState, actualPowerState);
+	
+	//clear errors when we enable the power stage
+	if(b_hasFault && !b_isResettingFault && requestedPowerState == DS402::PowerState::OPERATION_ENABLED){
+		b_isResettingFault = true;
+		ds402Control.performFaultReset();
+	}else b_isResettingFault = false;
 	ds402Control.updateControlWord();
 	
+	//set target velocity
+	if(b_reverseDirection) velocityTarget_rpm = -actuator->targetVelocity * 60.0;
+	else velocityTarget_rpm = actuator->targetVelocity * 60.0;
+	
+	
+	//Logger::warn("{}", velocityTarget_rpm);
 	
 	rxPdoAssignement.pushDataTo(identity->outputs);
 }
@@ -268,11 +295,132 @@ void ATV320::writeOutputs() {
 
 bool ATV320::saveDeviceData(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
+	XMLElement* kinematicsXML = xml->InsertNewChildElement("KinematicLimits");
+	accelerationRampTime->save(kinematicsXML);
+	decelerationRampTime->save(kinematicsXML);
+	maxVelocityRPM->save(kinematicsXML);
+	invertDirection->save(kinematicsXML);
+	slowdownVelocityHertz->save(kinematicsXML);
 	return true;
 }
 
 bool ATV320::loadDeviceData(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
+	XMLElement* kinematicsXML = xml->FirstChildElement("KinematicLimits");
+	if(kinematicsXML == nullptr) return Logger::warn("Could not find kinematic limits attribute");
+	if(!maxVelocityRPM->load(kinematicsXML)) return false;
+	if(!accelerationRampTime->load(kinematicsXML)) return false;
+	if(!decelerationRampTime->load(kinematicsXML)) return false;
+	maxVelocityRPM->onEdit();
+	accelerationRampTime->onEdit();
+	decelerationRampTime->onEdit();
+	if(!invertDirection->load(kinematicsXML)) return false;
+	if(!slowdownVelocityHertz->load(kinematicsXML)) return false;
 	return true;
 }
 
+
+
+
+
+
+
+
+std::string ATV320::getShortStatusString(){
+	if(!isConnected()) return "Device Offline";
+	else if(!b_motorVoltagePresent) return "No Motor Voltage";
+	else if(!b_remoteControlEnabled) return "Remote Disabled";
+	else if(b_stoActive) return "STO Active";
+	else if(b_hasFault) return "Fault Code " + std::to_string(lastFaultCode);
+	else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) return "Restart Needed";
+	else return Enumerator::getDisplayString(actualPowerState);
+}
+
+
+std::string ATV320::getStatusString(){
+	if(!isConnected()) return "Device is Offline";
+	else if(!b_motorVoltagePresent) return "No Motor Voltage : Check Power Connections";
+	else if(!b_remoteControlEnabled) return "Network Control Disabled : Disable Local Controls";
+	else if(b_stoActive) return "STO Active : Release Emergency Stop";
+	else if(b_hasFault) return getFaultString();
+	else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) return "Drive needs a restart...";
+	else return Enumerator::getDisplayString(actualPowerState);
+}
+
+glm::vec4 ATV320::getStatusColor(){
+	if(!isConnected()) return Colors::blue;
+	else if(!b_motorVoltagePresent) return Colors::red;
+	else if(!b_remoteControlEnabled) return Colors::red;
+	else if(b_stoActive) return Colors::red;
+	else if(b_hasFault) return Colors::orange;
+	else if(!actuator->isReady()) return Colors::red;
+	else if(actuator->isEnabled()) return Colors::green;
+	else return Colors::yellow;
+}
+
+std::string ATV320::getFaultString(){
+	switch(lastFaultCode){
+		case 0: return 		"0 : No fault";
+		case 2: return 		"2 : EEprom control fault";
+		case 3: return 		"3 : Incorrect configuration";
+		case 4: return 		"4 : Invalid config parameters";
+		case 5: return 		"5 : Modbus coms fault";
+		case 6: return 		"6 : Com Internal link fault";
+		case 7: return 		"7 : Network fault";
+		case 8: return 		"8 : External fault logic input";
+		case 9: return 		"9 : Overcurrent fault";
+		case 10: return 	"10 : Precharge";
+		case 11: return 	"11 : Speed feedback loss";
+		case 12: return 	"12 : Output speed <> ref";
+		case 16: return 	"16 : Drive overheating fault";
+		case 17: return 	"17 : Motor overload fault";
+		case 18: return 	"18 : DC bus overvoltage fault";
+		case 19: return 	"19 : Supply overvoltage fault";
+		case 20: return 	"20 : 1 motor phase loss fault";
+		case 21: return 	"21 : Supply phase loss fault";
+		case 22: return 	"22 : Supply undervolt fault";
+		case 23: return 	"23 : Motor short circuit";
+		case 24: return 	"24 : Motor overspeed fault";
+		case 25: return 	"25 : Auto-tuning fault";
+		case 26: return 	"26 : Rating error";
+		case 27: return 	"27 : Incompatible control card";
+		case 28: return 	"28 : Internal coms link fault";
+		case 29: return 	"29 : Internal manu zone fault";
+		case 30: return 	"30 : EEprom power fault";
+		case 32: return 	"32 : Ground short circuit";
+		case 33: return 	"33 : 3 motor phase loss fault";
+		case 34: return 	"34 : Comms fault CANopen";
+		case 35: return 	"35 : Brake control fault";
+		case 38: return 	"38 : External fault comms";
+		case 41: return 	"41 : Brake feedback fault";
+		case 42: return 	"42 : PC coms fault";
+		case 44: return 	"44 : Torque/current limit fault";
+		case 45: return 	"45 : HMI coms fault";
+		case 49: return 	"49 : LI6=PTC failed";
+		case 50: return 	"50 : LI6=PTC overheat fault";
+		case 51: return 	"51 : Internal I measure fault";
+		case 52: return 	"52 : Internal i/p volt circuit flt";
+		case 53: return 	"53 : Internal temperature fault";
+		case 54: return 	"54 : IGBT overheat fault";
+		case 55: return 	"55 : IGBT short circuit fault";
+		case 56: return 	"56 : motor short circuit";
+		case 58: return 	"58 : Output cont close fault";
+		case 59: return 	"59 : Output cont open fault";
+		case 64: return 	"64 : input contactor";
+		case 67: return 	"67 : IGBT desaturation";
+		case 68: return 	"68 : Internal option fault";
+		case 69: return 	"69 : internal- CPU";
+		case 71: return 	"71 : AI3 4-20mA loss";
+		case 73: return 	"73 : Cards pairing";
+		case 76: return 	"76 : Dynamic load fault";
+		case 77: return 	"77 : Interrupted config.";
+		case 99: return 	"99 : Channel switching fault";
+		case 100: return 	"100 : Process Underlaod Fault";
+		case 101: return 	"101 : Process Overload Fault";
+		case 105: return 	"105 : Angle error";
+		case 107: return 	"107 : Safety fault";
+		case 108: return 	"108 : FB fault";
+		case 109: return 	"109 : FB stop fault";
+		default: return 	std::to_string(lastFaultCode) + "Unknown Fault";
+	}
+}

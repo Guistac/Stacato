@@ -5,6 +5,8 @@
 
 #include "Motion/SubDevice.h"
 
+#include "Project/Editor/Parameter.h"
+
 class ATV320 : public EtherCatDevice{
 public:
 	
@@ -42,6 +44,7 @@ public:
 	std::shared_ptr<bool> digitalInput5Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput6Signal = std::make_shared<bool>(false);
 	std::shared_ptr<double> actualVelocity = std::make_shared<double>(0.0);
+	std::shared_ptr<double> actualLoad = std::make_shared<double>(0.0);
 	
 	std::shared_ptr<NodePin> digitalInput1Pin = std::make_shared<NodePin>(digitalInput1Signal, NodePin::Direction::NODE_OUTPUT, "DI1", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> digitalInput2Pin = std::make_shared<NodePin>(digitalInput2Signal, NodePin::Direction::NODE_OUTPUT, "DI2", NodePin::Flags::DisableDataField);
@@ -52,14 +55,21 @@ public:
 	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator");
 	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
 	std::shared_ptr<NodePin> actualVelocityPin = std::make_shared<NodePin>(actualVelocity, NodePin::Direction::NODE_OUTPUT, "Velocity");
+	std::shared_ptr<NodePin> actualLoadPin = std::make_shared<NodePin>(actualLoad, NodePin::Direction::NODE_OUTPUT, "Load");
 	
 	//————— Drive State —————
 	DS402::PowerState requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
 	DS402::PowerState actualPowerState = DS402::PowerState::UNKNOWN;
-	bool b_resetFaultCommand = false;
-	bool b_velocityTargetReached = false;
 	long long enableRequestTime_nanoseconds;
+	
+	bool b_reverseDirection = false;
+	bool b_velocityTargetReached = false;
 	bool b_motorVoltagePresent = false;
+	
+	bool b_remoteControlEnabled = false;
+	bool b_stoActive = false;
+	bool b_hasFault = false;
+	bool b_isResettingFault = false;
 	
 	//————— RX PDO —————
 	DS402::Control ds402Control;
@@ -71,16 +81,29 @@ public:
 	uint16_t logicInputs = 0;
 	uint16_t stoState = 0;
 	int16_t motorPower = 0;
+	uint16_t lastFaultCode = 0x0;
 	
-	//————— Driver Settings —————
-	float accelerationTime_seconds = 3.0;
-	float decelerationTime_seconds = 3.0;
 	
 	//————— General Settings —————
 	long long enableRequestTimeout_nanoseconds = 250'000'000; //250ms enable timeout
 	
-	std::string getStatusString(){
-		return "";
-	}
+	std::shared_ptr<NumberParameter<double>> accelerationRampTime = NumberParameter<double>::make(3.0, "Acceleration Ramp", "AccelerationRamp",
+																								  "%.1f", Units::Time::Second, false);
+	std::shared_ptr<NumberParameter<double>> decelerationRampTime = NumberParameter<double>::make(1.0, "Deceleration Ramp", "DecelerationRamp",
+																								  "%.1f", Units::Time::Second, false);
+	std::shared_ptr<NumberParameter<int>> maxVelocityRPM = NumberParameter<int>::make(1400, "Max Velocity", "MaxVelocity", "%i ",
+																					  Units::AngularDistance::Revolution, false, 0, 0, "", "/min");
+	std::shared_ptr<NumberParameter<double>> slowdownVelocityHertz = NumberParameter<double>::make(5.0, "Slowdown Velocity", "SlowdownVelocity",
+																								"%.1f", Units::Frequency::Hertz, false);
+	std::shared_ptr<BooleanParameter> invertDirection = BooleanParameter::make(false, "Invert Motion Direction", "InvertMotionDirection");
+	
+	std::string getStatusString();
+	std::string getShortStatusString();
+	glm::vec4 getStatusColor();
+	std::string getFaultString();
+	
+	void controlsGui();
+	void settingsGui();
+	void statusGui();
 	
 };

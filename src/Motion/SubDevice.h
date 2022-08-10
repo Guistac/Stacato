@@ -151,6 +151,11 @@ public:
 	}
 	double getVelocityLimit() { return velocityLimit; }
 	double getAccelerationLimit() { return accelerationLimit; }
+	double getDecelerationLimit() {
+		if(b_decelerationLimitEqualsAccelerationLimit) return accelerationLimit;
+		else return decelerationLimit;
+	}
+	bool decelerationLimitEqualsAccelerationLimit(){ return b_decelerationLimitEqualsAccelerationLimit; }
 	
 	bool hasManualHoldingBrake() { return b_hasHoldingBrake; }
 	bool isHoldingBrakeReleased() { return b_holdingBrakeIsReleased; }
@@ -167,6 +172,8 @@ public:
 	//settings
 	double velocityLimit;
 	double accelerationLimit;
+	double decelerationLimit;
+	bool b_decelerationLimitEqualsAccelerationLimit;
 	
 	//current data
 	double load;
