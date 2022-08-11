@@ -204,7 +204,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="false" CustomName="VIPA Romaine (Alias:101)" UniqueID="566">
-                <NodeEditorPosition x="1454" y="586"/>
+                <NodeEditorPosition x="1438" y="591"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="101"/>
                     <SLIOModules>
@@ -227,7 +227,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 Romaine (Alias:100)" UniqueID="568">
-                <NodeEditorPosition x="1431" y="335"/>
+                <NodeEditorPosition x="1431" y="360"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="100"/>
                     <KinematicLimits AccelerationRamp="3" DecelerationRamp="0.5" MaxVelocity="1400" InvertMotionDirection="false" SlowdownVelocity="5"/>
@@ -235,7 +235,7 @@
                 <InputPins/>
                 <OutputPins>
                     <OutputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorDeviceLink" UniqueID="97" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GPIODeviceLink" UniqueID="98" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GPIODeviceLink" UniqueID="98" Visible="false" NoDataField="true"/>
                     <OutputPin SaveString="DI1" DisplayString="DI1 Montée Locale" DataType="Boolean" UniqueID="99" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveString="DI2" DisplayString="DI2 Descente Locale" DataType="Boolean" UniqueID="100" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveString="DI3" DisplayString="DI3 Commande Réseau Active" DataType="Boolean" UniqueID="101" Visible="true" DisableDataField="true"/>
@@ -365,9 +365,9 @@
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="681" Visible="true"/>
                     <OutputPin SaveString="SurveillanceFaultReset" DisplayString="Surveillance Fault Reset" DataType="Boolean" UniqueID="682" Visible="true"/>
                     <OutputPin SaveString="PositionControlledAxis" DisplayString="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="683" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="684" Visible="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="685" Visible="true"/>
-                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="686" Visible="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="684" Visible="false"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="685" Visible="false"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="686" Visible="false"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="And" CustomName="And" UniqueID="724">
@@ -403,9 +403,9 @@
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="743" Visible="true"/>
                     <OutputPin SaveString="SurveillanceFaultReset" DisplayString="Surveillance Fault Reset" DataType="Boolean" UniqueID="744" Visible="true"/>
                     <OutputPin SaveString="PositionControlledAxis" DisplayString="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="745" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="746" Visible="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="747" Visible="true"/>
-                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="748" Visible="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="746" Visible="false"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="747" Visible="false"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="748" Visible="false"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="And" CustomName="And" UniqueID="753">
@@ -434,8 +434,21 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="Velocity Controlled Axis" DisplayString="Velocity Controlled Axis" DataType="VelocityControlledAxisLink" UniqueID="773" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="774" Visible="true"/>
-                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="775" Visible="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="774" Visible="false"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="775" Visible="false"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Romaine" UniqueID="804">
+                <NodeEditorPosition x="2008" y="618"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="8"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="805" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="VelocityControlledAxisLink" UniqueID="806" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="807" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -487,13 +500,14 @@
             <Link UniqueID="800" StartPin="571" EndPin="771"/>
             <Link UniqueID="801" StartPin="572" EndPin="772"/>
             <Link UniqueID="802" StartPin="97" EndPin="767"/>
+            <Link UniqueID="808" StartPin="773" EndPin="806"/>
         </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en7" Name="en7"/>
+        <Primary Description="en4" Name="en4"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="8" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

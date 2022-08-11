@@ -13,18 +13,8 @@ public:
 
 	//————— Input Pins —————
 	
-	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_INPUT, "GPIO Device", NodePin::Flags::NoDataField);
-	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Actuator");
-	
-	std::shared_ptr<bool> softLowerLimitSignal = std::make_shared<bool>(false);
-	std::shared_ptr<bool> hardLowerLimitSignal = std::make_shared<bool>(false);
-	std::shared_ptr<bool> softUpperLimitSignal = std::make_shared<bool>(false);
-	std::shared_ptr<bool> hardUpperLimitSignal = std::make_shared<bool>(false);
-	
-	std::shared_ptr<NodePin> softLowerLimitPin = std::make_shared<NodePin>(softLowerLimitSignal, NodePin::Direction::NODE_INPUT, "Soft Lower Limit", NodePin::Flags::NoDataField);
-	std::shared_ptr<NodePin> hardLowerLimitPin = std::make_shared<NodePin>(hardLowerLimitSignal, NodePin::Direction::NODE_INPUT, "Hard Lower Limit", NodePin::Flags::NoDataField);
-	std::shared_ptr<NodePin> softUpperLimitPin = std::make_shared<NodePin>(softUpperLimitSignal, NodePin::Direction::NODE_INPUT, "Soft Upper Limit", NodePin::Flags::NoDataField);
-	std::shared_ptr<NodePin> hardUpperLimitPin = std::make_shared<NodePin>(hardUpperLimitSignal, NodePin::Direction::NODE_INPUT, "Hard Upper Limit", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> axisPin = std::make_shared<NodePin>(NodePin::DataType::VELOCITY_CONTROLLED_AXIS,
+																 NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Velocity Controlled Axis", "VelocityControlledAxis");
 	
 	//————— Output Pins —————
 	
@@ -34,10 +24,8 @@ public:
 	//————— Machine State —————
 	
 	bool areAllPinsConnected();
-	bool isGpioDeviceConnected();
-	std::shared_ptr<GpioDevice> getGpioDevice();
-	bool isActuatorDeviceConnected();
-	std::shared_ptr<ActuatorDevice> getActuatorDevice();
+	bool isAxisConnected();
+	std::shared_ptr<VelocityControlledAxis> getAxis();
 	
 	//————— State Machine —————
 	

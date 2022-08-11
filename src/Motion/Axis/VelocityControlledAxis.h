@@ -49,13 +49,15 @@ public:
 	
 	//========= DEVICES ========
 	
+public:
+	void getDevices(std::vector<std::shared_ptr<Device>>& output);
+	
 private:
 	bool isActuatorDeviceConnected() { return actuatorPin->isConnected(); }
 	std::shared_ptr<ActuatorDevice> getActuatorDevice() { return actuatorPin->getConnectedPin()->getSharedPointer<ActuatorDevice>(); }
 	
 	bool isAxisPinConnected(){ return velocityControlledAxisPin->isConnected(); }
 	
-	void getDevices(std::vector<std::shared_ptr<Device>>& output);
 	
 	//======== SETTINGS ========
 

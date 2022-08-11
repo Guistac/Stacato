@@ -8,6 +8,8 @@
 
 #include "Animation/Animation.h"
 
+#include "Motion/Axis/VelocityControlledAxis.h"
+
 AnimatableStateStruct AxisStateMachine::stateUnknown =					{0, "Unknown", 					"Unknown"};
 AnimatableStateStruct AxisStateMachine::stateStopped =					{0, "Stopped", 					"Stopped"};
 AnimatableStateStruct AxisStateMachine::stateMovingToNegativeLimit =	{0, "Moving To Negative Limit", "MovingToNegativeLimit"};
@@ -35,13 +37,10 @@ std::vector<AnimatableStateStruct*> AxisStateMachine::selectableStates = {
 
 void AxisStateMachine::initialize() {
 		
-	addNodePin(gpioPin);
-	addNodePin(actuatorPin);
-	addNodePin(softLowerLimitPin);
-	addNodePin(hardLowerLimitPin);
-	addNodePin(softUpperLimitPin);
-	addNodePin(hardUpperLimitPin);
+	//input pin
+	addNodePin(axisPin);
 	
+	//output pin
 	addNodePin(statePin);
 	
 	addAnimatable(animatableState);
@@ -291,30 +290,20 @@ void AxisStateMachine::onDisableSimulation() {}
 
 
 
+bool isAxisConnected();
+std::shared_ptr<VelocityControlledAxis> getAxis();
 
-bool AxisStateMachine::isGpioDeviceConnected() {
-	return gpioPin->isConnected();
+
+bool AxisStateMachine::isAxisConnected(){
+	return axisPin->isConnected();
 }
 
-std::shared_ptr<GpioDevice> AxisStateMachine::getGpioDevice() {
-	return gpioPin->getConnectedPin()->getSharedPointer<GpioDevice>();
-}
-
-bool AxisStateMachine::isActuatorDeviceConnected(){
-	return actuatorPin->isConnected();
-}
-
-std::shared_ptr<ActuatorDevice> AxisStateMachine::getActuatorDevice(){
-	return actuatorPin->getConnectedPin()->getSharedPointer<ActuatorDevice>();
+std::shared_ptr<VelocityControlledAxis> AxisStateMachine::getAxis(){
+	return axisPin->getConnectedPin()->getSharedPointer<VelocityControlledAxis>();
 }
 
 bool AxisStateMachine::areAllPinsConnected() {
-	if (!isGpioDeviceConnected()) return false;
-	if(!isActuatorDeviceConnected()) return false;
-	if(!softLowerLimitPin->isConnected()) return false;
-	if(!hardLowerLimitPin->isConnected()) return false;
-	if(!softUpperLimitPin->isConnected()) return false;
-	if(!hardUpperLimitPin->isConnected()) return false;
+	if(!isAxisConnected()) return false;
 	return true;
 }
 
@@ -449,7 +438,10 @@ void AxisStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animatio
 
 
 void AxisStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
-	if (isGpioDeviceConnected()) output.push_back(getGpioDevice()->parentDevice);
+	if(isAxisConnected()){
+		auto axis = getAxis();
+		axis->getDevices(output);
+	}
 }
 
 
