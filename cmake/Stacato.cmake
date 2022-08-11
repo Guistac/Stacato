@@ -266,6 +266,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachineGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/SharedAxisMachine.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/SharedAxisMachine.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/SharedAxisMachineGui.cpp
 
     #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/BinaryOscillator6x.cpp
     #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/BinaryOscillator6x.h
