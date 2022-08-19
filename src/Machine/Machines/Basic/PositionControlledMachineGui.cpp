@@ -234,9 +234,17 @@ void PositionControlledMachine::controlsGui() {
 
 void PositionControlledMachine::settingsGui() {
 	
+	//ImGui::InputDouble("rapid velocity", &animatablePosition->rapidVelocity);
+	//ImGui::InputDouble("rapid acceleration", &animatablePosition->rapidAcceleration);
 	
-	ImGui::InputDouble("rapid velocity", &animatablePosition->rapidVelocity);
-	ImGui::InputDouble("rapid acceleration", &animatablePosition->rapidAcceleration);
+	ImGui::Separator();
+	
+	invertDirection->gui();
+	ImGui::SameLine();
+	ImGui::TextWrapped("Invert Direction");
+	
+	ImGui::Text("Machine Zero (in Axis units)");
+	machineZero_axisUnits->gui();
 	
 	/*
 	if (!isAxisConnected()) {
@@ -545,7 +553,7 @@ void PositionControlledMachine::widgetGui(){
 	float doubleWidgetWidth = (contentSize.x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
 	glm::vec2 doubleButtonSize(doubleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
 
-	if (ImGui::Button("Move", doubleButtonSize)) animatablePosition->setManualPositionTargetWithVelocity(positionTargetValue, animatablePosition->rapidVelocity);
+	if (ImGui::Button("Move", doubleButtonSize)) animatablePosition->setManualPositionTargetWithVelocity(positionTargetValue, animatablePosition->velocityLimit);
 
 	ImGui::SameLine();
 

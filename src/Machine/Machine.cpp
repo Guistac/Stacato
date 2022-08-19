@@ -57,6 +57,17 @@ void Machine::addAnimatable(std::shared_ptr<Animatable> animatable){
 	animatables.push_back(animatable);
 }
 
+void Machine::removeAnimatable(std::shared_ptr<Animatable> removedAnimatable){
+	//TODO: test
+	for(int i = 0; i < animatables.size(); i++){
+		if(animatables[i] == removedAnimatable){
+			animatables.erase(animatables.begin() + i);
+			break;
+		}
+	}
+	removedAnimatable->deleteAllAnimations();
+}
+
 
 bool Machine::isMotionAllowed(){
 	if(!deadMansSwitchPin->isConnected()) return true;
@@ -81,6 +92,6 @@ bool Machine::load(tinyxml2::XMLElement* xml){
 	const char* sName;
 	if(xml->QueryStringAttribute("ShortName", &sName) != tinyxml2::XML_SUCCESS) return Logger::warn("Could not find machine short name");
 	sprintf(shortName, "%s", sName);
-	loadMachine(xml);
+	if(!loadMachine(xml)) return false;
 	return true;
 }

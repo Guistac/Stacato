@@ -1113,6 +1113,11 @@ void updateNetworkTopology(){
 	masterConnection->childDevicePort = firstDeviceConnectedToMaster->identity->entryport;
 	networkTopology.push_back(masterConnection);
 	
+	
+	std::shared_ptr<EtherCatDevice> parentDevice = firstDeviceConnectedToMaster;
+	std::vector<std::shared_ptr<EtherCatDevice>> devicesWithUnregisteredConnections;
+	
+	
 	auto getNextChildDeviceOnPort = [](int port, std::shared_ptr<EtherCatDevice> parent, std::vector<std::shared_ptr<EtherCatDevice>>& children) -> std::shared_ptr<EtherCatDevice> {
 		for(auto& connection : parent->connections){
 			if(connection->parentDevice == parent && connection->parentDevicePort == port) return nullptr;
@@ -1123,12 +1128,17 @@ void updateNetworkTopology(){
 		return nullptr;
 	};
 	
+	
 	auto getNextChildDeviceOf = [&getNextChildDeviceOnPort](std::shared_ptr<EtherCatDevice> parent) -> std::shared_ptr<EtherCatDevice> {
 		int parentDeviceIndex = parent->getSlaveIndex();
+		
+		//get a list of devices that have the parent as parent
 		std::vector<std::shared_ptr<EtherCatDevice>> childDevices;
 		for(auto& device : slaves){
 			if(device->identity->parent == parentDeviceIndex) childDevices.push_back(device);
 		}
+		
+		//check the next port for an unregistered conneciont (order is 3 1 2 0)
 		if(auto nextChild = getNextChildDeviceOnPort(3, parent, childDevices)) {
 			return nextChild;
 		}
@@ -1144,10 +1154,46 @@ void updateNetworkTopology(){
 		return nullptr;
 	};
 	
-	std::shared_ptr<EtherCatDevice> parentDevice = firstDeviceConnectedToMaster;
+	
+	auto hasUnregisteredConnections = [&](std::shared_ptr<EtherCatDevice> device) -> bool {
+		
+		int deviceIndex = device->getSlaveIndex();
+		std::vector<std::shared_ptr<EtherCatDevice>> childDevices;
+		for(auto& childDevice : slaves){
+			if(childDevice->identity->parent == deviceIndex) childDevices.push_back(childDevice);
+		}
+		
+		//check each child device of the queried device
+		for(auto& childDevice : childDevices){
+			
+			bool b_connectionAlreadyRegistered = false;
+			
+			//for each connection that is registered by the device
+			for(auto& connection : device->connections){
+				//if a connection exists for between the queried device and one of its child device, that connection is already registered
+				if(connection->parentDevice == device && connection->childDevice == childDevice) {
+					b_connectionAlreadyRegistered = true;
+					break;
+				}
+			}
+			
+			if(!b_connectionAlreadyRegistered) {
+				return true;
+			}
+			
+		}
+		
+		return false;
+	};
+	
+	
 	
 	while(parentDevice){
+		
+		//get the next child with an unregistered connection to the parent device
 		auto childDevice = getNextChildDeviceOf(parentDevice);
+		
+		//if there is a child with unregistered connection, register that connection with the parent and child
 		if(childDevice){
 			auto connection = std::make_shared<DeviceConnection>();
 			connection->parentDevice = parentDevice;
@@ -1158,7 +1204,35 @@ void updateNetworkTopology(){
 			childDevice->connections.push_back(connection);
 			networkTopology.push_back(connection);
 		}
-		parentDevice = childDevice;
+		
+		//check if the parent device has unregistered connections
+		if(hasUnregisteredConnections(parentDevice)){
+			devicesWithUnregisteredConnections.push_back(parentDevice);
+		}
+		
+		if(childDevice) parentDevice = childDevice;
+		else {
+	
+			
+			parentDevice = nullptr;
+	
+			//go back to the last device with unscanned ports and find its children
+			while(!devicesWithUnregisteredConnections.empty()){
+				
+				//check if the last device with unregistered connections still has unregistered connections
+				auto lastDeviceWithUnregisteredConnections = devicesWithUnregisteredConnections.back();
+				if(hasUnregisteredConnections(lastDeviceWithUnregisteredConnections)){
+					//if it has unregistered connections, get the next unregistered child
+					parentDevice = lastDeviceWithUnregisteredConnections;
+					break;
+				}else{
+					//if that device has no unregistered connections, remove it from the list of devices with unregistered connections
+					devicesWithUnregisteredConnections.pop_back();
+				}
+					
+			}
+			
+		}
 	}
 	
 }

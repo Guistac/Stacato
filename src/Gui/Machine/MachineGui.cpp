@@ -22,8 +22,6 @@ void Machine::nodeSpecificGui() {
 	}
 	if (ImGui::BeginTabItem("Settings")) {
 		ImGui::BeginChild("Settings");
-		generalSettingsGui();
-		ImGui::Separator();
 		settingsGui();
 		ImGui::EndChild();
 		ImGui::EndTabItem();
@@ -81,18 +79,6 @@ void Machine::stateControlGui() {
 		if (ImGui::Button("Enable Machine", buttonSize)) enable();
 	}
 	ImGui::EndDisabled();
-}
-
-void Machine::generalSettingsGui() {
-	ImGui::Text("general settings were removed");
-	
-	//ImGui::Text("Machine Name :");
-	//int nameBufferSize;
-	//char* nameBuffer = getNameBuffer(nameBufferSize);
-	//ImGui::InputText("##name", nameBuffer, nameBufferSize);
-
-	//ImGui::Text("Short Name :");
-	//ImGui::InputText("##shortName", shortName, 16);
 }
 
 

@@ -193,6 +193,8 @@ void FlipStateMachine::widgetGui(){
 			ImGui::EndDisabled();
 			break;
 	}
+	
+	if(ImGui::Button("STOP", commandButtonSize)) requestState(State::STOPPED);
 
 	ImGui::EndDisabled();
 

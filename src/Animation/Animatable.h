@@ -24,6 +24,7 @@ public:
 	
 	Animatable(std::string name_) : name(name_){}
 	const char* getName(){ return name.c_str(); }
+	void setName(std::string newName){ name = newName; }
 	
 	void setMachine(std::shared_ptr<Machine> machine_){ machine = machine_; }
 	std::shared_ptr<Machine> getMachine(){ return machine; }
@@ -59,6 +60,8 @@ public:
 	void subscribeAnimation(std::shared_ptr<Animation> animation);
 	void unsubscribeAnimation(std::shared_ptr<Animation> animation);
 	std::vector<std::shared_ptr<Animation>>& getAnimations(){ return animations; }
+	
+	void deleteAllAnimations();
 	
 	//animation currently animating this animatable
 	bool hasAnimation(){ return currentAnimation != nullptr; }
@@ -130,6 +133,7 @@ public:
 	virtual bool isParameterValueEqual(std::shared_ptr<AnimationValue> value1, std::shared_ptr<AnimationValue> value2) = 0;
 	virtual std::shared_ptr<AnimationValue> getValueAtAnimationTime(std::shared_ptr<Animation> animation, double time_seconds) = 0;
 	virtual std::vector<double> getCurvePositionsFromAnimationValue(std::shared_ptr<AnimationValue> value) = 0;
+	virtual bool isControlledManuallyOrByAnimation() = 0;
 	
 private:
 	

@@ -62,6 +62,7 @@ public:
 	virtual std::vector<double> getCurvePositionsFromAnimationValue(std::shared_ptr<AnimationValue> value) override;
 	virtual bool generateTargetAnimation(std::shared_ptr<TargetAnimation> animation) override;
 	virtual bool validateAnimation(std::shared_ptr<Animation> animation) override;
+	virtual bool isControlledManuallyOrByAnimation() override;
 	
 	//—————————state——————————
 	virtual bool isReadyToMove() override;
@@ -81,7 +82,7 @@ public:
 	
 	virtual void followActualValue(double time_seconds, double deltaTime_seconds) override;
 	void copyMotionProfilerValueToTargetValue();
-	
+		
 	//—————————movement commands——————————
 	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) override;
 	virtual void cancelRapid() override;
@@ -100,6 +101,7 @@ public:
 	void setManualVelocityTarget(double velocityTarget);
 	void setManualPositionTargetWithVelocity(double targetPosition, double targetVelocity);
 	void setManualPositionTargetWithTime(double targetPosition, double targetTime);
+	void forcePositionTarget(double position, double velocity, double acceleration);
 	
 private:
 	void setVelocityTarget(double velocityTarget);
@@ -120,6 +122,10 @@ public:
 	double getVelocitySetpoint();
 	double getVelocitySetpointNormalized();
 	
+	bool hasAccelerationSetpoint();
+	double getAccelerationSetpoint();
+	double getAccelerationSetpointNormalized();
+	
 	double getActualPosition();
 	double getActualPositionNormalized();
 	
@@ -138,14 +144,15 @@ public:
 	double upperPositionLimit;
 	double velocityLimit;
 	double accelerationLimit;
-	double rapidVelocity;
-	double rapidAcceleration;
+	//double rapidVelocity;
+	//double rapidAcceleration;
 	
 	std::mutex mutex;
 	
 	enum ControlMode{
 		VELOCITY_SETPOINT,	//manual velocity control
-		POSITION_SETPOINT	//go to position
+		POSITION_SETPOINT,	//go to position
+		FORCED_POSITION_SETPOINT
 	}controlMode = ControlMode::VELOCITY_SETPOINT;
 	double velocitySetpoint = 0.0;
 	double positionSetpoint = 0.0;

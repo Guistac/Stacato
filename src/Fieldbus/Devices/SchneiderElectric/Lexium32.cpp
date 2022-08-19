@@ -435,7 +435,7 @@ void Lexium32::uploadGeneralParameters() {
 	int16_t LIM_QStopReact;
 	switch(quickstopReaction){
 		case QuickStopReaction::DECELERATION_RAMP: LIM_QStopReact = 6; break;
-		case QuickStopReaction::TORQUE_RAMP: LIM_QStopReact = 8; break;
+		case QuickStopReaction::TORQUE_RAMP: LIM_QStopReact = 7; break;
 	}
 	if(!writeSDO_S16(0x3006, 0x18, LIM_QStopReact)) return onFailure();
 
@@ -626,20 +626,25 @@ void Lexium32::downloadPinAssignements() {
 		}
 	}
 
-	uint16_t IOsignLMN;
-	if(!readSDO_U16(0x3006, 0xF, IOsignLMN)) return onFailure();
-	switch(IOsignLMN){
-		case 1: b_negativeLimitSwitchNormallyClosed = true; break;
-		case 2: b_negativeLimitSwitchNormallyClosed = false; break;
-		default: return onFailure();
+	
+	if(negativeLimitSwitchPin != InputPin::NONE){
+		uint16_t IOsignLMN;
+		if(!readSDO_U16(0x3006, 0xF, IOsignLMN)) return onFailure();
+		switch(IOsignLMN){
+			case 1: b_negativeLimitSwitchNormallyClosed = true; break;
+			case 2: b_negativeLimitSwitchNormallyClosed = false; break;
+			default: return onFailure();
+		}
 	}
 	
-	uint16_t IOsigLIMP;
-	if(!readSDO_U16(0x3006, 0x10, IOsigLIMP)) return onFailure();
-	switch(IOsigLIMP){
-		case 1: b_positiveLimitSwitchNormallyClosed = true; break;
-		case 2: b_positiveLimitSwitchNormallyClosed = false; break;
-		default: return onFailure();
+	if(positiveLimitSwitchPin != InputPin::NONE){
+		uint16_t IOsigLIMP;
+		if(!readSDO_U16(0x3006, 0x10, IOsigLIMP)) return onFailure();
+		switch(IOsigLIMP){
+			case 1: b_positiveLimitSwitchNormallyClosed = true; break;
+			case 2: b_positiveLimitSwitchNormallyClosed = false; break;
+			default: return onFailure();
+		}
 	}
 
 	pinAssignementDownloadState = DataTransferState::SUCCEEDED;
@@ -663,7 +668,8 @@ void Lexium32::uploadManualAbsoluteEncoderPosition() {
 	if(!writeSDO_S32(0x3005, 0x16, ENC1_adjustment)) return onFailure();
 
     encoderAbsolutePositionUploadState = DataTransferState::SAVING;
-	if (saveToEEPROM()) return onFailure();
+	if (!saveToEEPROM()) return onFailure();
+	encoderAbsolutePositionUploadState = DataTransferState::SAVED;
 }
 
 

@@ -110,7 +110,7 @@ public:
     bool supportsCoE_SDOCA()        { return identity->CoEdetails & ECT_COEDET_SDOCA; }
 
 	
-	std::vector<std::shared_ptr<EtherCatDevice>> connectedDevices;
+	
 	
     //===== EVENTS =====
 
@@ -140,7 +140,7 @@ public:
 
     //======== GUI ========
 
-	virtual void nodeSpecificGui();
+	virtual void nodeSpecificGui() override;
     void genericInfoGui();
     void pdoDataGui();
     void generalGui();

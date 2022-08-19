@@ -210,6 +210,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/StacatoCompact.h
     ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/ButtonBoard.cpp
     ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/ButtonBoard.h
+    ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/ConsoleStarmania.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/ConsoleStarmania.h
 
     ${STACATO_SOURCE_DIRECTORY}/Tests/C_Curves.cpp
     ${STACATO_SOURCE_DIRECTORY}/Tests/C_Curves.h

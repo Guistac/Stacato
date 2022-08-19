@@ -255,7 +255,9 @@ bool AnimatablePosition::validateAnimation(std::shared_ptr<Animation> animation)
 
 
 
-
+bool AnimatablePosition::isControlledManuallyOrByAnimation(){
+	return hasAnimation() || isInRapid() || (controlMode == VELOCITY_SETPOINT && velocitySetpoint != 0.0);
+}
 
 
 
@@ -289,7 +291,7 @@ void AnimatablePosition::cancelRapid(){
 }
 
 void AnimatablePosition::onRapidToValue(std::shared_ptr<AnimationValue> animationValue){
-	moveToPositionWithVelocity(animationValue->toPosition()->position, rapidVelocity);
+	moveToPositionWithVelocity(animationValue->toPosition()->position, velocityLimit);
 }
 
 void AnimatablePosition::onSetManualControlTarget(float x, float y, float z){
@@ -319,13 +321,13 @@ void AnimatablePosition::setVelocityTarget(double velocityTarget){
 
 void AnimatablePosition::moveToPositionWithVelocity(double targetPosition, double targetVelocity){
 	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
-	motionProfile.moveToPositionWithVelocity(profileTime_seconds, targetPosition, targetVelocity, rapidAcceleration);
+	motionProfile.moveToPositionWithVelocity(profileTime_seconds, targetPosition, targetVelocity, accelerationLimit);
 	controlMode = POSITION_SETPOINT;
 }
 
 void AnimatablePosition::moveToPositionInTime(double targetPosition, double targetTime){
 	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
-	motionProfile.moveToPositionInTime(profileTime_seconds, targetPosition, targetTime, rapidAcceleration, velocityLimit);
+	motionProfile.moveToPositionInTime(profileTime_seconds, targetPosition, targetTime, accelerationLimit, velocityLimit);
 	controlMode = POSITION_SETPOINT;
 }
 
@@ -350,6 +352,12 @@ void AnimatablePosition::setManualPositionTargetWithTime(double targetPosition, 
 	moveToPositionInTime(targetPosition, targetTime);
 }
 
+void AnimatablePosition::forcePositionTarget(double position, double velocity, double acceleration){
+	positionSetpoint = position;
+	velocitySetpoint = velocity;
+	accelerationSetpoint = acceleration;
+	controlMode = FORCED_POSITION_SETPOINT;
+}
 
 
 
@@ -380,6 +388,23 @@ double AnimatablePosition::getVelocitySetpoint(){
 double AnimatablePosition::getVelocitySetpointNormalized(){
 	return getVelocitySetpoint() / velocityLimit;
 }
+
+
+bool AnimatablePosition::hasAccelerationSetpoint(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	return isReadyToMove();
+}
+
+double AnimatablePosition::getAccelerationSetpoint(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	return getTargetValue()->toPosition()->acceleration;
+}
+
+double AnimatablePosition::getAccelerationSetpointNormalized(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	return getAccelerationSetpoint() / accelerationLimit;
+}
+
 
 
 double AnimatablePosition::getActualPosition(){
@@ -494,13 +519,16 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 	else if(controlMode == POSITION_SETPOINT){
 		velocitySetpoint = 0.0;
 		accelerationSetpoint = 0.0;
-	}else{
+	}else if(controlMode == FORCED_POSITION_SETPOINT){
+		//just follow the forced set point set by forcePositionTarget
+	}
+	else{
 		//velocity set point for this control mode is adjusted externally
 		controlMode = VELOCITY_SETPOINT;
 	}
 	
 	//handle motion interrupt if the setpoint goes outside limits
-	if(controlMode == POSITION_SETPOINT){
+	if(controlMode == POSITION_SETPOINT || controlMode == FORCED_POSITION_SETPOINT){
 		if((positionSetpoint < minPosition && velocitySetpoint < 0.0) || (positionSetpoint > maxPosition && velocitySetpoint > 0.0)){
 			if(hasAnimation()) getAnimation()->pausePlayback();
 			stopMovement();
@@ -513,12 +541,13 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 		case VELOCITY_SETPOINT:
 			motionProfile.matchVelocityAndRespectPositionLimits(deltaT_seconds,
 																velocitySetpoint,
-																rapidAcceleration,
+																accelerationLimit,
 																minPosition,
 																maxPosition,
-																rapidAcceleration);
+																accelerationLimit);
 			break;
 		case POSITION_SETPOINT:
+		case FORCED_POSITION_SETPOINT:
 			motionProfile.matchPositionAndRespectPositionLimits(deltaT_seconds,
 																positionSetpoint,
 																velocitySetpoint,

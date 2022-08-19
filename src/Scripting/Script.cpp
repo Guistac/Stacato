@@ -70,6 +70,8 @@ void LuaScript::editor(ImVec2 size_arg){
 	}
 	ImGui::PopStyleVar();
 	
+	ImGui::SetScrollHereY(1.0f);
+	
 	ImGui::EndChild();
 }
 

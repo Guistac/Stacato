@@ -8,13 +8,16 @@
 
 #include "Animation/Animatables/AnimatablePosition.h"
 
+#include "Project/Editor/Parameter.h"
+
 class SharedAxisMachine : public Machine{
 	
 	DEFINE_MACHINE_NODE(SharedAxisMachine, "Shared Axis Machine", "SharedAxisMachine", "Basic")
 	DEFINE_HOMEABLE_MACHINE
 
-	std::shared_ptr<AnimatablePosition> axis1Position = AnimatablePosition::make("Axis 1", Units::None::None);
-	std::shared_ptr<AnimatablePosition> axis2Position = AnimatablePosition::make("Axis 2", Units::None::None);
+	std::shared_ptr<AnimatablePosition> axis1Animatable = AnimatablePosition::make("Axis 1 Position", Units::None::None);
+	std::shared_ptr<AnimatablePosition> axis2Animatable = AnimatablePosition::make("Axis 2 Position", Units::None::None);
+	std::shared_ptr<AnimatablePosition> synchronizedAnimatable = AnimatablePosition::make("Synchronized Position", Units::None::None);
 	
 	//———————— Input Pins ——————————
 	
@@ -23,6 +26,7 @@ class SharedAxisMachine : public Machine{
 	std::shared_ptr<NodePin> axis2Pin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS,
 																  NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Position Controlled Axis 2");
 	bool areAxesConnected();
+	bool axesHaveSamePositionUnit();
 	std::shared_ptr<PositionControlledAxis> getAxis1();
 	std::shared_ptr<PositionControlledAxis> getAxis2();
 	
@@ -42,8 +46,9 @@ class SharedAxisMachine : public Machine{
 	virtual void onPinConnection(std::shared_ptr<NodePin> pin) override;
 	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin) override;
 	
+	void updateAxisParameters();
 	void updateAnimatableParameters();
-	
+		
 	virtual std::vector<std::shared_ptr<PositionControlledAxis>> getPositionControlledAxes() override {
 		std::vector<std::shared_ptr<PositionControlledAxis>> output;
 		if(areAxesConnected()) {
@@ -54,19 +59,36 @@ class SharedAxisMachine : public Machine{
 	}
 
 	//————————— Settings ——————————
+	
+	Unit positionUnit = Units::None::None;
 
-	double machineZero_axisUnits = 0.0;
-	bool b_invertDirection = false;
+	std::shared_ptr<BooleanParameter> invertAxis1 = BooleanParameter::make(false, "Invert Axis 1", "InvertAxis1");
+	std::shared_ptr<BooleanParameter> invertAxis2 = BooleanParameter::make(false, "Invert Axis 2", "InvertAxis2");
+	std::shared_ptr<NumberParameter<double>> axis1Offset = NumberParameter<double>::make(0.0, "Axis 1 Offset", "Axis1Offset");
+	std::shared_ptr<NumberParameter<double>> axis2Offset = NumberParameter<double>::make(0.0, "Axis 2 Offset", "Axis2Offset");
+	
+	std::shared_ptr<NumberParameter<double>> velocityLimit = NumberParameter<double>::make(0.0, "Velocity Limit", "VelocityLimit", "%.3f", Units::None::None, false);
+	std::shared_ptr<NumberParameter<double>> accelerationLimit = NumberParameter<double>::make(0.0, "Acceleration Limit", "AccelerationLimit", "%.3f", Units::None::None, false);
+	
+	std::shared_ptr<BooleanParameter> enableAntiCollision = BooleanParameter::make(false, "Enabled Anticollision", "EnableAnticollision");
+	std::shared_ptr<NumberParameter<double>> minimumDistanceBetweenAxes = NumberParameter<double>::make(0.0, "Minimum Distance Between Axes", "MinimumAxisBetweenAxes", "%.3f", Units::None::None, false);
+	std::shared_ptr<BooleanParameter> axis1isAboveAxis2 = BooleanParameter::make(true, "Axis Order", "AxisOrder");
+	
+	std::shared_ptr<BooleanParameter> enableSynchronousControl = BooleanParameter::make(false, "Enable Synchronous Control", "EnableSynchronousControl");
+	std::shared_ptr<BooleanParameter> axis1isMaster = BooleanParameter::make(true, "Synchronization Master Selection", "Axis1isMaster");
 	
 	//————————— Unit Conversion ——————————
 	
-	void captureMachineZero();
-	double axisPositionToMachinePosition(double axisPosition);
-	double axisVelocityToMachineVelocity(double axisVelocity);
-	double axisAccelerationToMachineAcceleration(double axisAcceleration);
-	double machinePositionToAxisPosition(double machinePosition);
-	double machineVelocityToAxisVelocity(double machineVelocity);
-	double machineAccelerationToAxisAcceleration(double machineAcceleration);
+	void captureAxis1PositionToOffset(double machinePosition);
+	void captureAxis2PositionToOffset(double machinePosition);
+	double axis1PositionToMachinePosition(double axis1Position);
+	double axis2PositionToMachinePosition(double axis2Position);
+	double machinePositionToAxis1Position(double machinePosition);
+	double machinePositionToAxis2Position(double machinePosition);
+	double axis1ToMachineConversion(double axis1Value);
+	double machineToAxis1Conversion(double machineAxis1Value);
+	double axis2ToMachineConversion(double axis2Value);
+	double machineToAxis2Conversion(double machineAxis2Value);
 	
 	//——————————— Control Widget ————————————
 		

@@ -241,7 +241,7 @@ private:
 	double getLowFeedbackPositionLimit();
 	double getHighFeedbackPositionLimit();
 	double getRange();
-	
+		
 	//================ SURVEILLANCE ==================
 	
 	bool b_hasSurveillanceError = false;

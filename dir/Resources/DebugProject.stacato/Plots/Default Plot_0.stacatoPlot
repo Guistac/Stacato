@@ -1,3 +1,7 @@
 <Plot Name="Default Plot">
-    <ManoeuvreList/>
+    <ManoeuvreList>
+        <Manoeuvre Name="M-0" Description="" Type="Key">
+            <Animation Machine="Periactes Milieu" MachineUniqueID="2233" Parameter="Synchronized Position" IsComposite="false" Type="Key" Target="0"/>
+        </Manoeuvre>
+    </ManoeuvreList>
 </Plot>

@@ -55,7 +55,9 @@ std::vector<double> AnimatableState::getCurvePositionsFromAnimationValue(std::sh
 	return std::vector<double>{(double)value->toState()->value->integerEquivalent};
 }
 
-
+bool AnimatableState::isControlledManuallyOrByAnimation(){
+	return hasAnimation() || isInRapid();
+}
 
 
 

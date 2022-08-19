@@ -233,105 +233,145 @@ void SharedAxisMachine::controlsGui() {
 
 
 void SharedAxisMachine::settingsGui() {
+		
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+	ImGui::TextWrapped("Both axes need to have:");
+	ImGui::TreePush();
+	ImGui::Text("- the same position unit");
+	ImGui::Text("- the same position scaling");
+	ImGui::Text("- the same signed direction");
+	ImGui::TreePop();
+	ImGui::PopStyleColor();
 	
-	
-	//ImGui::InputDouble("rapid velocity", &animatablePosition->rapidVelocity);
-	//ImGui::InputDouble("rapid acceleration", &animatablePosition->rapidAcceleration);
-	
-	/*
-	if (!isAxisConnected()) {
-		ImGui::Text("No Axis Connected");
+	if(!areAxesConnected()){
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+		ImGui::TextWrapped("Axes are not connected.");
+		ImGui::PopStyleColor();
+		return;
+	}else if(!axesHaveSamePositionUnit()){
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+		ImGui::TextWrapped("Axes don't have the same position unit.");
+		ImGui::PopStyleColor();
 		return;
 	}
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Machine Limits :");
-	ImGui::PopFont();
-
-	ImGui::Text("Position Unit:");
-	ImGui::SameLine();
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("%s", axis->getPositionUnit()->singular);
-	ImGui::PopFont();
 	
-	bool b_positionRangeIsZero = getHighPositionLimit() - getLowPositionLimit() == 0.0;
+	auto axis1 = getAxis1();
+	auto axis2 = getAxis2();
 	
-	ImGui::Text("Low Position Limit:");
-	ImGui::SameLine();
-	ImGui::PushFont(Fonts::sansBold15);
-	pushInvalidValue(b_positionRangeIsZero);
-	ImGui::Text("%.3f%s", getLowPositionLimit(), axis->getPositionUnit()->abbreviated);
-	popInvalidValue();
-	ImGui::PopFont();
-	
-	ImGui::Text("High Position Limit:");
-	ImGui::SameLine();
-	ImGui::PushFont(Fonts::sansBold15);
-	pushInvalidValue(b_positionRangeIsZero);
-	ImGui::Text("%.3f%s", getHighPositionLimit(), axis->getPositionUnit()->abbreviated);
-	popInvalidValue();
-	ImGui::PopFont();
-	
-	ImGui::Text("Velocity Limit:");
-	ImGui::SameLine();
-	ImGui::PushFont(Fonts::sansBold15);
-	pushInvalidValue(axis->getVelocityLimit() <= 0.0);
-	ImGui::Text("%.3f%s/s", axis->getVelocityLimit(), axis->getPositionUnit()->abbreviated);
-	popInvalidValue();
-	ImGui::PopFont();
-	
-	ImGui::Text("Acceleration Limit:");
-	ImGui::SameLine();
-	ImGui::PushFont(Fonts::sansBold15);
-	pushInvalidValue(axis->getAccelerationLimit() <= 0.0);
-	ImGui::Text("%.3f%s\xC2\xB2", axis->getAccelerationLimit(), axis->getPositionUnit()->abbreviated);
-	popInvalidValue();
-	ImGui::PopFont();
-	
-	ImGui::Separator();
-	
-
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Rapids");
-	ImGui::PopFont();
-
-	static char rapidVelocityString[128];
-	static char rapidAccelerationString[128];
-
-	ImGui::Text("Velocity for rapid movements :");
-	sprintf(rapidVelocityString, "%.3f %s/s", rapidVelocity_machineUnitsPerSecond, axis->getPositionUnit()->abbreviated);
-	pushInvalidValue(rapidVelocity_machineUnitsPerSecond == 0.0);
-	ImGui::InputDouble("##velRapid", &rapidVelocity_machineUnitsPerSecond, 0.0, 0.0, rapidVelocityString);
-	popInvalidValue();
-	rapidVelocity_machineUnitsPerSecond = std::min(rapidVelocity_machineUnitsPerSecond, axis->getVelocityLimit());
-
-	ImGui::Text("Acceleration for rapid movements :");
-	sprintf(rapidAccelerationString, "%.3f %s/s\xC2\xB2", rapidAcceleration_machineUnitsPerSecond, axis->getPositionUnit()->abbreviated);
-	pushInvalidValue(rapidAcceleration_machineUnitsPerSecond == 0.0);
-	ImGui::InputDouble("##accRapid", &rapidAcceleration_machineUnitsPerSecond, 0.0, 0.0, rapidAccelerationString);
-	popInvalidValue();
-	rapidAcceleration_machineUnitsPerSecond = std::min(rapidAcceleration_machineUnitsPerSecond, axis->getAccelerationLimit());
-	
-	ImGui::Separator();
+	ImGui::Separator(); //————————————————————————
 	
 	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Machine Zero");
+	ImGui::Text("Axis 1");
+	ImGui::PopFont();
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansLight20);
+	ImGui::Text("(%s)", axis1->getName());
 	ImGui::PopFont();
 	
-	ImGui::Text("Machine Zero (Axis Units) :");
-	static char machineZeroString[128];
-	sprintf(machineZeroString, "%.3f %s", machineZero_axisUnits, axis->getPositionUnit()->abbreviated);
-	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
-	ImGui::InputDouble("##axisUnitOffset", &machineZero_axisUnits, 0.0, 0.0, machineZeroString);
-	
+	invertAxis1->gui();
 	ImGui::SameLine();
-	if(ImGui::Button("Capture Machine Zero")){
-		captureMachineZero();
+	ImGui::Text("Invert Direction");
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Axis Offset");
+	ImGui::PopFont();
+	axis1Offset->gui();
+	
+	
+	ImGui::Separator(); //————————————————————————
+	
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Axis 2");
+	ImGui::PopFont();
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansLight20);
+	ImGui::Text("(%s)", axis2->getName());
+	ImGui::PopFont();
+	
+	invertAxis2->gui();
+	ImGui::SameLine();
+	ImGui::Text("Invert Direction");
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Axis Offset");
+	ImGui::PopFont();
+	axis2Offset->gui();
+	
+	
+	ImGui::Separator(); //————————————————————————
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Motion Limits");
+	ImGui::PopFont();
+	
+	double axisVelocityLimit = std::min(axis1->getVelocityLimit(), axis2->getVelocityLimit());
+	double axisAccelerationLimit = std::min(axis1->getAccelerationLimit(), axis2->getAccelerationLimit());
+	
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+	ImGui::Text("Axes Limit Velocity to %.3f %s/s", axisVelocityLimit, axis1->getPositionUnit()->abbreviated);
+	ImGui::Text("Axes Limit Acceleration to %.3f %s/s2", axisAccelerationLimit, axis1->getPositionUnit()->abbreviated);
+	ImGui::PopStyleColor();
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Velocity Limit");
+	ImGui::PopFont();
+	velocityLimit->gui();
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Acceleration Limit");
+	ImGui::PopFont();
+	accelerationLimit->gui();
+		
+	
+	ImGui::Separator(); //————————————————————————
+	
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Collision Avoidance");
+	ImGui::PopFont();
+	
+	enableAntiCollision->gui();
+	ImGui::SameLine();
+	ImGui::Text("Enable Collision Avoidance");
+	if(enableAntiCollision->value){
+		axis1isAboveAxis2->gui();
+		ImGui::SameLine();
+		ImGui::TextWrapped("Axis Order: %s", getAxis1()->getName());
+		ImGui::SameLine();
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("%s", axis1isAboveAxis2->value ? ">" : "<");
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::TextWrapped("%s", getAxis2()->getName());
+		
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("Minimum Distance Between Axes");
+		ImGui::PopFont();
+		minimumDistanceBetweenAxes->gui();
 	}
 	
-	ImGui::Checkbox("Invert Axis Direction", &b_invertDirection);
-*/
+	
+	ImGui::Separator(); //————————————————————————
+	
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Synchronous Control");
+	ImGui::PopFont();
+	
+	enableSynchronousControl->gui();
+	ImGui::SameLine();
+	ImGui::Text("Enable Synchronous Control");
+	
+	if(enableSynchronousControl->value){
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("Synchronisation master selection");
+		ImGui::PopFont();
+		axis1isMaster->gui();
+		ImGui::SameLine();
+		ImGui::Text("%s is Master", axis1isMaster->value ? axis1->getName() : axis2->getName());
+	}
+	
 }
 
 void SharedAxisMachine::axisGui() {
@@ -422,12 +462,13 @@ void SharedAxisMachine::ControlWidget::gui(){
 
 void SharedAxisMachine::widgetGui(){
 		
-	/*
 	glm::vec2 contentSize = controlWidget->getFixedContentSize();
 	glm::vec2 contentMin = ImGui::GetCursorPos();
 	glm::vec2 contentMax = contentMin + contentSize;
 	
 	machineHeaderGui(contentSize.x);
+	
+	/*
 	
 	if(!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();

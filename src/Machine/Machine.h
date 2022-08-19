@@ -128,6 +128,7 @@ public:
 	virtual void fillAnimationDefaults(std::shared_ptr<Animation> animation) = 0;
 	
 	void addAnimatable(std::shared_ptr<Animatable> animatable);
+	void removeAnimatable(std::shared_ptr<Animatable> animatable);
 	std::vector<std::shared_ptr<Animatable>>& getAnimatables(){ return animatables; }
 	
 	//===== ATTACHED DEVICES =====
@@ -147,7 +148,6 @@ public:
 	//===== GUI STUFF =====
 	virtual void nodeSpecificGui() override;
 	virtual void stateControlGui();
-	virtual void generalSettingsGui();
 	virtual void controlsGui() = 0;
 	virtual void settingsGui() = 0;
 	virtual void axisGui() = 0;

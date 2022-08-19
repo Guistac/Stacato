@@ -8,6 +8,8 @@
 
 #include "Animation/Animatables/AnimatablePosition.h"
 
+#include "Project/Editor/Parameter.h"
+
 class PositionControlledMachine : public Machine{
 	
 	DEFINE_MACHINE_NODE(PositionControlledMachine, "Position Controlled Machine", "PositionControlledMachine", "Basic")
@@ -42,9 +44,9 @@ class PositionControlledMachine : public Machine{
 	}
 
 	//————————— Settings ——————————
-
-	double machineZero_axisUnits = 0.0;
-	bool b_invertDirection = false;
+	
+	std::shared_ptr<NumberParameter<double>> machineZero_axisUnits = NumberParameter<double>::make(0.0, "Machine Zero", "MachineZero", "%.3f");
+	std::shared_ptr<BooleanParameter> invertDirection = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
 	
 	//————————— Unit Conversion ——————————
 	

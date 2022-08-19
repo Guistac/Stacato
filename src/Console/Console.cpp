@@ -67,7 +67,7 @@ void Console::receiveDeviceInput(uint8_t* message, size_t size){
 	device->updateInput(deviceInputData, deviceInputDataSize);
 	
 	
-	/*
+	
 	uint8_t deviceTypeCode = message[0];
 	switch(IODevice::getTypeFromCode(deviceTypeCode)){
 		case IODevice::Type::PUSHBUTTON:
@@ -99,7 +99,7 @@ void Console::receiveDeviceInput(uint8_t* message, size_t size){
 			Logger::warn("Unknown device input received...");
 			break;
 	}
-	 */
+	 
 }
 
 void Console::receiveConnectionConfirmation(uint8_t* message, size_t size){

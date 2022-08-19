@@ -7,6 +7,7 @@
 
 #include "Animatables/AnimatableState.h"
 #include "Animatables/AnimatablePosition.h"
+#include "Animation/Manoeuvre.h"
 
 
 //——————————————————— Type Casting ————————————————————
@@ -36,6 +37,14 @@ void Animatable::unsubscribeAnimation(std::shared_ptr<Animation> animation){
 			animations.erase(animations.begin() + i);
 			break;
 		}
+	}
+}
+
+void Animatable::deleteAllAnimations(){
+	for(auto animation : animations){
+		if(!animation->hasManoeuvre()) continue;
+		auto manoeuvre = animation->getManoeuvre();
+		manoeuvre->removeAnimation(shared_from_this());
 	}
 }
 

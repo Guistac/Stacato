@@ -961,3 +961,19 @@ public:
 	};
 	
 };
+
+
+
+
+
+
+
+inline bool loadXMLElement(std::string elementName, tinyxml2::XMLElement* parentElement, tinyxml2::XMLElement*& output){
+	tinyxml2::XMLElement* element = parentElement->FirstChildElement(elementName.c_str());
+	if(element == nullptr){
+		Logger::warn("could not load xml element {}", elementName);
+		return false;
+	}
+	output = element;
+	return true;
+}
