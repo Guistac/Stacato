@@ -58,6 +58,7 @@ public:
 	virtual bool isInRapid() override;
 	virtual float getRapidProgress() override;
 	virtual void cancelRapid() override;
+	virtual std::shared_ptr<AnimationValue> getRapidTarget() override;
 	
 	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) override;
 	virtual void onPlaybackStart() override;

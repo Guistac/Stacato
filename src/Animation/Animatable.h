@@ -99,6 +99,7 @@ public:
 	virtual bool isInRapid() = 0;
 	virtual float getRapidProgress() = 0;
 	virtual void cancelRapid() = 0;
+	virtual std::shared_ptr<AnimationValue> getRapidTarget() = 0;
 	
 	virtual void stopMovement() = 0;
 	void stopAnimation();

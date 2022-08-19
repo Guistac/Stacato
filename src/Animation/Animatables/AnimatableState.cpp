@@ -76,6 +76,11 @@ void AnimatableState::cancelRapid(){
 	b_inRapid = false;
 }
 
+std::shared_ptr<AnimationValue> AnimatableState::getRapidTarget(){
+	auto rapidTarget = AnimationValue::makeState();
+	rapidTarget->value = targetValue->value;
+	return rapidTarget;
+}
 
 
 

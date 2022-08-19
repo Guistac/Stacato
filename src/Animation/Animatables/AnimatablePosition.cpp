@@ -290,6 +290,12 @@ void AnimatablePosition::cancelRapid(){
 	motionProfile.resetInterpolation();
 }
 
+std::shared_ptr<AnimationValue> AnimatablePosition::getRapidTarget(){
+	auto rapidTarget = AnimationValue::makePosition();
+	rapidTarget->position = motionProfile.getInterpolationTarget();
+	return rapidTarget;
+}
+
 void AnimatablePosition::onRapidToValue(std::shared_ptr<AnimationValue> animationValue){
 	moveToPositionWithVelocity(animationValue->toPosition()->position, velocityLimit);
 }

@@ -346,7 +346,8 @@ public:
 	}
 	
 	double getInterpolationTarget(){
-		return targetInterpolation->endPosition;
+		if(targetInterpolation) return targetInterpolation->endPosition;
+		return 0.0;
 	}
 	
 	void resetInterpolation(){

@@ -106,6 +106,8 @@ class SharedAxisMachine : public Machine{
 		virtual glm::vec2 getFixedContentSize() override;
 	};
 	std::shared_ptr<ControlWidget> controlWidget;
-	double velocitySliderValue = .0f;
+	double axis1velocitySliderValue = .0f;
+	double axis2velocitySliderValue = .0f;
+	double synchronousVelocitySliderValue = .0f;
 	double positionTargetValue = .0f;
 };

@@ -375,33 +375,35 @@ void SharedAxisMachine::settingsGui() {
 }
 
 void SharedAxisMachine::axisGui() {
-	/*
-	if (!isAxisConnected()) {
+	if (!areAxesConnected()) {
 		ImGui::Text("No Axis Connected");
 		return;
 	}
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("%s", axis->getName());
-	ImGui::PopFont();
-
-	if (ImGui::BeginTabBar("AxisTabBar")) {
-		if (ImGui::BeginTabItem("Settings")) {
-			ImGui::BeginChild("SettingsChild");
-			axis->settingsGui();
-			ImGui::EndChild();
+	auto axis1 = getAxis1();
+	auto axis2 = getAxis2();
+	
+	if(ImGui::BeginTabBar("AxesTabBar")){
+		
+		if(ImGui::BeginTabItem(axis1->getName())){
+			if (ImGui::BeginTabBar("AxisTabBar")) {
+				axis1->nodeSpecificGui();
+				ImGui::EndTabBar();
+			}
 			ImGui::EndTabItem();
 		}
-		if (ImGui::BeginTabItem("Devices")) {
-			ImGui::BeginChild("DevicesChild");
-			axis->devicesGui();
-			ImGui::EndChild();
+		
+		if(ImGui::BeginTabItem(axis2->getName())){
+			if (ImGui::BeginTabBar("AxisTabBar")) {
+				axis2->nodeSpecificGui();
+				ImGui::EndTabBar();
+			}
 			ImGui::EndTabItem();
 		}
+		
 		ImGui::EndTabBar();
 	}
-	 */
+
 }
 
 void SharedAxisMachine::deviceGui() {
@@ -468,133 +470,150 @@ void SharedAxisMachine::widgetGui(){
 	
 	machineHeaderGui(contentSize.x);
 	
-	/*
 	
-	if(!isAxisConnected()) return;
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
+	
+	if(!areAxesConnected()) {
+		ImGui::Text("Axe are not connected.");
+		return;
+	}
+	
+	//auto axis1 = getAxis1();
+	//auto axis2 = getAxis2();
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
 	
-	float bottomControlsHeight = ImGui::GetTextLineHeight() * 4.4;
-	float sliderHeight = contentSize.y - bottomControlsHeight;
-	float tripleWidgetWidth = (contentSize.x - 2.0 * ImGui::GetStyle().ItemSpacing.x) / 3.0;
-	glm::vec2 verticalSliderSize(tripleWidgetWidth, sliderHeight);
-	
+	float sliderHeight = ImGui::GetTextLineHeight() * 10.0;
+	float sliderWidth = ImGui::GetTextLineHeight() * 3.0;
+	glm::vec2 verticalSliderSize(sliderWidth, sliderHeight);
 	
 	ImGui::BeginDisabled(!isEnabled());
-
+	
 	static double min = -1.0;
 	static double max = 1.0;
-	ImGui::VSliderScalar("##ManualVelocity", verticalSliderSize, ImGuiDataType_Double, &velocitySliderValue, &min, &max, "");
-	if (ImGui::IsItemActive()) animatablePosition->setManualVelocityTarget(velocitySliderValue);
-	else if (ImGui::IsItemDeactivatedAfterEdit()) {
-		animatablePosition->setManualVelocityTarget(0.0);
-		velocitySliderValue = 0.0;
-	}
-		
-	ImGui::SameLine();
-	verticalProgressBar(std::abs(animatablePosition->getActualVelocityNormalized()), verticalSliderSize);
-	ImGui::SameLine();
-	verticalProgressBar(animatablePosition->getActualPositionNormalized(), verticalSliderSize);
 	
-	glm::vec2 minPosProg = ImGui::GetItemRectMin();
-	glm::vec2 maxPosProg = ImGui::GetItemRectMax();
-	glm::vec2 progSize = maxPosProg - minPosProg;
-	
-	auto& constraints = animatablePosition->getConstraints();
-	
-	ImDrawList* drawing = ImGui::GetWindowDrawList();
-	
-	for(auto& constraint : constraints){
-		auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
-		double minKeepout = animatablePosition->normalizePosition(keepout->keepOutMinPosition);
-		double maxKeepout = animatablePosition->normalizePosition(keepout->keepOutMaxPosition);
-		double keepoutSize = maxKeepout - minKeepout;
-		glm::vec2 keepoutStartPos(minPosProg.x, maxPosProg.y - progSize.y * minKeepout);
-		glm::vec2 keepoutEndPos(maxPosProg.x, maxPosProg.y - progSize.y * maxKeepout);
-		ImColor constraintColor;
-		if(!constraint->isEnabled()) constraintColor = ImColor(1.f, 1.f, 1.f, .3f);
-		else constraintColor = ImColor(1.f, 0.f, 0.f, .5f);
-		drawing->AddRectFilled(keepoutStartPos, keepoutEndPos, constraintColor);
-	}
-	
-	{
-	double minPositionLimit, maxPositionLimit;
-	animatablePosition->getConstraintPositionLimits(minPositionLimit, maxPositionLimit);
-	double minPosition = maxPosProg.y - progSize.y * animatablePosition->normalizePosition(minPositionLimit);
-	double maxPosition = maxPosProg.y - progSize.y * animatablePosition->normalizePosition(maxPositionLimit);
-		drawing->AddLine(ImVec2(minPosProg.x, minPosition), ImVec2(maxPosProg.x, minPosition), ImColor(1.f, 1.f, 1.f, 1.f));
-		drawing->AddLine(ImVec2(minPosProg.x, maxPosition), ImVec2(maxPosProg.x, maxPosition), ImColor(1.f, 1.f, 1.f, 1.f));
-	}
-		
-	//if(b_hasPositionTarget){
-	//	glm::vec2 min = ImGui::GetItemRectMin();
-	//	glm::vec2 max = ImGui::GetItemRectMax();
-	//	float height = max.y - (max.y - min.y) * positionTargetNormalized;
-	//	glm::vec2 lineStart(min.x, height);
-	//	glm::vec2 lineEnd(max.x, height);
-	//	ImGui::GetWindowDrawList()->AddLine(lineStart, lineEnd, ImColor(Colors::white));
-	//}
-	
-
-	static char actualVelocityString[32];
-	static char actualPositionString[32];
-	const char *positionUnitAbbreviated = animatablePosition->getUnit()->abbreviated;
-	sprintf(actualVelocityString, "%.2f%s/s", animatablePosition->getActualVelocity(), positionUnitAbbreviated);
-	sprintf(actualPositionString, "%.7f%s", animatablePosition->getActualPosition(), positionUnitAbbreviated);
-	
-	ImGui::PushFont(Fonts::sansRegular12);
-	glm::vec2 feedbackButtonSize(verticalSliderSize.x, ImGui::GetTextLineHeight());
-	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-	ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
-	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(0, 0));
-	//ImGui::Button(velocityTargetString, feedbackButtonSize);
-	ImGui::Dummy(feedbackButtonSize);
-	ImGui::SameLine();
-	ImGui::Button(actualVelocityString, feedbackButtonSize);
-	ImGui::SameLine();
-	ImGui::Button(actualPositionString, feedbackButtonSize);
-	ImGui::PopStyleVar();
-	ImGui::PopStyleColor();
-	ImGui::PopItemFlag();
-	ImGui::PopFont();
-
-	
-	float framePaddingX = ImGui::GetStyle().FramePadding.x;
-	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(framePaddingX, ImGui::GetTextLineHeight() * 0.1));
-
-	ImGui::SetNextItemWidth(contentSize.x);
-	static char targetPositionString[32];
-	sprintf(targetPositionString, "%.3f %s", positionTargetValue, positionUnitAbbreviated);
-	ImGui::InputDouble("##TargetPosition", &positionTargetValue, 0.0, 0.0, targetPositionString);
-	positionTargetValue = std::clamp(positionTargetValue, animatablePosition->lowerPositionLimit, animatablePosition->upperPositionLimit);
-
-	
-	//if (motionProgress > 0.0 && motionProgress < 1.0) {
-	//	glm::vec2 targetmin = ImGui::GetItemRectMin();
-	//	glm::vec2 targetmax = ImGui::GetItemRectMax();
-	//	glm::vec2 targetsize = ImGui::GetItemRectSize();
-	//	glm::vec2 progressBarMax(targetmin.x + targetsize.x * motionProgress, targetmax.y);
-	//	ImGui::GetWindowDrawList()->AddRectFilled(targetmin, progressBarMax, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.2)), 5.0);
-	//}
+	auto drawAxisControls = [&, this](std::shared_ptr<AnimatablePosition> animatable){
 	 
-
-	ImGui::PopStyleVar();
-
-	float doubleWidgetWidth = (contentSize.x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
-	glm::vec2 doubleButtonSize(doubleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
-
-	if (ImGui::Button("Move", doubleButtonSize)) animatablePosition->setManualPositionTargetWithVelocity(positionTargetValue, animatablePosition->rapidVelocity);
-
-	ImGui::SameLine();
-
-	if (ImGui::Button("Stop", doubleButtonSize)) animatablePosition->stopMovement();
-
-
-	ImGui::EndDisabled();
+		//--- Draw Sliders
+		ImGui::VSliderScalar("##ManualVelocity", verticalSliderSize, ImGuiDataType_Double, &axis1velocitySliderValue, &min, &max, "");
+		if (ImGui::IsItemActive()) animatable->setManualVelocityTarget(axis1velocitySliderValue);
+		else if (ImGui::IsItemDeactivatedAfterEdit()) {
+			animatable->setManualVelocityTarget(0.0);
+			axis1velocitySliderValue = 0.0;
+		}
+		ImGui::SameLine();
+		verticalProgressBar(std::abs(animatable->getActualVelocityNormalized()), verticalSliderSize);
+		ImGui::SameLine();
+		verticalProgressBar(animatable->getActualPositionNormalized(), verticalSliderSize);
 		
-	machineStateControlGui(contentSize.x);
+		//--- Draw Constraints
+		glm::vec2 minPosProg = ImGui::GetItemRectMin();
+		glm::vec2 maxPosProg = ImGui::GetItemRectMax();
+		glm::vec2 progSize = maxPosProg - minPosProg;
+		auto& constraints = animatable->getConstraints();
+		ImDrawList* drawing = ImGui::GetWindowDrawList();
+		for(auto& constraint : constraints){
+			auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
+			double minKeepout = animatable->normalizePosition(keepout->keepOutMinPosition);
+			double maxKeepout = animatable->normalizePosition(keepout->keepOutMaxPosition);
+			double keepoutSize = maxKeepout - minKeepout;
+			glm::vec2 keepoutStartPos(minPosProg.x, maxPosProg.y - progSize.y * minKeepout);
+			glm::vec2 keepoutEndPos(maxPosProg.x, maxPosProg.y - progSize.y * maxKeepout);
+			ImColor constraintColor;
+			if(!constraint->isEnabled()) constraintColor = ImColor(1.f, 1.f, 1.f, .3f);
+			else constraintColor = ImColor(1.f, 0.f, 0.f, .5f);
+			drawing->AddRectFilled(keepoutStartPos, keepoutEndPos, constraintColor);
+		}
+		{
+		double minPositionLimit, maxPositionLimit;
+		animatable->getConstraintPositionLimits(minPositionLimit, maxPositionLimit);
+		double minPosition = maxPosProg.y - progSize.y * animatable->normalizePosition(minPositionLimit);
+		double maxPosition = maxPosProg.y - progSize.y * animatable->normalizePosition(maxPositionLimit);
+			drawing->AddLine(ImVec2(minPosProg.x, minPosition), ImVec2(maxPosProg.x, minPosition), ImColor(1.f, 1.f, 1.f, 1.f));
+			drawing->AddLine(ImVec2(minPosProg.x, maxPosition), ImVec2(maxPosProg.x, maxPosition), ImColor(1.f, 1.f, 1.f, 1.f));
+		}
+
+		//--- Draw Rapid Target
+		if(animatable->isInRapid()){
+			float normalizedPositionTarget = animatable->normalizePosition(animatable->getRapidTarget()->toPosition()->position);
+			float height = minPosProg.y + progSize.y * (1.0 - normalizedPositionTarget);
+			glm::vec2 lineStart(minPosProg.x, height);
+			glm::vec2 lineEnd(maxPosProg.x, height);
+			drawing->AddLine(lineStart, lineEnd, ImColor(Colors::white));
+		}
+		
+
+		static char actualVelocityString[32];
+		static char actualPositionString[32];
+		const char *positionUnitAbbreviated = positionUnit->abbreviated;
+		sprintf(actualVelocityString, "%.2f%s/s", animatable->getActualVelocity(), positionUnitAbbreviated);
+		sprintf(actualPositionString, "%.7f%s", animatable->getActualPosition(), positionUnitAbbreviated);
+		
+		ImGui::PushFont(Fonts::sansRegular12);
+		glm::vec2 feedbackButtonSize(verticalSliderSize.x, ImGui::GetTextLineHeight());
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+		ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(0, 0));
+		ImGui::Dummy(feedbackButtonSize);
+		ImGui::SameLine();
+		ImGui::Button(actualVelocityString, feedbackButtonSize);
+		ImGui::SameLine();
+		ImGui::Button(actualPositionString, feedbackButtonSize);
+		ImGui::PopStyleVar();
+		ImGui::PopStyleColor();
+		ImGui::PopItemFlag();
+		ImGui::PopFont();
+
+		
+		float framePaddingX = ImGui::GetStyle().FramePadding.x;
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(framePaddingX, ImGui::GetTextLineHeight() * 0.1));
+
+		ImGui::SetNextItemWidth(contentSize.x);
+		static char targetPositionString[32];
+		sprintf(targetPositionString, "%.3f %s", positionTargetValue, positionUnitAbbreviated);
+		ImGui::InputDouble("##TargetPosition", &positionTargetValue, 0.0, 0.0, targetPositionString);
+		positionTargetValue = std::clamp(positionTargetValue, animatable->lowerPositionLimit, animatable->upperPositionLimit);
+
+		
+		/*
+		if (motionProgress > 0.0 && motionProgress < 1.0) {
+			glm::vec2 targetmin = ImGui::GetItemRectMin();
+			glm::vec2 targetmax = ImGui::GetItemRectMax();
+			glm::vec2 targetsize = ImGui::GetItemRectSize();
+			glm::vec2 progressBarMax(targetmin.x + targetsize.x * motionProgress, targetmax.y);
+			ImGui::GetWindowDrawList()->AddRectFilled(targetmin, progressBarMax, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.2)), 5.0);
+		}
+		*/
+		 
+
+		ImGui::PopStyleVar();
+
+		float doubleWidgetWidth = (contentSize.x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
+		glm::vec2 doubleButtonSize(doubleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
+
+		if (ImGui::Button("Move", doubleButtonSize)) animatable->setManualPositionTargetWithVelocity(positionTargetValue, velocityLimit->value);
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Stop", doubleButtonSize)) animatable->stopMovement();
+	};
 	
+	ImGui::BeginGroup();
+	drawAxisControls(axis1Animatable);
+	ImGui::EndGroup();
+	ImGui::SameLine();
+	ImGui::BeginGroup();
+	drawAxisControls(axis2Animatable);
+	ImGui::EndGroup();
+	
+	
+	
+	
+	
+	
+	
+	
+	ImGui::EndDisabled();
+	
+	machineStateControlGui(contentSize.x);
 	ImGui::PopStyleVar();
-	 */
 }

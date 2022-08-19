@@ -315,6 +315,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Motion/Safety/DeadMansSwitch.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Safety/DeadMansSwitch.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Safety/DeadMansSwitchGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Safety/SafetySignal.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Safety/SafetySignal.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Safety/SafetySignalGui.cpp
 
     #========================== PROCESSOR NODES ========================
 

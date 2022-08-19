@@ -130,13 +130,14 @@ void FlipStateMachine::ControlWidget::gui(){
 }
 glm::vec2 FlipStateMachine::ControlWidget::getFixedContentSize(){
 	float lineHeight = ImGui::GetTextLineHeight();
-	return glm::vec2(lineHeight * 10.0, lineHeight * 10.0);
+	return glm::vec2(lineHeight * 6.0, lineHeight * 6.0);
 }
 
 void FlipStateMachine::widgetGui(){
 	glm::vec2 contentSize = controlWidget->getFixedContentSize();
-	glm::vec2 commandButtonSize(contentSize.x, ImGui::GetTextLineHeight() * 3.0);
+	glm::vec2 commandButtonSize(contentSize.x, ImGui::GetTextLineHeight() * 1.5);
 
+	
 	machineHeaderGui(contentSize.x);
 		
 	ImGui::BeginDisabled(!isEnabled());

@@ -69,6 +69,7 @@ public:
 	virtual bool isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationValue> animationValue) override;
 	virtual bool isInRapid() override;
 	virtual float getRapidProgress() override;
+	virtual std::shared_ptr<AnimationValue> getRapidTarget() override;
 	
 	//——————————animation values——————————
 	
