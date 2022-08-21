@@ -84,6 +84,22 @@ void Machine::stateControlGui() {
 
 
 
+glm::vec2 Machine::reserveSpaceForMachineHeaderGui(){
+	glm::vec2 cursor = ImGui::GetCursorPos();
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Dummy(glm::vec2(ImGui::GetTextLineHeight()));
+	ImGui::PopFont();
+	return cursor;
+}
+
+void Machine::machineHeaderGui(glm::vec2 cursorPosition, float width){
+	glm::vec2 initialCursorPos = ImGui::GetCursorPos();
+	ImGui::SetCursorPos(cursorPosition);
+	ImGui::PushFont(Fonts::sansBold20);
+	centeredText(getName(), glm::vec2(width, ImGui::GetTextLineHeight()));
+	ImGui::PopFont();
+	ImGui::SetCursorPos(initialCursorPos);
+}
 
 
 void Machine::machineHeaderGui(float width){

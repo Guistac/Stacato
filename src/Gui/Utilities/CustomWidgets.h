@@ -81,6 +81,7 @@ void scrollingText(const char* ID, const char* text, float width, bool lock = fa
 
 
 float verticalSeparator(float width, bool drawLine = true);
+float verticalSeparatorNonResizeable(float width, float height);
 
 void centeredText(const char* string, ImVec2 size);
 

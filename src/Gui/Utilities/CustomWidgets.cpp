@@ -885,6 +885,19 @@ float verticalSeparator(float width, bool drawLine){
 	return output;
 }
 
+float verticalSeparatorNonResizeable(float width, float height){
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
+	ImGui::SameLine();
+	ImGui::InvisibleButton("##Divider", ImVec2(width, height));
+	ImVec2 buttonMin = ImGui::GetItemRectMin();
+	ImVec2 buttonMax = ImGui::GetItemRectMax();
+	ImVec2 buttonSize = ImGui::GetItemRectSize();
+	float middleX = buttonMin.x + buttonSize.x / 2.0;
+	ImGui::GetWindowDrawList()->AddLine(ImVec2(middleX, buttonMin.y), ImVec2(middleX, buttonMax.y), ImGui::GetColorU32(ImGuiCol_Separator));
+	ImGui::SameLine();
+	ImGui::PopStyleVar();
+}
+
 void centeredText(const char* string, ImVec2 size){
 	ImGui::Dummy(size);
 	ImVec2 min = ImGui::GetItemRectMin();

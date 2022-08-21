@@ -1,5 +1,16 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
         <Manoeuvre Name="M-0" Description="" Type="Key"/>
+        <Manoeuvre Name="M-1" Description="" Type="Key"/>
+        <Manoeuvre Name="M-2" Description="" Type="Key"/>
+        <Manoeuvre Name="M-3" Description="" Type="Key"/>
+        <Manoeuvre Name="M-4" Description="" Type="Key"/>
+        <Manoeuvre Name="M-5" Description="" Type="Key"/>
+        <Manoeuvre Name="M-6" Description="" Type="Key"/>
+        <Manoeuvre Name="M-7" Description="" Type="Key"/>
+        <Manoeuvre Name="M-8" Description="" Type="Key"/>
+        <Manoeuvre Name="M-9" Description="" Type="Key"/>
+        <Manoeuvre Name="M-10" Description="" Type="Key"/>
+        <Manoeuvre Name="M-11" Description="" Type="Key"/>
     </ManoeuvreList>
 </Plot>

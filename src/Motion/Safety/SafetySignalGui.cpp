@@ -15,11 +15,15 @@ void SafetySignal::nodeSpecificGui(){
 void SafetySignal::widgetGui(){
 		
 	glm::vec2 contentSize = controlWidget->getFixedContentSize();
-	glm::vec2 buttonSize(contentSize.x, (contentSize.y - ImGui::GetStyle().ItemSpacing.y) / 2.f);
 	
 	ImGui::PushFont(Fonts::sansBold20);
 	centeredText(getName(), ImVec2(contentSize.x, ImGui::GetTextLineHeight()));
 	ImGui::PopFont();
+	
+	glm::vec2 buttonSize(contentSize.x, (contentSize.y - ImGui::GetStyle().ItemSpacing.y) / 2.f);
+	
+	
+	
 	
 	
 }

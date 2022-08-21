@@ -451,13 +451,6 @@ void SharedAxisMachine::metricsGui() {
 
 
 
-
-
-glm::vec2 SharedAxisMachine::ControlWidget::getFixedContentSize(){
-	float lineHeight = ImGui::GetTextLineHeight();
-	return glm::vec2(lineHeight * 10.0, lineHeight * 20);
-}
-
 void SharedAxisMachine::ControlWidget::gui(){
 	machine->widgetGui();
 }
@@ -468,152 +461,319 @@ void SharedAxisMachine::widgetGui(){
 	glm::vec2 contentMin = ImGui::GetCursorPos();
 	glm::vec2 contentMax = contentMin + contentSize;
 	
-	machineHeaderGui(contentSize.x);
+	//machineHeaderGui(contentSize.x);
+	glm::vec2 headerCursor = reserveSpaceForMachineHeaderGui();
 	
-	
+	//Begin main widget content group
+	ImGui::BeginGroup();
 	
 	if(!areAxesConnected()) {
 		ImGui::Text("Axe are not connected.");
 		return;
 	}
-	
-	//auto axis1 = getAxis1();
-	//auto axis2 = getAxis2();
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
+	ImGui::BeginDisabled(!isEnabled());
 	
 	float sliderHeight = ImGui::GetTextLineHeight() * 10.0;
-	float sliderWidth = ImGui::GetTextLineHeight() * 3.0;
+	float sliderWidth = ImGui::GetTextLineHeight() * 1.75;
+	float velocityDisplayWidth = ImGui::GetTextLineHeight() * 0.75;
 	glm::vec2 verticalSliderSize(sliderWidth, sliderHeight);
-	
-	ImGui::BeginDisabled(!isEnabled());
+	glm::vec2 velocityDisplaySize(velocityDisplayWidth, sliderHeight);
+	float channelWidth = verticalSliderSize.x + velocityDisplaySize.x + ImGui::GetStyle().ItemSpacing.x;
 	
 	static double min = -1.0;
 	static double max = 1.0;
+	double separatorWidth = ImGui::GetTextLineHeight() * .3f;
+	double separatorHeight = sliderHeight;
 	
-	auto drawAxisControls = [&, this](std::shared_ptr<AnimatablePosition> animatable){
+	auto drawAxisControls = [&](std::shared_ptr<AnimatablePosition> animatable, const char* customName = nullptr){
 	 
-		//--- Draw Sliders
-		ImGui::VSliderScalar("##ManualVelocity", verticalSliderSize, ImGuiDataType_Double, &axis1velocitySliderValue, &min, &max, "");
-		if (ImGui::IsItemActive()) animatable->setManualVelocityTarget(axis1velocitySliderValue);
+		//--- Animatable Name
+		ImGui::PushFont(Fonts::sansRegular12);
+		glm::vec2 nameFrameSize(channelWidth, ImGui::GetTextLineHeight());
+		if(customName) backgroundText(customName, nameFrameSize, Colors::darkGray);
+		else backgroundText(animatable->getName(), nameFrameSize, Colors::darkGray);
+		ImGui::PopFont();
+		
+		//--- Velocity Slider & Feedback
+		ImGui::VSliderScalar("##ManualVelocity", verticalSliderSize, ImGuiDataType_Double, &animatable->velocitySliderDisplayValue, &min, &max, "");
+		if (ImGui::IsItemActive()) animatable->setManualVelocityTarget(animatable->velocitySliderDisplayValue);
 		else if (ImGui::IsItemDeactivatedAfterEdit()) {
 			animatable->setManualVelocityTarget(0.0);
-			axis1velocitySliderValue = 0.0;
+			animatable->velocitySliderDisplayValue = 0.0;
 		}
 		ImGui::SameLine();
-		verticalProgressBar(std::abs(animatable->getActualVelocityNormalized()), verticalSliderSize);
-		ImGui::SameLine();
-		verticalProgressBar(animatable->getActualPositionNormalized(), verticalSliderSize);
+		verticalProgressBar(std::abs(animatable->getActualVelocityNormalized()), velocityDisplaySize);
 		
-		//--- Draw Constraints
-		glm::vec2 minPosProg = ImGui::GetItemRectMin();
-		glm::vec2 maxPosProg = ImGui::GetItemRectMax();
-		glm::vec2 progSize = maxPosProg - minPosProg;
-		auto& constraints = animatable->getConstraints();
-		ImDrawList* drawing = ImGui::GetWindowDrawList();
-		for(auto& constraint : constraints){
-			auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
-			double minKeepout = animatable->normalizePosition(keepout->keepOutMinPosition);
-			double maxKeepout = animatable->normalizePosition(keepout->keepOutMaxPosition);
-			double keepoutSize = maxKeepout - minKeepout;
-			glm::vec2 keepoutStartPos(minPosProg.x, maxPosProg.y - progSize.y * minKeepout);
-			glm::vec2 keepoutEndPos(maxPosProg.x, maxPosProg.y - progSize.y * maxKeepout);
-			ImColor constraintColor;
-			if(!constraint->isEnabled()) constraintColor = ImColor(1.f, 1.f, 1.f, .3f);
-			else constraintColor = ImColor(1.f, 0.f, 0.f, .5f);
-			drawing->AddRectFilled(keepoutStartPos, keepoutEndPos, constraintColor);
-		}
-		{
-		double minPositionLimit, maxPositionLimit;
-		animatable->getConstraintPositionLimits(minPositionLimit, maxPositionLimit);
-		double minPosition = maxPosProg.y - progSize.y * animatable->normalizePosition(minPositionLimit);
-		double maxPosition = maxPosProg.y - progSize.y * animatable->normalizePosition(maxPositionLimit);
-			drawing->AddLine(ImVec2(minPosProg.x, minPosition), ImVec2(maxPosProg.x, minPosition), ImColor(1.f, 1.f, 1.f, 1.f));
-			drawing->AddLine(ImVec2(minPosProg.x, maxPosition), ImVec2(maxPosProg.x, maxPosition), ImColor(1.f, 1.f, 1.f, 1.f));
-		}
-
-		//--- Draw Rapid Target
-		if(animatable->isInRapid()){
-			float normalizedPositionTarget = animatable->normalizePosition(animatable->getRapidTarget()->toPosition()->position);
-			float height = minPosProg.y + progSize.y * (1.0 - normalizedPositionTarget);
-			glm::vec2 lineStart(minPosProg.x, height);
-			glm::vec2 lineEnd(maxPosProg.x, height);
-			drawing->AddLine(lineStart, lineEnd, ImColor(Colors::white));
-		}
-		
-
-		static char actualVelocityString[32];
-		static char actualPositionString[32];
-		const char *positionUnitAbbreviated = positionUnit->abbreviated;
-		sprintf(actualVelocityString, "%.2f%s/s", animatable->getActualVelocity(), positionUnitAbbreviated);
-		sprintf(actualPositionString, "%.7f%s", animatable->getActualPosition(), positionUnitAbbreviated);
-		
+		//--- Numerical Velocity & Position Feedback
 		ImGui::PushFont(Fonts::sansRegular12);
-		glm::vec2 feedbackButtonSize(verticalSliderSize.x, ImGui::GetTextLineHeight());
-		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-		ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(0, 0));
-		ImGui::Dummy(feedbackButtonSize);
-		ImGui::SameLine();
-		ImGui::Button(actualVelocityString, feedbackButtonSize);
-		ImGui::SameLine();
-		ImGui::Button(actualPositionString, feedbackButtonSize);
-		ImGui::PopStyleVar();
-		ImGui::PopStyleColor();
-		ImGui::PopItemFlag();
+		glm::vec2 feedbackFrameSize(channelWidth, ImGui::GetTextLineHeight() * 2.0);
+		static char feedbackString[32];
+		const char *positionUnitAbbreviated = animatable->getUnit()->abbreviated;
+		sprintf(feedbackString, "%.3f%s\n%.2f%s/s",
+				animatable->getActualPosition(),
+				positionUnitAbbreviated,
+				animatable->getActualVelocity(),
+				positionUnitAbbreviated);
+		backgroundText(feedbackString, feedbackFrameSize, Colors::darkGray);
 		ImGui::PopFont();
-
 		
-		float framePaddingX = ImGui::GetStyle().FramePadding.x;
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(framePaddingX, ImGui::GetTextLineHeight() * 0.1));
-
-		ImGui::SetNextItemWidth(contentSize.x);
+		//--- Rapid Target Position Entry Box
+		ImGui::SetNextItemWidth(channelWidth);
 		static char targetPositionString[32];
-		sprintf(targetPositionString, "%.3f %s", positionTargetValue, positionUnitAbbreviated);
-		ImGui::InputDouble("##TargetPosition", &positionTargetValue, 0.0, 0.0, targetPositionString);
-		positionTargetValue = std::clamp(positionTargetValue, animatable->lowerPositionLimit, animatable->upperPositionLimit);
-
-		
-		/*
-		if (motionProgress > 0.0 && motionProgress < 1.0) {
+		sprintf(targetPositionString, "%.3f %s", animatable->rapidTargetPositionDisplayValue, positionUnitAbbreviated);
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(ImGui::GetStyle().FramePadding.x, ImGui::GetTextLineHeight() * 0.1));
+		ImGui::InputDouble("##TargetPosition", &animatable->rapidTargetPositionDisplayValue, 0.0, 0.0, targetPositionString);
+		ImGui::PopStyleVar();
+		animatable->rapidTargetPositionDisplayValue = std::clamp(animatable->rapidTargetPositionDisplayValue, animatable->lowerPositionLimit, animatable->upperPositionLimit);
+		if(animatable->isInRapid()){
+			//display rapid progress if in rapid
+			float rapidProgress = animatable->getRapidProgress();
 			glm::vec2 targetmin = ImGui::GetItemRectMin();
 			glm::vec2 targetmax = ImGui::GetItemRectMax();
 			glm::vec2 targetsize = ImGui::GetItemRectSize();
-			glm::vec2 progressBarMax(targetmin.x + targetsize.x * motionProgress, targetmax.y);
+			glm::vec2 progressBarMax(targetmin.x + targetsize.x * rapidProgress, targetmax.y);
 			ImGui::GetWindowDrawList()->AddRectFilled(targetmin, progressBarMax, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.2)), 5.0);
 		}
-		*/
-		 
-
-		ImGui::PopStyleVar();
-
-		float doubleWidgetWidth = (contentSize.x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
-		glm::vec2 doubleButtonSize(doubleWidgetWidth, ImGui::GetTextLineHeight() * 1.5);
-
-		if (ImGui::Button("Move", doubleButtonSize)) animatable->setManualPositionTargetWithVelocity(positionTargetValue, velocityLimit->value);
-
-		ImGui::SameLine();
-
-		if (ImGui::Button("Stop", doubleButtonSize)) animatable->stopMovement();
+		
+		//--- Stop and Rapid Buttons
+		if(animatable->isControlledManuallyOrByAnimation()){
+			if (ImGui::Button("Stop", ImVec2(channelWidth, ImGui::GetTextLineHeight() * 1.5))) {
+				animatable->stopMovement();
+			}
+		}else{
+			if (ImGui::Button("Rapid", ImVec2(channelWidth, ImGui::GetTextLineHeight() * 1.5))) {
+				animatable->setManualPositionTargetWithVelocity(animatable->rapidTargetPositionDisplayValue, animatable->velocityLimit);
+			}
+		}
+		
 	};
 	
 	ImGui::BeginGroup();
+	ImGui::PushID(axis1Animatable->getName());
 	drawAxisControls(axis1Animatable);
+	ImGui::PopID();
 	ImGui::EndGroup();
-	ImGui::SameLine();
+	
+	ImGui::SameLine(.0f, separatorWidth);
+	
 	ImGui::BeginGroup();
+	ImGui::PushID(axis2Animatable->getName());
 	drawAxisControls(axis2Animatable);
+	ImGui::PopID();
 	ImGui::EndGroup();
 	
 	
+	if(enableSynchronousControl->value){
+		ImGui::SameLine(.0f, separatorWidth);
+
+		ImGui::BeginGroup();
+		ImGui::PushID(axis2Animatable->getName());
+		drawAxisControls(synchronizedAnimatable, "Synchro");
+		ImGui::PopID();
+		ImGui::EndGroup();
+		
+	}
+	
+	ImGui::SameLine(.0f, separatorWidth);
+	
+	ImGui::BeginGroup();
+	if(positionUnit->unitType == Units::Type::LINEAR_DISTANCE){
+		
+		//——— title card
+		ImGui::PushFont(Fonts::sansRegular12);
+		glm::vec2 nameFrameSize(channelWidth, ImGui::GetTextLineHeight());
+		backgroundText("Feedback", nameFrameSize, Colors::darkGray);
+		ImGui::PopFont();
+		
+		ImGui::InvisibleButton("LinearAxisDisplay", glm::vec2(channelWidth, sliderHeight));
+		glm::vec2 min = ImGui::GetItemRectMin();
+		glm::vec2 max = ImGui::GetItemRectMax();
+		glm::vec2 size = max - min;
+		
+		ImDrawList* drawing = ImGui::GetWindowDrawList();
+		drawing->AddRectFilled(min, max, ImColor(Colors::gray));
+		
+		
+		
+		
+		/*
+		 
+		 ImGui::SameLine();
+		 verticalProgressBar(animatable->getActualPositionNormalized(), verticalSliderSize);
+		 
+		 //--- Draw Constraints
+		 glm::vec2 minPosProg = ImGui::GetItemRectMin();
+		 glm::vec2 maxPosProg = ImGui::GetItemRectMax();
+		 glm::vec2 progSize = maxPosProg - minPosProg;
+		 auto& constraints = animatable->getConstraints();
+		 ImDrawList* drawing = ImGui::GetWindowDrawList();
+		 for(auto& constraint : constraints){
+			 auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
+			 double minKeepout = animatable->normalizePosition(keepout->keepOutMinPosition);
+			 double maxKeepout = animatable->normalizePosition(keepout->keepOutMaxPosition);
+			 double keepoutSize = maxKeepout - minKeepout;
+			 glm::vec2 keepoutStartPos(minPosProg.x, maxPosProg.y - progSize.y * minKeepout);
+			 glm::vec2 keepoutEndPos(maxPosProg.x, maxPosProg.y - progSize.y * maxKeepout);
+			 ImColor constraintColor;
+			 if(!constraint->isEnabled()) constraintColor = ImColor(1.f, 1.f, 1.f, .3f);
+			 else constraintColor = ImColor(1.f, 0.f, 0.f, .5f);
+			 drawing->AddRectFilled(keepoutStartPos, keepoutEndPos, constraintColor);
+		 }
+		 {
+		 double minPositionLimit, maxPositionLimit;
+		 animatable->getConstraintPositionLimits(minPositionLimit, maxPositionLimit);
+		 double minPosition = maxPosProg.y - progSize.y * animatable->normalizePosition(minPositionLimit);
+		 double maxPosition = maxPosProg.y - progSize.y * animatable->normalizePosition(maxPositionLimit);
+			 drawing->AddLine(ImVec2(minPosProg.x, minPosition), ImVec2(maxPosProg.x, minPosition), ImColor(1.f, 1.f, 1.f, 1.f));
+			 drawing->AddLine(ImVec2(minPosProg.x, maxPosition), ImVec2(maxPosProg.x, maxPosition), ImColor(1.f, 1.f, 1.f, 1.f));
+		 }
+
+		 //--- Draw Rapid Target
+		 if(animatable->isInRapid()){
+			 float normalizedPositionTarget = animatable->normalizePosition(animatable->getRapidTarget()->toPosition()->position);
+			 float height = minPosProg.y + progSize.y * (1.0 - normalizedPositionTarget);
+			 glm::vec2 lineStart(minPosProg.x, height);
+			 glm::vec2 lineEnd(maxPosProg.x, height);
+			 drawing->AddLine(lineStart, lineEnd, ImColor(Colors::white));
+		 }
+		 
+		 static char actualPositionString[32];
+		 sprintf(actualPositionString, "%.7f%s", animatable->getActualPosition(), positionUnitAbbreviated);
+		 
+		 ImGui::SameLine();
+		 ImGui::Button(actualPositionString, feedbackButtonSize);
+		 */
+		
+		
+		
+		
+		
+		
+	}else if(positionUnit->unitType == Units::Type::ANGULAR_DISTANCE){
+		float displayDiameter = verticalSliderSize.y;
+		
+		//——— title card
+		ImGui::PushFont(Fonts::sansRegular12);
+		glm::vec2 nameFrameSize(displayDiameter, ImGui::GetTextLineHeight());
+		backgroundText("Feedback", nameFrameSize, Colors::darkGray);
+		ImGui::PopFont();
+		
+		ImGui::InvisibleButton("rotatingAxisDisplay", glm::vec2(verticalSliderSize.y));
+		glm::vec2 min = ImGui::GetItemRectMin();
+		glm::vec2 max = ImGui::GetItemRectMax();
+		glm::vec2 size = max - min;
+		glm::vec2 middle = (max + min) / 2.0;
+		float radius = verticalSliderSize.y / 2.0;
+					
+		float triangleSize = ImGui::GetTextLineHeight() * .5f;
+		float lineWidth = ImGui::GetTextLineHeight() * .1f;
+		
+		ImDrawList* drawing = ImGui::GetWindowDrawList();
+		
+		auto drawArrowRotated = [&](glm::vec2 center, float startRadius, float endRadius, float angleRadians){
+			float lineEndRadius = endRadius - triangleSize * .5f;
+			glm::vec2 start(startRadius * std::cos(angleRadians), startRadius * std::sin(angleRadians));
+			glm::vec2 end(lineEndRadius * std::cos(angleRadians), lineEndRadius * std::sin(angleRadians));
+			start += center;
+			end += center;
+			
+			glm::vec2 trianglePoints[3] = {
+				center + glm::rotate(glm::vec2(endRadius, 0), angleRadians),
+				center + glm::rotate(glm::vec2(endRadius - triangleSize, triangleSize * .4f), angleRadians),
+				center + glm::rotate(glm::vec2(endRadius - triangleSize, -triangleSize * .4f), angleRadians)
+			};
+			
+			drawing->AddLine(start, end, ImColor(Colors::white), lineWidth);
+			drawing->AddTriangleFilled(trianglePoints[0],
+								 trianglePoints[1],
+								 trianglePoints[2],
+								 ImColor(Colors::white));
+			
+		};
+		
+		//draw visualizer background
+		ImColor backgroundColor = ImColor(Colors::darkGray);
+		ImColor borderColor = ImColor(Colors::black);
+		float borderWidth = ImGui::GetTextLineHeight() * .05f;
+		drawing->AddCircleFilled(middle, size.x / 2.0, backgroundColor);
+
+		//get visualizer angles
+		double angle1 = axis1Animatable->getActualPosition() + Timing::getProgramTime_seconds() * 30.0;
+		double angle2 = axis2Animatable->getActualPosition() + Timing::getProgramTime_seconds() * -40.0;
+		double displayAngle1 = Units::convert(angle1, positionUnit, Units::AngularDistance::Radian) - M_PI_2;
+		double displayAngle2 = Units::convert(angle2, positionUnit, Units::AngularDistance::Radian) - M_PI_2;
+		
+		//draw visualizer arrows
+		drawing->AddCircle(middle, radius, borderColor, 64, borderWidth);
+		drawArrowRotated(middle, radius * .5f, radius, displayAngle1);
+		drawing->AddCircle(middle, radius * .5f, borderColor, 64, borderWidth);
+		drawArrowRotated(middle, 0.0, radius * .5f, displayAngle2);
+		drawing->AddCircleFilled(middle, lineWidth, borderColor, 64);
+
+		//zero tick mark
+		float zeroTickLength = ImGui::GetTextLineHeight() * .25f;
+		drawing->AddLine(middle, middle + glm::vec2(0, -radius), ImColor(0.f, 0.f, 0.f, .2f), borderWidth);
+		drawing->AddLine(middle + glm::vec2(0, -radius), middle + glm::vec2(0, -radius + zeroTickLength), ImColor(Colors::white), borderWidth);
+		drawing->AddLine(middle + glm::vec2(0, -radius * .5f), middle + glm::vec2(0, -radius * .5f + zeroTickLength), ImColor(Colors::white), borderWidth);
+		
+		
+		//display position string on turntables
+		static char angle1String[64];
+		static char angle2String[64];
+		if(positionUnit == Units::AngularDistance::Degree){
+			auto getDegreeString = [](char* output, double angleDegrees){
+				int extraRevs = floor(std::abs(angleDegrees) / 360.0);
+				if(angleDegrees < 0.0) extraRevs++;
+				float angleSingleTurn;
+				if(angleDegrees >= 0.0) angleSingleTurn = fmod(angleDegrees, 360.0);
+				else angleSingleTurn = 360.0 + fmod(angleDegrees, 360.0);
+				sprintf(output, "%.1f%s%s%i", angleSingleTurn,  Units::AngularDistance::Degree->abbreviated, angleDegrees > 0.0 ? "+" : "-", extraRevs);
+			};
+			getDegreeString(angle1String, angle1);
+			getDegreeString(angle2String, angle2);
+		}else if(positionUnit == Units::AngularDistance::Radian){
+			sprintf(angle1String, "%.3f%s", fmod(angle1, 2.0 * M_PI), positionUnit->abbreviated);
+			sprintf(angle2String, "%.3f%s", fmod(angle2, 2.0 * M_PI), positionUnit->abbreviated);
+		}else{
+			sprintf(angle1String, "%.3f%s", angle1, positionUnit->abbreviated);
+			sprintf(angle2String, "%.3f%s", angle2, positionUnit->abbreviated);
+		}
+		ImGui::PushFont(Fonts::sansBold15);
+		glm::vec2 textSize;
+		glm::vec2 textPos;
+		textSize = ImGui::CalcTextSize(angle1String);
+		textPos = middle + glm::vec2(0, - 3.0 * radius / 4.0) - textSize / 2.0;
+		drawing->AddText(textPos, ImColor(0.f, 0.f, 0.f, .6f), angle1String);
+		textSize = ImGui::CalcTextSize(angle2String);
+		textPos = middle + glm::vec2(0, -radius / 4.0) - textSize / 2.0;
+		drawing->AddText(textPos, ImColor(0.f, 0.f, 0.f, .6f), angle2String);
+		ImGui::PopFont();
+		
+		glm::vec2 rangeDisplaySize(radius * 2.0, ImGui::GetTextLineHeight());
+		static char rangeString[32];
+		float rangeProgress = axis1Animatable->getActualPositionNormalized();
+		sprintf(rangeString, "%s : %.1f%%", axis1Animatable->getName(), rangeProgress * 100.0);
+		ImGui::ProgressBar(rangeProgress, rangeDisplaySize, rangeString);
+		rangeProgress = axis2Animatable->getActualPositionNormalized();
+		sprintf(rangeString, "%s : %.1f%%", axis2Animatable->getName(), rangeProgress * 100.0);
+		ImGui::ProgressBar(rangeProgress, rangeDisplaySize, rangeString);
+		
+	}
+	ImGui::EndGroup();
+
 	
 	
-	
-	
-	
+	//end main widget content group
+	ImGui::EndGroup();
 	
 	ImGui::EndDisabled();
 	
-	machineStateControlGui(contentSize.x);
+	float widgetWidth_final = ImGui::GetItemRectSize().x;
+	machineHeaderGui(headerCursor, widgetWidth_final);
+	
+	machineStateControlGui(widgetWidth_final);
+	
 	ImGui::PopStyleVar();
 }

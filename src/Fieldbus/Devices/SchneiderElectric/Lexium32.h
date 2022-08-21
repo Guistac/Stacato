@@ -21,6 +21,10 @@ public:
 		
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
 		std::shared_ptr<Lexium32> drive;
+		
+		virtual bool canHardReset() override { return !drive->b_encoderIsMultiturn; }
+		virtual void executeHardReset() override { drive->b_startHoming = true; }
+		virtual bool isExecutingHardReset() override { return drive->b_isHoming; }
 	};
 	
 	class LexiumGpio : public GpioDevice{

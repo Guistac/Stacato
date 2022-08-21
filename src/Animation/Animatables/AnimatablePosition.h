@@ -145,8 +145,6 @@ public:
 	double upperPositionLimit;
 	double velocityLimit;
 	double accelerationLimit;
-	//double rapidVelocity;
-	//double rapidAcceleration;
 	
 	std::mutex mutex;
 	
@@ -158,6 +156,9 @@ public:
 	double velocitySetpoint = 0.0;
 	double positionSetpoint = 0.0;
 	double accelerationSetpoint = 0.0;
+	
+	double velocitySliderDisplayValue;
+	double rapidTargetPositionDisplayValue;
 };
 
 

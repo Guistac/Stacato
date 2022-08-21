@@ -286,10 +286,12 @@ void Lexium32::controlsGui() {
 	ImGui::SameLine();
 	if (ImGui::Button("Reset", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotor->positionOffset = 0.0;
 	
-	if(ImGui::Button("Start Homing")) b_startHoming = true;
-	ImGui::BeginDisabled(!b_isHoming);
-	if(ImGui::Button("Stop Homing")) b_isHoming = false;
-	ImGui::EndDisabled();
+	if(!b_encoderIsMultiturn){
+		if(ImGui::Button("Start Homing")) b_startHoming = true;
+		ImGui::BeginDisabled(!b_isHoming);
+		if(ImGui::Button("Stop Homing")) b_isHoming = false;
+		ImGui::EndDisabled();
+	}
 	
 
 	if(servoMotor->hasManualHoldingBrake()){

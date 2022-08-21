@@ -160,6 +160,9 @@ public:
 	virtual bool hasAxis(){ return true; }
 	virtual void axisSetupGui(){}
 	
+	glm::vec2 reserveSpaceForMachineHeaderGui();
+	void machineHeaderGui(glm::vec2 position, float width);
+	
 	void machineHeaderGui(float width);
 	void machineStateControlGui(float width);
 	

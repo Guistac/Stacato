@@ -191,7 +191,7 @@ void Dashboard::canvas(){
 	std::shared_ptr<WidgetInstance> hoveredWidget = nullptr;
 	ImGuiID previousHoveredID = ImGui::GetCurrentContext()->HoveredIdPreviousFrame;
 	
-	glm::vec2 widgetPadding(ImGui::GetStyle().WindowPadding);
+	glm::vec2 widgetPadding(ImGui::GetTextLineHeight() * 0.25);
 	
 	for(int i = 0; i < widgets.size(); i++){
 		ImGui::PushID(i);

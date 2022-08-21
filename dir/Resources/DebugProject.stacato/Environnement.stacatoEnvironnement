@@ -1,42 +1,42 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.54451323" OffsetX="1875.2109" OffsetY="-527.57117" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget UniqueID="10" PositionX="-503.04266" PositionY="1040.1384" SizeX="148.00008" SizeY="235.37984"/>
-        <Widget UniqueID="17" PositionX="-653.34827" PositionY="1282.9873" SizeX="148.00008" SizeY="234.94923"/>
-        <Widget UniqueID="16" PositionX="-803.43854" PositionY="1283.1888" SizeX="148.00008" SizeY="234.7477"/>
-        <Widget UniqueID="13" PositionX="-202.99753" PositionY="1040.0215" SizeX="148.00008" SizeY="233.66025"/>
-        <Widget UniqueID="14" PositionX="-53.604038" PositionY="1040.0364" SizeX="147.99995" SizeY="235.48184"/>
-        <Widget UniqueID="24" PositionX="-653.46161" PositionY="1528.0675" SizeX="148.00008" SizeY="234.12392"/>
-        <Widget UniqueID="23" PositionX="-804.31653" PositionY="1528.6863" SizeX="148.00008" SizeY="235.34167"/>
-        <Widget UniqueID="27" PositionX="-800.96606" PositionY="1772.9894" SizeX="147.99995" SizeY="235.29347"/>
-        <Widget UniqueID="28" PositionX="-651.83557" PositionY="1769.4493" SizeX="147.99995" SizeY="235.16042"/>
-        <Widget UniqueID="29" PositionX="-500.78705" PositionY="1769.6412" SizeX="147.99995" SizeY="234.96852"/>
-        <Widget UniqueID="30" PositionX="-350.11188" PositionY="1770.2153" SizeX="147.99995" SizeY="234.3945"/>
-        <Widget UniqueID="9" PositionX="-652.81342" PositionY="1040.4219" SizeX="147.99995" SizeY="235.09636"/>
-        <Widget UniqueID="41" PositionX="-502.88818" PositionY="1283.3225" SizeX="444.59805" SizeY="440.3024"/>
-        <Widget UniqueID="11" PositionX="-353.67197" PositionY="1040.2067" SizeX="147.99995" SizeY="235.31157"/>
-        <Widget UniqueID="21" PositionX="-53.731808" PositionY="1284.8538" SizeX="147.99995" SizeY="234.91931"/>
-        <Widget UniqueID="25" PositionX="-53.907352" PositionY="1528.4545" SizeX="147.99995" SizeY="233.73697"/>
-        <Widget UniqueID="32" PositionX="-53.46447" PositionY="1772.157" SizeX="148.00008" SizeY="234.28935"/>
-        <Widget UniqueID="31" PositionX="-201.79272" PositionY="1771.6183" SizeX="147.99995" SizeY="234.82806"/>
-        <Widget UniqueID="33" PositionX="97.222649" PositionY="1771.2955" SizeX="147.99995" SizeY="235.15077"/>
-        <Widget UniqueID="26" PositionX="98.011536" PositionY="1529.0137" SizeX="147.99995" SizeY="235.01425"/>
-        <Widget UniqueID="22" PositionX="98.893204" PositionY="1283.755" SizeX="147.99995" SizeY="234.18153"/>
-        <Widget UniqueID="42" PositionX="-896.73761" PositionY="771.61621" SizeX="232" SizeY="510.21152"/>
-        <Widget UniqueID="43" PositionX="103.13421" PositionY="770.68488" SizeX="232" SizeY="511.14288"/>
-        <Widget UniqueID="38" PositionX="-1358.0018" PositionY="690.75592" SizeX="443.90146" SizeY="441.51514"/>
-        <Widget UniqueID="39" PositionX="-1360.851" PositionY="1134.1234" SizeX="444.91409" SizeY="440.74469"/>
-        <Widget UniqueID="40" PositionX="-1359.5293" PositionY="1579.3679" SizeX="443.59244" SizeY="441.77045"/>
-        <Widget UniqueID="44" PositionX="339.26773" PositionY="706.95813" SizeX="443.56033" SizeY="441.84146"/>
-        <Widget UniqueID="45" PositionX="259.18573" PositionY="1284.0325" SizeX="232" SizeY="510.1796"/>
-        <Widget UniqueID="46" PositionX="498.15796" PositionY="1282.0084" SizeX="232" SizeY="510.3671"/>
-        <Widget UniqueID="6" PositionX="-536.43591" PositionY="891.4989" SizeX="232" SizeY="137.92801"/>
-        <Widget UniqueID="7" PositionX="-299.4754" PositionY="894.79871" SizeX="232" SizeY="136.46471"/>
-        <Widget UniqueID="5" PositionX="-301.38876" PositionY="752.55084" SizeX="232" SizeY="137.30186"/>
-        <Widget UniqueID="4" PositionX="-536.05322" PositionY="753.08514" SizeX="232" SizeY="136.76755"/>
-        <Widget UniqueID="49" PositionX="258.24228" PositionY="1800.0619" SizeX="232" SizeY="125.57835"/>
-        <Widget UniqueID="48" PositionX="499.59314" PositionY="1800.0623" SizeX="232" SizeY="125.5779"/>
-        <Widget UniqueID="47" PositionX="-419.92111" PositionY="613.703" SizeX="232" SizeY="125.55647"/>
-        <Widget UniqueID="8" PositionX="256.3548" PositionY="1933.1289" SizeX="232" SizeY="231.25662"/>
+    <Dashboard Scale="0.68357557" OffsetX="1579.4924" OffsetY="-651.02655" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget UniqueID="9" PositionX="-652.81342" PositionY="1040.4219" SizeX="136.50005" SizeY="225.271"/>
+        <Widget UniqueID="10" PositionX="-511.84393" PositionY="1040.1384" SizeX="136.49995" SizeY="225.55444"/>
+        <Widget UniqueID="11" PositionX="-371.27451" PositionY="1040.2067" SizeX="136.50005" SizeY="225.48618"/>
+        <Widget UniqueID="13" PositionX="-230.65863" PositionY="1040.0215" SizeX="136.49995" SizeY="225.67136"/>
+        <Widget UniqueID="14" PositionX="-88.808937" PositionY="1040.0364" SizeX="136.50005" SizeY="225.65649"/>
+        <Widget UniqueID="17" PositionX="-653.34827" PositionY="1274.1514" SizeX="136.50005" SizeY="225.60484"/>
+        <Widget UniqueID="16" PositionX="-795.49127" PositionY="1275.2416" SizeX="136.50005" SizeY="224.51463"/>
+        <Widget UniqueID="24" PositionX="-652.64099" PositionY="1506.7328" SizeX="136.49995" SizeY="225.62395"/>
+        <Widget UniqueID="23" PositionX="-794.46912" PositionY="1507.3511" SizeX="136.50005" SizeY="225.00563"/>
+        <Widget UniqueID="28" PositionX="-651.83557" PositionY="1739.0879" SizeX="136.50005" SizeY="224.40651"/>
+        <Widget UniqueID="29" PositionX="-510.63412" PositionY="1740.1003" SizeX="136.49995" SizeY="224.85696"/>
+        <Widget UniqueID="27" PositionX="-791.93939" PositionY="1740.1664" SizeX="136.50005" SizeY="224.7908"/>
+        <Widget UniqueID="30" PositionX="-370.67603" PositionY="1739.9727" SizeX="136.49995" SizeY="224.98465"/>
+        <Widget UniqueID="31" PositionX="-229.61481" PositionY="1737.7467" SizeX="136.49995" SizeY="225.74753"/>
+        <Widget UniqueID="21" PositionX="-88.81189" PositionY="1272.7566" SizeX="136.49995" SizeY="225.53671"/>
+        <Widget UniqueID="22" PositionX="51.716507" PositionY="1271.6578" SizeX="136.49995" SizeY="225.17259"/>
+        <Widget UniqueID="25" PositionX="-88.987442" PositionY="1504.2604" SizeX="136.49995" SizeY="225.17055"/>
+        <Widget UniqueID="26" PositionX="53.254128" PositionY="1503.6096" SizeX="136.49995" SizeY="224.35846"/>
+        <Widget UniqueID="32" PositionX="-88.544571" PositionY="1737.0758" SizeX="136.49995" SizeY="224.95554"/>
+        <Widget UniqueID="33" PositionX="53.674908" PositionY="1736.2141" SizeX="136.49995" SizeY="224.35445"/>
+        <Widget UniqueID="6" PositionX="-531.96484" PositionY="909.38318" SizeX="220.49997" SizeY="125.17211"/>
+        <Widget UniqueID="4" PositionX="-532.22198" PositionY="779.91156" SizeX="220.50006" SizeY="125.9089"/>
+        <Widget UniqueID="5" PositionX="-308.90665" PositionY="780.02954" SizeX="220.49997" SizeY="125.79092"/>
+        <Widget UniqueID="7" PositionX="-309.02863" PositionY="909.14484" SizeX="220.49997" SizeY="125.41047"/>
+        <Widget UniqueID="47" PositionX="-420.0722" PositionY="660.52411" SizeX="220.49997" SizeY="115.09861"/>
+        <Widget UniqueID="39" PositionX="-1130.9545" PositionY="1134.1234" SizeX="193.2" SizeY="419.09708"/>
+        <Widget UniqueID="38" PositionX="-1129.8738" PositionY="690.75592" SizeX="193.2" SizeY="419.20709"/>
+        <Widget UniqueID="40" PositionX="-1131.401" PositionY="1572.2942" SizeX="193.2" SizeY="418.33237"/>
+        <Widget UniqueID="44" PositionX="-1370.8138" PositionY="1134.9208" SizeX="193.19997" SizeY="418.29974"/>
+        <Widget UniqueID="8" PositionX="-1368.8418" PositionY="1579.4412" SizeX="220.49997" SizeY="220.2088"/>
+        <Widget UniqueID="43" PositionX="53.617882" PositionY="768.91644" SizeX="220.50006" SizeY="499.03934"/>
+        <Widget UniqueID="42" PositionX="-880.82172" PositionY="771.61621" SizeX="220.50002" SizeY="499.26532"/>
+        <Widget UniqueID="45" PositionX="195.52167" PositionY="1271.6534" SizeX="220.50006" SizeY="499.53854"/>
+        <Widget UniqueID="48" PositionX="196.55922" PositionY="1775.8146" SizeX="220.50006" SizeY="114.53482"/>
+        <Widget UniqueID="49" PositionX="420.59216" PositionY="1775.8146" SizeX="220.50006" SizeY="114.53482"/>
+        <Widget UniqueID="46" PositionX="420.34668" PositionY="1272.8882" SizeX="220.50006" SizeY="499.76669"/>
+        <Widget UniqueID="41" PositionX="-508.38022" PositionY="1294.8239" SizeX="409.49991" SizeY="419.31525"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -1544,14 +1544,14 @@
                     <OutputPin SaveString="Module0DigitalInput7" DisplayString="Module 0 Digital Input 7" DataType="Boolean" UniqueID="1398" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Axe Tournette Anneau" UniqueID="1416">
+            <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Anneau" UniqueID="1416">
                 <NodeEditorPosition x="2734" y="3048"/>
                 <NodeSpecificData>
                     <Units UnitType="Rotary" Unit="Degree"/>
                     <UnitConversion ActuatorUnitsPerMachineUnit="2.8588520968401872"/>
                     <KinematicLimits VelocityLimit="10" AccelerationLimit="2" ManualAcceleration="2"/>
                     <PositionReferenceSignals Type="OriginSignal" HomingVelocityCoarse="5" HomingVelocityFine="1" HomingDirection="Negative"/>
-                    <PositionLimits LowLimit="0" EnableLowLimit="false" LowLimitClearance="0" HighLimit="0" EnableHighLimit="false" HighLimitClearance="0" LimitToFeedbackWorkingRange="false"/>
+                    <PositionLimits LowLimit="-1800" EnableLowLimit="true" LowLimitClearance="0" HighLimit="1800" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="false"/>
                     <Surveillance AxisIsSurveilled="false" SurveillanceFeedbackUnitsPerAxisUnits="0" MaxSurveillanceVelocityDeviation="0" MaxSurveillanceErrorClearTime="0"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -1572,14 +1572,14 @@
                     <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="1429" Visible="false"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Axe Tournette Centre" UniqueID="1430">
+            <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Centre" UniqueID="1430">
                 <NodeEditorPosition x="2734" y="2895"/>
                 <NodeSpecificData>
                     <Units UnitType="Rotary" Unit="Degree"/>
                     <UnitConversion ActuatorUnitsPerMachineUnit="2.0190000000000001"/>
                     <KinematicLimits VelocityLimit="10" AccelerationLimit="2" ManualAcceleration="2"/>
                     <PositionReferenceSignals Type="OriginSignal" HomingVelocityCoarse="5" HomingVelocityFine="1" HomingDirection="Negative"/>
-                    <PositionLimits LowLimit="0" EnableLowLimit="false" LowLimitClearance="0" HighLimit="0" EnableHighLimit="false" HighLimitClearance="0" LimitToFeedbackWorkingRange="false"/>
+                    <PositionLimits LowLimit="-1800" EnableLowLimit="true" LowLimitClearance="0" HighLimit="1800" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="false"/>
                     <Surveillance AxisIsSurveilled="false" SurveillanceFeedbackUnitsPerAxisUnits="0" MaxSurveillanceVelocityDeviation="0" MaxSurveillanceErrorClearTime="0"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2334,7 +2334,7 @@
             <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Tournettes" UniqueID="2253">
                 <NodeEditorPosition x="3043" y="2974"/>
                 <NodeSpecificData ShortName="M">
-                    <GeneralSettings EnableAnticollision="false" MinimumAxisBetweenAxes="0" EnableSynchronousControl="false" Axis1isMaster="true"/>
+                    <GeneralSettings EnableAnticollision="false" MinimumAxisBetweenAxes="0" EnableSynchronousControl="true" Axis1isMaster="true"/>
                     <Axis1 InvertAxis1="false" Axis1Offset="0"/>
                     <Axis2 InvertAxis2="false" Axis2Offset="0"/>
                     <MotionLimits VelocityLimit="0" AccelerationLimit="0"/>
@@ -2494,7 +2494,7 @@
                     <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="2389" Visible="false"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Ecrans Videos Croisés" UniqueID="2393">
+            <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Ecrans Vidéo" UniqueID="2393">
                 <NodeEditorPosition x="3000" y="3365"/>
                 <NodeSpecificData ShortName="M">
                     <GeneralSettings EnableAnticollision="false" MinimumAxisBetweenAxes="0" EnableSynchronousControl="false" Axis1isMaster="true"/>
@@ -2557,7 +2557,9 @@
             </Node>
             <Node NodeType="Processor" ClassName="SafetySignal" CustomName="Sécu Dispatch" UniqueID="2452">
                 <NodeEditorPosition x="2376" y="1568"/>
-                <NodeSpecificData/>
+                <NodeSpecificData>
+                    <ControlWidget UniqueID="47"/>
+                </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="GpioDevice" DisplayString="Gpio Device" DataType="GPIODeviceLink" UniqueID="2453" Visible="true" NoDataField="true"/>
                     <InputPin SaveString="SafetyValid" DisplayString="Safety Valid" DataType="Boolean" UniqueID="2454" Visible="true"/>
@@ -2568,7 +2570,9 @@
             </Node>
             <Node NodeType="Processor" ClassName="SafetySignal" CustomName="Sécu Vol Jardin" UniqueID="2459">
                 <NodeEditorPosition x="2104" y="2144"/>
-                <NodeSpecificData/>
+                <NodeSpecificData>
+                    <ControlWidget UniqueID="48"/>
+                </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="GpioDevice" DisplayString="Gpio Device" DataType="GPIODeviceLink" UniqueID="2460" Visible="false" NoDataField="true"/>
                     <InputPin SaveString="SafetyValid" DisplayString="Safety Valid" DataType="Boolean" UniqueID="2461" Visible="true"/>
@@ -2579,7 +2583,9 @@
             </Node>
             <Node NodeType="Processor" ClassName="SafetySignal" CustomName="Sécu Vol Cour" UniqueID="2465">
                 <NodeEditorPosition x="3151" y="2160"/>
-                <NodeSpecificData/>
+                <NodeSpecificData>
+                    <ControlWidget UniqueID="49"/>
+                </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="GpioDevice" DisplayString="Gpio Device" DataType="GPIODeviceLink" UniqueID="2466" Visible="false" NoDataField="true"/>
                     <InputPin SaveString="SafetyValid" DisplayString="Safety Valid" DataType="Boolean" UniqueID="2467" Visible="true"/>
@@ -2931,8 +2937,6 @@
             <Link UniqueID="2349" StartPin="681" EndPin="548"/>
             <Link UniqueID="2350" StartPin="681" EndPin="549"/>
             <Link UniqueID="2355" StartPin="2164" EndPin="2235"/>
-            <Link UniqueID="2357" StartPin="1426" EndPin="2256"/>
-            <Link UniqueID="2358" StartPin="1440" EndPin="2255"/>
             <Link UniqueID="2373" StartPin="949" EndPin="2360"/>
             <Link UniqueID="2374" StartPin="953" EndPin="2361"/>
             <Link UniqueID="2375" StartPin="954" EndPin="2362"/>
@@ -2967,6 +2971,8 @@
             <Link UniqueID="2473" StartPin="2468" EndPin="2471"/>
             <Link UniqueID="2474" StartPin="744" EndPin="2471"/>
             <Link UniqueID="2475" StartPin="2472" EndPin="625"/>
+            <Link UniqueID="2477" StartPin="1440" EndPin="2255"/>
+            <Link UniqueID="2478" StartPin="1426" EndPin="2256"/>
         </Links>
     </NodeGraph>
 </Environnement>

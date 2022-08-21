@@ -102,12 +102,6 @@ class SharedAxisMachine : public Machine{
 		ControlWidget(std::shared_ptr<SharedAxisMachine> machine_, std::string name) : Widget(name, "Machines"), machine(machine_){}
 		std::shared_ptr<SharedAxisMachine> machine;
 		virtual void gui() override;
-		virtual bool hasFixedContentSize() override{ return true; }
-		virtual glm::vec2 getFixedContentSize() override;
 	};
 	std::shared_ptr<ControlWidget> controlWidget;
-	double axis1velocitySliderValue = .0f;
-	double axis2velocitySliderValue = .0f;
-	double synchronousVelocitySliderValue = .0f;
-	double positionTargetValue = .0f;
 };
