@@ -96,6 +96,7 @@ void Machine::machineHeaderGui(glm::vec2 cursorPosition, float width){
 	glm::vec2 initialCursorPos = ImGui::GetCursorPos();
 	ImGui::SetCursorPos(cursorPosition);
 	ImGui::PushFont(Fonts::sansBold20);
+	if(width <= 0.0) width = ImGui::CalcTextSize(getName()).x;
 	centeredText(getName(), glm::vec2(width, ImGui::GetTextLineHeight()));
 	ImGui::PopFont();
 	ImGui::SetCursorPos(initialCursorPos);

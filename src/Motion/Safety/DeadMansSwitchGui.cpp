@@ -12,7 +12,7 @@ void DeadMansSwitch::nodeSpecificGui(){
 		ImGui::Text("Controls");
 		ImGui::PopFont();
 		
-		controlGui(ImVec2(ImGui::GetContentRegionAvail().x * .5f, ImGui::GetTextLineHeight() * 4.f));
+		widgetGui();
 	
 		ImGui::Separator();
 		
@@ -36,9 +36,17 @@ void DeadMansSwitch::nodeSpecificGui(){
 	}
 }
 
-void DeadMansSwitch::controlGui(ImVec2 size){
-	glm::vec2 buttonSize(size.x, (size.y - ImGui::GetStyle().ItemSpacing.y) / 2.f);
+
+
+void DeadMansSwitch::widgetGui(){
 	
+	float width = ImGui::GetTextLineHeight() * 8.0;
+	glm::vec2 buttonSize(width, ImGui::GetTextLineHeight() * 1.5);
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	centeredText(getName(), ImVec2(width, ImGui::GetTextLineHeight()));
+	ImGui::PopFont();
+		
 	switch(state){
 		case State::NOT_CONNECTED:
 			backgroundText("Not Connected", buttonSize, Colors::blue);
@@ -66,26 +74,5 @@ void DeadMansSwitch::controlGui(ImVec2 size){
 	ImGui::BeginDisabled(state == State::NOT_CONNECTED || state == State::PRESSED);
 	if(ImGui::Button("Request Press", buttonSize)) requestPress();
 	ImGui::EndDisabled();
-}
-
-void DeadMansSwitch::widgetGui(){
-		
-	glm::vec2 contentSize = controlWidget->getFixedContentSize();
-	glm::vec2 buttonSize(contentSize.x, (contentSize.y - ImGui::GetStyle().ItemSpacing.y) / 2.f);
-	
-	ImGui::PushFont(Fonts::sansBold20);
-	centeredText(getName(), ImVec2(contentSize.x, ImGui::GetTextLineHeight()));
-	ImGui::PopFont();
-	
-	controlGui(ImVec2(contentSize.x, ImGui::GetTextLineHeight() * 4.f));
-}
-
-void DeadMansSwitch::ControlWidget::gui(){
-	deadMansSwitch->widgetGui();
-}
-
-glm::vec2 DeadMansSwitch::ControlWidget::getFixedContentSize(){
-	float lineHeight = ImGui::GetTextLineHeight();
-	return glm::vec2(lineHeight * 10.0, lineHeight * 5.0);
 }
 

@@ -13,7 +13,7 @@ void DeadMansSwitch::initialize(){
 	deadMansSwitchLink->assignData(thisDeadMansSwitch);
 	addNodePin(deadMansSwitchLink);
 	
-	controlWidget = std::make_shared<ControlWidget>(thisDeadMansSwitch, getName());
+	controlWidget = std::make_shared<ControlWidget>(thisDeadMansSwitch);
 }
 
 bool DeadMansSwitch::areAllInputsReady(){

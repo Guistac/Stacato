@@ -130,13 +130,12 @@ void AxisStateMachine::metricsGui() {}
 void AxisStateMachine::ControlWidget::gui(){
 	machine->widgetGui();
 }
-glm::vec2 AxisStateMachine::ControlWidget::getFixedContentSize(){
-	float lineHeight = ImGui::GetTextLineHeight();
-	return glm::vec2(lineHeight * 10.0, lineHeight * 10.0);
-}
+
 
 void AxisStateMachine::widgetGui(){
-	glm::vec2 contentSize = controlWidget->getFixedContentSize();
+	
+	float lineHeight = ImGui::GetTextLineHeight();
+	glm::vec2 contentSize = glm::vec2(lineHeight * 10.0, lineHeight * 10.0);
 	glm::vec2 commandButtonSize(contentSize.x, ImGui::GetTextLineHeight() * 3.0);
 
 	machineHeaderGui(contentSize.x);

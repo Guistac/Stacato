@@ -33,7 +33,7 @@ void SharedAxisMachine::initialize() {
 	if(enableSynchronousControl->value) addAnimatable(synchronizedAnimatable);
 	
 	auto thisMachine = std::static_pointer_cast<SharedAxisMachine>(shared_from_this());
-	controlWidget = std::make_shared<ControlWidget>(thisMachine, getName());
+	controlWidget = std::make_shared<ControlWidget>(thisMachine);
 	
 	
 	velocityLimit->setEditCallback([this](std::shared_ptr<Parameter> p){
@@ -502,7 +502,9 @@ bool SharedAxisMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 
 	XMLElement* generalXML = xml->InsertNewChildElement("GeneralSettings");
+	horizontalControls->save(generalXML);
 	enableAntiCollision->save(generalXML);
+	axis1isAboveAxis2->save(generalXML);
 	minimumDistanceBetweenAxes->save(generalXML);
 	enableSynchronousControl->save(generalXML);
 	axis1isMaster->save(generalXML);
@@ -531,7 +533,9 @@ bool SharedAxisMachine::loadMachine(tinyxml2::XMLElement* xml) {
 
 	XMLElement* generalXML;
 	if(!loadXMLElement("GeneralSettings", xml, generalXML)) return false;
+	if(!horizontalControls->load(generalXML)) return false;
 	if(!enableAntiCollision->load(generalXML)) return false;
+	if(!axis1isAboveAxis2->load(generalXML)) return false;
 	if(!minimumDistanceBetweenAxes->load(generalXML)) return false;
 	if(!enableSynchronousControl->load(generalXML)) return false;
 	enableSynchronousControl->onEdit();

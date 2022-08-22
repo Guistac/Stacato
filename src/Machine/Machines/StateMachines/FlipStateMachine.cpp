@@ -56,7 +56,7 @@ void FlipStateMachine::initialize() {
 	addAnimatable(animatableState);
 	
 	auto thisMachine = std::static_pointer_cast<FlipStateMachine>(shared_from_this());
-	controlWidget = std::make_shared<ControlWidget>(thisMachine, getName());
+	controlWidget = std::make_shared<ControlWidget>(thisMachine);
 }
 
 std::string FlipStateMachine::getStatusString(){

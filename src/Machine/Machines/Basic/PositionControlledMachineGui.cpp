@@ -419,10 +419,6 @@ void PositionControlledMachine::metricsGui() {
 
 
 
-glm::vec2 PositionControlledMachine::ControlWidget::getFixedContentSize(){
-	float lineHeight = ImGui::GetTextLineHeight();
-	return glm::vec2(lineHeight * 10.0, lineHeight * 20);
-}
 
 void PositionControlledMachine::ControlWidget::gui(){
 	machine->widgetGui();
@@ -430,8 +426,8 @@ void PositionControlledMachine::ControlWidget::gui(){
 
 void PositionControlledMachine::widgetGui(){
 		
-	
-	glm::vec2 contentSize = controlWidget->getFixedContentSize();
+	float lineHeight = ImGui::GetTextLineHeight();
+	glm::vec2 contentSize = glm::vec2(lineHeight * 10.0, lineHeight * 20);
 	glm::vec2 contentMin = ImGui::GetCursorPos();
 	glm::vec2 contentMax = contentMin + contentSize;
 	

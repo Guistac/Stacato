@@ -7,18 +7,16 @@ namespace tinyxml2{ struct XMLElement; }
 class Widget : public std::enable_shared_from_this<Widget>{
 public:
 	
-	std::string name;
 	std::string category = "None";
 	int uniqueID = -1;
 	
-	Widget(std::string name_, std::string category_) : name(name_), category(category_){}
+	virtual std::string getName() = 0;
+	
+	Widget(std::string category_) : category(category_){}
 		
 	virtual void gui() = 0;
 	
 	virtual std::shared_ptr<Widget> makeCopy(){ return nullptr; }
-	
-	virtual bool hasFixedContentSize(){ return false; }
-	virtual glm::vec2 getFixedContentSize(){ return glm::vec2(.0f); }
 	
 	void addToDictionnary();
 	void removeFromDictionnary();

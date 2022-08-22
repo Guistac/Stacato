@@ -76,7 +76,6 @@ private:
 	virtual void outputProcess() override;
 	
 	virtual void nodeSpecificGui() override;
-	void controlGui(ImVec2 size);
 	
 	virtual bool save(tinyxml2::XMLElement* xml) override;
 	virtual bool load(tinyxml2::XMLElement* xml) override;
@@ -89,11 +88,10 @@ private:
 	class ControlWidget : public Widget{
 	public:
 		
-		ControlWidget(std::shared_ptr<DeadMansSwitch> deadMansSwitch_, std::string name) : Widget(name, "Safety"), deadMansSwitch(deadMansSwitch_){}
+		ControlWidget(std::shared_ptr<DeadMansSwitch> deadMansSwitch_) : Widget("Safety"), deadMansSwitch(deadMansSwitch_){}
 		std::shared_ptr<DeadMansSwitch> deadMansSwitch;
-		virtual void gui() override;
-		virtual bool hasFixedContentSize() override { return true; }
-		virtual glm::vec2 getFixedContentSize() override;
+		virtual void gui() override { deadMansSwitch->widgetGui(); }
+		virtual std::string getName() override { return deadMansSwitch->getName(); }
 	};
 	std::shared_ptr<ControlWidget> controlWidget;
 };

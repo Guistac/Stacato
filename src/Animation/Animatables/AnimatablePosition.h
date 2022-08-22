@@ -159,6 +159,9 @@ public:
 	
 	double velocitySliderDisplayValue;
 	double rapidTargetPositionDisplayValue;
+	
+	void manualControlsVerticalGui(float sliderHeight, const char* customName = nullptr);
+	void manualControlsHorizontalGui(float sliderWidth, const char* customName = nullptr);
 };
 
 

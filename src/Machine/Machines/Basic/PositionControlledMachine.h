@@ -67,11 +67,12 @@ class PositionControlledMachine : public Machine{
 	
 	class ControlWidget : public Widget{
 	public:
-		ControlWidget(std::shared_ptr<PositionControlledMachine> machine_, std::string name) : Widget(name, "Machines"), machine(machine_){}
+		ControlWidget(std::shared_ptr<PositionControlledMachine> machine_) : Widget("Machines"), machine(machine_){}
 		std::shared_ptr<PositionControlledMachine> machine;
 		virtual void gui() override;
-		virtual bool hasFixedContentSize() override{ return true; }
-		virtual glm::vec2 getFixedContentSize() override;
+		virtual std::string getName() override {
+			return machine->getName();
+		}
 	};
 	std::shared_ptr<ControlWidget> controlWidget;
 	double velocitySliderValue = .0f;

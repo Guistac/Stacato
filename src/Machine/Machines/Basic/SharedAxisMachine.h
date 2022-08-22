@@ -62,6 +62,8 @@ class SharedAxisMachine : public Machine{
 	
 	Unit positionUnit = Units::None::None;
 
+	std::shared_ptr<BooleanParameter> horizontalControls = BooleanParameter::make(false, "Horizontal Controls", "HorizontalControls");
+	
 	std::shared_ptr<BooleanParameter> invertAxis1 = BooleanParameter::make(false, "Invert Axis 1", "InvertAxis1");
 	std::shared_ptr<BooleanParameter> invertAxis2 = BooleanParameter::make(false, "Invert Axis 2", "InvertAxis2");
 	std::shared_ptr<NumberParameter<double>> axis1Offset = NumberParameter<double>::make(0.0, "Axis 1 Offset", "Axis1Offset");
@@ -99,9 +101,10 @@ class SharedAxisMachine : public Machine{
 	
 	class ControlWidget : public Widget{
 	public:
-		ControlWidget(std::shared_ptr<SharedAxisMachine> machine_, std::string name) : Widget(name, "Machines"), machine(machine_){}
+		ControlWidget(std::shared_ptr<SharedAxisMachine> machine_) : Widget("Machines"), machine(machine_){}
 		std::shared_ptr<SharedAxisMachine> machine;
 		virtual void gui() override;
+		virtual std::string getName() override { return machine->getName(); }
 	};
 	std::shared_ptr<ControlWidget> controlWidget;
 };

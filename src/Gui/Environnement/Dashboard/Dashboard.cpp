@@ -340,7 +340,7 @@ void Dashboard::gui(){
 				//ImGui::Separator();
 				
 				ImGui::PushFont(Fonts::sansBold15);
-				backgroundText(getSelectedWidget()->widget->name.c_str(), ImVec2(availableWidth, ImGui::GetFrameHeight()), Colors::darkGray);
+				backgroundText(getSelectedWidget()->widget->getName().c_str(), ImVec2(availableWidth, ImGui::GetFrameHeight()), Colors::darkGray);
 				ImGui::PopFont();
 				
 				ImGui::Text("Position :");
@@ -367,10 +367,10 @@ void Dashboard::gui(){
 			}
 			
 			for(auto& widget : availableWidgets){
-				ImGui::Selectable(widget->name.c_str());
+				ImGui::Selectable(widget->getName().c_str());
 				if(ImGui::BeginDragDropSource()){
 					ImGui::SetDragDropPayload("Widget", &widget->uniqueID, sizeof(int));
-					ImGui::Text("%s", widget->name.c_str());
+					ImGui::Text("%s", widget->getName().c_str());
 					ImGui::EndDragDropSource();
 				}
 			}

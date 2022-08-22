@@ -161,7 +161,7 @@ public:
 	virtual void axisSetupGui(){}
 	
 	glm::vec2 reserveSpaceForMachineHeaderGui();
-	void machineHeaderGui(glm::vec2 position, float width);
+	void machineHeaderGui(glm::vec2 position, float width = 0.0);
 	
 	void machineHeaderGui(float width);
 	void machineStateControlGui(float width);
