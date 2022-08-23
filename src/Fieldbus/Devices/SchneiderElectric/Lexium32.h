@@ -23,7 +23,9 @@ public:
 		std::shared_ptr<Lexium32> drive;
 		
 		virtual bool canHardReset() override { return !drive->b_encoderIsMultiturn; }
-		virtual void executeHardReset() override { drive->b_startHoming = true; }
+		virtual void executeHardReset() override {
+			drive->b_startHoming = true;
+		}
 		virtual bool isExecutingHardReset() override { return drive->b_isHoming; }
 	};
 	

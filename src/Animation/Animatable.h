@@ -83,6 +83,8 @@ public:
 	void clearConstraints(){ constraints.clear(); }
 	std::vector<std::shared_ptr<AnimationConstraint>>& getConstraints(){ return constraints; }
 	
+	bool isHalted();
+	
 private:
 	std::vector<std::shared_ptr<AnimationConstraint>> constraints;
 	
@@ -146,9 +148,6 @@ private:
 	std::shared_ptr<Animation> currentAnimation;
 	std::vector<std::shared_ptr<Animation>> animations;
 };
-
-
-
 
 
 //——————————————————— Number ————————————————————

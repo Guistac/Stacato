@@ -139,7 +139,7 @@ void FlipStateMachine::widgetGui(){
 	
 	machineHeaderGui(contentSize.x);
 		
-	ImGui::BeginDisabled(!isEnabled());
+	ImGui::BeginDisabled(!isEnabled() || b_halted);
 
 	switch (actualState) {
 		case State::CLOSED:
@@ -194,8 +194,15 @@ void FlipStateMachine::widgetGui(){
 			break;
 	}
 	
-	if(ImGui::Button("STOP", commandButtonSize)) requestState(State::STOPPED);
-
+	if(b_halted) {
+		ImGui::PushFont(Fonts::sansBold15);
+		backgroundText("STOPPED", commandButtonSize, Colors::red, Colors::black);
+		ImGui::PopFont();
+	}
+	else{
+		if(ImGui::Button("STOP", commandButtonSize)) requestState(State::STOPPED);
+	}
+		
 	ImGui::EndDisabled();
 
 	machineStateControlGui(contentSize.x);

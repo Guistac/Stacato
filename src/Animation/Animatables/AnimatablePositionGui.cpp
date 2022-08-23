@@ -32,7 +32,10 @@ void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const cha
 	static const double min = -1.0;
 	static const double max = 1.0;
 	ImGui::VSliderScalar("##ManualVelocity", verticalSliderSize, ImGuiDataType_Double, &velocitySliderDisplayValue, &min, &max, "");
-	if (ImGui::IsItemActive()) setManualVelocityTarget(velocitySliderDisplayValue);
+	if (ImGui::IsItemActive()) {
+		float requestedVelocity = velocitySliderDisplayValue * velocityLimit;
+		setManualVelocityTarget(requestedVelocity);
+	}
 	else if (ImGui::IsItemDeactivatedAfterEdit()) {
 		setManualVelocityTarget(0.0);
 		velocitySliderDisplayValue = 0.0;
@@ -87,6 +90,10 @@ void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const cha
 	ImGui::EndGroup();
 };
 
+
+
+
+
 void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const char* customName){
 	ImGui::BeginGroup();
 
@@ -104,12 +111,15 @@ void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const ch
 	ImGui::BeginGroup();
 	ImGui::SetNextItemWidth(sliderWidth);
 	ImGui::SliderScalar("##ManualVelocity", ImGuiDataType_Double, &velocitySliderDisplayValue, &min, &max, "");
-	if (ImGui::IsItemActive()) setManualVelocityTarget(velocitySliderDisplayValue);
+	if (ImGui::IsItemActive()) {
+		float requesterVelocity = velocitySliderDisplayValue * velocityLimit;
+		setManualVelocityTarget(requesterVelocity);
+	}
 	else if (ImGui::IsItemDeactivatedAfterEdit()) {
 		setManualVelocityTarget(0.0);
 		velocitySliderDisplayValue = 0.0;
 	}
-	ImGui::ProgressBar(std::abs(getActualPositionNormalized()), velocityDisplaySize, "");
+	ImGui::ProgressBar(std::abs(getActualVelocityNormalized()), velocityDisplaySize, "");
 	ImGui::EndGroup();
 	
 	float controlsHeight = ImGui::GetItemRectSize().y;
@@ -155,7 +165,9 @@ void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const ch
 	ImGui::InputDouble("##TargetPosition", &rapidTargetPositionDisplayValue, 0.0, 0.0, targetPositionString);
 	ImGui::PopStyleVar();
 	
-	if(ImGui::IsItemDeactivatedAfterEdit()) rapidTargetPositionDisplayValue = std::clamp(rapidTargetPositionDisplayValue, lowerPositionLimit, upperPositionLimit);
+	if(ImGui::IsItemDeactivatedAfterEdit()) {
+		rapidTargetPositionDisplayValue = std::clamp(rapidTargetPositionDisplayValue, lowerPositionLimit, upperPositionLimit);
+	}
 	if(isInRapid()){
 		//display rapid progress if in rapid
 		float rapidProgress = getRapidProgress();

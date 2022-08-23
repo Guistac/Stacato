@@ -182,7 +182,11 @@ void Lexium32::readInputs() {
 	
     txPdoAssignement.pullDataFrom(identity->inputs);
 	
-	if(b_isHoming && _p_act == 0) b_isHoming = false;
+	if(b_isHoming){
+		if(_p_act == 0) b_isHoming = false;
+		_p_act = 0;
+		servoMotor->positionOffset = 0.0;
+	}
 	
 	//read power state
 	auto newPowerState = ds402Status.getPowerState();

@@ -130,12 +130,12 @@ enum class HomingStep{
 	FOUND_REFERENCE_FROM_BELOW_COARSE,
 	SEARCHING_REFERENCE_FROM_BELOW_FINE,
 	FOUND_REFERENCE_FROM_BELOW_FINE,
-	SETTING_REFERENCE_LOW,
+	//SETTING_REFERENCE_LOW,
 	SEARCHING_REFERENCE_FROM_ABOVE_COARSE,
 	FOUND_REFERENCE_FROM_ABOVE_COARSE,
 	SEARCHING_REFERENCE_FROM_ABOVE_FINE,
 	FOUND_REFERENCE_FROM_ABOVE_FINE,
-	SETTING_REFERENCE_HIGH,
+	//SETTING_REFERENCE_HIGH,
 	MOVING_TO_REFERENCE_MIDDLE,
 
 	FINISHED
@@ -157,12 +157,12 @@ enum class HomingStep{
 	{HomingStep::FOUND_REFERENCE_FROM_BELOW_COARSE,		.displayString = "Found Reference From Below Coarse"},\
 	{HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE,	.displayString = "Searching Reference From Below Fine"},\
 	{HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE,		.displayString = "Found Reference From Below Fine"},\
-	{HomingStep::SETTING_REFERENCE_LOW,					.displayString = "Setting Reference Low"},\
+	/*{HomingStep::SETTING_REFERENCE_LOW,					.displayString = "Setting Reference Low"},*/\
 	{HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE,	.displayString = "Searching Reference From Above Coarse"},\
 	{HomingStep::FOUND_REFERENCE_FROM_ABOVE_COARSE,		.displayString = "Found Reference From Above Coarse"},\
 	{HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE,	.displayString = "Searching Reference From Above Fine"},\
 	{HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE,		.displayString = "Found Reference From Above Fine"},\
-	{HomingStep::SETTING_REFERENCE_HIGH,				.displayString = "Setting Reference High"},\
+	/*{HomingStep::SETTING_REFERENCE_HIGH,				.displayString = "Setting Reference High"},*/\
 	{HomingStep::MOVING_TO_REFERENCE_MIDDLE,			.displayString = "Moving To Reference Middle"},\
 	{HomingStep::FINISHED,								.displayString = "Finished"}\
 

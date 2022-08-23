@@ -112,18 +112,37 @@ void PositionControlledMachine::onDisableSimulation() {
 }
 
 std::string PositionControlledMachine::getStatusString(){
-	if(b_halted){
-		std::string output = "Machine is Halted";
-		return output;
-	}
+	std::string status;
 	switch(state){
 		case MotionState::OFFLINE:
-			if(!isAxisConnected()) return std::string(getName()) + " is Offline : no axis connected";
-			else return "Axis is Offline : " + getAxis()->getStatusString();
+			status = "Machine is Offline : ";
+			if(!isAxisConnected()) status += "No Axis is Connected";
+			else status += "\n" + getAxis()->getStatusString();
+			return status;
 		case MotionState::NOT_READY:
-			return "Axis is not ready : " + getAxis()->getStatusString();
-		case MotionState::READY: return std::string(getName()) + " is Not Enabled";
-		case MotionState::ENABLED: return std::string(getName()) + " is Enabled";
+			status = "Machine is not ready : " + getAxis()->getStatusString();
+			return status;
+		case MotionState::READY:
+			status = "Machine is ready to enable.";
+			return status;
+		case MotionState::ENABLED:
+			status = "Machine is enabled.";
+			if(b_halted){
+				if(!isSimulating()){
+					if(!isMotionAllowed()){
+						for(auto connectedDeadMansSwitchPin : deadMansSwitchPin->getConnectedPins()){
+							auto deadMansSwitch = connectedDeadMansSwitchPin->getSharedPointer<DeadMansSwitch>();
+							status += "\nMovement is prohibited by Dead Mans Switch \"" + std::string(deadMansSwitch->getName()) + "\"";
+						}
+					}
+				}
+				for(auto constraint : animatablePosition->getConstraints()){
+					if(constraint->getType() == AnimationConstraint::Type::HALT && constraint->isEnabled()){
+						status += "\nMovement is halted by constraint \"" + constraint->getName() + "\"";
+					}
+				}
+			}
+			return status;
 	}
 }
 
@@ -154,6 +173,10 @@ void PositionControlledMachine::inputProcess() {
 	actualPosition->velocity = axisVelocityToMachineVelocity(axis->getActualVelocity());
 	actualPosition->acceleration = axisAccelerationToMachineAcceleration(0.0);
 	animatablePosition->updateActualValue(actualPosition);
+	
+	animatablePosition->upperPositionLimit = axisPositionToMachinePosition(axis->getHighPositionLimit());
+	animatablePosition->lowerPositionLimit = axisPositionToMachinePosition(axis->getLowPositionLimit());
+	if(invertAxis->value) std::swap(animatablePosition->upperPositionLimit, animatablePosition->lowerPositionLimit);
 	
 	//Get Realtime values from axis (for position and velocity pins only)
 	*positionPinValue = actualPosition->position;
@@ -318,8 +341,8 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	 
 	XMLElement* limitsXML = xml->InsertNewChildElement("Limits");
-	machineZero_axisUnits->save(limitsXML);
-	invertDirection->save(limitsXML);
+	axisOffset->save(limitsXML);
+	invertAxis->save(limitsXML);
 	
 	XMLElement* widgetXML = xml->InsertNewChildElement("ControWidget");
 	widgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
@@ -331,12 +354,11 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	 
-	XMLElement* limitsXML = xml->FirstChildElement("Limits");
-	if(limitsXML == nullptr) return Logger::warn("Could not find Machine Limits Attribute");
-	
-	if(!machineZero_axisUnits->load(limitsXML)) return false;
-	if(!invertDirection->load(limitsXML)) return false;
-	
+	XMLElement* limitsXML;
+	if(!loadXMLElement("Limits", xml, limitsXML)) return false;
+	if(!axisOffset->load(limitsXML)) return false;
+	if(!invertAxis->load(limitsXML)) return false;
+	 
 	XMLElement* widgetXML = xml->FirstChildElement("ControWidget");
 	if(widgetXML == nullptr) return Logger::warn("Could not find Control Widget Attribute");
 	if(widgetXML->QueryIntAttribute("UniqueID", &controlWidget->uniqueID) != XML_SUCCESS) return Logger::warn("Could not find machine control widget uid attribute");
@@ -355,31 +377,31 @@ void PositionControlledMachine::captureMachineZero(){
 
 
 double PositionControlledMachine::axisPositionToMachinePosition(double axisPosition){
-	if(invertDirection->value) return -1.0f * (axisPosition - machineZero_axisUnits->value);
-	return axisPosition - machineZero_axisUnits->value;
+	if(invertAxis->value) return -1.0f * (axisPosition - axisOffset->value);
+	return axisPosition - axisOffset->value;
 }
 
 double PositionControlledMachine::axisVelocityToMachineVelocity(double axisVelocity){
-	if(invertDirection->value) return axisVelocity * -1.0;
+	if(invertAxis->value) return axisVelocity * -1.0;
 	return axisVelocity;
 }
 
 double PositionControlledMachine::axisAccelerationToMachineAcceleration(double axisAcceleration){
-	if(invertDirection->value) return axisAcceleration * -1.0;
+	if(invertAxis->value) return axisAcceleration * -1.0;
 	return axisAcceleration;
 }
 
 double PositionControlledMachine::machinePositionToAxisPosition(double machinePosition){
-	if(invertDirection->value) return (-1.0f * machinePosition) + machineZero_axisUnits->value;
-	return machinePosition + machineZero_axisUnits->value;
+	if(invertAxis->value) return (-1.0f * machinePosition) + axisOffset->value;
+	return machinePosition + axisOffset->value;
 }
 
 double PositionControlledMachine::machineVelocityToAxisVelocity(double machineVelocity){
-	if(invertDirection->value) return machineVelocity * -1.0;
+	if(invertAxis->value) return machineVelocity * -1.0;
 	return machineVelocity;
 }
 
 double PositionControlledMachine::machineAccelerationToAxisAcceleration(double machineAcceleration){
-	if(invertDirection->value) return machineAcceleration * -1.0;
+	if(invertAxis->value) return machineAcceleration * -1.0;
 	return machineAcceleration;
 }

@@ -45,8 +45,8 @@ class PositionControlledMachine : public Machine{
 
 	//————————— Settings ——————————
 	
-	std::shared_ptr<NumberParameter<double>> machineZero_axisUnits = NumberParameter<double>::make(0.0, "Machine Zero", "MachineZero", "%.3f");
-	std::shared_ptr<BooleanParameter> invertDirection = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
+	std::shared_ptr<NumberParameter<double>> axisOffset = NumberParameter<double>::make(0.0, "Axis Offset", "AxisOffset", "%.3f");
+	std::shared_ptr<BooleanParameter> invertAxis = BooleanParameter::make(false, "Invert Axis", "InvertAxis");
 	
 	//————————— Unit Conversion ——————————
 	

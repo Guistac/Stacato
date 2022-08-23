@@ -64,7 +64,7 @@ function drawStage()
     of.drawRectangle(-1480, -1438, 2960, 1000)
     of.setColor(200)
     of.drawRectangle(1480, -1438, 3040, 1000)
-    of.setColor(255)
+    of.setColor(255, 0, 0)
     of.drawRectangle(4520, -1438, 3960, 1000)
 
     --flips row 2
@@ -111,13 +111,11 @@ function drawStage()
     of.setColor(255)
     of.drawCircle(0, 3563, 2800) -- center & radius
 
-
     --costieres
     of.setColor(255)
-    of.drawLine(-6510, -8562, -6510, 7562)
-    of.drawLine(6510, -8562, 6510, 7562)
-
-
+    of.drawLine(-6510, -7733, -6510, 4487)
+    of.drawLine(6510, -7733, 6510, 4487)
+    
     --center cross hair
     --[[
     of.setColor(255,0,0)

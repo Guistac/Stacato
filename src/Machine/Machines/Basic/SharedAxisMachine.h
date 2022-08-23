@@ -79,6 +79,11 @@ class SharedAxisMachine : public Machine{
 	std::shared_ptr<BooleanParameter> enableSynchronousControl = BooleanParameter::make(false, "Enable Synchronous Control", "EnableSynchronousControl");
 	std::shared_ptr<BooleanParameter> axis1isMaster = BooleanParameter::make(true, "Synchronization Master Selection", "Axis1isMaster");
 	
+	
+	bool b_disableAntiCollision = false;
+	double axis1OffsetEditDisplay = 0.0;
+	double axis2OffsetEditDisplay = 0.0;
+	
 	//————————— Unit Conversion ——————————
 	
 	void captureAxis1PositionToOffset(double machinePosition);

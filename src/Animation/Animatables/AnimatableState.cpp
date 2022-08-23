@@ -107,11 +107,17 @@ void AnimatableState::stopMovement(){
 
 
 void AnimatableState::updateTargetValue(double time_seconds, double deltaTime_seconds){
-	if(hasAnimation() && getAnimation()->isPlaying()){
-		b_inRapid = false;
-		targetValue->value = getAnimationValue()->toState()->value;
+	if(isHalted()) {
+		targetValue->value = stoppedState;
+		stopMovement();
+		stopAnimation();
+	}else{
+		if(hasAnimation() && getAnimation()->isPlaying()){
+			b_inRapid = false;
+			targetValue->value = getAnimationValue()->toState()->value;
+		}
+		if(b_inRapid && targetValue->value == actualValue->value) b_inRapid = false;
 	}
-	if(b_inRapid && targetValue->value == actualValue->value) b_inRapid = false;
 }
 
 void AnimatableState::followActualValue(double time_seconds, double deltaTime_seconds){

@@ -205,19 +205,21 @@ public:
 		//if the type inherits from other types
 		//add a table field with key "BaseClasses" to the "__index" table
 		//this field will contain one string entry for each inherited type name
-		//including the current type
+		//--- including the current type !!! ———
 		//this "BaseClasses" Field will be checked by the "checkDerivedArgument" method
 		//to retrieve a pointer to the base class
+		
+		
 		auto& inheritedTypeNames = getInheritedTypeNames();
-		if(!inheritedTypeNames.empty()){
-			LuaTable inheritedTypesTable(L);
-			inheritedTypesTable.begin(inheritedTypeNames.size() + 1);
-			for(auto& inheritedTypeName : inheritedTypeNames){
-				inheritedTypesTable.addString(inheritedTypeName);
-			}
-			inheritedTypesTable.addString(getTypeName());
-			lua_setfield(L, -2, "BaseClasses");
+		LuaTable inheritedTypesTable(L);
+		inheritedTypesTable.begin(inheritedTypeNames.size() + 1);
+		for(auto& inheritedTypeName : inheritedTypeNames){
+			inheritedTypesTable.addString(inheritedTypeName);
 		}
+		inheritedTypesTable.addString(getTypeName()); //include the current type
+		lua_setfield(L, -2, "BaseClasses");
+	
+		
 			
 		//add all methods (including inherited ones) to the index table
 		for(auto& method : getMethods()){

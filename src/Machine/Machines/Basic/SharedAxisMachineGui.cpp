@@ -34,6 +34,69 @@ static void popInvalidValue(){
 
 void SharedAxisMachine::controlsGui() {
 	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Manual Controls");
+	ImGui::PopFont();
+	
+	widgetGui();
+	
+	ImGui::Text("Axis 1 Limits: %.3f - %.3f", axis1Animatable->lowerPositionLimit, axis1Animatable->upperPositionLimit);
+	ImGui::Text("Axis 2 Limits: %.3f - %.3f", axis2Animatable->lowerPositionLimit, axis2Animatable->upperPositionLimit);
+	
+	ImGui::Separator();
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Axis Offsets");
+	ImGui::PopFont();
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Axis 1 offset (%s)", axis1Animatable->getName());
+	ImGui::PopFont();
+	static char formatText[64];
+	sprintf(formatText, "%.3f%s", axis1OffsetEditDisplay, positionUnit->abbreviated);
+	ImGui::InputDouble("##axis1Offset", &axis1OffsetEditDisplay, 0, 0, formatText);
+	ImGui::SameLine();
+	if(ImGui::Button("Set Position##axis1")) captureAxis1PositionToOffset(axis1OffsetEditDisplay);
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Axis 2 offset (%s)", axis2Animatable->getName());
+	ImGui::PopFont();
+	sprintf(formatText, "%.3f%s", axis2OffsetEditDisplay, positionUnit->abbreviated);
+	ImGui::InputDouble("##axis2Offset", &axis2OffsetEditDisplay, 0, 0, formatText);
+	ImGui::SameLine();
+	if(ImGui::Button("Set Position##axis2")) captureAxis2PositionToOffset(axis2OffsetEditDisplay);
+	
+	
+	if(enableAntiCollision->value){
+		ImGui::Separator();
+		
+		ImGui::PushFont(Fonts::sansBold20);
+		ImGui::Text("Anti Collision Control");
+		ImGui::PopFont();
+		
+		ImGui::Checkbox("##DisableAnticollision", &b_disableAntiCollision);
+		ImGui::SameLine();
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::TextWrapped("Disable Anti-Collision");
+		ImGui::PopFont();
+		ImGui::Text("Minimum Distance between axes is %.3f%s", minimumDistanceBetweenAxes->value, positionUnit->abbreviated);
+		if(ImGui::Button("Capture Minimum Distance")){
+			
+		}
+	}
+	
+	ImGui::Separator();
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Homing");
+	ImGui::PopFont();
+	
+	if(ImGui::Button("Start Homing")){
+		
+	}
+	//ImGui::SameLine();
+	//backgroundText(<#const char *text#>)
+	
 	/*
 	ImGui::BeginChild("##manualMachineControls", ImGui::GetContentRegionAvail());
 	
@@ -467,26 +530,33 @@ void SharedAxisMachine::metricsGui() {
 
 
 void SharedAxisMachine::ControlWidget::gui(){
-	machine->widgetGui();
-}
-
-void SharedAxisMachine::widgetGui(){
-
 	//draw the header later, we don't know the size of the widget in advance
-	glm::vec2 headerCursor = reserveSpaceForMachineHeaderGui();
+	glm::vec2 headerCursor = machine->reserveSpaceForMachineHeaderGui();
 
 	//early out if we don't have both axes
-	if(!areAxesConnected()) {
-		machineHeaderGui(headerCursor);
+	if(!machine->areAxesConnected()) {
+		machine->machineHeaderGui(headerCursor);
 		ImGui::Text("Axes are not connected.");
 		return;
 	}
 
+	machine->widgetGui();
+
+	//we now know the width of the widget, we can draw the header centered
+	//also draw the state control widget
+	float widgetWidth = ImGui::GetItemRectSize().x;
+	machine->machineHeaderGui(headerCursor, widgetWidth);
+	machine->machineStateControlGui(widgetWidth);
+	
+}
+
+void SharedAxisMachine::widgetGui(){
+	
 	//Begin main widget content group
 	ImGui::BeginGroup();
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
 	ImGui::BeginDisabled(!isEnabled());
-
+	
 	
 	float sliderHeight = ImGui::GetTextLineHeight() * 10.0;
 	double separatorWidth = ImGui::GetTextLineHeight() * .25f;
@@ -537,8 +607,8 @@ void SharedAxisMachine::widgetGui(){
 			drawing->AddRectFilled(min, max, ImColor(Colors::darkGray));
 			
 			
-			double axis1_X = min.x + size.x * 0.3f;//getNormalizedPosition(axis1Animatable->getActualPosition());
-			double axis2_X = min.x + size.x * 0.6f;//getNormalizedPosition(axis2Animatable->getActualPosition());
+			double axis1_X = min.x + size.x * getNormalizedPosition(axis1Animatable->getActualPosition());
+			double axis2_X = min.x + size.x * getNormalizedPosition(axis2Animatable->getActualPosition());
 			
 			if(enableAntiCollision->value){
 				double halfAnticollisionDistance = getNormalizedDistance(minimumDistanceBetweenAxes->value) * .5f * size.x;
@@ -560,7 +630,7 @@ void SharedAxisMachine::widgetGui(){
 			}
 			
 			float lineThickness = ImGui::GetTextLineHeight() * .05f;
-			float triangleSize = ImGui::GetTextLineHeight() * .3f;
+			float triangleSize = ImGui::GetTextLineHeight() * .5f;
 			
 			drawing->AddLine(glm::vec2(axis1_X, min.y + triangleSize - 1.f), glm::vec2(axis1_X, max.y), ImColor(Colors::white), lineThickness);
 			drawing->AddLine(glm::vec2(axis2_X, min.y), glm::vec2(axis2_X, max.y - triangleSize + 1.f), ImColor(Colors::white), lineThickness);
@@ -717,8 +787,8 @@ void SharedAxisMachine::widgetGui(){
 		drawing->AddCircleFilled(middle, size.x / 2.0, backgroundColor);
 
 		//get visualizer angles
-		double angle1 = axis1Animatable->getActualPosition() + Timing::getProgramTime_seconds() * 30.0;
-		double angle2 = axis2Animatable->getActualPosition() + Timing::getProgramTime_seconds() * -40.0;
+		double angle1 = axis2Animatable->getActualPosition();
+		double angle2 = axis1Animatable->getActualPosition();
 		double displayAngle1 = Units::convert(angle1, positionUnit, Units::AngularDistance::Radian) - M_PI_2;
 		double displayAngle2 = Units::convert(angle2, positionUnit, Units::AngularDistance::Radian) - M_PI_2;
 		
@@ -779,17 +849,9 @@ void SharedAxisMachine::widgetGui(){
 		
 	}
 	ImGui::EndGroup();
-
-	
 	
 	//end main widget content group
 	ImGui::EndGroup();
 	ImGui::EndDisabled();
-	
-	//we now know the width of the widget, we can draw the header centered
-	//also draw the state control widget
-	float widgetWidth = ImGui::GetItemRectSize().x;
-	machineHeaderGui(headerCursor, widgetWidth);
-	machineStateControlGui(widgetWidth);
 	ImGui::PopStyleVar();
 }

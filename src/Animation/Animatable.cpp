@@ -62,6 +62,14 @@ void Animatable::addConstraint(std::shared_ptr<AnimationConstraint> newConstrain
 	constraints.push_back(newConstraint);
 }
 
+bool Animatable::isHalted(){
+	for(auto constraint : constraints){
+		if(constraint->getType() == AnimationConstraint::Type::HALT && constraint->isEnabled()){
+			return true;
+		}
+	}
+	return false;
+}
 
 //—————————————— MOTION COMMANDS ——————————————————
 

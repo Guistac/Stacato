@@ -278,25 +278,24 @@ void SharedAxisMachine::inputProcess() {
 	*velocity2PinValue = axis2RealPosition->velocity;
 	
 	//update position limits
+	axis1Animatable->lowerPositionLimit = axis1PositionToMachinePosition(axis1->getLowPositionLimit());
+	axis1Animatable->upperPositionLimit = axis1PositionToMachinePosition(axis1->getHighPositionLimit());
+	if(invertAxis1->value) std::swap(axis1Animatable->lowerPositionLimit, axis1Animatable->upperPositionLimit); //swap limits if the axis is inverted
+	
+	axis2Animatable->lowerPositionLimit = axis2PositionToMachinePosition(axis2->getLowPositionLimit());
+	axis2Animatable->upperPositionLimit = axis2PositionToMachinePosition(axis2->getHighPositionLimit());
+	if(invertAxis2->value) std::swap(axis2Animatable->lowerPositionLimit, axis2Animatable->upperPositionLimit); //swap limits if the axis is inverted
+	
 	if(enableAntiCollision->value){
 		if(axis1isAboveAxis2->value){
 			//Axis 1 > Axis 2
-			axis2Animatable->upperPositionLimit = axis1PositionToMachinePosition(axis1->getHighPositionLimit());
-			axis2Animatable->lowerPositionLimit = axis2Animatable->getBrakingPosition() + std::abs(minimumDistanceBetweenAxes->value);
+			axis1Animatable->lowerPositionLimit = axis2Animatable->getBrakingPosition() + std::abs(minimumDistanceBetweenAxes->value);
 			axis2Animatable->upperPositionLimit = axis1Animatable->getBrakingPosition() - std::abs(minimumDistanceBetweenAxes->value);
-			axis2Animatable->lowerPositionLimit = axis2PositionToMachinePosition(axis2->getLowPositionLimit());
 		}else{
 			//Axis 1 < Axis 2
-			axis1Animatable->lowerPositionLimit = axis1PositionToMachinePosition(axis1->getLowPositionLimit());
 			axis1Animatable->upperPositionLimit = axis2Animatable->getBrakingPosition() - std::abs(minimumDistanceBetweenAxes->value);
 			axis2Animatable->lowerPositionLimit = axis1Animatable->getBrakingPosition() + std::abs(minimumDistanceBetweenAxes->value);
-			axis2Animatable->upperPositionLimit = axis2PositionToMachinePosition(axis2->getHighPositionLimit());
 		}
-	}else{
-		axis1Animatable->lowerPositionLimit = axis1PositionToMachinePosition(axis1->getLowPositionLimit());
-		axis1Animatable->upperPositionLimit = axis1PositionToMachinePosition(axis1->getHighPositionLimit());
-		axis2Animatable->lowerPositionLimit = axis2PositionToMachinePosition(axis2->getLowPositionLimit());
-		axis2Animatable->upperPositionLimit = axis2PositionToMachinePosition(axis2->getHighPositionLimit());
 	}
 	
 }
@@ -327,7 +326,9 @@ void SharedAxisMachine::outputProcess(){
 		
 		if(enableSynchronousControl->value){
 						
-			if(axis1Animatable->isControlledManuallyOrByAnimation() || axis2Animatable->isControlledManuallyOrByAnimation()){
+			if(axis1Animatable->isControlledManuallyOrByAnimation() ||
+			   axis2Animatable->isControlledManuallyOrByAnimation() ||
+			   !synchronizedAnimatable->isControlledManuallyOrByAnimation()){
 				//individual animatables always have priority over the synchronized animatable
 				//if any individual axis is controlled manually or by an animation, the synchronized animatable stops
 				//any animation associated with the synchronized animatable also stops
@@ -341,16 +342,18 @@ void SharedAxisMachine::outputProcess(){
 				double masterTargetPosition = synchronizedAnimatable->getPositionSetpoint();
 				double masterTargetVelocity = synchronizedAnimatable->getVelocitySetpoint();
 				double masterTargetAcceleration = synchronizedAnimatable->getAccelerationSetpoint();
+				
 				if(axis1isMaster->value){
 					double positionTargetDifference = masterTargetPosition - axis2Animatable->getPositionSetpoint();
 					double slaveTargetPosition = masterTargetPosition - positionTargetDifference;
 					axis1Animatable->forcePositionTarget(masterTargetPosition, masterTargetVelocity, masterTargetAcceleration);
 					axis2Animatable->forcePositionTarget(slaveTargetPosition, masterTargetVelocity, masterTargetAcceleration);
+					Logger::warn("{}", positionTargetDifference);
 				}else{
-					double positionTargetDifference = masterTargetPosition - axis1Animatable->getPositionSetpoint();
-					double slaveTargetPosition = masterTargetPosition - positionTargetDifference;
-					axis2Animatable->forcePositionTarget(masterTargetPosition, masterTargetVelocity, masterTargetAcceleration);
-					axis1Animatable->forcePositionTarget(slaveTargetPosition, masterTargetVelocity, masterTargetAcceleration);
+					//double positionTargetDifference = masterTargetPosition - axis1Animatable->getPositionSetpoint();
+					//double slaveTargetPosition = masterTargetPosition - positionTargetDifference;
+					//axis2Animatable->forcePositionTarget(masterTargetPosition, masterTargetVelocity, masterTargetAcceleration);
+					//axis1Animatable->forcePositionTarget(slaveTargetPosition, masterTargetVelocity, masterTargetAcceleration);
 				}
 				
 			}
@@ -569,35 +572,35 @@ bool SharedAxisMachine::loadMachine(tinyxml2::XMLElement* xml) {
 
 
 void SharedAxisMachine::captureAxis1PositionToOffset(double machinePosition){
-	//TODO: test
-	axis1Offset->overwriteWithHistory(axis1Animatable->getPositionSetpoint() - machinePosition);
+	//TODO: stop this from creating a following error, we need to override the setpoint in the animatable
+	double positionSetpoint = getAxis1()->getProfilePosition();
+	if(invertAxis1->value) axis1Offset->overwriteWithHistory(-1.f * positionSetpoint - machinePosition);
+	else axis1Offset->overwriteWithHistory(positionSetpoint - machinePosition);
 }
 
 void SharedAxisMachine::captureAxis2PositionToOffset(double machinePosition){
-	//TODO: test
-	axis2Offset->overwriteWithHistory(axis2Animatable->getPositionSetpoint() - machinePosition);
+	//TODO: stop this from creating a following error, we need to override the setpoint in the animatable
+	double positionSetpoint = getAxis2()->getProfilePosition();
+	if(invertAxis2->value) axis2Offset->overwriteWithHistory(positionSetpoint + machinePosition);
+	else axis2Offset->overwriteWithHistory(positionSetpoint - machinePosition);
 }
 
 double SharedAxisMachine::axis1PositionToMachinePosition(double axis1Position){
-	//TODO: test
 	if(invertAxis1->value) return -1.f * (axis1Position - axis1Offset->value);
 	return axis1Position - axis1Offset->value;
 }
 
 double SharedAxisMachine::axis2PositionToMachinePosition(double axis2Position){
-	//TODO: test
 	if(invertAxis2->value) return -1.f * (axis2Position - axis2Offset->value);
 	return axis2Position - axis2Offset->value;
 }
 
 double SharedAxisMachine::machinePositionToAxis1Position(double machineAxis1Position){
-	//TODO: test
 	if(invertAxis1->value) return (-1.f * machineAxis1Position) + axis1Offset->value;
 	return machineAxis1Position + axis1Offset->value;
 }
 
 double SharedAxisMachine::machinePositionToAxis2Position(double machineAxis2Position){
-	//TODO: test
 	if(invertAxis2->value) return (-1.f * machineAxis2Position) + axis2Offset->value;
 	return machineAxis2Position + axis2Offset->value;
 }

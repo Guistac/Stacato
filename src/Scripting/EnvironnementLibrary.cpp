@@ -197,7 +197,13 @@ namespace Scripting::EnvironnementLibrary{
 			lua_AnimationConstraint.push(L, constraint);
 			return 1;
 		}
-		
+	
+		int isOnline(lua_State* L){
+			auto animatable = lua_Animatable.checkDerivedArgument(L, 1);
+			lua_pushboolean(L, animatable->state != Animatable::State::OFFLINE);
+			return 1;
+		}
+	
 	};
 
 
@@ -396,9 +402,10 @@ namespace Scripting::EnvironnementLibrary{
 		lua_Animatable.addMethod("getActualValue", Lua_Animatable::getActualValue);
 		lua_Animatable.addMethod("getAnimationValue", Lua_Animatable::getAnimationValue);
 		lua_Animatable.addMethod("createHaltConstraint", Lua_Animatable::createHaltConstraint);
+		lua_Animatable.addMethod("isOnline", Lua_Animatable::isOnline);
 		lua_Animatable.declare(L);
 		
-		//——— Constraints
+		//——— Constraints 
 		lua_AnimationConstraint.addMethod("enable", Lua_AnimationConstraint::enable);
 		lua_AnimationConstraint.addMethod("disable", Lua_AnimationConstraint::disable);
 		lua_AnimationConstraint.addMethod("setEnabled", Lua_AnimationConstraint::setEnabled);

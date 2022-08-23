@@ -1160,9 +1160,50 @@ void PositionControlledAxis::homingControl(){
 						}
 						break;
 					case HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE:
+						setVelocityTarget(0.0);
+						if(!isMoving()){
+							moveToPositionWithVelocity(*actualPositionValue / 2.0, homingVelocityCoarse);
+							homingStep = HomingStep::MOVING_TO_REFERENCE_MIDDLE;
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+						}
+						/*
 						if (!isMoving()) {
 							//TODO: need to return to center and hard reset encoder if possible
 							setCurrentPosition(*actualPositionValue / 2.0);
+							onHomingSuccess();
+						}
+						 */
+						break;
+					case HomingStep::MOVING_TO_REFERENCE_MIDDLE:
+						if(motionProfile.getInterpolationProgress(profileTime_seconds) >= 1.0){
+							auto servoActuator = getServoActuatorDevice();
+							//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
+							if(servoActuator->canHardReset()) {
+								servoActuator->executeHardReset();
+								motionProfile.setPosition(0.0);
+								homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+								Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+								Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
+							}else{
+								servoActuator->softOverridePosition(0.0);
+								//else we set a software offset in the encoder object
+								setCurrentPosition(0.0);
+								homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+								Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+							}
+							
+							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+						}
+						break;
+					case HomingStep::RESETTING_POSITION_FEEDBACK:
+						motionProfile.setPosition(0.0);
+						if(getServoActuatorDevice()->canHardReset()){
+							//if the servo actuator can hard reset its encoder, check if we are done resetting
+							if(!getServoActuatorDevice()->isExecutingHardReset()) {
+								motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
+								onHomingSuccess();
+							}
+						}else{
 							onHomingSuccess();
 						}
 						break;

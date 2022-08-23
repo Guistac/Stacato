@@ -7,6 +7,7 @@
 #include <tinyxml2.h>
 
 #include "Animation/Animation.h"
+#include "Motion/Safety/DeadMansSwitch.h"
 
 AnimatableStateStruct FlipStateMachine::stateUnknown = 			{-1, 	"Unknown", 			"Unknown"};
 AnimatableStateStruct FlipStateMachine::stateStopped = 			{0, 	"Stopped", 			"Stopped"};
@@ -60,12 +61,60 @@ void FlipStateMachine::initialize() {
 }
 
 std::string FlipStateMachine::getStatusString(){
-	return "No Status String Available Yet";
+	std::string status;
+	switch(state){
+		case MotionState::OFFLINE:
+			status = "Machine is Offline:";
+			if(!areAllPinsConnected()) {
+				status += "\nNode Pins are not connected correctly.";
+				return status;
+			}
+			if(!getGpioDevice()->isOnline()) {
+				status += "\n" + getGpioDevice()->getName() + " is Offline";
+				return status;
+			}
+			if(!getGpioDevice()->isEnabled()){
+				status += "\n" + getGpioDevice()->getName() + " is not enabled";
+				return status;
+			}
+			if(actualState == State::UNKNOWN){
+				status += "\n Flip state is unknown...";
+				return status;
+			}
+		case MotionState::NOT_READY:
+			status = "Machine is not ready :";
+			if(b_emergencyStopActive) status += "\nEmergency Stop is active.";
+			if(*localControlEnabledSignal) status += "\nLocal Controls are enabled.";
+			if(*liftMotorCircuitBreakerSignal) status += "\nLift Motor Circuit breakezr is faulty";
+			if(*hoodMotorCircuitBreakerSignal) status += "\nHood Motor Circuit breakezr is faulty";
+			return status;
+		case MotionState::READY:
+			status = "Machine is ready.";
+			return status;
+		case MotionState::ENABLED:
+			status = "Machine is Enabled.";
+			if(b_halted){
+				if(!isSimulating()){
+					if(!isMotionAllowed()){
+						for(auto connectedDeadMansSwitchPin : deadMansSwitchPin->getConnectedPins()){
+							auto deadMansSwitch = connectedDeadMansSwitchPin->getSharedPointer<DeadMansSwitch>();
+							status += "\nMovement is prohibited by Dead Mans Switch \"" + std::string(deadMansSwitch->getName()) + "\"";
+						}
+					}
+				}
+				for(auto constraint : animatableState->getConstraints()){
+					if(constraint->getType() == AnimationConstraint::Type::HALT && constraint->isEnabled()){
+						status += "\nMovement is halted by constraint \"" + constraint->getName() + "\"";
+					}
+				}
+			}
+			return status;
+	}
 }
 
 void FlipStateMachine::inputProcess() {
 		
-	if(!areAllPinsConnected()){
+	if(!areAllPinsConnected() || getGpioDevice()->getState() != MotionState::ENABLED){
 		state = MotionState::OFFLINE;
 		actualState = State::UNKNOWN;
 		b_emergencyStopActive = false;
@@ -73,62 +122,54 @@ void FlipStateMachine::inputProcess() {
 		return;
 	}
 	
-	auto gpioDevice = getGpioDevice();
-	MotionState gpioState = gpioDevice->getState();
-		
-	//if the gpio device provides valid values, update the state of the flip machine
-	if(gpioState != MotionState::OFFLINE){
-		hoodOpenSignalPin->copyConnectedPinValue();
-		hoodShutSignalPin->copyConnectedPinValue();
-		liftRaisedSignalPin->copyConnectedPinValue();
-		liftLoweredSignalPin->copyConnectedPinValue();
-		hoodMotorCircuitBreakerSignalPin->copyConnectedPinValue();
-		liftMotorCircuitBreakerSignalPin->copyConnectedPinValue();
-		emergencyStopClearSignalPin->copyConnectedPinValue();
-		localControlEnabledSignalPin->copyConnectedPinValue();
-		
-		b_emergencyStopActive = !*emergencyStopClearSignal;
-		b_halted = isEnabled() && !isMotionAllowed();
-		
-		if (*hoodShutSignal && !*hoodOpenSignal) {
-			if (*liftLoweredSignal && !*liftRaisedSignal) actualState = State::CLOSED;
-			else actualState = State::UNKNOWN;
-		}
-		else if (*hoodOpenSignal && !*hoodShutSignal) {
-			if (*liftLoweredSignal && !*liftRaisedSignal) actualState = State::OPEN_LOWERED;
-			else if (*liftRaisedSignal && !*liftLoweredSignal) actualState = State::RAISED;
-			else if (!*liftLoweredSignal && !*liftRaisedSignal) actualState = State::LOWERING_RAISING;
-			else actualState = State::UNKNOWN;
-		}
-		else if (!*hoodOpenSignal && !*hoodShutSignal) {
-			if (*liftLoweredSignal && !*liftRaisedSignal) actualState = State::OPENING_CLOSING;
-			else actualState = State::UNKNOWN;
-		}
+	//copy pin values
+	hoodOpenSignalPin->copyConnectedPinValue();
+	hoodShutSignalPin->copyConnectedPinValue();
+	liftRaisedSignalPin->copyConnectedPinValue();
+	liftLoweredSignalPin->copyConnectedPinValue();
+	hoodMotorCircuitBreakerSignalPin->copyConnectedPinValue();
+	liftMotorCircuitBreakerSignalPin->copyConnectedPinValue();
+	emergencyStopClearSignalPin->copyConnectedPinValue();
+	localControlEnabledSignalPin->copyConnectedPinValue();
+	
+	//update actual flip state
+	if (*hoodShutSignal && !*hoodOpenSignal) {
+		if (*liftLoweredSignal && !*liftRaisedSignal) actualState = State::CLOSED;
 		else actualState = State::UNKNOWN;
-	}else{
-		state = MotionState::OFFLINE;
-		actualState = State::UNKNOWN;
-		b_emergencyStopActive = false;
-		b_halted = false;
-		return;
 	}
+	else if (*hoodOpenSignal && !*hoodShutSignal) {
+		if (*liftLoweredSignal && !*liftRaisedSignal) actualState = State::OPEN_LOWERED;
+		else if (*liftRaisedSignal && !*liftLoweredSignal) actualState = State::RAISED;
+		else if (!*liftLoweredSignal && !*liftRaisedSignal) actualState = State::LOWERING_RAISING;
+		else actualState = State::UNKNOWN;
+	}
+	else if (!*hoodOpenSignal && !*hoodShutSignal) {
+		if (*liftLoweredSignal && !*liftRaisedSignal) actualState = State::OPENING_CLOSING;
+		else actualState = State::UNKNOWN;
+	}
+	else actualState = State::UNKNOWN;
+
+	//update STO state
+	b_emergencyStopActive = !*emergencyStopClearSignal;
 	
+	//update machine state
 	MotionState newState;
 	if(actualState == State::UNKNOWN) newState = MotionState::OFFLINE;
-	else if (!*emergencyStopClearSignal) newState = MotionState::NOT_READY;
+	else if (b_emergencyStopActive) newState = MotionState::NOT_READY;
 	else if (*localControlEnabledSignal) newState = MotionState::NOT_READY;
 	else if (*liftMotorCircuitBreakerSignal) newState = MotionState::NOT_READY;
 	else if (*hoodMotorCircuitBreakerSignal) newState = MotionState::NOT_READY;
 	else if (!isEnabled()) newState = MotionState::READY;
 	else newState = MotionState::ENABLED;
-		
+	
+	//handle transition from enabled state
 	if(isEnabled() && newState != MotionState::ENABLED) disable();
 	state = newState;
 	
-	//update animatable state
+	//update state of animatable
 	if(state == MotionState::OFFLINE) animatableState->state = Animatable::State::OFFLINE;
-	else if(state == MotionState::ENABLED && !b_halted) animatableState->state = Animatable::State::READY;
-	else animatableState->state = Animatable::State::NOT_READY;
+	else if(state == MotionState::NOT_READY) animatableState->state = Animatable::State::NOT_READY;
+	else animatableState->state = Animatable::State::READY;
 	
 	auto actualStateValue = AnimationValue::makeState();
 	switch(actualState){
@@ -152,6 +193,8 @@ void FlipStateMachine::outputProcess(){
 	
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
+	
+	b_halted = animatableState->isHalted() || !isMotionAllowed();
 	
 	//update outputs signals
 	if (!isEnabled()) {
@@ -237,7 +280,14 @@ void FlipStateMachine::onDisableHardware() {}
 
 void FlipStateMachine::simulateInputProcess() {
 	
+	//update machine state
 	if(state != MotionState::ENABLED) state = MotionState::READY;
+	
+	//update animatable state
+	if(isEnabled()) animatableState->state = Animatable::State::READY;
+	else animatableState->state = Animatable::State::NOT_READY;
+	
+	//TODO: BUG when asking for stopped state the actual state goes to closed
 	
 	*stateIntegerValue = getStateInteger(actualState);
 	
@@ -257,6 +307,8 @@ void FlipStateMachine::simulateInputProcess() {
 void FlipStateMachine::simulateOutputProcess() {
 	//update outputs signals
 	if (isEnabled()) {
+		
+		b_halted = animatableState->isHalted();
 		
 		double profileTime_seconds = Environnement::getTime_seconds();
 		double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
