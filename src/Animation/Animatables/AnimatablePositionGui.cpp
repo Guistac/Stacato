@@ -45,15 +45,17 @@ void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const cha
 	
 	//--- Numerical Velocity & Position Feedback
 	ImGui::PushFont(Fonts::sansRegular12);
-	glm::vec2 feedbackFrameSize(channelWidth, ImGui::GetTextLineHeight() * 2.0);
+	glm::vec2 feedbackFrameSize(channelWidth, ImGui::GetTextLineHeight());
 	static char feedbackString[32];
 	const char *positionUnitAbbreviated = getUnit()->abbreviated;
-	sprintf(feedbackString, "%.3f%s\n%.2f%s/s",
-			getActualPosition(),
-			positionUnitAbbreviated,
-			getActualVelocity(),
-			positionUnitAbbreviated);
-	backgroundText(feedbackString, feedbackFrameSize, Colors::darkGray);
+	sprintf(feedbackString, "%.3f%s", getActualPosition(), positionUnitAbbreviated);
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
+	backgroundText(feedbackString, feedbackFrameSize, Colors::darkGray, Colors::white, ImDrawFlags_RoundCornersTop);
+	double vel = getActualVelocity();
+	if(std::abs(vel) < 0.01) vel = 0.0;
+	sprintf(feedbackString, "%.2f%s/s", vel, positionUnitAbbreviated);
+	backgroundText(feedbackString, feedbackFrameSize, Colors::darkGray, Colors::white, ImDrawFlags_RoundCornersBottom);
+	ImGui::PopStyleVar();
 	ImGui::PopFont();
 	
 	//--- Rapid Target Position Entry Box

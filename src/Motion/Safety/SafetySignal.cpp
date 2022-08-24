@@ -7,8 +7,8 @@
 
 void SafetySignal::initialize(){
 	addNodePin(gpioPin);
-	addNodePin(safetyLineStatePin);
-	addNodePin(safetyValidPin);
+	addNodePin(safetyLineValidPin);
+	addNodePin(safetyStateValidPin);
 	
 	addNodePin(resetSafetyFaultPin);
 	addNodePin(stateLedPin);
@@ -17,11 +17,73 @@ void SafetySignal::initialize(){
 }
 
 void SafetySignal::inputProcess(){
-	safetyLineStatePin->copyConnectedPinValue();
-	safetyValidPin->copyConnectedPinValue();
-}
+	
+	//check gpio devices for their state
+	if(!gpioPin->isConnected() || !safetyStateValidPin->isConnected()) {
+		safetyState = State::OFFLINE;
+		return;
+	}
+	else{
+		for(auto connectedGpioPin : gpioPin->getConnectedPins()){
+			auto gpioDevice = connectedGpioPin->getSharedPointer<GpioDevice>();
+			if(gpioDevice->getState() != MotionState::ENABLED) {
+				safetyState = State::OFFLINE;
+				return;
+			}
+		}
+	}
+	
+	safetyStateValidPin->copyConnectedPinValue();
+	if(safetyLineValidPin->isConnected()) safetyLineValidPin->copyConnectedPinValue();
+	
+	if(!*safetyStateValidSignal) {
+		if(safetyLineValidPin->isConnected()){
+			if(!*safetyLineValidSignal) safetyState = State::EMERGENCY_STOP;
+			else safetyState = State::UNCLEARED_SAFETY_FAULT;
+		}else{
+			safetyState = State::EMERGENCY_STOP;
+		}
+		//master safety state is in SAFE mode
+		//if the safety line is also SAFE, we are in full ESTOP
+		//if the safety line is CLEAR, we can CLEAR the master fault
+	}
+	else{
+		if(safetyLineValidPin->isConnected()){
+			if(!*safetyLineValidSignal) safetyState = State::EMERGENCY_STOP;
+			else safetyState = State::CLEAR;
+		}else{
+			safetyState = State::CLEAR;
+		}
+		//master safety state is CLEAR
+		//if the safety line is also SAFE
+	}
 
-void SafetySignal::outputProcess(){}
+	if(b_shouldResetSafety){
+		b_shouldResetSafety = false;
+		resetPulseStartTime = Environnement::getTime_nanoseconds();
+		b_isResettingFault = true;
+	}
+	if(b_isResettingFault && Environnement::getTime_nanoseconds() - resetPulseStartTime > faultResetPulseTime->value * 1000'000'000){
+		b_isResettingFault = false;
+	}
+	
+	*resetSafetySignal = b_isResettingFault;
+	
+	switch(safetyState){
+		case State::CLEAR:
+		case State::OFFLINE:
+			*stateLedSignal = false;
+			break;
+		case State::EMERGENCY_STOP:
+			*stateLedSignal = true;
+			break;
+		case State::UNCLEARED_SAFETY_FAULT:{
+			bool blinkTimeSeconds = 1.0 / unclearedFaultLedBlinkFrequency->value;
+			*stateLedSignal = fmod(Timing::getProgramTime_seconds(), blinkTimeSeconds) < blinkTimeSeconds * 0.5;
+			}break;
+	}
+	
+}
 
 
 
@@ -30,6 +92,10 @@ void SafetySignal::outputProcess(){}
 bool SafetySignal::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 
+	XMLElement* settingsXML = xml->InsertNewChildElement("Settings");
+	faultResetPulseTime->save(settingsXML);
+	unclearedFaultLedBlinkFrequency->save(settingsXML);
+	
 	XMLElement* controlWidgetXML = xml->InsertNewChildElement("ControlWidget");
 	controlWidgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
 	
@@ -38,7 +104,12 @@ bool SafetySignal::save(tinyxml2::XMLElement* xml){
 
 bool SafetySignal::load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
-	
+
+	XMLElement* settingsXML;
+	if(!loadXMLElement("Settings", xml, settingsXML)) return false;
+	if(!faultResetPulseTime->load(settingsXML)) return false;
+	if(!unclearedFaultLedBlinkFrequency->load(settingsXML)) return false;
+
 	XMLElement* controlWidgetXML;
 	if(!loadXMLElement("ControlWidget", xml, controlWidgetXML)) return false;
 	if(controlWidgetXML->QueryIntAttribute("UniqueID", &controlWidget->uniqueID) != XML_SUCCESS){

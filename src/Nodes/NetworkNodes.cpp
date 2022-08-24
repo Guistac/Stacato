@@ -3,6 +3,7 @@
 #include "NodeFactory.h"
 
 #include "Networking/Osc/OscDevice.h"
+#include "Networking/Psn/PsnServer.h"
 
 namespace NodeFactory{
 
@@ -10,7 +11,8 @@ namespace NodeFactory{
 
 	void loadNetworkNodes(std::vector<Node*>& nodeList){
 		allNetworkNodes = {
-			new OscDevice()
+			new OscDevice(),
+			new PsnServer()
 		};
 		nodeList.insert(nodeList.end(), allNetworkNodes.begin(), allNetworkNodes.end());
 	}

@@ -1,41 +1,41 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.3272281" OffsetX="1242.6914" OffsetY="-660.18658" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget UniqueID="9" PositionX="-652.81342" PositionY="1040.4219" SizeX="136.49991" SizeY="215.92932"/>
-        <Widget UniqueID="10" PositionX="-511.84393" PositionY="1040.1384" SizeX="136.49991" SizeY="216.21278"/>
-        <Widget UniqueID="11" PositionX="-371.27451" PositionY="1040.2067" SizeX="136.49991" SizeY="216.14452"/>
-        <Widget UniqueID="13" PositionX="-230.65863" PositionY="1040.0215" SizeX="136.49991" SizeY="216.3297"/>
-        <Widget UniqueID="14" PositionX="-88.808937" PositionY="1040.0364" SizeX="136.50009" SizeY="216.31482"/>
-        <Widget UniqueID="17" PositionX="-653.34827" PositionY="1274.1514" SizeX="136.49991" SizeY="217.50977"/>
-        <Widget UniqueID="16" PositionX="-795.49127" PositionY="1275.2416" SizeX="136.49991" SizeY="216.41956"/>
-        <Widget UniqueID="24" PositionX="-652.64099" PositionY="1506.7328" SizeX="136.49991" SizeY="217.18214"/>
-        <Widget UniqueID="23" PositionX="-794.46912" PositionY="1507.3511" SizeX="136.49991" SizeY="216.56383"/>
-        <Widget UniqueID="28" PositionX="-651.83557" PositionY="1739.0879" SizeX="136.49991" SizeY="217.08076"/>
-        <Widget UniqueID="29" PositionX="-510.63412" PositionY="1740.1003" SizeX="136.49991" SizeY="216.06833"/>
-        <Widget UniqueID="27" PositionX="-791.93939" PositionY="1740.1664" SizeX="136.49991" SizeY="216.0024"/>
-        <Widget UniqueID="30" PositionX="-370.67603" PositionY="1739.9727" SizeX="136.49991" SizeY="216.196"/>
-        <Widget UniqueID="31" PositionX="-229.61481" PositionY="1737.7467" SizeX="136.49991" SizeY="218.42204"/>
-        <Widget UniqueID="21" PositionX="-88.81189" PositionY="1272.7566" SizeX="136.50009" SizeY="215.84851"/>
-        <Widget UniqueID="22" PositionX="51.716507" PositionY="1271.6578" SizeX="136.49991" SizeY="216.94722"/>
-        <Widget UniqueID="25" PositionX="-88.987442" PositionY="1504.2604" SizeX="136.49991" SizeY="216.59862"/>
-        <Widget UniqueID="26" PositionX="53.254128" PositionY="1503.6096" SizeX="136.49991" SizeY="217.2493"/>
-        <Widget UniqueID="32" PositionX="-88.544571" PositionY="1737.0758" SizeX="136.49991" SizeY="216.03699"/>
-        <Widget UniqueID="33" PositionX="53.674908" PositionY="1736.2141" SizeX="136.49991" SizeY="216.89854"/>
-        <Widget UniqueID="6" PositionX="-345.55844" PositionY="921.35022" SizeX="178.49994" SizeY="102.74703"/>
-        <Widget UniqueID="4" PositionX="-346.22946" PositionY="806.19421" SizeX="178.49994" SizeY="104.83211"/>
-        <Widget UniqueID="5" PositionX="-162.13007" PositionY="805.72095" SizeX="178.50014" SizeY="105.30537"/>
-        <Widget UniqueID="7" PositionX="-162.14148" PositionY="920.99762" SizeX="178.49994" SizeY="103.09965"/>
-        <Widget UniqueID="51" PositionX="-574.38391" PositionY="798.95782" SizeX="10.5" SizeY="10.5"/>
-        <Widget UniqueID="41" PositionX="-508.38022" PositionY="1294.8239" SizeX="406.35007" SizeY="413.81122"/>
-        <Widget UniqueID="43" PositionX="52.230556" PositionY="869.23712" SizeX="134.40005" SizeY="393.22604"/>
-        <Widget UniqueID="42" PositionX="-792.32819" PositionY="871.5791" SizeX="134.39986" SizeY="393.94003"/>
-        <Widget UniqueID="40" PositionX="-1152.1776" PositionY="1716.1583" SizeX="183.66174" SizeY="62.764137"/>
-        <Widget UniqueID="39" PositionX="-1152.1317" PositionY="1476.6749" SizeX="183.61586" SizeY="60.82571"/>
-        <Widget UniqueID="38" PositionX="-1152.693" PositionY="1238.4447" SizeX="196.91432" SizeY="60.690109"/>
-        <Widget UniqueID="44" PositionX="198.06793" PositionY="1110.0645" SizeX="184.15622" SizeY="60.719532"/>
-        <Widget UniqueID="45" PositionX="195.27682" PositionY="1350.4137" SizeX="134.40005" SizeY="394.89307"/>
-        <Widget UniqueID="46" PositionX="335.62778" PositionY="1350.7721" SizeX="134.40005" SizeY="394.53467"/>
-        <Widget UniqueID="50" PositionX="-528.15271" PositionY="920.32239" SizeX="178.49994" SizeY="103.7749"/>
-        <Widget UniqueID="8" PositionX="194.66762" PositionY="1753.9629" SizeX="220.49998" SizeY="83.022919"/>
+    <Dashboard Scale="1.4744689" OffsetX="746.26587" OffsetY="-650.46606" AutoFit="false" DrawGrid="false" LockEdit="false">
+        <Widget UniqueID="9" PositionX="-652.81342" PositionY="1040.4219" SizeX="136.49998" SizeY="228.82199"/>
+        <Widget UniqueID="10" PositionX="-511.84393" PositionY="1040.1384" SizeX="136.49998" SizeY="228.42722"/>
+        <Widget UniqueID="11" PositionX="-371.27451" PositionY="1040.2067" SizeX="136.50003" SizeY="229.03722"/>
+        <Widget UniqueID="13" PositionX="-230.65863" PositionY="1040.0215" SizeX="136.49998" SizeY="228.54416"/>
+        <Widget UniqueID="14" PositionX="-88.808937" PositionY="1040.0364" SizeX="136.49998" SizeY="228.5293"/>
+        <Widget UniqueID="17" PositionX="-653.34827" PositionY="1274.1514" SizeX="136.50002" SizeY="229.07504"/>
+        <Widget UniqueID="16" PositionX="-795.49127" PositionY="1275.2416" SizeX="136.49998" SizeY="228.66299"/>
+        <Widget UniqueID="24" PositionX="-652.64099" PositionY="1506.7328" SizeX="136.49998" SizeY="228.44154"/>
+        <Widget UniqueID="23" PositionX="-794.46912" PositionY="1507.3511" SizeX="136.49998" SizeY="228.50148"/>
+        <Widget UniqueID="28" PositionX="-651.83557" PositionY="1739.0879" SizeX="136.49998" SizeY="228.71259"/>
+        <Widget UniqueID="29" PositionX="-510.63412" PositionY="1740.1003" SizeX="136.49998" SizeY="229.0565"/>
+        <Widget UniqueID="27" PositionX="-791.93939" PositionY="1740.1664" SizeX="136.49998" SizeY="228.99051"/>
+        <Widget UniqueID="30" PositionX="-370.67603" PositionY="1739.9727" SizeX="136.49998" SizeY="228.50603"/>
+        <Widget UniqueID="31" PositionX="-229.61481" PositionY="1737.7467" SizeX="136.49998" SizeY="228.69736"/>
+        <Widget UniqueID="21" PositionX="-88.81189" PositionY="1272.7566" SizeX="136.49998" SizeY="228.43517"/>
+        <Widget UniqueID="22" PositionX="51.716507" PositionY="1271.6578" SizeX="136.49998" SizeY="228.85573"/>
+        <Widget UniqueID="25" PositionX="-88.987442" PositionY="1504.2604" SizeX="136.49998" SizeY="228.87933"/>
+        <Widget UniqueID="26" PositionX="53.254128" PositionY="1503.6096" SizeX="136.49998" SizeY="228.85184"/>
+        <Widget UniqueID="32" PositionX="-88.544571" PositionY="1737.0758" SizeX="136.49998" SizeY="228.68999"/>
+        <Widget UniqueID="33" PositionX="53.674908" PositionY="1736.2141" SizeX="136.49998" SizeY="228.87354"/>
+        <Widget UniqueID="41" PositionX="-508.38022" PositionY="1294.8239" SizeX="406.35013" SizeY="415.93491"/>
+        <Widget UniqueID="40" PositionX="-1152.1776" PositionY="1716.1583" SizeX="354.81302" SizeY="237.39967"/>
+        <Widget UniqueID="39" PositionX="-1152.1317" PositionY="1476.6749" SizeX="354.76709" SizeY="237.47485"/>
+        <Widget UniqueID="38" PositionX="-1152.693" PositionY="1238.4447" SizeX="354.65018" SizeY="237.65331"/>
+        <Widget UniqueID="44" PositionX="198.06793" PositionY="1110.0645" SizeX="183.35422" SizeY="64.22995"/>
+        <Widget UniqueID="45" PositionX="195.27682" PositionY="1350.4137" SizeX="134.40004" SizeY="396.29022"/>
+        <Widget UniqueID="46" PositionX="335.62778" PositionY="1350.7721" SizeX="134.40012" SizeY="395.93182"/>
+        <Widget UniqueID="8" PositionX="194.66762" PositionY="1753.9629" SizeX="220.49997" SizeY="84.977623"/>
+        <Widget UniqueID="42" PositionX="-792.32819" PositionY="871.5791" SizeX="134.40002" SizeY="396.30835"/>
+        <Widget UniqueID="43" PositionX="52.230556" PositionY="863.55865" SizeX="134.40004" SizeY="396.19031"/>
+        <Widget UniqueID="6" PositionX="-394.31586" PositionY="926.55591" SizeX="178.49998" SizeY="110.0618"/>
+        <Widget UniqueID="7" PositionX="-212.32896" PositionY="926.4234" SizeX="178.50003" SizeY="110.19434"/>
+        <Widget UniqueID="50" PositionX="-575.86475" PositionY="926.95789" SizeX="178.49998" SizeY="110.33807"/>
+        <Widget UniqueID="4" PositionX="-393.70471" PositionY="812.97644" SizeX="178.50003" SizeY="110.38017"/>
+        <Widget UniqueID="5" PositionX="-211.63933" PositionY="813.1814" SizeX="178.50003" SizeY="110.17522"/>
+        <Widget UniqueID="52" PositionX="-564.54907" PositionY="813.92883" SizeX="157.5" SizeY="110.10599"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -64,13 +64,13 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa Dispatch" UniqueID="408">
-                <InputNodeEditorPosition x="-328" y="3371"/>
-                <OutputNodeEditorPosition x="-1145" y="3358"/>
+                <InputNodeEditorPosition x="-135" y="3448"/>
+                <OutputNodeEditorPosition x="-952" y="3435"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="700"/>
                     <SLIOModules>
                         <Module Type="VIPA 021-1BF00">
-                            <SignalInversion InvertInput0="false" InvertInput1="false" InvertInput2="false" InvertInput3="false" InvertInput4="false" InvertInput5="false" InvertInput6="false" InvertInput7="false"/>
+                            <SignalInversion InvertInput0="false" InvertInput1="false" InvertInput2="false" InvertInput3="false" InvertInput4="true" InvertInput5="false" InvertInput6="false" InvertInput7="false"/>
                         </Module>
                         <Module Type="VIPA 022-1BF00">
                             <SignalInversion InvertOutput0="false" InvertOutput1="false" InvertOutput2="false" InvertOutput3="false" InvertOutput4="false" InvertOutput5="false" InvertOutput6="false" InvertOutput7="false"/>
@@ -93,14 +93,14 @@
                     <OutputPin SaveString="Module0DigitalInput1" DisplayString="Input 1 Homme Mort 3" DataType="Boolean" UniqueID="411" Visible="true"/>
                     <OutputPin SaveString="Module0DigitalInput2" DisplayString="Input 2 Homme Mort 1" DataType="Boolean" UniqueID="412" Visible="true"/>
                     <OutputPin SaveString="Module0DigitalInput3" DisplayString="Input 3 Homme Mort 4" DataType="Boolean" UniqueID="413" Visible="true"/>
-                    <OutputPin SaveString="Module0DigitalInput4" DisplayString="Input 4 STO Active" DataType="Boolean" UniqueID="414" Visible="true"/>
-                    <OutputPin SaveString="Module0DigitalInput5" DisplayString="Input 5 STO Active" DataType="Boolean" UniqueID="415" Visible="false"/>
+                    <OutputPin SaveString="Module0DigitalInput4" DisplayString="Input 4 STO Clear" DataType="Boolean" UniqueID="414" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput5" DisplayString="Module 0 Digital Input 5" DataType="Boolean" UniqueID="415" Visible="false"/>
                     <OutputPin SaveString="Module0DigitalInput6" DisplayString="Module 0 Digital Input 6" DataType="Boolean" UniqueID="416" Visible="false"/>
                     <OutputPin SaveString="Module0DigitalInput7" DisplayString="Module 0 Digital Input 7" DataType="Boolean" UniqueID="417" Visible="false"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Homme Mort 1" UniqueID="431">
-                <NodeEditorPosition x="-728" y="2947"/>
+                <NodeEditorPosition x="-535" y="3024"/>
                 <NodeSpecificData>
                     <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
                     <ControlWidget UniqueID="4"/>
@@ -115,7 +115,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Homme Mort 2" UniqueID="436">
-                <NodeEditorPosition x="-729" y="3107"/>
+                <NodeEditorPosition x="-536" y="3184"/>
                 <NodeSpecificData>
                     <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
                     <ControlWidget UniqueID="5"/>
@@ -130,7 +130,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Homme Mort 3" UniqueID="441">
-                <NodeEditorPosition x="-728" y="3267"/>
+                <NodeEditorPosition x="-535" y="3344"/>
                 <NodeSpecificData>
                     <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
                     <ControlWidget UniqueID="6"/>
@@ -145,7 +145,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Homme Mort 4" UniqueID="446">
-                <NodeEditorPosition x="-729" y="3426"/>
+                <NodeEditorPosition x="-536" y="3503"/>
                 <NodeSpecificData>
                     <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
                     <ControlWidget UniqueID="7"/>
@@ -160,7 +160,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="CU1128" Split="false" CustomName="EtherCAT Junction 8-port (Alias:10000)" UniqueID="460">
-                <NodeEditorPosition x="-1471" y="3366"/>
+                <NodeEditorPosition x="-1278" y="3443"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="701"/>
                 </NodeSpecificData>
@@ -168,7 +168,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="CU1128" Split="false" CustomName="EtherCAT Junction 8-port (Alias:10001)" UniqueID="461">
-                <NodeEditorPosition x="-1471" y="3414"/>
+                <NodeEditorPosition x="-1278" y="3491"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="702"/>
                 </NodeSpecificData>
@@ -176,7 +176,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="CU1124" Split="false" CustomName="EtherCAT Junction 4-port (Alias:10003)" UniqueID="462">
-                <NodeEditorPosition x="-1471" y="3510"/>
+                <NodeEditorPosition x="-1278" y="3587"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="704"/>
                 </NodeSpecificData>
@@ -184,7 +184,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="CU1128" Split="false" CustomName="EtherCAT Junction 8-port (Alias:10002)" UniqueID="463">
-                <NodeEditorPosition x="-1471" y="3462"/>
+                <NodeEditorPosition x="-1278" y="3539"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="703"/>
                 </NodeSpecificData>
@@ -192,13 +192,13 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa Console Stacato" UniqueID="513">
-                <InputNodeEditorPosition x="-313" y="2768"/>
-                <OutputNodeEditorPosition x="-1212" y="2748"/>
+                <InputNodeEditorPosition x="-120" y="2845"/>
+                <OutputNodeEditorPosition x="-1019" y="2825"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="800"/>
                     <SLIOModules>
                         <Module Type="VIPA 021-1BF00">
-                            <SignalInversion InvertInput0="false" InvertInput1="false" InvertInput2="false" InvertInput3="false" InvertInput4="false" InvertInput5="false" InvertInput6="false" InvertInput7="false"/>
+                            <SignalInversion InvertInput0="true" InvertInput1="false" InvertInput2="false" InvertInput3="false" InvertInput4="false" InvertInput5="false" InvertInput6="false" InvertInput7="true"/>
                         </Module>
                         <Module Type="VIPA 022-1BF00">
                             <SignalInversion InvertOutput0="false" InvertOutput1="false" InvertOutput2="false" InvertOutput3="false" InvertOutput4="false" InvertOutput5="false" InvertOutput6="false" InvertOutput7="false"/>
@@ -217,18 +217,18 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GPIODeviceLink" UniqueID="514" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Module0DigitalInput0" DisplayString="Input 0 Sortie Preventa" DataType="Boolean" UniqueID="515" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput0" DisplayString="Input 0 Préventa OK" DataType="Boolean" UniqueID="515" Visible="true"/>
                     <OutputPin SaveString="Module0DigitalInput1" DisplayString="Input 1 Homme Mort Déporté" DataType="Boolean" UniqueID="516" Visible="true"/>
                     <OutputPin SaveString="Module0DigitalInput2" DisplayString="Input 2 Homme Mort Gauche" DataType="Boolean" UniqueID="517" Visible="false"/>
                     <OutputPin SaveString="Module0DigitalInput3" DisplayString="Input 3 Homme Mort Droite" DataType="Boolean" UniqueID="518" Visible="false"/>
                     <OutputPin SaveString="Module0DigitalInput4" DisplayString="Input 4 Bouton Acquittement / Enable" DataType="Boolean" UniqueID="519" Visible="true"/>
                     <OutputPin SaveString="Module0DigitalInput5" DisplayString="Input 5" DataType="Boolean" UniqueID="520" Visible="false"/>
                     <OutputPin SaveString="Module0DigitalInput6" DisplayString="Input 6" DataType="Boolean" UniqueID="521" Visible="false"/>
-                    <OutputPin SaveString="Module0DigitalInput7" DisplayString="Input 7 Etat STO " DataType="Boolean" UniqueID="522" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput7" DisplayString="Input 7 Ligne STO OK" DataType="Boolean" UniqueID="522" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="Constant" CustomName="Constant" UniqueID="540">
-                <NodeEditorPosition x="-720" y="2856"/>
+                <NodeEditorPosition x="-527" y="2933"/>
                 <NodeSpecificData ConstantValue="1"/>
                 <InputPins/>
                 <OutputPins>
@@ -1261,7 +1261,7 @@
                     <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="18"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
-                    <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
+                    <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
                     <EncoderSettings RangeShifted="true" PositionOffset_revolutions="0"/>
                     <HoldingBrake HasHoldingBrake="false"/>
                 </NodeSpecificData>
@@ -2291,9 +2291,9 @@
             <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Periactes Milieu" UniqueID="2233">
                 <NodeEditorPosition x="1304" y="1390"/>
                 <NodeSpecificData ShortName="M">
-                    <GeneralSettings HorizontalControls="true" EnableAnticollision="true" AxisOrder="false" MinimumAxisBetweenAxes="3" EnableSynchronousControl="false" Axis1isMaster="true"/>
-                    <Axis1 InvertAxis1="false" Axis1Offset="0"/>
-                    <Axis2 InvertAxis2="true" Axis2Offset="0"/>
+                    <GeneralSettings HorizontalControls="true" EnableAnticollision="true" AxisOrder="false" MinimumAxisBetweenAxes="1.5" EnableSynchronousControl="false" Axis1isMaster="true"/>
+                    <Axis1 InvertAxis1="false" Axis1Offset="0.050000000000000003"/>
+                    <Axis2 InvertAxis2="true" Axis2Offset="28.707999999999998"/>
                     <MotionLimits VelocityLimit="0.5" AccelerationLimit="0.10000000000000001"/>
                     <ControWidget UniqueID="39"/>
                 </NodeSpecificData>
@@ -2312,9 +2312,9 @@
             <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Periactes Face" UniqueID="2243">
                 <NodeEditorPosition x="1304" y="1783"/>
                 <NodeSpecificData ShortName="M">
-                    <GeneralSettings HorizontalControls="true" EnableAnticollision="true" AxisOrder="false" MinimumAxisBetweenAxes="4" EnableSynchronousControl="false" Axis1isMaster="true"/>
-                    <Axis1 InvertAxis1="false" Axis1Offset="0"/>
-                    <Axis2 InvertAxis2="true" Axis2Offset="0"/>
+                    <GeneralSettings HorizontalControls="true" EnableAnticollision="true" AxisOrder="false" MinimumAxisBetweenAxes="1.5" EnableSynchronousControl="false" Axis1isMaster="true"/>
+                    <Axis1 InvertAxis1="false" Axis1Offset="0.050000000000000003"/>
+                    <Axis2 InvertAxis2="true" Axis2Offset="28.707999999999998"/>
                     <MotionLimits VelocityLimit="0.5" AccelerationLimit="0.10000000000000001"/>
                     <ControWidget UniqueID="40"/>
                 </NodeSpecificData>
@@ -2354,11 +2354,11 @@
             <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Axe Costière Jardin" UniqueID="2266">
                 <NodeEditorPosition x="674" y="2126"/>
                 <NodeSpecificData>
-                    <Units UnitType="Rotary" Unit="Degree"/>
-                    <UnitConversion ActuatorUnitsPerMachineUnit="0"/>
-                    <KinematicLimits VelocityLimit="0" AccelerationLimit="0" ManualAcceleration="0"/>
-                    <PositionReferenceSignals Type="LowSignal" HomingVelocityCoarse="0" HomingVelocityFine="0" HomingDirection="Negative"/>
-                    <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="0" HighLimit="0" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="true"/>
+                    <Units UnitType="Linear" Unit="Meter"/>
+                    <UnitConversion ActuatorUnitsPerMachineUnit="62.544103999999997"/>
+                    <KinematicLimits VelocityLimit="0.69999999999999996" AccelerationLimit="0.14999999999999999" ManualAcceleration="0.14999999999999999"/>
+                    <PositionReferenceSignals Type="LowSignal" HomingVelocityCoarse="0.050000000000000003" HomingVelocityFine="0.01" HomingDirection="Negative"/>
+                    <PositionLimits LowLimit="0" EnableLowLimit="true" LowLimitClearance="0.050000000000000003" HighLimit="12.25" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="true"/>
                     <Surveillance AxisIsSurveilled="false" SurveillanceFeedbackUnitsPerAxisUnits="0" MaxSurveillanceVelocityDeviation="0" MaxSurveillanceErrorClearTime="0"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2382,7 +2382,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Cost Jardin" UniqueID="2280">
                 <NodeEditorPosition x="921" y="2122"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits AxisOffset="0" InvertAxis="false"/>
+                    <Limits AxisOffset="0.050000000000000003" InvertAxis="false"/>
                     <ControWidget UniqueID="42"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2545,7 +2545,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="Or" CustomName="Or" UniqueID="2482">
-                <NodeEditorPosition x="-440" y="3674"/>
+                <NodeEditorPosition x="-311" y="3709"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="2483" Visible="true" AcceptsMultipleInputs="true"/>
@@ -2555,7 +2555,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Homme Mort 0" UniqueID="2488">
-                <NodeEditorPosition x="-728" y="2700"/>
+                <NodeEditorPosition x="-535" y="2777"/>
                 <NodeSpecificData>
                     <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
                     <ControlWidget UniqueID="50"/>
@@ -2569,29 +2569,20 @@
                     <OutputPin SaveString="Dead Man&apos;s Switch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="2492" Visible="true" NoDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Processor" ClassName="SafetySignal" CustomName="Arrêt d&apos;urgence" UniqueID="2498">
-                <NodeEditorPosition x="-712" y="3603"/>
+            <Node NodeType="Processor" ClassName="SafetySignal" CustomName="Sécurité" UniqueID="2577">
+                <NodeEditorPosition x="-536" y="3719"/>
                 <NodeSpecificData>
-                    <ControlWidget UniqueID="51"/>
+                    <Settings FaultResetPulseTime="0.10000000000000001" UnclearedFaultLedBlinkFrequency="5"/>
+                    <ControlWidget UniqueID="52"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveString="GpioDevice" DisplayString="Gpio Device" DataType="GPIODeviceLink" UniqueID="2499" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="SafetyLineState" DisplayString="Safety Line State" DataType="Boolean" UniqueID="2500" Visible="true"/>
-                    <InputPin SaveString="SafetyValid" DisplayString="Safety Valid" DataType="Boolean" UniqueID="2501" Visible="true"/>
+                    <InputPin SaveString="GpioDevice" DisplayString="Gpio Device" DataType="GPIODeviceLink" UniqueID="2578" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="SafetyLineValid" DisplayString="Safety Line Valid" DataType="Boolean" UniqueID="2579" Visible="true"/>
+                    <InputPin SaveString="SafetyStateValid" DisplayString="Safety State Valid" DataType="Boolean" UniqueID="2580" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveString="ResetSafetyFault" DisplayString="Reset Safety Fault" DataType="Boolean" UniqueID="2502" Visible="true"/>
-                    <OutputPin SaveString="StateLEDSignal" DisplayString="State LED Signal" DataType="Boolean" UniqueID="2503" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Processor" ClassName="And" CustomName="And" UniqueID="2507">
-                <NodeEditorPosition x="-826" y="3631"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="2508" Visible="true" AcceptsMultipleInputs="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="2509" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="ResetSafetyFault" DisplayString="Reset Safety Fault" DataType="Boolean" UniqueID="2581" Visible="true"/>
+                    <OutputPin SaveString="StateLEDSignal" DisplayString="State LED Signal" DataType="Boolean" UniqueID="2582" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -2942,14 +2933,6 @@
             <Link UniqueID="2493" StartPin="514" EndPin="2489"/>
             <Link UniqueID="2494" StartPin="516" EndPin="2490"/>
             <Link UniqueID="2496" StartPin="2491" EndPin="524"/>
-            <Link UniqueID="2504" StartPin="514" EndPin="2499"/>
-            <Link UniqueID="2505" StartPin="409" EndPin="2499"/>
-            <Link UniqueID="2506" StartPin="522" EndPin="2500"/>
-            <Link UniqueID="2510" StartPin="515" EndPin="2508"/>
-            <Link UniqueID="2511" StartPin="414" EndPin="2508"/>
-            <Link UniqueID="2512" StartPin="2509" EndPin="2501"/>
-            <Link UniqueID="2513" StartPin="2502" EndPin="2483"/>
-            <Link UniqueID="2514" StartPin="2503" EndPin="523"/>
             <Link UniqueID="2515" StartPin="2484" EndPin="526"/>
             <Link UniqueID="2524" StartPin="682" EndPin="609"/>
             <Link UniqueID="2525" StartPin="744" EndPin="625"/>
@@ -2980,13 +2963,24 @@
             <Link UniqueID="2573" StartPin="435" EndPin="1718"/>
             <Link UniqueID="2574" StartPin="435" EndPin="1782"/>
             <Link UniqueID="2575" StartPin="435" EndPin="1894"/>
+            <Link UniqueID="2586" StartPin="2581" EndPin="2483"/>
+            <Link UniqueID="2587" StartPin="2484" EndPin="422"/>
+            <Link UniqueID="2588" StartPin="2582" EndPin="523"/>
+            <Link UniqueID="2589" StartPin="409" EndPin="2578"/>
+            <Link UniqueID="2603" StartPin="414" EndPin="2580"/>
+            <Link UniqueID="2605" StartPin="2129" EndPin="2225"/>
+            <Link UniqueID="2606" StartPin="2143" EndPin="2226"/>
+            <Link UniqueID="2608" StartPin="2164" EndPin="2235"/>
+            <Link UniqueID="2609" StartPin="2178" EndPin="2236"/>
+            <Link UniqueID="2610" StartPin="2198" EndPin="2245"/>
+            <Link UniqueID="2611" StartPin="2212" EndPin="2246"/>
         </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en7" Name="en7"/>
+        <Primary Description="en4" Name="en4"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="8" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

@@ -125,6 +125,7 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatablePosition.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatablePosition.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatablePositionGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableState.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableState.cpp
 
@@ -334,6 +335,10 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscDeviceGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscSocket.cpp
     ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscSocket.h
+
+    ${STACATO_SOURCE_DIRECTORY}/Networking/Psn/PsnServer.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Networking/Psn/PsnServer.h
+    ${STACATO_SOURCE_DIRECTORY}/Networking/Psn/PsnServerGui.cpp
 )
 
 # match file structure for source files in ide

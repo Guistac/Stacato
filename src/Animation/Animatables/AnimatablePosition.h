@@ -157,8 +157,8 @@ public:
 	double positionSetpoint = 0.0;
 	double accelerationSetpoint = 0.0;
 	
-	double velocitySliderDisplayValue;
-	double rapidTargetPositionDisplayValue;
+	double velocitySliderDisplayValue = 0.0;
+	double rapidTargetPositionDisplayValue = 0.0;
 	
 	void manualControlsVerticalGui(float sliderHeight, const char* customName = nullptr);
 	void manualControlsHorizontalGui(float sliderWidth, const char* customName = nullptr);
