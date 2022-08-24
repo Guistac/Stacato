@@ -113,7 +113,6 @@ void Machine::machineStateControlGui(float width){
 		
 	glm::vec2 buttonSize(width / 2.0, ImGui::GetTextLineHeight() * 2.0);
 	float rounding = ImGui::GetStyle().FrameRounding;
-	bool b_ready = isReady();
 	
 	glm::vec4 statusColor;
 	glm::vec4 statusTextColor;
@@ -176,7 +175,7 @@ void Machine::machineStateControlGui(float width){
 	}
 	
 	ImGui::SameLine(.0f, .0f);
-	ImGui::BeginDisabled(!b_ready);
+	ImGui::BeginDisabled(state != MotionState::READY && state != MotionState::ENABLED);
 	if (isEnabled()) {
 		if(customRoundedButton("Disable", buttonSize, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersRight)) disable();
 	}

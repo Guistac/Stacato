@@ -256,7 +256,10 @@ bool AnimatablePosition::validateAnimation(std::shared_ptr<Animation> animation)
 
 
 bool AnimatablePosition::isControlledManuallyOrByAnimation(){
-	return hasAnimation() || isInRapid() || (controlMode == VELOCITY_SETPOINT && velocitySetpoint != 0.0);
+	bool animation = hasAnimation();
+	bool inRapid = isInRapid();
+	bool manualControl = controlMode == VELOCITY_SETPOINT && motionProfile.getVelocity() != 0.0;
+	return animation || inRapid || manualControl;
 }
 
 
@@ -327,14 +330,12 @@ void AnimatablePosition::setVelocityTarget(double velocityTarget){
 
 void AnimatablePosition::moveToPositionWithVelocity(double targetPosition, double targetVelocity){
 	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
-	motionProfile.moveToPositionWithVelocity(profileTime_seconds, targetPosition, targetVelocity, accelerationLimit);
-	controlMode = POSITION_SETPOINT;
+	if(motionProfile.moveToPositionWithVelocity(profileTime_seconds, targetPosition, targetVelocity, accelerationLimit)) controlMode = POSITION_SETPOINT;
 }
 
 void AnimatablePosition::moveToPositionInTime(double targetPosition, double targetTime){
 	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
-	motionProfile.moveToPositionInTime(profileTime_seconds, targetPosition, targetTime, accelerationLimit, velocityLimit);
-	controlMode = POSITION_SETPOINT;
+	if(motionProfile.moveToPositionInTime(profileTime_seconds, targetPosition, targetTime, accelerationLimit, velocityLimit)) controlMode = POSITION_SETPOINT;
 }
 
 
@@ -471,6 +472,8 @@ void AnimatablePosition::copyMotionProfilerValueToTargetValue(){
 
 void AnimatablePosition::followActualValue(double time_seconds, double deltaTime_seconds){
 	const std::lock_guard<std::mutex> lock(mutex);
+	profileTime_seconds = time_seconds;
+	deltaTime_seconds = deltaTime_seconds;
 	motionProfile.setPosition(actualValue->position);
 	motionProfile.setVelocity(actualValue->velocity);
 	motionProfile.setAcceleration(actualValue->acceleration);
@@ -552,8 +555,14 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 																maxPosition,
 																accelerationLimit);
 			break;
-		case POSITION_SETPOINT:
 		case FORCED_POSITION_SETPOINT:
+			
+			motionProfile.setPosition(positionSetpoint);
+			motionProfile.setVelocity(velocitySetpoint);
+			motionProfile.setAcceleration(accelerationSetpoint);
+			
+			break;
+		case POSITION_SETPOINT:
 			motionProfile.matchPositionAndRespectPositionLimits(deltaT_seconds,
 																positionSetpoint,
 																velocitySetpoint,

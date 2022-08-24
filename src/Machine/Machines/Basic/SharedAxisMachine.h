@@ -61,6 +61,7 @@ class SharedAxisMachine : public Machine{
 	//————————— Settings ——————————
 	
 	Unit positionUnit = Units::None::None;
+	bool b_forceSynchronousControl = false;
 
 	std::shared_ptr<BooleanParameter> horizontalControls = BooleanParameter::make(false, "Horizontal Controls", "HorizontalControls");
 	

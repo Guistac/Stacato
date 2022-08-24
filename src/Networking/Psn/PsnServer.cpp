@@ -6,6 +6,8 @@
 
 #include <tinyxml2.h>
 
+#include <psn_lib.hpp>
+
 void PsnServer::initialize(){}
 
 void PsnServer::connect(){

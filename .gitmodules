@@ -47,3 +47,6 @@
 [submodule "deps/Serial"]
 	path = deps/Serial
 	url = https://github.com/wjwwood/serial.git
+[submodule "deps/psncpp"]
+	path = deps/psncpp
+	url = https://github.com/vyv/psn-cpp.git

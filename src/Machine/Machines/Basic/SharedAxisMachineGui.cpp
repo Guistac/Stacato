@@ -728,12 +728,17 @@ void SharedAxisMachine::widgetGui(){
 		
 	}else if(positionUnit->unitType == Units::Type::ANGULAR_DISTANCE){
 		
+		//ImGui::BeginDisabled(enableSynchronousControl->value && synchronizedAnimatable->isControlledManuallyOrByAnimation());
 		axis1Animatable->manualControlsVerticalGui(sliderHeight, axis1Animatable->getName());
 		ImGui::SameLine(.0f, separatorWidth);
 		axis2Animatable->manualControlsVerticalGui(sliderHeight, axis2Animatable->getName());
+		//ImGui::EndDisabled();
+		
 		if(enableSynchronousControl->value){
 			ImGui::SameLine(.0f, separatorWidth);
+			//ImGui::BeginDisabled(!synchronizedAnimatable->isControlledManuallyOrByAnimation() && isMoving());
 			synchronizedAnimatable->manualControlsVerticalGui(sliderHeight, "Synchro");
+			//ImGui::EndDisabled();
 		}
 		
 		ImGui::SameLine(.0f, separatorWidth);
@@ -846,6 +851,10 @@ void SharedAxisMachine::widgetGui(){
 		rangeProgress = axis2Animatable->getActualPositionNormalized();
 		sprintf(rangeString, "%s : %.1f%%", axis2Animatable->getName(), rangeProgress * 100.0);
 		ImGui::ProgressBar(rangeProgress, rangeDisplaySize, rangeString);
+		
+		ImGui::Checkbox("##forceSync", &b_forceSynchronousControl);
+		ImGui::SameLine();
+		ImGui::Text("Force Sync");
 		
 	}
 	ImGui::EndGroup();

@@ -16,6 +16,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/imguicolortextedit.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/soem.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/asio.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/tinyosc.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/psncpp.cmake)
 
 # I/O
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/nativefiledialog.cmake)
@@ -42,6 +43,7 @@ set(STACATO_DEPENDENCIES
     soem
     asio
     tinyosc
+    psncpp
 # I/O
     nfd
     spdlog

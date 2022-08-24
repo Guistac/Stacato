@@ -143,6 +143,8 @@ private:
 			case 0x1300: return "1300 : Safety Function STO was Enabled";
 			case 0x1301: return "1301 : STO_A and STO_B different level";
 			case 0x3100: return "3100 : Missing mains supply, undervoltage mains supply or overvoltage mains supply";
+			case 0x1A01: return "1A01 : Detected motor type is different from previously detected motor.";
+			case 0x7607: return "7607 : Encoder module cannot be identified";
 			default: {
 				static char hexString[16];
 				sprintf(hexString, "%X", errorCode);
