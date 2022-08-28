@@ -6,8 +6,6 @@ class Device;
 
 class SubDevice{
 public:
-
-	SubDevice(std::string n) : name(n){}
 	
 	enum class Type {
 		GPIO,
@@ -19,7 +17,7 @@ public:
 	virtual Type getType() = 0;
 	
 	virtual MotionState getState() { return state; }
-	virtual std::string& getName() { return name; }
+	virtual std::string getName() = 0;
 	virtual bool hasFault() { return b_hasFault; }
 	virtual std::string getStatusString() = 0;
 
@@ -55,7 +53,6 @@ public:
 	}
 	
 	MotionState state = MotionState::OFFLINE;
-	std::string name;
 	bool b_hasFault;
 	bool b_emergencyStopActive;
 };
@@ -63,7 +60,7 @@ public:
 
 class GpioDevice : public SubDevice {
 public:
-	GpioDevice(std::string name) : SubDevice(name){}
+	GpioDevice() : SubDevice(){}
 	
 	virtual Type getType() override { return SubDevice::Type::GPIO; }
 };
@@ -72,7 +69,7 @@ public:
 class MotionDevice : public SubDevice {
 public:
 	
-	MotionDevice(std::string name, Unit unit) : SubDevice(name), positionUnit(unit){}
+	MotionDevice(Unit unit) : SubDevice(), positionUnit(unit){}
 	
 	Unit getPositionUnit() { return positionUnit; }
 	
@@ -84,7 +81,7 @@ public:
 class VelocityFeedbackDevice : public virtual MotionDevice{
 public:
 	
-	VelocityFeedbackDevice(std::string name, Unit unit) : MotionDevice(name, unit){}
+	VelocityFeedbackDevice(Unit unit) : MotionDevice(unit){}
 	
 	virtual Type getType() override { return SubDevice::Type::VELOCITY_FEEDBACK; }
 	
@@ -100,7 +97,7 @@ public:
 class PositionFeedbackDevice : public VelocityFeedbackDevice {
 public:
 	
-	PositionFeedbackDevice(std::string name, Unit unit, PositionFeedbackType feedbackType) : VelocityFeedbackDevice(name, unit), positionFeedbackType(feedbackType){}
+	PositionFeedbackDevice(Unit unit, PositionFeedbackType feedbackType) : VelocityFeedbackDevice(unit), positionFeedbackType(feedbackType){}
 
 	Type getType() override { return SubDevice::Type::POSITION_FEEDBACK; }
 	
@@ -137,7 +134,7 @@ public:
 class ActuatorDevice : public virtual MotionDevice {
 public:
 	
-	ActuatorDevice(std::string name, Unit unit) : MotionDevice(name, unit){}
+	ActuatorDevice(Unit unit) : MotionDevice(unit){}
 
 	virtual Type getType() override { return SubDevice::Type::ACTUATOR; }
 
@@ -192,7 +189,7 @@ public:
 class ServoActuatorDevice : public ActuatorDevice, public PositionFeedbackDevice {
 public:
 	
-	ServoActuatorDevice(std::string name, Unit unit, PositionFeedbackType feedbackType) : ActuatorDevice(name, unit), PositionFeedbackDevice(name, unit, feedbackType){}
+	ServoActuatorDevice(Unit unit, PositionFeedbackType feedbackType) : ActuatorDevice(unit), PositionFeedbackDevice(unit, feedbackType){}
 
 	virtual Type getType() override { return SubDevice::Type::SERVO_ACTUATOR; }
 	

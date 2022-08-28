@@ -27,8 +27,8 @@ namespace EtherCatFieldbus {
 	char defaultSecondaryNetworkInterfaceDescription[512];
 	
 	void setDefaultNetworkInterfaces(const char* primary, const char* secondary){
-		strcpy(defaultPrimaryNetworkInterfaceDescription, primary);
-		strcpy(defaultSecondaryNetworkInterfaceDescription, secondary);
+		if(primary != 0) strcpy(defaultPrimaryNetworkInterfaceDescription, primary);
+		if(secondary != 0) strcpy(defaultSecondaryNetworkInterfaceDescription, secondary);
 	}
 
     std::vector<std::shared_ptr<EtherCatDevice>> slaves;			//slaves discovered on the network

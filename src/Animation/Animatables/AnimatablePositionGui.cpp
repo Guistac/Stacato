@@ -48,14 +48,16 @@ void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const cha
 	glm::vec2 feedbackFrameSize(channelWidth, ImGui::GetTextLineHeight());
 	static char feedbackString[32];
 	const char *positionUnitAbbreviated = getUnit()->abbreviated;
-	sprintf(feedbackString, "%.3f%s", getActualPosition(), positionUnitAbbreviated);
+	if(state == Animatable::State::OFFLINE) sprintf(feedbackString, "-%s", positionUnitAbbreviated);
+	else sprintf(feedbackString, "%.3f%s", getActualPosition(), positionUnitAbbreviated);
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
 	backgroundText(feedbackString, feedbackFrameSize, Colors::darkGray, Colors::white, ImDrawFlags_RoundCornersTop);
+	ImGui::PopStyleVar();
 	double vel = getActualVelocity();
 	if(std::abs(vel) < 0.01) vel = 0.0;
-	sprintf(feedbackString, "%.2f%s/s", vel, positionUnitAbbreviated);
+	if(state == Animatable::State::OFFLINE) sprintf(feedbackString, "-%s/s", positionUnitAbbreviated);
+	else sprintf(feedbackString, "%.2f%s/s", vel, positionUnitAbbreviated);
 	backgroundText(feedbackString, feedbackFrameSize, Colors::darkGray, Colors::white, ImDrawFlags_RoundCornersBottom);
-	ImGui::PopStyleVar();
 	ImGui::PopFont();
 	
 	//--- Rapid Target Position Entry Box
@@ -144,22 +146,34 @@ void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const ch
 	
 	ImGui::SameLine();
 	ImGui::BeginGroup();
-	static char feedbackString[32];
+					  
+					  
+	static char positionString[32];
+	static char velocityString[32];
 	const char *positionUnitAbbreviated = getUnit()->abbreviated;
-	sprintf(feedbackString, "%.3f%s\n%.2f%s/s",
-			getActualPosition(),
-			positionUnitAbbreviated,
-			getActualVelocity(),
-			positionUnitAbbreviated);
+	if(state == Animatable::State::OFFLINE) sprintf(positionString, "-%s", positionUnitAbbreviated);
+	else sprintf(positionString, "%.3f%s", getActualPosition(), positionUnitAbbreviated);
+	if(state == Animatable::State::OFFLINE) sprintf(velocityString, "-%s/s", positionUnitAbbreviated);
+	else {
+		double vel = getActualVelocity();
+		if(std::abs(vel) < 0.01) vel = 0.0;
+		sprintf(velocityString, "%.2f%s/s", vel, positionUnitAbbreviated);
+	}
+	
 	ImGui::PushFont(Fonts::sansRegular12);
 	if(customName){
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
 		backgroundText(customName, glm::vec2(textBoxWidth, ImGui::GetTextLineHeight()), Colors::darkGray, Colors::white, ImDrawFlags_RoundCornersTop);
-		float nameHeight = ImGui::GetItemRectSize().y;
-		backgroundText(feedbackString, glm::vec2(textBoxWidth, controlsHeight - nameHeight), Colors::veryDarkGray, Colors::white, ImDrawFlags_RoundCornersBottom);
+		glm::vec2 feedbackFrameSize(textBoxWidth, (controlsHeight - ImGui::GetItemRectSize().y) * .5f);
+		backgroundText(positionString, feedbackFrameSize, Colors::veryDarkGray, Colors::white, ImDrawFlags_RoundCornersNone);
+		backgroundText(velocityString, feedbackFrameSize, Colors::veryDarkGray, Colors::white, ImDrawFlags_RoundCornersBottom);
 		ImGui::PopStyleVar();
 	}else{
-		backgroundText(feedbackString, glm::vec2(textBoxWidth, controlsHeight), Colors::darkGray);
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
+		glm::vec2 feedbackFrameSize(textBoxWidth, controlsHeight * .5f);
+		backgroundText(positionString, feedbackFrameSize, Colors::veryDarkGray, Colors::white, ImDrawFlags_RoundCornersTop);
+		backgroundText(velocityString, feedbackFrameSize, Colors::veryDarkGray, Colors::white, ImDrawFlags_RoundCornersBottom);
+		ImGui::PopStyleVar();
 	}
 	ImGui::PopFont();
 	ImGui::EndGroup();

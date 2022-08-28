@@ -42,203 +42,12 @@ void PositionControlledMachine::controlsGui() {
 	
 	ImGui::Separator();
 	
-	
-	
-	/*
-	ImGui::BeginChild("##manualMachineControls", ImGui::GetContentRegionAvail());
-	
-	if(!isAxisConnected()) {
-		ImGui::Text("No Axis Connected");
-		ImGui::EndChild();
-		return;
-	}
-	
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-	
-	ImGui::BeginDisabled(!isEnabled());
-
-	float widgetWidth = ImGui::GetContentRegionAvail().x;
-	
 	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Manual Velocity Control");
+	ImGui::Text("Setup Controls");
 	ImGui::PopFont();
-
-	float manualVelocityTarget = manualVelocityTarget_machineUnitsPerSecond;
-	ImGui::SetNextItemWidth(widgetWidth);
-	ImGui::SliderFloat("##velTar", &manualVelocityTarget, -axis->getVelocityLimit(), axis->getVelocityLimit());
-	if (ImGui::IsItemActive()) setVelocityTarget(manualVelocityTarget);
-	else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocityTarget(0.0);
-
-	ImGui::Separator();
-
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Manual Position Control");
-	ImGui::PopFont();
-
-	static char positionTargetString[128];
-	sprintf(positionTargetString, "%.3f %s", manualPositionTarget_machineUnits, axis->getPositionUnit()->abbreviated);
-	ImGui::SetNextItemWidth(widgetWidth);
-	ImGui::InputDouble("##postar", &manualPositionTarget_machineUnits, 0.0, 0.0, positionTargetString);
-
-	glm::vec2 halfButtonSize((widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, ImGui::GetTextLineHeight() * 2.0);
-
-	if (ImGui::Button("Move To Position", halfButtonSize)) {
-		moveToPosition(manualPositionTarget_machineUnits);
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Stop", halfButtonSize)) {
-		setVelocityTarget(0.0);
-	}
-
-	ImGui::Separator();
-
-	if (axis->isHomeable()) {
-
-		ImGui::PushFont(Fonts::sansBold20);
-		ImGui::Text("Homing Controls");
-		ImGui::PopFont();
-
-		if (ImGui::Button("Start Homing", halfButtonSize)) {
-		
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Cancel Homing", halfButtonSize)) {
-			
-		}
-
-		static char homingStateString[256];
-		sprintf(homingStateString, "Homing State: %s", Enumerator::getDisplayString(getAxis()->homingStep));
-		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-		ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
-		ImGui::Button(homingStateString, glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 1.5));
-		ImGui::PopStyleColor();
-		ImGui::PopItemFlag();
-
-
-	}
-
-	ImGui::EndDisabled();
-	 
 	
+	setupGui();
 	
-	
-	//-------------------------------- FEEDBACK --------------------------------
-		
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Feedback");
-	ImGui::PopFont();
-
-	glm::vec2 progressBarSize = ImGui::GetContentRegionAvail();
-	progressBarSize.y = ImGui::GetFrameHeight();
-	
-	//actual position in range
-	double minPosition = 0.0;
-	double maxPosition = 0.0;
-	double positionProgress = 0.0;
-	static char positionString[32];
-	if (!isEnabled()) {
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		positionProgress = 1.0;
-		sprintf(positionString, "Axis Disabled");
-	}
-	else {
-		minPosition = getLowPositionLimit();
-		maxPosition = getHighPositionLimit();
-		positionProgress = getPositionNormalized();
-		double positionValue;
-		if(isSimulating()) positionValue = motionProfile.getPosition();
-		else positionValue = axisPositionToMachinePosition(axis->getActualPosition());
-		if (positionProgress < 0.0 || positionProgress > 1.0) {
-			sprintf(positionString, "Axis out of limits : %.2f %s", positionValue, axis->getPositionUnit()->abbreviated);
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
-		}
-		else {
-			sprintf(positionString, "%.2f %s", positionValue, axis->getPositionUnit()->abbreviated);
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-		}
-	}
-	const char* shortPositionUnitString = axis->getPositionUnit()->abbreviated;
-	ImGui::Text("Current Position : (in range from %.2f %s to %.2f %s)", minPosition, shortPositionUnitString, maxPosition, shortPositionUnitString);
-	ImGui::ProgressBar(positionProgress, progressBarSize, positionString);
-	ImGui::PopStyleColor();
-
-
-	//actual velocity
-	float velocityProgress;
-	static char velocityString[32];
-	if (!isEnabled()) {
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		velocityProgress = 1.0;
-		sprintf(velocityString, "Axis Disabled");
-	}
-	else {
-		velocityProgress = std::abs(getVelocityNormalized());
-		double actualVelocity;
-		if(isSimulating()) actualVelocity = motionProfile.getVelocity();
-		else actualVelocity = axisVelocityToMachineVelocity(axis->getActualVelocity());
-		sprintf(velocityString, "%.2f %s/s", actualVelocity, axis->getPositionUnit()->abbreviated);
-		if (velocityProgress > 1.0)
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
-		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-	}
-	ImGui::Text("Current Velocity : (max %.2f%s/s)", axis->getVelocityLimit(), axis->getPositionUnit()->abbreviated);
-	ImGui::ProgressBar(velocityProgress, progressBarSize, velocityString);
-	ImGui::PopStyleColor();
-
-	float positionErrorProgress;
-	float maxfollowingError = 0.0;
-	static char positionErrorString[32];
-	if(!isEnabled()){
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		positionErrorProgress = 1.0;
-		sprintf(positionErrorString, "Axis Disabled");
-	}else{
-		if(isSimulating()){
-			positionErrorProgress = 1.0;
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-			sprintf(positionErrorString, "Simulating");
-		}else{
-			positionErrorProgress = std::abs(axis->getActualFollowingErrorNormalized());
-			if(positionErrorProgress < 1.0) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-			else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
-			maxfollowingError = axis->getFollowingErrorLimit();
-			double followingError = axis->getActualFollowingError();
-			sprintf(positionErrorString, "%.3f %s", followingError, axis->getPositionUnit()->abbreviated);
-		}
-	}
-
-	if(isSimulating()) ImGui::Text("Position Following Error:");
-	else ImGui::Text("Position Following Error : (max %.3f%s)", maxfollowingError, axis->getPositionUnit()->abbreviated);
-	ImGui::ProgressBar(positionErrorProgress, progressBarSize, positionErrorString);
-	ImGui::PopStyleColor();
-
-	//target movement progress
-	float targetProgress;
-	double movementSecondsLeft = 0.0;
-	static char movementProgressChar[32];
-	if (!isEnabled()) {
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		sprintf(movementProgressChar, "Axis Disabled");
-		targetProgress = 1.0;
-	}
-	else{
-		targetProgress = motionProfile.getInterpolationProgress(Environnement::getTime_seconds());
-		if(targetProgress > 0.0 && targetProgress < 1.0){
-			movementSecondsLeft = motionProfile.getRemainingInterpolationTime(Environnement::getTime_seconds());
-			sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
-		}else{
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-			sprintf(movementProgressChar, "No Target Movement");
-			targetProgress = 1.0;
-		}
-	}
-	ImGui::Text("Movement Time Remaining :");
-	ImGui::ProgressBar(targetProgress, progressBarSize, movementProgressChar);
-	ImGui::PopStyleColor();
-	
-	ImGui::EndChild();
-	 */
 }
 
 
@@ -263,17 +72,22 @@ void PositionControlledMachine::settingsGui() {
 	ImGui::Text("Axis Offset");
 	ImGui::PopFont();
 	axisOffset->gui();
+	ImGui::SameLine();
+	if(ImGui::Button("Reset##Offset")) resetZero();
 	
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Lower Limit");
 	ImGui::PopFont();
 	lowerPositionLimit->gui();
+	ImGui::SameLine();
+	if(ImGui::Button("Reset##LowerLimit")) resetLowerLimit();
 	
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Upper Limit");
 	ImGui::PopFont();
 	upperPositionLimit->gui();
-	
+	ImGui::SameLine();
+	if(ImGui::Button("Reset##UpperLimit")) resetUpperLimit();
 	
 	
 	ImGui::Separator();
@@ -319,76 +133,11 @@ void PositionControlledMachine::settingsGui() {
 	ImGui::PopFont();
 }
 
-void PositionControlledMachine::axisGui() {
-	/*
-	if (!isAxisConnected()) {
-		ImGui::Text("No Axis Connected");
-		return;
-	}
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
+void PositionControlledMachine::axisGui() {}
 
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("%s", axis->getName());
-	ImGui::PopFont();
+void PositionControlledMachine::deviceGui() {}
 
-	if (ImGui::BeginTabBar("AxisTabBar")) {
-		if (ImGui::BeginTabItem("Settings")) {
-			ImGui::BeginChild("SettingsChild");
-			axis->settingsGui();
-			ImGui::EndChild();
-			ImGui::EndTabItem();
-		}
-		if (ImGui::BeginTabItem("Devices")) {
-			ImGui::BeginChild("DevicesChild");
-			axis->devicesGui();
-			ImGui::EndChild();
-			ImGui::EndTabItem();
-		}
-		ImGui::EndTabBar();
-	}
-	 */
-}
-
-void PositionControlledMachine::deviceGui() {
-	/*
-	std::vector<std::shared_ptr<Device>> devices;
-	getDevices(devices);
-
-	auto deviceTabBar = [](std::shared_ptr<Device> device) {
-		ImGui::PushFont(Fonts::sansBold20);
-		ImGui::Text("%s", device->getName());
-		ImGui::PopFont();
-		if (ImGui::BeginTabBar(device->getName())) {
-			device->nodeSpecificGui();
-			ImGui::EndTabBar();
-		}
-	};
-
-	if (devices.size() == 1) deviceTabBar(devices.front());
-	else if (!devices.empty()) {
-		if (ImGui::BeginTabBar("DevicesTabBar")) {
-			for (auto& device : devices) {
-				if (ImGui::BeginTabItem(device->getName())) {
-					deviceTabBar(device);
-					ImGui::EndTabItem();
-				}
-			}
-			ImGui::EndTabBar();
-		}
-	}
-	 */
-}
-
-void PositionControlledMachine::metricsGui() {
-	/*
-	if (!isAxisConnected()) {
-		ImGui::Text("No Axis Connected");
-		return;
-	}
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-	axis->metricsGui();
-	 */
-}
+void PositionControlledMachine::metricsGui() {}
 
 
 
@@ -419,6 +168,9 @@ void PositionControlledMachine::ControlWidget::gui(){
 	machine->machineStateControlGui(widgetWidth);
 }
 
+
+//————————————————————————————————————————————— WIDGET GUI —————————————————————————————————————————————
+
 void PositionControlledMachine::widgetGui(){
 			
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
@@ -436,91 +188,105 @@ void PositionControlledMachine::widgetGui(){
 	glm::vec2 max = ImGui::GetItemRectMax();
 	glm::vec2 size = max - min;
 	ImDrawList* drawing = ImGui::GetWindowDrawList();
-	drawing->AddRectFilled(min, max, ImColor(Colors::darkGray));
 	
 	ImGui::PushClipRect(min, max, true);
 	
-	//draw keepout constraints
-	int keepoutConstraintCount = 0;
-	//count constraints to draw them side by side instead of stacking them
-	for(auto& constraint : animatablePosition->getConstraints()){
-		if(constraint->getType() == AnimationConstraint::Type::KEEPOUT) keepoutConstraintCount++;
+	if(getState() == MotionState::OFFLINE){
+		drawing->AddRectFilled(min, max, ImColor(Colors::blue));
+	}else{
+		
+		drawing->AddRectFilled(min, max, ImColor(Colors::darkGray));
+		
+		//draw keepout constraints
+		int keepoutConstraintCount = 0;
+		//count constraints to draw them side by side instead of stacking them
+		for(auto& constraint : animatablePosition->getConstraints()){
+			if(constraint->getType() == AnimationConstraint::Type::KEEPOUT) keepoutConstraintCount++;
+		}
+		float keepoutConstraintWidth = size.x / keepoutConstraintCount;
+		keepoutConstraintCount = 0;
+		for(auto& constraint : animatablePosition->getConstraints()){
+			int constraintX = min.x + keepoutConstraintCount * keepoutConstraintWidth;
+			if(constraint->getType() == AnimationConstraint::Type::KEEPOUT) keepoutConstraintCount++;
+			auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
+			double minKeepout = animatablePosition->normalizePosition(keepout->keepOutMinPosition);
+			double maxKeepout = animatablePosition->normalizePosition(keepout->keepOutMaxPosition);
+			double keepoutSize = maxKeepout - minKeepout;
+			glm::vec2 keepoutStartPos(constraintX, max.y - size.y * minKeepout);
+			glm::vec2 keepoutEndPos(constraintX + keepoutConstraintWidth, max.y - size.y * maxKeepout);
+			ImColor constraintColor;
+			if(!constraint->isEnabled()) constraintColor = ImColor(1.f, 1.f, 1.f, .2f);
+			else constraintColor = ImColor(1.f, 0.f, 0.f, .4f);
+			drawing->AddRectFilled(keepoutStartPos, keepoutEndPos, constraintColor);
+		}
+		
+		float lineThickness = ImGui::GetTextLineHeight() * .15f;
+		//draw rapid target
+		if(animatablePosition->isInRapid()){
+			float rapidTarget = animatablePosition->getRapidTarget()->toPosition()->position;
+			float rapidTargetNormalized = animatablePosition->normalizePosition(rapidTarget);
+			float height = max.y - (max.y - min.y) * rapidTargetNormalized;
+			ImColor targetColor = ImColor(Colors::yellow);
+			drawing->AddLine(glm::vec2(min.x, height), glm::vec2(max.x, height), targetColor, lineThickness);
+			float middleX = min.x + size.x * .5f;
+			float triangleSize = ImGui::GetTextLineHeight() * .4f;
+			drawing->AddTriangleFilled(glm::vec2(middleX, height),
+									   glm::vec2(middleX - triangleSize * .4f, height - triangleSize),
+									   glm::vec2(middleX + triangleSize * .4f, height - triangleSize),
+									   targetColor);
+			drawing->AddTriangleFilled(glm::vec2(middleX, height),
+									   glm::vec2(middleX + triangleSize * .4f, height + triangleSize),
+									   glm::vec2(middleX - triangleSize * .4f, height + triangleSize),
+									   targetColor);
+		}
+		
+		//draw braking position
+		float brakingPositionY = min.y + size.y - size.y * animatablePosition->normalizePosition(animatablePosition->getBrakingPosition());
+		float triangleSize = ImGui::GetTextLineHeight() * .75f;
+		ImColor brakingPositionColor = ImColor(1.f, 1.f, 1.f, .3f);
+		drawing->AddLine(glm::vec2(min.x, brakingPositionY), glm::vec2(max.x - triangleSize, brakingPositionY), brakingPositionColor, lineThickness);
+		drawing->AddTriangleFilled(glm::vec2(max.x, brakingPositionY),
+								   glm::vec2(max.x - triangleSize, brakingPositionY + triangleSize * .4f),
+								   glm::vec2(max.x - triangleSize, brakingPositionY - triangleSize * .4f),
+								   brakingPositionColor);
+		
+		//draw actual position
+		float axisPositionY = min.y + size.y - size.y * animatablePosition->getActualPositionNormalized();
+		drawing->AddLine(glm::vec2(min.x, axisPositionY), glm::vec2(max.x - triangleSize + 1.f, axisPositionY), ImColor(Colors::white), lineThickness);
+		drawing->AddTriangleFilled(glm::vec2(max.x, axisPositionY),
+								   glm::vec2(max.x - triangleSize, axisPositionY + triangleSize * .4f),
+								   glm::vec2(max.x - triangleSize, axisPositionY - triangleSize * .4f),
+								   ImColor(Colors::white));
+		
+		//draw current constraint limits
+		double minPositionLimit, maxPositionLimit;
+		animatablePosition->getConstraintPositionLimits(minPositionLimit, maxPositionLimit);
+		double minPosition = max.y - size.y * animatablePosition->normalizePosition(minPositionLimit);
+		double maxPosition = max.y - size.y * animatablePosition->normalizePosition(maxPositionLimit);
+		ImColor limitLineColor = ImColor(0.f, 0.f, 0.f, .4f);
+		float limitLineThickness = ImGui::GetTextLineHeight() * .05f;
+		drawing->AddLine(ImVec2(min.x, minPosition), ImVec2(max.x, minPosition), limitLineColor, limitLineThickness);
+		drawing->AddLine(ImVec2(min.x, maxPosition), ImVec2(max.x, maxPosition), limitLineColor, limitLineThickness);
+		
 	}
-	float keepoutConstraintWidth = size.x / keepoutConstraintCount;
-	keepoutConstraintCount = 0;
-	for(auto& constraint : animatablePosition->getConstraints()){
-		int constraintX = min.x + keepoutConstraintCount * keepoutConstraintWidth;
-		if(constraint->getType() == AnimationConstraint::Type::KEEPOUT) keepoutConstraintCount++;
-		auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
-		double minKeepout = animatablePosition->normalizePosition(keepout->keepOutMinPosition);
-		double maxKeepout = animatablePosition->normalizePosition(keepout->keepOutMaxPosition);
-		double keepoutSize = maxKeepout - minKeepout;
-		glm::vec2 keepoutStartPos(constraintX, max.y - size.y * minKeepout);
-		glm::vec2 keepoutEndPos(constraintX + keepoutConstraintWidth, max.y - size.y * maxKeepout);
-		ImColor constraintColor;
-		if(!constraint->isEnabled()) constraintColor = ImColor(1.f, 1.f, 1.f, .2f);
-		else constraintColor = ImColor(1.f, 0.f, 0.f, .4f);
-		drawing->AddRectFilled(keepoutStartPos, keepoutEndPos, constraintColor);
-	}
-	
-	float lineThickness = ImGui::GetTextLineHeight() * .15f;
-	//draw rapid target
-	if(animatablePosition->isInRapid()){
-		float rapidTarget = animatablePosition->getRapidTarget()->toPosition()->position;
-		float rapidTargetNormalized = animatablePosition->normalizePosition(rapidTarget);
-		float height = max.y - (max.y - min.y) * rapidTargetNormalized;
-		ImColor targetColor = ImColor(Colors::yellow);
-		drawing->AddLine(glm::vec2(min.x, height), glm::vec2(max.x, height), targetColor, lineThickness);
-		float middleX = min.x + size.x * .5f;
-		float triangleSize = ImGui::GetTextLineHeight() * .4f;
-		drawing->AddTriangleFilled(glm::vec2(middleX, height),
-								   glm::vec2(middleX - triangleSize * .4f, height - triangleSize),
-								   glm::vec2(middleX + triangleSize * .4f, height - triangleSize),
-								   targetColor);
-		drawing->AddTriangleFilled(glm::vec2(middleX, height),
-								   glm::vec2(middleX + triangleSize * .4f, height + triangleSize),
-								   glm::vec2(middleX - triangleSize * .4f, height + triangleSize),
-								   targetColor);
-	}
-	
-	//draw braking position
-	float brakingPositionY = min.y + size.y - size.y * animatablePosition->normalizePosition(animatablePosition->getBrakingPosition());
-	float triangleSize = ImGui::GetTextLineHeight() * .75f;
-	ImColor brakingPositionColor = ImColor(1.f, 1.f, 1.f, .3f);
-	drawing->AddLine(glm::vec2(min.x, brakingPositionY), glm::vec2(max.x - triangleSize, brakingPositionY), brakingPositionColor, lineThickness);
-	drawing->AddTriangleFilled(glm::vec2(max.x, brakingPositionY),
-							   glm::vec2(max.x - triangleSize, brakingPositionY + triangleSize * .4f),
-							   glm::vec2(max.x - triangleSize, brakingPositionY - triangleSize * .4f),
-							   brakingPositionColor);
-	
-	//draw actual position
-	float axisPositionY = min.y + size.y - size.y * animatablePosition->getActualPositionNormalized();
-	drawing->AddLine(glm::vec2(min.x, axisPositionY), glm::vec2(max.x - triangleSize + 1.f, axisPositionY), ImColor(Colors::white), lineThickness);
-	drawing->AddTriangleFilled(glm::vec2(max.x, axisPositionY),
-							   glm::vec2(max.x - triangleSize, axisPositionY + triangleSize * .4f),
-							   glm::vec2(max.x - triangleSize, axisPositionY - triangleSize * .4f),
-							   ImColor(Colors::white));
-	
-	//draw current constraint limits
-	double minPositionLimit, maxPositionLimit;
-	animatablePosition->getConstraintPositionLimits(minPositionLimit, maxPositionLimit);
-	double minPosition = max.y - size.y * animatablePosition->normalizePosition(minPositionLimit);
-	double maxPosition = max.y - size.y * animatablePosition->normalizePosition(maxPositionLimit);
-	ImColor limitLineColor = ImColor(0.f, 0.f, 0.f, .4f);
-	float limitLineThickness = ImGui::GetTextLineHeight() * .05f;
-	drawing->AddLine(ImVec2(min.x, minPosition), ImVec2(max.x, minPosition), limitLineColor, limitLineThickness);
-	drawing->AddLine(ImVec2(min.x, maxPosition), ImVec2(max.x, maxPosition), limitLineColor, limitLineThickness);
-
 	
 	ImGui::PopClipRect();
 	
 	//draw frame contour
-	float frameWidth = ImGui::GetTextLineHeight() * 0.05;
+	float frameWidth = ImGui::GetTextLineHeight() * 0.1f;
 	drawing->AddRect(min - glm::vec2(frameWidth * .5f), max + glm::vec2(frameWidth * .5f), ImColor(Colors::black), frameWidth, ImDrawFlags_RoundCornersAll, frameWidth);
 	
 	ImGui::EndDisabled();
 	ImGui::PopStyleVar();
 }
+
+
+
+
+
+
+//————————————————————————————————————————————— SETUP GUI —————————————————————————————————————————————
+
 
 void PositionControlledMachine::setupGui(){
 	
@@ -529,8 +295,6 @@ void PositionControlledMachine::setupGui(){
 		ImGui::Text("No Axis Connected.");
 		ImGui::PopStyleColor();
 	}
-	
-	ImGui::BeginGroup();
 	
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetStyle().ItemSpacing.y));
 	
@@ -558,11 +322,11 @@ void PositionControlledMachine::setupGui(){
 		if(ImGui::Button("Reset##UpperLimit")) resetUpperLimit();
 	}
 	
-	ImGui::EndGroup();
-	
 	if(allowUserZeroEdit->value || allowUserLowerLimitEdit->value || allowUserUpperLimitEdit->value){
 		
-		ImGui::InvisibleButton("rangedisplaysize", glm::vec2(ImGui::GetItemRectSize().x, ImGui::GetTextLineHeight() * 6.0));
+		float rangeDisplayWidth = ImGui::GetTextLineHeight() * 20.0;
+		float rangeDisplayHeight = ImGui::GetTextLineHeight() * 7.0;
+		ImGui::InvisibleButton("rangedisplaysize", glm::vec2(rangeDisplayWidth, rangeDisplayHeight));
 		
 		glm::vec2 min = ImGui::GetItemRectMin();
 		glm::vec2 max = ImGui::GetItemRectMax();
@@ -578,6 +342,7 @@ void PositionControlledMachine::setupGui(){
 		double minPosition = getMinPosition();
 		double lowerLimit = getLowerPositionLimit();
 		double upperLimit = getUpperPositionLimit();
+		double actualPosition = animatablePosition->getActualPosition();
 		
 		auto toRangedPositionX = [&](double position) -> double {
 			double normalized = (position - minPosition) / (maxPosition - minPosition);
@@ -588,39 +353,20 @@ void PositionControlledMachine::setupGui(){
 		glm::vec2 rangeRectMin(toRangedPositionX(lowerLimit), min.y);
 		glm::vec2 rangeRectMax(toRangedPositionX(upperLimit), max.y);
 		double zeroPositionX = toRangedPositionX(0.0);
-		double actualPositionX = toRangedPositionX(animatablePosition->getActualPosition());
+		double actualPositionX = toRangedPositionX(actualPosition);
 		
 		float rangeLineWidth = ImGui::GetTextLineHeight() * .1f;
 		drawing->AddRectFilled(rangeRectMin, rangeRectMax, ImColor(Colors::darkGreen));
 		drawing->AddLine(glm::vec2(rangeRectMin.x, min.y), glm::vec2(rangeRectMin.x, max.y), ImColor(Colors::green), rangeLineWidth);
 		drawing->AddLine(glm::vec2(rangeRectMax.x, min.y), glm::vec2(rangeRectMax.x, max.y), ImColor(Colors::green), rangeLineWidth);
-		drawing->AddLine(glm::vec2(zeroPositionX, min.y), glm::vec2(zeroPositionX, max.y), ImColor(0.f, 0.f, 1.f, 1.f), rangeLineWidth * 2.f);
-		drawing->AddLine(glm::vec2(actualPositionX, min.y), glm::vec2(actualPositionX, max.y), ImColor(1.f, 1.f, 1.f, 1.f), rangeLineWidth);
+		drawing->AddLine(glm::vec2(zeroPositionX, min.y), glm::vec2(zeroPositionX, max.y), ImColor(Colors::blue), rangeLineWidth * 2.f);
+		drawing->AddLine(glm::vec2(actualPositionX, min.y), glm::vec2(actualPositionX, max.y), ImColor(Colors::white), rangeLineWidth);
 		
 		static char rangeString[64];
 		glm::vec2 displayFramePadding(ImGui::GetTextLineHeight() * .1f, 0.0);
 		float frameRounding = ImGui::GetStyle().FrameRounding;
 		
-		bool b_hasLowerLimit = lowerPositionLimit->value != 0.0;
-		bool b_hasUpperLimit = upperPositionLimit->value != 0.0;
-		TextAlignement zeroTextAlignement;
-		ImDrawFlags zeroDrawFlags;
-		float zeroTextX;
-		if((b_hasLowerLimit && b_hasUpperLimit) || (!b_hasUpperLimit && !b_hasLowerLimit)) {
-			zeroTextAlignement = TextAlignement::MIDDLE_MIDDLE;
-			zeroDrawFlags = ImDrawFlags_RoundCornersAll;
-			zeroTextX = zeroPositionX;
-		}
-		else if(b_hasUpperLimit) {
-			zeroTextAlignement = TextAlignement::LEFT_MIDDLE;
-			zeroDrawFlags = ImDrawFlags_RoundCornersRight;
-			zeroTextX = zeroPositionX + rangeLineWidth * .5f;
-		}
-		else{
-			zeroTextAlignement = TextAlignement::RIGHT_MIDDLE;
-			zeroDrawFlags = ImDrawFlags_RoundCornersLeft;
-			zeroTextX = zeroPositionX - rangeLineWidth * .5f;
-		}
+		float heightPerItem = rangeDisplayHeight / 6.0;
 		
 		sprintf(rangeString, "Min position: %.3f%s", minPosition, positionUnit->abbreviated);
 		textAlignedBackground(rangeString,
@@ -639,36 +385,51 @@ void PositionControlledMachine::setupGui(){
 							  displayFramePadding,
 							  frameRounding,
 							  ImDrawFlags_RoundCornersTopLeft);
+	
 		
-		textAlignedBackground("Zero",
-							  glm::vec2(zeroTextX, min.y + size.y * .5f),
-							  zeroTextAlignement,
-							  ImVec4(.0f, .0f, .5f, .7f),
+		sprintf(rangeString, "Lower limit: %.3f%s", lowerLimit, positionUnit->abbreviated);
+		textAlignedBackground(rangeString,
+							  glm::vec2(rangeRectMin.x, min.y + heightPerItem * 1.f),
+							  TextAlignement::LEFT_TOP,
+							  ImVec4(0.f, .5f, 0.f, .7f),
 							  displayFramePadding,
 							  frameRounding,
-							  zeroDrawFlags);
+							  ImDrawFlags_RoundCornersRight);
 		
-		if(b_hasLowerLimit){
-			sprintf(rangeString, "Lower limit: %.3f%s", lowerLimit, positionUnit->abbreviated);
-			textAlignedBackground(rangeString,
-								  glm::vec2(rangeRectMin.x + rangeLineWidth * .5f, min.y + size.y * .3f),
-								  TextAlignement::LEFT_MIDDLE,
-								  ImVec4(0.f, .5f, 0.f, .7f),
-								  displayFramePadding,
-								  frameRounding,
-								  ImDrawFlags_RoundCornersRight);
-		}
 	
-		if(b_hasUpperLimit){
-			sprintf(rangeString, "Upper limit: %.3f%s", upperLimit, positionUnit->abbreviated);
-			textAlignedBackground(rangeString,
-								  glm::vec2(rangeRectMax.x - rangeLineWidth * .5f, min.y + size.y * .7f),
-								  TextAlignement::RIGHT_MIDDLE,
-								  ImVec4(0.f, .5f, 0.f, .7f),
-								  displayFramePadding,
-								  frameRounding,
-								  ImDrawFlags_RoundCornersLeft);
-		}
+		textAlignedBackground("Zero",
+							  glm::vec2(zeroPositionX, min.y + heightPerItem * 2.f),
+							  TextAlignement::MIDDLE_TOP,
+							  Colors::blue,
+							  displayFramePadding,
+							  frameRounding,
+							  ImDrawFlags_RoundCornersAll,
+							  true,
+							  min,
+							  max);
+		
+		sprintf(rangeString, "Position: %.3f%s", actualPosition, positionUnit->abbreviated);
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::black);
+		textAlignedBackground(rangeString,
+							  glm::vec2(actualPositionX, min.y + heightPerItem * 3.f),
+							  TextAlignement::MIDDLE_TOP,
+							  Colors::white,
+							  displayFramePadding,
+							  frameRounding,
+							  ImDrawFlags_RoundCornersAll,
+							  true,
+							  min,
+							  max);
+		ImGui::PopStyleColor();
+		
+		sprintf(rangeString, "Upper limit: %.3f%s", upperLimit, positionUnit->abbreviated);
+		textAlignedBackground(rangeString,
+							  glm::vec2(rangeRectMax.x, min.y + heightPerItem * 4.f),
+							  TextAlignement::RIGHT_TOP,
+							  Colors::green,
+							  displayFramePadding,
+							  frameRounding,
+							  ImDrawFlags_RoundCornersLeft);
 			
 		ImGui::PopClipRect();
 		

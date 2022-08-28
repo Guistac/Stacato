@@ -190,9 +190,11 @@ public:
 	class SsiEncoder : public PositionFeedbackDevice{
 	public:
 		SsiEncoder(std::shared_ptr<VIPA_050_1BS00> module) :
-		MotionDevice("Vipa Module SSI Encoder", Units::AngularDistance::Revolution),
-		PositionFeedbackDevice("Vipa Module SSI Encoder", Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE),
+		MotionDevice(Units::AngularDistance::Revolution),
+		PositionFeedbackDevice(Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE),
 		encoderModule(module){}
+		
+		virtual std::string getName() override { return std::string(encoderModule->parentBusCoupler->getName()) + " SSI Encoder"; };
 		
 		virtual std::string getStatusString() override { return ""; }
 		
@@ -210,7 +212,7 @@ public:
 	
 	std::shared_ptr<SsiEncoder> encoder;
 	
-	void onSetParentBusCoupler(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler);
+	void onSetParentBusCoupler(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler) override;
 	void updateEncoderWorkingRange();
 	void updateResetPinVisibility();
 	

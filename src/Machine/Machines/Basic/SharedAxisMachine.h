@@ -51,6 +51,8 @@ class SharedAxisMachine : public Machine{
 	
 	std::shared_ptr<AnimatablePosition_KeepoutConstraint> axis1AnticollisionConstraint;
 	std::shared_ptr<AnimatablePosition_KeepoutConstraint> axis2AnticollisionConstraint;
+	std::shared_ptr<AnimatablePosition_KeepoutConstraint> synchronousLowerKeepoutConstraint;
+	std::shared_ptr<AnimatablePosition_KeepoutConstraint> synchronousUpperKeepoutConstraint;
 		
 	virtual std::vector<std::shared_ptr<PositionControlledAxis>> getPositionControlledAxes() override {
 		std::vector<std::shared_ptr<PositionControlledAxis>> output;

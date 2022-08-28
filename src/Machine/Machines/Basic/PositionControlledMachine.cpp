@@ -36,21 +36,28 @@ void PositionControlledMachine::initialize() {
 	lowerPositionLimit->setEditCallback([this](std::shared_ptr<Parameter>){
 		if(lowerPositionLimit->value < getMinPosition()) lowerPositionLimit->overwrite(getMinPosition());
 		else if(lowerPositionLimit->value > 0.0) lowerPositionLimit->overwrite(0.0);
+		updateAnimatableParameters();
 	});
 	
 	upperPositionLimit->setEditCallback([this](std::shared_ptr<Parameter>){
 		if(upperPositionLimit->value > getMaxPosition()) upperPositionLimit->overwrite(getMaxPosition());
 		else if(upperPositionLimit->value < 0.0) upperPositionLimit->overwrite(0.0);
+		updateAnimatableParameters();
 	});
 	
 	invertAxis->setEditCallback([this](std::shared_ptr<Parameter>){
 		upperPositionLimit->onEdit();
 		lowerPositionLimit->onEdit();
+		updateAnimatableParameters();
 	});
 	
 	axisOffset->setEditCallback([this](std::shared_ptr<Parameter>){
+		auto axis = getAxis();
+		if(axisOffset->value < axis->getLowPositionLimit()) axisOffset->overwrite(axis->getLowPositionLimit());
+		if(axisOffset->value > axis->getHighPositionLimit()) axisOffset->overwrite(axis->getHighPositionLimit());
 		upperPositionLimit->onEdit();
 		lowerPositionLimit->onEdit();
+		updateAnimatableParameters();
 	});
 	
 }
@@ -109,7 +116,6 @@ void PositionControlledMachine::enableHardware() {
 }
 
 void PositionControlledMachine::disableHardware() {
-	//b_enabled = false;
 	state = MotionState::READY;
 	if (isAxisConnected()) getAxis()->disable();
 	onDisableHardware();
@@ -243,10 +249,6 @@ void PositionControlledMachine::outputProcess(){
 
 void PositionControlledMachine::simulateInputProcess() {
 	
-	if(strcmp(getName(), "Cost Jardin") == 0){
-		Logger::warn("AAAA");
-	}
-	
 	//update machine state
 	if(state == MotionState::ENABLED) { /* do nothing*/ }
 	else if(isAxisConnected()) state = MotionState::READY;
@@ -266,10 +268,6 @@ void PositionControlledMachine::simulateOutputProcess(){
 	if (!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 	 
-	if(strcmp(getName(), "Cost Jardin") == 0){
-		Logger::warn("AAAA");
-	}
-	
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
 	animatablePosition->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
@@ -292,13 +290,11 @@ double PositionControlledMachine::getMaxPosition(){
 }
 
 double PositionControlledMachine::getLowerPositionLimit(){
-	if(allowUserLowerLimitEdit->value) return lowerPositionLimit->value;
-	else return getMinPosition();
+	return lowerPositionLimit->value;
 }
 
 double PositionControlledMachine::getUpperPositionLimit(){
-	if(allowUserUpperLimitEdit->value) return upperPositionLimit->value;
-	else return getMaxPosition();
+	return upperPositionLimit->value;
 }
 
 
@@ -374,11 +370,15 @@ void PositionControlledMachine::updateAnimatableParameters(){
 		return;
 	}
 	auto axis = getAxis();
+	positionUnit = axis->getPositionUnit();
+	axisOffset->setUnit(positionUnit);
+	lowerPositionLimit->setUnit(positionUnit);
+	upperPositionLimit->setUnit(positionUnit);
 	animatablePosition->setUnit(axis->getPositionUnit());
 	animatablePosition->lowerPositionLimit = getLowerPositionLimit();
 	animatablePosition->upperPositionLimit = getUpperPositionLimit();
-	animatablePosition->velocityLimit = axisVelocityToMachineVelocity(axis->getVelocityLimit());
-	animatablePosition->accelerationLimit = axisAccelerationToMachineAcceleration(axis->getAccelerationLimit());
+	animatablePosition->velocityLimit = std::abs(axis->getVelocityLimit());
+	animatablePosition->accelerationLimit = std::abs(axis->getAccelerationLimit());
 }
 
 

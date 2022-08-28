@@ -14,7 +14,9 @@ public:
 	class VipaGpioDevice : public GpioDevice{
 	public:
 		
-		VipaGpioDevice(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler) : GpioDevice("VIPA Gpio"), coupler(busCoupler){}
+		VipaGpioDevice(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler) : GpioDevice(), coupler(busCoupler){}
+		
+		virtual std::string getName() override{ return std::string(coupler->getName()) + " Gpio"; };
 		
 		virtual std::string getStatusString() override{
 			return "";

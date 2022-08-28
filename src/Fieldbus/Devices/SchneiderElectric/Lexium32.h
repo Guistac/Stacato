@@ -15,9 +15,11 @@ public:
 	class LexiumServoMotor : public ServoActuatorDevice{
 	public:
 		LexiumServoMotor(std::shared_ptr<Lexium32> lexium32) :
-		MotionDevice("Lexium Servo Motor", Units::AngularDistance::Revolution),
-		ServoActuatorDevice("Lexium Servo Motor", Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE),
+		MotionDevice(Units::AngularDistance::Revolution),
+		ServoActuatorDevice(Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE),
 		drive(lexium32){}
+		
+		virtual std::string getName() override { return std::string(drive->getName()) + " Servo Motor"; };
 		
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
 		std::shared_ptr<Lexium32> drive;
@@ -32,8 +34,10 @@ public:
 	class LexiumGpio : public GpioDevice{
 	public:
 		LexiumGpio(std::shared_ptr<Lexium32> lexium32) :
-		GpioDevice("Lexium Gpio"),
+		GpioDevice(),
 		drive(lexium32){}
+		
+		virtual std::string getName() override { return std::string(drive->getName()) + " GPIO"; }
 		
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
 		std::shared_ptr<Lexium32> drive;
@@ -155,15 +159,21 @@ private:
 	}
 	
 	std::string getStatusString(){
-		if(!isConnected()) return "Device Offline";
-		else if(!b_motorVoltagePresent) return "Motor voltage is not present, check power connections.";
-		else if(b_hasFault){
-			if(b_faultNeedsRestart) return getErrorCodeString(_LastError) + "\nDrive Restart needed to reset fault.";
-			else return getErrorCodeString(_LastError) + "\nFault will be cleared when enabling.";
-		}else if(servoMotor->b_emergencyStopActive) return "STO Active";
-		else if(servoMotor->isHoldingBrakeReleased()) return "Motor holding brake is manually released";
-		else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) return "Drive Restart Needed.";
-		else return "No Issues";
+		std::string status;
+		if(!isConnected()) {
+			status = "Device is Offline.\n";
+			return status;
+		}
+		if(!b_motorVoltagePresent) status += "Motor voltage is not present, check power connections.\n";
+		if(b_hasFault){
+			status += "Fault : ";
+			if(b_faultNeedsRestart) status += getErrorCodeString(_LastError) + "(Drive Restart needed to reset fault.)\n";
+			else status += getErrorCodeString(_LastError) + "(Fault will be cleared when enabling.)\n";
+		}
+		if(servoMotor->b_emergencyStopActive) return "STO is Active\n";
+		if(servoMotor->isHoldingBrakeReleased()) return "Motor holding brake is manually released.\n";
+		if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) return "Drive Restart Needed.\n";
+		return status;
 	}
 	
 	std::string getShortStatusString(){

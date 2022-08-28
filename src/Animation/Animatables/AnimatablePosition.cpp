@@ -330,7 +330,7 @@ void AnimatablePosition::onPlaybackEnd(){}
 
 
 void AnimatablePosition::setVelocityTarget(double velocityTarget){
-	velocitySetpoint = std::clamp(velocityTarget, -velocityLimit, velocityLimit);
+	velocitySetpoint = std::clamp(velocityTarget, -std::abs(velocityLimit), std::abs(velocityLimit));
 	positionSetpoint = 0.0;
 	accelerationSetpoint = 0.0;
 	controlMode = VELOCITY_SETPOINT;

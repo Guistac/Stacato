@@ -115,6 +115,7 @@ void textAlignedBackground(const char* txt,
 						   ImVec4 backgroundColor,
 						   ImVec2 padding = ImGui::GetStyle().FramePadding,
 						   float rounding = ImGui::GetStyle().FrameRounding,
-						   ImDrawFlags drawFlags = ImDrawFlags_RoundCornersAll/*,
+						   ImDrawFlags drawFlags = ImDrawFlags_RoundCornersAll,
+						   bool restrictToBounds = false,
 						   ImVec2 minBounding = ImVec2(FLT_MIN, FLT_MIN),
-						   ImVec2 maxBounding = ImVec2(FLT_MAX, FLT_MAX)*/);
+						   ImVec2 maxBounding = ImVec2(FLT_MAX, FLT_MAX));

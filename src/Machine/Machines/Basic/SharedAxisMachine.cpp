@@ -123,6 +123,10 @@ void SharedAxisMachine::addConstraints(){
 	axis2AnticollisionConstraint = std::make_shared<AnimatablePosition_KeepoutConstraint>("anti collision", 0.0, 0.0);
 	axis1Animatable->addConstraint(axis1AnticollisionConstraint);
 	axis2Animatable->addConstraint(axis2AnticollisionConstraint);
+	synchronousLowerKeepoutConstraint = std::make_shared<AnimatablePosition_KeepoutConstraint>("Lower Synchronized Limit", 0.0, 0.0);
+	synchronousUpperKeepoutConstraint = std::make_shared<AnimatablePosition_KeepoutConstraint>("Upper Synchronized Limit", 0.0, 0.0);
+	synchronizedAnimatable->addConstraint(synchronousLowerKeepoutConstraint);
+	synchronizedAnimatable->addConstraint(synchronousUpperKeepoutConstraint);
 }
 
 
@@ -225,24 +229,45 @@ void SharedAxisMachine::onDisableSimulation() {
 
 std::string SharedAxisMachine::getStatusString(){
 	std::string output;
-	if(b_halted){
-		output = "Machine is Halted";
-		return output;
-	}
 	switch(state){
 		case MotionState::OFFLINE:
-			if(!areAxesConnected()) return std::string(getName()) + " is Offline : axes not connected";
-			if(!axesHaveSamePositionUnit()) return std::string(getName()) + " is Offline : axe don't have the same position unit";
-			if(getAxis1()->getState() == MotionState::OFFLINE) output += "Axis 1 {} is Offline : " + getAxis1()->getStatusString() + "\n";
-			if(getAxis2()->getState() == MotionState::OFFLINE) output += "Axis 2 {} is Offline : " + getAxis2()->getStatusString() + "\n";
+			output = "Machine is Offline:\n";
+			if(!areAxesConnected()) {
+				output += "Axes are not connected.\n";
+				return output;
+			}
+			if(!axesHaveSamePositionUnit()) {
+				output += "Axes don't have the same position unit.\n";
+				return output;
+			}
+			if(getAxis1()->getState() == MotionState::OFFLINE)
+				output += "Axis 1 \"" + std::string(getAxis1()->getName()) + "\" is Offline :\n" + getAxis1()->getStatusString() + "\n";
+			if(getAxis2()->getState() == MotionState::OFFLINE)
+				output += "Axis 2 \"" + std::string(getAxis2()->getName()) + "\" is Offline :\n" + getAxis2()->getStatusString() + "\n";
 			return output;
 		case MotionState::NOT_READY:
-			output = std::string(getName()) + " is not ready\n";
-			if(getAxis1()->getState() == MotionState::NOT_READY) output += "Axis 1 {} is not ready : " + getAxis1()->getStatusString() + "\n";
-			if(getAxis2()->getState() == MotionState::NOT_READY) output += "Axis 2 {} is not ready : " + getAxis2()->getStatusString() + "\n";
+			output = "Machine is Not Ready :";
+			if(getAxis1()->getState() == MotionState::NOT_READY)
+				output += "Axis 1 \"" + std::string(getAxis1()->getName()) + "\" is Not Ready :\n" + getAxis1()->getStatusString() + "\n";
+			if(getAxis2()->getState() == MotionState::NOT_READY)
+				output += "Axis 2 \"" + std::string(getAxis2()->getName()) + "\" is Not Ready :\n" + getAxis2()->getStatusString() + "\n";
 			return output;
-		case MotionState::READY: return std::string(getName()) + " is Not Enabled";
-		case MotionState::ENABLED: return std::string(getName()) + " is Enabled";
+		case MotionState::READY:
+			output = "Machine is Ready.\n";
+			return output;
+		case MotionState::ENABLED:
+			output = "Machine is Enabled.\n";
+			if(b_halted){
+				if(!isSimulating()){
+					if(!isMotionAllowed()){
+						for(auto connectedDeadMansSwitchPin : deadMansSwitchPin->getConnectedPins()){
+							auto deadMansSwitch = connectedDeadMansSwitchPin->getSharedPointer<DeadMansSwitch>();
+							output += "\nMovement is prohibited by Dead Mans Switch \"" + std::string(deadMansSwitch->getName()) + "\"\n";
+						}
+					}
+				}
+			}
+			return output;
 	}
 }
 
@@ -311,33 +336,38 @@ void SharedAxisMachine::inputProcess() {
 	axis2Animatable->upperPositionLimit = axis2PositionToMachinePosition(axis2->getHighPositionLimit());
 	if(invertAxis2->value) std::swap(axis2Animatable->lowerPositionLimit, axis2Animatable->upperPositionLimit); //swap limits if the axis is inverted
 	
-	/*
-	 //TODO: add constraints to the synchronized animatable
+	
 	if(enableSynchronousControl->value){
 		double axis1Position = axis1Animatable->getActualPosition();
 		double axis2Position = axis2Animatable->getActualPosition();
 		double positionDifference = std::abs(axis1Position - axis2Position);
+		double infinity = std::numeric_limits<double>::infinity();
 		if(axis1isMaster->value){
 			if(axis1Position < axis2Position) {
-				synchronizedAnimatable->lowerPositionLimit = axis1Animatable->lowerPositionLimit;
-				synchronizedAnimatable->upperPositionLimit = axis1Animatable->upperPositionLimit - positionDifference;
+				synchronousLowerKeepoutConstraint->adjust(-infinity, axis1Animatable->lowerPositionLimit);
+				synchronousUpperKeepoutConstraint->adjust(axis1Animatable->upperPositionLimit - positionDifference, infinity);
 			}
 			else{
-				synchronizedAnimatable->lowerPositionLimit = axis1Animatable->lowerPositionLimit + positionDifference;
-				synchronizedAnimatable->upperPositionLimit = axis1Animatable->upperPositionLimit;
+				synchronousLowerKeepoutConstraint->adjust(-infinity, axis1Animatable->lowerPositionLimit + positionDifference);
+				synchronousUpperKeepoutConstraint->adjust(axis1Animatable->upperPositionLimit, infinity);
 			}
 		}else{
 			if(axis2Position < axis1Position) {
-				synchronizedAnimatable->lowerPositionLimit = axis2Animatable->lowerPositionLimit;
-				synchronizedAnimatable->upperPositionLimit = axis2Animatable->upperPositionLimit - positionDifference;
+				synchronousLowerKeepoutConstraint->adjust(-infinity, axis2Animatable->lowerPositionLimit);
+				synchronousUpperKeepoutConstraint->adjust(axis2Animatable->upperPositionLimit - positionDifference, infinity);
 			}
 			else{
-				synchronizedAnimatable->lowerPositionLimit = axis2Animatable->lowerPositionLimit + positionDifference;
-				synchronizedAnimatable->upperPositionLimit = axis2Animatable->upperPositionLimit;
+				synchronousLowerKeepoutConstraint->adjust(-infinity, axis2Animatable->lowerPositionLimit + positionDifference);
+				synchronousUpperKeepoutConstraint->adjust(axis2Animatable->upperPositionLimit, infinity);
 			}
 		}
+		synchronousLowerKeepoutConstraint->enable();
+		synchronousUpperKeepoutConstraint->enable();
+	}else{
+		synchronousLowerKeepoutConstraint->disable();
+		synchronousUpperKeepoutConstraint->disable();
 	}
-	 */
+	
 	
 	if(enableAntiCollision->value){
 		if(axis1isAboveAxis2->value){

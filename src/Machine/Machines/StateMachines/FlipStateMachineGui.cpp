@@ -139,71 +139,86 @@ void FlipStateMachine::widgetGui(){
 	
 	machineHeaderGui(contentSize.x);
 		
+	if(getState() == MotionState::OFFLINE){
+		ImDrawList* drawing = ImGui::GetWindowDrawList();
+		float rounding = ImGui::GetStyle().FrameRounding;
+		for(int i = 0; i < 4; i++){
+			ImGui::InvisibleButton("nope", commandButtonSize);
+			drawing->AddRectFilled(ImGui::GetItemRectMin(),
+								   ImGui::GetItemRectMax(),
+								   ImColor(Colors::blue),
+								   rounding,
+								   ImDrawFlags_RoundCornersAll);
+		}
+	}else{
+	
 	ImGui::BeginDisabled(!isEnabled() || b_halted);
 
-	switch (actualState) {
-		case State::CLOSED:
-			if (ImGui::Button("Open & Raise", commandButtonSize)) requestState(State::RAISED);
-			if (ImGui::Button("Open", commandButtonSize)) requestState(State::OPEN_LOWERED);
-			ImGui::BeginDisabled();
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-			ImGui::Button("Lowered & Shut", commandButtonSize);
-			ImGui::PopStyleColor();
-			ImGui::EndDisabled();
-			break;
-		case State::OPENING_CLOSING:
-			if (ImGui::Button("Open & Raise", commandButtonSize)) requestState(State::RAISED);
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-			if (ImGui::Button("Open", commandButtonSize)) requestState(State::OPEN_LOWERED);
-			if (ImGui::Button("Shut", commandButtonSize)) requestState(State::CLOSED);
-			ImGui::PopStyleColor();
-			break;
-		case State::OPEN_LOWERED:
-			if (ImGui::Button("Raise", commandButtonSize)) requestState(State::RAISED);
-			ImGui::BeginDisabled();
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-			ImGui::Button("Open & Lowered", commandButtonSize);
-			ImGui::PopStyleColor();
-			ImGui::EndDisabled();
-			if (ImGui::Button("Shut", commandButtonSize)) requestState(State::CLOSED);
-			break;
-		case State::LOWERING_RAISING:
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-			if (ImGui::Button("Raise", commandButtonSize)) requestState(State::RAISED);
-			if (ImGui::Button("Lower", commandButtonSize)) requestState(State::OPEN_LOWERED);
-			ImGui::PopStyleColor();
-			if (ImGui::Button("Lower & Shut", commandButtonSize)) requestState(State::CLOSED);
-			break;
-		case State::RAISED:
-			ImGui::BeginDisabled();
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-			ImGui::Button("Open & Raised", commandButtonSize);
-			ImGui::PopStyleColor();
-			ImGui::EndDisabled();
-			if (ImGui::Button("Lower", commandButtonSize)) requestState(State::OPEN_LOWERED);
-			if (ImGui::Button("Lower & Shut", commandButtonSize)) requestState(State::CLOSED);
-			break;
-		default:
-			ImGui::BeginDisabled();
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkYellow);
-			ImGui::Button("##", commandButtonSize);
-			ImGui::Button("Unknown State", commandButtonSize);
-			ImGui::Button("##", commandButtonSize);
-			ImGui::PopStyleColor();
-			ImGui::EndDisabled();
-			break;
-	}
-	
-	if(b_halted) {
-		ImGui::PushFont(Fonts::sansBold15);
-		backgroundText("STOPPED", commandButtonSize, Colors::red, Colors::black);
-		ImGui::PopFont();
-	}
-	else{
-		if(ImGui::Button("STOP", commandButtonSize)) requestState(State::STOPPED);
+		switch (actualState) {
+			case State::CLOSED:
+				if (ImGui::Button("Open & Raise", commandButtonSize)) requestState(State::RAISED);
+				if (ImGui::Button("Open", commandButtonSize)) requestState(State::OPEN_LOWERED);
+				ImGui::BeginDisabled();
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+				ImGui::Button("Lowered & Shut", commandButtonSize);
+				ImGui::PopStyleColor();
+				ImGui::EndDisabled();
+				break;
+			case State::OPENING_CLOSING:
+				if (ImGui::Button("Open & Raise", commandButtonSize)) requestState(State::RAISED);
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+				if (ImGui::Button("Open", commandButtonSize)) requestState(State::OPEN_LOWERED);
+				if (ImGui::Button("Shut", commandButtonSize)) requestState(State::CLOSED);
+				ImGui::PopStyleColor();
+				break;
+			case State::OPEN_LOWERED:
+				if (ImGui::Button("Raise", commandButtonSize)) requestState(State::RAISED);
+				ImGui::BeginDisabled();
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+				ImGui::Button("Open & Lowered", commandButtonSize);
+				ImGui::PopStyleColor();
+				ImGui::EndDisabled();
+				if (ImGui::Button("Shut", commandButtonSize)) requestState(State::CLOSED);
+				break;
+			case State::LOWERING_RAISING:
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
+				if (ImGui::Button("Raise", commandButtonSize)) requestState(State::RAISED);
+				if (ImGui::Button("Lower", commandButtonSize)) requestState(State::OPEN_LOWERED);
+				ImGui::PopStyleColor();
+				if (ImGui::Button("Lower & Shut", commandButtonSize)) requestState(State::CLOSED);
+				break;
+			case State::RAISED:
+				ImGui::BeginDisabled();
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+				ImGui::Button("Open & Raised", commandButtonSize);
+				ImGui::PopStyleColor();
+				ImGui::EndDisabled();
+				if (ImGui::Button("Lower", commandButtonSize)) requestState(State::OPEN_LOWERED);
+				if (ImGui::Button("Lower & Shut", commandButtonSize)) requestState(State::CLOSED);
+				break;
+			default:
+				ImGui::BeginDisabled();
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkYellow);
+				ImGui::Button("##", commandButtonSize);
+				ImGui::Button("Unknown State", commandButtonSize);
+				ImGui::Button("##", commandButtonSize);
+				ImGui::PopStyleColor();
+				ImGui::EndDisabled();
+				break;
+		}
+		
+		if(b_halted) {
+			ImGui::PushFont(Fonts::sansBold15);
+			backgroundText("STOPPED", commandButtonSize, Colors::red, Colors::black);
+			ImGui::PopFont();
+		}
+		else{
+			if(ImGui::Button("STOP", commandButtonSize)) requestState(State::STOPPED);
+		}
+			
+		ImGui::EndDisabled();
+
 	}
 		
-	ImGui::EndDisabled();
-
 	machineStateControlGui(contentSize.x);
 }

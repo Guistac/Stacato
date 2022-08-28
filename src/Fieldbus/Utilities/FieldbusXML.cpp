@@ -43,8 +43,8 @@ namespace EtherCatFieldbus {
 		if (!networkInterfaceCardXML) return Logger::warn("Could not load Network Interface Card Attribute");
 		XMLElement* primaryNicXML = networkInterfaceCardXML->FirstChildElement("Primary");
 		if (primaryNicXML){
-			const char* primaryNicDescription;
-			const char* redundantNicDescription;
+			const char* primaryNicDescription = "";
+			const char* redundantNicDescription = "";
 			if (primaryNicXML->QueryStringAttribute("Description", &primaryNicDescription) != XML_SUCCESS) return Logger::warn("Could not read primary NIC description");
 			XMLElement* redundantNicXML = networkInterfaceCardXML->FirstChildElement("Redundant");
 			bool hasRedundantNic = redundantNicXML != nullptr;

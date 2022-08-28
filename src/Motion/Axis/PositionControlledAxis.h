@@ -22,6 +22,7 @@ private:
 	std::shared_ptr<bool> highLimitSignal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> referenceSignal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> surveillanceValidInputSignal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> externalSurveillanceFaultResetSignal = std::make_shared<bool>(false);
 	
 	std::shared_ptr<NodePin> servoActuatorPin = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR,
 																		  NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
@@ -44,6 +45,10 @@ private:
 	std::shared_ptr<NodePin> surveillanceFeedbackDevicePin = std::make_shared<NodePin>(NodePin::DataType::POSITION_FEEDBACK,
 																					   NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
 																					   "Surveillance Feedback Device", "SurveillanceFeedbackDevice");
+	std::shared_ptr<NodePin> externalSurveillanceFaultResetPin = std::make_shared<NodePin>(externalSurveillanceFaultResetSignal,
+																						   NodePin::Direction::NODE_INPUT,
+																						   "External Surveillance Fault Reset", "ExternalSurveillanceFaultReset");
+	
 	
 	//Outputs
 	std::shared_ptr<double> actualPositionValue = std::make_shared<double>(0.0);

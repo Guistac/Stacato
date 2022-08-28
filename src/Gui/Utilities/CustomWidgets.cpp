@@ -1033,9 +1033,10 @@ void textAlignedBackground(const char* txt,
 						   ImVec4 backgroundColor,
 						   ImVec2 padding,
 						   float rounding,
-						   ImDrawFlags drawFlags/*,
+						   ImDrawFlags drawFlags,
+						   bool restrictToBounds,
 						   ImVec2 minBounding,
-						   ImVec2 maxBounding*/){
+						   ImVec2 maxBounding){
 	
 	if(txt == nullptr) return;
 	ImVec2 textSize = ImGui::CalcTextSize(txt);
@@ -1077,12 +1078,12 @@ void textAlignedBackground(const char* txt,
 			break;
 	}
 	
-	/*
-	boxPositionMin.x = std::max(boxPositionMin.x, minBounding.x);
-	boxPositionMin.y = std::max(boxPositionMin.y, minBounding.y);
-	boxPositionMin.x = std::min(boxPositionMin.x, maxBounding.x - boxSize.x);
-	boxPositionMin.y = std::min(boxPositionMin.y, maxBounding.y - boxSize.y);
-	*/
+	if(restrictToBounds){
+		boxPositionMin.x = std::max(boxPositionMin.x, minBounding.x);
+		boxPositionMin.y = std::max(boxPositionMin.y, minBounding.y);
+		boxPositionMin.x = std::min(boxPositionMin.x, maxBounding.x - boxSize.x);
+		boxPositionMin.y = std::min(boxPositionMin.y, maxBounding.y - boxSize.y);
+	}
 	 
 	ImVec2 textPosition = ImVec2(boxPositionMin.x + padding.x, boxPositionMin.y + padding.y);
 	ImVec2 boxPositionMax = ImVec2(boxPositionMin.x + boxSize.x, boxPositionMin.y + boxSize.y);

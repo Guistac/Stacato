@@ -1,41 +1,43 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.67964441" OffsetX="1348.7061" OffsetY="-742.57904" AutoFit="false" DrawGrid="false" LockEdit="true">
-        <Widget UniqueID="9" PositionX="-652.81342" PositionY="1040.4219" SizeX="136.49995" SizeY="224.73911"/>
-        <Widget UniqueID="10" PositionX="-511.84393" PositionY="1040.1384" SizeX="136.5" SizeY="225.02257"/>
-        <Widget UniqueID="11" PositionX="-371.27451" PositionY="1040.2067" SizeX="136.5" SizeY="224.95436"/>
-        <Widget UniqueID="13" PositionX="-230.65863" PositionY="1040.0215" SizeX="136.5" SizeY="225.13954"/>
-        <Widget UniqueID="14" PositionX="-88.808937" PositionY="1040.0364" SizeX="136.5" SizeY="225.12463"/>
-        <Widget UniqueID="17" PositionX="-653.34827" PositionY="1274.1514" SizeX="136.5" SizeY="224.95554"/>
-        <Widget UniqueID="16" PositionX="-795.49127" PositionY="1275.2416" SizeX="136.5" SizeY="225.33667"/>
-        <Widget UniqueID="24" PositionX="-652.64099" PositionY="1506.7328" SizeX="136.49995" SizeY="224.84862"/>
-        <Widget UniqueID="23" PositionX="-794.46912" PositionY="1507.3511" SizeX="136.5" SizeY="224.23041"/>
-        <Widget UniqueID="28" PositionX="-651.83557" PositionY="1739.0879" SizeX="136.5" SizeY="224.96806"/>
-        <Widget UniqueID="27" PositionX="-791.93939" PositionY="1740.1664" SizeX="136.5" SizeY="225.36096"/>
-        <Widget UniqueID="30" PositionX="-370.67603" PositionY="1739.9727" SizeX="136.5" SizeY="224.08331"/>
-        <Widget UniqueID="31" PositionX="-229.61481" PositionY="1737.7467" SizeX="136.5" SizeY="224.83794"/>
-        <Widget UniqueID="21" PositionX="-88.81189" PositionY="1272.7566" SizeX="136.5" SizeY="224.87894"/>
-        <Widget UniqueID="22" PositionX="51.716507" PositionY="1271.6578" SizeX="136.5" SizeY="224.50633"/>
-        <Widget UniqueID="25" PositionX="-88.987442" PositionY="1504.2604" SizeX="136.5" SizeY="224.37831"/>
-        <Widget UniqueID="26" PositionX="53.254128" PositionY="1503.6096" SizeX="136.5" SizeY="225.02913"/>
-        <Widget UniqueID="32" PositionX="-88.544571" PositionY="1737.0758" SizeX="136.5" SizeY="224.03741"/>
-        <Widget UniqueID="33" PositionX="53.674908" PositionY="1736.2141" SizeX="136.50009" SizeY="224.89909"/>
-        <Widget UniqueID="44" PositionX="198.06793" PositionY="1110.0645" SizeX="354.52936" SizeY="234.54994"/>
-        <Widget UniqueID="45" PositionX="195.27682" PositionY="1350.4137" SizeX="134.4001" SizeY="392.93857"/>
-        <Widget UniqueID="46" PositionX="335.62778" PositionY="1350.7721" SizeX="134.4001" SizeY="392.58017"/>
-        <Widget UniqueID="8" PositionX="194.66762" PositionY="1753.9629" SizeX="220.50002" SizeY="83.556351"/>
-        <Widget UniqueID="6" PositionX="-394.31586" PositionY="926.55591" SizeX="178.49997" SizeY="109.07331"/>
-        <Widget UniqueID="7" PositionX="-212.32896" PositionY="926.4234" SizeX="178.49997" SizeY="107.73446"/>
-        <Widget UniqueID="50" PositionX="-575.86475" PositionY="926.95789" SizeX="178.49997" SizeY="108.67133"/>
-        <Widget UniqueID="4" PositionX="-393.70471" PositionY="812.97644" SizeX="178.49997" SizeY="107.88688"/>
-        <Widget UniqueID="5" PositionX="-211.63933" PositionY="813.1814" SizeX="178.49997" SizeY="107.68192"/>
-        <Widget UniqueID="52" PositionX="-564.54907" PositionY="813.92883" SizeX="157.49998" SizeY="108.40584"/>
-        <Widget UniqueID="43" PositionX="53.643806" PositionY="870.625" SizeX="134.39992" SizeY="393.06467"/>
-        <Widget UniqueID="29" PositionX="-510.63412" PositionY="1740.1003" SizeX="136.5" SizeY="223.95561"/>
-        <Widget UniqueID="41" PositionX="-501.72205" PositionY="1292.1743" SizeX="406.34988" SizeY="424.69351"/>
-        <Widget UniqueID="40" PositionX="-1152.1776" PositionY="1749.3086" SizeX="354.52933" SizeY="235.34642"/>
-        <Widget UniqueID="39" PositionX="-1153.8765" PositionY="1516.8042" SizeX="354.5293" SizeY="235.37624"/>
-        <Widget UniqueID="38" PositionX="-1152.693" PositionY="1275.7877" SizeX="354.52933" SizeY="235.09003"/>
-        <Widget UniqueID="42" PositionX="-793.36591" PositionY="873.50763" SizeX="134.39996" SizeY="391.65338"/>
+    <Dashboard Scale="0.69907671" OffsetX="1266.7944" OffsetY="-747.96216" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget UniqueID="9" PositionX="-652.81342" PositionY="1040.4219" SizeX="136.49997" SizeY="227.04655"/>
+        <Widget UniqueID="10" PositionX="-511.84393" PositionY="1040.1384" SizeX="136.50002" SizeY="225.8996"/>
+        <Widget UniqueID="11" PositionX="-371.27451" PositionY="1040.2067" SizeX="136.50002" SizeY="227.26178"/>
+        <Widget UniqueID="13" PositionX="-230.65863" PositionY="1040.0215" SizeX="136.50002" SizeY="226.01649"/>
+        <Widget UniqueID="14" PositionX="-88.808937" PositionY="1040.0364" SizeX="136.50002" SizeY="226.00165"/>
+        <Widget UniqueID="17" PositionX="-653.34827" PositionY="1274.1514" SizeX="136.49997" SizeY="226.48181"/>
+        <Widget UniqueID="16" PositionX="-795.49127" PositionY="1275.2416" SizeX="136.50002" SizeY="226.82205"/>
+        <Widget UniqueID="24" PositionX="-652.64099" PositionY="1506.7328" SizeX="136.49997" SizeY="227.06502"/>
+        <Widget UniqueID="23" PositionX="-794.46912" PositionY="1507.3511" SizeX="136.49997" SizeY="226.44679"/>
+        <Widget UniqueID="28" PositionX="-651.83557" PositionY="1739.0879" SizeX="136.49997" SizeY="226.44417"/>
+        <Widget UniqueID="27" PositionX="-791.93939" PositionY="1740.1664" SizeX="136.49997" SizeY="226.79611"/>
+        <Widget UniqueID="30" PositionX="-370.67603" PositionY="1739.9727" SizeX="136.50002" SizeY="226.98985"/>
+        <Widget UniqueID="31" PositionX="-229.61481" PositionY="1737.7467" SizeX="136.50002" SizeY="226.35495"/>
+        <Widget UniqueID="21" PositionX="-88.81189" PositionY="1272.7566" SizeX="136.50002" SizeY="226.44609"/>
+        <Widget UniqueID="22" PositionX="51.716507" PositionY="1271.6578" SizeX="136.50002" SizeY="226.11441"/>
+        <Widget UniqueID="25" PositionX="-88.987442" PositionY="1504.2604" SizeX="136.50002" SizeY="226.67659"/>
+        <Widget UniqueID="26" PositionX="53.254128" PositionY="1503.6096" SizeX="136.50002" SizeY="225.89684"/>
+        <Widget UniqueID="32" PositionX="-88.544571" PositionY="1737.0758" SizeX="136.50002" SizeY="227.02582"/>
+        <Widget UniqueID="33" PositionX="53.674908" PositionY="1736.2141" SizeX="136.50002" SizeY="226.45702"/>
+        <Widget UniqueID="6" PositionX="-394.31586" PositionY="926.55591" SizeX="178.49998" SizeY="109.17832"/>
+        <Widget UniqueID="7" PositionX="-212.32896" PositionY="926.4234" SizeX="178.49998" SizeY="109.31083"/>
+        <Widget UniqueID="50" PositionX="-575.86475" PositionY="926.95789" SizeX="178.50003" SizeY="108.77635"/>
+        <Widget UniqueID="4" PositionX="-393.70471" PositionY="812.97644" SizeX="178.49998" SizeY="109.75163"/>
+        <Widget UniqueID="5" PositionX="-211.63933" PositionY="813.1814" SizeX="178.49998" SizeY="109.54667"/>
+        <Widget UniqueID="52" PositionX="-564.54907" PositionY="813.92883" SizeX="157.49995" SizeY="108.79922"/>
+        <Widget UniqueID="43" PositionX="53.643806" PositionY="870.625" SizeX="134.3999" SizeY="395.41302"/>
+        <Widget UniqueID="29" PositionX="-510.63412" PositionY="1740.1003" SizeX="136.50002" SizeY="226.86221"/>
+        <Widget UniqueID="41" PositionX="-501.72205" PositionY="1292.1743" SizeX="406.34995" SizeY="415.87527"/>
+        <Widget UniqueID="40" PositionX="-1152.1776" PositionY="1749.3086" SizeX="354.84015" SizeY="233.38902"/>
+        <Widget UniqueID="39" PositionX="-1153.8765" PositionY="1516.8042" SizeX="354.84018" SizeY="234.15916"/>
+        <Widget UniqueID="38" PositionX="-1152.693" PositionY="1275.7877" SizeX="354.84015" SizeY="233.42818"/>
+        <Widget UniqueID="42" PositionX="-793.36591" PositionY="873.50763" SizeX="134.40004" SizeY="395.3913"/>
+        <Widget UniqueID="44" PositionX="196.47096" PositionY="1031.8135" SizeX="354.84036" SizeY="234.22452"/>
+        <Widget UniqueID="46" PositionX="369.47369" PositionY="1274.7238" SizeX="134.40016" SizeY="394.70349"/>
+        <Widget UniqueID="45" PositionX="212.02284" PositionY="1274.2886" SizeX="134.40016" SizeY="395.13867"/>
+        <Widget UniqueID="53" PositionX="198.91855" PositionY="1679.4498" SizeX="157.5" SizeY="108.70544"/>
+        <Widget UniqueID="54" PositionX="360.25906" PositionY="1680.7245" SizeX="157.5" SizeY="108.86119"/>
+        <Widget UniqueID="8" PositionX="251.08545" PositionY="1794.3149" SizeX="220.50006" SizeY="83.959229"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -392,6 +394,7 @@
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="678" Visible="false"/>
                     <InputPin SaveString="SurveillanceValidInput" DisplayString="Surveillance Valid Input" DataType="Boolean" UniqueID="679" Visible="true"/>
                     <InputPin SaveString="SurveillanceFeedbackDevice" DisplayString="Surveillance Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="680" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="ExternalSurveillanceFaultReset" DisplayString="External Surveillance Fault Reset" DataType="Boolean" UniqueID="121" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="681" Visible="true"/>
@@ -430,6 +433,7 @@
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="740" Visible="false"/>
                     <InputPin SaveString="SurveillanceValidInput" DisplayString="Surveillance Valid Input" DataType="Boolean" UniqueID="741" Visible="true"/>
                     <InputPin SaveString="SurveillanceFeedbackDevice" DisplayString="Surveillance Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="742" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="ExternalSurveillanceFaultReset" DisplayString="External Surveillance Fault Reset" DataType="Boolean" UniqueID="137" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="743" Visible="true"/>
@@ -1561,6 +1565,7 @@
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="1421" Visible="true"/>
                     <InputPin SaveString="SurveillanceValidInput" DisplayString="Surveillance Valid Input" DataType="Boolean" UniqueID="1422" Visible="false"/>
                     <InputPin SaveString="SurveillanceFeedbackDevice" DisplayString="Surveillance Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="1423" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="ExternalSurveillanceFaultReset" DisplayString="External Surveillance Fault Reset" DataType="Boolean" UniqueID="593" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="1424" Visible="false"/>
@@ -1589,6 +1594,7 @@
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="1435" Visible="true"/>
                     <InputPin SaveString="SurveillanceValidInput" DisplayString="Surveillance Valid Input" DataType="Boolean" UniqueID="1436" Visible="false"/>
                     <InputPin SaveString="SurveillanceFeedbackDevice" DisplayString="Surveillance Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="1437" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="ExternalSurveillanceFaultReset" DisplayString="External Surveillance Fault Reset" DataType="Boolean" UniqueID="607" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="1438" Visible="false"/>
@@ -2117,6 +2123,7 @@
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="2124" Visible="false"/>
                     <InputPin SaveString="SurveillanceValidInput" DisplayString="Surveillance Valid Input" DataType="Boolean" UniqueID="2125" Visible="false"/>
                     <InputPin SaveString="SurveillanceFeedbackDevice" DisplayString="Surveillance Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="2126" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="ExternalSurveillanceFaultReset" DisplayString="External Surveillance Fault Reset" DataType="Boolean" UniqueID="921" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="2127" Visible="false"/>
@@ -2145,6 +2152,7 @@
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="2138" Visible="false"/>
                     <InputPin SaveString="SurveillanceValidInput" DisplayString="Surveillance Valid Input" DataType="Boolean" UniqueID="2139" Visible="false"/>
                     <InputPin SaveString="SurveillanceFeedbackDevice" DisplayString="Surveillance Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="2140" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="ExternalSurveillanceFaultReset" DisplayString="External Surveillance Fault Reset" DataType="Boolean" UniqueID="935" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="2141" Visible="false"/>
@@ -2173,6 +2181,7 @@
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="2159" Visible="false"/>
                     <InputPin SaveString="SurveillanceValidInput" DisplayString="Surveillance Valid Input" DataType="Boolean" UniqueID="2160" Visible="false"/>
                     <InputPin SaveString="SurveillanceFeedbackDevice" DisplayString="Surveillance Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="2161" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="ExternalSurveillanceFaultReset" DisplayString="External Surveillance Fault Reset" DataType="Boolean" UniqueID="949" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="2162" Visible="false"/>
@@ -2201,6 +2210,7 @@
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="2173" Visible="false"/>
                     <InputPin SaveString="SurveillanceValidInput" DisplayString="Surveillance Valid Input" DataType="Boolean" UniqueID="2174" Visible="false"/>
                     <InputPin SaveString="SurveillanceFeedbackDevice" DisplayString="Surveillance Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="2175" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="ExternalSurveillanceFaultReset" DisplayString="External Surveillance Fault Reset" DataType="Boolean" UniqueID="963" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="2176" Visible="false"/>
@@ -2229,6 +2239,7 @@
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="2193" Visible="false"/>
                     <InputPin SaveString="SurveillanceValidInput" DisplayString="Surveillance Valid Input" DataType="Boolean" UniqueID="2194" Visible="false"/>
                     <InputPin SaveString="SurveillanceFeedbackDevice" DisplayString="Surveillance Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="2195" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="ExternalSurveillanceFaultReset" DisplayString="External Surveillance Fault Reset" DataType="Boolean" UniqueID="977" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="2196" Visible="false"/>
@@ -2257,6 +2268,7 @@
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="2207" Visible="false"/>
                     <InputPin SaveString="SurveillanceValidInput" DisplayString="Surveillance Valid Input" DataType="Boolean" UniqueID="2208" Visible="false"/>
                     <InputPin SaveString="SurveillanceFeedbackDevice" DisplayString="Surveillance Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="2209" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="ExternalSurveillanceFaultReset" DisplayString="External Surveillance Fault Reset" DataType="Boolean" UniqueID="991" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="2210" Visible="false"/>
@@ -2369,6 +2381,7 @@
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="2271" Visible="false"/>
                     <InputPin SaveString="SurveillanceValidInput" DisplayString="Surveillance Valid Input" DataType="Boolean" UniqueID="2272" Visible="false"/>
                     <InputPin SaveString="SurveillanceFeedbackDevice" DisplayString="Surveillance Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="2273" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="ExternalSurveillanceFaultReset" DisplayString="External Surveillance Fault Reset" DataType="Boolean" UniqueID="1033" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="2274" Visible="false"/>
@@ -2382,7 +2395,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Cost Jardin" UniqueID="2280">
                 <NodeEditorPosition x="921" y="2122"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="true" AxisOffset="9.2096381567194783" LowerPositionLimit="-2" UpperPositionLimit="8"/>
+                    <Limits InvertAxis="false" AxisOffset="0.050000000000000003" LowerPositionLimit="0" UpperPositionLimit="12.199999999999999"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
                     <ControWidget UniqueID="42"/>
                 </NodeSpecificData>
@@ -2413,6 +2426,7 @@
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="2294" Visible="false"/>
                     <InputPin SaveString="SurveillanceValidInput" DisplayString="Surveillance Valid Input" DataType="Boolean" UniqueID="2295" Visible="false"/>
                     <InputPin SaveString="SurveillanceFeedbackDevice" DisplayString="Surveillance Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="2296" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="ExternalSurveillanceFaultReset" DisplayString="External Surveillance Fault Reset" DataType="Boolean" UniqueID="1051" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="2297" Visible="false"/>
@@ -2426,7 +2440,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Cost Cour" UniqueID="2303">
                 <NodeEditorPosition x="5256" y="2103"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="1.8830231674862747" LowerPositionLimit="0" UpperPositionLimit="8"/>
+                    <Limits InvertAxis="false" AxisOffset="0.050000000000000003" LowerPositionLimit="0" UpperPositionLimit="12.200000104709774"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
                     <ControWidget UniqueID="43"/>
                 </NodeSpecificData>
@@ -2457,6 +2471,7 @@
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="2364" Visible="false"/>
                     <InputPin SaveString="SurveillanceValidInput" DisplayString="Surveillance Valid Input" DataType="Boolean" UniqueID="2365" Visible="false"/>
                     <InputPin SaveString="SurveillanceFeedbackDevice" DisplayString="Surveillance Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="2366" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="ExternalSurveillanceFaultReset" DisplayString="External Surveillance Fault Reset" DataType="Boolean" UniqueID="1069" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="2367" Visible="false"/>
@@ -2485,6 +2500,7 @@
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="2381" Visible="false"/>
                     <InputPin SaveString="SurveillanceValidInput" DisplayString="Surveillance Valid Input" DataType="Boolean" UniqueID="2382" Visible="false"/>
                     <InputPin SaveString="SurveillanceFeedbackDevice" DisplayString="Surveillance Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="2383" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="ExternalSurveillanceFaultReset" DisplayString="External Surveillance Fault Reset" DataType="Boolean" UniqueID="1083" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="2384" Visible="false"/>
@@ -2519,8 +2535,8 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Vol Jardin" UniqueID="2419">
                 <NodeEditorPosition x="2378" y="1837"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="true" AxisOffset="12.921616179661648" LowerPositionLimit="0" UpperPositionLimit="10"/>
-                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="true" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
+                    <Limits InvertAxis="true" AxisOffset="12.921616179661648" LowerPositionLimit="0" UpperPositionLimit="12"/>
+                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
                     <ControWidget UniqueID="45"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2535,7 +2551,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Vol Cour" UniqueID="2425">
                 <NodeEditorPosition x="3448" y="1850"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="true" AxisOffset="11" LowerPositionLimit="0" UpperPositionLimit="10"/>
+                    <Limits InvertAxis="true" AxisOffset="12.692486653970766" LowerPositionLimit="0" UpperPositionLimit="12"/>
                     <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
                     <ControWidget UniqueID="46"/>
                 </NodeSpecificData>
@@ -2587,6 +2603,38 @@
                 <OutputPins>
                     <OutputPin SaveString="ResetSafetyFault" DisplayString="Reset Safety Fault" DataType="Boolean" UniqueID="2581" Visible="true"/>
                     <OutputPin SaveString="StateLEDSignal" DisplayString="State LED Signal" DataType="Boolean" UniqueID="2582" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="SafetySignal" CustomName="Sécu Vol Jar" UniqueID="2659">
+                <NodeEditorPosition x="2104" y="1630"/>
+                <NodeSpecificData>
+                    <Settings FaultResetPulseTime="0" UnclearedFaultLedBlinkFrequency="0"/>
+                    <ControlWidget UniqueID="53"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="GpioDevice" DisplayString="Gpio Device" DataType="GPIODeviceLink" UniqueID="2660" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="SafetyLineValid" DisplayString="Safety Line Valid" DataType="Boolean" UniqueID="2661" Visible="true"/>
+                    <InputPin SaveString="SafetyStateValid" DisplayString="Safety State Valid" DataType="Boolean" UniqueID="2662" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="ResetSafetyFault" DisplayString="Reset Safety Fault" DataType="Boolean" UniqueID="2663" Visible="true"/>
+                    <OutputPin SaveString="StateLEDSignal" DisplayString="State LED Signal" DataType="Boolean" UniqueID="2664" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="SafetySignal" CustomName="Sécu Vol Cour" UniqueID="2670">
+                <NodeEditorPosition x="3166" y="1646"/>
+                <NodeSpecificData>
+                    <Settings FaultResetPulseTime="0" UnclearedFaultLedBlinkFrequency="0"/>
+                    <ControlWidget UniqueID="54"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="GpioDevice" DisplayString="Gpio Device" DataType="GPIODeviceLink" UniqueID="2671" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="SafetyLineValid" DisplayString="Safety Line Valid" DataType="Boolean" UniqueID="2672" Visible="true"/>
+                    <InputPin SaveString="SafetyStateValid" DisplayString="Safety State Valid" DataType="Boolean" UniqueID="2673" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="ResetSafetyFault" DisplayString="Reset Safety Fault" DataType="Boolean" UniqueID="2674" Visible="true"/>
+                    <OutputPin SaveString="StateLEDSignal" DisplayString="State LED Signal" DataType="Boolean" UniqueID="2675" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -2974,6 +3022,14 @@
             <Link UniqueID="2655" StartPin="2212" EndPin="2246"/>
             <Link UniqueID="2656" StartPin="2369" EndPin="2395"/>
             <Link UniqueID="2657" StartPin="2386" EndPin="2396"/>
+            <Link UniqueID="2665" StartPin="2663" EndPin="121"/>
+            <Link UniqueID="2666" StartPin="681" EndPin="2662"/>
+            <Link UniqueID="2667" StartPin="726" EndPin="2661"/>
+            <Link UniqueID="2668" StartPin="615" EndPin="2660"/>
+            <Link UniqueID="2676" StartPin="755" EndPin="2672"/>
+            <Link UniqueID="2677" StartPin="743" EndPin="2673"/>
+            <Link UniqueID="2678" StartPin="2674" EndPin="137"/>
+            <Link UniqueID="2679" StartPin="631" EndPin="2671"/>
         </Links>
     </NodeGraph>
 </Environnement>

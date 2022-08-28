@@ -16,10 +16,11 @@ public:
 	public:
 		
 		ATV_Motor(std::shared_ptr<ATV320> drive_) :
-		MotionDevice("ATV320 Motor", Units::AngularDistance::Revolution),
-		ActuatorDevice("ATV320 Motor", Units::AngularDistance::Revolution),
+		MotionDevice(Units::AngularDistance::Revolution),
+		ActuatorDevice(Units::AngularDistance::Revolution),
 		drive(drive_){}
 		
+		virtual std::string getName() override { return std::string(drive->getName()) + " Motor"; };
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
 		std::shared_ptr<ATV320> drive;
 	};
@@ -28,9 +29,10 @@ public:
 	public:
 		
 		ATV_GPIO(std::shared_ptr<ATV320> drive_) :
-		GpioDevice("ATV320 Gpio"),
+		GpioDevice(),
 		drive(drive_){}
 		
+		virtual std::string getName() override { return std::string(drive->getName()) + " GPIO"; };
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
 		std::shared_ptr<ATV320> drive;
 	};

@@ -19,6 +19,7 @@ void PositionControlledAxis::initialize() {
 	addNodePin(referenceSignalPin);
 	addNodePin(surveillanceValidInputPin);
 	addNodePin(surveillanceFeedbackDevicePin);
+	addNodePin(externalSurveillanceFaultResetPin);
 	
 	//outputs
 	addNodePin(surveillanceValidOutputPin);
@@ -42,13 +43,20 @@ std::string PositionControlledAxis::getStatusString(){
 	std::string statusString;
 	switch(state){
 		case MotionState::OFFLINE:
-			if(!areAllPinsConnected()) return "Axis pins are not connected correctly";
-			if(!getServoActuatorDevice()->isOnline()) statusString += "Servo Actuator is offline : " + getServoActuatorDevice()->getStatusString() + "\n";
+			if(!areAllPinsConnected()) {
+				statusString = "Axis pins are not connected correctly.\n";
+				return statusString;
+			}
+			if(!getServoActuatorDevice()->isOnline()) {
+				statusString += "Servo Actuator \"" + getServoActuatorDevice()->getName() + "\" is Offline.\n";
+			}
 			for(auto gpioDevicePin : gpioPin->getConnectedPins()){
 				auto gpioDevice = gpioDevicePin->getSharedPointer<GpioDevice>();
-				if(!gpioDevice->isOnline()) statusString += "Gpio Device " + gpioDevice->getName() + " is Offline : " + gpioDevice->getStatusString() + "\n";
+				if(!gpioDevice->isOnline()) statusString += "Gpio Device \"" + gpioDevice->getName() + "\" is Offline.\n";
 			}
-			if(isSurveilled() && !getSurveillanceFeedbackDevice()->isOnline()) statusString += "Surveillance Feedback Device is Offline : " + getSurveillanceFeedbackDevice()->getStatusString() + "\n";
+			if(isSurveilled() && !getSurveillanceFeedbackDevice()->isOnline()) {
+				statusString += "Surveillance Feedback Device \"" + getSurveillanceFeedbackDevice()->getName() + "\" is Offline.\n";
+			}
 			break;
 		case MotionState::NOT_READY:
 			if(b_hasSurveillanceError) statusString += "Axis has Surveillance Error\n";
@@ -58,8 +66,8 @@ std::string PositionControlledAxis::getStatusString(){
 				if(!gpioDevice->isOnline()) statusString += "Gpio Device " + gpioDevice->getName() + " is Offline : " + gpioDevice->getStatusString() + "\n";
 			}
 			if(isSurveilled() && !getSurveillanceFeedbackDevice()->isReady()) return "Surveillance Feedback device is not ready : " + getSurveillanceFeedbackDevice()->getStatusString() + "\n";
-		case MotionState::READY:	return "Axis is not enabled";
-		case MotionState::ENABLED: 	return "Axis is enabled";
+		case MotionState::READY:	return "Axis is ready\n";
+		case MotionState::ENABLED: 	return "Axis is enabled\n";
 	}
 	return statusString;
 }
@@ -136,6 +144,9 @@ void PositionControlledAxis::updateSurveillance(){
 	double requestedVelocity = motionProfile.getVelocity();
 	surveillanceVelocityError = abs(requestedVelocity - surveillanceVelocity);
 	
+	bool previousExternalFaultResetSignal = *externalSurveillanceFaultResetSignal;
+	if(externalSurveillanceFaultResetPin->isConnected()) externalSurveillanceFaultResetPin->copyConnectedPinValue();
+	
 	if(b_isClearingSurveillanceError){
 		*surveillanceValidOutputSignal = true;
 		*surveillanceFaultResetSignal = true;
@@ -143,6 +154,8 @@ void PositionControlledAxis::updateSurveillance(){
 	else if(b_hasSurveillanceError){
 		*surveillanceValidOutputSignal = false;
 		*surveillanceFaultResetSignal = false;
+		//react to rising edge of external fault reset signal
+		if(*externalSurveillanceFaultResetSignal && !previousExternalFaultResetSignal) clearSurveillanceFault();
 	}else{
 		auto triggerSurveillanceError = [this](std::string reason){
 			b_hasSurveillanceError = true;

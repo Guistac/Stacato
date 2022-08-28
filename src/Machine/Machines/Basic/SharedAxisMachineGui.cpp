@@ -418,128 +418,133 @@ void SharedAxisMachine::widgetGui(){
 			//position indicator background
 			ImDrawList* drawing = ImGui::GetWindowDrawList();
 			ImGui::PushClipRect(min, max, true);
-			drawing->AddRectFilled(min, max, ImColor(Colors::darkGray));
 			
-			//draw keepout constraints
-			for(auto& constraint : axis1Animatable->getConstraints()){
-				if(constraint->getType() != AnimationConstraint::Type::KEEPOUT) continue;
-				auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
-				double constraintMinX = min.x + size.x * getNormalizedPosition(keepout->keepOutMinPosition);
-				double constraintMaxX = min.x + size.x * getNormalizedPosition(keepout->keepOutMaxPosition);
-				drawing->AddRectFilled(glm::vec2(constraintMinX, min.y),
-									   glm::vec2(constraintMaxX, middleY),
-									   constraint->isEnabled() ? ImColor(1.f, 0.f, 0.f, .4f) : ImColor(1.f, 1.f, 1.f, .2f));
+			if(getState() == MotionState::OFFLINE){
+				drawing->AddRectFilled(min, max, ImColor(Colors::blue));
+			}else{
+				
+				drawing->AddRectFilled(min, max, ImColor(Colors::darkGray));
+				
+				//draw keepout constraints
+				for(auto& constraint : axis1Animatable->getConstraints()){
+					if(constraint->getType() != AnimationConstraint::Type::KEEPOUT) continue;
+					auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
+					double constraintMinX = min.x + size.x * getNormalizedPosition(keepout->keepOutMinPosition);
+					double constraintMaxX = min.x + size.x * getNormalizedPosition(keepout->keepOutMaxPosition);
+					drawing->AddRectFilled(glm::vec2(constraintMinX, min.y),
+										   glm::vec2(constraintMaxX, middleY),
+										   constraint->isEnabled() ? ImColor(1.f, 0.f, 0.f, .4f) : ImColor(1.f, 1.f, 1.f, .2f));
+				}
+				for(auto& constraint : axis2Animatable->getConstraints()){
+					if(constraint->getType() != AnimationConstraint::Type::KEEPOUT) continue;
+					auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
+					double constraintMinX = min.x + size.x * getNormalizedPosition(keepout->keepOutMinPosition);
+					double constraintMaxX = min.x + size.x * getNormalizedPosition(keepout->keepOutMaxPosition);
+					drawing->AddRectFilled(glm::vec2(constraintMinX, middleY),
+										   glm::vec2(constraintMaxX, max.y),
+										   constraint->isEnabled() ? ImColor(1.f, 0.f, 0.f, .4f) : ImColor(1.f, 1.f, 1.f, .2f));
+				}
+				
+				//draw constraint limit lines
+				ImColor limitLineColor = ImColor(.0f, .0f, .0f, 1.f);
+				float limitLineThickness = ImGui::GetTextLineHeight() * .05f;
+				
+				double axis1ConstraintMin, axis1ConstraintMax;
+				axis1Animatable->getConstraintPositionLimits(axis1ConstraintMin, axis1ConstraintMax);
+				double axis1ConstraintMinX = min.x + size.x * getNormalizedPosition(axis1ConstraintMin);
+				double axis1ConstraintMaxX = min.x + size.x * getNormalizedPosition(axis1ConstraintMax);
+				drawing->AddLine(glm::vec2(axis1ConstraintMinX, min.y),
+								 glm::vec2(axis1ConstraintMinX, middleY),
+								 limitLineColor, limitLineThickness);
+				drawing->AddLine(glm::vec2(axis1ConstraintMaxX, min.y),
+								 glm::vec2(axis1ConstraintMaxX, middleY),
+								 limitLineColor, limitLineThickness);
+				
+				double axis2ConstraintMin, axis2ConstraintMax;
+				axis2Animatable->getConstraintPositionLimits(axis2ConstraintMin, axis2ConstraintMax);
+				double axis2ConstraintMinX = min.x + size.x * getNormalizedPosition(axis2ConstraintMin);
+				double axis2ConstraintMaxX = min.x + size.x * getNormalizedPosition(axis2ConstraintMax);
+				drawing->AddLine(glm::vec2(axis2ConstraintMinX, middleY),
+								 glm::vec2(axis2ConstraintMinX, max.y),
+								 limitLineColor, limitLineThickness);
+				drawing->AddLine(glm::vec2(axis2ConstraintMaxX, middleY),
+								 glm::vec2(axis2ConstraintMaxX, max.y),
+								 limitLineColor, limitLineThickness);
+				
+				
+				
+				//draw rapid target
+				
+				ImColor targetColor = ImColor(Colors::yellow);
+				float targetLineThickness = ImGui::GetTextLineHeight() * .05f;
+				float targetTriangleSize = ImGui::GetTextLineHeight() * .4f;
+				
+				if(axis1Animatable->isInRapid()){
+					float targetX = min.x + size.x * getNormalizedPosition(axis1Animatable->getRapidTarget()->toPosition()->position);
+					float triangleY = min.y + size.y * .25f;
+					drawing->AddLine(glm::vec2(targetX, min.y), glm::vec2(targetX, middleY), targetColor, targetLineThickness);
+					drawing->AddTriangleFilled(glm::vec2(targetX, triangleY),
+											   glm::vec2(targetX - targetTriangleSize, triangleY + targetTriangleSize * .4f),
+											   glm::vec2(targetX - targetTriangleSize, triangleY - targetTriangleSize * .4f),
+											   targetColor);
+					drawing->AddTriangleFilled(glm::vec2(targetX, triangleY),
+											   glm::vec2(targetX + targetTriangleSize, triangleY - targetTriangleSize * .4f),
+											   glm::vec2(targetX + targetTriangleSize, triangleY + targetTriangleSize * .4f),
+											   targetColor);
+				}
+				if(axis2Animatable->isInRapid()){
+					float targetX = min.x + size.x * getNormalizedPosition(axis2Animatable->getRapidTarget()->toPosition()->position);
+					float triangleY = middleY + size.y * .25f;
+					drawing->AddLine(glm::vec2(targetX, middleY), glm::vec2(targetX, max.y), targetColor, targetLineThickness);
+					drawing->AddTriangleFilled(glm::vec2(targetX, triangleY),
+											   glm::vec2(targetX - targetTriangleSize, triangleY + targetTriangleSize * .4f),
+											   glm::vec2(targetX - targetTriangleSize, triangleY - targetTriangleSize * .4f),
+											   targetColor);
+					drawing->AddTriangleFilled(glm::vec2(targetX, triangleY),
+											   glm::vec2(targetX + targetTriangleSize, triangleY - targetTriangleSize * .4f),
+											   glm::vec2(targetX + targetTriangleSize, triangleY + targetTriangleSize * .4f),
+											   targetColor);
+				}
+				
+				
+				
+				//draw position arrow indicators
+				float lineThickness = ImGui::GetTextLineHeight() * .05f;
+				float triangleSize = ImGui::GetTextLineHeight() * .5f;
+				ImColor positionIndicatorColor = ImColor(Colors::white);
+				ImColor brakingPositionIndicatorColor = ImColor(1.f, 1.f, 1.f, .3f);
+				
+				double axis1_X = min.x + size.x * getNormalizedPosition(axis1Animatable->getActualPosition());
+				double axis2_X = min.x + size.x * getNormalizedPosition(axis2Animatable->getActualPosition());
+				double axis1BrakingPositionX = min.x + size.x * getNormalizedPosition(axis1Animatable->getBrakingPosition());
+				double axis2BrakingPositionX = min.x + size.x * getNormalizedPosition(axis2Animatable->getBrakingPosition());
+				
+				drawing->AddLine(glm::vec2(axis1BrakingPositionX, min.y),
+								 glm::vec2(axis1BrakingPositionX, middleY - triangleSize + 1.f),
+								 brakingPositionIndicatorColor, lineThickness);
+				drawing->AddLine(glm::vec2(axis2BrakingPositionX, max.y),
+								 glm::vec2(axis2BrakingPositionX, middleY + triangleSize - 1.f),
+								 brakingPositionIndicatorColor, lineThickness);
+				drawing->AddTriangleFilled(glm::vec2(axis1BrakingPositionX, middleY),
+										   glm::vec2(axis1BrakingPositionX - triangleSize * .4f, middleY - triangleSize),
+										   glm::vec2(axis1BrakingPositionX + triangleSize * .4f, middleY - triangleSize),
+										   brakingPositionIndicatorColor);
+				drawing->AddTriangleFilled(glm::vec2(axis2BrakingPositionX, middleY),
+										   glm::vec2(axis2BrakingPositionX + triangleSize * .4f, middleY + triangleSize),
+										   glm::vec2(axis2BrakingPositionX - triangleSize * .4f, middleY + triangleSize),
+										   brakingPositionIndicatorColor);
+				
+				drawing->AddLine(glm::vec2(axis1_X, min.y), glm::vec2(axis1_X, middleY - triangleSize + 1.f), positionIndicatorColor, lineThickness);
+				drawing->AddLine(glm::vec2(axis2_X, max.y), glm::vec2(axis2_X, middleY + triangleSize - 1.f), positionIndicatorColor, lineThickness);
+				drawing->AddTriangleFilled(glm::vec2(axis1_X, middleY),
+										   glm::vec2(axis1_X - triangleSize * .4f, middleY - triangleSize),
+										   glm::vec2(axis1_X + triangleSize * .4f, middleY - triangleSize),
+										   positionIndicatorColor);
+				drawing->AddTriangleFilled(glm::vec2(axis2_X, middleY),
+										   glm::vec2(axis2_X + triangleSize * .4f, middleY + triangleSize),
+										   glm::vec2(axis2_X - triangleSize * .4f, middleY + triangleSize),
+										   positionIndicatorColor);
 			}
-			for(auto& constraint : axis2Animatable->getConstraints()){
-				if(constraint->getType() != AnimationConstraint::Type::KEEPOUT) continue;
-				auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
-				double constraintMinX = min.x + size.x * getNormalizedPosition(keepout->keepOutMinPosition);
-				double constraintMaxX = min.x + size.x * getNormalizedPosition(keepout->keepOutMaxPosition);
-				drawing->AddRectFilled(glm::vec2(constraintMinX, middleY),
-									   glm::vec2(constraintMaxX, max.y),
-									   constraint->isEnabled() ? ImColor(1.f, 0.f, 0.f, .4f) : ImColor(1.f, 1.f, 1.f, .2f));
-			}
-			
-			//draw constraint limit lines
-			ImColor limitLineColor = ImColor(.0f, .0f, .0f, 1.f);
-			float limitLineThickness = ImGui::GetTextLineHeight() * .05f;
-			
-			double axis1ConstraintMin, axis1ConstraintMax;
-			axis1Animatable->getConstraintPositionLimits(axis1ConstraintMin, axis1ConstraintMax);
-			double axis1ConstraintMinX = min.x + size.x * getNormalizedPosition(axis1ConstraintMin);
-			double axis1ConstraintMaxX = min.x + size.x * getNormalizedPosition(axis1ConstraintMax);
-			drawing->AddLine(glm::vec2(axis1ConstraintMinX, min.y),
-							 glm::vec2(axis1ConstraintMinX, middleY),
-							 limitLineColor, limitLineThickness);
-			drawing->AddLine(glm::vec2(axis1ConstraintMaxX, min.y),
-							 glm::vec2(axis1ConstraintMaxX, middleY),
-							 limitLineColor, limitLineThickness);
-			
-			double axis2ConstraintMin, axis2ConstraintMax;
-			axis2Animatable->getConstraintPositionLimits(axis2ConstraintMin, axis2ConstraintMax);
-			double axis2ConstraintMinX = min.x + size.x * getNormalizedPosition(axis2ConstraintMin);
-			double axis2ConstraintMaxX = min.x + size.x * getNormalizedPosition(axis2ConstraintMax);
-			drawing->AddLine(glm::vec2(axis2ConstraintMinX, middleY),
-							 glm::vec2(axis2ConstraintMinX, max.y),
-							 limitLineColor, limitLineThickness);
-			drawing->AddLine(glm::vec2(axis2ConstraintMaxX, middleY),
-							 glm::vec2(axis2ConstraintMaxX, max.y),
-							 limitLineColor, limitLineThickness);
-			
-			
-			
-			//draw rapid target
-			
-			ImColor targetColor = ImColor(Colors::yellow);
-			float targetLineThickness = ImGui::GetTextLineHeight() * .05f;
-			float targetTriangleSize = ImGui::GetTextLineHeight() * .4f;
-			
-			if(axis1Animatable->isInRapid()){
-				float targetX = min.x + size.x * getNormalizedPosition(axis1Animatable->getRapidTarget()->toPosition()->position);
-				float triangleY = min.y + size.y * .25f;
-				drawing->AddLine(glm::vec2(targetX, min.y), glm::vec2(targetX, middleY), targetColor, targetLineThickness);
-				drawing->AddTriangleFilled(glm::vec2(targetX, triangleY),
-										   glm::vec2(targetX - targetTriangleSize, triangleY + targetTriangleSize * .4f),
-										   glm::vec2(targetX - targetTriangleSize, triangleY - targetTriangleSize * .4f),
-										   targetColor);
-				drawing->AddTriangleFilled(glm::vec2(targetX, triangleY),
-										   glm::vec2(targetX + targetTriangleSize, triangleY - targetTriangleSize * .4f),
-										   glm::vec2(targetX + targetTriangleSize, triangleY + targetTriangleSize * .4f),
-										   targetColor);
-			}
-			if(axis2Animatable->isInRapid()){
-				float targetX = min.x + size.x * getNormalizedPosition(axis2Animatable->getRapidTarget()->toPosition()->position);
-				float triangleY = middleY + size.y * .25f;
-				drawing->AddLine(glm::vec2(targetX, middleY), glm::vec2(targetX, max.y), targetColor, targetLineThickness);
-				drawing->AddTriangleFilled(glm::vec2(targetX, triangleY),
-										   glm::vec2(targetX - targetTriangleSize, triangleY + targetTriangleSize * .4f),
-										   glm::vec2(targetX - targetTriangleSize, triangleY - targetTriangleSize * .4f),
-										   targetColor);
-				drawing->AddTriangleFilled(glm::vec2(targetX, triangleY),
-										   glm::vec2(targetX + targetTriangleSize, triangleY - targetTriangleSize * .4f),
-										   glm::vec2(targetX + targetTriangleSize, triangleY + targetTriangleSize * .4f),
-										   targetColor);
-			}
-			
-			
-			
-			//draw position arrow indicators
-			float lineThickness = ImGui::GetTextLineHeight() * .05f;
-			float triangleSize = ImGui::GetTextLineHeight() * .5f;
-			ImColor positionIndicatorColor = ImColor(Colors::white);
-			ImColor brakingPositionIndicatorColor = ImColor(1.f, 1.f, 1.f, .3f);
-			
-			double axis1_X = min.x + size.x * getNormalizedPosition(axis1Animatable->getActualPosition());
-			double axis2_X = min.x + size.x * getNormalizedPosition(axis2Animatable->getActualPosition());
-			double axis1BrakingPositionX = min.x + size.x * getNormalizedPosition(axis1Animatable->getBrakingPosition());
-			double axis2BrakingPositionX = min.x + size.x * getNormalizedPosition(axis2Animatable->getBrakingPosition());
-			
-			drawing->AddLine(glm::vec2(axis1BrakingPositionX, min.y),
-							 glm::vec2(axis1BrakingPositionX, middleY - triangleSize + 1.f),
-							 brakingPositionIndicatorColor, lineThickness);
-			drawing->AddLine(glm::vec2(axis2BrakingPositionX, max.y),
-							 glm::vec2(axis2BrakingPositionX, middleY + triangleSize - 1.f),
-							 brakingPositionIndicatorColor, lineThickness);
-			drawing->AddTriangleFilled(glm::vec2(axis1BrakingPositionX, middleY),
-									   glm::vec2(axis1BrakingPositionX - triangleSize * .4f, middleY - triangleSize),
-									   glm::vec2(axis1BrakingPositionX + triangleSize * .4f, middleY - triangleSize),
-									   brakingPositionIndicatorColor);
-			drawing->AddTriangleFilled(glm::vec2(axis2BrakingPositionX, middleY),
-									   glm::vec2(axis2BrakingPositionX + triangleSize * .4f, middleY + triangleSize),
-									   glm::vec2(axis2BrakingPositionX - triangleSize * .4f, middleY + triangleSize),
-									   brakingPositionIndicatorColor);
-			
-			drawing->AddLine(glm::vec2(axis1_X, min.y), glm::vec2(axis1_X, middleY - triangleSize + 1.f), positionIndicatorColor, lineThickness);
-			drawing->AddLine(glm::vec2(axis2_X, max.y), glm::vec2(axis2_X, middleY + triangleSize - 1.f), positionIndicatorColor, lineThickness);
-			drawing->AddTriangleFilled(glm::vec2(axis1_X, middleY),
-									   glm::vec2(axis1_X - triangleSize * .4f, middleY - triangleSize),
-									   glm::vec2(axis1_X + triangleSize * .4f, middleY - triangleSize),
-									   positionIndicatorColor);
-			drawing->AddTriangleFilled(glm::vec2(axis2_X, middleY),
-									   glm::vec2(axis2_X + triangleSize * .4f, middleY + triangleSize),
-									   glm::vec2(axis2_X - triangleSize * .4f, middleY + triangleSize),
-									   positionIndicatorColor);
-			
 			
 			//draw separator and frame lines
 			drawing->AddLine(glm::vec2(min.x, middleY), glm::vec2(max.x, middleY), ImColor(Colors::veryDarkGray), ImGui::GetTextLineHeight() * .025f);
@@ -566,63 +571,15 @@ void SharedAxisMachine::widgetGui(){
 			glm::vec2 max = ImGui::GetItemRectMax();
 			glm::vec2 size = max - min;
 			ImDrawList* drawing = ImGui::GetWindowDrawList();
-			drawing->AddRectFilled(min, max, ImColor(Colors::gray));
+			
+			if(getState() == MotionState::OFFLINE){
+				drawing->AddRectFilled(min, max, ImColor(Colors::blue));
+			}else{
+				drawing->AddRectFilled(min, max, ImColor(Colors::gray));
+				//TODO: draw vertical machine feedback
+			}
 			
 		}
-		
-		
-		
-		
-		
-		/*
-		 
-		 ImGui::SameLine();
-		 verticalProgressBar(animatable->getActualPositionNormalized(), verticalSliderSize);
-		 
-		 //--- Draw Constraints
-		 glm::vec2 minPosProg = ImGui::GetItemRectMin();
-		 glm::vec2 maxPosProg = ImGui::GetItemRectMax();
-		 glm::vec2 progSize = maxPosProg - minPosProg;
-		 auto& constraints = animatable->getConstraints();
-		 ImDrawList* drawing = ImGui::GetWindowDrawList();
-		 for(auto& constraint : constraints){
-			 auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
-			 double minKeepout = animatable->normalizePosition(keepout->keepOutMinPosition);
-			 double maxKeepout = animatable->normalizePosition(keepout->keepOutMaxPosition);
-			 double keepoutSize = maxKeepout - minKeepout;
-			 glm::vec2 keepoutStartPos(minPosProg.x, maxPosProg.y - progSize.y * minKeepout);
-			 glm::vec2 keepoutEndPos(maxPosProg.x, maxPosProg.y - progSize.y * maxKeepout);
-			 ImColor constraintColor;
-			 if(!constraint->isEnabled()) constraintColor = ImColor(1.f, 1.f, 1.f, .3f);
-			 else constraintColor = ImColor(1.f, 0.f, 0.f, .5f);
-			 drawing->AddRectFilled(keepoutStartPos, keepoutEndPos, constraintColor);
-		 }
-		 {
-		 double minPositionLimit, maxPositionLimit;
-		 animatable->getConstraintPositionLimits(minPositionLimit, maxPositionLimit);
-		 double minPosition = maxPosProg.y - progSize.y * animatable->normalizePosition(minPositionLimit);
-		 double maxPosition = maxPosProg.y - progSize.y * animatable->normalizePosition(maxPositionLimit);
-			 drawing->AddLine(ImVec2(minPosProg.x, minPosition), ImVec2(maxPosProg.x, minPosition), ImColor(1.f, 1.f, 1.f, 1.f));
-			 drawing->AddLine(ImVec2(minPosProg.x, maxPosition), ImVec2(maxPosProg.x, maxPosition), ImColor(1.f, 1.f, 1.f, 1.f));
-		 }
-
-		 //--- Draw Rapid Target
-		 if(animatable->isInRapid()){
-			 float normalizedPositionTarget = animatable->normalizePosition(animatable->getRapidTarget()->toPosition()->position);
-			 float height = minPosProg.y + progSize.y * (1.0 - normalizedPositionTarget);
-			 glm::vec2 lineStart(minPosProg.x, height);
-			 glm::vec2 lineEnd(maxPosProg.x, height);
-			 drawing->AddLine(lineStart, lineEnd, ImColor(Colors::white));
-		 }
-		 
-		 static char actualPositionString[32];
-		 sprintf(actualPositionString, "%.7f%s", animatable->getActualPosition(), positionUnitAbbreviated);
-		 
-		 ImGui::SameLine();
-		 ImGui::Button(actualPositionString, feedbackButtonSize);
-		 */
-		
-		
 		
 		
 		
@@ -686,72 +643,78 @@ void SharedAxisMachine::widgetGui(){
 			
 		};
 		
-		//draw visualizer background
-		ImColor backgroundColor = ImColor(Colors::darkGray);
-		ImColor borderColor = ImColor(Colors::black);
-		float borderWidth = ImGui::GetTextLineHeight() * .05f;
-		drawing->AddCircleFilled(middle, size.x / 2.0, backgroundColor);
-
-		//get visualizer angles
-		double angle1 = axis2Animatable->getActualPosition();
-		double angle2 = axis1Animatable->getActualPosition();
-		double displayAngle1 = Units::convert(angle1, positionUnit, Units::AngularDistance::Radian) - M_PI_2;
-		double displayAngle2 = Units::convert(angle2, positionUnit, Units::AngularDistance::Radian) - M_PI_2;
 		
-		//draw visualizer arrows
-		drawing->AddCircle(middle, radius, borderColor, 64, borderWidth);
-		drawArrowRotated(middle, radius * .5f, radius, displayAngle1);
-		drawing->AddCircle(middle, radius * .5f, borderColor, 64, borderWidth);
-		drawArrowRotated(middle, 0.0, radius * .5f, displayAngle2);
-		drawing->AddCircleFilled(middle, lineWidth, borderColor, 64);
-
-		//zero tick mark
-		float zeroTickLength = ImGui::GetTextLineHeight() * .25f;
-		drawing->AddLine(middle, middle + glm::vec2(0, -radius), ImColor(0.f, 0.f, 0.f, .2f), borderWidth);
-		drawing->AddLine(middle + glm::vec2(0, -radius), middle + glm::vec2(0, -radius + zeroTickLength), ImColor(Colors::white), borderWidth);
-		drawing->AddLine(middle + glm::vec2(0, -radius * .5f), middle + glm::vec2(0, -radius * .5f + zeroTickLength), ImColor(Colors::white), borderWidth);
-		
-		
-		//display position string on turntables
-		static char angle1String[64];
-		static char angle2String[64];
-		if(positionUnit == Units::AngularDistance::Degree){
-			auto getDegreeString = [](char* output, double angleDegrees){
-				int extraRevs = floor(std::abs(angleDegrees) / 360.0);
-				if(angleDegrees < 0.0) extraRevs++;
-				float angleSingleTurn;
-				if(angleDegrees >= 0.0) angleSingleTurn = fmod(angleDegrees, 360.0);
-				else angleSingleTurn = 360.0 + fmod(angleDegrees, 360.0);
-				sprintf(output, "%.1f%s%s%i", angleSingleTurn,  Units::AngularDistance::Degree->abbreviated, angleDegrees > 0.0 ? "+" : "-", extraRevs);
-			};
-			getDegreeString(angle1String, angle1);
-			getDegreeString(angle2String, angle2);
-		}else if(positionUnit == Units::AngularDistance::Radian){
-			sprintf(angle1String, "%.3f%s", fmod(angle1, 2.0 * M_PI), positionUnit->abbreviated);
-			sprintf(angle2String, "%.3f%s", fmod(angle2, 2.0 * M_PI), positionUnit->abbreviated);
+		if(getState() == MotionState::OFFLINE){
+			drawing->AddCircleFilled(middle, size.x * .5f, ImColor(Colors::blue));
 		}else{
-			sprintf(angle1String, "%.3f%s", angle1, positionUnit->abbreviated);
-			sprintf(angle2String, "%.3f%s", angle2, positionUnit->abbreviated);
+			
+			drawing->AddCircleFilled(middle, size.x / 2.0, ImColor(Colors::darkGray));
+			
+			ImColor borderColor = ImColor(Colors::black);
+			float borderWidth = ImGui::GetTextLineHeight() * .05f;
+
+			//get visualizer angles
+			double angle1 = axis2Animatable->getActualPosition();
+			double angle2 = axis1Animatable->getActualPosition();
+			double displayAngle1 = Units::convert(angle1, positionUnit, Units::AngularDistance::Radian) - M_PI_2;
+			double displayAngle2 = Units::convert(angle2, positionUnit, Units::AngularDistance::Radian) - M_PI_2;
+			
+			//draw visualizer arrows
+			drawing->AddCircle(middle, radius, borderColor, 64, borderWidth);
+			drawArrowRotated(middle, radius * .5f, radius, displayAngle1);
+			drawing->AddCircle(middle, radius * .5f, borderColor, 64, borderWidth);
+			drawArrowRotated(middle, 0.0, radius * .5f, displayAngle2);
+			drawing->AddCircleFilled(middle, lineWidth, borderColor, 64);
+
+			//zero tick mark
+			float zeroTickLength = ImGui::GetTextLineHeight() * .25f;
+			drawing->AddLine(middle, middle + glm::vec2(0, -radius), ImColor(0.f, 0.f, 0.f, .2f), borderWidth);
+			drawing->AddLine(middle + glm::vec2(0, -radius), middle + glm::vec2(0, -radius + zeroTickLength), ImColor(Colors::white), borderWidth);
+			drawing->AddLine(middle + glm::vec2(0, -radius * .5f), middle + glm::vec2(0, -radius * .5f + zeroTickLength), ImColor(Colors::white), borderWidth);
+			
+			
+			//display position string on turntables
+			static char angle1String[64];
+			static char angle2String[64];
+			if(positionUnit == Units::AngularDistance::Degree){
+				auto getDegreeString = [](char* output, double angleDegrees){
+					int extraRevs = floor(std::abs(angleDegrees) / 360.0);
+					if(angleDegrees < 0.0) extraRevs++;
+					float angleSingleTurn;
+					if(angleDegrees >= 0.0) angleSingleTurn = fmod(angleDegrees, 360.0);
+					else angleSingleTurn = 360.0 + fmod(angleDegrees, 360.0);
+					sprintf(output, "%.1f%s%s%i", angleSingleTurn,  Units::AngularDistance::Degree->abbreviated, angleDegrees > 0.0 ? "+" : "-", extraRevs);
+				};
+				getDegreeString(angle1String, angle1);
+				getDegreeString(angle2String, angle2);
+			}else if(positionUnit == Units::AngularDistance::Radian){
+				sprintf(angle1String, "%.3f%s", fmod(angle1, 2.0 * M_PI), positionUnit->abbreviated);
+				sprintf(angle2String, "%.3f%s", fmod(angle2, 2.0 * M_PI), positionUnit->abbreviated);
+			}else{
+				sprintf(angle1String, "%.3f%s", angle1, positionUnit->abbreviated);
+				sprintf(angle2String, "%.3f%s", angle2, positionUnit->abbreviated);
+			}
+			ImGui::PushFont(Fonts::sansBold15);
+			glm::vec2 textSize;
+			glm::vec2 textPos;
+			textSize = ImGui::CalcTextSize(angle1String);
+			textPos = middle + glm::vec2(0, - 3.0 * radius / 4.0) - textSize / 2.0;
+			drawing->AddText(textPos, ImColor(0.f, 0.f, 0.f, .6f), angle1String);
+			textSize = ImGui::CalcTextSize(angle2String);
+			textPos = middle + glm::vec2(0, -radius / 4.0) - textSize / 2.0;
+			drawing->AddText(textPos, ImColor(0.f, 0.f, 0.f, .6f), angle2String);
+			ImGui::PopFont();
+			
+			glm::vec2 rangeDisplaySize(radius * 2.0, ImGui::GetTextLineHeight());
+			static char rangeString[32];
+			float rangeProgress = axis1Animatable->getActualPositionNormalized();
+			sprintf(rangeString, "%s : %.1f%%", axis1Animatable->getName(), rangeProgress * 100.0);
+			ImGui::ProgressBar(rangeProgress, rangeDisplaySize, rangeString);
+			rangeProgress = axis2Animatable->getActualPositionNormalized();
+			sprintf(rangeString, "%s : %.1f%%", axis2Animatable->getName(), rangeProgress * 100.0);
+			ImGui::ProgressBar(rangeProgress, rangeDisplaySize, rangeString);
+				
 		}
-		ImGui::PushFont(Fonts::sansBold15);
-		glm::vec2 textSize;
-		glm::vec2 textPos;
-		textSize = ImGui::CalcTextSize(angle1String);
-		textPos = middle + glm::vec2(0, - 3.0 * radius / 4.0) - textSize / 2.0;
-		drawing->AddText(textPos, ImColor(0.f, 0.f, 0.f, .6f), angle1String);
-		textSize = ImGui::CalcTextSize(angle2String);
-		textPos = middle + glm::vec2(0, -radius / 4.0) - textSize / 2.0;
-		drawing->AddText(textPos, ImColor(0.f, 0.f, 0.f, .6f), angle2String);
-		ImGui::PopFont();
-		
-		glm::vec2 rangeDisplaySize(radius * 2.0, ImGui::GetTextLineHeight());
-		static char rangeString[32];
-		float rangeProgress = axis1Animatable->getActualPositionNormalized();
-		sprintf(rangeString, "%s : %.1f%%", axis1Animatable->getName(), rangeProgress * 100.0);
-		ImGui::ProgressBar(rangeProgress, rangeDisplaySize, rangeString);
-		rangeProgress = axis2Animatable->getActualPositionNormalized();
-		sprintf(rangeString, "%s : %.1f%%", axis2Animatable->getName(), rangeProgress * 100.0);
-		ImGui::ProgressBar(rangeProgress, rangeDisplaySize, rangeString);
 		
 		ImGui::Checkbox("##forceSync", &b_forceSynchronousControl);
 		ImGui::SameLine();
