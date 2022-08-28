@@ -103,6 +103,7 @@ public:
 	void setManualPositionTargetWithVelocity(double targetPosition, double targetVelocity);
 	void setManualPositionTargetWithTime(double targetPosition, double targetTime);
 	void forcePositionTarget(double position, double velocity, double acceleration);
+	void forceVelocityTarget(double velocity, double acceleration);
 	
 private:
 	void setVelocityTarget(double velocityTarget);
@@ -151,7 +152,8 @@ public:
 	enum ControlMode{
 		VELOCITY_SETPOINT,	//manual velocity control
 		POSITION_SETPOINT,	//go to position
-		FORCED_POSITION_SETPOINT
+		FORCED_POSITION_SETPOINT,
+		FORCED_VELOCITY_SETPOINT
 	}controlMode = ControlMode::VELOCITY_SETPOINT;
 	double velocitySetpoint = 0.0;
 	double positionSetpoint = 0.0;

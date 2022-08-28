@@ -977,3 +977,117 @@ void endFrame(){
 	frameDrawingLayers.Merge(frameDrawing);
 }
 
+
+
+
+void textAligned(const char* txt, ImVec2 position, TextAlignement alignement, ImVec2 minBounding, ImVec2 maxBounding){
+	if(txt == nullptr) return;
+	ImVec2 textSize = ImGui::CalcTextSize(txt);
+	ImVec2 drawPosition;
+	switch(alignement){
+		case TextAlignement::LEFT_TOP:
+		case TextAlignement::LEFT_MIDDLE:
+		case TextAlignement::LEFT_BOTTOM:
+			drawPosition.x = position.x;
+			break;
+		case TextAlignement::MIDDLE_TOP:
+		case TextAlignement::MIDDLE_MIDDLE:
+		case TextAlignement::MIDDLE_BOTTOM:
+			drawPosition.x = position.x - textSize.x * .5f;
+			break;
+		case TextAlignement::RIGHT_TOP:
+		case TextAlignement::RIGHT_MIDDLE:
+		case TextAlignement::RIGHT_BOTTOM:
+			drawPosition.x = position.x - textSize.x;
+			break;
+	}
+	switch(alignement){
+		case TextAlignement::LEFT_TOP:
+		case TextAlignement::MIDDLE_TOP:
+		case TextAlignement::RIGHT_TOP:
+			drawPosition.y = position.y;
+			break;
+		case TextAlignement::LEFT_MIDDLE:
+		case TextAlignement::MIDDLE_MIDDLE:
+		case TextAlignement::RIGHT_MIDDLE:
+			drawPosition.y = position.y - textSize.y * .5f;
+			break;
+		case TextAlignement::LEFT_BOTTOM:
+		case TextAlignement::MIDDLE_BOTTOM:
+		case TextAlignement::RIGHT_BOTTOM:
+			drawPosition.y = position.y - textSize.y;
+			break;
+	}
+	
+	drawPosition.x = std::max(drawPosition.x, minBounding.x);
+	drawPosition.y = std::max(drawPosition.y, minBounding.x);
+	drawPosition.x = std::min(drawPosition.x, maxBounding.x - textSize.x);
+	drawPosition.y = std::min(drawPosition.y, maxBounding.y - textSize.y);
+	ImGui::GetWindowDrawList()->AddText(drawPosition, ImGui::GetColorU32(ImGuiCol_Text), txt);
+}
+
+
+void textAlignedBackground(const char* txt,
+						   ImVec2 position,
+						   TextAlignement alignement,
+						   ImVec4 backgroundColor,
+						   ImVec2 padding,
+						   float rounding,
+						   ImDrawFlags drawFlags/*,
+						   ImVec2 minBounding,
+						   ImVec2 maxBounding*/){
+	
+	if(txt == nullptr) return;
+	ImVec2 textSize = ImGui::CalcTextSize(txt);
+	ImVec2 boxSize = ImVec2(textSize.x + padding.x * 2.f, textSize.y + padding.y * 2.f);
+	ImVec2 boxPositionMin;
+	
+	switch(alignement){
+		case TextAlignement::LEFT_TOP:
+		case TextAlignement::LEFT_MIDDLE:
+		case TextAlignement::LEFT_BOTTOM:
+			boxPositionMin.x = position.x;
+			break;
+		case TextAlignement::MIDDLE_TOP:
+		case TextAlignement::MIDDLE_MIDDLE:
+		case TextAlignement::MIDDLE_BOTTOM:
+			boxPositionMin.x = position.x - boxSize.x * .5f;
+			break;
+		case TextAlignement::RIGHT_TOP:
+		case TextAlignement::RIGHT_MIDDLE:
+		case TextAlignement::RIGHT_BOTTOM:
+			boxPositionMin.x = position.x - boxSize.x;
+			break;
+	}
+	switch(alignement){
+		case TextAlignement::LEFT_TOP:
+		case TextAlignement::MIDDLE_TOP:
+		case TextAlignement::RIGHT_TOP:
+			boxPositionMin.y = position.y;
+			break;
+		case TextAlignement::LEFT_MIDDLE:
+		case TextAlignement::MIDDLE_MIDDLE:
+		case TextAlignement::RIGHT_MIDDLE:
+			boxPositionMin.y = position.y - boxSize.y * .5f;
+			break;
+		case TextAlignement::LEFT_BOTTOM:
+		case TextAlignement::MIDDLE_BOTTOM:
+		case TextAlignement::RIGHT_BOTTOM:
+			boxPositionMin.y = position.y - boxSize.y;
+			break;
+	}
+	
+	/*
+	boxPositionMin.x = std::max(boxPositionMin.x, minBounding.x);
+	boxPositionMin.y = std::max(boxPositionMin.y, minBounding.y);
+	boxPositionMin.x = std::min(boxPositionMin.x, maxBounding.x - boxSize.x);
+	boxPositionMin.y = std::min(boxPositionMin.y, maxBounding.y - boxSize.y);
+	*/
+	 
+	ImVec2 textPosition = ImVec2(boxPositionMin.x + padding.x, boxPositionMin.y + padding.y);
+	ImVec2 boxPositionMax = ImVec2(boxPositionMin.x + boxSize.x, boxPositionMin.y + boxSize.y);
+	
+	ImDrawList* drawing = ImGui::GetWindowDrawList();
+	drawing->AddRectFilled(boxPositionMin, boxPositionMax, ImColor(backgroundColor), rounding, drawFlags);
+	drawing->AddText(textPosition, ImGui::GetColorU32(ImGuiCol_Text), txt);
+}

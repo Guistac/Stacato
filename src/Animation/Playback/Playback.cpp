@@ -56,6 +56,7 @@ namespace PlaybackManager {
 	void removeAnimation(std::shared_ptr<Animation> animation){
 		for(int i = 0; i < activeAnimations.size(); i++){
 		   if(activeAnimations[i] == animation){
+			   animation->getAnimatable()->currentAnimation = nullptr;
 			   activeAnimations.erase(activeAnimations.begin() + i);
 			   break;
 		   }

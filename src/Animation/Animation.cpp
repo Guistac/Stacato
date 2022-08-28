@@ -217,7 +217,8 @@ void Animation::rapidToPlaybackPosition(){
 		
 		b_isPlaying = false;
 		b_isInRapid = true;
-		b_isPaused = true;
+		if(getType() == ManoeuvreType::KEY) b_isPaused = false;
+		else b_isPaused = true;
 		
 		auto thisAnimation = shared_from_this();
 		animatable->currentAnimation = thisAnimation;

@@ -103,13 +103,11 @@ void SharedAxisMachine::updateAnimatableParameters(){
 	
 	axis1Animatable->lowerPositionLimit = axis1PositionToMachinePosition(axis1->getLowPositionLimit());
 	axis2Animatable->lowerPositionLimit = axis2PositionToMachinePosition(axis2->getLowPositionLimit());
-	//synchronizedAnimatable->lowerPositionLimit = axis1isMaster->value ? axis1Animatable->lowerPositionLimit : axis2Animatable->lowerPositionLimit;
-	//this gets set cyclically
+	synchronizedAnimatable->lowerPositionLimit = std::min(axis1Animatable->lowerPositionLimit, axis2Animatable->lowerPositionLimit);
 	
 	axis1Animatable->upperPositionLimit = axis1PositionToMachinePosition(axis1->getHighPositionLimit());
 	axis2Animatable->upperPositionLimit = axis2PositionToMachinePosition(axis2->getHighPositionLimit());
-	//synchronizedAnimatable->upperPositionLimit = axis1isMaster->value ? axis1Animatable->upperPositionLimit : axis2Animatable->upperPositionLimit;
-	//this gets set cyclically
+	synchronizedAnimatable->upperPositionLimit = std::max(axis1Animatable->upperPositionLimit, axis2Animatable->upperPositionLimit);
 	
 	axis1Animatable->velocityLimit = velocityLimit->value;
 	axis2Animatable->velocityLimit = velocityLimit->value;
@@ -118,6 +116,13 @@ void SharedAxisMachine::updateAnimatableParameters(){
 	axis1Animatable->accelerationLimit = accelerationLimit->value;
 	axis2Animatable->accelerationLimit = accelerationLimit->value;
 	synchronizedAnimatable->accelerationLimit = accelerationLimit->value;
+}
+
+void SharedAxisMachine::addConstraints(){
+	axis1AnticollisionConstraint = std::make_shared<AnimatablePosition_KeepoutConstraint>("anti collision", 0.0, 0.0);
+	axis2AnticollisionConstraint = std::make_shared<AnimatablePosition_KeepoutConstraint>("anti collision", 0.0, 0.0);
+	axis1Animatable->addConstraint(axis1AnticollisionConstraint);
+	axis2Animatable->addConstraint(axis2AnticollisionConstraint);
 }
 
 
@@ -200,6 +205,12 @@ void SharedAxisMachine::onEnableHardware() {
 
 void SharedAxisMachine::onDisableHardware() {
 	Logger::info("Disabled Machine {}", getName());
+	axis1Animatable->stopMovement();
+	axis1Animatable->stopAnimation();
+	axis2Animatable->stopMovement();
+	axis2Animatable->stopAnimation();
+	synchronizedAnimatable->stopMovement();
+	synchronizedAnimatable->stopAnimation();
 }
 
 bool SharedAxisMachine::isSimulationReady(){
@@ -274,6 +285,18 @@ void SharedAxisMachine::inputProcess() {
 	axis2RealPosition->acceleration = axis2ToMachineConversion(0.0);
 	axis2Animatable->updateActualValue(axis2RealPosition);
 	
+	auto synchronizedActualPosition = AnimationValue::makePosition();
+	if(axis1isMaster->value){
+		synchronizedActualPosition->position = axis1Animatable->motionProfile.getPosition();
+		synchronizedActualPosition->velocity = axis1Animatable->motionProfile.getVelocity();
+		synchronizedActualPosition->acceleration = axis1Animatable->motionProfile.getAcceleration();
+	}else{
+		synchronizedActualPosition->position = axis2Animatable->motionProfile.getPosition();
+		synchronizedActualPosition->velocity = axis2Animatable->motionProfile.getVelocity();
+		synchronizedActualPosition->acceleration = axis2Animatable->motionProfile.getAcceleration();
+	}
+	synchronizedAnimatable->updateActualValue(synchronizedActualPosition);
+	
 	*position1PinValue = axis1RealPosition->position;
 	*velocity1PinValue = axis1RealPosition->velocity;
 	*position2PinValue = axis2RealPosition->position;
@@ -288,15 +311,13 @@ void SharedAxisMachine::inputProcess() {
 	axis2Animatable->upperPositionLimit = axis2PositionToMachinePosition(axis2->getHighPositionLimit());
 	if(invertAxis2->value) std::swap(axis2Animatable->lowerPositionLimit, axis2Animatable->upperPositionLimit); //swap limits if the axis is inverted
 	
+	/*
+	 //TODO: add constraints to the synchronized animatable
 	if(enableSynchronousControl->value){
-		//if synchronous control is enabled, the synchronous animatable always has priority over the individual animatables
-		//the synchronous animatable has position limits
 		double axis1Position = axis1Animatable->getActualPosition();
 		double axis2Position = axis2Animatable->getActualPosition();
 		double positionDifference = std::abs(axis1Position - axis2Position);
-		
 		if(axis1isMaster->value){
-			synchronizedAnimatable->updateActualValue(axis1RealPosition);
 			if(axis1Position < axis2Position) {
 				synchronizedAnimatable->lowerPositionLimit = axis1Animatable->lowerPositionLimit;
 				synchronizedAnimatable->upperPositionLimit = axis1Animatable->upperPositionLimit - positionDifference;
@@ -306,7 +327,6 @@ void SharedAxisMachine::inputProcess() {
 				synchronizedAnimatable->upperPositionLimit = axis1Animatable->upperPositionLimit;
 			}
 		}else{
-			synchronizedAnimatable->updateActualValue(axis2RealPosition);
 			if(axis2Position < axis1Position) {
 				synchronizedAnimatable->lowerPositionLimit = axis2Animatable->lowerPositionLimit;
 				synchronizedAnimatable->upperPositionLimit = axis2Animatable->upperPositionLimit - positionDifference;
@@ -317,24 +337,44 @@ void SharedAxisMachine::inputProcess() {
 			}
 		}
 	}
+	 */
 	
-	//update anticollision limits
-	//TODO: these should be constraints, since limits mess with validating animation in manoeuvres
 	if(enableAntiCollision->value){
 		if(axis1isAboveAxis2->value){
 			//Axis 1 > Axis 2
-			axis1Animatable->lowerPositionLimit = axis2Animatable->getBrakingPosition() + std::abs(minimumDistanceBetweenAxes->value);
-			axis2Animatable->upperPositionLimit = axis1Animatable->getBrakingPosition() - std::abs(minimumDistanceBetweenAxes->value);
+			double axis1MinPosition = axis2Animatable->getBrakingPosition() + std::abs(minimumDistanceBetweenAxes->value);
+			axis1AnticollisionConstraint->adjust(-std::numeric_limits<double>::infinity(), axis1MinPosition);
+			double axis2MaxPosition = axis1Animatable->getBrakingPosition() - std::abs(minimumDistanceBetweenAxes->value);
+			axis2AnticollisionConstraint->adjust(axis2MaxPosition, std::numeric_limits<double>::infinity());
+			
 		}else{
 			//Axis 1 < Axis 2
-			axis1Animatable->upperPositionLimit = axis2Animatable->getBrakingPosition() - std::abs(minimumDistanceBetweenAxes->value);
-			axis2Animatable->lowerPositionLimit = axis1Animatable->getBrakingPosition() + std::abs(minimumDistanceBetweenAxes->value);
+			double axis1MaxPosition = axis2Animatable->getBrakingPosition() - std::abs(minimumDistanceBetweenAxes->value);
+			axis1AnticollisionConstraint->adjust(axis1MaxPosition, std::numeric_limits<double>::infinity());
+			double axis2MinPosition = axis1Animatable->getBrakingPosition() + std::abs(minimumDistanceBetweenAxes->value);
+			axis2AnticollisionConstraint->adjust(-std::numeric_limits<double>::infinity(), axis2MinPosition);
 		}
+		axis1AnticollisionConstraint->enable();
+		axis2AnticollisionConstraint->enable();
+	}else{
+		axis1AnticollisionConstraint->disable();
+		axis2AnticollisionConstraint->disable();
 	}
+	
+	
 	
 }
 
 void SharedAxisMachine::outputProcess(){
+	
+	if(b_emergencyStopActive) {
+		axis1Animatable->stopMovement();
+		axis1Animatable->stopAnimation();
+		axis2Animatable->stopMovement();
+		axis2Animatable->stopAnimation();
+		synchronizedAnimatable->stopMovement();
+		synchronizedAnimatable->stopAnimation();
+	}
 	
 	//handle dead mans switch
 	if(!isMotionAllowed()){
@@ -349,97 +389,105 @@ void SharedAxisMachine::outputProcess(){
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
 	
-	if (!isEnabled() || isHoming()) {
+	auto axis1 = getAxis1();
+	auto axis2 = getAxis2();
+	
+	if (!isEnabled() || axis1->isHoming() || axis2->isHoming()) {
 		//if the machine is not enabled or is homing, the animatable doesn't do anything
 		//we juste copy real values to the motion profile of the animatable
 		axis1Animatable->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
 		axis2Animatable->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
 		synchronizedAnimatable->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
+		controlMode = ControlMode::NONE;
 	}
 	else{
 		
+		//decide which control mode we are in
+		//synchronous control has priority
+		if(b_forceSynchronousControl || synchronizedAnimatable->isControlledManuallyOrByAnimation() || synchronizedAnimatable->controlMode == AnimatablePosition::POSITION_SETPOINT) {
+			controlMode = ControlMode::SYNCHRONOUS;
+		}
+		else if(axis1Animatable->isControlledManuallyOrByAnimation() || axis2Animatable->isControlledManuallyOrByAnimation()) {
+			controlMode = ControlMode::INDIVIDUAL;
+		}
+		else {
+			controlMode = ControlMode::NONE;
+		}
 		
-		if(enableSynchronousControl->value){
-			//while the synchronous animatable is not controlled, we record the position difference of the axis
-			//if the synchronous animatable is controlled, it takes priority and maintains the last recorded position difference between the axes
+		auto masterAnimatable = axis1isMaster->value ? axis1Animatable : axis2Animatable;
+		auto slaveAnimatable = axis1isMaster->value ? axis2Animatable : axis1Animatable;
+		
+		//if we are in synchronous control and the synchronoous animatable has a position setpoint
+		//only exit synchronous mode if the master profile has reached the synchronous profile target
+		if(controlMode == ControlMode::SYNCHRONOUS &&
+		   synchronizedAnimatable->controlMode == AnimatablePosition::POSITION_SETPOINT &&
+		   !synchronizedAnimatable->isControlledManuallyOrByAnimation()){
 			
-			bool b_synchronousControl = b_forceSynchronousControl || synchronizedAnimatable->isControlledManuallyOrByAnimation();
+			if(masterAnimatable->motionProfile.getPosition() == synchronizedAnimatable->motionProfile.getPosition() &&
+			   masterAnimatable->motionProfile.getAcceleration() == synchronizedAnimatable->motionProfile.getAcceleration() &&
+			   masterAnimatable->motionProfile.getVelocity() == synchronizedAnimatable->motionProfile.getVelocity()){
+				controlMode = ControlMode::NONE;
+			}
 			
-			if(b_synchronousControl){
-				Logger::warn("Synchronous Mode");
+		}
+		
+		
+		switch(controlMode){
+			case ControlMode::NONE:
 				
-				synchronizedAnimatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+				axis1Animatable->controlMode = AnimatablePosition::VELOCITY_SETPOINT;
+				axis1Animatable->velocitySetpoint = 0.0;
+				axis2Animatable->controlMode = AnimatablePosition::VELOCITY_SETPOINT;
+				axis2Animatable->velocitySetpoint = 0.0;
+				synchronizedAnimatable->controlMode = AnimatablePosition::VELOCITY_SETPOINT;
+				synchronizedAnimatable->velocitySetpoint = 0.0;
 				
-				auto synchronizedTarget = synchronizedAnimatable->getTargetValue()->toPosition();
-				double masterTargetPosition = synchronizedTarget->position;
-				double masterTargetVelocity = synchronizedTarget->velocity;
-				double masterTargetAcceleration = synchronizedTarget->acceleration;
+				axis1Animatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+				axis2Animatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+				synchronizedAnimatable->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
 				
+				break;
 				
+			case ControlMode::INDIVIDUAL:
 				
-				//double masterSlavePositionDifference = std::abs(axis2Animatable->motionProfile.getPosition() - axis1Animatable->motionProfile.getPosition());
-				double slaveTargetPosition;
-				if(axis1isMaster->value) {
-					slaveTargetPosition = masterTargetPosition + (axis2Animatable->motionProfile.getPosition() - axis1Animatable->motionProfile.getPosition());
-				}
-				else slaveTargetPosition = masterTargetPosition + (axis1Animatable->motionProfile.getPosition() - axis2Animatable->motionProfile.getPosition());
+				synchronizedAnimatable->stopMovement();
+				synchronizedAnimatable->stopAnimation();
+			
+				synchronizedAnimatable->controlMode = AnimatablePosition::FORCED_POSITION_SETPOINT;
+				synchronizedAnimatable->motionProfile.setPosition(masterAnimatable->motionProfile.getPosition());
+				synchronizedAnimatable->motionProfile.setVelocity(masterAnimatable->motionProfile.getVelocity());
+				synchronizedAnimatable->motionProfile.setAcceleration(masterAnimatable->motionProfile.getAcceleration());
 				
+				axis1Animatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+				axis2Animatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+				break;
+				
+			case ControlMode::SYNCHRONOUS:
+								
 				axis1Animatable->stopMovement();
 				axis1Animatable->stopAnimation();
 				axis2Animatable->stopMovement();
 				axis2Animatable->stopAnimation();
 				
-				
-				if(axis1isMaster->value){
-					axis1Animatable->forcePositionTarget(synchronizedTarget->position, synchronizedTarget->velocity, synchronizedTarget->acceleration);
-					axis2Animatable->forcePositionTarget(slaveTargetPosition, synchronizedTarget->velocity, synchronizedTarget->acceleration);
-				}else{
-					axis2Animatable->forcePositionTarget(synchronizedTarget->position, synchronizedTarget->velocity, synchronizedTarget->acceleration);
-					axis1Animatable->forcePositionTarget(slaveTargetPosition, synchronizedTarget->velocity, synchronizedTarget->acceleration);
-				}
-				 
-				
-				/*
-				 if(axis1isMaster->value){
-					 synchronizedAnimatable->forcePositionTarget(axis1Animatable->motionProfile.getPosition(),
-																 axis1Animatable->motionProfile.getVelocity(),
-																 axis1Animatable->motionProfile.getAcceleration());
-				 }else{
-					 synchronizedAnimatable->forcePositionTarget(axis2Animatable->motionProfile.getPosition(),
-																 axis2Animatable->motionProfile.getVelocity(),
-																 axis2Animatable->motionProfile.getAcceleration());
-				 }
-				 */
-				 
-				
-			}else{
-				Logger::warn("Individual Mode");
-				
-				if(axis1isMaster->value){
-					synchronizedAnimatable->forcePositionTarget(axis1Animatable->getActualPosition(),
-																axis1Animatable->getActualVelocity(),
-																axis1Animatable->getActualAcceleration());
-				}else{
-					synchronizedAnimatable->forcePositionTarget(axis2Animatable->getActualPosition(),
-																axis2Animatable->getActualVelocity(),
-																axis2Animatable->getActualAcceleration());
-				}
 				synchronizedAnimatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+
+				masterAnimatable->forcePositionTarget(synchronizedAnimatable->motionProfile.getPosition(),
+													  synchronizedAnimatable->motionProfile.getVelocity(),
+													  synchronizedAnimatable->motionProfile.getAcceleration());
+				masterAnimatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
 				
-				if(axis1Animatable->controlMode == AnimatablePosition::FORCED_POSITION_SETPOINT) axis1Animatable->setManualVelocityTarget(0.0);
-				if(axis2Animatable->controlMode == AnimatablePosition::FORCED_POSITION_SETPOINT) axis2Animatable->setManualVelocityTarget(0.0);
-			}
-			
-			
-			
-			
-			
-			
+				slaveAnimatable->forceVelocityTarget(masterAnimatable->motionProfile.getVelocity(), masterAnimatable->motionProfile.getAcceleration());
+				slaveAnimatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+				
+				
+				 
+				double sync = synchronizedAnimatable->motionProfile.getPosition();
+				double master = masterAnimatable->motionProfile.getPosition();
+				Logger::warn("diff: {}", sync - master);
+
+				break;
 		}
-		
-		
-		axis1Animatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
-		axis2Animatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+			
 		
 		auto axis1Target = axis1Animatable->getTargetValue()->toPosition();
 		auto axis2Target = axis2Animatable->getTargetValue()->toPosition();
@@ -450,6 +498,7 @@ void SharedAxisMachine::outputProcess(){
 		getAxis2()->setMotionCommand(machinePositionToAxis2Position(axis2Target->position),
 									 machineToAxis2Conversion(axis2Target->velocity),
 									 machineToAxis2Conversion(axis2Target->acceleration));
+					
 	}
 }
 
@@ -469,6 +518,28 @@ void SharedAxisMachine::simulateInputProcess() {
 	else if(isEnabled() && !b_halted) animatablePosition->state = Animatable::State::READY;
 	else animatablePosition->state = Animatable::State::NOT_READY;
 	 */
+	
+	if(enableAntiCollision->value){
+		if(axis1isAboveAxis2->value){
+			//Axis 1 > Axis 2
+			double axis1MinPosition = axis2Animatable->getBrakingPosition() + std::abs(minimumDistanceBetweenAxes->value);
+			axis1AnticollisionConstraint->adjust(-std::numeric_limits<double>::infinity(), axis1MinPosition);
+			double axis2MaxPosition = axis1Animatable->getBrakingPosition() - std::abs(minimumDistanceBetweenAxes->value);
+			axis2AnticollisionConstraint->adjust(axis2MaxPosition, std::numeric_limits<double>::infinity());
+			
+		}else{
+			//Axis 1 < Axis 2
+			double axis1MaxPosition = axis2Animatable->getBrakingPosition() - std::abs(minimumDistanceBetweenAxes->value);
+			axis1AnticollisionConstraint->adjust(axis1MaxPosition, std::numeric_limits<double>::infinity());
+			double axis2MinPosition = axis1Animatable->getBrakingPosition() + std::abs(minimumDistanceBetweenAxes->value);
+			axis2AnticollisionConstraint->adjust(-std::numeric_limits<double>::infinity(), axis2MinPosition);
+		}
+		axis1AnticollisionConstraint->enable();
+		axis2AnticollisionConstraint->enable();
+	}else{
+		axis1AnticollisionConstraint->disable();
+		axis2AnticollisionConstraint->disable();
+	}
 }
 
 void SharedAxisMachine::simulateOutputProcess(){
@@ -490,48 +561,23 @@ bool SharedAxisMachine::canStartHoming(){
 	return isEnabled() && !Environnement::isSimulating();
 }
 
-bool SharedAxisMachine::isHoming(){
-	if(!areAxesConnected()) return false;
-	else return getAxis1()->isHoming() || getAxis2()->isHoming();
-}
-void SharedAxisMachine::startHoming(){
-	if(!areAxesConnected()) return false;
-	if(!isEnabled()) return false;
+void SharedAxisMachine::startHomingAxis1(){
 	axis1Animatable->stopMovement();
-	axis2Animatable->stopMovement();
 	synchronizedAnimatable->stopMovement();
 	getAxis1()->startHoming();
+}
+
+void SharedAxisMachine::startHomingAxis2(){
+	axis2Animatable->stopMovement();
+	synchronizedAnimatable->stopMovement();
 	getAxis2()->startHoming();
 }
-void SharedAxisMachine::stopHoming(){
-	if(!areAxesConnected()) return false;
-	getAxis1()->cancelHoming();
-	getAxis2()->cancelHoming();
+
+void SharedAxisMachine::startHomingBothAxes(){
+	startHomingAxis1();
+	startHomingAxis2();
 }
-bool SharedAxisMachine::didHomingSucceed(){
-	if(!areAxesConnected()) return false;
-	return getAxis1()->didHomingSucceed() && getAxis2()->didHomingSucceed();
-}
-bool SharedAxisMachine::didHomingFail(){
-	if(!areAxesConnected()) return false;
-	return getAxis1()->didHomingFail() || getAxis2()->didHomingFail();
-}
-float SharedAxisMachine::getHomingProgress(){
-	if(!areAxesConnected()) return false;
-	return std::min(getAxis1()->getHomingProgress(), getAxis2()->getHomingProgress());
-}
-const char* SharedAxisMachine::getHomingStateString(){
-	if(!areAxesConnected()) return "No Axes conneted...";
-	if(isHoming()){
-		if(getAxis1()->isHoming() && getAxis2()->isHoming()){
-			return "Homing Both Axis...";
-		}else if(getAxis1()->isHoming()){
-			return Enumerator::getDisplayString(getAxis1()->getHomingStep());
-		}else if(getAxis2()->isHoming()){
-			return Enumerator::getDisplayString(getAxis2()->getHomingStep());
-		}
-	}else return "Not Homing";
-}
+
 
 
 
@@ -589,6 +635,7 @@ bool SharedAxisMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	minimumDistanceBetweenAxes->save(generalXML);
 	enableSynchronousControl->save(generalXML);
 	axis1isMaster->save(generalXML);
+	allowUserHoming->save(generalXML);
 	
 	XMLElement* axis1XML = xml->InsertNewChildElement("Axis1");
 	invertAxis1->save(axis1XML);
@@ -621,6 +668,7 @@ bool SharedAxisMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	if(!enableSynchronousControl->load(generalXML)) return false;
 	enableSynchronousControl->onEdit();
 	if(!axis1isMaster->load(generalXML)) return false;
+	if(!allowUserHoming->load(generalXML)) return false;
 	
 	XMLElement* axis1XML;
 	if(!loadXMLElement("Axis1", xml, axis1XML)) return false;
@@ -650,17 +698,17 @@ bool SharedAxisMachine::loadMachine(tinyxml2::XMLElement* xml) {
 
 
 void SharedAxisMachine::captureAxis1PositionToOffset(double machinePosition){
-	//TODO: stop this from creating a following error, we need to override the setpoint in the animatable
 	double positionSetpoint = getAxis1()->getProfilePosition();
 	if(invertAxis1->value) axis1Offset->overwriteWithHistory(-1.f * positionSetpoint - machinePosition);
 	else axis1Offset->overwriteWithHistory(positionSetpoint - machinePosition);
+	axis1Animatable->motionProfile.setPosition(machinePosition);
 }
 
 void SharedAxisMachine::captureAxis2PositionToOffset(double machinePosition){
-	//TODO: stop this from creating a following error, we need to override the setpoint in the animatable
 	double positionSetpoint = getAxis2()->getProfilePosition();
 	if(invertAxis2->value) axis2Offset->overwriteWithHistory(positionSetpoint + machinePosition);
 	else axis2Offset->overwriteWithHistory(positionSetpoint - machinePosition);
+	axis2Animatable->motionProfile.setPosition(machinePosition);
 }
 
 double SharedAxisMachine::axis1PositionToMachinePosition(double axis1Position){

@@ -94,204 +94,7 @@ void SharedAxisMachine::controlsGui() {
 	if(ImGui::Button("Start Homing")){
 		
 	}
-	//ImGui::SameLine();
-	//backgroundText(<#const char *text#>)
 	
-	/*
-	ImGui::BeginChild("##manualMachineControls", ImGui::GetContentRegionAvail());
-	
-	if(!isAxisConnected()) {
-		ImGui::Text("No Axis Connected");
-		ImGui::EndChild();
-		return;
-	}
-	
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-	
-	ImGui::BeginDisabled(!isEnabled());
-
-	float widgetWidth = ImGui::GetContentRegionAvail().x;
-	
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Manual Velocity Control");
-	ImGui::PopFont();
-
-	float manualVelocityTarget = manualVelocityTarget_machineUnitsPerSecond;
-	ImGui::SetNextItemWidth(widgetWidth);
-	ImGui::SliderFloat("##velTar", &manualVelocityTarget, -axis->getVelocityLimit(), axis->getVelocityLimit());
-	if (ImGui::IsItemActive()) setVelocityTarget(manualVelocityTarget);
-	else if (ImGui::IsItemDeactivatedAfterEdit()) setVelocityTarget(0.0);
-
-	ImGui::Separator();
-
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Manual Position Control");
-	ImGui::PopFont();
-
-	static char positionTargetString[128];
-	sprintf(positionTargetString, "%.3f %s", manualPositionTarget_machineUnits, axis->getPositionUnit()->abbreviated);
-	ImGui::SetNextItemWidth(widgetWidth);
-	ImGui::InputDouble("##postar", &manualPositionTarget_machineUnits, 0.0, 0.0, positionTargetString);
-
-	glm::vec2 halfButtonSize((widgetWidth - ImGui::GetStyle().ItemSpacing.x) / 2.0, ImGui::GetTextLineHeight() * 2.0);
-
-	if (ImGui::Button("Move To Position", halfButtonSize)) {
-		moveToPosition(manualPositionTarget_machineUnits);
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Stop", halfButtonSize)) {
-		setVelocityTarget(0.0);
-	}
-
-	ImGui::Separator();
-
-	if (axis->isHomeable()) {
-
-		ImGui::PushFont(Fonts::sansBold20);
-		ImGui::Text("Homing Controls");
-		ImGui::PopFont();
-
-		if (ImGui::Button("Start Homing", halfButtonSize)) {
-		
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Cancel Homing", halfButtonSize)) {
-			
-		}
-
-		static char homingStateString[256];
-		sprintf(homingStateString, "Homing State: %s", Enumerator::getDisplayString(getAxis()->homingStep));
-		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-		ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
-		ImGui::Button(homingStateString, glm::vec2(widgetWidth, ImGui::GetTextLineHeight() * 1.5));
-		ImGui::PopStyleColor();
-		ImGui::PopItemFlag();
-
-
-	}
-
-	ImGui::EndDisabled();
-	 
-	
-	
-	
-	//-------------------------------- FEEDBACK --------------------------------
-		
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Feedback");
-	ImGui::PopFont();
-
-	glm::vec2 progressBarSize = ImGui::GetContentRegionAvail();
-	progressBarSize.y = ImGui::GetFrameHeight();
-	
-	//actual position in range
-	double minPosition = 0.0;
-	double maxPosition = 0.0;
-	double positionProgress = 0.0;
-	static char positionString[32];
-	if (!isEnabled()) {
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		positionProgress = 1.0;
-		sprintf(positionString, "Axis Disabled");
-	}
-	else {
-		minPosition = getLowPositionLimit();
-		maxPosition = getHighPositionLimit();
-		positionProgress = getPositionNormalized();
-		double positionValue;
-		if(isSimulating()) positionValue = motionProfile.getPosition();
-		else positionValue = axisPositionToMachinePosition(axis->getActualPosition());
-		if (positionProgress < 0.0 || positionProgress > 1.0) {
-			sprintf(positionString, "Axis out of limits : %.2f %s", positionValue, axis->getPositionUnit()->abbreviated);
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
-		}
-		else {
-			sprintf(positionString, "%.2f %s", positionValue, axis->getPositionUnit()->abbreviated);
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-		}
-	}
-	const char* shortPositionUnitString = axis->getPositionUnit()->abbreviated;
-	ImGui::Text("Current Position : (in range from %.2f %s to %.2f %s)", minPosition, shortPositionUnitString, maxPosition, shortPositionUnitString);
-	ImGui::ProgressBar(positionProgress, progressBarSize, positionString);
-	ImGui::PopStyleColor();
-
-
-	//actual velocity
-	float velocityProgress;
-	static char velocityString[32];
-	if (!isEnabled()) {
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		velocityProgress = 1.0;
-		sprintf(velocityString, "Axis Disabled");
-	}
-	else {
-		velocityProgress = std::abs(getVelocityNormalized());
-		double actualVelocity;
-		if(isSimulating()) actualVelocity = motionProfile.getVelocity();
-		else actualVelocity = axisVelocityToMachineVelocity(axis->getActualVelocity());
-		sprintf(velocityString, "%.2f %s/s", actualVelocity, axis->getPositionUnit()->abbreviated);
-		if (velocityProgress > 1.0)
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
-		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-	}
-	ImGui::Text("Current Velocity : (max %.2f%s/s)", axis->getVelocityLimit(), axis->getPositionUnit()->abbreviated);
-	ImGui::ProgressBar(velocityProgress, progressBarSize, velocityString);
-	ImGui::PopStyleColor();
-
-	float positionErrorProgress;
-	float maxfollowingError = 0.0;
-	static char positionErrorString[32];
-	if(!isEnabled()){
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		positionErrorProgress = 1.0;
-		sprintf(positionErrorString, "Axis Disabled");
-	}else{
-		if(isSimulating()){
-			positionErrorProgress = 1.0;
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-			sprintf(positionErrorString, "Simulating");
-		}else{
-			positionErrorProgress = std::abs(axis->getActualFollowingErrorNormalized());
-			if(positionErrorProgress < 1.0) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-			else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
-			maxfollowingError = axis->getFollowingErrorLimit();
-			double followingError = axis->getActualFollowingError();
-			sprintf(positionErrorString, "%.3f %s", followingError, axis->getPositionUnit()->abbreviated);
-		}
-	}
-
-	if(isSimulating()) ImGui::Text("Position Following Error:");
-	else ImGui::Text("Position Following Error : (max %.3f%s)", maxfollowingError, axis->getPositionUnit()->abbreviated);
-	ImGui::ProgressBar(positionErrorProgress, progressBarSize, positionErrorString);
-	ImGui::PopStyleColor();
-
-	//target movement progress
-	float targetProgress;
-	double movementSecondsLeft = 0.0;
-	static char movementProgressChar[32];
-	if (!isEnabled()) {
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-		sprintf(movementProgressChar, "Axis Disabled");
-		targetProgress = 1.0;
-	}
-	else{
-		targetProgress = motionProfile.getInterpolationProgress(Environnement::getTime_seconds());
-		if(targetProgress > 0.0 && targetProgress < 1.0){
-			movementSecondsLeft = motionProfile.getRemainingInterpolationTime(Environnement::getTime_seconds());
-			sprintf(movementProgressChar, "%.2fs", movementSecondsLeft);
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
-		}else{
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
-			sprintf(movementProgressChar, "No Target Movement");
-			targetProgress = 1.0;
-		}
-	}
-	ImGui::Text("Movement Time Remaining :");
-	ImGui::ProgressBar(targetProgress, progressBarSize, movementProgressChar);
-	ImGui::PopStyleColor();
-	
-	ImGui::EndChild();
-	 */
 }
 
 
@@ -450,6 +253,18 @@ void SharedAxisMachine::settingsGui() {
 		
 	}
 	
+	
+	ImGui::Separator(); //————————————————————————
+	
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("User Setup");
+	ImGui::PopFont();
+	
+	allowUserHoming->gui();
+	ImGui::SameLine();
+	ImGui::Text("Allow User Homing");
+	
 }
 
 void SharedAxisMachine::axisGui() {
@@ -561,14 +376,9 @@ void SharedAxisMachine::widgetGui(){
 	float sliderHeight = ImGui::GetTextLineHeight() * 10.0;
 	double separatorWidth = ImGui::GetTextLineHeight() * .25f;
 	
-	float minPos, maxPos;
-	if(axis1isAboveAxis2->value){
-		maxPos = axis1Animatable->upperPositionLimit;
-		minPos = axis2Animatable->lowerPositionLimit;
-	}else{
-		maxPos = axis2Animatable->upperPositionLimit;
-		minPos = axis1Animatable->lowerPositionLimit;
-	}
+	
+	float minPos = std::min(axis1Animatable->lowerPositionLimit, axis2Animatable->lowerPositionLimit);
+	float maxPos = std::max(axis1Animatable->upperPositionLimit, axis2Animatable->upperPositionLimit);
 	
 	auto getNormalizedPosition = [minPos, maxPos](double pos) -> double {
 		double norm = (pos - minPos) / (maxPos - minPos);
@@ -587,6 +397,7 @@ void SharedAxisMachine::widgetGui(){
 		
 		if(positionUnit->unitType == Units::Type::LINEAR_DISTANCE && horizontalControls->value){
 					
+			//draw control sliders and widgets
 			axis1Animatable->manualControlsHorizontalGui(sliderHeight, axis1Animatable->getName());
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - ImGui::GetStyle().ItemSpacing.y + separatorWidth);
 			axis2Animatable->manualControlsHorizontalGui(sliderHeight, axis2Animatable->getName());
@@ -595,7 +406,6 @@ void SharedAxisMachine::widgetGui(){
 				synchronizedAnimatable->manualControlsHorizontalGui(sliderHeight, "Synchro");
 			}
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - ImGui::GetStyle().ItemSpacing.y + separatorWidth);
-			
 			float controlsWidth = ImGui::GetItemRectSize().x;
 			
 			ImGui::BeginGroup();
@@ -603,49 +413,140 @@ void SharedAxisMachine::widgetGui(){
 			glm::vec2 min = ImGui::GetItemRectMin();
 			glm::vec2 max = ImGui::GetItemRectMax();
 			glm::vec2 size = max - min;
+			float middleY = min.y + size.y * .5f;
+						
+			//position indicator background
 			ImDrawList* drawing = ImGui::GetWindowDrawList();
+			ImGui::PushClipRect(min, max, true);
 			drawing->AddRectFilled(min, max, ImColor(Colors::darkGray));
 			
+			//draw keepout constraints
+			for(auto& constraint : axis1Animatable->getConstraints()){
+				if(constraint->getType() != AnimationConstraint::Type::KEEPOUT) continue;
+				auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
+				double constraintMinX = min.x + size.x * getNormalizedPosition(keepout->keepOutMinPosition);
+				double constraintMaxX = min.x + size.x * getNormalizedPosition(keepout->keepOutMaxPosition);
+				drawing->AddRectFilled(glm::vec2(constraintMinX, min.y),
+									   glm::vec2(constraintMaxX, middleY),
+									   constraint->isEnabled() ? ImColor(1.f, 0.f, 0.f, .4f) : ImColor(1.f, 1.f, 1.f, .2f));
+			}
+			for(auto& constraint : axis2Animatable->getConstraints()){
+				if(constraint->getType() != AnimationConstraint::Type::KEEPOUT) continue;
+				auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
+				double constraintMinX = min.x + size.x * getNormalizedPosition(keepout->keepOutMinPosition);
+				double constraintMaxX = min.x + size.x * getNormalizedPosition(keepout->keepOutMaxPosition);
+				drawing->AddRectFilled(glm::vec2(constraintMinX, middleY),
+									   glm::vec2(constraintMaxX, max.y),
+									   constraint->isEnabled() ? ImColor(1.f, 0.f, 0.f, .4f) : ImColor(1.f, 1.f, 1.f, .2f));
+			}
+			
+			//draw constraint limit lines
+			ImColor limitLineColor = ImColor(.0f, .0f, .0f, 1.f);
+			float limitLineThickness = ImGui::GetTextLineHeight() * .05f;
+			
+			double axis1ConstraintMin, axis1ConstraintMax;
+			axis1Animatable->getConstraintPositionLimits(axis1ConstraintMin, axis1ConstraintMax);
+			double axis1ConstraintMinX = min.x + size.x * getNormalizedPosition(axis1ConstraintMin);
+			double axis1ConstraintMaxX = min.x + size.x * getNormalizedPosition(axis1ConstraintMax);
+			drawing->AddLine(glm::vec2(axis1ConstraintMinX, min.y),
+							 glm::vec2(axis1ConstraintMinX, middleY),
+							 limitLineColor, limitLineThickness);
+			drawing->AddLine(glm::vec2(axis1ConstraintMaxX, min.y),
+							 glm::vec2(axis1ConstraintMaxX, middleY),
+							 limitLineColor, limitLineThickness);
+			
+			double axis2ConstraintMin, axis2ConstraintMax;
+			axis2Animatable->getConstraintPositionLimits(axis2ConstraintMin, axis2ConstraintMax);
+			double axis2ConstraintMinX = min.x + size.x * getNormalizedPosition(axis2ConstraintMin);
+			double axis2ConstraintMaxX = min.x + size.x * getNormalizedPosition(axis2ConstraintMax);
+			drawing->AddLine(glm::vec2(axis2ConstraintMinX, middleY),
+							 glm::vec2(axis2ConstraintMinX, max.y),
+							 limitLineColor, limitLineThickness);
+			drawing->AddLine(glm::vec2(axis2ConstraintMaxX, middleY),
+							 glm::vec2(axis2ConstraintMaxX, max.y),
+							 limitLineColor, limitLineThickness);
+			
+			
+			
+			//draw rapid target
+			
+			ImColor targetColor = ImColor(Colors::yellow);
+			float targetLineThickness = ImGui::GetTextLineHeight() * .05f;
+			float targetTriangleSize = ImGui::GetTextLineHeight() * .4f;
+			
+			if(axis1Animatable->isInRapid()){
+				float targetX = min.x + size.x * getNormalizedPosition(axis1Animatable->getRapidTarget()->toPosition()->position);
+				float triangleY = min.y + size.y * .25f;
+				drawing->AddLine(glm::vec2(targetX, min.y), glm::vec2(targetX, middleY), targetColor, targetLineThickness);
+				drawing->AddTriangleFilled(glm::vec2(targetX, triangleY),
+										   glm::vec2(targetX - targetTriangleSize, triangleY + targetTriangleSize * .4f),
+										   glm::vec2(targetX - targetTriangleSize, triangleY - targetTriangleSize * .4f),
+										   targetColor);
+				drawing->AddTriangleFilled(glm::vec2(targetX, triangleY),
+										   glm::vec2(targetX + targetTriangleSize, triangleY - targetTriangleSize * .4f),
+										   glm::vec2(targetX + targetTriangleSize, triangleY + targetTriangleSize * .4f),
+										   targetColor);
+			}
+			if(axis2Animatable->isInRapid()){
+				float targetX = min.x + size.x * getNormalizedPosition(axis2Animatable->getRapidTarget()->toPosition()->position);
+				float triangleY = middleY + size.y * .25f;
+				drawing->AddLine(glm::vec2(targetX, middleY), glm::vec2(targetX, max.y), targetColor, targetLineThickness);
+				drawing->AddTriangleFilled(glm::vec2(targetX, triangleY),
+										   glm::vec2(targetX - targetTriangleSize, triangleY + targetTriangleSize * .4f),
+										   glm::vec2(targetX - targetTriangleSize, triangleY - targetTriangleSize * .4f),
+										   targetColor);
+				drawing->AddTriangleFilled(glm::vec2(targetX, triangleY),
+										   glm::vec2(targetX + targetTriangleSize, triangleY - targetTriangleSize * .4f),
+										   glm::vec2(targetX + targetTriangleSize, triangleY + targetTriangleSize * .4f),
+										   targetColor);
+			}
+			
+			
+			
+			//draw position arrow indicators
+			float lineThickness = ImGui::GetTextLineHeight() * .05f;
+			float triangleSize = ImGui::GetTextLineHeight() * .5f;
+			ImColor positionIndicatorColor = ImColor(Colors::white);
+			ImColor brakingPositionIndicatorColor = ImColor(1.f, 1.f, 1.f, .3f);
 			
 			double axis1_X = min.x + size.x * getNormalizedPosition(axis1Animatable->getActualPosition());
 			double axis2_X = min.x + size.x * getNormalizedPosition(axis2Animatable->getActualPosition());
+			double axis1BrakingPositionX = min.x + size.x * getNormalizedPosition(axis1Animatable->getBrakingPosition());
+			double axis2BrakingPositionX = min.x + size.x * getNormalizedPosition(axis2Animatable->getBrakingPosition());
 			
-			if(enableAntiCollision->value){
-				double halfAnticollisionDistance = getNormalizedDistance(minimumDistanceBetweenAxes->value) * .5f * size.x;
-				if(axis1isAboveAxis2->value){
-					drawing->AddRectFilled(glm::vec2(axis1_X - halfAnticollisionDistance, min.y),
-										   glm::vec2(axis1_X, max.y),
-										   ImColor(1.f, 1.f, 1.f, .3f));
-					drawing->AddRectFilled(glm::vec2(axis2_X, min.y),
-										   glm::vec2(axis2_X + halfAnticollisionDistance, max.y),
-										   ImColor(1.f, 1.f, 1.f, .3f));
-				}else{
-					drawing->AddRectFilled(glm::vec2(axis1_X, min.y),
-										   glm::vec2(axis1_X + halfAnticollisionDistance, max.y),
-										   ImColor(1.f, 1.f, 1.f, .3f));
-					drawing->AddRectFilled(glm::vec2(axis2_X - halfAnticollisionDistance, min.y),
-										   glm::vec2(axis2_X, max.y),
-										   ImColor(1.f, 1.f, 1.f, .3f));
-				}
-			}
+			drawing->AddLine(glm::vec2(axis1BrakingPositionX, min.y),
+							 glm::vec2(axis1BrakingPositionX, middleY - triangleSize + 1.f),
+							 brakingPositionIndicatorColor, lineThickness);
+			drawing->AddLine(glm::vec2(axis2BrakingPositionX, max.y),
+							 glm::vec2(axis2BrakingPositionX, middleY + triangleSize - 1.f),
+							 brakingPositionIndicatorColor, lineThickness);
+			drawing->AddTriangleFilled(glm::vec2(axis1BrakingPositionX, middleY),
+									   glm::vec2(axis1BrakingPositionX - triangleSize * .4f, middleY - triangleSize),
+									   glm::vec2(axis1BrakingPositionX + triangleSize * .4f, middleY - triangleSize),
+									   brakingPositionIndicatorColor);
+			drawing->AddTriangleFilled(glm::vec2(axis2BrakingPositionX, middleY),
+									   glm::vec2(axis2BrakingPositionX + triangleSize * .4f, middleY + triangleSize),
+									   glm::vec2(axis2BrakingPositionX - triangleSize * .4f, middleY + triangleSize),
+									   brakingPositionIndicatorColor);
 			
-			float lineThickness = ImGui::GetTextLineHeight() * .05f;
-			float triangleSize = ImGui::GetTextLineHeight() * .5f;
+			drawing->AddLine(glm::vec2(axis1_X, min.y), glm::vec2(axis1_X, middleY - triangleSize + 1.f), positionIndicatorColor, lineThickness);
+			drawing->AddLine(glm::vec2(axis2_X, max.y), glm::vec2(axis2_X, middleY + triangleSize - 1.f), positionIndicatorColor, lineThickness);
+			drawing->AddTriangleFilled(glm::vec2(axis1_X, middleY),
+									   glm::vec2(axis1_X - triangleSize * .4f, middleY - triangleSize),
+									   glm::vec2(axis1_X + triangleSize * .4f, middleY - triangleSize),
+									   positionIndicatorColor);
+			drawing->AddTriangleFilled(glm::vec2(axis2_X, middleY),
+									   glm::vec2(axis2_X + triangleSize * .4f, middleY + triangleSize),
+									   glm::vec2(axis2_X - triangleSize * .4f, middleY + triangleSize),
+									   positionIndicatorColor);
 			
-			drawing->AddLine(glm::vec2(axis1_X, min.y + triangleSize - 1.f), glm::vec2(axis1_X, max.y), ImColor(Colors::white), lineThickness);
-			drawing->AddLine(glm::vec2(axis2_X, min.y), glm::vec2(axis2_X, max.y - triangleSize + 1.f), ImColor(Colors::white), lineThickness);
 			
-			drawing->AddTriangleFilled(glm::vec2(axis1_X, min.y),
-									   glm::vec2(axis1_X + triangleSize * .4f, min.y + triangleSize),
-									   glm::vec2(axis1_X - triangleSize * .4f, min.y + triangleSize),
-									   ImColor(Colors::white));
-			drawing->AddTriangleFilled(glm::vec2(axis2_X, max.y),
-									   glm::vec2(axis2_X - triangleSize * .4f, max.y - triangleSize),
-									   glm::vec2(axis2_X + triangleSize * .4f, max.y - triangleSize),
-									   ImColor(Colors::white));
-			
+			//draw separator and frame lines
+			drawing->AddLine(glm::vec2(min.x, middleY), glm::vec2(max.x, middleY), ImColor(Colors::veryDarkGray), ImGui::GetTextLineHeight() * .025f);
 			float frameWidth = ImGui::GetTextLineHeight() * 0.05;
 			drawing->AddRect(min - glm::vec2(frameWidth * .5f), max + glm::vec2(frameWidth * .5f), ImColor(Colors::black), frameWidth, ImDrawFlags_RoundCornersAll, frameWidth);
+			
+			ImGui::PopClipRect();
 			
 		}else{
 			
@@ -728,17 +629,17 @@ void SharedAxisMachine::widgetGui(){
 		
 	}else if(positionUnit->unitType == Units::Type::ANGULAR_DISTANCE){
 		
-		//ImGui::BeginDisabled(enableSynchronousControl->value && synchronizedAnimatable->isControlledManuallyOrByAnimation());
+		ImGui::BeginDisabled(controlMode == ControlMode::SYNCHRONOUS);
 		axis1Animatable->manualControlsVerticalGui(sliderHeight, axis1Animatable->getName());
 		ImGui::SameLine(.0f, separatorWidth);
 		axis2Animatable->manualControlsVerticalGui(sliderHeight, axis2Animatable->getName());
-		//ImGui::EndDisabled();
+		ImGui::EndDisabled();
 		
 		if(enableSynchronousControl->value){
 			ImGui::SameLine(.0f, separatorWidth);
-			//ImGui::BeginDisabled(!synchronizedAnimatable->isControlledManuallyOrByAnimation() && isMoving());
+			ImGui::BeginDisabled(controlMode == ControlMode::INDIVIDUAL);
 			synchronizedAnimatable->manualControlsVerticalGui(sliderHeight, "Synchro");
-			//ImGui::EndDisabled();
+			ImGui::EndDisabled();
 		}
 		
 		ImGui::SameLine(.0f, separatorWidth);
@@ -856,6 +757,10 @@ void SharedAxisMachine::widgetGui(){
 		ImGui::SameLine();
 		ImGui::Text("Force Sync");
 		
+		if(controlMode == ControlMode::NONE) ImGui::Text("None");
+		else if(controlMode == ControlMode::SYNCHRONOUS) ImGui::Text("Synchronous");
+		else if(controlMode == ControlMode::INDIVIDUAL) ImGui::Text("Individual");
+		 
 	}
 	ImGui::EndGroup();
 	
@@ -863,4 +768,67 @@ void SharedAxisMachine::widgetGui(){
 	ImGui::EndGroup();
 	ImGui::EndDisabled();
 	ImGui::PopStyleVar();
+}
+
+
+bool SharedAxisMachine::hasSetupGui(){
+	return allowUserHoming->value;
+}
+
+void SharedAxisMachine::setupGui(){
+	
+	if(!areAxesConnected()){
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+		ImGui::Text("Axes are not connected");
+		ImGui::PopStyleColor();
+		return;
+	}
+	
+	auto axis1 = getAxis1();
+	auto axis2 = getAxis2();
+	
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetStyle().ItemSpacing.y));
+	
+	if(allowUserHoming->value){
+		
+		glm::vec2 homingButtonSize(ImGui::GetTextLineHeight() * 10.0, ImGui::GetFrameHeight());
+		glm::vec2 homingIndicatorSize(ImGui::GetTextLineHeight() * 10.0, ImGui::GetFrameHeight());
+		
+		char homingButtonString[64];
+		
+		ImGui::BeginDisabled(!canStartHoming());
+		
+		auto homingGui = [&](std::shared_ptr<PositionControlledAxis> axis){
+			if(axis->isHoming()){
+				sprintf(homingButtonString, "Stop Homing %s", axis->getName());
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+				if(ImGui::Button(homingButtonString, homingButtonSize)) axis->cancelHoming();
+				ImGui::PopStyleColor();
+			}else{
+				sprintf(homingButtonString, "Start Homing %s", axis->getName());
+				if(ImGui::Button(homingButtonString, homingButtonSize)) axis->startHoming();
+			}
+			ImGui::SameLine();
+			ImVec4 axisHomingProgressIndicatorColor = Colors::darkGray;
+			if(axis->isHoming()) axisHomingProgressIndicatorColor = Colors::orange;
+			else if(axis->didHomingSucceed()) axisHomingProgressIndicatorColor = Colors::green;
+			else if(axis->didHomingFail()) axisHomingProgressIndicatorColor = Colors::red;
+			backgroundText(Enumerator::getDisplayString(axis->getHomingStep()), homingIndicatorSize, axisHomingProgressIndicatorColor);
+		};
+		
+		if(ImGui::Button("Start Homing Both Axes", homingButtonSize)) startHomingBothAxes();
+		ImGui::SameLine();
+		if(ImGui::Button("Stop Homing All Axes", homingButtonSize)) {
+			axis1->cancelHoming();
+			axis2->cancelHoming();
+		}
+		homingGui(axis1);
+		homingGui(axis2);
+		
+		ImGui::EndDisabled();
+		
+	}
+	
+	ImGui::PopStyleVar();
+	
 }

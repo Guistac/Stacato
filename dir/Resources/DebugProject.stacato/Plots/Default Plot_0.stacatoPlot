@@ -1,37 +1,16 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="M-0" Description="" Type="Sequence">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="20" Duration="10" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
-                <Curves>
-                    <Curve>
-                        <ControlPoint Position="0" Time="0" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
-                        <ControlPoint Position="20" Time="10" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
-                    </Curve>
-                </Curves>
-            </Animation>
+        <Manoeuvre Name="M-4" Description="" Type="Key">
+            <Animation Machine="Flip G-C2" MachineUniqueID="1550" Parameter="State" IsComposite="false" Type="Key" Target="OpenLowered"/>
+            <Animation Machine="Flip E-C2" MachineUniqueID="1701" Parameter="State" IsComposite="false" Type="Key" Target="OpenLowered"/>
+            <Animation Machine="Flip C-C2" MachineUniqueID="1765" Parameter="State" IsComposite="false" Type="Key" Target="OpenLowered"/>
+            <Animation Machine="Flip A-C2" MachineUniqueID="1877" Parameter="State" IsComposite="false" Type="Key" Target="OpenLowered"/>
         </Manoeuvre>
-        <Manoeuvre Name="M-0 (copy)" Description="" Type="Sequence">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Anneau" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="200" Duration="30" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
-                <Curves>
-                    <Curve>
-                        <ControlPoint Position="0" Time="0" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
-                        <ControlPoint Position="200" Time="30" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
-                    </Curve>
-                </Curves>
-            </Animation>
-        </Manoeuvre>
-        <Manoeuvre Name="M-1" Description="" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-        </Manoeuvre>
-        <Manoeuvre Name="M-2" Description="" Type="Sequence">
-            <Animation Machine="Periactes Lointain" MachineUniqueID="2223" Parameter="Cour" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="25" End="20" Duration="20" TimeOffset="0" StartAcceleration="0.10000000000000001" EndAcceleration="0.10000000000000001">
-                <Curves>
-                    <Curve>
-                        <ControlPoint Position="25" Time="0" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
-                        <ControlPoint Position="20" Time="20" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
-                    </Curve>
-                </Curves>
-            </Animation>
+        <Manoeuvre Name="M-4 (copy)" Description="" Type="Target">
+            <Animation Machine="Flip G-C2" MachineUniqueID="1550" Parameter="State" IsComposite="false" Type="Target" Target="Closed" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Flip E-C2" MachineUniqueID="1701" Parameter="State" IsComposite="false" Type="Target" Target="Closed" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Flip C-C2" MachineUniqueID="1765" Parameter="State" IsComposite="false" Type="Target" Target="Closed" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Flip A-C2" MachineUniqueID="1877" Parameter="State" IsComposite="false" Type="Target" Target="Closed" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

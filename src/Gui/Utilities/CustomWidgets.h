@@ -92,3 +92,29 @@ bool customRoundedButton(const char* string, ImVec2 size, float rounding, ImDraw
 
 void startFrame(ImVec4 backgroundColor, float outlineWidth, ImVec4 outlineColor, ImVec2 outerSize = ImVec2(0,0), ImDrawFlags drawFlags = ImDrawFlags_RoundCornersAll);
 void endFrame();
+
+
+
+enum class TextAlignement{
+	LEFT_TOP,
+	LEFT_MIDDLE,
+	LEFT_BOTTOM,
+	MIDDLE_TOP,
+	MIDDLE_MIDDLE,
+	MIDDLE_BOTTOM,
+	RIGHT_TOP,
+	RIGHT_MIDDLE,
+	RIGHT_BOTTOM
+};
+
+void textAligned(const char* txt, ImVec2 position, TextAlignement alignement, ImVec2 minBounding = ImVec2(FLT_MIN, FLT_MIN), ImVec2 maxBounding = ImVec2(FLT_MAX, FLT_MAX));
+
+void textAlignedBackground(const char* txt,
+						   ImVec2 position,
+						   TextAlignement alignement,
+						   ImVec4 backgroundColor,
+						   ImVec2 padding = ImGui::GetStyle().FramePadding,
+						   float rounding = ImGui::GetStyle().FrameRounding,
+						   ImDrawFlags drawFlags = ImDrawFlags_RoundCornersAll/*,
+						   ImVec2 minBounding = ImVec2(FLT_MIN, FLT_MIN),
+						   ImVec2 maxBounding = ImVec2(FLT_MAX, FLT_MAX)*/);

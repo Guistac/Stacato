@@ -44,16 +44,12 @@ namespace EtherCatFieldbus {
 		XMLElement* primaryNicXML = networkInterfaceCardXML->FirstChildElement("Primary");
 		if (primaryNicXML){
 			const char* primaryNicDescription;
-			const char* primaryNicName;
 			const char* redundantNicDescription;
-			const char* redundantNicName;
 			if (primaryNicXML->QueryStringAttribute("Description", &primaryNicDescription) != XML_SUCCESS) return Logger::warn("Could not read primary NIC description");
-			if (primaryNicXML->QueryStringAttribute("Name", &primaryNicName) != XML_SUCCESS) return Logger::warn("Could not read primary NIC name");
 			XMLElement* redundantNicXML = networkInterfaceCardXML->FirstChildElement("Redundant");
 			bool hasRedundantNic = redundantNicXML != nullptr;
 			if (hasRedundantNic) {
 				if (redundantNicXML->QueryStringAttribute("Description", &redundantNicDescription) != XML_SUCCESS) return Logger::warn("Could not read redundant NIC description");
-				if (redundantNicXML->QueryStringAttribute("Name", &redundantNicName) != XML_SUCCESS) return Logger::warn("Could not read redundant NIC name");
 			}
 			setDefaultNetworkInterfaces(primaryNicDescription, redundantNicDescription);
 		}

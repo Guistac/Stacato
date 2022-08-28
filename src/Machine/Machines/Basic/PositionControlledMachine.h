@@ -13,7 +13,7 @@
 class PositionControlledMachine : public Machine{
 	
 	DEFINE_MACHINE_NODE(PositionControlledMachine, "Position Controlled Machine", "PositionControlledMachine", "Basic")
-	DEFINE_HOMEABLE_MACHINE
+	
 
 	std::shared_ptr<AnimatablePosition> animatablePosition = AnimatablePosition::make("Position", Units::None::None);
 	
@@ -45,12 +45,34 @@ class PositionControlledMachine : public Machine{
 
 	//————————— Settings ——————————
 	
-	std::shared_ptr<NumberParameter<double>> axisOffset = NumberParameter<double>::make(0.0, "Axis Offset", "AxisOffset", "%.3f");
+	Unit positionUnit = Units::None::None;
+	
 	std::shared_ptr<BooleanParameter> invertAxis = BooleanParameter::make(false, "Invert Axis", "InvertAxis");
+	std::shared_ptr<NumberParameter<double>> axisOffset = NumberParameter<double>::make(0.0, "Axis Offset", "AxisOffset", "%.3f");
+	std::shared_ptr<NumberParameter<double>> lowerPositionLimit = NumberParameter<double>::make(0.0, "Lower Position Limit", "LowerPositionLimit", "%.3f");
+	std::shared_ptr<NumberParameter<double>> upperPositionLimit = NumberParameter<double>::make(0.0, "Upper Position Limit", "UpperPositionLimit", "%.3f");
 	
-	//————————— Unit Conversion ——————————
+	std::shared_ptr<BooleanParameter> allowUserZeroEdit = BooleanParameter::make(false, "Allow User Zero Edit", "AllowUserZeroEdit");
+	std::shared_ptr<BooleanParameter> allowUserLowerLimitEdit = BooleanParameter::make(false, "Allow User Lower Limit Edit", "AllowUserLowerLimitEdit");
+	std::shared_ptr<BooleanParameter> allowUserUpperLimitEdit = BooleanParameter::make(false, "Allow User Upper Limit Edit", "AllowUserUpperLimitEdit");
+	std::shared_ptr<BooleanParameter> allowUserHoming = BooleanParameter::make(false, "Allow User Homing", "AllowUserHoming");
+	std::shared_ptr<BooleanParameter> allowUserEncoderValueOverride = BooleanParameter::make(false, "Allow User Encoder Value Override", "AllowUserEncoderValueOverride");
+	std::shared_ptr<BooleanParameter> allowUserEncoderRangeReset = BooleanParameter::make(false, "Allow User Encoder Range Reset", "AllowUserEncoderRangeReset");
 	
-	void captureMachineZero();
+	//————————— Unit Conversion & Limits ——————————
+	
+	double getMinPosition();
+	double getMaxPosition();
+	double getLowerPositionLimit();
+	double getUpperPositionLimit();
+	
+	void captureZero();
+	void resetZero();
+	void captureLowerLimit();
+	void resetLowerLimit();
+	void captureUpperLimit();
+	void resetUpperLimit();
+	
 	double axisPositionToMachinePosition(double axisPosition);
 	double axisVelocityToMachineVelocity(double axisVelocity);
 	double axisAccelerationToMachineAcceleration(double axisAcceleration);
@@ -58,12 +80,24 @@ class PositionControlledMachine : public Machine{
 	double machineVelocityToAxisVelocity(double machineVelocity);
 	double machineAccelerationToAxisAcceleration(double machineAcceleration);
 	
+	//——————————————— Homing ————————————————
+	
+	bool canStartHoming();
+	bool isHoming();
+	void startHoming();
+	void stopHoming();
+	bool didHomingSucceed();
+	bool didHomingFail();
+	const char* getHomingString();
+	
 	//——————————— Control Widget ————————————
 		
 	virtual void onAddToNodeGraph() override { controlWidget->addToDictionnary(); }
 	virtual void onRemoveFromNodeGraph() override { controlWidget->removeFromDictionnary(); }
 	
 	void widgetGui();
+	virtual bool hasSetupGui() override { return true; }
+	virtual void setupGui() override;
 	
 	class ControlWidget : public Widget{
 	public:

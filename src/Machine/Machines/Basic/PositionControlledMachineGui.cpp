@@ -42,6 +42,8 @@ void PositionControlledMachine::controlsGui() {
 	
 	ImGui::Separator();
 	
+	
+	
 	/*
 	ImGui::BeginChild("##manualMachineControls", ImGui::GetContentRegionAvail());
 	
@@ -242,112 +244,79 @@ void PositionControlledMachine::controlsGui() {
 
 void PositionControlledMachine::settingsGui() {
 	
-	//ImGui::InputDouble("rapid velocity", &animatablePosition->rapidVelocity);
-	//ImGui::InputDouble("rapid acceleration", &animatablePosition->rapidAcceleration);
+	if(!isAxisConnected()){
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+		ImGui::Text("No Axis is Connected.");
+		ImGui::PopStyleColor();
+		return;
+	}
 	
-	ImGui::Separator();
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Axis Settings");
+	ImGui::PopFont();
 	
 	invertAxis->gui();
 	ImGui::SameLine();
 	ImGui::TextWrapped("Invert Axis");
 	
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Axis Offset");
+	ImGui::PopFont();
 	axisOffset->gui();
 	
-	/*
-	if (!isAxisConnected()) {
-		ImGui::Text("No Axis Connected");
-		return;
-	}
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Machine Limits :");
-	ImGui::PopFont();
-
-	ImGui::Text("Position Unit:");
-	ImGui::SameLine();
 	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("%s", axis->getPositionUnit()->singular);
+	ImGui::Text("Lower Limit");
 	ImGui::PopFont();
+	lowerPositionLimit->gui();
 	
-	bool b_positionRangeIsZero = getHighPositionLimit() - getLowPositionLimit() == 0.0;
-	
-	ImGui::Text("Low Position Limit:");
-	ImGui::SameLine();
 	ImGui::PushFont(Fonts::sansBold15);
-	pushInvalidValue(b_positionRangeIsZero);
-	ImGui::Text("%.3f%s", getLowPositionLimit(), axis->getPositionUnit()->abbreviated);
-	popInvalidValue();
+	ImGui::Text("Upper Limit");
 	ImGui::PopFont();
+	upperPositionLimit->gui();
 	
-	ImGui::Text("High Position Limit:");
-	ImGui::SameLine();
-	ImGui::PushFont(Fonts::sansBold15);
-	pushInvalidValue(b_positionRangeIsZero);
-	ImGui::Text("%.3f%s", getHighPositionLimit(), axis->getPositionUnit()->abbreviated);
-	popInvalidValue();
-	ImGui::PopFont();
 	
-	ImGui::Text("Velocity Limit:");
-	ImGui::SameLine();
-	ImGui::PushFont(Fonts::sansBold15);
-	pushInvalidValue(axis->getVelocityLimit() <= 0.0);
-	ImGui::Text("%.3f%s/s", axis->getVelocityLimit(), axis->getPositionUnit()->abbreviated);
-	popInvalidValue();
-	ImGui::PopFont();
-	
-	ImGui::Text("Acceleration Limit:");
-	ImGui::SameLine();
-	ImGui::PushFont(Fonts::sansBold15);
-	pushInvalidValue(axis->getAccelerationLimit() <= 0.0);
-	ImGui::Text("%.3f%s\xC2\xB2", axis->getAccelerationLimit(), axis->getPositionUnit()->abbreviated);
-	popInvalidValue();
-	ImGui::PopFont();
-	
-	ImGui::Separator();
-	
-
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Rapids");
-	ImGui::PopFont();
-
-	static char rapidVelocityString[128];
-	static char rapidAccelerationString[128];
-
-	ImGui::Text("Velocity for rapid movements :");
-	sprintf(rapidVelocityString, "%.3f %s/s", rapidVelocity_machineUnitsPerSecond, axis->getPositionUnit()->abbreviated);
-	pushInvalidValue(rapidVelocity_machineUnitsPerSecond == 0.0);
-	ImGui::InputDouble("##velRapid", &rapidVelocity_machineUnitsPerSecond, 0.0, 0.0, rapidVelocityString);
-	popInvalidValue();
-	rapidVelocity_machineUnitsPerSecond = std::min(rapidVelocity_machineUnitsPerSecond, axis->getVelocityLimit());
-
-	ImGui::Text("Acceleration for rapid movements :");
-	sprintf(rapidAccelerationString, "%.3f %s/s\xC2\xB2", rapidAcceleration_machineUnitsPerSecond, axis->getPositionUnit()->abbreviated);
-	pushInvalidValue(rapidAcceleration_machineUnitsPerSecond == 0.0);
-	ImGui::InputDouble("##accRapid", &rapidAcceleration_machineUnitsPerSecond, 0.0, 0.0, rapidAccelerationString);
-	popInvalidValue();
-	rapidAcceleration_machineUnitsPerSecond = std::min(rapidAcceleration_machineUnitsPerSecond, axis->getAccelerationLimit());
 	
 	ImGui::Separator();
 	
 	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Machine Zero");
+	ImGui::Text("Setup Options");
 	ImGui::PopFont();
 	
-	ImGui::Text("Machine Zero (Axis Units) :");
-	static char machineZeroString[128];
-	sprintf(machineZeroString, "%.3f %s", machineZero_axisUnits, axis->getPositionUnit()->abbreviated);
-	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 6.0);
-	ImGui::InputDouble("##axisUnitOffset", &machineZero_axisUnits, 0.0, 0.0, machineZeroString);
-	
+	allowUserZeroEdit->gui();
 	ImGui::SameLine();
-	if(ImGui::Button("Capture Machine Zero")){
-		captureMachineZero();
-	}
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Allow user to modify zero");
+	ImGui::PopFont();
 	
-	ImGui::Checkbox("Invert Axis Direction", &b_invertDirection);
-*/
+	allowUserLowerLimitEdit->gui();
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Allow user to modify lower position limit");
+	ImGui::PopFont();
+	
+	allowUserUpperLimitEdit->gui();
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Allow user to upper position limit");
+	ImGui::PopFont();
+	
+	allowUserHoming->gui();
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Allow user to home machine");
+	ImGui::PopFont();
+	
+	allowUserEncoderRangeReset->gui();
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Allow user to reset encoder range");
+	ImGui::PopFont();
+	
+	allowUserEncoderValueOverride->gui();
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Allow user to override encoder position");
+	ImGui::PopFont();
 }
 
 void PositionControlledMachine::axisGui() {
@@ -551,4 +520,202 @@ void PositionControlledMachine::widgetGui(){
 	
 	ImGui::EndDisabled();
 	ImGui::PopStyleVar();
+}
+
+void PositionControlledMachine::setupGui(){
+	
+	if(!isAxisConnected()) {
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+		ImGui::Text("No Axis Connected.");
+		ImGui::PopStyleColor();
+	}
+	
+	ImGui::BeginGroup();
+	
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetStyle().ItemSpacing.y));
+	
+	if(allowUserZeroEdit->value){
+		if(ImGui::Button("Capture Zero")) captureZero();
+		ImGui::SameLine();
+		if(ImGui::Button("Reset##Zero")) resetZero();
+	}
+	
+	if(allowUserLowerLimitEdit->value){
+		if(ImGui::Button("Capture Lower Limit")) captureLowerLimit();
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+		lowerPositionLimit->gui();
+		ImGui::SameLine();
+		if(ImGui::Button("Reset##LowerLimit")) resetLowerLimit();
+	}
+	
+	if(allowUserUpperLimitEdit->value){
+		if(ImGui::Button("Capture Upper Limit")) captureUpperLimit();
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+		upperPositionLimit->gui();
+		ImGui::SameLine();
+		if(ImGui::Button("Reset##UpperLimit")) resetUpperLimit();
+	}
+	
+	ImGui::EndGroup();
+	
+	if(allowUserZeroEdit->value || allowUserLowerLimitEdit->value || allowUserUpperLimitEdit->value){
+		
+		ImGui::InvisibleButton("rangedisplaysize", glm::vec2(ImGui::GetItemRectSize().x, ImGui::GetTextLineHeight() * 6.0));
+		
+		glm::vec2 min = ImGui::GetItemRectMin();
+		glm::vec2 max = ImGui::GetItemRectMax();
+		glm::vec2 size = ImGui::GetItemRectSize();
+		
+		ImGui::PushClipRect(min, max, true);
+		
+		ImDrawList* drawing = ImGui::GetWindowDrawList();
+		drawing->AddRectFilled(min, max, ImColor(Colors::almostBlack));
+		
+		auto axis = getAxis();
+		double maxPosition = getMaxPosition();
+		double minPosition = getMinPosition();
+		double lowerLimit = getLowerPositionLimit();
+		double upperLimit = getUpperPositionLimit();
+		
+		auto toRangedPositionX = [&](double position) -> double {
+			double normalized = (position - minPosition) / (maxPosition - minPosition);
+			double clamped = std::clamp(normalized, 0.0, 1.0);
+			return min.x + clamped * size.x;
+		};
+		
+		glm::vec2 rangeRectMin(toRangedPositionX(lowerLimit), min.y);
+		glm::vec2 rangeRectMax(toRangedPositionX(upperLimit), max.y);
+		double zeroPositionX = toRangedPositionX(0.0);
+		double actualPositionX = toRangedPositionX(animatablePosition->getActualPosition());
+		
+		float rangeLineWidth = ImGui::GetTextLineHeight() * .1f;
+		drawing->AddRectFilled(rangeRectMin, rangeRectMax, ImColor(Colors::darkGreen));
+		drawing->AddLine(glm::vec2(rangeRectMin.x, min.y), glm::vec2(rangeRectMin.x, max.y), ImColor(Colors::green), rangeLineWidth);
+		drawing->AddLine(glm::vec2(rangeRectMax.x, min.y), glm::vec2(rangeRectMax.x, max.y), ImColor(Colors::green), rangeLineWidth);
+		drawing->AddLine(glm::vec2(zeroPositionX, min.y), glm::vec2(zeroPositionX, max.y), ImColor(0.f, 0.f, 1.f, 1.f), rangeLineWidth * 2.f);
+		drawing->AddLine(glm::vec2(actualPositionX, min.y), glm::vec2(actualPositionX, max.y), ImColor(1.f, 1.f, 1.f, 1.f), rangeLineWidth);
+		
+		static char rangeString[64];
+		glm::vec2 displayFramePadding(ImGui::GetTextLineHeight() * .1f, 0.0);
+		float frameRounding = ImGui::GetStyle().FrameRounding;
+		
+		bool b_hasLowerLimit = lowerPositionLimit->value != 0.0;
+		bool b_hasUpperLimit = upperPositionLimit->value != 0.0;
+		TextAlignement zeroTextAlignement;
+		ImDrawFlags zeroDrawFlags;
+		float zeroTextX;
+		if((b_hasLowerLimit && b_hasUpperLimit) || (!b_hasUpperLimit && !b_hasLowerLimit)) {
+			zeroTextAlignement = TextAlignement::MIDDLE_MIDDLE;
+			zeroDrawFlags = ImDrawFlags_RoundCornersAll;
+			zeroTextX = zeroPositionX;
+		}
+		else if(b_hasUpperLimit) {
+			zeroTextAlignement = TextAlignement::LEFT_MIDDLE;
+			zeroDrawFlags = ImDrawFlags_RoundCornersRight;
+			zeroTextX = zeroPositionX + rangeLineWidth * .5f;
+		}
+		else{
+			zeroTextAlignement = TextAlignement::RIGHT_MIDDLE;
+			zeroDrawFlags = ImDrawFlags_RoundCornersLeft;
+			zeroTextX = zeroPositionX - rangeLineWidth * .5f;
+		}
+		
+		sprintf(rangeString, "Min position: %.3f%s", minPosition, positionUnit->abbreviated);
+		textAlignedBackground(rangeString,
+							  glm::vec2(min.x, min.y),
+							  TextAlignement::LEFT_TOP,
+							  ImVec4(0.f, 0.f, 0.f, .7f),
+							  displayFramePadding,
+							  frameRounding,
+							  ImDrawFlags_RoundCornersBottomRight);
+		
+		sprintf(rangeString, "Max position: %.3f%s", maxPosition, positionUnit->abbreviated);
+		textAlignedBackground(rangeString,
+							  glm::vec2(max.x, max.y),
+							  TextAlignement::RIGHT_BOTTOM,
+							  ImVec4(0.f, 0.f, 0.f, .7f),
+							  displayFramePadding,
+							  frameRounding,
+							  ImDrawFlags_RoundCornersTopLeft);
+		
+		textAlignedBackground("Zero",
+							  glm::vec2(zeroTextX, min.y + size.y * .5f),
+							  zeroTextAlignement,
+							  ImVec4(.0f, .0f, .5f, .7f),
+							  displayFramePadding,
+							  frameRounding,
+							  zeroDrawFlags);
+		
+		if(b_hasLowerLimit){
+			sprintf(rangeString, "Lower limit: %.3f%s", lowerLimit, positionUnit->abbreviated);
+			textAlignedBackground(rangeString,
+								  glm::vec2(rangeRectMin.x + rangeLineWidth * .5f, min.y + size.y * .3f),
+								  TextAlignement::LEFT_MIDDLE,
+								  ImVec4(0.f, .5f, 0.f, .7f),
+								  displayFramePadding,
+								  frameRounding,
+								  ImDrawFlags_RoundCornersRight);
+		}
+	
+		if(b_hasUpperLimit){
+			sprintf(rangeString, "Upper limit: %.3f%s", upperLimit, positionUnit->abbreviated);
+			textAlignedBackground(rangeString,
+								  glm::vec2(rangeRectMax.x - rangeLineWidth * .5f, min.y + size.y * .7f),
+								  TextAlignement::RIGHT_MIDDLE,
+								  ImVec4(0.f, .5f, 0.f, .7f),
+								  displayFramePadding,
+								  frameRounding,
+								  ImDrawFlags_RoundCornersLeft);
+		}
+			
+		ImGui::PopClipRect();
+		
+		float framethickness = ImGui::GetTextLineHeight() * .1f;
+		drawing->AddRect(min - glm::vec2(framethickness * .5f),
+						 max + glm::vec2(framethickness * .5f),
+						 ImColor(Colors::black),
+						 framethickness,
+						 ImDrawFlags_RoundCornersAll,
+						 framethickness);
+	}
+	
+	if(allowUserHoming->value){
+
+		glm::vec2 homingButtonSize(ImGui::GetTextLineHeight() * 6.0, ImGui::GetFrameHeight());
+		glm::vec2 homingProgressSize(ImGui::GetTextLineHeight() * 8.0, ImGui::GetFrameHeight());
+		ImGui::BeginDisabled(!canStartHoming());
+		if(isHoming()){
+			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+			if(ImGui::Button("Stop Homing", homingButtonSize)) stopHoming();
+			ImGui::PopStyleColor();
+		}else{
+			if(ImGui::Button("Start Homing", homingButtonSize)) startHoming();
+		}
+		ImGui::EndDisabled();
+
+
+		ImGui::SameLine();
+
+		ImVec4 progressIndicatorColor = Colors::darkGray;
+		if(isHoming()) progressIndicatorColor = Colors::orange;
+		else if(didHomingSucceed()) progressIndicatorColor = Colors::green;
+		else if(didHomingFail()) progressIndicatorColor = Colors::red;
+
+		backgroundText(getHomingString(), homingProgressSize, Colors::darkGray);
+
+	}
+		
+		
+		
+		
+	if(allowUserEncoderRangeReset->value){
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		ImGui::Text("User Encoder Range Reset");
+		ImGui::PopStyleColor();
+	}
+	
+	ImGui::PopStyleVar();
+	
 }

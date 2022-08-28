@@ -110,6 +110,7 @@ namespace Environnement {
 			for(auto animatable : machine->getAnimatables()){
 				animatable->clearConstraints();
 			}
+			machine->addConstraints();
 		}
 		
 		Script::start();
@@ -207,6 +208,7 @@ namespace Environnement {
 			for(auto animatable : machine->getAnimatables()){
 				animatable->clearConstraints();
 			}
+			machine->addConstraints();
 		}
 		
 		Script::start();

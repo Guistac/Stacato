@@ -171,7 +171,7 @@ void FlipStateMachine::inputProcess() {
 	else if(state == MotionState::NOT_READY) animatableState->state = Animatable::State::NOT_READY;
 	else animatableState->state = Animatable::State::READY;
 	
-	auto actualStateValue = AnimationValue::makeState();
+	auto actualStateValue = AnimationValue::makeState(); //heap corruption detected
 	switch(actualState){
 		case State::CLOSED: 		actualStateValue->value = &stateClosed; break;
 		case State::OPEN_LOWERED: 	actualStateValue->value = &stateOpenLowered; break;

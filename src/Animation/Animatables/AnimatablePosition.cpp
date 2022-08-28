@@ -256,10 +256,19 @@ bool AnimatablePosition::validateAnimation(std::shared_ptr<Animation> animation)
 
 
 bool AnimatablePosition::isControlledManuallyOrByAnimation(){
-	bool animation = hasAnimation();
-	bool inRapid = isInRapid();
-	bool manualControl = controlMode == VELOCITY_SETPOINT && motionProfile.getVelocity() != 0.0;
-	return animation || inRapid || manualControl;
+	if(hasAnimation()) return true;
+		
+	if(isInRapid()) return true;
+	
+	if(controlMode == VELOCITY_SETPOINT &&
+	   (velocitySetpoint != 0.0 || motionProfile.getVelocity() != 0.0)) return true;
+	
+	if(controlMode == POSITION_SETPOINT &&
+	   motionProfile.getPosition() != positionSetpoint &&
+	   motionProfile.getVelocity() != 0.0 &&
+	   motionProfile.getAcceleration() != 0.0) return true;
+	
+	return false;
 }
 
 
@@ -268,7 +277,7 @@ bool AnimatablePosition::isControlledManuallyOrByAnimation(){
 
 bool AnimatablePosition::isReadyToMove(){
 	const std::lock_guard<std::mutex> lock(mutex);
-	return getMachine()->isEnabled() && !getMachine()->isHoming();
+	return getMachine()->isEnabled() && state == Animatable::State::READY;
 }
 
 bool AnimatablePosition::isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationValue> animationValue){
@@ -366,6 +375,12 @@ void AnimatablePosition::forcePositionTarget(double position, double velocity, d
 	controlMode = FORCED_POSITION_SETPOINT;
 }
 
+void AnimatablePosition::forceVelocityTarget(double velocity, double acceleration){
+	positionSetpoint = 0.0;
+	velocitySetpoint = velocity;
+	accelerationSetpoint = acceleration;
+	controlMode = FORCED_VELOCITY_SETPOINT;
+}
 
 
 
@@ -524,17 +539,11 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 			velocitySetpoint = 0.0;
 			motionProfile.resetInterpolation();
 		}
-	}
-	else if(controlMode == POSITION_SETPOINT){
+	}else if(controlMode == POSITION_SETPOINT){
 		velocitySetpoint = 0.0;
 		accelerationSetpoint = 0.0;
-	}else if(controlMode == FORCED_POSITION_SETPOINT){
-		//just follow the forced set point set by forcePositionTarget
 	}
-	else{
-		//velocity set point for this control mode is adjusted externally
-		controlMode = VELOCITY_SETPOINT;
-	}
+	//else control mode is forced and setpoint is adjuste externally
 	
 	//handle motion interrupt if the setpoint goes outside limits
 	if(controlMode == POSITION_SETPOINT || controlMode == FORCED_POSITION_SETPOINT){
@@ -547,6 +556,7 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 	
 	//update the motion profiler
 	switch(controlMode){
+		case FORCED_VELOCITY_SETPOINT:
 		case VELOCITY_SETPOINT:
 			motionProfile.matchVelocityAndRespectPositionLimits(deltaT_seconds,
 																velocitySetpoint,
@@ -556,12 +566,6 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 																accelerationLimit);
 			break;
 		case FORCED_POSITION_SETPOINT:
-			
-			motionProfile.setPosition(positionSetpoint);
-			motionProfile.setVelocity(velocitySetpoint);
-			motionProfile.setAcceleration(accelerationSetpoint);
-			
-			break;
 		case POSITION_SETPOINT:
 			motionProfile.matchPositionAndRespectPositionLimits(deltaT_seconds,
 																positionSetpoint,
@@ -571,6 +575,11 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 																velocityLimit,
 																minPosition,
 																maxPosition);
+			/*
+			if(strcmp(getName(), "Anneau") == 0){
+				Logger::warn("anneau diff: {}", positionSetpoint - motionProfile.getPosition());
+			}
+			 */
 			break;
 	}
 	

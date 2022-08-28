@@ -41,7 +41,6 @@ function setup()
 	costiereCour_constraintGC2 = costiereCour_Position:createKeepoutConstraint("Keepout G-C2", 4.20, 9.36)
 	costiereCour_constraintEC2 = costiereCour_Position:createKeepoutConstraint("Keepout E-C2", 7.20, 99.9)
 	costiereCour_constraintCC2 = costiereCour_Position:createKeepoutConstraint("Keepout C-C2", 10.20, 99.9)
-
 end
 
 
@@ -80,6 +79,62 @@ end
 
 function exit()
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

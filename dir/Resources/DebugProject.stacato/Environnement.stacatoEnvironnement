@@ -1,41 +1,41 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.75379676" OffsetX="281.90179" OffsetY="-1405.2312" AutoFit="false" DrawGrid="false" LockEdit="true">
-        <Widget UniqueID="9" PositionX="-652.81342" PositionY="1040.4219" SizeX="137.34181" SizeY="227.09113"/>
-        <Widget UniqueID="10" PositionX="-511.84393" PositionY="1040.1384" SizeX="136.99377" SizeY="227.37457"/>
-        <Widget UniqueID="11" PositionX="-371.27451" PositionY="1040.2067" SizeX="137.04581" SizeY="227.3063"/>
-        <Widget UniqueID="13" PositionX="-230.65863" PositionY="1040.0215" SizeX="136.5" SizeY="227.49153"/>
-        <Widget UniqueID="14" PositionX="-88.808937" PositionY="1040.0364" SizeX="136.5" SizeY="227.47662"/>
-        <Widget UniqueID="17" PositionX="-653.34827" PositionY="1274.1514" SizeX="136.55003" SizeY="228.17293"/>
-        <Widget UniqueID="16" PositionX="-795.49127" PositionY="1275.2416" SizeX="136.74498" SizeY="227.0827"/>
-        <Widget UniqueID="24" PositionX="-652.64099" PositionY="1506.7328" SizeX="137.16939" SizeY="227.74959"/>
-        <Widget UniqueID="23" PositionX="-794.46912" PositionY="1507.3511" SizeX="137.04942" SizeY="227.13129"/>
-        <Widget UniqueID="28" PositionX="-651.83557" PositionY="1739.0879" SizeX="137.69058" SizeY="227.55251"/>
-        <Widget UniqueID="29" PositionX="-510.63412" PositionY="1740.1003" SizeX="137.1106" SizeY="227.86667"/>
-        <Widget UniqueID="27" PositionX="-791.93939" PositionY="1740.1664" SizeX="137.17294" SizeY="227.80067"/>
-        <Widget UniqueID="30" PositionX="-370.67603" PositionY="1739.9727" SizeX="137.77394" SizeY="227.99443"/>
-        <Widget UniqueID="31" PositionX="-229.61481" PositionY="1737.7467" SizeX="136.49998" SizeY="227.56708"/>
-        <Widget UniqueID="21" PositionX="-88.81189" PositionY="1272.7566" SizeX="136.5" SizeY="226.91446"/>
-        <Widget UniqueID="22" PositionX="51.716507" PositionY="1271.6578" SizeX="136.5" SizeY="228.01321"/>
-        <Widget UniqueID="25" PositionX="-88.987442" PositionY="1504.2604" SizeX="136.5" SizeY="227.56877"/>
-        <Widget UniqueID="26" PositionX="53.254128" PositionY="1503.6096" SizeX="136.5" SizeY="226.89291"/>
-        <Widget UniqueID="32" PositionX="-88.544571" PositionY="1737.0758" SizeX="136.5" SizeY="226.91138"/>
-        <Widget UniqueID="33" PositionX="53.674908" PositionY="1736.2141" SizeX="136.5" SizeY="227.77306"/>
-        <Widget UniqueID="40" PositionX="-1152.1776" PositionY="1716.1583" SizeX="356.14075" SizeY="237.21599"/>
-        <Widget UniqueID="39" PositionX="-1152.1317" PositionY="1476.6749" SizeX="356.09482" SizeY="236.58157"/>
-        <Widget UniqueID="38" PositionX="-1152.693" PositionY="1238.4447" SizeX="356.65613" SizeY="237.34723"/>
-        <Widget UniqueID="44" PositionX="198.06793" PositionY="1110.0645" SizeX="183.28259" SizeY="63.258717"/>
-        <Widget UniqueID="45" PositionX="195.27682" PositionY="1350.4137" SizeX="207.70854" SizeY="488.87143"/>
-        <Widget UniqueID="46" PositionX="335.62778" PositionY="1350.7721" SizeX="207.70857" SizeY="488.51303"/>
-        <Widget UniqueID="8" PositionX="194.66762" PositionY="1753.9629" SizeX="220.49998" SizeY="83.995697"/>
-        <Widget UniqueID="42" PositionX="-792.32819" PositionY="871.5791" SizeX="211.42349" SizeY="488.79712"/>
-        <Widget UniqueID="6" PositionX="-394.31586" PositionY="926.55591" SizeX="179.53465" SizeY="110.12563"/>
-        <Widget UniqueID="7" PositionX="-212.32896" PositionY="926.4234" SizeX="178.5" SizeY="108.93151"/>
-        <Widget UniqueID="50" PositionX="-575.86475" PositionY="926.95789" SizeX="179.33694" SizeY="109.72365"/>
-        <Widget UniqueID="4" PositionX="-393.70471" PositionY="812.97644" SizeX="178.92351" SizeY="109.616"/>
-        <Widget UniqueID="5" PositionX="-211.63933" PositionY="813.1814" SizeX="178.5" SizeY="109.41102"/>
-        <Widget UniqueID="52" PositionX="-564.54907" PositionY="813.92883" SizeX="157.6342" SizeY="109.9902"/>
-        <Widget UniqueID="43" PositionX="53.643806" PositionY="870.625" SizeX="207.70854" SizeY="488.42456"/>
-        <Widget UniqueID="41" PositionX="193.40038" PositionY="1917.0074" SizeX="674.14667" SizeY="508.64261"/>
+    <Dashboard Scale="0.67964441" OffsetX="1348.7061" OffsetY="-742.57904" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget UniqueID="9" PositionX="-652.81342" PositionY="1040.4219" SizeX="136.49995" SizeY="224.73911"/>
+        <Widget UniqueID="10" PositionX="-511.84393" PositionY="1040.1384" SizeX="136.5" SizeY="225.02257"/>
+        <Widget UniqueID="11" PositionX="-371.27451" PositionY="1040.2067" SizeX="136.5" SizeY="224.95436"/>
+        <Widget UniqueID="13" PositionX="-230.65863" PositionY="1040.0215" SizeX="136.5" SizeY="225.13954"/>
+        <Widget UniqueID="14" PositionX="-88.808937" PositionY="1040.0364" SizeX="136.5" SizeY="225.12463"/>
+        <Widget UniqueID="17" PositionX="-653.34827" PositionY="1274.1514" SizeX="136.5" SizeY="224.95554"/>
+        <Widget UniqueID="16" PositionX="-795.49127" PositionY="1275.2416" SizeX="136.5" SizeY="225.33667"/>
+        <Widget UniqueID="24" PositionX="-652.64099" PositionY="1506.7328" SizeX="136.49995" SizeY="224.84862"/>
+        <Widget UniqueID="23" PositionX="-794.46912" PositionY="1507.3511" SizeX="136.5" SizeY="224.23041"/>
+        <Widget UniqueID="28" PositionX="-651.83557" PositionY="1739.0879" SizeX="136.5" SizeY="224.96806"/>
+        <Widget UniqueID="27" PositionX="-791.93939" PositionY="1740.1664" SizeX="136.5" SizeY="225.36096"/>
+        <Widget UniqueID="30" PositionX="-370.67603" PositionY="1739.9727" SizeX="136.5" SizeY="224.08331"/>
+        <Widget UniqueID="31" PositionX="-229.61481" PositionY="1737.7467" SizeX="136.5" SizeY="224.83794"/>
+        <Widget UniqueID="21" PositionX="-88.81189" PositionY="1272.7566" SizeX="136.5" SizeY="224.87894"/>
+        <Widget UniqueID="22" PositionX="51.716507" PositionY="1271.6578" SizeX="136.5" SizeY="224.50633"/>
+        <Widget UniqueID="25" PositionX="-88.987442" PositionY="1504.2604" SizeX="136.5" SizeY="224.37831"/>
+        <Widget UniqueID="26" PositionX="53.254128" PositionY="1503.6096" SizeX="136.5" SizeY="225.02913"/>
+        <Widget UniqueID="32" PositionX="-88.544571" PositionY="1737.0758" SizeX="136.5" SizeY="224.03741"/>
+        <Widget UniqueID="33" PositionX="53.674908" PositionY="1736.2141" SizeX="136.50009" SizeY="224.89909"/>
+        <Widget UniqueID="44" PositionX="198.06793" PositionY="1110.0645" SizeX="354.52936" SizeY="234.54994"/>
+        <Widget UniqueID="45" PositionX="195.27682" PositionY="1350.4137" SizeX="134.4001" SizeY="392.93857"/>
+        <Widget UniqueID="46" PositionX="335.62778" PositionY="1350.7721" SizeX="134.4001" SizeY="392.58017"/>
+        <Widget UniqueID="8" PositionX="194.66762" PositionY="1753.9629" SizeX="220.50002" SizeY="83.556351"/>
+        <Widget UniqueID="6" PositionX="-394.31586" PositionY="926.55591" SizeX="178.49997" SizeY="109.07331"/>
+        <Widget UniqueID="7" PositionX="-212.32896" PositionY="926.4234" SizeX="178.49997" SizeY="107.73446"/>
+        <Widget UniqueID="50" PositionX="-575.86475" PositionY="926.95789" SizeX="178.49997" SizeY="108.67133"/>
+        <Widget UniqueID="4" PositionX="-393.70471" PositionY="812.97644" SizeX="178.49997" SizeY="107.88688"/>
+        <Widget UniqueID="5" PositionX="-211.63933" PositionY="813.1814" SizeX="178.49997" SizeY="107.68192"/>
+        <Widget UniqueID="52" PositionX="-564.54907" PositionY="813.92883" SizeX="157.49998" SizeY="108.40584"/>
+        <Widget UniqueID="43" PositionX="53.643806" PositionY="870.625" SizeX="134.39992" SizeY="393.06467"/>
+        <Widget UniqueID="29" PositionX="-510.63412" PositionY="1740.1003" SizeX="136.5" SizeY="223.95561"/>
+        <Widget UniqueID="41" PositionX="-501.72205" PositionY="1292.1743" SizeX="406.34988" SizeY="424.69351"/>
+        <Widget UniqueID="40" PositionX="-1152.1776" PositionY="1749.3086" SizeX="354.52933" SizeY="235.34642"/>
+        <Widget UniqueID="39" PositionX="-1153.8765" PositionY="1516.8042" SizeX="354.5293" SizeY="235.37624"/>
+        <Widget UniqueID="38" PositionX="-1152.693" PositionY="1275.7877" SizeX="354.52933" SizeY="235.09003"/>
+        <Widget UniqueID="42" PositionX="-793.36591" PositionY="873.50763" SizeX="134.39996" SizeY="391.65338"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -284,11 +284,11 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="200"/>
                     <MotorProperties MaxVelocity="100" MaxCurrent="34.700000000000003" EncoderIsMultiturn="true"/>
-                    <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="100" manualAcceleration_rpsps="100"/>
+                    <KinematicLimits velocityLimit_rps="70" accelerationLimit_rpsps="70" manualAcceleration_rpsps="100"/>
                     <InvertDirectionOfMovement Invert="true"/>
                     <MaxFollowingError revolutions="2"/>
                     <CurrentLimit amps="5"/>
-                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="100"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="70"/>
                     <NegativeLimitSwitch Pin="DI2" NormallyClosed="true"/>
                     <PositiveLimitSwitch Pin="DI3" NormallyClosed="true"/>
                     <DigitalPinInversion DI0="true" DI1="true" DI2="true" DI3="true" DI4="false" DI5="true"/>
@@ -320,11 +320,11 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="210"/>
                     <MotorProperties MaxVelocity="100" MaxCurrent="34.700000000000003" EncoderIsMultiturn="true"/>
-                    <KinematicLimits velocityLimit_rps="40" accelerationLimit_rpsps="100" manualAcceleration_rpsps="100"/>
+                    <KinematicLimits velocityLimit_rps="70" accelerationLimit_rpsps="70" manualAcceleration_rpsps="100"/>
                     <InvertDirectionOfMovement Invert="true"/>
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
-                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="100"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="70"/>
                     <NegativeLimitSwitch Pin="DI2" NormallyClosed="true"/>
                     <PositiveLimitSwitch Pin="DI3" NormallyClosed="true"/>
                     <DigitalPinInversion DI0="true" DI1="true" DI2="true" DI3="true" DI4="false" DI5="true"/>
@@ -483,16 +483,16 @@
                     <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="807" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Periactes Lointain Jardin (Alias:320)" UniqueID="810">
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Periactes P3-G Lointain Jardin (Alias:320)" UniqueID="810">
                 <NodeEditorPosition x="587" y="931"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="320"/>
                     <MotorProperties MaxVelocity="133.33333333333334" MaxCurrent="17.640000000000001" EncoderIsMultiturn="true"/>
-                    <KinematicLimits velocityLimit_rps="50" accelerationLimit_rpsps="50" manualAcceleration_rpsps="10"/>
+                    <KinematicLimits velocityLimit_rps="40" accelerationLimit_rpsps="10" manualAcceleration_rpsps="10"/>
                     <InvertDirectionOfMovement Invert="true"/>
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="9"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
@@ -518,16 +518,16 @@
                     <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="824" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Periactes Lointain Cour (Alias:321)" UniqueID="825">
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Periactes P3-H Lointain Cour (Alias:321)" UniqueID="825">
                 <NodeEditorPosition x="597" y="1061"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="321"/>
                     <MotorProperties MaxVelocity="133.33333333333334" MaxCurrent="17.640000000000001" EncoderIsMultiturn="true"/>
-                    <KinematicLimits velocityLimit_rps="50" accelerationLimit_rpsps="50" manualAcceleration_rpsps="100"/>
+                    <KinematicLimits velocityLimit_rps="40" accelerationLimit_rpsps="10" manualAcceleration_rpsps="100"/>
                     <InvertDirectionOfMovement Invert="false"/>
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="9"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
@@ -553,16 +553,16 @@
                     <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="839" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Periactes P2 Milieu Jardin (Alias:310)" UniqueID="840">
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Periactes P2-E Milieu Jardin (Alias:310)" UniqueID="840">
                 <NodeEditorPosition x="603" y="1333"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="310"/>
                     <MotorProperties MaxVelocity="133.33333333333334" MaxCurrent="0" EncoderIsMultiturn="true"/>
-                    <KinematicLimits velocityLimit_rps="50" accelerationLimit_rpsps="50" manualAcceleration_rpsps="1"/>
+                    <KinematicLimits velocityLimit_rps="40" accelerationLimit_rpsps="10" manualAcceleration_rpsps="50"/>
                     <InvertDirectionOfMovement Invert="true"/>
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="9"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
@@ -588,16 +588,16 @@
                     <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="854" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Periactes P2 Milieu Cour (Alias:311)" UniqueID="855">
-                <NodeEditorPosition x="613" y="1461"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Periactes P2-F Milieu Cour (Alias:311)" UniqueID="855">
+                <NodeEditorPosition x="606" y="1466"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="311"/>
                     <MotorProperties MaxVelocity="133.33333333333334" MaxCurrent="0" EncoderIsMultiturn="true"/>
-                    <KinematicLimits velocityLimit_rps="50" accelerationLimit_rpsps="50" manualAcceleration_rpsps="1"/>
+                    <KinematicLimits velocityLimit_rps="40" accelerationLimit_rpsps="10" manualAcceleration_rpsps="50"/>
                     <InvertDirectionOfMovement Invert="false"/>
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="9"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
@@ -623,16 +623,16 @@
                     <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="869" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Periactes P1 Face Jardin (Alias:300)" UniqueID="870">
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Periactes P1-A Face Jardin (Alias:300)" UniqueID="870">
                 <NodeEditorPosition x="616" y="1724"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="300"/>
                     <MotorProperties MaxVelocity="100" MaxCurrent="0" EncoderIsMultiturn="true"/>
-                    <KinematicLimits velocityLimit_rps="50" accelerationLimit_rpsps="50" manualAcceleration_rpsps="0"/>
+                    <KinematicLimits velocityLimit_rps="40" accelerationLimit_rpsps="10" manualAcceleration_rpsps="50"/>
                     <InvertDirectionOfMovement Invert="true"/>
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="9"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
@@ -658,16 +658,16 @@
                     <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="884" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Periactes P1 Face Cour (Alias:301)" UniqueID="885">
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Periactes P1-B Face Cour (Alias:301)" UniqueID="885">
                 <NodeEditorPosition x="626" y="1854"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="301"/>
                     <MotorProperties MaxVelocity="100" MaxCurrent="0" EncoderIsMultiturn="true"/>
-                    <KinematicLimits velocityLimit_rps="50" accelerationLimit_rpsps="50" manualAcceleration_rpsps="0"/>
+                    <KinematicLimits velocityLimit_rps="40" accelerationLimit_rpsps="10" manualAcceleration_rpsps="50"/>
                     <InvertDirectionOfMovement Invert="false"/>
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="9"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
@@ -693,20 +693,20 @@
                     <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="899" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Tracking Video Extérieur (Alias:601)" UniqueID="930">
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Ecrans Video D Extérieur (Alias:601)" UniqueID="930">
                 <NodeEditorPosition x="2317" y="3457"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="601"/>
-                    <MotorProperties MaxVelocity="100" MaxCurrent="0" EncoderIsMultiturn="false"/>
-                    <KinematicLimits velocityLimit_rps="0" accelerationLimit_rpsps="0" manualAcceleration_rpsps="0"/>
+                    <MotorProperties MaxVelocity="100" MaxCurrent="26.710000000000001" EncoderIsMultiturn="true"/>
+                    <KinematicLimits velocityLimit_rps="40" accelerationLimit_rpsps="10" manualAcceleration_rpsps="100"/>
                     <InvertDirectionOfMovement Invert="false"/>
-                    <MaxFollowingError revolutions="0"/>
-                    <CurrentLimit amps="0"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="0"/>
+                    <MaxFollowingError revolutions="1"/>
+                    <CurrentLimit amps="3"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
-                    <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
-                    <EncoderSettings RangeShifted="false" PositionOffset_revolutions="0"/>
+                    <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
+                    <EncoderSettings RangeShifted="true" PositionOffset_revolutions="0"/>
                     <HoldingBrake HasHoldingBrake="false"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -728,20 +728,20 @@
                     <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="944" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Tracking Video Intérieur (Alias:600)" UniqueID="945">
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Ecrans Video C Intérieur (Alias:600)" UniqueID="945">
                 <NodeEditorPosition x="2330" y="3294"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="600"/>
-                    <MotorProperties MaxVelocity="100" MaxCurrent="0" EncoderIsMultiturn="false"/>
-                    <KinematicLimits velocityLimit_rps="3.0510216734711379e-314" accelerationLimit_rpsps="3.0510198212190316e-314" manualAcceleration_rpsps="0"/>
+                    <MotorProperties MaxVelocity="100" MaxCurrent="11.199999999999999" EncoderIsMultiturn="true"/>
+                    <KinematicLimits velocityLimit_rps="40" accelerationLimit_rpsps="10" manualAcceleration_rpsps="100"/>
                     <InvertDirectionOfMovement Invert="false"/>
-                    <MaxFollowingError revolutions="2.2754743668822825e-314"/>
-                    <CurrentLimit amps="0"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="0"/>
+                    <MaxFollowingError revolutions="1"/>
+                    <CurrentLimit amps="3"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
-                    <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
-                    <EncoderSettings RangeShifted="false" PositionOffset_revolutions="0"/>
+                    <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
+                    <EncoderSettings RangeShifted="true" PositionOffset_revolutions="0"/>
                     <HoldingBrake HasHoldingBrake="false"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -768,11 +768,11 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="510"/>
                     <MotorProperties MaxVelocity="66.666666666666671" MaxCurrent="29.800000000000001" EncoderIsMultiturn="false"/>
-                    <KinematicLimits velocityLimit_rps="66.666666666666671" accelerationLimit_rpsps="100" manualAcceleration_rpsps="8"/>
+                    <KinematicLimits velocityLimit_rps="42" accelerationLimit_rpsps="7" manualAcceleration_rpsps="8"/>
                     <InvertDirectionOfMovement Invert="false"/>
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="30"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="7.0797999999999996"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
@@ -803,11 +803,11 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="500"/>
                     <MotorProperties MaxVelocity="66.666666666666671" MaxCurrent="29.800000000000001" EncoderIsMultiturn="false"/>
-                    <KinematicLimits velocityLimit_rps="66.666666666666671" accelerationLimit_rpsps="100" manualAcceleration_rpsps="5"/>
+                    <KinematicLimits velocityLimit_rps="30" accelerationLimit_rpsps="5" manualAcceleration_rpsps="5"/>
                     <InvertDirectionOfMovement Invert="false"/>
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="30"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="5"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
@@ -1254,11 +1254,11 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="400"/>
                     <MotorProperties MaxVelocity="100" MaxCurrent="11.199999999999999" EncoderIsMultiturn="false"/>
-                    <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="100" manualAcceleration_rpsps="100"/>
+                    <KinematicLimits velocityLimit_rps="60" accelerationLimit_rpsps="12" manualAcceleration_rpsps="100"/>
                     <InvertDirectionOfMovement Invert="false"/>
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="18"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="12"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
@@ -1289,15 +1289,15 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="410"/>
                     <MotorProperties MaxVelocity="100" MaxCurrent="11.199999999999999" EncoderIsMultiturn="true"/>
-                    <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="100" manualAcceleration_rpsps="10"/>
+                    <KinematicLimits velocityLimit_rps="60" accelerationLimit_rpsps="12" manualAcceleration_rpsps="10"/>
                     <InvertDirectionOfMovement Invert="true"/>
                     <MaxFollowingError revolutions="1"/>
-                    <CurrentLimit amps="5"/>
-                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="18"/>
+                    <CurrentLimit amps="2.5"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="12"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
-                    <EncoderSettings RangeShifted="true" PositionOffset_revolutions="-0.04384613037109375"/>
+                    <EncoderSettings RangeShifted="true" PositionOffset_revolutions="37.021835327148438"/>
                     <HoldingBrake HasHoldingBrake="false"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -1572,7 +1572,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Centre" UniqueID="1430">
-                <NodeEditorPosition x="2734" y="2895"/>
+                <NodeEditorPosition x="2740" y="2894"/>
                 <NodeSpecificData>
                     <Units UnitType="Rotary" Unit="Degree"/>
                     <UnitConversion ActuatorUnitsPerMachineUnit="2.0190000000000001"/>
@@ -2270,8 +2270,8 @@
             <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Periactes Lointain" UniqueID="2223">
                 <NodeEditorPosition x="1304" y="990"/>
                 <NodeSpecificData ShortName="M">
-                    <GeneralSettings HorizontalControls="true" EnableAnticollision="true" AxisOrder="false" MinimumAxisBetweenAxes="1.5" EnableSynchronousControl="false" Axis1isMaster="true"/>
-                    <Axis1 InvertAxis1="false" Axis1Offset="0.049998951830855454"/>
+                    <GeneralSettings HorizontalControls="true" EnableAnticollision="true" AxisOrder="false" MinimumAxisBetweenAxes="1.5" EnableSynchronousControl="false" Axis1isMaster="true" AllowUserHoming="true"/>
+                    <Axis1 InvertAxis1="false" Axis1Offset="0.050000000000000003"/>
                     <Axis2 InvertAxis2="true" Axis2Offset="28.707999999999998"/>
                     <MotionLimits VelocityLimit="0.5" AccelerationLimit="0.10000000000000001"/>
                     <ControWidget UniqueID="38"/>
@@ -2291,7 +2291,7 @@
             <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Periactes Milieu" UniqueID="2233">
                 <NodeEditorPosition x="1304" y="1390"/>
                 <NodeSpecificData ShortName="M">
-                    <GeneralSettings HorizontalControls="true" EnableAnticollision="true" AxisOrder="false" MinimumAxisBetweenAxes="1.5" EnableSynchronousControl="false" Axis1isMaster="true"/>
+                    <GeneralSettings HorizontalControls="true" EnableAnticollision="true" AxisOrder="false" MinimumAxisBetweenAxes="1.5" EnableSynchronousControl="false" Axis1isMaster="true" AllowUserHoming="true"/>
                     <Axis1 InvertAxis1="false" Axis1Offset="0.050000000000000003"/>
                     <Axis2 InvertAxis2="true" Axis2Offset="28.707999999999998"/>
                     <MotionLimits VelocityLimit="0.5" AccelerationLimit="0.10000000000000001"/>
@@ -2312,7 +2312,7 @@
             <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Periactes Face" UniqueID="2243">
                 <NodeEditorPosition x="1304" y="1783"/>
                 <NodeSpecificData ShortName="M">
-                    <GeneralSettings HorizontalControls="true" EnableAnticollision="true" AxisOrder="false" MinimumAxisBetweenAxes="1.5" EnableSynchronousControl="false" Axis1isMaster="true"/>
+                    <GeneralSettings HorizontalControls="true" EnableAnticollision="true" AxisOrder="false" MinimumAxisBetweenAxes="1.5" EnableSynchronousControl="false" Axis1isMaster="true" AllowUserHoming="true"/>
                     <Axis1 InvertAxis1="false" Axis1Offset="0.050000000000000003"/>
                     <Axis2 InvertAxis2="true" Axis2Offset="28.707999999999998"/>
                     <MotionLimits VelocityLimit="0.5" AccelerationLimit="0.10000000000000001"/>
@@ -2333,7 +2333,7 @@
             <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Tournettes" UniqueID="2253">
                 <NodeEditorPosition x="3043" y="2974"/>
                 <NodeSpecificData ShortName="M">
-                    <GeneralSettings HorizontalControls="false" EnableAnticollision="false" AxisOrder="true" MinimumAxisBetweenAxes="0" EnableSynchronousControl="true" Axis1isMaster="false"/>
+                    <GeneralSettings HorizontalControls="false" EnableAnticollision="false" AxisOrder="true" MinimumAxisBetweenAxes="0" EnableSynchronousControl="true" Axis1isMaster="false" AllowUserHoming="true"/>
                     <Axis1 InvertAxis1="false" Axis1Offset="0"/>
                     <Axis2 InvertAxis2="false" Axis2Offset="0"/>
                     <MotionLimits VelocityLimit="10" AccelerationLimit="2"/>
@@ -2382,7 +2382,8 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Cost Jardin" UniqueID="2280">
                 <NodeEditorPosition x="921" y="2122"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits AxisOffset="0.050000000000000003" InvertAxis="false"/>
+                    <Limits InvertAxis="true" AxisOffset="9.2096381567194783" LowerPositionLimit="-2" UpperPositionLimit="8"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
                     <ControWidget UniqueID="42"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2425,7 +2426,8 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Cost Cour" UniqueID="2303">
                 <NodeEditorPosition x="5256" y="2103"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits AxisOffset="0.050000000000000003" InvertAxis="false"/>
+                    <Limits InvertAxis="false" AxisOffset="1.8830231674862747" LowerPositionLimit="0" UpperPositionLimit="8"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
                     <ControWidget UniqueID="43"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2496,7 +2498,7 @@
             <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Ecrans Vidéo" UniqueID="2393">
                 <NodeEditorPosition x="3000" y="3365"/>
                 <NodeSpecificData ShortName="M">
-                    <GeneralSettings HorizontalControls="true" EnableAnticollision="false" AxisOrder="true" MinimumAxisBetweenAxes="0" EnableSynchronousControl="false" Axis1isMaster="true"/>
+                    <GeneralSettings HorizontalControls="true" EnableAnticollision="false" AxisOrder="true" MinimumAxisBetweenAxes="0" EnableSynchronousControl="false" Axis1isMaster="true" AllowUserHoming="true"/>
                     <Axis1 InvertAxis1="false" Axis1Offset="0"/>
                     <Axis2 InvertAxis2="false" Axis2Offset="0"/>
                     <MotionLimits VelocityLimit="0" AccelerationLimit="0"/>
@@ -2517,7 +2519,8 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Vol Jardin" UniqueID="2419">
                 <NodeEditorPosition x="2378" y="1837"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits AxisOffset="0" InvertAxis="false"/>
+                    <Limits InvertAxis="true" AxisOffset="12.921616179661648" LowerPositionLimit="0" UpperPositionLimit="10"/>
+                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="true" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
                     <ControWidget UniqueID="45"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2532,7 +2535,8 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Vol Cour" UniqueID="2425">
                 <NodeEditorPosition x="3448" y="1850"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits AxisOffset="0" InvertAxis="false"/>
+                    <Limits InvertAxis="true" AxisOffset="11" LowerPositionLimit="0" UpperPositionLimit="10"/>
+                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
                     <ControWidget UniqueID="46"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2612,12 +2616,8 @@
             <Link UniqueID="800" StartPin="571" EndPin="771"/>
             <Link UniqueID="801" StartPin="572" EndPin="772"/>
             <Link UniqueID="802" StartPin="97" EndPin="767"/>
-            <Link UniqueID="1450" StartPin="1009" EndPin="1417"/>
-            <Link UniqueID="1451" StartPin="1024" EndPin="1431"/>
             <Link UniqueID="1452" StartPin="1013" EndPin="1418"/>
             <Link UniqueID="1453" StartPin="1014" EndPin="1421"/>
-            <Link UniqueID="1454" StartPin="1028" EndPin="1432"/>
-            <Link UniqueID="1455" StartPin="1029" EndPin="1435"/>
             <Link UniqueID="1472" StartPin="1082" EndPin="1458"/>
             <Link UniqueID="1473" StartPin="1107" EndPin="1459"/>
             <Link UniqueID="1474" StartPin="1108" EndPin="1460"/>
@@ -2898,12 +2898,6 @@
             <Link UniqueID="2348" StartPin="681" EndPin="547"/>
             <Link UniqueID="2349" StartPin="681" EndPin="548"/>
             <Link UniqueID="2350" StartPin="681" EndPin="549"/>
-            <Link UniqueID="2373" StartPin="949" EndPin="2360"/>
-            <Link UniqueID="2374" StartPin="953" EndPin="2361"/>
-            <Link UniqueID="2375" StartPin="954" EndPin="2362"/>
-            <Link UniqueID="2390" StartPin="934" EndPin="2377"/>
-            <Link UniqueID="2391" StartPin="938" EndPin="2378"/>
-            <Link UniqueID="2392" StartPin="939" EndPin="2379"/>
             <Link UniqueID="2405" StartPin="773" EndPin="806"/>
             <Link UniqueID="2406" StartPin="627" EndPin="736"/>
             <Link UniqueID="2407" StartPin="631" EndPin="737"/>
@@ -2924,13 +2918,6 @@
             <Link UniqueID="2515" StartPin="2484" EndPin="526"/>
             <Link UniqueID="2524" StartPin="682" EndPin="609"/>
             <Link UniqueID="2525" StartPin="744" EndPin="625"/>
-            <Link UniqueID="2531" StartPin="1279" EndPin="2290"/>
-            <Link UniqueID="2532" StartPin="1283" EndPin="2291"/>
-            <Link UniqueID="2533" StartPin="1284" EndPin="2292"/>
-            <Link UniqueID="2535" StartPin="2299" EndPin="2305"/>
-            <Link UniqueID="2545" StartPin="1440" EndPin="2255"/>
-            <Link UniqueID="2546" StartPin="1426" EndPin="2256"/>
-            <Link UniqueID="2553" StartPin="435" EndPin="2304"/>
             <Link UniqueID="2555" StartPin="435" EndPin="1551"/>
             <Link UniqueID="2556" StartPin="435" EndPin="1702"/>
             <Link UniqueID="2557" StartPin="435" EndPin="1766"/>
@@ -2958,23 +2945,42 @@
             <Link UniqueID="2603" StartPin="414" EndPin="2580"/>
             <Link UniqueID="2605" StartPin="2129" EndPin="2225"/>
             <Link UniqueID="2606" StartPin="2143" EndPin="2226"/>
-            <Link UniqueID="2608" StartPin="2164" EndPin="2235"/>
-            <Link UniqueID="2609" StartPin="2178" EndPin="2236"/>
-            <Link UniqueID="2610" StartPin="2198" EndPin="2245"/>
-            <Link UniqueID="2611" StartPin="2212" EndPin="2246"/>
-            <Link UniqueID="2613" StartPin="844" EndPin="2155"/>
-            <Link UniqueID="2614" StartPin="848" EndPin="2156"/>
-            <Link UniqueID="2615" StartPin="849" EndPin="2157"/>
-            <Link UniqueID="2616" StartPin="859" EndPin="2169"/>
-            <Link UniqueID="2617" StartPin="863" EndPin="2170"/>
-            <Link UniqueID="2618" StartPin="864" EndPin="2171"/>
+            <Link UniqueID="2621" StartPin="435" EndPin="2304"/>
+            <Link UniqueID="2625" StartPin="844" EndPin="2155"/>
+            <Link UniqueID="2626" StartPin="848" EndPin="2156"/>
+            <Link UniqueID="2627" StartPin="849" EndPin="2157"/>
+            <Link UniqueID="2628" StartPin="859" EndPin="2169"/>
+            <Link UniqueID="2629" StartPin="863" EndPin="2170"/>
+            <Link UniqueID="2630" StartPin="864" EndPin="2171"/>
+            <Link UniqueID="2631" StartPin="874" EndPin="2189"/>
+            <Link UniqueID="2632" StartPin="878" EndPin="2190"/>
+            <Link UniqueID="2633" StartPin="879" EndPin="2191"/>
+            <Link UniqueID="2634" StartPin="889" EndPin="2203"/>
+            <Link UniqueID="2635" StartPin="893" EndPin="2204"/>
+            <Link UniqueID="2636" StartPin="894" EndPin="2205"/>
+            <Link UniqueID="2638" StartPin="1009" EndPin="1417"/>
+            <Link UniqueID="2640" StartPin="1024" EndPin="1431"/>
+            <Link UniqueID="2641" StartPin="1028" EndPin="1432"/>
+            <Link UniqueID="2642" StartPin="1029" EndPin="1435"/>
+            <Link UniqueID="2643" StartPin="1440" EndPin="2255"/>
+            <Link UniqueID="2644" StartPin="1426" EndPin="2256"/>
+            <Link UniqueID="2646" StartPin="1279" EndPin="2290"/>
+            <Link UniqueID="2647" StartPin="1283" EndPin="2291"/>
+            <Link UniqueID="2648" StartPin="1284" EndPin="2292"/>
+            <Link UniqueID="2650" StartPin="2299" EndPin="2305"/>
+            <Link UniqueID="2652" StartPin="2164" EndPin="2235"/>
+            <Link UniqueID="2653" StartPin="2178" EndPin="2236"/>
+            <Link UniqueID="2654" StartPin="2198" EndPin="2245"/>
+            <Link UniqueID="2655" StartPin="2212" EndPin="2246"/>
+            <Link UniqueID="2656" StartPin="2369" EndPin="2395"/>
+            <Link UniqueID="2657" StartPin="2386" EndPin="2396"/>
         </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en7" Name="en7"/>
+        <Primary Description="en4" Name="en4"/>
     </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="8" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

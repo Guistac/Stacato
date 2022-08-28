@@ -13,7 +13,6 @@
 class SharedAxisMachine : public Machine{
 	
 	DEFINE_MACHINE_NODE(SharedAxisMachine, "Shared Axis Machine", "SharedAxisMachine", "Basic")
-	DEFINE_HOMEABLE_MACHINE
 
 	std::shared_ptr<AnimatablePosition> axis1Animatable = AnimatablePosition::make("Axis 1 Position", Units::None::None);
 	std::shared_ptr<AnimatablePosition> axis2Animatable = AnimatablePosition::make("Axis 2 Position", Units::None::None);
@@ -48,6 +47,10 @@ class SharedAxisMachine : public Machine{
 	
 	void updateAxisParameters();
 	void updateAnimatableParameters();
+	virtual void addConstraints() override;
+	
+	std::shared_ptr<AnimatablePosition_KeepoutConstraint> axis1AnticollisionConstraint;
+	std::shared_ptr<AnimatablePosition_KeepoutConstraint> axis2AnticollisionConstraint;
 		
 	virtual std::vector<std::shared_ptr<PositionControlledAxis>> getPositionControlledAxes() override {
 		std::vector<std::shared_ptr<PositionControlledAxis>> output;
@@ -62,6 +65,13 @@ class SharedAxisMachine : public Machine{
 	
 	Unit positionUnit = Units::None::None;
 	bool b_forceSynchronousControl = false;
+	
+	enum class ControlMode{
+		NONE,
+		INDIVIDUAL,
+		SYNCHRONOUS
+	};
+	ControlMode controlMode = ControlMode::NONE;
 
 	std::shared_ptr<BooleanParameter> horizontalControls = BooleanParameter::make(false, "Horizontal Controls", "HorizontalControls");
 	
@@ -79,6 +89,8 @@ class SharedAxisMachine : public Machine{
 	
 	std::shared_ptr<BooleanParameter> enableSynchronousControl = BooleanParameter::make(false, "Enable Synchronous Control", "EnableSynchronousControl");
 	std::shared_ptr<BooleanParameter> axis1isMaster = BooleanParameter::make(true, "Synchronization Master Selection", "Axis1isMaster");
+	
+	std::shared_ptr<BooleanParameter> allowUserHoming = BooleanParameter::make(false, "Allow User Homing", "AllowUserHoming");
 	
 	
 	bool b_disableAntiCollision = false;
@@ -98,12 +110,21 @@ class SharedAxisMachine : public Machine{
 	double axis2ToMachineConversion(double axis2Value);
 	double machineToAxis2Conversion(double machineAxis2Value);
 	
+	//——————————————— Homing ————————————————
+	
+	bool canStartHoming();
+	void startHomingAxis1();
+	void startHomingAxis2();
+	void startHomingBothAxes();
+	
 	//——————————— Control Widget ————————————
 		
 	virtual void onAddToNodeGraph() override { controlWidget->addToDictionnary(); }
 	virtual void onRemoveFromNodeGraph() override { controlWidget->removeFromDictionnary(); }
 	
 	void widgetGui();
+	virtual bool hasSetupGui() override;
+	virtual void setupGui() override;
 	
 	class ControlWidget : public Widget{
 	public:

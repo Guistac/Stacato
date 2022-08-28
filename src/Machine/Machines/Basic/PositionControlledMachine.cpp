@@ -31,6 +31,28 @@ void PositionControlledMachine::initialize() {
 	
 	auto thisMachine = std::static_pointer_cast<PositionControlledMachine>(shared_from_this());
 	controlWidget = std::make_shared<ControlWidget>(thisMachine);
+	
+	
+	lowerPositionLimit->setEditCallback([this](std::shared_ptr<Parameter>){
+		if(lowerPositionLimit->value < getMinPosition()) lowerPositionLimit->overwrite(getMinPosition());
+		else if(lowerPositionLimit->value > 0.0) lowerPositionLimit->overwrite(0.0);
+	});
+	
+	upperPositionLimit->setEditCallback([this](std::shared_ptr<Parameter>){
+		if(upperPositionLimit->value > getMaxPosition()) upperPositionLimit->overwrite(getMaxPosition());
+		else if(upperPositionLimit->value < 0.0) upperPositionLimit->overwrite(0.0);
+	});
+	
+	invertAxis->setEditCallback([this](std::shared_ptr<Parameter>){
+		upperPositionLimit->onEdit();
+		lowerPositionLimit->onEdit();
+	});
+	
+	axisOffset->setEditCallback([this](std::shared_ptr<Parameter>){
+		upperPositionLimit->onEdit();
+		lowerPositionLimit->onEdit();
+	});
+	
 }
 
 bool PositionControlledMachine::isAxisConnected() {
@@ -185,6 +207,11 @@ void PositionControlledMachine::inputProcess() {
 
 void PositionControlledMachine::outputProcess(){
 	
+	if(b_emergencyStopActive){
+		animatablePosition->stopMovement();
+		animatablePosition->stopAnimation();
+	}
+	
 	if(!isMotionAllowed()){
 		if(animatablePosition->hasAnimation()){
 			animatablePosition->getAnimation()->pausePlayback();
@@ -215,8 +242,13 @@ void PositionControlledMachine::outputProcess(){
 }
 
 void PositionControlledMachine::simulateInputProcess() {
+	
+	if(strcmp(getName(), "Cost Jardin") == 0){
+		Logger::warn("AAAA");
+	}
+	
 	//update machine state
-	if(isEnabled()) state = MotionState::ENABLED;
+	if(state == MotionState::ENABLED) { /* do nothing*/ }
 	else if(isAxisConnected()) state = MotionState::READY;
 	else state = MotionState::OFFLINE;
 	
@@ -226,7 +258,7 @@ void PositionControlledMachine::simulateInputProcess() {
 		
 	//update animatable state
 	if(state == MotionState::OFFLINE) animatablePosition->state = Animatable::State::OFFLINE;
-	else if(isEnabled() && !b_halted) animatablePosition->state = Animatable::State::READY;
+	else if(state == MotionState::ENABLED && !b_halted) animatablePosition->state = Animatable::State::READY;
 	else animatablePosition->state = Animatable::State::NOT_READY;
 }
 
@@ -234,6 +266,10 @@ void PositionControlledMachine::simulateOutputProcess(){
 	if (!isAxisConnected()) return;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 	 
+	if(strcmp(getName(), "Cost Jardin") == 0){
+		Logger::warn("AAAA");
+	}
+	
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
 	animatablePosition->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
@@ -243,12 +279,67 @@ void PositionControlledMachine::simulateOutputProcess(){
 	*velocityPinValue = target->velocity;
 }
 
+
+
+double PositionControlledMachine::getMinPosition(){
+	if(invertAxis->value) return axisPositionToMachinePosition(getAxis()->getHighPositionLimit());
+	return axisPositionToMachinePosition(getAxis()->getLowPositionLimit());
+}
+
+double PositionControlledMachine::getMaxPosition(){
+	if(invertAxis->value) return axisPositionToMachinePosition(getAxis()->getLowPositionLimit());
+	return axisPositionToMachinePosition(getAxis()->getHighPositionLimit());
+}
+
+double PositionControlledMachine::getLowerPositionLimit(){
+	if(allowUserLowerLimitEdit->value) return lowerPositionLimit->value;
+	else return getMinPosition();
+}
+
+double PositionControlledMachine::getUpperPositionLimit(){
+	if(allowUserUpperLimitEdit->value) return upperPositionLimit->value;
+	else return getMaxPosition();
+}
+
+
+void PositionControlledMachine::captureZero(){
+	if(invertAxis->value) axisOffset->overwriteWithHistory(getAxis()->getHighPositionLimit() - animatablePosition->motionProfile.getPosition());
+	else axisOffset->overwriteWithHistory(getAxis()->getLowPositionLimit() + animatablePosition->motionProfile.getPosition());
+	animatablePosition->motionProfile.setPosition(0.0);
+}
+
+void PositionControlledMachine::resetZero(){
+	if(invertAxis->value) axisOffset->overwriteWithHistory(getAxis()->getHighPositionLimit());
+	else axisOffset->overwriteWithHistory(getAxis()->getLowPositionLimit());
+}
+
+void PositionControlledMachine::captureLowerLimit(){
+	lowerPositionLimit->overwriteWithHistory(animatablePosition->motionProfile.getPosition());
+}
+
+void PositionControlledMachine::resetLowerLimit(){
+	lowerPositionLimit->overwriteWithHistory(getMinPosition());
+}
+
+void PositionControlledMachine::captureUpperLimit(){
+	upperPositionLimit->overwriteWithHistory(animatablePosition->motionProfile.getPosition());
+}
+
+void PositionControlledMachine::resetUpperLimit(){
+	upperPositionLimit->overwriteWithHistory(getMaxPosition());
+}
+
+
+
+
+
+
 bool PositionControlledMachine::canStartHoming(){
 	return isEnabled() && !Environnement::isSimulating();
 }
 
 bool PositionControlledMachine::isHoming(){
-	return isAxisConnected() && getAxis()->isHoming();
+	return getAxis()->isHoming();
 }
 void PositionControlledMachine::startHoming(){
 	animatablePosition->stopAnimation();
@@ -258,16 +349,12 @@ void PositionControlledMachine::stopHoming(){
 	getAxis()->cancelHoming();
 }
 bool PositionControlledMachine::didHomingSucceed(){
-	return isAxisConnected() && getAxis()->didHomingSucceed();
+	return getAxis()->didHomingSucceed();
 }
 bool PositionControlledMachine::didHomingFail(){
-	return isAxisConnected() && getAxis()->didHomingFail();
+	return getAxis()->didHomingFail();
 }
-float PositionControlledMachine::getHomingProgress(){
-	return getAxis()->getHomingProgress();
-}
-const char* PositionControlledMachine::getHomingStateString(){
-	if(!isAxisConnected()) return "No axis is connected to machine";
+const char* PositionControlledMachine::getHomingString(){
 	return Enumerator::getDisplayString(getAxis()->getHomingStep());
 }
 
@@ -288,8 +375,8 @@ void PositionControlledMachine::updateAnimatableParameters(){
 	}
 	auto axis = getAxis();
 	animatablePosition->setUnit(axis->getPositionUnit());
-	animatablePosition->lowerPositionLimit = axisPositionToMachinePosition(axis->getLowPositionLimit());
-	animatablePosition->upperPositionLimit = axisPositionToMachinePosition(axis->getHighPositionLimit());
+	animatablePosition->lowerPositionLimit = getLowerPositionLimit();
+	animatablePosition->upperPositionLimit = getUpperPositionLimit();
 	animatablePosition->velocityLimit = axisVelocityToMachineVelocity(axis->getVelocityLimit());
 	animatablePosition->accelerationLimit = axisAccelerationToMachineAcceleration(axis->getAccelerationLimit());
 }
@@ -341,8 +428,18 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	 
 	XMLElement* limitsXML = xml->InsertNewChildElement("Limits");
-	axisOffset->save(limitsXML);
 	invertAxis->save(limitsXML);
+	axisOffset->save(limitsXML);
+	lowerPositionLimit->save(limitsXML);
+	upperPositionLimit->save(limitsXML);
+	
+	XMLElement* userSetupXML = xml->InsertNewChildElement("UserSetup");
+	allowUserZeroEdit->save(userSetupXML);
+	allowUserLowerLimitEdit->save(userSetupXML);
+	allowUserUpperLimitEdit->save(userSetupXML);
+	allowUserHoming->save(userSetupXML);
+	allowUserEncoderRangeReset->save(userSetupXML);
+	allowUserEncoderValueOverride->save(userSetupXML);
 	
 	XMLElement* widgetXML = xml->InsertNewChildElement("ControWidget");
 	widgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
@@ -356,8 +453,19 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	 
 	XMLElement* limitsXML;
 	if(!loadXMLElement("Limits", xml, limitsXML)) return false;
-	if(!axisOffset->load(limitsXML)) return false;
 	if(!invertAxis->load(limitsXML)) return false;
+	if(!axisOffset->load(limitsXML)) return false;
+	if(!lowerPositionLimit->load(limitsXML)) return false;
+	if(!upperPositionLimit->load(limitsXML)) return false;
+	
+	XMLElement* userSetupXML;
+	if(!loadXMLElement("UserSetup", xml, userSetupXML)) return false;
+	if(!allowUserZeroEdit->load(userSetupXML)) return false;
+	if(!allowUserLowerLimitEdit->load(userSetupXML)) return false;
+	if(!allowUserUpperLimitEdit->load(userSetupXML)) return false;
+	if(!allowUserHoming->load(userSetupXML)) return false;
+	if(!allowUserEncoderRangeReset->load(userSetupXML)) return false;
+	if(!allowUserEncoderValueOverride->load(userSetupXML)) return false;
 	 
 	XMLElement* widgetXML = xml->FirstChildElement("ControWidget");
 	if(widgetXML == nullptr) return Logger::warn("Could not find Control Widget Attribute");
@@ -365,14 +473,6 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	 
 	return true;
 }
-
-
-
-
-void PositionControlledMachine::captureMachineZero(){
-	//machineZero_axisUnits = motionProfile.getPosition();
-}
-
 
 
 

@@ -19,6 +19,8 @@ namespace Environnement::Gui{
 
 void SetupWindow::drawContent(){
 
+	/*
+	
 	//=================== NETWORK SETUP =====================
 	
 	glm::vec2 environnementBoxSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 4.2);
@@ -93,76 +95,59 @@ void SetupWindow::drawContent(){
 	ImGui::EndChild();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleVar();
-	
-	/*
-	for(auto machine : Environnement::getMachines()){
-		ImGui::BeginGroup();
-		
-		machine->setupGui();
-		
-		ImGui::EndGroup();
-	}
+	 
 	 */
 	
+	ImDrawList* drawing = ImGui::GetWindowDrawList();
 	
-	//============== HOMING =============
+	float boxWidth = ImGui::GetContentRegionAvail().x;
+	glm::vec2 boxPadding(ImGui::GetTextLineHeight() * .4f, ImGui::GetTextLineHeight() * .2f);
 	
-
-	glm::vec2 machineHomingBoxSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 4.2);
-	glm::vec2 homingControlButtonSize(ImGui::GetTextLineHeight() * 5.0, ImGui::GetFrameHeight());
-	
-	ImGui::PushStyleColor(ImGuiCol_ChildBg, Colors::veryDarkGray);
-	ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0);
+	int id = 0;
 	for(auto machine : Environnement::getMachines()){
-		if(!machine->isHomeable()) continue;
-	
-		ImGui::BeginChild(machine->getName(), machineHomingBoxSize, true);
+				
+		if(!machine->hasSetupGui()) continue;
+		
+		ImGui::PushID(id++);
+		
+		ImDrawListSplitter layers;
+		layers.Split(drawing, 2);
+		layers.SetCurrentChannel(drawing, 1);
+		
+		ImGui::BeginGroup();
+		glm::vec2 cursor = ImGui::GetCursorPos();
+		ImGui::SetCursorPos(cursor + boxPadding);
+		ImGui::BeginGroup();
 		
 		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("%s", machine->getName());
 		ImGui::PopFont();
+		machine->setupGui();
 		
-		bool disableHomingButton = !machine->canStartHoming();
-		ImGui::BeginDisabled(disableHomingButton);
-		if(machine->isHoming()){
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-			if(ImGui::Button("Stop Homing", homingControlButtonSize)) machine->stopHoming();
-			ImGui::PopStyleColor();
-		}else{
-			if(ImGui::Button("Start Homing", homingControlButtonSize)) machine->startHoming();
-		}
-		ImGui::EndDisabled();
+		ImGui::EndGroup();
+		ImGui::SetCursorPosX(cursor.x + ImGui::GetItemRectSize().x + boxPadding.x * 2.0);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY());
+		ImGui::EndGroup();
 		
-		glm::vec4 progressIndicatorColor = Colors::darkGray;
-		if(machine->isHoming()) progressIndicatorColor = Colors::orange;
-		else if(machine->didHomingSucceed()) progressIndicatorColor = Colors::green;
-		else if(machine->didHomingFail()) progressIndicatorColor = Colors::red;
+		ImVec2 min = ImGui::GetItemRectMin();
+		ImVec2 max = ImGui::GetItemRectMax();
 		
+		layers.SetCurrentChannel(drawing, 0);
+		drawing->AddRectFilled(ImGui::GetItemRectMin(),
+							   ImGui::GetItemRectMax(),
+							   ImColor(Colors::veryDarkGray),
+							   ImGui::GetStyle().FrameRounding,
+							   ImDrawFlags_RoundCornersAll);
+		drawing->AddRect(ImGui::GetItemRectMin(),
+						 ImGui::GetItemRectMax(),
+						 ImColor(Colors::darkGray),
+						 ImGui::GetStyle().FrameRounding,
+						 ImDrawFlags_RoundCornersAll,
+						 ImGui::GetTextLineHeight() * .05f);
+		layers.Merge(drawing);
 		
-		ImGui::SameLine();
-		
-		glm::vec2 homingProgressIndicatorSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
-		
-		backgroundText(machine->getHomingStateString(),
-							 homingProgressIndicatorSize,
-							 Colors::darkGray);
-		
-		if(machine->isHoming()){
-			glm::vec2 min = ImGui::GetItemRectMin();
-			float width = ImGui::GetItemRectSize().x;
-			float height = ImGui::GetItemRectSize().y;
-			double homingProgress = machine->getHomingProgress();
-			homingProgress = std::min(std::max(homingProgress, 0.0), 1.0);
-			double maxX = min.x + width * homingProgress;
-			glm::vec2 progressMax(maxX, min.y + height);
-			ImGui::GetWindowDrawList()->AddRectFilled(min, progressMax, ImColor(Colors::transparentWhite), ImGui::GetStyle().FrameRounding);
-		}
-		
-		ImGui::EndChild();
+		ImGui::PopID();
 	}
-	ImGui::PopStyleColor();
-	ImGui::PopStyleVar();
-	
 }
 
 }

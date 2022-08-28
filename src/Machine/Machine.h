@@ -56,17 +56,6 @@ namespace tinyxml2{ struct XMLElement; }
 	/*AnimatableOwner Specific*/																												\
 	virtual void fillAnimationDefaults(std::shared_ptr<Animation> animation) override;															\
 
-#define DEFINE_HOMEABLE_MACHINE 							\
-	virtual bool isHomeable() override { return true; }		\
-	virtual bool canStartHoming() override;					\
-	virtual bool isHoming() override;						\
-	virtual void startHoming() override;					\
-	virtual void stopHoming() override;						\
-	virtual bool didHomingSucceed() override;				\
-	virtual bool didHomingFail() override;					\
-	virtual float getHomingProgress() override;				\
-	virtual const char* getHomingStateString() override;	\
-
 class Machine : public Node {
 public:
 	
@@ -84,13 +73,11 @@ public:
 	//a machine can be halted by the dead mans switch or a constraint
 	bool b_halted = false;
 	bool isHalted(){ return b_halted; }
-	//virtual std::string getHaltStatusString() = 0;
 	
 	//===== STATE CONTROL & MONITORING =====
 	
 public:
 	
-	//bool b_enabled = false;
 	bool isReady();
 	void enable();
 	void disable();
@@ -106,15 +93,7 @@ public:
 	virtual void onEnableHardware() = 0;
 	virtual void onDisableHardware() = 0;
 	
-	virtual bool isHomeable(){ return false; }
-	virtual bool canStartHoming(){ return false; }
-	virtual bool isHoming(){ return false; }
-	virtual void startHoming(){}
-	virtual void stopHoming(){}
-	virtual bool didHomingSucceed(){}
-	virtual bool didHomingFail(){}
-	virtual float getHomingProgress(){ return 0.0; }
-	virtual const char* getHomingStateString(){ return "default state string (something went wrong)"; }
+	virtual void addConstraints(){}
 	
 	//===== PROCESSING =====
 	virtual void inputProcess() override = 0;
@@ -154,10 +133,10 @@ public:
 	virtual void deviceGui() = 0;
 	virtual void metricsGui() = 0;
 	
-	void setupGui();
-	virtual void setupGuiContent(){}
+	virtual bool hasSetupGui(){ return false; }
+	virtual void setupGui(){}
 	
-	virtual bool hasAxis(){ return true; }
+	virtual bool hasAxis(){ return false; }
 	virtual void axisSetupGui(){}
 	
 	glm::vec2 reserveSpaceForMachineHeaderGui();

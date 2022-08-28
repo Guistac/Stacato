@@ -215,7 +215,7 @@ namespace Project{
 			plot->save(plotFilePath);
 		}
 	
-		strcpy(saveFilePath, dir);
+		if(strcmp(saveFilePath, dir) != 0) strcpy(saveFilePath, dir);
 		b_hasFilePath = true;
 		b_hasUnsavedModifications = false;
 		

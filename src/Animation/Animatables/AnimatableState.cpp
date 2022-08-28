@@ -89,6 +89,7 @@ void AnimatableState::onRapidToValue(std::shared_ptr<AnimationValue> animationVa
 	auto newTargetValue = AnimationValue::makeState();
 	newTargetValue->value = animationValue->toState()->value;
 	targetValue = newTargetValue;
+	//TODO: should this be in a mutex ?
 	b_inRapid = true;
 }
 

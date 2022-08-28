@@ -23,11 +23,12 @@ namespace EtherCatFieldbus {
 	std::shared_ptr<NetworkInterfaceCard> getActiveNetworkInterfaceCard(){ return primaryNetworkInterfaceCard; }
 	std::shared_ptr<NetworkInterfaceCard> getActiveRedundantNetworkInterfaceCard(){ return redundantNetworkInterfaceCard; }
 
-	const char* defaultPrimaryNetworkInterfaceDescription = nullptr;
-	const char* defaultSecondaryNetworkInterfaceDescription = nullptr;
+	char defaultPrimaryNetworkInterfaceDescription[512];
+	char defaultSecondaryNetworkInterfaceDescription[512];
+	
 	void setDefaultNetworkInterfaces(const char* primary, const char* secondary){
-		defaultPrimaryNetworkInterfaceDescription = primary;
-		defaultSecondaryNetworkInterfaceDescription = secondary;
+		strcpy(defaultPrimaryNetworkInterfaceDescription, primary);
+		strcpy(defaultSecondaryNetworkInterfaceDescription, secondary);
 	}
 
     std::vector<std::shared_ptr<EtherCatDevice>> slaves;			//slaves discovered on the network
@@ -279,7 +280,6 @@ namespace EtherCatFieldbus {
 
     void terminate() {
         stop();
-        if (cyclicExchangeThread.joinable()) cyclicExchangeThread.join();
 		if(b_networkOpen){
 			stopErrorWatcher();
 			stopSlaveDetectionHandler();

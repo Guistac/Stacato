@@ -80,7 +80,9 @@ public:
 public:
 	
 	void addConstraint(std::shared_ptr<AnimationConstraint> newConstraint);
-	void clearConstraints(){ constraints.clear(); }
+	void clearConstraints(){
+		constraints.clear();
+	}
 	std::vector<std::shared_ptr<AnimationConstraint>>& getConstraints(){ return constraints; }
 	
 	bool isHalted();
@@ -142,11 +144,13 @@ private:
 	
 	friend class Animation;
 	
-	std::string name;
 	std::shared_ptr<Machine> machine;
 	std::shared_ptr<AnimatableComposite> parentComposite;
-	std::shared_ptr<Animation> currentAnimation;
 	std::vector<std::shared_ptr<Animation>> animations;
+	
+public:
+	std::string name;
+	std::shared_ptr<Animation> currentAnimation;
 };
 
 
