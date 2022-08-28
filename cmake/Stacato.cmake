@@ -20,6 +20,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Scripting/LoggingLibrary.cpp
     ${STACATO_SOURCE_DIRECTORY}/Scripting/CanvasLibrary.h
     ${STACATO_SOURCE_DIRECTORY}/Scripting/CanvasLibrary.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Scripting/PsnLibrary.h
+    ${STACATO_SOURCE_DIRECTORY}/Scripting/PsnLibrary.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.cpp

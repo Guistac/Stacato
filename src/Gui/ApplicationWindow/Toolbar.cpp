@@ -70,6 +70,12 @@ namespace Gui {
 		ImGui::EndDisabled();
 
 		ImGui::SameLine();
+		
+		ImGui::BeginDisabled(EtherCatFieldbus::isRunning());
+		if (ImGui::Button("Scan", buttonSize)) EtherCatFieldbus::autoInit();
+		ImGui::EndDisabled();
+		
+		ImGui::SameLine();
 			
 		static ToggleSwitch simulationToggle;
 		bool b_simulation = Environnement::isSimulating();

@@ -115,6 +115,10 @@ void LuaScript::save(const char* filePath){
 	outputFileStream.close();
 }
 
+std::string LuaScript::getScriptText(){
+	return textEditor.GetText();
+}
+
 void LuaScript::reloadSaved(){
 	if(!std::filesystem::exists(std::filesystem::path(scriptFilePath))) return;
 	std::ifstream inputFileStream(scriptFilePath);

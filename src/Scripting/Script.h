@@ -15,6 +15,7 @@ public:
 	void load(std::string& script);
 	void save(const char* filePath);
 	void reloadSaved();
+	std::string getScriptText();
 	
 	bool compile(bool hideSuccessMessage = false);
 	void compileAndRun();

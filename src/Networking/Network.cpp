@@ -41,6 +41,7 @@ std::unique_ptr<asio::ip::udp::socket> getUdpSocket(int listeningPort, std::vect
 	}
 	catch (std::exception e) {
 		Logger::error("UDP Socket Creation Network Error: {}", e.what());
+		return nullptr;
 	}
 	return socket;
 }

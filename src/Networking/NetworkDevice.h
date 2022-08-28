@@ -8,17 +8,17 @@
 	/*Node Specific*/\
 	DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, "none")\
 	/*Device Specific*/\
-	virtual Device::Type getDeviceType() { return Type::NETWORK_DEVICE; }\
-	virtual void readInputs();\
-	virtual void writeOutputs();\
-	virtual bool isDetected();\
-	virtual bool isConnected();\
-	virtual void onConnection();\
-	virtual void onDisconnection();\
+	virtual Device::Type getDeviceType() override { return Type::NETWORK_DEVICE; }\
+	virtual void readInputs() override;\
+	virtual void writeOutputs() override;\
+	virtual bool isDetected() override;\
+	virtual bool isConnected() override;\
+	virtual void onConnection() override;\
+	virtual void onDisconnection() override;\
 	\
 	/*Network Device Specific*/\
-	virtual void connect();\
-	virtual void disconnect();\
+	virtual void connect() override;\
+	virtual void disconnect() override;\
 
 class NetworkDevice : public Device{
 public:

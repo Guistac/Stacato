@@ -578,6 +578,10 @@ public:
 		strcpy(displayValue, value_.c_str());
 	}
 	
+	static std::shared_ptr<StringParameter> make(std::string value, std::string name, std::string saveName, size_t bufferSize){
+		return std::make_shared<StringParameter>(value, name, saveName, bufferSize);
+	};
+	
 	void overwrite(const char* value_){
 		strcpy(displayValue, value_);
 		value = value_;
@@ -620,7 +624,7 @@ public:
 	
 	void overwriteWithHistory(std::string newValue){
 		if(value == newValue) return;
-		strcpy(displayValue, newValue.c_str());
+		value = newValue;
 		//=========Command Invoker=========
 		std::shared_ptr<StringParameter> thisParameter = std::static_pointer_cast<StringParameter>(shared_from_this());
 		std::string commandName = "Changed " + std::string(getName()) + " from \'" + value + "\' to \'" + displayValue + "\'";
