@@ -294,6 +294,7 @@ void PositionControlledMachine::setupGui(){
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
 		ImGui::Text("No Axis Connected.");
 		ImGui::PopStyleColor();
+		return;
 	}
 	
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetStyle().ItemSpacing.y));

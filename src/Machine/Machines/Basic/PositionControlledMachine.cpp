@@ -202,9 +202,9 @@ void PositionControlledMachine::inputProcess() {
 	actualPosition->acceleration = axisAccelerationToMachineAcceleration(0.0);
 	animatablePosition->updateActualValue(actualPosition);
 	
-	animatablePosition->upperPositionLimit = axisPositionToMachinePosition(axis->getHighPositionLimit());
-	animatablePosition->lowerPositionLimit = axisPositionToMachinePosition(axis->getLowPositionLimit());
-	if(invertAxis->value) std::swap(animatablePosition->upperPositionLimit, animatablePosition->lowerPositionLimit);
+	//animatablePosition->upperPositionLimit = axisPositionToMachinePosition(axis->getHighPositionLimit());
+	//animatablePosition->lowerPositionLimit = axisPositionToMachinePosition(axis->getLowPositionLimit());
+	//if(invertAxis->value) std::swap(animatablePosition->upperPositionLimit, animatablePosition->lowerPositionLimit);
 	
 	//Get Realtime values from axis (for position and velocity pins only)
 	*positionPinValue = actualPosition->position;
