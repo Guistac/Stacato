@@ -1098,9 +1098,9 @@ bool customButton(const char* txt, ImVec2 size, ImVec4 color, float rounding, Im
     bool pressed = ImGui::InvisibleButton(txt, size);
 
     ImColor buttonColor;
-    if(ImGui::IsItemActive()) buttonColor = ImGui::GetColorU32(ImGuiCol_ButtonActive);
-    else if(ImGui::IsItemHovered()) buttonColor = ImGui::GetColorU32(ImGuiCol_ButtonActive);
-    buttonColor = ImColor(color);
+	if(ImGui::IsItemActive()) buttonColor = ImGui::GetColorU32(ImGuiCol_ButtonActive);
+	else if(ImGui::IsItemHovered()) buttonColor = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
+	else buttonColor = ImColor(color);
     
     ImVec2 min = ImGui::GetItemRectMin();
     ImVec2 max = ImGui::GetItemRectMax();
