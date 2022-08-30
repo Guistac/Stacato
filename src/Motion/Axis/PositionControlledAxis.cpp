@@ -479,6 +479,7 @@ void PositionControlledAxis::setSurveillance(bool isSurveilled){
 		surveillanceFeedbackDevicePin->setVisible(true);
 		surveillanceValidOutputPin->setVisible(true);
 		surveillanceFaultResetPin->setVisible(true);
+		externalSurveillanceFaultResetPin->setVisible(true);
 	}else{
 		surveillanceValidInputPin->disconnectAllLinks();
 		surveillanceValidInputPin->setVisible(false);
@@ -488,6 +489,8 @@ void PositionControlledAxis::setSurveillance(bool isSurveilled){
 		surveillanceValidOutputPin->setVisible(false);
 		surveillanceFaultResetPin->disconnectAllLinks();
 		surveillanceFaultResetPin->setVisible(false);
+		externalSurveillanceFaultResetPin->disconnectAllLinks();
+		externalSurveillanceFaultResetPin->setVisible(false);
 	}
 }
 
@@ -892,12 +895,17 @@ void PositionControlledAxis::homingControl(){
 						break;
 					case HomingStep::FOUND_LOW_LIMIT_FINE:
 						if (!isMoving()) {
-							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
 							//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
-							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 							if(getServoActuatorDevice()->canHardReset()) {
 								getServoActuatorDevice()->executeHardReset();
+								homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
 								Logger::info("Homing Axis {} : Hard Reset Position Feedback", getName());
+							}else{
+								//else we set a software offset in the encoder object
+								getServoActuatorDevice()->softOverridePosition(0.0);
+								setCurrentPosition(0.0);
+								homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+								Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 							}
 						}
 						break;
@@ -911,10 +919,8 @@ void PositionControlledAxis::homingControl(){
 								Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 							}
 						}else{
-							//else we set a software offset in the encoder object
-							setCurrentPosition(0.0);
-							homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
 							setVelocityTarget(homingVelocityCoarse);
+							homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
 							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
@@ -953,7 +959,6 @@ void PositionControlledAxis::homingControl(){
 						break;
 					case HomingStep::SETTING_HIGH_LIMIT:
 						setCurrentPositionAsPositiveLimit();
-						homingStep = HomingStep::FINISHED;
 						onHomingSuccess();
 						break;
 					default:
@@ -1063,6 +1068,7 @@ void PositionControlledAxis::homingControl(){
 				}
 
 			}
+			break;
 
 		case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
 

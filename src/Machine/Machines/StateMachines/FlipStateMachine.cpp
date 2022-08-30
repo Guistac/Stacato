@@ -178,7 +178,7 @@ void FlipStateMachine::inputProcess() {
 		case State::RAISED: 		actualStateValue->value = &stateRaised; break;
 		default: 					actualStateValue->value = &stateStopped; break;
 	}
-	animatableState->updateActualValue(actualStateValue);
+	animatableState->updateActualValue(actualStateValue); //heap corruption detected: actualStateValue becomes newActualValue and is null for some reason
 	
 	*stateIntegerValue = getStateInteger(actualState);
 }
