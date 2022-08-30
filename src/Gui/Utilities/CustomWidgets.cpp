@@ -1092,3 +1092,27 @@ void textAlignedBackground(const char* txt,
 	drawing->AddRectFilled(boxPositionMin, boxPositionMax, ImColor(backgroundColor), rounding, drawFlags);
 	drawing->AddText(textPosition, ImGui::GetColorU32(ImGuiCol_Text), txt);
 }
+
+
+bool customButton(const char* txt, ImVec2 size, ImVec4 color, float rounding, ImDrawFlags drawFlags){
+    bool pressed = ImGui::InvisibleButton(txt, size);
+
+    ImColor buttonColor;
+    if(ImGui::IsItemActive()) buttonColor = ImGui::GetColorU32(ImGuiCol_ButtonActive);
+    else if(ImGui::IsItemHovered()) buttonColor = ImGui::GetColorU32(ImGuiCol_ButtonActive);
+    buttonColor = ImColor(color);
+    
+    ImVec2 min = ImGui::GetItemRectMin();
+    ImVec2 max = ImGui::GetItemRectMax();
+    ImVec2 textSize = ImGui::CalcTextSize(txt);
+    ImVec2 textPos = ImVec2(min.x + (size.x - textSize.x) * .5f,
+                            min.y + (size.y - textSize.y) * .5f);
+    
+    ImDrawList* drawing = ImGui::GetWindowDrawList();
+    drawing->AddRectFilled(min, max, buttonColor, rounding, drawFlags);
+    ImGui::PushClipRect(min, max, true);
+    drawing->AddText(textPos, ImGui::GetColorU32(ImGuiCol_Text), txt);
+    ImGui::PopClipRect();
+    
+    return pressed;
+}

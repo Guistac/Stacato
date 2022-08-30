@@ -1,43 +1,43 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.70867467" OffsetX="1463.8256" OffsetY="-754.45349" AutoFit="false" DrawGrid="false" LockEdit="true">
-        <Widget UniqueID="9" PositionX="-652.81342" PositionY="1040.4219" SizeX="136.50003" SizeY="225.0943"/>
-        <Widget UniqueID="10" PositionX="-511.84393" PositionY="1040.1384" SizeX="136.50003" SizeY="225.37775"/>
-        <Widget UniqueID="11" PositionX="-371.27451" PositionY="1040.2067" SizeX="136.50003" SizeY="225.30952"/>
-        <Widget UniqueID="13" PositionX="-230.65863" PositionY="1040.0215" SizeX="136.50003" SizeY="225.49471"/>
-        <Widget UniqueID="14" PositionX="-88.808937" PositionY="1040.0364" SizeX="136.50003" SizeY="225.4798"/>
-        <Widget UniqueID="17" PositionX="-653.34827" PositionY="1274.1514" SizeX="136.50003" SizeY="225.60481"/>
-        <Widget UniqueID="16" PositionX="-795.49127" PositionY="1275.2416" SizeX="136.49998" SizeY="225.92567"/>
-        <Widget UniqueID="24" PositionX="-652.64099" PositionY="1506.7328" SizeX="136.50003" SizeY="225.85243"/>
-        <Widget UniqueID="23" PositionX="-794.46912" PositionY="1507.3511" SizeX="136.49998" SizeY="225.23413"/>
-        <Widget UniqueID="28" PositionX="-651.83557" PositionY="1739.0879" SizeX="136.50003" SizeY="224.91521"/>
-        <Widget UniqueID="27" PositionX="-791.93939" PositionY="1740.1664" SizeX="136.50003" SizeY="225.24782"/>
-        <Widget UniqueID="30" PositionX="-370.67603" PositionY="1739.9727" SizeX="136.50003" SizeY="225.44151"/>
-        <Widget UniqueID="31" PositionX="-229.61481" PositionY="1737.7467" SizeX="136.50003" SizeY="224.84528"/>
-        <Widget UniqueID="21" PositionX="-88.81189" PositionY="1272.7566" SizeX="136.50003" SizeY="225.58849"/>
-        <Widget UniqueID="22" PositionX="51.716507" PositionY="1271.6578" SizeX="136.49995" SizeY="225.27615"/>
-        <Widget UniqueID="25" PositionX="-88.987442" PositionY="1504.2604" SizeX="136.50003" SizeY="225.50267"/>
-        <Widget UniqueID="26" PositionX="53.254128" PositionY="1503.6096" SizeX="136.49995" SizeY="226.15344"/>
-        <Widget UniqueID="32" PositionX="-88.544571" PositionY="1737.0758" SizeX="136.50003" SizeY="225.51619"/>
-        <Widget UniqueID="33" PositionX="53.674908" PositionY="1736.2141" SizeX="136.49995" SizeY="224.9668"/>
-        <Widget UniqueID="6" PositionX="-394.31586" PositionY="926.55591" SizeX="178.50005" SizeY="108.95345"/>
-        <Widget UniqueID="7" PositionX="-212.32896" PositionY="926.4234" SizeX="178.49995" SizeY="107.67487"/>
-        <Widget UniqueID="50" PositionX="-575.86475" PositionY="926.95789" SizeX="178.50005" SizeY="108.55148"/>
-        <Widget UniqueID="4" PositionX="-393.70471" PositionY="812.97644" SizeX="178.49995" SizeY="108.23504"/>
-        <Widget UniqueID="5" PositionX="-211.63933" PositionY="813.1814" SizeX="178.49995" SizeY="108.03008"/>
-        <Widget UniqueID="52" PositionX="-564.54907" PositionY="813.92883" SizeX="157.5" SizeY="108.69374"/>
-        <Widget UniqueID="43" PositionX="53.643806" PositionY="870.625" SizeX="134.40002" SizeY="396.30225"/>
-        <Widget UniqueID="29" PositionX="-510.63412" PositionY="1740.1003" SizeX="136.50003" SizeY="225.31389"/>
-        <Widget UniqueID="41" PositionX="-501.72205" PositionY="1292.1743" SizeX="406.34988" SizeY="416.42239"/>
-        <Widget UniqueID="40" PositionX="-1152.1776" PositionY="1749.3086" SizeX="354.30588" SizeY="237.27184"/>
-        <Widget UniqueID="39" PositionX="-1153.8765" PositionY="1516.8042" SizeX="354.30591" SizeY="236.94733"/>
-        <Widget UniqueID="38" PositionX="-1152.693" PositionY="1275.7877" SizeX="354.30588" SizeY="236.66823"/>
-        <Widget UniqueID="42" PositionX="-793.36591" PositionY="873.50763" SizeX="134.40002" SizeY="396.24179"/>
-        <Widget UniqueID="44" PositionX="196.47096" PositionY="1031.8135" SizeX="354.30585" SizeY="236.52487"/>
-        <Widget UniqueID="46" PositionX="369.47369" PositionY="1274.7238" SizeX="134.40002" SizeY="395.77365"/>
-        <Widget UniqueID="45" PositionX="212.02284" PositionY="1274.2886" SizeX="134.40002" SizeY="396.20883"/>
-        <Widget UniqueID="53" PositionX="198.91855" PositionY="1679.4498" SizeX="157.5" SizeY="108.16766"/>
-        <Widget UniqueID="54" PositionX="360.25906" PositionY="1680.7245" SizeX="157.5" SizeY="108.30409"/>
-        <Widget UniqueID="8" PositionX="251.08545" PositionY="1794.3149" SizeX="220.49997" SizeY="85.023087"/>
+    <Dashboard Scale="0.93499827" OffsetX="1263.8024" OffsetY="-1023.7195" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget UniqueID="9" PositionX="-652.81342" PositionY="1040.4219" SizeX="136.50003" SizeY="229.53743"/>
+        <Widget UniqueID="10" PositionX="-511.84393" PositionY="1040.1384" SizeX="136.49997" SizeY="229.82086"/>
+        <Widget UniqueID="11" PositionX="-371.27451" PositionY="1040.2067" SizeX="136.49997" SizeY="229.75266"/>
+        <Widget UniqueID="13" PositionX="-230.65863" PositionY="1040.0215" SizeX="136.49997" SizeY="229.93781"/>
+        <Widget UniqueID="14" PositionX="-88.808937" PositionY="1040.0364" SizeX="136.50003" SizeY="229.92293"/>
+        <Widget UniqueID="17" PositionX="-653.34827" PositionY="1274.1514" SizeX="136.49997" SizeY="228.96342"/>
+        <Widget UniqueID="16" PositionX="-795.49127" PositionY="1275.2416" SizeX="136.50003" SizeY="228.94273"/>
+        <Widget UniqueID="24" PositionX="-652.64099" PositionY="1506.7328" SizeX="136.49997" SizeY="229.53755"/>
+        <Widget UniqueID="23" PositionX="-794.46912" PositionY="1507.3511" SizeX="136.5" SizeY="228.91924"/>
+        <Widget UniqueID="28" PositionX="-651.83557" PositionY="1739.0879" SizeX="136.50003" SizeY="229.26842"/>
+        <Widget UniqueID="27" PositionX="-791.93939" PositionY="1740.1664" SizeX="136.5" SizeY="229.2594"/>
+        <Widget UniqueID="30" PositionX="-370.67603" PositionY="1739.9727" SizeX="136.50003" SizeY="229.45316"/>
+        <Widget UniqueID="31" PositionX="-229.61481" PositionY="1737.7467" SizeX="136.49997" SizeY="229.5401"/>
+        <Widget UniqueID="21" PositionX="-88.81189" PositionY="1272.7566" SizeX="136.50003" SizeY="229.28871"/>
+        <Widget UniqueID="22" PositionX="51.716507" PositionY="1271.6578" SizeX="136.50003" SizeY="229.31796"/>
+        <Widget UniqueID="25" PositionX="-88.987442" PositionY="1504.2604" SizeX="136.50003" SizeY="229.87086"/>
+        <Widget UniqueID="26" PositionX="53.254128" PositionY="1503.6096" SizeX="136.50003" SizeY="229.45216"/>
+        <Widget UniqueID="32" PositionX="-88.544571" PositionY="1737.0758" SizeX="136.50003" SizeY="229.14145"/>
+        <Widget UniqueID="33" PositionX="53.674908" PositionY="1736.2141" SizeX="136.50003" SizeY="228.93359"/>
+        <Widget UniqueID="29" PositionX="-510.63412" PositionY="1740.1003" SizeX="136.50003" SizeY="229.32547"/>
+        <Widget UniqueID="41" PositionX="-501.72205" PositionY="1292.1743" SizeX="406.35007" SizeY="418.42752"/>
+        <Widget UniqueID="40" PositionX="-1152.1776" PositionY="1749.3086" SizeX="354.78394" SizeY="237.22957"/>
+        <Widget UniqueID="39" PositionX="-1153.8765" PositionY="1516.8042" SizeX="354.78394" SizeY="236.57848"/>
+        <Widget UniqueID="38" PositionX="-1152.693" PositionY="1275.7877" SizeX="354.78394" SizeY="236.95279"/>
+        <Widget UniqueID="44" PositionX="-1152.8451" PositionY="1037.2704" SizeX="354.78394" SizeY="236.96701"/>
+        <Widget UniqueID="54" PositionX="338.42993" PositionY="1040.8573" SizeX="157.49994" SizeY="110.38522"/>
+        <Widget UniqueID="53" PositionX="175.72505" PositionY="1040.946" SizeX="157.49994" SizeY="110.29647"/>
+        <Widget UniqueID="52" PositionX="493.55273" PositionY="1158.8717" SizeX="157.49994" SizeY="111.08761"/>
+        <Widget UniqueID="50" PositionX="486.86365" PositionY="1273.7439" SizeX="178.5" SizeY="110.65411"/>
+        <Widget UniqueID="4" PositionX="489.15707" PositionY="1386.7051" SizeX="178.5" SizeY="111.06213"/>
+        <Widget UniqueID="5" PositionX="489.89227" PositionY="1500.0864" SizeX="178.5" SizeY="111.04996"/>
+        <Widget UniqueID="6" PositionX="491.39935" PositionY="1612.1595" SizeX="178.5" SizeY="110.20702"/>
+        <Widget UniqueID="7" PositionX="491.93182" PositionY="1726.6282" SizeX="178.5" SizeY="110.17706"/>
+        <Widget UniqueID="8" PositionX="484.3844" PositionY="1844.7941" SizeX="220.49997" SizeY="83.98999"/>
+        <Widget UniqueID="42" PositionX="194.17841" PositionY="1562.4563" SizeX="134.40002" SizeY="398.41333"/>
+        <Widget UniqueID="43" PositionX="331.58325" PositionY="1561.826" SizeX="134.40002" SizeY="397.97406"/>
+        <Widget UniqueID="46" PositionX="336.73004" PositionY="1153.2982" SizeX="134.40002" SizeY="397.94504"/>
+        <Widget UniqueID="45" PositionX="198.37958" PositionY="1152.8632" SizeX="134.40002" SizeY="398.38007"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -2652,6 +2652,8 @@ end
 function update()
 	--more testing
 end
+
+
 
 
 

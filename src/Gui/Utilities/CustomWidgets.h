@@ -119,3 +119,5 @@ void textAlignedBackground(const char* txt,
 						   bool restrictToBounds = false,
 						   ImVec2 minBounding = ImVec2(FLT_MIN, FLT_MIN),
 						   ImVec2 maxBounding = ImVec2(FLT_MAX, FLT_MAX));
+
+bool customButton(const char* txt, ImVec2 size, ImVec4 color, float rounding, ImDrawFlags drawFlags);

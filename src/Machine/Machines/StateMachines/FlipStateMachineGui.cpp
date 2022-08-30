@@ -154,8 +154,11 @@ void FlipStateMachine::widgetGui(){
 	
 	ImGui::BeginDisabled(!isEnabled() || b_halted);
 
+        ImColor defaultButtonColor = ImGui::GetColorU32(ImGuiCol_Button);
+        
 		switch (actualState) {
 			case State::CLOSED:
+                
 				if (ImGui::Button("Open & Raise", commandButtonSize)) requestState(State::RAISED);
 				if (ImGui::Button("Open", commandButtonSize)) requestState(State::OPEN_LOWERED);
 				ImGui::BeginDisabled();
