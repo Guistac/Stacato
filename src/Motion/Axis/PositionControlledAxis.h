@@ -249,7 +249,7 @@ private:
 		
 	//================ SURVEILLANCE ==================
 	
-	bool b_hasSurveillanceError = false;
+	bool b_hasSurveillanceError = true;
 	bool b_isClearingSurveillanceError = false;
 	
 	std::shared_ptr<BooleanParameter> b_isSurveilled = BooleanParameter::make(false,

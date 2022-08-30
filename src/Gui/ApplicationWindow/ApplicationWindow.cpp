@@ -37,17 +37,6 @@ namespace ApplicationWindow {
 	bool b_launchedByOpenedFile = false;
 	char openedFilePath[512];
 
-	#ifdef STACATO_WIN32
-	float scaleTuning = 1.25; //best scaling to match Windows Gui
-	#endif
-	#ifdef STACATO_MACOS
-	float scaleTuning = 0.7; //best scaling to match MacOS Gui
-	#endif
-
-
-
-
-
 
 	void init() {
 		
@@ -151,14 +140,25 @@ namespace ApplicationWindow {
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		
-		float xScale;
-		glfwGetWindowContentScale(window, &xScale, nullptr);
-		float scale = xScale * scaleTuning;
-		Logger::debug("Display Scale: {}  Scale Tuning: x{}  Gui Scale: {}", xScale, scaleTuning, scale);
-		Fonts::load(scale);
+        
+        float displayScale;
+        glfwGetWindowContentScale(window, &displayScale, nullptr);
+        float guiScale;
+        
+        #ifdef STACATO_WIN32
+        guiScale = 1.25 * displayScale; //best scaling to match Windows Gui
+        #endif
+        #ifdef STACATO_MACOS
+        if(displayScale == 1.0) guiScale = 1.4;      //best scaling to match non retina MacOS Gui
+        else if(displayScale == 2.0) guiScale = 0.7; //best scaling to match retina MacOS Gui
+        else guiScale = 1.0;
+        #endif
+        
+		Logger::debug("Display Scale: {} Gui Scale: {}", displayScale, guiScale);
+		Fonts::load(guiScale);
 		Images::load();
 		
-		ImGui::GetStyle().ScaleAllSizes(scale);
+		ImGui::GetStyle().ScaleAllSizes(guiScale);
 		ImGui::StyleColorsDark();
 		
 		//initialize glfw & opengl backends

@@ -54,7 +54,9 @@ void PsnServer::connect(){
 }
 
 void PsnServer::disconnect(){
-	stopServer();
+    stopServer();
+    b_online = false;
+    udpSocket = nullptr;
 }
 
 bool PsnServer::isConnected(){
@@ -90,7 +92,7 @@ bool PsnServer::startServer(){
 	trackers[2] = psn::tracker(0, "Costière Cour");
 	trackers[3] = psn::tracker(0, "Etat Flip");
 
-	Logger::info("Startin PSN Server");
+	Logger::info("Starting PSN Server \"{}\"", serverName->value);
 
 	b_serverRunning = true;
 	std::thread infoSenderThread([this](){
