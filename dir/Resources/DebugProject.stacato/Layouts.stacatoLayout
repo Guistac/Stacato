@@ -1,11 +1,13 @@
 <Layouts>
-    <Layout Name="Starmania Testing" IsDefault="true">
+    <Layout Name="Starmania Testing">
         <OpenWindows>
             <Window Name="Node Editor"/>
             <Window Name="Dashboard"/>
             <Window Name="Environnement Script"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
 
 
 
@@ -350,12 +352,14 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 CentralNo
 
 </ImGuiIniString>
     </Layout>
-    <Layout Name="Visualizer Editor">
+    <Layout Name="Visualizer Editor" IsDefault="true">
         <OpenWindows>
             <Window Name="Visualizer"/>
             <Window Name="Visualizer Script"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
 
 
 
@@ -1315,6 +1319,8 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
             <Window Name="Playback Manager"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
 
 
 
@@ -3874,6 +3880,8 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split
 
 
 
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -4206,6 +4214,8 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split
             <Window Name="EtherCAT Fieldbus"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
 
 
 
@@ -6655,6 +6665,8 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
 
 
 
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -6987,6 +6999,8 @@ DockSpace     ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X Sel
             <Window Name="Dashboard"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
 
 
 
@@ -9115,6 +9129,8 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
 
 
 
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -9448,6 +9464,8 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 CentralNo
             <Window Name="Dashboard"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
 
 
 
@@ -10416,6 +10434,8 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 CentralNo
 
 
 
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -10752,6 +10772,8 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
             <Window Name="Log"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
 
 
 
@@ -11140,6 +11162,8 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=-849,1137 Size=1920,939 Cent
 
 
 
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -11482,6 +11506,8 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Split=X S
             <Window Name="Environnement Script"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
 
 
 

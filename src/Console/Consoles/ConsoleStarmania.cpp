@@ -129,6 +129,7 @@ void ConsoleStarmaniaMapping::apply(std::shared_ptr<Console> console){
     });
     
     
+	
     
     goright_rgb_Button->setInputUpdateCallback([](std::shared_ptr<IODevice> device){
         auto button = device->toPushButton();
@@ -154,6 +155,7 @@ void ConsoleStarmaniaMapping::apply(std::shared_ptr<Console> console){
         else if(PlaybackManager::isAnyAnimationActive()) PlaybackManager::stopAllAnimations();
     });
     
+	
     stop_rgb_Button->setOutputUpdateCallback([](std::shared_ptr<IODevice> device){
         auto rgbLed = device->toLED_RGB();
         auto manoeuvre = Project::currentPlot->getSelectedManoeuvre();
@@ -161,10 +163,12 @@ void ConsoleStarmaniaMapping::apply(std::shared_ptr<Console> console){
             glm::vec3 yellow = glm::vec3(1.f, 1.f, 0.f);
             glm::vec3 red = glm::vec3(1.f, 0.f, 0.f);
             float lerp = (1.f + std::sin(Timing::getProgramTime_seconds() * 20.0)) * .5f;
-            rgbLed->setColor( glm::lerp(yellow, red, lerp));
+            //rgbLed->setColor( glm::lerp(yellow, red, lerp));
         }else if(PlaybackManager::isAnyAnimationActive()) rgbLed->setColor(glm::vec3(1.f, .0f, .0f));
         else rgbLed->setColor(glm::vec3(.0f));
+		 
     });
+	 
     
     
     
@@ -179,6 +183,7 @@ void ConsoleStarmaniaMapping::apply(std::shared_ptr<Console> console){
         }
     });
     
+	
     play_rgb_Button->setOutputUpdateCallback([](std::shared_ptr<IODevice> device){
         auto rgbLed = device->toLED_RGB();
         auto manoeuvre = Project::currentPlot->getSelectedManoeuvre();
@@ -187,7 +192,7 @@ void ConsoleStarmaniaMapping::apply(std::shared_ptr<Console> console){
             glm::vec3 white = glm::vec3(1.f, 1.f, 1.f);
             glm::vec3 green = glm::vec3(0.f, 1.f, 0.f);
             float lerp = (1.f + std::sin(Timing::getProgramTime_seconds() * 20.0)) * .5f;
-            rgbLed->setColor( glm::lerp(white, green, lerp));
+            //rgbLed->setColor( glm::lerp(white, green, lerp));
         }else if(manoeuvre->canStartPlayback()) rgbLed->setColor(glm::vec3(0.f, 1.f, 0.f));
         else rgbLed->setColor(glm::vec3(0.f));
     });

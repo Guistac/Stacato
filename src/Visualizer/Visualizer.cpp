@@ -67,15 +67,11 @@ namespace Environnement::StageVisualizer{
 		});
 		
 		script.compileAndRun();
-		ofRenderer::startRender();
 		if(script.checkHasFunction("setup")) script.callFunction("setup");
-		ofRenderer::finishRender();
 	}
 
 	void onStop(){
-		ofRenderer::startRender();
 		if(script.checkHasFunction("exit")) script.callFunction("exit");
-		ofRenderer::finishRender();
 		script.stop();
 	}
 
@@ -147,24 +143,24 @@ namespace Environnement::StageVisualizer{
 		
 		//this allows ofWidth() and ofHeight() to work
 		ofRenderer::setCurrentRenderSize(frameBufferWidth, frameBufferHeight);
-		
-		//actual script rendering
-		ofRenderer::startRender();
-		framebuffer.begin();
-		
+				
 		if(b_shouldStart) {
 			b_shouldStart = false;
 			onStart();
 		}
+		
+		//actual script rendering
+		ofRenderer::startRender();
+		framebuffer.begin();
 		if(script.isRunning()) script.callFunction("update");
 		else ofBackground(0, 0, 0, 255);
+		framebuffer.end();
+		ofRenderer::finishRender();
+		
 		if(b_shouldStop){
 			b_shouldStop = false;
 			onStop();
 		}
-			 
-		framebuffer.end();
-		ofRenderer::finishRender();
 		
 		bool b_drawBorder = border > 0.0;
 		glm::vec2 min = ImGui::GetItemRectMin();
