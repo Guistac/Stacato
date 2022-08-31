@@ -116,23 +116,15 @@ namespace LayoutManager{
 	std::shared_ptr<Layout> getDefaultLayout(){ return defaultLayout; }
 	std::shared_ptr<Layout> getEditedLayout(){ return editedLayout; }
 
+	std::shared_ptr<Layout> layoutToApply = nullptr;
+	
 	void edit(std::shared_ptr<Layout> editedLayout_){
 		editedLayout = editedLayout_;
 		LayoutEditorPopup::get()->open();
 	}
 
 	void makeActive(std::shared_ptr<Layout> layout){
-		currentLayout = layout;
-		WindowManager::closeAllWindows();
-		for(auto& openWindowName : layout->openWindowIds){
-			for(auto& window : WindowManager::getWindowDictionnary()){
-				if(openWindowName == window->name){
-					window->open();
-					break;
-				}
-			}
-		}
-		ImGui::LoadIniSettingsFromMemory(layout->layoutString.c_str());
+		layoutToApply = layout;
 	}
 
 	void makeDefault(std::shared_ptr<Layout> layout){ defaultLayout = layout; }
@@ -207,5 +199,20 @@ namespace LayoutManager{
 		if (ImGui::Button("Close") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE) || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) close();
 	}
 
+	void manage(){
+		if(layoutToApply == nullptr) return;
+		WindowManager::closeAllWindows();
+		for(auto& openWindowName : layoutToApply->openWindowIds){
+			for(auto& window : WindowManager::getWindowDictionnary()){
+				if(openWindowName == window->name){
+					window->open();
+					break;
+				}
+			}
+		}
+		ImGui::LoadIniSettingsFromMemory(layoutToApply->layoutString.c_str());
+		currentLayout = layoutToApply;
+		layoutToApply = nullptr;
+	}
 
 }

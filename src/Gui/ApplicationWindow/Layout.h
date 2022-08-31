@@ -61,5 +61,7 @@ namespace LayoutManager{
 		SINGLETON_GET_METHOD(LayoutEditorPopup);
 	};
 
+	void manage();
+
 };
 

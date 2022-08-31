@@ -119,6 +119,7 @@ void draw(){
 	ImGui::PopStyleVar();
 	
 	WindowManager::manage();
+	LayoutManager::manage();
 }
 
 void setDefaultLayout(){
