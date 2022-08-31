@@ -14,14 +14,6 @@
         </OpenWindows>
         <ImGuiIniString>
 
-
-
-
-
-
-
-
-
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -81,10 +73,10 @@ DockId=0x00000005,0
 [Window][Curve Editor]
 ViewportPos=1920,0
 ViewportId=0xF4DC17C2
-Pos=502,636
-Size=857,444
+Pos=900,636
+Size=854,444
 Collapsed=0
-DockId=0x00000009,0
+DockId=0x0000000D,0
 
 [Window][Sequencer]
 Pos=1031,29
@@ -281,10 +273,10 @@ Collapsed=0
 [Window][Playback Manager]
 ViewportPos=1920,0
 ViewportId=0xF4DC17C2
-Pos=1361,636
-Size=393,444
+Pos=502,636
+Size=396,444
 Collapsed=0
-DockId=0x0000000D,0
+DockId=0x00000009,0
 
 [Window][ESI Reader]
 Pos=0,29
@@ -359,8 +351,8 @@ DockNode          ID=0x0000000A Pos=1920,0 Size=2560,1080 Split=X
     DockNode      ID=0x00000001 Parent=0x0000000C SizeRef=1252,1080 Split=Y Selected=0x47C7A3F3
       DockNode    ID=0x00000005 Parent=0x00000001 SizeRef=1262,634 Selected=0x47C7A3F3
       DockNode    ID=0x00000006 Parent=0x00000001 SizeRef=1262,444 Split=X Selected=0x8506A884
-        DockNode  ID=0x00000009 Parent=0x00000006 SizeRef=857,444 Selected=0x8506A884
-        DockNode  ID=0x0000000D Parent=0x00000006 SizeRef=393,444 Selected=0x8E074A3E
+        DockNode  ID=0x00000009 Parent=0x00000006 SizeRef=396,444 Selected=0x8E074A3E
+        DockNode  ID=0x0000000D Parent=0x00000006 SizeRef=854,444 Selected=0x8506A884
     DockNode      ID=0x00000002 Parent=0x0000000C SizeRef=804,1080 Split=Y Selected=0xEE7B11E9
       DockNode    ID=0x00000007 Parent=0x00000002 SizeRef=804,437 Selected=0x64F50EE5
       DockNode    ID=0x00000008 Parent=0x00000002 SizeRef=804,641 Selected=0x2BD258E6
