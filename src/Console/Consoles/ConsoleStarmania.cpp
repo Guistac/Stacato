@@ -8,6 +8,13 @@
 #include "Plot/ManoeuvreList.h"
 #include "Animation/Manoeuvre.h"
 
+//TODO: using glm::vec3 arithmetic such as end - start causes the stage visualize to malfunction. figure out why this happens !
+static glm::vec3 lerpColor(glm::vec3 start, glm::vec3 end, float progress){
+	return glm::vec3(start.x + (end.x - start.x) * progress,
+					 start.y + (end.x - start.x) * progress,
+					 start.z + (end.x - start.x) * progress);
+};
+
 void ConsoleStarmaniaMapping::apply(std::shared_ptr<Console> console){
 	auto devices = console->getIODevices();
 	
@@ -39,8 +46,6 @@ void ConsoleStarmaniaMapping::apply(std::shared_ptr<Console> console){
     auto square_rgb_button_6 = devices[13];
     auto square_rgb_button_7 = devices[8];
     auto square_rgb_button_8 = devices[12];
-    
-    
 	
     left_rgb_button->setInputUpdateCallback([](std::shared_ptr<IODevice> device){
 		auto button = device->toPushButton();
@@ -160,10 +165,10 @@ void ConsoleStarmaniaMapping::apply(std::shared_ptr<Console> console){
         auto rgbLed = device->toLED_RGB();
         auto manoeuvre = Project::currentPlot->getSelectedManoeuvre();
         if(manoeuvre != nullptr && manoeuvre->canStop()){
-            glm::vec3 yellow = glm::vec3(1.f, 1.f, 0.f);
+            glm::vec3 black = glm::vec3(0.f, 0.f, 0.f);
             glm::vec3 red = glm::vec3(1.f, 0.f, 0.f);
             float lerp = (1.f + std::sin(Timing::getProgramTime_seconds() * 20.0)) * .5f;
-            //rgbLed->setColor( glm::lerp(yellow, red, lerp));
+			rgbLed->setColor(lerpColor(black, red, lerp));
         }else if(PlaybackManager::isAnyAnimationActive()) rgbLed->setColor(glm::vec3(1.f, .0f, .0f));
         else rgbLed->setColor(glm::vec3(.0f));
 		 
@@ -192,7 +197,7 @@ void ConsoleStarmaniaMapping::apply(std::shared_ptr<Console> console){
             glm::vec3 white = glm::vec3(1.f, 1.f, 1.f);
             glm::vec3 green = glm::vec3(0.f, 1.f, 0.f);
             float lerp = (1.f + std::sin(Timing::getProgramTime_seconds() * 20.0)) * .5f;
-            //rgbLed->setColor( glm::lerp(white, green, lerp));
+			rgbLed->setColor(lerpColor(white, green, lerp));
         }else if(manoeuvre->canStartPlayback()) rgbLed->setColor(glm::vec3(0.f, 1.f, 0.f));
         else rgbLed->setColor(glm::vec3(0.f));
     });
