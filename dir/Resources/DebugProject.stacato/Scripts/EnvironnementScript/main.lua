@@ -61,16 +61,12 @@ function update()
 
 	local GC2_blocked = checkRangeOverlap(costCourActPos, costCourBrkPos, 4.22, 9.34) or not costiereCour_Position:isOnline()
 	flipGC2_HaltConstraint:setEnabled(GC2_blocked)
-	--Logger:warn("GC2 not halted", GC2_blocked)
-	--if not GC2_blocked then Logger:warn("GC2 halted") end
 
 	local EC2_blocked = checkRangeOverlap(costCourActPos, costCourBrkPos, 7.22, 99.9) or not costiereCour_Position:isOnline()
 	flipEC2_HaltConstraint:setEnabled(EC2_blocked)
-	--Logger:warn("EC2 halted", EC2_blocked)
 
 	local CC2_blocked = checkRangeOverlap(costCourActPos, costCourBrkPos, 10.22, 99.9) or not costiereCour_Position:isOnline()
 	flipCC2_HaltConstraint:setEnabled(CC2_blocked)
-	--Logger:warn("CC2 halted", CC2_blocked)
 
 end
 
@@ -79,6 +75,9 @@ end
 
 function exit()
 end
+
+
+
 
 
 

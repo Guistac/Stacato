@@ -139,7 +139,9 @@ void FlipStateMachine::widgetGui(){
 	
 	machineHeaderGui(contentSize.x);
 		
-	ImGui::BeginDisabled(!isEnabled() || b_halted);
+    bool b_disableControls = !isEnabled() || b_halted;
+	ImGui::BeginDisabled(b_disableControls);
+    if(b_disableControls) ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 	
 	if(getState() == MotionState::OFFLINE){
 		ImDrawList* drawing = ImGui::GetWindowDrawList();
@@ -156,12 +158,12 @@ void FlipStateMachine::widgetGui(){
 	}else{
 
         ImColor notStateColor = ImGui::GetColorU32(ImGuiCol_Button);
-		ImVec4 movingColor = Colors::yellow;
-		ImVec4 reachedColor = Colors::green;
+        ImVec4 movingColor = Colors::yellow;
+        ImVec4 reachedColor = Colors::green;
 		
 		float rounding = ImGui::GetStyle().FrameRounding;
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .1f));
-		
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .1f));
+        
 		switch (actualState) {
 			case State::CLOSED:
 				if(customButton("Open & Raise", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersTop)) requestState(State::RAISED);
@@ -196,9 +198,9 @@ void FlipStateMachine::widgetGui(){
 				break;
 			default:
 				ImGui::BeginDisabled();
-				customButton("", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersTop);
-				customButton("Unknown State", commandButtonSize, movingColor, rounding, ImDrawFlags_RoundCornersNone);
-				customButton("", commandButtonSize, movingColor, rounding, ImDrawFlags_RoundCornersBottom);
+				customButton("", commandButtonSize, Colors::darkYellow, rounding, ImDrawFlags_RoundCornersTop);
+				customButton("Unknown State", commandButtonSize, Colors::darkYellow, rounding, ImDrawFlags_RoundCornersNone);
+				customButton("", commandButtonSize, Colors::darkYellow, rounding, ImDrawFlags_RoundCornersBottom);
 				ImGui::EndDisabled();
 				break;
 		}
@@ -215,6 +217,7 @@ void FlipStateMachine::widgetGui(){
 		if(ImGui::Button("STOP", commandButtonSize)) requestState(State::STOPPED);
 	}
 		
+    if(b_disableControls) ImGui::PopStyleColor();
 	ImGui::EndDisabled();
 
 		

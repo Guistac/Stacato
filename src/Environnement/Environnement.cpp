@@ -175,12 +175,12 @@ namespace Environnement {
 		std::thread simulationStopper = std::thread([](){
 			disableAllMachines();
 			
-			Script::stop();
-			
 			for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
 			b_isRunning = false;
 			if(environnementSimulator.joinable()) environnementSimulator.join();
 			
+            Script::stop();
+            
 			for(auto machine : getMachines()){
 				machine->state = MotionState::OFFLINE;
 			}
@@ -335,9 +335,11 @@ namespace Environnement {
 	std::shared_ptr<EtherCatDevice> selectedEtherCatDevice;
 
 	void enableAllMachines() {
+        if(!Environnement::isRunning()) return;
 		for (auto machine : machines) machine->enable();
 	}
 	void disableAllMachines() {
+        if(!Environnement::isRunning()) return;
 		for (auto machine : machines) machine->disable();
 	}
 	bool areAllMachinesEnabled() {

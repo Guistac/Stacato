@@ -51,12 +51,11 @@ namespace ConsoleHandler{
 		std::make_shared<ConsoleStarmaniaMapping>()
 	};
 
-
-
 	void applyMapping(std::shared_ptr<Console> console){
 		for(auto mapping : mappingDictionnary){
 			if(mapping->matchesConsole(console)){
 				mapping->apply(console);
+                return;
 			}
 		}
 	}

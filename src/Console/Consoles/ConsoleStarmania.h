@@ -33,7 +33,7 @@ public:
 	}
 	
 	virtual std::string& getConsoleName() override{
-		static std::string consoleName = "Console Starmania";
+		static std::string consoleName = "Stacato Starmania";
 		return consoleName;
 	}
 	

@@ -7,25 +7,25 @@ class IODevice;
 class Console : public std::enable_shared_from_this<Console>{
 public:
 	
-	static std::shared_ptr<Console> initialize(std::shared_ptr<SerialPort> port);
-	static void terminate(std::shared_ptr<Console> console);
-		
-	bool isConnected(){ return connectionState == ConnectionState::CONNECTED; }
-	bool isConnecting(){
-		switch(connectionState){
-			case ConnectionState::NOT_CONNECTED:
-			case ConnectionState::CONNECTION_REQUESTED:
-			case ConnectionState::CONNECTION_CONFIRMATION_RECEIVED:
-			case ConnectionState::IDENTIFICATION_REQUESTED:
-			case ConnectionState::IDENTIFICATION_RECEIVED:
-			case ConnectionState::DEVICE_ENUMERATION_REQUESTED:
-			case ConnectionState::DEVICE_ENUMERATION_RECEIVED: return true;
-			default: return false;
-		}
-	}
-	bool wasDisconnected(){ return connectionState == ConnectionState::DISCONNECTED; }
-	
-	std::string& getName(){ return consoleName; }
+    static std::shared_ptr<Console> initialize(std::shared_ptr<SerialPort> port);
+    static void terminate(std::shared_ptr<Console> console);
+        
+    bool isConnected(){ return connectionState == ConnectionState::CONNECTED; }
+    bool isConnecting(){
+        switch(connectionState){
+            case ConnectionState::NOT_CONNECTED:
+            case ConnectionState::CONNECTION_REQUESTED:
+            case ConnectionState::CONNECTION_CONFIRMATION_RECEIVED:
+            case ConnectionState::IDENTIFICATION_REQUESTED:
+            case ConnectionState::IDENTIFICATION_RECEIVED:
+            case ConnectionState::DEVICE_ENUMERATION_REQUESTED:
+            case ConnectionState::DEVICE_ENUMERATION_RECEIVED: return true;
+            default: return false;
+        }
+    }
+    bool wasDisconnected(){ return connectionState == ConnectionState::DISCONNECTED; }
+    
+    std::string& getName(){ return consoleName; }
 	std::vector<std::shared_ptr<IODevice>>& getIODevices(){ return ioDevices; }
 	
 private:

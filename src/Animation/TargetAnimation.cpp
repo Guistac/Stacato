@@ -169,7 +169,7 @@ bool TargetAnimation::canStartPlayback(){
 	if(!animatable->isReadyToMove()) return false;
 	auto actualValue = animatable->getActualValue();
 	auto targetValue = animatable->parameterValueToAnimationValue(target);
-	bool b_alreadyAtTarget = animatable->isParameterValueEqual(actualValue, targetValue);
+	bool b_alreadyAtTarget = animatable->isParameterValueEqual(actualValue, targetValue); //BUG:
 	return !b_alreadyAtTarget;
 	return true;
 }
