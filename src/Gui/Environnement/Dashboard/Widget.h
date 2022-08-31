@@ -31,9 +31,6 @@ public:
 	std::shared_ptr<Widget> widget = nullptr;
 	int uniqueID = -1;
 	
-	std::shared_ptr<VectorParameter<glm::vec2>> positionParameter = std::make_shared<VectorParameter<glm::vec2>>(glm::vec2(0,0), "Position", "Position");
-	std::shared_ptr<VectorParameter<glm::vec2>> sizeParameter = std::make_shared<VectorParameter<glm::vec2>>(glm::vec2(0,0), "Size", "Size");
-	
 	static std::shared_ptr<WidgetInstance> make(std::shared_ptr<Widget> widget);
 		
 	bool hasWidget(){ return widget != nullptr; }

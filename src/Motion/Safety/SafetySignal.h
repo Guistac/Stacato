@@ -59,11 +59,11 @@ private:
 																								 false);
 	
 	std::shared_ptr<NumberParameter<double>> unclearedFaultLedBlinkFrequency = NumberParameter<double>::make(0.0,
-																											"Uncleared Fault LED Blink Frequency",
-																											"UnclearedFaultLedBlinkFrequency",
-																											"%.2f",
-																											Units::Frequency::Hertz,
-																											false);
+                                                                                                        "Uncleared Fault LED Blink Frequency",
+                                                                                                        "UnclearedFaultLedBlinkFrequency",
+                                                                                                        "%.2f",
+                                                                                                        Units::Frequency::Hertz,
+                                                                                                        false);
 	
 	class ControlWidget : public Widget{
 	public:

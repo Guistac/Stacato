@@ -43,6 +43,8 @@ public:
 	bool b_autoFit = false;
 	bool b_drawGrid = true;
 	bool b_lockEdit = false;
+    
+    bool b_autofitBusy = false;
 	
 	glm::vec2 offset;
 	glm::vec2 dashboardPosition;

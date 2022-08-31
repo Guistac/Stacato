@@ -78,7 +78,7 @@ void SafetySignal::inputProcess(){
 			*stateLedSignal = true;
 			break;
 		case State::UNCLEARED_SAFETY_FAULT:{
-			bool blinkTimeSeconds = 1.0 / unclearedFaultLedBlinkFrequency->value;
+			double blinkTimeSeconds = 1.0 / unclearedFaultLedBlinkFrequency->value;
 			*stateLedSignal = fmod(Timing::getProgramTime_seconds(), blinkTimeSeconds) < blinkTimeSeconds * 0.5;
 			}break;
 	}

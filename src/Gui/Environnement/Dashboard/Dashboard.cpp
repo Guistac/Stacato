@@ -109,7 +109,16 @@ void Dashboard::canvas(){
 	glm::vec2 newSize = ImGui::GetContentRegionAvail();
 	bool b_dashboardSizeChanged = dashboardSize != newSize;
 	dashboardSize = newSize;
-	if(b_dashboardSizeChanged && b_autoFit) fitView();
+    if(b_dashboardSizeChanged || b_autoFit || b_autofitBusy) {
+        if(b_autoFit || b_dashboardSizeChanged) {
+            b_autoFit = false;
+            b_autofitBusy = true;
+        }else if(b_autofitBusy){
+            b_autoFit = false;
+            b_autofitBusy = false;
+        }
+        fitView();
+    }
 	
 	//begin dashboard window and set main coordinates
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
@@ -258,7 +267,13 @@ void Dashboard::canvas(){
 		draggedWidget->position += delta / scale;
 		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
 	}
-	if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)) draggedWidget = nullptr;
+    if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+        if(draggedWidget){
+            draggedWidget->position.x = std::round(draggedWidget->position.x);
+            draggedWidget->position.y = std::round(draggedWidget->position.y);
+        }
+        draggedWidget = nullptr;
+    }
 	if(selectedWidget){
 		if(ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE) || ImGui::IsKeyPressed(GLFW_KEY_DELETE)){
 			removeWidget(selectedWidget);
@@ -320,7 +335,7 @@ void Dashboard::fitView(){
 		offset.y = -contentMin.y + (viewSize.y - contentSize.y) / 2.0;
 	}
 	glm::vec2 zoomPosition = (dashboardPosition + dashboardMax) / 2.0;
-	zoom(zoomPosition, -0.1);
+	zoom(zoomPosition, -0.01);
 }
 
 
@@ -337,20 +352,15 @@ void Dashboard::gui(){
 			float availableWidth = ImGui::GetContentRegionAvail().x;
 
 			if(getSelectedWidget() && getSelectedWidget()->hasWidget()){
-				//ImGui::Separator();
 				
 				ImGui::PushFont(Fonts::sansBold15);
 				backgroundText(getSelectedWidget()->widget->getName().c_str(), ImVec2(availableWidth, ImGui::GetFrameHeight()), Colors::darkGray);
 				ImGui::PopFont();
-				
+				/*
 				ImGui::Text("Position :");
 				ImGui::SetNextItemWidth(availableWidth);
 				getSelectedWidget()->positionParameter->gui();
-				
-				ImGui::Text("Size :");
-				ImGui::SetNextItemWidth(availableWidth);
-				getSelectedWidget()->sizeParameter->gui();
-				
+				*/
 				ImGui::Separator();
 			}
 			

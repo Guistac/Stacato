@@ -409,6 +409,40 @@ inline bool VectorParameter<glm::vec2>::load(tinyxml2::XMLElement* xml){
 
 
 
+
+template<>
+inline void VectorParameter<glm::ivec2>::inputField(){
+    ImGui::BeginDisabled(isDisabled());
+    ImGui::InputInt2(getImGuiID(), &displayValue.x);
+    ImGui::EndDisabled();
+}
+
+template<>
+inline bool VectorParameter<glm::ivec2>::save(tinyxml2::XMLElement* xml){
+    using namespace tinyxml2;
+    XMLElement* element = xml->InsertNewChildElement(getSaveString());
+    element->SetAttribute("x", value.x);
+    element->SetAttribute("y", value.y);
+    return true;
+}
+
+template<>
+inline bool VectorParameter<glm::ivec2>::load(tinyxml2::XMLElement* xml){
+    using namespace tinyxml2;
+    XMLElement* element = xml->FirstChildElement(getSaveString());
+    if(XML_SUCCESS != element->QueryAttribute("x", &value.x) ||
+       XML_SUCCESS != element->QueryAttribute("y", &value.y)){
+        return Logger::warn("Could not load parameter {}", getName());
+    }
+    displayValue = value;
+    return true;
+}
+
+
+
+
+
+
 template<>
 inline void VectorParameter<glm::vec3>::inputField(){
 	ImGui::BeginDisabled(isDisabled());
