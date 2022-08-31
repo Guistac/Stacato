@@ -50,6 +50,11 @@ void Console::onConnection(){
 	outputHandler = std::thread([this](){ updateOutputs(); });
 }
 
+void Console::setMapping(std::shared_ptr<ConsoleMapping> mapping_){
+	mapping->apply(shared_from_this());
+	mapping = mapping_;
+}
+
 
 void Console::receiveDeviceInput(uint8_t* message, size_t size){
 	
@@ -67,7 +72,7 @@ void Console::receiveDeviceInput(uint8_t* message, size_t size){
 	device->updateInput(deviceInputData, deviceInputDataSize);
 	
 	
-	
+	/*
 	uint8_t deviceTypeCode = message[0];
 	switch(IODevice::getTypeFromCode(deviceTypeCode)){
 		case IODevice::Type::PUSHBUTTON:
@@ -99,7 +104,7 @@ void Console::receiveDeviceInput(uint8_t* message, size_t size){
 			Logger::warn("Unknown device input received...");
 			break;
 	}
-	 
+	*/
 }
 
 void Console::receiveConnectionConfirmation(uint8_t* message, size_t size){

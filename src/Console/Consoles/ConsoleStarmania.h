@@ -2,7 +2,7 @@
 
 #include "Console/ConsoleMapping.h"
 
-class ConsoleStarmaniaMapping : public ConsoleMapping{
+class ConsoleStarmania : public ConsoleMapping{
 public:
 	
 	virtual std::vector<IODevice::Type>& getDeviceTypes() override{
@@ -39,5 +39,11 @@ public:
 	
 	virtual void apply(std::shared_ptr<Console> console) override;
 	
+	virtual void gui(float height) override;
+	
+	std::shared_ptr<Joystick2X> joystickLeft;
+	std::shared_ptr<Joystick2X> joystickRight;
+	std::shared_ptr<LED_RGB_Button> joystickButtonLeft;
+	std::shared_ptr<LED_RGB_Button> joystickButtonRight;
 	
 };

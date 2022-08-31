@@ -13,4 +13,6 @@ public:
 	virtual std::string& getConsoleName() = 0;
 	virtual void apply(std::shared_ptr<Console> console) = 0;
 	
+	virtual void gui(float height) = 0;
+	
 };

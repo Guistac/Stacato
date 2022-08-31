@@ -17,6 +17,10 @@ namespace ConsoleHandler{
 	std::thread consoleHandler;
 	bool b_handlerRunning = false;
 
+	std::shared_ptr<Console> getConnectedConsole(){
+		return connectedConsole;
+	}
+
 	void update(){
 		pthread_setname_np("Console Handler Thread");
 		while(b_handlerRunning){
@@ -46,15 +50,13 @@ namespace ConsoleHandler{
 	}
 
 	std::vector<std::shared_ptr<ConsoleMapping>> mappingDictionnary = {
-		std::make_shared<StacatoCompactMapping>(),
-		std::make_shared<ButtonBoardMapping>(),
-		std::make_shared<ConsoleStarmaniaMapping>()
+		std::make_shared<ConsoleStarmania>()
 	};
 
 	void applyMapping(std::shared_ptr<Console> console){
 		for(auto mapping : mappingDictionnary){
 			if(mapping->matchesConsole(console)){
-				mapping->apply(console);
+				console->setMapping(mapping);
                 return;
 			}
 		}

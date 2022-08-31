@@ -15,7 +15,7 @@ static glm::vec3 lerpColor(glm::vec3 start, glm::vec3 end, float progress){
 					 start.z + (end.x - start.x) * progress);
 };
 
-void ConsoleStarmaniaMapping::apply(std::shared_ptr<Console> console){
+void ConsoleStarmania::apply(std::shared_ptr<Console> console){
 	auto devices = console->getIODevices();
 	
 	std::vector<std::shared_ptr<IODevice>> rgbButtons;
@@ -32,12 +32,12 @@ void ConsoleStarmaniaMapping::apply(std::shared_ptr<Console> console){
 	auto left_selection_button = devices[16];
 	auto right_selection_button = devices[17];
 	auto rearm_button = devices[18];
-	
-	auto left_joystick = devices[20];
-    auto right_joystick = devices[19];
-    auto left_joystick_rgb_button = devices[1];
-    auto right_joystick_rgb_button = devices[6];
     
+	joystickLeft = devices[20]->toJoystick2X();
+	joystickRight = devices[19]->toJoystick2X();
+	joystickButtonLeft = devices[1]->toLED_RGB_Button();
+	joystickButtonRight = devices[6]->toLED_RGB_Button();
+	
     auto square_rgb_button_1 = devices[11];
     auto square_rgb_button_2 = devices[15];
     auto square_rgb_button_3 = devices[10];
@@ -69,13 +69,13 @@ void ConsoleStarmaniaMapping::apply(std::shared_ptr<Console> console){
     
     
     
-    
-    left_joystick->setInputUpdateCallback([](std::shared_ptr<IODevice> device){
+    //TODO: assign these to machines
+	joystickLeft->setInputUpdateCallback([](std::shared_ptr<IODevice> device){
 		auto joystick = device->toJoystick2X();
 		auto position = joystick->getPosition();
 		Logger::warn("Joystick Left: {} {}", position.x, position.y);
 	});
-    right_joystick->setInputUpdateCallback([](std::shared_ptr<IODevice> device){
+	joystickRight->setInputUpdateCallback([](std::shared_ptr<IODevice> device){
         auto joystick = device->toJoystick2X();
         auto position = joystick->getPosition();
         Logger::warn("Joystick Right: {} {}", position.x, position.y);

@@ -27,6 +27,8 @@
 
 #include "Gui/Plot/PlaybackGui.h"
 
+#include "Console/ConsoleHandler.h"
+
 namespace Gui {
 
 
@@ -228,9 +230,16 @@ namespace Gui {
 		ImGui::SameLine();
 		
 		
-		//ImGui::ImageButton(Images::KeyIcon.getID(), ImVec2(50,50));
-		//ImGui::Image(Images::KeyIcon.getID(), Images::KeyIcon.getSize());
+		ImGui::BeginGroup();
+		ImGui::BeginGroup();
+		ConsoleHandler::gui(buttonSize.y);
+		ImGui::EndGroup();
+		ImGui::PushFont(Fonts::sansRegular12);
+		backgroundText("Console", glm::vec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
+		ImGui::PopFont();
+		ImGui::EndGroup();
 		
+
 		
 		
 		ImGui::PopStyleVar();

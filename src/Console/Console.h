@@ -28,6 +28,9 @@ public:
     std::string& getName(){ return consoleName; }
 	std::vector<std::shared_ptr<IODevice>>& getIODevices(){ return ioDevices; }
 	
+	void setMapping(std::shared_ptr<ConsoleMapping> mapping_);
+	std::shared_ptr<ConsoleMapping> getMapping(){ return mapping; }
+	
 private:
 	
 	std::thread inputHandler;
