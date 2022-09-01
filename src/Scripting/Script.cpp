@@ -116,7 +116,10 @@ void LuaScript::save(const char* filePath){
 }
 
 std::string LuaScript::getScriptText(){
-	return textEditor.GetText();
+	std::string txt = textEditor.GetText();
+	//textEditor appends a newline at each file end for some reason
+	txt.erase(txt.end() - 1, txt.end());
+	return txt;
 }
 
 void LuaScript::reloadSaved(){
@@ -136,7 +139,7 @@ bool LuaScript::compile(bool hideSuccessMessage){
 	if(L == nullptr) return;
 	luaL_openlibs(L);
 	Scripting::LogLibrary::openLib(L, this);
-	if(loadLibrairies) loadLibrairies(L);
+	loadLibCallback(L);
 	lua_settop(L, 0); //clear stack since opening libs leaves tables on the stack
 	
 	//reset console
