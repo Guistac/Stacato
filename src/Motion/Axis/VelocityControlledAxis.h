@@ -136,6 +136,9 @@ public:
 	double externalVelocityCommand = 0.0;
 	double externalAccelerationCommand = 0.0;
 	
+	bool isAtUpperLimit();
+	bool isAtLowerLimit();
+	
 	double getProfileVelocity_axisUnitsPerSecond() { return motionProfile.getVelocity(); }
 	double getProfileAcceleration_axisUnitsPerSecondSquared() { return motionProfile.getAcceleration(); }
 

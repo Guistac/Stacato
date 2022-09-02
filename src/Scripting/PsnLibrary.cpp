@@ -1,5 +1,8 @@
 #include <pch.h>
 #include "PsnLibrary.h"
+#include "LuaLibraryHelper.h"
+
+#include "Networking/Psn/PsnServer.h"
 
 
 
@@ -7,23 +10,99 @@ namespace Scripting::PsnLibrary{
 
 	//————————————————— TYPES ——————————————————
 
-/*
-	LuaEnumerator<AnimatableType, "AnimatableType"> lua_AnimatableType;
+	LuaSharedPointer<PsnServer, "PsnServer"> lua_PsnServer;
+	LuaSharedPointer<PsnTracker, "PsnTracker"> lua_PsnTracker;
 
-	LuaSharedPointer<Machine, "Machine"> lua_Machine;
-	LuaSharedPointer<Animatable, "Animatable"> lua_Animatable;
-	LuaSharedPointer<AnimationConstraint, "AnimationConstraint"> lua_AnimationConstraint;
 
-	LuaSharedPointer<AnimatableState, "AnimatableState"> lua_AnimatableState;
-	LuaPointer<AnimatableStateStruct, "AnimatableStateStruct"> lua_AnimatableStateStruct;
+	int luaPsnServer_createNewTracker(lua_State* L){
+		const char* name = luaL_checkstring(L, -1);
+		lua_getglobal(L, "PsnServer");
+		auto psnServer = lua_PsnServer.checkArgument(L, -1);
+		if(psnServer == nullptr) lua_pushnil(L);
+		else {
+			auto tracker = psnServer->createNewTracker(name);
+			lua_PsnTracker.push(L, tracker);
+		}
+		return 1;
+	}
 
-	LuaSharedPointer<AnimatablePosition, "AnimatablePosition"> lua_AnimatablePosition;
-	LuaSharedPointer<AnimatablePosition_KeepoutConstraint, "AnimatablePositionKeepoutConstraint"> lua_AnimatablePosition_KeepoutConstraint;
-*/
+
+	int luaTracker_setPosition(lua_State* L){
+		auto tracker = lua_PsnTracker.checkArgument(L, 1);
+		double x = luaL_checknumber(L, 2);
+		double y = luaL_checknumber(L, 3);
+		double z = luaL_checknumber(L, 4);
+		tracker->setPosition(glm::vec3(x,y,z));
+		return 0;
+	}
+
+	int luaTracker_setVelocity(lua_State* L){
+		auto tracker = lua_PsnTracker.checkArgument(L, 1);
+		double x = luaL_checknumber(L, 2);
+		double y = luaL_checknumber(L, 3);
+		double z = luaL_checknumber(L, 4);
+		tracker->setVelocity(glm::vec3(x,y,z));
+		return 0;
+	}
+
+	int luaTracker_setAcceleration(lua_State* L){
+		auto tracker = lua_PsnTracker.checkArgument(L, 1);
+		double x = luaL_checknumber(L, 2);
+		double y = luaL_checknumber(L, 3);
+		double z = luaL_checknumber(L, 4);
+		tracker->setAcceleration(glm::vec3(x,y,z));
+		return 0;
+	}
+
+	int luaTracker_setTarget(lua_State* L){
+		auto tracker = lua_PsnTracker.checkArgument(L, 1);
+		double x = luaL_checknumber(L, 2);
+		double y = luaL_checknumber(L, 3);
+		double z = luaL_checknumber(L, 4);
+		tracker->setTarget(glm::vec3(x,y,z));
+		return 0;
+	}
+
+	int luaTracker_setOrigin(lua_State* L){
+		auto tracker = lua_PsnTracker.checkArgument(L, 1);
+		double x = luaL_checknumber(L, 2);
+		double y = luaL_checknumber(L, 3);
+		double z = luaL_checknumber(L, 4);
+		tracker->setOrigin(glm::vec3(x,y,z));
+		return 0;
+	}
+
+	int luaTracker_setStatus(lua_State* L){
+		auto tracker = lua_PsnTracker.checkArgument(L, 1);
+		double status = luaL_checknumber(L, 2);
+		tracker->setStatus(status);
+		return 0;
+	}
+
+
+
+	
+
 
 	//————————————————— LIBRARY ——————————————————
 	
-	void openlib(lua_State* L){
+	void openlib(lua_State* L, std::shared_ptr<PsnServer> server){
+		
+		lua_PsnServer.addMethod("createNewTracker", luaPsnServer_createNewTracker);
+		lua_PsnServer.declare(L);
+		
+		lua_PsnTracker.addMethod("setPosition", luaTracker_setPosition);
+		lua_PsnTracker.addMethod("setVelocity", luaTracker_setVelocity);
+		lua_PsnTracker.addMethod("setAcceleration", luaTracker_setAcceleration);
+		lua_PsnTracker.addMethod("setTarget", luaTracker_setTarget);
+		lua_PsnTracker.addMethod("setOrigin", luaTracker_setOrigin);
+		lua_PsnTracker.addMethod("setStatus", luaTracker_setStatus);
+		lua_PsnTracker.declare(L);
+		
+		lua_PsnServer.push(L, server);
+		lua_setglobal(L, "PsnServer");
+		
+		
 		
 		/*
 		//——— AnimatableType Enumerator

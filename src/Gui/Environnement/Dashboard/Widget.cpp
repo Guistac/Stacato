@@ -20,6 +20,7 @@ std::shared_ptr<WidgetInstance> WidgetInstance::make(std::shared_ptr<Widget> wid
 
 bool WidgetInstance::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
+	if(widget != nullptr) xml->SetAttribute("Name", widget->getName().c_str());
 	xml->SetAttribute("UniqueID", uniqueID);
 	xml->SetAttribute("PositionX", position.x);
 	xml->SetAttribute("PositionY", position.y);
@@ -51,6 +52,8 @@ std::shared_ptr<WidgetInstance> WidgetInstance::load(tinyxml2::XMLElement* xml){
 		Logger::warn("Could not find Widget Size Y Attribute");
 		return nullptr;
 	}
+	widgetInstance->position.x = std::round(widgetInstance->position.x);
+	widgetInstance->position.y = std::round(widgetInstance->position.y);
 	return widgetInstance;
 }
 

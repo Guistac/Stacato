@@ -23,8 +23,7 @@ std::vector<AnimatableStateStruct*> AxisStateMachine::allStates = {
 	&AxisStateMachine::stateMovingToNegativeLimit,
 	&AxisStateMachine::stateMovingToPositiveLimit,
 	&AxisStateMachine::stateNegativeLimit,
-	&AxisStateMachine::statePositiveLimit,
-	&AxisStateMachine::stateUnknown
+	&AxisStateMachine::statePositiveLimit
 };
 
 std::vector<AnimatableStateStruct*> AxisStateMachine::selectableStates = {
@@ -63,75 +62,41 @@ void AxisStateMachine::inputProcess() {
 		return;
 	}
 	
-	/*
-	auto gpioDevice = getGpioDevice();
-	MotionState gpioState = gpioDevice->getState();
-		
-	//if the gpio device provides valid values, update the state of the flip machine
-	if(gpioState != MotionState::OFFLINE){
-		hoodOpenSignalPin->copyConnectedPinValue();
-		hoodShutSignalPin->copyConnectedPinValue();
-		liftRaisedSignalPin->copyConnectedPinValue();
-		liftLoweredSignalPin->copyConnectedPinValue();
-		hoodMotorCircuitBreakerSignalPin->copyConnectedPinValue();
-		liftMotorCircuitBreakerSignalPin->copyConnectedPinValue();
-		emergencyStopClearSignalPin->copyConnectedPinValue();
-		localControlEnabledSignalPin->copyConnectedPinValue();
-		
-		b_emergencyStopActive = !*emergencyStopClearSignal;
-		b_halted = isEnabled() && !isMotionAllowed();
-		
-		if (*hoodShutSignal && !*hoodOpenSignal) {
-			if (*liftLoweredSignal && !*liftRaisedSignal) actualState = State::CLOSED;
-			else actualState = State::UNKNOWN;
-		}
-		else if (*hoodOpenSignal && !*hoodShutSignal) {
-			if (*liftLoweredSignal && !*liftRaisedSignal) actualState = State::OPEN_LOWERED;
-			else if (*liftRaisedSignal && !*liftLoweredSignal) actualState = State::RAISED;
-			else if (!*liftLoweredSignal && !*liftRaisedSignal) actualState = State::LOWERING_RAISING;
-			else actualState = State::UNKNOWN;
-		}
-		else if (!*hoodOpenSignal && !*hoodShutSignal) {
-			if (*liftLoweredSignal && !*liftRaisedSignal) actualState = State::OPENING_CLOSING;
-			else actualState = State::UNKNOWN;
-		}
-		else actualState = State::UNKNOWN;
-	}else{
-		state = MotionState::OFFLINE;
-		actualState = State::UNKNOWN;
-		b_emergencyStopActive = false;
-		b_halted = false;
-		return;
-	}
+	auto axis = getAxis();
 	
-	MotionState newState;
-	if(actualState == State::UNKNOWN) newState = MotionState::OFFLINE;
-	else if (!*emergencyStopClearSignal) newState = MotionState::NOT_READY;
-	else if (*localControlEnabledSignal) newState = MotionState::NOT_READY;
-	else if (*liftMotorCircuitBreakerSignal) newState = MotionState::NOT_READY;
-	else if (*hoodMotorCircuitBreakerSignal) newState = MotionState::NOT_READY;
-	else if (!isEnabled()) newState = MotionState::READY;
-	else newState = MotionState::ENABLED;
-		
+	//update estop state
+	b_emergencyStopActive = axis->isEmergencyStopActive();
+	
+	//handle transition from enabled state
+	MotionState newState = axis->getState();
 	if(isEnabled() && newState != MotionState::ENABLED) disable();
 	state = newState;
 	
-	//update animatable state
-	if(state == MotionState::OFFLINE) animatableState->state = Animatable::State::OFFLINE;
-	else if(state == MotionState::ENABLED && !b_halted) animatableState->state = Animatable::State::READY;
-	else animatableState->state = Animatable::State::NOT_READY;
-	
-	auto actualStateValue = AnimationValue::makeState();
-	switch(actualState){
-		case State::CLOSED: 		actualStateValue->value = &stateClosed; break;
-		case State::OPEN_LOWERED: 	actualStateValue->value = &stateOpenLowered; break;
-		case State::RAISED: 		actualStateValue->value = &stateRaised; break;
-		default: 					actualStateValue->value = &stateStopped; break;
+	switch(state){
+		case MotionState::OFFLINE:
+			animatableState->state = Animatable::State::OFFLINE;
+			break;
+		case MotionState::NOT_READY:
+			animatableState->state = Animatable::State::NOT_READY;
+		case MotionState::READY:
+		case MotionState::ENABLED:
+			animatableState->state = Animatable::State::READY;
+			break;
 	}
-	animatableState->updateActualValue(actualStateValue);
 	
-	*stateIntegerValue = getStateInteger(actualState);
-	 */
+	//get current animation state
+	if(axis->isAtLowerLimit()) actualState = State::AT_NEGATIVE_LIMIT;
+	else if(axis->isAtUpperLimit()) actualState = State::AT_POSITIVE_LIMIT;
+	else if(axis->getProfileVelocity_axisUnitsPerSecond() > 0.0) actualState = State::MOVING_TO_POSITIVE_LIMIT;
+	else if(axis->getProfileVelocity_axisUnitsPerSecond() < 0.0) actualState = State::MOVING_TO_NEGATIVE_LIMIT;
+	else if(axis->getProfileVelocity_axisUnitsPerSecond() == 0.0) actualState = State::STOPPED;
+	else actualState = State::UNKNOWN;
+	
+	std::shared_ptr<AnimatableStateValue> newAnimationValue = AnimationValue::makeState();
+	newAnimationValue->value = getStateStruct(actualState);
+	animatableState->updateActualValue(newAnimationValue); //BUG?
+	
+	*stateInteger = getStateInteger(actualState);
 }
 
 void AxisStateMachine::outputProcess(){
@@ -145,58 +110,39 @@ void AxisStateMachine::outputProcess(){
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
 	
-	
-	/*
 	//update outputs signals
-	if (!isEnabled()) {
+	if (getState() != MotionState::ENABLED) {
 		
 		animatableState->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
-		
-		*shutHoodSignal = false;
-		*openHoodSignal = false;
-		*lowerLiftSignal = false;
-		*raiseLiftSignal = false;
 		
 	}else{
 		
 		animatableState->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
-		auto targetValue = animatableState->getTargetValue()->toState()->value;
+		AnimatableStateStruct* targetValue = animatableState->getTargetValue()->toState()->value;
+		requestedState = getStateEnumerator(targetValue);
 		
-		if(targetValue == &stateClosed) requestedState = State::CLOSED;
-		else if(targetValue == &stateOpenLowered) requestedState = State::OPEN_LOWERED;
-		else if(targetValue == &stateRaised) requestedState = State::RAISED;
-		else requestedState = State::STOPPED;
-		
-		switch (requestedState) {
-			case State::CLOSED:
-				*shutHoodSignal = true;
-				*openHoodSignal = false;
-				*lowerLiftSignal = true;
-				*raiseLiftSignal = false;
+		double velocityCommand;
+		switch(requestedState){
+			case State::UNKNOWN:
+			case State::STOPPED:
+				velocityCommand = 0.0;
 				break;
-			case State::OPEN_LOWERED:
-				*shutHoodSignal = false;
-				*openHoodSignal = true;
-				*lowerLiftSignal = true;
-				*raiseLiftSignal = false;
+			case State::MOVING_TO_POSITIVE_LIMIT:
+			case State::AT_POSITIVE_LIMIT:
+				velocityCommand = 1.0;
 				break;
-			case State::RAISED:
-				*shutHoodSignal = false;
-				*openHoodSignal = true;
-				*lowerLiftSignal = false;
-				*raiseLiftSignal = true;
-				break;
-			default:
-				//in any other state (include STOPPED), we stop all motion
-				*shutHoodSignal = false;
-				*openHoodSignal = false;
-				*lowerLiftSignal = false;
-				*raiseLiftSignal = false;
+			case State::MOVING_TO_NEGATIVE_LIMIT:
+			case State::AT_NEGATIVE_LIMIT:
+				velocityCommand = -1.0;
 				break;
 		}
+		
+		getAxis()->setVelocityCommand(velocityCommand, 0.0);
+		
 	}
-	*/
 }
+
+
 
 bool AxisStateMachine::isHardwareReady() {
 	if (!areAllPinsConnected()) return false;

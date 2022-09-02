@@ -109,12 +109,10 @@ void Dashboard::canvas(){
 	glm::vec2 newSize = ImGui::GetContentRegionAvail();
 	bool b_dashboardSizeChanged = dashboardSize != newSize;
 	dashboardSize = newSize;
-    if(b_dashboardSizeChanged || b_autoFit || b_autofitBusy) {
-        if(b_autoFit || b_dashboardSizeChanged) {
-            b_autoFit = false;
+    if(b_dashboardSizeChanged || b_autofitBusy) {
+        if(b_dashboardSizeChanged) {
             b_autofitBusy = true;
         }else if(b_autofitBusy){
-            b_autoFit = false;
             b_autofitBusy = false;
         }
         fitView();
@@ -260,7 +258,9 @@ void Dashboard::canvas(){
 			selectWidget(hoveredWidget);
 			moveWidgetToTop(hoveredWidget);
 		}
-	}else if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) deselectWidget();
+	}else if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) fitView();
+	else if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) deselectWidget();
+
 	if(draggedWidget && ImGui::IsMouseDown(ImGuiMouseButton_Left)){
 		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
 		glm::vec2 delta = ImGui::GetIO().MouseDelta;

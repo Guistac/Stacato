@@ -21,6 +21,26 @@ public:
 	std::shared_ptr<int> stateInteger = std::make_shared<int>(-1.0);
 	std::shared_ptr<NodePin> statePin = std::make_shared<NodePin>(stateInteger, NodePin::Direction::NODE_OUTPUT, "State", NodePin::Flags::DisableDataField);
 	
+	//————— Parameters —————
+	std::shared_ptr<NumberParameter<double>> manualStateTargetVelocity = NumberParameter<double>::make(0.0, "Manual State Target Velocity", "ManualStateTargetVelocity",
+																									   "%.3f", Units::None::None, false);
+	double manualVelocitySliderValue = 0.0;
+	
+	//————— Animation —————
+	
+	enum class State{
+		UNKNOWN,
+		STOPPED,
+		MOVING_TO_POSITIVE_LIMIT,
+		MOVING_TO_NEGATIVE_LIMIT,
+		AT_POSITIVE_LIMIT,
+		AT_NEGATIVE_LIMIT
+	};
+	State actualState = State::STOPPED;
+	State requestedState = State::STOPPED;
+	std::shared_ptr<AnimatableState> animatableState = AnimatableState::make("State", allStates, selectableStates, &stateStopped);
+	void requestState(State newState);
+	
 	//————— Machine State —————
 	
 	bool areAllPinsConnected();
@@ -38,17 +58,6 @@ public:
 	
 	static std::vector<AnimatableStateStruct*> allStates;
 	static std::vector<AnimatableStateStruct*> selectableStates;
-
-	enum class State{
-		UNKNOWN,
-		STOPPED,
-		MOVING_TO_POSITIVE_LIMIT,
-		MOVING_TO_NEGATIVE_LIMIT,
-		AT_POSITIVE_LIMIT,
-		AT_NEGATIVE_LIMIT
-	};
-	State actualState = State::STOPPED;
-	State requestedState = State::STOPPED;
 	
 	int getStateInteger(State state){
 		switch(state){
@@ -61,10 +70,25 @@ public:
 		}
 	}
 	
-	//————— Animation —————
-	
-	std::shared_ptr<AnimatableState> animatableState = AnimatableState::make("State", allStates, selectableStates, &stateStopped);
-	void requestState(State newState);
+	AnimatableStateStruct* getStateStruct(State axisState){
+		switch(axisState){
+			case State::UNKNOWN: return &stateUnknown;
+			case State::STOPPED: return &stateStopped;
+			case State::MOVING_TO_POSITIVE_LIMIT: return &stateMovingToNegativeLimit;
+			case State::MOVING_TO_NEGATIVE_LIMIT: return &stateMovingToNegativeLimit;
+			case State::AT_POSITIVE_LIMIT: return &statePositiveLimit;
+			case State::AT_NEGATIVE_LIMIT: return &stateNegativeLimit;
+		}
+	}
+
+	State getStateEnumerator(AnimatableStateStruct* stateStruct){
+		if(stateStruct == &stateStopped) return State::STOPPED;
+		else if(stateStruct == &stateMovingToNegativeLimit) return State::MOVING_TO_POSITIVE_LIMIT;
+		else if(stateStruct == &stateMovingToNegativeLimit) return State::MOVING_TO_NEGATIVE_LIMIT;
+		else if(stateStruct == &statePositiveLimit) return State::AT_POSITIVE_LIMIT;
+		else if(stateStruct == &stateNegativeLimit) return State::AT_NEGATIVE_LIMIT;
+		return State::UNKNOWN;
+	}
 	
 	//————— Control Widget —————
 	
