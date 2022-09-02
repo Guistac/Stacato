@@ -51,7 +51,7 @@ void Console::onConnection(){
 }
 
 void Console::setMapping(std::shared_ptr<ConsoleMapping> mapping_){
-	mapping->apply(shared_from_this());
+	mapping_->apply(shared_from_this());
 	mapping = mapping_;
 }
 

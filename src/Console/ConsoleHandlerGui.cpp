@@ -22,6 +22,7 @@ namespace ConsoleHandler{
 
 		const char* consoleText;
 		if(console == nullptr) consoleText = "No Console";
+        else if(console->isConnecting()) consoleText = "Connecting...";
 		else consoleText = console->getName().c_str();
 			
 		backgroundText(consoleText, glm::vec2(width, height), statusColor);

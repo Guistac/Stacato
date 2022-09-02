@@ -95,7 +95,7 @@
                     <OutputPin SaveString="Module0DigitalInput1" DisplayString="Input 1 Homme Mort 3" DataType="Boolean" UniqueID="411" Visible="true"/>
                     <OutputPin SaveString="Module0DigitalInput2" DisplayString="Input 2 Homme Mort 1" DataType="Boolean" UniqueID="412" Visible="true"/>
                     <OutputPin SaveString="Module0DigitalInput3" DisplayString="Input 3 Homme Mort 4" DataType="Boolean" UniqueID="413" Visible="true"/>
-                    <OutputPin SaveString="Module0DigitalInput4" DisplayString="Input 4 STO Clear" DataType="Boolean" UniqueID="414" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput4" DisplayString="Input 4 Preventa OK" DataType="Boolean" UniqueID="414" Visible="true"/>
                     <OutputPin SaveString="Module0DigitalInput5" DisplayString="Module 0 Digital Input 5" DataType="Boolean" UniqueID="415" Visible="false"/>
                     <OutputPin SaveString="Module0DigitalInput6" DisplayString="Module 0 Digital Input 6" DataType="Boolean" UniqueID="416" Visible="false"/>
                     <OutputPin SaveString="Module0DigitalInput7" DisplayString="Module 0 Digital Input 7" DataType="Boolean" UniqueID="417" Visible="false"/>
@@ -194,8 +194,8 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="Vipa Console Stacato" UniqueID="513">
-                <InputNodeEditorPosition x="-600" y="2596"/>
-                <OutputNodeEditorPosition x="-1563" y="2576"/>
+                <InputNodeEditorPosition x="-600" y="2783"/>
+                <OutputNodeEditorPosition x="-1563" y="2763"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="800"/>
                     <SLIOModules>
@@ -208,10 +208,10 @@
                     </SLIOModules>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveString="Module1DigitalOutput0" DisplayString="Output 0 LED STO" DataType="Boolean" UniqueID="523" Visible="true"/>
+                    <InputPin SaveString="Module1DigitalOutput0" DisplayString="Output 0 LED Arret d&apos;urgence" DataType="Boolean" UniqueID="523" Visible="true"/>
                     <InputPin SaveString="Module1DigitalOutput1" DisplayString="Output 1 LED Homme Mort Déporté" DataType="Boolean" UniqueID="524" Visible="true"/>
-                    <InputPin SaveString="Module1DigitalOutput2" DisplayString="Output 2 LED Etat EtherCAT" DataType="Boolean" UniqueID="525" Visible="true"/>
-                    <InputPin SaveString="Module1DigitalOutput3" DisplayString="Output 3 Acquittement Preventa" DataType="Boolean" UniqueID="526" Visible="true"/>
+                    <InputPin SaveString="Module1DigitalOutput2" DisplayString="Output 2 LED Verte / Etat Secu" DataType="Boolean" UniqueID="525" Visible="true"/>
+                    <InputPin SaveString="Module1DigitalOutput3" DisplayString="Output 3 Digital Output 3" DataType="Boolean" UniqueID="526" Visible="false"/>
                     <InputPin SaveString="Module1DigitalOutput4" DisplayString="Module 1 Digital Output 4" DataType="Boolean" UniqueID="527" Visible="false"/>
                     <InputPin SaveString="Module1DigitalOutput5" DisplayString="Module 1 Digital Output 5" DataType="Boolean" UniqueID="528" Visible="false"/>
                     <InputPin SaveString="Module1DigitalOutput6" DisplayString="Module 1 Digital Output 6" DataType="Boolean" UniqueID="529" Visible="false"/>
@@ -224,17 +224,9 @@
                     <OutputPin SaveString="Module0DigitalInput2" DisplayString="Input 2 Homme Mort Gauche" DataType="Boolean" UniqueID="517" Visible="false"/>
                     <OutputPin SaveString="Module0DigitalInput3" DisplayString="Input 3 Homme Mort Droite" DataType="Boolean" UniqueID="518" Visible="false"/>
                     <OutputPin SaveString="Module0DigitalInput4" DisplayString="Input 4 Bouton Acquittement / Enable" DataType="Boolean" UniqueID="519" Visible="true"/>
-                    <OutputPin SaveString="Module0DigitalInput5" DisplayString="Input 5 Ligne STO OK" DataType="Boolean" UniqueID="520" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput5" DisplayString="Input 5 Ligne STO OK" DataType="Boolean" UniqueID="520" Visible="false"/>
                     <OutputPin SaveString="Module0DigitalInput6" DisplayString="Input 6" DataType="Boolean" UniqueID="521" Visible="false"/>
                     <OutputPin SaveString="Module0DigitalInput7" DisplayString="Input 7" DataType="Boolean" UniqueID="522" Visible="false"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Processor" ClassName="Constant" CustomName="Constant" UniqueID="540">
-                <NodeEditorPosition x="-1023" y="2796"/>
-                <NodeSpecificData ConstantValue="1"/>
-                <InputPins/>
-                <OutputPins>
-                    <OutputPin SaveString="value" DisplayString="value" DataType="Real" UniqueID="541" Visible="true" ForceDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="false" CustomName="VIPA Romaine (Alias:101)" UniqueID="566">
@@ -2565,7 +2557,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="Or" CustomName="Or" UniqueID="2482">
-                <NodeEditorPosition x="-792" y="3203"/>
+                <NodeEditorPosition x="-808" y="2667"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="2483" Visible="true" AcceptsMultipleInputs="true"/>
@@ -2575,7 +2567,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Homme Mort 0" UniqueID="2488">
-                <NodeEditorPosition x="-1032" y="2634"/>
+                <NodeEditorPosition x="-1032" y="2821"/>
                 <NodeSpecificData>
                     <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
                     <ControlWidget UniqueID="50"/>
@@ -2590,7 +2582,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="SafetySignal" CustomName="Sécurité" UniqueID="2577">
-                <NodeEditorPosition x="-1032" y="2455"/>
+                <NodeEditorPosition x="-1032" y="2642"/>
                 <NodeSpecificData>
                     <Settings FaultResetPulseTime="0.10000000000000001" UnclearedFaultLedBlinkFrequency="5"/>
                     <ControlWidget UniqueID="52"/>
@@ -2717,21 +2709,10 @@ function update()
 	volCour:setPosition(				0,		1.2 + N, 0.0)
 	volJardin:setPosition(				0,		1.2 + N, 0.0)
 
-end
 </Script>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins/>
-            </Node>
-            <Node NodeType="Processor" ClassName="And" CustomName="And" UniqueID="2706">
-                <NodeEditorPosition x="-1266" y="3187"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="2707" Visible="true" AcceptsMultipleInputs="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="2708" Visible="true" DisableDataField="true"/>
-                </OutputPins>
             </Node>
         </Nodes>
         <Links>
@@ -2747,7 +2728,6 @@ end
             <Link UniqueID="509" StartPin="411" EndPin="443"/>
             <Link UniqueID="510" StartPin="439" EndPin="420"/>
             <Link UniqueID="511" StartPin="444" EndPin="419"/>
-            <Link UniqueID="542" StartPin="541" EndPin="525"/>
             <Link UniqueID="669" StartPin="657" EndPin="624"/>
             <Link UniqueID="671" StartPin="545" EndPin="608"/>
             <Link UniqueID="727" StartPin="620" EndPin="725"/>
@@ -3080,7 +3060,6 @@ end
             <Link UniqueID="2574" StartPin="435" EndPin="1782"/>
             <Link UniqueID="2575" StartPin="435" EndPin="1894"/>
             <Link UniqueID="2586" StartPin="2581" EndPin="2483"/>
-            <Link UniqueID="2587" StartPin="2484" EndPin="422"/>
             <Link UniqueID="2588" StartPin="2582" EndPin="523"/>
             <Link UniqueID="2605" StartPin="2129" EndPin="2225"/>
             <Link UniqueID="2606" StartPin="2143" EndPin="2226"/>
@@ -3122,16 +3101,16 @@ end
             <Link UniqueID="2695" StartPin="745" EndPin="2427"/>
             <Link UniqueID="2697" StartPin="683" EndPin="2421"/>
             <Link UniqueID="2699" StartPin="514" EndPin="2578"/>
-            <Link UniqueID="2701" StartPin="515" EndPin="2580"/>
-            <Link UniqueID="2705" StartPin="2484" EndPin="526"/>
-            <Link UniqueID="2710" StartPin="414" EndPin="2707"/>
-            <Link UniqueID="2713" StartPin="520" EndPin="2579"/>
             <Link UniqueID="2715" StartPin="934" EndPin="2377"/>
             <Link UniqueID="2716" StartPin="938" EndPin="2378"/>
             <Link UniqueID="2717" StartPin="939" EndPin="2379"/>
             <Link UniqueID="2718" StartPin="953" EndPin="2361"/>
             <Link UniqueID="2719" StartPin="954" EndPin="2362"/>
             <Link UniqueID="4002" StartPin="949" EndPin="2360"/>
+            <Link UniqueID="4004" StartPin="2484" EndPin="422"/>
+            <Link UniqueID="4006" StartPin="515" EndPin="2579"/>
+            <Link UniqueID="4007" StartPin="414" EndPin="2580"/>
+            <Link UniqueID="4008" StartPin="414" EndPin="525"/>
         </Links>
     </NodeGraph>
 </Environnement>
