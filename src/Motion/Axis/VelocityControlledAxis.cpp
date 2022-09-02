@@ -86,6 +86,13 @@ void VelocityControlledAxis::updateReferenceSignals(){
 	highSlowdownPin->copyConnectedPinValue();
 }
 
+//called by node connected to axis pin to send velocity to the axis
+void VelocityControlledAxis::setVelocityCommand(double velocity, double acceleration){
+	externalVelocityCommand = velocity;
+	externalAccelerationCommand = acceleration;
+	controlMode = ControlMode::EXTERNAL;
+}
+
 void VelocityControlledAxis::inputProcess() {
 	//check connection requirements and abort processing if the requirements are not met
 	if(!areAllPinsConnected()) {
@@ -120,7 +127,7 @@ void VelocityControlledAxis::outputProcess(){
 			break;
 		case ControlMode::EXTERNAL:
 			velocityTarget = externalVelocityCommand;
-			accelerationTarget = abs(externalAccelerationCommand);
+			accelerationTarget = externalAccelerationCommand;
 			break;
 		default:
 			velocityTarget = 0.0;
@@ -151,6 +158,7 @@ void VelocityControlledAxis::outputProcess(){
 			motionProfile.matchVelocity(profileTimeDelta_seconds, velocityTarget, accelerationTarget);
 		}else{
 			//constant velocity
+			motionProfile.matchVelocity(profileTime_seconds, velocityTarget, 0.0);
 		}
 	}
 		
@@ -160,13 +168,6 @@ void VelocityControlledAxis::outputProcess(){
 	getActuatorDevice()->setVelocityCommand(actuatorVelocity, actuatorAcceleration);
 }
 
-//called by node connected to axis pin to send velocity to the axis
-void VelocityControlledAxis::setVelocityCommand(double velocity, double acceleration){
-	externalVelocityCommand = velocity;
-	externalAccelerationCommand = acceleration;
-	controlMode = ControlMode::EXTERNAL;
-}
-
 void VelocityControlledAxis::sendActuatorCommands() {
 	*actualVelocity = motionProfile.getVelocity();
 	double velocity_actuatorUnits = axisUnitsToActuatorUnits(motionProfile.getVelocity());
@@ -174,6 +175,16 @@ void VelocityControlledAxis::sendActuatorCommands() {
 	getActuatorDevice()->setVelocityCommand(velocity_actuatorUnits, acceleration_actuatorUnits);
 	actuatorPin->updateConnectedPins();
 }
+
+bool VelocityControlledAxis::isAtUpperLimit(){
+	return *highLimitSignal && motionProfile.getVelocity() == 0.0;
+}
+
+bool VelocityControlledAxis::isAtLowerLimit(){
+	return *lowLimitSignal && motionProfile.getVelocity() == 0.0;
+}
+
+
 
 void VelocityControlledAxis::getDevices(std::vector<std::shared_ptr<Device>>& output) {
 	if (isActuatorDeviceConnected()) output.push_back(getActuatorDevice()->parentDevice);
