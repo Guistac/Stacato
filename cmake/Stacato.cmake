@@ -339,10 +339,12 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscDeviceGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscSocket.cpp
     ${STACATO_SOURCE_DIRECTORY}/Networking/Osc/OscSocket.h
-
     ${STACATO_SOURCE_DIRECTORY}/Networking/Psn/PsnServer.cpp
     ${STACATO_SOURCE_DIRECTORY}/Networking/Psn/PsnServer.h
     ${STACATO_SOURCE_DIRECTORY}/Networking/Psn/PsnServerGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Networking/ArtNet/ArtnetNode.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Networking/ArtNet/ArtnetNode.h
+    ${STACATO_SOURCE_DIRECTORY}/Networking/ArtNet/ArtnetNodeGui.cpp
 )
 
 # match file structure for source files in ide

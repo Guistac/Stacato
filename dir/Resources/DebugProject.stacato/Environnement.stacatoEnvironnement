@@ -1,43 +1,43 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.93533355" OffsetX="1256.2461" OffsetY="-1028.1354" AutoFit="false" DrawGrid="false" LockEdit="true">
-        <Widget UniqueID="9" PositionX="-652.81342" PositionY="1040.4219" SizeX="136.49995" SizeY="228.51941"/>
-        <Widget UniqueID="10" PositionX="-511.84393" PositionY="1040.1384" SizeX="136.49995" SizeY="228.80284"/>
-        <Widget UniqueID="11" PositionX="-371.27451" PositionY="1040.2067" SizeX="136.49995" SizeY="228.7346"/>
-        <Widget UniqueID="13" PositionX="-230.65863" PositionY="1040.0215" SizeX="136.49995" SizeY="227.85065"/>
-        <Widget UniqueID="14" PositionX="-88.808937" PositionY="1040.0364" SizeX="136.50002" SizeY="227.83577"/>
-        <Widget UniqueID="17" PositionX="-653.34827" PositionY="1274.1514" SizeX="136.49995" SizeY="227.8618"/>
-        <Widget UniqueID="16" PositionX="-795.49127" PositionY="1275.2416" SizeX="136.49995" SizeY="227.84073"/>
-        <Widget UniqueID="24" PositionX="-652.64099" PositionY="1506.7328" SizeX="136.49995" SizeY="228.35233"/>
-        <Widget UniqueID="23" PositionX="-794.46912" PositionY="1507.3511" SizeX="136.49995" SizeY="228.80316"/>
-        <Widget UniqueID="28" PositionX="-651.83557" PositionY="1739.0879" SizeX="136.50002" SizeY="228.00002"/>
-        <Widget UniqueID="27" PositionX="-791.93939" PositionY="1740.1664" SizeX="136.50002" SizeY="227.99062"/>
-        <Widget UniqueID="30" PositionX="-370.67603" PositionY="1739.9727" SizeX="136.49995" SizeY="228.18436"/>
-        <Widget UniqueID="31" PositionX="-229.61481" PositionY="1737.7467" SizeX="136.49995" SizeY="228.27206"/>
-        <Widget UniqueID="21" PositionX="-88.81189" PositionY="1272.7566" SizeX="136.50002" SizeY="228.18742"/>
-        <Widget UniqueID="22" PositionX="51.716507" PositionY="1271.6578" SizeX="136.50002" SizeY="228.21704"/>
-        <Widget UniqueID="25" PositionX="-88.987442" PositionY="1504.2604" SizeX="136.50002" SizeY="228.68643"/>
-        <Widget UniqueID="26" PositionX="53.254128" PositionY="1503.6096" SizeX="136.50002" SizeY="228.26808"/>
-        <Widget UniqueID="32" PositionX="-88.544571" PositionY="1737.0758" SizeX="136.50002" SizeY="227.87381"/>
-        <Widget UniqueID="33" PositionX="53.674908" PositionY="1736.2141" SizeX="136.50002" SizeY="228.7355"/>
-        <Widget UniqueID="29" PositionX="-510.63412" PositionY="1740.1003" SizeX="136.50002" SizeY="228.05666"/>
-        <Widget UniqueID="39" PositionX="-1153.8765" PositionY="1516.8042" SizeX="354.68314" SizeY="236.45621"/>
-        <Widget UniqueID="38" PositionX="-1152.693" PositionY="1275.7877" SizeX="354.68314" SizeY="236.91684"/>
-        <Widget UniqueID="54" PositionX="338.42993" PositionY="1040.8573" SizeX="157.49998" SizeY="110.47887"/>
-        <Widget UniqueID="53" PositionX="175.72505" PositionY="1040.946" SizeX="157.49998" SizeY="110.39012"/>
-        <Widget UniqueID="52" PositionX="493.55273" PositionY="1158.8717" SizeX="157.49998" SizeY="111.13871"/>
-        <Widget UniqueID="50" PositionX="486.86365" PositionY="1273.7439" SizeX="178.49994" SizeY="110.66418"/>
-        <Widget UniqueID="4" PositionX="489.15707" PositionY="1386.7051" SizeX="178.49994" SizeY="111.03156"/>
-        <Widget UniqueID="5" PositionX="489.89227" PositionY="1500.0864" SizeX="178.49994" SizeY="110.97874"/>
-        <Widget UniqueID="6" PositionX="491.39935" PositionY="1612.1595" SizeX="178.49994" SizeY="111.16505"/>
-        <Widget UniqueID="7" PositionX="491.93182" PositionY="1726.6282" SizeX="178.49994" SizeY="111.09411"/>
-        <Widget UniqueID="42" PositionX="194.17841" PositionY="1562.4563" SizeX="134.39999" SizeY="398.21683"/>
-        <Widget UniqueID="43" PositionX="331.58325" PositionY="1561.826" SizeX="134.39999" SizeY="397.77792"/>
-        <Widget UniqueID="46" PositionX="336.73004" PositionY="1153.2982" SizeX="134.39999" SizeY="397.89529"/>
-        <Widget UniqueID="45" PositionX="198.37958" PositionY="1152.8632" SizeX="134.39999" SizeY="398.33035"/>
-        <Widget UniqueID="41" PositionX="-505.86334" PositionY="1292.1743" SizeX="406.35007" SizeY="418.32062"/>
-        <Widget UniqueID="8" PositionX="473.62769" PositionY="1841.2085" SizeX="220.5" SizeY="84.183029"/>
-        <Widget UniqueID="40" PositionX="-1153" PositionY="1759" SizeX="354.68314" SizeY="236.95462"/>
-        <Widget UniqueID="44" PositionX="-1153" PositionY="1033" SizeX="354.68314" SizeY="237.01042"/>
+    <Dashboard Scale="0.92571217" OffsetX="1163.2098" OffsetY="-1022.84" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget UniqueID="9" PositionX="-652.81342" PositionY="1040.4219" SizeX="136.50002" SizeY="228.96494"/>
+        <Widget UniqueID="10" PositionX="-511.84393" PositionY="1040.1384" SizeX="136.49997" SizeY="229.24838"/>
+        <Widget UniqueID="11" PositionX="-371.27451" PositionY="1040.2067" SizeX="136.49997" SizeY="229.18015"/>
+        <Widget UniqueID="13" PositionX="-230.65863" PositionY="1040.0215" SizeX="136.49997" SizeY="229.36531"/>
+        <Widget UniqueID="14" PositionX="-88.808937" PositionY="1040.0364" SizeX="136.50005" SizeY="229.35043"/>
+        <Widget UniqueID="17" PositionX="-653.34827" PositionY="1274.1514" SizeX="136.49997" SizeY="229.64958"/>
+        <Widget UniqueID="16" PositionX="-795.49127" PositionY="1275.2416" SizeX="136.49997" SizeY="229.63963"/>
+        <Widget UniqueID="24" PositionX="-652.64099" PositionY="1506.7328" SizeX="136.50002" SizeY="229.32184"/>
+        <Widget UniqueID="23" PositionX="-794.46912" PositionY="1507.3511" SizeX="136.49997" SizeY="228.70351"/>
+        <Widget UniqueID="28" PositionX="-651.83557" PositionY="1739.0879" SizeX="136.49997" SizeY="229.22029"/>
+        <Widget UniqueID="27" PositionX="-791.93939" PositionY="1740.1664" SizeX="136.49997" SizeY="229.22208"/>
+        <Widget UniqueID="30" PositionX="-370.67603" PositionY="1739.9727" SizeX="136.49997" SizeY="229.41579"/>
+        <Widget UniqueID="31" PositionX="-229.61481" PositionY="1737.7467" SizeX="136.49997" SizeY="229.48126"/>
+        <Widget UniqueID="21" PositionX="-88.81189" PositionY="1272.7566" SizeX="136.50005" SizeY="228.88387"/>
+        <Widget UniqueID="22" PositionX="51.716507" PositionY="1271.6578" SizeX="136.50005" SizeY="228.90236"/>
+        <Widget UniqueID="25" PositionX="-88.987442" PositionY="1504.2604" SizeX="136.50005" SizeY="229.6337"/>
+        <Widget UniqueID="26" PositionX="53.254128" PositionY="1503.6096" SizeX="136.50005" SizeY="229.20421"/>
+        <Widget UniqueID="32" PositionX="-88.544571" PositionY="1737.0758" SizeX="136.49997" SizeY="229.07188"/>
+        <Widget UniqueID="33" PositionX="53.674908" PositionY="1736.2141" SizeX="136.50005" SizeY="228.85332"/>
+        <Widget UniqueID="29" PositionX="-510.63412" PositionY="1740.1003" SizeX="136.49997" SizeY="229.28807"/>
+        <Widget UniqueID="39" PositionX="-1153.8765" PositionY="1516.8042" SizeX="354.55444" SizeY="235.45415"/>
+        <Widget UniqueID="38" PositionX="-1152.693" PositionY="1275.7877" SizeX="354.55444" SizeY="235.575"/>
+        <Widget UniqueID="54" PositionX="338.42993" PositionY="1040.8573" SizeX="157.50002" SizeY="109.7021"/>
+        <Widget UniqueID="53" PositionX="175.72505" PositionY="1040.946" SizeX="157.50002" SizeY="109.61336"/>
+        <Widget UniqueID="52" PositionX="493.55273" PositionY="1158.8717" SizeX="157.50002" SizeY="109.43486"/>
+        <Widget UniqueID="50" PositionX="486.86365" PositionY="1273.7439" SizeX="178.5" SizeY="109.0691"/>
+        <Widget UniqueID="4" PositionX="489.15707" PositionY="1386.7051" SizeX="178.5" SizeY="109.53416"/>
+        <Widget UniqueID="5" PositionX="489.89227" PositionY="1500.0864" SizeX="178.5" SizeY="109.57899"/>
+        <Widget UniqueID="6" PositionX="491.39935" PositionY="1612.1595" SizeX="178.5" SizeY="108.77158"/>
+        <Widget UniqueID="7" PositionX="491.93182" PositionY="1726.6282" SizeX="178.5" SizeY="108.80936"/>
+        <Widget UniqueID="42" PositionX="194.17841" PositionY="1562.4563" SizeX="134.39993" SizeY="399.37039"/>
+        <Widget UniqueID="43" PositionX="331.58325" PositionY="1561.826" SizeX="134.39993" SizeY="400.00064"/>
+        <Widget UniqueID="46" PositionX="336.73004" PositionY="1153.2982" SizeX="134.39993" SizeY="400.19421"/>
+        <Widget UniqueID="45" PositionX="198.37958" PositionY="1152.8632" SizeX="134.39993" SizeY="399.54904"/>
+        <Widget UniqueID="41" PositionX="-505.86334" PositionY="1292.1743" SizeX="406.34988" SizeY="420.11478"/>
+        <Widget UniqueID="8" PositionX="473.62769" PositionY="1841.2085" SizeX="220.49997" SizeY="83.889709"/>
+        <Widget UniqueID="40" PositionX="-1153" PositionY="1759" SizeX="354.55444" SizeY="235.23419"/>
+        <Widget UniqueID="44" PositionX="-1153" PositionY="1033" SizeX="354.55444" SizeY="235.30655"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -2637,8 +2637,8 @@
                     <OutputPin SaveString="StateLEDSignal" DisplayString="State LED Signal" DataType="Boolean" UniqueID="2675" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="PsnServer" Split="false" CustomName="PSN Server" UniqueID="2681">
-                <NodeEditorPosition x="-1714" y="3372"/>
+            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="PsnServer" Split="false" CustomName="PSN" UniqueID="2681">
+                <NodeEditorPosition x="-1824" y="3376"/>
                 <NodeSpecificData>
                     <Network ServerName="Stacato PSN Server" IpOctet0="224" IpOctet1="10" IpOctet2="10" IpOctet3="10" Port="56565" InfoPacketSendingFrequency="1" DataPacketSendingFrequency="60"/>
                     <Script>
@@ -2652,6 +2652,13 @@ end
 function update()
 	--more testing
 end
+
+
+
+
+
+
+
 
 
 
@@ -2711,6 +2718,19 @@ end
                 <OutputPins>
                     <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="2708" Visible="true" DisableDataField="true"/>
                 </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="ArtNetNode" Split="false" CustomName="ArtNet" UniqueID="4004">
+                <NodeEditorPosition x="-1696" y="3376"/>
+                <NodeSpecificData>
+                    <Settings IpOctet0="192" IpOctet1="168" IpOctet2="1" IpOctet3="33" Port="6454" SendingFrequency="30" DmxUniverse="999"/>
+                    <Script>alzkdjalzdkjalzkd
+
+
+
+</Script>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
             </Node>
         </Nodes>
         <Links>

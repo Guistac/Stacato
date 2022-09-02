@@ -4,6 +4,7 @@
 
 #include "Networking/Osc/OscDevice.h"
 #include "Networking/Psn/PsnServer.h"
+#include "Networking/ArtNet/ArtnetNode.h"
 
 namespace NodeFactory{
 
@@ -12,7 +13,8 @@ namespace NodeFactory{
 	void loadNetworkNodes(std::vector<Node*>& nodeList){
 		allNetworkNodes = {
 			new OscDevice(),
-			new PsnServer()
+			new PsnServer(),
+			new ArtNetNode()
 		};
 		nodeList.insert(nodeList.end(), allNetworkNodes.begin(), allNetworkNodes.end());
 	}
