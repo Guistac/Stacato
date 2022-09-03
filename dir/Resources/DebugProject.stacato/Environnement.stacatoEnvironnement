@@ -1,4 +1,5 @@
 <Environnement name="Default Environnement" notes="">
+
     <Dashboard Scale="0.94073135" OffsetX="1159.1843" OffsetY="-1025.0728" AutoFit="false" DrawGrid="false" LockEdit="true">
         <Widget Name="Flip G-J2" UniqueID="9" PositionX="-650" PositionY="1040" SizeX="136.49998" SizeY="228.7504"/>
         <Widget Name="Flip G-J1" UniqueID="10" PositionX="-510" PositionY="1040" SizeX="136.50003" SizeY="228.7504"/>
@@ -38,6 +39,7 @@
         <Widget Name="Cost Jardin" UniqueID="42" PositionX="195" PositionY="1560" SizeX="134.40002" SizeY="398.63913"/>
         <Widget Name="Cost Cour" UniqueID="43" PositionX="333" PositionY="1560" SizeX="134.40002" SizeY="398.63913"/>
         <Widget Name="Tournettes" UniqueID="41" PositionX="-506" PositionY="1292" SizeX="406.35007" SizeY="418.95953"/>
+
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -2629,8 +2631,8 @@
                     <OutputPin SaveString="StateLEDSignal" DisplayString="State LED Signal" DataType="Boolean" UniqueID="2675" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="PsnServer" Split="false" CustomName="PSN Server" UniqueID="2681">
-                <NodeEditorPosition x="-1714" y="3372"/>
+            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="PsnServer" Split="false" CustomName="PSN" UniqueID="2681">
+                <NodeEditorPosition x="-1824" y="3376"/>
                 <NodeSpecificData>
                     <Network ServerName="Stacato PSN Server" IpOctet0="224" IpOctet1="10" IpOctet2="10" IpOctet3="10" Port="56565" InfoPacketSendingFrequency="1" DataPacketSendingFrequency="60"/>
                     <Script>
@@ -2709,11 +2711,54 @@ function update()
 	volCour:setPosition(				0,		1.2 + N, 0.0)
 	volJardin:setPosition(				0,		1.2 + N, 0.0)
 
+
+
+
+
+
+
+
+
+
 </Script>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins/>
             </Node>
+            
+            
+
+            <Node NodeType="Processor" ClassName="And" CustomName="And" UniqueID="2706">
+                <NodeEditorPosition x="-1266" y="3187"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="2707" Visible="true" AcceptsMultipleInputs="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="2708" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="ArtNetNode" Split="false" CustomName="ArtNet" UniqueID="4004">
+                <NodeEditorPosition x="-1696" y="3376"/>
+                <NodeSpecificData>
+                    <Settings IpOctet0="192" IpOctet1="168" IpOctet2="1" IpOctet3="33" Port="6454" SendingFrequency="30" DmxUniverse="999"/>
+                    <Script>
+function setup()
+end
+
+function update()
+end
+
+
+</Script>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
+            </Node>
+
+
+
+
         </Nodes>
         <Links>
             <Link UniqueID="451" StartPin="409" EndPin="432"/>

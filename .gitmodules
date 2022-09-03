@@ -50,3 +50,6 @@
 [submodule "deps/psncpp"]
 	path = deps/psncpp
 	url = https://github.com/vyv/psn-cpp.git
+[submodule "deps/artnode"]
+	path = deps/artnode
+	url = https://github.com/tobiasebsen/ArtNode.git
