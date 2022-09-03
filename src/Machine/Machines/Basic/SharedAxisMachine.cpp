@@ -294,6 +294,32 @@ void SharedAxisMachine::inputProcess() {
 	if(state == MotionState::ENABLED && newState != MotionState::ENABLED) disable();
 	state = newState;
 	
+	//update animatable states
+	switch(axis1->getState()){
+		case MotionState::OFFLINE:
+			axis1Animatable->state = Animatable::State::OFFLINE;
+			break;
+		case MotionState::NOT_READY:
+			axis1Animatable->state = Animatable::State::NOT_READY;
+			break;
+		case MotionState::READY:
+		case MotionState::ENABLED:
+			axis1Animatable->state = Animatable::State::READY;
+			break;
+	}
+	switch(axis2->getState()){
+		case MotionState::OFFLINE:
+			axis2Animatable->state = Animatable::State::OFFLINE;
+			break;
+		case MotionState::NOT_READY:
+			axis2Animatable->state = Animatable::State::NOT_READY;
+			break;
+		case MotionState::READY:
+		case MotionState::ENABLED:
+			axis2Animatable->state = Animatable::State::READY;
+			break;
+	}
+	
 	//update estop state
 	b_emergencyStopActive = axis1->isEmergencyStopActive() || axis2->isEmergencyStopActive();
 	
