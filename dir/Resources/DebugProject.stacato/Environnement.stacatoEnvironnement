@@ -1,45 +1,43 @@
 <Environnement name="Default Environnement" notes="">
-
-    <Dashboard Scale="0.94073135" OffsetX="1159.1843" OffsetY="-1025.0728" AutoFit="false" DrawGrid="false" LockEdit="true">
-        <Widget Name="Flip G-J2" UniqueID="9" PositionX="-650" PositionY="1040" SizeX="136.49998" SizeY="228.7504"/>
-        <Widget Name="Flip G-J1" UniqueID="10" PositionX="-510" PositionY="1040" SizeX="136.50003" SizeY="228.7504"/>
-        <Widget Name="Flip G-Axe" UniqueID="11" PositionX="-370" PositionY="1040" SizeX="136.50003" SizeY="228.7504"/>
-        <Widget Name="Flip G-C1" UniqueID="13" PositionX="-230" PositionY="1040" SizeX="136.50003" SizeY="228.7504"/>
-        <Widget Name="Flip G-C2" UniqueID="14" PositionX="-90" PositionY="1040" SizeX="136.49995" SizeY="228.7504"/>
-        <Widget Name="Flip E-J3" UniqueID="16" PositionX="-790" PositionY="1275" SizeX="136.49998" SizeY="228.67398"/>
-        <Widget Name="Flip E-J2" UniqueID="17" PositionX="-650" PositionY="1275" SizeX="136.49998" SizeY="228.67398"/>
-        <Widget Name="Flip E-C2" UniqueID="21" PositionX="-90" PositionY="1275" SizeX="136.49995" SizeY="228.67398"/>
-        <Widget Name="Flip E-C3" UniqueID="22" PositionX="50" PositionY="1275" SizeX="136.49995" SizeY="228.67398"/>
-        <Widget Name="Flip C-J3" UniqueID="23" PositionX="-790" PositionY="1510" SizeX="136.49998" SizeY="228.59756"/>
-        <Widget Name="Flip C-J2" UniqueID="24" PositionX="-650" PositionY="1510" SizeX="136.49998" SizeY="228.59756"/>
-        <Widget Name="Flip C-C2" UniqueID="25" PositionX="-90" PositionY="1510" SizeX="136.49995" SizeY="228.59756"/>
-        <Widget Name="Flip C-C3" UniqueID="26" PositionX="50" PositionY="1510" SizeX="136.49995" SizeY="228.59756"/>
-        <Widget Name="Flip A-J3" UniqueID="27" PositionX="-790" PositionY="1745" SizeX="136.49998" SizeY="228.52119"/>
-        <Widget Name="Flip A-J2" UniqueID="28" PositionX="-650" PositionY="1745" SizeX="136.49998" SizeY="228.52119"/>
-        <Widget Name="Flip A-J1" UniqueID="29" PositionX="-510" PositionY="1745" SizeX="136.50003" SizeY="228.52119"/>
-        <Widget Name="Flip A-Axe" UniqueID="30" PositionX="-370" PositionY="1745" SizeX="136.50003" SizeY="228.52119"/>
-        <Widget Name="Flip A-C1" UniqueID="31" PositionX="-230" PositionY="1745" SizeX="136.50003" SizeY="228.52119"/>
-        <Widget Name="Flip A-C2" UniqueID="32" PositionX="-90" PositionY="1745" SizeX="136.49995" SizeY="228.52119"/>
-        <Widget Name="Flip A-C3" UniqueID="33" PositionX="50" PositionY="1745" SizeX="136.49995" SizeY="228.52119"/>
-        <Widget Name="Ecrans Vidéo" UniqueID="44" PositionX="-1150" PositionY="1030" SizeX="354.61716" SizeY="236.6244"/>
-        <Widget Name="Periactes Lointain" UniqueID="38" PositionX="-1150" PositionY="1270" SizeX="354.61716" SizeY="236.86298"/>
-        <Widget Name="Periactes Milieu" UniqueID="39" PositionX="-1150" PositionY="1510" SizeX="354.61716" SizeY="237.10158"/>
-        <Widget Name="Periactes Face" UniqueID="40" PositionX="-1150" PositionY="1750" SizeX="354.61716" SizeY="236.27721"/>
-        <Widget Name="Sécurité" UniqueID="52" PositionX="500" PositionY="1035" SizeX="157.49997" SizeY="110.44206"/>
-        <Widget Name="Homme Mort 0" UniqueID="50" PositionX="490" PositionY="1150" SizeX="178.49998" SizeY="110.24637"/>
-        <Widget Name="Homme Mort 1" UniqueID="4" PositionX="490" PositionY="1265" SizeX="178.49998" SizeY="110.05065"/>
-        <Widget Name="Homme Mort 2" UniqueID="5" PositionX="490" PositionY="1380" SizeX="178.49998" SizeY="109.85494"/>
-        <Widget Name="Homme Mort 3" UniqueID="6" PositionX="490" PositionY="1495" SizeX="178.49998" SizeY="110.7222"/>
-        <Widget Name="Homme Mort 4" UniqueID="7" PositionX="490" PositionY="1610" SizeX="178.49998" SizeY="110.52652"/>
-        <Widget Name="Romaine" UniqueID="8" PositionX="474" PositionY="1750" SizeX="180.60004" SizeY="192.69409"/>
-        <Widget Name="Sécu Vol Cour" UniqueID="54" PositionX="333" PositionY="1035" SizeX="157.49997" SizeY="110.44206"/>
-        <Widget Name="Sécu Vol Jar" UniqueID="53" PositionX="172" PositionY="1035" SizeX="157.49997" SizeY="110.44206"/>
-        <Widget Name="Vol Jardin" UniqueID="45" PositionX="195" PositionY="1150" SizeX="134.40002" SizeY="398.3201"/>
-        <Widget Name="Vol Cour" UniqueID="46" PositionX="333" PositionY="1150" SizeX="134.40002" SizeY="398.3201"/>
-        <Widget Name="Cost Jardin" UniqueID="42" PositionX="195" PositionY="1560" SizeX="134.40002" SizeY="398.63913"/>
-        <Widget Name="Cost Cour" UniqueID="43" PositionX="333" PositionY="1560" SizeX="134.40002" SizeY="398.63913"/>
-        <Widget Name="Tournettes" UniqueID="41" PositionX="-506" PositionY="1292" SizeX="406.35007" SizeY="418.95953"/>
-
+    <Dashboard Scale="0.94073135" OffsetX="1159.1843" OffsetY="-1025.0706" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget Name="Flip G-J2" UniqueID="9" PositionX="-650" PositionY="1040" SizeX="136.49998" SizeY="228.74821"/>
+        <Widget Name="Flip G-J1" UniqueID="10" PositionX="-510" PositionY="1040" SizeX="136.50003" SizeY="228.74821"/>
+        <Widget Name="Flip G-Axe" UniqueID="11" PositionX="-370" PositionY="1040" SizeX="136.50003" SizeY="228.74821"/>
+        <Widget Name="Flip G-C1" UniqueID="13" PositionX="-230" PositionY="1040" SizeX="136.50003" SizeY="228.74821"/>
+        <Widget Name="Flip G-C2" UniqueID="14" PositionX="-90" PositionY="1040" SizeX="136.49995" SizeY="228.74821"/>
+        <Widget Name="Flip E-J3" UniqueID="16" PositionX="-790" PositionY="1275" SizeX="136.49998" SizeY="228.67178"/>
+        <Widget Name="Flip E-J2" UniqueID="17" PositionX="-650" PositionY="1275" SizeX="136.49998" SizeY="228.67178"/>
+        <Widget Name="Flip E-C2" UniqueID="21" PositionX="-90" PositionY="1275" SizeX="136.49995" SizeY="228.67178"/>
+        <Widget Name="Flip E-C3" UniqueID="22" PositionX="50" PositionY="1275" SizeX="136.49995" SizeY="228.67178"/>
+        <Widget Name="Flip C-J3" UniqueID="23" PositionX="-790" PositionY="1510" SizeX="136.49998" SizeY="228.59535"/>
+        <Widget Name="Flip C-J2" UniqueID="24" PositionX="-650" PositionY="1510" SizeX="136.49998" SizeY="228.59535"/>
+        <Widget Name="Flip C-C2" UniqueID="25" PositionX="-90" PositionY="1510" SizeX="136.49995" SizeY="228.59535"/>
+        <Widget Name="Flip C-C3" UniqueID="26" PositionX="50" PositionY="1510" SizeX="136.49995" SizeY="228.59535"/>
+        <Widget Name="Flip A-J3" UniqueID="27" PositionX="-790" PositionY="1745" SizeX="136.49998" SizeY="228.51898"/>
+        <Widget Name="Flip A-J2" UniqueID="28" PositionX="-650" PositionY="1745" SizeX="136.49998" SizeY="228.51898"/>
+        <Widget Name="Flip A-J1" UniqueID="29" PositionX="-510" PositionY="1745" SizeX="136.50003" SizeY="228.51898"/>
+        <Widget Name="Flip A-Axe" UniqueID="30" PositionX="-370" PositionY="1745" SizeX="136.50003" SizeY="228.51898"/>
+        <Widget Name="Flip A-C1" UniqueID="31" PositionX="-230" PositionY="1745" SizeX="136.50003" SizeY="228.51898"/>
+        <Widget Name="Flip A-C2" UniqueID="32" PositionX="-90" PositionY="1745" SizeX="136.49995" SizeY="228.51898"/>
+        <Widget Name="Flip A-C3" UniqueID="33" PositionX="50" PositionY="1745" SizeX="136.49995" SizeY="228.51898"/>
+        <Widget Name="Ecrans Vidéo" UniqueID="44" PositionX="-1150" PositionY="1030" SizeX="354.61716" SizeY="236.62219"/>
+        <Widget Name="Periactes Lointain" UniqueID="38" PositionX="-1150" PositionY="1270" SizeX="354.61716" SizeY="236.86078"/>
+        <Widget Name="Periactes Milieu" UniqueID="39" PositionX="-1150" PositionY="1510" SizeX="354.61716" SizeY="237.09938"/>
+        <Widget Name="Periactes Face" UniqueID="40" PositionX="-1150" PositionY="1750" SizeX="354.61716" SizeY="236.27501"/>
+        <Widget Name="Sécurité" UniqueID="52" PositionX="500" PositionY="1035" SizeX="157.49997" SizeY="110.43986"/>
+        <Widget Name="Homme Mort 0" UniqueID="50" PositionX="490" PositionY="1150" SizeX="178.49998" SizeY="110.24418"/>
+        <Widget Name="Homme Mort 1" UniqueID="4" PositionX="490" PositionY="1265" SizeX="178.49998" SizeY="110.04845"/>
+        <Widget Name="Homme Mort 2" UniqueID="5" PositionX="490" PositionY="1380" SizeX="178.49998" SizeY="109.85274"/>
+        <Widget Name="Homme Mort 3" UniqueID="6" PositionX="490" PositionY="1495" SizeX="178.49998" SizeY="110.71999"/>
+        <Widget Name="Homme Mort 4" UniqueID="7" PositionX="490" PositionY="1610" SizeX="178.49998" SizeY="110.52431"/>
+        <Widget Name="Romaine" UniqueID="8" PositionX="474" PositionY="1750" SizeX="180.60004" SizeY="192.69189"/>
+        <Widget Name="Sécu Vol Cour" UniqueID="54" PositionX="333" PositionY="1035" SizeX="157.49997" SizeY="110.43986"/>
+        <Widget Name="Sécu Vol Jar" UniqueID="53" PositionX="172" PositionY="1035" SizeX="157.49997" SizeY="110.43986"/>
+        <Widget Name="Vol Jardin" UniqueID="45" PositionX="195" PositionY="1150" SizeX="134.40002" SizeY="398.3179"/>
+        <Widget Name="Vol Cour" UniqueID="46" PositionX="333" PositionY="1150" SizeX="134.40002" SizeY="398.3179"/>
+        <Widget Name="Cost Jardin" UniqueID="42" PositionX="195" PositionY="1560" SizeX="134.40002" SizeY="398.63699"/>
+        <Widget Name="Cost Cour" UniqueID="43" PositionX="333" PositionY="1560" SizeX="134.40002" SizeY="398.63699"/>
+        <Widget Name="Tournettes" UniqueID="41" PositionX="-506" PositionY="1292" SizeX="406.35007" SizeY="418.95731"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -2725,40 +2723,110 @@ function update()
                 <InputPins/>
                 <OutputPins/>
             </Node>
-            
-            
-
-            <Node NodeType="Processor" ClassName="And" CustomName="And" UniqueID="2706">
-                <NodeEditorPosition x="-1266" y="3187"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="2707" Visible="true" AcceptsMultipleInputs="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="2708" Visible="true" DisableDataField="true"/>
-                </OutputPins>
-            </Node>
             <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="ArtNetNode" Split="false" CustomName="ArtNet" UniqueID="4004">
                 <NodeEditorPosition x="-1696" y="3376"/>
                 <NodeSpecificData>
-                    <Settings IpOctet0="192" IpOctet1="168" IpOctet2="1" IpOctet3="33" Port="6454" SendingFrequency="30" DmxUniverse="999"/>
+                    <Settings IpOctet0="230" IpOctet1="255" IpOctet2="255" IpOctet3="255" Broadcast="true" Port="6454" SendingFrequency="10"/>
                     <Script>
+local universe
+
+local interdiction = 255
+local libre = 0
+
+local flipStates
+
+local Flip_G_J2--0
+local Flip_G_J1
+local Flip_G_Axe
+local Flip_G_C1
+local Flip_G_C2
+
+local Flip_E_J3
+local Flip_E_J2
+local Flip_E_C2
+local Flip_E_C3
+
+local Flip_C_J3
+local Flip_C_J2
+local Flip_C_C2
+local Flip_C_C3
+
+local Flip_A_J3
+local Flip_A_J2
+local Flip_A_J1
+local Flip_A_Axe
+local Flip_A_C1
+local Flip_A_C2
+local Flip_A_C3--19
+
+
 function setup()
+
+	Flip_G_J2 = Environnement.getMachine("Flip G-J2"):getAnimatable("State")
+	Flip_G_J1 = Environnement.getMachine("Flip G-J1"):getAnimatable("State")
+	Flip_G_Axe = Environnement.getMachine("Flip G-Axe"):getAnimatable("State")
+	Flip_G_C1 = Environnement.getMachine("Flip G-C1"):getAnimatable("State")
+	Flip_G_C2 = Environnement.getMachine("Flip G-C2"):getAnimatable("State")
+
+	Flip_E_J3 = Environnement.getMachine("Flip E-J3"):getAnimatable("State")
+	Flip_E_J2 = Environnement.getMachine("Flip E-J2"):getAnimatable("State")
+	Flip_E_C2 = Environnement.getMachine("Flip E-C2"):getAnimatable("State")
+	Flip_E_C3 = Environnement.getMachine("Flip E-C3"):getAnimatable("State")
+	
+	Flip_C_J3 = Environnement.getMachine("Flip C-J3"):getAnimatable("State")
+	Flip_C_J2 = Environnement.getMachine("Flip C-J2"):getAnimatable("State")
+	Flip_C_C2 = Environnement.getMachine("Flip C-C2"):getAnimatable("State")
+	Flip_C_C3 = Environnement.getMachine("Flip C-C3"):getAnimatable("State")
+	
+	Flip_A_J3 = Environnement.getMachine("Flip A-J3"):getAnimatable("State")
+	Flip_A_J2 = Environnement.getMachine("Flip A-J2"):getAnimatable("State")
+	Flip_A_J1 = Environnement.getMachine("Flip A-J1"):getAnimatable("State")
+	Flip_A_Axe = Environnement.getMachine("Flip A-Axe"):getAnimatable("State")
+	Flip_A_C1 = Environnement.getMachine("Flip A-C1"):getAnimatable("State")
+	Flip_A_C2 = Environnement.getMachine("Flip A-C2"):getAnimatable("State")
+	Flip_A_C3 = Environnement.getMachine("Flip A-C3"):getAnimatable("State")
+
+	flipStates = Flip_G_J2:getStates()
+
+	universe = ArtNetNode:createNewUniverse(51)
 end
+
+function setFlipDmxValue(animatableState, dmxChannel)
+	local flipOpen = (animatableState:getActualValue() ~= flipStates.Closed) and animatableState:isOnline()
+	universe:setChannel(dmxChannel, flipOpen and libre or interdiction)
+end
+
 
 function update()
+	setFlipDmxValue(Flip_G_J2, 0)
+	setFlipDmxValue(Flip_G_J1, 1)
+	setFlipDmxValue(Flip_G_Axe, 2)
+	setFlipDmxValue(Flip_G_C1, 3)
+	setFlipDmxValue(Flip_G_C2, 4)
+	
+	setFlipDmxValue(Flip_E_J3, 5)
+	setFlipDmxValue(Flip_E_J2, 6)
+	setFlipDmxValue(Flip_E_C2, 7)
+	setFlipDmxValue(Flip_E_C3, 8)
+	
+	setFlipDmxValue(Flip_C_J3, 9)
+	setFlipDmxValue(Flip_C_J2, 10)
+	setFlipDmxValue(Flip_C_C2, 11)
+	setFlipDmxValue(Flip_C_C3, 12)
+	
+	setFlipDmxValue(Flip_A_J3, 13)
+	setFlipDmxValue(Flip_A_J2, 14)
+	setFlipDmxValue(Flip_A_J1, 15)
+	setFlipDmxValue(Flip_A_Axe, 16)
+	setFlipDmxValue(Flip_A_C1, 17)
+	setFlipDmxValue(Flip_A_C2, 18)
+	setFlipDmxValue(Flip_A_C3, 19)
 end
-
-
 </Script>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins/>
             </Node>
-
-
-
-
         </Nodes>
         <Links>
             <Link UniqueID="451" StartPin="409" EndPin="432"/>

@@ -56,9 +56,9 @@ class ArtNetNode : public NetworkDevice{
 	std::shared_ptr<NumberParameter<uint8_t>> ipAddress1 = NumberParameter<uint8_t>::make(168, "ArtNet IP Octet 1", "IpOctet1");
 	std::shared_ptr<NumberParameter<uint8_t>> ipAddress2 = NumberParameter<uint8_t>::make(1, "ArtNet IP Octet 2", "IpOctet2");
 	std::shared_ptr<NumberParameter<uint8_t>> ipAddress3 = NumberParameter<uint8_t>::make(33, "ArtNet IP Octet 3", "IpOctet3");
+	std::shared_ptr<BooleanParameter> broadcast = BooleanParameter::make(false, "ArtNet Broadcast", "Broadcast");
 	std::shared_ptr<NumberParameter<uint16_t>> portNumber = NumberParameter<uint16_t>::make(6454, "ArtNet Port Number", "Port");
 	std::shared_ptr<NumberParameter<double>> sendingFrequency = NumberParameter<double>::make(1.0, "Sending frequency", "SendingFrequency", "%.1f", Units::Frequency::Hertz, false);
-	std::shared_ptr<NumberParameter<uint16_t>> universe = NumberParameter<uint16_t>::make(0, "DMX Universe", "DmxUniverse");
 	
 	void resetToDefaultArtNetPort(){ portNumber->overwriteWithHistory(6454); }
 	

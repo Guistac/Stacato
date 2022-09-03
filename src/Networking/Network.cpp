@@ -46,6 +46,17 @@ std::unique_ptr<asio::ip::udp::socket> getUdpSocket(int listeningPort, std::vect
 	return socket;
 }
 
+std::unique_ptr<asio::ip::udp::socket> getUdpBroadcastSocket(){
+	std::unique_ptr<asio::ip::udp::socket> socket = std::make_unique<asio::ip::udp::socket>(io_context);
+	if(socket == nullptr) return nullptr;
+	asio::error_code error;
+	socket->open(asio::ip::udp::v4(), error);
+	if(error) return nullptr;
+	socket->set_option(asio::ip::udp::socket::reuse_address(true));
+	socket->set_option(asio::socket_base::broadcast(true));
+	return socket;
+}
+
 bool isInitialized(){
 	return b_initialized;
 }

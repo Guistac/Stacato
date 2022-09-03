@@ -23,7 +23,7 @@ DmxUniverse::DmxUniverse(uint16_t universeNumber){
 	buffer.resize(bufferSize, 0);
 	artnode = std::make_shared<ArtNode>(configuration, bufferSize, buffer.data());
 	artdmx = artnode->createDmx();
-	artdmx->Net = universeNumber & 0xFF;
+	artdmx->Net = (universeNumber >> 8) & 0xFF;
 	artdmx->SubUni = universeNumber & 0xFF;
 }
 
@@ -55,16 +55,36 @@ void ArtNetNode::removeAllUniverses(){
 void ArtNetNode::initialize(){
 	
 	script = std::make_shared<LuaScript>("PSN Server Script");
-	script->setLoadLibrairiesCallback([](lua_State* L){
+	script->setLoadLibrairiesCallback([this](lua_State* L){
 		Scripting::EnvironnementLibrary::openlib(L);
-		//Scripting::ArtNetLibrary::openlib(L, std::dynamic_pointer_cast<ArtNetNode>(shared_from_this()));
+		Scripting::ArtNetLibrary::openlib(L, std::dynamic_pointer_cast<ArtNetNode>(shared_from_this()));
 	});
+	
+	std::string defaultScript =
+		"\n--Default ArtNet DMX Node Script"
+		"\n"
+		"\nlocal universe = ArtNetNode:createNewUniverse(1)"
+		"\n"
+		"\nfunction setup()"
+		"\n"
+		"\n	universe:setChannel(1, 127)"
+		"\n"
+		"\nend"
+		"\n"
+		"\n"
+		"\nfunction update()"
+		"\n"
+		"\nend"
+		"\n";
+	script->load(defaultScript);
+	
 	ArtConfig config;
 }
 
 void ArtNetNode::connect(){
-	//we are sending artnet packets over udp
-	udpSocket = Network::getUdpSocket(123, {123,234,134,125}, 12348);
+	//we are sending artnet packets over udp (broadcast or not)
+	if(broadcast->value) udpSocket = Network::getUdpBroadcastSocket();
+	else udpSocket = Network::getUdpSocket(0, {ipAddress0->value, ipAddress1->value, ipAddress2->value, ipAddress3->value}, portNumber->value);
 	if(udpSocket == nullptr){
 		b_running = false;
 		return;
@@ -83,6 +103,9 @@ void ArtNetNode::start(){
 		script->compileAndRun();
 		script->callFunction("setup");
 		
+		const asio::ip::udp::endpoint broadcastEndpoint(asio::ip::address_v4::broadcast(), portNumber->value);
+		bool b_broadcast = broadcast->value;
+		
 		while(b_running){
 			
 			script->callFunction("update");
@@ -91,9 +114,17 @@ void ArtNetNode::start(){
 				uint8_t* buffer = universe->getBuffer();
 				size_t bufferSize = universe->getBufferSize();
 				try {
-					udpSocket->async_send(asio::buffer(buffer, bufferSize), [](asio::error_code error, size_t byteCount) {
-						if (error) Logger::debug("Failed to send ArtNet DMX Message: {}", error.message());
-					});
+					
+					if(b_broadcast){
+						udpSocket->async_send_to(asio::buffer(buffer, bufferSize), broadcastEndpoint, [](asio::error_code error, size_t byteCount){
+							if(error) Logger::debug("failed to send Artnet boradcast dmw message: {}", error.message());
+						});
+					}else{
+						udpSocket->async_send(asio::buffer(buffer, bufferSize), [](asio::error_code error, size_t byteCount) {
+							if (error) Logger::debug("Failed to send ArtNet DMX Message: {}", error.message());
+						});
+					}
+					
 				}
 				catch (std::exception e) {
 					Logger::error("Failed to start async_send: {}", e.what());
@@ -152,9 +183,9 @@ bool ArtNetNode::save(tinyxml2::XMLElement* xml){
 	ipAddress1->save(settingsXML);
 	ipAddress2->save(settingsXML);
 	ipAddress3->save(settingsXML);
+	broadcast->save(settingsXML);
 	portNumber->save(settingsXML);
 	sendingFrequency->save(settingsXML);
-	universe->save(settingsXML);
 	
 	XMLElement* scriptXML = xml->InsertNewChildElement("Script");
 	scriptXML->SetText(script->getScriptText().c_str());
@@ -174,8 +205,8 @@ bool ArtNetNode::load(tinyxml2::XMLElement* xml){
 	if(!ipAddress2->load(settingsXML)) return false;
 	if(!ipAddress3->load(settingsXML)) return false;
 	if(!portNumber->load(settingsXML)) return false;
+	if(!broadcast->load(settingsXML)) return false;
 	if(!sendingFrequency->load(settingsXML)) return false;
-	if(!universe->load(settingsXML)) return false;
 	
 	XMLElement* scriptXML;
 	if(!loadXMLElement("Script", xml, scriptXML)) return false;
