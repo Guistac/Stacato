@@ -181,7 +181,7 @@ namespace Scripting::EnvironnementLibrary{
 	
 		int getActualValue(lua_State* L){
 			auto animatable = lua_Animatable.checkDerivedArgument(L, 1);
-			return pushAnimationValue(L, animatable->getActualValue());
+			return pushAnimationValue(L, animatable->getActualValue()); //BUG: memory error
 		}
 	
 		int getAnimationValue(lua_State* L){

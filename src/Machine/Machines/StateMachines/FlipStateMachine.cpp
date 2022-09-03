@@ -185,16 +185,8 @@ void FlipStateMachine::inputProcess() {
 
 void FlipStateMachine::outputProcess(){
 	
-	//handle dead mans switch
-	if(!isMotionAllowed()){
-		if(animatableState->hasAnimation()) animatableState->getAnimation()->pausePlayback();
-		animatableState->stopMovement();
-	}
-	
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
-	
-	b_halted = animatableState->isHalted() || !isMotionAllowed();
 	
 	//update outputs signals
 	if (!isEnabled()) {
@@ -207,6 +199,14 @@ void FlipStateMachine::outputProcess(){
 		*raiseLiftSignal = false;
 		
 	}else{
+		
+		//handle dead mans switch
+		if(!isMotionAllowed()){
+			if(animatableState->hasAnimation()) animatableState->getAnimation()->pausePlayback();
+			animatableState->stopMovement();
+		}
+		
+		b_halted = animatableState->isHalted() || !isMotionAllowed();
 		
 		animatableState->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
 		auto targetValue = animatableState->getTargetValue()->toState()->value;
