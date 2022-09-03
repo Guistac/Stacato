@@ -134,70 +134,113 @@ void AxisStateMachine::ControlWidget::gui(){
 
 void AxisStateMachine::widgetGui(){
 	
-	float lineHeight = ImGui::GetTextLineHeight();
-	glm::vec2 contentSize = glm::vec2(lineHeight * 10.0, lineHeight * 10.0);
-	glm::vec2 commandButtonSize(contentSize.x, ImGui::GetTextLineHeight() * 3.0);
+	glm::vec2 commandButtonSize(ImGui::GetTextLineHeight() * 6.0, ImGui::GetTextLineHeight() * 1.6);
 
-	machineHeaderGui(contentSize.x);
+	glm::vec2 headerCursor = reserveSpaceForMachineHeaderGui();
 
-	/*
-	ImGui::BeginDisabled(!isEnabled());
+	ImGui::BeginGroup();
+	
+	
+	bool b_disableControls = !isEnabled() || b_halted;
+	ImGui::BeginDisabled(b_disableControls);
+	if(b_disableControls) ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+	
+	ImGui::BeginGroup();
+	
+	if(getState() == MotionState::OFFLINE){
+		float rounding = ImGui::GetStyle().FrameRounding;
+		
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .1f));
+		ImGui::BeginDisabled();
+		customButton("", commandButtonSize, Colors::blue, rounding, ImDrawFlags_RoundCornersTop);
+		customButton("", commandButtonSize, Colors::blue, rounding, ImDrawFlags_RoundCornersBottom);
+		ImGui::EndDisabled();
+		ImGui::PopStyleVar();
+		
+	}else{
 
-	switch (actualState) {
-		case State::CLOSED:
-			if (ImGui::Button("Open & Raise", commandButtonSize)) requestState(State::RAISED);
-			if (ImGui::Button("Open", commandButtonSize)) requestState(State::OPEN_LOWERED);
-			ImGui::BeginDisabled();
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-			ImGui::Button("Lowered & Shut", commandButtonSize);
-			ImGui::PopStyleColor();
-			ImGui::EndDisabled();
-			break;
-		case State::OPENING_CLOSING:
-			if (ImGui::Button("Open & Raise", commandButtonSize)) requestState(State::RAISED);
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-			if (ImGui::Button("Open", commandButtonSize)) requestState(State::OPEN_LOWERED);
-			if (ImGui::Button("Shut", commandButtonSize)) requestState(State::CLOSED);
-			ImGui::PopStyleColor();
-			break;
-		case State::OPEN_LOWERED:
-			if (ImGui::Button("Raise", commandButtonSize)) requestState(State::RAISED);
-			ImGui::BeginDisabled();
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-			ImGui::Button("Open & Lowered", commandButtonSize);
-			ImGui::PopStyleColor();
-			ImGui::EndDisabled();
-			if (ImGui::Button("Shut", commandButtonSize)) requestState(State::CLOSED);
-			break;
-		case State::LOWERING_RAISING:
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-			if (ImGui::Button("Raise", commandButtonSize)) requestState(State::RAISED);
-			if (ImGui::Button("Lower", commandButtonSize)) requestState(State::OPEN_LOWERED);
-			ImGui::PopStyleColor();
-			if (ImGui::Button("Lower & Shut", commandButtonSize)) requestState(State::CLOSED);
-			break;
-		case State::RAISED:
-			ImGui::BeginDisabled();
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-			ImGui::Button("Open & Raised", commandButtonSize);
-			ImGui::PopStyleColor();
-			ImGui::EndDisabled();
-			if (ImGui::Button("Lower", commandButtonSize)) requestState(State::OPEN_LOWERED);
-			if (ImGui::Button("Lower & Shut", commandButtonSize)) requestState(State::CLOSED);
-			break;
-		default:
-			ImGui::BeginDisabled();
-			ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkYellow);
-			ImGui::Button("##", commandButtonSize);
-			ImGui::Button("Unknown State", commandButtonSize);
-			ImGui::Button("##", commandButtonSize);
-			ImGui::PopStyleColor();
-			ImGui::EndDisabled();
-			break;
+		ImColor notStateColor = ImGui::GetColorU32(ImGuiCol_Button);
+		ImVec4 movingColor = Colors::yellow;
+		ImVec4 reachedColor = Colors::green;
+		
+		float rounding = ImGui::GetStyle().FrameRounding;
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .1f));
+		
+		float movingBlinkTime = .25f;
+		bool blink = fmod(Timing::getProgramTime_seconds(), movingBlinkTime) > movingBlinkTime * .5f;
+		
+		switch (actualState) {
+				
+			case State::UNKNOWN:
+				ImGui::BeginDisabled();
+				customButton("", commandButtonSize, Colors::darkYellow, rounding, ImDrawFlags_RoundCornersTop);
+				customButton("", commandButtonSize, Colors::darkYellow, rounding, ImDrawFlags_RoundCornersBottom);
+				ImGui::EndDisabled();
+				break;
+			case State::STOPPED:
+				customButton("Move Up", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersTop);
+				customButton("Move Down", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersBottom);
+				break;
+			case State::MOVING_TO_POSITIVE_LIMIT:
+				ImGui::BeginDisabled();
+				customButton("Moving Up", commandButtonSize, blink ? Colors::darkYellow : Colors::yellow, rounding, ImDrawFlags_RoundCornersTop);
+				ImGui::EndDisabled();
+				customButton("Move Down", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersBottom);
+				break;
+			case State::MOVING_TO_NEGATIVE_LIMIT:
+				customButton("At Upper Limit", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersTop);
+				ImGui::BeginDisabled();
+				customButton("Moving Down", commandButtonSize, blink ? Colors::darkYellow : Colors::yellow, rounding, ImDrawFlags_RoundCornersBottom);
+				ImGui::EndDisabled();
+				break;
+			case State::AT_POSITIVE_LIMIT:
+				ImGui::BeginDisabled();
+				customButton("At Upper Limit", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersTop);
+				customButton("Move Down", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersBottom);
+				ImGui::EndDisabled();
+				break;
+			case State::AT_NEGATIVE_LIMIT:
+				ImGui::BeginDisabled();
+				customButton("Move Up", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersTop);
+				customButton("At Lower Limit", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersBottom);
+				ImGui::EndDisabled();
+				break;
+		}
+		ImGui::PopStyleVar();
 	}
+	
+	
+	if(b_halted) {
+		ImGui::PushFont(Fonts::sansBold15);
+		backgroundText("STOPPED", commandButtonSize, Colors::red, Colors::black);
+		ImGui::PopFont();
+	}
+	else{
+		if(ImGui::Button("STOP", commandButtonSize)) requestState(State::STOPPED);
+	}
+	
 
+	ImGui::EndGroup();
+
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .1f));
+	ImGui::SameLine();
+	ImGui::PopStyleVar();
+	
+	glm::vec2 sliderSize(ImGui::GetTextLineHeight() * 2.0, ImGui::GetItemRectSize().y);
+	static double min = -1.0;
+	static double max = 1.0;
+	ImGui::VSliderScalar("##ManualVelocity", sliderSize, ImGuiDataType_Double, &manualVelocitySliderValue, &min, &max, "");
+	if(ImGui::IsItemActive()) {}
+	else if(ImGui::IsItemDeactivatedAfterEdit()) {
+		manualVelocitySliderValue = 0.0;
+	}
+		
+	if(b_disableControls) ImGui::PopStyleColor();
 	ImGui::EndDisabled();
-	 */
 
-	machineStateControlGui(contentSize.x);
+	
+	ImGui::EndGroup();
+	float widgetWidth = ImGui::GetItemRectSize().x;
+	machineHeaderGui(headerCursor, widgetWidth);
+	machineStateControlGui(widgetWidth);
 }

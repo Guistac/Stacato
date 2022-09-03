@@ -10,6 +10,23 @@
 
 class LuaScript;
 
+
+class PsnTracker {
+public:
+	
+	PsnTracker(psn::tracker& t) : psncpptracker(&t){}
+	
+	void setPosition(glm::vec3 position);
+	void setVelocity(glm::vec3 velocity);
+	void setAcceleration(glm::vec3 acceleration);
+	void setTarget(glm::vec3 targetPosition);
+	void setOrigin(glm::vec3 origin);
+	void setStatus(float status);
+	void setTimestamp(uint64_t timestamp);
+	psn::tracker* psncpptracker;
+};
+
+
 class PsnServer : public NetworkDevice{
 	DEFINE_NETWORK_DEVICE(PsnServer, "PSN Server", "PsnServer")
 	
@@ -17,15 +34,24 @@ class PsnServer : public NetworkDevice{
 	virtual bool load(tinyxml2::XMLElement* xml) override;
 	virtual bool save(tinyxml2::XMLElement* xml) override;
 	
+	std::shared_ptr<PsnTracker> createNewTracker(std::string name);
+	
+private:
+	
 	std::unique_ptr<asio::ip::udp::socket> udpSocket;
+	std::shared_ptr<psn::psn_encoder> psnEncoder;
 	bool b_online = false;
 	
-	std::shared_ptr<psn::psn_encoder> psnEncoder;
+	void removeAllTrackers();
 	psn::tracker_map trackers;
+	uint16_t trackerCount = 0;
+	std::mutex trackerMutex;
 	
 	bool startServer();
 	void stopServer();
 	bool b_serverRunning = false;
+	long long serverEnvironnementStartTimeMicroseconds;
+	long long serverProgramStartTimeMicroseconds;
 	
 	void sendInfo();
 	void sendData();

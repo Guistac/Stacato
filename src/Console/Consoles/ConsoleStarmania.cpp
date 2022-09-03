@@ -33,8 +33,8 @@ void ConsoleStarmania::apply(std::shared_ptr<Console> console){
 	auto right_selection_button = devices[17];
 	auto rearm_button = devices[18];
     
-	joystickLeft = devices[20]->toJoystick2X();
-	joystickRight = devices[19]->toJoystick2X();
+	joystickLeft = devices[19]->toJoystick2X();
+	joystickRight = devices[20]->toJoystick2X();
 	joystickButtonLeft = devices[1]->toLED_RGB_Button();
 	joystickButtonRight = devices[6]->toLED_RGB_Button();
 	

@@ -17,13 +17,61 @@
 //Uselful for precise cross-platform thread sleep
 #include <osal.h>
 
+static psn::float3 toFloat3(glm::vec3 in){ return psn::float3(in.x, in.y, in.z); }
+
+void PsnTracker::setPosition(glm::vec3 position){
+	psncpptracker->set_pos(toFloat3(position));
+}
+
+void PsnTracker::setVelocity(glm::vec3 velocity){
+	psncpptracker->set_speed(toFloat3(velocity));
+}
+
+void PsnTracker::setAcceleration(glm::vec3 acceleration){
+	psncpptracker->set_accel(toFloat3(acceleration));
+}
+
+void PsnTracker::setTarget(glm::vec3 targetPosition){
+	psncpptracker->set_target_pos(toFloat3(targetPosition));
+}
+
+void PsnTracker::setOrigin(glm::vec3 origin){
+	psncpptracker->set_ori(toFloat3(origin));
+}
+
+void PsnTracker::setStatus(float status){
+	psncpptracker->set_status(status);
+}
+
+void PsnTracker::setTimestamp(uint64_t timestamp){
+	psncpptracker->set_timestamp(timestamp);
+}
+
+std::shared_ptr<PsnTracker> PsnServer::createNewTracker(std::string name){
+	trackerMutex.lock();
+	trackers[trackerCount] = psn::tracker(trackerCount, name);
+	auto& newTracker = trackers[trackerCount];
+	trackerCount++;
+	trackerMutex.unlock();
+	return std::make_shared<PsnTracker>(newTracker);
+}
+
+void PsnServer::removeAllTrackers(){
+	trackerMutex.lock();
+	trackers.clear();
+	trackerCount = 0;
+	trackerMutex.unlock();
+}
+
+
+
 void PsnServer::initialize(){
 	
 	script = std::make_shared<LuaScript>("PSN Server Script");
-	script->setLoadLibrairiesCallback([](lua_State* L){
+	script->setLoadLibrairiesCallback([this](lua_State* L){
 		Scripting::EnvironnementLibrary::openlib(L);
-		Scripting::PsnLibrary::openlib(L);
-		//push some sort of server object onto the lua stack
+		auto thisPsnServer = std::dynamic_pointer_cast<PsnServer>(shared_from_this());
+		Scripting::PsnLibrary::openlib(L, thisPsnServer);
 	});
 	std::string defaultScript =
 		"\n--Default PSN Server Script"
@@ -85,15 +133,15 @@ void PsnServer::writeOutputs(){
 
 bool PsnServer::startServer(){
 	
-	script->callFunction("Setup");
+	removeAllTrackers();
 	
-	trackers[0] = psn::tracker(0, "testTracker");
-	trackers[1] = psn::tracker(0, "tracker 1");
-	trackers[2] = psn::tracker(0, "Costière Cour");
-	trackers[3] = psn::tracker(0, "Etat Flip");
+	Logger::debug("Starting PSN Server \"{}\"", serverName->value);
 
-	Logger::info("Starting PSN Server \"{}\"", serverName->value);
-
+	script->compileAndRun();
+	script->callFunction("setup");
+	serverEnvironnementStartTimeMicroseconds = Environnement::getTime_nanoseconds() / 1000;
+	serverProgramStartTimeMicroseconds = Timing::getProgramTime_nanoseconds() / 1000;
+	
 	b_serverRunning = true;
 	std::thread infoSenderThread([this](){
 		pthread_setname_np("PSN Info Sender Thread");
@@ -115,17 +163,25 @@ bool PsnServer::startServer(){
 	});
 	dataSenderThread.detach();
 	
+	Logger::info("Started PSN Server \"{}\"", serverName->value);
+	
 	return true;
 }
 
 void PsnServer::stopServer(){
 	Logger::info("Stopping PSN Server");
 	b_serverRunning = false;
+	script->stop();
 }
 
 void PsnServer::sendInfo(){
-		
-	std::list<std::string> info_packets = psnEncoder->encode_info(trackers, 0);
+	
+	long long packetTimestamp = (Timing::getProgramTime_nanoseconds() / 1000) - serverProgramStartTimeMicroseconds;
+	
+	trackerMutex.lock();
+	std::list<std::string> info_packets = psnEncoder->encode_info(trackers, packetTimestamp);
+	trackerMutex.unlock();
+	
 	for(auto it = info_packets.begin(); it != info_packets.end(); it++){
 		auto packet = *it;
 		
@@ -145,12 +201,16 @@ void PsnServer::sendInfo(){
 
 void PsnServer::sendData(){
 
-	trackers[0].set_pos(psn::float3(0.0, 1.0, 2.0));
-	trackers[1].set_pos(psn::float3(0.0, 1.0, 2.0));
-	trackers[2].set_pos(psn::float3(0.0, 1.0, 2.0));
-	trackers[3].set_pos(psn::float3(0.0, 1.0, 2.0));
+	long long trackerTimestamp = (Environnement::getTime_nanoseconds() / 1000) - serverEnvironnementStartTimeMicroseconds;
+	long long packetTimestamp = (Timing::getProgramTime_nanoseconds() / 1000) - serverProgramStartTimeMicroseconds;
 	
-	std::list<std::string> data_packets = psnEncoder->encode_data(trackers, 0);
+	script->callFunction("update");
+	for(uint16_t i = 0; i < trackerCount; i++) trackers[i].set_timestamp(trackerTimestamp);
+	
+	trackerMutex.lock();
+	std::list<std::string> data_packets = psnEncoder->encode_data(trackers, packetTimestamp);
+	trackerMutex.unlock();
+	
 	for(auto it = data_packets.begin(); it != data_packets.end(); it++){
 		auto packet = *it;
 		

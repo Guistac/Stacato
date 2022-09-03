@@ -25,9 +25,9 @@ public:
 	bool checkHasFunction(const char* functionName);
 	void callFunction(const char* functionName);
 	
-	typedef void(*LoadLibrariesCallback)(lua_State* L);
-	LoadLibrariesCallback loadLibrairies = nullptr;
-	void setLoadLibrairiesCallback(LoadLibrariesCallback cb){ loadLibrairies = cb; }
+	typedef std::function<void(lua_State*)> LoadLibrariesCallback;
+	LoadLibrariesCallback loadLibCallback = [](lua_State* L){};
+	void setLoadLibrairiesCallback(LoadLibrariesCallback cb){ loadLibCallback = cb; }
 	
 	void logInfo(const char* message);
 	void logWarning(const char* message);
