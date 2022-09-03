@@ -13,7 +13,7 @@ struct AnimatableStateStruct{
 
 struct AnimatableStateValue : public AnimationValue{
 	virtual AnimatableType getType() override { return AnimatableType::STATE; }
-	AnimatableStateStruct* value;
+	AnimatableStateStruct* value = nullptr;
 };
 
 
@@ -71,11 +71,11 @@ public:
 	virtual void onSetManualControlTarget(float x, float y, float z) override {}
 	
 		
-	virtual std::shared_ptr<AnimationValue> getTargetValue() override{ return targetValue; }
+	virtual std::shared_ptr<AnimationValue> getTargetValue() override;
 	std::shared_ptr<AnimatableStateValue> targetValue;
 	
-	virtual void updateActualValue(std::shared_ptr<AnimationValue> newActualValue) override{ actualValue = newActualValue->toState(); }
-	virtual std::shared_ptr<AnimationValue> getActualValue() override{ return actualValue; }
+	virtual void updateActualValue(std::shared_ptr<AnimationValue> newActualValue) override;
+	virtual std::shared_ptr<AnimationValue> getActualValue() override;
 	std::shared_ptr<AnimatableStateValue> actualValue;
 	
 	virtual void updateTargetValue(double time_seconds, double deltaTime_seconds) override;
@@ -85,6 +85,7 @@ public:
 	
 	bool b_inRapid = false;
 	
+	std::mutex mutex;
 	
 	
 	virtual bool generateTargetAnimation(std::shared_ptr<TargetAnimation> animation) override {
