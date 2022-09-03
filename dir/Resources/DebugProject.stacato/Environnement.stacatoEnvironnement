@@ -2704,6 +2704,8 @@ end
 
 
 
+
+
 </Script>
                 </NodeSpecificData>
                 <InputPins/>
@@ -2723,8 +2725,12 @@ end
                 <NodeEditorPosition x="-1696" y="3376"/>
                 <NodeSpecificData>
                     <Settings IpOctet0="192" IpOctet1="168" IpOctet2="1" IpOctet3="33" Port="6454" SendingFrequency="30" DmxUniverse="999"/>
-                    <Script>alzkdjalzdkjalzkd
+                    <Script>
+function setup()
+end
 
+function update()
+end
 
 
 </Script>

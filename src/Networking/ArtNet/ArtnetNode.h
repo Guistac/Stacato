@@ -10,6 +10,24 @@ class LuaScript;
 
 class ArtNode;
 
+
+struct ArtDmx;
+
+
+class DmxUniverse{
+public:
+	DmxUniverse(uint16_t universeNumber);
+	void setChannel(int channel, uint8_t value);
+	uint8_t* getBuffer();
+	size_t getBufferSize();
+private:
+	std::shared_ptr<ArtNode> artnode;
+	ArtDmx* artdmx;
+	std::vector<uint8_t> buffer;
+	size_t bufferSize = 1024;
+};
+
+
 class ArtNetNode : public NetworkDevice{
 	DEFINE_NETWORK_DEVICE(ArtNetNode, "ArtNet Node", "ArtNetNode")
 	
@@ -28,8 +46,10 @@ class ArtNetNode : public NetworkDevice{
 	void stop();
 	void sendDMX();
 	
-	std::shared_ptr<ArtNode> node;
-	std::vector<uint8_t> buffer;
+	std::vector<std::shared_ptr<DmxUniverse>> universes;
+	std::shared_ptr<DmxUniverse> createNewUniverse(uint16_t universeNumber);
+	void removeAllUniverses();
+	
 	bool b_running = false;
 	
 	std::shared_ptr<NumberParameter<uint8_t>> ipAddress0 = NumberParameter<uint8_t>::make(192, "ArtNet IP Octet 0", "IpOctet0");

@@ -291,7 +291,7 @@ void FlipStateMachine::simulateInputProcess() {
 	
 	*stateIntegerValue = getStateInteger(actualState);
 	
-	auto actualValue = AnimationValue::makeState(); //triggers a memory error
+	auto actualValue = AnimationValue::makeState(); //BUG: triggers a memory error
 	switch(actualState){
 		case State::UNKNOWN:			actualValue->value = &stateUnknown; break;
 		case State::STOPPED:			actualValue->value = &stateStopped; break;

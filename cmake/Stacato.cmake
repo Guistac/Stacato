@@ -22,6 +22,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Scripting/CanvasLibrary.cpp
     ${STACATO_SOURCE_DIRECTORY}/Scripting/PsnLibrary.h
     ${STACATO_SOURCE_DIRECTORY}/Scripting/PsnLibrary.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Scripting/ArtNetLibrary.h
+    ${STACATO_SOURCE_DIRECTORY}/Scripting/ArtNetLibrary.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.cpp

@@ -5,6 +5,7 @@
 #include "Networking/Network.h"
 
 #include "Scripting/Script.h"
+#include "Scripting/ArtNetLibrary.h"
 #include "Scripting/EnvironnementLibrary.h"
 
 #include <tinyxml2.h>
@@ -15,32 +16,59 @@
 //Uselful for precise cross-platform thread sleep
 #include <osal.h>
 
-static int bufferSize = 1024;
+
+DmxUniverse::DmxUniverse(uint16_t universeNumber){
+	if(universeNumber > 32767) universeNumber = 32767;
+	ArtConfig configuration;
+	buffer.resize(bufferSize, 0);
+	artnode = std::make_shared<ArtNode>(configuration, bufferSize, buffer.data());
+	artdmx = artnode->createDmx();
+	artdmx->Net = universeNumber & 0xFF;
+	artdmx->SubUni = universeNumber & 0xFF;
+}
+
+void DmxUniverse::setChannel(int channel, uint8_t value){
+	if(channel > 511) return;
+	artdmx->Data[channel] = value;
+}
+
+uint8_t* DmxUniverse::getBuffer(){
+	return buffer.data();
+}
+
+size_t DmxUniverse::getBufferSize(){
+	return sizeof(ArtDmx);
+}
+
+std::shared_ptr<DmxUniverse> ArtNetNode::createNewUniverse(uint16_t universeNumber){
+	auto newUniverse = std::make_shared<DmxUniverse>(universeNumber);
+	universes.push_back(newUniverse);
+	return newUniverse;
+}
+
+void ArtNetNode::removeAllUniverses(){
+	universes.clear();
+}
+
+
 
 void ArtNetNode::initialize(){
 	
 	script = std::make_shared<LuaScript>("PSN Server Script");
 	script->setLoadLibrairiesCallback([](lua_State* L){
 		Scripting::EnvironnementLibrary::openlib(L);
-		//Scripting::ArtNetLibrary::openlib(L);
+		//Scripting::ArtNetLibrary::openlib(L, std::dynamic_pointer_cast<ArtNetNode>(shared_from_this()));
 	});
 	ArtConfig config;
 }
 
 void ArtNetNode::connect(){
-		
-	//configuration object is useless for the simple dmx packets we want to send
-	ArtConfig configuration;
-	buffer.resize(bufferSize, 0);
-	node = std::make_shared<ArtNode>(configuration, bufferSize, buffer.data());
-	
 	//we are sending artnet packets over udp
 	udpSocket = Network::getUdpSocket(123, {123,234,134,125}, 12348);
 	if(udpSocket == nullptr){
 		b_running = false;
 		return;
 	}
-	
 	start();
 }
 
@@ -50,30 +78,28 @@ void ArtNetNode::start(){
 	std::thread dmxThread([this](){
 		
 		long long waitTimeMicros = 1000000.0 / sendingFrequency->value;
-		uint8_t net = (universe->value >> 8) & 0xFF;
-		uint8_t subUni = universe->value & 0xFF;
+		removeAllUniverses();
 		
-		int counter = 0;
+		script->compileAndRun();
+		script->callFunction("setup");
 		
 		while(b_running){
 			
-			ArtDmx* dmx = node->createDmx();
-			dmx->Net = net;
-			dmx->SubUni = subUni;
-			for(int i = 0; i < 512; i++) dmx->Data[i] = counter + i;
-			counter++;
+			script->callFunction("update");
 			
-			unsigned char* bufferData = node->getBufferData();
-			size_t bufferDataSize = sizeof(ArtDmx);
+			for(auto universe : universes){
+				uint8_t* buffer = universe->getBuffer();
+				size_t bufferSize = universe->getBufferSize();
+				try {
+					udpSocket->async_send(asio::buffer(buffer, bufferSize), [](asio::error_code error, size_t byteCount) {
+						if (error) Logger::debug("Failed to send ArtNet DMX Message: {}", error.message());
+					});
+				}
+				catch (std::exception e) {
+					Logger::error("Failed to start async_send: {}", e.what());
+				}
+			}
 			
-			try {
-				udpSocket->async_send(asio::buffer(bufferData, bufferDataSize), [](asio::error_code error, size_t byteCount) {
-					if (error) Logger::debug("Failed to send ArtNet DMX Message: {}", error.message());
-				});
-			}
-			catch (std::exception e) {
-				Logger::error("Failed to start async_send: {}", e.what());
-			}
 			osal_usleep(waitTimeMicros);
 		}
 	});
