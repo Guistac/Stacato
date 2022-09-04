@@ -77,6 +77,7 @@ void AnimatableState::cancelRapid(){
 }
 
 std::shared_ptr<AnimationValue> AnimatableState::getRapidTarget(){
+	//const std::lock_guard<std::mutex> lock(mutex);
 	auto rapidTarget = AnimationValue::makeState();
 	rapidTarget->value = targetValue->value;
 	return rapidTarget;
