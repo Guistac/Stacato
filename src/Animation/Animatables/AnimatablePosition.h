@@ -82,7 +82,6 @@ public:
 	std::shared_ptr<AnimatablePositionValue> actualValue;
 	
 	virtual void followActualValue(double time_seconds, double deltaTime_seconds) override;
-	void copyMotionProfilerValueToTargetValue();
 		
 	//—————————movement commands——————————
 	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) override;
@@ -104,15 +103,15 @@ public:
 	void setManualPositionTargetWithTime(double targetPosition, double targetTime);
 	void forcePositionTarget(double position, double velocity, double acceleration);
 	void forceVelocityTarget(double velocity, double acceleration);
+	double getBrakingPosition();
 	
 private:
 	void setVelocityTarget(double velocityTarget);
 	void moveToPositionWithVelocity(double targetPosition, double targetVelocity);
 	void moveToPositionInTime(double targetPosition, double targetTime);
+	void copyMotionProfilerValueToTargetValue();
 	
 public:
-	
-	double getBrakingPosition();
 	
 	void getConstraintPositionLimits(double& min, double& max);
 	
@@ -146,8 +145,6 @@ public:
 	double upperPositionLimit;
 	double velocityLimit;
 	double accelerationLimit;
-	
-	std::mutex mutex;
 	
 	enum ControlMode{
 		VELOCITY_SETPOINT,	//manual velocity control

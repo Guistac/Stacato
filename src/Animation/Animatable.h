@@ -149,6 +149,9 @@ private:
 	std::vector<std::shared_ptr<Animation>> animations;
 	
 public:
+	std::mutex mutex;
+	
+public:
 	std::string name;
 	std::shared_ptr<Animation> currentAnimation;
 };

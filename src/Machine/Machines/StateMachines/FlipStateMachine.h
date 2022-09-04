@@ -89,6 +89,7 @@ public:
 		LOWERING_RAISING,
 		RAISED
 	};
+	
 	State actualState = State::CLOSED;
 	State requestedState = State::STOPPED;
 	

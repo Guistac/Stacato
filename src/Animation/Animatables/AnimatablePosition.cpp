@@ -387,11 +387,11 @@ void AnimatablePosition::forceVelocityTarget(double velocity, double acceleratio
 
 
 bool AnimatablePosition::hasPositionSetpoint(){
-	//const std::lock_guard<std::mutex> lock(mutex);
+	const std::lock_guard<std::mutex> lock(mutex);
 	return controlMode == POSITION_SETPOINT || hasAnimation();
 }
 double AnimatablePosition::getPositionSetpoint(){
-	//const std::lock_guard<std::mutex> lock(mutex);
+	const std::lock_guard<std::mutex> lock(mutex);
 	return getTargetValue()->toPosition()->position;
 }
 double AnimatablePosition::getPositionSetpointNormalized(){
@@ -400,11 +400,11 @@ double AnimatablePosition::getPositionSetpointNormalized(){
 
 
 bool AnimatablePosition::hasVelocitySetpoint(){
-	//const std::lock_guard<std::mutex> lock(mutex);
+	const std::lock_guard<std::mutex> lock(mutex);
 	return isReadyToMove();
 }
 double AnimatablePosition::getVelocitySetpoint(){
-	//const std::lock_guard<std::mutex> lock(mutex);
+	const std::lock_guard<std::mutex> lock(mutex);
 	return getTargetValue()->toPosition()->velocity;
 }
 double AnimatablePosition::getVelocitySetpointNormalized(){
@@ -413,12 +413,12 @@ double AnimatablePosition::getVelocitySetpointNormalized(){
 
 
 bool AnimatablePosition::hasAccelerationSetpoint(){
-	//const std::lock_guard<std::mutex> lock(mutex);
+	const std::lock_guard<std::mutex> lock(mutex);
 	return isReadyToMove();
 }
 
 double AnimatablePosition::getAccelerationSetpoint(){
-	//const std::lock_guard<std::mutex> lock(mutex);
+	const std::lock_guard<std::mutex> lock(mutex);
 	return getTargetValue()->toPosition()->acceleration;
 }
 

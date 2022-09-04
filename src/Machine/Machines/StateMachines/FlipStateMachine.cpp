@@ -291,10 +291,10 @@ void FlipStateMachine::simulateInputProcess() {
 	
 	*stateIntegerValue = getStateInteger(actualState);
 	
-	auto actualValue = AnimationValue::makeState(); //BUG: triggers a memory error
+	std::shared_ptr<AnimatableStateValue> actualValue = AnimationValue::makeState(); //BUG: triggers a memory error
 	switch(actualState){
 		case State::UNKNOWN:			actualValue->value = &stateUnknown; break;
-		case State::STOPPED:			actualValue->value = &stateStopped; break;
+		case State::STOPPED:			break; //do nothing and keep the actual value
 		case State::CLOSED:				actualValue->value = &stateClosed; break;
 		case State::OPENING_CLOSING:	actualValue->value = &stateClosingOpening; break;
 		case State::OPEN_LOWERED:		actualValue->value = &stateOpenLowered; break;
@@ -312,9 +312,9 @@ void FlipStateMachine::simulateOutputProcess() {
 		
 		double profileTime_seconds = Environnement::getTime_seconds();
 		double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
+		
 		animatableState->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
 		auto targetValue = animatableState->getTargetValue()->toState();
-		animatableState->updateActualValue(targetValue);
 		
 		auto targetState = targetValue->value;
 		
@@ -323,8 +323,7 @@ void FlipStateMachine::simulateOutputProcess() {
 		else if(targetState == &stateRaised) requestedState = State::RAISED;
 		else requestedState = State::STOPPED;
 		
-		if(requestedState == State::STOPPED) actualState = State::CLOSED;
-		else actualState = requestedState;
+		if(requestedState != State::STOPPED) actualState = requestedState;
 	}
 	
 }
