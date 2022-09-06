@@ -40,7 +40,7 @@ bool AnimatableState::isParameterValueEqual(std::shared_ptr<AnimationValue> valu
 
 std::shared_ptr<AnimationValue> AnimatableState::getValueAtAnimationTime(std::shared_ptr<Animation> animation, double time_seconds){
 	auto output = AnimationValue::makeState();
-	int integer = std::round(animation->getCurves().front().getPointAtTime(time_seconds).position);
+	int integer = std::round(animation->getCurves().front()->getPointAtTime(time_seconds).position);
 	for(int i = 0; i < selectableStates->size(); i++){
 		auto state = selectableStates->at(i);
 		if(state->integerEquivalent == integer){
@@ -54,6 +54,16 @@ std::shared_ptr<AnimationValue> AnimatableState::getValueAtAnimationTime(std::sh
 std::vector<double> AnimatableState::getCurvePositionsFromAnimationValue(std::shared_ptr<AnimationValue> value){
 	return std::vector<double>{(double)value->toState()->value->integerEquivalent};
 }
+
+std::vector<std::string> curveNames_animatableState = {
+	"State"
+};
+
+std::vector<std::string>& AnimatableState::getCurveNames(){
+	return curveNames_animatableState;
+}
+
+
 
 bool AnimatableState::isControlledManuallyOrByAnimation(){
 	return hasAnimation() || isInRapid();

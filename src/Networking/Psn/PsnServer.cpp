@@ -253,6 +253,16 @@ bool PsnServer::save(tinyxml2::XMLElement* xml){
 	infoSendingFrequency->save(networkXML);
 	dataSendingFrequency->save(networkXML);
 	
+	networkIpAddress0->save(networkXML);
+	networkIpAddress1->save(networkXML);
+	networkIpAddress2->save(networkXML);
+	networkIpAddress3->save(networkXML);
+	
+	networkMask0->save(networkXML);
+	networkMask1->save(networkXML);
+	networkMask2->save(networkXML);
+	networkMask3->save(networkXML);
+	
 	XMLElement* scriptXML = xml->InsertNewChildElement("Script");
 	scriptXML->SetText(script->getScriptText().c_str());
 	

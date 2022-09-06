@@ -36,7 +36,8 @@ namespace Motion {
 		double time;
 		bool b_valid;
 		ValidationError validationError;
-		
+		bool b_selected = false;
+		int id;
 		Point toPoint(){
 			return Point{.time = time, .position = position, .acceleration = outAcceleration, .velocity = velocity};
 		}
@@ -173,6 +174,8 @@ namespace Motion {
 	class Curve{
 	public:
 		
+		Curve(std::string name_) : name(name_){}
+		
 		std::vector<std::shared_ptr<ControlPoint>>& getPoints(){ return controlPoints; }
 		void addPoint(std::shared_ptr<ControlPoint> point);
 		void removePoint(std::shared_ptr<ControlPoint> point);
@@ -189,12 +192,18 @@ namespace Motion {
 		Point getPointAtTime(double time);
 		
 		bool b_valid;
+		bool b_visibleInEditor = true;
+		
+		std::string getName(){ return name; }
+		
+		int idCounter = 0;
 		
 		InterpolationType interpolationType;
 		
 	private:
 		std::vector<std::shared_ptr<ControlPoint>> controlPoints;
 		std::vector<std::shared_ptr<Interpolation>> interpolations;
+		std::string name;
 	};
 
 }

@@ -2,6 +2,7 @@
 
 #include "Project/Editor/Parameter.h"
 #include "Motion/MotionTypes.h"
+#include "Motion/Curve/Curve.h"
 
 class Animation;
 class Animatable;
@@ -62,10 +63,36 @@ public:
 	void updateAnimationSummary();
 	void validateAllAnimations();
 	
+	//————————————— Curve Editor ————————————
+public:
+	void selectEditorCurve(std::shared_ptr<Animation> animation, std::shared_ptr<Motion::Curve> curve){
+		selectedEditorAnimation = animation;
+		selectedEditorCurve = curve;
+	}
+	
+	void selectControlPoint(std::shared_ptr<Motion::ControlPoint> controlPoint){
+		clearControlPointSelection();
+		selectedControlPoints.push_back(controlPoint);
+		controlPoint->b_selected = true;
+	}
+	
+	void clearControlPointSelection(){
+		for(auto controlPoint : selectedControlPoints) controlPoint->b_selected = false;
+		selectedControlPoints.clear();
+	}
+	
+	bool isCurveSelectedInEditor(std::shared_ptr<Motion::Curve> curve) { return selectedEditorCurve == curve; }
+	std::shared_ptr<Motion::Curve> getSelectedEditorCurve(){ return selectedEditorCurve; }
+	std::shared_ptr<Animation> getSelectedEditorAnimation(){ return selectedEditorAnimation; }
+	std::vector<std::shared_ptr<Motion::ControlPoint>>& getSelectedControlPoints(){ return selectedControlPoints; }
+private:
+	std::shared_ptr<Animation> selectedEditorAnimation = nullptr;
+	std::shared_ptr<Motion::Curve> selectedEditorCurve = nullptr;
+	std::vector<std::shared_ptr<Motion::ControlPoint>> selectedControlPoints = {};
 	//—————————————— Playback —————————————————
 	
 public:
-	
+
 	bool canRapidToStart();
 	bool canRapidToTarget();
 	bool canRapidToPlaybackPosition();

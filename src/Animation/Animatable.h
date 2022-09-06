@@ -61,6 +61,8 @@ public:
 	void unsubscribeAnimation(std::shared_ptr<Animation> animation);
 	std::vector<std::shared_ptr<Animation>>& getAnimations(){ return animations; }
 	
+	virtual std::vector<std::string>& getCurveNames() = 0;
+	
 	void deleteAllAnimations();
 	
 	//animation currently animating this animatable

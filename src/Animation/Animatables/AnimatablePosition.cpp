@@ -39,7 +39,7 @@ bool AnimatablePosition::isParameterValueEqual(std::shared_ptr<AnimationValue> v
 
 std::shared_ptr<AnimationValue> AnimatablePosition::getValueAtAnimationTime(std::shared_ptr<Animation> animation, double time_seconds){
 	auto output = AnimationValue::makePosition();
-	Motion::Point point = animation->getCurves().front().getPointAtTime(time_seconds);
+	Motion::Point point = animation->getCurves().front()->getPointAtTime(time_seconds);
 	output->position = point.position;
 	output->velocity = point.velocity;
 	output->acceleration = point.acceleration;
@@ -48,6 +48,14 @@ std::shared_ptr<AnimationValue> AnimatablePosition::getValueAtAnimationTime(std:
 
 std::vector<double> AnimatablePosition::getCurvePositionsFromAnimationValue(std::shared_ptr<AnimationValue> value){
 	return std::vector<double>{value->toPosition()->position};
+}
+
+std::vector<std::string> curveNames_animatablePosition = {
+	"Position"
+};
+
+std::vector<std::string>& AnimatablePosition::getCurveNames(){
+	return curveNames_animatablePosition;
 }
 
 bool AnimatablePosition::generateTargetAnimation(std::shared_ptr<TargetAnimation> animation){
@@ -85,8 +93,8 @@ bool AnimatablePosition::generateTargetAnimation(std::shared_ptr<TargetAnimation
 	if(!interpolation->b_valid) return false;
 	
 	auto& curve = animation->getCurves().front();
-	auto& points = curve.getPoints();
-	auto& interpolations = curve.getInterpolations();
+	auto& points = curve->getPoints();
+	auto& interpolations = curve->getInterpolations();
 	
 	
 	
@@ -98,7 +106,7 @@ bool AnimatablePosition::generateTargetAnimation(std::shared_ptr<TargetAnimation
 	interpolation->updateDisplayCurvePoints();
 	interpolations.push_back(interpolation);
 	
-	curve.b_valid = true;
+	curve->b_valid = true;
 	
 	return true;
 }
@@ -170,7 +178,7 @@ bool AnimatablePosition::validateAnimation(std::shared_ptr<Animation> animation)
 		bool b_curveValid = true;
 		
 		//validate all control points
-		for (auto& controlPoint : curve.getPoints()) {
+		for (auto& controlPoint : curve->getPoints()) {
 			//check all validation conditions and find validaiton error state
 			if (controlPoint->position < lowerPositionLimit || controlPoint->position > upperPositionLimit)
 				controlPoint->validationError = ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
@@ -194,7 +202,7 @@ bool AnimatablePosition::validateAnimation(std::shared_ptr<Animation> animation)
 		}
 
 		//validate all interpolations of the curve
-		for (auto& interpolation : curve.getInterpolations()) {
+		for (auto& interpolation : curve->getInterpolations()) {
 			
 			if(interpolation->getType() != InterpolationType::TRAPEZOIDAL){
 				Logger::critical("Sequence Track Curve Interpolation is wrong type. Is {}, expected Trapezoidal", Enumerator::getDisplayString(interpolation->getType()));
@@ -240,7 +248,7 @@ bool AnimatablePosition::validateAnimation(std::shared_ptr<Animation> animation)
 		
 		//after performing all checks, we assign the curve validation flag
 		//the curve itself doesn't have a validation error value
-		curve.b_valid = b_curveValid;
+		curve->b_valid = b_curveValid;
 		if(!b_curveValid){
 			animation->appendValidationErrorString("Curve could not be validated : check the Curve editor for details.");
 			b_animationValid = false;

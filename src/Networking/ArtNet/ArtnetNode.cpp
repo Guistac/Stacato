@@ -83,7 +83,20 @@ void ArtNetNode::initialize(){
 
 void ArtNetNode::connect(){
 	//we are sending artnet packets over udp (broadcast or not)
-	if(broadcast->value) udpSocket = Network::getUdpBroadcastSocket();
+	if(broadcast->value) {
+		udpSocket = Network::getUdpBroadcastSocket({
+			networkIpAddress0->value,
+			networkIpAddress1->value,
+			networkIpAddress2->value,
+			networkIpAddress3->value
+		}, {
+			networkMask0->value,
+			networkMask1->value,
+			networkMask2->value,
+			networkMask3->value
+		},
+												   portNumber->value);
+	}
 	else udpSocket = Network::getUdpSocket(0, {ipAddress0->value, ipAddress1->value, ipAddress2->value, ipAddress3->value}, portNumber->value);
 	if(udpSocket == nullptr){
 		b_running = false;

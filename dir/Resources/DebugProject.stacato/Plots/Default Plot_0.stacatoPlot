@@ -10,11 +10,24 @@
             <Animation Machine="Flip A-J3" MachineUniqueID="1797" Parameter="State" IsComposite="false" Type="Target" Target="OpenLowered" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
         <Manoeuvre Name="M-3" Description="" Type="Sequence">
-            <Animation Machine="Cost Jardin" MachineUniqueID="2280" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1" Duration="10" TimeOffset="0" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999">
+            <Animation Machine="Cost Jardin" MachineUniqueID="2280" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1" Duration="40" TimeOffset="0" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999">
                 <Curves>
                     <Curve>
                         <ControlPoint Position="0" Time="0" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
-                        <ControlPoint Position="1" Time="10" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="1.5" Time="7" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="0.40000000000000002" Time="12.5" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="0.40000000000000002" Time="16.94129753112793" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="1.3817351701537668" Time="22.514933058702372" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="4" Time="31" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="1" Time="40" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Cost Cour" MachineUniqueID="2303" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="2" End="3" Duration="30" TimeOffset="0" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999">
+                <Curves>
+                    <Curve>
+                        <ControlPoint Position="2" Time="0" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="3" Time="30" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
                     </Curve>
                 </Curves>
             </Animation>

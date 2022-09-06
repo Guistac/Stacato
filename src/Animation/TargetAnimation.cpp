@@ -38,6 +38,12 @@ TargetAnimation::TargetAnimation(std::shared_ptr<Animatable> animatable) : Anima
 	outAcceleration->setEditCallback(editCallback);
 	constraintType->setEditCallback(editCallback);
 	timeConstraint->setEditCallback(editCallback);
+	
+	getCurves().resize(animatable->getCurveCount());
+	int curveCount = animatable->getCurveCount();
+	auto& curveNames = animatable->getCurveNames();
+	for(int i = 0; i < curveCount; i++) getCurves()[i] = std::make_shared<Motion::Curve>(curveNames[i]);
+	
 }
 
 
@@ -96,15 +102,15 @@ std::shared_ptr<TargetAnimation> TargetAnimation::load(tinyxml2::XMLElement* xml
 
 bool TargetAnimation::areCurvesGenerated(){
 	for(auto& curve : getCurves()){
-		if(curve.getPoints().empty() || curve.getInterpolations().empty()) return false;
+		if(curve->getPoints().empty() || curve->getInterpolations().empty()) return false;
 	}
 	return true;
 }
 
 void TargetAnimation::clearCurves(){
 	for(auto& curve : getCurves()){
-		curve.getPoints().clear();
-		curve.getInterpolations().clear();
+		curve->getPoints().clear();
+		curve->getInterpolations().clear();
 	}
 }
 
@@ -124,7 +130,7 @@ void TargetAnimation::getCurvePositionRange(double& min, double& max){
 	double ma = DBL_MIN;
 	if(areCurvesGenerated()){
 		for(auto& curve : getCurves()){
-			for(auto& controlPoint : curve.getPoints()){
+			for(auto& controlPoint : curve->getPoints()){
 				mi = std::min(mi, controlPoint->position);
 				ma = std::max(ma, controlPoint->position);
 			}

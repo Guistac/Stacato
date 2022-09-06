@@ -1,5 +1,6 @@
 #include "Animation.h"
 #include "Machine/Machine.h"
+#include "Animation/Manoeuvre.h"
 
 SequenceAnimation::SequenceAnimation(std::shared_ptr<Animatable> animatable) : Animation(animatable){
 	target = animatable->makeParameter();
@@ -67,7 +68,7 @@ bool SequenceAnimation::onSave(tinyxml2::XMLElement* xml){
 	XMLElement* curvesXML = xml->InsertNewChildElement("Curves");
 	for(auto& curve : getCurves()){
 		XMLElement* curveXML = curvesXML->InsertNewChildElement("Curve");
-		for(auto& controlPoint : curve.getPoints()){
+		for(auto& controlPoint : curve->getPoints()){
 			XMLElement* controlPointXML = curveXML->InsertNewChildElement("ControlPoint");
 			controlPointXML->SetAttribute("Position", controlPoint->position);
 			controlPointXML->SetAttribute("Time", controlPoint->time);
@@ -127,9 +128,9 @@ std::shared_ptr<SequenceAnimation> SequenceAnimation::load(tinyxml2::XMLElement*
 	
 	for(int i = 0; i < curveCount; i++){
 		auto& curve = curves[i];
-		auto& points = curve.getPoints();
+		auto& points = curve->getPoints();
 		points.clear();
-		curve.interpolationType = sequenceAnimation->interpolationType->value;
+		curve->interpolationType = sequenceAnimation->interpolationType->value;
 		
 		auto startPoint = std::make_shared<Motion::ControlPoint>();
 		auto targetPoint = std::make_shared<Motion::ControlPoint>();
@@ -152,7 +153,7 @@ std::shared_ptr<SequenceAnimation> SequenceAnimation::load(tinyxml2::XMLElement*
 		
 		points.push_back(targetPoint);
 		
-		curve.refresh();
+		curve->refresh();
 	}
 	
 	sequenceAnimation->setDuration(sequenceAnimation->timeOffset->value + sequenceAnimation->duration->value);
@@ -169,11 +170,11 @@ void SequenceAnimation::setUnit(Unit unit){
 }
 
 bool SequenceAnimation::isSimple(){
-	return getCurves().front().getPoints().size() == 2;
+	return getCurves().front()->getPoints().size() == 2;
 }
 
 bool SequenceAnimation::isComplex(){
-	return getCurves().front().getPoints().size() > 2;
+	return getCurves().front()->getPoints().size() > 2;
 }
 
 
@@ -181,7 +182,7 @@ void SequenceAnimation::getCurvePositionRange(double& min, double& max){
 	double mi = DBL_MAX;
 	double ma = DBL_MIN;
 	for(auto& curve : getCurves()){
-		for(auto& controlPoint : curve.getPoints()){
+		for(auto& controlPoint : curve->getPoints()){
 			mi = std::min(mi, controlPoint->position);
 			ma = std::max(ma, controlPoint->position);
 		}
@@ -291,7 +292,7 @@ void SequenceAnimation::updateAfterParameterEdit(){
 	
 	for(int i = 0; i < curveCount; i++){
 		auto& curve = curves[i];
-		auto& points = curve.getPoints();
+		auto& points = curve->getPoints();
 		
 		std::shared_ptr<Motion::ControlPoint> startPoint = points.front();
 		std::shared_ptr<Motion::ControlPoint> targetPoint = points.back();
@@ -308,7 +309,7 @@ void SequenceAnimation::updateAfterParameterEdit(){
 		targetPoint->outAcceleration = outAcceleration->value;
 		targetPoint->time = timeOffset->value + duration->value;
 		
-		curve.refresh();
+		curve->refresh();
 	}
 	
 	setDuration(timeOffset->value + duration->value);
@@ -320,14 +321,16 @@ void SequenceAnimation::updateAfterParameterEdit(){
 
 void SequenceAnimation::updateAfterCurveEdit(){
 	auto& curves = getCurves();
-	for(auto& curve : curves) curve.refresh();
+	for(auto& curve : curves) curve->refresh();
 	validate();
 }
 
 void SequenceAnimation::initializeCurves(){
 	auto animatable = getAnimatable();
 	int curveCount = animatable->getCurveCount();
+	auto& curveNames = animatable->getCurveNames();
 	auto& curves = getCurves();
+	curves.resize(curveCount);
 	
 	auto startValue = animatable->parameterValueToAnimationValue(start);
 	auto targetValue = animatable->parameterValueToAnimationValue(target);
@@ -336,8 +339,12 @@ void SequenceAnimation::initializeCurves(){
 	
 	for(int i = 0; i < curveCount; i++){
 		auto& curve = curves[i];
-		auto& points = curve.getPoints();
-		curve.interpolationType = interpolationType->value;
+		
+		curve = std::make_shared<Motion::Curve>(curveNames[i]);
+		
+		
+		auto& points = curve->getPoints();
+		curve->interpolationType = interpolationType->value;
 		
 		auto startPoint = std::make_shared<Motion::ControlPoint>();
 		auto targetPoint = std::make_shared<Motion::ControlPoint>();
@@ -359,9 +366,31 @@ void SequenceAnimation::initializeCurves(){
 		points.push_back(startPoint);
 		points.push_back(targetPoint);
 		
-		curve.refresh();
+		curve->refresh();
 	}
 	
 	setDuration(timeOffset->value + duration->value);
 	
+}
+
+void SequenceAnimation::addCurvePoint(std::shared_ptr<Motion::Curve> targetCurve, float time, float position){
+	//check if the animation containts the target curve
+	bool b_hasCurve = false;
+	for(auto curve : getCurves()){
+		if(curve == targetCurve) {
+			b_hasCurve = true;
+			break;
+		}
+	}
+	if(!b_hasCurve) return;
+	
+	auto newControlPoint = std::make_shared<Motion::ControlPoint>();
+	newControlPoint->position = position;
+	newControlPoint->time = time;
+	newControlPoint->velocity = 0.0;
+	newControlPoint->inAcceleration = 0.0;
+	newControlPoint->outAcceleration = 0.0;
+	
+	targetCurve->addPoint(newControlPoint);
+	getManoeuvre()->selectControlPoint(newControlPoint);
 }

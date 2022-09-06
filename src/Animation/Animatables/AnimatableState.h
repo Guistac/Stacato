@@ -52,6 +52,7 @@ public:
 	virtual std::shared_ptr<AnimationValue> getValueAtAnimationTime(std::shared_ptr<Animation> animation, double time_seconds) override;
 	virtual std::vector<double> getCurvePositionsFromAnimationValue(std::shared_ptr<AnimationValue> value) override;
 	virtual bool isControlledManuallyOrByAnimation() override;
+	virtual std::vector<std::string>& getCurveNames() override;
 
 	virtual bool isReadyToMove() override;
 	virtual bool isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationValue> animationValue) override;

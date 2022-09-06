@@ -25,10 +25,7 @@ public:
 
 protected:
 	
-	Animation(std::shared_ptr<Animatable> animatable_) {
-		animatable = animatable_;
-		curves.resize(animatable->getCurveCount());
-	}
+	Animation(std::shared_ptr<Animatable> animatable_) : animatable(animatable_){}
 	
 	//———————————— Sub Class Identification & Casting ————————————————
 	
@@ -71,7 +68,7 @@ public:
 	
 	virtual void setUnit(Unit unit){}
 
-	std::vector<Motion::Curve>& getCurves(){ return curves; }
+	std::vector<std::shared_ptr<Motion::Curve>>& getCurves(){ return curves; }
 	virtual void getCurvePositionRange(double& min, double& max){}
 
 	std::shared_ptr<AnimationValue> getValueAtPlaybackTime();
@@ -81,7 +78,7 @@ private:
 	std::shared_ptr<AnimationComposite> parentComposite;
 	std::shared_ptr<Manoeuvre> manoeuvre;
 	std::shared_ptr<Animatable> animatable;
-	std::vector<Motion::Curve> curves;
+	std::vector<std::shared_ptr<Motion::Curve>> curves;
 	bool b_valid = false;
 	std::string validationErrorString = "";
 	
@@ -150,6 +147,12 @@ private:
 	bool b_isPlaying = false; 	//indicates active playback
 	bool b_isPaused = false;	//indicates inactive playback but prevent removal from playback manager
 	bool b_isInRapid = false;	//indicates active rapid movement
+	
+	
+	//————————————— Curve Editing ——————————————
+	
+public:
+	virtual void addCurvePoint(std::shared_ptr<Motion::Curve> curve, float time, float position) {}
 	
 	//—————————————————— User Interface ———————————————————
 	
@@ -387,6 +390,8 @@ public:
 	std::shared_ptr<NumberParameter<double>> inAcceleration = NumberParameter<double>::make(0.0, "Start Acceleration", "StartAcceleration");
 	std::shared_ptr<NumberParameter<double>> outAcceleration = NumberParameter<double>::make(0.0, "End Acceleration", "EndAcceleration");
 	
+public:
+	virtual void addCurvePoint(std::shared_ptr<Motion::Curve> curve, float time, float position) override;
 	
 	//————————————————————— Playback —————————————————————
 	

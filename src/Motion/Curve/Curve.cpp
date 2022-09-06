@@ -19,6 +19,8 @@ namespace Motion {
 
 
 	void Curve::addPoint(std::shared_ptr<ControlPoint> point) {
+		idCounter++;
+		point->id = idCounter;
 		controlPoints.push_back(point);
 		refresh();
 	}

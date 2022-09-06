@@ -46,14 +46,35 @@ std::unique_ptr<asio::ip::udp::socket> getUdpSocket(int listeningPort, std::vect
 	return socket;
 }
 
-std::unique_ptr<asio::ip::udp::socket> getUdpBroadcastSocket(){
+std::unique_ptr<asio::ip::udp::socket> getUdpBroadcastSocket(std::vector<uint8_t> networkIp, std::vector<uint8_t> networkMask, uint16_t remotePort){
 	std::unique_ptr<asio::ip::udp::socket> socket = std::make_unique<asio::ip::udp::socket>(io_context);
+	
+	//char networkIpString[32];
+	//char maskString[32];
+	//sprintf(networkIpString, "%i.%i.%i.%i", networkIp[0], networkIp[1], networkIp[2], networkIp[3]);
+	//sprintf(maskString, "%i.%i.%i.%i", networkMask[0], networkMask[1], networkMask[2], networkMask[3]);
+	uint32_t address_u32 = networkIp[0] << 24 | networkIp[1] << 16 | networkIp[2] << 8 | networkIp[3];
+	uint32_t mask_u32 = networkMask[0] << 24 | networkMask[1] << 16 | networkMask[2] << 8 | networkMask[3];
+	asio::ip::address_v4 address = asio::ip::make_address_v4(address_u32);
+	asio::ip::address_v4 mask = asio::ip::make_address_v4(mask_u32);
+	
+	asio::ip::network_v4 network(address, mask);
+	asio::ip::address_v4 broadcastAddress = network.broadcast();
+	asio::ip::udp::endpoint broadcastEndpoint(broadcastAddress, remotePort);
+	
+	socket->async_connect(broadcastEndpoint, [](asio::error_code error) {
+		Logger::warn("Could not connect to Udp Broadcast endpoint : {}", error.message());
+	});
+
+	//socket->connect()
 	if(socket == nullptr) return nullptr;
 	asio::error_code error;
 	socket->open(asio::ip::udp::v4(), error);
 	if(error) return nullptr;
 	socket->set_option(asio::ip::udp::socket::reuse_address(true));
 	socket->set_option(asio::socket_base::broadcast(true));
+	
+	
 	return socket;
 }
 
