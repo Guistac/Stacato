@@ -62,6 +62,7 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Animation/ManoeuvreGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Animation/AnimationGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Animation/CurveEditorGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeAdder.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeGraphGui.h
