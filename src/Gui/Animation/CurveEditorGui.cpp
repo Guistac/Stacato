@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 #include <implot.h>
+#include <GLFW/glfw3.h>
 
 #include "Animation/Manoeuvre.h"
 #include "Animation/Animation.h"
@@ -48,6 +49,10 @@ void Manoeuvre::curveEditor(){
 		}
 	};
 	
+	ImGui::PushFont(Fonts::sansBold15);
+	backgroundText("Control Point Editor", glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight()), Colors::darkGray);
+	ImGui::PopFont();
+	
 	auto& selectedControlPoints = getSelectedControlPoints();
 	if(selectedControlPoints.empty()){
 		static const char* noSelectionString = "No Selection";
@@ -81,12 +86,15 @@ void Manoeuvre::curveEditor(){
 	
 	ImGui::PopStyleVar();
 	
-
-	bool b_selected = false;
+	ImGui::Separator();
 	
-	ImGui::BeginChild("CurveList", ImGui::GetContentRegionAvail());
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	backgroundText("Curve Selector", glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight()), Colors::darkGray);
+	ImGui::PopFont();
 	
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .1f));
+	bool b_curveSelectorHovered = false;
 	
 	for(int a = 0; a < getAnimations().size(); a++){
 		ImGui::PushID(a);
@@ -108,6 +116,7 @@ void Manoeuvre::curveEditor(){
 			if(ImGui::InvisibleButton("SelectionCatcher", glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight()))){
 				selectEditorCurve(animation, curve);
 			}
+			if(ImGui::IsItemHovered()) b_curveSelectorHovered = true;
 			
 			ImColor itemColor;
 			if(isCurveSelectedInEditor(curve)) itemColor = ImColor(Colors::green);
@@ -135,7 +144,7 @@ void Manoeuvre::curveEditor(){
 	
 	ImGui::PopStyleVar();
 	
-	ImGui::EndChild();
+	if(ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && !b_curveSelectorHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) clearEditorCurveSelection();
 	
 	ImGui::EndChild();
 	
@@ -239,7 +248,14 @@ void Manoeuvre::curveEditor(){
 			}
 		}
 		
+		if(ImGui::IsWindowFocused() && (ImGui::IsKeyPressed(GLFW_KEY_DELETE) || ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE))){
+			deletedControlPointSelection();
+			selectedEditorCurve->refresh();
+		}
+		
 		ImPlot::EndPlot();
 	}
+	
+	
 	
 }

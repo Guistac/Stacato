@@ -58,6 +58,12 @@ std::vector<std::string>& AnimatablePosition::getCurveNames(){
 	return curveNames_animatablePosition;
 }
 
+void AnimatablePosition::fillControlPointDefaults(std::shared_ptr<Motion::ControlPoint> controlpoint){
+	controlpoint->inAcceleration = accelerationLimit;
+	controlpoint->outAcceleration = accelerationLimit;
+	controlpoint->velocity = 0.0;
+}
+
 bool AnimatablePosition::generateTargetAnimation(std::shared_ptr<TargetAnimation> animation){
 	
 	auto target = parameterValueToAnimationValue(animation->target)->toPosition();

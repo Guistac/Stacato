@@ -64,6 +64,7 @@ public:
 	virtual bool validateAnimation(std::shared_ptr<Animation> animation) override;
 	virtual bool isControlledManuallyOrByAnimation() override;
 	virtual std::vector<std::string>& getCurveNames() override;
+	virtual void fillControlPointDefaults(std::shared_ptr<Motion::ControlPoint> controlpoint) override;
 	
 	//—————————state——————————
 	virtual bool isReadyToMove() override;

@@ -66,9 +66,16 @@ bool SequenceAnimation::onSave(tinyxml2::XMLElement* xml){
 	outAcceleration->save(xml);
 	
 	XMLElement* curvesXML = xml->InsertNewChildElement("Curves");
-	for(auto& curve : getCurves()){
+	int curveCount = getAnimatable()->getCurveCount();
+	auto& curveNames = getAnimatable()->getCurveNames();
+	
+	for(int c = 0; c < curveCount; c++){
 		XMLElement* curveXML = curvesXML->InsertNewChildElement("Curve");
-		for(auto& controlPoint : curve->getPoints()){
+		curveXML->SetAttribute("Name", curveNames[c].c_str());
+		auto curve = getCurves()[c];
+		auto& controlPoints = curve->getPoints();
+		for(int i = 1; i < controlPoints.size() - 1; i++){
+			auto controlPoint = controlPoints[i];
 			XMLElement* controlPointXML = curveXML->InsertNewChildElement("ControlPoint");
 			controlPointXML->SetAttribute("Position", controlPoint->position);
 			controlPointXML->SetAttribute("Time", controlPoint->time);
@@ -83,40 +90,17 @@ bool SequenceAnimation::onSave(tinyxml2::XMLElement* xml){
 
 std::shared_ptr<SequenceAnimation> SequenceAnimation::load(tinyxml2::XMLElement* xml, std::shared_ptr<Animatable> animatable){
 	
+	using namespace tinyxml2;
+	
 	auto sequenceAnimation = std::make_shared<SequenceAnimation>(animatable);
 	
-	if(!sequenceAnimation->interpolationType->load(xml)){
-		Logger::warn("could not load attribute Interpolation Type of Animation {}", animatable->getName());
-	}
-	if(!sequenceAnimation->start->load(xml)){
-		Logger::warn("could not load attribute Start of Animation {}", animatable->getName());
-		return nullptr;
-	}
-	if(!sequenceAnimation->target->load(xml)){
-		Logger::warn("could not load attribute End of Animation {}", animatable->getName());
-		return nullptr;
-	}
-	if(!sequenceAnimation->duration->load(xml)){
-		Logger::warn("could not load attribute Duration of Animation {}", animatable->getName());
-		return nullptr;
-	}
-	if(!sequenceAnimation->timeOffset->load(xml)){
-		Logger::warn("could not load attribute Time Offset of Animation {}", animatable->getName());
-		return nullptr;
-	}
-	if(!sequenceAnimation->inAcceleration->load(xml)){
-		Logger::warn("could not load attribute inAcceleration of Animation {}", animatable->getName());
-		return nullptr;
-	}
-	if(!sequenceAnimation->outAcceleration->load(xml)){
-		Logger::warn("could not load attribute outAcceleration of Animation {}", animatable->getName());
-		return nullptr;
-	}
-
-	
-	//load curve points
-	//generate curves
-	
+	if(!sequenceAnimation->interpolationType->load(xml)) return nullptr;
+	if(!sequenceAnimation->start->load(xml)) return nullptr;
+	if(!sequenceAnimation->target->load(xml)) return nullptr;
+	if(!sequenceAnimation->duration->load(xml)) return nullptr;
+	if(!sequenceAnimation->timeOffset->load(xml)) return nullptr;
+	if(!sequenceAnimation->inAcceleration->load(xml)) return nullptr;
+	if(!sequenceAnimation->outAcceleration->load(xml)) return nullptr;
 	
 	int curveCount = animatable->getCurveCount();
 	auto& curves = sequenceAnimation->getCurves();
@@ -128,8 +112,7 @@ std::shared_ptr<SequenceAnimation> SequenceAnimation::load(tinyxml2::XMLElement*
 	
 	for(int i = 0; i < curveCount; i++){
 		auto& curve = curves[i];
-		auto& points = curve->getPoints();
-		points.clear();
+		curve->getPoints().clear();
 		curve->interpolationType = sequenceAnimation->interpolationType->value;
 		
 		auto startPoint = std::make_shared<Motion::ControlPoint>();
@@ -147,14 +130,72 @@ std::shared_ptr<SequenceAnimation> SequenceAnimation::load(tinyxml2::XMLElement*
 		targetPoint->outAcceleration = sequenceAnimation->outAcceleration->value;
 		targetPoint->time = sequenceAnimation->timeOffset->value + sequenceAnimation->duration->value;
 		
-		points.push_back(startPoint);
-		
-		//push intermediary points here
-		
-		points.push_back(targetPoint);
-		
-		curve->refresh();
+		curve->addPoint(startPoint);
+		curve->addPoint(targetPoint);
 	}
+	
+	XMLElement* curvesXML;
+	if(!loadXMLElement("Curves", xml, curvesXML)) return nullptr;
+	auto& curveNames = sequenceAnimation->getAnimatable()->getCurveNames();
+	
+	XMLElement* curveXML = curvesXML->FirstChildElement("Curve");
+	while(curveXML){
+		const char* curveName;
+		if(curveXML->QueryStringAttribute("Name", &curveName) != XML_SUCCESS) {
+			Logger::warn("could not load curve name attribute");
+			return nullptr;
+		}
+		
+		std::shared_ptr<Motion::Curve> curve = nullptr;
+		for(int c = 0; c < curveCount; c++){
+			if(strcmp(curveName, curveNames[c].c_str()) == 0){
+				curve = curves[c];
+				break;
+			}
+		}
+		if(curve == nullptr) {
+			Logger::warn("Could not identify curve");
+			return nullptr;
+		}
+		
+		XMLElement* controlPointXML = curveXML->FirstChildElement("ControlPoint");
+		while(controlPointXML){
+			
+			auto controlPoint = std::make_shared<Motion::ControlPoint>();
+			
+			if(controlPointXML->QueryDoubleAttribute("Position", &controlPoint->position) != XML_SUCCESS){
+				Logger::warn("could not load controlpoint position");
+				return nullptr;
+			}
+			if(controlPointXML->QueryDoubleAttribute("Time", &controlPoint->time) != XML_SUCCESS){
+				Logger::warn("could not load controlpoint time");
+				return nullptr;
+			}
+			if(controlPointXML->QueryDoubleAttribute("Velocity", &controlPoint->velocity) != XML_SUCCESS){
+				Logger::warn("could not load controlpoint velocity");
+				return nullptr;
+			}
+			if(controlPointXML->QueryDoubleAttribute("InAcceleration", &controlPoint->inAcceleration) != XML_SUCCESS){
+				Logger::warn("could not load controlpoint in Acceleration");
+				return nullptr;
+			}
+			if(controlPointXML->QueryDoubleAttribute("OutAcceleration", &controlPoint->outAcceleration) != XML_SUCCESS){
+				Logger::warn("could not load controlpoint out Acceleration");
+				return nullptr;
+			}
+
+			curve->addPoint(controlPoint);
+			
+			controlPointXML = controlPointXML->NextSiblingElement("ControlPoint");
+		}
+		
+		
+		
+		curveXML = curveXML->NextSiblingElement("Curve");
+	}
+	
+	
+	for(auto curve : curves) curve->refresh();
 	
 	sequenceAnimation->setDuration(sequenceAnimation->timeOffset->value + sequenceAnimation->duration->value);
 
@@ -390,6 +431,9 @@ void SequenceAnimation::addCurvePoint(std::shared_ptr<Motion::Curve> targetCurve
 	newControlPoint->velocity = 0.0;
 	newControlPoint->inAcceleration = 0.0;
 	newControlPoint->outAcceleration = 0.0;
+	newControlPoint->b_valid = true;
+	
+	getAnimatable()->fillControlPointDefaults(newControlPoint);
 	
 	targetCurve->addPoint(newControlPoint);
 	getManoeuvre()->selectControlPoint(newControlPoint);

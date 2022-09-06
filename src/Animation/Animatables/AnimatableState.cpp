@@ -63,6 +63,12 @@ std::vector<std::string>& AnimatableState::getCurveNames(){
 	return curveNames_animatableState;
 }
 
+void AnimatableState::fillControlPointDefaults(std::shared_ptr<Motion::ControlPoint> controlpoint){
+	controlpoint->inAcceleration = 0.0;
+	controlpoint->outAcceleration = 0.0;
+	controlpoint->velocity = 0.0;
+}
+
 
 
 bool AnimatableState::isControlledManuallyOrByAnimation(){

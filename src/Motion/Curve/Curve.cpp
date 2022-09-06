@@ -26,7 +26,7 @@ namespace Motion {
 	}
 
 	void Curve::removePoint(std::shared_ptr<ControlPoint> point) {
-		for (int i = 0; i < controlPoints.size(); i++) {
+		for (int i = 0; i < controlPoints.size() - 1; i++) {
 			if (controlPoints[i] == point) {
 				controlPoints.erase(controlPoints.begin() + i);
 				break;

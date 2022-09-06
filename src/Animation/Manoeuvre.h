@@ -81,6 +81,18 @@ public:
 		selectedControlPoints.clear();
 	}
 	
+	void clearEditorCurveSelection(){
+		selectedEditorCurve = nullptr;
+		selectedEditorAnimation = nullptr;
+		clearControlPointSelection();
+	}
+	
+	void deletedControlPointSelection(){
+		for(auto controlPoint : selectedControlPoints){
+			selectedEditorCurve->removePoint(controlPoint);
+		}
+	}
+	
 	bool isCurveSelectedInEditor(std::shared_ptr<Motion::Curve> curve) { return selectedEditorCurve == curve; }
 	std::shared_ptr<Motion::Curve> getSelectedEditorCurve(){ return selectedEditorCurve; }
 	std::shared_ptr<Animation> getSelectedEditorAnimation(){ return selectedEditorAnimation; }

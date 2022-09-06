@@ -2632,7 +2632,7 @@
             <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="PsnServer" Split="false" CustomName="PSN" UniqueID="2681">
                 <NodeEditorPosition x="-1824" y="3376"/>
                 <NodeSpecificData>
-                    <Network ServerName="Stacato PSN Server" IpOctet0="224" IpOctet1="10" IpOctet2="10" IpOctet3="10" Port="56565" InfoPacketSendingFrequency="1" DataPacketSendingFrequency="60"/>
+                    <Network ServerName="Stacato PSN Server" IpOctet0="224" IpOctet1="10" IpOctet2="10" IpOctet3="10" Port="56565" InfoPacketSendingFrequency="1" DataPacketSendingFrequency="60" NetworkIpOctet0="236" NetworkIpOctet1="10" NetworkIpOctet2="10" NetworkIpOctet3="10" NetworkMaskOctet0="236" NetworkMaskOctet1="10" NetworkMaskOctet2="10" NetworkMaskOctet3="10"/>
                     <Script>
 --Default PSN Server Script
 
