@@ -9,5 +9,5 @@ namespace Network{
 	bool isInitialized();
 	
 	std::unique_ptr<asio::ip::udp::socket> getUdpSocket(int listeningPort, std::vector<int> remoteIp, int remotePort);
-	std::unique_ptr<asio::ip::udp::socket> getUdpBroadcastSocket();
+	std::unique_ptr<asio::ip::udp::socket> getUdpBroadcastSocket(std::vector<uint8_t> networkIp, std::vector<uint8_t> networkMask, uint16_t remotePort);
 }

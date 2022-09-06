@@ -19,12 +19,14 @@ namespace Motion {
 
 
 	void Curve::addPoint(std::shared_ptr<ControlPoint> point) {
+		idCounter++;
+		point->id = idCounter;
 		controlPoints.push_back(point);
 		refresh();
 	}
 
 	void Curve::removePoint(std::shared_ptr<ControlPoint> point) {
-		for (int i = 0; i < controlPoints.size(); i++) {
+		for (int i = 0; i < controlPoints.size() - 1; i++) {
 			if (controlPoints[i] == point) {
 				controlPoints.erase(controlPoints.begin() + i);
 				break;

@@ -311,9 +311,7 @@ void AnimationKey::drawCurveControls(){
 		if(ImPlot::DragLineY(curveName, &targetValues[i], true, Colors::gray, 4.0)) edited = true;
 	}
 	
-	if(edited){
-		validate();
-	}
+	if(edited) validate();
 }
 
 
@@ -336,7 +334,10 @@ void Animation::drawCurves(){
 	for (int i = 0; i < curveCount; i++) {
 		auto& curve = curves[i];
 		
-		if(curve.getPoints().size() < 2) return;
+		if(!curve->b_visibleInEditor) continue;
+		if(curve->getPoints().size() < 2) continue;
+		
+		bool b_selected = getManoeuvre()->isCurveSelectedInEditor(curve);
 		
 		//TODO: TEMPORARY CURVE NAME ASSIGNEMENT
 		const char* curveName;
@@ -347,7 +348,7 @@ void Animation::drawCurves(){
 			else curveName = std::string(std::string(getAnimatable()->getName()) + ".z").c_str();
 		}
 		
-		auto startPoint = curve.getStart();
+		auto startPoint = curve->getStart();
 		if (startPoint->time > startTime) {
 			std::vector<glm::vec2> headerPoints;
 			headerPoints.push_back(glm::vec2(startTime, startPoint->position));
@@ -356,11 +357,13 @@ void Animation::drawCurves(){
 		}
 		
 		
-		for (auto& interpolation : curve.getInterpolations()) {
+		for (auto& interpolation : curve->getInterpolations()) {
 			if (interpolation->b_valid) {
 				std::vector<Motion::Point>& points = interpolation->displayPoints;
+				if(b_selected) ImPlot::SetNextLineStyle(ImColor(Colors::white), ImGui::GetTextLineHeight() * .15f);
 				ImPlot::PlotLine(curveName, &points.front().time, &points.front().position, points.size(), 0, sizeof(Motion::Point));
 				std::vector<Motion::Point>& inflectionPoints = interpolation->displayInflectionPoints;
+				ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross);
 				if(!inflectionPoints.empty())
 					ImPlot::PlotScatter("##inflectionPoints", &inflectionPoints.front().time, &inflectionPoints.front().position, inflectionPoints.size(), 0, sizeof(Motion::Point));
 			}
@@ -379,7 +382,7 @@ void Animation::drawCurves(){
 			}
 		}
 		
-		auto endPoint = curve.getEnd();
+		auto endPoint = curve->getEnd();
 		if (endPoint->time < endTime) {
 			std::vector<glm::vec2> trailerPoints;
 			trailerPoints.push_back(glm::vec2(endPoint->time, endPoint->position));
@@ -391,80 +394,54 @@ void Animation::drawCurves(){
 
 void SequenceAnimation::drawCurveControls(){
 	bool edited = false;
-	
-	static float controlPointLarge = ImGui::GetTextLineHeight() * 0.5;
-	static float controlPointMedium = ImGui::GetTextLineHeight() * 0.3;
 
 	auto& curves = getCurves();
 	int curveCount = curves.size();
 		
 	for (int c = 0; c < curveCount; c++) {
-
 		auto& curve = curves[c];
-		auto& controlPoints = curve.getPoints();
+		if(!curve->b_visibleInEditor) continue;
+		auto& controlPoints = curve->getPoints();
 		int controlPointCount = controlPoints.size();
 		
+		ImGui::PushID(c);
+		
 		for (int i = 0; i < controlPointCount; i++) {
-			auto& controlPoint = controlPoints[i];
-			bool controlPointEdited = false;
 			
+			//don't allow editing of the first and last points in the curve editor
+			if(i == 0 || i == controlPointCount - 1) continue;
 			//don't draw the first control point of a step interpolation sequence, since we can't edit it anyway
 			if(i == 0 && interpolationType->value == InterpolationType::STEP) continue;
-
-			ImGui::BeginDisabled();
-			if (controlPoint->b_valid) controlPointEdited = ImPlot::DragPoint("", &controlPoint->time, &controlPoint->position, true, Colors::white, controlPointMedium);
-			else controlPointEdited = ImPlot::DragPoint("", &controlPoint->time, &controlPoint->position, true, Colors::red, controlPointLarge);
-			ImGui::EndDisabled();
+			
+			auto& controlPoint = controlPoints[i];
+			ImGui::PushID(controlPoint->id);
+			
+			ImColor controlPointColor;
+			if(!controlPoint->b_valid && controlPoint->b_selected) controlPointColor = ImColor(Colors::orange);
+			else if(!controlPoint->b_valid) controlPointColor = ImColor(Colors::red);
+			else if(controlPoint->b_selected) controlPointColor = ImColor(Colors::yellow);
+			else controlPointColor = ImColor(Colors::white);
+			float controlPointSize = ImGui::GetTextLineHeight() * .25f;
+			
+			bool controlPointEdited = ImPlot::DragPoint("", &controlPoint->time, &controlPoint->position, true, controlPointColor, controlPointSize);
+			if(controlPointEdited) edited = true;
+			
+			//limit the movement of control points to the range of the first and last points
+			if(controlPointEdited){
+				if(controlPoint->time >= curve->getEnd()->time) controlPoint->time = curve->getEnd()->time - 0.001;
+				if(controlPoint->time <= curve->getStart()->time) controlPoint->time = curve->getStart()->time + 0.001;
+			}
+			
+			if(ImGui::IsItemClicked()) getManoeuvre()->selectControlPoint(controlPoint);
 
 			if (!controlPoint->b_valid) {
 				ImPlot::Annotate(controlPoint->time, controlPoint->position, glm::vec2(30, -30), glm::vec4(0.5, 0.0, 0.0, 0.5), "%s", Enumerator::getDisplayString(controlPoint->validationError));
 			}
-
 			
-			/*
-			if (!pointIsChained && (controlPointEdited || ImGui::IsItemHovered())) {
-				double lowLimit, highLimit;
-				if (parameter->machine->getCurveLimitsAtTime(parameter, curves, controlPoint->time, curve, lowLimit, highLimit)) {
-
-					//draw manoeuvre bounds
-					glm::vec2 plotBoundsMin(ImPlot::GetPlotLimits().X.Min, ImPlot::GetPlotLimits().Y.Max);
-					glm::vec2 plotBoundsMax(ImPlot::GetPlotLimits().X.Max, ImPlot::GetPlotLimits().Y.Min);
-
-					glm::vec2 lowLimitPoints[2] = {
-						glm::vec2(plotBoundsMin.x, lowLimit),
-						glm::vec2(plotBoundsMax.x, lowLimit)
-					};
-					glm::vec2 highLimitPoints[2] = {
-						glm::vec2(plotBoundsMin.x, highLimit),
-						glm::vec2(plotBoundsMax.x, highLimit)
-					};
-
-					ImPlot::SetNextFillStyle(Colors::black, 0.4);
-					ImPlot::PlotShaded("##limitLowShaded", &lowLimitPoints[0].x, &lowLimitPoints[0].y, 2, -INFINITY, 0, sizeof(glm::vec2));
-					ImPlot::SetNextFillStyle(Colors::black, 0.4);
-					ImPlot::PlotShaded("##limitHighShaded", &highLimitPoints[0].x, &highLimitPoints[0].y, 2, INFINITY, 0, sizeof(glm::vec2));
-					ImPlot::SetNextLineStyle(Colors::black);
-			 
-					ImPlot::PlotHLines("##positionLimits", &lowLimit, 1, 0, sizeof(double));
-					ImPlot::SetNextLineStyle(Colors::black);
-					ImPlot::PlotHLines("##positionLimits", &highLimit, 1, 0, sizeof(double));
-
-					if (controlPointEdited) {
-						if (controlPoint->position < lowLimit) controlPoint->position = lowLimit;
-						else if (controlPoint->position > highLimit) controlPoint->position = highLimit;
-					}
-				}
-			}
-			 */
-
-			/*
-			if (controlPointEdited) {
-				refreshAfterCurveEdit();
-				edited = true;
-			}
-			 */
+			ImGui::PopID();
 		}
 
+		ImGui::PopID();
 	}
 	 
 	if(edited) updateAfterCurveEdit();

@@ -8,6 +8,11 @@ AnimationKey::AnimationKey(std::shared_ptr<Animatable> animatable) : Animation(a
 	target->setSaveString("Target");
 	if(animatable->isNumber()) setUnit(animatable->toNumber()->getUnit());
 	target->setEditCallback([this](std::shared_ptr<Parameter> thisParameter){ this->validate(); });
+	
+	getCurves().resize(animatable->getCurveCount());
+	int curveCount = animatable->getCurveCount();
+	auto& curveNames = animatable->getCurveNames();
+	for(int i = 0; i < curveCount; i++) getCurves()[i] = std::make_shared<Motion::Curve>(curveNames[i]);
 }
 
 std::shared_ptr<AnimationKey> AnimationKey::copy(){

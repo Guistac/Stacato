@@ -7,15 +7,24 @@
 #include "Animation/Manoeuvre.h"
 
 std::shared_ptr<Animation> Animation::create(std::shared_ptr<Animatable> animatable, ManoeuvreType manoeuvreType){
-	if(animatable->isComposite()) return std::make_shared<AnimationComposite>(animatable->toComposite(), manoeuvreType);
-	switch(manoeuvreType){
-		case ManoeuvreType::KEY:
-			return std::make_shared<AnimationKey>(animatable);
-		case ManoeuvreType::TARGET:
-			return std::make_shared<TargetAnimation>(animatable);
-		case ManoeuvreType::SEQUENCE:
-			return std::make_shared<SequenceAnimation>(animatable);
+	std::shared_ptr<Animation> newAnimation;
+	if(animatable->isComposite()) {
+		newAnimation = std::make_shared<AnimationComposite>(animatable->toComposite(), manoeuvreType);
 	}
+	else{
+		switch(manoeuvreType){
+			case ManoeuvreType::KEY:
+				newAnimation = std::make_shared<AnimationKey>(animatable);
+				break;
+			case ManoeuvreType::TARGET:
+				newAnimation = std::make_shared<TargetAnimation>(animatable);
+				break;
+			case ManoeuvreType::SEQUENCE:
+				newAnimation = std::make_shared<SequenceAnimation>(animatable);
+				break;
+		}
+	}
+	return newAnimation;
 }
 
 std::shared_ptr<Animation> Animation::copy(){
@@ -311,7 +320,7 @@ void Animation::stop(){
 void Animation::updateDuration(){
 	double longestCurveDuration = 0.0;
 	for(auto& curve : getCurves()) {
-		longestCurveDuration = std::max(longestCurveDuration, curve.getLength());
+		longestCurveDuration = std::max(longestCurveDuration, curve->getLength());
 	}
 	duration_seconds = longestCurveDuration;
 }

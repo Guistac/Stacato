@@ -17,6 +17,10 @@ class AnimatableBoolean;
 class AnimationValue;
 class AnimationConstraint;
 
+namespace Motion{
+struct ControlPoint;
+};
+
 class Animatable : public std::enable_shared_from_this<Animatable>{
 public:
 	
@@ -60,6 +64,9 @@ public:
 	void subscribeAnimation(std::shared_ptr<Animation> animation);
 	void unsubscribeAnimation(std::shared_ptr<Animation> animation);
 	std::vector<std::shared_ptr<Animation>>& getAnimations(){ return animations; }
+	
+	virtual std::vector<std::string>& getCurveNames() = 0;
+	virtual void fillControlPointDefaults(std::shared_ptr<Motion::ControlPoint> controlpoint) = 0;
 	
 	void deleteAllAnimations();
 	

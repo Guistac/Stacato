@@ -77,6 +77,16 @@ private:
 	std::shared_ptr<NumberParameter<uint8_t>> ipAddress3 = NumberParameter<uint8_t>::make(10, "PSN IP Octet 3", "IpOctet3");
 	std::shared_ptr<NumberParameter<uint16_t>> portNumber = NumberParameter<uint16_t>::make(56565, "PSN Port Number", "Port");
 	
+	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress0 = NumberParameter<uint8_t>::make(236, "PSN Network IP Octet 0", "NetworkIpOctet0");
+	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress1 = NumberParameter<uint8_t>::make(10, "PSN Network IP Octet 1", "NetworkIpOctet1");
+	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress2 = NumberParameter<uint8_t>::make(10, "PSN Network IP Octet 2", "NetworkIpOctet2");
+	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress3 = NumberParameter<uint8_t>::make(10, "PSN Network IP Octet 3", "NetworkIpOctet3");
+	
+	std::shared_ptr<NumberParameter<uint8_t>> networkMask0 = NumberParameter<uint8_t>::make(236, "PSN Network Mask Octet 0", "NetworkMaskOctet0");
+	std::shared_ptr<NumberParameter<uint8_t>> networkMask1 = NumberParameter<uint8_t>::make(10, "PSN Network Mask Octet 1", "NetworkMaskOctet1");
+	std::shared_ptr<NumberParameter<uint8_t>> networkMask2 = NumberParameter<uint8_t>::make(10, "PSN Network Mask Octet 2", "NetworkMaskOctet2");
+	std::shared_ptr<NumberParameter<uint8_t>> networkMask3 = NumberParameter<uint8_t>::make(10, "PSN Network Mask Octet 3", "NetworkMaskOctet3");
+	
 	std::shared_ptr<LuaScript> script;
 	
 	bool b_addressIsMulticast = false;

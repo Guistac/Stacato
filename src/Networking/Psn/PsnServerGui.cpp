@@ -34,7 +34,7 @@ void PsnServer::networkSettingsGui(){
 	serverName->gui();
 	
 	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Multicast IP Address & Port");
+	ImGui::Text("Destination IP Address & Port");
 	ImGui::PopFont();
 	
 	float octetFieldWidth = ImGui::CalcTextSize("000").x + ImGui::GetStyle().FramePadding.x * 2.f;
@@ -71,6 +71,55 @@ void PsnServer::networkSettingsGui(){
 		ImGui::TextWrapped("Address is not multicast. (Most significant bit should be between 224 and 239)");
 		ImGui::PopStyleColor();
 	}
+	
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Network");
+	ImGui::PopFont();
+	
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .05f));
+	ImGui::SetNextItemWidth(octetFieldWidth);
+	networkIpAddress0->gui();
+	ImGui::SameLine();
+	ImGui::Text(".");
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(octetFieldWidth);
+	networkIpAddress1->gui();
+	ImGui::SameLine();
+	ImGui::Text(".");
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(octetFieldWidth);
+	networkIpAddress2->gui();
+	ImGui::SameLine();
+	ImGui::Text(".");
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(octetFieldWidth);
+	networkIpAddress3->gui();
+	ImGui::PopStyleVar();
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Network Mask");
+	ImGui::PopFont();
+	
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .05f));
+	ImGui::SetNextItemWidth(octetFieldWidth);
+	networkMask0->gui();
+	ImGui::SameLine();
+	ImGui::Text(".");
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(octetFieldWidth);
+	networkMask1->gui();
+	ImGui::SameLine();
+	ImGui::Text(".");
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(octetFieldWidth);
+	networkMask2->gui();
+	ImGui::SameLine();
+	ImGui::Text(".");
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(octetFieldWidth);
+	networkMask3->gui();
+	ImGui::PopStyleVar();
 	
 	
 	ImGui::PushFont(Fonts::sansBold15);

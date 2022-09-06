@@ -861,14 +861,14 @@ void scrollingText(const char* ID, const char* text, float width, bool lock, flo
 }
 
 
-float verticalSeparator(float width, bool drawLine){
+float verticalSeparator(float width, bool drawLine, bool allowMoving){
 	float height = ImGui::GetContentRegionAvail().y;
 	if(height <= 0.0) return;
 	float output = 0.0;
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
 	ImGui::SameLine();
 	ImGui::InvisibleButton("##Divider", ImVec2(width, height));
-	if(ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
+	if(allowMoving && ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
 		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
 		output = ImGui::GetIO().MouseDelta.x;
 	}
