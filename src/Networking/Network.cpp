@@ -76,9 +76,6 @@ std::unique_ptr<asio::ip::udp::socket> getUdpMulticastSocket(std::vector<int> lo
         auto socket = std::make_unique<asio::ip::udp::socket>(io_context, localEndpoint);
         socket->async_connect(remoteEndpoint, [](asio::error_code){});
         
-        //asio::ip::multicast::outbound_interface interface(asio::ip::make_address_v4(local_u32));
-        //socket->set_option(interface);
-        
         return socket;
     }catch(std::exception e){
         return nullptr;

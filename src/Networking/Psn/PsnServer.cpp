@@ -95,14 +95,13 @@ void PsnServer::initialize(){
 }
 
 void PsnServer::connect(){
-    /*
     udpSocket = Network::getUdpMulticastSocket({networkIpAddress0->value, networkIpAddress1->value, networkIpAddress2->value, networkIpAddress3->value},
                                                {ipAddress0->value, ipAddress1->value, ipAddress2->value, ipAddress3->value},
                                                portNumber->value);
 	psnEncoder = std::make_shared<psn::psn_encoder>(serverName->value);
 	if(udpSocket != nullptr && startServer()) b_online = true;
 	else b_online = false;
-     */
+     
 }
 
 void PsnServer::disconnect(){
@@ -173,12 +172,6 @@ bool PsnServer::startServer(){
                 size_t size = packet.length();
                 
                 try {
-                    /*
-                    udpSocket->async_send_to(asio::buffer(buffer, size), endpoint, [](asio::error_code error, size_t byteCount){
-                        if (error) Logger::debug("Failed to send PSN Info Message: {}", error.message());
-                    });
-                     */
-                    
                     udpSocket->async_send(asio::buffer(buffer, size), [](asio::error_code error, size_t byteCount) {
                         if (error) Logger::debug("Failed to send PSN Info Message: {}", error.message());
                     });
@@ -222,15 +215,9 @@ bool PsnServer::startServer(){
                 size_t size = packet.length();
                 
                 try {
-                    /*
-                    udpSocket->async_send_to(asio::buffer(buffer, size), endpoint, [](asio::error_code error, size_t byteCount){
-                        if (error) Logger::debug("Failed to send PSN Data Message: {}", error.message());
-                    });
-                    */
                     udpSocket->async_send(asio::buffer(buffer, size), [](asio::error_code error, size_t byteCount) {
                         if (error) Logger::debug("Failed to send PSN Data Message: {}", error.message());
                     });
-                     
                 }
                 catch (std::exception e) {
                     Logger::error("Failed to start async_send: {}", e.what());
