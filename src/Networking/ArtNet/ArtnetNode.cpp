@@ -83,26 +83,12 @@ void ArtNetNode::initialize(){
 
 void ArtNetNode::connect(){
 	//we are sending artnet packets over udp (broadcast or not)
-	if(broadcast->value) {
-		udpSocket = Network::getUdpBroadcastSocket({
-			networkIpAddress0->value,
-			networkIpAddress1->value,
-			networkIpAddress2->value,
-			networkIpAddress3->value
-		}, {
-			networkMask0->value,
-			networkMask1->value,
-			networkMask2->value,
-			networkMask3->value
-		},
-												   portNumber->value);
-	}
+	if(broadcast->value) udpSocket = Network::getUdpBroadcastSocket();
 	else udpSocket = Network::getUdpSocket(0, {ipAddress0->value, ipAddress1->value, ipAddress2->value, ipAddress3->value}, portNumber->value);
-	if(udpSocket == nullptr){
-		b_running = false;
-		return;
-	}
-	start();
+	if(udpSocket){
+		b_running = true;
+        start();
+    }else b_running = false;
 }
 
 
@@ -116,7 +102,13 @@ void ArtNetNode::start(){
 		script->compileAndRun();
 		script->callFunction("setup");
 		
-		const asio::ip::udp::endpoint broadcastEndpoint(asio::ip::address_v4::broadcast(), portNumber->value);
+        uint32_t address_u32 = networkIpAddress0->value << 24 | networkIpAddress1->value << 16 | networkIpAddress2->value << 8 | networkIpAddress3->value;
+        uint32_t mask_u32 = networkMask0->value << 24 | networkMask1->value << 16 | networkMask2->value << 8 | networkMask3->value;
+        asio::ip::address_v4 address = asio::ip::make_address_v4(address_u32);
+        asio::ip::address_v4 mask = asio::ip::make_address_v4(mask_u32);
+        asio::ip::network_v4 network(address, mask);
+        asio::ip::udp::endpoint broadcastEndpoint(network.broadcast(), portNumber->value);
+
 		bool b_broadcast = broadcast->value;
 		
 		while(b_running){
@@ -199,6 +191,17 @@ bool ArtNetNode::save(tinyxml2::XMLElement* xml){
 	broadcast->save(settingsXML);
 	portNumber->save(settingsXML);
 	sendingFrequency->save(settingsXML);
+    
+    networkIpAddress0->save(settingsXML);
+    networkIpAddress1->save(settingsXML);
+    networkIpAddress2->save(settingsXML);
+    networkIpAddress3->save(settingsXML);
+    networkMask0->save(settingsXML);
+    networkMask1->save(settingsXML);
+    networkMask2->save(settingsXML);
+    networkMask3->save(settingsXML);
+    
+    
 	
 	XMLElement* scriptXML = xml->InsertNewChildElement("Script");
 	scriptXML->SetText(script->getScriptText().c_str());
@@ -220,6 +223,14 @@ bool ArtNetNode::load(tinyxml2::XMLElement* xml){
 	if(!portNumber->load(settingsXML)) return false;
 	if(!broadcast->load(settingsXML)) return false;
 	if(!sendingFrequency->load(settingsXML)) return false;
+    if(!networkIpAddress0->load(settingsXML)) return false;
+    if(!networkIpAddress1->load(settingsXML)) return false;
+    if(!networkIpAddress2->load(settingsXML)) return false;
+    if(!networkIpAddress3->load(settingsXML)) return false;
+    if(!networkMask0->load(settingsXML)) return false;
+    if(!networkMask1->load(settingsXML)) return false;
+    if(!networkMask2->load(settingsXML)) return false;
+    if(!networkMask3->load(settingsXML)) return false;
 	
 	XMLElement* scriptXML;
 	if(!loadXMLElement("Script", xml, scriptXML)) return false;

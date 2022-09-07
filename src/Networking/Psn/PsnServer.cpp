@@ -95,10 +95,13 @@ void PsnServer::initialize(){
 }
 
 void PsnServer::connect(){
-	udpSocket = Network::getUdpSocket(0, {ipAddress0->value, ipAddress1->value, ipAddress2->value, ipAddress3->value}, portNumber->value);
+    udpSocket = Network::getUdpMulticastSocket({networkIpAddress0->value, networkIpAddress1->value, networkIpAddress2->value, networkIpAddress3->value},
+                                               {ipAddress0->value, ipAddress1->value, ipAddress2->value, ipAddress3->value},
+                                               portNumber->value);
 	psnEncoder = std::make_shared<psn::psn_encoder>(serverName->value);
 	if(udpSocket != nullptr && startServer()) b_online = true;
 	else b_online = false;
+     
 }
 
 void PsnServer::disconnect(){
@@ -142,22 +145,86 @@ bool PsnServer::startServer(){
 	serverEnvironnementStartTimeMicroseconds = Environnement::getTime_nanoseconds() / 1000;
 	serverProgramStartTimeMicroseconds = Timing::getProgramTime_nanoseconds() / 1000;
 	
+    
+    uint32_t address_u32 = ipAddress0->value << 24 | ipAddress1->value << 16 | ipAddress2->value << 8 | ipAddress3->value;
+    asio::ip::address_v4 address = asio::ip::make_address_v4(address_u32);
+    asio::ip::udp::endpoint endpoint(address, portNumber->value);
+    
+    
 	b_serverRunning = true;
-	std::thread infoSenderThread([this](){
+	std::thread infoSenderThread([&, this](){
 		pthread_setname_np("PSN Info Sender Thread");
 		uint32_t sleepTimeMicroseconds = 1000000.0 / infoSendingFrequency->value;
 		while(b_serverRunning){
-			sendInfo();
+			
+            
+            
+            long long packetTimestamp = (Timing::getProgramTime_nanoseconds() / 1000) - serverProgramStartTimeMicroseconds;
+            
+            trackerMutex.lock();
+            std::list<std::string> info_packets = psnEncoder->encode_info(trackers, packetTimestamp);
+            trackerMutex.unlock();
+            
+            for(auto it = info_packets.begin(); it != info_packets.end(); it++){
+                auto packet = *it;
+                
+                uint8_t* buffer = (uint8_t*)packet.c_str();
+                size_t size = packet.length();
+                
+                try {
+                    udpSocket->async_send(asio::buffer(buffer, size), [](asio::error_code error, size_t byteCount) {
+                        if (error) Logger::debug("Failed to send PSN Info Message: {}", error.message());
+                    });
+                     
+                }
+                catch (std::exception e) {
+                    Logger::error("Failed to start async_send: {}", e.what());
+                }
+            }
+            
+            
+            
 			osal_usleep(sleepTimeMicroseconds);
 		}
 	});
 	infoSenderThread.detach();
-	std::thread dataSenderThread([this](){
+    
+    
+	std::thread dataSenderThread([&, this](){
 		pthread_setname_np("PSN Data Sender Thread");
 		uint32_t sleepTimeMicroseconds = 1000000.0 / dataSendingFrequency->value;
 		while(b_serverRunning){
 			script->callFunction("update");
-			sendData();
+			
+            
+            
+            long long trackerTimestamp = (Environnement::getTime_nanoseconds() / 1000) - serverEnvironnementStartTimeMicroseconds;
+            long long packetTimestamp = (Timing::getProgramTime_nanoseconds() / 1000) - serverProgramStartTimeMicroseconds;
+            
+            script->callFunction("update");
+            for(uint16_t i = 0; i < trackerCount; i++) trackers[i].set_timestamp(trackerTimestamp);
+            
+            trackerMutex.lock();
+            std::list<std::string> data_packets = psnEncoder->encode_data(trackers, packetTimestamp);
+            trackerMutex.unlock();
+            
+            for(auto it = data_packets.begin(); it != data_packets.end(); it++){
+                auto packet = *it;
+                
+                uint8_t* buffer = (uint8_t*)packet.c_str();
+                size_t size = packet.length();
+                
+                try {
+                    udpSocket->async_send(asio::buffer(buffer, size), [](asio::error_code error, size_t byteCount) {
+                        if (error) Logger::debug("Failed to send PSN Data Message: {}", error.message());
+                    });
+                }
+                catch (std::exception e) {
+                    Logger::error("Failed to start async_send: {}", e.what());
+                }
+            }
+            
+            
 			osal_usleep(sleepTimeMicroseconds);
 		}
 	});
@@ -281,6 +348,14 @@ bool PsnServer::load(tinyxml2::XMLElement* xml){
 	if(!ipAddress2->load(networkXML)) return false;
 	if(!ipAddress3->load(networkXML)) return false;
 	if(!portNumber->load(networkXML)) return false;
+    if(!networkIpAddress0->load(networkXML)) return false;
+    if(!networkIpAddress1->load(networkXML)) return false;
+    if(!networkIpAddress2->load(networkXML)) return false;
+    if(!networkIpAddress3->load(networkXML)) return false;
+    if(!networkMask0->load(networkXML)) return false;
+    if(!networkMask1->load(networkXML)) return false;
+    if(!networkMask2->load(networkXML)) return false;
+    if(!networkMask3->load(networkXML)) return false;
 	if(!infoSendingFrequency->load(networkXML)) return false;
 	if(!dataSendingFrequency->load(networkXML)) return false;
 	ipAddress0->onEdit();
