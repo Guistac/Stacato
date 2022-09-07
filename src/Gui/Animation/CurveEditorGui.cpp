@@ -78,6 +78,7 @@ void Manoeuvre::curveEditor(){
 		if(pointFieldEditor("In-Acceleration", &controlPoint->inAcceleration)) b_pointEdited = true;
 		if(pointFieldEditor("Out-Acceleration", &controlPoint->outAcceleration)) b_pointEdited = true;
 		if(b_pointEdited) {
+            //check for nullptr
 			if(getSelectedEditorAnimation()->getType() == ManoeuvreType::SEQUENCE){
 				getSelectedEditorAnimation()->toSequence()->updateAfterCurveEdit();
 			}

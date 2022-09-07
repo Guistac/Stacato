@@ -140,6 +140,7 @@ std::shared_ptr<SequenceAnimation> SequenceAnimation::load(tinyxml2::XMLElement*
 	
 	XMLElement* curveXML = curvesXML->FirstChildElement("Curve");
 	while(curveXML){
+        
 		const char* curveName;
 		if(curveXML->QueryStringAttribute("Name", &curveName) != XML_SUCCESS) {
 			Logger::warn("could not load curve name attribute");

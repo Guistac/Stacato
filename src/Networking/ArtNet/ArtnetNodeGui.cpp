@@ -32,7 +32,58 @@ void ArtNetNode::networkSettingsGui(){
 	ImGui::SameLine();
 	ImGui::Text("Broadcast");
 	
+    float octetFieldWidth = ImGui::CalcTextSize("000").x + ImGui::GetStyle().FramePadding.x * 2.f;
+    
 	if(broadcast->value){
+        
+        ImGui::PushFont(Fonts::sansBold15);
+        ImGui::Text("Network");
+        ImGui::PopFont();
+        
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .05f));
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkIpAddress0->gui();
+        ImGui::SameLine();
+        ImGui::Text(".");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkIpAddress1->gui();
+        ImGui::SameLine();
+        ImGui::Text(".");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkIpAddress2->gui();
+        ImGui::SameLine();
+        ImGui::Text(".");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkIpAddress3->gui();
+        ImGui::PopStyleVar();
+        
+        ImGui::PushFont(Fonts::sansBold15);
+        ImGui::Text("Network Mask");
+        ImGui::PopFont();
+        
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .05f));
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkMask0->gui();
+        ImGui::SameLine();
+        ImGui::Text(".");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkMask1->gui();
+        ImGui::SameLine();
+        ImGui::Text(".");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkMask2->gui();
+        ImGui::SameLine();
+        ImGui::Text(".");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkMask3->gui();
+        ImGui::PopStyleVar();
+        
 		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Destination Port");
 		ImGui::PopFont();
@@ -43,7 +94,6 @@ void ArtNetNode::networkSettingsGui(){
 		ImGui::Text("Destination IP Address & Port");
 		ImGui::PopFont();
 		
-		float octetFieldWidth = ImGui::CalcTextSize("000").x + ImGui::GetStyle().FramePadding.x * 2.f;
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .05f));
 		ImGui::SetNextItemWidth(octetFieldWidth);
 		ipAddress0->gui();
@@ -68,54 +118,6 @@ void ArtNetNode::networkSettingsGui(){
 		ImGui::SetNextItemWidth(ImGui::CalcTextSize("00000").x + ImGui::GetStyle().FramePadding.x * 2.f);
 		ImGui::PopStyleVar();
 		portNumber->gui();
-		
-		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("Network");
-		ImGui::PopFont();
-		
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .05f));
-		ImGui::SetNextItemWidth(octetFieldWidth);
-		networkIpAddress0->gui();
-		ImGui::SameLine();
-		ImGui::Text(".");
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(octetFieldWidth);
-		networkIpAddress1->gui();
-		ImGui::SameLine();
-		ImGui::Text(".");
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(octetFieldWidth);
-		networkIpAddress2->gui();
-		ImGui::SameLine();
-		ImGui::Text(".");
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(octetFieldWidth);
-		networkIpAddress3->gui();
-		ImGui::PopStyleVar();
-		
-		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("Network Mask");
-		ImGui::PopFont();
-		
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .05f));
-		ImGui::SetNextItemWidth(octetFieldWidth);
-		networkMask0->gui();
-		ImGui::SameLine();
-		ImGui::Text(".");
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(octetFieldWidth);
-		networkMask1->gui();
-		ImGui::SameLine();
-		ImGui::Text(".");
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(octetFieldWidth);
-		networkMask2->gui();
-		ImGui::SameLine();
-		ImGui::Text(".");
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(octetFieldWidth);
-		networkMask3->gui();
-		ImGui::PopStyleVar();
 	}
 	
 	if(ImGui::Button("Reset default ArtNet port")) resetToDefaultArtNetPort();
