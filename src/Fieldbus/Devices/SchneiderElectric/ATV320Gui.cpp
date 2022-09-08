@@ -79,6 +79,8 @@ void ATV320::settingsGui(){
 	decelerationRampTime->gui();
 	ImGui::Text("Max Velocity");
 	maxVelocityRPM->gui();
+    ImGui::Text("Low Speed");
+    lowSpeedHertz->gui();
 	
 	ImGui::TextWrapped("Max Velocity is %.1f rev/s", actuator->velocityLimit);
 	ImGui::TextWrapped("Max Acceleration is %.1f rev/s\xc2\xb2", actuator->accelerationLimit);

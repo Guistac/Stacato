@@ -1,43 +1,43 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.94155693" OffsetX="1262.3379" OffsetY="-1025.1675" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Flip G-J2" UniqueID="9" PositionX="-650" PositionY="1040" SizeX="136.5" SizeY="227.56958"/>
-        <Widget Name="Flip G-J1" UniqueID="10" PositionX="-510" PositionY="1040" SizeX="136.5" SizeY="227.56958"/>
-        <Widget Name="Flip G-Axe" UniqueID="11" PositionX="-370" PositionY="1040" SizeX="136.5" SizeY="227.56958"/>
-        <Widget Name="Flip G-C1" UniqueID="13" PositionX="-230" PositionY="1040" SizeX="136.5" SizeY="227.56958"/>
-        <Widget Name="Flip G-C2" UniqueID="14" PositionX="-90" PositionY="1040" SizeX="136.49994" SizeY="227.56958"/>
-        <Widget Name="Flip E-J3" UniqueID="16" PositionX="-790" PositionY="1275" SizeX="136.50003" SizeY="228.3493"/>
-        <Widget Name="Flip E-J2" UniqueID="17" PositionX="-650" PositionY="1275" SizeX="136.5" SizeY="228.3493"/>
-        <Widget Name="Flip E-C2" UniqueID="21" PositionX="-90" PositionY="1275" SizeX="136.49994" SizeY="228.3493"/>
-        <Widget Name="Flip E-C3" UniqueID="22" PositionX="50" PositionY="1275" SizeX="136.50006" SizeY="228.3493"/>
-        <Widget Name="Flip C-J3" UniqueID="23" PositionX="-790" PositionY="1510" SizeX="136.50003" SizeY="228.06697"/>
-        <Widget Name="Flip C-J2" UniqueID="24" PositionX="-650" PositionY="1510" SizeX="136.5" SizeY="228.06697"/>
-        <Widget Name="Flip C-C2" UniqueID="25" PositionX="-90" PositionY="1510" SizeX="136.49994" SizeY="228.06697"/>
-        <Widget Name="Flip C-C3" UniqueID="26" PositionX="50" PositionY="1510" SizeX="136.50006" SizeY="228.06697"/>
-        <Widget Name="Flip A-J3" UniqueID="27" PositionX="-790" PositionY="1745" SizeX="136.50003" SizeY="227.78453"/>
-        <Widget Name="Flip A-J2" UniqueID="28" PositionX="-650" PositionY="1745" SizeX="136.5" SizeY="227.78453"/>
-        <Widget Name="Flip A-J1" UniqueID="29" PositionX="-510" PositionY="1745" SizeX="136.5" SizeY="227.78453"/>
-        <Widget Name="Flip A-Axe" UniqueID="30" PositionX="-370" PositionY="1745" SizeX="136.5" SizeY="227.78453"/>
-        <Widget Name="Flip A-C1" UniqueID="31" PositionX="-230" PositionY="1745" SizeX="136.5" SizeY="227.78453"/>
-        <Widget Name="Flip A-C2" UniqueID="32" PositionX="-90" PositionY="1745" SizeX="136.49994" SizeY="227.78453"/>
-        <Widget Name="Flip A-C3" UniqueID="33" PositionX="50" PositionY="1745" SizeX="136.50006" SizeY="227.78453"/>
-        <Widget Name="Lames Vidéo" UniqueID="44" PositionX="-1150" PositionY="1030" SizeX="354.56216" SizeY="236.50752"/>
-        <Widget Name="Periactes Milieu" UniqueID="39" PositionX="-1150" PositionY="1510" SizeX="354.56216" SizeY="236.56354"/>
-        <Widget Name="Periactes Face" UniqueID="40" PositionX="-1150" PositionY="1750" SizeX="354.56216" SizeY="236.59148"/>
-        <Widget Name="Sécurité" UniqueID="52" PositionX="500" PositionY="1035" SizeX="157.49994" SizeY="110.43147"/>
-        <Widget Name="Homme Mort 1" UniqueID="4" PositionX="490" PositionY="1265" SizeX="178.49995" SizeY="109.83871"/>
-        <Widget Name="Homme Mort 2" UniqueID="5" PositionX="490" PositionY="1380" SizeX="178.49995" SizeY="110.60444"/>
-        <Widget Name="Homme Mort 3" UniqueID="6" PositionX="490" PositionY="1495" SizeX="178.49995" SizeY="110.30806"/>
-        <Widget Name="Homme Mort 4" UniqueID="7" PositionX="490" PositionY="1610" SizeX="178.49995" SizeY="110.01169"/>
-        <Widget Name="Romaine" UniqueID="8" PositionX="474" PositionY="1750" SizeX="180.60011" SizeY="193.04659"/>
-        <Widget Name="Sécu Vol Jardin" UniqueID="54" PositionX="333" PositionY="1035" SizeX="157.49994" SizeY="110.43147"/>
-        <Widget Name="Sécu Vol Cour" UniqueID="53" PositionX="172" PositionY="1035" SizeX="157.50008" SizeY="110.43147"/>
-        <Widget Name="Cost Jardin" UniqueID="42" PositionX="195" PositionY="1560" SizeX="134.40002" SizeY="397.91556"/>
-        <Widget Name="Cost Cour" UniqueID="43" PositionX="333" PositionY="1560" SizeX="134.40002" SizeY="397.91556"/>
-        <Widget Name="Tournettes" UniqueID="41" PositionX="-506" PositionY="1292" SizeX="406.35004" SizeY="424.8255"/>
-        <Widget Name="Vol Cour" UniqueID="45" PositionX="333" PositionY="1153" SizeX="134.40002" SizeY="398.14249"/>
-        <Widget Name="Homme Mort 0" UniqueID="50" PositionX="490" PositionY="1150" SizeX="178.49995" SizeY="110.13508"/>
-        <Widget Name="Vol Jardin" UniqueID="46" PositionX="196" PositionY="1153" SizeX="134.40002" SizeY="398.14249"/>
-        <Widget Name="Periactes Lointain" UniqueID="38" PositionX="-1154" PositionY="1270" SizeX="354.56216" SizeY="236.53554"/>
+    <Dashboard Scale="0.9719941" OffsetX="1230.4104" OffsetY="-1025.3188" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Flip G-J2" UniqueID="9" PositionX="-650" PositionY="1040" SizeX="136.49998" SizeY="227.33984"/>
+        <Widget Name="Flip G-J1" UniqueID="10" PositionX="-510" PositionY="1040" SizeX="136.49998" SizeY="227.33984"/>
+        <Widget Name="Flip G-Axe" UniqueID="11" PositionX="-370" PositionY="1040" SizeX="136.49998" SizeY="227.33984"/>
+        <Widget Name="Flip G-C1" UniqueID="13" PositionX="-230" PositionY="1040" SizeX="136.50005" SizeY="227.33984"/>
+        <Widget Name="Flip G-C2" UniqueID="14" PositionX="-90" PositionY="1040" SizeX="136.50005" SizeY="227.33984"/>
+        <Widget Name="Flip E-J3" UniqueID="16" PositionX="-790" PositionY="1275" SizeX="136.50002" SizeY="226.90918"/>
+        <Widget Name="Flip E-J2" UniqueID="17" PositionX="-650" PositionY="1275" SizeX="136.49998" SizeY="226.90918"/>
+        <Widget Name="Flip E-C2" UniqueID="21" PositionX="-90" PositionY="1275" SizeX="136.50005" SizeY="226.90918"/>
+        <Widget Name="Flip E-C3" UniqueID="22" PositionX="50" PositionY="1275" SizeX="136.50005" SizeY="226.90918"/>
+        <Widget Name="Flip C-J3" UniqueID="23" PositionX="-790" PositionY="1510" SizeX="136.50002" SizeY="227.50729"/>
+        <Widget Name="Flip C-J2" UniqueID="24" PositionX="-650" PositionY="1510" SizeX="136.49998" SizeY="227.50729"/>
+        <Widget Name="Flip C-C2" UniqueID="25" PositionX="-90" PositionY="1510" SizeX="136.50005" SizeY="227.50729"/>
+        <Widget Name="Flip C-C3" UniqueID="26" PositionX="50" PositionY="1510" SizeX="136.50005" SizeY="227.50729"/>
+        <Widget Name="Flip A-J3" UniqueID="27" PositionX="-790" PositionY="1745" SizeX="136.50002" SizeY="227.07664"/>
+        <Widget Name="Flip A-J2" UniqueID="28" PositionX="-650" PositionY="1745" SizeX="136.49998" SizeY="227.07664"/>
+        <Widget Name="Flip A-J1" UniqueID="29" PositionX="-510" PositionY="1745" SizeX="136.49998" SizeY="227.07664"/>
+        <Widget Name="Flip A-Axe" UniqueID="30" PositionX="-370" PositionY="1745" SizeX="136.49998" SizeY="227.07664"/>
+        <Widget Name="Flip A-C1" UniqueID="31" PositionX="-230" PositionY="1745" SizeX="136.50005" SizeY="227.07664"/>
+        <Widget Name="Flip A-C2" UniqueID="32" PositionX="-90" PositionY="1745" SizeX="136.50005" SizeY="227.07664"/>
+        <Widget Name="Flip A-C3" UniqueID="33" PositionX="50" PositionY="1745" SizeX="136.50005" SizeY="227.07664"/>
+        <Widget Name="Lames Vidéo" UniqueID="44" PositionX="-1150" PositionY="1030" SizeX="354.65753" SizeY="236.31104"/>
+        <Widget Name="Périactes Milieu" UniqueID="39" PositionX="-1150" PositionY="1510" SizeX="354.65753" SizeY="236.7666"/>
+        <Widget Name="Périactes Face" UniqueID="40" PositionX="-1150" PositionY="1750" SizeX="354.65753" SizeY="236.48001"/>
+        <Widget Name="Sécurité" UniqueID="52" PositionX="500" PositionY="1035" SizeX="157.50005" SizeY="109.91114"/>
+        <Widget Name="Homme Mort 1" UniqueID="4" PositionX="490" PositionY="1265" SizeX="178.50003" SizeY="110.36517"/>
+        <Widget Name="Homme Mort 2" UniqueID="5" PositionX="490" PositionY="1380" SizeX="178.50003" SizeY="109.56342"/>
+        <Widget Name="Homme Mort 3" UniqueID="6" PositionX="490" PositionY="1495" SizeX="178.50003" SizeY="109.79049"/>
+        <Widget Name="Homme Mort 4" UniqueID="7" PositionX="490" PositionY="1610" SizeX="178.50003" SizeY="110.01749"/>
+        <Widget Name="Romaine" UniqueID="8" PositionX="474" PositionY="1750" SizeX="180.59998" SizeY="192.24106"/>
+        <Widget Name="Sécu Vol Jardin" UniqueID="54" PositionX="333" PositionY="1035" SizeX="157.50005" SizeY="109.91114"/>
+        <Widget Name="Sécu Vol Cour" UniqueID="53" PositionX="172" PositionY="1035" SizeX="157.50005" SizeY="109.91114"/>
+        <Widget Name="Cost Jardin" UniqueID="42" PositionX="195" PositionY="1560" SizeX="134.4001" SizeY="398.70209"/>
+        <Widget Name="Cost Cour" UniqueID="43" PositionX="333" PositionY="1560" SizeX="134.4001" SizeY="398.70209"/>
+        <Widget Name="Tournettes" UniqueID="41" PositionX="-506" PositionY="1292" SizeX="406.35004" SizeY="425.95987"/>
+        <Widget Name="Vol Cour" UniqueID="45" PositionX="333" PositionY="1153" SizeX="134.4001" SizeY="399.32098"/>
+        <Widget Name="Homme Mort 0" UniqueID="50" PositionX="490" PositionY="1150" SizeX="178.50003" SizeY="110.13816"/>
+        <Widget Name="Vol Jardin" UniqueID="46" PositionX="196" PositionY="1153" SizeX="134.4001" SizeY="399.32098"/>
+        <Widget Name="Périactes Lointain" UniqueID="38" PositionX="-1154" PositionY="1270" SizeX="354.65759" SizeY="237.05322"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -256,7 +256,7 @@
                 <NodeEditorPosition x="3723" y="1411"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="100"/>
-                    <KinematicLimits AccelerationRamp="3" DecelerationRamp="0.5" MaxVelocity="1400" InvertMotionDirection="false" SlowdownVelocity="5"/>
+                    <KinematicLimits AccelerationRamp="3" DecelerationRamp="1" MaxVelocity="1680" InvertMotionDirection="false" SlowdownVelocity="10" LowSpeed="10"/>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins>
@@ -1258,7 +1258,7 @@
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
-                    <EncoderSettings RangeShifted="true" PositionOffset_revolutions="-67.007820129394531"/>
+                    <EncoderSettings RangeShifted="true" PositionOffset_revolutions="505.325927734375"/>
                     <HoldingBrake HasHoldingBrake="false"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2271,7 +2271,7 @@
                     <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="2215" Visible="false"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Periactes Lointain" UniqueID="2223">
+            <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Périactes Lointain" UniqueID="2223">
                 <NodeEditorPosition x="1171" y="863"/>
                 <NodeSpecificData ShortName="M">
                     <GeneralSettings HorizontalControls="true" EnableAnticollision="true" AxisOrder="false" MinimumAxisBetweenAxes="0.40000000000000002" EnableSynchronousControl="false" Axis1isMaster="true" AllowUserHoming="true"/>
@@ -2292,7 +2292,7 @@
                     <OutputPin SaveString="Velocity 2" DisplayString="Velocity 2" DataType="Real" UniqueID="2230" Visible="false"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Periactes Milieu" UniqueID="2233">
+            <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Périactes Milieu" UniqueID="2233">
                 <NodeEditorPosition x="1176" y="1262"/>
                 <NodeSpecificData ShortName="M">
                     <GeneralSettings HorizontalControls="true" EnableAnticollision="true" AxisOrder="false" MinimumAxisBetweenAxes="0.40000000000000002" EnableSynchronousControl="false" Axis1isMaster="true" AllowUserHoming="true"/>
@@ -2313,7 +2313,7 @@
                     <OutputPin SaveString="Velocity 2" DisplayString="Velocity 2" DataType="Real" UniqueID="2240" Visible="false"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Periactes Face" UniqueID="2243">
+            <Node NodeType="Machine" ClassName="SharedAxisMachine" CustomName="Périactes Face" UniqueID="2243">
                 <NodeEditorPosition x="1171" y="1656"/>
                 <NodeSpecificData ShortName="M">
                     <GeneralSettings HorizontalControls="true" EnableAnticollision="true" AxisOrder="false" MinimumAxisBetweenAxes="0.40000000000000002" EnableSynchronousControl="false" Axis1isMaster="true" AllowUserHoming="true"/>
@@ -2424,15 +2424,15 @@
                     <OutputPin SaveString="SurveillanceValidOutput" DisplayString="Surveillance Valid Output" DataType="Boolean" UniqueID="2297" Visible="false"/>
                     <OutputPin SaveString="SurveillanceFaultReset" DisplayString="Surveillance Fault Reset" DataType="Boolean" UniqueID="2298" Visible="false"/>
                     <OutputPin SaveString="PositionControlledAxis" DisplayString="Position Controlled Axis" DataType="PositionControlledAxisLink" UniqueID="2299" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="2300" Visible="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="2301" Visible="true"/>
-                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="2302" Visible="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="2300" Visible="false"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="2301" Visible="false"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="2302" Visible="false"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Cost Cour" UniqueID="2303">
                 <NodeEditorPosition x="3673" y="1968"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="0.050000000000000003" LowerPositionLimit="0" UpperPositionLimit="12.200000104709774"/>
+                    <Limits InvertAxis="false" AxisOffset="0.14999999999999999" LowerPositionLimit="0" UpperPositionLimit="12.100000104709775"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
                     <ControWidget UniqueID="43"/>
                 </NodeSpecificData>
@@ -2527,7 +2527,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Vol Cour" UniqueID="2419">
                 <NodeEditorPosition x="3386" y="1440"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="true" AxisOffset="7.8509075141739295" LowerPositionLimit="0" UpperPositionLimit="7"/>
+                    <Limits InvertAxis="true" AxisOffset="8.4403129449205228" LowerPositionLimit="0" UpperPositionLimit="7.8009075141739297"/>
                     <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
                     <ControWidget UniqueID="45"/>
                 </NodeSpecificData>
@@ -2543,7 +2543,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Vol Jardin" UniqueID="2425">
                 <NodeEditorPosition x="2300" y="1406"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="true" AxisOffset="7.8539040498309767" LowerPositionLimit="0" UpperPositionLimit="7"/>
+                    <Limits InvertAxis="true" AxisOffset="8.4768315745165097" LowerPositionLimit="0" UpperPositionLimit="7.8039040498309769"/>
                     <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
                     <ControWidget UniqueID="46"/>
                 </NodeSpecificData>
@@ -2632,7 +2632,7 @@
             <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="PsnServer" Split="false" CustomName="PSN" UniqueID="2681">
                 <NodeEditorPosition x="-1824" y="3376"/>
                 <NodeSpecificData>
-                    <Network ServerName="Stacato PSN Server" IpOctet0="236" IpOctet1="10" IpOctet2="10" IpOctet3="10" Port="56565" InfoPacketSendingFrequency="1" DataPacketSendingFrequency="60" NetworkIpOctet0="192" NetworkIpOctet1="168" NetworkIpOctet2="31" NetworkIpOctet3="51" NetworkMaskOctet0="255" NetworkMaskOctet1="255" NetworkMaskOctet2="255" NetworkMaskOctet3="0"/>
+                    <Network ServerName="Stacato PSN Server" IpOctet0="236" IpOctet1="10" IpOctet2="10" IpOctet3="10" Port="56565" InfoPacketSendingFrequency="1" DataPacketSendingFrequency="100" NetworkIpOctet0="192" NetworkIpOctet1="168" NetworkIpOctet2="31" NetworkIpOctet3="51" NetworkMaskOctet0="255" NetworkMaskOctet1="255" NetworkMaskOctet2="255" NetworkMaskOctet3="0"/>
                     <Script>
 --Default PSN Server Script
 
@@ -2640,23 +2640,33 @@ local lameVideoFaceCour
 local lameVideoFaceJardin
 local lameVideoLointainCour
 local lameVideoLointainJardin
-
 local periacteFaceCour
 local periacteFaceJardin
 local periacteMilieuCour
 local periacteMilieuJardin
 local periacteLointainCour
 local periacteLointainJardin
-
 local costiereCour
 local costiereJardin
-
 local tournetteAnneau
 local tournetteCentre
-
 local volCour
 local volJardin
 
+local lameVideoFace_p
+local lameVideoLointain_p
+local periacteFaceCour_p
+local periacteFaceJardin_p
+local periacteMilieuCour_p
+local periacteMilieuJardin_p
+local periacteLointainCour_p
+local periacteLointainJardin_p
+local costiereCour_p
+local costiereJardin_p
+local tournetteAnneau_p
+local tournetteCentre_p
+local volCour_p
+local volJardin_p
 
 function setup()
 	lameVideoFaceCour = PsnServer:createNewTracker("LameVideoFaceCour");
@@ -2679,35 +2689,82 @@ function setup()
 
 	volCour = PsnServer:createNewTracker("VolCour");
 	volJardin = PsnServer:createNewTracker("VolJardin")
+
+	local lamesVideo_m = Environnement.getMachine("Lames Vidéo")
+	local periactesFace_m = Environnement.getMachine("Périactes Face")
+	local periactesMilieu_m = Environnement.getMachine("Périactes Milieu")
+	local periactesLointain_m = Environnement.getMachine("Périactes Lointain")
+	
+	lameVideoFace_p = lamesVideo_m:getAnimatable("Face")
+	lameVideoLointain_p = lamesVideo_m:getAnimatable("Lointain")
+	periacteFaceCour_p = periactesFace_m:getAnimatable("Cour")
+	periacteFaceJardin_p = periactesFace_m:getAnimatable("Jardin")
+	periacteMilieuCour_p = periactesMilieu_m:getAnimatable("Cour")
+	periacteMilieuJardin_p = periactesMilieu_m:getAnimatable("Jardin")
+	periacteLointainCour_p = periactesLointain_m:getAnimatable("Cour")
+	periacteLointainJardin_p = periactesLointain_m:getAnimatable("Jardin")
+	costiereCour_p = Environnement.getMachine("Cost Cour"):getAnimatable("Position")
+	costiereJardin_p = Environnement.getMachine("Cost Jardin"):getAnimatable("Position")
+	tournetteAnneau_p = Environnement.getMachine("Tournettes"):getAnimatable("Anneau")
+	tournetteCentre_p = Environnement.getMachine("Tournettes"):getAnimatable("Centre")
+	volCour_p = Environnement.getMachine("Vol Cour"):getAnimatable("Position")
+	volJardin_p = Environnement.getMachine("Vol Jardin"):getAnimatable("Position")
 end
 
-local counter = 0
+
+
+
 
 function update()
 
-	counter = counter + 1
-	local N = (1.0 + math.sin(counter / 100.0)) / 2.0 
+	local lame_face = lameVideoFace_p:getActualValue().Position
+	local lame_loin = lameVideoLointain_p:getActualValue().Position
 
-	lameVideoFaceCour:setPosition(		N,		1.2, 	-4.0);
-	lameVideoFaceJardin:setPosition(	-N, 	1.2, 	-4.0);
-	lameVideoLointainCour:setPosition(	N*2+1, 	1.2, 	-4.2);
-	lameVideoLointainJardin:setPosition(-N*2-1, 1.2, 	-4.2);
+	lameVideoFaceCour:setPosition(		lame_face,		1.2, 	-4.0);
+	lameVideoFaceJardin:setPosition(	-lame_face, 	1.2, 	-4.0);
+	lameVideoLointainCour:setPosition(	lame_loin, 		1.2, 	-4.2);
+	lameVideoLointainJardin:setPosition(-lame_loin, 	1.2, 	-4.2);
 
-	periacteFaceCour:setPosition(		N+1,	1.2,	-2.8);
-	periacteFaceJardin:setPosition(		-N-1,	1.2,	-2.8);
-	periacteMilieuCour:setPosition(		N*2+1,	1.2,	-6.0);
-	periacteMilieuJardin:setPosition(	-N*2-1,	1.2,	-6.0);
-	periacteLointainCour:setPosition(	N*3+1,	1.2,	-8.9);
-	periacteLointainJardin:setPosition(-N*3-1,	1.2,	-8.9);
+	local peri_face_cour = periacteFaceCour_p:getActualValue().Position
+	local peri_face_jar = periacteFaceJardin_p:getActualValue().Position
+	local peri_mil_cour = periacteMilieuCour_p:getActualValue().Position
+	local peri_mil_jar = periacteMilieuJardin_p:getActualValue().Position
+	local peri_loin_cour = periacteLointainCour_p:getActualValue().Position
+	local peri_loin_jar = periacteLointainJardin_p:getActualValue().Position
 
-	costiereCour:setPosition(			6,		1.2,	N*15);
-	costiereJardin:setPosition(			-6,		1.2,	N*15);
 
-	tournetteAnneau:setOrigin(			0,		0,		N * 3.1415 * 2);
-	tournetteCentre:setOrigin(			0,		0,		-N * 3.1415 * 2);
+	periacteFaceCour:setPosition(		peri_face_cour,	1.2,	-2.8);
+	periacteFaceJardin:setPosition(		peri_face_jar,	1.2,	-2.8);
+	periacteMilieuCour:setPosition(		peri_mil_cour,	1.2,	-6.0);
+	periacteMilieuJardin:setPosition(	peri_mil_jar,	1.2,	-6.0);
+	periacteLointainCour:setPosition(	peri_loin_cour,	1.2,	-8.9);
+	periacteLointainJardin:setPosition(	peri_loin_jar,	1.2,	-8.9);
 
-	volCour:setPosition(				0,		1.2 + N, 0.0)
-	volJardin:setPosition(				0,		1.2 + N, 0.0)
+	local cost_cour = costiereCour_p:getActualValue().Position
+	local cost_jardin = costiereJardin_p:getActualValue().Position
+
+	costiereCour:setPosition(			6.5,	16.337 - cost_cour,		1.2)
+	costiereJardin:setPosition(			-6.5,	16.337 - cost_jardin,	1.2)
+
+	local tourn_anneau = tournetteAnneau_p:getActualValue().Position
+	local tourn_centre = tournetteCentre_p:getActualValue().Position
+
+	local radius = 3.5
+	local tournetteX = radius * math.cos(-2.0 * math.pi * tourn_anneau / 360.0)
+	local tournetteY = 5.0 + radius * math.sin(-2.0 * math.pi * tourn_anneau / 360.0)
+
+	tournetteAnneau:setPosition(		0.0,	5.0,	1.2)
+	tournetteCentre:setPosition(		0.0,	5.0,	1.2)
+	--tournetteAnneau:setPosition(			tournetteX,	tournetteY,	1.2);
+	--tournetteCentre:setPosition(			tournetteX,	tournetteY,	1.2);
+	tournetteAnneau:setOrigin(			0.0,	0.0,	2.0 * math.pi * tourn_anneau / 360.0);
+	tournetteCentre:setOrigin(			0.0,	0.0,	2.0 * math.pi * tourn_centre / 360.0);
+
+	local vol_cour = volCour_p:getActualValue().Position
+	local vol_jar = volJardin_p:getActualValue().Position
+
+	volCour:setPosition(				0.0,	5.0, 1.2 + vol_cour)
+	volJardin:setPosition(				-0.75,	5.0, 1.2 + vol_jar)
 end
 
 
@@ -3230,5 +3287,5 @@ end
     <NetworkInterfaceCard>
         <Primary Description="en6" Name="en6"/>
     </NetworkInterfaceCard>
-    <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="1" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
+    <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="8" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

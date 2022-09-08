@@ -95,7 +95,7 @@ bool ATV320::startupConfiguration() {
 	if(!writeSDO_U16(0x2001, 0x4, maxOutputFrequency)) return false;
 	
 	//set minimum control speed in hertz to 0Hz (in .1Hz increments)
-	uint16_t lowSpeed = 0;
+    uint16_t lowSpeed = lowSpeedHertz->value * 10.0;
 	if(!writeSDO_U16(0x2001, 0x6, lowSpeed)) return false;
 	
 	//set maximum control speed to in 0.1Hz increments
@@ -301,6 +301,7 @@ bool ATV320::saveDeviceData(tinyxml2::XMLElement* xml) {
 	maxVelocityRPM->save(kinematicsXML);
 	invertDirection->save(kinematicsXML);
 	slowdownVelocityHertz->save(kinematicsXML);
+    lowSpeedHertz->save(kinematicsXML);
 	return true;
 }
 
@@ -316,6 +317,7 @@ bool ATV320::loadDeviceData(tinyxml2::XMLElement* xml) {
 	decelerationRampTime->onEdit();
 	if(!invertDirection->load(kinematicsXML)) return false;
 	if(!slowdownVelocityHertz->load(kinematicsXML)) return false;
+    if(!lowSpeedHertz->load(kinematicsXML)) return false;
 	return true;
 }
 

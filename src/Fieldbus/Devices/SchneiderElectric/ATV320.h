@@ -99,6 +99,9 @@ public:
 																								"%.1f", Units::Frequency::Hertz, false);
 	std::shared_ptr<BooleanParameter> invertDirection = BooleanParameter::make(false, "Invert Motion Direction", "InvertMotionDirection");
 	
+    std::shared_ptr<NumberParameter<double>> lowSpeedHertz = NumberParameter<double>::make(0.0, "Low Speed", "LowSpeed", "%.1f",
+                                                                                           Units::Frequency::Hertz, false);
+    
 	std::string getStatusString();
 	std::string getShortStatusString();
 	glm::vec4 getStatusColor();
