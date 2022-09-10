@@ -322,6 +322,10 @@ void SharedAxisMachine::inputProcess() {
 			axis2Animatable->state = Animatable::State::READY;
 			break;
 	}
+    
+    if(axis1Animatable->state == Animatable::State::READY && axis2Animatable->state == Animatable::State::READY) synchronizedAnimatable->state = Animatable::State::READY;
+    else if(axis1Animatable->state == Animatable::State::OFFLINE || axis2Animatable->state == Animatable::State::OFFLINE) synchronizedAnimatable->state = Animatable::State::OFFLINE;
+    else synchronizedAnimatable->state = Animatable::State::NOT_READY;
 	
 	//update estop state
 	b_emergencyStopActive = axis1->isEmergencyStopActive() || axis2->isEmergencyStopActive();
@@ -542,7 +546,7 @@ void SharedAxisMachine::outputProcess(){
 				 
 				double sync = synchronizedAnimatable->motionProfile.getPosition();
 				double master = masterAnimatable->motionProfile.getPosition();
-				Logger::warn("diff: {}", sync - master);
+				//Logger::warn("diff: {}", sync - master);
 
 				break;
 		}
@@ -652,7 +656,7 @@ void SharedAxisMachine::startHomingBothAxes(){
 
 void SharedAxisMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){
 	auto animatable = animation->getAnimatable();
-	if(animatable != axis1Animatable || animatable != axis2Animatable || animatable != synchronizedAnimatable) return;
+	if(animatable != axis1Animatable && animatable != axis2Animatable && animatable != synchronizedAnimatable) return;
 	
 	switch(animation->getType()){
 		case ManoeuvreType::KEY:

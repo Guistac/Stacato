@@ -145,42 +145,46 @@ void AxisStateMachine::outputProcess(){
 
 
 bool AxisStateMachine::isHardwareReady() {
-	if (!areAllPinsConnected()) return false;
-	/*
-	else if (actualState == State::UNKNOWN) return false;
-	else if (*localControlEnabledSignal) return false;
-	else if (*hoodMotorCircuitBreakerSignal) return false;
-	else if (*liftMotorCircuitBreakerSignal) return false;
-	else if (!*emergencyStopClearSignal) return false;
-	return true;
-	 */
-	return false;
+    if (!isAxisConnected()) return false;
+    auto axis = getAxis();
+    if(axis->getState() != MotionState::READY) return false;
+    return true;
 }
 
 void AxisStateMachine::enableHardware() {
-	/*
-	if (!isEnabled() && isReady()) {
-		requestedState = State::STOPPED;
-		state = MotionState::ENABLED;
-		onEnableHardware();
-	}
-	 */
+    if (isReady()) {
+        std::thread machineEnabler([this]() {
+            using namespace std::chrono;
+            auto axis = getAxis();
+            axis->enable();
+            time_point enableRequestTime = system_clock::now();
+            while (duration(system_clock::now() - enableRequestTime) < milliseconds(500)) {
+                std::this_thread::sleep_for(milliseconds(10));
+                if (axis->getState() == MotionState::ENABLED) {
+                    state = MotionState::ENABLED;
+                    onEnableHardware();
+                    break;
+                }
+            }
+            });
+        machineEnabler.detach();
+    }
 }
 
 void AxisStateMachine::disableHardware() {
-	/*
-	if(isEnabled()){
-		state = MotionState::READY;
-		requestedState = State::STOPPED;
-		onDisableHardware();
-	}
-	 */
+    state = MotionState::READY;
+    if (isAxisConnected()) getAxis()->disable();
+    onDisableHardware();
 }
 
 
-void AxisStateMachine::onEnableHardware() {}
+void AxisStateMachine::onEnableHardware() {
+    requestState(State::STOPPED);
+}
 
-void AxisStateMachine::onDisableHardware() {}
+void AxisStateMachine::onDisableHardware() {
+    requestState(State::STOPPED);
+}
 
 void AxisStateMachine::simulateInputProcess() {
 	/*

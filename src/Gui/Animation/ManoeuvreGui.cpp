@@ -126,11 +126,11 @@ void Manoeuvre::listGui(){
 		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(color), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 	}
 	if(b_selected){
-		float thickness = ImGui::GetTextLineHeight() * 0.1;
+		float thickness = ImGui::GetTextLineHeight() * 0.2;
 		float rounding = ImGui::GetStyle().FrameRounding - thickness / 2.0;
 		glm::vec2 minSelection = min + glm::vec2(thickness / 2.0);
 		glm::vec2 maxSelection = max - glm::vec2(thickness / 2.0);
-		ImGui::GetWindowDrawList()->AddRect(minSelection, maxSelection, ImColor(1.0f, 1.0f, 1.0f, 0.3f), rounding, ImDrawFlags_RoundCornersAll, thickness);
+		ImGui::GetWindowDrawList()->AddRect(minSelection, maxSelection, ImColor(1.0f, 1.0f, 1.0f, .5f), rounding, ImDrawFlags_RoundCornersAll, thickness);
 	}
 	
 }

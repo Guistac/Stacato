@@ -178,34 +178,35 @@ void AxisStateMachine::widgetGui(){
 				ImGui::EndDisabled();
 				break;
 			case State::STOPPED:
-				customButton("Move Up", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersTop);
-				customButton("Move Down", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersBottom);
+                if(customButton("Move Up", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersTop)) requestState(State::AT_POSITIVE_LIMIT);
+                if(customButton("Move Down", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersBottom)) requestState(State::AT_NEGATIVE_LIMIT);
 				break;
 			case State::MOVING_TO_POSITIVE_LIMIT:
 				ImGui::BeginDisabled();
-				customButton("Moving Up", commandButtonSize, blink ? Colors::darkYellow : Colors::yellow, rounding, ImDrawFlags_RoundCornersTop);
+				customButton("Moving Up", commandButtonSize, movingColor, rounding, ImDrawFlags_RoundCornersTop);
 				ImGui::EndDisabled();
-				customButton("Move Down", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersBottom);
+                if(customButton("Move Down", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersBottom)) requestState(State::AT_NEGATIVE_LIMIT);
 				break;
 			case State::MOVING_TO_NEGATIVE_LIMIT:
-				customButton("At Upper Limit", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersTop);
+                if(customButton("Move Up", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersTop)) requestState(State::AT_POSITIVE_LIMIT);
 				ImGui::BeginDisabled();
-				customButton("Moving Down", commandButtonSize, blink ? Colors::darkYellow : Colors::yellow, rounding, ImDrawFlags_RoundCornersBottom);
+				customButton("Moving Down", commandButtonSize, movingColor, rounding, ImDrawFlags_RoundCornersBottom);
 				ImGui::EndDisabled();
 				break;
 			case State::AT_POSITIVE_LIMIT:
 				ImGui::BeginDisabled();
-				customButton("At Upper Limit", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersTop);
-				customButton("Move Down", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersBottom);
-				ImGui::EndDisabled();
+				customButton("At Upper Limit", commandButtonSize, reachedColor, rounding, ImDrawFlags_RoundCornersTop);
+                ImGui::EndDisabled();
+                if(customButton("Move Down", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersBottom)) requestState(State::AT_NEGATIVE_LIMIT);
 				break;
 			case State::AT_NEGATIVE_LIMIT:
-				ImGui::BeginDisabled();
-				customButton("Move Up", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersTop);
-				customButton("At Lower Limit", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersBottom);
+                if(customButton("Move Up", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersTop)) requestState(State::AT_POSITIVE_LIMIT);
+                ImGui::BeginDisabled();
+				customButton("At Lower Limit", commandButtonSize, reachedColor, rounding, ImDrawFlags_RoundCornersBottom);
 				ImGui::EndDisabled();
 				break;
 		}
+         
 		ImGui::PopStyleVar();
 	}
 	

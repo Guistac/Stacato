@@ -391,7 +391,7 @@ void PositionControlledMachine::updateAnimatableParameters(){
 //========= ANIMATABLE OWNER ==========
 
 void PositionControlledMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){
-	/*
+	
 	if(animation->getAnimatable() != animatablePosition) return;
 	switch(animation->getType()){
 		case ManoeuvreType::KEY:
@@ -399,9 +399,9 @@ void PositionControlledMachine::fillAnimationDefaults(std::shared_ptr<Animation>
 			break;
 		case ManoeuvreType::TARGET:
 			animation->toTarget()->captureTarget();
-			animation->toTarget()->inAcceleration->overwrite(rapidAcceleration_machineUnitsPerSecond);
-			animation->toTarget()->outAcceleration->overwrite(rapidAcceleration_machineUnitsPerSecond);
-			animation->toTarget()->velocityConstraint->overwrite(rapidVelocity_machineUnitsPerSecond);
+			animation->toTarget()->inAcceleration->overwrite(animatablePosition->accelerationLimit);
+			animation->toTarget()->outAcceleration->overwrite(animatablePosition->accelerationLimit);
+			animation->toTarget()->velocityConstraint->overwrite(0.0);
 			animation->toTarget()->timeConstraint->overwrite(0.0);
 			animation->toTarget()->constraintType->overwrite(TargetAnimation::Constraint::TIME);
 			break;
@@ -409,11 +409,11 @@ void PositionControlledMachine::fillAnimationDefaults(std::shared_ptr<Animation>
 			animation->toSequence()->captureStart();
 			animation->toSequence()->captureTarget();
 			animation->toSequence()->duration->overwrite(0.0);
-			animation->toSequence()->inAcceleration->overwrite(rapidAcceleration_machineUnitsPerSecond);
-			animation->toSequence()->outAcceleration->overwrite(rapidAcceleration_machineUnitsPerSecond);
+			animation->toSequence()->inAcceleration->overwrite(animatablePosition->accelerationLimit);
+			animation->toSequence()->outAcceleration->overwrite(animatablePosition->accelerationLimit);
 			break;
 	}
-	*/
+	
 }
 
 

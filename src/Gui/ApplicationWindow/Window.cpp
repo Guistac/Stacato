@@ -34,7 +34,12 @@ void Window::focus(){
 void Window::draw(){
 	if(!b_padding) ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f,0.0f));
 	bool b_manualOpen = true;
-	if(ImGui::Begin(name.c_str(), &b_manualOpen)){
+    
+    //ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoInputs;
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
+    
+    
+	if(ImGui::Begin(name.c_str(), &b_manualOpen, windowFlags)){
 		imguiWindow = ImGui::GetCurrentContext()->CurrentWindow;
 		if(!b_padding) ImGui::PopStyleVar();
 		drawContent();

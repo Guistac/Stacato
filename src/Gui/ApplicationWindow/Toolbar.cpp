@@ -239,7 +239,19 @@ namespace Gui {
 		ImGui::PopFont();
 		ImGui::EndGroup();
 		
-
+        
+        ImGui::SameLine();
+        
+        time_t currentTime;
+        tm* curr_tm;
+        time(&currentTime);
+        curr_tm = localtime(&currentTime);
+        static char timeString[128];
+        strftime(timeString, 128, timeString, curr_tm);
+        
+        ImGui::PushFont(Fonts::sansLight26);
+        //backgroundText(timeString, glm::vec2(ImGui::CalcTextSize("00:00:00").x, height), Colors::darkGray);
+        ImGui::PopFont();
 		
 		
 		ImGui::PopStyleVar();

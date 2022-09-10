@@ -216,7 +216,7 @@ function update()
 	costiereJardin_keepoutEJ2:setEnabled(flipEJ2:getActualValue() ~= flipStates.Closed or not flipEJ2:isOnline())
 	costiereJardin_keepoutCJ2:setEnabled(flipCJ2:getActualValue() ~= flipStates.Closed or not flipCJ2:isOnline())
 
-	local clearance = 5.0
+	local clearance = 0.05
 
 	flipGC2_Halt:setEnabled(checkRangeOverlap(costCour_pos, costCour_brk, 4.1 + clearance, 			9.3 - clearance) or not costiereCour:isOnline())
 	flipEC2_Halt:setEnabled(checkRangeOverlap(costCour_pos, costCour_brk, 7.1 + clearance, 			99.9) or not costiereCour:isOnline())
@@ -317,6 +317,16 @@ end
 
 function exit()
 end
+
+
+
+
+
+
+
+
+
+
 
 
 
