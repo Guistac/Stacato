@@ -109,6 +109,9 @@ void SharedAxisMachine::updateAnimatableParameters(){
 	axis2Animatable->upperPositionLimit = axis2PositionToMachinePosition(axis2->getHighPositionLimit());
 	synchronizedAnimatable->upperPositionLimit = std::max(axis1Animatable->upperPositionLimit, axis2Animatable->upperPositionLimit);
 	
+    if(invertAxis1->value) std::swap(axis1Animatable->lowerPositionLimit, axis1Animatable->upperPositionLimit);
+    if(invertAxis2->value) std::swap(axis2Animatable->lowerPositionLimit, axis2Animatable->upperPositionLimit);
+    
 	axis1Animatable->velocityLimit = velocityLimit->value;
 	axis2Animatable->velocityLimit = velocityLimit->value;
 	synchronizedAnimatable->velocityLimit = velocityLimit->value;

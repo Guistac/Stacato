@@ -198,6 +198,9 @@ void Manoeuvre::curveEditor(){
 		//draw animation curves
 		for (auto& animation : getAnimations()) animation->drawCurves();
 		
+        if(auto selectedAnimation = getSelectedEditorAnimation()) selectedAnimation->drawCurveControls();
+        
+        /*
 		//draw curve editor controls
 		for (auto& animation : getAnimations()) {
 			ImGui::PushID(animation->getAnimatable()->getMachine()->getName());
@@ -206,6 +209,7 @@ void Manoeuvre::curveEditor(){
 			ImGui::PopID();
 			ImGui::PopID();
 		}
+        */
 		
 		if(getType() != ManoeuvreType::KEY){
 			double playbackTime = getSychronizedPlaybackPosition();

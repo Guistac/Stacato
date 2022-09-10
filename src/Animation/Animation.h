@@ -222,7 +222,8 @@ public:
 	virtual void setUnit(Unit unit) override;
 	
 	void captureTarget(){
-		//TODO: implement this
+        auto animatable = getAnimatable();
+        animatable->setParameterValueFromAnimationValue(target, animatable->getActualValue());
 	}
 	std::shared_ptr<Parameter> target;
 	
@@ -297,7 +298,8 @@ public:
 	void clearCurves();
 	
 	void captureTarget(){
-		//TODO: implement this
+        auto animatable = getAnimatable();
+        animatable->setParameterValueFromAnimationValue(target, animatable->getActualValue());
 	}
 	std::shared_ptr<Parameter> target;
 	std::shared_ptr<EnumeratorParameter<Constraint>> constraintType = std::make_shared<EnumeratorParameter<Constraint>>(Constraint::TIME, "Constraint Type", "ConstraintType");

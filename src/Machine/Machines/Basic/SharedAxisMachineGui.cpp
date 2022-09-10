@@ -375,8 +375,7 @@ void SharedAxisMachine::widgetGui(){
 	
 	float sliderHeight = ImGui::GetTextLineHeight() * 10.0;
 	double separatorWidth = ImGui::GetTextLineHeight() * .25f;
-	
-	
+    
 	float minPos = std::min(axis1Animatable->lowerPositionLimit, axis2Animatable->lowerPositionLimit);
 	float maxPos = std::max(axis1Animatable->upperPositionLimit, axis2Animatable->upperPositionLimit);
 	
