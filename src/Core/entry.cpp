@@ -40,3 +40,9 @@ int main(int argcount, const char ** args){
 	//terminate application
 	ApplicationWindow::terminate();
 }
+
+
+//Test:
+//-lexium32 auto error clear
+//-fieldbus pthreads option
+//-fieldbus sleep timing option

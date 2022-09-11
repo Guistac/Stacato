@@ -15,6 +15,15 @@
 
 namespace EtherCatFieldbus {
 
+	//EXPERIMENTAL SETTINGS
+	bool b_bruteForceRealtime = true;
+	bool b_usePosixRealtimeThread = false;
+	pthread_t rtThread;
+	int stackSize = 65536;
+
+
+
+
     std::vector<std::shared_ptr<NetworkInterfaceCard>> networkInterfaceCards;
 	std::vector<std::shared_ptr<NetworkInterfaceCard>>& getNetworksInterfaceCards(){ return networkInterfaceCards; }
 
@@ -692,6 +701,12 @@ namespace EtherCatFieldbus {
 
     //========= START CYCLIC EXCHANGE ============
 
+	//EXPERIMENTAL
+	void pthreadCyclicExchange(void* data){
+		pthread_setname_np("EtherCAT Cyclic Exchange Thread (osal rtThread)");
+		cyclicExchange();
+	}
+
     void startCyclicExchange() {
         //don't allow the thread to start if it is already running
         if (b_cyclicExchangeRunning) return;
@@ -700,15 +715,25 @@ namespace EtherCatFieldbus {
         Logger::debug("===== Starting Cyclic Process Data Exchange");
 
         metrics.init(processInterval_milliseconds);
-
-		//join the cyclic echange thread if it was terminated previously
-		if (cyclicExchangeThread.joinable()) cyclicExchangeThread.join();
 		
-		b_cyclicExchangeRunning = true;
-		cyclicExchangeThread = std::thread([]() {
-			pthread_setname_np("EtherCAT Cyclic Exchange Thread");
-			cyclicExchange();
-		});
+		if(b_usePosixRealtimeThread){
+			
+			//EXPERIMENTAL
+			b_cyclicExchangeRunning = true;
+			osal_thread_create_rt(&rtThread, stackSize, (void*)&pthreadCyclicExchange, nullptr);
+			pthread_detach(rtThread);
+			
+		}else{
+		
+			//join the cyclic echange thread if it was terminated previously
+			if (cyclicExchangeThread.joinable()) cyclicExchangeThread.join();
+			
+			b_cyclicExchangeRunning = true;
+			cyclicExchangeThread = std::thread([]() {
+				pthread_setname_np("EtherCAT Cyclic Exchange Thread (std::thread)");
+				cyclicExchange();
+			});
+		}
     }
 
 
@@ -746,10 +771,20 @@ namespace EtherCatFieldbus {
 
             //======================= THREAD TIMING =========================
 
+			if(b_bruteForceRealtime){
+			
             //bruteforce timing precision by using 100% of CPU core
             //update and compare system time to next process 
             do { systemTime_nanoseconds = Timing::getProgramTime_nanoseconds(); } while (systemTime_nanoseconds < cycleStartTime_nanoseconds);
-
+			
+			}else{
+				systemTime_nanoseconds = Timing::getProgramTime_nanoseconds();
+				long long sleepTime_nanoseconds = cycleStartTime_nanoseconds - systemTime_nanoseconds;
+				uint32_t sleepTime_microseconds = sleepTime_nanoseconds / 1000;
+				if(sleepTime_microseconds > 0) osal_usleep(sleepTime_microseconds);
+				systemTime_nanoseconds = Timing::getProgramTime_nanoseconds();
+			}
+				
             //============= PROCESS DATA SENDING AND RECEIVING ==============
 
             ec_send_processdata();
