@@ -24,6 +24,8 @@ struct ControlPoint;
 class Animatable : public std::enable_shared_from_this<Animatable>{
 public:
 	
+	virtual std::string getTargetValueString() = 0;
+	
 	//———————————— Contruction & Type Identification ————————————
 	
 	Animatable(std::string name_) : name(name_){}
@@ -117,7 +119,7 @@ public:
 	
 private:
 	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) = 0;
-	virtual void onPlaybackStart() = 0;
+	virtual void onPlaybackStart(std::shared_ptr<Animation> animation) = 0;
 	virtual void onPlaybackPause() = 0;
 	virtual void onPlaybackStop() = 0;
 	virtual void onPlaybackEnd() = 0;

@@ -44,6 +44,18 @@ namespace Motion {
 		
 		std::shared_ptr<Interpolation> inInterpolation;
 		std::shared_ptr<Interpolation> outInterpolation;
+		
+		std::shared_ptr<ControlPoint> copy(){
+			auto pointCopy = std::make_shared<ControlPoint>();
+			pointCopy->position = position;
+			pointCopy->velocity = velocity;
+			pointCopy->inAcceleration = inAcceleration;
+			pointCopy->outAcceleration = outAcceleration;
+			pointCopy->time = time;
+			pointCopy->b_valid = b_valid;
+			pointCopy->validationError = validationError;
+			return pointCopy;
+		}
 	};
 
 	class TrapezoidalInterpolation;
@@ -175,6 +187,17 @@ namespace Motion {
 	public:
 		
 		Curve(std::string name_) : name(name_){}
+		
+		std::shared_ptr<Curve> copy(){
+			auto curveCopy = std::make_shared<Motion::Curve>(name);
+			curveCopy->interpolationType = interpolationType;
+			curveCopy->b_valid = b_valid;
+			curveCopy->b_visibleInEditor = b_visibleInEditor;
+			for(auto controlPoint : controlPoints){
+				curveCopy->addPoint(controlPoint->copy());
+			}
+			return curveCopy;
+		}
 		
 		std::vector<std::shared_ptr<ControlPoint>>& getPoints(){ return controlPoints; }
 		void addPoint(std::shared_ptr<ControlPoint> point);

@@ -297,6 +297,11 @@ void SharedAxisMachine::inputProcess() {
 	if(state == MotionState::ENABLED && newState != MotionState::ENABLED) disable();
 	state = newState;
 	
+	if(state == MotionState::OFFLINE){
+		b_emergencyStopActive = false;
+		b_halted = false;
+	}
+	
 	//update animatable states
 	switch(axis1->getState()){
 		case MotionState::OFFLINE:

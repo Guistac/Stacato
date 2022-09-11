@@ -1,43 +1,43 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.97141063" OffsetX="1231.0035" OffsetY="-1025.1669" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Flip G-J2" UniqueID="9" PositionX="-650" PositionY="1040" SizeX="136.50003" SizeY="227.3331"/>
-        <Widget Name="Flip G-J1" UniqueID="10" PositionX="-510" PositionY="1040" SizeX="136.50003" SizeY="227.3331"/>
-        <Widget Name="Flip G-Axe" UniqueID="11" PositionX="-370" PositionY="1040" SizeX="136.50003" SizeY="227.3331"/>
-        <Widget Name="Flip G-C1" UniqueID="13" PositionX="-230" PositionY="1040" SizeX="136.50003" SizeY="227.3331"/>
-        <Widget Name="Flip G-C2" UniqueID="14" PositionX="-90" PositionY="1040" SizeX="136.49997" SizeY="227.3331"/>
-        <Widget Name="Flip E-J3" UniqueID="16" PositionX="-790" PositionY="1275" SizeX="136.5" SizeY="227.04332"/>
-        <Widget Name="Flip E-J2" UniqueID="17" PositionX="-650" PositionY="1275" SizeX="136.50003" SizeY="227.04332"/>
-        <Widget Name="Flip E-C2" UniqueID="21" PositionX="-90" PositionY="1275" SizeX="136.49997" SizeY="227.04332"/>
-        <Widget Name="Flip E-C3" UniqueID="22" PositionX="50" PositionY="1275" SizeX="136.49997" SizeY="227.04332"/>
-        <Widget Name="Flip C-J3" UniqueID="23" PositionX="-790" PositionY="1510" SizeX="136.5" SizeY="227.78297"/>
-        <Widget Name="Flip C-J2" UniqueID="24" PositionX="-650" PositionY="1510" SizeX="136.50003" SizeY="227.78297"/>
-        <Widget Name="Flip C-C2" UniqueID="25" PositionX="-90" PositionY="1510" SizeX="136.49997" SizeY="227.78297"/>
-        <Widget Name="Flip C-C3" UniqueID="26" PositionX="50" PositionY="1510" SizeX="136.49997" SizeY="227.78297"/>
-        <Widget Name="Flip A-J3" UniqueID="27" PositionX="-790" PositionY="1745" SizeX="136.5" SizeY="227.49319"/>
-        <Widget Name="Flip A-J2" UniqueID="28" PositionX="-650" PositionY="1745" SizeX="136.50003" SizeY="227.49319"/>
-        <Widget Name="Flip A-J1" UniqueID="29" PositionX="-510" PositionY="1745" SizeX="136.50003" SizeY="227.49319"/>
-        <Widget Name="Flip A-Axe" UniqueID="30" PositionX="-370" PositionY="1745" SizeX="136.50003" SizeY="227.49319"/>
-        <Widget Name="Flip A-C1" UniqueID="31" PositionX="-230" PositionY="1745" SizeX="136.50003" SizeY="227.49319"/>
-        <Widget Name="Flip A-C2" UniqueID="32" PositionX="-90" PositionY="1745" SizeX="136.49997" SizeY="227.49319"/>
-        <Widget Name="Flip A-C3" UniqueID="33" PositionX="50" PositionY="1745" SizeX="136.49997" SizeY="227.49319"/>
-        <Widget Name="Lames Vidéo" UniqueID="44" PositionX="-1150" PositionY="1030" SizeX="354.69528" SizeY="236.30367"/>
-        <Widget Name="Périactes Milieu" UniqueID="39" PositionX="-1150" PositionY="1510" SizeX="354.69528" SizeY="237.04785"/>
-        <Widget Name="Périactes Face" UniqueID="40" PositionX="-1150" PositionY="1750" SizeX="354.69528" SizeY="236.90521"/>
-        <Widget Name="Sécurité" UniqueID="52" PositionX="500" PositionY="1035" SizeX="157.5" SizeY="109.83083"/>
-        <Widget Name="Homme Mort 1" UniqueID="4" PositionX="490" PositionY="1265" SizeX="178.50005" SizeY="110.42334"/>
-        <Widget Name="Homme Mort 2" UniqueID="5" PositionX="490" PositionY="1380" SizeX="178.50005" SizeY="109.69012"/>
-        <Widget Name="Homme Mort 3" UniqueID="6" PositionX="490" PositionY="1495" SizeX="178.50005" SizeY="109.98634"/>
-        <Widget Name="Homme Mort 4" UniqueID="7" PositionX="490" PositionY="1610" SizeX="178.50005" SizeY="110.28265"/>
-        <Widget Name="Romaine" UniqueID="8" PositionX="474" PositionY="1750" SizeX="180.59987" SizeY="192.63969"/>
-        <Widget Name="Cost Jardin" UniqueID="42" PositionX="195" PositionY="1560" SizeX="134.40001" SizeY="399.11053"/>
-        <Widget Name="Cost Cour" UniqueID="43" PositionX="333" PositionY="1560" SizeX="134.40001" SizeY="399.11053"/>
-        <Widget Name="Tournettes" UniqueID="41" PositionX="-506" PositionY="1292" SizeX="406.34998" SizeY="420.04718"/>
-        <Widget Name="Vol Cour" UniqueID="45" PositionX="333" PositionY="1153" SizeX="134.40001" SizeY="399.48538"/>
-        <Widget Name="Homme Mort 0" UniqueID="50" PositionX="490" PositionY="1150" SizeX="178.50005" SizeY="110.12708"/>
-        <Widget Name="Vol Jardin" UniqueID="46" PositionX="196" PositionY="1153" SizeX="134.40001" SizeY="399.48538"/>
-        <Widget Name="Périactes Lointain" UniqueID="38" PositionX="-1154" PositionY="1270" SizeX="354.69528" SizeY="236.16104"/>
-        <Widget Name="Sécu Vol Cour" UniqueID="53" PositionX="332" PositionY="1040" SizeX="157.5" SizeY="109.978"/>
-        <Widget Name="Sécu Vol Jardin" UniqueID="54" PositionX="172" PositionY="1040" SizeX="157.5" SizeY="109.978"/>
+    <Dashboard Scale="0.45702958" OffsetX="1654.0372" OffsetY="-1025.1754" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Flip G-J2" UniqueID="9" PositionX="-650" PositionY="1040" SizeX="136.49992" SizeY="226.11006"/>
+        <Widget Name="Flip G-J1" UniqueID="10" PositionX="-510" PositionY="1040" SizeX="136.49992" SizeY="226.11006"/>
+        <Widget Name="Flip G-Axe" UniqueID="11" PositionX="-370" PositionY="1040" SizeX="136.49992" SizeY="226.11006"/>
+        <Widget Name="Flip G-C1" UniqueID="13" PositionX="-230" PositionY="1040" SizeX="136.49992" SizeY="226.11006"/>
+        <Widget Name="Flip G-C2" UniqueID="14" PositionX="-90" PositionY="1040" SizeX="136.49992" SizeY="226.11006"/>
+        <Widget Name="Flip E-J3" UniqueID="16" PositionX="-790" PositionY="1275" SizeX="136.50006" SizeY="225.23056"/>
+        <Widget Name="Flip E-J2" UniqueID="17" PositionX="-650" PositionY="1275" SizeX="136.49992" SizeY="225.23056"/>
+        <Widget Name="Flip E-C2" UniqueID="21" PositionX="-90" PositionY="1275" SizeX="136.49992" SizeY="225.23056"/>
+        <Widget Name="Flip E-C3" UniqueID="22" PositionX="50" PositionY="1275" SizeX="136.49992" SizeY="225.23056"/>
+        <Widget Name="Flip C-J3" UniqueID="23" PositionX="-790" PositionY="1510" SizeX="136.50006" SizeY="226.53912"/>
+        <Widget Name="Flip C-J2" UniqueID="24" PositionX="-650" PositionY="1510" SizeX="136.49992" SizeY="226.53912"/>
+        <Widget Name="Flip C-C2" UniqueID="25" PositionX="-90" PositionY="1510" SizeX="136.49992" SizeY="226.53912"/>
+        <Widget Name="Flip C-C3" UniqueID="26" PositionX="50" PositionY="1510" SizeX="136.49992" SizeY="226.53912"/>
+        <Widget Name="Flip A-J3" UniqueID="27" PositionX="-790" PositionY="1745" SizeX="136.50006" SizeY="225.65958"/>
+        <Widget Name="Flip A-J2" UniqueID="28" PositionX="-650" PositionY="1745" SizeX="136.49992" SizeY="225.65958"/>
+        <Widget Name="Flip A-J1" UniqueID="29" PositionX="-510" PositionY="1745" SizeX="136.49992" SizeY="225.65958"/>
+        <Widget Name="Flip A-Axe" UniqueID="30" PositionX="-370" PositionY="1745" SizeX="136.49992" SizeY="225.65958"/>
+        <Widget Name="Flip A-C1" UniqueID="31" PositionX="-230" PositionY="1745" SizeX="136.49992" SizeY="225.65958"/>
+        <Widget Name="Flip A-C2" UniqueID="32" PositionX="-90" PositionY="1745" SizeX="136.49992" SizeY="225.65958"/>
+        <Widget Name="Flip A-C3" UniqueID="33" PositionX="50" PositionY="1745" SizeX="136.49992" SizeY="225.65958"/>
+        <Widget Name="Lames Vidéo" UniqueID="44" PositionX="-1150" PositionY="1030" SizeX="353.56937" SizeY="233.92203"/>
+        <Widget Name="Périactes Milieu" UniqueID="39" PositionX="-1150" PositionY="1510" SizeX="353.56937" SizeY="235.29129"/>
+        <Widget Name="Périactes Face" UniqueID="40" PositionX="-1150" PositionY="1750" SizeX="353.56937" SizeY="233.78787"/>
+        <Widget Name="Sécurité" UniqueID="52" PositionX="500" PositionY="1035" SizeX="157.5" SizeY="106.39167"/>
+        <Widget Name="Homme Mort 1" UniqueID="4" PositionX="490" PositionY="1265" SizeX="178.50009" SizeY="108.3241"/>
+        <Widget Name="Homme Mort 2" UniqueID="5" PositionX="490" PositionY="1380" SizeX="178.50009" SizeY="107.10231"/>
+        <Widget Name="Homme Mort 3" UniqueID="6" PositionX="490" PositionY="1495" SizeX="178.50009" SizeY="108.06853"/>
+        <Widget Name="Homme Mort 4" UniqueID="7" PositionX="490" PositionY="1610" SizeX="178.50009" SizeY="106.8467"/>
+        <Widget Name="Romaine" UniqueID="8" PositionX="474" PositionY="1750" SizeX="180.59972" SizeY="190.02704"/>
+        <Widget Name="Cost Jardin" UniqueID="42" PositionX="195" PositionY="1560" SizeX="134.40028" SizeY="393.1553"/>
+        <Widget Name="Cost Cour" UniqueID="43" PositionX="333" PositionY="1560" SizeX="134.40028" SizeY="393.1553"/>
+        <Widget Name="Tournettes" UniqueID="41" PositionX="-506" PositionY="1292" SizeX="406.34988" SizeY="413.90652"/>
+        <Widget Name="Vol Cour" UniqueID="45" PositionX="333" PositionY="1153" SizeX="134.40028" SizeY="393.17941"/>
+        <Widget Name="Homme Mort 0" UniqueID="50" PositionX="490" PositionY="1150" SizeX="178.50009" SizeY="107.35789"/>
+        <Widget Name="Vol Jardin" UniqueID="46" PositionX="196" PositionY="1153" SizeX="134.40028" SizeY="393.17941"/>
+        <Widget Name="Périactes Lointain" UniqueID="38" PositionX="-1154" PositionY="1270" SizeX="353.56937" SizeY="234.60666"/>
+        <Widget Name="Sécu Vol Cour" UniqueID="53" PositionX="332" PositionY="1040" SizeX="157.5" SizeY="107.95578"/>
+        <Widget Name="Sécu Vol Jardin" UniqueID="54" PositionX="172" PositionY="1040" SizeX="157.5" SizeY="107.95578"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -2388,7 +2388,7 @@
                 <NodeEditorPosition x="2521" y="1960"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0.14999999999999999" LowerPositionLimit="0" UpperPositionLimit="12.1"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="true"/>
                     <ControWidget UniqueID="42"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2433,7 +2433,7 @@
                 <NodeEditorPosition x="3673" y="1968"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0.14999999999999999" LowerPositionLimit="0" UpperPositionLimit="12.100000104709775"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="true"/>
                     <ControWidget UniqueID="43"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2528,7 +2528,7 @@
                 <NodeEditorPosition x="3386" y="1440"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="true" AxisOffset="8.4403129449205228" LowerPositionLimit="0" UpperPositionLimit="7.8009075141739297"/>
-                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
+                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false"/>
                     <ControWidget UniqueID="45"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2544,7 +2544,7 @@
                 <NodeEditorPosition x="2300" y="1406"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="true" AxisOffset="8.4768315745165097" LowerPositionLimit="0" UpperPositionLimit="7.8039040498309769"/>
-                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
+                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false"/>
                     <ControWidget UniqueID="46"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2632,7 +2632,7 @@
             <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="PsnServer" Split="false" CustomName="PSN" UniqueID="2681">
                 <NodeEditorPosition x="-1824" y="3376"/>
                 <NodeSpecificData>
-                    <Network ServerName="Stacato PSN Server" IpOctet0="236" IpOctet1="10" IpOctet2="10" IpOctet3="10" Port="56565" InfoPacketSendingFrequency="1" DataPacketSendingFrequency="100" NetworkIpOctet0="192" NetworkIpOctet1="168" NetworkIpOctet2="31" NetworkIpOctet3="51" NetworkMaskOctet0="255" NetworkMaskOctet1="255" NetworkMaskOctet2="255" NetworkMaskOctet3="0"/>
+                    <Network ServerName="Stacato PSN Server" DestinationIpOctet0="236" DestinationIpOctet1="10" DestinationIpOctet2="10" DestinationIpOctet3="10" Port="56565" LocalIpOctet0="192" LocalIpOctet1="168" LocalIpOctet2="31" LocalIpOctet3="51" InfoPacketSendingFrequency="1" DataPacketSendingFrequency="100"/>
                     <Script>
 --Default PSN Server Script
 

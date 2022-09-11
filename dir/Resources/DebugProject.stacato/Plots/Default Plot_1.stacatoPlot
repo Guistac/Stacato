@@ -914,5 +914,19 @@
             <Animation Machine="Périactes Milieu" MachineUniqueID="2233" Parameter="Cour" IsComposite="false" Type="Target" Target="12" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
             <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Cour" IsComposite="false" Type="Target" Target="12.000000279817968" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
+        <Manoeuvre Name="Test 1" Description="" Type="Target">
+            <Animation Machine="Cost Jardin" MachineUniqueID="2280" Parameter="Position" IsComposite="false" Type="Target" Target="2" ConstraintType="Velocity" Time="0" Velocity="0.25" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999"/>
+            <Animation Machine="Cost Cour" MachineUniqueID="2303" Parameter="Position" IsComposite="false" Type="Target" Target="2.5" ConstraintType="Velocity" Time="0" Velocity="0.25" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Test 2" Description="" Type="Target">
+            <Animation Machine="Cost Jardin" MachineUniqueID="2280" Parameter="Position" IsComposite="false" Type="Target" Target="12" ConstraintType="Velocity" Time="0" Velocity="0.25" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Test 3" Description="" Type="Sequence">
+            <Animation Machine="Cost Jardin" MachineUniqueID="2280" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="2" End="5" Duration="10" TimeOffset="0" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
     </ManoeuvreList>
 </Plot>

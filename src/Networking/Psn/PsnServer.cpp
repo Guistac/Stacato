@@ -87,17 +87,17 @@ void PsnServer::initialize(){
 		"\n";
 	script->load(defaultScript);
 	
-	ipAddress0->setEditCallback([this](std::shared_ptr<Parameter>){
-		uint8_t IP_MSB = ipAddress0->value;
+	destinationIp0->setEditCallback([this](std::shared_ptr<Parameter>){
+		uint8_t IP_MSB = destinationIp0->value;
 		b_addressIsMulticast = IP_MSB >> 4 == 0b1110;
 	});
 	
 }
 
 void PsnServer::connect(){
-    udpSocket = Network::getUdpMulticastSocket({networkIpAddress0->value, networkIpAddress1->value, networkIpAddress2->value, networkIpAddress3->value},
-                                               {ipAddress0->value, ipAddress1->value, ipAddress2->value, ipAddress3->value},
-                                               portNumber->value);
+    udpSocket = Network::getUdpMulticastSocket({destinationIp0->value, destinationIp1->value, destinationIp2->value, destinationIp3->value},
+                                               {localIp0->value, localIp1->value, localIp2->value, localIp3->value},
+                                               destinationPortNumber->value);
 	psnEncoder = std::make_shared<psn::psn_encoder>(serverName->value);
 	if(udpSocket != nullptr && startServer()) b_online = true;
 	else b_online = false;
@@ -107,11 +107,12 @@ void PsnServer::connect(){
 void PsnServer::disconnect(){
     stopServer();
     b_online = false;
+	b_isSending = false;
     udpSocket = nullptr;
 }
 
 bool PsnServer::isConnected(){
-	return b_online;
+	return b_online && b_isSending;
 }
 
 bool PsnServer::isDetected(){
@@ -146,9 +147,9 @@ bool PsnServer::startServer(){
 	serverProgramStartTimeMicroseconds = Timing::getProgramTime_nanoseconds() / 1000;
 	
     
-    uint32_t address_u32 = ipAddress0->value << 24 | ipAddress1->value << 16 | ipAddress2->value << 8 | ipAddress3->value;
+    uint32_t address_u32 = destinationIp0->value << 24 | destinationIp1->value << 16 | destinationIp2->value << 8 | destinationIp3->value;
     asio::ip::address_v4 address = asio::ip::make_address_v4(address_u32);
-    asio::ip::udp::endpoint endpoint(address, portNumber->value);
+    asio::ip::udp::endpoint endpoint(address, destinationPortNumber->value);
     
     
 	b_serverRunning = true;
@@ -172,8 +173,9 @@ bool PsnServer::startServer(){
                 size_t size = packet.length();
                 
                 try {
-                    udpSocket->async_send(asio::buffer(buffer, size), [](asio::error_code error, size_t byteCount) {
-                        if (error) Logger::debug("Failed to send PSN Info Message: {}", error.message());
+                    udpSocket->async_send(asio::buffer(buffer, size), [this](asio::error_code error, size_t byteCount) {
+						if (error) b_isSending = false;
+						else b_isSending = true;
                     });
                      
                 }
@@ -215,8 +217,9 @@ bool PsnServer::startServer(){
                 size_t size = packet.length();
                 
                 try {
-                    udpSocket->async_send(asio::buffer(buffer, size), [](asio::error_code error, size_t byteCount) {
-                        if (error) Logger::debug("Failed to send PSN Data Message: {}", error.message());
+                    udpSocket->async_send(asio::buffer(buffer, size), [this](asio::error_code error, size_t byteCount) {
+						if (error) b_isSending = false;
+						else b_isSending = true;
                     });
                 }
                 catch (std::exception e) {
@@ -256,8 +259,12 @@ void PsnServer::sendInfo(){
 		size_t size = packet.length();
 		
 		try {
-			udpSocket->async_send(asio::buffer(buffer, size), [](asio::error_code error, size_t byteCount) {
-				if (error) Logger::debug("Failed to send PSN Info Message: {}", error.message());
+			udpSocket->async_send(asio::buffer(buffer, size), [this](asio::error_code error, size_t byteCount) {
+				if (error) {
+					Logger::debug("Failed to send PSN Info Message: {}", error.message());
+					b_isSending = false;
+				}
+				else b_isSending = true;
 			});
 		}
 		catch (std::exception e) {
@@ -285,8 +292,11 @@ void PsnServer::sendData(){
 		size_t size = packet.length();
 		
 		try {
-			udpSocket->async_send(asio::buffer(buffer, size), [](asio::error_code error, size_t byteCount) {
-				if (error) Logger::debug("Failed to send PSN Data Message: {}", error.message());
+			udpSocket->async_send(asio::buffer(buffer, size), [this](asio::error_code error, size_t byteCount) {
+				if (error) {
+					Logger::debug("Failed to send PSN Data Message: {}", error.message());
+					b_isSending = false;
+				}else b_isSending = true;
 			});
 		}
 		catch (std::exception e) {
@@ -298,11 +308,11 @@ void PsnServer::sendData(){
 
 
 void PsnServer::setDefaultAddressSettings(){
-	ipAddress0->overwriteWithHistory(236);
-	ipAddress1->overwriteWithHistory(10);
-	ipAddress2->overwriteWithHistory(10);
-	ipAddress3->overwriteWithHistory(10);
-	portNumber->overwriteWithHistory(56565);
+	destinationIp0->overwriteWithHistory(236);
+	destinationIp1->overwriteWithHistory(10);
+	destinationIp2->overwriteWithHistory(10);
+	destinationIp3->overwriteWithHistory(10);
+	destinationPortNumber->overwriteWithHistory(56565);
 }
 
 
@@ -312,23 +322,17 @@ bool PsnServer::save(tinyxml2::XMLElement* xml){
 	
 	XMLElement* networkXML = xml->InsertNewChildElement("Network");
 	serverName->save(networkXML);
-	ipAddress0->save(networkXML);
-	ipAddress1->save(networkXML);
-	ipAddress2->save(networkXML);
-	ipAddress3->save(networkXML);
-	portNumber->save(networkXML);
+	destinationIp0->save(networkXML);
+	destinationIp1->save(networkXML);
+	destinationIp2->save(networkXML);
+	destinationIp3->save(networkXML);
+	destinationPortNumber->save(networkXML);
+	localIp0->save(networkXML);
+	localIp1->save(networkXML);
+	localIp2->save(networkXML);
+	localIp3->save(networkXML);
 	infoSendingFrequency->save(networkXML);
 	dataSendingFrequency->save(networkXML);
-	
-	networkIpAddress0->save(networkXML);
-	networkIpAddress1->save(networkXML);
-	networkIpAddress2->save(networkXML);
-	networkIpAddress3->save(networkXML);
-	
-	networkMask0->save(networkXML);
-	networkMask1->save(networkXML);
-	networkMask2->save(networkXML);
-	networkMask3->save(networkXML);
 	
 	XMLElement* scriptXML = xml->InsertNewChildElement("Script");
 	scriptXML->SetText(script->getScriptText().c_str());
@@ -343,22 +347,20 @@ bool PsnServer::load(tinyxml2::XMLElement* xml){
 	XMLElement* networkXML;
 	if(!loadXMLElement("Network", xml, networkXML)) return false;
 	if(!serverName->load(networkXML)) return false;
-	if(!ipAddress0->load(networkXML)) return false;
-	if(!ipAddress1->load(networkXML)) return false;
-	if(!ipAddress2->load(networkXML)) return false;
-	if(!ipAddress3->load(networkXML)) return false;
-	if(!portNumber->load(networkXML)) return false;
-    if(!networkIpAddress0->load(networkXML)) return false;
-    if(!networkIpAddress1->load(networkXML)) return false;
-    if(!networkIpAddress2->load(networkXML)) return false;
-    if(!networkIpAddress3->load(networkXML)) return false;
-    if(!networkMask0->load(networkXML)) return false;
-    if(!networkMask1->load(networkXML)) return false;
-    if(!networkMask2->load(networkXML)) return false;
-    if(!networkMask3->load(networkXML)) return false;
+	
+	if(!destinationIp0->load(networkXML)) return false;
+	if(!destinationIp1->load(networkXML)) return false;
+	if(!destinationIp2->load(networkXML)) return false;
+	if(!destinationIp3->load(networkXML)) return false;
+	if(!destinationPortNumber->load(networkXML)) return false;
+    if(!localIp0->load(networkXML)) return false;
+    if(!localIp1->load(networkXML)) return false;
+    if(!localIp2->load(networkXML)) return false;
+    if(!localIp3->load(networkXML)) return false;
+	 
 	if(!infoSendingFrequency->load(networkXML)) return false;
 	if(!dataSendingFrequency->load(networkXML)) return false;
-	ipAddress0->onEdit();
+	destinationIp0->onEdit();
 	
 	XMLElement* scriptXML;
 	if(!loadXMLElement("Script", xml, scriptXML)) return false;

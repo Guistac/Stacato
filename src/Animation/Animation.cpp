@@ -251,7 +251,8 @@ float Animation::getPlaybackProgress(){
 //—————————— Playback ——————————
 
 void Animation::startPlayback(){
-	if(!b_isPaused) animatable->stopAnimation();
+	//if(!b_isPaused) animatable->stopAnimation();
+	animatable->stopAnimation();
 	if(onStartPlayback()){
 		updateDuration();
 		
@@ -262,8 +263,9 @@ void Animation::startPlayback(){
 		b_isInRapid = false;
 		
 		auto thisAnimation = shared_from_this();
-		animatable->currentAnimation = thisAnimation;
-		animatable->onPlaybackStart();
+		animatable->onPlaybackStart(thisAnimation);
+		//animatable->currentAnimation = thisAnimation;
+		//animatable->onPlaybackStart();
 		
 		PlaybackManager::push(thisAnimation);
 		if(manoeuvre) PlaybackManager::push(manoeuvre);
@@ -276,7 +278,6 @@ void Animation::pausePlayback(){
 	if(!b_isPlaying) return;
 	b_isPlaying = false;
 	b_isPaused = true;
-	animatable->currentAnimation = nullptr;
 	animatable->onPlaybackPause();
 }
 
@@ -284,8 +285,7 @@ void Animation::stopPlayback(){
 	if(!b_isPlaying && !b_isPaused) return;
 	b_isPlaying = false;
 	b_isPaused = false;
-	animatable->currentAnimation = nullptr;
-	animatable->onPlaybackStop();
+	if(animatable->currentAnimation == shared_from_this()) animatable->onPlaybackStop();
 	setPlaybackPosition(0.0);
 }
 

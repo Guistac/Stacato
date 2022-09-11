@@ -58,6 +58,7 @@ class PositionControlledMachine : public Machine{
 	std::shared_ptr<BooleanParameter> allowUserHoming = BooleanParameter::make(false, "Allow User Homing", "AllowUserHoming");
 	std::shared_ptr<BooleanParameter> allowUserEncoderValueOverride = BooleanParameter::make(false, "Allow User Encoder Value Override", "AllowUserEncoderValueOverride");
 	std::shared_ptr<BooleanParameter> allowUserEncoderRangeReset = BooleanParameter::make(false, "Allow User Encoder Range Reset", "AllowUserEncoderRangeReset");
+	std::shared_ptr<BooleanParameter> invertControlGui = BooleanParameter::make(false, "Invert Control Gui", "InvertControlGui");
 	
 	//————————— Unit Conversion & Limits ——————————
 	

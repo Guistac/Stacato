@@ -49,7 +49,15 @@ std::shared_ptr<SequenceAnimation> SequenceAnimation::copy(){
 	copy->timeOffset->overwrite(timeOffset->value);
 	copy->inAcceleration->overwrite(inAcceleration->value);
 	copy->outAcceleration->overwrite(outAcceleration->value);
-	//TODO: copy intermediate control points of all curves
+	
+	auto& copyCurves = copy->getCurves();
+	auto& originalCurves = getCurves();
+	
+	copyCurves.clear();
+	for(auto& curve : getCurves()){
+		copyCurves.push_back(curve->copy());
+	}
+	
 	copy->updateAfterParameterEdit();
 	return copy;
 }
@@ -238,11 +246,13 @@ void SequenceAnimation::getCurvePositionRange(double& min, double& max){
 void SequenceAnimation::captureStart(){
 	auto animatable = getAnimatable();
 	animatable->setParameterValueFromAnimationValue(start, animatable->getActualValue());
+	updateAfterParameterEdit();
 }
 
 void SequenceAnimation::captureTarget(){
 	auto animatable = getAnimatable();
 	animatable->setParameterValueFromAnimationValue(target, animatable->getActualValue());
+	updateAfterParameterEdit();
 }
 
 

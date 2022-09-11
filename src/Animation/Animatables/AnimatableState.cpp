@@ -110,9 +110,18 @@ void AnimatableState::onRapidToValue(std::shared_ptr<AnimationValue> animationVa
 	b_inRapid = true;
 }
 
-void AnimatableState::onPlaybackStart(){}
-void AnimatableState::onPlaybackPause(){}
-void AnimatableState::onPlaybackStop(){}
+void AnimatableState::onPlaybackStart(std::shared_ptr<Animation> animation){
+	const std::lock_guard<std::mutex> lock(mutex);
+	currentAnimation = animation;
+}
+void AnimatableState::onPlaybackPause(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	currentAnimation = nullptr;
+}
+void AnimatableState::onPlaybackStop(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	currentAnimation = nullptr;
+}
 void AnimatableState::onPlaybackEnd(){}
 void AnimatableState::stopMovement(){
 	targetValue->value = stoppedState;

@@ -88,7 +88,7 @@ public:
 	//—————————movement commands——————————
 	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) override;
 	virtual void cancelRapid() override;
-	virtual void onPlaybackStart() override;
+	virtual void onPlaybackStart(std::shared_ptr<Animation> animation) override;
 	virtual void onPlaybackPause() override;
 	virtual void onPlaybackStop() override;
 	virtual void onPlaybackEnd() override;
@@ -161,8 +161,16 @@ public:
 	double velocitySliderDisplayValue = 0.0;
 	double rapidTargetPositionDisplayValue = 0.0;
 	
-	void manualControlsVerticalGui(float sliderHeight, const char* customName = nullptr);
+	void manualControlsVerticalGui(float sliderHeight, const char* customName = nullptr, bool invert = false);
 	void manualControlsHorizontalGui(float sliderWidth, const char* customName = nullptr);
+	
+	
+	virtual std::string getTargetValueString() override{
+		static char targetstring[128];
+		sprintf(targetstring, "%.3f%s", getTargetValue()->toPosition()->position, getUnit()->abbreviated);
+		return std::string(targetstring);
+	}
+	
 };
 
 

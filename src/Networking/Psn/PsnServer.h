@@ -41,6 +41,7 @@ private:
 	std::unique_ptr<asio::ip::udp::socket> udpSocket;
 	std::shared_ptr<psn::psn_encoder> psnEncoder;
 	bool b_online = false;
+	bool b_isSending = false;
 	
 	void removeAllTrackers();
 	psn::tracker_map trackers;
@@ -71,20 +72,16 @@ private:
 																								  "%.1f",
 																								  Units::Frequency::Hertz,
 																								  false);
-	std::shared_ptr<NumberParameter<uint8_t>> ipAddress0 = NumberParameter<uint8_t>::make(236, "PSN IP Octet 0", "IpOctet0");
-	std::shared_ptr<NumberParameter<uint8_t>> ipAddress1 = NumberParameter<uint8_t>::make(10, "PSN IP Octet 1", "IpOctet1");
-	std::shared_ptr<NumberParameter<uint8_t>> ipAddress2 = NumberParameter<uint8_t>::make(10, "PSN IP Octet 2", "IpOctet2");
-	std::shared_ptr<NumberParameter<uint8_t>> ipAddress3 = NumberParameter<uint8_t>::make(10, "PSN IP Octet 3", "IpOctet3");
-	std::shared_ptr<NumberParameter<uint16_t>> portNumber = NumberParameter<uint16_t>::make(56565, "PSN Port Number", "Port");
+	std::shared_ptr<NumberParameter<uint8_t>> destinationIp0 = NumberParameter<uint8_t>::make(236, "PSN Destination IP Octet 0", "DestinationIpOctet0");
+	std::shared_ptr<NumberParameter<uint8_t>> destinationIp1 = NumberParameter<uint8_t>::make(10, "PSN Destination IP Octet 1", "DestinationIpOctet1");
+	std::shared_ptr<NumberParameter<uint8_t>> destinationIp2 = NumberParameter<uint8_t>::make(10, "PSN Destination IP Octet 2", "DestinationIpOctet2");
+	std::shared_ptr<NumberParameter<uint8_t>> destinationIp3 = NumberParameter<uint8_t>::make(10, "PSN Destination IP Octet 3", "DestinationIpOctet3");
+	std::shared_ptr<NumberParameter<uint16_t>> destinationPortNumber = NumberParameter<uint16_t>::make(56565, "PSN Destination Port Number", "Port");
 	
-	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress0 = NumberParameter<uint8_t>::make(192, "PSN Network IP Octet 0", "NetworkIpOctet0");
-	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress1 = NumberParameter<uint8_t>::make(168, "PSN Network IP Octet 1", "NetworkIpOctet1");
-	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress2 = NumberParameter<uint8_t>::make(0, "PSN Network IP Octet 2", "NetworkIpOctet2");
-	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress3 = NumberParameter<uint8_t>::make(0, "PSN Network IP Octet 3", "NetworkIpOctet3");
-	std::shared_ptr<NumberParameter<uint8_t>> networkMask0 = NumberParameter<uint8_t>::make(255, "PSN Network Mask Octet 0", "NetworkMaskOctet0");
-	std::shared_ptr<NumberParameter<uint8_t>> networkMask1 = NumberParameter<uint8_t>::make(255, "PSN Network Mask Octet 1", "NetworkMaskOctet1");
-	std::shared_ptr<NumberParameter<uint8_t>> networkMask2 = NumberParameter<uint8_t>::make(255, "PSN Network Mask Octet 2", "NetworkMaskOctet2");
-	std::shared_ptr<NumberParameter<uint8_t>> networkMask3 = NumberParameter<uint8_t>::make(0, "PSN Network Mask Octet 3", "NetworkMaskOctet3");
+	std::shared_ptr<NumberParameter<uint8_t>> localIp0 = NumberParameter<uint8_t>::make(192, "PSN Local IP Octet 0", "LocalIpOctet0");
+	std::shared_ptr<NumberParameter<uint8_t>> localIp1 = NumberParameter<uint8_t>::make(168, "PSN Local IP Octet 1", "LocalIpOctet1");
+	std::shared_ptr<NumberParameter<uint8_t>> localIp2 = NumberParameter<uint8_t>::make(0, "PSN Local IP Octet 2", "LocalIpOctet2");
+	std::shared_ptr<NumberParameter<uint8_t>> localIp3 = NumberParameter<uint8_t>::make(0, "PSN Local IP Octet 3", "LocalIpOctet3");
 	
 	std::shared_ptr<LuaScript> script;
 	

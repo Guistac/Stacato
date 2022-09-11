@@ -242,16 +242,22 @@ namespace Gui {
         
         ImGui::SameLine();
         
-        time_t currentTime;
-        tm* curr_tm;
-        time(&currentTime);
-        curr_tm = localtime(&currentTime);
-        static char timeString[128];
-        strftime(timeString, 128, timeString, curr_tm);
+		auto t = std::time(nullptr);
+		auto tm = *std::localtime(&t);
+		std::ostringstream oss;
+		oss << std::put_time(&tm, "%H:%M:%S");
+		auto timeString = oss.str();
         
+		ImGui::BeginGroup();
         ImGui::PushFont(Fonts::sansLight26);
-        //backgroundText(timeString, glm::vec2(ImGui::CalcTextSize("00:00:00").x, height), Colors::darkGray);
+		glm::vec2 timeSize(ImGui::CalcTextSize("00:00:00").x, buttonHeight);
+		backgroundText(timeString.c_str(), timeSize, Colors::darkGray);
         ImGui::PopFont();
+		
+		ImGui::PushFont(Fonts::sansRegular12);
+		backgroundText("Current Time", glm::vec2(timeSize.x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
+		ImGui::PopFont();
+		ImGui::EndGroup();
 		
 		
 		ImGui::PopStyleVar();

@@ -123,10 +123,14 @@ void PositionControlledMachine::disableHardware() {
 
 void PositionControlledMachine::onEnableHardware() {
 	Logger::info("Enabled Machine {}", getName());
+	animatablePosition->stopMovement();
+	animatablePosition->stopAnimation();
 }
 
 void PositionControlledMachine::onDisableHardware() {
 	Logger::info("Disabled Machine {}", getName());
+	animatablePosition->stopMovement();
+	animatablePosition->stopAnimation();
 }
 
 bool PositionControlledMachine::isSimulationReady(){
@@ -302,11 +306,13 @@ void PositionControlledMachine::captureZero(){
 	if(invertAxis->value) axisOffset->overwriteWithHistory(getAxis()->getHighPositionLimit() - animatablePosition->motionProfile.getPosition());
 	else axisOffset->overwriteWithHistory(getAxis()->getLowPositionLimit() + animatablePosition->motionProfile.getPosition());
 	animatablePosition->motionProfile.setPosition(0.0);
+	animatablePosition->setManualVelocityTarget(0.0);
 }
 
 void PositionControlledMachine::resetZero(){
 	if(invertAxis->value) axisOffset->overwriteWithHistory(getAxis()->getHighPositionLimit());
 	else axisOffset->overwriteWithHistory(getAxis()->getLowPositionLimit());
+	animatablePosition->setManualVelocityTarget(0.0);
 }
 
 void PositionControlledMachine::captureLowerLimit(){
@@ -440,13 +446,13 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	allowUserHoming->save(userSetupXML);
 	allowUserEncoderRangeReset->save(userSetupXML);
 	allowUserEncoderValueOverride->save(userSetupXML);
+	invertControlGui->save(userSetupXML);
 	
 	XMLElement* widgetXML = xml->InsertNewChildElement("ControWidget");
 	widgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
 	
 	return true;
 }
-
 
 bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
@@ -466,6 +472,7 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	if(!allowUserHoming->load(userSetupXML)) return false;
 	if(!allowUserEncoderRangeReset->load(userSetupXML)) return false;
 	if(!allowUserEncoderValueOverride->load(userSetupXML)) return false;
+	if(!invertControlGui->load(userSetupXML)) return false;
 	 
 	XMLElement* widgetXML = xml->FirstChildElement("ControWidget");
 	if(widgetXML == nullptr) return Logger::warn("Could not find Control Widget Attribute");

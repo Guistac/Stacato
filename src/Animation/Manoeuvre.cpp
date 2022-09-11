@@ -73,9 +73,31 @@ public:
 	virtual void onExecute(){
 		for(int i = 0; i < manoeuvre->getAnimations().size(); i++){
 			std::shared_ptr<Animation>& animation = manoeuvre->getAnimations()[i];
+			
+			std::shared_ptr<Parameter> previousTargetParameter;
+			switch(animation->getType()){
+				case ManoeuvreType::KEY: previousTargetParameter = animation->toKey()->target; break;
+				case ManoeuvreType::TARGET: previousTargetParameter = animation->toTarget()->target; break;
+				case ManoeuvreType::SEQUENCE: previousTargetParameter = animation->toSequence()->target; break;
+			}
+			std::shared_ptr<AnimationValue> previousTarget = animation->getAnimatable()->parameterValueToAnimationValue(previousTargetParameter);
+			
 			animation = Animation::create(animation->getAnimatable(), newType);
 			animation->setManoeuvre(manoeuvre);
 			animation->validate();
+			animation->fillDefaults();
+			
+			std::shared_ptr<Parameter> newTargetParameter;
+			switch(newType){
+				case ManoeuvreType::KEY: newTargetParameter = animation->toKey()->target; break;
+				case ManoeuvreType::TARGET: newTargetParameter = animation->toTarget()->target; break;
+				case ManoeuvreType::SEQUENCE: newTargetParameter = animation->toSequence()->target; break;
+			}
+			animation->getAnimatable()->setParameterValueFromAnimationValue(newTargetParameter, previousTarget);
+			
+			if(newType == ManoeuvreType::SEQUENCE) animation->toSequence()->updateAfterParameterEdit();
+			else animation->validate();
+			
 		}
 		newTracks = manoeuvre->getAnimations();
 		manoeuvre->updateAnimationSummary();
