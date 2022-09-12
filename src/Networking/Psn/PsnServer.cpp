@@ -95,8 +95,8 @@ void PsnServer::initialize(){
 }
 
 void PsnServer::connect(){
-    udpSocket = Network::getUdpMulticastSocket({destinationIp0->value, destinationIp1->value, destinationIp2->value, destinationIp3->value},
-                                               {localIp0->value, localIp1->value, localIp2->value, localIp3->value},
+    udpSocket = Network::getUdpMulticastSocket({localIp0->value, localIp1->value, localIp2->value, localIp3->value},
+                                               {destinationIp0->value, destinationIp1->value, destinationIp2->value, destinationIp3->value},
                                                destinationPortNumber->value);
 	psnEncoder = std::make_shared<psn::psn_encoder>(serverName->value);
 	if(udpSocket != nullptr && startServer()) b_online = true;
@@ -242,67 +242,6 @@ void PsnServer::stopServer(){
 	Logger::info("Stopping PSN Server");
 	b_serverRunning = false;
 	script->stop();
-}
-
-void PsnServer::sendInfo(){
-	
-	long long packetTimestamp = (Timing::getProgramTime_nanoseconds() / 1000) - serverProgramStartTimeMicroseconds;
-	
-	trackerMutex.lock();
-	std::list<std::string> info_packets = psnEncoder->encode_info(trackers, packetTimestamp);
-	trackerMutex.unlock();
-	
-	for(auto it = info_packets.begin(); it != info_packets.end(); it++){
-		auto packet = *it;
-		
-		uint8_t* buffer = (uint8_t*)packet.c_str();
-		size_t size = packet.length();
-		
-		try {
-			udpSocket->async_send(asio::buffer(buffer, size), [this](asio::error_code error, size_t byteCount) {
-				if (error) {
-					Logger::debug("Failed to send PSN Info Message: {}", error.message());
-					b_isSending = false;
-				}
-				else b_isSending = true;
-			});
-		}
-		catch (std::exception e) {
-			Logger::error("Failed to start async_send: {}", e.what());
-		}
-	}
-}
-
-void PsnServer::sendData(){
-
-	long long trackerTimestamp = (Environnement::getTime_nanoseconds() / 1000) - serverEnvironnementStartTimeMicroseconds;
-	long long packetTimestamp = (Timing::getProgramTime_nanoseconds() / 1000) - serverProgramStartTimeMicroseconds;
-	
-	script->callFunction("update");
-	for(uint16_t i = 0; i < trackerCount; i++) trackers[i].set_timestamp(trackerTimestamp);
-	
-	trackerMutex.lock();
-	std::list<std::string> data_packets = psnEncoder->encode_data(trackers, packetTimestamp);
-	trackerMutex.unlock();
-	
-	for(auto it = data_packets.begin(); it != data_packets.end(); it++){
-		auto packet = *it;
-		
-		uint8_t* buffer = (uint8_t*)packet.c_str();
-		size_t size = packet.length();
-		
-		try {
-			udpSocket->async_send(asio::buffer(buffer, size), [this](asio::error_code error, size_t byteCount) {
-				if (error) {
-					Logger::debug("Failed to send PSN Data Message: {}", error.message());
-					b_isSending = false;
-				}else b_isSending = true;
-			});
-		}
-		catch (std::exception e) {
-			Logger::error("Failed to start async_send: {}", e.what());
-		}
-	}
 }
 
 

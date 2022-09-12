@@ -102,7 +102,7 @@ void Animation::baseTrackSheetRowGui(){
 	ImGui::TableSetColumnIndex(4);
 	backgroundText(getAnimatable()->getTargetValueString().c_str(),
 				   glm::vec2(ImGui::GetTextLineHeight() * 4.0, ImGui::GetFrameHeight()),
-				   ImGui::GetStyle().Colors[ImGuiCol_FrameBg]);
+				   Colors::black, Colors::white);
 	
 }
 

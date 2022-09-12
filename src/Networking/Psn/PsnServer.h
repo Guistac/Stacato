@@ -54,9 +54,6 @@ private:
 	long long serverEnvironnementStartTimeMicroseconds;
 	long long serverProgramStartTimeMicroseconds;
 	
-	void sendInfo();
-	void sendData();
-	
 	std::shared_ptr<StringParameter> serverName = StringParameter::make("Stacato PSN Server", "PSN Server Name", "ServerName", 512);
 	
 	std::shared_ptr<NumberParameter<double>> infoSendingFrequency = NumberParameter<double>::make(1.0,
