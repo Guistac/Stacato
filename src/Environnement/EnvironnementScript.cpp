@@ -10,6 +10,8 @@
 namespace Environnement{
 namespace Script{
 
+    std::mutex mutex;
+
 	std::string scriptFolder;
 
 	LuaScript script("Environnement Script");
@@ -31,6 +33,7 @@ namespace Script{
    
    void start(){
 	   script.stop();
+       const std::lock_guard<std::mutex> lock(mutex);
 	   script.setLoadLibrairiesCallback([](lua_State* L){
 		   Scripting::EnvironnementLibrary::openlib(L, true);
 		   
@@ -53,10 +56,12 @@ namespace Script{
    }
 
 	void update(){
+        const std::lock_guard<std::mutex> lock(mutex);
 		if(script.isRunning()) script.callFunction("update");
 	}
 
    void stop(){
+       const std::lock_guard<std::mutex> lock(mutex);
 	   //TODO: this sometimes crashes
 	   if(script.checkHasFunction("exit")) script.callFunction("exit");
 	   script.stop(); //TODO: this crashes sometimes

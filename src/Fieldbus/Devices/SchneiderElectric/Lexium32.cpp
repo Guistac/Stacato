@@ -211,6 +211,7 @@ void Lexium32::readInputs() {
 		
 		//EXPERIMENTAL: report auto clear status
 		if(_LastError == 0x0 && previousError == 0xB121){
+            enableRequestTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 			if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED){
 				Logger::critical("{} Auto-Recovered from error B121 while in operational state", getName());
 			}else{
