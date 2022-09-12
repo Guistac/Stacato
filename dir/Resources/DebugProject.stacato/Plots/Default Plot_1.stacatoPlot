@@ -1013,33 +1013,123 @@
             <Animation Machine="Cost Jardin" MachineUniqueID="2280" Parameter="Position" IsComposite="false" Type="Target" Target="3.1000000000000001" ConstraintType="Velocity" Time="0" Velocity="0.25" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999"/>
         </Manoeuvre>
         <Manoeuvre Name="Underground" Description="Sortie Bar" Type="Target">
-            <Animation Machine="Cost Cour" MachineUniqueID="2303" Parameter="Position" IsComposite="false" Type="Target" Target="2.1000000000000001" ConstraintType="Velocity" Time="0" Velocity="0.25" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999"/>
+            <Animation Machine="Cost Cour" MachineUniqueID="2303" Parameter="Position" IsComposite="false" Type="Target" Target="2.1000000000000001" ConstraintType="Velocity" Time="0" Velocity="0.40000000000000002" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999"/>
         </Manoeuvre>
         <Manoeuvre Name="Underground" Description="Sortie Périactes" Type="Target">
             <Animation Machine="Périactes Milieu" MachineUniqueID="2233" Parameter="Jardin" IsComposite="false" Type="Target" Target="-12" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
             <Animation Machine="Périactes Milieu" MachineUniqueID="2233" Parameter="Cour" IsComposite="false" Type="Target" Target="12" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
             <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Cour" IsComposite="false" Type="Target" Target="12.000000279817968" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
+        <Manoeuvre Name="Mise: Starmania, Starmania" Description="Mise accroche pratos musiciens" Type="Key">
+            <Animation Machine="Cost Jardin" MachineUniqueID="2280" Parameter="Position" IsComposite="false" Type="Key" Target="4.2000000637034844"/>
+            <Animation Machine="Cost Cour" MachineUniqueID="2303" Parameter="Position" IsComposite="false" Type="Key" Target="4.2000000000000002"/>
+        </Manoeuvre>
         <Manoeuvre Name="JT #2" Description="Entrée Lames " Type="Target">
-            <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Face" IsComposite="false" Type="Target" Target="0.001" ConstraintType="Time" Time="35" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
-            <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Lointain" IsComposite="false" Type="Target" Target="1" ConstraintType="Time" Time="35" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
+            <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Face" IsComposite="false" Type="Target" Target="0.001" ConstraintType="Time" Time="40" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
+            <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Lointain" IsComposite="false" Type="Target" Target="1" ConstraintType="Time" Time="35" Velocity="0.5" StartAcceleration="0.025000000000000001" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
         <Manoeuvre Name="JT #2" Description="Sortie Lames " Type="Target">
             <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Face" IsComposite="false" Type="Target" Target="11" ConstraintType="Time" Time="35" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
-            <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Lointain" IsComposite="false" Type="Target" Target="11" ConstraintType="Time" Time="35" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
+            <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Lointain" IsComposite="false" Type="Target" Target="11" ConstraintType="Time" Time="40" Velocity="0.5" StartAcceleration="0.025000000000000001" EndAcceleration="0.050000000000000003"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Travesti" Description="Mise Tournette" Type="Key">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Key" Target="720"/>
         </Manoeuvre>
         <Manoeuvre Name="Travesti" Description="Tournette Voiture (Tour Complet -&gt; Axé)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="320" ConstraintType="Time" Time="45" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="334" ConstraintType="Time" Time="45" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="Travesti" Description="Tournette Voiture (90° -&gt; Cour)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="230" ConstraintType="Time" Time="15" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="244" ConstraintType="Time" Time="15" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Travesti (copy)" Description="Tournette Voiture (90° -&gt; Cour)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="185" ConstraintType="Time" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+        <Manoeuvre Name="JT #3" Description="Entrée Lames + Tournette" Type="Target">
+            <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Face" IsComposite="false" Type="Target" Target="0.001" ConstraintType="Time" Time="40" Velocity="0.5" StartAcceleration="0.025000000000000001" EndAcceleration="0.050000000000000003"/>
+            <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Lointain" IsComposite="false" Type="Target" Target="1" ConstraintType="Time" Time="35" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="153.9998878754856" ConstraintType="Time" Time="0" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Starmania Starmania" Description="Debut tournette brouillon (escalier + vol)" Type="Key">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Key" Target="538.65539868200335"/>
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Anneau" IsComposite="false" Type="Key" Target="540.03890818895161"/>
+        <Manoeuvre Name="JT #3" Description="Sortie Lames " Type="Target">
+            <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Face" IsComposite="false" Type="Target" Target="11" ConstraintType="Time" Time="43" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
+            <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Lointain" IsComposite="false" Type="Target" Target="11" ConstraintType="Time" Time="50" Velocity="0.5" StartAcceleration="0.025000000000000001" EndAcceleration="0.050000000000000003"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Il se passe quelque chose à Monopolis" Description="Escalier tour complet horaire" Type="Target">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="514" ConstraintType="Time" Time="92" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Conférence de presse (Mass Media)" Description="Escalier Tour complet anti-horaire" Type="Target">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="154" ConstraintType="Time" Time="45" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Conférence de presse (Mass Media)" Description="Fermeture Romaine" Type="Key"/>
+        <Manoeuvre Name="Mise: Starmania, Starmania" Description="Mise Periactes" Type="Key">
+            <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Jardin" IsComposite="false" Type="Key" Target="-2.5"/>
+            <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Cour" IsComposite="false" Type="Key" Target="2.5"/>
+            <Animation Machine="Périactes Face" MachineUniqueID="2243" Parameter="Jardin" IsComposite="false" Type="Key" Target="-8.5"/>
+            <Animation Machine="Périactes Face" MachineUniqueID="2243" Parameter="Cour" IsComposite="false" Type="Key" Target="8.0000003528044736"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Mise: Starmania, Starmania" Description="Mise Praticables Musiciens" Type="Key">
+            <Animation Machine="Cost Jardin" MachineUniqueID="2280" Parameter="Position" IsComposite="false" Type="Key" Target="9.5999999999999996"/>
+            <Animation Machine="Cost Cour" MachineUniqueID="2303" Parameter="Position" IsComposite="false" Type="Key" Target="9.5999999999999996"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Mise: Starmania, Starmania" Description="Descente Fils Vol" Type="Key">
+            <Animation Machine="Vol Cour" MachineUniqueID="2419" Parameter="Position" IsComposite="false" Type="Key" Target="1.7"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Mise: Starmania, Starmania" Description="Tension Fils Vol" Type="Key"/>
+        <Manoeuvre Name="Mise: Starmania, Starmania" Description="Montée Vol" Type="Key">
+            <Animation Machine="Vol Cour" MachineUniqueID="2419" Parameter="Position" IsComposite="false" Type="Key" Target="4.4000000000000004"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Mise: Starmania, Starmania (copy)" Description="Ouverture Flips Face" Type="Key">
+            <Animation Machine="Flip C-J2" MachineUniqueID="1749" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
+            <Animation Machine="Flip C-C2" MachineUniqueID="1765" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Mise: Starmania, Starmania" Description="Ouverture Flips Lointain" Type="Key">
+            <Animation Machine="Flip G-J2" MachineUniqueID="1456" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
+            <Animation Machine="Flip G-Axe" MachineUniqueID="1514" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
+            <Animation Machine="Flip G-C2" MachineUniqueID="1550" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Starmania, Starmania" Description="Ouverture Romaine" Type="Key"/>
+        <Manoeuvre Name="Starmania, Starmania" Description="Descente Vol" Type="Key">
+            <Animation Machine="Vol Cour" MachineUniqueID="2419" Parameter="Position" IsComposite="false" Type="Key" Target="1.7"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Starmania, Starmania" Description="Disparition Fils Vol" Type="Key">
+            <Animation Machine="Vol Cour" MachineUniqueID="2419" Parameter="Position" IsComposite="false" Type="Key" Target="7.7999999999999998"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Starmania, Starmania (copy)" Description="MISE: mise tourneette" Type="Target">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="334" ConstraintType="Time" Time="0" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Anneau" IsComposite="false" Type="Target" Target="720.00000088956392" ConstraintType="Time" Time="0" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Starmania, Starmania" Description="Escalier face tournette synchro" Type="Target">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="720" ConstraintType="Time" Time="25" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Starmania, Starmania" Description="MISE: Anneau Anti horaire" Type="Target">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Anneau" IsComposite="false" Type="Target" Target="720" ConstraintType="Time" Time="0" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Starmania, Starmania" Description="Anneau horaire avec danseurs" Type="Target">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Anneau" IsComposite="false" Type="Target" Target="900" ConstraintType="Time" Time="28" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Starmania, Starmania" Description="Tournette Centre anti horaire" Type="Target">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="154" ConstraintType="Time" Time="30" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Interview Zero Janvier" Description="Fermeture Flips Lointain" Type="Key">
+            <Animation Machine="Flip G-J2" MachineUniqueID="1456" Parameter="State" IsComposite="false" Type="Key" Target="Closed"/>
+            <Animation Machine="Flip G-Axe" MachineUniqueID="1514" Parameter="State" IsComposite="false" Type="Key" Target="Closed"/>
+            <Animation Machine="Flip G-C2" MachineUniqueID="1550" Parameter="State" IsComposite="false" Type="Key" Target="Closed"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Interview Zero Janvier" Description="tournette + sortie musiciens et periactes face" Type="Target">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Anneau" IsComposite="false" Type="Target" Target="719.9999928834892" ConstraintType="Time" Time="25" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="-26" ConstraintType="Time" Time="25" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Cost Jardin" MachineUniqueID="2280" Parameter="Position" IsComposite="false" Type="Target" Target="4.2000000000000002" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999"/>
+            <Animation Machine="Cost Cour" MachineUniqueID="2303" Parameter="Position" IsComposite="false" Type="Target" Target="4.2000000000000002" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999"/>
+            <Animation Machine="Périactes Face" MachineUniqueID="2243" Parameter="Jardin" IsComposite="false" Type="Target" Target="-12.800000000000001" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
+            <Animation Machine="Périactes Face" MachineUniqueID="2243" Parameter="Cour" IsComposite="false" Type="Target" Target="12.800000000000001" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Interview Zero Janvier" Description="Fermeture Flips Face" Type="Key">
+            <Animation Machine="Flip C-J2" MachineUniqueID="1749" Parameter="State" IsComposite="false" Type="Key" Target="Closed"/>
+            <Animation Machine="Flip C-C2" MachineUniqueID="1765" Parameter="State" IsComposite="false" Type="Key" Target="Closed"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Interview Zero Janvier" Description="Sortie Periactes Lointain" Type="Target">
+            <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Jardin" IsComposite="false" Type="Target" Target="-12" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
+            <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Cour" IsComposite="false" Type="Target" Target="12" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Mise: Costières Bar et Théâtre" Description="pour: un garcon pas comme les autres" Type="Target">
+            <Animation Machine="Cost Jardin" MachineUniqueID="2280" Parameter="Position" IsComposite="false" Type="Target" Target="3.1000000000000001" ConstraintType="Velocity" Time="0" Velocity="0.25" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999"/>
+            <Animation Machine="Cost Cour" MachineUniqueID="2303" Parameter="Position" IsComposite="false" Type="Target" Target="2.1000000000000001" ConstraintType="Velocity" Time="0" Velocity="0.25" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

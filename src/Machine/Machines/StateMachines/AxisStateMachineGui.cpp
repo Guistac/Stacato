@@ -182,7 +182,7 @@ void AxisStateMachine::widgetGui(){
             if(customButton("Move Up", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersTop)) requestState(State::AT_POSITIVE_LIMIT);
         }
         
-        if(requestedState == State::MOVING_TO_NEGATIVE_LIMIT && actualState == State::MOVING_TO_NEGATIVE_LIMIT){
+        if(actualState == State::AT_NEGATIVE_LIMIT){
             ImGui::BeginDisabled();
             customButton("At Lower Limit", commandButtonSize, reachedColor, rounding, ImDrawFlags_RoundCornersBottom);
             ImGui::EndDisabled();
