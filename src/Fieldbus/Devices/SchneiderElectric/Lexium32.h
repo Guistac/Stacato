@@ -9,6 +9,9 @@
 
 class Lexium32 : public EtherCatDevice {
 public:
+
+	//EXPERIMENTAL
+	bool b_autoClearingFault = false;
 	
     DEFINE_ETHERCAT_DEVICE(Lexium32, "Lexium32M", "Lexium32M", "Schneider Electric", "Servo Drives", 0x800005A, 0x16440)
 
