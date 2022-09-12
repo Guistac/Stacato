@@ -5,6 +5,8 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
+#include "Layout.h"
+
 
 void Window::addToDictionnary(){
 	auto thisWindow = shared_from_this();
@@ -35,8 +37,9 @@ void Window::draw(){
 	if(!b_padding) ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f,0.0f));
 	bool b_manualOpen = true;
     
-    //ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoInputs;
-    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
+    ImGuiWindowFlags windowFlags;
+    if(LayoutManager::b_lockLayout) windowFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
+    else windowFlags = ImGuiWindowFlags_None;
     
     
 	if(ImGui::Begin(name.c_str(), &b_manualOpen, windowFlags)){

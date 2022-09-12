@@ -1028,8 +1028,14 @@
             <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Face" IsComposite="false" Type="Target" Target="11" ConstraintType="Time" Time="35" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
             <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Lointain" IsComposite="false" Type="Target" Target="11" ConstraintType="Time" Time="35" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
-        <Manoeuvre Name="Travesti" Description="Tournette Voiture" Type="Target">
+        <Manoeuvre Name="Travesti" Description="Tournette Voiture (Tour Complet -&gt; Axé)" Type="Target">
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="320" ConstraintType="Time" Time="45" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Travesti" Description="Tournette Voiture (90° -&gt; Cour)" Type="Target">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="230" ConstraintType="Time" Time="15" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Travesti (copy)" Description="Tournette Voiture (90° -&gt; Cour)" Type="Target">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="185" ConstraintType="Time" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="Starmania Starmania" Description="Debut tournette brouillon (escalier + vol)" Type="Key">
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Key" Target="538.65539868200335"/>

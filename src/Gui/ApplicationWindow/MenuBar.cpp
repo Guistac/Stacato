@@ -81,7 +81,9 @@ namespace Gui {
 		}
 		if(ImGui::BeginMenu("View")){
 			if(ImGui::MenuItem("New layout")) LayoutManager::capture();
-			
+            
+            ImGui::MenuItem("Lock Current Layout", nullptr, &LayoutManager::b_lockLayout);
+            
 			ImGui::Separator();
 			
 			if(ImGui::MenuItem("Set factory layout")) Gui::setDefaultLayout();

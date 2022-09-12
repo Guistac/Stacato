@@ -106,6 +106,8 @@ void Layout::remove(){
 
 namespace LayoutManager{
 
+    bool b_lockLayout = true;
+
 	std::vector<std::shared_ptr<Layout>> layouts;
 	std::shared_ptr<Layout> currentLayout = nullptr;
 	std::shared_ptr<Layout> defaultLayout = nullptr;

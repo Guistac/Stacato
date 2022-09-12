@@ -50,7 +50,7 @@ Size=2056,961
 Collapsed=0
 
 [Window][Setup]
-ViewportPos=1915,1
+ViewportPos=1920,0
 ViewportId=0xF4DC17C2
 Size=342,1080
 Collapsed=0
@@ -62,7 +62,7 @@ Size=417,881
 Collapsed=0
 
 [Window][Track Sheet Editor]
-ViewportPos=1915,1
+ViewportPos=1920,0
 ViewportId=0xF4DC17C2
 Pos=344,0
 Size=1168,634
@@ -70,7 +70,7 @@ Collapsed=0
 DockId=0x00000005,0
 
 [Window][Curve Editor]
-ViewportPos=1915,1
+ViewportPos=1920,0
 ViewportId=0xF4DC17C2
 Pos=617,636
 Size=895,444
@@ -138,7 +138,7 @@ Size=393,168
 Collapsed=0
 
 [Window][Manoeuvre List]
-ViewportPos=1915,1
+ViewportPos=1920,0
 ViewportId=0xF4DC17C2
 Size=342,1080
 Collapsed=0
@@ -246,7 +246,7 @@ Size=639,938
 Collapsed=0
 
 [Window][EtherCAT Fieldbus]
-ViewportPos=1915,1
+ViewportPos=1920,0
 ViewportId=0xF4DC17C2
 Pos=1966,0
 Size=594,1080
@@ -259,7 +259,7 @@ Size=997,480
 Collapsed=0
 
 [Window][Log]
-ViewportPos=1915,1
+ViewportPos=1920,0
 ViewportId=0xF4DC17C2
 Pos=1514,0
 Size=450,1080
@@ -272,7 +272,7 @@ Size=676,254
 Collapsed=0
 
 [Window][Playback Manager]
-ViewportPos=1915,1
+ViewportPos=1920,0
 ViewportId=0xF4DC17C2
 Pos=344,636
 Size=271,444
@@ -285,7 +285,7 @@ Size=1555,938
 Collapsed=0
 
 [Window][EtherCAT Network]
-ViewportPos=1915,1
+ViewportPos=1920,0
 ViewportId=0xF4DC17C2
 Size=342,1080
 Collapsed=0
@@ -372,9 +372,9 @@ Column 4  Weight=1.0000
 Column 5  Weight=-1.0000
 
 [Docking][Data]
-DockNode            ID=0x0000000A Pos=1915,1 Size=2560,1080 Split=X
+DockNode            ID=0x0000000A Pos=1920,0 Size=2560,1080 Split=X
   DockNode          ID=0x00000007 Parent=0x0000000A SizeRef=1964,1080 Split=X
-    DockNode        ID=0x0000000B Parent=0x00000007 SizeRef=342,939 Selected=0xBC7A743B
+    DockNode        ID=0x0000000B Parent=0x00000007 SizeRef=342,939 Selected=0xEBD2820B
     DockNode        ID=0x0000000C Parent=0x00000007 SizeRef=1620,939 Split=X Selected=0xEE7B11E9
       DockNode      ID=0x00000001 Parent=0x0000000C SizeRef=1168,1080 Split=Y Selected=0x47C7A3F3
         DockNode    ID=0x00000005 Parent=0x00000001 SizeRef=1262,634 Selected=0x47C7A3F3
@@ -400,6 +400,10 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Centr
             <Window Name="Curve Editor"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
 
 
 
@@ -895,6 +899,10 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
 
 
 
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -1274,6 +1282,10 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Centr
             <Window Name="Node Editor"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
 
 
 

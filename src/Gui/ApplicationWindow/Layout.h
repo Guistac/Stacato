@@ -63,5 +63,7 @@ namespace LayoutManager{
 
 	void manage();
 
+    extern bool b_lockLayout;
+
 };
 
