@@ -196,22 +196,54 @@ void Lexium32::readInputs() {
 	}
 	actualPowerState = newPowerState;
 	
+	
+	//EXPERIMENTAL
+	if(_LastError == 0xB121){
+		b_autoClearingFault = true;
+	}else{
+		b_autoClearingFault = false;
+	}
+	
+	
+	
 	//Read Error
 	if(_LastError != previousError){
-		if(_LastError == 0x0) pushEvent("Error Cleared", false);
+		
+		//EXPERIMENTAL: report auto clear status
+		if(_LastError == 0x0 && previousError == 0xB121){
+			if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED){
+				Logger::critical("{} Auto-Recovered from error B121 while in operational state", getName());
+			}else{
+				Logger::critical("{} Auto-Recovered from error B121", getName());
+			}
+		}
+		
+		
+		else if(_LastError == 0x0) pushEvent("Error Cleared", false);
 		else{
 			std::string message = "Error " + getErrorCodeString(_LastError);
 			pushEvent(message.c_str(), true);
-			requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
+			
+			//EXPERIMENTAL
+			if(b_autoClearingFault){
+				//don't change the requested power state if we are clearing a fault
+			}else{
+				requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
+			}
+			
 		}
 	}
 	b_hasFault = ds402Status.hasFault() || _LastError != 0x0;
 	
+	
 	//react to power state change
 	if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED && actualPowerState != DS402::PowerState::OPERATION_ENABLED){
-		if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - enableRequestTime_nanoseconds > enableRequestTimeout_nanoseconds){
-			Logger::warn("{} : Enable Request Timeout", getName());
-			requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
+		//EXPERIMENTAL: don't change the requested power state if we are autoclearing a fault
+		if(!b_autoClearingFault){
+			if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - enableRequestTime_nanoseconds > enableRequestTimeout_nanoseconds){
+				Logger::warn("{} : Enable Request Timeout", getName());
+				requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
+			}
 		}
 	}
 
@@ -262,6 +294,8 @@ void Lexium32::readInputs() {
 	
 	
 	if(!isConnected()) 														servoMotor->state = MotionState::OFFLINE;
+	//EXPERIMENTAL
+	else if(b_autoClearingFault){ /*don't change the servo State*/ }
 	else if(b_hasFault && b_faultNeedsRestart) 								servoMotor->state = MotionState::OFFLINE;
 	else if(b_stoActive) 													servoMotor->state = MotionState::NOT_READY;
 	else if(!b_motorVoltagePresent) 										servoMotor->state = MotionState::NOT_READY;
@@ -369,8 +403,13 @@ void Lexium32::writeOutputs() {
 	if(b_isHoming && actualOperatingMode == DS402::OperatingMode::HOMING) ds402Control.setOperatingModeSpecificByte4(true);
 	else ds402Control.setOperatingModeSpecificByte4(false);
 	
+	//EXPERIMENTAL: auto reset fault if we are auto clearing fault
+	if(b_autoClearingFault && !b_isResettingFault){
+		b_isResettingFault = true;
+		ds402Control.performFaultReset();
+	}
 	//clear errors when we enable the power stage
-	if(b_hasFault && !b_isResettingFault && requestedPowerState == DS402::PowerState::OPERATION_ENABLED){
+	else if(b_hasFault && !b_isResettingFault && requestedPowerState == DS402::PowerState::OPERATION_ENABLED){
 		b_isResettingFault = true;
 		ds402Control.performFaultReset();
 	}else b_isResettingFault = false;
