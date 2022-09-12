@@ -152,9 +152,7 @@ void TargetAnimation::getCurvePositionRange(double& min, double& max){
 bool TargetAnimation::isAtTarget(){
 	if(!target->isValid()) return false;
 	auto animatable = getAnimatable();
-	auto actualValue = animatable->getActualValue();
-	auto targetValue = animatable->parameterValueToAnimationValue(target);
-	return animatable->isParameterValueEqual(actualValue, targetValue);
+	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(target), animatable->getTargetValue());
 }
 
 bool TargetAnimation::canRapidToTarget(){
@@ -175,7 +173,7 @@ bool TargetAnimation::canStartPlayback(){
 	if(!animatable->isReadyToMove()) return false;
 	auto actualValue = animatable->getActualValue();
 	auto targetValue = animatable->parameterValueToAnimationValue(target);
-	bool b_alreadyAtTarget = animatable->isParameterValueEqual(actualValue, targetValue); //BUG:
+	bool b_alreadyAtTarget = animatable->isParameterValueEqual(actualValue, targetValue);
 	return !b_alreadyAtTarget;
 	return true;
 }

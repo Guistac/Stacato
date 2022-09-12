@@ -8,7 +8,7 @@
 #include "Gui/Assets/Colors.h"
 #include "Gui/Utilities/CustomWidgets.h"
 
-void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const char* customName){
+void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const char* customName, bool invert){
 		
 	ImGui::BeginGroup();
 	
@@ -34,6 +34,7 @@ void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const cha
 	ImGui::VSliderScalar("##ManualVelocity", verticalSliderSize, ImGuiDataType_Double, &velocitySliderDisplayValue, &min, &max, "");
 	if (ImGui::IsItemActive()) {
 		float requestedVelocity = velocitySliderDisplayValue * velocityLimit;
+		if(invert) requestedVelocity *= -1.0;
 		setManualVelocityTarget(requestedVelocity);
 	}
 	else if (ImGui::IsItemDeactivatedAfterEdit()) {

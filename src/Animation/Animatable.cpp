@@ -79,7 +79,9 @@ void Animatable::rapidToValue(std::shared_ptr<AnimationValue> animationValue){
 }
 
 void Animatable::stopAnimation(){
-	if(currentAnimation) currentAnimation->stop();
+	if(currentAnimation) {
+		currentAnimation->stop();
+	}
 }
 
 

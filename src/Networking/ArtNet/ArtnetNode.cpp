@@ -121,12 +121,14 @@ void ArtNetNode::start(){
 				try {
 					
 					if(b_broadcast){
-						udpSocket->async_send_to(asio::buffer(buffer, bufferSize), broadcastEndpoint, [](asio::error_code error, size_t byteCount){
-							if(error) Logger::debug("failed to send Artnet boradcast dmw message: {}", error.message());
+						udpSocket->async_send_to(asio::buffer(buffer, bufferSize), broadcastEndpoint, [this](asio::error_code error, size_t byteCount){
+							if(error) b_isSending = false;
+							else b_isSending = true;
 						});
 					}else{
-						udpSocket->async_send(asio::buffer(buffer, bufferSize), [](asio::error_code error, size_t byteCount) {
-							if (error) Logger::debug("Failed to send ArtNet DMX Message: {}", error.message());
+						udpSocket->async_send(asio::buffer(buffer, bufferSize), [this](asio::error_code error, size_t byteCount) {
+							if(error) b_isSending = false;
+							else b_isSending = true;
 						});
 					}
 					
@@ -155,7 +157,7 @@ void ArtNetNode::disconnect(){
 }
 
 bool ArtNetNode::isConnected(){
-	return b_running;
+	return b_running && b_isSending;
 }
 
 bool ArtNetNode::isDetected(){

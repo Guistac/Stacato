@@ -63,7 +63,7 @@ public:
 	virtual std::shared_ptr<AnimationValue> getRapidTarget() override;
 	
 	virtual void onRapidToValue(std::shared_ptr<AnimationValue> animationValue) override;
-	virtual void onPlaybackStart() override;
+	virtual void onPlaybackStart(std::shared_ptr<Animation> animation) override;
 	virtual void onPlaybackPause() override;
 	virtual void onPlaybackStop() override;
 	virtual void onPlaybackEnd() override;
@@ -104,5 +104,14 @@ private:
 	std::vector<AnimatableStateStruct*>* allStates;
 	std::vector<AnimatableStateStruct*>* selectableStates;
 	AnimatableStateStruct* stoppedState;
+	
+	
+public:
+	
+	virtual std::string getTargetValueString() override{
+		static char targetstring[128];
+		sprintf(targetstring, "%s", getTargetValue()->toState()->value->displayName);
+		return std::string(targetstring);
+	}
 };
 

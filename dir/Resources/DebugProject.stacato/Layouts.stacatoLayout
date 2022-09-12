@@ -1,5 +1,5 @@
 <Layouts>
-    <Layout Name="Dual Screen" IsDefault="true">
+    <Layout Name="Dual Screen">
         <OpenWindows>
             <Window Name="Dashboard"/>
             <Window Name="Setup"/>
@@ -12,6 +12,7 @@
             <Window Name="EtherCAT Fieldbus"/>
         </OpenWindows>
         <ImGuiIniString>
+
 
 
 
@@ -424,183 +425,16 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Centr
 
 </ImGuiIniString>
     </Layout>
-    <Layout Name="Single Screen">
+    <Layout Name="Single Screen" IsDefault="true">
         <OpenWindows>
             <Window Name="Node Editor"/>
             <Window Name="Dashboard"/>
+            <Window Name="Manoeuvre List"/>
+            <Window Name="Playback Manager"/>
+            <Window Name="Track Sheet Editor"/>
+            <Window Name="Curve Editor"/>
         </OpenWindows>
         <ImGuiIniString>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -637,7 +471,7 @@ Collapsed=0
 Pos=0,29
 Size=2056,1144
 Collapsed=0
-DockId=0xD5272B65,0
+DockId=0x00000002,0
 
 [Window][Stage]
 Pos=419,32
@@ -654,7 +488,7 @@ ViewportPos=-1285,79
 ViewportId=0xF4DC17C2
 Size=2560,1080
 Collapsed=0
-DockId=0x0000000B,1
+DockId=0x0000000D,1
 
 [Window][Plot List]
 Pos=0,32
@@ -662,20 +496,16 @@ Size=417,881
 Collapsed=0
 
 [Window][Track Sheet Editor]
-ViewportPos=-775,66
-ViewportId=0xF4DC17C2
-Pos=502,0
-Size=1252,634
+Pos=438,29
+Size=1290,470
 Collapsed=0
-DockId=0x00000005,0
+DockId=0x00000002,2
 
 [Window][Curve Editor]
-ViewportPos=-775,66
-ViewportId=0xF4DC17C2
-Pos=900,0
-Size=854,1080
+Pos=438,501
+Size=1290,466
 Collapsed=0
-DockId=0x0000000D,0
+DockId=0x00000005,0
 
 [Window][Sequencer]
 Pos=1031,29
@@ -738,11 +568,10 @@ Size=393,168
 Collapsed=0
 
 [Window][Manoeuvre List]
-ViewportPos=-1285,79
-ViewportId=0xF4DC17C2
-Size=2560,1080
+Pos=0,371
+Size=436,596
 Collapsed=0
-DockId=0x0000000B,2
+DockId=0x0000000D,0
 
 [Window][Manoeuvre Sheet]
 Pos=0,32
@@ -790,10 +619,10 @@ Size=449,51
 Collapsed=0
 
 [Window][Dashboard]
-Pos=0,29
-Size=1728,938
+Pos=438,29
+Size=1290,470
 Collapsed=0
-DockId=0xD5272B65,0
+DockId=0x00000002,0
 
 [Window][Spatial Editor]
 Pos=0,29
@@ -832,13 +661,13 @@ ViewportId=0xF4DC17C2
 Pos=502,0
 Size=2058,1080
 Collapsed=0
-DockId=0x00000008,0
+DockId=0x0000000C,0
 
 [Window][Node Editor]
-Pos=0,29
-Size=1728,938
+Pos=438,29
+Size=1290,470
 Collapsed=0
-DockId=0xD5272B65,1
+DockId=0x00000002,1
 
 [Window][Node Manager]
 Pos=0,29
@@ -846,10 +675,12 @@ Size=639,938
 Collapsed=0
 
 [Window][EtherCAT Fieldbus]
+ViewportPos=0,66
+ViewportId=0xF4DC17C2
 Pos=0,29
 Size=974,938
 Collapsed=0
-DockId=0xD5272B65,2
+DockId=0x00000002,2
 
 [Window][Visualizer Script]
 Pos=732,487
@@ -870,12 +701,10 @@ Size=676,254
 Collapsed=0
 
 [Window][Playback Manager]
-ViewportPos=-775,66
-ViewportId=0xF4DC17C2
-Pos=502,0
-Size=1252,1080
+Pos=0,29
+Size=436,340
 Collapsed=0
-DockId=0x00000009,0
+DockId=0x00000008,0
 
 [Window][ESI Reader]
 Pos=0,29
@@ -887,13 +716,12 @@ ViewportPos=-1285,79
 ViewportId=0xF4DC17C2
 Size=2560,1080
 Collapsed=0
-DockId=0x0000000B,0
+DockId=0x0000000D,0
 
 [Window][Environnement Script]
-ViewportPos=1920,0
-ViewportId=0xF4DC17C2
-Pos=1756,0
-Size=804,437
+ViewportPos=423,257
+ViewportId=0x03A4500F
+Size=338,938
 Collapsed=0
 DockId=0x00000007,0
 
@@ -970,21 +798,19 @@ Column 4  Weight=1.0000
 Column 5  Weight=-1.0000
 
 [Docking][Data]
-DockNode          ID=0x0000000A Pos=-1285,79 Size=2560,1080 Split=X
-  DockNode        ID=0x0000000B Parent=0x0000000A SizeRef=500,939 Selected=0x27459703
-  DockNode        ID=0x0000000C Parent=0x0000000A SizeRef=2058,939 Split=X Selected=0xEE7B11E9
-    DockNode      ID=0x00000001 Parent=0x0000000C SizeRef=1252,1080 Split=Y Selected=0x47C7A3F3
-      DockNode    ID=0x00000005 Parent=0x00000001 SizeRef=1262,634 Selected=0x47C7A3F3
-      DockNode    ID=0x00000006 Parent=0x00000001 SizeRef=1262,444 Split=X Selected=0x8506A884
-        DockNode  ID=0x00000009 Parent=0x00000006 SizeRef=396,444 Selected=0x8E074A3E
-        DockNode  ID=0x0000000D Parent=0x00000006 SizeRef=854,444 Selected=0x8506A884
-    DockNode      ID=0x00000002 Parent=0x0000000C SizeRef=804,1080 Split=Y Selected=0xEE7B11E9
-      DockNode    ID=0x00000007 Parent=0x00000002 SizeRef=804,437 Selected=0x64F50EE5
-      DockNode    ID=0x00000008 Parent=0x00000002 SizeRef=804,641 Selected=0x2BD258E6
-DockSpace         ID=0x0B88F6CB Pos=0,146 Size=2056,967 Split=X Selected=0x20B12C37
-  DockNode        ID=0x00000003 Parent=0x0B88F6CB SizeRef=1029,484 CentralNode=1 Selected=0x20B12C37
-  DockNode        ID=0x00000004 Parent=0x0B88F6CB SizeRef=1025,484 Selected=0x3E6B10D2
-DockSpace         ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 CentralNode=1 Selected=0xAE98FAB7
+DockNode        ID=0x00000007 Pos=423,257 Size=338,938 HiddenTabBar=1 Selected=0xEE7B11E9
+DockSpace       ID=0x0B88F6CB Pos=0,146 Size=2056,967 Split=X Selected=0x20B12C37
+  DockNode      ID=0x00000003 Parent=0x0B88F6CB SizeRef=1029,484 CentralNode=1 Selected=0x20B12C37
+  DockNode      ID=0x00000004 Parent=0x0B88F6CB SizeRef=1025,484 Selected=0x3E6B10D2
+DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X Selected=0xAE98FAB7
+  DockNode      ID=0x0000000A Parent=0xD5272B65 SizeRef=436,938 Split=X
+    DockNode    ID=0x0000000B Parent=0x0000000A SizeRef=500,939 Split=Y Selected=0xEBD2820B
+      DockNode  ID=0x00000008 Parent=0x0000000B SizeRef=422,340 HiddenTabBar=1 Selected=0x8E074A3E
+      DockNode  ID=0x0000000D Parent=0x0000000B SizeRef=422,596 HiddenTabBar=1 Selected=0xEBD2820B
+    DockNode    ID=0x0000000C Parent=0x0000000A SizeRef=2058,939 Selected=0xEE7B11E9
+  DockNode      ID=0x0000000E Parent=0xD5272B65 SizeRef=1290,938 Split=Y Selected=0x47C7A3F3
+    DockNode    ID=0x00000002 Parent=0x0000000E SizeRef=1290,470 CentralNode=1 Selected=0x47C7A3F3
+    DockNode    ID=0x00000005 Parent=0x0000000E SizeRef=1290,466 HiddenTabBar=1 Selected=0x8506A884
 
 </ImGuiIniString>
     </Layout>
@@ -998,6 +824,7 @@ DockSpace         ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Central
             <Window Name="Environnement Script"/>
         </OpenWindows>
         <ImGuiIniString>
+
 
 
 

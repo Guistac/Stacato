@@ -131,6 +131,12 @@ void PositionControlledMachine::settingsGui() {
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Allow user to override encoder position");
 	ImGui::PopFont();
+	
+	invertControlGui->gui();
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Invert Control Gui");
+	ImGui::PopFont();
 }
 
 void PositionControlledMachine::axisGui() {}
@@ -176,7 +182,7 @@ void PositionControlledMachine::widgetGui(){
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
 	ImGui::BeginDisabled(!isEnabled());
 	
-	animatablePosition->manualControlsVerticalGui(ImGui::GetTextLineHeight() * 10.f);
+	animatablePosition->manualControlsVerticalGui(ImGui::GetTextLineHeight() * 10.f, nullptr, invertControlGui->value);
 	float controlsHeight = ImGui::GetItemRectSize().y;
 	
 	ImGui::SameLine();
@@ -197,6 +203,18 @@ void PositionControlledMachine::widgetGui(){
 		
 		drawing->AddRectFilled(min, max, ImColor(Colors::darkGray));
 		
+		auto getDrawingPosition = [&](double position) -> double{
+			if(!invertControlGui->value){
+				float y = min.y + size.y - animatablePosition->normalizePosition(position) * size.y;
+				return std::clamp(y, min.y, max.y);
+			}else{
+				float y = min.y + animatablePosition->normalizePosition(position) * size.y;
+				return std::clamp(y, min.y, max.y);
+			}
+		};
+		
+		glm::vec2 mouse = ImGui::GetMousePos();
+		
 		//draw keepout constraints
 		int keepoutConstraintCount = 0;
 		//count constraints to draw them side by side instead of stacking them
@@ -206,42 +224,60 @@ void PositionControlledMachine::widgetGui(){
 		float keepoutConstraintWidth = size.x / keepoutConstraintCount;
 		keepoutConstraintCount = 0;
 		for(auto& constraint : animatablePosition->getConstraints()){
-			int constraintX = min.x + keepoutConstraintCount * keepoutConstraintWidth;
+			int constraintXMin = std::round(min.x + keepoutConstraintCount * keepoutConstraintWidth);
 			if(constraint->getType() == AnimationConstraint::Type::KEEPOUT) keepoutConstraintCount++;
+			int constraintXMax = std::round(min.x + keepoutConstraintCount * keepoutConstraintWidth);
 			auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
-			double minKeepout = animatablePosition->normalizePosition(keepout->keepOutMinPosition);
-			double maxKeepout = animatablePosition->normalizePosition(keepout->keepOutMaxPosition);
-			double keepoutSize = maxKeepout - minKeepout;
-			glm::vec2 keepoutStartPos(constraintX, max.y - size.y * minKeepout);
-			glm::vec2 keepoutEndPos(constraintX + keepoutConstraintWidth, max.y - size.y * maxKeepout);
+			
+			double minKeepout = getDrawingPosition(keepout->keepOutMinPosition);
+			double maxKeepout = getDrawingPosition(keepout->keepOutMaxPosition);
+			
+			glm::vec2 keepoutStartPos(constraintXMin, minKeepout);
+			glm::vec2 keepoutEndPos(constraintXMax, maxKeepout);
 			ImColor constraintColor;
 			if(!constraint->isEnabled()) constraintColor = ImColor(1.f, 1.f, 1.f, .2f);
 			else constraintColor = ImColor(1.f, 0.f, 0.f, .4f);
 			drawing->AddRectFilled(keepoutStartPos, keepoutEndPos, constraintColor);
+			
+			
+			if(minKeepout > maxKeepout){
+				std::swap(keepoutStartPos.y, keepoutEndPos.y);
+			}
+			
+			if(mouse.x > keepoutStartPos.x && mouse.y > keepoutStartPos.y && mouse.x < keepoutEndPos.x && mouse.y < keepoutEndPos.y){
+				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0));
+				ImGui::BeginTooltip();
+				ImGui::Text("%s", keepout->getName().c_str());
+				ImGui::EndTooltip();
+				ImGui::PopStyleVar();
+			}
+			
+			
 		}
 		
 		float lineThickness = ImGui::GetTextLineHeight() * .15f;
 		//draw rapid target
 		if(animatablePosition->isInRapid()){
 			float rapidTarget = animatablePosition->getRapidTarget()->toPosition()->position;
-			float rapidTargetNormalized = animatablePosition->normalizePosition(rapidTarget);
-			float height = max.y - (max.y - min.y) * rapidTargetNormalized;
+			
+			float rapidTargetY = getDrawingPosition(rapidTarget);
+			
 			ImColor targetColor = ImColor(Colors::yellow);
-			drawing->AddLine(glm::vec2(min.x, height), glm::vec2(max.x, height), targetColor, lineThickness);
+			drawing->AddLine(glm::vec2(min.x, rapidTargetY), glm::vec2(max.x, rapidTargetY), targetColor, lineThickness);
 			float middleX = min.x + size.x * .5f;
 			float triangleSize = ImGui::GetTextLineHeight() * .4f;
-			drawing->AddTriangleFilled(glm::vec2(middleX, height),
-									   glm::vec2(middleX - triangleSize * .4f, height - triangleSize),
-									   glm::vec2(middleX + triangleSize * .4f, height - triangleSize),
+			drawing->AddTriangleFilled(glm::vec2(middleX, rapidTargetY),
+									   glm::vec2(middleX - triangleSize * .4f, rapidTargetY - triangleSize),
+									   glm::vec2(middleX + triangleSize * .4f, rapidTargetY - triangleSize),
 									   targetColor);
-			drawing->AddTriangleFilled(glm::vec2(middleX, height),
-									   glm::vec2(middleX + triangleSize * .4f, height + triangleSize),
-									   glm::vec2(middleX - triangleSize * .4f, height + triangleSize),
+			drawing->AddTriangleFilled(glm::vec2(middleX, rapidTargetY),
+									   glm::vec2(middleX + triangleSize * .4f, rapidTargetY + triangleSize),
+									   glm::vec2(middleX - triangleSize * .4f, rapidTargetY + triangleSize),
 									   targetColor);
 		}
 		
 		//draw braking position
-		float brakingPositionY = min.y + size.y - size.y * animatablePosition->normalizePosition(animatablePosition->getBrakingPosition());
+		float brakingPositionY = getDrawingPosition(animatablePosition->getBrakingPosition());
 		float triangleSize = ImGui::GetTextLineHeight() * .75f;
 		ImColor brakingPositionColor = ImColor(1.f, 1.f, 1.f, .3f);
 		drawing->AddLine(glm::vec2(min.x, brakingPositionY), glm::vec2(max.x - triangleSize, brakingPositionY), brakingPositionColor, lineThickness);
@@ -251,7 +287,7 @@ void PositionControlledMachine::widgetGui(){
 								   brakingPositionColor);
 		
 		//draw actual position
-		float axisPositionY = min.y + size.y - size.y * animatablePosition->getActualPositionNormalized();
+		float axisPositionY = getDrawingPosition(animatablePosition->getActualPosition());
 		drawing->AddLine(glm::vec2(min.x, axisPositionY), glm::vec2(max.x - triangleSize + 1.f, axisPositionY), ImColor(Colors::white), lineThickness);
 		drawing->AddTriangleFilled(glm::vec2(max.x, axisPositionY),
 								   glm::vec2(max.x - triangleSize, axisPositionY + triangleSize * .4f),
@@ -261,13 +297,17 @@ void PositionControlledMachine::widgetGui(){
 		//draw current constraint limits
 		double minPositionLimit, maxPositionLimit;
 		animatablePosition->getConstraintPositionLimits(minPositionLimit, maxPositionLimit);
-		double minPosition = max.y - size.y * animatablePosition->normalizePosition(minPositionLimit);
-		double maxPosition = max.y - size.y * animatablePosition->normalizePosition(maxPositionLimit);
+		
+		double minPosY = getDrawingPosition(minPositionLimit);
+		double maxPosY = getDrawingPosition(maxPositionLimit);
+		
+		
+		
 		ImColor limitLineColor = ImColor(0.f, 0.f, 0.f, .4f);
 		float limitLineThickness = ImGui::GetTextLineHeight() * .05f;
-		drawing->AddLine(ImVec2(min.x, minPosition), ImVec2(max.x, minPosition), limitLineColor, limitLineThickness);
-		drawing->AddLine(ImVec2(min.x, maxPosition), ImVec2(max.x, maxPosition), limitLineColor, limitLineThickness);
-		
+		drawing->AddLine(ImVec2(min.x, minPosY), ImVec2(max.x, minPosY), limitLineColor, limitLineThickness);
+		drawing->AddLine(ImVec2(min.x, maxPosY), ImVec2(max.x, maxPosY), limitLineColor, limitLineThickness);
+	
 	}
 	
 	ImGui::PopClipRect();

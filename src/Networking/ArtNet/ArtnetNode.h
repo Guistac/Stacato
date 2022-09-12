@@ -51,6 +51,7 @@ class ArtNetNode : public NetworkDevice{
 	void removeAllUniverses();
 	
 	bool b_running = false;
+	bool b_isSending = false;
 	
 	std::shared_ptr<NumberParameter<uint8_t>> ipAddress0 = NumberParameter<uint8_t>::make(192, "ArtNet IP Octet 0", "IpOctet0");
 	std::shared_ptr<NumberParameter<uint8_t>> ipAddress1 = NumberParameter<uint8_t>::make(168, "ArtNet IP Octet 1", "IpOctet1");

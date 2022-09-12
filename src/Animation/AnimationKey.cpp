@@ -62,9 +62,7 @@ bool AnimationKey::canRapidToPlaybackPosition(){
 bool AnimationKey::isAtPlaybackPosition(){
 	if(!isValid()) return false;
 	auto animatable = getAnimatable();
-	auto actualValue = animatable->getActualValue();
-	auto targetValue = animatable->parameterValueToAnimationValue(target);
-	return animatable->isParameterValueEqual(actualValue, targetValue);
+	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(target), animatable->getTargetValue());
 }
 
 bool AnimationKey::onRapidToPlaybackPosition(){

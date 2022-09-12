@@ -1,4 +1,5 @@
 <Environnement name="Default Environnement" notes="">
+
     <Dashboard Scale="0.94246483" OffsetX="1267.3557" OffsetY="-1025.1722" AutoFit="true" DrawGrid="false" LockEdit="true">
         <Widget Name="Flip G-J2" UniqueID="9" PositionX="-650" PositionY="1040" SizeX="136.49997" SizeY="228.40215"/>
         <Widget Name="Flip G-J1" UniqueID="10" PositionX="-510" PositionY="1040" SizeX="136.49997" SizeY="228.40215"/>
@@ -36,6 +37,7 @@
         <Widget Name="H.M. Cour" UniqueID="5" PositionX="478" PositionY="1459" SizeX="178.50002" SizeY="109.67858"/>
         <Widget Name="A.U." UniqueID="52" PositionX="486" PositionY="1231" SizeX="157.50003" SizeY="110.61444"/>
         <Widget Name="H.M. Jardin" UniqueID="4" PositionX="477" PositionY="1347" SizeX="178.50002" SizeY="110.26862"/>
+
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -2386,7 +2388,7 @@
                 <NodeEditorPosition x="2521" y="1960"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0.14999999999999999" LowerPositionLimit="0" UpperPositionLimit="12.1"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="true"/>
                     <ControWidget UniqueID="42"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2431,7 +2433,7 @@
                 <NodeEditorPosition x="3673" y="1968"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0.14999999999999999" LowerPositionLimit="0" UpperPositionLimit="12.100000104709775"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="true"/>
                     <ControWidget UniqueID="43"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2526,7 +2528,7 @@
                 <NodeEditorPosition x="3386" y="1440"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="true" AxisOffset="8.4403129449205228" LowerPositionLimit="0" UpperPositionLimit="7.8009075141739297"/>
-                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
+                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false"/>
                     <ControWidget UniqueID="45"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2542,7 +2544,7 @@
                 <NodeEditorPosition x="2300" y="1406"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="true" AxisOffset="8.4768315745165097" LowerPositionLimit="0" UpperPositionLimit="7.8039040498309769"/>
-                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false"/>
+                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false"/>
                     <ControWidget UniqueID="46"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2630,7 +2632,7 @@
             <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="PsnServer" Split="false" CustomName="PSN" UniqueID="2681">
                 <NodeEditorPosition x="-1824" y="3527"/>
                 <NodeSpecificData>
-                    <Network ServerName="Stacato PSN Server" IpOctet0="236" IpOctet1="10" IpOctet2="10" IpOctet3="10" Port="56565" InfoPacketSendingFrequency="1" DataPacketSendingFrequency="100" NetworkIpOctet0="192" NetworkIpOctet1="168" NetworkIpOctet2="31" NetworkIpOctet3="51" NetworkMaskOctet0="255" NetworkMaskOctet1="255" NetworkMaskOctet2="255" NetworkMaskOctet3="0"/>
+                    <Network ServerName="Stacato PSN Server" DestinationIpOctet0="236" DestinationIpOctet1="10" DestinationIpOctet2="10" DestinationIpOctet3="10" Port="56565" LocalIpOctet0="192" LocalIpOctet1="168" LocalIpOctet2="31" LocalIpOctet3="51" InfoPacketSendingFrequency="1" DataPacketSendingFrequency="100"/>
                     <Script>
 --Default PSN Server Script
 

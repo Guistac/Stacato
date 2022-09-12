@@ -330,9 +330,19 @@ void AnimatablePosition::onSetManualControlTarget(float x, float y, float z){
 	setVelocityTarget(velocityLimit * x);
 }
 
-void AnimatablePosition::onPlaybackStart(){}
-void AnimatablePosition::onPlaybackPause(){}
-void AnimatablePosition::onPlaybackStop(){ setVelocityTarget(0.0); }
+void AnimatablePosition::onPlaybackStart(std::shared_ptr<Animation> animation){
+	const std::lock_guard<std::mutex> lock(mutex);
+	currentAnimation = animation;
+}
+void AnimatablePosition::onPlaybackPause(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	currentAnimation = nullptr;
+}
+void AnimatablePosition::onPlaybackStop(){
+	const std::lock_guard<std::mutex> lock(mutex);
+	currentAnimation = nullptr;
+	setVelocityTarget(0.0);
+}
 void AnimatablePosition::onPlaybackEnd(){}
 
 

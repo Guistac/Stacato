@@ -40,28 +40,28 @@ void PsnServer::networkSettingsGui(){
 	float octetFieldWidth = ImGui::CalcTextSize("000").x + ImGui::GetStyle().FramePadding.x * 2.f;
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .05f));
 	ImGui::SetNextItemWidth(octetFieldWidth);
-	ipAddress0->gui();
+	destinationIp0->gui();
 	ImGui::SameLine();
 	ImGui::Text(".");
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(octetFieldWidth);
-	ipAddress1->gui();
+	destinationIp1->gui();
 	ImGui::SameLine();
 	ImGui::Text(".");
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(octetFieldWidth);
-	ipAddress2->gui();
+	destinationIp2->gui();
 	ImGui::SameLine();
 	ImGui::Text(".");
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(octetFieldWidth);
-	ipAddress3->gui();
+	destinationIp3->gui();
 	ImGui::SameLine();
 	ImGui::Text(":");
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(ImGui::CalcTextSize("00000").x + ImGui::GetStyle().FramePadding.x * 2.f);
 	ImGui::PopStyleVar();
-	portNumber->gui();
+	destinationPortNumber->gui();
 	
 	ImGui::SameLine();
 	if(ImGui::Button("Reset to PSN Defaults")) setDefaultAddressSettings();
@@ -74,53 +74,28 @@ void PsnServer::networkSettingsGui(){
 	
 	
 	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Network");
+	ImGui::Text("Local Ip");
 	ImGui::PopFont();
 	
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .05f));
 	ImGui::SetNextItemWidth(octetFieldWidth);
-	networkIpAddress0->gui();
+	localIp0->gui();
 	ImGui::SameLine();
 	ImGui::Text(".");
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(octetFieldWidth);
-	networkIpAddress1->gui();
+	localIp1->gui();
 	ImGui::SameLine();
 	ImGui::Text(".");
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(octetFieldWidth);
-	networkIpAddress2->gui();
+	localIp2->gui();
 	ImGui::SameLine();
 	ImGui::Text(".");
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(octetFieldWidth);
-	networkIpAddress3->gui();
+	localIp3->gui();
 	ImGui::PopStyleVar();
-	
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Network Mask");
-	ImGui::PopFont();
-	
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .05f));
-	ImGui::SetNextItemWidth(octetFieldWidth);
-	networkMask0->gui();
-	ImGui::SameLine();
-	ImGui::Text(".");
-	ImGui::SameLine();
-	ImGui::SetNextItemWidth(octetFieldWidth);
-	networkMask1->gui();
-	ImGui::SameLine();
-	ImGui::Text(".");
-	ImGui::SameLine();
-	ImGui::SetNextItemWidth(octetFieldWidth);
-	networkMask2->gui();
-	ImGui::SameLine();
-	ImGui::Text(".");
-	ImGui::SameLine();
-	ImGui::SetNextItemWidth(octetFieldWidth);
-	networkMask3->gui();
-	ImGui::PopStyleVar();
-	
 	
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Info Packet sending frequency");
