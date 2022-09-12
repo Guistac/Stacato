@@ -610,6 +610,7 @@
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Key" Target="29.999999848848052"/>
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Anneau" IsComposite="false" Type="Key" Target="3.4692990594327478e-05"/>
         </Manoeuvre>
+        <Manoeuvre Name="1 - Montée Romaine" Description="" Type="Target"/>
         <Manoeuvre Name="2. Ouverture" Description="Tournette Piano" Type="Target">
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="90" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
