@@ -16,8 +16,7 @@
 namespace EtherCatFieldbus {
 
 	//EXPERIMENTAL SETTINGS
-	bool b_bruteForceRealtime = true;
-	bool b_usePosixRealtimeThread = false;
+	bool b_usePosixRealtimeThread = true;
 	pthread_t rtThread;
 	int stackSize = 65536;
 
@@ -771,20 +770,19 @@ namespace EtherCatFieldbus {
 
             //======================= THREAD TIMING =========================
 
-			if(b_bruteForceRealtime){
-			
             //bruteforce timing precision by using 100% of CPU core
             //update and compare system time to next process 
             do { systemTime_nanoseconds = Timing::getProgramTime_nanoseconds(); } while (systemTime_nanoseconds < cycleStartTime_nanoseconds);
 			
-			}else{
-				systemTime_nanoseconds = Timing::getProgramTime_nanoseconds();
-				long long sleepTime_nanoseconds = cycleStartTime_nanoseconds - systemTime_nanoseconds;
-				uint32_t sleepTime_microseconds = sleepTime_nanoseconds / 1000;
-				if(sleepTime_microseconds > 0) osal_usleep(sleepTime_microseconds);
-				systemTime_nanoseconds = Timing::getProgramTime_nanoseconds();
-			}
-				
+            //sleep timing instead of bruteforce timing
+            /*
+            systemTime_nanoseconds = Timing::getProgramTime_nanoseconds();
+            long long sleepTime_nanoseconds = cycleStartTime_nanoseconds - systemTime_nanoseconds;
+            uint32_t sleepTime_microseconds = sleepTime_nanoseconds / 1000;
+            if(sleepTime_microseconds > 0) osal_usleep(sleepTime_microseconds);
+            systemTime_nanoseconds = Timing::getProgramTime_nanoseconds();
+             */
+		
             //============= PROCESS DATA SENDING AND RECEIVING ==============
 
             ec_send_processdata();

@@ -16,7 +16,6 @@ struct ProgressIndicator;
 namespace EtherCatFieldbus {
 
 	//EXPERIMENTAL SETTINGS
-	extern bool b_bruteForceRealtime;
 	extern bool b_usePosixRealtimeThread;
 
 
